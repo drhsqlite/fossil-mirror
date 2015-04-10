@@ -2289,7 +2289,7 @@ static void print_setting(const Setting *pSetting){
     /* Check to see if this is overridden by a versionable settings file */
     Blob versionedPathname;
     blob_zero(&versionedPathname);
-    blob_appendf(&versionedPathname, "%s/.fossil-settings/%s",
+    blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
                  g.zLocalRoot, pSetting->name);
     if( file_size(blob_str(&versionedPathname))>=0 ){
       fossil_print("  (overridden by contents of file .fossil-settings/%s)\n",

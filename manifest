@@ -1,5 +1,5 @@
-C Restore\sthe\s--soft/--hard\soption\sprocessing\sfor\smv/rm,\swhich\swas\sremoved\sby\smistake.
-D 2015-04-10T00:27:39.794
+C Remove\ssuperfluous\sslash\sfrom\s'.fossil-settings'\spath\sconstruction\sin\sprint_setting().
+D 2015-04-10T00:45:20.845
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -397,7 +397,7 @@ F src/content.c 49fd70d3136fbeb4794b7ef2f76c977c3ea77013
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 49bdf45204ea934f189f78c0b22f014c4260556b
+F src/db.c 346b011fd2b8d544728f22afaffd7722c7519a01
 F src/delta.c e8de840f518dca8a6641f34eae115c8f9ca36004
 F src/deltacmd.c 4ac36378bf7b772d3bd67954212eb98be121961b
 F src/descendants.c e5303b9fef3d21da1cd753b19c4f201dd9381090
@@ -734,7 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 3c941ddc3674cd0f71a38b6b0d374a0c995233c7
-R e3dcff1bf6a546119a613200544551bf
+P 86212ecee3853da2f07cad046d36dd1a7a464aca
+R 8cdeb3404d93876f222fffe7b1ddc6d6
 U mistachkin
-Z d8e48b83c93e7001e2d7ad9af8dacf1a
+Z 5acfa2b2de3f1bfa337cc41de5a6524e
