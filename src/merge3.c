@@ -262,7 +262,7 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
     {
       /* We have found a region where different edits to V1 and V2 overlap.
       ** This is a merge conflict.  Find the size of the conflict, then
-      ** output both possible edits separate by distinctive marks.
+      ** output both possible edits separated by distinctive marks.
       */
       int sz = 1;    /* Size of the conflict in lines */
       nConflict++;
