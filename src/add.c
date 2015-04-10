@@ -368,20 +368,38 @@ void add_cmd(void){
   db_end_transaction(0);
 }
 
-static void init_files_to_remove(){
-  db_multi_exec("CREATE TEMP TABLE fremove(x TEXT PRIMARY KEY %s)",
-                filename_collation());
-}
-
+/*
+** This function adds a file to list of files to delete from disk after
+** the other actions required for the parent operation have completed
+** successfully.  The first time it is called for the current process,
+** it creates a temporary table named "fremove", to keep track of these
+** files.
+*/
 static void add_file_to_remove(
   const char *zOldName /* The old name of the file on disk. */
 ){
+  static int tableCreated = 0;
   Blob fullOldName;
+  if( !tableCreated ){
+    db_multi_exec("CREATE TEMP TABLE fremove(x TEXT PRIMARY KEY %s)",
+                  filename_collation());
+    tableCreated = 1;
+  }
   file_canonical_name(zOldName, &fullOldName, 0);
   db_multi_exec("INSERT INTO fremove VALUES('%q');", blob_str(&fullOldName));
   blob_reset(&fullOldName);
 }
 
+/*
+** This function deletes files from the checkout, using the file names
+** contained in the temporary table "fremove".  The temporary table is
+** created on demand by the add_file_to_remove() function.
+**
+** If dryRunFlag is non-zero, no files will be removed; however, their
+** names will still be output.
+**
+** The temporary table "fremove" is dropped after being processed.
+*/
 static void process_files_to_remove(
   int dryRunFlag /* Zero to actually operate on the file-system. */
 ){
@@ -476,7 +494,6 @@ void delete_cmd(void){
     removeFiles = FOSSIL_RM_CHECKOUT_FILE_ON_RM;
 #endif
   }
-  if( removeFiles ) init_files_to_remove();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
                 filename_collation());
   for(i=2; i<g.argc; i++){
@@ -738,17 +755,25 @@ static void mv_one_file(
   }
 }
 
-static void init_files_to_move(){
-  db_multi_exec("CREATE TEMP TABLE fmove(x TEXT PRIMARY KEY %s, y TEXT %s)",
-                filename_collation(), filename_collation());
-}
-
+/*
+** This function adds a file to list of files to move on disk after the
+** other actions required for the parent operation have completed
+** successfully.  The first time it is called for the current process,
+** it creates a temporary table named "fmove", to keep track of these
+** files.
+*/
 static void add_file_to_move(
   const char *zOldName, /* The old name of the file on disk. */
   const char *zNewName  /* The new name of the file on disk. */
 ){
+  static int tableCreated = 0;
   Blob fullOldName;
   Blob fullNewName;
+  if( !tableCreated ){
+    db_multi_exec("CREATE TEMP TABLE fmove(x TEXT PRIMARY KEY %s, y TEXT %s)",
+                  filename_collation(), filename_collation());
+    tableCreated = 1;
+  }
   file_canonical_name(zOldName, &fullOldName, 0);
   file_canonical_name(zNewName, &fullNewName, 0);
   db_multi_exec("INSERT INTO fmove VALUES('%q','%q');",
@@ -757,6 +782,16 @@ static void add_file_to_move(
   blob_reset(&fullOldName);
 }
 
+/*
+** This function moves files within the checkout, using the file names
+** contained in the temporary table "fmove".  The temporary table is
+** created on demand by the add_file_to_move() function.
+**
+** If dryRunFlag is non-zero, no files will be moved; however, their
+** names will still be output.
+**
+** The temporary table "fmove" is dropped after being processed.
+*/
 static void process_files_to_move(
   int dryRunFlag /* Zero to actually operate on the file-system. */
 ){
@@ -853,7 +888,6 @@ void mv_cmd(void){
     moveFiles = FOSSIL_MV_CHECKOUT_FILE_ON_MV;
 #endif
   }
-  if( moveFiles ) init_files_to_move();
   file_tree_name(zDest, &dest, 1);
   db_multi_exec(
     "UPDATE vfile SET origname=pathname WHERE origname IS NULL;"
