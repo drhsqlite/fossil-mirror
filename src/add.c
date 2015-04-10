@@ -436,9 +436,13 @@ void delete_cmd(void){
   int i;
   int removeFiles;
   int dryRunFlag;
+  int softFlag;
+  int hardFlag;
   Stmt loop;
 
   dryRunFlag = find_option("dry-run","n",0)!=0;
+  softFlag = find_option("soft",0,0)!=0;
+  hardFlag = find_option("hard",0,0)!=0;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -447,6 +451,10 @@ void delete_cmd(void){
   db_begin_transaction();
   if( g.argv[1][0]=='f' ){ /* i.e. "forget" */
     removeFiles = 0;
+  }else if( softFlag ){
+    removeFiles = 0;
+  }else if( hardFlag ){
+    removeFiles = 1;
   }else{
 #if FOSSIL_ENABLE_LEGACY_MV_RM
     removeFiles = db_get_boolean("mv-rm-files",0);
@@ -812,12 +820,16 @@ void mv_cmd(void){
   int vid;
   int moveFiles;
   int dryRunFlag;
+  int softFlag;
+  int hardFlag;
   char *zDest;
   Blob dest;
   Stmt q;
 
   db_must_be_within_tree();
   dryRunFlag = find_option("dry-run","n",0)!=0;
+  softFlag = find_option("soft",0,0)!=0;
+  hardFlag = find_option("hard",0,0)!=0;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -833,6 +845,10 @@ void mv_cmd(void){
   db_begin_transaction();
   if( g.argv[1][0]=='r' ){ /* i.e. "rename" */
     moveFiles = 0;
+  }else if( softFlag ){
+    moveFiles = 0;
+  }else if( hardFlag ){
+    moveFiles = 1;
   }else{
 #if FOSSIL_ENABLE_LEGACY_MV_RM
     moveFiles = db_get_boolean("mv-rm-files",0);
