@@ -27,35 +27,19 @@
 /*
 ** WARNING: For Fossil version 1.x this value was always zero.  For Fossil
 **          2.x, it will probably always be one.  When this value is zero,
-**          files in the checkout will not be moved by the "mv" command.
-**
-**          If the FOSSIL_ENABLE_LEGACY_MV_RM compile-time option is used,
-**          the "move-files" setting will be consulted instead of using
-**          this value.
-**
-**          To retain the Fossil version 1.x behavior when using Fossil 2.x,
-**          the FOSSIL_ENABLE_LEGACY_MV_RM compile-time option must be used
-**          -AND- the "move-files" setting must be set to zero.
-*/
-#ifndef FOSSIL_MV_CHECKOUT_FILE_ON_MV
-#define FOSSIL_MV_CHECKOUT_FILE_ON_MV            (0)
-#endif
-
-/*
-** WARNING: For Fossil version 1.x this value was always zero.  For Fossil
-**          2.x, it will probably always be one.  When this value is zero,
+**          files in the checkout will not be moved by the "mv" command and
 **          files in the checkout will not be removed by the "rm" command.
 **
 **          If the FOSSIL_ENABLE_LEGACY_MV_RM compile-time option is used,
-**          the "remove-files" setting will be consulted instead of using
+**          the "mv-rm-files" setting will be consulted instead of using
 **          this value.
 **
 **          To retain the Fossil version 1.x behavior when using Fossil 2.x,
 **          the FOSSIL_ENABLE_LEGACY_MV_RM compile-time option must be used
-**          -AND- the "remove-files" setting must be set to zero.
+**          -AND- the "mv-rm-files" setting must be set to zero.
 */
-#ifndef FOSSIL_RM_CHECKOUT_FILE_ON_RM
-#define FOSSIL_RM_CHECKOUT_FILE_ON_RM            (0)
+#ifndef FOSSIL_MV_RM_FILE
+#define FOSSIL_MV_RM_FILE                        (0)
 #endif
 
 /*
@@ -417,22 +401,6 @@ static void process_files_to_remove(
 }
 
 /*
-** Capture the command-line --metadata-only option.
-*/
-static const char *zMetadataOnly = 0;
-void capture_metadata_only_option(void){
-  if( zMetadataOnly==0 ){
-    zMetadataOnly = find_option("metadata-only",0,1);
-    if( find_option("soft",0,0) && zMetadataOnly==0 ){
-      zMetadataOnly = "1";
-    }
-    if( find_option("hard",0,0) && zMetadataOnly==0 ){
-      zMetadataOnly = "0";
-    }
-  }
-}
-
-/*
 ** COMMAND: rm
 ** COMMAND: delete
 ** COMMAND: forget*
@@ -445,21 +413,17 @@ void capture_metadata_only_option(void){
 ** disk.  They just mark the files as no longer being part of the project.
 ** In other words, future changes to the named files will not be versioned.
 ** However, the default behavior of this command may be overridden via the
-** command line options listed below and/or the 'remove-files' setting.
+** command line options listed below and/or the 'mv-rm-files' setting.
 **
 ** The 'forget' command never removes files from disk, even when the command
-** line options and/or the 'remove-files' setting would otherwise require it
+** line options and/or the 'mv-rm-files' setting would otherwise require it
 ** to do so.
 **
-** WARNING: If either the "--metadata-only 0" or "--hard" option is
-**          specified -OR- the "remove-files" setting is non-zero,
-**          files WILL BE removed from disk as well.  This does NOT
-**          apply to the 'forget' command.
+** WARNING: If the "--hard" option is specified -OR- the "mv-rm-files"
+**          setting is non-zero, files WILL BE removed from disk as well.
+**          This does NOT apply to the 'forget' command.
 **
 ** Options:
-**   --metadata-only <BOOL>  Non-zero to skip removing files from the
-**                           checkout.  Supersedes both the --soft and
-**                           --hard options.
 **   --soft                  Skip removing files from the checkout.
 **                           This supersedes the --hard option.
 **   --hard                  Remove files from the checkout.
@@ -476,8 +440,6 @@ void delete_cmd(void){
 
   dryRunFlag = find_option("dry-run","n",0)!=0;
 
-  capture_metadata_only_option();
-
   /* We should be done with options.. */
   verify_all_options();
 
@@ -485,13 +447,11 @@ void delete_cmd(void){
   db_begin_transaction();
   if( g.argv[1][0]=='f' ){ /* i.e. "forget" */
     removeFiles = 0;
-  }else if( zMetadataOnly ){
-    removeFiles = is_false(zMetadataOnly);
   }else{
 #if FOSSIL_ENABLE_LEGACY_MV_RM
-    removeFiles = db_get_boolean("remove-files",0);
+    removeFiles = db_get_boolean("mv-rm-files",0);
 #else
-    removeFiles = FOSSIL_RM_CHECKOUT_FILE_ON_RM;
+    removeFiles = FOSSIL_MV_RM_FILE;
 #endif
   }
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
@@ -828,21 +788,17 @@ static void process_files_to_move(
 ** This command merely records the fact that file names have changed so
 ** that appropriate notations can be made at the next commit/check-in.
 ** However, the default behavior of this command may be overridden via
-** command line options listed below and/or the 'move-files' setting.
+** command line options listed below and/or the 'mv-rm-files' setting.
 **
 ** The 'rename' command never renames or moves files on disk, even when the
-** command line options and/or the 'move-files' setting would otherwise
+** command line options and/or the 'mv-rm-files' setting would otherwise
 ** require it to do so.
 **
-** WARNING: If either the "--metadata-only 0" or "--hard" option is
-**          specified -OR- the "move-files" setting is non-zero,
-**          files WILL BE renamed or moved on disk as well.  This does
-**          NOT apply to the 'rename' command.
+** WARNING: If the "--hard" option is specified -OR- the "mv-rm-files"
+**          setting is non-zero, files WILL BE renamed or moved on disk
+**          as well.  This does NOT apply to the 'rename' command.
 **
 ** Options:
-**   --metadata-only <BOOL>  Non-zero to skip moving files within the
-**                           checkout.  Supersedes both the --soft and
-**                           --hard options.
 **   --soft                  Skip moving files within the checkout.
 **                           This supersedes the --hard option.
 **   --hard                  Move files within the checkout.
@@ -863,8 +819,6 @@ void mv_cmd(void){
   db_must_be_within_tree();
   dryRunFlag = find_option("dry-run","n",0)!=0;
 
-  capture_metadata_only_option();
-
   /* We should be done with options.. */
   verify_all_options();
 
@@ -879,13 +833,11 @@ void mv_cmd(void){
   db_begin_transaction();
   if( g.argv[1][0]=='r' ){ /* i.e. "rename" */
     moveFiles = 0;
-  }else if( zMetadataOnly ){
-    moveFiles = is_false(zMetadataOnly);
   }else{
 #if FOSSIL_ENABLE_LEGACY_MV_RM
-    moveFiles = db_get_boolean("move-files",0);
+    moveFiles = db_get_boolean("mv-rm-files",0);
 #else
-    moveFiles = FOSSIL_MV_CHECKOUT_FILE_ON_MV;
+    moveFiles = FOSSIL_MV_RM_FILE;
 #endif
   }
   file_tree_name(zDest, &dest, 1);

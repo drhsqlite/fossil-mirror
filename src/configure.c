@@ -130,8 +130,7 @@ static struct {
   { "dotfiles",               CONFIGSET_PROJ },
 
 #ifdef FOSSIL_ENABLE_LEGACY_MV_RM
-  { "move-files",             CONFIGSET_PROJ },
-  { "remove-files",           CONFIGSET_PROJ },
+  { "mv-rm-files",            CONFIGSET_PROJ },
 #endif
 
   { "ticket-table",           CONFIGSET_TKT  },
