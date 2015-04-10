@@ -2364,6 +2364,9 @@ const Setting aSetting[] = {
   { "max-loadavg",      0,             25, 0, 0, "0.0"                 },
   { "max-upload",       0,             25, 0, 0, "250000"              },
   { "mtime-changes",    0,              0, 0, 0, "on"                  },
+#if FOSSIL_ENABLE_LEGACY_MV_RM
+  { "mv-rm-files",      0,              0, 0, 0, "off"                 },
+#endif
   { "pgp-command",      0,             40, 0, 0, "gpg --clearsign -o " },
   { "proxy",            0,             32, 0, 0, "off"                 },
   { "relative-paths",   0,              0, 0, 0, "on"                  },
@@ -2574,6 +2577,12 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **
 **    mtime-changes    Use file modification times (mtimes) to detect when
 **                     files have been modified.  (Default "on".)
+**
+**    mv-rm-files      If enabled (and Fossil was compiled with legacy "mv/rm"
+**                     support), the "mv" and "rename" commands will also move
+**                     the associated files within the checkout -AND- the "rm"
+**                     and "delete" commands will also remove the associated
+**                     files from within the checkout.  Default: off.
 **
 **    pgp-command      Command used to clear-sign manifests at check-in.
 **                     The default is "gpg --clearsign -o ".
