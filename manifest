@@ -1,5 +1,5 @@
-C Minor\scorrection\sto\scomment,\sno\scode\schange.
-D 2015-04-10T05:31:08.191
+C Add\sa\swarning\sto\s"fossil\supdate"\swhen\sa\sfork\shas\soccurred.
+D 2015-04-10T07:55:02.314
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -451,7 +451,7 @@ F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 45f6e06e03e4183764067eec37ff73f357303306
 F src/markdown_html.c 29e42640edab9c60dc2222f52b62da3bc3c3f81d
 F src/md5.c c6f6b5df8001ab094e5f49416fc2aa3019823d69
-F src/merge.c 4c3894827ab19c2865045c2ea10faabe4d954054
+F src/merge.c d7ca3f928dde740d87bacfa2c83a44c508b005db
 F src/merge3.c b2502f631c761f2c606f4fad6c8aa00bc2a5f4a7
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
@@ -499,7 +499,7 @@ F src/tktsetup.c c4682befe7fdf7864eb45e003ac3920316a1c87a
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
 F src/undo.c 463d3968fdd2cb7052bf351e9b028ad0dd556b10
 F src/unicode.c 471c170c6ca090967e68ffa51010d79233b9ff1b
-F src/update.c 2f07b299aa50abfe26dc399b6b66390079233327
+F src/update.c 9f50f852068cd21fcd2aaf238b64eb187567c465
 F src/url.c 47dc39f0201a184fb2d330e49957724157319f22
 F src/user.c 21c6f2ccdb080b50c55866afdcb7db445c30c5da
 F src/utf8.c cb3a7d214d1eea0919fc68b0683388d1cf61c78b
@@ -734,7 +734,10 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P fad1dd0a8ed0a77a71595bc46d715c06ec6a6c5a
-R 8a9a79f6f6a45c276b38f788694aa1ca
-U andybradford
-Z b1858d8b12e0eadc8e1638e8289f2890
+P d397f1cdc4a86300fc96ae1d57c4d8632272f450
+R 2a4e6194faaf11d6077efc3365474e78
+T *branch * update-fork-warn
+T *sym-update-fork-warn *
+T -sym-trunk *
+U jan.nijtmans
+Z a082e0764e7aa3dee514e58d516e62a1

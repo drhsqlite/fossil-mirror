@@ -562,6 +562,9 @@ void update_cmd(void){
     if( nMerge ){
       fossil_warning("WARNING: %d uncommitted prior merges", nMerge);
     }
+    if( fossil_find_nearest_fork(tid) ){
+      fossil_warning("WARNING: fork detected, please do a \"fossil merge\"");
+    }
   }
 
   /*
