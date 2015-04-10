@@ -117,15 +117,15 @@ int show_common_info(
   if( zUuid ){
     fossil_print("%-13s ", "leaf:");
     if( is_a_leaf(rid) ){
-      if( fossil_find_nearest_fork(rid) ){
+      if( db_int(0, "SELECT 1 FROM tagxref AS tx"
+                    " WHERE tx.rid=%d"
+                    " AND tx.tagid=%d"
+                    " AND tx.tagtype>0",
+                    rid, TAG_CLOSED)){
+        fossil_print("%s\n", "closed");
+      }else if( fossil_find_nearest_fork(rid) ){
         fossil_print("%s\n", "fork");
         isFork = 1;
-      }else if(db_int(0, "SELECT 1 FROM tagxref AS tx"
-                " WHERE tx.rid=%d"
-                " AND tx.tagid=%d"
-                " AND tx.tagtype>0",
-                rid, TAG_CLOSED)){
-        fossil_print("%s\n", "closed");
       }else{
         fossil_print("%s\n", "open");
       }

@@ -1,5 +1,5 @@
-C Display\s"fork"\sstatus\son\s"fossil\sinfo",\s"fossil\sstatus"\sand\srelated\scommands\sas\swell.
-D 2015-04-10T16:35:51.170
+C Only\scheck\sfor\sforks\son\s"open"\sleaves,\swe\scannot\sdo\sanything\sabout\sit\sfrom\shere\sanyway.\sThanks\sto\sAndy\sBradford\sfor\snoticing\sthis.
+D 2015-04-10T17:33:18.465
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -420,7 +420,7 @@ F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
 F src/import.c 39947d8db7449d3e73b121de4c1196e33138508c
-F src/info.c 41d7bf5aed736d86721a448a3b49c625e82e8931
+F src/info.c 234eee0f5d80f033eb0e78a76de32e3006c88812
 F src/json.c f3969a835cdd4256e55882e66c9505605c9a2135
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -734,7 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 32998a20f90bc6a235fde171d32a7499a4487055
-R b51036267b07238bd07ebc78aff61c8a
+P 11b7fa691499c0475cdde809337b67caacb0e5a8
+R ec914d83ddabf05f12b650df9777cf62
 U jan.nijtmans
-Z 4b5053c7a3d869545e47dcbe225631bd
+Z fa52a323e6a1f140138ced5af29f247d
