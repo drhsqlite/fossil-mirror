@@ -932,6 +932,7 @@ void page_xfer(void){
   int isPull = 0;
   int isPush = 0;
   int nErr = 0;
+  int fForkSeen = 0;    /* True if fork was seen while receiving content */
   Xfer xfer;
   int deltaFlag = 0;
   int isClone = 0;
@@ -1005,7 +1006,7 @@ void page_xfer(void){
       }
       xfer_accept_file(&xfer, 0, pzUuidList, pnUuidList);
       if( xfer.fHasFork ){
-        @ message ******\sWARNING:\sa\sfork\shas\soccurred\s******
+        fForkSeen = 1;
       }
       if( blob_size(&xfer.err) ){
         cgi_reset_content();
@@ -1029,7 +1030,7 @@ void page_xfer(void){
       }
       xfer_accept_compressed_file(&xfer, pzUuidList, pnUuidList);
       if( xfer.fHasFork ){
-        @ message ******\sWARNING:\sa\sfork\shas\soccurred\s******
+        fForkSeen = 1;
       }
       if( blob_size(&xfer.err) ){
         cgi_reset_content();
@@ -1313,6 +1314,9 @@ void page_xfer(void){
     blobarray_reset(xfer.aToken, xfer.nToken);
     blob_reset(&xfer.line);
   }
+  if( fForkSeen ){
+    @ message *****\s\sWARNING:\sa\sfork\shas\soccurred\s\s*****
+  }
   if( isPush ){
     if( rc==TH_OK ){
       rc = xfer_run_script(zScript, zUuidList, 1);
@@ -1451,6 +1455,7 @@ int client_sync(
   const char *zSCode = db_get("server-code", "x");
   const char *zPCode = db_get("project-code", 0);
   int nErr = 0;           /* Number of errors */
+  int fForkSeen = 0;      /* True if a fork was seen during pull */
   int nRoundtrip= 0;      /* Number of HTTP requests */
   int nArtifactSent = 0;  /* Total artifacts sent */
   int nArtifactRcvd = 0;  /* Total artifacts received */
@@ -1666,6 +1671,7 @@ int client_sync(
         continue;
       }
       xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken, count(xfer.aToken));
+      xfer.fHasFork = 0;
       nCardRcvd++;
       if( (syncFlags & SYNC_VERBOSE)!=0 && recv.nUsed>0 ){
         pctDone = (recv.iCursor*100)/recv.nUsed;
@@ -1683,6 +1689,9 @@ int client_sync(
       */
       if( blob_eq(&xfer.aToken[0],"file") ){
         xfer_accept_file(&xfer, (syncFlags & SYNC_CLONE)!=0, 0, 0);
+        if( (syncFlags & SYNC_PULL) && xfer.fHasFork ){
+          fForkSeen = 1;
+        }
         nArtifactRcvd++;
       }else
 
@@ -1693,6 +1702,9 @@ int client_sync(
       */
       if( blob_eq(&xfer.aToken[0],"cfile") ){
         xfer_accept_compressed_file(&xfer, 0, 0);
+        if( (syncFlags & SYNC_PULL) && xfer.fHasFork ){
+          fForkSeen = 1;
+        }
         nArtifactRcvd++;
       }else
 
@@ -1965,6 +1977,9 @@ int client_sync(
     }
     db_end_transaction(0);
   };
+  if( fForkSeen ){
+    fossil_warning("***** WARNING: a fork has occurred *****");
+  }
   transport_stats(&nSent, &nRcvd, 1);
   if( (rSkew*24.0*3600.0) > 10.0 ){
      fossil_warning("*** time skew *** server is fast by %s",

@@ -1,5 +1,5 @@
-C Warn\sthe\sclient\sthat\spushes\scontent\swhich\sgenerates\sa\sfork\son\sthe\sserver.
-D 2015-04-09T00:51:18.535
+C Add\swarnings\sto\sclients\swhich\sreceive\scontent\sthat\screates\sa\sfork.\nDefer\swarnings\sas\smuch\sas\spossible.
+D 2015-04-10T00:30:01.355
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -511,7 +511,7 @@ F src/wikiformat.c 7bb838120459516d2874d6a851f30e066b5e53e8
 F src/winfile.c 0bcf34859198c42bbfe224e23eb8bcf27dd3e27d
 F src/winhttp.c 4e680d7c8778be4439169f40a992ccc81f7ceec2
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c 19f5ec35db31d62b607c1dd84e9febc00640672f
+F src/xfer.c dbaa94365508f801360fb8463c3ed6a308672b93
 F src/xfersetup.c aa35fd6dd78bb93bebab6259bd12361ce55b2ac8
 F src/zip.c 4493de5cc26e348be7624d0b7b1aaa41006f282f
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -734,10 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 5a12e8c3b68fc9073157c4c83d88f9dcde4083a8
-R c9d79dccae38a1f65d26c0b01a43f466
-T *branch * sync-forkwarn
-T *sym-sync-forkwarn *
-T -sym-trunk *
+P 6b410f914ef5be53f7a2afec6af893083e213eaa
+R 79277337c6dfcc462603f42ceeb5acdc
 U andybradford
-Z 968c2cdbb4b348f5a1cef60204caea91
+Z cbbcefd4499ac1722f1482c361c224eb
