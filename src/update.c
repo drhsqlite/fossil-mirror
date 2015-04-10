@@ -123,6 +123,7 @@ void update_cmd(void){
   int width;            /* Width of printed comment lines */
   Stmt mtimeXfer;       /* Statement to transfer mtimes */
   const char *zWidth;   /* Width option string value */
+  int isFork;
 
   if( !internalUpdate ){
     undo_capture_command_line();
@@ -520,10 +521,10 @@ void update_cmd(void){
   db_finalize(&mtimeXfer);
   fossil_print("%.79c\n",'-');
   if( nUpdate==0 ){
-    show_common_info(tid, "checkout:", 1, 0);
+    isFork = show_common_info(tid, "checkout:", 1, 0);
     fossil_print("%-13s None. Already up-to-date\n", "changes:");
   }else{
-    show_common_info(tid, "updated-to:", 1, 0);
+    isFork = show_common_info(tid, "updated-to:", 1, 0);
     fossil_print("%-13s %d file%s modified.\n", "changes:",
                  nUpdate, nUpdate>1 ? "s" : "");
   }
@@ -562,7 +563,7 @@ void update_cmd(void){
     if( nMerge ){
       fossil_warning("WARNING: %d uncommitted prior merges", nMerge);
     }
-    if( fossil_find_nearest_fork(tid) ){
+    if( isFork ){
       fossil_warning("WARNING: fork detected, please do a \"fossil merge\"");
     }
   }
