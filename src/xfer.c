@@ -238,6 +238,7 @@ static void xfer_accept_file(
 */
 static void xfer_accept_compressed_file(
   Xfer *pXfer,
+  int cloneFlag,
   char **pzUuidList,
   int *pnUuidList
 ){
@@ -1028,7 +1029,7 @@ void page_xfer(void){
         nErr++;
         break;
       }
-      xfer_accept_compressed_file(&xfer, pzUuidList, pnUuidList);
+      xfer_accept_compressed_file(&xfer, 0, pzUuidList, pnUuidList);
       if( xfer.fHasFork ){
         fForkSeen = 1;
       }
@@ -1701,7 +1702,7 @@ int client_sync(
       ** Receive a compressed file transmitted from the server.
       */
       if( blob_eq(&xfer.aToken[0],"cfile") ){
-        xfer_accept_compressed_file(&xfer, 0, 0);
+        xfer_accept_compressed_file(&xfer, (syncFlags & SYNC_CLONE)!=0, 0, 0);
         if( (syncFlags & SYNC_PULL) && xfer.fHasFork ){
           fForkSeen = 1;
         }
