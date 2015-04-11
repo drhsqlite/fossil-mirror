@@ -205,7 +205,8 @@ static void xfer_accept_file(
   }else{
     if( !isPriv ) content_make_public(rid);
     manifest_crosslink(rid, &content, MC_NO_ERRORS);
-    if( count_nonbranch_children(primary_parent_pid_from_rid(rid))>1 ){
+    if( cloneFlag==0 &&
+        count_nonbranch_children(primary_parent_pid_from_rid(rid))>1 ){
       pXfer->fHasFork = 1;
     }
   }
@@ -284,7 +285,8 @@ static void xfer_accept_compressed_file(
                        szC, isPriv);
   Th_AppendToList(pzUuidList, pnUuidList, blob_str(&pXfer->aToken[1]),
                   blob_size(&pXfer->aToken[1]));
-  if( count_nonbranch_children(primary_parent_pid_from_rid(rid))>1 ){
+  if( cloneFlag==0 &&
+      count_nonbranch_children(primary_parent_pid_from_rid(rid))>1 ){
     pXfer->fHasFork = 1;
   }
   remote_has(rid);
