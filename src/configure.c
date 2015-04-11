@@ -129,6 +129,10 @@ static struct {
   { "allow-symlinks",         CONFIGSET_PROJ },
   { "dotfiles",               CONFIGSET_PROJ },
 
+#ifdef FOSSIL_ENABLE_LEGACY_MV_RM
+  { "mv-rm-files",            CONFIGSET_PROJ },
+#endif
+
   { "ticket-table",           CONFIGSET_TKT  },
   { "ticket-common",          CONFIGSET_TKT  },
   { "ticket-change",          CONFIGSET_TKT  },

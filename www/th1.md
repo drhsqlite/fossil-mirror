@@ -285,6 +285,7 @@ Returns true if the binary has the given compile-time feature enabled.
 The possible features are:
 
   1. **ssl** -- _Support for the HTTPS transport._
+  1. **legacyMvRm** -- _Support for legacy mv/rm command behavior._
   1. **th1Docs** -- _Support for TH1 in embedded documentation._
   1. **th1Hooks** -- _Support for TH1 command and web page hooks._
   1. **tcl** -- _Support for Tcl integration._
