@@ -49,7 +49,6 @@ struct Xfer {
   int nDanglingFile;  /* Number of dangling deltas received */
   int mxSend;         /* Stop sending "file" when pOut reaches this size */
   int resync;         /* Send igot cards for all holdings */
-  int fHasFork;       /* True if a fork has been seen */
   u8 syncPrivate;     /* True to enable syncing private content */
   u8 nextIsPrivate;   /* If true, next "file" received is a private */
   time_t maxTime;     /* Time when this transfer should be finished */
@@ -205,10 +204,6 @@ static void xfer_accept_file(
   }else{
     if( !isPriv ) content_make_public(rid);
     manifest_crosslink(rid, &content, MC_NO_ERRORS);
-    if( cloneFlag==0 &&
-        count_nonbranch_children(primary_parent_pid_from_rid(rid))>1 ){
-      pXfer->fHasFork = 1;
-    }
   }
   assert( blob_is_reset(&content) );
   remote_has(rid);
@@ -285,10 +280,6 @@ static void xfer_accept_compressed_file(
                        szC, isPriv);
   Th_AppendToList(pzUuidList, pnUuidList, blob_str(&pXfer->aToken[1]),
                   blob_size(&pXfer->aToken[1]));
-  if( cloneFlag==0 &&
-      count_nonbranch_children(primary_parent_pid_from_rid(rid))>1 ){
-    pXfer->fHasFork = 1;
-  }
   remote_has(rid);
   blob_reset(&content);
 }
@@ -935,7 +926,6 @@ void page_xfer(void){
   int isPull = 0;
   int isPush = 0;
   int nErr = 0;
-  int fForkSeen = 0;    /* True if fork was seen while receiving content */
   Xfer xfer;
   int deltaFlag = 0;
   int isClone = 0;
@@ -990,7 +980,6 @@ void page_xfer(void){
     pnUuidList = &nUuidList;
   }
   while( blob_line(xfer.pIn, &xfer.line) ){
-    xfer.fHasFork = 0;
     if( blob_buffer(&xfer.line)[0]=='#' ) continue;
     if( blob_size(&xfer.line)==0 ) continue;
     xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken, count(xfer.aToken));
@@ -1008,9 +997,6 @@ void page_xfer(void){
         break;
       }
       xfer_accept_file(&xfer, 0, pzUuidList, pnUuidList);
-      if( xfer.fHasFork ){
-        fForkSeen = 1;
-      }
       if( blob_size(&xfer.err) ){
         cgi_reset_content();
         @ error %T(blob_str(&xfer.err))
@@ -1032,9 +1018,6 @@ void page_xfer(void){
         break;
       }
       xfer_accept_compressed_file(&xfer, 0, pzUuidList, pnUuidList);
-      if( xfer.fHasFork ){
-        fForkSeen = 1;
-      }
       if( blob_size(&xfer.err) ){
         cgi_reset_content();
         @ error %T(blob_str(&xfer.err))
@@ -1317,9 +1300,6 @@ void page_xfer(void){
     blobarray_reset(xfer.aToken, xfer.nToken);
     blob_reset(&xfer.line);
   }
-  if( fForkSeen ){
-    @ message *****\s\sWARNING:\sa\sfork\shas\soccurred\s\s*****
-  }
   if( isPush ){
     if( rc==TH_OK ){
       rc = xfer_run_script(zScript, zUuidList, 1);
@@ -1458,7 +1438,6 @@ int client_sync(
   const char *zSCode = db_get("server-code", "x");
   const char *zPCode = db_get("project-code", 0);
   int nErr = 0;           /* Number of errors */
-  int fForkSeen = 0;      /* True if a fork was seen during pull */
   int nRoundtrip= 0;      /* Number of HTTP requests */
   int nArtifactSent = 0;  /* Total artifacts sent */
   int nArtifactRcvd = 0;  /* Total artifacts received */
@@ -1476,6 +1455,7 @@ int client_sync(
   xfer.pOut = &send;
   xfer.mxSend = db_get_int("max-upload", 250000);
   xfer.maxTime = -1;
+  g.forkSeen = 0;
   if( syncFlags & SYNC_PRIVATE ){
     g.perm.Private = 1;
     xfer.syncPrivate = 1;
@@ -1674,7 +1654,6 @@ int client_sync(
         continue;
       }
       xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken, count(xfer.aToken));
-      xfer.fHasFork = 0;
       nCardRcvd++;
       if( (syncFlags & SYNC_VERBOSE)!=0 && recv.nUsed>0 ){
         pctDone = (recv.iCursor*100)/recv.nUsed;
@@ -1692,9 +1671,6 @@ int client_sync(
       */
       if( blob_eq(&xfer.aToken[0],"file") ){
         xfer_accept_file(&xfer, (syncFlags & SYNC_CLONE)!=0, 0, 0);
-        if( (syncFlags & SYNC_PULL) && xfer.fHasFork ){
-          fForkSeen = 1;
-        }
         nArtifactRcvd++;
       }else
 
@@ -1705,9 +1681,6 @@ int client_sync(
       */
       if( blob_eq(&xfer.aToken[0],"cfile") ){
         xfer_accept_compressed_file(&xfer, (syncFlags & SYNC_CLONE)!=0, 0, 0);
-        if( (syncFlags & SYNC_PULL) && xfer.fHasFork ){
-          fForkSeen = 1;
-        }
         nArtifactRcvd++;
       }else
 
@@ -1980,9 +1953,6 @@ int client_sync(
     }
     db_end_transaction(0);
   };
-  if( fForkSeen ){
-    fossil_warning("***** WARNING: a fork has occurred *****");
-  }
   transport_stats(&nSent, &nRcvd, 1);
   if( (rSkew*24.0*3600.0) > 10.0 ){
      fossil_warning("*** time skew *** server is fast by %s",
@@ -2005,6 +1975,9 @@ int client_sync(
     manifest_crosslink_end(MC_PERMIT_HOOKS);
     content_enable_dephantomize(1);
     db_end_transaction(0);
+  }
+  if( (syncFlags & SYNC_CLONE)==0 && g.forkSeen ){
+    fossil_warning("***** WARNING: a fork has occurred *****");
   }
   return nErr;
 }

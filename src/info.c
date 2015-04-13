@@ -123,7 +123,7 @@ int show_common_info(
                     " AND tx.tagtype>0",
                     rid, TAG_CLOSED)){
         fossil_print("%s\n", "closed");
-      }else if( fossil_find_nearest_fork(rid) ){
+      }else if( fossil_find_nearest_fork(rid, 1) ){
         fossil_print("%s\n", "fork");
         isFork = 1;
       }else{

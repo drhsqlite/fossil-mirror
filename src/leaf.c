@@ -155,6 +155,15 @@ void leaf_check(int rid){
 }
 
 /*
+** Check for a fork against rid and set g.fForkSeen
+*/
+void fork_check(int rid){
+  if( is_a_leaf(rid) && fossil_find_nearest_fork(rid, 0) ){
+    g.forkSeen = 1;
+  }
+}
+
+/*
 ** Return an SQL expression (stored in memory obtained from fossil_malloc())
 ** that is true if the SQL variable named "zVar" contains the rid with
 ** a CLOSED tag.  In other words, return true if the leaf is closed.
@@ -190,12 +199,15 @@ void leaf_eventually_check(int rid){
 }
 
 /*
-** Do all pending leaf checks.
+** Do all pending leaf and fork checks.
 */
 void leaf_do_pending_checks(void){
   int rid;
   for(rid=bag_first(&needToCheck); rid; rid=bag_next(&needToCheck,rid)){
     leaf_check(rid);
+  }
+  for(rid=bag_first(&needToCheck); rid; rid=bag_next(&needToCheck,rid)){
+    fork_check(rid);
   }
   bag_clear(&needToCheck);
 }

@@ -1,5 +1,5 @@
-C Bring\sin\sneeded\schanges\sfrom\srelated\sbranch.
-D 2015-04-13T03:31:09.033
+C Use\sbetter\sfork\sdetection\smechanism\sand\sdisable\schecking\sduring\spush\ssince\sit\nmay\snot\shave\sa\scomplete\ssync\sand\sissue\swarning\sprematurely.
+D 2015-04-13T03:38:55.659
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -420,7 +420,7 @@ F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
 F src/import.c 39947d8db7449d3e73b121de4c1196e33138508c
-F src/info.c 234eee0f5d80f033eb0e78a76de32e3006c88812
+F src/info.c ac106174e069d1ea6f7e1d1a95d1211240062924
 F src/json.c f3969a835cdd4256e55882e66c9505605c9a2135
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -437,11 +437,11 @@ F src/json_tag.c 2a9e6dac502055a795ef6ade37faa024d480015b
 F src/json_timeline.c a8aece1a959dd8cae0d5a99f61cc5d31802b4e4b
 F src/json_user.c 66fc65a1647616819074eb8ae4534f0822b2fb55
 F src/json_wiki.c fca83828f069a0964f7b5e72dc4e8793e8571707
-F src/leaf.c 8c547dab329d792960a529dd39dc163b13cf5cb5
+F src/leaf.c 840607d450ddab5df1a0fca895e5fd6e718a1206
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 2abcbfe5306a237232816ebccbaf0b871e65d267
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c 41d452b2fa62dc4ad560a90f098ae7efae794c73
+F src/main.c e98fd04d3b0e0451a72bfecaa92e038683433a65
 F src/main.mk ca9de93963900e71e92ed118feeddb4f741861fe
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -451,7 +451,7 @@ F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 45f6e06e03e4183764067eec37ff73f357303306
 F src/markdown_html.c 29e42640edab9c60dc2222f52b62da3bc3c3f81d
 F src/md5.c c6f6b5df8001ab094e5f49416fc2aa3019823d69
-F src/merge.c d7ca3f928dde740d87bacfa2c83a44c508b005db
+F src/merge.c 4b775a1777bd56877d82afc91009a505f69c8afb
 F src/merge3.c b2502f631c761f2c606f4fad6c8aa00bc2a5f4a7
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
@@ -511,7 +511,7 @@ F src/wikiformat.c 7bb838120459516d2874d6a851f30e066b5e53e8
 F src/winfile.c 0bcf34859198c42bbfe224e23eb8bcf27dd3e27d
 F src/winhttp.c 4e680d7c8778be4439169f40a992ccc81f7ceec2
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c 01921c4263bc50f8538c0676a29baf271e714e5f
+F src/xfer.c 1c407fc55c4a9db3368ee0426d88cba75c7d4ef0
 F src/xfersetup.c aa35fd6dd78bb93bebab6259bd12361ce55b2ac8
 F src/zip.c 4493de5cc26e348be7624d0b7b1aaa41006f282f
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -734,7 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 6e10a4b102fd151747c71b548279a600823e6553 72794ec975ce4c8e43d519c1267eff1baab290fe
-R cf18fed0e8360abef97d4f0e2faf58d2
+P ebce686332177a971e9fac6972d4c603a67911ef
+R 2c3fd747561d2002b78e905828f8f2db
 U andybradford
-Z 6e4d2f1aa4ef9e9f9e97318f4c3d67b9
+Z 768ee9db1df209b6a88ab8bba69ea0e3
