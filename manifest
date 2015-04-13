@@ -1,5 +1,5 @@
-C Better\sfork\sdetection\son\s[/help?cmd=import|fossil\supdate],\s[/help?cmd=import|fossil\sstatus]\sand\srelated\scommands.
-D 2015-04-13T08:29:08.824
+C plug\spossible\smemory\sleak\sin\scompress/decompress\sSQL\sfunctions.
+D 2015-04-13T13:35:57.846
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -478,7 +478,7 @@ F src/shell.c 84a1593bd86aaa14f4da8a8f9b16fbc239d262aa
 F src/shun.c 86226a085620c00a6a350a03279cee861be8a92f
 F src/sitemap.c 87a91b09ca9f595121d741c31ebd724d1e5df708
 F src/skins.c 1bb9b8b149475870969d6e77cea0610017b084fd
-F src/sqlcmd.c 1a2d0e1f6d236f186ef8e46618a9fb36cee2edaa
+F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
 F src/sqlite3.c 49f1c3ae347e1327b5aaa6c7f76126bdf09c6f42
 F src/sqlite3.h cedaecc44add001ad3550b31b5a5d6484569ecfd
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
@@ -734,7 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P d397f1cdc4a86300fc96ae1d57c4d8632272f450 72794ec975ce4c8e43d519c1267eff1baab290fe
-R 241909321d6d21a8b92fc0110ff46022
+P 5c40f8565e9a3f93590f251e6e0fd9805cb36b85
+R 6e69afe153dd32bc75dbf74c1c6c25ed
 U jan.nijtmans
-Z 87eaf21f964deeeec4f9b5879489a062
+Z 0aaeacf2a980a5eb98d0ea81cb718b45
