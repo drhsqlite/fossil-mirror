@@ -50,8 +50,10 @@ char *info_tags_of_checkin(int rid, int propagatingOnly){
 **     *  The record ID
 **     *  mtime and ctime
 **     *  who signed it
+**
+** Returns 1 when a fork was found.
 */
-void show_common_info(
+int show_common_info(
   int rid,                   /* The rid for the check-in to display info for */
   const char *zUuidName,     /* Name of the UUID */
   int showComment,           /* True to show the check-in comment */
@@ -62,6 +64,7 @@ void show_common_info(
   char *zTags;
   char *zDate;
   char *zUuid;
+  int isFork = 0;
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( zUuid ){
     zDate = db_text(0,
@@ -113,13 +116,16 @@ void show_common_info(
   }
   if( zUuid ){
     fossil_print("%-13s ", "leaf:");
-    if(is_a_leaf(rid)){
-      if(db_int(0, "SELECT 1 FROM tagxref AS tx"
-                " WHERE tx.rid=%d"
-                " AND tx.tagid=%d"
-                " AND tx.tagtype>0",
-                rid, TAG_CLOSED)){
+    if( is_a_leaf(rid) ){
+      if( db_int(0, "SELECT 1 FROM tagxref AS tx"
+                    " WHERE tx.rid=%d"
+                    " AND tx.tagid=%d"
+                    " AND tx.tagtype>0",
+                    rid, TAG_CLOSED)){
         fossil_print("%s\n", "closed");
+      }else if( fossil_find_nearest_fork(rid) ){
+        fossil_print("%s\n", "fork");
+        isFork = 1;
       }else{
         fossil_print("%s\n", "open");
       }
@@ -137,6 +143,7 @@ void show_common_info(
     comment_print(zComment, 0, 14, -1, g.comFmtFlags);
     free(zComment);
   }
+  return isFork;
 }
 
 /*

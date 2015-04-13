@@ -11,6 +11,8 @@
      or HTML.
   *  Formally translate TH1 to Tcl return codes and vice-versa, where
      necessary, in the Tcl integration subsystem.
+  *  Better fork detection on [/help?cmd=import|fossil update],
+     [/help?cmd=import|fossil status] and related commands.
 
 <h2>Changes for Version 1.32 (2015-03-14)</h2>
   *  When creating a new repository using [/help?cmd=init|fossil init], ensure
