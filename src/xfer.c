@@ -234,7 +234,6 @@ static void xfer_accept_file(
 */
 static void xfer_accept_compressed_file(
   Xfer *pXfer,
-  int cloneFlag,
   char **pzUuidList,
   int *pnUuidList
 ){
@@ -1017,7 +1016,7 @@ void page_xfer(void){
         nErr++;
         break;
       }
-      xfer_accept_compressed_file(&xfer, 0, pzUuidList, pnUuidList);
+      xfer_accept_compressed_file(&xfer, pzUuidList, pnUuidList);
       if( blob_size(&xfer.err) ){
         cgi_reset_content();
         @ error %T(blob_str(&xfer.err))
@@ -1680,7 +1679,7 @@ int client_sync(
       ** Receive a compressed file transmitted from the server.
       */
       if( blob_eq(&xfer.aToken[0],"cfile") ){
-        xfer_accept_compressed_file(&xfer, (syncFlags & SYNC_CLONE)!=0, 0, 0);
+        xfer_accept_compressed_file(&xfer, 0, 0);
         nArtifactRcvd++;
       }else
 

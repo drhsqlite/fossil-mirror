@@ -76,24 +76,6 @@ int count_nonbranch_children(int pid){
 }
 
 /*
-** Return the primary parent pid given a child rid
-*/
-int primary_parent_pid_from_rid(int rid){
-  static Stmt q;
-  int pid = -1;
-
-  db_static_prepare(&q,
-     "SELECT pid FROM plink WHERE cid=:rid AND pid>0 AND isprim"
-  );
-  db_bind_int(&q, ":rid", rid);
-  if( db_step(&q)==SQLITE_ROW ){
-    pid = db_column_int(&q, 0);
-  }
-  db_reset(&q);
-  return pid;
-}
-
-/*
 ** Recompute the entire LEAF table.
 **
 ** This can be expensive (5 seconds or so) for a really large repository.
