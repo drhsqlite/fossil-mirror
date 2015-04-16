@@ -409,7 +409,8 @@ void leaves_cmd(void){
   blob_reset(&sql);
   n = 0;
   while( db_step(&q)==SQLITE_ROW ){
-    if( !showForks || fossil_find_nearest_fork(db_column_int(&q, 0)) ){
+    if( !showForks || 
+        fossil_find_nearest_fork(db_column_int(&q, 0), db_open_local(0)) ){
       const char *zId = db_column_text(&q, 1);
       const char *zDate = db_column_text(&q, 2);
       const char *zCom = db_column_text(&q, 3);

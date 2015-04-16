@@ -59,14 +59,28 @@ void print_checkin_description(int rid, int indent, const char *zLabel){
 /* Pick the most recent leaf that is (1) not equal to vid and (2)
 ** has not already been merged into vid and (3) the leaf is not
 ** closed and (4) the leaf is in the same branch as vid.
+**
+** Set vmergeFlag to control whether the vmerge table is checked.
 */
-int fossil_find_nearest_fork(int vid){
-  return db_int(0,
+int fossil_find_nearest_fork(int vid, int vmergeFlag){
+  Blob sql;
+  Stmt q;
+  int rid = 0;
+
+  blob_zero(&sql);
+  blob_append_sql(&sql,
     "SELECT leaf.rid"
     "  FROM leaf, event"
     " WHERE leaf.rid=event.objid"
-    "   AND leaf.rid!=%d"                                /* Constraint (1) */
-    "   AND leaf.rid NOT IN (SELECT merge FROM vmerge)"  /* Constraint (2) */
+    "   AND leaf.rid!=%d",                                /* Constraint (1) */
+    vid
+  );
+  if( vmergeFlag ){
+    blob_append_sql(&sql,
+      "   AND leaf.rid NOT IN (SELECT merge FROM vmerge)"  /* Constraint (2) */
+    );
+  }
+  blob_append_sql(&sql,
     "   AND NOT EXISTS(SELECT 1 FROM tagxref"            /* Constraint (3) */
                   "     WHERE rid=leaf.rid"
                   "       AND tagid=%d"
@@ -76,8 +90,15 @@ int fossil_find_nearest_fork(int vid){
           " (SELECT value FROM tagxref"
           "   WHERE tagid=%d AND rid=leaf.rid AND tagtype>0)"
     " ORDER BY event.mtime DESC LIMIT 1",
-    vid, TAG_CLOSED, TAG_BRANCH, vid, TAG_BRANCH
+    TAG_CLOSED, TAG_BRANCH, vid, TAG_BRANCH
   );
+  db_prepare(&q, "%s", blob_sql_text(&sql));
+  blob_reset(&sql);
+  if( db_step(&q)==SQLITE_ROW ){
+    rid = db_column_int(&q, 0);
+  }
+  db_finalize(&q);
+  return rid;
 }
 
 /*
@@ -198,7 +219,7 @@ void merge_cmd(void){
     if( pickFlag || backoutFlag || integrateFlag){
       fossil_fatal("cannot use --backout, --cherrypick or --integrate with a fork merge");
     }
-    mid = fossil_find_nearest_fork(vid);
+    mid = fossil_find_nearest_fork(vid, db_open_local(0));
     if( mid==0 ){
       fossil_fatal("no unmerged forks of branch \"%s\"",
         db_text(0, "SELECT value FROM tagxref"
