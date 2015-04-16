@@ -208,7 +208,7 @@ void clone_cmd(void){
   extra_deltification();
   db_end_transaction(0);
   fossil_print("\nVacuuming the database... "); fflush(stdout);
-  if( db_int(0, "PRAGMA page_count")>1000 
+  if( db_int(0, "PRAGMA page_count")>1000
    && db_int(0, "PRAGMA page_size")<8192 ){
      db_multi_exec("PRAGMA page_size=8192;");
   }

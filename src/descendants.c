@@ -409,13 +409,13 @@ void leaves_cmd(void){
   blob_reset(&sql);
   n = 0;
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zId = db_column_text(&q, 1);
-    const char *zDate = db_column_text(&q, 2);
-    const char *zCom = db_column_text(&q, 3);
-    const char *zBr = db_column_text(&q, 7);
-    char *z;
-
     if( !showForks || fossil_find_nearest_fork(db_column_int(&q, 0)) ){
+      const char *zId = db_column_text(&q, 1);
+      const char *zDate = db_column_text(&q, 2);
+      const char *zCom = db_column_text(&q, 3);
+      const char *zBr = db_column_text(&q, 7);
+      char *z;
+
       if( byBranch && fossil_strcmp(zBr, zLastBr)!=0 ){
         fossil_print("*** %s ***\n", zBr);
         fossil_free(zLastBr);
