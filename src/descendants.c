@@ -342,10 +342,11 @@ void descendants_cmd(void){
 
 /*
 ** COMMAND: leaves*
+** COMMAND: forks*
 **
-** Usage: %fossil leaves ?OPTIONS?
+** Usage: %fossil leaves|forks ?OPTIONS?
 **
-** Find leaves of all branches.  By default show only open leaves.
+** Find leaves/forks of all branches.  By default show only open leaves.
 ** The -a|--all flag causes all leaves (closed and open) to be shown.
 ** The -c|--closed flag shows only closed leaves.
 **
@@ -370,6 +371,7 @@ void leaves_cmd(void){
   int showClosed = find_option("closed", "c", 0)!=0;
   int recomputeFlag = find_option("recompute",0,0)!=0;
   int byBranch = find_option("bybranch",0,0)!=0;
+  int showForks = g.argv[1][0]=='f';
   const char *zWidth = find_option("width","W",1);
   char *zLastBr = 0;
   int n, width;
@@ -384,7 +386,7 @@ void leaves_cmd(void){
     width = -1;
   }
   db_find_and_open_repository(0,0);
-  
+
   /* We should be done with options.. */
   verify_all_options();
 
@@ -394,7 +396,7 @@ void leaves_cmd(void){
   blob_append_sql(&sql, " AND blob.rid IN leaf");
   if( showClosed ){
     blob_append_sql(&sql," AND %z", leaf_is_closed_sql("blob.rid"));
-  }else if( !showAll ){
+  }else if( !showAll || showForks ){
     blob_append_sql(&sql," AND NOT %z", leaf_is_closed_sql("blob.rid"));
   }
   if( byBranch ){
@@ -407,23 +409,26 @@ void leaves_cmd(void){
   blob_reset(&sql);
   n = 0;
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zId = db_column_text(&q, 1);
-    const char *zDate = db_column_text(&q, 2);
-    const char *zCom = db_column_text(&q, 3);
-    const char *zBr = db_column_text(&q, 7);
-    char *z;
+    if( !showForks || 
+        fossil_find_nearest_fork(db_column_int(&q, 0), db_open_local(0)) ){
+      const char *zId = db_column_text(&q, 1);
+      const char *zDate = db_column_text(&q, 2);
+      const char *zCom = db_column_text(&q, 3);
+      const char *zBr = db_column_text(&q, 7);
+      char *z;
 
-    if( byBranch && fossil_strcmp(zBr, zLastBr)!=0 ){
-      fossil_print("*** %s ***\n", zBr);
-      fossil_free(zLastBr);
-      zLastBr = fossil_strdup(zBr);
+      if( byBranch && fossil_strcmp(zBr, zLastBr)!=0 ){
+        fossil_print("*** %s ***\n", zBr);
+        fossil_free(zLastBr);
+        zLastBr = fossil_strdup(zBr);
+      }
+      n++;
+      sqlite3_snprintf(sizeof(zLineNo), zLineNo, "(%d)", n);
+      fossil_print("%6s ", zLineNo);
+      z = mprintf("%s [%S] %s", zDate, zId, zCom);
+      comment_print(z, zCom, 7, width, g.comFmtFlags);
+      fossil_free(z);
     }
-    n++;
-    sqlite3_snprintf(sizeof(zLineNo), zLineNo, "(%d)", n);
-    fossil_print("%6s ", zLineNo);
-    z = mprintf("%s [%S] %s", zDate, zId, zCom);
-    comment_print(z, zCom, 7, width, g.comFmtFlags);
-    fossil_free(z);
   }
   fossil_free(zLastBr);
   db_finalize(&q);

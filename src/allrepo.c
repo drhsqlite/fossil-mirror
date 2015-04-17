@@ -277,7 +277,7 @@ void all_cmd(void){
     db_begin_transaction();
     for(j=3; j<g.argc; j++, blob_reset(&sql), blob_reset(&fn)){
       file_canonical_name(g.argv[j], &fn, 0);
-      blob_append_sql(&sql, 
+      blob_append_sql(&sql,
          "DELETE FROM global_config WHERE name GLOB '%s:%q'",
          useCheckouts?"ckout":"repo", blob_str(&fn)
       );

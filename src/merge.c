@@ -219,7 +219,7 @@ void merge_cmd(void){
     if( pickFlag || backoutFlag || integrateFlag){
       fossil_fatal("cannot use --backout, --cherrypick or --integrate with a fork merge");
     }
-    mid = fossil_find_nearest_fork(vid, 1);
+    mid = fossil_find_nearest_fork(vid, db_open_local(0));
     if( mid==0 ){
       fossil_fatal("no unmerged forks of branch \"%s\"",
         db_text(0, "SELECT value FROM tagxref"
