@@ -1,5 +1,5 @@
-C Allow\sfossil_find_nearest_fork\sto\sbe\sused\son\srepository\sthat\sis\snot\sopen.
-D 2015-04-16T23:46:16.652
+C Cherry-pick\s[http://www.sqlite.org/src/info/e018f4bf1f27f7838342940ad89a12d7f1536e8e|e018f4bf1f]:\sFix\sa\spotential\sone-byte\sbuffer\soverread\sin\sthe\scommand-line\sshell.\s\nAdd\s(undocumented)\s-backslash\soption\sto\s"fossil\ssqlite"
+D 2015-04-17T09:50:51.331
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -474,7 +474,7 @@ F src/schema.c c43e7d7f0872b2e4940d049fc1dbcac81bffa543
 F src/search.c 3f47dd6d07fc176619d39dd7aa4dc315f22200ca
 F src/setup.c d1b18d9cf235cf1ebae5f7dbb0dd8f7bf72d9aa2
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
-F src/shell.c 84a1593bd86aaa14f4da8a8f9b16fbc239d262aa
+F src/shell.c 28b3e1174a7fc00155d7d00880a33589a88508c9
 F src/shun.c 86226a085620c00a6a350a03279cee861be8a92f
 F src/sitemap.c 60a6388280dc153af9cfe2113ee5482c52e31453
 F src/skins.c 208c2a23ec978a6d91c0513c8a65c415b176637e
@@ -734,8 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 10f5fc698679b598874c460127a091dd59c3f24f
-Q +d0e2f1bd3e71ebf64b8b36b06ff8718896f2f342
-R cf436bc018d56ed6d2b4a713b7968b40
-U andybradford
-Z 4beedcae26f47ec427534ac876de7a29
+P 97f976785dce535ea9b8efa1caa9e189ff3ea18d
+R 999379beb245c6d04dca8ab96aa3962a
+U jan.nijtmans
+Z 2a36c9ee806a719229a5ba937113e241
