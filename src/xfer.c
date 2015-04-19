@@ -1976,7 +1976,8 @@ int client_sync(
     db_end_transaction(0);
   }
   if( (syncFlags & SYNC_CLONE)==0 && g.forkSeen ){
-    fossil_warning("***** WARNING: a fork has occurred *****");
+    fossil_warning("***** WARNING: a fork has occurred ***** use "
+                   "\"fossil forks\" for more details.");
   }
   return nErr;
 }
