@@ -1,5 +1,5 @@
-C Fix\slinks\sin\schanges.wiki
-D 2015-04-20T07:20:05.181
+C Fix\sauto-adjust\sof\sCLI\stimeline\sto\sterminal\swidth\son\sLinux.\sThanks\sto\sWarren\sYoung\sfor\sanalysis\sand\spatch!
+D 2015-04-21T07:12:27.725
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -390,7 +390,7 @@ F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 265e9a29da905f3ab68625a9a5b245d7630275b2
 F src/codecheck1.c 2cf1fc75f4f611574e92cf1440f4fb2ae49e8ba6
-F src/comformat.c 24b2de2bad5e8e6da966586c68d6505ea08df8e7
+F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
 F src/config.h 5b0f2c55c62691916d4477f37109d3356a1dcecf
 F src/configure.c b8759201454accf1a9f760a232cf6c0a1f057294
 F src/content.c 49fd70d3136fbeb4794b7ef2f76c977c3ea77013
@@ -734,7 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P af52f2912a54e20b98de6fe128d7985b67fe9f1f
-R ec50d1fd90f0f7b775e1a69d5e1365e9
+P 92be5246f8303cdb2a2ec2fbce91a8d82b27cc38
+R 8891696762574c52dd6c97725101d7db
 U jan.nijtmans
-Z 762deffaa56b8c538fa703eae1905a6e
+Z cceaa81fa97ab2db27f7a4bedea81a6e
