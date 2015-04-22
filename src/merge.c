@@ -114,7 +114,7 @@ int fossil_find_any_fork(int rcvid){
   blob_append_sql(&sql,
     "  SELECT blob.rid FROM blob"
     "    JOIN leaf ON blob.rid=leaf.rid"
-    "   WHERE rcvid = %d" 
+    "   WHERE rcvid=%d" 
     " AND NOT %z", rcvid, leaf_is_closed_sql("leaf.rid"));
   db_prepare(&q, "%s", blob_sql_text(&sql));
   blob_reset(&sql);
