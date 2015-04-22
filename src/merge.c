@@ -102,6 +102,31 @@ int fossil_find_nearest_fork(int vid, int vmergeFlag){
 }
 
 /*
+** Check for any fork that is not a closed leaf and that was received
+** with rcvid and return true if any is found.
+*/
+int fossil_find_any_fork(int rcvid){
+  Blob sql;
+  Stmt q;
+  int fForkSeen = 0;
+
+  blob_zero(&sql);
+  blob_append_sql(&sql,
+    "  SELECT blob.rid FROM blob"
+    "    JOIN leaf ON blob.rid=leaf.rid"
+    "   WHERE rcvid = %d" 
+    " AND NOT %z", rcvid, leaf_is_closed_sql("leaf.rid"));
+  db_prepare(&q, "%s", blob_sql_text(&sql));
+  blob_reset(&sql);
+  while( !fForkSeen && db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q, 0);
+    fForkSeen = fossil_find_nearest_fork(rid, db_open_local(0))!=0;
+  }
+  db_finalize(&q);
+  return fForkSeen;
+}
+
+/*
 ** COMMAND: merge
 **
 ** Usage: %fossil merge ?OPTIONS? ?VERSION?

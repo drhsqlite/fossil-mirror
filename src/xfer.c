@@ -1975,7 +1975,7 @@ int client_sync(
     content_enable_dephantomize(1);
     db_end_transaction(0);
   }
-  if( (syncFlags & SYNC_CLONE)==0 && g.forkSeen ){
+  if( (syncFlags & SYNC_CLONE)==0 && fossil_find_any_fork(g.rcvid) ){
     fossil_warning("***** WARNING: a fork has occurred ***** use "
                    "\"fossil forks\" for more details.");
   }
