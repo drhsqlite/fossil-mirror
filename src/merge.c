@@ -102,25 +102,29 @@ int fossil_find_nearest_fork(int vid, int vmergeFlag){
 }
 
 /*
-** Check for any fork that is not a closed leaf and that was received
-** with rcvid and return true if any is found.
+** Check content that was received with rcvid and return true if any
+** fork was created.
 */
-int fossil_find_any_fork(int rcvid){
-  Blob sql;
-  Stmt q;
+int fossil_any_has_fork(int rcvid){
+  static Stmt q;
   int fForkSeen = 0;
 
-  blob_zero(&sql);
-  blob_append_sql(&sql,
-    "  SELECT blob.rid FROM blob"
-    "    JOIN leaf ON blob.rid=leaf.rid"
-    "   WHERE rcvid=%d" 
-    " AND NOT %z", rcvid, leaf_is_closed_sql("leaf.rid"));
-  db_prepare(&q, "%s", blob_sql_text(&sql));
-  blob_reset(&sql);
+  db_static_prepare(&q,
+    "  SELECT pid FROM plink WHERE pid>0 AND isprim"
+    "     AND cid IN (SELECT blob.rid FROM blob"
+    "   WHERE rcvid=:rcvid)");
+  db_bind_int(&q, ":rcvid", rcvid);
   while( !fForkSeen && db_step(&q)==SQLITE_ROW ){
-    int rid = db_column_int(&q, 0);
-    fForkSeen = fossil_find_nearest_fork(rid, db_open_local(0))!=0;
+    int pid = db_column_int(&q, 0);
+    if( count_nonbranch_children(pid)>1 ){
+      compute_leaves(pid,1);
+      if( db_int(0, "SELECT count(*) FROM leaves")>1 ){
+        int rid = db_int(0, "SELECT rid FROM leaves, event"
+                            " WHERE event.objid=leaves.rid"
+                            " ORDER BY event.mtime DESC LIMIT 1");
+        fForkSeen = fossil_find_nearest_fork(rid, db_open_local(0))!=0;
+      }
+    }
   }
   db_finalize(&q);
   return fForkSeen;

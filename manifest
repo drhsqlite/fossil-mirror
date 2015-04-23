@@ -1,5 +1,5 @@
-C Remove\sunused\svariable
-D 2015-04-22T19:10:12.491
+C Only\scheck\sleaves\sfor\sforks\son\smulti-child\snodes.\s\sThis\sprevents\swarnings\sfrom\nbeing\sextra\sverbose\swhen\sa\scommit\sis\smade\son\sany\sof\sthe\sforks.
+D 2015-04-23T00:35:34.353
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -451,7 +451,7 @@ F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 45f6e06e03e4183764067eec37ff73f357303306
 F src/markdown_html.c 29e42640edab9c60dc2222f52b62da3bc3c3f81d
 F src/md5.c c6f6b5df8001ab094e5f49416fc2aa3019823d69
-F src/merge.c 7e50b1005a513decff475d425006c739c6659585
+F src/merge.c 5b81c58a73eb36babedbc544e28e9ce75b354c1d
 F src/merge3.c b2502f631c761f2c606f4fad6c8aa00bc2a5f4a7
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
@@ -511,7 +511,7 @@ F src/wikiformat.c 7bb838120459516d2874d6a851f30e066b5e53e8
 F src/winfile.c 0bcf34859198c42bbfe224e23eb8bcf27dd3e27d
 F src/winhttp.c 4e680d7c8778be4439169f40a992ccc81f7ceec2
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c a0e3af4b3aea245ef1a9c6afb9268e8cf08c76d9
+F src/xfer.c bc5a0f847af70259980978956f9e88eaa8255019
 F src/xfersetup.c aa35fd6dd78bb93bebab6259bd12361ce55b2ac8
 F src/zip.c 49c6b1327a9aea3b0682b2c55bddd9d54860ff6f
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -734,7 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P e1f614f3b82a07e37ba21fbbb3581de1d3ca90f1
-R 7295894259abd29752e57b7eeeacbea8
-U jan.nijtmans
-Z a042bbe791ae844a88b858ea67520caa
+P 101fdfe89ae7e92e5d54310828065f6e017b8a73
+R 86b365546f3a21b055fbc8db37ef2f68
+U andybradford
+Z 62995042fd96f935638139f8839dcb30
