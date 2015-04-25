@@ -102,6 +102,35 @@ int fossil_find_nearest_fork(int vid, int vmergeFlag){
 }
 
 /*
+** Check content that was received with rcvid and return true if any
+** fork was created.
+*/
+int fossil_any_has_fork(int rcvid){
+  static Stmt q;
+  int fForkSeen = 0;
+
+  db_static_prepare(&q,
+    "  SELECT pid FROM plink WHERE pid>0 AND isprim"
+    "     AND cid IN (SELECT blob.rid FROM blob"
+    "   WHERE rcvid=:rcvid)");
+  db_bind_int(&q, ":rcvid", rcvid);
+  while( !fForkSeen && db_step(&q)==SQLITE_ROW ){
+    int pid = db_column_int(&q, 0);
+    if( count_nonbranch_children(pid)>1 ){
+      compute_leaves(pid,1);
+      if( db_int(0, "SELECT count(*) FROM leaves")>1 ){
+        int rid = db_int(0, "SELECT rid FROM leaves, event"
+                            " WHERE event.objid=leaves.rid"
+                            " ORDER BY event.mtime DESC LIMIT 1");
+        fForkSeen = fossil_find_nearest_fork(rid, db_open_local(0))!=0;
+      }
+    }
+  }
+  db_finalize(&q);
+  return fForkSeen;
+}
+
+/*
 ** COMMAND: merge
 **
 ** Usage: %fossil merge ?OPTIONS? ?VERSION?
