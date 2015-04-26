@@ -1,5 +1,5 @@
-C Add\sthe\s"forks"\squery\sparameter\sto\sthe\s/timeline\swebpage,\scausing\sthe\stimeline\nto\sshow\sonly\scheck-ins\sassociated\swith\sa\sfork.
-D 2015-04-26T18:06:47.657
+C Remove\sthe\s"fossil\sforks"\scommand.\s\sReplace\sit\swith\s"fossil\sleaves\s--multiple".
+D 2015-04-26T19:43:06.121
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -400,7 +400,7 @@ F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 690ee5fbc6b7489bbd1c778722c13c1997362a7e
 F src/delta.c e8de840f518dca8a6641f34eae115c8f9ca36004
 F src/deltacmd.c 4ac36378bf7b772d3bd67954212eb98be121961b
-F src/descendants.c 72d1a60fa597f28c1a4f8fb5e95a2d2848066d81
+F src/descendants.c 7c021b5250e6483934ace828d58dda1ae69a2ba0
 F src/diff.c 9f3f300d40a126d8e14a15ab0025e7ec49dadb24
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
 F src/diffcmd.c 45fd9167cdedc0f42d2ef0b7499f01ae077a4e37
@@ -734,7 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P d3f9e588f7320b4168a08bd667780640cdb956d0
-R 20c37b41917e1b2fd225ebb662c9ea47
+P ba2ec88b749a7655f02e40a05fa11675b5f02a4a
+R ae5f246101404580bedc9704314d7153
 U drh
-Z ec6aaa757e11e91bcaff2631936e7f74
+Z 595b6611fd09a9e5ec7db35c2da89423
