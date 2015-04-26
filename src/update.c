@@ -564,7 +564,7 @@ void update_cmd(void){
       fossil_warning("WARNING: %d uncommitted prior merges", nMerge);
     }
     if( isFork ){
-      fossil_warning("WARNING: fork detected, please do a \"fossil merge\"");
+      fossil_warning("WARNING: ambigeous branch, please do a \"fossil merge\"");
     }
   }
 
