@@ -272,6 +272,7 @@ void www_print_timeline(
     const char *zBr = 0;      /* Branch */
     int commentColumn = 3;    /* Column containing comment text */
     int modPending;           /* Pending moderation */
+    char *zDateLink;          /* URL for the link on the timestamp */
     char zTime[20];
 
     if( zDate==0 ){
@@ -353,7 +354,8 @@ void www_print_timeline(
     }else {
       @ <tr>
     }
-    @ <td class="timelineTime">%s(zTime)</td>
+    zDateLink = href("%R/timeline?c=%!S", zUuid);
+    @ <td class="timelineTime">%z(zDateLink)%s(zTime)</a></td>
     @ <td class="timelineGraph">
     if( tmFlags & TIMELINE_UCOLOR )  zBgClr = zUser ? hash_color(zUser) : 0;
     if( zType[0]=='c'
