@@ -1,5 +1,5 @@
-C On\sall\stimelines,\sprovide\sa\shyperlink\son\sthe\stimestamp\sto\sanother\stimeline\nthat\sshows\sall\sactivity\saround\sthat\spoint\sin\stime.
-D 2015-04-26T17:35:54.924
+C Add\sthe\s"forks"\squery\sparameter\sto\sthe\s/timeline\swebpage,\scausing\sthe\stimeline\nto\sshow\sonly\scheck-ins\sassociated\swith\sa\sfork.
+D 2015-04-26T18:06:47.657
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -493,7 +493,7 @@ F src/th.h 331b9aaf012117b22a3e8c4676c5b131cd8b7f9d
 F src/th_lang.c f6085bbe7c97a4d00c8fe8cd9328d402937111a8
 F src/th_main.c 00058b8cf89276094aae21c741ef15655d1fa34d
 F src/th_tcl.c 7b37123bd606f5b9999a1103807f822a77dfcdc5
-F src/timeline.c 7f96704745d1a682a5925198937bd4b812bda2b1
+F src/timeline.c c539a7e4bd615cc56e56253afbbbe41bf883f3ed
 F src/tkt.c 013c241a55904b6a3505583f9b234911cf3865df
 F src/tktsetup.c c4682befe7fdf7864eb45e003ac3920316a1c87a
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
@@ -734,7 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 560483f50436c9f7edfe5399209e68968b807e83
-R 6b35470cab582d74a88c7e744ed80392
+P d3f9e588f7320b4168a08bd667780640cdb956d0
+R 20c37b41917e1b2fd225ebb662c9ea47
 U drh
-Z 409cff1aa0a3a10e0668768e7cef246d
+Z ec6aaa757e11e91bcaff2631936e7f74

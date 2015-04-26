@@ -354,7 +354,7 @@ void www_print_timeline(
     }else {
       @ <tr>
     }
-    zDateLink = href("%R/timeline?c=%!S", zUuid);
+    zDateLink = href("%R/timeline?c=%!S&unhide", zUuid);
     @ <td class="timelineTime">%z(zDateLink)%s(zTime)</a></td>
     @ <td class="timelineGraph">
     if( tmFlags & TIMELINE_UCOLOR )  zBgClr = zUser ? hash_color(zUser) : 0;
@@ -1219,6 +1219,7 @@ static void timeline_y_submenu(int isDisabled){
 **    brbg           Background color from branch name
 **    ubg            Background color from user
 **    namechng       Show only check-ins that filename changes
+**    forks          Show only forks and their children
 **    ym=YYYY-MM     Shown only events for the given year/month.
 **    datefmt=N      Override the date format
 **
@@ -1252,6 +1253,7 @@ void page_timeline(void){
   const char *zYearWeek = P("yw");   /* Check-ins for YYYY-WW (week-of-year) */
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
   int renameOnly = P("namechng")!=0; /* Show only check-ins that rename files */
+  int forkOnly = PB("forks");        /* Show only forks and their children */
   int tagid;                         /* Tag ID */
   int tmFlags = 0;                   /* Timeline flags */
   const char *zThisTag = 0;          /* Suppress links to this tag */
@@ -1357,6 +1359,26 @@ void page_timeline(void){
       "INSERT OR IGNORE INTO rnfile"
       "  SELECT mid FROM mlink WHERE pfnid>0 AND pfnid!=fnid;"
     );
+    disableY = 1;
+  }
+  if( forkOnly ){
+    db_multi_exec(
+      "CREATE TEMP TABLE rnfork(rid INTEGER PRIMARY KEY);\n"
+      "INSERT OR IGNORE INTO rnfork(rid)\n"
+      "  SELECT pid FROM plink\n"
+      "   WHERE (SELECT value FROM tagxref WHERE tagid=%d AND rid=cid)=="
+      "           (SELECT value FROM tagxref WHERE tagid=%d AND rid=pid)\n"
+      "   GROUP BY pid"
+      "   HAVING count(*)>1;\n"
+      "INSERT OR IGNORE INTO rnfork(rid)"
+      "  SELECT cid FROM plink\n"
+      "   WHERE (SELECT value FROM tagxref WHERE tagid=%d AND rid=cid)=="
+      "           (SELECT value FROM tagxref WHERE tagid=%d AND rid=pid)\n"
+      "     AND pid IN rnfork;",
+      TAG_BRANCH, TAG_BRANCH, TAG_BRANCH, TAG_BRANCH
+    );
+    tmFlags |= TIMELINE_UNHIDE;
+    zType = "ci";
     disableY = 1;
   }
 
@@ -1487,6 +1509,9 @@ void page_timeline(void){
     }
     if( renameOnly ){
       blob_append_sql(&sql, " AND event.objid IN rnfile ");
+    }
+    if( forkOnly ){
+      blob_append_sql(&sql, " AND event.objid IN rnfork ");
     }
     if( zYearMonth ){
       blob_append_sql(&sql, " AND %Q=strftime('%%Y-%%m',event.mtime) ",
@@ -1659,6 +1684,10 @@ void page_timeline(void){
     if( renameOnly ){
       blob_appendf(&desc, " that contain filename changes");
       tmFlags |= TIMELINE_DISJOINT|TIMELINE_FRENAMES;
+    }
+    if( forkOnly ){
+      blob_appendf(&desc, " associated with forks");
+      tmFlags |= TIMELINE_DISJOINT;
     }
     if( zUser ){
       blob_appendf(&desc, " by user %h", zUser);
