@@ -2120,6 +2120,6 @@ void commit_cmd(void){
     autosync_loop(SYNC_PUSH|SYNC_PULL, db_get_int("autosync-tries", 1));
   }
   if( count_nonbranch_children(vid)>1 ){
-    fossil_print("**** warning: a fork has occurred *****\n");
+    fossil_print("**** warning: an ambigeous branch has occurred *****\n");
   }
 }

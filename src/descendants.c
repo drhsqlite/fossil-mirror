@@ -342,11 +342,10 @@ void descendants_cmd(void){
 
 /*
 ** COMMAND: leaves*
-** COMMAND: forks*
 **
-** Usage: %fossil leaves|forks ?OPTIONS?
+** Usage: %fossil leaves ?OPTIONS?
 **
-** Find leaves/forks of all branches.  By default show only open leaves.
+** Find leaves of all branches.  By default show only open leaves.
 ** The -a|--all flag causes all leaves (closed and open) to be shown.
 ** The -c|--closed flag shows only closed leaves.
 **
@@ -370,8 +369,8 @@ void leaves_cmd(void){
   int showAll = find_option("all", "a", 0)!=0;
   int showClosed = find_option("closed", "c", 0)!=0;
   int recomputeFlag = find_option("recompute",0,0)!=0;
-  int byBranch = find_option("bybranch",0,0)!=0;
-  int showForks = g.argv[1][0]=='f';
+  int showForks = g.argv[1][0]!='l';
+  int byBranch = (find_option("bybranch",0,0)!=0) || showForks;
   const char *zWidth = find_option("width","W",1);
   char *zLastBr = 0;
   int n, width;
@@ -432,6 +431,7 @@ void leaves_cmd(void){
   }
   fossil_free(zLastBr);
   db_finalize(&q);
+  if( showForks && !zLastBr ) fossil_print("*** OK, no ambigeous branches found ***\n");
 }
 
 /*
