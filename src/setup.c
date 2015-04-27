@@ -125,8 +125,8 @@ void setup_page(void){
     "A record of login attempts");
   setup_menu_entry("Administrative Log", "admin_log",
     "View the admin_log entries");
-  setup_menu_entry("Stats", "stat",
-    "Display repository statistics");
+  setup_menu_entry("Sitemap", "sitemap",
+    "Links to miscellaneous pages");
   setup_menu_entry("SQL", "admin_sql",
     "Enter raw SQL commands");
   setup_menu_entry("TH1", "admin_th1",
