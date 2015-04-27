@@ -2121,6 +2121,6 @@ void commit_cmd(void){
     autosync_loop(SYNC_PUSH|SYNC_PULL, db_get_int("autosync-tries", 1));
   }
   if( count_nonbranch_children(vid)>1 ){
-    fossil_print("**** warning: an ambiguous branch has occurred *****\n");
+    fossil_print("**** warning: multiple leaves on the same branch are formed *****\n");
   }
 }

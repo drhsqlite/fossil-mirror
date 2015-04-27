@@ -463,7 +463,7 @@ void leaves_cmd(void){
   }
   fossil_free(zLastBr);
   db_finalize(&q);
-  if( showForks && !zLastBr ) fossil_print("*** OK, no ambiguous branch found ***\n");
+  if( showForks && !zLastBr ) fossil_print("*** OK, no multiple leaves on the same branch found ***\n");
 }
 
 /*

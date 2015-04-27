@@ -224,7 +224,7 @@ void info_cmd(void){
     }
     show_common_info(rid, "uuid:", 1, 1);
   }
-  fossil_print("ambiguous branches:\n");
+  fossil_print("multiple leaves on the same branch:\n");
   leaves_cmd();
 }
 
