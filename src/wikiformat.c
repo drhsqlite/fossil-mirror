@@ -2096,6 +2096,9 @@ void htmlTidy(const char *zIn, Blob *pOut){
 
 /*
 ** COMMAND: test-html-tidy
+**
+** Run the htmlTidy() routine on the content of all files named on
+** the command-line and write the results to standard output.
 */
 void test_html_tidy(void){
   Blob in, out;
@@ -2214,6 +2217,15 @@ void html_to_plaintext(const char *zIn, Blob *pOut){
 
 /*
 ** COMMAND: test-html-to-text
+**
+** Usage: %fossil test-html-to-text FILE ...
+**
+** Read all files named on the command-line.  Convert the file
+** content from HTML to text and write the results on standard
+** output.
+**
+** This command is intended as a test and debug interface for
+** the html_to_plaintext() routine.
 */
 void test_html_to_text(void){
   Blob in, out;

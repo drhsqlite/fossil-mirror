@@ -2236,6 +2236,11 @@ void test_timewarp_cmd(void){
 
 /*
 ** WEBPAGE: test_timewarps
+**
+** Show all check-ins that are "timewarps".  A timewarp is a
+** check-in that occurs before its parent, according to the
+** timestamp information on the check-in.  This can only actually
+** happen, of course, if a users system clock is set incorrectly.
 */
 void test_timewarp_page(void){
   Stmt q;

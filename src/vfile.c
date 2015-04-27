@@ -918,6 +918,11 @@ void vfile_aggregate_checksum_manifest(int vid, Blob *pOut, Blob *pManOut){
 
 /*
 ** COMMAND: test-agg-cksum
+**
+** Display the aggregate checksum for content computed in several
+** different ways.  The aggregate checksum is used during "fossil commit"
+** to double-check that the information about to be committed to the
+** repository exactly matches the information currently in the check-out.
 */
 void test_agg_cksum_cmd(void){
   int vid;

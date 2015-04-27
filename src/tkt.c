@@ -443,7 +443,7 @@ static void showAllFields(void){
 ** WEBPAGE: tktview
 ** URL:  tktview?name=UUID
 **
-** View a ticket.
+** View a ticket identified by the name= query parameter.
 */
 void tktview_page(void){
   const char *zScript;

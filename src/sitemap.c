@@ -24,7 +24,10 @@
 /*
 ** WEBPAGE:  sitemap
 **
-** Show an incomplete list of web pages offered by the Fossil web engine.
+** List some of the web pages offered by the Fossil web engine.  This
+** page is intended as a suppliment to the menu bar on the main screen.
+** That is, this page is designed to hold links that are omitted from
+** the main menu due to lack of space.
 */
 void sitemap_page(void){
   int srchFlags;
@@ -144,6 +147,7 @@ void sitemap_page(void){
   }
   @   <li>%z(href("%R/hash-color-test"))Page to experiment with the automatic
   @       colors assigned to branch names</a>
+  @   <li>%z(href("%R/test-captcha"))Random ASCII-art Captcha image</li>
   @   </ul></li>
   @ </ul></li>
   style_footer();

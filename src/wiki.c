@@ -78,6 +78,9 @@ static int check_name(const char *z){
 ** WEBPAGE: home
 ** WEBPAGE: index
 ** WEBPAGE: not_found
+**
+** The /home, /index, and /not_found pages all redirect to the homepage
+** configured by the administrator.
 */
 void home_page(void){
   char *zPageName = db_get("project-name",0);
@@ -460,6 +463,8 @@ static const char *mimetype_common_name(const char *zMimetype){
 /*
 ** WEBPAGE: wikiedit
 ** URL: /wikiedit?name=PAGENAME
+**
+** Edit a wiki page.
 */
 void wikiedit_page(void){
   char *zTag;
@@ -706,6 +711,8 @@ static void appendRemark(Blob *p, const char *zMimetype){
 /*
 ** WEBPAGE: wikiappend
 ** URL: /wikiappend?name=PAGENAME&mimetype=MIMETYPE
+**
+** Append text to the end of a wiki page.
 */
 void wikiappend_page(void){
   char *zTag;
@@ -997,6 +1004,8 @@ void wfind_page(void){
 
 /*
 ** WEBPAGE: wiki_rules
+**
+** Show the formatting rules for Fossil wiki.
 */
 void wikirules_page(void){
   style_header("Wiki Formatting Rules");

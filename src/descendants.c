@@ -467,7 +467,17 @@ void leaves_cmd(void){
 /*
 ** WEBPAGE:  leaves
 **
-** Find leaves of all branches.
+** Show leaf check-ins in a timeline.  By default only open leaves
+** are listed.
+**
+** A "leaf" is a check-in with no children in the same branch.  A
+** "closed leaf" is a leaf that has a "closed" tag.  An "open leaf"
+** is a leaf without a "closed" tag.
+**
+** Query parameters:
+**
+**     all           Show all leaves
+**     closed        Show only closed leaves
 */
 void leaves_page(void){
   Blob sql;
