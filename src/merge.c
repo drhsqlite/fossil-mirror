@@ -109,6 +109,7 @@ int fossil_any_has_fork(int rcvid){
   static Stmt q;
   int fForkSeen = 0;
 
+  if( rcvid==0 ) return 0;
   db_static_prepare(&q,
     "  SELECT pid FROM plink WHERE pid>0 AND isprim"
     "     AND cid IN (SELECT blob.rid FROM blob"
