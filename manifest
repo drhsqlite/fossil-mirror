@@ -1,5 +1,5 @@
-C Remove\sunnecessary\stext\sat\sthe\stop\sof\sthe\s/sitemap\spage.
-D 2015-04-27T01:27:20.991
+C Remove\san\sunnecessary\spermissions\scheck\son\sthe\s/hash-color-test\sweb\spage.
+D 2015-04-27T01:37:38.560
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -493,7 +493,7 @@ F src/th.h 331b9aaf012117b22a3e8c4676c5b131cd8b7f9d
 F src/th_lang.c f6085bbe7c97a4d00c8fe8cd9328d402937111a8
 F src/th_main.c 00058b8cf89276094aae21c741ef15655d1fa34d
 F src/th_tcl.c 7b37123bd606f5b9999a1103807f822a77dfcdc5
-F src/timeline.c c539a7e4bd615cc56e56253afbbbe41bf883f3ed
+F src/timeline.c 3cfdde67ad719591ed6d360aaf807b513568c220
 F src/tkt.c 013c241a55904b6a3505583f9b234911cf3865df
 F src/tktsetup.c c4682befe7fdf7864eb45e003ac3920316a1c87a
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
@@ -734,7 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 9fa68088b75552d82d110151f0cdc39615b70456
-R a972d238ec1a017c6db04bb86de16bfe
+P 4cacd894aa80153b261c505e2a57a6002d320f38
+R 71cfabf6e605af77028e091a1337b5ef
 U drh
-Z 338a765a99bb49019a1ebc0995453aa8
+Z 5bdcfa70330187bd867a895378c1b4ab

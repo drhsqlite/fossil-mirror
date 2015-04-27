@@ -165,7 +165,6 @@ void test_hash_color_page(void){
   char zNm[10];
   int i, cnt;
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
 
   style_header("Hash Color Test");
   for(i=cnt=0; i<10; i++){
