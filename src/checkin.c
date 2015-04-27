@@ -275,7 +275,7 @@ void status_cmd(void){
 static void ls_cmd_rev(
   const char *zRev,  /* Revision string given */
   int verboseFlag,   /* Verbose flag given */
-  int showAge,       /* Age flag given */ 
+  int showAge,       /* Age flag given */
   int timeOrder      /* Order by time flag given */
 ){
   Stmt q;
@@ -311,7 +311,7 @@ static void ls_cmd_rev(
   if( rid==0 ){
     fossil_fatal("not a valid check-in: %s", zRev);
   }
-  
+
   if( timeOrder ){
     zOrderBy = "mtime DESC";
   }
@@ -336,7 +336,7 @@ static void ls_cmd_rev(
       fossil_print("%s  %s\n", zTime, zFile);
     }else{
       fossil_print("%s\n", zFile);
-    }        
+    }
   }
   db_finalize(&q);
 }

@@ -196,7 +196,7 @@ int leaf_ambiguity(int rid){
   if( !is_a_leaf(rid) ) return 0;
   sqlite3_snprintf(sizeof(zVal), zVal, "%d", rid);
   rc = db_exists(
-       "SELECT 1 FROM leaf" 
+       "SELECT 1 FROM leaf"
        " WHERE NOT %z"
        "   AND rid<>%d"
        "   AND (SELECT value FROM tagxref WHERE tagid=%d AND rid=leaf.rid)="
