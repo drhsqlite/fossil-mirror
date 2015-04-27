@@ -32,11 +32,13 @@ void sitemap_page(void){
   srchFlags = search_restrict(SRCH_ALL);
   style_header("Site Map");
   style_adunit_config(ADUNIT_RIGHT_OK);
+#if 0
   @ <p>
   @ The following links are just a few of the many web-pages available for
   @ this Fossil repository:
   @ </p>
   @
+#endif
   @ <ul>
   @ <li>%z(href("%R/home"))Home Page</a>
   if( srchFlags & SRCH_DOC ){
