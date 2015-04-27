@@ -1004,7 +1004,7 @@ void test_fileage_cmd(void){
 ** WEBPAGE:  fileage
 **
 ** Show all files in a single check-in (identified by the name= query
-** parameter) in order of increasing age.  
+** parameter) in order of increasing age.
 **
 ** Parameters:
 **   name=VERSION   Selects the check-in version (default=tip).

@@ -396,7 +396,7 @@ void leaves_cmd(void){
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_tty(), -1);
   if( !multipleFlag ){
-    /* The usual case - show all leaves */ 
+    /* The usual case - show all leaves */
     blob_append_sql(&sql, " AND blob.rid IN leaf");
   }else{
     /* Show only leaves where two are more occur in the same branch */
