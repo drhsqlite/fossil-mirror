@@ -431,7 +431,7 @@ void leaves_cmd(void){
   }
   fossil_free(zLastBr);
   db_finalize(&q);
-  if( showForks && !zLastBr ) fossil_print("*** OK, no ambigeous branch found ***\n");
+  if( showForks && !zLastBr ) fossil_print("*** OK, no ambiguous branch found ***\n");
 }
 
 /*

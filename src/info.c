@@ -246,7 +246,7 @@ void info_cmd(void){
     }
     show_common_info(rid, "uuid:", 1, 1);
   }
-  fossil_print("ambigeous branches:\n");
+  fossil_print("ambiguous branches:\n");
   leaves_cmd();
 }
 

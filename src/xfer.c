@@ -1975,7 +1975,7 @@ int client_sync(
     db_end_transaction(0);
   }
   if( (syncFlags & SYNC_CLONE)==0 && fossil_any_has_fork(g.rcvid) ){
-    fossil_warning("***** WARNING: an ambigeous branch has occurred *****\n"
+    fossil_warning("***** WARNING: an ambiguous branch has occurred *****\n"
                    "Use \"fossil info\" for more details.");
   }
   return nErr;
