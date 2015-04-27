@@ -1362,6 +1362,8 @@ static int containsString(const char *zHaystack, const char *zNeedle){
 
 /*
 ** WEBPAGE: style.css
+**
+** Return the style sheet.
 */
 void page_style_css(void){
   Blob css;
@@ -1397,6 +1399,9 @@ void page_style_css(void){
 
 /*
 ** WEBPAGE: test_env
+**
+** Display CGI-variables and other aspects of the run-time
+** environment, for debugging and trouble-shooting purposes.
 */
 void page_test_env(void){
   char c;
@@ -1468,9 +1473,8 @@ void page_test_env(void){
 }
 
 /*
-** This page is a honeypot for spiders and bots.
-**
 ** WEBPAGE: honeypot
+** This page is a honeypot for spiders and bots.
 */
 void honeypot_page(void){
   cgi_set_status(403, "Forbidden");

@@ -30,7 +30,7 @@ static void report_format_hints(void);
 #endif
 
 /*
-** WEBPAGE: /reportlist
+** WEBPAGE: reportlist
 **
 ** Main menu for Tickets.
 */
@@ -286,7 +286,11 @@ char *verify_sql_statement(char *zSql){
 }
 
 /*
-** WEBPAGE: /rptsql
+** WEBPAGE: rptsql
+** URL: /rptsql?rn=N
+**
+** Display the SQL query used to generate a ticket report.  The rn=N
+** query parameter identifies the specific report number to be displayed.
 */
 void view_see_sql(void){
   int rn;
@@ -334,8 +338,17 @@ void view_see_sql(void){
 }
 
 /*
-** WEBPAGE: /rptnew
-** WEBPAGE: /rptedit
+** WEBPAGE: rptnew
+** WEBPAGE: rptedit
+**
+** Create (/rptnew) or edit (/rptedit) a ticket report format.
+** Query parameters:
+**
+**     rn=N           Ticket report number. (required)
+**     t=TITLE        Title of the report format
+**     w=USER         Owner of the report format
+**     s=SQL          SQL text used to implement the report
+**     k=KEY          Color key
 */
 void view_edit(void){
   int rn;
@@ -1063,7 +1076,7 @@ void output_table_sorting_javascript(
 
 
 /*
-** WEBPAGE: /rptview
+** WEBPAGE: rptview
 **
 ** Generate a report.  The rn query parameter is the report number
 ** corresponding to REPORTFMT.RN.  If the tablist query parameter exists,

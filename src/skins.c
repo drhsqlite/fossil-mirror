@@ -409,6 +409,9 @@ static int skinSave(const char *zCurrent){
 
 /*
 ** WEBPAGE: setup_skin
+**
+** Show a list of available skins with buttons for selecting which
+** skin to use.  Requires Admin privilege.
 */
 void setup_skin(void){
   const char *z;
@@ -567,6 +570,9 @@ void setup_skin(void){
 
 /*
 ** WEBPAGE: setup_skinedit
+**
+** Edit aspects of a skin determined by the w= query parameter.
+** Requires Admin privileges.
 **
 **    w=N     -- 0=CSS, 1=footer, 2=header, 3=details
 */

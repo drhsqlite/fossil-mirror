@@ -51,9 +51,8 @@ char *info_tags_of_checkin(int rid, int propagatingOnly){
 **     *  mtime and ctime
 **     *  who signed it
 **
-** Returns 1 when a fork was found.
 */
-int show_common_info(
+void show_common_info(
   int rid,                   /* The rid for the check-in to display info for */
   const char *zUuidName,     /* Name of the UUID */
   int showComment,           /* True to show the check-in comment */
@@ -64,7 +63,6 @@ int show_common_info(
   char *zTags;
   char *zDate;
   char *zUuid;
-  int isFork = 0;
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( zUuid ){
     zDate = db_text(0,
@@ -114,25 +112,6 @@ int show_common_info(
     }
     db_finalize(&q);
   }
-  if( zUuid ){
-    fossil_print("%-13s ", "leaf:");
-    if( is_a_leaf(rid) ){
-      if( db_int(0, "SELECT 1 FROM tagxref AS tx"
-                    " WHERE tx.rid=%d"
-                    " AND tx.tagid=%d"
-                    " AND tx.tagtype>0",
-                    rid, TAG_CLOSED)){
-        fossil_print("%s\n", "closed");
-      }else if( fossil_find_nearest_fork(rid, db_open_local(0)) ){
-        fossil_print("%s\n", "fork");
-        isFork = 1;
-      }else{
-        fossil_print("%s\n", "open");
-      }
-    }else{
-      fossil_print("no\n");
-    }
-  }
   zTags = info_tags_of_checkin(rid, 0);
   if( zTags && zTags[0] ){
     fossil_print("tags:         %s\n", zTags);
@@ -143,7 +122,6 @@ int show_common_info(
     comment_print(zComment, 0, 14, -1, g.comFmtFlags);
     free(zComment);
   }
-  return isFork;
 }
 
 /*
@@ -509,11 +487,12 @@ u64 construct_diff_flags(int verboseFlag, int sideBySide){
 /*
 ** WEBPAGE: vinfo
 ** WEBPAGE: ci
-** URL:  /ci?name=RID|ARTIFACTID
+** URL:  /ci?name=ARTIFACTID
+** URL:  /vinfo?name=ARTIFACTID
 **
 ** Display information about a particular check-in.
 **
-** We also jump here from /info if the name is a version.
+** We also jump here from /info if the name is a check-in
 **
 ** If the /ci page is used (instead of /vinfo or /info) then the
 ** default behavior is to show unified diffs of all file changes.
@@ -772,7 +751,7 @@ void ci_page(void){
 ** WEBPAGE: winfo
 ** URL:  /winfo?name=UUID
 **
-** Return information about a wiki page.
+** Display information about a wiki page.
 */
 void winfo_page(void){
   int rid;
@@ -975,7 +954,10 @@ static void checkin_description(int rid){
 
 /*
 ** WEBPAGE: vdiff
-** URL: /vdiff
+** URL: /vdiff?from=TAG&to=TAG
+**
+** Show the difference between two check-ins identified by the from= and
+** to= query parameters.
 **
 ** Query parameters:
 **
@@ -985,6 +967,8 @@ static void checkin_description(int rid){
 **   v=BOOLEAN       Default true.  If false, only list files that have changed
 **   sbs=BOOLEAN     Side-by-side diff if true.  Unified diff if false
 **   glob=STRING     only diff files matching this glob
+**   dc=N            show N lines of context around each diff
+**   w               ignore whitespace when computing diffs
 **
 **
 ** Show all differences between two check-ins.
@@ -1421,6 +1405,8 @@ int object_description(
 ** Additional parameters:
 **
 **      verbose      Show more detail when describing artifacts
+**      dc=N         Show N lines of context around each diff
+**      w            Ignore whitespace
 */
 void diff_page(void){
   int v1, v2;
@@ -2048,10 +2034,10 @@ void tinfo_page(void){
 ** WEBPAGE: info
 ** URL: info/ARTIFACTID
 **
-** The argument is a artifact ID which might be a baseline or a file or
+** The argument is a artifact ID which might be a check-in or a file or
 ** a ticket changes or a wiki edit or something else.
 **
-** Figure out what the artifact ID is and jump to it.
+** Figure out what the artifact ID is and display it appropriately.
 */
 void info_page(void){
   const char *zName;
@@ -2283,13 +2269,15 @@ static int comment_compare(const char *zA, const char *zB){
 
 /*
 ** WEBPAGE: ci_edit
-** URL:  ci_edit?r=RID&c=NEWCOMMENT&u=NEWUSER
+** URL:  /ci_edit?r=RID&c=NEWCOMMENT&u=NEWUSER
 **
-** Present a dialog for updating properties of a baseline:
+** Present a dialog for updating properties of a check-in.
 **
 **     *  The check-in user
 **     *  The check-in comment
+**     *  The check-in time and date
 **     *  The background color.
+**     *  Add and remove tags
 */
 void ci_edit_page(void){
   int rid;

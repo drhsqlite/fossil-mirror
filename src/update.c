@@ -123,7 +123,6 @@ void update_cmd(void){
   int width;            /* Width of printed comment lines */
   Stmt mtimeXfer;       /* Statement to transfer mtimes */
   const char *zWidth;   /* Width option string value */
-  int isFork;
 
   if( !internalUpdate ){
     undo_capture_command_line();
@@ -178,10 +177,8 @@ void update_cmd(void){
       latestFlag = 1;
     }else{
       tid = name_to_typed_rid(g.argv[2],"ci");
-      if( tid==0 ){
-        fossil_fatal("no such version: %s", g.argv[2]);
-      }else if( !is_a_version(tid) ){
-        fossil_fatal("no such version: %s", g.argv[2]);
+       if( tid==0 || !is_a_version(tid) ){
+        fossil_fatal("no such check-in: %s", g.argv[2]);
       }
     }
   }
@@ -521,10 +518,10 @@ void update_cmd(void){
   db_finalize(&mtimeXfer);
   fossil_print("%.79c\n",'-');
   if( nUpdate==0 ){
-    isFork = show_common_info(tid, "checkout:", 1, 0);
+    show_common_info(tid, "checkout:", 1, 0);
     fossil_print("%-13s None. Already up-to-date\n", "changes:");
   }else{
-    isFork = show_common_info(tid, "updated-to:", 1, 0);
+    show_common_info(tid, "updated-to:", 1, 0);
     fossil_print("%-13s %d file%s modified.\n", "changes:",
                  nUpdate, nUpdate>1 ? "s" : "");
   }
@@ -547,6 +544,7 @@ void update_cmd(void){
       nMerge++;
     }
     db_finalize(&q);
+    leaf_ambiguity_warning(tid, tid);
 
     if( nConflict ){
       if( internalUpdate ){
@@ -562,9 +560,6 @@ void update_cmd(void){
     }
     if( nMerge ){
       fossil_warning("WARNING: %d uncommitted prior merges", nMerge);
-    }
-    if( isFork ){
-      fossil_warning("WARNING: ambiguous branch, please do a \"fossil merge\"");
     }
   }
 

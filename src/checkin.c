@@ -266,6 +266,7 @@ void status_cmd(void){
   }
   db_record_repository_filename(0);
   print_changes(useSha1sum, showHdr, verboseFlag, cwdRelative);
+  leaf_ambiguity_warning(vid, vid);
 }
 
 /*

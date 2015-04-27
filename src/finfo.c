@@ -290,6 +290,7 @@ void cat_cmd(void){
 **    brbg       Background color by branch name
 **    ubg        Background color by user name
 **    ci=UUID    Ancestors of a particular check-in
+**    showid     Show RID values for debugging
 */
 void finfo_page(void){
   Stmt q;

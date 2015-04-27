@@ -776,7 +776,8 @@ static const unsigned char aBackground[] = {
 /*
 ** WEBPAGE: background
 **
-** Return the background image.
+** Return the background image.  If no background image is defined, a
+** built-in 16x16 pixel white GIF is returned.
 */
 void background_page(void){
   Blob bgimg;
@@ -795,9 +796,15 @@ void background_page(void){
 
 
 /*
-** WEBPAGE: /docsrch
+** WEBPAGE: docsrch
 **
-** Search for documents that match a user-supplied pattern.
+** Search for documents that match a user-supplied full-text search pattern.
+** If no pattern is specified (by the s= query parameter) then the user
+** is prompted to enter a search string.
+**
+** Query parameters:
+**
+**     s=PATTERN             Search for PATTERN
 */
 void doc_search_page(void){
   login_check_credentials();

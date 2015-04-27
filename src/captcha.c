@@ -416,6 +416,8 @@ char *captcha_render(const char *zPw){
 
 /*
 ** COMMAND: test-captcha
+**
+** Render an ASCII-art captcha for numbers given on the command line.
 */
 void test_captcha(void){
   int i;
@@ -553,6 +555,9 @@ void captcha_generate(int showButton){
 
 /*
 ** WEBPAGE: test-captcha
+** Test the captcha-generator by rendering the value of the name= query
+** parameter using ascii-art.  If name= is omitted, show a random 16-digit
+** hexadecimal number.
 */
 void captcha_test(void){
   const char *zPw = P("name");
