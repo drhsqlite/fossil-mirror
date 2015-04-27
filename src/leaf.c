@@ -182,3 +182,90 @@ void leaf_do_pending_checks(void){
   }
   bag_clear(&needToCheck);
 }
+
+/*
+** If check-in rid is an open-leaf and there exists another
+** open leaf on the same branch, then return 1.
+**
+** If check-in rid is not an open leaf, or if it is the only open leaf
+** on its branch, then return 0.
+*/
+int leaf_ambiguity(int rid){
+  int rc;             /* Result */
+  char zVal[30];
+  if( !is_a_leaf(rid) ) return 0;
+  sqlite3_snprintf(sizeof(zVal), zVal, "%d", rid);
+  rc = db_exists(
+       "SELECT 1 FROM leaf" 
+       " WHERE NOT %z"
+       "   AND rid<>%d"
+       "   AND (SELECT value FROM tagxref WHERE tagid=%d AND rid=leaf.rid)="
+       "       (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d)"
+       "   AND NOT %z",
+       leaf_is_closed_sql(zVal), rid, TAG_BRANCH, TAG_BRANCH, rid,
+       leaf_is_closed_sql("leaf.rid"));
+  return rc;
+}
+
+/*
+** If check-in rid is an open-leaf and there exists another open leaf
+** on the same branch, then print a detailed warning showing all open
+** leaves on that branch.
+*/
+int leaf_ambiguity_warning(int rid, int currentCkout){
+  char *zBr;
+  Stmt q;
+  int n = 0;
+  Blob msg;
+  if( leaf_ambiguity(rid)==0 ) return 0;
+  zBr = db_text(0, "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
+                TAG_BRANCH, rid);
+  if( zBr==0 ) zBr = fossil_strdup("trunk");
+  blob_init(&msg, 0, 0);
+  blob_appendf(&msg, "WARNING: multiple open leaf check-ins on %s:", zBr);
+  db_prepare(&q,
+    "SELECT"
+    "  (SELECT uuid FROM blob WHERE rid=leaf.rid),"
+    "  (SELECT datetime(mtime%s) FROM event WHERE objid=leaf.rid),"
+    "  leaf.rid"
+    "  FROM leaf"
+    " WHERE (SELECT value FROM tagxref WHERE tagid=%d AND rid=leaf.rid)=%Q"
+    "   AND NOT %z"
+    " ORDER BY 2 DESC",
+    timeline_utc(), TAG_BRANCH, zBr, leaf_is_closed_sql("leaf.rid")
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    blob_appendf(&msg, "\n  (%d) %s [%S]%s",
+          ++n, db_column_text(&q,1), db_column_text(&q,0),
+          db_column_int(&q,2)==currentCkout ? " (current)" : "");
+  }
+  db_finalize(&q);
+  fossil_warning("%s",blob_str(&msg));
+  blob_reset(&msg);
+  return 1;
+}
+
+/*
+** COMMAND: test-leaf-ambiguity
+**
+** Usage: %fossil NAME ...
+**
+** Resolve each name on the command line and call leaf_ambiguity_warning()
+** for each resulting RID.
+*/
+void leaf_ambiguity_warning_test(void){
+  int i;
+  int rid;
+  int rc;
+  db_find_and_open_repository(0,0);
+  verify_all_options();
+  for(i=2; i<g.argc; i++){
+    char *zUuid;
+    rid = name_to_typed_rid(g.argv[i], "ci");
+    zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+    fossil_print("%s (rid=%d) %S ", g.argv[i], rid, zUuid ? zUuid : "(none)");
+    fossil_free(zUuid);
+    rc = leaf_ambiguity_warning(rid, rid);
+    if( rc==0 ) fossil_print(" ok\n");
+  }
+}
