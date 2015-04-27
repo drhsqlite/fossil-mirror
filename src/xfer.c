@@ -1976,7 +1976,7 @@ int client_sync(
   }
   if( (syncFlags & SYNC_CLONE)==0 && fossil_any_has_fork(g.rcvid) ){
     fossil_warning("***** WARNING: an ambiguous branch has occurred *****\n"
-                   "use \"fossil leaves -multiple\" for more details.");
+                   "use \"fossil info\" for more details.");
   }
   return nErr;
 }
