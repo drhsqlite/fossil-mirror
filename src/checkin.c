@@ -619,26 +619,25 @@ void extras_cmd(void){
 
 /*
 ** COMMAND: clean
-** Usage: %fossil clean ?OPTIONS? ?PATH1 ...?
+** Usage: %fossil clean ?OPTIONS? ?PATH ...?
 **
 ** Delete all "extra" files in the source tree.  "Extra" files are
 ** files that are not officially part of the checkout. This operation
-** cannot be undone. If paths are specified, only the directories or
-** files specified will be considered for cleaning.
+** cannot be undone. If one or more PATH arguments appear, then only
+** the files named, or files contained with directories named, will be
+** removed.
 **
-** You will be prompted before removing each eligible file unless the
-** --force flag is in use or it matches the --clean option.  The
-** GLOBPATTERN specified by the "ignore-glob" setting is used if the
-** --ignore option is omitted, the same with "clean-glob" and --clean
-** as well as "keep-glob" and --keep.  If you are sure you wish to
-** remove all "extra" files except the ones specified with --ignore
-** and --keep, you can specify the optional -f|--force flag and no
-** prompts will be issued.  If a file matches both --keep and --clean,
-** --keep takes precedence.
+** Prompted are issued to confirm the removal of each file, unless
+** the --force or --verily flag is used or unless the file matches
+** glob pattern specified by the --clean option.  No file that matches
+** glob patterns specified by --ignore or --keep will ever be deleted.
+** The default values for --clean, --ignore, and --keep are determined
+** by the (versionable) clean-glob, ignore-glob, and keep-glob settings.
+** Files and subdirectories whose names begin with "." are automatically
+** ignored unless the --dotfiles option is used.
 **
-** Files and subdirectories whose names begin with "." are
-** normally kept.  They are handled if the "--dotfiles" option
-** is used.
+** The --verily option overrides all other options and settings and
+** deletes all unmanaged files and empty directories without prompting.
 **
 ** Options:
 **    --allckouts      Check for empty directories within any checkouts
@@ -660,7 +659,9 @@ void extras_cmd(void){
 **                     therefore, directories that contain only files
 **                     that were removed will be removed as well.
 **    -f|--force       Remove files without prompting.
-**    --verily         Shorthand for: -f --emptydirs --dotfiles
+**    --verily         Remove everything that is not a managed file or
+**                     the repository itself.  Imples -f --emptydirs
+**                     --dotfiles --ignore '' --keep ''.
 **    --clean <CSG>    Never prompt for files matching this
 **                     comma separated list of glob patterns.
 **    --ignore <CSG>   Ignore files matching patterns from the
@@ -677,6 +678,7 @@ void clean_cmd(void){
   int allFileFlag, allDirFlag, dryRunFlag, verboseFlag;
   int emptyDirsFlag, dirsOnlyFlag;
   unsigned scanFlags = 0;
+  int verilyFlag = 0;
   const char *zIgnoreFlag, *zKeepFlag, *zCleanFlag;
   Glob *pIgnore, *pKeep, *pClean;
   int nRoot;
@@ -700,17 +702,20 @@ void clean_cmd(void){
   zCleanFlag = find_option("clean",0,1);
   db_must_be_within_tree();
   if( find_option("verily",0,0)!=0 ){
-    allFileFlag = allDirFlag = 1;
+    verilyFlag = allFileFlag = allDirFlag = 1;
     emptyDirsFlag = 1;
     scanFlags |= SCAN_ALL;
+    zKeepFlag = 0;
+    zIgnoreFlag = 0;
+    zCleanFlag = 0;
   }
-  if( zIgnoreFlag==0 ){
+  if( zIgnoreFlag==0 && !verilyFlag ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
-  if( zKeepFlag==0 ){
+  if( zKeepFlag==0 && !verilyFlag ){
     zKeepFlag = db_get("keep-glob", 0);
   }
-  if( zCleanFlag==0 ){
+  if( zCleanFlag==0 && !verilyFlag ){
     zCleanFlag = db_get("clean-glob", 0);
   }
   if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
