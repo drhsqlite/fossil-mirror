@@ -1,5 +1,5 @@
-C Cherry-pick\s[http://www.sqlite.org/src/info/03b725a768290e3c|03b725a768]:\sFix\sharmless\scompiler\swarnings\sseen\swith\sMSVC\s2015.
-D 2015-04-28T08:11:10.907
+C Fix\sover-long\ssource\slines\sin\scheckin.c.
+D 2015-04-28T16:47:05.967
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -385,7 +385,7 @@ F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c 85da0ea6ee5ecff186e135b61108892904194e1e
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 6657772f2447b54cfa4fe965d00b9605a04ada4d
-F src/checkin.c 0ab1e3f369182912d6bd57f0bbf76ced55ba4c01
+F src/checkin.c bd64f0fc63e4b4f94ad73b8a9c2849015a8fbe82
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 265e9a29da905f3ab68625a9a5b245d7630275b2
@@ -734,7 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 440ed5da095da58161376dd9d08d5217df896e02
-R e718e5b1695cff0a73072eb93fbb539e
-U jan.nijtmans
-Z a86285fd2290749fd17461d3c191bed0
+P eda622cefc8c90f697d81a731aad8af844625b7a
+R 5ba82e8ba0cff35d1e0758c18575369d
+U drh
+Z 60275503d016721c5451cc380f855468

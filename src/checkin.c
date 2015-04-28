@@ -67,7 +67,8 @@ static void status_report(
     "SELECT pathname, deleted, chnged, rid, coalesce(origname!=pathname,0)"
     "  FROM vfile "
     " WHERE is_selected(id) %s"
-    "   AND (chnged OR deleted OR rid=0 OR pathname!=origname) ORDER BY 1 /*scan*/",
+    "   AND (chnged OR deleted OR rid=0 OR pathname!=origname)"
+    " ORDER BY 1 /*scan*/",
     blob_sql_text(&where)
   );
   blob_zero(&rewrittenPathname);
@@ -952,10 +953,12 @@ static void prepare_commit_comment(
 #endif
   blob_append(&prompt,
     "\n"
-    "# Enter a commit message for this check-in. Lines beginning with # are ignored.\n"
+    "# Enter a commit message for this check-in."
+        " Lines beginning with # are ignored.\n"
     "#\n", -1
   );
-  blob_appendf(&prompt, "# user: %s\n", p->zUserOvrd ? p->zUserOvrd : login_name());
+  blob_appendf(&prompt, "# user: %s\n",
+               p->zUserOvrd ? p->zUserOvrd : login_name());
   if( p->zBranch && p->zBranch[0] ){
     blob_appendf(&prompt, "# tags: %s\n#\n", p->zBranch);
   }else{
@@ -1044,7 +1047,8 @@ int select_commit_files(void){
       }
       blob_reset(&fname);
     }
-    g.aCommitFile = fossil_malloc( (bag_count(&toCommit)+1) * sizeof(g.aCommitFile[0]) );
+    g.aCommitFile = fossil_malloc( (bag_count(&toCommit)+1) *
+                                      sizeof(g.aCommitFile[0]) );
     for(ii=bag_first(&toCommit); ii>0; ii=bag_next(&toCommit, ii)){
       g.aCommitFile[jj++] = ii;
     }
@@ -1272,7 +1276,9 @@ static void create_manifest(
     while( db_step(&q)==SQLITE_ROW ){
       char *zMergeUuid;
       int mid = db_column_int(&q, 0);
-      if( (!g.markPrivate && content_is_private(mid)) || (mid == vid) ) continue;
+      if( (!g.markPrivate && content_is_private(mid)) || (mid == vid) ){
+        continue;
+      }
       zMergeUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", mid);
       if( zMergeUuid ){
         blob_appendf(pOut, " %s", zMergeUuid);
@@ -1383,7 +1389,7 @@ static int commit_warning(
   int fHasAnyCr;          /* the blob contains one or more CR chars */
   int fHasLoneCrOnly;     /* all detected line endings are CR only */
   int fHasCrLfOnly;       /* all detected line endings are CR/LF pairs */
-  int fHasInvalidUtf8 = 0;/* contains byte-sequence which is invalid for UTF-8 */
+  int fHasInvalidUtf8 = 0;/* contains invalid UTF-8 */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
@@ -1462,7 +1468,8 @@ static int commit_warning(
     }
     file_relative_name(zFilename, &fname, 0);
     zMsg = mprintf(
-         "%s contains %s. Use --no-warnings or the %s to disable this warning.\n"
+         "%s contains %s. Use --no-warnings or the %s to"
+                 " disable this warning.\n"
          "Commit anyhow (a=all/%sy/N)? ",
          blob_str(&fname), zWarning, zDisable, zConvert);
     prompt_user(zMsg, &ans);
@@ -1662,7 +1669,8 @@ void commit_cmd(void){
   sCiInfo.zMimetype = find_option("mimetype",0,1);
   while( (zTag = find_option("tag",0,1))!=0 ){
     if( zTag[0]==0 ) continue;
-    sCiInfo.azTag = fossil_realloc((void*)sCiInfo.azTag, sizeof(char*)*(nTag+2));
+    sCiInfo.azTag = fossil_realloc((void*)sCiInfo.azTag,
+                                    sizeof(char*)*(nTag+2));
     sCiInfo.azTag[nTag++] = zTag;
     sCiInfo.azTag[nTag] = 0;
   }
