@@ -661,13 +661,14 @@ void extras_cmd(void){
 **    -f|--force       Remove files without prompting.
 **    -x|--verily      Remove everything that is not a managed file or
 **                     the repository itself.  Implies -f --emptydirs
-**                     --dotfiles --ignore '' --keep ''.
+**                     --dotfiles --ignore ''.
 **    --clean <CSG>    Never prompt for files matching this
 **                     comma separated list of glob patterns.
 **    --ignore <CSG>   Ignore files matching patterns from the
 **                     comma separated list of glob patterns.
-**    --keep <CSG>     Keep files matching this comma separated
-**                     list of glob patterns.
+**    --keep <CSG>     Ignore files matching this comma separated
+**                     list of glob patterns too, but this option
+**                     even survives the --verily option.
 **    -n|--dry-run     If given, display instead of run actions.
 **    --temp           Remove only Fossil-generated temporary files.
 **    -v|--verbose     Show all files as they are removed.
@@ -705,14 +706,13 @@ void clean_cmd(void){
     verilyFlag = allFileFlag = allDirFlag = 1;
     emptyDirsFlag = 1;
     scanFlags |= SCAN_ALL;
-    zKeepFlag = 0;
     zIgnoreFlag = 0;
     zCleanFlag = 0;
   }
   if( zIgnoreFlag==0 && !verilyFlag ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
-  if( zKeepFlag==0 && !verilyFlag ){
+  if( zKeepFlag==0 ){
     zKeepFlag = db_get("keep-glob", 0);
   }
   if( zCleanFlag==0 && !verilyFlag ){
