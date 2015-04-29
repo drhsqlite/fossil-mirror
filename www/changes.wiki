@@ -11,6 +11,10 @@
      or HTML.
   *  Formally translate TH1 to Tcl return codes and vice-versa, where
      necessary, in the Tcl integration subsystem.
+  *  Better fork detection on [/help?cmd=update|fossil update],
+     [/help?cmd=status|fossil status] and related commands.
+  *  Add [/help?cmd=leaves|fossil leaves -multiple], for finding multiple
+     leaves on the same branch.
 
 <h2>Changes for Version 1.32 (2015-03-14)</h2>
   *  When creating a new repository using [/help?cmd=init|fossil init], ensure
@@ -25,7 +29,7 @@
   *  Added the "Xekri" skin.
   *  Enhance the "ln=" query parameter on artifact displays to accept multiple
      ranges, separate by spaces (or "+" when URL-encoded).
-  *  Added [/help?cmd=forget|fossil forget] as an alias for 
+  *  Added [/help?cmd=forget|fossil forget] as an alias for
      [/help?cmd=rm|fossil rm].
 
 <h2>Changes For Version 1.31 (2015-02-23)</h2>
@@ -43,10 +47,8 @@
      for easier operation.
   *  Added the --ifneeded option to [/help?cmd=rebuild|fossil rebuild].
   *  Added "override skins" using the "skin:" line of the CGI script or
-     using the --skin LABEL option on the 
-     [/help?cmd=server|server],
-     [/help?cmd=ui|ui], or 
-     [/help?cmd=http|http] commands.
+     using the --skin LABEL option on the [/help?cmd=server|server],
+     [/help?cmd=ui|ui], or [/help?cmd=http|http] commands.
   *  Embedded html documents that begin with
      &lt;doc class="fossil-doc"&gt; are displayed with standard
      headers and footers added.

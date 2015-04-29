@@ -659,6 +659,7 @@ int main(int argc, char **argv)
   }else{
     const char *zChdir = find_option("chdir",0,1);
     g.isHTTP = 0;
+    g.rcvid = 0;
     g.fQuiet = find_option("quiet", 0, 0)!=0;
     g.fSqlTrace = find_option("sqltrace", 0, 0)!=0;
     g.fSqlStats = find_option("sqlstats", 0, 0)!=0;
@@ -1134,7 +1135,10 @@ void help_cmd(void){
 
 /*
 ** WEBPAGE: help
-** URL: /help/CMD
+** URL: /help?name=CMD
+**
+** Show the built-in help text for CMD.  CMD can be a command-line interface
+** command or a page name from the web interface.
 */
 void help_page(void){
   const char *zCmd = P("cmd");
@@ -1202,7 +1206,6 @@ void help_page(void){
     @ </tr></table>
 
     @ <h1>Available web UI pages:</h1>
-    @ (Only pages with help text are linked.)
     @ <table border="0"><tr>
     for(i=j=0; i<count(aCommand); i++){
       const char *z = aCommand[i].zName;

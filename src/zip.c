@@ -401,7 +401,7 @@ void baseline_zip_cmd(void){
   const char *zName;
   zName = find_option("name", 0, 1);
   db_find_and_open_repository(0, 0);
-  
+
   /* We should be done with options.. */
   verify_all_options();
 

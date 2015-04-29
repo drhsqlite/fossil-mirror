@@ -388,7 +388,10 @@ static void new_brlist_page(void){
 
 /*
 ** WEBPAGE: brlist
-** Show a list of branches
+** Show a list of branches.  With no query parameters, a sortable table
+** is used to show all branches.  If query parameters are present a
+** fixed bullet list is shown.
+**
 ** Query parameters:
 **
 **     all         Show all branches

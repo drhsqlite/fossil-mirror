@@ -1049,10 +1049,18 @@ void search_screen(unsigned srchFlags, int useYparam){
 }
 
 /*
-** WEBPAGE: /search
+** WEBPAGE: search
 **
 ** Search for check-in comments, documents, tickets, or wiki that
 ** match a user-supplied pattern.
+**
+**    s=PATTERN       Specify the full-text pattern to search for
+**    y=TYPE          What to search.
+**                      c -> check-ins
+**                      d -> documentation
+**                      t -> tickets
+**                      w -> wiki
+**                    all -> everything
 */
 void search_page(void){
   login_check_credentials();

@@ -23,8 +23,8 @@
 #include <assert.h>
 
 /*
-** Main sub-menu for configuring the transfer system.
 ** WEBPAGE: xfersetup
+** Main sub-menu for configuring the transfer system.
 */
 void xfersetup_page(void){
   login_check_credentials();
@@ -159,6 +159,8 @@ static const char *zDefaultXferCommon = 0;
 
 /*
 ** WEBPAGE: xfersetup_com
+** View or edit the TH1 script that runs prior to receiving a
+** transfer.
 */
 void xfersetup_com_page(void){
   static const char zDesc[] =
@@ -180,6 +182,7 @@ static const char *zDefaultXferPush = 0;
 
 /*
 ** WEBPAGE: xfersetup_push
+** View or edit the TH1 script that runs after receiving a "push".
 */
 void xfersetup_push_page(void){
   static const char zDesc[] =
@@ -201,6 +204,8 @@ static const char *zDefaultXferCommit = 0;
 
 /*
 ** WEBPAGE: xfersetup_commit
+** View or edit the TH1 script that runs when a transfer commit
+** is processed.
 */
 void xfersetup_commit_page(void){
   static const char zDesc[] =
@@ -221,6 +226,8 @@ static const char *zDefaultXferTicket = 0;
 
 /*
 ** WEBPAGE: xfersetup_ticket
+** View or edit the TH1 script that runs when a ticket change artifact
+** is processed during a transfer.
 */
 void xfersetup_ticket_page(void){
   static const char zDesc[] =

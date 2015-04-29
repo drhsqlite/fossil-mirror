@@ -56,7 +56,9 @@ void setup_menu_entry(
 
 
 /*
-** WEBPAGE: /setup
+** WEBPAGE: setup
+**
+** Main menu for the administrative pages.  Requires Admin privileges.
 */
 void setup_page(void){
   login_check_credentials();
@@ -125,8 +127,8 @@ void setup_page(void){
     "A record of login attempts");
   setup_menu_entry("Administrative Log", "admin_log",
     "View the admin_log entries");
-  setup_menu_entry("Stats", "stat",
-    "Display repository statistics");
+  setup_menu_entry("Sitemap", "sitemap",
+    "Links to miscellaneous pages");
   setup_menu_entry("SQL", "admin_sql",
     "Enter raw SQL commands");
   setup_menu_entry("TH1", "admin_th1",
@@ -140,7 +142,7 @@ void setup_page(void){
 ** WEBPAGE: setup_ulist
 **
 ** Show a list of users.  Clicking on any user jumps to the edit
-** screen for that user.
+** screen for that user.  Requires Admin privileges.
 */
 void setup_ulist(void){
   Stmt s;
@@ -315,7 +317,10 @@ static int isValidPwString(const char *zPw){
 }
 
 /*
-** WEBPAGE: /setup_uedit
+** WEBPAGE: setup_uedit
+**
+** Edit information about a user or create a new user.
+** Requires Admin privileges.
 */
 void user_edit(void){
   const char *zId, *zLogin, *zInfo, *zCap, *zPw;
@@ -991,6 +996,8 @@ static void multiple_choice_attribute(
 
 /*
 ** WEBPAGE: setup_access
+**
+** The access-control settings page.  Requires Admin privileges.
 */
 void setup_access(void){
   login_check_credentials();
@@ -1188,6 +1195,9 @@ void setup_access(void){
 
 /*
 ** WEBPAGE: setup_login_group
+**
+** Change how the current repository participates in a login
+** group.
 */
 void setup_login_group(void){
   const char *zGroup;
@@ -1301,6 +1311,9 @@ void setup_login_group(void){
 
 /*
 ** WEBPAGE: setup_timeline
+**
+** Edit administrative settings controlling the display of
+** timelines.
 */
 void setup_timeline(void){
   double tmDiff;
@@ -1387,6 +1400,9 @@ void setup_timeline(void){
 
 /*
 ** WEBPAGE: setup_settings
+**
+** Change or view miscellanous settings.  Part of the
+** Admin pages requiring Admin privileges.
 */
 void setup_settings(void){
   Setting const *pSet;
@@ -1470,6 +1486,8 @@ void setup_settings(void){
 
 /*
 ** WEBPAGE: setup_config
+**
+** The "Admin/Configuration" page.  Requires Admin privilege.
 */
 void setup_config(void){
   login_check_credentials();
@@ -1549,6 +1567,8 @@ void setup_config(void){
 
 /*
 ** WEBPAGE: setup_modreq
+**
+** Admin page for setting up moderation of tickets and wiki.
 */
 void setup_modreq(void){
   login_check_credentials();
@@ -1594,6 +1614,9 @@ void setup_modreq(void){
 
 /*
 ** WEBPAGE: setup_adunit
+**
+** Administrative page for configuring and controlling ad units
+** and how they are displayed.
 */
 void setup_adunit(void){
   login_check_credentials();
@@ -1662,6 +1685,8 @@ void setup_adunit(void){
 
 /*
 ** WEBPAGE: setup_logo
+**
+** Administrative page for changing the logo image.
 */
 void setup_logo(void){
   const char *zLogoMtime = db_get_mtime("logo-image", 0, 0);
@@ -1814,6 +1839,7 @@ int raw_sql_query_authorizer(
 ** WEBPAGE: admin_sql
 **
 ** Run raw SQL commands against the database file using the web interface.
+** Requires Admin privileges.
 */
 void sql_page(void){
   const char *zQ = P("q");
@@ -1935,7 +1961,7 @@ void sql_page(void){
 **
 ** Run raw TH1 commands using the web interface.  If Tcl integration was
 ** enabled at compile-time and the "tcl" setting is enabled, Tcl commands
-** may be run as well.
+** may be run as well.  Requires Admin privilege.
 */
 void th1_page(void){
   const char *zQ = P("q");
@@ -2056,7 +2082,7 @@ void page_admin_log(){
 /*
 ** WEBPAGE: srchsetup
 **
-** Configure the search engine.
+** Configure the search engine.  Requires Admin privilege.
 */
 void page_srchsetup(){
   login_check_credentials();

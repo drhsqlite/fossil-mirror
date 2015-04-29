@@ -409,6 +409,9 @@ static int skinSave(const char *zCurrent){
 
 /*
 ** WEBPAGE: setup_skin
+**
+** Show a list of available skins with buttons for selecting which
+** skin to use.  Requires Admin privilege.
 */
 void setup_skin(void){
   const char *z;
@@ -568,6 +571,9 @@ void setup_skin(void){
 /*
 ** WEBPAGE: setup_skinedit
 **
+** Edit aspects of a skin determined by the w= query parameter.
+** Requires Admin privileges.
+**
 **    w=N     -- 0=CSS, 1=footer, 2=header, 3=details
 */
 void setup_skinedit(void){
@@ -604,7 +610,7 @@ void setup_skinedit(void){
   style_header("%s", aSkinAttr[ii].zTitle);
   for(j=0; j<ArraySize(aSkinAttr); j++){
     if( j==ii ) continue;
-    style_submenu_element(aSkinAttr[j].zSubmenu, 0, 
+    style_submenu_element(aSkinAttr[j].zSubmenu, 0,
           "%R/setup_skinedit?w=%d&basis=%h",j,zBasis);
   }
   style_submenu_element("Skins", 0, "%R/setup_skin");

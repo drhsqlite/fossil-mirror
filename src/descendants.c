@@ -354,8 +354,9 @@ void descendants_cmd(void){
 **
 ** Options:
 **   -a|--all         show ALL leaves
-**   -c|--closed      show only closed leaves
 **   --bybranch       order output by branch name
+**   -c|--closed      show only closed leaves
+**   -m|--multiple    show only cases with multiple leaves on a single branch
 **   --recompute      recompute the "leaf" table in the repository DB
 **   -W|--width <num> Width of lines (default is to auto-detect). Must be
 **                    >39 or 0 (= no limit, resulting in a single line per
@@ -370,11 +371,13 @@ void leaves_cmd(void){
   int showClosed = find_option("closed", "c", 0)!=0;
   int recomputeFlag = find_option("recompute",0,0)!=0;
   int byBranch = find_option("bybranch",0,0)!=0;
+  int multipleFlag = find_option("multiple","m",0)!=0;
   const char *zWidth = find_option("width","W",1);
   char *zLastBr = 0;
   int n, width;
   char zLineNo[10];
 
+  if( multipleFlag ) byBranch = 1;
   if( zWidth ){
     width = atoi(zWidth);
     if( (width!=0) && (width<=39) ){
@@ -384,14 +387,45 @@ void leaves_cmd(void){
     width = -1;
   }
   db_find_and_open_repository(0,0);
-  
+
   /* We should be done with options.. */
   verify_all_options();
 
   if( recomputeFlag ) leaf_rebuild();
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_tty(), -1);
-  blob_append_sql(&sql, " AND blob.rid IN leaf");
+  if( !multipleFlag ){
+    /* The usual case - show all leaves */
+    blob_append_sql(&sql, " AND blob.rid IN leaf");
+  }else{
+    /* Show only leaves where two are more occur in the same branch */
+    db_multi_exec(
+      "CREATE TEMP TABLE openLeaf(rid INTEGER PRIMARY KEY);"
+      "INSERT INTO openLeaf(rid)"
+      "  SELECT rid FROM leaf"
+      "   WHERE NOT EXISTS("
+      "     SELECT 1 FROM tagxref"
+      "      WHERE tagid=%d AND tagtype>0 AND rid=leaf.rid);",
+      TAG_CLOSED
+    );
+    db_multi_exec(
+      "CREATE TEMP TABLE ambiguousBranch(brname TEXT);"
+      "INSERT INTO ambiguousBranch(brname)"
+      " SELECT (SELECT value FROM tagxref WHERE tagid=%d AND rid=openLeaf.rid)"
+      "   FROM openLeaf"
+      "  GROUP BY 1 HAVING count(*)>1;",
+      TAG_BRANCH
+    );
+    db_multi_exec(
+      "CREATE TEMP TABLE ambiguousLeaf(rid INTEGER PRIMARY KEY);\n"
+      "INSERT INTO ambiguousLeaf(rid)\n"
+      "  SELECT rid FROM openLeaf\n"
+      "   WHERE (SELECT value FROM tagxref WHERE tagid=%d AND rid=openLeaf.rid)"
+      "         IN (SELECT brname FROM ambiguousBranch);",
+      TAG_BRANCH
+    );
+    blob_append_sql(&sql, " AND blob.rid IN ambiguousLeaf");
+  }
   if( showClosed ){
     blob_append_sql(&sql," AND %z", leaf_is_closed_sql("blob.rid"));
   }else if( !showAll ){
@@ -417,6 +451,7 @@ void leaves_cmd(void){
       fossil_print("*** %s ***\n", zBr);
       fossil_free(zLastBr);
       zLastBr = fossil_strdup(zBr);
+      if( multipleFlag ) n = 0;
     }
     n++;
     sqlite3_snprintf(sizeof(zLineNo), zLineNo, "(%d)", n);
@@ -432,7 +467,17 @@ void leaves_cmd(void){
 /*
 ** WEBPAGE:  leaves
 **
-** Find leaves of all branches.
+** Show leaf check-ins in a timeline.  By default only open leaves
+** are listed.
+**
+** A "leaf" is a check-in with no children in the same branch.  A
+** "closed leaf" is a leaf that has a "closed" tag.  An "open leaf"
+** is a leaf without a "closed" tag.
+**
+** Query parameters:
+**
+**     all           Show all leaves
+**     closed        Show only closed leaves
 */
 void leaves_page(void){
   Blob sql;
