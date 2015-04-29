@@ -1974,7 +1974,7 @@ int client_sync(
     content_enable_dephantomize(1);
     db_end_transaction(0);
   }
-  if( (syncFlags & SYNC_CLONE)==0 && fossil_any_has_fork(g.rcvid) ){
+  if( (syncFlags & SYNC_CLONE)==0 && g.rcvid && fossil_any_has_fork(g.rcvid) ){
     fossil_warning("***** WARNING: multiple leaves on the same branch are formed *****\n"
                    "use \"fossil info\" for more details.");
   }

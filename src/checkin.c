@@ -67,7 +67,8 @@ static void status_report(
     "SELECT pathname, deleted, chnged, rid, coalesce(origname!=pathname,0)"
     "  FROM vfile "
     " WHERE is_selected(id) %s"
-    "   AND (chnged OR deleted OR rid=0 OR pathname!=origname) ORDER BY 1 /*scan*/",
+    "   AND (chnged OR deleted OR rid=0 OR pathname!=origname)"
+    " ORDER BY 1 /*scan*/",
     blob_sql_text(&where)
   );
   blob_zero(&rewrittenPathname);
@@ -618,26 +619,25 @@ void extras_cmd(void){
 
 /*
 ** COMMAND: clean
-** Usage: %fossil clean ?OPTIONS? ?PATH1 ...?
+** Usage: %fossil clean ?OPTIONS? ?PATH ...?
 **
 ** Delete all "extra" files in the source tree.  "Extra" files are
 ** files that are not officially part of the checkout. This operation
-** cannot be undone. If paths are specified, only the directories or
-** files specified will be considered for cleaning.
+** cannot be undone. If one or more PATH arguments appear, then only
+** the files named, or files contained with directories named, will be
+** removed.
 **
-** You will be prompted before removing each eligible file unless the
-** --force flag is in use or it matches the --clean option.  The
-** GLOBPATTERN specified by the "ignore-glob" setting is used if the
-** --ignore option is omitted, the same with "clean-glob" and --clean
-** as well as "keep-glob" and --keep.  If you are sure you wish to
-** remove all "extra" files except the ones specified with --ignore
-** and --keep, you can specify the optional -f|--force flag and no
-** prompts will be issued.  If a file matches both --keep and --clean,
-** --keep takes precedence.
+** Prompted are issued to confirm the removal of each file, unless
+** the --force or --verily flag is used or unless the file matches
+** glob pattern specified by the --clean option.  No file that matches
+** glob patterns specified by --ignore or --keep will ever be deleted.
+** The default values for --clean, --ignore, and --keep are determined
+** by the (versionable) clean-glob, ignore-glob, and keep-glob settings.
+** Files and subdirectories whose names begin with "." are automatically
+** ignored unless the --dotfiles option is used.
 **
-** Files and subdirectories whose names begin with "." are
-** normally kept.  They are handled if the "--dotfiles" option
-** is used.
+** The --verily option overrides all other options and settings and
+** deletes all unmanaged files and empty directories without prompting.
 **
 ** Options:
 **    --allckouts      Check for empty directories within any checkouts
@@ -659,7 +659,9 @@ void extras_cmd(void){
 **                     therefore, directories that contain only files
 **                     that were removed will be removed as well.
 **    -f|--force       Remove files without prompting.
-**    --verily         Shorthand for: -f --emptydirs --dotfiles
+**    -x|--verily      Remove everything that is not a managed file or
+**                     the repository itself.  Implies -f --emptydirs
+**                     --dotfiles --ignore '' --keep ''.
 **    --clean <CSG>    Never prompt for files matching this
 **                     comma separated list of glob patterns.
 **    --ignore <CSG>   Ignore files matching patterns from the
@@ -676,6 +678,7 @@ void clean_cmd(void){
   int allFileFlag, allDirFlag, dryRunFlag, verboseFlag;
   int emptyDirsFlag, dirsOnlyFlag;
   unsigned scanFlags = 0;
+  int verilyFlag = 0;
   const char *zIgnoreFlag, *zKeepFlag, *zCleanFlag;
   Glob *pIgnore, *pKeep, *pClean;
   int nRoot;
@@ -698,18 +701,21 @@ void clean_cmd(void){
   zKeepFlag = find_option("keep",0,1);
   zCleanFlag = find_option("clean",0,1);
   db_must_be_within_tree();
-  if( find_option("verily",0,0)!=0 ){
-    allFileFlag = allDirFlag = 1;
+  if( find_option("verily","x",0)!=0 ){
+    verilyFlag = allFileFlag = allDirFlag = 1;
     emptyDirsFlag = 1;
     scanFlags |= SCAN_ALL;
+    zKeepFlag = 0;
+    zIgnoreFlag = 0;
+    zCleanFlag = 0;
   }
-  if( zIgnoreFlag==0 ){
+  if( zIgnoreFlag==0 && !verilyFlag ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
-  if( zKeepFlag==0 ){
+  if( zKeepFlag==0 && !verilyFlag ){
     zKeepFlag = db_get("keep-glob", 0);
   }
-  if( zCleanFlag==0 ){
+  if( zCleanFlag==0 && !verilyFlag ){
     zCleanFlag = db_get("clean-glob", 0);
   }
   if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
@@ -952,10 +958,12 @@ static void prepare_commit_comment(
 #endif
   blob_append(&prompt,
     "\n"
-    "# Enter a commit message for this check-in. Lines beginning with # are ignored.\n"
+    "# Enter a commit message for this check-in."
+        " Lines beginning with # are ignored.\n"
     "#\n", -1
   );
-  blob_appendf(&prompt, "# user: %s\n", p->zUserOvrd ? p->zUserOvrd : login_name());
+  blob_appendf(&prompt, "# user: %s\n",
+               p->zUserOvrd ? p->zUserOvrd : login_name());
   if( p->zBranch && p->zBranch[0] ){
     blob_appendf(&prompt, "# tags: %s\n#\n", p->zBranch);
   }else{
@@ -1044,7 +1052,8 @@ int select_commit_files(void){
       }
       blob_reset(&fname);
     }
-    g.aCommitFile = fossil_malloc( (bag_count(&toCommit)+1) * sizeof(g.aCommitFile[0]) );
+    g.aCommitFile = fossil_malloc( (bag_count(&toCommit)+1) *
+                                      sizeof(g.aCommitFile[0]) );
     for(ii=bag_first(&toCommit); ii>0; ii=bag_next(&toCommit, ii)){
       g.aCommitFile[jj++] = ii;
     }
@@ -1272,7 +1281,9 @@ static void create_manifest(
     while( db_step(&q)==SQLITE_ROW ){
       char *zMergeUuid;
       int mid = db_column_int(&q, 0);
-      if( (!g.markPrivate && content_is_private(mid)) || (mid == vid) ) continue;
+      if( (!g.markPrivate && content_is_private(mid)) || (mid == vid) ){
+        continue;
+      }
       zMergeUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", mid);
       if( zMergeUuid ){
         blob_appendf(pOut, " %s", zMergeUuid);
@@ -1383,7 +1394,7 @@ static int commit_warning(
   int fHasAnyCr;          /* the blob contains one or more CR chars */
   int fHasLoneCrOnly;     /* all detected line endings are CR only */
   int fHasCrLfOnly;       /* all detected line endings are CR/LF pairs */
-  int fHasInvalidUtf8 = 0;/* contains byte-sequence which is invalid for UTF-8 */
+  int fHasInvalidUtf8 = 0;/* contains invalid UTF-8 */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
@@ -1462,7 +1473,8 @@ static int commit_warning(
     }
     file_relative_name(zFilename, &fname, 0);
     zMsg = mprintf(
-         "%s contains %s. Use --no-warnings or the %s to disable this warning.\n"
+         "%s contains %s. Use --no-warnings or the %s to"
+                 " disable this warning.\n"
          "Commit anyhow (a=all/%sy/N)? ",
          blob_str(&fname), zWarning, zDisable, zConvert);
     prompt_user(zMsg, &ans);
@@ -1662,7 +1674,8 @@ void commit_cmd(void){
   sCiInfo.zMimetype = find_option("mimetype",0,1);
   while( (zTag = find_option("tag",0,1))!=0 ){
     if( zTag[0]==0 ) continue;
-    sCiInfo.azTag = fossil_realloc((void*)sCiInfo.azTag, sizeof(char*)*(nTag+2));
+    sCiInfo.azTag = fossil_realloc((void*)sCiInfo.azTag,
+                                    sizeof(char*)*(nTag+2));
     sCiInfo.azTag[nTag++] = zTag;
     sCiInfo.azTag[nTag] = 0;
   }

@@ -1,5 +1,5 @@
-C Merge\strunk.\s\nChange\sback\sone\sinstance\sof\s"multiple\sleafs"\sto\s"fork":\sHere\swe\sare\ssure\sthat\sit's\sreally\sa\s"fork",\snot\ssome\sother\sform\sof\smultiple\sleafs\son\sthe\ssame\sbranch.
-D 2015-04-27T21:00:32.233
+C merge\strunk
+D 2015-04-29T09:17:43.952
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -385,7 +385,7 @@ F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c 85da0ea6ee5ecff186e135b61108892904194e1e
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 6657772f2447b54cfa4fe965d00b9605a04ada4d
-F src/checkin.c 0ab1e3f369182912d6bd57f0bbf76ced55ba4c01
+F src/checkin.c 1c0d80c3ca6d12a460eedd313d0957751a76ca19
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 265e9a29da905f3ab68625a9a5b245d7630275b2
@@ -441,7 +441,7 @@ F src/leaf.c df47f8f52ed1ebeb3b7f5c7b92c62351b177d458
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 0a6cf8707e27b04873950a6c63a48391c0a9f7ce
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c 140b94fbc64b41e979b46b9cc239241ced1516a9
+F src/main.c 13babac804e52cb31dad95d3826d0ba416d51b13
 F src/main.mk ca9de93963900e71e92ed118feeddb4f741861fe
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -451,7 +451,7 @@ F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 45f6e06e03e4183764067eec37ff73f357303306
 F src/markdown_html.c 29e42640edab9c60dc2222f52b62da3bc3c3f81d
 F src/md5.c c6f6b5df8001ab094e5f49416fc2aa3019823d69
-F src/merge.c 5b81c58a73eb36babedbc544e28e9ce75b354c1d
+F src/merge.c d323fe8c0930a5e850eabf3eb8991d717defe784
 F src/merge3.c b2502f631c761f2c606f4fad6c8aa00bc2a5f4a7
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
@@ -474,7 +474,7 @@ F src/schema.c c43e7d7f0872b2e4940d049fc1dbcac81bffa543
 F src/search.c c27533caf67427523a61afa971f43e83a313097d
 F src/setup.c 97d246c3bba673f87745d1c870250d30e53ab3ee
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
-F src/shell.c 28b3e1174a7fc00155d7d00880a33589a88508c9
+F src/shell.c 78eabce4c16c45e36fea2368f95118116399ba8a
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c c61001e4c189224381a6474d204cde7d868e9ef0
 F src/skins.c f12a6c105e7ceb269570e046800ae4ad1231b15a
@@ -511,7 +511,7 @@ F src/wikiformat.c 6855db81eebdbee86ff21ce4e555e88e63c7fa81
 F src/winfile.c 0bcf34859198c42bbfe224e23eb8bcf27dd3e27d
 F src/winhttp.c 4e680d7c8778be4439169f40a992ccc81f7ceec2
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c 4bfe7e2b1357a7f370123608c89e20ce9ba97b86
+F src/xfer.c 236eb16c7e85139bedcfd506f9f4e3dddceb08f9
 F src/xfersetup.c 60d3e7eb781605652e593f1af2a4b9dd0bf99057
 F src/zip.c 49c6b1327a9aea3b0682b2c55bddd9d54860ff6f
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -734,7 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P cd0d6b4dda20173803e07fe4ed24c49b1d34e8cb fc3d9f52ee54e29293046c530fbe697edbdced48
-R 1ba4cd91a5a0b0422fa8adcfa2ada9fd
+P 35743de4495164c754fe026645b9f3e7548329a2 897acdc89fe903edae477137caeea9ef085dafcd
+R c456ddf1ad163a6f655b797a5235970c
 U jan.nijtmans
-Z abf808d3e3fe5dbfc2593bf56fdfdc05
+Z 77f0de4f91b79558f59a3711b93c8853
