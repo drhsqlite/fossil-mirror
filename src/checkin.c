@@ -659,7 +659,7 @@ void extras_cmd(void){
 **                     therefore, directories that contain only files
 **                     that were removed will be removed as well.
 **    -f|--force       Remove files without prompting.
-**    --verily         Remove everything that is not a managed file or
+**    -x|--verily      Remove everything that is not a managed file or
 **                     the repository itself.  Imples -f --emptydirs
 **                     --dotfiles --ignore '' --keep ''.
 **    --clean <CSG>    Never prompt for files matching this
@@ -701,7 +701,7 @@ void clean_cmd(void){
   zKeepFlag = find_option("keep",0,1);
   zCleanFlag = find_option("clean",0,1);
   db_must_be_within_tree();
-  if( find_option("verily",0,0)!=0 ){
+  if( find_option("verily","x",0)!=0 ){
     verilyFlag = allFileFlag = allDirFlag = 1;
     emptyDirsFlag = 1;
     scanFlags |= SCAN_ALL;
