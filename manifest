@@ -1,5 +1,5 @@
-C Remove\s.fossil-settings/keep-glob,\sthis\sshould\snever\shave\sbeen\sset\sa\sversioned\ssetting,\sas\sit\sis\sspecific\sto\smy\sbuild\senvironment\sand\sshouldn't\shave\sbeen\simposed\son\sothers.
-D 2015-04-29T13:35:02.554
+C Coding\sstyle\swhitespace\sfixes.\s\sNo\sfunctional\schanges.
+D 2015-04-29T17:47:59.922
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -384,7 +384,7 @@ F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c 85da0ea6ee5ecff186e135b61108892904194e1e
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 6657772f2447b54cfa4fe965d00b9605a04ada4d
-F src/checkin.c 58c5ca3bddbc88657f9c1b06cf4e0ebe29cc13a0
+F src/checkin.c c9588002527ef6e02b2f8f43976e004c28c373a2
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 265e9a29da905f3ab68625a9a5b245d7630275b2
@@ -733,7 +733,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 61a911981542ae88ead53f76839c2a2b04764ce1
-R 46190f0558af33277af1515a7e762b04
-U jan.nijtmans
-Z a15547e533db8d66cdf70c6aa21896e4
+P ab849410f58c4841b6808680dd387004bcb31bb9
+R c85f5b3141fd23d6bc9b868b6dc1782a
+U mistachkin
+Z 2b46993422fb2a69da8f9a433e04473c
