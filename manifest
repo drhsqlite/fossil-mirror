@@ -1,10 +1,9 @@
-C Add\sTAG_NOTE\sto\sthe\sschema.\s\sThis\srequires\sa\srebuild\sbefore\sTAG_NOTE\scan\nbe\sused,\sbut\sas\sTAG_NOTE\sis\snot\syet\sused\sfor\sanything,\sthe\srebuild\scan\nbe\sdeferred.
-D 2015-04-29T13:04:43.456
+C Remove\s.fossil-settings/keep-glob,\sthis\sshould\snever\shave\sbeen\sset\sa\sversioned\ssetting,\sas\sit\sis\sspecific\sto\smy\sbuild\senvironment\sand\sshouldn't\shave\sbeen\simposed\son\sothers.
+D 2015-04-29T13:35:02.554
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
-F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -734,7 +733,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P ee5a6567ae3239cb89df417ff1a907fb9e9ed453
-R 4d997278be31f21e16318fd1ad54f76b
-U drh
-Z dff8f8965ad9ac6a75b9d45041ff4dee
+P 61a911981542ae88ead53f76839c2a2b04764ce1
+R 46190f0558af33277af1515a7e762b04
+U jan.nijtmans
+Z a15547e533db8d66cdf70c6aa21896e4
