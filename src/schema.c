@@ -369,6 +369,7 @@ const char zRepositorySchema2[] =
 @ INSERT INTO tag VALUES(8, 'branch');          -- TAG_BRANCH
 @ INSERT INTO tag VALUES(9, 'closed');          -- TAG_CLOSED
 @ INSERT INTO tag VALUES(10,'parent');          -- TAG_PARENT
+@ INSERT INTO tag VALUES(11,'note');            -- TAG_NOTE
 @
 @ -- Assignments of tags to baselines.  Note that we allow tags to
 @ -- have values assigned to them.  So we are not really dealing with
@@ -468,9 +469,7 @@ const char zRepositorySchema2[] =
 # define TAG_BRANCH     8     /* Value is name of the current branch */
 # define TAG_CLOSED     9     /* Do not display this check-in as a leaf */
 # define TAG_PARENT     10    /* Change to parentage on a check-in */
-#endif
-#if EXPORT_INTERFACE
-# define MAX_INT_TAG    16    /* The largest pre-assigned tag id */
+# define TAG_NOTE       11    /* Extra text appended to a check-in comment */
 #endif
 
 /*
