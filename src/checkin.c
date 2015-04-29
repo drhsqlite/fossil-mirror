@@ -628,16 +628,17 @@ void extras_cmd(void){
 ** removed.
 **
 ** Prompted are issued to confirm the removal of each file, unless
-** the --force or --verily flag is used or unless the file matches
-** glob pattern specified by the --clean option.  No file that matches
-** glob patterns specified by --ignore or --keep will ever be deleted.
-** The default values for --clean, --ignore, and --keep are determined
-** by the (versionable) clean-glob, ignore-glob, and keep-glob settings.
+** the --force flag is used or unless the file matches glob pattern
+** specified by the --clean option.  No file that matches glob patterns
+** specified by --ignore or --keep will ever be deleted. The default
+** values for --clean, --ignore, and --keep are determined by the
+** (versionable) clean-glob, ignore-glob, and keep-glob settings.
 ** Files and subdirectories whose names begin with "." are automatically
 ** ignored unless the --dotfiles option is used.
 **
-** The --verily option overrides all other options and settings and
-** deletes all unmanaged files and empty directories without prompting.
+** The --verily option ignores the keep-glob and ignore-glob settings
+** and turns on --force, --dotfiles, and --emptydirs.  Use the --verily
+** option when you really want to clean up everything.
 **
 ** Options:
 **    --allckouts      Check for empty directories within any checkouts
@@ -661,14 +662,15 @@ void extras_cmd(void){
 **    -f|--force       Remove files without prompting.
 **    -x|--verily      Remove everything that is not a managed file or
 **                     the repository itself.  Implies -f --emptydirs
-**                     --dotfiles --ignore '' --keep ''.
+**                     --dotfiles.  Disregard keep-glob and ignore-glob.
 **    --clean <CSG>    Never prompt for files matching this
 **                     comma separated list of glob patterns.
 **    --ignore <CSG>   Ignore files matching patterns from the
 **                     comma separated list of glob patterns.
 **    --keep <CSG>     Keep files matching this comma separated
 **                     list of glob patterns.
-**    -n|--dry-run     If given, display instead of run actions.
+**    -n|--dry-run     Delete nothing, but display what would have been
+**                     deleted.
 **    --temp           Remove only Fossil-generated temporary files.
 **    -v|--verbose     Show all files as they are removed.
 **
@@ -705,8 +707,6 @@ void clean_cmd(void){
     verilyFlag = allFileFlag = allDirFlag = 1;
     emptyDirsFlag = 1;
     scanFlags |= SCAN_ALL;
-    zKeepFlag = 0;
-    zIgnoreFlag = 0;
     zCleanFlag = 0;
   }
   if( zIgnoreFlag==0 && !verilyFlag ){
