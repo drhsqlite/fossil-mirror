@@ -660,7 +660,7 @@ void extras_cmd(void){
 **                     that were removed will be removed as well.
 **    -f|--force       Remove files without prompting.
 **    -x|--verily      Remove everything that is not a managed file or
-**                     the repository itself.  Imples -f --emptydirs
+**                     the repository itself.  Implies -f --emptydirs
 **                     --dotfiles --ignore '' --keep ''.
 **    --clean <CSG>    Never prompt for files matching this
 **                     comma separated list of glob patterns.
