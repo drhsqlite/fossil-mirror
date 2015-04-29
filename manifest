@@ -1,10 +1,9 @@
-C Let\s--keep/"keep-glob"\ssurvive\sa\s--verily\s(contrary\sto\s--ignore/"ignore-glob")
-D 2015-04-29T07:57:19.837
+C Remove\sversionable\ssetting\s"keep-glob",\sas\snot\severyone\swants\sthis.
+D 2015-04-29T12:28:54.861
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
-F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -734,10 +733,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 897acdc89fe903edae477137caeea9ef085dafcd
-R 4ac38a1d13d9177da5d3bf6681beb50c
-T *branch * clean-verily
-T *sym-clean-verily *
-T -sym-trunk *
+P 32ed3663a1a6cdd198d6bd07b2e35cef94c8dfb1
+R ebdc1fec20c1da4a5bce9876545fbcf7
 U jan.nijtmans
-Z 59fef802cb2ff8f48f3c6aafd48e6030
+Z c4181a2750e7e18a38d0314728dbccce
