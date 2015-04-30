@@ -230,6 +230,14 @@ cache_read_done:
 }
 
 /*
+** Create a cache database for the current repository if no such
+** database already exists.
+*/
+void cache_initialize(void){
+  sqlite3_close(cacheOpen(1));
+}
+
+/*
 ** COMMAND: cache*
 ** Usage: %fossil cache SUBCOMMAND
 **
@@ -324,7 +332,7 @@ void cache_cmd(void){
 /*
 ** WEBPAGE: cachestat
 **
-** Show information about the webpage cache
+** Show information about the webpage cache.  Requires Admin privilege.
 */
 void cache_page(void){
   sqlite3 *db;
@@ -374,6 +382,7 @@ void cache_page(void){
 **
 ** Download a single entry for the cache, identified by KEY.
 ** This page is normally a hyperlink from the /cachestat page.
+** Requires Admin privilege.
 */
 void cache_getpage(void){
   const char *zKey;

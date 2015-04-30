@@ -152,7 +152,7 @@ Fossil code) but it is traditional to name the function
 You could also use "printf()" instead of "fossil_print()" to generate
 the output text, if desired.  But "fossil_print()" is recommended as
 it has extra logic to insert \r characters at the right times on
-windows systems.
+Windows systems.
 
 Once you have the command running, you can then start adding code to
 make it do useful things.  There are lots of utility functions in

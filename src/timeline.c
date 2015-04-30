@@ -110,7 +110,7 @@ char *hash_color(const char *z){
   static int ix[2] = {0,0};    /* Color chooser parameters */
 
   if( ix[0]==0 ){
-    if( db_get_boolean("white-foreground", 0) ){
+    if( skin_detail_boolean("white-foreground") ){
       ix[0] = 140;
       ix[1] = 40;
     }else{
@@ -165,7 +165,6 @@ void test_hash_color_page(void){
   char zNm[10];
   int i, cnt;
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
 
   style_header("Hash Color Test");
   for(i=cnt=0; i<10; i++){
@@ -272,6 +271,7 @@ void www_print_timeline(
     const char *zBr = 0;      /* Branch */
     int commentColumn = 3;    /* Column containing comment text */
     int modPending;           /* Pending moderation */
+    char *zDateLink;          /* URL for the link on the timestamp */
     char zTime[20];
 
     if( zDate==0 ){
@@ -353,7 +353,8 @@ void www_print_timeline(
     }else {
       @ <tr>
     }
-    @ <td class="timelineTime">%s(zTime)</td>
+    zDateLink = href("%R/timeline?c=%!S&unhide", zUuid);
+    @ <td class="timelineTime">%z(zDateLink)%s(zTime)</a></td>
     @ <td class="timelineGraph">
     if( tmFlags & TIMELINE_UCOLOR )  zBgClr = zUser ? hash_color(zUser) : 0;
     if( zType[0]=='c'
@@ -588,8 +589,8 @@ void www_print_timeline(
       /* style is not moved to css, because this is
       ** a technical div for the timeline graph
       */
-      w = (pGraph->mxRail+1)*pGraph->iRailPitch + 10;
-      @ <tr><td></td><td>
+      w = pGraph->mxRail*pGraph->iRailPitch + 28;
+      @ <tr class="timelineBottom"><td></td><td>
       @ <div id="grbtm" style="width:%d(w)px;"></div>
       @ </td><td></td></tr>
     }
@@ -597,6 +598,37 @@ void www_print_timeline(
   @ </table>
   if( fchngQueryInit ) db_finalize(&fchngQuery);
   timeline_output_graph_javascript(pGraph, (tmFlags & TIMELINE_DISJOINT)!=0, 0);
+}
+
+/*
+** Change the RGB background color given in the argument in a foreground
+** color with the same hue.
+*/
+static const char *bg_to_fg(const char *zIn){
+  int i;
+  unsigned int x[3];
+  unsigned int mx = 0;
+  static int whiteFg = -1;
+  static char zRes[10];
+  if( strlen(zIn)!=7 || zIn[0]!='#' ) return zIn;
+  zIn++;
+  for(i=0; i<3; i++){
+    x[i] = hex_digit_value(zIn[0])*16 + hex_digit_value(zIn[1]);
+    zIn += 2;
+    if( x[i]>mx ) mx = x[i];
+  }
+  if( whiteFg<0 ) whiteFg = skin_detail_boolean("white-foreground");
+  if( whiteFg ){
+    /* Make the color lighter */
+    static const unsigned int t = 215;
+    if( mx<t ) for(i=0; i<3; i++) x[i] += t - mx;
+  }else{
+    /* Make the color darker */
+    static const unsigned int t = 128;
+    if( mx>t ) for(i=0; i<3; i++) x[i] -= mx - t;
+  }
+  sqlite3_snprintf(sizeof(zRes),zRes,"#%02x%02x%02x",x[0],x[1],x[2]);
+  return zRes;
 }
 
 /*
@@ -612,9 +644,26 @@ void timeline_output_graph_javascript(
     GraphRow *pRow;
     int i;
     char cSep;
+    int mergeOffset;     /* Pixel offset from rail to merge riser */
+    int iRailPitch;      /* Pixels between consecutive rails */
+    int showArrowheads;  /* True to draw arrowheads.  False to omit. */
+    int circleNodes;     /* True for circle nodes.  False for square nodes */
+    int colorGraph;      /* Use colors for graph lines */
+
+    iRailPitch = pGraph->iRailPitch;
+    showArrowheads = skin_detail_boolean("timeline-arrowheads");
+    circleNodes = skin_detail_boolean("timeline-circle-nodes");
+    colorGraph = skin_detail_boolean("timeline-color-graph-lines");
+
+    /* Number of pixels that the thin merge lines are offset from the
+    ** the center of the think rail lines.  If zero, then the vertical
+    ** merge lines overlap with the thicker rail lines.
+    */
+    mergeOffset = iRailPitch>=14 ? 4 : iRailPitch>=13 ? 3 : 0;
+    if( PB("nomo") ) mergeOffset = 0;
 
     @ <script>
-    @ var railPitch=%d(pGraph->iRailPitch);
+    @ var railPitch=%d(iRailPitch);
 
     /* the rowinfo[] array contains all the information needed to generate
     ** the graph.  Each entry contains information for a single row:
@@ -653,7 +702,13 @@ void timeline_output_graph_javascript(
       if( mo<0 ){
         mo = 0;
       }else{
-        mo = (mo/4)*pGraph->iRailPitch - 3 + 4*(mo&3);
+        int x = (mo/4)*iRailPitch;
+        switch( mo&3 ){
+          case 0: x -= mergeOffset-2;  break;
+          case 1: x += 1;              break;
+          case 2: x += mergeOffset+1;  break;
+        }
+        mo = x;
       }
       cgi_printf("{id:%d,bg:\"%s\",r:%d,d:%d,mo:%d,mu:%d,u:%d,f:%d,au:",
         pRow->idx,                      /* id */
@@ -675,12 +730,18 @@ void timeline_output_graph_javascript(
         }
       }
       if( cSep=='[' ) cgi_printf("[");
-      cgi_printf("],mi:");
+      cgi_printf("],");
+      if( colorGraph && pRow->zBgClr[0]=='#' ){
+        cgi_printf("fg:\"%s\",", bg_to_fg(pRow->zBgClr));
+      }
       /* mi */
+      cgi_printf("mi:");
       cSep = '[';
       for(i=0; i<GR_MAX_RAIL; i++){
         if( pRow->mergeIn[i] ){
-          int mi = i*pGraph->iRailPitch - 8 + 4*pRow->mergeIn[i];
+          int mi = i*iRailPitch;
+          if( pRow->mergeIn[i]==1 ) mi -= mergeOffset-1;
+          if( pRow->mergeIn[i]==3 ) mi += mergeOffset;
           if( pRow->mergeDown & (1<<i) ) mi = -mi;
           cgi_printf("%c%d", cSep, mi);
           cSep = ',';
@@ -735,41 +796,80 @@ void timeline_output_graph_javascript(
     @   }
     @   return left;
     @ }
-    @ function drawUpArrow(x,y0,y1){
-    @   drawBox(lineClr,x,y0,x+1,y1);
-    @   if( y0+10>=y1 ){
-    @     drawBox(lineClr,x-1,y0+1,x+2,y0+2);
-    @     drawBox(lineClr,x-2,y0+3,x+3,y0+4);
-    @   }else{
-    @     drawBox(lineClr,x-1,y0+2,x+2,y0+4);
-    @     drawBox(lineClr,x-2,y0+5,x+3,y0+7);
-    @   }
-    @ }
+    if( showArrowheads ){
+      @ function drawUpArrow(x,y0,y1,clr){
+      @   drawBox(clr,x,y0+4,x+1,y1);
+      @   var n = document.createElement("div"),
+      @       l = x-2,
+      @       t = y0;
+      @   n.style.position = "absolute";
+      @   n.style.left = l+"px";
+      @   n.style.top = t+"px";
+      @   n.style.width = 0;
+      @   n.style.height = 0;
+      @   n.style.transform = "scale(.999)";
+      @   n.style.borderWidth = 0;
+      @   n.style.borderStyle = "solid";
+      @   n.style.borderColor = "transparent";
+      @   n.style.borderRightWidth = "3px";
+      @   n.style.borderBottomColor = clr;
+      @   n.style.borderLeftWidth = "3px";
+      @   if( y0+10>=y1 ){
+      @     n.style.borderBottomWidth = "5px";
+      @   } else {
+      @     n.style.borderBottomWidth = "7px";
+      @   }
+      @   cDiv.appendChild(n);
+      @ }
+    }else{
+      @ function drawUpArrow(x,y0,y1,clr){
+      @   drawBox(clr,x,y0+1,x+1,y1);
+      @ }
+    }
     @ function drawThinArrow(y,xFrom,xTo){
+    @   var n = document.createElement("div"),
+    @       t = y-2;
+    @   n.style.position = "absolute";
+    @   n.style.top = t+"px";
+    @   n.style.width = 0;
+    @   n.style.height = "1px";
+    @   n.style.transform = "scale(.999)";
+    @   n.style.borderWidth = 0;
+    @   n.style.borderStyle = "solid";
+    @   n.style.borderColor = "transparent";
+    @   n.style.borderTopWidth = "2px";
+    @   n.style.borderBottomWidth = "2px";
     @   if( xFrom<xTo ){
-    @     drawBox(lineClr,xFrom,y,xTo,y);
-    @     drawBox(lineClr,xTo-3,y-1,xTo-2,y+1);
-    @     drawBox(lineClr,xTo-4,y-2,xTo-4,y+2);
+    @     drawBox(lineClr,xFrom,y,xTo-3,y);
+    @     n.style.left = xTo-3+"px";
+    @     n.style.borderLeftWidth = "3px";
+    @     n.style.borderLeftColor = lineClr;
     @   }else{
-    @     drawBox(lineClr,xTo,y,xFrom,y);
-    @     drawBox(lineClr,xTo+2,y-1,xTo+3,y+1);
-    @     drawBox(lineClr,xTo+4,y-2,xTo+4,y+2);
+    @     drawBox(lineClr,xTo+3,y,xFrom,y);
+    @     n.style.left = xTo+1+"px";
+    @     n.style.borderRightWidth = "3px";
+    @     n.style.borderRightColor = lineClr;
     @   }
+    @   cDiv.appendChild(n);
     @ }
     @ function drawThinLine(x0,y0,x1,y1){
     @   drawBox(lineClr,x0,y0,x1,y1);
     @ }
     @ function drawNodeBox(color,x0,y0,x1,y1){
-    @   drawBox(color,x0,y0,x1,y1).style.cursor = "pointer";
+    @   var n = drawBox(color,x0,y0,x1,y1);
+    @   n.style.cursor = "pointer";
+    if( circleNodes ){
+      @   n.style.borderRadius = "6px";
+    }
     @ }
     @ function drawNode(p, left, btm){
     @   drawNodeBox(boxColor,p.x-5,p.y-5,p.x+6,p.y+6);
     @   drawNodeBox(p.bg||bgClr,p.x-4,p.y-4,p.x+5,p.y+5);
-    @   if( p.u>0 ) drawUpArrow(p.x, rowinfo[p.u-1].y+6, p.y-5);
+    @   if( p.u>0 ) drawUpArrow(p.x,rowinfo[p.u-1].y+6,p.y-6,p.fg||lineClr);
     @   if( p.f&1 ) drawNodeBox(boxColor,p.x-1,p.y-1,p.x+2,p.y+2);
     if( !omitDescenders ){
-      @   if( p.u==0 ) drawUpArrow(p.x, 0, p.y-5);
-      @   if( p.d ) drawUpArrow(p.x, p.y+6, btm);
+      @   if( p.u==0 ) drawUpArrow(p.x,0,p.y-6,p.fg||lineClr);
+      @   if( p.d ) drawUpArrow(p.x,p.y+6,btm,p.fg||lineClr);
     }
     @   if( p.mo>0 ){
     @     var x1 = p.mo + left - 1;
@@ -782,6 +882,7 @@ void timeline_output_graph_javascript(
     @     }else{
     @       drawThinLine(x0,y1,x1,y1);
     @     }
+    if( mergeOffset==0 ) cgi_printf("if( p.mo!=p.u-1 ) ");
     @     drawThinLine(x1,y0,x1,y1);
     @   }
     @   var n = p.au.length;
@@ -790,14 +891,29 @@ void timeline_output_graph_javascript(
     @     var x0 = x1>p.x ? p.x+7 : p.x-6;
     @     var u = rowinfo[p.au[i+1]-1];
     @     if(u.id<p.id){
-    @       drawBox(lineClr,x0,p.y,x1,p.y+1);
-    @       drawUpArrow(x1, u.y+6, p.y);
+    @       drawBox(u.fg||lineClr,x0,p.y,x1+1,p.y+1);
+    @       drawUpArrow(x1,u.y+6,p.y,u.fg||lineClr);
     @     }else{
     @       drawBox("#600000",x0,p.y,x1,p.y+1);
     @       drawBox("#600000",x1-1,p.y,x1,u.y+1);
-    @       drawBox("#600000",x1,u.y,u.x-6,u.y+1);
-    @       drawBox("#600000",u.x-9,u.y-1,u.x-8,u.y+2);
-    @       drawBox("#600000",u.x-11,u.y-2,u.x-10,u.y+3);
+    @       drawBox("#600000",x1,u.y,u.x-10,u.y+1);
+    @       var n = document.createElement("div"),
+    @           t = u.y-2,
+    @           l = u.x-11;
+    @       n.style.position = "absolute";
+    @       n.style.top = t+"px";
+    @       n.style.left = l+"px";
+    @       n.style.width = 0;
+    @       n.style.height = 0;
+    @       n.style.transform = "scale(.999)";
+    @       n.style.borderWidth = 0;
+    @       n.style.borderStyle = "solid";
+    @       n.style.borderColor = "transparent";
+    @       n.style.borderTopWidth = "3px";
+    @       n.style.borderBottomWidth = "3px";
+    @       n.style.borderLeftWidth = "7px";
+    @       n.style.borderLeftColor = "#600000";
+    @       cDiv.appendChild(n);
     @     }
     @   }
     @   for(var j in p.mi){
@@ -863,6 +979,9 @@ void timeline_output_graph_javascript(
     @ function clickOnRow(p){
     @   if( selRow==null ){
     @     selBox = drawBox("red",p.x-2,p.y-2,p.x+3,p.y+3);
+    if( circleNodes ){
+      @     selBox.style.borderRadius="6px";
+    }
     @     selRow = p;
     @   }else if( selRow==p ){
     @     var canvasDiv = gebi("canvas");
@@ -1095,10 +1214,11 @@ static void timeline_y_submenu(int isDisabled){
 **    from=UUID      Path from...
 **    to=UUID          ... to this
 **    shortest         ... show only the shortest path
-**    uf=FUUID       Show only checkins that use given file version
+**    uf=FUUID       Show only check-ins that use given file version
 **    brbg           Background color from branch name
 **    ubg            Background color from user
-**    namechng       Show only checkins that filename changes
+**    namechng       Show only check-ins that filename changes
+**    forks          Show only forks and their children
 **    ym=YYYY-MM     Shown only events for the given year/month.
 **    datefmt=N      Override the date format
 **
@@ -1127,11 +1247,12 @@ void page_timeline(void){
   const char *zTagName = P("t");     /* Show events with this tag */
   const char *zBrName = P("r");      /* Show events related to this tag */
   const char *zSearch = P("s");      /* Search string */
-  const char *zUses = P("uf");       /* Only show checkins hold this file */
-  const char *zYearMonth = P("ym");  /* Show checkins for the given YYYY-MM */
-  const char *zYearWeek = P("yw");   /* Checkins for YYYY-WW (week-of-year) */
+  const char *zUses = P("uf");       /* Only show check-ins hold this file */
+  const char *zYearMonth = P("ym");  /* Show check-ins for the given YYYY-MM */
+  const char *zYearWeek = P("yw");   /* Check-ins for YYYY-WW (week-of-year) */
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
-  int renameOnly = P("namechng")!=0; /* Show only checkins that rename files */
+  int renameOnly = P("namechng")!=0; /* Show only check-ins that rename files */
+  int forkOnly = PB("forks");        /* Show only forks and their children */
   int tagid;                         /* Tag ID */
   int tmFlags = 0;                   /* Timeline flags */
   const char *zThisTag = 0;          /* Suppress links to this tag */
@@ -1237,6 +1358,26 @@ void page_timeline(void){
       "INSERT OR IGNORE INTO rnfile"
       "  SELECT mid FROM mlink WHERE pfnid>0 AND pfnid!=fnid;"
     );
+    disableY = 1;
+  }
+  if( forkOnly ){
+    db_multi_exec(
+      "CREATE TEMP TABLE rnfork(rid INTEGER PRIMARY KEY);\n"
+      "INSERT OR IGNORE INTO rnfork(rid)\n"
+      "  SELECT pid FROM plink\n"
+      "   WHERE (SELECT value FROM tagxref WHERE tagid=%d AND rid=cid)=="
+      "           (SELECT value FROM tagxref WHERE tagid=%d AND rid=pid)\n"
+      "   GROUP BY pid"
+      "   HAVING count(*)>1;\n"
+      "INSERT OR IGNORE INTO rnfork(rid)"
+      "  SELECT cid FROM plink\n"
+      "   WHERE (SELECT value FROM tagxref WHERE tagid=%d AND rid=cid)=="
+      "           (SELECT value FROM tagxref WHERE tagid=%d AND rid=pid)\n"
+      "     AND pid IN rnfork;",
+      TAG_BRANCH, TAG_BRANCH, TAG_BRANCH, TAG_BRANCH
+    );
+    tmFlags |= TIMELINE_UNHIDE;
+    zType = "ci";
     disableY = 1;
   }
 
@@ -1359,7 +1500,7 @@ void page_timeline(void){
     }
   }else{
     /* Otherwise, a timeline based on a span of time */
-    int n;
+    int n, nBefore, nAfter;
     const char *zEType = "timeline item";
     char *zDate;
     if( zUses ){
@@ -1367,6 +1508,9 @@ void page_timeline(void){
     }
     if( renameOnly ){
       blob_append_sql(&sql, " AND event.objid IN rnfile ");
+    }
+    if( forkOnly ){
+      blob_append_sql(&sql, " AND event.objid IN rnfork ");
     }
     if( zYearMonth ){
       blob_append_sql(&sql, " AND %Q=strftime('%%Y-%%m',event.mtime) ",
@@ -1382,7 +1526,7 @@ void page_timeline(void){
             " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)\n", tagid);
 
       if( zBrName ){
-        /* The next two blob_appendf() calls add SQL that causes checkins that
+        /* The next two blob_appendf() calls add SQL that causes check-ins that
         ** are not part of the branch which are parents or children of the
         ** branch to be included in the report.  This related check-ins are
         ** useful in helping to visualize what has happened on a quiescent
@@ -1446,7 +1590,7 @@ void page_timeline(void){
     }else{ /* zType!="all" */
       blob_append_sql(&sql, " AND event.type=%Q", zType);
       if( zType[0]=='c' ){
-        zEType = "checkin";
+        zEType = "check-in";
       }else if( zType[0]=='w' ){
         zEType = "wiki edit";
       }else if( zType[0]=='t' ){
@@ -1540,6 +1684,10 @@ void page_timeline(void){
       blob_appendf(&desc, " that contain filename changes");
       tmFlags |= TIMELINE_DISJOINT|TIMELINE_FRENAMES;
     }
+    if( forkOnly ){
+      blob_appendf(&desc, " associated with forks");
+      tmFlags |= TIMELINE_DISJOINT;
+    }
     if( zUser ){
       blob_appendf(&desc, " by user %h", zUser);
       tmFlags |= TIMELINE_DISJOINT;
@@ -1567,16 +1715,34 @@ void page_timeline(void){
       blob_appendf(&desc, " matching \"%h\"", zSearch);
     }
     if( g.perm.Hyperlink ){
-      if( zAfter || n==nEntry ){
+      if( zCirca && rCirca ){
+        nBefore = db_int(0,
+          "SELECT count(*) FROM timeline WHERE etype!='div'"
+          "   AND sortby<=%f /*scan*/", rCirca);
+        nAfter = db_int(0,
+          "SELECT count(*) FROM timeline WHERE etype!='div'"
+          "   AND sortby>=%f /*scan*/", rCirca);
         zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
-        timeline_submenu(&url, "Older", "b", zDate, "a");
-        zOlderButton = fossil_strdup(url_render(&url, "b", zDate, "a", 0));
+        if( nBefore>=nEntry ){
+          timeline_submenu(&url, "Older", "b", zDate, "c");
+          zOlderButton = fossil_strdup(url_render(&url, "b", zDate, "c", 0));
+        }
+        if( nAfter>=nEntry ){
+          timeline_submenu(&url, "Newer", "a", zDate, "c");
+        }
         free(zDate);
-      }
-      if( zBefore || (zAfter && n==nEntry) ){
-        zDate = db_text(0, "SELECT max(timestamp) FROM timeline /*scan*/");
-        timeline_submenu(&url, "Newer", "a", zDate, "b");
-        free(zDate);
+      }else{
+        if( zAfter || n==nEntry ){
+          zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
+          timeline_submenu(&url, "Older", "b", zDate, "a");
+          zOlderButton = fossil_strdup(url_render(&url, "b", zDate, "a", 0));
+          free(zDate);
+        }
+        if( zBefore || (zAfter && n==nEntry) ){
+          zDate = db_text(0, "SELECT max(timestamp) FROM timeline /*scan*/");
+          timeline_submenu(&url, "Newer", "a", zDate, "b");
+          free(zDate);
+        }
       }
       if( zType[0]=='a' || zType[0]=='c' ){
         if( (tmFlags & TIMELINE_UNHIDE)==0 ){
@@ -1827,7 +1993,7 @@ static int isIsoDate(const char *z){
 **                            w  = wiki commits only
 **   -v|--verbose         Output the list of files changed by each commit
 **                        and the type of each change (edited, deleted,
-**                        etc.) after the checkin comment.
+**                        etc.) after the check-in comment.
 **   -W|--width <num>     Width of lines (default is to auto-detect). Must be
 **                        >20 or 0 (= no limit, resulting in a single line per
 **                        entry).
@@ -1943,7 +2109,7 @@ void timeline_cmd(void){
   if( zFilePattern ){
     if( zType==0 ){
       /* When zFilePattern is specified and type is not specified, only show
-       * file checkins */
+       * file check-ins */
       zType="ci";
     }
     file_tree_name(zFilePattern, &treeName, 1);
@@ -2034,9 +2200,9 @@ const char *timeline_utc(){
 **
 ** Usage: %fossil test-timewarp-list ?-v|---verbose?
 **
-** Display all instances of child checkins that appear earlier in time
+** Display all instances of child check-ins that appear earlier in time
 ** than their parent.  If the -v|--verbose option is provided, both the
-** parent and child checking and their times are shown.
+** parent and child check-ins and their times are shown.
 */
 void test_timewarp_cmd(void){
   Stmt q;
@@ -2070,6 +2236,11 @@ void test_timewarp_cmd(void){
 
 /*
 ** WEBPAGE: test_timewarps
+**
+** Show all check-ins that are "timewarps".  A timewarp is a
+** check-in that occurs before its parent, according to the
+** timestamp information on the check-in.  This can only actually
+** happen, of course, if a users system clock is set incorrectly.
 */
 void test_timewarp_page(void){
   Stmt q;

@@ -496,6 +496,10 @@ BCC = gcc
 #
 # FOSSIL_BUILD_SSL = 1
 
+#### Enable legacy treatment of mv/rm (skip checkout files)
+#
+# FOSSIL_ENABLE_LEGACY_MV_RM = 1
+
 #### Enable TH1 scripts in embedded documentation files
 #
 # FOSSIL_ENABLE_TH1_DOCS = 1
@@ -589,7 +593,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2a
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -693,6 +697,12 @@ endif
 ifdef FOSSIL_ENABLE_SSL
 TCC += -DFOSSIL_ENABLE_SSL=1
 RCC += -DFOSSIL_ENABLE_SSL=1
+endif
+
+# With legacy treatment of mv/rm
+ifdef FOSSIL_ENABLE_LEGACY_MV_RM
+TCC += -DFOSSIL_ENABLE_LEGACY_MV_RM=1
+RCC += -DFOSSIL_ENABLE_LEGACY_MV_RM=1
 endif
 
 # With TH1 embedded docs support
@@ -992,7 +1002,7 @@ ifdef FOSSIL_BUILD_SSL
 APPTARGETS += openssl
 endif
 
-$(APPNAME):	$(OBJDIR)/headers $(CODECHECK1) $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o $(APPTARGETS)
+$(APPNAME):	$(APPTARGETS) $(OBJDIR)/headers $(CODECHECK1) $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o
 	$(CODECHECK1) $(TRANS_SRC)
 	$(TCC) -o $@ $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o
 
@@ -1312,6 +1322,9 @@ PERL    = perl.exe
 # Uncomment to build SSL libraries
 # FOSSIL_BUILD_SSL = 1
 
+# Uncomment to enable legacy treatment of mv/rm
+# FOSSIL_ENABLE_LEGACY_MV_RM = 1
+
 # Uncomment to enable TH1 scripts in embedded documentation files
 # FOSSIL_ENABLE_TH1_DOCS = 1
 
@@ -1322,7 +1335,7 @@ PERL    = perl.exe
 # FOSSIL_ENABLE_TCL = 1
 
 !ifdef FOSSIL_ENABLE_SSL
-SSLDIR    = $(B)\compat\openssl-1.0.2
+SSLDIR    = $(B)\compat\openssl-1.0.2a
 SSLINCDIR = $(SSLDIR)\inc32
 SSLLIBDIR = $(SSLDIR)\out32
 SSLLFLAGS = /nologo /opt:ref /debug
@@ -1426,6 +1439,11 @@ TCC       = $(TCC) /DFOSSIL_ENABLE_SSL=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_SSL=1
 LIBS      = $(LIBS) $(SSLLIB)
 LIBDIR    = $(LIBDIR) /LIBPATH:$(SSLLIBDIR)
+!endif
+
+!ifdef FOSSIL_ENABLE_LEGACY_MV_RM
+TCC       = $(TCC) /DFOSSIL_ENABLE_LEGACY_MV_RM=1
+RCC       = $(RCC) /DFOSSIL_ENABLE_LEGACY_MV_RM=1
 !endif
 
 !ifdef FOSSIL_ENABLE_TH1_DOCS
@@ -1607,32 +1625,32 @@ builtin_data.h:	mkbuiltin$E $(EXTRA_FILES)
 	mkbuiltin$E --prefix $(SRCDIR)/ $(EXTRA_FILES) > $@
 
 clean:
-	-del $(OX)\*.obj
-	-del *.obj
-	-del *_.c
-	-del *.h
-	-del *.ilk
-	-del *.map
-	-del *.res
-	-del headers
-	-del linkopts
-	-del vc*.pdb
+	del $(OX)\*.obj 2>NUL
+	del *.obj 2>NUL
+	del *_.c 2>NUL
+	del *.h 2>NUL
+	del *.ilk 2>NUL
+	del *.map 2>NUL
+	del *.res 2>NUL
+	del headers 2>NUL
+	del linkopts 2>NUL
+	del vc*.pdb 2>NUL
 
 realclean: clean
-	-del $(APPNAME)
-	-del $(PDBNAME)
-	-del translate$E
-	-del translate$P
-	-del mkindex$E
-	-del mkindex$P
-	-del makeheaders$E
-	-del makeheaders$P
-	-del mkversion$E
-	-del mkversion$P
-	-del codecheck1$E
-	-del codecheck1$P
-	-del mkbuiltin$E
-	-del mkbuiltin$P
+	del $(APPNAME) 2>NUL
+	del $(PDBNAME) 2>NUL
+	del translate$E 2>NUL
+	del translate$P 2>NUL
+	del mkindex$E 2>NUL
+	del mkindex$P 2>NUL
+	del makeheaders$E 2>NUL
+	del makeheaders$P 2>NUL
+	del mkversion$E 2>NUL
+	del mkversion$P 2>NUL
+	del codecheck1$E 2>NUL
+	del codecheck1$P 2>NUL
+	del mkbuiltin$E 2>NUL
+	del mkbuiltin$P 2>NUL
 
 $(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h

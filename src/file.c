@@ -816,7 +816,7 @@ int file_is_absolute_path(const char *zPath){
 #if defined(_WIN32) || defined(__CYGWIN__)
       || zPath[0]=='\\'
       || (fossil_isalpha(zPath[0]) && zPath[1]==':'
-           && (zPath[2]=='\\' || zPath[2]=='/'))
+           && (zPath[2]=='\\' || zPath[2]=='/' || zPath[2]=='\0'))
 #endif
   ){
     return 1;

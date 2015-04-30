@@ -850,7 +850,7 @@ static int string_trim_command(
 /*
 ** TH Syntax:
 **
-**   info exists VAR
+**   info exists VARNAME
 */
 static int info_exists_command(
   Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
@@ -862,6 +862,52 @@ static int info_exists_command(
   }
   rc = Th_ExistsVar(interp, argv[2], argl[2]);
   Th_SetResultInt(interp, rc);
+  return TH_OK;
+}
+
+/*
+** TH Syntax:
+**
+**   info commands
+*/
+static int info_commands_command(
+  Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
+){
+  int rc;
+  char *zElem = 0;
+  int nElem = 0;
+
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "info commands");
+  }
+  rc = Th_ListAppendCommands(interp, &zElem, &nElem);
+  if( rc!=TH_OK ){
+    return rc;
+  }
+  Th_SetResult(interp, zElem, nElem);
+  return TH_OK;
+}
+
+/*
+** TH Syntax:
+**
+**   info vars
+*/
+static int info_vars_command(
+  Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
+){
+  int rc;
+  char *zElem = 0;
+  int nElem = 0;
+
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "info vars");
+  }
+  rc = Th_ListAppendVariables(interp, &zElem, &nElem);
+  if( rc!=TH_OK ){
+    return rc;
+  }
+  Th_SetResult(interp, zElem, nElem);
   return TH_OK;
 }
 
@@ -945,7 +991,9 @@ static int string_command(
 /*
 ** TH Syntax:
 **
+**   info commands
 **   info exists VARNAME
+**   info vars
 */
 static int info_command(
   Th_Interp *interp,
@@ -955,7 +1003,9 @@ static int info_command(
   int *argl
 ){
   static const Th_SubCommand aSub[] = {
-    { "exists",  info_exists_command },
+    { "commands", info_commands_command },
+    { "exists",   info_exists_command },
+    { "vars",     info_vars_command },
     { 0, 0 }
   };
   return Th_CallSubCommand(interp, ctx, argc, argv, argl, aSub);

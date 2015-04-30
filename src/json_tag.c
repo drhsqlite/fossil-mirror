@@ -355,7 +355,7 @@ static cson_value * json_tag_list(){
   cson_object_set(pay, "raw", cson_value_new_bool(fRaw) );
   if( zCheckin ){
     /**
-       Tags for a specific checkin. Output format:
+       Tags for a specific check-in. Output format:
 
        RAW mode:
     
@@ -376,7 +376,7 @@ static cson_value * json_tag_list(){
     int const rid = name_to_rid(zCheckin);
     if(0==rid){
       json_set_err(FSL_JSON_E_UNRESOLVED_UUID,
-                   "Could not find artifact for checkin [%s].",
+                   "Could not find artifact for check-in [%s].",
                    zCheckin);
       goto error;
     }

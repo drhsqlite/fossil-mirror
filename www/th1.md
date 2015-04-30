@@ -7,18 +7,18 @@ content in Fossil.
 Origins
 -------
 
-TH1 began as a minimalist reimplementation of the TCL scripting language.
+TH1 began as a minimalist re-implementation of the Tcl scripting language.
 There was a need to test the SQLite library on Symbian phones, but at that
 time all of the test cases for SQLite were written in Tcl and Tcl could not
 be easily compiled on the SymbianOS.  So TH1 was developed as a cut-down
-version of TCL that would facilitate running the SQLite test scripts on
+version of Tcl that would facilitate running the SQLite test scripts on
 SymbianOS.
 
 The testing of SQLite on SymbianOS was eventually accomplished by other
-means.  But Fossil was first being designed at about the same time.  
-Early prototypes of Fossil were written in pure TCL.  But as the development
-shifted toward the use of C-code, the need arose to have a TCL-like
-scripting language to help with code generation.  TH1 was small and 
+means.  But Fossil was first being designed at about the same time.
+Early prototypes of Fossil were written in pure Tcl.  But as the development
+shifted toward the use of C-code, the need arose to have a Tcl-like
+scripting language to help with code generation.  TH1 was small and
 light-weight and used minimal resources and seemed ideally suited for the
 task.
 
@@ -80,8 +80,8 @@ just a single command.
 Summary of Core TH1 Commands
 ----------------------------
 
-The original TCL language after when TH1 is modeled has a very rich
-repetoire of commands.  TH1, as it is designed to be minimalist and
+The original Tcl language after when TH1 is modeled has a very rich
+repertoire of commands.  TH1, as it is designed to be minimalist and
 embedded has a greatly reduced command set.  The following bullets
 summarize the commands available in TH1:
 
@@ -92,7 +92,9 @@ summarize the commands available in TH1:
   *  expr EXPR
   *  for INIT-SCRIPT TEST-EXPR NEXT-SCRIPT BODY-SCRIPT
   *  if EXPR SCRIPT (elseif EXPR SCRIPT)* ?else SCRIPT?
+  *  info commands
   *  info exists VARNAME
+  *  info vars
   *  lindex LIST INDEX
   *  list ARG ...
   *  llength LIST
@@ -111,8 +113,8 @@ summarize the commands available in TH1:
   *  uplevel ?LEVEL? SCRIPT
   *  upvar ?FRAME? OTHERVAR MYVAR ?OTHERVAR MYVAR?
 
-All of the above commands works as in the original TCL.  Refer to the
-TCL documentation for details.
+All of the above commands works as in the original Tcl.  Refer to the
+Tcl documentation for details.
 
 TH1 Extended Commands
 ---------------------
@@ -130,12 +132,12 @@ features of Fossil.  The following is a summary of the extended commands:
   *  enable_output
   *  getParameter
   *  globalState
-  *  httpize
   *  hascap
   *  hasfeature
   *  html
   *  htmlize
   *  http
+  *  httpize
   *  linecount
   *  puts
   *  query
@@ -149,6 +151,9 @@ features of Fossil.  The following is a summary of the extended commands:
   *  setting
   *  styleHeader
   *  styleFooter
+  *  tclEval
+  *  tclExpr
+  *  tclInvoke
   *  tclReady
   *  trace
   *  stime
@@ -156,11 +161,409 @@ features of Fossil.  The following is a summary of the extended commands:
   *  wiki
 
 Each of the commands above is documented by a block comment above their
-implementation in the th_main.c source file.
+implementation in the th\_main.c or th\_tcl.c source files.
+
+All commands starting with "tcl", with the exception of "tclReady",
+require the Tcl integration subsystem be included at compile-time.
+Additionally, the "tcl" repository setting must be enabled at runtime
+in order to successfully make use of these commands.
+
+TH1 anoncap Command
+-------------------
+
+  *  anoncap STRING...
+
+Returns true if the anonymous user has all of the capabilities listed
+in STRING.
+
+TH1 anycap Command
+------------------
+
+  *  anycap STRING
+
+Returns true if the current user user has any one of the capabilities
+listed in STRING.
+
+TH1 artifact Command
+--------------------
+
+  *  artifact ID ?FILENAME?
+
+Attempts to locate the specified artifact and return its contents.  An
+error is generated if the repository is not open or the artifact cannot
+be found.
+
+TH1 checkout Command
+--------------------
+
+  *  checkout ?BOOLEAN?
+
+Return the fully qualified directory name of the current checkout or an
+empty string if it is not available.  Optionally, it will attempt to find
+the current checkout, opening the configuration ("user") database and the
+repository as necessary, if the boolean argument is non-zero.
+
+TH1 combobox Command
+--------------------
+
+  *  combobox NAME TEXT-LIST NUMLINES
+
+Generates and emits an HTML combobox.  NAME is both the name of the
+CGI parameter and the name of a variable that contains the currently
+selected value.  TEXT-LIST is a list of possible values for the
+combobox.  NUMLINES is 1 for a true combobox.  If NUMLINES is greater
+than one then the display is a listbox with the number of lines given.
+
+TH1 date Command
+----------------
+
+  *  date ?-local?
+
+Return a strings which is the current time and date.  If the -local
+option is used, the date appears using localtime instead of UTC.
+
+TH1 decorate Command
+--------------------
+
+  *  decorate STRING
+
+Renders STRING as wiki content; however, only links are handled.  No
+other markup is processed.
+
+TH1 enable_output Command
+-------------------------
+
+  *  enable_output BOOLEAN
+
+Enable or disable sending output when the combobox, puts, or wiki
+commands are used.
+
+TH1 getParameter Command
+------------------------
+
+  *  getParameter NAME ?DEFAULT?
+
+Returns the value of the specified query parameter or the specified
+default value when there is no matching query parameter.
+
+TH1 globalState Command
+-----------------------
+
+  *  globalState NAME ?DEFAULT?
+
+Returns a string containing the value of the specified global state
+variable -OR- the specified default value.  The supported items are:
+
+  1. **checkout** -- _Active local checkout directory, if any._
+  1. **configuration** -- _Active configuration database file name, if any._
+  1. **executable** -- _Fully qualified executable file name._
+  1. **flags** -- _TH1 initialization flags._
+  1. **log** -- _Error log file name, if any._
+  1. **repository** -- _Active local repository file name, if any._
+  1. **top** -- _Base path for the active server instance, if applicable._
+  1. **user** -- _Active user name, if any._
+  1. **vfs** -- _SQLite VFS in use, if overridden._
+
+Attempts to query for unsupported global state variables will result
+in a script error.  Additional global state variables may be exposed
+in the future.
+
+TH1 hascap Command
+------------------
+
+  *  hascap STRING...
+
+Returns true if the current user has all of the capabilities listed
+in STRING.
+
+TH1 hasfeature Command
+----------------------
+
+  *  hasfeature STRING
+
+Returns true if the binary has the given compile-time feature enabled.
+The possible features are:
+
+  1. **ssl** -- _Support for the HTTPS transport._
+  1. **legacyMvRm** -- _Support for legacy mv/rm command behavior._
+  1. **th1Docs** -- _Support for TH1 in embedded documentation._
+  1. **th1Hooks** -- _Support for TH1 command and web page hooks._
+  1. **tcl** -- _Support for Tcl integration._
+  1. **useTclStubs** -- _Tcl stubs enabled in the Tcl headers._
+  1. **tclStubs** -- _Uses Tcl stubs (i.e. linking with stubs library)._
+  1. **tclPrivateStubs** -- _Uses Tcl private stubs (i.e. header-only)._
+  1. **json** -- _Support for the JSON APIs._
+  1. **markdown** -- _Support for Markdown documentation format._
+  1. **unicodeCmdLine** -- _The command line arguments are Unicode._
+
+TH1 html Command
+----------------
+
+  *  html STRING
+
+Outputs the STRING escaped for HTML.
+
+TH1 htmlize Command
+-------------------
+
+  *  htmlize STRING
+
+Escape all characters of STRING which have special meaning in HTML.
+Returns the escaped string.
+
+TH1 http Command
+----------------
+
+  *  http ?-asynchronous? ?--? url ?payload?
+
+Performs an HTTP or HTTPS request for the specified URL.  If a
+payload is present, it will be interpreted as text/plain and
+the POST method will be used; otherwise, the GET method will
+be used.  Upon success, if the -asynchronous option is used, an
+empty string is returned as the result; otherwise, the response
+from the server is returned as the result.  Synchronous requests
+are not currently implemented.
+
+TH1 httpize Command
+-------------------
+
+  *  httpize STRING
+
+Escape all characters of STRING which have special meaning in URI
+components.  Returns the escaped string.
+
+TH1 linecount Command
+---------------------
+
+  *  linecount STRING MAX MIN
+
+Returns one more than the number of \n characters in STRING.  But
+never returns less than MIN or more than MAX.
+
+TH1 puts Command
+----------------
+
+  *  puts STRING
+
+Outputs the STRING unchanged.
+
+TH1 query Command
+-----------------
+
+  *  query SQL CODE
+
+Runs the SQL query given by the SQL argument.  For each row in the result
+set, run CODE.
+
+In SQL, parameters such as $var are filled in using the value of variable
+"var".  Result values are stored in variables with the column name prior
+to each invocation of CODE.
+
+TH1 randhex Command
+-------------------
+
+  *  randhex N
+
+Returns a string of N*2 random hexadecimal digits with N<50.  If N is
+omitted, use a value of 10.
+
+TH1 regexp Command
+------------------
+
+  *  regexp ?-nocase? ?--? exp string
+
+Checks the string against the specified regular expression and returns
+non-zero if it matches.  If the regular expression is invalid or cannot
+be compiled, an error will be generated.
+
+TH1 reinitialize Command
+------------------------
+
+  *  reinitialize ?FLAGS?
+
+Reinitializes the TH1 interpreter using the specified flags.
+
+TH1 render Command
+------------------
+
+  *  render STRING
+
+Renders the TH1 template and writes the results.
+
+TH1 repository Command
+----------------------
+
+  *  repository ?BOOLEAN?
+
+Returns the fully qualified file name of the open repository or an empty
+string if one is not currently open.  Optionally, it will attempt to open
+the repository if the boolean argument is non-zero.
+
+TH1 searchable Command
+----------------------
+
+  *  searchable STRING...
+
+Return true if searching in any of the document classes identified
+by STRING is enabled for the repository and user has the necessary
+capabilities to perform the search.  The possible document classes
+are:
+
+  1. **c** -- _Check-in comments_
+  1. **d** -- _Embedded documentation_
+  1. **t** -- _Tickets_
+  1. **w** -- _Wiki_
+
+To be clear, only one of the document classes identified by each STRING
+needs to be searchable in order for that argument to be true.  But all
+arguments must be true for this routine to return true.  Hence, to see
+if ALL document classes are searchable:
+
+        if {[searchable c d t w]} {...}
+
+But to see if ANY document class is searchable:
+
+        if {[searchable cdtw]} {...}
+
+This command is useful for enabling or disabling a "Search" entry on the
+menu bar.
+
+TH1 setParameter Command
+------------------------
+
+  *  setParameter NAME VALUE
+
+Sets the value of the specified query parameter.
+
+TH1 setting Command
+-------------------
+
+  *  setting name
+
+Gets and returns the value of the specified setting.
+
+TH1 styleHeader Command
+-----------------------
+
+  *  styleHeader TITLE
+
+Render the configured style header.
+
+TH1 styleFooter Command
+-----------------------
+
+  *  styleFooter
+
+Render the configured style footer.
+
+TH1 tclEval Command
+-------------------
+
+**This command requires the Tcl integration feature.**
+
+  *  tclEval arg ?arg ...?
+
+Evaluates the Tcl script and returns its result verbatim.  If a Tcl script
+error is generated, it will be transformed into a TH1 script error.  A Tcl
+interpreter will be created automatically if it has not been already.
+
+TH1 tclExpr Command
+-------------------
+
+**This command requires the Tcl integration feature.**
+
+  *  tclExpr arg ?arg ...?
+
+Evaluates the Tcl expression and returns its result verbatim.  If a Tcl
+script error is generated, it will be transformed into a TH1 script error.
+A Tcl interpreter will be created automatically if it has not been already.
+
+TH1 tclInvoke Command
+---------------------
+
+**This command requires the Tcl integration feature.**
+
+  *  tclInvoke command ?arg ...?
+
+Invokes the Tcl command using the supplied arguments.  No additional
+substitutions are performed on the arguments.  A Tcl interpreter will
+be created automatically if it has not been already.
+
+TH1 tclReady Command
+--------------------
+
+  *  tclReady
+
+Returns true if the binary has the Tcl integration feature enabled and it
+is currently available for use by TH1 scripts.
+
+TH1 trace Command
+-----------------
+
+  *  trace STRING
+
+Generates a TH1 trace message if TH1 tracing is enabled.
+
+TH1 stime Command
+-----------------
+
+  *  stime
+
+Returns the number of microseconds of CPU time consumed by the current
+process in system space.
+
+TH1 utime Command
+-----------------
+
+  *  utime
+
+Returns the number of microseconds of CPU time consumed by the current
+process in user space.
+
+TH1 wiki Command
+----------------
+
+  *  wiki STRING
+
+Renders STRING as wiki content.
+
+Tcl Integration Commands
+------------------------
+
+When the Tcl integration subsystem is enabled, several commands are added
+to the Tcl interpreter.  They are used to allow Tcl scripts access to the
+Fossil functionality provided via TH1.  The following is a summary of the
+Tcl commands:
+
+  *  th1Eval
+  *  th1Expr
+
+Tcl th1Eval Command
+-------------------
+
+**This command requires the Tcl integration feature.**
+
+  *  th1Eval arg
+
+Evaluates the TH1 script and returns its result verbatim.  If a TH1 script
+error is generated, it will be transformed into a Tcl script error.
+
+Tcl th1Expr Command
+-------------------
+
+**This command requires the Tcl integration feature.**
+
+  *  th1Expr arg
+
+Evaluates the TH1 expression and returns its result verbatim.  If a TH1
+script error is generated, it will be transformed into a Tcl script error.
+
+Further Notes
+-------------
 
 **To Do:** We would like to have a community volunteer go through and
-copy the documentation for each of these command (with appropriate
+copy the documentation for each of these commands (with appropriate
 format changes and spelling and grammar corrections) into subsequent
 sections of this document. It is suggested that the list of extension
 commands be left intact - as a quick reference.  But it would be really
-nice to also have the details of each each command does.
+nice to also have the details of what each command does.

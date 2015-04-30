@@ -1,53 +1,56 @@
 <html>
-<head>
-<base href="$baseurl/$current_page" />
-<title>$<project_name>: $<title></title>
-<link rel="alternate" type="application/rss+xml" title="RSS Feed"
-      href="$home/timeline.rss" />
-<link rel="stylesheet" href="$stylesheet_url" type="text/css"
-      media="screen" />
-</head>
-<body>
-<div class="header">
-  <div class="logo">
-    <img src="$logo_image_url" alt="logo" />
-  </div>
-  <div class="title"><small>$<project_name></small><br />$<title></div>
-  <div class="status"><th1>
+  <head>
+    <base href="$baseurl/$current_page" />
+    <title>$<project_name>: $<title></title>
+      <link rel="alternate" type="application/rss+xml" title="RSS Feed"
+            href="$home/timeline.rss" />
+      <link rel="stylesheet" href="$stylesheet_url" type="text/css"
+            media="screen" />
+  </head>
+
+  <body>
+    <div class="header">
+      <div class="title"><h1>$<project_name></h1>$<title></div>
+        <div class="status"><th1>
      if {[info exists login]} {
-       puts "Logged in as $login"
+       html "$login — <a href='$home/login'>Logout</a>\n"
      } else {
-       puts "Not logged in"
+       html "<a href='$home/login'>Login</a>\n"
      }
-  </th1></div>
-</div>
-<div class="mainmenu">
+        </th1></div>
+    </div>
+
+    <div class="mainmenu">
 <th1>
-html "<a href='$home$index_page'>Home</a>\n"
+proc menulink {url name} {
+  upvar current_page current
+  upvar home home
+  if {[string range $url 0 [string length $current]] eq "/$current"} {
+    html "<a href='$home$url' class='active'>$name</a>\n"
+  } else {
+    html "<a href='$home$url'>$name</a>\n"
+  }
+}
+menulink $index_page Home
 if {[anycap jor]} {
-  html "<a href='$home/timeline'>Timeline</a>\n"
+  menulink /timeline Timeline
 }
-if {[anoncap oh]} {
-  html "<a href='$home/tree?ci=tip'>Files</a>\n"
+if {[hascap oh]} {
+  menulink /dir?ci=tip Files
 }
-if {[anoncap o]} {
-  html "<a href='$home/brlist'>Branches</a>\n"
-  html "<a href='$home/taglist'>Tags</a>\n"
+if {[hascap o]} {
+  menulink  /brlist Branches
+  menulink  /taglist Tags
 }
-if {[anoncap r]} {
-  html "<a href='$home/ticket'>Tickets</a>\n"
+if {[hascap r]} {
+  menulink /ticket Tickets
 }
-if {[anoncap j]} {
-  html "<a href='$home/wiki'>Wiki</a>\n"
+if {[hascap j]} {
+  menulink /wiki Wiki
 }
 if {[hascap s]} {
-  html "<a href='$home/setup'>Admin</a>\n"
+  menulink /setup Admin
 } elseif {[hascap a]} {
-  html "<a href='$home/setup_ulist'>Users</a>\n"
-}
-if {[info exists login]} {
-  html "<a href='$home/login'>Logout</a>\n"
-} else {
-  html "<a href='$home/login'>Login</a>\n"
+  menulink /setup_ulist Users
 }
 </th1></div>

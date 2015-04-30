@@ -412,13 +412,18 @@ void user_hash_passwords_cmd(void){
 /*
 ** WEBPAGE: access_log
 **
-**    y=N      1: success only.  2: failure only.  3: both
-**    n=N      Number of entries to show
-**    o=N      Skip this many entries
+** Show login attempts, including timestamp and IP address.
+** Requires Admin privileges.
+**
+** Query parameters:
+**
+**    y=N      1: success only.  2: failure only.  3: both (default: 3)
+**    n=N      Number of entries to show (default: 200)
+**    o=N      Skip this many entries (default: 0)
 */
 void access_log_page(void){
   int y = atoi(PD("y","3"));
-  int n = atoi(PD("n","50"));
+  int n = atoi(PD("n","200"));
   int skip = atoi(PD("o","0"));
   Blob sql;
   Stmt q;

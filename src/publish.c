@@ -30,11 +30,11 @@
 ** Show a list of unpublished or "private" artifacts.  Unpublished artifacts
 ** will never push and hence will not be shared with collaborators.
 **
-** By default, this command only shows unpublished checkins.  To show
+** By default, this command only shows unpublished check-ins.  To show
 ** all unpublished artifacts, use the --all command-line option.
 **
 ** OPTIONS:
-**     --all                   Show all artifacts, not just checkins
+**     --all                   Show all artifacts, not just check-ins
 */
 void unpublished_cmd(void){
   int bAll = find_option("all",0,0)!=0;
@@ -60,11 +60,11 @@ void unpublished_cmd(void){
 ** This can be used (for example) to convert a private branch into a public
 ** branch, or to publish a bundle that was imported privately.
 **
-** If any of TAGS names a branch, then all checkins on the most recent
-** instance of that branch are included, not just the most recent checkin.
+** If any of TAGS names a branch, then all check-ins on the most recent
+** instance of that branch are included, not just the most recent check-in.
 **
-** If any of TAGS name checkins then all files and tags associated with
-** those checkins are also published automatically.  Except if the --only
+** If any of TAGS name check-ins then all files and tags associated with
+** those check-ins are also published automatically.  Except if the --only
 ** option is used, then only the specific artifacts identified by TAGS
 ** are published.
 **
@@ -101,7 +101,7 @@ void publish_cmd(void){
     ** artifacts.  Instead, just list the artifact information on standard
     ** output.  The --test option is useful for verifying correct operation
     ** of the logic that figures out which artifacts to publish, such as
-    ** the find_checkin_associates() routine 
+    ** the find_checkin_associates() routine
     */
     describe_artifacts_to_stdout("IN ok", 0);
   }else{

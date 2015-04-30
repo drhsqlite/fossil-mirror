@@ -37,6 +37,9 @@ int uuid_is_shunned(const char *zUuid){
 
 /*
 ** WEBPAGE: shun
+**
+** View the SHA1 hashes of all shunned artifacts.  Add new hashes
+** to the shun set.  Requires Admin privilege.
 */
 void shun_page(void){
   Stmt q;
@@ -295,6 +298,11 @@ void shun_artifacts(void){
 ** WEBPAGE: rcvfromlist
 **
 ** Show a listing of RCVFROM table entries.
+**
+** The RCVFROM table records where this repository received each
+** artifact, including the time of receipt, user, and IP address.
+**
+** Access requires Admin privilege.
 */
 void rcvfromlist_page(void){
   int ofst = atoi(PD("ofst","0"));
@@ -377,7 +385,8 @@ void rcvfromlist_page(void){
 /*
 ** WEBPAGE: rcvfrom
 **
-** Show a single RCVFROM table entry.
+** Show a single RCVFROM table entry identified by the rcvid= query
+** parameters.  Requires Admin privilege.
 */
 void rcvfrom_page(void){
   int rcvid = atoi(PD("rcvid","0"));

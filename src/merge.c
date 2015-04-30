@@ -56,6 +56,81 @@ void print_checkin_description(int rid, int indent, const char *zLabel){
 }
 
 
+/* Pick the most recent leaf that is (1) not equal to vid and (2)
+** has not already been merged into vid and (3) the leaf is not
+** closed and (4) the leaf is in the same branch as vid.
+**
+** Set vmergeFlag to control whether the vmerge table is checked.
+*/
+int fossil_find_nearest_fork(int vid, int vmergeFlag){
+  Blob sql;
+  Stmt q;
+  int rid = 0;
+
+  blob_zero(&sql);
+  blob_append_sql(&sql,
+    "SELECT leaf.rid"
+    "  FROM leaf, event"
+    " WHERE leaf.rid=event.objid"
+    "   AND leaf.rid!=%d",                                /* Constraint (1) */
+    vid
+  );
+  if( vmergeFlag ){
+    blob_append_sql(&sql,
+      "   AND leaf.rid NOT IN (SELECT merge FROM vmerge)"  /* Constraint (2) */
+    );
+  }
+  blob_append_sql(&sql,
+    "   AND NOT EXISTS(SELECT 1 FROM tagxref"            /* Constraint (3) */
+                  "     WHERE rid=leaf.rid"
+                  "       AND tagid=%d"
+                  "       AND tagtype>0)"
+    "   AND (SELECT value FROM tagxref"                  /* Constraint (4) */
+          "   WHERE tagid=%d AND rid=%d AND tagtype>0) ="
+          " (SELECT value FROM tagxref"
+          "   WHERE tagid=%d AND rid=leaf.rid AND tagtype>0)"
+    " ORDER BY event.mtime DESC LIMIT 1",
+    TAG_CLOSED, TAG_BRANCH, vid, TAG_BRANCH
+  );
+  db_prepare(&q, "%s", blob_sql_text(&sql));
+  blob_reset(&sql);
+  if( db_step(&q)==SQLITE_ROW ){
+    rid = db_column_int(&q, 0);
+  }
+  db_finalize(&q);
+  return rid;
+}
+
+/*
+** Check content that was received with rcvid and return true if any
+** fork was created.
+*/
+int fossil_any_has_fork(int rcvid){
+  static Stmt q;
+  int fForkSeen = 0;
+
+  if( rcvid==0 ) return 0;
+  db_static_prepare(&q,
+    "  SELECT pid FROM plink WHERE pid>0 AND isprim"
+    "     AND cid IN (SELECT blob.rid FROM blob"
+    "   WHERE rcvid=:rcvid)");
+  db_bind_int(&q, ":rcvid", rcvid);
+  while( !fForkSeen && db_step(&q)==SQLITE_ROW ){
+    int pid = db_column_int(&q, 0);
+    if( count_nonbranch_children(pid)>1 ){
+      compute_leaves(pid,1);
+      if( db_int(0, "SELECT count(*) FROM leaves")>1 ){
+        int rid = db_int(0, "SELECT rid FROM leaves, event"
+                            " WHERE event.objid=leaves.rid"
+                            " ORDER BY event.mtime DESC LIMIT 1");
+        fForkSeen = fossil_find_nearest_fork(rid, db_open_local(0))!=0;
+      }
+    }
+  }
+  db_finalize(&q);
+  return fForkSeen;
+}
+
 /*
 ** COMMAND: merge
 **
@@ -174,23 +249,7 @@ void merge_cmd(void){
     if( pickFlag || backoutFlag || integrateFlag){
       fossil_fatal("cannot use --backout, --cherrypick or --integrate with a fork merge");
     }
-    mid = db_int(0,
-      "SELECT leaf.rid"
-      "  FROM leaf, event"
-      " WHERE leaf.rid=event.objid"
-      "   AND leaf.rid!=%d"                                /* Constraint (1) */
-      "   AND leaf.rid NOT IN (SELECT merge FROM vmerge)"  /* Constraint (2) */
-      "   AND NOT EXISTS(SELECT 1 FROM tagxref"            /* Constraint (3) */
-                    "     WHERE rid=leaf.rid"
-                    "       AND tagid=%d"
-                    "       AND tagtype>0)"
-      "   AND (SELECT value FROM tagxref"                  /* Constraint (4) */
-            "   WHERE tagid=%d AND rid=%d AND tagtype>0) ="
-            " (SELECT value FROM tagxref"
-            "   WHERE tagid=%d AND rid=leaf.rid AND tagtype>0)"
-      " ORDER BY event.mtime DESC LIMIT 1",
-      vid, TAG_CLOSED, TAG_BRANCH, vid, TAG_BRANCH
-    );
+    mid = fossil_find_nearest_fork(vid, db_open_local(0));
     if( mid==0 ){
       fossil_fatal("no unmerged forks of branch \"%s\"",
         db_text(0, "SELECT value FROM tagxref"

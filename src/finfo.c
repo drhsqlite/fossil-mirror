@@ -45,7 +45,8 @@
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is a
 **                        boolean: "yes", "no", "true", "false", etc.
 **   -l|--log             select log mode (the default)
-**   -n|--limit N         display the first N changes. N=0 means no limit.
+**   -n|--limit N         Display the first N changes (default unlimited).
+**                        N<=0 means no limit.
 **   --offset P           skip P changes
 **   -p|--print           select print mode
 **   -r|--revision R      print the given revision (or ckout, if none is given)
@@ -157,6 +158,9 @@ void finfo_cmd(void){
     zOffset = find_option("offset",0,1);
     iOffset = zOffset ? atoi(zOffset) : 0;
     iBrief = (find_option("brief","b",0) == 0);
+    if( iLimit==0 ){
+      iLimit = -1;
+    }
     if( zWidth ){
       iWidth = atoi(zWidth);
       if( (iWidth!=0) && (iWidth<=22) ){
@@ -286,6 +290,7 @@ void cat_cmd(void){
 **    brbg       Background color by branch name
 **    ubg        Background color by user name
 **    ci=UUID    Ancestors of a particular check-in
+**    showid     Show RID values for debugging
 */
 void finfo_page(void){
   Stmt q;
@@ -449,7 +454,7 @@ void finfo_page(void){
     if( strncmp(zDate, zPrevDate, 10) ){
       sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
       @ <tr><td>
-      @   <div class="divider">%s(zPrevDate)</div>
+      @   <div class="divider timelineDate">%s(zPrevDate)</div>
       @ </td><td></td><td></td></tr>
     }
     memcpy(zTime, &zDate[11], 5);
@@ -505,7 +510,7 @@ void finfo_page(void){
       @ [annotate]</a>
       @ %z(href("%R/blame?filename=%h&checkin=%s",z,zCkin))
       @ [blame]</a>
-      @ %z(href("%R/timeline?n=200&uf=%!S",zUuid))[checkins&nbsp;using]</a>
+      @ %z(href("%R/timeline?n=200&uf=%!S",zUuid))[check-ins&nbsp;using]</a>
       if( fpid ){
         @ %z(href("%R/fdiff?sbs=1&v1=%!S&v2=%!S",zPUuid,zUuid))[diff]</a>
       }
@@ -533,7 +538,7 @@ void finfo_page(void){
       graph_free(pGraph);
       pGraph = 0;
     }else{
-      int w = (pGraph->mxRail+1)*pGraph->iRailPitch + 10;
+      int w = pGraph->mxRail*pGraph->iRailPitch + 28;
       @ <tr><td></td><td>
       @ <div id="grbtm" style="width:%d(w)px;"></div>
       @     </td><td></td></tr>

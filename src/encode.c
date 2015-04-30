@@ -608,6 +608,10 @@ char *unobscure(const char *zIn){
 ** utilities for decoding passwords found in the database.
 **
 ** COMMAND: test-obscure
+**
+** For each command-line argument X, run both obscure(X) and
+** unobscure(obscure(X)) and print the results.  This is used for testing
+** and debugging of the obscure() and unobscure() functions.
 */
 void test_obscure_cmd(void){
   int i;

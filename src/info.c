@@ -50,6 +50,7 @@ char *info_tags_of_checkin(int rid, int propagatingOnly){
 **     *  The record ID
 **     *  mtime and ctime
 **     *  who signed it
+**
 */
 void show_common_info(
   int rid,                   /* The rid for the check-in to display info for */
@@ -110,22 +111,6 @@ void show_common_info(
       free(zDate);
     }
     db_finalize(&q);
-  }
-  if( zUuid ){
-    fossil_print("%-13s ", "leaf:");
-    if(is_a_leaf(rid)){
-      if(db_int(0, "SELECT 1 FROM tagxref AS tx"
-                " WHERE tx.rid=%d"
-                " AND tx.tagid=%d"
-                " AND tx.tagtype>0",
-                rid, TAG_CLOSED)){
-        fossil_print("%s\n", "closed");
-      }else{
-        fossil_print("%s\n", "open");
-      }
-    }else{
-      fossil_print("no\n");
-    }
   }
   zTags = info_tags_of_checkin(rid, 0);
   if( zTags && zTags[0] ){
@@ -229,7 +214,7 @@ void info_cmd(void){
     if( vid ){
       show_common_info(vid, "checkout:", 1, 1);
     }
-    fossil_print("checkins:     %d\n",
+    fossil_print("check-ins:    %d\n",
                  db_int(-1, "SELECT count(*) FROM event WHERE type='ci' /*scan*/"));
   }else{
     int rid;
@@ -500,11 +485,12 @@ u64 construct_diff_flags(int verboseFlag, int sideBySide){
 /*
 ** WEBPAGE: vinfo
 ** WEBPAGE: ci
-** URL:  /ci?name=RID|ARTIFACTID
+** URL:  /ci?name=ARTIFACTID
+** URL:  /vinfo?name=ARTIFACTID
 **
 ** Display information about a particular check-in.
 **
-** We also jump here from /info if the name is a version.
+** We also jump here from /info if the name is a check-in
 **
 ** If the /ci page is used (instead of /vinfo or /info) then the
 ** default behavior is to show unified diffs of all file changes.
@@ -519,9 +505,9 @@ void ci_page(void){
   int verboseFlag;     /* True to show diffs */
   int sideBySide;      /* True for side-by-side diffs */
   u64 diffFlags;       /* Flag parameter for text_diff() */
-  const char *zName;   /* Name of the checkin to be displayed */
+  const char *zName;   /* Name of the check-in to be displayed */
   const char *zUuid;   /* UUID of zName */
-  const char *zParent; /* UUID of the parent checkin (if any) */
+  const char *zParent; /* UUID of the parent check-in (if any) */
   const char *zRe;     /* regex parameter */
   ReCompiled *pRe = 0; /* regex */
   const char *zW;      /* URL param for ignoring whitespace */
@@ -600,10 +586,10 @@ void ci_page(void){
       hyperlink_to_user(zUser,zDate,"</td></tr>");
     }
     if( zEComment ){
-      @ <tr><th>Edited&nbsp;Comment:</th><td class="infoComment">%!w(zEComment)</td></tr>
-      @ <tr><th>Original&nbsp;Comment:</th><td class="infoComment">%!w(zComment)</td></tr>
+      @ <tr><th>Edited&nbsp;Comment:</th><td class="infoComment">%!W(zEComment)</td></tr>
+      @ <tr><th>Original&nbsp;Comment:</th><td class="infoComment">%!W(zComment)</td></tr>
     }else{
-      @ <tr><th>Comment:</th><td class="infoComment">%!w(zComment)</td></tr>
+      @ <tr><th>Comment:</th><td class="infoComment">%!W(zComment)</td></tr>
     }
     if( g.perm.Admin ){
       db_prepare(&q2,
@@ -763,7 +749,7 @@ void ci_page(void){
 ** WEBPAGE: winfo
 ** URL:  /winfo?name=UUID
 **
-** Return information about a wiki page.
+** Display information about a wiki page.
 */
 void winfo_page(void){
   int rid;
@@ -881,7 +867,7 @@ void webpage_error(const char *zFormat, ...){
 }
 
 /*
-** Find an checkin based on query parameter zParam and parse its
+** Find an check-in based on query parameter zParam and parse its
 ** manifest.  Return the number of errors.
 */
 static Manifest *vdiff_parse_manifest(const char *zParam, int *pRid){
@@ -898,7 +884,7 @@ static Manifest *vdiff_parse_manifest(const char *zParam, int *pRid){
     return 0;
   }
   if( !is_a_version(rid) ){
-    webpage_error("Artifact %s is not a checkin.", P(zParam));
+    webpage_error("Artifact %s is not a check-in.", P(zParam));
     return 0;
   }
   return manifest_get(rid, CFTYPE_MANIFEST, 0);
@@ -966,7 +952,10 @@ static void checkin_description(int rid){
 
 /*
 ** WEBPAGE: vdiff
-** URL: /vdiff
+** URL: /vdiff?from=TAG&to=TAG
+**
+** Show the difference between two check-ins identified by the from= and
+** to= query parameters.
 **
 ** Query parameters:
 **
@@ -976,9 +965,11 @@ static void checkin_description(int rid){
 **   v=BOOLEAN       Default true.  If false, only list files that have changed
 **   sbs=BOOLEAN     Side-by-side diff if true.  Unified diff if false
 **   glob=STRING     only diff files matching this glob
+**   dc=N            show N lines of context around each diff
+**   w               ignore whitespace when computing diffs
 **
 **
-** Show all differences between two checkins.
+** Show all differences between two check-ins.
 */
 void vdiff_page(void){
   int ridFrom, ridTo;
@@ -1240,10 +1231,10 @@ int object_description(
     if( showDetail ){
       @ <li>
       hyperlink_to_date(zDate,"");
-      @ &mdash; part of checkin
+      @ &mdash; part of check-in
       hyperlink_to_uuid(zVers);
     }else{
-      @ &mdash; part of checkin
+      @ &mdash; part of check-in
       hyperlink_to_uuid(zVers);
       @ at
       hyperlink_to_date(zDate,"");
@@ -1251,7 +1242,7 @@ int object_description(
     if( zBr && zBr[0] ){
       @ on branch %z(href("%R/timeline?r=%T",zBr))%h(zBr)</a>
     }
-    @ &mdash; %!w(zCom) (user:
+    @ &mdash; %!W(zCom) (user:
     hyperlink_to_user(zUser,zDate,")");
     if( g.perm.Hyperlink ){
       @ %z(href("%R/finfo?name=%T&ci=%!S",zName,zVers))[ancestry]</a>
@@ -1337,7 +1328,7 @@ int object_description(
       if( zType[0]!='e' ){
         hyperlink_to_uuid(zUuid);
       }
-      @ - %!w(zCom) by
+      @ - %!W(zCom) by
       hyperlink_to_user(zUser,zDate," on");
       hyperlink_to_date(zDate, ".");
       if( pDownloadName && blob_size(pDownloadName)==0 ){
@@ -1412,6 +1403,8 @@ int object_description(
 ** Additional parameters:
 **
 **      verbose      Show more detail when describing artifacts
+**      dc=N         Show N lines of context around each diff
+**      w            Ignore whitespace
 */
 void diff_page(void){
   int v1, v2;
@@ -1641,7 +1634,7 @@ void hexdump_page(void){
 }
 
 /*
-** Attempt to lookup the specified checkin and file name into an rid.
+** Attempt to lookup the specified check-in and file name into an rid.
 */
 int artifact_from_ci_and_filename(
   const char *zCI,
@@ -1703,6 +1696,8 @@ int artifact_from_ci_and_filename_www(void){
 ** zLn is the ?ln= parameter for the HTTP query.  If there is an argument,
 ** then highlight that line number and scroll to it once the page loads.
 ** If there are two line numbers, highlight the range of lines.
+** Multiple ranges can be highlighed by adding additional line numbers
+** separated by a non-digit character (also not one of [-,.]).
 */
 void output_text_with_line_numbers(
   const char *z,
@@ -1710,24 +1705,49 @@ void output_text_with_line_numbers(
 ){
   int iStart, iEnd;    /* Start and end of region to highlight */
   int n = 0;           /* Current line number */
-  int i;               /* Loop index */
+  int i = 0;           /* Loop index */
   int iTop = 0;        /* Scroll so that this line is on top of screen. */
+  Stmt q;
 
   iStart = iEnd = atoi(zLn);
+  db_multi_exec(
+    "CREATE TEMP TABLE lnos(iStart INTEGER PRIMARY KEY, iEnd INTEGER)");
   if( iStart>0 ){
-    for(i=0; fossil_isdigit(zLn[i]); i++){}
-    if( zLn[i]==',' || zLn[i]=='-' || zLn[i]=='.' ){
-      i++;
-      while( zLn[i]=='.' ){ i++; }
-      iEnd = atoi(&zLn[i]);
-    }
-    if( iEnd<iStart ) iEnd = iStart;
+    do{
+      while( fossil_isdigit(zLn[i]) ) i++;
+      if( zLn[i]==',' || zLn[i]=='-' || zLn[i]=='.' ){
+        i++;
+        while( zLn[i]=='.' ){ i++; }
+        iEnd = atoi(&zLn[i]);
+        while( fossil_isdigit(zLn[i]) ) i++;
+      }
+      while( fossil_isdigit(zLn[i]) ) i++;
+      if( iEnd<iStart ) iEnd = iStart;
+      db_multi_exec(
+        "INSERT OR REPLACE INTO lnos VALUES(%d,%d)", iStart, iEnd
+      );
+      iStart = iEnd = atoi(&zLn[i++]);
+    }while( zLn[i] && iStart && iEnd );
+  }
+  db_prepare(&q, "SELECT min(iStart), iEnd FROM lnos");
+  if( db_step(&q)==SQLITE_ROW ){
+    iStart = db_column_int(&q, 0);
+    iEnd = db_column_int(&q, 1);
     iTop = iStart - 15 + (iEnd-iStart)/4;
     if( iTop>iStart - 2 ) iTop = iStart-2;
   }
+  db_finalize(&q);
   @ <pre>
   while( z[0] ){
     n++;
+    db_prepare(&q,
+      "SELECT min(iStart), max(iEnd) FROM lnos"
+      " WHERE iStart <= %d AND iEnd >= %d", n, n);
+    if( db_step(&q)==SQLITE_ROW ){
+      iStart = db_column_int(&q, 0);
+      iEnd = db_column_int(&q, 1);
+    }
+    db_finalize(&q);
     for(i=0; z[i] && z[i]!='\n'; i++){}
     if( n==iTop ) cgi_append_content("<span id=\"topln\">", -1);
     if( n==iStart ){
@@ -1739,7 +1759,7 @@ void output_text_with_line_numbers(
       cgi_append_content(zHtml, -1);
       fossil_free(zHtml);
     }
-    if( n==iStart-15 ) cgi_append_content("</span>", -1);
+    if( n==iTop ) cgi_append_content("</span>", -1);
     if( n==iEnd ) cgi_append_content("</div>", -1);
     else cgi_append_content("\n", 1);
     z += i;
@@ -1747,7 +1767,7 @@ void output_text_with_line_numbers(
   }
   if( n<iEnd ) cgi_printf("</div>");
   @ </pre>
-  if( iStart ){
+  if( db_int(0, "SELECT EXISTS(SELECT 1 FROM lnos)") ){
     @ <script>gebi('topln').scrollIntoView(true);</script>
   }
 }
@@ -1766,6 +1786,7 @@ void output_text_with_line_numbers(
 **   ln              - show line numbers
 **   ln=N            - highlight line number N
 **   ln=M-N          - highlight lines M through N inclusive
+**   ln=M-N+Y-Z      - higllight lines M through N and Y through Z (inclusive)
 **   verbose         - show more detail in the description
 **
 ** The /artifact page show the complete content of a file
@@ -1819,7 +1840,7 @@ void artifact_page(void){
   style_submenu_element("Download", "Download",
           "%R/raw/%T?name=%s", blob_str(&downloadName), zUuid);
   if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
-    style_submenu_element("Checkins Using", "Checkins Using",
+    style_submenu_element("Check-ins Using", "Check-ins Using",
           "%R/timeline?n=200&uf=%s",zUuid);
   }
   asText = P("txt")!=0;
@@ -1854,7 +1875,7 @@ void artifact_page(void){
   }else{
     style_submenu_element("Line Numbers", "Line Numbers",
                           "%R/info/%s%s",zUuid,
-                          ((zLn&&*zLn) ? "" : "?ln=0"));
+                          ((zLn&&*zLn) ? "" : "?txt=1&ln=0"));
     @ <hr />
     content_get(rid, &content);
     if( renderAsWiki ){
@@ -2011,10 +2032,10 @@ void tinfo_page(void){
 ** WEBPAGE: info
 ** URL: info/ARTIFACTID
 **
-** The argument is a artifact ID which might be a baseline or a file or
+** The argument is a artifact ID which might be a check-in or a file or
 ** a ticket changes or a wiki edit or something else.
 **
-** Figure out what the artifact ID is and jump to it.
+** Figure out what the artifact ID is and display it appropriately.
 */
 void info_page(void){
   const char *zName;
@@ -2246,13 +2267,15 @@ static int comment_compare(const char *zA, const char *zB){
 
 /*
 ** WEBPAGE: ci_edit
-** URL:  ci_edit?r=RID&c=NEWCOMMENT&u=NEWUSER
+** URL:  /ci_edit?r=RID&c=NEWCOMMENT&u=NEWUSER
 **
-** Present a dialog for updating properties of a baseline:
+** Present a dialog for updating properties of a check-in.
 **
 **     *  The check-in user
 **     *  The check-in comment
+**     *  The check-in time and date
 **     *  The background color.
+**     *  Add and remove tags
 */
 void ci_edit_page(void){
   int rid;
@@ -2454,7 +2477,7 @@ void ci_edit_page(void){
     }else{
       @ <tr><td>
     }
-    @ %!w(blob_str(&comment))
+    @ %!W(blob_str(&comment))
     blob_zero(&suffix);
     blob_appendf(&suffix, "(user: %h", zNewUser);
     db_prepare(&q, "SELECT substr(tagname,5) FROM tagxref, tag"

@@ -325,7 +325,7 @@ int fossil_utf8_to_console(const char *zUtf8, int nByte, int toStdErr){
   /* If blob to be written to the Windows console is not
    * UTF-8, convert it to UTF-8 first.
    */
-  blob_init(&blob, zUtf8, nByte); 
+  blob_init(&blob, zUtf8, nByte);
   blob_to_utf8_no_bom(&blob, 1);
   nChar = MultiByteToWideChar(CP_UTF8, 0, blob_buffer(&blob),
       blob_size(&blob), NULL, 0);
