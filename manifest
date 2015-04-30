@@ -1,5 +1,5 @@
-C Fix\stwo\sfailing\stest-cases
-D 2015-04-30T08:09:20.837
+C Eliminate\slast\sargument\sof\svfile_dir_scan(),\ssince\sit's\salways\s0.\s\nDon't\sneed\sto\sprompt\sbefore\sremoving\sempty\sdirs,\sas\s"empty-dirs"\salready\sspecifies\swhich\sdirs\sneed\sto\sbe\skept.
+D 2015-04-30T08:35:52.832
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -384,7 +384,7 @@ F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c 85da0ea6ee5ecff186e135b61108892904194e1e
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 6657772f2447b54cfa4fe965d00b9605a04ada4d
-F src/checkin.c c9588002527ef6e02b2f8f43976e004c28c373a2
+F src/checkin.c 230f088b24afa52b71a2a5731f0e8092c0ad05a8
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 265e9a29da905f3ab68625a9a5b245d7630275b2
@@ -504,7 +504,7 @@ F src/user.c 6ec57f122cadd7c324e657be5de1b0c8f0d37c8d
 F src/utf8.c d9b19f5abbdecacb9b69a9e31f3bb0ef6e017918
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
-F src/vfile.c 6c472274d43a127b8960c8a3ad98ef174a5637e0
+F src/vfile.c 530a8420287e4c0f099a7f39c86ce96aecf6ba95
 F src/wiki.c 09aef1e140021ade15ebadfa2b7435b35f701442
 F src/wikiformat.c 6855db81eebdbee86ff21ce4e555e88e63c7fa81
 F src/winfile.c 0bcf34859198c42bbfe224e23eb8bcf27dd3e27d
@@ -733,7 +733,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 281c67c41dd919567d0051c48b7b1cae060f8e63
-R d868b578f0ae8ae7326ae33de3460857
+P 54bd013176c59cbecb8d26b1acc8b9b8bc967514
+R 8695c472c959f0f606232decbd5119ac
 U jan.nijtmans
-Z 33f757b28916314964c78c6af5d0187f
+Z d89f82d07c32515bf1be3c65c7fb95d9
