@@ -1,5 +1,5 @@
-C Allow\sthe\s/rptview\spage\sto\sselect\sa\sreport\susing\sa\sGLOB\spattern\son\sits\sname\nand\sthe\stitle=\squery\sparameter.
-D 2015-04-30T19:52:48.946
+C Remove\sunused\s0\sargument.\sNo\sfunctional\schange.
+D 2015-04-30T20:24:41.041
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -384,7 +384,7 @@ F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c 85da0ea6ee5ecff186e135b61108892904194e1e
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 6657772f2447b54cfa4fe965d00b9605a04ada4d
-F src/checkin.c c9588002527ef6e02b2f8f43976e004c28c373a2
+F src/checkin.c 2d3a656c683c3640ebb098ca1d7455e8a0d437f5
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 265e9a29da905f3ab68625a9a5b245d7630275b2
@@ -504,7 +504,7 @@ F src/user.c 6ec57f122cadd7c324e657be5de1b0c8f0d37c8d
 F src/utf8.c d9b19f5abbdecacb9b69a9e31f3bb0ef6e017918
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
-F src/vfile.c 6c472274d43a127b8960c8a3ad98ef174a5637e0
+F src/vfile.c 530a8420287e4c0f099a7f39c86ce96aecf6ba95
 F src/wiki.c 09aef1e140021ade15ebadfa2b7435b35f701442
 F src/wikiformat.c 6855db81eebdbee86ff21ce4e555e88e63c7fa81
 F src/winfile.c 0bcf34859198c42bbfe224e23eb8bcf27dd3e27d
@@ -733,7 +733,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 54bd013176c59cbecb8d26b1acc8b9b8bc967514
-R 3c662250e7fbaad6282af63f351a7827
-U drh
-Z 083e98fda9fe3e57cf603da624c025a1
+P 6f212b5ffd39fcd9f157db5a4708acdd951292a7
+R 1e9c98fa4a587f84369c91644edb212c
+U jan.nijtmans
+Z 42b684c956a9e20d9abaadaaf389617c
