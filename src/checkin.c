@@ -636,7 +636,7 @@ void extras_cmd(void){
 ** Files and subdirectories whose names begin with "." are automatically
 ** ignored unless the --dotfiles option is used.
 **
-** The --verily option ignores ignore-glob settings and turns on
+** The --verily option ignores the ignore-glob setting and turns on
 **--dotfiles, and --emptydirs.  Use the --verily option when you
 ** really want to clean up everything.
 **
@@ -678,7 +678,7 @@ void extras_cmd(void){
 ** See also: addremove, extras, status
 */
 void clean_cmd(void){
-  int allFileFlag, allDirFlag, dryRunFlag, verboseFlag;
+  int allFileFlag, dryRunFlag, verboseFlag;
   int emptyDirsFlag, dirsOnlyFlag;
   unsigned scanFlags = 0;
   int verilyFlag;
@@ -693,7 +693,7 @@ void clean_cmd(void){
   if( !dryRunFlag ){
     dryRunFlag = find_option("whatif",0,0)!=0;
   }
-  allFileFlag = allDirFlag = find_option("force","f",0)!=0;
+  allFileFlag = find_option("force","f",0)!=0;
   dirsOnlyFlag = find_option("dirsonly",0,0)!=0;
   emptyDirsFlag = find_option("emptydirs","d",0)!=0 || dirsOnlyFlag;
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
@@ -705,7 +705,7 @@ void clean_cmd(void){
   zCleanFlag = find_option("clean",0,1);
   db_must_be_within_tree();
   if( find_option("verily","x",0)!=0 ){
-    verilyFlag = allFileFlag = allDirFlag = 1;
+    verilyFlag = 1;
     emptyDirsFlag = 1;
     scanFlags |= SCAN_ALL;
     zCleanFlag = 0;
@@ -785,8 +785,7 @@ void clean_cmd(void){
     Blob root;
     blob_init(&root, g.zLocalRoot, nRoot - 1);
     vfile_dir_scan(&root, blob_size(&root), scanFlags,
-                   verilyFlag ? 0 : pIgnore,
-                   verilyFlag ? 0 : pEmptyDirs);
+                   verilyFlag ? 0 : pIgnore, pEmptyDirs);
     blob_reset(&root);
     db_prepare(&q,
         "SELECT %Q || x FROM dscan_temp"
@@ -802,28 +801,6 @@ void clean_cmd(void){
                        " or \"keep-glob\")\n", zName+nRoot);
         }
         continue;
-      }
-      if( !allDirFlag && !dryRunFlag && !glob_match(pClean, zName+nRoot)
-          && !(verilyFlag && glob_match(pIgnore, zName+nRoot)) ){
-        Blob ans;
-        char cReply;
-        int matchIgnore = verilyFlag && glob_match(pIgnore, zName+nRoot);
-        int matchEmpty = verilyFlag && glob_match(pEmptyDirs, zName+nRoot);
-        char *prompt = mprintf("%sRemove %s empty directory \"%s\" "
-                               "(a=all/y/N)? ",
-                               (matchEmpty || matchIgnore) ?
-                               "WARNING: " : "", matchEmpty ? "\"RESERVED\"" :
-                               matchIgnore ? "\"IGNORED\"" : "unmanaged",
-                               zName+nRoot);
-        prompt_user(prompt, &ans);
-        cReply = blob_str(&ans)[0];
-        if( cReply=='a' || cReply=='A' ){
-          allDirFlag = 1;
-        }else if( cReply!='y' && cReply!='Y' ){
-          blob_reset(&ans);
-          continue;
-        }
-        blob_reset(&ans);
       }
       if( dryRunFlag || file_rmdir(zName)==0 ){
         if( verboseFlag || dryRunFlag ){
