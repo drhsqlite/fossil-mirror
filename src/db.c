@@ -1953,7 +1953,7 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
     if( found ){
       blob_trim(&setting); /* Avoid non-obvious problems with line endings
                            ** on boolean properties */
-      zVersionedSetting = strdup(blob_str(&setting));
+      zVersionedSetting = fossil_strdup(blob_str(&setting));
     }
     blob_reset(&setting);
     /* Store result in cache, which can be the value or 0 if not found */
