@@ -1,5 +1,5 @@
-C Fix\stwo\sfailing\stest-cases
-D 2015-04-30T08:09:20.837
+C Allow\sthe\s/rptview\spage\sto\sselect\sa\sreport\susing\sa\sGLOB\spattern\son\sits\sname\nand\sthe\stitle=\squery\sparameter.
+D 2015-04-30T19:52:48.946
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -467,7 +467,7 @@ F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c 211c55255d42f06781ae68f26e5ed4a2c9239ad1
 F src/rebuild.c c8884766543b1e54b4ceb92c07914021ab3c743b
 F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
-F src/report.c bcda29d4fce65de8e110b3b0a83374ba2e7f3cbf
+F src/report.c de3d39a59b923d0259a01cb7b66244860778e39d
 F src/rss.c bb314966b5fd2c4a779d4ac6afbabc4721fcf44f
 F src/schema.c 7813ab3a9bbc59ff83bb9fdeaaa92efc254813fc
 F src/search.c c27533caf67427523a61afa971f43e83a313097d
@@ -733,7 +733,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 281c67c41dd919567d0051c48b7b1cae060f8e63
-R d868b578f0ae8ae7326ae33de3460857
-U jan.nijtmans
-Z 33f757b28916314964c78c6af5d0187f
+P 54bd013176c59cbecb8d26b1acc8b9b8bc967514
+R 3c662250e7fbaad6282af63f351a7827
+U drh
+Z 083e98fda9fe3e57cf603da624c025a1
