@@ -1925,7 +1925,7 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
       Blob noWarnFile;
       if( historical_version_of_file(g.zOpenRevision,
                                      blob_str(&versionedPathname),
-                                     &setting, 0, 0, 0, -1)>0 ){
+                                     &setting, 0, 0, 0, 2)!=2 ){
         found = 1;
       }
       /* See if there's a no-warn flag */
@@ -1933,7 +1933,7 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
       blob_zero(&noWarnFile);
       if( historical_version_of_file(g.zOpenRevision,
                                      blob_str(&versionedPathname),
-                                     &noWarnFile, 0, 0, 0, -1)>0 ){
+                                     &noWarnFile, 0, 0, 0, 2)!=2 ){
         noWarn = 1;
       }
       blob_reset(&noWarnFile);
