@@ -1,5 +1,5 @@
-C Cherrypick\s[ff192614]:\sUse\sfossil_strdup()\sconsistent\swith\sthe\srest\sof\sthe\scode.
-D 2015-05-02T20:21:44.082
+C Cherrypick\s[1b01c1ad]:\sCorrect\scomment\sdescribing\sbehavior\sof\serrCode.
+D 2015-05-02T20:57:29.018
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -498,7 +498,7 @@ F src/tktsetup.c 1360904128a3c60008867056d9f576c8f906eb7c
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
 F src/undo.c 463d3968fdd2cb7052bf351e9b028ad0dd556b10
 F src/unicode.c 471c170c6ca090967e68ffa51010d79233b9ff1b
-F src/update.c 139cb78d7beffa56092b02ed87eee5d96177b7d0
+F src/update.c 9f0b45a551abce8aa11c8e6b4b91e8dba6b94030
 F src/url.c 47dc39f0201a184fb2d330e49957724157319f22
 F src/user.c 6ec57f122cadd7c324e657be5de1b0c8f0d37c8d
 F src/utf8.c d9b19f5abbdecacb9b69a9e31f3bb0ef6e017918
@@ -733,8 +733,8 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 6ce777858b890250f51adccaa83ffba0c72d66dc
-Q +ff1926143db0f2a681adead031fe3e5a86afb60e
-R bf002eda879e89b7a531b2f017a7a211
+P f8315ee9004a017c1b3fb018284de29330882b88
+Q +1b01c1ad264e91d1c4958f1ff6b1e3641f0b1d16
+R d77f0fae1224af6391b634863655ad07
 U andygoth
-Z fdf8b758bf26c5e54179f9178132fb9a
+Z f7d1e1fd14e45281cb9ebe06d2d537db
