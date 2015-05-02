@@ -1,5 +1,5 @@
-C Merge\strunk.
-D 2015-05-02T20:37:17.782
+C Correct\scomment\sdescribing\sbehavior\sof\serrCode.
+D 2015-05-02T20:52:31.723
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -498,7 +498,7 @@ F src/tktsetup.c 1360904128a3c60008867056d9f576c8f906eb7c
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
 F src/undo.c 463d3968fdd2cb7052bf351e9b028ad0dd556b10
 F src/unicode.c 471c170c6ca090967e68ffa51010d79233b9ff1b
-F src/update.c 139cb78d7beffa56092b02ed87eee5d96177b7d0
+F src/update.c 9f0b45a551abce8aa11c8e6b4b91e8dba6b94030
 F src/url.c 47dc39f0201a184fb2d330e49957724157319f22
 F src/user.c 6ec57f122cadd7c324e657be5de1b0c8f0d37c8d
 F src/utf8.c d9b19f5abbdecacb9b69a9e31f3bb0ef6e017918
@@ -733,7 +733,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P ff1926143db0f2a681adead031fe3e5a86afb60e f8315ee9004a017c1b3fb018284de29330882b88
-R 100946c77a396445b11748834aa51878
+P 794d4752aede6fc88ffb495f8525ce2df8f0a744
+R b0099faf1ba690e139138cdb33d2d611
 U andygoth
-Z c5dbecdaf91529be1aff963d22c7d2fc
+Z d6dc67ae34f3a1253e42cf7396b7b78e
