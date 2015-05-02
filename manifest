@@ -1,5 +1,5 @@
-C Cherrypick\s[1b01c1ad]:\sCorrect\scomment\sdescribing\sbehavior\sof\serrCode.
-D 2015-05-02T20:57:29.018
+C Correct\scat\scommand\serror\smessage\son\snonexistent\sfile.
+D 2015-05-02T21:11:26.246
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -408,7 +408,7 @@ F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
 F src/file.c 884b233bc94c8e7a24644ac815bc174756421545
-F src/finfo.c 1a722613d03bfa3b8e374716204c43231e7d2c1d
+F src/finfo.c d471bc9c523c0125ab1c99e5bffadb58d3ea76af
 F src/foci.c 8e1553ee3a2db6b73497b4cfca8d4b8fe89e2471
 F src/fusefs.c e25405b83122ed8369aa63125897348e5eb3cab2
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -733,8 +733,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P f8315ee9004a017c1b3fb018284de29330882b88
-Q +1b01c1ad264e91d1c4958f1ff6b1e3641f0b1d16
-R d77f0fae1224af6391b634863655ad07
+P 6f2b59270b14600713be269795e811548cfbbac6
+R cb9611b010037ad58f9c38ea36bad880
 U andygoth
-Z f7d1e1fd14e45281cb9ebe06d2d537db
+Z cea823c5b15055de7130c680a756e41f

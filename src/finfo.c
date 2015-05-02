@@ -263,8 +263,8 @@ void cat_cmd(void){
   for(i=2; i<g.argc; i++){
     file_tree_name(g.argv[i], &fname, 1);
     blob_zero(&content);
-    rc = historical_version_of_file(zRev, blob_str(&fname), &content, 0,0,0,0);
-    if( rc==0 ){
+    rc = historical_version_of_file(zRev, blob_str(&fname), &content, 0,0,0,2);
+    if( rc==2 ){
       fossil_fatal("no such file: %s", g.argv[i]);
     }
     blob_write_to_file(&content, "-");
