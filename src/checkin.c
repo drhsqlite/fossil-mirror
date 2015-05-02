@@ -46,11 +46,11 @@ static void status_report(
   int i;
 
   blob_zero(&where);
-  for(i=2; i<g.argc; i++) {
+  for(i=2; i<g.argc; i++){
     Blob fname;
     file_tree_name(g.argv[i], &fname, 1);
     zName = blob_str(&fname);
-    if( fossil_strcmp(zName, ".")==0 ) {
+    if( fossil_strcmp(zName, ".")==0 ){
       blob_reset(&where);
       break;
     }
@@ -292,7 +292,7 @@ static void ls_cmd_rev(
     Blob fname;
     file_tree_name(g.argv[i], &fname, 1);
     zName = blob_str(&fname);
-    if( fossil_strcmp(zName, ".")==0 ) {
+    if( fossil_strcmp(zName, ".")==0 ){
       blob_reset(&where);
       break;
     }
@@ -405,7 +405,7 @@ void ls_cmd(void){
     Blob fname;
     file_tree_name(g.argv[i], &fname, 1);
     zName = blob_str(&fname);
-    if( fossil_strcmp(zName, ".")==0 ) {
+    if( fossil_strcmp(zName, ".")==0 ){
       blob_reset(&where);
       break;
     }
@@ -597,7 +597,7 @@ void extras_cmd(void){
   g.allowSymlinks = 1;  /* Report on symbolic links */
   while( db_step(&q)==SQLITE_ROW ){
     zDisplayName = zPathname = db_column_text(&q, 0);
-    if( cwdRelative ) {
+    if( cwdRelative ){
       char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
       file_relative_name(zFullName, &rewrittenPathname, 0);
       free(zFullName);
@@ -763,7 +763,7 @@ void clean_cmd(void){
         }
         blob_reset(&ans);
       }
-      if ( dryRunFlag || file_delete(zName)==0 ){
+      if( dryRunFlag || file_delete(zName)==0 ){
         if( verboseFlag || dryRunFlag ){
           fossil_print("Removed unmanaged file: %s\n", zName+nRoot);
         }
@@ -779,7 +779,7 @@ void clean_cmd(void){
     Blob root;
     blob_init(&root, g.zLocalRoot, nRoot - 1);
     vfile_dir_scan(&root, blob_size(&root), scanFlags, pIgnore,
-                   pEmptyDirs, 0);
+                   pEmptyDirs);
     blob_reset(&root);
     db_prepare(&q,
         "SELECT %Q || x FROM dscan_temp"
@@ -811,7 +811,7 @@ void clean_cmd(void){
         }
         blob_reset(&ans);
       }
-      if ( dryRunFlag || file_rmdir(zName)==0 ){
+      if( dryRunFlag || file_rmdir(zName)==0 ){
         if( verboseFlag || dryRunFlag ){
           fossil_print("Removed unmanaged directory: %s\n", zName+nRoot);
         }
@@ -950,7 +950,7 @@ static void prepare_commit_comment(
   int bomSize;
   const unsigned char *bom = get_utf8_bom(&bomSize);
   blob_init(&prompt, (const char *) bom, bomSize);
-  if( zInit && zInit[0]) {
+  if( zInit && zInit[0]){
     blob_append(&prompt, zInit, -1);
   }
 #else
@@ -1491,7 +1491,7 @@ static int commit_warning(
       if( f==0 ){
         fossil_warning("cannot open %s for writing", zFilename);
       }else{
-        if( fUnicode ) {
+        if( fUnicode ){
           int bomSize;
           const unsigned char *bom = get_utf8_bom(&bomSize);
           fwrite(bom, 1, bomSize, f);

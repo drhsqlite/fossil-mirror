@@ -1889,7 +1889,7 @@ void db_swap_connections(void){
 ** found.
 **
 ** If the zNonVersionedSetting parameter is not NULL then it holds the
-** non-versioned value for this setting.  If both a versioned and ad
+** non-versioned value for this setting.  If both a versioned and a
 ** non-versioned value exist and are not equal, then a warning message
 ** might be generated.
 */
