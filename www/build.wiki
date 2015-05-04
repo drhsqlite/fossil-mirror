@@ -35,7 +35,7 @@ fossil are available from the <a href="http://www.fossil-scm.org/download.html">
 To obtain a development version of fossil, follow these steps:</p>
 
 <ol>
-<li><p>Point your web browser at
+<li><p>Point your web browser to
 <a href="http://www.fossil-scm.org/">
 http://www.fossil-scm.org/</a>.</p></li>
 
@@ -50,7 +50,7 @@ link.</p></li>
 <li><p>Finally, click on one of the
 "Zip Archive" or "Tarball" links, according to your preference.
 These link will build a ZIP archive or a gzip-compressed tarball of the 
-complete source code and download it to your browser.
+complete source code and download it to your computer.
 </ol>
 
 <h2>Aside: Is it really safe to use an unreleased development version of
@@ -68,7 +68,7 @@ repository change that prevent loss-of-work due to bugs.
 The Fossil [./selfhost.wiki | self-hosting repositories], especially
 the one at [http://www.fossil-scm.org/fossil], usually run a version
 of trunk that is less than a week or two old.  Look at the bottom
-right-hand corner of this screen (to the right of "This page was
+left-hand corner of this screen (to the right of "This page was
 generated in...") to see exactly which version of Fossil is
 rendering this page.  It is always safe to use whatever version
 of the Fossil code you find running on the main Fossil website.
@@ -80,7 +80,7 @@ of the Fossil code you find running on the main Fossil website.
 <p>Unpack the ZIP or tarball you downloaded then
 <b>cd</b> into the directory created.</p></li>
 
-<li><i>(Optional, unix only)</i>
+<li><i>(Optional, Unix only)</i>
 Run <b>./configure</b> to construct a makefile.
 
 <ol type="a">
@@ -102,17 +102,20 @@ The details depend on your platform and compiler.
 
 <ol type="a">
 <li><p><i>Unix</i> → the configure-generated Makefile should work on
-all unix and unix-like systems.  Simply type "<b>make</b>".
+all Unix and Unix-like systems.  Simply type "<b>make</b>".
 
 <li><p><i>Unix without running "configure"</i> → if you prefer to avoid running configure, you
 can also use: <b>make -f Makefile.classic</b>.  You may want to make minor
 edits to Makefile.classic to configure the build for your system.
 
-<li><p><i>MinGW/MinGW-w64</i> → Use the mingw makefile:
+<li><p><i>MinGW3.x (not 4.0)/MinGW-w64</i> → Use the mingw makefile:
 "<b>make -f win/Makefile.mingw</b>". On a Windows box you will
 need either Cygwin or Msys as build environment. On Cygwin, Linux
 or Darwin you may want to make minor edits to win/Makefile.mingw
 to configure the cross-compile environment.
+
+Hint: don't use MinGW-4.0, it will compile but fossil won't work correctly, see
+<a href="https://www.fossil-scm.org/index.html/tktview/18cff45a4e210430e24c">https://www.fossil-scm.org/index.html/tktview/18cff45a4e210430e24c</a>.
 
 <li><p><i>MSVC</i> → Use the MSVC makefile.  First
 change to the "win/" subdirectory ("<b>cd win</b>") then run
@@ -124,7 +127,7 @@ first <a href="https://www.openssl.org/source/">download the official
 source code for OpenSSL</a> and extract it to an appropriately named
 "<b>openssl-X.Y.ZA</b>" subdirectory within the local
 [/tree?ci=trunk&name=compat | compat] directory (e.g.
-"<b>compat/openssl-1.0.2</b>"), then make sure that some recent
+"<b>compat/openssl-1.0.2a</b>"), then make sure that some recent
 <a href="http://www.perl.org/">Perl</a> binaries are installed locally,
 and finally run one of the following commands:
 <blockquote><pre>
@@ -134,7 +137,7 @@ nmake /f Makefile.msc FOSSIL_ENABLE_SSL=1 FOSSIL_BUILD_SSL=1 PERLDIR=C:\full\pat
 buildmsvc.bat FOSSIL_ENABLE_SSL=1 FOSSIL_BUILD_SSL=1 PERLDIR=C:\full\path\to\Perl\bin
 </pre></blockquote>
 
-<li><p><i>Cygwin</i> → The same as other unix-like systems. It is
+<li><p><i>Cygwin</i> → The same as other Unix-like systems. It is
 recommended to configure using: "<b>configure --disable-internal-sqlite</b>",
 making sure you have the "libsqlite3-devel" , "zlib-devel" and
 "openssl-devel" packages installed first.
@@ -145,7 +148,7 @@ making sure you have the "libsqlite3-devel" , "zlib-devel" and
 
 <ol>
 <li value="8">
-<p>The finished binary is named "fossil" (or "fossil.exe" on windows).  
+<p>The finished binary is named "fossil" (or "fossil.exe" on Windows).  
 Put this binary in a 
 directory that is somewhere on your PATH environment variable.
 It does not matter where.</p>

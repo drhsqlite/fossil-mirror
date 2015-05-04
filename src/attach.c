@@ -23,14 +23,14 @@
 
 /*
 ** WEBPAGE: attachlist
+** List attachments.
 **
 **    tkt=TICKETUUID
 **    page=WIKIPAGE
 **
-** List attachments.
-** Either one of tkt= or page= are supplied or neither.  If neither
-** are given, all attachments are listed.  If one is given, only
-** attachments for the designated ticket or wiki page are shown.
+** Either one of tkt= or page= are supplied or neither but not both.
+** If neither are given, all attachments are listed.  If one is given,
+** only attachments for the designated ticket or wiki page are shown.
 ** TICKETUUID must be complete
 */
 void attachlist_page(void){
@@ -99,7 +99,7 @@ void attachlist_page(void){
     @ [<a href="%R/attachdownload/%t(zFilename)?%s(zUrlTail)">download</a>]<br />
     if( zComment ) while( fossil_isspace(zComment[0]) ) zComment++;
     if( zComment && zComment[0] ){
-      @ %!w(zComment)<br />
+      @ %!W(zComment)<br />
     }
     if( zPage==0 && zTkt==0 ){
       if( zSrc==0 || zSrc[0]==0 ){
@@ -136,12 +136,14 @@ void attachlist_page(void){
 ** WEBPAGE: attachimage
 ** WEBPAGE: attachview
 **
+** Download or display an attachment.
+** Query parameters:
+**
 **    tkt=TICKETUUID
 **    page=WIKIPAGE
 **    file=FILENAME
 **    attachid=ID
 **
-** List attachments.
 */
 void attachview_page(void){
   const char *zPage = P("page");
@@ -225,12 +227,12 @@ static void attach_put(
 
 /*
 ** WEBPAGE: attachadd
+** Add a new attachment.
 **
 **    tkt=TICKETUUID
 **    page=WIKIPAGE
 **    from=URL
 **
-** Add a new attachment.
 */
 void attachadd_page(void){
   const char *zPage = P("page");

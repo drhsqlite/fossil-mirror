@@ -837,7 +837,9 @@ void diff_cmd(void){
 
 /*
 ** WEBPAGE: vpatch
-** URL vpatch?from=UUID&to=UUID
+** URL: /vpatch?from=FROM&to=TO
+**
+** Show a patch that goes from check-in FROM to check-in TO.
 */
 void vpatch_page(void){
   const char *zFrom = P("from");

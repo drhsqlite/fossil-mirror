@@ -46,11 +46,11 @@ static void status_report(
   int i;
 
   blob_zero(&where);
-  for(i=2; i<g.argc; i++) {
+  for(i=2; i<g.argc; i++){
     Blob fname;
     file_tree_name(g.argv[i], &fname, 1);
     zName = blob_str(&fname);
-    if( fossil_strcmp(zName, ".")==0 ) {
+    if( fossil_strcmp(zName, ".")==0 ){
       blob_reset(&where);
       break;
     }
@@ -67,7 +67,8 @@ static void status_report(
     "SELECT pathname, deleted, chnged, rid, coalesce(origname!=pathname,0)"
     "  FROM vfile "
     " WHERE is_selected(id) %s"
-    "   AND (chnged OR deleted OR rid=0 OR pathname!=origname) ORDER BY 1 /*scan*/",
+    "   AND (chnged OR deleted OR rid=0 OR pathname!=origname)"
+    " ORDER BY 1 /*scan*/",
     blob_sql_text(&where)
   );
   blob_zero(&rewrittenPathname);
@@ -266,20 +267,99 @@ void status_cmd(void){
   }
   db_record_repository_filename(0);
   print_changes(useSha1sum, showHdr, verboseFlag, cwdRelative);
+  leaf_ambiguity_warning(vid, vid);
+}
+
+/*
+** Take care of -r version of ls command
+*/
+static void ls_cmd_rev(
+  const char *zRev,  /* Revision string given */
+  int verboseFlag,   /* Verbose flag given */
+  int showAge,       /* Age flag given */
+  int timeOrder      /* Order by time flag given */
+){
+  Stmt q;
+  char *zOrderBy = "pathname COLLATE nocase";
+  char *zName;
+  Blob where;
+  int rid;
+  int i;
+
+  /* Handle given file names */
+  blob_zero(&where);
+  for(i=2; i<g.argc; i++){
+    Blob fname;
+    file_tree_name(g.argv[i], &fname, 1);
+    zName = blob_str(&fname);
+    if( fossil_strcmp(zName, ".")==0 ){
+      blob_reset(&where);
+      break;
+    }
+    blob_append_sql(&where,
+      " %s (pathname=%Q %s) "
+      "OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
+      (blob_size(&where)>0) ? "OR" : "AND (", zName,
+      filename_collation(), zName, filename_collation(),
+      zName, filename_collation()
+    );
+  }
+  if( blob_size(&where)>0 ){
+    blob_append_sql(&where, ")");
+  }
+
+  rid = symbolic_name_to_rid(zRev, "ci");
+  if( rid==0 ){
+    fossil_fatal("not a valid check-in: %s", zRev);
+  }
+
+  if( timeOrder ){
+    zOrderBy = "mtime DESC";
+  }
+
+  compute_fileage(rid,0);
+  db_prepare(&q,
+    "SELECT datetime(fileage.mtime, 'localtime'), fileage.pathname,\n"
+    "       blob.size\n"
+    "  FROM fileage, blob\n"
+    " WHERE blob.rid=fileage.fid %s\n"
+    " ORDER BY %s;", blob_sql_text(&where), zOrderBy /*safe-for-%s*/
+  );
+  blob_reset(&where);
+
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zTime = db_column_text(&q,0);
+    const char *zFile = db_column_text(&q,1);
+    int size = db_column_int(&q,2);
+    if( verboseFlag ){
+      fossil_print("%s  %7d  %s\n", zTime, size, zFile);
+    }else if( showAge ){
+      fossil_print("%s  %s\n", zTime, zFile);
+    }else{
+      fossil_print("%s\n", zFile);
+    }
+  }
+  db_finalize(&q);
 }
 
 /*
 ** COMMAND: ls
 **
-** Usage: %fossil ls ?OPTIONS? ?VERSION? ?FILENAMES?
+** Usage: %fossil ls ?OPTIONS? ?FILENAMES?
 **
 ** Show the names of all files in the current checkout.  The -v provides
 ** extra information about each file.  If FILENAMES are included, only
 ** the files listed (or their children if they are directories) are shown.
 **
+** If -r is given a specific check-in is listed. In this case -R can be
+** given to query another repository.
+**
 ** Options:
-**   --age           Show when each file was committed
-**   -v|--verbose    Provide extra information about each file.
+**   --age                 Show when each file was committed
+**   -v|--verbose          Provide extra information about each file.
+**   -t                    Sort output in time order.
+**   -r VERSION            The specific check-in to list
+**   -R|--repository FILE  Extract info from repository FILE
 **
 ** See also: changes, extras, status
 */
@@ -288,19 +368,31 @@ void ls_cmd(void){
   Stmt q;
   int verboseFlag;
   int showAge;
+  int timeOrder;
   char *zOrderBy = "pathname";
   Blob where;
   int i;
   const char *zName;
+  const char *zRev;
 
   verboseFlag = find_option("verbose","v", 0)!=0;
   if( !verboseFlag ){
     verboseFlag = find_option("l","l", 0)!=0; /* deprecated */
   }
   showAge = find_option("age",0,0)!=0;
+  zRev = find_option("r","r",1);
+  timeOrder = find_option("t","t",0)!=0;
+
+  if( zRev!=0 ){
+    db_find_and_open_repository(0, 0);
+    verify_all_options();
+    ls_cmd_rev(zRev,verboseFlag,showAge,timeOrder);
+    return;
+  }
+
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
-  if( find_option("t","t",0)!=0 ){
+  if( timeOrder ){
     if( showAge ){
       zOrderBy = mprintf("checkin_mtime(%d,rid) DESC", vid);
     }else{
@@ -313,7 +405,7 @@ void ls_cmd(void){
     Blob fname;
     file_tree_name(g.argv[i], &fname, 1);
     zName = blob_str(&fname);
-    if( fossil_strcmp(zName, ".")==0 ) {
+    if( fossil_strcmp(zName, ".")==0 ){
       blob_reset(&where);
       break;
     }
@@ -482,6 +574,8 @@ void extras_cmd(void){
   db_must_be_within_tree();
   cwdRelative = determine_cwd_relative_option();
 
+  if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
+
   /* We should be done with options.. */
   verify_all_options();
 
@@ -502,7 +596,7 @@ void extras_cmd(void){
   g.allowSymlinks = 1;  /* Report on symbolic links */
   while( db_step(&q)==SQLITE_ROW ){
     zDisplayName = zPathname = db_column_text(&q, 0);
-    if( cwdRelative ) {
+    if( cwdRelative ){
       char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
       file_relative_name(zFullName, &rewrittenPathname, 0);
       free(zFullName);
@@ -524,31 +618,25 @@ void extras_cmd(void){
 
 /*
 ** COMMAND: clean
-** Usage: %fossil clean ?OPTIONS? ?PATH1 ...?
+** Usage: %fossil clean ?OPTIONS? ?PATH ...?
 **
 ** Delete all "extra" files in the source tree.  "Extra" files are
 ** files that are not officially part of the checkout. This operation
-** cannot be undone. If paths are specified, only the directories or
-** files specified will be considered for cleaning.
+** cannot be undone. If one or more PATH arguments appear, then only
+** the files named, or files contained with directories named, will be
+** removed.
 **
-** WARNING:  Normally, only the files unknown to Fossil are removed;
-** however, if the --extreme option is specified, all files that are
-** not part of the current checkout will be removed as well, without
-** regard for the "ignore-glob" setting and the --ignore command line
-** option.
+** Prompted are issued to confirm the removal of each file, unless
+** the --force flag is used or unless the file matches glob pattern
+** specified by the --ignore or --keep will ever be deleted. The
+** default values for --ignore, and --keep are determined by the
+** (versionable) clean-glob, ignore-glob, and keep-glob settings.
+** Files and subdirectories whose names begin with "." are automatically
+** ignored unless the --dotfiles option is used.
 **
-** You will be prompted before removing each eligible file unless the
-** --force flag is in use or it matches the --ignore option.  The
-** GLOBPATTERN specified by the "ignore-glob" setting is used if the
-** --ignore option is omitted, the same with "keep-glob" and --keep.
-** If you are sure you wish to remove all "extra" files except the
-** ones specified with --ignore and --keep, you can specify the
-** optional -f|--force flag and no prompts will be issued.  If a
-** file matches both --keep and --ignore, --keep takes precedence.
-**
-** Files and subdirectories whose names begin with "." are
-** normally kept.  They are handled if the "--dotfiles" option
-** is used.
+** The --verily option ignores the ignore-glob setting and turns on
+**--dotfiles, and --emptydirs.  Use the --verily option when you
+** really want to clean up everything.
 **
 ** Options:
 **    --allckouts      Check for empty directories within any checkouts
@@ -570,28 +658,28 @@ void extras_cmd(void){
 **                     therefore, directories that contain only files
 **                     that were removed will be removed as well.
 **    -f|--force       Remove files without prompting.
-**    --verily         Shorthand for: -f --emptydirs --dotfiles
+**    -x|--verily      Remove everything that is not a managed file or
+**                     the repository itself.  Implies --emptydirs
+**                     --dotfiles.  Disregards ignore-glob setting.
+**                     Compatibile with "git clean -x".
 **    --ignore <CSG>   Ignore files matching patterns from the
 **                     comma separated list of glob patterns.
 **    --keep <CSG>     Keep files matching this comma separated
 **                     list of glob patterns.
-**    -n|--dry-run     If given, display instead of run actions.
+**    -n|--dry-run     Delete nothing, but display what would have been
+**                     deleted.
 **    --temp           Remove only Fossil-generated temporary files.
 **    -v|--verbose     Show all files as they are removed.
-**    -x|--extreme     Remove all files not part of the current
-**                     checkout, except the ones matching --keep.
-**                     Files not matching any of --clean/--ignore/--keep,
-**                     will be prompted for.
-**                     Compatibile with "git clean -x".
 **
 ** See also: addremove, extras, status
 */
 void clean_cmd(void){
-  int allFileFlag, allDirFlag, dryRunFlag, verboseFlag, extremeFlag;
+  int allFileFlag, allDirFlag, dryRunFlag, verboseFlag;
   int emptyDirsFlag, dirsOnlyFlag;
   unsigned scanFlags = 0;
-  const char *zIgnoreFlag, *zKeepFlag;
-  Glob *pIgnore, *pKeep;
+  int verilyFlag = 0;
+  const char *zIgnoreFlag, *zKeepFlag, *zCleanFlag;
+  Glob *pIgnore, *pKeep, *pClean;
   int nRoot;
 
   dryRunFlag = find_option("dry-run","n",0)!=0;
@@ -601,21 +689,21 @@ void clean_cmd(void){
   if( !dryRunFlag ){
     dryRunFlag = find_option("whatif",0,0)!=0;
   }
-  extremeFlag = find_option("extreme","x",0)!=0;
   allFileFlag = allDirFlag = find_option("force","f",0)!=0;
   dirsOnlyFlag = find_option("dirsonly",0,0)!=0;
-  emptyDirsFlag = find_option("emptydirs","d",0)!=0 || dirsOnlyFlag || extremeFlag;
-  if( find_option("dotfiles",0,0)!=0 || extremeFlag) scanFlags |= SCAN_ALL;
+  emptyDirsFlag = find_option("emptydirs","d",0)!=0 || dirsOnlyFlag;
+  if( find_option("dotfiles",0,0)!=0) scanFlags |= SCAN_ALL;
   if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
   if( find_option("allckouts",0,0)!=0 ) scanFlags |= SCAN_NESTED;
   zIgnoreFlag = find_option("ignore",0,1);
   verboseFlag = find_option("verbose","v",0)!=0;
   zKeepFlag = find_option("keep",0,1);
   db_must_be_within_tree();
-  if( find_option("verily",0,0)!=0 ){
-    allFileFlag = allDirFlag = 1;
+  if( find_option("verily","x",0)!=0 ){
+    verilyFlag = 1;
     emptyDirsFlag = 1;
     scanFlags |= SCAN_ALL;
+    zCleanFlag = 0;
   }
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
@@ -623,26 +711,8 @@ void clean_cmd(void){
   if( zKeepFlag==0 ){
     zKeepFlag = db_get("keep-glob", 0);
   }
+  if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
   verify_all_options();
-  if( extremeFlag && !dryRunFlag && db_get_boolean("allow-clean-x", 0)==0){
-    Blob extremeAnswer;
-    char *extremePrompt =
-      "\n\nWARNING: The --extreme option is enabled and all untracked files\n"
-      "that would otherwise be left alone will be deleted (i.e. those\n"
-      "matching the \"ignore-glob\" setting and the --ignore command line\n"
-      "option).  As a precaution, in order to proceed with this clean\n"
-      "operation, the string \"YES\" must be entered in all upper case;\n"
-      "any other response will cancel the\nclean operation.\n\n"
-      "Do you still wish to proceed with the clean operation? ";
-    blob_zero(&extremeAnswer);
-    prompt_user(extremePrompt, &extremeAnswer);
-    if( fossil_strcmp(blob_str(&extremeAnswer), "YES")!=0 ){
-      fossil_print("Extreme clean operation canceled.\n");
-      blob_reset(&extremeAnswer);
-      return;
-    }
-    blob_reset(&extremeAnswer);
-  }
   pIgnore = glob_create(zIgnoreFlag);
   pKeep = glob_create(zKeepFlag);
   nRoot = (int)strlen(g.zLocalRoot);
@@ -651,7 +721,7 @@ void clean_cmd(void){
     Stmt q;
     Blob repo;
     locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags,
-                           extremeFlag ? 0 : pIgnore);
+                           verilyFlag ? 0 : pIgnore);
     db_prepare(&q,
         "SELECT %Q || x FROM sfile"
         " WHERE x NOT IN (%s)"
@@ -665,16 +735,17 @@ void clean_cmd(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       if( glob_match(pKeep, zName+nRoot) ){
-        if( verboseFlag || extremeFlag ){
+        if( verboseFlag || verilyFlag ){
           fossil_print("KEPT file \"%s\" not removed (due to --keep"
                        " or \"keep-glob\")\n", zName+nRoot);
         }
         continue;
       }
-      if( !allFileFlag && !dryRunFlag && (!extremeFlag || !glob_match(pIgnore, zName+nRoot)) ){
+      if( !allFileFlag && !dryRunFlag
+          && !(verilyFlag && glob_match(pIgnore, zName+nRoot)) ){
         Blob ans;
         char cReply;
-        int matchIgnore = extremeFlag && glob_match(pIgnore, zName+nRoot);
+        int matchIgnore = verilyFlag && glob_match(pIgnore, zName+nRoot);
         char *prompt = mprintf("%sRemove %s file \"%s\" (a=all/y/N)? ",
                                matchIgnore ? "WARNING: " : "",
                                matchIgnore ? "\"IGNORED\"" : "unmanaged",
@@ -689,7 +760,7 @@ void clean_cmd(void){
         }
         blob_reset(&ans);
       }
-      if ( dryRunFlag || file_delete(zName)==0 ){
+      if( dryRunFlag || file_delete(zName)==0 ){
         if( verboseFlag || dryRunFlag ){
           fossil_print("Removed unmanaged file: %s\n", zName+nRoot);
         }
@@ -705,8 +776,7 @@ void clean_cmd(void){
     Blob root;
     blob_init(&root, g.zLocalRoot, nRoot - 1);
     vfile_dir_scan(&root, blob_size(&root), scanFlags,
-                   extremeFlag ? 0 : pIgnore,
-                   extremeFlag ? 0 : pEmptyDirs);
+                   verilyFlag ? 0 : pIgnore, pEmptyDirs);
     blob_reset(&root);
     db_prepare(&q,
         "SELECT %Q || x FROM dscan_temp"
@@ -717,34 +787,13 @@ void clean_cmd(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       if( glob_match(pKeep, zName+nRoot) ){
-        if( verboseFlag || extremeFlag ){
+        if( verboseFlag || verilyFlag ){
           fossil_print("KEPT directory \"%s\" not removed (due to --keep"
                        " or \"keep-glob\")\n", zName+nRoot);
         }
         continue;
       }
-      if( !allDirFlag && !dryRunFlag && (!extremeFlag || !glob_match(pIgnore, zName+nRoot)) ){
-        Blob ans;
-        char cReply;
-        int matchIgnore = extremeFlag && glob_match(pIgnore, zName+nRoot);
-        int matchEmpty = extremeFlag && glob_match(pEmptyDirs, zName+nRoot);
-        char *prompt = mprintf("%sRemove %s empty directory \"%s\" "
-                               "(a=all/y/N)? ",
-                               (matchEmpty || matchIgnore) ?
-                               "WARNING: " : "", matchEmpty ? "\"RESERVED\"" :
-                               matchIgnore ? "\"IGNORED\"" : "unmanaged",
-                               zName+nRoot);
-        prompt_user(prompt, &ans);
-        cReply = blob_str(&ans)[0];
-        if( cReply=='a' || cReply=='A' ){
-          allDirFlag = 1;
-        }else if( cReply!='y' && cReply!='Y' ){
-          blob_reset(&ans);
-          continue;
-        }
-        blob_reset(&ans);
-      }
-      if ( dryRunFlag || file_rmdir(zName)==0 ){
+      if( dryRunFlag || file_rmdir(zName)==0 ){
         if( verboseFlag || dryRunFlag ){
           fossil_print("Removed unmanaged directory: %s\n", zName+nRoot);
         }
@@ -882,7 +931,7 @@ static void prepare_commit_comment(
   int bomSize;
   const unsigned char *bom = get_utf8_bom(&bomSize);
   blob_init(&prompt, (const char *) bom, bomSize);
-  if( zInit && zInit[0]) {
+  if( zInit && zInit[0]){
     blob_append(&prompt, zInit, -1);
   }
 #else
@@ -890,10 +939,12 @@ static void prepare_commit_comment(
 #endif
   blob_append(&prompt,
     "\n"
-    "# Enter a commit message for this check-in. Lines beginning with # are ignored.\n"
+    "# Enter a commit message for this check-in."
+        " Lines beginning with # are ignored.\n"
     "#\n", -1
   );
-  blob_appendf(&prompt, "# user: %s\n", p->zUserOvrd ? p->zUserOvrd : login_name());
+  blob_appendf(&prompt, "# user: %s\n",
+               p->zUserOvrd ? p->zUserOvrd : login_name());
   if( p->zBranch && p->zBranch[0] ){
     blob_appendf(&prompt, "# tags: %s\n#\n", p->zBranch);
   }else{
@@ -982,7 +1033,8 @@ int select_commit_files(void){
       }
       blob_reset(&fname);
     }
-    g.aCommitFile = fossil_malloc( (bag_count(&toCommit)+1) * sizeof(g.aCommitFile[0]) );
+    g.aCommitFile = fossil_malloc( (bag_count(&toCommit)+1) *
+                                      sizeof(g.aCommitFile[0]) );
     for(ii=bag_first(&toCommit); ii>0; ii=bag_next(&toCommit, ii)){
       g.aCommitFile[jj++] = ii;
     }
@@ -1210,7 +1262,9 @@ static void create_manifest(
     while( db_step(&q)==SQLITE_ROW ){
       char *zMergeUuid;
       int mid = db_column_int(&q, 0);
-      if( (!g.markPrivate && content_is_private(mid)) || (mid == vid) ) continue;
+      if( (!g.markPrivate && content_is_private(mid)) || (mid == vid) ){
+        continue;
+      }
       zMergeUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", mid);
       if( zMergeUuid ){
         blob_appendf(pOut, " %s", zMergeUuid);
@@ -1321,7 +1375,7 @@ static int commit_warning(
   int fHasAnyCr;          /* the blob contains one or more CR chars */
   int fHasLoneCrOnly;     /* all detected line endings are CR only */
   int fHasCrLfOnly;       /* all detected line endings are CR/LF pairs */
-  int fHasInvalidUtf8 = 0;/* contains byte-sequence which is invalid for UTF-8 */
+  int fHasInvalidUtf8 = 0;/* contains invalid UTF-8 */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
@@ -1400,7 +1454,8 @@ static int commit_warning(
     }
     file_relative_name(zFilename, &fname, 0);
     zMsg = mprintf(
-         "%s contains %s. Use --no-warnings or the %s to disable this warning.\n"
+         "%s contains %s. Use --no-warnings or the %s to"
+                 " disable this warning.\n"
          "Commit anyhow (a=all/%sy/N)? ",
          blob_str(&fname), zWarning, zDisable, zConvert);
     prompt_user(zMsg, &ans);
@@ -1417,7 +1472,7 @@ static int commit_warning(
       if( f==0 ){
         fossil_warning("cannot open %s for writing", zFilename);
       }else{
-        if( fUnicode ) {
+        if( fUnicode ){
           int bomSize;
           const unsigned char *bom = get_utf8_bom(&bomSize);
           fwrite(bom, 1, bomSize, f);
@@ -1529,7 +1584,7 @@ static int tagCmp(const void *a, const void *b){
 **    --private                  do not sync changes and their descendants
 **    --sha1sum                  verify file status using SHA1 hashing rather
 **                               than relying on file mtimes
-**    --tag TAG-NAME             assign given tag TAG-NAME to the checkin
+**    --tag TAG-NAME             assign given tag TAG-NAME to the check-in
 **
 ** See also: branch, changes, checkout, extras, sync
 */
@@ -1600,7 +1655,8 @@ void commit_cmd(void){
   sCiInfo.zMimetype = find_option("mimetype",0,1);
   while( (zTag = find_option("tag",0,1))!=0 ){
     if( zTag[0]==0 ) continue;
-    sCiInfo.azTag = fossil_realloc((void*)sCiInfo.azTag, sizeof(char*)*(nTag+2));
+    sCiInfo.azTag = fossil_realloc((void*)sCiInfo.azTag,
+                                    sizeof(char*)*(nTag+2));
     sCiInfo.azTag[nTag++] = zTag;
     sCiInfo.azTag[nTag] = 0;
   }
@@ -1750,6 +1806,10 @@ void commit_cmd(void){
   */
   if( !vid ){
     if( sCiInfo.zBranch==0 ){
+      if( allowFork==0 && forceFlag==0 && g.markPrivate==0
+        && db_exists("SELECT 1 from event where type='ci'") ){
+        fossil_fatal("would fork.  \"update\" first or use --allow-fork.");
+      }
       sCiInfo.zBranch = db_get("main-branch", "trunk");
     }
   }else if( sCiInfo.zBranch==0 && allowFork==0 && forceFlag==0
@@ -1763,11 +1823,11 @@ void commit_cmd(void){
   ** ends up on a different branch.
   */
   if(
-      /* parent checkin has the "closed" tag... */
+      /* parent check-in has the "closed" tag... */
       db_exists("SELECT 1 FROM tagxref"
                 " WHERE tagid=%d AND rid=%d AND tagtype>0",
                 TAG_CLOSED, vid)
-      /* ... and the new checkin has no --branch option or the --branch
+      /* ... and the new check-in has no --branch option or the --branch
       ** option does not actually change the branch */
    && (sCiInfo.zBranch==0
        || db_exists("SELECT 1 FROM tagxref"
@@ -1777,7 +1837,6 @@ void commit_cmd(void){
     fossil_fatal("cannot commit against a closed leaf");
   }
 
-  if( useCksum ) vfile_aggregate_checksum_disk(vid, &cksum1);
   if( zComment ){
     blob_zero(&comment);
     blob_append(&comment, zComment, -1);
@@ -1811,7 +1870,15 @@ void commit_cmd(void){
     db_begin_transaction();
   }
 
-  /* Step 1: Insert records for all modified files into the blob
+  /*
+  ** Step 1: Compute an aggregate MD5 checksum over the disk image
+  ** of every file in vid.  The file names are part of the checksum.
+  ** The resulting checksum is the same as is expected on the R-card
+  ** of a manifest.
+  */
+  if( useCksum ) vfile_aggregate_checksum_disk(vid, &cksum1);
+
+  /* Step 2: Insert records for all modified files into the blob
   ** table. If there were arguments passed to this command, only
   ** the identified files are inserted (if they have been modified).
   */
@@ -1903,7 +1970,7 @@ void commit_cmd(void){
       create_manifest(&delta, zBaselineUuid, pBaseline, vid, &sCiInfo, &szD);
       /*
       ** At this point, two manifests have been constructed, either of
-      ** which would work for this checkin.  The first manifest (held
+      ** which would work for this check-in.  The first manifest (held
       ** in the "manifest" variable) is a baseline manifest and the second
       ** (held in variable named "delta") is a delta manifest.  The
       ** question now is: which manifest should we use?
@@ -1970,14 +2037,14 @@ void commit_cmd(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zIntegrateUuid = db_column_text(&q, 0);
     if( is_a_leaf(db_column_int(&q, 1)) ){
-      fossil_print("Closed: %S\n", zIntegrateUuid);
+      fossil_print("Closed: %s\n", zIntegrateUuid);
     }else{
-      fossil_print("Not_Closed: %S (not a leaf any more)\n", zIntegrateUuid);
+      fossil_print("Not_Closed: %s (not a leaf any more)\n", zIntegrateUuid);
     }
   }
   db_finalize(&q);
 
-  fossil_print("New_Version: %S\n", zUuid);
+  fossil_print("New_Version: %s\n", zUuid);
   if( outputManifest ){
     zManifestFile = mprintf("%smanifest.uuid", g.zLocalRoot);
     blob_zero(&muuid);
@@ -2001,7 +2068,7 @@ void commit_cmd(void){
 
   if( useCksum ){
     /* Verify that the repository checksum matches the expected checksum
-    ** calculated before the checkin started (and stored as the R record
+    ** calculated before the check-in started (and stored as the R record
     ** of the manifest file).
     */
     vfile_aggregate_checksum_repository(nvid, &cksum2);

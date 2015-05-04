@@ -26,6 +26,9 @@
 ** are handled different on Unix and windows.
 */
 
+#ifndef __EXTENSIONS__
+# define __EXTENSIONS__ 1  /* IPv6 won't compile on Solaris without this */
+#endif
 #include "config.h"
 #include "http_socket.h"
 #if defined(_WIN32)

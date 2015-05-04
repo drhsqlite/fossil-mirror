@@ -177,10 +177,8 @@ void update_cmd(void){
       latestFlag = 1;
     }else{
       tid = name_to_typed_rid(g.argv[2],"ci");
-      if( tid==0 ){
-        fossil_fatal("no such version: %s", g.argv[2]);
-      }else if( !is_a_version(tid) ){
-        fossil_fatal("no such version: %s", g.argv[2]);
+       if( tid==0 || !is_a_version(tid) ){
+        fossil_fatal("no such check-in: %s", g.argv[2]);
       }
     }
   }
@@ -546,6 +544,7 @@ void update_cmd(void){
       nMerge++;
     }
     db_finalize(&q);
+    leaf_ambiguity_warning(tid, tid);
 
     if( nConflict ){
       if( internalUpdate ){
@@ -643,17 +642,17 @@ void ensure_empty_dirs_created(void){
 
 
 /*
-** Get the contents of a file within the checking "revision".  If
+** Get the contents of a file within the check-in "revision".  If
 ** revision==NULL then get the file content for the current checkout.
 */
 int historical_version_of_file(
-  const char *revision,    /* The checkin containing the file */
+  const char *revision,    /* The check-in containing the file */
   const char *file,        /* Full treename of the file */
   Blob *content,           /* Put the content here */
   int *pIsLink,            /* Set to true if file is link. */
   int *pIsExe,             /* Set to true if file is executable */
   int *pIsBin,             /* Set to true if file is binary */
-  int errCode              /* Error code if file not found.  Panic if 0. */
+  int errCode              /* Error code if file not found.  Panic if <= 0. */
 ){
   Manifest *pManifest;
   ManifestFile *pFile;
@@ -668,7 +667,7 @@ int historical_version_of_file(
   }
   if( !is_a_version(rid) ){
     if( errCode>0 ) return errCode;
-    fossil_fatal("no such checkin: %s", revision);
+    fossil_fatal("no such check-in: %s", revision);
   }
   pManifest = manifest_get(rid, CFTYPE_MANIFEST, 0);
 
@@ -688,13 +687,13 @@ int historical_version_of_file(
     }
     manifest_destroy(pManifest);
     if( errCode<=0 ){
-      fossil_fatal("file %s does not exist in checkin: %s", file, revision);
+      fossil_fatal("file %s does not exist in check-in: %s", file, revision);
     }
   }else if( errCode<=0 ){
     if( revision==0 ){
       revision = db_text("current", "SELECT uuid FROM blob WHERE rid=%d", rid);
     }
-    fossil_fatal("could not parse manifest for checkin: %s", revision);
+    fossil_fatal("could not parse manifest for check-in: %s", revision);
   }
   return errCode;
 }

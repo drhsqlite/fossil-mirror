@@ -95,7 +95,7 @@ BEGIN
     BLOCK "040904b0"
     BEGIN
       VALUE "CompanyName", "Fossil Development Team\0"
-      VALUE "FileDescription", "Simple, high-reliability, distributed software configuration management system.\0"
+      VALUE "FileDescription", "Fossil is a simple, high-reliability, distributed software configuration management system.\0"
       VALUE "ProductName", "Fossil\0"
       VALUE "ProductVersion", "Fossil " RELEASE_VERSION " " MANIFEST_VERSION " " MANIFEST_DATE " UTC\0"
       VALUE "FileVersion", "Fossil " RELEASE_VERSION " " MANIFEST_VERSION " " MANIFEST_DATE " UTC\0"
@@ -117,6 +117,11 @@ BEGIN
 #if defined(FOSSIL_ENABLE_SSL)
       VALUE "SslEnabled", "Yes, " OPENSSL_VERSION_TEXT "\0"
 #endif /* defined(FOSSIL_ENABLE_SSL) */
+#if defined(FOSSIL_ENABLE_LEGACY_MV_RM)
+      VALUE "LegacyMvRm", "Yes\0"
+#else
+      VALUE "LegacyMvRm", "No\0"
+#endif /* defined(FOSSIL_ENABLE_LEGACY_MV_RM) */
 #if defined(FOSSIL_ENABLE_TH1_DOCS)
       VALUE "Th1Docs", "Yes\0"
 #else

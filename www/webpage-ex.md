@@ -73,7 +73,6 @@ Explore hyperlinks to see more.
   *  <a target='_blank' class='exbtn'
      href='../../../fileage?name=svn-import'>Example</a>
      Age of all files in the latest checking for branch "svn-import".
-     last modification time.
 
   *  <a target='_blank' class='exbtn'
      href='../../../brlist'>Example</a>

@@ -28,7 +28,7 @@
 **
 ** Produce an RSS feed of the timeline.
 **
-** TYPE may be: all, ci (show checkins only), t (show tickets only),
+** TYPE may be: all, ci (show check-ins only), t (show tickets only),
 ** w (show wiki only).
 **
 ** LIMIT is the number of items to show.
@@ -215,7 +215,7 @@ void page_timeline_rss(void){
 ** feed of the timeline to stdout. Options:
 **
 ** -type|y FLAG
-**    may be: all (default), ci (show checkins only), t (show tickets only),
+**    may be: all (default), ci (show check-ins only), t (show tickets only),
 **    w (show wiki only).
 **
 ** -limit|n LIMIT

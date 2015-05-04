@@ -23,8 +23,8 @@
 #include <assert.h>
 
 /*
-** Main sub-menu for configuring the ticketing system.
 ** WEBPAGE: tktsetup
+** Main sub-menu for configuring the ticketing system.
 */
 void tktsetup_page(void){
   login_check_credentials();
@@ -169,6 +169,8 @@ static void tktsetup_generic(
 
 /*
 ** WEBPAGE: tktsetup_tab
+** Administrative page for defining the "ticket" table used
+** to hold ticket information.
 */
 void tktsetup_tab_page(void){
   static const char zDesc[] =
@@ -245,6 +247,8 @@ const char *ticket_common_code(void){
 
 /*
 ** WEBPAGE: tktsetup_com
+** Administrative page used to define TH1 script that is
+** common to all ticket screens.
 */
 void tktsetup_com_page(void){
   static const char zDesc[] =
@@ -275,6 +279,8 @@ const char *ticket_change_code(void){
 
 /*
 ** WEBPAGE: tktsetup_change
+** Adminstrative screen used to view or edit the TH1 script
+** that shows ticket changes.
 */
 void tktsetup_change_page(void){
   static const char zDesc[] =
@@ -418,6 +424,8 @@ const char *ticket_newpage_code(void){
 
 /*
 ** WEBPAGE: tktsetup_newpage
+** Administrative page used to view or edit the TH1 script used
+** to enter new tickets.
 */
 void tktsetup_newpage_page(void){
   static const char zDesc[] =
@@ -557,6 +565,8 @@ const char *ticket_viewpage_code(void){
 
 /*
 ** WEBPAGE: tktsetup_viewpage
+** Administrative page used to view or edit the TH1 script that
+** displays individual tickets.
 */
 void tktsetup_viewpage_page(void){
   static const char zDesc[] =
@@ -696,6 +706,8 @@ const char *ticket_editpage_code(void){
 
 /*
 ** WEBPAGE: tktsetup_editpage
+** Administrative page for viewing or editing the TH1 script that
+** drives the ticket editing page.
 */
 void tktsetup_editpage_page(void){
   static const char zDesc[] =
@@ -750,6 +762,8 @@ const char *ticket_reportlist_code(void){
 
 /*
 ** WEBPAGE: tktsetup_reportlist
+** Administrative page used to view or edit the TH1 script that
+** defines the "report list" page.
 */
 void tktsetup_reportlist(void){
   static const char zDesc[] =
@@ -797,6 +811,9 @@ char *ticket_report_template(void){
 
 /*
 ** WEBPAGE: tktsetup_rpttplt
+**
+** Administrative page used to view or edit the ticket report
+** template.
 */
 void tktsetup_rpttplt_page(void){
   static const char zDesc[] =
@@ -838,6 +855,9 @@ const char *ticket_key_template(void){
 
 /*
 ** WEBPAGE: tktsetup_keytplt
+**
+** Administrative page used to view or edit the Key template
+** for tickets.
 */
 void tktsetup_keytplt_page(void){
   static const char zDesc[] =
@@ -858,6 +878,9 @@ void tktsetup_keytplt_page(void){
 
 /*
 ** WEBPAGE: tktsetup_timeline
+**
+** Administrative page used ot configure how tickets are
+** rendered on timeline views.
 */
 void tktsetup_timeline_page(void){
   login_check_credentials();

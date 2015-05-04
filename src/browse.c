@@ -107,10 +107,17 @@ void hyperlinked_path(
 /*
 ** WEBPAGE: dir
 **
+** Show the files and subdirectories within a single directory of the
+** source tree.  Only files for a single check-in are shown if the ci=
+** query parameter is present.  If ci= is missing, the union of files
+** across all check-ins is shown.
+**
 ** Query parameters:
 **
 **    name=PATH        Directory to display.  Optional.  Top-level if missing
 **    ci=LABEL         Show only files in this check-in.  Optional.
+**    type=TYPE        TYPE=flat: use this display
+**                     TYPE=tree: use the /tree display instead
 */
 void page_dir(void){
   char *zD = fossil_strdup(P("name"));
@@ -506,8 +513,16 @@ static void relinkTree(FileTree *pTree, FileTreeNode *pRoot){
 /*
 ** WEBPAGE: tree
 **
+** Show the files using a tree-view.  If the ci= query parameter is present
+** then show only the files for the check-in identified.  If ci= is omitted,
+** then show the union of files over all check-ins.
+**
+** The type=tree query parameter is required or else the /dir format is
+** used.
+**
 ** Query parameters:
 **
+**    type=tree        Required to prevent use of /dir format
 **    name=PATH        Directory to display.  Optional
 **    ci=LABEL         Show only files in this check-in.  Optional.
 **    re=REGEXP        Show only files matching REGEXP.  Optional.
@@ -875,7 +890,7 @@ const char *fileext_class(const char *zFilename){
 }
 
 /*
-** SQL used to compute the age of all files in checkin :ckin whose
+** SQL used to compute the age of all files in check-in :ckin whose
 ** names match :glob
 */
 static const char zComputeFileAgeSetup[] =
@@ -915,7 +930,7 @@ static const char zComputeFileAgeRun[] =
 ** Look at all file containing in the version "vid".  Construct a
 ** temporary table named "fileage" that contains the file-id for each
 ** files, the pathname, the check-in where the file was added, and the
-** mtime on that checkin. If zGlob and *zGlob then only files matching
+** mtime on that check-in. If zGlob and *zGlob then only files matching
 ** the given glob are computed.
 */
 int compute_fileage(int vid, const char* zGlob){
@@ -988,8 +1003,11 @@ void test_fileage_cmd(void){
 /*
 ** WEBPAGE:  fileage
 **
+** Show all files in a single check-in (identified by the name= query
+** parameter) in order of increasing age.
+**
 ** Parameters:
-**   name=VERSION   Selects the checkin version (default=tip).
+**   name=VERSION   Selects the check-in version (default=tip).
 **   glob=STRING    Only shows files matching this glob pattern
 **                  (e.g. *.c or *.txt).
 **   showid         Show RID values for debugging
@@ -999,7 +1017,7 @@ void fileage_page(void){
   const char *zName;
   const char *zGlob;
   const char *zUuid;
-  const char *zNow;            /* Time of checkin */
+  const char *zNow;            /* Time of check-in */
   int showId = PB("showid");
   Stmt q1, q2;
   double baseTime;
@@ -1030,12 +1048,12 @@ void fileage_page(void){
   }
   @ ordered by check-in time</h2>
   @
-  @ <p>Times are relative to the checkin time for
+  @ <p>Times are relative to the check-in time for
   @ %z(href("%R/ci/%!S",zUuid))[%S(zUuid)]</a> which is
   @ %z(href("%R/timeline?c=%t",zNow))%s(zNow)</a>.</p>
   @
   @ <div class='fileage'><table>
-  @ <tr><th>Time</th><th>Files</th><th>Checkin</th></tr>
+  @ <tr><th>Time</th><th>Files</th><th>Check-in</th></tr>
   db_prepare(&q1,
     "SELECT event.mtime, event.objid, blob.uuid,\n"
     "       coalesce(event.ecomment,event.comment),\n"

@@ -1478,38 +1478,6 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
 }
 
 /*
-** This function sets the server and project codes if they do not already
-** exist.  Currently, it should be called only by the db_initial_setup()
-** or cmd_webserver() functions, the latter being used to facilitate more
-** robust integration with "canned image" environments (e.g. Docker).
-*/
-void db_setup_server_and_project_codes(
-  int optional
-){
-  if( !optional ){
-    db_multi_exec(
-        "INSERT INTO config(name,value,mtime)"
-        " VALUES('server-code', lower(hex(randomblob(20))),now());"
-        "INSERT INTO config(name,value,mtime)"
-        " VALUES('project-code', lower(hex(randomblob(20))),now());"
-    );
-  }else if( db_is_writeable("repository") ){
-    if( db_get("server-code", 0)==0 ) {
-      db_multi_exec(
-          "INSERT INTO config(name,value,mtime)"
-          " VALUES('server-code', lower(hex(randomblob(20))),now());"
-      );
-    }
-    if( db_get("project-code", 0)==0 ) {
-      db_multi_exec(
-          "INSERT INTO config(name,value,mtime)"
-          " VALUES('project-code', lower(hex(randomblob(20))),now());"
-      );
-    }
-  }
-}
-
-/*
 ** Return a pointer to a string that contains the RHS of an IN operator
 ** that will select CONFIG table names that are in the list of control
 ** settings.
@@ -1550,8 +1518,7 @@ const char *db_setting_inop_rhs(){
 void db_initial_setup(
   const char *zTemplate,       /* Repository from which to copy settings. */
   const char *zInitialDate,    /* Initial date of repository. (ex: "now") */
-  const char *zDefaultUser,    /* Default user for the repository */
-  int makeServerCodes          /* True to make new server & project codes */
+  const char *zDefaultUser     /* Default user for the repository */
 ){
   char *zDate;
   Blob hash;
@@ -1560,9 +1527,12 @@ void db_initial_setup(
   db_set("content-schema", CONTENT_SCHEMA, 0);
   db_set("aux-schema", AUX_SCHEMA_MAX, 0);
   db_set("rebuilt", get_version(), 0);
-  if( makeServerCodes ){
-    db_setup_server_and_project_codes(0);
-  }
+  db_multi_exec(
+      "INSERT INTO config(name,value,mtime)"
+      " VALUES('server-code', lower(hex(randomblob(20))),now());"
+      "INSERT INTO config(name,value,mtime)"
+      " VALUES('project-code', lower(hex(randomblob(20))),now());"
+  );
   if( !db_is_global("autosync") ) db_set_int("autosync", 1, 0);
   if( !db_is_global("localauth") ) db_set_int("localauth", 0, 0);
   if( !db_is_global("timeline-plaintext") ){
@@ -1659,8 +1629,7 @@ void db_initial_setup(
 ** Options:
 **    --template      FILE      copy settings from repository file
 **    --admin-user|-A USERNAME  select given USERNAME as admin user
-**    --date-override DATETIME  use DATETIME as time of the initial checkin
-**                              (default: do not create an initial checkin)
+**    --date-override DATETIME  use DATETIME as time of the initial check-in
 **
 ** See also: clone
 */
@@ -1669,21 +1638,17 @@ void create_repository_cmd(void){
   const char *zTemplate;      /* Repository from which to copy settings */
   const char *zDate;          /* Date of the initial check-in */
   const char *zDefaultUser;   /* Optional name of the default user */
-  int makeServerCodes;
 
   zTemplate = find_option("template",0,1);
   zDate = find_option("date-override",0,1);
   zDefaultUser = find_option("admin-user","A",1);
-  makeServerCodes = find_option("docker", 0, 0)==0;
-
-  find_option("empty", 0, 0); /* deprecated */
   /* We should be done with options.. */
   verify_all_options();
 
   if( g.argc!=3 ){
     usage("REPOSITORY-NAME");
   }
- 
+
   if( -1 != file_size(g.argv[2]) ){
     fossil_fatal("file already exists: %s", g.argv[2]);
   }
@@ -1693,13 +1658,12 @@ void create_repository_cmd(void){
   db_open_config(0);
   if( zTemplate ) db_attach(zTemplate, "settingSrc");
   db_begin_transaction();
-  db_initial_setup(zTemplate, zDate, zDefaultUser, makeServerCodes);
+  if( zDate==0 ) zDate = "now";
+  db_initial_setup(zTemplate, zDate, zDefaultUser);
   db_end_transaction(0);
   if( zTemplate ) db_detach("settingSrc");
-  if( makeServerCodes ){
-    fossil_print("project-id: %s\n", db_get("project-code", 0));
-    fossil_print("server-id:  %s\n", db_get("server-code", 0));
-  }
+  fossil_print("project-id: %s\n", db_get("project-code", 0));
+  fossil_print("server-id:  %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   fossil_print("admin-user: %s (initial password is \"%s\")\n",
                g.zLogin, zPassword);
@@ -1925,7 +1889,7 @@ void db_swap_connections(void){
 ** found.
 **
 ** If the zNonVersionedSetting parameter is not NULL then it holds the
-** non-versioned value for this setting.  If both a versioned and ad
+** non-versioned value for this setting.  If both a versioned and a
 ** non-versioned value exist and are not equal, then a warning message
 ** might be generated.
 */
@@ -1965,7 +1929,7 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
       if( blob_read_from_file(&setting, zVersionedPathname) >= 0 ){
         blob_trim(&setting); /* Avoid non-obvious problems with line endings
                              ** on boolean properties */
-        zVersionedSetting = strdup(blob_str(&setting));
+        zVersionedSetting = fossil_strdup(blob_str(&setting));
       }
       blob_reset(&setting);
       /* See if there's a no-warn flag */
@@ -2325,7 +2289,7 @@ static void print_setting(const Setting *pSetting){
     /* Check to see if this is overridden by a versionable settings file */
     Blob versionedPathname;
     blob_zero(&versionedPathname);
-    blob_appendf(&versionedPathname, "%s/.fossil-settings/%s",
+    blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
                  g.zLocalRoot, pSetting->name);
     if( file_size(blob_str(&versionedPathname))>=0 ){
       fossil_print("  (overridden by contents of file .fossil-settings/%s)\n",
@@ -2363,7 +2327,6 @@ struct Setting {
 const Setting aSetting[] = {
   { "access-log",       0,              0, 0, 0, "off"                 },
   { "admin-log",        0,              0, 0, 0, "off"                 },
-  { "allow-clean-x",    0,              0, 0, 0, "off"                 },
   { "allow-symlinks",   0,              0, 1, 0, "off"                 },
   { "auto-captcha",     "autocaptcha",  0, 0, 0, "on"                  },
   { "auto-hyperlink",   0,              0, 0, 0, "on",                 },
@@ -2383,6 +2346,7 @@ const Setting aSetting[] = {
   { "diff-binary",      0,              0, 0, 0, "on"                  },
   { "diff-command",     0,             40, 0, 0, ""                    },
   { "dont-push",        0,              0, 0, 0, "off"                 },
+  { "dotfiles",         0,              0, 1, 0, "off"                 },
   { "editor",           0,             32, 0, 0, ""                    },
   { "empty-dirs",       0,             40, 1, 0, ""                    },
   { "encoding-glob",    0,             40, 1, 0, ""                    },
@@ -2399,6 +2363,9 @@ const Setting aSetting[] = {
   { "max-loadavg",      0,             25, 0, 0, "0.0"                 },
   { "max-upload",       0,             25, 0, 0, "250000"              },
   { "mtime-changes",    0,              0, 0, 0, "on"                  },
+#if FOSSIL_ENABLE_LEGACY_MV_RM
+  { "mv-rm-files",      0,              0, 0, 0, "off"                 },
+#endif
   { "pgp-command",      0,             40, 0, 0, "gpg --clearsign -o " },
   { "proxy",            0,             32, 0, 0, "off"                 },
   { "relative-paths",   0,              0, 0, 0, "on"                  },
@@ -2420,7 +2387,6 @@ const Setting aSetting[] = {
   { "th1-setup",        0,             40, 1, 1, ""                    },
   { "th1-uri-regexp",   0,             40, 1, 0, ""                    },
   { "web-browser",      0,             32, 0, 0, ""                    },
-  { "white-foreground", 0,              0, 0, 0, "off"                 },
   { 0,0,0,0,0,0 }
 };
 
@@ -2485,10 +2451,6 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **                     plain-text files with link destination path inside).
 **                     Default: off
 **
-**    allow-clean-x    If enabled, allow the --extreme option to be used in
-**                     the clean command.
-**                     Default: off
-**
 **    auto-captcha     If enabled, the Login page provides a button to
 **                     fill in the captcha password.  Default: on
 **
@@ -2542,6 +2504,9 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **
 **    dont-push        Prevent this repository from pushing from client to
 **                     server.  Useful when setting up a private branch.
+**
+**    dotfiles         Include --dotfiles option for all compatible commands.
+**     (versionable)
 **
 **    editor           Text editor command used for check-in comments.
 **
@@ -2606,6 +2571,12 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **
 **    mtime-changes    Use file modification times (mtimes) to detect when
 **                     files have been modified.  (Default "on".)
+**
+**    mv-rm-files      If enabled (and Fossil was compiled with legacy "mv/rm"
+**                     support), the "mv" and "rename" commands will also move
+**                     the associated files within the checkout -AND- the "rm"
+**                     and "delete" commands will also remove the associated
+**                     files from within the checkout.  Default: off.
 **
 **    pgp-command      Command used to clear-sign manifests at check-in.
 **                     The default is "gpg --clearsign -o ".

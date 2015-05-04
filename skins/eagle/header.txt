@@ -103,32 +103,37 @@ updateClock();
 </script>
 <div class="mainmenu">
 <th1>
-html "<a href='$home$index_page'>Home</a>\n"
-html "<a href='$home/help'>Help</a>\n"
+proc menulink {url name} {
+  upvar home home
+  html "<a href='$home$url'>$name</a>\n"
+}
+menulink $index_page Home
+menulink /help Help
 if {[anycap jor]} {
-  html "<a href='$home/timeline'>Timeline</a>\n"
+  menulink /timeline Timeline
 }
 if {[anoncap oh]} {
-  html "<a href='$home/tree?ci=tip'>Files</a>\n"
+  menulink /dir?ci=tip Files
 }
 if {[anoncap o]} {
-  html "<a href='$home/brlist'>Branches</a>\n"
-  html "<a href='$home/taglist'>Tags</a>\n"
+  menulink /brlist Branches
+  menulink /taglist Tags
 }
 if {[anoncap r]} {
-  html "<a href='$home/ticket'>Tickets</a>\n"
+  menulink /ticket Tickets
 }
 if {[anoncap j]} {
-  html "<a href='$home/wiki'>Wiki</a>\n"
+  menulink /wiki Wiki
 }
+menulink /sitemap More...
 if {[hascap s]} {
-  html "<a href='$home/setup'>Admin</a>\n"
+  menulink /setup Admin
 } elseif {[hascap a]} {
-  html "<a href='$home/setup_ulist'>Users</a>\n"
+  menulink /setup_ulist Users
 }
 if {[info exists login]} {
-  html "<a href='$home/login'>Logout</a>\n"
+  menulink /login Logout
 } else {
-  html "<a href='$home/login'>Login</a>\n"
+  menulink /login Login
 }
 </th1></div>

@@ -1,0 +1,53 @@
+<html>
+<head>
+<base href="$baseurl/$current_page" />
+<title>$<project_name>: $<title></title>
+<link rel="alternate" type="application/rss+xml" title="RSS Feed"
+      href="$home/timeline.rss" />
+<link rel="stylesheet" href="$stylesheet_url" type="text/css"
+      media="screen" />
+</head>
+<body>
+<div class="header">
+  <div class="logo">
+    <img src="$logo_image_url" alt="logo" />
+  </div>
+  <div class="title"><small>$<project_name></small><br />$<title></div>
+  <div class="status"><th1>
+     if {[info exists login]} {
+       puts "Logged in as $login"
+     } else {
+       puts "Not logged in"
+     }
+  </th1></div>
+</div>
+<div class="mainmenu">
+<th1>
+html "<a href='$home$index_page'>Home</a>\n"
+if {[anycap jor]} {
+  html "<a href='$home/timeline'>Timeline</a>\n"
+}
+if {[anoncap oh]} {
+  html "<a href='$home/tree?ci=tip'>Files</a>\n"
+}
+if {[anoncap o]} {
+  html "<a href='$home/brlist'>Branches</a>\n"
+  html "<a href='$home/taglist'>Tags</a>\n"
+}
+if {[anoncap r]} {
+  html "<a href='$home/ticket'>Tickets</a>\n"
+}
+if {[anoncap j]} {
+  html "<a href='$home/wiki'>Wiki</a>\n"
+}
+if {[hascap s]} {
+  html "<a href='$home/setup'>Admin</a>\n"
+} elseif {[hascap a]} {
+  html "<a href='$home/setup_ulist'>Users</a>\n"
+}
+if {[info exists login]} {
+  html "<a href='$home/login'>Logout</a>\n"
+} else {
+  html "<a href='$home/login'>Login</a>\n"
+}
+</th1></div>

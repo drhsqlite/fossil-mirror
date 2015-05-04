@@ -157,7 +157,7 @@ The base-64 coding is described in
 <tr><td>&nbsp;</td> <td>79@Qt,	         </td><td>Copy    </td><td> 457 @ 1720     </td></tr>
 <tr><td>&nbsp;</td> <td>F: Example: eskil</td><td>Literal </td><td> 15 ' Example: eskil'</td></tr>
 <tr><td>&nbsp;</td> <td>~E@Y0,           </td><td>Copy    </td><td>  4046 @ 2176        </td></tr>
-<tr><td>Trailer</td><td>2zMM3E           </td><td>Ckecksum</td><td> -1101438770         </td></tr>
+<tr><td>Trailer</td><td>2zMM3E           </td><td>Checksum</td><td> -1101438770         </td></tr>
 </table>
 
 <p>The unified diff behind the above delta is</p>

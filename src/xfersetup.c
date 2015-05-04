@@ -23,8 +23,8 @@
 #include <assert.h>
 
 /*
-** Main sub-menu for configuring the transfer system.
 ** WEBPAGE: xfersetup
+** Main sub-menu for configuring the transfer system.
 */
 void xfersetup_page(void){
   login_check_credentials();
@@ -35,7 +35,7 @@ void xfersetup_page(void){
 
   style_header("Transfer Setup");
 
-  @ <table border="0" cellspacing="20">
+  @ <table class="xfersetup">
   setup_menu_entry("Common", "xfersetup_com",
     "Common TH1 code run before all transfer request processing.");
   setup_menu_entry("Push", "xfersetup_push",
@@ -62,29 +62,29 @@ void xfersetup_page(void){
       zWarning = mprintf("WARNING: Pushing to \"%s\" is enabled.",
                          g.url.canonical);
     }
-    if( P("sync") ){
-      user_select();
-      url_enable_proxy(0);
-      client_sync(syncFlags, 0, 0);
-    }
-    @ <p>Press the %h(zButton) button below to synchronize with the
-    @ "%h(g.url.canonical)" repository now.  This may be useful when
-    @ testing the various transfer scripts.</p>
-    @ <p>You can use the "http -async" command in your scripts, but
-    @ make sure the "th1-uri-regexp" setting is set first.</p>
+    @ <p>Press the <strong>%h(zButton)</strong> button below to
+    @ synchronize with the <em>%h(g.url.canonical)</em> repository now.<br/>
+    @ This may be useful when testing the various transfer scripts.</p>
+    @ <p>You can use the <code>http -async</code> command in your scripts, but
+    @ make sure the <code>th1-uri-regexp</code> setting is set first.</p>
     if( zWarning ){
       @
       @ <big><b>%h(zWarning)</b></big>
       free(zWarning);
     }
     @
-    @ <blockquote>
     @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><div>
     login_insert_csrf_secret();
     @ <input type="submit" name="sync" value="%h(zButton)" />
     @ </div></form>
-    @ </blockquote>
     @
+    if( P("sync") ){
+      user_select();
+      url_enable_proxy(0);
+      @ <pre class="xfersetup">
+      client_sync(syncFlags, 0, 0);
+      @ </pre>
+    }
   }
 
   style_footer();
@@ -139,14 +139,14 @@ static void xfersetup_generic(
   login_insert_csrf_secret();
   @ <p>%s(zDesc)</p>
   @ <textarea name="x" rows="%d(height)" cols="80">%h(z)</textarea>
-  @ <blockquote><p>
+  @ <p>
   @ <input type="submit" name="submit" value="Apply Changes" />
   @ <input type="submit" name="clear" value="Revert To Default" />
   @ <input type="submit" name="setup" value="Cancel" />
-  @ </p></blockquote>
+  @ </p>
   @ </div></form>
-  @ <hr />
   if ( zDfltValue ){
+    @ <hr />
     @ <h2>Default %s(zTitle)</h2>
     @ <blockquote><pre>
     @ %h(zDfltValue)
@@ -159,6 +159,8 @@ static const char *zDefaultXferCommon = 0;
 
 /*
 ** WEBPAGE: xfersetup_com
+** View or edit the TH1 script that runs prior to receiving a
+** transfer.
 */
 void xfersetup_com_page(void){
   static const char zDesc[] =
@@ -180,10 +182,12 @@ static const char *zDefaultXferPush = 0;
 
 /*
 ** WEBPAGE: xfersetup_push
+** View or edit the TH1 script that runs after receiving a "push".
 */
 void xfersetup_push_page(void){
   static const char zDesc[] =
-  @ Enter TH1 script that runs after processing "push" transfer requests.
+  @ Enter TH1 script that runs after processing <strong>push</strong>
+  @ transfer requests.
   ;
   xfersetup_generic(
     "Transfer Push Script",
@@ -200,6 +204,8 @@ static const char *zDefaultXferCommit = 0;
 
 /*
 ** WEBPAGE: xfersetup_commit
+** View or edit the TH1 script that runs when a transfer commit
+** is processed.
 */
 void xfersetup_commit_page(void){
   static const char zDesc[] =
@@ -220,6 +226,8 @@ static const char *zDefaultXferTicket = 0;
 
 /*
 ** WEBPAGE: xfersetup_ticket
+** View or edit the TH1 script that runs when a ticket change artifact
+** is processed during a transfer.
 */
 void xfersetup_ticket_page(void){
   static const char zDesc[] =

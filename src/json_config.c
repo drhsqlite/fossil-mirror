@@ -58,6 +58,7 @@ static const struct JsonConfigProperty {
 { "css",                    CONFIGSET_CSS },
 { "header",                 CONFIGSET_SKIN },
 { "footer",                 CONFIGSET_SKIN },
+{ "details",                CONFIGSET_SKIN },
 { "logo-mimetype",          CONFIGSET_SKIN },
 { "logo-image",             CONFIGSET_SKIN },
 { "background-mimetype",    CONFIGSET_SKIN },
@@ -68,7 +69,6 @@ static const struct JsonConfigProperty {
 { "adunit",                 CONFIGSET_SKIN },
 { "adunit-omit-if-admin",   CONFIGSET_SKIN },
 { "adunit-omit-if-user",    CONFIGSET_SKIN },
-{ "white-foreground",       CONFIGSET_SKIN },
 
 { "project-name",           CONFIGSET_PROJ },
 { "short-project-name",     CONFIGSET_PROJ },
@@ -81,8 +81,8 @@ static const struct JsonConfigProperty {
 { "crnl-glob",              CONFIGSET_PROJ },
 { "encoding-glob",          CONFIGSET_PROJ },
 { "empty-dirs",             CONFIGSET_PROJ },
-{ "allow-clean-x",          CONFIGSET_PROJ },
 { "allow-symlinks",         CONFIGSET_PROJ },
+{ "dotfiles",               CONFIGSET_PROJ },
 
 { "ticket-table",           CONFIGSET_TKT  },
 { "ticket-common",          CONFIGSET_TKT  },
