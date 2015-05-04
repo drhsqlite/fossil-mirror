@@ -1,5 +1,5 @@
-C No\slonger\sassume\s-f\swith\s-x|--verily,\sas\severything\smatching\s--ignore\swill\snot\sbe\sprompted\sfor\sanyway.
-D 2015-04-30T22:03:00.000
+C merge\strunk
+D 2015-05-04T21:10:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob c5110d1807c498749c0820fe1013f2bd25649541
@@ -44,7 +44,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def e46f5fe7204e6f6bd2045322230a0dfcca2470d0
+F auto.def 2edd3ca32036ec6c1eb026040f6b98b022df752e
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 4e0b671b54288fc64d851d056822ee5fec4d3365
 F autosetup/autosetup f80eb8d3ebc34b06b08095daf8d964a898ea2777 x
@@ -343,7 +343,7 @@ F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt 561c02a1ad76e163549e3faedeb041dd02c081b4
 F skins/eagle/details.txt 9515535a2768af2990a6a3aa0fbbcb628a36670b
 F skins/eagle/footer.txt 7f36cbf30a82ef3cec30c1917a96415fa7d76eeb
-F skins/eagle/header.txt 6c91395abefbaba9e54d475e0ee3839ff8dfd535
+F skins/eagle/header.txt abb29288da0af34b3877b4b1e135e5db5cc77532
 F skins/enhanced1/css.txt 8ec40ceed5434186d4264607c2b4acca6a1a1249
 F skins/enhanced1/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/enhanced1/footer.txt 7f36cbf30a82ef3cec30c1917a96415fa7d76eeb
@@ -383,7 +383,7 @@ F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c 85da0ea6ee5ecff186e135b61108892904194e1e
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 6657772f2447b54cfa4fe965d00b9605a04ada4d
-F src/checkin.c b1b7189258d282bd056332e31b81895d94b2bd36
+F src/checkin.c b2a4233a15b9c3030a23cabfb3042002e15d24d4
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 265e9a29da905f3ab68625a9a5b245d7630275b2
@@ -395,7 +395,7 @@ F src/content.c 49fd70d3136fbeb4794b7ef2f76c977c3ea77013
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 1c297b9ec5fba60733aec1bbd07277e8490deb06
+F src/db.c 60f7f51436b419220479377e60cca70f5c154e28
 F src/delta.c e8de840f518dca8a6641f34eae115c8f9ca36004
 F src/deltacmd.c 4ac36378bf7b772d3bd67954212eb98be121961b
 F src/descendants.c 8153a57364fc97fc6fc26b62efa0907d2fa28403
@@ -407,7 +407,7 @@ F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
 F src/file.c 884b233bc94c8e7a24644ac815bc174756421545
-F src/finfo.c 1a722613d03bfa3b8e374716204c43231e7d2c1d
+F src/finfo.c d471bc9c523c0125ab1c99e5bffadb58d3ea76af
 F src/foci.c 8e1553ee3a2db6b73497b4cfca8d4b8fe89e2471
 F src/fusefs.c e25405b83122ed8369aa63125897348e5eb3cab2
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -439,7 +439,7 @@ F src/leaf.c df47f8f52ed1ebeb3b7f5c7b92c62351b177d458
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 0a6cf8707e27b04873950a6c63a48391c0a9f7ce
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c 13babac804e52cb31dad95d3826d0ba416d51b13
+F src/main.c 061f8b32f284f1d18289aedaa0d43146be3a9070
 F src/main.mk ca9de93963900e71e92ed118feeddb4f741861fe
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -472,7 +472,7 @@ F src/schema.c 7813ab3a9bbc59ff83bb9fdeaaa92efc254813fc
 F src/search.c c27533caf67427523a61afa971f43e83a313097d
 F src/setup.c 97d246c3bba673f87745d1c870250d30e53ab3ee
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
-F src/shell.c 78eabce4c16c45e36fea2368f95118116399ba8a
+F src/shell.c ad4c91f89eaced670f5c0d57531dda3fef3a4afe
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c c61001e4c189224381a6474d204cde7d868e9ef0
 F src/skins.c f12a6c105e7ceb269570e046800ae4ad1231b15a
@@ -497,7 +497,7 @@ F src/tktsetup.c 1360904128a3c60008867056d9f576c8f906eb7c
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
 F src/undo.c 463d3968fdd2cb7052bf351e9b028ad0dd556b10
 F src/unicode.c 471c170c6ca090967e68ffa51010d79233b9ff1b
-F src/update.c 139cb78d7beffa56092b02ed87eee5d96177b7d0
+F src/update.c 9f0b45a551abce8aa11c8e6b4b91e8dba6b94030
 F src/url.c 47dc39f0201a184fb2d330e49957724157319f22
 F src/user.c 6ec57f122cadd7c324e657be5de1b0c8f0d37c8d
 F src/utf8.c d9b19f5abbdecacb9b69a9e31f3bb0ef6e017918
@@ -732,7 +732,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 330c88ebb1e78838386e3ab80a27aeb3f5d96470
-R e74bb763db517836915e94fba8009cfd
+P f870407c8cc61bb3dcf420f4a1668462b20d975f a481a8176b9fa8ab9cdd71c45d8d5fa6109c2b45
+R 31106e3127c2aec8401e8bb7f6226c8e
 U jan.nijtmans
-Z e76cfb0e301ac9fb28981e2fecebf7ad
+Z 7bed4d8e32ba7807c6e42faf02edfd9b

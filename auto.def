@@ -53,8 +53,8 @@ if {![opt-bool internal-sqlite]} {
       # fossil.
       #
       if {[cc-check-function-in-lib sqlite3_open sqlite3 $extralibs]} {
-        if {![cc-check-function-in-lib sqlite3_strglob sqlite3 $extralibs]} {
-          user-error "system sqlite3 too old (require >= 3.7.17)"
+        if {![cc-check-function-in-lib sqlite3_malloc64 sqlite3 $extralibs]} {
+          user-error "system sqlite3 too old (require >= 3.8.7)"
         }
 
         # Success. Update symbols and return.

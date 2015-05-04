@@ -678,10 +678,10 @@ void extras_cmd(void){
 ** See also: addremove, extras, status
 */
 void clean_cmd(void){
-  int allFileFlag, dryRunFlag, verboseFlag;
+  int allFileFlag, allDirFlag, dryRunFlag, verboseFlag;
   int emptyDirsFlag, dirsOnlyFlag;
   unsigned scanFlags = 0;
-  int verilyFlag;
+  int verilyFlag = 0;
   const char *zIgnoreFlag, *zKeepFlag, *zCleanFlag;
   Glob *pIgnore, *pKeep, *pClean;
   int nRoot;
@@ -693,7 +693,7 @@ void clean_cmd(void){
   if( !dryRunFlag ){
     dryRunFlag = find_option("whatif",0,0)!=0;
   }
-  allFileFlag = find_option("force","f",0)!=0;
+  allFileFlag = allDirFlag = find_option("force","f",0)!=0;
   dirsOnlyFlag = find_option("dirsonly",0,0)!=0;
   emptyDirsFlag = find_option("emptydirs","d",0)!=0 || dirsOnlyFlag;
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
@@ -716,7 +716,7 @@ void clean_cmd(void){
   if( zKeepFlag==0 ){
     zKeepFlag = db_get("keep-glob", 0);
   }
-  if( zCleanFlag==0 ){
+  if( zCleanFlag==0 && !verilyFlag ){
     zCleanFlag = db_get("clean-glob", 0);
   }
   if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
@@ -801,6 +801,22 @@ void clean_cmd(void){
                        " or \"keep-glob\")\n", zName+nRoot);
         }
         continue;
+      }
+      if( !allDirFlag && !dryRunFlag && !glob_match(pClean, zName+nRoot)
+          && !(verilyFlag && glob_match(pIgnore, zName+nRoot)) ){
+        Blob ans;
+        char cReply;
+        char *prompt = mprintf("Remove empty directory \"%s\" (a=all/y/N)? ",
+                               zName+nRoot);
+        prompt_user(prompt, &ans);
+        cReply = blob_str(&ans)[0];
+        if( cReply=='a' || cReply=='A' ){
+          allDirFlag = 1;
+        }else if( cReply!='y' && cReply!='Y' ){
+          blob_reset(&ans);
+          continue;
+        }
+        blob_reset(&ans);
       }
       if( dryRunFlag || file_rmdir(zName)==0 ){
         if( verboseFlag || dryRunFlag ){
