@@ -1,5 +1,5 @@
-C Correct\scat\scommand\serror\smessage\son\snonexistent\sfile.
-D 2015-05-02T21:11:26.246
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sfirst\s3.8.10\sbeta.
+D 2015-05-04T19:25:38.280
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -473,7 +473,7 @@ F src/schema.c 7813ab3a9bbc59ff83bb9fdeaaa92efc254813fc
 F src/search.c c27533caf67427523a61afa971f43e83a313097d
 F src/setup.c 97d246c3bba673f87745d1c870250d30e53ab3ee
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
-F src/shell.c 78eabce4c16c45e36fea2368f95118116399ba8a
+F src/shell.c ad4c91f89eaced670f5c0d57531dda3fef3a4afe
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c c61001e4c189224381a6474d204cde7d868e9ef0
 F src/skins.c f12a6c105e7ceb269570e046800ae4ad1231b15a
@@ -733,7 +733,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 6f2b59270b14600713be269795e811548cfbbac6
-R cb9611b010037ad58f9c38ea36bad880
-U andygoth
-Z cea823c5b15055de7130c680a756e41f
+P 715f88811a2618ac65ad8f90a2ed166c89d2b9ba
+R 3be7d08532d8e2d55ce2cc386e8e9547
+U drh
+Z 82020e246b14f5f586217799082b0659
