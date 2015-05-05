@@ -1,5 +1,5 @@
-C Since\sfossil\snow\suses\ssqlite_malloc64,\swhich\sis\sintroduced\sin\sSQLite\s3.8.7,\sdon't\saccept\slinkage\susing\searlier\sSQLite\sversions\sany\smore.
-D 2015-05-04T20:10:14.980
+C Now\sreally\supdate\sthe\sbuilt-in\sSQLite\sto\sthe\sfirst\s3.8.10\sbeta,\snot\sonly\sthe\scommand\sline\sshell.
+D 2015-05-05T06:49:32.613
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -478,8 +478,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c c61001e4c189224381a6474d204cde7d868e9ef0
 F src/skins.c f12a6c105e7ceb269570e046800ae4ad1231b15a
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c 49f1c3ae347e1327b5aaa6c7f76126bdf09c6f42
-F src/sqlite3.h cedaecc44add001ad3550b31b5a5d6484569ecfd
+F src/sqlite3.c 14b7a451a8f7b2d875114005b8bcb9ec643bb8c3
+F src/sqlite3.h 447cbcd485e1efde4b6c849708dccb456a71db60
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 66e352596641f170a3513e19518a7690304a0b65
 F src/statrep.c b7bd715a0429375342af08151854d62b467c4792
@@ -733,7 +733,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 5a87a0314e33b6bace04d6a717d6dbe46e4ef498
-R 99eff7f6f465d72eb9651d5c094ec126
+P a481a8176b9fa8ab9cdd71c45d8d5fa6109c2b45
+R fe97d0156c3c9848270e2569f4c79e6f
 U jan.nijtmans
-Z 72ce21280c23f409404f6c57e3dce177
+Z 41066e7a8c8386ea8ccffca42ece8539
