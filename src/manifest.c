@@ -1346,6 +1346,7 @@ ManifestFile *manifest_file_find(Manifest *p, const char *zName){
 **
 ** Deleted files have mlink.fid=0.
 ** Added files have mlink.pid=0.
+** File added by merge have mlink.pid=-1
 ** Edited files have both mlink.pid!=0 and mlink.fid!=0
 */
 static void add_mlink(

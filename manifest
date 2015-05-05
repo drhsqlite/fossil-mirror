@@ -1,5 +1,5 @@
-C Attempt\sto\sdistinguish\sbetween\sfiles\sadded\sfrom\snothing\sand\sfiles\nadded\sby\smerge.
-D 2015-05-05T12:31:41.892
+C More\schanges\sfor\sdistinguishing\sbetween\snew\sfiles\sand\sfiles\sadded\sby\smerge.
+D 2015-05-05T16:07:47.432
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -408,7 +408,7 @@ F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
 F src/file.c 884b233bc94c8e7a24644ac815bc174756421545
-F src/finfo.c d471bc9c523c0125ab1c99e5bffadb58d3ea76af
+F src/finfo.c 8e8ee6e4b4ec876306b8ebc6fadcdd3e7ef7fe4f
 F src/foci.c 8e1553ee3a2db6b73497b4cfca8d4b8fe89e2471
 F src/fusefs.c e25405b83122ed8369aa63125897348e5eb3cab2
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -445,7 +445,7 @@ F src/main.mk ca9de93963900e71e92ed118feeddb4f741861fe
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 527cee6ec7c782bdee690a3e6c98079851ad49ef
-F src/manifest.c c297b1fc1b8911f84231c03287d47f5a683eb14f
+F src/manifest.c ba061499e6431a1c2c8aa19821adf429975fdee6
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 45f6e06e03e4183764067eec37ff73f357303306
 F src/markdown_html.c 29e42640edab9c60dc2222f52b62da3bc3c3f81d
@@ -492,7 +492,7 @@ F src/th.h 331b9aaf012117b22a3e8c4676c5b131cd8b7f9d
 F src/th_lang.c f6085bbe7c97a4d00c8fe8cd9328d402937111a8
 F src/th_main.c 00058b8cf89276094aae21c741ef15655d1fa34d
 F src/th_tcl.c 7b37123bd606f5b9999a1103807f822a77dfcdc5
-F src/timeline.c 225b68518e47f361f26dd802d0ae62ed874c2312
+F src/timeline.c 5c763515e836719f610f98b2979e70074c1e3a04
 F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
 F src/tktsetup.c 1360904128a3c60008867056d9f576c8f906eb7c
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
@@ -733,10 +733,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P acd670f2519599aa965e12b2450368b480fd1524
-R b234b160341b2535979769566b651f6f
-T *branch * show-add-by-merge
-T *sym-show-add-by-merge *
-T -sym-trunk *
+P 0d73f3f67055fbcd0f73d8c894c38acba07adc03
+R c9f0ea1d87d93079d99ea5ae512a905d
 U drh
-Z 41e37911f9ff82638e3a8313166eac79
+Z 6c37beadf0c152fb9d0fef2b56ccf6d4

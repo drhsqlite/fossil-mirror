@@ -501,7 +501,7 @@ void www_print_timeline(
       int inUl = 0;
       if( !fchngQueryInit ){
         db_prepare(&fchngQuery,
-          "SELECT (pid==0) AS isnew,"
+          "SELECT pid,"
           "       fid,"
           "       (SELECT name FROM filename WHERE fnid=mlink.fnid) AS name,"
           "       (SELECT uuid FROM blob WHERE rid=fid),"
@@ -519,7 +519,8 @@ void www_print_timeline(
       db_bind_int(&fchngQuery, ":mid", rid);
       while( db_step(&fchngQuery)==SQLITE_ROW ){
         const char *zFilename = db_column_text(&fchngQuery, 2);
-        int isNew = db_column_int(&fchngQuery, 0);
+        int isNew = db_column_int(&fchngQuery, 0)<=0;
+        int isMergeNew = db_column_int(&fchngQuery, 0)<0;
         int fid = db_column_int(&fchngQuery, 1);
         int isDel = fid==0;
         const char *zOldName = db_column_text(&fchngQuery, 5);
@@ -548,8 +549,13 @@ void www_print_timeline(
           zUnpub =  UNPUB_TAG;
         }
         if( isNew ){
-          @ <li> %s(zA)%h(zFilename)</a>%s(zId) %s(zUnpub) (new file) &nbsp;
-          @ %z(href("%R/artifact/%!S",zNew))[view]</a></li>
+          @ <li> %s(zA)%h(zFilename)</a>%s(zId) %s(zUnpub)
+          if( isMergeNew ){
+            @ (added by merge)
+          }else{
+            @ (new file)
+          }
+          @ &nbsp; %z(href("%R/artifact/%!S",zNew))[view]</a></li>
         }else if( isDel ){
           @ <li> %s(zA)%h(zFilename)</a> (deleted)</li>
         }else if( fossil_strcmp(zOld,zNew)==0 && zOldName!=0 ){
@@ -1875,7 +1881,7 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
     if(verboseFlag){
       if( !fchngQueryInit ){
         db_prepare(&fchngQuery,
-           "SELECT (pid==0) AS isnew,"
+           "SELECT (pid<=0) AS isnew,"
            "       (fid==0) AS isdel,"
            "       (SELECT name FROM filename WHERE fnid=mlink.fnid) AS name,"
            "       (SELECT uuid FROM blob WHERE rid=fid),"
