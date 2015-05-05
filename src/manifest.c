@@ -1803,10 +1803,9 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
         if( i==0 ) parentid = pid;
       }
       if( p->nParent>1 ){
-        /* Remove incorrect MLINK create-file entries that arise when a
-        ** file is added by merge. */
+        /* Change MLINK.PID from 0 to -1 for files that are added by merge. */
         db_multi_exec(
-           "DELETE FROM mlink"
+           "UPDATE mlink SET pid=-1"
            " WHERE mid=%d"
            "   AND pid=0"
            "   AND fnid IN "
