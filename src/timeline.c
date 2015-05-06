@@ -743,8 +743,8 @@ void timeline_output_graph_javascript(
     @     canvasDiv.appendChild(elem);
     @     var k = cls.replace(/\s/g, "_");
     @     var r = elem.getBoundingClientRect();
-    @     var w = Math.ceil(r.right - r.left);
-    @     var h = Math.ceil(r.bottom - r.top);
+    @     var w = Math.round(r.right - r.left);
+    @     var h = Math.round(r.bottom - r.top);
     @     elems[k] = {w: w, h: h, cls: cls};
     @   }
     @   node = elems.node;

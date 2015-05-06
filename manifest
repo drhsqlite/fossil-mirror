@@ -1,5 +1,5 @@
-C Allow\sthe\stimeline\sgraph\sto\sbe\scustomized\susing\sCSS.
-D 2015-05-06T20:55:46.843
+C Use\sround()\sinstead\sof\sceil()\son\selement\sdimension\scalculations.
+D 2015-05-06T21:28:53.901
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -492,7 +492,7 @@ F src/th.h 331b9aaf012117b22a3e8c4676c5b131cd8b7f9d
 F src/th_lang.c f6085bbe7c97a4d00c8fe8cd9328d402937111a8
 F src/th_main.c 00058b8cf89276094aae21c741ef15655d1fa34d
 F src/th_tcl.c 7b37123bd606f5b9999a1103807f822a77dfcdc5
-F src/timeline.c cb47cc37c5ca56b3705a8363e01639f242babb07
+F src/timeline.c 0dc9127a1d15a0b1fce3502d3fd5278dd5367d18
 F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
 F src/tktsetup.c 1360904128a3c60008867056d9f576c8f906eb7c
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
@@ -734,10 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 8e44cf6f4df4f9f004a55071445851ee4e25c7c1
-R 2c58321f0b1cbd7ff5fb2fd52eacfaf2
-T *branch * graphcss
-T *sym-graphcss *
-T -sym-trunk *
+P 1f1e199a20d7f57bf2ba959ecea8ae62a768b58e
+R cf0e743d5aa4754f9fcbc469e43ed31b
 U joel
-Z f8e73df7e4ab1b92dd2d9282c67eab17
+Z cd271274e6bdf44edf6cf1e6a66e93a8
