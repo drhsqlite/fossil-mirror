@@ -511,7 +511,7 @@ void finfo_page(void){
       @ %z(href("%R/blame?filename=%h&checkin=%s",z,zCkin))
       @ [blame]</a>
       @ %z(href("%R/timeline?n=200&uf=%!S",zUuid))[check-ins&nbsp;using]</a>
-      if( fpid ){
+      if( fpid>0 ){
         @ %z(href("%R/fdiff?sbs=1&v1=%!S&v2=%!S",zPUuid,zUuid))[diff]</a>
       }
     }
