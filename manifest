@@ -1,5 +1,5 @@
-C Record\sfiles\sadded\sby\smerge\susing\smlink.pid=-1.\s\sImprove\sthe\sweb\sinterface\nto\sbetter\sindicate\sfiles\sadded\sby\smerge.
-D 2015-05-06T12:35:51.348
+C Allow\sthe\stimeline\sgraph\sto\sbe\scustomized\susing\sCSS.
+D 2015-05-06T20:55:46.843
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -311,15 +311,15 @@ F fossil.1 2947f4d66ede5508f4fbe501e1e965df3b3a243d
 F setup/fossil.iss 57e01e1feb0198de025417c0a98f1d4b1c444f53
 F setup/fossil.nsi 688d5a732b08facc529dceeb9fb1ce5c9aa050ab
 F skins/README.md d81aeb05fb12f16afde4760671d3d45fe87a37f3
-F skins/aht/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
+F skins/aht/details.txt 22598aba81b30b150445cc981317175118ddd278
 F skins/black_and_white/css.txt 569f06d046846930594299a1e38714b50e0c74a7
-F skins/black_and_white/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
+F skins/black_and_white/details.txt 22598aba81b30b150445cc981317175118ddd278
 F skins/black_and_white/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/black_and_white/header.txt c74f3b8cfefae2e763d8f117dbd20e90c6dba33d
 F skins/blitz/README.md 2b86027936aa1ed69d0ccc413868aa886cacb45f
 F skins/blitz/arrow_project.png 2b2958e36ec7fe54836ab50d6c194789461463d0
-F skins/blitz/css.txt 0d5206461cfa802a3c8b63f68964d4d777402fe9
-F skins/blitz/details.txt 1260bc474e730cd32e4e86f7a346e22a1268cc8f
+F skins/blitz/css.txt 232ac96703050c18df0080e9861b9aa8816d534f
+F skins/blitz/details.txt 9d1dd35c4b352bd477d33f721b95e4f0cbc41b47
 F skins/blitz/dir.png 4a210b2afb16584e6093478f77025da7e7b83a57
 F skins/blitz/file.png 0d20b3bee95152a6358e1878a9bb07cc6a0f975d
 F skins/blitz/footer.txt 6a2b49fa89f262377fc709549f745742bae76a1a
@@ -330,44 +330,44 @@ F skins/blitz/header.txt 14ad6c45e2eb7e4664f362663e699e52a6e26bce
 F skins/blitz/rss_20.png 7d659cf7e4378d16198ddd4e984b4073e1fac901
 F skins/blitz/ticket.txt 1aab964cd7430a550560412a813fbe72311500d9
 F skins/blitz_no_logo/README.md 24829897e941d1cef4f8b8d6291c86d9cfe17cd7
-F skins/blitz_no_logo/css.txt 448d28510e35b9628e5a64fac981464a17bf0d9b
-F skins/blitz_no_logo/details.txt 1260bc474e730cd32e4e86f7a346e22a1268cc8f
+F skins/blitz_no_logo/css.txt 34533544e6f028b130e5698c5124816eb5ad7140
+F skins/blitz_no_logo/details.txt 9d1dd35c4b352bd477d33f721b95e4f0cbc41b47
 F skins/blitz_no_logo/footer.txt 6a2b49fa89f262377fc709549f745742bae76a1a
 F skins/blitz_no_logo/header.txt fdfffc2be91c2d45f410e953337fa2aa55c58b96
 F skins/blitz_no_logo/ticket.txt 1aab964cd7430a550560412a813fbe72311500d9
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
 F skins/default/css.txt 3644519916de6a497cbda2baac0bd4abdbdce038
-F skins/default/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
+F skins/default/details.txt 22598aba81b30b150445cc981317175118ddd278
 F skins/default/footer.txt 73c83aa5dd4b1ff7cfdd5a446a63c4e0193213a9
 F skins/default/header.txt 382e13d2c8147320bb3598611f4625638f7694ad
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
-F skins/eagle/css.txt 561c02a1ad76e163549e3faedeb041dd02c081b4
-F skins/eagle/details.txt 9515535a2768af2990a6a3aa0fbbcb628a36670b
+F skins/eagle/css.txt b57649b60d60efa2697e07a3523ec9016df527a0
+F skins/eagle/details.txt d38597bcfafa813a560f72033dc132248126101a
 F skins/eagle/footer.txt 7f36cbf30a82ef3cec30c1917a96415fa7d76eeb
 F skins/eagle/header.txt abb29288da0af34b3877b4b1e135e5db5cc77532
 F skins/enhanced1/css.txt 8ec40ceed5434186d4264607c2b4acca6a1a1249
-F skins/enhanced1/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
+F skins/enhanced1/details.txt 22598aba81b30b150445cc981317175118ddd278
 F skins/enhanced1/footer.txt 7f36cbf30a82ef3cec30c1917a96415fa7d76eeb
 F skins/enhanced1/header.txt 4f57da29b372156822ccd2dfbe1f7420c1c3b429
 F skins/khaki/css.txt 2a210e3703806e09e04a739eb9877a4b953528e7
-F skins/khaki/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
+F skins/khaki/details.txt 22598aba81b30b150445cc981317175118ddd278
 F skins/khaki/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/khaki/header.txt 609fe1dd9dd3afdfe2777ce207a2012cb36c3f64
 F skins/original/css.txt 8ec40ceed5434186d4264607c2b4acca6a1a1249
-F skins/original/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
+F skins/original/details.txt 22598aba81b30b150445cc981317175118ddd278
 F skins/original/footer.txt 73c83aa5dd4b1ff7cfdd5a446a63c4e0193213a9
 F skins/original/header.txt e1f837ff2d7bbe1cda8ca6847875491f6b5b269a
 F skins/plain_gray/css.txt 56cdc6074767d5b90116b2e39074a40ac535ba93
-F skins/plain_gray/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
+F skins/plain_gray/details.txt 22598aba81b30b150445cc981317175118ddd278
 F skins/plain_gray/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/plain_gray/header.txt dc58123dc4ae1714dea231d69f3dcf25308fe83a
 F skins/rounded1/css.txt cf2b6d826f72710f06de8e4ba9c11954d545f884
-F skins/rounded1/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
+F skins/rounded1/details.txt 22598aba81b30b150445cc981317175118ddd278
 F skins/rounded1/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/rounded1/header.txt 90ea81c5b14e22a048e182c22769e9aa779d8752
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
-F skins/xekri/css.txt 4516c99a8f276d585c9f9e65e34c46d831999a15
-F skins/xekri/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
+F skins/xekri/css.txt 78961dbff76dbd354aa4085fe422f724684c0a2f
+F skins/xekri/details.txt 22598aba81b30b150445cc981317175118ddd278
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt 14b3c4d0c2760db2457eacad4278ba3d10f08c81
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
@@ -408,11 +408,11 @@ F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
 F src/file.c 884b233bc94c8e7a24644ac815bc174756421545
-F src/finfo.c 8e8ee6e4b4ec876306b8ebc6fadcdd3e7ef7fe4f
+F src/finfo.c b6c12315c1a07630e6e421b74f1be89bc7770b38
 F src/foci.c 8e1553ee3a2db6b73497b4cfca8d4b8fe89e2471
 F src/fusefs.c e25405b83122ed8369aa63125897348e5eb3cab2
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
-F src/graph.c 42f51f885ecca41125435465f5f1b1171a3c1f11
+F src/graph.c 845e2bcf72cfced7b9dee6b7b5093c92b05e11b0
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
 F src/http.c 4045dd21bdc880bc7b694088c21a15bdbe1b562b
 F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
@@ -476,14 +476,14 @@ F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c ad4c91f89eaced670f5c0d57531dda3fef3a4afe
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c c61001e4c189224381a6474d204cde7d868e9ef0
-F src/skins.c f12a6c105e7ceb269570e046800ae4ad1231b15a
+F src/skins.c efe82d28ad6c54fc9a67b582ca3b595ae1deba30
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
 F src/sqlite3.c aa4f0f90c9c77424943e026a2ecee4a6c7f9e0d3
 F src/sqlite3.h fd2f6fc08b9bedc2cef32bf2309b6773940fb0ff
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 66e352596641f170a3513e19518a7690304a0b65
 F src/statrep.c b7bd715a0429375342af08151854d62b467c4792
-F src/style.c 842f0cd74a8beca350e8e471f9e841c09da48f67
+F src/style.c 6c3ea4faf71ac51b8991e0ec389576ea4fd4bf09
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
@@ -492,7 +492,7 @@ F src/th.h 331b9aaf012117b22a3e8c4676c5b131cd8b7f9d
 F src/th_lang.c f6085bbe7c97a4d00c8fe8cd9328d402937111a8
 F src/th_main.c 00058b8cf89276094aae21c741ef15655d1fa34d
 F src/th_tcl.c 7b37123bd606f5b9999a1103807f822a77dfcdc5
-F src/timeline.c 5c763515e836719f610f98b2979e70074c1e3a04
+F src/timeline.c cb47cc37c5ca56b3705a8363e01639f242babb07
 F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
 F src/tktsetup.c 1360904128a3c60008867056d9f576c8f906eb7c
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
@@ -517,6 +517,7 @@ F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/cmdline.test 4532df2c904f035fc2a3be3bca6c5514def515a8
 F test/comment.test 3d18947b36ad7dcc914ed905eb950c9fb84a1ec6
+F test/contains-selector.test 6ecd602b6786ebedca580b8e82e402c6f9aec2fd
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/diff-test-1.wiki 597fbb13c9c3da02e09a53d128f3b5d4dd5cadda
 F test/file1.test 4a1009731c0959c46c228a9336df9da4a5da97f1
@@ -733,8 +734,10 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P acd670f2519599aa965e12b2450368b480fd1524 7d2ac84598adf7b2df2510b084961eaf1493c4cd
-R 7000e890e2711b43cafe83e55c9485d2
-T +closed 7d2ac84598adf7b2df2510b084961eaf1493c4cd
-U drh
-Z 62b18c5e40188c407a7b3edfa8647dd4
+P 8e44cf6f4df4f9f004a55071445851ee4e25c7c1
+R 2c58321f0b1cbd7ff5fb2fd52eacfaf2
+T *branch * graphcss
+T *sym-graphcss *
+T -sym-trunk *
+U joel
+Z f8e73df7e4ab1b92dd2d9282c67eab17
