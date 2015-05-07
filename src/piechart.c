@@ -95,8 +95,9 @@ void piechart_render(int width, int height, unsigned int pieFlags){
   int nTotal;             /* Total number of entries in piechart */
   int nTooSmall;          /* Number of pieChart.amt entries less than 1/60th */
 
-# define SATURATION 128
-# define VALUE      192
+# define SATURATION    128
+# define VALUE         192
+# define OTHER_CUTOFF  90.0
 
   cx = 0.5*width;
   cy = 0.5*height;
@@ -114,7 +115,7 @@ void piechart_render(int width, int height, unsigned int pieFlags){
   nTooSmall = 0;
   if( (pieFlags & PIE_OTHER)!=0 && nTotal>1 ){
     db_prepare(&q, "SELECT sum(amt), count(*) FROM piechart WHERE amt<:amt");
-    db_bind_double(&q, ":amt", rTotal/60.0);
+    db_bind_double(&q, ":amt", rTotal/OTHER_CUTOFF);
     if( db_step(&q)==SQLITE_ROW ){
       rTooSmall = db_column_double(&q, 0);
       nTooSmall = db_column_double(&q, 1);
@@ -125,7 +126,7 @@ void piechart_render(int width, int height, unsigned int pieFlags){
     db_prepare(&q, "SELECT amt, label FROM piechart WHERE amt>=:limit"
                    " UNION ALL SELECT %.17g, '(%d others)';",
                     rTooSmall, nTooSmall);
-    db_bind_double(&q, ":limit", rTotal/60.0);
+    db_bind_double(&q, ":limit", rTotal/OTHER_CUTOFF);
     nTotal += 1 - nTooSmall;
   }else{
     db_prepare(&q, "SELECT amt, label FROM piechart");
