@@ -130,6 +130,7 @@ void piechart_render(int width, int height, unsigned int pieFlags){
   }else{
     db_prepare(&q, "SELECT amt, label FROM piechart");
   }
+  if( nTotal<=10 ) pieFlags |= PIE_CHROMATIC;
   for(j=0; db_step(&q)==SQLITE_ROW; j++){
     double x = db_column_double(&q,0)/rTotal;
     const char *zLbl = db_column_text(&q,1);
@@ -168,8 +169,10 @@ void piechart_render(int width, int height, unsigned int pieFlags){
     }
     if( (j&1)==0 || (pieFlags & PIE_CHROMATIC)!=0 ){
       h = 256*j/nTotal;
+    }else if( j+2<nTotal ){
+      h = 256*(j+2)/nTotal;
     }else{
-      h = 256*((j+1+nTotal/2)%nTotal)/nTotal;
+      h = 256*((j+2+(nTotal&1))%nTotal)/nTotal;
     }
     zClr = rgbName(h,SATURATION,VALUE);
     l = x>=0.5;
@@ -226,7 +229,7 @@ void piechart_test_page(void){
   blob_reset(&all);
   if( n>0 ){
     @ <svg width=%d(width) height=%d(height) style="border:1px solid #d3d3d3;">
-    piechart_render(width,height, PIE_OTHER|PIE_CHROMATIC);
+    piechart_render(width,height, PIE_OTHER);
     @ </svg>
     @ <hr>
   }

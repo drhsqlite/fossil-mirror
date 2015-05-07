@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\spiechart\sgenerator.
-D 2015-05-07T02:39:31.680
+C Automatically\sswitch\sin\sto\schromatic\smode\swhen\sthe\snumber\sof\swedges\sis\s10\nor\sless.
+D 2015-05-07T02:57:01.415
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -459,7 +459,7 @@ F src/mkversion.c 40ed302872cc5795c76efb3ab089fc1aedba18f1
 F src/moderate.c 8ab2bd4bda9a6b6765f99ddea7950dc5c6bad007
 F src/name.c 54a193853de24b3c199f4dbc9863aa8f562649d0
 F src/path.c 9455d26c4bf91ae949abd55536a1a20d863c486b
-F src/piechart.c 2c3f0e5bdf3bc74eb477ef9574fcc69371293fd3
+F src/piechart.c 4ca62527f8d3cbd418920af8a5b248702129d5b8
 F src/pivot.c f03ae2edfb53590f6dee86c1a0d93441feb0f816
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -734,7 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 6ebd853cb4dac46dd79dffd99038deb79cabefbb
-R ec333a86699f343f841056d74567c392
+P 17a24be632b1ec5aee255e178184273e8100eccc
+R 3eb7a1e7fd4d7d18293cb6b9227fc379
 U drh
-Z cf6f78415af1a8591bfdf15009edd67d
+Z 1335eafd441a08f4cc0e34c5f7545515
