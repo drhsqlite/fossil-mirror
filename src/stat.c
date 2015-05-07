@@ -65,6 +65,7 @@ void stat_page(void){
   }
   style_submenu_element("Activity Reports", 0, "reports");
   style_submenu_element("SHA1 Collisions", 0, "hash-collisions");
+  style_submenu_element("Table Sizes", 0, "repo-tabsize");
   @ <table class="label-value">
   @ <tr><th>Repository&nbsp;Size:</th><td>
   fsize = file_size(g.zRepositoryName);
@@ -359,7 +360,7 @@ void repo_schema_page(void){
 }
 
 /*
-** WEBPAGE: repo_tabsize
+** WEBPAGE: repo-tabsize
 **
 ** Show relative sizes of tables in the repository database.
 */
@@ -367,12 +368,11 @@ void repo_tabsize_page(void){
   Stmt q;
   login_check_credentials();
   int nPageFree;
-  if( !g.perm.Admin ){ login_needed(0); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
 
   style_header("Repository Table Sizes");
   style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_element("Stat", "Repository Stats", "stat");
-  style_submenu_element("URLs", "URLs and Checkouts", "urllist");
   db_multi_exec(
     "CREATE VIRTUAL TABLE temp.dbx USING dbstat(%s);"
     "CREATE TEMP TABLE trans(name TEXT PRIMARY KEY, tabname TEXT)WITHOUT ROWID;"

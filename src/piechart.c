@@ -102,7 +102,7 @@ void piechart_render(int width, int height, unsigned int pieFlags){
   cx = 0.5*width;
   cy = 0.5*height;
   r2 = cx<cy ? cx : cy;
-  r = r2 - 60.0;
+  r = r2 - 80.0;
   if( r<0.33333*r2 ) r = 0.33333*r2;
   h = 0;
 
@@ -155,9 +155,9 @@ void piechart_render(int width, int height, unsigned int pieFlags){
     if( a2-a1 > 0.6 ){
       rot = 0;  /* Never rotate text on fat slices */
     }else if( rot<60 ){
-      rot = (rot - 60)/2;
+      rot = (rot - 60)/3;
     }else if( rot>120 ){
-      rot = (rot - 120)/2;
+      rot = (rot - 120)/3;
     }else{
       rot = 0;
     }
