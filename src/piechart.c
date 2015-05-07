@@ -55,6 +55,14 @@ const char *rgbName(unsigned char h, unsigned char s, unsigned char v){
 }
 
 /*
+** Flags that can be passed into the pie-chart generator
+*/
+#if INTERFACE
+#define PIE_OTHER     0x0001    /* No wedge less than 1/60th of the circle */
+#define PIE_CHROMATIC 0x0002    /* Wedge colors are in chromatic order */
+#endif
+
+/*
 ** Output HTML that will render a pie chart using data from
 ** the PIECHART temporary table.
 **
@@ -62,7 +70,7 @@ const char *rgbName(unsigned char h, unsigned char s, unsigned char v){
 **
 **     CREATE TEMP TABLE piechart(amt REAL, label TEXT);
 */
-void piechart_render(int width, int height){
+void piechart_render(int width, int height, unsigned int pieFlags){
   Stmt q;
   double cx, cy;          /* center of the pie */
   double r, r2;           /* Radius of the pie */
@@ -78,8 +86,14 @@ void piechart_render(int width, int height){
   double a3;              /* Angle at middle of slice */
   int rot;                /* Text rotation angle */
   double sina3, cosa3;    /* sin(a3) and cos(a3) */
-  unsigned char h, h2;    /* Hue */
+  unsigned char h;        /* Hue */
   const char *zClr;       /* Color */
+  int l;                  /* Large arc flag */
+  int j;                  /* Wedge number */
+  double rTotal;          /* Total piechart.amt */
+  double rTooSmall;       /* Sum of pieChart.amt entries less than 1/60th */
+  int nTotal;             /* Total number of entries in piechart */
+  int nTooSmall;          /* Number of pieChart.amt entries less than 1/60th */
 
 # define SATURATION 128
 # define VALUE      192
@@ -90,12 +104,34 @@ void piechart_render(int width, int height){
   r = r2 - 60.0;
   if( r<0.33333*r2 ) r = 0.33333*r2;
   h = 0;
-  
 
-  db_prepare(&q, "SELECT amt/(SELECT sum(amt) FROM piechart), label"
-                 " FROM piechart ORDER BY rowid");
-  while( db_step(&q)==SQLITE_ROW ){
-    double x = db_column_double(&q,0);
+  db_prepare(&q, "SELECT sum(amt), count(*) FROM piechart");
+  if( db_step(&q)!=SQLITE_ROW ) return;
+  rTotal = db_column_double(&q, 0);
+  nTotal = db_column_int(&q, 1);
+  db_finalize(&q);
+  rTooSmall = 0.0;
+  nTooSmall = 0;
+  if( (pieFlags & PIE_OTHER)!=0 && nTotal>1 ){
+    db_prepare(&q, "SELECT sum(amt), count(*) FROM piechart WHERE amt<:amt");
+    db_bind_double(&q, ":amt", rTotal/60.0);
+    if( db_step(&q)==SQLITE_ROW ){
+      rTooSmall = db_column_double(&q, 0);
+      nTooSmall = db_column_double(&q, 1);
+    }
+    db_finalize(&q);
+  }
+  if( nTooSmall>1 ){
+    db_prepare(&q, "SELECT amt, label FROM piechart WHERE amt>=:limit"
+                   " UNION ALL SELECT %.17g, '(%d others)';",
+                    rTooSmall, nTooSmall);
+    db_bind_double(&q, ":limit", rTotal/60.0);
+    nTotal += 1 - nTooSmall;
+  }else{
+    db_prepare(&q, "SELECT amt, label FROM piechart");
+  }
+  for(j=0; db_step(&q)==SQLITE_ROW; j++){
+    double x = db_column_double(&q,0)/rTotal;
     const char *zLbl = db_column_text(&q,1);
     /* @ <!-- x=%g(x) zLbl="%h(zLbl)" h=%d(h) --> */
     if( x<=0.0 ) continue;
@@ -114,26 +150,32 @@ void piechart_render(int width, int height){
     y4 = cy - cosa3*d1;
     y5 = y4 - 3.0 + 6.0*(1.0 -cosa3);
     rot = ((int)(a3*180/M_PI))%180;
-    if( rot<60 ){
+    if( a2-a1 > 0.6 ){
+      rot = 0;  /* Never rotate text on fat slices */
+    }else if( rot<60 ){
       rot = (rot - 60)/2;
     }else if( rot>120 ){
       rot = (rot - 120)/2;
     }else{
       rot = 0;
     }
-    if( x4<cx ){
+    if( x4<=cx ){
       x5 = x4 - 5.0;
       zAnc = "end";
     }else{
       x5 = x4 + 4.0;
       zAnc = "start";
     }
-    h2 = h + (int)128.0*x;
-    zClr = rgbName(h2,SATURATION,VALUE);
-    h += (int)256.0*x;
+    if( (j&1)==0 || (pieFlags & PIE_CHROMATIC)!=0 ){
+      h = 256*j/nTotal;
+    }else{
+      h = 256*((j+1+nTotal/2)%nTotal)/nTotal;
+    }
+    zClr = rgbName(h,SATURATION,VALUE);
+    l = x>=0.5;
     a1 = a2;
     @ <path stroke="black" stroke-width="1" fill="%s(zClr)"
-    @  d='M%g(cx),%g(cy) L%g(x1),%g(y1) A%g(r),%g(r) 0 0,1 %g(x2),%g(y2) z'/>
+    @  d='M%g(cx),%g(cy)L%g(x1),%g(y1)A%g(r),%g(r) 0 %d(l),1 %g(x2),%g(y2)z'/>
     @ <line stroke='black' stroke-width='1'
     @  x1='%g(x3)' y1='%g(y3)' x2='%g(x4)' y2='%g(y4)''/>
     if( rot!=0 ){
@@ -184,7 +226,7 @@ void piechart_test_page(void){
   blob_reset(&all);
   if( n>0 ){
     @ <svg width=%d(width) height=%d(height) style="border:1px solid #d3d3d3;">
-    piechart_render(width,height);
+    piechart_render(width,height, PIE_OTHER|PIE_CHROMATIC);
     @ </svg>
     @ <hr>
   }
