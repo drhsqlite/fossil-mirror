@@ -1889,7 +1889,7 @@ void db_swap_connections(void){
 ** found.
 **
 ** If the zNonVersionedSetting parameter is not NULL then it holds the
-** non-versioned value for this setting.  If both a versioned and ad
+** non-versioned value for this setting.  If both a versioned and a
 ** non-versioned value exist and are not equal, then a warning message
 ** might be generated.
 */
@@ -1929,7 +1929,7 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
       if( blob_read_from_file(&setting, zVersionedPathname) >= 0 ){
         blob_trim(&setting); /* Avoid non-obvious problems with line endings
                              ** on boolean properties */
-        zVersionedSetting = strdup(blob_str(&setting));
+        zVersionedSetting = fossil_strdup(blob_str(&setting));
       }
       blob_reset(&setting);
       /* See if there's a no-warn flag */

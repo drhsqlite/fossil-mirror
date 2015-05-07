@@ -263,8 +263,8 @@ void cat_cmd(void){
   for(i=2; i<g.argc; i++){
     file_tree_name(g.argv[i], &fname, 1);
     blob_zero(&content);
-    rc = historical_version_of_file(zRev, blob_str(&fname), &content, 0,0,0,0);
-    if( rc==0 ){
+    rc = historical_version_of_file(zRev, blob_str(&fname), &content, 0,0,0,2);
+    if( rc==2 ){
       fossil_fatal("no such file: %s", g.argv[i]);
     }
     blob_write_to_file(&content, "-");
@@ -511,7 +511,7 @@ void finfo_page(void){
       @ %z(href("%R/blame?filename=%h&checkin=%s",z,zCkin))
       @ [blame]</a>
       @ %z(href("%R/timeline?n=200&uf=%!S",zUuid))[check-ins&nbsp;using]</a>
-      if( fpid ){
+      if( fpid>0 ){
         @ %z(href("%R/fdiff?sbs=1&v1=%!S&v2=%!S",zPUuid,zUuid))[diff]</a>
       }
     }

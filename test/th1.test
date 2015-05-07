@@ -44,12 +44,12 @@ test th1-setting-4 {$RESULT eq {TH_ERROR: no value for setting "abc"}}
 ###############################################################################
 
 fossil test-th-eval --open-config "setting autosync"
-test th1-setting-5 {$RESULT eq 0 || $RESULT eq 1}
+test th1-setting-5 {$RESULT eq 0 || $RESULT eq 1 || $RESULT eq "on"}
 
 ###############################################################################
 
 fossil test-th-eval --open-config "setting -strict autosync"
-test th1-setting-6 {$RESULT eq 0 || $RESULT eq 1}
+test th1-setting-6 {$RESULT eq 0 || $RESULT eq 1 || $RESULT eq "on"}
 
 ###############################################################################
 

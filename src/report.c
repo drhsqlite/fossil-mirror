@@ -1085,7 +1085,7 @@ void output_table_sorting_javascript(
 */
 void rptview_page(void){
   int count = 0;
-  int rn;
+  int rn, rc;
   char *zSql;
   char *zTitle;
   char *zOwner;
@@ -1097,24 +1097,28 @@ void rptview_page(void){
 
   login_check_credentials();
   if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
-  rn = atoi(PD("rn","0"));
-  if( rn==0 ){
-    cgi_redirect("reportlist");
-    return;
-  }
   tabs = P("tablist")!=0;
-  /* view_add_functions(tabs); */
   db_prepare(&q,
-    "SELECT title, sqlcode, owner, cols FROM reportfmt WHERE rn=%d", rn);
-  if( db_step(&q)!=SQLITE_ROW ){
-    cgi_redirect("reportlist");
+    "SELECT title, sqlcode, owner, cols, rn FROM reportfmt WHERE rn=%d",
+     atoi(PD("rn","0")));
+  rc = db_step(&q);
+  if( rc!=SQLITE_ROW ){
     db_finalize(&q);
+    db_prepare(&q,
+      "SELECT title, sqlcode, owner, cols, rn FROM reportfmt WHERE title GLOB %Q",
+      P("title"));
+    rc = db_step(&q);
+  }
+  if( rc!=SQLITE_ROW ){
+    db_finalize(&q);
+    cgi_redirect("reportlist");
     return;
   }
   zTitle = db_column_malloc(&q, 0);
   zSql = db_column_malloc(&q, 1);
   zOwner = db_column_malloc(&q, 2);
   zClrKey = db_column_malloc(&q, 3);
+  rn = db_column_int(&q,4);
   db_finalize(&q);
 
   if( P("order_by") ){

@@ -652,7 +652,7 @@ int historical_version_of_file(
   int *pIsLink,            /* Set to true if file is link. */
   int *pIsExe,             /* Set to true if file is executable */
   int *pIsBin,             /* Set to true if file is binary */
-  int errCode              /* Error code if file not found.  Panic if 0. */
+  int errCode              /* Error code if file not found.  Panic if <= 0. */
 ){
   Manifest *pManifest;
   ManifestFile *pFile;
