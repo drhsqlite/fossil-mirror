@@ -1,5 +1,5 @@
-C Demonstrate\sthe\suse\sof\sa\spie-chart\son\sthe\sCheck-ins\sBy\sUser\spage.
-D 2015-05-07T03:12:53.553
+C Merge\sin\sthe\s/repo_tabsize\spage.\s\sUpdate\sto\sa\spost-3.8.10\sversion\sof\sSQLite\nthat\ssupport\sthe\sdbstat\svirtual\stable\son\sattached\sdatabases,\snecessary\sto\nget\sthe\s/repo_tabsize\sto\swork.
+D 2015-05-07T14:50:43.539
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -479,10 +479,10 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c c61001e4c189224381a6474d204cde7d868e9ef0
 F src/skins.c f12a6c105e7ceb269570e046800ae4ad1231b15a
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c aa4f0f90c9c77424943e026a2ecee4a6c7f9e0d3
-F src/sqlite3.h fd2f6fc08b9bedc2cef32bf2309b6773940fb0ff
+F src/sqlite3.c 84dc7cf22a705cedead81f1c78a807e99b8f9c39
+F src/sqlite3.h 858a41c0bf52173a48c0617cfb1c9065c1d989f5
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
-F src/stat.c 66e352596641f170a3513e19518a7690304a0b65
+F src/stat.c f6a63ec1e98b687454d7e875b4327015aaf16f06
 F src/statrep.c dbe323ad4ea18b15dad541dd32365b7bac238511
 F src/style.c 842f0cd74a8beca350e8e471f9e841c09da48f67
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
@@ -734,7 +734,8 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 8a12c62f0da9bb9f9ed3deb5843b0cc4d65c2ef3
-R fdedc1ea729394958101c596a5bc31ca
+P 04d496504461faa6076af77dfb2a07394a4dd514 ce5af0966e7965bf0df1df4d8bb124d227f13bfb
+R bececb8533d6b1bf4066aacb88c0855f
+T +closed ce5af0966e7965bf0df1df4d8bb124d227f13bfb
 U drh
-Z 61faefa0181bf6bafa5a6f7e02a00ba3
+Z 87b9acfb475e4866b818b06f07dc22ae
