@@ -357,3 +357,52 @@ void repo_schema_page(void){
   db_finalize(&q);
   style_footer();
 }
+
+/*
+** WEBPAGE: repo_tabsize
+**
+** Show relative sizes of tables in the repository database.
+*/
+void repo_tabsize_page(void){
+  Stmt q;
+  login_check_credentials();
+  int nPageTotal;
+  int nPageSmall;
+  int nPageFree;
+  if( !g.perm.Admin ){ login_needed(0); return; }
+
+  style_header("Repository Table Sizes");
+  style_adunit_config(ADUNIT_RIGHT_OK);
+  style_submenu_element("Stat", "Repository Stats", "stat");
+  style_submenu_element("URLs", "URLs and Checkouts", "urllist");
+  db_multi_exec(
+    "CREATE VIRTUAL TABLE temp.dbx USING dbstat;"
+    "CREATE TEMP TABLE trans(name TEXT PRIMARY KEY, tabname TEXT)WITHOUT ROWID;"
+    "INSERT INTO trans(name,tabname)"       
+    "   SELECT name, tbl_name FROM %s.sqlite_master;"
+    "CREATE TEMP TABLE piechart(amt REAL, label TEXT);"
+    "INSERT INTO piechart(amt,label)"
+    "  SELECT count(*), "
+    "    coalesce((SELECT tabname FROM trans WHERE trans.name=dbx.name),name)"
+    "    FROM dbx"
+    "   GROUP BY 2 ORDER BY 2;",
+    db_name("repository")
+  );
+  nPageFree = db_int(0, "PRAGMA freelist_count");
+  db_multi_exec(
+    "INSERT INTO piechart(amt,label) VALUES(%d,'(freelist)')",
+    nPageFree
+  );
+  nPageTotal = db_int(0, "SELECT sum(amt) FROM piechart");
+  nPageSmall = db_int(0, "SELECT sum(amt) FROM piechart WHERE amt<%d",
+                         nPageTotal/50);
+  db_multi_exec(
+    "DELETE FROM piechart WHERE amt<%d;"
+    "INSERT INTO piechart(amt,label) VALUES(%d,'(other)')", 
+    nPageTotal/50, nPageSmall
+  );
+  @ <center><svg width='800' height='600'>
+  piechart_render(800,600);
+  @ </svg>
+  style_footer();
+}
