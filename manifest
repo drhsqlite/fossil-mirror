@@ -1,5 +1,5 @@
-C Fix\sa\spotential\suse-after-free\sproblem.
-D 2015-05-07T19:50:03.913
+C Improvements\sto\sthe\sbuild\sand\sTH1\sscripting\sdocs.
+D 2015-05-08T15:31:45.667
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -649,7 +649,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki e72a7ddf5c84b35b90a3f5094229d137802d204a
+F www/build.wiki 1a0af5fa07defbe9c0ef2a821158fd51f39183a9
 F www/changes.wiki e55ae1946d6bccbfc844e2614b9e9b7a812d5779
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 37087c035ff437c1c14dce07a0b8c7bf7adb3c2d
@@ -726,14 +726,14 @@ F www/stats.wiki 2d8317fe35d22877c86ed2332de02b653f50a498
 F www/style.wiki 4c9c67c0eddba030a73a55e468802fd09d59bc2f
 F www/sync.wiki ecd7e356270a40e81649970c1b606767db68d9e3
 F www/tech_overview.wiki 66d893fd0bca7f5dbc659ab0b4e9dde987e4fdb3
-F www/th1.md f4d9a0d7acdd163f22d83970aa519c8390c3a797
+F www/th1.md bf69f21f480afe640a327cd0d392be77a9a3c1bb
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P abc38398eb953144eb6c05088eab9cdb88c86705
-R 72545d1e8082e4fe3caaa01a2023d737
-U drh
-Z 9c8ac76dce9ce27137b08ec908d00881
+P df12c1b05318862f0c78fb86591c1850e059853e
+R 5e8af76e405b1e89e3f3be41c3a51775
+U mistachkin
+Z d833312cd576e55f0f155c856d83206e
