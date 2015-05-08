@@ -638,13 +638,29 @@ void timeline_output_graph_javascript(
     int i;
     char cSep;
     int iRailPitch;      /* Pixels between consecutive rails */
+    int showArrowheads;  /* True to draw arrowheads.  False to omit. */
+    int circleNodes;     /* True for circle nodes.  False for square nodes */
     int colorGraph;      /* Use colors for graph lines */
 
     iRailPitch = atoi(PD("railpitch","0"));
+    showArrowheads = skin_detail_boolean("timeline-arrowheads");
+    circleNodes = skin_detail_boolean("timeline-circle-nodes");
     colorGraph = skin_detail_boolean("timeline-color-graph-lines");
 
     @ <script>(function(){
     @ "use strict";
+    @ var css = "";
+    if( circleNodes ){
+      @ css += ".tl-node, .tl-node:after { border-radius: 50%%; }";
+    }
+    if( !showArrowheads ){
+      @ css += ".tl-arrow.u { display: none; }";
+    }
+    @ if( css!=="" ){
+    @   var style = document.createElement("style");
+    @   style.textContent = css;
+    @   document.querySelector("head").appendChild(style);
+    @ }
     /* the rowinfo[] array contains all the information needed to generate
     ** the graph.  Each entry contains information for a single row:
     **
