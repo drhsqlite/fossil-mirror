@@ -1,5 +1,5 @@
-C Reduce\sradius\sof\spie\scharts\son\sthe\s/repo-tabsize\spage.
-D 2015-05-09T13:16:34.420
+C Fix\sthe\sbuild\sfor\sMSVC.
+D 2015-05-09T17:57:57.392
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -459,7 +459,7 @@ F src/mkversion.c 40ed302872cc5795c76efb3ab089fc1aedba18f1
 F src/moderate.c 8ab2bd4bda9a6b6765f99ddea7950dc5c6bad007
 F src/name.c 54a193853de24b3c199f4dbc9863aa8f562649d0
 F src/path.c 9455d26c4bf91ae949abd55536a1a20d863c486b
-F src/piechart.c d410783b8263972ab3f733689c4ca9c5df4c4225
+F src/piechart.c 39247c28ae3d8a599eebd756a5819964a3464c6e
 F src/pivot.c f03ae2edfb53590f6dee86c1a0d93441feb0f816
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -482,7 +482,7 @@ F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
 F src/sqlite3.c 85e4e1c08c7df28ef61bb9759a0d466e0eefbaa2
 F src/sqlite3.h 07d4e4e898f011cceaece49482784a1b8edd4a8e
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
-F src/stat.c d229ca8104aa11d8d1607ca130d85bbb778aefbb
+F src/stat.c 1a8cc8e4d6e77a3a000c860e0314573e519914bf
 F src/statrep.c dbe323ad4ea18b15dad541dd32365b7bac238511
 F src/style.c c9aeaaea1fa89f7ae6364d3b0684406f10c1f952
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
@@ -735,7 +735,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P f3c7b3a6b5851d76b16da58ea390a1f7dfa57cc2
-R f18b04d292881e8dacdc55c3c95335b0
+P df302de88a4c54be77273e1b777879c34e26dd08
+R d12da50ad8d6273bb0e4b4a1580a75b6
 U drh
-Z 12cfb6127662ee48abe55fdde6c67d87
+Z a4a5478dd1c07131f06c93395909a7e2

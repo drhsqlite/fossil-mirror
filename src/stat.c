@@ -381,12 +381,12 @@ void repo_schema_page(void){
 */
 void repo_tabsize_page(void){
   Stmt q;
-  login_check_credentials();
   int nPageFree;
   sqlite3_int64 fsize;
   char zBuf[100];
-  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
 
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("Repository Table Sizes");
   style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_element("Stat", "Repository Stats", "stat");

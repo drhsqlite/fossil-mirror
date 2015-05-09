@@ -22,6 +22,10 @@
 #include "piechart.h"
 #include <math.h>
 
+#ifndef M_PI
+# define M_PI 3.1415926535897932385
+#endif
+
 /*
 ** Return an RGB color name given HSV values.  The HSV values
 ** must each be between between 0 and 255.  The string
@@ -210,11 +214,11 @@ void piechart_test_page(void){
   const char *zData;
   Stmt ins, q;
   Blob all, line, token1, token2;
-  login_check_credentials();
   int n = 0;
   int width;
   int height;
 
+  login_check_credentials();
   style_header("Pie Chart Test");
   db_multi_exec("CREATE TEMP TABLE piechart(amt REAL, label TEXT);");
   db_prepare(&ins, "INSERT INTO piechart(amt,label) VALUES(:amt,:label)");
