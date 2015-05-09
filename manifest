@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.8.10.1.
-D 2015-05-09T12:17:43.852
+C Add\scode\sfor\sdrawing\spie-chart\sreports.\s\sUse\sthis\sfor\sthe\s/repo-tabsize\nwebpage.
+D 2015-05-09T12:19:28.910
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -45,7 +45,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 2edd3ca32036ec6c1eb026040f6b98b022df752e
+F auto.def e70a82048f77a7f67461cd7a06a287313e066531
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 4e0b671b54288fc64d851d056822ee5fec4d3365
 F autosetup/autosetup f80eb8d3ebc34b06b08095daf8d964a898ea2777 x
@@ -441,10 +441,10 @@ F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 0a6cf8707e27b04873950a6c63a48391c0a9f7ce
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
 F src/main.c 061f8b32f284f1d18289aedaa0d43146be3a9070
-F src/main.mk ca9de93963900e71e92ed118feeddb4f741861fe
+F src/main.mk c56b4b688a95c62878ca19916058b94f2a4466d0
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 527cee6ec7c782bdee690a3e6c98079851ad49ef
+F src/makemake.tcl 7c95b041c0e6d691387c589fe5169f6ab7a9a552
 F src/manifest.c ba061499e6431a1c2c8aa19821adf429975fdee6
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 45f6e06e03e4183764067eec37ff73f357303306
@@ -459,6 +459,7 @@ F src/mkversion.c 40ed302872cc5795c76efb3ab089fc1aedba18f1
 F src/moderate.c 8ab2bd4bda9a6b6765f99ddea7950dc5c6bad007
 F src/name.c 54a193853de24b3c199f4dbc9863aa8f562649d0
 F src/path.c 9455d26c4bf91ae949abd55536a1a20d863c486b
+F src/piechart.c d410783b8263972ab3f733689c4ca9c5df4c4225
 F src/pivot.c f03ae2edfb53590f6dee86c1a0d93441feb0f816
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -481,8 +482,8 @@ F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
 F src/sqlite3.c 85e4e1c08c7df28ef61bb9759a0d466e0eefbaa2
 F src/sqlite3.h 07d4e4e898f011cceaece49482784a1b8edd4a8e
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
-F src/stat.c 66e352596641f170a3513e19518a7690304a0b65
-F src/statrep.c b7bd715a0429375342af08151854d62b467c4792
+F src/stat.c 88dcb237593b16dde9000e7b1f546c2f319342bb
+F src/statrep.c dbe323ad4ea18b15dad541dd32365b7bac238511
 F src/style.c 842f0cd74a8beca350e8e471f9e841c09da48f67
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
@@ -617,11 +618,11 @@ F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil-autocomplete.bash 1135105ee18b95823944e2fa425806d3bc0f4252
 F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
-F win/Makefile.PellesCGMake 68fbf55e0d94c4e7291437c3412e17786f47db78
-F win/Makefile.dmc 0cefec6ea838e5e0ee4fd2af7da607cda5eae8aa
-F win/Makefile.mingw c92b24124ad73692177427c3264a8edd789541a8
+F win/Makefile.PellesCGMake cd7a95bc1ffa5608ae7c84b043d99d57e668803f
+F win/Makefile.dmc cf59fe3e8f3657d4b4738adec3e40a0bed7db602
+F win/Makefile.mingw 7dc01337f4d2906df2710a67b7b72207c10d8e98
 F win/Makefile.mingw.mistachkin e7d754e69d37d292b93a9bdadff32cac8db69507
-F win/Makefile.msc 5b859573eae4ea80d83b036d1a1dd63293a6d8a0
+F win/Makefile.msc 9bf6249b5bbefe943b72e64988a217a211497a07
 F win/buildmsvc.bat 869c37b9583faaaf69a04a4fac921ce5edb74f0e
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -733,7 +734,8 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 901427f5cd1f2ca8e0d5517b643b08e9f5356476
-R 86071b70966da973b777817ddeb9b936
+P 28188c4dd97fa96a7c4d25d4ac0a3e6c8169cb11 25d70429d0468070fd82fcc410d267380ab9b99a
+R 8087b1b97e40fa8dd842bf71c0d7966e
+T +closed 25d70429d0468070fd82fcc410d267380ab9b99a
 U drh
-Z a649a8331acbb582c209bec88c7ea394
+Z 6e6fce536687d2fafd42a080b133ceb8

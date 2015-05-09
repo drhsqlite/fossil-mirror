@@ -65,6 +65,7 @@ void stat_page(void){
   }
   style_submenu_element("Activity Reports", 0, "reports");
   style_submenu_element("SHA1 Collisions", 0, "hash-collisions");
+  style_submenu_element("Table Sizes", 0, "repo-tabsize");
   @ <table class="label-value">
   @ <tr><th>Repository&nbsp;Size:</th><td>
   fsize = file_size(g.zRepositoryName);
@@ -355,5 +356,45 @@ void repo_schema_page(void){
   }
   @ </pre>
   db_finalize(&q);
+  style_footer();
+}
+
+/*
+** WEBPAGE: repo-tabsize
+**
+** Show relative sizes of tables in the repository database.
+*/
+void repo_tabsize_page(void){
+  Stmt q;
+  login_check_credentials();
+  int nPageFree;
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+
+  style_header("Repository Table Sizes");
+  style_adunit_config(ADUNIT_RIGHT_OK);
+  style_submenu_element("Stat", "Repository Stats", "stat");
+  db_multi_exec(
+    "CREATE VIRTUAL TABLE temp.dbx USING dbstat(%s);"
+    "CREATE TEMP TABLE trans(name TEXT PRIMARY KEY, tabname TEXT)WITHOUT ROWID;"
+    "INSERT INTO trans(name,tabname)"       
+    "   SELECT name, tbl_name FROM %s.sqlite_master;"
+    "CREATE TEMP TABLE piechart(amt REAL, label TEXT);"
+    "INSERT INTO piechart(amt,label)"
+    "  SELECT count(*), "
+    "    coalesce((SELECT tabname FROM trans WHERE trans.name=dbx.name),name)"
+    "    FROM dbx"
+    "   GROUP BY 2 ORDER BY 2;",
+    db_name("repository"), db_name("repository")
+  );
+  nPageFree = db_int(0, "PRAGMA freelist_count");
+  if( nPageFree>0 ){
+    db_multi_exec(
+      "INSERT INTO piechart(amt,label) VALUES(%d,'freelist')",
+      nPageFree
+    );
+  }
+  @ <center><svg width='800' height='600'>
+  piechart_render(800,600,PIE_OTHER|PIE_PERCENT);
+  @ </svg>
   style_footer();
 }

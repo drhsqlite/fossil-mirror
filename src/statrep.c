@@ -406,13 +406,19 @@ static void stats_report_by_user(){
                                         all rows. */
   stats_report_init_view();
   stats_report_event_types_menu("byuser", NULL);
-  db_prepare(&query,
-               "SELECT user, "
-               "COUNT(*) AS eventCount "
-               "FROM v_reports "
-               "GROUP BY user ORDER BY eventCount DESC");
   @ <h1>Timeline Events
   @ (%s(stats_report_label_for_type())) by User</h1>
+  if( PB("pie") ){
+    db_multi_exec(
+      "CREATE TEMP TABLE piechart(amt,label);"
+      "INSERT INTO piechart SELECT count(*), user FROM v_reports"
+                           " GROUP BY user ORDER BY count(*) DESC;"
+    );
+    @ <svg width=800 height=600>
+    piechart_render(800, 600, PIE_OTHER);
+    @ </svg>
+    return;
+  }
   @ <table class='statistics-report-table-events' border='0'
   @ cellpadding='2' cellspacing='0' id='statsTable'>
   @ <thead><tr>
@@ -420,6 +426,11 @@ static void stats_report_by_user(){
   @ <th>Events</th>
   @ <th width='90%%'><!-- relative commits graph --></th>
   @ </tr></thead><tbody>
+  db_prepare(&query,
+               "SELECT user, "
+               "COUNT(*) AS eventCount "
+               "FROM v_reports "
+               "GROUP BY user ORDER BY eventCount DESC");
   while( SQLITE_ROW == db_step(&query) ){
     const int nCount = db_column_int(&query, 1);
     if(nCount>nMaxEvents){
