@@ -1,5 +1,5 @@
-C Change\sthe\sdefault\sskin\sto\suse\scircle\snodes\sand\scolor\sbranch\slines.
-D 2015-05-09T12:49:24.007
+C On\sthe\s/repo-tabsize\spage,\sshow\sthe\stotal\srepository\ssize.\s\sAnd\sshow\sthe\nsize\sof\sthe\slocal\scheckout\sdatabase\sand\sits\sbreakdown\sif\srun\sfrom\n"fossil\sui".
+D 2015-05-09T13:07:24.832
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -482,7 +482,7 @@ F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
 F src/sqlite3.c 85e4e1c08c7df28ef61bb9759a0d466e0eefbaa2
 F src/sqlite3.h 07d4e4e898f011cceaece49482784a1b8edd4a8e
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
-F src/stat.c 88dcb237593b16dde9000e7b1f546c2f319342bb
+F src/stat.c 25d6dc9d18732e3fbe2a650d15439d60672acd0d
 F src/statrep.c dbe323ad4ea18b15dad541dd32365b7bac238511
 F src/style.c c9aeaaea1fa89f7ae6364d3b0684406f10c1f952
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
@@ -735,7 +735,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 31c81ac65b655ebffd883d378946acc256f1b1fa
-R 11d320842c8decaf45573b1be18b2ccd
+P c72a3b5baa52ae21faa7932329f1aa5a9a87adac
+R ba40ed2240eb274094997ac58ef6681a
 U drh
-Z 16b8df822fe3ee1969598445bcc13547
+Z 44b6b0e4dfa8cca11681e8581fb9790a

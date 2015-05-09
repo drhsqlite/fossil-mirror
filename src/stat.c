@@ -40,6 +40,21 @@ void bigSizeName(int nOut, char *zOut, sqlite3_int64 v){
 }
 
 /*
+** Return the approximate size as KB, MB, GB, or TB.
+*/
+void approxSizeName(int nOut, char *zOut, sqlite3_int64 v){
+  if( v<1000 ){
+    sqlite3_snprintf(nOut, zOut, "%lld bytes", v);
+  }else if( v<1000000 ){
+    sqlite3_snprintf(nOut, zOut, "%.1fKB", (double)v/1000.0);
+  }else if( v<1000000000 ){
+    sqlite3_snprintf(nOut, zOut, "%.1fMB", (double)v/1000000.0);
+  }else{
+    sqlite3_snprintf(nOut, zOut, "%.1fGB", (double)v/1000000000.0);
+  }
+}
+
+/*
 ** WEBPAGE: stat
 **
 ** Show statistics and global information about the repository.
@@ -368,6 +383,8 @@ void repo_tabsize_page(void){
   Stmt q;
   login_check_credentials();
   int nPageFree;
+  sqlite3_int64 fsize;
+  char zBuf[100];
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
 
   style_header("Repository Table Sizes");
@@ -386,15 +403,48 @@ void repo_tabsize_page(void){
     "   GROUP BY 2 ORDER BY 2;",
     db_name("repository"), db_name("repository")
   );
-  nPageFree = db_int(0, "PRAGMA freelist_count");
+  nPageFree = db_int(0, "PRAGMA \"%w\".freelist_count", db_name("repository"));
   if( nPageFree>0 ){
     db_multi_exec(
       "INSERT INTO piechart(amt,label) VALUES(%d,'freelist')",
       nPageFree
     );
   }
+  fsize = file_size(g.zRepositoryName);
+  approxSizeName(sizeof(zBuf), zBuf, fsize);
+  @ <h2>Repository Size: %s(zBuf)</h2>
   @ <center><svg width='800' height='600'>
   piechart_render(800,600,PIE_OTHER|PIE_PERCENT);
-  @ </svg>
+  @ </svg></center>
+
+  if( g.localOpen ){
+    db_multi_exec(
+      "DROP TABLE temp.dbx;"
+      "CREATE VIRTUAL TABLE temp.dbx USING dbstat(%s);"
+      "DELETE FROM trans;"
+      "INSERT INTO trans(name,tabname)"       
+      "   SELECT name, tbl_name FROM %s.sqlite_master;"
+      "DELETE FROM piechart;"
+      "INSERT INTO piechart(amt,label)"
+      "  SELECT count(*), "
+      "    coalesce((SELECT tabname FROM trans WHERE trans.name=dbx.name),name)"
+      "    FROM dbx"
+      "   GROUP BY 2 ORDER BY 2;",
+      db_name("localdb"), db_name("localdb")
+    );
+    nPageFree = db_int(0, "PRAGMA \"%s\".freelist_count", db_name("localdb"));
+    if( nPageFree>0 ){
+      db_multi_exec(
+        "INSERT INTO piechart(amt,label) VALUES(%d,'freelist')",
+        nPageFree
+      );
+    }
+    fsize = file_size(g.zLocalDbName);
+    approxSizeName(sizeof(zBuf), zBuf, fsize);
+    @ <h2>%h(file_tail(g.zLocalDbName)) Size: %s(zBuf)</h2>
+    @ <center><svg width='800' height='600'>
+    piechart_render(800,600,PIE_OTHER|PIE_PERCENT);
+    @ </svg></center>
+  }
   style_footer();
 }
