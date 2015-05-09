@@ -1432,11 +1432,11 @@ void cgi_append_default_css(void) {
 ** Return true if found.  Return false if not found
 */
 static int containsSelector(const char *zCss, const char *zSelector){
-  char *z;
+  const char *z;
   int n;
   int selectorLen = (int)strlen(zSelector);
 
-  for( z=zCss; *z; z+=selectorLen ){
+  for(z=zCss; *z; z+=selectorLen){
     z = strstr(z, zSelector);
     if( z==0 ) return 0;
     if( z!=zCss ){

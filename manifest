@@ -1,5 +1,5 @@
-C Improvements\sto\sgraph\srendering\sto\smake\sit\smuch\smore\sconfigurable\susing\sCSS.
-D 2015-05-09T12:42:13.235
+C Fix\sa\sharmless\scompiler\swarning.
+D 2015-05-09T12:47:42.293
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -484,7 +484,7 @@ F src/sqlite3.h 07d4e4e898f011cceaece49482784a1b8edd4a8e
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 88dcb237593b16dde9000e7b1f546c2f319342bb
 F src/statrep.c dbe323ad4ea18b15dad541dd32365b7bac238511
-F src/style.c 6c3ea4faf71ac51b8991e0ec389576ea4fd4bf09
+F src/style.c c9aeaaea1fa89f7ae6364d3b0684406f10c1f952
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
@@ -735,8 +735,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P f4aed6661c6e63f85e462ad42d255bdc1aa83112 aaa0e6d1497a42a3826dc8c0d023e8ce83e35bc3
-R d78ceb9fc9817fc81f1201a7992b9b41
-T +closed aaa0e6d1497a42a3826dc8c0d023e8ce83e35bc3
+P ca869aabe2a938c620d04402f1cf75943965c16a
+R fe01c3d7842253700a4b9443833506d1
 U drh
-Z 29af8d4e4274fad65e510ec71fe5ba4c
+Z d958c2d8ead3692fb429d1175b2cad70
