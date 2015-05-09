@@ -702,11 +702,6 @@ span.tktError {
  * Timeline
  */
 
-#canvas {
-  color: #000;
-  background-color: #fff;
-}
-
 div.divider {
   color: #ee0;
   font-size: 1.2rem;
