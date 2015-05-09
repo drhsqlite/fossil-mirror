@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sbuild\sand\sTH1\sscripting\sdocs.
-D 2015-05-08T15:31:45.667
+C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.8.10.1.
+D 2015-05-09T12:17:43.852
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -478,8 +478,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c c61001e4c189224381a6474d204cde7d868e9ef0
 F src/skins.c f12a6c105e7ceb269570e046800ae4ad1231b15a
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c 0b34f0de356a3f21b9dfc761f3b7821b6353c570
-F src/sqlite3.h eed58f810d3168b3af6745051c45a60abdbca725
+F src/sqlite3.c 85e4e1c08c7df28ef61bb9759a0d466e0eefbaa2
+F src/sqlite3.h 07d4e4e898f011cceaece49482784a1b8edd4a8e
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 66e352596641f170a3513e19518a7690304a0b65
 F src/statrep.c b7bd715a0429375342af08151854d62b467c4792
@@ -733,7 +733,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P df12c1b05318862f0c78fb86591c1850e059853e
-R 5e8af76e405b1e89e3f3be41c3a51775
-U mistachkin
-Z d833312cd576e55f0f155c856d83206e
+P 901427f5cd1f2ca8e0d5517b643b08e9f5356476
+R 86071b70966da973b777817ddeb9b936
+U drh
+Z a649a8331acbb582c209bec88c7ea394
