@@ -68,6 +68,29 @@ const char *rgbName(unsigned char h, unsigned char s, unsigned char v){
 #endif
 
 /*
+** A pie-chart wedge label
+*/
+struct WedgeLabel {
+  double rCos, rSin;   /* Sine and Cosine of center angle of wedge */
+  char *z;             /* Label to draw on this wedge */
+};
+typedef struct WedgeLabel WedgeLabel;
+
+/*
+** Comparison callback for qsort() to sort labels in order of increasing
+** distance above and below the horizontal centerline.
+*/
+static int wedgeCompare(const void *a, const void *b){
+  const WedgeLabel *pA = (const WedgeLabel*)a;
+  const WedgeLabel *pB = (const WedgeLabel*)b;
+  double rA = fabs(pA->rCos);
+  double rB = fabs(pB->rCos);
+  if( rA<rB ) return -1;
+  if( rA>rB ) return +1;
+  return 0;
+}
+
+/*
 ** Output HTML that will render a pie chart using data from
 ** the PIECHART temporary table.
 **
@@ -90,7 +113,6 @@ void piechart_render(int width, int height, unsigned int pieFlags){
   double a2;              /* Angle for second edge */
   double a3;              /* Angle at middle of slice */
   int rot;                /* Text rotation angle */
-  double sina3, cosa3;    /* sin(a3) and cos(a3) */
   unsigned char h;        /* Hue */
   const char *zClr;       /* Color */
   int l;                  /* Large arc flag */
@@ -100,10 +122,19 @@ void piechart_render(int width, int height, unsigned int pieFlags){
   int nTotal;             /* Total number of entries in piechart */
   int nTooSmall;          /* Number of pieChart.amt entries less than 1/60th */
   const char *zFg;        /* foreground color for lines and text */
+  int nWedgeAlloc = 0;    /* Slots allocated for aWedge[] */
+  int nWedge = 0;         /* Slots used for aWedge[] */
+  WedgeLabel *aWedge = 0; /* Labels */
+  double rUprRight;       /* Floor for next label in the upper right quadrant */
+  double rUprLeft;        /* Floor for next label in the upper left quadrant */
+  double rLwrRight;       /* Ceiling for label in the lower right quadrant */
+  double rLwrLeft;        /* Ceiling for label in the lower left quadrant */
+  int i;                  /* Loop counter looping over wedge labels */
 
 # define SATURATION    128
 # define VALUE         192
 # define OTHER_CUTOFF  90.0
+# define TEXT_HEIGHT   15.0
 
   cx = 0.5*width;
   cy = 0.5*height;
@@ -150,31 +181,19 @@ void piechart_render(int width, int height, unsigned int pieFlags){
     x2 = cx + sin(a2)*r;
     y2 = cy - cos(a2)*r;
     a3 = 0.5*(a1+a2);
-    sina3 = sin(a3);
-    cosa3 = cos(a3);
-    x3 = cx + sina3*r;
-    y3 = cy - cosa3*r;
-    d1 = r*1.1;
-    x4 = cx + sina3*d1;
-    y4 = cy - cosa3*d1;
-    y5 = y4 - 3.0 + 6.0*(1.0 -cosa3);
-    rot = ((int)(a3*180/M_PI))%180;
-    if( a2-a1 > 0.6 ){
-      rot = 0;  /* Never rotate text on fat slices */
-    }else if( rot<60 ){
-      rot = (rot - 60)/3;
-    }else if( rot>120 ){
-      rot = (rot - 120)/3;
-    }else{
-      rot = 0;
+    if( nWedge+1>nWedgeAlloc ){
+      nWedgeAlloc = nWedgeAlloc*2 + 40;
+      aWedge = fossil_realloc(aWedge, sizeof(aWedge[0])*nWedgeAlloc);
     }
-    if( x4<=cx ){
-      x5 = x4 - 5.0;
-      zAnc = "end";
+    if( pieFlags & PIE_PERCENT ){
+      int pct = (int)(x*100.0 + 0.5);
+      aWedge[nWedge].z = mprintf("%s (%d%%)", zLbl, pct);
     }else{
-      x5 = x4 + 4.0;
-      zAnc = "start";
+      aWedge[nWedge].z = fossil_strdup(zLbl);
     }
+    aWedge[nWedge].rSin = sin(a3);
+    aWedge[nWedge].rCos = cos(a3);
+    nWedge++;
     if( (j&1)==0 || (pieFlags & PIE_CHROMATIC)!=0 ){
       h = 256*j/nTotal;
     }else if( j+2<nTotal ){
@@ -187,22 +206,60 @@ void piechart_render(int width, int height, unsigned int pieFlags){
     a1 = a2;
     @ <path stroke="%s(zFg)" stroke-width="1" fill="%s(zClr)"
     @  d='M%g(cx),%g(cy)L%g(x1),%g(y1)A%g(r),%g(r) 0 %d(l),1 %g(x2),%g(y2)z'/>
+  }
+  qsort(aWedge, nWedge, sizeof(aWedge[0]), wedgeCompare);
+  rUprLeft = height;
+  rLwrLeft = 0;
+  rUprRight = height;
+  rLwrRight = 0;
+  d1 = r*1.1;
+  for(i=0; i<nWedge; i++){
+    WedgeLabel *p = &aWedge[i];
+    x3 = cx + p->rSin*r;
+    y3 = cy - p->rCos*r;
+    x4 = cx + p->rSin*d1;
+    y4 = cy - p->rCos*d1;
+    if( y4<=cy ){
+      if( x4>=cx ){
+        if( y4>rUprRight ){
+          y4 = rUprRight;
+        }
+        rUprRight = y4 - TEXT_HEIGHT;
+      }else{
+        if( y4>rUprLeft ){
+          y4 = rUprLeft;
+        }
+        rUprLeft = y4 - TEXT_HEIGHT;
+      }
+    }else{
+      if( x4>=cx ){
+        if( y4<rLwrRight ){
+          y4 = rLwrRight;
+        }
+        rLwrRight = y4 + TEXT_HEIGHT;
+      }else{
+        if( y4<rLwrLeft ){
+          y4 = rLwrLeft;
+        }
+        rLwrLeft = y4 + TEXT_HEIGHT;
+      }
+    }
+    if( x4<=cx ){
+      x5 = x4 - 1.0;
+      zAnc = "end";
+    }else{
+      x5 = x4 + 1.0;
+      zAnc = "start";
+    }
+    y5 = y4 - 3.0 + 6.0*(1.0 - p->rCos);
     @ <line stroke='%s(zFg)' stroke-width='1'
     @  x1='%g(x3)' y1='%g(y3)' x2='%g(x4)' y2='%g(y4)''/>
-    if( rot!=0 ){
-      @ <text text-anchor="%s(zAnc)" transform='rotate(%d(rot),%g(x5),%g(y5))'
-    }else{
-      @ <text text-anchor="%s(zAnc)" transform='rotate(%d(rot),%g(x5),%g(y5))'
-    }
-    if( pieFlags & PIE_PERCENT ){
-      int p = (int)(x*100.0 + 0.5);
-      @  x='%g(x5)' y='%g(y5)' fill='%s(zFg)'>%h(zLbl) (%d(p)%%)</text>
-    }else{
-      @  x='%g(x5)' y='%g(y5)' fill='%s(zFg)'>%h(zLbl)</text>
-    }
+    @ <text text-anchor="%s(zAnc)"
+    @  x='%g(x5)' y='%g(y5)' fill='%s(zFg)'>%h(p->z)</text>
+    fossil_free(p->z);
   }
   db_finalize(&q);
-
+  fossil_free(aWedge);
 }
 
 /*
