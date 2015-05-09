@@ -1,5 +1,5 @@
-C New\salgorithm\sfor\spositioning\sthe\slabels\son\sa\spiechart.
-D 2015-05-09T19:08:14.115
+C Automatically\sshow\sa\spiechart\sin\saddition\sto\sthe\sbar\sgraph\son\sByUser\sand\nByDayOfWeek\sactivity\sreports.
+D 2015-05-09T23:08:37.485
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -483,7 +483,7 @@ F src/sqlite3.c 85e4e1c08c7df28ef61bb9759a0d466e0eefbaa2
 F src/sqlite3.h 07d4e4e898f011cceaece49482784a1b8edd4a8e
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 1a8cc8e4d6e77a3a000c860e0314573e519914bf
-F src/statrep.c dbe323ad4ea18b15dad541dd32365b7bac238511
+F src/statrep.c 82384c385482500a951f9b77e8ceedbacd8ef97d
 F src/style.c c9aeaaea1fa89f7ae6364d3b0684406f10c1f952
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
@@ -735,7 +735,10 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 732b651afa972588c83e80f9fa213770c6e8f5cb
-R 00e4e89e5d165943f37d06ac66bb27ea
+P 2018ad2cc5c829563ccf452f458745517dcfb814
+R d6749a1121993d27d6da0ebd6af799ef
+T *branch * piechart
+T *sym-piechart *
+T -sym-trunk *
 U drh
-Z 166518e406deebc86abccb23f9b8b48d
+Z 26d16ed790f2b8e2394e64c79403904e
