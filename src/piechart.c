@@ -60,6 +60,7 @@ const char *rgbName(unsigned char h, unsigned char s, unsigned char v){
 #if INTERFACE
 #define PIE_OTHER     0x0001    /* No wedge less than 1/60th of the circle */
 #define PIE_CHROMATIC 0x0002    /* Wedge colors are in chromatic order */
+#define PIE_PERCENT   0x0004    /* Add "(XX%)" marks on each label */
 #endif
 
 /*
@@ -94,6 +95,7 @@ void piechart_render(int width, int height, unsigned int pieFlags){
   double rTooSmall;       /* Sum of pieChart.amt entries less than 1/60th */
   int nTotal;             /* Total number of entries in piechart */
   int nTooSmall;          /* Number of pieChart.amt entries less than 1/60th */
+  const char *zFg;        /* foreground color for lines and text */
 
 # define SATURATION    128
 # define VALUE         192
@@ -105,6 +107,7 @@ void piechart_render(int width, int height, unsigned int pieFlags){
   r = r2 - 80.0;
   if( r<0.33333*r2 ) r = 0.33333*r2;
   h = 0;
+  zFg = skin_detail_boolean("white-foreground") ? "white" : "black";
 
   db_prepare(&q, "SELECT sum(amt), count(*) FROM piechart");
   if( db_step(&q)!=SQLITE_ROW ) return;
@@ -124,7 +127,7 @@ void piechart_render(int width, int height, unsigned int pieFlags){
   }
   if( nTooSmall>1 ){
     db_prepare(&q, "SELECT amt, label FROM piechart WHERE amt>=:limit"
-                   " UNION ALL SELECT %.17g, '(%d others)';",
+                   " UNION ALL SELECT %.17g, '%d others';",
                     rTooSmall, nTooSmall);
     db_bind_double(&q, ":limit", rTotal/OTHER_CUTOFF);
     nTotal += 1 - nTooSmall;
@@ -178,16 +181,21 @@ void piechart_render(int width, int height, unsigned int pieFlags){
     zClr = rgbName(h,SATURATION,VALUE);
     l = x>=0.5;
     a1 = a2;
-    @ <path stroke="black" stroke-width="1" fill="%s(zClr)"
+    @ <path stroke="%s(zFg)" stroke-width="1" fill="%s(zClr)"
     @  d='M%g(cx),%g(cy)L%g(x1),%g(y1)A%g(r),%g(r) 0 %d(l),1 %g(x2),%g(y2)z'/>
-    @ <line stroke='black' stroke-width='1'
+    @ <line stroke='%s(zFg)' stroke-width='1'
     @  x1='%g(x3)' y1='%g(y3)' x2='%g(x4)' y2='%g(y4)''/>
     if( rot!=0 ){
       @ <text text-anchor="%s(zAnc)" transform='rotate(%d(rot),%g(x5),%g(y5))'
     }else{
       @ <text text-anchor="%s(zAnc)" transform='rotate(%d(rot),%g(x5),%g(y5))'
     }
-    @  x='%g(x5)' y='%g(y5)'>%h(zLbl)</text>
+    if( pieFlags & PIE_PERCENT ){
+      int p = (int)(x*100.0 + 0.5);
+      @  x='%g(x5)' y='%g(y5)' fill='%s(zFg)'>%h(zLbl) (%d(p)%%)</text>
+    }else{
+      @  x='%g(x5)' y='%g(y5)' fill='%s(zFg)'>%h(zLbl)</text>
+    }
   }
   db_finalize(&q);
 

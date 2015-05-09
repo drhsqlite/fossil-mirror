@@ -1,5 +1,5 @@
-C Merge\sfixes\sfrom\strunk
-D 2015-05-07T19:50:50.118
+C Add\sthe\sPIE_PERCENT\soption\sto\sthe\spie-chart\sdrawer.
+D 2015-05-09T12:12:54.722
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -459,7 +459,7 @@ F src/mkversion.c 40ed302872cc5795c76efb3ab089fc1aedba18f1
 F src/moderate.c 8ab2bd4bda9a6b6765f99ddea7950dc5c6bad007
 F src/name.c 54a193853de24b3c199f4dbc9863aa8f562649d0
 F src/path.c 9455d26c4bf91ae949abd55536a1a20d863c486b
-F src/piechart.c 0ba37122732307609f334a62bddedda4b65e6166
+F src/piechart.c d410783b8263972ab3f733689c4ca9c5df4c4225
 F src/pivot.c f03ae2edfb53590f6dee86c1a0d93441feb0f816
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -482,7 +482,7 @@ F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
 F src/sqlite3.c 84dc7cf22a705cedead81f1c78a807e99b8f9c39
 F src/sqlite3.h 858a41c0bf52173a48c0617cfb1c9065c1d989f5
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
-F src/stat.c cd2f4b21334da2fc2b4eb55ed0f44ccd2d88c05c
+F src/stat.c 88dcb237593b16dde9000e7b1f546c2f319342bb
 F src/statrep.c dbe323ad4ea18b15dad541dd32365b7bac238511
 F src/style.c 842f0cd74a8beca350e8e471f9e841c09da48f67
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
@@ -734,7 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 6ef4bfae47b30ec1d92ad8137026b47cda3fa160 df12c1b05318862f0c78fb86591c1850e059853e
-R fb7729de0fa3291f000e67ef56a9ae55
+P bf0b3098eae20c0d093bc232c0644d131ad84e8a
+R 2629a8b35479bae2ff40586a0ef36f74
 U drh
-Z ad0d63dbfea347679d19490a2995176d
+Z a5f02ff9330405d6c5f9a2ddf46afbbd

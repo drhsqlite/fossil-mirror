@@ -389,12 +389,12 @@ void repo_tabsize_page(void){
   nPageFree = db_int(0, "PRAGMA freelist_count");
   if( nPageFree>0 ){
     db_multi_exec(
-      "INSERT INTO piechart(amt,label) VALUES(%d,'(freelist)')",
+      "INSERT INTO piechart(amt,label) VALUES(%d,'freelist')",
       nPageFree
     );
   }
   @ <center><svg width='800' height='600'>
-  piechart_render(800,600,PIE_OTHER);
+  piechart_render(800,600,PIE_OTHER|PIE_PERCENT);
   @ </svg>
   style_footer();
 }
