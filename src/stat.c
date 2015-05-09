@@ -413,8 +413,8 @@ void repo_tabsize_page(void){
   fsize = file_size(g.zRepositoryName);
   approxSizeName(sizeof(zBuf), zBuf, fsize);
   @ <h2>Repository Size: %s(zBuf)</h2>
-  @ <center><svg width='800' height='600'>
-  piechart_render(800,600,PIE_OTHER|PIE_PERCENT);
+  @ <center><svg width='800' height='500'>
+  piechart_render(800,500,PIE_OTHER|PIE_PERCENT);
   @ </svg></center>
 
   if( g.localOpen ){
@@ -442,8 +442,8 @@ void repo_tabsize_page(void){
     fsize = file_size(g.zLocalDbName);
     approxSizeName(sizeof(zBuf), zBuf, fsize);
     @ <h2>%h(file_tail(g.zLocalDbName)) Size: %s(zBuf)</h2>
-    @ <center><svg width='800' height='600'>
-    piechart_render(800,600,PIE_OTHER|PIE_PERCENT);
+    @ <center><svg width='800' height='500'>
+    piechart_render(800,500,PIE_OTHER|PIE_PERCENT);
     @ </svg></center>
   }
   style_footer();
