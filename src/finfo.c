@@ -184,7 +184,7 @@ void finfo_cmd(void){
     }
     zFilename = blob_str(&fname);
     db_prepare(&q,
-        "SELECT b.uuid, ci.uuid, date(event.mtime%s),"
+        "SELECT DISTINCT b.uuid, ci.uuid, date(event.mtime%s),"
         "       coalesce(event.ecomment, event.comment),"
         "       coalesce(event.euser, event.user),"
         "       (SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0"
