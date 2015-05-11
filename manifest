@@ -1,5 +1,5 @@
-C Avoid\sduplicate\sentries\sin\sthe\soutput\sof\s"fossil\sfinfo"
-D 2015-05-10T16:09:42.044
+C Merge\sin\sthe\s--compress-only\soption\sfor\s"fossil\srebuild"
+D 2015-05-11T01:31:54.868
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -372,7 +372,7 @@ F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt 14b3c4d0c2760db2457eacad4278ba3d10f08c81
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c cb683c31ae70fe0a6cd2197b5fbe3f54dff48bc2
-F src/allrepo.c 95b953a918c7c002d157133b7a5f03ba3da35729
+F src/allrepo.c cf9356bb2ef29ad8836889fbbc486f5a4ce2ffc1
 F src/attach.c 5b713ffe437fa0c3241da307835b1286e38798fd
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
@@ -466,7 +466,7 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 3d86d4ec595025c938053049ea915012e2b10306
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c 211c55255d42f06781ae68f26e5ed4a2c9239ad1
-F src/rebuild.c c8884766543b1e54b4ceb92c07914021ab3c743b
+F src/rebuild.c 448b1c0b0bd1d54fd33669368d84aca70a4410a0
 F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c de3d39a59b923d0259a01cb7b66244860778e39d
 F src/rss.c bb314966b5fd2c4a779d4ac6afbabc4721fcf44f
@@ -735,7 +735,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P f857ea5410600e3a3bfdcaa141a8ba0b08968e17
-R fa579576111c9ab93535e6e64da4a868
+P d9841bef06f7eabb09e4d354d5bcd0b46635d10c 10e3d6570780b725b69d9f6ec06ae497ac86b279
+R 9085aba51f71d68696dd004838bd6fa7
 U drh
-Z 7297784de0111eded9fc0b5df51270b2
+Z 740e1efda8e0d7dd5fcd4799e10d1a64
