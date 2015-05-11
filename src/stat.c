@@ -80,7 +80,9 @@ void stat_page(void){
   }
   style_submenu_element("Activity Reports", 0, "reports");
   style_submenu_element("SHA1 Collisions", 0, "hash-collisions");
-  style_submenu_element("Table Sizes", 0, "repo-tabsize");
+  if( sqlite3_libversion_number()>=3008010 ){
+    style_submenu_element("Table Sizes", 0, "repo-tabsize");
+  }
   @ <table class="label-value">
   @ <tr><th>Repository&nbsp;Size:</th><td>
   fsize = file_size(g.zRepositoryName);

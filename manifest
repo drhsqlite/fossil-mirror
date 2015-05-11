@@ -1,5 +1,5 @@
-C Add\sthe\s--compress-only\soption\sto\sthe\s"fossil\srebuild"\scommand.
-D 2015-05-11T01:31:18.663
+C If\sSQLite\s<\s3.8.10,\sdon't\sbother\sto\sprovide\sa\slink\sto\sthe\s/repo-tabsize\sweb-page:\sit\swouldn't\sprovide\sany\susefull\sresult\sanyway.
+D 2015-05-11T13:50:26.077
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -482,7 +482,7 @@ F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
 F src/sqlite3.c 85e4e1c08c7df28ef61bb9759a0d466e0eefbaa2
 F src/sqlite3.h 07d4e4e898f011cceaece49482784a1b8edd4a8e
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
-F src/stat.c 1a8cc8e4d6e77a3a000c860e0314573e519914bf
+F src/stat.c b194cf0dcb319a5c52053269b8508d31b3e5c4f2
 F src/statrep.c dbe323ad4ea18b15dad541dd32365b7bac238511
 F src/style.c c9aeaaea1fa89f7ae6364d3b0684406f10c1f952
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
@@ -735,7 +735,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 26c283467ad02e3661de355af257c0b8187fe9cd
-R d1f82a3222409055bea02a3579a84361
-U drh
-Z cf83ad66e9af3b1be3c6b5e447d0b879
+P 10e3d6570780b725b69d9f6ec06ae497ac86b279
+R 0e6255dbb370504a6108a4aebadbae4f
+U jan.nijtmans
+Z 446efe8269eed7d1eac50eedd674b7b6
