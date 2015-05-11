@@ -233,6 +233,7 @@ void all_cmd(void){
     zCmd = "rebuild";
     collect_argument(&extra, "cluster",0);
     collect_argument(&extra, "compress",0);
+    collect_argument(&extra, "compress-only",0);
     collect_argument(&extra, "noverify",0);
     collect_argument_value(&extra, "pagesize");
     collect_argument(&extra, "vacuum",0);

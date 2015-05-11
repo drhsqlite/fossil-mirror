@@ -524,20 +524,21 @@ static void reconstruct_private_table(void){
 ** executable in a way that changes the database schema.
 **
 ** Options:
-**   --analyze     Run ANALYZE on the database after rebuilding
-**   --cluster     Compute clusters for unclustered artifacts
-**   --compress    Strive to make the database as small as possible
-**   --deanalyze   Remove ANALYZE tables from the database
-**   --force       Force the rebuild to complete even if errors are seen
-**   --ifneeded    Only do the rebuild if it would change the schema version
-**   --index       Always add in the full-text search index
-**   --noverify    Skip the verification of changes to the BLOB table
-**   --noindex     Always omit the full-text search index
-**   --pagesize N  Set the database pagesize to N. (512..65536 and power of 2)
-**   --randomize   Scan artifacts in a random order
-**   --stats       Show artifact statistics after rebuilding
-**   --vacuum      Run VACUUM on the database after rebuilding
-**   --wal         Set Write-Ahead-Log journalling mode on the database
+**   --analyze         Run ANALYZE on the database after rebuilding
+**   --cluster         Compute clusters for unclustered artifacts
+**   --compress        Strive to make the database as small as possible
+**   --compress-only   Skip the rebuilding step. Do --compress only
+**   --deanalyze       Remove ANALYZE tables from the database
+**   --force           Force the rebuild to complete even if errors are seen
+**   --ifneeded        Only do the rebuild if it would change the schema version
+**   --index           Always add in the full-text search index
+**   --noverify        Skip the verification of changes to the BLOB table
+**   --noindex         Always omit the full-text search index
+**   --pagesize N      Set the database pagesize to N. (512..65536 and power of 2)
+**   --randomize       Scan artifacts in a random order
+**   --stats           Show artifact statistics after rebuilding
+**   --vacuum          Run VACUUM on the database after rebuilding
+**   --wal             Set Write-Ahead-Log journalling mode on the database
 **
 ** See also: deconstruct, reconstruct
 */
@@ -559,6 +560,7 @@ void rebuild_database(void){
   int optNoIndex;
   int optIndex;
   int optIfNeeded;
+  int compressOnlyFlag;
 
   omitVerify = find_option("noverify",0,0)!=0;
   forceFlag = find_option("force","f",0)!=0;
@@ -573,6 +575,8 @@ void rebuild_database(void){
   optIndex = find_option("index",0,0)!=0;
   optNoIndex = find_option("noindex",0,0)!=0;
   optIfNeeded = find_option("ifneeded",0,0)!=0;
+  compressOnlyFlag = find_option("compress-only",0,0)!=0;
+  if( compressOnlyFlag ) runCompress = runVacuum = 1;
   if( zPagesize ){
     newPagesize = atoi(zPagesize);
     if( newPagesize<512 || newPagesize>65536
@@ -592,7 +596,7 @@ void rebuild_database(void){
     db_close(1);
     db_open_repository(g.zRepositoryName);
   }
-  runReindex = search_index_exists();
+  runReindex = search_index_exists() && !compressOnlyFlag;
   if( optIndex ) runReindex = 1;
   if( optNoIndex ) runReindex = 0;
   if( optIfNeeded && fossil_strcmp(db_get("aux-schema",""),AUX_SCHEMA_MAX)==0 ){
@@ -603,10 +607,12 @@ void rebuild_database(void){
   verify_all_options();
 
   db_begin_transaction();
-  search_drop_index();
-  ttyOutput = 1;
-  errCnt = rebuild_db(randomizeFlag, 1, doClustering);
-  reconstruct_private_table();
+  if( !compressOnlyFlag ){
+    search_drop_index();
+    ttyOutput = 1;
+    errCnt = rebuild_db(randomizeFlag, 1, doClustering);
+    reconstruct_private_table();
+  }
   db_multi_exec(
     "REPLACE INTO config(name,value,mtime) VALUES('content-schema',%Q,now());"
     "REPLACE INTO config(name,value,mtime) VALUES('aux-schema',%Q,now());"
