@@ -545,7 +545,7 @@ static void reconstruct_private_table(void){
 void rebuild_database(void){
   int forceFlag;
   int randomizeFlag;
-  int errCnt;
+  int errCnt = 0;
   int omitVerify;
   int doClustering;
   const char *zPagesize;
