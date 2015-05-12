@@ -112,7 +112,6 @@ void piechart_render(int width, int height, unsigned int pieFlags){
   double a1 = 0.0;        /* Angle for first edge of slice */
   double a2;              /* Angle for second edge */
   double a3;              /* Angle at middle of slice */
-  int rot;                /* Text rotation angle */
   unsigned char h;        /* Hue */
   const char *zClr;       /* Color */
   int l;                  /* Large arc flag */

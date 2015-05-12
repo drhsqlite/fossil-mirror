@@ -382,7 +382,6 @@ void repo_schema_page(void){
 ** Show relative sizes of tables in the repository database.
 */
 void repo_tabsize_page(void){
-  Stmt q;
   int nPageFree;
   sqlite3_int64 fsize;
   char zBuf[100];

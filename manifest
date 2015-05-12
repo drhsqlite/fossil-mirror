@@ -1,5 +1,5 @@
-C If\sSQLite\s<\s3.8.10,\sdon't\sbother\sto\sprovide\sa\slink\sto\sthe\s/repo-tabsize\sweb-page:\sit\swouldn't\sprovide\sany\susefull\sresult\sanyway.
-D 2015-05-11T13:50:26.077
+C Fix\scompiler\swarnings.
+D 2015-05-12T04:23:31.742
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -459,14 +459,14 @@ F src/mkversion.c 40ed302872cc5795c76efb3ab089fc1aedba18f1
 F src/moderate.c 8ab2bd4bda9a6b6765f99ddea7950dc5c6bad007
 F src/name.c 54a193853de24b3c199f4dbc9863aa8f562649d0
 F src/path.c 9455d26c4bf91ae949abd55536a1a20d863c486b
-F src/piechart.c 0fa97686fcf0985e62f235300088a720c2cc9e09
+F src/piechart.c 4d5b4431b68646662012e7d545b1a3d2b368486b
 F src/pivot.c f03ae2edfb53590f6dee86c1a0d93441feb0f816
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 3d86d4ec595025c938053049ea915012e2b10306
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c 211c55255d42f06781ae68f26e5ed4a2c9239ad1
-F src/rebuild.c 448b1c0b0bd1d54fd33669368d84aca70a4410a0
+F src/rebuild.c 5aaf2a7ce639be4caa966eafa59775ca997bda4f
 F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c de3d39a59b923d0259a01cb7b66244860778e39d
 F src/rss.c bb314966b5fd2c4a779d4ac6afbabc4721fcf44f
@@ -482,7 +482,7 @@ F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
 F src/sqlite3.c 85e4e1c08c7df28ef61bb9759a0d466e0eefbaa2
 F src/sqlite3.h 07d4e4e898f011cceaece49482784a1b8edd4a8e
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
-F src/stat.c b194cf0dcb319a5c52053269b8508d31b3e5c4f2
+F src/stat.c 760b5ec89d07e1d2b566353d588e77e8b9cf97c8
 F src/statrep.c dbe323ad4ea18b15dad541dd32365b7bac238511
 F src/style.c c9aeaaea1fa89f7ae6364d3b0684406f10c1f952
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
@@ -735,7 +735,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 10e3d6570780b725b69d9f6ec06ae497ac86b279
-R 0e6255dbb370504a6108a4aebadbae4f
-U jan.nijtmans
-Z 446efe8269eed7d1eac50eedd674b7b6
+P f3d8588e6fe15d4bc2292fb6857a2c5f4808cafa
+R 4ef13fa4c3c88b8724a6158c93e10ed2
+U mistachkin
+Z 3d7246e1c30e8999f629a6e4f4b39dda
