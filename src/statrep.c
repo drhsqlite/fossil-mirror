@@ -408,16 +408,15 @@ static void stats_report_by_user(){
   stats_report_event_types_menu("byuser", NULL);
   @ <h1>Timeline Events
   @ (%s(stats_report_label_for_type())) by User</h1>
-  if( PB("pie") ){
-    db_multi_exec(
-      "CREATE TEMP TABLE piechart(amt,label);"
-      "INSERT INTO piechart SELECT count(*), user FROM v_reports"
-                           " GROUP BY user ORDER BY count(*) DESC;"
-    );
-    @ <svg width=800 height=600>
-    piechart_render(800, 600, PIE_OTHER);
-    @ </svg>
-    return;
+  db_multi_exec(
+    "CREATE TEMP TABLE piechart(amt,label);"
+    "INSERT INTO piechart SELECT count(*), user FROM v_reports"
+                         " GROUP BY user ORDER BY count(*) DESC;"
+  );
+  if( db_int(0, "SELECT count(*) FROM piechart")>=2 ){
+    @ <center><svg width=700 height=400>
+    piechart_render(700, 400, PIE_OTHER|PIE_PERCENT);
+    @ </svg></centre><hr/>
   }
   @ <table class='statistics-report-table-events' border='0'
   @ cellpadding='2' cellspacing='0' id='statsTable'>
@@ -481,7 +480,7 @@ static void stats_report_by_file(){
     "  SELECT filename.name, count(distinct mlink.mid)"
     "    FROM filename, mlink"
     "   WHERE filename.fnid=mlink.fnid"
-    "   GROUP BY 1"
+    "   GROUP BY 1;"
   );
   db_prepare(&query,
     "SELECT filename, cnt FROM statrep ORDER BY cnt DESC, filename /*sort*/"
@@ -541,6 +540,19 @@ static void stats_report_day_of_week(){
                "GROUP BY dow ORDER BY dow");
   @ <h1>Timeline Events
   @ (%s(stats_report_label_for_type())) by Day of the Week</h1>
+  db_multi_exec(
+    "CREATE TEMP TABLE piechart(amt,label);"
+    "INSERT INTO piechart SELECT count(*), cast(mtime %% 7 AS INT) FROM v_reports"
+                         " GROUP BY 2 ORDER BY 2;"
+    "UPDATE piechart SET label = CASE label WHEN 0 THEN 'Monday' WHEN 1 THEN 'Tuesday'"
+    "  WHEN 2 THEN 'Wednesday' WHEN 3 THEN 'Thursday' WHEN 4 THEN 'Friday'"
+    "  WHEN 5 THEN 'Saturday' ELSE 'Sunday' END;"
+  );
+  if( db_int(0, "SELECT count(*) FROM piechart")>=2 ){
+    @ <center><svg width=700 height=400>
+    piechart_render(700, 400, PIE_OTHER|PIE_PERCENT);
+    @ </svg></centre><hr/>
+  }
   @ <table class='statistics-report-table-events' border='0'
   @ cellpadding='2' cellspacing='0' id='statsTable'>
   @ <thead><tr>

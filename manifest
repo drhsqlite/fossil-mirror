@@ -1,5 +1,5 @@
-C Make\saddremove\scommand\sto\sfail\sif\sunprocessed\sarguments\s(other\sthan\soptions)\nare\sspecified.\sTo\savoid\smis-use\swhere\sa\suser\scould\sthink\she\scan\sspecify\sa\slist\nof\sdirectory\slike\swith\smany\sother\scommands.
-D 2015-05-12T10:42:20.783
+C Permit\s--notfound\sand\s--repolist\sto\sbe\sused\stogether\son\s"fossil\sserver".\nMerge\schanges\sto\salways\sshow\sa\spiechart\sfor\s"By\sUser"\sreports.\s\sFix\san\nuninitialized\svariable\sin\s"fossil\srebuild".
+D 2015-05-12T13:19:12.675
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -440,7 +440,7 @@ F src/leaf.c df47f8f52ed1ebeb3b7f5c7b92c62351b177d458
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 0a6cf8707e27b04873950a6c63a48391c0a9f7ce
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c 061f8b32f284f1d18289aedaa0d43146be3a9070
+F src/main.c a98f3a09f0af38d1071025e87e4d23bfc497f152
 F src/main.mk c56b4b688a95c62878ca19916058b94f2a4466d0
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -483,7 +483,7 @@ F src/sqlite3.c 85e4e1c08c7df28ef61bb9759a0d466e0eefbaa2
 F src/sqlite3.h 07d4e4e898f011cceaece49482784a1b8edd4a8e
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 760b5ec89d07e1d2b566353d588e77e8b9cf97c8
-F src/statrep.c dbe323ad4ea18b15dad541dd32365b7bac238511
+F src/statrep.c 82384c385482500a951f9b77e8ceedbacd8ef97d
 F src/style.c c9aeaaea1fa89f7ae6364d3b0684406f10c1f952
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
@@ -735,7 +735,9 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 8ab3f62090095da33aef86fa20bd37e293106205
-R 9728af3454a64355d3a5b9db1aca50e2
-U mgagnon
-Z b9bb8e614ec3df0c0ee0bed35b807eff
+P 975600dd599fff84c0425fe636bb15cc4a393d79 1ab29c8299a1c218e32f05c947b6cc4fe37db57b fd783e2b6a76bae642f5f5a4908186aa35ff5de6
+R 49c79de998bfafecf2e464cf618067ec
+T +closed 1ab29c8299a1c218e32f05c947b6cc4fe37db57b
+T +closed fd783e2b6a76bae642f5f5a4908186aa35ff5de6
+U drh
+Z 49fa7468fc1b942354faf2102d65e924

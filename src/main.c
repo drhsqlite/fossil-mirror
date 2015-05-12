@@ -1565,12 +1565,12 @@ static void process_one_web_page(
 
       if( szFile<1024 ){
         set_base_url(0);
-        if( zNotFound ){
-          cgi_redirect(zNotFound);
-        }else if( strcmp(zPathInfo,"/")==0
+        if( strcmp(zPathInfo,"/")==0
                   && allowRepoList
                   && repo_list_page() ){
           /* Will return a list of repositories */
+        }else if( zNotFound ){
+          cgi_redirect(zNotFound);
         }else{
 #ifdef FOSSIL_ENABLE_JSON
           if(g.json.isJsonMode){
