@@ -1,5 +1,5 @@
-C Permit\s--notfound\sand\s--repolist\sto\sbe\sused\stogether\son\s"fossil\sserver".\nMerge\schanges\sto\salways\sshow\sa\spiechart\sfor\s"By\sUser"\sreports.\s\sFix\san\nuninitialized\svariable\sin\s"fossil\srebuild".
-D 2015-05-12T13:19:12.675
+C Add\sdocumentation\sfor\scustomizing\sthe\stimeline\sgraph.
+D 2015-05-12T17:58:40.824
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -663,7 +663,8 @@ F www/contribute.wiki 9f7136d12f9099e615c8d5a414934e0b15613393
 F www/copyright-release.html af2224620e3aa85d5226b74832dce703616a1c21
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/custom_ticket.wiki 4083c719eee18ea9dad81d335e45e9af8e29ec4e
-F www/customskin.md af8fc64db5e046a1d1062799623218dca3ee8abc
+F www/customgraph.md dee9e20fca78d35c9821a0f52eeaa9256252075c
+F www/customskin.md 9086cace41566061c87d3b8494d75f699bec041e
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -707,10 +708,10 @@ F www/index.wiki ed2340fa4a69d437e8d796814a12cde3fa9d290a
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki 843e568594e5320634da1fccc5177f99d4f7044d
 F www/mkdownload.tcl 2adb240f61ff7f6027e5f00b5920f74b9e6680f2
-F www/mkindex.tcl 243c5648ba8c1c5b58b560b552b726fdef2fa002
+F www/mkindex.tcl fc48247219c0dde8e35b723a25de85e11c63d58f
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 336916afde4ff470e87fc43066063623a9a74c8a
-F www/permutedindex.html 2bad4e10a25f6dd606abfcaeeabe83f4ccf7238b
+F www/permutedindex.html 2499997e14dba536be940b5e856164c21a276ebe
 F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
 F www/private.wiki 72344489bbae6f7955369559b6ab22e01a64259b
 F www/qandc.wiki e07b21da221b05afeb1905f17af3765045952ba8
@@ -735,9 +736,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 975600dd599fff84c0425fe636bb15cc4a393d79 1ab29c8299a1c218e32f05c947b6cc4fe37db57b fd783e2b6a76bae642f5f5a4908186aa35ff5de6
-R 49c79de998bfafecf2e464cf618067ec
-T +closed 1ab29c8299a1c218e32f05c947b6cc4fe37db57b
-T +closed fd783e2b6a76bae642f5f5a4908186aa35ff5de6
-U drh
-Z 49fa7468fc1b942354faf2102d65e924
+P 434f7e17d91233a03b73c9aec19205a3655196b8
+R d937443ae2b0b4dbb488e3309d3b7b8b
+U joel
+Z 6c78094c72af7907d00cbecedd9b954a
