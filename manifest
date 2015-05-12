@@ -1,5 +1,5 @@
-C Fix\scompiler\swarnings.
-D 2015-05-12T04:23:31.742
+C Sync\sup\scustom\sMinGW\smakefile\swith\sthe\slatest\schanges.
+D 2015-05-12T04:24:15.539
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -622,7 +622,7 @@ F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake cd7a95bc1ffa5608ae7c84b043d99d57e668803f
 F win/Makefile.dmc cf59fe3e8f3657d4b4738adec3e40a0bed7db602
 F win/Makefile.mingw 7dc01337f4d2906df2710a67b7b72207c10d8e98
-F win/Makefile.mingw.mistachkin e7d754e69d37d292b93a9bdadff32cac8db69507
+F win/Makefile.mingw.mistachkin a5dacc6c4b9b09731ed30c40e64090cb67eee82c
 F win/Makefile.msc 9bf6249b5bbefe943b72e64988a217a211497a07
 F win/buildmsvc.bat 869c37b9583faaaf69a04a4fac921ce5edb74f0e
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -735,7 +735,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P f3d8588e6fe15d4bc2292fb6857a2c5f4808cafa
-R 4ef13fa4c3c88b8724a6158c93e10ed2
+P 57897a4189b69aba5f1c67effb84a99b42b4356d
+R 8003d829b286248e7fb832d1ae947c5f
 U mistachkin
-Z 3d7246e1c30e8999f629a6e4f4b39dda
+Z b6ede0533b9f251d93bda953a4bef869
