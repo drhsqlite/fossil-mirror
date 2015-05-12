@@ -634,6 +634,14 @@ void addremove_cmd(void){
   /* We should be done with options.. */
   verify_all_options();
 
+  /* Fail if unprocessed arguments are present, in case user expect the
+  ** addremove command to accept a list of file or directory. 
+  */
+  if( g.argc>2 ){
+    fossil_fatal(
+        "%s: Can only work on the entire checkout, no arguments supported.",
+        g.argv[1]);
+  }
   db_must_be_within_tree();
   if( zCleanFlag==0 ){
     zCleanFlag = db_get("clean-glob", 0);
