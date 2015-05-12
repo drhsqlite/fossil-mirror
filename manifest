@@ -1,5 +1,5 @@
-C Sync\sup\scustom\sMinGW\smakefile\swith\sthe\slatest\schanges.
-D 2015-05-12T04:24:15.539
+C Fix\scompiler\swarnings\swith\sMSVC.
+D 2015-05-12T04:42:50.557
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -500,7 +500,7 @@ F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
 F src/undo.c 463d3968fdd2cb7052bf351e9b028ad0dd556b10
 F src/unicode.c 471c170c6ca090967e68ffa51010d79233b9ff1b
 F src/update.c 9f0b45a551abce8aa11c8e6b4b91e8dba6b94030
-F src/url.c 47dc39f0201a184fb2d330e49957724157319f22
+F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c 6ec57f122cadd7c324e657be5de1b0c8f0d37c8d
 F src/utf8.c d9b19f5abbdecacb9b69a9e31f3bb0ef6e017918
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
@@ -735,7 +735,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 57897a4189b69aba5f1c67effb84a99b42b4356d
-R 8003d829b286248e7fb832d1ae947c5f
+P 0c6f8fe57dcc913439f488ad47ea58f692d95dde
+R 22a0fd2a640f243292670391c5f79186
 U mistachkin
-Z b6ede0533b9f251d93bda953a4bef869
+Z e0ffe11270316367120b1f3500c3bc69
