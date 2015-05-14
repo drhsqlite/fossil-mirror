@@ -1140,7 +1140,6 @@ static void collision_report(const char *zSql){
 ** Show the number of hash collisions for hash prefixes of various lengths.
 */
 void hash_collisions_webpage(void){
-  Stmt q;
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("SHA1 Prefix Collisions");
