@@ -1443,6 +1443,11 @@ static int repo_list_page(void){
   n = db_int(0, "SELECT count(*) FROM sfile");
   if( n>0 ){
     Stmt q;
+    @ <html>
+    @ <head>
+    @ <title>Repository List</title>
+    @ </head>
+    @ <body>
     @ <h1>Available Repositories:</h1>
     @ <ol>
     db_prepare(&q, "SELECT x, substr(x,-7,-100000)||'/home'"
@@ -1450,9 +1455,11 @@ static int repo_list_page(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       const char *zUrl = db_column_text(&q, 1);
-      @ <li><a href="%h(zUrl)">%h(zName)</a></li>
+      @ <li><a href="%h(zUrl)" target="_blank">%h(zName)</a></li>
     }
     @ </ol>
+    @ </body>
+    @ </html>
     cgi_reply();
   }
   sqlite3_close(g.db);
