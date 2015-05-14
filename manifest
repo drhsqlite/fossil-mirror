@@ -1,5 +1,5 @@
-C On\sthe\sgenerated\s"repository\slist"\spage\swhen\srunning\s"fossil\sui\sDIR",\sinclude\na\stitle\sand\smake\sall\shyperlinks\sappear\sin\sa\snew\swindow\sor\stab.
-D 2015-05-14T15:31:33.465
+C Increase\sthe\sversion\snumber\sto\s1.33.\s\sUpdate\sthe\schange\slog.
+D 2015-05-14T16:20:03.418
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -12,7 +12,7 @@ F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile f57bc9b00197a8ac02d52afb9cb9dd4ade476c05
 F Makefile.classic 8860fc8763421cb968e05bdd361311f9a443fc07
 F Makefile.in 4c745f08a8ecfe6e1f227e2a6d33cce3adc532d0
-F VERSION 02c9e548dd1b3e511f161b1e27cf60d8f5c79e7d
+F VERSION 68b05f0ffffaf08e478922297c5140cc3b5d6965
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -652,7 +652,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 1a0af5fa07defbe9c0ef2a821158fd51f39183a9
-F www/changes.wiki e55ae1946d6bccbfc844e2614b9e9b7a812d5779
+F www/changes.wiki 07589027e214c1e35239181f646f1a3a7714f886
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 37087c035ff437c1c14dce07a0b8c7bf7adb3c2d
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -736,7 +736,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P e06e65bbf2b7a28579128da97a582d8a5e23c3e9
-R e68cd552ffc5546046a16b8a767a33b2
+P e561cfd47e026532b82cfe5bb7906c2cc916c1db
+R 14f94cb0521b5453a99065733a3f38d1
 U drh
-Z 03711d7199696abd8eb16d1b702016ef
+Z 997b6933f6f687adfc6170e81eb92b9d

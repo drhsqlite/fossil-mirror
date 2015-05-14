@@ -1,8 +1,23 @@
 <title>Change Log</title>
 
 <h2>Changes for Version 1.33 (not released yet)</h2>
+  *  Improved fork detection on [/help?cmd=update|fossil update],
+     [/help?cmd=status|fossil status] and related commands.
+  *  Change the default skin to what used to be called "San Francisco Modern".
+  *  Add the [/repo-tabsize] web page
   *  Add [/help?cmd=import|fossil import --svn], for importing a subversion
      repository into fossil which was exported using "svnadmin dump".
+  *  Add the "--compress-only" option to [/help?cmd=rebuild|fossil rebuild].
+  *  Use a pie chart on the [/reports?view=byuser] page.
+  *  Enhanced [/help?cmd=clean|fossil clean --verily] so that it ignores
+     keep-glob and ignore-glob settings.  Added the -x alias for --verily.
+  *  Add the --soft and --hard options to [/help?cmd=rm|fossil rm] and
+     [/help?cmd=mv|fossil mv].  The default is still --soft, but that is
+     now configurable at compile-time or by the mv-rm-files setting.
+  *  Improved ability to [./customgraph.md|customize the timelime graph].
+  *  Improvements to the [/sitemap] page.
+  *  Automatically adjust the [/help?cmd=timeline|CLI timeline] to the terminal
+     width on Linux.
   *  Added <nowiki>[info commands] and [info vars]</nowiki> commands to TH1.
      These commands perform the same function as their Tcl counterparts,
      except they do not accept a pattern argument.
@@ -11,10 +26,12 @@
      or HTML.
   *  Formally translate TH1 to Tcl return codes and vice-versa, where
      necessary, in the Tcl integration subsystem.
-  *  Better fork detection on [/help?cmd=update|fossil update],
-     [/help?cmd=status|fossil status] and related commands.
   *  Add [/help?cmd=leaves|fossil leaves -multiple], for finding multiple
      leaves on the same branch.
+  *  Added the "Blitz" skin option.
+  *  Removed support for ".fossil-settings/keep-glob".  The keep-glob should
+     not be a versioned setting.
+  *  Update the built-in SQLite to version 3.8.10.1.
 
 <h2>Changes for Version 1.32 (2015-03-14)</h2>
   *  When creating a new repository using [/help?cmd=init|fossil init], ensure
