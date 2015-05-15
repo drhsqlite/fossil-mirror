@@ -115,6 +115,14 @@ static void status_report(
         blob_appendf(report, "UPDATED_BY_INTEGRATE %s\n", zDisplayName);
       }else if( isChnged==5 ){
         blob_appendf(report, "ADDED_BY_INTEGRATE %s\n", zDisplayName);
+      }else if( isChnged==6 ){
+        blob_appendf(report, "EXECUTABLE %s\n", zDisplayName);
+      }else if( isChnged==7 ){
+        blob_appendf(report, "SYMLINK    %s\n", zDisplayName);
+      }else if( isChnged==8 ){
+        blob_appendf(report, "UNEXEC     %s\n", zDisplayName);
+      }else if( isChnged==9 ){
+        blob_appendf(report, "UNLINK     %s\n", zDisplayName);
       }else if( file_contains_merge_marker(zFullName) ){
         blob_appendf(report, "CONFLICT   %s\n", zDisplayName);
       }else{

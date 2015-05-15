@@ -32,9 +32,12 @@
   *  Removed the ".fossil-settings/keep-glob" file.  It should not have been
      checked into the repository.
   *  Update the built-in SQLite to version 3.8.10.1.
-  *  Made [/help?cmd=open|fossil open] honor ".fossil-settings/allow-symlinks".
+  *  Make [/help?cmd=open|fossil open] honor ".fossil-settings/allow-symlinks".
   *  Allow [/help?cmd=add|fossil add] to be used on symlinks to nonexistent or
      unreadable files in the same way as [/help?cmd=addremove|fossil addremove].
+  *  Have [/help/cmd=changes|fossil changes] and
+     [/help/cmd=status|fossil status] report when executable or symlink status
+     changes on otherwise unmodified files.
 
 <h2>Changes for Version 1.32 (2015-03-14)</h2>
   *  When creating a new repository using [/help?cmd=init|fossil init], ensure
