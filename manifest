@@ -1,5 +1,5 @@
-C Remove\saccess\scheck\sfrom\s[fossil\sadd]\sto\smake\sit\smatch\s[fossil\saddremove]\swhich\swaits\suntil\s[fossil\scommit]\sto\scheck\sfor\sreadability.\s\sThis\smakes\sit\spossible\sto\suse\s[fossil\sadd]\sto\sadd\ssymlinks\sto\snonexistent\sfiles\sand\s(not\slike\sthis\sis\suseful)\sto\sadd\szero-length\sfiles\sfor\swhich\sthe\suser\sdoes\snot\shave\sread\spermission.\s\s[fossil\saddremove]\shas\salways\shad\sthese\scapabilities,\sbut\sit\shas\sthe\sdrawback\sof\sadding\sand\sremoving\severything\sit\scan,\snot\sallowing\sthe\suser\sto\slimit\sits\sscope.
-D 2015-05-15T02:25:28.066
+C Update\schangelog\sto\sdocument\s[46675ed2].
+D 2015-05-15T02:29:42.027
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -652,7 +652,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 1a0af5fa07defbe9c0ef2a821158fd51f39183a9
-F www/changes.wiki 149521d45728917993b2c7b4ab915a1710138130
+F www/changes.wiki 212a7098215fa4580035f466917fa39548afeb2f
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 37087c035ff437c1c14dce07a0b8c7bf7adb3c2d
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -736,7 +736,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P f7f6ea818a676209d22dc6609e6d149a551570b6
-R effa1852fe3722e56a03d6d2d992e22c
+P 46675ed219ff5e563255cc8803130ec640bd80c9
+R 7dd73590dfaf078fc83aaee3eff509ec
 U andygoth
-Z a65f24a1a925339eefa27900d69eee1f
+Z f03c64c4148e5a3be1358ad05d4e8f09

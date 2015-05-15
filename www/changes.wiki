@@ -33,6 +33,8 @@
      not be a versioned setting.
   *  Update the built-in SQLite to version 3.8.10.1.
   *  Made [/help?cmd=open|fossil open] honor ".fossil-settings/allow-symlinks".
+  *  Allow [/help?cmd=add|fossil add] to be used on symlinks to nonexistent or
+     unreadable files in the same way as [/help?cmd=addremove|fossil addremove].
 
 <h2>Changes for Version 1.32 (2015-03-14)</h2>
   *  When creating a new repository using [/help?cmd=init|fossil init], ensure
