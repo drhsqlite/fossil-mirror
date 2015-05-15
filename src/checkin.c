@@ -2091,6 +2091,7 @@ void commit_cmd(void){
     , vid, nvid
   );
   db_lset_int("checkout", nvid);
+  checkout_set_all_exe(nvid);
 
   if( useCksum ){
     /* Verify that the repository checksum matches the expected checksum
