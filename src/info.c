@@ -404,12 +404,13 @@ static void append_file_change_line(
       }else{
         @ <p>%z(href("%R/finfo?name=%T",zName))%h(zName)</a> became
         if( mperm==PERM_EXE ){
-          @ executable.</p>
+          @ executable with contents
         }else if( mperm==PERM_LNK ){
-          @ a symlink.</p>
+          @ a symlink with target
         }else{
-          @ a regular file.</p>
+          @ a regular file with contents
         }
+        @ %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.</p>
       }
     }else if( zOld ){
       @ <p>Deleted %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
