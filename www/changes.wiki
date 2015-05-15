@@ -29,8 +29,8 @@
   *  Add [/help?cmd=leaves|fossil leaves -multiple], for finding multiple
      leaves on the same branch.
   *  Added the "Blitz" skin option.
-  *  Removed support for ".fossil-settings/keep-glob".  The keep-glob should
-     not be a versioned setting.
+  *  Removed the ".fossil-settings/keep-glob" file.  It should not have been
+     checked into the repository.
   *  Update the built-in SQLite to version 3.8.10.1.
   *  Made [/help?cmd=open|fossil open] honor ".fossil-settings/allow-symlinks".
   *  Allow [/help?cmd=add|fossil add] to be used on symlinks to nonexistent or
