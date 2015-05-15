@@ -35,6 +35,7 @@
   *  Make [/help?cmd=open|fossil open] honor ".fossil-settings/allow-symlinks".
   *  Allow [/help?cmd=add|fossil add] to be used on symlinks to nonexistent or
      unreadable files in the same way as [/help?cmd=addremove|fossil addremove].
+  *  Added fork warning to be issued if sync produced a fork
   *  Have [/help/cmd=changes|fossil changes] and
      [/help/cmd=status|fossil status] report when executable or symlink status
      changes on otherwise unmodified files.

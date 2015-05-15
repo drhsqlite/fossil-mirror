@@ -1,5 +1,5 @@
-C Minor\scomment\scorrection,\sno\sfunctional\schange.
-D 2015-05-15T05:02:57.427
+C Merge\strunk.
+D 2015-05-15T17:10:15.654
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -384,7 +384,7 @@ F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c 85da0ea6ee5ecff186e135b61108892904194e1e
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 6657772f2447b54cfa4fe965d00b9605a04ada4d
-F src/checkin.c b85df8f80b5c7275f20e5dc7e64c4bfda8e1bec7
+F src/checkin.c 153a56b7957aa75c377a53d3e6f140e41cbade6c
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 265e9a29da905f3ab68625a9a5b245d7630275b2
@@ -652,7 +652,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 1a0af5fa07defbe9c0ef2a821158fd51f39183a9
-F www/changes.wiki 995000e8a7187b6567fc548b5e064838ce9a4b02
+F www/changes.wiki 27260ebb9543360b2dd461a0f6480a8f1da41856
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 37087c035ff437c1c14dce07a0b8c7bf7adb3c2d
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -736,7 +736,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 03679b582742c8494653c6e7efdc2427d368cb63
-R 4fa92d9f975bcbe435f2b754497049a3
+P 849cf1d1a05121fdc1b8a3b6bd689db94184e9ec be25d412f149e591f4aae69bc780984baa95a0de
+R 0a1bc0508751ae1ebc7a5f9ba4efb4af
 U andygoth
-Z 6c2dddd9219c8a44c735bd801d790dbc
+Z 7b5bb6cebcebe1190299d6798ca1e1c2

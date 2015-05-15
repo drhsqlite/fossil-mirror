@@ -1910,7 +1910,7 @@ void commit_cmd(void){
   ** the identified files are inserted (if they have been modified).
   */
   db_prepare(&q,
-    "SELECT id, %Q || pathname, mrid, %s, chnged, %s, %s FROM vfile "
+    "SELECT id, %Q || pathname, mrid, %s, %s, %s FROM vfile "
     "WHERE chnged==1 AND NOT deleted AND is_selected(id)",
     g.zLocalRoot,
     glob_expr("pathname", db_get("crnl-glob","")),
@@ -1921,15 +1921,14 @@ void commit_cmd(void){
     int id, rid;
     const char *zFullname;
     Blob content;
-    int crnlOk, binOk, encodingOk, chnged;
+    int crnlOk, binOk, encodingOk;
 
     id = db_column_int(&q, 0);
     zFullname = db_column_text(&q, 1);
     rid = db_column_int(&q, 2);
     crnlOk = db_column_int(&q, 3);
-    chnged = db_column_int(&q, 4);
-    binOk = db_column_int(&q, 5);
-    encodingOk = db_column_int(&q, 6);
+    binOk = db_column_int(&q, 4);
+    encodingOk = db_column_int(&q, 5);
 
     blob_zero(&content);
     if( file_wd_islink(zFullname) ){
@@ -1943,7 +1942,7 @@ void commit_cmd(void){
       abortCommit |= commit_warning(&content, crnlOk, binOk,
                                     encodingOk, zFullname);
     }
-    if( chnged==1 && contains_merge_marker(&content) ){
+    if( contains_merge_marker(&content) ){
       Blob fname; /* Relative pathname of the file */
 
       nConflict++;
