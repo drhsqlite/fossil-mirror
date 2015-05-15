@@ -378,8 +378,13 @@ static void append_file_change_line(
     }else if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
       @ <p>Name change from %h(zOldName) to %h(zName)
     }else if( fossil_strcmp(zNew, zOld)==0 ){
-      @ <p>Execute permission %s(( mperm==PERM_EXE )?"set":"cleared")
-      @  for %h(zName)</p>
+      if( mperm==PERM_EXE ){
+        @ <p>%h(zName) became executable</p>
+      }else if( mperm==PERM_LNK ){
+        @ <p>%h(zName) became a symlink</p>
+      }else{
+        @ <p>%h(zName) became a regular file</p>
+      }
     }else{
       @ <p>Changes to %h(zName)</p>
     }
@@ -397,8 +402,14 @@ static void append_file_change_line(
         @ from %z(href("%R/finfo?name=%T",zOldName))%h(zOldName)</a>
         @ to %z(href("%R/finfo?name=%T",zName))%h(zName)</a>.
       }else{
-        @ <p>Execute permission %s(( mperm==PERM_EXE )?"set":"cleared") for
-        @ %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
+        @ <p>%z(href("%R/finfo?name=%T",zName))%h(zName)</a> became
+        if( mperm==PERM_EXE ){
+          @ executable.</p>
+        }else if( mperm==PERM_LNK ){
+          @ a symlink.</p>
+        }else{
+          @ a regular file.</p>
+        }
       }
     }else if( zOld ){
       @ <p>Deleted %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
