@@ -1,5 +1,5 @@
-C Add\smissing\scomment\sdescribing\show\ssettings\sare\sread\swhile\sopening\sa\scheckout.
-D 2015-05-15T02:11:41.145
+C Remove\saccess\scheck\sfrom\s[fossil\sadd]\sto\smake\sit\smatch\s[fossil\saddremove]\swhich\swaits\suntil\s[fossil\scommit]\sto\scheck\sfor\sreadability.\s\sThis\smakes\sit\spossible\sto\suse\s[fossil\sadd]\sto\sadd\ssymlinks\sto\snonexistent\sfiles\sand\s(not\slike\sthis\sis\suseful)\sto\sadd\szero-length\sfiles\sfor\swhich\sthe\suser\sdoes\snot\shave\sread\spermission.\s\s[fossil\saddremove]\shas\salways\shad\sthese\scapabilities,\sbut\sit\shas\sthe\sdrawback\sof\sadding\sand\sremoving\severything\sit\scan,\snot\sallowing\sthe\suser\sto\slimit\sits\sscope.
+D 2015-05-15T02:25:28.066
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -371,7 +371,7 @@ F skins/xekri/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt 14b3c4d0c2760db2457eacad4278ba3d10f08c81
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 8bdf9aab4553796dccdb37149c0d6f5fd6d6f2ba
+F src/add.c f3da742e34e12711528cceef61e040bb2ffbd69a
 F src/allrepo.c cf9356bb2ef29ad8836889fbbc486f5a4ce2ffc1
 F src/attach.c 5b713ffe437fa0c3241da307835b1286e38798fd
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
@@ -736,7 +736,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P ebbff96276f8d5d38fa7d6499c738069c2b407d2
-R f72ab8475673cb689422bf72f62e00c5
+P f7f6ea818a676209d22dc6609e6d149a551570b6
+R effa1852fe3722e56a03d6d2d992e22c
 U andygoth
-Z b09e5caed84c8cf29b4e515bfe8cf2bb
+Z a65f24a1a925339eefa27900d69eee1f

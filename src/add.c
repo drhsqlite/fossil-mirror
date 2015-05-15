@@ -319,8 +319,6 @@ void add_cmd(void){
       vfile_scan(&fullName, nRoot-1, scanFlags, pClean, pIgnore);
     }else if( isDir==0 ){
       fossil_warning("not found: %s", zName);
-    }else if( file_access(zName, R_OK) ){
-      fossil_fatal("cannot open %s", zName);
     }else{
       char *zTreeName = &zName[nRoot];
       if( !forceFlag && glob_match(pIgnore, zTreeName) ){
