@@ -1,5 +1,5 @@
-C Show\swhen\sfiles\sbecome\ssymlinks\sin\s/info\sreport.
-D 2015-05-15T18:16:51.554
+C Add\speriods\sfor\sconsistency\sbetween\shyperlink\sand\snon-\sversions.\s\sMay\swish\sto\sadd\s(or\sremove)\speriods\severywhere\sin\sthe\sreport\sfor\sadditional\sconsistency.
+D 2015-05-15T18:18:18.754
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -419,7 +419,7 @@ F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
 F src/import.c 39947d8db7449d3e73b121de4c1196e33138508c
-F src/info.c 3710151a66b7eca0a97fa1329268b7f6a8e049e7
+F src/info.c a75e373e6b4b8630aa6355882ce7dcc8f26b7f6f
 F src/json.c 4bfa5f9114a9ff0678efbc010c8c31b914fb528f
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -736,10 +736,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P be25d412f149e591f4aae69bc780984baa95a0de
-R c48644ece29b8fc98168b2c5c5199047
-T *branch * andygoth-metata-info
-T *sym-andygoth-metata-info *
-T -sym-trunk *
+P 5f26745652ac6ab9d691d9f8d6c99f546140c645
+R b2d01987b8a482e9f29dc7ce21d938e8
 U andygoth
-Z 9aaa8a14e233e127db5780600c183791
+Z 225b87c6d30bc97029e70a66ce25d183

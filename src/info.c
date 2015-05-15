@@ -379,11 +379,11 @@ static void append_file_change_line(
       @ <p>Name change from %h(zOldName) to %h(zName)
     }else if( fossil_strcmp(zNew, zOld)==0 ){
       if( mperm==PERM_EXE ){
-        @ <p>%h(zName) became executable</p>
+        @ <p>%h(zName) became executable.</p>
       }else if( mperm==PERM_LNK ){
-        @ <p>%h(zName) became a symlink</p>
+        @ <p>%h(zName) became a symlink.</p>
       }else{
-        @ <p>%h(zName) became a regular file</p>
+        @ <p>%h(zName) became a regular file.</p>
       }
     }else{
       @ <p>Changes to %h(zName)</p>
