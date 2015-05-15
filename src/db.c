@@ -1922,6 +1922,8 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
     blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
                  g.zLocalRoot, zName);
     if( !g.localOpen ){
+      /* Repository is in the process of being opened, but files have not been
+       * written to disk. Load from the database. */
       Blob noWarnFile;
       if( historical_version_of_file(g.zOpenRevision,
                                      blob_str(&versionedPathname),
