@@ -1294,6 +1294,7 @@ cson_value * json_g_to_json(){
 
   CSTR(g, zMainDbType);
   CSTR(g, zConfigDbType);
+  CSTR(g, zOpenRevision);
   CSTR(g, zLocalRoot);
   CSTR(g, zPath);
   CSTR(g, zExtra);

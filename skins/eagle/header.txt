@@ -125,6 +125,7 @@ if {[anoncap r]} {
 if {[anoncap j]} {
   menulink /wiki Wiki
 }
+menulink /sitemap More...
 if {[hascap s]} {
   menulink /setup Admin
 } elseif {[hascap a]} {

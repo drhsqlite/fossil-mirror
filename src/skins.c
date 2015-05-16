@@ -39,20 +39,19 @@
 static struct BuiltinSkin {
   const char *zDesc;    /* Description of this skin */
   const char *zLabel;   /* The directory under skins/ holding this skin */
-  int whiteForeground;  /* True if this skin uses a light-colored foreground */
   char *zSQL;           /* Filled in at run-time with SQL to insert this skin */
 } aBuiltinSkin[] = {
-  { "Default",                           "default",           0, 0 },
-  { "Blitz",                             "blitz",             0, 0 },
-  { "Blitz, No Logo",                    "blitz_no_logo",     0, 0 },
-  { "Xekri",                             "xekri",             0, 0 },
-  { "Original",                          "original",          0, 0 },
-  { "Enhanced Original",                 "enhanced1",         0, 0 },
-  { "Shadow boxes & Rounded Corners",    "rounded1",          0, 0 },
-  { "Eagle",                             "eagle",             1, 0 },
-  { "Black & White, Menu on Left",       "black_and_white",   0, 0 },
-  { "Plain Gray, No Logo",               "plain_gray",        0, 0 },
-  { "Khaki, No Logo",                    "khaki",             0, 0 },
+  { "Default",                           "default",           0 },
+  { "Blitz",                             "blitz",             0 },
+  { "Blitz, No Logo",                    "blitz_no_logo",     0 },
+  { "Xekri",                             "xekri",             0 },
+  { "Original",                          "original",          0 },
+  { "Enhanced Original",                 "enhanced1",         0 },
+  { "Shadow boxes & Rounded Corners",    "rounded1",          0 },
+  { "Eagle",                             "eagle",             0 },
+  { "Black & White, Menu on Left",       "black_and_white",   0 },
+  { "Plain Gray, No Logo",               "plain_gray",        0 },
+  { "Khaki, No Logo",                    "khaki",             0 },
 };
 
 /*
@@ -66,6 +65,23 @@ static struct BuiltinSkin {
 */
 static struct BuiltinSkin *pAltSkin = 0;
 static char *zAltSkinDir = 0;
+
+/*
+** Skin details are a set of key/value pairs that define display
+** attributes of the skin that cannot be easily specified using CSS
+** or that need to be known on the server-side.
+**
+** The following array holds the value for all known skin details.
+*/
+static struct SkinDetail {
+  const char *zName;      /* Name of the detail */
+  char *zValue;           /* Value of the detail */
+} aSkinDetail[] = {
+  { "timeline-arrowheads",        "1"  },
+  { "timeline-circle-nodes",      "0"  },
+  { "timeline-color-graph-lines", "0"  },
+  { "white-foreground",           "0"  },
+};
 
 /*
 ** Invoke this routine to set the alternative skin.  Return NULL if the
@@ -143,14 +159,71 @@ const char *skin_get(const char *zWhat){
   }
   return zOut;
 }
-int skin_white_foreground(void){
-  int rc;
-  if( pAltSkin ){
-    rc = pAltSkin->whiteForeground;
-  }else{
-    rc = db_get_boolean("white-foreground",0);
+
+/*
+** Return a pointer to a SkinDetail element.  Return 0 if not found.
+*/
+static struct SkinDetail *skin_detail_find(const char *zName){
+  int lwr = 0;
+  int upr = ArraySize(aSkinDetail);
+  while( upr>=lwr ){
+    int mid = (upr+lwr)/2;
+    int c = fossil_strcmp(aSkinDetail[mid].zName, zName);
+    if( c==0 ) return &aSkinDetail[mid];
+    if( c<0 ){
+      lwr = mid+1;
+    }else{
+      upr = mid-1;
+    }
   }
-  return rc;
+  return 0;
+}
+
+/* Initialize the aSkinDetail array using the text in the details.txt
+** file.
+*/
+static void skin_detail_initialize(void){
+  static int isInit = 0;
+  char *zDetail;
+  Blob detail, line, key, value;
+  if( isInit ) return;
+  isInit = 1;
+  zDetail = (char*)skin_get("details");
+  if( zDetail==0 ) return;
+  zDetail = fossil_strdup(zDetail);
+  blob_init(&detail, zDetail, -1);
+  while( blob_line(&detail, &line) ){
+    char *zKey;
+    int nKey;
+    struct SkinDetail *pDetail;
+    if( !blob_token(&line, &key) ) continue;
+    zKey = blob_buffer(&key);
+    if( zKey[0]=='#' ) continue;
+    nKey = blob_size(&key);
+    if( nKey<2 ) continue;
+    if( zKey[nKey-1]!=':' ) continue;
+    zKey[nKey-1] = 0;
+    pDetail = skin_detail_find(zKey);
+    if( pDetail==0 ) continue;
+    if( !blob_token(&line, &value) ) continue;
+    pDetail->zValue = fossil_strdup(blob_str(&value));
+  }
+  blob_reset(&detail);
+  fossil_free(zDetail);
+}
+
+/*
+** Return a skin detail setting
+*/
+const char *skin_detail(const char *zName){
+  struct SkinDetail *pDetail;
+  skin_detail_initialize();
+  pDetail = skin_detail_find(zName);
+  if( pDetail==0 ) fossil_fatal("no such skin detail: %s", zName);
+  return pDetail->zValue;
+}
+int skin_detail_boolean(const char *zName){
+  return !is_false(skin_detail(zName));
 }
 
 /*
@@ -229,7 +302,7 @@ static int skinExists(const char *zSkinName){
 static char *getSkin(const char *zName){
   const char *z;
   char *zLabel;
-  static const char *azType[] = { "css", "header", "footer" };
+  static const char *azType[] = { "css", "header", "footer", "details" };
   int i;
   Blob val;
   blob_zero(&val);
@@ -336,6 +409,9 @@ static int skinSave(const char *zCurrent){
 
 /*
 ** WEBPAGE: setup_skin
+**
+** Show a list of available skins with buttons for selecting which
+** skin to use.  Requires Admin privilege.
 */
 void setup_skin(void){
   const char *z;
@@ -422,9 +498,11 @@ void setup_skin(void){
     @ <p><font color="red">%h(zErr)</font></p>
   }
   @ <p>A "skin" is a combination of
-  @ <a href="setup_editcss">CSS</a>,
-  @ <a href="setup_header">Header</a>, and
-  @ <a href="setup_footer">Footer</a> that determines the look and feel
+  @ <a href="setup_skinedit?w=0">CSS</a>,
+  @ <a href="setup_skinedit?w=2">Header</a>,
+  @ <a href="setup_skinedit?w=1">Footer</a>, and
+  @ <a href="setup_skinedit?w=3">Details</a>
+  @ that determines the look and feel
   @ of the web interface.</p>
   @
   if( pAltSkin ){
@@ -485,6 +563,99 @@ void setup_skin(void){
     @ </form>
   }
   @ </table>
+  style_footer();
+  db_end_transaction(0);
+}
+
+
+/*
+** WEBPAGE: setup_skinedit
+**
+** Edit aspects of a skin determined by the w= query parameter.
+** Requires Admin privileges.
+**
+**    w=N     -- 0=CSS, 1=footer, 2=header, 3=details
+*/
+void setup_skinedit(void){
+  static const struct sSkinAddr {
+    const char *zFile;
+    const char *zTitle;
+    const char *zSubmenu;
+  } aSkinAttr[] = {
+    /* 0 */ { "css",     "CSS",             "CSS",     },
+    /* 1 */ { "footer",  "Page Footer",     "Footer",  },
+    /* 2 */ { "header",  "Page Header",     "Header",  },
+    /* 3 */ { "details", "Display Details", "Details", },
+  };
+  const char *zBasis;
+  const char *zContent;
+  char *zDflt;
+  int ii;
+  int j;
+
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed(0);
+    return;
+  }
+  ii = atoi(PD("w","0"));
+  if( ii<0 || ii>ArraySize(aSkinAttr) ) ii = 0;
+  zBasis = PD("basis","default");
+  zDflt = mprintf("skins/%s/%s.txt", zBasis, aSkinAttr[ii].zFile);
+  db_begin_transaction();
+  if( P("revert")!=0 ){
+    db_multi_exec("DELETE FROM config WHERE name=%Q", aSkinAttr[ii].zFile);
+    cgi_replace_parameter(aSkinAttr[ii].zFile, builtin_text(zDflt));
+  }
+  style_header("%s", aSkinAttr[ii].zTitle);
+  for(j=0; j<ArraySize(aSkinAttr); j++){
+    if( j==ii ) continue;
+    style_submenu_element(aSkinAttr[j].zSubmenu, 0,
+          "%R/setup_skinedit?w=%d&basis=%h",j,zBasis);
+  }
+  style_submenu_element("Skins", 0, "%R/setup_skin");
+  @ <form action="%s(g.zTop)/setup_skinedit" method="post"><div>
+  login_insert_csrf_secret();
+  @ <input type='hidden' name='w' value='%d(ii)'>
+  @ <h2>Edit %s(aSkinAttr[ii].zTitle):</h2>
+  zContent  = textarea_attribute("", 10, 80, aSkinAttr[ii].zFile,
+                        aSkinAttr[ii].zFile, builtin_text(zDflt), 0);
+  @ <br />
+  @ <input type="submit" name="submit" value="Apply Changes" />
+  @ <hr />
+  @ Baseline: <select size='1' name='basis'>
+  for(j=0; j<ArraySize(aBuiltinSkin); j++){
+    cgi_printf("<option value='%h'%s>%h</option>\n",
+       aBuiltinSkin[j].zLabel,
+       fossil_strcmp(zBasis,aBuiltinSkin[j].zLabel)==0 ? " selected" : "",
+       aBuiltinSkin[j].zDesc
+    );
+  }
+  @ </select>
+  @ <input type="submit" name="diff" value="Diff" />
+  if( P("diff")!=0 ){
+    u64 diffFlags = construct_diff_flags(0,0) |
+                        DIFF_STRIP_EOLCR;
+    Blob from, to, out;
+    blob_init(&to, zContent, -1);
+    blob_init(&from, builtin_text(zDflt), -1);
+    blob_zero(&out);
+    @ <input type="submit" name="revert" value="Revert" /><p>
+    if( diffFlags & DIFF_SIDEBYSIDE ){
+      text_diff(&from, &to, &out, 0, diffFlags | DIFF_HTML | DIFF_NOTTOOBIG);
+      @ %s(blob_str(&out))
+    }else{
+      text_diff(&from, &to, &out, 0,
+             diffFlags | DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG);
+      @ <pre class="udiff">
+      @ %s(blob_str(&out))
+      @ </pre>
+    }
+    blob_reset(&from);
+    blob_reset(&to);
+    blob_reset(&out);
+  }
+  @ </div></form>
   style_footer();
   db_end_transaction(0);
 }

@@ -137,6 +137,7 @@ struct Global {
   char *zLocalDbName;     /* Name of the local database */
   const char *zMainDbType;/* "configdb", "localdb", or "repository" */
   const char *zConfigDbType;  /* "configdb", "localdb", or "repository" */
+  char *zOpenRevision;    /* Check-in version to use during database open */
   int localOpen;          /* True if the local database is open */
   char *zLocalRoot;       /* The directory holding the  local database */
   int minPrefix;          /* Number of digits needed for a distinct UUID */
@@ -592,8 +593,8 @@ int main(int argc, char **argv)
   const char *zCmdName = "unknown";
   int idx;
   int rc;
-  if( sqlite3_libversion_number()<3008003 ){
-    fossil_fatal("Unsuitable SQLite version %s, must be at least 3.8.3",
+  if( sqlite3_libversion_number()<3008007 ){
+    fossil_fatal("Unsuitable SQLite version %s, must be at least 3.8.7",
                  sqlite3_libversion());
   }
   sqlite3_config(SQLITE_CONFIG_MULTITHREAD);
@@ -658,6 +659,7 @@ int main(int argc, char **argv)
   }else{
     const char *zChdir = find_option("chdir",0,1);
     g.isHTTP = 0;
+    g.rcvid = 0;
     g.fQuiet = find_option("quiet", 0, 0)!=0;
     g.fSqlTrace = find_option("sqltrace", 0, 0)!=0;
     g.fSqlStats = find_option("sqlstats", 0, 0)!=0;
@@ -1010,6 +1012,9 @@ void version_cmd(void){
 #if defined(FOSSIL_ENABLE_SSL)
     fossil_print("SSL (%s)\n", SSLeay_version(SSLEAY_VERSION));
 #endif
+#if defined(FOSSIL_ENABLE_LEGACY_MV_RM)
+    fossil_print("LEGACY_MV_RM\n");
+#endif
 #if defined(FOSSIL_ENABLE_TH1_DOCS)
     fossil_print("TH1_DOCS\n");
 #endif
@@ -1130,7 +1135,10 @@ void help_cmd(void){
 
 /*
 ** WEBPAGE: help
-** URL: /help/CMD
+** URL: /help?name=CMD
+**
+** Show the built-in help text for CMD.  CMD can be a command-line interface
+** command or a page name from the web interface.
 */
 void help_page(void){
   const char *zCmd = P("cmd");
@@ -1198,7 +1206,6 @@ void help_page(void){
     @ </tr></table>
 
     @ <h1>Available web UI pages:</h1>
-    @ (Only pages with help text are linked.)
     @ <table border="0"><tr>
     for(i=j=0; i<count(aCommand); i++){
       const char *z = aCommand[i].zName;
@@ -1437,6 +1444,11 @@ static int repo_list_page(void){
   n = db_int(0, "SELECT count(*) FROM sfile");
   if( n>0 ){
     Stmt q;
+    @ <html>
+    @ <head>
+    @ <title>Repository List</title>
+    @ </head>
+    @ <body>
     @ <h1>Available Repositories:</h1>
     @ <ol>
     db_prepare(&q, "SELECT x, substr(x,-7,-100000)||'/home'"
@@ -1444,9 +1456,11 @@ static int repo_list_page(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       const char *zUrl = db_column_text(&q, 1);
-      @ <li><a href="%h(zUrl)">%h(zName)</a></li>
+      @ <li><a href="%h(zUrl)" target="_blank">%h(zName)</a></li>
     }
     @ </ol>
+    @ </body>
+    @ </html>
     cgi_reply();
   }
   sqlite3_close(g.db);
@@ -1524,6 +1538,12 @@ static void process_one_web_page(
       if( szFile==0 ){
         if( zRepo[0]=='/' && zRepo[1]=='/' ){ zRepo++; j--; }
         szFile = file_size(zRepo);
+        /* this should only be set from the --baseurl option, not CGI  */
+        if( g.zBaseURL && g.zBaseURL[0]!=0 && g.zTop && g.zTop[0]!=0 &&
+            file_isdir(g.zRepositoryName)==1 ){
+          g.zBaseURL = mprintf("%s%.*s", g.zBaseURL, i, zPathInfo);
+          g.zTop = mprintf("%s%.*s", g.zTop, i, zPathInfo);
+        }
       }
       if( szFile<0 && i>0 ){
         const char *zMimetype;
@@ -1553,12 +1573,12 @@ static void process_one_web_page(
 
       if( szFile<1024 ){
         set_base_url(0);
-        if( zNotFound ){
-          cgi_redirect(zNotFound);
-        }else if( strcmp(zPathInfo,"/")==0
+        if( strcmp(zPathInfo,"/")==0
                   && allowRepoList
                   && repo_list_page() ){
           /* Will return a list of repositories */
+        }else if( zNotFound ){
+          cgi_redirect(zNotFound);
         }else{
 #ifdef FOSSIL_ENABLE_JSON
           if(g.json.isJsonMode){
@@ -2159,7 +2179,6 @@ void cmd_http(void){
   }
   zHost = find_option("host", 0, 1);
   if( zHost ) cgi_replace_parameter("HTTP_HOST",zHost);
-  g.cgiOutput = 1;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -2167,6 +2186,7 @@ void cmd_http(void){
   if( g.argc!=2 && g.argc!=3 && g.argc!=5 && g.argc!=6 ){
     fossil_fatal("no repository specified");
   }
+  g.cgiOutput = 1;
   g.fullHttpReply = 1;
   if( g.argc>=5 ){
     g.httpIn = fossil_fopen(g.argv[2], "rb");

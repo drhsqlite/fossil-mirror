@@ -406,13 +406,18 @@ static void stats_report_by_user(){
                                         all rows. */
   stats_report_init_view();
   stats_report_event_types_menu("byuser", NULL);
-  db_prepare(&query,
-               "SELECT user, "
-               "COUNT(*) AS eventCount "
-               "FROM v_reports "
-               "GROUP BY user ORDER BY eventCount DESC");
   @ <h1>Timeline Events
   @ (%s(stats_report_label_for_type())) by User</h1>
+  db_multi_exec(
+    "CREATE TEMP TABLE piechart(amt,label);"
+    "INSERT INTO piechart SELECT count(*), user FROM v_reports"
+                         " GROUP BY user ORDER BY count(*) DESC;"
+  );
+  if( db_int(0, "SELECT count(*) FROM piechart")>=2 ){
+    @ <center><svg width=700 height=400>
+    piechart_render(700, 400, PIE_OTHER|PIE_PERCENT);
+    @ </svg></centre><hr/>
+  }
   @ <table class='statistics-report-table-events' border='0'
   @ cellpadding='2' cellspacing='0' id='statsTable'>
   @ <thead><tr>
@@ -420,6 +425,11 @@ static void stats_report_by_user(){
   @ <th>Events</th>
   @ <th width='90%%'><!-- relative commits graph --></th>
   @ </tr></thead><tbody>
+  db_prepare(&query,
+               "SELECT user, "
+               "COUNT(*) AS eventCount "
+               "FROM v_reports "
+               "GROUP BY user ORDER BY eventCount DESC");
   while( SQLITE_ROW == db_step(&query) ){
     const int nCount = db_column_int(&query, 1);
     if(nCount>nMaxEvents){
@@ -470,7 +480,7 @@ static void stats_report_by_file(){
     "  SELECT filename.name, count(distinct mlink.mid)"
     "    FROM filename, mlink"
     "   WHERE filename.fnid=mlink.fnid"
-    "   GROUP BY 1"
+    "   GROUP BY 1;"
   );
   db_prepare(&query,
     "SELECT filename, cnt FROM statrep ORDER BY cnt DESC, filename /*sort*/"
@@ -530,6 +540,19 @@ static void stats_report_day_of_week(){
                "GROUP BY dow ORDER BY dow");
   @ <h1>Timeline Events
   @ (%s(stats_report_label_for_type())) by Day of the Week</h1>
+  db_multi_exec(
+    "CREATE TEMP TABLE piechart(amt,label);"
+    "INSERT INTO piechart SELECT count(*), cast(mtime %% 7 AS INT) FROM v_reports"
+                         " GROUP BY 2 ORDER BY 2;"
+    "UPDATE piechart SET label = CASE label WHEN 0 THEN 'Monday' WHEN 1 THEN 'Tuesday'"
+    "  WHEN 2 THEN 'Wednesday' WHEN 3 THEN 'Thursday' WHEN 4 THEN 'Friday'"
+    "  WHEN 5 THEN 'Saturday' ELSE 'Sunday' END;"
+  );
+  if( db_int(0, "SELECT count(*) FROM piechart")>=2 ){
+    @ <center><svg width=700 height=400>
+    piechart_render(700, 400, PIE_OTHER|PIE_PERCENT);
+    @ </svg></centre><hr/>
+  }
   @ <table class='statistics-report-table-events' border='0'
   @ cellpadding='2' cellspacing='0' id='statsTable'>
   @ <thead><tr>

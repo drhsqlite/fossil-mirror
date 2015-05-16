@@ -548,8 +548,7 @@ int vfile_dir_scan(
   int nPrefix,           /* Number of bytes in base directory name */
   unsigned scanFlags,    /* Zero or more SCAN_xxx flags */
   Glob *pIgnore1,        /* Do not add directories that match this GLOB */
-  Glob *pIgnore2,        /* Omit directories matching this GLOB too */
-  Glob *pIgnore3         /* Omit directories matching this GLOB too */
+  Glob *pIgnore2         /* Omit directories matching this GLOB too */
 ){
   int result = 0;
   DIR *d;
@@ -562,11 +561,10 @@ int vfile_dir_scan(
   void *zNative;
 
   origSize = blob_size(pPath);
-  if( pIgnore1 || pIgnore2 || pIgnore3 ){
+  if( pIgnore1 || pIgnore2 ){
     blob_appendf(pPath, "/");
     if( glob_match(pIgnore1, &blob_str(pPath)[nPrefix+1]) ) skipAll = 1;
     if( glob_match(pIgnore2, &blob_str(pPath)[nPrefix+1]) ) skipAll = 1;
-    if( glob_match(pIgnore3, &blob_str(pPath)[nPrefix+1]) ) skipAll = 1;
     blob_resize(pPath, origSize);
   }
   if( skipAll ) return result;
@@ -606,8 +604,7 @@ int vfile_dir_scan(
       blob_appendf(pPath, "/%s", zUtf8);
       zPath = blob_str(pPath);
       if( glob_match(pIgnore1, &zPath[nPrefix+1]) ||
-          glob_match(pIgnore2, &zPath[nPrefix+1]) ||
-          glob_match(pIgnore3, &zPath[nPrefix+1]) ){
+          glob_match(pIgnore2, &zPath[nPrefix+1]) ){
         /* do nothing */
 #ifdef _DIRENT_HAVE_D_TYPE
       }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
@@ -618,7 +615,7 @@ int vfile_dir_scan(
         if( (scanFlags & SCAN_NESTED) || !vfile_top_of_checkout(zPath) ){
           char *zSavePath = mprintf("%s", zPath);
           int count = vfile_dir_scan(pPath, nPrefix, scanFlags, pIgnore1,
-                                     pIgnore2, pIgnore3);
+                                     pIgnore2);
           db_bind_text(&ins, ":file", &zSavePath[nPrefix+1]);
           db_bind_int(&ins, ":count", count);
           db_step(&ins);
@@ -918,6 +915,11 @@ void vfile_aggregate_checksum_manifest(int vid, Blob *pOut, Blob *pManOut){
 
 /*
 ** COMMAND: test-agg-cksum
+**
+** Display the aggregate checksum for content computed in several
+** different ways.  The aggregate checksum is used during "fossil commit"
+** to double-check that the information about to be committed to the
+** repository exactly matches the information currently in the check-out.
 */
 void test_agg_cksum_cmd(void){
   int vid;

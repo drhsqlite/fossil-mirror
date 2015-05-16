@@ -47,6 +47,9 @@ PERL    = perl.exe
 # Uncomment to build SSL libraries
 # FOSSIL_BUILD_SSL = 1
 
+# Uncomment to enable legacy treatment of mv/rm
+# FOSSIL_ENABLE_LEGACY_MV_RM = 1
+
 # Uncomment to enable TH1 scripts in embedded documentation files
 # FOSSIL_ENABLE_TH1_DOCS = 1
 
@@ -163,6 +166,11 @@ LIBS      = $(LIBS) $(SSLLIB)
 LIBDIR    = $(LIBDIR) /LIBPATH:$(SSLLIBDIR)
 !endif
 
+!ifdef FOSSIL_ENABLE_LEGACY_MV_RM
+TCC       = $(TCC) /DFOSSIL_ENABLE_LEGACY_MV_RM=1
+RCC       = $(RCC) /DFOSSIL_ENABLE_LEGACY_MV_RM=1
+!endif
+
 !ifdef FOSSIL_ENABLE_TH1_DOCS
 TCC       = $(TCC) /DFOSSIL_ENABLE_TH1_DOCS=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_TH1_DOCS=1
@@ -193,6 +201,7 @@ SQLITE_OPTIONS = /DNDEBUG=1 \
                  /DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                  /DSQLITE_ENABLE_FTS4 \
                  /DSQLITE_ENABLE_FTS3_PARENTHESIS \
+                 /DSQLITE_ENABLE_DBSTAT_VTAB \
                  /DSQLITE_WIN32_NO_ANSI
 
 SHELL_OPTIONS = /Dmain=sqlite3_shell \
@@ -280,6 +289,7 @@ SRC   = add_.c \
         moderate_.c \
         name_.c \
         path_.c \
+        piechart_.c \
         pivot_.c \
         popen_.c \
         pqueue_.c \
@@ -327,39 +337,51 @@ SRC   = add_.c \
         xfersetup_.c \
         zip_.c
 
-EXTRA_FILES   = $(SRCDIR)\../skins/black_and_white/css.txt \
+EXTRA_FILES   = $(SRCDIR)\../skins/aht/details.txt \
+        $(SRCDIR)\../skins/black_and_white/css.txt \
+        $(SRCDIR)\../skins/black_and_white/details.txt \
         $(SRCDIR)\../skins/black_and_white/footer.txt \
         $(SRCDIR)\../skins/black_and_white/header.txt \
         $(SRCDIR)\../skins/blitz/css.txt \
+        $(SRCDIR)\../skins/blitz/details.txt \
         $(SRCDIR)\../skins/blitz/footer.txt \
         $(SRCDIR)\../skins/blitz/header.txt \
         $(SRCDIR)\../skins/blitz/ticket.txt \
         $(SRCDIR)\../skins/blitz_no_logo/css.txt \
+        $(SRCDIR)\../skins/blitz_no_logo/details.txt \
         $(SRCDIR)\../skins/blitz_no_logo/footer.txt \
         $(SRCDIR)\../skins/blitz_no_logo/header.txt \
         $(SRCDIR)\../skins/blitz_no_logo/ticket.txt \
         $(SRCDIR)\../skins/default/css.txt \
+        $(SRCDIR)\../skins/default/details.txt \
         $(SRCDIR)\../skins/default/footer.txt \
         $(SRCDIR)\../skins/default/header.txt \
         $(SRCDIR)\../skins/eagle/css.txt \
+        $(SRCDIR)\../skins/eagle/details.txt \
         $(SRCDIR)\../skins/eagle/footer.txt \
         $(SRCDIR)\../skins/eagle/header.txt \
         $(SRCDIR)\../skins/enhanced1/css.txt \
+        $(SRCDIR)\../skins/enhanced1/details.txt \
         $(SRCDIR)\../skins/enhanced1/footer.txt \
         $(SRCDIR)\../skins/enhanced1/header.txt \
         $(SRCDIR)\../skins/khaki/css.txt \
+        $(SRCDIR)\../skins/khaki/details.txt \
         $(SRCDIR)\../skins/khaki/footer.txt \
         $(SRCDIR)\../skins/khaki/header.txt \
         $(SRCDIR)\../skins/original/css.txt \
+        $(SRCDIR)\../skins/original/details.txt \
         $(SRCDIR)\../skins/original/footer.txt \
         $(SRCDIR)\../skins/original/header.txt \
         $(SRCDIR)\../skins/plain_gray/css.txt \
+        $(SRCDIR)\../skins/plain_gray/details.txt \
         $(SRCDIR)\../skins/plain_gray/footer.txt \
         $(SRCDIR)\../skins/plain_gray/header.txt \
         $(SRCDIR)\../skins/rounded1/css.txt \
+        $(SRCDIR)\../skins/rounded1/details.txt \
         $(SRCDIR)\../skins/rounded1/footer.txt \
         $(SRCDIR)\../skins/rounded1/header.txt \
         $(SRCDIR)\../skins/xekri/css.txt \
+        $(SRCDIR)\../skins/xekri/details.txt \
         $(SRCDIR)\../skins/xekri/footer.txt \
         $(SRCDIR)\../skins/xekri/header.txt \
         $(SRCDIR)\diff.tcl \
@@ -438,6 +460,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\moderate$O \
         $(OX)\name$O \
         $(OX)\path$O \
+        $(OX)\piechart$O \
         $(OX)\pivot$O \
         $(OX)\popen$O \
         $(OX)\pqueue$O \
@@ -613,6 +636,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\moderate.obj >> $@
 	echo $(OX)\name.obj >> $@
 	echo $(OX)\path.obj >> $@
+	echo $(OX)\piechart.obj >> $@
 	echo $(OX)\pivot.obj >> $@
 	echo $(OX)\popen.obj >> $@
 	echo $(OX)\pqueue.obj >> $@
@@ -1195,6 +1219,12 @@ $(OX)\path$O : path_.c path.h
 path_.c : $(SRCDIR)\path.c
 	translate$E $** > $@
 
+$(OX)\piechart$O : piechart_.c piechart.h
+	$(TCC) /Fo$@ -c piechart_.c
+
+piechart_.c : $(SRCDIR)\piechart.c
+	translate$E $** > $@
+
 $(OX)\pivot$O : pivot_.c pivot.h
 	$(TCC) /Fo$@ -c pivot_.c
 
@@ -1547,6 +1577,7 @@ headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 			moderate_.c:moderate.h \
 			name_.c:name.h \
 			path_.c:path.h \
+			piechart_.c:piechart.h \
 			pivot_.c:pivot.h \
 			popen_.c:popen.h \
 			pqueue_.c:pqueue.h \

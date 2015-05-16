@@ -1304,8 +1304,8 @@ void login_verify_csrf_secret(void){
 /*
 ** WEBPAGE: register
 **
-** Generate the register page.
-**
+** Page to allow users to self-register.  The "self-register" setting
+** must be enabled for this page to operate.
 */
 void register_page(void){
   const char *zUsername, *zPasswd, *zConfirm, *zContact, *zCS, *zPw, *zCap;

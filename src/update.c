@@ -177,10 +177,8 @@ void update_cmd(void){
       latestFlag = 1;
     }else{
       tid = name_to_typed_rid(g.argv[2],"ci");
-      if( tid==0 ){
-        fossil_fatal("no such version: %s", g.argv[2]);
-      }else if( !is_a_version(tid) ){
-        fossil_fatal("no such version: %s", g.argv[2]);
+       if( tid==0 || !is_a_version(tid) ){
+        fossil_fatal("no such check-in: %s", g.argv[2]);
       }
     }
   }
@@ -546,6 +544,7 @@ void update_cmd(void){
       nMerge++;
     }
     db_finalize(&q);
+    leaf_ambiguity_warning(tid, tid);
 
     if( nConflict ){
       if( internalUpdate ){
@@ -653,7 +652,7 @@ int historical_version_of_file(
   int *pIsLink,            /* Set to true if file is link. */
   int *pIsExe,             /* Set to true if file is executable */
   int *pIsBin,             /* Set to true if file is binary */
-  int errCode              /* Error code if file not found.  Panic if 0. */
+  int errCode              /* Error code if file not found.  Panic if <= 0. */
 ){
   Manifest *pManifest;
   ManifestFile *pFile;

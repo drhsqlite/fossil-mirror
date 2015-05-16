@@ -703,10 +703,103 @@ const struct strctCssDefaults {
     @   white-space: nowrap;
   },
   { "td.timelineGraph",
-    "the format for the grap placeholder cells in timelines",
+    "the format for the graph placeholder cells in timelines",
     @ width: 20px;
     @ text-align: left;
     @ vertical-align: top;
+  },
+  { ".tl-canvas",
+    "timeline graph canvas",
+    @   margin: 0 6px 0 10px;
+  },
+  { ".tl-rail",
+    "maximum rail spacing",
+    @   width: 18px;
+  },
+  { ".tl-mergeoffset",
+    "maximum spacing between merge risers and primary child risers",
+    @   width: 2px;
+  },
+  { ".tl-nodemark",
+    "adjusts the vertical position of graph nodes",
+    @   margin-top: 5px;
+  },
+  { ".tl-node",
+    "commit node",
+    @   width: 10px;
+    @   height: 10px;
+    @   border: 1px solid #000;
+    @   background: #fff;
+    @   cursor: pointer;
+  },
+  { ".tl-node.leaf:after",
+    "leaf commit marker",
+    @   content: '';
+    @   position: absolute;
+    @   top: 3px;
+    @   left: 3px;
+    @   width: 4px;
+    @   height: 4px;
+    @   background: #000;
+  },
+  { ".tl-node.sel:after",
+    "selected commit node marker",
+    @   content: '';
+    @   position: absolute;
+    @   top: 2px;
+    @   left: 2px;
+    @   width: 6px;
+    @   height: 6px;
+    @   background: red;
+  },
+  { ".tl-arrow",
+    "arrow",
+    @   width: 0;
+    @   height: 0;
+    @   transform: scale(.999);
+    @   border: 0 solid transparent;
+  },
+  { ".tl-arrow.u",
+    "up arrow",
+    @   margin-top: -1px;
+    @   border-width: 0 3px;
+    @   border-bottom: 7px solid #000;
+  },
+  { ".tl-arrow.u.sm",
+    "small up arrow",
+    @   border-bottom: 5px solid #000;
+  },
+  { ".tl-line",
+    "line",
+    @   background: #000;
+    @   width: 2px;
+  },
+  { ".tl-arrow.merge",
+    "merge arrow",
+    @   height: 1px;
+    @   border-width: 2px 0;
+  },
+  { ".tl-arrow.merge.l",
+    "left merge arrow",
+    @   border-right: 3px solid #000;
+  },
+  { ".tl-arrow.merge.r",
+    "right merge arrow",
+    @   border-left: 3px solid #000;
+  },
+  { ".tl-line.merge",
+    "merge line",
+    @   width: 1px;
+  },
+  { ".tl-arrow.warp",
+    "timewarp arrow",
+    @   margin-left: 1px;
+    @   border-width: 3px 0;
+    @   border-left: 7px solid #600000;
+  },
+  { ".tl-line.warp",
+    "timewarp line",
+    @   background: #600000;
   },
   { "a.tagLink",
     "the format for the tag links",
@@ -1228,10 +1321,6 @@ const struct strctCssDefaults {
     "format for capabilities string, mentioned on the user edit page",
     @ font-weight: bold;
   },
-  { "#canvas", "timeline graph node colors",
-    @ color: black;
-    @ background-color: white;
-  },
   { "table.adminLogTable",
     "Class for the /admin_log table",
     @ text-align: left;
@@ -1338,30 +1427,52 @@ void cgi_append_default_css(void) {
 }
 
 /*
-** Search string zHaystack for zNeedle.  zNeedle must be an isolated
-** word with space or punctuation on either size.
+** Search string zCss for zSelector.
 **
 ** Return true if found.  Return false if not found
 */
-static int containsString(const char *zHaystack, const char *zNeedle){
-  char *z;
+static int containsSelector(const char *zCss, const char *zSelector){
+  const char *z;
   int n;
+  int selectorLen = (int)strlen(zSelector);
 
-  while( zHaystack[0] ){
-    z = strstr(zHaystack, zNeedle);
+  for(z=zCss; *z; z+=selectorLen){
+    z = strstr(z, zSelector);
     if( z==0 ) return 0;
-    n = (int)strlen(zNeedle);
-    if( (z==zHaystack || !fossil_isalnum(z[-1])) && !fossil_isalnum(z[n]) ){
-      return 1;
+    if( z!=zCss ){
+      for( n=-1; z+n!=zCss && fossil_isspace(z[n]); n--);
+      if( z+n!=zCss && z[n]!=',' && z[n]!= '}' && z[n]!='/' ) continue;
     }
-    zHaystack = z + n;
+    for( n=selectorLen; z[n] && fossil_isspace(z[n]); n++ );
+    if( z[n]==',' || z[n]=='{' || z[n]=='/' ) return 1;
   }
   return 0;
+}
+
+/*
+** COMMAND: test-contains-selector
+**
+** Usage: %fossil test-contains-selector FILENAME SELECTOR
+**
+** Determine if the CSS stylesheet FILENAME contains SELECTOR.
+*/
+void contains_selector_cmd(void){
+  int found;
+  char *zSelector;
+  Blob css;
+  if( g.argc!=4 ) usage("FILENAME SELECTOR");
+  blob_read_from_file(&css, g.argv[2]);
+  zSelector = g.argv[3];
+  found = containsSelector(blob_str(&css), zSelector);
+  fossil_print("%s %s\n", zSelector, found ? "found" : "not found");
+  blob_reset(&css);
 }
 
 
 /*
 ** WEBPAGE: style.css
+**
+** Return the style sheet.
 */
 void page_style_css(void){
   Blob css;
@@ -1373,7 +1484,7 @@ void page_style_css(void){
   /* add special missing definitions */
   for(i=1; cssDefaultList[i].elementClass; i++){
     char *z = blob_str(&css);
-    if( !containsString(z, cssDefaultList[i].elementClass) ){
+    if( !containsSelector(z, cssDefaultList[i].elementClass) ){
       blob_appendf(&css, "/* %s */\n%s {\n%s}\n",
           cssDefaultList[i].comment,
           cssDefaultList[i].elementClass,
@@ -1397,6 +1508,9 @@ void page_style_css(void){
 
 /*
 ** WEBPAGE: test_env
+**
+** Display CGI-variables and other aspects of the run-time
+** environment, for debugging and trouble-shooting purposes.
 */
 void page_test_env(void){
   char c;
@@ -1468,9 +1582,8 @@ void page_test_env(void){
 }
 
 /*
-** This page is a honeypot for spiders and bots.
-**
 ** WEBPAGE: honeypot
+** This page is a honeypot for spiders and bots.
 */
 void honeypot_page(void){
   cgi_set_status(403, "Forbidden");

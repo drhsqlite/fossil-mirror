@@ -254,6 +254,40 @@ static int canUseObjProc(){
 static int createTclInterp(Th_Interp *interp, void *pContext);
 
 /*
+** Returns the TH1 return code corresponding to the specified Tcl
+** return code.
+*/
+static int getTh1ReturnCode(
+  int rc /* The Tcl return code value to convert. */
+){
+  switch( rc ){
+    case /*0*/ TCL_OK:       return /*0*/ TH_OK;
+    case /*1*/ TCL_ERROR:    return /*1*/ TH_ERROR;
+    case /*2*/ TCL_RETURN:   return /*3*/ TH_RETURN;
+    case /*3*/ TCL_BREAK:    return /*2*/ TH_BREAK;
+    case /*4*/ TCL_CONTINUE: return /*4*/ TH_CONTINUE;
+    default /*?*/:           return /*?*/ rc;
+  }
+}
+
+/*
+** Returns the Tcl return code corresponding to the specified TH1
+** return code.
+*/
+static int getTclReturnCode(
+  int rc /* The TH1 return code value to convert. */
+){
+  switch( rc ){
+    case /*0*/ TH_OK:       return /*0*/ TCL_OK;
+    case /*1*/ TH_ERROR:    return /*1*/ TCL_ERROR;
+    case /*2*/ TH_BREAK:    return /*3*/ TCL_BREAK;
+    case /*3*/ TH_RETURN:   return /*2*/ TCL_RETURN;
+    case /*4*/ TH_CONTINUE: return /*4*/ TCL_CONTINUE;
+    default /*?*/:          return /*?*/ rc;
+  }
+}
+
+/*
 ** Returns a name for a Tcl return code.
 */
 static const char *getTclReturnCodeName(
@@ -265,8 +299,8 @@ static const char *getTclReturnCodeName(
   switch( rc ){
     case TCL_OK:       return nullIfOk ? 0 : "TCL_OK";
     case TCL_ERROR:    return "TCL_ERROR";
-    case TCL_BREAK:    return "TCL_BREAK";
     case TCL_RETURN:   return "TCL_RETURN";
+    case TCL_BREAK:    return "TCL_BREAK";
     case TCL_CONTINUE: return "TCL_CONTINUE";
     default: {
       sqlite3_snprintf(sizeof(zRc), zRc, "Tcl return code %d", rc);
@@ -352,9 +386,11 @@ static int notifyPreOrPostEval(
 }
 
 /*
-** Syntax:
+** TH1 command: tclEval arg ?arg ...?
 **
-**   tclEval arg ?arg ...?
+** Evaluates the Tcl script and returns its result verbatim.  If a Tcl script
+** error is generated, it will be transformed into a TH1 script error.  A Tcl
+** interpreter will be created automatically if it has not been already.
 */
 static int tclEval_command(
   Th_Interp *interp,
@@ -402,14 +438,17 @@ static int tclEval_command(
   zResult = getTclResult(tclInterp, &nResult);
   Th_SetResult(interp, zResult, nResult);
   Tcl_Release((ClientData)tclInterp);
-  rc = notifyPreOrPostEval(1, interp, ctx, argc, argv, argl, rc);
+  rc = notifyPreOrPostEval(1, interp, ctx, argc, argv, argl,
+                           getTh1ReturnCode(rc));
   return rc;
 }
 
 /*
-** Syntax:
+** TH1 command: tclExpr arg ?arg ...?
 **
-**   tclExpr arg ?arg ...?
+** Evaluates the Tcl expression and returns its result verbatim.  If a Tcl
+** script error is generated, it will be transformed into a TH1 script error.
+** A Tcl interpreter will be created automatically if it has not been already.
 */
 static int tclExpr_command(
   Th_Interp *interp,
@@ -463,14 +502,17 @@ static int tclExpr_command(
   Th_SetResult(interp, zResult, nResult);
   if( rc==TCL_OK ) Tcl_DecrRefCount(resultObjPtr);
   Tcl_Release((ClientData)tclInterp);
-  rc = notifyPreOrPostEval(1, interp, ctx, argc, argv, argl, rc);
+  rc = notifyPreOrPostEval(1, interp, ctx, argc, argv, argl,
+                           getTh1ReturnCode(rc));
   return rc;
 }
 
 /*
-** Syntax:
+** TH1 command: tclInvoke command ?arg ...?
 **
-**   tclInvoke command ?arg ...?
+** Invokes the Tcl command using the supplied arguments.  No additional
+** substitutions are performed on the arguments.  A Tcl interpreter will
+** be created automatically if it has not been already.
 */
 static int tclInvoke_command(
   Th_Interp *interp,
@@ -535,14 +577,16 @@ static int tclInvoke_command(
   zResult = getTclResult(tclInterp, &nResult);
   Th_SetResult(interp, zResult, nResult);
   Tcl_Release((ClientData)tclInterp);
-  rc = notifyPreOrPostEval(1, interp, ctx, argc, argv, argl, rc);
+  rc = notifyPreOrPostEval(1, interp, ctx, argc, argv, argl,
+                           getTh1ReturnCode(rc));
   return rc;
 }
 
 /*
-** Syntax:
+** Tcl command: th1Eval arg
 **
-**   th1Eval arg
+** Evaluates the TH1 script and returns its result verbatim.  If a TH1 script
+** error is generated, it will be transformed into a Tcl script error.
 */
 static int Th1EvalObjCmd(
   ClientData clientData,
@@ -568,13 +612,14 @@ static int Th1EvalObjCmd(
   rc = Th_Eval(th1Interp, 0, arg, nArg);
   arg = Th_GetResult(th1Interp, &nArg);
   Tcl_SetObjResult(interp, Tcl_NewStringObj(arg, nArg));
-  return rc;
+  return getTclReturnCode(rc);
 }
 
 /*
-** Syntax:
+** Tcl command: th1Expr arg
 **
-**   th1Expr arg
+** Evaluates the TH1 expression and returns its result verbatim.  If a TH1
+** script error is generated, it will be transformed into a Tcl script error.
 */
 static int Th1ExprObjCmd(
   ClientData clientData,
@@ -600,7 +645,7 @@ static int Th1ExprObjCmd(
   rc = Th_Expr(th1Interp, arg, nArg);
   arg = Th_GetResult(th1Interp, &nArg);
   Tcl_SetObjResult(interp, Tcl_NewStringObj(arg, nArg));
-  return rc;
+  return getTclReturnCode(rc);
 }
 
 /*

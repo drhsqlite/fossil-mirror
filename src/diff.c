@@ -1931,6 +1931,12 @@ u64 diff_options(void){
 
 /*
 ** COMMAND: test-rawdiff
+**
+** Usage: %fossil test-rawdiff FILE1 FILE2
+**
+** Show a minimal sequence of Copy/Delete/Insert operations needed to convert
+** FILE1 into FILE2.  This command is intended for use in testing and debugging
+** the built-in difference engine of Fossil.
 */
 void test_rawdiff_cmd(void){
   Blob a, b;
@@ -2209,13 +2215,23 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 ** WEBPAGE: blame
 ** WEBPAGE: praise
 **
+** URL: /annotate?checkin=ID&filename=FILENAME
+** URL: /blame?checkin=ID&filename=FILENAME
+** URL: /praise?checkin=ID&filename=FILENAME
+**
+** Show the most recent change to each line of a text file.  /annotate shows
+** the date of the changes and the check-in SHA1 hash (with a link to the
+** check-in).  /blame and /praise also show the user who made the check-in.
+**
 ** Query parameters:
 **
 **    checkin=ID          The manifest ID at which to start the annotation
 **    filename=FILENAME   The filename.
 **    filevers            Show file versions rather than check-in versions
-**    log=BOOLEAN         Show a log of versions analyzed
 **    limit=N             Limit the search depth to N ancestors
+**    log=BOOLEAN         Show a log of versions analyzed
+**    w                   Ignore whitespace
+**
 */
 void annotation_page(void){
   int mid;
@@ -2296,7 +2312,7 @@ void annotation_page(void){
     style_submenu_element("20 Ancestors", "20 Ancestors",
        "%s", url_render(&url, "limit", "20", 0, 0));
   }
-  if( skin_white_foreground() ){
+  if( skin_detail_boolean("white-foreground") ){
     clr1 = 0xa04040;
     clr2 = 0x4059a0;
   }else{

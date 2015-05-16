@@ -1648,7 +1648,7 @@ void create_repository_cmd(void){
   if( g.argc!=3 ){
     usage("REPOSITORY-NAME");
   }
- 
+
   if( -1 != file_size(g.argv[2]) ){
     fossil_fatal("file already exists: %s", g.argv[2]);
   }
@@ -1889,20 +1889,21 @@ void db_swap_connections(void){
 ** found.
 **
 ** If the zNonVersionedSetting parameter is not NULL then it holds the
-** non-versioned value for this setting.  If both a versioned and ad
+** non-versioned value for this setting.  If both a versioned and a
 ** non-versioned value exist and are not equal, then a warning message
 ** might be generated.
 */
 char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
   char *zVersionedSetting = 0;
   int noWarn = 0;
+  int found = 0;
   struct _cacheEntry {
     struct _cacheEntry *next;
     const char *zName, *zValue;
   } *cacheEntry = 0;
   static struct _cacheEntry *cache = 0;
 
-  if( !g.localOpen) return zNonVersionedSetting;
+  if( !g.localOpen && g.zOpenRevision==0 ) return zNonVersionedSetting;
   /* Look up name in cache */
   cacheEntry = cache;
   while( cacheEntry!=0 ){
@@ -1912,26 +1913,38 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
     }
     cacheEntry = cacheEntry->next;
   }
-  /* Attempt to read value from file in checkout if there wasn't a cache hit
-  ** and a checkout is open. */
+  /* Attempt to read value from file in checkout if there wasn't a cache hit. */
   if( cacheEntry==0 ){
     Blob versionedPathname;
-    char *zVersionedPathname;
+    Blob setting;
     blob_zero(&versionedPathname);
+    blob_zero(&setting);
     blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
                  g.zLocalRoot, zName);
-    zVersionedPathname = blob_str(&versionedPathname);
-    if( file_size(zVersionedPathname)>=0 ){
+    if( !g.localOpen ){
+      /* Repository is in the process of being opened, but files have not been
+       * written to disk. Load from the database. */
+      Blob noWarnFile;
+      if( historical_version_of_file(g.zOpenRevision,
+                                     blob_str(&versionedPathname),
+                                     &setting, 0, 0, 0, 2)!=2 ){
+        found = 1;
+      }
+      /* See if there's a no-warn flag */
+      blob_append(&versionedPathname, ".no-warn", -1);
+      blob_zero(&noWarnFile);
+      if( historical_version_of_file(g.zOpenRevision,
+                                     blob_str(&versionedPathname),
+                                     &noWarnFile, 0, 0, 0, 2)!=2 ){
+        noWarn = 1;
+      }
+      blob_reset(&noWarnFile);
+    }else if( file_size(blob_str(&versionedPathname))>=0 ){
       /* File exists, and contains the value for this setting. Load from
       ** the file. */
-      Blob setting;
-      blob_zero(&setting);
-      if( blob_read_from_file(&setting, zVersionedPathname) >= 0 ){
-        blob_trim(&setting); /* Avoid non-obvious problems with line endings
-                             ** on boolean properties */
-        zVersionedSetting = strdup(blob_str(&setting));
+      if( blob_read_from_file(&setting, blob_str(&versionedPathname))>=0 ){
+        found = 1;
       }
-      blob_reset(&setting);
       /* See if there's a no-warn flag */
       blob_append(&versionedPathname, ".no-warn", -1);
       if( file_size(blob_str(&versionedPathname))>=0 ){
@@ -1939,6 +1952,12 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
       }
     }
     blob_reset(&versionedPathname);
+    if( found ){
+      blob_trim(&setting); /* Avoid non-obvious problems with line endings
+                           ** on boolean properties */
+      zVersionedSetting = fossil_strdup(blob_str(&setting));
+    }
+    blob_reset(&setting);
     /* Store result in cache, which can be the value or 0 if not found */
     cacheEntry = (struct _cacheEntry*)fossil_malloc(sizeof(struct _cacheEntry));
     cacheEntry->next = cache;
@@ -2220,6 +2239,22 @@ void cmd_open(void){
     fossil_fatal("already within an open tree rooted at %s", g.zLocalRoot);
   }
   db_open_repository(g.argv[2]);
+
+  /* Figure out which revision to open. */
+  if( !emptyFlag ){
+    if( g.argc==4 ){
+      g.zOpenRevision = g.argv[3];
+    }else if( db_exists("SELECT 1 FROM event WHERE type='ci'") ){
+      g.zOpenRevision = db_get("main-branch", "trunk");
+    }
+  }
+
+  if( g.zOpenRevision ){
+    /* Since the repository is open and we know the revision now,
+    ** refresh the allow-symlinks flag. */
+    g.allowSymlinks = db_get_boolean("allow-symlinks", 0);
+  }
+
 #if defined(_WIN32) || defined(__CYGWIN__)
 # define LOCALDB_NAME "./_FOSSIL_"
 #else
@@ -2241,12 +2276,10 @@ void cmd_open(void){
   g.argv = azNewArgv;
   if( !emptyFlag ){
     g.argc = 3;
-    if( oldArgc==4 ){
-      azNewArgv[g.argc-1] = oldArgv[3];
-    }else if( !db_exists("SELECT 1 FROM event WHERE type='ci'") ){
-      azNewArgv[g.argc-1] = "--latest";
+    if( g.zOpenRevision ){
+      azNewArgv[g.argc-1] = g.zOpenRevision;
     }else{
-      azNewArgv[g.argc-1] = db_get("main-branch", "trunk");
+      azNewArgv[g.argc-1] = "--latest";
     }
     if( keepFlag ){
       azNewArgv[g.argc++] = "--keep";
@@ -2289,7 +2322,7 @@ static void print_setting(const Setting *pSetting){
     /* Check to see if this is overridden by a versionable settings file */
     Blob versionedPathname;
     blob_zero(&versionedPathname);
-    blob_appendf(&versionedPathname, "%s/.fossil-settings/%s",
+    blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
                  g.zLocalRoot, pSetting->name);
     if( file_size(blob_str(&versionedPathname))>=0 ){
       fossil_print("  (overridden by contents of file .fossil-settings/%s)\n",
@@ -2347,7 +2380,7 @@ const Setting aSetting[] = {
   { "diff-binary",      0,              0, 0, 0, "on"                  },
   { "diff-command",     0,             40, 0, 0, ""                    },
   { "dont-push",        0,              0, 0, 0, "off"                 },
-  { "dotfiles",         0,              0, 0, 0, "off"                 },
+  { "dotfiles",         0,              0, 1, 0, "off"                 },
   { "editor",           0,             32, 0, 0, ""                    },
   { "empty-dirs",       0,             40, 1, 0, ""                    },
   { "encoding-glob",    0,             40, 1, 0, ""                    },
@@ -2364,6 +2397,9 @@ const Setting aSetting[] = {
   { "max-loadavg",      0,             25, 0, 0, "0.0"                 },
   { "max-upload",       0,             25, 0, 0, "250000"              },
   { "mtime-changes",    0,              0, 0, 0, "on"                  },
+#if FOSSIL_ENABLE_LEGACY_MV_RM
+  { "mv-rm-files",      0,              0, 0, 0, "off"                 },
+#endif
   { "pgp-command",      0,             40, 0, 0, "gpg --clearsign -o " },
   { "proxy",            0,             32, 0, 0, "off"                 },
   { "relative-paths",   0,              0, 0, 0, "on"                  },
@@ -2385,7 +2421,6 @@ const Setting aSetting[] = {
   { "th1-setup",        0,             40, 1, 1, ""                    },
   { "th1-uri-regexp",   0,             40, 1, 0, ""                    },
   { "web-browser",      0,             32, 0, 0, ""                    },
-  { "white-foreground", 0,              0, 0, 0, "off"                 },
   { 0,0,0,0,0,0 }
 };
 
@@ -2510,6 +2545,7 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **                     server.  Useful when setting up a private branch.
 **
 **    dotfiles         Include --dotfiles option for all compatible commands.
+**     (versionable)
 **
 **    editor           Text editor command used for check-in comments.
 **
@@ -2574,6 +2610,12 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **
 **    mtime-changes    Use file modification times (mtimes) to detect when
 **                     files have been modified.  (Default "on".)
+**
+**    mv-rm-files      If enabled (and Fossil was compiled with legacy "mv/rm"
+**                     support), the "mv" and "rename" commands will also move
+**                     the associated files within the checkout -AND- the "rm"
+**                     and "delete" commands will also remove the associated
+**                     files from within the checkout.  Default: off.
 **
 **    pgp-command      Command used to clear-sign manifests at check-in.
 **                     The default is "gpg --clearsign -o ".
