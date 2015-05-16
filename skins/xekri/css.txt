@@ -205,6 +205,13 @@ div.content table[bgcolor="white"] {
   color: #000;
 }
 
+.piechartLabel {
+  fill: white;
+}
+.piechartLine {
+  stroke: white;
+}
+
 /**************************************
  * Main Area: Footer
  */
@@ -1024,4 +1031,3 @@ tr.row0 {
 tr.row1 {
   /* Use default */
 }
-

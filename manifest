@@ -1,5 +1,5 @@
-C Remove\sredundant\suse\sof\schnged\scolumn/variable.\s\sThe\sSELECT\sstatement\salready\sensures\seach\srow\shas\schnged==1,\sso\sthere\sis\sno\sneed\sto\scheck\sit\srepeatedly.
-D 2015-05-15T16:49:49.490
+C Add\sclass\stags\sto\selements\sof\sthe\spiechart\sso\sthat\sthey\scan\sbe\sconfigured\nusing\sCSS.\s\sAdd\sappropriate\sCSS\smarkup\sto\sthe\sxekri\sskin.\s\sMerge\sthe\sxekri\nskin\sinto\strunk.
+D 2015-05-16T11:48:07.578
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -366,7 +366,7 @@ F skins/rounded1/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/rounded1/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/rounded1/header.txt 90ea81c5b14e22a048e182c22769e9aa779d8752
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
-F skins/xekri/css.txt 78961dbff76dbd354aa4085fe422f724684c0a2f
+F skins/xekri/css.txt db7853ced22284e5bbc1f7cf7c978bca9bcf0ca7
 F skins/xekri/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt 14b3c4d0c2760db2457eacad4278ba3d10f08c81
@@ -459,7 +459,7 @@ F src/mkversion.c 40ed302872cc5795c76efb3ab089fc1aedba18f1
 F src/moderate.c 8ab2bd4bda9a6b6765f99ddea7950dc5c6bad007
 F src/name.c aa78af37cb3226cc56c955edfc28ba9094f0947b
 F src/path.c 9455d26c4bf91ae949abd55536a1a20d863c486b
-F src/piechart.c 4d5b4431b68646662012e7d545b1a3d2b368486b
+F src/piechart.c 02d8189bfce61a49ed7f8495299788feb1b54ede
 F src/pivot.c f03ae2edfb53590f6dee86c1a0d93441feb0f816
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -736,7 +736,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 209da9bced807ae8afadc7edc544cc0255f206d4
-R 02fe35fe0c09fd2b43cb8d8dcf225c30
-U andygoth
-Z 5fe33d34397e0a682eb846965334fedd
+P be25d412f149e591f4aae69bc780984baa95a0de dee9e33bf669de2c3493ea09a1e00e548593e28b
+R 420af1f9504cd82287da7ce68ecea56b
+U drh
+Z c1bbf4216241d2ba0b6a80fe36282ebd

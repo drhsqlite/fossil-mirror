@@ -203,7 +203,8 @@ void piechart_render(int width, int height, unsigned int pieFlags){
     zClr = rgbName(h,SATURATION,VALUE);
     l = x>=0.5;
     a1 = a2;
-    @ <path stroke="%s(zFg)" stroke-width="1" fill="%s(zClr)"
+    @ <path class='piechartWedge'
+    @  stroke="black" stroke-width="1" fill="%s(zClr)"
     @  d='M%g(cx),%g(cy)L%g(x1),%g(y1)A%g(r),%g(r) 0 %d(l),1 %g(x2),%g(y2)z'/>
   }
   qsort(aWedge, nWedge, sizeof(aWedge[0]), wedgeCompare);
@@ -251,10 +252,10 @@ void piechart_render(int width, int height, unsigned int pieFlags){
       zAnc = "start";
     }
     y5 = y4 - 3.0 + 6.0*(1.0 - p->rCos);
-    @ <line stroke='%s(zFg)' stroke-width='1'
+    @ <line stroke-width='1' stroke='%s(zFg)' class='piechartLine'
     @  x1='%g(x3)' y1='%g(y3)' x2='%g(x4)' y2='%g(y4)''/>
-    @ <text text-anchor="%s(zAnc)"
-    @  x='%g(x5)' y='%g(y5)' fill='%s(zFg)'>%h(p->z)</text>
+    @ <text text-anchor="%s(zAnc)" fill='%s(zFg)' class="piechartLabel"
+    @  x='%g(x5)' y='%g(y5)'>%h(p->z)</text>
     fossil_free(p->z);
   }
   db_finalize(&q);
