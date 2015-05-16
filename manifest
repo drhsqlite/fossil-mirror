@@ -1,5 +1,5 @@
-C Added\ssupport\sfor\sthe\sSVG\spie\scharts.
-D 2015-05-16T02:27:08.148
+C Added\s"More..."\sto\sthe\smain\smenu.
+D 2015-05-16T11:38:50.503
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -369,7 +369,7 @@ F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
 F skins/xekri/css.txt a60dc4727be55ef005d2bad32dab419d20aa5b2c
 F skins/xekri/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
-F skins/xekri/header.txt 14b3c4d0c2760db2457eacad4278ba3d10f08c81
+F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c f3da742e34e12711528cceef61e040bb2ffbd69a
 F src/allrepo.c cf9356bb2ef29ad8836889fbbc486f5a4ce2ffc1
@@ -736,7 +736,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 777db01e1d8de0aa0841e2e8f3cc413add9c38d8
-R c77cdcf3f80a9ecb7a27eff91a50d4de
+P dee9e33bf669de2c3493ea09a1e00e548593e28b
+R a140dea404462d40dd62763c6fadf31b
 U zakero
-Z a2fc92cf61d5408e43e19eaccc17a2a7
+Z 91d70f79b9c0cc61fb227d7dc59fc33b
