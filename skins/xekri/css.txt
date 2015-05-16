@@ -205,6 +205,12 @@ div.content table[bgcolor="white"] {
   color: #000;
 }
 
+div.content > center > svg {
+    background-color: #555;
+    border-radius: 2rem;
+    box-shadow: 2px 2px 1px #000 inset;
+}
+
 /**************************************
  * Main Area: Footer
  */
