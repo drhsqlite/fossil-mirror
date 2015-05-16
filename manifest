@@ -1,5 +1,5 @@
-C Add\sclass\stags\sto\selements\sof\sthe\spiechart\sso\sthat\sthey\scan\sbe\sconfigured\nusing\sCSS.\s\sAdd\sappropriate\sCSS\smarkup\sto\sthe\sxekri\sskin.\s\sMerge\sthe\sxekri\nskin\sinto\strunk.
-D 2015-05-16T11:48:07.578
+C Pull\sin\sone\smore\scommit\sfrom\sthe\sxekri\sbranch.
+D 2015-05-16T11:50:08.392
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -369,7 +369,7 @@ F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
 F skins/xekri/css.txt db7853ced22284e5bbc1f7cf7c978bca9bcf0ca7
 F skins/xekri/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
-F skins/xekri/header.txt 14b3c4d0c2760db2457eacad4278ba3d10f08c81
+F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c f3da742e34e12711528cceef61e040bb2ffbd69a
 F src/allrepo.c cf9356bb2ef29ad8836889fbbc486f5a4ce2ffc1
@@ -736,7 +736,8 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P be25d412f149e591f4aae69bc780984baa95a0de dee9e33bf669de2c3493ea09a1e00e548593e28b
-R 420af1f9504cd82287da7ce68ecea56b
+P f1dd937c20ae61faeae4c9a1b3795a5fadbcbb7f 156b602d77ae8560eaafc586adab6c530bf3ab32
+R f3e870cbb76eb9b879840c1127d286cf
+T +closed 156b602d77ae8560eaafc586adab6c530bf3ab32
 U drh
-Z c1bbf4216241d2ba0b6a80fe36282ebd
+Z cc906bba5dbbaeb9c09b900d5752e056
