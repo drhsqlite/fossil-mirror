@@ -841,7 +841,7 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
     _setmode(_fileno(stdout), _O_TEXT);
 #endif
   }else{
-    file_mkfolder(zFilename, 1);
+    file_mkfolder(zFilename, 1, 0);
     out = fossil_fopen(zFilename, "wb");
     if( out==0 ){
       fossil_fatal_recursive("unable to open file \"%s\" for writing",

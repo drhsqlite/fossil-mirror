@@ -1,5 +1,5 @@
-C Consistently\suse\speriods\sand\send-paragraph\stags\sin\sappend_file_change_line().
-D 2015-05-17T05:54:14.847
+C Create\sparents\sof\sempty-dirs\sif\sthey\sdon't\salready\sexist.
+D 2015-05-17T17:43:41.754
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -376,7 +376,7 @@ F src/allrepo.c cf9356bb2ef29ad8836889fbbc486f5a4ce2ffc1
 F src/attach.c 5b713ffe437fa0c3241da307835b1286e38798fd
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
-F src/blob.c 2711ea3a0dd024498e7fc25d51d23d12c1072365
+F src/blob.c b06e3003f3232c0dc06831fbd1be4153eb3ee0b4
 F src/branch.c 09724980278de18e9bbff5da85950c3febd811eb
 F src/browse.c 904f68c2a82bed2b9533b76a3497a961d2ae25d9
 F src/builtin.c 31c17d18b565c7766021913c89be4180b3ee4a56
@@ -407,7 +407,7 @@ F src/doc.c 1dfc49e465379f5fb1f37bed95ddaad085883f23
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
-F src/file.c 884b233bc94c8e7a24644ac815bc174756421545
+F src/file.c 45b8b355bfe5411a84c170590ddac48890a1e5ff
 F src/finfo.c 504004df33665fe89ec695c34abce45e1873abd6
 F src/foci.c 8e1553ee3a2db6b73497b4cfca8d4b8fe89e2471
 F src/fusefs.c e25405b83122ed8369aa63125897348e5eb3cab2
@@ -499,7 +499,7 @@ F src/tktsetup.c 1360904128a3c60008867056d9f576c8f906eb7c
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
 F src/undo.c 463d3968fdd2cb7052bf351e9b028ad0dd556b10
 F src/unicode.c 471c170c6ca090967e68ffa51010d79233b9ff1b
-F src/update.c 9f0b45a551abce8aa11c8e6b4b91e8dba6b94030
+F src/update.c 68147e247fe251a7d23b715dc64f3e0a28e6de8a
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c 6ec57f122cadd7c324e657be5de1b0c8f0d37c8d
 F src/utf8.c d9b19f5abbdecacb9b69a9e31f3bb0ef6e017918
@@ -652,7 +652,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 1a0af5fa07defbe9c0ef2a821158fd51f39183a9
-F www/changes.wiki e9fe1d64ebf50e692606776e04943f8d1d803e22
+F www/changes.wiki b3ae802df61951e8235a06a9430908f54c0e1af6
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 37087c035ff437c1c14dce07a0b8c7bf7adb3c2d
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -736,7 +736,10 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 6cf8f3648b3a39230e4e5c7ddc15cb61da3c8224
-R 33f775d206243d403cfcc9a0c7bc7a9d
-U mistachkin
-Z 475da249d24af1f8cbbf5ef32f10ff64
+P b824b3e7f7ec7f26d8299702a656b97cf6ead672
+R afb3197a7d651c0fb772207f3eeb9021
+T *branch * andygoth-empty-dirs-parents
+T *sym-andygoth-empty-dirs-parents *
+T -sym-trunk *
+U andygoth
+Z 05c27bd9f32a05939ee1ad3043e6e272

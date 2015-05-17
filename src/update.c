@@ -620,7 +620,7 @@ void ensure_empty_dirs_created(void){
       /* Handle various cases of existence of the directory */
       switch( file_wd_isdir(zPath) ){
         case 0: { /* doesn't exist */
-          if( file_mkdir(zPath, 0)!=0 ) {
+          if( file_mkfolder(zPath, 0, 1) ) {
             fossil_warning("couldn't create directory %s as "
                            "required by empty-dirs setting", zDir);
           }

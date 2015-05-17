@@ -388,7 +388,7 @@ void file_copy(const char *zFrom, const char *zTo){
   char zBuf[8192];
   in = fossil_fopen(zFrom, "rb");
   if( in==0 ) fossil_fatal("cannot open \"%s\" for reading", zFrom);
-  file_mkfolder(zTo, 0);
+  file_mkfolder(zTo, 0, 0);
   out = fossil_fopen(zTo, "wb");
   if( out==0 ) fossil_fatal("cannot open \"%s\" for writing", zTo);
   while( (got=fread(zBuf, 1, sizeof(zBuf), in))>0 ){
@@ -532,9 +532,12 @@ int file_mkdir(const char *zName, int forceFlag){
 /*
 ** Create the tree of directories in which zFilename belongs, if that sequence
 ** of directories does not already exist.
+**
+** On success, return zero.  On error, return errorReturn if positive, otherwise
+** print an error message and abort.
 */
-void file_mkfolder(const char *zFilename, int forceFlag){
-  int i, nName;
+int file_mkfolder(const char *zFilename, int forceFlag, int errorReturn){
+  int i, nName, rc = 0;
   char *zName;
 
   nName = strlen(zFilename);
@@ -552,8 +555,11 @@ void file_mkfolder(const char *zFilename, int forceFlag){
       if( !(i==2 && zName[1]==':') ){
 #endif
         if( file_mkdir(zName, forceFlag) && file_isdir(zName)!=1 ){
-          fossil_fatal_recursive("unable to create directory %s", zName);
-          return;
+          if (errorReturn <= 0) {
+            fossil_fatal_recursive("unable to create directory %s", zName);
+          }
+          rc = errorReturn;
+          break;
         }
 #if defined(_WIN32) || defined(__CYGWIN__)
       }
@@ -562,6 +568,7 @@ void file_mkfolder(const char *zFilename, int forceFlag){
     }
   }
   free(zName);
+  return rc;
 }
 
 /*
