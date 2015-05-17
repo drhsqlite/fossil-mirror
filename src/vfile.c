@@ -138,11 +138,18 @@ int load_vfile_from_rid(int vid){
 #endif /* INTERFACE */
 
 /*
-** Look at every VFILE entry with the given vid and update
-** VFILE.CHNGED field according to whether or not
-** the file has changed.  0 means no change.  1 means edited.  2 means
-** the file has changed due to a merge.  3 means the file was added
-** by a merge.
+** Look at every VFILE entry with the given vid and update VFILE.CHNGED field
+** according to whether or not the file has changed.
+** - 0 means no change.
+** - 1 means edited.
+** - 2 means changed due to a merge.
+** - 3 means added by a merge.
+** - 4 means changed due to an integrate merge.
+** - 5 means added by an integrate merge.
+** - 6 means became executable but has unmodified contents.
+** - 7 means became a symlink whose target equals its old contents.
+** - 8 means lost executable status but has unmodified contents.
+** - 9 means lost symlink status and has contents equal to its old target.
 **
 ** If VFILE.DELETED is true or if VFILE.RID is zero, then the file was either
 ** removed from configuration management via "fossil rm" or added via
@@ -172,14 +179,18 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
 
   db_begin_transaction();
   db_prepare(&q, "SELECT id, %Q || pathname,"
-                 "       vfile.mrid, deleted, chnged, uuid, size, mtime"
+                 "       vfile.mrid, deleted, chnged, uuid, size, mtime,"
+                 "      CASE WHEN isexe THEN %d WHEN islink THEN %d ELSE %d END"
                  "  FROM vfile LEFT JOIN blob ON vfile.mrid=blob.rid"
-                 " WHERE vid=%d ", g.zLocalRoot, vid);
+                 " WHERE vid=%d ", g.zLocalRoot, PERM_EXE, PERM_LNK, PERM_REG,
+                 vid);
   while( db_step(&q)==SQLITE_ROW ){
     int id, rid, isDeleted;
     const char *zName;
     int chnged = 0;
     int oldChnged;
+    int origPerm;
+    int currentPerm;
     i64 oldMtime;
     i64 currentMtime;
     i64 origSize;
@@ -194,6 +205,8 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
     origSize = db_column_int64(&q, 6);
     currentSize = file_wd_size(zName);
     currentMtime = file_wd_mtime(0);
+    origPerm = db_column_int(&q, 8);
+    currentPerm = file_wd_perm(zName);
     if( chnged==0 && (isDeleted || rid==0) ){
       /* "fossil rm" or "fossil add" always change the file */
       chnged = 1;
@@ -247,6 +260,21 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
         }
       }
     }
+#ifndef _WIN32
+    if( chnged==0 || chnged==6 || chnged==7 || chnged==8 || chnged==9 ){
+      if( origPerm == currentPerm ){
+        chnged = 0;
+      }else if( currentPerm == PERM_EXE ){
+        chnged = 6;
+      }else if( currentPerm == PERM_LNK ){
+        chnged = 7;
+      }else if( origPerm == PERM_EXE ){
+        chnged = 8;
+      }else if( origPerm == PERM_LNK ){
+        chnged = 9;
+      }
+    }
+#endif
     if( currentMtime!=oldMtime || chnged!=oldChnged ){
       db_multi_exec("UPDATE vfile SET mtime=%lld, chnged=%d WHERE id=%d",
                     currentMtime, chnged, id);
