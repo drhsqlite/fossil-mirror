@@ -1,5 +1,5 @@
-C Create\sparents\sof\sempty-dirs\sif\sthey\sdon't\salready\sexist.
-D 2015-05-17T17:43:41.754
+C Revert\sinadvertent\sstyle\schange.
+D 2015-05-17T17:55:46.180
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -499,7 +499,7 @@ F src/tktsetup.c 1360904128a3c60008867056d9f576c8f906eb7c
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
 F src/undo.c 463d3968fdd2cb7052bf351e9b028ad0dd556b10
 F src/unicode.c 471c170c6ca090967e68ffa51010d79233b9ff1b
-F src/update.c 68147e247fe251a7d23b715dc64f3e0a28e6de8a
+F src/update.c b9b8ccc1e2303cf6cb7372e812cb4f9c82c5ce34
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c 6ec57f122cadd7c324e657be5de1b0c8f0d37c8d
 F src/utf8.c d9b19f5abbdecacb9b69a9e31f3bb0ef6e017918
@@ -736,10 +736,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P b824b3e7f7ec7f26d8299702a656b97cf6ead672
-R afb3197a7d651c0fb772207f3eeb9021
-T *branch * andygoth-empty-dirs-parents
-T *sym-andygoth-empty-dirs-parents *
-T -sym-trunk *
+P 1ab80be485603cc44570445369c838e1882eb534
+R 755f6462932e835f39d41e131eeb16ce
 U andygoth
-Z 05c27bd9f32a05939ee1ad3043e6e272
+Z ae956df9d7880ae8adea663ef6693225
