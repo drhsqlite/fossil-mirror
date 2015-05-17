@@ -1,5 +1,5 @@
-C Correct\sspelling\sof\sthe\sword\s"literal."
-D 2015-05-17T21:54:32.836
+C Render\sapostrophe\sin\sHTML\sas\s&#39;\sso\sit\scan\sbe\sused\sin\ssingle-quoted\sHTML\sattributes.
+D 2015-05-17T21:55:45.971
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -404,7 +404,7 @@ F src/diff.c 7146e8698601338a2c5ff7d33e309579bb4edee0
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
 F src/diffcmd.c e3a5ca38f5154994e22875e24895a35f33d99c7e
 F src/doc.c 1dfc49e465379f5fb1f37bed95ddaad085883f23
-F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
+F src/encode.c fb4865862e76a0108cd5b4b56326ebfe75c5a207
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
 F src/file.c 884b233bc94c8e7a24644ac815bc174756421545
@@ -448,7 +448,7 @@ F src/makemake.tcl 7c95b041c0e6d691387c589fe5169f6ab7a9a552
 F src/manifest.c ba061499e6431a1c2c8aa19821adf429975fdee6
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 45f6e06e03e4183764067eec37ff73f357303306
-F src/markdown_html.c 453460a916b805e688e4a6ed7b52994b171eea27
+F src/markdown_html.c cc97df6a52022bf23f409d0a7c2dccb4c85a4432
 F src/md5.c c6f6b5df8001ab094e5f49416fc2aa3019823d69
 F src/merge.c d323fe8c0930a5e850eabf3eb8991d717defe784
 F src/merge3.c b2502f631c761f2c606f4fad6c8aa00bc2a5f4a7
@@ -736,7 +736,10 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 80e7250a4eb05c6ac22934313591d0df55b044cf
-R 710af633e84861b2672200a7df26c0a7
+P 73720a34cbf1adebf090356aaf70e730d9dcacb3
+R be1871cad1d10534adf4945f568d5b15
+T *branch * andygoth-quote-apostrophe
+T *sym-andygoth-quote-apostrophe *
+T -sym-trunk *
 U andygoth
-Z 7494521f9b0af64500a0f36336404369
+Z f71074960837ae417575ef6edd50cf56
