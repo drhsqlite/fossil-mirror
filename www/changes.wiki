@@ -39,8 +39,8 @@
   *  Update the [/help?cmd=/info|info] page to report when a file becomes a
      symlink.  Additionally show the UUID for files whose types have changed
      without changing contents or symlink target.
-  *  Have [/help/cmd=changes|fossil changes] and
-     [/help/cmd=status|fossil status] report when executable or symlink status
+  *  Have [/help?cmd=changes|fossil changes] and
+     [/help?cmd=status|fossil status] report when executable or symlink status
      changes on otherwise unmodified files.
 
 <h2>Changes for Version 1.32 (2015-03-14)</h2>
