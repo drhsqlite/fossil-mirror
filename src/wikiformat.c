@@ -1225,18 +1225,17 @@ static void openHyperlink(
       if( isClosed ){
         if( g.perm.Hyperlink ){
           blob_appendf(p->pOut,
-             "%z<span class=\"wikiTagCancelled\">[",
-             href("%R/info/%s",zTarget)
+             "[%z<span class=\"wikiTagCancelled\">", href("%R/info/%s",zTarget)
           );
-          zTerm = "]</span></a>";
+          zTerm = "</span></a>]";
         }else{
-          blob_appendf(p->pOut,"<span class=\"wikiTagCancelled\">[");
-          zTerm = "]</span>";
+          blob_appendf(p->pOut,"[<span class=\"wikiTagCancelled\">");
+          zTerm = "</span>]";
         }
       }else{
         if( g.perm.Hyperlink ){
-          blob_appendf(p->pOut,"%z[", href("%R/info/%s", zTarget));
-          zTerm = "]</a>";
+          blob_appendf(p->pOut,"[%z", href("%R/info/%s", zTarget));
+          zTerm = "</a>]";
         }else{
           blob_appendf(p->pOut, "[");
           zTerm = "]";
@@ -1246,12 +1245,12 @@ static void openHyperlink(
       if( (p->state & (WIKI_LINKSONLY|WIKI_NOBADLINKS))!=0 ){
         zTerm = "";
       }else{
-        blob_appendf(p->pOut, "<span class=\"brokenlink\">[");
-        zTerm = "]</span>";
+        blob_appendf(p->pOut, "[<span class=\"brokenlink\">");
+        zTerm = "</span>]";
       }
     }else if( g.perm.Hyperlink ){
-      blob_appendf(p->pOut, "%z[",href("%R/info/%s", zTarget));
-      zTerm = "]</a>";
+      blob_appendf(p->pOut, "[%z",href("%R/info/%s", zTarget));
+      zTerm = "</a>]";
     }else{
       zTerm = "";
     }
@@ -1266,8 +1265,8 @@ static void openHyperlink(
   }else if( (p->state & (WIKI_NOBADLINKS|WIKI_LINKSONLY))!=0 ){
     zTerm = "";
   }else{
-    blob_appendf(p->pOut, "<span class=\"brokenlink\">[%h]", zTarget);
-    zTerm = "</span>";
+    blob_appendf(p->pOut, "[<span class=\"brokenlink\">%h", zTarget);
+    zTerm = "</span>]";
   }
   assert( strlen(zTerm)<nClose );
   sqlite3_snprintf(nClose, zClose, "%s", zTerm);
@@ -1452,7 +1451,7 @@ static void wiki_render(Renderer *p, char *z){
         openHyperlink(p, zTarget, zClose, sizeof(zClose), zOrig);
         if( linksOnly || zClose[0]==0 || p->inVerbatim ){
           if( cS1 ) z[iS1] = cS1;
-          if( zClose[0]!=']' ){
+          if( zClose[strlen(zClose) - 1]!=']' ){
             blob_appendf(p->pOut, "[%h]%s", zTarget, zClose);
           }else{
             blob_appendf(p->pOut, "%h%s", zTarget, zClose);

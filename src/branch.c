@@ -508,7 +508,7 @@ static void brtimeline_extra(int rid){
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagName = db_column_text(&q, 0);
-    @ %z(href("%R/timeline?r=%T&n=200",zTagName))[timeline]</a>
+    @ [%z(href("%R/timeline?r=%T&n=200",zTagName))timeline</a>]
   }
   db_finalize(&q);
 }

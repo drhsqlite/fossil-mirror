@@ -474,7 +474,7 @@ void finfo_page(void){
         @ <b>Renamed</b> from
         @ %z(href("%R/finfo?name=%t", zPrevName))%h(zPrevName)</a>
       }
-      @ %z(href("%R/artifact/%!S",zUuid))[%S(zUuid)]</a>
+      @ [%z(href("%R/artifact/%!S",zUuid))%S(zUuid)</a>]
       if( fShowId ){
         @ (%d(frid))
       }
@@ -504,13 +504,11 @@ void finfo_page(void){
     @ branch: %z(href("%R/timeline?t=%T&n=200",zBr))%h(zBr)</a>)
     if( g.perm.Hyperlink && zUuid ){
       const char *z = zFilename;
-      @ %z(href("%R/annotate?filename=%h&checkin=%s",z,zCkin))
-      @ [annotate]</a>
-      @ %z(href("%R/blame?filename=%h&checkin=%s",z,zCkin))
-      @ [blame]</a>
-      @ %z(href("%R/timeline?n=200&uf=%!S",zUuid))[check-ins&nbsp;using]</a>
+      @ [%z(href("%R/annotate?filename=%h&checkin=%s",z,zCkin))annotate</a>]
+      @ [%z(href("%R/blame?filename=%h&checkin=%s",z,zCkin))blame</a>]
+      @ [%z(href("%R/timeline?n=200&uf=%!S",zUuid))check-ins&nbsp;using</a>]
       if( fpid>0 ){
-        @ %z(href("%R/fdiff?sbs=1&v1=%!S&v2=%!S",zPUuid,zUuid))[diff]</a>
+        @ [%z(href("%R/fdiff?sbs=1&v1=%!S&v2=%!S",zPUuid,zUuid))diff</a>]
       }
     }
     if( fDebug & FINFO_DEBUG_MLINK ){
@@ -524,7 +522,7 @@ void finfo_page(void){
         }
       }
       zAncLink = href("%R/finfo?name=%T&ci=%!S&debug=1",zFilename,zCkin);
-      @ %z(zAncLink)[ancestry]</a>
+      @ [%z(zAncLink)ancestry</a>]
     }
     tag_private_status(frid);
     @ </td></tr>

@@ -378,7 +378,7 @@ void user_edit(void){
       style_header("User Creation Error");
       @ <span class="loginError">Empty login not allowed.</span>
       @
-      @ <p><a href="setup_uedit?id=%d(uid)">[Bummer]</a></p>
+      @ <p>[<a href="setup_uedit?id=%d(uid)">Bummer</a>]</p>
       style_footer();
       return;
     }
@@ -393,7 +393,7 @@ void user_edit(void){
       @ <span class="loginError">Login "%h(zLogin)" is already used by
       @ a different user.</span>
       @
-      @ <p><a href="setup_uedit?id=%d(uid)">[Bummer]</a></p>
+      @ <p>[<a href="setup_uedit?id=%d(uid)">Bummer</a>]</p>
       style_footer();
       return;
     }
@@ -438,7 +438,7 @@ void user_edit(void){
         admin_log( "Error updating user '%q': %s'.", zLogin, zErr );
         @ <span class="loginError">%s(zErr)</span>
         @
-        @ <p><a href="setup_uedit?id=%d(uid)">[Bummer]</a></p>
+        @ <p>[<a href="setup_uedit?id=%d(uid)">Bummer</a>]</p>
         style_footer();
         return;
       }

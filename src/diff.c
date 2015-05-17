@@ -2338,12 +2338,12 @@ void annotation_page(void){
         char *zLink = xhref("target='infowindow'",
                             "%R/fdiff?v1=%S&v2=%S&sbs=1",
                             p->zFUuid,ann.aVers[0].zFUuid);
-        @ %z(zLink)[diff-to-top]</a>
+        @ [%z(zLink)diff-to-top</a>]
         if( i>1 ){
            zLink = xhref("target='infowindow'",
                          "%R/fdiff?v1=%S&v2=%S&sbs=1",
                          p->zFUuid,p[-1].zFUuid);
-           @ %z(zLink)[diff-to-previous]</a>
+           @ [%z(zLink)diff-to-previous</a>]
         }
       }
 #endif

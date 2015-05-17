@@ -43,7 +43,7 @@ void tag_private_status(int rid){
 */
 void hyperlink_to_uuid(const char *zUuid){
   if( g.perm.Hyperlink ){
-    @ %z(xhref("class='timelineHistLink'","%R/info/%!S",zUuid))[%S(zUuid)]</a>
+    @ [%z(xhref("class='timelineHistLink'","%R/info/%!S",zUuid))%S(zUuid)</a>]
   }else{
     @ <span class="timelineHistDsp">[%S(zUuid)]</span>
   }
@@ -549,19 +549,19 @@ void www_print_timeline(
           }else{
             @ (new file)
           }
-          @ &nbsp; %z(href("%R/artifact/%!S",zNew))[view]</a></li>
+          @ &nbsp; [%z(href("%R/artifact/%!S",zNew))view</a>]</li>
         }else if( isDel ){
           @ <li> %s(zA)%h(zFilename)</a> (deleted)</li>
         }else if( fossil_strcmp(zOld,zNew)==0 && zOldName!=0 ){
           @ <li> %h(zOldName) &rarr; %s(zA)%h(zFilename)</a>%s(zId)
-          @ %s(zUnpub) %z(href("%R/artifact/%!S",zNew))[view]</a></li>
+          @ %s(zUnpub) [%z(href("%R/artifact/%!S",zNew))view</a>]</li>
         }else{
           if( zOldName!=0 ){
             @ <li>%h(zOldName) &rarr; %s(zA)%h(zFilename)%s(zId)</a> %s(zUnpub)
           }else{
             @ <li>%s(zA)%h(zFilename)</a>%s(zId) &nbsp; %s(zUnpub)
           }
-          @ %z(href("%R/fdiff?sbs=1&v1=%!S&v2=%!S",zOld,zNew))[diff]</a></li>
+          @ [%z(href("%R/fdiff?sbs=1&v1=%!S&v2=%!S",zOld,zNew))diff</a>]</li>
         }
         fossil_free(zA);
       }
@@ -1399,9 +1399,9 @@ void page_timeline(void){
     blob_append(&sql, ")", -1);
     path_reset();
     blob_append(&desc, "All nodes on the path from ", -1);
-    blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h", zFrom), zFrom);
+    blob_appendf(&desc, "[%z%h</a>]", href("%R/info/%h", zFrom), zFrom);
     blob_append(&desc, " to ", -1);
-    blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h",zTo), zTo);
+    blob_appendf(&desc, "[%z%h</a>]", href("%R/info/%h",zTo), zTo);
     tmFlags |= TIMELINE_DISJOINT;
     db_multi_exec("%s", blob_sql_text(&sql));
   }else if( (p_rid || d_rid) && g.perm.Read ){
@@ -1439,8 +1439,7 @@ void page_timeline(void){
       }
       if( useDividers ) selectedRid = p_rid;
     }
-    blob_appendf(&desc, " of %z[%S]</a>",
-                   href("%R/info/%!S", zUuid), zUuid);
+    blob_appendf(&desc, " of [%z%S</a>]", href("%R/info/%!S", zUuid), zUuid);
     if( d_rid ){
       if( p_rid ){
         /* If both p= and d= are set, we don't have the uuid of d yet. */
@@ -1466,7 +1465,7 @@ void page_timeline(void){
     if( useDividers ) selectedRid = f_rid;
     blob_appendf(&desc, "Parents and children of check-in ");
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
-    blob_appendf(&desc, "%z[%S]</a>", href("%R/info/%!S", zUuid), zUuid);
+    blob_appendf(&desc, "[%z%S</a>]", href("%R/info/%!S", zUuid), zUuid);
     tmFlags |= TIMELINE_DISJOINT;
     style_submenu_binary("v","With Files","Without Files",
                          zType[0]!='a' && zType[0]!='c');

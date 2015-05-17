@@ -1042,14 +1042,14 @@ void fileage_page(void){
   db_multi_exec("CREATE INDEX fileage_ix1 ON fileage(mid,pathname);");
 
   @ <h2>Files in
-  @ %z(href("%R/info/%!S",zUuid))[%S(zUuid)]</a>
+  @ [%z(href("%R/info/%!S",zUuid))%S(zUuid)</a>]
   if( zGlob && zGlob[0] ){
     @ that match "%h(zGlob)" and
   }
   @ ordered by check-in time</h2>
   @
   @ <p>Times are relative to the check-in time for
-  @ %z(href("%R/ci/%!S",zUuid))[%S(zUuid)]</a> which is
+  @ [%z(href("%R/ci/%!S",zUuid))%S(zUuid)</a>] which is
   @ %z(href("%R/timeline?c=%t",zNow))%s(zNow)</a>.</p>
   @
   @ <div class='fileage'><table>
@@ -1097,7 +1097,7 @@ void fileage_page(void){
     db_reset(&q2);
     @ </td>
     @ <td>
-    @ %z(href("%R/info/%!S",zUuid))[%S(zUuid)]</a>
+    @ [%z(href("%R/info/%!S",zUuid))%S(zUuid)</a>]
     if( showId ){
       @ (%d(mid))
     }

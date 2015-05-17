@@ -396,8 +396,8 @@ static void append_file_change_line(
     if( zOld && zNew ){
       if( fossil_strcmp(zOld, zNew)!=0 ){
         @ Modified %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
-        @ from %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>
-        @ to %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
+        @ from [%z(href("%R/artifact/%!S",zOld))%S(zOld)</a>]
+        @ to [%z(href("%R/artifact/%!S",zNew))%S(zNew)</a>].
       }else if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
         @ Name change
         @ from %z(href("%R/finfo?name=%T",zOldName))%h(zOldName)</a>
@@ -411,20 +411,20 @@ static void append_file_change_line(
         }else{
           @ a regular file with contents
         }
-        @ %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
+        @ [%z(href("%R/artifact/%!S",zNew))%S(zNew)</a>].
       }
     }else if( zOld ){
       @ Deleted %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
-      @ version %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>.
+      @ version [%z(href("%R/artifact/%!S",zOld))%S(zOld)</a>].
     }else{
       @ Added %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
-      @ version %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
+      @ version [%z(href("%R/artifact/%!S",zNew))%S(zNew)</a>].
     }
     if( diffFlags ){
       append_diff(zOld, zNew, diffFlags, pRe);
     }else if( zOld && zNew && fossil_strcmp(zOld,zNew)!=0 ){
       @ &nbsp;&nbsp;
-      @ %z(href("%R/fdiff?v1=%!S&v2=%!S&sbs=1",zOld,zNew))[diff]</a>
+      @ [%z(href("%R/fdiff?v1=%!S&v2=%!S&sbs=1",zOld,zNew))diff</a>]
     }
   }
   @ </p>
@@ -1216,7 +1216,7 @@ int object_description(
     int sameFilename = prevName!=0 && fossil_strcmp(zName,prevName)==0;
     if( sameFilename && !showDetail ){
       if( cnt==1 ){
-        @ %z(href("%R/whatis/%!S",zUuid))[more...]</a>
+        @ [%z(href("%R/whatis/%!S",zUuid))more...</a>]
       }
       cnt++;
       continue;
@@ -1259,11 +1259,10 @@ int object_description(
     @ &mdash; %!W(zCom) (user:
     hyperlink_to_user(zUser,zDate,")");
     if( g.perm.Hyperlink ){
-      @ %z(href("%R/finfo?name=%T&ci=%!S",zName,zVers))[ancestry]</a>
-      @ %z(href("%R/annotate?filename=%T&checkin=%!S",zName,zVers))
-      @ [annotate]</a>
-      @ %z(href("%R/blame?filename=%T&checkin=%!S",zName,zVers))
-      @ [blame]</a>
+      @ [%z(href("%R/finfo?name=%T&ci=%!S",zName,zVers))ancestry</a>]
+      @ [%z(href("%R/annotate?filename=%T&checkin=%!S",zName,zVers))
+      @ annotate</a>]
+      @ [%z(href("%R/blame?filename=%T&checkin=%!S",zName,zVers))blame</a>]
     }
     cnt++;
     if( pDownloadName && blob_size(pDownloadName)==0 ){
@@ -1484,13 +1483,13 @@ void diff_page(void){
 
   if( P("smhdr")!=0 ){
     @ <h2>Differences From Artifact
-    @ %z(href("%R/artifact/%!S",zV1))[%S(zV1)]</a> To
-    @ %z(href("%R/artifact/%!S",zV2))[%S(zV2)]</a>.</h2>
+    @ [%z(href("%R/artifact/%!S",zV1))%S(zV1)</a>] To
+    @ [%z(href("%R/artifact/%!S",zV2))%S(zV2)</a>].</h2>
   }else{
     @ <h2>Differences From
-    @ Artifact %z(href("%R/artifact/%!S",zV1))[%S(zV1)]</a>:</h2>
+    @ Artifact [%z(href("%R/artifact/%!S",zV1))%S(zV1)</a>]:</h2>
     object_description(v1, objdescFlags, 0);
-    @ <h2>To Artifact %z(href("%R/artifact/%!S",zV2))[%S(zV2)]</a>:</h2>
+    @ <h2>To Artifact [%z(href("%R/artifact/%!S",zV2))%S(zV2)</a>]:</h2>
     object_description(v2, objdescFlags, 0);
   }
   if( pRe ){

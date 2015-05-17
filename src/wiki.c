@@ -842,7 +842,7 @@ static const char *zWikiPageName;
 */
 static void wiki_history_extra(int rid){
   if( db_exists("SELECT 1 FROM tagxref WHERE rid=%d", rid) ){
-    @ %z(href("%R/wdiff?name=%t&a=%d",zWikiPageName,rid))[diff]</a>
+    @ [%z(href("%R/wdiff?name=%t&a=%d",zWikiPageName,rid))diff</a>]
   }
 }
 
