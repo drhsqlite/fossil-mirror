@@ -372,11 +372,11 @@ static void append_file_change_line(
 ){
   if( !g.perm.Hyperlink ){
     if( zNew==0 ){
-      @ <p>Deleted %h(zName)</p>
+      @ <p>Deleted %h(zName).</p>
     }else if( zOld==0 ){
-      @ <p>Added %h(zName)</p>
+      @ <p>Added %h(zName).</p>
     }else if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
-      @ <p>Name change from %h(zOldName) to %h(zName)
+      @ <p>Name change from %h(zOldName) to %h(zName).</p>
     }else if( fossil_strcmp(zNew, zOld)==0 ){
       if( mperm==PERM_EXE ){
         @ <p>%h(zName) became executable.</p>
@@ -386,7 +386,7 @@ static void append_file_change_line(
         @ <p>%h(zName) became a regular file.</p>
       }
     }else{
-      @ <p>Changes to %h(zName)</p>
+      @ <p>Changes to %h(zName).</p>
     }
     if( diffFlags ){
       append_diff(zOld, zNew, diffFlags, pRe);
@@ -396,11 +396,11 @@ static void append_file_change_line(
       if( fossil_strcmp(zOld, zNew)!=0 ){
         @ <p>Modified %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
         @ from %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>
-        @ to %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
+        @ to %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.</p>
       }else if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
         @ <p>Name change
         @ from %z(href("%R/finfo?name=%T",zOldName))%h(zOldName)</a>
-        @ to %z(href("%R/finfo?name=%T",zName))%h(zName)</a>.
+        @ to %z(href("%R/finfo?name=%T",zName))%h(zName)</a>.</p>
       }else{
         @ <p>%z(href("%R/finfo?name=%T",zName))%h(zName)</a> became
         if( mperm==PERM_EXE ){
@@ -414,10 +414,10 @@ static void append_file_change_line(
       }
     }else if( zOld ){
       @ <p>Deleted %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
-      @ version %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>
+      @ version %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>.</p>
     }else{
       @ <p>Added %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
-      @ version %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>
+      @ version %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.</p>
     }
     if( diffFlags ){
       append_diff(zOld, zNew, diffFlags, pRe);
