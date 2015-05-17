@@ -36,6 +36,9 @@
   *  Allow [/help?cmd=add|fossil add] to be used on symlinks to nonexistent or
      unreadable files in the same way as [/help?cmd=addremove|fossil addremove].
   *  Added fork warning to be issued if sync produced a fork
+  *  Update the [/help?cmd=/info|info] page to report when a file becomes a
+     symlink.  Additionally show the UUID for files whose types have changed
+     without changing contents or symlink target.
   *  Have [/help/cmd=changes|fossil changes] and
      [/help/cmd=status|fossil status] report when executable or symlink status
      changes on otherwise unmodified files.
