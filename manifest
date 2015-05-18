@@ -1,5 +1,5 @@
-C Make\sthe\s(Remove\sUser\sFlag)\slink\swork\seven\sif\sthe\s"u"\squery\sparameter\swas\sused\sinstead\sof\s"user".
-D 2015-05-18T02:37:03.607
+C Add\sa\sfield\sto\sthe\sreports\sto\sdirectly\stype\sa\suser\sname.\s\sHide\sthis\sfield\son\sthe\suser\sreport.
+D 2015-05-18T02:42:36.241
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -483,7 +483,7 @@ F src/sqlite3.c 85e4e1c08c7df28ef61bb9759a0d466e0eefbaa2
 F src/sqlite3.h 07d4e4e898f011cceaece49482784a1b8edd4a8e
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 760b5ec89d07e1d2b566353d588e77e8b9cf97c8
-F src/statrep.c 29ec466c7d2fd6790b292b8a1541666f14485085
+F src/statrep.c fc4c819a37cf54adae571cbeb579c99cd49380f5
 F src/style.c c9aeaaea1fa89f7ae6364d3b0684406f10c1f952
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
@@ -736,7 +736,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P cbbee17312070895347430f81784e81d142441dd
-R ada7712574259024708864d52c9e95f9
+P a4655a1dab36ec7cc6bd9710166f4e8d3d7a1a8a
+R a85f13e99ab8a17826d51ef475c170a6
 U andygoth
-Z 6612259c2c925d6aa8a1791229d4cebc
+Z 931cd39ea12cbeeacff9de21e7b7f17a

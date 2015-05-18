@@ -770,10 +770,13 @@ void stats_report_page(){
     zUserName = NULL;
   }
   url_initialize(&url, "reports");
-  if(zUserName){
-    url_add_parameter(&url, haveU ? "u" : "user", zUserName);
-    statrep_submenu(&url, "(Remove User Flag)", "view", zView,
-                    haveU ? "u" : "user");
+  if(0!=fossil_strcmp(zView,"byuser")){
+    style_submenu_entry(haveU ? "u" : "user", "User:", 12, 0);
+    if(zUserName){
+      url_add_parameter(&url, haveU ? "u" : "user", zUserName);
+      statrep_submenu(&url, "(Remove User Flag)", "view", zView,
+                      haveU ? "u" : "user");
+    }
   }
   statrep_submenu(&url, "By Year", "view", "byyear", 0);
   statrep_submenu(&url, "By Month", "view", "bymonth", 0);
