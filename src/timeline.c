@@ -788,7 +788,7 @@ void timeline_output_graph_javascript(
       @   mergeOffset = Math.min(mergeOffset, elems.mergeoffset.w);
       @   mergeOffset = mergeOffset>0 ? mergeOffset + line.w/2 : 0;
     }
-    @   
+    @
     @   var canvasWidth = (nrail-1)*railPitch + node.w;
     @   canvasDiv.style.width = canvasWidth + "px";
     @   canvasDiv.style.position = "relative";
@@ -1279,10 +1279,10 @@ void page_timeline(void){
   url_initialize(&url, "timeline");
   cgi_query_parameters_to_url(&url);
   if( zTagName && g.perm.Read ){
-    tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'", zTagName);
+    tagid = db_int(-1,"SELECT tagid FROM tag WHERE tagname='sym-%q'",zTagName);
     zThisTag = zTagName;
   }else if( zBrName && g.perm.Read ){
-    tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'",zBrName);
+    tagid = db_int(-1,"SELECT tagid FROM tag WHERE tagname='sym-%q'",zBrName);
     zThisTag = zBrName;
   }else{
     tagid = 0;
@@ -1292,7 +1292,7 @@ void page_timeline(void){
     if( zBefore ) zMark = zBefore;
     if( zCirca ) zMark = zCirca;
   }
-  if( tagid>0
+  if( tagid
    && db_int(0,"SELECT count(*) FROM tagxref WHERE tagid=%d",tagid)<=nEntry
   ){
     nEntry = -1;
@@ -1495,7 +1495,7 @@ void page_timeline(void){
       blob_append_sql(&sql, " AND %Q=strftime('%%Y-%%W',event.mtime) ",
                    zYearWeek);
     }
-    if( tagid>0 ){
+    if( tagid ){
       blob_append_sql(&sql,
         " AND (EXISTS(SELECT 1 FROM tagxref"
             " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)\n", tagid);
