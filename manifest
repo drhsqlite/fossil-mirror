@@ -1,5 +1,5 @@
-C A\sfew\smore\sharmless\scompiler\swarnings\s(discovered\susing\s-Wall\sin\slatest\sgcc)
-D 2015-05-18T14:49:52.537
+C Fix\s(minor)\smemory\sleak\sin\slogin_gen_user_cookie_value().\s\nConsistantly\suse\s"x"\sas\sunknown\sproject\scode,\snot\s"unknown"\ssomtimes.
+D 2015-05-18T15:01:16.873
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -438,7 +438,7 @@ F src/json_user.c 66fc65a1647616819074eb8ae4534f0822b2fb55
 F src/json_wiki.c fca83828f069a0964f7b5e72dc4e8793e8571707
 F src/leaf.c df47f8f52ed1ebeb3b7f5c7b92c62351b177d458
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
-F src/login.c 0a6cf8707e27b04873950a6c63a48391c0a9f7ce
+F src/login.c 4747a3c1e9833c7f7b0d3fd4fb1a9a596069956e
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
 F src/main.c 2315abe50eb6c01695ec11f2315e91e44114c59a
 F src/main.mk c56b4b688a95c62878ca19916058b94f2a4466d0
@@ -736,7 +736,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P b51dcc316218021d8ff34f7a87bf2d254e8befda
-R 484055c1ba4d065108549f1ff652ef34
+P ab5b8d369c9d759b4c276c170f919bcb80aaf4b4
+R bfbf711833934f40ecc1eb0726bafe97
 U jan.nijtmans
-Z 4f952b15155f58e45dca345eafc32bfa
+Z a8e94dbd9694aa53bb9b556b869e4e32

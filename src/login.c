@@ -136,12 +136,12 @@ static char *ipPrefix(const char *zIP){
 
 /*
 ** Return an abbreviated project code.  The abbreviation is the first
-** 16 characters of the project code.
+** 16 characters of the project code, or "x" if there is no project-code.
 **
 ** Memory is obtained from malloc.
 */
 static char *abbreviated_project_code(const char *zFullCode){
-  return mprintf("%.16s", zFullCode);
+  return mprintf("%.16s", zFullCode ? zFullCode : "x");
 }
 
 
@@ -234,11 +234,13 @@ int login_search_uid(const char *zUsername, const char *zPasswd){
 ** The returned memory should be free()d after use.
 */
 char *login_gen_user_cookie_value(const char *zUsername, const char *zHash){
-  char *zProjCode = db_get("project-code",NULL);
-  char *zCode = abbreviated_project_code(zProjCode);
-  free(zProjCode);
+  char *zCode = abbreviated_project_code(db_get("project-code", 0));
+  char *zCookie;
+
   assert((zUsername && *zUsername) && "Invalid user data.");
-  return mprintf("%s/%z/%s", zHash, zCode, zUsername);
+  zCookie = mprintf("%s/%z/%s", zHash, zCode, zUsername);
+  free(zCode);
+  return zCookie;
 }
 
 /*
@@ -1457,7 +1459,7 @@ int login_group_sql(
   if( zPrefix==0 ) zPrefix = "";
   if( zSuffix==0 ) zSuffix = "";
   if( pzErrorMsg ) *pzErrorMsg = 0;
-  zSelfCode = abbreviated_project_code(db_get("project-code", "x"));
+  zSelfCode = abbreviated_project_code(db_get("project-code", 0));
   blob_zero(&err);
   db_prepare(&q,
     "SELECT name, value FROM config"
@@ -1551,7 +1553,7 @@ void login_group_join(
   file_canonical_name(g.zRepositoryName, &fullName, 0);
   zSelfRepo = fossil_strdup(blob_str(&fullName));
   blob_reset(&fullName);
-  zSelfProjCode = db_get("project-code", "unknown");
+  zSelfProjCode = abbreviated_project_code(db_get("project-code", 0));
   zSelfLabel = db_get("project-name", 0);
   if( zSelfLabel==0 ){
     zSelfLabel = zSelfProjCode;
@@ -1603,7 +1605,6 @@ void login_group_join(
   /* Create all the necessary CONFIG table entries on both the
   ** other repository and on our own repository.
   */
-  zSelfProjCode = abbreviated_project_code(zSelfProjCode);
   zOtherProjCode = abbreviated_project_code(zOtherProjCode);
   db_begin_transaction();
   db_multi_exec(
@@ -1652,7 +1653,7 @@ void login_group_leave(char **pzErrMsg){
   char *zSql;
 
   *pzErrMsg = 0;
-  zProjCode = abbreviated_project_code(db_get("project-code","x"));
+  zProjCode = abbreviated_project_code(db_get("project-code", 0));
   zSql = mprintf(
     "DELETE FROM config WHERE name GLOB 'peer-*-%q';"
     "DELETE FROM config"
