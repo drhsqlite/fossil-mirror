@@ -1,5 +1,5 @@
-C Fix\sharmless\scompiler\swarnings.
-D 2015-05-18T14:33:14.637
+C A\sfew\smore\sharmless\scompiler\swarnings\s(discovered\susing\s-Wall\sin\slatest\sgcc)
+D 2015-05-18T14:49:52.537
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -396,7 +396,7 @@ F src/content.c 49fd70d3136fbeb4794b7ef2f76c977c3ea77013
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c d430f524c366485186928436cd1fed0e471208ac
+F src/db.c 9ceff8564cd4ffaebb7e3b8efc960fc97a744014
 F src/delta.c e8de840f518dca8a6641f34eae115c8f9ca36004
 F src/deltacmd.c 4ac36378bf7b772d3bd67954212eb98be121961b
 F src/descendants.c 8153a57364fc97fc6fc26b62efa0907d2fa28403
@@ -499,7 +499,7 @@ F src/tktsetup.c 1360904128a3c60008867056d9f576c8f906eb7c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c 463d3968fdd2cb7052bf351e9b028ad0dd556b10
 F src/unicode.c 471c170c6ca090967e68ffa51010d79233b9ff1b
-F src/update.c 27bbdc17728d4d20a6a17e9b213b066aca39bfc9
+F src/update.c e4e6c94829ac7aebc0d7b9ab1c16cad3e5b02b9a
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c 6ec57f122cadd7c324e657be5de1b0c8f0d37c8d
 F src/utf8.c d9b19f5abbdecacb9b69a9e31f3bb0ef6e017918
@@ -736,7 +736,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 425df28c0258cc07ab922b13019af0291783843e
-R 9fb7503577245675b044de5ef9883235
-U drh
-Z 46c74f471be805ca7d45c34354f7a939
+P b51dcc316218021d8ff34f7a87bf2d254e8befda
+R 484055c1ba4d065108549f1ff652ef34
+U jan.nijtmans
+Z 4f952b15155f58e45dca345eafc32bfa

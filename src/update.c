@@ -594,7 +594,6 @@ void ensure_empty_dirs_created(void){
   char *zEmptyDirs = db_get("empty-dirs", 0);
   if( zEmptyDirs!=0 ){
     int i;
-    char *bc;
     Blob dirName;
     Blob dirsList;
 
