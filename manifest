@@ -1,5 +1,5 @@
-C Add\sa\sfield\sto\sthe\sreports\sto\sdirectly\stype\sa\suser\sname.\s\sHide\sthis\sfield\son\sthe\suser\sreport.
-D 2015-05-18T02:42:36.241
+C Update\schangelog\sfor\sadding\suser\sfield.
+D 2015-05-18T03:04:19.243
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -652,7 +652,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 1a0af5fa07defbe9c0ef2a821158fd51f39183a9
-F www/changes.wiki 4d2abf5af88b53837df4de12cfdf4620b98540d0
+F www/changes.wiki 6116b1b09f1fc4ee101ffa8dddb731da0f2ed8af
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 37087c035ff437c1c14dce07a0b8c7bf7adb3c2d
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -736,7 +736,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P a4655a1dab36ec7cc6bd9710166f4e8d3d7a1a8a
-R a85f13e99ab8a17826d51ef475c170a6
+P bcee2d48ed0a5e87d361fc4294f66cb8b77daa7e
+R 618f404a8a56aac876d01a56ef2fd060
 U andygoth
-Z 931cd39ea12cbeeacff9de21e7b7f17a
+Z 0567cd160f52ead9cff40932957d2f90
