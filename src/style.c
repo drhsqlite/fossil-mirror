@@ -287,7 +287,41 @@ void style_submenu_multichoice(
   aSubmenuCtrl[nSubmenuCtrl].eType = FF_MULTI;
   nSubmenuCtrl++;
 }
+void style_submenu_sql(
+  const char *zName,       /* Query parameter name */
+  const char *zLabel,      /* Label on the control */
+  const char *zFormat,     /* Format string for SQL command for choices */
+  ...                      /* Arguments to the format string */
+){
+  Stmt q;
+  int n = 0;
+  int nAlloc = 0;
+  char **az = 0;
+  va_list ap;
 
+  va_start(ap, zFormat);
+  db_vprepare(&q, 0, zFormat, ap);
+  va_end(ap);
+  while( SQLITE_ROW==db_step(&q) ){
+    if( n+2>=nAlloc ){
+      nAlloc += nAlloc + 20;
+      az = fossil_realloc(az, sizeof(char*)*nAlloc);
+    }
+    az[n++] = fossil_strdup(db_column_text(&q,0));
+    az[n++] = fossil_strdup(db_column_text(&q,1));
+  }
+  db_finalize(&q);
+  if( n>0 ){
+    aSubmenuCtrl[nSubmenuCtrl].zName = zName;
+    aSubmenuCtrl[nSubmenuCtrl].zLabel = zLabel;
+    aSubmenuCtrl[nSubmenuCtrl].iSize = n/2;
+    aSubmenuCtrl[nSubmenuCtrl].azChoice = (const char**)az;
+    aSubmenuCtrl[nSubmenuCtrl].isDisabled = 0;
+    aSubmenuCtrl[nSubmenuCtrl].eType = FF_MULTI;
+    nSubmenuCtrl++;
+  }
+}
+   
 
 /*
 ** Compare two submenu items for sorting purposes
@@ -516,6 +550,9 @@ void style_footer(void){
           case FF_MULTI: {
             int j;
             const char *zVal = P(zQPN);
+            if( aSubmenuCtrl[i].zLabel ){
+              cgi_printf("&nbsp;%h", aSubmenuCtrl[i].zLabel);
+            }
             cgi_printf(
                "<select class='submenuctrl' size='1' name='%s'%s "
                "onchange='gebi(\"f01\").submit();'>\n",

@@ -1,5 +1,5 @@
-C Fix\sthe\sdisplay\sof\s/reports?view=byweek\swith\san\sinvalid\suser.
-D 2015-05-18T20:00:58.499
+C Use\sdrop-down\smenus\sto\sselect\sthe\suser\son\sthe\s/reports\spages.
+D 2015-05-18T22:05:38.387
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -483,8 +483,8 @@ F src/sqlite3.c 85e4e1c08c7df28ef61bb9759a0d466e0eefbaa2
 F src/sqlite3.h 07d4e4e898f011cceaece49482784a1b8edd4a8e
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 760b5ec89d07e1d2b566353d588e77e8b9cf97c8
-F src/statrep.c 4bbc0cead73f188db17533f3d897c6dbc4b2acd1
-F src/style.c c9aeaaea1fa89f7ae6364d3b0684406f10c1f952
+F src/statrep.c fd65baa0b894e9a4e7377e3939e137eb466f20d4
+F src/style.c 1c9ef7c0dc77a49b6b833ec12971fb092e55885d
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
@@ -736,7 +736,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 4d60469f15833c6d2962a90762a556228e7acd6d
-R 5d0c7470106539b82075af5f104d8f1a
+P 5fa4d0125cbd7bf86b9c4c32c0a37de27dc0f383
+R 4b42eebac6ae098fc0055ec635f38fe9
 U drh
-Z 2e0cfa49907034a20950dcffd5826a76
+Z 70be3fbecc61c45197d22de2ab1f27af

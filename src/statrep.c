@@ -579,27 +579,15 @@ static void stats_report_year_weeks(const char *zUserName){
   int total = 0;
 
   stats_report_init_view();
-  db_prepare(&q,
-             "SELECT DISTINCT substr(date(mtime),1,4) AS y"
-             "  FROM v_reports"
-             " WHERE ifnull(coalesce(euser,user,'')=%Q,1)"
-             " GROUP BY y ORDER BY y DESC", zUserName);
-  while( SQLITE_ROW == db_step(&q) ){
-    azYear = fossil_realloc(azYear, sizeof(char*)*(n+2));
-    azYear[n] = fossil_strdup(db_column_text(&q,0));
-    azYear[n+1] = azYear[n];
-    if( !isValidYear && fossil_strcmp(zYear,azYear[n])==0 ) isValidYear = 1;
-    n += 2;
+  style_submenu_sql("y", "Year:",
+     "WITH RECURSIVE a(b) AS ("
+     "  SELECT substr(date('now'),1,4) UNION ALL"
+     "  SELECT b-1 FROM a"
+     "   WHERE b>0+(SELECT substr(date(min(mtime)),1,4) FROM event)"
+     ") SELECT b, b FROM a ORDER BY b DESC");
+  if( zYear==0 || strlen(zYear)!=4 ){
+    zYear = db_text("1970","SELECT substr(date('now'),1,4);");
   }
-  db_finalize(&q);
-  if( !isValidYear ){
-    if( n ){
-      zYear = azYear[0];
-    }else{
-      zYear = db_text("1970","SELECT substr(date('now'),1,4);");
-    }
-  }
-  style_submenu_multichoice("y", n/2, (const char**)azYear, 0);
   cgi_printf("<br/>");
   db_prepare(&q,
              "SELECT DISTINCT strftime('%%W',mtime) AS wk, "
@@ -755,7 +743,13 @@ void stats_report_page(){
       style_submenu_multichoice("type", ArraySize(azType)/2, azType, 0);
     }
     if( eType!=RPT_BYUSER ){
-      style_submenu_entry("u", "User:", 12, 0);
+      style_submenu_sql("u","User:",
+         "SELECT '', 'All Users' UNION ALL "
+         "SELECT x, x FROM ("
+         "  SELECT DISTINCT trim(coalesce(euser,user)) AS x FROM event %s"
+         "  ORDER BY 1 COLLATE nocase) WHERE x!=''",
+         eType==RPT_BYFILE ? "WHERE type='ci'" : ""
+      );
     }
   }
   style_submenu_element("Stats", "Stats", "%R/stat");
