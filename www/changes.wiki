@@ -42,6 +42,8 @@
   *  Have [/help?cmd=changes|fossil changes] and
      [/help?cmd=status|fossil status] report when executable or symlink status
      changes on otherwise unmodified files.
+  *  Move all square brackets outside the hyperlink text to make it easier to
+     copy-and-paste links sans brackets from typical browsers. 
 
 <h2>Changes for Version 1.32 (2015-03-14)</h2>
   *  When creating a new repository using [/help?cmd=init|fossil init], ensure
