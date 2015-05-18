@@ -1,5 +1,5 @@
-C Have\seuser\ssupersede\suser\swhen\spreparing\suser\sreport.\s\sThis\sis\sfor\sconsistency\swith\sthe\sother\sreport\supdates,\splus\sit\smakes\smore\ssense.
-D 2015-05-18T13:07:26.380
+C Catch\sup\swith\srecent\schanges\son\strunk.
+D 2015-05-18T17:53:49.926
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -376,7 +376,7 @@ F src/allrepo.c cf9356bb2ef29ad8836889fbbc486f5a4ce2ffc1
 F src/attach.c 5b713ffe437fa0c3241da307835b1286e38798fd
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
-F src/blob.c 35858e9f57c68fb6b44cc88babf64986c116ab7a
+F src/blob.c a4cdfce824fa2e59cf749dbc9416e160c8263fcb
 F src/branch.c 09724980278de18e9bbff5da85950c3febd811eb
 F src/browse.c 904f68c2a82bed2b9533b76a3497a961d2ae25d9
 F src/builtin.c 31c17d18b565c7766021913c89be4180b3ee4a56
@@ -396,7 +396,7 @@ F src/content.c 49fd70d3136fbeb4794b7ef2f76c977c3ea77013
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c d430f524c366485186928436cd1fed0e471208ac
+F src/db.c 9ceff8564cd4ffaebb7e3b8efc960fc97a744014
 F src/delta.c e8de840f518dca8a6641f34eae115c8f9ca36004
 F src/deltacmd.c 4ac36378bf7b772d3bd67954212eb98be121961b
 F src/descendants.c 8153a57364fc97fc6fc26b62efa0907d2fa28403
@@ -407,7 +407,7 @@ F src/doc.c 1dfc49e465379f5fb1f37bed95ddaad085883f23
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
-F src/file.c 884b233bc94c8e7a24644ac815bc174756421545
+F src/file.c 45b8b355bfe5411a84c170590ddac48890a1e5ff
 F src/finfo.c 504004df33665fe89ec695c34abce45e1873abd6
 F src/foci.c 8e1553ee3a2db6b73497b4cfca8d4b8fe89e2471
 F src/fusefs.c e25405b83122ed8369aa63125897348e5eb3cab2
@@ -438,7 +438,7 @@ F src/json_user.c 66fc65a1647616819074eb8ae4534f0822b2fb55
 F src/json_wiki.c fca83828f069a0964f7b5e72dc4e8793e8571707
 F src/leaf.c df47f8f52ed1ebeb3b7f5c7b92c62351b177d458
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
-F src/login.c 0a6cf8707e27b04873950a6c63a48391c0a9f7ce
+F src/login.c 4747a3c1e9833c7f7b0d3fd4fb1a9a596069956e
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
 F src/main.c 2315abe50eb6c01695ec11f2315e91e44114c59a
 F src/main.mk c56b4b688a95c62878ca19916058b94f2a4466d0
@@ -493,13 +493,13 @@ F src/th.h 331b9aaf012117b22a3e8c4676c5b131cd8b7f9d
 F src/th_lang.c f6085bbe7c97a4d00c8fe8cd9328d402937111a8
 F src/th_main.c 00058b8cf89276094aae21c741ef15655d1fa34d
 F src/th_tcl.c 7b37123bd606f5b9999a1103807f822a77dfcdc5
-F src/timeline.c bb20ac333b4dc02f2cf35d76e6ec9aa6035013c0
+F src/timeline.c 4cf7561500d63e525be9d2a6a4445865240688a2
 F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
 F src/tktsetup.c 1360904128a3c60008867056d9f576c8f906eb7c
-F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
+F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c 463d3968fdd2cb7052bf351e9b028ad0dd556b10
 F src/unicode.c 471c170c6ca090967e68ffa51010d79233b9ff1b
-F src/update.c 9f0b45a551abce8aa11c8e6b4b91e8dba6b94030
+F src/update.c e4e6c94829ac7aebc0d7b9ab1c16cad3e5b02b9a
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c 6ec57f122cadd7c324e657be5de1b0c8f0d37c8d
 F src/utf8.c d9b19f5abbdecacb9b69a9e31f3bb0ef6e017918
@@ -507,7 +507,7 @@ F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
 F src/vfile.c b8560f486de87af7e480faaa34b946e7f042b408
 F src/wiki.c 09aef1e140021ade15ebadfa2b7435b35f701442
-F src/wikiformat.c 6855db81eebdbee86ff21ce4e555e88e63c7fa81
+F src/wikiformat.c f693446cc459fc72fb0345cff08b3573dbe4365d
 F src/winfile.c 0bcf34859198c42bbfe224e23eb8bcf27dd3e27d
 F src/winhttp.c 4e680d7c8778be4439169f40a992ccc81f7ceec2
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
@@ -652,7 +652,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 1a0af5fa07defbe9c0ef2a821158fd51f39183a9
-F www/changes.wiki 6116b1b09f1fc4ee101ffa8dddb731da0f2ed8af
+F www/changes.wiki 80e2a26ce5ebb1bd6cb07b95313e63c67fb33a27
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 37087c035ff437c1c14dce07a0b8c7bf7adb3c2d
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -736,7 +736,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P ed60255709de402f4387044b905e18a8d8c59042
-R 1fc5c43702a265b23caeefdbf53614a7
-U andygoth
-Z 90fd7a399d6c58f204a523df9195327b
+P c8a249205ef5b601caf7d4d68afe4263db2f8eca 270b80dbf561dc2dbdb4a804364bd8e51176fbff
+R 20afcc007effb6508ddf4804b3076afc
+U drh
+Z b7a183321a4a20ba76b475ed4c8ba8bd
