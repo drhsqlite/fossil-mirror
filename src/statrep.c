@@ -408,8 +408,8 @@ static void stats_report_by_user(){
   @ (%s(stats_report_label_for_type())) by User</h1>
   db_multi_exec(
     "CREATE TEMP TABLE piechart(amt,label);"
-    "INSERT INTO piechart SELECT count(*), user FROM v_reports"
-                         " GROUP BY user ORDER BY count(*) DESC;"
+    "INSERT INTO piechart SELECT count(*), ifnull(euser,user) FROM v_reports"
+                         " GROUP BY ifnull(euser,user) ORDER BY count(*) DESC;"
   );
   if( db_int(0, "SELECT count(*) FROM piechart")>=2 ){
     @ <center><svg width=700 height=400>
@@ -424,10 +424,10 @@ static void stats_report_by_user(){
   @ <th width='90%%'><!-- relative commits graph --></th>
   @ </tr></thead><tbody>
   db_prepare(&query,
-               "SELECT user, "
+               "SELECT ifnull(euser,user), "
                "COUNT(*) AS eventCount "
                "FROM v_reports "
-               "GROUP BY user ORDER BY eventCount DESC");
+               "GROUP BY ifnull(euser,user) ORDER BY eventCount DESC");
   while( SQLITE_ROW == db_step(&query) ){
     const int nCount = db_column_int(&query, 1);
     if(nCount>nMaxEvents){

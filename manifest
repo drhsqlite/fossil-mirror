@@ -1,5 +1,5 @@
-C Update\schangelog\sfor\sadding\suser\sfield.
-D 2015-05-18T03:04:19.243
+C Have\seuser\ssupersede\suser\swhen\spreparing\suser\sreport.\s\sThis\sis\sfor\sconsistency\swith\sthe\sother\sreport\supdates,\splus\sit\smakes\smore\ssense.
+D 2015-05-18T13:07:26.380
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -483,7 +483,7 @@ F src/sqlite3.c 85e4e1c08c7df28ef61bb9759a0d466e0eefbaa2
 F src/sqlite3.h 07d4e4e898f011cceaece49482784a1b8edd4a8e
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 760b5ec89d07e1d2b566353d588e77e8b9cf97c8
-F src/statrep.c fc4c819a37cf54adae571cbeb579c99cd49380f5
+F src/statrep.c 74361edd17c969f552d267d437ba27c670b29e88
 F src/style.c c9aeaaea1fa89f7ae6364d3b0684406f10c1f952
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
@@ -736,7 +736,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P bcee2d48ed0a5e87d361fc4294f66cb8b77daa7e
-R 618f404a8a56aac876d01a56ef2fd060
+P ed60255709de402f4387044b905e18a8d8c59042
+R 1fc5c43702a265b23caeefdbf53614a7
 U andygoth
-Z 0567cd160f52ead9cff40932957d2f90
+Z 90fd7a399d6c58f204a523df9195327b
