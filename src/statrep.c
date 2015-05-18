@@ -143,59 +143,6 @@ static const char *stats_report_label_for_type(){
   }
 }
 
-/*
-** A helper for the /reports family of pages which prints out a menu
-** of links for the various type=XXX flags. zCurrentViewName must be
-** the name/value of the 'view' parameter which is in effect at the
-** time this is called. e.g. if called from the 'byuser' view then
-** zCurrentViewName must be "byuser". Any URL parameters which need to
-** be added to the generated URLs should be passed in zParam. The
-** caller is expected to have already encoded any zParam in the %T or
-** %t encoding.  */
-static void stats_report_event_types_menu(const char *zCurrentViewName,
-                                          const char *zParam){
-  char *zTop;
-  if(zParam && !*zParam){
-    zParam = NULL;
-  }
-  zTop = mprintf("%s/reports?view=%s%s%s", g.zTop, zCurrentViewName,
-                 zParam&&*zParam ? "&" : "", zParam);
-  cgi_printf("<div>");
-  cgi_printf("<span>Types:</span> ");
-  if('*' == statsReportType){
-    cgi_printf(" <strong>all</strong>", zTop);
-  }else{
-    cgi_printf(" <a href='%s'>all</a>", zTop);
-  }
-  if('c' == statsReportType){
-    cgi_printf(" <strong>check-ins</strong>", zTop);
-  }else{
-    cgi_printf(" <a href='%s&type=ci'>check-ins</a>", zTop);
-  }
-  if('e' == statsReportType){
-    cgi_printf(" <strong>technotes</strong>", zTop);
-  }else{
-    cgi_printf(" <a href='%s&type=e'>technotes</a>", zTop);
-  }
-  if( 't' == statsReportType ){
-    cgi_printf(" <strong>tickets</strong>", zTop);
-  }else{
-    cgi_printf(" <a href='%s&type=t'>tickets</a>", zTop);
-  }
-  if( 'g' == statsReportType ){
-    cgi_printf(" <strong>tags</strong>", zTop);
-  }else{
-    cgi_printf(" <a href='%s&type=g'>tags</a>", zTop);
-  }
-  if( 'w' == statsReportType ){
-    cgi_printf(" <strong>wiki</strong>", zTop);
-  }else{
-    cgi_printf(" <a href='%s&type=w'>wiki</a>", zTop);
-  }
-  fossil_free(zTop);
-  cgi_printf("</div>");
-}
-
 
 /*
 ** Helper for stats_report_by_month_year(), which generates a list of
@@ -257,8 +204,6 @@ static void stats_report_by_month_year(char includeMonth,
   if( zUserName ){
     blob_appendf(&userFilter, "user=%s", zUserName);
   }
-  stats_report_event_types_menu( includeMonth ? "bymonth" : "byyear",
-               blob_str(&userFilter) );
   blob_reset(&userFilter);
   db_prepare(&query,
              "SELECT substr(date(mtime),1,%d) AS timeframe,"
@@ -403,7 +348,6 @@ static void stats_report_by_user(){
   int nMaxEvents = 1;                /* max number of events for
                                         all rows. */
   stats_report_init_view();
-  stats_report_event_types_menu("byuser", NULL);
   @ <h1>Timeline Events
   @ (%s(stats_report_label_for_type())) by User</h1>
   db_multi_exec(
@@ -438,6 +382,7 @@ static void stats_report_by_user(){
   while( SQLITE_ROW == db_step(&query) ){
     const char *zUser = db_column_text(&query, 0);
     const int nCount = db_column_int(&query, 1);
+    char y = (char)statsReportType;
     int nSize = nCount
       ? (int)(100 * nCount / nMaxEvents)
       : 0;
@@ -445,9 +390,9 @@ static void stats_report_by_user(){
     else if(!nSize) nSize = 1;
     rowClass = ++nRowNumber % 2;
     nEventTotal += nCount;
-    @<tr class='row%d(rowClass)'>
+    @ <tr class='row%d(rowClass)'>
     @ <td>
-    @ <a href="?view=bymonth&user=%h(zUser)&type=%c((char)statsReportType)">%h(zUser)</a>
+    @ <a href="?view=bymonth&user=%h(zUser)&type=%c(y)">%h(zUser)</a>
     @ </td><td data-sortkey='%08x(-nCount)'>%d(nCount)</td>
     @ <td>
     @ <div class='statistics-report-graph-line'
@@ -542,7 +487,6 @@ static void stats_report_day_of_week(const char *zUserName){
   if( zUserName ){
     blob_appendf(&userFilter, "user=%s", zUserName);
   }
-  stats_report_event_types_menu("byweekday", blob_str(&userFilter));
   db_prepare(&query,
                "SELECT cast(mtime %% 7 AS INTEGER) dow,"
                "       COUNT(*) AS eventCount"
@@ -556,12 +500,18 @@ static void stats_report_day_of_week(const char *zUserName){
   @ </h1>
   db_multi_exec(
     "CREATE TEMP TABLE piechart(amt,label);"
-    "INSERT INTO piechart SELECT count(*), cast(mtime %% 7 AS INT) FROM v_reports"
-                         " WHERE ifnull(coalesce(euser,user,'')=%Q,1)"
-                         " GROUP BY 2 ORDER BY 2;"
-    "UPDATE piechart SET label = CASE label WHEN 0 THEN 'Monday' WHEN 1 THEN 'Tuesday'"
-    "  WHEN 2 THEN 'Wednesday' WHEN 3 THEN 'Thursday' WHEN 4 THEN 'Friday'"
-    "  WHEN 5 THEN 'Saturday' ELSE 'Sunday' END;", zUserName
+    "INSERT INTO piechart"
+    " SELECT count(*), cast(mtime %% 7 AS INT) FROM v_reports"
+     " WHERE ifnull(coalesce(euser,user,'')=%Q,1)"
+     " GROUP BY 2 ORDER BY 2;"
+    "UPDATE piechart SET label = CASE label"
+    "  WHEN 0 THEN 'Monday'"
+    "  WHEN 1 THEN 'Tuesday'"
+    "  WHEN 2 THEN 'Wednesday'"
+    "  WHEN 3 THEN 'Thursday'"
+    "  WHEN 4 THEN 'Friday'"
+    "  WHEN 5 THEN 'Saturday'"
+    "  ELSE 'Sunday' END;", zUserName
   );
   if( db_int(0, "SELECT count(*) FROM piechart")>=2 ){
     @ <center><svg width=700 height=400>
@@ -616,123 +566,112 @@ static void stats_report_day_of_week(const char *zUserName){
 ** created by the named user account.
 */
 static void stats_report_year_weeks(const char *zUserName){
-  const char *zYear = P("y");
-  int nYear = zYear ? strlen(zYear) : 0;
+  const char *zYear = P("y");        /* Year for which report shown */
+  int isValidYear = 0;               /* True if a valid year */
   int i = 0;
-  Stmt qYears = empty_Stmt;
-  char *zDefaultYear = NULL;
+  Stmt q;
   int nMaxEvents = 1;                /* max number of events for
                                         all rows. */
   int iterations = 0;                /* # of active time periods. */
-  Blob urlParams = empty_blob;
+  int n = 0;                         /* Number of entries in azYear */
+  char **azYear = 0;                 /* Year dropdown menu */
+  int rowCount = 0;
+  int total = 0;
+
   stats_report_init_view();
-  if(4==nYear){
-    blob_appendf(&urlParams, "y=%T", zYear);
-  }
-  if( zUserName ){
-    blob_appendf(&urlParams, "%suser=%s", blob_size(&urlParams) ? "&" : "",
-                 zUserName);
-  }
-  stats_report_event_types_menu("byweek", blob_str(&urlParams));
-  blob_reset(&urlParams);
-  db_prepare(&qYears,
+  db_prepare(&q,
              "SELECT DISTINCT substr(date(mtime),1,4) AS y"
              "  FROM v_reports"
              " WHERE ifnull(coalesce(euser,user,'')=%Q,1)"
-             " GROUP BY y ORDER BY y", zUserName);
-  cgi_printf("Select year: ");
-  while( SQLITE_ROW == db_step(&qYears) ){
-    const char *zT = db_column_text(&qYears, 0);
-    if( i++ ){
-      cgi_printf(" ");
-    }
-    cgi_printf("<a href='?view=byweek&y=%s&type=%c", zT,
-               (char)statsReportType);
-    if( zUserName ){
-      cgi_printf("&user=%t",zUserName);
-    }
-    cgi_printf("'>%s</a>",zT);
+             " GROUP BY y ORDER BY y DESC", zUserName);
+  while( SQLITE_ROW == db_step(&q) ){
+    azYear = fossil_realloc(azYear, sizeof(char*)*(n+2));
+    azYear[n] = fossil_strdup(db_column_text(&q,0));
+    azYear[n+1] = azYear[n];
+    if( !isValidYear && fossil_strcmp(zYear,azYear[n])==0 ) isValidYear = 1;
+    n += 2;
   }
-  db_finalize(&qYears);
+  db_finalize(&q);
+  if( !isValidYear ) zYear = azYear[0];
+  style_submenu_multichoice("y", n/2, (const char**)azYear, 0);
   cgi_printf("<br/>");
-  if(!zYear || !*zYear){
-    zDefaultYear = db_text("????", "SELECT strftime('%%Y')");
-    zYear = zDefaultYear;
-    nYear = 4;
+  db_prepare(&q,
+             "SELECT DISTINCT strftime('%%W',mtime) AS wk, "
+             "       count(*) AS n "
+             "  FROM v_reports "
+             " WHERE %Q=substr(date(mtime),1,4) "
+             "   AND mtime < current_timestamp "
+             "   AND ifnull(coalesce(euser,user,'')=%Q,1)"
+             " GROUP BY wk ORDER BY wk DESC", zYear, zUserName);
+  @ <h1>Timeline events (%h(stats_report_label_for_type()))
+  @ for the calendar weeks of %h(zYear)
+  if( zUserName ){
+    @  for user %h(zUserName)
   }
-  if(4 == nYear){
-    Stmt stWeek = empty_Stmt;
-    int rowCount = 0;
-    int total = 0;
-    db_prepare(&stWeek,
-               "SELECT DISTINCT strftime('%%W',mtime) AS wk, "
-               "       count(*) AS n "
-               "  FROM v_reports "
-               " WHERE %Q=substr(date(mtime),1,4) "
-               "   AND mtime < current_timestamp "
-               "   AND ifnull(coalesce(euser,user,'')=%Q,1)"
-               " GROUP BY wk ORDER BY wk DESC", zYear, zUserName);
-    @ <h1>Timeline events (%h(stats_report_label_for_type()))
-    @ for the calendar weeks of %h(zYear)
+  @ </h1>
+  cgi_printf("<table class='statistics-report-table-events' "
+              "border='0' cellpadding='2' width='100%%' "
+             "cellspacing='0' id='statsTable'>");
+  cgi_printf("<thead><tr>"
+             "<th>Week</th>"
+             "<th>Events</th>"
+             "<th width='90%%'><!-- relative commits graph --></th>"
+             "</tr></thead>"
+             "<tbody>");
+  while( SQLITE_ROW == db_step(&q) ){
+    const int nCount = db_column_int(&q, 1);
+    if(nCount>nMaxEvents){
+      nMaxEvents = nCount;
+    }
+    ++iterations;
+  }
+  db_reset(&q);
+  while( SQLITE_ROW == db_step(&q) ){
+    const char *zWeek = db_column_text(&q,0);
+    const int nCount = db_column_int(&q,1);
+    int nSize = nCount
+      ? (int)(100 * nCount / nMaxEvents)
+      : 0;
+    if(!nSize) nSize = 1;
+    total += nCount;
+    cgi_printf("<tr class='row%d'>", ++rowCount % 2 );
+    cgi_printf("<td><a href='%R/timeline?yw=%t-%s&n=%d&y=%s",
+               zYear, zWeek, nCount,
+               statsReportTimelineYFlag);
     if( zUserName ){
-      @  for user %h(zUserName)
+      cgi_printf("&u=%t",zUserName);
     }
-    @ </h1>
-    cgi_printf("<table class='statistics-report-table-events' "
-               "border='0' cellpadding='2' width='100%%' "
-               "cellspacing='0' id='statsTable'>");
-    cgi_printf("<thead><tr>"
-               "<th>Week</th>"
-               "<th>Events</th>"
-               "<th width='90%%'><!-- relative commits graph --></th>"
-               "</tr></thead>"
-               "<tbody>");
-    while( SQLITE_ROW == db_step(&stWeek) ){
-      const int nCount = db_column_int(&stWeek, 1);
-      if(nCount>nMaxEvents){
-        nMaxEvents = nCount;
-      }
-      ++iterations;
-    }
-    db_reset(&stWeek);
-    while( SQLITE_ROW == db_step(&stWeek) ){
-      const char *zWeek = db_column_text(&stWeek,0);
-      const int nCount = db_column_int(&stWeek,1);
-      int nSize = nCount
-        ? (int)(100 * nCount / nMaxEvents)
-        : 0;
-      if(!nSize) nSize = 1;
-      total += nCount;
-      cgi_printf("<tr class='row%d'>", ++rowCount % 2 );
-      cgi_printf("<td><a href='%R/timeline?yw=%t-%s&n=%d&y=%s",
-                 zYear, zWeek, nCount,
-                 statsReportTimelineYFlag);
-      if( zUserName ){
-        cgi_printf("&u=%t",zUserName);
-      }
-      cgi_printf("'>%s</a></td>",zWeek);
+    cgi_printf("'>%s</a></td>",zWeek);
 
-      cgi_printf("<td>%d</td>",nCount);
-      cgi_printf("<td>");
-      if(nCount){
-        cgi_printf("<div class='statistics-report-graph-line'"
-                   "style='width:%d%%;'>&nbsp;</div>",
-                   nSize);
-      }
-      cgi_printf("</td></tr>");
+    cgi_printf("<td>%d</td>",nCount);
+    cgi_printf("<td>");
+    if(nCount){
+      cgi_printf("<div class='statistics-report-graph-line'"
+                 "style='width:%d%%;'>&nbsp;</div>",
+                 nSize);
     }
-    db_finalize(&stWeek);
-    free(zDefaultYear);
-    cgi_printf("</tbody></table>");
-    if(total){
-      int nAvg = iterations ? (total/iterations) : 0;
-      cgi_printf("<br><div>Total events: %d<br>"
-                 "Average per active week: %d</div>",
-                 total, nAvg);
-    }
-    output_table_sorting_javascript("statsTable","tnx",-1);
+    cgi_printf("</td></tr>");
   }
+  db_finalize(&q);
+  cgi_printf("</tbody></table>");
+  if(total){
+    int nAvg = iterations ? (total/iterations) : 0;
+    cgi_printf("<br><div>Total events: %d<br>"
+               "Average per active week: %d</div>",
+               total, nAvg);
+  }
+  output_table_sorting_javascript("statsTable","tnx",-1);
 }
+
+/* Report types
+*/
+#define RPT_BYFILE    1
+#define RPT_BYMONTH   2
+#define RPT_BYUSER    3
+#define RPT_BYWEEK    4
+#define RPT_BYWEEKDAY 5
+#define RPT_BYYEAR    6
+#define RPT_NONE      0  /* None of the above */
 
 /*
 ** WEBPAGE: reports
@@ -756,60 +695,86 @@ static void stats_report_year_weeks(const char *zUserName){
 */
 void stats_report_page(){
   HQuery url;                        /* URL for various branch links */
-  const char *zView = P("view");    /* Which view/report to show. */
-  const char *zUserName = P("user");
-  int haveU = !zUserName;
-
+  const char *zView = P("view");     /* Which view/report to show. */
+  int eType = RPT_NONE;              /* Numeric code for view/report to show */
+  int i;                             /* Loop counter */
+  const char *zUserName;             /* Name of user */
+  const struct {
+    const char *zName;  /* Name of view= screen type */
+    const char *zVal;   /* Value of view= query parameter */
+    int eType;          /* Corresponding RPT_* define */
+  } aViewType[] = {
+     {  "By File",     "byfile",    RPT_BYFILE    },
+     {  "By Month",    "bymonth",   RPT_BYMONTH   },
+     {  "By User",     "byuser",    RPT_BYUSER    },
+     {  "By Week",     "byweek",    RPT_BYWEEK    },
+     {  "By Weekday",  "byweekday", RPT_BYWEEKDAY },
+     {  "By Year",     "byyear",    RPT_BYYEAR   },
+  };
+  const char *azType[] = {
+     "a",  "Any Type",
+     "ci", "Check-ins",
+     "g",  "Tags",
+     "e",  "Tech Notes",
+     "t",  "Tickets",
+     "w",  "Wiki"
+  };
+  
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  if(!zUserName){
-    zUserName = P("u");
-    haveU = !!zUserName;
+  zUserName = P("user");
+  if( zUserName==0 ) zUserName = P("u");
+  if( zUserName && zUserName[0]==0 ) zUserName = 0;
+  if( zView==0 ){
+    zView = "byuser";
+    cgi_replace_query_parameter("view","byuser");
   }
-  if(zUserName && !*zUserName){
-    zUserName = NULL;
-  }
-  url_initialize(&url, "reports");
-  if(0!=fossil_strcmp(zView,"byuser")){
-    style_submenu_entry(haveU ? "u" : "user", "User:", 12, 0);
-    if(zUserName){
-      url_add_parameter(&url, haveU ? "u" : "user", zUserName);
-      statrep_submenu(&url, "(Remove User Flag)", "view", zView,
-                      haveU ? "u" : "user");
+  for(i=0; i<ArraySize(aViewType); i++){
+    if( fossil_strcmp(zView, aViewType[i].zVal)==0 ){
+      eType = aViewType[i].eType;
+      break;
     }
   }
-  statrep_submenu(&url, "By Year", "view", "byyear", 0);
-  statrep_submenu(&url, "By Month", "view", "bymonth", 0);
-  statrep_submenu(&url, "By Week", "view", "byweek", 0);
-  statrep_submenu(&url, "By Weekday", "view", "byweekday", 0);
-  statrep_submenu(&url, "By User", "view", "byuser", "user");
-  statrep_submenu(&url, "By File", "view", "byfile", "file");
+  url_initialize(&url, "reports");
+  cgi_query_parameters_to_url(&url);
+  if( eType!=RPT_NONE ){
+    int nView = 0;                     /* Slots used in azView[] */
+    const char *azView[16];            /* Drop-down menu of view types */
+    for(i=0; i<ArraySize(aViewType); i++){
+      azView[nView++] = aViewType[i].zVal;
+      azView[nView++] = aViewType[i].zName;
+    }
+    style_submenu_multichoice("view", nView/2, azView, 0);
+    if( eType!=RPT_BYFILE ){
+      style_submenu_multichoice("type", ArraySize(azType)/2, azType, 0);
+    }
+    if( eType!=RPT_BYUSER ){
+      style_submenu_entry("u", "User:", 12, 0);
+    }
+  }
   style_submenu_element("Stats", "Stats", "%R/stat");
   url_reset(&url);
   style_header("Activity Reports");
-  if(0==fossil_strcmp(zView,"byyear")){
-    stats_report_by_month_year(0, 0, zUserName);
-  }else if(0==fossil_strcmp(zView,"bymonth")){
-    stats_report_by_month_year(1, 0, zUserName);
-  }else if(0==fossil_strcmp(zView,"byweek")){
-    stats_report_year_weeks(zUserName);
-  }else if(0==fossil_strcmp(zView,"byuser")){
-    stats_report_by_user();
-  }else if(0==fossil_strcmp(zView,"byweekday")){
-    stats_report_day_of_week(zUserName);
-  }else if(0==fossil_strcmp(zView,"byfile")){
-    stats_report_by_file(zUserName);
-  }else{
-    @ <h1>Activity Reports:</h1>
-    @ <ul>
-    @ <li>%z(href("?view=byyear"))Events by year</a></li>
-    @ <li>%z(href("?view=bymonth"))Events by month</a></li>
-    @ <li>%z(href("?view=byweek"))Events by calendar week</a></li>
-    @ <li>%z(href("?view=byweekday"))Events by day of the week</a></li>
-    @ <li>%z(href("?view=byuser"))Events by user</a></li>
-    @ <li>%z(href("?view=byfile"))Events by file</a></li>
-    @ </ul>
+  switch( eType ){
+    case RPT_BYYEAR: 
+      stats_report_by_month_year(0, 0, zUserName);
+      break;
+    case RPT_BYMONTH:
+      stats_report_by_month_year(1, 0, zUserName);
+      break;
+    case RPT_BYWEEK:
+      stats_report_year_weeks(zUserName);
+      break;
+    default:
+    case RPT_BYUSER:
+      stats_report_by_user();
+      break;
+    case RPT_BYWEEKDAY:
+      stats_report_day_of_week(zUserName);
+      break;
+    case RPT_BYFILE:
+      stats_report_by_file(zUserName);
+      break;
   }
-
   style_footer();
 }
