@@ -42,6 +42,8 @@
   *  Have [/help?cmd=changes|fossil changes] and
      [/help?cmd=status|fossil status] report when executable or symlink status
      changes on otherwise unmodified files.
+  *  Create parent directories of [/help?cmd=settings|empty-dirs] if they don't
+     already exist.
 
 <h2>Changes for Version 1.32 (2015-03-14)</h2>
   *  When creating a new repository using [/help?cmd=init|fossil init], ensure
