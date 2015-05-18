@@ -159,7 +159,7 @@ static void stats_report_event_types_menu(const char *zCurrentViewName,
     zParam = NULL;
   }
   zTop = mprintf("%s/reports?view=%s%s%s", g.zTop, zCurrentViewName,
-                 zParam ? "&" : "", zParam);
+                 zParam&&*zParam ? "&" : "", zParam);
   cgi_printf("<div>");
   cgi_printf("<span>Types:</span> ");
   if('*' == statsReportType){
@@ -229,9 +229,8 @@ static void stats_report_output_week_links(const char *zTimeframe){
 /*
 ** Implements the "byyear" and "bymonth" reports for /reports.
 ** If includeMonth is true then it generates the "bymonth" report,
-** else the "byyear" report. If zUserName is not NULL and not empty
-** then the report is restricted to events created by the named user
-** account.
+** else the "byyear" report. If zUserName is not NULL then the report is
+** restricted to events created by the named user account.
 */
 static void stats_report_by_month_year(char includeMonth,
                                        char includeWeeks,
@@ -241,7 +240,6 @@ static void stats_report_by_month_year(char includeMonth,
   int nEventTotal = 0;               /* Total event count */
   int rowClass = 0;                  /* counter for alternating
                                         row colors */
-  Blob sql = empty_blob;             /* SQL */
   const char *zTimeLabel = includeMonth ? "Year/Month" : "Year";
   char zPrevYear[5] = {0};           /* For keeping track of when
                                         we change years while looping */
@@ -254,27 +252,28 @@ static void stats_report_by_month_year(char includeMonth,
                                         bars. */
   int iterations = 0;                /* number of weeks/months we iterate
                                         over */
+  Blob userFilter = empty_blob;      /* Optional user=johndoe query string */
   stats_report_init_view();
-  stats_report_event_types_menu( includeMonth ? "bymonth" : "byyear", NULL );
-  blob_appendf(&header, "Timeline Events (%s) by year%s",
-               stats_report_label_for_type(),
-               (includeMonth ? "/month" : ""));
-  blob_append_sql(&sql,
-               "SELECT substr(date(mtime),1,%d) AS timeframe, "
-               "count(*) AS eventCount "
-               "FROM v_reports ",
-               includeMonth ? 7 : 4);
-  if(zUserName&&*zUserName){
-    blob_append_sql(&sql, " WHERE user=%Q ", zUserName);
-    blob_appendf(&header," for user %q", zUserName);
+  if( zUserName ){
+    blob_appendf(&userFilter, "user=%s", zUserName);
   }
-  blob_append(&sql,
-              " GROUP BY timeframe"
-              " ORDER BY timeframe DESC",
-              -1);
-  db_prepare(&query, "%s", blob_sql_text(&sql));
-  blob_reset(&sql);
-  @ <h1>%b(&header)</h1>
+  stats_report_event_types_menu( includeMonth ? "bymonth" : "byyear",
+               blob_str(&userFilter) );
+  blob_reset(&userFilter);
+  db_prepare(&query,
+             "SELECT substr(date(mtime),1,%d) AS timeframe,"
+             "       count(*) AS eventCount"
+             "  FROM v_reports"
+             " WHERE ifnull(user=%Q,1)"
+             " GROUP BY timeframe"
+             " ORDER BY timeframe DESC",
+             includeMonth ? 7 : 4, zUserName);
+  @ <h1>Timeline Events (%s(stats_report_label_for_type()))
+  @ by year%s(includeMonth ? "/month" : "")
+  if( zUserName ){
+    @ for user %h(zUserName)
+  }
+  @ </h1>
   @ <table class='statistics-report-table-events' border='0' cellpadding='2'
   @  cellspacing='0' id='statsTable'>
   @ <thead>
@@ -282,7 +281,6 @@ static void stats_report_by_month_year(char includeMonth,
   @ <th>Events</th>
   @ <th width='90%%'><!-- relative commits graph --></th>
   @ </thead><tbody>
-  blob_reset(&header);
   /*
      Run the query twice. The first time we calculate the maximum
      number of events for a given row. Maybe someone with better SQL
@@ -337,14 +335,14 @@ static void stats_report_by_month_year(char includeMonth,
       /* Reminder: n=nCount is not actually correct for bymonth unless
          that was the only user who caused events.
       */
-      if( zUserName && *zUserName ){
+      if( zUserName ){
         cgi_printf("&u=%t", zUserName);
       }
       cgi_printf("' target='_new'>%s</a>",zTimeframe);
     }else {
       cgi_printf("<a href='?view=byweek&y=%s&type=%c",
                  zTimeframe, (char)statsReportType);
-      if(zUserName && *zUserName){
+      if( zUserName ){
         cgi_printf("&u=%t", zUserName);
       }
       cgi_printf("'>%s</a>", zTimeframe);
@@ -467,9 +465,10 @@ static void stats_report_by_user(){
 }
 
 /*
-** Implements the "byfile" view for /reports.
+** Implements the "byfile" view for /reports. If zUserName is not NULL then the
+** report is restricted to events created by the named user account.
 */
-static void stats_report_by_file(){
+static void stats_report_by_file(const char *zUserName){
   Stmt query;
   int mxEvent = 1;       /* max number of events across all rows */
   int nRowNumber = 0;
@@ -478,15 +477,21 @@ static void stats_report_by_file(){
     "CREATE TEMP TABLE statrep(filename, cnt);"
     "INSERT INTO statrep(filename, cnt)"
     "  SELECT filename.name, count(distinct mlink.mid)"
-    "    FROM filename, mlink"
+    "    FROM filename, mlink, event"
     "   WHERE filename.fnid=mlink.fnid"
-    "   GROUP BY 1;"
+    "     AND mlink.mid=event.objid"
+    "     AND ifnull(ifnull(euser,user)=%Q,1)"
+    "   GROUP BY 1", zUserName
   );
   db_prepare(&query,
     "SELECT filename, cnt FROM statrep ORDER BY cnt DESC, filename /*sort*/"
   );
   mxEvent = db_int(1, "SELECT max(cnt) FROM statrep");
-  @ <h1>Check-ins Per File</h1>
+  @ <h1>Check-ins Per File
+  if( zUserName ){
+    @ for user %h(zUserName)
+  }
+  @ </h1>
   @ <table class='statistics-report-table-events' border='0'
   @ cellpadding='2' cellspacing='0' id='statsTable'>
   @ <thead><tr>
@@ -516,9 +521,10 @@ static void stats_report_by_file(){
 }
 
 /*
-** Implements the "byweekday" view for /reports.
+** Implements the "byweekday" view for /reports. If zUserName is not NULL then
+** the report is restricted to events created by the named user account.
 */
-static void stats_report_day_of_week(){
+static void stats_report_day_of_week(const char *zUserName){
   Stmt query = empty_Stmt;
   int nRowNumber = 0;                /* current TR number */
   int nEventTotal = 0;               /* Total event count */
@@ -526,27 +532,36 @@ static void stats_report_day_of_week(){
                                         row colors */
   int nMaxEvents = 1;                /* max number of events for
                                         all rows. */
+  Blob userFilter = empty_blob;      /* Optional user=johndoe query string */
   static const char *const daysOfWeek[] = {
   "Monday", "Tuesday", "Wednesday", "Thursday",
   "Friday", "Saturday", "Sunday"
   };
 
   stats_report_init_view();
-  stats_report_event_types_menu("byweekday", NULL);
+  if( zUserName ){
+    blob_appendf(&userFilter, "user=%s", zUserName);
+  }
+  stats_report_event_types_menu("byweekday", blob_str(&userFilter));
   db_prepare(&query,
-               "SELECT cast(mtime %% 7 AS INTEGER) dow, "
-               "COUNT(*) AS eventCount "
-               "FROM v_reports "
-               "GROUP BY dow ORDER BY dow");
-  @ <h1>Timeline Events
-  @ (%s(stats_report_label_for_type())) by Day of the Week</h1>
+               "SELECT cast(mtime %% 7 AS INTEGER) dow,"
+               "       COUNT(*) AS eventCount"
+               "  FROM v_reports"
+               " WHERE ifnull(ifnull(euser,user)=%Q,1)"
+               " GROUP BY dow ORDER BY dow", zUserName);
+  @ <h1>Timeline Events (%h(stats_report_label_for_type())) by Day of the Week
+  if( zUserName ){
+    @ for user %h(zUserName)
+  }
+  @ </h1>
   db_multi_exec(
     "CREATE TEMP TABLE piechart(amt,label);"
     "INSERT INTO piechart SELECT count(*), cast(mtime %% 7 AS INT) FROM v_reports"
+                         " WHERE ifnull(ifnull(euser,user)=%Q,1)"
                          " GROUP BY 2 ORDER BY 2;"
     "UPDATE piechart SET label = CASE label WHEN 0 THEN 'Monday' WHEN 1 THEN 'Tuesday'"
     "  WHEN 2 THEN 'Wednesday' WHEN 3 THEN 'Thursday' WHEN 4 THEN 'Friday'"
-    "  WHEN 5 THEN 'Saturday' ELSE 'Sunday' END;"
+    "  WHEN 5 THEN 'Saturday' ELSE 'Sunday' END;", zUserName
   );
   if( db_int(0, "SELECT count(*) FROM piechart")>=2 ){
     @ <center><svg width=700 height=400>
@@ -597,7 +612,8 @@ static void stats_report_day_of_week(){
 /*
 ** Helper for stats_report_by_month_year(), which generates a list of
 ** week numbers. zTimeframe should be either a timeframe in the form YYYY
-** or YYYY-MM.
+** or YYYY-MM. If zUserName is not NULL then the report is restricted to events
+** created by the named user account.
 */
 static void stats_report_year_weeks(const char *zUserName){
   const char *zYear = P("y");
@@ -605,28 +621,25 @@ static void stats_report_year_weeks(const char *zUserName){
   int i = 0;
   Stmt qYears = empty_Stmt;
   char *zDefaultYear = NULL;
-  Blob sql = empty_blob;
   int nMaxEvents = 1;                /* max number of events for
                                         all rows. */
   int iterations = 0;                /* # of active time periods. */
+  Blob urlParams = empty_blob;
   stats_report_init_view();
   if(4==nYear){
-    Blob urlParams = empty_blob;
     blob_appendf(&urlParams, "y=%T", zYear);
-    stats_report_event_types_menu("byweek", blob_str(&urlParams));
-    blob_reset(&urlParams);
-  }else{
-    stats_report_event_types_menu("byweek", NULL);
   }
-  blob_append(&sql,
-              "SELECT DISTINCT substr(date(mtime),1,4) AS y "
-              "FROM v_reports WHERE 1 ", -1);
-  if(zUserName&&*zUserName){
-    blob_append_sql(&sql,"AND user=%Q ", zUserName);
+  if( zUserName ){
+    blob_appendf(&urlParams, "%suser=%s", blob_size(&urlParams) ? "&" : "",
+                 zUserName);
   }
-  blob_append(&sql,"GROUP BY y ORDER BY y", -1);
-  db_prepare(&qYears, "%s", blob_sql_text(&sql));
-  blob_reset(&sql);
+  stats_report_event_types_menu("byweek", blob_str(&urlParams));
+  blob_reset(&urlParams);
+  db_prepare(&qYears,
+             "SELECT DISTINCT substr(date(mtime),1,4) AS y"
+             "  FROM v_reports"
+             " WHERE ifnull(ifnull(euser,user)=%Q,1)"
+             " GROUP BY y ORDER BY y", zUserName);
   cgi_printf("Select year: ");
   while( SQLITE_ROW == db_step(&qYears) ){
     const char *zT = db_column_text(&qYears, 0);
@@ -635,7 +648,7 @@ static void stats_report_year_weeks(const char *zUserName){
     }
     cgi_printf("<a href='?view=byweek&y=%s&type=%c", zT,
                (char)statsReportType);
-    if(zUserName && *zUserName){
+    if( zUserName ){
       cgi_printf("&user=%t",zUserName);
     }
     cgi_printf("'>%s</a>",zT);
@@ -651,24 +664,20 @@ static void stats_report_year_weeks(const char *zUserName){
     Stmt stWeek = empty_Stmt;
     int rowCount = 0;
     int total = 0;
-    Blob header = empty_blob;
-    blob_appendf(&header, "Timeline events (%s) for the calendar weeks "
-                 "of %h", stats_report_label_for_type(),
-                 zYear);
-    blob_append_sql(&sql,
-                 "SELECT DISTINCT strftime('%%W',mtime) AS wk, "
-                 "count(*) AS n "
-                 "FROM v_reports "
-                 "WHERE %Q=substr(date(mtime),1,4) "
-                 "AND mtime < current_timestamp ",
-                 zYear);
-    if(zUserName&&*zUserName){
-      blob_append_sql(&sql, " AND user=%Q ", zUserName);
-      blob_appendf(&header," for user %h", zUserName);
+    db_prepare(&stWeek,
+               "SELECT DISTINCT strftime('%%W',mtime) AS wk, "
+               "       count(*) AS n "
+               "  FROM v_reports "
+               " WHERE %Q=substr(date(mtime),1,4) "
+               "   AND mtime < current_timestamp "
+               "   AND ifnull(ifnull(euser,user)=%Q,1)"
+               " GROUP BY wk ORDER BY wk DESC", zYear, zUserName);
+    @ <h1>Timeline events (%h(stats_report_label_for_type()))
+    @ for the calendar weeks of %h(zYear)
+    if( zUserName ){
+      @  for user %h(zUserName)
     }
-    blob_append_sql(&sql, "GROUP BY wk ORDER BY wk DESC");
-    cgi_printf("<h1>%h</h1>", blob_str(&header));
-    blob_reset(&header);
+    @ </h1>
     cgi_printf("<table class='statistics-report-table-events' "
                "border='0' cellpadding='2' width='100%%' "
                "cellspacing='0' id='statsTable'>");
@@ -678,8 +687,6 @@ static void stats_report_year_weeks(const char *zUserName){
                "<th width='90%%'><!-- relative commits graph --></th>"
                "</tr></thead>"
                "<tbody>");
-    db_prepare(&stWeek, "%s", blob_sql_text(&sql));
-    blob_reset(&sql);
     while( SQLITE_ROW == db_step(&stWeek) ){
       const int nCount = db_column_int(&stWeek, 1);
       if(nCount>nMaxEvents){
@@ -700,7 +707,7 @@ static void stats_report_year_weeks(const char *zUserName){
       cgi_printf("<td><a href='%R/timeline?yw=%t-%s&n=%d&y=%s",
                  zYear, zWeek, nCount,
                  statsReportTimelineYFlag);
-      if(zUserName && *zUserName){
+      if( zUserName ){
         cgi_printf("&u=%t",zUserName);
       }
       cgi_printf("'>%s</a></td>",zWeek);
@@ -755,8 +762,11 @@ void stats_report_page(){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if(!zUserName) zUserName = P("u");
+  if(zUserName && !*zUserName){
+    zUserName = NULL;
+  }
   url_initialize(&url, "reports");
-  if(zUserName && *zUserName){
+  if(zUserName){
     url_add_parameter(&url,"user", zUserName);
     statrep_submenu(&url, "(Remove User Flag)", "view", zView, "user");
   }
@@ -778,9 +788,9 @@ void stats_report_page(){
   }else if(0==fossil_strcmp(zView,"byuser")){
     stats_report_by_user();
   }else if(0==fossil_strcmp(zView,"byweekday")){
-    stats_report_day_of_week();
+    stats_report_day_of_week(zUserName);
   }else if(0==fossil_strcmp(zView,"byfile")){
-    stats_report_by_file();
+    stats_report_by_file(zUserName);
   }else{
     @ <h1>Activity Reports:</h1>
     @ <ul>
