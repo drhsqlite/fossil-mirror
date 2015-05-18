@@ -604,8 +604,8 @@ void ensure_empty_dirs_created(void){
     }
     blob_init(&dirsList, zEmptyDirs, -1);
     while( blob_token(&dirsList, &dirName) ){
-      const char *zDir = blob_str(&dirName);
-      const char *zPath = mprintf("%s/%s", g.zLocalRoot, zDir);
+      char *zDir = blob_str(&dirName);
+      char *zPath = mprintf("%s/%s", g.zLocalRoot, zDir);
       switch( file_wd_isdir(zPath) ){
         case 0: { /* doesn't exist */
           fossil_free(zPath);

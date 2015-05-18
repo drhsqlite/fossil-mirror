@@ -1,5 +1,5 @@
-C Inhibit\stimeline\slinks\sto\swiki\spages\sthat\shave\sbeen\sdeleted.
-D 2015-05-18T14:09:23.403
+C Fix\sharmless\scompiler\swarnings.
+D 2015-05-18T14:33:14.637
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -496,10 +496,10 @@ F src/th_tcl.c 7b37123bd606f5b9999a1103807f822a77dfcdc5
 F src/timeline.c 4cf7561500d63e525be9d2a6a4445865240688a2
 F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
 F src/tktsetup.c 1360904128a3c60008867056d9f576c8f906eb7c
-F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
+F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c 463d3968fdd2cb7052bf351e9b028ad0dd556b10
 F src/unicode.c 471c170c6ca090967e68ffa51010d79233b9ff1b
-F src/update.c 2c292c20d7c603ff9d312aa3b0f4e05e56516e09
+F src/update.c 27bbdc17728d4d20a6a17e9b213b066aca39bfc9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c 6ec57f122cadd7c324e657be5de1b0c8f0d37c8d
 F src/utf8.c d9b19f5abbdecacb9b69a9e31f3bb0ef6e017918
@@ -736,8 +736,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P a2f03b8c7fa9bad5dd7148dd66c158f23ea48fa1 e6dae0228d338f72da610beb9b829fe32f7913fc
-R 090b4e09bad184bd1c5bc3c3b53323c7
-T +closed e6dae0228d338f72da610beb9b829fe32f7913fc
+P 425df28c0258cc07ab922b13019af0291783843e
+R 9fb7503577245675b044de5ef9883235
 U drh
-Z 9bc74176b8cc63f508a0fc54c26fc139
+Z 46c74f471be805ca7d45c34354f7a939
