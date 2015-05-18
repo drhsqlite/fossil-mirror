@@ -1,5 +1,5 @@
-C Fix\sthe\sempty-dirs\sproperty\sso\sthat\screates\sthe\scomplete\spath\sof\sdirectories,\nnot\sjust\sleaves,\sand\sso\sthat\sit\sdoes\snot\sleak\smemory.
-D 2015-05-18T13:56:48.122
+C If\sthe\s"r="\sor\s"t="\squery\sparameter\son\s/timeline\sdoes\snot\smatch\sany\stag\nor\sbranch\sname,\sthen\sshow\san\sempty\stimeline\srather\sthan\sjust\signoring\sthe\nquery\sparameter.\s\sTicket\s[674d5d5556].
+D 2015-05-18T14:04:21.757
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -493,7 +493,7 @@ F src/th.h 331b9aaf012117b22a3e8c4676c5b131cd8b7f9d
 F src/th_lang.c f6085bbe7c97a4d00c8fe8cd9328d402937111a8
 F src/th_main.c 00058b8cf89276094aae21c741ef15655d1fa34d
 F src/th_tcl.c 7b37123bd606f5b9999a1103807f822a77dfcdc5
-F src/timeline.c bb20ac333b4dc02f2cf35d76e6ec9aa6035013c0
+F src/timeline.c 4cf7561500d63e525be9d2a6a4445865240688a2
 F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
 F src/tktsetup.c 1360904128a3c60008867056d9f576c8f906eb7c
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
@@ -736,8 +736,8 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 48499514cc69c77f19b92576dbdfc8918c9db265 bdb90f69314bf9b6b0d9ab7a91265b71c3aa1b1b
-R d4019f5237360827f83e8ca4be0f08d4
-T +closed bdb90f69314bf9b6b0d9ab7a91265b71c3aa1b1b
+P 702331e057f6ec35d93ec0c12d9f4721d5b6d74c cfedef78dc249fcdb6fd774247d2e80adf9ef8b6
+R 8b18fa8ec194cc64190efefb2bfad6a5
+T +closed cfedef78dc249fcdb6fd774247d2e80adf9ef8b6
 U drh
-Z 2ff654a7b2a8ddcee1709d8d0349e774
+Z 488b95cc92036b59bd480150b3d3dc12
