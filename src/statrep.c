@@ -758,17 +758,22 @@ void stats_report_page(){
   HQuery url;                        /* URL for various branch links */
   const char *zView = P("view");    /* Which view/report to show. */
   const char *zUserName = P("user");
+  int haveU = !zUserName;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  if(!zUserName) zUserName = P("u");
+  if(!zUserName){
+    zUserName = P("u");
+    haveU = !!zUserName;
+  }
   if(zUserName && !*zUserName){
     zUserName = NULL;
   }
   url_initialize(&url, "reports");
   if(zUserName){
-    url_add_parameter(&url,"user", zUserName);
-    statrep_submenu(&url, "(Remove User Flag)", "view", zView, "user");
+    url_add_parameter(&url, haveU ? "u" : "user", zUserName);
+    statrep_submenu(&url, "(Remove User Flag)", "view", zView,
+                    haveU ? "u" : "user");
   }
   statrep_submenu(&url, "By Year", "view", "byyear", 0);
   statrep_submenu(&url, "By Month", "view", "bymonth", 0);
