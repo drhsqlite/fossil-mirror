@@ -264,7 +264,7 @@ static void stats_report_by_month_year(char includeMonth,
              "SELECT substr(date(mtime),1,%d) AS timeframe,"
              "       count(*) AS eventCount"
              "  FROM v_reports"
-             " WHERE ifnull(user=%Q,1)"
+             " WHERE ifnull(coalesce(euser,user,'')=%Q,1)"
              " GROUP BY timeframe"
              " ORDER BY timeframe DESC",
              includeMonth ? 7 : 4, zUserName);
@@ -480,7 +480,7 @@ static void stats_report_by_file(const char *zUserName){
     "    FROM filename, mlink, event"
     "   WHERE filename.fnid=mlink.fnid"
     "     AND mlink.mid=event.objid"
-    "     AND ifnull(ifnull(euser,user)=%Q,1)"
+    "     AND ifnull(coalesce(euser,user,'')=%Q,1)"
     "   GROUP BY 1", zUserName
   );
   db_prepare(&query,
@@ -547,7 +547,7 @@ static void stats_report_day_of_week(const char *zUserName){
                "SELECT cast(mtime %% 7 AS INTEGER) dow,"
                "       COUNT(*) AS eventCount"
                "  FROM v_reports"
-               " WHERE ifnull(ifnull(euser,user)=%Q,1)"
+               " WHERE ifnull(coalesce(euser,user,'')=%Q,1)"
                " GROUP BY dow ORDER BY dow", zUserName);
   @ <h1>Timeline Events (%h(stats_report_label_for_type())) by Day of the Week
   if( zUserName ){
@@ -557,7 +557,7 @@ static void stats_report_day_of_week(const char *zUserName){
   db_multi_exec(
     "CREATE TEMP TABLE piechart(amt,label);"
     "INSERT INTO piechart SELECT count(*), cast(mtime %% 7 AS INT) FROM v_reports"
-                         " WHERE ifnull(ifnull(euser,user)=%Q,1)"
+                         " WHERE ifnull(coalesce(euser,user,'')=%Q,1)"
                          " GROUP BY 2 ORDER BY 2;"
     "UPDATE piechart SET label = CASE label WHEN 0 THEN 'Monday' WHEN 1 THEN 'Tuesday'"
     "  WHEN 2 THEN 'Wednesday' WHEN 3 THEN 'Thursday' WHEN 4 THEN 'Friday'"
@@ -638,7 +638,7 @@ static void stats_report_year_weeks(const char *zUserName){
   db_prepare(&qYears,
              "SELECT DISTINCT substr(date(mtime),1,4) AS y"
              "  FROM v_reports"
-             " WHERE ifnull(ifnull(euser,user)=%Q,1)"
+             " WHERE ifnull(coalesce(euser,user,'')=%Q,1)"
              " GROUP BY y ORDER BY y", zUserName);
   cgi_printf("Select year: ");
   while( SQLITE_ROW == db_step(&qYears) ){
@@ -670,7 +670,7 @@ static void stats_report_year_weeks(const char *zUserName){
                "  FROM v_reports "
                " WHERE %Q=substr(date(mtime),1,4) "
                "   AND mtime < current_timestamp "
-               "   AND ifnull(ifnull(euser,user)=%Q,1)"
+               "   AND ifnull(coalesce(euser,user,'')=%Q,1)"
                " GROUP BY wk ORDER BY wk DESC", zYear, zUserName);
     @ <h1>Timeline events (%h(stats_report_label_for_type()))
     @ for the calendar weeks of %h(zYear)
