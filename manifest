@@ -1,5 +1,5 @@
-C Move\sthe\s"Activity\sReport"\scontrols\sinto\sdrop-down\smenus.
-D 2015-05-18T19:19:25.803
+C Fix\sthe\sdisplay\sof\s/reports?view=byweek\swith\san\sinvalid\suser.
+D 2015-05-18T20:00:58.499
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -483,7 +483,7 @@ F src/sqlite3.c 85e4e1c08c7df28ef61bb9759a0d466e0eefbaa2
 F src/sqlite3.h 07d4e4e898f011cceaece49482784a1b8edd4a8e
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 760b5ec89d07e1d2b566353d588e77e8b9cf97c8
-F src/statrep.c 10b0325824d8fde2d5ac91f995095bfbffe25368
+F src/statrep.c 4bbc0cead73f188db17533f3d897c6dbc4b2acd1
 F src/style.c c9aeaaea1fa89f7ae6364d3b0684406f10c1f952
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
@@ -736,7 +736,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 991f4b98f65221379cc42bb08493053e1d4bc31b
-R 5b5920e5db7ab375bc9a148542421466
+P 4d60469f15833c6d2962a90762a556228e7acd6d
+R 5d0c7470106539b82075af5f104d8f1a
 U drh
-Z 0b6af056c81cf88ab3c1b26da1325faf
+Z 2e0cfa49907034a20950dcffd5826a76

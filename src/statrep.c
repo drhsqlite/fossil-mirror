@@ -592,7 +592,13 @@ static void stats_report_year_weeks(const char *zUserName){
     n += 2;
   }
   db_finalize(&q);
-  if( !isValidYear ) zYear = azYear[0];
+  if( !isValidYear ){
+    if( n ){
+      zYear = azYear[0];
+    }else{
+      zYear = db_text("1970","SELECT substr(date('now'),1,4);");
+    }
+  }
   style_submenu_multichoice("y", n/2, (const char**)azYear, 0);
   cgi_printf("<br/>");
   db_prepare(&q,
