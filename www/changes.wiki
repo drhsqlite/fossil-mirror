@@ -42,6 +42,9 @@
   *  Have [/help?cmd=changes|fossil changes] and
      [/help?cmd=status|fossil status] report when executable or symlink status
      changes on otherwise unmodified files.
+  *  Permit filtering weekday and file [/help?cmd=/reports|reports] by user.
+     Also ensure the user parameter is preserved when changing types.  Add a
+     field for direct entry of the user name to each applicable report.
   *  Create parent directories of [/help?cmd=settings|empty-dirs] if they don't
      already exist.
   *  Inhibit timeline links to wiki pages that have been deleted.

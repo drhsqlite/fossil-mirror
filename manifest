@@ -1,5 +1,5 @@
-C The\sprevious\scheck-in\s[270b80db]\sis\sincorrect\sand\scauses\smemory\sallocation\nand\suse-after-free\serrors.\s\sBack\sit\sout.
-D 2015-05-18T22:17:22.237
+C Enhancements\sto\sthe\s/reports\sinterface,\sincluding\simproved\sfiltering\sby\suser.
+D 2015-05-19T10:24:18.053
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -483,8 +483,8 @@ F src/sqlite3.c 85e4e1c08c7df28ef61bb9759a0d466e0eefbaa2
 F src/sqlite3.h 07d4e4e898f011cceaece49482784a1b8edd4a8e
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 760b5ec89d07e1d2b566353d588e77e8b9cf97c8
-F src/statrep.c 82384c385482500a951f9b77e8ceedbacd8ef97d
-F src/style.c c9aeaaea1fa89f7ae6364d3b0684406f10c1f952
+F src/statrep.c 18bd59afe94902740da515f323f64310325cb100
+F src/style.c 1c9ef7c0dc77a49b6b833ec12971fb092e55885d
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
@@ -652,7 +652,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 1a0af5fa07defbe9c0ef2a821158fd51f39183a9
-F www/changes.wiki 6a9f00c9f89c9db31990d336982b23fbb8b9aab6
+F www/changes.wiki 80e2a26ce5ebb1bd6cb07b95313e63c67fb33a27
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 37087c035ff437c1c14dce07a0b8c7bf7adb3c2d
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -736,7 +736,8 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 270b80dbf561dc2dbdb4a804364bd8e51176fbff
-R 484055c1ba4d065108549f1ff652ef34
+P f7ce03e3fb3f7510b0d2b355aec06e841c5255ba 529492b9de7f70ac98a57a84747a21bea9d5853c
+R c966ab9402c1a152868dcaaf7a1d00f5
+T +closed 529492b9de7f70ac98a57a84747a21bea9d5853c
 U drh
-Z 392bd916b42c80019fb971a4ef96e524
+Z cd694f02ecb06f379e439ef6d6db16f8
