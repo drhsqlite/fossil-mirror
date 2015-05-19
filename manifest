@@ -1,5 +1,5 @@
-C Enhancements\sto\sthe\s/reports\sinterface,\sincluding\simproved\sfiltering\sby\suser.
-D 2015-05-19T10:24:18.053
+C Revert\s[48499514cc],\schanging\snUsed\sto\szero\sis\snot\sredundant\sas\sblob_append()\schanges\sit\sto\sone.
+D 2015-05-19T19:22:08.521
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -376,7 +376,7 @@ F src/allrepo.c cf9356bb2ef29ad8836889fbbc486f5a4ce2ffc1
 F src/attach.c 5b713ffe437fa0c3241da307835b1286e38798fd
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
-F src/blob.c a4cdfce824fa2e59cf749dbc9416e160c8263fcb
+F src/blob.c 0d539a6e5ca07937733df17f37e68fbe27082d59
 F src/branch.c 09724980278de18e9bbff5da85950c3febd811eb
 F src/browse.c 904f68c2a82bed2b9533b76a3497a961d2ae25d9
 F src/builtin.c 31c17d18b565c7766021913c89be4180b3ee4a56
@@ -736,8 +736,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P f7ce03e3fb3f7510b0d2b355aec06e841c5255ba 529492b9de7f70ac98a57a84747a21bea9d5853c
-R c966ab9402c1a152868dcaaf7a1d00f5
-T +closed 529492b9de7f70ac98a57a84747a21bea9d5853c
-U drh
-Z cd694f02ecb06f379e439ef6d6db16f8
+P 16ab6ee852cdebbf9b8a2cb33d8d5be4892f88f3
+R 14f9beccc57222ac47c6adfda2761b71
+U mistachkin
+Z b5e49669117446edb9a6d935a2ad860f
