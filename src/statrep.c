@@ -698,7 +698,7 @@ void stats_report_page(){
     const char *zVal;   /* Value of view= query parameter */
     int eType;          /* Corresponding RPT_* define */
   } aViewType[] = {
-     {  "By File",     "byfile",    RPT_BYFILE    },
+     {  "File Changes","byfile",    RPT_BYFILE    },
      {  "By Month",    "bymonth",   RPT_BYMONTH   },
      {  "By User",     "byuser",    RPT_BYUSER    },
      {  "By Week",     "byweek",    RPT_BYWEEK    },
@@ -706,7 +706,7 @@ void stats_report_page(){
      {  "By Year",     "byyear",    RPT_BYYEAR   },
   };
   const char *azType[] = {
-     "a",  "Any Type",
+     "a",  "All Changes",
      "ci", "Check-ins",
      "g",  "Tags",
      "e",  "Tech Notes",
@@ -738,10 +738,10 @@ void stats_report_page(){
       azView[nView++] = aViewType[i].zVal;
       azView[nView++] = aViewType[i].zName;
     }
-    style_submenu_multichoice("view", nView/2, azView, 0);
     if( eType!=RPT_BYFILE ){
       style_submenu_multichoice("type", ArraySize(azType)/2, azType, 0);
     }
+    style_submenu_multichoice("view", nView/2, azView, 0);
     if( eType!=RPT_BYUSER ){
       style_submenu_sql("u","User:",
          "SELECT '', 'All Users' UNION ALL "

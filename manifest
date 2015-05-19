@@ -1,5 +1,5 @@
-C Pull\sin\sthe\smemory\sallocation\sfix\sfrom\strunk.
-D 2015-05-18T22:18:16.692
+C Minor\sadjustments\sto\sdrop-down\smenus\son\sthe\s/reports\spage.
+D 2015-05-19T10:20:38.423
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -483,7 +483,7 @@ F src/sqlite3.c 85e4e1c08c7df28ef61bb9759a0d466e0eefbaa2
 F src/sqlite3.h 07d4e4e898f011cceaece49482784a1b8edd4a8e
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 760b5ec89d07e1d2b566353d588e77e8b9cf97c8
-F src/statrep.c fd65baa0b894e9a4e7377e3939e137eb466f20d4
+F src/statrep.c 18bd59afe94902740da515f323f64310325cb100
 F src/style.c 1c9ef7c0dc77a49b6b833ec12971fb092e55885d
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
@@ -736,7 +736,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 675274612dc320046b8887070218ba9fc9238f65 f7ce03e3fb3f7510b0d2b355aec06e841c5255ba
-R aece8944dc5ceb72ac60702bd101f8f6
+P 879958277a8fbda5e071fade8e96b927b1b7efae
+R c966ab9402c1a152868dcaaf7a1d00f5
 U drh
-Z 536cf17458e48a967d2164714d8ba867
+Z d0253ece82534779af2451d6f2c2761c
