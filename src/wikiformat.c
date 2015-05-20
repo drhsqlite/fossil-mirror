@@ -1153,7 +1153,9 @@ static const char *validWikiPageName(Renderer *p, const char *zTarget){
   if( strcmp(zTarget, "Sandbox")==0 ) return zTarget;
   if( wiki_name_is_wellformed((const unsigned char *)zTarget)
    && ((p->state & WIKI_NOBADLINKS)==0 ||
-        db_exists("SELECT 1 FROM tag WHERE tagname GLOB 'wiki-%q'", zTarget))
+        db_exists("SELECT 1 FROM tag WHERE tagname GLOB 'wiki-%q'"
+                  " AND (SELECT value FROM tagxref WHERE tagid=tag.tagid"
+                  " ORDER BY mtime DESC LIMIT 1) > 0", zTarget))
   ){
     return zTarget;
   }

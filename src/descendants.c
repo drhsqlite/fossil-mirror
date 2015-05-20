@@ -371,14 +371,13 @@ void leaves_cmd(void){
   int showClosed = find_option("closed", "c", 0)!=0;
   int recomputeFlag = find_option("recompute",0,0)!=0;
   int showForks = g.argv[1][0]!='l';
-  int byBranch = (find_option("bybranch",0,0)!=0) || showForks;
   int multipleFlag = (find_option("multiple","m",0))!=0 || showForks;
+  int byBranch = (find_option("bybranch",0,0)!=0) || multipleFlag;
   const char *zWidth = find_option("width","W",1);
   char *zLastBr = 0;
   int n, width;
   char zLineNo[10];
 
-  if( multipleFlag ) byBranch = 1;
   if( zWidth ){
     width = atoi(zWidth);
     if( (width!=0) && (width<=39) ){
@@ -449,6 +448,10 @@ void leaves_cmd(void){
     char *z;
 
     if( byBranch && fossil_strcmp(zBr, zLastBr)!=0 ){
+      if( showForks ){
+        fossil_print("WARNING: multiple open leaves on the following branches:\n");
+        showForks = 0;
+      }
       fossil_print("*** %s ***\n", zBr);
       fossil_free(zLastBr);
       zLastBr = fossil_strdup(zBr);
@@ -463,7 +466,6 @@ void leaves_cmd(void){
   }
   fossil_free(zLastBr);
   db_finalize(&q);
-  if( showForks && !zLastBr ) fossil_print("*** OK, no multiple leaves on the same branch found ***\n");
 }
 
 /*

@@ -205,6 +205,13 @@ div.content table[bgcolor="white"] {
   color: #000;
 }
 
+.piechartLabel {
+  fill: white;
+}
+.piechartLine {
+  stroke: white;
+}
+
 /**************************************
  * Main Area: Footer
  */
@@ -702,11 +709,6 @@ span.tktError {
  * Timeline
  */
 
-#canvas {
-  color: #000;
-  background-color: #fff;
-}
-
 div.divider {
   color: #ee0;
   font-size: 1.2rem;
@@ -1029,4 +1031,3 @@ tr.row0 {
 tr.row1 {
   /* Use default */
 }
-

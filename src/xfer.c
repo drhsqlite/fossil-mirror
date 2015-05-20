@@ -1975,7 +1975,7 @@ int client_sync(
     db_end_transaction(0);
   }
   if( (syncFlags & SYNC_CLONE)==0 && g.rcvid && fossil_any_has_fork(g.rcvid) ){
-    fossil_warning("***** WARNING: multiple leaves on the same branch are formed *****\n"
+    fossil_warning("***** WARNING: a fork has occurred *****\n"
                    "use \"fossil info\" for more details.");
   }
   return nErr;

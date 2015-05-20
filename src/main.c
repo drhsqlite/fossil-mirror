@@ -137,6 +137,7 @@ struct Global {
   char *zLocalDbName;     /* Name of the local database */
   const char *zMainDbType;/* "configdb", "localdb", or "repository" */
   const char *zConfigDbType;  /* "configdb", "localdb", or "repository" */
+  char *zOpenRevision;    /* Check-in version to use during database open */
   int localOpen;          /* True if the local database is open */
   char *zLocalRoot;       /* The directory holding the  local database */
   int minPrefix;          /* Number of digits needed for a distinct UUID */
@@ -1443,6 +1444,11 @@ static int repo_list_page(void){
   n = db_int(0, "SELECT count(*) FROM sfile");
   if( n>0 ){
     Stmt q;
+    @ <html>
+    @ <head>
+    @ <title>Repository List</title>
+    @ </head>
+    @ <body>
     @ <h1>Available Repositories:</h1>
     @ <ol>
     db_prepare(&q, "SELECT x, substr(x,-7,-100000)||'/home'"
@@ -1450,9 +1456,11 @@ static int repo_list_page(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       const char *zUrl = db_column_text(&q, 1);
-      @ <li><a href="%h(zUrl)">%h(zName)</a></li>
+      @ <li><a href="%h(zUrl)" target="_blank">%h(zName)</a></li>
     }
     @ </ol>
+    @ </body>
+    @ </html>
     cgi_reply();
   }
   sqlite3_close(g.db);
@@ -1565,12 +1573,12 @@ static void process_one_web_page(
 
       if( szFile<1024 ){
         set_base_url(0);
-        if( zNotFound ){
-          cgi_redirect(zNotFound);
-        }else if( strcmp(zPathInfo,"/")==0
+        if( strcmp(zPathInfo,"/")==0
                   && allowRepoList
                   && repo_list_page() ){
           /* Will return a list of repositories */
+        }else if( zNotFound ){
+          cgi_redirect(zNotFound);
         }else{
 #ifdef FOSSIL_ENABLE_JSON
           if(g.json.isJsonMode){
@@ -2171,7 +2179,6 @@ void cmd_http(void){
   }
   zHost = find_option("host", 0, 1);
   if( zHost ) cgi_replace_parameter("HTTP_HOST",zHost);
-  g.cgiOutput = 1;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -2179,6 +2186,7 @@ void cmd_http(void){
   if( g.argc!=2 && g.argc!=3 && g.argc!=5 && g.argc!=6 ){
     fossil_fatal("no repository specified");
   }
+  g.cgiOutput = 1;
   g.fullHttpReply = 1;
   if( g.argc>=5 ){
     g.httpIn = fossil_fopen(g.argv[2], "rb");
