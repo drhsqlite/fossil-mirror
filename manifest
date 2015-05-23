@@ -1,5 +1,5 @@
-C Revert\s[48499514cc],\schanging\snUsed\sto\szero\sis\snot\sredundant\sas\sblob_append()\schanges\sit\sto\sone.
-D 2015-05-19T19:22:08.521
+C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.8.10.2.
+D 2015-05-23T10:12:21.024
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -474,13 +474,13 @@ F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b02a73b942028631eacf484ae3f83a3a4edd3518
 F src/setup.c 97d246c3bba673f87745d1c870250d30e53ab3ee
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
-F src/shell.c 1b6fc902d4455b7a4d6d9cc9a23d3f6af7089302
+F src/shell.c 07dda7cd692911d2f22269953418d049f2e2c0ee
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c c61001e4c189224381a6474d204cde7d868e9ef0
 F src/skins.c f12a6c105e7ceb269570e046800ae4ad1231b15a
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c 85e4e1c08c7df28ef61bb9759a0d466e0eefbaa2
-F src/sqlite3.h 07d4e4e898f011cceaece49482784a1b8edd4a8e
+F src/sqlite3.c 638abb77965332c956dbbd2c8e4248e84da4eb63
+F src/sqlite3.h b479b6a7b0fc402946ae0ae2beb878ce6cc33ce2
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 760b5ec89d07e1d2b566353d588e77e8b9cf97c8
 F src/statrep.c 18bd59afe94902740da515f323f64310325cb100
@@ -652,7 +652,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 1a0af5fa07defbe9c0ef2a821158fd51f39183a9
-F www/changes.wiki 80e2a26ce5ebb1bd6cb07b95313e63c67fb33a27
+F www/changes.wiki 1a8a018eb9b0183080a42d7a7d4b2f2de88d777b
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 37087c035ff437c1c14dce07a0b8c7bf7adb3c2d
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -736,7 +736,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 16ab6ee852cdebbf9b8a2cb33d8d5be4892f88f3
-R 14f9beccc57222ac47c6adfda2761b71
-U mistachkin
-Z b5e49669117446edb9a6d935a2ad860f
+P 4742716fc16c713eb296c29902c0267ee432844f
+R fa566a255d636eaaa4b59169412ce50e
+U drh
+Z a0257cd7c2c68a2ad2af9561e3d4dcfa

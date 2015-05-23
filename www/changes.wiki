@@ -31,7 +31,7 @@
   *  Added the "Blitz" skin option.
   *  Removed the ".fossil-settings/keep-glob" file.  It should not have been
      checked into the repository.
-  *  Update the built-in SQLite to version 3.8.10.1.
+  *  Update the built-in SQLite to version 3.8.10.2.
   *  Make [/help?cmd=open|fossil open] honor ".fossil-settings/allow-symlinks".
   *  Allow [/help?cmd=add|fossil add] to be used on symlinks to nonexistent or
      unreadable files in the same way as [/help?cmd=addremove|fossil addremove].
