@@ -115,6 +115,14 @@ static void status_report(
         blob_appendf(report, "UPDATED_BY_INTEGRATE %s\n", zDisplayName);
       }else if( isChnged==5 ){
         blob_appendf(report, "ADDED_BY_INTEGRATE %s\n", zDisplayName);
+      }else if( isChnged==6 ){
+        blob_appendf(report, "EXECUTABLE %s\n", zDisplayName);
+      }else if( isChnged==7 ){
+        blob_appendf(report, "SYMLINK    %s\n", zDisplayName);
+      }else if( isChnged==8 ){
+        blob_appendf(report, "UNEXEC     %s\n", zDisplayName);
+      }else if( isChnged==9 ){
+        blob_appendf(report, "UNLINK     %s\n", zDisplayName);
       }else if( file_contains_merge_marker(zFullName) ){
         blob_appendf(report, "CONFLICT   %s\n", zDisplayName);
       }else{
@@ -1642,6 +1650,8 @@ void commit_cmd(void){
   const char *zComFile;  /* Read commit message from this file */
   int nTag = 0;          /* Number of --tag arguments */
   const char *zTag;      /* A single --tag argument */
+  ManifestFile *pFile;   /* File structure in the manifest */
+  Manifest *pManifest;   /* Manifest structure */
   Blob manifest;         /* Manifest in baseline form */
   Blob muuid;            /* Manifest uuid */
   Blob cksum1, cksum2;   /* Before and after commit checksums */
@@ -1909,7 +1919,7 @@ void commit_cmd(void){
   ** the identified files are inserted (if they have been modified).
   */
   db_prepare(&q,
-    "SELECT id, %Q || pathname, mrid, %s, chnged, %s, %s FROM vfile "
+    "SELECT id, %Q || pathname, mrid, %s, %s, %s FROM vfile "
     "WHERE chnged==1 AND NOT deleted AND is_selected(id)",
     g.zLocalRoot,
     glob_expr("pathname", db_get("crnl-glob","")),
@@ -1920,15 +1930,14 @@ void commit_cmd(void){
     int id, rid;
     const char *zFullname;
     Blob content;
-    int crnlOk, binOk, encodingOk, chnged;
+    int crnlOk, binOk, encodingOk;
 
     id = db_column_int(&q, 0);
     zFullname = db_column_text(&q, 1);
     rid = db_column_int(&q, 2);
     crnlOk = db_column_int(&q, 3);
-    chnged = db_column_int(&q, 4);
-    binOk = db_column_int(&q, 5);
-    encodingOk = db_column_int(&q, 6);
+    binOk = db_column_int(&q, 4);
+    encodingOk = db_column_int(&q, 5);
 
     blob_zero(&content);
     if( file_wd_islink(zFullname) ){
@@ -1942,7 +1951,7 @@ void commit_cmd(void){
       abortCommit |= commit_warning(&content, crnlOk, binOk,
                                     encodingOk, zFullname);
     }
-    if( chnged==1 && contains_merge_marker(&content) ){
+    if( contains_merge_marker(&content) ){
       Blob fname; /* Relative pathname of the file */
 
       nConflict++;
@@ -2080,7 +2089,6 @@ void commit_cmd(void){
     blob_reset(&muuid);
   }
 
-
   /* Update the vfile and vmerge tables */
   db_multi_exec(
     "DELETE FROM vfile WHERE (vid!=%d OR deleted) AND is_selected(id);"
@@ -2091,6 +2099,24 @@ void commit_cmd(void){
     , vid, nvid
   );
   db_lset_int("checkout", nvid);
+
+  /* Update the isexe and islink columns of the vfile table */
+  db_prepare(&q,
+    "UPDATE vfile SET isexe=:exec, islink=:link"
+    " WHERE vid=:vid AND pathname=:path AND (isexe!=:exec OR islink!=:link)"
+  );
+  db_bind_int(&q, ":vid", nvid);
+  pManifest = manifest_get(nvid, CFTYPE_MANIFEST, 0);
+  manifest_file_rewind(pManifest);
+  while( (pFile = manifest_file_next(pManifest, 0)) ){
+    db_bind_int(&q, ":exec", pFile->zPerm && strstr(pFile->zPerm, "x"));
+    db_bind_int(&q, ":link", pFile->zPerm && strstr(pFile->zPerm, "l"));
+    db_bind_text(&q, ":path", pFile->zName);
+    db_step(&q);
+    db_reset(&q);
+  }
+  db_finalize(&q);
+  manifest_destroy(pManifest);
 
   if( useCksum ){
     /* Verify that the repository checksum matches the expected checksum

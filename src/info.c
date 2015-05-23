@@ -370,18 +370,24 @@ static void append_file_change_line(
   ReCompiled *pRe,      /* Only show diffs that match this regex, if not NULL */
   int mperm             /* executable or symlink permission for zNew */
 ){
+  @ <p>
   if( !g.perm.Hyperlink ){
     if( zNew==0 ){
-      @ <p>Deleted %h(zName)</p>
+      @ Deleted %h(zName).
     }else if( zOld==0 ){
-      @ <p>Added %h(zName)</p>
+      @ Added %h(zName).
     }else if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
-      @ <p>Name change from %h(zOldName) to %h(zName)
+      @ Name change from %h(zOldName) to %h(zName).
     }else if( fossil_strcmp(zNew, zOld)==0 ){
-      @ <p>Execute permission %s(( mperm==PERM_EXE )?"set":"cleared")
-      @  for %h(zName)</p>
+      if( mperm==PERM_EXE ){
+        @ %h(zName) became executable.
+      }else if( mperm==PERM_LNK ){
+        @ %h(zName) became a symlink.
+      }else{
+        @ %h(zName) became a regular file.
+      }
     }else{
-      @ <p>Changes to %h(zName)</p>
+      @ Changes to %h(zName).
     }
     if( diffFlags ){
       append_diff(zOld, zNew, diffFlags, pRe);
@@ -389,23 +395,30 @@ static void append_file_change_line(
   }else{
     if( zOld && zNew ){
       if( fossil_strcmp(zOld, zNew)!=0 ){
-        @ <p>Modified %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
+        @ Modified %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
         @ from %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>
         @ to %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
       }else if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
-        @ <p>Name change
+        @ Name change
         @ from %z(href("%R/finfo?name=%T",zOldName))%h(zOldName)</a>
         @ to %z(href("%R/finfo?name=%T",zName))%h(zName)</a>.
       }else{
-        @ <p>Execute permission %s(( mperm==PERM_EXE )?"set":"cleared") for
-        @ %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
+        @ %z(href("%R/finfo?name=%T",zName))%h(zName)</a> became
+        if( mperm==PERM_EXE ){
+          @ executable with contents
+        }else if( mperm==PERM_LNK ){
+          @ a symlink with target
+        }else{
+          @ a regular file with contents
+        }
+        @ %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
       }
     }else if( zOld ){
-      @ <p>Deleted %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
-      @ version %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>
+      @ Deleted %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
+      @ version %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>.
     }else{
-      @ <p>Added %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
-      @ version %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>
+      @ Added %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
+      @ version %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
     }
     if( diffFlags ){
       append_diff(zOld, zNew, diffFlags, pRe);
@@ -414,6 +427,7 @@ static void append_file_change_line(
       @ %z(href("%R/fdiff?v1=%!S&v2=%!S&sbs=1",zOld,zNew))[diff]</a>
     }
   }
+  @ </p>
 }
 
 /*

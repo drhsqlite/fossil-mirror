@@ -234,3 +234,8 @@ can serve as a starting point for future work:
        header.txt, and footer.txt files
        into the CSS, details, header, and footer configuration screens
        under the Admin/Skins menu.
+
+See Also
+--------
+
+*   [Customizing the Timeline Graph](customgraph.md)

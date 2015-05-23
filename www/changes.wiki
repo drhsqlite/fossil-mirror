@@ -1,8 +1,23 @@
 <title>Change Log</title>
 
 <h2>Changes for Version 1.33 (not released yet)</h2>
+  *  Improved fork detection on [/help?cmd=update|fossil update],
+     [/help?cmd=status|fossil status] and related commands.
+  *  Change the default skin to what used to be called "San Francisco Modern".
+  *  Add the [/repo-tabsize] web page
   *  Add [/help?cmd=import|fossil import --svn], for importing a subversion
      repository into fossil which was exported using "svnadmin dump".
+  *  Add the "--compress-only" option to [/help?cmd=rebuild|fossil rebuild].
+  *  Use a pie chart on the [/reports?view=byuser] page.
+  *  Enhanced [/help?cmd=clean|fossil clean --verily] so that it ignores
+     keep-glob and ignore-glob settings.  Added the -x alias for --verily.
+  *  Add the --soft and --hard options to [/help?cmd=rm|fossil rm] and
+     [/help?cmd=mv|fossil mv].  The default is still --soft, but that is
+     now configurable at compile-time or by the mv-rm-files setting.
+  *  Improved ability to [./customgraph.md|customize the timelime graph].
+  *  Improvements to the [/sitemap] page.
+  *  Automatically adjust the [/help?cmd=timeline|CLI timeline] to the terminal
+     width on Linux.
   *  Added <nowiki>[info commands] and [info vars]</nowiki> commands to TH1.
      These commands perform the same function as their Tcl counterparts,
      except they do not accept a pattern argument.
@@ -11,10 +26,28 @@
      or HTML.
   *  Formally translate TH1 to Tcl return codes and vice-versa, where
      necessary, in the Tcl integration subsystem.
-  *  Better fork detection on [/help?cmd=update|fossil update],
-     [/help?cmd=status|fossil status] and related commands.
   *  Add [/help?cmd=leaves|fossil leaves -multiple], for finding multiple
      leaves on the same branch.
+  *  Added the "Blitz" skin option.
+  *  Removed the ".fossil-settings/keep-glob" file.  It should not have been
+     checked into the repository.
+  *  Update the built-in SQLite to version 3.8.10.2.
+  *  Make [/help?cmd=open|fossil open] honor ".fossil-settings/allow-symlinks".
+  *  Allow [/help?cmd=add|fossil add] to be used on symlinks to nonexistent or
+     unreadable files in the same way as [/help?cmd=addremove|fossil addremove].
+  *  Added fork warning to be issued if sync produced a fork
+  *  Update the [/help?cmd=/info|info] page to report when a file becomes a
+     symlink.  Additionally show the UUID for files whose types have changed
+     without changing contents or symlink target.
+  *  Have [/help?cmd=changes|fossil changes] and
+     [/help?cmd=status|fossil status] report when executable or symlink status
+     changes on otherwise unmodified files.
+  *  Permit filtering weekday and file [/help?cmd=/reports|reports] by user.
+     Also ensure the user parameter is preserved when changing types.  Add a
+     field for direct entry of the user name to each applicable report.
+  *  Create parent directories of [/help?cmd=settings|empty-dirs] if they don't
+     already exist.
+  *  Inhibit timeline links to wiki pages that have been deleted.
 
 <h2>Changes for Version 1.32 (2015-03-14)</h2>
   *  When creating a new repository using [/help?cmd=init|fossil init], ensure

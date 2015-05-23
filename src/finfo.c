@@ -184,7 +184,7 @@ void finfo_cmd(void){
     }
     zFilename = blob_str(&fname);
     db_prepare(&q,
-        "SELECT b.uuid, ci.uuid, date(event.mtime%s),"
+        "SELECT DISTINCT b.uuid, ci.uuid, date(event.mtime%s),"
         "       coalesce(event.ecomment, event.comment),"
         "       coalesce(event.euser, event.user),"
         "       (SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0"
@@ -405,8 +405,6 @@ void finfo_page(void){
   @ <h2>%b(&title)</h2>
   blob_reset(&title);
   pGraph = graph_init();
-  @ <div id="canvas" style="position:relative;width:1px;height:1px;"
-  @  onclick="clickOnGraph(event)"></div>
   @ <table id="timelineTable" class="timelineTable">
   while( db_step(&q)==SQLITE_ROW ){
     const char *zDate = db_column_text(&q, 0);
@@ -461,7 +459,7 @@ void finfo_page(void){
     zTime[5] = 0;
     @ <tr><td class="timelineTime">
     @ %z(href("%R/timeline?c=%t",zDate))%s(zTime)</a></td>
-    @ <td class="timelineGraph"><div id="m%d(gidx)"></div></td>
+    @ <td class="timelineGraph"><div id="m%d(gidx)" class="tl-nodemark"></div></td>
     if( zBgClr && zBgClr[0] ){
       @ <td class="timelineTableCell" style="background-color: %h(zBgClr);">
     }else{
@@ -511,7 +509,7 @@ void finfo_page(void){
       @ %z(href("%R/blame?filename=%h&checkin=%s",z,zCkin))
       @ [blame]</a>
       @ %z(href("%R/timeline?n=200&uf=%!S",zUuid))[check-ins&nbsp;using]</a>
-      if( fpid ){
+      if( fpid>0 ){
         @ %z(href("%R/fdiff?sbs=1&v1=%!S&v2=%!S",zPUuid,zUuid))[diff]</a>
       }
     }
@@ -538,10 +536,7 @@ void finfo_page(void){
       graph_free(pGraph);
       pGraph = 0;
     }else{
-      int w = pGraph->mxRail*pGraph->iRailPitch + 28;
-      @ <tr><td></td><td>
-      @ <div id="grbtm" style="width:%d(w)px;"></div>
-      @     </td><td></td></tr>
+      @ <tr class="timelineBottom"><td></td><td></td><td></td></tr>
     }
   }
   @ </table>

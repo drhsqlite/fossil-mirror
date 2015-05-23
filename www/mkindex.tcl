@@ -19,6 +19,7 @@ set doclist {
   copyright-release.html {Contributor License Agreement}
   concepts.wiki {Fossil Core Concepts}
   contribute.wiki {Contributing Code or Documentation To The Fossil Project}
+  customgraph.md {Theming: Customizing the Timeline Graph}
   customskin.md {Theming: Customizing The Appearance of Web Pages}
   custom_ticket.wiki {Customizing The Ticket System}
   delta_encoder_algorithm.wiki {Fossil Delta Encoding Algorithm}

@@ -251,18 +251,20 @@ const char zRepositorySchema2[] =
 @ --    pfnid = Parent File Name ID.
 @ --    isaux = pmid IS AUXiliary parent, not primary parent
 @ --
-@ -- pid==0 if the file is added by check-in mid.
-@ -- fid==0 if the file is removed by check-in mid.
+@ -- pid==0    if the file is added by check-in mid.
+@ -- pid==(-1) if the file exists in a merge parents but not in the primary
+@  --          parent.  In other words, if the file file was added by merge.
+@ -- fid==0    if the file is removed by check-in mid.
 @ --
 @ CREATE TABLE mlink(
-@   mid INTEGER REFERENCES plink(cid),  -- Check-in that contains fid
-@   fid INTEGER REFERENCES blob,        -- New file content. 0 if deleted
-@   pmid INTEGER REFERENCES plink(cid), -- Check-in that contains pid
-@   pid INTEGER REFERENCES blob,        -- Prev file content. 0 if new
-@   fnid INTEGER REFERENCES filename,   -- Name of the file
-@   pfnid INTEGER REFERENCES filename,  -- Previous name. 0 if unchanged
-@   mperm INTEGER,                      -- File permissions.  1==exec
-@   isaux BOOLEAN DEFAULT 0             -- TRUE if pmid is the primary
+@   mid INTEGER,                       -- Check-in that contains fid
+@   fid INTEGER,                       -- New file content. 0 if deleted
+@   pmid INTEGER,                      -- Check-in that contains pid
+@   pid INTEGER,                       -- Prev file content. 0 if new. -1 merge
+@   fnid INTEGER REFERENCES filename,  -- Name of the file
+@   pfnid INTEGER REFERENCES filename, -- Previous name. 0 if unchanged
+@   mperm INTEGER,                     -- File permissions.  1==exec
+@   isaux BOOLEAN DEFAULT 0            -- TRUE if pmid is the primary
 @ );
 @ CREATE INDEX mlink_i1 ON mlink(mid);
 @ CREATE INDEX mlink_i2 ON mlink(fnid);

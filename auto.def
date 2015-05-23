@@ -301,6 +301,7 @@ if {![cc-check-functions getpassphrase]} {
     cc-check-function-in-lib getpass bsd
 }
 cc-check-function-in-lib dlopen dl
+cc-check-function-in-lib sin m
 
 # Check for the FuseFS library
 if {[opt-bool fusefs]} {
