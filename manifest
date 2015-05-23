@@ -1,5 +1,5 @@
-C Version\s1.33
-D 2015-05-23T11:11:31.970
+C Add\sthe\srelease\sdate\sto\sversion\s1.33\sin\sthe\schange\slog.
+D 2015-05-23T11:45:00.887
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -652,7 +652,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 1a0af5fa07defbe9c0ef2a821158fd51f39183a9
-F www/changes.wiki 1a8a018eb9b0183080a42d7a7d4b2f2de88d777b
+F www/changes.wiki f43a76a80e53e51a812f694b41757d6bb049529b
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 37087c035ff437c1c14dce07a0b8c7bf7adb3c2d
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -736,10 +736,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 36c457b086ed710f2f8b825e2657ead54b27364f
-R fa566a255d636eaaa4b59169412ce50e
-T +bgcolor * #d0c0ff
-T +sym-release *
-T +sym-version-1.33 *
+P 9c65b5432e4aeecf3556e5550c338ce93fd861cc
+R c11daf95cc76afb1d60212d0f1a0a5d4
 U drh
-Z fcd65a9b4e598d39eae8601775b2f8cb
+Z 40b2e6ea14e86c4e6ffdc9a6f4d4a411

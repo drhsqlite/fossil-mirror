@@ -1,6 +1,6 @@
 <title>Change Log</title>
 
-<h2>Changes for Version 1.33 (not released yet)</h2>
+<h2>Changes for Version 1.33 (2015-05-23)</h2>
   *  Improved fork detection on [/help?cmd=update|fossil update],
      [/help?cmd=status|fossil status] and related commands.
   *  Change the default skin to what used to be called "San Francisco Modern".
