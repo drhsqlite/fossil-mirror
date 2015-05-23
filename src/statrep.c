@@ -39,20 +39,6 @@ static const char *statsReportTimelineYFlag = NULL;
 
 
 /*
-** Generate a submenu element with a single parameter change.
-*/
-static void statrep_submenu(
-  HQuery *pUrl,            /* Base URL */
-  const char *zMenuName,   /* Submenu name */
-  const char *zParam,      /* Parameter value to add or change */
-  const char *zValue,      /* Value of the new parameter */
-  const char *zRemove      /* Parameter to omit */
-){
-  style_submenu_element(zMenuName, zMenuName, "%s",
-                        url_render(pUrl, zParam, zValue, zRemove, 0));
-}
-
-/*
 ** Creates a TEMP VIEW named v_reports which is a wrapper around the
 ** EVENT table filtered on event.type. It looks for the request
 ** parameter 'type' (reminder: we "should" use 'y' for consistency
@@ -194,7 +180,6 @@ static void stats_report_by_month_year(char includeMonth,
                                         current year */
   char showYearTotal = 0;            /* Flag telling us when to show
                                         the per-year event totals */
-  Blob header = empty_blob;          /* Page header text */
   int nMaxEvents  = 1;               /* for calculating length of graph
                                         bars. */
   int iterations = 0;                /* number of weeks/months we iterate
@@ -567,14 +552,10 @@ static void stats_report_day_of_week(const char *zUserName){
 */
 static void stats_report_year_weeks(const char *zUserName){
   const char *zYear = P("y");        /* Year for which report shown */
-  int isValidYear = 0;               /* True if a valid year */
-  int i = 0;
   Stmt q;
   int nMaxEvents = 1;                /* max number of events for
                                         all rows. */
   int iterations = 0;                /* # of active time periods. */
-  int n = 0;                         /* Number of entries in azYear */
-  char **azYear = 0;                 /* Year dropdown menu */
   int rowCount = 0;
   int total = 0;
 

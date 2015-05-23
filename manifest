@@ -1,5 +1,5 @@
-C Add\sthe\srelease\sdate\sto\sversion\s1.33\sin\sthe\schange\slog.
-D 2015-05-23T11:45:00.887
+C Fix\sharmless\scompiler\swarnings.
+D 2015-05-23T18:12:30.996
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -483,7 +483,7 @@ F src/sqlite3.c 638abb77965332c956dbbd2c8e4248e84da4eb63
 F src/sqlite3.h b479b6a7b0fc402946ae0ae2beb878ce6cc33ce2
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 760b5ec89d07e1d2b566353d588e77e8b9cf97c8
-F src/statrep.c 18bd59afe94902740da515f323f64310325cb100
+F src/statrep.c 3a6d52826bd9427a8c061600313a51a8ea3b2dcc
 F src/style.c 1c9ef7c0dc77a49b6b833ec12971fb092e55885d
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
@@ -736,7 +736,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 9c65b5432e4aeecf3556e5550c338ce93fd861cc
-R c11daf95cc76afb1d60212d0f1a0a5d4
-U drh
-Z 40b2e6ea14e86c4e6ffdc9a6f4d4a411
+P bdc2f11d289e204bab6d29c2280119ea17c4f15b
+R b29ac3917435c4157fb0eb5e8603ce95
+U mistachkin
+Z 4ff90ab4a9169799e0aa4aefb0b85dec
