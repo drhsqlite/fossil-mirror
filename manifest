@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.8.10.2.
-D 2015-05-23T10:12:21.024
+C Version\s1.33
+D 2015-05-23T11:11:31.970
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -736,7 +736,10 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 4742716fc16c713eb296c29902c0267ee432844f
+P 36c457b086ed710f2f8b825e2657ead54b27364f
 R fa566a255d636eaaa4b59169412ce50e
+T +bgcolor * #d0c0ff
+T +sym-release *
+T +sym-version-1.33 *
 U drh
-Z a0257cd7c2c68a2ad2af9561e3d4dcfa
+Z fcd65a9b4e598d39eae8601775b2f8cb
