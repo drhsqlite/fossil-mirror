@@ -48,7 +48,7 @@ static void status_report(
   blob_zero(&where);
   for(i=2; i<g.argc; i++){
     Blob fname;
-    file_tree_name(g.argv[i], &fname, 1);
+    file_tree_name(g.argv[i], &fname, 0, 1);
     zName = blob_str(&fname);
     if( fossil_strcmp(zName, ".")==0 ){
       blob_reset(&where);
@@ -298,7 +298,7 @@ static void ls_cmd_rev(
   blob_zero(&where);
   for(i=2; i<g.argc; i++){
     Blob fname;
-    file_tree_name(g.argv[i], &fname, 1);
+    file_tree_name(g.argv[i], &fname, 0, 1);
     zName = blob_str(&fname);
     if( fossil_strcmp(zName, ".")==0 ){
       blob_reset(&where);
@@ -411,7 +411,7 @@ void ls_cmd(void){
   blob_zero(&where);
   for(i=2; i<g.argc; i++){
     Blob fname;
-    file_tree_name(g.argv[i], &fname, 1);
+    file_tree_name(g.argv[i], &fname, 0, 1);
     zName = blob_str(&fname);
     if( fossil_strcmp(zName, ".")==0 ){
       blob_reset(&where);
@@ -743,7 +743,7 @@ void clean_cmd(void){
         " ORDER BY 1",
         g.zLocalRoot, fossil_all_reserved_names(0)
     );
-    if( file_tree_name(g.zRepositoryName, &repo, 0) ){
+    if( file_tree_name(g.zRepositoryName, &repo, 0, 0) ){
       db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
     }
     db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
@@ -1039,7 +1039,7 @@ int select_commit_files(void){
     bag_init(&toCommit);
     for(ii=2; ii<g.argc; ii++){
       int cnt = 0;
-      file_tree_name(g.argv[ii], &fname, 1);
+      file_tree_name(g.argv[ii], &fname, 0, 1);
       if( fossil_strcmp(blob_str(&fname),".")==0 ){
         bag_clear(&toCommit);
         return result;
