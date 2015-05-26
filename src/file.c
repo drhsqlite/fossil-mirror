@@ -1114,7 +1114,7 @@ int file_tree_name(
 ** Test the operation of the tree name generator.
 **
 ** Options:
-**   --absolute           Return an absolute path intead of a relative one.
+**   --absolute           Return an absolute path instead of a relative one.
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is
 **                        a boolean: "yes", "no", "true", "false", etc.
 */
