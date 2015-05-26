@@ -1056,8 +1056,27 @@ int file_tree_name(
 
   blob_zero(pOut);
   if( !g.localOpen ){
-    blob_appendf(pOut, "%s", zOrigName);
-    return 1;
+    if( absolute && !file_is_absolute_path(zOrigName) ){
+      if( errFatal ){
+        fossil_fatal("relative to absolute needs open checkout tree: %s",
+                     zOrigName);
+      }
+      return 0;
+    }else{
+      /*
+      ** The original path may be relative or absolute; however, without
+      ** an open checkout tree, the only things we can do at this point
+      ** is return it verbatim or generate a fatal error.  The caller is
+      ** probably expecting a tree-relative path name will be returned;
+      ** however, most places where this function is called already check
+      ** if the local checkout tree is open, either directly or indirectly,
+      ** which would make this situation impossible.  Alternatively, they
+      ** could check the returned path using the file_is_absolute_path()
+      ** function.
+      */
+      blob_appendf(pOut, "%s", zOrigName);
+      return 1;
+    }
   }
   file_canonical_name(g.zLocalRoot, &localRoot, 1);
   nLocalRoot = blob_size(&localRoot);
