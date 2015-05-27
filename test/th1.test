@@ -863,7 +863,7 @@ enable_output uplevel http expr utime styleFooter catch if tclReady\
 searchable reinitialize combobox lindex query html anoncap randhex\
 llength for set break regexp styleHeader puts return checkout decorate\
 artifact trace wiki proc hascap globalState continue getParameter\
-hasfeature setting breakpoint upvar render repository string unset\
+hasfeature setting lsearch breakpoint upvar render repository string unset\
 setParameter list error info rename anycap httpize}}
 
 ###############################################################################
@@ -890,3 +890,56 @@ test th1-info-vars-4 {$RESULT eq "x"}
 
 fossil test-th-eval "set y 1; proc foo {} {set x 1; uplevel 1 {info vars}}; foo"
 test th1-info-vars-5 {$RESULT eq "y"}
+
+###############################################################################
+
+fossil test-th-eval "lsearch"
+test th1-lsearch-1 {$RESULT eq \
+    {TH_ERROR: wrong # args: should be "lsearch list string"}}
+
+###############################################################################
+
+fossil test-th-eval "lsearch a"
+test th1-lsearch-2 {$RESULT eq \
+    {TH_ERROR: wrong # args: should be "lsearch list string"}}
+
+###############################################################################
+
+fossil test-th-eval "lsearch a a a"
+test th1-lsearch-3 {$RESULT eq \
+    {TH_ERROR: wrong # args: should be "lsearch list string"}}
+
+###############################################################################
+
+fossil test-th-eval "lsearch {a b c} a"
+test th1-lsearch-4 {$RESULT eq "0"}
+
+###############################################################################
+
+fossil test-th-eval "lsearch {a b c} b"
+test th1-lsearch-5 {$RESULT eq "1"}
+
+###############################################################################
+
+fossil test-th-eval "lsearch {a b c} c"
+test th1-lsearch-6 {$RESULT eq "2"}
+
+###############################################################################
+
+fossil test-th-eval "lsearch {a b c} d"
+test th1-lsearch-7 {$RESULT eq "-1"}
+
+###############################################################################
+
+fossil test-th-eval "lsearch {a b c} aa"
+test th1-lsearch-8 {$RESULT eq "-1"}
+
+###############################################################################
+
+fossil test-th-eval "lsearch {aa b c} a"
+test th1-lsearch-9 {$RESULT eq "-1"}
+
+###############################################################################
+
+fossil test-th-eval "lsearch \"\{aa b c\" a"
+test th1-lsearch-10 {$RESULT eq "TH_ERROR: Expected list, got: \"\{aa b c\""}
