@@ -1,5 +1,5 @@
-C Have\sall\sappropriate\stests\suse\s'normalize_result'\sinstead\sof\sa\sraw\s'string\smap'.
-D 2015-05-27T18:37:20.982
+C Add\sand\srefine\stests,\spart\s2.
+D 2015-05-27T19:17:28.887
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -536,7 +536,7 @@ F test/merge5.test 28cc9adf08343456fae9f2d9001c35ec62a78f31
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test 3fac7909f72a94ae05174404b1c9a7c68dd43824
 F test/merge_renames.test 1c7c8130b98099fbaa68e4adfcb9f13fbdf57787
-F test/mv-rm.test 38d03475148870fac5697605c3d1dc83abedcc38
+F test/mv-rm.test d61a6ce9d919122268591bd8b664a74afc111125
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
 F test/revert.test fd2db9b23831a1e0e9ada5bfc7475fce579a949a
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
@@ -737,7 +737,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P cdd2ede6a20464a028d1c5657a00cdf3eec4e3a0
-R 7797922041371225d4bb8e7382b4fda5
+P d2cf0713ef8ee45749bf4de78c5a50b21cf69c7c
+R 47b273303fb765d2380ccfcd5d1a9b85
 U mistachkin
-Z 1aaee6fdce162ea19a99c31dcd6f31a2
+Z da3874559f6f346c53e841310e2d21dc
