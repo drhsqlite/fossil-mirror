@@ -386,16 +386,18 @@ static void process_files_to_remove(
   int dryRunFlag /* Zero to actually operate on the file-system. */
 ){
   Stmt remove;
-  db_prepare(&remove, "SELECT x FROM fremove ORDER BY x;");
-  while( db_step(&remove)==SQLITE_ROW ){
-    const char *zOldName = db_column_text(&remove, 0);
-    if( !dryRunFlag ){
-      file_delete(zOldName);
+  if( db_table_exists(db_name("temp"), "fremove") ){
+    db_prepare(&remove, "SELECT x FROM fremove ORDER BY x;");
+    while( db_step(&remove)==SQLITE_ROW ){
+      const char *zOldName = db_column_text(&remove, 0);
+      if( !dryRunFlag ){
+        file_delete(zOldName);
+      }
+      fossil_print("DELETED_FILE %s\n", zOldName);
     }
-    fossil_print("DELETED_FILE %s\n", zOldName);
+    db_finalize(&remove);
+    db_multi_exec("DROP TABLE fremove;");
   }
-  db_finalize(&remove);
-  db_multi_exec("DROP TABLE fremove;");
 }
 
 /*
@@ -770,22 +772,24 @@ static void process_files_to_move(
   int dryRunFlag /* Zero to actually operate on the file-system. */
 ){
   Stmt move;
-  db_prepare(&move, "SELECT x, y FROM fmove ORDER BY x;");
-  while( db_step(&move)==SQLITE_ROW ){
-    const char *zOldName = db_column_text(&move, 0);
-    const char *zNewName = db_column_text(&move, 1);
-    if( !dryRunFlag ){
-      if( file_wd_islink(zOldName) ){
-        symlink_copy(zOldName, zNewName);
-      }else{
-        file_copy(zOldName, zNewName);
+  if( db_table_exists(db_name("temp"), "fmove") ){
+    db_prepare(&move, "SELECT x, y FROM fmove ORDER BY x;");
+    while( db_step(&move)==SQLITE_ROW ){
+      const char *zOldName = db_column_text(&move, 0);
+      const char *zNewName = db_column_text(&move, 1);
+      if( !dryRunFlag ){
+        if( file_wd_islink(zOldName) ){
+          symlink_copy(zOldName, zNewName);
+        }else{
+          file_copy(zOldName, zNewName);
+        }
+        file_delete(zOldName);
       }
-      file_delete(zOldName);
+      fossil_print("MOVED_FILE %s\n", zOldName);
     }
-    fossil_print("MOVED_FILE %s\n", zOldName);
+    db_finalize(&move);
+    db_multi_exec("DROP TABLE fmove;");
   }
-  db_finalize(&move);
-  db_multi_exec("DROP TABLE fmove;");
 }
 
 /*
