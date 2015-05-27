@@ -1,5 +1,5 @@
-C Avoid\ssuperfluous\serror\smessages\sabout\smissing\stemporary\stables\swhen\sthere\sare\sno\svalid\sfiles\sto\smove\sor\sremove\swith\sthe\s--hard\soption.
-D 2015-05-27T05:39:43.883
+C More\stests,\spart\s1.
+D 2015-05-27T18:31:42.230
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -536,6 +536,7 @@ F test/merge5.test 28cc9adf08343456fae9f2d9001c35ec62a78f31
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test ed766d924a9cb87249bbe7f84e093135f088a2b3
 F test/merge_renames.test 23036947380c8c2268761cf606063cbad51bb747
+F test/mv-rm.test 38d03475148870fac5697605c3d1dc83abedcc38
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
 F test/revert.test fd2db9b23831a1e0e9ada5bfc7475fce579a949a
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
@@ -736,7 +737,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P d12fc4b148dcb42fbe79ea7115469368dd575ca4
-R 55a0c9c8d8bdb0ae5ae6af393146ad89
+P d272a35d26cdc091a72cd0a172870c6ada4a94e5
+R ac5e0a710a43bc7e87197f3808a82da9
 U mistachkin
-Z c5f1e934083d35b30184bfab9668e745
+Z d33cdbd0ec674f38be6fbae119c58e90
