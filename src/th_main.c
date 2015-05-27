@@ -1328,6 +1328,42 @@ static int settingCmd(
 }
 
 /*
+** TH1 command: glob_match ?--? patternList string
+**
+** Checks the string against the specified list of glob patterns and returns
+** non-zero if there is a match.
+*/
+#define GLOB_MATCH_WRONGNUMARGS "glob_match ?--? patternList string"
+static int globMatchCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  int rc;
+  int nArg = 1;
+  Glob *pGlob = 0;
+  if( argc<3 || argc>4 ){
+    return Th_WrongNumArgs(interp, GLOB_MATCH_WRONGNUMARGS);
+  }
+  if( fossil_strcmp(argv[nArg], "--")==0 ) nArg++;
+  if( nArg+2!=argc ){
+    return Th_WrongNumArgs(interp, GLOB_MATCH_WRONGNUMARGS);
+  }
+  pGlob = glob_create(argv[nArg]);
+  if( pGlob ){
+    Th_SetResultInt(interp, glob_match(pGlob, argv[nArg+1]));
+    rc = TH_OK;
+  }else{
+    Th_SetResult(interp, "unable to create glob from pattern list", -1);
+    rc = TH_ERROR;
+  }
+  glob_free(pGlob);
+  return rc;
+}
+
+/*
 ** TH1 command: regexp ?-nocase? ?--? exp string
 **
 ** Checks the string against the specified regular expression and returns
@@ -1555,6 +1591,7 @@ void Th_FossilInit(u32 flags){
     {"decorate",      wikiCmd,              (void*)&aFlags[2]},
     {"enable_output", enableOutputCmd,      0},
     {"getParameter",  getParameterCmd,      0},
+    {"glob_match",    globMatchCmd,         0},
     {"globalState",   globalStateCmd,       0},
     {"httpize",       httpizeCmd,           0},
     {"hascap",        hascapCmd,            (void*)&zeroInt},
