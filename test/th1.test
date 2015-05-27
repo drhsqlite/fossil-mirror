@@ -593,13 +593,13 @@ test th1-trace-1 {$RESULT eq {}}
 
 fossil test-th-eval --th-trace "trace {}"
 if {$th1Hooks} {
-  test th1-trace-2 {[string map [list \r\n \n] [string trim $RESULT]] eq \
+  test th1-trace-2 {[normalize_result] eq \
 {------------------ BEGIN TRACE LOG ------------------
 th1-init 0x0 => 0x0<br />
 
 ------------------- END TRACE LOG -------------------}}
 } else {
-  test th1-trace-2 {[string map [list \r\n \n] [string trim $RESULT]] eq \
+  test th1-trace-2 {[normalize_result] eq \
       {------------------ BEGIN TRACE LOG ------------------
 th1-init 0x0 => 0x0<br />
 th1-setup {} => TH_OK<br />
@@ -616,13 +616,13 @@ test th1-trace-3 {$RESULT eq {}}
 
 fossil test-th-eval --th-trace "trace {this is a trace message.}"
 if {$th1Hooks} {
-  test th1-trace-4 {[string map [list \r\n \n] [string trim $RESULT]] eq \
+  test th1-trace-4 {[normalize_result] eq \
       {------------------ BEGIN TRACE LOG ------------------
 th1-init 0x0 => 0x0<br />
 this is a trace message.
 ------------------- END TRACE LOG -------------------}}
 } else {
-  test th1-trace-4 {[string map [list \r\n \n] [string trim $RESULT]] eq \
+  test th1-trace-4 {[normalize_result] eq \
       {------------------ BEGIN TRACE LOG ------------------
 th1-init 0x0 => 0x0<br />
 th1-setup {} => TH_OK<br />

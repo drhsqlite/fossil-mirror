@@ -1,5 +1,5 @@
-C More\stests,\spart\s1.
-D 2015-05-27T18:31:42.230
+C Have\sall\sappropriate\stests\suse\s'normalize_result'\sinstead\sof\sa\sraw\s'string\smap'.
+D 2015-05-27T18:37:20.982
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -534,8 +534,8 @@ F test/merge3.test 637ad5275604c7fe17340b32338aadf2a1f27c07
 F test/merge4.test e9b9b3826dc271ae75523a5fa0a08fe17b0cd722
 F test/merge5.test 28cc9adf08343456fae9f2d9001c35ec62a78f31
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
-F test/merge6.test ed766d924a9cb87249bbe7f84e093135f088a2b3
-F test/merge_renames.test 23036947380c8c2268761cf606063cbad51bb747
+F test/merge6.test 3fac7909f72a94ae05174404b1c9a7c68dd43824
+F test/merge_renames.test 1c7c8130b98099fbaa68e4adfcb9f13fbdf57787
 F test/mv-rm.test 38d03475148870fac5697605c3d1dc83abedcc38
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
 F test/revert.test fd2db9b23831a1e0e9ada5bfc7475fce579a949a
@@ -547,7 +547,7 @@ F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test b09ff99726b78609549c9880e3522497c138b935
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-hooks.test 3e533ca4b5956be9f13119177c795465dd3dd3a8
-F test/th1-tcl.test 2122a0da663a830cfefa68cc997adeec0b0013c7
+F test/th1-tcl.test 0887c3920a2a2559127263f0af1fcee789549797
 F test/th1-tcl1.txt c60e664b138a2189b637c254d55a05819db1521d
 F test/th1-tcl2.txt 9f7e7ea7cc6c75df78c5efb761d10a4e8e354401
 F test/th1-tcl3.txt 208d6e2a9a68969df9220f6f6c190402a62b4919
@@ -557,7 +557,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test 6075c4daebcaa4b20877f0b500940bdfe18ecb0a
+F test/th1.test 80f9831c3b8ff23fd8496a11b8db088c7ff6cca1
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 9b9447e346cbc663d6f3c51e00adbc1ba2d296a2
@@ -737,7 +737,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P d272a35d26cdc091a72cd0a172870c6ada4a94e5
-R ac5e0a710a43bc7e87197f3808a82da9
+P cdd2ede6a20464a028d1c5657a00cdf3eec4e3a0
+R 7797922041371225d4bb8e7382b4fda5
 U mistachkin
-Z d33cdbd0ec674f38be6fbae119c58e90
+Z 1aaee6fdce162ea19a99c31dcd6f31a2
