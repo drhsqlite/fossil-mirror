@@ -1328,12 +1328,12 @@ static int settingCmd(
 }
 
 /*
-** TH1 command: glob_match ?--? patternList string
+** TH1 command: glob_match ?-one? ?--? patternList string
 **
-** Checks the string against the specified list of glob patterns and returns
-** non-zero if there is a match.
+** Checks the string against the specified glob pattern -OR- list of glob
+** patterns and returns non-zero if there is a match.
 */
-#define GLOB_MATCH_WRONGNUMARGS "glob_match ?--? patternList string"
+#define GLOB_MATCH_WRONGNUMARGS "glob_match ?-one? ?--? patternList string"
 static int globMatchCmd(
   Th_Interp *interp,
   void *p,
@@ -1342,24 +1342,33 @@ static int globMatchCmd(
   int *argl
 ){
   int rc;
+  int one = 0;
   int nArg = 1;
   Glob *pGlob = 0;
-  if( argc<3 || argc>4 ){
+  if( argc<3 || argc>5 ){
     return Th_WrongNumArgs(interp, GLOB_MATCH_WRONGNUMARGS);
+  }
+  if( fossil_strcmp(argv[nArg], "-one")==0 ){
+    one = 1; nArg++;
   }
   if( fossil_strcmp(argv[nArg], "--")==0 ) nArg++;
   if( nArg+2!=argc ){
     return Th_WrongNumArgs(interp, GLOB_MATCH_WRONGNUMARGS);
   }
-  pGlob = glob_create(argv[nArg]);
-  if( pGlob ){
-    Th_SetResultInt(interp, glob_match(pGlob, argv[nArg+1]));
+  if( one ){
+    Th_SetResultInt(interp, sqlite3_strglob(argv[nArg], argv[nArg+1])==0);
     rc = TH_OK;
   }else{
-    Th_SetResult(interp, "unable to create glob from pattern list", -1);
-    rc = TH_ERROR;
+    pGlob = glob_create(argv[nArg]);
+    if( pGlob ){
+      Th_SetResultInt(interp, glob_match(pGlob, argv[nArg+1]));
+      rc = TH_OK;
+    }else{
+      Th_SetResult(interp, "unable to create glob from pattern list", -1);
+      rc = TH_ERROR;
+    }
+    glob_free(pGlob);
   }
-  glob_free(pGlob);
   return rc;
 }
 
