@@ -858,9 +858,10 @@ test th1-reinitialize-2 {$RESULT ne ""}
 #       out in a deterministic order from TH1.
 #
 fossil test-th-eval "info commands"
+puts $RESULT
 test th1-info-commands-1 {$RESULT eq {linecount htmlize date stime\
-enable_output uplevel http expr utime styleFooter catch if tclReady\
-searchable reinitialize combobox lindex query html anoncap randhex\
+enable_output uplevel http expr glob_match utime styleFooter catch if\
+tclReady searchable reinitialize combobox lindex query html anoncap randhex\
 llength for set break regexp styleHeader puts return checkout decorate\
 artifact trace wiki proc hascap globalState continue getParameter\
 hasfeature setting breakpoint upvar render repository string unset\
@@ -890,3 +891,74 @@ test th1-info-vars-4 {$RESULT eq "x"}
 
 fossil test-th-eval "set y 1; proc foo {} {set x 1; uplevel 1 {info vars}}; foo"
 test th1-info-vars-5 {$RESULT eq "y"}
+
+###############################################################################
+
+fossil test-th-eval "glob_match"
+test th1-glob-match-1 {$RESULT eq \
+{TH_ERROR: wrong # args: should be "glob_match ?-one? ?--? patternList string"}}
+
+###############################################################################
+
+fossil test-th-eval "glob_match -one"
+test th1-glob-match-2 {$RESULT eq \
+{TH_ERROR: wrong # args: should be "glob_match ?-one? ?--? patternList string"}}
+
+###############################################################################
+
+fossil test-th-eval "glob_match --"
+test th1-glob-match-3 {$RESULT eq \
+{TH_ERROR: wrong # args: should be "glob_match ?-one? ?--? patternList string"}}
+
+###############################################################################
+
+fossil test-th-eval "glob_match -one --"
+test th1-glob-match-4 {$RESULT eq \
+{TH_ERROR: wrong # args: should be "glob_match ?-one? ?--? patternList string"}}
+
+###############################################################################
+
+fossil test-th-eval "glob_match -one -- 1"
+test th1-glob-match-5 {$RESULT eq \
+{TH_ERROR: wrong # args: should be "glob_match ?-one? ?--? patternList string"}}
+
+###############################################################################
+
+fossil test-th-eval "glob_match -one -- 1 2 3"
+test th1-glob-match-6 {$RESULT eq \
+{TH_ERROR: wrong # args: should be "glob_match ?-one? ?--? patternList string"}}
+
+###############################################################################
+
+fossil test-th-eval {list [glob_match a A] [glob_match A a]}
+test th1-glob-match-7 {$RESULT eq "0 0"}
+
+###############################################################################
+
+fossil test-th-eval {list [glob_match a,b a] [glob_match a,b b]}
+test th1-glob-match-8 {$RESULT eq "1 2"}
+
+###############################################################################
+
+fossil test-th-eval {list [glob_match -one a,b a] [glob_match -one a,b b]}
+test th1-glob-match-9 {$RESULT eq "0 0"}
+
+###############################################################################
+
+fossil test-th-eval {list [glob_match -one a,b a,b] [glob_match -one a b,a]}
+test th1-glob-match-10 {$RESULT eq "1 0"}
+
+###############################################################################
+
+fossil test-th-eval {list [glob_match a*c abc] [glob_match abc a*c]}
+test th1-glob-match-11 {$RESULT eq "1 0"}
+
+###############################################################################
+
+fossil test-th-eval {list [glob_match a?c abc] [glob_match abc a?c]}
+test th1-glob-match-12 {$RESULT eq "1 0"}
+
+###############################################################################
+
+fossil test-th-eval {list [glob_match {a[bd]c} abc] [glob_match abc {a[bd]c}]}
+test th1-glob-match-13 {$RESULT eq "1 0"}

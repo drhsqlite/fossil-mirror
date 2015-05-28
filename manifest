@@ -1,5 +1,5 @@
-C Add\sthe\s-one\soption\sto\sthe\s'glob_match'\scommand.
-D 2015-05-27T19:29:13.422
+C Add\stests.
+D 2015-05-28T04:29:40.671
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -556,7 +556,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test 6075c4daebcaa4b20877f0b500940bdfe18ecb0a
+F test/th1.test 065d3de7849381333b85154d18506e2e7e058587
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 9b9447e346cbc663d6f3c51e00adbc1ba2d296a2
@@ -736,7 +736,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P f3ae47900256b85361393419fb396f56f61121c5
-R 8ccfb7dda425a39c7e456b19da8bd3f9
+P f7d4c544cad47c8577906ebb5eee0b0cddc07fdc
+R c96ec9a48d5a7ba4dbf8b1576d942dc1
 U mistachkin
-Z 349de48586ba32cd1f2acd9f373b10a4
+Z d2a0a2c860efd3eed293b28833f74ee0
