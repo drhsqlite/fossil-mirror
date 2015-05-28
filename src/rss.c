@@ -96,7 +96,7 @@ void page_timeline_rss(void){
         blob_append(&bSQL, " AND event.type=='ci'", -1);
       }
     }else if( !g.perm.RdTkt ){
-      assert( !g.perm.RdTkt &&& g.perm.Read && g.perm.RdWiki );
+      assert( !g.perm.RdTkt && g.perm.Read && g.perm.RdWiki );
       blob_append(&bSQL, " AND event.type!='t'", -1);
     }
   }

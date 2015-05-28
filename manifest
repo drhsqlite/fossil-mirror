@@ -1,5 +1,5 @@
-C Close\s<a>\stag,\sas\sreported\sby\sSvyatoslav\sMishyn
-D 2015-05-25T09:52:29.691
+C Fix\sa\slogic\sbug\sin\sthe\sRSS\spage.
+D 2015-05-28T17:05:13.754
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -469,7 +469,7 @@ F src/purge.c 211c55255d42f06781ae68f26e5ed4a2c9239ad1
 F src/rebuild.c 5aaf2a7ce639be4caa966eafa59775ca997bda4f
 F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c de3d39a59b923d0259a01cb7b66244860778e39d
-F src/rss.c bb314966b5fd2c4a779d4ac6afbabc4721fcf44f
+F src/rss.c 4e435fbac064fd4bfc21edd085aff3fa96fbcfc1
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b02a73b942028631eacf484ae3f83a3a4edd3518
 F src/setup.c 97d246c3bba673f87745d1c870250d30e53ab3ee
@@ -736,7 +736,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 31fcde837d45500d8681f4660ca4f7a06e3ef509
-R acbb6c27acdeccc97e4b607f608a99b1
-U jan.nijtmans
-Z 17f8484ad2e8db6143003aedfb627b03
+P d10b1e022af373b28ccbb77319b2a42194fbb3a0
+R 466e13f5fd9b145953150a5dd540dca0
+U drh
+Z 7918d9858275b0f52623eb79e5eba028
