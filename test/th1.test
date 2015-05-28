@@ -858,7 +858,6 @@ test th1-reinitialize-2 {$RESULT ne ""}
 #       out in a deterministic order from TH1.
 #
 fossil test-th-eval "info commands"
-puts $RESULT
 test th1-info-commands-1 {$RESULT eq {linecount htmlize date stime\
 enable_output uplevel http expr glob_match utime styleFooter catch if\
 tclReady searchable reinitialize combobox lindex query html anoncap randhex\
