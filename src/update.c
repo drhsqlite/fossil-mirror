@@ -354,7 +354,7 @@ void update_cmd(void){
     blob_append(&sql, "DELETE FROM fv WHERE ", -1);
     zSep = "";
     for(i=3; i<g.argc; i++){
-      file_tree_name(g.argv[i], &treename, 1);
+      file_tree_name(g.argv[i], &treename, 0, 1);
       if( file_wd_isdir(g.argv[i])==1 ){
         if( blob_size(&treename) != 1 || blob_str(&treename)[0] != '.' ){
           blob_append_sql(&sql, "%sfn NOT GLOB '%q/*' ",
@@ -740,7 +740,7 @@ void revert_cmd(void){
     for(i=2; i<g.argc; i++){
       Blob fname;
       zFile = mprintf("%/", g.argv[i]);
-      file_tree_name(zFile, &fname, 1);
+      file_tree_name(zFile, &fname, 0, 1);
       db_multi_exec(
         "REPLACE INTO torevert VALUES(%B);"
         "INSERT OR IGNORE INTO torevert"
