@@ -1,5 +1,5 @@
-C Enhance\sfile_tree_name()\sto\sbe\scapable\sof\sproducing\sabsolute\spaths\swithin\sthe\slocal\stree.\s\sFix\s--hard\soption\sto\smv/rm\sto\senable\sthem\sto\swork\sproperly\swith\scertain\srelative\spaths.
-D 2015-05-29T17:14:59.462
+C Add\sminimal\s'lsearch'\scommand\sto\sTH1.\sOnly\sexact\scase-sensitive\smatching\sis\ssupported.
+D 2015-05-29T17:17:13.724
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -490,7 +490,7 @@ F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
 F src/th.c e9840f21b1bb1bc03fdba17c818728e132e254b7
 F src/th.h 331b9aaf012117b22a3e8c4676c5b131cd8b7f9d
-F src/th_lang.c f6085bbe7c97a4d00c8fe8cd9328d402937111a8
+F src/th_lang.c 866a5c6508cdd11d8e6f77c320a8060a4d960e1d
 F src/th_main.c 00058b8cf89276094aae21c741ef15655d1fa34d
 F src/th_tcl.c 7b37123bd606f5b9999a1103807f822a77dfcdc5
 F src/timeline.c 005c758d36dbe81a52d1fe9a7f14cd0830abb005
@@ -557,7 +557,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test 80f9831c3b8ff23fd8496a11b8db088c7ff6cca1
+F test/th1.test 33a92557f514c5b553a6c33aa36aeef9df004e57
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 9b9447e346cbc663d6f3c51e00adbc1ba2d296a2
@@ -730,15 +730,15 @@ F www/stats.wiki 2d8317fe35d22877c86ed2332de02b653f50a498
 F www/style.wiki 4c9c67c0eddba030a73a55e468802fd09d59bc2f
 F www/sync.wiki ecd7e356270a40e81649970c1b606767db68d9e3
 F www/tech_overview.wiki 66d893fd0bca7f5dbc659ab0b4e9dde987e4fdb3
-F www/th1.md bf69f21f480afe640a327cd0d392be77a9a3c1bb
+F www/th1.md d8c31c03e61f6e22a33c50631fd183214c91ad94
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 74836bc8ae09edd152d8a9afa50cbd3a979c6d47 0b5b87ac84c8701cab65b87dfec7c743bbc812cd
-R 8d3a1dd3e18c696dfff29d2f9342f27b
-T +closed 0b5b87ac84c8701cab65b87dfec7c743bbc812cd
+P c56a387d47e5efde4a87d1e4a78b5430330caa0b eabd7290fb0cd623b7cb290c2424e33d90ae82c8
+R 0e756abd883d8e9805092bc3e1ee6451
+T +closed eabd7290fb0cd623b7cb290c2424e33d90ae82c8
 U mistachkin
-Z 96fcceb1e59be6399d945f86109450c0
+Z 163448789e55876cdea1f79da7c990c2

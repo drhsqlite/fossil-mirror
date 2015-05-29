@@ -98,6 +98,7 @@ summarize the commands available in TH1:
   *  lindex LIST INDEX
   *  list ARG ...
   *  llength LIST
+  *  lsearch LIST STRING
   *  proc NAME ARG-LIST BODY-SCRIPT
   *  rename OLD NEW
   *  return ?-code CODE? ?VALUE?
