@@ -132,6 +132,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  decorate
   *  enable_output
   *  getParameter
+  *  glob_match
   *  globalState
   *  hascap
   *  hasfeature
@@ -246,6 +247,14 @@ commands are used.
 
 Returns the value of the specified query parameter or the specified
 default value when there is no matching query parameter.
+
+<a name="glob_match"></a>TH1 glob_match Command
+-----------------------------------------------
+
+  *  glob_match ?-one? ?--? patternList string
+
+Checks the string against the specified glob pattern -OR- list of glob
+patterns and returns non-zero if there is a match.
 
 <a name="globalState"></a>TH1 globalState Command
 -------------------------------------------------
