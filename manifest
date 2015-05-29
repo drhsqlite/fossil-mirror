@@ -1,5 +1,5 @@
-C Add\s'glob_match'\scommand\sto\sTH1.
-D 2015-05-29T17:20:09.981
+C Update\sthe\sbuilt-in\sSQLite\sto\s3.8.11\salpha.
+D 2015-05-29T17:52:38.935
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -479,8 +479,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 29d06b40601a2f48c0d0994ec16e97b404716920
 F src/skins.c f12a6c105e7ceb269570e046800ae4ad1231b15a
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c 638abb77965332c956dbbd2c8e4248e84da4eb63
-F src/sqlite3.h b479b6a7b0fc402946ae0ae2beb878ce6cc33ce2
+F src/sqlite3.c df1738214404c61af838c38527d6223445eb252e
+F src/sqlite3.h ab6e8519f6160e67889ec046354a877f4ede7372
 F src/stash.c e12e4a6e5b2e40da6ec789e0945e165eb78158a6
 F src/stat.c 760b5ec89d07e1d2b566353d588e77e8b9cf97c8
 F src/statrep.c 3a6d52826bd9427a8c061600313a51a8ea3b2dcc
@@ -737,8 +737,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 54b0567cdaaa87e126b5d5fdef70d1ce70eff711 dd6ec72d6345ea62c1e7280acdc1db583ea027ec
-R 7ec3f057aa3fa4df4e22fb9b57e49b88
-T +closed dd6ec72d6345ea62c1e7280acdc1db583ea027ec
-U mistachkin
-Z 655fbfb5c70513dd4bf8b66594f142c0
+P 62f1f484f6e27ed57a956f9ffa661544e3e06f78
+R 97feea3191fcedf8e8f93e93a88673c5
+U drh
+Z eb37044856843f511ead25b2adfff35e
