@@ -14,7 +14,7 @@
   *  Add the --soft and --hard options to [/help?cmd=rm|fossil rm] and
      [/help?cmd=mv|fossil mv].  The default is still --soft, but that is
      now configurable at compile-time or by the mv-rm-files setting.
-  *  Improved ability to [./customgraph.md|customize the timelime graph].
+  *  Improved ability to [./customgraph.md|customize the timeline graph].
   *  Improvements to the [/sitemap] page.
   *  Automatically adjust the [/help?cmd=timeline|CLI timeline] to the terminal
      width on Linux.
