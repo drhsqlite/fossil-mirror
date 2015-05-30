@@ -1260,7 +1260,8 @@ rep_not_found:
 const char *db_name(const char *zDb){
   assert( fossil_strcmp(zDb,"localdb")==0
        || fossil_strcmp(zDb,"configdb")==0
-       || fossil_strcmp(zDb,"repository")==0 );
+       || fossil_strcmp(zDb,"repository")==0
+       || fossil_strcmp(zDb,"temp")==0 );
   if( fossil_strcmp(zDb, g.zMainDbType)==0 ) zDb = "main";
   return zDb;
 }

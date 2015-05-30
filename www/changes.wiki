@@ -1,6 +1,6 @@
 <title>Change Log</title>
 
-<h2>Changes for Version 1.33 (not released yet)</h2>
+<h2>Changes for Version 1.33 (2015-05-23)</h2>
   *  Improved fork detection on [/help?cmd=update|fossil update],
      [/help?cmd=status|fossil status] and related commands.
   *  Change the default skin to what used to be called "San Francisco Modern".
@@ -14,7 +14,7 @@
   *  Add the --soft and --hard options to [/help?cmd=rm|fossil rm] and
      [/help?cmd=mv|fossil mv].  The default is still --soft, but that is
      now configurable at compile-time or by the mv-rm-files setting.
-  *  Improved ability to [./customgraph.md|customize the timelime graph].
+  *  Improved ability to [./customgraph.md|customize the timeline graph].
   *  Improvements to the [/sitemap] page.
   *  Automatically adjust the [/help?cmd=timeline|CLI timeline] to the terminal
      width on Linux.
@@ -31,7 +31,7 @@
   *  Added the "Blitz" skin option.
   *  Removed the ".fossil-settings/keep-glob" file.  It should not have been
      checked into the repository.
-  *  Update the built-in SQLite to version 3.8.10.1.
+  *  Update the built-in SQLite to version 3.8.10.2.
   *  Make [/help?cmd=open|fossil open] honor ".fossil-settings/allow-symlinks".
   *  Allow [/help?cmd=add|fossil add] to be used on symlinks to nonexistent or
      unreadable files in the same way as [/help?cmd=addremove|fossil addremove].

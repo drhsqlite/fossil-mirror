@@ -1031,14 +1031,21 @@ void cmd_test_relative_name(void){
 }
 
 /*
-** Compute a pathname for a file relative to the root of the local
-** tree.  Return TRUE on success.  On failure, print and error
-** message and quit if the errFatal flag is true.  If errFatal is
-** false, then simply return 0.
-**
-** The root of the tree is defined by the g.zLocalRoot variable.
+** Compute a full path name for a file in the local tree.  If
+** the absolute flag is non-zero, the computed path will be
+** absolute, starting with the root path of the local tree;
+** otherwise, it will be relative to the root of the local
+** tree.  In both cases, the root of the local tree is defined
+** by the g.zLocalRoot variable.  Return TRUE on success.  On
+** failure, print and error message and quit if the errFatal
+** flag is true.  If errFatal is false, then simply return 0.
 */
-int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
+int file_tree_name(
+  const char *zOrigName,
+  Blob *pOut,
+  int absolute,
+  int errFatal
+){
   Blob localRoot;
   int nLocalRoot;
   char *zLocalRoot;
@@ -1049,8 +1056,27 @@ int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
 
   blob_zero(pOut);
   if( !g.localOpen ){
-    blob_appendf(pOut, "%s", zOrigName);
-    return 1;
+    if( absolute && !file_is_absolute_path(zOrigName) ){
+      if( errFatal ){
+        fossil_fatal("relative to absolute needs open checkout tree: %s",
+                     zOrigName);
+      }
+      return 0;
+    }else{
+      /*
+      ** The original path may be relative or absolute; however, without
+      ** an open checkout tree, the only things we can do at this point
+      ** is return it verbatim or generate a fatal error.  The caller is
+      ** probably expecting a tree-relative path name will be returned;
+      ** however, most places where this function is called already check
+      ** if the local checkout tree is open, either directly or indirectly,
+      ** which would make this situation impossible.  Alternatively, they
+      ** could check the returned path using the file_is_absolute_path()
+      ** function.
+      */
+      blob_appendf(pOut, "%s", zOrigName);
+      return 1;
+    }
   }
   file_canonical_name(g.zLocalRoot, &localRoot, 1);
   nLocalRoot = blob_size(&localRoot);
@@ -1068,7 +1094,11 @@ int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
   /* Special case.  zOrigName refers to g.zLocalRoot directory. */
   if( (nFull==nLocalRoot-1 && xCmp(zLocalRoot, zFull, nFull)==0)
       || (nFull==1 && zFull[0]=='/' && nLocalRoot==1 && zLocalRoot[0]=='/') ){
-    blob_append(pOut, ".", 1);
+    if( absolute ){
+      blob_append(pOut, zLocalRoot, nLocalRoot);
+    }else{
+      blob_append(pOut, ".", 1);
+    }
     blob_reset(&localRoot);
     blob_reset(&full);
     return 1;
@@ -1082,7 +1112,16 @@ int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
     }
     return 0;
   }
-  blob_append(pOut, &zFull[nLocalRoot], nFull-nLocalRoot);
+  if( absolute ){
+    if( !file_is_absolute_path(zOrigName) ){
+      blob_append(pOut, zLocalRoot, nLocalRoot);
+    }
+    blob_append(pOut, zOrigName, -1);
+    blob_resize(pOut, file_simplify_name(blob_buffer(pOut),
+                                         blob_size(pOut), 0));
+  }else{
+    blob_append(pOut, &zFull[nLocalRoot], nFull-nLocalRoot);
+  }
   blob_reset(&localRoot);
   blob_reset(&full);
   return 1;
@@ -1094,16 +1133,18 @@ int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
 ** Test the operation of the tree name generator.
 **
 ** Options:
+**   --absolute           Return an absolute path instead of a relative one.
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is
 **                        a boolean: "yes", "no", "true", "false", etc.
 */
 void cmd_test_tree_name(void){
   int i;
   Blob x;
+  int absoluteFlag = find_option("absolute",0,0)!=0;
   db_find_and_open_repository(0,0);
   blob_zero(&x);
   for(i=2; i<g.argc; i++){
-    if( file_tree_name(g.argv[i], &x, 1) ){
+    if( file_tree_name(g.argv[i], &x, absoluteFlag, 1) ){
       fossil_print("%s\n", blob_buffer(&x));
       blob_reset(&x);
     }

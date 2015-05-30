@@ -300,7 +300,7 @@ static void diff_one_against_disk(
   Blob content;
   int isLink;
   int isBin;
-  file_tree_name(zFileTreeName, &fname, 1);
+  file_tree_name(zFileTreeName, &fname, 0, 1);
   historical_version_of_file(zFrom, blob_str(&fname), &content, &isLink, 0,
                              fIncludeBinary ? 0 : &isBin, 0);
   if( !isLink != !file_wd_islink(zFrom) ){
@@ -456,7 +456,7 @@ static void diff_one_two_versions(
   int isLink1, isLink2;
   int isBin1, isBin2;
   if( diffFlags & DIFF_BRIEF ) return;
-  file_tree_name(zFileTreeName, &fname, 1);
+  file_tree_name(zFileTreeName, &fname, 0, 1);
   zName = blob_str(&fname);
   historical_version_of_file(zFrom, zName, &v1, &isLink1, 0,
                              fIncludeBinary ? 0 : &isBin1, 0);
