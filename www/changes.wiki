@@ -1,5 +1,12 @@
 <title>Change Log</title>
 
+<h2>Changes for Version 1.34 (2015-??-??)</h2>
+  *  Fix --hard option to mv/rm to enable them to work properly with certain
+     relative paths.
+  *  Add minimal 'lsearch' command to TH1. Only exact case-sensitive matching
+     is supported.
+  *  Add 'glob_match' command to TH1.
+
 <h2>Changes for Version 1.33 (2015-05-23)</h2>
   *  Improved fork detection on [/help?cmd=update|fossil update],
      [/help?cmd=status|fossil status] and related commands.
