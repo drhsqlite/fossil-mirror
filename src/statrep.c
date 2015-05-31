@@ -686,7 +686,7 @@ void stats_report_page(){
      {  "By Weekday",  "byweekday", RPT_BYWEEKDAY },
      {  "By Year",     "byyear",    RPT_BYYEAR   },
   };
-  const char *azType[] = {
+  const char *const azType[] = {
      "a",  "All Changes",
      "ci", "Check-ins",
      "g",  "Tags",

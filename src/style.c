@@ -50,7 +50,7 @@ static struct SubmenuCtrl {
   unsigned char eType;       /* FF_ENTRY, FF_MULTI, FF_BINARY */
   unsigned char isDisabled;  /* True if this control is grayed out */
   short int iSize;           /* Width for FF_ENTRY.  Count for FF_MULTI */
-  const char **azChoice;     /* value/display pairs for FF_MULTI */
+  const char *const *azChoice;/* value/display pairs for FF_MULTI */
   const char *zFalse;        /* FF_BINARY label when false */
 } aSubmenuCtrl[20];
 static int nSubmenuCtrl = 0;
@@ -276,7 +276,7 @@ void style_submenu_binary(
 void style_submenu_multichoice(
   const char *zName,       /* Query parameter name */
   int nChoice,             /* Number of options */
-  const char **azChoice,   /* value/display pairs.  2*nChoice entries */
+  const char *const *azChoice,/* value/display pairs.  2*nChoice entries */
   int isDisabled           /* True if this control is disabled */
 ){
   assert( nSubmenuCtrl < ArraySize(aSubmenuCtrl) );
@@ -315,7 +315,7 @@ void style_submenu_sql(
     aSubmenuCtrl[nSubmenuCtrl].zName = zName;
     aSubmenuCtrl[nSubmenuCtrl].zLabel = zLabel;
     aSubmenuCtrl[nSubmenuCtrl].iSize = n/2;
-    aSubmenuCtrl[nSubmenuCtrl].azChoice = (const char**)az;
+    aSubmenuCtrl[nSubmenuCtrl].azChoice = (const char *const *)az;
     aSubmenuCtrl[nSubmenuCtrl].isDisabled = 0;
     aSubmenuCtrl[nSubmenuCtrl].eType = FF_MULTI;
     nSubmenuCtrl++;
