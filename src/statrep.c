@@ -675,7 +675,7 @@ void stats_report_page(){
   int i;                             /* Loop counter */
   const char *zUserName;             /* Name of user */
   const char *azView[16];            /* Drop-down menu of view types */
-  const struct {
+  static const struct {
     const char *zName;  /* Name of view= screen type */
     const char *zVal;   /* Value of view= query parameter */
     int eType;          /* Corresponding RPT_* define */
@@ -687,7 +687,7 @@ void stats_report_page(){
      {  "By Weekday",  "byweekday", RPT_BYWEEKDAY },
      {  "By Year",     "byyear",    RPT_BYYEAR   },
   };
-  const char *const azType[] = {
+  static const char *const azType[] = {
      "a",  "All Changes",
      "ci", "Check-ins",
      "g",  "Tags",
@@ -695,7 +695,7 @@ void stats_report_page(){
      "t",  "Tickets",
      "w",  "Wiki"
   };
-  
+
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   zUserName = P("user");
@@ -737,7 +737,7 @@ void stats_report_page(){
   url_reset(&url);
   style_header("Activity Reports");
   switch( eType ){
-    case RPT_BYYEAR: 
+    case RPT_BYYEAR:
       stats_report_by_month_year(0, 0, zUserName);
       break;
     case RPT_BYMONTH:
