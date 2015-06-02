@@ -1,5 +1,5 @@
-C Make\sazType\sin\sstatrep.c\sa\sconst\stable\s(which\sit\sactually\sis\s...)
-D 2015-05-31T11:19:38.691
+C Fix\scrash\sin\s/reports\spage,\swhen\scompiling\swith\srecent\sgcc.\s(this\sis\sNOT\san\s-O2\soptimization\sbug!)
+D 2015-06-02T08:17:51.988
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -483,7 +483,7 @@ F src/sqlite3.c df1738214404c61af838c38527d6223445eb252e
 F src/sqlite3.h ab6e8519f6160e67889ec046354a877f4ede7372
 F src/stash.c e12e4a6e5b2e40da6ec789e0945e165eb78158a6
 F src/stat.c 760b5ec89d07e1d2b566353d588e77e8b9cf97c8
-F src/statrep.c 30af11d4cdedda98179090d4d037779602ae3997
+F src/statrep.c 92002005e0c4c8ecad576309ba7a57c562a5fd9d
 F src/style.c 90365266cafecb32b77f2ad3e3a3c4f46872d6d3
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
@@ -737,7 +737,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 53be87d7d712bff242d7c27bf34387546ba7eed0
-R 6d2d70bf87cdf83980fbd6585d6ee8b9
+P b43681dc227deda2bb4217394065ee2ef62afc28
+R 33a8f6bf3e843c9d8361e99f930900c1
 U jan.nijtmans
-Z 68cb84e45caed9f1d60e35c22fa06979
+Z 214e98835fda45edc3d0fed902bdcd8d
