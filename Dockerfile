@@ -7,7 +7,7 @@ FROM fedora:21
 RUN yum update -y && yum install -y gcc make zlib-devel openssl-devel tar && yum clean all && groupadd -r fossil -g 433 && useradd -u 431 -r -g fossil -d /opt/fossil -s /sbin/nologin -c "Fossil user" fossil
 
 ### If you want to build "release", change the next line accordingly.
-ENV FOSSIL_INSTALL_VERSION trunk
+ENV FOSSIL_INSTALL_VERSION branch-1.33
 
 RUN curl "http://core.tcl.tk/tcl/tarball/tcl-src.tar.gz?name=tcl-src&uuid=release" | tar zx
 RUN cd tcl-src/unix && ./configure --prefix=/usr --disable-shared --disable-threads --disable-load && make && make install

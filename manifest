@@ -1,5 +1,5 @@
-C Version\s1.33
-D 2015-05-23T11:11:31.970
+C Cherrypick\s[8184f39d803f9ad6|8184f39d]:\sFix\scrash\sin\s/reports\spage,\swhen\scompiling\swith\srecent\sgcc.\s(this\sis\sNOT\san\s-O2\soptimization\sbug!)
+D 2015-06-02T09:17:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -9,7 +9,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile f57bc9b00197a8ac02d52afb9cb9dd4ade476c05
+F Dockerfile b128c13cc845deaf8c2c0e2651f762910e142a3e
 F Makefile.classic 8860fc8763421cb968e05bdd361311f9a443fc07
 F Makefile.in 4c745f08a8ecfe6e1f227e2a6d33cce3adc532d0
 F VERSION 68b05f0ffffaf08e478922297c5140cc3b5d6965
@@ -483,7 +483,7 @@ F src/sqlite3.c 638abb77965332c956dbbd2c8e4248e84da4eb63
 F src/sqlite3.h b479b6a7b0fc402946ae0ae2beb878ce6cc33ce2
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 760b5ec89d07e1d2b566353d588e77e8b9cf97c8
-F src/statrep.c 18bd59afe94902740da515f323f64310325cb100
+F src/statrep.c 98404d05a29415cb81124ba5ca80ae4212634e10
 F src/style.c 1c9ef7c0dc77a49b6b833ec12971fb092e55885d
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
@@ -736,10 +736,11 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 36c457b086ed710f2f8b825e2657ead54b27364f
-R fa566a255d636eaaa4b59169412ce50e
-T +bgcolor * #d0c0ff
-T +sym-release *
-T +sym-version-1.33 *
-U drh
-Z fcd65a9b4e598d39eae8601775b2f8cb
+P 9c65b5432e4aeecf3556e5550c338ce93fd861cc
+Q +8184f39d803f9ad6c8f8880996c6a9f3557f1d5d
+R 84bcb911b399973e87982cd2c2621cff
+T *branch * branch-1.33
+T *sym-branch-1.33 *
+T -sym-trunk *
+U jan.nijtmans
+Z 22356e9318ca15a7cf5810700b529912

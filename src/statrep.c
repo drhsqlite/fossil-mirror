@@ -693,6 +693,7 @@ void stats_report_page(){
   int eType = RPT_NONE;              /* Numeric code for view/report to show */
   int i;                             /* Loop counter */
   const char *zUserName;             /* Name of user */
+  const char *azView[16];            /* Drop-down menu of view types */
   const struct {
     const char *zName;  /* Name of view= screen type */
     const char *zVal;   /* Value of view= query parameter */
@@ -733,7 +734,6 @@ void stats_report_page(){
   cgi_query_parameters_to_url(&url);
   if( eType!=RPT_NONE ){
     int nView = 0;                     /* Slots used in azView[] */
-    const char *azView[16];            /* Drop-down menu of view types */
     for(i=0; i<ArraySize(aViewType); i++){
       azView[nView++] = aViewType[i].zVal;
       azView[nView++] = aViewType[i].zName;
