@@ -386,9 +386,13 @@ static void diff_all_against_disk(
     int isNew = db_column_int(&q,3);
     int srcid = db_column_int(&q, 4);
     int isLink = db_column_int(&q, 5);
-    char *zToFree = mprintf("%s%s", g.zLocalRoot, zPathname);
-    const char *zFullName = zToFree;
+    const char *zFullName;
     int showDiff = 1;
+    Blob fname;
+
+    blob_zero(&fname);
+    file_relative_name(zPathname, &fname, 1);
+    zFullName = blob_str(&fname);
     if( isDeleted ){
       fossil_print("DELETED  %s\n", zPathname);
       if( !asNewFile ){ showDiff = 0; zFullName = NULL_DEVICE; }
@@ -424,7 +428,7 @@ static void diff_all_against_disk(
                 zBinGlob, fIncludeBinary, diffFlags);
       blob_reset(&content);
     }
-    free(zToFree);
+    blob_reset(&fname);
   }
   db_finalize(&q);
   db_end_transaction(1);  /* ROLLBACK */

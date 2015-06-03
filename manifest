@@ -1,5 +1,5 @@
-C Slight\soptimization:\sMake\stwo\stables\s"static"\sthat\scan\sbe.
-D 2015-06-02T09:47:08.187
+C Use\srelative\spaths\sin\spaths\sused\sby\sfossil\sgdiff,\sas\ssuggested\sby\sRon\sW:\s[http://lists.fossil-scm.org:8080/pipermail/fossil-users/2015-April/021015.html]
+D 2015-06-03T14:21:54.408
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -402,7 +402,7 @@ F src/deltacmd.c 4ac36378bf7b772d3bd67954212eb98be121961b
 F src/descendants.c 1eb2bb891117be886ac87a7db842293221639326
 F src/diff.c 4600d39f61675941c756f5425e6bd5702f35eedf
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
-F src/diffcmd.c e85b2ef610bcb1a11592bb2770520e72ac37b289
+F src/diffcmd.c 8439ce17da026bdf74add03e82e705b4d0dcb306
 F src/doc.c 1dfc49e465379f5fb1f37bed95ddaad085883f23
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
@@ -737,7 +737,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 8184f39d803f9ad6c8f8880996c6a9f3557f1d5d
-R f0d1f1db046ac22cfa450c3ec6e9bce4
+P 4440dae21237f861f08a5026c52a2ca44aff4ce3
+R 8c69d0090c39e83b0be7890ae805c555
 U jan.nijtmans
-Z c4ede1b1f7c068caa58a351c1b0e0f33
+Z 57b919779781c255ba9584d2def2fbdd
