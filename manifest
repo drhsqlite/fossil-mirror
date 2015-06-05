@@ -1,5 +1,5 @@
-C Add\swarning\sto\sthe\suse\sof\sfossil\s-x
-D 2015-06-05T10:25:49.242
+C Add\sa\squote\sfrom\sLinus\sTorvalds\sto\sthe\s"On\sThe\sUsability\sof\sGit"\ssection\sof\nthe\squotes.wiki\spage.
+D 2015-06-05T18:07:02.278
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -717,7 +717,7 @@ F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
 F www/private.wiki 72344489bbae6f7955369559b6ab22e01a64259b
 F www/qandc.wiki e07b21da221b05afeb1905f17af3765045952ba8
 F www/quickstart.wiki aa6a95f181fad1f7806016ed463b4875ec06dd8a
-F www/quotes.wiki 831d8cd640488fbf36621ad96ce4b6082417ffa2
+F www/quotes.wiki fa2ad9c946c067e965b920d50a57c115a07b012b
 F www/reviews.wiki 866e545f89fce7cff29c96a29ab10586692f3964
 F www/scgi.wiki 45a497a26ea940ef945a4c34cc1458ddddf304d6
 F www/selfcheck.wiki d1e2fc5baf9ade46815499c9758256a22efe8142
@@ -737,7 +737,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 1079c2459b8c1539c23e4fa8026d78abe691c6e7
-R eedab9f141f49321999ea5e090abcfa1
-U jan.nijtmans
-Z 48e6a557ddc3993ea5366039557afa5d
+P 056f41f8509902845f4f03ab7c01be9d6fa6ea95
+R 1fbcc3c9b96e1f2277183010716d00ac
+U drh
+Z 6532970608aa38233fa352b362a2da31
