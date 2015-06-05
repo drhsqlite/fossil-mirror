@@ -1,5 +1,5 @@
-C Use\srelative\spaths\sin\spaths\sused\sby\sfossil\sgdiff,\sas\ssuggested\sby\sRon\sW:\s[http://lists.fossil-scm.org:8080/pipermail/fossil-users/2015-April/021015.html]
-D 2015-06-03T14:21:54.408
+C Merge\strunk
+D 2015-06-05T10:28:02.858
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -450,7 +450,7 @@ F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 45f6e06e03e4183764067eec37ff73f357303306
 F src/markdown_html.c 453460a916b805e688e4a6ed7b52994b171eea27
 F src/md5.c c6f6b5df8001ab094e5f49416fc2aa3019823d69
-F src/merge.c d323fe8c0930a5e850eabf3eb8991d717defe784
+F src/merge.c cf79004e6a9b50d4184d77e1a77014d87c016ebf
 F src/merge3.c b2502f631c761f2c606f4fad6c8aa00bc2a5f4a7
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
@@ -490,7 +490,7 @@ F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
 F src/th.c e9840f21b1bb1bc03fdba17c818728e132e254b7
 F src/th.h 331b9aaf012117b22a3e8c4676c5b131cd8b7f9d
-F src/th_lang.c 866a5c6508cdd11d8e6f77c320a8060a4d960e1d
+F src/th_lang.c 71435ded9ef6d2e0332711bd4a0ffda836d4b027
 F src/th_main.c 3a939df891ded0a9820882ab212139c85a6fb589
 F src/th_tcl.c 7b37123bd606f5b9999a1103807f822a77dfcdc5
 F src/timeline.c 005c758d36dbe81a52d1fe9a7f14cd0830abb005
@@ -704,7 +704,7 @@ F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh b0e3a47ea763b336736f6371e2a461d858eb73c1
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
-F www/hints.wiki 1b508177aeff0580a7544942681de2d0b00c705d
+F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki ed2340fa4a69d437e8d796814a12cde3fa9d290a
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki 86c68cd0825a7ea2a5005fa4c5c0e639f9ec300d
@@ -737,7 +737,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 4440dae21237f861f08a5026c52a2ca44aff4ce3
-R 8c69d0090c39e83b0be7890ae805c555
+P 3ffb6a3e6299e92ffef396673132fa048c9a64c2 056f41f8509902845f4f03ab7c01be9d6fa6ea95
+R 0a7a44277cbc02f8e8ad519e85375753
 U jan.nijtmans
-Z 57b919779781c255ba9584d2def2fbdd
+Z 7005d552ee030d7598d57b2838814981

@@ -922,6 +922,7 @@ static int info_commands_command(
     return rc;
   }
   Th_SetResult(interp, zElem, nElem);
+  if( zElem ) Th_Free(interp, zElem);
   return TH_OK;
 }
 
@@ -945,6 +946,7 @@ static int info_vars_command(
     return rc;
   }
   Th_SetResult(interp, zElem, nElem);
+  if( zElem ) Th_Free(interp, zElem);
   return TH_OK;
 }
 
