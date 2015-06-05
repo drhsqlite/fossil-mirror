@@ -390,8 +390,13 @@ static void diff_all_against_disk(
     int showDiff = 1;
     Blob fname;
 
+#if defined(_WIN32) || defined(__CYGWIN__)
     blob_zero(&fname);
     file_relative_name(zPathname, &fname, 1);
+#else
+    blob_set(&fname, g.zLocalRoot);
+    blob_append(&fname, zPathname, -1);
+#endif
     zFullName = blob_str(&fname);
     if( isDeleted ){
       fossil_print("DELETED  %s\n", zPathname);

@@ -1,5 +1,5 @@
-C Merge\strunk
-D 2015-06-05T10:28:02.858
+C Only\suse\srelative\spaths\son\swin32\sand\scygwin,\snot\son\sother\splatforms:\sexternal\stools\swhich\sbuggy\sinterpretation\sof\srelative\spaths\sdon't\sexist\son\swin32/cygwin.\nThis\sallows\sa\swin32\sdiff\stool\s(like\swinmerge)\sto\sbe\sused\sin\scygwin\sfossil,\sor\sa\scygwin\sdiff\stool\sin\sa\swin32\sfossil,\sno\smatter\sif\sthe\scurrent\sdirectory\sis\sC:\\Users\\foo\sor\s/cygdrive/c/Users/foo.
+D 2015-06-05T11:46:07.085
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -402,7 +402,7 @@ F src/deltacmd.c 4ac36378bf7b772d3bd67954212eb98be121961b
 F src/descendants.c 1eb2bb891117be886ac87a7db842293221639326
 F src/diff.c 4600d39f61675941c756f5425e6bd5702f35eedf
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
-F src/diffcmd.c 8439ce17da026bdf74add03e82e705b4d0dcb306
+F src/diffcmd.c 5bfd5bee289f317084d1806b83241b7143c22778
 F src/doc.c 1dfc49e465379f5fb1f37bed95ddaad085883f23
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
@@ -737,7 +737,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 3ffb6a3e6299e92ffef396673132fa048c9a64c2 056f41f8509902845f4f03ab7c01be9d6fa6ea95
-R 0a7a44277cbc02f8e8ad519e85375753
+P d066ee039fc6e405e96d8a4392144b5cc78be448
+R d2d660e02652f7006d57904373508d91
 U jan.nijtmans
-Z 7005d552ee030d7598d57b2838814981
+Z 0c2fb4510d02060e073ec478619afcef
