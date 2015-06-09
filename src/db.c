@@ -2375,6 +2375,11 @@ const Setting aSetting[] = {
   { "crnl-glob",        0,             40, 1, 0, ""                    },
   { "default-perms",    0,             16, 0, 0, "u"                   },
   { "diff-binary",      0,              0, 0, 0, "on"                  },
+#if defined(_WIN32) || defined(__CYGWIN__)
+  { "diff-cmd-abs-path",0,              0, 0, 0, "off"                 },
+#else
+  { "diff-cmd-abs-path",0,              0, 0, 0, "on"                  },
+#endif
   { "diff-command",     0,             40, 0, 0, ""                    },
   { "dont-push",        0,              0, 0, 0, "off"                 },
   { "dotfiles",         0,              0, 1, 0, "off"                 },
