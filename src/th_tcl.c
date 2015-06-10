@@ -46,8 +46,10 @@
 #define FREE_ARGV_TO_OBJV()         \
   for(obji=1; obji<argc; obji++){   \
     Tcl_DecrRefCount(objv[obji-1]); \
+    objv[obji-1] = 0;               \
   }                                 \
-  ckfree((char *)objv);
+  ckfree((char *)objv);             \
+  objv = 0;
 
 /*
 ** Fetch the Tcl interpreter from the specified void pointer, cast to a Tcl
@@ -458,14 +460,14 @@ static int tclEval_command(
     objPtr = Tcl_NewStringObj(argv[1], argl[1]);
     Tcl_IncrRefCount(objPtr);
     rc = Tcl_EvalObjEx(tclInterp, objPtr, 0);
-    Tcl_DecrRefCount(objPtr);
+    Tcl_DecrRefCount(objPtr); objPtr = 0;
   }else{
     USE_ARGV_TO_OBJV();
     COPY_ARGV_TO_OBJV();
     objPtr = Tcl_ConcatObj(objc, objv);
     Tcl_IncrRefCount(objPtr);
     rc = Tcl_EvalObjEx(tclInterp, objPtr, 0);
-    Tcl_DecrRefCount(objPtr);
+    Tcl_DecrRefCount(objPtr); objPtr = 0;
     FREE_ARGV_TO_OBJV();
   }
   zResult = getTclResult(tclInterp, &nResult);
@@ -517,14 +519,14 @@ static int tclExpr_command(
     objPtr = Tcl_NewStringObj(argv[1], argl[1]);
     Tcl_IncrRefCount(objPtr);
     rc = Tcl_ExprObj(tclInterp, objPtr, &resultObjPtr);
-    Tcl_DecrRefCount(objPtr);
+    Tcl_DecrRefCount(objPtr); objPtr = 0;
   }else{
     USE_ARGV_TO_OBJV();
     COPY_ARGV_TO_OBJV();
     objPtr = Tcl_ConcatObj(objc, objv);
     Tcl_IncrRefCount(objPtr);
     rc = Tcl_ExprObj(tclInterp, objPtr, &resultObjPtr);
-    Tcl_DecrRefCount(objPtr);
+    Tcl_DecrRefCount(objPtr); objPtr = 0;
     FREE_ARGV_TO_OBJV();
   }
   if( rc==TCL_OK ){
@@ -533,7 +535,9 @@ static int tclExpr_command(
     zResult = getTclResult(tclInterp, &nResult);
   }
   Th_SetResult(interp, zResult, nResult);
-  if( rc==TCL_OK ) Tcl_DecrRefCount(resultObjPtr);
+  if( rc==TCL_OK ){
+    Tcl_DecrRefCount(resultObjPtr); resultObjPtr = 0;
+  }
   Tcl_Release((ClientData)tclInterp);
   rc = notifyPreOrPostEval(1, interp, ctx, argc, argv, argl,
                            getTh1ReturnCode(rc));
@@ -585,17 +589,17 @@ static int tclInvoke_command(
     command = Tcl_GetCommandFromObj(tclInterp, objPtr);
     if( !command || Tcl_GetCommandInfoFromToken(command, &cmdInfo)==0 ){
       Th_ErrorMessage(interp, "Tcl command not found:", argv[1], argl[1]);
-      Tcl_DecrRefCount(objPtr);
+      Tcl_DecrRefCount(objPtr); objPtr = 0;
       Tcl_Release((ClientData)tclInterp);
       return TH_ERROR;
     }
     if( !cmdInfo.objProc ){
       Th_ErrorMessage(interp, "cannot invoke Tcl command:", argv[1], argl[1]);
-      Tcl_DecrRefCount(objPtr);
+      Tcl_DecrRefCount(objPtr); objPtr = 0;
       Tcl_Release((ClientData)tclInterp);
       return TH_ERROR;
     }
-    Tcl_DecrRefCount(objPtr);
+    Tcl_DecrRefCount(objPtr); objPtr = 0;
     COPY_ARGV_TO_OBJV();
     Tcl_ResetResult(tclInterp);
     rc = cmdInfo.objProc(cmdInfo.objClientData, tclInterp, objc, objv);
@@ -791,7 +795,7 @@ static int loadTcl(
       if( !xFindExecutable ){
         Th_ErrorMessage(interp,
             "could not locate Tcl_FindExecutable", (const char *)"", 0);
-        dlclose(hLibrary);
+        dlclose(hLibrary); hLibrary = 0;
         return TH_ERROR;
       }
       procName = TCL_CREATEINTERP_NAME;
@@ -802,7 +806,7 @@ static int loadTcl(
       if( !xCreateInterp ){
         Th_ErrorMessage(interp,
             "could not locate Tcl_CreateInterp", (const char *)"", 0);
-        dlclose(hLibrary);
+        dlclose(hLibrary); hLibrary = 0;
         return TH_ERROR;
       }
       procName = TCL_DELETEINTERP_NAME;
@@ -813,7 +817,7 @@ static int loadTcl(
       if( !xDeleteInterp ){
         Th_ErrorMessage(interp,
             "could not locate Tcl_DeleteInterp", (const char *)"", 0);
-        dlclose(hLibrary);
+        dlclose(hLibrary); hLibrary = 0;
         return TH_ERROR;
       }
       procName = TCL_FINALIZE_NAME;
@@ -824,7 +828,7 @@ static int loadTcl(
       if( !xFinalize ){
         Th_ErrorMessage(interp,
             "could not locate Tcl_Finalize", (const char *)"", 0);
-        dlclose(hLibrary);
+        dlclose(hLibrary); hLibrary = 0;
         return TH_ERROR;
       }
       *phLibrary = hLibrary;
@@ -871,7 +875,7 @@ static int setTclArguments(
   Tcl_IncrRefCount(objPtr);
   resultObjPtr = Tcl_SetVar2Ex(pInterp, "argv0", NULL, objPtr,
       TCL_GLOBAL_ONLY|TCL_LEAVE_ERR_MSG);
-  Tcl_DecrRefCount(objPtr);
+  Tcl_DecrRefCount(objPtr); objPtr = 0;
   if( !resultObjPtr ){
     return TCL_ERROR;
   }
@@ -879,7 +883,7 @@ static int setTclArguments(
   Tcl_IncrRefCount(objPtr);
   resultObjPtr = Tcl_SetVar2Ex(pInterp, "argc", NULL, objPtr,
       TCL_GLOBAL_ONLY|TCL_LEAVE_ERR_MSG);
-  Tcl_DecrRefCount(objPtr);
+  Tcl_DecrRefCount(objPtr); objPtr = 0;
   if( !resultObjPtr ){
     return TCL_ERROR;
   }
@@ -890,7 +894,7 @@ static int setTclArguments(
       objPtr = Tcl_NewStringObj(*++argv, -1);
       Tcl_IncrRefCount(objPtr);
       rc = Tcl_ListObjAppendElement(pInterp, listPtr, objPtr);
-      Tcl_DecrRefCount(objPtr);
+      Tcl_DecrRefCount(objPtr); objPtr = 0;
       if( rc!=TCL_OK ){
         break;
       }
@@ -903,7 +907,7 @@ static int setTclArguments(
       rc = TCL_ERROR;
     }
   }
-  Tcl_DecrRefCount(listPtr);
+  Tcl_DecrRefCount(listPtr); listPtr = 0;
   return rc;
 }
 
