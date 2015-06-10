@@ -60,6 +60,12 @@ struct fossilStat {
 };
 #endif
 
+#if defined(_WIN32) || defined(__CYGWIN__)
+# define fossil_isdirsep(a)    (((a) == '/') || ((a) == '\\'))
+#else
+# define fossil_isdirsep(a)    ((a) == '/')
+#endif
+
 #endif /* INTERFACE */
 
 #if !defined(_WIN32) || !(defined(__MSVCRT__) || defined(_MSC_VER))
@@ -372,11 +378,27 @@ char *file_newname(const char *zBase, const char *zSuffix, int relFlag){
 */
 const char *file_tail(const char *z){
   const char *zTail = z;
+  if( !zTail ) return 0;
   while( z[0] ){
-    if( z[0]=='/' ) zTail = &z[1];
+    if( fossil_isdirsep(z[0]) ) zTail = &z[1];
     z++;
   }
   return zTail;
+}
+
+/*
+** Return the directory of a file path name.  The directory is all components
+** except the last one.  For example, the directory of "/a/b/c.d" is "/a/b".
+** If there is no directory, NULL is returned; otherwise, the returned memory
+** should be freed via fossil_free().
+*/
+char *file_dirname(const char *z){
+  const char *zTail = file_tail(z);
+  if( zTail && zTail!=z ){
+    return mprintf("%.*s", (int)(zTail-z-1), z);
+  }else{
+    return 0;
+  }
 }
 
 /*
@@ -819,11 +841,10 @@ void file_getcwd(char *zBuf, int nBuf){
 ** if it is relative.
 */
 int file_is_absolute_path(const char *zPath){
-  if( zPath[0]=='/'
+  if( fossil_isdirsep(zPath[0])
 #if defined(_WIN32) || defined(__CYGWIN__)
-      || zPath[0]=='\\'
       || (fossil_isalpha(zPath[0]) && zPath[1]==':'
-           && (zPath[2]=='\\' || zPath[2]=='/' || zPath[2]=='\0'))
+           && (fossil_isdirsep(zPath[2]) || zPath[2]=='\0'))
 #endif
   ){
     return 1;

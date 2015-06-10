@@ -1,5 +1,5 @@
-C Add\sa\squote\sfrom\sLinus\sTorvalds\sto\sthe\s"On\sThe\sUsability\sof\sGit"\ssection\sof\nthe\squotes.wiki\spage.
-D 2015-06-05T18:07:02.278
+C Enhance\sTcl\sintegration\ssubsystem\sto\scheck\sfor\sthe\sFOSSIL_TCL_PATH\senvironment\svariable.\s\sIt\spresent,\sit\swill\sbe\sused\sas\sa\sdirectory\sor\sfile\sname\swhere\sa\sTcl\s8.x\slibrary\smight\sbe\slocated.
+D 2015-06-10T21:42:28.312
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -407,7 +407,7 @@ F src/doc.c 1dfc49e465379f5fb1f37bed95ddaad085883f23
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
-F src/file.c 22f24ea26939ccb7f4cb9e20e7a7a626504d677d
+F src/file.c e782c9f589105a96e183de89e11498016451ddfb
 F src/finfo.c f09550ee499d79296b5a6e217711d712316dc054
 F src/foci.c 8e1553ee3a2db6b73497b4cfca8d4b8fe89e2471
 F src/fusefs.c e25405b83122ed8369aa63125897348e5eb3cab2
@@ -492,7 +492,7 @@ F src/th.c e9840f21b1bb1bc03fdba17c818728e132e254b7
 F src/th.h 331b9aaf012117b22a3e8c4676c5b131cd8b7f9d
 F src/th_lang.c 71435ded9ef6d2e0332711bd4a0ffda836d4b027
 F src/th_main.c 3a939df891ded0a9820882ab212139c85a6fb589
-F src/th_tcl.c 7b37123bd606f5b9999a1103807f822a77dfcdc5
+F src/th_tcl.c f47104c5a0f0449c1fa7b4eae5ed0e3cbf5cb0e6
 F src/timeline.c 005c758d36dbe81a52d1fe9a7f14cd0830abb005
 F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
 F src/tktsetup.c 1360904128a3c60008867056d9f576c8f906eb7c
@@ -737,7 +737,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 056f41f8509902845f4f03ab7c01be9d6fa6ea95
-R 1fbcc3c9b96e1f2277183010716d00ac
-U drh
-Z 6532970608aa38233fa352b362a2da31
+P e2411525c1fd280427f75a3b0a700007401a015e
+R 42e0c043ffea88fb04809a7ff24ca5cb
+U mistachkin
+Z 95b1f6d3a23f31f5deab605c4957054f
