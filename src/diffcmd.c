@@ -36,6 +36,21 @@
 #define DIFF_NO_NAME  "(unknown)"
 
 /*
+** Use the "exec-relative-paths" setting and the --exec-abs-paths
+** and --exec-rel-paths command line options to determine whether
+** certain external commands are executed using relative paths.
+*/
+static int determine_exec_relative_option()
+{
+  int relativePaths = db_get_boolean("exec-relative-paths", 0);
+  int relPathOption = find_option("exec-rel-paths", 0, 0)!=0;
+  int absPathOption = find_option("exec-abs-paths", 0, 0)!=0;
+  if( relPathOption ){ relativePaths = 1; }
+  if( absPathOption ){ relativePaths = 0; }
+  return relativePaths;
+}
+
+/*
 ** Print the "Index:" message that patches wants to see at the top of a diff.
 */
 void diff_print_index(const char *zFile, u64 diffFlags){
@@ -390,12 +405,12 @@ static void diff_all_against_disk(
     int showDiff = 1;
     Blob fname;
 
-    if( db_get_boolean("diff-cmd-abs-path",0) ){
-      blob_set(&fname, g.zLocalRoot);
-      blob_append(&fname, zPathname, -1);
-    }else{
+    if( determine_exec_relative_option() ){
       blob_zero(&fname);
       file_relative_name(zPathname, &fname, 1);
+    }else{
+      blob_set(&fname, g.zLocalRoot);
+      blob_append(&fname, zPathname, -1);
     }
     zFullName = blob_str(&fname);
     if( isDeleted ){
@@ -758,6 +773,8 @@ const char *diff_get_binary_glob(void){
 **   --brief                    Show filenames only
 **   --context|-c N             Use N lines of context
 **   --diff-binary BOOL         Include binary files when using external commands
+**   --exec-abs-paths           Force absolute path names with external commands.
+**   --exec-rel-paths           Force relative path names with external commands.
 **   --from|-r VERSION          select VERSION as source for the diff
 **   --internal|-i              use internal diff logic
 **   --side-by-side|-y          side-by-side diff
