@@ -36,13 +36,13 @@
 #define DIFF_NO_NAME  "(unknown)"
 
 /*
-** Use the "exec-relative-paths" setting and the --exec-abs-paths
-** and --exec-rel-paths command line options to determine whether
+** Use the "exec-rel-paths" setting and the --exec-abs-paths and
+** --exec-rel-paths command line options to determine whether
 ** certain external commands are executed using relative paths.
 */
 static int determine_exec_relative_option()
 {
-  int relativePaths = db_get_boolean("exec-relative-paths", 0);
+  int relativePaths = db_get_boolean("exec-rel-paths", 0);
   int relPathOption = find_option("exec-rel-paths", 0, 0)!=0;
   int absPathOption = find_option("exec-abs-paths", 0, 0)!=0;
   if( relPathOption ){ relativePaths = 1; }

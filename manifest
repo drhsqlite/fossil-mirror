@@ -1,5 +1,5 @@
-C Revise\sthe\schanges\son\sthis\sbranch\sto\sfavor\sthe\scurrent\sdefault\sbehavior.\s\sAlso,\smake\sit\spossible\sto\soverride\sthe\snew\ssetting\swith\sa\scommand\sline\soption.
-D 2015-06-10T03:22:56.106
+C Add\shelp\stext\sfor\sthe\snew\ssetting.
+D 2015-06-10T04:04:49.584
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -396,13 +396,13 @@ F src/content.c 49fd70d3136fbeb4794b7ef2f76c977c3ea77013
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 032eb0f3e7cc92d9ede1c11bfec26a9b15ed771e
+F src/db.c e8a33ed500c724f79876f883b15c835cb90a17da
 F src/delta.c e8de840f518dca8a6641f34eae115c8f9ca36004
 F src/deltacmd.c 4ac36378bf7b772d3bd67954212eb98be121961b
 F src/descendants.c 1eb2bb891117be886ac87a7db842293221639326
 F src/diff.c 4600d39f61675941c756f5425e6bd5702f35eedf
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
-F src/diffcmd.c 1d0d7e0aec759c9c20abc2d5d831df760c40b43f
+F src/diffcmd.c 45c8c2c311d111db29c3f37b6a07b57731aae21f
 F src/doc.c 1dfc49e465379f5fb1f37bed95ddaad085883f23
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
@@ -737,7 +737,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 55b4a751c8816348b21e2f96a21dc9596f0c3ec6
-R 89b9d938e1fbd24ad0a16af4c3f1517d
+P 2036eef7674c4ffb8437131831d56a8c8724b4ab
+R 50640c2a51fc6074baa550435b9c8d42
 U mistachkin
-Z 038434a446406214416f68e27721c34f
+Z 744092cc5c7586ed86cce78413384ef4

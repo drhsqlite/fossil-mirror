@@ -2381,7 +2381,7 @@ const Setting aSetting[] = {
   { "editor",           0,             32, 0, 0, ""                    },
   { "empty-dirs",       0,             40, 1, 0, ""                    },
   { "encoding-glob",    0,             40, 1, 0, ""                    },
-  { "exec-relative-paths", 0,           0, 0, 0, "off"                 },
+  { "exec-rel-paths",   0,              0, 0, 0, "off"                 },
   { "gdiff-command",    0,             40, 0, 0, "gdiff"               },
   { "gmerge-command",   0,             40, 0, 0, ""                    },
   { "hash-digits",      0,              5, 0, 0, "10"                  },
@@ -2557,6 +2557,9 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **                     ignore when issuing warnings about text files that may
 **                     use another encoding than ASCII or UTF-8. Set to "*"
 **                     to disable encoding checking.
+**
+**    exec-rel-paths   When executing certain external commands (e.g. diff and
+**                     gdiff), use relative paths.
 **
 **    gdiff-command    External command to run when performing a graphical
 **                     diff. If undefined, text diff will be used.
