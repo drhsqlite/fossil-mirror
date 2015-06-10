@@ -1,5 +1,5 @@
-C Coding\sstyle\sadjustments\sto\sthe\sTcl\sintegration\ssubsystem.
-D 2015-06-10T22:18:57.096
+C Sync\sup\sTclContext\shLibrary\smember\sname\swith\s'main.c'.
+D 2015-06-10T22:31:11.610
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -440,7 +440,7 @@ F src/leaf.c df47f8f52ed1ebeb3b7f5c7b92c62351b177d458
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 0a6cf8707e27b04873950a6c63a48391c0a9f7ce
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c 2315abe50eb6c01695ec11f2315e91e44114c59a
+F src/main.c e040f786ab8327d0d8887db43a29db964ebafd52
 F src/main.mk c56b4b688a95c62878ca19916058b94f2a4466d0
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -737,7 +737,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P b523bf0be0602c5a4a12fd3cfb0c5d3e43b56107
-R 7bfb2ee7a442b2c7cbc557bfcd57f635
+P fec856f48c88372f8f9e7448234dcf85cddd6078
+R 3cee69d24e627e71bbefa0c474a7a282
 U mistachkin
-Z 8d1569f64cde64c138c7268040fe0e3f
+Z 14d2e4c06bc5c0abb81f35148ede3219
