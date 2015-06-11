@@ -664,7 +664,7 @@ void diff_tk(const char *zSubCmd, int firstArg){
 #if defined(FOSSIL_ENABLE_TCL)
     Th_FossilInit(TH_INIT_DEFAULT);
     if( evaluateTclWithEvents(g.interp, &g.tcl, blob_str(&script),
-                              blob_size(&script), 1, 0)==TCL_OK ){
+                              blob_size(&script), 1, 1, 0)==TCL_OK ){
       blob_reset(&script);
       return;
     }

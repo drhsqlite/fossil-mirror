@@ -1,5 +1,5 @@
-C Update\sreferenced\sOpenSSL\sversion.
-D 2015-06-11T17:10:31.170
+C Further\simprovements\sto\sthe\sTcl\sintegration\ssubsystem.
+D 2015-06-11T21:25:30.287
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -402,7 +402,7 @@ F src/deltacmd.c 4ac36378bf7b772d3bd67954212eb98be121961b
 F src/descendants.c 1eb2bb891117be886ac87a7db842293221639326
 F src/diff.c 4600d39f61675941c756f5425e6bd5702f35eedf
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
-F src/diffcmd.c e85b2ef610bcb1a11592bb2770520e72ac37b289
+F src/diffcmd.c 2e7b17d1cdc3fe5cae14bae8ac84b77cf48a046e
 F src/doc.c 1dfc49e465379f5fb1f37bed95ddaad085883f23
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
@@ -442,7 +442,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 0a6cf8707e27b04873950a6c63a48391c0a9f7ce
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c e040f786ab8327d0d8887db43a29db964ebafd52
+F src/main.c 840f05c17c38ed8fe4c5ea76e748aaabb2b7e61f
 F src/main.mk 6134955a71af52592fa41a90246cdf69a2f63410
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -491,10 +491,10 @@ F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
 F src/th.c e9840f21b1bb1bc03fdba17c818728e132e254b7
-F src/th.h 331b9aaf012117b22a3e8c4676c5b131cd8b7f9d
+F src/th.h 1e7ae1613afa730a75df06d7fd1f17c7ff4564f4
 F src/th_lang.c 71435ded9ef6d2e0332711bd4a0ffda836d4b027
 F src/th_main.c 3a939df891ded0a9820882ab212139c85a6fb589
-F src/th_tcl.c dc8a2dd7f205ebbdee4354a1ffa13b5b3ca0cda8
+F src/th_tcl.c daed7009a7eea22af1430d8d6b64e1b11a886407
 F src/timeline.c 005c758d36dbe81a52d1fe9a7f14cd0830abb005
 F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
 F src/tktsetup.c 1360904128a3c60008867056d9f576c8f906eb7c
@@ -739,7 +739,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 851485657643dc2c18c4b555159a981591e42609
-R e2c57b07278adbe1ce590a3319746689
+P 0626182eb38a866b0d0cb30c2770bd68e5537437
+R d5a4831618a0398e3e43533a1adf9e83
 U mistachkin
-Z b32e9ecdbf5338d7e2088f3b8906267e
+Z 1ff48968f61a5ed01e820055688cbf1e

@@ -169,9 +169,9 @@
 ** cleanup if the Tcl stubs initialization fails somehow, the Tcl_DeleteInterp
 ** and Tcl_Finalize function types are also required.
 */
-typedef void (tcl_FindExecutableProc) (const char * argv0);
+typedef void (tcl_FindExecutableProc) (const char *);
 typedef Tcl_Interp *(tcl_CreateInterpProc) (void);
-typedef void (tcl_DeleteInterpProc) (Tcl_Interp *interp);
+typedef void (tcl_DeleteInterpProc) (Tcl_Interp *);
 typedef void (tcl_FinalizeProc) (void);
 
 /*
@@ -281,6 +281,21 @@ static int canUseObjProc(){
 }
 
 /*
+** Is the loaded version of Tcl one where TIP #285 (asynchronous script
+** cancellation) is available?  This should return non-zero only for Tcl
+** 8.6 and higher.
+*/
+static int canUseTip285(){
+  int major = -1, minor = -1, patchLevel = -1, type = -1;
+
+  Tcl_GetVersion(&major, &minor, &patchLevel, &type);
+  if( major<0 || minor<0 || patchLevel<0 || type<0 ){
+    return 0; /* NOTE: Invalid version info, assume bad. */
+  }
+  return (major>8 || (major==8 && minor>=6));
+}
+
+/*
 ** Creates and initializes a Tcl interpreter for use with the specified TH1
 ** interpreter.  Stores the created Tcl interpreter in the Tcl context supplied
 ** by the caller.  This must be declared here because quite a few functions in
@@ -381,6 +396,7 @@ struct TclContext {
   tcl_FinalizeProc *xFinalize;             /* Tcl_Finalize() pointer. */
   Tcl_Interp *interp; /* The on-demand created Tcl interpreter. */
   int useObjProc;     /* Non-zero if an objProc can be called directly. */
+  int useTip285;      /* Non-zero if TIP #285 is available. */
   char *setup;        /* The optional Tcl setup script. */
   tcl_NotifyProc *xPreEval;  /* Optional, called before Tcl_Eval*(). */
   void *pPreContext;         /* Optional, provided to xPreEval(). */
@@ -925,6 +941,7 @@ int evaluateTclWithEvents(
   void *pContext,
   const char *zScript,
   int nScript,
+  int bCancel,
   int bWait,
   int bVerbose
 ){
@@ -932,11 +949,13 @@ int evaluateTclWithEvents(
   Tcl_Interp *tclInterp;
   int rc;
   int flags = TCL_ALL_EVENTS;
+  int useTip285;
 
   if( createTclInterp(interp, pContext)!=TH_OK ){
     return TH_ERROR;
   }
   tclInterp = tclContext->interp;
+  useTip285 = bCancel ? tclContext->useTip285 : 0;
   rc = Tcl_EvalEx(tclInterp, zScript, nScript, TCL_EVAL_GLOBAL);
   if( rc!=TCL_OK ){
     if( bVerbose ){
@@ -947,9 +966,16 @@ int evaluateTclWithEvents(
     return rc;
   }
   if( !bWait ) flags |= TCL_DONT_WAIT;
+  Tcl_Preserve((ClientData)tclInterp);
   while( Tcl_DoOneEvent(flags) ){
-    /* do nothing */
+    if( Tcl_InterpDeleted(tclInterp) ){
+      break;
+    }
+    if( useTip285 && Tcl_Canceled(tclInterp, 0)!=TCL_OK ){
+      break;
+    }
   }
+  Tcl_Release((ClientData)tclInterp);
   return rc;
 }
 
@@ -1034,10 +1060,15 @@ static int createTclInterp(
     return TH_ERROR;
   }
   /*
-  ** Determine if an objProc can be called directly for a Tcl command invoked
-  ** via the tclInvoke TH1 command.
+  ** Determine (and cache) if an objProc can be called directly for a Tcl
+  ** command invoked via the tclInvoke TH1 command.
   */
   tclContext->useObjProc = canUseObjProc();
+  /*
+  ** Determine (and cache) whether or not we can use TIP #285 (asynchronous
+  ** script cancellation).
+  */
+  tclContext->useTip285 = canUseTip285();
   /* Add the TH1 integration commands to Tcl. */
   Tcl_CallWhenDeleted(tclInterp, Th1DeleteProc, interp);
   Tcl_CreateObjCommand(tclInterp, "th1Eval", Th1EvalObjCmd, interp, NULL);
