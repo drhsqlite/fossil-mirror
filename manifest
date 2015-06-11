@@ -1,5 +1,5 @@
-C Slight\soptimization:\sdon't\sbother\schecking\sthe\soptions,\swhen\seither\s--exec-abs-paths\sor\s--exec-rel-paths\sis\sspecified.
-D 2015-06-11T08:41:26.994
+C Prevent\scalls\sto\sfind_option()\sfrom\sbeing\sskipped\swhen\sthey\smight\sbe\sneeded\s(i.e.\sif\sboth\soptions\sare\sspecified).
+D 2015-06-11T16:33:03.349
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -402,7 +402,7 @@ F src/deltacmd.c 4ac36378bf7b772d3bd67954212eb98be121961b
 F src/descendants.c 1eb2bb891117be886ac87a7db842293221639326
 F src/diff.c 4600d39f61675941c756f5425e6bd5702f35eedf
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
-F src/diffcmd.c 9981c8892229a2136adb74b26831158211798121
+F src/diffcmd.c 54795417b1b5b3803dc895b59d991ebbe75f2707
 F src/doc.c 1dfc49e465379f5fb1f37bed95ddaad085883f23
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
@@ -737,7 +737,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P c8a8827309b3ea050a71a50f9686cdf8cebcd76c
-R 3a76a579173e454bd6c000f334f69efb
-U jan.nijtmans
-Z 667dc6bb4d3ee5e6ec9449d721785708
+P e86aafedca3477074f8e79def9d46e0b80d51e44
+R f25a51b88b011affbdc16f39a823cb6a
+U mistachkin
+Z 5f9f92f2d386a8d4f561b9d4d88d66a5

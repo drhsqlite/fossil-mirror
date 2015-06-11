@@ -40,17 +40,15 @@
 ** --exec-rel-paths command line options to determine whether
 ** certain external commands are executed using relative paths.
 */
-static int determine_exec_relative_option()
+static int determine_exec_relative_option(int force)
 {
   static int relativePaths = -1;
-  if( relativePaths == -1 ){
-    if( find_option("exec-abs-paths", 0, 0)!=0 ){
-      relativePaths = 0;
-    }else if( find_option("exec-rel-paths", 0, 0)!=0 ){
-      relativePaths = 1;
-    }else{
-      relativePaths = db_get_boolean("exec-rel-paths", 0);
-    }
+  if( force || relativePaths==-1 ){
+    int relPathOption = find_option("exec-rel-paths", 0, 0)!=0;
+    int absPathOption = find_option("exec-abs-paths", 0, 0)!=0;
+    relativePaths = db_get_boolean("exec-rel-paths", 0);
+    if( relPathOption ){ relativePaths = 1; }
+    if( absPathOption ){ relativePaths = 0; }
   }
   return relativePaths;
 }
@@ -410,7 +408,7 @@ static void diff_all_against_disk(
     int showDiff = 1;
     Blob fname;
 
-    if( determine_exec_relative_option() ){
+    if( determine_exec_relative_option(0) ){
       blob_zero(&fname);
       file_relative_name(zPathname, &fname, 1);
     }else{
@@ -834,7 +832,7 @@ void diff_cmd(void){
     }
     zBinGlob = diff_get_binary_glob();
     fIncludeBinary = diff_include_binary_files();
-    determine_exec_relative_option();
+    determine_exec_relative_option(1);
     verify_all_options();
     if( g.argc>=3 ){
       for(f=2; f<g.argc; ++f){
