@@ -1,5 +1,5 @@
-C Add\shelp\stext\sfor\sthe\snew\ssetting.
-D 2015-06-10T04:04:49.584
+C Make\soption\s--exec-rel-paths\sactually\swork,\sin\sstead\sof\sjust\sgiving:\s"unrecognized\scommand-line\soption,\sor\smissing\sargument:\s--exec-rel-paths"
+D 2015-06-11T08:33:19.975
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -402,7 +402,7 @@ F src/deltacmd.c 4ac36378bf7b772d3bd67954212eb98be121961b
 F src/descendants.c 1eb2bb891117be886ac87a7db842293221639326
 F src/diff.c 4600d39f61675941c756f5425e6bd5702f35eedf
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
-F src/diffcmd.c 45c8c2c311d111db29c3f37b6a07b57731aae21f
+F src/diffcmd.c bd00591456c60f18589378d9f3826dac1fcd2820
 F src/doc.c 1dfc49e465379f5fb1f37bed95ddaad085883f23
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
@@ -737,7 +737,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 2036eef7674c4ffb8437131831d56a8c8724b4ab
-R 50640c2a51fc6074baa550435b9c8d42
-U mistachkin
-Z 744092cc5c7586ed86cce78413384ef4
+P 2369a92fb6bd7a181c3ae72b52d608069b72e642
+R e4524070a63e6ee5b0af5072eb86772c
+U jan.nijtmans
+Z 5f17a732e6d4a140dcddfb9fc0428af2
