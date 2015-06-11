@@ -104,13 +104,14 @@ struct FossilUserPerms {
 struct TclContext {
   int argc;              /* Number of original (expanded) arguments. */
   char **argv;           /* Full copy of the original (expanded) arguments. */
-  void *library;         /* The Tcl library module handle. */
+  void *hLibrary;        /* The Tcl library module handle. */
   void *xFindExecutable; /* See tcl_FindExecutableProc in th_tcl.c. */
   void *xCreateInterp;   /* See tcl_CreateInterpProc in th_tcl.c. */
   void *xDeleteInterp;   /* See tcl_DeleteInterpProc in th_tcl.c. */
   void *xFinalize;       /* See tcl_FinalizeProc in th_tcl.c. */
   Tcl_Interp *interp;    /* The on-demand created Tcl interpreter. */
   int useObjProc;        /* Non-zero if an objProc can be called directly. */
+  int useTip285;         /* Non-zero if TIP #285 is available. */
   char *setup;           /* The optional Tcl setup script. */
   void *xPreEval;        /* Optional, called before Tcl_Eval*(). */
   void *pPreContext;     /* Optional, provided to xPreEval(). */
