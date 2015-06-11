@@ -44,9 +44,13 @@ static int determine_exec_relative_option()
 {
   static int relativePaths = -1;
   if( relativePaths == -1 ){
-    relativePaths = db_get_boolean("exec-rel-paths", 0);
-    if( find_option("exec-rel-paths", 0, 0)!=0 ){ relativePaths = 1; }
-    if( find_option("exec-abs-paths", 0, 0)!=0 ){ relativePaths = 0; }
+    if( find_option("exec-abs-paths", 0, 0)!=0 ){
+      relativePaths = 0;
+    }else if( find_option("exec-rel-paths", 0, 0)!=0 ){
+      relativePaths = 1;
+    }else{
+      relativePaths = db_get_boolean("exec-rel-paths", 0);
+    }
   }
   return relativePaths;
 }
