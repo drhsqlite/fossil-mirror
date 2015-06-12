@@ -2381,7 +2381,11 @@ const Setting aSetting[] = {
   { "editor",           0,             32, 0, 0, ""                    },
   { "empty-dirs",       0,             40, 1, 0, ""                    },
   { "encoding-glob",    0,             40, 1, 0, ""                    },
+#if defined(FOSSIL_ENABLE_EXEC_REL_PATHS)
+  { "exec-rel-paths",   0,              0, 0, 0, "on"                  },
+#else
   { "exec-rel-paths",   0,              0, 0, 0, "off"                 },
+#endif
   { "gdiff-command",    0,             40, 0, 0, "gdiff"               },
   { "gmerge-command",   0,             40, 0, 0, ""                    },
   { "hash-digits",      0,              5, 0, 0, "10"                  },

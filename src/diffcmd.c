@@ -46,7 +46,11 @@ static int determine_exec_relative_option(int force)
   if( force || relativePaths==-1 ){
     int relPathOption = find_option("exec-rel-paths", 0, 0)!=0;
     int absPathOption = find_option("exec-abs-paths", 0, 0)!=0;
+#if defined(FOSSIL_ENABLE_EXEC_REL_PATHS)
+    relativePaths = db_get_boolean("exec-rel-paths", 1);
+#else
     relativePaths = db_get_boolean("exec-rel-paths", 0);
+#endif
     if( relPathOption ){ relativePaths = 1; }
     if( absPathOption ){ relativePaths = 0; }
   }

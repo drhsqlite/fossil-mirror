@@ -1,5 +1,5 @@
-C merge\strunk
-D 2015-06-11T21:50:46.835
+C "./configure\s--with-exec-rel-paths"\snow\senables\sthe\suse\sof\swindiff.exe\sas\sexternal\sdiff\sutility\sby\sdefault.\sRecommended\sfor\scygwin\sbuilds.
+D 2015-06-12T08:30:36.427
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -45,7 +45,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def cfe3dc07243d3688496d129dcfaa4292dbb02f4e
+F auto.def 19a72c5afeafda0c1201ff11459587b6e758cc1d
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 4e0b671b54288fc64d851d056822ee5fec4d3365
 F autosetup/autosetup f80eb8d3ebc34b06b08095daf8d964a898ea2777 x
@@ -396,13 +396,13 @@ F src/content.c 49fd70d3136fbeb4794b7ef2f76c977c3ea77013
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c e8a33ed500c724f79876f883b15c835cb90a17da
+F src/db.c 03cc1c680f05adf8600fed46e4f528e517ccbf20
 F src/delta.c e8de840f518dca8a6641f34eae115c8f9ca36004
 F src/deltacmd.c 4ac36378bf7b772d3bd67954212eb98be121961b
 F src/descendants.c 1eb2bb891117be886ac87a7db842293221639326
 F src/diff.c 4600d39f61675941c756f5425e6bd5702f35eedf
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
-F src/diffcmd.c 0dd960c5e4bf040d0234c0a02a2ca874aa902d24
+F src/diffcmd.c 2043d6ba9bd16f724e065ff29ad90bb3de823423
 F src/doc.c 1dfc49e465379f5fb1f37bed95ddaad085883f23
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
@@ -442,11 +442,11 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 0a6cf8707e27b04873950a6c63a48391c0a9f7ce
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c 840f05c17c38ed8fe4c5ea76e748aaabb2b7e61f
+F src/main.c 6d7b8248c183a508f30200287079ba33e8f09f7a
 F src/main.mk 6134955a71af52592fa41a90246cdf69a2f63410
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl e31afe5c8067da8ff09eee76267b1df567484d24
+F src/makemake.tcl 69dfcf7aab619fa6e8a9cfc13affe0fb7e4299b3
 F src/manifest.c ba061499e6431a1c2c8aa19821adf429975fdee6
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 45f6e06e03e4183764067eec37ff73f357303306
@@ -624,9 +624,9 @@ F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake cd7a95bc1ffa5608ae7c84b043d99d57e668803f
 F win/Makefile.dmc cf59fe3e8f3657d4b4738adec3e40a0bed7db602
-F win/Makefile.mingw 60bd0bc9b63041718b92d7a919e201c38bd6566c
-F win/Makefile.mingw.mistachkin 3f07d04e0d009b80fc9cef06ec0489bcb0392e40
-F win/Makefile.msc f1153eff6e0153c5cacd251c231c5ea22e218a89
+F win/Makefile.mingw 84b906979e42655d3787ba251f268ee59953f255
+F win/Makefile.mingw.mistachkin 7d8a41f47b93e83067eb81998221c4c0e34bb2ad
+F win/Makefile.msc 1bf53dd61622bcefa6949dcfca450f6366d76b2c
 F win/buildmsvc.bat 869c37b9583faaaf69a04a4fac921ce5edb74f0e
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -739,7 +739,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P ddfb285cf865823d7d8cba7b27ee486e51120f4f 18fc492a95b0ce408a9a84abfa0eb8d402122978
-R 0d459430e1d54c1525b2784a7cfa1b17
+P 5e9253da218b5eb95fc0c2fa26afb1d5c02a682d
+R af24e91c9c42e9c4f81239338b930b41
 U jan.nijtmans
-Z 9669435f1c6a09a8580d666fa2bb3ba1
+Z f6e13869a35ce3d8381baef00799ef33
