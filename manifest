@@ -1,5 +1,5 @@
-C "./configure\s--with-exec-rel-paths"\snow\senables\sthe\suse\sof\swindiff.exe\sas\sexternal\sdiff\sutility\sby\sdefault.\sRecommended\sfor\scygwin\sbuilds.
-D 2015-06-12T08:30:36.427
+C Update\sthe\s.rc\sfile\sas\swell.
+D 2015-06-12T17:40:11.277
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -630,7 +630,7 @@ F win/Makefile.msc 1bf53dd61622bcefa6949dcfca450f6366d76b2c
 F win/buildmsvc.bat 869c37b9583faaaf69a04a4fac921ce5edb74f0e
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
-F win/fossil.rc e71fb1ba07243265901077141df5eec7ab27aba9
+F win/fossil.rc 1f08478c6fc93567653d54ad668f28ca5a153c4c
 F win/include/dirent.h 0e00ac29eb8c2e237bc460ae4481cc74a1bf9e00
 F win/include/unistd.h 44f9195ff0279791af08c504f58939ba0ca01c4b
 F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
@@ -739,7 +739,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 5e9253da218b5eb95fc0c2fa26afb1d5c02a682d
-R af24e91c9c42e9c4f81239338b930b41
-U jan.nijtmans
-Z f6e13869a35ce3d8381baef00799ef33
+P 44d0a0993c1556a8ea14c199be866a2cb2dbca25
+R 349b9b5ee270be150df0b9196b8420ee
+U mistachkin
+Z 9ee465300bf45def34c04060ef3ad897

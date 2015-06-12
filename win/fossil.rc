@@ -122,6 +122,11 @@ BEGIN
 #else
       VALUE "LegacyMvRm", "No\0"
 #endif /* defined(FOSSIL_ENABLE_LEGACY_MV_RM) */
+#if defined(FOSSIL_ENABLE_EXEC_REL_PATHS)
+      VALUE "ExecRelPaths", "Yes\0"
+#else
+      VALUE "ExecRelPaths", "No\0"
+#endif /* defined(FOSSIL_ENABLE_EXEC_REL_PATHS) */
 #if defined(FOSSIL_ENABLE_TH1_DOCS)
       VALUE "Th1Docs", "Yes\0"
 #else
