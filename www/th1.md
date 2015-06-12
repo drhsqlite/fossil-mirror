@@ -296,6 +296,7 @@ The possible features are:
 
   1. **ssl** -- _Support for the HTTPS transport._
   1. **legacyMvRm** -- _Support for legacy mv/rm command behavior._
+  1. **execRelPaths** -- _Use relative paths with external diff/gdiff._
   1. **th1Docs** -- _Support for TH1 in embedded documentation._
   1. **th1Hooks** -- _Support for TH1 command and web page hooks._
   1. **tcl** -- _Support for Tcl integration._
@@ -305,6 +306,9 @@ The possible features are:
   1. **json** -- _Support for the JSON APIs._
   1. **markdown** -- _Support for Markdown documentation format._
   1. **unicodeCmdLine** -- _The command line arguments are Unicode._
+
+Specifying an unknown feature will return a value of false, it will not
+raise a script error.
 
 <a name="html"></a>TH1 html Command
 -----------------------------------
