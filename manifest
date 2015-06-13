@@ -1,5 +1,5 @@
-C Fix\smissing\sparenthesis\son\sindex\spage,\sremove\strailing\sspaces.\s\sOther\sminor\simprovements.
-D 2015-06-13T18:47:13.170
+C More\sconsistent\scapitalization\sof\s'Fossil'.
+D 2015-06-13T18:49:46.609
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -707,7 +707,7 @@ F www/fossil_prompt.sh b0e3a47ea763b336736f6371e2a461d858eb73c1
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
-F www/index.wiki 5856a3cc4d29766ab21fdd4a1ab7d8b9a889f7d1
+F www/index.wiki 89c650d5efb9273a21296d3b209bd1d00a4d230d
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki 86c68cd0825a7ea2a5005fa4c5c0e639f9ec300d
 F www/mkdownload.tcl 2adb240f61ff7f6027e5f00b5920f74b9e6680f2
@@ -739,7 +739,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 18fc492a95b0ce408a9a84abfa0eb8d402122978
-R 850854daeca5018a6e38d315cbef5824
+P 09fee8934881f2d172bf860eb0420051b05e507b
+R 53f5e7199413332526848b0d20c67647
 U mistachkin
-Z 831f3386833edeecc21d4fdef4641a64
+Z 900a12ffac558f5c90ed19f608120c53

@@ -90,12 +90,12 @@ management system with these advanced features:
      written in Qt.  [http://fuelscm.org/].
      Fuel is an independent project run by a different group of
      developers.
-  *  [./reviews.wiki | Testimonials] from satisfied fossil users and
+  *  [./reviews.wiki | Testimonials] from satisfied Fossil users and
      [./quotes.wiki | Quotes] about Fossil and other DVCSes.
   *  [./faq.wiki | FAQ]
-  *  The [./concepts.wiki | concepts] behind fossil
-  *  [./quickstart.wiki | Quick Start] guide to using fossil
-  *  [./qandc.wiki | Questions &amp; Criticisms] directed at fossil.
+  *  The [./concepts.wiki | concepts] behind Fossil.
+  *  [./quickstart.wiki | Quick Start] guide to using Fossil.
+  *  [./qandc.wiki | Questions &amp; Criticisms] directed at Fossil.
   *  [./build.wiki | Compiling and Installing]
   *  Fossil supports [./embeddeddoc.wiki | embedded documentation]
      that is versioned along with project source code.
@@ -103,27 +103,27 @@ management system with these advanced features:
      designed to be readable, searchable, and extensible by people
      not yet born.
   *  A tutorial on [./branching.wiki | branching], what it means and how
-     to do it using fossil.
+     to do it using Fossil.
   *  The [./selfcheck.wiki | automatic self-check] mechanism
      helps insure project integrity.
   *  Fossil contains a [./wikitheory.wiki | built-in wiki].
   *  An [./event.wiki | Event] is a special kind of wiki page associated
      with a point in time rather than a name.
-  *  [./settings.wiki | Settings] control the behaviour of fossil.
+  *  [./settings.wiki | Settings] control the behaviour of Fossil.
   *  [./ssl.wiki | Use SSL] to encrypt communication with the server.
   *  There is a
      [http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users | mailing list]
      (with publicly readable
      [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org | archives])
-     available for discussing fossil issues.
+     available for discussing Fossil issues.
   *  [./stats.wiki | Performance statistics] taken from real-world projects
-     hosted on fossil.
-  *  How to [./shunning.wiki | delete content] from a fossil repository.
+     hosted on Fossil.
+  *  How to [./shunning.wiki | delete content] from a Fossil repository.
   *  How Fossil does [./password.wiki | password management].
   *  On-line [/help | help].
   *  Documentation on the
      [http://www.sqliteconcepts.org/THManual.pdf | TH1 scripting language] used
-     to configure the ticketing subsystem and [./th1.md | extra commands]
+     to configure the ticketing subsystem and the [./th1.md | extra commands]
      provided by Fossil itself.
   *  A free hosting server for Fossil repositories is available at
      [http://chiselapp.com/].
