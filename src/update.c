@@ -599,7 +599,7 @@ void ensure_empty_dirs_created(void){
 
     zEmptyDirs = fossil_strdup(zEmptyDirs);
     for(i=0; zEmptyDirs[i]; i++){
-      if( zEmptyDirs[i]==',' ) zEmptyDirs[i] = ' ';    
+      if( zEmptyDirs[i]==',' ) zEmptyDirs[i] = ' ';
     }
     blob_init(&dirsList, zEmptyDirs, -1);
     while( blob_token(&dirsList, &dirName) ){

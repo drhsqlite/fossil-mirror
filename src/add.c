@@ -635,7 +635,7 @@ void addremove_cmd(void){
   verify_all_options();
 
   /* Fail if unprocessed arguments are present, in case user expect the
-  ** addremove command to accept a list of file or directory. 
+  ** addremove command to accept a list of file or directory.
   */
   if( g.argc>2 ){
     fossil_fatal(

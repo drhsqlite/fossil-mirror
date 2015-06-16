@@ -1,5 +1,5 @@
-C Update\sreferenced\sOpenSSL\sversion
-D 2015-06-13T20:11:10.310
+C remove\sunnecessary\send-of-line\sspacing
+D 2015-06-16T13:28:20.817
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -371,7 +371,7 @@ F skins/xekri/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 2d4ac5d435490e76f701f578cef118547f2c628a
+F src/add.c f9e7a15f285a4b10b50d4b9a8d9833ab164b61d0
 F src/allrepo.c cf9356bb2ef29ad8836889fbbc486f5a4ce2ffc1
 F src/attach.c 5b713ffe437fa0c3241da307835b1286e38798fd
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
@@ -461,7 +461,7 @@ F src/mkversion.c 40ed302872cc5795c76efb3ab089fc1aedba18f1
 F src/moderate.c 8ab2bd4bda9a6b6765f99ddea7950dc5c6bad007
 F src/name.c aa78af37cb3226cc56c955edfc28ba9094f0947b
 F src/path.c 9455d26c4bf91ae949abd55536a1a20d863c486b
-F src/piechart.c 02d8189bfce61a49ed7f8495299788feb1b54ede
+F src/piechart.c 6b2d49434b036d495ec30378520dd1054b03c920
 F src/pivot.c f03ae2edfb53590f6dee86c1a0d93441feb0f816
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -484,9 +484,9 @@ F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
 F src/sqlite3.c df1738214404c61af838c38527d6223445eb252e
 F src/sqlite3.h ab6e8519f6160e67889ec046354a877f4ede7372
 F src/stash.c e12e4a6e5b2e40da6ec789e0945e165eb78158a6
-F src/stat.c 760b5ec89d07e1d2b566353d588e77e8b9cf97c8
+F src/stat.c 69ab1f0d78ccb91fc81f8f3930046025034a3250
 F src/statrep.c 474a16f31a804b1a779e9c911ae4a3289971f087
-F src/style.c 90365266cafecb32b77f2ad3e3a3c4f46872d6d3
+F src/style.c 4238d0f18131ca473bc2bc7c3655db1d40ae823d
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
@@ -501,7 +501,7 @@ F src/tktsetup.c 1360904128a3c60008867056d9f576c8f906eb7c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c f378c0098d51a7fea5ad2e08475a515026e7cceb
 F src/unicode.c 471c170c6ca090967e68ffa51010d79233b9ff1b
-F src/update.c d5f0e4b21e6ef9a65dded97b993e005262d7785e
+F src/update.c 6acdc89d2d2a61656367105d4cacecf9affc68f8
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c 6ec57f122cadd7c324e657be5de1b0c8f0d37c8d
 F src/utf8.c d9b19f5abbdecacb9b69a9e31f3bb0ef6e017918
@@ -739,7 +739,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 91ed0447ad877ddee6f23a0da6d0f54940e70ecf
-R a0f80d0ce5709174b7890bdf857c4909
+P 6c4263daacf9396572116ff992a62568a2b3a83e
+R b640a1f16ae3fe55b050be7f551652c9
 U jan.nijtmans
-Z a6b075fdee6d15e539e96243a0b82b27
+Z 0caa745a3ee69d4d5339c2505b236a76
