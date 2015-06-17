@@ -48,7 +48,7 @@ PERL    = perl.exe
 # FOSSIL_ENABLE_SSL = 1
 
 # Uncomment to build zlib library
-# FOSSIL_BUILD_ZLIB = 1
+FOSSIL_BUILD_ZLIB = 1
 
 # Uncomment to build SSL libraries
 # FOSSIL_BUILD_SSL = 1
