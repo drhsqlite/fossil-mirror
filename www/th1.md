@@ -305,6 +305,7 @@ The possible features are:
   1. **json** -- _Support for the JSON APIs._
   1. **markdown** -- _Support for Markdown documentation format._
   1. **unicodeCmdLine** -- _The command line arguments are Unicode._
+  1. **dynamicBuild** -- _Dynamically linked to libraries (**MSVC ONLY**)._
 
 <a name="html"></a>TH1 html Command
 -----------------------------------

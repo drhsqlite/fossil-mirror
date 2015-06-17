@@ -1047,6 +1047,9 @@ void version_cmd(void){
 #else
     fossil_print("UNICODE_COMMAND_LINE\n");
 #endif
+#if defined(FOSSIL_DYNAMIC_BUILD)
+    fossil_print("DYNAMIC_BUILD\n");
+#endif
   }
 }
 

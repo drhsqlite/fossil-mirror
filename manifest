@@ -1,5 +1,5 @@
-C remove\sunnecessary\send-of-line\sspacing
-D 2015-06-16T13:28:20.817
+C Initial\swork\son\sdynamically\slinked\sMSVC\sbuild.
+D 2015-06-17T05:54:33.569
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -442,11 +442,11 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 0a6cf8707e27b04873950a6c63a48391c0a9f7ce
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c 840f05c17c38ed8fe4c5ea76e748aaabb2b7e61f
+F src/main.c 59e6b67e060ab157434c16f231af08f49b7cd310
 F src/main.mk 6134955a71af52592fa41a90246cdf69a2f63410
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl ee6ed4b43f092c491a0fd040127ce1d8316e9f35
+F src/makemake.tcl 7768622562306977376d416193d0c6e135f78b79
 F src/manifest.c ba061499e6431a1c2c8aa19821adf429975fdee6
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 45f6e06e03e4183764067eec37ff73f357303306
@@ -493,7 +493,7 @@ F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
 F src/th.c e9840f21b1bb1bc03fdba17c818728e132e254b7
 F src/th.h 1e7ae1613afa730a75df06d7fd1f17c7ff4564f4
 F src/th_lang.c 71435ded9ef6d2e0332711bd4a0ffda836d4b027
-F src/th_main.c 3a939df891ded0a9820882ab212139c85a6fb589
+F src/th_main.c 231f4e9729e09349a37545970ea82ebc409d2e76
 F src/th_tcl.c daed7009a7eea22af1430d8d6b64e1b11a886407
 F src/timeline.c 005c758d36dbe81a52d1fe9a7f14cd0830abb005
 F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
@@ -626,11 +626,11 @@ F win/Makefile.PellesCGMake cd7a95bc1ffa5608ae7c84b043d99d57e668803f
 F win/Makefile.dmc cf59fe3e8f3657d4b4738adec3e40a0bed7db602
 F win/Makefile.mingw 339ad1ddd27797a445c2e85f753ac92a776f7ceb
 F win/Makefile.mingw.mistachkin 78e22c071e62ed04be30ec228cacc78f8bcc0644
-F win/Makefile.msc 5987d5111e96af3cd9da0d769ad174d81a43fc82
+F win/Makefile.msc 80539e1e34b62271bc82b9cf7cdc9a43b25095a4
 F win/buildmsvc.bat 869c37b9583faaaf69a04a4fac921ce5edb74f0e
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
-F win/fossil.rc e71fb1ba07243265901077141df5eec7ab27aba9
+F win/fossil.rc 4174666370254ab65251c0f533f7ea6cab0ce4e9
 F win/include/dirent.h 0e00ac29eb8c2e237bc460ae4481cc74a1bf9e00
 F win/include/unistd.h 44f9195ff0279791af08c504f58939ba0ca01c4b
 F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
@@ -732,14 +732,17 @@ F www/stats.wiki 2d8317fe35d22877c86ed2332de02b653f50a498
 F www/style.wiki 4c9c67c0eddba030a73a55e468802fd09d59bc2f
 F www/sync.wiki ecd7e356270a40e81649970c1b606767db68d9e3
 F www/tech_overview.wiki 66d893fd0bca7f5dbc659ab0b4e9dde987e4fdb3
-F www/th1.md eca3531423a8e51aef068ee2c6c1f6070889bca9
+F www/th1.md 9ff055886b6b2bd1a3cfa159a496ae920030a8e8
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 6c4263daacf9396572116ff992a62568a2b3a83e
-R b640a1f16ae3fe55b050be7f551652c9
-U jan.nijtmans
-Z 0caa745a3ee69d4d5339c2505b236a76
+P 33c44fab3a799266e55e926aeb8df3c26e63b434
+R 50bc80def0c95dfe7bbc6010363b09c8
+T *branch * dynamicMsvc
+T *sym-dynamicMsvc *
+T -sym-trunk *
+U mistachkin
+Z c11628f9830c6ff91ac4455d6718f387
