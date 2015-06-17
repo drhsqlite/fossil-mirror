@@ -1,5 +1,5 @@
-C Build\szlib\sby\sdefault\swith\sMSVC.
-D 2015-06-17T16:46:13.716
+C Update\smakemake\sas\swell.
+D 2015-06-17T16:46:32.420
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -446,7 +446,7 @@ F src/main.c 59e6b67e060ab157434c16f231af08f49b7cd310
 F src/main.mk 6134955a71af52592fa41a90246cdf69a2f63410
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 19adc50eff795317ca2b350798d56227849095b7
+F src/makemake.tcl 9edf9028941700b345543c84a21337c6c7745de1
 F src/manifest.c ba061499e6431a1c2c8aa19821adf429975fdee6
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 45f6e06e03e4183764067eec37ff73f357303306
@@ -739,7 +739,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P b2c03de312803c70ecf02cf8af483da13efec28b
-R 1bc326c06601815215552f3d39af371f
+P c8816425d825cdfe1df85e116adacc827ec49070
+R eb687143f36229409fe107d609709f69
 U mistachkin
-Z 85bd56b7579d347a2301c521e26aa394
+Z be1856c3f2e5ffa0ec80d947e6b02637
