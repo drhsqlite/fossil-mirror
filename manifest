@@ -1,5 +1,5 @@
-C Remove\sFOSSIL_DYNAMIC_BUILD\sdefine\sfrom\sMinGW\sas\snot\s_all_\slibraries\sare\slinked\sdynamically\s(i.e.\sonly\sthe\sMSVCRT,\swhich\swe\shave\sno\scontrol\sover).
-D 2015-06-17T17:03:20.623
+C Update\sTH1\sdocs.
+D 2015-06-17T21:53:07.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -732,14 +732,14 @@ F www/stats.wiki 2d8317fe35d22877c86ed2332de02b653f50a498
 F www/style.wiki 4c9c67c0eddba030a73a55e468802fd09d59bc2f
 F www/sync.wiki ecd7e356270a40e81649970c1b606767db68d9e3
 F www/tech_overview.wiki 66d893fd0bca7f5dbc659ab0b4e9dde987e4fdb3
-F www/th1.md 9ff055886b6b2bd1a3cfa159a496ae920030a8e8
+F www/th1.md 17b914b0649821d739b9e71cb22f73bec09d44fd
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 5d48958e578a5c5af1289afbc7b6de59152572da
-R 7c1fc532eefde9d6c4806a5c2d20de93
+P f5f81a2a583bd45a1b719436dfa7f55bf7dffb52
+R f35934273bc0d9be815c168cba1239c7
 U mistachkin
-Z 7c6d78d8605f046a98490d63002957d1
+Z 98ea567f19f9cdadba93912d5a4e9847
