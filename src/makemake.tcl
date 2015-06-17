@@ -747,10 +747,13 @@ TCC += -DFOSSIL_ENABLE_JSON=1
 RCC += -DFOSSIL_ENABLE_JSON=1
 endif
 
-#### We add the -static option here so that we can build a static
-#    executable that will run in a chroot jail.
-#
-LIB = -static
+#### The option -static has no effect on mingw(-w64), only
+#    dynamic executables can be built linking with msvcrt.dll.
+#    Openssl (optional) and zlib however are always linked in
+#    statically.
+#LIB = -static
+TCC += -DFOSSIL_DYNAMIC_BUILD=1
+RCC += -DFOSSIL_DYNAMIC_BUILD=1
 
 #### MinGW: If available, use the Unicode capable runtime startup code.
 #

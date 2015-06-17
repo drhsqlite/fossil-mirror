@@ -1,5 +1,5 @@
-C Minor\simprovements\sto\scommand\smacros.
-D 2015-06-17T06:36:28.928
+C On\snon-MSVC-platforms\s(including\sMinGW),\sdynamic\sbuilds\sare\salready\sthe\sdefault,\sso\slet\s"fossil\sversion\s-v"\sreflect\sthat.
+D 2015-06-17T10:10:50.102
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -10,7 +10,7 @@ F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b47
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile f57bc9b00197a8ac02d52afb9cb9dd4ade476c05
-F Makefile.classic 8860fc8763421cb968e05bdd361311f9a443fc07
+F Makefile.classic 415bdbbf802da3c8934e87bf77cf284145d4c536
 F Makefile.in 4c745f08a8ecfe6e1f227e2a6d33cce3adc532d0
 F VERSION 68b05f0ffffaf08e478922297c5140cc3b5d6965
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
@@ -45,7 +45,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def cfe3dc07243d3688496d129dcfaa4292dbb02f4e
+F auto.def 06c08915e123bf229b89c295746784c77b54b823
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 4e0b671b54288fc64d851d056822ee5fec4d3365
 F autosetup/autosetup f80eb8d3ebc34b06b08095daf8d964a898ea2777 x
@@ -446,7 +446,7 @@ F src/main.c 59e6b67e060ab157434c16f231af08f49b7cd310
 F src/main.mk 6134955a71af52592fa41a90246cdf69a2f63410
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 6cfd87272cbf9c0c093680c8db2520831c7fdcb7
+F src/makemake.tcl 19adc50eff795317ca2b350798d56227849095b7
 F src/manifest.c ba061499e6431a1c2c8aa19821adf429975fdee6
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 45f6e06e03e4183764067eec37ff73f357303306
@@ -624,8 +624,8 @@ F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake cd7a95bc1ffa5608ae7c84b043d99d57e668803f
 F win/Makefile.dmc cf59fe3e8f3657d4b4738adec3e40a0bed7db602
-F win/Makefile.mingw 339ad1ddd27797a445c2e85f753ac92a776f7ceb
-F win/Makefile.mingw.mistachkin 78e22c071e62ed04be30ec228cacc78f8bcc0644
+F win/Makefile.mingw ec55eada0044febab493e60edb6dc6281ba52bc9
+F win/Makefile.mingw.mistachkin 640574fdb039d4baecd9b8725c61a1507653a481
 F win/Makefile.msc fccac03be35a6785743656e75d3b4f72c976396b
 F win/buildmsvc.bat 869c37b9583faaaf69a04a4fac921ce5edb74f0e
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -739,7 +739,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 50cb0fe3c70922af09e2bb6434c05b12ebfd6954
-R 85c91c77db6d21c7334d898dd03a8e13
-U mistachkin
-Z db6c95b654f266774204451e151a9628
+P b463e469951507d5a6c8de79cf7193649d5d0a39
+R 1942487809dc607ec1dec3ab941a4deb
+U jan.nijtmans
+Z 3a1587ea83db9d7ad2b35122a37db4e6

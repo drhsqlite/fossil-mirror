@@ -115,6 +115,9 @@ if {[opt-bool static]} {
     # XXX: This will not work on all systems.
     define-append EXTRA_LDFLAGS -static
     msg-result "Trying to link statically"
+} else {
+    define-append EXTRA_CFLAGS -DFOSSIL_DYNAMIC_BUILD=1
+    define FOSSIL_DYNAMIC_BUILD
 }
 
 set tclpath [opt-val with-tcl]
