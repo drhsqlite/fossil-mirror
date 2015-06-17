@@ -747,13 +747,14 @@ TCC += -DFOSSIL_ENABLE_JSON=1
 RCC += -DFOSSIL_ENABLE_JSON=1
 endif
 
-#### The option -static has no effect on mingw(-w64), only
-#    dynamic executables can be built linking with msvcrt.dll.
-#    Openssl (optional) and zlib however are always linked in
-#    statically.
-#LIB = -static
-TCC += -DFOSSIL_DYNAMIC_BUILD=1
-RCC += -DFOSSIL_DYNAMIC_BUILD=1
+#### The option -static has no effect on MinGW(-w64), only dynamic
+#    executables can be built when linking with MSVCRT.  OpenSSL
+#    (optional) and zlib (required) however are always linked in
+#    statically.  Therefore, the FOSSIL_DYNAMIC_BUILD option does
+#    not really apply to MinGW (i.e. since ALL external libraries
+#    are NOT linked dynamically).
+#
+# LIB = -static
 
 #### MinGW: If available, use the Unicode capable runtime startup code.
 #

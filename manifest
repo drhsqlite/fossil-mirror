@@ -1,5 +1,5 @@
-C Update\smakemake\sas\swell.
-D 2015-06-17T16:46:32.420
+C Remove\sFOSSIL_DYNAMIC_BUILD\sdefine\sfrom\sMinGW\sas\snot\s_all_\slibraries\sare\slinked\sdynamically\s(i.e.\sonly\sthe\sMSVCRT,\swhich\swe\shave\sno\scontrol\sover).
+D 2015-06-17T17:03:20.623
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -446,7 +446,7 @@ F src/main.c 59e6b67e060ab157434c16f231af08f49b7cd310
 F src/main.mk 6134955a71af52592fa41a90246cdf69a2f63410
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 9edf9028941700b345543c84a21337c6c7745de1
+F src/makemake.tcl d385e5ee0a0687dea36128b4bdab110ffb58c488
 F src/manifest.c ba061499e6431a1c2c8aa19821adf429975fdee6
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 45f6e06e03e4183764067eec37ff73f357303306
@@ -624,8 +624,8 @@ F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake cd7a95bc1ffa5608ae7c84b043d99d57e668803f
 F win/Makefile.dmc cf59fe3e8f3657d4b4738adec3e40a0bed7db602
-F win/Makefile.mingw ec55eada0044febab493e60edb6dc6281ba52bc9
-F win/Makefile.mingw.mistachkin 640574fdb039d4baecd9b8725c61a1507653a481
+F win/Makefile.mingw 20dda8a38a2f1d61d090860afecf1690a12690b7
+F win/Makefile.mingw.mistachkin 6296a9afd1958efb095f174724bef5c2b3636f95
 F win/Makefile.msc 2b6551605b418f91264353e104520d05428c2b21
 F win/buildmsvc.bat 869c37b9583faaaf69a04a4fac921ce5edb74f0e
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -739,7 +739,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P c8816425d825cdfe1df85e116adacc827ec49070
-R eb687143f36229409fe107d609709f69
+P 5d48958e578a5c5af1289afbc7b6de59152572da
+R 7c1fc532eefde9d6c4806a5c2d20de93
 U mistachkin
-Z be1856c3f2e5ffa0ec80d947e6b02637
+Z 7c6d78d8605f046a98490d63002957d1
