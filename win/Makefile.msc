@@ -211,7 +211,8 @@ CFLAGS    = $(CFLAGS) $(CRTFLAGS) /O2
 
 BCC       = $(CC) $(CFLAGS)
 TCC       = $(CC) /c $(CFLAGS) $(MSCDEF) $(INCL)
-RCC       = rc /D_WIN32 /D_MSC_VER $(MSCDEF) $(INCL)
+RCC       = $(RC) /D_WIN32 /D_MSC_VER $(MSCDEF) $(INCL)
+MTC       = mt
 LIBS      = ws2_32.lib advapi32.lib
 LIBDIR    =
 
@@ -640,7 +641,7 @@ $(APPNAME) : $(APPTARGETS) translate$E mkindex$E codecheck1$E headers $(OBJ) $(O
 	codecheck1$E $(SRC)
 	link $(LDFLAGS) /OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
 	if exist $@.manifest \
-		mt -nologo -manifest $@.manifest -outputresource:$@;1
+		$(MTC) -nologo -manifest $@.manifest -outputresource:$@;1
 
 $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\add.obj > $@
