@@ -2459,7 +2459,7 @@ void annotate_cmd(void){
   if( g.argc<3 ) {
     usage("FILENAME");
   }
-  file_tree_name(g.argv[2], &treename, 1);
+  file_tree_name(g.argv[2], &treename, 0, 1);
   zFilename = blob_str(&treename);
   fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
   if( fnid==0 ){

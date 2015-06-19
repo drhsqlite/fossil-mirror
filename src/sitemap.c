@@ -147,7 +147,7 @@ void sitemap_page(void){
   }
   @   <li>%z(href("%R/hash-color-test"))Page to experiment with the automatic
   @       colors assigned to branch names</a>
-  @   <li>%z(href("%R/test-captcha"))Random ASCII-art Captcha image</li>
+  @   <li>%z(href("%R/test-captcha"))Random ASCII-art Captcha image</a></li>
   @   </ul></li>
   @ </ul></li>
   style_footer();

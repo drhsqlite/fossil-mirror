@@ -439,7 +439,7 @@ void undo_cmd(void){
       for(i=2; i<g.argc; i++){
         const char *zFile = g.argv[i];
         Blob path;
-        file_tree_name(zFile, &path, 1);
+        file_tree_name(zFile, &path, 0, 1);
         undo_one(blob_str(&path), isRedo);
         blob_reset(&path);
       }

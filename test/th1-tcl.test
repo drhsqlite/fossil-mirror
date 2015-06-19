@@ -56,16 +56,14 @@ two words
 4
 \d+
 one_word
-three words now
-$} [string map [list \r\n \n] $RESULT]]}
+three words now$} [normalize_result]]}
 
 ###############################################################################
 
 fossil test-th-render --open-config \
     [file nativename [file join $dir th1-tcl2.txt]]
 
-test th1-tcl-2 {[regexp -- {^\d+
-$} [string map [list \r\n \n] $RESULT]]}
+test th1-tcl-2 {[regexp -- {^\d+$} [normalize_result]]}
 
 ###############################################################################
 

@@ -659,7 +659,7 @@ void merge_cmd(void){
 
   /*
   ** Rename files that have taken a rename on P->M but which keep the same
-  ** name o P->V.   If a file is renamed on P->V only or on both P->V and
+  ** name on P->V.  If a file is renamed on P->V only or on both P->V and
   ** P->M then we retain the V name of the file.
   */
   db_prepare(&q,

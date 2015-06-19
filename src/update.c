@@ -354,7 +354,7 @@ void update_cmd(void){
     blob_append(&sql, "DELETE FROM fv WHERE ", -1);
     zSep = "";
     for(i=3; i<g.argc; i++){
-      file_tree_name(g.argv[i], &treename, 1);
+      file_tree_name(g.argv[i], &treename, 0, 1);
       if( file_wd_isdir(g.argv[i])==1 ){
         if( blob_size(&treename) != 1 || blob_str(&treename)[0] != '.' ){
           blob_append_sql(&sql, "%sfn NOT GLOB '%q/*' ",
@@ -588,39 +588,28 @@ void update_cmd(void){
 }
 
 /*
-** Make sure empty directories are created
+** Create empty directories specified by the empty-dirs setting.
 */
 void ensure_empty_dirs_created(void){
-  /* Make empty directories? */
   char *zEmptyDirs = db_get("empty-dirs", 0);
   if( zEmptyDirs!=0 ){
-    char *bc;
+    int i;
     Blob dirName;
     Blob dirsList;
 
-    blob_zero(&dirsList);
-    blob_init(&dirsList, zEmptyDirs, strlen(zEmptyDirs));
-    /* Replace commas by spaces */
-    bc = blob_str(&dirsList);
-    while( (*bc)!='\0' ){
-      if( (*bc)==',' ) { *bc = ' '; }
-      ++bc;
+    zEmptyDirs = fossil_strdup(zEmptyDirs);
+    for(i=0; zEmptyDirs[i]; i++){
+      if( zEmptyDirs[i]==',' ) zEmptyDirs[i] = ' ';
     }
-    /* Make directories */
-    blob_zero(&dirName);
+    blob_init(&dirsList, zEmptyDirs, -1);
     while( blob_token(&dirsList, &dirName) ){
-      const char *zDir = blob_str(&dirName);
-      /* Make full pathname of the directory */
-      Blob path;
-      const char *zPath;
-
-      blob_zero(&path);
-      blob_appendf(&path, "%s/%s", g.zLocalRoot, zDir);
-      zPath = blob_str(&path);
-      /* Handle various cases of existence of the directory */
+      char *zDir = blob_str(&dirName);
+      char *zPath = mprintf("%s/%s", g.zLocalRoot, zDir);
       switch( file_wd_isdir(zPath) ){
         case 0: { /* doesn't exist */
-          if( file_mkdir(zPath, 0)!=0 ) {
+          fossil_free(zPath);
+          zPath = mprintf("%s/%s/x", g.zLocalRoot, zDir);
+          if( file_mkfolder(zPath, 0, 1)!=0 ) {
             fossil_warning("couldn't create directory %s as "
                            "required by empty-dirs setting", zDir);
           }
@@ -635,8 +624,11 @@ void ensure_empty_dirs_created(void){
                          "by empty-dirs setting", zDir);
         }
       }
-      blob_reset(&path);
+      fossil_free(zPath);
+      blob_reset(&dirName);
     }
+    blob_reset(&dirsList);
+    fossil_free(zEmptyDirs);
   }
 }
 
@@ -748,7 +740,7 @@ void revert_cmd(void){
     for(i=2; i<g.argc; i++){
       Blob fname;
       zFile = mprintf("%/", g.argv[i]);
-      file_tree_name(zFile, &fname, 1);
+      file_tree_name(zFile, &fname, 0, 1);
       db_multi_exec(
         "REPLACE INTO torevert VALUES(%B);"
         "INSERT OR IGNORE INTO torevert"

@@ -75,7 +75,7 @@ void finfo_cmd(void){
       fossil_fatal("no checkout to finfo files in");
     }
     vfile_check_signature(vid, CKSIG_ENOTFILE);
-    file_tree_name(g.argv[2], &fname, 1);
+    file_tree_name(g.argv[2], &fname, 0, 1);
     db_prepare(&q,
         "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0)"
         "  FROM vfile WHERE vfile.pathname=%B %s",
@@ -124,7 +124,7 @@ void finfo_cmd(void){
     /* We should be done with options.. */
     verify_all_options();
 
-    file_tree_name(g.argv[2], &fname, 1);
+    file_tree_name(g.argv[2], &fname, 0, 1);
     if( zRevision ){
       historical_version_of_file(zRevision, blob_str(&fname), &record, 0,0,0,0);
     }else{
@@ -176,7 +176,7 @@ void finfo_cmd(void){
     if( g.argc!=3 ){
       usage("?-l|--log? ?-b|--brief? FILENAME");
     }
-    file_tree_name(g.argv[2], &fname, 1);
+    file_tree_name(g.argv[2], &fname, 0, 1);
     rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%B %s",
                  &fname, filename_collation());
     if( rid==0 ){
@@ -261,7 +261,7 @@ void cat_cmd(void){
   verify_all_options();
 
   for(i=2; i<g.argc; i++){
-    file_tree_name(g.argv[i], &fname, 1);
+    file_tree_name(g.argv[i], &fname, 0, 1);
     blob_zero(&content);
     rc = historical_version_of_file(zRev, blob_str(&fname), &content, 0,0,0,2);
     if( rc==2 ){
