@@ -1,5 +1,5 @@
-C Remove\sugly\sand\szero-information\scomment\stext\sfrom\slinenoise.c.
-D 2015-06-19T14:40:40.994
+C Updated\sMakefile.msc\sgeneration:\sAdd\san\soption\sfor\screating\sa\sdynamically\slinked\sfossil\sbinary.\sMake\sit\spossible\sto\sopt-out\sof\sbuilding\szlib.
+D 2015-06-19T20:36:43.248
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -446,7 +446,7 @@ F src/main.c 840f05c17c38ed8fe4c5ea76e748aaabb2b7e61f
 F src/main.mk 6134955a71af52592fa41a90246cdf69a2f63410
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl ee6ed4b43f092c491a0fd040127ce1d8316e9f35
+F src/makemake.tcl ff807acda49f81b7763ec852dcb1cd65b6e8ffe5
 F src/manifest.c ba061499e6431a1c2c8aa19821adf429975fdee6
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 45f6e06e03e4183764067eec37ff73f357303306
@@ -739,7 +739,10 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 192c8266efa205bd8bb111321c5dd76506cf7332
-R f2b33008464cdd625b6279fe29e4f010
-U drh
-Z a56e005ad8fcbba94b702eb419f53842
+P 7bc11da24141778fc44dc0c781ee65a4d7c50d1b
+R 5370b530670029d9fcb4245937c62a89
+T *branch * jan-dynlnk-win
+T *sym-jan-dynlnk-win *
+T -sym-trunk *
+U jan
+Z d3ee682fbdc407c3e00c57f03101a67b

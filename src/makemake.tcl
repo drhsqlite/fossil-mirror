@@ -1340,6 +1340,14 @@ PERL    = perl.exe
 # Uncomment to enable Tcl support
 # FOSSIL_ENABLE_TCL = 1
 
+# For builds which uses a prebuilt zlib set this to 0 and set the appropriate
+# Z{INC,LIB}DIR and ZLIB macros.
+FOSSIL_BUILD_ZLIB = 1
+
+# Set to non-zero value  to link against dynamic CRT and change default zlib
+# library to dynamic lib.
+FOSSIL_DYNAMIC_LINK = 0
+
 !ifdef FOSSIL_ENABLE_SSL
 SSLDIR    = $(B)\compat\openssl-1.0.2c
 SSLINCDIR = $(SSLDIR)\inc32
@@ -1382,7 +1390,11 @@ TCLINCDIR = $(TCLSRCDIR)\generic
 # zlib options
 ZINCDIR   = $(B)\compat\zlib
 ZLIBDIR   = $(B)\compat\zlib
+!if FOSSIL_DYNAMIC_LINK
+ZLIB      = zdll.lib
+!else
 ZLIB      = zlib.lib
+!endif
 
 INCL      = /I. /I$(SRCDIR) /I$B\win\include
 
@@ -1399,7 +1411,13 @@ INCL      = $(INCL) /I$(TCLINCDIR)
 !endif
 
 CFLAGS    = /nologo
+!if FOSSIL_DYNAMIC_LINK
+LDFLAGS   = /MANIFEST:NO
+CCRTOPT   = /MD
+!else
 LDFLAGS   = /NODEFAULTLIB:msvcrt /MANIFEST:NO
+CCRTOPT   = /MT
+!endif
 
 !ifdef FOSSIL_ENABLE_WINXP
 XPCFLAGS  = $(XPCFLAGS) /D_USING_V110_SDK71_=1
@@ -1413,10 +1431,10 @@ LDFLAGS   = $(LDFLAGS) $(XPLDFLAGS)
 !endif
 
 !ifdef DEBUG
-CFLAGS    = $(CFLAGS) /Zi /MTd /Od
+CFLAGS    = $(CFLAGS) /Zi $(CCRTOPT)d /Od
 LDFLAGS   = $(LDFLAGS) /DEBUG
 !else
-CFLAGS    = $(CFLAGS) /MT /O2
+CFLAGS    = $(CFLAGS) $(CCRTOPT) /O2
 !endif
 
 BCC       = $(CC) $(CFLAGS)
@@ -1554,7 +1572,9 @@ openssl:
 !endif
 
 !ifndef FOSSIL_ENABLE_MINIZ
+!if FOSSIL_BUILD_ZLIB
 APPTARGETS = $(APPTARGETS) zlib
+!endif
 !endif
 
 !ifdef FOSSIL_ENABLE_SSL
