@@ -34,12 +34,11 @@ And it <b>will</b> break down.
 <i>Nick Farina at [http://nfarina.com/post/9868516270/git-is-simpler]</i>
 </blockquote>
 
-<li>We've been using git and github for a few months now, and it's not 
-intuitive... I'm hoping someone will make a set of standard wrappers/GUI
-for making git bearable.
+<li>Initial revision of "git", The information manager from hell
 
 <blockquote>
-<i>maro at [http://news.ycombinator.com/item?id=1433387]</i>
+<i>Linus Torvalds - 2005-04-07 22:13:13<br>
+Commit comment on the very first source-code check-in for git
 </blockquote>
 
 <li>I've been experimenting a lot with git at work.  

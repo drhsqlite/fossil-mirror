@@ -1,6 +1,15 @@
 <title>Change Log</title>
 
-<h2>Changes for Version 1.33 (not released yet)</h2>
+<h2>Changes for Version 1.34 (2015-??-??)</h2>
+  *  Fix --hard option to mv/rm to enable them to work properly with certain
+     relative paths.
+  *  Add minimal 'lsearch' command to TH1. Only exact case-sensitive matching
+     is supported.
+  *  Add 'glob_match' command to TH1.
+  *  Update internal Unicode character tables, used in regular expression
+     handling, from version 7.0 to 8.0.
+
+<h2>Changes for Version 1.33 (2015-05-23)</h2>
   *  Improved fork detection on [/help?cmd=update|fossil update],
      [/help?cmd=status|fossil status] and related commands.
   *  Change the default skin to what used to be called "San Francisco Modern".
@@ -14,7 +23,7 @@
   *  Add the --soft and --hard options to [/help?cmd=rm|fossil rm] and
      [/help?cmd=mv|fossil mv].  The default is still --soft, but that is
      now configurable at compile-time or by the mv-rm-files setting.
-  *  Improved ability to [./customgraph.md|customize the timelime graph].
+  *  Improved ability to [./customgraph.md|customize the timeline graph].
   *  Improvements to the [/sitemap] page.
   *  Automatically adjust the [/help?cmd=timeline|CLI timeline] to the terminal
      width on Linux.
@@ -31,7 +40,7 @@
   *  Added the "Blitz" skin option.
   *  Removed the ".fossil-settings/keep-glob" file.  It should not have been
      checked into the repository.
-  *  Update the built-in SQLite to version 3.8.10.1.
+  *  Update the built-in SQLite to version 3.8.10.2.
   *  Make [/help?cmd=open|fossil open] honor ".fossil-settings/allow-symlinks".
   *  Allow [/help?cmd=add|fossil add] to be used on symlinks to nonexistent or
      unreadable files in the same way as [/help?cmd=addremove|fossil addremove].
@@ -42,6 +51,12 @@
   *  Have [/help?cmd=changes|fossil changes] and
      [/help?cmd=status|fossil status] report when executable or symlink status
      changes on otherwise unmodified files.
+  *  Permit filtering weekday and file [/help?cmd=/reports|reports] by user.
+     Also ensure the user parameter is preserved when changing types.  Add a
+     field for direct entry of the user name to each applicable report.
+  *  Create parent directories of [/help?cmd=settings|empty-dirs] if they don't
+     already exist.
+  *  Inhibit timeline links to wiki pages that have been deleted.
 
 <h2>Changes for Version 1.32 (2015-03-14)</h2>
   *  When creating a new repository using [/help?cmd=init|fossil init], ensure

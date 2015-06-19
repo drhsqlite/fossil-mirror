@@ -257,35 +257,18 @@ int mtime_of_manifest_file(
 ** the "ok" table.
 */
 void compute_descendants(int rid, int N){
-  Bag seen;
-  PQueue queue;
-  Stmt ins;
-  Stmt q;
-
-  bag_init(&seen);
-  pqueuex_init(&queue);
-  bag_insert(&seen, rid);
-  pqueuex_insert(&queue, rid, 0.0, 0);
-  db_prepare(&ins, "INSERT OR IGNORE INTO ok VALUES(:rid)");
-  db_prepare(&q, "SELECT cid, mtime FROM plink WHERE pid=:rid");
-  while( (N--)>0 && (rid = pqueuex_extract(&queue, 0))!=0 ){
-    db_bind_int(&ins, ":rid", rid);
-    db_step(&ins);
-    db_reset(&ins);
-    db_bind_int(&q, ":rid", rid);
-    while( db_step(&q)==SQLITE_ROW ){
-      int pid = db_column_int(&q, 0);
-      double mtime = db_column_double(&q, 1);
-      if( bag_insert(&seen, pid) ){
-        pqueuex_insert(&queue, pid, mtime, 0);
-      }
-    }
-    db_reset(&q);
-  }
-  bag_clear(&seen);
-  pqueuex_clear(&queue);
-  db_finalize(&ins);
-  db_finalize(&q);
+  db_multi_exec(
+    "WITH RECURSIVE"
+    "  dx(rid,mtime) AS ("
+    "     SELECT %d, 0"
+    "     UNION"
+    "     SELECT plink.cid, plink.mtime FROM dx, plink"
+    "      WHERE plink.pid=dx.rid"
+    "      ORDER BY 2"
+    "  )"
+    "INSERT OR IGNORE INTO ok SELECT rid FROM dx LIMIT %d",
+    rid, N
+  );
 }
 
 /*

@@ -55,7 +55,7 @@ const char *rgbName(unsigned char h, unsigned char s, unsigned char v){
     }
   }
   sqlite3_snprintf(sizeof(zColor),zColor,"#%02x%02x%02x",r,g,b);
-  return zColor;  
+  return zColor;
 }
 
 /*

@@ -46,8 +46,10 @@
 #define FREE_ARGV_TO_OBJV()         \
   for(obji=1; obji<argc; obji++){   \
     Tcl_DecrRefCount(objv[obji-1]); \
+    objv[obji-1] = 0;               \
   }                                 \
-  ckfree((char *)objv);
+  ckfree((char *)objv);             \
+  objv = 0;
 
 /*
 ** Fetch the Tcl interpreter from the specified void pointer, cast to a Tcl
@@ -64,13 +66,30 @@
   ((struct TclContext *)(ctx))->useObjProc
 
 /*
+** This is the name of an environment variable that may refer to a Tcl library
+** directory or file name.  If this environment variable is set [to anything],
+** its value will be used when searching for a Tcl library to load.
+*/
+#ifndef TCL_PATH_ENV_VAR_NAME
+#  define TCL_PATH_ENV_VAR_NAME  "FOSSIL_TCL_PATH"
+#endif
+
+/*
 ** Define the Tcl shared library name, some exported function names, and some
 ** cross-platform macros for use with the Tcl stubs mechanism, when enabled.
 */
 #if defined(USE_TCL_STUBS)
 #  if defined(_WIN32)
-#    define WIN32_LEAN_AND_MEAN
+#    if !defined(WIN32_LEAN_AND_MEAN)
+#      define WIN32_LEAN_AND_MEAN
+#    endif
+#    if !defined(_WIN32_WINNT) || (_WIN32_WINNT < 0x0502)
+#      define _WIN32_WINNT 0x0502 /* SetDllDirectory, Windows XP SP2 */
+#    endif
 #    include <windows.h>
+#    ifndef TCL_DIRECTORY_SEP
+#      define TCL_DIRECTORY_SEP '\\'
+#    endif
 #    ifndef TCL_LIBRARY_NAME
 #      define TCL_LIBRARY_NAME "tcl86.dll\0"
 #    endif
@@ -88,6 +107,9 @@
 #    endif
 #  else
 #    include <dlfcn.h>
+#    ifndef TCL_DIRECTORY_SEP
+#      define TCL_DIRECTORY_SEP '/'
+#    endif
 #    if defined(__CYGWIN__)
 #      ifndef TCL_LIBRARY_NAME
 #        define TCL_LIBRARY_NAME "libtcl8.6.dll\0"
@@ -126,6 +148,19 @@
 #endif /* defined(USE_TCL_STUBS) */
 
 /*
+** If this constant is defined to non-zero, the Win32 SetDllDirectory function
+** will be used during the Tcl library loading process if the path environment
+** variable for Tcl was set.
+*/
+#ifndef TCL_USE_SET_DLL_DIRECTORY
+#  if defined(_WIN32) && defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0502)
+#    define TCL_USE_SET_DLL_DIRECTORY (1)
+#  else
+#    define TCL_USE_SET_DLL_DIRECTORY (0)
+#  endif
+#endif /* TCL_USE_SET_DLL_DIRECTORY */
+
+/*
 ** The function types for Tcl_FindExecutable and Tcl_CreateInterp are needed
 ** when the Tcl library is being loaded dynamically by a stubs-enabled
 ** application (i.e. the inverse of using a stubs-enabled package).  These are
@@ -134,9 +169,9 @@
 ** cleanup if the Tcl stubs initialization fails somehow, the Tcl_DeleteInterp
 ** and Tcl_Finalize function types are also required.
 */
-typedef void (tcl_FindExecutableProc) (const char * argv0);
+typedef void (tcl_FindExecutableProc) (const char *);
 typedef Tcl_Interp *(tcl_CreateInterpProc) (void);
-typedef void (tcl_DeleteInterpProc) (Tcl_Interp *interp);
+typedef void (tcl_DeleteInterpProc) (Tcl_Interp *);
 typedef void (tcl_FinalizeProc) (void);
 
 /*
@@ -246,6 +281,21 @@ static int canUseObjProc(){
 }
 
 /*
+** Is the loaded version of Tcl one where TIP #285 (asynchronous script
+** cancellation) is available?  This should return non-zero only for Tcl
+** 8.6 and higher.
+*/
+static int canUseTip285(){
+  int major = -1, minor = -1, patchLevel = -1, type = -1;
+
+  Tcl_GetVersion(&major, &minor, &patchLevel, &type);
+  if( major<0 || minor<0 || patchLevel<0 || type<0 ){
+    return 0; /* NOTE: Invalid version info, assume bad. */
+  }
+  return (major>8 || (major==8 && minor>=6));
+}
+
+/*
 ** Creates and initializes a Tcl interpreter for use with the specified TH1
 ** interpreter.  Stores the created Tcl interpreter in the Tcl context supplied
 ** by the caller.  This must be declared here because quite a few functions in
@@ -339,13 +389,14 @@ static char *getTclResult(
 struct TclContext {
   int argc;           /* Number of original arguments. */
   char **argv;        /* Full copy of the original arguments. */
-  void *library;      /* The Tcl library module handle. */
+  void *hLibrary;     /* The Tcl library module handle. */
   tcl_FindExecutableProc *xFindExecutable; /* Tcl_FindExecutable() pointer. */
   tcl_CreateInterpProc *xCreateInterp;     /* Tcl_CreateInterp() pointer. */
   tcl_DeleteInterpProc *xDeleteInterp;     /* Tcl_DeleteInterp() pointer. */
   tcl_FinalizeProc *xFinalize;             /* Tcl_Finalize() pointer. */
   Tcl_Interp *interp; /* The on-demand created Tcl interpreter. */
   int useObjProc;     /* Non-zero if an objProc can be called directly. */
+  int useTip285;      /* Non-zero if TIP #285 is available. */
   char *setup;        /* The optional Tcl setup script. */
   tcl_NotifyProc *xPreEval;  /* Optional, called before Tcl_Eval*(). */
   void *pPreContext;         /* Optional, provided to xPreEval(). */
@@ -425,14 +476,14 @@ static int tclEval_command(
     objPtr = Tcl_NewStringObj(argv[1], argl[1]);
     Tcl_IncrRefCount(objPtr);
     rc = Tcl_EvalObjEx(tclInterp, objPtr, 0);
-    Tcl_DecrRefCount(objPtr);
+    Tcl_DecrRefCount(objPtr); objPtr = 0;
   }else{
     USE_ARGV_TO_OBJV();
     COPY_ARGV_TO_OBJV();
     objPtr = Tcl_ConcatObj(objc, objv);
     Tcl_IncrRefCount(objPtr);
     rc = Tcl_EvalObjEx(tclInterp, objPtr, 0);
-    Tcl_DecrRefCount(objPtr);
+    Tcl_DecrRefCount(objPtr); objPtr = 0;
     FREE_ARGV_TO_OBJV();
   }
   zResult = getTclResult(tclInterp, &nResult);
@@ -484,14 +535,14 @@ static int tclExpr_command(
     objPtr = Tcl_NewStringObj(argv[1], argl[1]);
     Tcl_IncrRefCount(objPtr);
     rc = Tcl_ExprObj(tclInterp, objPtr, &resultObjPtr);
-    Tcl_DecrRefCount(objPtr);
+    Tcl_DecrRefCount(objPtr); objPtr = 0;
   }else{
     USE_ARGV_TO_OBJV();
     COPY_ARGV_TO_OBJV();
     objPtr = Tcl_ConcatObj(objc, objv);
     Tcl_IncrRefCount(objPtr);
     rc = Tcl_ExprObj(tclInterp, objPtr, &resultObjPtr);
-    Tcl_DecrRefCount(objPtr);
+    Tcl_DecrRefCount(objPtr); objPtr = 0;
     FREE_ARGV_TO_OBJV();
   }
   if( rc==TCL_OK ){
@@ -500,7 +551,9 @@ static int tclExpr_command(
     zResult = getTclResult(tclInterp, &nResult);
   }
   Th_SetResult(interp, zResult, nResult);
-  if( rc==TCL_OK ) Tcl_DecrRefCount(resultObjPtr);
+  if( rc==TCL_OK ){
+    Tcl_DecrRefCount(resultObjPtr); resultObjPtr = 0;
+  }
   Tcl_Release((ClientData)tclInterp);
   rc = notifyPreOrPostEval(1, interp, ctx, argc, argv, argl,
                            getTh1ReturnCode(rc));
@@ -552,17 +605,17 @@ static int tclInvoke_command(
     command = Tcl_GetCommandFromObj(tclInterp, objPtr);
     if( !command || Tcl_GetCommandInfoFromToken(command, &cmdInfo)==0 ){
       Th_ErrorMessage(interp, "Tcl command not found:", argv[1], argl[1]);
-      Tcl_DecrRefCount(objPtr);
+      Tcl_DecrRefCount(objPtr); objPtr = 0;
       Tcl_Release((ClientData)tclInterp);
       return TH_ERROR;
     }
     if( !cmdInfo.objProc ){
       Th_ErrorMessage(interp, "cannot invoke Tcl command:", argv[1], argl[1]);
-      Tcl_DecrRefCount(objPtr);
+      Tcl_DecrRefCount(objPtr); objPtr = 0;
       Tcl_Release((ClientData)tclInterp);
       return TH_ERROR;
     }
-    Tcl_DecrRefCount(objPtr);
+    Tcl_DecrRefCount(objPtr); objPtr = 0;
     COPY_ARGV_TO_OBJV();
     Tcl_ResetResult(tclInterp);
     rc = cmdInfo.objProc(cmdInfo.objClientData, tclInterp, objc, objv);
@@ -688,19 +741,25 @@ static void Th1DeleteProc(
 ** the function pointers provided by the caller with the statically linked
 ** functions.
 */
+char *fossil_getenv(const char *zName); /* file.h */
+int file_isdir(const char *zPath);      /* file.h */
+char *file_dirname(const char *zPath);  /* file.h */
+void fossil_free(void *p);              /* util.h */
+
 static int loadTcl(
   Th_Interp *interp,
-  void **pLibrary,
+  void **phLibrary,
   tcl_FindExecutableProc **pxFindExecutable,
   tcl_CreateInterpProc **pxCreateInterp,
   tcl_DeleteInterpProc **pxDeleteInterp,
   tcl_FinalizeProc **pxFinalize
 ){
 #if defined(USE_TCL_STUBS)
-  char fileName[] = TCL_LIBRARY_NAME;
+  const char *zEnvPath = fossil_getenv(TCL_PATH_ENV_VAR_NAME);
+  char aFileName[] = TCL_LIBRARY_NAME;
 #endif /* defined(USE_TCL_STUBS) */
 
-  if( !pLibrary || !pxFindExecutable || !pxCreateInterp ||
+  if( !phLibrary || !pxFindExecutable || !pxCreateInterp ||
       !pxDeleteInterp || !pxFinalize ){
     Th_ErrorMessage(interp,
         "invalid Tcl loader argument(s)", (const char *)"", 0);
@@ -708,71 +767,101 @@ static int loadTcl(
   }
 #if defined(USE_TCL_STUBS)
   do {
-    void *library = dlopen(fileName, RTLD_NOW | RTLD_GLOBAL);
-    if( library ){
+    char *zFileName;
+    void *hLibrary;
+    if( !zEnvPath ){
+      zFileName = aFileName; /* NOTE: Assume present in PATH. */
+    }else if( file_isdir(zEnvPath)==1 ){
+#if TCL_USE_SET_DLL_DIRECTORY
+      SetDllDirectory(zEnvPath); /* NOTE: Maybe needed for "zlib1.dll". */
+#endif /* TCL_USE_SET_DLL_DIRECTORY */
+      /* NOTE: The environment variable contains a directory name. */
+      zFileName = sqlite3_mprintf("%s%c%s%c", zEnvPath, TCL_DIRECTORY_SEP,
+                                  aFileName, '\0');
+    }else{
+#if TCL_USE_SET_DLL_DIRECTORY
+      char *zDirName = file_dirname(zEnvPath);
+      if( zDirName ){
+        SetDllDirectory(zDirName); /* NOTE: Maybe needed for "zlib1.dll". */
+      }
+#endif /* TCL_USE_SET_DLL_DIRECTORY */
+      /* NOTE: The environment variable might contain a file name. */
+      zFileName = sqlite3_mprintf("%s%c", zEnvPath, '\0');
+#if TCL_USE_SET_DLL_DIRECTORY
+      if( zDirName ){
+        fossil_free(zDirName); zDirName = 0;
+      }
+#endif /* TCL_USE_SET_DLL_DIRECTORY */
+    }
+    hLibrary = dlopen(zFileName, RTLD_NOW | RTLD_GLOBAL);
+    /* NOTE: If the file name was allocated, free it now. */
+    if( zFileName!=aFileName ){
+      sqlite3_free(zFileName); zFileName = 0;
+    }
+    if( hLibrary ){
       tcl_FindExecutableProc *xFindExecutable;
       tcl_CreateInterpProc *xCreateInterp;
       tcl_DeleteInterpProc *xDeleteInterp;
       tcl_FinalizeProc *xFinalize;
       const char *procName = TCL_FINDEXECUTABLE_NAME;
-      xFindExecutable = (tcl_FindExecutableProc *)dlsym(library, procName + 1);
+      xFindExecutable = (tcl_FindExecutableProc *)dlsym(hLibrary, procName+1);
       if( !xFindExecutable ){
-        xFindExecutable = (tcl_FindExecutableProc *)dlsym(library, procName);
+        xFindExecutable = (tcl_FindExecutableProc *)dlsym(hLibrary, procName);
       }
       if( !xFindExecutable ){
         Th_ErrorMessage(interp,
             "could not locate Tcl_FindExecutable", (const char *)"", 0);
-        dlclose(library);
+        dlclose(hLibrary); hLibrary = 0;
         return TH_ERROR;
       }
       procName = TCL_CREATEINTERP_NAME;
-      xCreateInterp = (tcl_CreateInterpProc *)dlsym(library, procName + 1);
+      xCreateInterp = (tcl_CreateInterpProc *)dlsym(hLibrary, procName+1);
       if( !xCreateInterp ){
-        xCreateInterp = (tcl_CreateInterpProc *)dlsym(library, procName);
+        xCreateInterp = (tcl_CreateInterpProc *)dlsym(hLibrary, procName);
       }
       if( !xCreateInterp ){
         Th_ErrorMessage(interp,
             "could not locate Tcl_CreateInterp", (const char *)"", 0);
-        dlclose(library);
+        dlclose(hLibrary); hLibrary = 0;
         return TH_ERROR;
       }
       procName = TCL_DELETEINTERP_NAME;
-      xDeleteInterp = (tcl_DeleteInterpProc *)dlsym(library, procName + 1);
+      xDeleteInterp = (tcl_DeleteInterpProc *)dlsym(hLibrary, procName+1);
       if( !xDeleteInterp ){
-        xDeleteInterp = (tcl_DeleteInterpProc *)dlsym(library, procName);
+        xDeleteInterp = (tcl_DeleteInterpProc *)dlsym(hLibrary, procName);
       }
       if( !xDeleteInterp ){
         Th_ErrorMessage(interp,
             "could not locate Tcl_DeleteInterp", (const char *)"", 0);
-        dlclose(library);
+        dlclose(hLibrary); hLibrary = 0;
         return TH_ERROR;
       }
       procName = TCL_FINALIZE_NAME;
-      xFinalize = (tcl_FinalizeProc *)dlsym(library, procName + 1);
+      xFinalize = (tcl_FinalizeProc *)dlsym(hLibrary, procName+1);
       if( !xFinalize ){
-        xFinalize = (tcl_FinalizeProc *)dlsym(library, procName);
+        xFinalize = (tcl_FinalizeProc *)dlsym(hLibrary, procName);
       }
       if( !xFinalize ){
         Th_ErrorMessage(interp,
             "could not locate Tcl_Finalize", (const char *)"", 0);
-        dlclose(library);
+        dlclose(hLibrary); hLibrary = 0;
         return TH_ERROR;
       }
-      *pLibrary = library;
+      *phLibrary = hLibrary;
       *pxFindExecutable = xFindExecutable;
       *pxCreateInterp = xCreateInterp;
       *pxDeleteInterp = xDeleteInterp;
       *pxFinalize = xFinalize;
       return TH_OK;
     }
-  } while( --fileName[TCL_MINOR_OFFSET]>'3' ); /* Tcl 8.4+ */
-  fileName[TCL_MINOR_OFFSET] = 'x';
+  } while( --aFileName[TCL_MINOR_OFFSET]>'3' ); /* Tcl 8.4+ */
+  aFileName[TCL_MINOR_OFFSET] = 'x';
   Th_ErrorMessage(interp,
       "could not load any supported Tcl 8.6, 8.5, or 8.4 shared library \"",
-      fileName, -1);
+      aFileName, -1);
   return TH_ERROR;
 #else
-  *pLibrary = 0;
+  *phLibrary = 0;
   *pxFindExecutable = Tcl_FindExecutable;
   *pxCreateInterp = Tcl_CreateInterp;
   *pxDeleteInterp = Tcl_DeleteInterp;
@@ -802,7 +891,7 @@ static int setTclArguments(
   Tcl_IncrRefCount(objPtr);
   resultObjPtr = Tcl_SetVar2Ex(pInterp, "argv0", NULL, objPtr,
       TCL_GLOBAL_ONLY|TCL_LEAVE_ERR_MSG);
-  Tcl_DecrRefCount(objPtr);
+  Tcl_DecrRefCount(objPtr); objPtr = 0;
   if( !resultObjPtr ){
     return TCL_ERROR;
   }
@@ -810,7 +899,7 @@ static int setTclArguments(
   Tcl_IncrRefCount(objPtr);
   resultObjPtr = Tcl_SetVar2Ex(pInterp, "argc", NULL, objPtr,
       TCL_GLOBAL_ONLY|TCL_LEAVE_ERR_MSG);
-  Tcl_DecrRefCount(objPtr);
+  Tcl_DecrRefCount(objPtr); objPtr = 0;
   if( !resultObjPtr ){
     return TCL_ERROR;
   }
@@ -821,7 +910,7 @@ static int setTclArguments(
       objPtr = Tcl_NewStringObj(*++argv, -1);
       Tcl_IncrRefCount(objPtr);
       rc = Tcl_ListObjAppendElement(pInterp, listPtr, objPtr);
-      Tcl_DecrRefCount(objPtr);
+      Tcl_DecrRefCount(objPtr); objPtr = 0;
       if( rc!=TCL_OK ){
         break;
       }
@@ -834,7 +923,7 @@ static int setTclArguments(
       rc = TCL_ERROR;
     }
   }
-  Tcl_DecrRefCount(listPtr);
+  Tcl_DecrRefCount(listPtr); listPtr = 0;
   return rc;
 }
 
@@ -852,6 +941,7 @@ int evaluateTclWithEvents(
   void *pContext,
   const char *zScript,
   int nScript,
+  int bCancel,
   int bWait,
   int bVerbose
 ){
@@ -859,11 +949,13 @@ int evaluateTclWithEvents(
   Tcl_Interp *tclInterp;
   int rc;
   int flags = TCL_ALL_EVENTS;
+  int useTip285;
 
   if( createTclInterp(interp, pContext)!=TH_OK ){
     return TH_ERROR;
   }
   tclInterp = tclContext->interp;
+  useTip285 = bCancel ? tclContext->useTip285 : 0;
   rc = Tcl_EvalEx(tclInterp, zScript, nScript, TCL_EVAL_GLOBAL);
   if( rc!=TCL_OK ){
     if( bVerbose ){
@@ -874,9 +966,16 @@ int evaluateTclWithEvents(
     return rc;
   }
   if( !bWait ) flags |= TCL_DONT_WAIT;
+  Tcl_Preserve((ClientData)tclInterp);
   while( Tcl_DoOneEvent(flags) ){
-    /* do nothing */
+    if( Tcl_InterpDeleted(tclInterp) ){
+      break;
+    }
+    if( useTip285 && Tcl_Canceled(tclInterp, 0)!=TCL_OK ){
+      break;
+    }
   }
+  Tcl_Release((ClientData)tclInterp);
   return rc;
 }
 
@@ -904,7 +1003,7 @@ static int createTclInterp(
   if( tclContext->interp ){
     return TH_OK;
   }
-  if( loadTcl(interp, &tclContext->library, &tclContext->xFindExecutable,
+  if( loadTcl(interp, &tclContext->hLibrary, &tclContext->xFindExecutable,
               &tclContext->xCreateInterp, &tclContext->xDeleteInterp,
               &tclContext->xFinalize)!=TH_OK ){
     return TH_ERROR;
@@ -961,10 +1060,15 @@ static int createTclInterp(
     return TH_ERROR;
   }
   /*
-  ** Determine if an objProc can be called directly for a Tcl command invoked
-  ** via the tclInvoke TH1 command.
+  ** Determine (and cache) if an objProc can be called directly for a Tcl
+  ** command invoked via the tclInvoke TH1 command.
   */
   tclContext->useObjProc = canUseObjProc();
+  /*
+  ** Determine (and cache) whether or not we can use TIP #285 (asynchronous
+  ** script cancellation).
+  */
+  tclContext->useTip285 = canUseTip285();
   /* Add the TH1 integration commands to Tcl. */
   Tcl_CallWhenDeleted(tclInterp, Th1DeleteProc, interp);
   Tcl_CreateObjCommand(tclInterp, "th1Eval", Th1EvalObjCmd, interp, NULL);
@@ -992,7 +1096,7 @@ int unloadTcl(
   Tcl_Interp *tclInterp;
   tcl_FinalizeProc *xFinalize;
 #if defined(USE_TCL_STUBS)
-  void *library;
+  void *hLibrary;
 #endif /* defined(USE_TCL_STUBS) */
 
   if( !tclContext ){
@@ -1030,10 +1134,10 @@ int unloadTcl(
   ** The workaround is to manually unload the loaded Tcl library prior to
   ** exiting the process.
   */
-  library = tclContext->library;
-  if( library ){
-    dlclose(library);
-    tclContext->library = library = 0;
+  hLibrary = tclContext->hLibrary;
+  if( hLibrary ){
+    dlclose(hLibrary);
+    tclContext->hLibrary = hLibrary = 0;
   }
 #endif /* defined(USE_TCL_STUBS) */
   return TH_OK;

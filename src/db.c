@@ -1260,7 +1260,8 @@ rep_not_found:
 const char *db_name(const char *zDb){
   assert( fossil_strcmp(zDb,"localdb")==0
        || fossil_strcmp(zDb,"configdb")==0
-       || fossil_strcmp(zDb,"repository")==0 );
+       || fossil_strcmp(zDb,"repository")==0
+       || fossil_strcmp(zDb,"temp")==0 );
   if( fossil_strcmp(zDb, g.zMainDbType)==0 ) zDb = "main";
   return zDb;
 }
@@ -2219,8 +2220,6 @@ void cmd_open(void){
   int keepFlag;
   int forceMissingFlag;
   int allowNested;
-  char **oldArgv;
-  int oldArgc;
   static char *azNewArgv[] = { 0, "checkout", "--prompt", 0, 0, 0, 0 };
 
   url_proxy_options();
@@ -2270,8 +2269,6 @@ void cmd_open(void){
   db_lset("repository", g.argv[2]);
   db_record_repository_filename(g.argv[2]);
   db_lset_int("checkout", 0);
-  oldArgv = g.argv;
-  oldArgc = g.argc;
   azNewArgv[0] = g.argv[0];
   g.argv = azNewArgv;
   if( !emptyFlag ){
