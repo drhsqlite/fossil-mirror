@@ -520,6 +520,7 @@ static int searchableCmd(
 ** "json"            = FOSSIL_ENABLE_JSON
 ** "markdown"        = FOSSIL_ENABLE_MARKDOWN
 ** "unicodeCmdLine"  = !BROKEN_MINGW_CMDLINE
+** "dynamicBuild"    = FOSSIL_DYNAMIC_BUILD
 **
 ** Specifying an unknown feature will return a value of false, it will not
 ** raise a script error.
@@ -592,6 +593,11 @@ static int hasfeatureCmd(
 #endif
 #if !defined(BROKEN_MINGW_CMDLINE)
   else if( 0 == fossil_strnicmp( zArg, "unicodeCmdLine\0", 15 ) ){
+    rc = 1;
+  }
+#endif
+#if defined(FOSSIL_DYNAMIC_BUILD)
+  else if( 0 == fossil_strnicmp( zArg, "dynamicBuild\0", 13 ) ){
     rc = 1;
   }
 #endif

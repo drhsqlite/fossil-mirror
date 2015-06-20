@@ -603,7 +603,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2b
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2c
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -757,10 +757,14 @@ TCC += -DFOSSIL_ENABLE_JSON=1
 RCC += -DFOSSIL_ENABLE_JSON=1
 endif
 
-#### We add the -static option here so that we can build a static
-#    executable that will run in a chroot jail.
+#### The option -static has no effect on MinGW(-w64), only dynamic
+#    executables can be built when linking with MSVCRT.  OpenSSL
+#    (optional) and zlib (required) however are always linked in
+#    statically.  Therefore, the FOSSIL_DYNAMIC_BUILD option does
+#    not really apply to MinGW (i.e. since ALL external libraries
+#    are NOT linked dynamically).
 #
-LIB = -static
+# LIB = -static
 
 #### MinGW: If available, use the Unicode capable runtime startup code.
 #
@@ -1323,6 +1327,9 @@ PERL    = perl.exe
 # Uncomment to enable debug symbols
 # DEBUG = 1
 
+# Uncomment to link everything except SQLite dynamically
+# FOSSIL_DYNAMIC_BUILD = 1
+
 # Uncomment to support Windows XP with Visual Studio 201x
 # FOSSIL_ENABLE_WINXP = 1
 
@@ -1334,6 +1341,9 @@ PERL    = perl.exe
 
 # Uncomment to enable SSL support
 # FOSSIL_ENABLE_SSL = 1
+
+# Uncomment to build zlib library
+FOSSIL_BUILD_ZLIB = 1
 
 # Uncomment to build SSL libraries
 # FOSSIL_BUILD_SSL = 1
@@ -1354,35 +1364,75 @@ PERL    = perl.exe
 # FOSSIL_ENABLE_TCL = 1
 
 !ifdef FOSSIL_ENABLE_SSL
-SSLDIR    = $(B)\compat\openssl-1.0.2b
+SSLDIR    = $(B)\compat\openssl-1.0.2c
 SSLINCDIR = $(SSLDIR)\inc32
+!ifdef FOSSIL_DYNAMIC_BUILD
+SSLLIBDIR = $(SSLDIR)\out32dll
+!else
 SSLLIBDIR = $(SSLDIR)\out32
+!endif
 SSLLFLAGS = /nologo /opt:ref /debug
 SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 !message Using 'x64' platform for OpenSSL...
-# BUGBUG (OpenSSL): Apparently, using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN64A no-asm no-ssl2 no-ssl3 no-shared
-SSLCONFIG = VC-WIN64A no-asm no-shared
+# BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
+# SSLCONFIG = VC-WIN64A no-asm no-ssl2 no-ssl3
+SSLCONFIG = VC-WIN64A no-asm
+!ifdef FOSSIL_DYNAMIC_BUILD
+SSLCONFIG = $(SSLCONFIG) shared
+!else
+SSLCONFIG = $(SSLCONFIG) no-shared
+!endif
 SSLSETUP  = ms\do_win64a.bat
+!ifdef FOSSIL_DYNAMIC_BUILD
+SSLNMAKE  = ms\ntdll.mak all
+!else
 SSLNMAKE  = ms\nt.mak all
+!endif
+# BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
+!ifndef FOSSIL_DYNAMIC_BUILD
 SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
+!endif
 !elseif "$(PLATFORM)"=="ia64"
 !message Using 'ia64' platform for OpenSSL...
-# BUGBUG (OpenSSL): Apparently, using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN64I no-asm no-ssl2 no-ssl3 no-shared
-SSLCONFIG = VC-WIN64I no-asm no-shared
+# BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
+# SSLCONFIG = VC-WIN64I no-asm no-ssl2 no-ssl3
+SSLCONFIG = VC-WIN64I no-asm
+!ifdef FOSSIL_DYNAMIC_BUILD
+SSLCONFIG = $(SSLCONFIG) shared
+!else
+SSLCONFIG = $(SSLCONFIG) no-shared
+!endif
 SSLSETUP  = ms\do_win64i.bat
+!ifdef FOSSIL_DYNAMIC_BUILD
+SSLNMAKE  = ms\ntdll.mak all
+!else
 SSLNMAKE  = ms\nt.mak all
+!endif
+# BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
+!ifndef FOSSIL_DYNAMIC_BUILD
 SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
+!endif
 !else
 !message Assuming 'x86' platform for OpenSSL...
-# BUGBUG (OpenSSL): Apparently, using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN32 no-asm no-ssl2 no-ssl3 no-shared
-SSLCONFIG = VC-WIN32 no-asm no-shared
+# BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
+# SSLCONFIG = VC-WIN32 no-asm no-ssl2 no-ssl3
+SSLCONFIG = VC-WIN32 no-asm
+!ifdef FOSSIL_DYNAMIC_BUILD
+SSLCONFIG = $(SSLCONFIG) shared
+!else
+SSLCONFIG = $(SSLCONFIG) no-shared
+!endif
 SSLSETUP  = ms\do_ms.bat
+!ifdef FOSSIL_DYNAMIC_BUILD
+SSLNMAKE  = ms\ntdll.mak all
+!else
 SSLNMAKE  = ms\nt.mak all
+!endif
+# BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
+!ifndef FOSSIL_DYNAMIC_BUILD
 SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
+!endif
 !endif
 !endif
 
@@ -1395,7 +1445,12 @@ TCLINCDIR = $(TCLSRCDIR)\generic
 # zlib options
 ZINCDIR   = $(B)\compat\zlib
 ZLIBDIR   = $(B)\compat\zlib
+
+!ifdef FOSSIL_DYNAMIC_BUILD
+ZLIB      = zdll.lib
+!else
 ZLIB      = zlib.lib
+!endif
 
 INCL      = /I. /I$(SRCDIR) /I$B\win\include
 
@@ -1412,7 +1467,13 @@ INCL      = $(INCL) /I$(TCLINCDIR)
 !endif
 
 CFLAGS    = /nologo
-LDFLAGS   = /NODEFAULTLIB:msvcrt /MANIFEST:NO
+LDFLAGS   =
+
+!ifdef FOSSIL_DYNAMIC_BUILD
+LDFLAGS   = $(LDFLAGS) /MANIFEST
+!else
+LDFLAGS   = $(LDFLAGS) /NODEFAULTLIB:msvcrt /MANIFEST:NO
+!endif
 
 !ifdef FOSSIL_ENABLE_WINXP
 XPCFLAGS  = $(XPCFLAGS) /D_USING_V110_SDK71_=1
@@ -1425,18 +1486,38 @@ XPLDFLAGS = $(XPLDFLAGS) /SUBSYSTEM:CONSOLE,5.01
 LDFLAGS   = $(LDFLAGS) $(XPLDFLAGS)
 !endif
 
+!ifdef FOSSIL_DYNAMIC_BUILD
 !ifdef DEBUG
-CFLAGS    = $(CFLAGS) /Zi /MTd /Od
+CRTFLAGS = /MDd
+!else
+CRTFLAGS = /MD
+!endif
+!else
+!ifdef DEBUG
+CRTFLAGS = /MTd
+!else
+CRTFLAGS = /MT
+!endif
+!endif
+
+!ifdef DEBUG
+CFLAGS    = $(CFLAGS) /Zi $(CRTFLAGS) /Od
 LDFLAGS   = $(LDFLAGS) /DEBUG
 !else
-CFLAGS    = $(CFLAGS) /MT /O2
+CFLAGS    = $(CFLAGS) $(CRTFLAGS) /O2
 !endif
 
 BCC       = $(CC) $(CFLAGS)
 TCC       = $(CC) /c $(CFLAGS) $(MSCDEF) $(INCL)
-RCC       = rc /D_WIN32 /D_MSC_VER $(MSCDEF) $(INCL)
+RCC       = $(RC) /D_WIN32 /D_MSC_VER $(MSCDEF) $(INCL)
+MTC       = mt
 LIBS      = ws2_32.lib advapi32.lib
 LIBDIR    =
+
+!ifdef FOSSIL_DYNAMIC_BUILD
+TCC       = $(TCC) /DFOSSIL_DYNAMIC_BUILD=1
+RCC       = $(RCC) /DFOSSIL_DYNAMIC_BUILD=1
+!endif
 
 !ifndef FOSSIL_ENABLE_MINIZ
 LIBS      = $(LIBS) $(ZLIB)
@@ -1541,7 +1622,7 @@ writeln -nonewline "        "
 writeln "\$(OX)\\miniz\$O \\"; incr i
 writeln "!endif"
 writeln -nonewline "        \$(OX)\\fossil.res\n\n"
-writeln {
+writeln [string map [list <<<NEXT_LINE>>> \\] {
 APPNAME    = $(OX)\fossil$(E)
 PDBNAME    = $(OX)\fossil$(P)
 APPTARGETS =
@@ -1572,7 +1653,9 @@ openssl:
 !endif
 
 !ifndef FOSSIL_ENABLE_MINIZ
+!ifdef FOSSIL_BUILD_ZLIB
 APPTARGETS = $(APPTARGETS) zlib
+!endif
 !endif
 
 !ifdef FOSSIL_ENABLE_SSL
@@ -1585,8 +1668,10 @@ $(APPNAME) : $(APPTARGETS) translate$E mkindex$E codecheck1$E headers $(OBJ) $(O
 	cd $(OX)
 	codecheck1$E $(SRC)
 	link $(LDFLAGS) /OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
+	if exist $@.manifest <<<NEXT_LINE>>>
+		$(MTC) -nologo -manifest $@.manifest -outputresource:$@;1
 
-$(OX)\linkopts: $B\win\Makefile.msc}
+$(OX)\linkopts: $B\win\Makefile.msc}]
 set redir {>}
 foreach s [lsort [concat $src $AdditionalObj]] {
   writeln "\techo \$(OX)\\$s.obj $redir \$@"

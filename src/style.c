@@ -321,7 +321,7 @@ void style_submenu_sql(
     nSubmenuCtrl++;
   }
 }
-   
+
 
 /*
 ** Compare two submenu items for sorting purposes

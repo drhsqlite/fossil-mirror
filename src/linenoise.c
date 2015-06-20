@@ -213,7 +213,7 @@ static int isUnsupportedTerm(void) {
     return 0;
 }
 
-/* Raw mode: 1960 magic shit. */
+/* Raw mode */
 static int enableRawMode(int fd) {
     struct termios raw;
 
