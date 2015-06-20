@@ -51,7 +51,7 @@ FOSSIL_DYNAMIC_BUILD = 0
 
 # Enable relative paths in external diff/gdiff?
 !ifndef FOSSIL_ENABLE_EXEC_REL_PATHS
-FOSSIL_ENABLE_EXEC_REL_PATHS = 1
+FOSSIL_ENABLE_EXEC_REL_PATHS = 0
 !endif
 
 # Enable the JSON API?
