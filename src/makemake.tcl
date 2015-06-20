@@ -1324,49 +1324,75 @@ P       = .pdb
 PERLDIR = C:\Perl\bin
 PERL    = perl.exe
 
-# Uncomment to enable debug symbols
-# DEBUG = 1
+# Enable debugging symbols?
+!ifndef DEBUG
+DEBUG = 0
+!endif
 
-# Uncomment to link everything except SQLite dynamically
-# FOSSIL_DYNAMIC_BUILD = 1
+# Build the OpenSSL libraries?
+!ifndef FOSSIL_BUILD_SSL
+FOSSIL_BUILD_SSL = 0
+!endif
 
-# Uncomment to support Windows XP with Visual Studio 201x
-# FOSSIL_ENABLE_WINXP = 1
+# Build the included zlib library?
+!ifndef FOSSIL_BUILD_ZLIB
+FOSSIL_BUILD_ZLIB = 0
+!endif
 
-# Uncomment to enable JSON API
-# FOSSIL_ENABLE_JSON = 1
+# Link everything except SQLite dynamically?
+!ifndef FOSSIL_DYNAMIC_BUILD
+FOSSIL_DYNAMIC_BUILD = 0
+!endif
 
-# Uncomment to enable miniz usage
-# FOSSIL_ENABLE_MINIZ = 1
+# Enable relative paths in external diff/gdiff?
+!ifndef FOSSIL_ENABLE_EXEC_REL_PATHS
+FOSSIL_ENABLE_EXEC_REL_PATHS = 1
+!endif
 
-# Uncomment to enable SSL support
-# FOSSIL_ENABLE_SSL = 1
+# Enable the JSON API?
+!ifndef FOSSIL_ENABLE_JSON
+FOSSIL_ENABLE_JSON = 0
+!endif
 
-# Uncomment to build zlib library
-FOSSIL_BUILD_ZLIB = 1
+# Enable legacy treatment of the mv/rm commands?
+!ifndef FOSSIL_ENABLE_LEGACY_MV_RM
+FOSSIL_ENABLE_LEGACY_MV_RM = 0
+!endif
 
-# Uncomment to build SSL libraries
-# FOSSIL_BUILD_SSL = 1
+# Enable use of miniz instead of zlib?
+!ifndef FOSSIL_ENABLE_MINIZ
+FOSSIL_ENABLE_MINIZ = 0
+!endif
 
-# Uncomment to enable relative paths in external diff/gdiff
-# FOSSIL_ENABLE_EXEC_REL_PATHS = 1
+# Enable OpenSSL support?
+!ifndef FOSSIL_ENABLE_SSL
+FOSSIL_ENABLE_SSL = 0
+!endif
 
-# Uncomment to enable legacy treatment of mv/rm
-# FOSSIL_ENABLE_LEGACY_MV_RM = 1
+# Enable the Tcl integration subsystem?
+!ifndef FOSSIL_ENABLE_TCL
+FOSSIL_ENABLE_TCL = 0
+!endif
 
-# Uncomment to enable TH1 scripts in embedded documentation files
-# FOSSIL_ENABLE_TH1_DOCS = 1
+# Enable TH1 scripts in embedded documentation files?
+!ifndef FOSSIL_ENABLE_TH1_DOCS
+FOSSIL_ENABLE_TH1_DOCS = 0
+!endif
 
-# Uncomment to enable TH1 hooks
-# FOSSIL_ENABLE_TH1_HOOKS = 1
+# Enable TH1 hooks for commands and web pages?
+!ifndef FOSSIL_ENABLE_TH1_HOOKS
+FOSSIL_ENABLE_TH1_HOOKS = 0
+!endif
 
-# Uncomment to enable Tcl support
-# FOSSIL_ENABLE_TCL = 1
+# Enable support for Windows XP with Visual Studio 201x?
+!ifndef FOSSIL_ENABLE_WINXP
+FOSSIL_ENABLE_WINXP = 0
+!endif
 
-!ifdef FOSSIL_ENABLE_SSL
+!if $(FOSSIL_ENABLE_SSL)!=0
 SSLDIR    = $(B)\compat\openssl-1.0.2c
 SSLINCDIR = $(SSLDIR)\inc32
-!ifdef FOSSIL_DYNAMIC_BUILD
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)\out32dll
 !else
 SSLLIBDIR = $(SSLDIR)\out32
@@ -1378,19 +1404,19 @@ SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
 # BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
 # SSLCONFIG = VC-WIN64A no-asm no-ssl2 no-ssl3
 SSLCONFIG = VC-WIN64A no-asm
-!ifdef FOSSIL_DYNAMIC_BUILD
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
 !else
 SSLCONFIG = $(SSLCONFIG) no-shared
 !endif
 SSLSETUP  = ms\do_win64a.bat
-!ifdef FOSSIL_DYNAMIC_BUILD
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLNMAKE  = ms\ntdll.mak all
 !else
 SSLNMAKE  = ms\nt.mak all
 !endif
 # BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
-!ifndef FOSSIL_DYNAMIC_BUILD
+!if $(FOSSIL_DYNAMIC_BUILD)==0
 SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
 !endif
 !elseif "$(PLATFORM)"=="ia64"
@@ -1398,19 +1424,19 @@ SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
 # BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
 # SSLCONFIG = VC-WIN64I no-asm no-ssl2 no-ssl3
 SSLCONFIG = VC-WIN64I no-asm
-!ifdef FOSSIL_DYNAMIC_BUILD
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
 !else
 SSLCONFIG = $(SSLCONFIG) no-shared
 !endif
 SSLSETUP  = ms\do_win64i.bat
-!ifdef FOSSIL_DYNAMIC_BUILD
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLNMAKE  = ms\ntdll.mak all
 !else
 SSLNMAKE  = ms\nt.mak all
 !endif
 # BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
-!ifndef FOSSIL_DYNAMIC_BUILD
+!if $(FOSSIL_DYNAMIC_BUILD)==0
 SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
 !endif
 !else
@@ -1418,25 +1444,25 @@ SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
 # BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
 # SSLCONFIG = VC-WIN32 no-asm no-ssl2 no-ssl3
 SSLCONFIG = VC-WIN32 no-asm
-!ifdef FOSSIL_DYNAMIC_BUILD
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
 !else
 SSLCONFIG = $(SSLCONFIG) no-shared
 !endif
 SSLSETUP  = ms\do_ms.bat
-!ifdef FOSSIL_DYNAMIC_BUILD
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLNMAKE  = ms\ntdll.mak all
 !else
 SSLNMAKE  = ms\nt.mak all
 !endif
 # BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
-!ifndef FOSSIL_DYNAMIC_BUILD
+!if $(FOSSIL_DYNAMIC_BUILD)==0
 SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
 !endif
 !endif
 !endif
 
-!ifdef FOSSIL_ENABLE_TCL
+!if $(FOSSIL_ENABLE_TCL)!=0
 TCLDIR    = $(B)\compat\tcl-8.6
 TCLSRCDIR = $(TCLDIR)
 TCLINCDIR = $(TCLSRCDIR)\generic
@@ -1446,7 +1472,7 @@ TCLINCDIR = $(TCLSRCDIR)\generic
 ZINCDIR   = $(B)\compat\zlib
 ZLIBDIR   = $(B)\compat\zlib
 
-!ifdef FOSSIL_DYNAMIC_BUILD
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
 ZLIB      = zdll.lib
 !else
 ZLIB      = zlib.lib
@@ -1454,28 +1480,28 @@ ZLIB      = zlib.lib
 
 INCL      = /I. /I$(SRCDIR) /I$B\win\include
 
-!ifndef FOSSIL_ENABLE_MINIZ
+!if $(FOSSIL_ENABLE_MINIZ)==0
 INCL      = $(INCL) /I$(ZINCDIR)
 !endif
 
-!ifdef FOSSIL_ENABLE_SSL
+!if $(FOSSIL_ENABLE_SSL)!=0
 INCL      = $(INCL) /I$(SSLINCDIR)
 !endif
 
-!ifdef FOSSIL_ENABLE_TCL
+!if $(FOSSIL_ENABLE_TCL)!=0
 INCL      = $(INCL) /I$(TCLINCDIR)
 !endif
 
 CFLAGS    = /nologo
 LDFLAGS   =
 
-!ifdef FOSSIL_DYNAMIC_BUILD
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
 LDFLAGS   = $(LDFLAGS) /MANIFEST
 !else
 LDFLAGS   = $(LDFLAGS) /NODEFAULTLIB:msvcrt /MANIFEST:NO
 !endif
 
-!ifdef FOSSIL_ENABLE_WINXP
+!if $(FOSSIL_ENABLE_WINXP)!=0
 XPCFLAGS  = $(XPCFLAGS) /D_USING_V110_SDK71_=1
 CFLAGS    = $(CFLAGS) $(XPCFLAGS)
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
@@ -1486,21 +1512,21 @@ XPLDFLAGS = $(XPLDFLAGS) /SUBSYSTEM:CONSOLE,5.01
 LDFLAGS   = $(LDFLAGS) $(XPLDFLAGS)
 !endif
 
-!ifdef FOSSIL_DYNAMIC_BUILD
-!ifdef DEBUG
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
+!if $(DEBUG)!=0
 CRTFLAGS = /MDd
 !else
 CRTFLAGS = /MD
 !endif
 !else
-!ifdef DEBUG
+!if $(DEBUG)!=0
 CRTFLAGS = /MTd
 !else
 CRTFLAGS = /MT
 !endif
 !endif
 
-!ifdef DEBUG
+!if $(DEBUG)!=0
 CFLAGS    = $(CFLAGS) /Zi $(CRTFLAGS) /Od
 LDFLAGS   = $(LDFLAGS) /DEBUG
 !else
@@ -1514,54 +1540,54 @@ MTC       = mt
 LIBS      = ws2_32.lib advapi32.lib
 LIBDIR    =
 
-!ifdef FOSSIL_DYNAMIC_BUILD
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
 TCC       = $(TCC) /DFOSSIL_DYNAMIC_BUILD=1
 RCC       = $(RCC) /DFOSSIL_DYNAMIC_BUILD=1
 !endif
 
-!ifndef FOSSIL_ENABLE_MINIZ
+!if $(FOSSIL_ENABLE_MINIZ)==0
 LIBS      = $(LIBS) $(ZLIB)
 LIBDIR    = $(LIBDIR) /LIBPATH:$(ZLIBDIR)
 !endif
 
-!ifdef FOSSIL_ENABLE_MINIZ
+!if $(FOSSIL_ENABLE_MINIZ)!=0
 TCC       = $(TCC) /DFOSSIL_ENABLE_MINIZ=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_MINIZ=1
 !endif
 
-!ifdef FOSSIL_ENABLE_JSON
+!if $(FOSSIL_ENABLE_JSON)!=0
 TCC       = $(TCC) /DFOSSIL_ENABLE_JSON=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_JSON=1
 !endif
 
-!ifdef FOSSIL_ENABLE_SSL
+!if $(FOSSIL_ENABLE_SSL)!=0
 TCC       = $(TCC) /DFOSSIL_ENABLE_SSL=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_SSL=1
 LIBS      = $(LIBS) $(SSLLIB)
 LIBDIR    = $(LIBDIR) /LIBPATH:$(SSLLIBDIR)
 !endif
 
-!ifdef FOSSIL_ENABLE_EXEC_REL_PATHS
+!if $(FOSSIL_ENABLE_EXEC_REL_PATHS)!=0
 TCC       = $(TCC) /DFOSSIL_ENABLE_EXEC_REL_PATHS=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_EXEC_REL_PATHS=1
 !endif
 
-!ifdef FOSSIL_ENABLE_LEGACY_MV_RM
+!if $(FOSSIL_ENABLE_LEGACY_MV_RM)!=0
 TCC       = $(TCC) /DFOSSIL_ENABLE_LEGACY_MV_RM=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_LEGACY_MV_RM=1
 !endif
 
-!ifdef FOSSIL_ENABLE_TH1_DOCS
+!if $(FOSSIL_ENABLE_TH1_DOCS)!=0
 TCC       = $(TCC) /DFOSSIL_ENABLE_TH1_DOCS=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_TH1_DOCS=1
 !endif
 
-!ifdef FOSSIL_ENABLE_TH1_HOOKS
+!if $(FOSSIL_ENABLE_TH1_HOOKS)!=0
 TCC       = $(TCC) /DFOSSIL_ENABLE_TH1_HOOKS=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_TH1_HOOKS=1
 !endif
 
-!ifdef FOSSIL_ENABLE_TCL
+!if $(FOSSIL_ENABLE_TCL)!=0
 TCC       = $(TCC) /DFOSSIL_ENABLE_TCL=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_TCL=1
 TCC       = $(TCC) /DFOSSIL_ENABLE_TCL_STUBS=1
@@ -1617,7 +1643,7 @@ foreach s [lsort [concat $src $AdditionalObj]] {
 if {$i > 0} {
   writeln " \\"
 }
-writeln "!ifdef FOSSIL_ENABLE_MINIZ"
+writeln "!if \$(FOSSIL_ENABLE_MINIZ)!=0"
 writeln -nonewline "        "
 writeln "\$(OX)\\miniz\$O \\"; incr i
 writeln "!endif"
@@ -1631,13 +1657,13 @@ all: $(OX) $(APPNAME)
 
 zlib:
 	@echo Building zlib from "$(ZLIBDIR)"...
-!ifdef FOSSIL_ENABLE_WINXP
+!if $(FOSSIL_ENABLE_WINXP)!=0
 	@pushd "$(ZLIBDIR)" && $(MAKE) /f win32\Makefile.msc $(ZLIB) "CC=cl $(XPCFLAGS)" "LD=link $(XPLDFLAGS)" && popd
 !else
 	@pushd "$(ZLIBDIR)" && $(MAKE) /f win32\Makefile.msc $(ZLIB) && popd
 !endif
 
-!ifdef FOSSIL_ENABLE_SSL
+!if $(FOSSIL_ENABLE_SSL)!=0
 openssl:
 	@echo Building OpenSSL from "$(SSLDIR)"...
 !if "$(PERLDIR)" != ""
@@ -1645,21 +1671,21 @@ openssl:
 !endif
 	@pushd "$(SSLDIR)" && $(PERL) Configure $(SSLCONFIG) && popd
 	@pushd "$(SSLDIR)" && call $(SSLSETUP) && popd
-!ifdef FOSSIL_ENABLE_WINXP
+!if $(FOSSIL_ENABLE_WINXP)!=0
 	@pushd "$(SSLDIR)" && $(MAKE) /f $(SSLNMAKE) "CC=cl $(SSLCFLAGS) $(XPCFLAGS)" "LFLAGS=$(SSLLFLAGS) $(XPLDFLAGS)" && popd
 !else
 	@pushd "$(SSLDIR)" && $(MAKE) /f $(SSLNMAKE) "CC=cl $(SSLCFLAGS)" && popd
 !endif
 !endif
 
-!ifndef FOSSIL_ENABLE_MINIZ
-!ifdef FOSSIL_BUILD_ZLIB
+!if $(FOSSIL_ENABLE_MINIZ)==0
+!if $(FOSSIL_BUILD_ZLIB)!=0
 APPTARGETS = $(APPTARGETS) zlib
 !endif
 !endif
 
-!ifdef FOSSIL_ENABLE_SSL
-!ifdef FOSSIL_BUILD_SSL
+!if $(FOSSIL_ENABLE_SSL)!=0
+!if $(FOSSIL_BUILD_SSL)!=0
 APPTARGETS = $(APPTARGETS) openssl
 !endif
 !endif
@@ -1678,7 +1704,7 @@ foreach s [lsort [concat $src $AdditionalObj]] {
   set redir {>>}
 }
 set redir {>>}
-writeln "!ifdef FOSSIL_ENABLE_MINIZ"
+writeln "!if \$(FOSSIL_ENABLE_MINIZ)!=0"
 writeln "\techo \$(OX)\\miniz.obj $redir \$@"
 writeln "!endif"
 writeln "\techo \$(LIBS) $redir \$@"
