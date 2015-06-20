@@ -1,5 +1,5 @@
-C Permit\sfull\sdynamic\slinking\swhen\scompiling\swith\sMSVC.\s\sAlso,\senable\sthe\sbuilding\sof\sthe\sin-tree\szlib\sto\sbe\sskipped.'
-D 2015-06-19T22:19:45.567
+C Use\s!if\sfor\sall\sNMAKE\sfeature\smacros,\snot\s!ifdef/!ifndef.\s\sAdd\spreliminary\ssupport\sfor\sVisual\sStudio\s2015\sto\sthe\sMSVC\sbatch\sbuild\stool.
+D 2015-06-20T17:42:58.541
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -446,7 +446,7 @@ F src/main.c 91cc53a76a8699d9c485364f6214b172c820703b
 F src/main.mk 6134955a71af52592fa41a90246cdf69a2f63410
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl d385e5ee0a0687dea36128b4bdab110ffb58c488
+F src/makemake.tcl 39664cccba5d345b15b535e3d7b7bbbb7e92b897
 F src/manifest.c ba061499e6431a1c2c8aa19821adf429975fdee6
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 45f6e06e03e4183764067eec37ff73f357303306
@@ -626,8 +626,8 @@ F win/Makefile.PellesCGMake cd7a95bc1ffa5608ae7c84b043d99d57e668803f
 F win/Makefile.dmc cf59fe3e8f3657d4b4738adec3e40a0bed7db602
 F win/Makefile.mingw 20dda8a38a2f1d61d090860afecf1690a12690b7
 F win/Makefile.mingw.mistachkin 6296a9afd1958efb095f174724bef5c2b3636f95
-F win/Makefile.msc 2b6551605b418f91264353e104520d05428c2b21
-F win/buildmsvc.bat 869c37b9583faaaf69a04a4fac921ce5edb74f0e
+F win/Makefile.msc 3e150ccd5de15208d1740e1b12ca8e1ec03994e6
+F win/buildmsvc.bat d2daa4ad2586518ed72ab03f3b5dfe33bfc406d7
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 4174666370254ab65251c0f533f7ea6cab0ce4e9
@@ -739,8 +739,8 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 7bc11da24141778fc44dc0c781ee65a4d7c50d1b 7fd7c4ca572794121b796d514d7deb360aee8ff6
-R 7b18add29507061ff850c35a59f6470d
-T +closed 7fd7c4ca572794121b796d514d7deb360aee8ff6
+P 7932cb3f05e22fa3076028a39b9f9d5a18ecd546 31706552da73fcbe3d7cd9391e72a6f4cfb66ba4
+R 3a60a1099ada9f29a2f48b3f3e2adfdc
+T +closed 31706552da73fcbe3d7cd9391e72a6f4cfb66ba4
 U mistachkin
-Z dbb3e1a92ec2d80be65728ea0c4686bf
+Z 0513e9152bdd0c7de9c495958b97ed67
