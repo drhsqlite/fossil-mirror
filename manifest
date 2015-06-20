@@ -1,5 +1,5 @@
-C Use\s!if\sfor\sall\sNMAKE\sfeature\smacros,\snot\s!ifdef/!ifndef.
-D 2015-06-20T05:06:01.280
+C Add\spreliminary\ssupport\sfor\sVisual\sStudio\s2015\sto\sthe\sMSVC\sbatch\sbuild\stool.
+D 2015-06-20T17:16:06.922
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -627,7 +627,7 @@ F win/Makefile.dmc cf59fe3e8f3657d4b4738adec3e40a0bed7db602
 F win/Makefile.mingw 20dda8a38a2f1d61d090860afecf1690a12690b7
 F win/Makefile.mingw.mistachkin 6296a9afd1958efb095f174724bef5c2b3636f95
 F win/Makefile.msc 3e150ccd5de15208d1740e1b12ca8e1ec03994e6
-F win/buildmsvc.bat 869c37b9583faaaf69a04a4fac921ce5edb74f0e
+F win/buildmsvc.bat d2daa4ad2586518ed72ab03f3b5dfe33bfc406d7
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 4174666370254ab65251c0f533f7ea6cab0ce4e9
@@ -739,10 +739,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 7932cb3f05e22fa3076028a39b9f9d5a18ecd546
-R 93b26de0325cc63b79b2b4ce9de2cdfe
-T *branch * nmakeNoIfDef
-T *sym-nmakeNoIfDef *
-T -sym-trunk *
+P eb2326e51a753bb401dd97ffe3049f00cfdfa60e
+R 3a60a1099ada9f29a2f48b3f3e2adfdc
 U mistachkin
-Z 2796a46eab476449d5633b595e589681
+Z 63c09b0fac8f596e24f012f3b9169e95
