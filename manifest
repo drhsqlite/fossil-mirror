@@ -1,5 +1,5 @@
-C Integrate\sandygoth-help-option.
-D 2015-06-22T04:37:21.465
+C Minor\sspelling\scorrections\sto\scomment.
+D 2015-06-25T01:45:04.542
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -383,7 +383,7 @@ F src/builtin.c 31c17d18b565c7766021913c89be4180b3ee4a56
 F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c 85da0ea6ee5ecff186e135b61108892904194e1e
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
-F src/cgi.c 6657772f2447b54cfa4fe965d00b9605a04ada4d
+F src/cgi.c 03c8c65969bd4ab297db0b6afa14bdc57b30e422
 F src/checkin.c 4d81659c4a7084759cfd848a02172f8477c1a519
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -739,8 +739,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 0aa2896d06f7d275790e24ba053b0b1ddf76da5e 3a9017f9d1d8b1862a94ae13bfc9bb2d22e6740e
-R 1297495010629fdb6ffaca259aa5040c
-T +closed 3a9017f9d1d8b1862a94ae13bfc9bb2d22e6740e
-U andygoth
-Z 193f5ba67397110bbfe9c2e9a2b97c3d
+P 100ac83b6407c8f2b3058d6a73a9fdc4926c7f58
+R ca271d904d5224ab08a4f99874ef25c0
+U andybradford
+Z bc2448530c318d5e639a2ecb9afa1da0
