@@ -1459,7 +1459,7 @@ static int repo_list_page(void){
   db_multi_exec("CREATE TABLE sfile(x TEXT);");
   db_multi_exec("CREATE TABLE vfile(pathname);");
   vfile_scan(&base, blob_size(&base), 0, 0, 0);
-  db_multi_exec("DELETE FROM sfile WHERE x NOT GLOB '*.fossil'");
+  db_multi_exec("DELETE FROM sfile WHERE x NOT GLOB '*[^/.].fossil'");
   n = db_int(0, "SELECT count(*) FROM sfile");
   if( n>0 ){
     Stmt q;
