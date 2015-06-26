@@ -674,8 +674,8 @@ void extras_cmd(void){
 **    -x|--verily      Remove everything that is not a managed file or
 **                     the repository itself.  Implies -f --emptydirs
 **                     --dotfiles.  Disregard keep-glob and ignore-glob,
-**                     except that files matching ignore-glob are not
-**                     never undo-able.
+**                     except that files matching ignore-glob are never
+**                     undo-able.
 **    --clean <CSG>    Never prompt for files matching this
 **                     comma separated list of glob patterns.
 **    --ignore <CSG>   Ignore files matching patterns from the
@@ -774,12 +774,12 @@ void clean_cmd(void){
           && undo_save(zName+nRoot, 10*1024*1024) ){
         prompt = mprintf("file \"%s\" too big.  Deletion will not be "
                          "undo-able.  Continue (y/N)? ", zName+nRoot);
-        blob_zero(&ans);
         prompt_user(prompt, &ans);
         cReply = blob_str(&ans)[0];
         if( cReply!='y' && cReply!='Y' ){
           fossil_fatal("Clean aborted");
         }
+        blob_reset(&ans);
       }
       if( dryRunFlag || file_delete(zName)==0 ){
         if( verboseFlag || dryRunFlag ){
