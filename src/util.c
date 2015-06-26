@@ -80,6 +80,15 @@ int fossil_system(const char *zOrigCmd){
   /* On unix, evaluate the command directly.
   */
   if( g.fSystemTrace ) fprintf(stderr, "SYSTEM: %s\n", zOrigCmd);
+
+  /* Unix systems should never shell-out while processing an HTTP request,
+  ** either via CGI, SCGI, or direct HTTP.  The following assert verifies
+  ** this.  And the following assert proves that Fossil is not vulnerable
+  ** to the ShellShock or BashDoor bug.
+  */
+  assert( g.cgiOutput==0 );
+
+  /* The regular system() call works to get a shell on unix */
   rc = system(zOrigCmd);
 #endif
   return rc;
@@ -297,7 +306,7 @@ int fossil_timer_is_active( int timerId ){
   if(timerId<1 || timerId>FOSSIL_TIMER_COUNT){
     return 0;
   }else{
-    int const rc = fossilTimerList[timerId-1].id;
+    const int rc = fossilTimerList[timerId-1].id;
     assert(!rc || (rc == timerId));
     return fossilTimerList[timerId-1].id;
   }
@@ -319,8 +328,18 @@ int is_valid_fd(int fd){
 ** Returns TRUE if zSym is exactly UUID_SIZE bytes long and contains
 ** only lower-case ASCII hexadecimal values.
 */
-int fossil_is_uuid(char const * zSym){
+int fossil_is_uuid(const char *zSym){
   return zSym
     && (UUID_SIZE==strlen(zSym))
     && validate16(zSym, UUID_SIZE);
+}
+
+/*
+** Return true if the input string is NULL or all whitespace.
+** Return false if the input string contains text.
+*/
+int fossil_all_whitespace(const char *z){
+  if( z==0 ) return 1;
+  while( fossil_isspace(z[0]) ){ z++; }
+  return z[0]==0;
 }

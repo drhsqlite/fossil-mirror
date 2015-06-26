@@ -377,7 +377,7 @@ static cson_value * json_wiki_create_or_save(char createMode,
 
   zMimeType = json_find_option_cstr("mimetype","mimetype","M");
 
-  wiki_cmd_commit(zPageName, 0==rid, &content, zMimeType);
+  wiki_cmd_commit(zPageName, 0==rid, &content, zMimeType, 0);
   blob_reset(&content);
   /*
     Our return value here has a race condition: if this operation
@@ -446,18 +446,17 @@ static cson_value * json_wiki_list(){
               -1);
   zGlob = json_find_option_cstr("glob",NULL,"g");
   if(zGlob && *zGlob){
-    blob_appendf(&sql," AND name %s GLOB %Q",
-                 fInvert ? "NOT" : "", zGlob);
+    blob_append_sql(&sql," AND name %s GLOB %Q",
+                    fInvert ? "NOT" : "", zGlob);
   }else{
     zGlob = json_find_option_cstr("like",NULL,"l");
     if(zGlob && *zGlob){
-      blob_appendf(&sql," AND name %s LIKE %Q",
-                   fInvert ? "NOT" : "",
-                   zGlob);
+      blob_append_sql(&sql," AND name %s LIKE %Q",
+                      fInvert ? "NOT" : "", zGlob);
     }
   }
   blob_append(&sql," ORDER BY lower(name)", -1);
-  db_prepare(&q,"%s", blob_str(&sql));
+  db_prepare(&q,"%s", blob_sql_text(&sql));
   blob_reset(&sql);
   listV = cson_value_new_array();
   list = cson_value_get_array(listV);

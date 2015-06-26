@@ -1,9 +1,9 @@
 #!/bin/sh
 #
-# Run this TCL script to generate a WIKI page that contains a 
+# Run this TCL script to generate a WIKI page that contains a
 # permuted index of the various documentation files.
 #
-#    tclsh mkindex.tcl >permutedindex.wiki
+#    tclsh mkindex.tcl >permutedindex.html
 #
 
 set doclist {
@@ -13,12 +13,14 @@ set doclist {
   bugtheory.wiki {Bug Tracking In Fossil}
   branching.wiki {Branching, Forking, Merging, and Tagging}
   build.wiki {Compiling and Installing Fossil}
-  checkin_names.wiki {Checkin And Version Names}
+  checkin_names.wiki {Check-in And Version Names}
   checkin.wiki {Check-in Checklist}
   changes.wiki {Fossil Changelog}
   copyright-release.html {Contributor License Agreement}
   concepts.wiki {Fossil Core Concepts}
   contribute.wiki {Contributing Code or Documentation To The Fossil Project}
+  customgraph.md {Theming: Customizing the Timeline Graph}
+  customskin.md {Theming: Customizing The Appearance of Web Pages}
   custom_ticket.wiki {Customizing The Ticket System}
   delta_encoder_algorithm.wiki {Fossil Delta Encoding Algorithm}
   delta_format.wiki {Fossil Delta Format}
@@ -57,6 +59,7 @@ set doclist {
   tech_overview.wiki {A Technical Overview Of The Design And Implementation
                       Of Fossil}
   tech_overview.wiki {SQLite Databases Used By Fossil}
+  th1.md {The TH1 Scripting Language}
   tickets.wiki {The Fossil Ticket System}
   theory1.wiki {Thoughts On The Design Of The Fossil DVCS}
   webui.wiki {The Fossil Web Interface}
@@ -79,18 +82,26 @@ foreach {file title} $doclist {
   }
 }
 set permindex [lsort -dict -index 0 $permindex]
-set out [open permutedindex.wiki w]
+set out [open permutedindex.html w]
 fconfigure $out -encoding utf-8 -translation lf
-puts $out "<title>Index Of Fossil Documentation</title>"
+puts $out \
+"<div class='fossil-doc' data-title='Index Of Fossil Documentation'>"
 puts $out {
+<center>
+<form action='../../../docsrch' method='GET'>
+<input type="text" name="s" size="40" autofocus>
+<input type="submit" value="Search Docs">
+</form>
+</center>
 <h2>Primary Documents:</h2>
 <ul>
-<li> [./quickstart.wiki | Quick-start Guide]
-<li> [./faq.wiki | FAQ]
-<li> [./build.wiki | Compiling and installing Fossil]
-<li> [../COPYRIGHT-BSD2.txt | License]
-<li> [http://www.fossil-scm.org/schimpf-book/home | Jim Schimpf's book]
-<li> [/help | Command-line help]
+<li> <a href='quickstart.wiki'>Quick-start Guide</a>
+<li> <a href='faq.wiki'>FAQ</a>
+<li> <a href='build.wiki'>Compiling and installing Fossil</a>
+<li> <a href='../COPYRIGHT-BSD2.txt'>License</a>
+<li> <a href='http://www.fossil-scm.org/schimpf-book/home'>Jim Schimpf's
+book</a>
+<li> <a href='../../../help'>Command-line help</a>
 </ul>
 <a name="pindex"></a>
 <h2>Permuted Index:</h2>
@@ -99,4 +110,4 @@ foreach entry $permindex {
   foreach {title file} $entry break
   puts $out "<li><a href=\"$file\">$title</a></li>"
 }
-puts $out "</ul>"
+puts $out "</ul></div>"

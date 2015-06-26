@@ -1,6 +1,6 @@
 #
 # Tests for merging with renames
-# 
+#
 #
 
 catch {exec $::fossilexe info} res
@@ -171,9 +171,42 @@ if {$deletes!=0} {
 
 # TO BE WRITTEN.
 
+######################################
+#  Test 5                            #
+#  Handle Rename/Add via Merge       #
+######################################
 
+repo_init
+
+write_file f1 "old f1 line"
+fossil add f1
+fossil commit -m "base file"
+
+write_file f3 "f3 line"
+fossil add f3
+fossil commit -m "branch file" -b branch_for_f3
+
+fossil update trunk
+fossil mv f1 f2
+file rename -force f1 f2
+write_file f1 "new f1 line"
+fossil add f1
+fossil commit -m "rename and add file with old name"
+
+fossil update branch_for_f3
+fossil merge trunk
+fossil commit -m "trunk merged, should have 3 files"
+
+fossil ls
+
+test merge_renames-5 {[normalize_result] eq {f1
+f2
+f3}}
+
+######################################
+#
 # Tests for troubles not specifically linked with renames but that I'd like to
 # write:
 #  [c26c63eb1b] - 'merge --backout' does not handle conflicts properly
-#  [953031915f] - Lack of warning when overwriting extra files 
-#  [4df5f38f1e] - Troubles merging a file delete with a file change 
+#  [953031915f] - Lack of warning when overwriting extra files
+#  [4df5f38f1e] - Troubles merging a file delete with a file change

@@ -25,6 +25,24 @@
 #include "cygsup.h"
 
 /*
+** WARNING: For Fossil version 1.x this value was always zero.  For Fossil
+**          2.x, it will probably always be one.  When this value is zero,
+**          files in the checkout will not be moved by the "mv" command and
+**          files in the checkout will not be removed by the "rm" command.
+**
+**          If the FOSSIL_ENABLE_LEGACY_MV_RM compile-time option is used,
+**          the "mv-rm-files" setting will be consulted instead of using
+**          this value.
+**
+**          To retain the Fossil version 1.x behavior when using Fossil 2.x,
+**          the FOSSIL_ENABLE_LEGACY_MV_RM compile-time option must be used
+**          -AND- the "mv-rm-files" setting must be set to zero.
+*/
+#ifndef FOSSIL_MV_RM_FILE
+#define FOSSIL_MV_RM_FILE                        (0)
+#endif
+
+/*
 ** This routine returns the names of files in a working checkout that
 ** are created by Fossil itself, and hence should not be added, deleted,
 ** or merge, and should be omitted from "clean" and "extras" lists.
@@ -46,7 +64,7 @@ const char *fossil_reserved_name(int N, int omitRepo){
      ".fslckout-wal",
      ".fslckout-shm",
 
-     /* The use of ".fos" as the name of the checkout database is 
+     /* The use of ".fos" as the name of the checkout database is
      ** deprecated.  Use ".fslckout" instead.  At some point, the following
      ** entries should be removed.  2012-02-04 */
      ".fos",
@@ -75,7 +93,7 @@ const char *fossil_reserved_name(int N, int omitRepo){
     Blob repo;
     cachedManifest = db_get_boolean("manifest",0);
     blob_zero(&repo);
-    if( file_tree_name(g.zRepositoryName, &repo, 0) ){
+    if( file_tree_name(g.zRepositoryName, &repo, 0, 0) ){
       const char *zRepo = blob_str(&repo);
       azRepo[0] = zRepo;
       azRepo[1] = mprintf("%s-journal", zRepo);
@@ -125,6 +143,10 @@ void test_reserved_names(void){
   int i;
   const char *z;
   int omitRepo = find_option("omitrepo",0,0)!=0;
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   db_must_be_within_tree();
   for(i=0; (z = fossil_reserved_name(i, omitRepo))!=0; i++){
     fossil_print("%3d: %s\n", i, z);
@@ -151,10 +173,11 @@ static int add_one_file(
                   " WHERE pathname=%Q %s", zPath, filename_collation());
   }else{
     char *zFullname = mprintf("%s%s", g.zLocalRoot, zPath);
+    int isExe = file_wd_isexe(zFullname);
     db_multi_exec(
       "INSERT INTO vfile(vid,deleted,rid,mrid,pathname,isexe,islink)"
       "VALUES(%d,0,0,0,%Q,%d,%d)",
-      vid, zPath, file_wd_isexe(zFullname), file_wd_islink(zFullname));
+      vid, zPath, isExe, file_wd_islink(0));
     fossil_free(zFullname);
   }
   if( db_changes() ){
@@ -179,8 +202,8 @@ static int add_files_in_sfile(int vid){
   Blob repoName;            /* Treename of the repository */
   Stmt loop;                /* SQL to loop over all files to add */
   int (*xCmp)(const char*,const char*);
- 
-  if( !file_tree_name(g.zRepositoryName, &repoName, 0) ){
+
+  if( !file_tree_name(g.zRepositoryName, &repoName, 0, 0) ){
     blob_zero(&repoName);
     zRepo = "";
   }else{
@@ -234,14 +257,14 @@ static int add_files_in_sfile(int vid){
 **
 ** Options:
 **
-**    --case-sensitive <BOOL> override case-sensitive setting
-**    --dotfiles              include files beginning with a dot (".")   
+**    --case-sensitive <BOOL> Override the case-sensitive setting.
+**    --dotfiles              include files beginning with a dot (".")
 **    -f|--force              Add files without prompting
-**    --ignore <CSG>          ignore files matching patterns from the 
+**    --ignore <CSG>          Ignore files matching patterns from the
 **                            comma separated list of glob patterns.
-**    --clean <CSG>           also ignore files matching patterns from
+**    --clean <CSG>           Also ignore files matching patterns from
 **                            the comma separated list of glob patterns.
-** 
+**
 ** See also: addremove, rm
 */
 void add_cmd(void){
@@ -258,7 +281,10 @@ void add_cmd(void){
   zIgnoreFlag = find_option("ignore",0,1);
   forceFlag = find_option("force","f",0)!=0;
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
-  capture_case_sensitive_option();
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   db_must_be_within_tree();
   if( zCleanFlag==0 ){
     zCleanFlag = db_get("clean-glob", 0);
@@ -266,6 +292,7 @@ void add_cmd(void){
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
+  if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
   vid = db_lget_int("checkout",0);
   db_begin_transaction();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
@@ -273,7 +300,7 @@ void add_cmd(void){
   pClean = glob_create(zCleanFlag);
   pIgnore = glob_create(zIgnoreFlag);
   nRoot = strlen(g.zLocalRoot);
-  
+
   /* Load the names of all files that are to be added into sfile temp table */
   for(i=2; i<g.argc; i++){
     char *zName;
@@ -282,7 +309,7 @@ void add_cmd(void){
 
     /* file_tree_name() throws a fatal error if g.argv[i] is outside of the
     ** checkout. */
-    file_tree_name(g.argv[i], &fullName, 1);
+    file_tree_name(g.argv[i], &fullName, 0, 1);
     blob_reset(&fullName);
 
     file_canonical_name(g.argv[i], &fullName, 0);
@@ -292,8 +319,6 @@ void add_cmd(void){
       vfile_scan(&fullName, nRoot-1, scanFlags, pClean, pIgnore);
     }else if( isDir==0 ){
       fossil_warning("not found: %s", zName);
-    }else if( file_access(zName, R_OK) ){
-      fossil_fatal("cannot open %s", zName);
     }else{
       char *zTreeName = &zName[nRoot];
       if( !forceFlag && glob_match(pIgnore, zTreeName) ){
@@ -326,37 +351,124 @@ void add_cmd(void){
 }
 
 /*
-** COMMAND: rm
-** COMMAND: delete*
+** This function adds a file to list of files to delete from disk after
+** the other actions required for the parent operation have completed
+** successfully.  The first time it is called for the current process,
+** it creates a temporary table named "fremove", to keep track of these
+** files.
+*/
+static void add_file_to_remove(
+  const char *zOldName /* The old name of the file on disk. */
+){
+  static int tableCreated = 0;
+  Blob fullOldName;
+  if( !tableCreated ){
+    db_multi_exec("CREATE TEMP TABLE fremove(x TEXT PRIMARY KEY %s)",
+                  filename_collation());
+    tableCreated = 1;
+  }
+  file_tree_name(zOldName, &fullOldName, 1, 1);
+  db_multi_exec("INSERT INTO fremove VALUES('%q');", blob_str(&fullOldName));
+  blob_reset(&fullOldName);
+}
+
+/*
+** This function deletes files from the checkout, using the file names
+** contained in the temporary table "fremove".  The temporary table is
+** created on demand by the add_file_to_remove() function.
 **
-** Usage: %fossil rm FILE1 ?FILE2 ...?
-**    or: %fossil delete FILE1 ?FILE2 ...?
+** If dryRunFlag is non-zero, no files will be removed; however, their
+** names will still be output.
+**
+** The temporary table "fremove" is dropped after being processed.
+*/
+static void process_files_to_remove(
+  int dryRunFlag /* Zero to actually operate on the file-system. */
+){
+  Stmt remove;
+  if( db_table_exists(db_name("temp"), "fremove") ){
+    db_prepare(&remove, "SELECT x FROM fremove ORDER BY x;");
+    while( db_step(&remove)==SQLITE_ROW ){
+      const char *zOldName = db_column_text(&remove, 0);
+      if( !dryRunFlag ){
+        file_delete(zOldName);
+      }
+      fossil_print("DELETED_FILE %s\n", zOldName);
+    }
+    db_finalize(&remove);
+    db_multi_exec("DROP TABLE fremove;");
+  }
+}
+
+/*
+** COMMAND: rm
+** COMMAND: delete
+** COMMAND: forget*
+**
+** Usage: %fossil rm|delete|forget FILE1 ?FILE2 ...?
 **
 ** Remove one or more files or directories from the repository.
 **
-** This command does NOT remove the files from disk.  It just marks the
-** files as no longer being part of the project.  In other words, future
-** changes to the named files will not be versioned.
+** The 'rm' and 'delete' commands do NOT normally remove the files from
+** disk.  They just mark the files as no longer being part of the project.
+** In other words, future changes to the named files will not be versioned.
+** However, the default behavior of this command may be overridden via the
+** command line options listed below and/or the 'mv-rm-files' setting.
+**
+** The 'forget' command never removes files from disk, even when the command
+** line options and/or the 'mv-rm-files' setting would otherwise require it
+** to do so.
+**
+** WARNING: If the "--hard" option is specified -OR- the "mv-rm-files"
+**          setting is non-zero, files WILL BE removed from disk as well.
+**          This does NOT apply to the 'forget' command.
 **
 ** Options:
-**   --case-sensitive <BOOL> override case-sensitive setting
+**   --soft                  Skip removing files from the checkout.
+**                           This supersedes the --hard option.
+**   --hard                  Remove files from the checkout.
+**   --case-sensitive <BOOL> Override the case-sensitive setting.
+**   -n|--dry-run            If given, display instead of run actions.
 **
 ** See also: addremove, add
 */
 void delete_cmd(void){
   int i;
+  int removeFiles;
+  int dryRunFlag;
+  int softFlag;
+  int hardFlag;
   Stmt loop;
 
-  capture_case_sensitive_option();
+  dryRunFlag = find_option("dry-run","n",0)!=0;
+  softFlag = find_option("soft",0,0)!=0;
+  hardFlag = find_option("hard",0,0)!=0;
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   db_must_be_within_tree();
   db_begin_transaction();
+  if( g.argv[1][0]=='f' ){ /* i.e. "forget" */
+    removeFiles = 0;
+  }else if( softFlag ){
+    removeFiles = 0;
+  }else if( hardFlag ){
+    removeFiles = 1;
+  }else{
+#if FOSSIL_ENABLE_LEGACY_MV_RM
+    removeFiles = db_get_boolean("mv-rm-files",0);
+#else
+    removeFiles = FOSSIL_MV_RM_FILE;
+#endif
+  }
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
                 filename_collation());
   for(i=2; i<g.argc; i++){
     Blob treeName;
     char *zTreeName;
 
-    file_tree_name(g.argv[i], &treeName, 1);
+    file_tree_name(g.argv[i], &treeName, 0, 1);
     zTreeName = blob_str(&treeName);
     db_multi_exec(
        "INSERT OR IGNORE INTO sfile"
@@ -369,17 +481,21 @@ void delete_cmd(void){
     );
     blob_reset(&treeName);
   }
-  
+
   db_prepare(&loop, "SELECT x FROM sfile");
   while( db_step(&loop)==SQLITE_ROW ){
     fossil_print("DELETED %s\n", db_column_text(&loop, 0));
+    if( removeFiles ) add_file_to_remove(db_column_text(&loop, 0));
   }
   db_finalize(&loop);
-  db_multi_exec(
-    "UPDATE vfile SET deleted=1 WHERE pathname IN sfile;"
-    "DELETE FROM vfile WHERE rid=0 AND deleted;"
-  );
+  if( !dryRunFlag ){
+    db_multi_exec(
+      "UPDATE vfile SET deleted=1 WHERE pathname IN sfile;"
+      "DELETE FROM vfile WHERE rid=0 AND deleted;"
+    );
+  }
   db_end_transaction(0);
+  if( removeFiles ) process_files_to_remove(dryRunFlag);
 }
 
 /*
@@ -435,8 +551,9 @@ int filenames_are_case_sensitive(void){
     }
     if( !caseSensitive && g.localOpen ){
       db_multi_exec(
-         "CREATE INDEX IF NOT EXISTS vfile_nocase"
-         "  ON vfile(pathname COLLATE nocase)"
+         "CREATE INDEX IF NOT EXISTS %s.vfile_nocase"
+         "  ON vfile(pathname COLLATE nocase)",
+         db_name("localdb")
       );
     }
   }
@@ -481,18 +598,19 @@ const char *filename_collation(void){
 ** --clean option with the "clean-glob" setting. See the documentation
 ** on the "settings" command for further information.
 **
-** The -n|--dry-run option shows what would happen without actually doing anything.
+** The -n|--dry-run option shows what would happen without actually doing
+** anything.
 **
 ** This command can be used to track third party software.
-** 
-** Options: 
-**   --case-sensitive <BOOL> override case-sensitive setting
-**   --dotfiles              include files beginning with a dot (".")
-**   --ignore <CSG>          ignore files matching patterns from the
+**
+** Options:
+**   --case-sensitive <BOOL> Override the case-sensitive setting.
+**   --dotfiles              Include files beginning with a dot (".")
+**   --ignore <CSG>          Ignore files matching patterns from the
 **                           comma separated list of glob patterns.
-**   --clean <CSG>           also ignore files matching patterns from
+**   --clean <CSG>           Also ignore files matching patterns from
 **                           the comma separated list of glob patterns.
-**   -n|--dry-run            If given, display instead of run actions
+**   -n|--dry-run            If given, display instead of run actions.
 **
 ** See also: add, rm
 */
@@ -512,7 +630,18 @@ void addremove_cmd(void){
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
   }
-  capture_case_sensitive_option();
+
+  /* We should be done with options.. */
+  verify_all_options();
+
+  /* Fail if unprocessed arguments are present, in case user expect the
+  ** addremove command to accept a list of file or directory.
+  */
+  if( g.argc>2 ){
+    fossil_fatal(
+        "%s: Can only work on the entire checkout, no arguments supported.",
+        g.argv[1]);
+  }
   db_must_be_within_tree();
   if( zCleanFlag==0 ){
     zCleanFlag = db_get("clean-glob", 0);
@@ -520,10 +649,11 @@ void addremove_cmd(void){
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
+  if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
   vid = db_lget_int("checkout",0);
   db_begin_transaction();
 
-  /* step 1:  
+  /* step 1:
   ** Populate the temp table "sfile" with the names of all unmanaged
   ** files currently in the check-out, except for files that match the
   ** --ignore or ignore-glob patterns and dot-files.  Then add all of
@@ -549,8 +679,8 @@ void addremove_cmd(void){
       g.zLocalRoot
   );
   while( db_step(&q)==SQLITE_ROW ){
-    const char * zFile;
-    const char * zPath;
+    const char *zFile;
+    const char *zPath;
 
     zFile = db_column_text(&q, 0);
     zPath = db_column_text(&q, 1);
@@ -575,23 +705,91 @@ void addremove_cmd(void){
 **
 ** The original name of the file is zOrig.  The new filename is zNew.
 */
-static void mv_one_file(int vid, const char *zOrig, const char *zNew){
+static void mv_one_file(
+  int vid,
+  const char *zOrig,
+  const char *zNew,
+  int dryRunFlag
+){
   int x = db_int(-1, "SELECT deleted FROM vfile WHERE pathname=%Q %s",
                          zNew, filename_collation());
   if( x>=0 ){
     if( x==0 ){
       fossil_fatal("cannot rename '%s' to '%s' since another file named '%s'"
-                   " is currently under management", zOrig, zNew, zNew); 
+                   " is currently under management", zOrig, zNew, zNew);
     }else{
       fossil_fatal("cannot rename '%s' to '%s' since the delete of '%s' has "
                    "not yet been committed", zOrig, zNew, zNew);
     }
   }
   fossil_print("RENAME %s %s\n", zOrig, zNew);
-  db_multi_exec(
-    "UPDATE vfile SET pathname='%q' WHERE pathname='%q' %s AND vid=%d",
-    zNew, zOrig, filename_collation(), vid
-  );
+  if( !dryRunFlag ){
+    db_multi_exec(
+      "UPDATE vfile SET pathname='%q' WHERE pathname='%q' %s AND vid=%d",
+      zNew, zOrig, filename_collation(), vid
+    );
+  }
+}
+
+/*
+** This function adds a file to list of files to move on disk after the
+** other actions required for the parent operation have completed
+** successfully.  The first time it is called for the current process,
+** it creates a temporary table named "fmove", to keep track of these
+** files.
+*/
+static void add_file_to_move(
+  const char *zOldName, /* The old name of the file on disk. */
+  const char *zNewName  /* The new name of the file on disk. */
+){
+  static int tableCreated = 0;
+  Blob fullOldName;
+  Blob fullNewName;
+  if( !tableCreated ){
+    db_multi_exec("CREATE TEMP TABLE fmove(x TEXT PRIMARY KEY %s, y TEXT %s)",
+                  filename_collation(), filename_collation());
+    tableCreated = 1;
+  }
+  file_tree_name(zOldName, &fullOldName, 1, 1);
+  file_tree_name(zNewName, &fullNewName, 1, 1);
+  db_multi_exec("INSERT INTO fmove VALUES('%q','%q');",
+                blob_str(&fullOldName), blob_str(&fullNewName));
+  blob_reset(&fullNewName);
+  blob_reset(&fullOldName);
+}
+
+/*
+** This function moves files within the checkout, using the file names
+** contained in the temporary table "fmove".  The temporary table is
+** created on demand by the add_file_to_move() function.
+**
+** If dryRunFlag is non-zero, no files will be moved; however, their
+** names will still be output.
+**
+** The temporary table "fmove" is dropped after being processed.
+*/
+static void process_files_to_move(
+  int dryRunFlag /* Zero to actually operate on the file-system. */
+){
+  Stmt move;
+  if( db_table_exists(db_name("temp"), "fmove") ){
+    db_prepare(&move, "SELECT x, y FROM fmove ORDER BY x;");
+    while( db_step(&move)==SQLITE_ROW ){
+      const char *zOldName = db_column_text(&move, 0);
+      const char *zNewName = db_column_text(&move, 1);
+      if( !dryRunFlag ){
+        if( file_wd_islink(zOldName) ){
+          symlink_copy(zOldName, zNewName);
+        }else{
+          file_copy(zOldName, zNewName);
+        }
+        file_delete(zOldName);
+      }
+      fossil_print("MOVED_FILE %s\n", zOldName);
+    }
+    db_finalize(&move);
+    db_multi_exec("DROP TABLE fmove;");
+  }
 }
 
 /*
@@ -604,24 +802,48 @@ static void mv_one_file(int vid, const char *zOrig, const char *zNew){
 ** Move or rename one or more files or directories within the repository tree.
 ** You can either rename a file or directory or move it to another subdirectory.
 **
-** This command does NOT rename or move the files on disk.  This command merely
-** records the fact that filenames have changed so that appropriate notations
-** can be made at the next commit/checkin.
+** The 'mv' command does NOT normally rename or move the files on disk.
+** This command merely records the fact that file names have changed so
+** that appropriate notations can be made at the next commit/check-in.
+** However, the default behavior of this command may be overridden via
+** command line options listed below and/or the 'mv-rm-files' setting.
+**
+** The 'rename' command never renames or moves files on disk, even when the
+** command line options and/or the 'mv-rm-files' setting would otherwise
+** require it to do so.
+**
+** WARNING: If the "--hard" option is specified -OR- the "mv-rm-files"
+**          setting is non-zero, files WILL BE renamed or moved on disk
+**          as well.  This does NOT apply to the 'rename' command.
 **
 ** Options:
-**   --case-sensitive <BOOL> override case-sensitive setting
+**   --soft                  Skip moving files within the checkout.
+**                           This supersedes the --hard option.
+**   --hard                  Move files within the checkout.
+**   --case-sensitive <BOOL> Override the case-sensitive setting.
+**   -n|--dry-run            If given, display instead of run actions.
 **
 ** See also: changes, status
 */
 void mv_cmd(void){
   int i;
   int vid;
+  int moveFiles;
+  int dryRunFlag;
+  int softFlag;
+  int hardFlag;
   char *zDest;
   Blob dest;
   Stmt q;
 
-  capture_case_sensitive_option();
   db_must_be_within_tree();
+  dryRunFlag = find_option("dry-run","n",0)!=0;
+  softFlag = find_option("soft",0,0)!=0;
+  hardFlag = find_option("hard",0,0)!=0;
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
     fossil_fatal("no checkout rename files in");
@@ -631,7 +853,20 @@ void mv_cmd(void){
   }
   zDest = g.argv[g.argc-1];
   db_begin_transaction();
-  file_tree_name(zDest, &dest, 1);
+  if( g.argv[1][0]=='r' ){ /* i.e. "rename" */
+    moveFiles = 0;
+  }else if( softFlag ){
+    moveFiles = 0;
+  }else if( hardFlag ){
+    moveFiles = 1;
+  }else{
+#if FOSSIL_ENABLE_LEGACY_MV_RM
+    moveFiles = db_get_boolean("mv-rm-files",0);
+#else
+    moveFiles = FOSSIL_MV_RM_FILE;
+#endif
+  }
+  file_tree_name(zDest, &dest, 0, 1);
   db_multi_exec(
     "UPDATE vfile SET origname=pathname WHERE origname IS NULL;"
   );
@@ -643,7 +878,7 @@ void mv_cmd(void){
     if( g.argc!=4 ){
       usage("OLDNAME NEWNAME");
     }
-    file_tree_name(g.argv[2], &orig, 1);
+    file_tree_name(g.argv[2], &orig, 0, 1);
     db_multi_exec(
       "INSERT INTO mv VALUES(%B,%B)", &orig, &dest
     );
@@ -657,7 +892,7 @@ void mv_cmd(void){
       Blob orig;
       char *zOrig;
       int nOrig;
-      file_tree_name(g.argv[i], &orig, 1);
+      file_tree_name(g.argv[i], &orig, 0, 1);
       zOrig = blob_str(&orig);
       nOrig = blob_size(&orig);
       db_prepare(&q,
@@ -689,10 +924,12 @@ void mv_cmd(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFrom = db_column_text(&q, 0);
     const char *zTo = db_column_text(&q, 1);
-    mv_one_file(vid, zFrom, zTo);
+    mv_one_file(vid, zFrom, zTo, dryRunFlag);
+    if( moveFiles ) add_file_to_move(zFrom, zTo);
   }
   db_finalize(&q);
   db_end_transaction(0);
+  if( moveFiles ) process_files_to_move(dryRunFlag);
 }
 
 /*

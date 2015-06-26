@@ -19,7 +19,12 @@
 */
 #include "config.h"
 #include <assert.h>
-#include <zlib.h>
+#if defined(FOSSIL_ENABLE_MINIZ)
+#  define MINIZ_HEADER_FILE_ONLY
+#  include "miniz.c"
+#else
+#  include <zlib.h>
+#endif
 #include "zip.h"
 
 /*
@@ -347,8 +352,9 @@ void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
       blob_append(&filename, "manifest", -1);
       zName = blob_str(&filename);
       zip_add_folders(zName);
-      zip_add_file(zName, &mfile, 0);
       sha1sum_blob(&mfile, &hash);
+      sterilize_manifest(&mfile);
+      zip_add_file(zName, &mfile, 0);
       blob_reset(&mfile);
       blob_append(&hash, "\n", 1);
       blob_resize(&filename, nPrefix);
@@ -395,6 +401,10 @@ void baseline_zip_cmd(void){
   const char *zName;
   zName = find_option("name", 0, 1);
   db_find_and_open_repository(0, 0);
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc!=4 ){
     usage("VERSION OUTPUTFILE");
   }
@@ -423,11 +433,13 @@ void baseline_zip_cmd(void){
 **
 ** Optional URL Parameters:
 **
-** - name=base name of the output file. Defaults to
-** something project/version-specific.
+** - name=NAME[.zip] is the name of the output file. Defaults to
+** something project/version-specific. The base part of the
+** name, up to the last dot, is used as the top-most directory
+** name in the output file.
 **
 ** - uuid=the version to zip (may be a tag/branch name).
-** Defaults to trunk.
+** Defaults to "trunk".
 **
 */
 void baseline_zip_page(void){
@@ -438,21 +450,40 @@ void baseline_zip_page(void){
   char *zKey;
 
   login_check_credentials();
-  if( !g.perm.Zip ){ login_needed(); return; }
+  if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
   load_control();
   zName = mprintf("%s", PD("name",""));
   nName = strlen(zName);
   zRid = mprintf("%s", PD("uuid","trunk"));
   nRid = strlen(zRid);
-  for(nName=strlen(zName)-1; nName>5; nName--){
-    if( zName[nName]=='.' ){
-      zName[nName] = 0;
-      break;
+  if( nName>4 && fossil_strcmp(&zName[nName-4], ".zip")==0 ){
+    /* Special case:  Remove the ".zip" suffix.  */
+    nName -= 4;
+    zName[nName] = 0;
+  }else{
+    /* If the file suffix is not ".zip" then just remove the
+    ** suffix up to and including the last "." */
+    for(nName=strlen(zName)-1; nName>5; nName--){
+      if( zName[nName]=='.' ){
+        zName[nName] = 0;
+        break;
+      }
     }
   }
   rid = name_to_typed_rid(nRid?zRid:zName,"ci");
   if( rid==0 ){
     @ Not found
+    return;
+  }
+  if( referred_from_login() ){
+    style_header("ZIP Archive Download");
+    @ <form action='%R/zip'>
+    cgi_query_parameters_to_hidden();
+    @ <p>ZIP Archive named <b>%h(zName).zip</b> holding the content
+    @ of check-in <b>%h(zRid)</b>:
+    @ <input type="submit" value="Download" />
+    @ </form>
+    style_footer();
     return;
   }
   if( nRid==0 && nName>10 ) zName[10] = 0;

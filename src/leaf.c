@@ -18,8 +18,8 @@
 ** This file contains code used to manage the "leaf" table of the
 ** repository.
 **
-** The LEAF table contains the rids for all leaves in the checkin DAG.
-** A leaf is a checkin that has no children in the same branch.
+** The LEAF table contains the rids for all leaves in the check-in DAG.
+** A leaf is a check-in that has no children in the same branch.
 */
 #include "config.h"
 #include "leaf.h"
@@ -29,11 +29,11 @@
 /*
 ** Return true if the check-in with RID=rid is a leaf.
 **
-** A leaf has no children in the same branch. 
+** A leaf has no children in the same branch.
 */
 int is_a_leaf(int rid){
   int rc;
-  static const char zSql[] = 
+  static const char zSql[] =
     @ SELECT 1 FROM plink
     @  WHERE pid=%d
     @    AND coalesce((SELECT value FROM tagxref
@@ -41,7 +41,8 @@ int is_a_leaf(int rid){
     @       =coalesce((SELECT value FROM tagxref
     @                   WHERE tagid=%d AND rid=plink.cid), 'trunk')
   ;
-  rc = db_int(0, zSql, rid, TAG_BRANCH, TAG_BRANCH);
+  rc = db_int(0, zSql /*works-like:"%d,%d,%d"*/,
+              rid, TAG_BRANCH, TAG_BRANCH);
   return rc==0;
 }
 
@@ -57,7 +58,7 @@ int is_a_leaf(int rid){
 int count_nonbranch_children(int pid){
   int nNonBranch = 0;
   static Stmt q;
-  static const char zSql[] = 
+  static const char zSql[] =
     @ SELECT count(*) FROM plink
     @  WHERE pid=:pid AND isprim
     @    AND coalesce((SELECT value FROM tagxref
@@ -65,7 +66,7 @@ int count_nonbranch_children(int pid){
     @       =coalesce((SELECT value FROM tagxref
     @                   WHERE tagid=%d AND rid=plink.cid), 'trunk')
   ;
-  db_static_prepare(&q, zSql, TAG_BRANCH, TAG_BRANCH);
+  db_static_prepare(&q, zSql /*works-like: "%d,%d"*/, TAG_BRANCH, TAG_BRANCH);
   db_bind_int(&q, ":pid", pid);
   if( db_step(&q)==SQLITE_ROW ){
     nNonBranch = db_column_int(&q, 0);
@@ -76,7 +77,7 @@ int count_nonbranch_children(int pid){
 
 
 /*
-** Recompute the entire LEAF table.  
+** Recompute the entire LEAF table.
 **
 ** This can be expensive (5 seconds or so) for a really large repository.
 ** So it is only done for things like a rebuild.
@@ -97,12 +98,12 @@ void leaf_rebuild(void){
 }
 
 /*
-** A bag of checkins whose leaf status needs to be checked.
+** A bag of check-ins whose leaf status needs to be checked.
 */
 static Bag needToCheck;
 
 /*
-** Check to see if checkin "rid" is a leaf and either add it to the LEAF
+** Check to see if check-in "rid" is a leaf and either add it to the LEAF
 ** table if it is, or remove it if it is not.
 */
 void leaf_check(int rid){
@@ -160,7 +161,7 @@ char *leaf_is_closed_sql(const char *zVar){
 void leaf_eventually_check(int rid){
   static Stmt parentsOf;
 
-  db_static_prepare(&parentsOf, 
+  db_static_prepare(&parentsOf,
      "SELECT pid FROM plink WHERE cid=:rid AND pid>0"
   );
   db_bind_int(&parentsOf, ":rid", rid);
@@ -180,4 +181,91 @@ void leaf_do_pending_checks(void){
     leaf_check(rid);
   }
   bag_clear(&needToCheck);
+}
+
+/*
+** If check-in rid is an open-leaf and there exists another
+** open leaf on the same branch, then return 1.
+**
+** If check-in rid is not an open leaf, or if it is the only open leaf
+** on its branch, then return 0.
+*/
+int leaf_ambiguity(int rid){
+  int rc;             /* Result */
+  char zVal[30];
+  if( !is_a_leaf(rid) ) return 0;
+  sqlite3_snprintf(sizeof(zVal), zVal, "%d", rid);
+  rc = db_exists(
+       "SELECT 1 FROM leaf"
+       " WHERE NOT %z"
+       "   AND rid<>%d"
+       "   AND (SELECT value FROM tagxref WHERE tagid=%d AND rid=leaf.rid)="
+       "       (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d)"
+       "   AND NOT %z",
+       leaf_is_closed_sql(zVal), rid, TAG_BRANCH, TAG_BRANCH, rid,
+       leaf_is_closed_sql("leaf.rid"));
+  return rc;
+}
+
+/*
+** If check-in rid is an open-leaf and there exists another open leaf
+** on the same branch, then print a detailed warning showing all open
+** leaves on that branch.
+*/
+int leaf_ambiguity_warning(int rid, int currentCkout){
+  char *zBr;
+  Stmt q;
+  int n = 0;
+  Blob msg;
+  if( leaf_ambiguity(rid)==0 ) return 0;
+  zBr = db_text(0, "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
+                TAG_BRANCH, rid);
+  if( zBr==0 ) zBr = fossil_strdup("trunk");
+  blob_init(&msg, 0, 0);
+  blob_appendf(&msg, "WARNING: multiple open leaf check-ins on %s:", zBr);
+  db_prepare(&q,
+    "SELECT"
+    "  (SELECT uuid FROM blob WHERE rid=leaf.rid),"
+    "  (SELECT datetime(mtime%s) FROM event WHERE objid=leaf.rid),"
+    "  leaf.rid"
+    "  FROM leaf"
+    " WHERE (SELECT value FROM tagxref WHERE tagid=%d AND rid=leaf.rid)=%Q"
+    "   AND NOT %z"
+    " ORDER BY 2 DESC",
+    timeline_utc(), TAG_BRANCH, zBr, leaf_is_closed_sql("leaf.rid")
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    blob_appendf(&msg, "\n  (%d) %s [%S]%s",
+          ++n, db_column_text(&q,1), db_column_text(&q,0),
+          db_column_int(&q,2)==currentCkout ? " (current)" : "");
+  }
+  db_finalize(&q);
+  fossil_warning("%s",blob_str(&msg));
+  blob_reset(&msg);
+  return 1;
+}
+
+/*
+** COMMAND: test-leaf-ambiguity
+**
+** Usage: %fossil NAME ...
+**
+** Resolve each name on the command line and call leaf_ambiguity_warning()
+** for each resulting RID.
+*/
+void leaf_ambiguity_warning_test(void){
+  int i;
+  int rid;
+  int rc;
+  db_find_and_open_repository(0,0);
+  verify_all_options();
+  for(i=2; i<g.argc; i++){
+    char *zUuid;
+    rid = name_to_typed_rid(g.argv[i], "ci");
+    zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+    fossil_print("%s (rid=%d) %S ", g.argv[i], rid, zUuid ? zUuid : "(none)");
+    fossil_free(zUuid);
+    rc = leaf_ambiguity_warning(rid, rid);
+    if( rc==0 ) fossil_print(" ok\n");
+  }
 }

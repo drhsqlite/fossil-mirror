@@ -50,7 +50,7 @@ int autosync(int flags){
     /* Autosync defaults on.  To make it default off, "return" here. */
   }
   url_parse(0, URL_REMEMBER);
-  if( g.url.protocol==0 ) return 0;  
+  if( g.url.protocol==0 ) return 0;
   if( g.url.user!=0 && g.url.passwd==0 ){
     g.url.passwd = unobscure(db_get("last-sync-pw", 0));
     g.url.flags |= URL_PROMPT_PW;
@@ -63,7 +63,7 @@ int autosync(int flags){
     /* When doing an automatic pull, also automatically pull shuns from
     ** the server if pull_shuns is enabled.
     **
-    ** TODO:  What happens if the shun list gets really big? 
+    ** TODO:  What happens if the shun list gets really big?
     ** Maybe the shunning list should only be pulled on every 10th
     ** autosync, or something?
     */
@@ -188,6 +188,10 @@ void pull_cmd(void){
   unsigned configFlags = 0;
   unsigned syncFlags = SYNC_PULL;
   process_sync_args(&configFlags, &syncFlags);
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   client_sync(syncFlags, configFlags, 0);
 }
 
@@ -219,6 +223,10 @@ void push_cmd(void){
   unsigned configFlags = 0;
   unsigned syncFlags = SYNC_PUSH;
   process_sync_args(&configFlags, &syncFlags);
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( db_get_boolean("dont-push",0) ){
     fossil_fatal("pushing is prohibited: the 'dont-push' option is set");
   }
@@ -255,6 +263,10 @@ void sync_cmd(void){
   unsigned configFlags = 0;
   unsigned syncFlags = SYNC_PUSH|SYNC_PULL;
   process_sync_args(&configFlags, &syncFlags);
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( db_get_boolean("dont-push",0) ) syncFlags &= ~SYNC_PUSH;
   client_sync(syncFlags, configFlags, 0);
   if( (syncFlags & SYNC_PUSH)==0 ){
@@ -282,6 +294,10 @@ void sync_cmd(void){
 void remote_url_cmd(void){
   char *zUrl;
   db_find_and_open_repository(0, 0);
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc!=2 && g.argc!=3 ){
     usage("remote-url ?URL|off?");
   }

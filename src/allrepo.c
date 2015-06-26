@@ -78,7 +78,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 /*
 ** COMMAND: all
 **
-** Usage: %fossil all (changes|clean|extras|ignore|list|ls|pull|push|rebuild|sync)
+** Usage: %fossil all SUBCOMMAND ...
 **
 ** The ~/.fossil file records the location of all repositories for a
 ** user.  This command performs certain operations on all repositories
@@ -89,48 +89,61 @@ static void collect_argv(Blob *pExtra, int iStart){
 **
 ** Available operations are:
 **
-**    changes    Shows all local checkouts that have uncommitted changes.
-**               This operation has no additional options.
+**    changes     Shows all local checkouts that have uncommitted changes.
+**                This operation has no additional options.
 **
-**    clean      Delete all "extra" files in all local checkouts.  Extreme
-**               caution should be exercised with this command because its
-**               effects cannot be undone.  Use of the --dry-run option to
-**               carefully review the local checkouts to be operated upon
-**               and the --whatif option to carefully review the files to
-**               be deleted beforehand is highly recommended.  The command
-**               line options supported by the clean command itself, if any
-**               are present, are passed along verbatim.
+**    clean       Delete all "extra" files in all local checkouts.  Extreme
+**                caution should be exercised with this command because its
+**                effects cannot be undone.  Use of the --dry-run option to
+**                carefully review the local checkouts to be operated upon
+**                and the --whatif option to carefully review the files to
+**                be deleted beforehand is highly recommended.  The command
+**                line options supported by the clean command itself, if any
+**                are present, are passed along verbatim.
 **
-**    extras     Shows "extra" files from all local checkouts.  The command
-**               line options supported by the extra command itself, if any
-**               are present, are passed along verbatim.
+**    dbstat      Run the "dbstat" command on all repositories.
 **
-**    ignore     Arguments are repositories that should be ignored by
-**               subsequent clean, extras, list, pull, push, rebuild, and
-**               sync operations.  The -c|--ckout option causes the listed
-**               local checkouts to be ignored instead.
+**    extras      Shows "extra" files from all local checkouts.  The command
+**                line options supported by the extra command itself, if any
+**                are present, are passed along verbatim.
 **
-**    list | ls  Display the location of all repositories.  The -c|--ckout
-**               option causes all local checkouts to be listed instead.
+**    fts-config  Run the "fts-config" command on all repositories.
 **
-**    pull       Run a "pull" operation on all repositories.  Only the
-**               --verbose option is supported.
+**    info        Run the "info" command on all repositories.
 **
-**    push       Run a "push" on all repositories.  Only the --verbose
-**               option is supported.
+**    pull        Run a "pull" operation on all repositories.  Only the
+**                --verbose option is supported.
 **
-**    rebuild    Rebuild on all repositories.  The command line options
-**               supported by the rebuild command itself, if any are
-**               present, are passed along verbatim.  The --force and
-**               --randomize options are not supported.
+**    push        Run a "push" on all repositories.  Only the --verbose
+**                option is supported.
 **
-**    sync       Run a "sync" on all repositories.  Only the --verbose
-**               option is supported.
+**    rebuild     Rebuild on all repositories.  The command line options
+**                supported by the rebuild command itself, if any are
+**                present, are passed along verbatim.  The --force and
+**                --randomize options are not supported.
 **
-**    setting    Run the "setting", "set", or "unset" commands on all
-**    set        repositories.  These command are particularly useful in
-**    unset      conjunection with the "max-loadavg" setting which cannot
-**               otherwise be set globally.
+**    sync        Run a "sync" on all repositories.  Only the --verbose
+**                option is supported.
+**
+**    setting     Run the "setting", "set", or "unset" commands on all
+**    set         repositories.  These command are particularly useful in
+**    unset       conjunction with the "max-loadavg" setting which cannot
+**                otherwise be set globally.
+**
+** In addition, the following maintenance operations are supported:
+**
+**    add         Add all the repositories named to the set of repositories
+**                tracked by Fossil.  Normally Fossil is able to keep up with
+**                this list by itself, but sometime it can benefit from this
+**                hint if you rename repositories.
+**
+**    ignore      Arguments are repositories that should be ignored by
+**                subsequent clean, extras, list, pull, push, rebuild, and
+**                sync operations.  The -c|--ckout option causes the listed
+**                local checkouts to be ignored instead.
+**
+**    list | ls   Display the location of all repositories.  The -c|--ckout
+**                option causes all local checkouts to be listed instead.
 **
 ** Repositories are automatically added to the set of known repositories
 ** when one of the following commands are run against the repository:
@@ -157,6 +170,7 @@ void all_cmd(void){
   int stopOnError = find_option("dontstop",0,0)==0;
   int rc;
   int nToDel = 0;
+  int showLabel = 0;
 
   dryRunFlag = find_option("dry-run","n",0)!=0;
   if( !dryRunFlag ){
@@ -164,7 +178,7 @@ void all_cmd(void){
   }
 
   if( g.argc<3 ){
-    usage("changes|clean|extras|ignore|list|ls|pull|push|rebuild|sync");
+    usage("SUBCOMMAND ...");
   }
   n = strlen(g.argv[2]);
   db_open_config(1);
@@ -189,6 +203,12 @@ void all_cmd(void){
     collect_argument(&extra, "verbose","v");
     collect_argument(&extra, "whatif",0);
     useCheckouts = 1;
+  }else if( strncmp(zCmd, "dbstat", n)==0 ){
+    zCmd = "dbstat --omit-version-info -R";
+    showLabel = 1;
+    quiet = 1;
+    collect_argument(&extra, "brief", "b");
+    collect_argument(&extra, "db-check", 0);
   }else if( strncmp(zCmd, "extras", n)==0 ){
     if( showFile ){
       zCmd = "extras --chdir";
@@ -213,6 +233,7 @@ void all_cmd(void){
     zCmd = "rebuild";
     collect_argument(&extra, "cluster",0);
     collect_argument(&extra, "compress",0);
+    collect_argument(&extra, "compress-only",0);
     collect_argument(&extra, "noverify",0);
     collect_argument_value(&extra, "pagesize");
     collect_argument(&extra, "vacuum",0);
@@ -220,11 +241,17 @@ void all_cmd(void){
     collect_argument(&extra, "analyze",0);
     collect_argument(&extra, "wal",0);
     collect_argument(&extra, "stats",0);
+    collect_argument(&extra, "index",0);
+    collect_argument(&extra, "noindex",0);
+    collect_argument(&extra, "ifneeded", 0);
   }else if( strncmp(zCmd, "setting", n)==0 ){
     zCmd = "setting -R";
     collect_argv(&extra, 3);
   }else if( strncmp(zCmd, "unset", n)==0 ){
     zCmd = "unset -R";
+    collect_argv(&extra, 3);
+  }else if( strncmp(zCmd, "fts-config", n)==0 ){
+    zCmd = "fts-config -R";
     collect_argv(&extra, 3);
   }else if( strncmp(zCmd, "sync", n)==0 ){
     zCmd = "sync -autourl -R";
@@ -244,37 +271,83 @@ void all_cmd(void){
     quiet = 1;
   }else if( strncmp(zCmd, "ignore", n)==0 ){
     int j;
+    Blob fn = BLOB_INITIALIZER;
+    Blob sql = BLOB_INITIALIZER;
     useCheckouts = find_option("ckout","c",0)!=0;
     verify_all_options();
     db_begin_transaction();
-    for(j=3; j<g.argc; j++){
-      char *zSql = mprintf("DELETE FROM global_config"
-                           " WHERE name GLOB '%s:%q'",
-                           useCheckouts?"ckout":"repo", g.argv[j]);
+    for(j=3; j<g.argc; j++, blob_reset(&sql), blob_reset(&fn)){
+      file_canonical_name(g.argv[j], &fn, 0);
+      blob_append_sql(&sql,
+         "DELETE FROM global_config WHERE name GLOB '%s:%q'",
+         useCheckouts?"ckout":"repo", blob_str(&fn)
+      );
       if( dryRunFlag ){
-        fossil_print("%s\n", zSql);
+        fossil_print("%s\n", blob_sql_text(&sql));
       }else{
-        db_multi_exec("%s", zSql);
+        db_multi_exec("%s", blob_sql_text(&sql));
       }
-      fossil_free(zSql);
     }
     db_end_transaction(0);
+    blob_reset(&sql);
+    blob_reset(&fn);
+    blob_reset(&extra);
     return;
+  }else if( strncmp(zCmd, "add", n)==0 ){
+    int j;
+    Blob fn = BLOB_INITIALIZER;
+    Blob sql = BLOB_INITIALIZER;
+    verify_all_options();
+    db_begin_transaction();
+    for(j=3; j<g.argc; j++, blob_reset(&fn), blob_reset(&sql)){
+      sqlite3 *db;
+      int rc;
+      const char *z;
+      file_canonical_name(g.argv[j], &fn, 0);
+      z = blob_str(&fn);
+      if( !file_isfile(z) ) continue;
+      rc = sqlite3_open(z, &db);
+      if( rc!=SQLITE_OK ){ sqlite3_close(db); continue; }
+      rc = sqlite3_exec(db, "SELECT rcvid FROM blob, delta LIMIT 1", 0, 0, 0);
+      sqlite3_close(db);
+      if( rc!=SQLITE_OK ) continue;
+      blob_append_sql(&sql,
+         "INSERT INTO global_config(name,value)VALUES('repo:%q',1)", z
+      );
+      if( dryRunFlag ){
+        fossil_print("%s\n", blob_sql_text(&sql));
+      }else{
+        db_multi_exec("%s", blob_sql_text(&sql));
+      }
+    }
+    db_end_transaction(0);
+    blob_reset(&sql);
+    blob_reset(&fn);
+    blob_reset(&extra);
+    return;
+  }else if( strncmp(zCmd, "info", n)==0 ){
+    zCmd = "info";
+    showLabel = 1;
+    quiet = 1;
   }else{
     fossil_fatal("\"all\" subcommand should be one of: "
-                 "changes clean extras ignore list ls push pull rebuild sync");
+                 "add changes clean dbstat extras fts-config ignore "
+                 "info list ls pull push rebuild setting sync unset");
   }
   verify_all_options();
   zFossil = quoteFilename(g.nameOfExe);
+  db_multi_exec("CREATE TEMP TABLE repolist(name,tag);");
   if( useCheckouts ){
-    db_prepare(&q,
+    db_multi_exec(
+       "INSERT INTO repolist "
        "SELECT DISTINCT substr(name, 7), name COLLATE nocase"
        "  FROM global_config"
        " WHERE substr(name, 1, 6)=='ckout:'"
        " ORDER BY 1"
     );
   }else{
-    db_prepare(&q,
+    db_multi_exec(
+       "INSERT INTO repolist "
        "SELECT DISTINCT substr(name, 6), name COLLATE nocase"
        "  FROM global_config"
        " WHERE substr(name, 1, 5)=='repo:'"
@@ -282,6 +355,7 @@ void all_cmd(void){
     );
   }
   db_multi_exec("CREATE TEMP TABLE todel(x TEXT)");
+  db_prepare(&q, "SELECT name, tag FROM repolist ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFilename = db_column_text(&q, 0);
     if( file_access(zFilename, F_OK)
@@ -302,6 +376,12 @@ void all_cmd(void){
     zQFilename = quoteFilename(zFilename);
     zSyscmd = mprintf("%s %s %s%s",
                       zFossil, zCmd, zQFilename, blob_str(&extra));
+    if( showLabel ){
+      int len = (int)strlen(zFilename);
+      int nStar = 80 - (len + 15);
+      if( nStar<2 ) nStar = 1;
+      fossil_print("%.13c %s %.*c\n", '*', zFilename, nStar, '*');
+    }
     if( !quiet || dryRunFlag ){
       fossil_print("%s\n", zSyscmd);
       fflush(stdout);
@@ -315,6 +395,8 @@ void all_cmd(void){
   }
   db_finalize(&q);
 
+  blob_reset(&extra);
+
   /* If any repositories whose names appear in the ~/.fossil file could not
   ** be found, remove those names from the ~/.fossil file.
   */
@@ -323,7 +405,7 @@ void all_cmd(void){
     if( dryRunFlag ){
       fossil_print("%s\n", zSql);
     }else{
-      db_multi_exec(zSql);
+      db_multi_exec("%s", zSql /*safe-for-%s*/ );
     }
   }
 }

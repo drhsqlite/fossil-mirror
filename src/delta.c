@@ -67,7 +67,7 @@ static const char *print16(const char *z){
 typedef unsigned int u32;
 
 /*
-** Must be a 16-bit value 
+** Must be a 16-bit value
 */
 typedef short int s16;
 typedef unsigned short int u16;
@@ -84,7 +84,7 @@ typedef unsigned short int u16;
 ** The current state of the rolling hash.
 **
 ** z[] holds the values that have been hashed.  z[] is a circular buffer.
-** z[i] is the first entry and z[(i+NHASH-1)%NHASH] is the last entry of 
+** z[i] is the first entry and z[(i+NHASH-1)%NHASH] is the last entry of
 ** the window.
 **
 ** Hash.a is the sum of all elements of hash.z[].  Hash.b is a weighted
@@ -137,7 +137,7 @@ static u32 hash_32bit(hash *pHash){
 ** Write an base-64 integer into the given buffer.
 */
 static void putInt(unsigned int v, char **pz){
-  static const char zDigits[] = 
+  static const char zDigits[] =
     "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~";
   /*  123456789 123456789 123456789 123456789 123456789 123456789 123 */
   int i, j;
@@ -231,7 +231,7 @@ static unsigned int checksum(const char *zIn, size_t N){
 /*
 ** Create a new delta.
 **
-** The delta is written into a preallocated buffer, zDelta, which 
+** The delta is written into a preallocated buffer, zDelta, which
 ** should be at least 60 bytes longer than the target file, zOut.
 ** The delta string will be NUL-terminated, but it might also contain
 ** embedded NUL characters if either the zSrc or zOut files are
@@ -247,7 +247,7 @@ static unsigned int checksum(const char *zIn, size_t N){
 ** found there.  The delta_output_size() routine does exactly this.
 **
 ** After the initial size number, the delta consists of a series of
-** literal text segments and commands to copy from the SOURCE file.  
+** literal text segments and commands to copy from the SOURCE file.
 ** A copy command looks like this:
 **
 **     NNN@MMM,
@@ -285,7 +285,7 @@ static unsigned int checksum(const char *zIn, size_t N){
 ** made to extend the matching section to regions that come before
 ** and after the 16-byte hash window.  A copy command is only issued
 ** if the result would use less space that just quoting the text
-** literally. Literal text is added to the delta for sections that 
+** literally. Literal text is added to the delta for sections that
 ** do not match or which can not be encoded efficiently using copy
 ** commands.
 */
@@ -358,9 +358,9 @@ int delta_create(
       iBlock = landmark[hv];
       while( iBlock>=0 && (limit--)>0 ){
         /*
-        ** The hash window has identified a potential match against 
+        ** The hash window has identified a potential match against
         ** landmark block iBlock.  But we need to investigate further.
-        ** 
+        **
         ** Look for a region in zOut that matches zSrc. Anchor the search
         ** at zSrc[iSrc] and zOut[base+i].  Do not include anything prior to
         ** zOut[base] or after zOut[outLen] nor anything after zSrc[srcLen].
@@ -470,12 +470,12 @@ int delta_create(
   putInt(checksum(zOut, lenOut), &zDelta);
   *(zDelta++) = ';';
   fossil_free(collide);
-  return zDelta - zOrigDelta; 
+  return zDelta - zOrigDelta;
 }
 
 /*
 ** Return the size (in bytes) of the output from applying
-** a delta. 
+** a delta.
 **
 ** This routine is provided so that an procedure that is able
 ** to call delta_apply() can learn how much space is required

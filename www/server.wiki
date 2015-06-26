@@ -55,16 +55,16 @@ their behavior.  See the [/help/server|online documentation] for an overview.
 <h2>Fossil as an inetd/xinetd or stunnel service</h2><blockquote>
 <p>
 A Fossil server can be launched on-demand by inetd or xinetd using
-the [/help/http|fossil http] command.  To launch Fossil from inetd, modify
+the [/help/http|fossil http] command. To launch Fossil from inetd, modify
 your inetd configuration file (typically "/etc/inetd.conf") to contain a
 line something like this:
 <blockquote>
 <pre>
-12345 stream tcp nowait.1000 root /usr/bin/fossil /usr/bin/fossil http /home/fossil/repo.fossil
+80 stream tcp nowait.1000 root /usr/bin/fossil /usr/bin/fossil http /home/fossil/repo.fossil
 </pre>
 </blockquote>
 In this example, you are telling "inetd" that when an incoming connection
-appears on port "12345", that it should launch the binary "/usr/bin/fossil"
+appears on TCP port "80", that it should launch the binary "/usr/bin/fossil"
 program with the arguments shown.
 Obviously you will
 need to modify the pathnames for your particular setup.
@@ -72,14 +72,30 @@ The final argument is either the name of the fossil repository to be served,
 or a directory containing multiple repositories.
 </p>
 <p>
-If you system is running xinetd, then the configuration is likely to be
+If you use a non-standard TCP port on 
+systems where the port-specification must be a symbolic name and cannot be 
+numeric, add the desired name and port to /etc/services.  For example, if
+you want your Fossil server running on TCP port 12345 instead of 80, you
+will need to add:
+<blockquote>
+<pre>
+fossil          12345/tcp  #fossil server
+</pre>
+</blockquote>
+and use the symbolic name ('fossil' in this example) instead of the numeral ('12345') 
+in inetd.conf. For details, see the relevant section in your system's documentation, e.g. 
+the [https://www.freebsd.org/doc/en/books/handbook/network-inetd.html|FreeBSD Handbook] in 
+case you use FreeBSD.
+</p>
+<p>
+If your system is running xinetd, then the configuration is likely to be
 in the file "/etc/xinetd.conf" or in a subfile of "/etc/xinetd.d".
 An xinetd configuration file will appear like this:</p>
 <blockquote>
 <pre>
-service http-alt
+service http
 {
-  port = 591
+  port = 80
   socket_type = stream
   wait = no
   user = root
@@ -99,10 +115,14 @@ jail for the user who owns the fossil repository before reading any information
 off of the wire.
 </p>
 <p>
-[http://www.stunnel.org/ | Stunnel version 4] is an inetd-like process that
+Inetd or xinetd must be enabled, and must be (re)started whenever their configuration
+changes - consult your system's documentation for details. 
+</p>
+<p>
+[https://www.stunnel.org/ | Stunnel version 5] is an inetd-like process that
 accepts and decodes SSL-encrypted connections.  Fossil can be run directly from
-stunnel in a mannar similar to inetd and xinetd.  This can be used to provide
-a secure link to a Fossil project.  The configuration needed to get stunnel4
+stunnel in a manner similar to inetd and xinetd.  This can be used to provide
+a secure link to a Fossil project.  The configuration needed to get stunnel5
 to invoke Fossil is very similar to the inetd and xinetd examples shown above.
 The relevant parts of an stunnel configuration might look something
 like the following:
@@ -113,7 +133,7 @@ TIMEOUTclose = 0
 exec         = /usr/bin/fossil
 execargs     = /usr/bin/fossil http /home/fossil/ubercool.fossil --https
 </nowiki></pre></blockquote>
-See the stunnel4 documentation for further details bout the /etc/stunnel/stunnel.conf
+See the stunnel5 documentation for further details about the /etc/stunnel/stunnel.conf
 configuration file.  Note that the [/help/http|fossil http] command should include 
 the --https option to let Fossil know to use "https" instead of "http" as the scheme
 on generated hyperlinks.
@@ -268,7 +288,7 @@ requests can be arriving at a continuous rate of 20 or more per second
 and the CPU can still be mostly idle.
 <p>
 However, there are some Fossil web pages that can consume large 
-amounts of CPU time, expecially on repositories with a large number
+amounts of CPU time, especially on repositories with a large number
 of files or with long revision histories.  High CPU usage pages include
 [/help?cmd=/zip | /zip], [/help?cmd=/tarball | /tarball],
 [/help?cmd=/annotate | /annotate] and others.  On very large repositories,
@@ -315,7 +335,7 @@ The second form is especially useful for changing the maximum load average
 simultaneously on a large number of repositories.
 <p>
 Note that this load-average limiting feature is only available on operating
-systems that support the "getloadavg()" API.  Most modern unix systems have
+systems that support the "getloadavg()" API.  Most modern Unix systems have
 this interface, but Windows does not, so the feature will not work on Windows.
 Note also that Linux implements "getloadavg()" by accessing the "/proc/loadavg"
 file in the "proc" virtual filesystem.  If you are running a Fossil instance

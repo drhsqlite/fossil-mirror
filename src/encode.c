@@ -49,26 +49,26 @@ char *htmlize(const char *zIn, int n){
   zOut = fossil_malloc( count+1 );
   while( n-->0 && (c = *zIn)!=0 ){
     switch( c ){
-      case '<':   
+      case '<':
         zOut[i++] = '&';
         zOut[i++] = 'l';
         zOut[i++] = 't';
         zOut[i++] = ';';
         break;
-      case '>':   
+      case '>':
         zOut[i++] = '&';
         zOut[i++] = 'g';
         zOut[i++] = 't';
         zOut[i++] = ';';
         break;
-      case '&':   
+      case '&':
         zOut[i++] = '&';
         zOut[i++] = 'a';
         zOut[i++] = 'm';
         zOut[i++] = 'p';
         zOut[i++] = ';';
         break;
-      case '"':   
+      case '"':
         zOut[i++] = '&';
         zOut[i++] = 'q';
         zOut[i++] = 'u';
@@ -183,7 +183,7 @@ char *httpize(const char *z, int n){
 ** a token in the HTTP protocol.  Spaces are encoded as '+' and special
 ** characters are encoded as "%HH" where HH is a two-digit hexidecimal
 ** representation of the character.  The "/" character is not encoded
-** by this routine. 
+** by this routine.
 */
 char *urlize(const char *z, int n){
   return EncodeHttp(z, n, 0);
@@ -329,7 +329,7 @@ void defossilize(char *z){
 /*
 ** The characters used for HTTP base64 encoding.
 */
-static unsigned char zBase[] = 
+static unsigned char zBase[] =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 /*
@@ -368,7 +368,7 @@ char *encode64(const char *zData, int nData){
 }
 
 /*
-** COMMAND: test-encode64 
+** COMMAND: test-encode64
 ** Usage: %fossil test-encode64 STRING
 */
 void test_encode64_cmd(void){
@@ -433,7 +433,7 @@ char *decode64(const char *z64, int *pnByte){
 }
 
 /*
-** COMMAND: test-decode64 
+** COMMAND: test-decode64
 ** Usage: %fossil test-decode64 STRING
 */
 void test_decode64_cmd(void){
@@ -456,7 +456,7 @@ void test_decode64_cmd(void){
 /*
 ** The array used for encoding
 */                           /* 123456789 12345  */
-static const char zEncode[] = "0123456789abcdef"; 
+static const char zEncode[] = "0123456789abcdef";
 
 /*
 ** Encode a N-digit base-256 in base-16.  Return zero on success
@@ -475,29 +475,29 @@ int encode16(const unsigned char *pIn, unsigned char *zOut, int N){
 /*
 ** An array for translating single base-16 characters into a value.
 ** Disallowed input characters have a value of 64.  Upper and lower
-** case is the same. 
+** case is the same.
 */
 static const char zDecode[] = {
-  64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64, 
-  64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64, 
-  64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64, 
-   0,  1,  2,  3,  4,  5,  6,  7,   8,  9, 64, 64, 64, 64, 64, 64, 
+  64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64,
+  64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64,
+  64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64,
+   0,  1,  2,  3,  4,  5,  6,  7,   8,  9, 64, 64, 64, 64, 64, 64,
   64, 10, 11, 12, 13, 14, 15, 64,  64, 64, 64, 64, 64, 64, 64, 64,
   64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64,
   64, 10, 11, 12, 13, 14, 15, 64,  64, 64, 64, 64, 64, 64, 64, 64,
   64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64,
-  64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64, 
-  64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64, 
-  64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64, 
-  64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64, 
-  64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64, 
-  64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64, 
-  64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64, 
-  64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64, 
+  64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64,
+  64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64,
+  64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64,
+  64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64,
+  64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64,
+  64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64,
+  64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64,
+  64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64,
 };
 
 /*
-** Decode a N-character base-16 number into base-256.  N must be a 
+** Decode a N-character base-16 number into base-256.  N must be a
 ** multiple of 2.  The output buffer must be at least N/2 characters
 ** in length
 */
@@ -547,7 +547,7 @@ static const unsigned char aObscurer[16] = {
     0xa7, 0x21, 0x31, 0xe3, 0x2a, 0x50, 0x2c, 0x86,
     0x4c, 0xa4, 0x52, 0x25, 0xff, 0x49, 0x35, 0x85
 };
- 
+
 
 /*
 ** Obscure plain text so that it is not easily readable.
@@ -564,7 +564,7 @@ char *obscure(const char *zIn){
   int n, i;
   unsigned char salt;
   char *zOut;
-  
+
   if( zIn==0 ) return 0;
   n = strlen(zIn);
   zOut = fossil_malloc( n*2+3 );
@@ -580,13 +580,13 @@ char *obscure(const char *zIn){
 ** not hexadecimal (meaning the input is not the output of obscure()) then
 ** do the equivalent of strdup().
 **
-** The result is memory obtained from malloc that should be freed by the caller. 
+** The result is memory obtained from malloc that should be freed by the caller.
 */
 char *unobscure(const char *zIn){
   int n, i;
   unsigned char salt;
   char *zOut;
-  
+
   if( zIn==0 ) return 0;
   n = strlen(zIn);
   zOut = fossil_malloc( n + 1 );
@@ -608,6 +608,10 @@ char *unobscure(const char *zIn){
 ** utilities for decoding passwords found in the database.
 **
 ** COMMAND: test-obscure
+**
+** For each command-line argument X, run both obscure(X) and
+** unobscure(obscure(X)) and print the results.  This is used for testing
+** and debugging of the obscure() and unobscure() functions.
 */
 void test_obscure_cmd(void){
   int i;

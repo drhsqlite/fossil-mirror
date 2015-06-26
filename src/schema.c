@@ -14,7 +14,7 @@
 **   http://www.hwaci.com/drh/
 **
 *******************************************************************************
-** 
+**
 ** This file contains string constants that implement the database schema.
 */
 #include "config.h"
@@ -46,7 +46,11 @@ const char zConfigSchema[] =
 ** the aux schema changes, all we need to do is rebuild the database.
 */
 #define CONTENT_SCHEMA  "2"
-#define AUX_SCHEMA      "2011-04-25 19:50"
+#define AUX_SCHEMA_MIN  "2011-04-25 19:50"
+#define AUX_SCHEMA_MAX  "2015-01-24"
+/* NB:  Some features require the latest schema.  Warning or error messages
+** will appear if an older schema is used.  However, the older schemas are
+** adequate for many common functions. */
 
 #endif /* INTERFACE */
 
@@ -82,8 +86,8 @@ const char zRepositorySchema1[] =
 @   CHECK( length(uuid)==40 AND rid>0 )
 @ );
 @ CREATE TABLE delta(
-@   rid INTEGER PRIMARY KEY,                 -- Record ID
-@   srcid INTEGER NOT NULL REFERENCES blob   -- Record holding source document
+@   rid INTEGER PRIMARY KEY,                 -- BLOB that is delta-compressed
+@   srcid INTEGER NOT NULL REFERENCES blob   -- Baseline for delta-compression
 @ );
 @ CREATE INDEX delta_i1 ON delta(srcid);
 @
@@ -127,7 +131,7 @@ const char zRepositorySchema1[] =
 @   photo BLOB                      -- JPEG image of this user
 @ );
 @
-@ -- The VAR table holds miscellanous information about the repository.
+@ -- The config table holds miscellanous information about the repository.
 @ -- in the form of name-value pairs.
 @ --
 @ CREATE TABLE config(
@@ -226,40 +230,63 @@ const char zRepositorySchema2[] =
 @   name TEXT UNIQUE             -- Name of file page
 @ );
 @
-@ -- Linkages between checkins, files created by each checkin, and
+@ -- Linkages between check-ins, files created by each check-in, and
 @ -- the names of those files.
 @ --
-@ -- pid==0 if the file is added by checkin mid.
-@ -- fid==0 if the file is removed by checkin mid.
+@ -- Each entry represents a file that changed content from pid to fid
+@ -- due to the check-in that goes from pmid to mid.  fnid is the name
+@ -- of the file in the mid check-in.  If the file was renamed as part
+@ -- of the mid check-in, then pfnid is the previous filename.
+@
+@ -- There can be multiple entries for (mid,fid) if the mid check-in was
+@ -- a merge.  Entries with isaux==0 are from the primary parent.  Merge
+@ -- parents have isaux set to true.
+@ --
+@ -- Field name mnemonics:
+@ --    mid = Manifest ID.  (Each check-in is stored as a "Manifest")
+@ --    fid = File ID.
+@ --    pmid = Parent Manifest ID.
+@ --    pid = Parent file ID.
+@ --    fnid = File Name ID.
+@ --    pfnid = Parent File Name ID.
+@ --    isaux = pmid IS AUXiliary parent, not primary parent
+@ --
+@ -- pid==0    if the file is added by check-in mid.
+@ -- pid==(-1) if the file exists in a merge parents but not in the primary
+@  --          parent.  In other words, if the file file was added by merge.
+@ -- fid==0    if the file is removed by check-in mid.
 @ --
 @ CREATE TABLE mlink(
-@   mid INTEGER REFERENCES blob,        -- Manifest ID where change occurs
-@   pid INTEGER REFERENCES blob,        -- File ID in parent manifest
-@   fid INTEGER REFERENCES blob,        -- Changed file ID in this manifest
-@   fnid INTEGER REFERENCES filename,   -- Name of the file
-@   pfnid INTEGER REFERENCES filename,  -- Previous name. 0 if unchanged
-@   mperm INTEGER                       -- File permissions.  1==exec
+@   mid INTEGER,                       -- Check-in that contains fid
+@   fid INTEGER,                       -- New file content. 0 if deleted
+@   pmid INTEGER,                      -- Check-in that contains pid
+@   pid INTEGER,                       -- Prev file content. 0 if new. -1 merge
+@   fnid INTEGER REFERENCES filename,  -- Name of the file
+@   pfnid INTEGER REFERENCES filename, -- Previous name. 0 if unchanged
+@   mperm INTEGER,                     -- File permissions.  1==exec
+@   isaux BOOLEAN DEFAULT 0            -- TRUE if pmid is the primary
 @ );
 @ CREATE INDEX mlink_i1 ON mlink(mid);
 @ CREATE INDEX mlink_i2 ON mlink(fnid);
 @ CREATE INDEX mlink_i3 ON mlink(fid);
 @ CREATE INDEX mlink_i4 ON mlink(pid);
 @
-@ -- Parent/child linkages between checkins
+@ -- Parent/child linkages between check-ins
 @ --
 @ CREATE TABLE plink(
 @   pid INTEGER REFERENCES blob,    -- Parent manifest
 @   cid INTEGER REFERENCES blob,    -- Child manifest
 @   isprim BOOLEAN,                 -- pid is the primary parent of cid
 @   mtime DATETIME,                 -- the date/time stamp on cid.  Julian day.
+@   baseid INTEGER REFERENCES blob, -- Baseline if cid is a delta manifest.
 @   UNIQUE(pid, cid)
 @ );
 @ CREATE INDEX plink_i2 ON plink(cid,pid);
 @
-@ -- A "leaf" checkin is a checkin that has no children in the same
+@ -- A "leaf" check-in is a check-in that has no children in the same
 @ -- branch.  The set of all leaves is easily computed with a join,
 @ -- between the plink and tagxref tables, but it is a slower join for
-@ -- very large repositories (repositories with 100,000 or more checkins)
+@ -- very large repositories (repositories with 100,000 or more check-ins)
 @ -- and so it makes sense to precompute the set of leaves.  There is
 @ -- one entry in the following table for each leaf.
 @ --
@@ -344,6 +371,7 @@ const char zRepositorySchema2[] =
 @ INSERT INTO tag VALUES(8, 'branch');          -- TAG_BRANCH
 @ INSERT INTO tag VALUES(9, 'closed');          -- TAG_CLOSED
 @ INSERT INTO tag VALUES(10,'parent');          -- TAG_PARENT
+@ INSERT INTO tag VALUES(11,'note');            -- TAG_NOTE
 @
 @ -- Assignments of tags to baselines.  Note that we allow tags to
 @ -- have values assigned to them.  So we are not really dealing with
@@ -370,7 +398,7 @@ const char zRepositorySchema2[] =
 @ CREATE TABLE backlink(
 @   target TEXT,           -- Where the hyperlink points to
 @   srctype INT,           -- 0: check-in  1: ticket  2: wiki
-@   srcid INT,             -- rid for checkin or wiki.  tkt_id for ticket.
+@   srcid INT,             -- rid for check-in or wiki.  tkt_id for ticket.
 @   mtime TIMESTAMP,       -- time that the hyperlink was added. Julian day.
 @   UNIQUE(target, srctype, srcid)
 @ );
@@ -442,15 +470,13 @@ const char zRepositorySchema2[] =
 # define TAG_CLUSTER    7     /* A cluster */
 # define TAG_BRANCH     8     /* Value is name of the current branch */
 # define TAG_CLOSED     9     /* Do not display this check-in as a leaf */
-# define TAG_PARENT     10    /* Change to parentage on a checkin */
-#endif
-#if EXPORT_INTERFACE
-# define MAX_INT_TAG    16    /* The largest pre-assigned tag id */
+# define TAG_PARENT     10    /* Change to parentage on a check-in */
+# define TAG_NOTE       11    /* Extra text appended to a check-in comment */
 #endif
 
 /*
-** The schema for the locate FOSSIL database file found at the root
-** of very check-out.  This database contains the complete state of
+** The schema for the local FOSSIL database file found at the root
+** of every check-out.  This database contains the complete state of
 ** the checkout.
 */
 const char zLocalSchema[] =
@@ -481,14 +507,14 @@ const char zLocalSchema[] =
 @ -- Vfile.chnged is 2 if the file has been replaced from a different
 @ -- version by the merge and 3 if the file has been added by a merge.
 @ -- Vfile.chnged is 4|5 is the same as 2|3, but the operation has been
-@ -- done by an --integrate merge.  The difference between vfile.chnged==2|4
-@ -- and a regular add is that with vfile.chnged==2|4 we know that the
+@ -- done by an --integrate merge.  The difference between vfile.chnged==3|5
+@ -- and a regular add is that with vfile.chnged==3|5 we know that the
 @ -- current version of the file is already in the repository.
 @ --
 @ CREATE TABLE vfile(
 @   id INTEGER PRIMARY KEY,           -- ID of the checked out file
 @   vid INTEGER REFERENCES blob,      -- The baseline this file is part of.
-@   chnged INT DEFAULT 0,             -- 0:unchnged 1:edited 2:m-chng 3:m-add 4:i-chng 5:i-add
+@   chnged INT DEFAULT 0,  -- 0:unchng 1:edit 2:m-chng 3:m-add 4:i-chng 5:i-add
 @   deleted BOOLEAN DEFAULT 0,        -- True if deleted
 @   isexe BOOLEAN,                    -- True if file should be executable
 @   islink BOOLEAN,                   -- True if file should be symlink

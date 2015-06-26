@@ -30,7 +30,7 @@
 /*
 ** Convert a hex digit into a value between 0 and 15
 */
-static int hexValue(char c){
+int hex_digit_value(char c){
   if( c>='0' && c<='9' ){
     return c - '0';
   }else if( c>='a' && c<='f' ){
@@ -77,7 +77,7 @@ char *captcha_render(const char *zPw){
   k = 0;
   for(i=0; i<6; i++){
     for(j=0; zPw[j]; j++){
-      unsigned char v = hexValue(zPw[j]);
+      unsigned char v = hex_digit_value(zPw[j]);
       v = (aFont1[v] >> ((5-i)*4)) & 0xf;
       for(m=8; m>=1; m = m>>1){
         if( v & m ){
@@ -211,7 +211,7 @@ char *captcha_render(const char *zPw){
   k = 0;
   for(i=0; i<4; i++){
     for(j=0; zPw[j]; j++){
-      unsigned char v = hexValue(zPw[j]);
+      unsigned char v = hex_digit_value(zPw[j]);
       zChar = azFont2[4*v + i];
       for(m=0; zChar[m]; m++){
         z[k++] = zChar[m];
@@ -371,7 +371,7 @@ char *captcha_render(const char *zPw){
   for(i=0; i<6; i++){
     x = 0;
     for(j=0; zPw[j]; j++){
-      unsigned char v = hexValue(zPw[j]);
+      unsigned char v = hex_digit_value(zPw[j]);
       x = (x<<4) + v;
       switch( x ){
         case 0x7a:
@@ -416,6 +416,8 @@ char *captcha_render(const char *zPw){
 
 /*
 ** COMMAND: test-captcha
+**
+** Render an ASCII-art captcha for numbers given on the command line.
 */
 void test_captcha(void){
   int i;
@@ -450,7 +452,7 @@ unsigned int captcha_seed(void){
 ** The returned string is static and overwritten on each call to
 ** this function.
 */
-char const *captcha_decode(unsigned int seed){
+const char *captcha_decode(unsigned int seed){
   const char *zSecret;
   const char *z;
   Blob b;
@@ -519,7 +521,7 @@ int captcha_is_correct(void){
     if( c=='O' ) c = '0';
     z[i] = c;
   }
-  if( memcmp(zDecode,z,8)!=0 ) return 0;
+  if( strncmp(zDecode,z,8)!=0 ) return 0;
   return 1;
 }
 
@@ -553,6 +555,9 @@ void captcha_generate(int showButton){
 
 /*
 ** WEBPAGE: test-captcha
+** Test the captcha-generator by rendering the value of the name= query
+** parameter using ascii-art.  If name= is omitted, show a random 16-digit
+** hexadecimal number.
 */
 void captcha_test(void){
   const char *zPw = P("name");

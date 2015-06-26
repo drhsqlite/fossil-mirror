@@ -1,0 +1,143 @@
+<html>
+<head>
+<base href="$baseurl/$current_page" />
+<title>$<project_name>: $<title></title>
+<link rel="alternate" type="application/rss+xml" title="RSS Feed"
+      href="$home/timeline.rss" />
+<link rel="stylesheet" href="$stylesheet_url" type="text/css"
+      media="screen" />
+</head>
+<body>
+<div class="header">
+  <div class="logo">
+    <th1>
+    ##
+    ## NOTE: The purpose of this procedure is to take the base URL of the
+    ##       Fossil project and return the root of the entire web site using
+    ##       the same URI scheme as the base URL (e.g. http or https).
+    ##
+    proc getLogoUrl { baseurl } {
+      set idx(first) [string first // $baseurl]
+      if {$idx(first) != -1} {
+        ##
+        ## NOTE: Skip second slash.
+        ##
+        set idx(first+1) [expr {$idx(first) + 2}]
+        ##
+        ## NOTE: (part 1) The [string first] command does NOT actually
+        ##       support the optional startIndex argument as specified
+        ##       in the TH1 support manual; therefore, we fake it by
+        ##       using the [string range] command and then adding the
+        ##       necessary offset to the resulting index manually
+        ##       (below).  In Tcl, we could use the following instead:
+        ##
+        ##       set idx(next) [string first / $baseurl $idx(first+1)]
+        ##
+        set idx(nextRange) [string range $baseurl $idx(first+1) end]
+        set idx(next) [string first / $idx(nextRange)]
+        if {$idx(next) != -1} {
+          ##
+          ## NOTE: (part 2) Add the necessary offset to the result of
+          ##       the search for the next slash (i.e. the one after
+          ##       the initial search for the two slashes).
+          ##
+          set idx(next) [expr {$idx(next) + $idx(first+1)}]
+          ##
+          ## NOTE: Back up one character from the next slash.
+          ##
+          set idx(next-1) [expr {$idx(next) - 1}]
+          ##
+          ## NOTE: Extract the URI scheme and host from the base URL.
+          ##
+          set scheme [string range $baseurl 0 $idx(first)]
+          set host [string range $baseurl $idx(first+1) $idx(next-1)]
+          ##
+          ## NOTE: Try to stay in SSL mode if we are there now.
+          ##
+          if {[string compare $scheme http:/] == 0} {
+            set scheme http://
+          } else {
+            set scheme https://
+          }
+          set logourl $scheme$host/
+        } else {
+          set logourl $baseurl
+        }
+      } else {
+        set logourl $baseurl
+      }
+      return $logourl
+    }
+    set logourl [getLogoUrl $baseurl]
+    </th1>
+    <a href="$logourl">
+      <img src="$logo_image_url" border="0" alt="$project_name">
+    </a>
+  </div>
+  <div class="title">$<title></div>
+  <div class="status"><nobr><th1>
+     if {[info exists login]} {
+       puts "Logged in as $login"
+     } else {
+       puts "Not logged in"
+     }
+  </th1></nobr><small><div id="clock"></div></small></div>
+</div>
+<script>
+function updateClock(){
+  var e = document.getElementById("clock");
+  if(e){
+    var d = new Date();
+    function f(n) {
+      return n < 10 ? '0' + n : n;
+    }
+    e.innerHTML = d.getUTCFullYear()+ '-' +
+      f(d.getUTCMonth() + 1) + '-' +
+      f(d.getUTCDate())      + ' ' +
+      f(d.getUTCHours())     + ':' +
+      f(d.getUTCMinutes());
+    setTimeout("updateClock();",(60-d.getUTCSeconds())*1000);
+  }
+}
+updateClock();
+</script>
+<div class="mainmenu">
+<th1>
+proc menulink {url name} {
+  upvar current_page current
+  upvar home home
+  if {[string range $url 0 [string length $current]] eq "/$current"} {
+    html "<a href='$home$url' class='active'>$name</a>\n"
+  } else {
+    html "<a href='$home$url'>$name</a>\n"
+  }
+}
+menulink $index_page Home
+if {[anycap jor]} {
+  menulink /timeline Timeline
+}
+if {[anoncap oh]} {
+  menulink /dir?ci=tip Files
+}
+if {[anoncap o]} {
+  menulink  /brlist Branches
+  menulink  /taglist Tags
+}
+if {[anoncap r]} {
+  menulink /ticket Tickets
+}
+if {[anoncap j]} {
+  menulink /wiki Wiki
+}
+  menulink /sitemap More...
+if {[hascap s]} {
+  menulink /setup Admin
+} elseif {[hascap a]} {
+  menulink /setup_ulist Users
+}
+if {[info exists login]} {
+  menulink /login Logout
+} else {
+  menulink /login Login
+}
+</th1></div>

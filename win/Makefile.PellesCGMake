@@ -32,9 +32,9 @@
 #   gmake           3.80
 #   zlib sources    1.2.5
 #   Windows 7 Home Premium
-#  
+#
 
-#  
+#
 PellesCDir=c:\Programme\PellesC
 
 # Select between 32/64 bit code, default is 32 bit
@@ -77,21 +77,21 @@ RCFLAGS=$(INCLUDE) -D__POCC__=1 -D_M_X$(TARGETVERSION)
 
 # define the special utilities files, needed to generate
 # the automatically generated source files
-UTILS=translate.exe mkindex.exe makeheaders.exe
+UTILS=translate.exe mkindex.exe makeheaders.exe mkbuiltin.exe
 UTILS_OBJ=$(UTILS:.exe=.obj)
 UTILS_SRC=$(foreach uf,$(UTILS),$(SRCDIR)$(uf:.exe=.c))
 
-# define the sqlite files, which need special flags on compile
+# define the SQLite files, which need special flags on compile
 SQLITESRC=sqlite3.c
 ORIGSQLITESRC=$(foreach sf,$(SQLITESRC),$(SRCDIR)$(sf))
 SQLITEOBJ=$(foreach sf,$(SQLITESRC),$(sf:.c=.obj))
-SQLITEDEFINES=-DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_ENABLE_LOCKING_STYLE=0 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -DSQLITE_OMIT_DEPRECATED -DSQLITE_ENABLE_EXPLAIN_COMMENTS
+SQLITEDEFINES=-DNDEBUG=1 -DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_ENABLE_LOCKING_STYLE=0 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -DSQLITE_OMIT_DEPRECATED -DSQLITE_ENABLE_EXPLAIN_COMMENTS -DSQLITE_ENABLE_FTS4 -DSQLITE_ENABLE_FTS3_PARENTHESIS -DSQLITE_ENABLE_DBSTAT_VTAB -DSQLITE_WIN32_NO_ANSI
 
-# define the sqlite shell files, which need special flags on compile
+# define the SQLite shell files, which need special flags on compile
 SQLITESHELLSRC=shell.c
 ORIGSQLITESHELLSRC=$(foreach sf,$(SQLITESHELLSRC),$(SRCDIR)$(sf))
 SQLITESHELLOBJ=$(foreach sf,$(SQLITESHELLSRC),$(sf:.c=.obj))
-SQLITESHELLDEFINES=-Dmain=sqlite3_shell -DSQLITE_OMIT_LOAD_EXTENSION=1 -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE) -DSQLITE_SHELL_DBNAME_PROC=fossil_open -Daccess=file_access -Dgetenv=fossil_getenv -Dfopen=fossil_fopen
+SQLITESHELLDEFINES=-Dmain=sqlite3_shell -DSQLITE_OMIT_LOAD_EXTENSION=1 -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE) -DSQLITE_SHELL_DBNAME_PROC=fossil_open -Daccess=file_access -Dsystem=fossil_system -Dgetenv=fossil_getenv -Dfopen=fossil_fopen
 
 # define the th scripting files, which need special flags on compile
 THSRC=th.c th_lang.c
@@ -116,7 +116,7 @@ APPLICATION=fossil.exe
 
 # define the standard make target
 .PHONY:	default
-default:	page_index.h headers $(APPLICATION)
+default:	page_index.h builtin_data.h headers $(APPLICATION)
 
 # symbolic target to generate the source generate utils
 .PHONY:	utils
@@ -142,12 +142,15 @@ $(TRANSLATEDSRC):	%_.c:	$(SRCDIR)%.c translate.exe
 page_index.h:	$(TRANSLATEDSRC) mkindex.exe
 	mkindex.exe $(TRANSLATEDSRC) >$@
 
+builtin_data.h:	$(EXTRA_FILES) mkbuiltin.exe
+	mkbuiltin.exe --prefix $(SRCDIR)/ $(EXTRA_FILES) >$@
+
 # extracting version info from manifest
 VERSION.h:	version.exe ..\manifest.uuid ..\manifest ..\VERSION
-	version.exe ..\manifest.uuid ..\manifest ..\VERSION  > $@
+	version.exe ..\manifest.uuid ..\manifest ..\VERSION  >$@
 
 # generate the simplified headers
-headers: makeheaders.exe page_index.h VERSION.h ../src/sqlite3.h ../src/th.h VERSION.h
+headers: makeheaders.exe page_index.h builtin_data.h VERSION.h ../src/sqlite3.h ../src/th.h VERSION.h
 	makeheaders.exe $(foreach ts,$(TRANSLATEDSRC),$(ts):$(ts:_.c=.h)) ../src/sqlite3.h ../src/th.h VERSION.h
 	echo Done >$@
 

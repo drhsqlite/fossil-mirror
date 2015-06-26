@@ -199,6 +199,7 @@ void prompt_user(const char *zPrompt, Blob *pIn){
 **        user for command-line interaction.
 **
 **    %fossil user list
+**    %fossil user ls
 **
 **        List all users known to the repository
 **
@@ -263,7 +264,7 @@ void user_cmd(void){
         db_set("default-user", g.argv[3], 0);
       }
     }
-  }else if( n>=2 && strncmp(g.argv[2],"list",n)==0 ){
+  }else if(( n>=2 && strncmp(g.argv[2],"list",n)==0 ) || ( n>=2 && strncmp(g.argv[2],"ls",n)==0 )){
     Stmt q;
     db_prepare(&q, "SELECT login, info FROM user ORDER BY login");
     while( db_step(&q)==SQLITE_ROW ){
@@ -411,13 +412,18 @@ void user_hash_passwords_cmd(void){
 /*
 ** WEBPAGE: access_log
 **
-**    y=N      1: success only.  2: failure only.  3: both
-**    n=N      Number of entries to show
-**    o=N      Skip this many entries
+** Show login attempts, including timestamp and IP address.
+** Requires Admin privileges.
+**
+** Query parameters:
+**
+**    y=N      1: success only.  2: failure only.  3: both (default: 3)
+**    n=N      Number of entries to show (default: 200)
+**    o=N      Skip this many entries (default: 0)
 */
 void access_log_page(void){
   int y = atoi(PD("y","3"));
-  int n = atoi(PD("n","50"));
+  int n = atoi(PD("n","200"));
   int skip = atoi(PD("o","0"));
   Blob sql;
   Stmt q;
@@ -425,7 +431,7 @@ void access_log_page(void){
   int rc;
 
   login_check_credentials();
-  if( !g.perm.Admin ){ login_needed(); return; }
+  if( !g.perm.Admin ){ login_needed(0); return; }
   create_accesslog_table();
 
   if( P("delall") && P("delallbtn") ){
@@ -452,7 +458,7 @@ void access_log_page(void){
   }
   style_header("Access Log");
   blob_zero(&sql);
-  blob_appendf(&sql,
+  blob_append_sql(&sql,
     "SELECT uname, ipaddr, datetime(mtime%s), success"
     "  FROM accesslog", timeline_utc()
   );
@@ -461,16 +467,16 @@ void access_log_page(void){
   }else if( y==2 ){
     blob_append(&sql, "  WHERE NOT success", -1);
   }
-  blob_appendf(&sql,"  ORDER BY rowid DESC LIMIT %d OFFSET %d", n+1, skip);
+  blob_append_sql(&sql,"  ORDER BY rowid DESC LIMIT %d OFFSET %d", n+1, skip);
   if( skip ){
     style_submenu_element("Newer", "Newer entries",
               "%s/access_log?o=%d&n=%d&y=%d", g.zTop, skip>=n ? skip-n : 0,
               n, y);
   }
-  rc = db_prepare_ignore_error(&q, blob_str(&sql));
-  @ <center><table border="1" cellpadding="5">
-  @ <tr><th width="33%%">Date</th><th width="34%%">User</th>
-  @ <th width="33%%">IP Address</th></tr>
+  rc = db_prepare_ignore_error(&q, "%s", blob_sql_text(&sql));
+  @ <center><table border="1" cellpadding="5" id='logtable'>
+  @ <thead><tr><th width="33%%">Date</th><th width="34%%">User</th>
+  @ <th width="33%%">IP Address</th></tr></thead><tbody>
   while( rc==SQLITE_OK && db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
     const char *zIP = db_column_text(&q, 1);
@@ -493,7 +499,7 @@ void access_log_page(void){
     style_submenu_element("All", "All entries",
           "%s/access_log?n=10000000", g.zTop);
   }
-  @ </table></center>
+  @ </tbody></table></center>
   db_finalize(&q);
   @ <hr>
   @ <form method="post" action="%s(g.zTop)/access_log">
@@ -516,5 +522,6 @@ void access_log_page(void){
   @ Delete all entries</input></label>
   @ <input type="submit" name="delallbtn" value="Delete"></input>
   @ </form>
+  output_table_sorting_javascript("logtable", "Ttt", 1);
   style_footer();
 }

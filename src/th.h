@@ -1,6 +1,6 @@
 
 /* This header file defines the external interface to the custom Scripting
-** Language (TH) interpreter.  TH is very similar to TCL but is not an
+** Language (TH) interpreter.  TH is very similar to Tcl but is not an
 ** exact clone.
 */
 
@@ -141,6 +141,12 @@ int Th_SetResultInt(Th_Interp *, int);
 int Th_SetResultDouble(Th_Interp *, double);
 
 /*
+** Functions for handling command and variable introspection.
+*/
+int Th_ListAppendCommands(Th_Interp *, char **, int *);
+int Th_ListAppendVariables(Th_Interp *, char **, int *);
+
+/*
 ** Drop in replacements for the corresponding standard library functions.
 */
 int th_strlen(const char *);
@@ -168,7 +174,7 @@ int th_register_testvfs(Th_Interp *interp);             /* th_testvfs.c */
 */
 int th_register_tcl(Th_Interp *, void *);
 int unloadTcl(Th_Interp *, void *);
-int evaluateTclWithEvents(Th_Interp *, void *, const char *, int, int);
+int evaluateTclWithEvents(Th_Interp *,void *,const char *,int,int,int,int);
 #endif
 
 /*

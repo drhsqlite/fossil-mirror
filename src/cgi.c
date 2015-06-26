@@ -54,6 +54,7 @@
 #define PD(x,y)     cgi_parameter((x),(y))
 #define PT(x)       cgi_parameter_trimmed((x),0)
 #define PDT(x,y)    cgi_parameter_trimmed((x),(y))
+#define PB(x)       cgi_parameter_boolean(x)
 
 
 /*
@@ -73,13 +74,13 @@
 
 /*
 ** The HTTP reply is generated in two pieces: the header and the body.
-** These pieces are generated separately because they are not necessary
+** These pieces are generated separately because they are not necessarily
 ** produced in order.  Parts of the header might be built after all or
 ** part of the body.  The header and body are accumulated in separate
 ** Blob structures then output sequentially once everything has been
 ** built.
 **
-** The cgi_destination() interface switch between the buffers.
+** The cgi_destination() interface switches between the buffers.
 */
 static Blob cgiContent[2] = { BLOB_INITIALIZER, BLOB_INITIALIZER };
 static Blob *pContent = &cgiContent[0];
@@ -109,6 +110,9 @@ void cgi_destination(int dest){
 */
 int cgi_header_contains(const char *zNeedle){
   return strstr(blob_str(&cgiContent[0]), zNeedle)!=0;
+}
+int cgi_body_contains(const char *zNeedle){
+  return strstr(blob_str(&cgiContent[1]), zNeedle)!=0;
 }
 
 /*
@@ -279,8 +283,8 @@ static int check_cache_control(void){
 static int is_gzippable(void){
   if( strstr(PD("HTTP_ACCEPT_ENCODING", ""), "gzip")==0 ) return 0;
   return strncmp(zContentType, "text/", 5)==0
-    || strglob("application/*xml", zContentType)
-    || strglob("application/*javascript", zContentType);
+    || sqlite3_strglob("application/*xml", zContentType)==0
+    || sqlite3_strglob("application/*javascript", zContentType)==0;
 }
 
 /*
@@ -308,6 +312,7 @@ void cgi_reply(void){
     fprintf(g.httpOut, "HTTP/1.0 %d %s\r\n", iReplyStatus, zReplyStatus);
     fprintf(g.httpOut, "Date: %s\r\n", cgi_rfc822_datestamp(time(0)));
     fprintf(g.httpOut, "Connection: close\r\n");
+    fprintf(g.httpOut, "X-UA-Compatible: IE=edge\r\n");
   }else{
     fprintf(g.httpOut, "Status: %d %s\r\n", iReplyStatus, zReplyStatus);
   }
@@ -343,9 +348,7 @@ void cgi_reply(void){
     ** stale cache is the least of the problem. So we provide an Expires
     ** header set to a reasonable period (default: one week).
     */
-    /*time_t expires = time(0) + atoi(db_config("constant_expires","604800"));*/
-    time_t expires = time(0) + 604800;
-    fprintf(g.httpOut, "Expires: %s\r\n", cgi_rfc822_datestamp(expires));
+    fprintf(g.httpOut, "Cache-control: max-age=28800\r\n");
   }else{
     fprintf(g.httpOut, "Cache-control: no-cache\r\n");
   }
@@ -436,7 +439,8 @@ static struct QParam {   /* One entry for each query parameter or cookie */
   const char *zName;        /* Parameter or cookie name */
   const char *zValue;       /* Value of the query parameter or cookie */
   int seq;                  /* Order of insertion */
-  int isQP;                 /* True for query parameters */
+  char isQP;                /* True for query parameters */
+  char cTag;                /* Tag on query parameters */
 } *aParamQP;             /* An array of all parameters and cookies */
 
 /*
@@ -463,6 +467,7 @@ void cgi_set_parameter_nocopy(const char *zName, const char *zValue, int isQP){
   }
   aParamQP[nUsedQP].seq = seqQP++;
   aParamQP[nUsedQP].isQP = isQP;
+  aParamQP[nUsedQP].cTag = 0;
   nUsedQP++;
   sortQP = 1;
 }
@@ -490,6 +495,17 @@ void cgi_replace_parameter(const char *zName, const char *zValue){
     }
   }
   cgi_set_parameter_nocopy(zName, zValue, 0);
+}
+void cgi_replace_query_parameter(const char *zName, const char *zValue){
+  int i;
+  for(i=0; i<nUsedQP; i++){
+    if( fossil_strcmp(aParamQP[i].zName,zName)==0 ){
+      aParamQP[i].zValue = zValue;
+      assert( aParamQP[i].isQP );
+      return;
+    }
+  }
+  cgi_set_parameter_nocopy(zName, zValue, 1);
 }
 
 /*
@@ -752,7 +768,7 @@ static int cson_data_source_FILE_n( void * state,
       if( st->pos >= st->len ){
         *n = 0;
         return 0;
-      } else if( !*n || ((st->pos + *n) > st->len) ){
+      }else if( !*n || ((st->pos + *n) > st->len) ){
         return cson_rc.RangeError;
       }else{
         unsigned int rsz = (unsigned int)fread( dest, 1, *n, st->fh );
@@ -1066,6 +1082,16 @@ char *cgi_parameter_trimmed(const char *zName, const char *zDefault){
 }
 
 /*
+** Return true if the CGI parameter zName exists and is not equal to 0,
+** or "no" or "off".
+*/
+int cgi_parameter_boolean(const char *zName){
+  const char *zIn = cgi_parameter(zName, 0);
+  if( zIn==0 ) return 0;
+  return zIn[0]==0 || is_truth(zIn);
+}
+
+/*
 ** Return the name of the i-th CGI parameter.  Return NULL if there
 ** are fewer than i registered CGI parameters.
 */
@@ -1142,17 +1168,45 @@ void cgi_print_all(int showAll){
 }
 
 /*
-** Export all query parameters (but not cookies or environment variables)
-** as hidden values of a form.
+** Export all untagged query parameters (but not cookies or environment
+** variables) as hidden values of a form.
 */
 void cgi_query_parameters_to_hidden(void){
   int i;
   const char *zN, *zV;
   for(i=0; i<nUsedQP; i++){
-    if( aParamQP[i].isQP==0 ) continue;
+    if( aParamQP[i].isQP==0 || aParamQP[i].cTag ) continue;
     zN = aParamQP[i].zName;
     zV = aParamQP[i].zValue;
     @ <input type="hidden" name="%h(zN)" value="%h(zV)">
+  }
+}
+
+/*
+** Export all untagged query parameters (but not cookies or environment
+** variables) to the HQuery object.
+*/
+void cgi_query_parameters_to_url(HQuery *p){
+  int i;
+  for(i=0; i<nUsedQP; i++){
+    if( aParamQP[i].isQP==0 || aParamQP[i].cTag ) continue;
+    url_add_parameter(p, aParamQP[i].zName, aParamQP[i].zValue);
+  }
+}
+
+/*
+** Tag query parameter zName so that it is not exported by
+** cgi_query_parameters_to_hidden().  Or if zName==0, then
+** untag all query parameters.
+*/
+void cgi_tag_query_parameter(const char *zName){
+  int i;
+  if( zName==0 ){
+    for(i=0; i<nUsedQP; i++) aParamQP[i].cTag = 0;
+  }else{
+    for(i=0; i<nUsedQP; i++){
+      if( strcmp(zName,aParamQP[i].zName)==0 ) aParamQP[i].cTag = 1;
+    }
   }
 }
 
@@ -1559,7 +1613,7 @@ void cgi_handle_ssh_transport(const char *zCmd){
   if( zToken && strlen(zToken)==0 ){
     /* look for path to fossil */
     if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
-      if ( zCmd==0 ){
+      if( zCmd==0 ){
         malformed_request("missing fossil command");
       }else{
         /* no new command so exit */
@@ -1597,11 +1651,10 @@ void cgi_handle_scgi_request(void){
   char *zToFree;
   int nHdr = 0;
   int nRead;
-  int n, m;
-  char c;
+  int c, n, m;
 
-  while( (c = fgetc(g.httpIn))!=EOF && fossil_isdigit(c) ){
-    nHdr = nHdr*10 + c - '0';
+  while( (c = fgetc(g.httpIn))!=EOF && fossil_isdigit((char)c) ){
+    nHdr = nHdr*10 + (char)c - '0';
   }
   if( nHdr<16 ) malformed_request("SCGI header too short");
   zToFree = zHdr = fossil_malloc(nHdr);
@@ -1628,6 +1681,9 @@ void cgi_handle_scgi_request(void){
 */
 #define HTTP_SERVER_LOCALHOST      0x0001     /* Bind to 127.0.0.1 only */
 #define HTTP_SERVER_SCGI           0x0002     /* SCGI instead of HTTP */
+#define HTTP_SERVER_HAD_REPOSITORY 0x0004     /* Was the repository open? */
+#define HTTP_SERVER_HAD_CHECKOUT   0x0008     /* Was a checkout open? */
+#define HTTP_SERVER_REPOLIST       0x0010     /* Allow repo listing */
 
 #endif /* INTERFACE */
 
@@ -1712,10 +1768,11 @@ int cgi_http_server(
      (flags & HTTP_SERVER_SCGI)!=0?"SCGI":"HTTP",  iPort);
   fflush(stdout);
   if( zBrowser ){
-    zBrowser = mprintf(zBrowser, iPort);
+    assert( strstr(zBrowser,"%d")!=0 );
+    zBrowser = mprintf(zBrowser /*works-like:"%d"*/, iPort);
 #if defined(__CYGWIN__)
     /* On Cygwin, we can do better than "echo" */
-    if( memcmp(zBrowser, "echo ", 5)==0 ){
+    if( strncmp(zBrowser, "echo ", 5)==0 ){
       wchar_t *wUrl = fossil_utf8_to_unicode(zBrowser+5);
       wUrl[wcslen(wUrl)-2] = 0; /* Strip terminating " &" */
       if( (size_t)ShellExecuteW(0, L"open", wUrl, 0, 0, 1)<33 ){
@@ -1754,7 +1811,7 @@ int cgi_http_server(
           close(1);
           fd = dup(connection);
           if( fd!=1 ) nErr++;
-          if( !g.fHttpTrace && !g.fSqlTrace ){
+          if( !g.fAnyTrace ){
             close(2);
             fd = dup(connection);
             if( fd!=2 ) nErr++;

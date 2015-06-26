@@ -560,8 +560,8 @@ int content_put_ex(
     /* We are creating a new entry */
     db_prepare(&s1,
       "INSERT INTO blob(rcvid,size,uuid,content)"
-      "VALUES(%d,%d,'%b',:data)",
-       g.rcvid, size, &hash
+      "VALUES(%d,%d,'%q',:data)",
+       g.rcvid, size, blob_str(&hash)
     );
     db_bind_blob(&s1, ":data", &cmpr);
     db_exec(&s1);
@@ -569,10 +569,10 @@ int content_put_ex(
     if( !pBlob ){
       db_multi_exec("INSERT OR IGNORE INTO phantom VALUES(%d)", rid);
     }
-    if( g.markPrivate || isPrivate ){
-      db_multi_exec("INSERT INTO private VALUES(%d)", rid);
-      markAsUnclustered = 0;
-    }
+  }
+  if( g.markPrivate || isPrivate ){
+    db_multi_exec("INSERT INTO private VALUES(%d)", rid);
+    markAsUnclustered = 0;
   }
   if( nBlob==0 ) blob_reset(&cmpr);
 

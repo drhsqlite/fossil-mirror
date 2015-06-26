@@ -219,7 +219,7 @@ void scan_for_func(char *zLine){
   nHelp = 0;
   return;
 
-page_skip:   
+page_skip:
    for(i=nFixed; i<nUsed; i++){
       fprintf(stderr,"%s:%d: skipping page \"%s\"\n",
          zFile, nLine, aEntry[i].zPath);
@@ -285,7 +285,7 @@ void build_table(void){
     const char *z = aEntry[i].zPath;
     int n = strlen(z);
     int cmdFlags = (1==aEntry[i].eType) ? 0x01 : 0x08;
-    if(0x01==cmdFlags){
+    if( 0x01==cmdFlags ){
       if( z[n-1]=='*' ){
         n--;
         cmdFlags = 0x02;
@@ -305,6 +305,7 @@ void build_table(void){
     if( aEntry[i].zIf ) printf("#endif\n");
   }
   printf("};\n");
+  printf("#define FOSSIL_FIRST_CMD (sizeof(aWebpage)/sizeof(aWebpage[0]))\n");
   for(i=0; i<nFixed; i++){
     char *z = aEntry[i].zHelp;
     if( z && z[0] ){
@@ -328,7 +329,7 @@ void build_table(void){
   }
   puts("struct CmdHelp {"
        "int eType; "
-       "char const * zText;"
+       "const char *zText;"
        "};");
   puts("static struct CmdHelp aCmdHelp[] = {");
   for(i=0; i<nFixed; i++){
@@ -362,7 +363,7 @@ void process_file(void){
     scan_for_func(zLine);
   }
   fclose(in);
-  nUsed = nFixed; 
+  nUsed = nFixed;
 }
 
 int main(int argc, char **argv){

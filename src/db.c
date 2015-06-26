@@ -67,10 +67,6 @@ static void db_err(const char *zFormat, ...){
   va_list ap;
   char *z;
   int rc = 1;
-  static const char zRebuildMsg[] =
-      "If you have recently updated your fossil executable, you might\n"
-      "need to run \"fossil all rebuild\" to bring the repository\n"
-      "schemas up to date.\n";
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
@@ -90,11 +86,10 @@ static void db_err(const char *zFormat, ...){
   }
   else if( g.cgiOutput ){
     g.cgiOutput = 0;
-    cgi_printf("<h1>Database Error</h1>\n"
-               "<pre>%h</pre>\n<p>%s</p>\n", z, zRebuildMsg);
+    cgi_printf("<h1>Database Error</h1>\n<p>%h</p>\n", z);
     cgi_reply();
   }else{
-    fprintf(stderr, "%s: %s\n\n%s", g.argv[0], z, zRebuildMsg);
+    fprintf(stderr, "%s: %s\n", g.argv[0], z);
   }
   free(z);
   db_force_rollback();
@@ -166,10 +161,12 @@ void db_end_transaction(int rollbackFlag){
   if( db.nBegin==0 ){
     int i;
     if( db.doRollback==0 && db.nPriorChanges<sqlite3_total_changes(g.db) ){
+      i = 0;
       while( db.nBeforeCommit ){
         db.nBeforeCommit--;
-        sqlite3_exec(g.db, db.azBeforeCommit[db.nBeforeCommit], 0, 0, 0);
-        sqlite3_free(db.azBeforeCommit[db.nBeforeCommit]);
+        sqlite3_exec(g.db, db.azBeforeCommit[i], 0, 0, 0);
+        sqlite3_free(db.azBeforeCommit[i]);
+        i++;
       }
       leaf_do_pending_checks();
     }
@@ -179,7 +176,7 @@ void db_end_transaction(int rollbackFlag){
     while( db.pAllStmt ){
       db_finalize(db.pAllStmt);
     }
-    db_multi_exec(db.doRollback ? "ROLLBACK" : "COMMIT");
+    db_multi_exec("%s", db.doRollback ? "ROLLBACK" : "COMMIT");
     db.doRollback = 0;
   }
 }
@@ -426,6 +423,9 @@ int db_changes(void){
 ** Extract text, integer, or blob values from the N-th column of the
 ** current row.
 */
+int db_column_type(Stmt *pStmt, int N){
+  return sqlite3_column_type(pStmt->pStmt, N);
+}
 int db_column_bytes(Stmt *pStmt, int N){
   return sqlite3_column_bytes(pStmt->pStmt, N);
 }
@@ -490,6 +490,46 @@ int db_exec(Stmt *pStmt){
 }
 
 /*
+** Print the output of one or more SQL queries on standard output.
+** This routine is used for debugging purposes only.
+*/
+int db_debug(const char *zSql, ...){
+  Blob sql;
+  int rc = SQLITE_OK;
+  va_list ap;
+  const char *z, *zEnd;
+  sqlite3_stmt *pStmt;
+  blob_init(&sql, 0, 0);
+  va_start(ap, zSql);
+  blob_vappendf(&sql, zSql, ap);
+  va_end(ap);
+  z = blob_str(&sql);
+  while( rc==SQLITE_OK && z[0] ){
+    pStmt = 0;
+    rc = sqlite3_prepare_v2(g.db, z, -1, &pStmt, &zEnd);
+    if( rc!=SQLITE_OK ) break;
+    if( pStmt ){
+      int nRow = 0;
+      db.nPrepare++;
+      while( sqlite3_step(pStmt)==SQLITE_ROW ){
+        int i, n;
+        if( nRow++ > 0 ) fossil_print("\n");
+        n = sqlite3_column_count(pStmt);
+        for(i=0; i<n; i++){
+          fossil_print("%s = %s\n", sqlite3_column_name(pStmt, i),
+                       sqlite3_column_text(pStmt,i));
+        }
+      }
+      rc = sqlite3_finalize(pStmt);
+      if( rc ) db_err("%s: {%.*s}", sqlite3_errmsg(g.db), (int)(zEnd-z), z);
+    }
+    z = zEnd;
+  }
+  blob_reset(&sql);
+  return rc;
+}
+
+/*
 ** Execute multiple SQL statements.
 */
 int db_multi_exec(const char *zSql, ...){
@@ -506,8 +546,9 @@ int db_multi_exec(const char *zSql, ...){
   while( rc==SQLITE_OK && z[0] ){
     pStmt = 0;
     rc = sqlite3_prepare_v2(g.db, z, -1, &pStmt, &zEnd);
-    if( rc!=SQLITE_OK ) break;
-    if( pStmt ){
+    if( rc ){
+      db_err("%s: {%s}", sqlite3_errmsg(g.db), z);
+    }else if( pStmt ){
       db.nPrepare++;
       while( sqlite3_step(pStmt)==SQLITE_ROW ){}
       rc = sqlite3_finalize(pStmt);
@@ -630,7 +671,7 @@ void db_blob(Blob *pResult, const char *zSql, ...){
 ** obtained from malloc().  If the result set is empty, return
 ** zDefault instead.
 */
-char *db_text(char const *zDefault, const char *zSql, ...){
+char *db_text(const char *zDefault, const char *zSql, ...){
   va_list ap;
   Stmt s;
   char *z;
@@ -666,13 +707,13 @@ void db_init_database(
   sqlite3_exec(db, "BEGIN EXCLUSIVE", 0, 0, 0);
   rc = sqlite3_exec(db, zSchema, 0, 0, 0);
   if( rc!=SQLITE_OK ){
-    db_err(sqlite3_errmsg(db));
+    db_err("%s", sqlite3_errmsg(db));
   }
   va_start(ap, zSchema);
   while( (zSql = va_arg(ap, const char*))!=0 ){
     rc = sqlite3_exec(db, zSql, 0, 0, 0);
     if( rc!=SQLITE_OK ){
-      db_err(sqlite3_errmsg(db));
+      db_err("%s", sqlite3_errmsg(db));
     }
   }
   va_end(ap);
@@ -694,6 +735,14 @@ void db_now_function(
 
 /*
 ** Function to return the check-in time for a file.
+**
+**      checkin_mtime(CKINID,RID)
+**
+** CKINID:  The RID for the manifest for a check-in.
+** RID:     The RID of a file in CKINID for which the check-in time
+**          is desired.
+**
+** Returns: The check-in time in seconds since 1970.
 */
 void db_checkin_mtime_function(
   sqlite3_context *context,
@@ -706,6 +755,58 @@ void db_checkin_mtime_function(
   if( rc==0 ){
     sqlite3_result_int64(context, mtime);
   }
+}
+
+/*
+** SQL wrapper around the symbolic_name_to_rid() C-language API.
+** Examples:
+**
+**     symbolic_name_to_rid('trunk');
+**     symbolic_name_to_rid('trunk','w');
+**
+*/
+void db_sym2rid_function(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *arg;
+  const char *type;
+  if(1 != argc && 2 != argc){
+    sqlite3_result_error(context, "Expecting one or two arguments", -1);
+    return;
+  }
+  arg = (const char*)sqlite3_value_text(argv[0]);
+  if(!arg){
+    sqlite3_result_error(context, "Expecting a STRING argument", -1);
+  }else{
+    int rid;
+    type = (2==argc) ? (const char*)sqlite3_value_text(argv[1]) : 0;
+    if(!type) type = "ci";
+    rid = symbolic_name_to_rid( arg, type );
+    if(rid<0){
+      sqlite3_result_error(context, "Symbolic name is ambiguous.", -1);
+    }else if(0==rid){
+      sqlite3_result_null(context);
+    }else{
+      sqlite3_result_int64(context, rid);
+    }
+  }
+}
+
+/*
+** Register the SQL functions that are useful both to the internal
+** representation and to the "fossil sql" command.
+*/
+void db_add_aux_functions(sqlite3 *db){
+  sqlite3_create_function(db, "checkin_mtime", 2, SQLITE_UTF8, 0,
+                          db_checkin_mtime_function, 0, 0);
+  sqlite3_create_function(db, "symbolic_name_to_rid", 1, SQLITE_UTF8, 0,
+                          db_sym2rid_function, 0, 0);
+  sqlite3_create_function(db, "symbolic_name_to_rid", 2, SQLITE_UTF8, 0,
+                          db_sym2rid_function, 0, 0);
+  sqlite3_create_function(db, "now", 0, SQLITE_UTF8, 0,
+                                 db_now_function, 0, 0);
 }
 
 
@@ -728,9 +829,6 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   }
   sqlite3_busy_timeout(db, 5000);
   sqlite3_wal_autocheckpoint(db, 1);  /* Set to checkpoint frequently */
-  sqlite3_create_function(db, "now", 0, SQLITE_UTF8, 0, db_now_function, 0, 0);
-  sqlite3_create_function(db, "checkin_mtime", 2, SQLITE_UTF8, 0,
-                          db_checkin_mtime_function, 0, 0);
   sqlite3_create_function(db, "user", 0, SQLITE_UTF8, 0, db_sql_user, 0, 0);
   sqlite3_create_function(db, "cgi", 1, SQLITE_UTF8, 0, db_sql_cgi, 0, 0);
   sqlite3_create_function(db, "cgi", 2, SQLITE_UTF8, 0, db_sql_cgi, 0, 0);
@@ -742,7 +840,9 @@ LOCAL sqlite3 *db_open(const char *zDbName){
     db, "if_selected", 3, SQLITE_UTF8, 0, file_is_selected,0,0
   );
   if( g.fSqlTrace ) sqlite3_trace(db, db_sql_trace, 0);
-  re_add_sql_func(db);
+  db_add_aux_functions(db);
+  re_add_sql_func(db);  /* The REGEXP operator */
+  foci_register(db);    /* The "files_of_checkin" virtual table */
   sqlite3_exec(db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
   return db;
 }
@@ -752,7 +852,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
 ** Detaches the zLabel database.
 */
 void db_detach(const char *zLabel){
-  db_multi_exec("DETACH DATABASE %s", zLabel);
+  db_multi_exec("DETACH DATABASE %Q", zLabel);
 }
 
 /*
@@ -760,7 +860,7 @@ void db_detach(const char *zLabel){
 ** the name zLabel.
 */
 void db_attach(const char *zDbName, const char *zLabel){
-  db_multi_exec("ATTACH DATABASE %Q AS %s", zDbName, zLabel);
+  db_multi_exec("ATTACH DATABASE %Q AS %Q", zDbName, zLabel);
 }
 
 /*
@@ -827,26 +927,31 @@ void db_open_config(int useAttach){
     if( useAttach==g.useAttach ) return;
     db_close_config();
   }
+  zHome = fossil_getenv("FOSSIL_HOME");
 #if defined(_WIN32) || defined(__CYGWIN__)
-  zHome = fossil_getenv("LOCALAPPDATA");
   if( zHome==0 ){
-    zHome = fossil_getenv("APPDATA");
+    zHome = fossil_getenv("LOCALAPPDATA");
     if( zHome==0 ){
-      char *zDrive = fossil_getenv("HOMEDRIVE");
-      zHome = fossil_getenv("HOMEPATH");
-      if( zDrive && zHome ) zHome = mprintf("%s%s", zDrive, zHome);
+      zHome = fossil_getenv("APPDATA");
+      if( zHome==0 ){
+        char *zDrive = fossil_getenv("HOMEDRIVE");
+        char *zPath = fossil_getenv("HOMEPATH");
+        if( zDrive && zPath ) zHome = mprintf("%s%s", zDrive, zPath);
+      }
     }
   }
   if( zHome==0 ){
-    fossil_fatal("cannot locate home directory - "
-                "please set the LOCALAPPDATA or APPDATA or HOMEPATH "
-                "environment variables");
+    fossil_fatal("cannot locate home directory - please set the "
+                 "FOSSIL_HOME, LOCALAPPDATA, APPDATA, or HOMEPATH "
+                 "environment variables");
   }
 #else
-  zHome = fossil_getenv("HOME");
   if( zHome==0 ){
-    fossil_fatal("cannot locate home directory - "
-                 "please set the HOME environment variable");
+    zHome = fossil_getenv("HOME");
+  }
+  if( zHome==0 ){
+    fossil_fatal("cannot locate home directory - please set the "
+                 "FOSSIL_HOME or HOME environment variables");
   }
 #endif
   if( file_isdir(zHome)!=1 ){
@@ -879,6 +984,32 @@ void db_open_config(int useAttach){
   g.zConfigDbName = zDbName;
 }
 
+/*
+** Return TRUE if zTable exists.
+*/
+int db_table_exists(
+  const char *zDb,      /* One of: NULL, "configdb", "localdb", "repository" */
+  const char *zTable    /* Name of table */
+){
+  return sqlite3_table_column_metadata(g.db,
+              zDb ? db_name(zDb) : 0, zTable, 0,
+              0, 0, 0, 0, 0)==SQLITE_OK;
+}
+
+/*
+** Return TRUE if zTable exists and contains column zColumn.
+** Return FALSE if zTable does not exist or if zTable exists
+** but lacks zColumn.
+*/
+int db_table_has_column(
+  const char *zDb,       /* One of: NULL, "config", "localdb", "repository" */
+  const char *zTable,    /* Name of table */
+  const char *zColumn    /* Name of column in table */
+){
+  return sqlite3_table_column_metadata(g.db,
+              zDb ? db_name(zDb) : 0, zTable, zColumn,
+              0, 0, 0, 0, 0)==SQLITE_OK;
+}
 
 /*
 ** Returns TRUE if zTable exists in the local database but lacks column
@@ -888,17 +1019,8 @@ static int db_local_table_exists_but_lacks_column(
   const char *zTable,
   const char *zColumn
 ){
-  char *zDef = db_text(0, "SELECT sql FROM %s.sqlite_master"
-                   " WHERE name=='%s' /*scan*/",
-                   db_name("localdb"), zTable);
-  int rc = 0;
-  if( zDef ){
-    char *zPattern = mprintf("* %s *", zColumn);
-    rc = strglob(zPattern, zDef)==0;
-    fossil_free(zPattern);
-    fossil_free(zDef);
-  }
-  return rc;
+  return db_table_exists(db_name("localdb"), zTable)
+      && !db_table_has_column(db_name("localdb"), zTable, zColumn);
 }
 
 /*
@@ -921,7 +1043,7 @@ static int isValidLocalDb(const char *zDbName){
   ** add it now.   This code added on 2010-03-06.  After all users have
   ** upgraded, this code can be safely deleted.
   */
-  if( !strglob("* isexe *", zVFileDef) ){
+  if( sqlite3_strglob("* isexe *", zVFileDef)!=0 ){
     db_multi_exec("ALTER TABLE vfile ADD COLUMN isexe BOOLEAN DEFAULT 0");
   }
 
@@ -929,7 +1051,7 @@ static int isValidLocalDb(const char *zDbName){
   ** add them now.   This code added on 2011-01-17 and 2011-08-27.
   ** After all users have upgraded, this code can be safely deleted.
   */
-  if( !strglob("* islink *", zVFileDef) ){
+  if( sqlite3_strglob("* islink *", zVFileDef)!=0 ){
     db_multi_exec("ALTER TABLE vfile ADD COLUMN islink BOOLEAN DEFAULT 0");
     if( db_local_table_exists_but_lacks_column("stashfile", "isLink") ){
       db_multi_exec("ALTER TABLE stashfile ADD COLUMN isLink BOOL DEFAULT 0");
@@ -964,7 +1086,7 @@ static int isValidLocalDb(const char *zDbName){
 int db_open_local(const char *zDbName){
   int i, n;
   char zPwd[2000];
-  static const char aDbName[][10] = { "_FOSSIL_", ".fslckout", ".fos" };
+  static const char *(aDbName[]) = { "_FOSSIL_", ".fslckout", ".fos" };
 
   if( g.localOpen ) return 1;
   file_getcwd(zPwd, sizeof(zPwd)-20);
@@ -974,6 +1096,7 @@ int db_open_local(const char *zDbName){
       sqlite3_snprintf(sizeof(zPwd)-n, &zPwd[n], "/%s", aDbName[i]);
       if( isValidLocalDb(zPwd) ){
         /* Found a valid checkout database file */
+        g.zLocalDbName = mprintf("%s", zPwd);
         zPwd[n] = 0;
         while( n>0 && zPwd[n-1]=='/' ){
           n--;
@@ -1052,6 +1175,33 @@ void db_open_repository(const char *zDbName){
   g.repositoryOpen = 1;
   /* Cache "allow-symlinks" option, because we'll need it on every stat call */
   g.allowSymlinks = db_get_boolean("allow-symlinks", 0);
+  g.zAuxSchema = db_get("aux-schema","");
+
+  /* Verify that the PLINK table has a new column added by the
+  ** 2014-11-28 schema change.  Create it if necessary.  This code
+  ** can be removed in the future, once all users have upgraded to the
+  ** 2014-11-28 or later schema.
+  */
+  if( !db_table_has_column("repository","plink","baseid") ){
+    db_multi_exec(
+      "ALTER TABLE %s.plink ADD COLUMN baseid;", db_name("repository")
+    );
+  }
+
+  /* Verify that the MLINK table has the newer columns added by the
+  ** 2015-01-24 schema change.  Create them if necessary.  This code
+  ** can be removed in the future, once all users have upgraded to the
+  ** 2015-01-24 or later schema.
+  */
+  if( !db_table_has_column("repository","mlink","isaux") ){
+    db_begin_transaction();
+    db_multi_exec(
+      "ALTER TABLE %s.mlink ADD COLUMN pmid INTEGER DEFAULT 0;"
+      "ALTER TABLE %s.mlink ADD COLUMN isaux BOOLEAN DEFAULT 0;",
+      db_name("repository"), db_name("repository")
+    );
+    db_end_transaction(0);
+  }
 }
 
 /*
@@ -1071,6 +1221,9 @@ void db_open_repository(const char *zDbName){
 */
 void db_find_and_open_repository(int bFlags, int nArgUsed){
   const char *zRep = find_repository_option();
+  if( zRep && file_isdir(zRep)==1 ){
+    goto rep_not_found;
+  }
   if( zRep==0 && nArgUsed && g.argc==nArgUsed+1 ){
     zRep = g.argv[nArgUsed];
   }
@@ -1107,7 +1260,8 @@ rep_not_found:
 const char *db_name(const char *zDb){
   assert( fossil_strcmp(zDb,"localdb")==0
        || fossil_strcmp(zDb,"configdb")==0
-       || fossil_strcmp(zDb,"repository")==0 );
+       || fossil_strcmp(zDb,"repository")==0
+       || fossil_strcmp(zDb,"temp")==0 );
   if( fossil_strcmp(zDb, g.zMainDbType)==0 ) zDb = "main";
   return zDb;
 }
@@ -1116,9 +1270,8 @@ const char *db_name(const char *zDb){
 ** Return TRUE if the schema is out-of-date
 */
 int db_schema_is_outofdate(void){
-  return db_exists("SELECT 1 FROM config"
-                   " WHERE name='aux-schema'"
-                   "   AND value<>'%s'", AUX_SCHEMA);
+  return strcmp(g.zAuxSchema,AUX_SCHEMA_MIN)<0
+      || strcmp(g.zAuxSchema,AUX_SCHEMA_MAX)>0;
 }
 
 /*
@@ -1137,10 +1290,10 @@ void db_verify_schema(void){
 #ifdef FOSSIL_ENABLE_JSON
     g.json.resultCode = FSL_JSON_E_DB_NEEDS_REBUILD;
 #endif
-    fossil_warning("incorrect repository schema version");
-    fossil_warning("your repository has schema version \"%s\" "
-          "but this binary expects version \"%s\"",
-          db_get("aux-schema",0), AUX_SCHEMA);
+    fossil_warning("incorrect repository schema version: "
+          "current repository schema version is \"%s\" "
+          "but need versions between \"%s\" and \"%s\".",
+          g.zAuxSchema, AUX_SCHEMA_MIN, AUX_SCHEMA_MAX);
     fossil_fatal("run \"fossil rebuild\" to fix this problem");
   }
 }
@@ -1172,6 +1325,7 @@ void move_repo_cmd(void){
   }
   db_open_or_attach(zRepo, "test_repo", 0);
   db_lset("repository", blob_str(&repo));
+  db_record_repository_filename(blob_str(&repo));
   db_close(1);
 }
 
@@ -1227,15 +1381,28 @@ void db_close(int reportErrors){
   }
   db_end_transaction(1);
   pStmt = 0;
-  if( reportErrors ){
-    while( (pStmt = sqlite3_next_stmt(g.db, pStmt))!=0 ){
-      fossil_warning("unfinalized SQL statement: [%s]", sqlite3_sql(pStmt));
+  db_close_config();
+
+  /* If the localdb (the check-out database) is open and if it has
+  ** a lot of unused free space, then VACUUM it as we shut down.
+  */
+  if( g.localOpen && strcmp(db_name("localdb"),"main")==0 ){
+    int nFree = db_int(0, "PRAGMA main.freelist_count");
+    int nTotal = db_int(0, "PRAGMA main.page_count");
+    if( nFree>nTotal/4 ){
+      db_multi_exec("VACUUM;");
     }
   }
-  db_close_config();
+
   if( g.db ){
+    int rc;
     sqlite3_wal_checkpoint(g.db, 0);
-    sqlite3_close(g.db);
+    rc = sqlite3_close(g.db);
+    if( rc==SQLITE_BUSY && reportErrors ){
+      while( (pStmt = sqlite3_next_stmt(g.db, pStmt))!=0 ){
+        fossil_warning("unfinalized SQL statement: [%s]", sqlite3_sql(pStmt));
+      }
+    }
     g.db = 0;
     g.zMainDbType = 0;
   }
@@ -1300,9 +1467,9 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
   if( !setupUserOnly ){
     db_multi_exec(
        "INSERT OR IGNORE INTO user(login,pw,cap,info)"
-       "   VALUES('anonymous',hex(randomblob(8)),'hmncz','Anon');"
+       "   VALUES('anonymous',hex(randomblob(8)),'hmnc','Anon');"
        "INSERT OR IGNORE INTO user(login,pw,cap,info)"
-       "   VALUES('nobody','','gjor','Nobody');"
+       "   VALUES('nobody','','gjorz','Nobody');"
        "INSERT OR IGNORE INTO user(login,pw,cap,info)"
        "   VALUES('developer','','dei','Dev');"
        "INSERT OR IGNORE INTO user(login,pw,cap,info)"
@@ -1322,13 +1489,13 @@ const char *db_setting_inop_rhs(){
   const char *zSep = "";
 
   blob_zero(&x);
-  blob_append(&x, "(", 1);
-  for(i=0; ctrlSettings[i].name; i++){
-    blob_appendf(&x, "%s'%s'", zSep, ctrlSettings[i].name);
+  blob_append_sql(&x, "(");
+  for(i=0; aSetting[i].name; i++){
+    blob_append_sql(&x, "%s%Q", zSep/*safe-for-%s*/, aSetting[i].name);
     zSep = ",";
   }
-  blob_append(&x, ")", 1);
-  return blob_str(&x);
+  blob_append_sql(&x, ")");
+  return blob_sql_text(&x);
 }
 
 /*
@@ -1352,24 +1519,21 @@ const char *db_setting_inop_rhs(){
 void db_initial_setup(
   const char *zTemplate,       /* Repository from which to copy settings. */
   const char *zInitialDate,    /* Initial date of repository. (ex: "now") */
-  const char *zDefaultUser,    /* Default user for the repository */
-  int makeServerCodes          /* True to make new server & project codes */
+  const char *zDefaultUser     /* Default user for the repository */
 ){
   char *zDate;
   Blob hash;
   Blob manifest;
 
   db_set("content-schema", CONTENT_SCHEMA, 0);
-  db_set("aux-schema", AUX_SCHEMA, 0);
+  db_set("aux-schema", AUX_SCHEMA_MAX, 0);
   db_set("rebuilt", get_version(), 0);
-  if( makeServerCodes ){
-    db_multi_exec(
+  db_multi_exec(
       "INSERT INTO config(name,value,mtime)"
       " VALUES('server-code', lower(hex(randomblob(20))),now());"
       "INSERT INTO config(name,value,mtime)"
       " VALUES('project-code', lower(hex(randomblob(20))),now());"
-    );
-  }
+  );
   if( !db_is_global("autosync") ) db_set_int("autosync", 1, 0);
   if( !db_is_global("localauth") ) db_set_int("localauth", 0, 0);
   if( !db_is_global("timeline-plaintext") ){
@@ -1466,9 +1630,7 @@ void db_initial_setup(
 ** Options:
 **    --template      FILE      copy settings from repository file
 **    --admin-user|-A USERNAME  select given USERNAME as admin user
-**    --date-override DATETIME  use DATETIME as time of the initial checkin
-**                              (overrides --empty as well)
-**    --empty                   Do not create an initial empty checkin.
+**    --date-override DATETIME  use DATETIME as time of the initial check-in
 **
 ** See also: clone
 */
@@ -1477,24 +1639,28 @@ void create_repository_cmd(void){
   const char *zTemplate;      /* Repository from which to copy settings */
   const char *zDate;          /* Date of the initial check-in */
   const char *zDefaultUser;   /* Optional name of the default user */
-  char const *zCreateEmpty;   /* --empty flag set? */
 
   zTemplate = find_option("template",0,1);
   zDate = find_option("date-override",0,1);
   zDefaultUser = find_option("admin-user","A",1);
-  zCreateEmpty = find_option("empty", 0, 0);
-  if( !zDate && !zCreateEmpty ){
-    zDate = "now";
-  }
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc!=3 ){
     usage("REPOSITORY-NAME");
   }
+
+  if( -1 != file_size(g.argv[2]) ){
+    fossil_fatal("file already exists: %s", g.argv[2]);
+  }
+
   db_create_repository(g.argv[2]);
   db_open_repository(g.argv[2]);
   db_open_config(0);
   if( zTemplate ) db_attach(zTemplate, "settingSrc");
   db_begin_transaction();
-  db_initial_setup(zTemplate, zDate, zDefaultUser, 1);
+  if( zDate==0 ) zDate = "now";
+  db_initial_setup(zTemplate, zDate, zDefaultUser);
   db_end_transaction(0);
   if( zTemplate ) db_detach("settingSrc");
   fossil_print("project-id: %s\n", db_get("project-code", 0));
@@ -1718,21 +1884,27 @@ void db_swap_connections(void){
 }
 
 /*
-** Logic for reading potentially versioned settings from
-** .fossil-settings/<name> , and emits warnings if necessary.
-** Returns the non-versioned value without modification if there is no
-** versioned value.
+** Try to read a versioned setting string from .fossil-settings/<name>.
+**
+** Return the text of the string if it is found.  Return NULL if not
+** found.
+**
+** If the zNonVersionedSetting parameter is not NULL then it holds the
+** non-versioned value for this setting.  If both a versioned and a
+** non-versioned value exist and are not equal, then a warning message
+** might be generated.
 */
-char *db_get_do_versionable(const char *zName, char *zNonVersionedSetting){
+char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
   char *zVersionedSetting = 0;
   int noWarn = 0;
+  int found = 0;
   struct _cacheEntry {
     struct _cacheEntry *next;
     const char *zName, *zValue;
   } *cacheEntry = 0;
   static struct _cacheEntry *cache = 0;
 
-  if( !g.localOpen) return zNonVersionedSetting;
+  if( !g.localOpen && g.zOpenRevision==0 ) return zNonVersionedSetting;
   /* Look up name in cache */
   cacheEntry = cache;
   while( cacheEntry!=0 ){
@@ -1742,26 +1914,38 @@ char *db_get_do_versionable(const char *zName, char *zNonVersionedSetting){
     }
     cacheEntry = cacheEntry->next;
   }
-  /* Attempt to read value from file in checkout if there wasn't a cache hit
-  ** and a checkout is open. */
+  /* Attempt to read value from file in checkout if there wasn't a cache hit. */
   if( cacheEntry==0 ){
     Blob versionedPathname;
-    char *zVersionedPathname;
+    Blob setting;
     blob_zero(&versionedPathname);
+    blob_zero(&setting);
     blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
                  g.zLocalRoot, zName);
-    zVersionedPathname = blob_str(&versionedPathname);
-    if( file_size(zVersionedPathname)>=0 ){
+    if( !g.localOpen ){
+      /* Repository is in the process of being opened, but files have not been
+       * written to disk. Load from the database. */
+      Blob noWarnFile;
+      if( historical_version_of_file(g.zOpenRevision,
+                                     blob_str(&versionedPathname),
+                                     &setting, 0, 0, 0, 2)!=2 ){
+        found = 1;
+      }
+      /* See if there's a no-warn flag */
+      blob_append(&versionedPathname, ".no-warn", -1);
+      blob_zero(&noWarnFile);
+      if( historical_version_of_file(g.zOpenRevision,
+                                     blob_str(&versionedPathname),
+                                     &noWarnFile, 0, 0, 0, 2)!=2 ){
+        noWarn = 1;
+      }
+      blob_reset(&noWarnFile);
+    }else if( file_size(blob_str(&versionedPathname))>=0 ){
       /* File exists, and contains the value for this setting. Load from
       ** the file. */
-      Blob setting;
-      blob_zero(&setting);
-      if( blob_read_from_file(&setting, zVersionedPathname) >= 0 ){
-        blob_trim(&setting); /* Avoid non-obvious problems with line endings
-                             ** on boolean properties */
-        zVersionedSetting = strdup(blob_str(&setting));
+      if( blob_read_from_file(&setting, blob_str(&versionedPathname))>=0 ){
+        found = 1;
       }
-      blob_reset(&setting);
       /* See if there's a no-warn flag */
       blob_append(&versionedPathname, ".no-warn", -1);
       if( file_size(blob_str(&versionedPathname))>=0 ){
@@ -1769,6 +1953,12 @@ char *db_get_do_versionable(const char *zName, char *zNonVersionedSetting){
       }
     }
     blob_reset(&versionedPathname);
+    if( found ){
+      blob_trim(&setting); /* Avoid non-obvious problems with line endings
+                           ** on boolean properties */
+      zVersionedSetting = fossil_strdup(blob_str(&setting));
+    }
+    blob_reset(&setting);
     /* Store result in cache, which can be the value or 0 if not found */
     cacheEntry = (struct _cacheEntry*)fossil_malloc(sizeof(struct _cacheEntry));
     cacheEntry->next = cache;
@@ -1798,18 +1988,15 @@ char *db_get_do_versionable(const char *zName, char *zNonVersionedSetting){
 /*
 ** Get and set values from the CONFIG, GLOBAL_CONFIG and VVAR table in the
 ** repository and local databases.
+**
+** If no such variable exists, return zDefault.  Or, if zName is the name
+** of a setting, then the zDefault is ignored and the default value of the
+** setting is returned instead.  If zName is a versioned setting, then
+** versioned value takes priority.
 */
 char *db_get(const char *zName, char *zDefault){
   char *z = 0;
-  int i;
-  const struct stControlSettings *ctrlSetting = 0;
-  /* Is this a setting? */
-  for(i=0; ctrlSettings[i].name; i++){
-    if( strcmp(ctrlSettings[i].name, zName)==0 ){
-      ctrlSetting = &(ctrlSettings[i]);
-      break;
-    }
-  }
+  const Setting *pSetting = db_find_setting(zName, 0);
   if( g.repositoryOpen ){
     z = db_text(0, "SELECT value FROM config WHERE name=%Q", zName);
   }
@@ -1818,13 +2005,17 @@ char *db_get(const char *zName, char *zDefault){
     z = db_text(0, "SELECT value FROM global_config WHERE name=%Q", zName);
     db_swap_connections();
   }
-  if( ctrlSetting!=0 && ctrlSetting->versionable ){
+  if( pSetting!=0 && pSetting->versionable ){
     /* This is a versionable setting, try and get the info from a
     ** checked out file */
-    z = db_get_do_versionable(zName, z);
+    z = db_get_versioned(zName, z);
   }
   if( z==0 ){
-    z = zDefault;
+    if( zDefault==0 && pSetting && pSetting->def[0] ){
+      z = fossil_strdup(pSetting->def);
+    }else{
+      z = zDefault;
+    }
   }
   return z;
 }
@@ -1935,27 +2126,6 @@ void db_lset_int(const char *zName, int value){
 }
 
 /*
-** Returns non-0 if the database (which must be open) table identified
-** by zTableName has a column named zColName (case-sensitive), else
-** returns 0.
-*/
-int db_table_has_column( char const *zTableName, char const *zColName ){
-  Stmt q = empty_Stmt;
-  int rc = 0;
-  db_prepare( &q, "PRAGMA table_info(%Q)", zTableName );
-  while(SQLITE_ROW == db_step(&q)){
-    /* Columns: (cid, name, type, notnull, dflt_value, pk) */
-    char const * zCol = db_column_text(&q, 1);
-    if( 0==fossil_strcmp(zColName, zCol) ){
-      rc = 1;
-      break;
-    }
-  }
-  db_finalize(&q);
-  return rc;
-}
-
-/*
 ** Record the name of a local repository in the global_config() database.
 ** The repository filename %s is recorded as an entry with a "name" field
 ** of the following form:
@@ -1972,32 +2142,51 @@ int db_table_has_column( char const *zTableName, char const *zColName ){
 ** Where %s is the checkout root.  The value is the repository file.
 */
 void db_record_repository_filename(const char *zName){
+  char *zRepoSetting;
+  char *zCkoutSetting;
   Blob full;
   if( zName==0 ){
     if( !g.localOpen ) return;
     zName = db_repository_filename();
   }
   file_canonical_name(zName, &full, 0);
+  (void)filename_collation();  /* Initialize before connection swap */
   db_swap_connections();
+  zRepoSetting = mprintf("repo:%q", blob_str(&full));
+  db_multi_exec(
+     "DELETE FROM global_config WHERE name %s = %Q;",
+     filename_collation(), zRepoSetting
+  );
   db_multi_exec(
      "INSERT OR IGNORE INTO global_config(name,value)"
-     "VALUES('repo:%q',1)",
-     blob_str(&full)
+     "VALUES(%Q,1);",
+     zRepoSetting
   );
+  fossil_free(zRepoSetting);
   if( g.localOpen && g.zLocalRoot && g.zLocalRoot[0] ){
     Blob localRoot;
     file_canonical_name(g.zLocalRoot, &localRoot, 1);
+    zCkoutSetting = mprintf("ckout:%q", blob_str(&localRoot));
+    db_multi_exec(
+       "DELETE FROM global_config WHERE name %s = %Q;",
+       filename_collation(), zCkoutSetting
+    );
     db_multi_exec(
       "REPLACE INTO global_config(name, value)"
-      "VALUES('ckout:%q','%q');",
-      blob_str(&localRoot), blob_str(&full)
+      "VALUES(%Q,%Q);",
+      zCkoutSetting, blob_str(&full)
     );
     db_swap_connections();
     db_optional_sql("repository",
-        "REPLACE INTO config(name,value,mtime)"
-        "VALUES('ckout:%q',1,now())",
-        blob_str(&localRoot)
+        "DELETE FROM config WHERE name %s = %Q;",
+        filename_collation(), zCkoutSetting
     );
+    db_optional_sql("repository",
+        "REPLACE INTO config(name,value,mtime)"
+        "VALUES(%Q,1,now());",
+        zCkoutSetting
+    );
+    fossil_free(zCkoutSetting);
     blob_reset(&localRoot);
   }else{
     db_swap_connections();
@@ -2031,8 +2220,6 @@ void cmd_open(void){
   int keepFlag;
   int forceMissingFlag;
   int allowNested;
-  char **oldArgv;
-  int oldArgc;
   static char *azNewArgv[] = { 0, "checkout", "--prompt", 0, 0, 0, 0 };
 
   url_proxy_options();
@@ -2040,6 +2227,10 @@ void cmd_open(void){
   keepFlag = find_option("keep",0,0)!=0;
   forceMissingFlag = find_option("force-missing",0,0)!=0;
   allowNested = find_option("nested",0,0)!=0;
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc!=3 && g.argc!=4 ){
     usage("REPOSITORY-FILENAME ?VERSION?");
   }
@@ -2047,6 +2238,22 @@ void cmd_open(void){
     fossil_fatal("already within an open tree rooted at %s", g.zLocalRoot);
   }
   db_open_repository(g.argv[2]);
+
+  /* Figure out which revision to open. */
+  if( !emptyFlag ){
+    if( g.argc==4 ){
+      g.zOpenRevision = g.argv[3];
+    }else if( db_exists("SELECT 1 FROM event WHERE type='ci'") ){
+      g.zOpenRevision = db_get("main-branch", "trunk");
+    }
+  }
+
+  if( g.zOpenRevision ){
+    /* Since the repository is open and we know the revision now,
+    ** refresh the allow-symlinks flag. */
+    g.allowSymlinks = db_get_boolean("allow-symlinks", 0);
+  }
+
 #if defined(_WIN32) || defined(__CYGWIN__)
 # define LOCALDB_NAME "./_FOSSIL_"
 #else
@@ -2062,18 +2269,14 @@ void cmd_open(void){
   db_lset("repository", g.argv[2]);
   db_record_repository_filename(g.argv[2]);
   db_lset_int("checkout", 0);
-  oldArgv = g.argv;
-  oldArgc = g.argc;
   azNewArgv[0] = g.argv[0];
   g.argv = azNewArgv;
   if( !emptyFlag ){
     g.argc = 3;
-    if( oldArgc==4 ){
-      azNewArgv[g.argc-1] = oldArgv[3];
-    }else if( !db_exists("SELECT 1 FROM event WHERE type='ci'") ){
-      azNewArgv[g.argc-1] = "--latest";
+    if( g.zOpenRevision ){
+      azNewArgv[g.argc-1] = g.zOpenRevision;
     }else{
-      azNewArgv[g.argc-1] = db_get("main-branch", "trunk");
+      azNewArgv[g.argc-1] = "--latest";
     }
     if( keepFlag ){
       azNewArgv[g.argc++] = "--keep";
@@ -2088,76 +2291,79 @@ void cmd_open(void){
 }
 
 /*
-** Print the value of a setting named zName
+** Print the current value of a setting identified by the pSetting
+** pointer.
 */
-static void print_setting(
-  const struct stControlSettings *ctrlSetting,
-  int localOpen
-){
+static void print_setting(const Setting *pSetting){
   Stmt q;
   if( g.repositoryOpen ){
     db_prepare(&q,
        "SELECT '(local)', value FROM config WHERE name=%Q"
        " UNION ALL "
        "SELECT '(global)', value FROM global_config WHERE name=%Q",
-       ctrlSetting->name, ctrlSetting->name
+       pSetting->name, pSetting->name
     );
   }else{
     db_prepare(&q,
       "SELECT '(global)', value FROM global_config WHERE name=%Q",
-      ctrlSetting->name
+      pSetting->name
     );
   }
   if( db_step(&q)==SQLITE_ROW ){
-    fossil_print("%-20s %-8s %s\n", ctrlSetting->name, db_column_text(&q, 0),
+    fossil_print("%-20s %-8s %s\n", pSetting->name, db_column_text(&q, 0),
         db_column_text(&q, 1));
   }else{
-    fossil_print("%-20s\n", ctrlSetting->name);
+    fossil_print("%-20s\n", pSetting->name);
   }
-  if( ctrlSetting->versionable && localOpen ){
+  if( pSetting->versionable && g.localOpen ){
     /* Check to see if this is overridden by a versionable settings file */
     Blob versionedPathname;
     blob_zero(&versionedPathname);
-    blob_appendf(&versionedPathname, "%s/.fossil-settings/%s",
-                 g.zLocalRoot, ctrlSetting->name);
+    blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
+                 g.zLocalRoot, pSetting->name);
     if( file_size(blob_str(&versionedPathname))>=0 ){
       fossil_print("  (overridden by contents of file .fossil-settings/%s)\n",
-                   ctrlSetting->name);
+                   pSetting->name);
     }
   }
   db_finalize(&q);
 }
 
 
+#if INTERFACE
 /*
-** define all settings, which can be controlled via the set/unset
-** command. var is the name of the internal configuration name for db_(un)set.
+** Define all settings, which can be controlled via the set/unset
+** command.
+**
+** var is the name of the internal configuration name for db_(un)set.
 ** If var is 0, the settings name is used.
+**
 ** width is the length for the edit field on the behavior page, 0
 ** is used for on/off checkboxes.
+**
 ** The behaviour page doesn't use a special layout. It lists all
 ** set-commands and displays the 'set'-help as info.
 */
-#if INTERFACE
-struct stControlSettings {
-  char const *name;     /* Name of the setting */
-  char const *var;      /* Internal variable name used by db_set() */
+struct Setting {
+  const char *name;     /* Name of the setting */
+  const char *var;      /* Internal variable name used by db_set() */
   int width;            /* Width of display.  0 for boolean values. */
   int versionable;      /* Is this setting versionable? */
   int forceTextArea;    /* Force using a text area for display? */
-  char const *def;      /* Default value */
+  const char *def;      /* Default value */
 };
 #endif /* INTERFACE */
-struct stControlSettings const ctrlSettings[] = {
+
+const Setting aSetting[] = {
   { "access-log",       0,              0, 0, 0, "off"                 },
+  { "admin-log",        0,              0, 0, 0, "off"                 },
   { "allow-symlinks",   0,              0, 1, 0, "off"                 },
   { "auto-captcha",     "autocaptcha",  0, 0, 0, "on"                  },
   { "auto-hyperlink",   0,              0, 0, 0, "on",                 },
   { "auto-shun",        0,              0, 0, 0, "on"                  },
   { "autosync",         0,              0, 0, 0, "on"                  },
-  { "autosync-tries",   0,              0, 0, 0, ""                    },
+  { "autosync-tries",   0,             16, 0, 0, "1"                   },
   { "binary-glob",      0,             40, 1, 0, ""                    },
-  { "clearsign",        0,              0, 0, 0, "off"                 },
 #if defined(_WIN32) || defined(__CYGWIN__) || defined(__DARWIN__) || \
     defined(__APPLE__)
   { "case-sensitive",   0,              0, 0, 0, "off"                 },
@@ -2165,16 +2371,19 @@ struct stControlSettings const ctrlSettings[] = {
   { "case-sensitive",   0,              0, 0, 0, "on"                  },
 #endif
   { "clean-glob",       0,             40, 1, 0, ""                    },
+  { "clearsign",        0,              0, 0, 0, "off"                 },
   { "crnl-glob",        0,             40, 1, 0, ""                    },
   { "default-perms",    0,             16, 0, 0, "u"                   },
   { "diff-binary",      0,              0, 0, 0, "on"                  },
   { "diff-command",     0,             40, 0, 0, ""                    },
   { "dont-push",        0,              0, 0, 0, "off"                 },
+  { "dotfiles",         0,              0, 1, 0, "off"                 },
   { "editor",           0,             32, 0, 0, ""                    },
   { "empty-dirs",       0,             40, 1, 0, ""                    },
   { "encoding-glob",    0,             40, 1, 0, ""                    },
   { "gdiff-command",    0,             40, 0, 0, "gdiff"               },
   { "gmerge-command",   0,             40, 0, 0, ""                    },
+  { "hash-digits",      0,              5, 0, 0, "10"                  },
   { "http-port",        0,             16, 0, 0, "8080"                },
   { "https-login",      0,              0, 0, 0, "off"                 },
   { "ignore-glob",      0,             40, 1, 0, ""                    },
@@ -2185,6 +2394,9 @@ struct stControlSettings const ctrlSettings[] = {
   { "max-loadavg",      0,             25, 0, 0, "0.0"                 },
   { "max-upload",       0,             25, 0, 0, "250000"              },
   { "mtime-changes",    0,              0, 0, 0, "on"                  },
+#if FOSSIL_ENABLE_LEGACY_MV_RM
+  { "mv-rm-files",      0,              0, 0, 0, "off"                 },
+#endif
   { "pgp-command",      0,             40, 0, 0, "gpg --clearsign -o " },
   { "proxy",            0,             32, 0, 0, "off"                 },
   { "relative-paths",   0,              0, 0, 0, "on"                  },
@@ -2197,13 +2409,48 @@ struct stControlSettings const ctrlSettings[] = {
   { "tcl",              0,              0, 0, 0, "off"                 },
   { "tcl-setup",        0,             40, 1, 1, ""                    },
 #endif
+#ifdef FOSSIL_ENABLE_TH1_DOCS
+  { "th1-docs",         0,              0, 0, 0, "off"                 },
+#endif
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
   { "th1-hooks",        0,              0, 0, 0, "off"                 },
+#endif
   { "th1-setup",        0,             40, 1, 1, ""                    },
   { "th1-uri-regexp",   0,             40, 1, 0, ""                    },
   { "web-browser",      0,             32, 0, 0, ""                    },
-  { "white-foreground", 0,              0, 0, 0, "off"                 },
   { 0,0,0,0,0,0 }
 };
+
+/*
+** Look up a control setting by its name.  Return a pointer to the Setting
+** object, or NULL if there is no such setting.
+**
+** If allowPrefix is true, then the Setting returned is the first one for
+** which zName is a prefix of the Setting name.
+*/
+const Setting *db_find_setting(const char *zName, int allowPrefix){
+  int lwr, mid, upr, c;
+  int n = (int)strlen(zName) + !allowPrefix;
+  lwr = 0;
+  upr = ArraySize(aSetting)-2;
+  while( upr>=lwr ){
+    mid = (upr+lwr)/2;
+    c = fossil_strncmp(zName, aSetting[mid].name, n);
+    if( c<0 ){
+      upr = mid - 1;
+    }else if( c>0 ){
+      lwr = mid + 1;
+    }else{
+      if( allowPrefix ){
+        while( mid>lwr && fossil_strncmp(zName, aSetting[mid-1].name, n)==0 ){
+          mid--;
+        }
+      }
+      return &aSetting[mid];
+    }
+  }
+  return 0;
+}
 
 /*
 ** COMMAND: settings
@@ -2225,6 +2472,9 @@ struct stControlSettings const ctrlSettings[] = {
 **
 **    access-log       If enabled, record successful and failed login attempts
 **                     in the "accesslog" table.  Default: off
+**
+**    admin-log        If enabled, record configuration changes in the
+**                     "admin_log" table.  Default: off
 **
 **    allow-symlinks   If enabled, don't follow symlinks, and instead treat
 **     (versionable)   them as symlinks on Unix. Has no effect on Windows
@@ -2291,6 +2541,9 @@ struct stControlSettings const ctrlSettings[] = {
 **    dont-push        Prevent this repository from pushing from client to
 **                     server.  Useful when setting up a private branch.
 **
+**    dotfiles         Include --dotfiles option for all compatible commands.
+**     (versionable)
+**
 **    editor           Text editor command used for check-in comments.
 **
 **    empty-dirs       A comma or newline-separated list of pathnames. On
@@ -2312,6 +2565,9 @@ struct stControlSettings const ctrlSettings[] = {
 **                     Ex: kdiff3 "%baseline" "%original" "%merge" -o "%output"
 **                     Ex: xxdiff "%original" "%baseline" "%merge" -M "%output"
 **                     Ex: meld "%baseline" "%original" "%merge" "%output"
+**
+**    hash-digits      The number of hexadecimal digits of the SHA1 hash to
+**                     display.  (Default: 10; Minimum: 6)
 **
 **    http-port        The TCP/IP port number to use by the "server"
 **                     and "ui" commands.  Default: 8080
@@ -2351,6 +2607,12 @@ struct stControlSettings const ctrlSettings[] = {
 **
 **    mtime-changes    Use file modification times (mtimes) to detect when
 **                     files have been modified.  (Default "on".)
+**
+**    mv-rm-files      If enabled (and Fossil was compiled with legacy "mv/rm"
+**                     support), the "mv" and "rename" commands will also move
+**                     the associated files within the checkout -AND- the "rm"
+**                     and "delete" commands will also remove the associated
+**                     files from within the checkout.  Default: off.
 **
 **    pgp-command      Command used to clear-sign manifests at check-in.
 **                     The default is "gpg --clearsign -o ".
@@ -2405,6 +2667,16 @@ struct stControlSettings const ctrlSettings[] = {
 **     (versionable)   and initializing the Tcl interpreter.  By default, this
 **                     is empty and no extra setup is performed.
 **
+**    th1-docs         WARNING: If enabled (and Fossil was compiled with TH1
+**                     support for embedded documentation files), this allows
+**                     embedded documentation files to contain arbitrary TH1
+**                     scripts that are evaluated on the server.  If native
+**                     Tcl integration is also enabled, this setting has the
+**                     potential to allow anybody with check-in privileges to
+**                     do almost anything that the associated operating system
+**                     user account could do.  Extreme caution should be used
+**                     when enabling this setting.  Default: off.
+**
 **    th1-hooks        If enabled (and Fossil was compiled with support for TH1
 **                     hooks), special TH1 commands will be called before and
 **                     after any Fossil command or web page. Default: off.
@@ -2442,35 +2714,62 @@ void setting_cmd(void){
   if( unsetFlag && g.argc!=3 ){
     usage("PROPERTY ?-global?");
   }
+
+  /* Verify that the aSetting[] entries are in sorted order.  This is
+  ** necessary for the binary search in db_find_setting() to work correctly.
+  */
+  for(i=1; aSetting[i].name; i++){
+    if( fossil_strcmp(aSetting[i-1].name, aSetting[i].name)>=0 ){
+      fossil_panic("Internal Error: aSetting[] entries for \"%s\""
+                   " and \"%s\" are out of order.",
+                   aSetting[i-1].name, aSetting[i].name);
+    }
+  }
+
   if( g.argc==2 ){
-    int openLocal = db_open_local(0);
-    for(i=0; ctrlSettings[i].name; i++){
-      print_setting(&ctrlSettings[i], openLocal);
+    for(i=0; aSetting[i].name; i++){
+      print_setting(&aSetting[i]);
     }
   }else if( g.argc==3 || g.argc==4 ){
     const char *zName = g.argv[2];
-    int isManifest;
-    int n = strlen(zName);
-    for(i=0; ctrlSettings[i].name; i++){
-      if( strncmp(ctrlSettings[i].name, zName, n)==0 ) break;
-    }
-    if( !ctrlSettings[i].name ){
+    int n = (int)strlen(zName);
+    const Setting *pSetting = db_find_setting(zName, 1);
+    if( pSetting==0 ){
       fossil_fatal("no such setting: %s", zName);
     }
-    isManifest = fossil_strcmp(ctrlSettings[i].name, "manifest")==0;
-    if( isManifest && globalFlag ){
+    if( globalFlag && fossil_strcmp(pSetting->name, "manifest")==0 ){
       fossil_fatal("cannot set 'manifest' globally");
     }
-    if( unsetFlag ){
-      db_unset(ctrlSettings[i].name, globalFlag);
-    }else if( g.argc==4 ){
-      db_set(ctrlSettings[i].name, g.argv[3], globalFlag);
+    if( unsetFlag || g.argc==4 ){
+      int isManifest = fossil_strcmp(pSetting->name, "manifest")==0;
+      if( n!=strlen(pSetting[0].name) && pSetting[1].name &&
+          fossil_strncmp(pSetting[1].name, zName, n)==0 ){
+        Blob x;
+        int i;
+        blob_init(&x,0,0);
+        for(i=0; pSetting[i].name; i++){
+          if( fossil_strncmp(pSetting[i].name,zName,n)!=0 ) break;
+          blob_appendf(&x, " %s", pSetting[i].name);
+        }
+        fossil_fatal("ambiguous setting \"%s\" - might be:%s",
+                     zName, blob_str(&x));
+      }
+      if( globalFlag && isManifest ){
+        fossil_fatal("cannot set 'manifest' globally");
+      }
+      if( unsetFlag ){
+        db_unset(pSetting->name, globalFlag);
+      }else{
+        db_set(pSetting->name, g.argv[3], globalFlag);
+      }
+      if( isManifest && g.localOpen ){
+        manifest_to_disk(db_lget_int("checkout", 0));
+      }
     }else{
-      isManifest = 0;
-      print_setting(&ctrlSettings[i], db_open_local(0));
-    }
-    if( isManifest && g.localOpen ){
-      manifest_to_disk(db_lget_int("checkout", 0));
+      while( pSetting->name && fossil_strncmp(pSetting->name,zName,n)==0 ){
+        print_setting(pSetting);
+        pSetting++;
+      }
     }
   }else{
     usage("?PROPERTY? ?VALUE? ?-global?");
@@ -2562,26 +2861,68 @@ void test_without_rowid(void){
         }
       }
       blob_append(&newSql, zOrigSql, -1);
-      blob_appendf(&allSql,
-         "ALTER TABLE %s RENAME TO x_%s;\n"
+      blob_append_sql(&allSql,
+         "ALTER TABLE \"%w\" RENAME TO \"x_%w\";\n"
          "%s WITHOUT ROWID;\n"
-         "INSERT INTO %s SELECT * FROM x_%s;\n"
-         "DROP TABLE x_%s;\n",
-         zTName, zTName, blob_str(&newSql), zTName, zTName, zTName
+         "INSERT INTO \"%w\" SELECT * FROM \"x_%w\";\n"
+         "DROP TABLE \"x_%w\";\n",
+         zTName, zTName, blob_sql_text(&newSql), zTName, zTName, zTName
       );
-      fossil_print("Converting table %s of %s to WITHOUT ROWID.\n", zTName, g.argv[i]);
+      fossil_print("Converting table %s of %s to WITHOUT ROWID.\n",
+                    zTName, g.argv[i]);
       blob_reset(&newSql);
     }
-    blob_appendf(&allSql, "COMMIT;\n");
+    blob_append_sql(&allSql, "COMMIT;\n");
     db_finalize(&q);
     if( dryRun ){
       fossil_print("SQL that would have been evaluated:\n");
-      fossil_print("-------------------------------------------------------------\n");
-      fossil_print("%s", blob_str(&allSql));
+      fossil_print("%.78c\n", '-');
+      fossil_print("%s", blob_sql_text(&allSql));
     }else{
-      db_multi_exec("%s", blob_str(&allSql));
+      db_multi_exec("%s", blob_sql_text(&allSql));
     }
     blob_reset(&allSql);
     db_close(1);
   }
+}
+
+/*
+** Make sure the adminlog table exists.  Create it if it does not
+*/
+void create_admin_log_table(void){
+  static int once = 0;
+  if( once ) return;
+  once = 1;
+  db_multi_exec(
+    "CREATE TABLE IF NOT EXISTS \"%w\".admin_log(\n"
+    " id INTEGER PRIMARY KEY,\n"
+    " time INTEGER, -- Seconds since 1970\n"
+    " page TEXT,    -- path of page\n"
+    " who TEXT,     -- User who made the change\n "
+    " what TEXT     -- What changed\n"
+    ")", db_name("repository")
+  );
+}
+
+/*
+** Write a message into the admin_event table, if admin logging is
+** enabled via the admin-log configuration option.
+*/
+void admin_log(const char *zFormat, ...){
+  Blob what = empty_blob;
+  va_list ap;
+  if( !db_get_boolean("admin-log", 0) ){
+      /* Potential leak here (on %z params) but
+         the alternative is to let blob_vappendf()
+         do it below. */
+      return;
+  }
+  create_admin_log_table();
+  va_start(ap,zFormat);
+  blob_vappendf( &what, zFormat, ap );
+  va_end(ap);
+  db_multi_exec("INSERT INTO admin_log(time,page,who,what)"
+                " VALUES(now(), %Q, %Q, %B)",
+                g.zPath, g.zLogin, &what);
+  blob_reset(&what);
 }

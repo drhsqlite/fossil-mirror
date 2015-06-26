@@ -30,19 +30,17 @@ the correct operation of the graph drawing logic.
      multiple branch risers, n=18.</a>
   *  <a href="../../../timeline?y=ci&a=2010-12-20&n=9" target="testwindow">
      multiple branch risers, n=9.</a>
-  *  <a href="../../../timeline?r=experimental" target="testwindow">
+  *  <a href="../../../timeline?r=experimental&n=0" target="testwindow">
      Experimental branch with related check-ins.</a>
-  *  <a href="../../../timeline?r=experimental&mionly" target="testwindow">
+  *  <a href="../../../timeline?r=experimental&mionly&n=0" target="testwindow">
      Experimental branch with merge-ins only.</a>
-  *  <a href="../../../timeline?t=experimental" target="testwindow">
+  *  <a href="../../../timeline?t=experimental&n=0" target="testwindow">
      Experimental branch check-ins only.</a>
-  *  <a href="../../../timeline?r=experimental&n=1000" target="testwindow">
-     Experimental branch using and related check-ins - 1000 elements.</a>
-  *  <a href="../../../timeline?r=release" target="testwindow">
+  *  <a href="../../../timeline?r=release&n=0" target="testwindow">
      Check-ins tagged "release" and related check-ins</a>
-  *  <a href="../../../timeline?r=release&mionly" target="testwindow">
+  *  <a href="../../../timeline?r=release&mionly&n=0" target="testwindow">
      Check-ins tagged "release" and merge-ins</a>
-  *  <a href="../../../timeline?t=release" target="testwindow">
+  *  <a href="../../../timeline?t=release&n=0" target="testwindow">
      Only check-ins tagged "release"</a>
   *  <a href="../../../finfo?name=Makefile" target="testwindow">
      History of source file "Makefile".</a>
@@ -53,20 +51,34 @@ the correct operation of the graph drawing logic.
   *  <a href="../../../timeline?f=8dfed953f7530442" target="testwindow">
      This malformed commit has a
      merge parent which is not a valid checkin.</a>
-  *  <a href="../../../timeline?from=e663bac6f7&to=a298a0e2f9"
+  *  <a href="../../../timeline?from=e663bac6f7&to=a298a0e2f9&shortest"
      target="testwindow">
      From e663bac6f7 to a298a0e2f9 by shortest path.</a>
-  *  <a href="../../../timeline?from=e663bac6f7&to=a298a0e2f9&nomerge"
+  *  <a href="../../../timeline?from=e663bac6f7&to=a298a0e2f9"
      target="testwindow">
      From e663bac6f7 to a298a0e2f9 without merge links.</a>
   *  <a href="../../../timeline?me=e663bac6f7&you=a298a0e2f9"
      target="testwindow">
      Common ancestor path of e663bac6f7 to a298a0e2f9.</a>
-  *  <a href="../../../timeline?f=65dd90fb95a2af55">
+  *  <a href="../../../timeline?f=65dd90fb95a2af55" target="testwindow">
      Merge on the same branch does not result in a leaf.
      </a>
+  *  <a href="../../../timeline?c=20015206bc"
+     target="testwindow">
+     This timeline has a hidden commit.</a> Click Unhide to reveal.
+  *  <a href="../../../timeline?y=ci&n=15&b=2a4e4cf03e"
+     target="testwindow">Isolated check-ins.</a>
 
 External:
 
   *  <a href="http://www.sqlite.org/src/timeline?c=2010-09-29&nd"
      target="testwindow">Timewarp due to a mis-configured system clock.</a>
+  *  <a href="http://core.tcl.tk/tk/finfo?name=tests/id.test"
+     target="testwindow">Show all three separate deletions of "id.test".
+     (Scroll down for the third deletion.)
+  *  <a href='http://core.tcl.tk/tk/timeline?y=ci&b=2015-03-07'
+     target='testwindow'>Merge arrows to the left and to the right</a>
+  *  <a href='http://core.tcl.tk/tk/timeline?y=ci&b=2015-03-07&railpitch=13'
+     target='testwindow'>Previous, with a scrunched graph</a>
+  *  <a href='http://core.tcl.tk/tk/timeline?y=ci&b=2015-03-07&railpitch=11'
+     target='testwindow'>Previous, with a severely scrunched graph</a>

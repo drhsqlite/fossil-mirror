@@ -208,8 +208,8 @@ static void bisect_chart(int sortByCkinTime){
     "  FROM bilog, blob, event"
     " WHERE blob.rid=bilog.rid AND event.objid=bilog.rid"
     "   AND event.type='ci'"
-    " ORDER BY %s",
-    (sortByCkinTime ? "event.mtime DESC" : "bilog.rowid ASC")
+    " ORDER BY %s bilog.rowid ASC",
+    (sortByCkinTime ? "event.mtime DESC, " : "")
   );
   while( db_step(&q)==SQLITE_ROW ){
     fossil_print("%3d %-7s %s %s\n",
@@ -392,13 +392,13 @@ void bisect_cmd(void){
         fossil_print("  %-15s  %-6s  ", aBisectOption[i].zName,
                db_lget(z, (char*)aBisectOption[i].zDefault));
         fossil_free(z);
-        comment_print(aBisectOption[i].zDesc, 27, -1);
+        comment_print(aBisectOption[i].zDesc, 0, 27, -1, g.comFmtFlags);
       }
     }else if( g.argc==4 || g.argc==5 ){
       unsigned int i;
       n = strlen(g.argv[3]);
       for(i=0; i<sizeof(aBisectOption)/sizeof(aBisectOption[0]); i++){
-        if( memcmp(g.argv[3], aBisectOption[i].zName, n)==0 ){
+        if( strncmp(g.argv[3], aBisectOption[i].zName, n)==0 ){
           char *z = mprintf("bisect-%s", aBisectOption[i].zName);
           if( g.argc==5 ){
             db_lset(z, g.argv[4]);

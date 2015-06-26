@@ -83,8 +83,8 @@ static const char zSchemaUpdates2[] =
 
 static void rebuild_update_schema(void){
   int rc;
-  db_multi_exec(zSchemaUpdates1);
-  db_multi_exec(zSchemaUpdates2);
+  db_multi_exec("%s", zSchemaUpdates1 /*safe-for-%s*/);
+  db_multi_exec("%s", zSchemaUpdates2 /*safe-for-%s*/);
 
   rc = db_exists("SELECT 1 FROM sqlite_master"
                  " WHERE name='user' AND sql GLOB '* mtime *'");
@@ -137,7 +137,7 @@ static void rebuild_update_schema(void){
       "CREATE TEMP TABLE old_fmt AS SELECT * FROM reportfmt;"
       "DROP TABLE reportfmt;"
     );
-    db_multi_exec(zSchemaUpdates2);
+    db_multi_exec("%s", zSchemaUpdates2/*safe-for-%s*/);
     db_multi_exec(
       "INSERT OR IGNORE INTO reportfmt(rn,owner,title,cols,sqlcode,mtime)"
         " SELECT rn, owner, title, cols, sqlcode, now() FROM old_fmt;"
@@ -256,7 +256,8 @@ static void rebuild_step(int rid, int size, Blob *pBase){
     }else{
       /* We are doing "fossil deconstruct" */
       char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-      char *zFile = mprintf(zFNameFormat, zUuid, zUuid+prefixLength);
+      char *zFile = mprintf(zFNameFormat /*works-like:"%s:%s"*/,
+                            zUuid, zUuid+prefixLength);
       blob_write_to_file(pUse,zFile);
       free(zFile);
       free(zUuid);
@@ -347,9 +348,10 @@ int rebuild_db(int randomize, int doOut, int doClustering){
     zTable = db_text(0,
        "SELECT name FROM sqlite_master /*scan*/"
        " WHERE type='table'"
-       " AND name NOT IN ('blob','delta','rcvfrom','user',"
+       " AND name NOT IN ('admin_log', 'blob','delta','rcvfrom','user',"
                          "'config','shun','private','reportfmt',"
-                         "'concealed','accesslog','modreq')"
+                         "'concealed','accesslog','modreq',"
+                         "'purgeevent','purgeitem')"
        " AND name NOT GLOB 'sqlite_*'"
        " AND name NOT GLOB 'fx_*'"
     );
@@ -357,7 +359,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
     db_multi_exec("DROP TABLE %Q", zTable);
     free(zTable);
   }
-  db_multi_exec(zRepositorySchema2);
+  db_multi_exec("%s", zRepositorySchema2/*safe-for-%s*/);
   ticket_create_table(0);
   shun_artifacts();
 
@@ -439,7 +441,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
 ** Attempt to convert more full-text blobs into delta-blobs for
 ** storage efficiency.
 */
-static void extra_deltification(void){
+void extra_deltification(void){
   Stmt q;
   int topid, previd, rid;
   int prevfnid, fnid;
@@ -522,24 +524,28 @@ static void reconstruct_private_table(void){
 ** executable in a way that changes the database schema.
 **
 ** Options:
-**   --cluster     Compute clusters for unclustered artifacts
-**   --compress    Strive to make the database as small as possible
-**   --force       Force the rebuild to complete even if errors are seen
-**   --noverify    Skip the verification of changes to the BLOB table
-**   --pagesize N  Set the database pagesize to N. (512..65536 and power of 2)
-**   --randomize   Scan artifacts in a random order
-**   --vacuum      Run VACUUM on the database after rebuilding
-**   --deanalyze   Remove ANALYZE tables from the database
-**   --analyze     Run ANALYZE on the database after rebuilding
-**   --wal         Set Write-Ahead-Log journalling mode on the database
-**   --stats       Show artifact statistics after rebuilding
+**   --analyze         Run ANALYZE on the database after rebuilding
+**   --cluster         Compute clusters for unclustered artifacts
+**   --compress        Strive to make the database as small as possible
+**   --compress-only   Skip the rebuilding step. Do --compress only
+**   --deanalyze       Remove ANALYZE tables from the database
+**   --force           Force the rebuild to complete even if errors are seen
+**   --ifneeded        Only do the rebuild if it would change the schema version
+**   --index           Always add in the full-text search index
+**   --noverify        Skip the verification of changes to the BLOB table
+**   --noindex         Always omit the full-text search index
+**   --pagesize N      Set the database pagesize to N. (512..65536 and power of 2)
+**   --randomize       Scan artifacts in a random order
+**   --stats           Show artifact statistics after rebuilding
+**   --vacuum          Run VACUUM on the database after rebuilding
+**   --wal             Set Write-Ahead-Log journalling mode on the database
 **
 ** See also: deconstruct, reconstruct
 */
 void rebuild_database(void){
   int forceFlag;
   int randomizeFlag;
-  int errCnt;
+  int errCnt = 0;
   int omitVerify;
   int doClustering;
   const char *zPagesize;
@@ -550,6 +556,11 @@ void rebuild_database(void){
   int runAnalyze;
   int runCompress;
   int showStats;
+  int runReindex;
+  int optNoIndex;
+  int optIndex;
+  int optIfNeeded;
+  int compressOnlyFlag;
 
   omitVerify = find_option("noverify",0,0)!=0;
   forceFlag = find_option("force","f",0)!=0;
@@ -561,6 +572,11 @@ void rebuild_database(void){
   runCompress = find_option("compress",0,0)!=0;
   zPagesize = find_option("pagesize",0,1);
   showStats = find_option("stats",0,0)!=0;
+  optIndex = find_option("index",0,0)!=0;
+  optNoIndex = find_option("noindex",0,0)!=0;
+  optIfNeeded = find_option("ifneeded",0,0)!=0;
+  compressOnlyFlag = find_option("compress-only",0,0)!=0;
+  if( compressOnlyFlag ) runCompress = runVacuum = 1;
   if( zPagesize ){
     newPagesize = atoi(zPagesize);
     if( newPagesize<512 || newPagesize>65536
@@ -580,15 +596,28 @@ void rebuild_database(void){
     db_close(1);
     db_open_repository(g.zRepositoryName);
   }
+  runReindex = search_index_exists() && !compressOnlyFlag;
+  if( optIndex ) runReindex = 1;
+  if( optNoIndex ) runReindex = 0;
+  if( optIfNeeded && fossil_strcmp(db_get("aux-schema",""),AUX_SCHEMA_MAX)==0 ){
+    return;
+  }
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   db_begin_transaction();
-  ttyOutput = 1;
-  errCnt = rebuild_db(randomizeFlag, 1, doClustering);
-  reconstruct_private_table();
+  if( !compressOnlyFlag ){
+    search_drop_index();
+    ttyOutput = 1;
+    errCnt = rebuild_db(randomizeFlag, 1, doClustering);
+    reconstruct_private_table();
+  }
   db_multi_exec(
-    "REPLACE INTO config(name,value,mtime) VALUES('content-schema','%s',now());"
-    "REPLACE INTO config(name,value,mtime) VALUES('aux-schema','%s',now());"
-    "REPLACE INTO config(name,value,mtime) VALUES('rebuilt','%s',now());",
-    CONTENT_SCHEMA, AUX_SCHEMA, get_version()
+    "REPLACE INTO config(name,value,mtime) VALUES('content-schema',%Q,now());"
+    "REPLACE INTO config(name,value,mtime) VALUES('aux-schema',%Q,now());"
+    "REPLACE INTO config(name,value,mtime) VALUES('rebuilt',%Q,now());",
+    CONTENT_SCHEMA, AUX_SCHEMA_MAX, get_version()
   );
   if( errCnt && !forceFlag ){
     fossil_print(
@@ -630,6 +659,7 @@ void rebuild_database(void){
       db_multi_exec("PRAGMA journal_mode=WAL;");
     }
   }
+  if( runReindex ) search_rebuild_index();
   if( showStats ){
     static const struct { int idx; const char *zLabel; } aStat[] = {
        { CFTYPE_ANY,       "Artifacts:" },
@@ -795,6 +825,10 @@ void scrub_cmd(void){
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 2);
   db_close(1);
   db_open_repository(g.zRepositoryName);
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( !bForce ){
     Blob ans;
     char cReply;
@@ -822,10 +856,14 @@ void scrub_cmd(void){
     );
     if( bVerily ){
       db_multi_exec(
-        "DELETE FROM concealed;"
-        "UPDATE rcvfrom SET ipaddr='unknown';"
-        "DROP TABLE IF EXISTS accesslog;"
-        "UPDATE user SET photo=NULL, info='';"
+        "DELETE FROM concealed;\n"
+        "UPDATE rcvfrom SET ipaddr='unknown';\n"
+        "DROP TABLE IF EXISTS accesslog;\n"
+        "UPDATE user SET photo=NULL, info='';\n"
+        "DROP TABLE IF EXISTS purgeevent;\n"
+        "DROP TABLE IF EXISTS purgeitem;\n"
+        "DROP TABLE IF EXISTS admin_log;\n"
+        "DROP TABLE IF EXISTS vcache;\n"
       );
     }
   }
@@ -917,9 +955,13 @@ void reconstruct_cmd(void) {
   }
   db_create_repository(g.argv[2]);
   db_open_repository(g.argv[2]);
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   db_open_config(0);
   db_begin_transaction();
-  db_initial_setup(0, 0, 0, 1);
+  db_initial_setup(0, 0, 0);
 
   fossil_print("Reading files from directory \"%s\"...\n", g.argv[3]);
   recon_read_dir(g.argv[3]);

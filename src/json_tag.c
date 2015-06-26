@@ -303,7 +303,7 @@ static cson_value * json_tag_find(){
                "  )"
                " ORDER BY event.mtime DESC"
                "%s LIMIT %d",
-               zSqlBase, zType, tagid,
+               zSqlBase /*safe-for-%s*/, zType, tagid,
                (limit>0)?"":"--", limit
                );
     listV = json_stmt_to_array_of_obj(&q, NULL);
@@ -355,7 +355,7 @@ static cson_value * json_tag_list(){
   cson_object_set(pay, "raw", cson_value_new_bool(fRaw) );
   if( zCheckin ){
     /**
-       Tags for a specific checkin. Output format:
+       Tags for a specific check-in. Output format:
 
        RAW mode:
     
@@ -376,7 +376,7 @@ static cson_value * json_tag_list(){
     int const rid = name_to_rid(zCheckin);
     if(0==rid){
       json_set_err(FSL_JSON_E_UNRESOLVED_UUID,
-                   "Could not find artifact for checkin [%s].",
+                   "Could not find artifact for check-in [%s].",
                    zCheckin);
       goto error;
     }
@@ -444,7 +444,7 @@ static cson_value * json_tag_list(){
     }
     blob_append(&sql,
                 " ORDER BY tagname", -1);
-    db_prepare(&q, blob_buffer(&sql));
+    db_prepare(&q, "%s", blob_sql_text(&sql));
     blob_reset(&sql);
     cson_object_set(pay, "includeTickets", cson_value_new_bool(fTicket) );
     while( SQLITE_ROW == db_step(&q) ){

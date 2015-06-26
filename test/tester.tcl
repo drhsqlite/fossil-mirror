@@ -331,6 +331,72 @@ proc random_changes {body blocksize count index prob} {
   return [string range $out 1 end]
 }
 
+# Executes the "fossil http" command.  The entire content of the HTTP request
+# is read from the data file name, with [subst] being performed on it prior to
+# submission.  Temporary input and output files are created and deleted.  The
+# result will be the contents of the temoprary output file.
+proc test_fossil_http { repository dataFileName url } {
+  set suffix [appendArgs [pid] - [getSeqNo] - [clock seconds] .txt]
+  set inFileName [file join $::tempPath [appendArgs test-http-in- $suffix]]
+  set outFileName [file join $::tempPath [appendArgs test-http-out- $suffix]]
+  set data [subst [read_file $dataFileName]]
+
+  write_file $inFileName $data
+  fossil http $inFileName $outFileName 127.0.0.1 $repository --localauth
+  set result [expr {[file exists $outFileName] ? [read_file $outFileName] : ""}]
+
+  if {1} then {
+    catch {file delete $inFileName}
+    catch {file delete $outFileName}
+  }
+
+  return $result
+}
+
+# obtains and increments a "sequence number" for this test run.
+proc getSeqNo {} {
+  upvar #0 seqNo seqNo
+  if {![info exists seqNo]} {
+    set seqNo 0
+  }
+  return [incr seqNo]
+}
+
+# fixup the whitespace in the result to make it easier to compare.
+proc normalize_result {} {
+  return [string map [list \r\n \n] [string trim $::RESULT]]
+}
+
+# returns the first line of the normalized result.
+proc first_data_line {} {
+  return [lindex [split [normalize_result] \n] 0]
+}
+
+# returns the second line of the normalized result.
+proc second_data_line {} {
+  return [lindex [split [normalize_result] \n] 1]
+}
+
+# returns the third line of the normalized result.
+proc third_data_line {} {
+  return [lindex [split [normalize_result] \n] 2]
+}
+
+# returns the last line of the normalized result.
+proc last_data_line {} {
+  return [lindex [split [normalize_result] \n] end]
+}
+
+# returns the second to last line of the normalized result.
+proc next_to_last_data_line {} {
+  return [lindex [split [normalize_result] \n] end-1]
+}
+
+# returns the third to last line of the normalized result.
+proc third_to_last_data_line {} {
+  return [lindex [split [normalize_result] \n] end-2]
+}
+
 protInit $fossilexe
 foreach testfile $argv {
   set dir [file root [file tail $testfile]]

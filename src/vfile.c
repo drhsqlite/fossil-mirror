@@ -138,11 +138,18 @@ int load_vfile_from_rid(int vid){
 #endif /* INTERFACE */
 
 /*
-** Look at every VFILE entry with the given vid and update
-** VFILE.CHNGED field according to whether or not
-** the file has changed.  0 means no change.  1 means edited.  2 means
-** the file has changed due to a merge.  3 means the file was added
-** by a merge.
+** Look at every VFILE entry with the given vid and update VFILE.CHNGED field
+** according to whether or not the file has changed.
+** - 0 means no change.
+** - 1 means edited.
+** - 2 means changed due to a merge.
+** - 3 means added by a merge.
+** - 4 means changed due to an integrate merge.
+** - 5 means added by an integrate merge.
+** - 6 means became executable but has unmodified contents.
+** - 7 means became a symlink whose target equals its old contents.
+** - 8 means lost executable status but has unmodified contents.
+** - 9 means lost symlink status and has contents equal to its old target.
 **
 ** If VFILE.DELETED is true or if VFILE.RID is zero, then the file was either
 ** removed from configuration management via "fossil rm" or added via
@@ -172,14 +179,18 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
 
   db_begin_transaction();
   db_prepare(&q, "SELECT id, %Q || pathname,"
-                 "       vfile.mrid, deleted, chnged, uuid, size, mtime"
+                 "       vfile.mrid, deleted, chnged, uuid, size, mtime,"
+                 "      CASE WHEN isexe THEN %d WHEN islink THEN %d ELSE %d END"
                  "  FROM vfile LEFT JOIN blob ON vfile.mrid=blob.rid"
-                 " WHERE vid=%d ", g.zLocalRoot, vid);
+                 " WHERE vid=%d ", g.zLocalRoot, PERM_EXE, PERM_LNK, PERM_REG,
+                 vid);
   while( db_step(&q)==SQLITE_ROW ){
     int id, rid, isDeleted;
     const char *zName;
     int chnged = 0;
     int oldChnged;
+    int origPerm;
+    int currentPerm;
     i64 oldMtime;
     i64 currentMtime;
     i64 origSize;
@@ -191,9 +202,11 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
     isDeleted = db_column_int(&q, 3);
     oldChnged = chnged = db_column_int(&q, 4);
     oldMtime = db_column_int64(&q, 7);
-    currentSize = file_wd_size(zName);
     origSize = db_column_int64(&q, 6);
+    currentSize = file_wd_size(zName);
     currentMtime = file_wd_mtime(0);
+    origPerm = db_column_int(&q, 8);
+    currentPerm = file_wd_perm(zName);
     if( chnged==0 && (isDeleted || rid==0) ){
       /* "fossil rm" or "fossil add" always change the file */
       chnged = 1;
@@ -247,6 +260,21 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
         }
       }
     }
+#ifndef _WIN32
+    if( chnged==0 || chnged==6 || chnged==7 || chnged==8 || chnged==9 ){
+      if( origPerm == currentPerm ){
+        chnged = 0;
+      }else if( currentPerm == PERM_EXE ){
+        chnged = 6;
+      }else if( currentPerm == PERM_LNK ){
+        chnged = 7;
+      }else if( origPerm == PERM_EXE ){
+        chnged = 8;
+      }else if( origPerm == PERM_LNK ){
+        chnged = 9;
+      }
+    }
+#endif
     if( currentMtime!=oldMtime || chnged!=oldChnged ){
       db_multi_exec("UPDATE vfile SET mtime=%lld, chnged=%d WHERE id=%d",
                     currentMtime, chnged, id);
@@ -322,7 +350,7 @@ void vfile_to_disk(
       /*TODO(dchest): remove directories? */
       fossil_fatal("%s is directory, cannot overwrite\n", zName);
     }
-    if( file_wd_size(zName)>=0 && (isLink || file_wd_islink(zName)) ){
+    if( file_wd_size(zName)>=0 && (isLink || file_wd_islink(0)) ){
       file_delete(zName);
     }
     if( isLink ){
@@ -399,9 +427,9 @@ static int is_temporary_file(const char *zName){
   };
   int i, j, n;
 
-  if( strglob("ci-comment-????????????.txt", zName) ) return 1;
+  if( sqlite3_strglob("ci-comment-????????????.txt", zName)==0 ) return 1;
   for(; zName[0]!=0; zName++){
-    if( zName[0]=='/' && strglob("/ci-comment-????????????.txt", zName) ){
+    if( zName[0]=='/' && sqlite3_strglob("/ci-comment-????????????.txt", zName)==0 ){
       return 1;
     }
     if( zName[0]!='-' ) continue;
@@ -548,8 +576,7 @@ int vfile_dir_scan(
   int nPrefix,           /* Number of bytes in base directory name */
   unsigned scanFlags,    /* Zero or more SCAN_xxx flags */
   Glob *pIgnore1,        /* Do not add directories that match this GLOB */
-  Glob *pIgnore2,        /* Omit directories matching this GLOB too */
-  Glob *pIgnore3         /* Omit directories matching this GLOB too */
+  Glob *pIgnore2         /* Omit directories matching this GLOB too */
 ){
   int result = 0;
   DIR *d;
@@ -562,11 +589,10 @@ int vfile_dir_scan(
   void *zNative;
 
   origSize = blob_size(pPath);
-  if( pIgnore1 || pIgnore2 || pIgnore3 ){
+  if( pIgnore1 || pIgnore2 ){
     blob_appendf(pPath, "/");
     if( glob_match(pIgnore1, &blob_str(pPath)[nPrefix+1]) ) skipAll = 1;
     if( glob_match(pIgnore2, &blob_str(pPath)[nPrefix+1]) ) skipAll = 1;
-    if( glob_match(pIgnore3, &blob_str(pPath)[nPrefix+1]) ) skipAll = 1;
     blob_resize(pPath, origSize);
   }
   if( skipAll ) return result;
@@ -606,8 +632,7 @@ int vfile_dir_scan(
       blob_appendf(pPath, "/%s", zUtf8);
       zPath = blob_str(pPath);
       if( glob_match(pIgnore1, &zPath[nPrefix+1]) ||
-          glob_match(pIgnore2, &zPath[nPrefix+1]) ||
-          glob_match(pIgnore3, &zPath[nPrefix+1]) ){
+          glob_match(pIgnore2, &zPath[nPrefix+1]) ){
         /* do nothing */
 #ifdef _DIRENT_HAVE_D_TYPE
       }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
@@ -618,7 +643,7 @@ int vfile_dir_scan(
         if( (scanFlags & SCAN_NESTED) || !vfile_top_of_checkout(zPath) ){
           char *zSavePath = mprintf("%s", zPath);
           int count = vfile_dir_scan(pPath, nPrefix, scanFlags, pIgnore1,
-                                     pIgnore2, pIgnore3);
+                                     pIgnore2);
           db_bind_text(&ins, ":file", &zSavePath[nPrefix+1]);
           db_bind_int(&ins, ":count", count);
           db_step(&ins);
@@ -918,6 +943,11 @@ void vfile_aggregate_checksum_manifest(int vid, Blob *pOut, Blob *pManOut){
 
 /*
 ** COMMAND: test-agg-cksum
+**
+** Display the aggregate checksum for content computed in several
+** different ways.  The aggregate checksum is used during "fossil commit"
+** to double-check that the information about to be committed to the
+** repository exactly matches the information currently in the check-out.
 */
 void test_agg_cksum_cmd(void){
   int vid;

@@ -78,6 +78,9 @@ static int check_name(const char *z){
 ** WEBPAGE: home
 ** WEBPAGE: index
 ** WEBPAGE: not_found
+**
+** The /home, /index, and /not_found pages all redirect to the homepage
+** configured by the administrator.
 */
 void home_page(void){
   char *zPageName = db_get("project-name",0);
@@ -136,7 +139,11 @@ const char *wiki_filter_mimetypes(const char *zMimetype){
 }
 
 /*
-** Render wiki text according to its mimetype
+** Render wiki text according to its mimetype.
+**
+**   text/x-fossil-wiki      Fossil wiki
+**   text/x-markdown         Markdown
+**   anything else...        Plain text
 */
 void wiki_render_by_mimetype(Blob *pWiki, const char *zMimetype){
   if( zMimetype==0 || fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0 ){
@@ -145,9 +152,11 @@ void wiki_render_by_mimetype(Blob *pWiki, const char *zMimetype){
     Blob title = BLOB_INITIALIZER;
     Blob tail = BLOB_INITIALIZER;
     markdown_to_html(pWiki, &title, &tail);
+#if 0
     if( blob_size(&title)>0 ){
       @ <h1>%s(blob_str(&title))</h1>
     }
+#endif
     @ %s(blob_str(&tail))
     blob_reset(&title);
     blob_reset(&tail);
@@ -158,6 +167,144 @@ void wiki_render_by_mimetype(Blob *pWiki, const char *zMimetype){
   }
 }
 
+/*
+** WEBPAGE: md_rules
+**
+** Show a summary of the Markdown wiki formatting rules.
+*/
+void markdown_rules_page(void){
+  Blob x;
+  int fTxt = P("txt")!=0;
+  style_header("Markdown Formatting Rules");
+  if( fTxt ){
+    style_submenu_element("Formatted", "Formatted", "%R/md_rules");
+  }else{
+    style_submenu_element("Plain-Text", "Plain-Text", "%R/md_rules?txt=1");
+  }
+  blob_init(&x, builtin_text("markdown.md"), -1);
+  wiki_render_by_mimetype(&x, fTxt ? "text/plain" : "text/x-markdown");
+  blob_reset(&x);
+  style_footer();
+}
+
+/*
+** Returns non-zero if moderation is required for wiki changes and wiki
+** attachments.
+*/
+int wiki_need_moderation(
+  int localUser /* Are we being called for a local interactive user? */
+){
+  /*
+  ** If the FOSSIL_FORCE_WIKI_MODERATION variable is set, *ALL* changes for
+  ** wiki pages will be required to go through moderation (even those performed
+  ** by the local interactive user via the command line).  This can be useful
+  ** for local (or remote) testing of the moderation subsystem and its impact
+  ** on the contents and status of wiki pages.
+  */
+  if( fossil_getenv("FOSSIL_FORCE_WIKI_MODERATION")!=0 ){
+    return 1;
+  }
+  if( localUser ){
+    return 0;
+  }
+  return g.perm.ModWiki==0 && db_get_boolean("modreq-wiki",0)==1;
+}
+
+/* Standard submenu items for wiki pages */
+#define W_SRCH        0x00001
+#define W_LIST        0x00002
+#define W_HELP        0x00004
+#define W_NEW         0x00008
+#define W_BLOG        0x00010
+#define W_SANDBOX     0x00020
+#define W_ALL         0x0001f
+#define W_ALL_BUT(x)  (W_ALL&~(x))
+
+/*
+** Add some standard submenu elements for wiki screens.
+*/
+static void wiki_standard_submenu(unsigned int ok){
+  if( (ok & W_SRCH)!=0 && search_restrict(SRCH_WIKI)!=0 ){
+    style_submenu_element("Search","Search","%R/wikisrch");
+  }
+  if( (ok & W_LIST)!=0 ){
+    style_submenu_element("List","List","%R/wcontent");
+  }
+  if( (ok & W_HELP)!=0 ){
+    style_submenu_element("Help","Help","%R/wikihelp");
+  }
+  if( (ok & W_NEW)!=0 && g.anon.NewWiki ){
+    style_submenu_element("New","New","%R/wikinew");
+  }
+#if 0
+  if( (ok & W_BLOG)!=0
+#endif
+  if( (ok & W_SANDBOX)!=0 ){
+    style_submenu_element("Sandbox", "Sandbox", "%R/wiki?name=Sandbox");
+  }
+}
+
+/*
+** WEBPAGE: wikihelp
+** A generic landing page for wiki.
+*/
+void wiki_helppage(void){
+  login_check_credentials();
+  if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
+  style_header("Wiki Help");
+  wiki_standard_submenu(W_ALL_BUT(W_HELP));
+  @ <h2>Wiki Links</h2>
+  @ <ul>
+  { char *zWikiHomePageName = db_get("index-page",0);
+    if( zWikiHomePageName ){
+      @ <li> %z(href("%R%s",zWikiHomePageName))
+      @      %h(zWikiHomePageName)</a> wiki home page.</li>
+    }
+  }
+  { char *zHomePageName = db_get("project-name",0);
+    if( zHomePageName ){
+      @ <li> %z(href("%R/wiki?name=%t",zHomePageName))
+      @      %h(zHomePageName)</a> project home page.</li>
+    }
+  }
+  @ <li> %z(href("%R/timeline?y=w"))Recent changes</a> to wiki pages.</li>
+  @ <li> Formatting rules for %z(href("%R/wiki_rules"))Fossil Wiki</a> and for
+  @ %z(href("%R/md_rules"))Markdown Wiki</a>.</li>
+  @ <li> Use the %z(href("%R/wiki?name=Sandbox"))Sandbox</a>
+  @      to experiment.</li>
+  if( g.anon.NewWiki ){
+    @ <li>  Create a %z(href("%R/wikinew"))new wiki page</a>.</li>
+    if( g.anon.Write ){
+      @ <li>   Create a %z(href("%R/technoteedit"))new tech-note</a>.</li>
+    }
+  }
+  @ <li> %z(href("%R/wcontent"))List of All Wiki Pages</a>
+  @      available on this server.</li>
+  if( g.anon.ModWiki ){
+    @ <li> %z(href("%R/modreq"))Tend to pending moderation requests</a></li>
+  }
+  if( search_restrict(SRCH_WIKI)!=0 ){
+    @ <li> %z(href("%R/wikisrch"))Search</a> for wiki pages containing key
+    @ words</li>
+  }
+  @ </ul>
+  style_footer();
+  return;
+}
+
+/*
+** WEBPAGE: wikisrch
+** Usage:  /wikisrch?s=PATTERN
+**
+** Full-text search of all current wiki text
+*/
+void wiki_srchpage(void){
+  login_check_credentials();
+  style_header("Wiki Search");
+  wiki_standard_submenu(W_HELP|W_LIST|W_SANDBOX);
+  search_screen(SRCH_WIKI, 0);
+  style_footer();
+}
 
 /*
 ** WEBPAGE: wiki
@@ -168,6 +315,7 @@ void wiki_page(void){
   int rid = 0;
   int isSandbox;
   char *zUuid;
+  unsigned submenuFlags = W_ALL;
   Blob wiki;
   Manifest *pWiki = 0;
   const char *zPageName;
@@ -175,61 +323,34 @@ void wiki_page(void){
   char *zBody = mprintf("%s","<i>Empty Page</i>");
 
   login_check_credentials();
-  if( !g.perm.RdWiki ){ login_needed(); return; }
+  if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
   zPageName = P("name");
   if( zPageName==0 ){
-    style_header("Wiki");
-    @ <ul>
-    { char *zWikiHomePageName = db_get("index-page",0);
-      if( zWikiHomePageName ){
-        @ <li> %z(href("%R%s",zWikiHomePageName))
-        @      %h(zWikiHomePageName)</a> wiki home page.</li>
-      }
+    if( search_restrict(SRCH_WIKI)!=0 ){
+      wiki_srchpage();
+    }else{
+      wiki_helppage();
     }
-    { char *zHomePageName = db_get("project-name",0);
-      if( zHomePageName ){
-        @ <li> %z(href("%R/wiki?name=%t",zHomePageName))
-        @      %h(zHomePageName)</a> project home page.</li>
-      }
-    }
-    @ <li> %z(href("%R/timeline?y=w"))Recent changes</a> to wiki pages.</li>
-    @ <li> %z(href("%R/wiki_rules"))Formatting rules</a> for wiki.</li>
-    @ <li> Use the %z(href("%R/wiki?name=Sandbox"))Sandbox</a>
-    @      to experiment.</li>
-    if( g.perm.NewWiki ){
-      @ <li>  Create a %z(href("%R/wikinew"))new wiki page</a>.</li>
-      if( g.perm.Write ){
-        @ <li>   Create a %z(href("%R/eventedit"))new event</a>.</li>
-      }
-    }
-    @ <li> %z(href("%R/wcontent"))List of All Wiki Pages</a>
-    @      available on this server.</li>
-    if( g.perm.ModWiki ){
-      @ <li> %z(href("%R/modreq"))Tend to pending moderation requests</a></li>
-    }
-    @ <li>
-    form_begin(0, "%R/wfind");
-    @  <div>Search wiki titles: <input type="text" name="title"/>
-    @  &nbsp; <input type="submit" /></div></form>
-    @ </li>
-    @ </ul>
-    style_footer();
     return;
   }
   if( check_name(zPageName) ) return;
   isSandbox = is_sandbox(zPageName);
   if( isSandbox ){
+    submenuFlags &= ~W_SANDBOX;
     zBody = db_get("sandbox",zBody);
     zMimetype = db_get("sandbox-mimetype","text/x-fossil-wiki");
     rid = 0;
   }else{
-    zTag = mprintf("wiki-%s", zPageName);
-    rid = db_int(0,
-      "SELECT rid FROM tagxref"
-      " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
-      " ORDER BY mtime DESC", zTag
-    );
-    free(zTag);
+    const char *zUuid = P("id");
+    if( zUuid==0 || (rid = symbolic_name_to_rid(zUuid,"w"))==0 ){
+      zTag = mprintf("wiki-%s", zPageName);
+      rid = db_int(0,
+        "SELECT rid FROM tagxref"
+        " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
+        " ORDER BY mtime DESC", zTag
+      );
+      free(zTag);
+    }
     pWiki = manifest_get(rid, CFTYPE_WIKI, 0);
     if( pWiki ){
       zBody = pWiki->zWiki;
@@ -245,7 +366,7 @@ void wiki_page(void){
       style_submenu_element("Details", "Details",
                    "%R/info/%s", zUuid);
     }
-    if( (rid && g.perm.WrWiki) || (!rid && g.perm.NewWiki) ){
+    if( (rid && g.anon.WrWiki) || (!rid && g.anon.NewWiki) ){
       if( db_get_boolean("wysiwyg-wiki", 0) ){
         style_submenu_element("Edit", "Edit Wiki Page",
              "%s/wikiedit?name=%T&wysiwyg=1",
@@ -256,12 +377,12 @@ void wiki_page(void){
              g.zTop, zPageName);
       }
     }
-    if( rid && g.perm.ApndWiki && g.perm.Attach ){
+    if( rid && g.anon.ApndWiki && g.anon.Attach ){
       style_submenu_element("Attach", "Add An Attachment",
            "%s/attachadd?page=%T&from=%s/wiki%%3fname=%T",
            g.zTop, zPageName, g.zTop, zPageName);
     }
-    if( rid && g.perm.ApndWiki ){
+    if( rid && g.anon.ApndWiki ){
       style_submenu_element("Append", "Add A Comment",
            "%s/wikiappend?name=%T&mimetype=%s",
            g.zTop, zPageName, zMimetype);
@@ -272,7 +393,8 @@ void wiki_page(void){
     }
   }
   style_set_current_page("%T?name=%T", g.zPath, zPageName);
-  style_header(zPageName);
+  style_header("%s", zPageName);
+  wiki_standard_submenu(submenuFlags);
   blob_init(&wiki, zBody, -1);
   wiki_render_by_mimetype(&wiki, zMimetype);
   blob_reset(&wiki);
@@ -284,9 +406,9 @@ void wiki_page(void){
 /*
 ** Write a wiki artifact into the repository
 */
-static void wiki_put(Blob *pWiki, int parent){
+static void wiki_put(Blob *pWiki, int parent, int needMod){
   int nrid;
-  if( g.perm.ModWiki || db_get_boolean("modreq-wiki",0)==0 ){
+  if( !needMod ){
     nrid = content_put_ex(pWiki, 0, 0, 0, 0);
     if( parent) content_deltify(parent, nrid, 0);
   }else{
@@ -312,9 +434,9 @@ static const char *const azStyles[] = {
 ** Output a selection box from which the user can select the
 ** wiki mimetype.
 */
-static void mimetype_option_menu(const char *zMimetype){
+void mimetype_option_menu(const char *zMimetype){
   unsigned i;
-  @ Markup style: <select name="mimetype" size="1">
+  @ <select name="mimetype" size="1">
   for(i=0; i<sizeof(azStyles)/sizeof(azStyles[0]); i+=2){
     if( fossil_strcmp(zMimetype,azStyles[i])==0 ){
       @ <option value="%s(azStyles[i])" selected>%s(azStyles[i+1])</option>
@@ -341,6 +463,8 @@ static const char *mimetype_common_name(const char *zMimetype){
 /*
 ** WEBPAGE: wikiedit
 ** URL: /wikiedit?name=PAGENAME
+**
+** Edit a wiki page.
 */
 void wikiedit_page(void){
   char *zTag;
@@ -374,7 +498,7 @@ void wikiedit_page(void){
   isSandbox = is_sandbox(zPageName);
   if( isSandbox ){
     if( !g.perm.WrWiki ){
-      login_needed();
+      login_needed(g.anon.WrWiki);
       return;
     }
     if( zBody==0 ){
@@ -390,7 +514,7 @@ void wikiedit_page(void){
     );
     free(zTag);
     if( (rid && !g.perm.WrWiki) || (!rid && !g.perm.NewWiki) ){
-      login_needed();
+      login_needed(rid ? g.anon.WrWiki : g.anon.NewWiki);
       return;
     }
     if( zBody==0 && (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))!=0 ){
@@ -429,7 +553,7 @@ void wikiedit_page(void){
       md5sum_blob(&wiki, &cksum);
       blob_appendf(&wiki, "Z %b\n", &cksum);
       blob_reset(&cksum);
-      wiki_put(&wiki, 0);
+      wiki_put(&wiki, 0, wiki_need_moderation(0));
     }
     db_end_transaction(0);
     cgi_redirectf("wiki?name=%T", zPageName);
@@ -462,7 +586,7 @@ void wikiedit_page(void){
   if( !isWysiwyg ){
     /* Traditional markup-only editing */
     form_begin(0, "%R/wikiedit");
-    @ <div>
+    @ <div>Markup style:
     mimetype_option_menu(zMimetype);
     @ <br /><textarea name="w" class="wikiedit" cols="80"
     @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
@@ -514,7 +638,7 @@ void wikinew_page(void){
   const char *zMimetype;
   login_check_credentials();
   if( !g.perm.NewWiki ){
-    login_needed();
+    login_needed(g.anon.NewWiki);
     return;
   }
   zName = PD("name","");
@@ -529,11 +653,13 @@ void wikinew_page(void){
     }
   }
   style_header("Create A New Wiki Page");
+  wiki_standard_submenu(W_ALL_BUT(W_NEW));
   @ <p>Rules for wiki page names:</p>
   well_formed_wiki_name_rules();
   form_begin(0, "%R/wikinew");
   @ <p>Name of new wiki page:
   @ <input style="width: 35;" type="text" name="name" value="%h(zName)" /><br />
+  @ Markup style:
   mimetype_option_menu("text/x-fossil-wiki");
   @ <br /><input type="submit" value="Create" />
   @ </p></form>
@@ -585,6 +711,8 @@ static void appendRemark(Blob *p, const char *zMimetype){
 /*
 ** WEBPAGE: wikiappend
 ** URL: /wikiappend?name=PAGENAME&mimetype=MIMETYPE
+**
+** Append text to the end of a wiki page.
 */
 void wikiappend_page(void){
   char *zTag;
@@ -615,7 +743,7 @@ void wikiappend_page(void){
     }
   }
   if( !g.perm.ApndWiki ){
-    login_needed();
+    login_needed(g.anon.ApndWiki);
     return;
   }
   if( P("submit")!=0 && P("r")!=0 && P("u")!=0
@@ -629,7 +757,7 @@ void wikiappend_page(void){
 
     blob_zero(&body);
     if( isSandbox ){
-      blob_appendf(&body, db_get("sandbox",""));
+      blob_append(&body, db_get("sandbox",""), -1);
       appendRemark(&body, zMimetype);
       db_set("sandbox", blob_str(&body), 0);
     }else{
@@ -660,7 +788,7 @@ void wikiappend_page(void){
       md5sum_blob(&wiki, &cksum);
       blob_appendf(&wiki, "Z %b\n", &cksum);
       blob_reset(&cksum);
-      wiki_put(&wiki, rid);
+      wiki_put(&wiki, rid, wiki_need_moderation(0));
       db_end_transaction(0);
     }
     cgi_redirectf("wiki?name=%T", zPageName);
@@ -726,27 +854,21 @@ static void wiki_history_extra(int rid){
 */
 void whistory_page(void){
   Stmt q;
-  char *zTitle;
-  char *zSQL;
   const char *zPageName;
   login_check_credentials();
-  if( !g.perm.Hyperlink ){ login_needed(); return; }
+  if( !g.perm.Hyperlink ){ login_needed(g.anon.Hyperlink); return; }
   zPageName = PD("name","");
-  zTitle = mprintf("History Of %s", zPageName);
-  style_header(zTitle);
-  free(zTitle);
+  style_header("History Of %s", zPageName);
 
-  zSQL = mprintf("%s AND event.objid IN "
+  db_prepare(&q, "%s AND event.objid IN "
                  "  (SELECT rid FROM tagxref WHERE tagid="
                        "(SELECT tagid FROM tag WHERE tagname='wiki-%q')"
                  "   UNION SELECT attachid FROM attachment"
                           " WHERE target=%Q)"
                  "ORDER BY mtime DESC",
                  timeline_query_for_www(), zPageName, zPageName);
-  db_prepare(&q, zSQL);
-  free(zSQL);
   zWikiPageName = zPageName;
-  www_print_timeline(&q, TIMELINE_ARTID, 0, 0, wiki_history_extra);
+  www_print_timeline(&q, TIMELINE_ARTID, 0, 0, 0, wiki_history_extra);
   db_finalize(&q);
   style_footer();
 }
@@ -758,7 +880,6 @@ void whistory_page(void){
 ** Show the difference between two wiki pages.
 */
 void wdiff_page(void){
-  char *zTitle;
   int rid1, rid2;
   const char *zPageName;
   Manifest *pW1, *pW2 = 0;
@@ -767,13 +888,11 @@ void wdiff_page(void){
 
   login_check_credentials();
   rid1 = atoi(PD("a","0"));
-  if( !g.perm.Hyperlink ){ login_needed(); return; }
+  if( !g.perm.Hyperlink ){ login_needed(g.anon.Hyperlink); return; }
   if( rid1==0 ) fossil_redirect_home();
   rid2 = atoi(PD("b","0"));
   zPageName = PD("name","");
-  zTitle = mprintf("Changes To %s", zPageName);
-  style_header(zTitle);
-  free(zTitle);
+  style_header("Changes To %s", zPageName);
 
   if( rid2==0 ){
     rid2 = db_int(0,
@@ -814,7 +933,8 @@ void wiki_prepare_page_list( Stmt * pStmt ){
   db_prepare(pStmt,
     "SELECT"
     "  substr(tagname, 6) as name,"
-    "  (SELECT value FROM tagxref WHERE tagid=tag.tagid ORDER BY mtime DESC) as tagXref"
+    "  (SELECT value FROM tagxref WHERE tagid=tag.tagid"
+    "    ORDER BY mtime DESC) as tagXref"
     "  FROM tag WHERE tagname GLOB 'wiki-*'"
     " ORDER BY lower(tagname) /*sort*/"
   );
@@ -831,13 +951,14 @@ void wcontent_page(void){
   int showAll = P("all")!=0;
 
   login_check_credentials();
-  if( !g.perm.RdWiki ){ login_needed(); return; }
+  if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
   style_header("Available Wiki Pages");
   if( showAll ){
     style_submenu_element("Active", "Only Active Pages", "%s/wcontent", g.zTop);
   }else{
     style_submenu_element("All", "All", "%s/wcontent?all=1", g.zTop);
   }
+  wiki_standard_submenu(W_ALL_BUT(W_LIST));
   @ <ul>
   wiki_prepare_page_list(&q);
   while( db_step(&q)==SQLITE_ROW ){
@@ -862,9 +983,9 @@ void wcontent_page(void){
 */
 void wfind_page(void){
   Stmt q;
-  const char * zTitle;
+  const char *zTitle;
   login_check_credentials();
-  if( !g.perm.RdWiki ){ login_needed(); return; }
+  if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
   zTitle = PD("title","*");
   style_header("Wiki Pages Found");
   @ <ul>
@@ -883,6 +1004,8 @@ void wfind_page(void){
 
 /*
 ** WEBPAGE: wiki_rules
+**
+** Show the formatting rules for Fossil wiki.
 */
 void wikirules_page(void){
   style_header("Wiki Formatting Rules");
@@ -903,7 +1026,8 @@ void wikirules_page(void){
   @ last two rules are the HTML formatting rule.</p>
   @ <h2>Formatting Rule Details</h2>
   @ <ol>
-  @ <li> <p><span class="wikiruleHead">Paragraphs</span>.  Any sequence of one or more blank lines forms
+  @ <li> <p><span class="wikiruleHead">Paragraphs</span>.
+  @ Any sequence of one or more blank lines forms
   @ a paragraph break.  Centered or right-justified paragraphs are not
   @ supported by wiki markup, but you can do these things if you need them
   @ using HTML.</p></li>
@@ -928,7 +1052,8 @@ void wikirules_page(void){
   @ the name of an image, or a URL.  By default, the target is displayed
   @ as the text of the hyperlink.  But you can specify alternative text
   @ after the target name separated by a "|" character.</p>
-  @ <p>You can also link to internal anchor names using [#anchor-name], providing
+  @ <p>You can also link to internal anchor names using [#anchor-name],
+  @ providing
   @ you have added the necessary "&lt;a name='anchor-name'&gt;&lt;/a&gt;"
   @ tag to your wiki page.</p></li>
   @ <li> <p><span class="wikiruleHead">HTML</span>.
@@ -962,14 +1087,14 @@ void wikirules_page(void){
 ** empty, or "text/x-fossil-wiki" (the default format) then it is
 ** ignored.
 */
-int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent,
-                    char const * zMimeType){
+int wiki_cmd_commit(const char *zPageName, int isNew, Blob *pContent,
+                    const char *zMimeType, int localUser){
   Blob wiki;              /* Wiki page content */
   Blob cksum;             /* wiki checksum */
   int rid;                /* artifact ID of parent page */
   char *zDate;            /* timestamp */
   char *zUuid;            /* uuid for rid */
-  
+
   rid = db_int(0,
      "SELECT x.rid FROM tag t, tagxref x"
      " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
@@ -1013,7 +1138,7 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent,
   blob_appendf(&wiki, "Z %b\n", &cksum);
   blob_reset(&cksum);
   db_begin_transaction();
-  wiki_put(&wiki, 0);
+  wiki_put(&wiki, 0, wiki_need_moderation(localUser));
   db_end_transaction(0);
   return 1;
 }
@@ -1043,6 +1168,7 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent,
 **        FILE or from standard input.
 **
 **     %fossil wiki list
+**     %fossil wiki ls
 **
 **        Lists all wiki entries, one per line, ordered
 **        case-insensitively by name.
@@ -1060,8 +1186,8 @@ void wiki_cmd(void){
   }
 
   if( strncmp(g.argv[2],"export",n)==0 ){
-    char const *zPageName;        /* Name of the wiki page to export */
-    char const *zFile;            /* Name of the output file (0=stdout) */
+    const char *zPageName;        /* Name of the wiki page to export */
+    const char *zFile;            /* Name of the output file (0=stdout) */
     int rid;                      /* Artifact ID of the wiki page */
     int i;                        /* Loop counter */
     char *zBody = 0;              /* Wiki page content */
@@ -1093,11 +1219,11 @@ void wiki_cmd(void){
     return;
   }else if( strncmp(g.argv[2],"commit",n)==0
             || strncmp(g.argv[2],"create",n)==0 ){
-    char const *zPageName;        /* page name */
+    const char *zPageName;        /* page name */
     Blob content;                 /* Input content */
     int rid;
     Manifest *pWiki = 0;          /* Parsed wiki page content */
-    char const * zMimeType = find_option("mimetype", "M", 1);
+    const char *zMimeType = find_option("mimetype", "M", 1);
     if( g.argc!=4 && g.argc!=5 ){
       usage("commit|create PAGENAME ?FILE? [-mimetype TEXT-FORMAT]");
     }
@@ -1120,10 +1246,10 @@ void wiki_cmd(void){
       }
     }
     if( g.argv[2][1]=='r' ){
-      wiki_cmd_commit(zPageName, 1, &content, zMimeType);
+      wiki_cmd_commit(zPageName, 1, &content, zMimeType, 1);
       fossil_print("Created new wiki page %s.\n", zPageName);
     }else{
-      wiki_cmd_commit(zPageName, 0, &content, zMimeType);
+      wiki_cmd_commit(zPageName, 0, &content, zMimeType, 1);
       fossil_print("Updated wiki page %s.\n", zPageName);
     }
     manifest_destroy(pWiki);
@@ -1133,7 +1259,8 @@ void wiki_cmd(void){
       usage("delete PAGENAME");
     }
     fossil_fatal("delete not yet implemented.");
-  }else if( strncmp(g.argv[2],"list",n)==0 ){
+  }else if(( strncmp(g.argv[2],"list",n)==0 )
+          || ( strncmp(g.argv[2],"ls",n)==0 )){
     Stmt q;
     db_prepare(&q,
       "SELECT substr(tagname, 6) FROM tag WHERE tagname GLOB 'wiki-*'"

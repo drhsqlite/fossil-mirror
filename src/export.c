@@ -73,8 +73,8 @@ static void print_person(const char *zUser){
     ** the part.
      */
     zEmail = mprintf("%s", &zContact[i]);
-    for(i=0; zEmail[i] && zEmail[i]!='>'; i++){}
-    if( zEmail[i]=='>' ) zEmail[i+1] = 0;
+    for(j=0; zEmail[j] && zEmail[j]!='>'; j++){}
+    if( zEmail[j]=='>' ) zEmail[j+1] = 0;
   }else{
     /*
     ** Found an end marker for email, but nothing else.
@@ -106,14 +106,14 @@ static void print_person(const char *zUser){
 **
 ** Write an export of all check-ins to standard output.  The export is
 ** written in the git-fast-export file format assuming the --git option is
-** provided.  The git-fast-export format is currently the only VCS 
+** provided.  The git-fast-export format is currently the only VCS
 ** interchange format supported, though other formats may be added in
 ** the future.
 **
 ** Run this command within a checkout.  Or use the -R or --repository
 ** option to specify a Fossil repository to be exported.
 **
-** Only check-ins are exported using --git.  Git does not support tickets 
+** Only check-ins are exported using --git.  Git does not support tickets
 ** or wiki or events or attachments, so none of those are exported.
 **
 ** If the "--import-marks FILE" option is used, it contains a list of
@@ -126,7 +126,7 @@ static void print_person(const char *zUser){
 **   --export-marks FILE          export rids of exported data to FILE
 **   --import-marks FILE          read rids of data to ignore from FILE
 **   --repository|-R REPOSITORY   export the given REPOSITORY
-**   
+**
 ** See also: import
 */
 void export_cmd(void){
@@ -181,7 +181,7 @@ void export_cmd(void){
   }
 
   /* Step 1:  Generate "blob" records for every artifact that is part
-  ** of a check-in 
+  ** of a check-in
   */
   fossil_binary_mode(stdout);
   db_multi_exec("CREATE TEMP TABLE newblob(rid INTEGER KEY, srcid INTEGER)");
@@ -234,8 +234,8 @@ void export_cmd(void){
   /* Output the commit records.
   */
   db_prepare(&q,
-    "SELECT strftime('%%s',mtime), objid, coalesce(comment,ecomment),"
-    "       coalesce(user,euser),"
+    "SELECT strftime('%%s',mtime), objid, coalesce(ecomment,comment),"
+    "       coalesce(euser,user),"
     "       (SELECT value FROM tagxref WHERE rid=objid AND tagid=%d)"
     "  FROM event"
     " WHERE type='ci' AND NOT EXISTS (SELECT 1 FROM oldcommit WHERE objid=rid)"

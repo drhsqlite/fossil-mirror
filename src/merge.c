@@ -43,18 +43,93 @@ void print_checkin_description(int rid, int indent, const char *zLabel){
     }else{
       zCom = mprintf("%s", db_column_text(&q,2));
     }
-    fossil_print("%-*s [%S] by %s on %s\n%*s", 
+    fossil_print("%-*s [%S] by %s on %s\n%*s",
        indent-1, zLabel,
        db_column_text(&q, 3),
        db_column_text(&q, 1),
        db_column_text(&q, 0),
        indent, "");
-    comment_print(zCom, indent, -1);
+    comment_print(zCom, db_column_text(&q,2), indent, -1, g.comFmtFlags);
     fossil_free(zCom);
   }
   db_finalize(&q);
 }
 
+
+/* Pick the most recent leaf that is (1) not equal to vid and (2)
+** has not already been merged into vid and (3) the leaf is not
+** closed and (4) the leaf is in the same branch as vid.
+**
+** Set vmergeFlag to control whether the vmerge table is checked.
+*/
+int fossil_find_nearest_fork(int vid, int vmergeFlag){
+  Blob sql;
+  Stmt q;
+  int rid = 0;
+
+  blob_zero(&sql);
+  blob_append_sql(&sql,
+    "SELECT leaf.rid"
+    "  FROM leaf, event"
+    " WHERE leaf.rid=event.objid"
+    "   AND leaf.rid!=%d",                                /* Constraint (1) */
+    vid
+  );
+  if( vmergeFlag ){
+    blob_append_sql(&sql,
+      "   AND leaf.rid NOT IN (SELECT merge FROM vmerge)"  /* Constraint (2) */
+    );
+  }
+  blob_append_sql(&sql,
+    "   AND NOT EXISTS(SELECT 1 FROM tagxref"            /* Constraint (3) */
+                  "     WHERE rid=leaf.rid"
+                  "       AND tagid=%d"
+                  "       AND tagtype>0)"
+    "   AND (SELECT value FROM tagxref"                  /* Constraint (4) */
+          "   WHERE tagid=%d AND rid=%d AND tagtype>0) ="
+          " (SELECT value FROM tagxref"
+          "   WHERE tagid=%d AND rid=leaf.rid AND tagtype>0)"
+    " ORDER BY event.mtime DESC LIMIT 1",
+    TAG_CLOSED, TAG_BRANCH, vid, TAG_BRANCH
+  );
+  db_prepare(&q, "%s", blob_sql_text(&sql));
+  blob_reset(&sql);
+  if( db_step(&q)==SQLITE_ROW ){
+    rid = db_column_int(&q, 0);
+  }
+  db_finalize(&q);
+  return rid;
+}
+
+/*
+** Check content that was received with rcvid and return true if any
+** fork was created.
+*/
+int fossil_any_has_fork(int rcvid){
+  static Stmt q;
+  int fForkSeen = 0;
+
+  if( rcvid==0 ) return 0;
+  db_static_prepare(&q,
+    "  SELECT pid FROM plink WHERE pid>0 AND isprim"
+    "     AND cid IN (SELECT blob.rid FROM blob"
+    "   WHERE rcvid=:rcvid)");
+  db_bind_int(&q, ":rcvid", rcvid);
+  while( !fForkSeen && db_step(&q)==SQLITE_ROW ){
+    int pid = db_column_int(&q, 0);
+    if( count_nonbranch_children(pid)>1 ){
+      compute_leaves(pid,1);
+      if( db_int(0, "SELECT count(*) FROM leaves")>1 ){
+        int rid = db_int(0, "SELECT rid FROM leaves, event"
+                            " WHERE event.objid=leaves.rid"
+                            " ORDER BY event.mtime DESC LIMIT 1");
+        fForkSeen = fossil_find_nearest_fork(rid, db_open_local(0))!=0;
+      }
+    }
+  }
+  db_finalize(&q);
+  return fForkSeen;
+}
 
 /*
 ** COMMAND: merge
@@ -147,7 +222,6 @@ void merge_cmd(void){
   }
   forceFlag = find_option("force","f",0)!=0;
   zPivot = find_option("baseline",0,1);
-  capture_case_sensitive_option();
   verify_all_options();
   db_must_be_within_tree();
   if( zBinGlob==0 ) zBinGlob = db_get("binary-glob",0);
@@ -169,29 +243,13 @@ void merge_cmd(void){
     ** leaf that is (1) not the version currently checked out and (2)
     ** has not already been merged into the current checkout and (3)
     ** the leaf is not closed and (4) the leaf is in the same branch
-    ** as the current checkout. 
+    ** as the current checkout.
     */
     Stmt q;
     if( pickFlag || backoutFlag || integrateFlag){
       fossil_fatal("cannot use --backout, --cherrypick or --integrate with a fork merge");
     }
-    mid = db_int(0,
-      "SELECT leaf.rid"
-      "  FROM leaf, event"
-      " WHERE leaf.rid=event.objid"
-      "   AND leaf.rid!=%d"                                /* Constraint (1) */
-      "   AND leaf.rid NOT IN (SELECT merge FROM vmerge)"  /* Constraint (2) */
-      "   AND NOT EXISTS(SELECT 1 FROM tagxref"            /* Constraint (3) */
-                    "     WHERE rid=leaf.rid"
-                    "       AND tagid=%d"
-                    "       AND tagtype>0)"
-      "   AND (SELECT value FROM tagxref"                  /* Constraint (4) */
-            "   WHERE tagid=%d AND rid=%d AND tagtype>0) ="
-            " (SELECT value FROM tagxref"
-            "   WHERE tagid=%d AND rid=leaf.rid AND tagtype>0)"
-      " ORDER BY event.mtime DESC LIMIT 1",
-      vid, TAG_CLOSED, TAG_BRANCH, vid, TAG_BRANCH
-    );
+    mid = fossil_find_nearest_fork(vid, db_open_local(0));
     if( mid==0 ){
       fossil_fatal("no unmerged forks of branch \"%s\"",
         db_text(0, "SELECT value FROM tagxref"
@@ -212,7 +270,7 @@ void merge_cmd(void){
       char *zCom = mprintf("Merging fork [%S] at %s by %s: \"%s\"",
             db_column_text(&q, 0), db_column_text(&q, 1),
             db_column_text(&q, 3), db_column_text(&q, 2));
-      comment_print(zCom, 0, -1);
+      comment_print(zCom, db_column_text(&q,2), 0, -1, g.comFmtFlags);
       fossil_free(zCom);
     }
     db_finalize(&q);
@@ -475,9 +533,9 @@ void merge_cmd(void){
     }
   }
   db_finalize(&q);
-  
+
   /*
-  ** Find files that have changed from P->M but not P->V. 
+  ** Find files that have changed from P->M but not P->V.
   ** Copy the M content over into V.
   */
   db_prepare(&q,
@@ -527,14 +585,14 @@ void merge_cmd(void){
     Blob m, p, r;
     /* Do a 3-way merge of idp->idm into idp->idv.  The results go into idv. */
     if( verboseFlag ){
-      fossil_print("MERGE %s  (pivot=%d v1=%d v2=%d)\n", 
+      fossil_print("MERGE %s  (pivot=%d v1=%d v2=%d)\n",
                    zName, ridp, ridm, ridv);
     }else{
       fossil_print("MERGE %s\n", zName);
     }
     if( islinkv || islinkm /* || file_wd_islink(zFullPath) */ ){
       fossil_print("***** Cannot merge symlink %s\n", zName);
-      nConflict++;        
+      nConflict++;
     }else{
       undo_save(zName, -1);
       zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
@@ -601,7 +659,7 @@ void merge_cmd(void){
 
   /*
   ** Rename files that have taken a rename on P->M but which keep the same
-  ** name o P->V.   If a file is renamed on P->V only or on both P->V and
+  ** name on P->V.  If a file is renamed on P->V only or on both P->V and
   ** P->M then we retain the V name of the file.
   */
   db_prepare(&q,
@@ -646,7 +704,7 @@ void merge_cmd(void){
   }
   if( dryRunFlag ){
     fossil_warning("REMINDER: this was a dry run -"
-                   " no file were actually changed.");
+                   " no files were actually changed.");
   }
 
   /*

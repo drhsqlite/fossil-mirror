@@ -19,8 +19,17 @@
 ** or binary data.
 */
 #include "config.h"
-#include <zlib.h>
+#if defined(FOSSIL_ENABLE_MINIZ)
+#  define MINIZ_HEADER_FILE_ONLY
+#  include "miniz.c"
+#else
+#  include <zlib.h>
+#endif
 #include "blob.h"
+#if defined(_WIN32)
+#include <fcntl.h>
+#include <io.h>
+#endif
 
 #if INTERFACE
 /*
@@ -31,9 +40,15 @@ struct Blob {
   unsigned int nUsed;            /* Number of bytes used in aData[] */
   unsigned int nAlloc;           /* Number of bytes allocated for aData[] */
   unsigned int iCursor;          /* Next character of input to parse */
+  unsigned int blobFlags;        /* One or more BLOBFLAG_* bits */
   char *aData;                   /* Where the information is stored */
   void (*xRealloc)(Blob*, unsigned int); /* Function to reallocate the buffer */
 };
+
+/*
+** Allowed values for Blob.blobFlags
+*/
+#define BLOBFLAG_NotSQL  0x0001      /* Non-SQL text */
 
 /*
 ** The current size of a Blob
@@ -105,6 +120,9 @@ int fossil_isalnum(char c){
 
 /*
 ** COMMAND: test-isspace
+**
+** Verify that the fossil_isspace() routine is working correctly but
+** testing it on all possible inputs.
 */
 void isspace_cmd(void){
   int i;
@@ -145,6 +163,7 @@ void blobReallocMalloc(Blob *pBlob, unsigned int newSize){
     pBlob->nAlloc = 0;
     pBlob->nUsed = 0;
     pBlob->iCursor = 0;
+    pBlob->blobFlags = 0;
   }else if( newSize>pBlob->nAlloc || newSize<pBlob->nAlloc-4000 ){
     char *pNew = fossil_realloc(pBlob->aData, newSize);
     pBlob->aData = pNew;
@@ -159,7 +178,7 @@ void blobReallocMalloc(Blob *pBlob, unsigned int newSize){
 ** An initializer for Blobs
 */
 #if INTERFACE
-#define BLOB_INITIALIZER  {0,0,0,0,blobReallocMalloc}
+#define BLOB_INITIALIZER  {0,0,0,0,0,blobReallocMalloc}
 #endif
 const Blob empty_blob = BLOB_INITIALIZER;
 
@@ -214,6 +233,7 @@ void blob_init(Blob *pBlob, const char *zData, int size){
     pBlob->nUsed = pBlob->nAlloc = size;
     pBlob->aData = (char*)zData;
     pBlob->iCursor = 0;
+    pBlob->blobFlags = 0;
     pBlob->xRealloc = blobReallocStatic;
   }
 }
@@ -245,6 +265,7 @@ void blob_zero(Blob *pBlob){
   pBlob->nAlloc = 1;
   pBlob->aData = (char*)zEmpty;
   pBlob->iCursor = 0;
+  pBlob->blobFlags = 0;
   pBlob->xRealloc = blobReallocStatic;
 }
 
@@ -281,7 +302,7 @@ void blob_copy(Blob *pTo, Blob *pFrom){
 char *blob_str(Blob *p){
   blob_is_init(p);
   if( p->nUsed==0 ){
-    blob_append(p, "", 1);
+    blob_append(p, "", 1); /* NOTE: Changes nUsed. */
     p->nUsed = 0;
   }
   if( p->aData[p->nUsed]!=0 ){
@@ -289,6 +310,20 @@ char *blob_str(Blob *p){
   }
   return p->aData;
 }
+
+/*
+** Return a pointer to a null-terminated string for a blob that has
+** been created using blob_append_sql() and not blob_appendf().  If
+** text was ever added using blob_appendf() then throw an error.
+*/
+char *blob_sql_text(Blob *p){
+  blob_is_init(p);
+  if( (p->blobFlags & BLOBFLAG_NotSQL) ){
+    fossil_fatal("Internal error: Use of blob_appendf() to construct SQL text");
+  }
+  return blob_str(p);
+}
+
 
 /*
 ** Return a pointer to a null-terminated string for a blob.
@@ -668,8 +703,20 @@ int blob_tokenize(Blob *pIn, Blob *aToken, int nToken){
 
 /*
 ** Do printf-style string rendering and append the results to a blob.
+**
+** The blob_appendf() version sets the BLOBFLAG_NotSQL bit in Blob.blobFlags
+** whereas blob_append_sql() does not.
 */
 void blob_appendf(Blob *pBlob, const char *zFormat, ...){
+  if( pBlob ){
+    va_list ap;
+    va_start(ap, zFormat);
+    vxprintf(pBlob, zFormat, ap);
+    va_end(ap);
+    pBlob->blobFlags |= BLOBFLAG_NotSQL;
+  }
+}
+void blob_append_sql(Blob *pBlob, const char *zFormat, ...){
   if( pBlob ){
     va_list ap;
     va_start(ap, zFormat);
@@ -711,7 +758,7 @@ int blob_read_from_channel(Blob *pBlob, FILE *in, int nToRead){
 **
 ** Any prior content of the blob is discarded, not freed.
 **
-** Return the number of bytes read. Calls fossil_fatal() error (i.e.
+** Return the number of bytes read. Calls fossil_fatal() on error (i.e.
 ** it exit()s and does not return).
 */
 int blob_read_from_file(Blob *pBlob, const char *zFilename){
@@ -785,10 +832,16 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
     if( fossil_utf8_to_console(blob_buffer(pBlob), nWrote, 0) >= 0 ){
       return nWrote;
     }
+    fflush(stdout);
+    _setmode(_fileno(stdout), _O_BINARY);
 #endif
     fwrite(blob_buffer(pBlob), 1, nWrote, stdout);
+#if defined(_WIN32)
+    fflush(stdout);
+    _setmode(_fileno(stdout), _O_TEXT);
+#endif
   }else{
-    file_mkfolder(zFilename, 1);
+    file_mkfolder(zFilename, 1, 0);
     out = fossil_fopen(zFilename, "wb");
     if( out==0 ){
       fossil_fatal_recursive("unable to open file \"%s\" for writing",
@@ -836,6 +889,12 @@ void blob_compress(Blob *pIn, Blob *pOut){
 
 /*
 ** COMMAND: test-compress
+**
+** Usage: %fossil test-compress INPUTFILE OUTPUTFILE
+**
+** Run compression on INPUTFILE and write the result into OUTPUTFILE.
+**
+** This is used to test and debug the blob_compress() routine.
 */
 void compress_cmd(void){
   Blob f;
@@ -888,6 +947,13 @@ void blob_compress2(Blob *pIn1, Blob *pIn2, Blob *pOut){
 
 /*
 ** COMMAND: test-compress-2
+**
+** Usage: %fossil test-compress-2 IN1 IN2 OUT
+**
+** Read files IN1 and IN2, concatenate the content, compress the
+** content, then write results into OUT.
+**
+** This is used to test and debug the blob_compress2() routine.
 */
 void compress2_cmd(void){
   Blob f1, f2;
@@ -934,6 +1000,12 @@ int blob_uncompress(Blob *pIn, Blob *pOut){
 
 /*
 ** COMMAND: test-uncompress
+**
+** Usage: %fossil test-uncompress IN OUT
+**
+** Read the content of file IN, uncompress that content, and write the
+** result into OUT.  This command is intended for testing of the the
+** blob_compress() function.
 */
 void uncompress_cmd(void){
   Blob f;
@@ -1155,12 +1227,14 @@ void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
     zUtf8 = blob_str(pBlob) + bomSize;
     zUtf8 = fossil_unicode_to_utf8(zUtf8);
     blob_set_dynamic(pBlob, zUtf8);
-#if defined(_WIN32)
-  }else if( useMbcs ){
+  }else if( useMbcs && invalid_utf8(pBlob) ){
+#if defined(_WIN32) || defined(__CYGWIN__)
     zUtf8 = fossil_mbcs_to_utf8(blob_str(pBlob));
     blob_reset(pBlob);
     blob_append(pBlob, zUtf8, -1);
     fossil_mbcs_free(zUtf8);
+#else
+    blob_cp1252_to_utf8(pBlob);
 #endif /* _WIN32 */
   }
 }

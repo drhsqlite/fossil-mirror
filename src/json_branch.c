@@ -68,7 +68,7 @@ static cson_value * json_branch_list(){
   cson_value * listV;
   cson_array * list;
   char const * range = NULL;
-  int which = 0;
+  int branchListFlags = BRL_OPEN_ONLY;
   char * sawConversionError = NULL;
   Stmt q;
   if( !g.perm.Read ){
@@ -104,15 +104,15 @@ static cson_value * json_branch_list(){
   switch(*range){
     case 'c':
       range = "closed";
-      which = -1;
+      branchListFlags = BRL_CLOSED_ONLY;
       break;
     case 'a':
       range = "all";
-      which = 1;
+      branchListFlags = BRL_BOTH;
       break;
     default:
       range = "open";
-      which = 0;
+      branchListFlags = BRL_OPEN_ONLY;
       break;
   };
   cson_object_set(pay,"range",json_new_string(range));
@@ -130,7 +130,7 @@ static cson_value * json_branch_list(){
   }
 
   
-  branch_prepare_list_query(&q, which);
+  branch_prepare_list_query(&q, branchListFlags);
   cson_object_set(pay,"branches",listV);
   while((SQLITE_ROW==db_step(&q))){
     cson_value * v = cson_sqlite3_column_to_value(q.pStmt,0);

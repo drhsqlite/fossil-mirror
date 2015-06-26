@@ -138,7 +138,7 @@ static int output_one_side(
 /*
 ** Text of boundary markers for merge conflicts.
 */
-static char const * const mergeMarker[] = {
+static const char *const mergeMarker[] = {
  /*123456789 123456789 123456789 123456789 123456789 123456789 123456789*/
   "<<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<<<<<\n",
   "======= COMMON ANCESTOR content follows ============================\n",
@@ -262,7 +262,7 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
     {
       /* We have found a region where different edits to V1 and V2 overlap.
       ** This is a merge conflict.  Find the size of the conflict, then
-      ** output both possible edits separate by distinctive marks.
+      ** output both possible edits separated by distinctive marks.
       */
       int sz = 1;    /* Size of the conflict in lines */
       nConflict++;
@@ -270,13 +270,13 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
         sz++;
       }
       DEBUG( printf("CONFLICT %d\n", sz); )
-      blob_appendf(pOut, mergeMarker[0]);
+      blob_append(pOut, mergeMarker[0], -1);
       i1 = output_one_side(pOut, pV1, aC1, i1, sz);
-      blob_appendf(pOut, mergeMarker[1]);
+      blob_append(pOut, mergeMarker[1], -1);
       blob_copy_lines(pOut, pPivot, sz);
-      blob_appendf(pOut, mergeMarker[2]);
+      blob_append(pOut, mergeMarker[2], -1);
       i2 = output_one_side(pOut, pV2, aC2, i2, sz);
-      blob_appendf(pOut, mergeMarker[3]);
+      blob_append(pOut, mergeMarker[3], -1);
    }
 
     /* If we are finished with an edit triple, advance to the next
@@ -370,6 +370,10 @@ int file_contains_merge_marker(const char *zFullpath){
 */
 void delta_3waymerge_cmd(void){
   Blob pivot, v1, v2, merged;
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc!=6 ){
     usage("PIVOT V1 V2 MERGED");
   }

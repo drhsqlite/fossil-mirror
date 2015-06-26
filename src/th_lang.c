@@ -258,6 +258,43 @@ static int llength_command(
 /*
 ** TH Syntax:
 **
+**   lsearch list string
+*/
+static int lsearch_command(
+  Th_Interp *interp,
+  void *ctx,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  int rc;
+  char **azElem;
+  int *anElem;
+  int nCount;
+  int i;
+
+  if( argc!=3 ){
+    return Th_WrongNumArgs(interp, "lsearch list string");
+  }
+
+  rc = Th_SplitList(interp, argv[1], argl[1], &azElem, &anElem, &nCount);
+  if( rc==TH_OK ){
+    Th_SetResultInt(interp, -1);
+    for(i=0; i<nCount; i++){
+      if( anElem[i]==argl[2] && 0==memcmp(azElem[i], argv[2], argl[2]) ){
+        Th_SetResultInt(interp, i);
+        break;
+      }
+    }
+    Th_Free(interp, azElem);
+  }
+
+  return rc;
+}
+
+/*
+** TH Syntax:
+**
 **   set varname ?value?
 */
 static int set_command(
@@ -850,7 +887,7 @@ static int string_trim_command(
 /*
 ** TH Syntax:
 **
-**   info exists VAR
+**   info exists VARNAME
 */
 static int info_exists_command(
   Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
@@ -862,6 +899,54 @@ static int info_exists_command(
   }
   rc = Th_ExistsVar(interp, argv[2], argl[2]);
   Th_SetResultInt(interp, rc);
+  return TH_OK;
+}
+
+/*
+** TH Syntax:
+**
+**   info commands
+*/
+static int info_commands_command(
+  Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
+){
+  int rc;
+  char *zElem = 0;
+  int nElem = 0;
+
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "info commands");
+  }
+  rc = Th_ListAppendCommands(interp, &zElem, &nElem);
+  if( rc!=TH_OK ){
+    return rc;
+  }
+  Th_SetResult(interp, zElem, nElem);
+  if( zElem ) Th_Free(interp, zElem);
+  return TH_OK;
+}
+
+/*
+** TH Syntax:
+**
+**   info vars
+*/
+static int info_vars_command(
+  Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
+){
+  int rc;
+  char *zElem = 0;
+  int nElem = 0;
+
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "info vars");
+  }
+  rc = Th_ListAppendVariables(interp, &zElem, &nElem);
+  if( rc!=TH_OK ){
+    return rc;
+  }
+  Th_SetResult(interp, zElem, nElem);
+  if( zElem ) Th_Free(interp, zElem);
   return TH_OK;
 }
 
@@ -945,7 +1030,9 @@ static int string_command(
 /*
 ** TH Syntax:
 **
+**   info commands
 **   info exists VARNAME
+**   info vars
 */
 static int info_command(
   Th_Interp *interp,
@@ -955,7 +1042,9 @@ static int info_command(
   int *argl
 ){
   static const Th_SubCommand aSub[] = {
-    { "exists",  info_exists_command },
+    { "commands", info_commands_command },
+    { "exists",   info_exists_command },
+    { "vars",     info_vars_command },
     { 0, 0 }
   };
   return Th_CallSubCommand(interp, ctx, argc, argv, argl, aSub);
@@ -1082,6 +1171,7 @@ int th_register_language(Th_Interp *interp){
     {"lindex",   lindex_command,  0},
     {"list",     list_command,    0},
     {"llength",  llength_command, 0},
+    {"lsearch",  lsearch_command, 0},
     {"proc",     proc_command,    0},
     {"rename",   rename_command,  0},
     {"set",      set_command,     0},
