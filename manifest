@@ -1,5 +1,5 @@
-C Merge\strunk.
-D 2015-06-26T18:48:33.607
+C Merge\strunk.\s\nMake\sfossil\sclean\sundoable\sonly\swhen\s-x|--verily\sis\snot\sspecified.\sAnd\scleaning\sfiles\smatching\signore-glob\swill\snever\sbe\sundoable.
+D 2015-06-26T20:11:20.228
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -9,7 +9,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile f57bc9b00197a8ac02d52afb9cb9dd4ade476c05
+F Dockerfile f04ebfe52d09966028e1739cb0e4cf373378a5f0
 F Makefile.classic 415bdbbf802da3c8934e87bf77cf284145d4c536
 F Makefile.in 4c745f08a8ecfe6e1f227e2a6d33cce3adc532d0
 F VERSION 68b05f0ffffaf08e478922297c5140cc3b5d6965
@@ -384,7 +384,7 @@ F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c 85da0ea6ee5ecff186e135b61108892904194e1e
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 03c8c65969bd4ab297db0b6afa14bdc57b30e422
-F src/checkin.c 2ba12f3335a4f9b8aef87bd4db7d58a7af8ed79b
+F src/checkin.c b5098f795d39301c9e3456c7c59cf41ebde47259
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 265e9a29da905f3ab68625a9a5b245d7630275b2
@@ -714,7 +714,7 @@ F www/mkdownload.tcl 2adb240f61ff7f6027e5f00b5920f74b9e6680f2
 F www/mkindex.tcl fc48247219c0dde8e35b723a25de85e11c63d58f
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 336916afde4ff470e87fc43066063623a9a74c8a
-F www/permutedindex.html 2499997e14dba536be940b5e856164c21a276ebe w www/permutedindex.wiki
+F www/permutedindex.html 2499997e14dba536be940b5e856164c21a276ebe
 F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
 F www/private.wiki 72344489bbae6f7955369559b6ab22e01a64259b
 F www/qandc.wiki e07b21da221b05afeb1905f17af3765045952ba8
@@ -739,7 +739,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P a44b4aa5ac323392f58ccf10938dd6ba1fab0654 ceeb1c331bdb7967aa7dcadcf9580fda42017e0c
-R 9e8d122377e579f938cdd73fd470a8d5
-U andygoth
-Z 34df93bfc4614160152880d5c8dfd2bf
+P f3daf393555b48823dd3f289f1268c8da765e609 6ec714e519afb735fab68e876f2b880adb4b3af5
+R 9ff530c67bda30927ea3656f3f22660e
+U jan.nijtmans
+Z ff467f695d9ad3a997576ee3f5bc3c46

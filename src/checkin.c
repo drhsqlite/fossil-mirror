@@ -670,11 +670,11 @@ void extras_cmd(void){
 **                     prior to checking for any empty directories;
 **                     therefore, directories that contain only files
 **                     that were removed will be removed as well.
-**    -f|--force       Remove files without prompting. The clean
-**                     will be faster but not undo-able any more.
+**    -f|--force       Remove files without prompting.
 **    -x|--verily      Remove everything that is not a managed file or
 **                     the repository itself.  Implies -f --emptydirs
 **                     --dotfiles.  Disregard keep-glob and ignore-glob.
+**                     The clean will be faster but not undo-able any more.
 **    --clean <CSG>    Never prompt for files matching this
 **                     comma separated list of glob patterns.
 **    --ignore <CSG>   Ignore files matching patterns from the
@@ -696,9 +696,6 @@ void clean_cmd(void){
   const char *zIgnoreFlag, *zKeepFlag, *zCleanFlag;
   Glob *pIgnore, *pKeep, *pClean;
   int nRoot;
-  char cReply;
-  Blob ans;
-  char *prompt;
 
   dryRunFlag = find_option("dry-run","n",0)!=0;
   if( !dryRunFlag ){
@@ -727,7 +724,7 @@ void clean_cmd(void){
     scanFlags |= SCAN_ALL;
     zCleanFlag = 0;
   }
-  if( zIgnoreFlag==0 && !verilyFlag ){
+  if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
   if( zKeepFlag==0 && !verilyFlag ){
@@ -747,7 +744,11 @@ void clean_cmd(void){
   if( !dirsOnlyFlag ){
     Stmt q;
     Blob repo;
-    locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, pIgnore, 0);
+    char cReply;
+    Blob ans;
+    char *prompt;
+
+    locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, verilyFlag ? 0 : pIgnore, 0);
     db_prepare(&q,
         "SELECT %Q || x FROM sfile"
         " WHERE x NOT IN (%s)"
@@ -780,7 +781,8 @@ void clean_cmd(void){
         }
         blob_reset(&ans);
       }
-      if( !dryRunFlag && undo_save(zName+nRoot, 10*1024*1024) ){
+      if( !dryRunFlag && !verilyFlag && !glob_match(pIgnore, zName+nRoot)
+          && undo_save(zName+nRoot, 10*1024*1024) ){
         prompt = mprintf("file \"%s\" too big.  Deletion will not be "
                          "undo-able.  Continue (y/N)? ", zName+nRoot);
         blob_zero(&ans);
@@ -806,8 +808,8 @@ void clean_cmd(void){
     Stmt q;
     Blob root;
     blob_init(&root, g.zLocalRoot, nRoot - 1);
-    vfile_dir_scan(&root, blob_size(&root), scanFlags, pIgnore,
-                   pEmptyDirs);
+    vfile_dir_scan(&root, blob_size(&root), scanFlags,
+                   verilyFlag ? 0 : pIgnore, pEmptyDirs);
     blob_reset(&root);
     db_prepare(&q,
         "SELECT %Q || x FROM dscan_temp"
