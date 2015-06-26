@@ -648,8 +648,8 @@ void extras_cmd(void){
 ** and turns on --force, --dotfiles, and --emptydirs.  Use the --verily
 ** option when you really want to clean up everything.
 **
-** If a source tree is cleaned accidently, it can be restored using
-** the "fossil undo" command, except when the -f|--force flag is used.
+** If a source tree is cleaned accidentally, it can be restored using
+** the "fossil undo" command, except for files matching ignore-glob.
 **
 ** Options:
 **    --allckouts      Check for empty directories within any checkouts
@@ -706,7 +706,7 @@ void clean_cmd(void){
     dryRunFlag = find_option("whatif",0,0)!=0;
   }
   allFileFlag = allDirFlag = forceFlag = find_option("force","f",0)!=0;
-  if( !forceFlag && !dryRunFlag ){
+  if( !dryRunFlag ){
     undo_capture_command_line();
   }
   dirsOnlyFlag = find_option("dirsonly",0,0)!=0;

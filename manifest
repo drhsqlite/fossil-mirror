@@ -1,5 +1,5 @@
-C Cleaning\sfiles\smatching\signore-glob\sshould\snever\sbe\sundoable.\sOther\sfiles\sbeing\sclean\sare\sundoable,\seven\swhen\susing\s-x|--verily.\sThat's\show\sit\sshould\sbehave\s(I\sthink)
-D 2015-06-26T20:22:37.539
+C Bring\sbehavior\sand\scomments\scloser\stoghether,\shopefully\sright\sthis\stime.
+D 2015-06-26T20:28:56.478
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -384,7 +384,7 @@ F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c 85da0ea6ee5ecff186e135b61108892904194e1e
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 03c8c65969bd4ab297db0b6afa14bdc57b30e422
-F src/checkin.c b5969d14848fc45f8b20dd6906e74531b1e5fdcf
+F src/checkin.c 767c40bf05329c5591b58d6608c62dd24926b164
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 265e9a29da905f3ab68625a9a5b245d7630275b2
@@ -739,7 +739,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 134d8e1189d39650bda08a565c1cc629f98dec67
-R d3ec7602c04bea4a13463fbb083e893f
+P b3384326b3a3b52aa273dea71269db39cfcc5f60
+R b84c301411bffa18c86d033ab7654d8a
 U jan.nijtmans
-Z 0653312e52b31bf38f4a22b53377c71b
+Z 03144c6515b72d07c2ce39d7887cbde6
