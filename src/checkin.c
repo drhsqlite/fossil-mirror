@@ -673,8 +673,9 @@ void extras_cmd(void){
 **    -f|--force       Remove files without prompting.
 **    -x|--verily      Remove everything that is not a managed file or
 **                     the repository itself.  Implies -f --emptydirs
-**                     --dotfiles.  Disregard keep-glob and ignore-glob.
-**                     The clean will be faster but not undo-able any more.
+**                     --dotfiles.  Disregard keep-glob and ignore-glob,
+**                     except that files matching ignore-glob are not
+**                     never undo-able.
 **    --clean <CSG>    Never prompt for files matching this
 **                     comma separated list of glob patterns.
 **    --ignore <CSG>   Ignore files matching patterns from the
@@ -781,7 +782,7 @@ void clean_cmd(void){
         }
         blob_reset(&ans);
       }
-      if( !dryRunFlag && !verilyFlag && !glob_match(pIgnore, zName+nRoot)
+      if( !dryRunFlag && !(verilyFlag && glob_match(pIgnore, zName+nRoot))
           && undo_save(zName+nRoot, 10*1024*1024) ){
         prompt = mprintf("file \"%s\" too big.  Deletion will not be "
                          "undo-able.  Continue (y/N)? ", zName+nRoot);
