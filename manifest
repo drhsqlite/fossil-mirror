@@ -1,5 +1,5 @@
-C In\sthe\s"fossil\sserver\s--repolist"\scommand,\sto\snot\saccept\s".fossil"\sas\sa\s\nvalid\sfossil\srepository.\s\sRequire\sat\sleast\sone\scharacter\sbefore\sthe\s".".
-D 2015-06-26T17:48:21.262
+C Remove\sused\sof\s--disable-lineedit\sin\sDockerfile,\sas\sit\sno\slonger\sexists.\sNoted\sby\sRemco\sSchoen.\sThanks!
+D 2015-06-26T19:40:30.047
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -9,7 +9,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile f57bc9b00197a8ac02d52afb9cb9dd4ade476c05
+F Dockerfile f04ebfe52d09966028e1739cb0e4cf373378a5f0
 F Makefile.classic 415bdbbf802da3c8934e87bf77cf284145d4c536
 F Makefile.in 4c745f08a8ecfe6e1f227e2a6d33cce3adc532d0
 F VERSION 68b05f0ffffaf08e478922297c5140cc3b5d6965
@@ -739,7 +739,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P c048aac095465a956148678eb2da8e7fb7614f80
-R 03280afa286dcd9d2484281afb7c17cd
-U drh
-Z 55624148c2e1842bfedd9ee52c9abe84
+P ceeb1c331bdb7967aa7dcadcf9580fda42017e0c
+R f4bf2c68b5c44eb1f623f95e047f0779
+U jan.nijtmans
+Z af6030df5cd9e851eb0bbbbf0aa3926e
