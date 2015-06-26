@@ -670,7 +670,7 @@ void extras_cmd(void){
 **                     prior to checking for any empty directories;
 **                     therefore, directories that contain only files
 **                     that were removed will be removed as well.
-**    -f|--force       Remove files without prompting.
+**    -f|--force       Remove directories without prompting.
 **    -x|--verily      Remove everything that is not a managed file or
 **                     the repository itself.  Implies -f --emptydirs
 **                     --dotfiles.  Disregard keep-glob and ignore-glob,
@@ -690,7 +690,7 @@ void extras_cmd(void){
 ** See also: addremove, extras, status
 */
 void clean_cmd(void){
-  int allFileFlag, allDirFlag, dryRunFlag, verboseFlag, forceFlag;
+  int allDirFlag, dryRunFlag, verboseFlag;
   int emptyDirsFlag, dirsOnlyFlag;
   unsigned scanFlags = 0;
   int verilyFlag = 0;
@@ -705,7 +705,7 @@ void clean_cmd(void){
   if( !dryRunFlag ){
     dryRunFlag = find_option("whatif",0,0)!=0;
   }
-  allFileFlag = allDirFlag = forceFlag = find_option("force","f",0)!=0;
+  allDirFlag = find_option("force","f",0)!=0;
   if( !dryRunFlag ){
     undo_capture_command_line();
   }
@@ -720,7 +720,7 @@ void clean_cmd(void){
   zCleanFlag = find_option("clean",0,1);
   db_must_be_within_tree();
   if( find_option("verily","x",0)!=0 ){
-    verilyFlag = allFileFlag = allDirFlag = 1;
+    verilyFlag = allDirFlag = 1;
     emptyDirsFlag = 1;
     scanFlags |= SCAN_ALL;
     zCleanFlag = 0;
@@ -741,7 +741,7 @@ void clean_cmd(void){
   pClean = glob_create(zCleanFlag);
   nRoot = (int)strlen(g.zLocalRoot);
   g.allowSymlinks = 1;  /* Find symlinks too */
-  if( !forceFlag && !dryRunFlag ) undo_begin();
+  if( !dryRunFlag ) undo_begin();
   if( !dirsOnlyFlag ){
     Stmt q;
     Blob repo;
@@ -769,20 +769,8 @@ void clean_cmd(void){
         }
         continue;
       }
-      if( !allFileFlag && !dryRunFlag && !glob_match(pClean, zName+nRoot) ){
-        prompt = mprintf("Remove unmanaged file \"%s\" (a=all/y/N)? ",
-                         zName+nRoot);
-        prompt_user(prompt, &ans);
-        cReply = blob_str(&ans)[0];
-        if( cReply=='a' || cReply=='A' ){
-          allFileFlag = 1;
-        }else if( cReply!='y' && cReply!='Y' ){
-          blob_reset(&ans);
-          continue;
-        }
-        blob_reset(&ans);
-      }
-      if( !dryRunFlag && !(verilyFlag && glob_match(pIgnore, zName+nRoot))
+      if( !dryRunFlag && !glob_match(pClean, zName+nRoot)
+          && !(verilyFlag && glob_match(pIgnore, zName+nRoot))
           && undo_save(zName+nRoot, 10*1024*1024) ){
         prompt = mprintf("file \"%s\" too big.  Deletion will not be "
                          "undo-able.  Continue (y/N)? ", zName+nRoot);
