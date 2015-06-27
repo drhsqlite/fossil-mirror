@@ -20,7 +20,14 @@
 #include "config.h"
 #include "undo.h"
 
-
+#if INTERFACE
+/*
+** Return values from the undo_maybe_save() routine.
+*/
+#define UNDO_SAVED_OK (0) /* The specified file was saved succesfully. */
+#define UNDO_INACTIVE (1) /* File not saved, subsystem is not active. */
+#define UNDO_TOOBIG   (2) /* File not saved, it exceeded a size limit. */
+#endif
 
 /*
 ** Undo the change to the file zPathname.  zPathname is the pathname
@@ -263,37 +270,79 @@ static int undoNeedRollback = 0;
 ** tree.
 */
 void undo_save(const char *zPathname){
-  char *zFullname;
-  Blob content;
-  int existsFlag;
-  int isLink;
-  Stmt q;
+  if( undo_maybe_save(zPathname, -1)!=UNDO_SAVED_OK ){
+    fossil_panic("failed to save undo information for path: %s",
+                 zPathname);
+  }
+}
 
-  if( !undoActive ) return;
+/*
+** Possibly save the current content of the file zPathname so
+** that it will be undoable.  The name is relative to the root
+** of the tree.  The limit argument may be used to specify the
+** maximum size for the file to be saved.  If the size of the
+** specified file exceeds this size limit (in bytes), it will
+** not be saved and an appropriate code will be returned.
+**
+** WARNING: Please do NOT call this function with a limit
+**          value less than zero, call the undo_save()
+**          function instead.
+**
+** The return value of this function will always be one of the
+** following codes:
+**
+** UNDO_SAVED_OK: The specified file was saved succesfully.
+**
+** UNDO_INACTIVE: The specified file was NOT saved, because the
+**                "undo subsystem" is not active.  This error
+**                may indicate that a call to undo_begin() is
+**                missing.
+**
+**   UNDO_TOOBIG: The specified file was NOT saved, because it
+**                exceeded the specified size limit.  It is
+**                impossible for this value to be returned if
+**                the specified size limit is less than zero
+**                (i.e. unlimited).
+*/
+int undo_maybe_save(const char *zPathname, i64 limit){
+  char *zFullname;
+  i64 size;
+  int result;
+
+  if( !undoActive ) return UNDO_INACTIVE;
   zFullname = mprintf("%s%s", g.zLocalRoot, zPathname);
-  existsFlag = file_wd_size(zFullname)>=0;
-  isLink = file_wd_islink(zFullname);
-  db_prepare(&q,
-    "INSERT OR IGNORE INTO"
-    "   undo(pathname,redoflag,existsflag,isExe,isLink,content)"
-    " VALUES(%Q,0,%d,%d,%d,:c)",
-    zPathname, existsFlag, file_wd_isexe(zFullname), isLink
-  );
-  if( existsFlag ){
-    if( isLink ){
-      blob_read_link(&content, zFullname);
-    }else{
-      blob_read_from_file(&content, zFullname);
+  size = file_wd_size(zFullname);
+  if( limit<0 || size<=limit ){
+    int existsFlag = (size>=0);
+    int isLink = file_wd_islink(zFullname);
+    Stmt q;
+    Blob content;
+    db_prepare(&q,
+      "INSERT OR IGNORE INTO"
+      "   undo(pathname,redoflag,existsflag,isExe,isLink,content)"
+      " VALUES(%Q,0,%d,%d,%d,:c)",
+      zPathname, existsFlag, file_wd_isexe(zFullname), isLink
+    );
+    if( existsFlag ){
+      if( isLink ){
+        blob_read_link(&content, zFullname);
+      }else{
+        blob_read_from_file(&content, zFullname);
+      }
+      db_bind_blob(&q, ":c", &content);
     }
-    db_bind_blob(&q, ":c", &content);
+    db_step(&q);
+    db_finalize(&q);
+    if( existsFlag ){
+      blob_reset(&content);
+    }
+    undoNeedRollback = 1;
+    result = UNDO_SAVED_OK;
+  }else{
+    result = UNDO_TOOBIG;
   }
   free(zFullname);
-  db_step(&q);
-  db_finalize(&q);
-  if( existsFlag ){
-    blob_reset(&content);
-  }
-  undoNeedRollback = 1;
+  return result;
 }
 
 /*
