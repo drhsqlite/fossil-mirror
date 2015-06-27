@@ -434,6 +434,9 @@ void undo_rollback(void){
 **    (3) fossil revert             (7) fossil stash goto
 **    (4) fossil stash pop
 **
+** The "fossil clean" operation can also be undone; however, this is
+** currently limited to files that are less than 10MiB in size.
+**
 ** If FILENAME is specified then restore the content of the named
 ** file(s) but otherwise leave the update or merge or revert in effect.
 ** The redo command undoes the effect of the most recent undo.
