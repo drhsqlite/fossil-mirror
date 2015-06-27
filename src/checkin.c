@@ -646,7 +646,8 @@ void extras_cmd(void){
 **
 ** The --verily option ignores the keep-glob and ignore-glob settings
 ** and turns on --force, --dotfiles, and --emptydirs.  Use the --verily
-** option when you really want to clean up everything.
+** option when you really want to clean up everything.  Extreme care
+** should be exercised when using the --verily option.
 **
 ** Options:
 **    --allckouts      Check for empty directories within any checkouts
@@ -659,6 +660,9 @@ void extras_cmd(void){
 **    --dirsonly       Only remove empty directories.  No files will
 **                     be removed.  Using this option will automatically
 **                     enable the --emptydirs option as well.
+**    --disable-undo   WARNING: This option disables use of the undo
+**                     mechanism for this clean operation and should be
+**                     used with extreme caution.
 **    --dotfiles       Include files beginning with a dot (".").
 **    --emptydirs      Remove any empty directories that are not
 **                     explicitly exempted via the empty-dirs setting
@@ -668,11 +672,16 @@ void extras_cmd(void){
 **                     therefore, directories that contain only files
 **                     that were removed will be removed as well.
 **    -f|--force       Remove files without prompting.
-**    -x|--verily      Remove everything that is not a managed file or
-**                     the repository itself.  Implies -f --emptydirs
-**                     --dotfiles.  Disregard keep-glob and ignore-glob.
-**    --clean <CSG>    Never prompt for files matching this
-**                     comma separated list of glob patterns.
+**    -x|--verily      WARNING: Remove everything that is not a managed
+**                     file or the repository itself.  This option
+**                     implies the --force, --emptydirs, and --dotfiles
+**                     options.  Furthermore, it completely disregards
+**                     the keep-glob and ignore-glob settings.  However,
+**                     it does honor the --ignore and --keep options.
+**    --clean <CSG>    WARNING: Never prompt to delete any files matching
+**                     this comma separated list of glob patterns.  Also,
+**                     deletions of any files matching this pattern list
+**                     cannot be undone.
 **    --ignore <CSG>   Ignore files matching patterns from the
 **                     comma separated list of glob patterns.
 **    --keep <CSG>     Keep files matching this comma separated
@@ -687,12 +696,18 @@ void extras_cmd(void){
 void clean_cmd(void){
   int allFileFlag, allDirFlag, dryRunFlag, verboseFlag;
   int emptyDirsFlag, dirsOnlyFlag;
+  int disableUndo;
   unsigned scanFlags = 0;
   int verilyFlag = 0;
   const char *zIgnoreFlag, *zKeepFlag, *zCleanFlag;
   Glob *pIgnore, *pKeep, *pClean;
   int nRoot;
 
+#ifndef UNDO_SIZE_LIMIT  /* TODO: Setting? */
+#define UNDO_SIZE_LIMIT  (10*1024*1024) /* 10MiB */
+#endif
+
+  undo_capture_command_line();
   dryRunFlag = find_option("dry-run","n",0)!=0;
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
@@ -700,6 +715,7 @@ void clean_cmd(void){
   if( !dryRunFlag ){
     dryRunFlag = find_option("whatif",0,0)!=0;
   }
+  disableUndo = find_option("disable-undo",0,0)!=0;
   allFileFlag = allDirFlag = find_option("force","f",0)!=0;
   dirsOnlyFlag = find_option("dirsonly",0,0)!=0;
   emptyDirsFlag = find_option("emptydirs","d",0)!=0 || dirsOnlyFlag;
@@ -736,6 +752,7 @@ void clean_cmd(void){
   if( !dirsOnlyFlag ){
     Stmt q;
     Blob repo;
+    if( !dryRunFlag && !disableUndo ) undo_begin();
     locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, pIgnore, 0);
     db_prepare(&q,
         "SELECT %Q || x FROM sfile"
@@ -757,19 +774,28 @@ void clean_cmd(void){
         continue;
       }
       if( !allFileFlag && !dryRunFlag && !glob_match(pClean, zName+nRoot) ){
-        Blob ans;
-        char cReply;
-        char *prompt = mprintf("Remove unmanaged file \"%s\" (a=all/y/N)? ",
-                               zName+nRoot);
-        prompt_user(prompt, &ans);
-        cReply = blob_str(&ans)[0];
-        if( cReply=='a' || cReply=='A' ){
-          allFileFlag = 1;
-        }else if( cReply!='y' && cReply!='Y' ){
-          blob_reset(&ans);
-          continue;
+        int undoRc = UNDO_NONE;
+        if( !disableUndo ){
+          undoRc = undo_maybe_save(zName+nRoot, UNDO_SIZE_LIMIT);
         }
-        blob_reset(&ans);
+        if( undoRc!=UNDO_SAVED_OK ){
+          Blob ans;
+          char cReply;
+          char *prompt = mprintf("\nWARNING: Deletion of this file will "
+                                 "not be undoable via the 'undo'\n"
+                                 "         command because %s.\n\n"
+                                 "Remove unmanaged file \"%s\" (a=all/y/N)? ",
+                                 undo_save_message(undoRc), zName+nRoot);
+          prompt_user(prompt, &ans);
+          cReply = blob_str(&ans)[0];
+          if( cReply=='a' || cReply=='A' ){
+            allFileFlag = 1;
+          }else if( cReply!='y' && cReply!='Y' ){
+            blob_reset(&ans);
+            continue;
+          }
+          blob_reset(&ans);
+        }
       }
       if( dryRunFlag || file_delete(zName)==0 ){
         if( verboseFlag || dryRunFlag ){
@@ -780,6 +806,7 @@ void clean_cmd(void){
       }
     }
     db_finalize(&q);
+    if( !dryRunFlag && !disableUndo ) undo_finish();
   }
   if( emptyDirsFlag ){
     Glob *pEmptyDirs = glob_create(db_get("empty-dirs", 0));

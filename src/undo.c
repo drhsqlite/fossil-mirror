@@ -22,11 +22,12 @@
 
 #if INTERFACE
 /*
-** Return values from the undo_maybe_save() routine.
+** Possible return values from the undo_maybe_save() routine.
 */
-#define UNDO_SAVED_OK (0) /* The specified file was saved succesfully. */
-#define UNDO_INACTIVE (1) /* File not saved, subsystem is not active. */
-#define UNDO_TOOBIG   (2) /* File not saved, it exceeded a size limit. */
+#define UNDO_NONE     (0) /* Placeholder only used to initialize vars. */
+#define UNDO_SAVED_OK (1) /* The specified file was saved succesfully. */
+#define UNDO_INACTIVE (2) /* File not saved, subsystem is not active. */
+#define UNDO_TOOBIG   (3) /* File not saved, it exceeded a size limit. */
 #endif
 
 /*
@@ -343,6 +344,26 @@ int undo_maybe_save(const char *zPathname, i64 limit){
   }
   free(zFullname);
   return result;
+}
+
+/*
+** Returns an error message for the undo_maybe_save() return code.
+** Currently, this function assumes that the caller is using the
+** returned error message in a context prefixed with "because".
+*/
+const char *undo_save_message(int rc){
+  static char zRc[32];
+
+  switch( rc ){
+    case UNDO_NONE:     return "undo is disabled for this operation";
+    case UNDO_SAVED_OK: return "the save operation was successful";
+    case UNDO_INACTIVE: return "the undo subsystem is inactive";
+    case UNDO_TOOBIG:   return "the file is too big";
+    default: {
+      sqlite3_snprintf(sizeof(zRc), zRc, "of error code %d", rc);
+    }
+  }
+  return zRc;
 }
 
 /*

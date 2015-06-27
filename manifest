@@ -1,5 +1,5 @@
-C Enhance\sthe\s'undo'\ssubsystem\sto\sprepare\sfor\san\salternative\simplementation\sof\sbeing\sable\sto\sundo\sthe\sclean\scommand.
-D 2015-06-27T02:55:43.028
+C Make\sit\spossible\sto\sundo\sthe\sdeletion\sof\sfiles\sless\sthan\s10MiB\sby\sthe\sclean\scommand.\s\sThis\sbranch\sis\san\salternative\sto\sthe\s'undo-clean'\sbranch.\s\sNeeds\stests.
+D 2015-06-27T04:03:16.404
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -384,7 +384,7 @@ F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c 85da0ea6ee5ecff186e135b61108892904194e1e
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 03c8c65969bd4ab297db0b6afa14bdc57b30e422
-F src/checkin.c 4d81659c4a7084759cfd848a02172f8477c1a519
+F src/checkin.c 280f2e37e32e277707f137bb2e0ae5d03f4c88f0
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 265e9a29da905f3ab68625a9a5b245d7630275b2
@@ -499,7 +499,7 @@ F src/timeline.c 005c758d36dbe81a52d1fe9a7f14cd0830abb005
 F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
 F src/tktsetup.c 1360904128a3c60008867056d9f576c8f906eb7c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
-F src/undo.c 8cf46d5dd70606096d4fec03843272efbe036112
+F src/undo.c 2adb8f857eafcb785c4d238b700c80a0ae2d65e1
 F src/unicode.c f26b9f26d4ac399f7b03cfac16ec72336c7f06c9
 F src/update.c 6acdc89d2d2a61656367105d4cacecf9affc68f8
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
@@ -739,10 +739,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 6ec714e519afb735fab68e876f2b880adb4b3af5
-R b9d332f09bb48aba781a998d78fab72d
-T *branch * enhancedUndo
-T *sym-enhancedUndo *
-T -sym-trunk *
+P 670da77e1abd65017bed451074a370040bc0b679
+R 5bfc9123be0b882f8711902fe1700970
 U mistachkin
-Z 5794332d2be8cde83ef6896772a95996
+Z 306654bb1376fca2b7371830c207dfab
