@@ -283,6 +283,7 @@ static int getCursorPosition(int ifd, int ofd) {
 /* Try to get the number of columns in the current terminal, or assume 80
  * if it fails. */
 static int getColumns(int ifd, int ofd) {
+#if !defined(__sun__)
     struct winsize ws;
 
     if (ioctl(1, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0) {
@@ -312,6 +313,7 @@ static int getColumns(int ifd, int ofd) {
     }
 
 failed:
+#endif
     return 80;
 }
 
