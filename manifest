@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.8.11\salpha\sversion.
-D 2015-06-30T15:18:44.375
+C Correct\sspacing\sof\sCHERRYPICK,\sBACKOUT,\sand\sINTEGRATE\srecords\sin\sthe\schange/status\sreport\sto\smatch\sthe\sother\srecord\stypes.\s\sThe\sstyle\sis\sto\shave\sa\stoken\sidentifying\sthe\srecord\stype,\sspaces\spadding\sup\sto\sTEN\scolumns\sif\snecessary,\sa\ssingle\sspace,\sthen\sthe\sfilename\sor\sartifact\sID.\s\sPreviously,\sthese\sthree\srecords\spadded\sto\sELEVEN,\swhich\sis\sinappropriate\soutside\sof\sSpın̈al\sTap.
+D 2015-07-01T01:23:28.306
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -384,7 +384,7 @@ F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c 85da0ea6ee5ecff186e135b61108892904194e1e
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 03c8c65969bd4ab297db0b6afa14bdc57b30e422
-F src/checkin.c 4d81659c4a7084759cfd848a02172f8477c1a519
+F src/checkin.c 431159485ee4209e6bfc7bd4481ff8a1c25a2626
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 265e9a29da905f3ab68625a9a5b245d7630275b2
@@ -739,7 +739,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 52e1f54bba9c7007048d50199b3430effba138dc
-R a608054cb29c7735df353bf53c9387e8
-U drh
-Z 51a8e59b9dc4d096bcca3a7b380a39c1
+P 0fc8b9df0c4e27b6b7de7283772c67a273f4e9d0
+R 685856dc2e62a1ea1aa8b7ac28298edf
+U andygoth
+Z 95f44ba57a0f0766850eb0e164c70ce2
