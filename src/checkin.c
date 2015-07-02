@@ -140,14 +140,14 @@ static void status_report(
   db_prepare(&q, "SELECT uuid, id FROM vmerge JOIN blob ON merge=rid"
                  " WHERE id<=0");
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zLabel = "MERGED_WITH";
+    const char *zLabel = "MERGED_WITH ";
     switch( db_column_int(&q, 1) ){
       case -1:  zLabel = "CHERRYPICK ";  break;
       case -2:  zLabel = "BACKOUT    ";  break;
       case -4:  zLabel = "INTEGRATE  ";  break;
     }
     blob_append(report, zPrefix, nPrefix);
-    blob_appendf(report, "%s %s\n", zLabel, db_column_text(&q, 0));
+    blob_appendf(report, "%s%s\n", zLabel, db_column_text(&q, 0));
   }
   db_finalize(&q);
   if( nErr ){

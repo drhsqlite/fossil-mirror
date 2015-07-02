@@ -23,7 +23,7 @@
 **
 ** The official C-language API documentation for SQLite is derived
 ** from comments in this file.  This file is the authoritative source
-** on how SQLite interfaces are suppose to operate.
+** on how SQLite interfaces are supposed to operate.
 **
 ** The name of this file under configuration management is "sqlite.h.in".
 ** The makefile makes some minor changes to this file (such as inserting
@@ -113,7 +113,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.8.11"
 #define SQLITE_VERSION_NUMBER 3008011
-#define SQLITE_SOURCE_ID      "2015-05-29 17:51:16 db4e9728fae5f7b0fad6aa0a5be317a7c9e7c417"
+#define SQLITE_SOURCE_ID      "2015-06-30 15:10:29 8bfcda3d10aec864d71d12a1248c37e4db6f8899"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -956,7 +956,7 @@ struct sqlite3_io_methods {
 ** pointed to by the pArg argument.  This capability is used during testing
 ** and only needs to be supported when SQLITE_TEST is defined.
 **
-* <li>[[SQLITE_FCNTL_WAL_BLOCK]]
+** <li>[[SQLITE_FCNTL_WAL_BLOCK]]
 ** The [SQLITE_FCNTL_WAL_BLOCK] is a signal to the VFS layer that it might
 ** be advantageous to block on the next WAL lock if the lock is not immediately
 ** available.  The WAL subsystem issues this signal during rare
