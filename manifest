@@ -1,5 +1,5 @@
-C Correct\sspacing\sof\sCHERRYPICK,\sBACKOUT,\sand\sINTEGRATE\srecords\sin\sthe\schange/status\sreport\sto\smatch\sthe\sother\srecord\stypes.\s\sThe\sstyle\sis\sto\shave\sa\stoken\sidentifying\sthe\srecord\stype,\sspaces\spadding\sup\sto\sTEN\scolumns\sif\snecessary,\sa\ssingle\sspace,\sthen\sthe\sfilename\sor\sartifact\sID.\s\sPreviously,\sthese\sthree\srecords\spadded\sto\sELEVEN,\swhich\sis\sinappropriate\soutside\sof\sSpın̈al\sTap.
-D 2015-07-01T01:23:28.306
+C Add\stags\sto\sthe\stitle\sand\sdescription\sfor\sRSS\sfeed\sitems.
+D 2015-07-02T02:35:47.629
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -471,7 +471,7 @@ F src/purge.c 211c55255d42f06781ae68f26e5ed4a2c9239ad1
 F src/rebuild.c 5aaf2a7ce639be4caa966eafa59775ca997bda4f
 F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c de3d39a59b923d0259a01cb7b66244860778e39d
-F src/rss.c 4e435fbac064fd4bfc21edd085aff3fa96fbcfc1
+F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b02a73b942028631eacf484ae3f83a3a4edd3518
 F src/setup.c 97d246c3bba673f87745d1c870250d30e53ab3ee
@@ -739,7 +739,8 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 0fc8b9df0c4e27b6b7de7283772c67a273f4e9d0
-R 685856dc2e62a1ea1aa8b7ac28298edf
-U andygoth
-Z 95f44ba57a0f0766850eb0e164c70ce2
+P 6cd7087a35cb8448031ad72f99439401ce872670 e65e4f2fa5dc27d83dcc6bf3aa373a316645d309
+R 3ce3d1e8f30b4c3dfe366f9ffd7f1773
+T +closed e65e4f2fa5dc27d83dcc6bf3aa373a316645d309
+U mistachkin
+Z cc1ce9dd2f00ef7bfda02582c0031594
