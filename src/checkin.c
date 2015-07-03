@@ -674,10 +674,11 @@ void extras_cmd(void){
 **    -f|--force       Remove files without prompting.
 **    -x|--verily      WARNING: Remove everything that is not a managed
 **                     file or the repository itself.  This option
-**                     implies the --force, --emptydirs, and --dotfiles
-**                     options.  Furthermore, it completely disregards
-**                     the keep-glob and ignore-glob settings.  However,
-**                     it does honor the --ignore and --keep options.
+**                     implies the --force, --emptydirs, --dotfiles, and
+**                     --disable-undo options.  Furthermore, it completely
+**                     disregards the keep-glob and ignore-glob settings.
+**                     However, it does honor the --ignore and --keep
+**                     options.
 **    --clean <CSG>    WARNING: Never prompt to delete any files matching
 **                     this comma separated list of glob patterns.  Also,
 **                     deletions of any files matching this pattern list
@@ -733,6 +734,7 @@ void clean_cmd(void){
   if( find_option("verily","x",0)!=0 ){
     verilyFlag = allFileFlag = allDirFlag = 1;
     emptyDirsFlag = 1;
+    disableUndo = 1;
     scanFlags |= SCAN_ALL;
     zCleanFlag = 0;
   }
@@ -776,14 +778,16 @@ void clean_cmd(void){
         }
         continue;
       }
-      if( !allFileFlag && !dryRunFlag && !glob_match(pClean, zName+nRoot) ){
+      if( !dryRunFlag && !glob_match(pClean, zName+nRoot) ){
         int undoRc = UNDO_NONE;
         if( !disableUndo ){
           undoRc = undo_maybe_save(zName+nRoot, UNDO_SIZE_LIMIT);
         }
         if( undoRc!=UNDO_SAVED_OK ){
           char cReply;
-          if( !noPrompt ){
+          if( allFileFlag ){
+            cReply = 'Y';
+          }else if( !noPrompt ){
             Blob ans;
             char *prompt = mprintf("\nWARNING: Deletion of this file will "
                                    "not be undoable via the 'undo'\n"
