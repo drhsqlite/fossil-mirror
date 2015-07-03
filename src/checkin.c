@@ -688,6 +688,8 @@ void extras_cmd(void){
 **                     list of glob patterns.
 **    -n|--dry-run     Delete nothing, but display what would have been
 **                     deleted.
+**    --no-prompt      This option disables prompting the user for input
+**                     and assumes an answer of 'No' for every question.
 **    --temp           Remove only Fossil-generated temporary files.
 **    -v|--verbose     Show all files as they are removed.
 **
@@ -696,7 +698,7 @@ void extras_cmd(void){
 void clean_cmd(void){
   int allFileFlag, allDirFlag, dryRunFlag, verboseFlag;
   int emptyDirsFlag, dirsOnlyFlag;
-  int disableUndo;
+  int disableUndo, noPrompt;
   unsigned scanFlags = 0;
   int verilyFlag = 0;
   const char *zIgnoreFlag, *zKeepFlag, *zCleanFlag;
@@ -716,6 +718,7 @@ void clean_cmd(void){
     dryRunFlag = find_option("whatif",0,0)!=0;
   }
   disableUndo = find_option("disable-undo",0,0)!=0;
+  noPrompt = find_option("no-prompt",0,0)!=0;
   allFileFlag = allDirFlag = find_option("force","f",0)!=0;
   dirsOnlyFlag = find_option("dirsonly",0,0)!=0;
   emptyDirsFlag = find_option("emptydirs","d",0)!=0 || dirsOnlyFlag;
@@ -779,22 +782,25 @@ void clean_cmd(void){
           undoRc = undo_maybe_save(zName+nRoot, UNDO_SIZE_LIMIT);
         }
         if( undoRc!=UNDO_SAVED_OK ){
-          Blob ans;
           char cReply;
-          char *prompt = mprintf("\nWARNING: Deletion of this file will "
-                                 "not be undoable via the 'undo'\n"
-                                 "         command because %s.\n\n"
-                                 "Remove unmanaged file \"%s\" (a=all/y/N)? ",
-                                 undo_save_message(undoRc), zName+nRoot);
-          prompt_user(prompt, &ans);
-          cReply = blob_str(&ans)[0];
+          if( !noPrompt ){
+            Blob ans;
+            char *prompt = mprintf("\nWARNING: Deletion of this file will "
+                                   "not be undoable via the 'undo'\n"
+                                   "         command because %s.\n\n"
+                                   "Remove unmanaged file \"%s\" (a=all/y/N)? ",
+                                   undo_save_message(undoRc), zName+nRoot);
+            prompt_user(prompt, &ans);
+            cReply = blob_str(&ans)[0];
+            blob_reset(&ans);
+          }else{
+            cReply = 'N';
+          }
           if( cReply=='a' || cReply=='A' ){
             allFileFlag = 1;
           }else if( cReply!='y' && cReply!='Y' ){
-            blob_reset(&ans);
             continue;
           }
-          blob_reset(&ans);
         }
       }
       if( dryRunFlag || file_delete(zName)==0 ){
@@ -832,19 +838,22 @@ void clean_cmd(void){
         continue;
       }
       if( !allDirFlag && !dryRunFlag && !glob_match(pClean, zName+nRoot) ){
-        Blob ans;
         char cReply;
-        char *prompt = mprintf("Remove empty directory \"%s\" (a=all/y/N)? ",
-                               zName+nRoot);
-        prompt_user(prompt, &ans);
-        cReply = blob_str(&ans)[0];
+        if( !noPrompt ){
+          Blob ans;
+          char *prompt = mprintf("Remove empty directory \"%s\" (a=all/y/N)? ",
+                                 zName+nRoot);
+          prompt_user(prompt, &ans);
+          cReply = blob_str(&ans)[0];
+          blob_reset(&ans);
+        }else{
+          cReply = 'N';
+        }
         if( cReply=='a' || cReply=='A' ){
           allDirFlag = 1;
         }else if( cReply!='y' && cReply!='Y' ){
-          blob_reset(&ans);
           continue;
         }
-        blob_reset(&ans);
       }
       if( dryRunFlag || file_rmdir(zName)==0 ){
         if( verboseFlag || dryRunFlag ){
