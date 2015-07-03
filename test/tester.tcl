@@ -89,13 +89,24 @@ proc protOut {msg} {
   }
 }
 
-# Run the fossil program.
+# Run the Fossil program with the specified arguments.
+#
+# Consults the VERBOSE global variable to determine if
+# diagnostics should be emitted when no error is seen.
+# Sets the CODE and RESULT global variables for use in
+# test expressions.
 #
 proc fossil {args} {
   return [uplevel 1 fossil_maybe_answer [list ""] $args]
 }
 
-# Run the fossil program and possibly answer the first prompt.
+# Run the Fossil program with the specified arguments
+# and possibly answer the first prompt, if any.
+#
+# Consults the VERBOSE global variable to determine if
+# diagnostics should be emitted when no error is seen.
+# Sets the CODE and RESULT global variables for use in
+# test expressions.
 #
 proc fossil_maybe_answer {answer args} {
   global fossilexe
