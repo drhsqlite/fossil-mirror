@@ -1,5 +1,5 @@
-C Update\sto\sthe\slatest\sSQLite\s3.8.11\salpha,\sincluding\sifdefery\sto\sprevent\nOpenBSD\sfrom\strying\sto\suse\s__builtin_bswap32(),\swhich\sit\sdoes\snot\ssupport.
-D 2015-07-03T17:56:26.684
+C Fix\stypo\sin\sthe\shelp\stext\sfor\sthe\s"fossil\scache"\scommand.
+D 2015-07-03T21:38:47.486
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -381,7 +381,7 @@ F src/branch.c 09724980278de18e9bbff5da85950c3febd811eb
 F src/browse.c 904f68c2a82bed2b9533b76a3497a961d2ae25d9
 F src/builtin.c 31c17d18b565c7766021913c89be4180b3ee4a56
 F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
-F src/cache.c 85da0ea6ee5ecff186e135b61108892904194e1e
+F src/cache.c d174d5926e1af9a243a0768ca23bc38e11d2652e
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 03c8c65969bd4ab297db0b6afa14bdc57b30e422
 F src/checkin.c 431159485ee4209e6bfc7bd4481ff8a1c25a2626
@@ -739,7 +739,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 5280dbc91997819b4b566c6ce7b3eb14e6c3c710
-R ebc3135be133765995c329f09f4d6542
+P 548f96963c97254ab8a13bcc8687bceda8c777fc
+R 7170a811121994a6b6b9248684671c64
 U drh
-Z 70418d5ba05f1c160ca684d47e42d865
+Z 3966d28e72c48eaf9a1867f57cb65c85
