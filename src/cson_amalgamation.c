@@ -32,7 +32,7 @@
 typedef __int64 JSON_int_t;
 #define JSON_PARSER_INTEGER_SSCANF_TOKEN "%I64d"
 #define JSON_PARSER_INTEGER_SPRINTF_TOKEN "%I64d"
-#elif __STDC_VERSION__ >= 199901L || HAVE_LONG_LONG == 1
+#elif (__STDC_VERSION__ >= 199901L) || (HAVE_LONG_LONG == 1)
 typedef long long JSON_int_t;
 #define JSON_PARSER_INTEGER_SSCANF_TOKEN "%lld"
 #define JSON_PARSER_INTEGER_SPRINTF_TOKEN "%lld"
@@ -3789,7 +3789,7 @@ static int cson_str_to_json( char const * str, unsigned int len,
         int ch;
         unsigned char clen = 0;
         char escChar[3] = {'\\',0,0};
-        enum { UBLen = 8 };
+        enum { UBLen = 13 };
         char ubuf[UBLen];
         int rc = 0;
         rc = f(state, "\"", 1 );
@@ -3881,13 +3881,27 @@ static int cson_str_to_json( char const * str, unsigned int len,
                 assume_latin1:
 #endif
                 memset(ubuf,0,UBLen);
-                rc = sprintf(ubuf, "\\u%04x",ch);
-                if( rc != 6 )
-                {
-                    rc = cson_rc.RangeError;
-                    break;
+                if(ch <= 0xFFFF){
+                    rc = sprintf(ubuf, "\\u%04x",ch);
+                    if( rc != 6 )
+                    {
+                        rc = cson_rc.RangeError;
+                        break;
+                    }
+                    rc = f( state, ubuf, 6 );
+                }else{ /* encode as a UTF16 surrugate pair */
+                    /* http://unicodebook.readthedocs.org/en/latest/unicode_encodings.html#surrogates */
+                    ch -= 0x10000;
+                    rc = sprintf(ubuf, "\\u%04x\\u%04x",
+                                 (0xd800 | (ch>>10)),
+                                 (0xdc00 | (ch & 0x3ff)));
+                    if( rc != 12 )
+                    {
+                        rc = cson_rc.RangeError;
+                        break;
+                    }
+                    rc = f( state, ubuf, 12 );
                 }
-                rc = f( state, ubuf, 6 );
                 continue;
             }
         }
