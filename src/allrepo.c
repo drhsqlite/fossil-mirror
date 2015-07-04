@@ -89,6 +89,10 @@ static void collect_argv(Blob *pExtra, int iStart){
 **
 ** Available operations are:
 **
+**    cache       Mangages the cache used for potentially expensive web
+**                pages. Any additional arguments are passed on
+**                verbatim to the cache command.
+**
 **    changes     Shows all local checkouts that have uncommitted changes.
 **                This operation has no additional options.
 **
