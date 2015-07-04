@@ -1,5 +1,5 @@
-C added\smissing\s"all\scache"\sdocs.
-D 2015-07-04T05:47:00.762
+C Update\sand\stweak\shelp\stext.
+D 2015-07-04T06:01:27.016
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -372,7 +372,7 @@ F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c f9e7a15f285a4b10b50d4b9a8d9833ab164b61d0
-F src/allrepo.c 499663c8f20bb81df226463142aab78d6323514d
+F src/allrepo.c c74befbae171896b2d6d6c2a98e6385c4b24f4fd
 F src/attach.c 5b713ffe437fa0c3241da307835b1286e38798fd
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
@@ -739,7 +739,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 744aaa84e49914dfdc3a8aeaf41111b0a9c6b5b9
-R b464dbcc6b63120ba9620c537ade1dd6
-U stephan
-Z f7a977c060a56a1cc1834f223f9c3562
+P 2f0533fe4af61411283b86c1343f32b2786b30d0
+R c60a422ae222ca5721f6ce462a004d6f
+U mistachkin
+Z eee78e01e6ea16468b5ce4a8c6f37db3
