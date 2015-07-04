@@ -194,11 +194,13 @@ void all_cmd(void){
     collect_argument_value(&extra, "case-sensitive");
     collect_argument_value(&extra, "clean");
     collect_argument(&extra, "dirsonly",0);
+    collect_argument(&extra, "disable-undo",0);
     collect_argument(&extra, "dotfiles",0);
     collect_argument(&extra, "emptydirs",0);
     collect_argument(&extra, "force","f");
     collect_argument_value(&extra, "ignore");
     collect_argument_value(&extra, "keep");
+    collect_argument(&extra, "no-prompt",0);
     collect_argument(&extra, "temp",0);
     collect_argument(&extra, "verbose","v");
     collect_argument(&extra, "whatif",0);
