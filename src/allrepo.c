@@ -329,6 +329,10 @@ void all_cmd(void){
     zCmd = "info";
     showLabel = 1;
     quiet = 1;
+  }else if( strncmp(zCmd, "cache", n)==0 ){
+    zCmd = "cache -R";
+    showLabel = 1;
+    collect_argv(&extra, 3);
   }else{
     fossil_fatal("\"all\" subcommand should be one of: "
                  "add changes clean dbstat extras fts-config ignore "
