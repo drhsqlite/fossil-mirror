@@ -89,6 +89,10 @@ static void collect_argv(Blob *pExtra, int iStart){
 **
 ** Available operations are:
 **
+**    cache       Mangages the cache used for potentially expensive web
+**                pages.  Any additional arguments are passed on verbatim
+**                to the cache command.
+**
 **    changes     Shows all local checkouts that have uncommitted changes.
 **                This operation has no additional options.
 **
@@ -331,9 +335,13 @@ void all_cmd(void){
     zCmd = "info";
     showLabel = 1;
     quiet = 1;
+  }else if( strncmp(zCmd, "cache", n)==0 ){
+    zCmd = "cache -R";
+    showLabel = 1;
+    collect_argv(&extra, 3);
   }else{
     fossil_fatal("\"all\" subcommand should be one of: "
-                 "add changes clean dbstat extras fts-config ignore "
+                 "add cache changes clean dbstat extras fts-config ignore "
                  "info list ls pull push rebuild setting sync unset");
   }
   verify_all_options();

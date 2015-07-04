@@ -1,5 +1,5 @@
-C Update\s'all\sclean'\scommand\swith\sthe\s--disable-undo\sand\s--no-prompt\soptions.
-D 2015-07-04T06:03:39.375
+C Merge\supdates\sfrom\strunk.
+D 2015-07-04T06:05:46.032
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -372,7 +372,7 @@ F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c f9e7a15f285a4b10b50d4b9a8d9833ab164b61d0
-F src/allrepo.c 3cf6b0cced606543d57a022fcfb95ecf2dd9a96d
+F src/allrepo.c ea9a13512f43925d8d6cceee4e757c55a80910d9
 F src/attach.c 5b713ffe437fa0c3241da307835b1286e38798fd
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
@@ -381,7 +381,7 @@ F src/branch.c 09724980278de18e9bbff5da85950c3febd811eb
 F src/browse.c 904f68c2a82bed2b9533b76a3497a961d2ae25d9
 F src/builtin.c 31c17d18b565c7766021913c89be4180b3ee4a56
 F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
-F src/cache.c 85da0ea6ee5ecff186e135b61108892904194e1e
+F src/cache.c d174d5926e1af9a243a0768ca23bc38e11d2652e
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 03c8c65969bd4ab297db0b6afa14bdc57b30e422
 F src/checkin.c eaa822d4913ac6d6b45b4aa922b8a512539a1cd4
@@ -740,7 +740,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P ea29d113c75fd38bccd612b56b4f48261e8501f3
-R 8f9d1b942647090010aeb90a817bdda9
+P 3e22d93b68b1d3308dfd446cea5c4e0dab9a607f 2c741dec46059a1ebf16fad4dd166e329e8ffb9f
+R 3b58f2fc95d03c4481f9be52e7526dcd
 U mistachkin
-Z 4f8282fd59e65a99c5f855d3293bf729
+Z 6ca02fa8099a10569bb948296238c331
