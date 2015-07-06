@@ -1,5 +1,5 @@
-C Merge\supdates\sfrom\strunk.
-D 2015-07-04T06:05:46.032
+C Small\sgrammar\sfix\sin\scomment.
+D 2015-07-06T21:56:44.929
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -384,7 +384,7 @@ F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c d174d5926e1af9a243a0768ca23bc38e11d2652e
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 03c8c65969bd4ab297db0b6afa14bdc57b30e422
-F src/checkin.c eaa822d4913ac6d6b45b4aa922b8a512539a1cd4
+F src/checkin.c 212114657df8d3ccf84ec056db4ca1c003253543
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 265e9a29da905f3ab68625a9a5b245d7630275b2
@@ -740,7 +740,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 3e22d93b68b1d3308dfd446cea5c4e0dab9a607f 2c741dec46059a1ebf16fad4dd166e329e8ffb9f
-R 3b58f2fc95d03c4481f9be52e7526dcd
+P 1a4bcadde0a8699765cc4c1b09505efde8a23b23
+R f1a0b76292d277b35559ad6b11882f27
 U mistachkin
-Z 6ca02fa8099a10569bb948296238c331
+Z fce0d1684ca93f54b64d277ab9b6d0db
