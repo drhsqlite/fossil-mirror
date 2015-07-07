@@ -2707,9 +2707,11 @@ void ci_edit_page(void){
 }
 
 /*
-** COMMAND: edit
+** COMMAND: amend
 **
-** Usage: %fossil edit UUID ?OPTIONS?
+** Usage: %fossil amend UUID ?OPTIONS?
+**
+** Amend the tags on check-in UUID to change how it displays in the timeline.
 **
 ** Options:
 **
@@ -2717,14 +2719,14 @@ void ci_edit_page(void){
 **    --comment COMMENT       Make COMMENT the check-in comment
 **    --date DATE             Make DATE the check-in time
 **    --bgcolor COLOR         Apply COLOR to this check-in
-**    --branchcolor COLOR     Apply COLOR to the branch
+**    --branchcolor COLOR     Apply and propagate COLOR to the branch
 **    --tag TAG               Add new TAG to this check-in
 **    --cancel TAG            Cancel TAG from this check-in
 **    --branch NAME           Make this check-in the start of branch NAME
 **    --hide                  Hide branch starting from this check-in
 **    --close                 Mark this "leaf" as closed
 */
-void ci_edit_cmd(void){
+void ci_amend_cmd(void){
   int rid;
   const char *zComment;         /* Current comment on the check-in */
   const char *zNewComment;      /* Revised check-in comment */
@@ -2740,8 +2742,8 @@ void ci_edit_cmd(void){
   const char *zCancelTag;
   int fClose;                   /* True if leaf should be closed */
   int fHide;                    /* True if branch should be hidden */
-  int fPropagateColor;          /* True if color propagates before edit */
-  int fNewPropagateColor = 0;   /* True if color propagates after edit */
+  int fPropagateColor;          /* True if color propagates before amend */
+  int fNewPropagateColor = 0;   /* True if color propagates after amend */
   const char *zChngTime;        /* The change time on the control artifact */
   const char *zUuid;
   Blob ctrl;
