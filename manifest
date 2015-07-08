@@ -1,5 +1,5 @@
-C Small\sgrammar\sfix\sin\scomment.
-D 2015-07-06T21:56:44.929
+C Merge\supdates\sfrom\strunk.
+D 2015-07-08T17:31:45.312
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -446,7 +446,7 @@ F src/main.c 90e020d219a92840dc9e8523ce28bf0e1d04e393
 F src/main.mk 6134955a71af52592fa41a90246cdf69a2f63410
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 39664cccba5d345b15b535e3d7b7bbbb7e92b897
+F src/makemake.tcl 9cd0f1334b1fb8d763ce1d719c216adcbb028091
 F src/manifest.c ba061499e6431a1c2c8aa19821adf429975fdee6
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 45f6e06e03e4183764067eec37ff73f357303306
@@ -481,8 +481,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 29d06b40601a2f48c0d0994ec16e97b404716920
 F src/skins.c f12a6c105e7ceb269570e046800ae4ad1231b15a
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c ed15362fe34481df18a734b748d95de5e54d111a
-F src/sqlite3.h d35cca99de5fdb324e8f1d221c2a71a3ad14a6a7
+F src/sqlite3.c cd70d9502faeee322717ccf37373b27e1fed5898
+F src/sqlite3.h f1ffe56854a68f4e695eeffa202e6b1ef3ca2d51
 F src/stash.c e12e4a6e5b2e40da6ec789e0945e165eb78158a6
 F src/stat.c 69ab1f0d78ccb91fc81f8f3930046025034a3250
 F src/statrep.c 474a16f31a804b1a779e9c911ae4a3289971f087
@@ -627,7 +627,7 @@ F win/Makefile.PellesCGMake cd7a95bc1ffa5608ae7c84b043d99d57e668803f
 F win/Makefile.dmc cf59fe3e8f3657d4b4738adec3e40a0bed7db602
 F win/Makefile.mingw 20dda8a38a2f1d61d090860afecf1690a12690b7
 F win/Makefile.mingw.mistachkin 6296a9afd1958efb095f174724bef5c2b3636f95
-F win/Makefile.msc 3e150ccd5de15208d1740e1b12ca8e1ec03994e6
+F win/Makefile.msc 4a5dec878698af8a8203dd96c40fa2b2680e20cc
 F win/buildmsvc.bat d2daa4ad2586518ed72ab03f3b5dfe33bfc406d7
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -740,7 +740,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 1a4bcadde0a8699765cc4c1b09505efde8a23b23
-R f1a0b76292d277b35559ad6b11882f27
+P 45c7dbb81e930ae5626b7be22e9d689210d35fcf b9447b0ec60ab6050fca75d767757654c3cf2613
+R 1ca21731b0a660eb767ddeaa8a61280a
 U mistachkin
-Z fce0d1684ca93f54b64d277ab9b6d0db
+Z efead79c8881f64dba2f3aaf68dacc82

@@ -41,7 +41,7 @@ FOSSIL_BUILD_SSL = 0
 
 # Build the included zlib library?
 !ifndef FOSSIL_BUILD_ZLIB
-FOSSIL_BUILD_ZLIB = 0
+FOSSIL_BUILD_ZLIB = 1
 !endif
 
 # Link everything except SQLite dynamically?
