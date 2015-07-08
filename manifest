@@ -1,5 +1,5 @@
-C Update\sand\stweak\shelp\stext.
-D 2015-07-04T06:01:27.016
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.8.11\salpha\sthat\sincludes\sthe\spcache1\npreallocation\senhancement.
+D 2015-07-08T16:25:59.215
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -481,8 +481,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 29d06b40601a2f48c0d0994ec16e97b404716920
 F src/skins.c f12a6c105e7ceb269570e046800ae4ad1231b15a
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c ed15362fe34481df18a734b748d95de5e54d111a
-F src/sqlite3.h d35cca99de5fdb324e8f1d221c2a71a3ad14a6a7
+F src/sqlite3.c cd70d9502faeee322717ccf37373b27e1fed5898
+F src/sqlite3.h f1ffe56854a68f4e695eeffa202e6b1ef3ca2d51
 F src/stash.c e12e4a6e5b2e40da6ec789e0945e165eb78158a6
 F src/stat.c 69ab1f0d78ccb91fc81f8f3930046025034a3250
 F src/statrep.c 474a16f31a804b1a779e9c911ae4a3289971f087
@@ -739,7 +739,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 2f0533fe4af61411283b86c1343f32b2786b30d0
-R c60a422ae222ca5721f6ce462a004d6f
-U mistachkin
-Z eee78e01e6ea16468b5ce4a8c6f37db3
+P 2c741dec46059a1ebf16fad4dd166e329e8ffb9f
+R 94ca55a41ff2f693ff5ecd5cf25b8266
+U drh
+Z 49d6b888dc68f0442d073ea72f6b2b58

@@ -113,7 +113,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.8.11"
 #define SQLITE_VERSION_NUMBER 3008011
-#define SQLITE_SOURCE_ID      "2015-07-03 17:54:49 030f60a7ba171650ce8c0ac32dc166eab80aca32"
+#define SQLITE_SOURCE_ID      "2015-07-08 16:22:42 5348ffc3fda5168c1e9e14aa88b0c6aedbda7c94"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -6291,6 +6291,9 @@ SQLITE_API int SQLITE_STDCALL sqlite3_mutex_notheld(sqlite3_mutex*);
 #define SQLITE_MUTEX_STATIC_APP1      8  /* For use by application */
 #define SQLITE_MUTEX_STATIC_APP2      9  /* For use by application */
 #define SQLITE_MUTEX_STATIC_APP3     10  /* For use by application */
+#define SQLITE_MUTEX_STATIC_VFS1     11  /* For use by built-in VFS */
+#define SQLITE_MUTEX_STATIC_VFS2     12  /* For use by extension VFS */
+#define SQLITE_MUTEX_STATIC_VFS3     13  /* For use by application VFS */
 
 /*
 ** CAPI3REF: Retrieve the mutex for a database connection
