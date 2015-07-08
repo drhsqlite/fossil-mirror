@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.8.11\salpha\sthat\sincludes\sthe\spcache1\npreallocation\senhancement.
-D 2015-07-08T16:25:59.215
+C Build\sthe\sincluded\szlib\slibrary\sby\sdefault\swhen\susing\sthe\sMakefile.msc\nmakefile.
+D 2015-07-08T16:48:31.705
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -626,7 +626,7 @@ F win/Makefile.PellesCGMake cd7a95bc1ffa5608ae7c84b043d99d57e668803f
 F win/Makefile.dmc cf59fe3e8f3657d4b4738adec3e40a0bed7db602
 F win/Makefile.mingw 20dda8a38a2f1d61d090860afecf1690a12690b7
 F win/Makefile.mingw.mistachkin 6296a9afd1958efb095f174724bef5c2b3636f95
-F win/Makefile.msc 3e150ccd5de15208d1740e1b12ca8e1ec03994e6
+F win/Makefile.msc 4a5dec878698af8a8203dd96c40fa2b2680e20cc
 F win/buildmsvc.bat d2daa4ad2586518ed72ab03f3b5dfe33bfc406d7
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -739,7 +739,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 2c741dec46059a1ebf16fad4dd166e329e8ffb9f
-R 94ca55a41ff2f693ff5ecd5cf25b8266
+P 8fb4269a3180e374744ab0dd219b49a0a46f6016
+R 3fb9ba329aa1baedd4f384db56171bbf
 U drh
-Z 49d6b888dc68f0442d073ea72f6b2b58
+Z 817a8b55c670400aed3645faf672d31a
