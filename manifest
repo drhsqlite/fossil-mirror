@@ -1,5 +1,5 @@
-C Incorporate\srecent\sdownstream\schanges\sfor\sthe\sTcl\sintegration\ssubsystem.
-D 2015-07-10T18:43:09.007
+C Check\ssqlite3_mprintf()\sreturn\svalue\sin\sthe\sTcl\sintegration\ssubsystem.
+D 2015-07-10T20:57:09.219
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -494,7 +494,7 @@ F src/th.c e9840f21b1bb1bc03fdba17c818728e132e254b7
 F src/th.h 1e7ae1613afa730a75df06d7fd1f17c7ff4564f4
 F src/th_lang.c 71435ded9ef6d2e0332711bd4a0ffda836d4b027
 F src/th_main.c 231f4e9729e09349a37545970ea82ebc409d2e76
-F src/th_tcl.c 1be1bbce7b7cb39114eb245e49a45a6841e067a6
+F src/th_tcl.c 67b5449ab577dcf3a9f316c9f482ac081b0474ee
 F src/timeline.c 005c758d36dbe81a52d1fe9a7f14cd0830abb005
 F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
 F src/tktsetup.c 1360904128a3c60008867056d9f576c8f906eb7c
@@ -739,7 +739,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P a591a2530577706a14fe28637bf4cc446b2f031f
-R e35c389160146c4a72d7ae6f1cad1222
+P c5f71552c1ff24d0df8533417c2577f68e8a2790
+R cb1e35d16cc454c50f3859c03f66e66c
 U mistachkin
-Z d11e45efb6fdfef07475cd81a8b285f8
+Z 2790194cb61decbe86606983cec75e6e

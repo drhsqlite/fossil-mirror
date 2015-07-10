@@ -794,6 +794,7 @@ static int loadTcl(
       }
 #endif /* TCL_USE_SET_DLL_DIRECTORY */
     }
+    if( !zFileName ) break;
     hLibrary = dlopen(zFileName, RTLD_NOW | RTLD_GLOBAL);
     /* NOTE: If the file name was allocated, free it now. */
     if( zFileName!=aFileName ){
