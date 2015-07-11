@@ -441,8 +441,8 @@ static int notifyPreOrPostEval(
 ** TH1 command: tclEval arg ?arg ...?
 **
 ** Evaluates the Tcl script and returns its result verbatim.  If a Tcl script
-** error is generated, it will be transformed into a TH1 script error.  A Tcl
-** interpreter will be created automatically if it has not been already.
+** error is generated, it will be transformed into a TH1 script error.  The
+** Tcl interpreter will be created automatically if it has not been already.
 */
 static int tclEval_command(
   Th_Interp *interp,
@@ -500,7 +500,8 @@ static int tclEval_command(
 **
 ** Evaluates the Tcl expression and returns its result verbatim.  If a Tcl
 ** script error is generated, it will be transformed into a TH1 script error.
-** A Tcl interpreter will be created automatically if it has not been already.
+** The Tcl interpreter will be created automatically if it has not been
+** already.
 */
 static int tclExpr_command(
   Th_Interp *interp,
@@ -565,8 +566,8 @@ static int tclExpr_command(
 ** TH1 command: tclInvoke command ?arg ...?
 **
 ** Invokes the Tcl command using the supplied arguments.  No additional
-** substitutions are performed on the arguments.  A Tcl interpreter will
-** be created automatically if it has not been already.
+** substitutions are performed on the arguments.  The Tcl interpreter
+** will be created automatically if it has not been already.
 */
 static int tclInvoke_command(
   Th_Interp *interp,
@@ -633,6 +634,96 @@ static int tclInvoke_command(
   Tcl_Release((ClientData)tclInterp);
   rc = notifyPreOrPostEval(1, interp, ctx, argc, argv, argl,
                            getTh1ReturnCode(rc));
+  return rc;
+}
+
+/*
+** TH1 command: tclIsSafe
+**
+** Returns non-zero if the Tcl interpreter is "safe".  The Tcl interpreter
+** will be created automatically if it has not been already.
+*/
+static int tclIsSafe_command(
+  Th_Interp *interp,
+  void *ctx,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  Tcl_Interp *tclInterp;
+
+  if( createTclInterp(interp, ctx)!=TH_OK ){
+    return TH_ERROR;
+  }
+  if( argc!=1 ){
+    return Th_WrongNumArgs(interp, "tclIsSafe");
+  }
+  tclInterp = GET_CTX_TCL_INTERP(ctx);
+  if( !tclInterp || Tcl_InterpDeleted(tclInterp) ){
+    Th_ErrorMessage(interp, "invalid Tcl interpreter", (const char *)"", 0);
+    return TH_ERROR;
+  }
+  Th_SetResultInt(interp, Tcl_IsSafe(tclInterp));
+  return TH_OK;
+}
+
+/*
+** TH1 command: tclMakeSafe
+**
+** Forces the Tcl interpreter into "safe" mode by removing all "unsafe"
+** commands and variables.  This operation cannot be undone.  The Tcl
+** interpreter will remain "safe" until the process terminates.
+*/
+static int tclMakeSafe_command(
+  Th_Interp *interp,
+  void *ctx,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  static int registerChans = 1;
+  Tcl_Interp *tclInterp;
+  int rc = TH_OK;
+
+  if( createTclInterp(interp, ctx)!=TH_OK ){
+    return TH_ERROR;
+  }
+  if( argc!=1 ){
+    return Th_WrongNumArgs(interp, "tclMakeSafe");
+  }
+  tclInterp = GET_CTX_TCL_INTERP(ctx);
+  if( !tclInterp || Tcl_InterpDeleted(tclInterp) ){
+    Th_ErrorMessage(interp, "invalid Tcl interpreter", (const char *)"", 0);
+    return TH_ERROR;
+  }
+  if( Tcl_IsSafe(tclInterp) ){
+    Th_ErrorMessage(interp,
+        "Tcl interpreter is already 'safe'", (const char *)"", 0);
+    return TH_ERROR;
+  }
+  if( registerChans ){
+    /*
+    ** HACK: Prevent the call to Tcl_MakeSafe() from actually closing the
+    **       standard channels instead of simply unregistering them from
+    **       the Tcl interpreter.  This should only need to be done once
+    **       per thread (process?).
+    */
+    registerChans = 0;
+    Tcl_RegisterChannel(NULL, Tcl_GetStdChannel(TCL_STDIN));
+    Tcl_RegisterChannel(NULL, Tcl_GetStdChannel(TCL_STDOUT));
+    Tcl_RegisterChannel(NULL, Tcl_GetStdChannel(TCL_STDERR));
+  }
+  Tcl_Preserve((ClientData)tclInterp);
+  if( Tcl_MakeSafe(tclInterp)!=TCL_OK ){
+    int nResult;
+    const char *zResult = getTclResult(tclInterp, &nResult);
+    Th_ErrorMessage(interp,
+        "could not make Tcl interpreter 'safe':", zResult, nResult);
+    rc = TH_ERROR;
+  }else{
+    Th_SetResult(interp, 0, 0);
+  }
+  Tcl_Release((ClientData)tclInterp);
   return rc;
 }
 
@@ -711,9 +802,11 @@ static struct _Command {
   Th_CommandProc xProc;
   void *pContext;
 } aCommand[] = {
-  {"tclEval",   tclEval_command,   0},
-  {"tclExpr",   tclExpr_command,   0},
-  {"tclInvoke", tclInvoke_command, 0},
+  {"tclEval",     tclEval_command,     0},
+  {"tclExpr",     tclExpr_command,     0},
+  {"tclInvoke",   tclInvoke_command,   0},
+  {"tclIsSafe",   tclIsSafe_command,   0},
+  {"tclMakeSafe", tclMakeSafe_command, 0},
   {0, 0, 0}
 };
 
