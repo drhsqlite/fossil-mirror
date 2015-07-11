@@ -79,7 +79,7 @@ char *fossil_unicode_to_utf8(const void *zUnicode){
 void *fossil_utf8_to_unicode(const char *zUtf8){
 #if defined(_WIN32) || defined(__CYGWIN__)
   int nByte = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, 0, 0);
-  wchar_t *zUnicode = fossil_malloc( nByte * 2 );
+  wchar_t *zUnicode = fossil_malloc( nByte*2 );
   MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, zUnicode, nByte);
   return zUnicode;
 #else
@@ -306,7 +306,11 @@ void fossil_filename_free(void *pOld){
 ** to a file, -1 is returned and nothing is written
 ** to the console.
 */
-int fossil_utf8_to_console(const char *zUtf8, int nByte, int toStdErr){
+int fossil_utf8_to_console(
+  const char *zUtf8,
+  int nByte,
+  int toStdErr
+){
 #ifdef _WIN32
   int nChar, written = 0;
   wchar_t *zUnicode; /* Unicode version of zUtf8 */
@@ -329,23 +333,24 @@ int fossil_utf8_to_console(const char *zUtf8, int nByte, int toStdErr){
   blob_to_utf8_no_bom(&blob, 1);
   nChar = MultiByteToWideChar(CP_UTF8, 0, blob_buffer(&blob),
       blob_size(&blob), NULL, 0);
-  zUnicode = malloc( (nChar + 1) *sizeof(zUnicode[0]) );
+  zUnicode = fossil_malloc( (nChar+1)*sizeof(zUnicode[0]) );
   if( zUnicode==0 ){
     return 0;
   }
   nChar = MultiByteToWideChar(CP_UTF8, 0, blob_buffer(&blob),
       blob_size(&blob), zUnicode, nChar);
   blob_reset(&blob);
-  /* Split WriteConsoleW call into multiple chunks, if necessary. See:
+  /* Split WriteConsoleW output into multiple chunks, if necessary.  See:
    * <https://connect.microsoft.com/VisualStudio/feedback/details/635230> */
-  while( written < nChar ){
+  while( written<nChar ){
     int size = nChar-written;
-    if( size > 26000 ) size = 26000;
-    WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE - toStdErr), zUnicode+written,
-        size, &dummy, 0);
+    if( size>26000 ) size = 26000;
+    WriteConsoleW(GetStdHandle(
+        toStdErr ? STD_ERROR_HANDLE : STD_OUTPUT_HANDLE),
+        zUnicode + written, size, &dummy, 0);
     written += size;
   }
-  free(zUnicode);
+  fossil_free(zUnicode);
   return nChar;
 #else
   return -1;  /* No-op on unix */
