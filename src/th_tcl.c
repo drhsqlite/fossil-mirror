@@ -84,6 +84,7 @@
 #      define WIN32_LEAN_AND_MEAN
 #    endif
 #    if !defined(_WIN32_WINNT) || (_WIN32_WINNT < 0x0502)
+#      undef _WIN32_WINNT
 #      define _WIN32_WINNT 0x0502 /* SetDllDirectory, Windows XP SP2 */
 #    endif
 #    include <windows.h>
@@ -344,7 +345,7 @@ static const char *getTclReturnCodeName(
   int rc,
   int nullIfOk
 ){
-  static char zRc[32];
+  static char zRc[TCL_INTEGER_SPACE + 17]; /* "Tcl return code\0" */
 
   switch( rc ){
     case TCL_OK:       return nullIfOk ? 0 : "TCL_OK";
@@ -397,7 +398,7 @@ struct TclContext {
   Tcl_Interp *interp; /* The on-demand created Tcl interpreter. */
   int useObjProc;     /* Non-zero if an objProc can be called directly. */
   int useTip285;      /* Non-zero if TIP #285 is available. */
-  char *setup;        /* The optional Tcl setup script. */
+  const char *setup;  /* The optional Tcl setup script. */
   tcl_NotifyProc *xPreEval;  /* Optional, called before Tcl_Eval*(). */
   void *pPreContext;         /* Optional, provided to xPreEval(). */
   tcl_NotifyProc *xPostEval; /* Optional, called after Tcl_Eval*(). */
@@ -793,6 +794,7 @@ static int loadTcl(
       }
 #endif /* TCL_USE_SET_DLL_DIRECTORY */
     }
+    if( !zFileName ) break;
     hLibrary = dlopen(zFileName, RTLD_NOW | RTLD_GLOBAL);
     /* NOTE: If the file name was allocated, free it now. */
     if( zFileName!=aFileName ){
@@ -993,7 +995,7 @@ static int createTclInterp(
   char **argv;
   char *argv0 = 0;
   Tcl_Interp *tclInterp;
-  char *setup;
+  const char *setup;
 
   if( !tclContext ){
     Th_ErrorMessage(interp,

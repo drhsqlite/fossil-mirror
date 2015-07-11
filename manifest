@@ -1,5 +1,5 @@
 C Merge\supdates\sfrom\strunk.
-D 2015-07-08T17:31:45.312
+D 2015-07-11T07:39:55.748
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -446,7 +446,7 @@ F src/main.c 90e020d219a92840dc9e8523ce28bf0e1d04e393
 F src/main.mk 6134955a71af52592fa41a90246cdf69a2f63410
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 9cd0f1334b1fb8d763ce1d719c216adcbb028091
+F src/makemake.tcl 2e3b1b87e51abea14b80f51cfdb49b2b70ac29a0
 F src/manifest.c ba061499e6431a1c2c8aa19821adf429975fdee6
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 45f6e06e03e4183764067eec37ff73f357303306
@@ -494,7 +494,7 @@ F src/th.c e9840f21b1bb1bc03fdba17c818728e132e254b7
 F src/th.h 1e7ae1613afa730a75df06d7fd1f17c7ff4564f4
 F src/th_lang.c 71435ded9ef6d2e0332711bd4a0ffda836d4b027
 F src/th_main.c 231f4e9729e09349a37545970ea82ebc409d2e76
-F src/th_tcl.c daed7009a7eea22af1430d8d6b64e1b11a886407
+F src/th_tcl.c 67b5449ab577dcf3a9f316c9f482ac081b0474ee
 F src/timeline.c 005c758d36dbe81a52d1fe9a7f14cd0830abb005
 F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
 F src/tktsetup.c 1360904128a3c60008867056d9f576c8f906eb7c
@@ -625,9 +625,9 @@ F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake cd7a95bc1ffa5608ae7c84b043d99d57e668803f
 F win/Makefile.dmc cf59fe3e8f3657d4b4738adec3e40a0bed7db602
-F win/Makefile.mingw 20dda8a38a2f1d61d090860afecf1690a12690b7
-F win/Makefile.mingw.mistachkin 6296a9afd1958efb095f174724bef5c2b3636f95
-F win/Makefile.msc 4a5dec878698af8a8203dd96c40fa2b2680e20cc
+F win/Makefile.mingw fe914e25859c9c18485e504992de95ce223d72e3
+F win/Makefile.mingw.mistachkin 760c0bfd32f56a700f302d8d69872cb6b21d8ad7
+F win/Makefile.msc 185ecc2e49967c13e5d5f6fdc86ee9b5fafb0f1e
 F win/buildmsvc.bat d2daa4ad2586518ed72ab03f3b5dfe33bfc406d7
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -655,7 +655,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki cf4cbc859ea061b94fd8de1f1822dc019d50e65b
+F www/build.wiki 2f0e8e5909ee610b28d190c88dd916706de41312
 F www/changes.wiki 2dc3b4659277d5366edd269b195db36bbb7d8405
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 37087c035ff437c1c14dce07a0b8c7bf7adb3c2d
@@ -740,7 +740,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 45c7dbb81e930ae5626b7be22e9d689210d35fcf b9447b0ec60ab6050fca75d767757654c3cf2613
-R 1ca21731b0a660eb767ddeaa8a61280a
+P a02d847edb8c2d1e422fdc999d41fafc9ec4fa91 e7f7f79ce8e0933ac97c60a16b73fae5711dcb1f
+R 78d0b01e25ffb86c654c26d5dd0ebc5f
 U mistachkin
-Z efead79c8881f64dba2f3aaf68dacc82
+Z 2eca77d50c21c3b691760dabba66142f
