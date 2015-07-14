@@ -104,13 +104,14 @@ struct FossilUserPerms {
 struct TclContext {
   int argc;              /* Number of original (expanded) arguments. */
   char **argv;           /* Full copy of the original (expanded) arguments. */
-  void *library;         /* The Tcl library module handle. */
+  void *hLibrary;        /* The Tcl library module handle. */
   void *xFindExecutable; /* See tcl_FindExecutableProc in th_tcl.c. */
   void *xCreateInterp;   /* See tcl_CreateInterpProc in th_tcl.c. */
   void *xDeleteInterp;   /* See tcl_DeleteInterpProc in th_tcl.c. */
   void *xFinalize;       /* See tcl_FinalizeProc in th_tcl.c. */
   Tcl_Interp *interp;    /* The on-demand created Tcl interpreter. */
   int useObjProc;        /* Non-zero if an objProc can be called directly. */
+  int useTip285;         /* Non-zero if TIP #285 is available. */
   char *setup;           /* The optional Tcl setup script. */
   void *xPreEval;        /* Optional, called before Tcl_Eval*(). */
   void *pPreContext;     /* Optional, provided to xPreEval(). */
@@ -137,6 +138,7 @@ struct Global {
   char *zLocalDbName;     /* Name of the local database */
   const char *zMainDbType;/* "configdb", "localdb", or "repository" */
   const char *zConfigDbType;  /* "configdb", "localdb", or "repository" */
+  char *zOpenRevision;    /* Check-in version to use during database open */
   int localOpen;          /* True if the local database is open */
   char *zLocalRoot;       /* The directory holding the  local database */
   int minPrefix;          /* Number of digits needed for a distinct UUID */
@@ -683,15 +685,28 @@ int main(int argc, char **argv)
       fossil_fatal("unable to change directories to %s", zChdir);
     }
     if( find_option("help",0,0)!=0 ){
-      /* --help anywhere on the command line is translated into
-      ** "fossil help argv[1] argv[2]..." */
-      int i;
+      /* If --help is found anywhere on the command line, translate the command
+       * to "fossil help cmdname" where "cmdname" is the first argument that
+       * does not begin with a "-" character.  If all arguments start with "-",
+       * translate to "fossil help argv[1] argv[2]...". */
+      int i, nNewArgc;
       char **zNewArgv = fossil_malloc( sizeof(char*)*(g.argc+2) );
-      for(i=1; i<g.argc; i++) zNewArgv[i+1] = g.argv[i];
-      zNewArgv[i+1] = 0;
       zNewArgv[0] = g.argv[0];
       zNewArgv[1] = "help";
-      g.argc++;
+      for(i=1; i<g.argc; i++){
+        if( g.argv[i][0]!='-' ){
+          nNewArgc = 3;
+          zNewArgv[2] = g.argv[i];
+          zNewArgv[3] = 0;
+          break;
+        }
+      }
+      if( i==g.argc ){
+        for(i=1; i<g.argc; i++) zNewArgv[i+1] = g.argv[i];
+        nNewArgc = g.argc+1;
+        zNewArgv[i+1] = 0;
+      }
+      g.argc = nNewArgc;
       g.argv = zNewArgv;
     }
     zCmdName = g.argv[1];
@@ -1044,6 +1059,11 @@ void version_cmd(void){
     fossil_print("MBCS_COMMAND_LINE\n");
 #else
     fossil_print("UNICODE_COMMAND_LINE\n");
+#endif
+#if defined(FOSSIL_DYNAMIC_BUILD)
+    fossil_print("DYNAMIC_BUILD\n");
+#else
+    fossil_print("STATIC_BUILD\n");
 #endif
   }
 }
@@ -1439,10 +1459,15 @@ static int repo_list_page(void){
   db_multi_exec("CREATE TABLE sfile(x TEXT);");
   db_multi_exec("CREATE TABLE vfile(pathname);");
   vfile_scan(&base, blob_size(&base), 0, 0);
-  db_multi_exec("DELETE FROM sfile WHERE x NOT GLOB '*.fossil'");
+  db_multi_exec("DELETE FROM sfile WHERE x NOT GLOB '*[^/].fossil'");
   n = db_int(0, "SELECT count(*) FROM sfile");
   if( n>0 ){
     Stmt q;
+    @ <html>
+    @ <head>
+    @ <title>Repository List</title>
+    @ </head>
+    @ <body>
     @ <h1>Available Repositories:</h1>
     @ <ol>
     db_prepare(&q, "SELECT x, substr(x,-7,-100000)||'/home'"
@@ -1450,9 +1475,11 @@ static int repo_list_page(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       const char *zUrl = db_column_text(&q, 1);
-      @ <li><a href="%h(zUrl)">%h(zName)</a></li>
+      @ <li><a href="%h(zUrl)" target="_blank">%h(zName)</a></li>
     }
     @ </ol>
+    @ </body>
+    @ </html>
     cgi_reply();
   }
   sqlite3_close(g.db);
@@ -1527,7 +1554,7 @@ static void process_one_web_page(
         szFile = 1;
         break;
       }
-      if( szFile==0 ){
+      if( szFile==0 && sqlite3_strglob("*/.fossil",zRepo)!=0 ){
         if( zRepo[0]=='/' && zRepo[1]=='/' ){ zRepo++; j--; }
         szFile = file_size(zRepo);
         /* this should only be set from the --baseurl option, not CGI  */
@@ -1565,12 +1592,12 @@ static void process_one_web_page(
 
       if( szFile<1024 ){
         set_base_url(0);
-        if( zNotFound ){
-          cgi_redirect(zNotFound);
-        }else if( strcmp(zPathInfo,"/")==0
+        if( strcmp(zPathInfo,"/")==0
                   && allowRepoList
                   && repo_list_page() ){
           /* Will return a list of repositories */
+        }else if( zNotFound ){
+          cgi_redirect(zNotFound);
         }else{
 #ifdef FOSSIL_ENABLE_JSON
           if(g.json.isJsonMode){
@@ -2171,7 +2198,6 @@ void cmd_http(void){
   }
   zHost = find_option("host", 0, 1);
   if( zHost ) cgi_replace_parameter("HTTP_HOST",zHost);
-  g.cgiOutput = 1;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -2179,6 +2205,7 @@ void cmd_http(void){
   if( g.argc!=2 && g.argc!=3 && g.argc!=5 && g.argc!=6 ){
     fossil_fatal("no repository specified");
   }
+  g.cgiOutput = 1;
   g.fullHttpReply = 1;
   if( g.argc>=5 ){
     g.httpIn = fossil_fopen(g.argv[2], "rb");

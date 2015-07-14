@@ -302,7 +302,7 @@ void blob_copy(Blob *pTo, Blob *pFrom){
 char *blob_str(Blob *p){
   blob_is_init(p);
   if( p->nUsed==0 ){
-    blob_append(p, "", 1);
+    blob_append(p, "", 1); /* NOTE: Changes nUsed. */
     p->nUsed = 0;
   }
   if( p->aData[p->nUsed]!=0 ){
@@ -841,7 +841,7 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
     _setmode(_fileno(stdout), _O_TEXT);
 #endif
   }else{
-    file_mkfolder(zFilename, 1);
+    file_mkfolder(zFilename, 1, 0);
     out = fossil_fopen(zFilename, "wb");
     if( out==0 ){
       fossil_fatal_recursive("unable to open file \"%s\" for writing",

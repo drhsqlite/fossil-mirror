@@ -98,6 +98,7 @@ summarize the commands available in TH1:
   *  lindex LIST INDEX
   *  list ARG ...
   *  llength LIST
+  *  lsearch LIST STRING
   *  proc NAME ARG-LIST BODY-SCRIPT
   *  rename OLD NEW
   *  return ?-code CODE? ?VALUE?
@@ -131,6 +132,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  decorate
   *  enable_output
   *  getParameter
+  *  glob_match
   *  globalState
   *  hascap
   *  hasfeature
@@ -154,6 +156,8 @@ features of Fossil.  The following is a summary of the extended commands:
   *  tclEval
   *  tclExpr
   *  tclInvoke
+  *  tclIsSafe
+  *  tclMakeSafe
   *  tclReady
   *  trace
   *  stime
@@ -168,24 +172,24 @@ require the Tcl integration subsystem be included at compile-time.
 Additionally, the "tcl" repository setting must be enabled at runtime
 in order to successfully make use of these commands.
 
-TH1 anoncap Command
--------------------
+<a name="anoncap"></a>TH1 anoncap Command
+-----------------------------------------
 
   *  anoncap STRING...
 
 Returns true if the anonymous user has all of the capabilities listed
 in STRING.
 
-TH1 anycap Command
-------------------
+<a name="anycap"></a>TH1 anycap Command
+---------------------------------------
 
   *  anycap STRING
 
 Returns true if the current user user has any one of the capabilities
 listed in STRING.
 
-TH1 artifact Command
---------------------
+<a name="artifact"></a>TH1 artifact Command
+-------------------------------------------
 
   *  artifact ID ?FILENAME?
 
@@ -193,8 +197,8 @@ Attempts to locate the specified artifact and return its contents.  An
 error is generated if the repository is not open or the artifact cannot
 be found.
 
-TH1 checkout Command
---------------------
+<a name="checkout"></a>TH1 checkout Command
+-------------------------------------------
 
   *  checkout ?BOOLEAN?
 
@@ -203,8 +207,8 @@ empty string if it is not available.  Optionally, it will attempt to find
 the current checkout, opening the configuration ("user") database and the
 repository as necessary, if the boolean argument is non-zero.
 
-TH1 combobox Command
---------------------
+<a name="combobox"></a>TH1 combobox Command
+-------------------------------------------
 
   *  combobox NAME TEXT-LIST NUMLINES
 
@@ -214,40 +218,48 @@ selected value.  TEXT-LIST is a list of possible values for the
 combobox.  NUMLINES is 1 for a true combobox.  If NUMLINES is greater
 than one then the display is a listbox with the number of lines given.
 
-TH1 date Command
-----------------
+<a name="date"></a>TH1 date Command
+-----------------------------------
 
   *  date ?-local?
 
 Return a strings which is the current time and date.  If the -local
 option is used, the date appears using localtime instead of UTC.
 
-TH1 decorate Command
---------------------
+<a name="decorate"></a>TH1 decorate Command
+-------------------------------------------
 
   *  decorate STRING
 
 Renders STRING as wiki content; however, only links are handled.  No
 other markup is processed.
 
-TH1 enable_output Command
--------------------------
+<a name="enable_output"></a>TH1 enable_output Command
+-----------------------------------------------------
 
   *  enable_output BOOLEAN
 
 Enable or disable sending output when the combobox, puts, or wiki
 commands are used.
 
-TH1 getParameter Command
-------------------------
+<a name="getParameter"></a>TH1 getParameter Command
+---------------------------------------------------
 
   *  getParameter NAME ?DEFAULT?
 
 Returns the value of the specified query parameter or the specified
 default value when there is no matching query parameter.
 
-TH1 globalState Command
------------------------
+<a name="glob_match"></a>TH1 glob_match Command
+-----------------------------------------------
+
+  *  glob_match ?-one? ?--? patternList string
+
+Checks the string against the specified glob pattern -OR- list of glob
+patterns and returns non-zero if there is a match.
+
+<a name="globalState"></a>TH1 globalState Command
+-------------------------------------------------
 
   *  globalState NAME ?DEFAULT?
 
@@ -268,16 +280,16 @@ Attempts to query for unsupported global state variables will result
 in a script error.  Additional global state variables may be exposed
 in the future.
 
-TH1 hascap Command
-------------------
+<a name="hascap"></a>TH1 hascap Command
+---------------------------------------
 
   *  hascap STRING...
 
 Returns true if the current user has all of the capabilities listed
 in STRING.
 
-TH1 hasfeature Command
-----------------------
+<a name="hasfeature"></a>TH1 hasfeature Command
+-----------------------------------------------
 
   *  hasfeature STRING
 
@@ -295,24 +307,25 @@ The possible features are:
   1. **json** -- _Support for the JSON APIs._
   1. **markdown** -- _Support for Markdown documentation format._
   1. **unicodeCmdLine** -- _The command line arguments are Unicode._
+  1. **dynamicBuild** -- _Dynamically linked to libraries._
 
-TH1 html Command
-----------------
+<a name="html"></a>TH1 html Command
+-----------------------------------
 
   *  html STRING
 
 Outputs the STRING escaped for HTML.
 
-TH1 htmlize Command
--------------------
+<a name="htmlize"></a>TH1 htmlize Command
+-----------------------------------------
 
   *  htmlize STRING
 
 Escape all characters of STRING which have special meaning in HTML.
 Returns the escaped string.
 
-TH1 http Command
-----------------
+<a name="http"></a>TH1 http Command
+-----------------------------------
 
   *  http ?-asynchronous? ?--? url ?payload?
 
@@ -324,31 +337,31 @@ empty string is returned as the result; otherwise, the response
 from the server is returned as the result.  Synchronous requests
 are not currently implemented.
 
-TH1 httpize Command
--------------------
+<a name="httpize"></a>TH1 httpize Command
+-----------------------------------------
 
   *  httpize STRING
 
 Escape all characters of STRING which have special meaning in URI
 components.  Returns the escaped string.
 
-TH1 linecount Command
----------------------
+<a name="linecount"></a>TH1 linecount Command
+---------------------------------------------
 
   *  linecount STRING MAX MIN
 
 Returns one more than the number of \n characters in STRING.  But
 never returns less than MIN or more than MAX.
 
-TH1 puts Command
-----------------
+<a name="puts"></a>TH1 puts Command
+-----------------------------------
 
   *  puts STRING
 
 Outputs the STRING unchanged.
 
-TH1 query Command
------------------
+<a name="query"></a>TH1 query Command
+-------------------------------------
 
   *  query SQL CODE
 
@@ -359,16 +372,16 @@ In SQL, parameters such as $var are filled in using the value of variable
 "var".  Result values are stored in variables with the column name prior
 to each invocation of CODE.
 
-TH1 randhex Command
--------------------
+<a name="randhex"></a>TH1 randhex Command
+-----------------------------------------
 
   *  randhex N
 
 Returns a string of N*2 random hexadecimal digits with N<50.  If N is
 omitted, use a value of 10.
 
-TH1 regexp Command
-------------------
+<a name="regexp"></a>TH1 regexp Command
+---------------------------------------
 
   *  regexp ?-nocase? ?--? exp string
 
@@ -376,22 +389,22 @@ Checks the string against the specified regular expression and returns
 non-zero if it matches.  If the regular expression is invalid or cannot
 be compiled, an error will be generated.
 
-TH1 reinitialize Command
-------------------------
+<a name="reinitialize"></a>TH1 reinitialize Command
+---------------------------------------------------
 
   *  reinitialize ?FLAGS?
 
 Reinitializes the TH1 interpreter using the specified flags.
 
-TH1 render Command
-------------------
+<a name="render"></a>TH1 render Command
+---------------------------------------
 
   *  render STRING
 
 Renders the TH1 template and writes the results.
 
-TH1 repository Command
-----------------------
+<a name="repository"></a>TH1 repository Command
+-----------------------------------------------
 
   *  repository ?BOOLEAN?
 
@@ -399,8 +412,8 @@ Returns the fully qualified file name of the open repository or an empty
 string if one is not currently open.  Optionally, it will attempt to open
 the repository if the boolean argument is non-zero.
 
-TH1 searchable Command
-----------------------
+<a name="searchable"></a>TH1 searchable Command
+-----------------------------------------------
 
   *  searchable STRING...
 
@@ -428,100 +441,123 @@ But to see if ANY document class is searchable:
 This command is useful for enabling or disabling a "Search" entry on the
 menu bar.
 
-TH1 setParameter Command
-------------------------
+<a name="setParameter"></a>TH1 setParameter Command
+---------------------------------------------------
 
   *  setParameter NAME VALUE
 
 Sets the value of the specified query parameter.
 
-TH1 setting Command
--------------------
+<a name="setting"></a>TH1 setting Command
+-----------------------------------------
 
   *  setting name
 
 Gets and returns the value of the specified setting.
 
-TH1 styleHeader Command
------------------------
+<a name="styleHeader"></a>TH1 styleHeader Command
+-------------------------------------------------
 
   *  styleHeader TITLE
 
 Render the configured style header.
 
-TH1 styleFooter Command
------------------------
+<a name="styleFooter"></a>TH1 styleFooter Command
+-------------------------------------------------
 
   *  styleFooter
 
 Render the configured style footer.
 
-TH1 tclEval Command
--------------------
+<a name="tclEval"></a>TH1 tclEval Command
+-----------------------------------------
 
 **This command requires the Tcl integration feature.**
 
   *  tclEval arg ?arg ...?
 
 Evaluates the Tcl script and returns its result verbatim.  If a Tcl script
-error is generated, it will be transformed into a TH1 script error.  A Tcl
-interpreter will be created automatically if it has not been already.
+error is generated, it will be transformed into a TH1 script error.  The
+Tcl interpreter will be created automatically if it has not been already.
 
-TH1 tclExpr Command
--------------------
+<a name="tclExpr"></a>TH1 tclExpr Command
+-----------------------------------------
 
 **This command requires the Tcl integration feature.**
 
   *  tclExpr arg ?arg ...?
 
 Evaluates the Tcl expression and returns its result verbatim.  If a Tcl
-script error is generated, it will be transformed into a TH1 script error.
-A Tcl interpreter will be created automatically if it has not been already.
+script error is generated, it will be transformed into a TH1 script
+error.  The Tcl interpreter will be created automatically if it has not
+been already.
 
-TH1 tclInvoke Command
----------------------
+<a name="tclInvoke"></a>TH1 tclInvoke Command
+---------------------------------------------
 
 **This command requires the Tcl integration feature.**
 
   *  tclInvoke command ?arg ...?
 
 Invokes the Tcl command using the supplied arguments.  No additional
-substitutions are performed on the arguments.  A Tcl interpreter will
-be created automatically if it has not been already.
+substitutions are performed on the arguments.  The Tcl interpreter
+will be created automatically if it has not been already.
 
-TH1 tclReady Command
---------------------
+<a name="tclIsSafe"></a>TH1 tclIsSafe Command
+---------------------------------------------
+
+**This command requires the Tcl integration feature.**
+
+  *  tclIsSafe
+
+Returns non-zero if the Tcl interpreter is "safe".  The Tcl interpreter
+will be created automatically if it has not been already.
+
+<a name="tclMakeSafe"></a>TH1 tclMakeSafe Command
+---------------------------------------------
+
+**This command requires the Tcl integration feature.**
+
+  *  tclMakeSafe
+
+Forces the Tcl interpreter into "safe" mode by removing all "unsafe"
+commands and variables.  This operation cannot be undone.  The Tcl
+interpreter will remain "safe" until the process terminates.  The Tcl
+interpreter will be created automatically if it has not been already.
+
+<a name="tclReady"></a>TH1 tclReady Command
+-------------------------------------------
 
   *  tclReady
 
 Returns true if the binary has the Tcl integration feature enabled and it
 is currently available for use by TH1 scripts.
 
-TH1 trace Command
------------------
+<a name="trace"></a>TH1 trace Command
+-------------------------------------
 
   *  trace STRING
 
 Generates a TH1 trace message if TH1 tracing is enabled.
 
-TH1 stime Command
------------------
+<a name="stime"></a>TH1 stime Command
+-------------------------------------
 
   *  stime
 
 Returns the number of microseconds of CPU time consumed by the current
 process in system space.
 
-TH1 utime Command
------------------
+<a name="utime"></a>TH1 utime Command
+-------------------------------------
 
   *  utime
 
 Returns the number of microseconds of CPU time consumed by the current
 process in user space.
 
-TH1 wiki Command
-----------------
+<a name="wiki"></a>TH1 wiki Command
+-----------------------------------
 
   *  wiki STRING
 
@@ -538,8 +574,8 @@ Tcl commands:
   *  th1Eval
   *  th1Expr
 
-Tcl th1Eval Command
--------------------
+<a name="th1Eval"></a>Tcl th1Eval Command
+-----------------------------------------
 
 **This command requires the Tcl integration feature.**
 
@@ -548,8 +584,8 @@ Tcl th1Eval Command
 Evaluates the TH1 script and returns its result verbatim.  If a TH1 script
 error is generated, it will be transformed into a Tcl script error.
 
-Tcl th1Expr Command
--------------------
+<a name="th1Expr"></a>Tcl th1Expr Command
+-----------------------------------------
 
 **This command requires the Tcl integration feature.**
 

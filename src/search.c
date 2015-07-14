@@ -104,7 +104,7 @@ void search_end(Search *p){
 /*
 ** Compile a search pattern
 */
-Search *search_init(
+static Search *search_init(
   const char *zPattern,       /* The search pattern */
   const char *zMarkBegin,     /* Start of a match */
   const char *zMarkEnd,       /* End of a match */

@@ -152,7 +152,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2a
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2d
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -300,10 +300,14 @@ TCC += -DFOSSIL_ENABLE_JSON=1
 RCC += -DFOSSIL_ENABLE_JSON=1
 endif
 
-#### We add the -static option here so that we can build a static
-#    executable that will run in a chroot jail.
+#### The option -static has no effect on MinGW(-w64), only dynamic
+#    executables can be built when linking with MSVCRT.  OpenSSL
+#    (optional) and zlib (required) however are always linked in
+#    statically.  Therefore, the FOSSIL_DYNAMIC_BUILD option does
+#    not really apply to MinGW (i.e. since ALL external libraries
+#    are NOT linked dynamically).
 #
-LIB = -static
+# LIB = -static
 
 #### MinGW: If available, use the Unicode capable runtime startup code.
 #
@@ -449,6 +453,7 @@ SRC = \
   $(SRCDIR)/moderate.c \
   $(SRCDIR)/name.c \
   $(SRCDIR)/path.c \
+  $(SRCDIR)/piechart.c \
   $(SRCDIR)/pivot.c \
   $(SRCDIR)/popen.c \
   $(SRCDIR)/pqueue.c \
@@ -620,6 +625,7 @@ TRANS_SRC = \
   $(OBJDIR)/moderate_.c \
   $(OBJDIR)/name_.c \
   $(OBJDIR)/path_.c \
+  $(OBJDIR)/piechart_.c \
   $(OBJDIR)/pivot_.c \
   $(OBJDIR)/popen_.c \
   $(OBJDIR)/pqueue_.c \
@@ -740,6 +746,7 @@ OBJ = \
  $(OBJDIR)/moderate.o \
  $(OBJDIR)/name.o \
  $(OBJDIR)/path.o \
+ $(OBJDIR)/piechart.o \
  $(OBJDIR)/pivot.o \
  $(OBJDIR)/popen.o \
  $(OBJDIR)/pqueue.o \
@@ -1053,6 +1060,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(MAKEHEADERS
 		$(OBJDIR)/moderate_.c:$(OBJDIR)/moderate.h \
 		$(OBJDIR)/name_.c:$(OBJDIR)/name.h \
 		$(OBJDIR)/path_.c:$(OBJDIR)/path.h \
+		$(OBJDIR)/piechart_.c:$(OBJDIR)/piechart.h \
 		$(OBJDIR)/pivot_.c:$(OBJDIR)/pivot.h \
 		$(OBJDIR)/popen_.c:$(OBJDIR)/popen.h \
 		$(OBJDIR)/pqueue_.c:$(OBJDIR)/pqueue.h \
@@ -1684,6 +1692,14 @@ $(OBJDIR)/path.o:	$(OBJDIR)/path_.c $(OBJDIR)/path.h $(SRCDIR)/config.h
 
 $(OBJDIR)/path.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/piechart_.c:	$(SRCDIR)/piechart.c $(TRANSLATE)
+	$(TRANSLATE) $(SRCDIR)/piechart.c >$@
+
+$(OBJDIR)/piechart.o:	$(OBJDIR)/piechart_.c $(OBJDIR)/piechart.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/piechart.o -c $(OBJDIR)/piechart_.c
+
+$(OBJDIR)/piechart.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/pivot_.c:	$(SRCDIR)/pivot.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/pivot.c >$@
 
@@ -2061,6 +2077,7 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                  -DSQLITE_ENABLE_FTS4 \
                  -DSQLITE_ENABLE_FTS3_PARENTHESIS \
+                 -DSQLITE_ENABLE_DBSTAT_VTAB \
                  -DSQLITE_WIN32_NO_ANSI \
                  -D_HAVE__MINGW_H \
                  -DSQLITE_USE_MALLOC_H \
