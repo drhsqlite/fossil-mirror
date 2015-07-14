@@ -1,5 +1,5 @@
-C Make\sthe\s"fossil\sclean"\scommand\sundoable.
-D 2015-07-14T00:38:21.142
+C Change\sformatting\sof\sundo/redo/revert\scommand\sprints\sfor\sconsistency\swith\sother\scommands.\s\sRevert\sused\sto\sprint\s"ACTION:\sfilename",\snow\sprints\s"ACTION\s\s\sfilename",\swhere\snumber\sof\sspaces\sbetween\sACTION\sand\sfilename\sis\schosen\sto\smaintain\scolumn\salignment.\s\sLikewise\sundo\sand\sredo,\sexcept\sthey\sdid\snot\spreviously\suse\s":".\s\sAlso\schange\s"REVERTED"\sto\s"REVERT"\sto\smatch\sverbe\stense\sused\sthroughout.
+D 2015-07-14T21:53:15.555
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -499,9 +499,9 @@ F src/timeline.c 005c758d36dbe81a52d1fe9a7f14cd0830abb005
 F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
 F src/tktsetup.c 1360904128a3c60008867056d9f576c8f906eb7c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
-F src/undo.c 581a45917c93dd5dd01f3491e8aed62554379703
+F src/undo.c cdf1833f2dc56af60305245833535415c621aa90
 F src/unicode.c f26b9f26d4ac399f7b03cfac16ec72336c7f06c9
-F src/update.c 6acdc89d2d2a61656367105d4cacecf9affc68f8
+F src/update.c 3617021b83f9a367df275e3da85101c630086deb
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c 6ec57f122cadd7c324e657be5de1b0c8f0d37c8d
 F src/utf8.c 49a0cfaf5b3ba966f5e7c688b829610634fefd25
@@ -740,8 +740,10 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 501f35e50a8bdc0e36188beb560f4d6c9348bb0a 0e4247f92f1d31479ab5b80bc1a6d7b1df54dc65
-R 845256664b83838524fd13350d7d42db
-T +closed 0e4247f92f1d31479ab5b80bc1a6d7b1df54dc65
-U drh
-Z c4db99f96f11ae58dd39d57bfb30c0d5
+P 1bf792eeeb4171f722bd18a773f559e5facabf03
+R e05f77e36d76eec92b53c2ac3e3e5fac
+T *branch * andygoth-undo-redo-revert-spacing
+T *sym-andygoth-undo-redo-revert-spacing *
+T -sym-trunk *
+U andygoth
+Z 390903ae84ea17178f121d7680ec40a0
