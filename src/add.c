@@ -93,7 +93,7 @@ const char *fossil_reserved_name(int N, int omitRepo){
     Blob repo;
     cachedManifest = db_get_boolean("manifest",0);
     blob_zero(&repo);
-    if( file_tree_name(g.zRepositoryName, &repo, 0) ){
+    if( file_tree_name(g.zRepositoryName, &repo, 0, 0) ){
       const char *zRepo = blob_str(&repo);
       azRepo[0] = zRepo;
       azRepo[1] = mprintf("%s-journal", zRepo);
@@ -203,7 +203,7 @@ static int add_files_in_sfile(int vid){
   Stmt loop;                /* SQL to loop over all files to add */
   int (*xCmp)(const char*,const char*);
 
-  if( !file_tree_name(g.zRepositoryName, &repoName, 0) ){
+  if( !file_tree_name(g.zRepositoryName, &repoName, 0, 0) ){
     blob_zero(&repoName);
     zRepo = "";
   }else{
@@ -309,7 +309,7 @@ void add_cmd(void){
 
     /* file_tree_name() throws a fatal error if g.argv[i] is outside of the
     ** checkout. */
-    file_tree_name(g.argv[i], &fullName, 1);
+    file_tree_name(g.argv[i], &fullName, 0, 1);
     blob_reset(&fullName);
 
     file_canonical_name(g.argv[i], &fullName, 0);
@@ -367,7 +367,7 @@ static void add_file_to_remove(
                   filename_collation());
     tableCreated = 1;
   }
-  file_canonical_name(zOldName, &fullOldName, 0);
+  file_tree_name(zOldName, &fullOldName, 1, 1);
   db_multi_exec("INSERT INTO fremove VALUES('%q');", blob_str(&fullOldName));
   blob_reset(&fullOldName);
 }
@@ -386,16 +386,18 @@ static void process_files_to_remove(
   int dryRunFlag /* Zero to actually operate on the file-system. */
 ){
   Stmt remove;
-  db_prepare(&remove, "SELECT x FROM fremove ORDER BY x;");
-  while( db_step(&remove)==SQLITE_ROW ){
-    const char *zOldName = db_column_text(&remove, 0);
-    if( !dryRunFlag ){
-      file_delete(zOldName);
+  if( db_table_exists(db_name("temp"), "fremove") ){
+    db_prepare(&remove, "SELECT x FROM fremove ORDER BY x;");
+    while( db_step(&remove)==SQLITE_ROW ){
+      const char *zOldName = db_column_text(&remove, 0);
+      if( !dryRunFlag ){
+        file_delete(zOldName);
+      }
+      fossil_print("DELETED_FILE %s\n", zOldName);
     }
-    fossil_print("DELETED_FILE %s\n", zOldName);
+    db_finalize(&remove);
+    db_multi_exec("DROP TABLE fremove;");
   }
-  db_finalize(&remove);
-  db_multi_exec("DROP TABLE fremove;");
 }
 
 /*
@@ -466,7 +468,7 @@ void delete_cmd(void){
     Blob treeName;
     char *zTreeName;
 
-    file_tree_name(g.argv[i], &treeName, 1);
+    file_tree_name(g.argv[i], &treeName, 0, 1);
     zTreeName = blob_str(&treeName);
     db_multi_exec(
        "INSERT OR IGNORE INTO sfile"
@@ -633,7 +635,7 @@ void addremove_cmd(void){
   verify_all_options();
 
   /* Fail if unprocessed arguments are present, in case user expect the
-  ** addremove command to accept a list of file or directory. 
+  ** addremove command to accept a list of file or directory.
   */
   if( g.argc>2 ){
     fossil_fatal(
@@ -748,8 +750,8 @@ static void add_file_to_move(
                   filename_collation(), filename_collation());
     tableCreated = 1;
   }
-  file_canonical_name(zOldName, &fullOldName, 0);
-  file_canonical_name(zNewName, &fullNewName, 0);
+  file_tree_name(zOldName, &fullOldName, 1, 1);
+  file_tree_name(zNewName, &fullNewName, 1, 1);
   db_multi_exec("INSERT INTO fmove VALUES('%q','%q');",
                 blob_str(&fullOldName), blob_str(&fullNewName));
   blob_reset(&fullNewName);
@@ -770,22 +772,24 @@ static void process_files_to_move(
   int dryRunFlag /* Zero to actually operate on the file-system. */
 ){
   Stmt move;
-  db_prepare(&move, "SELECT x, y FROM fmove ORDER BY x;");
-  while( db_step(&move)==SQLITE_ROW ){
-    const char *zOldName = db_column_text(&move, 0);
-    const char *zNewName = db_column_text(&move, 1);
-    if( !dryRunFlag ){
-      if( file_wd_islink(zOldName) ){
-        symlink_copy(zOldName, zNewName);
-      }else{
-        file_copy(zOldName, zNewName);
+  if( db_table_exists(db_name("temp"), "fmove") ){
+    db_prepare(&move, "SELECT x, y FROM fmove ORDER BY x;");
+    while( db_step(&move)==SQLITE_ROW ){
+      const char *zOldName = db_column_text(&move, 0);
+      const char *zNewName = db_column_text(&move, 1);
+      if( !dryRunFlag ){
+        if( file_wd_islink(zOldName) ){
+          symlink_copy(zOldName, zNewName);
+        }else{
+          file_copy(zOldName, zNewName);
+        }
+        file_delete(zOldName);
       }
-      file_delete(zOldName);
+      fossil_print("MOVED_FILE %s\n", zOldName);
     }
-    fossil_print("MOVED_FILE %s\n", zOldName);
+    db_finalize(&move);
+    db_multi_exec("DROP TABLE fmove;");
   }
-  db_finalize(&move);
-  db_multi_exec("DROP TABLE fmove;");
 }
 
 /*
@@ -862,7 +866,7 @@ void mv_cmd(void){
     moveFiles = FOSSIL_MV_RM_FILE;
 #endif
   }
-  file_tree_name(zDest, &dest, 1);
+  file_tree_name(zDest, &dest, 0, 1);
   db_multi_exec(
     "UPDATE vfile SET origname=pathname WHERE origname IS NULL;"
   );
@@ -874,7 +878,7 @@ void mv_cmd(void){
     if( g.argc!=4 ){
       usage("OLDNAME NEWNAME");
     }
-    file_tree_name(g.argv[2], &orig, 1);
+    file_tree_name(g.argv[2], &orig, 0, 1);
     db_multi_exec(
       "INSERT INTO mv VALUES(%B,%B)", &orig, &dest
     );
@@ -888,7 +892,7 @@ void mv_cmd(void){
       Blob orig;
       char *zOrig;
       int nOrig;
-      file_tree_name(g.argv[i], &orig, 1);
+      file_tree_name(g.argv[i], &orig, 0, 1);
       zOrig = blob_str(&orig);
       nOrig = blob_size(&orig);
       db_prepare(&q,

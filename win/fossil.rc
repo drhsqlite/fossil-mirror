@@ -104,6 +104,11 @@ BEGIN
       VALUE "OriginalFilename", "fossil.exe\0"
       VALUE "CompilerName", COMPILER_NAME "\0"
       VALUE "SQLiteVersion", "SQLite " SQLITE_VERSION " " SQLITE_SOURCE_ID "\0"
+#if defined(FOSSIL_DYNAMIC_BUILD)
+      VALUE "DynamicBuild", "yes\0"
+#else
+      VALUE "DynamicBuild", "no\0"
+#endif
 #if defined(FOSSIL_ENABLE_MINIZ)
       VALUE "MinizVersion", "miniz " MZ_VERSION "\0"
 #else

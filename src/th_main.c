@@ -519,6 +519,7 @@ static int searchableCmd(
 ** "json"            = FOSSIL_ENABLE_JSON
 ** "markdown"        = FOSSIL_ENABLE_MARKDOWN
 ** "unicodeCmdLine"  = !BROKEN_MINGW_CMDLINE
+** "dynamicBuild"    = FOSSIL_DYNAMIC_BUILD
 **
 */
 static int hasfeatureCmd(
@@ -584,6 +585,11 @@ static int hasfeatureCmd(
 #endif
 #if !defined(BROKEN_MINGW_CMDLINE)
   else if( 0 == fossil_strnicmp( zArg, "unicodeCmdLine\0", 15 ) ){
+    rc = 1;
+  }
+#endif
+#if defined(FOSSIL_DYNAMIC_BUILD)
+  else if( 0 == fossil_strnicmp( zArg, "dynamicBuild\0", 13 ) ){
     rc = 1;
   }
 #endif
@@ -1328,6 +1334,51 @@ static int settingCmd(
 }
 
 /*
+** TH1 command: glob_match ?-one? ?--? patternList string
+**
+** Checks the string against the specified glob pattern -OR- list of glob
+** patterns and returns non-zero if there is a match.
+*/
+#define GLOB_MATCH_WRONGNUMARGS "glob_match ?-one? ?--? patternList string"
+static int globMatchCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  int rc;
+  int one = 0;
+  int nArg = 1;
+  Glob *pGlob = 0;
+  if( argc<3 || argc>5 ){
+    return Th_WrongNumArgs(interp, GLOB_MATCH_WRONGNUMARGS);
+  }
+  if( fossil_strcmp(argv[nArg], "-one")==0 ){
+    one = 1; nArg++;
+  }
+  if( fossil_strcmp(argv[nArg], "--")==0 ) nArg++;
+  if( nArg+2!=argc ){
+    return Th_WrongNumArgs(interp, GLOB_MATCH_WRONGNUMARGS);
+  }
+  if( one ){
+    Th_SetResultInt(interp, sqlite3_strglob(argv[nArg], argv[nArg+1])==0);
+    rc = TH_OK;
+  }else{
+    pGlob = glob_create(argv[nArg]);
+    if( pGlob ){
+      Th_SetResultInt(interp, glob_match(pGlob, argv[nArg+1]));
+      rc = TH_OK;
+    }else{
+      Th_SetResult(interp, "unable to create glob from pattern list", -1);
+      rc = TH_ERROR;
+    }
+    glob_free(pGlob);
+  }
+  return rc;
+}
+
+/*
 ** TH1 command: regexp ?-nocase? ?--? exp string
 **
 ** Checks the string against the specified regular expression and returns
@@ -1555,6 +1606,7 @@ void Th_FossilInit(u32 flags){
     {"decorate",      wikiCmd,              (void*)&aFlags[2]},
     {"enable_output", enableOutputCmd,      0},
     {"getParameter",  getParameterCmd,      0},
+    {"glob_match",    globMatchCmd,         0},
     {"globalState",   globalStateCmd,       0},
     {"httpize",       httpizeCmd,           0},
     {"hascap",        hascapCmd,            (void*)&zeroInt},

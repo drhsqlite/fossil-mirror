@@ -12,7 +12,7 @@ ENV FOSSIL_INSTALL_VERSION trunk
 RUN curl "http://core.tcl.tk/tcl/tarball/tcl-src.tar.gz?name=tcl-src&uuid=release" | tar zx
 RUN cd tcl-src/unix && ./configure --prefix=/usr --disable-shared --disable-threads --disable-load && make && make install
 RUN curl "http://www.fossil-scm.org/index.html/tarball/fossil-src.tar.gz?name=fossil-src&uuid=${FOSSIL_INSTALL_VERSION}" | tar zx
-RUN cd fossil-src && ./configure --disable-lineedit --disable-fusefs --json --with-th1-docs --with-th1-hooks --with-tcl
+RUN cd fossil-src && ./configure --disable-fusefs --json --with-th1-docs --with-th1-hooks --with-tcl
 RUN cd fossil-src && make && strip fossil && cp fossil /usr/bin && cd .. && rm -rf fossil-src && chmod a+rx /usr/bin/fossil && mkdir -p /opt/fossil && chown fossil:fossil /opt/fossil
 
 ### Build is done, remove modules no longer needed

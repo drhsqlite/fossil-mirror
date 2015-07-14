@@ -512,6 +512,7 @@ MINIZ_OBJ.  = $(MINIZ_OBJ.0)
 EXTRAOBJ = \
  $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE)) \
  $(MINIZ_OBJ.$(FOSSIL_ENABLE_MINIZ)) \
+ $(OBJDIR)/linenoise.o \
  $(OBJDIR)/shell.o \
  $(OBJDIR)/th.o \
  $(OBJDIR)/th_lang.o \
@@ -1622,7 +1623,10 @@ $(OBJDIR)/sqlite3.o:	$(SRCDIR)/sqlite3.c
 	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) -c $(SRCDIR)/sqlite3.c -o $@
 
 $(OBJDIR)/shell.o:	$(SRCDIR)/shell.c $(SRCDIR)/sqlite3.h
-	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) -c $(SRCDIR)/shell.c -o $@
+	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) -DHAVE_LINENOISE -c $(SRCDIR)/shell.c -o $@
+
+$(OBJDIR)/linenoise.o:	$(SRCDIR)/linenoise.c $(SRCDIR)/linenoise.h
+	$(XTCC) -c $(SRCDIR)/linenoise.c -o $@
 
 $(OBJDIR)/th.o:	$(SRCDIR)/th.c
 	$(XTCC) -c $(SRCDIR)/th.c -o $@

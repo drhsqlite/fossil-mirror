@@ -48,6 +48,17 @@ IF DEFINED VSVARS32 IF EXIST "%VSVARS32%" (
 )
 
 REM
+REM Visual Studio 2015
+REM
+IF NOT DEFINED VS140COMNTOOLS GOTO skip_detectVisualStudio2015
+SET VSVARS32=%VS140COMNTOOLS%\vsvars32.bat
+IF EXIST "%VSVARS32%" (
+  %_AECHO% Using Visual Studio 2015...
+  GOTO skip_detectVisualStudio
+)
+:skip_detectVisualStudio2015
+
+REM
 REM Visual Studio 2013
 REM
 IF NOT DEFINED VS120COMNTOOLS GOTO skip_detectVisualStudio2013

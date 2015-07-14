@@ -98,6 +98,7 @@ summarize the commands available in TH1:
   *  lindex LIST INDEX
   *  list ARG ...
   *  llength LIST
+  *  lsearch LIST STRING
   *  proc NAME ARG-LIST BODY-SCRIPT
   *  rename OLD NEW
   *  return ?-code CODE? ?VALUE?
@@ -131,6 +132,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  decorate
   *  enable_output
   *  getParameter
+  *  glob_match
   *  globalState
   *  hascap
   *  hasfeature
@@ -154,6 +156,8 @@ features of Fossil.  The following is a summary of the extended commands:
   *  tclEval
   *  tclExpr
   *  tclInvoke
+  *  tclIsSafe
+  *  tclMakeSafe
   *  tclReady
   *  trace
   *  stime
@@ -246,6 +250,14 @@ commands are used.
 Returns the value of the specified query parameter or the specified
 default value when there is no matching query parameter.
 
+<a name="glob_match"></a>TH1 glob_match Command
+-----------------------------------------------
+
+  *  glob_match ?-one? ?--? patternList string
+
+Checks the string against the specified glob pattern -OR- list of glob
+patterns and returns non-zero if there is a match.
+
 <a name="globalState"></a>TH1 globalState Command
 -------------------------------------------------
 
@@ -295,6 +307,7 @@ The possible features are:
   1. **json** -- _Support for the JSON APIs._
   1. **markdown** -- _Support for Markdown documentation format._
   1. **unicodeCmdLine** -- _The command line arguments are Unicode._
+  1. **dynamicBuild** -- _Dynamically linked to libraries._
 
 <a name="html"></a>TH1 html Command
 -----------------------------------
@@ -464,8 +477,8 @@ Render the configured style footer.
   *  tclEval arg ?arg ...?
 
 Evaluates the Tcl script and returns its result verbatim.  If a Tcl script
-error is generated, it will be transformed into a TH1 script error.  A Tcl
-interpreter will be created automatically if it has not been already.
+error is generated, it will be transformed into a TH1 script error.  The
+Tcl interpreter will be created automatically if it has not been already.
 
 <a name="tclExpr"></a>TH1 tclExpr Command
 -----------------------------------------
@@ -475,8 +488,9 @@ interpreter will be created automatically if it has not been already.
   *  tclExpr arg ?arg ...?
 
 Evaluates the Tcl expression and returns its result verbatim.  If a Tcl
-script error is generated, it will be transformed into a TH1 script error.
-A Tcl interpreter will be created automatically if it has not been already.
+script error is generated, it will be transformed into a TH1 script
+error.  The Tcl interpreter will be created automatically if it has not
+been already.
 
 <a name="tclInvoke"></a>TH1 tclInvoke Command
 ---------------------------------------------
@@ -486,8 +500,30 @@ A Tcl interpreter will be created automatically if it has not been already.
   *  tclInvoke command ?arg ...?
 
 Invokes the Tcl command using the supplied arguments.  No additional
-substitutions are performed on the arguments.  A Tcl interpreter will
-be created automatically if it has not been already.
+substitutions are performed on the arguments.  The Tcl interpreter
+will be created automatically if it has not been already.
+
+<a name="tclIsSafe"></a>TH1 tclIsSafe Command
+---------------------------------------------
+
+**This command requires the Tcl integration feature.**
+
+  *  tclIsSafe
+
+Returns non-zero if the Tcl interpreter is "safe".  The Tcl interpreter
+will be created automatically if it has not been already.
+
+<a name="tclMakeSafe"></a>TH1 tclMakeSafe Command
+---------------------------------------------
+
+**This command requires the Tcl integration feature.**
+
+  *  tclMakeSafe
+
+Forces the Tcl interpreter into "safe" mode by removing all "unsafe"
+commands and variables.  This operation cannot be undone.  The Tcl
+interpreter will remain "safe" until the process terminates.  The Tcl
+interpreter will be created automatically if it has not been already.
 
 <a name="tclReady"></a>TH1 tclReady Command
 -------------------------------------------

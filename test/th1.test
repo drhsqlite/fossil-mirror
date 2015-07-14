@@ -593,13 +593,13 @@ test th1-trace-1 {$RESULT eq {}}
 
 fossil test-th-eval --th-trace "trace {}"
 if {$th1Hooks} {
-  test th1-trace-2 {[string map [list \r\n \n] [string trim $RESULT]] eq \
+  test th1-trace-2 {[normalize_result] eq \
 {------------------ BEGIN TRACE LOG ------------------
 th1-init 0x0 => 0x0<br />
 
 ------------------- END TRACE LOG -------------------}}
 } else {
-  test th1-trace-2 {[string map [list \r\n \n] [string trim $RESULT]] eq \
+  test th1-trace-2 {[normalize_result] eq \
       {------------------ BEGIN TRACE LOG ------------------
 th1-init 0x0 => 0x0<br />
 th1-setup {} => TH_OK<br />
@@ -616,13 +616,13 @@ test th1-trace-3 {$RESULT eq {}}
 
 fossil test-th-eval --th-trace "trace {this is a trace message.}"
 if {$th1Hooks} {
-  test th1-trace-4 {[string map [list \r\n \n] [string trim $RESULT]] eq \
+  test th1-trace-4 {[normalize_result] eq \
       {------------------ BEGIN TRACE LOG ------------------
 th1-init 0x0 => 0x0<br />
 this is a trace message.
 ------------------- END TRACE LOG -------------------}}
 } else {
-  test th1-trace-4 {[string map [list \r\n \n] [string trim $RESULT]] eq \
+  test th1-trace-4 {[normalize_result] eq \
       {------------------ BEGIN TRACE LOG ------------------
 th1-init 0x0 => 0x0<br />
 th1-setup {} => TH_OK<br />
@@ -859,11 +859,11 @@ test th1-reinitialize-2 {$RESULT ne ""}
 #
 fossil test-th-eval "info commands"
 test th1-info-commands-1 {$RESULT eq {linecount htmlize date stime\
-enable_output uplevel http expr utime styleFooter catch if tclReady\
-searchable reinitialize combobox lindex query html anoncap randhex\
+enable_output uplevel http expr glob_match utime styleFooter catch if\
+tclReady searchable reinitialize combobox lindex query html anoncap randhex\
 llength for set break regexp styleHeader puts return checkout decorate\
 artifact trace wiki proc hascap globalState continue getParameter\
-hasfeature setting breakpoint upvar render repository string unset\
+hasfeature setting lsearch breakpoint upvar render repository string unset\
 setParameter list error info rename anycap httpize}}
 
 ###############################################################################
@@ -890,3 +890,127 @@ test th1-info-vars-4 {$RESULT eq "x"}
 
 fossil test-th-eval "set y 1; proc foo {} {set x 1; uplevel 1 {info vars}}; foo"
 test th1-info-vars-5 {$RESULT eq "y"}
+
+###############################################################################
+
+fossil test-th-eval "lsearch"
+test th1-lsearch-1 {$RESULT eq \
+    {TH_ERROR: wrong # args: should be "lsearch list string"}}
+
+###############################################################################
+
+fossil test-th-eval "lsearch a"
+test th1-lsearch-2 {$RESULT eq \
+    {TH_ERROR: wrong # args: should be "lsearch list string"}}
+
+###############################################################################
+
+fossil test-th-eval "lsearch a a a"
+test th1-lsearch-3 {$RESULT eq \
+    {TH_ERROR: wrong # args: should be "lsearch list string"}}
+
+###############################################################################
+
+fossil test-th-eval "lsearch {a b c} a"
+test th1-lsearch-4 {$RESULT eq "0"}
+
+###############################################################################
+
+fossil test-th-eval "lsearch {a b c} b"
+test th1-lsearch-5 {$RESULT eq "1"}
+
+###############################################################################
+
+fossil test-th-eval "lsearch {a b c} c"
+test th1-lsearch-6 {$RESULT eq "2"}
+
+###############################################################################
+
+fossil test-th-eval "lsearch {a b c} d"
+test th1-lsearch-7 {$RESULT eq "-1"}
+
+###############################################################################
+
+fossil test-th-eval "lsearch {a b c} aa"
+test th1-lsearch-8 {$RESULT eq "-1"}
+
+###############################################################################
+
+fossil test-th-eval "lsearch {aa b c} a"
+test th1-lsearch-9 {$RESULT eq "-1"}
+
+###############################################################################
+
+fossil test-th-eval "lsearch \"\{aa b c\" a"
+test th1-lsearch-10 {$RESULT eq "TH_ERROR: Expected list, got: \"\{aa b c\""}
+
+###############################################################################
+
+fossil test-th-eval "glob_match"
+test th1-glob-match-1 {$RESULT eq \
+{TH_ERROR: wrong # args: should be "glob_match ?-one? ?--? patternList string"}}
+
+###############################################################################
+
+fossil test-th-eval "glob_match -one"
+test th1-glob-match-2 {$RESULT eq \
+{TH_ERROR: wrong # args: should be "glob_match ?-one? ?--? patternList string"}}
+
+###############################################################################
+
+fossil test-th-eval "glob_match --"
+test th1-glob-match-3 {$RESULT eq \
+{TH_ERROR: wrong # args: should be "glob_match ?-one? ?--? patternList string"}}
+
+###############################################################################
+
+fossil test-th-eval "glob_match -one --"
+test th1-glob-match-4 {$RESULT eq \
+{TH_ERROR: wrong # args: should be "glob_match ?-one? ?--? patternList string"}}
+
+###############################################################################
+
+fossil test-th-eval "glob_match -one -- 1"
+test th1-glob-match-5 {$RESULT eq \
+{TH_ERROR: wrong # args: should be "glob_match ?-one? ?--? patternList string"}}
+
+###############################################################################
+
+fossil test-th-eval "glob_match -one -- 1 2 3"
+test th1-glob-match-6 {$RESULT eq \
+{TH_ERROR: wrong # args: should be "glob_match ?-one? ?--? patternList string"}}
+
+###############################################################################
+
+fossil test-th-eval {list [glob_match a A] [glob_match A a]}
+test th1-glob-match-7 {$RESULT eq "0 0"}
+
+###############################################################################
+
+fossil test-th-eval {list [glob_match a,b a] [glob_match a,b b]}
+test th1-glob-match-8 {$RESULT eq "1 2"}
+
+###############################################################################
+
+fossil test-th-eval {list [glob_match -one a,b a] [glob_match -one a,b b]}
+test th1-glob-match-9 {$RESULT eq "0 0"}
+
+###############################################################################
+
+fossil test-th-eval {list [glob_match -one a,b a,b] [glob_match -one a b,a]}
+test th1-glob-match-10 {$RESULT eq "1 0"}
+
+###############################################################################
+
+fossil test-th-eval {list [glob_match a*c abc] [glob_match abc a*c]}
+test th1-glob-match-11 {$RESULT eq "1 0"}
+
+###############################################################################
+
+fossil test-th-eval {list [glob_match a?c abc] [glob_match abc a?c]}
+test th1-glob-match-12 {$RESULT eq "1 0"}
+
+###############################################################################
+
+fossil test-th-eval {list [glob_match {a[bd]c} abc] [glob_match abc {a[bd]c}]}
+test th1-glob-match-13 {$RESULT eq "1 0"}

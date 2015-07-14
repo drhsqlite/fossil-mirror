@@ -394,7 +394,7 @@ void repo_tabsize_page(void){
   db_multi_exec(
     "CREATE VIRTUAL TABLE temp.dbx USING dbstat(%s);"
     "CREATE TEMP TABLE trans(name TEXT PRIMARY KEY, tabname TEXT)WITHOUT ROWID;"
-    "INSERT INTO trans(name,tabname)"       
+    "INSERT INTO trans(name,tabname)"
     "   SELECT name, tbl_name FROM %s.sqlite_master;"
     "CREATE TEMP TABLE piechart(amt REAL, label TEXT);"
     "INSERT INTO piechart(amt,label)"
@@ -423,7 +423,7 @@ void repo_tabsize_page(void){
       "DROP TABLE temp.dbx;"
       "CREATE VIRTUAL TABLE temp.dbx USING dbstat(%s);"
       "DELETE FROM trans;"
-      "INSERT INTO trans(name,tabname)"       
+      "INSERT INTO trans(name,tabname)"
       "   SELECT name, tbl_name FROM %s.sqlite_master;"
       "DELETE FROM piechart;"
       "INSERT INTO piechart(amt,label)"

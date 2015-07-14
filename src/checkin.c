@@ -48,7 +48,7 @@ static void status_report(
   blob_zero(&where);
   for(i=2; i<g.argc; i++){
     Blob fname;
-    file_tree_name(g.argv[i], &fname, 1);
+    file_tree_name(g.argv[i], &fname, 0, 1);
     zName = blob_str(&fname);
     if( fossil_strcmp(zName, ".")==0 ){
       blob_reset(&where);
@@ -140,14 +140,14 @@ static void status_report(
   db_prepare(&q, "SELECT uuid, id FROM vmerge JOIN blob ON merge=rid"
                  " WHERE id<=0");
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zLabel = "MERGED_WITH";
+    const char *zLabel = "MERGED_WITH ";
     switch( db_column_int(&q, 1) ){
       case -1:  zLabel = "CHERRYPICK ";  break;
       case -2:  zLabel = "BACKOUT    ";  break;
       case -4:  zLabel = "INTEGRATE  ";  break;
     }
     blob_append(report, zPrefix, nPrefix);
-    blob_appendf(report, "%s %s\n", zLabel, db_column_text(&q, 0));
+    blob_appendf(report, "%s%s\n", zLabel, db_column_text(&q, 0));
   }
   db_finalize(&q);
   if( nErr ){
@@ -298,7 +298,7 @@ static void ls_cmd_rev(
   blob_zero(&where);
   for(i=2; i<g.argc; i++){
     Blob fname;
-    file_tree_name(g.argv[i], &fname, 1);
+    file_tree_name(g.argv[i], &fname, 0, 1);
     zName = blob_str(&fname);
     if( fossil_strcmp(zName, ".")==0 ){
       blob_reset(&where);
@@ -411,7 +411,7 @@ void ls_cmd(void){
   blob_zero(&where);
   for(i=2; i<g.argc; i++){
     Blob fname;
-    file_tree_name(g.argv[i], &fname, 1);
+    file_tree_name(g.argv[i], &fname, 0, 1);
     zName = blob_str(&fname);
     if( fossil_strcmp(zName, ".")==0 ){
       blob_reset(&where);
@@ -646,7 +646,8 @@ void extras_cmd(void){
 **
 ** The --verily option ignores the ignore-glob setting and turns on
 **--dotfiles, and --emptydirs.  Use the --verily option when you
-** really want to clean up everything.
+** really want to clean up everything.  Extreme care should be
+** exercised when using the --verily option.
 **
 ** Options:
 **    --allckouts      Check for empty directories within any checkouts
@@ -659,6 +660,9 @@ void extras_cmd(void){
 **    --dirsonly       Only remove empty directories.  No files will
 **                     be removed.  Using this option will automatically
 **                     enable the --emptydirs option as well.
+**    --disable-undo   WARNING: This option disables use of the undo
+**                     mechanism for this clean operation and should be
+**                     used with extreme caution.
 **    --dotfiles       Include files beginning with a dot (".").
 **    --emptydirs      Remove any empty directories that are not
 **                     explicitly exempted via the empty-dirs setting
@@ -668,18 +672,24 @@ void extras_cmd(void){
 **                     therefore, directories that contain only files
 **                     that were removed will be removed as well.
 **    -f|--force       Remove files without prompting.
-**    -x|--verily      Remove everything that is not a managed file or
-**                     the repository itself.  Implies --emptydirs
-**                     --dotfiles.  Disregards ignore-glob setting.
-**                     Compatibile with "git clean -x".
-**    --clean <CSG>    Never prompt for files matching this
-**                     comma separated list of glob patterns.
+**    -x|--verily      WARNING: Removes everything that is not a managed
+**                     file or the repository itself.  This option
+**                     implies the -emptydirs and --dotfiles options.
+**                     Furthermore, it completely disregards the ignore-glob.
+**                     setting. However, it does honor the --ignore and --keep
+**                     options.
+**    --clean <CSG>    WARNING: Never prompt to delete any files matching
+**                     this comma separated list of glob patterns.  Also,
+**                     deletions of any files matching this pattern list
+**                     cannot be undone.
 **    --ignore <CSG>   Ignore files matching patterns from the
 **                     comma separated list of glob patterns.
 **    --keep <CSG>     Keep files matching this comma separated
 **                     list of glob patterns.
 **    -n|--dry-run     Delete nothing, but display what would have been
 **                     deleted.
+**    --no-prompt      This option disables prompting the user for input
+**                     and assumes an answer of 'No' for every question.
 **    --temp           Remove only Fossil-generated temporary files.
 **    -v|--verbose     Show all files as they are removed.
 **
@@ -688,12 +698,18 @@ void extras_cmd(void){
 void clean_cmd(void){
   int allFileFlag, allDirFlag, dryRunFlag, verboseFlag;
   int emptyDirsFlag, dirsOnlyFlag;
+  int disableUndo, noPrompt;
   unsigned scanFlags = 0;
   int verilyFlag = 0;
   const char *zIgnoreFlag, *zKeepFlag, *zCleanFlag;
   Glob *pIgnore, *pKeep, *pClean;
   int nRoot;
 
+#ifndef UNDO_SIZE_LIMIT  /* TODO: Setting? */
+#define UNDO_SIZE_LIMIT  (10*1024*1024) /* 10MiB */
+#endif
+
+  undo_capture_command_line();
   dryRunFlag = find_option("dry-run","n",0)!=0;
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
@@ -701,6 +717,8 @@ void clean_cmd(void){
   if( !dryRunFlag ){
     dryRunFlag = find_option("whatif",0,0)!=0;
   }
+  disableUndo = find_option("disable-undo",0,0)!=0;
+  noPrompt = find_option("no-prompt",0,0)!=0;
   allFileFlag = allDirFlag = find_option("force","f",0)!=0;
   dirsOnlyFlag = find_option("dirsonly",0,0)!=0;
   emptyDirsFlag = find_option("emptydirs","d",0)!=0 || dirsOnlyFlag;
@@ -737,6 +755,7 @@ void clean_cmd(void){
   if( !dirsOnlyFlag ){
     Stmt q;
     Blob repo;
+    if( !dryRunFlag && !disableUndo ) undo_begin();
     locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags,
                            verilyFlag ? 0 : pIgnore, 0);
     db_prepare(&q,
@@ -745,7 +764,7 @@ void clean_cmd(void){
         " ORDER BY 1",
         g.zLocalRoot, fossil_all_reserved_names(0)
     );
-    if( file_tree_name(g.zRepositoryName, &repo, 0) ){
+    if( file_tree_name(g.zRepositoryName, &repo, 0, 0) ){
       db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
     }
     db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
@@ -758,24 +777,35 @@ void clean_cmd(void){
         }
         continue;
       }
-      if( !allFileFlag && !dryRunFlag && !glob_match(pClean, zName+nRoot)
+      if( !dryRunFlag && !glob_match(pClean, zName+nRoot)
           && !(verilyFlag && glob_match(pIgnore, zName+nRoot)) ){
-        Blob ans;
-        char cReply;
-        int matchIgnore = verilyFlag && glob_match(pIgnore, zName+nRoot);
-        char *prompt = mprintf("%sRemove %s file \"%s\" (a=all/y/N)? ",
-                               matchIgnore ? "WARNING: " : "",
-                               matchIgnore ? "\"IGNORED\"" : "unmanaged",
-                               zName+nRoot);
-        prompt_user(prompt, &ans);
-        cReply = blob_str(&ans)[0];
-        if( cReply=='a' || cReply=='A' ){
-          allFileFlag = 1;
-        }else if( cReply!='y' && cReply!='Y' ){
-          blob_reset(&ans);
-          continue;
+        int undoRc = UNDO_NONE;
+        if( !disableUndo ){
+          undoRc = undo_maybe_save(zName+nRoot, UNDO_SIZE_LIMIT);
         }
-        blob_reset(&ans);
+        if( undoRc!=UNDO_SAVED_OK ){
+          char cReply;
+          if( allFileFlag ){
+            cReply = 'Y';
+          }else if( !noPrompt ){
+            Blob ans;
+            char *prompt = mprintf("\nWARNING: Deletion of this file will "
+                                   "not be undoable via the 'undo'\n"
+                                   "         command because %s.\n\n"
+                                   "Remove unmanaged file \"%s\" (a=all/y/N)? ",
+                                   undo_save_message(undoRc), zName+nRoot);
+            prompt_user(prompt, &ans);
+            cReply = blob_str(&ans)[0];
+            blob_reset(&ans);
+          }else{
+            cReply = 'N';
+          }
+          if( cReply=='a' || cReply=='A' ){
+            allFileFlag = 1;
+          }else if( cReply!='y' && cReply!='Y' ){
+            continue;
+          }
+        }
       }
       if( dryRunFlag || file_delete(zName)==0 ){
         if( verboseFlag || dryRunFlag ){
@@ -786,6 +816,7 @@ void clean_cmd(void){
       }
     }
     db_finalize(&q);
+    if( !dryRunFlag && !disableUndo ) undo_finish();
   }
   if( emptyDirsFlag ){
     Glob *pEmptyDirs = glob_create(db_get("empty-dirs", 0));
@@ -812,19 +843,22 @@ void clean_cmd(void){
       }
       if( !allDirFlag && !dryRunFlag && !glob_match(pClean, zName+nRoot)
           && !(verilyFlag && glob_match(pIgnore, zName+nRoot)) ){
-        Blob ans;
         char cReply;
-        char *prompt = mprintf("Remove empty directory \"%s\" (a=all/y/N)? ",
-                               zName+nRoot);
-        prompt_user(prompt, &ans);
-        cReply = blob_str(&ans)[0];
+        if( !noPrompt ){
+          Blob ans;
+          char *prompt = mprintf("Remove empty directory \"%s\" (a=all/y/N)? ",
+                                 zName+nRoot);
+          prompt_user(prompt, &ans);
+          cReply = blob_str(&ans)[0];
+          blob_reset(&ans);
+        }else{
+          cReply = 'N';
+        }
         if( cReply=='a' || cReply=='A' ){
           allDirFlag = 1;
         }else if( cReply!='y' && cReply!='Y' ){
-          blob_reset(&ans);
           continue;
         }
-        blob_reset(&ans);
       }
       if( dryRunFlag || file_rmdir(zName)==0 ){
         if( verboseFlag || dryRunFlag ){
@@ -1046,7 +1080,7 @@ int select_commit_files(void){
     bag_init(&toCommit);
     for(ii=2; ii<g.argc; ii++){
       int cnt = 0;
-      file_tree_name(g.argv[ii], &fname, 1);
+      file_tree_name(g.argv[ii], &fname, 0, 1);
       if( fossil_strcmp(blob_str(&fname),".")==0 ){
         bag_clear(&toCommit);
         return result;

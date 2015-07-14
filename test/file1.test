@@ -36,6 +36,24 @@ proc relative-name {testname args} {
   }
 }
 
+proc relative-tree-name {testname args} {
+  set i 1
+  foreach {subdir path result} $args {
+    fossil test-tree-name --chdir $subdir $path
+    test relative-tree-name-$testname.$i {$::RESULT==$result}
+    incr i
+  }
+}
+
+proc absolute-tree-name {testname args} {
+  set i 1
+  foreach {subdir path result} $args {
+    fossil test-tree-name --chdir $subdir --absolute $path
+    test absolute-tree-name-$testname.$i {$::RESULT==$result}
+    incr i
+  }
+}
+
 simplify-name 100 . . .// . .. .. ..///// ..
 simplify-name 101 {} {} / / ///////// / ././././ .
 simplify-name 102 x x /x /x ///x //x
@@ -57,6 +75,19 @@ file mkdir test1/test2
 relative-name 100 . . . test1 [pwd] .. test1 [pwd]/ .. test1 [pwd]/test ../test
 relative-name 101 test1/test2 [pwd] ../.. test1/test2 [pwd]/ ../.. test1/test2 [pwd]/test ../../test
 relative-name 102 test1 [pwd]/test ../test . [pwd]/file1 ./file1 . [pwd]/file1/file2 ./file1/file2
+relative-name 103 . [pwd] .
+
+relative-tree-name 100 . . file1 test1 [pwd] file1 test1 [pwd]/ file1 test1 [pwd]/test file1/test
+relative-tree-name 101 test1/test2 [pwd] file1 test1/test2 [pwd]/ file1 test1/test2 [pwd]/test file1/test
+relative-tree-name 102 test1 [pwd]/test file1/test . [pwd]/file1 file1/file1 . [pwd]/file1/file2 file1/file1/file2
+relative-tree-name 103 . [pwd] file1
+
+set dirname [file normalize [file dirname [pwd]]]
+
+absolute-tree-name 100 . . $dirname test1 [pwd] [pwd] test1 [pwd]/ $dirname/file1 test1 [pwd]/test $dirname/file1/test
+absolute-tree-name 101 test1/test2 [pwd] $dirname/file1 test1/test2 [pwd]/ $dirname/file1 test1/test2 [pwd]/test $dirname/file1/test
+absolute-tree-name 102 test1 [pwd]/test $dirname/file1/test . [pwd]/file1 $dirname/file1/file1 . [pwd]/file1/file2 $dirname/file1/file1/file2
+absolute-tree-name 103 . [pwd] $dirname/file1
 
 catch {file delete test1/test2}
 catch {file delete test1}
