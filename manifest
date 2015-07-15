@@ -1,5 +1,5 @@
-C Further\senhancements\sto\sthe\s'undo'\ssubsystem\sintegration.
-D 2015-07-15T20:15:22.590
+C Add\sthe\stest-delta-analyze\scommand.
+D 2015-07-15T21:05:24.682
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -397,8 +397,8 @@ F src/cson_amalgamation.c 75be6142c327581dd9e10e0c0816c18c50d7a7fa
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 29327a308b88fbb8cea698c6e89bfe392e7edaea
-F src/delta.c e8de840f518dca8a6641f34eae115c8f9ca36004
-F src/deltacmd.c 4ac36378bf7b772d3bd67954212eb98be121961b
+F src/delta.c 673657e622b15fb9d816846eaefcab6ec1c1de81
+F src/deltacmd.c 4ff465c4331af328c6691103745de17e92d36007
 F src/descendants.c 1eb2bb891117be886ac87a7db842293221639326
 F src/diff.c 4600d39f61675941c756f5425e6bd5702f35eedf
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
@@ -740,7 +740,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P d795eb0b6010d4c19b89601f63a9b39b3423919b
-R 4e97824e1e4001b1f1a77a84394a046c
-U mistachkin
-Z 8752fb85d1e25ff3fc6226c10387faaf
+P a50be7b87adcd482d2c67b3b94c0e7722883e082
+R 676c5dc29061cc31c772c32c7e458933
+U drh
+Z edf45daee3af86f8a92d191be376bd77
