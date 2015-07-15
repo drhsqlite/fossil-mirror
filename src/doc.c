@@ -525,7 +525,7 @@ int doc_load_content(int vid, const char *zName, Blob *pContent){
 ** The file extension is used to decide how to render the file.
 **
 ** If FILE ends in "/" then names "FILE/index.html", "FILE/index.wiki",
-** and "FILE/index.md" are  in that order.  If none of those are found,
+** and "FILE/index.md" are tried in that order.  If none of those are found,
 ** then FILE is completely replaced by "404.md" and tried.  If that is
 ** not found, then a default 404 screen is generated.
 */
