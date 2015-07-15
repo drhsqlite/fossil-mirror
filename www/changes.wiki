@@ -3,9 +3,12 @@
 <h2>Changes for Version 1.34 (2015-??-??)</h2>
   *  Fix --hard option to mv/rm to enable them to work properly with certain
      relative paths.
-  *  Add minimal 'lsearch' command to TH1. Only exact case-sensitive matching
-     is supported.
-  *  Add 'glob_match' command to TH1.
+  *  Make the clean command undoable for files less than 10MiB.
+  *  Add minimal <nowiki>[lsearch]</nowiki> command to TH1. Only exact
+     case-sensitive matching is supported.
+  *  Add the <nowiki>[glob_match]</nowiki> command to TH1.
+  *  Add the <nowiki>[tclIsSafe] and [tclMakeSafe]</nowiki> TH1 commands to
+     the Tcl integration subsystem.
   *  Update internal Unicode character tables, used in regular expression
      handling, from version 7.0 to 8.0.
 

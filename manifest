@@ -1,5 +1,5 @@
-C Have\sline\snumbers\soption\suse\s/artifact/\spage,\snot\s/info/.\s\sThis\smakes\sit\spossible\sto\sget\sline\snumbers\sfor\sa\smanifest.
-D 2015-07-14T22:01:48.715
+C Update\sthe\schanges\sfile.
+D 2015-07-15T00:21:26.671
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -656,7 +656,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 2f0e8e5909ee610b28d190c88dd916706de41312
-F www/changes.wiki 2dc3b4659277d5366edd269b195db36bbb7d8405
+F www/changes.wiki af87b603ec1d7613417804d4ebcde4f549e5ca43
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 37087c035ff437c1c14dce07a0b8c7bf7adb3c2d
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -740,7 +740,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 1bf792eeeb4171f722bd18a773f559e5facabf03
-R bb645fcc7283a08fe3b92045888fd200
-U andygoth
-Z 7e6b0f0129c0d976ab4e49999bd0bafd
+P 259b912a937d36ed47e048941855f8523e0f95d9
+R 19c676c19ead80d0284a56d5fac7a4c3
+U mistachkin
+Z 927a87cc158be2233c3edcc8bddbdc96
