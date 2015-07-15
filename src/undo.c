@@ -26,8 +26,9 @@
 */
 #define UNDO_NONE     (0) /* Placeholder only used to initialize vars. */
 #define UNDO_SAVED_OK (1) /* The specified file was saved succesfully. */
-#define UNDO_INACTIVE (2) /* File not saved, subsystem is not active. */
-#define UNDO_TOOBIG   (3) /* File not saved, it exceeded a size limit. */
+#define UNDO_DISABLED (2) /* File not saved, subsystem is disabled. */
+#define UNDO_INACTIVE (3) /* File not saved, subsystem is not active. */
+#define UNDO_TOOBIG   (4) /* File not saved, it exceeded a size limit. */
 #endif
 
 /*
@@ -271,8 +272,8 @@ static int undoNeedRollback = 0;
 ** tree.
 */
 void undo_save(const char *zPathname){
-  int rc = undo_maybe_save(zPathname, -1);
-  if( rc!=UNDO_SAVED_OK && rc!=UNDO_INACTIVE ){
+  if( undoDisable ) return;
+  if( undo_maybe_save(zPathname, -1)!=UNDO_SAVED_OK ){
     fossil_panic("failed to save undo information for path: %s",
                  zPathname);
   }
@@ -295,6 +296,11 @@ void undo_save(const char *zPathname){
 **
 ** UNDO_SAVED_OK: The specified file was saved succesfully.
 **
+** UNDO_DISABLED: The specified file was NOT saved, because the
+**                "undo subsystem" is disabled.  This error may
+**                indicate that a call to undo_disable() was
+**                issued.
+**
 ** UNDO_INACTIVE: The specified file was NOT saved, because the
 **                "undo subsystem" is not active.  This error
 **                may indicate that a call to undo_begin() is
@@ -311,6 +317,7 @@ int undo_maybe_save(const char *zPathname, i64 limit){
   i64 size;
   int result;
 
+  if( undoDisable ) return UNDO_DISABLED;
   if( !undoActive ) return UNDO_INACTIVE;
   zFullname = mprintf("%s%s", g.zLocalRoot, zPathname);
   size = file_wd_size(zFullname);
@@ -358,6 +365,7 @@ const char *undo_save_message(int rc){
   switch( rc ){
     case UNDO_NONE:     return "undo is disabled for this operation";
     case UNDO_SAVED_OK: return "the save operation was successful";
+    case UNDO_DISABLED: return "the undo subsystem is disabled";
     case UNDO_INACTIVE: return "the undo subsystem is inactive";
     case UNDO_TOOBIG:   return "the file is too big";
     default: {

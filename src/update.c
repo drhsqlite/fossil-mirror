@@ -740,6 +740,7 @@ void revert_cmd(void){
     for(i=2; i<g.argc; i++){
       Blob fname;
       zFile = mprintf("%/", g.argv[i]);
+      blob_zero(&fname);
       file_tree_name(zFile, &fname, 0, 1);
       db_multi_exec(
         "REPLACE INTO torevert VALUES(%B);"

@@ -1,5 +1,5 @@
-C For\sthe\supdate\scommand,\sskip\scalls\sinto\sthe\s'undo'\ssubsystem\swhen\sthe\s-n\s(dry-run)\sflag\sis\sused.
-D 2015-07-15T19:38:38.847
+C Further\senhancements\sto\sthe\s'undo'\ssubsystem\sintegration.
+D 2015-07-15T20:15:22.590
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -483,7 +483,7 @@ F src/skins.c f12a6c105e7ceb269570e046800ae4ad1231b15a
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
 F src/sqlite3.c cd70d9502faeee322717ccf37373b27e1fed5898
 F src/sqlite3.h f1ffe56854a68f4e695eeffa202e6b1ef3ca2d51
-F src/stash.c e12e4a6e5b2e40da6ec789e0945e165eb78158a6
+F src/stash.c c8b20236b7fb7631528edb3d4b43a45c45e1949b
 F src/stat.c 69ab1f0d78ccb91fc81f8f3930046025034a3250
 F src/statrep.c 474a16f31a804b1a779e9c911ae4a3289971f087
 F src/style.c 4238d0f18131ca473bc2bc7c3655db1d40ae823d
@@ -499,9 +499,9 @@ F src/timeline.c 005c758d36dbe81a52d1fe9a7f14cd0830abb005
 F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
 F src/tktsetup.c 1360904128a3c60008867056d9f576c8f906eb7c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
-F src/undo.c a5fe8f6576b68be7a3c31b2a6b842857b6cfdf08
+F src/undo.c 1117393e2142485f3a231120e58508b2b92f0d9d
 F src/unicode.c f26b9f26d4ac399f7b03cfac16ec72336c7f06c9
-F src/update.c d840ca6b8f2a1c44324c0c2a487f1d26b0e3356b
+F src/update.c 2effb8364b604bbe63aa6dec5c0e8f0fc3b65e7d
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c 6ec57f122cadd7c324e657be5de1b0c8f0d37c8d
 F src/utf8.c 49a0cfaf5b3ba966f5e7c688b829610634fefd25
@@ -740,7 +740,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 91ee04cf2718a476a779a06a3a98479fda9a711a
-R fb944d0b00d896fc5946167e23cb76c2
+P d795eb0b6010d4c19b89601f63a9b39b3423919b
+R 4e97824e1e4001b1f1a77a84394a046c
 U mistachkin
-Z 9ce64e4267ca524e36e79a4e97f7dc4c
+Z 8752fb85d1e25ff3fc6226c10387faaf

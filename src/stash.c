@@ -505,6 +505,7 @@ void stash_cmd(void){
       }
       db_finalize(&q);
       newArgv[0] = g.argv[0];
+      newArgv[1] = 0;
       g.argv = newArgv;
       g.argc = nFile+2;
       if( nFile==0 ) return;
