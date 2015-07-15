@@ -553,7 +553,7 @@ void doc_page(void){
     if( zName==0 || zName[0]==0 ) zName = "tip/index.wiki";
     for(i=0; zName[i] && zName[i]!='/'; i++){}
     zCheckin = mprintf("%.*s", i, zName);
-    if( fossil_strcmp(zCheckin,"ckout")==0 && db_open_local(0)==0 ){
+    if( fossil_strcmp(zCheckin,"ckout")==0 && g.localOpen==0 ){
       zCheckin = "tip";
     }
     if( nMiss==ArraySize(azSuffix) ){

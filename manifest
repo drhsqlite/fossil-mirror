@@ -1,5 +1,5 @@
-C Fix\sa\stypo\sin\sa\scomment.\s\sNo\schanges\sto\scode.
-D 2015-07-15T10:33:53.302
+C Do\snot\sattempt\sto\sattach\sthe\slocal\sdatabase\swhile\sprocessing\s"ckout"\sin\sthe\n/doc\spage\sif\sthat\sdatabase\sis\snot\salready\sopen.
+D 2015-07-15T10:38:24.492
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -403,7 +403,7 @@ F src/descendants.c 1eb2bb891117be886ac87a7db842293221639326
 F src/diff.c 4600d39f61675941c756f5425e6bd5702f35eedf
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
 F src/diffcmd.c 2e7b17d1cdc3fe5cae14bae8ac84b77cf48a046e
-F src/doc.c cf27e5b0da5c27d1b7dfd730201f2a475b916f50
+F src/doc.c 18720846abd34cda0172f4359ebb67c3be0f32c6
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
@@ -740,7 +740,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P c99b4e34dd1db2cc1a7135f6b1684993e8dd8ae5
-R 8c41f9658f8f24e84695faa5773eca68
+P d1a823878373c430e161b634597c8e7980e41dae
+R 88f93405fe32add7dc648b408fdf6f8c
 U drh
-Z 89177345a30cd64095640692cac679a2
+Z 8c598a380c6f8a6a56693f707d155547
