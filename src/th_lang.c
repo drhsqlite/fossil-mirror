@@ -738,13 +738,26 @@ static int string_is_command(
     }
 
     return Th_SetResultInt(interp, iRes);
+  }else if( argl[2]==6 && 0==memcmp(argv[2], "double", 6) ){
+    double fVal;
+    if( Th_ToDouble(interp, argv[3], argl[3], &fVal)==TH_OK ){
+      return Th_SetResultInt(interp, 1);
+    }
+    return Th_SetResultInt(interp, 0);
+  }else if( argl[2]==7 && 0==memcmp(argv[2], "integer", 7) ){
+    int iVal;
+    if( Th_ToInt(interp, argv[3], argl[3], &iVal)==TH_OK ){
+      return Th_SetResultInt(interp, 1);
+    }
+    return Th_SetResultInt(interp, 0);
   }else if( argl[2]==4 && 0==memcmp(argv[2], "list", 4) ){
     if( Th_SplitList(interp, argv[3], argl[3], 0, 0, 0)==TH_OK ){
       return Th_SetResultInt(interp, 1);
     }
     return Th_SetResultInt(interp, 0);
   }else{
-    Th_ErrorMessage(interp, "Expected alnum or list, got:", argv[2], argl[2]);
+    Th_ErrorMessage(interp,
+        "Expected alnum, double, integer, or list, got:", argv[2], argl[2]);
     return TH_ERROR;
   }
 }

@@ -9,7 +9,8 @@
   *  Add the <nowiki>[glob_match]</nowiki> command to TH1.
   *  Add the <nowiki>[tclIsSafe] and [tclMakeSafe]</nowiki> TH1 commands to
      the Tcl integration subsystem.
-  *  Add 'list' class to the <nowiki>[string is]</nowiki> command in TH1.
+  *  Add 'double', 'integer', and 'list' classes to the
+     <nowiki>[string is]</nowiki> command in TH1.
   *  Update internal Unicode character tables, used in regular expression
      handling, from version 7.0 to 8.0.
 
