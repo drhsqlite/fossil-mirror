@@ -1,5 +1,5 @@
-C Do\snot\sattempt\sto\sattach\sthe\slocal\sdatabase\swhile\sprocessing\s"ckout"\sin\sthe\n/doc\spage\sif\sthat\sdatabase\sis\snot\salready\sopen.
-D 2015-07-15T10:38:24.492
+C Fix\s"fossil\sstash"\sso\sthat\sit\sworks\swith\sthe\sundo\senhancements.
+D 2015-07-15T15:34:52.444
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -499,7 +499,7 @@ F src/timeline.c 005c758d36dbe81a52d1fe9a7f14cd0830abb005
 F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
 F src/tktsetup.c 1360904128a3c60008867056d9f576c8f906eb7c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
-F src/undo.c 581a45917c93dd5dd01f3491e8aed62554379703
+F src/undo.c a5fe8f6576b68be7a3c31b2a6b842857b6cfdf08
 F src/unicode.c f26b9f26d4ac399f7b03cfac16ec72336c7f06c9
 F src/update.c 6acdc89d2d2a61656367105d4cacecf9affc68f8
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
@@ -740,7 +740,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P d1a823878373c430e161b634597c8e7980e41dae
-R 88f93405fe32add7dc648b408fdf6f8c
+P b9b9d7e739c57697bf46227f87017e33f8303b52
+R 1b042c0fe8317cac244fa73c3c671666
 U drh
-Z 8c598a380c6f8a6a56693f707d155547
+Z be8b6b357c2ddbb3fb70a4b1b10f63ed

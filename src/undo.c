@@ -271,7 +271,8 @@ static int undoNeedRollback = 0;
 ** tree.
 */
 void undo_save(const char *zPathname){
-  if( undo_maybe_save(zPathname, -1)!=UNDO_SAVED_OK ){
+  int rc = undo_maybe_save(zPathname, -1);
+  if( rc!=UNDO_SAVED_OK && rc!=UNDO_INACTIVE ){
     fossil_panic("failed to save undo information for path: %s",
                  zPathname);
   }
