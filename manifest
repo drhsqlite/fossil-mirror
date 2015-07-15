@@ -1,5 +1,5 @@
-C For\sthe\smerge\scommand,\sskip\scalls\sinto\sthe\s'undo'\ssubsystem\swhen\sthe\s-n\s(dry-run)\sflag\sis\sused.
-D 2015-07-15T18:47:31.656
+C For\sthe\supdate\scommand,\sskip\scalls\sinto\sthe\s'undo'\ssubsystem\swhen\sthe\s-n\s(dry-run)\sflag\sis\sused.
+D 2015-07-15T19:38:38.847
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -501,7 +501,7 @@ F src/tktsetup.c 1360904128a3c60008867056d9f576c8f906eb7c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c a5fe8f6576b68be7a3c31b2a6b842857b6cfdf08
 F src/unicode.c f26b9f26d4ac399f7b03cfac16ec72336c7f06c9
-F src/update.c 6acdc89d2d2a61656367105d4cacecf9affc68f8
+F src/update.c d840ca6b8f2a1c44324c0c2a487f1d26b0e3356b
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c 6ec57f122cadd7c324e657be5de1b0c8f0d37c8d
 F src/utf8.c 49a0cfaf5b3ba966f5e7c688b829610634fefd25
@@ -740,7 +740,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 3c0d8c267936e7162ea501308097f85c8111876b
-R 4e5266e4348cdf1e251753397c4215f5
+P 91ee04cf2718a476a779a06a3a98479fda9a711a
+R fb944d0b00d896fc5946167e23cb76c2
 U mistachkin
-Z e6a3fd4f905bb3f0d5e29e202d3c043d
+Z 9ce64e4267ca524e36e79a4e97f7dc4c
