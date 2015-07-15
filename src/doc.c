@@ -549,7 +549,8 @@ void doc_page(void){
   blob_init(&title, 0, 0);
   db_begin_transaction();
   while( rid==0 && (++nMiss)<=ArraySize(azSuffix) ){
-    zName = PD("name", "tip/index.wiki");
+    zName = P("name");
+    if( zName==0 || zName[0]==0 ) zName = "tip/index.wiki";
     for(i=0; zName[i] && zName[i]!='/'; i++){}
     zCheckin = mprintf("%.*s", i, zName);
     if( fossil_strcmp(zCheckin,"ckout")==0 && db_open_local(0)==0 ){
