@@ -1,5 +1,5 @@
-C Fix\s"fossil\sstash"\sso\sthat\sit\sworks\swith\sthe\sundo\senhancements.
-D 2015-07-15T15:34:52.444
+C For\sthe\smerge\scommand,\sskip\scalls\sinto\sthe\s'undo'\ssubsystem\swhen\sthe\s-n\s(dry-run)\sflag\sis\sused.
+D 2015-07-15T18:47:31.656
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -452,7 +452,7 @@ F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 45f6e06e03e4183764067eec37ff73f357303306
 F src/markdown_html.c 453460a916b805e688e4a6ed7b52994b171eea27
 F src/md5.c c6f6b5df8001ab094e5f49416fc2aa3019823d69
-F src/merge.c cf79004e6a9b50d4184d77e1a77014d87c016ebf
+F src/merge.c 055f9869eac189b56a1f5c97d93ecff11b63ac23
 F src/merge3.c b2502f631c761f2c606f4fad6c8aa00bc2a5f4a7
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
@@ -740,7 +740,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P b9b9d7e739c57697bf46227f87017e33f8303b52
-R 1b042c0fe8317cac244fa73c3c671666
-U drh
-Z be8b6b357c2ddbb3fb70a4b1b10f63ed
+P 3c0d8c267936e7162ea501308097f85c8111876b
+R 4e5266e4348cdf1e251753397c4215f5
+U mistachkin
+Z e6a3fd4f905bb3f0d5e29e202d3c043d
