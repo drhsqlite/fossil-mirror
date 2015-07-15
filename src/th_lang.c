@@ -724,23 +724,29 @@ static int string_first_command(
 static int string_is_command(
   Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
 ){
-  int i;
-  int iRes = 1;
   if( argc!=4 ){
     return Th_WrongNumArgs(interp, "string is class string");
   }
-  if( argl[2]!=5 || 0!=memcmp(argv[2], "alnum", 5) ){
-    Th_ErrorMessage(interp, "Expected alnum, got: ", argv[2], argl[2]);
+  if( argl[2]==5 && 0==memcmp(argv[2], "alnum", 5) ){
+    int i;
+    int iRes = 1;
+
+    for(i=0; i<argl[3]; i++){
+      if( !th_isalnum(argv[3][i]) ){
+        iRes = 0;
+      }
+    }
+
+    return Th_SetResultInt(interp, iRes);
+  }else if( argl[2]==4 && 0==memcmp(argv[2], "list", 4) ){
+    if( Th_SplitList(interp, argv[3], argl[3], 0, 0, 0)==TH_OK ){
+      return Th_SetResultInt(interp, 1);
+    }
+    return Th_SetResultInt(interp, 0);
+  }else{
+    Th_ErrorMessage(interp, "Expected alnum or list, got:", argv[2], argl[2]);
     return TH_ERROR;
   }
-
-  for(i=0; i<argl[3]; i++){
-    if( !th_isalnum(argv[3][i]) ){
-      iRes = 0;
-    }
-  }
-
-  return Th_SetResultInt(interp, iRes);
 }
 
 /*
