@@ -1,5 +1,5 @@
-C Fix\sthe\s"foci"\svirtual\stable\sso\sthat\sit\sis\sable\sto\scorrectly\shandle\nnon-existant\smanifest\snumbers.
-D 2015-07-15T21:47:16.720
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.8.11\sbeta.
+D 2015-07-16T18:24:35.354
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -481,8 +481,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 29d06b40601a2f48c0d0994ec16e97b404716920
 F src/skins.c f12a6c105e7ceb269570e046800ae4ad1231b15a
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c cd70d9502faeee322717ccf37373b27e1fed5898
-F src/sqlite3.h f1ffe56854a68f4e695eeffa202e6b1ef3ca2d51
+F src/sqlite3.c 0b6f08d05c55ded5a6ad8a3c94abce05e44606cb
+F src/sqlite3.h 1548420eea49ba4f9f6b919879125a1d023ddcc4
 F src/stash.c c8b20236b7fb7631528edb3d4b43a45c45e1949b
 F src/stat.c 69ab1f0d78ccb91fc81f8f3930046025034a3250
 F src/statrep.c 474a16f31a804b1a779e9c911ae4a3289971f087
@@ -740,7 +740,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P fd302a26118849db815f04bc494bbe3bbd197029
-R 3606ac15edbda613c51d4b8c7f6cbccc
+P 31c3c599ffb1b449c980a3d54c1811fa57e34f28
+R 1be8a470b7e2aa24283a2ad68d25b8ea
 U drh
-Z 4fd5fbc8d9ae6db027b590722bceb6a9
+Z 0d8f46174521b88f4bae2e908d8755ea
