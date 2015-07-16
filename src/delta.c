@@ -600,3 +600,64 @@ int delta_apply(
   /* ERROR: unterminated delta */
   return -1;
 }
+
+/*
+** Analyze a delta.  Figure out the total number of bytes copied from
+** source to target, and the total number of bytes inserted by the delta,
+** and return both numbers.
+*/
+int delta_analyze(
+  const char *zDelta,    /* Delta to apply to the pattern */
+  int lenDelta,          /* Length of the delta */
+  int *pnCopy,           /* OUT: Number of bytes copied */
+  int *pnInsert          /* OUT: Number of bytes inserted */
+){
+  unsigned int nInsert = 0;
+  unsigned int nCopy = 0;
+
+  (void)getInt(&zDelta, &lenDelta);
+  if( *zDelta!='\n' ){
+    /* ERROR: size integer not terminated by "\n" */
+    return -1;
+  }
+  zDelta++; lenDelta--;
+  while( *zDelta && lenDelta>0 ){
+    unsigned int cnt, ofst;
+    cnt = getInt(&zDelta, &lenDelta);
+    switch( zDelta[0] ){
+      case '@': {
+        zDelta++; lenDelta--;
+        ofst = getInt(&zDelta, &lenDelta);
+        if( lenDelta>0 && zDelta[0]!=',' ){
+          /* ERROR: copy command not terminated by ',' */
+          return -1;
+        }
+        zDelta++; lenDelta--;
+        nCopy += cnt;
+        break;
+      }
+      case ':': {
+        zDelta++; lenDelta--;
+        nInsert += cnt;
+        if( cnt>lenDelta ){
+          /* ERROR: insert count exceeds size of delta */
+          return -1;
+        }
+        zDelta += cnt;
+        lenDelta -= cnt;
+        break;
+      }
+      case ';': {
+        *pnCopy = nCopy;
+        *pnInsert = nInsert;
+        return 0;
+      }
+      default: {
+        /* ERROR: unknown delta operator */
+        return -1;
+      }
+    }
+  }
+  /* ERROR: unterminated delta */
+  return -1;
+}

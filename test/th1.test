@@ -1014,3 +1014,162 @@ test th1-glob-match-12 {$RESULT eq "1 0"}
 
 fossil test-th-eval {list [glob_match {a[bd]c} abc] [glob_match abc {a[bd]c}]}
 test th1-glob-match-13 {$RESULT eq "1 0"}
+
+###############################################################################
+
+fossil test-th-eval {string is}
+test th1-string-is-1 {$RESULT eq \
+{TH_ERROR: wrong # args: should be "string is class string"}}
+
+###############################################################################
+
+fossil test-th-eval {string is something}
+test th1-string-is-2 {$RESULT eq \
+{TH_ERROR: wrong # args: should be "string is class string"}}
+
+###############################################################################
+
+fossil test-th-eval {string is not something else}
+test th1-string-is-3 {$RESULT eq \
+{TH_ERROR: wrong # args: should be "string is class string"}}
+
+###############################################################################
+
+fossil test-th-eval {string is other 123}
+test th1-string-is-4 {$RESULT eq \
+"TH_ERROR: Expected alnum, double, integer, or list, got: other"}
+
+###############################################################################
+
+fossil test-th-eval {string is alnum 123}
+test th1-string-is-5 {$RESULT eq "1"}
+
+###############################################################################
+
+fossil test-th-eval {string is alnum abc}
+test th1-string-is-6 {$RESULT eq "1"}
+
+###############################################################################
+
+fossil test-th-eval {string is alnum 123abc}
+test th1-string-is-7 {$RESULT eq "1"}
+
+###############################################################################
+
+fossil test-th-eval {string is alnum abc123}
+test th1-string-is-8 {$RESULT eq "1"}
+
+###############################################################################
+
+fossil test-th-eval {string is alnum _abc123}
+test th1-string-is-9 {$RESULT eq "0"}
+
+###############################################################################
+
+fossil test-th-eval {string is alnum abc.123}
+test th1-string-is-10 {$RESULT eq "0"}
+
+###############################################################################
+
+fossil test-th-eval {string is alnum abc123_}
+test th1-string-is-11 {$RESULT eq "0"}
+
+###############################################################################
+
+fossil test-th-eval {string is list ""}
+test th1-string-is-12 {$RESULT eq "1"}
+
+###############################################################################
+
+fossil test-th-eval {string is list 1}
+test th1-string-is-13 {$RESULT eq "1"}
+
+###############################################################################
+
+fossil test-th-eval {string is list "1 2 3"}
+test th1-string-is-14 {$RESULT eq "1"}
+
+###############################################################################
+
+fossil test-th-eval {string is list "\{"}
+test th1-string-is-15 {$RESULT eq "0"}
+
+###############################################################################
+
+fossil test-th-eval {string is list "1 2 3 \{"}
+test th1-string-is-16 {$RESULT eq "0"}
+
+###############################################################################
+
+fossil test-th-eval {string is list "1 2 3 \{\}"}
+test th1-string-is-17 {$RESULT eq "1"}
+
+###############################################################################
+
+fossil test-th-eval {string is list "1 2 3 \{\{\}"}
+test th1-string-is-18 {$RESULT eq "0"}
+
+###############################################################################
+
+fossil test-th-eval {string is double 123}
+test th1-string-is-19 {$RESULT eq "1"}
+
+###############################################################################
+
+fossil test-th-eval {string is double 123.456}
+test th1-string-is-20 {$RESULT eq "1"}
+
+###############################################################################
+
+fossil test-th-eval {string is double 123abc}
+test th1-string-is-21 {$RESULT eq "0"}
+
+###############################################################################
+
+fossil test-th-eval {string is double 123_456}
+test th1-string-is-22 {$RESULT eq "0"}
+
+###############################################################################
+
+fossil test-th-eval {string is integer 123}
+test th1-string-is-23 {$RESULT eq "1"}
+
+###############################################################################
+
+fossil test-th-eval {string is integer 123.456}
+test th1-string-is-24 {$RESULT eq "0"}
+
+###############################################################################
+
+fossil test-th-eval {string is integer 123abc}
+test th1-string-is-25 {$RESULT eq "0"}
+
+###############################################################################
+
+fossil test-th-eval {string is integer 0b11001001}
+test th1-string-is-26 {$RESULT eq "1"}
+
+###############################################################################
+
+fossil test-th-eval {string is integer 0b11001002}
+test th1-string-is-27 {$RESULT eq "0"}
+
+###############################################################################
+
+fossil test-th-eval {string is integer 0o777}
+test th1-string-is-28 {$RESULT eq "1"}
+
+###############################################################################
+
+fossil test-th-eval {string is integer 0o778}
+test th1-string-is-29 {$RESULT eq "0"}
+
+###############################################################################
+
+fossil test-th-eval {string is integer 0xC0DEF00D}
+test th1-string-is-30 {$RESULT eq "1"}
+
+###############################################################################
+
+fossil test-th-eval {string is integer 0xC0DEF00Z}
+test th1-string-is-31 {$RESULT eq "0"}

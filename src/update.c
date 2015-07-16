@@ -426,22 +426,22 @@ void update_cmd(void){
       }else{
         fossil_print("ADD %s\n", zName);
       }
-      undo_save(zName);
+      if( !dryRunFlag && !internalUpdate ) undo_save(zName);
       if( !dryRunFlag ) vfile_to_disk(0, idt, 0, 0);
     }else if( idt>0 && idv>0 && ridt!=ridv && (chnged==0 || deleted) ){
       /* The file is unedited.  Change it to the target version */
-      undo_save(zName);
       if( deleted ){
         fossil_print("UPDATE %s - change to unmanaged file\n", zName);
       }else{
         fossil_print("UPDATE %s\n", zName);
       }
+      if( !dryRunFlag && !internalUpdate ) undo_save(zName);
       if( !dryRunFlag ) vfile_to_disk(0, idt, 0, 0);
     }else if( idt>0 && idv>0 && !deleted && file_wd_size(zFullPath)<0 ){
       /* The file missing from the local check-out. Restore it to the
       ** version that appears in the target. */
       fossil_print("UPDATE %s\n", zName);
-      undo_save(zName);
+      if( !dryRunFlag && !internalUpdate ) undo_save(zName);
       if( !dryRunFlag ) vfile_to_disk(0, idt, 0, 0);
     }else if( idt==0 && idv>0 ){
       if( ridv==0 ){
@@ -456,7 +456,7 @@ void update_cmd(void){
         nConflict++;
       }else{
         fossil_print("REMOVE %s\n", zName);
-        undo_save(zName);
+        if( !dryRunFlag && !internalUpdate ) undo_save(zName);
         if( !dryRunFlag ) file_delete(zFullPath);
       }
     }else if( idt>0 && idv>0 && ridt!=ridv && chnged ){
@@ -473,7 +473,7 @@ void update_cmd(void){
         nConflict++;
       }else{
         unsigned mergeFlags = dryRunFlag ? MERGE_DRYRUN : 0;
-        undo_save(zName);
+        if( !dryRunFlag && !internalUpdate ) undo_save(zName);
         content_get(ridt, &t);
         content_get(ridv, &v);
         rc = merge_3way(&v, zFullPath, &t, &r, mergeFlags);
@@ -740,6 +740,7 @@ void revert_cmd(void){
     for(i=2; i<g.argc; i++){
       Blob fname;
       zFile = mprintf("%/", g.argv[i]);
+      blob_zero(&fname);
       file_tree_name(zFile, &fname, 0, 1);
       db_multi_exec(
         "REPLACE INTO torevert VALUES(%B);"

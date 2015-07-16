@@ -1888,7 +1888,7 @@ void artifact_page(void){
     style_submenu_element("Content", "Content", "%R/artifact/%s", zUuid);
   }else{
     style_submenu_element("Line Numbers", "Line Numbers",
-                          "%R/info/%s%s",zUuid,
+                          "%R/artifact/%s%s",zUuid,
                           ((zLn&&*zLn) ? "" : "?txt=1&ln=0"));
     @ <hr />
     content_get(rid, &content);

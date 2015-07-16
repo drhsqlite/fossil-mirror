@@ -525,7 +525,7 @@ int doc_load_content(int vid, const char *zName, Blob *pContent){
 ** The file extension is used to decide how to render the file.
 **
 ** If FILE ends in "/" then names "FILE/index.html", "FILE/index.wiki",
-** and "FILE/index.md" are  in that order.  If none of those are found,
+** and "FILE/index.md" are tried in that order.  If none of those are found,
 ** then FILE is completely replaced by "404.md" and tried.  If that is
 ** not found, then a default 404 screen is generated.
 */
@@ -549,10 +549,11 @@ void doc_page(void){
   blob_init(&title, 0, 0);
   db_begin_transaction();
   while( rid==0 && (++nMiss)<=ArraySize(azSuffix) ){
-    zName = PD("name", "tip/index.wiki");
+    zName = P("name");
+    if( zName==0 || zName[0]==0 ) zName = "tip/index.wiki";
     for(i=0; zName[i] && zName[i]!='/'; i++){}
     zCheckin = mprintf("%.*s", i, zName);
-    if( fossil_strcmp(zCheckin,"ckout")==0 && db_open_local(0)==0 ){
+    if( fossil_strcmp(zCheckin,"ckout")==0 && g.localOpen==0 ){
       zCheckin = "tip";
     }
     if( nMiss==ArraySize(azSuffix) ){

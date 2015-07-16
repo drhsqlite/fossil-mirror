@@ -599,7 +599,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2c
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2d
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -1326,7 +1326,7 @@ FOSSIL_BUILD_SSL = 0
 
 # Build the included zlib library?
 !ifndef FOSSIL_BUILD_ZLIB
-FOSSIL_BUILD_ZLIB = 0
+FOSSIL_BUILD_ZLIB = 1
 !endif
 
 # Link everything except SQLite dynamically?
@@ -1375,7 +1375,7 @@ FOSSIL_ENABLE_WINXP = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.0.2c
+SSLDIR    = $(B)\compat\openssl-1.0.2d
 SSLINCDIR = $(SSLDIR)\inc32
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)\out32dll
