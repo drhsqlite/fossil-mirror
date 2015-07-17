@@ -2706,10 +2706,11 @@ void ci_edit_page(void){
   style_footer();
 }
 
+#define AMEND_USAGE_STMT "UUID OPTION ?OPTION ...?"
 /*
 ** COMMAND: amend
 **
-** Usage: %fossil amend UUID ?OPTIONS?
+** Usage: %fossil amend UUID OPTION ?OPTION ...?
 **
 ** Amend the tags on check-in UUID to change how it displays in the timeline.
 **
@@ -2749,7 +2750,7 @@ void ci_amend_cmd(void){
   Blob ctrl;
   char *zNow;
 
-  if( g.argc<3 ) usage("UUID ?OPTIONS?");
+  if( g.argc==3 ) usage(AMEND_USAGE_STMT);
   zNewComment = find_option("comment",0,1);
   zNewBranch = find_option("branch",0,1);
   zNewColor = find_option("bgcolor",0,1);
@@ -2768,6 +2769,7 @@ void ci_amend_cmd(void){
   db_find_and_open_repository(0,0);
   user_select();
   verify_all_options();
+  if( g.argc<3 || g.argc>=4 ) usage(AMEND_USAGE_STMT);
   rid = name_to_typed_rid(g.argv[2], "ci");
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   zComment = db_text(0, "SELECT coalesce(ecomment,comment)"
@@ -2811,4 +2813,5 @@ void ci_amend_cmd(void){
   if( fClose ) close_leaf(rid);
   if( zNewBranch && zNewBranch[0] ) change_branch(rid,zNewBranch);
   apply_newtags(&ctrl, rid, zUuid);
+  show_common_info(rid, "uuid:", 1, 0);
 }
