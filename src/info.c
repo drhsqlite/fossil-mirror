@@ -2706,6 +2706,40 @@ void ci_edit_page(void){
   style_footer();
 }
 
+/*
+** Prepare an ammended commit comment.  Let the user modify it using the
+** editor specified in the global_config table or either
+** the VISUAL or EDITOR environment variable.
+**
+** Store the final commit comment in pComment.  pComment is assumed
+** to be uninitialized - any prior content is overwritten.
+**
+** Use zInit to initialize the check-in comment so that the user does
+** not have to retype.
+*/
+static void prepare_amend_comment(
+  Blob *pComment,
+  const char *zInit,
+  const char *zUuid
+){
+  Blob prompt;
+#if defined(_WIN32) || defined(__CYGWIN__)
+  int bomSize;
+  const unsigned char *bom = get_utf8_bom(&bomSize);
+  blob_init(&prompt, (const char *) bom, bomSize);
+  if( zInit && zInit[0]){
+    blob_append(&prompt, zInit, -1);
+  }
+#else
+  blob_init(&prompt, zInit, -1);
+#endif
+  blob_append(&prompt, "\n# Enter a new comment for check-in ", -1);
+  blob_append(&prompt, zUuid, -1);
+  blob_append(&prompt, ".\n# Lines beginning with a # are ignored.\n", -1);
+  prompt_for_user_comment(pComment, &prompt);
+  blob_reset(&prompt);
+}
+
 #define AMEND_USAGE_STMT "UUID OPTION ?OPTION ...?"
 /*
 ** COMMAND: amend
@@ -2718,6 +2752,7 @@ void ci_edit_page(void){
 **
 **    --euser USER            Make USER the check-in user
 **    --comment COMMENT       Make COMMENT the check-in comment
+**    --edit-comment          Launch editor to revise comment
 **    --date DATE             Make DATE the check-in time
 **    --bgcolor COLOR         Apply COLOR to this check-in
 **    --branchcolor COLOR     Apply and propagate COLOR to the branch
@@ -2745,12 +2780,15 @@ void ci_amend_cmd(void){
   int fHide;                    /* True if branch should be hidden */
   int fPropagateColor;          /* True if color propagates before amend */
   int fNewPropagateColor = 0;   /* True if color propagates after amend */
+  int fEditComment;             /* True if editor to be used for comment */
   const char *zChngTime;        /* The change time on the control artifact */
   const char *zUuid;
   Blob ctrl;
+  Blob comment;
   char *zNow;
 
   if( g.argc==3 ) usage(AMEND_USAGE_STMT);
+  fEditComment = find_option("edit-comment",0,0)!=0;
   zNewComment = find_option("comment",0,1);
   zNewBranch = find_option("branch",0,1);
   zNewColor = find_option("bgcolor",0,1);
@@ -2799,7 +2837,15 @@ void ci_amend_cmd(void){
   if( (zNewColor!=0 && zNewColor[0]==0) && (zColor && zColor[0] ) ){
     cancel_color();
   }
-  if( zNewComment && zNewComment[0]
+  if( fEditComment && zComment && zComment[0] ){
+    prepare_amend_comment(&comment, zComment, zUuid);
+    zNewComment = blob_str(&comment);
+    if( comment_compare(zComment, zNewComment)==0 ){
+      add_comment(zNewComment);
+    }else{
+      fossil_warning("Comment is unchanged.");
+    }
+  }else if( zNewComment && zNewComment[0]
       && comment_compare(zComment,zNewComment)==0 ) add_comment(zNewComment);
   if( zNewDate && zNewDate[0] && fossil_strcmp(zDate,zNewDate)!=0 ){
     add_date(zNewDate);
