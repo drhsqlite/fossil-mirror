@@ -2751,7 +2751,7 @@ static void prepare_amend_comment(
 ** Options:
 **
 **    --euser USER            Make USER the check-in user
-**    --comment COMMENT       Make COMMENT the check-in comment
+**    -m|--comment COMMENT    Make COMMENT the check-in comment
 **    --edit-comment          Launch editor to revise comment
 **    --date DATE             Make DATE the check-in time
 **    --bgcolor COLOR         Apply COLOR to this check-in
