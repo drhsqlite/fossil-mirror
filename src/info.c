@@ -2789,7 +2789,7 @@ void ci_amend_cmd(void){
 
   if( g.argc==3 ) usage(AMEND_USAGE_STMT);
   fEditComment = find_option("edit-comment",0,0)!=0;
-  zNewComment = find_option("comment",0,1);
+  zNewComment = find_option("comment","m",1);
   zNewBranch = find_option("branch",0,1);
   zNewColor = find_option("bgcolor",0,1);
   zNewBrColor = find_option("branchcolor",0,1);
