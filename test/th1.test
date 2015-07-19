@@ -18,6 +18,10 @@
 # TH1 Commands
 #
 
+set dir [file dirname [info script]]
+
+###############################################################################
+
 fossil test-th-eval --open-config "setting th1-hooks"
 set th1Hooks [expr {$RESULT eq "1"}]
 
@@ -861,8 +865,8 @@ fossil test-th-eval "info commands"
 test th1-info-commands-1 {$RESULT eq {linecount htmlize date stime\
 enable_output uplevel http expr glob_match utime styleFooter catch if\
 tclReady searchable reinitialize combobox lindex query html anoncap randhex\
-llength for set break regexp styleHeader puts return checkout decorate\
-artifact trace wiki proc hascap globalState continue getParameter\
+llength for set break regexp markdown styleHeader puts return checkout\
+decorate artifact trace wiki proc hascap globalState continue getParameter\
 hasfeature setting lsearch breakpoint upvar render repository string unset\
 setParameter list error info rename anycap httpize}}
 
@@ -1173,3 +1177,73 @@ test th1-string-is-30 {$RESULT eq "1"}
 
 fossil test-th-eval {string is integer 0xC0DEF00Z}
 test th1-string-is-31 {$RESULT eq "0"}
+
+###############################################################################
+
+fossil test-th-eval {markdown}
+test th1-markdown-1 {$RESULT eq \
+{TH_ERROR: wrong # args: should be "markdown STRING"}}
+
+###############################################################################
+
+fossil test-th-eval {markdown one two}
+test th1-markdown-2 {$RESULT eq \
+{TH_ERROR: wrong # args: should be "markdown STRING"}}
+
+###############################################################################
+
+fossil test-th-eval {markdown "*This is a test.*"}
+test th1-markdown-3 {[normalize_result] eq {{} {<div class="markdown">
+
+<p><em>This is a test.</em></p>
+
+</div>
+}}}
+
+###############################################################################
+
+fossil test-th-eval {markdown "Test1\n=====\n*This is a test.*"}
+test th1-markdown-4 {[normalize_result] eq {Test1 {<div class="markdown">
+
+<h1>Test1</h1>
+<p><em>This is a test.</em></p>
+
+</div>
+}}}
+
+###############################################################################
+
+set markdown [read_file [file join $dir markdown-test1.md]]
+fossil test-th-eval [string map \
+    [list %markdown% $markdown] {markdown {%markdown%}}]
+test th1-markdown-5 {[normalize_result] eq \
+{{Markdown Formatter Test Document} {<div class="markdown">
+
+<h1>Markdown Formatter Test Document</h1>
+<p>This document is designed to test the markdown formatter.</p>
+
+<ul>
+<li>A bullet item.
+
+<ul>
+<li>A subitem</li>
+</ul></li>
+<li>Second bullet</li>
+</ul>
+
+<p>More text</p>
+
+<ol>
+<li>Enumeration
+1.1.  Subitem 1
+1.2.  Subitem 2</li>
+<li>Second enumeration.</li>
+</ol>
+
+<p>Another paragraph.</p>
+
+<h2>Other Features</h2>
+<p>Text can show <em>emphasis</em> or <em>emphasis</em> or <strong>strong emphassis</strong>.</p>
+
+</div>
+}}}
