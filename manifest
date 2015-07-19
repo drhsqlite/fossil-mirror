@@ -1,5 +1,5 @@
-C Add\sthe\s'markdown'\scommand\sto\sTH1.
-D 2015-07-19T18:34:06.234
+C Correct\saccidental\sremoval\sof\sthe\s'linecount'\sTH1\scommand\sdescription\sfrom\sthe\sTH1\scommands\sdocumentation\spage.
+D 2015-07-19T18:36:57.594
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -733,14 +733,14 @@ F www/stats.wiki 2d8317fe35d22877c86ed2332de02b653f50a498
 F www/style.wiki 4c9c67c0eddba030a73a55e468802fd09d59bc2f
 F www/sync.wiki ecd7e356270a40e81649970c1b606767db68d9e3
 F www/tech_overview.wiki 66d893fd0bca7f5dbc659ab0b4e9dde987e4fdb3
-F www/th1.md 03062277f7633ad872c48ca6445e714c6137029f
+F www/th1.md bad4a51829fb77670d336f2ef91262b33d57fbe7
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 82206af1101569b50af4a639c46b41135e89d2bc
-R e6de7c51ca231a02a3f1fcb98dd4153f
+P f6d29e9c3d2863c63b1dc401d49441fed82e2d11
+R 510d0b3e2a03d54c862740c7f40f197f
 U mistachkin
-Z 3e4d1d46ca9227e91cb22a3ea9655f10
+Z 66eac1da4a7e7c4c16819ff4e55004ea

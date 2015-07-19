@@ -351,6 +351,9 @@ components.  Returns the escaped string.
 
   *  linecount STRING MAX MIN
 
+Returns one more than the number of \n characters in STRING.  But
+never returns less than MIN or more than MAX.
+
 <a name="markdown"></a>TH1 markdown Command
 ---------------------------------------------
 
