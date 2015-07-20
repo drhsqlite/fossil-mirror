@@ -2750,7 +2750,7 @@ static void prepare_amend_comment(
 **
 ** Options:
 **
-**    --euser USER            Make USER the check-in user
+**    --author USER           Make USER the author for check-in
 **    -m|--comment COMMENT    Make COMMENT the check-in comment
 **    --edit-comment          Launch editor to revise comment
 **    --date DATE             Make DATE the check-in time
@@ -2798,7 +2798,7 @@ void ci_amend_cmd(void){
     fNewPropagateColor = 1;
   }
   zNewDate = find_option("date",0,1);
-  zNewUser = find_option("euser",0,1);
+  zNewUser = find_option("author",0,1);
   zNewTag = find_option("tag",0,1);
   zCancelTag = find_option("cancel",0,1);
   fClose = find_option("close",0,0)!=0;
