@@ -2833,7 +2833,16 @@ void ci_amend_cmd(void){
   if( zNewColor && zNewColor[0]
       && (fPropagateColor!=fNewPropagateColor
             || fossil_strcmp(zColor,zNewColor)!=0)
-  ) add_color(zNewColor,fNewPropagateColor);
+  ){
+    add_color(
+      mprintf("%s%s", (zNewColor[0]!='#' &&
+        validate16(zNewColor,strlen(zNewColor)) &&
+        (strlen(zNewColor)==6 || strlen(zNewColor)==3)) ? "#" : "",
+        zNewColor
+      ),
+      fNewPropagateColor
+    );
+  }
   if( (zNewColor!=0 && zNewColor[0]==0) && (zColor && zColor[0] ) ){
     cancel_color();
   }
