@@ -1,5 +1,5 @@
-C Rename\soption\sto\s--author\sto\samend\suser\sinformation\sper\ssuggestions\son\sML.
-D 2015-07-20T04:24:19.447
+C Fix\stypo\sthat\scaused\swrong\stag\sto\sbe\scanceled\sfor\sbgcolor.
+D 2015-07-21T05:43:35.500
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -419,7 +419,7 @@ F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
 F src/import.c 39947d8db7449d3e73b121de4c1196e33138508c
-F src/info.c 958f5d7da82e54eb5a95dd4d11c911450c37a085
+F src/info.c 8284031441be8f999cc8e0d6264b2c10b9277d03
 F src/json.c 4bfa5f9114a9ff0678efbc010c8c31b914fb528f
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -740,7 +740,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 3b842cbd1b9309e0ec46d328baaca7bdde31ac8c
-R 2d899aac83c682938549db579c8ebe97
+P 01cea049acbc80e013019a5664d4efe07302c04f
+R bb6ee517ee2bdd24db7ddcb49ee876cc
 U andybradford
-Z f574a8539a6ea7fae9842c7b655404fd
+Z b0813d55b78c56c6f5db82702cca02d8

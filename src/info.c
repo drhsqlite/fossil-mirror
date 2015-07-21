@@ -2309,7 +2309,7 @@ static void add_color(const char *zNewColor, int fPropagateColor){
 }
 
 static void cancel_color(void){
-  change_special("color","-",0);
+  change_special("bgcolor","-",0);
 }
 
 static void add_comment(const char *zNewComment){
