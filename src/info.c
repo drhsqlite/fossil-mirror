@@ -2812,7 +2812,6 @@ void ci_amend_cmd(void){
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   zComment = db_text(0, "SELECT coalesce(ecomment,comment)"
                         "  FROM event WHERE objid=%d", rid);
-  if( zComment==0 || zComment[0]==0 ) fossil_fatal("No comment on rid %d", rid);
   zUser = db_text(0, "SELECT coalesce(euser,user)"
                      "  FROM event WHERE objid=%d", rid);
   if( zUser==0 || zUser[0]==0 ) fossil_fatal("No user on rid %d", rid);
@@ -2846,15 +2845,11 @@ void ci_amend_cmd(void){
   if( (zNewColor!=0 && zNewColor[0]==0) && (zColor && zColor[0] ) ){
     cancel_color();
   }
-  if( fEditComment && zComment && zComment[0] ){
+  if( fEditComment ){
     prepare_amend_comment(&comment, zComment, zUuid);
     zNewComment = blob_str(&comment);
-    if( comment_compare(zComment, zNewComment)==0 ){
-      add_comment(zNewComment);
-    }else{
-      fossil_warning("Comment is unchanged.");
-    }
-  }else if( zNewComment && zNewComment[0]
+  }
+  if( zNewComment && zNewComment[0]
       && comment_compare(zComment,zNewComment)==0 ) add_comment(zNewComment);
   if( zNewDate && zNewDate[0] && fossil_strcmp(zDate,zNewDate)!=0 ){
     add_date(zNewDate);

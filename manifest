@@ -1,5 +1,5 @@
-C Prepend\s#\sto\scolor\sspecified\sif\sit\slooks\slike\sa\shexadecimal\scolor\sand\sdoes\snot\nalready\shave\s#.
-D 2015-07-21T06:17:42.392
+C Allow\sediting\sa\scomment\sthat\smay\sbe\sempty.
+D 2015-07-22T05:30:16.928
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -419,7 +419,7 @@ F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
 F src/import.c 39947d8db7449d3e73b121de4c1196e33138508c
-F src/info.c 5af0288c52b643c5d16892c70eedd82cb48b4231
+F src/info.c 84d05ff58b185128b6f43f60957817aa9aecd867
 F src/json.c 4bfa5f9114a9ff0678efbc010c8c31b914fb528f
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -740,7 +740,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 9a677b7bf69cd9766f36f871903848843f7bd4d0
-R 9fe95bb58726ac48598e8283e2618f7f
+P 7d2ee2c7bb239f4fa4785ea2131eddd18aeed004
+R 47c6d07bf5fb8af156038dd6fdee7eaa
 U andybradford
-Z 60feadf6d000fe4547186b37e421e492
+Z 78748e273343c756e9132e1547ac95cf
