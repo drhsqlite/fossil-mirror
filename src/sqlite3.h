@@ -113,7 +113,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.8.11"
 #define SQLITE_VERSION_NUMBER 3008011
-#define SQLITE_SOURCE_ID      "2015-07-16 18:18:19 b79a4affe44bd0c8e155cae19f3f62c715684cd6"
+#define SQLITE_SOURCE_ID      "2015-07-23 20:44:49 017c5019e1ce042025d4f327e50ec50af49f9fa4"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -967,9 +967,9 @@ struct sqlite3_io_methods {
 ** The [SQLITE_FCNTL_ZIPVFS] opcode is implemented by zipvfs only. All other
 ** VFS should return SQLITE_NOTFOUND for this opcode.
 **
-** <li>[[SQLITE_FCNTL_OTA]]
-** The [SQLITE_FCNTL_OTA] opcode is implemented by the special VFS used by
-** the OTA extension only.  All other VFS should return SQLITE_NOTFOUND for
+** <li>[[SQLITE_FCNTL_RBU]]
+** The [SQLITE_FCNTL_RBU] opcode is implemented by the special VFS used by
+** the RBU extension only.  All other VFS should return SQLITE_NOTFOUND for
 ** this opcode.  
 ** </ul>
 */
@@ -997,7 +997,7 @@ struct sqlite3_io_methods {
 #define SQLITE_FCNTL_WIN32_SET_HANDLE       23
 #define SQLITE_FCNTL_WAL_BLOCK              24
 #define SQLITE_FCNTL_ZIPVFS                 25
-#define SQLITE_FCNTL_OTA                    26
+#define SQLITE_FCNTL_RBU                    26
 
 /* deprecated names */
 #define SQLITE_GET_LOCKPROXYFILE      SQLITE_FCNTL_GET_LOCKPROXYFILE
