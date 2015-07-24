@@ -2773,9 +2773,9 @@ void ci_amend_cmd(void){
   const char *zColor;
   const char *zNewColor;
   const char *zNewBrColor;
-  const char *zNewTag;
   const char *zNewBranch;
-  const char *zCancelTag;
+  const char **pzNewTags = 0;
+  const char **pzCancelTags = 0;
   int fClose;                   /* True if leaf should be closed */
   int fHide;                    /* True if branch should be hidden */
   int fPropagateColor;          /* True if color propagates before amend */
@@ -2786,6 +2786,8 @@ void ci_amend_cmd(void){
   Blob ctrl;
   Blob comment;
   char *zNow;
+  int nTags, nCancels;
+  int i;
 
   if( g.argc==3 ) usage(AMEND_USAGE_STMT);
   fEditComment = find_option("edit-comment",0,0)!=0;
@@ -2799,8 +2801,8 @@ void ci_amend_cmd(void){
   }
   zNewDate = find_option("date",0,1);
   zNewUser = find_option("author",0,1);
-  zNewTag = find_option("tag",0,1);
-  zCancelTag = find_option("cancel",0,1);
+  pzNewTags = find_repeatable_option("tag",0,&nTags);
+  pzCancelTags = find_repeatable_option("cancel",0,&nCancels);
   fClose = find_option("close",0,0)!=0;
   fHide = find_option("hide",0,0)!=0;
   zChngTime = find_option("chngtime",0,1);
@@ -2857,8 +2859,19 @@ void ci_amend_cmd(void){
   if( zNewUser && zNewUser[0] && fossil_strcmp(zUser,zNewUser)!=0 ){
     add_user(zNewUser);
   }
-  if( zNewTag && zNewTag[0] ) add_tag(zNewTag);
-  if( zCancelTag && zCancelTag[0] ) cancel_tag(rid,zCancelTag);
+  if( pzNewTags!=0 ){
+    for(i=0; i<nTags; i++){
+      if( pzNewTags[i] && pzNewTags[i][0] ) add_tag(pzNewTags[i]);
+    }
+    fossil_free(pzNewTags);
+  }
+  if( pzCancelTags!=0 ){
+    for(i=0; i<nCancels; i++){
+      if( pzCancelTags[i] && pzCancelTags[i][0] )
+        cancel_tag(rid,pzCancelTags[i]);
+    }
+    fossil_free(pzCancelTags);
+  }
   if( fHide ) hide_branch();
   if( fClose ) close_leaf(rid);
   if( zNewBranch && zNewBranch[0] ) change_branch(rid,zNewBranch);
