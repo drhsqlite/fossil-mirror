@@ -44,8 +44,9 @@ with the <tt>extras</tt> command.
 Because these options can change over time, and the inconvenience of
 replicating changes, these settings are "versionable". As well as being
 able to be set using the <tt>settings</tt> command or the web interface,
-you can created versioned files in the <tt>.fossil-settings</tt>
-directory named with the setting name. The contents of the file is the
+you can create versioned files in the <tt>.fossil-settings</tt>
+subdirectory of the check-out root, named with the setting name.
+The contents of the file is the
 value of the setting, and these files are checked in, committed, merged,
 and so on, as with any other file.
 

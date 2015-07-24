@@ -1976,8 +1976,9 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
         "setting %s has both versioned and non-versioned values: using "
         "versioned value from file .fossil-settings/%s (to silence this "
         "warning, either create an empty file named "
-        ".fossil-settings/%s.no-warn or delete the non-versioned setting "
-        " with \"fossil unset %s\")", zName, zName, zName, zName
+        ".fossil-settings/%s.no-warn in the check-out root, "
+        "or delete the non-versioned setting "
+        "with \"fossil unset %s\")", zName, zName, zName, zName
     );
   }
   /* Prefer the versioned setting */
@@ -2464,7 +2465,7 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 ** With a value argument it changes the property for the current repository.
 **
 ** Settings marked as versionable are overridden by the contents of the
-** file named .fossil-settings/PROPERTY in the checked out files, if that
+** file named .fossil-settings/PROPERTY in the check-out root, if that
 ** file exists.
 **
 ** The "unset" command clears a property setting.
