@@ -1,5 +1,5 @@
-C Allow\sfor\san\sarbitrary\snumber\sof\stags\sto\sbe\sadded\sor\sremoved\swhen\samending\na\scheckin.
-D 2015-07-24T05:22:56.002
+C Add\ssupport\sfor\scomment\sfile\svia\s-M\sso\sthe\sprompt\smessage\sis\snot\sconfusing\nwhen\sit\smentions\sthe\suse\sof\s-M.
+D 2015-07-25T17:01:57.348
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -419,7 +419,7 @@ F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
 F src/import.c 39947d8db7449d3e73b121de4c1196e33138508c
-F src/info.c 31d82351183dc45740e1200ab2da8ab20cc95852
+F src/info.c aec11bca6de442868053aa49025f53cb53efb056
 F src/json.c 4bfa5f9114a9ff0678efbc010c8c31b914fb528f
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -740,8 +740,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 5c5d33a9d6378815104113846e59a2589582b17c
-R 6ea18526d03b94600fadb05ab6f5e2ef
-T +sym-pending-review *
+P cd31ab5a99a37f1975d76063849f7f0febe5d3c3
+R 57c197da1a466682e99f2e8254fe50ee
 U andybradford
-Z 1bca86fe0c59b48ec7714fd3520541d6
+Z e78895c8eb521e68da37f571359bb60e

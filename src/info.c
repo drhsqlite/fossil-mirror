@@ -2752,6 +2752,7 @@ static void prepare_amend_comment(
 **
 **    --author USER           Make USER the author for check-in
 **    -m|--comment COMMENT    Make COMMENT the check-in comment
+**    -m|--message-file FILE  Read the amended comment from FILE
 **    --edit-comment          Launch editor to revise comment
 **    --date DATE             Make DATE the check-in time
 **    --bgcolor COLOR         Apply COLOR to this check-in
@@ -2766,6 +2767,7 @@ void ci_amend_cmd(void){
   int rid;
   const char *zComment;         /* Current comment on the check-in */
   const char *zNewComment;      /* Revised check-in comment */
+  const char *zComFile;         /* Filename from which to read comment */
   const char *zUser;            /* Current user for the check-in */
   const char *zNewUser;         /* Revised user */
   const char *zDate;            /* Current date of the check-in */
@@ -2792,6 +2794,7 @@ void ci_amend_cmd(void){
   if( g.argc==3 ) usage(AMEND_USAGE_STMT);
   fEditComment = find_option("edit-comment",0,0)!=0;
   zNewComment = find_option("comment","m",1);
+  zComFile = find_option("message-file","M",1);
   zNewBranch = find_option("branch",0,1);
   zNewColor = find_option("bgcolor",0,1);
   zNewBrColor = find_option("branchcolor",0,1);
@@ -2849,6 +2852,11 @@ void ci_amend_cmd(void){
   }
   if( fEditComment ){
     prepare_amend_comment(&comment, zComment, zUuid);
+    zNewComment = blob_str(&comment);
+  }else if( zComFile ){
+    blob_zero(&comment);
+    blob_read_from_file(&comment, zComFile);
+    blob_to_utf8_no_bom(&comment, 1);
     zNewComment = blob_str(&comment);
   }
   if( zNewComment && zNewComment[0]
