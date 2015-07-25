@@ -1,5 +1,5 @@
-C mention\srequired\slocation\sof\s".fossil-settings/*"\sfiles\sin\sdocs\sand\scomment,\sand\sfix\stypo
-D 2015-07-24T12:32:03.996
+C Adjust\sthe\s"lndebug()"\smacro\sin\slinenoise\sso\sthat\sit\sworks\son\solder\scompilers\nthat\sdo\snot\ssupport\svarargs\smacros.
+D 2015-07-25T14:53:00.458
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -437,7 +437,7 @@ F src/json_timeline.c a8aece1a959dd8cae0d5a99f61cc5d31802b4e4b
 F src/json_user.c 66fc65a1647616819074eb8ae4534f0822b2fb55
 F src/json_wiki.c fca83828f069a0964f7b5e72dc4e8793e8571707
 F src/leaf.c df47f8f52ed1ebeb3b7f5c7b92c62351b177d458
-F src/linenoise.c eb43a1816c10924e9e7bdad399760dd10f0d44ff
+F src/linenoise.c 3b1f6691cc22fe3ebf68a14e9dabeb5c20b1d4ae
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 0a6cf8707e27b04873950a6c63a48391c0a9f7ce
@@ -740,6 +740,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P eb423a74b5792807f164404ac8929d51778ff4c8
-U michai
-Z ec780b1f4b0c6ccb64e828a7ba8d574b
+P c510b74dd8ecd076c583a382200d4b6d64c547df
+R aa4d7c7a1df1724d41e2d8befbeb1a9d
+U drh
+Z f251af94cfe437c452aac22ceb0e4f44
