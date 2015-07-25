@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\scomment\sfile\svia\s-M\sso\sthe\sprompt\smessage\sis\snot\sconfusing\nwhen\sit\smentions\sthe\suse\sof\s-M.
-D 2015-07-25T17:01:57.348
+C Merge\sin\slatest\schanges\sfrom\strunk.
+D 2015-07-25T17:02:22.744
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -396,7 +396,7 @@ F src/content.c 49fd70d3136fbeb4794b7ef2f76c977c3ea77013
 F src/cson_amalgamation.c 75be6142c327581dd9e10e0c0816c18c50d7a7fa
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 29327a308b88fbb8cea698c6e89bfe392e7edaea
+F src/db.c 047453e44da162a5a68e19415e775dc4c7c66ebe
 F src/delta.c 673657e622b15fb9d816846eaefcab6ec1c1de81
 F src/deltacmd.c 4ff465c4331af328c6691103745de17e92d36007
 F src/descendants.c 1eb2bb891117be886ac87a7db842293221639326
@@ -437,7 +437,7 @@ F src/json_timeline.c a8aece1a959dd8cae0d5a99f61cc5d31802b4e4b
 F src/json_user.c 66fc65a1647616819074eb8ae4534f0822b2fb55
 F src/json_wiki.c fca83828f069a0964f7b5e72dc4e8793e8571707
 F src/leaf.c df47f8f52ed1ebeb3b7f5c7b92c62351b177d458
-F src/linenoise.c eb43a1816c10924e9e7bdad399760dd10f0d44ff
+F src/linenoise.c 3b1f6691cc22fe3ebf68a14e9dabeb5c20b1d4ae
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 0a6cf8707e27b04873950a6c63a48391c0a9f7ce
@@ -474,15 +474,15 @@ F src/report.c de3d39a59b923d0259a01cb7b66244860778e39d
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b02a73b942028631eacf484ae3f83a3a4edd3518
-F src/setup.c 97d246c3bba673f87745d1c870250d30e53ab3ee
+F src/setup.c 0c15a5219b7d8acc4596d620ae5aecb52c8f337d
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c 8af3cced094aebb5f57a8ad739b9dafc7867eed7
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 29d06b40601a2f48c0d0994ec16e97b404716920
 F src/skins.c f12a6c105e7ceb269570e046800ae4ad1231b15a
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c cd70d9502faeee322717ccf37373b27e1fed5898
-F src/sqlite3.h f1ffe56854a68f4e695eeffa202e6b1ef3ca2d51
+F src/sqlite3.c d812603c251d94ef2f28d77fb0f1e63fb80b090e
+F src/sqlite3.h ac2b3c347afbf9eef6f89ea84082572c3cd5b7f9
 F src/stash.c c8b20236b7fb7631528edb3d4b43a45c45e1949b
 F src/stat.c 69ab1f0d78ccb91fc81f8f3930046025034a3250
 F src/statrep.c 474a16f31a804b1a779e9c911ae4a3289971f087
@@ -493,7 +493,7 @@ F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
 F src/th.c e9840f21b1bb1bc03fdba17c818728e132e254b7
 F src/th.h 1e7ae1613afa730a75df06d7fd1f17c7ff4564f4
 F src/th_lang.c a536a5cee224ccab6cbc5d8b07bef5027bff2910
-F src/th_main.c 231f4e9729e09349a37545970ea82ebc409d2e76
+F src/th_main.c 0cd8e866203ac3bebe877eb97e444b10f9b0b37e
 F src/th_tcl.c 4d68ad29399fd3e90553a9470d66142d9027368d
 F src/timeline.c 005c758d36dbe81a52d1fe9a7f14cd0830abb005
 F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
@@ -560,7 +560,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test 18ed5180adb401a18ae6761a060a16fae44520a6
+F test/th1.test 1dcc18abd9191baddc0c9af8716bf7719c8bb9ea
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 9b9447e346cbc663d6f3c51e00adbc1ba2d296a2
@@ -656,7 +656,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 2f0e8e5909ee610b28d190c88dd916706de41312
-F www/changes.wiki 00ce703d94a2738c2fe326a283cf1e8a6b663d08
+F www/changes.wiki 17a267345dd9951031989c25daddd44062f4ff6a
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 37087c035ff437c1c14dce07a0b8c7bf7adb3c2d
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -726,21 +726,22 @@ F www/scgi.wiki 45a497a26ea940ef945a4c34cc1458ddddf304d6
 F www/selfcheck.wiki d1e2fc5baf9ade46815499c9758256a22efe8142
 F www/selfhost.wiki 03de31d67690fe47972589e4e1e395e11559c85c
 F www/server.wiki 3e4c81928384c129f86445928c337594d8c82ef0
-F www/settings.wiki 691c64e6d164d5a26cef610d07b000659189a314
+F www/settings.wiki 12b7e736432b0081a7e6a3d7b9e184d04f482ef7
 F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki 2d8317fe35d22877c86ed2332de02b653f50a498
 F www/style.wiki 4c9c67c0eddba030a73a55e468802fd09d59bc2f
 F www/sync.wiki ecd7e356270a40e81649970c1b606767db68d9e3
 F www/tech_overview.wiki 66d893fd0bca7f5dbc659ab0b4e9dde987e4fdb3
-F www/th1.md 23fd0badfd01e3387e2593a30e0f0e5425d4c19a
+F www/th1.md bad4a51829fb77670d336f2ef91262b33d57fbe7
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
-F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
+F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P cd31ab5a99a37f1975d76063849f7f0febe5d3c3
-R 57c197da1a466682e99f2e8254fe50ee
+P 37aeb1c43e8d35e6872c2806c3260ba24204a0d0 acab077c4cbcba28f8788d80c9335ce0e403c857
+R 3ef4117e813357266bdaf9915c014593
+T +sym-pending-review *
 U andybradford
-Z e78895c8eb521e68da37f571359bb60e
+Z 0fc88c229ad4bca0edaca8144e8f8f2e

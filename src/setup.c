@@ -1474,7 +1474,8 @@ void setup_settings(void){
   @ </td></tr></table>
   @ </div></form>
   @ <p>Settings marked with (v) are 'versionable' and will be overridden
-  @ by the contents of files named <tt>.fossil-settings/PROPERTY</tt>.
+  @ by the contents of files named <tt>.fossil-settings/PROPERTY</tt>
+  @ in the check-out root.
   @ If such a file is present, the corresponding field above is not
   @ editable.</p><hr /><p>
   @ These settings work in the same way, as the <kbd>set</kbd>

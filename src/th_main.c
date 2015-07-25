@@ -341,6 +341,36 @@ static int putsCmd(
 }
 
 /*
+** TH1 command: markdown STRING
+**
+** Renders the input string as markdown.  The result is a two-element list.
+** The first element is the text-only title string.  The second element
+** contains the body, rendered as HTML.
+*/
+static int markdownCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  Blob src, title, body;
+  char *zValue = 0;
+  int nValue = 0;
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "markdown STRING");
+  }
+  blob_zero(&src);
+  blob_init(&src, (char*)argv[1], argl[1]);
+  blob_zero(&title); blob_zero(&body);
+  markdown_to_html(&src, &title, &body);
+  Th_ListAppend(interp, &zValue, &nValue, blob_str(&title), blob_size(&title));
+  Th_ListAppend(interp, &zValue, &nValue, blob_str(&body), blob_size(&body));
+  Th_SetResult(interp, zValue, nValue);
+  return TH_OK;
+}
+
+/*
 ** TH1 command: decorate STRING
 ** TH1 command: wiki STRING
 **
@@ -1615,6 +1645,7 @@ void Th_FossilInit(u32 flags){
     {"htmlize",       htmlizeCmd,           0},
     {"http",          httpCmd,              0},
     {"linecount",     linecntCmd,           0},
+    {"markdown",      markdownCmd,          0},
     {"puts",          putsCmd,              (void*)&aFlags[1]},
     {"query",         queryCmd,             0},
     {"randhex",       randhexCmd,           0},
