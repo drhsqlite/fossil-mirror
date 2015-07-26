@@ -2752,7 +2752,7 @@ static void prepare_amend_comment(
 **
 **    --author USER           Make USER the author for check-in
 **    -m|--comment COMMENT    Make COMMENT the check-in comment
-**    -m|--message-file FILE  Read the amended comment from FILE
+**    -M|--message-file FILE  Read the amended comment from FILE
 **    --edit-comment          Launch editor to revise comment
 **    --date DATE             Make DATE the check-in time
 **    --bgcolor COLOR         Apply COLOR to this check-in
