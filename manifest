@@ -1,5 +1,5 @@
-C Minor\sgrammar\scorrection\sin\scomment,\sno\sfunctional\schange.
-D 2015-07-29T03:23:35.692
+C Merge\sin\sreleased\sversion\sof\sSQLite\sfrom\strunk.
+D 2015-07-29T03:26:19.442
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -481,8 +481,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 29d06b40601a2f48c0d0994ec16e97b404716920
 F src/skins.c f12a6c105e7ceb269570e046800ae4ad1231b15a
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c d812603c251d94ef2f28d77fb0f1e63fb80b090e
-F src/sqlite3.h ac2b3c347afbf9eef6f89ea84082572c3cd5b7f9
+F src/sqlite3.c 719f6891abcd9c459b5460b191d731cd12a3643e
+F src/sqlite3.h d1ccfe8745dc5e62903b7e20b99c59e54dd4e97c
 F src/stash.c c8b20236b7fb7631528edb3d4b43a45c45e1949b
 F src/stat.c 69ab1f0d78ccb91fc81f8f3930046025034a3250
 F src/statrep.c 474a16f31a804b1a779e9c911ae4a3289971f087
@@ -740,7 +740,8 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 57f19bf5b1da3c7cb0ce4b3b6ead66c39df7beb1
-R 148c9509000ecd76f2a5b0fcaeebd017
+P f8b0a3e8cd88d6a90ff3c90d077a091d16d099bb f8e26879acf4ab2e65a50415dfdd838406bee47e
+R c11b9464edd6d8994356a6cdd42cec7a
+T +sym-pending-review *
 U andybradford
-Z 135dd96d717f41c909238d754838b14c
+Z cfd026350048cf6b3621451fd00e1ce8
