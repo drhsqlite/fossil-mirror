@@ -26,6 +26,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include "file.h"
@@ -399,6 +400,26 @@ char *file_dirname(const char *z){
   }else{
     return 0;
   }
+}
+
+/*
+** Rename a file or directory.
+** Returns zero upon success.
+*/
+int file_rename(const char *zFrom, const char *zTo){
+  int rc;
+#if defined(_WIN32)
+  wchar_t *zMbcsFrom = fossil_utf8_to_filename(zFrom);
+  wchar_t *zMbcsTo = fossil_utf8_to_filename(zTo);
+  rc = _wrename(zMbcsFrom, zMbcsTo);
+#else
+  char *zMbcsFrom = fossil_utf8_to_filename(zFrom);
+  char *zMbcsTo = fossil_utf8_to_filename(zTo);
+  rc = rename(zMbcsFrom, zMbcsTo);
+#endif
+  fossil_filename_free(zMbcsTo);
+  fossil_filename_free(zMbcsFrom);
+  return rc;
 }
 
 /*

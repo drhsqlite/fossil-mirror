@@ -1,5 +1,5 @@
-C minor\sCGI-in-chroot\sdoc\supdate\sfrom\sthe\sML.
-D 2015-07-29T17:35:17.242
+C Candidate\sfix\sfor\sdirectory\srenaming\sissue\swith\s--hard\soption\sreports\son\sthe\smailing\slist.
+D 2015-07-29T18:44:10.521
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -371,7 +371,7 @@ F skins/xekri/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c f9e7a15f285a4b10b50d4b9a8d9833ab164b61d0
+F src/add.c bd54d5b21ad5c24d39aa11cc861c5f7c9760fedf
 F src/allrepo.c ea9a13512f43925d8d6cceee4e757c55a80910d9
 F src/attach.c 5b713ffe437fa0c3241da307835b1286e38798fd
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
@@ -407,7 +407,7 @@ F src/doc.c 18720846abd34cda0172f4359ebb67c3be0f32c6
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
-F src/file.c e782c9f589105a96e183de89e11498016451ddfb
+F src/file.c 12ea8e64e6a87d479a7c64c74a12bf2b3f1b62f7
 F src/finfo.c f09550ee499d79296b5a6e217711d712316dc054
 F src/foci.c 693596989fbb12a01c31317a7adf0d1ce85c7903
 F src/fusefs.c e25405b83122ed8369aa63125897348e5eb3cab2
@@ -539,7 +539,7 @@ F test/merge5.test 28cc9adf08343456fae9f2d9001c35ec62a78f31
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test 3fac7909f72a94ae05174404b1c9a7c68dd43824
 F test/merge_renames.test 1c7c8130b98099fbaa68e4adfcb9f13fbdf57787
-F test/mv-rm.test d61a6ce9d919122268591bd8b664a74afc111125
+F test/mv-rm.test da3c2965d6161fa22d3425f6525b2bd70502d3dc
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
 F test/revert.test fd2db9b23831a1e0e9ada5bfc7475fce579a949a
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
@@ -740,7 +740,10 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P f8e26879acf4ab2e65a50415dfdd838406bee47e
-R 18cf00d2acc19e08610ebebaabf063ca
-U stephan
-Z 22b5f47c8b23ed6834cf999b52356792
+P 1d3a80474b903539812a0c0f3b6e9c2cb0975af3
+R 80ff8fa45ccaaf4bde82c1786f11683f
+T *branch * mvHardDirFix
+T *sym-mvHardDirFix *
+T -sym-trunk *
+U mistachkin
+Z 9704437f8c101c16af0792acc3cf7a74
