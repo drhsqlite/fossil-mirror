@@ -1,3 +1,7 @@
+#
+# Tests for the "amend" command.
+#
+
 # Make sure we are not in an open repository and initialize new repository
 repo_init
 
