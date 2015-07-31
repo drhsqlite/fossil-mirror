@@ -103,3 +103,17 @@ fossil tag ls --raw $UUID
 test amend-author-1.2 {[string first "user=author-test" $RESULT] != -1}
 fossil timeline -n 1
 test amend-author-1.3 {[string match {*Change*user*to*"author-test".*} $RESULT]}
+
+########################################
+# Test: -date                          #
+########################################
+set timestamp [clock scan yesterday]
+set date [clock format $timestamp -format "%Y-%m-%d" -gmt 1]
+set time [clock format $timestamp -format "%H:%M:%S" -gmt 1]
+set datetime "$date $time"
+fossil amend $UUID -date $datetime
+test amend-date-1.1 {[string match "*uuid:*$UUID*$datetime*" $RESULT]}
+fossil tag ls --raw $UUID
+test amend-date-1.2 {[string first "date=$datetime" $RESULT] != -1}
+fossil timeline -n 1
+test amend-date-1.3 {[string match "*Timestamp*$date*$time*" $RESULT]}
