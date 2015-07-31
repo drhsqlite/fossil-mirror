@@ -2395,6 +2395,14 @@ static void apply_newtags(Blob *ctrl, int rid, const char *zUuid){
 }
 
 /*
+** This method checks that the date can be parsed.
+** Returns 1 if datetime() can validate, 0 otherwise.
+*/
+int is_datetime(const char* zDate){
+  return db_int(0, "SELECT datetime(%Q) NOT NULL", zDate);
+}
+
+/*
 ** WEBPAGE: ci_edit
 ** URL:  /ci_edit?r=RID&c=NEWCOMMENT&u=NEWUSER
 **
@@ -2819,10 +2827,8 @@ void ci_amend_cmd(void){
                         "  FROM event WHERE objid=%d", rid);
   zUser = db_text(0, "SELECT coalesce(euser,user)"
                      "  FROM event WHERE objid=%d", rid);
-  if( zUser==0 || zUser[0]==0 ) fossil_fatal("No user on rid %d", rid);
   zDate = db_text(0, "SELECT datetime(mtime)"
                      "  FROM event WHERE objid=%d", rid);
-  if( zDate==0 || zDate[0]==0 ) fossil_fatal("No date on rid %d", rid);
   zColor = db_text("", "SELECT bgcolor"
                         "  FROM event WHERE objid=%d", rid);
   fPropagateColor = db_int(0, "SELECT tagtype FROM tagxref"
@@ -2862,7 +2868,11 @@ void ci_amend_cmd(void){
   if( zNewComment && zNewComment[0]
       && comment_compare(zComment,zNewComment)==0 ) add_comment(zNewComment);
   if( zNewDate && zNewDate[0] && fossil_strcmp(zDate,zNewDate)!=0 ){
-    add_date(zNewDate);
+    if( is_datetime(zNewDate) ){
+      add_date(zNewDate);
+    }else{
+      fossil_fatal("Unsupported date format, use YYYY-MM-DD HH:MM:SS");
+    }
   }
   if( zNewUser && zNewUser[0] && fossil_strcmp(zUser,zNewUser)!=0 ){
     add_user(zNewUser);
