@@ -117,3 +117,17 @@ fossil tag ls --raw $UUID
 test amend-date-1.2 {[string first "date=$datetime" $RESULT] != -1}
 fossil timeline -n 1
 test amend-date-1.3 {[string match "*Timestamp*$date*$time*" $RESULT]}
+set badformats {
+  "%+"
+  "%Y-%m-%d %H:%M%:%S %Z"
+  "%d/%m/%Y %H:%M%:%S %Z"
+  "%d/%m/%Y %H:%M%:%S"
+  "%d/%m/%Y"
+}
+set sc 0
+foreach badformat $badformats {
+  incr sc
+  set datetime [clock format $timestamp -format $badformat -gmt 1]
+  fossil amend $UUID -date $datetime
+  test amend-date-2.$sc {[string first "Unsupported date format, use YYYY-MM-DD HH:MM:SS" $RESULT] != -1}
+}
