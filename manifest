@@ -1,5 +1,5 @@
-C Make\s-close\sand\s-hide\sno-ops\sif\sthe\scheckin\salready\shas\sthose\stags.
-D 2015-08-01T06:40:10.982
+C Add\ssome\stests\sfor\s-close\sand\s-hide.
+D 2015-08-01T06:46:45.830
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -518,7 +518,7 @@ F src/xfersetup.c 60d3e7eb781605652e593f1af2a4b9dd0bf99057
 F src/zip.c 49c6b1327a9aea3b0682b2c55bddd9d54860ff6f
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
-F test/amend.test 6fe77d49a7803fd7acaf0b07baa305b85bafd205
+F test/amend.test 7a35517172d73ae364b8be44060d50e0737059b9
 F test/clean.test 8faec79cea1a3b9fb6b6ed2bdeeb6c9afeaada99
 F test/cmdline.test 4532df2c904f035fc2a3be3bca6c5514def515a8
 F test/comment.test 3d18947b36ad7dcc914ed905eb950c9fb84a1ec6
@@ -741,7 +741,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 3740d83f39928e2b7a0ca3225746ac2d95be49e1
-R 81756ad063ccd299679c88ad2ff2d4e5
+P 1c8fdd253eaf36737c2d3d93d1d4955b56334654
+R accb0dc64d39549d080bc390eb69125b
 U andybradford
-Z 4bacd32ebfd46880484e58876ff9062c
+Z e36f946ff53189f9342d8a30729c61c5

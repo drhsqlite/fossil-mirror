@@ -13,6 +13,8 @@ write_file commitmsg "committed"
 
 fossil add datafile
 fossil commit -m "c1"
+write_file datafile "data.file"
+fossil commit -m "c2"
 if {![regexp {^New_Version: ([0-9a-f]{40})$} $RESULT m UUID]} {
   test amend-setup-failure false
   return
@@ -129,5 +131,52 @@ foreach badformat $badformats {
   incr sc
   set datetime [clock format $timestamp -format $badformat -gmt 1]
   fossil amend $UUID -date $datetime
-  test amend-date-2.$sc {[string first "Unsupported date format, use YYYY-MM-DD HH:MM:SS" $RESULT] != -1}
+  test amend-date-2.$sc {[string first "YYYY-MM-DD HH:MM:SS" $RESULT] != -1}
+}
+
+########################################
+# Test: -hide                          #
+########################################
+fossil amend $UUID -hide
+test amend-hide-1.1 {[string match "*uuid:*$UUID*" $RESULT]}
+fossil tag ls --raw $UUID
+test amend-hide-1.2 {[string first "hidden" $RESULT] != -1}
+fossil timeline -n 1
+test amend-hide-1.3 {[string match {*Add*propagating*"hidden".*} $RESULT]}
+
+########################################
+# Test: -close                          #
+########################################
+fossil amend $UUID -close
+test amend-close-1.1 {[string match "*uuid:*$UUID*" $RESULT]}
+fossil tag ls --raw $UUID
+test amend-close-1.2 {[string first "closed" $RESULT] != -1}
+fossil timeline -n 1
+test amend-close-1.3 {[string match {*Marked*"Closed".*} $RESULT]}
+write_file datafile "changed"
+fossil commit -m "should fail"
+test amend-close-2 {[string first "closed leaf" $RESULT] != -1}
+
+fossil revert
+fossil update trunk
+write_file datafile "cb"
+fossil commit -m "closed-branch" --branch "closebranch"
+if {![regexp {^New_Version: ([0-9a-f]{40})$} $RESULT m UUID3]} {
+  test amend-close-3.all false
+} else {
+  write_file datafile "b1"
+  fossil commit -m "m1"
+  write_file datafile "b2"
+  fossil commit -m "m2"
+  fossil amend $UUID3 --close
+  test amend-close-3.1 {[string match "*uuid:*$UUID3*" $RESULT]}
+  fossil tag ls --raw current
+  test amend-close-3.2 {[string first "closed" $RESULT] != -1}
+  fossil timeline -n 1
+  test amend-close-3.3 {
+    [string match "*Add*propagating*\"closed\".*" $RESULT]
+  }
+  write_file datafile "changed"
+  fossil commit -m "should fail"
+  test amend-close-3.4 {[string first "closed leaf" $RESULT] != -1}
 }
