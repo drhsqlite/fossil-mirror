@@ -2790,6 +2790,8 @@ void ci_amend_cmd(void){
   int fHide;                    /* True if branch should be hidden */
   int fPropagateColor;          /* True if color propagates before amend */
   int fNewPropagateColor = 0;   /* True if color propagates after amend */
+  int fHasHidden = 0;           /* True if hidden tag already set */
+  int fHasClosed = 0;           /* True if closed tag already set */
   int fEditComment;             /* True if editor to be used for comment */
   const char *zChngTime;        /* The change time on the control artifact */
   const char *zUuid;
@@ -2798,6 +2800,7 @@ void ci_amend_cmd(void){
   char *zNow;
   int nTags, nCancels;
   int i;
+  Stmt q;
 
   if( g.argc==3 ) usage(AMEND_USAGE_STMT);
   fEditComment = find_option("edit-comment",0,0)!=0;
@@ -2836,6 +2839,23 @@ void ci_amend_cmd(void){
                               rid, TAG_BGCOLOR)==2;
   fNewPropagateColor = zNewColor && zNewColor[0]
                         ? fNewPropagateColor : fPropagateColor;
+  db_prepare(&q,
+     "SELECT tag.tagid FROM tagxref, tag"
+     " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid",
+     rid
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    int tagid = db_column_int(&q, 0);
+
+    if( tagid == TAG_CLOSED ){
+      fHasClosed = 1;
+    }else if( tagid==TAG_HIDDEN ){
+      fHasHidden = 1;
+    }else{
+      continue;
+    }
+  }
+  db_finalize(&q);
   blob_zero(&ctrl);
   zNow = date_in_standard_format(zChngTime && zChngTime[0] ? zChngTime : "now");
   blob_appendf(&ctrl, "D %s\n", zNow);
@@ -2890,8 +2910,8 @@ void ci_amend_cmd(void){
     }
     fossil_free(pzCancelTags);
   }
-  if( fHide ) hide_branch();
-  if( fClose ) close_leaf(rid);
+  if( fHide && !fHasHidden ) hide_branch();
+  if( fClose && !fHasClosed ) close_leaf(rid);
   if( zNewBranch && zNewBranch[0] ) change_branch(rid,zNewBranch);
   apply_newtags(&ctrl, rid, zUuid);
   show_common_info(rid, "uuid:", 1, 0);

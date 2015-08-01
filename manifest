@@ -1,5 +1,5 @@
-C Add\stest\sfor\snewly\sadded\scode\sthat\schecks\sthe\sdatetime\sformat\sis\scorrect.
-D 2015-08-01T01:47:47.523
+C Make\s-close\sand\s-hide\sno-ops\sif\sthe\scheckin\salready\shas\sthose\stags.
+D 2015-08-01T06:40:10.982
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -419,7 +419,7 @@ F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
 F src/import.c 39947d8db7449d3e73b121de4c1196e33138508c
-F src/info.c ee09653023e3d8d038d2fb02fc01660924e7991c
+F src/info.c 9197999db992c11ad720c6c9ff64a67386329fac
 F src/json.c 4bfa5f9114a9ff0678efbc010c8c31b914fb528f
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -741,7 +741,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P f2748b45353c0ed7d5f495ebb8180b592f0299f6
-R b7989e3e4767057e0923ba92d341b983
+P 3740d83f39928e2b7a0ca3225746ac2d95be49e1
+R 81756ad063ccd299679c88ad2ff2d4e5
 U andybradford
-Z cb6c27f1ec4eed3260cb19e283dfce29
+Z 4bacd32ebfd46880484e58876ff9062c
