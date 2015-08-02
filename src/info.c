@@ -2825,7 +2825,9 @@ void ci_amend_cmd(void){
   verify_all_options();
   if( g.argc<3 || g.argc>=4 ) usage(AMEND_USAGE_STMT);
   rid = name_to_typed_rid(g.argv[2], "ci");
+  if( rid==0 && !is_a_version(rid) ) fossil_fatal("no such check-in");
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+  if( zUuid==0 ) fossil_fatal("Unable to find UUID");
   zComment = db_text(0, "SELECT coalesce(ecomment,comment)"
                         "  FROM event WHERE objid=%d", rid);
   zUser = db_text(0, "SELECT coalesce(euser,user)"
