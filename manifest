@@ -1,5 +1,5 @@
-C If\sthe\sUUID\sis\snot\slegitimate\sor\scannot\sbe\sfound,\sreturn\san\serror.
-D 2015-08-02T04:16:46.944
+C Additional\stests\sfor\sthe\srest\sof\sthe\sarguments.
+D 2015-08-02T04:17:18.328
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -518,7 +518,7 @@ F src/xfersetup.c 60d3e7eb781605652e593f1af2a4b9dd0bf99057
 F src/zip.c 49c6b1327a9aea3b0682b2c55bddd9d54860ff6f
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
-F test/amend.test 7a35517172d73ae364b8be44060d50e0737059b9
+F test/amend.test ddba2f6fcb0806bbd4fd7340cbd9bf191ab1333f
 F test/clean.test 8faec79cea1a3b9fb6b6ed2bdeeb6c9afeaada99
 F test/cmdline.test 4532df2c904f035fc2a3be3bca6c5514def515a8
 F test/comment.test 3d18947b36ad7dcc914ed905eb950c9fb84a1ec6
@@ -741,7 +741,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P b1dd95c7d9645bf4d3fca750b7ad99ef7cf76843
-R 257dcafbfa754816b3576529a0ef3cbb
+P e4b5c2c2271e99492816f2d1216f02d37014b7fc
+R ca763f82701588fb87a1c7ea040b42e3
 U andybradford
-Z 2f9fc46c7a3f8be3f17759871086bdbd
+Z a0d6e6ec3fc06c870e84dc229dd4e02b
