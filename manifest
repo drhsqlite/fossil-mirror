@@ -1,5 +1,5 @@
-C minor\sCGI-in-chroot\sdoc\supdate\sfrom\sthe\sML.
-D 2015-07-29T17:35:17.242
+C Avoid\susing\sa\snull\spointer\sresulting\sin\sa\ssegfault\sif\scaller\ssends\sin\snull.
+D 2015-08-02T02:44:23.516
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -376,7 +376,7 @@ F src/allrepo.c ea9a13512f43925d8d6cceee4e757c55a80910d9
 F src/attach.c 5b713ffe437fa0c3241da307835b1286e38798fd
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
-F src/blob.c 0d539a6e5ca07937733df17f37e68fbe27082d59
+F src/blob.c 81407554e8924c5de3b394cadb326e58fe528536
 F src/branch.c 09724980278de18e9bbff5da85950c3febd811eb
 F src/browse.c 904f68c2a82bed2b9533b76a3497a961d2ae25d9
 F src/builtin.c 31c17d18b565c7766021913c89be4180b3ee4a56
@@ -740,7 +740,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P f8e26879acf4ab2e65a50415dfdd838406bee47e
-R 18cf00d2acc19e08610ebebaabf063ca
-U stephan
-Z 22b5f47c8b23ed6834cf999b52356792
+P 1d3a80474b903539812a0c0f3b6e9c2cb0975af3
+R fc1b38045bb79d731174a4852ee1d13f
+U andybradford
+Z 7238497968c682604d33b9bd50940827
