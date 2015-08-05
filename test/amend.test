@@ -305,3 +305,9 @@ if {[catch {exec which ed} result]} {
   unset env(EDITOR)
   test-comment 5 $UUID $comment
 }
+
+########################################
+# Test: NULL UUID                      #
+########################################
+fossil amend {} -close
+test amend-null-uuid {$CODE && [string first "no such check-in" $RESULT] != -1}
