@@ -1,5 +1,5 @@
-C Add\stest\sfor\sNULL\sUUID\sargument\shandling.
-D 2015-08-05T06:42:12.126
+C Add\sadditional\stests\sand\shelper\sprocedures\sand\sisolate\ssome\stests\smore.
+D 2015-08-06T04:52:00.734
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -518,7 +518,7 @@ F src/xfersetup.c 60d3e7eb781605652e593f1af2a4b9dd0bf99057
 F src/zip.c 49c6b1327a9aea3b0682b2c55bddd9d54860ff6f
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
-F test/amend.test 9dbb938d147521453139f64ad280460c9bbc05d9
+F test/amend.test c380f431db6dd2278924e2e8c80e916b5c54923f
 F test/clean.test 8faec79cea1a3b9fb6b6ed2bdeeb6c9afeaada99
 F test/cmdline.test 4532df2c904f035fc2a3be3bca6c5514def515a8
 F test/comment.test 3d18947b36ad7dcc914ed905eb950c9fb84a1ec6
@@ -741,7 +741,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P ac3ccc4e72f17cc5e94bc01387373eaf4f269d0d
-R 2da43e926dddf6504e3f3dd64b3e7450
+P 5c9a0fa7cf212fa6b90d94ef2c43efa5e0c52ab6
+R 7949869631492a9bc22a5d37d0b1708e
 U andybradford
-Z 3f9a010e9e13507dd3053204ef686915
+Z add3eb045a92ed5d87249b3b05824d8b
