@@ -1,5 +1,5 @@
-C Add\sadditional\stests\sand\shelper\sprocedures\sand\sisolate\ssome\stests\smore.
-D 2015-08-06T04:52:00.734
+C If\scaller\sdoesn't\sprovide\sa\sUUID,\sleave\sit\sout\sof\sthe\smessage.
+D 2015-08-06T05:14:57.242
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -419,7 +419,7 @@ F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
 F src/import.c 39947d8db7449d3e73b121de4c1196e33138508c
-F src/info.c c56f142d0d8ec1514d3b586cf3fdf628a9d50523
+F src/info.c 47778a4abbae8e7750c1d25b97313e2e8789c039
 F src/json.c 4bfa5f9114a9ff0678efbc010c8c31b914fb528f
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -741,7 +741,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 5c9a0fa7cf212fa6b90d94ef2c43efa5e0c52ab6
-R 7949869631492a9bc22a5d37d0b1708e
+P 892e523f7cb5052077534df3f4899c8bcb4fec6d
+R 45e6bf096f2ebea9fca0e83d07ac59ad
 U andybradford
-Z add3eb045a92ed5d87249b3b05824d8b
+Z 7929bc75991960dc191de6fb13033c36

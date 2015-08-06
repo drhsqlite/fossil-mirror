@@ -2742,7 +2742,9 @@ static void prepare_amend_comment(
   blob_init(&prompt, zInit, -1);
 #endif
   blob_append(&prompt, "\n# Enter a new comment for check-in ", -1);
-  blob_append(&prompt, zUuid, -1);
+  if( zUuid && zUuid[0] ){
+    blob_append(&prompt, zUuid, -1);
+  }
   blob_append(&prompt, ".\n# Lines beginning with a # are ignored.\n", -1);
   prompt_for_user_comment(pComment, &prompt);
   blob_reset(&prompt);
