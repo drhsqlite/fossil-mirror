@@ -787,11 +787,11 @@ void revert_cmd(void){
     if( errCode==2 ){
       if( db_int(0, "SELECT rid FROM vfile WHERE pathname=%Q OR origname=%Q",
                  zFile, zFile)==0 ){
-        fossil_print("UNMANAGE: %s\n", zFile);
+        fossil_print("UNMANAGE %s\n", zFile);
       }else{
         undo_save(zFile);
         file_delete(zFull);
-        fossil_print("DELETE: %s\n", zFile);
+        fossil_print("DELETE   %s\n", zFile);
       }
       db_multi_exec(
         "UPDATE OR REPLACE vfile"
@@ -812,7 +812,7 @@ void revert_cmd(void){
         blob_write_to_file(&record, zFull);
       }
       file_wd_setexe(zFull, isExe);
-      fossil_print("REVERTED: %s\n", zFile);
+      fossil_print("REVERT   %s\n", zFile);
       mtime = file_wd_mtime(zFull);
       db_multi_exec(
          "UPDATE vfile"

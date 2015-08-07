@@ -1,5 +1,5 @@
-C If\scaller\sdoesn't\sprovide\sa\sUUID,\sleave\sit\sout\sof\sthe\smessage.
-D 2015-08-06T05:14:57.242
+C Merge\sin\schanges\sfrom\strunk.
+D 2015-08-07T05:16:28.085
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -376,7 +376,7 @@ F src/allrepo.c ea9a13512f43925d8d6cceee4e757c55a80910d9
 F src/attach.c 5b713ffe437fa0c3241da307835b1286e38798fd
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
-F src/blob.c 0d539a6e5ca07937733df17f37e68fbe27082d59
+F src/blob.c 81407554e8924c5de3b394cadb326e58fe528536
 F src/branch.c 09724980278de18e9bbff5da85950c3febd811eb
 F src/browse.c 904f68c2a82bed2b9533b76a3497a961d2ae25d9
 F src/builtin.c 31c17d18b565c7766021913c89be4180b3ee4a56
@@ -499,9 +499,9 @@ F src/timeline.c 005c758d36dbe81a52d1fe9a7f14cd0830abb005
 F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
 F src/tktsetup.c 1360904128a3c60008867056d9f576c8f906eb7c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
-F src/undo.c 1117393e2142485f3a231120e58508b2b92f0d9d
+F src/undo.c 52ec5c24a6dcf1937026e2d9f86791fd1913cdf6
 F src/unicode.c f26b9f26d4ac399f7b03cfac16ec72336c7f06c9
-F src/update.c 2effb8364b604bbe63aa6dec5c0e8f0fc3b65e7d
+F src/update.c 404e7daea8b200e2708329b49850d62e68e716f7
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c 6ec57f122cadd7c324e657be5de1b0c8f0d37c8d
 F src/utf8.c 49a0cfaf5b3ba966f5e7c688b829610634fefd25
@@ -726,7 +726,7 @@ F www/reviews.wiki 866e545f89fce7cff29c96a29ab10586692f3964
 F www/scgi.wiki 45a497a26ea940ef945a4c34cc1458ddddf304d6
 F www/selfcheck.wiki d1e2fc5baf9ade46815499c9758256a22efe8142
 F www/selfhost.wiki 03de31d67690fe47972589e4e1e395e11559c85c
-F www/server.wiki 3e4c81928384c129f86445928c337594d8c82ef0
+F www/server.wiki f22c56611e6a78763ae84dfea505cde9bae9b278
 F www/settings.wiki 12b7e736432b0081a7e6a3d7b9e184d04f482ef7
 F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
@@ -741,7 +741,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 892e523f7cb5052077534df3f4899c8bcb4fec6d
-R 45e6bf096f2ebea9fca0e83d07ac59ad
+P fbf3a5dd87d55c276214e9f1ab7303965b216c10 dd75bc574d67a2fd268f3fa8624332c39adcd451
+R d5a7943155d02638cfc81357acf64a0d
 U andybradford
-Z 7929bc75991960dc191de6fb13033c36
+Z 27bf34da5ff1cc6e11f87d067ced0637
