@@ -1,5 +1,5 @@
-C Integrate\schange\sto\sdisallow\spassing\sin\sa\sNULL\spointer\sto\sblob_append.
-D 2015-08-07T05:15:47.556
+C Integrate\snew\scommand\s[/help?cmd=amend|amend]\sinto\strunk.
+D 2015-08-11T04:03:00.733
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -419,7 +419,7 @@ F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
 F src/import.c 39947d8db7449d3e73b121de4c1196e33138508c
-F src/info.c f04e5aaedba2db24434589265e8245ea34775987
+F src/info.c 47778a4abbae8e7750c1d25b97313e2e8789c039
 F src/json.c 4bfa5f9114a9ff0678efbc010c8c31b914fb528f
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -442,7 +442,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 0a6cf8707e27b04873950a6c63a48391c0a9f7ce
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c 90e020d219a92840dc9e8523ce28bf0e1d04e393
+F src/main.c 663276d58c03aec3f6b29a4ba343565e265ea1b5
 F src/main.mk 6134955a71af52592fa41a90246cdf69a2f63410
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -518,6 +518,7 @@ F src/xfersetup.c 60d3e7eb781605652e593f1af2a4b9dd0bf99057
 F src/zip.c 49c6b1327a9aea3b0682b2c55bddd9d54860ff6f
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
+F test/amend.test c380f431db6dd2278924e2e8c80e916b5c54923f
 F test/clean.test 8faec79cea1a3b9fb6b6ed2bdeeb6c9afeaada99
 F test/cmdline.test 4532df2c904f035fc2a3be3bca6c5514def515a8
 F test/comment.test 3d18947b36ad7dcc914ed905eb950c9fb84a1ec6
@@ -656,7 +657,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 2f0e8e5909ee610b28d190c88dd916706de41312
-F www/changes.wiki 17a267345dd9951031989c25daddd44062f4ff6a
+F www/changes.wiki 33927cb5d19ce4d00794a869695e7f841a58af8f
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 37087c035ff437c1c14dce07a0b8c7bf7adb3c2d
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -740,8 +741,8 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 0a2ebe576d27ba7501eb6d43eaac60c99ce83e5e 2d714a4e4825154997b882089afbf3339087ea05
-R e0a9963d2fa1cd440338217e41936d7f
-T +closed 2d714a4e4825154997b882089afbf3339087ea05
+P dd75bc574d67a2fd268f3fa8624332c39adcd451 5246eac0c871425e01359245bcf8ae88355781c3
+R df79e216ee79b4b08131a8e67b97238e
+T +closed 5246eac0c871425e01359245bcf8ae88355781c3
 U andybradford
-Z 08bb19e395963d835556166e7e1fabb9
+Z 7d44941ba564dfa97424eccea3c05e12
