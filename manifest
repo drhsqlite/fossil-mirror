@@ -1,5 +1,5 @@
-C Fix\sthe\sday-of-week\sactivity\sreport\sto\sbe\smore\saccurate.\s\sAlso\sfix\sa\scrash\nbug\sthat\soccurs\swhen\strying\sto\srun\s"fossil\sui"\son\sa\sfresh\srepo.
-D 2015-08-12T00:51:12.606
+C Fix\sa\sharmless\scompiler\swarning.
+D 2015-08-12T04:51:48.428
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -442,7 +442,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 0a6cf8707e27b04873950a6c63a48391c0a9f7ce
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c 663276d58c03aec3f6b29a4ba343565e265ea1b5
+F src/main.c 9728b1f90a1eb6db13ee9192f1de52625750f7c3
 F src/main.mk 6134955a71af52592fa41a90246cdf69a2f63410
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -741,7 +741,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P c73c95cc654b50db91fa5fe26ecc0809fb4c7870
-R 72a52c040171b12c1e160198fafa6db0
+P e747dd856379344e7b53118c613610af2ec683ce
+R 8702d1f1ce1ca9f3dbceeb4c94ce9a2f
 U drh
-Z f07ccac7b5b4af6276d07b7e36b5a1a2
+Z 899ed8a18fc5d95ad017d65c14304472

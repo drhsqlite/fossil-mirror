@@ -899,7 +899,7 @@ const char **find_repeatable_option(
   int nAllocArgs = 0;
   int nUsedArgs = 0;
 
-  while( zOption = find_option(zLong, zShort, 1) ){
+  while( (zOption = find_option(zLong, zShort, 1))!=0 ){
     if( pzArgs==0 && nAllocArgs==0 ){
       nAllocArgs = 1;
       pzArgs = fossil_malloc( nAllocArgs*sizeof(pzArgs[0]) );
