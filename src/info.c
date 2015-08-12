@@ -2479,7 +2479,6 @@ void ci_edit_page(void){
   if( P("apply") ){
     Blob ctrl;
     char *zNow;
-    int nChng = 0;
 
     login_verify_csrf_secret();
     blob_zero(&ctrl);
