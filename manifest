@@ -1,5 +1,5 @@
-C Integrate\snew\scommand\s[/help?cmd=amend|amend]\sinto\strunk.
-D 2015-08-11T04:03:00.733
+C Fix\sthe\sday-of-week\sactivity\sreport\sto\sbe\smore\saccurate.\s\sAlso\sfix\sa\scrash\nbug\sthat\soccurs\swhen\strying\sto\srun\s"fossil\sui"\son\sa\sfresh\srepo.
+D 2015-08-12T00:51:12.606
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -383,7 +383,7 @@ F src/builtin.c 31c17d18b565c7766021913c89be4180b3ee4a56
 F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c d174d5926e1af9a243a0768ca23bc38e11d2652e
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
-F src/cgi.c 03c8c65969bd4ab297db0b6afa14bdc57b30e422
+F src/cgi.c 38b5b08eda88b4d256948d431e2f0094009644ae
 F src/checkin.c 212114657df8d3ccf84ec056db4ca1c003253543
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -485,7 +485,7 @@ F src/sqlite3.c 719f6891abcd9c459b5460b191d731cd12a3643e
 F src/sqlite3.h d1ccfe8745dc5e62903b7e20b99c59e54dd4e97c
 F src/stash.c c8b20236b7fb7631528edb3d4b43a45c45e1949b
 F src/stat.c 69ab1f0d78ccb91fc81f8f3930046025034a3250
-F src/statrep.c 474a16f31a804b1a779e9c911ae4a3289971f087
+F src/statrep.c 2475cba0c91bdaa6f51a61565732ece308fadf42
 F src/style.c 4238d0f18131ca473bc2bc7c3655db1d40ae823d
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
@@ -741,8 +741,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P dd75bc574d67a2fd268f3fa8624332c39adcd451 5246eac0c871425e01359245bcf8ae88355781c3
-R df79e216ee79b4b08131a8e67b97238e
-T +closed 5246eac0c871425e01359245bcf8ae88355781c3
-U andybradford
-Z 7d44941ba564dfa97424eccea3c05e12
+P c73c95cc654b50db91fa5fe26ecc0809fb4c7870
+R 72a52c040171b12c1e160198fafa6db0
+U drh
+Z f07ccac7b5b4af6276d07b7e36b5a1a2
