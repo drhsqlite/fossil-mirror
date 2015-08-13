@@ -1,5 +1,5 @@
-C Remove\sunused\svariable\safter\smerge\sof\scheck-in-edit\schanges.
-D 2015-08-12T05:39:28.110
+C Fix\sa\sfaulty\sassert()\sin\sthe\ssearch\sblob_append().
+D 2015-08-13T18:41:43.397
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -376,7 +376,7 @@ F src/allrepo.c ea9a13512f43925d8d6cceee4e757c55a80910d9
 F src/attach.c 5b713ffe437fa0c3241da307835b1286e38798fd
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
-F src/blob.c 81407554e8924c5de3b394cadb326e58fe528536
+F src/blob.c 10ee0528085b90be013d53935bceeeb83a7b1027
 F src/branch.c 09724980278de18e9bbff5da85950c3febd811eb
 F src/browse.c 904f68c2a82bed2b9533b76a3497a961d2ae25d9
 F src/builtin.c 31c17d18b565c7766021913c89be4180b3ee4a56
@@ -741,7 +741,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P c64989d5a0b791261bd4c7ad4fc9040b04367707
-R 788818228d04e043dafbe5ed6b6285f0
-U andybradford
-Z 6470c33fa6dd5ce024866a81d88a9009
+P d17dc8f220689edc46a846afacb6df20c746baf9
+R f57e4e00dd5e29d91ee5f2218426c32c
+U drh
+Z fdd7737634fedfa275418b9e191a0b26
