@@ -130,6 +130,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  combobox
   *  date
   *  decorate
+  *  dir
   *  enable_output
   *  getParameter
   *  glob_match
@@ -234,6 +235,14 @@ option is used, the date appears using localtime instead of UTC.
 
 Renders STRING as wiki content; however, only links are handled.  No
 other markup is processed.
+
+<a name="dir"></a>TH1 dir Command
+-------------------------------------------
+
+  * dir CHECKIN ?GLOB?
+
+Returns a list containing all files in CHECKIN. If GLOB is given only 
+the files matching the pattern GLOB within CHECKIN will be returned.
 
 <a name="enable_output"></a>TH1 enable_output Command
 -----------------------------------------------------

@@ -1,5 +1,5 @@
-C implemented\sth1\scomman\s'dir'\ssimilar\sto\scli\s'ls'
-D 2015-08-14T19:29:57.247
+C added\sdocumentation\sfor\snew\sth1\scommand\s'dir'
+D 2015-08-14T19:40:19.967
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -734,14 +734,14 @@ F www/stats.wiki 2d8317fe35d22877c86ed2332de02b653f50a498
 F www/style.wiki 4c9c67c0eddba030a73a55e468802fd09d59bc2f
 F www/sync.wiki ecd7e356270a40e81649970c1b606767db68d9e3
 F www/tech_overview.wiki 66d893fd0bca7f5dbc659ab0b4e9dde987e4fdb3
-F www/th1.md bad4a51829fb77670d336f2ef91262b33d57fbe7
+F www/th1.md 1b43066ace3f7d07e50f1e3b0015d20a1c05c408
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 19503f888bec68267535a11443ce334e6c9eea84
-R e638a61ee9cb99773242cda0f5849b03
+P 5d56fb7e2c184cd8fb654b7ac7b9a5721f7ba452
+R 616b029f402a9329bcc9623c74c3600c
 U ckolumbus
-Z 6486a3aee575bcac8dee9c19dfcb418a
+Z 4d3ea0fbe3e195c462ce71fa29186acc
