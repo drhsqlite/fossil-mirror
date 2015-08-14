@@ -66,6 +66,7 @@ set doclist {
   wikitheory.wiki {Wiki In Fossil}
 }
 
+set dash {&mdash;}
 set permindex {}
 set stopwords {fossil and a in of on the to are about used by for or}
 foreach {file title} $doclist {
@@ -77,7 +78,7 @@ foreach {file title} $doclist {
     set suffix [lrange $title [expr {$i+1}] end]
     set firstword [string tolower [lindex $suffix 0]]
     if {[lsearch $stopwords $firstword]<0} {
-      lappend permindex [list "$suffix &mdash; $prefix" $file]
+      lappend permindex [list "$suffix $dash $prefix" $file]
     }
   }
 }
@@ -105,9 +106,15 @@ book</a>
 </ul>
 <a name="pindex"></a>
 <h2>Permuted Index:</h2>
+(canonical titles are listed in <strong>bold</strong>)
 <ul>}
 foreach entry $permindex {
   foreach {title file} $entry break
-  puts $out "<li><a href=\"$file\">$title</a></li>"
+  if {[lsearch $title $dash]<0} then {
+    puts $out "<li><a href=\"$file\"><strong>$title</strong></a></li>"
+  } else {
+    puts $out "<li><a href=\"$file\">$title</a></li>"
+  }
+
 }
 puts $out "</ul></div>"
