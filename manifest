@@ -1,5 +1,5 @@
-C Create\snew\sbranch\snamed\s"ckol-th1-dir-cmd"
-D 2015-08-14T19:17:09.178
+C implemented\sth1\scomman\s'dir'\ssimilar\sto\scli\s'ls'
+D 2015-08-14T19:29:57.247
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -403,7 +403,7 @@ F src/descendants.c 1eb2bb891117be886ac87a7db842293221639326
 F src/diff.c 4600d39f61675941c756f5425e6bd5702f35eedf
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
 F src/diffcmd.c 2e7b17d1cdc3fe5cae14bae8ac84b77cf48a046e
-F src/doc.c 18720846abd34cda0172f4359ebb67c3be0f32c6
+F src/doc.c a7ddf9808298e5b2a82202b01c8ab89729da79c1
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
@@ -493,7 +493,7 @@ F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
 F src/th.c e9840f21b1bb1bc03fdba17c818728e132e254b7
 F src/th.h 1e7ae1613afa730a75df06d7fd1f17c7ff4564f4
 F src/th_lang.c a536a5cee224ccab6cbc5d8b07bef5027bff2910
-F src/th_main.c 0cd8e866203ac3bebe877eb97e444b10f9b0b37e
+F src/th_main.c a3e8a25709be978faaaf3073baf4917fa06d7fec
 F src/th_tcl.c 4d68ad29399fd3e90553a9470d66142d9027368d
 F src/timeline.c 005c758d36dbe81a52d1fe9a7f14cd0830abb005
 F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
@@ -741,10 +741,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 915d61933c0a3a4c72fd5c1d9fa63f748c97e53c
-R f57e4e00dd5e29d91ee5f2218426c32c
-T *branch * ckol-th1-dir-cmd
-T *sym-ckol-th1-dir-cmd *
-T -sym-trunk *
+P 19503f888bec68267535a11443ce334e6c9eea84
+R e638a61ee9cb99773242cda0f5849b03
 U ckolumbus
-Z 134187531453258c61c706a13186d45c
+Z 6486a3aee575bcac8dee9c19dfcb418a

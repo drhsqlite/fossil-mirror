@@ -542,6 +542,9 @@ void doc_page(void){
   int nMiss = (-1);                 /* Failed attempts to find the document */
   static const char *const azSuffix[] = {
      "index.html", "index.wiki", "index.md"
+#ifdef FOSSIL_ENABLE_TH1_DOCS
+      , "index.th1"
+#endif 
   };
 
   login_check_credentials();
