@@ -1,5 +1,5 @@
-C Restore\sread-only\sTH1\stests\sto\stheir\soriginal\sfile.\s\sCoding\sstyle\sfixes\sin\stests.\s\sAdd\s'dir'\scommand\sto\sthe\sexpected\scommand\slist\stest.
-D 2015-08-15T18:47:17.858
+C Merge\supdates\sfrom\strunk.
+D 2015-08-15T18:48:36.608
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -536,13 +536,13 @@ F test/merge1.test 4734854393f717824ae96b3de8524a2401a21921
 F test/merge2.test 1915d0a7cf117dd7448d6ccc30b54b4cd85a942c
 F test/merge3.test 637ad5275604c7fe17340b32338aadf2a1f27c07
 F test/merge4.test e9b9b3826dc271ae75523a5fa0a08fe17b0cd722
-F test/merge5.test 28cc9adf08343456fae9f2d9001c35ec62a78f31
+F test/merge5.test 62da8dd2d919b63c7bf239ae245be38bd106f563
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test 3fac7909f72a94ae05174404b1c9a7c68dd43824
-F test/merge_renames.test 1c7c8130b98099fbaa68e4adfcb9f13fbdf57787
-F test/mv-rm.test d61a6ce9d919122268591bd8b664a74afc111125
+F test/merge_renames.test 97d1fb5da183979dad760964c026a96736eccdde
+F test/mv-rm.test 8165257224586ed6850bfd859c83cb8ed071b487
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
-F test/revert.test fd2db9b23831a1e0e9ada5bfc7475fce579a949a
+F test/revert.test f40952b11bbc88f2540b9cc2876107dcec14b14e
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
@@ -660,7 +660,7 @@ F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 2f0e8e5909ee610b28d190c88dd916706de41312
 F www/changes.wiki 33927cb5d19ce4d00794a869695e7f841a58af8f
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
-F www/checkin_names.wiki 37087c035ff437c1c14dce07a0b8c7bf7adb3c2d
+F www/checkin_names.wiki 115a0ecdac918232061bbc19124ea83e0a27d938
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
@@ -742,7 +742,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 4b17cb66e852d2992ba175f21965ca03a1c17386
-R 704ca09ae4bceab00b371c0801fcdfec
+P 25e9c00b8c6baf9bb6dc63965f2028be1c4cdee8 5fdf670fa9da722c33f99b5ed69f5f167813dba6
+R f60fff51de78e074370b73b7dd539859
 U mistachkin
-Z 0d861fd3ac07e0e4c6ce10753f77bb1c
+Z 9dc1dc7b42d34a367e8dcafe8dac74f2
