@@ -1,5 +1,5 @@
-C mention\s'ckout'\sas\spseudo-tag\sfor\spreviewing\schanges\sto\sembedded\sdocumentation\sin\sCheck-in\sNames\spage
-D 2015-08-15T18:11:26.366
+C Remove\sstray\sdebugging\soutput\sin\stests.
+D 2015-08-15T18:48:07.311
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -536,13 +536,13 @@ F test/merge1.test 4734854393f717824ae96b3de8524a2401a21921
 F test/merge2.test 1915d0a7cf117dd7448d6ccc30b54b4cd85a942c
 F test/merge3.test 637ad5275604c7fe17340b32338aadf2a1f27c07
 F test/merge4.test e9b9b3826dc271ae75523a5fa0a08fe17b0cd722
-F test/merge5.test 28cc9adf08343456fae9f2d9001c35ec62a78f31
+F test/merge5.test 62da8dd2d919b63c7bf239ae245be38bd106f563
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test 3fac7909f72a94ae05174404b1c9a7c68dd43824
-F test/merge_renames.test 1c7c8130b98099fbaa68e4adfcb9f13fbdf57787
-F test/mv-rm.test d61a6ce9d919122268591bd8b664a74afc111125
+F test/merge_renames.test 97d1fb5da183979dad760964c026a96736eccdde
+F test/mv-rm.test 8165257224586ed6850bfd859c83cb8ed071b487
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
-F test/revert.test fd2db9b23831a1e0e9ada5bfc7475fce579a949a
+F test/revert.test f40952b11bbc88f2540b9cc2876107dcec14b14e
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
@@ -741,6 +741,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 915d61933c0a3a4c72fd5c1d9fa63f748c97e53c
-U michai
-Z 9c15b05b8c3600a1627be43e39940faa
+P d282fc18d47347c909fbfdb5e3e50f34a2c6246c
+R 1eb2396af5e04113c7b7ad7b65c8970d
+U mistachkin
+Z ebc328feb98a1610541c3388ee2cf40b
