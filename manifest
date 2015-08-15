@@ -1,5 +1,5 @@
-C *\sfactored\sout\sth1\stests\sfrom\sth1.test\sthat\sneed\sa\srepository\s(takes\slonger\sto\stest)\n*\sfixed\stests\sthat\shad\swrong\sresult\sexpectations\n*\sfinally:\simplemented\stest\sfor\snew\sth1-dir-cmd
-D 2015-08-15T13:22:06.102
+C added\scopyright\sheader\sto\stest\sfile
+D 2015-08-15T13:37:06.499
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -551,7 +551,7 @@ F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test b09ff99726b78609549c9880e3522497c138b935
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-hooks.test 3e533ca4b5956be9f13119177c795465dd3dd3a8
-F test/th1-repo.test 34ec53a9960a23ae26a1ee34c4ab79909927e259
+F test/th1-repo.test 5db18d3228872b7870065a747cfedabf4eac07ad
 F test/th1-tcl.test 5dae736a651454bdb173178f7bfc32728a38fb13
 F test/th1-tcl1.txt c60e664b138a2189b637c254d55a05819db1521d
 F test/th1-tcl2.txt 9f7e7ea7cc6c75df78c5efb761d10a4e8e354401
@@ -742,7 +742,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 00e634fecb99b043c62a0e528dee72229dd677fa
-R e4ca4332bfea6f74c9e2d23e82dfd2a0
+P 484d7d8ea70ebe9b6dbf804daece8754bb66e137
+R 5d8d03756f7c1febab165b4b5b4a510e
 U ckolumbus
-Z b84526f177f2297673cd07fb9aa5a637
+Z 0678b00d3c5d35c6586526f67c757a3d
