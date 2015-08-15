@@ -554,29 +554,6 @@ test th1-expr-48 {$RESULT eq {TH_ERROR: expected integer, got: "+0x"}}
 fossil test-th-eval "lindex list -0x"
 test th1-expr-49 {$RESULT eq {TH_ERROR: expected integer, got: "-0x"}}
 
-###############################################################################
-
-fossil test-th-eval "checkout 1"; # NOTE: Assumes running "in tree".
-test th1-checkout-1 {[string length $RESULT] > 0}
-
-###############################################################################
-
-fossil test-th-eval "checkout"; # NOTE: Assumes running "in tree".
-test th1-checkout-2 {[string length $RESULT] > 0}
-
-###############################################################################
-
-set savedPwd [pwd]; cd /
-fossil test-th-eval "checkout 1"
-cd $savedPwd; unset savedPwd
-test th1-checkout-3 {[string length $RESULT] == 0}
-
-###############################################################################
-
-set savedPwd [pwd]; cd /
-fossil test-th-eval "checkout"
-cd $savedPwd; unset savedPwd
-test th1-checkout-4 {[string length $RESULT] == 0}
 
 ###############################################################################
 
@@ -636,31 +613,6 @@ this is a trace message.
 
 ###############################################################################
 
-fossil test-th-eval "styleHeader {Page Title Here}"
-test th1-header-1 {$RESULT eq {TH_ERROR: repository unavailable}}
-
-###############################################################################
-
-fossil test-th-eval --open-config "styleHeader {Page Title Here}"
-test th1-header-2 {[regexp -- {<title>Fossil: Page Title Here</title>} $RESULT]}
-
-###############################################################################
-
-fossil test-th-eval "styleFooter"
-test th1-footer-1 {$RESULT eq {TH_ERROR: repository unavailable}}
-
-###############################################################################
-
-fossil test-th-eval --open-config "styleFooter"
-test th1-footer-2 {$RESULT eq {}}
-
-###############################################################################
-
-fossil test-th-eval --open-config --cgi "styleHeader {}; styleFooter"
-test th1-footer-3 {[regexp -- {</body></html>} $RESULT]}
-
-###############################################################################
-
 fossil test-th-eval "getParameter"
 test th1-get-parameter-1 {$RESULT eq \
     {TH_ERROR: wrong # args: should be "getParameter NAME ?DEFAULT?"}}
@@ -713,119 +665,63 @@ test th1-set-parameter-7 {$RESULT eq {value5}}
 
 ###############################################################################
 
-fossil test-th-eval "artifact"
-test th1-artifact-1 {$RESULT eq \
-    {TH_ERROR: wrong # args: should be "artifact ID ?FILENAME?"}}
-
-###############################################################################
-
-fossil test-th-eval "artifact tip"
-test th1-artifact-2 {$RESULT eq {TH_ERROR: repository unavailable}}
-
-###############################################################################
-
-fossil test-th-eval --open-config "artifact tip"
-test th1-artifact-3 {[regexp -- {F test/th1\.test [0-9a-f]{40}} $RESULT]}
-
-###############################################################################
-
-fossil test-th-eval "artifact 0000000000"
-test th1-artifact-4 {$RESULT eq {TH_ERROR: repository unavailable}}
-
-###############################################################################
-
-fossil test-th-eval --open-config "artifact 0000000000"
-test th1-artifact-5 {$RESULT eq {TH_ERROR: name not found}}
-
-###############################################################################
-
-fossil test-th-eval "artifact tip test/th1.test"
-test th1-artifact-6 {$RESULT eq {TH_ERROR: repository unavailable}}
-
-###############################################################################
-
-fossil test-th-eval --open-config "artifact tip test/th1.test"
-test th1-artifact-7 {[regexp -- {th1-artifact-7} $RESULT]}
-
-###############################################################################
-
-fossil test-th-eval "artifact 0000000000 test/th1.test"
-test th1-artifact-8 {$RESULT eq {TH_ERROR: repository unavailable}}
-
-###############################################################################
-
-fossil test-th-eval --open-config "artifact 0000000000 test/th1.test"
-test th1-artifact-9 {$RESULT eq {TH_ERROR: manifest not found}}
-
-###############################################################################
-
 fossil test-th-eval "globalState checkout"
-test th1-globalState-1 {[string length $RESULT] > 0}
-
-###############################################################################
-
-fossil test-th-eval "globalState checkout"
-test th1-globalState-2 {$RESULT eq [fossil test-th-eval checkout]}
+test th1-globalState-1 {$RESULT eq [fossil test-th-eval checkout]}
 
 ###############################################################################
 
 fossil test-th-eval "globalState configuration"
-test th1-globalState-3 {[string length $RESULT] == 0}
+test th1-globalState-2 {[string length $RESULT] == 0}
 
 ###############################################################################
 
 fossil test-th-eval --open-config "globalState configuration"
-test th1-globalState-4 {[string length $RESULT] > 0}
+test th1-globalState-3 {[string length $RESULT] > 0}
 
 ###############################################################################
 
 fossil test-th-eval "globalState executable"
-test th1-globalState-5 {[file rootname [file tail $RESULT]] eq "fossil"}
+test th1-globalState-4 {[file rootname [file tail $RESULT]] eq "fossil"}
 
 ###############################################################################
 
 fossil test-th-eval "globalState log"
-test th1-globalState-6 {[string length $RESULT] == 0}
+test th1-globalState-5 {[string length $RESULT] == 0}
 
 ###############################################################################
 
 fossil test-th-eval --errorlog foserrors.log "globalState log"
-test th1-globalState-7 {$RESULT eq "foserrors.log"}
+test th1-globalState-6 {$RESULT eq "foserrors.log"}
 
 ###############################################################################
 
 fossil test-th-eval "globalState repository"
-test th1-globalState-8 {[string length $RESULT] > 0}
-
-###############################################################################
-
-fossil test-th-eval "globalState repository"
-test th1-globalState-9 {$RESULT eq [fossil test-th-eval repository]}
+test th1-globalState-7 {$RESULT eq [fossil test-th-eval repository]}
 
 ###############################################################################
 
 fossil test-th-eval "globalState top"
-test th1-globalState-10 {[string length $RESULT] == 0}
+test th1-globalState-8 {[string length $RESULT] == 0}
 
 ###############################################################################
 
 fossil test-th-eval "globalState user"
-test th1-globalState-11 {[string length $RESULT] == 0}
+test th1-globalState-9 {[string length $RESULT] == 0}
 
 ###############################################################################
 
 fossil test-th-eval --user fossil-th1-test "globalState user"
-test th1-globalState-12 {$RESULT eq "fossil-th1-test"}
+test th1-globalState-10 {$RESULT eq "fossil-th1-test"}
 
 ###############################################################################
 
 fossil test-th-eval "globalState vfs"
-test th1-globalState-13 {[string length $RESULT] == 0}
+test th1-globalState-11 {[string length $RESULT] == 0}
 
 ###############################################################################
 
 fossil test-th-eval "globalState vfs"
-test th1-globalState-14 {[string length $RESULT] == 0}
+test th1-globalState-12 {[string length $RESULT] == 0}
 
 ###############################################################################
 
@@ -838,12 +734,12 @@ if {$tcl_platform(platform) eq "windows"} then {
 ###############################################################################
 
 fossil test-th-eval --vfs $altVfs "globalState vfs"
-test th1-globalState-15 {$RESULT eq $altVfs}
+test th1-globalState-13 {$RESULT eq $altVfs}
 
 ###############################################################################
 
 fossil test-th-eval "globalState flags"
-test th1-globalState-16 {$RESULT eq "0"}
+test th1-globalState-14 {$RESULT eq "0"}
 
 ###############################################################################
 
@@ -861,14 +757,14 @@ test th1-reinitialize-2 {$RESULT ne ""}
 # NOTE: This test may fail if the command names do not always come
 #       out in a deterministic order from TH1.
 #
-fossil test-th-eval "info commands"
-test th1-info-commands-1 {$RESULT eq {linecount htmlize date stime\
-enable_output uplevel http expr glob_match utime styleFooter catch if\
-tclReady searchable reinitialize combobox lindex query html anoncap randhex\
-llength for set break regexp markdown styleHeader puts return checkout\
-decorate artifact trace wiki proc hascap globalState continue getParameter\
-hasfeature setting lsearch breakpoint upvar render repository string unset\
-setParameter list error info rename anycap httpize}}
+#fossil test-th-eval "info commands"
+#test th1-info-commands-1 {$RESULT eq {linecount htmlize date stime\
+#enable_output uplevel http expr glob_match utime styleFooter catch if\
+#tclReady searchable reinitialize combobox lindex query html anoncap randhex\
+#llength for set break regexp markdown styleHeader puts return checkout\
+#decorate artifact trace wiki proc hascap globalState continue getParameter\
+#hasfeature setting lsearch breakpoint upvar render repository string unset\
+#setParameter list error info rename anycap httpize}}
 
 ###############################################################################
 
