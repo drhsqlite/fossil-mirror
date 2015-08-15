@@ -18,11 +18,10 @@
 #
 ############################################################################
 #
-# TH1-repo commands
+# TH1 tests that may modify the repository
 #
 
 catch {exec $::fossilexe info} res
-puts res=$res
 if {![regexp {use --repository} $res]} {
   puts stderr "Cannot run this test within an open checkout"
   return
@@ -34,19 +33,12 @@ if {![regexp {use --repository} $res]} {
 
 set rootDir [file normalize [pwd]]
 
-set undoMsg "\n \"fossil undo\" is\
-available to undo changes to the\
-working checkout."
-
 repo_init
 
 write_file f1.md  "f1"
 write_file f2.md  "f2"
 write_file f3.txt "f3"
 write_file f4.md  "f4"
-
-file mkdir [file join $rootDir test]
-write_file [file join $rootDir test th1.test] "th1.test"
 
 file mkdir [file join $rootDir subdirA]
 # NOTE: There are no files in subdirA.
@@ -62,7 +54,6 @@ file mkdir [file join $rootDir subdirC]
 write_file [file join $rootDir subdirC f10.md] "f10"
 write_file [file join $rootDir subdirC f11t.xt] "f11"
 
-
 set files_md [list subdirB/f5.md subdirB/f6.md subdirB/f8.md subdirC/f10.md]
 
 fossil add $rootDir
@@ -70,121 +61,15 @@ fossil commit -m "c1"
 
 set dir [file dirname [info script]]
 
-
-###############################################################################
-
-fossil test-th-eval "checkout 1"; # NOTE: Assumes running "in tree".
-test th1-checkout-1 {[string length $RESULT] > 0}
-
-###############################################################################
-
-fossil test-th-eval "checkout"; # NOTE: Assumes running "in tree".
-test th1-checkout-2 {[string length $RESULT] > 0}
-
-###############################################################################
-
-set savedPwd [pwd]; cd /
-fossil test-th-eval "checkout 1"
-cd $savedPwd; unset savedPwd
-test th1-checkout-3 {[string length $RESULT] == 0}
-
-###############################################################################
-
-set savedPwd [pwd]; cd /
-fossil test-th-eval "checkout"
-cd $savedPwd; unset savedPwd
-test th1-checkout-4 {[string length $RESULT] == 0}
-
-###############################################################################
-
-fossil test-th-eval "styleHeader {Page Title Here}"
-test th1-header-1 {$RESULT eq {TH_ERROR: repository unavailable}}
-
-###############################################################################
-
-fossil test-th-eval --open-config "styleHeader {Page Title Here}"
-test th1-header-2 {[regexp -- {<title>Unnamed Fossil Project: Page Title Here</title>} $RESULT]}
-
-###############################################################################
-
-fossil test-th-eval "styleFooter"
-test th1-footer-1 {$RESULT eq {TH_ERROR: repository unavailable}}
-
-###############################################################################
-
-fossil test-th-eval --open-config "styleFooter"
-test th1-footer-2 {$RESULT eq {}}
-
-###############################################################################
-
-fossil test-th-eval --open-config --cgi "styleHeader {}; styleFooter"
-test th1-footer-3 {[regexp -- {</body></html>} $RESULT]}
-
-###############################################################################
-
-fossil test-th-eval "artifact"
-test th1-artifact-1 {$RESULT eq \
-    {TH_ERROR: wrong # args: should be "artifact ID ?FILENAME?"}}
-
-###############################################################################
-
-fossil test-th-eval "artifact tip"
-test th1-artifact-2 {$RESULT eq {TH_ERROR: repository unavailable}}
-
-###############################################################################
-
-fossil test-th-eval --open-config "artifact tip"
-test th1-artifact-3 {[regexp -- {F test/th1\.test [0-9a-f]{40}} $RESULT]}
-
-###############################################################################
-
-fossil test-th-eval "artifact 0000000000"
-test th1-artifact-4 {$RESULT eq {TH_ERROR: repository unavailable}}
-
-###############################################################################
-
-fossil test-th-eval --open-config "artifact 0000000000"
-test th1-artifact-5 {$RESULT eq {TH_ERROR: name not found}}
-
-###############################################################################
-
-fossil test-th-eval "artifact tip test/th1.test"
-test th1-artifact-6 {$RESULT eq {TH_ERROR: repository unavailable}}
-
-###############################################################################
-
-fossil test-th-eval --open-config "artifact tip test/th1.test"
-test th1-artifact-7 {[regexp -- {th1\.test} $RESULT]}
-
-###############################################################################
-
-fossil test-th-eval "artifact 0000000000 test/th1.test"
-test th1-artifact-8 {$RESULT eq {TH_ERROR: repository unavailable}}
-
-###############################################################################
-
-fossil test-th-eval --open-config "artifact 0000000000 test/th1.test"
-test th1-artifact-9 {$RESULT eq {TH_ERROR: manifest not found}}
-
-###############################################################################
-
-fossil test-th-eval "globalState checkout"
-test th1-globalState-repo-1 {[string length $RESULT] > 0}
-
-###############################################################################
-
-fossil test-th-eval "globalState repository"
-test th1-globalState-repo-2 {[string length $RESULT] > 0}
-
-
 ###############################################################################
 
 fossil test-th-eval --open-config "dir trunk subdir*/*.md"
-set l [llength $RESULT ]
-test th1-dir-1  { $l eq [llength $files_md] }
+test th1-dir-1 {[llength $RESULT] eq [llength $files_md]}
+
+###############################################################################
+
 set n 1
 foreach i $RESULT j $files_md {
-   test th1-dir-2-$n { $i eq $j }
-   set n [expr $n + 1]
+   test th1-dir-2.$n {$i eq $j}
+   set n [expr {$n + 1}]
 }
-

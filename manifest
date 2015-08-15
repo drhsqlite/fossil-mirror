@@ -1,5 +1,5 @@
-C Coding\sstyle\sand\scompiler\swarning\sfixes.
-D 2015-08-15T18:37:44.831
+C Restore\sread-only\sTH1\stests\sto\stheir\soriginal\sfile.\s\sCoding\sstyle\sfixes\sin\stests.\s\sAdd\s'dir'\scommand\sto\sthe\sexpected\scommand\slist\stest.
+D 2015-08-15T18:47:17.858
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -551,7 +551,7 @@ F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test b09ff99726b78609549c9880e3522497c138b935
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-hooks.test 3e533ca4b5956be9f13119177c795465dd3dd3a8
-F test/th1-repo.test 5db18d3228872b7870065a747cfedabf4eac07ad
+F test/th1-repo.test 4dc50920be37d3b20b1b001c95abb78796926334
 F test/th1-tcl.test 5dae736a651454bdb173178f7bfc32728a38fb13
 F test/th1-tcl1.txt c60e664b138a2189b637c254d55a05819db1521d
 F test/th1-tcl2.txt 9f7e7ea7cc6c75df78c5efb761d10a4e8e354401
@@ -562,7 +562,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test 501571a5df62a2ab1e224a5f6d8af50681c3b170
+F test/th1.test 9ad7f38a81d497fc957b333356688b5e374606bd
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 9b9447e346cbc663d6f3c51e00adbc1ba2d296a2
@@ -742,7 +742,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P a0d01050a1d415e545e712b443c328c3d18e8f25
-R d299f2c233bd88616201bdab4e2d8313
+P 4b17cb66e852d2992ba175f21965ca03a1c17386
+R 704ca09ae4bceab00b371c0801fcdfec
 U mistachkin
-Z c7b7e3710be9a0e863fb550873a1c25a
+Z 0d861fd3ac07e0e4c6ce10753f77bb1c
