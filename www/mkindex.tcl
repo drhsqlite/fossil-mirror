@@ -66,23 +66,32 @@ set doclist {
   wikitheory.wiki {Wiki In Fossil}
 }
 
-set dash {&mdash;}
+proc emit_links {ch links} {
+  foreach entry $links {
+    foreach {title file} $entry break
+    puts $ch "<li><a href=\"$file\">$title</a></li>"
+  }
+}
+
 set permindex {}
+set canonindex {}
 set stopwords {fossil and a in of on the to are about used by for or}
 foreach {file title} $doclist {
   set n [llength $title]
   regsub -all {\s+} $title { } title
   lappend permindex [list $title $file]
+  lappend canonindex [list $title $file]
   for {set i 0} {$i<$n-1} {incr i} {
     set prefix [lrange $title 0 $i]
     set suffix [lrange $title [expr {$i+1}] end]
     set firstword [string tolower [lindex $suffix 0]]
     if {[lsearch $stopwords $firstword]<0} {
-      lappend permindex [list "$suffix $dash $prefix" $file]
+      lappend permindex [list "$suffix &mdash; $prefix" $file]
     }
   }
 }
 set permindex [lsort -dict -index 0 $permindex]
+set canonindex [lsort -dict -index 0 $canonindex]
 set out [open permutedindex.html w]
 fconfigure $out -encoding utf-8 -translation lf
 puts $out \
@@ -106,15 +115,13 @@ book</a>
 </ul>
 <a name="pindex"></a>
 <h2>Permuted Index:</h2>
-(canonical titles are listed in <strong>bold</strong>)
+(ordered by keywords - multiple entries linking to the same document)
 <ul>}
-foreach entry $permindex {
-  foreach {title file} $entry break
-  if {[lsearch $title $dash]<0} then {
-    puts $out "<li><a href=\"$file\"><strong>$title</strong></a></li>"
-  } else {
-    puts $out "<li><a href=\"$file\">$title</a></li>"
-  }
-
-}
+emit_links $out $permindex
+puts $out {
+</ul>
+<h2>Canonical Index:</h2>
+(list of unique documents)
+<ul>}
+emit_links $out $canonindex
 puts $out "</ul></div>"
