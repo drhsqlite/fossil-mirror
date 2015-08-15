@@ -1,5 +1,5 @@
-C added\scopyright\sheader\sto\stest\sfile
-D 2015-08-15T13:37:06.499
+C Coding\sstyle\sand\scompiler\swarning\sfixes.
+D 2015-08-15T18:37:44.831
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -493,7 +493,7 @@ F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
 F src/th.c e9840f21b1bb1bc03fdba17c818728e132e254b7
 F src/th.h 1e7ae1613afa730a75df06d7fd1f17c7ff4564f4
 F src/th_lang.c a536a5cee224ccab6cbc5d8b07bef5027bff2910
-F src/th_main.c a3e8a25709be978faaaf3073baf4917fa06d7fec
+F src/th_main.c c4b47fbcf8fe76032219e9d2527c07a310d84c2d
 F src/th_tcl.c 4d68ad29399fd3e90553a9470d66142d9027368d
 F src/timeline.c 005c758d36dbe81a52d1fe9a7f14cd0830abb005
 F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
@@ -742,7 +742,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 484d7d8ea70ebe9b6dbf804daece8754bb66e137
-R 5d8d03756f7c1febab165b4b5b4a510e
-U ckolumbus
-Z 0678b00d3c5d35c6586526f67c757a3d
+P a0d01050a1d415e545e712b443c328c3d18e8f25
+R d299f2c233bd88616201bdab4e2d8313
+U mistachkin
+Z c7b7e3710be9a0e863fb550873a1c25a
