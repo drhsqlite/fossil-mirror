@@ -158,8 +158,9 @@ static void dir_cmd_rev(
   Th_Interp *interp,
   char **pzList,
   int *pnList,
-  const char *zRev, /* Revision string given */
-  const char *zGlob /* Glob pattern given */
+  const char *zRev,  /* Revision string given */
+  const char *zGlob, /* Glob pattern given */
+  int bDetails
 ){
   Stmt q;
   char *zOrderBy = "pathname COLLATE nocase";
@@ -176,16 +177,34 @@ static void dir_cmd_rev(
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFile = db_column_text(&q, 1);
-    Th_ListAppend(interp, pzList, pnList, zFile, -1);
+    if( bDetails ){
+      const char *zTime = db_column_text(&q, 0);
+      int size = db_column_int(&q, 2);
+      char zSize[50];
+      char *zSubList = 0;
+      int nSubList = 0;
+      sqlite3_snprintf(sizeof(zSize), zSize, "%d", size);
+      Th_ListAppend(interp, &zSubList, &nSubList, zFile, -1);
+      Th_ListAppend(interp, &zSubList, &nSubList, zSize, -1);
+      Th_ListAppend(interp, &zSubList, &nSubList, zTime, -1);
+      Th_ListAppend(interp, pzList, pnList, zSubList, -1);
+      Th_Free(interp, zSubList);
+    }else{
+      Th_ListAppend(interp, pzList, pnList, zFile, -1);
+    }
   }
   db_finalize(&q);
 }
 
 /*
-** TH1 command: dir CHECKIN ?GLOB?
+** TH1 command: dir CHECKIN ?GLOB? ?DETAILS?
 **
 ** Returns a list containing all files in CHECKIN. If GLOB is given only
 ** the files matching the pattern GLOB within CHECKIN will be returned.
+** If DETAILS is non-zero, the result will be a list-of-lists, with each
+** element containing at least three elements: the file name, the file
+** size (in bytes), and the file last modification time (relative to the
+** time zone configured for the repository).
 */
 static int dirCmd(
   Th_Interp *interp,
@@ -195,17 +214,21 @@ static int dirCmd(
   int *argl
 ){
   const char *zGlob = 0;
+  int bDetails = 0;
 
-  if( argc!=2 && argc!=3 ){
+  if( argc<2 || argc>4 ){
     return Th_WrongNumArgs(interp, "dir CHECKIN ?GLOB?");
   }
-  if( argc==3 ){
+  if( argc>=3 ){
     zGlob = argv[2];
+  }
+  if( argc>=4 && Th_ToInt(interp, argv[3], argl[3], &bDetails) ){
+    return TH_ERROR;
   }
   if( Th_IsRepositoryOpen() ){
     char *zList = 0;
     int nList = 0;
-    dir_cmd_rev(interp, &zList, &nList, argv[1], zGlob);
+    dir_cmd_rev(interp, &zList, &nList, argv[1], zGlob, bDetails);
     Th_SetResult(interp, zList, nList);
     Th_Free(interp, zList);
     return TH_OK;

@@ -241,8 +241,12 @@ other markup is processed.
 
   * dir CHECKIN ?GLOB?
 
-Returns a list containing all files in CHECKIN. If GLOB is given only 
+Returns a list containing all files in CHECKIN. If GLOB is given only
 the files matching the pattern GLOB within CHECKIN will be returned.
+If DETAILS is non-zero, the result will be a list-of-lists, with each
+element containing at least three elements: the file name, the file
+size (in bytes), and the file last modification time (relative to the
+time zone configured for the repository).
 
 <a name="enable_output"></a>TH1 enable_output Command
 -----------------------------------------------------

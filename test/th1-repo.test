@@ -66,10 +66,25 @@ set dir [file dirname [info script]]
 fossil test-th-eval --open-config "dir trunk subdir*/*.md"
 test th1-dir-1 {[llength $RESULT] eq [llength $files_md]}
 
-###############################################################################
-
 set n 1
 foreach i $RESULT j $files_md {
    test th1-dir-2.$n {$i eq $j}
    set n [expr {$n + 1}]
 }
+
+###############################################################################
+
+set dateTime {\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}}
+fossil test-th-eval --open-config "dir trunk subdir*/*.md 1"
+test th1-dir-3.1 {[lindex [lindex $RESULT 0] 0] eq "subdirB/f5.md"}
+test th1-dir-3.2 {[lindex [lindex $RESULT 0] 1] == 2}
+test th1-dir-3.3 {[regexp -- $dateTime [lindex [lindex $RESULT 0] 2]]}
+test th1-dir-3.4 {[lindex [lindex $RESULT 1] 0] eq "subdirB/f6.md"}
+test th1-dir-3.5 {[lindex [lindex $RESULT 1] 1] == 2}
+test th1-dir-3.6 {[regexp -- $dateTime [lindex [lindex $RESULT 1] 2]]}
+test th1-dir-3.7 {[lindex [lindex $RESULT 2] 0] eq "subdirB/f8.md"}
+test th1-dir-3.8 {[lindex [lindex $RESULT 2] 1] == 2}
+test th1-dir-3.9 {[regexp -- $dateTime [lindex [lindex $RESULT 2] 2]]}
+test th1-dir-3.10 {[lindex [lindex $RESULT 3] 0] eq "subdirC/f10.md"}
+test th1-dir-3.11 {[lindex [lindex $RESULT 3] 1] == 3}
+test th1-dir-3.12 {[regexp -- $dateTime [lindex [lindex $RESULT 3] 2]]}
