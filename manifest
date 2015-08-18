@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\soptional\sper-file\sdetails\sin\sthe\sTH1\sdir\scmd,\susing\sa\slist-of-lists.
-D 2015-08-18T07:49:51.505
+C Merge\supdates\sfrom\strunk.
+D 2015-08-18T07:52:05.034
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -735,14 +735,14 @@ F www/stats.wiki 2d8317fe35d22877c86ed2332de02b653f50a498
 F www/style.wiki 4c9c67c0eddba030a73a55e468802fd09d59bc2f
 F www/sync.wiki ecd7e356270a40e81649970c1b606767db68d9e3
 F www/tech_overview.wiki 66d893fd0bca7f5dbc659ab0b4e9dde987e4fdb3
-F www/th1.md a3437ec12b6da6b403d6a60d0c9a504b64f4f401
+F www/th1.md a61e686ea9a053a6b7bb35c8a58b99b20850d25f
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P e4db8fe84f5d547c94079a32c36ac4650cfe4210
-R 60d8edc863e112ffa7c6f1c125c72caa
+P 83f50997bee18f1bb18a8677f51e24ce712ebe5c 5c49850e26304ed3c9eb250e7d6b2de8d0de6615
+R 868de26530ecc35df3baf58ee1797844
 U mistachkin
-Z 6a84eca3f4091e3f1b3c330c4ffc1aef
+Z 8150eed59d2d81d69f3421e385a44699
