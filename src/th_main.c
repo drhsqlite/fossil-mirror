@@ -217,7 +217,7 @@ static int dirCmd(
   int bDetails = 0;
 
   if( argc<2 || argc>4 ){
-    return Th_WrongNumArgs(interp, "dir CHECKIN ?GLOB?");
+    return Th_WrongNumArgs(interp, "dir CHECKIN ?GLOB? ?DETAILS?");
   }
   if( argc>=3 ){
     zGlob = argv[2];
