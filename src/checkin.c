@@ -644,10 +644,10 @@ void extras_cmd(void){
 ** Files and subdirectories whose names begin with "." are automatically
 ** ignored unless the --dotfiles option is used.
 **
-** The --verily option ignores the ignore-glob setting and turns on
-**--dotfiles, and --emptydirs.  Use the --verily option when you
-** really want to clean up everything.  Extreme care should be
-** exercised when using the --verily option.
+** The --verily option ignores the keep-glob and ignore-glob settings
+** and turns on --dotfiles, and --emptydirs.  Use the --verily
+** option when you really want to clean up everything.  Extreme care
+** should be exercised when using the --verily option.
 **
 ** Options:
 **    --allckouts      Check for empty directories within any checkouts
@@ -674,9 +674,10 @@ void extras_cmd(void){
 **    -f|--force       Remove files without prompting.
 **    -x|--verily      WARNING: Removes everything that is not a managed
 **                     file or the repository itself.  This option
-**                     implies the -emptydirs and --dotfiles options.
-**                     Furthermore, it completely disregards the ignore-glob.
-**                     setting. However, it does honor the --ignore and --keep
+**                     implies the --emptydirs, --dotfiles, and
+**                     --disable-undo options.  Furthermore, it completely
+**                     disregards the keep-glob and ignore-glob settings.
+**                     However, it does honor the --ignore and --keep
 **                     options.
 **    --clean <CSG>    WARNING: Never prompt to delete any files matching
 **                     this comma separated list of glob patterns.  Also,
@@ -733,13 +734,14 @@ void clean_cmd(void){
   if( find_option("verily","x",0)!=0 ){
     verilyFlag = 1;
     emptyDirsFlag = 1;
+    disableUndo = 1;
     scanFlags |= SCAN_ALL;
     zCleanFlag = 0;
   }
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
-  if( zKeepFlag==0 ){
+  if( zKeepFlag==0 && !verilyFlag ){
     zKeepFlag = db_get("keep-glob", 0);
   }
   if( zCleanFlag==0 && !verilyFlag ){
@@ -771,7 +773,7 @@ void clean_cmd(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       if( glob_match(pKeep, zName+nRoot) ){
-        if( verboseFlag || verilyFlag ){
+        if( verboseFlag ){
           fossil_print("KEPT file \"%s\" not removed (due to --keep"
                        " or \"keep-glob\")\n", zName+nRoot);
         }
@@ -835,7 +837,7 @@ void clean_cmd(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       if( glob_match(pKeep, zName+nRoot) ){
-        if( verboseFlag || verilyFlag ){
+        if( verboseFlag ){
           fossil_print("KEPT directory \"%s\" not removed (due to --keep"
                        " or \"keep-glob\")\n", zName+nRoot);
         }

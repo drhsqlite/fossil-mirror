@@ -115,7 +115,8 @@ summarize the commands available in TH1:
   *  upvar ?FRAME? OTHERVAR MYVAR ?OTHERVAR MYVAR?
 
 All of the above commands works as in the original Tcl.  Refer to the
-Tcl documentation for details.
+<a href="https://www.tcl.tk/man/tcl/contents.htm">Tcl documentation</a>
+for details.
 
 TH1 Extended Commands
 ---------------------
@@ -141,6 +142,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  http
   *  httpize
   *  linecount
+  *  markdown
   *  puts
   *  query
   *  randhex
@@ -352,6 +354,15 @@ components.  Returns the escaped string.
 
 Returns one more than the number of \n characters in STRING.  But
 never returns less than MIN or more than MAX.
+
+<a name="markdown"></a>TH1 markdown Command
+---------------------------------------------
+
+  *  markdown STRING
+
+Renders the input string as markdown.  The result is a two-element list.
+The first element contains the body, rendered as HTML.  The second element
+is the text-only title string.
 
 <a name="puts"></a>TH1 puts Command
 -----------------------------------

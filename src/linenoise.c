@@ -178,7 +178,7 @@ static void refreshLine(struct linenoiseState *l);
 /* Debugging macro. */
 #if 0
 FILE *lndebug_fp = NULL;
-#define lndebug(...) \
+#define lndebug(fmt, arg1) \
     do { \
         if (lndebug_fp == NULL) { \
             lndebug_fp = fopen("/tmp/lndebug.txt","a"); \
@@ -187,11 +187,11 @@ FILE *lndebug_fp = NULL;
             (int)l->len,(int)l->pos,(int)l->oldpos,plen,rows,rpos, \
             (int)l->maxrows,old_rows); \
         } \
-        fprintf(lndebug_fp, ", " __VA_ARGS__); \
+        fprintf(lndebug_fp, ", " fmt, arg1); \
         fflush(lndebug_fp); \
     } while (0)
 #else
-#define lndebug(fmt, ...)
+#define lndebug(fmt, arg1)
 #endif
 
 /* ======================= Low level terminal handling ====================== */
@@ -528,13 +528,13 @@ static void refreshMultiLine(struct linenoiseState *l) {
 
     /* Now for every row clear it, go up. */
     for (j = 0; j < old_rows-1; j++) {
-        lndebug("clear+up");
+        lndebug("clear+up", 0);
         snprintf(seq,64,"\r\x1b[0K\x1b[1A");
         abAppend(&ab,seq,strlen(seq));
     }
 
     /* Clean the top line. */
-    lndebug("clear");
+    lndebug("clear", 0);
     snprintf(seq,64,"\r\x1b[0K");
     abAppend(&ab,seq,strlen(seq));
 
@@ -548,7 +548,7 @@ static void refreshMultiLine(struct linenoiseState *l) {
         l->pos == l->len &&
         (l->pos+plen) % l->cols == 0)
     {
-        lndebug("<newline>");
+        lndebug("<newline>", 0);
         abAppend(&ab,"\n",1);
         snprintf(seq,64,"\r");
         abAppend(&ab,seq,strlen(seq));
@@ -576,7 +576,7 @@ static void refreshMultiLine(struct linenoiseState *l) {
         snprintf(seq,64,"\r");
     abAppend(&ab,seq,strlen(seq));
 
-    lndebug("\n");
+    lndebug("\n", 0);
     l->oldpos = l->pos;
 
     if (write(fd,ab.b,ab.len) == -1) {} /* Can't recover from write error. */
