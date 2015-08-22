@@ -1,5 +1,5 @@
-C permuted\sindex:\sremoved\sbold\sattribute\sfor\scanonical\stitles,\sand\sinstead\s(also)\slist\sthem\sseparately
-D 2015-08-15T18:46:58.560
+C merge\strunk
+D 2015-08-22T12:42:15.340
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -476,13 +476,13 @@ F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b02a73b942028631eacf484ae3f83a3a4edd3518
 F src/setup.c 0c15a5219b7d8acc4596d620ae5aecb52c8f337d
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
-F src/shell.c 8af3cced094aebb5f57a8ad739b9dafc7867eed7
+F src/shell.c b1f91e60918df3a68efad1e3a11696b9a7e23d23
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 29d06b40601a2f48c0d0994ec16e97b404716920
 F src/skins.c f12a6c105e7ceb269570e046800ae4ad1231b15a
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c 719f6891abcd9c459b5460b191d731cd12a3643e
-F src/sqlite3.h d1ccfe8745dc5e62903b7e20b99c59e54dd4e97c
+F src/sqlite3.c 3be71d99121fe5b17f057011025bcf84e7cc6c84
+F src/sqlite3.h bb73f067e50a0a2068b1f74768228ee9c13f86bf
 F src/stash.c c8b20236b7fb7631528edb3d4b43a45c45e1949b
 F src/stat.c 69ab1f0d78ccb91fc81f8f3930046025034a3250
 F src/statrep.c 2475cba0c91bdaa6f51a61565732ece308fadf42
@@ -536,13 +536,13 @@ F test/merge1.test 4734854393f717824ae96b3de8524a2401a21921
 F test/merge2.test 1915d0a7cf117dd7448d6ccc30b54b4cd85a942c
 F test/merge3.test 637ad5275604c7fe17340b32338aadf2a1f27c07
 F test/merge4.test e9b9b3826dc271ae75523a5fa0a08fe17b0cd722
-F test/merge5.test 28cc9adf08343456fae9f2d9001c35ec62a78f31
+F test/merge5.test 62da8dd2d919b63c7bf239ae245be38bd106f563
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test 3fac7909f72a94ae05174404b1c9a7c68dd43824
-F test/merge_renames.test 1c7c8130b98099fbaa68e4adfcb9f13fbdf57787
-F test/mv-rm.test d61a6ce9d919122268591bd8b664a74afc111125
+F test/merge_renames.test 97d1fb5da183979dad760964c026a96736eccdde
+F test/mv-rm.test 8165257224586ed6850bfd859c83cb8ed071b487
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
-F test/revert.test fd2db9b23831a1e0e9ada5bfc7475fce579a949a
+F test/revert.test f40952b11bbc88f2540b9cc2876107dcec14b14e
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
@@ -659,7 +659,7 @@ F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 2f0e8e5909ee610b28d190c88dd916706de41312
 F www/changes.wiki 33927cb5d19ce4d00794a869695e7f841a58af8f
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
-F www/checkin_names.wiki 37087c035ff437c1c14dce07a0b8c7bf7adb3c2d
+F www/checkin_names.wiki 115a0ecdac918232061bbc19124ea83e0a27d938
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
@@ -734,13 +734,13 @@ F www/stats.wiki 2d8317fe35d22877c86ed2332de02b653f50a498
 F www/style.wiki 4c9c67c0eddba030a73a55e468802fd09d59bc2f
 F www/sync.wiki ecd7e356270a40e81649970c1b606767db68d9e3
 F www/tech_overview.wiki 66d893fd0bca7f5dbc659ab0b4e9dde987e4fdb3
-F www/th1.md bad4a51829fb77670d336f2ef91262b33d57fbe7
+F www/th1.md 267822eee2dd03f30058dca374bb3e1cd9d5f4a4
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 2a8dd75142f4b69b75e605d4720e2ef953479f69
+P 6692087939f304454afb73b589b7bab5c908a678 7842b8ab3177fa73bf2fdf3a491939ece8bbe3e8
 U michai
-Z 2e9cdcddf832a9eb73e45a2506770506
+Z d535a37bbe48304b237c64d30580fd92
