@@ -1,5 +1,5 @@
-C merge\strunk
-D 2015-08-22T12:42:15.340
+C put\spermuted\sindex\sof\sdocs\safter\snon-permuted\sindex
+D 2015-08-24T08:56:55.682
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -713,10 +713,10 @@ F www/index.wiki 89c650d5efb9273a21296d3b209bd1d00a4d230d
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki 86c68cd0825a7ea2a5005fa4c5c0e639f9ec300d
 F www/mkdownload.tcl 2adb240f61ff7f6027e5f00b5920f74b9e6680f2
-F www/mkindex.tcl b964d3a52a17ea56f0ca079da4fb2014fbbd67af
+F www/mkindex.tcl d9490a51008a25f9ff2316b954a98209063ade59
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 336916afde4ff470e87fc43066063623a9a74c8a
-F www/permutedindex.html a57a22b866c6db5d6bcdaacac1f4561a1e1fca47
+F www/permutedindex.html a97be5938eb3f21029a5cc44ae3a5e0cf4d4d63d
 F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
 F www/private.wiki 72344489bbae6f7955369559b6ab22e01a64259b
 F www/qandc.wiki e07b21da221b05afeb1905f17af3765045952ba8
@@ -741,6 +741,6 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 6692087939f304454afb73b589b7bab5c908a678 7842b8ab3177fa73bf2fdf3a491939ece8bbe3e8
+P b00e60194e9527bb7da9c1b664ffc7467b3aa66d
 U michai
-Z d535a37bbe48304b237c64d30580fd92
+Z ef7ebd93ef36b4f4e534a0662e8a508c

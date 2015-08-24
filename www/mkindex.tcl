@@ -113,15 +113,15 @@ puts $out {
 book</a>
 <li> <a href='../../../help'>Command-line help</a>
 </ul>
+<h2>Canonical Index:</h2>
+(list of unique documents)
+<ul>}
+emit_links $out $canonindex
+puts $out {
+</ul>
 <a name="pindex"></a>
 <h2>Permuted Index:</h2>
 (ordered by keywords - multiple entries linking to the same document)
 <ul>}
 emit_links $out $permindex
-puts $out {
-</ul>
-<h2>Canonical Index:</h2>
-(list of unique documents)
-<ul>}
-emit_links $out $canonindex
 puts $out "</ul></div>"
