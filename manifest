@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.8.11.1
-D 2015-08-18T13:28:53.336
+C Add\scomment\son\susage\sto\smingw\smakefile
+D 2015-08-26T09:57:16.982
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -446,7 +446,7 @@ F src/main.c 9728b1f90a1eb6db13ee9192f1de52625750f7c3
 F src/main.mk 6134955a71af52592fa41a90246cdf69a2f63410
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 2e3b1b87e51abea14b80f51cfdb49b2b70ac29a0
+F src/makemake.tcl 3ea6ff2d942368c368fdf4bb7a2af70fbc1d08e6
 F src/manifest.c ba061499e6431a1c2c8aa19821adf429975fdee6
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 45f6e06e03e4183764067eec37ff73f357303306
@@ -741,7 +741,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 5c49850e26304ed3c9eb250e7d6b2de8d0de6615
-R f04b8b749534ea266809b7fa6935d290
-U jan.nijtmans
-Z fc1b815f0e080b8432e5f78d98929af5
+P 7842b8ab3177fa73bf2fdf3a491939ece8bbe3e8
+R 22dc2107ad88666be36924029ea2200e
+U baruch
+Z 4ff73d9e23f822feaa6dfa99675c486b
