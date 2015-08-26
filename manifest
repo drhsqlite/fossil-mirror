@@ -1,5 +1,5 @@
-C Bring\ssvn\simport\sup\sto\sdate\sin\san\sattempt\sto\sfinish\sit
-D 2015-08-26T09:34:12.147
+C fix\sbug\sin\sfinding\sprevious\sversion\sof\schanged\sfile
+D 2015-08-26T14:06:07.820
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -418,7 +418,7 @@ F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
-F src/import.c 39947d8db7449d3e73b121de4c1196e33138508c
+F src/import.c e1a455d3216a191f064926d3f5f5bd01f08c3828
 F src/info.c ea7cd317012235c4abc2dda5155a4bd246f9a0a1
 F src/json.c 4bfa5f9114a9ff0678efbc010c8c31b914fb528f
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
@@ -741,7 +741,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P cd234b1c4685dc1cc81c347c6a8f3b015c6a7d4c 7842b8ab3177fa73bf2fdf3a491939ece8bbe3e8
-R f04b8b749534ea266809b7fa6935d290
+P c75ca53eee3d3ff2f0d99fb5b9e0e55fac9f6fd9
+R 0825b57a1ebd663c57fa863f55e6ae77
 U baruch
-Z b72fad9754f794a068edfde414746482
+Z 29dbef8f9e4fe7acaf0d10b2b8095e59
