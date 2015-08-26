@@ -650,19 +650,21 @@ endif
 #    the finished binary for fossil.  The BCC compiler above is used
 #    for building intermediate code-generator tools.
 #
-TCC = $(PREFIX)gcc -Os -Wall
-
-#### When not using the miniz compression library, zlib is required.
-#
-ifndef FOSSIL_ENABLE_MINIZ
-TCC += -L$(ZLIBDIR) -I$(ZINCDIR)
-endif
+TCC = $(PREFIX)gcc -Wall
 
 #### Add the necessary command line options to build with debugging
 #    symbols, if enabled.
 #
 ifdef FOSSIL_ENABLE_SYMBOLS
 TCC += -g
+else
+TCC += -Os
+endif
+
+#### When not using the miniz compression library, zlib is required.
+#
+ifndef FOSSIL_ENABLE_MINIZ
+TCC += -L$(ZLIBDIR) -I$(ZINCDIR)
 endif
 
 #### Compile resources for use in building executables that will run
