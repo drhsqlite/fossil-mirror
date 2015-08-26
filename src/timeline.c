@@ -110,7 +110,7 @@ char *hash_color(const char *z){
   static int ix[2] = {0,0};    /* Color chooser parameters */
 
   if( ix[0]==0 ){
-    if( db_get_boolean("white-foreground", 0) ){
+    if( skin_detail_boolean("white-foreground") ){
       ix[0] = 140;
       ix[1] = 40;
     }else{
@@ -165,7 +165,6 @@ void test_hash_color_page(void){
   char zNm[10];
   int i, cnt;
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
 
   style_header("Hash Color Test");
   for(i=cnt=0; i<10; i++){
@@ -244,19 +243,13 @@ void www_print_timeline(
   if( zDateFmt ) dateFormat = atoi(zDateFmt);
   if( tmFlags & TIMELINE_GRAPH ){
     pGraph = graph_init();
-    /* style is not moved to css, because this is
-    ** a technical div for the timeline graph
-    */
-    @ <div id="canvas" style="position:relative;height:0px;width:0px;"
-    @  onclick="clickOnGraph(event)"></div>
   }
   db_static_prepare(&qbranch,
     "SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0 AND rid=:rid",
     TAG_BRANCH
   );
 
-  @ <table id="timelineTable" class="timelineTable"
-  @  onclick="clickOnGraph(event)">
+  @ <table id="timelineTable" class="timelineTable">
   blob_zero(&comment);
   while( db_step(pQuery)==SQLITE_ROW ){
     int rid = db_column_int(pQuery, 0);
@@ -272,6 +265,7 @@ void www_print_timeline(
     const char *zBr = 0;      /* Branch */
     int commentColumn = 3;    /* Column containing comment text */
     int modPending;           /* Pending moderation */
+    char *zDateLink;          /* URL for the link on the timestamp */
     char zTime[20];
 
     if( zDate==0 ){
@@ -353,7 +347,8 @@ void www_print_timeline(
     }else {
       @ <tr>
     }
-    @ <td class="timelineTime">%s(zTime)</td>
+    zDateLink = href("%R/timeline?c=%!S&unhide", zUuid);
+    @ <td class="timelineTime">%z(zDateLink)%s(zTime)</a></td>
     @ <td class="timelineGraph">
     if( tmFlags & TIMELINE_UCOLOR )  zBgClr = zUser ? hash_color(zUser) : 0;
     if( zType[0]=='c'
@@ -392,7 +387,7 @@ void www_print_timeline(
       gidx = graph_add_row(pGraph, rid, nParent, aParent, zBr, zBgClr,
                            zUuid, isLeaf);
       db_reset(&qbranch);
-      @ <div id="m%d(gidx)"></div>
+      @ <div id="m%d(gidx)" class="tl-nodemark"></div>
     }
     @</td>
     if( zBgClr && zBgClr[0] && rid!=selectedRid ){
@@ -500,7 +495,7 @@ void www_print_timeline(
       int inUl = 0;
       if( !fchngQueryInit ){
         db_prepare(&fchngQuery,
-          "SELECT (pid==0) AS isnew,"
+          "SELECT pid,"
           "       fid,"
           "       (SELECT name FROM filename WHERE fnid=mlink.fnid) AS name,"
           "       (SELECT uuid FROM blob WHERE rid=fid),"
@@ -518,7 +513,8 @@ void www_print_timeline(
       db_bind_int(&fchngQuery, ":mid", rid);
       while( db_step(&fchngQuery)==SQLITE_ROW ){
         const char *zFilename = db_column_text(&fchngQuery, 2);
-        int isNew = db_column_int(&fchngQuery, 0);
+        int isNew = db_column_int(&fchngQuery, 0)<=0;
+        int isMergeNew = db_column_int(&fchngQuery, 0)<0;
         int fid = db_column_int(&fchngQuery, 1);
         int isDel = fid==0;
         const char *zOldName = db_column_text(&fchngQuery, 5);
@@ -547,8 +543,13 @@ void www_print_timeline(
           zUnpub =  UNPUB_TAG;
         }
         if( isNew ){
-          @ <li> %s(zA)%h(zFilename)</a>%s(zId) %s(zUnpub) (new file) &nbsp;
-          @ %z(href("%R/artifact/%!S",zNew))[view]</a></li>
+          @ <li> %s(zA)%h(zFilename)</a>%s(zId) %s(zUnpub)
+          if( isMergeNew ){
+            @ (added by merge)
+          }else{
+            @ (new file)
+          }
+          @ &nbsp; %z(href("%R/artifact/%!S",zNew))[view]</a></li>
         }else if( isDel ){
           @ <li> %s(zA)%h(zFilename)</a> (deleted)</li>
         }else if( fossil_strcmp(zOld,zNew)==0 && zOldName!=0 ){
@@ -584,19 +585,43 @@ void www_print_timeline(
       graph_free(pGraph);
       pGraph = 0;
     }else{
-      int w;
-      /* style is not moved to css, because this is
-      ** a technical div for the timeline graph
-      */
-      w = pGraph->mxRail*pGraph->iRailPitch + 28;
-      @ <tr><td></td><td>
-      @ <div id="grbtm" style="width:%d(w)px;"></div>
-      @ </td><td></td></tr>
+      @ <tr class="timelineBottom"><td></td><td></td><td></td></tr>
     }
   }
   @ </table>
   if( fchngQueryInit ) db_finalize(&fchngQuery);
   timeline_output_graph_javascript(pGraph, (tmFlags & TIMELINE_DISJOINT)!=0, 0);
+}
+
+/*
+** Change the RGB background color given in the argument in a foreground
+** color with the same hue.
+*/
+static const char *bg_to_fg(const char *zIn){
+  int i;
+  unsigned int x[3];
+  unsigned int mx = 0;
+  static int whiteFg = -1;
+  static char zRes[10];
+  if( strlen(zIn)!=7 || zIn[0]!='#' ) return zIn;
+  zIn++;
+  for(i=0; i<3; i++){
+    x[i] = hex_digit_value(zIn[0])*16 + hex_digit_value(zIn[1]);
+    zIn += 2;
+    if( x[i]>mx ) mx = x[i];
+  }
+  if( whiteFg<0 ) whiteFg = skin_detail_boolean("white-foreground");
+  if( whiteFg ){
+    /* Make the color lighter */
+    static const unsigned int t = 215;
+    if( mx<t ) for(i=0; i<3; i++) x[i] += t - mx;
+  }else{
+    /* Make the color darker */
+    static const unsigned int t = 128;
+    if( mx>t ) for(i=0; i<3; i++) x[i] -= mx - t;
+  }
+  sqlite3_snprintf(sizeof(zRes),zRes,"#%02x%02x%02x",x[0],x[1],x[2]);
+  return zRes;
 }
 
 /*
@@ -612,20 +637,30 @@ void timeline_output_graph_javascript(
     GraphRow *pRow;
     int i;
     char cSep;
-    int mergeOffset;     /* Pixel offset from rail to merge riser */
     int iRailPitch;      /* Pixels between consecutive rails */
-    iRailPitch = pGraph->iRailPitch;
+    int showArrowheads;  /* True to draw arrowheads.  False to omit. */
+    int circleNodes;     /* True for circle nodes.  False for square nodes */
+    int colorGraph;      /* Use colors for graph lines */
 
-    /* Number of pixels that the thin merge lines are offset from the
-    ** the center of the think rail lines.  If zero, then the vertical
-    ** merge lines overlap with the thicker rail lines.
-    */
-    mergeOffset = iRailPitch>=14 ? 4 : iRailPitch>=13 ? 3 : 0;
-    if( PB("nomo") ) mergeOffset = 0;
+    iRailPitch = atoi(PD("railpitch","0"));
+    showArrowheads = skin_detail_boolean("timeline-arrowheads");
+    circleNodes = skin_detail_boolean("timeline-circle-nodes");
+    colorGraph = skin_detail_boolean("timeline-color-graph-lines");
 
-    @ <script>
-    @ var railPitch=%d(iRailPitch);
-
+    @ <script>(function(){
+    @ "use strict";
+    @ var css = "";
+    if( circleNodes ){
+      @ css += ".tl-node, .tl-node:after { border-radius: 50%%; }";
+    }
+    if( !showArrowheads ){
+      @ css += ".tl-arrow.u { display: none; }";
+    }
+    @ if( css!=="" ){
+    @   var style = document.createElement("style");
+    @   style.textContent = css;
+    @   document.querySelector("head").appendChild(style);
+    @ }
     /* the rowinfo[] array contains all the information needed to generate
     ** the graph.  Each entry contains information for a single row:
     **
@@ -637,9 +672,9 @@ void timeline_output_graph_javascript(
     **        rail is 0 and the number increases to the right.
     **    d:  True if there is a "descender" - an arrow coming from the bottom
     **        of the page straight up to this node.
-    **   mo:  "merge-out".  If non-zero, this is one more than the x-coordinate
+    **   mo:  "merge-out".  If non-negative, this is the rail position
     **        for the upward portion of a merge arrow.  The merge arrow goes up
-    **        to the row identified by mu:.  If this value is zero then
+    **        to the row identified by mu:.  If this value is negative then
     **        node has no merge children and no merge-out line is drawn.
     **   mu:  The id of the row which is the top of the merge-out arrow.
     **    u:  Draw a thick child-line out of the top of this node and up to
@@ -650,33 +685,21 @@ void timeline_output_graph_javascript(
     **        The integers are in pairs.  For each pair, the first integer is
     **        is the rail on which the riser should run and the second integer
     **        is the id of the node upto which the riser should run.
-    **   mi:  "merge-in".  An array of integer x-coordinates from which
+    **   mi:  "merge-in".  An array of integer rail positions from which
     **        merge arrows should be drawn into this node.  If the value is
-    **        negative, then the x-coordinate is the absolute value of mi[]
+    **        negative, then the rail position is the absolute value of mi[]
     **        and a thin merge-arrow descender is drawn to the bottom of
     **        the screen.
     **    h:  The SHA1 hash of the object being graphed
     */
     cgi_printf("var rowinfo = [\n");
     for(pRow=pGraph->pFirst; pRow; pRow=pRow->pNext){
-      int mo = pRow->mergeOut;
-      if( mo<0 ){
-        mo = 0;
-      }else{
-        int x = (mo/4)*iRailPitch;
-        switch( mo&3 ){
-          case 0: x -= mergeOffset-2;  break;
-          case 1: x += 1;              break;
-          case 2: x += mergeOffset+1;  break;
-        }
-        mo = x;
-      }
       cgi_printf("{id:%d,bg:\"%s\",r:%d,d:%d,mo:%d,mu:%d,u:%d,f:%d,au:",
         pRow->idx,                      /* id */
         pRow->zBgClr,                   /* bg */
         pRow->iRail,                    /* r */
         pRow->bDescender,               /* d */
-        mo,                             /* mo */
+        pRow->mergeOut,                 /* mo */
         pRow->mergeUpto,                /* mu */
         pRow->aiRiser[pRow->iRail],     /* u */
         pRow->isLeaf ? 1 : 0            /* f */
@@ -691,14 +714,16 @@ void timeline_output_graph_javascript(
         }
       }
       if( cSep=='[' ) cgi_printf("[");
-      cgi_printf("],mi:");
+      cgi_printf("],");
+      if( colorGraph && pRow->zBgClr[0]=='#' ){
+        cgi_printf("fg:\"%s\",", bg_to_fg(pRow->zBgClr));
+      }
       /* mi */
+      cgi_printf("mi:");
       cSep = '[';
       for(i=0; i<GR_MAX_RAIL; i++){
         if( pRow->mergeIn[i] ){
-          int mi = i*iRailPitch;
-          if( pRow->mergeIn[i]==1 ) mi -= mergeOffset-1;
-          if( pRow->mergeIn[i]==3 ) mi += mergeOffset;
+          int mi = i;
           if( pRow->mergeDown & (1<<i) ) mi = -mi;
           cgi_printf("%c%d", cSep, mi);
           cSep = ',';
@@ -709,31 +734,86 @@ void timeline_output_graph_javascript(
     }
     cgi_printf("var nrail = %d\n", pGraph->mxRail+1);
     graph_free(pGraph);
-    @ var cDiv = gebi("canvas");
-    @ var csty = window.getComputedStyle && window.getComputedStyle(cDiv,null);
-    @ var lineClr = (csty && csty.getPropertyValue('color')) || 'black';
-    @ var bgClr = (csty && csty.getPropertyValue('background-color')) ||'white';
-    @ if( bgClr=='transparent' ) bgClr = 'white';
-    @ var boxColor = lineClr;
-    @ function drawBox(color,x0,y0,x1,y1){
+    @ var canvasDiv;
+    @ var railPitch;
+    @ var mergeOffset;
+    @ var node, arrow, arrowSmall, line, mArrow, mLine, wArrow, wLine;
+    @ function initGraph(){
+    @   var parent = gebi("timelineTable").rows[0].cells[1];
+    @   parent.style.verticalAlign = "top";
+    @   canvasDiv = document.createElement("div");
+    @   canvasDiv.className = "tl-canvas";
+    @   canvasDiv.style.position = "absolute";
+    @   parent.appendChild(canvasDiv);
+    @
+    @   var elems = {};
+    @   var elemClasses = [
+    @     "rail", "mergeoffset", "node", "arrow u", "arrow u sm", "line",
+    @     "arrow merge r", "line merge", "arrow warp", "line warp"
+    @   ];
+    @   for( var i=0; i<elemClasses.length; i++ ){
+    @     var cls = elemClasses[i];
+    @     var elem = document.createElement("div");
+    @     elem.className = "tl-" + cls;
+    @     if( cls.indexOf("line")==0 ) elem.className += " v";
+    @     canvasDiv.appendChild(elem);
+    @     var k = cls.replace(/\s/g, "_");
+    @     var r = elem.getBoundingClientRect();
+    @     var w = Math.round(r.right - r.left);
+    @     var h = Math.round(r.bottom - r.top);
+    @     elems[k] = {w: w, h: h, cls: cls};
+    @   }
+    @   node = elems.node;
+    @   arrow = elems.arrow_u;
+    @   arrowSmall = elems.arrow_u_sm;
+    @   line = elems.line;
+    @   mArrow = elems.arrow_merge_r;
+    @   mLine = elems.line_merge;
+    @   wArrow = elems.arrow_warp;
+    @   wLine = elems.line_warp;
+    @
+    @   var minRailPitch = Math.ceil((node.w+line.w)/2 + mArrow.w + 1);
+    if( iRailPitch ){
+      @   railPitch = %d(iRailPitch);
+    }else{
+      @   railPitch = elems.rail.w;
+      @   railPitch -= Math.floor((nrail-1)*(railPitch-minRailPitch)/21);
+    }
+    @   railPitch = Math.max(railPitch, minRailPitch);
+    @
+    if( PB("nomo") ){
+      @   mergeOffset = 0;
+    }else{
+      @   mergeOffset = railPitch-minRailPitch-mLine.w;
+      @   mergeOffset = Math.min(mergeOffset, elems.mergeoffset.w);
+      @   mergeOffset = mergeOffset>0 ? mergeOffset + line.w/2 : 0;
+    }
+    @
+    @   var canvasWidth = (nrail-1)*railPitch + node.w;
+    @   canvasDiv.style.width = canvasWidth + "px";
+    @   canvasDiv.style.position = "relative";
+    @ }
+    @ function drawBox(cls,color,x0,y0,x1,y1){
     @   var n = document.createElement("div");
+    @   x0 = Math.floor(x0);
+    @   y0 = Math.floor(y0);
+    @   x1 = x1 || x1===0 ? Math.floor(x1) : x0;
+    @   y1 = y1 || y1===0 ? Math.floor(y1) : y0;
     @   if( x0>x1 ){ var t=x0; x0=x1; x1=t; }
     @   if( y0>y1 ){ var t=y0; y0=y1; y1=t; }
-    @   var w = x1-x0+1;
-    @   var h = y1-y0+1;
+    @   var w = x1-x0;
+    @   var h = y1-y0;
     @   n.style.position = "absolute";
-    @   n.style.overflow = "hidden";
     @   n.style.left = x0+"px";
     @   n.style.top = y0+"px";
-    @   n.style.width = w+"px";
-    @   n.style.height = h+"px";
-    @   n.style.backgroundColor = color;
-    @   cDiv.appendChild(n);
+    @   if( w ) n.style.width = w+"px";
+    @   if( h ) n.style.height = h+"px";
+    @   if( color ) n.style.backgroundColor = color;
+    @   n.className = "tl-"+cls;
+    @   canvasDiv.appendChild(n);
     @   return n;
     @ }
-    @ function absoluteY(id){
-    @   var obj = gebi(id);
-    @   if( !obj ) return;
+    @ function absoluteY(obj){
     @   var top = 0;
     @   if( obj.offsetParent ){
     @     do{
@@ -742,197 +822,146 @@ void timeline_output_graph_javascript(
     @   }
     @   return top;
     @ }
-    @ function absoluteX(id){
-    @   var obj = gebi(id);
-    @   if( !obj ) return;
-    @   var left = 0;
-    @   if( obj.offsetParent ){
-    @     do{
-    @       left += obj.offsetLeft;
-    @     }while( obj = obj.offsetParent );
-    @   }
-    @   return left;
+    @ function miLineY(p){
+    @   return p.y + node.h - mLine.w - 1;
     @ }
-    @ function drawUpArrow(x,y0,y1){
-    @   drawBox(lineClr,x,y0+5,x+1,y1);
-    @   var n = document.createElement("div"),
-    @       l = x-2,
-    @       t = y0;
-    @   n.style.position = "absolute";
-    @   n.style.left = l+"px";
-    @   n.style.top = t+"px";
-    @   n.style.width = 0;
-    @   n.style.height = 0;
-    @   n.style.borderWidth = 0;
-    @   n.style.borderStyle = "solid";
-    @   n.style.borderColor = "transparent";
-    @   n.style.borderRightWidth = "3px";
-    @   n.style.borderBottomColor = "#000";
-    @   n.style.borderBottomStyle = "outset";
-    @   n.style.borderLeftWidth = "3px";
-    @   if( y0+10>=y1 ){
-    @     n.style.borderBottomWidth = "5px";
-    @   } else {
-    @     n.style.borderBottomWidth = "7px";
-    @   }
-    @   cDiv.appendChild(n);
-    @ }
-    @ function drawThinArrow(y,xFrom,xTo){
-    @   var n = document.createElement("div"),
-    @       t = y-2;
-    @   n.style.position = "absolute";
-    @   n.style.top = t+"px";
-    @   n.style.width = 0;
-    @   n.style.height = "1px";
-    @   n.style.borderWidth = 0;
-    @   n.style.borderStyle = "solid";
-    @   n.style.borderColor = "transparent";
-    @   n.style.borderTopWidth = "2px";
-    @   n.style.borderBottomWidth = "2px";
-    @   if( xFrom<xTo ){
-    @     drawBox(lineClr,xFrom,y,xTo-3,y);
-    @     n.style.left = xTo-3+"px";
-    @     n.style.borderLeftStyle = "inset";
-    @     n.style.borderLeftWidth = "3px";
-    @     n.style.borderLeftColor = "#000";
+    @ function drawLine(elem,color,x0,y0,x1,y1){
+    @   var cls = elem.cls + " ";
+    @   if( x1===null ){
+    @     x1 = x0+elem.w;
+    @     cls += "v";
     @   }else{
-    @     drawBox(lineClr,xTo+3,y,xFrom,y);
-    @     n.style.left = xTo+1+"px";
-    @     n.style.borderRightStyle = "outset";
-    @     n.style.borderRightWidth = "3px";
-    @     n.style.borderRightColor = "#000";
+    @     y1 = y0+elem.w;
+    @     cls += "h";
     @   }
-    @   cDiv.appendChild(n);
+    @   drawBox(cls,color,x0,y0,x1,y1);
     @ }
-    @ function drawThinLine(x0,y0,x1,y1){
-    @   drawBox(lineClr,x0,y0,x1,y1);
+    @ function drawUpArrow(from,to,color){
+    @   var y = to.y + node.h;
+    @   var arrowSpace = from.y - y + (!from.id || from.r!=to.r ? node.h/2 : 0);
+    @   var arw = arrowSpace < arrow.h*1.5 ? arrowSmall : arrow;
+    @   var x = to.x + (node.w-line.w)/2;
+    @   var y0 = from.y + node.h/2;
+    @   var y1 = Math.ceil(to.y + node.h + arw.h/2);
+    @   drawLine(line,color,x,y0,null,y1);
+    @   x = to.x + (node.w-arw.w)/2;
+    @   var n = drawBox(arw.cls,null,x,y);
+    @   n.style.borderBottomColor = color;
     @ }
-    @ function drawNodeBox(color,x0,y0,x1,y1){
-    @   drawBox(color,x0,y0,x1,y1).style.cursor = "pointer";
+    @ function drawMergeLine(x0,y0,x1,y1){
+    @   drawLine(mLine,null,x0,y0,x1,y1);
     @ }
-    @ function drawNode(p, left, btm){
-    @   drawNodeBox(boxColor,p.x-5,p.y-5,p.x+6,p.y+6);
-    @   drawNodeBox(p.bg||bgClr,p.x-4,p.y-4,p.x+5,p.y+5);
-    @   if( p.u>0 ) drawUpArrow(p.x, rowinfo[p.u-1].y+6, p.y-5);
-    @   if( p.f&1 ) drawNodeBox(boxColor,p.x-1,p.y-1,p.x+2,p.y+2);
+    @ function drawMergeArrow(p,rail){
+    @   var x0 = rail*railPitch + node.w/2;
+    @   if( rail in mergeLines ){
+    @     x0 += mergeLines[rail];
+    @     if( p.r<rail ) x0 += mLine.w;
+    @   }else{
+    @     x0 += (p.r<rail ? -1 : 1)*line.w/2;
+    @   }
+    @   var x1 = mArrow.w ? mArrow.w/2 : -node.w/2;
+    @   x1 = p.x + (p.r<rail ? node.w + Math.ceil(x1) : -x1);
+    @   var y = miLineY(p);
+    @   drawMergeLine(x0,y,x1,null);
+    @   var x = p.x + (p.r<rail ? node.w : -mArrow.w);
+    @   var cls = "arrow merge " + (p.r<rail ? "l" : "r");
+    @   drawBox(cls,null,x,y+(mLine.w-mArrow.h)/2);
+    @ }
+    @ function drawNode(p, btm){
+    @   if( p.u>0 ) drawUpArrow(p,rowinfo[p.u-1],p.fg);
+    @   var cls = node.cls;
+    @   if( p.mi.length ) cls += " merge";
+    @   if( p.f&1 ) cls += " leaf";
+    @   var n = drawBox(cls,p.bg,p.x,p.y);
+    @   n.id = "tln"+p.id;
+    @   n.onclick = clickOnNode;
+    @   n.style.zIndex = 10;
     if( !omitDescenders ){
-      @   if( p.u==0 ) drawUpArrow(p.x, 0, p.y-5);
-      @   if( p.d ) drawUpArrow(p.x, p.y+6, btm);
+      @   if( p.u==0 ) drawUpArrow(p,{x: p.x, y: -node.h},p.fg);
+      @   if( p.d ) drawUpArrow({x: p.x, y: btm-node.h/2},p,p.fg);
     }
-    @   if( p.mo>0 ){
-    @     var x1 = p.mo + left - 1;
-    @     var y1 = p.y-3;
-    @     var x0 = x1>p.x ? p.x+7 : p.x-6;
+    @   if( p.mo>=0 ){
+    @     var x0 = p.x + node.w/2;
+    @     var x1 = p.mo*railPitch + node.w/2;
     @     var u = rowinfo[p.mu-1];
-    @     var y0 = u.y+5;
-    @     if( x1>=p.x-5 && x1<=p.x+5 ){
-    @       y1 = p.y-5;
+    @     var y1 = miLineY(u);
+    @     if( p.u<0 || p.mo!=p.r ){
+    @       x1 += mergeLines[p.mo] = -mLine.w/2;
+    @       var y0 = p.y+2;
+    @       if( p.r!=p.mo ) drawMergeLine(x0,y0,x1+(x0<x1 ? mLine.w : 0),null);
+    @       drawMergeLine(x1,y0+mLine.w,null,y1);
+    @     }else if( mergeOffset ){
+    @       mergeLines[p.mo] = u.r<p.r ? -mergeOffset-mLine.w : mergeOffset;
+    @       x1 += mergeLines[p.mo];
+    @       drawMergeLine(x1,p.y+node.h/2,null,y1);
     @     }else{
-    @       drawThinLine(x0,y1,x1,y1);
+    @       delete mergeLines[p.mo];
     @     }
-    if( mergeOffset==0 ) cgi_printf("if( p.mo!=p.u-1 ) ");
-    @     drawThinLine(x1,y0,x1,y1);
     @   }
-    @   var n = p.au.length;
-    @   for(var i=0; i<n; i+=2){
-    @     var x1 = p.au[i]*railPitch + left;
-    @     var x0 = x1>p.x ? p.x+7 : p.x-6;
+    @   for( var i=0; i<p.au.length; i+=2 ){
+    @     var rail = p.au[i];
+    @     var x0 = p.x + node.w/2;
+    @     var x1 = rail*railPitch + (node.w-line.w)/2;
+    @     if( x0<x1 ){
+    @       x0 = Math.ceil(x0);
+    @       x1 += line.w;
+    @     }
+    @     var y0 = p.y + (node.h-line.w)/2;
     @     var u = rowinfo[p.au[i+1]-1];
-    @     if(u.id<p.id){
-    @       drawBox(lineClr,x0,p.y,x1+1,p.y+1);
-    @       drawUpArrow(x1, u.y+6, p.y);
+    @     if( u.id<p.id ){
+    @       drawLine(line,u.fg,x0,y0,x1,null);
+    @       drawUpArrow(p,u,u.fg);
     @     }else{
-    @       drawBox("#600000",x0,p.y,x1,p.y+1);
-    @       drawBox("#600000",x1-1,p.y,x1,u.y+1);
-    @       drawBox("#600000",x1,u.y,u.x-10,u.y+1);
-    @       var n = document.createElement("div"),
-    @           t = u.y-2,
-    @           l = u.x-11;
-    @       n.style.position = "absolute";
-    @       n.style.top = t+"px";
-    @       n.style.left = l+"px";
-    @       n.style.width = 0;
-    @       n.style.height = 0;
-    @       n.style.borderWidth = 0;
-    @       n.style.borderStyle = "solid";
-    @       n.style.borderColor = "transparent";
-    @       n.style.borderTopWidth = "3px";
-    @       n.style.borderBottomWidth = "3px";
-    @       n.style.borderLeftStyle = "inset";
-    @       n.style.borderLeftWidth = "7px";
-    @       n.style.borderLeftColor = "#600000";
-    @       cDiv.appendChild(n);
+    @       var y1 = u.y + (node.h-line.w)/2;
+    @       drawLine(wLine,u.fg,x0,y0,x1,null);
+    @       drawLine(wLine,u.fg,x1-line.w,y0,null,y1+line.w);
+    @       drawLine(wLine,u.fg,x1,y1,u.x-wArrow.w/2,null);
+    @       var x = u.x-wArrow.w;
+    @       var y = u.y+(node.h-wArrow.h)/2;
+    @       var n = drawBox(wArrow.cls,null,x,y);
+    @       if( u.fg ) n.style.borderLeftColor = u.fg;
     @     }
     @   }
-    @   for(var j in p.mi){
-    @     var y0 = p.y+5;
-    @     var mx = p.mi[j];
-    @     if( mx<0 ){
-    @       mx = left-mx;
-    @       drawThinLine(mx,y0,mx,btm);
-    @     }else{
-    @       mx += left;
+    @   for( var i=0; i<p.mi.length; i++ ){
+    @     var rail = p.mi[i];
+    @     if( rail<0 ){
+    @       rail = -rail;
+    @       mergeLines[rail] = -mLine.w/2;
+    @       var x = rail*railPitch + (node.w-mLine.w)/2;
+    @       drawMergeLine(x,miLineY(p),null,btm);
     @     }
-    @     if( mx>p.x ){
-    @       drawThinArrow(y0,mx,p.x+6);
-    @     }else{
-    @       drawThinArrow(y0,mx,p.x-5);
-    @     }
+    @     drawMergeArrow(p,rail);
     @   }
     @ }
-    @ var selBox = null;
-    @ var selRow = null;
+    @ var mergeLines;
     @ function renderGraph(){
-    @   var canvasDiv = gebi("canvas");
-    @   while( canvasDiv.hasChildNodes() ){
-    @     canvasDiv.removeChild(canvasDiv.firstChild);
+    @   mergeLines = {};
+    @   canvasDiv.innerHTML = "";
+    @   var canvasY = absoluteY(canvasDiv);
+    @   for( var i=0; i<rowinfo.length; i++ ){
+    @     rowinfo[i].y = absoluteY(gebi("m"+rowinfo[i].id)) - canvasY;
+    @     rowinfo[i].x = rowinfo[i].r*railPitch;
     @   }
-    @   var canvasY = absoluteY("timelineTable");
-    @   var left = absoluteX("m"+rowinfo[0].id) - absoluteX("canvas") + 15;
-    @   for(var i in rowinfo){
-    @     rowinfo[i].y = absoluteY("m"+rowinfo[i].id) + 10 - canvasY;
-    @     rowinfo[i].x = left + rowinfo[i].r*railPitch;
+    @   var tlBtm = document.querySelector(".timelineBottom");
+    @   if( tlBtm.offsetHeight<node.h ){
+    @     tlBtm.style.height = node.h + "px";
     @   }
-    @   var btm = absoluteY("grbtm") + 10 - canvasY;
-    @   for(var i in rowinfo){
-    @     drawNode(rowinfo[i], left, btm);
-    @   }
-    @   if( selRow!=null ) clickOnRow(selRow);
-    @ }
-    @ function clickOnGraph(event){
-    @   var x=event.clientX-absoluteX("canvas");
-    @   var y=event.clientY-absoluteY("canvas");
-    @   if(window.pageXOffset!=null){
-    @     x += window.pageXOffset;
-    @     y += window.pageYOffset;
-    @   }else{
-    @     var d = window.document.documentElement;
-    @     if(document.compatMode!="CSS1Compat") d = d.body;
-    @     x += d.scrollLeft;
-    @     y += d.scrollTop;
-    @   }
-    if( P("clicktest")!=0 ){
-      @ alert("click at "+x+","+y)
-    }
-    @   for(var i in rowinfo){
-    @     p = rowinfo[i];
-    @     if( p.y<y-11 ) continue;
-    @     if( p.y>y+9 ) break;
-    @     if( p.x>x-11 && p.x<x+9 ){
-    @       clickOnRow(p);
-    @       break;
-    @     }
+    @   var btm = absoluteY(tlBtm) - canvasY + tlBtm.offsetHeight;
+    @   for( var i=rowinfo.length-1; i>=0; i-- ){
+    @     drawNode(rowinfo[i], btm);
     @   }
     @ }
-    @ function clickOnRow(p){
-    @   if( selRow==null ){
-    @     selBox = drawBox("red",p.x-2,p.y-2,p.x+3,p.y+3);
+    @ var selRow;
+    @ function clickOnNode(){
+    @   var p = rowinfo[parseInt(this.id.match(/\d+$/)[0], 10)-1];
+    @   if( !selRow ){
     @     selRow = p;
+    @     this.className += " sel";
+    @     canvasDiv.className += " sel";
     @   }else if( selRow==p ){
-    @     var canvasDiv = gebi("canvas");
-    @     canvasDiv.removeChild(selBox);
-    @     selBox = null;
     @     selRow = null;
+    @     this.className = this.className.replace(" sel", "");
+    @     canvasDiv.className = canvasDiv.className.replace(" sel", "");
     @   }else{
     if( fileDiff ){
       @     location.href="%R/fdiff?v1="+selRow.h+"&v2="+p.h+"&sbs=1";
@@ -945,18 +974,19 @@ void timeline_output_graph_javascript(
     }
     @   }
     @ }
-    @ var lastId = "m"+rowinfo[rowinfo.length-1].id;
+    @ var lastRow = gebi("m"+rowinfo[rowinfo.length-1].id);
     @ var lastY = 0;
     @ function checkHeight(){
-    @   var h = absoluteY(lastId);
+    @   var h = absoluteY(lastRow);
     @   if( h!=lastY ){
     @     renderGraph();
     @     lastY = h;
     @   }
-    @   setTimeout("checkHeight();", 1000);
+    @   setTimeout(checkHeight, 1000);
     @ }
+    @ initGraph();
     @ checkHeight();
-    @ </script>
+    @ }())</script>
   }
 }
 
@@ -1163,6 +1193,7 @@ static void timeline_y_submenu(int isDisabled){
 **    brbg           Background color from branch name
 **    ubg            Background color from user
 **    namechng       Show only check-ins that filename changes
+**    forks          Show only forks and their children
 **    ym=YYYY-MM     Shown only events for the given year/month.
 **    datefmt=N      Override the date format
 **
@@ -1196,6 +1227,7 @@ void page_timeline(void){
   const char *zYearWeek = P("yw");   /* Check-ins for YYYY-WW (week-of-year) */
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
   int renameOnly = P("namechng")!=0; /* Show only check-ins that rename files */
+  int forkOnly = PB("forks");        /* Show only forks and their children */
   int tagid;                         /* Tag ID */
   int tmFlags = 0;                   /* Timeline flags */
   const char *zThisTag = 0;          /* Suppress links to this tag */
@@ -1247,10 +1279,10 @@ void page_timeline(void){
   url_initialize(&url, "timeline");
   cgi_query_parameters_to_url(&url);
   if( zTagName && g.perm.Read ){
-    tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'", zTagName);
+    tagid = db_int(-1,"SELECT tagid FROM tag WHERE tagname='sym-%q'",zTagName);
     zThisTag = zTagName;
   }else if( zBrName && g.perm.Read ){
-    tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'",zBrName);
+    tagid = db_int(-1,"SELECT tagid FROM tag WHERE tagname='sym-%q'",zBrName);
     zThisTag = zBrName;
   }else{
     tagid = 0;
@@ -1260,7 +1292,7 @@ void page_timeline(void){
     if( zBefore ) zMark = zBefore;
     if( zCirca ) zMark = zCirca;
   }
-  if( tagid>0
+  if( tagid
    && db_int(0,"SELECT count(*) FROM tagxref WHERE tagid=%d",tagid)<=nEntry
   ){
     nEntry = -1;
@@ -1301,6 +1333,26 @@ void page_timeline(void){
       "INSERT OR IGNORE INTO rnfile"
       "  SELECT mid FROM mlink WHERE pfnid>0 AND pfnid!=fnid;"
     );
+    disableY = 1;
+  }
+  if( forkOnly ){
+    db_multi_exec(
+      "CREATE TEMP TABLE rnfork(rid INTEGER PRIMARY KEY);\n"
+      "INSERT OR IGNORE INTO rnfork(rid)\n"
+      "  SELECT pid FROM plink\n"
+      "   WHERE (SELECT value FROM tagxref WHERE tagid=%d AND rid=cid)=="
+      "           (SELECT value FROM tagxref WHERE tagid=%d AND rid=pid)\n"
+      "   GROUP BY pid"
+      "   HAVING count(*)>1;\n"
+      "INSERT OR IGNORE INTO rnfork(rid)"
+      "  SELECT cid FROM plink\n"
+      "   WHERE (SELECT value FROM tagxref WHERE tagid=%d AND rid=cid)=="
+      "           (SELECT value FROM tagxref WHERE tagid=%d AND rid=pid)\n"
+      "     AND pid IN rnfork;",
+      TAG_BRANCH, TAG_BRANCH, TAG_BRANCH, TAG_BRANCH
+    );
+    tmFlags |= TIMELINE_UNHIDE;
+    zType = "ci";
     disableY = 1;
   }
 
@@ -1423,7 +1475,7 @@ void page_timeline(void){
     }
   }else{
     /* Otherwise, a timeline based on a span of time */
-    int n;
+    int n, nBefore, nAfter;
     const char *zEType = "timeline item";
     char *zDate;
     if( zUses ){
@@ -1431,6 +1483,9 @@ void page_timeline(void){
     }
     if( renameOnly ){
       blob_append_sql(&sql, " AND event.objid IN rnfile ");
+    }
+    if( forkOnly ){
+      blob_append_sql(&sql, " AND event.objid IN rnfork ");
     }
     if( zYearMonth ){
       blob_append_sql(&sql, " AND %Q=strftime('%%Y-%%m',event.mtime) ",
@@ -1440,7 +1495,7 @@ void page_timeline(void){
       blob_append_sql(&sql, " AND %Q=strftime('%%Y-%%W',event.mtime) ",
                    zYearWeek);
     }
-    if( tagid>0 ){
+    if( tagid ){
       blob_append_sql(&sql,
         " AND (EXISTS(SELECT 1 FROM tagxref"
             " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)\n", tagid);
@@ -1604,6 +1659,10 @@ void page_timeline(void){
       blob_appendf(&desc, " that contain filename changes");
       tmFlags |= TIMELINE_DISJOINT|TIMELINE_FRENAMES;
     }
+    if( forkOnly ){
+      blob_appendf(&desc, " associated with forks");
+      tmFlags |= TIMELINE_DISJOINT;
+    }
     if( zUser ){
       blob_appendf(&desc, " by user %h", zUser);
       tmFlags |= TIMELINE_DISJOINT;
@@ -1631,16 +1690,34 @@ void page_timeline(void){
       blob_appendf(&desc, " matching \"%h\"", zSearch);
     }
     if( g.perm.Hyperlink ){
-      if( zAfter || n==nEntry ){
+      if( zCirca && rCirca ){
+        nBefore = db_int(0,
+          "SELECT count(*) FROM timeline WHERE etype!='div'"
+          "   AND sortby<=%f /*scan*/", rCirca);
+        nAfter = db_int(0,
+          "SELECT count(*) FROM timeline WHERE etype!='div'"
+          "   AND sortby>=%f /*scan*/", rCirca);
         zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
-        timeline_submenu(&url, "Older", "b", zDate, "a");
-        zOlderButton = fossil_strdup(url_render(&url, "b", zDate, "a", 0));
+        if( nBefore>=nEntry ){
+          timeline_submenu(&url, "Older", "b", zDate, "c");
+          zOlderButton = fossil_strdup(url_render(&url, "b", zDate, "c", 0));
+        }
+        if( nAfter>=nEntry ){
+          timeline_submenu(&url, "Newer", "a", zDate, "c");
+        }
         free(zDate);
-      }
-      if( zBefore || (zAfter && n==nEntry) ){
-        zDate = db_text(0, "SELECT max(timestamp) FROM timeline /*scan*/");
-        timeline_submenu(&url, "Newer", "a", zDate, "b");
-        free(zDate);
+      }else{
+        if( zAfter || n==nEntry ){
+          zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
+          timeline_submenu(&url, "Older", "b", zDate, "a");
+          zOlderButton = fossil_strdup(url_render(&url, "b", zDate, "a", 0));
+          free(zDate);
+        }
+        if( zBefore || (zAfter && n==nEntry) ){
+          zDate = db_text(0, "SELECT max(timestamp) FROM timeline /*scan*/");
+          timeline_submenu(&url, "Newer", "a", zDate, "b");
+          free(zDate);
+        }
       }
       if( zType[0]=='a' || zType[0]=='c' ){
         if( (tmFlags & TIMELINE_UNHIDE)==0 ){
@@ -1773,7 +1850,7 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
     if(verboseFlag){
       if( !fchngQueryInit ){
         db_prepare(&fchngQuery,
-           "SELECT (pid==0) AS isnew,"
+           "SELECT (pid<=0) AS isnew,"
            "       (fid==0) AS isdel,"
            "       (SELECT name FROM filename WHERE fnid=mlink.fnid) AS name,"
            "       (SELECT uuid FROM blob WHERE rid=fid),"
@@ -2010,7 +2087,7 @@ void timeline_cmd(void){
        * file check-ins */
       zType="ci";
     }
-    file_tree_name(zFilePattern, &treeName, 1);
+    file_tree_name(zFilePattern, &treeName, 0, 1);
     if( fossil_strcmp(blob_str(&treeName), ".")==0 ){
       /* When zTreeName refers to g.zLocalRoot, it's like not specifying
        * zFilePattern. */
@@ -2134,6 +2211,11 @@ void test_timewarp_cmd(void){
 
 /*
 ** WEBPAGE: test_timewarps
+**
+** Show all check-ins that are "timewarps".  A timewarp is a
+** check-in that occurs before its parent, according to the
+** timestamp information on the check-in.  This can only actually
+** happen, of course, if a users system clock is set incorrectly.
 */
 void test_timewarp_page(void){
   Stmt q;

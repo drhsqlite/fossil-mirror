@@ -251,18 +251,20 @@ const char zRepositorySchema2[] =
 @ --    pfnid = Parent File Name ID.
 @ --    isaux = pmid IS AUXiliary parent, not primary parent
 @ --
-@ -- pid==0 if the file is added by check-in mid.
-@ -- fid==0 if the file is removed by check-in mid.
+@ -- pid==0    if the file is added by check-in mid.
+@ -- pid==(-1) if the file exists in a merge parents but not in the primary
+@  --          parent.  In other words, if the file file was added by merge.
+@ -- fid==0    if the file is removed by check-in mid.
 @ --
 @ CREATE TABLE mlink(
-@   mid INTEGER REFERENCES plink(cid),  -- Check-in that contains fid
-@   fid INTEGER REFERENCES blob,        -- New file content. 0 if deleted
-@   pmid INTEGER REFERENCES plink(cid), -- Check-in that contains pid
-@   pid INTEGER REFERENCES blob,        -- Prev file content. 0 if new
-@   fnid INTEGER REFERENCES filename,   -- Name of the file
-@   pfnid INTEGER REFERENCES filename,  -- Previous name. 0 if unchanged
-@   mperm INTEGER,                      -- File permissions.  1==exec
-@   isaux BOOLEAN DEFAULT 0             -- TRUE if pmid is the primary
+@   mid INTEGER,                       -- Check-in that contains fid
+@   fid INTEGER,                       -- New file content. 0 if deleted
+@   pmid INTEGER,                      -- Check-in that contains pid
+@   pid INTEGER,                       -- Prev file content. 0 if new. -1 merge
+@   fnid INTEGER REFERENCES filename,  -- Name of the file
+@   pfnid INTEGER REFERENCES filename, -- Previous name. 0 if unchanged
+@   mperm INTEGER,                     -- File permissions.  1==exec
+@   isaux BOOLEAN DEFAULT 0            -- TRUE if pmid is the primary
 @ );
 @ CREATE INDEX mlink_i1 ON mlink(mid);
 @ CREATE INDEX mlink_i2 ON mlink(fnid);
@@ -369,6 +371,7 @@ const char zRepositorySchema2[] =
 @ INSERT INTO tag VALUES(8, 'branch');          -- TAG_BRANCH
 @ INSERT INTO tag VALUES(9, 'closed');          -- TAG_CLOSED
 @ INSERT INTO tag VALUES(10,'parent');          -- TAG_PARENT
+@ INSERT INTO tag VALUES(11,'note');            -- TAG_NOTE
 @
 @ -- Assignments of tags to baselines.  Note that we allow tags to
 @ -- have values assigned to them.  So we are not really dealing with
@@ -468,9 +471,7 @@ const char zRepositorySchema2[] =
 # define TAG_BRANCH     8     /* Value is name of the current branch */
 # define TAG_CLOSED     9     /* Do not display this check-in as a leaf */
 # define TAG_PARENT     10    /* Change to parentage on a check-in */
-#endif
-#if EXPORT_INTERFACE
-# define MAX_INT_TAG    16    /* The largest pre-assigned tag id */
+# define TAG_NOTE       11    /* Extra text appended to a check-in comment */
 #endif
 
 /*

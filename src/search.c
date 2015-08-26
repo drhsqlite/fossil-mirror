@@ -104,7 +104,7 @@ void search_end(Search *p){
 /*
 ** Compile a search pattern
 */
-Search *search_init(
+static Search *search_init(
   const char *zPattern,       /* The search pattern */
   const char *zMarkBegin,     /* Start of a match */
   const char *zMarkEnd,       /* End of a match */
@@ -1049,10 +1049,18 @@ void search_screen(unsigned srchFlags, int useYparam){
 }
 
 /*
-** WEBPAGE: /search
+** WEBPAGE: search
 **
 ** Search for check-in comments, documents, tickets, or wiki that
 ** match a user-supplied pattern.
+**
+**    s=PATTERN       Specify the full-text pattern to search for
+**    y=TYPE          What to search.
+**                      c -> check-ins
+**                      d -> documentation
+**                      t -> tickets
+**                      w -> wiki
+**                    all -> everything
 */
 void search_page(void){
   login_check_credentials();
@@ -1105,6 +1113,7 @@ static void get_stext_by_mimetype(
     }
     html_to_plaintext(blob_str(pIn), pOut);
   }else{
+    blob_append(pOut, "\n", 1);
     blob_append(pOut, blob_buffer(pIn), blob_size(pIn));
   }
   blob_reset(&html);

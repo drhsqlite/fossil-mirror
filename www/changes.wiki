@@ -1,5 +1,73 @@
 <title>Change Log</title>
 
+<h2>Changes for Version 1.34 (2015-??-??)</h2>
+
+  *  Fix --hard option to [/help?cmd=mv|fossil mv] and [/help?cmd=rm|fossil rm]
+     to enable them to work properly with certain relative paths.
+  *  Make the [/help?cmd=clean|fossil clean] command undoable for files less
+     than 10MiB.
+  *  Add minimal <nowiki>[lsearch]</nowiki> command to TH1. Only exact
+     case-sensitive matching is supported.
+  *  Add the <nowiki>[glob_match]</nowiki> and <nowiki>[markdown]</nowiki>
+     commands to TH1.
+  *  Add the <nowiki>[tclIsSafe] and [tclMakeSafe]</nowiki> TH1 commands to
+     the Tcl integration subsystem.
+  *  Add 'double', 'integer', and 'list' classes to the
+     <nowiki>[string is]</nowiki> command in TH1.
+  *  Update internal Unicode character tables, used in regular expression
+     handling, from version 7.0 to 8.0.
+  *  Add the new [/help?cmd=amend|amend] command which is used to modify
+     tags of a "check-in".
+
+<h2>Changes for Version 1.33 (2015-05-23)</h2>
+  *  Improved fork detection on [/help?cmd=update|fossil update],
+     [/help?cmd=status|fossil status] and related commands.
+  *  Change the default skin to what used to be called "San Francisco Modern".
+  *  Add the [/repo-tabsize] web page
+  *  Add [/help?cmd=import|fossil import --svn], for importing a subversion
+     repository into fossil which was exported using "svnadmin dump".
+  *  Add the "--compress-only" option to [/help?cmd=rebuild|fossil rebuild].
+  *  Use a pie chart on the [/reports?view=byuser] page.
+  *  Enhanced [/help?cmd=clean|fossil clean --verily] so that it ignores
+     keep-glob and ignore-glob settings.  Added the -x alias for --verily.
+  *  Add the --soft and --hard options to [/help?cmd=rm|fossil rm] and
+     [/help?cmd=mv|fossil mv].  The default is still --soft, but that is
+     now configurable at compile-time or by the mv-rm-files setting.
+  *  Improved ability to [./customgraph.md|customize the timeline graph].
+  *  Improvements to the [/sitemap] page.
+  *  Automatically adjust the [/help?cmd=timeline|CLI timeline] to the terminal
+     width on Linux.
+  *  Added <nowiki>[info commands] and [info vars]</nowiki> commands to TH1.
+     These commands perform the same function as their Tcl counterparts,
+     except they do not accept a pattern argument.
+  *  Fix some obscure issues with TH1 expression processing.
+  *  Fix titles in search results for documents that are not wiki, markdown,
+     or HTML.
+  *  Formally translate TH1 to Tcl return codes and vice-versa, where
+     necessary, in the Tcl integration subsystem.
+  *  Add [/help?cmd=leaves|fossil leaves -multiple], for finding multiple
+     leaves on the same branch.
+  *  Added the "Blitz" skin option.
+  *  Removed the ".fossil-settings/keep-glob" file.  It should not have been
+     checked into the repository.
+  *  Update the built-in SQLite to version 3.8.10.2.
+  *  Make [/help?cmd=open|fossil open] honor ".fossil-settings/allow-symlinks".
+  *  Allow [/help?cmd=add|fossil add] to be used on symlinks to nonexistent or
+     unreadable files in the same way as [/help?cmd=addremove|fossil addremove].
+  *  Added fork warning to be issued if sync produced a fork
+  *  Update the [/help?cmd=/info|info] page to report when a file becomes a
+     symlink.  Additionally show the UUID for files whose types have changed
+     without changing contents or symlink target.
+  *  Have [/help?cmd=changes|fossil changes] and
+     [/help?cmd=status|fossil status] report when executable or symlink status
+     changes on otherwise unmodified files.
+  *  Permit filtering weekday and file [/help?cmd=/reports|reports] by user.
+     Also ensure the user parameter is preserved when changing types.  Add a
+     field for direct entry of the user name to each applicable report.
+  *  Create parent directories of [/help?cmd=settings|empty-dirs] if they don't
+     already exist.
+  *  Inhibit timeline links to wiki pages that have been deleted.
+
 <h2>Changes for Version 1.32 (2015-03-14)</h2>
   *  When creating a new repository using [/help?cmd=init|fossil init], ensure
      that the new repository is fully compatible with historical versions of
@@ -13,7 +81,7 @@
   *  Added the "Xekri" skin.
   *  Enhance the "ln=" query parameter on artifact displays to accept multiple
      ranges, separate by spaces (or "+" when URL-encoded).
-  *  Added [/help?cmd=forget|fossil forget] as an alias for 
+  *  Added [/help?cmd=forget|fossil forget] as an alias for
      [/help?cmd=rm|fossil rm].
 
 <h2>Changes For Version 1.31 (2015-02-23)</h2>
@@ -31,10 +99,8 @@
      for easier operation.
   *  Added the --ifneeded option to [/help?cmd=rebuild|fossil rebuild].
   *  Added "override skins" using the "skin:" line of the CGI script or
-     using the --skin LABEL option on the 
-     [/help?cmd=server|server],
-     [/help?cmd=ui|ui], or 
-     [/help?cmd=http|http] commands.
+     using the --skin LABEL option on the [/help?cmd=server|server],
+     [/help?cmd=ui|ui], or [/help?cmd=http|http] commands.
   *  Embedded html documents that begin with
      &lt;doc class="fossil-doc"&gt; are displayed with standard
      headers and footers added.

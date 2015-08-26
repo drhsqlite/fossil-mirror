@@ -171,6 +171,54 @@ tr.timelineSelected {
   background-color: #7EA2D9;
 }
 
+/* commit node */
+.tl-node {
+  width: 10px;
+  height: 10px;
+  border: 1px solid #fff;
+  background: #485D7B;
+  cursor: pointer;
+}
+
+/* leaf commit marker */
+.tl-node.leaf:after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 4px;
+  height: 4px;
+  background: #fff;
+}
+
+/* up arrow */
+.tl-arrow.u {
+  margin-top: -1px;
+  border-width: 0 3px;
+  border-bottom: 7px solid #fff;
+}
+
+/* small up arrow */
+.tl-arrow.u.sm {
+  border-bottom: 5px solid #fff;
+}
+
+/* line */
+.tl-line {
+  background: #fff;
+  width: 2px;
+}
+
+/* left merge arrow */
+.tl-arrow.merge.l {
+  border-right: 3px solid #fff;
+}
+
+/* right merge arrow */
+.tl-arrow.merge.r {
+  border-left: 3px solid #fff;
+}
+
 /* Side-by-side diff */
 table.sbsdiff {
   background-color: #485D7B;
@@ -264,10 +312,6 @@ span.diffhr {
 /* line numbers in a diff */
 span.diffln {
   color: white;
-}
-
-#canvas {
-  background-color: #485D7B;
 }
 
 .fileage tr:hover {

@@ -601,6 +601,7 @@ textarea {
 }
 
 textarea {
+  height: inherit;
   min-height: 65px;
   padding-top: 6px;
   padding-bottom: 6px;
@@ -892,7 +893,7 @@ td:last-child {
 }
 
 .submenu input, .submenu select {
-  margin: 0;
+  margin: 0 0 0 5px;
 }
 
 .submenu a {
@@ -1055,11 +1056,15 @@ table.label-value th {
 tr.timelineCurrent {
   border-left: 2px solid orange;
   background-color: #ffc;
+  border-bottom: 1px solid #ddd;
+  border-right: 1px solid #ddd;
 }
 
 tr.timelineSelected {
   border-left: 2px solid orange;
   background-color: #ffffe8;
+  border-bottom: 1px solid #ddd;
+  border-right: 1px solid #ddd;  
 }
 
 tr.timelineCurrent td.timelineTableCell {
@@ -1068,9 +1073,27 @@ tr.timelineCurrent td.timelineTableCell {
 tr.timelineSpacer {
 }
 
+tr.timelineBottom td {
+  border-bottom: 0;
+}
+
 div.timelineDate {
-    font-weight: bold;
-    white-space: nowrap;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+td.timelineTime {
+  vertical-align: top;
+  text-align: right;
+  white-space: nowrap;
+  border-bottom: 0;
+}
+
+td.timelineGraph {
+  width: 20px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 0;
 }
 
 a.timelineHistLink {

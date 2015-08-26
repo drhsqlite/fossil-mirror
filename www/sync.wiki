@@ -249,9 +249,7 @@ both cards are sent.  The format is as follows:</p>
 </blockquote>
 
 <p>The <i>servercode</i> argument is the repository ID for the
-client.  The server will only allow the transaction to proceed
-if the servercode is different from its own servercode.  This
-prevents a sync-loop.  The <i>projectcode</i> is the identifier
+client.  The <i>projectcode</i> is the identifier
 of the software project that the client repository contains.
 The projectcode for the client and server must match in order
 for the transaction to proceed.</p>
@@ -386,7 +384,7 @@ data elements.
 <b>reqconfig</b> <i>configuration-name</i>
 </blockquote>
 
-<p>As of [/timeline?r=trunk&c=2015-01-24+00%3A17%3A55&n=20|2015-01-24], the configuration-name must be one of the
+<p>As of [/timeline?r=trunk&c=2015-03-19+03%3A57%3A46&n=20|2015-03-19], the configuration-name must be one of the
 following values:
 
 <center><table border=0>
@@ -422,12 +420,13 @@ following values:
 <li> encoding-glob
 <li> empty-dirs
 <li> allow-symlinks
+<li> dotfiles
 <li> ticket-table
 <li> ticket-common
 <li> ticket-change
 <li> ticket-newpage
-<li> ticket-viewpage
 <ul></td><td valign="top"><ul>
+<li> ticket-viewpage
 <li> ticket-editpage
 <li> ticket-reportlist
 <li> ticket-report-template

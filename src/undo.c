@@ -20,7 +20,16 @@
 #include "config.h"
 #include "undo.h"
 
-
+#if INTERFACE
+/*
+** Possible return values from the undo_maybe_save() routine.
+*/
+#define UNDO_NONE     (0) /* Placeholder only used to initialize vars. */
+#define UNDO_SAVED_OK (1) /* The specified file was saved succesfully. */
+#define UNDO_DISABLED (2) /* File not saved, subsystem is disabled. */
+#define UNDO_INACTIVE (3) /* File not saved, subsystem is not active. */
+#define UNDO_TOOBIG   (4) /* File not saved, it exceeded a size limit. */
+#endif
 
 /*
 ** Undo the change to the file zPathname.  zPathname is the pathname
@@ -68,9 +77,9 @@ static void undo_one(const char *zPathname, int redoFlag){
     }
     if( old_exists ){
       if( new_exists ){
-        fossil_print("%s %s\n", redoFlag ? "REDO" : "UNDO", zPathname);
+        fossil_print("%s   %s\n", redoFlag ? "REDO" : "UNDO", zPathname);
       }else{
-        fossil_print("NEW %s\n", zPathname);
+        fossil_print("NEW    %s\n", zPathname);
       }
       if( new_exists && (new_link || old_link) ){
         file_delete(zFullname);
@@ -263,37 +272,107 @@ static int undoNeedRollback = 0;
 ** tree.
 */
 void undo_save(const char *zPathname){
-  char *zFullname;
-  Blob content;
-  int existsFlag;
-  int isLink;
-  Stmt q;
+  if( undoDisable ) return;
+  if( undo_maybe_save(zPathname, -1)!=UNDO_SAVED_OK ){
+    fossil_panic("failed to save undo information for path: %s",
+                 zPathname);
+  }
+}
 
-  if( !undoActive ) return;
+/*
+** Possibly save the current content of the file zPathname so
+** that it will be undoable.  The name is relative to the root
+** of the tree.  The limit argument may be used to specify the
+** maximum size for the file to be saved.  If the size of the
+** specified file exceeds this size limit (in bytes), it will
+** not be saved and an appropriate code will be returned.
+**
+** WARNING: Please do NOT call this function with a limit
+**          value less than zero, call the undo_save()
+**          function instead.
+**
+** The return value of this function will always be one of the
+** following codes:
+**
+** UNDO_SAVED_OK: The specified file was saved succesfully.
+**
+** UNDO_DISABLED: The specified file was NOT saved, because the
+**                "undo subsystem" is disabled.  This error may
+**                indicate that a call to undo_disable() was
+**                issued.
+**
+** UNDO_INACTIVE: The specified file was NOT saved, because the
+**                "undo subsystem" is not active.  This error
+**                may indicate that a call to undo_begin() is
+**                missing.
+**
+**   UNDO_TOOBIG: The specified file was NOT saved, because it
+**                exceeded the specified size limit.  It is
+**                impossible for this value to be returned if
+**                the specified size limit is less than zero
+**                (i.e. unlimited).
+*/
+int undo_maybe_save(const char *zPathname, i64 limit){
+  char *zFullname;
+  i64 size;
+  int result;
+
+  if( undoDisable ) return UNDO_DISABLED;
+  if( !undoActive ) return UNDO_INACTIVE;
   zFullname = mprintf("%s%s", g.zLocalRoot, zPathname);
-  existsFlag = file_wd_size(zFullname)>=0;
-  isLink = file_wd_islink(zFullname);
-  db_prepare(&q,
-    "INSERT OR IGNORE INTO"
-    "   undo(pathname,redoflag,existsflag,isExe,isLink,content)"
-    " VALUES(%Q,0,%d,%d,%d,:c)",
-    zPathname, existsFlag, file_wd_isexe(zFullname), isLink
-  );
-  if( existsFlag ){
-    if( isLink ){
-      blob_read_link(&content, zFullname);
-    }else{
-      blob_read_from_file(&content, zFullname);
+  size = file_wd_size(zFullname);
+  if( limit<0 || size<=limit ){
+    int existsFlag = (size>=0);
+    int isLink = file_wd_islink(zFullname);
+    Stmt q;
+    Blob content;
+    db_prepare(&q,
+      "INSERT OR IGNORE INTO"
+      "   undo(pathname,redoflag,existsflag,isExe,isLink,content)"
+      " VALUES(%Q,0,%d,%d,%d,:c)",
+      zPathname, existsFlag, file_wd_isexe(zFullname), isLink
+    );
+    if( existsFlag ){
+      if( isLink ){
+        blob_read_link(&content, zFullname);
+      }else{
+        blob_read_from_file(&content, zFullname);
+      }
+      db_bind_blob(&q, ":c", &content);
     }
-    db_bind_blob(&q, ":c", &content);
+    db_step(&q);
+    db_finalize(&q);
+    if( existsFlag ){
+      blob_reset(&content);
+    }
+    undoNeedRollback = 1;
+    result = UNDO_SAVED_OK;
+  }else{
+    result = UNDO_TOOBIG;
   }
   free(zFullname);
-  db_step(&q);
-  db_finalize(&q);
-  if( existsFlag ){
-    blob_reset(&content);
+  return result;
+}
+
+/*
+** Returns an error message for the undo_maybe_save() return code.
+** Currently, this function assumes that the caller is using the
+** returned error message in a context prefixed with "because".
+*/
+const char *undo_save_message(int rc){
+  static char zRc[32];
+
+  switch( rc ){
+    case UNDO_NONE:     return "undo is disabled for this operation";
+    case UNDO_SAVED_OK: return "the save operation was successful";
+    case UNDO_DISABLED: return "the undo subsystem is disabled";
+    case UNDO_INACTIVE: return "the undo subsystem is inactive";
+    case UNDO_TOOBIG:   return "the file is too big";
+    default: {
+      sqlite3_snprintf(sizeof(zRc), zRc, "of error code %d", rc);
+    }
   }
-  undoNeedRollback = 1;
+  return zRc;
 }
 
 /*
@@ -363,6 +442,9 @@ void undo_rollback(void){
 **    (2) fossil merge              (6) fossil stash drop
 **    (3) fossil revert             (7) fossil stash goto
 **    (4) fossil stash pop
+**
+** The "fossil clean" operation can also be undone; however, this is
+** currently limited to files that are less than 10MiB in size.
 **
 ** If FILENAME is specified then restore the content of the named
 ** file(s) but otherwise leave the update or merge or revert in effect.
@@ -439,7 +521,7 @@ void undo_cmd(void){
       for(i=2; i<g.argc; i++){
         const char *zFile = g.argv[i];
         Blob path;
-        file_tree_name(zFile, &path, 1);
+        file_tree_name(zFile, &path, 0, 1);
         undo_one(blob_str(&path), isRedo);
         blob_reset(&path);
       }

@@ -538,6 +538,8 @@ tag_cmd_usage:
 
 /*
 ** WEBPAGE: taglist
+**
+** List all non-propagating symbolic tags.
 */
 void taglist_page(void){
   Stmt q;
@@ -577,6 +579,9 @@ void taglist_page(void){
 
 /*
 ** WEBPAGE: /tagtimeline
+**
+** Render a timeline with all check-ins that contain non-propagating
+** symbolic tags.
 */
 void tagtimeline_page(void){
   Stmt q;

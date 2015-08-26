@@ -104,6 +104,11 @@ BEGIN
       VALUE "OriginalFilename", "fossil.exe\0"
       VALUE "CompilerName", COMPILER_NAME "\0"
       VALUE "SQLiteVersion", "SQLite " SQLITE_VERSION " " SQLITE_SOURCE_ID "\0"
+#if defined(FOSSIL_DYNAMIC_BUILD)
+      VALUE "DynamicBuild", "yes\0"
+#else
+      VALUE "DynamicBuild", "no\0"
+#endif
 #if defined(FOSSIL_ENABLE_MINIZ)
       VALUE "MinizVersion", "miniz " MZ_VERSION "\0"
 #else
@@ -117,6 +122,11 @@ BEGIN
 #if defined(FOSSIL_ENABLE_SSL)
       VALUE "SslEnabled", "Yes, " OPENSSL_VERSION_TEXT "\0"
 #endif /* defined(FOSSIL_ENABLE_SSL) */
+#if defined(FOSSIL_ENABLE_LEGACY_MV_RM)
+      VALUE "LegacyMvRm", "Yes\0"
+#else
+      VALUE "LegacyMvRm", "No\0"
+#endif /* defined(FOSSIL_ENABLE_LEGACY_MV_RM) */
 #if defined(FOSSIL_ENABLE_TH1_DOCS)
       VALUE "Th1Docs", "Yes\0"
 #else

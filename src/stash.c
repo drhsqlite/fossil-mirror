@@ -60,7 +60,7 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
   Stmt ins;             /* Insert statement */
 
   zFile = mprintf("%/", zFName);
-  file_tree_name(zFile, &fname, 1);
+  file_tree_name(zFile, &fname, 0, 1);
   zTreename = blob_str(&fname);
   blob_zero(&sql);
   blob_append_sql(&sql,
@@ -505,6 +505,7 @@ void stash_cmd(void){
       }
       db_finalize(&q);
       newArgv[0] = g.argv[0];
+      newArgv[1] = 0;
       g.argv = newArgv;
       g.argc = nFile+2;
       if( nFile==0 ) return;

@@ -120,6 +120,9 @@ int fossil_isalnum(char c){
 
 /*
 ** COMMAND: test-isspace
+**
+** Verify that the fossil_isspace() routine is working correctly but
+** testing it on all possible inputs.
 */
 void isspace_cmd(void){
   int i;
@@ -270,6 +273,7 @@ void blob_zero(Blob *pBlob){
 ** Append text or data to the end of a blob.
 */
 void blob_append(Blob *pBlob, const char *aData, int nData){
+  assert( aData!=0 || nData==0 );
   blob_is_init(pBlob);
   if( nData<0 ) nData = strlen(aData);
   if( nData==0 ) return;
@@ -299,7 +303,7 @@ void blob_copy(Blob *pTo, Blob *pFrom){
 char *blob_str(Blob *p){
   blob_is_init(p);
   if( p->nUsed==0 ){
-    blob_append(p, "", 1);
+    blob_append(p, "", 1); /* NOTE: Changes nUsed. */
     p->nUsed = 0;
   }
   if( p->aData[p->nUsed]!=0 ){
@@ -838,7 +842,7 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
     _setmode(_fileno(stdout), _O_TEXT);
 #endif
   }else{
-    file_mkfolder(zFilename, 1);
+    file_mkfolder(zFilename, 1, 0);
     out = fossil_fopen(zFilename, "wb");
     if( out==0 ){
       fossil_fatal_recursive("unable to open file \"%s\" for writing",
@@ -886,6 +890,12 @@ void blob_compress(Blob *pIn, Blob *pOut){
 
 /*
 ** COMMAND: test-compress
+**
+** Usage: %fossil test-compress INPUTFILE OUTPUTFILE
+**
+** Run compression on INPUTFILE and write the result into OUTPUTFILE.
+**
+** This is used to test and debug the blob_compress() routine.
 */
 void compress_cmd(void){
   Blob f;
@@ -938,6 +948,13 @@ void blob_compress2(Blob *pIn1, Blob *pIn2, Blob *pOut){
 
 /*
 ** COMMAND: test-compress-2
+**
+** Usage: %fossil test-compress-2 IN1 IN2 OUT
+**
+** Read files IN1 and IN2, concatenate the content, compress the
+** content, then write results into OUT.
+**
+** This is used to test and debug the blob_compress2() routine.
 */
 void compress2_cmd(void){
   Blob f1, f2;
@@ -984,6 +1001,12 @@ int blob_uncompress(Blob *pIn, Blob *pOut){
 
 /*
 ** COMMAND: test-uncompress
+**
+** Usage: %fossil test-uncompress IN OUT
+**
+** Read the content of file IN, uncompress that content, and write the
+** result into OUT.  This command is intended for testing of the the
+** blob_compress() function.
 */
 void uncompress_cmd(void){
   Blob f;

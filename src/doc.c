@@ -525,7 +525,7 @@ int doc_load_content(int vid, const char *zName, Blob *pContent){
 ** The file extension is used to decide how to render the file.
 **
 ** If FILE ends in "/" then names "FILE/index.html", "FILE/index.wiki",
-** and "FILE/index.md" are  in that order.  If none of those are found,
+** and "FILE/index.md" are tried in that order.  If none of those are found,
 ** then FILE is completely replaced by "404.md" and tried.  If that is
 ** not found, then a default 404 screen is generated.
 */
@@ -549,10 +549,11 @@ void doc_page(void){
   blob_init(&title, 0, 0);
   db_begin_transaction();
   while( rid==0 && (++nMiss)<=ArraySize(azSuffix) ){
-    zName = PD("name", "tip/index.wiki");
+    zName = P("name");
+    if( zName==0 || zName[0]==0 ) zName = "tip/index.wiki";
     for(i=0; zName[i] && zName[i]!='/'; i++){}
     zCheckin = mprintf("%.*s", i, zName);
-    if( fossil_strcmp(zCheckin,"ckout")==0 && db_open_local(0)==0 ){
+    if( fossil_strcmp(zCheckin,"ckout")==0 && g.localOpen==0 ){
       zCheckin = "tip";
     }
     if( nMiss==ArraySize(azSuffix) ){
@@ -642,7 +643,7 @@ void doc_page(void){
     blob_append(cgi_output_blob(), blob_buffer(&filebody),blob_size(&filebody));
     style_footer();
 #ifdef FOSSIL_ENABLE_TH1_DOCS
-  }else if( db_get_boolean("th1-docs", 0) &&
+  }else if( Th_AreDocsEnabled() &&
             fossil_strcmp(zMime, "application/x-th1")==0 ){
     style_header("%h", zName);
     Th_Render(blob_str(&filebody));
@@ -776,7 +777,8 @@ static const unsigned char aBackground[] = {
 /*
 ** WEBPAGE: background
 **
-** Return the background image.
+** Return the background image.  If no background image is defined, a
+** built-in 16x16 pixel white GIF is returned.
 */
 void background_page(void){
   Blob bgimg;
@@ -795,9 +797,15 @@ void background_page(void){
 
 
 /*
-** WEBPAGE: /docsrch
+** WEBPAGE: docsrch
 **
-** Search for documents that match a user-supplied pattern.
+** Search for documents that match a user-supplied full-text search pattern.
+** If no pattern is specified (by the s= query parameter) then the user
+** is prompted to enter a search string.
+**
+** Query parameters:
+**
+**     s=PATTERN             Search for PATTERN
 */
 void doc_search_page(void){
   login_check_credentials();

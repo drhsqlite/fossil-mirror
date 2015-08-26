@@ -68,6 +68,7 @@ static void sqlcmd_compress(
   unsigned char *pOut;
   unsigned int nIn;
   unsigned long int nOut;
+  int rc;
 
   pIn = sqlite3_value_blob(argv[0]);
   nIn = sqlite3_value_bytes(argv[0]);
@@ -77,8 +78,13 @@ static void sqlcmd_compress(
   pOut[1] = nIn>>16 & 0xff;
   pOut[2] = nIn>>8 & 0xff;
   pOut[3] = nIn & 0xff;
-  compress(&pOut[4], &nOut, pIn, nIn);
-  sqlite3_result_blob(context, pOut, nOut+4, sqlite3_free);
+  rc = compress(&pOut[4], &nOut, pIn, nIn);
+  if( rc==Z_OK ){
+    sqlite3_result_blob(context, pOut, nOut+4, sqlite3_free);
+  }else{
+    sqlite3_free(pOut);
+    sqlite3_result_error(context, "input cannot be zlib compressed", -1);
+  }
 }
 
 /*
@@ -105,6 +111,7 @@ static void sqlcmd_decompress(
   if( rc==Z_OK ){
     sqlite3_result_blob(context, pOut, nOut, sqlite3_free);
   }else{
+    sqlite3_free(pOut);
     sqlite3_result_error(context, "input is not zlib compressed", -1);
   }
 }

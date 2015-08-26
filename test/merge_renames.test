@@ -4,7 +4,6 @@
 #
 
 catch {exec $::fossilexe info} res
-puts res=$res
 if {![regexp {use --repository} $res]} {
   puts stderr "Cannot run this test within an open checkout"
   return
@@ -199,7 +198,7 @@ fossil commit -m "trunk merged, should have 3 files"
 
 fossil ls
 
-test merge_renames-5 {[string map [list \r\n \n] [string trim $RESULT]] eq {f1
+test merge_renames-5 {[normalize_result] eq {f1
 f2
 f3}}
 

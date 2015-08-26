@@ -42,11 +42,11 @@
 **
 ** Enhancement #2:
 **
-** Comments of the form:  "/* @-comment: CC" cause CC to become a
-** comment character for the @-substitution.  Typical values for CC are
-** "--" (for SQL text) or "#" (for Tcl script) or "//" (for C++ code).
-** Lines of subsequent @-blocks that begin with CC are omitted from the
-** output.
+** Comments of the form:  "|* @-comment: CC" (where "|" is really "/")
+** cause CC to become a comment character for the @-substitution.
+** Typical values for CC are "--" (for SQL text) or "#" (for Tcl script)
+** or "//" (for C++ code).  Lines of subsequent @-blocks that begin with
+** CC are omitted from the output.
 **
 */
 #include <stdio.h>

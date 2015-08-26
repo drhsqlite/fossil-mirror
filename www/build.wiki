@@ -28,8 +28,8 @@ your $PATH.
 <h2>1.0 Obtaining The Source Code</h2>
 
 <p>Fossil is self-hosting, so you can obtain a ZIP archive or tarball
-containing a snapshot of the <em>latest</em> version directly from 
-Fossil's own fossil repository. Additionally, source archives of 
+containing a snapshot of the <em>latest</em> version directly from
+Fossil's own fossil repository. Additionally, source archives of
 <em>released</em> versions of
 fossil are available from the <a href="http://www.fossil-scm.org/download.html">downloads page</a>.
 To obtain a development version of fossil, follow these steps:</p>
@@ -39,8 +39,8 @@ To obtain a development version of fossil, follow these steps:</p>
 <a href="http://www.fossil-scm.org/">
 http://www.fossil-scm.org/</a>.</p></li>
 
-<li><p>Click on the 
-<a href="http://www.fossil-scm.org/fossil/timeline">Timeline</a> 
+<li><p>Click on the
+<a href="http://www.fossil-scm.org/fossil/timeline">Timeline</a>
 link at the top of the page.</p></li>
 
 <li><p>Select a version of of Fossil you want to download.  The latest
@@ -49,14 +49,14 @@ link.</p></li>
 
 <li><p>Finally, click on one of the
 "Zip Archive" or "Tarball" links, according to your preference.
-These link will build a ZIP archive or a gzip-compressed tarball of the 
+These link will build a ZIP archive or a gzip-compressed tarball of the
 complete source code and download it to your computer.
 </ol>
 
 <h2>Aside: Is it really safe to use an unreleased development version of
 the Fossil source code?</h2>
 
-Yes!  Any check-in on the 
+Yes!  Any check-in on the
 [/timeline?t=trunk | trunk branch] of the Fossil
 [http://fossil-scm.org/fossil/timeline | Fossil self-hosting repository]
 will work fine.  (Dodgy code is always on a branch.)  In the unlikely
@@ -93,6 +93,10 @@ To build a statically linked binary (suitable for use inside a chroot
 jail) add the <b>--static</b> option.
 
 <li><p>
+To enable the native [./th1.md#tclEval | Tcl integration feature] feature,
+add the <b>--with-tcl=1</b> and <b>--with-tcl-private-stubs=1</b> options.
+
+<li><p>
 Other configuration options can be seen by running
 <b>./configure --help</b>
 </ol>
@@ -104,15 +108,21 @@ The details depend on your platform and compiler.
 <li><p><i>Unix</i> → the configure-generated Makefile should work on
 all Unix and Unix-like systems.  Simply type "<b>make</b>".
 
-<li><p><i>Unix without running "configure"</i> → if you prefer to avoid running configure, you
-can also use: <b>make -f Makefile.classic</b>.  You may want to make minor
-edits to Makefile.classic to configure the build for your system.
+<li><p><i>Unix without running "configure"</i> → if you prefer to avoid
+running configure, you can also use: <b>make -f Makefile.classic</b>.  You may
+want to make minor edits to Makefile.classic to configure the build for your
+system.
 
 <li><p><i>MinGW3.x (not 4.0)/MinGW-w64</i> → Use the mingw makefile:
 "<b>make -f win/Makefile.mingw</b>". On a Windows box you will
 need either Cygwin or Msys as build environment. On Cygwin, Linux
 or Darwin you may want to make minor edits to win/Makefile.mingw
 to configure the cross-compile environment.
+
+To enable the native [./th1.md#tclEval | Tcl integration feature], use a
+command line like the following (all on one line):
+
+<b>make -f win/Makefile.mingw FOSSIL_ENABLE_TCL=1 FOSSIL_ENABLE_TCL_STUBS=1 FOSSIL_ENABLE_TCL_PRIVATE_STUBS=1</b>
 
 Hint: don't use MinGW-4.0, it will compile but fossil won't work correctly, see
 <a href="https://www.fossil-scm.org/index.html/tktview/18cff45a4e210430e24c">https://www.fossil-scm.org/index.html/tktview/18cff45a4e210430e24c</a>.
@@ -127,7 +137,7 @@ first <a href="https://www.openssl.org/source/">download the official
 source code for OpenSSL</a> and extract it to an appropriately named
 "<b>openssl-X.Y.ZA</b>" subdirectory within the local
 [/tree?ci=trunk&name=compat | compat] directory (e.g.
-"<b>compat/openssl-1.0.2</b>"), then make sure that some recent
+"<b>compat/openssl-1.0.2d</b>"), then make sure that some recent
 <a href="http://www.perl.org/">Perl</a> binaries are installed locally,
 and finally run one of the following commands:
 <blockquote><pre>
@@ -135,6 +145,15 @@ nmake /f Makefile.msc FOSSIL_ENABLE_SSL=1 FOSSIL_BUILD_SSL=1 PERLDIR=C:\full\pat
 </pre></blockquote>
 <blockquote><pre>
 buildmsvc.bat FOSSIL_ENABLE_SSL=1 FOSSIL_BUILD_SSL=1 PERLDIR=C:\full\path\to\Perl\bin
+</pre></blockquote>
+To enable the optional native [./th1.md#tclEval | Tcl integration feature],
+run one of the following commands or add the &quot;FOSSIL_ENABLE_TCL=1&quot;
+argument to one of the other NMAKE command lines:
+<blockquote><pre>
+nmake /f Makefile.msc FOSSIL_ENABLE_TCL=1
+</pre></blockquote>
+<blockquote><pre>
+buildmsvc.bat FOSSIL_ENABLE_TCL=1
 </pre></blockquote>
 
 <li><p><i>Cygwin</i> → The same as other Unix-like systems. It is
@@ -148,8 +167,8 @@ making sure you have the "libsqlite3-devel" , "zlib-devel" and
 
 <ol>
 <li value="8">
-<p>The finished binary is named "fossil" (or "fossil.exe" on Windows).  
-Put this binary in a 
+<p>The finished binary is named "fossil" (or "fossil.exe" on Windows).
+Put this binary in a
 directory that is somewhere on your PATH environment variable.
 It does not matter where.</p>
 
@@ -169,10 +188,10 @@ To uninstall, just delete the binary.</p>
   in detail what the makefiles do behind the scenes.
 
 <li><p>
-  The fossil executable is self-contained and stand-alone and usually 
-  requires no special libraries or other software to be installed.  However, 
+  The fossil executable is self-contained and stand-alone and usually
+  requires no special libraries or other software to be installed.  However,
   the "--tk" option to the [/help/diff|diff command] requires that Tcl/Tk
-  be installed on the local machine.  You can get Tcl/Tk from 
+  be installed on the local machine.  You can get Tcl/Tk from
   [http://www.activestate.com/activetcl|ActiveState].
 
 <li><p>
