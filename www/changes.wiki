@@ -8,8 +8,8 @@
      than 10MiB.
   *  Add minimal <nowiki>[lsearch]</nowiki> command to TH1. Only exact
      case-sensitive matching is supported.
-  *  Add the <nowiki>[glob_match]</nowiki> and <nowiki>[markdown]</nowiki>
-     commands to TH1.
+  *  Add the <nowiki>[glob_match]</nowiki>, <nowiki>[markdown]</nowiki>, and
+     <nowiki>[dir]</nowiki> commands to TH1.
   *  Add the <nowiki>[tclIsSafe] and [tclMakeSafe]</nowiki> TH1 commands to
      the Tcl integration subsystem.
   *  Add 'double', 'integer', and 'list' classes to the
