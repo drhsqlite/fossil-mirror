@@ -1,5 +1,5 @@
-C Regenerate\sand\ssync-up\sMinGW\smakefiles.
-D 2015-08-26T19:49:45.637
+C Add\sthe\sTH1\s'dir'\scommand,\swith\sdocs\sand\stests.
+D 2015-08-27T04:38:02.033
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -403,7 +403,7 @@ F src/descendants.c 1eb2bb891117be886ac87a7db842293221639326
 F src/diff.c 4600d39f61675941c756f5425e6bd5702f35eedf
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
 F src/diffcmd.c 2e7b17d1cdc3fe5cae14bae8ac84b77cf48a046e
-F src/doc.c 18720846abd34cda0172f4359ebb67c3be0f32c6
+F src/doc.c 687517faac6b1f475ad6dd5a1c19d6bda2bc9b78
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
@@ -493,7 +493,7 @@ F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
 F src/th.c e9840f21b1bb1bc03fdba17c818728e132e254b7
 F src/th.h 1e7ae1613afa730a75df06d7fd1f17c7ff4564f4
 F src/th_lang.c a536a5cee224ccab6cbc5d8b07bef5027bff2910
-F src/th_main.c 0cd8e866203ac3bebe877eb97e444b10f9b0b37e
+F src/th_main.c f2b4c5d93f92ed729ca173fad8cfd8587b9ce24f
 F src/th_tcl.c 4d68ad29399fd3e90553a9470d66142d9027368d
 F src/timeline.c 005c758d36dbe81a52d1fe9a7f14cd0830abb005
 F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
@@ -551,6 +551,7 @@ F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test b09ff99726b78609549c9880e3522497c138b935
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-hooks.test 3e533ca4b5956be9f13119177c795465dd3dd3a8
+F test/th1-repo.test 58c1c8787e4e62ba9cdcc532bb2745bfe26c8572
 F test/th1-tcl.test 5dae736a651454bdb173178f7bfc32728a38fb13
 F test/th1-tcl1.txt c60e664b138a2189b637c254d55a05819db1521d
 F test/th1-tcl2.txt 9f7e7ea7cc6c75df78c5efb761d10a4e8e354401
@@ -561,7 +562,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test 1dcc18abd9191baddc0c9af8716bf7719c8bb9ea
+F test/th1.test 9ad7f38a81d497fc957b333356688b5e374606bd
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 9b9447e346cbc663d6f3c51e00adbc1ba2d296a2
@@ -734,14 +735,15 @@ F www/stats.wiki 2d8317fe35d22877c86ed2332de02b653f50a498
 F www/style.wiki 4c9c67c0eddba030a73a55e468802fd09d59bc2f
 F www/sync.wiki ecd7e356270a40e81649970c1b606767db68d9e3
 F www/tech_overview.wiki 66d893fd0bca7f5dbc659ab0b4e9dde987e4fdb3
-F www/th1.md 267822eee2dd03f30058dca374bb3e1cd9d5f4a4
+F www/th1.md a61e686ea9a053a6b7bb35c8a58b99b20850d25f
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P e5bbc1bf161fc4e96b279a586f606da582670d0a
-R 7a76498c3c385f1cfc3e9420a8b89876
+P e947fce957171e440f40f5affdcec58204883f2e bf380d4b5b94ccd0a12c2fdab5c9d8d14e6da857
+R 66b50c6a1471108682899163e1fe79b0
+T +closed bf380d4b5b94ccd0a12c2fdab5c9d8d14e6da857
 U mistachkin
-Z a851cc4d9362c62c07c496e001bda052
+Z 66524ea80c037ce0309152ce16ef272d

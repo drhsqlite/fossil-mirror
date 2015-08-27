@@ -146,6 +146,99 @@ void Th_PrintTraceLog(){
 }
 
 /*
+** - adopted from ls_cmd_rev in checkin.c
+** - adopted commands/error handling for usage within th1
+** - interface adopted to allow result creation as TH1 List
+**
+** Takes a checkin identifier in zRev and an optiona glob pattern in zGLOB
+** as parameter returns a TH list in pzList,pnList with filenames matching
+** glob pattern with the checking
+*/
+static void dir_cmd_rev(
+  Th_Interp *interp,
+  char **pzList,
+  int *pnList,
+  const char *zRev,  /* Revision string given */
+  const char *zGlob, /* Glob pattern given */
+  int bDetails
+){
+  Stmt q;
+  char *zOrderBy = "pathname COLLATE nocase";
+  int rid;
+
+  rid = th1_name_to_typed_rid(interp, zRev, "ci");
+  compute_fileage(rid, zGlob);
+  db_prepare(&q,
+    "SELECT datetime(fileage.mtime, 'localtime'), fileage.pathname,\n"
+    "       blob.size\n"
+    "  FROM fileage, blob\n"
+    " WHERE blob.rid=fileage.fid \n"
+    " ORDER BY %s;", zOrderBy /*safe-for-%s*/
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zFile = db_column_text(&q, 1);
+    if( bDetails ){
+      const char *zTime = db_column_text(&q, 0);
+      int size = db_column_int(&q, 2);
+      char zSize[50];
+      char *zSubList = 0;
+      int nSubList = 0;
+      sqlite3_snprintf(sizeof(zSize), zSize, "%d", size);
+      Th_ListAppend(interp, &zSubList, &nSubList, zFile, -1);
+      Th_ListAppend(interp, &zSubList, &nSubList, zSize, -1);
+      Th_ListAppend(interp, &zSubList, &nSubList, zTime, -1);
+      Th_ListAppend(interp, pzList, pnList, zSubList, -1);
+      Th_Free(interp, zSubList);
+    }else{
+      Th_ListAppend(interp, pzList, pnList, zFile, -1);
+    }
+  }
+  db_finalize(&q);
+}
+
+/*
+** TH1 command: dir CHECKIN ?GLOB? ?DETAILS?
+**
+** Returns a list containing all files in CHECKIN. If GLOB is given only
+** the files matching the pattern GLOB within CHECKIN will be returned.
+** If DETAILS is non-zero, the result will be a list-of-lists, with each
+** element containing at least three elements: the file name, the file
+** size (in bytes), and the file last modification time (relative to the
+** time zone configured for the repository).
+*/
+static int dirCmd(
+  Th_Interp *interp,
+  void *ctx,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  const char *zGlob = 0;
+  int bDetails = 0;
+
+  if( argc<2 || argc>4 ){
+    return Th_WrongNumArgs(interp, "dir CHECKIN ?GLOB? ?DETAILS?");
+  }
+  if( argc>=3 ){
+    zGlob = argv[2];
+  }
+  if( argc>=4 && Th_ToInt(interp, argv[3], argl[3], &bDetails) ){
+    return TH_ERROR;
+  }
+  if( Th_IsRepositoryOpen() ){
+    char *zList = 0;
+    int nList = 0;
+    dir_cmd_rev(interp, &zList, &nList, argv[1], zGlob, bDetails);
+    Th_SetResult(interp, zList, nList);
+    Th_Free(interp, zList);
+    return TH_OK;
+  }else{
+    Th_SetResult(interp, "repository unavailable", -1);
+    return TH_ERROR;
+  }
+}
+
+/*
 ** TH1 command: httpize STRING
 **
 ** Escape all characters of STRING which have special meaning in URI
@@ -1634,6 +1727,7 @@ void Th_FossilInit(u32 flags){
     {"combobox",      comboboxCmd,          0},
     {"date",          dateCmd,              0},
     {"decorate",      wikiCmd,              (void*)&aFlags[2]},
+    {"dir",           dirCmd,               0},
     {"enable_output", enableOutputCmd,      0},
     {"getParameter",  getParameterCmd,      0},
     {"glob_match",    globMatchCmd,         0},
