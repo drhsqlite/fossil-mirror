@@ -1,5 +1,5 @@
-C Add\sthe\sTH1\s'dir'\scommand,\swith\sdocs\sand\stests.
-D 2015-08-27T04:38:02.033
+C Update\sTH1\s'dir'\scommand\ssyntax\sin\sdocs.
+D 2015-08-27T04:39:42.444
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -735,15 +735,14 @@ F www/stats.wiki 2d8317fe35d22877c86ed2332de02b653f50a498
 F www/style.wiki 4c9c67c0eddba030a73a55e468802fd09d59bc2f
 F www/sync.wiki ecd7e356270a40e81649970c1b606767db68d9e3
 F www/tech_overview.wiki 66d893fd0bca7f5dbc659ab0b4e9dde987e4fdb3
-F www/th1.md a61e686ea9a053a6b7bb35c8a58b99b20850d25f
+F www/th1.md 1a41e903cc74828e940d7d35555671adf04a8559
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P e947fce957171e440f40f5affdcec58204883f2e bf380d4b5b94ccd0a12c2fdab5c9d8d14e6da857
-R 66b50c6a1471108682899163e1fe79b0
-T +closed bf380d4b5b94ccd0a12c2fdab5c9d8d14e6da857
+P f4ceace8f574c0350948c7d630af8923fa8d7103
+R 4bfdea5983cd76cdbf3ba254391b9d00
 U mistachkin
-Z 66524ea80c037ce0309152ce16ef272d
+Z c30af7c845e0d60c5dd84de1ec302a4f

@@ -240,7 +240,7 @@ other markup is processed.
 <a name="dir"></a>TH1 dir Command
 -------------------------------------------
 
-  * dir CHECKIN ?GLOB?
+  * dir CHECKIN ?GLOB? ?DETAILS?
 
 Returns a list containing all files in CHECKIN. If GLOB is given only
 the files matching the pattern GLOB within CHECKIN will be returned.
