@@ -1421,7 +1421,7 @@ static void svn_dump_import(FILE *pIn){
             Blob deltaSrc;
             Blob target;
             rid = db_int(0, "SELECT rid FROM blob WHERE uuid=("
-                            " SELECT uuid FROM xfiles"
+                            " SELECT tuuid FROM xfiles"
                             "  WHERE tpath=%Q AND tbranch=%d"
                             ")", zFile, branchId);
             content_get(rid, &deltaSrc);
