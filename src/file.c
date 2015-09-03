@@ -60,6 +60,12 @@ struct fossilStat {
 };
 #endif
 
+#if defined(_WIN32) || defined(__CYGWIN__)
+# define fossil_isdirsep(a)    (((a) == '/') || ((a) == '\\'))
+#else
+# define fossil_isdirsep(a)    ((a) == '/')
+#endif
+
 #endif /* INTERFACE */
 
 #if !defined(_WIN32) || !(defined(__MSVCRT__) || defined(_MSC_VER))
@@ -428,11 +434,27 @@ char *file_newname(const char *zBase, const char *zSuffix, int relFlag){
 */
 const char *file_tail(const char *z){
   const char *zTail = z;
+  if( !zTail ) return 0;
   while( z[0] ){
-    if( z[0]=='/' ) zTail = &z[1];
+    if( fossil_isdirsep(z[0]) ) zTail = &z[1];
     z++;
   }
   return zTail;
+}
+
+/*
+** Return the directory of a file path name.  The directory is all components
+** except the last one.  For example, the directory of "/a/b/c.d" is "/a/b".
+** If there is no directory, NULL is returned; otherwise, the returned memory
+** should be freed via fossil_free().
+*/
+char *file_dirname(const char *z){
+  const char *zTail = file_tail(z);
+  if( zTail && zTail!=z ){
+    return mprintf("%.*s", (int)(zTail-z-1), z);
+  }else{
+    return 0;
+  }
 }
 
 /*
@@ -444,7 +466,7 @@ void file_copy(const char *zFrom, const char *zTo){
   char zBuf[8192];
   in = fossil_fopen(zFrom, "rb");
   if( in==0 ) fossil_fatal("cannot open \"%s\" for reading", zFrom);
-  file_mkfolder(zTo, 0);
+  file_mkfolder(zTo, 0, 0);
   out = fossil_fopen(zTo, "wb");
   if( out==0 ) fossil_fatal("cannot open \"%s\" for writing", zTo);
   while( (got=fread(zBuf, 1, sizeof(zBuf), in))>0 ){
@@ -606,9 +628,12 @@ int file_mkdir(const char *zName, int forceFlag){
 /*
 ** Create the tree of directories in which zFilename belongs, if that sequence
 ** of directories does not already exist.
+**
+** On success, return zero.  On error, return errorReturn if positive, otherwise
+** print an error message and abort.
 */
-void file_mkfolder(const char *zFilename, int forceFlag){
-  int i, nName;
+int file_mkfolder(const char *zFilename, int forceFlag, int errorReturn){
+  int i, nName, rc = 0;
   char *zName;
 
   nName = strlen(zFilename);
@@ -626,8 +651,11 @@ void file_mkfolder(const char *zFilename, int forceFlag){
       if( !(i==2 && zName[1]==':') ){
 #endif
         if( file_mkdir(zName, forceFlag) && file_isdir(zName)!=1 ){
-          fossil_fatal_recursive("unable to create directory %s", zName);
-          return;
+          if (errorReturn <= 0) {
+            fossil_fatal_recursive("unable to create directory %s", zName);
+          }
+          rc = errorReturn;
+          break;
         }
 #if defined(_WIN32) || defined(__CYGWIN__)
       }
@@ -636,6 +664,7 @@ void file_mkfolder(const char *zFilename, int forceFlag){
     }
   }
   free(zName);
+  return rc;
 }
 
 /*
@@ -886,11 +915,10 @@ void file_getcwd(char *zBuf, int nBuf){
 ** if it is relative.
 */
 int file_is_absolute_path(const char *zPath){
-  if( zPath[0]=='/'
+  if( fossil_isdirsep(zPath[0])
 #if defined(_WIN32) || defined(__CYGWIN__)
-      || zPath[0]=='\\'
       || (fossil_isalpha(zPath[0]) && zPath[1]==':'
-           && (zPath[2]=='\\' || zPath[2]=='/' || zPath[2]=='\0'))
+           && (fossil_isdirsep(zPath[2]) || zPath[2]=='\0'))
 #endif
   ){
     return 1;
@@ -1098,14 +1126,21 @@ void cmd_test_relative_name(void){
 }
 
 /*
-** Compute a pathname for a file relative to the root of the local
-** tree.  Return TRUE on success.  On failure, print and error
-** message and quit if the errFatal flag is true.  If errFatal is
-** false, then simply return 0.
-**
-** The root of the tree is defined by the g.zLocalRoot variable.
+** Compute a full path name for a file in the local tree.  If
+** the absolute flag is non-zero, the computed path will be
+** absolute, starting with the root path of the local tree;
+** otherwise, it will be relative to the root of the local
+** tree.  In both cases, the root of the local tree is defined
+** by the g.zLocalRoot variable.  Return TRUE on success.  On
+** failure, print and error message and quit if the errFatal
+** flag is true.  If errFatal is false, then simply return 0.
 */
-int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
+int file_tree_name(
+  const char *zOrigName,
+  Blob *pOut,
+  int absolute,
+  int errFatal
+){
   Blob localRoot;
   int nLocalRoot;
   char *zLocalRoot;
@@ -1116,8 +1151,27 @@ int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
 
   blob_zero(pOut);
   if( !g.localOpen ){
-    blob_appendf(pOut, "%s", zOrigName);
-    return 1;
+    if( absolute && !file_is_absolute_path(zOrigName) ){
+      if( errFatal ){
+        fossil_fatal("relative to absolute needs open checkout tree: %s",
+                     zOrigName);
+      }
+      return 0;
+    }else{
+      /*
+      ** The original path may be relative or absolute; however, without
+      ** an open checkout tree, the only things we can do at this point
+      ** is return it verbatim or generate a fatal error.  The caller is
+      ** probably expecting a tree-relative path name will be returned;
+      ** however, most places where this function is called already check
+      ** if the local checkout tree is open, either directly or indirectly,
+      ** which would make this situation impossible.  Alternatively, they
+      ** could check the returned path using the file_is_absolute_path()
+      ** function.
+      */
+      blob_appendf(pOut, "%s", zOrigName);
+      return 1;
+    }
   }
   file_canonical_name(g.zLocalRoot, &localRoot, 1);
   nLocalRoot = blob_size(&localRoot);
@@ -1135,7 +1189,11 @@ int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
   /* Special case.  zOrigName refers to g.zLocalRoot directory. */
   if( (nFull==nLocalRoot-1 && xCmp(zLocalRoot, zFull, nFull)==0)
       || (nFull==1 && zFull[0]=='/' && nLocalRoot==1 && zLocalRoot[0]=='/') ){
-    blob_append(pOut, ".", 1);
+    if( absolute ){
+      blob_append(pOut, zLocalRoot, nLocalRoot);
+    }else{
+      blob_append(pOut, ".", 1);
+    }
     blob_reset(&localRoot);
     blob_reset(&full);
     return 1;
@@ -1149,7 +1207,16 @@ int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
     }
     return 0;
   }
-  blob_append(pOut, &zFull[nLocalRoot], nFull-nLocalRoot);
+  if( absolute ){
+    if( !file_is_absolute_path(zOrigName) ){
+      blob_append(pOut, zLocalRoot, nLocalRoot);
+    }
+    blob_append(pOut, zOrigName, -1);
+    blob_resize(pOut, file_simplify_name(blob_buffer(pOut),
+                                         blob_size(pOut), 0));
+  }else{
+    blob_append(pOut, &zFull[nLocalRoot], nFull-nLocalRoot);
+  }
   blob_reset(&localRoot);
   blob_reset(&full);
   return 1;
@@ -1161,16 +1228,18 @@ int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
 ** Test the operation of the tree name generator.
 **
 ** Options:
+**   --absolute           Return an absolute path instead of a relative one.
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is
 **                        a boolean: "yes", "no", "true", "false", etc.
 */
 void cmd_test_tree_name(void){
   int i;
   Blob x;
+  int absoluteFlag = find_option("absolute",0,0)!=0;
   db_find_and_open_repository(0,0);
   blob_zero(&x);
   for(i=2; i<g.argc; i++){
-    if( file_tree_name(g.argv[i], &x, 1) ){
+    if( file_tree_name(g.argv[i], &x, absoluteFlag, 1) ){
       fossil_print("%s\n", blob_buffer(&x));
       blob_reset(&x);
     }

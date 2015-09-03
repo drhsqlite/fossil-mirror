@@ -50,6 +50,7 @@ char *info_tags_of_checkin(int rid, int propagatingOnly){
 **     *  The record ID
 **     *  mtime and ctime
 **     *  who signed it
+**
 */
 void show_common_info(
   int rid,                   /* The rid for the check-in to display info for */
@@ -110,22 +111,6 @@ void show_common_info(
       free(zDate);
     }
     db_finalize(&q);
-  }
-  if( zUuid ){
-    fossil_print("%-13s ", "leaf:");
-    if(is_a_leaf(rid)){
-      if(db_int(0, "SELECT 1 FROM tagxref AS tx"
-                " WHERE tx.rid=%d"
-                " AND tx.tagid=%d"
-                " AND tx.tagtype>0",
-                rid, TAG_CLOSED)){
-        fossil_print("%s\n", "closed");
-      }else{
-        fossil_print("%s\n", "open");
-      }
-    }else{
-      fossil_print("no\n");
-    }
   }
   zTags = info_tags_of_checkin(rid, 0);
   if( zTags && zTags[0] ){
@@ -385,18 +370,24 @@ static void append_file_change_line(
   ReCompiled *pRe,      /* Only show diffs that match this regex, if not NULL */
   int mperm             /* executable or symlink permission for zNew */
 ){
+  @ <p>
   if( !g.perm.Hyperlink ){
     if( zNew==0 ){
-      @ <p>Deleted %h(zName)</p>
+      @ Deleted %h(zName).
     }else if( zOld==0 ){
-      @ <p>Added %h(zName)</p>
+      @ Added %h(zName).
     }else if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
-      @ <p>Name change from %h(zOldName) to %h(zName)
+      @ Name change from %h(zOldName) to %h(zName).
     }else if( fossil_strcmp(zNew, zOld)==0 ){
-      @ <p>Execute permission %s(( mperm==PERM_EXE )?"set":"cleared")
-      @  for %h(zName)</p>
+      if( mperm==PERM_EXE ){
+        @ %h(zName) became executable.
+      }else if( mperm==PERM_LNK ){
+        @ %h(zName) became a symlink.
+      }else{
+        @ %h(zName) became a regular file.
+      }
     }else{
-      @ <p>Changes to %h(zName)</p>
+      @ Changes to %h(zName).
     }
     if( diffFlags ){
       append_diff(zOld, zNew, diffFlags, pRe);
@@ -404,23 +395,30 @@ static void append_file_change_line(
   }else{
     if( zOld && zNew ){
       if( fossil_strcmp(zOld, zNew)!=0 ){
-        @ <p>Modified %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
+        @ Modified %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
         @ from %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>
         @ to %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
       }else if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
-        @ <p>Name change
+        @ Name change
         @ from %z(href("%R/finfo?name=%T",zOldName))%h(zOldName)</a>
         @ to %z(href("%R/finfo?name=%T",zName))%h(zName)</a>.
       }else{
-        @ <p>Execute permission %s(( mperm==PERM_EXE )?"set":"cleared") for
-        @ %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
+        @ %z(href("%R/finfo?name=%T",zName))%h(zName)</a> became
+        if( mperm==PERM_EXE ){
+          @ executable with contents
+        }else if( mperm==PERM_LNK ){
+          @ a symlink with target
+        }else{
+          @ a regular file with contents
+        }
+        @ %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
       }
     }else if( zOld ){
-      @ <p>Deleted %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
-      @ version %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>
+      @ Deleted %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
+      @ version %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>.
     }else{
-      @ <p>Added %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
-      @ version %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>
+      @ Added %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
+      @ version %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
     }
     if( diffFlags ){
       append_diff(zOld, zNew, diffFlags, pRe);
@@ -429,6 +427,7 @@ static void append_file_change_line(
       @ %z(href("%R/fdiff?v1=%!S&v2=%!S&sbs=1",zOld,zNew))[diff]</a>
     }
   }
+  @ </p>
 }
 
 /*
@@ -500,11 +499,12 @@ u64 construct_diff_flags(int verboseFlag, int sideBySide){
 /*
 ** WEBPAGE: vinfo
 ** WEBPAGE: ci
-** URL:  /ci?name=RID|ARTIFACTID
+** URL:  /ci?name=ARTIFACTID
+** URL:  /vinfo?name=ARTIFACTID
 **
 ** Display information about a particular check-in.
 **
-** We also jump here from /info if the name is a version.
+** We also jump here from /info if the name is a check-in
 **
 ** If the /ci page is used (instead of /vinfo or /info) then the
 ** default behavior is to show unified diffs of all file changes.
@@ -763,7 +763,7 @@ void ci_page(void){
 ** WEBPAGE: winfo
 ** URL:  /winfo?name=UUID
 **
-** Return information about a wiki page.
+** Display information about a wiki page.
 */
 void winfo_page(void){
   int rid;
@@ -966,7 +966,10 @@ static void checkin_description(int rid){
 
 /*
 ** WEBPAGE: vdiff
-** URL: /vdiff
+** URL: /vdiff?from=TAG&to=TAG
+**
+** Show the difference between two check-ins identified by the from= and
+** to= query parameters.
 **
 ** Query parameters:
 **
@@ -976,6 +979,8 @@ static void checkin_description(int rid){
 **   v=BOOLEAN       Default true.  If false, only list files that have changed
 **   sbs=BOOLEAN     Side-by-side diff if true.  Unified diff if false
 **   glob=STRING     only diff files matching this glob
+**   dc=N            show N lines of context around each diff
+**   w               ignore whitespace when computing diffs
 **
 **
 ** Show all differences between two check-ins.
@@ -1412,6 +1417,8 @@ int object_description(
 ** Additional parameters:
 **
 **      verbose      Show more detail when describing artifacts
+**      dc=N         Show N lines of context around each diff
+**      w            Ignore whitespace
 */
 void diff_page(void){
   int v1, v2;
@@ -1881,7 +1888,7 @@ void artifact_page(void){
     style_submenu_element("Content", "Content", "%R/artifact/%s", zUuid);
   }else{
     style_submenu_element("Line Numbers", "Line Numbers",
-                          "%R/info/%s%s",zUuid,
+                          "%R/artifact/%s%s",zUuid,
                           ((zLn&&*zLn) ? "" : "?txt=1&ln=0"));
     @ <hr />
     content_get(rid, &content);
@@ -2039,10 +2046,10 @@ void tinfo_page(void){
 ** WEBPAGE: info
 ** URL: info/ARTIFACTID
 **
-** The argument is a artifact ID which might be a baseline or a file or
+** The argument is a artifact ID which might be a check-in or a file or
 ** a ticket changes or a wiki edit or something else.
 **
-** Figure out what the artifact ID is and jump to it.
+** Figure out what the artifact ID is and display it appropriately.
 */
 void info_page(void){
   const char *zName;
@@ -2273,14 +2280,139 @@ static int comment_compare(const char *zA, const char *zB){
 }
 
 /*
+** The following methods operate on the newtags temporary table
+** that is used to collect various changes to be added to a control
+** artifact for a check-in edit.
+*/
+static void init_newtags(void){
+  db_multi_exec("CREATE TEMP TABLE newtags(tag UNIQUE, prefix, value)");
+}
+
+static void change_special(
+  const char *zName,    /* Name of the special tag */
+  const char *zOp,      /* Operation prefix (e.g. +,-,*) */
+  const char *zValue    /* Value of the tag */
+){
+  db_multi_exec("REPLACE INTO newtags VALUES(%Q,'%q',%Q)", zName, zOp, zValue);
+}
+
+static void change_sym_tag(const char *zTag, const char *zOp){
+  db_multi_exec("REPLACE INTO newtags VALUES('sym-%q',%Q,NULL)", zTag, zOp);
+}
+
+static void cancel_special(const char *zTag){
+  change_special(zTag,"-",0);
+}
+
+static void add_color(const char *zNewColor, int fPropagateColor){
+  change_special("bgcolor",fPropagateColor ? "*" : "+", zNewColor);
+}
+
+static void cancel_color(void){
+  change_special("bgcolor","-",0);
+}
+
+static void add_comment(const char *zNewComment){
+  change_special("comment","+",zNewComment);
+}
+
+static void add_date(const char *zNewDate){
+  change_special("date","+",zNewDate);
+}
+
+static void add_user(const char *zNewUser){
+  change_special("user","+",zNewUser);
+}
+
+static void add_tag(const char *zNewTag){
+  change_sym_tag(zNewTag,"+");
+}
+
+static void cancel_tag(int rid, const char *zCancelTag){
+  if( db_exists("SELECT 1 FROM tagxref, tag"
+                " WHERE tagxref.rid=%d AND tagtype>0"
+                "   AND tagxref.tagid=tag.tagid AND tagname='sym-%q'",
+                rid, zCancelTag)
+  ) change_sym_tag(zCancelTag,"-");
+}
+
+static void hide_branch(void){
+  change_special("hidden","*",0);
+}
+
+static void close_leaf(int rid){
+  change_special("closed",is_a_leaf(rid)?"+":"*",0);
+}
+
+static void change_branch(int rid, const char *zNewBranch){
+  db_multi_exec(
+    "REPLACE INTO newtags "
+    " SELECT tagname, '-', NULL FROM tagxref, tag"
+    "  WHERE tagxref.rid=%d AND tagtype==2"
+    "    AND tagname GLOB 'sym-*'"
+    "    AND tag.tagid=tagxref.tagid",
+    rid
+  );
+  change_special("branch","*",zNewBranch);
+  change_sym_tag(zNewBranch,"*");
+}
+
+/*
+** The apply_newtags method is called after all newtags have been added
+** and the control artifact is completed and then written to the DB.
+*/
+static void apply_newtags(Blob *ctrl, int rid, const char *zUuid){
+  Stmt q;
+  int nChng = 0;
+
+  db_prepare(&q, "SELECT tag, prefix, value FROM newtags"
+                 " ORDER BY prefix || tag");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zTag = db_column_text(&q, 0);
+    const char *zPrefix = db_column_text(&q, 1);
+    const char *zValue = db_column_text(&q, 2);
+    nChng++;
+    if( zValue ){
+      blob_appendf(ctrl, "T %s%F %s %F\n", zPrefix, zTag, zUuid, zValue);
+    }else{
+      blob_appendf(ctrl, "T %s%F %s\n", zPrefix, zTag, zUuid);
+    }
+  }
+  db_finalize(&q);
+  if( nChng>0 ){
+    int nrid;
+    Blob cksum;
+    blob_appendf(ctrl, "U %F\n", login_name());
+    md5sum_blob(ctrl, &cksum);
+    blob_appendf(ctrl, "Z %b\n", &cksum);
+    db_begin_transaction();
+    g.markPrivate = content_is_private(rid);
+    nrid = content_put(ctrl);
+    manifest_crosslink(nrid, ctrl, MC_PERMIT_HOOKS);
+    assert( blob_is_reset(ctrl) );
+    db_end_transaction(0);
+  }
+}
+
+/*
+** This method checks that the date can be parsed.
+** Returns 1 if datetime() can validate, 0 otherwise.
+*/
+int is_datetime(const char* zDate){
+  return db_int(0, "SELECT datetime(%Q) NOT NULL", zDate);
+}
+
+/*
 ** WEBPAGE: ci_edit
-** URL:  ci_edit?r=RID&c=NEWCOMMENT&u=NEWUSER
+** URL:  /ci_edit?r=RID&c=NEWCOMMENT&u=NEWUSER
 **
-** Present a dialog for updating properties of a baseline:
+** Present a dialog for updating properties of a check-in.
 **
 **     *  The check-in user
 **     *  The check-in comment
+**     *  The check-in time and date
 **     *  The background color.
+**     *  Add and remove tags
 */
 void ci_edit_page(void){
   int rid;
@@ -2347,38 +2479,20 @@ void ci_edit_page(void){
   if( P("apply") ){
     Blob ctrl;
     char *zNow;
-    int nChng = 0;
 
     login_verify_csrf_secret();
     blob_zero(&ctrl);
     zNow = date_in_standard_format(zChngTime ? zChngTime : "now");
     blob_appendf(&ctrl, "D %s\n", zNow);
-    db_multi_exec("CREATE TEMP TABLE newtags(tag UNIQUE, prefix, value)");
+    init_newtags();
     if( zNewColor[0]
      && (fPropagateColor!=fNewPropagateColor
              || fossil_strcmp(zColor,zNewColor)!=0)
-    ){
-      char *zPrefix = "+";
-      if( fNewPropagateColor ){
-        zPrefix = "*";
-      }
-      db_multi_exec("REPLACE INTO newtags VALUES('bgcolor',%Q,%Q)",
-                    zPrefix, zNewColor);
-    }
-    if( zNewColor[0]==0 && zColor[0]!=0 ){
-      db_multi_exec("REPLACE INTO newtags VALUES('bgcolor','-',NULL)");
-    }
-    if( comment_compare(zComment,zNewComment)==0 ){
-      db_multi_exec("REPLACE INTO newtags VALUES('comment','+',%Q)",
-                    zNewComment);
-    }
-    if( fossil_strcmp(zDate,zNewDate)!=0 ){
-      db_multi_exec("REPLACE INTO newtags VALUES('date','+',%Q)",
-                    zNewDate);
-    }
-    if( fossil_strcmp(zUser,zNewUser)!=0 ){
-      db_multi_exec("REPLACE INTO newtags VALUES('user','+',%Q)", zNewUser);
-    }
+    ) add_color(zNewColor,fNewPropagateColor);
+    if( zNewColor[0]==0 && zColor[0]!=0 ) cancel_color();
+    if( comment_compare(zComment,zNewComment)==0 ) add_comment(zNewComment);
+    if( fossil_strcmp(zDate,zNewDate)!=0 ) add_date(zNewDate);
+    if( fossil_strcmp(zUser,zNewUser)!=0 ) add_user(zNewUser);
     db_prepare(&q,
        "SELECT tag.tagid, tagname FROM tagxref, tag"
        " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid",
@@ -2389,61 +2503,14 @@ void ci_edit_page(void){
       const char *zTag = db_column_text(&q, 1);
       char zLabel[30];
       sqlite3_snprintf(sizeof(zLabel), zLabel, "c%d", tagid);
-      if( P(zLabel) ){
-        db_multi_exec("REPLACE INTO newtags VALUES(%Q,'-',NULL)", zTag);
-      }
+      if( P(zLabel) ) cancel_special(zTag);
     }
     db_finalize(&q);
-    if( zHideFlag[0] ){
-      db_multi_exec("REPLACE INTO newtags VALUES('hidden','*',NULL)");
-    }
-    if( zCloseFlag[0] ){
-      db_multi_exec("REPLACE INTO newtags VALUES('closed','%s',NULL)",
-          is_a_leaf(rid)?"+":"*");
-    }
-    if( zNewTagFlag[0] && zNewTag[0] ){
-      db_multi_exec("REPLACE INTO newtags VALUES('sym-%q','+',NULL)", zNewTag);
-    }
-    if( zNewBrFlag[0] && zNewBranch[0] ){
-      db_multi_exec(
-        "REPLACE INTO newtags "
-        " SELECT tagname, '-', NULL FROM tagxref, tag"
-        "  WHERE tagxref.rid=%d AND tagtype==2"
-        "    AND tagname GLOB 'sym-*'"
-        "    AND tag.tagid=tagxref.tagid",
-        rid
-      );
-      db_multi_exec("REPLACE INTO newtags VALUES('branch','*',%Q)", zNewBranch);
-      db_multi_exec("REPLACE INTO newtags VALUES('sym-%q','*',NULL)",
-                    zNewBranch);
-    }
-    db_prepare(&q, "SELECT tag, prefix, value FROM newtags"
-                   " ORDER BY prefix || tag");
-    while( db_step(&q)==SQLITE_ROW ){
-      const char *zTag = db_column_text(&q, 0);
-      const char *zPrefix = db_column_text(&q, 1);
-      const char *zValue = db_column_text(&q, 2);
-      nChng++;
-      if( zValue ){
-        blob_appendf(&ctrl, "T %s%F %s %F\n", zPrefix, zTag, zUuid, zValue);
-      }else{
-        blob_appendf(&ctrl, "T %s%F %s\n", zPrefix, zTag, zUuid);
-      }
-    }
-    db_finalize(&q);
-    if( nChng>0 ){
-      int nrid;
-      Blob cksum;
-      blob_appendf(&ctrl, "U %F\n", login_name());
-      md5sum_blob(&ctrl, &cksum);
-      blob_appendf(&ctrl, "Z %b\n", &cksum);
-      db_begin_transaction();
-      g.markPrivate = content_is_private(rid);
-      nrid = content_put(&ctrl);
-      manifest_crosslink(nrid, &ctrl, MC_PERMIT_HOOKS);
-      assert( blob_is_reset(&ctrl) );
-      db_end_transaction(0);
-    }
+    if( zHideFlag[0] ) hide_branch();
+    if( zCloseFlag[0] ) close_leaf(rid);
+    if( zNewTagFlag[0] && zNewTag[0] ) add_tag(zNewTag);
+    if( zNewBrFlag[0] && zNewBranch[0] ) change_branch(rid,zNewBranch);
+    apply_newtags(&ctrl, rid, zUuid);
     cgi_redirectf("ci?name=%s", zUuid);
   }
   blob_zero(&comment);
@@ -2644,4 +2711,211 @@ void ci_edit_page(void){
   @ </table>
   @ </div></form>
   style_footer();
+}
+
+/*
+** Prepare an ammended commit comment.  Let the user modify it using the
+** editor specified in the global_config table or either
+** the VISUAL or EDITOR environment variable.
+**
+** Store the final commit comment in pComment.  pComment is assumed
+** to be uninitialized - any prior content is overwritten.
+**
+** Use zInit to initialize the check-in comment so that the user does
+** not have to retype.
+*/
+static void prepare_amend_comment(
+  Blob *pComment,
+  const char *zInit,
+  const char *zUuid
+){
+  Blob prompt;
+#if defined(_WIN32) || defined(__CYGWIN__)
+  int bomSize;
+  const unsigned char *bom = get_utf8_bom(&bomSize);
+  blob_init(&prompt, (const char *) bom, bomSize);
+  if( zInit && zInit[0]){
+    blob_append(&prompt, zInit, -1);
+  }
+#else
+  blob_init(&prompt, zInit, -1);
+#endif
+  blob_append(&prompt, "\n# Enter a new comment for check-in ", -1);
+  if( zUuid && zUuid[0] ){
+    blob_append(&prompt, zUuid, -1);
+  }
+  blob_append(&prompt, ".\n# Lines beginning with a # are ignored.\n", -1);
+  prompt_for_user_comment(pComment, &prompt);
+  blob_reset(&prompt);
+}
+
+#define AMEND_USAGE_STMT "UUID OPTION ?OPTION ...?"
+/*
+** COMMAND: amend
+**
+** Usage: %fossil amend UUID OPTION ?OPTION ...?
+**
+** Amend the tags on check-in UUID to change how it displays in the timeline.
+**
+** Options:
+**
+**    --author USER           Make USER the author for check-in
+**    -m|--comment COMMENT    Make COMMENT the check-in comment
+**    -M|--message-file FILE  Read the amended comment from FILE
+**    --edit-comment          Launch editor to revise comment
+**    --date DATE             Make DATE the check-in time
+**    --bgcolor COLOR         Apply COLOR to this check-in
+**    --branchcolor COLOR     Apply and propagate COLOR to the branch
+**    --tag TAG               Add new TAG to this check-in
+**    --cancel TAG            Cancel TAG from this check-in
+**    --branch NAME           Make this check-in the start of branch NAME
+**    --hide                  Hide branch starting from this check-in
+**    --close                 Mark this "leaf" as closed
+*/
+void ci_amend_cmd(void){
+  int rid;
+  const char *zComment;         /* Current comment on the check-in */
+  const char *zNewComment;      /* Revised check-in comment */
+  const char *zComFile;         /* Filename from which to read comment */
+  const char *zUser;            /* Current user for the check-in */
+  const char *zNewUser;         /* Revised user */
+  const char *zDate;            /* Current date of the check-in */
+  const char *zNewDate;         /* Revised check-in date */
+  const char *zColor;
+  const char *zNewColor;
+  const char *zNewBrColor;
+  const char *zNewBranch;
+  const char **pzNewTags = 0;
+  const char **pzCancelTags = 0;
+  int fClose;                   /* True if leaf should be closed */
+  int fHide;                    /* True if branch should be hidden */
+  int fPropagateColor;          /* True if color propagates before amend */
+  int fNewPropagateColor = 0;   /* True if color propagates after amend */
+  int fHasHidden = 0;           /* True if hidden tag already set */
+  int fHasClosed = 0;           /* True if closed tag already set */
+  int fEditComment;             /* True if editor to be used for comment */
+  const char *zChngTime;        /* The change time on the control artifact */
+  const char *zUuid;
+  Blob ctrl;
+  Blob comment;
+  char *zNow;
+  int nTags, nCancels;
+  int i;
+  Stmt q;
+
+  if( g.argc==3 ) usage(AMEND_USAGE_STMT);
+  fEditComment = find_option("edit-comment",0,0)!=0;
+  zNewComment = find_option("comment","m",1);
+  zComFile = find_option("message-file","M",1);
+  zNewBranch = find_option("branch",0,1);
+  zNewColor = find_option("bgcolor",0,1);
+  zNewBrColor = find_option("branchcolor",0,1);
+  if( zNewBrColor ){
+    zNewColor = zNewBrColor;
+    fNewPropagateColor = 1;
+  }
+  zNewDate = find_option("date",0,1);
+  zNewUser = find_option("author",0,1);
+  pzNewTags = find_repeatable_option("tag",0,&nTags);
+  pzCancelTags = find_repeatable_option("cancel",0,&nCancels);
+  fClose = find_option("close",0,0)!=0;
+  fHide = find_option("hide",0,0)!=0;
+  zChngTime = find_option("chngtime",0,1);
+  db_find_and_open_repository(0,0);
+  user_select();
+  verify_all_options();
+  if( g.argc<3 || g.argc>=4 ) usage(AMEND_USAGE_STMT);
+  rid = name_to_typed_rid(g.argv[2], "ci");
+  if( rid==0 && !is_a_version(rid) ) fossil_fatal("no such check-in");
+  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+  if( zUuid==0 ) fossil_fatal("Unable to find UUID");
+  zComment = db_text(0, "SELECT coalesce(ecomment,comment)"
+                        "  FROM event WHERE objid=%d", rid);
+  zUser = db_text(0, "SELECT coalesce(euser,user)"
+                     "  FROM event WHERE objid=%d", rid);
+  zDate = db_text(0, "SELECT datetime(mtime)"
+                     "  FROM event WHERE objid=%d", rid);
+  zColor = db_text("", "SELECT bgcolor"
+                        "  FROM event WHERE objid=%d", rid);
+  fPropagateColor = db_int(0, "SELECT tagtype FROM tagxref"
+                              " WHERE rid=%d AND tagid=%d",
+                              rid, TAG_BGCOLOR)==2;
+  fNewPropagateColor = zNewColor && zNewColor[0]
+                        ? fNewPropagateColor : fPropagateColor;
+  db_prepare(&q,
+     "SELECT tag.tagid FROM tagxref, tag"
+     " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid",
+     rid
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    int tagid = db_column_int(&q, 0);
+
+    if( tagid == TAG_CLOSED ){
+      fHasClosed = 1;
+    }else if( tagid==TAG_HIDDEN ){
+      fHasHidden = 1;
+    }else{
+      continue;
+    }
+  }
+  db_finalize(&q);
+  blob_zero(&ctrl);
+  zNow = date_in_standard_format(zChngTime && zChngTime[0] ? zChngTime : "now");
+  blob_appendf(&ctrl, "D %s\n", zNow);
+  init_newtags();
+  if( zNewColor && zNewColor[0]
+      && (fPropagateColor!=fNewPropagateColor
+            || fossil_strcmp(zColor,zNewColor)!=0)
+  ){
+    add_color(
+      mprintf("%s%s", (zNewColor[0]!='#' &&
+        validate16(zNewColor,strlen(zNewColor)) &&
+        (strlen(zNewColor)==6 || strlen(zNewColor)==3)) ? "#" : "",
+        zNewColor
+      ),
+      fNewPropagateColor
+    );
+  }
+  if( (zNewColor!=0 && zNewColor[0]==0) && (zColor && zColor[0] ) ){
+    cancel_color();
+  }
+  if( fEditComment ){
+    prepare_amend_comment(&comment, zComment, zUuid);
+    zNewComment = blob_str(&comment);
+  }else if( zComFile ){
+    blob_zero(&comment);
+    blob_read_from_file(&comment, zComFile);
+    blob_to_utf8_no_bom(&comment, 1);
+    zNewComment = blob_str(&comment);
+  }
+  if( zNewComment && zNewComment[0]
+      && comment_compare(zComment,zNewComment)==0 ) add_comment(zNewComment);
+  if( zNewDate && zNewDate[0] && fossil_strcmp(zDate,zNewDate)!=0 ){
+    if( is_datetime(zNewDate) ){
+      add_date(zNewDate);
+    }else{
+      fossil_fatal("Unsupported date format, use YYYY-MM-DD HH:MM:SS");
+    }
+  }
+  if( zNewUser && zNewUser[0] && fossil_strcmp(zUser,zNewUser)!=0 ){
+    add_user(zNewUser);
+  }
+  if( pzNewTags!=0 ){
+    for(i=0; i<nTags; i++){
+      if( pzNewTags[i] && pzNewTags[i][0] ) add_tag(pzNewTags[i]);
+    }
+    fossil_free(pzNewTags);
+  }
+  if( pzCancelTags!=0 ){
+    for(i=0; i<nCancels; i++){
+      if( pzCancelTags[i] && pzCancelTags[i][0] )
+        cancel_tag(rid,pzCancelTags[i]);
+    }
+    fossil_free(pzCancelTags);
+  }
+  if( fHide && !fHasHidden ) hide_branch();
+  if( fClose && !fHasClosed ) close_leaf(rid);
+  if( zNewBranch && zNewBranch[0] ) change_branch(rid,zNewBranch);
+  apply_newtags(&ctrl, rid, zUuid);
+  show_common_info(rid, "uuid:", 1, 0);
 }

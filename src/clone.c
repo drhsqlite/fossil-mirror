@@ -184,6 +184,7 @@ void clone_cmd(void){
     db_multi_exec(
       "REPLACE INTO config(name,value,mtime)"
       " VALUES('server-code', lower(hex(randomblob(20))), now());"
+      "DELETE FROM config WHERE name='project-code';"
     );
     url_enable_proxy(0);
     clone_ssh_db_set_options();
@@ -207,7 +208,7 @@ void clone_cmd(void){
   extra_deltification();
   db_end_transaction(0);
   fossil_print("\nVacuuming the database... "); fflush(stdout);
-  if( db_int(0, "PRAGMA page_count")>1000 
+  if( db_int(0, "PRAGMA page_count")>1000
    && db_int(0, "PRAGMA page_size")<8192 ){
      db_multi_exec("PRAGMA page_size=8192;");
   }

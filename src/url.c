@@ -456,8 +456,8 @@ void url_initialize(HQuery *p, const char *zBase){
 */
 void url_reset(HQuery *p){
   blob_reset(&p->url);
-  fossil_free(p->azName);
-  fossil_free(p->azValue);
+  fossil_free((void *)p->azName);
+  fossil_free((void *)p->azValue);
   url_initialize(p, p->zBase);
 }
 
@@ -482,8 +482,10 @@ void url_add_parameter(HQuery *p, const char *zName, const char *zValue){
   if( zValue==0 ) return;
   if( i>=p->nAlloc ){
     p->nAlloc = p->nAlloc*2 + 10;
-    p->azName = fossil_realloc(p->azName, sizeof(p->azName[0])*p->nAlloc);
-    p->azValue = fossil_realloc(p->azValue, sizeof(p->azValue[0])*p->nAlloc);
+    p->azName = fossil_realloc((void *)p->azName,
+                               sizeof(p->azName[0])*p->nAlloc);
+    p->azValue = fossil_realloc((void *)p->azValue,
+                                sizeof(p->azValue[0])*p->nAlloc);
   }
   p->azName[i] = zName;
   p->azValue[i] = zValue;

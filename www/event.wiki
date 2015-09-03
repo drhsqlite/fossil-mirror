@@ -9,41 +9,41 @@ Each technote causes a single entry to appear on the
 [/timeline?y=e | Timeline Page].
 Clicking on the timeline link will display the text of the technote.
 The wiki content, the timeline entry text, the
-time of the event, and the timeline background color can all be edited.
+time of the technote, and the timeline background color can all be edited.
 
 As with check-ins, wiki, and tickets, all technotes automatically synchronize
 to other repositories.  Hence, technotes can be viewed, created, and edited
 off-line.  And the complete edit history for technotes is maintained
 for auditing purposes.
 
-Possible uses for events include:
+Possible uses for technotes include:
 
   *  <b>Milestones</b>.  Project milestones, such as releases or beta-test
-      cycles, can be recorded as events.  The timeline entry for the event
+      cycles, can be recorded as technotes.  The timeline entry for the technote
       can be something simple like "Version 1.2.3" perhaps with a bright
       color background to draw attention to the entry and the wiki content
       can contain release notes, for example.
 
   *  <b>Blog Entries</b>.  Blog entries from developers describing the current
      state of a project, or rational for various design decisions, or 
-     roadmaps for future development, can be entered as events.
+     roadmaps for future development, can be entered as technotes.
 
   *  <b>Process Checkpoints</b>.  For projects that have a formal process,
-     events can be used to record the completion or the initiation of
-     various process steps.  For example, an event can be used to record
+     technotes can be used to record the completion or the initiation of
+     various process steps.  For example, a technote can be used to record
      the successful completion of a long-running test, perhaps with
      performance results and details of where the test was run and who
      ran it recorded in the wiki content.
 
   *  <b>News Articles</b>.  Significant occurrences in the lifecycle of
-     a project can be recorded as news articles using events.  Perhaps the
+     a project can be recorded as news articles using technotes.  Perhaps the
      domain name of the canonical website for a project changes, or new
      server hardware is obtained.  Such happenings are appropriate for
      reporting as news.
 
   *  <b>Announcements</b>.  Changes to the composition of the development
      team or acquisition of new project sponsors can be communicated as
-     announcements which can be implemented as events.
+     announcements which can be implemented as technotes.
 
 No project is required to use technotes.  But technotes can help many projects
 stay better organized and provide a better historical record of the
@@ -52,7 +52,7 @@ development progress.
 <h2>Viewing Technotes</h2>
 
 Because technotes are considered a special kind of wiki, 
-users must have permission to read wiki in order read events.
+users must have permission to read wiki in order read technotes.
 Enable the "j" permission under the /Setup/Users menu in order
 to give specific users or user classes the ability to view wiki
 and technotes.

@@ -146,6 +146,99 @@ void Th_PrintTraceLog(){
 }
 
 /*
+** - adopted from ls_cmd_rev in checkin.c
+** - adopted commands/error handling for usage within th1
+** - interface adopted to allow result creation as TH1 List
+**
+** Takes a checkin identifier in zRev and an optiona glob pattern in zGLOB
+** as parameter returns a TH list in pzList,pnList with filenames matching
+** glob pattern with the checking
+*/
+static void dir_cmd_rev(
+  Th_Interp *interp,
+  char **pzList,
+  int *pnList,
+  const char *zRev,  /* Revision string given */
+  const char *zGlob, /* Glob pattern given */
+  int bDetails
+){
+  Stmt q;
+  char *zOrderBy = "pathname COLLATE nocase";
+  int rid;
+
+  rid = th1_name_to_typed_rid(interp, zRev, "ci");
+  compute_fileage(rid, zGlob);
+  db_prepare(&q,
+    "SELECT datetime(fileage.mtime, 'localtime'), fileage.pathname,\n"
+    "       blob.size\n"
+    "  FROM fileage, blob\n"
+    " WHERE blob.rid=fileage.fid \n"
+    " ORDER BY %s;", zOrderBy /*safe-for-%s*/
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zFile = db_column_text(&q, 1);
+    if( bDetails ){
+      const char *zTime = db_column_text(&q, 0);
+      int size = db_column_int(&q, 2);
+      char zSize[50];
+      char *zSubList = 0;
+      int nSubList = 0;
+      sqlite3_snprintf(sizeof(zSize), zSize, "%d", size);
+      Th_ListAppend(interp, &zSubList, &nSubList, zFile, -1);
+      Th_ListAppend(interp, &zSubList, &nSubList, zSize, -1);
+      Th_ListAppend(interp, &zSubList, &nSubList, zTime, -1);
+      Th_ListAppend(interp, pzList, pnList, zSubList, -1);
+      Th_Free(interp, zSubList);
+    }else{
+      Th_ListAppend(interp, pzList, pnList, zFile, -1);
+    }
+  }
+  db_finalize(&q);
+}
+
+/*
+** TH1 command: dir CHECKIN ?GLOB? ?DETAILS?
+**
+** Returns a list containing all files in CHECKIN. If GLOB is given only
+** the files matching the pattern GLOB within CHECKIN will be returned.
+** If DETAILS is non-zero, the result will be a list-of-lists, with each
+** element containing at least three elements: the file name, the file
+** size (in bytes), and the file last modification time (relative to the
+** time zone configured for the repository).
+*/
+static int dirCmd(
+  Th_Interp *interp,
+  void *ctx,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  const char *zGlob = 0;
+  int bDetails = 0;
+
+  if( argc<2 || argc>4 ){
+    return Th_WrongNumArgs(interp, "dir CHECKIN ?GLOB? ?DETAILS?");
+  }
+  if( argc>=3 ){
+    zGlob = argv[2];
+  }
+  if( argc>=4 && Th_ToInt(interp, argv[3], argl[3], &bDetails) ){
+    return TH_ERROR;
+  }
+  if( Th_IsRepositoryOpen() ){
+    char *zList = 0;
+    int nList = 0;
+    dir_cmd_rev(interp, &zList, &nList, argv[1], zGlob, bDetails);
+    Th_SetResult(interp, zList, nList);
+    Th_Free(interp, zList);
+    return TH_OK;
+  }else{
+    Th_SetResult(interp, "repository unavailable", -1);
+    return TH_ERROR;
+  }
+}
+
+/*
 ** TH1 command: httpize STRING
 **
 ** Escape all characters of STRING which have special meaning in URI
@@ -176,7 +269,7 @@ static int enableOutput = 1;
 /*
 ** TH1 command: enable_output BOOLEAN
 **
-** Enable or disable the puts and hputs commands.
+** Enable or disable the puts and wiki commands.
 */
 static int enableOutputCmd(
   Th_Interp *interp,
@@ -341,9 +434,41 @@ static int putsCmd(
 }
 
 /*
+** TH1 command: markdown STRING
+**
+** Renders the input string as markdown.  The result is a two-element list.
+** The first element is the text-only title string.  The second element
+** contains the body, rendered as HTML.
+*/
+static int markdownCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  Blob src, title, body;
+  char *zValue = 0;
+  int nValue = 0;
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "markdown STRING");
+  }
+  blob_zero(&src);
+  blob_init(&src, (char*)argv[1], argl[1]);
+  blob_zero(&title); blob_zero(&body);
+  markdown_to_html(&src, &title, &body);
+  Th_ListAppend(interp, &zValue, &nValue, blob_str(&title), blob_size(&title));
+  Th_ListAppend(interp, &zValue, &nValue, blob_str(&body), blob_size(&body));
+  Th_SetResult(interp, zValue, nValue);
+  return TH_OK;
+}
+
+/*
+** TH1 command: decorate STRING
 ** TH1 command: wiki STRING
 **
-** Render the input string as wiki.
+** Render the input string as wiki.  For the decorate command, only links
+** are handled.
 */
 static int wikiCmd(
   Th_Interp *interp,
@@ -507,6 +632,7 @@ static int searchableCmd(
 ** enabled. The set of features includes:
 **
 ** "ssl"             = FOSSIL_ENABLE_SSL
+** "legacyMvRm"      = FOSSIL_ENABLE_LEGACY_MV_RM
 ** "th1Docs"         = FOSSIL_ENABLE_TH1_DOCS
 ** "th1Hooks"        = FOSSIL_ENABLE_TH1_HOOKS
 ** "tcl"             = FOSSIL_ENABLE_TCL
@@ -516,6 +642,7 @@ static int searchableCmd(
 ** "json"            = FOSSIL_ENABLE_JSON
 ** "markdown"        = FOSSIL_ENABLE_MARKDOWN
 ** "unicodeCmdLine"  = !BROKEN_MINGW_CMDLINE
+** "dynamicBuild"    = FOSSIL_DYNAMIC_BUILD
 **
 */
 static int hasfeatureCmd(
@@ -536,6 +663,11 @@ static int hasfeatureCmd(
   }
 #if defined(FOSSIL_ENABLE_SSL)
   else if( 0 == fossil_strnicmp( zArg, "ssl\0", 4 ) ){
+    rc = 1;
+  }
+#endif
+#if defined(FOSSIL_ENABLE_LEGACY_MV_RM)
+  else if( 0 == fossil_strnicmp( zArg, "legacyMvRm\0", 11 ) ){
     rc = 1;
   }
 #endif
@@ -576,6 +708,11 @@ static int hasfeatureCmd(
 #endif
 #if !defined(BROKEN_MINGW_CMDLINE)
   else if( 0 == fossil_strnicmp( zArg, "unicodeCmdLine\0", 15 ) ){
+    rc = 1;
+  }
+#endif
+#if defined(FOSSIL_DYNAMIC_BUILD)
+  else if( 0 == fossil_strnicmp( zArg, "dynamicBuild\0", 13 ) ){
     rc = 1;
   }
 #endif
@@ -1320,6 +1457,51 @@ static int settingCmd(
 }
 
 /*
+** TH1 command: glob_match ?-one? ?--? patternList string
+**
+** Checks the string against the specified glob pattern -OR- list of glob
+** patterns and returns non-zero if there is a match.
+*/
+#define GLOB_MATCH_WRONGNUMARGS "glob_match ?-one? ?--? patternList string"
+static int globMatchCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  int rc;
+  int one = 0;
+  int nArg = 1;
+  Glob *pGlob = 0;
+  if( argc<3 || argc>5 ){
+    return Th_WrongNumArgs(interp, GLOB_MATCH_WRONGNUMARGS);
+  }
+  if( fossil_strcmp(argv[nArg], "-one")==0 ){
+    one = 1; nArg++;
+  }
+  if( fossil_strcmp(argv[nArg], "--")==0 ) nArg++;
+  if( nArg+2!=argc ){
+    return Th_WrongNumArgs(interp, GLOB_MATCH_WRONGNUMARGS);
+  }
+  if( one ){
+    Th_SetResultInt(interp, sqlite3_strglob(argv[nArg], argv[nArg+1])==0);
+    rc = TH_OK;
+  }else{
+    pGlob = glob_create(argv[nArg]);
+    if( pGlob ){
+      Th_SetResultInt(interp, glob_match(pGlob, argv[nArg+1]));
+      rc = TH_OK;
+    }else{
+      Th_SetResult(interp, "unable to create glob from pattern list", -1);
+      rc = TH_ERROR;
+    }
+    glob_free(pGlob);
+  }
+  return rc;
+}
+
+/*
 ** TH1 command: regexp ?-nocase? ?--? exp string
 **
 ** Checks the string against the specified regular expression and returns
@@ -1545,8 +1727,10 @@ void Th_FossilInit(u32 flags){
     {"combobox",      comboboxCmd,          0},
     {"date",          dateCmd,              0},
     {"decorate",      wikiCmd,              (void*)&aFlags[2]},
+    {"dir",           dirCmd,               0},
     {"enable_output", enableOutputCmd,      0},
     {"getParameter",  getParameterCmd,      0},
+    {"glob_match",    globMatchCmd,         0},
     {"globalState",   globalStateCmd,       0},
     {"httpize",       httpizeCmd,           0},
     {"hascap",        hascapCmd,            (void*)&zeroInt},
@@ -1555,6 +1739,7 @@ void Th_FossilInit(u32 flags){
     {"htmlize",       htmlizeCmd,           0},
     {"http",          httpCmd,              0},
     {"linecount",     linecntCmd,           0},
+    {"markdown",      markdownCmd,          0},
     {"puts",          putsCmd,              (void*)&aFlags[1]},
     {"query",         queryCmd,             0},
     {"randhex",       randhexCmd,           0},
@@ -1835,6 +2020,12 @@ int Th_CommandHook(
     */
     if( memcmp(zResult, NO_COMMAND_HOOK_ERROR, nResult)!=0 ){
       sendError(zResult, nResult, 0);
+    }else{
+      /*
+      ** There is no command hook handler "installed".  This situation
+      ** is NOT actually an error.
+      */
+      rc = TH_OK;
     }
   }
   /*
@@ -1855,7 +2046,7 @@ int Th_CommandHook(
   ** open prior to their own code doing so.
   */
   if( TH_INIT_HOOK & TH_INIT_NEED_CONFIG ) Th_CloseConfig(1);
-  return (rc != TH_ERROR) ? rc : TH_OK;
+  return rc;
 }
 
 /*
@@ -1916,6 +2107,12 @@ int Th_WebpageHook(
     */
     if( memcmp(zResult, NO_WEBPAGE_HOOK_ERROR, nResult)!=0 ){
       sendError(zResult, nResult, 1);
+    }else{
+      /*
+      ** There is no webpage hook handler "installed".  This situation
+      ** is NOT actually an error.
+      */
+      rc = TH_OK;
     }
   }
   /*
@@ -1936,7 +2133,7 @@ int Th_WebpageHook(
   ** open prior to their own code doing so.
   */
   if( TH_INIT_HOOK & TH_INIT_NEED_CONFIG ) Th_CloseConfig(1);
-  return (rc != TH_ERROR) ? rc : TH_OK;
+  return rc;
 }
 
 /*
@@ -1971,6 +2168,20 @@ int Th_WebpageNotify(
   return rc;
 }
 #endif
+
+
+#ifdef FOSSIL_ENABLE_TH1_DOCS
+/*
+** This function determines if TH1 docs are enabled for the repository.
+*/
+int Th_AreDocsEnabled(void){
+  if( fossil_getenv("TH1_ENABLE_DOCS")!=0 ){
+    return 1;
+  }
+  return db_get_boolean("th1-docs", 0);
+}
+#endif
+
 
 /*
 ** The z[] input contains text mixed with TH1 scripts.

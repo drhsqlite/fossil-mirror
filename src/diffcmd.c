@@ -300,7 +300,7 @@ static void diff_one_against_disk(
   Blob content;
   int isLink;
   int isBin;
-  file_tree_name(zFileTreeName, &fname, 1);
+  file_tree_name(zFileTreeName, &fname, 0, 1);
   historical_version_of_file(zFrom, blob_str(&fname), &content, &isLink, 0,
                              fIncludeBinary ? 0 : &isBin, 0);
   if( !isLink != !file_wd_islink(zFrom) ){
@@ -456,7 +456,7 @@ static void diff_one_two_versions(
   int isLink1, isLink2;
   int isBin1, isBin2;
   if( diffFlags & DIFF_BRIEF ) return;
-  file_tree_name(zFileTreeName, &fname, 1);
+  file_tree_name(zFileTreeName, &fname, 0, 1);
   zName = blob_str(&fname);
   historical_version_of_file(zFrom, zName, &v1, &isLink1, 0,
                              fIncludeBinary ? 0 : &isBin1, 0);
@@ -664,7 +664,7 @@ void diff_tk(const char *zSubCmd, int firstArg){
 #if defined(FOSSIL_ENABLE_TCL)
     Th_FossilInit(TH_INIT_DEFAULT);
     if( evaluateTclWithEvents(g.interp, &g.tcl, blob_str(&script),
-                              blob_size(&script), 1, 0)==TCL_OK ){
+                              blob_size(&script), 1, 1, 0)==TCL_OK ){
       blob_reset(&script);
       return;
     }
@@ -837,7 +837,9 @@ void diff_cmd(void){
 
 /*
 ** WEBPAGE: vpatch
-** URL vpatch?from=UUID&to=UUID
+** URL: /vpatch?from=FROM&to=TO
+**
+** Show a patch that goes from check-in FROM to check-in TO.
 */
 void vpatch_page(void){
   const char *zFrom = P("from");

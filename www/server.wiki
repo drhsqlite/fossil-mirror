@@ -181,6 +181,10 @@ from the one running the web server - consult your site's documentation or admin
 <li>The repository file AND the directory containing it must be writable by the same account
 which executes the Fossil binary (again, this might differ from the WWW user). The directory
 needs to be writable so that sqlite can write its journal files.</li>
+<li>Fossil must be able to create temporary files, the default directory 
+for which depends on the OS.  When the CGI process is operating within       
+a chroot, ensure that this directory exists and is readable/writeable
+by the user who executes the Fossil binary.</li>
 </ul>
 </p>
 

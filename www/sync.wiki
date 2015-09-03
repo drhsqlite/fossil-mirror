@@ -249,9 +249,7 @@ both cards are sent.  The format is as follows:</p>
 </blockquote>
 
 <p>The <i>servercode</i> argument is the repository ID for the
-client.  The server will only allow the transaction to proceed
-if the servercode is different from its own servercode.  This
-prevents a sync-loop.  The <i>projectcode</i> is the identifier
+client.  The <i>projectcode</i> is the identifier
 of the software project that the client repository contains.
 The projectcode for the client and server must match in order
 for the transaction to proceed.</p>

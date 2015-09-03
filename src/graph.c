@@ -49,7 +49,7 @@ struct GraphRow {
   u8 timeWarp;                /* Child is earlier in time */
   u8 bDescender;              /* True if riser from bottom of graph to here. */
   i8 iRail;                   /* Which rail this check-in appears on. 0-based.*/
-  i8 mergeOut;                /* Merge out on rail mergeOut/4.  -1 for none */
+  i8 mergeOut;                /* Merge out to this rail.  -1 if no merge-out */
   u8 mergeIn[GR_MAX_RAIL];    /* Merge in from non-zero rails */
   int aiRiser[GR_MAX_RAIL];   /* Risers from this node to a higher row. */
   int mergeUpto;              /* Draw the mergeOut rail up to this level */
@@ -63,7 +63,6 @@ struct GraphRow {
 struct GraphContext {
   int nErr;                  /* Number of errors encountered */
   int mxRail;                /* Number of rails required to render the graph */
-  int iRailPitch;            /* Pixels between rail centers */
   GraphRow *pFirst;          /* First row in the list */
   GraphRow *pLast;           /* Last row in the list */
   int nBranch;               /* Number of distinct branches */
@@ -296,24 +295,23 @@ static void createMergeRiser(
       /* The thick arrow up to the next primary child of pDesc goes
       ** further up than the thin merge arrow riser, so draw them both
       ** on the same rail. */
-      pParent->mergeOut = pParent->iRail*4;
-      if( pParent->iRail<pChild->iRail ) pParent->mergeOut += 2;
+      pParent->mergeOut = pParent->iRail;
       pParent->mergeUpto = pChild->idx;
     }else{
       /* The thin merge arrow riser is taller than the thick primary
       ** child riser, so use separate rails. */
       int iTarget = pParent->iRail;
       pParent->mergeOut = findFreeRail(p, pChild->idx, pParent->idx-1,
-                                       0, iTarget)*4 + 1;
+                                       0, iTarget);
       pParent->mergeUpto = pChild->idx;
-      mask = BIT(pParent->mergeOut/4);
+      mask = BIT(pParent->mergeOut);
       for(pLoop=pChild->pNext; pLoop && pLoop->rid!=pParent->rid;
            pLoop=pLoop->pNext){
         pLoop->railInUse |= mask;
       }
     }
   }
-  pChild->mergeIn[pParent->mergeOut/4] = (pParent->mergeOut&3)+1;
+  pChild->mergeIn[pParent->mergeOut] = 1;
 }
 
 /*
@@ -324,7 +322,7 @@ static void find_max_rail(GraphContext *p){
   p->mxRail = 0;
   for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
     if( pRow->iRail>p->mxRail ) p->mxRail = pRow->iRail;
-    if( pRow->mergeOut/4>p->mxRail ) p->mxRail = pRow->mergeOut/4;
+    if( pRow->mergeOut>p->mxRail ) p->mxRail = pRow->mergeOut;
     while( p->mxRail<GR_MAX_RAIL && pRow->mergeDown>(BIT(p->mxRail+1)-1) ){
       p->mxRail++;
     }
@@ -542,7 +540,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
         int iMrail = findFreeRail(p, pRow->idx, p->nRow, 0, 0);
         if( p->mxRail>=GR_MAX_RAIL ) return;
         mask = BIT(iMrail);
-        pRow->mergeIn[iMrail] = 2;
+        pRow->mergeIn[iMrail] = 1;
         pRow->mergeDown |= mask;
         for(pLoop=pRow->pNext; pLoop; pLoop=pLoop->pNext){
           pLoop->railInUse |= mask;
@@ -571,7 +569,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
       pDesc = hashFind(p, pRow->rid);
       assert( pDesc!=0 && pDesc!=pRow );
       createMergeRiser(p, pDesc, pRow);
-      if( pDesc->mergeOut/4>mxRail ) mxRail = pDesc->mergeOut/4;
+      if( pDesc->mergeOut>mxRail ) mxRail = pDesc->mergeOut;
     }
     if( dupRail<=mxRail ){
       dupRail = mxRail+1;
@@ -586,10 +584,5 @@ void graph_finish(GraphContext *p, int omitDescenders){
   ** Find the maximum rail number.
   */
   find_max_rail(p);
-  p->iRailPitch = atoi(PD("railpitch","0"));
-  if( p->iRailPitch<=0 ){
-    p->iRailPitch = 18 - (p->mxRail/3);
-    if( p->iRailPitch<11 ) p->iRailPitch = 11;
-  }
   p->nErr = 0;
 }

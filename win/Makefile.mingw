@@ -11,6 +11,10 @@
 # This is a makefile for use on Cygwin/Darwin/FreeBSD/Linux/Windows using
 # MinGW or MinGW-w64.
 #
+# Some of the special options which can be passed to make
+#   USE_WINDOWS=1    if building under a windows command prompt
+#   X64=1            if using an unprefixed 64-bit mingw compiler
+#
 
 #### Select one of MinGW, MinGW-w64 (32-bit) or MinGW-w64 (64-bit) compilers.
 #    By default, this is an empty string (i.e. use the native compiler).
@@ -54,6 +58,10 @@ BCC = gcc
 #    issues when building incrementally).
 #
 # FOSSIL_BUILD_SSL = 1
+
+#### Enable legacy treatment of mv/rm (skip checkout files)
+#
+# FOSSIL_ENABLE_LEGACY_MV_RM = 1
 
 #### Enable TH1 scripts in embedded documentation files
 #
@@ -148,7 +156,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2d
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -195,19 +203,21 @@ endif
 #    the finished binary for fossil.  The BCC compiler above is used
 #    for building intermediate code-generator tools.
 #
-TCC = $(PREFIX)gcc -Os -Wall
-
-#### When not using the miniz compression library, zlib is required.
-#
-ifndef FOSSIL_ENABLE_MINIZ
-TCC += -L$(ZLIBDIR) -I$(ZINCDIR)
-endif
+TCC = $(PREFIX)gcc -Wall
 
 #### Add the necessary command line options to build with debugging
 #    symbols, if enabled.
 #
 ifdef FOSSIL_ENABLE_SYMBOLS
 TCC += -g
+else
+TCC += -Os
+endif
+
+#### When not using the miniz compression library, zlib is required.
+#
+ifndef FOSSIL_ENABLE_MINIZ
+TCC += -L$(ZLIBDIR) -I$(ZINCDIR)
 endif
 
 #### Compile resources for use in building executables that will run
@@ -254,6 +264,12 @@ TCC += -DFOSSIL_ENABLE_SSL=1
 RCC += -DFOSSIL_ENABLE_SSL=1
 endif
 
+# With legacy treatment of mv/rm
+ifdef FOSSIL_ENABLE_LEGACY_MV_RM
+TCC += -DFOSSIL_ENABLE_LEGACY_MV_RM=1
+RCC += -DFOSSIL_ENABLE_LEGACY_MV_RM=1
+endif
+
 # With TH1 embedded docs support
 ifdef FOSSIL_ENABLE_TH1_DOCS
 TCC += -DFOSSIL_ENABLE_TH1_DOCS=1
@@ -290,10 +306,14 @@ TCC += -DFOSSIL_ENABLE_JSON=1
 RCC += -DFOSSIL_ENABLE_JSON=1
 endif
 
-#### We add the -static option here so that we can build a static
-#    executable that will run in a chroot jail.
+#### The option -static has no effect on MinGW(-w64), only dynamic
+#    executables can be built when linking with MSVCRT.  OpenSSL
+#    (optional) and zlib (required) however are always linked in
+#    statically.  Therefore, the FOSSIL_DYNAMIC_BUILD option does
+#    not really apply to MinGW (i.e. since ALL external libraries
+#    are NOT linked dynamically).
 #
-LIB = -static
+# LIB = -static
 
 #### MinGW: If available, use the Unicode capable runtime startup code.
 #
@@ -439,6 +459,7 @@ SRC = \
   $(SRCDIR)/moderate.c \
   $(SRCDIR)/name.c \
   $(SRCDIR)/path.c \
+  $(SRCDIR)/piechart.c \
   $(SRCDIR)/pivot.c \
   $(SRCDIR)/popen.c \
   $(SRCDIR)/pqueue.c \
@@ -487,39 +508,51 @@ SRC = \
   $(SRCDIR)/zip.c
 
 EXTRA_FILES = \
+  $(SRCDIR)/../skins/aht/details.txt \
   $(SRCDIR)/../skins/black_and_white/css.txt \
+  $(SRCDIR)/../skins/black_and_white/details.txt \
   $(SRCDIR)/../skins/black_and_white/footer.txt \
   $(SRCDIR)/../skins/black_and_white/header.txt \
   $(SRCDIR)/../skins/blitz/css.txt \
+  $(SRCDIR)/../skins/blitz/details.txt \
   $(SRCDIR)/../skins/blitz/footer.txt \
   $(SRCDIR)/../skins/blitz/header.txt \
   $(SRCDIR)/../skins/blitz/ticket.txt \
   $(SRCDIR)/../skins/blitz_no_logo/css.txt \
+  $(SRCDIR)/../skins/blitz_no_logo/details.txt \
   $(SRCDIR)/../skins/blitz_no_logo/footer.txt \
   $(SRCDIR)/../skins/blitz_no_logo/header.txt \
   $(SRCDIR)/../skins/blitz_no_logo/ticket.txt \
   $(SRCDIR)/../skins/default/css.txt \
+  $(SRCDIR)/../skins/default/details.txt \
   $(SRCDIR)/../skins/default/footer.txt \
   $(SRCDIR)/../skins/default/header.txt \
   $(SRCDIR)/../skins/eagle/css.txt \
+  $(SRCDIR)/../skins/eagle/details.txt \
   $(SRCDIR)/../skins/eagle/footer.txt \
   $(SRCDIR)/../skins/eagle/header.txt \
   $(SRCDIR)/../skins/enhanced1/css.txt \
+  $(SRCDIR)/../skins/enhanced1/details.txt \
   $(SRCDIR)/../skins/enhanced1/footer.txt \
   $(SRCDIR)/../skins/enhanced1/header.txt \
   $(SRCDIR)/../skins/khaki/css.txt \
+  $(SRCDIR)/../skins/khaki/details.txt \
   $(SRCDIR)/../skins/khaki/footer.txt \
   $(SRCDIR)/../skins/khaki/header.txt \
   $(SRCDIR)/../skins/original/css.txt \
+  $(SRCDIR)/../skins/original/details.txt \
   $(SRCDIR)/../skins/original/footer.txt \
   $(SRCDIR)/../skins/original/header.txt \
   $(SRCDIR)/../skins/plain_gray/css.txt \
+  $(SRCDIR)/../skins/plain_gray/details.txt \
   $(SRCDIR)/../skins/plain_gray/footer.txt \
   $(SRCDIR)/../skins/plain_gray/header.txt \
   $(SRCDIR)/../skins/rounded1/css.txt \
+  $(SRCDIR)/../skins/rounded1/details.txt \
   $(SRCDIR)/../skins/rounded1/footer.txt \
   $(SRCDIR)/../skins/rounded1/header.txt \
   $(SRCDIR)/../skins/xekri/css.txt \
+  $(SRCDIR)/../skins/xekri/details.txt \
   $(SRCDIR)/../skins/xekri/footer.txt \
   $(SRCDIR)/../skins/xekri/header.txt \
   $(SRCDIR)/diff.tcl \
@@ -598,6 +631,7 @@ TRANS_SRC = \
   $(OBJDIR)/moderate_.c \
   $(OBJDIR)/name_.c \
   $(OBJDIR)/path_.c \
+  $(OBJDIR)/piechart_.c \
   $(OBJDIR)/pivot_.c \
   $(OBJDIR)/popen_.c \
   $(OBJDIR)/pqueue_.c \
@@ -718,6 +752,7 @@ OBJ = \
  $(OBJDIR)/moderate.o \
  $(OBJDIR)/name.o \
  $(OBJDIR)/path.o \
+ $(OBJDIR)/piechart.o \
  $(OBJDIR)/pivot.o \
  $(OBJDIR)/popen.o \
  $(OBJDIR)/pqueue.o \
@@ -1031,6 +1066,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(MAKEHEADERS
 		$(OBJDIR)/moderate_.c:$(OBJDIR)/moderate.h \
 		$(OBJDIR)/name_.c:$(OBJDIR)/name.h \
 		$(OBJDIR)/path_.c:$(OBJDIR)/path.h \
+		$(OBJDIR)/piechart_.c:$(OBJDIR)/piechart.h \
 		$(OBJDIR)/pivot_.c:$(OBJDIR)/pivot.h \
 		$(OBJDIR)/popen_.c:$(OBJDIR)/popen.h \
 		$(OBJDIR)/pqueue_.c:$(OBJDIR)/pqueue.h \
@@ -1662,6 +1698,14 @@ $(OBJDIR)/path.o:	$(OBJDIR)/path_.c $(OBJDIR)/path.h $(SRCDIR)/config.h
 
 $(OBJDIR)/path.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/piechart_.c:	$(SRCDIR)/piechart.c $(TRANSLATE)
+	$(TRANSLATE) $(SRCDIR)/piechart.c >$@
+
+$(OBJDIR)/piechart.o:	$(OBJDIR)/piechart_.c $(OBJDIR)/piechart.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/piechart.o -c $(OBJDIR)/piechart_.c
+
+$(OBJDIR)/piechart.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/pivot_.c:	$(SRCDIR)/pivot.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/pivot.c >$@
 
@@ -2039,6 +2083,7 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                  -DSQLITE_ENABLE_FTS4 \
                  -DSQLITE_ENABLE_FTS3_PARENTHESIS \
+                 -DSQLITE_ENABLE_DBSTAT_VTAB \
                  -DSQLITE_WIN32_NO_ANSI \
                  -D_HAVE__MINGW_H \
                  -DSQLITE_USE_MALLOC_H \

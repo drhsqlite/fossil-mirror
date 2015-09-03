@@ -74,13 +74,13 @@
 
 /*
 ** The HTTP reply is generated in two pieces: the header and the body.
-** These pieces are generated separately because they are not necessary
+** These pieces are generated separately because they are not necessarily
 ** produced in order.  Parts of the header might be built after all or
 ** part of the body.  The header and body are accumulated in separate
 ** Blob structures then output sequentially once everything has been
 ** built.
 **
-** The cgi_destination() interface switch between the buffers.
+** The cgi_destination() interface switches between the buffers.
 */
 static Blob cgiContent[2] = { BLOB_INITIALIZER, BLOB_INITIALIZER };
 static Blob *pContent = &cgiContent[0];
@@ -1052,7 +1052,7 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
   ** letter, then check to see if there is an environment variable
   ** with the given name.
   */
-  if( fossil_isupper(zName[0]) ){
+  if( zName && fossil_isupper(zName[0]) ){
     const char *zValue = fossil_getenv(zName);
     if( zValue ){
       cgi_set_parameter_nocopy(zName, zValue, 0);

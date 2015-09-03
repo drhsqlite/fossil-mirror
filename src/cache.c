@@ -242,7 +242,7 @@ void cache_initialize(void){
 ** Usage: %fossil cache SUBCOMMAND
 **
 ** Manage the cache used for potentially expensive web pages such as
-** /zip and /tarball.   SUBCOMMAND an be:
+** /zip and /tarball.   SUBCOMMAND can be:
 **
 **    clear        Remove all entries from the cache.
 **
@@ -332,7 +332,7 @@ void cache_cmd(void){
 /*
 ** WEBPAGE: cachestat
 **
-** Show information about the webpage cache
+** Show information about the webpage cache.  Requires Admin privilege.
 */
 void cache_page(void){
   sqlite3 *db;
@@ -382,6 +382,7 @@ void cache_page(void){
 **
 ** Download a single entry for the cache, identified by KEY.
 ** This page is normally a hyperlink from the /cachestat page.
+** Requires Admin privilege.
 */
 void cache_getpage(void){
   const char *zKey;
