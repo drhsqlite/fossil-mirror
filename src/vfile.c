@@ -207,7 +207,7 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
     currentMtime = file_wd_mtime(0);
     origPerm = db_column_int(&q, 8);
     currentPerm = file_wd_perm(zName);
-#if !defined(_WIN32)
+#if defined(_WIN32)
     /*
     ** Windows doesn't have an execute bit, but it does support symlinks;
     ** if the current permission is not a symlink, make it the original
