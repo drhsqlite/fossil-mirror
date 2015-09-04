@@ -863,7 +863,7 @@ test th1-reinitialize-2 {$RESULT ne ""}
 #
 fossil test-th-eval "info commands"
 test th1-info-commands-1 {$RESULT eq {linecount htmlize date stime\
-enable_output uplevel http expr glob_match utime styleFooter catch if\
+enable_output uplevel dir http expr glob_match utime styleFooter catch if\
 tclReady searchable reinitialize combobox lindex query html anoncap randhex\
 llength for set break regexp markdown styleHeader puts return checkout\
 decorate artifact trace wiki proc hascap globalState continue getParameter\

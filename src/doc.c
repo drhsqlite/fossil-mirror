@@ -524,10 +524,12 @@ int doc_load_content(int vid, const char *zName, Blob *pContent){
 **
 ** The file extension is used to decide how to render the file.
 **
-** If FILE ends in "/" then names "FILE/index.html", "FILE/index.wiki",
-** and "FILE/index.md" are tried in that order.  If none of those are found,
-** then FILE is completely replaced by "404.md" and tried.  If that is
-** not found, then a default 404 screen is generated.
+** If FILE ends in "/" then the names "FILE/index.html", "FILE/index.wiki",
+** and "FILE/index.md" are tried in that order.  If the binary was compiled
+** with TH1 embedded documentation support and the "th1-docs" setting is
+** enabled, the name "FILE/index.th1" is also tried.  If none of those are
+** found, then FILE is completely replaced by "404.md" and tried.  If that
+** is not found, then a default 404 screen is generated.
 */
 void doc_page(void){
   const char *zName;                /* Argument to the /doc page */
@@ -542,6 +544,9 @@ void doc_page(void){
   int nMiss = (-1);                 /* Failed attempts to find the document */
   static const char *const azSuffix[] = {
      "index.html", "index.wiki", "index.md"
+#ifdef FOSSIL_ENABLE_TH1_DOCS
+      , "index.th1"
+#endif 
   };
 
   login_check_credentials();
