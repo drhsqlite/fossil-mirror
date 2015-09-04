@@ -18,6 +18,8 @@
      handling, from version 7.0 to 8.0.
   *  Add the new [/help?cmd=amend|amend] command which is used to modify
      tags of a "check-in".
+  *  Fix bug in [/help?cmd=import|import] command, handling version 3 of
+     the svndump format for subversion.
 
 <h2>Changes for Version 1.33 (2015-05-23)</h2>
   *  Improved fork detection on [/help?cmd=update|fossil update],
