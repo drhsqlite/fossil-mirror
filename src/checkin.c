@@ -1654,6 +1654,8 @@ static int tagCmp(const void *a, const void *b){
 **    --sha1sum                  verify file status using SHA1 hashing rather
 **                               than relying on file mtimes
 **    --tag TAG-NAME             assign given tag TAG-NAME to the check-in
+**    --date-override DATE       DATE to use instead of 'now'
+**    --user-override USER       USER to use instead of the current default
 **
 ** See also: branch, changes, checkout, extras, sync
 */
