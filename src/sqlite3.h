@@ -111,9 +111,9 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.8.11.1"
-#define SQLITE_VERSION_NUMBER 3008011
-#define SQLITE_SOURCE_ID      "2015-07-29 20:00:57 cf538e2783e468bbc25e7cb2a9ee64d3e0e80b2f"
+#define SQLITE_VERSION        "3.8.12"
+#define SQLITE_VERSION_NUMBER 3008012
+#define SQLITE_SOURCE_ID      "2015-09-11 01:22:41 d6cadbe9fefce9a7af6b2d0cb83362f967d7d89a"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -477,6 +477,7 @@ SQLITE_API int SQLITE_STDCALL sqlite3_exec(
 #define SQLITE_IOERR_MMAP              (SQLITE_IOERR | (24<<8))
 #define SQLITE_IOERR_GETTEMPPATH       (SQLITE_IOERR | (25<<8))
 #define SQLITE_IOERR_CONVPATH          (SQLITE_IOERR | (26<<8))
+#define SQLITE_IOERR_VNODE             (SQLITE_IOERR | (27<<8))
 #define SQLITE_LOCKED_SHAREDCACHE      (SQLITE_LOCKED |  (1<<8))
 #define SQLITE_BUSY_RECOVERY           (SQLITE_BUSY   |  (1<<8))
 #define SQLITE_BUSY_SNAPSHOT           (SQLITE_BUSY   |  (2<<8))
@@ -3373,7 +3374,8 @@ SQLITE_API int SQLITE_STDCALL sqlite3_stmt_readonly(sqlite3_stmt *pStmt);
 **
 ** ^The sqlite3_stmt_busy(S) interface returns true (non-zero) if the
 ** [prepared statement] S has been stepped at least once using 
-** [sqlite3_step(S)] but has not run to completion and/or has not 
+** [sqlite3_step(S)] but has neither run to completion (returned
+** [SQLITE_DONE] from [sqlite3_step(S)]) nor
 ** been reset using [sqlite3_reset(S)].  ^The sqlite3_stmt_busy(S)
 ** interface returns false if S is a NULL pointer.  If S is not a 
 ** NULL pointer and is not a pointer to a valid [prepared statement]
@@ -4356,6 +4358,22 @@ SQLITE_API int SQLITE_STDCALL sqlite3_value_type(sqlite3_value*);
 SQLITE_API int SQLITE_STDCALL sqlite3_value_numeric_type(sqlite3_value*);
 
 /*
+** CAPI3REF: Obtaining SQL Values
+** METHOD: sqlite3_value
+**
+** The sqlite3_value_subtype(V) function returns the subtype for
+** an [application-defined SQL function] argument V.  The subtype
+** information can be used to pass a limited amount of context from
+** one SQL function to another.  Use the [sqlite3_result_subtype()]
+** routine to set the subtype for the return value of an SQL function.
+**
+** SQLite makes no use of subtype itself.  It merely passes the subtype
+** from the result of one [application-defined SQL function] into the
+** input of another.
+*/
+SQLITE_API unsigned int SQLITE_STDCALL sqlite3_value_subtype(sqlite3_value*);
+
+/*
 ** CAPI3REF: Copy And Free SQL Values
 ** METHOD: sqlite3_value
 **
@@ -4653,6 +4671,21 @@ SQLITE_API void SQLITE_STDCALL sqlite3_result_text16be(sqlite3_context*, const v
 SQLITE_API void SQLITE_STDCALL sqlite3_result_value(sqlite3_context*, sqlite3_value*);
 SQLITE_API void SQLITE_STDCALL sqlite3_result_zeroblob(sqlite3_context*, int n);
 SQLITE_API int SQLITE_STDCALL sqlite3_result_zeroblob64(sqlite3_context*, sqlite3_uint64 n);
+
+
+/*
+** CAPI3REF: Setting The Subtype Of An SQL Function
+** METHOD: sqlite3_context
+**
+** The sqlite3_result_subtype(C,T) function causes the subtype of
+** the result from the [application-defined SQL function] with 
+** [sqlite3_context] C to be the value T.  Only the lower 8 bits 
+** of the subtype T are preserved in current versions of SQLite;
+** higher order bits are discarded.
+** The number of subtype bytes preserved by SQLite might increase
+** in future releases of SQLite.
+*/
+SQLITE_API void SQLITE_STDCALL sqlite3_result_subtype(sqlite3_context*,unsigned int);
 
 /*
 ** CAPI3REF: Define New Collating Sequences

@@ -4252,8 +4252,8 @@ static int process_input(ShellState *p, FILE *in){
       fprintf(stderr, "Error: incomplete SQL: %s\n", zSql);
       errCnt++;
     }
-    free(zSql);
   }
+  free(zSql);
   free(zLine);
   return errCnt>0;
 }
@@ -4618,6 +4618,13 @@ int SQLITE_CDECL main(int argc, char **argv){
 #endif
   }
   data.out = stdout;
+
+#ifdef SQLITE_ENABLE_JSON1
+  {
+    extern int sqlite3_json_init(sqlite3*);
+    sqlite3_auto_extension((void(*)(void))sqlite3_json_init);
+  }
+#endif
 
   /* Go ahead and open the database file if it already exists.  If the
   ** file does not exist, delay opening it.  This prevents empty database
