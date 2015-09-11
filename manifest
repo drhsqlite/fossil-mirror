@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\sSQLite\s(3.8.12\salpha).
-D 2015-09-11T11:43:43.663
+C Fix\ssome\scommenting\sand\svariable\snaming\sconvensions\sin\sthe\sdiff\scode.\nNo\slogical\schanges.
+D 2015-09-11T13:14:45.385
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -402,7 +402,7 @@ F src/deltacmd.c 4ff465c4331af328c6691103745de17e92d36007
 F src/descendants.c 1eb2bb891117be886ac87a7db842293221639326
 F src/diff.c 4600d39f61675941c756f5425e6bd5702f35eedf
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
-F src/diffcmd.c 2e7b17d1cdc3fe5cae14bae8ac84b77cf48a046e
+F src/diffcmd.c 186b3f54e6c651cb2a9baa54028ad194d51c3d53
 F src/doc.c 687517faac6b1f475ad6dd5a1c19d6bda2bc9b78
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
@@ -742,7 +742,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 65ff0ab2813abb2c0124d567cbb3638b374ccdae
-R f131d647eaed0f87cd2eb0de0b72d3f5
+P cc0c939202be2a6b6e5946d5353e51b95450e18b
+R 7e6d8f115edeed8e0fa8e44227be7e7e
 U drh
-Z 1a87d3b5ed1a017f9729ff141f42f17d
+Z 4af5274a0bc81b0c34bcc386fc4ef1ac

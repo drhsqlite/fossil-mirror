@@ -289,12 +289,12 @@ void diff_file_mem(
 ** will be skipped in addition to files that may contain binary content.
 */
 static void diff_one_against_disk(
-  const char *zFrom,        /* Name of file */
+  const char *zFrom,        /* Version tag for the "before" file */
   const char *zDiffCmd,     /* Use this "diff" command */
   const char *zBinGlob,     /* Treat file names matching this as binary */
   int fIncludeBinary,       /* Include binary files for external diff */
   u64 diffFlags,            /* Diff control flags */
-  const char *zFileTreeName
+  const char *zFileTreeName /* Name of the file to be diffed */
 ){
   Blob fname;
   Blob content;
@@ -442,13 +442,13 @@ static void diff_all_against_disk(
 ** will be skipped in addition to files that may contain binary content.
 */
 static void diff_one_two_versions(
-  const char *zFrom,
-  const char *zTo,
-  const char *zDiffCmd,
-  const char *zBinGlob,
-  int fIncludeBinary,
-  u64 diffFlags,
-  const char *zFileTreeName
+  const char *zFrom,            /* Version tag for the "before" file */
+  const char *zTo,              /* Version tag for the "after" file */
+  const char *zDiffCmd,         /* Use this "diff" command */
+  const char *zBinGlob,         /* GLOB pattern for files that are binary */
+  int fIncludeBinary,           /* True to show binary files */
+  u64 diffFlags,                /* Diff flags */
+  const char *zFileTreeName     /* Name of the file to be diffed */
 ){
   char *zName;
   Blob fname;
@@ -772,7 +772,6 @@ void diff_cmd(void){
   const char *zBinGlob = 0;  /* Treat file names matching this as binary */
   int fIncludeBinary = 0;    /* Include binary files for external diff */
   u64 diffFlags = 0;         /* Flags to control the DIFF */
-  int f;
 
   if( find_option("tk",0,0)!=0 ){
     diff_tk("diff", 2);
@@ -805,9 +804,10 @@ void diff_cmd(void){
     fIncludeBinary = diff_include_binary_files();
     verify_all_options();
     if( g.argc>=3 ){
-      for(f=2; f<g.argc; ++f){
+      int i;
+      for(i=2; i<g.argc; i++){
         diff_one_against_disk(zFrom, zDiffCmd, zBinGlob, fIncludeBinary,
-                              diffFlags, g.argv[f]);
+                              diffFlags, g.argv[i]);
       }
     }else{
       diff_all_against_disk(zFrom, zDiffCmd, zBinGlob, fIncludeBinary,
@@ -824,9 +824,10 @@ void diff_cmd(void){
     fIncludeBinary = diff_include_binary_files();
     verify_all_options();
     if( g.argc>=3 ){
-      for(f=2; f<g.argc; ++f){
+      int i;
+      for(i=2; i<g.argc; i++){
         diff_one_two_versions(zFrom, zTo, zDiffCmd, zBinGlob, fIncludeBinary,
-                              diffFlags, g.argv[f]);
+                              diffFlags, g.argv[i]);
       }
     }else{
       diff_all_two_versions(zFrom, zTo, zDiffCmd, zBinGlob, fIncludeBinary,
