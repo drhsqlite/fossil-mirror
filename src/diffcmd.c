@@ -480,10 +480,17 @@ static void diff_all_against_undo(
   u64 diffFlags             /* Flags controlling diff output */
 ){
   Stmt q;
-  db_prepare(&q, "SELECT pathname FROM undo");
+  Blob content;
+  db_prepare(&q, "SELECT pathname, content FROM undo");
+  blob_init(&content, 0, 0);
   while( db_step(&q)==SQLITE_ROW ){
-    diff_one_against_undo(zDiffCmd, zBinGlob, fIncludeBinary, diffFlags,
-                          db_column_text(&q, 0));
+    const char *zFile = (const char*)db_column_text(&q, 0);
+    char *zFullName = mprintf("%s%s", g.zLocalRoot, zFile);
+    db_column_blob(&q, 1, &content);
+    diff_file(&content, 0, zFullName, zFile,
+              zDiffCmd, zBinGlob, fIncludeBinary, diffFlags);
+    fossil_free(zFullName);
+    blob_reset(&content);
   }
   db_finalize(&q);
 }
