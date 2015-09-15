@@ -2015,7 +2015,7 @@ char *db_get(const char *zName, char *zDefault){
     if( zDefault==0 && pSetting && pSetting->def[0] ){
       z = fossil_strdup(pSetting->def);
     }else{
-      z = zDefault;
+      z = fossil_strdup(zDefault);
     }
   }
   return z;
