@@ -431,7 +431,7 @@ static void diff_all_against_disk(
 }
 
 /*
-** Do a diff of a single file named in zFile against the 
+** Do a diff of a single file named in zFile against the
 ** version of this file held in the undo buffer.
 **
 ** Use the internal diff logic if zDiffCmd is NULL.  Otherwise call the

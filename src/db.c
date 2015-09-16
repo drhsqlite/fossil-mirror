@@ -1995,7 +1995,7 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
 ** setting is returned instead.  If zName is a versioned setting, then
 ** versioned value takes priority.
 */
-char *db_get(const char *zName, char *zDefault){
+char *db_get(const char *zName, const char *zDefault){
   char *z = 0;
   const Setting *pSetting = db_find_setting(zName, 0);
   if( g.repositoryOpen ){
@@ -2020,8 +2020,8 @@ char *db_get(const char *zName, char *zDefault){
   }
   return z;
 }
-char *db_get_mtime(const char *zName, char *zFormat, char *zDefault){
-  char *z = 0;
+const char *db_get_mtime(const char *zName, const char *zFormat, const char *zDefault){
+  const char *z = 0;
   if( g.repositoryOpen ){
     z = db_text(0, "SELECT mtime FROM config WHERE name=%Q", zName);
   }
@@ -2112,8 +2112,8 @@ int db_get_boolean(const char *zName, int dflt){
   if( is_false(zVal) ) return 0;
   return dflt;
 }
-char *db_lget(const char *zName, char *zDefault){
-  return db_text((char*)zDefault,
+char *db_lget(const char *zName, const char *zDefault){
+  return db_text(zDefault,
                  "SELECT value FROM vvar WHERE name=%Q", zName);
 }
 void db_lset(const char *zName, const char *zValue){

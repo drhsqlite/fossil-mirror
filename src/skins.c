@@ -252,7 +252,7 @@ unsigned int skin_id(const char *zResource){
   }else if( pAltSkin ){
     h = skin_hash(0, pAltSkin->zLabel);
   }else{
-    char *zMTime = db_get_mtime(zResource, 0, 0);
+    const char *zMTime = db_get_mtime(zResource, 0, 0);
     h = skin_hash(0, zMTime);
     fossil_free(zMTime);
   }

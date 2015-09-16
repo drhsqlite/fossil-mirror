@@ -880,7 +880,7 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
 }
 
 /*
-** Look for multiple occurrences of a command-line option with the 
+** Look for multiple occurrences of a command-line option with the
 ** corresponding argument.
 **
 ** Return a malloc allocated array of pointers to the arguments.

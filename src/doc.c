@@ -546,7 +546,7 @@ void doc_page(void){
      "index.html", "index.wiki", "index.md"
 #ifdef FOSSIL_ENABLE_TH1_DOCS
       , "index.th1"
-#endif 
+#endif
   };
 
   login_check_credentials();

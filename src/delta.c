@@ -622,12 +622,12 @@ int delta_analyze(
   }
   zDelta++; lenDelta--;
   while( *zDelta && lenDelta>0 ){
-    unsigned int cnt, ofst;
+    unsigned int cnt;
     cnt = getInt(&zDelta, &lenDelta);
     switch( zDelta[0] ){
       case '@': {
         zDelta++; lenDelta--;
-        ofst = getInt(&zDelta, &lenDelta);
+        (void)getInt(&zDelta, &lenDelta);
         if( lenDelta>0 && zDelta[0]!=',' ){
           /* ERROR: copy command not terminated by ',' */
           return -1;

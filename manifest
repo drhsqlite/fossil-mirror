@@ -1,5 +1,5 @@
-C Remove\sunnecessary\send-of-line\sspacing\sin\svarious\splaces
-D 2015-09-16T08:57:11.412
+C Add\ssome\s"const"\skeywords\sin\sappropriate\splaces.\sNo\schange\sin\sfunctionality.\sEliminates\ssome\scompiler\swarnings.
+D 2015-09-16T09:18:29.235
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -396,14 +396,14 @@ F src/content.c 49fd70d3136fbeb4794b7ef2f76c977c3ea77013
 F src/cson_amalgamation.c 75be6142c327581dd9e10e0c0816c18c50d7a7fa
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 5368afbebf6f7edb0575da9d2099c6c401b4ea4a
-F src/delta.c 673657e622b15fb9d816846eaefcab6ec1c1de81
+F src/db.c c33731f1cf6f01e278983dc2acad8b587476435c
+F src/delta.c d0dd6f11845026bad3fccadf52ebb7bb9f508cb3
 F src/deltacmd.c 4ff465c4331af328c6691103745de17e92d36007
 F src/descendants.c 1eb2bb891117be886ac87a7db842293221639326
 F src/diff.c 4600d39f61675941c756f5425e6bd5702f35eedf
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
-F src/diffcmd.c 439d09a3bc71586e74319f0416359c0844c017a0
-F src/doc.c 687517faac6b1f475ad6dd5a1c19d6bda2bc9b78
+F src/diffcmd.c 40be8a875e8a7cc3d358516001325514946462d5
+F src/doc.c cf011a280fcf21da2a46b5c52e103283eab6bfbb
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
@@ -420,7 +420,7 @@ F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
 F src/import.c e1a455d3216a191f064926d3f5f5bd01f08c3828
 F src/info.c ea7cd317012235c4abc2dda5155a4bd246f9a0a1
-F src/json.c 4bfa5f9114a9ff0678efbc010c8c31b914fb528f
+F src/json.c 18266f277275d058aadb979b74c8b3af7791d649
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
 F src/json_config.c 1bbf8fc1b98f951f94dedc1a191c138f110b7a5d
@@ -437,12 +437,12 @@ F src/json_timeline.c a8aece1a959dd8cae0d5a99f61cc5d31802b4e4b
 F src/json_user.c 66fc65a1647616819074eb8ae4534f0822b2fb55
 F src/json_wiki.c fca83828f069a0964f7b5e72dc4e8793e8571707
 F src/leaf.c df47f8f52ed1ebeb3b7f5c7b92c62351b177d458
-F src/linenoise.c 3b1f6691cc22fe3ebf68a14e9dabeb5c20b1d4ae
+F src/linenoise.c 9c1a8a9a1d33f79191cb5a104067201a8cee6de1
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 0a6cf8707e27b04873950a6c63a48391c0a9f7ce
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c 9728b1f90a1eb6db13ee9192f1de52625750f7c3
+F src/main.c 1bcedcbc99a095721ac4f265df4f950e380db2ca
 F src/main.mk 6134955a71af52592fa41a90246cdf69a2f63410
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -479,7 +479,7 @@ F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c 6332ef06db1390ef812cfdff1fc97b4fd76cdd42
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 29d06b40601a2f48c0d0994ec16e97b404716920
-F src/skins.c f12a6c105e7ceb269570e046800ae4ad1231b15a
+F src/skins.c 6089852a5109ff3343ddfab98908fc8095fc23f9
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
 F src/sqlite3.c 11f2d9e0ffea55968dce4be13a74fa88d774cdb2
 F src/sqlite3.h 0525706f3e49c84c8dd871ab67cd02d6087e0b62
@@ -742,7 +742,7 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 868404c0a3adc017034c2b065fcede74710dc8d7
-R ae4d975217f5639df6b78a4f7b8b7c77
+P 4db19dccd3bc35f7a539d9ad12eaa2acda3dd754
+R 4d28772562f2f52067eef18cb71bc79d
 U jan.nijtmans
-Z f8632ac4838e7e2494aafcd6bd29af9f
+Z bad8f3c93721a6d4e346ffd71d2faf9c
