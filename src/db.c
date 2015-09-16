@@ -2020,13 +2020,13 @@ char *db_get(const char *zName, const char *zDefault){
   }
   return z;
 }
-const char *db_get_mtime(const char *zName, const char *zFormat, const char *zDefault){
-  const char *z = 0;
+char *db_get_mtime(const char *zName, const char *zFormat, const char *zDefault){
+  char *z = 0;
   if( g.repositoryOpen ){
     z = db_text(0, "SELECT mtime FROM config WHERE name=%Q", zName);
   }
   if( z==0 ){
-    z = zDefault;
+    z = fossil_strdup(zDefault);
   }else if( zFormat!=0 ){
     z = db_text(0, "SELECT strftime(%Q,%Q,'unixepoch');", zFormat, z);
   }

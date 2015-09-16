@@ -1,5 +1,5 @@
-C Add\ssome\s"const"\skeywords\sin\sappropriate\splaces.\sNo\schange\sin\sfunctionality.\sEliminates\ssome\scompiler\swarnings.
-D 2015-09-16T09:18:29.235
+C eliminate\smany\sunnessary\stype-casts
+D 2015-09-16T10:49:49.644
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -396,13 +396,13 @@ F src/content.c 49fd70d3136fbeb4794b7ef2f76c977c3ea77013
 F src/cson_amalgamation.c 75be6142c327581dd9e10e0c0816c18c50d7a7fa
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c c33731f1cf6f01e278983dc2acad8b587476435c
+F src/db.c 1cad59f1922b8ac2cd6d647ae2aafa45c9b5b27c
 F src/delta.c d0dd6f11845026bad3fccadf52ebb7bb9f508cb3
 F src/deltacmd.c 4ff465c4331af328c6691103745de17e92d36007
 F src/descendants.c 1eb2bb891117be886ac87a7db842293221639326
 F src/diff.c 4600d39f61675941c756f5425e6bd5702f35eedf
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
-F src/diffcmd.c 40be8a875e8a7cc3d358516001325514946462d5
+F src/diffcmd.c f8c56e25d851fc58b16b311959abf2caf0638027
 F src/doc.c cf011a280fcf21da2a46b5c52e103283eab6bfbb
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
@@ -417,7 +417,7 @@ F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
 F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
-F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
+F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c e1a455d3216a191f064926d3f5f5bd01f08c3828
 F src/info.c ea7cd317012235c4abc2dda5155a4bd246f9a0a1
 F src/json.c 18266f277275d058aadb979b74c8b3af7791d649
@@ -474,12 +474,12 @@ F src/report.c de3d39a59b923d0259a01cb7b66244860778e39d
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b02a73b942028631eacf484ae3f83a3a4edd3518
-F src/setup.c 0c15a5219b7d8acc4596d620ae5aecb52c8f337d
+F src/setup.c 63ef85778a8ca6007f8ded284589272f87d392bd
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c 6332ef06db1390ef812cfdff1fc97b4fd76cdd42
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 29d06b40601a2f48c0d0994ec16e97b404716920
-F src/skins.c 6089852a5109ff3343ddfab98908fc8095fc23f9
+F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
 F src/sqlite3.c 11f2d9e0ffea55968dce4be13a74fa88d774cdb2
 F src/sqlite3.h 0525706f3e49c84c8dd871ab67cd02d6087e0b62
@@ -497,7 +497,7 @@ F src/th_main.c f2b4c5d93f92ed729ca173fad8cfd8587b9ce24f
 F src/th_tcl.c 4d68ad29399fd3e90553a9470d66142d9027368d
 F src/timeline.c 005c758d36dbe81a52d1fe9a7f14cd0830abb005
 F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
-F src/tktsetup.c 1360904128a3c60008867056d9f576c8f906eb7c
+F src/tktsetup.c 32e23747e8d3f36fc390a6197dda2209d98cad09
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c 52ec5c24a6dcf1937026e2d9f86791fd1913cdf6
 F src/unicode.c f26b9f26d4ac399f7b03cfac16ec72336c7f06c9
@@ -514,7 +514,7 @@ F src/winfile.c e0e1ffdb667635ea18c0cb48d7ed07210cf3fa6b
 F src/winhttp.c 4e680d7c8778be4439169f40a992ccc81f7ceec2
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 27b853ed9a5a7e20de06a080d89ff08c1825376c
-F src/xfersetup.c 60d3e7eb781605652e593f1af2a4b9dd0bf99057
+F src/xfersetup.c 0f967a3fca7ad9fa3aa350d121851e71064823be
 F src/zip.c 49c6b1327a9aea3b0682b2c55bddd9d54860ff6f
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
@@ -742,7 +742,7 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 4db19dccd3bc35f7a539d9ad12eaa2acda3dd754
-R 4d28772562f2f52067eef18cb71bc79d
+P a6fd491d3a44d308ffc92610450e8a0140b3f1e7
+R d14c53bfc91be3353070afe105d35b0f
 U jan.nijtmans
-Z bad8f3c93721a6d4e346ffd71d2faf9c
+Z 3d1034d64acf6596ac38aa8cb76ed434

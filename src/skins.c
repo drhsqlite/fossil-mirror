@@ -75,7 +75,7 @@ static char *zAltSkinDir = 0;
 */
 static struct SkinDetail {
   const char *zName;      /* Name of the detail */
-  char *zValue;           /* Value of the detail */
+  const char *zValue;     /* Value of the detail */
 } aSkinDetail[] = {
   { "timeline-arrowheads",        "1"  },
   { "timeline-circle-nodes",      "0"  },
@@ -252,7 +252,7 @@ unsigned int skin_id(const char *zResource){
   }else if( pAltSkin ){
     h = skin_hash(0, pAltSkin->zLabel);
   }else{
-    const char *zMTime = db_get_mtime(zResource, 0, 0);
+    char *zMTime = db_get_mtime(zResource, 0, 0);
     h = skin_hash(0, zMTime);
     fossil_free(zMTime);
   }

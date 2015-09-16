@@ -667,7 +667,7 @@ static void diff_all_two_versions(
 ** no external diff command is defined.
 */
 const char *diff_command_external(int guiDiff){
-  char *zDefault;
+  const char *zDefault;
   const char *zName;
 
   if( guiDiff ){
