@@ -55,10 +55,10 @@ Explore hyperlinks to see more.
 
   *  <a target='_blank' class='exbtn'
      href='../../../timeline?from=version-1.27&to=version-1.28'>Example</a>
-     All check-ins on the most direct path from 
+     All check-ins on the most direct path from
      version-1.27 to version-1.28
 
-     (Hint:  In any graph above, click the square node boxes 
+     (Hint:  In any graph above, click the square node boxes
      for two check-ins or files to see a diff.)
 
   *  <a target='_blank' class='exbtn'
@@ -90,7 +90,7 @@ Explore hyperlinks to see more.
   *  <a target='_blank' class='exbtn'
      href='../../../blame?checkin=5260fbf63287&filename=src/rss.c&limit=-1'>
        Example</a>
-     Most recent change to each line of a particular source file in a 
+     Most recent change to each line of a particular source file in a
      particular check-in.
 
   *  <a target='_blank' class='exbtn'

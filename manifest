@@ -1,5 +1,5 @@
-C Make\ssure\smemory\sreturned\sfrom\sdb_get()\shas\sbeen\sproperly\sreallocated\sif\nit\suses\sthe\sdefault\svalue.
-D 2015-09-15T18:58:57.462
+C Remove\sunnecessary\send-of-line\sspacing\sin\svarious\splaces
+D 2015-09-16T08:57:11.412
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -10,7 +10,7 @@ F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b47
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile 6a228246eebe18fedb6d080e387880b57195b2b7
-F Makefile.classic 415bdbbf802da3c8934e87bf77cf284145d4c536
+F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
 F Makefile.in 4c745f08a8ecfe6e1f227e2a6d33cce3adc532d0
 F VERSION 68b05f0ffffaf08e478922297c5140cc3b5d6965
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
@@ -307,10 +307,10 @@ F compat/zlib/zutil.c e1af709bff21ae0d4331119a7fc4c19f82932043
 F compat/zlib/zutil.h b909d27ef9ce51639f76b7ea6b62721e7d1b6bf7
 F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
-F fossil.1 2947f4d66ede5508f4fbe501e1e965df3b3a243d
+F fossil.1 5dafc0a0e37de8b6d38ca807a12e9e56619812d5
 F setup/fossil.iss 57e01e1feb0198de025417c0a98f1d4b1c444f53
-F setup/fossil.nsi 688d5a732b08facc529dceeb9fb1ce5c9aa050ab
-F skins/README.md d81aeb05fb12f16afde4760671d3d45fe87a37f3
+F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
+F skins/README.md a32271fe6907cc4c0cabb9d24c1dab16b89dbc64
 F skins/aht/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/black_and_white/css.txt 569f06d046846930594299a1e38714b50e0c74a7
 F skins/black_and_white/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
@@ -318,7 +318,7 @@ F skins/black_and_white/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/black_and_white/header.txt c74f3b8cfefae2e763d8f117dbd20e90c6dba33d
 F skins/blitz/README.md 2b86027936aa1ed69d0ccc413868aa886cacb45f
 F skins/blitz/arrow_project.png 2b2958e36ec7fe54836ab50d6c194789461463d0
-F skins/blitz/css.txt 0d5206461cfa802a3c8b63f68964d4d777402fe9
+F skins/blitz/css.txt 888be7a1b8f078ebee3b4e35b39c98d00bf20109
 F skins/blitz/details.txt 1260bc474e730cd32e4e86f7a346e22a1268cc8f
 F skins/blitz/dir.png 4a210b2afb16584e6093478f77025da7e7b83a57
 F skins/blitz/file.png 0d20b3bee95152a6358e1878a9bb07cc6a0f975d
@@ -328,13 +328,13 @@ F skins/blitz/fossil_80_reversed_darkcyan.png c053b47fc8bd5e525ecefc69307ce66b63
 F skins/blitz/fossil_80_reversed_darkcyan_text.png ea0c0176d0dd3d3e372befc160d0f081e1817a34
 F skins/blitz/header.txt 14ad6c45e2eb7e4664f362663e699e52a6e26bce
 F skins/blitz/rss_20.png 7d659cf7e4378d16198ddd4e984b4073e1fac901
-F skins/blitz/ticket.txt 1aab964cd7430a550560412a813fbe72311500d9
+F skins/blitz/ticket.txt b35ac95d03bb2da2f10634bb16cb7bdc67062b2b
 F skins/blitz_no_logo/README.md 24829897e941d1cef4f8b8d6291c86d9cfe17cd7
 F skins/blitz_no_logo/css.txt 448d28510e35b9628e5a64fac981464a17bf0d9b
 F skins/blitz_no_logo/details.txt 1260bc474e730cd32e4e86f7a346e22a1268cc8f
 F skins/blitz_no_logo/footer.txt 6a2b49fa89f262377fc709549f745742bae76a1a
 F skins/blitz_no_logo/header.txt fdfffc2be91c2d45f410e953337fa2aa55c58b96
-F skins/blitz_no_logo/ticket.txt 1aab964cd7430a550560412a813fbe72311500d9
+F skins/blitz_no_logo/ticket.txt b35ac95d03bb2da2f10634bb16cb7bdc67062b2b
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
 F skins/default/css.txt 3644519916de6a497cbda2baac0bd4abdbdce038
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
@@ -366,7 +366,7 @@ F skins/rounded1/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/rounded1/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/rounded1/header.txt 90ea81c5b14e22a048e182c22769e9aa779d8752
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
-F skins/xekri/css.txt db7853ced22284e5bbc1f7cf7c978bca9bcf0ca7
+F skins/xekri/css.txt 58b9ac05ed286534ff2c65f42db230732ca5caae
 F skins/xekri/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
@@ -666,11 +666,11 @@ F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
 F www/concepts.wiki a1230dfc3bdef4f0ddc78c3cc8695a60eb7684fe
 F www/contribute.wiki 9f7136d12f9099e615c8d5a414934e0b15613393
-F www/copyright-release.html af2224620e3aa85d5226b74832dce703616a1c21
+F www/copyright-release.html 9da08b126c7c1a7874e44b5cff92db512f36962b
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/custom_ticket.wiki 4083c719eee18ea9dad81d335e45e9af8e29ec4e
-F www/customgraph.md dee9e20fca78d35c9821a0f52eeaa9256252075c
-F www/customskin.md 9086cace41566061c87d3b8494d75f699bec041e
+F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
+F www/customskin.md 827386e6fd0ca33d52f7a663c3c45edde4df1e9a
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -706,7 +706,7 @@ F www/fossil3.gif 0fa38d60655faf3da20c019583981cf6f71ae6fb
 F www/fossil_logo_small.gif 02f9b89eb0726d67bbbb6a6532a3a427ad8e1e83
 F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
-F www/fossil_prompt.sh b0e3a47ea763b336736f6371e2a461d858eb73c1
+F www/fossil_prompt.sh db68e2cae431b9e9f5dd672e2f56e2bde5a57d2a
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
@@ -738,11 +738,11 @@ F www/tech_overview.wiki 66d893fd0bca7f5dbc659ab0b4e9dde987e4fdb3
 F www/th1.md 1a41e903cc74828e940d7d35555671adf04a8559
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
-F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
-F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
+F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
+F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P f6c13632bb9632ff55219fc1a3ff4ef471764714
-R 8f6d882662ab1535f97bb6300239d4bb
-U drh
-Z 62f4aa409c10c4f9e4135ed02b8b67f9
+P 868404c0a3adc017034c2b065fcede74710dc8d7
+R ae4d975217f5639df6b78a4f7b8b7c77
+U jan.nijtmans
+Z f8632ac4838e7e2494aafcd6bd29af9f
