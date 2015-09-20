@@ -1,5 +1,5 @@
-C eliminate\smany\sunnessary\stype-casts
-D 2015-09-16T10:49:49.644
+C merge\s"stash\scat"
+D 2015-09-20T18:17:20.748
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -483,7 +483,7 @@ F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
 F src/sqlite3.c 11f2d9e0ffea55968dce4be13a74fa88d774cdb2
 F src/sqlite3.h 0525706f3e49c84c8dd871ab67cd02d6087e0b62
-F src/stash.c c8b20236b7fb7631528edb3d4b43a45c45e1949b
+F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 69ab1f0d78ccb91fc81f8f3930046025034a3250
 F src/statrep.c 2475cba0c91bdaa6f51a61565732ece308fadf42
 F src/style.c 4238d0f18131ca473bc2bc7c3655db1d40ae823d
@@ -742,7 +742,7 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P a6fd491d3a44d308ffc92610450e8a0140b3f1e7
-R d14c53bfc91be3353070afe105d35b0f
-U jan.nijtmans
-Z 3d1034d64acf6596ac38aa8cb76ed434
+P 5b456cfa6b8ad2a05cc27015446b47c0a3b257cf 533f8b6aeacb554fe469fec783e5ef841a6e4012
+R c4e511f47becf829d1a57050de457877
+U bch
+Z b68a65a4495df05419a5c7050028eead
