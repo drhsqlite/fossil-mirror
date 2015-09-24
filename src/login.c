@@ -218,7 +218,9 @@ int login_search_uid(const char *zUsername, const char *zPasswd){
              " WHERE login=%Q"
              "   AND length(cap)>0 AND length(pw)>0"
              "   AND login NOT IN ('anonymous','nobody','developer','reader')"
-             "   AND (pw=%Q OR (length(pw)<>40 AND pw=%Q))",
+             "   AND (pw=%Q OR (length(pw)<>40 AND pw=%Q))"
+             "   AND (info NOT LIKE '%%expires 20%%'"
+             "      OR substr(info,instr(lower(info),'expires')+8,10)>datetime('now'))",
              zUsername, zSha1Pw, zPasswd
              );
   free(zSha1Pw);

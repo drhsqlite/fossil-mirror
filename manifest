@@ -1,5 +1,5 @@
-C merge\s"stash\scat"
-D 2015-09-20T18:17:20.748
+C Do\snot\sallow\sa\slogin\sto\soccur\sif\sthe\sUSER.INFO\sfield\scontains\sthe\stext\n"expires\sYYYY-MM-DD"\swhere\sYYYY-MM-DD\sis\snot\sin\sthe\sfuture.
+D 2015-09-24T02:03:35.070
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -440,7 +440,7 @@ F src/leaf.c df47f8f52ed1ebeb3b7f5c7b92c62351b177d458
 F src/linenoise.c 9c1a8a9a1d33f79191cb5a104067201a8cee6de1
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
-F src/login.c 0a6cf8707e27b04873950a6c63a48391c0a9f7ce
+F src/login.c 48e28e14943671f38ff81cdbdb6db93564bed895
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
 F src/main.c 1bcedcbc99a095721ac4f265df4f950e380db2ca
 F src/main.mk 6134955a71af52592fa41a90246cdf69a2f63410
@@ -742,7 +742,7 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 5b456cfa6b8ad2a05cc27015446b47c0a3b257cf 533f8b6aeacb554fe469fec783e5ef841a6e4012
-R c4e511f47becf829d1a57050de457877
-U bch
-Z b68a65a4495df05419a5c7050028eead
+P ba9d3f08a136c4749ca4cbe0cb33701cd93b474c
+R 534695e9eefb5fa2ffad4567cda52cd6
+U drh
+Z f34e7c2a50b26828ce237f16590fca75
