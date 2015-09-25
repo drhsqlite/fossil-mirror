@@ -1,5 +1,5 @@
-C Do\snot\sallow\sa\slogin\sto\soccur\sif\sthe\sUSER.INFO\sfield\scontains\sthe\stext\n"expires\sYYYY-MM-DD"\swhere\sYYYY-MM-DD\sis\snot\sin\sthe\sfuture.
-D 2015-09-24T02:03:35.070
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.8.12\salpha\sthat\sincludes\sthe\sShmBarrier\nfix.
+D 2015-09-25T00:02:32.432
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -481,8 +481,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 29d06b40601a2f48c0d0994ec16e97b404716920
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c 11f2d9e0ffea55968dce4be13a74fa88d774cdb2
-F src/sqlite3.h 0525706f3e49c84c8dd871ab67cd02d6087e0b62
+F src/sqlite3.c 170a1d1453a412e8bccae3ef98b35ee944ef355a
+F src/sqlite3.h 2ba51f17e62d4e3cfadbe94e7cc8ce3746c37822
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 69ab1f0d78ccb91fc81f8f3930046025034a3250
 F src/statrep.c 2475cba0c91bdaa6f51a61565732ece308fadf42
@@ -742,7 +742,7 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P ba9d3f08a136c4749ca4cbe0cb33701cd93b474c
-R 534695e9eefb5fa2ffad4567cda52cd6
+P 9271b4bb350532d953dcd39c3faa68ac440f734a
+R b68fdb93489adc467acb71e3d3a8c6dc
 U drh
-Z f34e7c2a50b26828ce237f16590fca75
+Z c221dbc150c0060b5dc792fa3ade9510
