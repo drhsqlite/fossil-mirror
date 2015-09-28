@@ -140,7 +140,7 @@ void sitemap_page(void){
     @   <li>%z(href("%R/test_env"))CGI Environment Test</a></li>
   }
   if( g.perm.Read && g.perm.Hyperlink ){
-    @   <li>%z(href("%R/test_timewarps"))List of "Timewarp" Check-ins</a></li>
+    @   <li>%z(href("%R/timewarps"))List of "Timewarp" Check-ins</a></li>
   }
   if( g.perm.Read ){
     @   <li>%z(href("%R/test-rename-list"))List of file renames</a></li>

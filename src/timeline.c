@@ -2210,7 +2210,7 @@ void test_timewarp_cmd(void){
 }
 
 /*
-** WEBPAGE: test_timewarps
+** WEBPAGE: timewarps
 **
 ** Show all check-ins that are "timewarps".  A timewarp is a
 ** check-in that occurs before its parent, according to the
@@ -2219,6 +2219,7 @@ void test_timewarp_cmd(void){
 */
 void test_timewarp_page(void){
   Stmt q;
+  int cnt = 0;
 
   login_check_credentials();
   if( !g.perm.Read || !g.perm.Hyperlink ){
@@ -2226,18 +2227,35 @@ void test_timewarp_page(void){
     return;
   }
   style_header("Instances of timewarp");
-  @ <ul>
   db_prepare(&q,
-     "SELECT blob.uuid "
+     "SELECT blob.uuid, "
+     "       (SELECT date(mtime) FROM event WHERE objid=c.cid),"
+     "       EXISTS(SELECT 1 FROM event a, event b"
+     "               WHERE a.objid=p.cid AND b.objid=c.cid"
+     "                 AND a.mtime>b.mtime)"
      "  FROM plink p, plink c, blob"
      " WHERE p.cid=c.pid  AND p.mtime>c.mtime"
      "   AND blob.rid=c.cid"
+     " ORDER BY 2 DESC"
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
+    const char *zDate = db_column_text(&q, 1);
+    if( cnt==0 ){
+      @ <ul>
+    }
+    cnt++;
     @ <li>
-    @ <a href="%R/timeline?dp=%!S(zUuid)&amp;unhide">%S(zUuid)</a>
+    @ <a href="%R/timeline?c=%!S(zUuid)&amp;unhide">%s(zDate) %S(zUuid)</a>
+    if( db_column_int(&q,2)==0 ){
+      @ <i>(Resolved by editing the date)</i>
+    }
   }
   db_finalize(&q);
+  if( cnt==0 ){
+    @ <p>No timewarps in this repository</p>
+  }else{
+    @ </ul>
+  }
   style_footer();
 }

@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\san\s3.8.12\salpha\sversion\sthat\sfixes\sthe\sONEPASS\noptimization\sbug.
-D 2015-09-28T14:53:48.089
+C Improved\s/timewarp\swebpage.\s\sFormerly\sknown\sas\s/test_timewarp.
+D 2015-09-28T21:26:32.909
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -478,7 +478,7 @@ F src/setup.c 63ef85778a8ca6007f8ded284589272f87d392bd
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c a11b20da4c6630e0e8f83c47ce36f717dd0422f0
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
-F src/sitemap.c 29d06b40601a2f48c0d0994ec16e97b404716920
+F src/sitemap.c 0cfe2669583523cc523436e4d691beda9adfbc01
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
 F src/sqlite3.c 80bc1f55dd8ef417f1e02a0059403d316716fa02
@@ -495,7 +495,7 @@ F src/th.h 1e7ae1613afa730a75df06d7fd1f17c7ff4564f4
 F src/th_lang.c a536a5cee224ccab6cbc5d8b07bef5027bff2910
 F src/th_main.c f2b4c5d93f92ed729ca173fad8cfd8587b9ce24f
 F src/th_tcl.c 4d68ad29399fd3e90553a9470d66142d9027368d
-F src/timeline.c 005c758d36dbe81a52d1fe9a7f14cd0830abb005
+F src/timeline.c d957b746e568bff04e377adb520d965d2de549c2
 F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
 F src/tktsetup.c 32e23747e8d3f36fc390a6197dda2209d98cad09
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
@@ -742,7 +742,7 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 96e698d23c3929e51013e378d9b3542179e38560
-R 23e2b1f2a4492fd865828c86d93b5621
+P 292659684c25831b8a088eeb9b9f16d269981a74
+R a29f592f011fa9facbe6d50d17057a9c
 U drh
-Z 974f1209bc7066ec2c9adb0309d6df5b
+Z 20dccd92457df871452dfdad7e0f1551
