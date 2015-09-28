@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.8.12\salpha\sthat\sincludes\sthe\sShmBarrier\nfix.
-D 2015-09-25T00:02:32.432
+C Update\sthe\sbuilt-in\sSQLite\sto\san\s3.8.12\salpha\sversion\sthat\sfixes\sthe\sONEPASS\noptimization\sbug.
+D 2015-09-28T14:53:48.089
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -476,13 +476,13 @@ F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b02a73b942028631eacf484ae3f83a3a4edd3518
 F src/setup.c 63ef85778a8ca6007f8ded284589272f87d392bd
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
-F src/shell.c 6332ef06db1390ef812cfdff1fc97b4fd76cdd42
+F src/shell.c a11b20da4c6630e0e8f83c47ce36f717dd0422f0
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 29d06b40601a2f48c0d0994ec16e97b404716920
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c 170a1d1453a412e8bccae3ef98b35ee944ef355a
-F src/sqlite3.h 2ba51f17e62d4e3cfadbe94e7cc8ce3746c37822
+F src/sqlite3.c 80bc1f55dd8ef417f1e02a0059403d316716fa02
+F src/sqlite3.h d0618bcfb6d1924becc511ddd99af80760ebed76
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 69ab1f0d78ccb91fc81f8f3930046025034a3250
 F src/statrep.c 2475cba0c91bdaa6f51a61565732ece308fadf42
@@ -742,7 +742,7 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 9271b4bb350532d953dcd39c3faa68ac440f734a
-R b68fdb93489adc467acb71e3d3a8c6dc
+P 96e698d23c3929e51013e378d9b3542179e38560
+R 23e2b1f2a4492fd865828c86d93b5621
 U drh
-Z c221dbc150c0060b5dc792fa3ade9510
+Z 974f1209bc7066ec2c9adb0309d6df5b

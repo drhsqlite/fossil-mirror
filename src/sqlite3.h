@@ -113,7 +113,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.8.12"
 #define SQLITE_VERSION_NUMBER 3008012
-#define SQLITE_SOURCE_ID      "2015-09-24 18:47:59 668fc1ebaf426f9eed3ed7865e41f1023dafebfb"
+#define SQLITE_SOURCE_ID      "2015-09-28 14:40:20 9d057f52217e7ef9c3f3eb84117abe3365503f44"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -4360,7 +4360,7 @@ SQLITE_API int SQLITE_STDCALL sqlite3_value_type(sqlite3_value*);
 SQLITE_API int SQLITE_STDCALL sqlite3_value_numeric_type(sqlite3_value*);
 
 /*
-** CAPI3REF: Obtaining SQL Values
+** CAPI3REF: Finding The Subtype Of SQL Values
 ** METHOD: sqlite3_value
 **
 ** The sqlite3_value_subtype(V) function returns the subtype for
