@@ -1,5 +1,5 @@
-C Let's\sbring\sdown\sthe\snumber\sof\seol-spaces\ssomeswhat\smore.\sNo\sfunctional\schanges.
-D 2015-10-02T10:35:41.469
+C Improve\serror\shandling\sin\s"fossil\ssqlite"\scommand\s".tables".\sCherry-pick\sfrom\sSQLite\strunk.
+D 2015-10-02T10:37:08.332
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -476,7 +476,7 @@ F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b02a73b942028631eacf484ae3f83a3a4edd3518
 F src/setup.c 63ef85778a8ca6007f8ded284589272f87d392bd
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
-F src/shell.c a11b20da4c6630e0e8f83c47ce36f717dd0422f0
+F src/shell.c dfd18e56fcb88dd79378774e9bc3246a9bd52243
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 0cfe2669583523cc523436e4d691beda9adfbc01
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
@@ -742,7 +742,7 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 583e2f8f2c641905bacfb24fa02fb06c013cf82a
-R 49afa87824fe0abddb1a7ee393b6f706
+P e757cd3d2345cc61089790bac48ed5c6e29bcd35
+R b27fc56badbe586dac5c0abc18275bd1
 U jan.nijtmans
-Z 1bdb159d1f34489268a5bd7303905fb0
+Z d525103fdd2e5a60eaac1333e3c87246
