@@ -1,5 +1,5 @@
-C Improved\s/timewarp\swebpage.\s\sFormerly\sknown\sas\s/test_timewarp.
-D 2015-09-28T21:26:32.909
+C Let's\sbring\sdown\sthe\snumber\sof\seol-spaces\ssomeswhat\smore.\sNo\sfunctional\schanges.
+D 2015-10-02T10:35:41.469
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -16,12 +16,12 @@ F VERSION 68b05f0ffffaf08e478922297c5140cc3b5d6965
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
-F ajax/i-test/rhino-test.js 29c5eb998ee1b33f8138f26618ef1014a0555e48
-F ajax/index.html 144dfb6264fd55caf41e9138e94110f846c2d701
+F ajax/i-test/rhino-test.js c0e2d874caa424a8cb1628c8d85a4a6b197b8d32
+F ajax/index.html ff6a9f6bedd406784a6bfb1238beb8deee713069
 F ajax/js/fossil-ajaj.js 7f57fa883df4e0bc9b0ee25fb7d3ead6e4808ae0
 F ajax/js/json2.js 2e347546543bf026d364e9d308007b18225c0cba
 F ajax/js/whajaj.js aaf43d1459ee6ea218da70ac02863b33f3740767
-F ajax/wiki-editor.html 51f2d323985a3692772d2599c81222a58f1c444e
+F ajax/wiki-editor.html f5f431536421f661b473df92c20c552c68b712f3
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
 F art/CollRev3.dia d14a7b35e0af533998e705e771b504f8aaaead96
@@ -449,7 +449,7 @@ F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 728d30078c4f1212434aae5c14878aa3109f33d2
 F src/manifest.c ba061499e6431a1c2c8aa19821adf429975fdee6
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
-F src/markdown.md 45f6e06e03e4183764067eec37ff73f357303306
+F src/markdown.md fc02fd045690e6fb45fb0bc91be734913dc70d02
 F src/markdown_html.c 453460a916b805e688e4a6ed7b52994b171eea27
 F src/md5.c c6f6b5df8001ab094e5f49416fc2aa3019823d69
 F src/merge.c 055f9869eac189b56a1f5c97d93ecff11b63ac23
@@ -569,7 +569,7 @@ F test/utf.test 9b9447e346cbc663d6f3c51e00adbc1ba2d296a2
 F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03
-F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
+F tools/cvs2fossil/changeset 1c99ad8ca9b2f049266d63e0bcc5f26196c72627
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
 F tools/cvs2fossil/doc/README 6d655c3f823db2a177d32af6d904ca0426a74e9b
@@ -587,7 +587,7 @@ F tools/cvs2fossil/lib/c2f_integrity.tcl cd21bd4aefba1cd07b909cbe338e9ed1c5aed69
 F tools/cvs2fossil/lib/c2f_option.tcl 737f972b127681c537c8da03f5703ffc65fb59e4
 F tools/cvs2fossil/lib/c2f_pass.tcl d98651431b7344ed481cdddad18890c249395ed4
 F tools/cvs2fossil/lib/c2f_patopsort.tcl 32dd51eb8ce14ea302c3a9af1cbc3860156b629c
-F tools/cvs2fossil/lib/c2f_pbreakacycle.tcl 6d6903cdcab3809b6f7cf19e1073e754bed592d2
+F tools/cvs2fossil/lib/c2f_pbreakacycle.tcl 4f1e51a06458ea4aa1559b8020a79a121faa595a
 F tools/cvs2fossil/lib/c2f_pbreakrcycle.tcl 9b0d3d53604c99a5f3339f92232ab45262dea23d
 F tools/cvs2fossil/lib/c2f_pbreakscycle.tcl 9943947d7e001b1c0b42717a06423c0101e6011d
 F tools/cvs2fossil/lib/c2f_pcollar.tcl 7d94939b63ae5f2e2291d3a6f3d816dad9a12126
@@ -599,7 +599,7 @@ F tools/cvs2fossil/lib/c2f_pimportcsets.tcl 69adaad9d5ae91590e823a712d26a8c480f1
 F tools/cvs2fossil/lib/c2f_pimportfiles.tcl 6318a84484d6875333bd2d8a387714f045304cfd
 F tools/cvs2fossil/lib/c2f_pimportfinal.tcl 47b2c14f5346beeedffa9ad5a663fe04ff6947fa
 F tools/cvs2fossil/lib/c2f_pinitcsets.tcl 14fdb6d32b359b01b3edbfe66f0b3f2a069a14f2
-F tools/cvs2fossil/lib/c2f_prev.tcl b2c7314519b34cfc9be5d8a8a85dbf56f48caf84
+F tools/cvs2fossil/lib/c2f_prev.tcl 207987843799049d608f20e5f50bdc38b4751b21
 F tools/cvs2fossil/lib/c2f_prevlink.tcl c7d0900794b2be39e003522407571e41c8510f73
 F tools/cvs2fossil/lib/c2f_project.tcl 15a57df0aedec07e8b23bb6292325219285e735b
 F tools/cvs2fossil/lib/c2f_prtopsort.tcl dbb40b4225992f9ab267571f366724966bf772e6
@@ -613,7 +613,7 @@ F tools/cvs2fossil/lib/cvs2fossil.tcl d530eb41003784a9a3fefbfa8e61103334ceafd6
 F tools/cvs2fossil/lib/dot.tcl a07b3e3a20b9cf0896f3d585b6350ab367b8c44b
 F tools/cvs2fossil/lib/id.tcl ad0171bebe08b12ce2197e444b1237e9dfabf68a
 F tools/cvs2fossil/lib/log.tcl c2ee0c05740bbe0195ac286a145ce740bad7bb2f
-F tools/cvs2fossil/lib/mem.tcl 124db2afe9bc2adab4e0ec405998d5df657e82f7
+F tools/cvs2fossil/lib/mem.tcl 53c7bc8f5596f0ecdef7567731ae8ef08b408426
 F tools/cvs2fossil/lib/misc.tcl b4a6c1a89033c497001ff7db53f337921dbea56f
 F tools/cvs2fossil/lib/pkgIndex.tcl b810fde76079e77e850013d65ca6cf1a5ea62a36
 F tools/cvs2fossil/lib/rcsparser.tcl 6518936d0c3152fb53024c91aa587de15b354262
@@ -624,7 +624,7 @@ F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil-autocomplete.bash 1135105ee18b95823944e2fa425806d3bc0f4252
 F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
-F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
+F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F win/Makefile.PellesCGMake cd7a95bc1ffa5608ae7c84b043d99d57e668803f
 F win/Makefile.dmc cf59fe3e8f3657d4b4738adec3e40a0bed7db602
 F win/Makefile.mingw cf8ac8e7cc25f4edffea93932e819b00326a04d8
@@ -742,7 +742,7 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 292659684c25831b8a088eeb9b9f16d269981a74
-R a29f592f011fa9facbe6d50d17057a9c
-U drh
-Z 20dccd92457df871452dfdad7e0f1551
+P 583e2f8f2c641905bacfb24fa02fb06c013cf82a
+R 49afa87824fe0abddb1a7ee393b6f706
+U jan.nijtmans
+Z 1bdb159d1f34489268a5bd7303905fb0

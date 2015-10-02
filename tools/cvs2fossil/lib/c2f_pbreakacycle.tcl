@@ -272,7 +272,7 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 	    # Note that for the min successor position "" represents
 	    # +infinity
 	    integrity assert {
-		($mins eq "") || ($maxp < $mins) 
+		($mins eq "") || ($maxp < $mins)
 	    } {Item <$item> is backward at file level ($maxp >= $mins)}
 	}
 
