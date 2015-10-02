@@ -1,5 +1,5 @@
-C Improve\serror\shandling\sin\s"fossil\ssqlite"\scommand\s".tables".\sCherry-pick\sfrom\sSQLite\strunk.
-D 2015-10-02T10:37:08.332
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.8.12\sbeta.
+D 2015-10-02T20:38:39.543
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -481,8 +481,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 0cfe2669583523cc523436e4d691beda9adfbc01
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c 80bc1f55dd8ef417f1e02a0059403d316716fa02
-F src/sqlite3.h d0618bcfb6d1924becc511ddd99af80760ebed76
+F src/sqlite3.c 51181157a35cb265b66dd73c4ee4a00a51252ba1
+F src/sqlite3.h c1cc67d11b673ce385b7386133aef422d8806156
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 69ab1f0d78ccb91fc81f8f3930046025034a3250
 F src/statrep.c 2475cba0c91bdaa6f51a61565732ece308fadf42
@@ -742,7 +742,7 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P e757cd3d2345cc61089790bac48ed5c6e29bcd35
-R b27fc56badbe586dac5c0abc18275bd1
-U jan.nijtmans
-Z d525103fdd2e5a60eaac1333e3c87246
+P 5c9aecae2149c164727d2b904d91facd2419b940
+R 5d325fca39e990c25ca8263e9221fe52
+U drh
+Z 92dfcd3ed9ada1d36befd23cea77d4e3
