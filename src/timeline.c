@@ -2229,33 +2229,47 @@ void test_timewarp_page(void){
   style_header("Instances of timewarp");
   db_prepare(&q,
      "SELECT blob.uuid, "
-     "       (SELECT date(mtime) FROM event WHERE objid=c.cid),"
-     "       EXISTS(SELECT 1 FROM event a, event b"
-     "               WHERE a.objid=p.cid AND b.objid=c.cid"
-     "                 AND a.mtime>b.mtime)"
-     "  FROM plink p, plink c, blob"
+     "       date(ce.mtime),"
+     "       pe.mtime>ce.mtime,"
+     "       coalesce(ce.euser,ce.user)"
+     "  FROM plink p, plink c, blob, event pe, event ce"
      " WHERE p.cid=c.pid  AND p.mtime>c.mtime"
      "   AND blob.rid=c.cid"
+     "   AND pe.objid=p.cid"
+     "   AND ce.objid=c.cid"
      " ORDER BY 2 DESC"
   );
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zUuid = db_column_text(&q, 0);
+    const char *zCkin = db_column_text(&q, 0);
     const char *zDate = db_column_text(&q, 1);
+    const char *zStatus = db_column_int(&q,2) ? "Open"
+                                 : "Resolved by editing date";
+    const char *zUser = db_column_text(&q, 3);
+    char *zHref = href("%R/timeline?c=%S", zCkin);
     if( cnt==0 ){
-      @ <ul>
+      @ <div class="brlist"><table id="timewarptable">
+      @ <thead><tr>
+      @ <th>Check-in</th>
+      @ <th>Date</th>
+      @ <th>User</th>
+      @ <th>Status</th>
+      @ </tr></thead><tbody>
     }
+    @ <tr>
+    @ <td>%s(zHref)%S(zCkin)</a></td>
+    @ <td>%s(zHref)%s(zDate)</a></td>
+    @ <td>%h(zUser)</td>
+    @ <td>%s(zStatus)</td>
+    @ </tr>
+    fossil_free(zHref);
     cnt++;
-    @ <li>
-    @ <a href="%R/timeline?c=%!S(zUuid)&amp;unhide">%s(zDate) %S(zUuid)</a>
-    if( db_column_int(&q,2)==0 ){
-      @ <i>(Resolved by editing the date)</i>
-    }
   }
   db_finalize(&q);
   if( cnt==0 ){
     @ <p>No timewarps in this repository</p>
   }else{
-    @ </ul>
+    @ </tbody></table></div>
+    output_table_sorting_javascript("timewarptable","tttt",2);
   }
   style_footer();
 }
