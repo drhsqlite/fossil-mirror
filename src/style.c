@@ -362,7 +362,7 @@ static void url_var(
   const char *zPageName
 ){
   char *zVarName = mprintf("%s_url", zVarPrefix);
-  char *zUrl = mprintf("%s/%s?id=%x", g.zTop, zPageName,
+  char *zUrl = mprintf("%R/%s?id=%x", zPageName,
                        skin_id(zConfigName));
   Th_Store(zVarName, zUrl);
   free(zUrl);

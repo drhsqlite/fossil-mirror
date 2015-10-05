@@ -1,5 +1,5 @@
-C Enhancements\sto\sthe\s/timewarps\spage.
-D 2015-10-05T13:15:48.269
+C Improvements\sto\sthe\sway\sthat\sthe\sCSS\sURL\sis\sgenerated.
+D 2015-10-05T17:41:02.914
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -486,7 +486,7 @@ F src/sqlite3.h c1cc67d11b673ce385b7386133aef422d8806156
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 69ab1f0d78ccb91fc81f8f3930046025034a3250
 F src/statrep.c 2475cba0c91bdaa6f51a61565732ece308fadf42
-F src/style.c 4238d0f18131ca473bc2bc7c3655db1d40ae823d
+F src/style.c 2aef0f3537af37e2601f7d0bcc9526ee34965947
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
@@ -742,8 +742,7 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 1059aae93c2304153fc5391470b5985d93775693 a766e7501efe123cbf502239b0e1f8388a986ab1
-R 96e5befaca029c152316851e9ce3e616
-T +closed a766e7501efe123cbf502239b0e1f8388a986ab1
+P c9b0b7cacb1432e4881a6d2b9a01d6739dbc2cd0
+R 4bde677c720a31281e1c01e5b064a03e
 U drh
-Z 1ecf1e0d789cb74b8096cce0596616db
+Z b7a4f3430a8f9e65d1080a2de21c2d39
