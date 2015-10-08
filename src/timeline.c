@@ -505,7 +505,6 @@ void www_print_timeline(
           " WHERE mid=:mid AND (pid!=fid OR pfnid>0)"
           "   AND (fid>0 OR"
                "   fnid NOT IN (SELECT pfnid FROM mlink WHERE mid=:mid))"
-          "   AND NOT mlink.isaux"
           " ORDER BY 3 /*sort*/"
         );
         fchngQueryInit = 1;
