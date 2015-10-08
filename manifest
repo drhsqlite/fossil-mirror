@@ -1,5 +1,5 @@
-C Fix\s/timeline?v=1\sand\s/info\spage\sthat\swere\snot\sshowing\sall\saffected\sfiles\sfor\ncheck-ins\swith\s2\sancestors\sor\smore.\n\npending-review
-D 2015-10-08T01:34:26.439
+C revert\saccidental\sline\saddition\sin\scomment\sheader.
+D 2015-10-08T01:37:42.642
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -419,7 +419,7 @@ F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c e1a455d3216a191f064926d3f5f5bd01f08c3828
-F src/info.c 052cc7173edb740df12d916cfabae9e812e8a94e
+F src/info.c c3b074528b45cb47cabef347375a56bc254886e3
 F src/json.c 18266f277275d058aadb979b74c8b3af7791d649
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -742,10 +742,7 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P b4b551aa66dcb534a1b658e037951de64cc5b5a2
-R 61154270db0fed0b3b7e77940574a126
-T *branch * timeline_showfiles_fix
-T *sym-timeline_showfiles_fix *
-T -sym-trunk *
+P 9f7a681d6d27eff26ede148f198fc5600a624f7a
+R 96ea9a8a3856a2518093342a7111a5bd
 U mgagnon
-Z 1dec4774ff066402f81a77eb8ef9fd61
+Z 11c1fd07e68997bdef5fb11de34ce1b7
