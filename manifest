@@ -1,5 +1,5 @@
-C SQLite\s3.9.0\sbeta\s2.\s\sThe\sfirst\s3.9.0\sbeta\sgave\scompiler\serrors\son\ssome\solder\nplatforms,\swhich\sare\sfixed\shere.\s\sBehold\sthe\sreason\swhy\sI\scheck-in\sSQLite\sbetas\ninto\sthe\sFossil\strunk.
-D 2015-10-10T14:03:10.095
+C Update\sthe\sSQLite\s3.9.0\sbeta\swith\sfixing\sfor\swarnings\son\svarious\sobscure\ncompilers.\s\sOmit\sthe\suse\sof\sstrcpy()\sin\sFTS5\ssince\sOpenBSD\shates\sstrcpy().
+D 2015-10-10T15:13:38.859
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -481,8 +481,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 44d3881e497cf9bec8ea6dcf73830502ab59202c
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c d5c350797444bc8af7686087f6fd96041b18af4d
-F src/sqlite3.h 9096aa8767fe60db64b9829849c0fc4719e0855c
+F src/sqlite3.c 437c5dc16e3d4574a64b469ba98c70f1477150a3
+F src/sqlite3.h 99eebe4d20242680850a410cdabe717beb5c4428
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 69ab1f0d78ccb91fc81f8f3930046025034a3250
 F src/statrep.c 2475cba0c91bdaa6f51a61565732ece308fadf42
@@ -742,7 +742,7 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 9431fec1ea098feab24002d4c3bfa0132017ef39
-R 3297060f06760099323d96226ef81e78
+P 0b81254c79df9ae5279cac8e1b9938ec10ea1b96
+R 0c4631310b9b954858fa5cc663f0473c
 U drh
-Z a472b9c779bbc41620b638230457dd7e
+Z 512d74e4c8a8a76ed9e354d63978c35d
