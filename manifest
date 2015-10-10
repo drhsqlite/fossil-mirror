@@ -1,5 +1,5 @@
-C Remove\sanother\sinstance\sof\sstrcpy()\sfrom\sFTS5\sin\sSQLite\s3.9.0,\sto\nmollify\sOpenBSD.
-D 2015-10-10T15:58:39.761
+C Sync\sup\sthe\scustom\sMinGW\smakefile.
+D 2015-10-10T17:47:23.817
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -628,7 +628,7 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F win/Makefile.PellesCGMake 72214df8c066828363c1b7f48e647a146b484ca6
 F win/Makefile.dmc 65d9d67850656c427e6572a746df023d9d6629e7
 F win/Makefile.mingw 8345cb7707f61becdd06b99a0fb47d1263d1ac66
-F win/Makefile.mingw.mistachkin 1982160dedebd1d024a9adbe3a545b3ae08969ca
+F win/Makefile.mingw.mistachkin b2e9398faec64cf1b724312905cb4306e6ee3e78
 F win/Makefile.msc 484a7842b0033ec74e8ce1d1e7ffe2379a699191
 F win/buildmsvc.bat d2daa4ad2586518ed72ab03f3b5dfe33bfc406d7
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -742,7 +742,7 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P d4a34293aeb890b678ae2a7bc96fe3ed61a00dc2
-R 70cb20b9eb52a3a2255f17e4c446339a
-U drh
-Z c768fdba070fe110493f0b3501eda05d
+P 921d670350d3d083a6904aa233b90eaa2f77dbbd
+R 33d3901f40ae5df2df1e7475c9314acc
+U mistachkin
+Z 619e96f75642fc276df9e370a1b9bd96

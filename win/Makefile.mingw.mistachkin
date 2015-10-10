@@ -2084,6 +2084,8 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_ENABLE_FTS4 \
                  -DSQLITE_ENABLE_FTS3_PARENTHESIS \
                  -DSQLITE_ENABLE_DBSTAT_VTAB \
+                 -DSQLITE_ENABLE_JSON1 \
+                 -DSQLITE_ENABLE_FTS5 \
                  -DSQLITE_WIN32_NO_ANSI \
                  -D_HAVE__MINGW_H \
                  -DSQLITE_USE_MALLOC_H \
