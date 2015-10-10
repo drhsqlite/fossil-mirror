@@ -740,7 +740,7 @@ void ci_page(void){
     "       (SELECT uuid FROM blob WHERE rid=mlink.fid),"
     "       (SELECT name FROM filename WHERE filename.fnid=mlink.pfnid)"
     "  FROM mlink JOIN filename ON filename.fnid=mlink.fnid"
-    " WHERE mlink.mid=%d AND NOT mlink.isaux"
+    " WHERE mlink.mid=%d"
     "   AND (mlink.fid>0"
            " OR mlink.fnid NOT IN (SELECT pfnid FROM mlink WHERE mid=%d))"
     " ORDER BY name /*sort*/",
