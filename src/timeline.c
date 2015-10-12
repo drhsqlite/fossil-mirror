@@ -1193,7 +1193,8 @@ static void timeline_y_submenu(int isDisabled){
 **    ubg            Background color from user
 **    namechng       Show only check-ins that filename changes
 **    forks          Show only forks and their children
-**    ym=YYYY-MM     Shown only events for the given year/month.
+**    ym=YYYY-MM     Show only events for the given year/month.
+**    ymd=YYYY-MM-DD Show only events on the given day
 **    datefmt=N      Override the date format
 **
 ** p= and d= can appear individually or together.  If either p= or d=
@@ -1224,6 +1225,7 @@ void page_timeline(void){
   const char *zUses = P("uf");       /* Only show check-ins hold this file */
   const char *zYearMonth = P("ym");  /* Show check-ins for the given YYYY-MM */
   const char *zYearWeek = P("yw");   /* Check-ins for YYYY-WW (week-of-year) */
+  const char *zDay = P("ymd");       /* Check-ins for the day YYYY-MM-DD */
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
   int renameOnly = P("namechng")!=0; /* Show only check-ins that rename files */
   int forkOnly = PB("forks");        /* Show only forks and their children */
@@ -1494,6 +1496,10 @@ void page_timeline(void){
       blob_append_sql(&sql, " AND %Q=strftime('%%Y-%%W',event.mtime) ",
                    zYearWeek);
     }
+    else if( zDay ){
+      blob_append_sql(&sql, " AND %Q=strftime('%%Y-%%m-%%d',event.mtime) ",
+                   zDay);
+    }
     if( tagid ){
       blob_append_sql(&sql,
         " AND (EXISTS(SELECT 1 FROM tagxref"
@@ -1643,6 +1649,8 @@ void page_timeline(void){
       blob_appendf(&desc, "%s events for %h", zEType, zYearMonth);
     }else if( zYearWeek ){
       blob_appendf(&desc, "%s events for year/week %h", zEType, zYearWeek);
+    }else if( zDay ){
+      blob_appendf(&desc, "%s events occurring on %h", zEType, zDay);
     }else if( zBefore==0 && zCirca==0 && n>=nEntry && nEntry>0 ){
       blob_appendf(&desc, "%d most recent %ss", n, zEType);
     }else{
