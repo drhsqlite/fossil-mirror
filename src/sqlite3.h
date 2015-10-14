@@ -113,7 +113,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.9.0"
 #define SQLITE_VERSION_NUMBER 3009000
-#define SQLITE_SOURCE_ID      "2015-10-10 15:57:20 35e6248abb4435a8b26d270092b856beff867406"
+#define SQLITE_SOURCE_ID      "2015-10-14 12:29:53 a721fc0d89495518fe5612e2e3bbc60befd2e90d"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -5656,9 +5656,9 @@ struct sqlite3_module {
 ** to included crashing the application). The estimatedRows field should
 ** therefore only be used if [sqlite3_libversion_number()] returns a
 ** value greater than or equal to 3008002. Similarly, the idxFlags field
-** was added for version 3.8.12. It may therefore only be used if
+** was added for version 3.9.0. It may therefore only be used if
 ** sqlite3_libversion_number() returns a value greater than or equal to
-** 3008012.
+** 3009000.
 */
 struct sqlite3_index_info {
   /* Inputs */
@@ -5686,7 +5686,7 @@ struct sqlite3_index_info {
   double estimatedCost;           /* Estimated cost of using this index */
   /* Fields below are only available in SQLite 3.8.2 and later */
   sqlite3_int64 estimatedRows;    /* Estimated number of rows returned */
-  /* Fields below are only available in SQLite 3.8.12 and later */
+  /* Fields below are only available in SQLite 3.9.0 and later */
   int idxFlags;              /* Mask of SQLITE_INDEX_SCAN_* flags */
 };
 
@@ -7946,6 +7946,10 @@ struct sqlite3_rtree_query_info {
 
 #include "sqlite3.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*************************************************************************
 ** CUSTOM AUXILIARY FUNCTIONS
 **
@@ -8430,6 +8434,10 @@ struct fts5_api {
 /*
 ** END OF REGISTRATION API
 *************************************************************************/
+
+#ifdef __cplusplus
+}  /* end of the 'extern "C"' block */
+#endif
 
 #endif /* _FTS5_H */
 

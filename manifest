@@ -1,5 +1,5 @@
-C Add\sthe\symd=\squery\sparameter\sto\sthe\s/timeline\spage.
-D 2015-10-12T12:12:40.922
+C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.9.0\sfinal.
+D 2015-10-14T12:35:30.046
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -481,8 +481,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 44d3881e497cf9bec8ea6dcf73830502ab59202c
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c 0e223907b5d7cbaf482bf5f29167ce75c0665878
-F src/sqlite3.h 0b07a750dcf1ccde6f458964bbfeac4495fbef6b
+F src/sqlite3.c c03e47e152ddb9c342b84ffb39448bf4a2bd4288
+F src/sqlite3.h f387eb7e7f85e11ac64d4217b3b7e271ac447ea7
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 69ab1f0d78ccb91fc81f8f3930046025034a3250
 F src/statrep.c 2475cba0c91bdaa6f51a61565732ece308fadf42
@@ -742,7 +742,7 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 9eb222c1a8a58f1dacc2a130f1478d6f1a3e6598
-R 78bd3ccf7d833f7f089eefdc7f24d9e9
+P 16ce7ef0c5e8aa9d3c57a887d5452303c0ec816d
+R e15fcee9b6152a576cac88b834f8be99
 U drh
-Z ff68bab6993448d4fc11a2c7abbe1bd1
+Z 83a7e2efa2016843b7145bda8293501f
