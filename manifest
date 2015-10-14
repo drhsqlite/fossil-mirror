@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.9.0\sfinal.
-D 2015-10-14T12:35:30.046
+C Update\sthe\sversion\snumber\sto\s1.34.\s\sUpdate\sthe\schange\slog\swith\ssome\sadditional\nchanges.\s\sPreparing\sfor\sa\snew\srelease.
+D 2015-10-14T13:58:25.275
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -12,7 +12,7 @@ F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile 6a228246eebe18fedb6d080e387880b57195b2b7
 F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
 F Makefile.in 4c745f08a8ecfe6e1f227e2a6d33cce3adc532d0
-F VERSION 68b05f0ffffaf08e478922297c5140cc3b5d6965
+F VERSION a75c890f5a88bff69d63f342449e76fb3f720928
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -658,7 +658,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 2f0e8e5909ee610b28d190c88dd916706de41312
-F www/changes.wiki 3e3d6556aeed19eabe2b50987b2191ecd1bfae25
+F www/changes.wiki 028a503628fa68ffc39e7bf164d6865826cbf280
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 115a0ecdac918232061bbc19124ea83e0a27d938
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -742,7 +742,7 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 16ce7ef0c5e8aa9d3c57a887d5452303c0ec816d
-R e15fcee9b6152a576cac88b834f8be99
+P 82d84295a8b4d6c00be028b80829409f0d554da4
+R f30461965f76effc544a1abfb74505b3
 U drh
-Z 83a7e2efa2016843b7145bda8293501f
+Z ca7a7744cde7563ca611132a742f0978
