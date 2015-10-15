@@ -1,5 +1,5 @@
-C Update\sthe\sversion\snumber\sto\s1.34.\s\sUpdate\sthe\schange\slog\swith\ssome\sadditional\nchanges.\s\sPreparing\sfor\sa\snew\srelease.
-D 2015-10-14T13:58:25.275
+C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.9.0\splus\sa\sfew\sminor\sfixes\sfor\nharmless\sdetails.
+D 2015-10-15T12:16:16.848
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -481,8 +481,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 44d3881e497cf9bec8ea6dcf73830502ab59202c
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c c03e47e152ddb9c342b84ffb39448bf4a2bd4288
-F src/sqlite3.h f387eb7e7f85e11ac64d4217b3b7e271ac447ea7
+F src/sqlite3.c 16f7076a64f25aa9d382a54713ab237eaeeb4407
+F src/sqlite3.h 11c4e28b7a9e92e87d3546bd58684b6e3957dfc9
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 69ab1f0d78ccb91fc81f8f3930046025034a3250
 F src/statrep.c 2475cba0c91bdaa6f51a61565732ece308fadf42
@@ -742,7 +742,7 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 82d84295a8b4d6c00be028b80829409f0d554da4
-R f30461965f76effc544a1abfb74505b3
+P 47ee063e83a86a4a2f7d62e983d1b0b5482d22a3
+R 12a63c691ef4163705638cb1fd3fd51a
 U drh
-Z ca7a7744cde7563ca611132a742f0978
+Z 7c52fb25622d4829ef32ba216f27cfbc
