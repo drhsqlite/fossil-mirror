@@ -1,5 +1,5 @@
-C On\ssystems\swith\scase-insensitive\sfilenames,\sallow\s"fossil\srename\sOLD\sNEW"\swhere\nOLD\sand\sNEW\sdiffer\sonly\sin\scase.
-D 2015-10-19T14:52:50.733
+C Tweaks\sto\schange\slog.
+D 2015-10-19T18:22:09.660
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -658,7 +658,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 2f0e8e5909ee610b28d190c88dd916706de41312
-F www/changes.wiki 028a503628fa68ffc39e7bf164d6865826cbf280
+F www/changes.wiki c0fe7f285395f9de5a8a786af63b25d42ca7bb37
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 115a0ecdac918232061bbc19124ea83e0a27d938
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -742,7 +742,7 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 22e0427b1048534ea56390a24e2a7d136fdef298
-R 2e78ad9402a08e5984691b61857bf05e
-U drh
-Z 780d6e4eb82de6d1dc1d0952e520bfda
+P fd2dbf436855e9e6fb74b980338a5cade5e83f76
+R e458eaa990eab9abbfacf02ba1ba4cc3
+U mistachkin
+Z a6a232f47eed3167f256ecc63d624bc3

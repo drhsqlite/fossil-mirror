@@ -25,10 +25,10 @@
      </ul>
   *  Add the --undo option to the [/help?cmd=diff|diff] command.
   *  Build-in Antirez's "linenoise" command-linen editing library for use with
-     The [/help?cmd=sqlite3|fossil sql] command on unix platforms.
+     the [/help?cmd=sqlite3|fossil sql] command on Unix platforms.
   *  Add [/help?cmd=stash|stash cat] as an alias for the 
      [/help?cmd=stash|stash show] command.
-  *  Updated the built-in SQLite to version 3.9.0 and activated JSON1 and FTS5
+  *  Updated the built-in SQLite to version 3.9.1 and activated JSON1 and FTS5
      support (both currently unused within Fossil).
 
 <h2>Changes for Version 1.33 (2015-05-23)</h2>
