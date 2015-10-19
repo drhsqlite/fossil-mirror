@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.9.1.
-D 2015-10-16T20:05:34.498
+C Prevent\sduplicate\sentries\son\sthe\sfile\slist\sof\sa\stimeline.
+D 2015-10-19T12:02:47.480
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -495,7 +495,7 @@ F src/th.h 1e7ae1613afa730a75df06d7fd1f17c7ff4564f4
 F src/th_lang.c a536a5cee224ccab6cbc5d8b07bef5027bff2910
 F src/th_main.c f2b4c5d93f92ed729ca173fad8cfd8587b9ce24f
 F src/th_tcl.c 4d68ad29399fd3e90553a9470d66142d9027368d
-F src/timeline.c 29ec52ce62ca76df6fab51c9cb4301048cdfe05b
+F src/timeline.c dcadc68c4c814beb3a0212faaf26e021cea4df1f
 F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
 F src/tktsetup.c 32e23747e8d3f36fc390a6197dda2209d98cad09
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
@@ -742,7 +742,7 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P bc16590e21e0e0e9f2f19f2f7a74f8c0956ff9bd
-R 827437a8076bbc287595e92e7d1b1b75
+P 3cff1b8f0a6467b7a2e04263a1f8c9a19f4257de
+R 3ad45f5ea4d74be528d7e390346c66e5
 U drh
-Z 8079b36187a9076f99079f6f2ba99bfc
+Z c299d07b432375c53b38a64d2f162a95

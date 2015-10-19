@@ -493,6 +493,7 @@ void www_print_timeline(
      && zType[0]=='c' && g.perm.Hyperlink
     ){
       int inUl = 0;
+      int prevFid = -1;
       if( !fchngQueryInit ){
         db_prepare(&fchngQuery,
           "SELECT pid,"
@@ -505,7 +506,7 @@ void www_print_timeline(
           " WHERE mid=:mid AND (pid!=fid OR pfnid>0)"
           "   AND (fid>0 OR"
                "   fnid NOT IN (SELECT pfnid FROM mlink WHERE mid=:mid))"
-          " ORDER BY 3 /*sort*/"
+          " ORDER BY 3, mlink.isaux /*sort*/"
         );
         fchngQueryInit = 1;
       }
@@ -522,6 +523,8 @@ void www_print_timeline(
         const char *zUnpub = "";
         char *zA;
         char zId[20];
+        if( prevFid==fid ) continue;
+        prevFid = fid;
         if( !inUl ){
           @ <ul class="filelist">
           inUl = 1;
