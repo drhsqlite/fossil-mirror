@@ -1,5 +1,5 @@
-C Prevent\sduplicate\sentries\son\sthe\sfile\slist\sof\sa\stimeline.
-D 2015-10-19T12:02:47.480
+C On\ssystems\swith\scase-insensitive\sfilenames,\sallow\s"fossil\srename\sOLD\sNEW"\swhere\nOLD\sand\sNEW\sdiffer\sonly\sin\scase.
+D 2015-10-19T14:52:50.733
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -371,7 +371,7 @@ F skins/xekri/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c f9e7a15f285a4b10b50d4b9a8d9833ab164b61d0
+F src/add.c 7c06f8c8271792ea3945085c5c03a2479c27baac
 F src/allrepo.c ea9a13512f43925d8d6cceee4e757c55a80910d9
 F src/attach.c 5b713ffe437fa0c3241da307835b1286e38798fd
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
@@ -742,7 +742,7 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 3cff1b8f0a6467b7a2e04263a1f8c9a19f4257de
-R 3ad45f5ea4d74be528d7e390346c66e5
+P 22e0427b1048534ea56390a24e2a7d136fdef298
+R 2e78ad9402a08e5984691b61857bf05e
 U drh
-Z c299d07b432375c53b38a64d2f162a95
+Z 780d6e4eb82de6d1dc1d0952e520bfda
