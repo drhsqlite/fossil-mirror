@@ -1,5 +1,5 @@
-C Tweaks\sto\schange\slog.
-D 2015-10-19T18:22:09.660
+C Backout\s[9431fec1ea098feab24002d4c3bfa0132017ef39]:\sIt\scauses\stoo\smany\sfiles\sbeing\sdisplayed\sin\svarious\sscreens.\sReported\sin\sfossil-dev\sand\sTcl\sCore\smailing\slist.
+D 2015-10-20T07:41:58.756
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -419,7 +419,7 @@ F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c e1a455d3216a191f064926d3f5f5bd01f08c3828
-F src/info.c c3b074528b45cb47cabef347375a56bc254886e3
+F src/info.c ea7cd317012235c4abc2dda5155a4bd246f9a0a1
 F src/json.c 18266f277275d058aadb979b74c8b3af7791d649
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -495,7 +495,7 @@ F src/th.h 1e7ae1613afa730a75df06d7fd1f17c7ff4564f4
 F src/th_lang.c a536a5cee224ccab6cbc5d8b07bef5027bff2910
 F src/th_main.c f2b4c5d93f92ed729ca173fad8cfd8587b9ce24f
 F src/th_tcl.c 4d68ad29399fd3e90553a9470d66142d9027368d
-F src/timeline.c dcadc68c4c814beb3a0212faaf26e021cea4df1f
+F src/timeline.c faa461ae5367446dc624137fea715e3e81fccf18
 F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
 F src/tktsetup.c 32e23747e8d3f36fc390a6197dda2209d98cad09
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
@@ -742,7 +742,9 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P fd2dbf436855e9e6fb74b980338a5cade5e83f76
-R e458eaa990eab9abbfacf02ba1ba4cc3
-U mistachkin
-Z a6a232f47eed3167f256ecc63d624bc3
+P f324a0a4b2400e58f0ab0d219b49d66ecb3efa3f
+Q -22e0427b1048534ea56390a24e2a7d136fdef298
+Q -9431fec1ea098feab24002d4c3bfa0132017ef39
+R 666a57fbd8f0329d704a303cb77c4a2d
+U jan.nijtmans
+Z e747b38b25d7c0176a90f62e8e09687f
