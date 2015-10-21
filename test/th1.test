@@ -863,9 +863,9 @@ test th1-reinitialize-2 {$RESULT ne ""}
 #
 fossil test-th-eval "info commands"
 test th1-info-commands-1 {$RESULT eq {linecount htmlize date stime\
-enable_output uplevel dir http expr glob_match utime styleFooter catch if\
-tclReady searchable reinitialize combobox lindex query html anoncap randhex\
-llength for set break regexp markdown styleHeader puts return checkout\
+enable_output uplevel dir http expr glob_match utime styleFooter encode64\
+catch if tclReady searchable reinitialize combobox lindex query html anoncap\
+randhex llength for set break regexp markdown styleHeader puts return checkout\
 decorate artifact trace wiki proc hascap globalState continue getParameter\
 hasfeature setting lsearch breakpoint upvar render repository string unset\
 setParameter list error info rename anycap httpize}}
@@ -1255,5 +1255,17 @@ test th1-encode64-1 {$RESULT eq "dGVzdA=="}
 
 ###############################################################################
 
-fossil test-th-eval {encode64 test\0}
+fossil test-th-eval {encode64 test\x00}
 test th1-encode64-2 {$RESULT eq "dGVzdAA="}
+
+###############################################################################
+
+#
+# TODO: Modify the result of this test if the source file (i.e.
+#       "ajax/cgi-bin/fossil-json.cgi.example") changes.
+#
+fossil test-th-eval --open-config \
+    {encode64 [artifact trunk ajax/cgi-bin/fossil-json.cgi.example]}
+
+test th1-encode64-3 {$RESULT eq \
+"IyEvcGF0aC90by9mb3NzaWwvYmluYXJ5CnJlcG9zaXRvcnk6IC9wYXRoL3RvL3JlcG8uZnNsCg=="}

@@ -1,5 +1,5 @@
-C Add\sthe\s'encode64'\scommand\sto\sTH1.
-D 2015-10-21T20:39:10.314
+C Correct\sand\senhance\stests.
+D 2015-10-21T21:06:58.472
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -562,7 +562,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test 58bd12979bae1e9fb794659b7fb5945286b211a4
+F test/th1.test a12b735b1940d05bbb467503360cb29b85bebe92
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 9b9447e346cbc663d6f3c51e00adbc1ba2d296a2
@@ -742,7 +742,7 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 3c34db8d0ecb671bcc837c46a300613a1f4879c8
-R 435a96353aede99c705c543d742ef8da
+P 3f21421a5137cd0cff3c195d4f72fe326ae72036
+R 42754cb88e71d86110cf630ae2ec30a3
 U mistachkin
-Z a2c3e5a0de6f94d474919bc8dab378bc
+Z 407cdc7981d9de0057affc189abe757f
