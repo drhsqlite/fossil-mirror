@@ -1247,3 +1247,13 @@ test th1-markdown-5 {[normalize_result] eq \
 
 </div>
 }}}
+
+###############################################################################
+
+fossil test-th-eval {encode64 test}
+test th1-encode64-1 {$RESULT eq "dGVzdA=="}
+
+###############################################################################
+
+fossil test-th-eval {encode64 test\0}
+test th1-encode64-2 {$RESULT eq "dGVzdAA="}

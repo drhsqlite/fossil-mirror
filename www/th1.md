@@ -133,6 +133,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  decorate
   *  dir
   *  enable_output
+  *  encode64
   *  getParameter
   *  glob_match
   *  globalState
@@ -256,6 +257,13 @@ time zone configured for the repository).
 
 Enable or disable sending output when the combobox, puts, or wiki
 commands are used.
+
+<a name="encode64"></a>TH1 encode64 Command
+-------------------------------------------
+
+  *  encode64 STRING
+
+Encode the specified string using Base64 and return the result.
 
 <a name="getParameter"></a>TH1 getParameter Command
 ---------------------------------------------------

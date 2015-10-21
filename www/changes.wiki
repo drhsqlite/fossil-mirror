@@ -14,19 +14,19 @@
      the svndump format for subversion.
   *  Add the [/help?cmd=all|all cache] command.
   *  TH1 enhancements:
-     <ul><li>Add minimal <nowiki>[lsearch]</nowiki> command to TH1. Only exact
+     <ul><li>Add minimal <nowiki>[lsearch]</nowiki> command. Only exact
      case-sensitive matching is supported.</li>
-     <li>Add the <nowiki>[glob_match]</nowiki>, <nowiki>[markdown]</nowiki>, and
-     <nowiki>[dir]</nowiki> commands to TH1.</li>
-     <li>Add the <nowiki>[tclIsSafe] and [tclMakeSafe]</nowiki> TH1 commands to
+     <li>Add the <nowiki>[glob_match]</nowiki>, <nowiki>[markdown]</nowiki>,
+     <nowiki>[dir]</nowiki>, and <nowiki>[encode64]</nowiki> commands.</li>
+     <li>Add the <nowiki>[tclIsSafe] and [tclMakeSafe]</nowiki> commands to
      the Tcl integration subsystem.</li>
      <li>Add 'double', 'integer', and 'list' classes to the
-     <nowiki>[string is]</nowiki> command in TH1.</li>
+     <nowiki>[string is]</nowiki> command.</li>
      </ul>
   *  Add the --undo option to the [/help?cmd=diff|diff] command.
   *  Build-in Antirez's "linenoise" command-linen editing library for use with
      the [/help?cmd=sqlite3|fossil sql] command on Unix platforms.
-  *  Add [/help?cmd=stash|stash cat] as an alias for the 
+  *  Add [/help?cmd=stash|stash cat] as an alias for the
      [/help?cmd=stash|stash show] command.
   *  Updated the built-in SQLite to version 3.9.1 and activated JSON1 and FTS5
      support (both currently unused within Fossil).
