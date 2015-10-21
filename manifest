@@ -1,5 +1,5 @@
-C Cherrypick\sof\s[2a1d7e0efc].\s\sDocker\sbuild\s'release'\sby\sdefault.\sMeant\sfor\supcoming\sFossil\srelease.
-D 2015-10-20T17:40:51.742
+C Backout\schanges\sfrom\stimeline_showfiles_fix\sbranch\swhich\swas\sattempting\sto\sfix\ndiscrepancy\sbetween\sCLI\sand\sweb\swhen\slisting\smodified\sfiles\sin\scheckins.\n\nMake\s"fossil\stimeline\s-v"\scommand\sbehave\slike\sthe\sweb\sinterface\sso\sthe\sCLI\ntimeline\scommand\sget\sfixed\sinstead\sof\sbreaking\sthe\sweb\sinterface.
+D 2015-10-21T12:04:32.803
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -419,7 +419,7 @@ F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c e1a455d3216a191f064926d3f5f5bd01f08c3828
-F src/info.c c3b074528b45cb47cabef347375a56bc254886e3
+F src/info.c ea7cd317012235c4abc2dda5155a4bd246f9a0a1
 F src/json.c 18266f277275d058aadb979b74c8b3af7791d649
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -495,7 +495,7 @@ F src/th.h 1e7ae1613afa730a75df06d7fd1f17c7ff4564f4
 F src/th_lang.c a536a5cee224ccab6cbc5d8b07bef5027bff2910
 F src/th_main.c f2b4c5d93f92ed729ca173fad8cfd8587b9ce24f
 F src/th_tcl.c 4d68ad29399fd3e90553a9470d66142d9027368d
-F src/timeline.c dcadc68c4c814beb3a0212faaf26e021cea4df1f
+F src/timeline.c ba528a9dfaee8f33a320fd0666d1826648966af0
 F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
 F src/tktsetup.c 32e23747e8d3f36fc390a6197dda2209d98cad09
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
@@ -742,8 +742,7 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P f324a0a4b2400e58f0ab0d219b49d66ecb3efa3f
-Q +2a1d7e0efc0f048b495815bac577d3c0f5c4d9a6
-R 55db715150413fad5b3e5a20b34daaf4
-U mistachkin
-Z 323fb8986b781375ce54e154223b7191
+P b88e6c7746363e6e3903877fb7ffa440aeed1a2c 2a1d7e0efc0f048b495815bac577d3c0f5c4d9a6
+R f197d9efb647929981541970c1b4aab5
+U mgagnon
+Z 49267c5224c809992707b4ea245a9775
