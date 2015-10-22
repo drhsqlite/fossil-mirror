@@ -101,28 +101,26 @@
 #if defined(_WIN32) || defined(WIN32)
 # include <io.h>
 # include <fcntl.h>
-#define isatty(h) _isatty(h)
-#ifndef access
-# define access(f,m) _access((f),(m))
-#endif
-#undef popen
-#define popen _popen
-#undef pclose
-#define pclose _pclose
+# define isatty(h) _isatty(h)
+# ifndef access
+#  define access(f,m) _access((f),(m))
+# endif
+# undef popen
+# define popen _popen
+# undef pclose
+# define pclose _pclose
 #else
-/* Make sure isatty() has a prototype.
-*/
-extern int isatty(int);
+ /* Make sure isatty() has a prototype. */
+ extern int isatty(int);
 
-#if !defined(__RTP__) && !defined(_WRS_KERNEL)
-  /* popen and pclose are not C89 functions and so are sometimes omitted from
-  ** the <stdio.h> header */
-  extern FILE *popen(const char*,const char*);
-  extern int pclose(FILE*);
-#else
-# define SQLITE_OMIT_POPEN 1
-#endif
-
+# if !defined(__RTP__) && !defined(_WRS_KERNEL)
+  /* popen and pclose are not C89 functions and so are
+  ** sometimes omitted from the <stdio.h> header */
+   extern FILE *popen(const char*,const char*);
+   extern int pclose(FILE*);
+# else
+#  define SQLITE_OMIT_POPEN 1
+# endif
 #endif
 
 #if defined(_WIN32_WCE)
@@ -1321,6 +1319,8 @@ static int display_stats(
     fprintf(pArg->out, "Virtual Machine Steps:               %d\n", iCur);
   }
 
+  /* Do not remove this machine readable comment: extra-stats-output-here */
+
   return 0;
 }
 
@@ -1331,7 +1331,10 @@ static void display_scanstats(
   sqlite3 *db,                    /* Database to query */
   ShellState *pArg                /* Pointer to ShellState */
 ){
-#ifdef SQLITE_ENABLE_STMT_SCANSTATUS
+#ifndef SQLITE_ENABLE_STMT_SCANSTATUS
+  UNUSED_PARAMETER(db);
+  UNUSED_PARAMETER(pArg);
+#else
   int i, k, n, mx;
   fprintf(pArg->out, "-------- scanstats --------\n");
   mx = 0;
@@ -1866,6 +1869,7 @@ static void readfileFunc(
   long nIn;
   void *pBuf;
 
+  UNUSED_PARAMETER(argc);
   zName = (const char*)sqlite3_value_text(argv[0]);
   if( zName==0 ) return;
   in = fopen(zName, "rb");
@@ -1898,6 +1902,7 @@ static void writefileFunc(
   sqlite3_int64 rc;
   const char *zFile;
 
+  UNUSED_PARAMETER(argc);
   zFile = (const char*)sqlite3_value_text(argv[0]);
   if( zFile==0 ) return;
   out = fopen(zFile, "wb");
@@ -2577,7 +2582,7 @@ static int shell_dbinfo_command(ShellState *p, int nArg, char **azArg){
   fprintf(p->out, "%-20s %d\n", "write format:", aHdr[18]);
   fprintf(p->out, "%-20s %d\n", "read format:", aHdr[19]);
   fprintf(p->out, "%-20s %d\n", "reserved bytes:", aHdr[20]);
-  for(i=0; i<sizeof(aField)/sizeof(aField[0]); i++){
+  for(i=0; i<ArraySize(aField); i++){
     int ofst = aField[i].ofst;
     unsigned int val = get4byteInt(aHdr + ofst);
     fprintf(p->out, "%-20s %u", aField[i].zName, val);
@@ -2597,7 +2602,7 @@ static int shell_dbinfo_command(ShellState *p, int nArg, char **azArg){
   }else{
     zSchemaTab = sqlite3_mprintf("\"%w\".sqlite_master", zDb);
   }
-  for(i=0; i<sizeof(aQuery)/sizeof(aQuery[0]); i++){
+  for(i=0; i<ArraySize(aQuery); i++){
     char *zSql = sqlite3_mprintf(aQuery[i].zSql, zSchemaTab);
     int val = db_int(p, zSql);
     sqlite3_free(zSql);
@@ -2607,6 +2612,22 @@ static int shell_dbinfo_command(ShellState *p, int nArg, char **azArg){
   return 0;
 }
 
+/*
+** Print the current sqlite3_errmsg() value to stderr and return 1.
+*/
+static int shellDatabaseError(sqlite3 *db){
+  const char *zErr = sqlite3_errmsg(db);
+  fprintf(stderr, "Error: %s\n", zErr);
+  return 1;
+}
+
+/*
+** Print an out-of-memory message to stderr and return 1.
+*/
+static int shellNomemError(void){
+  fprintf(stderr, "Error: out of memory\n");
+  return 1;
+}
 
 /*
 ** If an input line begins with "." then invoke this routine to
@@ -3228,7 +3249,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     int i, n2;
     open_db(p, 0);
     if( nArg==1 ){
-      for(i=0; i<sizeof(aLimit)/sizeof(aLimit[0]); i++){
+      for(i=0; i<ArraySize(aLimit); i++){
         printf("%20s %d\n", aLimit[i].zLimitName, 
                sqlite3_limit(p->db, aLimit[i].limitCode, -1));
       }
@@ -3239,7 +3260,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     }else{
       int iLimit = -1;
       n2 = strlen30(azArg[1]);
-      for(i=0; i<sizeof(aLimit)/sizeof(aLimit[0]); i++){
+      for(i=0; i<ArraySize(aLimit); i++){
         if( sqlite3_strnicmp(aLimit[i].zLimitName, azArg[1], n2)==0 ){
           if( iLimit<0 ){
             iLimit = i;
@@ -3349,9 +3370,8 @@ static int do_meta_command(char *zLine, ShellState *p){
     const char *zSavedFilename = p->zDbFilename;
     char *zNewFilename = 0;
     p->db = 0;
-    if( nArg>=2 ){
-      p->zDbFilename = zNewFilename = sqlite3_mprintf("%s", azArg[1]);
-    }
+    if( nArg>=2 ) zNewFilename = sqlite3_mprintf("%s", azArg[1]);
+    p->zDbFilename = zNewFilename;
     open_db(p, 1);
     if( p->db!=0 ){
       sqlite3_close(savedDb);
@@ -3709,13 +3729,17 @@ static int do_meta_command(char *zLine, ShellState *p){
     int ii;
     open_db(p, 0);
     rc = sqlite3_prepare_v2(p->db, "PRAGMA database_list", -1, &pStmt, 0);
-    if( rc ) return rc;
+    if( rc ) return shellDatabaseError(p->db);
+
+    /* Create an SQL statement to query for the list of tables in the
+    ** main and all attached databases where the table name matches the
+    ** LIKE pattern bound to variable "?1". */
     zSql = sqlite3_mprintf(
         "SELECT name FROM sqlite_master"
         " WHERE type IN ('table','view')"
         "   AND name NOT LIKE 'sqlite_%%'"
         "   AND name LIKE ?1");
-    while( sqlite3_step(pStmt)==SQLITE_ROW ){
+    while( zSql && sqlite3_step(pStmt)==SQLITE_ROW ){
       const char *zDbName = (const char*)sqlite3_column_text(pStmt, 1);
       if( zDbName==0 || strcmp(zDbName,"main")==0 ) continue;
       if( strcmp(zDbName,"temp")==0 ){
@@ -3734,11 +3758,17 @@ static int do_meta_command(char *zLine, ShellState *p){
                  "   AND name LIKE ?1", zSql, zDbName, zDbName);
       }
     }
-    sqlite3_finalize(pStmt);
-    zSql = sqlite3_mprintf("%z ORDER BY 1", zSql);
-    rc = sqlite3_prepare_v2(p->db, zSql, -1, &pStmt, 0);
+    rc = sqlite3_finalize(pStmt);
+    if( zSql && rc==SQLITE_OK ){
+      zSql = sqlite3_mprintf("%z ORDER BY 1", zSql);
+      if( zSql ) rc = sqlite3_prepare_v2(p->db, zSql, -1, &pStmt, 0);
+    }
     sqlite3_free(zSql);
-    if( rc ) return rc;
+    if( !zSql ) return shellNomemError();
+    if( rc ) return shellDatabaseError(p->db);
+
+    /* Run the SQL statement prepared by the above block. Store the results
+    ** as an array of nul-terminated strings in azResult[].  */
     nRow = nAlloc = 0;
     azResult = 0;
     if( nArg>1 ){
@@ -3752,17 +3782,25 @@ static int do_meta_command(char *zLine, ShellState *p){
         int n2 = nAlloc*2 + 10;
         azNew = sqlite3_realloc64(azResult, sizeof(azResult[0])*n2);
         if( azNew==0 ){
-          fprintf(stderr, "Error: out of memory\n");
+          rc = shellNomemError();
           break;
         }
         nAlloc = n2;
         azResult = azNew;
       }
       azResult[nRow] = sqlite3_mprintf("%s", sqlite3_column_text(pStmt, 0));
-      if( azResult[nRow] ) nRow++;
+      if( 0==azResult[nRow] ){
+        rc = shellNomemError();
+        break;
+      }
+      nRow++;
     }
-    sqlite3_finalize(pStmt);        
-    if( nRow>0 ){
+    if( sqlite3_finalize(pStmt)!=SQLITE_OK ){
+      rc = shellDatabaseError(p->db);
+    }
+
+    /* Pretty-print the contents of array azResult[] to the output */
+    if( rc==0 && nRow>0 ){
       int len, maxlen = 0;
       int i, j;
       int nPrintCol, nPrintRow;
@@ -3781,6 +3819,7 @@ static int do_meta_command(char *zLine, ShellState *p){
         fprintf(p->out, "\n");
       }
     }
+
     for(ii=0; ii<nRow; ii++) sqlite3_free(azResult[ii]);
     sqlite3_free(azResult);
   }else
@@ -3815,7 +3854,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     /* convert testctrl text option to value. allow any unique prefix
     ** of the option name, or a numerical value. */
     n2 = strlen30(azArg[1]);
-    for(i=0; i<(int)(sizeof(aCtrl)/sizeof(aCtrl[0])); i++){
+    for(i=0; i<ArraySize(aCtrl); i++){
       if( strncmp(azArg[1], aCtrl[i].zCtrlName, n2)==0 ){
         if( testctrl<0 ){
           testctrl = aCtrl[i].ctrlCode;
@@ -4248,8 +4287,8 @@ static int process_input(ShellState *p, FILE *in){
       fprintf(stderr, "Error: incomplete SQL: %s\n", zSql);
       errCnt++;
     }
-    free(zSql);
   }
+  free(zSql);
   free(zLine);
   return errCnt>0;
 }
@@ -4792,7 +4831,7 @@ int SQLITE_CDECL main(int argc, char **argv){
           sqlite3_snprintf(nHistory, zHistory,"%s/.sqlite_history", zHome);
         }
       }
-      if( zHistory ) shell_read_history(zHistory);
+      if( zHistory ){ shell_read_history(zHistory); }
       rc = process_input(&data, 0);
       if( zHistory ){
         shell_stifle_history(100);

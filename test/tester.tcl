@@ -89,9 +89,26 @@ proc protOut {msg} {
   }
 }
 
-# Run the fossil program
+# Run the Fossil program with the specified arguments.
+#
+# Consults the VERBOSE global variable to determine if
+# diagnostics should be emitted when no error is seen.
+# Sets the CODE and RESULT global variables for use in
+# test expressions.
 #
 proc fossil {args} {
+  return [uplevel 1 fossil_maybe_answer [list ""] $args]
+}
+
+# Run the Fossil program with the specified arguments
+# and possibly answer the first prompt, if any.
+#
+# Consults the VERBOSE global variable to determine if
+# diagnostics should be emitted when no error is seen.
+# Sets the CODE and RESULT global variables for use in
+# test expressions.
+#
+proc fossil_maybe_answer {answer args} {
   global fossilexe
   set cmd $fossilexe
   foreach a $args {
@@ -100,7 +117,14 @@ proc fossil {args} {
   protOut $cmd
 
   flush stdout
-  set rc [catch {eval exec $cmd} result]
+  if {[string length $answer] > 0} {
+    set prompt_file [file join $::tempPath fossil_prompt_answer]
+    write_file $prompt_file $answer\n
+    set rc [catch {eval exec $cmd <$prompt_file} result]
+    file delete $prompt_file
+  } else {
+    set rc [catch {eval exec $cmd} result]
+  }
   global RESULT CODE
   set CODE $rc
   if {$rc} {

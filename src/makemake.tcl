@@ -163,6 +163,8 @@ set SQLITE_OPTIONS {
   -DSQLITE_ENABLE_FTS4
   -DSQLITE_ENABLE_FTS3_PARENTHESIS
   -DSQLITE_ENABLE_DBSTAT_VTAB
+  -DSQLITE_ENABLE_JSON1
+  -DSQLITE_ENABLE_FTS5
 }
 #lappend SQLITE_OPTIONS -DSQLITE_ENABLE_FTS3=1
 #lappend SQLITE_OPTIONS -DSQLITE_ENABLE_STAT4
@@ -458,6 +460,10 @@ writeln {#!/usr/bin/make
 # This is a makefile for use on Cygwin/Darwin/FreeBSD/Linux/Windows using
 # MinGW or MinGW-w64.
 #
+# Some of the special options which can be passed to make
+#   USE_WINDOWS=1    if building under a windows command prompt
+#   X64=1            if using an unprefixed 64-bit mingw compiler
+#
 
 #### Select one of MinGW, MinGW-w64 (32-bit) or MinGW-w64 (64-bit) compilers.
 #    By default, this is an empty string (i.e. use the native compiler).
@@ -603,7 +609,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2c
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2d
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -650,19 +656,21 @@ endif
 #    the finished binary for fossil.  The BCC compiler above is used
 #    for building intermediate code-generator tools.
 #
-TCC = $(PREFIX)gcc -Os -Wall
-
-#### When not using the miniz compression library, zlib is required.
-#
-ifndef FOSSIL_ENABLE_MINIZ
-TCC += -L$(ZLIBDIR) -I$(ZINCDIR)
-endif
+TCC = $(PREFIX)gcc -Wall
 
 #### Add the necessary command line options to build with debugging
 #    symbols, if enabled.
 #
 ifdef FOSSIL_ENABLE_SYMBOLS
 TCC += -g
+else
+TCC += -Os
+endif
+
+#### When not using the miniz compression library, zlib is required.
+#
+ifndef FOSSIL_ENABLE_MINIZ
+TCC += -L$(ZLIBDIR) -I$(ZINCDIR)
 endif
 
 #### Compile resources for use in building executables that will run
@@ -1336,7 +1344,7 @@ FOSSIL_BUILD_SSL = 0
 
 # Build the included zlib library?
 !ifndef FOSSIL_BUILD_ZLIB
-FOSSIL_BUILD_ZLIB = 0
+FOSSIL_BUILD_ZLIB = 1
 !endif
 
 # Link everything except SQLite dynamically?
@@ -1390,7 +1398,7 @@ FOSSIL_ENABLE_WINXP = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.0.2c
+SSLDIR    = $(B)\compat\openssl-1.0.2d
 SSLINCDIR = $(SSLDIR)\inc32
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)\out32dll

@@ -242,7 +242,9 @@ int win32_access(const wchar_t *zFilename, int flags){
 
     rc = -1; goto done;
   }
-  if( !accessYesNo ) rc = -1;
+  if( !accessYesNo ){
+    rc = -1;
+  }
 
 done:
 

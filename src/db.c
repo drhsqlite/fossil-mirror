@@ -1976,8 +1976,9 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
         "setting %s has both versioned and non-versioned values: using "
         "versioned value from file .fossil-settings/%s (to silence this "
         "warning, either create an empty file named "
-        ".fossil-settings/%s.no-warn or delete the non-versioned setting "
-        " with \"fossil unset %s\")", zName, zName, zName, zName
+        ".fossil-settings/%s.no-warn in the check-out root, "
+        "or delete the non-versioned setting "
+        "with \"fossil unset %s\")", zName, zName, zName, zName
     );
   }
   /* Prefer the versioned setting */
@@ -1994,7 +1995,7 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
 ** setting is returned instead.  If zName is a versioned setting, then
 ** versioned value takes priority.
 */
-char *db_get(const char *zName, char *zDefault){
+char *db_get(const char *zName, const char *zDefault){
   char *z = 0;
   const Setting *pSetting = db_find_setting(zName, 0);
   if( g.repositoryOpen ){
@@ -2014,18 +2015,18 @@ char *db_get(const char *zName, char *zDefault){
     if( zDefault==0 && pSetting && pSetting->def[0] ){
       z = fossil_strdup(pSetting->def);
     }else{
-      z = zDefault;
+      z = fossil_strdup(zDefault);
     }
   }
   return z;
 }
-char *db_get_mtime(const char *zName, char *zFormat, char *zDefault){
+char *db_get_mtime(const char *zName, const char *zFormat, const char *zDefault){
   char *z = 0;
   if( g.repositoryOpen ){
     z = db_text(0, "SELECT mtime FROM config WHERE name=%Q", zName);
   }
   if( z==0 ){
-    z = zDefault;
+    z = fossil_strdup(zDefault);
   }else if( zFormat!=0 ){
     z = db_text(0, "SELECT strftime(%Q,%Q,'unixepoch');", zFormat, z);
   }
@@ -2111,8 +2112,8 @@ int db_get_boolean(const char *zName, int dflt){
   if( is_false(zVal) ) return 0;
   return dflt;
 }
-char *db_lget(const char *zName, char *zDefault){
-  return db_text((char*)zDefault,
+char *db_lget(const char *zName, const char *zDefault){
+  return db_text(zDefault,
                  "SELECT value FROM vvar WHERE name=%Q", zName);
 }
 void db_lset(const char *zName, const char *zValue){
@@ -2469,7 +2470,7 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 ** With a value argument it changes the property for the current repository.
 **
 ** Settings marked as versionable are overridden by the contents of the
-** file named .fossil-settings/PROPERTY in the checked out files, if that
+** file named .fossil-settings/PROPERTY in the check-out root, if that
 ** file exists.
 **
 ** The "unset" command clears a property setting.

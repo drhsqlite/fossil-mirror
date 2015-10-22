@@ -464,8 +464,8 @@ static void stats_report_day_of_week(const char *zUserName){
                                         all rows. */
   Blob userFilter = empty_blob;      /* Optional user=johndoe query string */
   static const char *const daysOfWeek[] = {
-  "Monday", "Tuesday", "Wednesday", "Thursday",
-  "Friday", "Saturday", "Sunday"
+  "Sunday", "Monday", "Tuesday", "Wednesday",
+  "Thursday", "Friday", "Saturday"
   };
 
   stats_report_init_view();
@@ -473,7 +473,7 @@ static void stats_report_day_of_week(const char *zUserName){
     blob_appendf(&userFilter, "user=%s", zUserName);
   }
   db_prepare(&query,
-               "SELECT cast(mtime %% 7 AS INTEGER) dow,"
+               "SELECT cast(strftime('%%w', mtime) AS INTEGER) dow,"
                "       COUNT(*) AS eventCount"
                "  FROM v_reports"
                " WHERE ifnull(coalesce(euser,user,'')=%Q,1)"
@@ -486,17 +486,18 @@ static void stats_report_day_of_week(const char *zUserName){
   db_multi_exec(
     "CREATE TEMP TABLE piechart(amt,label);"
     "INSERT INTO piechart"
-    " SELECT count(*), cast(mtime %% 7 AS INT) FROM v_reports"
+    " SELECT count(*), cast(strftime('%%w', mtime) AS INT) FROM v_reports"
      " WHERE ifnull(coalesce(euser,user,'')=%Q,1)"
      " GROUP BY 2 ORDER BY 2;"
     "UPDATE piechart SET label = CASE label"
-    "  WHEN 0 THEN 'Monday'"
-    "  WHEN 1 THEN 'Tuesday'"
-    "  WHEN 2 THEN 'Wednesday'"
-    "  WHEN 3 THEN 'Thursday'"
-    "  WHEN 4 THEN 'Friday'"
-    "  WHEN 5 THEN 'Saturday'"
-    "  ELSE 'Sunday' END;", zUserName
+    "  WHEN 0 THEN 'Sunday'"
+    "  WHEN 1 THEN 'Monday'"
+    "  WHEN 2 THEN 'Tuesday'"
+    "  WHEN 3 THEN 'Wednesday'"
+    "  WHEN 4 THEN 'Thursday'"
+    "  WHEN 5 THEN 'Friday'"
+    "  WHEN 6 THEN 'Saturday'"
+    "  ELSE 'ERROR' END;", zUserName
   );
   if( db_int(0, "SELECT count(*) FROM piechart")>=2 ){
     @ <center><svg width=700 height=400>

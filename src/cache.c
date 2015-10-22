@@ -242,7 +242,7 @@ void cache_initialize(void){
 ** Usage: %fossil cache SUBCOMMAND
 **
 ** Manage the cache used for potentially expensive web pages such as
-** /zip and /tarball.   SUBCOMMAND an be:
+** /zip and /tarball.   SUBCOMMAND can be:
 **
 **    clear        Remove all entries from the cache.
 **

@@ -430,7 +430,7 @@ static int stash_get_id(const char *zStashId){
 **     List all changes sets currently stashed.  Show information about
 **     individual files in each changeset if -v or --verbose is used.
 **
-**  fossil stash show ?STASHID? ?DIFF-FLAGS?
+**  fossil stash show|cat ?STASHID? ?DIFF-FLAGS?
 **
 **     Show the content of a stash
 **
@@ -466,7 +466,7 @@ static int stash_get_id(const char *zStashId){
 **  fossil stash save ?-m|--comment COMMENT? ?FILES...?
 **  fossil stash snapshot ?-m|--comment COMMENT? ?FILES...?
 **  fossil stash list|ls  ?-v|--verbose? ?-W|--width <num>?
-**  fossil stash show ?STASHID? ?DIFF-OPTIONS?
+**  fossil stash show|cat ?STASHID? ?DIFF-OPTIONS?
 **  fossil stash pop
 **  fossil stash apply ?STASHID?
 **  fossil stash goto ?STASHID?
@@ -505,6 +505,7 @@ void stash_cmd(void){
       }
       db_finalize(&q);
       newArgv[0] = g.argv[0];
+      newArgv[1] = 0;
       g.argv = newArgv;
       g.argc = nFile+2;
       if( nFile==0 ) return;
@@ -639,6 +640,7 @@ void stash_cmd(void){
   if( memcmp(zCmd, "diff", nCmd)==0
    || memcmp(zCmd, "gdiff", nCmd)==0
    || memcmp(zCmd, "show", nCmd)==0
+   || memcmp(zCmd, "cat", nCmd)==0
   ){
     const char *zDiffCmd = 0;
     const char *zBinGlob = 0;
@@ -647,7 +649,15 @@ void stash_cmd(void){
 
     if( find_option("tk",0,0)!=0 ){
       db_close(0);
-      diff_tk((zCmd[0]=='s' ? "stash show" : "stash diff"), 3);
+        switch (zCmd[0]) {
+        case 's':
+        case 'c':
+          diff_tk("stash show", 3);
+          break;
+
+        default:
+          diff_tk("stash diff", 3);
+        }
       return;
     }
     if( find_option("internal","i",0)==0 ){

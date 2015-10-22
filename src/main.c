@@ -685,15 +685,28 @@ int main(int argc, char **argv)
       fossil_fatal("unable to change directories to %s", zChdir);
     }
     if( find_option("help",0,0)!=0 ){
-      /* --help anywhere on the command line is translated into
-      ** "fossil help argv[1] argv[2]..." */
-      int i;
+      /* If --help is found anywhere on the command line, translate the command
+       * to "fossil help cmdname" where "cmdname" is the first argument that
+       * does not begin with a "-" character.  If all arguments start with "-",
+       * translate to "fossil help argv[1] argv[2]...". */
+      int i, nNewArgc;
       char **zNewArgv = fossil_malloc( sizeof(char*)*(g.argc+2) );
-      for(i=1; i<g.argc; i++) zNewArgv[i+1] = g.argv[i];
-      zNewArgv[i+1] = 0;
       zNewArgv[0] = g.argv[0];
       zNewArgv[1] = "help";
-      g.argc++;
+      for(i=1; i<g.argc; i++){
+        if( g.argv[i][0]!='-' ){
+          nNewArgc = 3;
+          zNewArgv[2] = g.argv[i];
+          zNewArgv[3] = 0;
+          break;
+        }
+      }
+      if( i==g.argc ){
+        for(i=1; i<g.argc; i++) zNewArgv[i+1] = g.argv[i];
+        nNewArgc = g.argc+1;
+        zNewArgv[i+1] = 0;
+      }
+      g.argc = nNewArgc;
       g.argv = zNewArgv;
     }
     zCmdName = g.argv[1];
@@ -864,6 +877,40 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
     }
   }
   return zReturn;
+}
+
+/*
+** Look for multiple occurrences of a command-line option with the
+** corresponding argument.
+**
+** Return a malloc allocated array of pointers to the arguments.
+**
+** pnUsedArgs is used to store the number of matched arguments.
+**
+** Caller is responsible to free allocated memory.
+*/
+const char **find_repeatable_option(
+  const char *zLong,
+  const char *zShort,
+  int *pnUsedArgs
+){
+  const char *zOption;
+  const char **pzArgs = 0;
+  int nAllocArgs = 0;
+  int nUsedArgs = 0;
+
+  while( (zOption = find_option(zLong, zShort, 1))!=0 ){
+    if( pzArgs==0 && nAllocArgs==0 ){
+      nAllocArgs = 1;
+      pzArgs = fossil_malloc( nAllocArgs*sizeof(pzArgs[0]) );
+    }else if( nAllocArgs<=nUsedArgs ){
+      nAllocArgs = nAllocArgs*2;
+      pzArgs = fossil_realloc( pzArgs, nAllocArgs*sizeof(pzArgs[0]) );
+    }
+    pzArgs[nUsedArgs++] = zOption;
+  }
+  *pnUsedArgs = nUsedArgs;
+  return pzArgs;
 }
 
 /*
@@ -1449,7 +1496,7 @@ static int repo_list_page(void){
   db_multi_exec("CREATE TABLE sfile(x TEXT);");
   db_multi_exec("CREATE TABLE vfile(pathname);");
   vfile_scan(&base, blob_size(&base), 0, 0, 0);
-  db_multi_exec("DELETE FROM sfile WHERE x NOT GLOB '*.fossil'");
+  db_multi_exec("DELETE FROM sfile WHERE x NOT GLOB '*[^/].fossil'");
   n = db_int(0, "SELECT count(*) FROM sfile");
   if( n>0 ){
     Stmt q;
@@ -1544,7 +1591,7 @@ static void process_one_web_page(
         szFile = 1;
         break;
       }
-      if( szFile==0 ){
+      if( szFile==0 && sqlite3_strglob("*/.fossil",zRepo)!=0 ){
         if( zRepo[0]=='/' && zRepo[1]=='/' ){ zRepo++; j--; }
         szFile = file_size(zRepo);
         /* this should only be set from the --baseurl option, not CGI  */
