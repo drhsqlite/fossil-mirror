@@ -666,6 +666,8 @@ static int searchableCmd(
 ** "unicodeCmdLine"  = !BROKEN_MINGW_CMDLINE
 ** "dynamicBuild"    = FOSSIL_DYNAMIC_BUILD
 **
+** Specifying an unknown feature will return a value of false, it will not
+** raise a script error.
 */
 static int hasfeatureCmd(
   Th_Interp *interp,
