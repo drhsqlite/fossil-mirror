@@ -1,5 +1,5 @@
-C Cherry-pick\sunrelated\scomment\sfixes\sfrom\s"pending_review"\sbranch.
-D 2015-10-22T11:36:40.253
+C Fix\s"json\stimeline"\sto\sdon't\sshow\sduplicate\sfiles\sin\ssome\schek-ins\nwith\smerge.\sSame\sway\sCLI\stimeline\swas\sfix\son\s[3c34db8d].
+D 2015-10-24T14:10:21.822
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -433,7 +433,7 @@ F src/json_query.c 15f7b943478b3fa4a423aefb5a022e6e9513abc7
 F src/json_report.c ae998f37dee54fa0b6c898de29b2f34d9a0d87b7
 F src/json_status.c 0a9f959d19f4b90c879ad50ef0cd376262d8247b
 F src/json_tag.c 2a9e6dac502055a795ef6ade37faa024d480015b
-F src/json_timeline.c a8aece1a959dd8cae0d5a99f61cc5d31802b4e4b
+F src/json_timeline.c 6262750d2ef0ae4126487909c408459e17b34ed0
 F src/json_user.c 66fc65a1647616819074eb8ae4534f0822b2fb55
 F src/json_wiki.c fca83828f069a0964f7b5e72dc4e8793e8571707
 F src/leaf.c df47f8f52ed1ebeb3b7f5c7b92c62351b177d458
@@ -742,7 +742,7 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 3b691ce90c8f7264104dcea9d5074e2d409dfd7e
-R f5568de076b0bc9cde4e71b188aa638a
-U jan.nijtmans
-Z 9a54786b36f8dd556feeb02b2bd4894b
+P c1c8d728f937bda08c4187d4709546171a4eab7e
+R ddbc28642431fb80ad82bc56636ac47e
+U mgagnon
+Z 8a47a80b2a4e560ecfe988f8ddeefc41
