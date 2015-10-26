@@ -403,6 +403,10 @@ static void diff_all_against_disk(
       fossil_print("ADDED_BY_MERGE %s\n", zPathname);
       srcid = 0;
       if( !asNewFile ){ showDiff = 0; }
+    }else if( isChnged==5 ){
+      fossil_print("ADDED_BY_INTEGRATE %s\n", zPathname);
+      srcid = 0;
+      if( !asNewFile ){ showDiff = 0; }
     }
     if( showDiff ){
       Blob content;

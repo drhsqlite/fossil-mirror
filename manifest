@@ -1,5 +1,5 @@
-C Fix\s"json\stimeline"\sto\sdon't\sshow\sduplicate\sfiles\sin\ssome\schek-ins\nwith\smerge.\sSame\sway\sCLI\stimeline\swas\sfix\son\s[3c34db8d].
-D 2015-10-24T14:10:21.822
+C Skip\sdiff\sfor\sfiles\sthat\sare\sADDED_BY_INTEGRATE.
+D 2015-10-26T01:18:10.608
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -402,7 +402,7 @@ F src/deltacmd.c 4ff465c4331af328c6691103745de17e92d36007
 F src/descendants.c 1eb2bb891117be886ac87a7db842293221639326
 F src/diff.c 4600d39f61675941c756f5425e6bd5702f35eedf
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
-F src/diffcmd.c f8c56e25d851fc58b16b311959abf2caf0638027
+F src/diffcmd.c 82f3f7bdfbe1e44959c783e9a9acb79358445d55
 F src/doc.c cf011a280fcf21da2a46b5c52e103283eab6bfbb
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
@@ -742,7 +742,7 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P c1c8d728f937bda08c4187d4709546171a4eab7e
-R ddbc28642431fb80ad82bc56636ac47e
-U mgagnon
-Z 8a47a80b2a4e560ecfe988f8ddeefc41
+P 26d903de0c1f17f8d7e528621dd429ffe6535c77
+R 3e69fe8c743484b80337259b62596545
+U mistachkin
+Z 33e8caf7f5627fbcbdc974b3b46eac10
