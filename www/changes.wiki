@@ -2,8 +2,6 @@
 
 <h2>Changes for Version 1.34 (2015-??-??)</h2>
 
-  *  Fix --hard option to [/help?cmd=mv|fossil mv] and [/help?cmd=rm|fossil rm]
-     to enable them to work properly with certain relative paths.
   *  Make the [/help?cmd=clean|fossil clean] command undoable for files less
      than 10MiB.
   *  Update internal Unicode character tables, used in regular expression
@@ -28,6 +26,10 @@
      the [/help?cmd=sqlite3|fossil sql] command on Unix platforms.
   *  Add [/help?cmd=stash|stash cat] as an alias for the
      [/help?cmd=stash|stash show] command.
+  *  Automatically pull before [/help?cmd=merge|fossil merge] when auto-sync
+     is enabled.
+  *  Fix --hard option to [/help?cmd=mv|fossil mv] and [/help?cmd=rm|fossil rm]
+     to enable them to work properly with certain relative paths.
   *  Updated the built-in SQLite to version 3.9.1 and activated JSON1 and FTS5
      support (both currently unused within Fossil).
 

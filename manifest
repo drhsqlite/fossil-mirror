@@ -1,5 +1,5 @@
-C Add\sthe\s'exec-rel-paths'\ssetting\sand\sits\smachinery\sto\spermit\srelative\spaths\sto\sbe\sused\swhen\scalling\sexternal\sdiffing\stools.
-D 2015-10-27T01:21:09.462
+C Updates\sto\sthe\schange\slog.\s\sTrying\sto\sget\sthe\snext\srelease\sout...
+D 2015-10-27T18:19:08.810
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -658,7 +658,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 2f0e8e5909ee610b28d190c88dd916706de41312
-F www/changes.wiki f5b684d732cfc3b0b4fa6cca0de5727dd153c2fa
+F www/changes.wiki fc484e9e745c2fa8bf8d84dc0bef120614dd0ecd
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 115a0ecdac918232061bbc19124ea83e0a27d938
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -742,8 +742,7 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 16501a04a726bb1d8d46820e2b67cf6e53785ea7 af7de966ff68c1bc03e4a6e74eef4df4601c5dc1
-R 9a43c82990e6086e169ec111f79414fd
-T +closed af7de966ff68c1bc03e4a6e74eef4df4601c5dc1
-U mistachkin
-Z 841deba5cedbbb5b4af6d54182da1846
+P 825d78b6f7d080558278ce821c6578878e43bcef
+R be0fcb63ca9d61ac79557ce6841477cd
+U drh
+Z d40c7973779d890fa86515c41a891e7f
