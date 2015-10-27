@@ -59,6 +59,10 @@ FOSSIL_ENABLE_SSL = 1
 #
 # FOSSIL_BUILD_SSL = 1
 
+#### Enable relative paths in external diff/gdiff
+#
+# FOSSIL_ENABLE_EXEC_REL_PATHS = 1
+
 #### Enable legacy treatment of mv/rm (skip checkout files)
 #
 FOSSIL_ENABLE_LEGACY_MV_RM = 1
@@ -262,6 +266,12 @@ endif
 ifdef FOSSIL_ENABLE_SSL
 TCC += -DFOSSIL_ENABLE_SSL=1
 RCC += -DFOSSIL_ENABLE_SSL=1
+endif
+
+# With relative paths in external diff/gdiff
+ifdef FOSSIL_ENABLE_EXEC_REL_PATHS
+TCC += -DFOSSIL_ENABLE_EXEC_REL_PATHS=1
+RCC += -DFOSSIL_ENABLE_EXEC_REL_PATHS=1
 endif
 
 # With legacy treatment of mv/rm

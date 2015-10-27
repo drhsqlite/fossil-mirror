@@ -36,6 +36,28 @@
 #define DIFF_NO_NAME  "(unknown)"
 
 /*
+** Use the "exec-rel-paths" setting and the --exec-abs-paths and
+** --exec-rel-paths command line options to determine whether
+** certain external commands are executed using relative paths.
+*/
+static int determine_exec_relative_option(int force)
+{
+  static int relativePaths = -1;
+  if( force || relativePaths==-1 ){
+    int relPathOption = find_option("exec-rel-paths", 0, 0)!=0;
+    int absPathOption = find_option("exec-abs-paths", 0, 0)!=0;
+#if defined(FOSSIL_ENABLE_EXEC_REL_PATHS)
+    relativePaths = db_get_boolean("exec-rel-paths", 1);
+#else
+    relativePaths = db_get_boolean("exec-rel-paths", 0);
+#endif
+    if( relPathOption ){ relativePaths = 1; }
+    if( absPathOption ){ relativePaths = 0; }
+  }
+  return relativePaths;
+}
+
+/*
 ** Print the "Index:" message that patches wants to see at the top of a diff.
 */
 void diff_print_index(const char *zFile, u64 diffFlags){
@@ -386,9 +408,18 @@ static void diff_all_against_disk(
     int isNew = db_column_int(&q,3);
     int srcid = db_column_int(&q, 4);
     int isLink = db_column_int(&q, 5);
-    char *zToFree = mprintf("%s%s", g.zLocalRoot, zPathname);
-    const char *zFullName = zToFree;
+    const char *zFullName;
     int showDiff = 1;
+    Blob fname;
+
+    if( determine_exec_relative_option(0) ){
+      blob_zero(&fname);
+      file_relative_name(zPathname, &fname, 1);
+    }else{
+      blob_set(&fname, g.zLocalRoot);
+      blob_append(&fname, zPathname, -1);
+    }
+    zFullName = blob_str(&fname);
     if( isDeleted ){
       fossil_print("DELETED  %s\n", zPathname);
       if( !asNewFile ){ showDiff = 0; zFullName = NULL_DEVICE; }
@@ -428,7 +459,7 @@ static void diff_all_against_disk(
                 zBinGlob, fIncludeBinary, diffFlags);
       blob_reset(&content);
     }
-    free(zToFree);
+    blob_reset(&fname);
   }
   db_finalize(&q);
   db_end_transaction(1);  /* ROLLBACK */
@@ -818,6 +849,8 @@ const char *diff_get_binary_glob(void){
 **   --brief                    Show filenames only
 **   --context|-c N             Use N lines of context
 **   --diff-binary BOOL         Include binary files when using external commands
+**   --exec-abs-paths           Force absolute path names with external commands.
+**   --exec-rel-paths           Force relative path names with external commands.
 **   --from|-r VERSION          select VERSION as source for the diff
 **   --internal|-i              use internal diff logic
 **   --side-by-side|-y          side-by-side diff
@@ -882,6 +915,7 @@ void diff_cmd(void){
   }
   zBinGlob = diff_get_binary_glob();
   fIncludeBinary = diff_include_binary_files();
+  determine_exec_relative_option(1);
   verify_all_options();
   if( againstUndo ){
     if( db_lget_int("undo_available",0)==0 ){
