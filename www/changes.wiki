@@ -30,6 +30,7 @@
      is enabled.
   *  Fix --hard option to [/help?cmd=mv|fossil mv] and [/help?cmd=rm|fossil rm]
      to enable them to work properly with certain relative paths.
+  *  Change the mimetype for ".n" and ".man" files to text/plain.
   *  Updated the built-in SQLite to version 3.9.1 and activated JSON1 and FTS5
      support (both currently unused within Fossil).
 
