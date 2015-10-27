@@ -22,7 +22,7 @@
      <nowiki>[string is]</nowiki> command.</li>
      </ul>
   *  Add the --undo option to the [/help?cmd=diff|diff] command.
-  *  Build-in Antirez's "linenoise" command-linen editing library for use with
+  *  Build-in Antirez's "linenoise" command-line editing library for use with
      the [/help?cmd=sqlite3|fossil sql] command on Unix platforms.
   *  Add [/help?cmd=stash|stash cat] as an alias for the
      [/help?cmd=stash|stash show] command.
