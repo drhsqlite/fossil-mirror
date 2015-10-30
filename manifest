@@ -1,5 +1,5 @@
-C Add\sthe\smissing\simage\sfile\sfrom\sthe\sprevious\scheck-in.
-D 2015-10-30T12:19:47.848
+C Update\sthe\s"fossil\sbisect\schart"\sdisplay\sso\sthat\sno\scheck-in\sis\sshown\smore\nthan\sonce.\s\sCURRENT\sis\smarked\son\sthe\sright\sif\sit\soverlaps\swith\sa\sGOOD\sor\nBAD\scheck-in.
+D 2015-10-30T23:04:28.321
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -375,7 +375,7 @@ F src/add.c 7c06f8c8271792ea3945085c5c03a2479c27baac
 F src/allrepo.c ea9a13512f43925d8d6cceee4e757c55a80910d9
 F src/attach.c 5b713ffe437fa0c3241da307835b1286e38798fd
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
-F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
+F src/bisect.c b4605827ce1951704922050e6c051c8f9ce0d614
 F src/blob.c 10ee0528085b90be013d53935bceeeb83a7b1027
 F src/branch.c 09724980278de18e9bbff5da85950c3febd811eb
 F src/browse.c 904f68c2a82bed2b9533b76a3497a961d2ae25d9
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 227b837a6c68697231cd62dbfa1bd0da778f5e22
-R 49aad551ccb9c9b5b8e7f2027436f4e6
+P f188505daff63ca88b931380b1a6149fdd56b816
+R bf37e6800c9504e1bd816efd68eedc77
 U drh
-Z 21a48c7279b8d6e560063790047d62c6
+Z d0d6d2fbc17c9337d496d5fa54ddce98
