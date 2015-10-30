@@ -1,5 +1,5 @@
-C Correct\stypo\sin\schange\slog.
-D 2015-10-27T23:59:26.128
+C Add\sthe\s[http://xkcd.com/1597/]\scartoon\sto\sthe\sset\sof\squotes\sabout\sGit.
+D 2015-10-30T12:16:21.495
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -722,7 +722,7 @@ F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
 F www/private.wiki 72344489bbae6f7955369559b6ab22e01a64259b
 F www/qandc.wiki e07b21da221b05afeb1905f17af3765045952ba8
 F www/quickstart.wiki aa6a95f181fad1f7806016ed463b4875ec06dd8a
-F www/quotes.wiki fa2ad9c946c067e965b920d50a57c115a07b012b
+F www/quotes.wiki 09a040dcc9ae1c3a9121940e3a2255471f8d59cf
 F www/reviews.wiki 866e545f89fce7cff29c96a29ab10586692f3964
 F www/scgi.wiki 45a497a26ea940ef945a4c34cc1458ddddf304d6
 F www/selfcheck.wiki d1e2fc5baf9ade46815499c9758256a22efe8142
@@ -742,7 +742,7 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P addf43c0ddefd19c41cb99a344c640fdc5fb4760
-R 4f9e5d8fffce56ca04443702163ac182
-U mistachkin
-Z 657513fdf297d997de4f002e255b5fdc
+P 37f7b0fb000b4256e7f1690bd9547559bdee3695
+R baef35228ba55f955811507f3ea6758d
+U drh
+Z ef382044e984e8a6efce7bf945db6369
