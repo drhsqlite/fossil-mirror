@@ -115,7 +115,7 @@ summarize the commands available in TH1:
   *  upvar ?FRAME? OTHERVAR MYVAR ?OTHERVAR MYVAR?
 
 All of the above commands works as in the original Tcl.  Refer to the
-<a href="https://www.tcl.tk/man/tcl/contents.htm">Tcl documentation</a>
+<a href="https://www.tcl-lang.org/man/tcl/contents.htm">Tcl documentation</a>
 for details.
 
 TH1 Extended Commands
