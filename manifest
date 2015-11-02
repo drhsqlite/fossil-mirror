@@ -1,5 +1,5 @@
-C Change\sall\sreferences\sto\sthe\stcl.tk\sdomain\sinto\stcl-lang.org.
-D 2015-11-01T18:14:50.449
+C Version\s1.34
+D 2015-11-02T17:35:44.800
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -658,7 +658,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 2f0e8e5909ee610b28d190c88dd916706de41312
-F www/changes.wiki 4f39f48025238f3d2c4f095135f9a603f68bab9b
+F www/changes.wiki e5c305362f50718bcd89f93538742ab3d9742fb1
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 115a0ecdac918232061bbc19124ea83e0a27d938
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -743,7 +743,10 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4da2f012662b72097cf0115e10040a2b193e0f30
-R 5515e5185ec24b124503e4500044ac00
+P 808cda318db31b21e182a334b23a657368f8f58a
+R f163bb2a006c2485e882afdc71652d25
+T +bgcolor * #d0c0ff
+T +sym-release *
+T +sym-version-1.34 *
 U drh
-Z 20f75e0bfdf722acc1c32b190c4a8422
+Z 5308f64d9dc95c67aed2e7ff0593b364

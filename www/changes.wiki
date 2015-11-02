@@ -1,6 +1,6 @@
 <title>Change Log</title>
 
-<h2>Changes for Version 1.34 (2015-??-??)</h2>
+<h2>Changes for Version 1.34 (2015-11-02)</h2>
 
   *  Make the [/help?cmd=clean|fossil clean] command undoable for files less
      than 10MiB.
@@ -31,6 +31,7 @@
   *  Fix --hard option to [/help?cmd=mv|fossil mv] and [/help?cmd=rm|fossil rm]
      to enable them to work properly with certain relative paths.
   *  Change the mimetype for ".n" and ".man" files to text/plain.
+  *  Display improvements in the [/help?cmd=bisect|fossil bisect chart] command.
   *  Updated the built-in SQLite to version 3.9.1 and activated JSON1 and FTS5
      support (both currently unused within Fossil).
 
