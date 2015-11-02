@@ -1,5 +1,5 @@
-C Document\sthe\s--quiet\soption\sto\s"fossil\srebuild"
-D 2015-11-02T18:51:01.421
+C Indicate\sthat\sOpenBSD\sbuilds\sare\s5.x\snot\s4.x.
+D 2015-11-02T20:13:06.200
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -713,7 +713,7 @@ F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki 89c650d5efb9273a21296d3b209bd1d00a4d230d
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki f75b16c8bb734fe20d0d524c658f05dab006316c
-F www/mkdownload.tcl 2adb240f61ff7f6027e5f00b5920f74b9e6680f2
+F www/mkdownload.tcl c3b00842fac3b2be493a91dc0d8ebf79e2aebb1e
 F www/mkindex.tcl fc48247219c0dde8e35b723a25de85e11c63d58f
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 336916afde4ff470e87fc43066063623a9a74c8a
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 62dcb00e68b792063f2067b6087befddf6fd89d0
-R 3fa2d6236b80d8cce87eb501e83f88aa
+P a25702b0192334117ae2a76265c0dad2c03aaffe
+R 268df8009efdfe6b366ae898163bb73f
 U drh
-Z 931e059491ca5ea6a30194a4700a51a4
+Z b1a62cb4830d9d108ab21f820644b39c
