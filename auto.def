@@ -166,36 +166,36 @@ if {$tclpath ne ""} {
     }
     set cflags $tclconfig(TCL_INCLUDE_SPEC)
     if {!$tclprivatestubs} {
-        set libtclfailcount 0
+        set foundtcl 0; # Did we find a working Tcl library?
         cc-with [list -cflags $cflags -libs $libs] {
             if {$tclstubs} {
-                if {![cc-check-functions Tcl_InitStubs]} {
-                    incr libtclfailcount
+                if {[cc-check-functions Tcl_InitStubs]} {
+                    set foundtcl 1
                 }
             } else {
-                if {![cc-check-functions Tcl_CreateInterp]} {
-                    incr libtclfailcount
+                if {[cc-check-functions Tcl_CreateInterp]} {
+                    set foundtcl 1
                 }
             }
         }
-        if {$libtclfailcount >= 1} {
+        if {!$foundtcl && [string match *-lieee* $libs]} {
             # On some systems, using "-lieee" from TCL_LIB_SPEC appears
             # to cause issues.
             msg-result "Removing \"-lieee\" and retrying for Tcl..."
             set libs [string map [list -lieee ""] $libs]
             cc-with [list -cflags $cflags -libs $libs] {
                 if {$tclstubs} {
-                    if {![cc-check-functions Tcl_InitStubs]} {
-                        incr libtclfailcount
+                    if {[cc-check-functions Tcl_InitStubs]} {
+                        set foundtcl 1
                     }
                 } else {
-                    if {![cc-check-functions Tcl_CreateInterp]} {
-                        incr libtclfailcount
+                    if {[cc-check-functions Tcl_CreateInterp]} {
+                        set foundtcl 1
                     }
                 }
             }
         }
-        if {$libtclfailcount >= 2} {
+        if {!$foundtcl} {
             if {$tclstubs} {
                 user-error "Cannot find a usable Tcl stubs library $msg"
             } else {
