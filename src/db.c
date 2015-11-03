@@ -2358,7 +2358,11 @@ struct Setting {
 const Setting aSetting[] = {
   { "access-log",       0,              0, 0, 0, "off"                 },
   { "admin-log",        0,              0, 0, 0, "off"                 },
+#if defined(_WIN32)
   { "allow-symlinks",   0,              0, 1, 0, "off"                 },
+#else
+  { "allow-symlinks",   0,              0, 1, 0, "on"                  },
+#endif
   { "auto-captcha",     "autocaptcha",  0, 0, 0, "on"                  },
   { "auto-hyperlink",   0,              0, 0, 0, "on",                 },
   { "auto-shun",        0,              0, 0, 0, "on"                  },
