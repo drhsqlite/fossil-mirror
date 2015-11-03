@@ -2249,12 +2249,6 @@ void cmd_open(void){
     }
   }
 
-  if( g.zOpenRevision ){
-    /* Since the repository is open and we know the revision now,
-    ** refresh the allow-symlinks flag. */
-    g.allowSymlinks = db_get_boolean("allow-symlinks", 0);
-  }
-
 #if defined(_WIN32) || defined(__CYGWIN__)
 # define LOCALDB_NAME "./_FOSSIL_"
 #else
@@ -2267,6 +2261,11 @@ void cmd_open(void){
                    (char*)0);
   db_delete_on_failure(LOCALDB_NAME);
   db_open_local(0);
+  if( g.zOpenRevision ){
+    /* Since the repository is open and we know the revision now,
+    ** refresh the allow-symlinks flag. */
+    g.allowSymlinks = db_get_boolean("allow-symlinks", 0);
+  }
   db_lset("repository", g.argv[2]);
   db_record_repository_filename(g.argv[2]);
   db_lset_int("checkout", 0);
