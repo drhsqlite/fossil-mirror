@@ -1,5 +1,5 @@
-C Enable\ssymlinks\sby\sdefault\son\snon-Windows\splatforms\sand\smake\ssure\sthat\sthe\s'open'\scommand\shonors\sthe\sglobal\s'allow-symlinks'\ssetting\sin\saddition\sto\sthe\sversioned\sand\sper-repository\sones.
-D 2015-11-03T21:50:22.391
+C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.9.2
+D 2015-11-03T22:09:23.199
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -481,8 +481,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 44d3881e497cf9bec8ea6dcf73830502ab59202c
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c 5e6d1873a32d82c2cf8581f143649940cac8ae49
-F src/sqlite3.h 6164f4548706cc5c8a23c41605544f6c0bd6c50c
+F src/sqlite3.c 1c4013876f50bbaa3e6f0f98e0147c76287684c1
+F src/sqlite3.h 6fcafa8e21f4fbc1ecb664095af2f3c0ed1a2e6a
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 69ab1f0d78ccb91fc81f8f3930046025034a3250
 F src/statrep.c 2475cba0c91bdaa6f51a61565732ece308fadf42
@@ -743,8 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c985d905c67d993157cc35563d8fa0b858ed910f 8aed22a23167e5e3c2d2ab0f6e43851988781f2e
-R 4151930e1ed7a705005f763e367152bd
-T +closed 8aed22a23167e5e3c2d2ab0f6e43851988781f2e
-U mistachkin
-Z b0012f5adef00c1a27fd6e623c2b3f6b
+P 9ecbfb372498ae6d770b92f77257b1dc15d4d5ee
+R 9cd62b83087fe77dc9aa4e7c718b49f7
+U jan.nijtmans
+Z 1e9272508ab51d6f490525c9e51d03e6
