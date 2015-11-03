@@ -1,5 +1,5 @@
 C merge\strunk
-D 2015-11-03T04:47:00.000
+D 2015-11-03T22:50:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596 x
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -384,7 +384,7 @@ F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c d174d5926e1af9a243a0768ca23bc38e11d2652e
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 38b5b08eda88b4d256948d431e2f0094009644ae
-F src/checkin.c c10df34adf9560463a1cb36f8409efc7c5a8e9b7
+F src/checkin.c df1be29448e9dc0c9f502399af6d9b55fb1c102f
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 265e9a29da905f3ab68625a9a5b245d7630275b2
@@ -396,7 +396,7 @@ F src/content.c 49fd70d3136fbeb4794b7ef2f76c977c3ea77013
 F src/cson_amalgamation.c 75be6142c327581dd9e10e0c0816c18c50d7a7fa
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 680015001373eaa900adc4649cc00e098b190bb9
+F src/db.c f10d6d34fa24d229b21cb166b9b773226b50ad2b
 F src/delta.c d0dd6f11845026bad3fccadf52ebb7bb9f508cb3
 F src/deltacmd.c 4ff465c4331af328c6691103745de17e92d36007
 F src/descendants.c 1eb2bb891117be886ac87a7db842293221639326
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 45cbbad4dd825cc9dd216fdbddd488682fae5d54 653b6b92404c53f31aa30653e9b03e4ac0087066
-R 59c752c0eeed47176b0f9d6cb2043335
+P 23024b4a6c160dbdece056731bdd7a5522bc6fdb 9ecbfb372498ae6d770b92f77257b1dc15d4d5ee
+R d87606799f4b9dc0576a0c2f4e27ec99
 U jan.nijtmans
-Z 66489ae13101be0e169ed0e80b231b63
+Z c4f52874f39d5edb322f244616227e86
