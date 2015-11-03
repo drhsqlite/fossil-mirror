@@ -31,7 +31,7 @@ Development Hints
 -----------------
 
 One way to develop a new skin is to copy the baseline files (css.txt,
-details.txt, footer.txt, and header.txt) into a working directory $WORKDIR 
+details.txt, footer.txt, and header.txt) into a working directory $WORKDIR
 then launch Fossil with a command-line option "--skin $WORKDIR".  Example:
 
         cp -r skins/default newskin

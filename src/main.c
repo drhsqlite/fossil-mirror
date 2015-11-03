@@ -880,7 +880,7 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
 }
 
 /*
-** Look for multiple occurrences of a command-line option with the 
+** Look for multiple occurrences of a command-line option with the
 ** corresponding argument.
 **
 ** Return a malloc allocated array of pointers to the arguments.
@@ -1062,6 +1062,9 @@ void version_cmd(void){
 #endif
 #if defined(FOSSIL_ENABLE_LEGACY_MV_RM)
     fossil_print("LEGACY_MV_RM\n");
+#endif
+#if defined(FOSSIL_ENABLE_EXEC_REL_PATHS)
+    fossil_print("EXEC_REL_PATHS\n");
 #endif
 #if defined(FOSSIL_ENABLE_TH1_DOCS)
     fossil_print("TH1_DOCS\n");

@@ -535,6 +535,7 @@ static void reconstruct_private_table(void){
 **   --noverify        Skip the verification of changes to the BLOB table
 **   --noindex         Always omit the full-text search index
 **   --pagesize N      Set the database pagesize to N. (512..65536 and power of 2)
+**   --quiet           Only show output if there are errors
 **   --randomize       Scan artifacts in a random order
 **   --stats           Show artifact statistics after rebuilding
 **   --vacuum          Run VACUUM on the database after rebuilding

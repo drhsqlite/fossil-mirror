@@ -514,6 +514,28 @@ static int htmlizeCmd(
 }
 
 /*
+** TH1 command: encode64 STRING
+**
+** Encode the specified string using Base64 and return the result.
+*/
+static int encode64Cmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  char *zOut;
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "encode64 STRING");
+  }
+  zOut = encode64((char*)argv[1], argl[1]);
+  Th_SetResult(interp, zOut, -1);
+  free(zOut);
+  return TH_OK;
+}
+
+/*
 ** TH1 command: date
 **
 ** Return a string which is the current time and date.  If the
@@ -633,6 +655,7 @@ static int searchableCmd(
 **
 ** "ssl"             = FOSSIL_ENABLE_SSL
 ** "legacyMvRm"      = FOSSIL_ENABLE_LEGACY_MV_RM
+** "execRelPaths"    = FOSSIL_ENABLE_EXEC_REL_PATHS
 ** "th1Docs"         = FOSSIL_ENABLE_TH1_DOCS
 ** "th1Hooks"        = FOSSIL_ENABLE_TH1_HOOKS
 ** "tcl"             = FOSSIL_ENABLE_TCL
@@ -644,6 +667,8 @@ static int searchableCmd(
 ** "unicodeCmdLine"  = !BROKEN_MINGW_CMDLINE
 ** "dynamicBuild"    = FOSSIL_DYNAMIC_BUILD
 **
+** Specifying an unknown feature will return a value of false, it will not
+** raise a script error.
 */
 static int hasfeatureCmd(
   Th_Interp *interp,
@@ -668,6 +693,11 @@ static int hasfeatureCmd(
 #endif
 #if defined(FOSSIL_ENABLE_LEGACY_MV_RM)
   else if( 0 == fossil_strnicmp( zArg, "legacyMvRm\0", 11 ) ){
+    rc = 1;
+  }
+#endif
+#if defined(FOSSIL_ENABLE_EXEC_REL_PATHS)
+  else if( 0 == fossil_strnicmp( zArg, "execRelPaths\0", 13 ) ){
     rc = 1;
   }
 #endif
@@ -1729,6 +1759,7 @@ void Th_FossilInit(u32 flags){
     {"decorate",      wikiCmd,              (void*)&aFlags[2]},
     {"dir",           dirCmd,               0},
     {"enable_output", enableOutputCmd,      0},
+    {"encode64",      encode64Cmd,          0},
     {"getParameter",  getParameterCmd,      0},
     {"glob_match",    globMatchCmd,         0},
     {"globalState",   globalStateCmd,       0},

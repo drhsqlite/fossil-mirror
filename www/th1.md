@@ -115,7 +115,7 @@ summarize the commands available in TH1:
   *  upvar ?FRAME? OTHERVAR MYVAR ?OTHERVAR MYVAR?
 
 All of the above commands works as in the original Tcl.  Refer to the
-<a href="https://www.tcl.tk/man/tcl/contents.htm">Tcl documentation</a>
+<a href="https://www.tcl-lang.org/man/tcl/contents.htm">Tcl documentation</a>
 for details.
 
 TH1 Extended Commands
@@ -133,6 +133,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  decorate
   *  dir
   *  enable_output
+  *  encode64
   *  getParameter
   *  glob_match
   *  globalState
@@ -257,6 +258,13 @@ time zone configured for the repository).
 Enable or disable sending output when the combobox, puts, or wiki
 commands are used.
 
+<a name="encode64"></a>TH1 encode64 Command
+-------------------------------------------
+
+  *  encode64 STRING
+
+Encode the specified string using Base64 and return the result.
+
 <a name="getParameter"></a>TH1 getParameter Command
 ---------------------------------------------------
 
@@ -313,6 +321,7 @@ The possible features are:
 
   1. **ssl** -- _Support for the HTTPS transport._
   1. **legacyMvRm** -- _Support for legacy mv/rm command behavior._
+  1. **execRelPaths** -- _Use relative paths with external diff/gdiff._
   1. **th1Docs** -- _Support for TH1 in embedded documentation._
   1. **th1Hooks** -- _Support for TH1 command and web page hooks._
   1. **tcl** -- _Support for Tcl integration._
@@ -323,6 +332,9 @@ The possible features are:
   1. **markdown** -- _Support for Markdown documentation format._
   1. **unicodeCmdLine** -- _The command line arguments are Unicode._
   1. **dynamicBuild** -- _Dynamically linked to libraries._
+
+Specifying an unknown feature will return a value of false, it will not
+raise a script error.
 
 <a name="html"></a>TH1 html Command
 -----------------------------------

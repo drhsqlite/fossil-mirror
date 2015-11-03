@@ -330,7 +330,7 @@ void user_edit(void){
   int uid, i;
   int higherUser = 0;  /* True if user being edited is SETUP and the */
                        /* user doing the editing is ADMIN.  Disallow editing */
-  char *inherit[128];
+  const char *inherit[128];
   int a[128];
   const char *oa[128];
 
@@ -908,7 +908,7 @@ void entry_attribute(
   int width,            /* Width of the entry box */
   const char *zVar,     /* The corresponding row in the VAR table */
   const char *zQParm,   /* The query parameter */
-  char *zDflt,          /* Default value if VAR table entry does not exist */
+  const char *zDflt,    /* Default value if VAR table entry does not exist */
   int disabled          /* 1 if disabled */
 ){
   const char *zVal = db_get(zVar, zDflt);
@@ -940,7 +940,7 @@ const char *textarea_attribute(
   const char *zDflt,    /* Default value if VAR table entry does not exist */
   int disabled          /* 1 if the textarea should  not be editable */
 ){
-  const char *z = db_get(zVar, (char*)zDflt);
+  const char *z = db_get(zVar, zDflt);
   const char *zQ = P(zQP);
   if( zQ && !disabled && fossil_strcmp(zQ,z)!=0){
     const int nZQ = (int)strlen(zQ);
@@ -974,7 +974,7 @@ static void multiple_choice_attribute(
   int nChoice,          /* Number of choices */
   const char *const *azChoice /* Choices. 2 per choice: (VAR value, Display) */
 ){
-  const char *z = db_get(zVar, (char*)zDflt);
+  const char *z = db_get(zVar, zDflt);
   const char *zQ = P(zQP);
   int i;
   if( zQ && fossil_strcmp(zQ,z)!=0){

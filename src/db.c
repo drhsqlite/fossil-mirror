@@ -1995,7 +1995,7 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
 ** setting is returned instead.  If zName is a versioned setting, then
 ** versioned value takes priority.
 */
-char *db_get(const char *zName, char *zDefault){
+char *db_get(const char *zName, const char *zDefault){
   char *z = 0;
   const Setting *pSetting = db_find_setting(zName, 0);
   if( g.repositoryOpen ){
@@ -2015,18 +2015,18 @@ char *db_get(const char *zName, char *zDefault){
     if( zDefault==0 && pSetting && pSetting->def[0] ){
       z = fossil_strdup(pSetting->def);
     }else{
-      z = zDefault;
+      z = fossil_strdup(zDefault);
     }
   }
   return z;
 }
-char *db_get_mtime(const char *zName, char *zFormat, char *zDefault){
+char *db_get_mtime(const char *zName, const char *zFormat, const char *zDefault){
   char *z = 0;
   if( g.repositoryOpen ){
     z = db_text(0, "SELECT mtime FROM config WHERE name=%Q", zName);
   }
   if( z==0 ){
-    z = zDefault;
+    z = fossil_strdup(zDefault);
   }else if( zFormat!=0 ){
     z = db_text(0, "SELECT strftime(%Q,%Q,'unixepoch');", zFormat, z);
   }
@@ -2112,8 +2112,8 @@ int db_get_boolean(const char *zName, int dflt){
   if( is_false(zVal) ) return 0;
   return dflt;
 }
-char *db_lget(const char *zName, char *zDefault){
-  return db_text((char*)zDefault,
+char *db_lget(const char *zName, const char *zDefault){
+  return db_text(zDefault,
                  "SELECT value FROM vvar WHERE name=%Q", zName);
 }
 void db_lset(const char *zName, const char *zValue){
@@ -2382,6 +2382,11 @@ const Setting aSetting[] = {
   { "editor",           0,             32, 0, 0, ""                    },
   { "empty-dirs",       0,             40, 1, 0, ""                    },
   { "encoding-glob",    0,             40, 1, 0, ""                    },
+#if defined(FOSSIL_ENABLE_EXEC_REL_PATHS)
+  { "exec-rel-paths",   0,              0, 0, 0, "on"                  },
+#else
+  { "exec-rel-paths",   0,              0, 0, 0, "off"                 },
+#endif
   { "gdiff-command",    0,             40, 0, 0, "gdiff"               },
   { "gmerge-command",   0,             40, 0, 0, ""                    },
   { "hash-digits",      0,              5, 0, 0, "10"                  },
@@ -2557,6 +2562,9 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **                     ignore when issuing warnings about text files that may
 **                     use another encoding than ASCII or UTF-8. Set to "*"
 **                     to disable encoding checking.
+**
+**    exec-rel-paths   When executing certain external commands (e.g. diff and
+**                     gdiff), use relative paths.
 **
 **    gdiff-command    External command to run when performing a graphical
 **                     diff. If undefined, text diff will be used.
