@@ -835,7 +835,7 @@ void clean_cmd(void){
         if( verboseFlag || dryRunFlag ){
           fossil_print("Removed unmanaged file: %s\n", zName+nRoot);
         }
-      }else if( verboseFlag ){
+      }else{
         fossil_print("Could not remove file: %s\n", zName+nRoot);
       }
     }
