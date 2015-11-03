@@ -676,6 +676,7 @@ void extras_cmd(void){
 **                     therefore, directories that contain only files
 **                     that were removed will be removed as well.
 **    -f|--force       Remove files without prompting.
+**    -i|--prompt      Prompt before removing each file.
 **    -x|--verily      WARNING: Removes everything that is not a managed
 **                     file or the repository itself.  This option
 **                     implies the --force, --emptydirs, --dotfiles, and
@@ -704,6 +705,7 @@ void clean_cmd(void){
   int allFileFlag, allDirFlag, dryRunFlag, verboseFlag;
   int emptyDirsFlag, dirsOnlyFlag;
   int disableUndo, noPrompt;
+  int alwaysPrompt = 0;
   unsigned scanFlags = 0;
   int verilyFlag = 0;
   const char *zIgnoreFlag, *zKeepFlag, *zCleanFlag;
@@ -724,6 +726,7 @@ void clean_cmd(void){
   }
   disableUndo = find_option("disable-undo",0,0)!=0;
   noPrompt = find_option("no-prompt",0,0)!=0;
+  alwaysPrompt = find_option("prompt","i",0)!=0;
   allFileFlag = allDirFlag = find_option("force","f",0)!=0;
   dirsOnlyFlag = find_option("dirsonly",0,0)!=0;
   emptyDirsFlag = find_option("emptydirs","d",0)!=0 || dirsOnlyFlag;
@@ -783,24 +786,40 @@ void clean_cmd(void){
         continue;
       }
       if( !dryRunFlag && !glob_match(pClean, zName+nRoot) ){
+        char *zPrompt = 0;
+        char cReply;
+        Blob ans = empty_blob;
         int undoRc = UNDO_NONE;
-        if( !disableUndo ){
+        if( alwaysPrompt ){
+          zPrompt = mprintf("Remove unmanaged file \"%s\" (a=all/y/N)? ",
+                            zName+nRoot);
+          prompt_user(zPrompt, &ans);
+          fossil_free(zPrompt);
+          cReply = fossil_toupper(blob_str(&ans)[0]);
+          blob_reset(&ans);
+          if( cReply=='N' ) continue;
+          if( cReply=='A' ){
+            allFileFlag = 1;
+            alwaysPrompt = 0;
+          }else{
+            undoRc = UNDO_SAVED_OK;
+          }
+        }else if( !disableUndo ){
           undoRc = undo_maybe_save(zName+nRoot, UNDO_SIZE_LIMIT);
         }
         if( undoRc!=UNDO_SAVED_OK ){
-          char cReply;
           if( allFileFlag ){
             cReply = 'Y';
           }else if( !noPrompt ){
             Blob ans;
-            char *prompt = mprintf("\nWARNING: Deletion of this file will "
-                                   "not be undoable via the 'undo'\n"
-                                   "         command because %s.\n\n"
-                                   "Remove unmanaged file \"%s\" (a=all/y/N)? ",
-                                   undo_save_message(undoRc), zName+nRoot);
-            prompt_user(prompt, &ans);
+            zPrompt = mprintf("\nWARNING: Deletion of this file will "
+                              "not be undoable via the 'undo'\n"
+                              "         command because %s.\n\n"
+                              "Remove unmanaged file \"%s\" (a=all/y/N)? ",
+                              undo_save_message(undoRc), zName+nRoot);
+            prompt_user(zPrompt, &ans);
+            fossil_free(zPrompt);
             cReply = blob_str(&ans)[0];
-            fossil_free(prompt);
             blob_reset(&ans);
           }else{
             cReply = 'N';
