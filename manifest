@@ -1,5 +1,5 @@
-C Simplify\sand\senhance\schanges\sfrom\sthe\sprevious\scheck-in.
-D 2015-11-03T03:47:54.206
+C Updates\sto\sthe\s"fossil\sclean"\scommand:\s\sAdded\sthe\s-i/--prompt\soption.\s\sAlways\nreport\sif\sunable\sto\sdelete\sa\sfile.\s\sFixed\smemory\sleaks\sand\sover-length\ssource\ncode\slines.
+D 2015-11-03T13:49:09.698
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -384,7 +384,7 @@ F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c d174d5926e1af9a243a0768ca23bc38e11d2652e
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 38b5b08eda88b4d256948d431e2f0094009644ae
-F src/checkin.c 6ca6a24f2214b473e43c1d24ae554df87d7d61de
+F src/checkin.c a67e10bc47e5c16396a14e5a236ce9604f8e6441
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 265e9a29da905f3ab68625a9a5b245d7630275b2
@@ -743,7 +743,8 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cbe4af9ea832e4a96a6e716ad57679c729d473f0
-R a08c5c313e66397f5ad3e8d510389a0f
-U mistachkin
-Z 2ea7a457e9a41f9162932f389dc1bc87
+P 653b6b92404c53f31aa30653e9b03e4ac0087066 6c2a2087d2c4ad9fdfa69a23badd04d4cab5f371
+R 62e8ce2150676a727d817c2370f0b7e3
+T +closed 6c2a2087d2c4ad9fdfa69a23badd04d4cab5f371
+U drh
+Z 7d2728ff228e4c6db4bce488d6e5dde2
