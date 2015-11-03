@@ -1,5 +1,5 @@
-C Permit\scompilation\swithout\sTcl\sprivate\sstubs\susing\sTcl\s8.5.
-D 2015-11-02T23:05:40.029
+C Make\sthe\s--with-tcl\sconfigure\soption\sable\sto\scope\swith\ssystems\swhere\susing\s'-lieee'\sfrom\sTCL_LIB_SPEC\sappears\sto\scause\sissues.
+D 2015-11-03T03:36:16.670
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -45,7 +45,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def bf6b978fad11c928ff83423b56a1909aa610940b
+F auto.def 2c56a68127695784172c74f192fb27e713e28b1a
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 4e0b671b54288fc64d851d056822ee5fec4d3365
 F autosetup/autosetup f80eb8d3ebc34b06b08095daf8d964a898ea2777 x
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ca3ed9d49c4f41ed55459dbbd60eccf01d1f2e44
-R b5a0cb10ac9a3f6d5d32bf7f69a55c5d
+P b500f89c38e351caf5c2983ecd4d6b23af2689dd
+R cafde0f5312edc77900238f63ad7d184
 U mistachkin
-Z 141e9859ff357877f09fc537e5272558
+Z 08c4f572dd83775734bf223ab17ed6e5

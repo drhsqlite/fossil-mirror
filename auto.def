@@ -166,15 +166,40 @@ if {$tclpath ne ""} {
     }
     set cflags $tclconfig(TCL_INCLUDE_SPEC)
     if {!$tclprivatestubs} {
+        set libtclfailcount 0
         cc-with [list -cflags $cflags -libs $libs] {
             if {$tclstubs} {
                 if {![cc-check-functions Tcl_InitStubs]} {
-                    user-error "Cannot find a usable Tcl stubs library $msg"
+                    incr libtclfailcount
                 }
             } else {
                 if {![cc-check-functions Tcl_CreateInterp]} {
-                    user-error "Cannot find a usable Tcl library $msg"
+                    incr libtclfailcount
                 }
+            }
+        }
+        if {$libtclfailcount >= 1} {
+            # On some systems, using "-lieee" from TCL_LIB_SPEC appears
+            # to cause issues.
+            msg-result "Removing \"-lieee\" and retrying for Tcl..."
+            set libs [string map [list -lieee ""] $libs]
+            cc-with [list -cflags $cflags -libs $libs] {
+                if {$tclstubs} {
+                    if {![cc-check-functions Tcl_InitStubs]} {
+                        incr libtclfailcount
+                    }
+                } else {
+                    if {![cc-check-functions Tcl_CreateInterp]} {
+                        incr libtclfailcount
+                    }
+                }
+            }
+        }
+        if {$libtclfailcount >= 2} {
+            if {$tclstubs} {
+                user-error "Cannot find a usable Tcl stubs library $msg"
+            } else {
+                user-error "Cannot find a usable Tcl library $msg"
             }
         }
     }
