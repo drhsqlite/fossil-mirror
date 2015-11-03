@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -64,7 +64,8 @@ static void status_report(
   }
 
   db_prepare(&q,
-    "SELECT pathname, deleted, chnged, rid, coalesce(origname!=pathname,0), islink"
+    "SELECT pathname, deleted, chnged,"
+    "       rid, coalesce(origname!=pathname,0), islink"
     "  FROM vfile "
     " WHERE is_selected(id) %s"
     "   AND (chnged OR deleted OR rid=0 OR pathname!=origname)"
@@ -437,7 +438,8 @@ void ls_cmd(void){
     );
   }else{
     db_prepare(&q,
-       "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0), islink"
+       "SELECT pathname, deleted, rid, chnged,"
+       "       coalesce(origname!=pathname,0), islink"
        "  FROM vfile %s"
        " ORDER BY %s", blob_sql_text(&where), zOrderBy /*safe-for-%s*/
     );
@@ -798,6 +800,7 @@ void clean_cmd(void){
                                    undo_save_message(undoRc), zName+nRoot);
             prompt_user(prompt, &ans);
             cReply = blob_str(&ans)[0];
+            fossil_free(prompt);
             blob_reset(&ans);
           }else{
             cReply = 'N';
@@ -851,6 +854,7 @@ void clean_cmd(void){
                                  zName+nRoot);
           prompt_user(prompt, &ans);
           cReply = blob_str(&ans)[0];
+          fossil_free(prompt);
           blob_reset(&ans);
         }else{
           cReply = 'N';
