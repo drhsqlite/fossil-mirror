@@ -880,6 +880,40 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
 }
 
 /*
+** Look for multiple occurrences of a command-line option with the
+** corresponding argument.
+**
+** Return a malloc allocated array of pointers to the arguments.
+**
+** pnUsedArgs is used to store the number of matched arguments.
+**
+** Caller is responsible to free allocated memory.
+*/
+const char **find_repeatable_option(
+  const char *zLong,
+  const char *zShort,
+  int *pnUsedArgs
+){
+  const char *zOption;
+  const char **pzArgs = 0;
+  int nAllocArgs = 0;
+  int nUsedArgs = 0;
+
+  while( (zOption = find_option(zLong, zShort, 1))!=0 ){
+    if( pzArgs==0 && nAllocArgs==0 ){
+      nAllocArgs = 1;
+      pzArgs = fossil_malloc( nAllocArgs*sizeof(pzArgs[0]) );
+    }else if( nAllocArgs<=nUsedArgs ){
+      nAllocArgs = nAllocArgs*2;
+      pzArgs = fossil_realloc( pzArgs, nAllocArgs*sizeof(pzArgs[0]) );
+    }
+    pzArgs[nUsedArgs++] = zOption;
+  }
+  *pnUsedArgs = nUsedArgs;
+  return pzArgs;
+}
+
+/*
 ** Look for a repository command-line option.  If present, [re-]cache it in
 ** the global state and return the new pointer, freeing any previous value.
 ** If absent and there is no cached value, return NULL.
@@ -1028,6 +1062,9 @@ void version_cmd(void){
 #endif
 #if defined(FOSSIL_ENABLE_LEGACY_MV_RM)
     fossil_print("LEGACY_MV_RM\n");
+#endif
+#if defined(FOSSIL_ENABLE_EXEC_REL_PATHS)
+    fossil_print("EXEC_REL_PATHS\n");
 #endif
 #if defined(FOSSIL_ENABLE_TH1_DOCS)
     fossil_print("TH1_DOCS\n");

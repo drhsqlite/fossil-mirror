@@ -101,7 +101,7 @@ static const char zDefaultTicketTable[] =
 ** Return the ticket table definition
 */
 const char *ticket_table_schema(void){
-  return db_get("ticket-table", (char*)zDefaultTicketTable);
+  return db_get("ticket-table", zDefaultTicketTable);
 }
 
 /*
@@ -130,7 +130,7 @@ static void tktsetup_generic(
   isSubmit = P("submit")!=0;
   z = P("x");
   if( z==0 ){
-    z = db_get(zDbField, (char*)zDfltValue);
+    z = db_get(zDbField, zDfltValue);
   }
   style_header("Edit %s", zTitle);
   if( P("clear")!=0 ){
@@ -242,7 +242,7 @@ static const char zDefaultTicketCommon[] =
 ** Return the ticket common code.
 */
 const char *ticket_common_code(void){
-  return db_get("ticket-common", (char*)zDefaultTicketCommon);
+  return db_get("ticket-common", zDefaultTicketCommon);
 }
 
 /*
@@ -274,7 +274,7 @@ static const char zDefaultTicketChange[] =
 ** Return the ticket change code.
 */
 const char *ticket_change_code(void){
-  return db_get("ticket-change", (char*)zDefaultTicketChange);
+  return db_get("ticket-change", zDefaultTicketChange);
 }
 
 /*
@@ -419,7 +419,7 @@ static const char zDefaultNew[] =
 ** Return the code used to generate the new ticket page
 */
 const char *ticket_newpage_code(void){
-  return db_get("ticket-newpage", (char*)zDefaultNew);
+  return db_get("ticket-newpage", zDefaultNew);
 }
 
 /*
@@ -560,7 +560,7 @@ static const char zDefaultView[] =
 ** Return the code used to generate the view ticket page
 */
 const char *ticket_viewpage_code(void){
-  return db_get("ticket-viewpage", (char*)zDefaultView);
+  return db_get("ticket-viewpage", zDefaultView);
 }
 
 /*
@@ -701,7 +701,7 @@ static const char zDefaultEdit[] =
 ** Return the code used to generate the edit ticket page
 */
 const char *ticket_editpage_code(void){
-  return db_get("ticket-editpage", (char*)zDefaultEdit);
+  return db_get("ticket-editpage", zDefaultEdit);
 }
 
 /*
@@ -757,7 +757,7 @@ static const char zDefaultReportList[] =
 ** Return the code used to generate the report list
 */
 const char *ticket_reportlist_code(void){
-  return db_get("ticket-reportlist", (char*)zDefaultReportList);
+  return db_get("ticket-reportlist", zDefaultReportList);
 }
 
 /*
@@ -850,7 +850,7 @@ static const char zDefaultKey[] =
 ** Return the template ticket report format:
 */
 const char *ticket_key_template(void){
-  return db_get("ticket-key-template", (char*)zDefaultKey);
+  return db_get("ticket-key-template", zDefaultKey);
 }
 
 /*

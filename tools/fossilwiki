@@ -49,14 +49,14 @@ foreach $page ( keys %pages )
 
 	$numlinks = $#links;
 
-	if (@links == ()) 
+	if (@links == ())
 	{
 		push @terminals, $page;
 	}
 	else
 	{
 		my @internals = grep { $_ !~ /(http:)|(mailto:)|(https:)/ } @links;
-		if (@internals == ()) 
+		if (@internals == ())
 		{
 			push @nointernals, $page;
 		}
@@ -118,7 +118,7 @@ foreach $link ( keys %badlinks )
 foreach $page ( sort keys %links )
 {
 	my @links = @{$links{$page}{'links'}};
-	if (@links != ()) 
+	if (@links != ())
 	{
 		if ($page eq $mainpage)
 		{

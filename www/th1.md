@@ -115,7 +115,8 @@ summarize the commands available in TH1:
   *  upvar ?FRAME? OTHERVAR MYVAR ?OTHERVAR MYVAR?
 
 All of the above commands works as in the original Tcl.  Refer to the
-Tcl documentation for details.
+<a href="https://www.tcl-lang.org/man/tcl/contents.htm">Tcl documentation</a>
+for details.
 
 TH1 Extended Commands
 ---------------------
@@ -130,7 +131,9 @@ features of Fossil.  The following is a summary of the extended commands:
   *  combobox
   *  date
   *  decorate
+  *  dir
   *  enable_output
+  *  encode64
   *  getParameter
   *  glob_match
   *  globalState
@@ -141,6 +144,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  http
   *  httpize
   *  linecount
+  *  markdown
   *  puts
   *  query
   *  randhex
@@ -234,6 +238,18 @@ option is used, the date appears using localtime instead of UTC.
 Renders STRING as wiki content; however, only links are handled.  No
 other markup is processed.
 
+<a name="dir"></a>TH1 dir Command
+-------------------------------------------
+
+  * dir CHECKIN ?GLOB? ?DETAILS?
+
+Returns a list containing all files in CHECKIN. If GLOB is given only
+the files matching the pattern GLOB within CHECKIN will be returned.
+If DETAILS is non-zero, the result will be a list-of-lists, with each
+element containing at least three elements: the file name, the file
+size (in bytes), and the file last modification time (relative to the
+time zone configured for the repository).
+
 <a name="enable_output"></a>TH1 enable_output Command
 -----------------------------------------------------
 
@@ -241,6 +257,13 @@ other markup is processed.
 
 Enable or disable sending output when the combobox, puts, or wiki
 commands are used.
+
+<a name="encode64"></a>TH1 encode64 Command
+-------------------------------------------
+
+  *  encode64 STRING
+
+Encode the specified string using Base64 and return the result.
 
 <a name="getParameter"></a>TH1 getParameter Command
 ---------------------------------------------------
@@ -298,6 +321,7 @@ The possible features are:
 
   1. **ssl** -- _Support for the HTTPS transport._
   1. **legacyMvRm** -- _Support for legacy mv/rm command behavior._
+  1. **execRelPaths** -- _Use relative paths with external diff/gdiff._
   1. **th1Docs** -- _Support for TH1 in embedded documentation._
   1. **th1Hooks** -- _Support for TH1 command and web page hooks._
   1. **tcl** -- _Support for Tcl integration._
@@ -308,6 +332,9 @@ The possible features are:
   1. **markdown** -- _Support for Markdown documentation format._
   1. **unicodeCmdLine** -- _The command line arguments are Unicode._
   1. **dynamicBuild** -- _Dynamically linked to libraries._
+
+Specifying an unknown feature will return a value of false, it will not
+raise a script error.
 
 <a name="html"></a>TH1 html Command
 -----------------------------------
@@ -352,6 +379,15 @@ components.  Returns the escaped string.
 
 Returns one more than the number of \n characters in STRING.  But
 never returns less than MIN or more than MAX.
+
+<a name="markdown"></a>TH1 markdown Command
+---------------------------------------------
+
+  *  markdown STRING
+
+Renders the input string as markdown.  The result is a two-element list.
+The first element contains the body, rendered as HTML.  The second element
+is the text-only title string.
 
 <a name="puts"></a>TH1 puts Command
 -----------------------------------

@@ -163,6 +163,8 @@ set SQLITE_OPTIONS {
   -DSQLITE_ENABLE_FTS4
   -DSQLITE_ENABLE_FTS3_PARENTHESIS
   -DSQLITE_ENABLE_DBSTAT_VTAB
+  -DSQLITE_ENABLE_JSON1
+  -DSQLITE_ENABLE_FTS5
 }
 #lappend SQLITE_OPTIONS -DSQLITE_ENABLE_FTS3=1
 #lappend SQLITE_OPTIONS -DSQLITE_ENABLE_STAT4
@@ -458,6 +460,10 @@ writeln {#!/usr/bin/make
 # This is a makefile for use on Cygwin/Darwin/FreeBSD/Linux/Windows using
 # MinGW or MinGW-w64.
 #
+# Some of the special options which can be passed to make
+#   USE_WINDOWS=1    if building under a windows command prompt
+#   X64=1            if using an unprefixed 64-bit mingw compiler
+#
 
 #### Select one of MinGW, MinGW-w64 (32-bit) or MinGW-w64 (64-bit) compilers.
 #    By default, this is an empty string (i.e. use the native compiler).
@@ -501,6 +507,10 @@ BCC = gcc
 #    issues when building incrementally).
 #
 # FOSSIL_BUILD_SSL = 1
+
+#### Enable relative paths in external diff/gdiff
+#
+# FOSSIL_ENABLE_EXEC_REL_PATHS = 1
 
 #### Enable legacy treatment of mv/rm (skip checkout files)
 #
@@ -646,19 +656,21 @@ endif
 #    the finished binary for fossil.  The BCC compiler above is used
 #    for building intermediate code-generator tools.
 #
-TCC = $(PREFIX)gcc -Os -Wall
-
-#### When not using the miniz compression library, zlib is required.
-#
-ifndef FOSSIL_ENABLE_MINIZ
-TCC += -L$(ZLIBDIR) -I$(ZINCDIR)
-endif
+TCC = $(PREFIX)gcc -Wall
 
 #### Add the necessary command line options to build with debugging
 #    symbols, if enabled.
 #
 ifdef FOSSIL_ENABLE_SYMBOLS
 TCC += -g
+else
+TCC += -Os
+endif
+
+#### When not using the miniz compression library, zlib is required.
+#
+ifndef FOSSIL_ENABLE_MINIZ
+TCC += -L$(ZLIBDIR) -I$(ZINCDIR)
 endif
 
 #### Compile resources for use in building executables that will run
@@ -703,6 +715,12 @@ endif
 ifdef FOSSIL_ENABLE_SSL
 TCC += -DFOSSIL_ENABLE_SSL=1
 RCC += -DFOSSIL_ENABLE_SSL=1
+endif
+
+# With relative paths in external diff/gdiff
+ifdef FOSSIL_ENABLE_EXEC_REL_PATHS
+TCC += -DFOSSIL_ENABLE_EXEC_REL_PATHS=1
+RCC += -DFOSSIL_ENABLE_EXEC_REL_PATHS=1
 endif
 
 # With legacy treatment of mv/rm
@@ -1334,6 +1352,11 @@ FOSSIL_BUILD_ZLIB = 1
 FOSSIL_DYNAMIC_BUILD = 0
 !endif
 
+# Enable relative paths in external diff/gdiff?
+!ifndef FOSSIL_ENABLE_EXEC_REL_PATHS
+FOSSIL_ENABLE_EXEC_REL_PATHS = 0
+!endif
+
 # Enable the JSON API?
 !ifndef FOSSIL_ENABLE_JSON
 FOSSIL_ENABLE_JSON = 0
@@ -1550,6 +1573,11 @@ TCC       = $(TCC) /DFOSSIL_ENABLE_SSL=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_SSL=1
 LIBS      = $(LIBS) $(SSLLIB)
 LIBDIR    = $(LIBDIR) /LIBPATH:$(SSLLIBDIR)
+!endif
+
+!if $(FOSSIL_ENABLE_EXEC_REL_PATHS)!=0
+TCC       = $(TCC) /DFOSSIL_ENABLE_EXEC_REL_PATHS=1
+RCC       = $(RCC) /DFOSSIL_ENABLE_EXEC_REL_PATHS=1
 !endif
 
 !if $(FOSSIL_ENABLE_LEGACY_MV_RM)!=0

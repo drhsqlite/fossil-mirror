@@ -12,7 +12,7 @@ under Admin/Skins/Details in the web UI.
 *   ###`timeline-arrowheads`
 
     Set this to `0` to hide arrowheads on primary child lines.
-    
+
 *   ###`timeline-circle-nodes`
 
     Set this to `1` to make check-in nodes circular instead of square.
@@ -45,12 +45,12 @@ These elements aren't intended to be seen. They're only used to help position
 the graph and its visible elements.
 
 *   ###<a id="tl-canvas"></a>`.tl-canvas`
-    
+
     Set the left and right margins on this class to give the desired amount
     of space between the graph and its adjacent columns in the timeline.
-  
+
     #### Additional Classes
-  
+
     * `.sel`: See [`.tl-node`](#tl-node) for more information.
 
 *   ###<a id="tl-rail"></a>`.tl-rail`
@@ -86,14 +86,14 @@ attached to them, depending on their context.
 *   ###<a id="tl-node"></a>`.tl-node`
 
     A node exists for each check-in in the timeline.
-  
+
     #### Additional Classes
-    
+
     *   `.leaf`: Specifies that the check-in is a leaf (i.e. that it has no
         children in the same branch).
-    
+
     *   `.merge`: Specifies that the check-in contains a merge.
-    
+
     *   `.sel`: When the user clicks a node to designate it as the beginning
         of a diff, this class is added to both the node itself and the
         [`.tl-canvas`](#tl-canvas) element. The class is removed from both
@@ -107,19 +107,19 @@ attached to them, depending on their context.
 
     There are six additional classes that are used to distinguish the different
     types of arrows. However, only these combinations are valid:
-    
+
     *   `.u`: Up arrow that points to a child from its primary parent.
-    
+
     *   `.u.sm`: Smaller up arrow, used when there is limited space between
         parent and child nodes.
-    
+
     *   `.merge.l` or `.merge.r`: Merge arrow pointing either to the left or
         right.
-    
+
     *   `.warp`: A timewarped arrow (always points to the right), used when a
         misconfigured clock makes a check-in appear to have occurred before its
         parent ([example](https://www.sqlite.org/src/timeline?c=2010-09-29&nd)).
-    
+
 *   ###<a id="tl-line"></a>`.tl-line`
 
     Along with arrows, lines connect parent and child nodes. Line thickness is
@@ -140,11 +140,11 @@ attached to them, depending on their context.
         }
 
     #### Additional Classes
-    
+
     *   `.merge`: A merge line.
-    
+
     *   `.h` or `.v`: Horizontal or vertical.
-    
+
     *   `.warp`: A timewarped line.
 
 

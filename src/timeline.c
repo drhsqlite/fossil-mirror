@@ -1194,7 +1194,8 @@ static void timeline_y_submenu(int isDisabled){
 **    ubg            Background color from user
 **    namechng       Show only check-ins that filename changes
 **    forks          Show only forks and their children
-**    ym=YYYY-MM     Shown only events for the given year/month.
+**    ym=YYYY-MM     Show only events for the given year/month.
+**    ymd=YYYY-MM-DD Show only events on the given day
 **    datefmt=N      Override the date format
 **
 ** p= and d= can appear individually or together.  If either p= or d=
@@ -1225,6 +1226,7 @@ void page_timeline(void){
   const char *zUses = P("uf");       /* Only show check-ins hold this file */
   const char *zYearMonth = P("ym");  /* Show check-ins for the given YYYY-MM */
   const char *zYearWeek = P("yw");   /* Check-ins for YYYY-WW (week-of-year) */
+  const char *zDay = P("ymd");       /* Check-ins for the day YYYY-MM-DD */
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
   int renameOnly = P("namechng")!=0; /* Show only check-ins that rename files */
   int forkOnly = PB("forks");        /* Show only forks and their children */
@@ -1495,6 +1497,10 @@ void page_timeline(void){
       blob_append_sql(&sql, " AND %Q=strftime('%%Y-%%W',event.mtime) ",
                    zYearWeek);
     }
+    else if( zDay ){
+      blob_append_sql(&sql, " AND %Q=strftime('%%Y-%%m-%%d',event.mtime) ",
+                   zDay);
+    }
     if( tagid ){
       blob_append_sql(&sql,
         " AND (EXISTS(SELECT 1 FROM tagxref"
@@ -1644,6 +1650,8 @@ void page_timeline(void){
       blob_appendf(&desc, "%s events for %h", zEType, zYearMonth);
     }else if( zYearWeek ){
       blob_appendf(&desc, "%s events for year/week %h", zEType, zYearWeek);
+    }else if( zDay ){
+      blob_appendf(&desc, "%s events occurring on %h", zEType, zDay);
     }else if( zBefore==0 && zCirca==0 && n>=nEntry && nEntry>0 ){
       blob_appendf(&desc, "%d most recent %ss", n, zEType);
     }else{
@@ -1856,7 +1864,7 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
            "       (SELECT uuid FROM blob WHERE rid=fid),"
            "       (SELECT uuid FROM blob WHERE rid=pid)"
            "  FROM mlink"
-           " WHERE mid=:mid AND pid!=fid"
+           " WHERE mid=:mid AND pid!=fid AND NOT mlink.isaux"
            " ORDER BY 3 /*sort*/"
         );
         fchngQueryInit = 1;
@@ -2210,7 +2218,7 @@ void test_timewarp_cmd(void){
 }
 
 /*
-** WEBPAGE: test_timewarps
+** WEBPAGE: timewarps
 **
 ** Show all check-ins that are "timewarps".  A timewarp is a
 ** check-in that occurs before its parent, according to the
@@ -2219,6 +2227,7 @@ void test_timewarp_cmd(void){
 */
 void test_timewarp_page(void){
   Stmt q;
+  int cnt = 0;
 
   login_check_credentials();
   if( !g.perm.Read || !g.perm.Hyperlink ){
@@ -2226,18 +2235,49 @@ void test_timewarp_page(void){
     return;
   }
   style_header("Instances of timewarp");
-  @ <ul>
   db_prepare(&q,
-     "SELECT blob.uuid "
-     "  FROM plink p, plink c, blob"
+     "SELECT blob.uuid, "
+     "       date(ce.mtime),"
+     "       pe.mtime>ce.mtime,"
+     "       coalesce(ce.euser,ce.user)"
+     "  FROM plink p, plink c, blob, event pe, event ce"
      " WHERE p.cid=c.pid  AND p.mtime>c.mtime"
      "   AND blob.rid=c.cid"
+     "   AND pe.objid=p.cid"
+     "   AND ce.objid=c.cid"
+     " ORDER BY 2 DESC"
   );
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zUuid = db_column_text(&q, 0);
-    @ <li>
-    @ <a href="%R/timeline?dp=%!S(zUuid)&amp;unhide">%S(zUuid)</a>
+    const char *zCkin = db_column_text(&q, 0);
+    const char *zDate = db_column_text(&q, 1);
+    const char *zStatus = db_column_int(&q,2) ? "Open"
+                                 : "Resolved by editing date";
+    const char *zUser = db_column_text(&q, 3);
+    char *zHref = href("%R/timeline?c=%S", zCkin);
+    if( cnt==0 ){
+      @ <div class="brlist"><table id="timewarptable">
+      @ <thead><tr>
+      @ <th>Check-in</th>
+      @ <th>Date</th>
+      @ <th>User</th>
+      @ <th>Status</th>
+      @ </tr></thead><tbody>
+    }
+    @ <tr>
+    @ <td>%s(zHref)%S(zCkin)</a></td>
+    @ <td>%s(zHref)%s(zDate)</a></td>
+    @ <td>%h(zUser)</td>
+    @ <td>%s(zStatus)</td>
+    @ </tr>
+    fossil_free(zHref);
+    cnt++;
   }
   db_finalize(&q);
+  if( cnt==0 ){
+    @ <p>No timewarps in this repository</p>
+  }else{
+    @ </tbody></table></div>
+    output_table_sorting_javascript("timewarptable","tttt",2);
+  }
   style_footer();
 }

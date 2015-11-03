@@ -162,7 +162,7 @@ static const struct {
   { "lzh",        3, "application/octet-stream"          },
   { "m",          1, "text/plain"                        },
   { "m3u",        3, "audio/x-mpegurl"                   },
-  { "man",        3, "application/x-troff-man"           },
+  { "man",        3, "text/plain"                        },
   { "markdown",   8, "text/x-markdown"                   },
   { "md",         2, "text/x-markdown"                   },
   { "me",         2, "application/x-troff-me"            },
@@ -183,6 +183,7 @@ static const struct {
   { "mpga",       4, "audio/mpeg"                        },
   { "ms",         2, "application/x-troff-ms"            },
   { "msh",        3, "model/mesh"                        },
+  { "n",          1, "text/plain"                        },
   { "nc",         2, "application/x-netcdf"              },
   { "oda",        3, "application/oda"                   },
   { "odp",        3, "application/vnd.oasis.opendocument.presentation" },
@@ -524,10 +525,12 @@ int doc_load_content(int vid, const char *zName, Blob *pContent){
 **
 ** The file extension is used to decide how to render the file.
 **
-** If FILE ends in "/" then names "FILE/index.html", "FILE/index.wiki",
-** and "FILE/index.md" are  in that order.  If none of those are found,
-** then FILE is completely replaced by "404.md" and tried.  If that is
-** not found, then a default 404 screen is generated.
+** If FILE ends in "/" then the names "FILE/index.html", "FILE/index.wiki",
+** and "FILE/index.md" are tried in that order.  If the binary was compiled
+** with TH1 embedded documentation support and the "th1-docs" setting is
+** enabled, the name "FILE/index.th1" is also tried.  If none of those are
+** found, then FILE is completely replaced by "404.md" and tried.  If that
+** is not found, then a default 404 screen is generated.
 */
 void doc_page(void){
   const char *zName;                /* Argument to the /doc page */
@@ -542,6 +545,9 @@ void doc_page(void){
   int nMiss = (-1);                 /* Failed attempts to find the document */
   static const char *const azSuffix[] = {
      "index.html", "index.wiki", "index.md"
+#ifdef FOSSIL_ENABLE_TH1_DOCS
+      , "index.th1"
+#endif
   };
 
   login_check_credentials();
@@ -549,10 +555,11 @@ void doc_page(void){
   blob_init(&title, 0, 0);
   db_begin_transaction();
   while( rid==0 && (++nMiss)<=ArraySize(azSuffix) ){
-    zName = PD("name", "tip/index.wiki");
+    zName = P("name");
+    if( zName==0 || zName[0]==0 ) zName = "tip/index.wiki";
     for(i=0; zName[i] && zName[i]!='/'; i++){}
     zCheckin = mprintf("%.*s", i, zName);
-    if( fossil_strcmp(zCheckin,"ckout")==0 && db_open_local(0)==0 ){
+    if( fossil_strcmp(zCheckin,"ckout")==0 && g.localOpen==0 ){
       zCheckin = "tip";
     }
     if( nMiss==ArraySize(azSuffix) ){

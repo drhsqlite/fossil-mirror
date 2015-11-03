@@ -179,12 +179,13 @@ static void bisect_chart(int sortByCkinTime){
   Blob log, id;
   Stmt q;
   int cnt = 0;
+  int iCurrent = db_lget_int("checkout",0);
   blob_init(&log, zLog, -1);
   db_multi_exec(
      "CREATE TEMP TABLE bilog("
      "  seq INTEGER PRIMARY KEY,"  /* Sequence of events */
      "  stat TEXT,"                /* Type of occurrence */
-     "  rid INTEGER"               /* Check-in number */
+     "  rid INTEGER UNIQUE"        /* Check-in number */
      ");"
   );
   db_prepare(&q, "INSERT OR IGNORE INTO bilog(seq,stat,rid)"
@@ -199,24 +200,27 @@ static void bisect_chart(int sortByCkinTime){
   }
   db_bind_int(&q, ":seq", ++cnt);
   db_bind_text(&q, ":stat", "CURRENT");
-  db_bind_int(&q, ":rid", db_lget_int("checkout", 0));
+  db_bind_int(&q, ":rid", iCurrent);
   db_step(&q);
   db_finalize(&q);
   db_prepare(&q,
     "SELECT bilog.seq, bilog.stat,"
-    "       substr(blob.uuid,1,16), datetime(event.mtime)"
+    "       substr(blob.uuid,1,16), datetime(event.mtime),"
+    "       blob.rid==%d"
     "  FROM bilog, blob, event"
     " WHERE blob.rid=bilog.rid AND event.objid=bilog.rid"
     "   AND event.type='ci'"
     " ORDER BY %s bilog.rowid ASC",
-    (sortByCkinTime ? "event.mtime DESC, " : "")
+    iCurrent, (sortByCkinTime ? "event.mtime DESC, " : "")
   );
   while( db_step(&q)==SQLITE_ROW ){
-    fossil_print("%3d %-7s %s %s\n",
+    const char *zGoodBad = db_column_text(&q, 1);
+    fossil_print("%3d %-7s %s %s%s\n",
         db_column_int(&q, 0),
-        db_column_text(&q, 1),
+        zGoodBad,
         db_column_text(&q, 3),
-        db_column_text(&q, 2));
+        db_column_text(&q, 2),
+        (db_column_int(&q, 4) && zGoodBad[0]!='C') ? " CURRENT" : "");
   }
   db_finalize(&q);
 }

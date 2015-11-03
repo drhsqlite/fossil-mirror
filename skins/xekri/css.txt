@@ -1,10 +1,10 @@
 /******************************************************************************
  * Xekri
  *
- * To adjust the width of the contents for this skin, look for the "max-width" 
- * property and change its value.  (It's in the "Main Area" section)  The value 
- * determines how much of the browser window to use.  Some like 100%, so that 
- * the entire window is used.  Others prefer 80%, which makes the contents 
+ * To adjust the width of the contents for this skin, look for the "max-width"
+ * property and change its value.  (It's in the "Main Area" section)  The value
+ * determines how much of the browser window to use.  Some like 100%, so that
+ * the entire window is used.  Others prefer 80%, which makes the contents
  * easier to read for them.
  */
 
@@ -933,16 +933,16 @@ span.wikiruleHead {
 
 /* format for user color input on checkin edit page */
 input.checkinUserColor {
-  /* no special definitions, class defined, to enable color pickers, 
+  /* no special definitions, class defined, to enable color pickers,
   * f.e.:
-  * ** add the color picker found at http:jscolor.com as java script 
+  * ** add the color picker found at http:jscolor.com as java script
   * include
   * ** to the header and configure the java script file with
   * ** 1. use as bindClass :checkinUserColor
   * ** 2. change the default hash adding behaviour to ON
-  * ** or change the class defition of element identified by 
+  * ** or change the class defition of element identified by
   * id="clrcust"
-  * ** to a standard jscolor definition with java script in the footer. 
+  * ** to a standard jscolor definition with java script in the footer.
   * */
 }
 

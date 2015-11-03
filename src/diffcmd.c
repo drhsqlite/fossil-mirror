@@ -36,6 +36,28 @@
 #define DIFF_NO_NAME  "(unknown)"
 
 /*
+** Use the "exec-rel-paths" setting and the --exec-abs-paths and
+** --exec-rel-paths command line options to determine whether
+** certain external commands are executed using relative paths.
+*/
+static int determine_exec_relative_option(int force)
+{
+  static int relativePaths = -1;
+  if( force || relativePaths==-1 ){
+    int relPathOption = find_option("exec-rel-paths", 0, 0)!=0;
+    int absPathOption = find_option("exec-abs-paths", 0, 0)!=0;
+#if defined(FOSSIL_ENABLE_EXEC_REL_PATHS)
+    relativePaths = db_get_boolean("exec-rel-paths", 1);
+#else
+    relativePaths = db_get_boolean("exec-rel-paths", 0);
+#endif
+    if( relPathOption ){ relativePaths = 1; }
+    if( absPathOption ){ relativePaths = 0; }
+  }
+  return relativePaths;
+}
+
+/*
 ** Print the "Index:" message that patches wants to see at the top of a diff.
 */
 void diff_print_index(const char *zFile, u64 diffFlags){
@@ -278,7 +300,7 @@ void diff_file_mem(
 }
 
 /*
-** Do a diff against a single file named in zFileTreeName from version zFrom
+** Do a diff against a single file named in zFile from version zFrom
 ** against the same file on disk.
 **
 ** Use the internal diff logic if zDiffCmd is NULL.  Otherwise call the
@@ -289,24 +311,24 @@ void diff_file_mem(
 ** will be skipped in addition to files that may contain binary content.
 */
 static void diff_one_against_disk(
-  const char *zFrom,        /* Name of file */
+  const char *zFrom,        /* Version tag for the "before" file */
   const char *zDiffCmd,     /* Use this "diff" command */
   const char *zBinGlob,     /* Treat file names matching this as binary */
   int fIncludeBinary,       /* Include binary files for external diff */
   u64 diffFlags,            /* Diff control flags */
-  const char *zFileTreeName
+  const char *zFile         /* Name of the file to be diffed */
 ){
   Blob fname;
   Blob content;
   int isLink;
   int isBin;
-  file_tree_name(zFileTreeName, &fname, 0, 1);
+  file_tree_name(zFile, &fname, 0, 1);
   historical_version_of_file(zFrom, blob_str(&fname), &content, &isLink, 0,
                              fIncludeBinary ? 0 : &isBin, 0);
   if( !isLink != !file_wd_islink(zFrom) ){
     fossil_print("%s",DIFF_CANNOT_COMPUTE_SYMLINK);
   }else{
-    diff_file(&content, isBin, zFileTreeName, zFileTreeName,
+    diff_file(&content, isBin, zFile, zFile,
               zDiffCmd, zBinGlob, fIncludeBinary, diffFlags);
   }
   blob_reset(&content);
@@ -386,9 +408,18 @@ static void diff_all_against_disk(
     int isNew = db_column_int(&q,3);
     int srcid = db_column_int(&q, 4);
     int isLink = db_column_int(&q, 5);
-    char *zToFree = mprintf("%s%s", g.zLocalRoot, zPathname);
-    const char *zFullName = zToFree;
+    const char *zFullName;
     int showDiff = 1;
+    Blob fname;
+
+    if( determine_exec_relative_option(0) ){
+      blob_zero(&fname);
+      file_relative_name(zPathname, &fname, 1);
+    }else{
+      blob_set(&fname, g.zLocalRoot);
+      blob_append(&fname, zPathname, -1);
+    }
+    zFullName = blob_str(&fname);
     if( isDeleted ){
       fossil_print("DELETED  %s\n", zPathname);
       if( !asNewFile ){ showDiff = 0; zFullName = NULL_DEVICE; }
@@ -401,6 +432,10 @@ static void diff_all_against_disk(
       if( !asNewFile ){ showDiff = 0; }
     }else if( isChnged==3 ){
       fossil_print("ADDED_BY_MERGE %s\n", zPathname);
+      srcid = 0;
+      if( !asNewFile ){ showDiff = 0; }
+    }else if( isChnged==5 ){
+      fossil_print("ADDED_BY_INTEGRATE %s\n", zPathname);
       srcid = 0;
       if( !asNewFile ){ showDiff = 0; }
     }
@@ -424,10 +459,75 @@ static void diff_all_against_disk(
                 zBinGlob, fIncludeBinary, diffFlags);
       blob_reset(&content);
     }
-    free(zToFree);
+    blob_reset(&fname);
   }
   db_finalize(&q);
   db_end_transaction(1);  /* ROLLBACK */
+}
+
+/*
+** Do a diff of a single file named in zFile against the
+** version of this file held in the undo buffer.
+**
+** Use the internal diff logic if zDiffCmd is NULL.  Otherwise call the
+** command zDiffCmd to do the diffing.
+**
+** When using an external diff program, zBinGlob contains the GLOB patterns
+** for file names to treat as binary.  If fIncludeBinary is zero, these files
+** will be skipped in addition to files that may contain binary content.
+*/
+static void diff_one_against_undo(
+  const char *zDiffCmd,     /* Use this "diff" command */
+  const char *zBinGlob,     /* Treat file names matching this as binary */
+  int fIncludeBinary,       /* Include binary files for external diff */
+  u64 diffFlags,            /* Diff control flags */
+  const char *zFile         /* Name of the file to be diffed */
+){
+  Blob fname;
+  Blob content;
+
+  blob_init(&content, 0, 0);
+  file_tree_name(zFile, &fname, 0, 1);
+  db_blob(&content, "SELECT content FROM undo WHERE pathname=%Q",
+                    blob_str(&fname));
+  if( blob_size(&content) ){
+    diff_file(&content, 0, zFile, zFile,
+              zDiffCmd, zBinGlob, fIncludeBinary, diffFlags);
+  }
+  blob_reset(&content);
+  blob_reset(&fname);
+}
+
+/*
+** Run a diff between the undo buffer and files on disk.
+**
+** Use the internal diff logic if zDiffCmd is NULL.  Otherwise call the
+** command zDiffCmd to do the diffing.
+**
+** When using an external diff program, zBinGlob contains the GLOB patterns
+** for file names to treat as binary.  If fIncludeBinary is zero, these files
+** will be skipped in addition to files that may contain binary content.
+*/
+static void diff_all_against_undo(
+  const char *zDiffCmd,     /* Use this diff command.  NULL for built-in */
+  const char *zBinGlob,     /* Treat file names matching this as binary */
+  int fIncludeBinary,       /* Treat file names matching this as binary */
+  u64 diffFlags             /* Flags controlling diff output */
+){
+  Stmt q;
+  Blob content;
+  db_prepare(&q, "SELECT pathname, content FROM undo");
+  blob_init(&content, 0, 0);
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zFile = (const char*)db_column_text(&q, 0);
+    char *zFullName = mprintf("%s%s", g.zLocalRoot, zFile);
+    db_column_blob(&q, 1, &content);
+    diff_file(&content, 0, zFullName, zFile,
+              zDiffCmd, zBinGlob, fIncludeBinary, diffFlags);
+    fossil_free(zFullName);
+    blob_reset(&content);
+  }
+  db_finalize(&q);
 }
 
 /*
@@ -442,13 +542,13 @@ static void diff_all_against_disk(
 ** will be skipped in addition to files that may contain binary content.
 */
 static void diff_one_two_versions(
-  const char *zFrom,
-  const char *zTo,
-  const char *zDiffCmd,
-  const char *zBinGlob,
-  int fIncludeBinary,
-  u64 diffFlags,
-  const char *zFileTreeName
+  const char *zFrom,            /* Version tag for the "before" file */
+  const char *zTo,              /* Version tag for the "after" file */
+  const char *zDiffCmd,         /* Use this "diff" command */
+  const char *zBinGlob,         /* GLOB pattern for files that are binary */
+  int fIncludeBinary,           /* True to show binary files */
+  u64 diffFlags,                /* Diff flags */
+  const char *zFile             /* Name of the file to be diffed */
 ){
   char *zName;
   Blob fname;
@@ -456,7 +556,7 @@ static void diff_one_two_versions(
   int isLink1, isLink2;
   int isBin1, isBin2;
   if( diffFlags & DIFF_BRIEF ) return;
-  file_tree_name(zFileTreeName, &fname, 0, 1);
+  file_tree_name(zFile, &fname, 0, 1);
   zName = blob_str(&fname);
   historical_version_of_file(zFrom, zName, &v1, &isLink1, 0,
                              fIncludeBinary ? 0 : &isBin1, 0);
@@ -602,7 +702,7 @@ static void diff_all_two_versions(
 ** no external diff command is defined.
 */
 const char *diff_command_external(int guiDiff){
-  char *zDefault;
+  const char *zDefault;
   const char *zName;
 
   if( guiDiff ){
@@ -749,12 +849,15 @@ const char *diff_get_binary_glob(void){
 **   --brief                    Show filenames only
 **   --context|-c N             Use N lines of context
 **   --diff-binary BOOL         Include binary files when using external commands
+**   --exec-abs-paths           Force absolute path names with external commands.
+**   --exec-rel-paths           Force relative path names with external commands.
 **   --from|-r VERSION          select VERSION as source for the diff
 **   --internal|-i              use internal diff logic
 **   --side-by-side|-y          side-by-side diff
 **   --strip-trailing-cr        Strip trailing CR
 **   --tk                       Launch a Tcl/Tk GUI for display
 **   --to VERSION               select VERSION as target for the diff
+**   --undo                     Diff against the "undo" buffer
 **   --unified                  unified diff
 **   -v|--verbose               output complete text of added or deleted files
 **   -w|--ignore-all-space      Ignore white space when comparing lines
@@ -771,8 +874,8 @@ void diff_cmd(void){
   const char *zDiffCmd = 0;  /* External diff command. NULL for internal diff */
   const char *zBinGlob = 0;  /* Treat file names matching this as binary */
   int fIncludeBinary = 0;    /* Include binary files for external diff */
+  int againstUndo = 0;       /* Diff against files in the undo buffer */
   u64 diffFlags = 0;         /* Flags to control the DIFF */
-  int f;
 
   if( find_option("tk",0,0)!=0 ){
     diff_tk("diff", 2);
@@ -783,12 +886,16 @@ void diff_cmd(void){
   zFrom = find_option("from", "r", 1);
   zTo = find_option("to", 0, 1);
   zBranch = find_option("branch", 0, 1);
+  againstUndo = find_option("undo",0,0)!=0;
   diffFlags = diff_options();
   verboseFlag = find_option("verbose","v",0)!=0;
   if( !verboseFlag ){
     verboseFlag = find_option("new-file","N",0)!=0; /* deprecated */
   }
   if( verboseFlag ) diffFlags |= DIFF_VERBOSE;
+  if( againstUndo && (zFrom!=0 || zTo!=0 || zBranch!=0) ){
+    fossil_fatal("cannot use --undo together with --from or --to or --branch");
+  }
   if( zBranch ){
     if( zTo || zFrom ){
       fossil_fatal("cannot use --from or --to with --branch");
@@ -796,37 +903,52 @@ void diff_cmd(void){
     zTo = zBranch;
     zFrom = mprintf("root:%s", zBranch);
   }
-  if( zTo==0 ){
+  if( zTo==0 || againstUndo ){
     db_must_be_within_tree();
-    if( !isInternDiff ){
-      zDiffCmd = diff_command_external(isGDiff);
+  }else if( zFrom==0 ){
+    fossil_fatal("must use --from if --to is present");
+  }else{
+    db_find_and_open_repository(0, 0);
+  }
+  if( !isInternDiff ){
+    zDiffCmd = diff_command_external(isGDiff);
+  }
+  zBinGlob = diff_get_binary_glob();
+  fIncludeBinary = diff_include_binary_files();
+  determine_exec_relative_option(1);
+  verify_all_options();
+  if( againstUndo ){
+    if( db_lget_int("undo_available",0)==0 ){
+      fossil_print("No undo or redo is available\n");
+      return;
     }
-    zBinGlob = diff_get_binary_glob();
-    fIncludeBinary = diff_include_binary_files();
-    verify_all_options();
     if( g.argc>=3 ){
-      for(f=2; f<g.argc; ++f){
+      int i;
+      for(i=2; i<g.argc; i++){
+        diff_one_against_undo(zDiffCmd, zBinGlob, fIncludeBinary,
+                              diffFlags, g.argv[i]);
+      }
+    }else{
+      diff_all_against_undo(zDiffCmd, zBinGlob, fIncludeBinary,
+                            diffFlags);
+    }
+  }else if( zTo==0 ){
+    if( g.argc>=3 ){
+      int i;
+      for(i=2; i<g.argc; i++){
         diff_one_against_disk(zFrom, zDiffCmd, zBinGlob, fIncludeBinary,
-                              diffFlags, g.argv[f]);
+                              diffFlags, g.argv[i]);
       }
     }else{
       diff_all_against_disk(zFrom, zDiffCmd, zBinGlob, fIncludeBinary,
                             diffFlags);
     }
-  }else if( zFrom==0 ){
-    fossil_fatal("must use --from if --to is present");
   }else{
-    db_find_and_open_repository(0, 0);
-    if( !isInternDiff ){
-      zDiffCmd = diff_command_external(isGDiff);
-    }
-    zBinGlob = diff_get_binary_glob();
-    fIncludeBinary = diff_include_binary_files();
-    verify_all_options();
     if( g.argc>=3 ){
-      for(f=2; f<g.argc; ++f){
+      int i;
+      for(i=2; i<g.argc; i++){
         diff_one_two_versions(zFrom, zTo, zDiffCmd, zBinGlob, fIncludeBinary,
-                              diffFlags, g.argv[f]);
+                              diffFlags, g.argv[i]);
       }
     }else{
       diff_all_two_versions(zFrom, zTo, zDiffCmd, zBinGlob, fIncludeBinary,

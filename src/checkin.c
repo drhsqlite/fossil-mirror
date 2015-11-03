@@ -64,7 +64,7 @@ static void status_report(
   }
 
   db_prepare(&q,
-    "SELECT pathname, deleted, chnged, rid, coalesce(origname!=pathname,0)"
+    "SELECT pathname, deleted, chnged, rid, coalesce(origname!=pathname,0), islink"
     "  FROM vfile "
     " WHERE is_selected(id) %s"
     "   AND (chnged OR deleted OR rid=0 OR pathname!=origname)"
@@ -79,6 +79,7 @@ static void status_report(
     int isChnged = db_column_int(&q,2);
     int isNew = db_column_int(&q,3)==0;
     int isRenamed = db_column_int(&q,4);
+    int isLink = db_column_int(&q,5);
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
     if( cwdRelative ){
       file_relative_name(zFullName, &rewrittenPathname, 0);
@@ -123,7 +124,7 @@ static void status_report(
         blob_appendf(report, "UNEXEC     %s\n", zDisplayName);
       }else if( isChnged==9 ){
         blob_appendf(report, "UNLINK     %s\n", zDisplayName);
-      }else if( file_contains_merge_marker(zFullName) ){
+      }else if( !isLink && file_contains_merge_marker(zFullName) ){
         blob_appendf(report, "CONFLICT   %s\n", zDisplayName);
       }else{
         blob_appendf(report, "EDITED     %s\n", zDisplayName);
@@ -436,7 +437,7 @@ void ls_cmd(void){
     );
   }else{
     db_prepare(&q,
-       "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0)"
+       "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0), islink"
        "  FROM vfile %s"
        " ORDER BY %s", blob_sql_text(&where), zOrderBy /*safe-for-%s*/
     );
@@ -448,6 +449,7 @@ void ls_cmd(void){
     int isNew = db_column_int(&q,2)==0;
     int chnged = db_column_int(&q,3);
     int renamed = db_column_int(&q,4);
+    int isLink = db_column_int(&q,5);
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
     const char *type = "";
     if( verboseFlag ){
@@ -470,7 +472,7 @@ void ls_cmd(void){
           type = "UPDATED_BY_INTEGRATE ";
         }else if( chnged==5 ){
           type = "ADDED_BY_INTEGRATE ";
-        }else if( file_contains_merge_marker(zFullName) ){
+        }else if( !isLink && file_contains_merge_marker(zFullName) ){
           type = "CONFLICT   ";
         }else{
           type = "EDITED     ";
@@ -642,10 +644,10 @@ void extras_cmd(void){
 ** Files and subdirectories whose names begin with "." are automatically
 ** ignored unless the --dotfiles option is used.
 **
-** The --verily option ignores the ignore-glob setting and turns on
-**--dotfiles, and --emptydirs.  Use the --verily option when you
-** really want to clean up everything.  Extreme care should be
-** exercised when using the --verily option.
+** The --verily option ignores the keep-glob and ignore-glob settings
+** and turns on --dotfiles, and --emptydirs.  Use the --verily
+** option when you really want to clean up everything.  Extreme care
+** should be exercised when using the --verily option.
 **
 ** Options:
 **    --allckouts      Check for empty directories within any checkouts
@@ -670,9 +672,11 @@ void extras_cmd(void){
 **                     therefore, directories that contain only files
 **                     that were removed will be removed as well.
 **    -f|--force       Remove files without prompting.
-**    -x|--verily      Remove everything that is not a managed file or
-**                     the repository itself.  Implies --emptydirs and
-**                     --dotfiles.  Disregards ignore-glob setting.
+**    -x|--verily      WARNING: Removes everything that is not a managed
+**                     file or the repository itself.  This option
+**                     implies the --emptydirs and --dotfiles options.
+**                     --disable-undo options.  Furthermore, it completely
+**                     disregards ignore-glob settings.
 **                     Compatibile with "git clean -x".
 **    --ignore <CSG>   Ignore files matching patterns from the
 **                     comma separated list of glob patterns.
@@ -724,13 +728,14 @@ void clean_cmd(void){
   if( find_option("verily","x",0)!=0 ){
     verilyFlag = 1;
     emptyDirsFlag = 1;
+    disableUndo = 1;
     scanFlags |= SCAN_ALL;
     zCleanFlag = 0;
   }
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
-  if( zKeepFlag==0 ){
+  if( zKeepFlag==0 && !verilyFlag ){
     zKeepFlag = db_get("keep-glob", 0);
   }
   if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
@@ -758,7 +763,7 @@ void clean_cmd(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       if( glob_match(pKeep, zName+nRoot) ){
-        if( verboseFlag || verilyFlag ){
+        if( verboseFlag ){
           fossil_print("KEPT file \"%s\" not removed (due to --keep"
                        " or \"keep-glob\")\n", zName+nRoot);
         }
@@ -822,7 +827,7 @@ void clean_cmd(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       if( glob_match(pKeep, zName+nRoot) ){
-        if( verboseFlag || verilyFlag ){
+        if( verboseFlag ){
           fossil_print("KEPT directory \"%s\" not removed (due to --keep"
                        " or \"keep-glob\")\n", zName+nRoot);
         }
@@ -1620,6 +1625,8 @@ static int tagCmp(const void *a, const void *b){
 **    --sha1sum                  verify file status using SHA1 hashing rather
 **                               than relying on file mtimes
 **    --tag TAG-NAME             assign given tag TAG-NAME to the check-in
+**    --date-override DATE       DATE to use instead of 'now'
+**    --user-override USER       USER to use instead of the current default
 **
 ** See also: branch, changes, checkout, extras, sync
 */

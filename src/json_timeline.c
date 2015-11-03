@@ -328,7 +328,7 @@ cson_value * json_get_changed_files(int rid, int flags){
            "       blob.size as size"
            "  FROM mlink, blob"
            " WHERE mid=%d AND pid!=fid"
-           " AND blob.rid=fid "
+           " AND blob.rid=fid AND NOT mlink.isaux"
            " ORDER BY name /*sort*/",
              rid
              );

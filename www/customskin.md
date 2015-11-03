@@ -56,7 +56,7 @@ footer, and header for that skin, respectively.
 The skin of a repository can be changed to any of the built-in skins using
 the web interface by going to the /setup_skin web page (requires Admin
 privileges) and clicking the appropriate button.  Or, the --skin command
-line option can be used for the 
+line option can be used for the
 [fossil ui](../../../help?cmd=ui) or
 [fossil server](../../../help?cmd=server) commands to force that particular
 instance of Fossil to use the specified built-in skin.
@@ -65,7 +65,7 @@ Sharing Skins
 -------------
 
 The skin of a repository is not part of the versioned state and does not
-"push" or "pull" like checked-in files.  The skin is local to the 
+"push" or "pull" like checked-in files.  The skin is local to the
 repository.  However, skins can be shared between repositories using
 the [fossil config](../../../help?cmd=configuration) command.
 The "fossil config push skin" command will send the local skin to a remote
@@ -95,7 +95,7 @@ Header And Footer Processing
 
 The header.txt and footer.txt files of a scan are merely the HTML text
 of the header and footer.  Except, before being prepended and appended to
-the content, the header and footer text are run through a 
+the content, the header and footer text are run through a
 [TH1 interpreter](./th1.md) that might adjust the text as follows:
 
   *  All text within &lt;th1&gt;...&lt;/th1&gt; is elided from the
@@ -140,7 +140,7 @@ TH1 Variables
 -------------
 
 Before expanding the TH1 within the header and footer, Fossil first
-initializes a number of TH1 variables to values that depend on 
+initializes a number of TH1 variables to values that depend on
 respository settings and the specific page being generated.
 
    *   **project_name** - The project_name variable is filled with the
@@ -164,12 +164,12 @@ respository settings and the specific page being generated.
        if the $baseurl is "http://projectX.com/cgi-bin/fossil" then the
        $home will be just "/cgi-bin/fossil".
 
-   *   **index_page** - The landing page URI as 
+   *   **index_page** - The landing page URI as
        specified by the Admin/Configuration setup page.
 
    *   **current_page** - The name of the page currently being processed,
        without the leading "/" and without query parameters.
-       Examples:  "timeline", "doc/trunk/README.txt", "wiki".  
+       Examples:  "timeline", "doc/trunk/README.txt", "wiki".
 
    *   **csrf_token** - A token used to prevent cross-site request forgery.
 

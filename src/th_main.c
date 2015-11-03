@@ -146,6 +146,99 @@ void Th_PrintTraceLog(){
 }
 
 /*
+** - adopted from ls_cmd_rev in checkin.c
+** - adopted commands/error handling for usage within th1
+** - interface adopted to allow result creation as TH1 List
+**
+** Takes a checkin identifier in zRev and an optiona glob pattern in zGLOB
+** as parameter returns a TH list in pzList,pnList with filenames matching
+** glob pattern with the checking
+*/
+static void dir_cmd_rev(
+  Th_Interp *interp,
+  char **pzList,
+  int *pnList,
+  const char *zRev,  /* Revision string given */
+  const char *zGlob, /* Glob pattern given */
+  int bDetails
+){
+  Stmt q;
+  char *zOrderBy = "pathname COLLATE nocase";
+  int rid;
+
+  rid = th1_name_to_typed_rid(interp, zRev, "ci");
+  compute_fileage(rid, zGlob);
+  db_prepare(&q,
+    "SELECT datetime(fileage.mtime, 'localtime'), fileage.pathname,\n"
+    "       blob.size\n"
+    "  FROM fileage, blob\n"
+    " WHERE blob.rid=fileage.fid \n"
+    " ORDER BY %s;", zOrderBy /*safe-for-%s*/
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zFile = db_column_text(&q, 1);
+    if( bDetails ){
+      const char *zTime = db_column_text(&q, 0);
+      int size = db_column_int(&q, 2);
+      char zSize[50];
+      char *zSubList = 0;
+      int nSubList = 0;
+      sqlite3_snprintf(sizeof(zSize), zSize, "%d", size);
+      Th_ListAppend(interp, &zSubList, &nSubList, zFile, -1);
+      Th_ListAppend(interp, &zSubList, &nSubList, zSize, -1);
+      Th_ListAppend(interp, &zSubList, &nSubList, zTime, -1);
+      Th_ListAppend(interp, pzList, pnList, zSubList, -1);
+      Th_Free(interp, zSubList);
+    }else{
+      Th_ListAppend(interp, pzList, pnList, zFile, -1);
+    }
+  }
+  db_finalize(&q);
+}
+
+/*
+** TH1 command: dir CHECKIN ?GLOB? ?DETAILS?
+**
+** Returns a list containing all files in CHECKIN. If GLOB is given only
+** the files matching the pattern GLOB within CHECKIN will be returned.
+** If DETAILS is non-zero, the result will be a list-of-lists, with each
+** element containing at least three elements: the file name, the file
+** size (in bytes), and the file last modification time (relative to the
+** time zone configured for the repository).
+*/
+static int dirCmd(
+  Th_Interp *interp,
+  void *ctx,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  const char *zGlob = 0;
+  int bDetails = 0;
+
+  if( argc<2 || argc>4 ){
+    return Th_WrongNumArgs(interp, "dir CHECKIN ?GLOB? ?DETAILS?");
+  }
+  if( argc>=3 ){
+    zGlob = argv[2];
+  }
+  if( argc>=4 && Th_ToInt(interp, argv[3], argl[3], &bDetails) ){
+    return TH_ERROR;
+  }
+  if( Th_IsRepositoryOpen() ){
+    char *zList = 0;
+    int nList = 0;
+    dir_cmd_rev(interp, &zList, &nList, argv[1], zGlob, bDetails);
+    Th_SetResult(interp, zList, nList);
+    Th_Free(interp, zList);
+    return TH_OK;
+  }else{
+    Th_SetResult(interp, "repository unavailable", -1);
+    return TH_ERROR;
+  }
+}
+
+/*
 ** TH1 command: httpize STRING
 **
 ** Escape all characters of STRING which have special meaning in URI
@@ -341,6 +434,36 @@ static int putsCmd(
 }
 
 /*
+** TH1 command: markdown STRING
+**
+** Renders the input string as markdown.  The result is a two-element list.
+** The first element is the text-only title string.  The second element
+** contains the body, rendered as HTML.
+*/
+static int markdownCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  Blob src, title, body;
+  char *zValue = 0;
+  int nValue = 0;
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "markdown STRING");
+  }
+  blob_zero(&src);
+  blob_init(&src, (char*)argv[1], argl[1]);
+  blob_zero(&title); blob_zero(&body);
+  markdown_to_html(&src, &title, &body);
+  Th_ListAppend(interp, &zValue, &nValue, blob_str(&title), blob_size(&title));
+  Th_ListAppend(interp, &zValue, &nValue, blob_str(&body), blob_size(&body));
+  Th_SetResult(interp, zValue, nValue);
+  return TH_OK;
+}
+
+/*
 ** TH1 command: decorate STRING
 ** TH1 command: wiki STRING
 **
@@ -385,6 +508,28 @@ static int htmlizeCmd(
     return Th_WrongNumArgs(interp, "htmlize STRING");
   }
   zOut = htmlize((char*)argv[1], argl[1]);
+  Th_SetResult(interp, zOut, -1);
+  free(zOut);
+  return TH_OK;
+}
+
+/*
+** TH1 command: encode64 STRING
+**
+** Encode the specified string using Base64 and return the result.
+*/
+static int encode64Cmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  char *zOut;
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "encode64 STRING");
+  }
+  zOut = encode64((char*)argv[1], argl[1]);
   Th_SetResult(interp, zOut, -1);
   free(zOut);
   return TH_OK;
@@ -510,6 +655,7 @@ static int searchableCmd(
 **
 ** "ssl"             = FOSSIL_ENABLE_SSL
 ** "legacyMvRm"      = FOSSIL_ENABLE_LEGACY_MV_RM
+** "execRelPaths"    = FOSSIL_ENABLE_EXEC_REL_PATHS
 ** "th1Docs"         = FOSSIL_ENABLE_TH1_DOCS
 ** "th1Hooks"        = FOSSIL_ENABLE_TH1_HOOKS
 ** "tcl"             = FOSSIL_ENABLE_TCL
@@ -521,6 +667,8 @@ static int searchableCmd(
 ** "unicodeCmdLine"  = !BROKEN_MINGW_CMDLINE
 ** "dynamicBuild"    = FOSSIL_DYNAMIC_BUILD
 **
+** Specifying an unknown feature will return a value of false, it will not
+** raise a script error.
 */
 static int hasfeatureCmd(
   Th_Interp *interp,
@@ -545,6 +693,11 @@ static int hasfeatureCmd(
 #endif
 #if defined(FOSSIL_ENABLE_LEGACY_MV_RM)
   else if( 0 == fossil_strnicmp( zArg, "legacyMvRm\0", 11 ) ){
+    rc = 1;
+  }
+#endif
+#if defined(FOSSIL_ENABLE_EXEC_REL_PATHS)
+  else if( 0 == fossil_strnicmp( zArg, "execRelPaths\0", 13 ) ){
     rc = 1;
   }
 #endif
@@ -1604,7 +1757,9 @@ void Th_FossilInit(u32 flags){
     {"combobox",      comboboxCmd,          0},
     {"date",          dateCmd,              0},
     {"decorate",      wikiCmd,              (void*)&aFlags[2]},
+    {"dir",           dirCmd,               0},
     {"enable_output", enableOutputCmd,      0},
+    {"encode64",      encode64Cmd,          0},
     {"getParameter",  getParameterCmd,      0},
     {"glob_match",    globMatchCmd,         0},
     {"globalState",   globalStateCmd,       0},
@@ -1615,6 +1770,7 @@ void Th_FossilInit(u32 flags){
     {"htmlize",       htmlizeCmd,           0},
     {"http",          httpCmd,              0},
     {"linecount",     linecntCmd,           0},
+    {"markdown",      markdownCmd,          0},
     {"puts",          putsCmd,              (void*)&aFlags[1]},
     {"query",         queryCmd,             0},
     {"randhex",       randhexCmd,           0},
