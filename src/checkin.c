@@ -744,6 +744,7 @@ void clean_cmd(void){
     disableUndo = 1;
     scanFlags |= SCAN_ALL;
     zCleanFlag = 0;
+    noPrompt = 1;
   }
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
