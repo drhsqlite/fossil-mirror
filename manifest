@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.9.2
-D 2015-11-04T12:02:11.006
+C Document\sthe\s--quiet\soption\sto\s'fossil\srebuild'.
+D 2015-11-04T23:40:55.093
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -468,7 +468,7 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 3d86d4ec595025c938053049ea915012e2b10306
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c 211c55255d42f06781ae68f26e5ed4a2c9239ad1
-F src/rebuild.c 5aaf2a7ce639be4caa966eafa59775ca997bda4f
+F src/rebuild.c 6680615f36af1823630d44871444273906c0b2ff
 F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c de3d39a59b923d0259a01cb7b66244860778e39d
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
@@ -743,11 +743,8 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 62dcb00e68b792063f2067b6087befddf6fd89d0
-Q +aa92270fe96d4923307f68f7e0743739042eebf3
-R 7c238c70c05c886fe975e4ad733bfacd
-T *branch * branch-1.34
-T *sym-branch-1.34 *
-T -sym-trunk *
-U jan.nijtmans
-Z aeb034618c41fdf938912ca41b69e022
+P ac3889f03ba7acfc896a4c933bc13c0b562b3c40
+Q +a25702b0192334117ae2a76265c0dad2c03aaffe
+R d89d517433a8e628fd37cc8b46f190a2
+U mistachkin
+Z 9c87d1d970d2965145a05f487c624d1f
