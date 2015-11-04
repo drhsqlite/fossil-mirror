@@ -791,7 +791,40 @@ static void sbsWriteLineChange(
     }
     if( nSuffix==nLeft || nSuffix==nRight ) nPrefix = 0;
   }
-  if( nPrefix+nSuffix > nShort ) nPrefix = nShort - nSuffix;
+
+  /* If the prefix and suffix overlap, that means that we are dealing with
+  ** a pure insertion or deletion of text that can have multiple alignments.
+  ** Try to find an alignment to begins and ends on whitespace, or on
+  ** punctuation, rather than in the middle of a name or number.
+  */
+  if( nPrefix+nSuffix > nShort ){
+    int iBest = -1;
+    int iBestVal = -1;
+    int i;
+    int nLong = nLeft<nRight ? nRight : nLeft;
+    int nGap = nLong - nShort;
+    for(i=nShort-nSuffix; i<=nPrefix; i++){
+       int iVal = 0;
+       char c = zLeft[i];
+       if( fossil_isspace(c) ){
+         iVal += 5;
+       }else if( !fossil_isalnum(c) ){
+         iVal += 2;
+       }
+       c = zLeft[i+nGap-1];
+       if( fossil_isspace(c) ){
+         iVal += 5;
+       }else if( !fossil_isalnum(c) ){
+         iVal += 2;
+       }
+       if( iVal>iBestVal ){
+         iBestVal = iVal;
+         iBest = i;
+       }
+    }
+    nPrefix = iBest;
+    nSuffix = nShort - nPrefix;
+  }
 
   /* A single chunk of text inserted on the right */
   if( nPrefix+nSuffix==nLeft ){

@@ -1,5 +1,5 @@
-C Include\sthe\srelease\sversion\snumber\sin\sthe\sfooter\sof\sall\sthe\sbuilt-in\sskins.
-D 2015-11-04T00:36:48.448
+C Improved\shighlighting\sof\schanges\sin\sthe\scolor-coded\sside-by-side\sdiff.
+D 2015-11-04T17:51:03.343
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -400,7 +400,7 @@ F src/db.c 857395518c7ced63b0b8cf033327ce86a936266c
 F src/delta.c d0dd6f11845026bad3fccadf52ebb7bb9f508cb3
 F src/deltacmd.c 4ff465c4331af328c6691103745de17e92d36007
 F src/descendants.c 1eb2bb891117be886ac87a7db842293221639326
-F src/diff.c 4600d39f61675941c756f5425e6bd5702f35eedf
+F src/diff.c 43862aac708de20ebd44e3278cbb8bdbfef74abc
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
 F src/diffcmd.c aafa5bbc29bc6ab8980da9a3ab21a062bc75b322
 F src/doc.c 10cb5eb292f330f8ed1c3416252e746db61d74a4
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 81d7ce3018f07798b12266b0c946dca7b5a00c52
-R f51fb325c325ee2a2efe90c9f27b691e
+P 2186f0f0e74ba43f8f566726599c3537d04d7f9e
+R 7bf49fa8c3cddea73848f8685ca760bc
 U drh
-Z d0937a4c285a1b522c0ff55fd8b3d19f
+Z 8c644a96b8dc9269e7b8589b74eb4d5b
