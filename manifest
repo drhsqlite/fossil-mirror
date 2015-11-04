@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.9.2
-D 2015-11-03T22:09:23.199
+C Fix\sissue\swith\s[9ecbfb3724]\sthat\scaused\sthe\sversioned\s'allow-symlinks'\ssetting\sto\sbe\signored.
+D 2015-11-04T00:18:50.601
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -396,7 +396,7 @@ F src/content.c 49fd70d3136fbeb4794b7ef2f76c977c3ea77013
 F src/cson_amalgamation.c 75be6142c327581dd9e10e0c0816c18c50d7a7fa
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c f10d6d34fa24d229b21cb166b9b773226b50ad2b
+F src/db.c 857395518c7ced63b0b8cf033327ce86a936266c
 F src/delta.c d0dd6f11845026bad3fccadf52ebb7bb9f508cb3
 F src/deltacmd.c 4ff465c4331af328c6691103745de17e92d36007
 F src/descendants.c 1eb2bb891117be886ac87a7db842293221639326
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9ecbfb372498ae6d770b92f77257b1dc15d4d5ee
-R 9cd62b83087fe77dc9aa4e7c718b49f7
-U jan.nijtmans
-Z 1e9272508ab51d6f490525c9e51d03e6
+P aa92270fe96d4923307f68f7e0743739042eebf3
+R 185cc4f62b0c6718b5ea8ec745e736a0
+U mistachkin
+Z e809e7e84d204d2ed6036874bc0f947f

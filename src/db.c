@@ -1138,6 +1138,18 @@ const char *db_repository_filename(void){
 }
 
 /*
+** Returns non-zero if the default value for the "allow-symlinks" setting
+** is "on".
+*/
+int db_allow_symlinks_by_default(void){
+#if defined(_WIN32)
+  return 0;
+#else
+  return 1;
+#endif
+}
+
+/*
 ** Open the repository database given by zDbName.  If zDbName==NULL then
 ** get the name from the already open local database.
 */
@@ -1174,7 +1186,8 @@ void db_open_repository(const char *zDbName){
   db_open_or_attach(g.zRepositoryName, "repository", 0);
   g.repositoryOpen = 1;
   /* Cache "allow-symlinks" option, because we'll need it on every stat call */
-  g.allowSymlinks = db_get_boolean("allow-symlinks", 0);
+  g.allowSymlinks = db_get_boolean("allow-symlinks",
+                                   db_allow_symlinks_by_default());
   g.zAuxSchema = db_get("aux-schema","");
 
   /* Verify that the PLINK table has a new column added by the
@@ -2112,6 +2125,13 @@ int db_get_boolean(const char *zName, int dflt){
   if( is_false(zVal) ) return 0;
   return dflt;
 }
+int db_get_versioned_boolean(const char *zName, int dflt){
+  char *zVal = db_get_versioned(zName, 0);
+  if( zVal==0 ) return dflt;
+  if( is_truth(zVal) ) return 1;
+  if( is_false(zVal) ) return 0;
+  return dflt;
+}
 char *db_lget(const char *zName, const char *zDefault){
   return db_text(zDefault,
                  "SELECT value FROM vvar WHERE name=%Q", zName);
@@ -2221,6 +2241,7 @@ void cmd_open(void){
   int keepFlag;
   int forceMissingFlag;
   int allowNested;
+  int allowSymlinks;
   static char *azNewArgv[] = { 0, "checkout", "--prompt", 0, 0, 0, 0 };
 
   url_proxy_options();
@@ -2249,6 +2270,20 @@ void cmd_open(void){
     }
   }
 
+  if( g.zOpenRevision ){
+    /* Since the repository is open and we know the revision now,
+    ** refresh the allow-symlinks flag.  Since neither the local
+    ** checkout nor the configuration database are open at this
+    ** point, this should always return the versioned setting,
+    ** if any, or the default value, which is negative one.  The
+    ** value negative one, in this context, means that the code
+    ** below should fallback to using the setting value from the
+    ** repository or global configuration databases only. */
+    allowSymlinks = db_get_versioned_boolean("allow-symlinks", -1);
+  }else{
+    allowSymlinks = -1; /* Use non-versioned settings only. */
+  }
+
 #if defined(_WIN32) || defined(__CYGWIN__)
 # define LOCALDB_NAME "./_FOSSIL_"
 #else
@@ -2261,10 +2296,21 @@ void cmd_open(void){
                    (char*)0);
   db_delete_on_failure(LOCALDB_NAME);
   db_open_local(0);
-  if( g.zOpenRevision ){
-    /* Since the repository is open and we know the revision now,
-    ** refresh the allow-symlinks flag. */
-    g.allowSymlinks = db_get_boolean("allow-symlinks", 0);
+  if( allowSymlinks>=0 ){
+    /* Use the value from the versioned setting, which was read
+    ** prior to opening the local checkout (i.e. which is most
+    ** likely empty and does not actually contain any versioned
+    ** setting files yet).  Normally, this value would be given
+    ** first priority within db_get_boolean(); however, this is
+    ** a special case because we know the on-disk files may not
+    ** exist yet. */
+    g.allowSymlinks = allowSymlinks;
+  }else{
+    /* Since the local checkout may not have any files at this
+    ** point, this will probably be the setting value from the
+    ** repository or global configuration databases. */
+    g.allowSymlinks = db_get_boolean("allow-symlinks",
+                                     db_allow_symlinks_by_default());
   }
   db_lset("repository", g.argv[2]);
   db_record_repository_filename(g.argv[2]);
