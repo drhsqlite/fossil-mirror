@@ -1,5 +1,5 @@
-C merge\scleanX
-D 2015-11-03T23:50:00.000
+C Don't\sprompt\swhen\susing\s-x
+D 2015-11-04T00:50:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596 x
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -384,7 +384,7 @@ F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c d174d5926e1af9a243a0768ca23bc38e11d2652e
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 38b5b08eda88b4d256948d431e2f0094009644ae
-F src/checkin.c 0bf074ebc9fe8cce2535489af4773625228168d9
+F src/checkin.c bf54ee1c3602e4b772d1139e4e6e668d22ad7329
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 265e9a29da905f3ab68625a9a5b245d7630275b2
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 346d62a4118d868bf4178e59946a64c6c23d369c c7fbeb7aaa674fd1488cf181f14abffdccbb53bf
-R a3181fa044af5c43d1a94541e1250e03
+P 607bc737e755c7bd03c084583804c0a94cceff2c daf352e7a19611f84f09765d787e45b1a6ed9b14
+R baaffce90fff940eba376dcedcba1a60
 U jan.nijtmans
-Z 4757377c9c72db2be04f4959c4239c88
+Z 1f5e603c01304a280ab525e9a4edfd28
