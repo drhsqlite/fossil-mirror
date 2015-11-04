@@ -1,5 +1,5 @@
-C Version\s1.34
-D 2015-11-02T17:35:44.800
+C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.9.2
+D 2015-11-04T12:02:11.006
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -9,7 +9,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile 00fb6a32bac0840bdbdc612440dc2f0c296d9d91
+F Dockerfile c7e39f0670b8a4740761d38bb1fb7becfca8fd08
 F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
 F Makefile.in 4c745f08a8ecfe6e1f227e2a6d33cce3adc532d0
 F VERSION a75c890f5a88bff69d63f342449e76fb3f720928
@@ -481,8 +481,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 44d3881e497cf9bec8ea6dcf73830502ab59202c
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c 5e6d1873a32d82c2cf8581f143649940cac8ae49
-F src/sqlite3.h 6164f4548706cc5c8a23c41605544f6c0bd6c50c
+F src/sqlite3.c 1c4013876f50bbaa3e6f0f98e0147c76287684c1
+F src/sqlite3.h 6fcafa8e21f4fbc1ecb664095af2f3c0ed1a2e6a
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 69ab1f0d78ccb91fc81f8f3930046025034a3250
 F src/statrep.c 2475cba0c91bdaa6f51a61565732ece308fadf42
@@ -743,10 +743,11 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 808cda318db31b21e182a334b23a657368f8f58a
-R f163bb2a006c2485e882afdc71652d25
-T +bgcolor * #d0c0ff
-T +sym-release *
-T +sym-version-1.34 *
-U drh
-Z 5308f64d9dc95c67aed2e7ff0593b364
+P 62dcb00e68b792063f2067b6087befddf6fd89d0
+Q +aa92270fe96d4923307f68f7e0743739042eebf3
+R 7c238c70c05c886fe975e4ad733bfacd
+T *branch * branch-1.34
+T *sym-branch-1.34 *
+T -sym-trunk *
+U jan.nijtmans
+Z aeb034618c41fdf938912ca41b69e022
