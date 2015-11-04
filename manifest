@@ -1,5 +1,5 @@
-C Indicate\sthat\sOpenBSD\sbuilds\sare\s5.x\snot\s4.x.
-D 2015-11-04T23:41:11.463
+C Permit\scompilation\swithout\sTcl\sprivate\sstubs\susing\sTcl\s8.5.
+D 2015-11-04T23:41:32.525
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -494,7 +494,7 @@ F src/th.c e9840f21b1bb1bc03fdba17c818728e132e254b7
 F src/th.h 1e7ae1613afa730a75df06d7fd1f17c7ff4564f4
 F src/th_lang.c a536a5cee224ccab6cbc5d8b07bef5027bff2910
 F src/th_main.c 04d4f9d17a0b32880417e60544da9d5ca5fbe7e3
-F src/th_tcl.c 4d68ad29399fd3e90553a9470d66142d9027368d
+F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
 F src/timeline.c ba528a9dfaee8f33a320fd0666d1826648966af0
 F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
 F src/tktsetup.c 32e23747e8d3f36fc390a6197dda2209d98cad09
@@ -743,8 +743,8 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c685c46daf6546bf091d4d86569770097361c3c8
-Q +ca3ed9d49c4f41ed55459dbbd60eccf01d1f2e44
-R 9402a01cfdda2752a0831dee3ff41a17
+P de8438cdcd2561c2f6ee9e47215a32f1db4d4f9a
+Q +b500f89c38e351caf5c2983ecd4d6b23af2689dd
+R 281b5851b857baeb9815c067c84032a3
 U mistachkin
-Z b0c96d5dfa219a180274be76ec862a0e
+Z 3527db4d099f0e127cde354261d66e09
