@@ -1,5 +1,5 @@
-C Make\sthe\s--with-tcl\sconfigure\soption\sable\sto\scope\swith\ssystems\swhere\susing\s'-lieee'\sfrom\sTCL_LIB_SPEC\sappears\sto\scause\sissues.
-D 2015-11-04T23:42:18.983
+C Include\sthe\srelease\sversion\snumber\sin\sthe\sfooter\sof\sall\sthe\sbuilt-in\sskins.
+D 2015-11-04T23:42:30.205
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -314,7 +314,7 @@ F skins/README.md a32271fe6907cc4c0cabb9d24c1dab16b89dbc64
 F skins/aht/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/black_and_white/css.txt 569f06d046846930594299a1e38714b50e0c74a7
 F skins/black_and_white/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
-F skins/black_and_white/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
+F skins/black_and_white/footer.txt d20c3ed17ceccc1ad865c4fa50375d197e79f877
 F skins/black_and_white/header.txt c74f3b8cfefae2e763d8f117dbd20e90c6dba33d
 F skins/blitz/README.md 2b86027936aa1ed69d0ccc413868aa886cacb45f
 F skins/blitz/arrow_project.png 2b2958e36ec7fe54836ab50d6c194789461463d0
@@ -322,7 +322,7 @@ F skins/blitz/css.txt 888be7a1b8f078ebee3b4e35b39c98d00bf20109
 F skins/blitz/details.txt 1260bc474e730cd32e4e86f7a346e22a1268cc8f
 F skins/blitz/dir.png 4a210b2afb16584e6093478f77025da7e7b83a57
 F skins/blitz/file.png 0d20b3bee95152a6358e1878a9bb07cc6a0f975d
-F skins/blitz/footer.txt 6a2b49fa89f262377fc709549f745742bae76a1a
+F skins/blitz/footer.txt 8acde9076f4b5129b721d65990e7bb489ac1cfc1
 F skins/blitz/fossil_100.png fa1dca72090a10f4caac3e6bbb6fe5ca6f776fc7
 F skins/blitz/fossil_80_reversed_darkcyan.png c053b47fc8bd5e525ecefc69307ce66b6316fb7e
 F skins/blitz/fossil_80_reversed_darkcyan_text.png ea0c0176d0dd3d3e372befc160d0f081e1817a34
@@ -332,13 +332,13 @@ F skins/blitz/ticket.txt b35ac95d03bb2da2f10634bb16cb7bdc67062b2b
 F skins/blitz_no_logo/README.md 24829897e941d1cef4f8b8d6291c86d9cfe17cd7
 F skins/blitz_no_logo/css.txt 448d28510e35b9628e5a64fac981464a17bf0d9b
 F skins/blitz_no_logo/details.txt 1260bc474e730cd32e4e86f7a346e22a1268cc8f
-F skins/blitz_no_logo/footer.txt 6a2b49fa89f262377fc709549f745742bae76a1a
+F skins/blitz_no_logo/footer.txt 8acde9076f4b5129b721d65990e7bb489ac1cfc1
 F skins/blitz_no_logo/header.txt fdfffc2be91c2d45f410e953337fa2aa55c58b96
 F skins/blitz_no_logo/ticket.txt b35ac95d03bb2da2f10634bb16cb7bdc67062b2b
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
 F skins/default/css.txt 3644519916de6a497cbda2baac0bd4abdbdce038
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
-F skins/default/footer.txt 73c83aa5dd4b1ff7cfdd5a446a63c4e0193213a9
+F skins/default/footer.txt 08d0faa91486f46764a30312e86b2aa990880d43
 F skins/default/header.txt 382e13d2c8147320bb3598611f4625638f7694ad
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt b57649b60d60efa2697e07a3523ec9016df527a0
@@ -351,19 +351,19 @@ F skins/enhanced1/footer.txt 7f36cbf30a82ef3cec30c1917a96415fa7d76eeb
 F skins/enhanced1/header.txt 4f57da29b372156822ccd2dfbe1f7420c1c3b429
 F skins/khaki/css.txt 2a210e3703806e09e04a739eb9877a4b953528e7
 F skins/khaki/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
-F skins/khaki/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
+F skins/khaki/footer.txt d20c3ed17ceccc1ad865c4fa50375d197e79f877
 F skins/khaki/header.txt 609fe1dd9dd3afdfe2777ce207a2012cb36c3f64
 F skins/original/css.txt 8ec40ceed5434186d4264607c2b4acca6a1a1249
 F skins/original/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
-F skins/original/footer.txt 73c83aa5dd4b1ff7cfdd5a446a63c4e0193213a9
+F skins/original/footer.txt 08d0faa91486f46764a30312e86b2aa990880d43
 F skins/original/header.txt e1f837ff2d7bbe1cda8ca6847875491f6b5b269a
 F skins/plain_gray/css.txt 56cdc6074767d5b90116b2e39074a40ac535ba93
 F skins/plain_gray/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
-F skins/plain_gray/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
+F skins/plain_gray/footer.txt d20c3ed17ceccc1ad865c4fa50375d197e79f877
 F skins/plain_gray/header.txt dc58123dc4ae1714dea231d69f3dcf25308fe83a
 F skins/rounded1/css.txt cf2b6d826f72710f06de8e4ba9c11954d545f884
 F skins/rounded1/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
-F skins/rounded1/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
+F skins/rounded1/footer.txt d20c3ed17ceccc1ad865c4fa50375d197e79f877
 F skins/rounded1/header.txt 90ea81c5b14e22a048e182c22769e9aa779d8752
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
 F skins/xekri/css.txt 58b9ac05ed286534ff2c65f42db230732ca5caae
@@ -743,9 +743,8 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 98e694422a79a541999722c039d06df082421686
-Q +653b6b92404c53f31aa30653e9b03e4ac0087066
-Q +cbe4af9ea832e4a96a6e716ad57679c729d473f0
-R f646800c5ada5f6cc8d0faad95879551
+P 7a0d543a78500ff4af4a9261d4bc00310c38bbf5
+Q +2186f0f0e74ba43f8f566726599c3537d04d7f9e
+R d27796361bb41a3c0b5507636b8014d1
 U mistachkin
-Z 151580e4186e81d7455022a055d467b2
+Z 23d1eb8309723f3cd2e0749a207045fa
