@@ -1,5 +1,5 @@
-C Fix\sover-length\ssource\scode\slines\sand\smemory\sleaks\sin\sthe\s'clean'\scommand.
-D 2015-11-04T23:41:55.301
+C Make\sthe\s--with-tcl\sconfigure\soption\sable\sto\scope\swith\ssystems\swhere\susing\s'-lieee'\sfrom\sTCL_LIB_SPEC\sappears\sto\scause\sissues.
+D 2015-11-04T23:42:18.983
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -45,7 +45,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def bf6b978fad11c928ff83423b56a1909aa610940b
+F auto.def 15687af9b1f37b7cadb91ac76cb2f1e7ae2be91c
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 4e0b671b54288fc64d851d056822ee5fec4d3365
 F autosetup/autosetup f80eb8d3ebc34b06b08095daf8d964a898ea2777 x
@@ -743,8 +743,9 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e0773f3d8396b4eb2203eb9a2199d75e31e1ef7b
-Q +4c8b1e819c1429cbe706e1bd4d972fdb8b97eaba
-R 344e076baeca2c1300efc40ac92bc1bc
+P 98e694422a79a541999722c039d06df082421686
+Q +653b6b92404c53f31aa30653e9b03e4ac0087066
+Q +cbe4af9ea832e4a96a6e716ad57679c729d473f0
+R f646800c5ada5f6cc8d0faad95879551
 U mistachkin
-Z 5409b15527090d25de4bd20b129136ae
+Z 151580e4186e81d7455022a055d467b2
