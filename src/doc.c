@@ -37,11 +37,6 @@ const char *mimetype_from_content(Blob *pBlob){
   int n;
   const unsigned char *x;
 
-  static const char isBinary[256] = {
-     1, 1, 1, 1,  1, 1, 1, 1,    1, 0, 0, 0,  0, 0, 1, 1,
-     1, 1, 1, 1,  1, 1, 1, 1,    1, 1, 0, 0,  1, 1, 1, 1
-  };
-
   /* A table of mimetypes based on file content prefixes
   */
   static const struct {
@@ -56,17 +51,11 @@ const char *mimetype_from_content(Blob *pBlob){
     { "\377\330\377",            3, "image/jpeg" },
   };
 
-  x = (const unsigned char*)blob_buffer(pBlob);
-  n = blob_size(pBlob);
-  for(i=0; i<n; i++){
-    unsigned char c = x[i];
-    if( isBinary[c] ){
-      break;
-    }
-  }
-  if( i>=n ){
+  if( !looks_like_binary(pBlob) ) {
     return 0;   /* Plain text */
   }
+  x = (const unsigned char*)blob_buffer(pBlob);
+  n = blob_size(pBlob);
   for(i=0; i<ArraySize(aMime); i++){
     if( n>=aMime[i].size && memcmp(x, aMime[i].zPrefix, aMime[i].size)==0 ){
       return aMime[i].zMimetype;

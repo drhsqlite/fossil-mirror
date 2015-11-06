@@ -1,5 +1,5 @@
-C Add\snew\senvironment\svariables\sto\sthe\sset\sthat\sis\sdisplayed\son\sthe\n/test_env\spage.
-D 2015-11-05T02:38:17.308
+C Use\sthe\ssame\sdefinition\sof\sBINARY\sin\smultiple\splaces\sof\sfossil.\sReported\sby\ssky5walk.
+D 2015-11-06T08:09:00.797
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -403,7 +403,7 @@ F src/descendants.c 1eb2bb891117be886ac87a7db842293221639326
 F src/diff.c 43862aac708de20ebd44e3278cbb8bdbfef74abc
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
 F src/diffcmd.c aafa5bbc29bc6ab8980da9a3ab21a062bc75b322
-F src/doc.c 10cb5eb292f330f8ed1c3416252e746db61d74a4
+F src/doc.c b2954ce41c4938e7967062ab4d7e2da0c1f9db33
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 81cae7feac47eeca65905e23ed1acad29acc33c1
-R 1d9521d092dc78f711c8e46a41ad3125
-U drh
-Z f90783f41187317a1a984175b1e7d964
+P 690824e991b84162b2cf6e541dd5e538e907fbeb
+R 195bd078d83e4c8b26cf7ccc23d7b71e
+U jan.nijtmans
+Z 8a41020dbbb16f512f065eb0c7475cc3
