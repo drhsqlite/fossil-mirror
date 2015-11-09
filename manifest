@@ -1,5 +1,5 @@
-C Use\sthe\ssame\sdefinition\sof\sBINARY\sin\smultiple\splaces\sof\sfossil.\sReported\sby\ssky5walk.
-D 2015-11-06T08:09:00.797
+C Cherry-pick\spart\sof\s[http://www.sqlite.org/src/info/138783b553602a05|138783b5]\sfrom\sSQLite\strunk.\sHarmless\scompile\swarning.
+D 2015-11-09T08:58:25.613
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -481,7 +481,7 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 44d3881e497cf9bec8ea6dcf73830502ab59202c
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c 1c4013876f50bbaa3e6f0f98e0147c76287684c1
+F src/sqlite3.c 426613a30f29d195b7c619b0388600f7da4e8b5f
 F src/sqlite3.h 6fcafa8e21f4fbc1ecb664095af2f3c0ed1a2e6a
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 69ab1f0d78ccb91fc81f8f3930046025034a3250
@@ -743,7 +743,8 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 690824e991b84162b2cf6e541dd5e538e907fbeb
-R 195bd078d83e4c8b26cf7ccc23d7b71e
+P b51ba29365b93b3fa13f7fc05034ec6a8dc38b22
+Q +ac3771966a1585ce2dfc5f3453ef290482bad553
+R 188b34a0888c2f630844fbeafec51939
 U jan.nijtmans
-Z 8a41020dbbb16f512f065eb0c7475cc3
+Z b2f512a67a3ad4429fb4d49960032a07
