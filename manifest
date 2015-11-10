@@ -1,5 +1,5 @@
-C Cherry-pick\spart\sof\s[http://www.sqlite.org/src/info/138783b553602a05|138783b5]\sfrom\sSQLite\strunk.\sHarmless\scompile\swarning.
-D 2015-11-09T08:58:25.613
+C Fix\sa\smissing\scomma\sin\sthe\s/test_env\spage.
+D 2015-11-10T12:16:54.142
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -486,7 +486,7 @@ F src/sqlite3.h 6fcafa8e21f4fbc1ecb664095af2f3c0ed1a2e6a
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 69ab1f0d78ccb91fc81f8f3930046025034a3250
 F src/statrep.c 2475cba0c91bdaa6f51a61565732ece308fadf42
-F src/style.c a3efd0c0de3bd17676eec2b5d46537b8f11a456f
+F src/style.c 1a7a0b84d1404a6420819498e0697219eb90357d
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
@@ -743,8 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b51ba29365b93b3fa13f7fc05034ec6a8dc38b22
-Q +ac3771966a1585ce2dfc5f3453ef290482bad553
-R 188b34a0888c2f630844fbeafec51939
-U jan.nijtmans
-Z b2f512a67a3ad4429fb4d49960032a07
+P 9a11b49e65dcd9f7509b919896689612e9c8bc52
+R ce944adf11dea39aa53dbaaf7897048e
+U drh
+Z d41dba3daad39ced7a51e95c34a04653
