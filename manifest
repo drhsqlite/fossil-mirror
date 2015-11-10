@@ -1,5 +1,5 @@
-C Fix\sa\smissing\scomma\sin\sthe\s/test_env\spage.
-D 2015-11-10T12:16:54.142
+C Add\sthe\s"fossil\sall\sconfig\spull"\scommand.
+D 2015-11-10T16:38:24.495
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -372,7 +372,7 @@ F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 7c06f8c8271792ea3945085c5c03a2479c27baac
-F src/allrepo.c ea9a13512f43925d8d6cceee4e757c55a80910d9
+F src/allrepo.c 653a4fe5cb10da2811c3d394e8beca6b357de8b7
 F src/attach.c 5b713ffe437fa0c3241da307835b1286e38798fd
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c b4605827ce1951704922050e6c051c8f9ce0d614
@@ -391,7 +391,7 @@ F src/clone.c 265e9a29da905f3ab68625a9a5b245d7630275b2
 F src/codecheck1.c 2cf1fc75f4f611574e92cf1440f4fb2ae49e8ba6
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
 F src/config.h 5b0f2c55c62691916d4477f37109d3356a1dcecf
-F src/configure.c b8759201454accf1a9f760a232cf6c0a1f057294
+F src/configure.c 8808ccad7ef1c74ad3ca9cf802db9b9b4d05d1d9
 F src/content.c 49fd70d3136fbeb4794b7ef2f76c977c3ea77013
 F src/cson_amalgamation.c 75be6142c327581dd9e10e0c0816c18c50d7a7fa
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9a11b49e65dcd9f7509b919896689612e9c8bc52
-R ce944adf11dea39aa53dbaaf7897048e
+P 5f962bfaf4d53ed06ee8829fca1059e0305490b1
+R 9ed98aa3713c7cbe29a3259230f203e6
 U drh
-Z d41dba3daad39ced7a51e95c34a04653
+Z 327b0c9f6975539223f6f0b3de436551

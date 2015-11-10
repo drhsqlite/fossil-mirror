@@ -105,6 +105,8 @@ static void collect_argv(Blob *pExtra, int iStart){
 **                line options supported by the clean command itself, if any
 **                are present, are passed along verbatim.
 **
+**    config      Only the "config pull AREA" command works.
+**
 **    dbstat      Run the "dbstat" command on all repositories.
 **
 **    extras      Shows "extra" files from all local checkouts.  The command
@@ -209,6 +211,15 @@ void all_cmd(void){
     collect_argument(&extra, "verbose","v");
     collect_argument(&extra, "whatif",0);
     useCheckouts = 1;
+  }else if( strncmp(zCmd, "config", n)==0 ){
+    zCmd = "config -R";
+    collect_argv(&extra, 3);
+    (void)find_option("legacy",0,0);
+    (void)find_option("overwrite",0,0);
+    verify_all_options();
+    if( g.argc!=5 || fossil_strcmp(g.argv[3],"pull")!=0 ){
+      usage("configure pull AREA ?OPTIONS?");
+    }
   }else if( strncmp(zCmd, "dbstat", n)==0 ){
     zCmd = "dbstat --omit-version-info -R";
     showLabel = 1;
