@@ -1,5 +1,5 @@
-C Add\sthe\s"fossil\sall\sconfig\spull"\scommand.
-D 2015-11-10T16:38:24.495
+C Fedora\s23\sis\slatest.\sBuild\sshared\stcl8.6\sinside\sfossil\sdocker\scontainer\s(so\sit\scan\sbe\sleft\sout\sif\sdesired)
+D 2015-11-12T16:00:10.434
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -9,7 +9,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile 00fb6a32bac0840bdbdc612440dc2f0c296d9d91
+F Dockerfile e6126edc40fe1da6bd47c6c5f1beede3b9c3eaf7
 F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
 F Makefile.in 4c745f08a8ecfe6e1f227e2a6d33cce3adc532d0
 F VERSION a75c890f5a88bff69d63f342449e76fb3f720928
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5f962bfaf4d53ed06ee8829fca1059e0305490b1
-R 9ed98aa3713c7cbe29a3259230f203e6
-U drh
-Z 327b0c9f6975539223f6f0b3de436551
+P d3b14a8e622e216549e11d24be2b50caab72303f
+R 689326726de13fd95e41ea960c7a4ec9
+U jan.nijtmans
+Z d5056c21997390e5068b1026e3f08287
