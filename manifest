@@ -1,5 +1,5 @@
-C re-shuffle\sLOOK_XXX\sflags\ssuch\sthat\sLOOK_CR\sand\sLOOK_LF\sare\slast
-D 2015-11-12T11:32:14.370
+C Micro-optimization\sin\slookslike*\sfunctions,\sproving\sthat\sLOOK_CR\scan\sbe\sexpressed\sas\s(LOOK_LONE_CR\s|\sLOOK_CRLF)\sand\sLOOK_LF\sas\s(LOOK_LONE_LF\s|\sLOOK_CRLF).\sThis\ssaves\s6\sassembler-instructions\sin\sthe\sloops.\nReady\sto\sbe\sreviewed.
+D 2015-11-12T11:37:02.364
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -441,7 +441,7 @@ F src/linenoise.c 9c1a8a9a1d33f79191cb5a104067201a8cee6de1
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 48e28e14943671f38ff81cdbdb6db93564bed895
-F src/lookslike.c 3b887a91aba9569c1e6a43459e9c7caa5241466b
+F src/lookslike.c b8eb793c2cc1844ed87e21c8c0a623547ba3be88
 F src/main.c 1133b42e58e40e9f6f7d6f1be12dbb8071a4f3db
 F src/main.mk 29222c3dafd8664690482d11733671ad8245c3ff
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
@@ -743,10 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d3b14a8e622e216549e11d24be2b50caab72303f
-R a95d2f39cbad7286cc075f5505284928
-T *branch * pending-review
-T *sym-pending-review *
-T -sym-trunk *
+P b29b7fd3617362449112705cfbfd06c7b10dbe69
+R 798763d2f26af449dbd8e1644607ff9e
 U jan.nijtmans
-Z 566ad21ae1da81dc4e88030b7788ef5a
+Z f1cdc128fdd1e17b372cf97f0bb8a7ef

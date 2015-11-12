@@ -48,8 +48,8 @@
 #define LOOK_INVALID ((int)0x00000080) /* Invalid sequence was found. */
 #define LOOK_BINARY  (LOOK_NUL | LOOK_LONG | LOOK_SHORT) /* May be binary. */
 #define LOOK_EOL     (LOOK_LONE_CR | LOOK_LONE_LF | LOOK_CRLF) /* Line seps. */
-#define LOOK_CR      ((int)0x00000100) /* One or more CR chars. */
-#define LOOK_LF      ((int)0x00000200) /* One or more LF chars. */
+#define LOOK_CR      (LOOK_LONE_CR | LOOK_CRLF) /* One or more CR chars. */
+#define LOOK_LF      (LOOK_LONE_LF | LOOK_CRLF) /* One or more LF chars. */
 #endif /* INTERFACE */
 
 
@@ -95,22 +95,20 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
   if( c==0 ){
     flags |= LOOK_NUL;  /* NUL character in a file -> binary */
   }else if( c=='\r' ){
-    flags |= LOOK_CR;
     if( n<=1 || z[1]!='\n' ){
       flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
     }
   }
   j = (c!='\n');
-  if( !j ) flags |= (LOOK_LF | LOOK_LONE_LF);  /* Found LF as first char */
+  if( !j ) flags |= (LOOK_LONE_LF);  /* Found LF as first char */
   while( !(flags&stopFlags) && --n>0 ){
     int c2 = c;
     c = *++z; ++j;
     if( c==0 ){
       flags |= LOOK_NUL;  /* NUL character in a file -> binary */
     }else if( c=='\n' ){
-      flags |= LOOK_LF;
       if( c2=='\r' ){
-        flags |= (LOOK_CR | LOOK_CRLF);  /* Found LF preceded by CR */
+        flags |= (LOOK_CRLF);  /* Found LF preceded by CR */
       }else{
         flags |= LOOK_LONE_LF;
       }
@@ -119,7 +117,6 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
       }
       j = 0;
     }else if( c=='\r' ){
-      flags |= LOOK_CR;
       if( n<=1 || z[1]!='\n' ){
         flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
       }
@@ -244,13 +241,12 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
   if( c==0 ){
     flags |= LOOK_NUL;  /* NUL character in a file -> binary */
   }else if( c=='\r' ){
-    flags |= LOOK_CR;
     if( n<(2*sizeof(WCHAR_T)) || UTF16_SWAP_IF(bReverse, z[1])!='\n' ){
       flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
     }
   }
   j = (c!='\n');
-  if( !j ) flags |= (LOOK_LF | LOOK_LONE_LF);  /* Found LF as first char */
+  if( !j ) flags |= (LOOK_LONE_LF);  /* Found LF as first char */
   while( !(flags&stopFlags) && ((n-=sizeof(WCHAR_T))>=sizeof(WCHAR_T)) ){
     int c2 = c;
     c = *++z;
@@ -261,9 +257,8 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
     if( c==0 ){
       flags |= LOOK_NUL;  /* NUL character in a file -> binary */
     }else if( c=='\n' ){
-      flags |= LOOK_LF;
       if( c2=='\r' ){
-        flags |= (LOOK_CR | LOOK_CRLF);  /* Found LF preceded by CR */
+        flags |= (LOOK_CRLF);  /* Found LF preceded by CR */
       }else{
         flags |= LOOK_LONE_LF;
       }
@@ -272,7 +267,6 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
       }
       j = 0;
     }else if( c=='\r' ){
-      flags |= LOOK_CR;
       if( n<(2*sizeof(WCHAR_T)) || UTF16_SWAP_IF(bReverse, z[1])!='\n' ){
         flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
       }
