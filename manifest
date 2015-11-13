@@ -1,5 +1,5 @@
-C Fedora\s23\sis\slatest.\sBuild\sshared\stcl8.6\sinside\sfossil\sdocker\scontainer\s(so\sit\scan\sbe\sleft\sout\sif\sdesired)
-D 2015-11-12T16:00:10.434
+C pedantic\supstream\scson\s-Wall/-Werror\sfixes\s(unused\sstatic\sconsts)\sfor\sclang.
+D 2015-11-13T10:00:20.918
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -393,7 +393,7 @@ F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
 F src/config.h 5b0f2c55c62691916d4477f37109d3356a1dcecf
 F src/configure.c 8808ccad7ef1c74ad3ca9cf802db9b9b4d05d1d9
 F src/content.c 49fd70d3136fbeb4794b7ef2f76c977c3ea77013
-F src/cson_amalgamation.c 75be6142c327581dd9e10e0c0816c18c50d7a7fa
+F src/cson_amalgamation.c ce18de7d62186d08d6c15a7efbd66bf009310439
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 857395518c7ced63b0b8cf033327ce86a936266c
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d3b14a8e622e216549e11d24be2b50caab72303f
-R 689326726de13fd95e41ea960c7a4ec9
-U jan.nijtmans
-Z d5056c21997390e5068b1026e3f08287
+P ddca9b079ecddefe90cbd8e7d14396577555253d
+R 52084323f517b60c64a5923ffa536eaa
+U stephan
+Z 0182eb7727b442bb8d53acb3881a018b
