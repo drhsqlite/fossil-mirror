@@ -1,5 +1,5 @@
-C Enhanced\sdescription\sof\show\sto\sset\sup\sthe\s/proc\sfilesystem\sinside\sof\sa\nchroot\sjail.
-D 2015-11-14T16:16:43.557
+C Fix\sa\smemcmp()\sthat\sreally\sshould\sbe\sfossil_strcmp().
+D 2015-11-14T19:03:10.780
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -487,7 +487,7 @@ F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 69ab1f0d78ccb91fc81f8f3930046025034a3250
 F src/statrep.c 2475cba0c91bdaa6f51a61565732ece308fadf42
 F src/style.c 1a7a0b84d1404a6420819498e0697219eb90357d
-F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
+F src/sync.c 7dc7e9097cf9add9159682e67385ac82ac7cbb38
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
 F src/th.c e9840f21b1bb1bc03fdba17c818728e132e254b7
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f5bed9ce54f87cf9325cbec36b252334fac86cd6
-R 817fc956299718ae5f88609fb37d3279
+P 28a1da05b1fa3f364a4cf1b94ed1306a75934152
+R 42043014a9685436f56d6c31c316800c
 U drh
-Z 622470392afc4a2021818d7650b9bf3f
+Z c95d00b4b1ff1672b04f95fc461de29c
