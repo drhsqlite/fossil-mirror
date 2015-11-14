@@ -346,7 +346,7 @@ file in the "proc" virtual filesystem.  If you are running a Fossil instance
 inside a chroot() jail on Linux, you will need to make the "/proc" file
 system available inside that jail in order for this feature to work.  On
 the self-hosting Fossil repository, this was accomplished by adding a line
-to the "/etc/mtab" file that looks like:
+to the "/etc/mtab" or "/etc/fstab" file that looks like:
 <blockquote><pre>
 chroot_jail_proc /home/www/proc proc r 0 0
 </pre></blockquote>
