@@ -474,7 +474,7 @@ void access_log_page(void){
               n, y);
   }
   rc = db_prepare_ignore_error(&q, "%s", blob_sql_text(&sql));
-  @ <center><table border="1" cellpadding="5" id='logtable'>
+  @ <table border="1" cellpadding="5" id="logtable" align="center">
   @ <thead><tr><th width="33%%">Date</th><th width="34%%">User</th>
   @ <th width="33%%">IP Address</th></tr></thead><tbody>
   while( rc==SQLITE_OK && db_step(&q)==SQLITE_ROW ){
@@ -499,7 +499,7 @@ void access_log_page(void){
     style_submenu_element("All", "All entries",
           "%s/access_log?n=10000000", g.zTop);
   }
-  @ </tbody></table></center>
+  @ </tbody></table>
   db_finalize(&q);
   @ <hr>
   @ <form method="post" action="%s(g.zTop)/access_log">

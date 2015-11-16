@@ -1998,7 +1998,7 @@ static int nextHtmlToken(const char *z){
 **    *  Try to keep lines less than 80 characters in length
 **    *  Collapse white space into a single space
 **    *  Put a blank line before:
-**          <blockquote><center><code><hN><p><pre><table>
+**          <blockquote><code><hN><p><pre><table>
 **    *  Put a newline after <br> and <hr>
 **    *  Start each of the following elements on a new line:
 **          <address><cite><dd><div><dl><dt><li><ol><samp>

@@ -1321,6 +1321,11 @@ const struct strctCssDefaults {
     @   text-align: right;
     @   padding: 0.2ex 2ex;
   },
+  { ".statistics-report-pie-chart",
+    "for the /reports pie chart",
+    @   display: block;
+    @   margin: auto;
+  },
   { ".statistics-report-graph-line",
     "for the /reports views",
     @   background-color: #446979;
@@ -1430,6 +1435,11 @@ const struct strctCssDefaults {
     "Search markup",
     @ background-color: inherit;
     @ font-weight: bold;
+  },
+  { ".search",
+    "Search form",
+    @ display: block;
+    @ margin: auto;
   },
   { "div.searchForm",
     "Container for the search terms entry box",

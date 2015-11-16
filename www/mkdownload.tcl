@@ -33,22 +33,20 @@ puts $out \
 <a href='/download.html' class='active'>Download</a>
 </div>
 <div class="content">
-<p>
-
-<center><font size=4>}
+<p style="font-size:1.2em; text-align:center">}
 puts $out \
 "<b>To install Fossil &rarr;</b> download the stand-alone executable"
 puts $out \
 {and put it on your $PATH.
-</font><p><small>
+</p>
+<p style="text-align:center">
 RPMs available
 <a href="http://download.opensuse.org/repositories/home:/rmax:/fossil/">
 here.</a>
 Cryptographic checksums for download files are
 <a href="http://www.hwaci.com/fossil_download_checksums.html">here</a>.
-</small></p>
-</center>
-
+</p>
+<hr>
 <table cellpadding="10">
 }
 
@@ -64,8 +62,8 @@ foreach file [glob -nocomplain download/fossil-*.zip] {
 #
 foreach vers [lsort -decr -real [array names avers]] {
   set hr "/fossil/timeline?c=version-$vers;y=ci"
-  puts $out "<tr><td colspan=6 align=left><hr>"
-  puts $out "<center><b><a href=\"$hr\">Version $vers</a></b></center>"
+  puts $out "<tr><td colspan=6 align=center>"
+  puts $out "<b><a href=\"$hr\">Version $vers</a></b>"
   puts $out "</td></tr>"
   puts $out "<tr>"
 

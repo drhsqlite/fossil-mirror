@@ -387,7 +387,7 @@ data elements.
 <p>As of [/timeline?r=trunk&c=2015-03-19+03%3A57%3A46&n=20|2015-03-19], the configuration-name must be one of the
 following values:
 
-<center><table border=0>
+<table border=0 align="center">
 <tr><td valign="top">
 <ul>
 <li> css
@@ -438,7 +438,7 @@ following values:
 <li> @concealed
 <li> @shun
 </ul></td></tr>
-</table></center>
+</table>
 
 <p>New configuration-names are likely to be added in future releases of
 Fossil.  If the server receives a configuration-name that it does not

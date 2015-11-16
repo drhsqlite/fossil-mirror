@@ -414,9 +414,9 @@ void repo_tabsize_page(void){
   fsize = file_size(g.zRepositoryName);
   approxSizeName(sizeof(zBuf), zBuf, fsize);
   @ <h2>Repository Size: %s(zBuf)</h2>
-  @ <center><svg width='800' height='500'>
+  @ <svg class="statistics-report-pie-chart" width='800' height='500'>
   piechart_render(800,500,PIE_OTHER|PIE_PERCENT);
-  @ </svg></center>
+  @ </svg>
 
   if( g.localOpen ){
     db_multi_exec(
@@ -443,9 +443,9 @@ void repo_tabsize_page(void){
     fsize = file_size(g.zLocalDbName);
     approxSizeName(sizeof(zBuf), zBuf, fsize);
     @ <h2>%h(file_tail(g.zLocalDbName)) Size: %s(zBuf)</h2>
-    @ <center><svg width='800' height='500'>
+    @ <svg class="statistics-report-pie-chart" width='800' height='500'>
     piechart_render(800,500,PIE_OTHER|PIE_PERCENT);
-    @ </svg></center>
+    @ </svg>
   }
   style_footer();
 }

@@ -16,7 +16,7 @@ used both Fossil and Git for other opinions.
 
 <h2>2.0 Executive Summary:</h2>
 
-<blockquote><center><table border=1 cellpadding=5>
+<blockquote><table border=1 cellpadding=5 align=center>
 <tr><th width="50%">GIT</th><th width="50%">FOSSIL</th></tr>
 <tr><td>File versioning only</td>
     <td>Versioning, Tickets, Wiki, and Technotes</td></tr>
@@ -31,7 +31,7 @@ used both Fossil and Git for other opinions.
     <td>Many check-outs per repository</td></tr>
 <tr><td>Uses "<tt>rebase</tt>"</td><td>Immutable</td></tr>
 <tr><td>GPL</td><td>BSD</td></tr>
-</table></center></blockquote>
+</table></blockquote>
 
 <h2>3.0 Discussion</h2>
 

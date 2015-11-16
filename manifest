@@ -1,5 +1,5 @@
-C Fix\sa\smemcmp()\sthat\sreally\sshould\sbe\sfossil_strcmp().
-D 2015-11-14T19:03:10.780
+C Remove\sdeprecated\s<center>\stags.
+D 2015-11-16T01:45:43.611
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -484,9 +484,9 @@ F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
 F src/sqlite3.c 426613a30f29d195b7c619b0388600f7da4e8b5f
 F src/sqlite3.h 6fcafa8e21f4fbc1ecb664095af2f3c0ed1a2e6a
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
-F src/stat.c 69ab1f0d78ccb91fc81f8f3930046025034a3250
-F src/statrep.c 2475cba0c91bdaa6f51a61565732ece308fadf42
-F src/style.c 1a7a0b84d1404a6420819498e0697219eb90357d
+F src/stat.c ea867b3517a53dc62233ac5cbe1e16941ad21631
+F src/statrep.c a0a6a20a35a34bbae0bd0d30393f528e5989ed62
+F src/style.c e87e050f2990519f0696398b07ba02ef15e4e26c
 F src/sync.c 7dc7e9097cf9add9159682e67385ac82ac7cbb38
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
@@ -503,13 +503,13 @@ F src/undo.c 52ec5c24a6dcf1937026e2d9f86791fd1913cdf6
 F src/unicode.c f26b9f26d4ac399f7b03cfac16ec72336c7f06c9
 F src/update.c 404e7daea8b200e2708329b49850d62e68e716f7
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
-F src/user.c 6ec57f122cadd7c324e657be5de1b0c8f0d37c8d
+F src/user.c d568572193ec92d299b8db9d60d23ef19ecdf92b
 F src/utf8.c 49a0cfaf5b3ba966f5e7c688b829610634fefd25
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
 F src/vfile.c b8560f486de87af7e480faaa34b946e7f042b408
 F src/wiki.c 09aef1e140021ade15ebadfa2b7435b35f701442
-F src/wikiformat.c f693446cc459fc72fb0345cff08b3573dbe4365d
+F src/wikiformat.c e8cce20d1b9b0a4bc1129cf796f224e0e99f9296
 F src/winfile.c e0e1ffdb667635ea18c0cb48d7ed07210cf3fa6b
 F src/winhttp.c 4e680d7c8778be4439169f40a992ccc81f7ceec2
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
@@ -649,7 +649,7 @@ F www/branch02.gif 55c3567748366595e1678a1c43448a9370ff105e
 F www/branch03.gif 3840bdbb5ed0f57104089c2888ee286d4c79a17b
 F www/branch04.gif 908b4fc1688810f78250e0a269741165ee31979a
 F www/branch05.gif 4808cbf6e0a4095580fca0f56a35f16ba975dbf9
-F www/branching.wiki 2375d7530edc4455e4c36a3c6b3474659ac983bf
+F www/branching.wiki 094bdd3d7d631ed455702922edbe3ad0bc2343ba
 F www/bugtheory.wiki e43e29be95b51db3cbe00dfc0c4cea6a3a424eec
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
 F www/build-icons/linux64.gif 522442bc41cc8399b8957ab3cb1af4f5fe46b11f
@@ -666,7 +666,7 @@ F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
 F www/concepts.wiki a1230dfc3bdef4f0ddc78c3cc8695a60eb7684fe
 F www/contribute.wiki 9f7136d12f9099e615c8d5a414934e0b15613393
-F www/copyright-release.html 9da08b126c7c1a7874e44b5cff92db512f36962b
+F www/copyright-release.html 0d85600febbec17aa7fe2f4f8e937a73bf9043b9
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/custom_ticket.wiki 4083c719eee18ea9dad81d335e45e9af8e29ec4e
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
@@ -697,7 +697,7 @@ F www/fileformat.wiki 1cd023bfde51e32161cee8f0824be255f76e30e8
 F www/fiveminutes.wiki 3172b324738523b163b19a8c836d3d9a3ceb9b94
 F www/foss-cklist.wiki 77fe5872d7077a68e1b01e8dd5e3a48f7ee2b0dd
 F www/fossil-from-msvc.wiki f2c229553ff6304fa0c6e82d169e959498af98a8
-F www/fossil-v-git.wiki 31acd45f927afcd17712b633e7e0799dd03346eb
+F www/fossil-v-git.wiki bd00b53213b440224eb03ea49ba051382ee6ce85
 F www/fossil.eps 672ae6297081bd6a1c9565a9cae7c8299a1d61e3
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps d8e0aba6acbeb3cba071ed894783ca9b8de9a310
@@ -710,14 +710,14 @@ F www/fossil_prompt.sh db68e2cae431b9e9f5dd672e2f56e2bde5a57d2a
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
-F www/index.wiki 89c650d5efb9273a21296d3b209bd1d00a4d230d
+F www/index.wiki 9308ebf9228fcf1fa4c7ffa9c1b8f76cdd1a0b3b
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki f75b16c8bb734fe20d0d524c658f05dab006316c
-F www/mkdownload.tcl c3b00842fac3b2be493a91dc0d8ebf79e2aebb1e
-F www/mkindex.tcl fc48247219c0dde8e35b723a25de85e11c63d58f
+F www/mkdownload.tcl 305d12d1a05255ee259a98bc367df1e2800ac96c
+F www/mkindex.tcl f7c3fd77c5a99b29978ef7224160a93706421167
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 336916afde4ff470e87fc43066063623a9a74c8a
-F www/permutedindex.html 2499997e14dba536be940b5e856164c21a276ebe
+F www/permutedindex.html e647e07a125ebbad93653b919a78f7416b15f34c
 F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
 F www/private.wiki 72344489bbae6f7955369559b6ab22e01a64259b
 F www/qandc.wiki e07b21da221b05afeb1905f17af3765045952ba8
@@ -733,8 +733,8 @@ F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki e6c82bd6579f755896c47b22dbab18e27b1f5bc4
 F www/style.wiki 4c9c67c0eddba030a73a55e468802fd09d59bc2f
-F www/sync.wiki ecd7e356270a40e81649970c1b606767db68d9e3
-F www/tech_overview.wiki 66d893fd0bca7f5dbc659ab0b4e9dde987e4fdb3
+F www/sync.wiki f2debb79f1b8ee4836dab7a752f2b415ed9edd4c
+F www/tech_overview.wiki 8715ca9ba4cb0afb84af402688c4ba8247996be6
 F www/th1.md 294fb397db480493cc0df716321d3323b843e746
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
@@ -743,7 +743,10 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 28a1da05b1fa3f364a4cf1b94ed1306a75934152
-R 42043014a9685436f56d6c31c316800c
-U drh
-Z c95d00b4b1ff1672b04f95fc461de29c
+P 5853fcf132800f902f4586c7f24b286e88a6ac7c
+R ac7032e1e6357553fc5ab708e279d5bc
+T *branch * html-cleanup
+T *sym-html-cleanup *
+T -sym-trunk *
+U Isius
+Z d22ed612e7d21cf05a4256916cdacca3

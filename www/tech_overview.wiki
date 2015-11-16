@@ -67,7 +67,7 @@ SQLite's [http://www.sqlite.org/lang_attach.html | ATTACH] command.
 The chart below provides a quick summary of how each of these
 database files are used by Fossil, with detailed discussion following.
 
-<center><table border="1" width="80%" cellpadding="0">
+<table border="1" width="80%" cellpadding="0" align="center">
 <tr>
 <td width="33%" valign="top">
 <h3 align="center">Configuration Database<br>"~/.fossil"</h3>
@@ -105,7 +105,6 @@ database files are used by Fossil, with detailed discussion following.
 </td>
 </tr>
 </table>
-</center>
 
 <h3>2.1 The Configuration Database</h3>
 

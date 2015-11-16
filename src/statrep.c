@@ -341,9 +341,10 @@ static void stats_report_by_user(){
                          " GROUP BY ifnull(euser,user) ORDER BY count(*) DESC;"
   );
   if( db_int(0, "SELECT count(*) FROM piechart")>=2 ){
-    @ <center><svg width=700 height=400>
+    @ <svg class="statistics-report-pie-chart" width=700 height=400>
     piechart_render(700, 400, PIE_OTHER|PIE_PERCENT);
-    @ </svg></centre><hr/>
+    @ </svg>
+    @ <hr/>
   }
   @ <table class='statistics-report-table-events' border='0'
   @ cellpadding='2' cellspacing='0' id='statsTable'>
@@ -500,9 +501,10 @@ static void stats_report_day_of_week(const char *zUserName){
     "  ELSE 'ERROR' END;", zUserName
   );
   if( db_int(0, "SELECT count(*) FROM piechart")>=2 ){
-    @ <center><svg width=700 height=400>
+    @ <svg class="statistics-report-pie-chart" width=700 height=400>
     piechart_render(700, 400, PIE_OTHER|PIE_PERCENT);
-    @ </svg></centre><hr/>
+    @ </svg>
+    @ <hr/>
   }
   @ <table class='statistics-report-table-events' border='0'
   @ cellpadding='2' cellspacing='0' id='statsTable'>
