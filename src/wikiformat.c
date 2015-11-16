@@ -240,7 +240,7 @@ static int findAttr(const char *z){
 */
 #define MUTYPE_SINGLE      0x0001   /* <img>, <br>, or <hr> */
 #define MUTYPE_BLOCK       0x0002   /* Forms a new paragraph. ex: <p>, <h2> */
-#define MUTYPE_FONT        0x0004   /* Font changes. ex: <b>, <sub> */
+#define MUTYPE_FONT        0x0004   /* Font changes. ex: <b>, <font>, <sub> */
 #define MUTYPE_LIST        0x0010   /* Lists.  <ol>, <ul>, or <dl> */
 #define MUTYPE_LI          0x0020   /* List items.  <li>, <dd>, <dt> */
 #define MUTYPE_TABLE       0x0040   /* <table> */

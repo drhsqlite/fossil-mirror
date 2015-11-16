@@ -1,5 +1,5 @@
-C Remove\sdeprecated\s&lt;font&gt;\stags.
-D 2015-11-16T02:42:44.755
+C Restore\sa\scomment\scontaining\sthe\s'font'\stag\sas\sit\scorrectly\sdescribes\sthe\sunderlying\scode.
+D 2015-11-16T03:43:15.569
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -509,7 +509,7 @@ F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
 F src/vfile.c b8560f486de87af7e480faaa34b946e7f042b408
 F src/wiki.c 09aef1e140021ade15ebadfa2b7435b35f701442
-F src/wikiformat.c 5af3c45e9f71ec96c472c47fd1bc180724a84fc0
+F src/wikiformat.c e8cce20d1b9b0a4bc1129cf796f224e0e99f9296
 F src/winfile.c e0e1ffdb667635ea18c0cb48d7ed07210cf3fa6b
 F src/winhttp.c 4e680d7c8778be4439169f40a992ccc81f7ceec2
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d57f2395709a42c42f96a34f2277951a520c0459
-R 54f9e2bbf5136b63e64527caee0966d0
-U Isius
-Z 67b3d65179a027e26522e2480f88da1a
+P 46861220d300f7a92aa0a8031673d383d2958cc2
+R 80be12fe213702d65f7c6fa7a8cd85aa
+U mistachkin
+Z aece0df3d59301d4d017f4bd2988110b
