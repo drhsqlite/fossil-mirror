@@ -751,7 +751,7 @@ static int generate_html(
   ** per database entry.
   */
   if( pState->iNewRow>=0 ){
-    @ <tr><td colspan=%d(pState->nCol)><font size=1>&nbsp;</font></td></tr>
+    @ <tr><td colspan=%d(pState->nCol)>&nbsp;</td></tr>
   }
 
   /* Output the data for this entry from the database

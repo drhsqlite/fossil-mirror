@@ -1,5 +1,5 @@
-C Remove\sdeprecated\s<center>\stags.
-D 2015-11-16T01:45:43.611
+C Remove\sdeprecated\s&lt;font&gt;\stags.
+D 2015-11-16T02:42:44.755
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -470,7 +470,7 @@ F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c 211c55255d42f06781ae68f26e5ed4a2c9239ad1
 F src/rebuild.c 6680615f36af1823630d44871444273906c0b2ff
 F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
-F src/report.c de3d39a59b923d0259a01cb7b66244860778e39d
+F src/report.c f6574ad41176e5d0ee2b83c0856fe421699c9453
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b02a73b942028631eacf484ae3f83a3a4edd3518
@@ -479,7 +479,7 @@ F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c d25df04168d6ba5a4fa05bdbf859df667f9eb621
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 44d3881e497cf9bec8ea6dcf73830502ab59202c
-F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
+F src/skins.c 524384aafbe9e7707d3b87f42ee72fa63fe91796
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
 F src/sqlite3.c 426613a30f29d195b7c619b0388600f7da4e8b5f
 F src/sqlite3.h 6fcafa8e21f4fbc1ecb664095af2f3c0ed1a2e6a
@@ -496,7 +496,7 @@ F src/th_lang.c a536a5cee224ccab6cbc5d8b07bef5027bff2910
 F src/th_main.c 04d4f9d17a0b32880417e60544da9d5ca5fbe7e3
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
 F src/timeline.c ba528a9dfaee8f33a320fd0666d1826648966af0
-F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
+F src/tkt.c 760565ea0c93b77c3101e7c9e098c53cd7a5a59e
 F src/tktsetup.c 32e23747e8d3f36fc390a6197dda2209d98cad09
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c 52ec5c24a6dcf1937026e2d9f86791fd1913cdf6
@@ -509,7 +509,7 @@ F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
 F src/vfile.c b8560f486de87af7e480faaa34b946e7f042b408
 F src/wiki.c 09aef1e140021ade15ebadfa2b7435b35f701442
-F src/wikiformat.c e8cce20d1b9b0a4bc1129cf796f224e0e99f9296
+F src/wikiformat.c 5af3c45e9f71ec96c472c47fd1bc180724a84fc0
 F src/winfile.c e0e1ffdb667635ea18c0cb48d7ed07210cf3fa6b
 F src/winhttp.c 4e680d7c8778be4439169f40a992ccc81f7ceec2
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
@@ -716,7 +716,7 @@ F www/makefile.wiki f75b16c8bb734fe20d0d524c658f05dab006316c
 F www/mkdownload.tcl 305d12d1a05255ee259a98bc367df1e2800ac96c
 F www/mkindex.tcl f7c3fd77c5a99b29978ef7224160a93706421167
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
-F www/password.wiki 336916afde4ff470e87fc43066063623a9a74c8a
+F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
 F www/permutedindex.html e647e07a125ebbad93653b919a78f7416b15f34c
 F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
 F www/private.wiki 72344489bbae6f7955369559b6ab22e01a64259b
@@ -743,10 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5853fcf132800f902f4586c7f24b286e88a6ac7c
-R ac7032e1e6357553fc5ab708e279d5bc
-T *branch * html-cleanup
-T *sym-html-cleanup *
-T -sym-trunk *
+P d57f2395709a42c42f96a34f2277951a520c0459
+R 54f9e2bbf5136b63e64527caee0966d0
 U Isius
-Z d22ed612e7d21cf05a4256916cdacca3
+Z 67b3d65179a027e26522e2480f88da1a
