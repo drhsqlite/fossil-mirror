@@ -147,73 +147,115 @@ void setup_page(void){
 void setup_ulist(void){
   Stmt s;
   int prevLevel = 0;
+  int nRow = 0;
+  int iSort;
+  static const char *azSortOptions[] = {
+    "0", "Name",
+    "1", "Uid",
+    "2", "Capabilities",
+    "3", "Last Change",
+    "4", "Expiration"
+  };
+  const char *zOrderBy[] = {
+    "login COLLATE nocase",
+    "uid",
+    "cap, login COLLATE nocase",
+    "mtime DESC",
+    "exp DESC, login COLLATE nocase"
+  };
 
   login_check_credentials();
   if( !g.perm.Admin ){
     login_needed(0);
     return;
   }
+  iSort = atoi(PD("sx", "0"));
+  if( iSort<0 || iSort>ArraySize(zOrderBy) ) iSort = 0;
+  
 
   style_submenu_element("Add", "Add User", "setup_uedit");
   style_submenu_element("Help", "Help", "setup_ulist_notes");
+  style_submenu_multichoice("sx", ArraySize(azSortOptions)/2, azSortOptions, 0);
   style_header("User List");
-  @ <table class="usetupUserList">
-  prevLevel = 0;
+  @ <table border=0 cellpadding=0 cellspacing=0>
   db_prepare(&s,
-     "SELECT uid, login, cap, info, 1 FROM user"
-     " WHERE login IN ('anonymous','nobody','developer','reader') "
-     " UNION ALL "
-     "SELECT uid, login, cap, info, 2 FROM user"
-     " WHERE login NOT IN ('anonymous','nobody','developer','reader') "
-     "ORDER BY 5, 2 COLLATE nocase"
+     "SELECT uid, login, cap, info, datetime(mtime,'unixepoch'), NULL AS exp "
+     "  FROM user"
+     " WHERE login IN ('anonymous','nobody','developer','reader')"
+     " ORDER BY %s",
+     zOrderBy[iSort]/*safe-for-%s*/
   );
   while( db_step(&s)==SQLITE_ROW ){
-    int iLevel = db_column_int(&s, 4);
-    const char *zCap = db_column_text(&s, 2);
+    int uid = db_column_int(&s, 0);
     const char *zLogin = db_column_text(&s, 1);
-    if( iLevel>prevLevel ){
-      if( prevLevel>0 ){
-        @ <tr><td colspan="3"><hr></td></tr>
-      }
-      if( iLevel==1 ){
-        @ <tr>
-        @   <th class="usetupListUser"
-        @    style="text-align: right;padding-right: 20px;">Category</th>
-        @   <th class="usetupListCap"
-        @    style="text-align: center;padding-right: 15px;">Capabilities</th>
-        @   <th class="usetupListCon"
-        @    style="text-align: left;">Notes</th>
-        @ </tr>
-      }else{
-        @ <tr>
-        @   <th class="usetupListUser"
-        @    style="text-align: right;padding-right: 20px;">User&nbsp;ID</th>
-        @   <th class="usetupListCap"
-        @    style="text-align: center;padding-right: 15px;">Capabilities</th>
-        @   <th class="usetupListCon"
-        @    style="text-align: left;">Contact&nbsp;Info</th>
-        @ </tr>
-      }
-      prevLevel = iLevel;
+    const char *zCap = db_column_text(&s, 2);
+    const char *zDate = db_column_text(&s, 4);
+    if( nRow++ ){
+      @ <tr><td colspan=3><hr></td></tr>
     }
-    @ <tr>
-    @ <td class="usetupListUser"
-    @     style="text-align: right;padding-right: 20px;white-space:nowrap;">
-    if( g.perm.Admin && (zCap[0]!='s' || g.perm.Setup) ){
-      @ <a href="setup_uedit?id=%d(db_column_int(&s,0))">
+    @ <tr><td valign='top'>Category:</td>
+    @ <td>&nbsp;&nbsp;</td>
+    @ <td><a href='setup_uedit?id=%d(uid)'>%h(zLogin)</a>
+    if( fossil_strcmp(zLogin,"anonymous")==0 ){
+      @ (All logged-in users)
+    }else if( fossil_strcmp(zLogin,"developer")==0 ){
+      @ (Users with '<b>v</b>' capability)
+    }else if( fossil_strcmp(zLogin,"nobody")==0 ){
+      @ (All users without login)
+    }else if( fossil_strcmp(zLogin,"reader")==0 ){
+      @ (Users with '<b>u</b>' capability)
     }
-    @ %h(zLogin)
-    if( g.perm.Admin ){
-      @ </a>
+    @ </td></tr>
+    @ <tr><td valign='top'>Capabilities:</td><td></td>
+    @ <td>%h(zCap)</a></td></tr>
+    if( zDate && zDate[0] ){
+      @ <tr><td valign='top'>Last&nbsp;change:</td><td></td>
+      @ <td>%h(zDate)</a></td></tr>
     }
-    @ </td>
-    @ <td class="usetupListCap" style="text-align: center;padding-right: 15px;">%s(zCap)</td>
-    @ <td  class="usetupListCon"  style="text-align: left;">%h(db_column_text(&s,3))</td>
-    @ </tr>
+  }
+  db_finalize(&s);
+
+  nRow = 0;
+  db_prepare(&s,
+     "SELECT uid, login, cap, info, datetime(mtime,'unixepoch'), "
+     "       CASE WHEN info LIKE '%%expires 20%%'"
+             "    THEN substr(info,instr(lower(info),'expires')+8,10)"
+             "    END AS exp"
+     "  FROM user"
+     " WHERE login NOT IN ('anonymous','nobody','developer','reader')"
+     " ORDER BY %s",
+     zOrderBy[iSort]/*safe-for-%s*/
+  );
+  while( db_step(&s)==SQLITE_ROW ){
+    int uid = db_column_int(&s, 0);
+    const char *zLogin = db_column_text(&s, 1);
+    const char *zCap = db_column_text(&s, 2);
+    const char *zInfo = db_column_text(&s, 3);
+    const char *zDate = db_column_text(&s, 4);
+    const char *zExp = db_column_text(&s,5);
+    if( (nRow++)==0 ){
+      @ <tr><td colspan=3><div class='section'>Users</div></tr>
+    }else{
+      @ <tr><td colspan=3><hr></td></tr>
+    }
+    @ <tr><td valign='top'>Username:</td><td></td>
+    @ <td><a href='setup_uedit?id=%d(uid)'>%h(zLogin) (uid: %d(uid))</a></td><tr>
+    @ <tr><td valign='top'>Capabilities:</td><td></td>
+    @ <td>%h(zCap)</a></td></tr>
+    if( zExp && zExp[0] ){
+      @ <tr><td valign='top'>Login&nbsp;expires:</td><td></td>
+      @ <td>%h(zExp)</a></td></tr>
+    }
+    @ <tr><td valign='top'>Notes:</td><td></td>
+    @ <td>%h(zInfo)</a></td></tr>
+    if( zDate && zDate[0] ){
+      @ <tr><td valign='top'>Last&nbsp;change:</td><td></td>
+      @ <td>%h(zDate)</a></td></tr>
+    }
   }
   @ </table>
-  style_footer();
   db_finalize(&s);
+  style_footer();
 }
 
 /*
