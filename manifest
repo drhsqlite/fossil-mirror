@@ -1,5 +1,5 @@
-C Improved\sdisplay\sof\sthe\suser\slist\son\sthe\ssetup\smenu.
-D 2015-11-17T17:12:49.081
+C Change\sthe\suser\slist\sto\sa\ssortable\stable.
+D 2015-11-17T19:51:13.507
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -474,7 +474,7 @@ F src/report.c de3d39a59b923d0259a01cb7b66244860778e39d
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b02a73b942028631eacf484ae3f83a3a4edd3518
-F src/setup.c 4412d77c259e8ef622f3316d7cd7685a56ac40ae
+F src/setup.c cf1ec154828a63bc68791d153ac19c64801070cb
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c d25df04168d6ba5a4fa05bdbf859df667f9eb621
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 18df719ed56639956f3b07b988af8ef04c7a26bc
-R 7f684b18c5f4b68b96f57843489deb83
+P d3fbf717386970ebb8c29630698f697745b0fa48
+R dd364e938fabd9d2892e14a05eeb102d
 U drh
-Z 726712c397932931379344306a180a55
+Z e03b469aef776abea78bb4588bb16752
