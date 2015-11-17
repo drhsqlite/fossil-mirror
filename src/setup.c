@@ -155,6 +155,7 @@ void setup_ulist(void){
   }
 
   style_submenu_element("Add", "Add User", "setup_uedit");
+  style_submenu_element("Log", "Access Log", "access_log");
   style_submenu_element("Help", "Help", "setup_ulist_notes");
   style_header("User List");
   @ <table border=1 cellpadding=2 cellspacing=0 class='userTable'>
@@ -199,7 +200,7 @@ void setup_ulist(void){
   @ <div class='section'>Users</div>
   @ <table border=1 cellpadding=2 cellspacing=0 class='userTable' id='userlist'>
   @ <thead><tr>
-  @ <th>ID<th>Login<th>Caps<th>Info<th>Chng<th>Expire</tr></thead>
+  @ <th>ID<th>Login<th>Caps<th>Info<th>Date<th>Expire</tr></thead>
   @ <tbody>
   db_prepare(&s,
      "SELECT uid, login, cap, info, date(mtime,'unixepoch'), lower(login) AS sortkey, "

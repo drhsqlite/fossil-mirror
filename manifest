@@ -1,5 +1,5 @@
-C Revamp\sthe\suser\slist\ssetup\spage.\s\sShow\sthe\slast\schange\stime\sand\sexpiration\sdate\nfor\seach\slogin.\s\sMake\sthe\suser\slist\ssortable\susing\sjavascript.
-D 2015-11-17T19:52:58.937
+C Add\sthe\sAccess-Log\ssubmenu\sbutton\sto\sthe\sUser\sList\spage.
+D 2015-11-17T19:58:58.480
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -474,7 +474,7 @@ F src/report.c de3d39a59b923d0259a01cb7b66244860778e39d
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b02a73b942028631eacf484ae3f83a3a4edd3518
-F src/setup.c cf1ec154828a63bc68791d153ac19c64801070cb
+F src/setup.c d5b94054e9b303f8f4cdb2200748b60fa4f61fd6
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c d25df04168d6ba5a4fa05bdbf859df667f9eb621
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
@@ -743,8 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5853fcf132800f902f4586c7f24b286e88a6ac7c 72de3100c29070aaf2c237a0d1ddaf2f7e6f7543
-R dd364e938fabd9d2892e14a05eeb102d
-T +closed 72de3100c29070aaf2c237a0d1ddaf2f7e6f7543
+P 01b1319931e282166dbd3e8b6defd91efee90b7e
+R 327c0107f18376265dbf5556efa60606
 U drh
-Z 69bc0e5c080c59033451ace1b2fdde94
+Z 6192f8080b9c3b0ab7ef77f185ab6e44
