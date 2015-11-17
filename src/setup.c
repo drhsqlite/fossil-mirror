@@ -155,10 +155,8 @@ void setup_ulist(void){
   }
 
   style_submenu_element("Add", "Add User", "setup_uedit");
+  style_submenu_element("Help", "Help", "setup_ulist_notes");
   style_header("User List");
-  @ <table class="usetupLayoutTable">
-  @ <tr><td class="usetupColumnLayout">
-  @ <span class="note">Users:</span>
   @ <table class="usetupUserList">
   prevLevel = 0;
   db_prepare(&s,
@@ -214,8 +212,20 @@ void setup_ulist(void){
     @ </tr>
   }
   @ </table>
-  @ </td><td class="usetupColumnLayout">
-  @ <span class="note">Notes:</span>
+  style_footer();
+  db_finalize(&s);
+}
+
+/*
+** WEBPAGE: setup_ulist_notes
+**
+** A documentation page showing notes about user configuration.  This information
+** used to be a side-bar on the user list page, but has been factored out for
+** improved presentation.
+*/
+void setup_ulist_notes(void){
+  style_header("User Configuration Notes");
+  @ <h1>User Configuration Notes:</h1>
   @ <ol>
   @ <li><p>The permission flags are as follows:</p>
   @ <table>
@@ -297,10 +307,9 @@ void setup_ulist(void){
   @ </p></li>
   @
   @ </ol>
-  @ </td></tr></table>
   style_footer();
-  db_finalize(&s);
 }
+
 
 /*
 ** Return true if zPw is a valid password string.  A valid
