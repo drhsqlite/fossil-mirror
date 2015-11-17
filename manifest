@@ -1,5 +1,5 @@
-C Add\sthe\sAccess-Log\ssubmenu\sbutton\sto\sthe\sUser\sList\spage.
-D 2015-11-17T19:58:58.480
+C Show\show\sto\senable/disable\sthe\saccess-log\sand\sadmin-log\sfrom\stheir\sdisplay\npages.\s\sAdd\sthe\s"Stats"\sbutton\sto\sthe\sAdmin\smain\smenu.
+D 2015-11-17T23:22:46.723
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -474,7 +474,7 @@ F src/report.c de3d39a59b923d0259a01cb7b66244860778e39d
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b02a73b942028631eacf484ae3f83a3a4edd3518
-F src/setup.c d5b94054e9b303f8f4cdb2200748b60fa4f61fd6
+F src/setup.c 210ae371d680c19744dd06f513ac859473609c93
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c d25df04168d6ba5a4fa05bdbf859df667f9eb621
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
@@ -503,7 +503,7 @@ F src/undo.c 52ec5c24a6dcf1937026e2d9f86791fd1913cdf6
 F src/unicode.c f26b9f26d4ac399f7b03cfac16ec72336c7f06c9
 F src/update.c 404e7daea8b200e2708329b49850d62e68e716f7
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
-F src/user.c 6ec57f122cadd7c324e657be5de1b0c8f0d37c8d
+F src/user.c d7501c09c03bf35342eda83e8b7b8f3024256710
 F src/utf8.c 49a0cfaf5b3ba966f5e7c688b829610634fefd25
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 01b1319931e282166dbd3e8b6defd91efee90b7e
-R 327c0107f18376265dbf5556efa60606
+P e60a021167ceb530fde310a0e93840875c0a33f8
+R b8ba032f4318cc1d4af07ac06e619228
 U drh
-Z 6192f8080b9c3b0ab7ef77f185ab6e44
+Z 152d5b8886f03679b370a22be7a88208

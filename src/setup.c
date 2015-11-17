@@ -127,6 +127,8 @@ void setup_page(void){
     "A record of login attempts");
   setup_menu_entry("Administrative Log", "admin_log",
     "View the admin_log entries");
+  setup_menu_entry("Stats", "stat",
+    "Repository Status Reports");
   setup_menu_entry("Sitemap", "sitemap",
     "Links to miscellaneous pages");
   setup_menu_entry("SQL", "admin_sql",
@@ -2064,7 +2066,8 @@ void page_admin_log(){
   create_admin_log_table();
   limit = atoi(PD("n","20"));
   fLogEnabled = db_get_boolean("admin-log", 0);
-  @ <div>Admin logging is %s(fLogEnabled?"on":"off").</div>
+  @ <div>Admin logging is %s(fLogEnabled?"on":"off").
+  @ (Change this on the <a href="setup_settings">settings</a> page.)</div>
 
 
   @ <div>Limit results to: <span>
