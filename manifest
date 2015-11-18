@@ -1,5 +1,5 @@
-C Show\show\sto\senable/disable\sthe\saccess-log\sand\sadmin-log\sfrom\stheir\sdisplay\npages.\s\sAdd\sthe\s"Stats"\sbutton\sto\sthe\sAdmin\smain\smenu.
-D 2015-11-17T23:22:46.723
+C Check\sfor\sENABLE_DBSTAT_VTAB\sfeature\sin\sstead\sof\sSQLite\sversion\snumber\sbefore\susing\sthe\sdbstat\svirtual\stable:\sIt\smight\sbe\sthat\sthe\sSQLite\sversion\sis\sOK,\sbut\sit\sis\scompiled\swithout\sENABLE_DBSTAT_VTAB.
+D 2015-11-18T13:50:02.232
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -484,7 +484,7 @@ F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
 F src/sqlite3.c 426613a30f29d195b7c619b0388600f7da4e8b5f
 F src/sqlite3.h 6fcafa8e21f4fbc1ecb664095af2f3c0ed1a2e6a
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
-F src/stat.c 69ab1f0d78ccb91fc81f8f3930046025034a3250
+F src/stat.c 9fa919c1c78db3952e181e0bf955b039aca0db26
 F src/statrep.c 2475cba0c91bdaa6f51a61565732ece308fadf42
 F src/style.c 1a7a0b84d1404a6420819498e0697219eb90357d
 F src/sync.c 7dc7e9097cf9add9159682e67385ac82ac7cbb38
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e60a021167ceb530fde310a0e93840875c0a33f8
-R b8ba032f4318cc1d4af07ac06e619228
-U drh
-Z 152d5b8886f03679b370a22be7a88208
+P 3967d043e8507f52c614e7cbb0fb373694a805f1
+R 99f3a3049eb14bee5d5f93470cbd48fb
+U jan.nijtmans
+Z 4ce1837d4f33830f6023460917c9a37f
