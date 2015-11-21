@@ -1,5 +1,5 @@
-C If\sthe\sproc\sargument\slist\sis\san\sempty\slist,\sdon't\ssegfault\sby\saccessing\smemory\noutside\sthe\sbounds\sof\sthe\sarray.\s\sFor\sexample,\sas\sused\sin\sthe\sfooter\n[/artifact/7f36cbf30a82ef3cec30c1917a96415fa7d76eeb?txt=1&ln=3]
-D 2015-11-21T17:25:58.691
+C Revise\sTH1\sproc_command\sfix\sfrom\sthe\sprevious\scheck-in\sso\sit\smore\sclosely\smatches\sthe\soriginal\sfix\sfrom\s[f2d87242503d7a7d].
+D 2015-11-21T18:37:41.099
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -492,7 +492,7 @@ F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
 F src/th.c e9840f21b1bb1bc03fdba17c818728e132e254b7
 F src/th.h 1e7ae1613afa730a75df06d7fd1f17c7ff4564f4
-F src/th_lang.c 5bd2c197798f2d19f513fde36b076ca1fcb975be
+F src/th_lang.c e37a4bae6c05ed442bc90ba3fa18be2683e2a6a1
 F src/th_main.c 04d4f9d17a0b32880417e60544da9d5ca5fbe7e3
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
 F src/timeline.c ba528a9dfaee8f33a320fd0666d1826648966af0
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 63256980eef3cff6b1022ddefdc4a7c6a3a59383
-R d44029c6fc22fc0e71d50aba8076d011
-U andybradford
-Z 02f072b979e482767714608dd4fc6b9e
+P 7c3cb470e65bf79274f67d44b3fa2a14d54d18bd
+R 1573e65a894056d34a36b0858957ae08
+U mistachkin
+Z ca07e5071e2a9871c07f1375aaba6ed6
