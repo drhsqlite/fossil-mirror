@@ -497,7 +497,8 @@ static int proc_command(
   ** ProcDefn.hasArgs flag. The "args" parameter does not require an
   ** entry in the ProcDefn.azParam[] or ProcDefn.azDefault[] arrays.
   */
-  if( anParam[nParam-1]==4 && 0==memcmp(azParam[nParam-1], "args", 4) ){
+  if( nParam
+      && anParam[nParam-1]==4 && 0==memcmp(azParam[nParam-1], "args", 4) ){
     p->hasArgs = 1;
     nParam--;
   }

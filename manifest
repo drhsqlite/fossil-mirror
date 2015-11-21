@@ -1,5 +1,5 @@
-C Fix\suninitialized\svariable\sin\scommand-line\sshell\s[http://www.sqlite.org/src/info/dc2ac024d31a898b|dc2ac024d3]\sand\sother\sshell\simprovements,\scherry-picked\sfrom\sSQLite\strunk.
-D 2015-11-19T09:44:25.197
+C If\sthe\sproc\sargument\slist\sis\san\sempty\slist,\sdon't\ssegfault\sby\saccessing\smemory\noutside\sthe\sbounds\sof\sthe\sarray.\s\sFor\sexample,\sas\sused\sin\sthe\sfooter\n[/artifact/7f36cbf30a82ef3cec30c1917a96415fa7d76eeb?txt=1&ln=3]
+D 2015-11-21T17:25:58.691
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -492,7 +492,7 @@ F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
 F src/th.c e9840f21b1bb1bc03fdba17c818728e132e254b7
 F src/th.h 1e7ae1613afa730a75df06d7fd1f17c7ff4564f4
-F src/th_lang.c a536a5cee224ccab6cbc5d8b07bef5027bff2910
+F src/th_lang.c 5bd2c197798f2d19f513fde36b076ca1fcb975be
 F src/th_main.c 04d4f9d17a0b32880417e60544da9d5ca5fbe7e3
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
 F src/timeline.c ba528a9dfaee8f33a320fd0666d1826648966af0
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1a6892aeb7c2484afb142296854bea5c348fa05b
-R 753f537bc8a5dfc6f86b87ba54b4572f
-U jan.nijtmans
-Z 7696129e9df6703c535b4e234c35e4b3
+P 63256980eef3cff6b1022ddefdc4a7c6a3a59383
+R d44029c6fc22fc0e71d50aba8076d011
+U andybradford
+Z 02f072b979e482767714608dd4fc6b9e
