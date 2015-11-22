@@ -1,5 +1,5 @@
-C Revise\sTH1\sproc_command\sfix\sfrom\sthe\sprevious\scheck-in\sso\sit\smore\sclosely\smatches\sthe\soriginal\sfix\sfrom\s[f2d87242503d7a7d].
-D 2015-11-21T18:37:41.099
+C Restore\shistorical\sbehavior\sof\sallowing\sboth\spull-only\sand\spullonly\sin\nautosync\ssetting.
+D 2015-11-22T05:30:43.692
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -487,7 +487,7 @@ F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 9fa919c1c78db3952e181e0bf955b039aca0db26
 F src/statrep.c 2475cba0c91bdaa6f51a61565732ece308fadf42
 F src/style.c 1a7a0b84d1404a6420819498e0697219eb90357d
-F src/sync.c 7dc7e9097cf9add9159682e67385ac82ac7cbb38
+F src/sync.c d567ad672a988aebdc99447d79a681951f175426
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
 F src/th.c e9840f21b1bb1bc03fdba17c818728e132e254b7
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7c3cb470e65bf79274f67d44b3fa2a14d54d18bd
-R 1573e65a894056d34a36b0858957ae08
-U mistachkin
-Z ca07e5071e2a9871c07f1375aaba6ed6
+P c66083eded992cc24e842cd133bfb47c95f638d9
+R feedf655ecb782f8efa0e07f79395897
+U andybradford
+Z 81d43ab8c55a4d70abcbdf60238fb024

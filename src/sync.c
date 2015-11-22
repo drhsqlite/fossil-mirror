@@ -40,7 +40,7 @@ int autosync(int flags){
   }
   zAutosync = db_get("autosync", 0);
   if( zAutosync ){
-    if( (flags & SYNC_PUSH)!=0 && fossil_strcmp(zAutosync,"pull")==0 ){
+    if( (flags & SYNC_PUSH)!=0 && fossil_strncmp(zAutosync,"pull",4)==0 ){
       return 0;   /* Do not auto-push when autosync=pullonly */
     }
     if( is_false(zAutosync) ){
