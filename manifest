@@ -1,5 +1,5 @@
-C Restore\shistorical\sbehavior\sof\sallowing\sboth\spull-only\sand\spullonly\sin\nautosync\ssetting.
-D 2015-11-22T05:30:43.692
+C fixed\stypo\sas\ssuggested\son\sML
+D 2015-11-23T20:53:41.995
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -474,7 +474,7 @@ F src/report.c de3d39a59b923d0259a01cb7b66244860778e39d
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b02a73b942028631eacf484ae3f83a3a4edd3518
-F src/setup.c 210ae371d680c19744dd06f513ac859473609c93
+F src/setup.c f72ee2101bdb5b0757fc53a31b5a8c59782aa865
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c f0f59ea60ad297f671b7ae0fb957a736ad17c92c
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
@@ -743,7 +743,6 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c66083eded992cc24e842cd133bfb47c95f638d9
-R feedf655ecb782f8efa0e07f79395897
-U andybradford
-Z 81d43ab8c55a4d70abcbdf60238fb024
+P acc0200a4ab9b4c59782153095daff4f6e25cc8c
+U m.ramakers@gmail.com
+Z 7d650f67a3205a3e0bb3a322debe3d49

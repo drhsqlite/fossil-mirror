@@ -1885,7 +1885,7 @@ void sql_page(void){
   @ run by this page.  You can do serious and irrepairable damage to the
   @ repository.  Proceed with extreme caution.</p>
   @
-  @ <p>Only a the first statement in the entry box will be run.
+  @ <p>Only the first statement in the entry box will be run.
   @ Any subsequent statements will be silently ignored.</p>
   @
   @ <p>Database names:<ul><li>repository &rarr; %s(db_name("repository"))
