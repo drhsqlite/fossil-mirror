@@ -1,5 +1,5 @@
-C Prevent\sthe\stest\scommand\s'test-th-hook'\sfrom\ssegfaulting\swhen\sTH1\shooks\sare\sdisabled.\s\sAlso,\sadd\sand\senhance\scomments.
-D 2015-11-24T23:38:17.328
+C Fix\scompiler\swarnings\sseen\swith\sMSVC.\s\sAdd\scomments.
+D 2015-11-24T23:41:03.844
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -419,7 +419,7 @@ F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c e1a455d3216a191f064926d3f5f5bd01f08c3828
-F src/info.c ea7cd317012235c4abc2dda5155a4bd246f9a0a1
+F src/info.c 97dde3cb6f1552a3f34a29bf873637697130b2ef
 F src/json.c 18266f277275d058aadb979b74c8b3af7791d649
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -442,7 +442,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 48e28e14943671f38ff81cdbdb6db93564bed895
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c 1133b42e58e40e9f6f7d6f1be12dbb8071a4f3db
+F src/main.c cf8dd447902760531ddf7947e022a7f3b962f754
 F src/main.mk 29222c3dafd8664690482d11733671ad8245c3ff
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 565d1b0a3880421eab48fc43db529ab80d424aba
-R 52ad354ab0982a527db68cb094e260b8
+P ddd4cb52545c3e8406643e41e2c9606192e3d000
+R f43c105aeebb92def1bfc8d917227c0c
 U mistachkin
-Z c46e9739ac43f5cf1b99ec6701b68690
+Z 0df2f4dbbff29505043c1aac48778f2a

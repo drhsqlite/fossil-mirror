@@ -905,7 +905,7 @@ const char **find_repeatable_option(
       pzArgs = fossil_malloc( nAllocArgs*sizeof(pzArgs[0]) );
     }else if( nAllocArgs<=nUsedArgs ){
       nAllocArgs = nAllocArgs*2;
-      pzArgs = fossil_realloc( pzArgs, nAllocArgs*sizeof(pzArgs[0]) );
+      pzArgs = fossil_realloc( (void *)pzArgs, nAllocArgs*sizeof(pzArgs[0]) );
     }
     pzArgs[nUsedArgs++] = zOption;
   }
@@ -2288,7 +2288,11 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 ** Note that the following command is used by ssh:// processing.
 **
 ** COMMAND: test-http
+**
 ** Works like the http command but gives setup permission to all users.
+**
+** Options:
+**   --th-trace          trace TH1 execution (for debugging purposes)
 **
 */
 void cmd_test_http(void){

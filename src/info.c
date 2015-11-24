@@ -2904,14 +2904,14 @@ void ci_amend_cmd(void){
     for(i=0; i<nTags; i++){
       if( pzNewTags[i] && pzNewTags[i][0] ) add_tag(pzNewTags[i]);
     }
-    fossil_free(pzNewTags);
+    fossil_free((void *)pzNewTags);
   }
   if( pzCancelTags!=0 ){
     for(i=0; i<nCancels; i++){
       if( pzCancelTags[i] && pzCancelTags[i][0] )
         cancel_tag(rid,pzCancelTags[i]);
     }
-    fossil_free(pzCancelTags);
+    fossil_free((void *)pzCancelTags);
   }
   if( fHide && !fHasHidden ) hide_branch();
   if( fClose && !fHasClosed ) close_leaf(rid);
