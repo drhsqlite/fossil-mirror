@@ -1,5 +1,5 @@
-C fixed\stypo\sas\ssuggested\son\sML
-D 2015-11-23T20:53:41.995
+C Prevent\sthe\stest\scommand\s'test-th-hook'\sfrom\ssegfaulting\swhen\sTH1\shooks\sare\sdisabled.\s\sAlso,\sadd\sand\senhance\scomments.
+D 2015-11-24T23:38:17.328
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -493,7 +493,7 @@ F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
 F src/th.c e9840f21b1bb1bc03fdba17c818728e132e254b7
 F src/th.h 1e7ae1613afa730a75df06d7fd1f17c7ff4564f4
 F src/th_lang.c e37a4bae6c05ed442bc90ba3fa18be2683e2a6a1
-F src/th_main.c 04d4f9d17a0b32880417e60544da9d5ca5fbe7e3
+F src/th_main.c d2e76c7247f7a8874319d3364b512e2b95666b70
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
 F src/timeline.c ba528a9dfaee8f33a320fd0666d1826648966af0
 F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
@@ -743,6 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P acc0200a4ab9b4c59782153095daff4f6e25cc8c
-U m.ramakers@gmail.com
-Z 7d650f67a3205a3e0bb3a322debe3d49
+P 565d1b0a3880421eab48fc43db529ab80d424aba
+R 52ad354ab0982a527db68cb094e260b8
+U mistachkin
+Z c46e9739ac43f5cf1b99ec6701b68690
