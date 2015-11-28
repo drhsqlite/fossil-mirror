@@ -1,5 +1,5 @@
-C Fix\scompiler\swarnings\sseen\swith\sMSVC.\s\sAdd\scomments.
-D 2015-11-24T23:41:03.844
+C Include\sthe\sfilename\sin\sthe\sform\saction\swhen\sredirected\sfrom\slogin\srequired\nto\savoid\sneeding\sto\suse\sContent-Disposition\sheader\sto\shint\sthe\sclient\s\nwhat\sthe\sfilename\sis.
+D 2015-11-28T19:59:59.123
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -515,7 +515,7 @@ F src/winhttp.c 4e680d7c8778be4439169f40a992ccc81f7ceec2
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 27b853ed9a5a7e20de06a080d89ff08c1825376c
 F src/xfersetup.c 0f967a3fca7ad9fa3aa350d121851e71064823be
-F src/zip.c 49c6b1327a9aea3b0682b2c55bddd9d54860ff6f
+F src/zip.c 211de642fc72c1e93f9083f3affc85f3c8febe30
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test c380f431db6dd2278924e2e8c80e916b5c54923f
@@ -743,7 +743,10 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ddd4cb52545c3e8406643e41e2c9606192e3d000
-R f43c105aeebb92def1bfc8d917227c0c
-U mistachkin
-Z 0df2f4dbbff29505043c1aac48778f2a
+P 52e3d9d845d1d1ad22f72ece0cf3939d3b52ab3a
+R b5c75d4e0ed0d99bddb6455297fc80dd
+T *branch * pending-review
+T *sym-pending-review *
+T -sym-trunk *
+U andybradford
+Z 1d2f9f80e79ad36ccc03ab522bb38777
