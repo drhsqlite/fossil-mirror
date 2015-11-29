@@ -1,5 +1,5 @@
-C Fix\sincorrect\sform\sgeneration\sfor\szip\spages\sfrom\sredirected\sanonymous\nlogin.\s\sThis\sonly\shappens\swhen\sthe\szip\spermission\sis\sonly\sallowed\safter\nanonymous\slogin\sis\ssuccessful.
-D 2015-11-29T03:51:10.336
+C Fix\sthe\sbackslash-octal\sescapes\son\sthe\sfilename\squoting\swhile\simporting\nfrom\sgit.
+D 2015-11-29T17:33:05.975
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -418,7 +418,7 @@ F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
-F src/import.c e1a455d3216a191f064926d3f5f5bd01f08c3828
+F src/import.c 19f34d2902649e2ca572089b3766f259f0a5c132
 F src/info.c 97dde3cb6f1552a3f34a29bf873637697130b2ef
 F src/json.c 18266f277275d058aadb979b74c8b3af7791d649
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
@@ -743,8 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 52e3d9d845d1d1ad22f72ece0cf3939d3b52ab3a 5f32bf719d7440d33ed3cc07e7f5196d53f95683
-R b5c75d4e0ed0d99bddb6455297fc80dd
-T +closed 5f32bf719d7440d33ed3cc07e7f5196d53f95683
-U andybradford
-Z 3c693df392fd258a4329cf9db8933c14
+P 167dec48fbbc2d4891191189eeeb41e163e02c1a
+R 9f580b1a7450e9f3f205b76e29232e6b
+U drh
+Z d287b80f66edf545fa6277ec69d1c785
