@@ -477,7 +477,7 @@ void baseline_zip_page(void){
   }
   if( referred_from_login() ){
     style_header("ZIP Archive Download");
-    @ <form action='%R/zip'>
+    @ <form action='%R/zip/%h(zName).zip'>
     cgi_query_parameters_to_hidden();
     @ <p>ZIP Archive named <b>%h(zName).zip</b> holding the content
     @ of check-in <b>%h(zRid)</b>:
