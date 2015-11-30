@@ -1,5 +1,5 @@
-C Fix\sthe\sbackslash-octal\sescapes\son\sthe\sfilename\squoting\swhile\simporting\nfrom\sgit.
-D 2015-11-29T17:33:05.975
+C Remove\sextra\scolon\sand\sspace\sin\ssection\stopics\sin\sstyle\sguidelines.
+D 2015-11-30T00:23:04.475
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -732,7 +732,7 @@ F www/settings.wiki 12b7e736432b0081a7e6a3d7b9e184d04f482ef7
 F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki e6c82bd6579f755896c47b22dbab18e27b1f5bc4
-F www/style.wiki 4c9c67c0eddba030a73a55e468802fd09d59bc2f
+F www/style.wiki da3a414d4c57c3da2636daf0baf6964ba72ce70b
 F www/sync.wiki ecd7e356270a40e81649970c1b606767db68d9e3
 F www/tech_overview.wiki 66d893fd0bca7f5dbc659ab0b4e9dde987e4fdb3
 F www/th1.md 294fb397db480493cc0df716321d3323b843e746
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 167dec48fbbc2d4891191189eeeb41e163e02c1a
-R 9f580b1a7450e9f3f205b76e29232e6b
-U drh
-Z d287b80f66edf545fa6277ec69d1c785
+P 09cf1ad8eecf502c225ff5711e50fe865f3ef920
+R 06e4baa576666102ea28d4bd675b933c
+U andybradford
+Z ba446d5469cea719c27076b8a4fa0c8d
