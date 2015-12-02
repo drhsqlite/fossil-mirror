@@ -1,5 +1,5 @@
-C Remove\sextra\scolon\sand\sspace\sin\ssection\stopics\sin\sstyle\sguidelines.
-D 2015-11-30T00:23:04.475
+C Improved\scommand-line\shelp\sfor\spush,\spull,\ssync,\sand\sclone\scommands.
+D 2015-12-02T09:50:27.140
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -387,7 +387,7 @@ F src/cgi.c 38b5b08eda88b4d256948d431e2f0094009644ae
 F src/checkin.c a67e10bc47e5c16396a14e5a236ce9604f8e6441
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
-F src/clone.c 265e9a29da905f3ab68625a9a5b245d7630275b2
+F src/clone.c 0d2fda5225069dd09dafbac4d9153916de469778
 F src/codecheck1.c 2cf1fc75f4f611574e92cf1440f4fb2ae49e8ba6
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
 F src/config.h 5b0f2c55c62691916d4477f37109d3356a1dcecf
@@ -487,7 +487,7 @@ F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 9fa919c1c78db3952e181e0bf955b039aca0db26
 F src/statrep.c 2475cba0c91bdaa6f51a61565732ece308fadf42
 F src/style.c 1a7a0b84d1404a6420819498e0697219eb90357d
-F src/sync.c d567ad672a988aebdc99447d79a681951f175426
+F src/sync.c 430351487d739560d75ea3d561e6ef6539c26974
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
 F src/th.c e9840f21b1bb1bc03fdba17c818728e132e254b7
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 09cf1ad8eecf502c225ff5711e50fe865f3ef920
-R 06e4baa576666102ea28d4bd675b933c
-U andybradford
-Z ba446d5469cea719c27076b8a4fa0c8d
+P 069084afc2bcd21ddd00d5b8c9c8b06d22cc0b03
+R a278837549b78e83bdc3d39ec6cb0e4d
+U drh
+Z 73c6f2d11b7886a5e3d681e46ec99d35

@@ -107,11 +107,11 @@ void delete_private_content(void){
 **
 ** Options:
 **    --admin-user|-A USERNAME   Make USERNAME the administrator
-**    --once                     Don't save url.
+**    --once                     Don't remember the URL.
 **    --private                  Also clone private branches
-**    --ssl-identity=filename    Use the SSL identity if requested by the server
-**    --ssh-command|-c 'command' Use this SSH command
-**    --httpauth|-B 'user:pass'  Add HTTP Basic Authorization to requests
+**    --ssl-identity FILENAME    Use the SSL identity if requested by the server
+**    --ssh-command|-c SSH       Use SSH as the "ssh" command
+**    --httpauth|-B USER:PASS    Add HTTP Basic Authorization to requests
 **    --verbose                  Show more statistics in output
 **
 ** See also: init
