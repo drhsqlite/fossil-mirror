@@ -148,7 +148,6 @@ void setup_page(void){
 */
 void setup_ulist(void){
   Stmt s;
-  int prevLevel = 0;
 
   login_check_credentials();
   if( !g.perm.Admin ){

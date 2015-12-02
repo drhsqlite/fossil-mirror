@@ -1,5 +1,5 @@
-C Capitalize\s"Fossil"\sin\sthe\sconcepts.wiki\sdocument.
-D 2015-12-02T09:55:09.383
+C Fix\sharmless\scompiler\swarning.
+D 2015-12-02T20:18:42.845
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -474,7 +474,7 @@ F src/report.c de3d39a59b923d0259a01cb7b66244860778e39d
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b02a73b942028631eacf484ae3f83a3a4edd3518
-F src/setup.c f72ee2101bdb5b0757fc53a31b5a8c59782aa865
+F src/setup.c ac704e6cd92c86fef9a0edda055c31f5b43be9db
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c f0f59ea60ad297f671b7ae0fb957a736ad17c92c
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 26d0c20a37b014ccb8365b94ed2044ecd6a39cbc
-R 807fdb666a7569ebb514d68bf216974d
-U drh
-Z 66288757b3bb4a9a4c6f90acdf8a13d9
+P b63c4300028643768ad1a1fc60e8834d64af9cee
+R 1cdfec31ff9e5a7497025664b25139c5
+U mistachkin
+Z 64db848ebe952acd4516fcdacb465bba
