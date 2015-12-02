@@ -103,7 +103,7 @@ void fossil_unicode_free(void *pOld){
 /*
 ** Translate text from the filename character set into UTF-8.
 ** Return a pointer to the translated text.
-** Call fossil_filename_free() to deallocate any memory used to store the
+** Call fossil_path_free() to deallocate any memory used to store the
 ** returned pointer when done.
 **
 ** This function must not convert '\' to '/' on windows/cygwin, as it is
@@ -115,15 +115,15 @@ void fossil_unicode_free(void *pOld){
 ** generates such filenames. See:
 ** <http://cygwin.com/cygwin-ug-net/using-specialnames.html>
 */
-char *fossil_filename_to_utf8(const void *zFilename){
+char *fossil_path_to_utf8(const void *zPath){
 #if defined(_WIN32)
-  int nByte = WideCharToMultiByte(CP_UTF8, 0, zFilename, -1, 0, 0, 0, 0);
+  int nByte = WideCharToMultiByte(CP_UTF8, 0, zPath, -1, 0, 0, 0, 0);
   char *zUtf = sqlite3_malloc( nByte );
   char *pUtf, *qUtf;
   if( zUtf==0 ){
     return 0;
   }
-  WideCharToMultiByte(CP_UTF8, 0, zFilename, -1, zUtf, nByte, 0, 0);
+  WideCharToMultiByte(CP_UTF8, 0, zPath, -1, zUtf, nByte, 0, 0);
   pUtf = qUtf = zUtf;
   while( *pUtf ) {
     if( *pUtf == (char)0xef ){
@@ -139,10 +139,10 @@ char *fossil_filename_to_utf8(const void *zFilename){
   return zUtf;
 #elif defined(__CYGWIN__)
   char *zOut;
-  zOut = fossil_strdup(zFilename);
+  zOut = fossil_strdup(zPath);
   return zOut;
 #elif defined(__APPLE__) && !defined(WITHOUT_ICONV)
-  char *zIn = (char*)zFilename;
+  char *zIn = (char*)zPath;
   char *zOut;
   iconv_t cd;
   size_t n, x;
@@ -163,18 +163,18 @@ char *fossil_filename_to_utf8(const void *zFilename){
     }
     iconv_close(cd);
   }else{
-    zOut = fossil_strdup(zFilename);
+    zOut = fossil_strdup(zPath);
   }
   return zOut;
 #else
-  return (char *)zFilename;  /* No-op on non-mac unix */
+  return (char *)zPath;  /* No-op on non-mac unix */
 #endif
 }
 
 /*
 ** Translate text from UTF-8 to the filename character set.
 ** Return a pointer to the translated text.
-** Call fossil_filename_free() to deallocate any memory used to store the
+** Call fossil_path_free() to deallocate any memory used to store the
 ** returned pointer when done.
 **
 ** On Windows, characters in the range U+0001 to U+0031 and the
@@ -189,8 +189,9 @@ char *fossil_filename_to_utf8(const void *zFilename){
 ** See: <http://cygwin.com/cygwin-ug-net/using-specialnames.html>
 **
 */
-void *fossil_utf8_to_filename(const char *zUtf8){
+void *fossil_utf8_to_path(const char *zUtf8, int isDir){
 #ifdef _WIN32
+  int nReserved = isDir ? 12 : 0; /* For dir, need room for "FILENAME.EXT" */
   int nChar = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, 0, 0);
   /* Overallocate 6 chars, making some room for extended paths */
   wchar_t *zUnicode = sqlite3_malloc( (nChar+6) * sizeof(wchar_t) );
@@ -218,7 +219,7 @@ void *fossil_utf8_to_filename(const char *zUtf8){
   **/
   if( fossil_isalpha(zUtf8[0]) && zUtf8[1]==':'
            && (zUtf8[2]=='\\' || zUtf8[2]=='/') ){
-    if( wUnicode==zUnicode && nChar>MAX_PATH){
+    if( wUnicode==zUnicode && (nChar-nReserved)>MAX_PATH){
       memmove(wUnicode+4, wUnicode, nChar*sizeof(wchar_t));
       memcpy(wUnicode, L"\\\\?\\", 4*sizeof(wchar_t));
       wUnicode += 4;
@@ -229,7 +230,7 @@ void *fossil_utf8_to_filename(const char *zUtf8){
     */
     wUnicode[2] = '\\';
     wUnicode += 3;
-  }else if( wUnicode==zUnicode && nChar>MAX_PATH
+  }else if( wUnicode==zUnicode && (nChar-nReserved)>MAX_PATH
             && (zUtf8[0]=='\\' || zUtf8[0]=='/')
             && (zUtf8[1]=='\\' || zUtf8[1]=='/') && zUtf8[2]!='?'){
     memmove(wUnicode+6, wUnicode, nChar*sizeof(wchar_t));
@@ -288,9 +289,9 @@ void *fossil_utf8_to_filename(const char *zUtf8){
 
 /*
 ** Deallocate any memory that was previously allocated by
-** fossil_filename_to_utf8() or fossil_utf8_to_filename().
+** fossil_path_to_utf8() or fossil_utf8_to_path().
 */
-void fossil_filename_free(void *pOld){
+void fossil_path_free(void *pOld){
 #if defined(_WIN32)
   sqlite3_free(pOld);
 #elif (defined(__APPLE__) && !defined(WITHOUT_ICONV)) || defined(__CYGWIN__)

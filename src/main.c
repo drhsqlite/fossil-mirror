@@ -422,11 +422,11 @@ static void expand_args_option(int argc, void *argv){
 #if defined(_WIN32) && defined(BROKEN_MINGW_CMDLINE)
   for(i=0; i<g.argc; i++) g.argv[i] = fossil_mbcs_to_utf8(g.argv[i]);
 #else
-  for(i=0; i<g.argc; i++) g.argv[i] = fossil_filename_to_utf8(g.argv[i]);
+  for(i=0; i<g.argc; i++) g.argv[i] = fossil_path_to_utf8(g.argv[i]);
 #endif
 #if defined(_WIN32)
   GetModuleFileNameW(NULL, buf, MAX_PATH);
-  g.nameOfExe = fossil_filename_to_utf8(buf);
+  g.nameOfExe = fossil_path_to_utf8(buf);
 #else
   g.nameOfExe = g.argv[0];
 #endif
@@ -2548,7 +2548,7 @@ void cmd_webserver(void){
 ** wildcard expansion behavior of the host shell can be investigated.
 **
 ** With the --hex option, show the output as hexadecimal.  This can be used
-** to verify the fossil_filename_to_utf8() routine on Windows and Mac.
+** to verify the fossil_path_to_utf8() routine on Windows and Mac.
 */
 void test_echo_cmd(void){
   int i, j;
