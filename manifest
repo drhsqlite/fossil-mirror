@@ -1,5 +1,5 @@
-C Do\snot\sduplicate\smarkdown\stitles\sin\sthe\stitle\sof\sthe\spage\sand\sin\sthe\sbody\nof\sthe\sdocument.
-D 2015-12-03T15:19:39.583
+C Improved\scross-linking\sof\sclusters.
+D 2015-12-03T15:41:45.927
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -513,7 +513,7 @@ F src/wikiformat.c f9fb5b8bc72c23d88bedcc8de1048f1081514d09
 F src/winfile.c e0e1ffdb667635ea18c0cb48d7ed07210cf3fa6b
 F src/winhttp.c 4e680d7c8778be4439169f40a992ccc81f7ceec2
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c 27b853ed9a5a7e20de06a080d89ff08c1825376c
+F src/xfer.c 360b9fb86e3709b78d1902aa89a227f957a66ba3
 F src/xfersetup.c 0f967a3fca7ad9fa3aa350d121851e71064823be
 F src/zip.c 211de642fc72c1e93f9083f3affc85f3c8febe30
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -743,7 +743,8 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cc7f4df41743ffc010e82931069358301eaa7c75
-R f3db1f23fbe0e23cf81ec7ebf126fa68
+P d407c3842116e163fce36055c3998e08731fc6f9 654fb1f4af85db6c26380d49f527c4efec6c31f1
+R 4c6498981bf40483492e3f7e22958e4b
+T +closed 654fb1f4af85db6c26380d49f527c4efec6c31f1
 U drh
-Z c24f2823ce2c9cf689756526f8bdd66a
+Z 1fb93df9507f4a921e03e983bc9100b4
