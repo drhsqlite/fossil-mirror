@@ -984,7 +984,7 @@ static void fossil_errorlog(const char *zFormat, ...){
     char *p;
     if( (p = fossil_getenv(azEnv[i]))!=0 ){
       fprintf(out, "%s=%s\n", azEnv[i], p);
-      fossil_filename_free(p);
+      fossil_path_free(p);
     }else if( (z = P(azEnv[i]))!=0 ){
       fprintf(out, "%s=%s\n", azEnv[i], z);
     }

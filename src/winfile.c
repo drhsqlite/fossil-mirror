@@ -285,10 +285,10 @@ void win32_getcwd(char *zBuf, int nBuf){
   if( GetCurrentDirectoryW(nBuf, zWide)==0 ){
     fossil_fatal("cannot find current working directory.");
   }
-  zUtf8 = fossil_filename_to_utf8(zWide);
+  zUtf8 = fossil_path_to_utf8(zWide);
   fossil_free(zWide);
   for(i=0; zUtf8[i]; i++) if( zUtf8[i]=='\\' ) zUtf8[i] = '/';
   strncpy(zBuf, zUtf8, nBuf);
-  fossil_filename_free(zUtf8);
+  fossil_path_free(zUtf8);
 }
 #endif /* _WIN32  -- This code is for win32 only */

@@ -889,7 +889,7 @@ void recon_read_dir(char *zPath){
   void *zUnicodePath;
   char *zUtf8Name;
 
-  zUnicodePath = fossil_utf8_to_filename(zPath);
+  zUnicodePath = fossil_utf8_to_path(zPath, 1);
   d = opendir(zUnicodePath);
   if( d ){
     while( (pEntry=readdir(d))!=0 ){
@@ -899,9 +899,9 @@ void recon_read_dir(char *zPath){
       if( pEntry->d_name[0]=='.' ){
         continue;
       }
-      zUtf8Name = fossil_filename_to_utf8(pEntry->d_name);
+      zUtf8Name = fossil_path_to_utf8(pEntry->d_name);
       zSubpath = mprintf("%s/%s", zPath, zUtf8Name);
-      fossil_filename_free(zUtf8Name);
+      fossil_path_free(zUtf8Name);
 #ifdef _DIRENT_HAVE_D_TYPE
       if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
           ? (file_isdir(zSubpath)==1) : (pEntry->d_type==DT_DIR) )
@@ -930,7 +930,7 @@ void recon_read_dir(char *zPath){
     fossil_fatal("encountered error %d while trying to open \"%s\".",
                   errno, g.argv[3]);
   }
-  fossil_filename_free(zUnicodePath);
+  fossil_path_free(zUnicodePath);
 }
 
 /*

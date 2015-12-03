@@ -1,5 +1,5 @@
-C Improved\scross-linking\sof\sclusters.
-D 2015-12-03T15:41:45.927
+C On\sWindows,\sdeal\swith\sthe\sreserved\s12\scharacters\s(8.3)\salways\sneeded\sfor\nlong\sdirectory\snames.
+D 2015-12-03T22:53:05.994
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -384,7 +384,7 @@ F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c d174d5926e1af9a243a0768ca23bc38e11d2652e
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 38b5b08eda88b4d256948d431e2f0094009644ae
-F src/checkin.c a67e10bc47e5c16396a14e5a236ce9604f8e6441
+F src/checkin.c 1b29614d24994fc703a1d240455c725c9a9a77c7
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 0d2fda5225069dd09dafbac4d9153916de469778
@@ -407,7 +407,7 @@ F src/doc.c b2954ce41c4938e7967062ab4d7e2da0c1f9db33
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
-F src/file.c e782c9f589105a96e183de89e11498016451ddfb
+F src/file.c 96e88d124e5a031652e30ef1abc06e69b125c736
 F src/finfo.c f09550ee499d79296b5a6e217711d712316dc054
 F src/foci.c 693596989fbb12a01c31317a7adf0d1ce85c7903
 F src/fusefs.c e25405b83122ed8369aa63125897348e5eb3cab2
@@ -442,7 +442,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 48e28e14943671f38ff81cdbdb6db93564bed895
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c cf8dd447902760531ddf7947e022a7f3b962f754
+F src/main.c f80950db456830457f97fdfee2e2e15f6bcd2bf8
 F src/main.mk 29222c3dafd8664690482d11733671ad8245c3ff
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -465,10 +465,10 @@ F src/piechart.c 6b2d49434b036d495ec30378520dd1054b03c920
 F src/pivot.c f03ae2edfb53590f6dee86c1a0d93441feb0f816
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c 3d86d4ec595025c938053049ea915012e2b10306
+F src/printf.c 78a4915aa521ca35c1882ac53f5c53b1c7a03272
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c 211c55255d42f06781ae68f26e5ed4a2c9239ad1
-F src/rebuild.c 6680615f36af1823630d44871444273906c0b2ff
+F src/rebuild.c f0c44f8f0a5d941f1b59bbaa6ef1266b59d50a68
 F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c de3d39a59b923d0259a01cb7b66244860778e39d
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
@@ -504,13 +504,13 @@ F src/unicode.c f26b9f26d4ac399f7b03cfac16ec72336c7f06c9
 F src/update.c 404e7daea8b200e2708329b49850d62e68e716f7
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c d7501c09c03bf35342eda83e8b7b8f3024256710
-F src/utf8.c 49a0cfaf5b3ba966f5e7c688b829610634fefd25
+F src/utf8.c a2e581cde238ffaa4c3ae2fa0ce8bf0bf19c879e
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
-F src/vfile.c b8560f486de87af7e480faaa34b946e7f042b408
+F src/vfile.c 3b7286065edf544811df9f41fc9f35e1d7207c51
 F src/wiki.c fe889812078d71c1d48867e601ab5def3f0be241
 F src/wikiformat.c f9fb5b8bc72c23d88bedcc8de1048f1081514d09
-F src/winfile.c e0e1ffdb667635ea18c0cb48d7ed07210cf3fa6b
+F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c 4e680d7c8778be4439169f40a992ccc81f7ceec2
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 360b9fb86e3709b78d1902aa89a227f957a66ba3
@@ -743,8 +743,8 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d407c3842116e163fce36055c3998e08731fc6f9 654fb1f4af85db6c26380d49f527c4efec6c31f1
-R 4c6498981bf40483492e3f7e22958e4b
-T +closed 654fb1f4af85db6c26380d49f527c4efec6c31f1
+P 24606598a72eeaaafe37f8d804f4717fa07ee692 6ebef28f2b675007a8a0a93b0008dcb233a8ae3c
+R 6844560f0d2682c77d9ac973072b58e7
+T +closed 6ebef28f2b675007a8a0a93b0008dcb233a8ae3c
 U drh
-Z 1fb93df9507f4a921e03e983bc9100b4
+Z 27aad3324f1201f21d61e2ff3085da38
