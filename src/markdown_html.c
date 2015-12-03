@@ -101,11 +101,21 @@ static void html_epilog(struct Blob *ob, void *opaque){
 
 static void html_raw_block(struct Blob *ob, struct Blob *text, void *opaque){
   char *data = blob_buffer(text);
-  size_t first = 0, size = blob_size(text);
+  size_t size = blob_size(text);
+  while( size>0 && fossil_isspace(data[0]) ){ data++; size--; }
+  while( size>0 && fossil_isspace(data[size-1]) ){ size--; }
+  /* If the first raw block is an <h1> element, then use it as the title. */
+  if( blob_size(ob)<=PROLOG_SIZE
+   && size>9
+   && sqlite3_strnicmp("<h1",data,3)==0
+   && sqlite3_strnicmp("</h1>", &data[size-5],5)==0
+  ){
+    Blob *title = (Blob*)opaque;
+    int nTag = htmlTagLength(data);
+    blob_append(title, data+nTag, size - nTag - 5);
+  }
   INTER_BLOCK(ob);
-  while( first<size && data[first]=='\n' ) first++;
-  while( size>first && data[size-1]=='\n' ) size--;
-  blob_append(ob, data+first, size-first);
+  blob_append(ob, data, size);
   BLOB_APPEND_LITERAL(ob, "\n");
 }
 
@@ -256,6 +266,7 @@ static void html_table_row(
 /* HTML span tags */
 
 static int html_raw_span(struct Blob *ob, struct Blob *text, void *opaque){
+  /* If the document begins with a <h1> markup, take that as the header. */
   BLOB_APPEND_BLOB(ob, text);
   return 1;
 }
