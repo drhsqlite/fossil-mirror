@@ -1,5 +1,5 @@
-C When\smarkdown\sbegins\swith\sa\s&lt;h1&gt;\sHTML\selement,\sconsider\sthe\scontent\nof\sthat\selement\sto\sbe\sthe\stitle\sof\sthe\sdocument.
-D 2015-12-03T15:07:27.859
+C Do\snot\sduplicate\smarkdown\stitles\sin\sthe\stitle\sof\sthe\spage\sand\sin\sthe\sbody\nof\sthe\sdocument.
+D 2015-12-03T15:19:39.583
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -450,7 +450,7 @@ F src/makemake.tcl 13d072b40771bf0470a89bc3525ad0455ee0f0ce
 F src/manifest.c ba061499e6431a1c2c8aa19821adf429975fdee6
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md fc02fd045690e6fb45fb0bc91be734913dc70d02
-F src/markdown_html.c 2a511cd2bbeacf83fcb9e02a0343d27d103bc7cc
+F src/markdown_html.c c7392199eb39dad9f92c31aa352f4f3408da93bf
 F src/md5.c c6f6b5df8001ab094e5f49416fc2aa3019823d69
 F src/merge.c f139750b0702d0f887802e445c994a7ae0df4efa
 F src/merge3.c b2502f631c761f2c606f4fad6c8aa00bc2a5f4a7
@@ -508,7 +508,7 @@ F src/utf8.c 49a0cfaf5b3ba966f5e7c688b829610634fefd25
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
 F src/vfile.c b8560f486de87af7e480faaa34b946e7f042b408
-F src/wiki.c 09aef1e140021ade15ebadfa2b7435b35f701442
+F src/wiki.c fe889812078d71c1d48867e601ab5def3f0be241
 F src/wikiformat.c f9fb5b8bc72c23d88bedcc8de1048f1081514d09
 F src/winfile.c e0e1ffdb667635ea18c0cb48d7ed07210cf3fa6b
 F src/winhttp.c 4e680d7c8778be4439169f40a992ccc81f7ceec2
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a3691d767964e76d4bc5dbdb5ce16dff1809ed60
-R ff3aa67edce589008a971a81bf870b81
+P cc7f4df41743ffc010e82931069358301eaa7c75
+R f3db1f23fbe0e23cf81ec7ebf126fa68
 U drh
-Z 2be09c5d357e99aeaf5f07d75154a545
+Z c24f2823ce2c9cf689756526f8bdd66a

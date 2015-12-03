@@ -102,17 +102,19 @@ static void html_epilog(struct Blob *ob, void *opaque){
 static void html_raw_block(struct Blob *ob, struct Blob *text, void *opaque){
   char *data = blob_buffer(text);
   size_t size = blob_size(text);
+  Blob *title = (Blob*)opaque;
   while( size>0 && fossil_isspace(data[0]) ){ data++; size--; }
   while( size>0 && fossil_isspace(data[size-1]) ){ size--; }
   /* If the first raw block is an <h1> element, then use it as the title. */
   if( blob_size(ob)<=PROLOG_SIZE
    && size>9
+   && title!=0
    && sqlite3_strnicmp("<h1",data,3)==0
    && sqlite3_strnicmp("</h1>", &data[size-5],5)==0
   ){
-    Blob *title = (Blob*)opaque;
     int nTag = htmlTagLength(data);
     blob_append(title, data+nTag, size - nTag - 5);
+    return;
   }
   INTER_BLOCK(ob);
   blob_append(ob, data, size);
@@ -142,8 +144,9 @@ static void html_header(
   struct Blob *title = opaque;
   /* The first header at the beginning of a text is considered as
    * a title and not output. */
-  if( blob_size(ob)<=PROLOG_SIZE && blob_size(title)==0 ){
+  if( blob_size(ob)<=PROLOG_SIZE && title!=0 && blob_size(title)==0 ){
     BLOB_APPEND_BLOB(title, text);
+    return;
   }
   INTER_BLOCK(ob);
   blob_appendf(ob, "<h%d>", level);
@@ -383,11 +386,16 @@ static void html_normal_text(struct Blob *ob, struct Blob *text, void *opaque){
   html_escape(ob, blob_buffer(text), blob_size(text));
 }
 
-
+/*
+** Convert markdown into HTML.
+**
+** The document title is placed in output_title if not NULL.  Or if
+** output_title is NULL, the document title appears in the body.
+*/
 void markdown_to_html(
-  struct Blob *input_markdown,
-  struct Blob *output_title,
-  struct Blob *output_body
+  struct Blob *input_markdown,   /* Markdown content to be rendered */
+  struct Blob *output_title,     /* Put title here.  May be NULL */
+  struct Blob *output_body       /* Put document body here. */
 ){
   struct mkd_renderer html_renderer = {
     /* prolog and epilog */
@@ -428,7 +436,7 @@ void markdown_to_html(
     0 /* opaque data */
   };
   html_renderer.opaque = output_title;
-  blob_reset(output_title);
+  if( output_title ) blob_reset(output_title);
   blob_reset(output_body);
   markdown(output_body, input_markdown, &html_renderer);
 }
