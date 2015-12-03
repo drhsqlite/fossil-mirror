@@ -710,7 +710,7 @@ void create_cluster(void){
         blob_appendf(&cluster, "Z %b\n", &cksum);
         blob_reset(&cksum);
         rid = content_put(&cluster);
-        manifest_crosslink(rid,&cluster,MC_NONE);
+        manifest_crosslink(rid, &cluster, MC_NONE);
         blob_reset(&cluster);
         nUncl -= nRow;
         nRow = 0;
@@ -729,7 +729,7 @@ void create_cluster(void){
       blob_appendf(&cluster, "Z %b\n", &cksum);
       blob_reset(&cksum);
       rid = content_put(&cluster);
-      manifest_crosslink(rid,&cluster,MC_NONE);
+      manifest_crosslink(rid, &cluster, MC_NONE);
       blob_reset(&cluster);
     }
   }

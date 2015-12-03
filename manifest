@@ -1,5 +1,5 @@
-C Crosslink\sclusters\sso\sthat\sfossil\stest-clusters\sand\stest-describe-artifacts\nwill\sbe\sable\sto\sidentify\sthem\scorrectly.
-D 2015-12-03T08:36:17.551
+C Correct\scode\sfor\sstyle,\sno\schange\sin\sfunctionality.
+D 2015-12-03T08:57:37.120
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -513,7 +513,7 @@ F src/wikiformat.c f693446cc459fc72fb0345cff08b3573dbe4365d
 F src/winfile.c e0e1ffdb667635ea18c0cb48d7ed07210cf3fa6b
 F src/winhttp.c 4e680d7c8778be4439169f40a992ccc81f7ceec2
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c a4ba84b50ec7f431b9efa239835afc781f89bab1
+F src/xfer.c 360b9fb86e3709b78d1902aa89a227f957a66ba3
 F src/xfersetup.c 0f967a3fca7ad9fa3aa350d121851e71064823be
 F src/zip.c 211de642fc72c1e93f9083f3affc85f3c8febe30
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -743,10 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a3691d767964e76d4bc5dbdb5ce16dff1809ed60
-R 0f87a4e728dcb920fd35624fc7ef4e33
-T *branch * pending-review
-T *sym-pending-review *
-T -sym-trunk *
+P 81bdb687649f43b3e6a92f7b15db8ab9bacf9d07
+R 836309e3c8e811ac218c604483111169
 U andybradford
-Z 23daee756ac57d361710fd09251b8505
+Z 8e92e70e654ace7c2b303c25de6ef054
