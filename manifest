@@ -1,5 +1,5 @@
-C On\sWindows,\sdeal\swith\sthe\sreserved\s12\scharacters\s(8.3)\salways\sneeded\sfor\nlong\sdirectory\snames.
-D 2015-12-03T22:53:05.994
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.10.0\salpha.
+D 2015-12-04T00:40:25.366
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -476,13 +476,13 @@ F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b02a73b942028631eacf484ae3f83a3a4edd3518
 F src/setup.c ac704e6cd92c86fef9a0edda055c31f5b43be9db
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
-F src/shell.c f0f59ea60ad297f671b7ae0fb957a736ad17c92c
+F src/shell.c 2796237990d42e6a5a7beafee65ef70cc8767d21
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 44d3881e497cf9bec8ea6dcf73830502ab59202c
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c 426613a30f29d195b7c619b0388600f7da4e8b5f
-F src/sqlite3.h 6fcafa8e21f4fbc1ecb664095af2f3c0ed1a2e6a
+F src/sqlite3.c fc3285bd3dbd38771cc14c4760b2bcec4ac3f5ed
+F src/sqlite3.h 919c683d9e53522b069be888f5a356d59488d4ed
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 9fa919c1c78db3952e181e0bf955b039aca0db26
 F src/statrep.c 2475cba0c91bdaa6f51a61565732ece308fadf42
@@ -743,8 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 24606598a72eeaaafe37f8d804f4717fa07ee692 6ebef28f2b675007a8a0a93b0008dcb233a8ae3c
-R 6844560f0d2682c77d9ac973072b58e7
-T +closed 6ebef28f2b675007a8a0a93b0008dcb233a8ae3c
+P 9571b68a7aea9dc6561cf55c5bf8adf58c044d58
+R 56fb65b59c512bab8f5805bb352ada92
 U drh
-Z 27aad3324f1201f21d61e2ff3085da38
+Z c88bcd08dbd6c3762ff7977c826c0b70
