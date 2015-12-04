@@ -219,7 +219,7 @@ void *fossil_utf8_to_path(const char *zUtf8, int isDir){
   **/
   if( fossil_isalpha(zUtf8[0]) && zUtf8[1]==':'
            && (zUtf8[2]=='\\' || zUtf8[2]=='/') ){
-    if( wUnicode==zUnicode && (nChar-nReserved)>MAX_PATH){
+    if( wUnicode==zUnicode && (nChar+nReserved)>MAX_PATH){
       memmove(wUnicode+4, wUnicode, nChar*sizeof(wchar_t));
       memcpy(wUnicode, L"\\\\?\\", 4*sizeof(wchar_t));
       wUnicode += 4;
@@ -230,7 +230,7 @@ void *fossil_utf8_to_path(const char *zUtf8, int isDir){
     */
     wUnicode[2] = '\\';
     wUnicode += 3;
-  }else if( wUnicode==zUnicode && (nChar-nReserved)>MAX_PATH
+  }else if( wUnicode==zUnicode && (nChar+nReserved)>MAX_PATH
             && (zUtf8[0]=='\\' || zUtf8[0]=='/')
             && (zUtf8[1]=='\\' || zUtf8[1]=='/') && zUtf8[2]!='?'){
     memmove(wUnicode+6, wUnicode, nChar*sizeof(wchar_t));

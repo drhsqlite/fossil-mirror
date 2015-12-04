@@ -1,5 +1,5 @@
-C Update\sOpenSSL\sto\sversion\s1.0.2e
-D 2015-12-04T14:36:35.472
+C off-by-24\serror\sin\shandling\sof\slong\sdirectory\snames\s(>MAX_PATH-12)\son\sWindows
+D 2015-12-04T14:57:22.962
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -504,7 +504,7 @@ F src/unicode.c f26b9f26d4ac399f7b03cfac16ec72336c7f06c9
 F src/update.c 404e7daea8b200e2708329b49850d62e68e716f7
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c d7501c09c03bf35342eda83e8b7b8f3024256710
-F src/utf8.c a2e581cde238ffaa4c3ae2fa0ce8bf0bf19c879e
+F src/utf8.c 5c85c7e88b82b5fb48649c46f063ac94ab58eb20
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
 F src/vfile.c 3b7286065edf544811df9f41fc9f35e1d7207c51
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5032c50d142529065d9a00e1d147c37997da6b5d
-R 4bc19b350a0108bee0c3dd0ca201a57e
+P 1376aa440b5911b681d5e9224ddb8b6e91369c5e
+R a40d48ed25d32cae2eaab811d4ce90bf
 U jan.nijtmans
-Z f7e196faf0b9cde209c667736bfeb6ca
+Z e987013785615f06ba57d951f42b7d03
