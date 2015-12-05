@@ -1333,11 +1333,11 @@ int object_description(
         @ Manifest of check-in
         objType |= OBJTYPE_CHECKIN;
       }else if( zType[0]=='e' ){
-        @ Instance of event
+        @ Instance of technote
         objType |= OBJTYPE_EVENT;
         hyperlink_to_event_tagid(db_column_int(&q, 5));
       }else{
-        @ Control file referencing
+        @ Tag referencing
       }
       if( zType[0]!='e' ){
         hyperlink_to_uuid(zUuid);
@@ -1395,8 +1395,13 @@ int object_description(
     tag_private_status(rid);
   }
   db_finalize(&q);
+  if( db_exists("SELECT 1 FROM tagxref WHERE rid=%d AND tagid=%d",
+                rid, TAG_CLUSTER) ){
+    @ Cluster
+    cnt++;
+  }
   if( cnt==0 ){
-    @ Control artifact.
+    @ Unrecognized artifact
     if( pDownloadName && blob_size(pDownloadName)==0 ){
       blob_appendf(pDownloadName, "%S.txt", zUuid);
     }
@@ -1851,6 +1856,22 @@ void artifact_page(void){
   }
   blob_zero(&downloadName);
   objType = object_description(rid, objdescFlags, &downloadName);
+  if( g.perm.Admin ){
+    Stmt q;
+    db_prepare(&q,
+      "SELECT coalesce(user.login,rcvfrom.uid),"
+      "       datetime(rcvfrom.mtime), rcvfrom.ipaddr"
+      "  FROM blob, rcvfrom LEFT JOIN user ON user.uid=rcvfrom.uid"
+      " WHERE blob.rid=%d"
+      "   AND rcvfrom.rcvid=blob.rcvid;", rid);
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zUser = db_column_text(&q,0);
+      const char *zDate = db_column_text(&q,1);
+      const char *zIp = db_column_text(&q,2);
+      @ <p>Received on %s(zDate) from %h(zUser) at %h(zIp).</p>
+    }
+    db_finalize(&q);
+  }
   style_submenu_element("Download", "Download",
           "%R/raw/%T?name=%s", blob_str(&downloadName), zUuid);
   if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){

@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\s/bigbloblist\spage.\s\sFix\sthe\noutput_table_sorting_javascript()\sroutine\sso\sthat\sthe\ssort\sis\sstable\seven\nwhen\sselecting\sa\sfield\sthat\sdefaults\sto\ssorting\sin\sreverse\sorder.
-D 2015-12-05T20:04:17.457
+C On\sthe\s/artifact\spage,\sprovide\san\simproved\sdescription\sof\scluster\sartifacts.\nAlso\sshow\sthe\srcvfrom\sinformation\son\sall\sartifacts\sto\sAdmin\sand\sSetup\susers.
+D 2015-12-05T21:22:34.366
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -419,7 +419,7 @@ F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c 19f34d2902649e2ca572089b3766f259f0a5c132
-F src/info.c 97dde3cb6f1552a3f34a29bf873637697130b2ef
+F src/info.c 3f5545487219e74244bbc018edcdf7745e6f4484
 F src/json.c 18266f277275d058aadb979b74c8b3af7791d649
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 483317fb0e99bf2d001db9fab798b5de62b63aac
-R 29e7edc9164fd005013d76d33ac838c5
+P f982642315990886e7a9c2a4abd1928ca00f9695
+R f66febdbcdbf135705335e1120c45db3
 U drh
-Z d653aa7aa9bccaa89fa70b090a12d23e
+Z a5a9b781fc79ab408f02b07fd8114ac0
