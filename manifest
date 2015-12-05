@@ -1,5 +1,5 @@
-C Add\sthe\s/bigbloblist\sinformation\spage.
-D 2015-12-05T19:21:43.249
+C Improvements\sto\sthe\s/bigbloblist\spage.\s\sFix\sthe\noutput_table_sorting_javascript()\sroutine\sso\sthat\sthe\ssort\sis\sstable\seven\nwhen\sselecting\sa\sfield\sthat\sdefaults\sto\ssorting\sin\sreverse\sorder.
+D 2015-12-05T20:04:17.457
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -459,7 +459,7 @@ F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
 F src/mkindex.c 8b49a351b060c3e9203dacbacfc8216f760f8da2
 F src/mkversion.c 40ed302872cc5795c76efb3ab089fc1aedba18f1
 F src/moderate.c 8ab2bd4bda9a6b6765f99ddea7950dc5c6bad007
-F src/name.c bd9d4b98091d91287303c22892f9c718e502d6fe
+F src/name.c 530f199e6270cf1535149cf400b0f852247a2933
 F src/path.c 9455d26c4bf91ae949abd55536a1a20d863c486b
 F src/piechart.c 6b2d49434b036d495ec30378520dd1054b03c920
 F src/pivot.c f03ae2edfb53590f6dee86c1a0d93441feb0f816
@@ -470,7 +470,7 @@ F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c 211c55255d42f06781ae68f26e5ed4a2c9239ad1
 F src/rebuild.c f0c44f8f0a5d941f1b59bbaa6ef1266b59d50a68
 F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
-F src/report.c de3d39a59b923d0259a01cb7b66244860778e39d
+F src/report.c dfa9f1671b5f26e461e7473d34d10951eadfdea2
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b02a73b942028631eacf484ae3f83a3a4edd3518
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e75f160c2e2bf12e11391e0388fc3431ff28d6cc
-R 28eebf4101bff92d2c49aa6ddd674371
+P 483317fb0e99bf2d001db9fab798b5de62b63aac
+R 29e7edc9164fd005013d76d33ac838c5
 U drh
-Z 620b1b3c483bc61eecb3ccfde8955acf
+Z d653aa7aa9bccaa89fa70b090a12d23e

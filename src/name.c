@@ -1019,7 +1019,7 @@ void bloblist_page(void){
     const char *zDesc = db_column_text(&q, 2);
     int isPriv = db_column_int(&q,3);
     @ <tr><td align="right">%d(rid)</td>
-    @ <td>&nbsp;%z(href("%R/info/%!S",zUuid))%s(zUuid)</a>&nbsp;</td>
+    @ <td>&nbsp;%z(href("%R/info/%!S",zUuid))%S(zUuid)</a>&nbsp;</td>
     @ <td align="left">%h(zDesc)</td>
     if( isPriv ){
       @ <td>(unpublished)</td>
@@ -1056,29 +1056,34 @@ void bigbloblist_page(void){
   describe_artifacts("IN toshow");
   db_prepare(&q,
     "SELECT description.rid, description.uuid, description.summary,"
-    "       length(blob.content), coalesce(delta.srcid,'')"
+    "       length(blob.content), coalesce(delta.srcid,''),"
+    "       datetime(description.ctime)"
     "  FROM description, blob LEFT JOIN delta ON delta.rid=blob.rid"
     " WHERE description.rid=blob.rid"
     " ORDER BY length(content) DESC"
   );
-  @ <table cellpadding="0" cellspacing="0" border="1">
-  @ <tr><th align="right">Size<th align="right">RID
-  @ <th align="right">Delta From<th>SHA1<th>Description
+  @ <table cellpadding="2" cellspacing="0" border="1" id="bigblobtab">
+  @ <thead><tr><th align="right">Size<th align="right">RID
+  @ <th align="right">Delta From<th>SHA1<th>Description<th>Date</tr></thead>
+  @ <tbody>
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q,0);
     const char *zUuid = db_column_text(&q, 1);
     const char *zDesc = db_column_text(&q, 2);
     int sz = db_column_int(&q,3);
     const char *zSrcId = db_column_text(&q,4);
+    const char *zDate = db_column_text(&q,5);
     @ <tr><td align="right">%d(sz)</td>
     @ <td align="right">%d(rid)</td>
     @ <td align="right">%s(zSrcId)</td>
-    @ <td>&nbsp;%z(href("%R/info/%!S",zUuid))%s(zUuid)</a>&nbsp;</td>
+    @ <td>&nbsp;%z(href("%R/info/%!S",zUuid))%S(zUuid)</a>&nbsp;</td>
     @ <td align="left">%h(zDesc)</td>
+    @ <td align="left">%z(href("%R/timeline?c=%T",zDate))%s(zDate)</a></td>
     @ </tr>
   }
-  @ </table>
+  @ </tbody></table>
   db_finalize(&q);
+  output_table_sorting_javascript("bigblobtab", "NnnttT", -1);
   style_footer();
 }
 
