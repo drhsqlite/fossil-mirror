@@ -1,5 +1,5 @@
-C On\sthe\s/artifact\spage,\sprovide\san\simproved\sdescription\sof\scluster\sartifacts.\nAlso\sshow\sthe\srcvfrom\sinformation\son\sall\sartifacts\sto\sAdmin\sand\sSetup\susers.
-D 2015-12-05T21:22:34.366
+C Get\sthe\scorrect\sdate\sfor\sclusters\swhen\sdescribing\sartifacts.
+D 2015-12-05T21:28:09.390
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -459,7 +459,7 @@ F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
 F src/mkindex.c 8b49a351b060c3e9203dacbacfc8216f760f8da2
 F src/mkversion.c 40ed302872cc5795c76efb3ab089fc1aedba18f1
 F src/moderate.c 8ab2bd4bda9a6b6765f99ddea7950dc5c6bad007
-F src/name.c 530f199e6270cf1535149cf400b0f852247a2933
+F src/name.c de410258ada814ac5cc477832edff7e8d3506e5c
 F src/path.c 9455d26c4bf91ae949abd55536a1a20d863c486b
 F src/piechart.c 6b2d49434b036d495ec30378520dd1054b03c920
 F src/pivot.c f03ae2edfb53590f6dee86c1a0d93441feb0f816
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f982642315990886e7a9c2a4abd1928ca00f9695
-R f66febdbcdbf135705335e1120c45db3
+P 8b2d32cc9df1e2c16ada5d2f3be955207112b4f0
+R b68ca495c8afc23bd54abf20289b30e6
 U drh
-Z a5a9b781fc79ab408f02b07fd8114ac0
+Z 442d22eb85bcd48f7c205e667f0eca63

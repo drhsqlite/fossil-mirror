@@ -841,11 +841,12 @@ void describe_artifacts(const char *zWhere){
   /* Cluster artifacts */
   db_multi_exec(
     "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
-    "SELECT blob.rid, blob.uuid, tagxref.mtime, 'cluster', 'cluster'\n"
-    "  FROM tagxref, blob\n"
+    "SELECT blob.rid, blob.uuid, rcvfrom.mtime, 'cluster', 'cluster'\n"
+    "  FROM tagxref, blob, rcvfrom\n"
     " WHERE (tagxref.rid %s)\n"
     "   AND tagxref.tagid=(SELECT tagid FROM tag WHERE tagname='cluster')\n"
-    "   AND blob.rid=tagxref.rid;",
+    "   AND blob.rid=tagxref.rid"
+    "   AND rcvfrom.rcvid=blob.rcvid;",
     zWhere /*safe-for-%s*/
   );
 
