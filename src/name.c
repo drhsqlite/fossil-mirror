@@ -991,6 +991,7 @@ void bloblist_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("List Of Artifacts");
+  style_submenu_element("250 Largest", 0, "bigbloblist");
   if( mx>n && P("s")==0 ){
     int i;
     @ <p>Select a range of artifacts to view:</p>
@@ -1016,13 +1017,64 @@ void bloblist_page(void){
     int rid = db_column_int(&q,0);
     const char *zUuid = db_column_text(&q, 1);
     const char *zDesc = db_column_text(&q, 2);
-    int isPriv = db_column_int(&q,2);
+    int isPriv = db_column_int(&q,3);
     @ <tr><td align="right">%d(rid)</td>
     @ <td>&nbsp;%z(href("%R/info/%!S",zUuid))%s(zUuid)</a>&nbsp;</td>
     @ <td align="left">%h(zDesc)</td>
     if( isPriv ){
       @ <td>(unpublished)</td>
     }
+    @ </tr>
+  }
+  @ </table>
+  db_finalize(&q);
+  style_footer();
+}
+
+/*
+** WEBPAGE: bigbloblist
+**
+** Return a page showing the largest artifacts in the repository in order
+** of decreasing size.
+**
+**   n=N         Show the top N artifacts
+*/
+void bigbloblist_page(void){
+  Stmt q;
+  int n = atoi(PD("n","250"));
+
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  style_header("%d Largest Artifacts", n);
+  db_multi_exec(
+    "CREATE TEMP TABLE toshow(rid INTEGER PRIMARY KEY);"
+    "INSERT INTO toshow(rid)"
+    "  SELECT rid FROM blob"
+    "   ORDER BY length(content) DESC"
+    "   LIMIT %d;", n
+  );
+  describe_artifacts("IN toshow");
+  db_prepare(&q,
+    "SELECT description.rid, description.uuid, description.summary,"
+    "       length(blob.content), coalesce(delta.srcid,'')"
+    "  FROM description, blob LEFT JOIN delta ON delta.rid=blob.rid"
+    " WHERE description.rid=blob.rid"
+    " ORDER BY length(content) DESC"
+  );
+  @ <table cellpadding="0" cellspacing="0" border="1">
+  @ <tr><th align="right">Size<th align="right">RID
+  @ <th align="right">Delta From<th>SHA1<th>Description
+  while( db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q,0);
+    const char *zUuid = db_column_text(&q, 1);
+    const char *zDesc = db_column_text(&q, 2);
+    int sz = db_column_int(&q,3);
+    const char *zSrcId = db_column_text(&q,4);
+    @ <tr><td align="right">%d(sz)</td>
+    @ <td align="right">%d(rid)</td>
+    @ <td align="right">%s(zSrcId)</td>
+    @ <td>&nbsp;%z(href("%R/info/%!S",zUuid))%s(zUuid)</a>&nbsp;</td>
+    @ <td align="left">%h(zDesc)</td>
     @ </tr>
   }
   @ </table>
