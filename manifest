@@ -1,5 +1,5 @@
-C off-by-24\serror\sin\shandling\sof\slong\sdirectory\snames\s(>MAX_PATH-12)\son\sWindows
-D 2015-12-04T14:57:22.962
+C Minor\stweak\sto\sthe\sserver.wiki\sdocument.
+D 2015-12-05T18:53:45.574
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -727,7 +727,7 @@ F www/reviews.wiki 866e545f89fce7cff29c96a29ab10586692f3964
 F www/scgi.wiki 45a497a26ea940ef945a4c34cc1458ddddf304d6
 F www/selfcheck.wiki d1e2fc5baf9ade46815499c9758256a22efe8142
 F www/selfhost.wiki 03de31d67690fe47972589e4e1e395e11559c85c
-F www/server.wiki 49d6091f546cf6ed720e267041d020e079930439
+F www/server.wiki 2fb4f17803997a766ad9d30fba4c4fb429acb004
 F www/settings.wiki 12b7e736432b0081a7e6a3d7b9e184d04f482ef7
 F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1376aa440b5911b681d5e9224ddb8b6e91369c5e
-R a40d48ed25d32cae2eaab811d4ce90bf
-U jan.nijtmans
-Z e987013785615f06ba57d951f42b7d03
+P 2900c25d1a3032772f6d8aa9a0bb5225579079f4
+R 3e87007cbdd98249c6c72ec99f9e2e33
+U drh
+Z 5ece26ab697ce91264af621f18162c7a
