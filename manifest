@@ -1,5 +1,5 @@
-C Get\sthe\scorrect\sdate\sfor\sclusters\swhen\sdescribing\sartifacts.
-D 2015-12-05T21:28:09.390
+C Update\sthe\sbuilt-in\sSQLite\sto\sfix\sa\sharmless\sbut\sannoying\sbug\sin\sthe\ndirectory\ssync\slogic.
+D 2015-12-07T18:19:28.711
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -481,8 +481,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 44d3881e497cf9bec8ea6dcf73830502ab59202c
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c fc3285bd3dbd38771cc14c4760b2bcec4ac3f5ed
-F src/sqlite3.h 919c683d9e53522b069be888f5a356d59488d4ed
+F src/sqlite3.c c91bca7cbe4ded09c6e358fce539cc3374effbf7
+F src/sqlite3.h 6fd0e625550923c0ee4d97587ac494fbfb5d8f44
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 9fa919c1c78db3952e181e0bf955b039aca0db26
 F src/statrep.c 2475cba0c91bdaa6f51a61565732ece308fadf42
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8b2d32cc9df1e2c16ada5d2f3be955207112b4f0
-R b68ca495c8afc23bd54abf20289b30e6
+P 13b68865c11338a21f6a9e49aa65a5a32553dcc3
+R cc31779823af52a03d80371a0907fd65
 U drh
-Z 442d22eb85bcd48f7c205e667f0eca63
+Z 31f2ab6c9a9f6846e17baacf15245b35
