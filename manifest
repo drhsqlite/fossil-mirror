@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sfix\sa\sharmless\sbut\sannoying\sbug\sin\sthe\ndirectory\ssync\slogic.
-D 2015-12-07T18:19:28.711
+C Add\sthe\s".changes\sON|OFF"\scommand\sto\sthe\s"fossil\ssqlite"\scommand-line\sshell
+D 2015-12-08T12:45:36.787
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -476,7 +476,7 @@ F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b02a73b942028631eacf484ae3f83a3a4edd3518
 F src/setup.c ac704e6cd92c86fef9a0edda055c31f5b43be9db
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
-F src/shell.c 2796237990d42e6a5a7beafee65ef70cc8767d21
+F src/shell.c abbc74ea43dbf2f306ea18282d666683fb5efab2
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 44d3881e497cf9bec8ea6dcf73830502ab59202c
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 13b68865c11338a21f6a9e49aa65a5a32553dcc3
-R cc31779823af52a03d80371a0907fd65
-U drh
-Z 31f2ab6c9a9f6846e17baacf15245b35
+P a4889252f173b17d70cb586991cefe6c6137e72a
+R f75aa79a5fe6a36ddfd8a0c2c567d344
+U jan.nijtmans
+Z 9af6209f4ff4f5554a205ac402fd50c0
