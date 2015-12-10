@@ -1,5 +1,5 @@
-C Add\sthe\s".changes\sON|OFF"\scommand\sto\sthe\s"fossil\ssqlite"\scommand-line\sshell
-D 2015-12-08T12:45:36.787
+C Improved\sdocumentation\sfor\scloning,\sincluding\smentioning\sthe\suse\sof\s%40\nfor\s"@"\scharacters\sin\sthe\suserid.
+D 2015-12-10T13:11:16.819
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -387,7 +387,7 @@ F src/cgi.c 38b5b08eda88b4d256948d431e2f0094009644ae
 F src/checkin.c 1b29614d24994fc703a1d240455c725c9a9a77c7
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
-F src/clone.c 0d2fda5225069dd09dafbac4d9153916de469778
+F src/clone.c 814ffb12e426155eeb8110d1c79f2b72906e321b
 F src/codecheck1.c 2cf1fc75f4f611574e92cf1440f4fb2ae49e8ba6
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
 F src/config.h 5b0f2c55c62691916d4477f37109d3356a1dcecf
@@ -721,7 +721,7 @@ F www/permutedindex.html 2499997e14dba536be940b5e856164c21a276ebe
 F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
 F www/private.wiki 72344489bbae6f7955369559b6ab22e01a64259b
 F www/qandc.wiki e07b21da221b05afeb1905f17af3765045952ba8
-F www/quickstart.wiki aa6a95f181fad1f7806016ed463b4875ec06dd8a
+F www/quickstart.wiki d4ead37f048c87a56497d475023d1678e22dfa61
 F www/quotes.wiki 09a040dcc9ae1c3a9121940e3a2255471f8d59cf
 F www/reviews.wiki 866e545f89fce7cff29c96a29ab10586692f3964
 F www/scgi.wiki 45a497a26ea940ef945a4c34cc1458ddddf304d6
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a4889252f173b17d70cb586991cefe6c6137e72a
-R f75aa79a5fe6a36ddfd8a0c2c567d344
-U jan.nijtmans
-Z 9af6209f4ff4f5554a205ac402fd50c0
+P 1e723a12d3ded6d5fbd20aa8917cf999d2572a93
+R 8c954c549c781c6d4ae69c02b2eab005
+U drh
+Z b31228cbb0e8c8209fff4efe7c9382e4
