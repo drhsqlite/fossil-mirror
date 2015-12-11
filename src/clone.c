@@ -92,7 +92,7 @@ void delete_private_content(void){
 **     http[s]://[userid[:password]@]host[:port][/path]
 **
 **   SSH protocol:
-**     ssh://[userid[:password]@]host[:port]/path/to/repo.fossil\\
+**     ssh://[userid@]host[:port]/path/to/repo.fossil\\
 **     [?fossil=path/to/fossil.exe]
 **
 **   Filesystem:

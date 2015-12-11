@@ -1,5 +1,5 @@
-C Fix\s[http://www.sqlite.org/src/info/96d3e99ffe59b528|96d3e99ffe59b528]:\sMemory\sallocation\sbug.\sI\ssaw\scrashes\son\s32-bit\sLinux\s(Ubuntu\s14.04),\sso\sit's\snot\sonly\swin32\swhich\swas\saffected\sby\sthis\sbug.
-D 2015-12-11T12:50:57.037
+C Remove\sincorrect\sdocumentation\sregarding\scloning\svia\sSSH.\s\sFossil\sdoes\snot\ntouch\spasswords\swhen\sSSH\sis\sused\sfor\scloning.
+D 2015-12-11T15:53:03.269
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -387,7 +387,7 @@ F src/cgi.c 38b5b08eda88b4d256948d431e2f0094009644ae
 F src/checkin.c 1b29614d24994fc703a1d240455c725c9a9a77c7
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
-F src/clone.c 814ffb12e426155eeb8110d1c79f2b72906e321b
+F src/clone.c a855ad9e6db9760ee41451e358a393f89996daed
 F src/codecheck1.c 2cf1fc75f4f611574e92cf1440f4fb2ae49e8ba6
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
 F src/config.h 5b0f2c55c62691916d4477f37109d3356a1dcecf
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b5354f19f21a3457ee63f809745406240602218e
-R 492ada0499bd068a43b4a9a68e940bc5
-U jan.nijtmans
-Z 03cfb65ba8f796b7f34c0f791cbe2404
+P b85b159beea6978677b2910118b7596848cd5809
+R 30110d2808f1fee4b4f4c1fcb1547553
+U andybradford
+Z da2da0eaa24d3e1d3e007eeb45852cc3
