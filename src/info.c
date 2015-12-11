@@ -981,6 +981,7 @@ static void checkin_description(int rid){
 **   glob=STRING     only diff files matching this glob
 **   dc=N            show N lines of context around each diff
 **   w               ignore whitespace when computing diffs
+**   nohdr           omit the description at the top of the page
 **
 **
 ** Show all differences between two check-ins.
@@ -1078,19 +1079,21 @@ void vdiff_page(void){
     }
   }
   style_header("Check-in Differences");
-  @ <h2>Difference From:</h2><blockquote>
-  checkin_description(ridFrom);
-  @ </blockquote><h2>To:</h2><blockquote>
-  checkin_description(ridTo);
-  @ </blockquote>
-  if( pRe ){
-    @ <p><b>Only differences that match regular expression "%h(zRe)"
-    @ are shown.</b></p>
+  if( P("nohdr")==0 ){
+    @ <h2>Difference From:</h2><blockquote>
+    checkin_description(ridFrom);
+    @ </blockquote><h2>To:</h2><blockquote>
+    checkin_description(ridTo);
+    @ </blockquote>
+    if( pRe ){
+      @ <p><b>Only differences that match regular expression "%h(zRe)"
+      @ are shown.</b></p>
+    }
+    if( zGlob ){
+      @ <p><b>Only files matching the glob "%h(zGlob)" are shown.</b></p>
+    }
+    @<hr /><p>
   }
-  if( zGlob ){
-    @ <p><b>Only files matching the glob "%h(zGlob)" are shown.</b></p>
-  }
-  @<hr /><p>
 
   manifest_file_rewind(pFrom);
   pFileFrom = manifest_file_next(pFrom, 0);

@@ -1,5 +1,5 @@
-C Remove\sincorrect\sdocumentation\sregarding\scloning\svia\sSSH.\s\sFossil\sdoes\snot\ntouch\spasswords\swhen\sSSH\sis\sused\sfor\scloning.
-D 2015-12-11T15:53:03.269
+C Add\sthe\snohdr\sboolean\squery\sparameter\sto\sthe\s/vdiff\spage.
+D 2015-12-11T16:11:11.471
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -419,7 +419,7 @@ F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c 19f34d2902649e2ca572089b3766f259f0a5c132
-F src/info.c 3f5545487219e74244bbc018edcdf7745e6f4484
+F src/info.c 5c286ce19aa42c7d132e2916b95cbde092128c3e
 F src/json.c 18266f277275d058aadb979b74c8b3af7791d649
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b85b159beea6978677b2910118b7596848cd5809
-R 30110d2808f1fee4b4f4c1fcb1547553
-U andybradford
-Z da2da0eaa24d3e1d3e007eeb45852cc3
+P 230fdcf692dc3e661ca6172b98bd93502b681ee9
+R 59c7116d67133aac143eefc5f1a3a856
+U drh
+Z 657a1d75557b87234089f015dad21cb1
