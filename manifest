@@ -1,5 +1,5 @@
-C Add\sthe\snohdr\sboolean\squery\sparameter\sto\sthe\s/vdiff\spage.
-D 2015-12-11T16:11:11.471
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion\s(3.10.0\salpha).
+D 2015-12-11T16:14:39.639
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -481,8 +481,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 44d3881e497cf9bec8ea6dcf73830502ab59202c
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c c55627bdaa0dfe8f7fa2cc6559fa3128065f2abf
-F src/sqlite3.h 6fd0e625550923c0ee4d97587ac494fbfb5d8f44
+F src/sqlite3.c 3740945d4be651bfa093ca8a0709a02c890899be
+F src/sqlite3.h 4d668b2c69164d186b235186b315042464d7e373
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 9fa919c1c78db3952e181e0bf955b039aca0db26
 F src/statrep.c 2475cba0c91bdaa6f51a61565732ece308fadf42
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 230fdcf692dc3e661ca6172b98bd93502b681ee9
-R 59c7116d67133aac143eefc5f1a3a856
+P 2532f1bccc960f110086ef48046861ef1a1e7e7b
+R 8547f0b7a03d279e8bea8acf0a764bc9
 U drh
-Z 657a1d75557b87234089f015dad21cb1
+Z cc87a9ad274527b3b78984a089ea8ca2
