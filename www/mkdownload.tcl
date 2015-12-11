@@ -76,7 +76,11 @@ foreach vers [lsort -decr -real [array names avers]] {
     fossil-w32 zip win32.gif {Windows}
     fossil-src tar.gz src.gif {Source Tarball}
   } {
-    set filename download/$prefix-$vers.$suffix
+    set basename download/$prefix-$vers
+    set filename $basename.tar.gz
+    if {![file exists $basename.tar.gz]} {
+      set filename $basename.zip
+    }
     if {[file exists $filename]} {
       set size [file size $filename]
       set units bytes
