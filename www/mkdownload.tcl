@@ -69,12 +69,12 @@ foreach vers [lsort -decr -real [array names avers]] {
   puts $out "</td></tr>"
   puts $out "<tr>"
 
-  foreach {prefix suffix img desc} {
-    fossil-linux-x86 zip linux.gif {Linux 3.x x86}
-    fossil-macosx-x86 zip mac.gif {Mac 10.x x86}
-    fossil-openbsd-x86 zip openbsd.gif {OpenBSD 5.x x86}
-    fossil-w32 zip win32.gif {Windows}
-    fossil-src tar.gz src.gif {Source Tarball}
+  foreach {prefix img desc} {
+    fossil-linux-x86 linux.gif {Linux 3.x x86}
+    fossil-macosx-x86 mac.gif {Mac 10.x x86}
+    fossil-openbsd-x86 openbsd.gif {OpenBSD 5.x x86}
+    fossil-w32 win32.gif {Windows}
+    fossil-src src.gif {Source Tarball}
   } {
     set basename download/$prefix-$vers
     set filename $basename.tar.gz

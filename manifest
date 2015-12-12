@@ -1,5 +1,5 @@
-C Enhance\sthe\s"mkdownload.tcl"\sscript\sso\sthat\sit\srecognizes\seither\starballs\sor\nZIP\sarchives,\swith\sa\spreference\sfor\starballs.
-D 2015-12-11T20:52:11.487
+C Eliminate\sunused\svariable\s$suffix
+D 2015-12-12T20:01:21.407
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -713,7 +713,7 @@ F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki 89c650d5efb9273a21296d3b209bd1d00a4d230d
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki f75b16c8bb734fe20d0d524c658f05dab006316c
-F www/mkdownload.tcl 2cbca2fd2900e15fc5b690e3c5afed0bd7ef1ae5
+F www/mkdownload.tcl 5ac61a3e13cecaa67f1e31741113c96cbd41463f
 F www/mkindex.tcl fc48247219c0dde8e35b723a25de85e11c63d58f
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 336916afde4ff470e87fc43066063623a9a74c8a
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 22681034c19431435b67f216f93b1ed1386fff5d
-R 4af7085b3ebbd5e122a02601b56a7870
-U drh
-Z 37d060994c1d3a2182d8880e45f94932
+P fb94a70da422ae91a90116f49ed111c7ef74ea24
+R 0d661921b2d7aa72e7e89435435ca2fd
+U jan.nijtmans
+Z 7f9a8fdee790e4bf8f4bae3b25ba0d3a
