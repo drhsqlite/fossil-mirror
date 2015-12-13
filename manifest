@@ -1,5 +1,5 @@
-C Add\sthe\s[/doc/trunk/www/blame.wiki]\sdocument\sbriefly\sdescribing\sthe\salgorithm\nused\sto\scompute\s"blame"\sin\sFossil.
-D 2015-12-13T02:55:09.467
+C Fix\sone\serror\sand\sadd\san\sadditional\snote\sto\sthe\sarticle\son\sthe\sannotate\nalgorithm.
+D 2015-12-13T03:13:06.141
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -644,7 +644,7 @@ F www/adding_code.wiki b769f1c0b4fd661ea7d3a22e6bbc10d9ebeed677
 F www/antibot.wiki 2cb08df5fdf129d683b1fa104c93c6785660432b
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
-F www/blame.wiki b19352ab0deca333055393b5cdbedc62b4081cf0
+F www/blame.wiki 490fbabfac629ffe706fcefedd582e509ba5d8c2
 F www/branch01.gif a288153196b8f3fc5fabe00c92101000717cb491
 F www/branch02.gif 55c3567748366595e1678a1c43448a9370ff105e
 F www/branch03.gif 3840bdbb5ed0f57104089c2888ee286d4c79a17b
@@ -744,7 +744,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f8db2c7489ad5babd360d3d6721b3cd9cfe3e571
-R fb4557d21ac73aa9d39cbe23e68010b8
+P 91af24e6c942da9d2b7faa14443f7aad908ec182
+R 74887236a3ad854483d4bf2eb4d7a3f6
 U drh
-Z 722cb22f74cb33347e1a721e2c2d4c02
+Z 835ea45687fe4e6a4d9f79419ad0b92c

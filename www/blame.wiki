@@ -52,7 +52,11 @@ changed by the 20 most recent modifications to the file.  This allows
 the loop on step 6 to terminate after only 19 diffs instead of the hundreds
 or thousands of diffs that might be required for a frequently modified file.
 
-As currently implemented (2015-12-12) the annotate algorithm does not
+As currently implemented (as of 2015-12-12) the annotate algorithm does not
 follow files across name changes.  File name change information is 
 available in the database, and so the algorithm could be enhanced to follow
-files across name changes by modifications to step 2.
+files across name changes by modifications to step 3.
+
+Step 2 is interesting in that it is
+[/artifact/6cb824a0417?ln=196-201 | implemented] using a
+[https://www.sqlite.org/lang_with.html#recursivecte|recursive common table expression].
