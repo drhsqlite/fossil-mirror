@@ -1,5 +1,5 @@
-C Enhance\sthe\s/finfo\swebpage\sso\sthat\swhen\sit\sis\sshowing\sthe\sancestors\sof\sa\nparticular\scheck-in,\sit\sonly\sshows\sdirect\sancestors,\sthe\ssame\sas\sthe\n/annotate\sand\s/blame\spages.
-D 2015-12-13T02:11:20.167
+C Add\sthe\s[/doc/trunk/www/blame.wiki]\sdocument\sbriefly\sdescribing\sthe\salgorithm\nused\sto\scompute\s"blame"\sin\sFossil.
+D 2015-12-13T02:55:09.467
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -644,6 +644,7 @@ F www/adding_code.wiki b769f1c0b4fd661ea7d3a22e6bbc10d9ebeed677
 F www/antibot.wiki 2cb08df5fdf129d683b1fa104c93c6785660432b
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
+F www/blame.wiki b19352ab0deca333055393b5cdbedc62b4081cf0
 F www/branch01.gif a288153196b8f3fc5fabe00c92101000717cb491
 F www/branch02.gif 55c3567748366595e1678a1c43448a9370ff105e
 F www/branch03.gif 3840bdbb5ed0f57104089c2888ee286d4c79a17b
@@ -714,10 +715,10 @@ F www/index.wiki 89c650d5efb9273a21296d3b209bd1d00a4d230d
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki f75b16c8bb734fe20d0d524c658f05dab006316c
 F www/mkdownload.tcl 5ac61a3e13cecaa67f1e31741113c96cbd41463f
-F www/mkindex.tcl fc48247219c0dde8e35b723a25de85e11c63d58f
+F www/mkindex.tcl 57849ad13bbcc43722cb89ac14adea6218110398
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 336916afde4ff470e87fc43066063623a9a74c8a
-F www/permutedindex.html 2499997e14dba536be940b5e856164c21a276ebe
+F www/permutedindex.html dc8b5c713d24d7e87670363d02cacfedfc2a6a14
 F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
 F www/private.wiki 72344489bbae6f7955369559b6ab22e01a64259b
 F www/qandc.wiki e07b21da221b05afeb1905f17af3765045952ba8
@@ -743,7 +744,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dfa8efc5acbb88e2cf873f10ee8f7b58f22e269d
-R 75c291e59a4275eead21c8cedb809273
+P f8db2c7489ad5babd360d3d6721b3cd9cfe3e571
+R fb4557d21ac73aa9d39cbe23e68010b8
 U drh
-Z 2c053872cde27324351d42e44a5bf524
+Z 722cb22f74cb33347e1a721e2c2d4c02
