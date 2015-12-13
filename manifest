@@ -1,5 +1,5 @@
-C Fix\stypo\son\sthe\sTH1\sextension\scommands\spage.\s\sAlso,\sfor\snow,\sremove\sthe\s'todo'\ssection.
-D 2015-12-13T01:37:08.213
+C Enhance\sthe\s/finfo\swebpage\sso\sthat\swhen\sit\sis\sshowing\sthe\sancestors\sof\sa\nparticular\scheck-in,\sit\sonly\sshows\sdirect\sancestors,\sthe\ssame\sas\sthe\n/annotate\sand\s/blame\spages.
+D 2015-12-13T02:11:20.167
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -408,7 +408,7 @@ F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
 F src/file.c 96e88d124e5a031652e30ef1abc06e69b125c736
-F src/finfo.c f09550ee499d79296b5a6e217711d712316dc054
+F src/finfo.c 4c2d39c4d2f54ca71a3f6b9b486c6984d6b31843
 F src/foci.c 693596989fbb12a01c31317a7adf0d1ce85c7903
 F src/fusefs.c e25405b83122ed8369aa63125897348e5eb3cab2
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 05f73ffb87e405db9b4fdc9f10548982356c048b
-R 74483d3e5777e41db1fe2fb3f9217a3a
-U mistachkin
-Z 5455f3a1bb04ee51d784d56e7793512c
+P dfa8efc5acbb88e2cf873f10ee8f7b58f22e269d
+R 75c291e59a4275eead21c8cedb809273
+U drh
+Z 2c053872cde27324351d42e44a5bf524
