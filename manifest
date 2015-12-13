@@ -1,5 +1,5 @@
-C Eliminate\sunused\svariable\s$suffix
-D 2015-12-12T20:01:21.407
+C Change\scompute_direct_ancestors()\sto\suse\sa\srecursive\scommon\stable\sexpression.
+D 2015-12-13T00:35:06.409
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -399,8 +399,8 @@ F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 857395518c7ced63b0b8cf033327ce86a936266c
 F src/delta.c d0dd6f11845026bad3fccadf52ebb7bb9f508cb3
 F src/deltacmd.c 4ff465c4331af328c6691103745de17e92d36007
-F src/descendants.c 1eb2bb891117be886ac87a7db842293221639326
-F src/diff.c 43862aac708de20ebd44e3278cbb8bdbfef74abc
+F src/descendants.c 6cb824a041723f2bf8e82765386ed5974e335c92
+F src/diff.c 9b76220708caae880dfef8782b43a39b838c280f
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
 F src/diffcmd.c aafa5bbc29bc6ab8980da9a3ab21a062bc75b322
 F src/doc.c b2954ce41c4938e7967062ab4d7e2da0c1f9db33
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fb94a70da422ae91a90116f49ed111c7ef74ea24
-R 0d661921b2d7aa72e7e89435435ca2fd
-U jan.nijtmans
-Z 7f9a8fdee790e4bf8f4bae3b25ba0d3a
+P 6d84c6325e905d29b1efe3676a059693b2d092ea
+R 031349624f594890433f843f504b6e28
+U drh
+Z 08e35b0232d94f7dfccb04ab8d31945b

@@ -2301,7 +2301,7 @@ void annotation_page(void){
   }
 
   /* compute the annotation */
-  compute_direct_ancestors(mid, 10000000);
+  compute_direct_ancestors(mid);
   annotate_file(&ann, fnid, mid, iLimit, annFlags);
   zCI = ann.aVers[0].zMUuid;
 
@@ -2507,7 +2507,7 @@ void annotate_cmd(void){
     fossil_fatal("Not in a checkout");
   }
   if( iLimit<=0 ) iLimit = 1000000000;
-  compute_direct_ancestors(cid, 1000000);
+  compute_direct_ancestors(cid);
   mid = db_int(0, "SELECT mlink.mid FROM mlink, ancestor "
           " WHERE mlink.fid=%d AND mlink.fnid=%d AND mlink.mid=ancestor.rid"
           " ORDER BY ancestor.generation ASC LIMIT 1",
