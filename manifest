@@ -1,5 +1,5 @@
-C Change\scompute_direct_ancestors()\sto\suse\sa\srecursive\scommon\stable\sexpression.
-D 2015-12-13T00:35:06.409
+C Bring\ssome\scomments\sin\sthe\s"blame"\slogic\sup-to-date.\s\sNo\schanges\sto\scode.
+D 2015-12-13T01:26:23.786
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -400,7 +400,7 @@ F src/db.c 857395518c7ced63b0b8cf033327ce86a936266c
 F src/delta.c d0dd6f11845026bad3fccadf52ebb7bb9f508cb3
 F src/deltacmd.c 4ff465c4331af328c6691103745de17e92d36007
 F src/descendants.c 6cb824a041723f2bf8e82765386ed5974e335c92
-F src/diff.c 9b76220708caae880dfef8782b43a39b838c280f
+F src/diff.c 9e68056cec9391693463aefb1954d7672698cd05
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
 F src/diffcmd.c aafa5bbc29bc6ab8980da9a3ab21a062bc75b322
 F src/doc.c b2954ce41c4938e7967062ab4d7e2da0c1f9db33
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6d84c6325e905d29b1efe3676a059693b2d092ea
-R 031349624f594890433f843f504b6e28
+P 6599d097298da9e670df505a32618f1c78e752e7
+R 7accc07f48b1773bad43f6ba83d2e93e
 U drh
-Z 08e35b0232d94f7dfccb04ab8d31945b
+Z e08386ab0121d5666119f4cbd299524e

@@ -2090,9 +2090,7 @@ static int annotation_start(Annotator *p, Blob *pInput, u64 diffFlags){
 /*
 ** The input pParent is the next most recent ancestor of the file
 ** being annotated.  Do another step of the annotation.  Return true
-** if additional annotation is required.  zPName is the tag to insert
-** on each line of the file being annotated that was contributed by
-** pParent.  Memory to hold zPName is leaked.
+** if additional annotation is required.
 */
 static int annotation_step(Annotator *p, Blob *pParent, int iVers, u64 diffFlags){
   int i, j;
@@ -2143,8 +2141,7 @@ static int annotation_step(Annotator *p, Blob *pParent, int iVers, u64 diffFlags
 
 /*
 ** Compute a complete annotation on a file.  The file is identified
-** by its filename number (filename.fnid) and the baseline in which
-** it was checked in (mlink.mid).
+** by its filename number (filename.fnid) and check-in (mlink.mid).
 */
 static void annotate_file(
   Annotator *p,        /* The annotator */
