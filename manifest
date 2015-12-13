@@ -1,5 +1,5 @@
-C Bring\ssome\scomments\sin\sthe\s"blame"\slogic\sup-to-date.\s\sNo\schanges\sto\scode.
-D 2015-12-13T01:26:23.786
+C Fix\stypo\son\sthe\sTH1\sextension\scommands\spage.\s\sAlso,\sfor\snow,\sremove\sthe\s'todo'\ssection.
+D 2015-12-13T01:37:08.213
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -735,7 +735,7 @@ F www/stats.wiki e6c82bd6579f755896c47b22dbab18e27b1f5bc4
 F www/style.wiki da3a414d4c57c3da2636daf0baf6964ba72ce70b
 F www/sync.wiki ecd7e356270a40e81649970c1b606767db68d9e3
 F www/tech_overview.wiki 66d893fd0bca7f5dbc659ab0b4e9dde987e4fdb3
-F www/th1.md 294fb397db480493cc0df716321d3323b843e746
+F www/th1.md f034607f732065035f771c8134e03a9355d6b67e
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6599d097298da9e670df505a32618f1c78e752e7
-R 7accc07f48b1773bad43f6ba83d2e93e
-U drh
-Z e08386ab0121d5666119f4cbd299524e
+P 05f73ffb87e405db9b4fdc9f10548982356c048b
+R 74483d3e5777e41db1fe2fb3f9217a3a
+U mistachkin
+Z 5455f3a1bb04ee51d784d56e7793512c
