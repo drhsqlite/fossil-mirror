@@ -1,5 +1,5 @@
-C Fix\sone\serror\sand\sadd\san\sadditional\snote\sto\sthe\sarticle\son\sthe\sannotate\nalgorithm.
-D 2015-12-13T03:13:06.141
+C Fix\sthe\s"add"\scommand\sso\sthat\sit\sprints\s"SKIP"\sinstead\sof\s"ADDED"\sfor\sfiles\nthat\sare\salready\sunder\smanagement.\s\sCode\sto\sdo\sthis\swas\salready\sin\splace,\sbut\nit\sdid\snot\swork\scorrectly\sdue\sto\sa\slogic\serror.
+D 2015-12-14T23:13:04.551
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -371,7 +371,7 @@ F skins/xekri/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 7c06f8c8271792ea3945085c5c03a2479c27baac
+F src/add.c 026bd9dac971929fa07830d34993d0f00f99bcd2
 F src/allrepo.c 653a4fe5cb10da2811c3d394e8beca6b357de8b7
 F src/attach.c 5b713ffe437fa0c3241da307835b1286e38798fd
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
@@ -744,7 +744,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 91af24e6c942da9d2b7faa14443f7aad908ec182
-R 74887236a3ad854483d4bf2eb4d7a3f6
+P 9828493c998b9651e7d569e24665eadc89d63ee5
+R 569560723e826fb5c332589a0962465f
 U drh
-Z 835ea45687fe4e6a4d9f79419ad0b92c
+Z 77efee06d5c605b821498a01a86b2666

@@ -170,7 +170,8 @@ static int add_one_file(
   if( db_exists("SELECT 1 FROM vfile"
                 " WHERE pathname=%Q %s", zPath, filename_collation()) ){
     db_multi_exec("UPDATE vfile SET deleted=0"
-                  " WHERE pathname=%Q %s", zPath, filename_collation());
+                  " WHERE pathname=%Q %s AND deleted",
+                  zPath, filename_collation());
   }else{
     char *zFullname = mprintf("%s%s", g.zLocalRoot, zPath);
     int isExe = file_wd_isexe(zFullname);
