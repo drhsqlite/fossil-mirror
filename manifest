@@ -1,5 +1,5 @@
-C Add\sthe\s"bisect"\squery\sparameter\sthe\s/timeline.\s\sAdd\sthe\s"fossil\sbisect\sui"\ncommand\sthat\sruns\s"fossil\sui\s-page\s'timeline?bisect'".
-D 2015-12-15T16:12:52.729
+C Enhance\sthe\s"fossil\sdiff"\scommand\sso\sthat\sit\saccepts\sdirectories\sas\sarguments\nand\sshows\sdiffs\son\sall\sfiles\scontained\swithin\sthose\sdirectories.
+D 2015-12-15T20:07:02.920
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -402,7 +402,7 @@ F src/deltacmd.c 4ff465c4331af328c6691103745de17e92d36007
 F src/descendants.c 6cb824a041723f2bf8e82765386ed5974e335c92
 F src/diff.c 9e68056cec9391693463aefb1954d7672698cd05
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
-F src/diffcmd.c aafa5bbc29bc6ab8980da9a3ab21a062bc75b322
+F src/diffcmd.c 8d92202aa17eebabf3db8fa6b4d56d343cbcce12
 F src/doc.c b2954ce41c4938e7967062ab4d7e2da0c1f9db33
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
@@ -744,7 +744,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f55f64e2d85557e88c51526cf47c23e28da3c0d8
-R 24dc23d94318f0cbb9aee01dd0ed8ee0
+P cbde2cf7e4a40f7a7511baea8fdc77b950a00c10
+R f7600e4d7aeb45786ba7c5b38625bfcc
 U drh
-Z dc6b9a70a72395551236eaca484c1e0d
+Z a14cd4542080bc76683bcd39799802b2
