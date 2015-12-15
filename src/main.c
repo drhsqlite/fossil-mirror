@@ -2383,6 +2383,7 @@ static int binaryOnPath(const char *zBinary){
 ** Options:
 **   --baseurl URL       Use URL as the base (useful for reverse proxies)
 **   --create            Create a new REPOSITORY if it does not already exist
+**   --page PAGE         Start "ui" on PAGE.  ex: --page "timeline?y=ci"
 **   --files GLOBLIST    Comma-separated list of glob patterns for static files
 **   --localauth         enable automatic login for requests from localhost
 **   --localhost         listen on 127.0.0.1 only (always true for "ui")
@@ -2412,7 +2413,8 @@ void cmd_webserver(void){
   const char *zAltBase;     /* Argument to the --baseurl option */
   const char *zFileGlob;    /* Static content must match this */
   char *zIpAddr = 0;        /* Bind to this IP address */
-  int fCreate = 0;
+  int fCreate = 0;          /* The --create flag */
+  char *zInitPage = 0;      /* Start on this page.  --page option */
 
 #if defined(_WIN32)
   const char *zStopperFile;    /* Name of file used to terminate server */
@@ -2434,6 +2436,11 @@ void cmd_webserver(void){
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   Th_InitTraceLog();
   zPort = find_option("port", "P", 1);
+  isUiCmd = g.argv[1][0]=='u';
+  if( isUiCmd ){
+    zInitPage = find_option("page", 0, 1);
+  }
+  if( zInitPage==0 ) zInitPage = "";
   zNotFound = find_option("notfound", 0, 1);
   allowRepoList = find_option("repolist",0,0)!=0;
   zAltBase = find_option("baseurl", 0, 1);
@@ -2450,7 +2457,6 @@ void cmd_webserver(void){
   verify_all_options();
 
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
-  isUiCmd = g.argv[1][0]=='u';
   if( isUiCmd ){
     flags |= HTTP_SERVER_LOCALHOST|HTTP_SERVER_REPOLIST;
     g.useLocalauth = 1;
@@ -2490,9 +2496,11 @@ void cmd_webserver(void){
     zBrowser = db_get("web-browser", "open");
 #endif
     if( zIpAddr ){
-      zBrowserCmd = mprintf("%s http://%s:%%d/ &", zBrowser, zIpAddr);
+      zBrowserCmd = mprintf("%s http://%s:%%d/%s &",
+                            zBrowser, zIpAddr, zInitPage);
     }else{
-      zBrowserCmd = mprintf("%s http://localhost:%%d/ &", zBrowser);
+      zBrowserCmd = mprintf("%s http://localhost:%%d/%s &",
+                            zBrowser, zInitPage);
     }
     if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
     if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
@@ -2521,9 +2529,11 @@ void cmd_webserver(void){
   if( isUiCmd ){
     zBrowser = db_get("web-browser", "start");
     if( zIpAddr ){
-      zBrowserCmd = mprintf("%s http://%s:%%d/ &", zBrowser, zIpAddr);
+      zBrowserCmd = mprintf("%s http://%s:%%d/%s &",
+                            zBrowser, zIpAddr, zInitPage);
     }else{
-      zBrowserCmd = mprintf("%s http://localhost:%%d/ &", zBrowser);
+      zBrowserCmd = mprintf("%s http://localhost:%%d/%s &",
+                            zBrowser, zInitPage);
     }
     if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
     if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;

@@ -1,5 +1,5 @@
-C Fix\sthe\s"add"\scommand\sso\sthat\sit\sprints\s"SKIP"\sinstead\sof\s"ADDED"\sfor\sfiles\nthat\sare\salready\sunder\smanagement.\s\sCode\sto\sdo\sthis\swas\salready\sin\splace,\sbut\nit\sdid\snot\swork\scorrectly\sdue\sto\sa\slogic\serror.
-D 2015-12-14T23:13:04.551
+C Add\sthe\s--page\soption\sto\sthe\s"fossil\sui"\scommand.
+D 2015-12-15T14:46:26.797
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -442,7 +442,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 48e28e14943671f38ff81cdbdb6db93564bed895
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c f80950db456830457f97fdfee2e2e15f6bcd2bf8
+F src/main.c 5dc4f7ffaf3f24abc417c5d9e6a04df2e9290f39
 F src/main.mk 29222c3dafd8664690482d11733671ad8245c3ff
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -744,7 +744,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9828493c998b9651e7d569e24665eadc89d63ee5
-R 569560723e826fb5c332589a0962465f
+P d252cfd66d3c8f713c7f180def23931c67195539
+R 59e254b2c2e7bc939029b8d1cbd297d2
 U drh
-Z 77efee06d5c605b821498a01a86b2666
+Z 0f428087a45e2840bd4c9d085e732a51
