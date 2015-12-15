@@ -1,5 +1,5 @@
-C Add\sthe\s--page\soption\sto\sthe\s"fossil\sui"\scommand.
-D 2015-12-15T14:46:26.797
+C Add\sthe\s"bisect"\squery\sparameter\sthe\s/timeline.\s\sAdd\sthe\s"fossil\sbisect\sui"\ncommand\sthat\sruns\s"fossil\sui\s-page\s'timeline?bisect'".
+D 2015-12-15T16:12:52.729
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -375,7 +375,7 @@ F src/add.c 026bd9dac971929fa07830d34993d0f00f99bcd2
 F src/allrepo.c 653a4fe5cb10da2811c3d394e8beca6b357de8b7
 F src/attach.c 5b713ffe437fa0c3241da307835b1286e38798fd
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
-F src/bisect.c b4605827ce1951704922050e6c051c8f9ce0d614
+F src/bisect.c c8bdcf4812c9446bea503610d234772516bf572f
 F src/blob.c 10ee0528085b90be013d53935bceeeb83a7b1027
 F src/branch.c 09724980278de18e9bbff5da85950c3febd811eb
 F src/browse.c 904f68c2a82bed2b9533b76a3497a961d2ae25d9
@@ -442,7 +442,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 48e28e14943671f38ff81cdbdb6db93564bed895
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c 5dc4f7ffaf3f24abc417c5d9e6a04df2e9290f39
+F src/main.c 6407bdfe5c4c08103ea999a0404339e45253115f
 F src/main.mk 29222c3dafd8664690482d11733671ad8245c3ff
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -495,7 +495,7 @@ F src/th.h 1e7ae1613afa730a75df06d7fd1f17c7ff4564f4
 F src/th_lang.c e37a4bae6c05ed442bc90ba3fa18be2683e2a6a1
 F src/th_main.c d2e76c7247f7a8874319d3364b512e2b95666b70
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
-F src/timeline.c ba528a9dfaee8f33a320fd0666d1826648966af0
+F src/timeline.c d9fffcdb4f9a3237767e4f0d618e8743877c3e48
 F src/tkt.c be76575f231f2ee778b63c686f20d59ed5b93469
 F src/tktsetup.c 32e23747e8d3f36fc390a6197dda2209d98cad09
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
@@ -744,7 +744,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d252cfd66d3c8f713c7f180def23931c67195539
-R 59e254b2c2e7bc939029b8d1cbd297d2
+P f55f64e2d85557e88c51526cf47c23e28da3c0d8
+R 24dc23d94318f0cbb9aee01dd0ed8ee0
 U drh
-Z 0f428087a45e2840bd4c9d085e732a51
+Z dc6b9a70a72395551236eaca484c1e0d

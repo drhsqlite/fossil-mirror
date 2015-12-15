@@ -2409,12 +2409,12 @@ void cmd_webserver(void){
 #if !defined(_WIN32)
   int noJail;               /* Do not enter the chroot jail */
 #endif
-  int allowRepoList;        /* List repositories on URL "/" */
-  const char *zAltBase;     /* Argument to the --baseurl option */
-  const char *zFileGlob;    /* Static content must match this */
-  char *zIpAddr = 0;        /* Bind to this IP address */
-  int fCreate = 0;          /* The --create flag */
-  char *zInitPage = 0;      /* Start on this page.  --page option */
+  int allowRepoList;         /* List repositories on URL "/" */
+  const char *zAltBase;      /* Argument to the --baseurl option */
+  const char *zFileGlob;     /* Static content must match this */
+  char *zIpAddr = 0;         /* Bind to this IP address */
+  int fCreate = 0;           /* The --create flag */
+  const char *zInitPage = 0; /* Start on this page.  --page option */
 
 #if defined(_WIN32)
   const char *zStopperFile;    /* Name of file used to terminate server */
