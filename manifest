@@ -1,5 +1,5 @@
-C Update\sthe\sversion\snumber\sto\s1.35.\s\sBegin\swriting\sthe\schange\slog\sfor\sversion\n1.35.
-D 2015-12-15T20:51:04.971
+C Fix\sa\smissing\shyperlink\sin\sthe\schange\slog.
+D 2015-12-15T20:53:06.620
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -659,7 +659,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 2ac7311933956b8d8b465a047c206db767184117
-F www/changes.wiki bdcb2b0a2525cce09e11207cfba700dbca8c9fb0
+F www/changes.wiki 8ec0c7587e580c4f3da5296f9f8f7477753945f8
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 115a0ecdac918232061bbc19124ea83e0a27d938
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -744,7 +744,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b789df4bb6dd4d57b5f608956704b6e8d8a51be7
-R 66e3e95ce954c8509aa6d2397a50e3db
+P f998a1bf29e277196b7cdc85acf00a6d0e237cbd
+R 9c4d325bf4e05baa0806cb7ced821e31
 U drh
-Z f3188566b022c580d23f3817f4b94dad
+Z 7ff1f0ea0a0fefd397db66e0c51fc97b

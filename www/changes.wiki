@@ -16,8 +16,9 @@
      of ancestors that are used for [/help?cmd=/blame|/blame].
   *  Added the --page option to the [/help?cmd=ui|fossil ui] command
   *  Added the [/help?cmd=bisect|fossil bisect ui] command
-  *  Enhanced the "fossil diff" command so that it accepts directory names
-     as arguments and computes diffs on all files contained within those directories.
+  *  Enhanced the [/help?cmd=diff|fossil diff] command so that it accepts 
+     directory names as arguments and computes diffs on all files contained
+     within those directories.
   *  Fix the [/help?cmd=add|fossil add] command so that it shows "SKIP" for
      files added that were already under management.
 
