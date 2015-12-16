@@ -1,5 +1,5 @@
-C Further\sedits\sto\sthe\sfossil-v-git.wiki\spage.
-D 2015-12-16T18:31:46.720
+C Enhancements\sto\sthe\s"webpage-ex.md"\sdocumentation\spage:\s"Webpage\sExamples".
+D 2015-12-16T19:01:57.928
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -715,10 +715,10 @@ F www/index.wiki 89c650d5efb9273a21296d3b209bd1d00a4d230d
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki f75b16c8bb734fe20d0d524c658f05dab006316c
 F www/mkdownload.tcl 5ac61a3e13cecaa67f1e31741113c96cbd41463f
-F www/mkindex.tcl 57849ad13bbcc43722cb89ac14adea6218110398
+F www/mkindex.tcl 892e7368ad39a0c033d80700746e6e95a72905cc
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 336916afde4ff470e87fc43066063623a9a74c8a
-F www/permutedindex.html dc8b5c713d24d7e87670363d02cacfedfc2a6a14
+F www/permutedindex.html 7ceb3e079a04715f1241c3ea5e45491cfb0eed03
 F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
 F www/private.wiki 72344489bbae6f7955369559b6ab22e01a64259b
 F www/qandc.wiki e07b21da221b05afeb1905f17af3765045952ba8
@@ -740,11 +740,11 @@ F www/th1.md f034607f732065035f771c8134e03a9355d6b67e
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
-F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
+F www/webpage-ex.md e448ccfc4dfa06a0303d75d88ddf658ae4688617
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ca891ab6c16e00aac70373461de8dc3143847acc
-R aa3132c30c21ce2793442b356b178f0f
+P 7c32a7847cbcbfa0442330cea8832fc17356d3bf
+R 51e693955f2dbfeacc1dba14e8bc12ee
 U drh
-Z 4ebe01aa237af658107f2e6ceacb5ae5
+Z b1f3623239ce11e0470ff6f5dc4da0af

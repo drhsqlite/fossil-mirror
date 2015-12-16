@@ -63,6 +63,7 @@ set doclist {
   th1.md {The TH1 Scripting Language}
   tickets.wiki {The Fossil Ticket System}
   theory1.wiki {Thoughts On The Design Of The Fossil DVCS}
+  webpage-ex.md {Webpage Examples}
   webui.wiki {The Fossil Web Interface}
   wikitheory.wiki {Wiki In Fossil}
 }

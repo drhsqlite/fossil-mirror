@@ -1,9 +1,9 @@
 Web-Page Examples
 =================
 
-Here are a few examples of the many web pages supported
-by Fossil.  This is not an exhaustive list.
-Explore hyperlinks to see more.
+Here are just a few examples of the many web pages supported
+by Fossil.  Follow hyperlinks on the examples below to see many
+other examples.
 <style>
 .exbtn {
   border: 1px solid #000;
@@ -33,7 +33,7 @@ Explore hyperlinks to see more.
 
   *  <a target='_blank' class='exbtn'
      href='../../../timeline?n=11&y=ci&c=2014-01-01&v=1'>Example</a>
-     The previous augmented with file changes.
+     The previous example augmented with file changes.
 
   *  <a target='_blank' class='exbtn'
      href='../../../timeline?n=25&y=ci&a=1970-01-01'>Example</a>
@@ -51,15 +51,28 @@ Explore hyperlinks to see more.
 
   *  <a target='_blank' class='exbtn'
      href='../../../timeline?n=100&y=ci&ubg'>Example</a>
-     100 most recent check-ins color coded by committer.
+     100 most recent check-ins color coded by committer rather than by branch.
 
   *  <a target='_blank' class='exbtn'
      href='../../../timeline?from=version-1.27&to=version-1.28'>Example</a>
      All check-ins on the most direct path from
      version-1.27 to version-1.28
 
-     (Hint:  In any graph above, click the square node boxes
-     for two check-ins or files to see a diff.)
+  *  <a target='_blank' class='exbtn'
+     href='../../../timeline?namechng'>Example</a>
+     Show check-ins that contain file name changes
+
+  *  <a target='_blank' class='exbtn'
+     href='../../../timeline?u=drh&c=2014-01-08&y=ci'>Example</a>
+     Show check-ins circa 2014-01-08 by user "drh".
+
+     <big><b>&rarr;</b></big> (Hint:  In the pages above, click the graph nodes
+     for any two check-ins or files to see a diff.)
+     <big><b>&larr;</b></big>
+
+  *  <a target='_blank' class='exbtn'
+     href='../../../search?s=interesting+pages'>Example</a>
+     Full-text search for "interesting pages".
 
   *  <a target='_blank' class='exbtn'
      href='../../../tree?ci=daff9d20621&type=tree'>Example</a>
@@ -83,6 +96,10 @@ Explore hyperlinks to see more.
      Overall repository status.
 
   *  <a target='_blank' class='exbtn'
+     href='../../../reports?type=ci&view=byuser'>Example</a>
+     Number of check-ins per committer.
+
+  *  <a target='_blank' class='exbtn'
      href='../../../reports?view=byfile'>Example</a>
      Number of check-ins for each source file.
      (Click on column headers to sort.)
@@ -96,3 +113,11 @@ Explore hyperlinks to see more.
   *  <a target='_blank' class='exbtn'
      href='../../../taglist'>Example</a>
      List of tags on check-ins.
+
+  *  <a target='_blank' class='exbtn'
+     href='../../../bigbloblist'>Example</a>
+     The largest objects in the repository.
+
+  *  <a target='_blank' class='exbtn'
+     href='../../../hash-collisions'>Example</a>
+     SHA1 prefix collisions
