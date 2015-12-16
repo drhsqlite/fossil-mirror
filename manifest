@@ -1,5 +1,5 @@
-C Rewrite\sthe\s"fossil\sversus\sgit"\sdocument.
-D 2015-12-16T16:13:16.578
+C Further\sedits\sto\sthe\sfossil-v-git.wiki\spage.
+D 2015-12-16T18:31:46.720
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -698,7 +698,7 @@ F www/fileformat.wiki 1cd023bfde51e32161cee8f0824be255f76e30e8
 F www/fiveminutes.wiki 3172b324738523b163b19a8c836d3d9a3ceb9b94
 F www/foss-cklist.wiki 77fe5872d7077a68e1b01e8dd5e3a48f7ee2b0dd
 F www/fossil-from-msvc.wiki f2c229553ff6304fa0c6e82d169e959498af98a8
-F www/fossil-v-git.wiki 0ec5e0b52cb51072494ac7d065aaeac77acf101e
+F www/fossil-v-git.wiki 9a1e13a31bfa810ea7b2b0cb99eb8674d8c1ef0c
 F www/fossil.eps 672ae6297081bd6a1c9565a9cae7c8299a1d61e3
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps d8e0aba6acbeb3cba071ed894783ca9b8de9a310
@@ -744,7 +744,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eba19952226b152c110cfc8b1672736c8af06912
-R e6c7b7f6ec7f058e0bca086c7f11c3b1
+P ca891ab6c16e00aac70373461de8dc3143847acc
+R aa3132c30c21ce2793442b356b178f0f
 U drh
-Z f6114405ef1853f6ccae6217de0d2560
+Z 4ebe01aa237af658107f2e6ceacb5ae5

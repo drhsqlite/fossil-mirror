@@ -3,7 +3,7 @@
 <h2>1.0 Don't Stress!</h2>
 
 If you start out using one DVCS and later decide you like the other better,
-it is [./inout.wiki | easy to change].
+you can easily [./inout.wiki | move your content]&#185;.
 
 Fossil and [http://git-scm.com | Git] are very similar in many respects,
 but there are also important differences.
@@ -14,6 +14,10 @@ Keep in mind that you are reading this on a Fossil website,
 so the information here
 might be biased in favor of Fossil.  Ask around with people who have
 used both Fossil and Git for other opinions.
+
+&#185;<small><i>Git does not support
+wiki, tickets, or tech-notes, so those elements will not transfer when
+exporting from Fossil to Git.</i></small>
 
 <h2>2.0 Executive Summary:</h2>
 
@@ -69,7 +73,7 @@ objects referencing their immediate ancestors and named by their SHA1 hash.
 
 The difference is that Git stores its objects as individual files 
 in the ".git" folder or compressed into
-a bespoke "pack-files", whereas Fossil stores its objects in a 
+bespoke "pack-files", whereas Fossil stores its objects in a 
 relational ([https://www.sqlite.org/|SQLite]) database file.  To put it
 another way, Git uses an ad-hoc pile-of-files key/value database whereas
 Fossil uses a proven, general-purpose SQL database.  This
@@ -77,7 +81,7 @@ difference is more than an implementation detail.  It
 has important consequences.
 
 With Git, one can easily locate the ancestors of a particular check-in
-by following the pointers embedded the check-in object, but it is very 
+by following the pointers embedded the check-in object, but it is
 difficult to go the other direction and locate the descendants of a
 check-in.  It is so difficult, in fact, that neither native Git nor
 GitHub provide this capability.  With Git, if you are looking at some
@@ -85,7 +89,8 @@ historical check-in then you cannot ask
 "what came next" or "what are the children of this check-in".
 
 Fossil, on the other hand, parses essential information about check-ins
-(such as parentage) into a relation database that can be easily 
+(parents, children, committers, comments, files changed, etc.) 
+into a relation database that can be easily 
 queried using concise SQL statements to find both ancestors and 
 descendents of a check-in.
 
