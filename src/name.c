@@ -981,19 +981,21 @@ void test_describe_artifacts_cmd(void){
 **
 **   n=N         Show N artifacts
 **   s=S         Start with artifact number S
+**   unpub       Show only unpublished artifacts
 */
 void bloblist_page(void){
   Stmt q;
   int s = atoi(PD("s","0"));
   int n = atoi(PD("n","5000"));
   int mx = db_int(0, "SELECT max(rid) FROM blob");
+  int unpubOnly = PB("unpub");
   char *zRange;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("List Of Artifacts");
   style_submenu_element("250 Largest", 0, "bigbloblist");
-  if( mx>n && P("s")==0 ){
+  if( !unpubOnly && mx>n && P("s")==0 ){
     int i;
     @ <p>Select a range of artifacts to view:</p>
     @ <ul>
@@ -1005,11 +1007,16 @@ void bloblist_page(void){
     style_footer();
     return;
   }
-  if( mx>n ){
+  if( !unpubOnly && mx>n ){
     style_submenu_element("Index", "Index", "bloblist");
   }
-  zRange = mprintf("BETWEEN %d AND %d", s, s+n-1);
+  if( unpubOnly ){
+    zRange = mprintf("IN private");
+  }else{
+    zRange = mprintf("BETWEEN %d AND %d", s, s+n-1);
+  }
   describe_artifacts(zRange);
+  fossil_free(zRange);
   db_prepare(&q,
     "SELECT rid, uuid, summary, isPrivate FROM description ORDER BY rid"
   );
