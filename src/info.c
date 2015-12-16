@@ -1810,6 +1810,7 @@ void output_text_with_line_numbers(
 **   ln=M-N          - highlight lines M through N inclusive
 **   ln=M-N+Y-Z      - higllight lines M through N and Y through Z (inclusive)
 **   verbose         - show more detail in the description
+**   download        - redirect to the download (artifact page only)
 **
 ** The /artifact page show the complete content of a file
 ** identified by SHA1HASH as preformatted text.  The
@@ -1839,6 +1840,14 @@ void artifact_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( rid==0 ) fossil_redirect_home();
+  if( descOnly || P("verbose")!=0 ) objdescFlags |= OBJDESC_DETAIL;
+  blob_zero(&downloadName);
+  objType = object_description(rid, objdescFlags, &downloadName);
+  if( !descOnly && P("download")!=0 ){
+    cgi_redirectf("%R/raw/%T?name=%s", blob_str(&downloadName),
+          db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid));
+    /*NOTREACHED*/
+  }
   if( g.perm.Admin ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
@@ -1849,7 +1858,6 @@ void artifact_page(void){
             g.zTop, zUuid);
     }
   }
-  if( descOnly || P("verbose")!=0 ) objdescFlags |= OBJDESC_DETAIL;
   style_header("%s", descOnly ? "Artifact Description" : "Artifact Content");
   zUuid = db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( g.perm.Setup ){
@@ -1857,8 +1865,6 @@ void artifact_page(void){
   }else{
     @ <h2>Artifact %s(zUuid):</h2>
   }
-  blob_zero(&downloadName);
-  objType = object_description(rid, objdescFlags, &downloadName);
   if( g.perm.Admin ){
     Stmt q;
     db_prepare(&q,
