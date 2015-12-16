@@ -741,7 +741,7 @@ void timeline_output_graph_javascript(
         }
       }
       if( cSep=='[' ) cgi_printf("[");
-      cgi_printf("],h:\"%s\"}%s", pRow->zUuid, pRow->pNext ? ",\n" : "];\n");
+      cgi_printf("],h:\"%!S\"}%s", pRow->zUuid, pRow->pNext ? ",\n" : "];\n");
     }
     cgi_printf("var nrail = %d\n", pGraph->mxRail+1);
     graph_free(pGraph);
