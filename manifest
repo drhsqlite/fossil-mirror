@@ -1,5 +1,5 @@
-C Minor\scorrections\sin\sgrammar\sto\sFossil\svs\sGit\srewrite.
-D 2015-12-17T03:29:29.210
+C Clean\srebuild\sof\sSQLite\s(so\sthe\ssource_id\sof\sfts5\smatches\sthe\sone\sfrom\sSQLite\sitself)
+D 2015-12-17T15:58:20.542
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -481,7 +481,7 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 44d3881e497cf9bec8ea6dcf73830502ab59202c
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c 3740945d4be651bfa093ca8a0709a02c890899be
+F src/sqlite3.c 3114987d1944fbb86524244f31a499bb073d543d
 F src/sqlite3.h 4d668b2c69164d186b235186b315042464d7e373
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 9fa919c1c78db3952e181e0bf955b039aca0db26
@@ -744,7 +744,7 @@ F www/webpage-ex.md e448ccfc4dfa06a0303d75d88ddf658ae4688617
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 61c8d418723b59bbac937752a930177d88768bc7
-R 393e406310d145e05ff42896c1ca986f
-U andybradford
-Z 9138060f6635ef086c1b66b67657b583
+P 0b90da304fe78337c5b27a289cfac0e1e58f0b74
+R 8a58b726c6f4c37df1eaf8e9fbc15fee
+U jan.nijtmans
+Z 7d0fe1df7d327d2cf32a540197dc1373
