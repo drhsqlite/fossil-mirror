@@ -1,5 +1,5 @@
-C Remove\sstale\scode\saccidently\sleft\sin\san\searlier\scommit.
-D 2015-12-17T02:02:29.024
+C Minor\scorrections\sin\sgrammar\sto\sFossil\svs\sGit\srewrite.
+D 2015-12-17T03:29:29.210
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -698,7 +698,7 @@ F www/fileformat.wiki 1cd023bfde51e32161cee8f0824be255f76e30e8
 F www/fiveminutes.wiki 3172b324738523b163b19a8c836d3d9a3ceb9b94
 F www/foss-cklist.wiki 77fe5872d7077a68e1b01e8dd5e3a48f7ee2b0dd
 F www/fossil-from-msvc.wiki f2c229553ff6304fa0c6e82d169e959498af98a8
-F www/fossil-v-git.wiki 9a1e13a31bfa810ea7b2b0cb99eb8674d8c1ef0c
+F www/fossil-v-git.wiki a2bef838c28cb80ab0c2f388fd53540e433ffc2e
 F www/fossil.eps 672ae6297081bd6a1c9565a9cae7c8299a1d61e3
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps d8e0aba6acbeb3cba071ed894783ca9b8de9a310
@@ -744,7 +744,7 @@ F www/webpage-ex.md e448ccfc4dfa06a0303d75d88ddf658ae4688617
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 03a64a6fef71f2b0b27bb3fc2a233b3a56f59a57
-R acdc565baedc0a3317415f8b7c8ecb26
-U drh
-Z bc2a053c7fd1d133675060c78f37aea7
+P 61c8d418723b59bbac937752a930177d88768bc7
+R 393e406310d145e05ff42896c1ca986f
+U andybradford
+Z 9138060f6635ef086c1b66b67657b583

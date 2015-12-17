@@ -60,7 +60,7 @@ For developers who choose to self-host projects (rather than using a
 3rd-party service such as GitHub) Fossil is much easier to set up, since
 the stand-alone Fossil executable together with a 2-line CGI script
 suffice to instantiate a full-featured developer website.  To accomplish
-the same using Git requires locating, installed, configuring, integrating, 
+the same using Git requires locating, installing, configuring, integrating, 
 and managing a wide assortment of separate tools.  Standing up a developer
 website using Fossil can be done in minutes, whereas doing the same using
 Git requires hours or days.
@@ -90,7 +90,7 @@ historical check-in then you cannot ask
 
 Fossil, on the other hand, parses essential information about check-ins
 (parents, children, committers, comments, files changed, etc.) 
-into a relation database that can be easily 
+into a relational database that can be easily 
 queried using concise SQL statements to find both ancestors and 
 descendents of a check-in.
 
