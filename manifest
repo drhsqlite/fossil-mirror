@@ -1,5 +1,5 @@
-C Enhancements\sto\sthe\s"webpage-ex.md"\sdocumentation\spage:\s"Webpage\sExamples".
-D 2015-12-16T19:01:57.928
+C Remove\sstale\scode\saccidently\sleft\sin\san\searlier\scommit.
+D 2015-12-17T02:02:29.024
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -402,7 +402,7 @@ F src/deltacmd.c 4ff465c4331af328c6691103745de17e92d36007
 F src/descendants.c 6cb824a041723f2bf8e82765386ed5974e335c92
 F src/diff.c 9e68056cec9391693463aefb1954d7672698cd05
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
-F src/diffcmd.c c6fd421716a3522adbf67e473031780dd66abfa4
+F src/diffcmd.c 7d153a7ca83cab0820d92bd134cfb1d5c16c6d72
 F src/doc.c b2954ce41c4938e7967062ab4d7e2da0c1f9db33
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
@@ -744,7 +744,7 @@ F www/webpage-ex.md e448ccfc4dfa06a0303d75d88ddf658ae4688617
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7c32a7847cbcbfa0442330cea8832fc17356d3bf
-R 51e693955f2dbfeacc1dba14e8bc12ee
+P 03a64a6fef71f2b0b27bb3fc2a233b3a56f59a57
+R acdc565baedc0a3317415f8b7c8ecb26
 U drh
-Z b1f3623239ce11e0470ff6f5dc4da0af
+Z bc2a053c7fd1d133675060c78f37aea7

@@ -758,49 +758,6 @@ const char *diff_get_binary_glob(void){
 }
 
 /*
-** The input is a list of file and/or directory names either in the current
-** checkout, or in the undo buffer if useUndo is true, or in check-outs
-** zFrom and/or zTo if they are not null.  Return a new list that consists
-** of only filenames.  Any directories on the input list are expected into
-** multiple files in the output list.  The output list uses space obtained
-** from malloc() and is NULL terminated.
-*/
-static char **diff_expand_dirs(
-  int argc,                /* Number of entries in argv[] */
-  const char **argv,       /* List of files and/or directories to be diffed */
-  const char *zFrom,       /* Source check-in name, or NULL */
-  const char *zTo,         /* Target check-in name, or NULL */
-  int useUndo              /* True if diffing against the undo buffer */
-){
-  Stmt q;
-  int i;
-  db_multi_exec(
-    "CREATE TEMP TABLE dfiles("
-    "  name TEXT PRIMARY KEY,"
-    "  path TEXT"
-    ") WITHOUT ROWID;"
-    "CREATE TEMP TABLE allowed("
-    "  fn TEXT PRIMARY KEY"
-    ") WITHOUT ROWID;"
-  );
-  if( useUndo ){
-    db_multi_exec(
-      "INSERT OR IGNORE INTO allowed(fn)"
-      " SELECT pathname FROM undo INTERSECT SELECT pathname FROM vfile;"
-    );
-  }else if( zTo ){
-  }
-  db_prepare(&q, "INSERT OR IGNORE INTO dfiles(names) VALUES(:txt)");
-  for(i=0; i<argc; i++){
-    db_bind_text(&q, ":txt", argv[i]);
-    db_step(&q);
-    db_reset(&q);
-  }
-  db_finalize(&q);
-  
-}
-
-/*
 ** COMMAND: diff
 ** COMMAND: gdiff
 **
