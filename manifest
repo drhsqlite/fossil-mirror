@@ -1,5 +1,5 @@
-C Fix\sa\sminor\stypo\sin\sthe\sgit-import\slogic.
-D 2015-12-19T13:08:04.100
+C Initial\ssupport\sfor\smanaging\stechnotes\sfrom\sthe\scommand-line.
+D 2015-12-19T14:12:25.637
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -405,7 +405,7 @@ F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
 F src/diffcmd.c 7d153a7ca83cab0820d92bd134cfb1d5c16c6d72
 F src/doc.c b2954ce41c4938e7967062ab4d7e2da0c1f9db33
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
-F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
+F src/event.c 7ec80402c4575733aab57a3d5d7774e1d15fc902
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
 F src/file.c 96e88d124e5a031652e30ef1abc06e69b125c736
 F src/finfo.c 4c2d39c4d2f54ca71a3f6b9b486c6984d6b31843
@@ -508,7 +508,7 @@ F src/utf8.c 5c85c7e88b82b5fb48649c46f063ac94ab58eb20
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
 F src/vfile.c 3b7286065edf544811df9f41fc9f35e1d7207c51
-F src/wiki.c fe889812078d71c1d48867e601ab5def3f0be241
+F src/wiki.c 9ee0696d189a666f4028b5af76898f0ed7ee18d0
 F src/wikiformat.c f9fb5b8bc72c23d88bedcc8de1048f1081514d09
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c 4e680d7c8778be4439169f40a992ccc81f7ceec2
@@ -744,7 +744,10 @@ F www/webpage-ex.md e448ccfc4dfa06a0303d75d88ddf658ae4688617
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5b30c544d5e25eb5f13adc304d143d8d292c9261
-R 1721f03dec9c87b51860f3b0f9e5adc4
-U drh
-Z a1c21b6ec504558b5a595f19816d7576
+P f7afea949dd59c4ec3e31a6e8907b2d500dd4130
+R b12f4acaed9b8548e80c05e21d8ea8fb
+T *branch * technote-cli
+T *sym-technote-cli *
+T -sym-trunk *
+U djv
+Z 70b430c0f73ec0bb04b4caf84ed8cf9e

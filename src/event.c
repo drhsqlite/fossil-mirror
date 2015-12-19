@@ -223,6 +223,110 @@ void event_page(void){
 }
 
 /*
+** Add or update a new tech note to the repository.
+**
+** returns 1 if the tech note was added or updated, 0 if the
+** update failed making an invalid artifact
+*/
+int event_commit_common(
+  int rid,                   /* prior version of the technote, if any */
+  const char *zId,           /* UUID for the technote */
+  const char *zBody,         /* The content of the technote */
+  char *zETime,              /* Timestamp for the technote */
+  const char *zMimetype,     /* Mimetype to use.  May be NULL */
+  const char *zComment,      /* Timeline comment */
+  const char *zTags,         /* Tags for the technote */
+  const char *zClr           /* Background color */
+){
+  Blob event;
+  char *zDate;
+  Blob cksum;
+  int nrid, n;
+
+  blob_init(&event, 0, 0);
+  db_begin_transaction();
+  while( fossil_isspace(zComment[0]) ) zComment++;
+  n = strlen(zComment);
+  while( n>0 && fossil_isspace(zComment[n-1]) ){ n--; }
+  if( n>0 ){
+    blob_appendf(&event, "C %#F\n", n, zComment);
+  }
+  zDate = date_in_standard_format("now");
+  blob_appendf(&event, "D %s\n", zDate);
+  free(zDate);
+  
+  zETime[10] = 'T';
+  blob_appendf(&event, "E %s %s\n", zETime, zId);
+  zETime[10] = ' ';
+  if( rid ){
+    char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+    blob_appendf(&event, "P %s\n", zUuid);
+    free(zUuid);
+  }
+  if( zMimetype && zMimetype[0] ){
+    blob_appendf(&event, "N %s\n", zMimetype);
+  }
+  if( zClr && zClr[0] ){
+    blob_appendf(&event, "T +bgcolor * %F\n", zClr);
+  }
+  if( zTags && zTags[0] ){
+    Blob tags, one;
+    int i, j;
+    Stmt q;
+    char *zBlob;
+
+    /* Load the tags string into a blob */
+    blob_zero(&tags);
+    blob_append(&tags, zTags, -1);
+
+    /* Collapse all sequences of whitespace and "," characters into
+    ** a single space character */
+    zBlob = blob_str(&tags);
+    for(i=j=0; zBlob[i]; i++, j++){
+      if( fossil_isspace(zBlob[i]) || zBlob[i]==',' ){
+        while( fossil_isspace(zBlob[i+1]) ){ i++; }
+        zBlob[j] = ' ';
+      }else{
+        zBlob[j] = zBlob[i];
+      }
+    }
+    blob_resize(&tags, j);
+
+    /* Parse out each tag and load it into a temporary table for sorting */
+    db_multi_exec("CREATE TEMP TABLE newtags(x);");
+    while( blob_token(&tags, &one) ){
+      db_multi_exec("INSERT INTO newtags VALUES(%B)", &one);
+    }
+    blob_reset(&tags);
+
+    /* Extract the tags in sorted order and make an entry in the
+    ** artifact for each. */
+    db_prepare(&q, "SELECT x FROM newtags ORDER BY x");
+    while( db_step(&q)==SQLITE_ROW ){
+      blob_appendf(&event, "T +sym-%F *\n", db_column_text(&q, 0));
+    }
+    db_finalize(&q);
+  }
+  if( !login_is_nobody() ){
+    blob_appendf(&event, "U %F\n", login_name());
+  }
+  blob_appendf(&event, "W %d\n%s\n", strlen(zBody), zBody);
+  md5sum_blob(&event, &cksum);
+  blob_appendf(&event, "Z %b\n", &cksum);
+  blob_reset(&cksum);
+  nrid = content_put(&event);
+  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
+  if( manifest_crosslink(nrid, &event, MC_NONE)==0 ){
+    db_end_transaction(1);
+    return 0;
+  }
+  assert( blob_is_reset(&event) );
+  content_deltify(rid, nrid, 0);
+  db_end_transaction(0);
+  return 1;
+}
+
+/*
 ** WEBPAGE: technoteedit
 ** WEBPAGE: eventedit
 **
@@ -325,93 +429,15 @@ void eventedit_page(void){
   }
   zETime = db_text(0, "SELECT coalesce(datetime(%Q),datetime('now'))", zETime);
   if( P("submit")!=0 && (zBody!=0 && zComment!=0) ){
-    char *zDate;
-    Blob cksum;
-    int nrid, n;
-    blob_init(&event, 0, 0);
-    db_begin_transaction();
     login_verify_csrf_secret();
-    while( fossil_isspace(zComment[0]) ) zComment++;
-    n = strlen(zComment);
-    while( n>0 && fossil_isspace(zComment[n-1]) ){ n--; }
-    if( n>0 ){
-      blob_appendf(&event, "C %#F\n", n, zComment);
-    }
-    zDate = date_in_standard_format("now");
-    blob_appendf(&event, "D %s\n", zDate);
-    free(zDate);
-    zETime[10] = 'T';
-    blob_appendf(&event, "E %s %s\n", zETime, zId);
-    zETime[10] = ' ';
-    if( rid ){
-      char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-      blob_appendf(&event, "P %s\n", zUuid);
-      free(zUuid);
-    }
-    if( zMimetype && zMimetype[0] ){
-      blob_appendf(&event, "N %s\n", zMimetype);
-    }
-    if( zClr && zClr[0] ){
-      blob_appendf(&event, "T +bgcolor * %F\n", zClr);
-    }
-    if( zTags && zTags[0] ){
-      Blob tags, one;
-      int i, j;
-      Stmt q;
-      char *zBlob;
-
-      /* Load the tags string into a blob */
-      blob_zero(&tags);
-      blob_append(&tags, zTags, -1);
-
-      /* Collapse all sequences of whitespace and "," characters into
-      ** a single space character */
-      zBlob = blob_str(&tags);
-      for(i=j=0; zBlob[i]; i++, j++){
-        if( fossil_isspace(zBlob[i]) || zBlob[i]==',' ){
-          while( fossil_isspace(zBlob[i+1]) ){ i++; }
-          zBlob[j] = ' ';
-        }else{
-          zBlob[j] = zBlob[i];
-        }
-      }
-      blob_resize(&tags, j);
-
-      /* Parse out each tag and load it into a temporary table for sorting */
-      db_multi_exec("CREATE TEMP TABLE newtags(x);");
-      while( blob_token(&tags, &one) ){
-        db_multi_exec("INSERT INTO newtags VALUES(%B)", &one);
-      }
-      blob_reset(&tags);
-
-      /* Extract the tags in sorted order and make an entry in the
-      ** artifact for each. */
-      db_prepare(&q, "SELECT x FROM newtags ORDER BY x");
-      while( db_step(&q)==SQLITE_ROW ){
-        blob_appendf(&event, "T +sym-%F *\n", db_column_text(&q, 0));
-      }
-      db_finalize(&q);
-    }
-    if( !login_is_nobody() ){
-      blob_appendf(&event, "U %F\n", login_name());
-    }
-    blob_appendf(&event, "W %d\n%s\n", strlen(zBody), zBody);
-    md5sum_blob(&event, &cksum);
-    blob_appendf(&event, "Z %b\n", &cksum);
-    blob_reset(&cksum);
-    nrid = content_put(&event);
-    db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
-    if( manifest_crosslink(nrid, &event, MC_NONE)==0 ){
-      db_end_transaction(1);
+    if ( !event_commit_common(rid, zId, zBody, zETime, zMimetype,
+                              zComment, zTags, zClr) ){
       style_header("Error");
       @ Internal error:  Fossil tried to make an invalid artifact for
-      @ the edited technode.
+      @ the edited technote.
       style_footer();
       return;
     }
-    assert( blob_is_reset(&event) );
-    content_deltify(rid, nrid, 0);
-    db_end_transaction(0);
     cgi_redirectf("technote?name=%T", zId);
   }
   if( P("cancel")!=0 ){
@@ -498,4 +524,59 @@ void eventedit_page(void){
   @ </td></tr></table>
   @ </div></form>
   style_footer();
+}
+
+/*
+** Add a new tech note to the repository.  The timestamp is
+** given by the zETime parameter.  isNew must be true to create
+** a new page.  If no previous page with the name zPageName exists
+** and isNew is false, then this routine throws an error.
+*/
+int event_cmd_commit(
+  char *zETime,              /* Timestamp */
+  int isNew,                 /* Create a new page if true */
+  Blob *pContent,            /* Content of the new page */
+  const char *zMimeType,     /* Mime-type or NULL */
+  const char *zComment,      /* Timeline comment */
+  const char *zTags,         /* List of tags */
+  const char *zClr           /* Background color */
+){
+  int rid;                /* Artifact id of the tech note */
+  const char *zId;        /* id of the tech note */
+  rid = db_int(0, "SELECT objid FROM event"
+        " WHERE datetime(mtime)=datetime('%q') AND type = 'e'"
+        " LIMIT 1",
+        zETime
+  );
+  if( rid==0 && !isNew ){
+#ifdef FOSSIL_ENABLE_JSON
+    g.json.resultCode = FSL_JSON_E_RESOURCE_NOT_FOUND;
+#endif
+    fossil_fatal("no such tech note: %s", zETime);
+  }
+  if( rid!=0 && isNew ){
+#ifdef FOSSIL_ENABLE_JSON
+    g.json.resultCode = FSL_JSON_E_RESOURCE_ALREADY_EXISTS;
+#endif
+    fossil_fatal("tech note %s already exists", zETime);
+  }
+
+  if ( isNew ){
+    zId = db_text(0, "SELECT lower(hex(randomblob(20)))");
+  }else{
+    zId = db_text(0,
+      "SELECT substr(tagname,7) FROM tag"
+      " WHERE tagid=(SELECT tagid FROM event WHERE objid='%d')",
+      rid
+    );
+  }
+
+  user_select();
+  if (event_commit_common(rid, zId, blob_str(pContent), zETime,
+      zMimeType, zComment, zTags, zClr)==0 ){
+#ifdef FOSSIL_ENABLE_JSON
+    g.json.resultCode = FSL_JSON_E_ASSERT;
+#endif
+    fossil_fatal("tried to make an invalid artifact for the technote.\n");
+  }
 }
