@@ -544,7 +544,7 @@ static void git_fast_import(FILE *pIn){
       trim_newline(&zLine[4]);
       gg.zTag = fossil_strdup(&zLine[4]);
     }else
-    if( strncmp(zLine, "reset ", 4)==0 ){
+    if( strncmp(zLine, "reset ", 6)==0 ){
       gg.xFinish();
     }else
     if( strncmp(zLine, "checkpoint", 10)==0 ){

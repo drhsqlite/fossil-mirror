@@ -1,5 +1,5 @@
-C Clean\srebuild\sof\sSQLite\s(so\sthe\ssource_id\sof\sfts5\smatches\sthe\sone\sfrom\sSQLite\sitself)
-D 2015-12-17T15:58:20.542
+C Fix\sa\sminor\stypo\sin\sthe\sgit-import\slogic.
+D 2015-12-19T13:08:04.100
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -418,7 +418,7 @@ F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
-F src/import.c 19f34d2902649e2ca572089b3766f259f0a5c132
+F src/import.c f163b545730ddb73c1d411663f6225f439531511
 F src/info.c 8fa3a9f8ca13c0b32cf6a30666cbc76548453524
 F src/json.c 18266f277275d058aadb979b74c8b3af7791d649
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
@@ -744,7 +744,7 @@ F www/webpage-ex.md e448ccfc4dfa06a0303d75d88ddf658ae4688617
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0b90da304fe78337c5b27a289cfac0e1e58f0b74
-R 8a58b726c6f4c37df1eaf8e9fbc15fee
-U jan.nijtmans
-Z 7d0fe1df7d327d2cf32a540197dc1373
+P 5b30c544d5e25eb5f13adc304d143d8d292c9261
+R 1721f03dec9c87b51860f3b0f9e5adc4
+U drh
+Z a1c21b6ec504558b5a595f19816d7576
