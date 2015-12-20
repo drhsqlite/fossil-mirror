@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\sexpanding\s$ROOT\sin\shref=\sand\saction=\sof\sHTML\soutput\sinto\nthe\stop-level\sdirectory\sof\sthe\srepository.
-D 2015-12-19T14:38:58.011
+C Make\suse\sof\sthe\snew\s$ROOT\sfeature\sin\sthe\son-line\sdocumentation.
+D 2015-12-20T02:02:55.919
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -715,10 +715,10 @@ F www/index.wiki 89c650d5efb9273a21296d3b209bd1d00a4d230d
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki f75b16c8bb734fe20d0d524c658f05dab006316c
 F www/mkdownload.tcl 5ac61a3e13cecaa67f1e31741113c96cbd41463f
-F www/mkindex.tcl 892e7368ad39a0c033d80700746e6e95a72905cc
+F www/mkindex.tcl e6a1265e3dd6ae2933df10dc5021ffc778728790
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 336916afde4ff470e87fc43066063623a9a74c8a
-F www/permutedindex.html 7ceb3e079a04715f1241c3ea5e45491cfb0eed03
+F www/permutedindex.html 0c4e7ba6b933ef5bf03a49fcfa5b0928a4cb338a
 F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
 F www/private.wiki 72344489bbae6f7955369559b6ab22e01a64259b
 F www/qandc.wiki e07b21da221b05afeb1905f17af3765045952ba8
@@ -740,11 +740,12 @@ F www/th1.md f034607f732065035f771c8134e03a9355d6b67e
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
-F www/webpage-ex.md e448ccfc4dfa06a0303d75d88ddf658ae4688617
+F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f7afea949dd59c4ec3e31a6e8907b2d500dd4130
-R ee2611c3c96ec058e33cab34cd908a41
+P e57ab295843aa335d3458ae2905279d03d92d7f2 8c0eabcb3346a5997bb221005cbdc74ed6f9b5d5
+R 6f26572d2da5c495264ef43ceeab7b41
+T +closed 8c0eabcb3346a5997bb221005cbdc74ed6f9b5d5
 U drh
-Z 8b2d63d56e787aa61b3de0a09606172f
+Z f4580db98346a1b90735a7624fcbe5d8
