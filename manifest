@@ -1,5 +1,5 @@
-C Make\suse\sof\sthe\snew\s$ROOT\sfeature\sin\sthe\son-line\sdocumentation.
-D 2015-12-20T02:02:55.919
+C Fix\sso\sthat\swhen\sshowing\sstats\sfor\ssingle\suser,\sthat\suser's\sname\sis\sselected\sin\sthe\sbox
+D 2015-12-21T20:17:21.124
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -485,7 +485,7 @@ F src/sqlite3.c 3114987d1944fbb86524244f31a499bb073d543d
 F src/sqlite3.h 4d668b2c69164d186b235186b315042464d7e373
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 9fa919c1c78db3952e181e0bf955b039aca0db26
-F src/statrep.c 2475cba0c91bdaa6f51a61565732ece308fadf42
+F src/statrep.c 56e0c4e06770676149df4750f50e718485fbf40f
 F src/style.c 1a7a0b84d1404a6420819498e0697219eb90357d
 F src/sync.c 430351487d739560d75ea3d561e6ef6539c26974
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
@@ -744,8 +744,10 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e57ab295843aa335d3458ae2905279d03d92d7f2 8c0eabcb3346a5997bb221005cbdc74ed6f9b5d5
-R 6f26572d2da5c495264ef43ceeab7b41
-T +closed 8c0eabcb3346a5997bb221005cbdc74ed6f9b5d5
-U drh
-Z f4580db98346a1b90735a7624fcbe5d8
+P 604862508bc9f30e355b153967e5017c0c451b7f
+R b435acc0ab0ceae7b3500c2582f28a53
+T *branch * pending-review
+T *sym-pending-review *
+T -sym-trunk *
+U baruch
+Z e5155872cf35208788765f46625e624d

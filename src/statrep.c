@@ -725,7 +725,7 @@ void stats_report_page(){
     }
     style_submenu_multichoice("view", nView/2, azView, 0);
     if( eType!=RPT_BYUSER ){
-      style_submenu_sql("u","User:",
+      style_submenu_sql("user","User:",
          "SELECT '', 'All Users' UNION ALL "
          "SELECT x, x FROM ("
          "  SELECT DISTINCT trim(coalesce(euser,user)) AS x FROM event %s"
