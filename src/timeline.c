@@ -95,6 +95,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_FRENAMES 0x0100  /* Detail only file name changes */
 #define TIMELINE_UNHIDE   0x0200  /* Unhide check-ins with "hidden" tag */
 #define TIMELINE_SHOWRID  0x0400  /* Show RID values in addition to UUIDs */
+#define TIMELINE_BISECT   0x0800  /* Show supplimental bisect information */
 #endif
 
 /*
@@ -402,6 +403,16 @@ void www_print_timeline(
       @ <span class="modpending">(Awaiting Moderator Approval)</span>
     }
     if( zType[0]=='c' ){
+      if( tmFlags & TIMELINE_BISECT ){
+        static Stmt bisectQuery;
+        db_prepare(&bisectQuery, "SELECT seq, stat FROM bilog WHERE rid=:rid");
+        db_bind_int(&bisectQuery, ":rid", rid);
+        if( db_step(&bisectQuery)==SQLITE_ROW ){
+          @ <b>%s(db_column_text(&bisectQuery,1))</b>
+          @ (%d(db_column_int(&bisectQuery,0)))
+        }
+        db_reset(&bisectQuery);
+      }
       hyperlink_to_uuid(zUuid);
       if( isLeaf ){
         if( db_exists("SELECT 1 FROM tagxref"
@@ -730,7 +741,7 @@ void timeline_output_graph_javascript(
         }
       }
       if( cSep=='[' ) cgi_printf("[");
-      cgi_printf("],h:\"%s\"}%s", pRow->zUuid, pRow->pNext ? ",\n" : "];\n");
+      cgi_printf("],h:\"%!S\"}%s", pRow->zUuid, pRow->pNext ? ",\n" : "];\n");
     }
     cgi_printf("var nrail = %d\n", pGraph->mxRail+1);
     graph_free(pGraph);
@@ -1197,6 +1208,7 @@ static void timeline_y_submenu(int isDisabled){
 **    ym=YYYY-MM     Show only events for the given year/month.
 **    ymd=YYYY-MM-DD Show only events on the given day
 **    datefmt=N      Override the date format
+**    bisect         Show the check-ins that are in the current bisect    
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
@@ -1230,6 +1242,7 @@ void page_timeline(void){
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
   int renameOnly = P("namechng")!=0; /* Show only check-ins that rename files */
   int forkOnly = PB("forks");        /* Show only forks and their children */
+  int bisectOnly = PB("bisect");     /* Show the check-ins of the bisect */
   int tagid;                         /* Tag ID */
   int tmFlags = 0;                   /* Timeline flags */
   const char *zThisTag = 0;          /* Suppress links to this tag */
@@ -1274,7 +1287,9 @@ void page_timeline(void){
     p_rid = d_rid = pd_rid;
   }
   login_check_credentials();
-  if( !g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki ){
+  if( (!g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki)
+   || (bisectOnly && !g.perm.Setup)
+  ){
     login_needed(g.anon.Read && g.anon.RdTkt && g.anon.RdWiki);
     return;
   }
@@ -1356,6 +1371,18 @@ void page_timeline(void){
     tmFlags |= TIMELINE_UNHIDE;
     zType = "ci";
     disableY = 1;
+  }
+  if( bisectOnly
+   && fossil_strcmp(g.zIpAddr,"127.0.0.1")==0
+   && db_open_local(0)
+  ){
+    int iCurrent = db_lget_int("checkout",0);
+    bisect_create_bilog_table(iCurrent);
+    tmFlags |= TIMELINE_UNHIDE | TIMELINE_BISECT;
+    zType = "ci";
+    disableY = 1;
+  }else{
+    bisectOnly = 0;
   }
 
   style_header("Timeline");
@@ -1488,6 +1515,9 @@ void page_timeline(void){
     }
     if( forkOnly ){
       blob_append_sql(&sql, " AND event.objid IN rnfork ");
+    }
+    if( bisectOnly ){
+      blob_append_sql(&sql, " AND event.objid IN (SELECT rid FROM bilog) ");
     }
     if( zYearMonth ){
       blob_append_sql(&sql, " AND %Q=strftime('%%Y-%%m',event.mtime) ",
@@ -1669,6 +1699,10 @@ void page_timeline(void){
     }
     if( forkOnly ){
       blob_appendf(&desc, " associated with forks");
+      tmFlags |= TIMELINE_DISJOINT;
+    }
+    if( bisectOnly ){
+      blob_appendf(&desc, " in the most recent bisect");
       tmFlags |= TIMELINE_DISJOINT;
     }
     if( zUser ){

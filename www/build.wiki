@@ -137,7 +137,7 @@ first <a href="https://www.openssl.org/source/">download the official
 source code for OpenSSL</a> and extract it to an appropriately named
 "<b>openssl-X.Y.ZA</b>" subdirectory within the local
 [/tree?ci=trunk&name=compat | compat] directory (e.g.
-"<b>compat/openssl-1.0.2d</b>"), then make sure that some recent
+"<b>compat/openssl-1.0.2e</b>"), then make sure that some recent
 <a href="http://www.perl.org/">Perl</a> binaries are installed locally,
 and finally run one of the following commands:
 <blockquote><pre>

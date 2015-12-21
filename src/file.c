@@ -88,7 +88,7 @@ static struct fossilStat fileStat;
 */
 static int fossil_stat(const char *zFilename, struct fossilStat *buf, int isWd){
   int rc;
-  void *zMbcs = fossil_utf8_to_filename(zFilename);
+  void *zMbcs = fossil_utf8_to_path(zFilename, 0);
 #if !defined(_WIN32)
   if( isWd && g.allowSymlinks ){
     rc = lstat(zMbcs, buf);
@@ -98,7 +98,7 @@ static int fossil_stat(const char *zFilename, struct fossilStat *buf, int isWd){
 #else
   rc = win32_stat(zMbcs, buf, isWd);
 #endif
-  fossil_filename_free(zMbcs);
+  fossil_path_free(zMbcs);
   return rc;
 }
 
@@ -316,13 +316,13 @@ int file_wd_isdir(const char *zFilename){
 */
 int file_access(const char *zFilename, int flags){
   int rc;
-  void *zMbcs = fossil_utf8_to_filename(zFilename);
+  void *zMbcs = fossil_utf8_to_path(zFilename, 0);
 #ifdef _WIN32
   rc = win32_access(zMbcs, flags);
 #else
   rc = access(zMbcs, flags);
 #endif
-  fossil_filename_free(zMbcs);
+  fossil_path_free(zMbcs);
   return rc;
 }
 
@@ -333,7 +333,7 @@ int file_access(const char *zFilename, int flags){
 */
 int file_chdir(const char *zChDir, int bChroot){
   int rc;
-  void *zPath = fossil_utf8_to_filename(zChDir);
+  void *zPath = fossil_utf8_to_path(zChDir, 1);
 #ifdef _WIN32
   rc = win32_chdir(zPath, bChroot);
 #else
@@ -343,7 +343,7 @@ int file_chdir(const char *zChDir, int bChroot){
     if( !rc ) rc = chdir("/");
   }
 #endif
-  fossil_filename_free(zPath);
+  fossil_path_free(zPath);
   return rc;
 }
 
@@ -471,16 +471,16 @@ void file_set_mtime(const char *zFilename, i64 newMTime){
   memset(tv, 0, sizeof(tv[0])*2);
   tv[0].tv_sec = newMTime;
   tv[1].tv_sec = newMTime;
-  zMbcs = fossil_utf8_to_filename(zFilename);
+  zMbcs = fossil_utf8_to_path(zFilename, 0);
   utimes(zMbcs, tv);
 #else
   struct _utimbuf tb;
-  wchar_t *zMbcs = fossil_utf8_to_filename(zFilename);
+  wchar_t *zMbcs = fossil_utf8_to_path(zFilename, 0);
   tb.actime = newMTime;
   tb.modtime = newMTime;
   _wutime(zMbcs, &tb);
 #endif
-  fossil_filename_free(zMbcs);
+  fossil_path_free(zMbcs);
 }
 
 /*
@@ -514,13 +514,13 @@ void test_set_mtime(void){
 int file_delete(const char *zFilename){
   int rc;
 #ifdef _WIN32
-  wchar_t *z = fossil_utf8_to_filename(zFilename);
+  wchar_t *z = fossil_utf8_to_path(zFilename, 0);
   rc = _wunlink(z);
 #else
-  char *z = fossil_utf8_to_filename(zFilename);
+  char *z = fossil_utf8_to_path(zFilename, 0);
   rc = unlink(zFilename);
 #endif
-  fossil_filename_free(z);
+  fossil_path_free(z);
   return rc;
 }
 
@@ -539,13 +539,13 @@ int file_mkdir(const char *zName, int forceFlag){
   }
   if( rc!=1 ){
 #if defined(_WIN32)
-    wchar_t *zMbcs = fossil_utf8_to_filename(zName);
+    wchar_t *zMbcs = fossil_utf8_to_path(zName, 1);
     rc = _wmkdir(zMbcs);
 #else
-    char *zMbcs = fossil_utf8_to_filename(zName);
+    char *zMbcs = fossil_utf8_to_path(zName, 1);
     rc = mkdir(zName, 0755);
 #endif
-    fossil_filename_free(zMbcs);
+    fossil_path_free(zMbcs);
     return rc;
   }
   return 0;
@@ -604,13 +604,13 @@ int file_rmdir(const char *zName){
   if( rc==2 ) return 1; /* cannot remove normal file */
   if( rc==1 ){
 #if defined(_WIN32)
-    wchar_t *zMbcs = fossil_utf8_to_filename(zName);
+    wchar_t *zMbcs = fossil_utf8_to_path(zName, 1);
     rc = _wrmdir(zMbcs);
 #else
-    char *zMbcs = fossil_utf8_to_filename(zName);
+    char *zMbcs = fossil_utf8_to_path(zName, 1);
     rc = rmdir(zName);
 #endif
-    fossil_filename_free(zMbcs);
+    fossil_path_free(zMbcs);
     return rc;
   }
   return 0;
@@ -1245,7 +1245,7 @@ void file_tempname(int nBuf, char *zBuf){
   wchar_t zTmpPath[MAX_PATH];
 
   if( GetTempPathW(MAX_PATH, zTmpPath) ){
-    azDirs[0] = fossil_filename_to_utf8(zTmpPath);
+    azDirs[0] = fossil_path_to_utf8(zTmpPath);
   }
 
   azDirs[1] = fossil_getenv("TEMP");
@@ -1279,9 +1279,9 @@ void file_tempname(int nBuf, char *zBuf){
   }while( file_size(zBuf)>=0 );
 
 #if defined(_WIN32)
-  fossil_filename_free((char *)azDirs[0]);
-  fossil_filename_free((char *)azDirs[1]);
-  fossil_filename_free((char *)azDirs[2]);
+  fossil_path_free((char *)azDirs[0]);
+  fossil_path_free((char *)azDirs[1]);
+  fossil_path_free((char *)azDirs[2]);
 #endif
 }
 
@@ -1311,7 +1311,7 @@ int file_is_the_same(Blob *pContent, const char *zName){
 
 /*
 ** Return the value of an environment variable as UTF8.
-** Use fossil_filename_free() to release resources.
+** Use fossil_path_free() to release resources.
 */
 char *fossil_getenv(const char *zName){
 #ifdef _WIN32
@@ -1321,7 +1321,7 @@ char *fossil_getenv(const char *zName){
 #else
   char *zValue = getenv(zName);
 #endif
-  if( zValue ) zValue = fossil_filename_to_utf8(zValue);
+  if( zValue ) zValue = fossil_path_to_utf8(zValue);
   return zValue;
 }
 
@@ -1350,9 +1350,9 @@ int fossil_setenv(const char *zName, const char *zValue){
 FILE *fossil_fopen(const char *zName, const char *zMode){
 #ifdef _WIN32
   wchar_t *uMode = fossil_utf8_to_unicode(zMode);
-  wchar_t *uName = fossil_utf8_to_filename(zName);
+  wchar_t *uName = fossil_utf8_to_path(zName, 0);
   FILE *f = _wfopen(uName, uMode);
-  fossil_filename_free(uName);
+  fossil_path_free(uName);
   fossil_unicode_free(uMode);
 #else
   FILE *f = fopen(zName, zMode);

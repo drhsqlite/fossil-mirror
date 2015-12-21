@@ -2290,6 +2290,7 @@ int Th_Render(const char *z){
 **     --cgi                Include a CGI response header in the output
 **     --http               Include an HTTP response header in the output
 **     --open-config        Open the configuration database
+**     --th-trace           Trace TH1 execution (for debugging purposes)
 */
 void test_th_render(void){
   int forceCgi = 0, fullHttpReply = 0;
@@ -2326,6 +2327,7 @@ void test_th_render(void){
 **     --cgi                Include a CGI response header in the output
 **     --http               Include an HTTP response header in the output
 **     --open-config        Open the configuration database
+**     --th-trace           Trace TH1 execution (for debugging purposes)
 */
 void test_th_eval(void){
   int rc;
@@ -2353,11 +2355,44 @@ void test_th_eval(void){
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
 /*
 ** COMMAND: test-th-hook
+**
+** Usage: %fossil test-th-hook TYPE NAME FLAGS
+**
+** Executes the TH1 script configured for the pre-operation (i.e. a command
+** or web page) "hook" or post-operation "notification".  The results of the
+** script evaluation, if any, will be printed to the standard output channel.
+** The NAME argument must be the name of a command or web page; however, it
+** does not necessarily have to be a command or web page that is normally
+** recognized by Fossil.  The FLAGS argument will be used to set the value
+** of the "cmd_flags" and/or "web_flags" TH1 variables, if applicable.  The
+** TYPE argument must be one of the following:
+**
+**     cmdhook              Executes the TH1 procedure [command_hook], after
+**                          setting the TH1 variables "cmd_name", "cmd_args",
+**                          and "cmd_flags" to appropriate values.
+**
+**     cmdnotify            Executes the TH1 procedure [command_notify], after
+**                          setting the TH1 variables "cmd_name", "cmd_args",
+**                          and "cmd_flags" to appropriate values.
+**
+**     webhook              Executes the TH1 procedure [webpage_hook], after
+**                          setting the TH1 variables "web_name", "web_args",
+**                          and "web_flags" to appropriate values.
+**
+**     webnotify            Executes the TH1 procedure [webpage_notify], after
+**                          setting the TH1 variables "web_name", "web_args",
+**                          and "web_flags" to appropriate values.
+**
+** Options:
+**
+**     --cgi                Include a CGI response header in the output
+**     --http               Include an HTTP response header in the output
+**     --th-trace           Trace TH1 execution (for debugging purposes)
 */
 void test_th_hook(void){
   int rc = TH_OK;
   int nResult = 0;
-  char *zResult;
+  char *zResult = 0;
   int forceCgi, fullHttpReply;
   Th_InitTraceLog();
   forceCgi = find_option("cgi", 0, 0)!=0;
@@ -2378,11 +2413,16 @@ void test_th_hook(void){
   }else{
     fossil_fatal("Unknown TH1 hook %s\n", g.argv[2]);
   }
-  zResult = (char*)Th_GetResult(g.interp, &nResult);
+  if( g.interp ){
+    zResult = (char*)Th_GetResult(g.interp, &nResult);
+  }
   sendText("RESULT (", -1, 0);
   sendText(Th_ReturnCodeName(rc, 0), -1, 0);
-  sendText("): ", -1, 0);
-  sendText(zResult, nResult, 0);
+  sendText(")", -1, 0);
+  if( zResult && nResult>0 ){
+    sendText(": ", -1, 0);
+    sendText(zResult, nResult, 0);
+  }
   sendText("\n", -1, 0);
   Th_PrintTraceLog();
   if( forceCgi ) cgi_reply();

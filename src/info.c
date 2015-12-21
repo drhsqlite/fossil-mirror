@@ -981,6 +981,7 @@ static void checkin_description(int rid){
 **   glob=STRING     only diff files matching this glob
 **   dc=N            show N lines of context around each diff
 **   w               ignore whitespace when computing diffs
+**   nohdr           omit the description at the top of the page
 **
 **
 ** Show all differences between two check-ins.
@@ -1078,19 +1079,21 @@ void vdiff_page(void){
     }
   }
   style_header("Check-in Differences");
-  @ <h2>Difference From:</h2><blockquote>
-  checkin_description(ridFrom);
-  @ </blockquote><h2>To:</h2><blockquote>
-  checkin_description(ridTo);
-  @ </blockquote>
-  if( pRe ){
-    @ <p><b>Only differences that match regular expression "%h(zRe)"
-    @ are shown.</b></p>
+  if( P("nohdr")==0 ){
+    @ <h2>Difference From:</h2><blockquote>
+    checkin_description(ridFrom);
+    @ </blockquote><h2>To:</h2><blockquote>
+    checkin_description(ridTo);
+    @ </blockquote>
+    if( pRe ){
+      @ <p><b>Only differences that match regular expression "%h(zRe)"
+      @ are shown.</b></p>
+    }
+    if( zGlob ){
+      @ <p><b>Only files matching the glob "%h(zGlob)" are shown.</b></p>
+    }
+    @<hr /><p>
   }
-  if( zGlob ){
-    @ <p><b>Only files matching the glob "%h(zGlob)" are shown.</b></p>
-  }
-  @<hr /><p>
 
   manifest_file_rewind(pFrom);
   pFileFrom = manifest_file_next(pFrom, 0);
@@ -1333,11 +1336,11 @@ int object_description(
         @ Manifest of check-in
         objType |= OBJTYPE_CHECKIN;
       }else if( zType[0]=='e' ){
-        @ Instance of event
+        @ Instance of technote
         objType |= OBJTYPE_EVENT;
         hyperlink_to_event_tagid(db_column_int(&q, 5));
       }else{
-        @ Control file referencing
+        @ Tag referencing
       }
       if( zType[0]!='e' ){
         hyperlink_to_uuid(zUuid);
@@ -1395,8 +1398,13 @@ int object_description(
     tag_private_status(rid);
   }
   db_finalize(&q);
+  if( db_exists("SELECT 1 FROM tagxref WHERE rid=%d AND tagid=%d",
+                rid, TAG_CLUSTER) ){
+    @ Cluster
+    cnt++;
+  }
   if( cnt==0 ){
-    @ Control artifact.
+    @ Unrecognized artifact
     if( pDownloadName && blob_size(pDownloadName)==0 ){
       blob_appendf(pDownloadName, "%S.txt", zUuid);
     }
@@ -1802,6 +1810,7 @@ void output_text_with_line_numbers(
 **   ln=M-N          - highlight lines M through N inclusive
 **   ln=M-N+Y-Z      - higllight lines M through N and Y through Z (inclusive)
 **   verbose         - show more detail in the description
+**   download        - redirect to the download (artifact page only)
 **
 ** The /artifact page show the complete content of a file
 ** identified by SHA1HASH as preformatted text.  The
@@ -1831,6 +1840,14 @@ void artifact_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( rid==0 ) fossil_redirect_home();
+  if( descOnly || P("verbose")!=0 ) objdescFlags |= OBJDESC_DETAIL;
+  blob_zero(&downloadName);
+  objType = object_description(rid, objdescFlags, &downloadName);
+  if( !descOnly && P("download")!=0 ){
+    cgi_redirectf("%R/raw/%T?name=%s", blob_str(&downloadName),
+          db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid));
+    /*NOTREACHED*/
+  }
   if( g.perm.Admin ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
@@ -1841,7 +1858,6 @@ void artifact_page(void){
             g.zTop, zUuid);
     }
   }
-  if( descOnly || P("verbose")!=0 ) objdescFlags |= OBJDESC_DETAIL;
   style_header("%s", descOnly ? "Artifact Description" : "Artifact Content");
   zUuid = db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( g.perm.Setup ){
@@ -1849,8 +1865,22 @@ void artifact_page(void){
   }else{
     @ <h2>Artifact %s(zUuid):</h2>
   }
-  blob_zero(&downloadName);
-  objType = object_description(rid, objdescFlags, &downloadName);
+  if( g.perm.Admin ){
+    Stmt q;
+    db_prepare(&q,
+      "SELECT coalesce(user.login,rcvfrom.uid),"
+      "       datetime(rcvfrom.mtime), rcvfrom.ipaddr"
+      "  FROM blob, rcvfrom LEFT JOIN user ON user.uid=rcvfrom.uid"
+      " WHERE blob.rid=%d"
+      "   AND rcvfrom.rcvid=blob.rcvid;", rid);
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zUser = db_column_text(&q,0);
+      const char *zDate = db_column_text(&q,1);
+      const char *zIp = db_column_text(&q,2);
+      @ <p>Received on %s(zDate) from %h(zUser) at %h(zIp).</p>
+    }
+    db_finalize(&q);
+  }
   style_submenu_element("Download", "Download",
           "%R/raw/%T?name=%s", blob_str(&downloadName), zUuid);
   if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
@@ -2904,14 +2934,14 @@ void ci_amend_cmd(void){
     for(i=0; i<nTags; i++){
       if( pzNewTags[i] && pzNewTags[i][0] ) add_tag(pzNewTags[i]);
     }
-    fossil_free(pzNewTags);
+    fossil_free((void *)pzNewTags);
   }
   if( pzCancelTags!=0 ){
     for(i=0; i<nCancels; i++){
       if( pzCancelTags[i] && pzCancelTags[i][0] )
         cancel_tag(rid,pzCancelTags[i]);
     }
-    fossil_free(pzCancelTags);
+    fossil_free((void *)pzCancelTags);
   }
   if( fHide && !fHasHidden ) hide_branch();
   if( fClose && !fHasClosed ) close_leaf(rid);

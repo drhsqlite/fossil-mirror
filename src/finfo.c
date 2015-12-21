@@ -301,7 +301,6 @@ void finfo_page(void){
   int n;
   int baseCheckin;
   int fnid;
-  Bag ancestor;
   Blob title;
   Blob sql;
   HQuery url;
@@ -310,6 +309,7 @@ void finfo_page(void){
   int uBg = P("ubg")!=0;
   int fDebug = atoi(PD("debug","0"));
   int fShowId = P("showid")!=0;
+  Stmt qparent;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -328,12 +328,7 @@ void finfo_page(void){
     return;
   }
   if( baseCheckin ){
-    int baseFid = db_int(0,
-      "SELECT fid FROM mlink WHERE fnid=%d AND mid=%d",
-      fnid, baseCheckin
-    );
-    bag_init(&ancestor);
-    if( baseFid ) bag_insert(&ancestor, baseFid);
+    compute_direct_ancestors(baseCheckin);
   }
   url_add_parameter(&url, "name", zFilename);
   blob_zero(&sql);
@@ -365,19 +360,26 @@ void finfo_page(void){
     blob_append_sql(&sql, " AND event.mtime<=julianday('%q')", zB);
     url_add_parameter(&url, "b", zB);
   }
-  /* We only want each version of a file to appear on the graph once,
-  ** at its earliest appearance.  All the other times that it gets merged
-  ** into this or that branch can be ignored.  An exception is for when
-  ** files are deleted (when they have mlink.fid==0).  If the same file
-  ** is deleted in multiple places, we want to show each deletion, so
-  ** use a "fake fid" which is derived from the parent-fid for grouping.
-  ** The same fake-fid must be used on the graph.
-  */
-  blob_append_sql(&sql,
-    " GROUP BY"
-    "   CASE WHEN mlink.fid>0 THEN mlink.fid ELSE mlink.pid+1000000000 END"
-    " ORDER BY event.mtime DESC /*sort*/"
-  );
+  if( baseCheckin ){
+    blob_append_sql(&sql,
+      " AND mlink.mid IN (SELECT rid FROM ancestor)"
+      " GROUP BY mlink.fid"
+    );
+  }else{
+    /* We only want each version of a file to appear on the graph once,
+    ** at its earliest appearance.  All the other times that it gets merged
+    ** into this or that branch can be ignored.  An exception is for when
+    ** files are deleted (when they have mlink.fid==0).  If the same file
+    ** is deleted in multiple places, we want to show each deletion, so
+    ** use a "fake fid" which is derived from the parent-fid for grouping.
+    ** The same fake-fid must be used on the graph.
+    */
+    blob_append_sql(&sql,
+      " GROUP BY"
+      "   CASE WHEN mlink.fid>0 THEN mlink.fid ELSE mlink.pid+1000000000 END"
+    );
+  }
+  blob_append_sql(&sql, " ORDER BY event.mtime DESC /*sort*/");
   if( (n = atoi(PD("n","0")))>0 ){
     blob_append_sql(&sql, " LIMIT %d", n);
     url_add_parameter(&url, "n", P("n"));
@@ -391,8 +393,12 @@ void finfo_page(void){
   if( baseCheckin ){
     char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", baseCheckin);
     char *zLink = 	href("%R/info/%!S", zUuid);
-    blob_appendf(&title, "Ancestors of file ");
-    hyperlinked_path(zFilename, &title, zUuid, "tree", "");
+    if( n>0 ){
+      blob_appendf(&title, "First %d ancestors of file ", n);
+    }else{
+      blob_appendf(&title, "Ancestors of file ");
+    }
+    blob_appendf(&title,"<a href='%R/finfo?name=%T'>%h</a>", zFilename, zFilename);
     if( fShowId ) blob_appendf(&title, " (%d)", fnid);
     blob_appendf(&title, " from check-in %z%S</a>", zLink, zUuid);
     if( fShowId ) blob_appendf(&title, " (%d)", baseCheckin);
@@ -406,6 +412,20 @@ void finfo_page(void){
   blob_reset(&title);
   pGraph = graph_init();
   @ <table id="timelineTable" class="timelineTable">
+  if( baseCheckin ){
+    db_prepare(&qparent,
+      "SELECT DISTINCT pid FROM mlink"
+      " WHERE fid=:fid AND mid=:mid AND pid>0 AND fnid=:fnid"
+      "   AND pmid IN (SELECT rid FROM ancestor)"
+      " ORDER BY isaux /*sort*/"
+    );
+  }else{
+    db_prepare(&qparent,
+      "SELECT DISTINCT pid FROM mlink"
+      " WHERE fid=:fid AND mid=:mid AND pid>0 AND fnid=:fnid"
+      " ORDER BY isaux /*sort*/"
+    );
+  }
   while( db_step(&q)==SQLITE_ROW ){
     const char *zDate = db_column_text(&q, 0);
     const char *zCom = db_column_text(&q, 1);
@@ -423,20 +443,12 @@ void finfo_page(void){
     char zTime[10];
     int nParent = 0;
     int aParent[GR_MAX_RAIL];
-    static Stmt qparent;
 
-    if( baseCheckin && frid && !bag_find(&ancestor, frid) ) continue;
-    db_static_prepare(&qparent,
-      "SELECT DISTINCT pid FROM mlink"
-      " WHERE fid=:fid AND mid=:mid AND pid>0 AND fnid=:fnid"
-      " ORDER BY isaux /*sort*/"
-    );
     db_bind_int(&qparent, ":fid", frid);
     db_bind_int(&qparent, ":mid", fmid);
     db_bind_int(&qparent, ":fnid", fnid);
     while( db_step(&qparent)==SQLITE_ROW && nParent<ArraySize(aParent) ){
       aParent[nParent] = db_column_int(&qparent, 0);
-      if( baseCheckin ) bag_insert(&ancestor, aParent[nParent]);
       nParent++;
     }
     db_reset(&qparent);
@@ -530,6 +542,7 @@ void finfo_page(void){
     @ </td></tr>
   }
   db_finalize(&q);
+  db_finalize(&qparent);
   if( pGraph ){
     graph_finish(pGraph, 1);
     if( pGraph->nErr ){

@@ -465,7 +465,20 @@ static void dequote_git_filename(char *zName){
   if( zName[n-1]!='"' ) return;
   for(i=0, j=1; j<n-1; j++){
     char c = zName[j];
-    if( c=='\\' ) c = zName[++j];
+    int x;
+    if( c=='\\' ){
+      if( j+3 <= n-1
+       && zName[j+1]>='0' && zName[j+1]<='3'
+       && zName[j+2]>='0' && zName[j+2]<='7'
+       && zName[j+3]>='0' && zName[j+3]<='7'
+       && (x = 64*(zName[j+1]-'0') + 8*(zName[j+2]-'0') + zName[j+3]-'0')!=0
+      ){
+        c = (unsigned char)x;
+        j += 3;
+      }else{
+        c = zName[++j];
+      }
+    }
     zName[i++] = c;
   }
   zName[i] = 0;
@@ -531,7 +544,7 @@ static void git_fast_import(FILE *pIn){
       trim_newline(&zLine[4]);
       gg.zTag = fossil_strdup(&zLine[4]);
     }else
-    if( strncmp(zLine, "reset ", 4)==0 ){
+    if( strncmp(zLine, "reset ", 6)==0 ){
       gg.xFinish();
     }else
     if( strncmp(zLine, "checkpoint", 10)==0 ){

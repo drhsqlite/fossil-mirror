@@ -490,6 +490,36 @@ int doc_load_content(int vid, const char *zName, Blob *pContent){
 }
 
 /*
+** Transfer content to the output.  During the transfer, when text of
+** the followign form is seen:
+**
+**       href="$ROOT/
+**       action="$ROOT/
+**
+** Convert $ROOT to the root URI of the repository.  Allow ' in place of "
+** and any case for href.
+*/
+static void convert_href_and_output(Blob *pIn){
+  int i, base;
+  int n = blob_size(pIn);
+  char *z = blob_buffer(pIn);
+  for(base=0, i=7; i<n; i++){
+    if( z[i]=='$' 
+     && strncmp(&z[i],"$ROOT/", 6)==0
+     && (z[i-1]=='\'' || z[i-1]=='"')
+     && i-base>=9
+     && (fossil_strnicmp(&z[i-7]," href=", 6)==0 ||
+           fossil_strnicmp(&z[i-9]," action=", 8)==0)
+    ){
+      blob_append(cgi_output_blob(), &z[base], i-base);
+      blob_appendf(cgi_output_blob(), "%R");
+      base = i+5;
+    }
+  }
+  blob_append(cgi_output_blob(), &z[base], i-base);
+}
+
+/*
 ** WEBPAGE: doc
 ** URL: /doc?name=CHECKIN/FILE
 ** URL: /doc/CHECKIN/FILE
@@ -520,6 +550,20 @@ int doc_load_content(int vid, const char *zName, Blob *pContent){
 ** enabled, the name "FILE/index.th1" is also tried.  If none of those are
 ** found, then FILE is completely replaced by "404.md" and tried.  If that
 ** is not found, then a default 404 screen is generated.
+**
+** Headers and footers are added for text/x-fossil-wiki and text/md
+** If the document has mimetype text/html then headers and footers are
+** usually not added.  However, a text/html document begins with the
+** following div:
+**
+**       <div class='fossil-doc' data-title='TEXT'>
+**
+** then headers and footers are supplied.  The optional data-title field
+** specifies the title of the document in that case.
+**
+** For fossil-doc documents and for markdown documents, text of the
+** form:  "href='$ROOT/" or "action='$ROOT" has the $ROOT name expanded
+** to the top-level of the repository.
 */
 void doc_page(void){
   const char *zName;                /* Argument to the /doc page */
@@ -623,7 +667,7 @@ void doc_page(void){
       style_header("%s", nMiss>=ArraySize(azSuffix)?
                         "Not Found" : "Documentation");
     }
-    blob_append(cgi_output_blob(), blob_buffer(&tail), blob_size(&tail));
+    convert_href_and_output(&tail);
     style_footer();
   }else if( fossil_strcmp(zMime, "text/plain")==0 ){
     style_header("Documentation");
@@ -635,7 +679,7 @@ void doc_page(void){
             && doc_is_embedded_html(&filebody, &title) ){
     if( blob_size(&title)==0 ) blob_append(&title,zName,-1);
     style_header("%s", blob_str(&title));
-    blob_append(cgi_output_blob(), blob_buffer(&filebody),blob_size(&filebody));
+    convert_href_and_output(&filebody);
     style_footer();
 #ifdef FOSSIL_ENABLE_TH1_DOCS
   }else if( Th_AreDocsEnabled() &&

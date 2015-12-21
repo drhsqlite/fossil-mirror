@@ -165,7 +165,7 @@ static sqlite3_int64 timeOfDay(void){
   static sqlite3_vfs *clockVfs = 0;
   sqlite3_int64 t;
   if( clockVfs==0 ) clockVfs = sqlite3_vfs_find(0);
-  if( clockVfs->iVersion>=1 && clockVfs->xCurrentTimeInt64!=0 ){
+  if( clockVfs->iVersion>=2 && clockVfs->xCurrentTimeInt64!=0 ){
     clockVfs->xCurrentTimeInt64(clockVfs, &t);
   }else{
     double r;
@@ -525,6 +525,7 @@ struct ShellState {
   int autoEQP;           /* Run EXPLAIN QUERY PLAN prior to seach SQL stmt */
   int statsOn;           /* True to display memory stats before each finalize */
   int scanstatsOn;       /* True to display scan stats before each finalize */
+  int countChanges;      /* True to display change counts */
   int backslashOn;       /* Resolve C-style \x escapes in SQL input text */
   int outCount;          /* Revert to stdout when reaching zero */
   int cnt;               /* Number of records displayed so far */
@@ -1785,6 +1786,7 @@ static char zHelp[] =
   ".backup ?DB? FILE      Backup DB (default \"main\") to FILE\n"
   ".bail on|off           Stop after hitting an error.  Default OFF\n"
   ".binary on|off         Turn binary output on or off.  Default OFF\n"
+  ".changes on|off        Show number of rows changed by SQL\n"
   ".clone NEWDB           Clone data into NEWDB from the existing database\n"
   ".databases             List names and files of attached databases\n"
   ".dbinfo ?DB?           Show status information about the database\n"
@@ -1847,6 +1849,7 @@ static char zHelp[] =
   ".timeout MS            Try opening locked tables for MS milliseconds\n"
   ".timer on|off          Turn SQL timer on or off\n"
   ".trace FILE|off        Output each SQL statement as it is run\n"
+  ".vfsinfo ?AUX?         Information about the top-level VFS\n"
   ".vfsname ?AUX?         Print the name of the VFS stack\n"
   ".width NUM1 NUM2 ...   Set column widths for \"column\" mode\n"
   "                         Negative values right-justify\n"
@@ -2560,7 +2563,7 @@ static int shell_dbinfo_command(ShellState *p, int nArg, char **azArg){
      { "schema size:",
        "SELECT total(length(sql)) FROM %s" },
   };
-  sqlite3_file *pFile;
+  sqlite3_file *pFile = 0;
   int i;
   char *zSchemaTab;
   char *zDb = nArg>=2 ? azArg[1] : "main";
@@ -2754,6 +2757,15 @@ static int do_meta_command(char *zLine, ShellState *p){
   */
   if( c=='b' && n>=3 && strncmp(azArg[0], "breakpoint", n)==0 ){
     test_breakpoint();
+  }else
+
+  if( c=='c' && n>=3 && strncmp(azArg[0], "changes", n)==0 ){
+    if( nArg==2 ){
+      p->countChanges = booleanValue(azArg[1]);
+    }else{
+      fprintf(stderr, "Usage: .changes on|off\n");
+      rc = 1;
+    }
   }else
 
   if( c=='c' && strncmp(azArg[0], "clone", n)==0 ){
@@ -4067,6 +4079,20 @@ static int do_meta_command(char *zLine, ShellState *p){
         sqlite3_libversion(), sqlite3_sourceid());
   }else
 
+  if( c=='v' && strncmp(azArg[0], "vfsinfo", n)==0 ){
+    const char *zDbName = nArg==2 ? azArg[1] : "main";
+    sqlite3_vfs *pVfs;
+    if( p->db ){
+      sqlite3_file_control(p->db, zDbName, SQLITE_FCNTL_VFS_POINTER, &pVfs);
+      if( pVfs ){
+        fprintf(p->out, "vfs.zName      = \"%s\"\n", pVfs->zName);
+        fprintf(p->out, "vfs.iVersion   = %d\n", pVfs->iVersion);
+        fprintf(p->out, "vfs.szOsFile   = %d\n", pVfs->szOsFile);
+        fprintf(p->out, "vfs.mxPathname = %d\n", pVfs->mxPathname);
+      }
+    }
+  }else
+
   if( c=='v' && strncmp(azArg[0], "vfsname", n)==0 ){
     const char *zDbName = nArg==2 ? azArg[1] : "main";
     char *zVfsName = 0;
@@ -4271,6 +4297,9 @@ static int process_input(ShellState *p, FILE *in){
           fprintf(stderr, "%s %s\n", zPrefix, sqlite3_errmsg(p->db));
         }
         errCnt++;
+      }else if( p->countChanges ){
+        fprintf(p->out, "changes: %3d   total_changes: %d\n",
+                sqlite3_changes(p->db), sqlite3_total_changes(p->db));
       }
       nSql = 0;
       if( p->outCount ){
@@ -4601,10 +4630,10 @@ int SQLITE_CDECL main(int argc, char **argv){
       int n, sz;
       sz = (int)integerValue(cmdline_option_value(argc,argv,++i));
       if( sz>70000 ) sz = 70000;
-      if( sz<800 ) sz = 800;
+      if( sz<0 ) sz = 0;
       n = (int)integerValue(cmdline_option_value(argc,argv,++i));
-      if( n<10 ) n = 10;
-      sqlite3_config(SQLITE_CONFIG_PAGECACHE, malloc(n*sz+1), sz, n);
+      sqlite3_config(SQLITE_CONFIG_PAGECACHE,
+                    (n>0 && sz>0) ? malloc(n*sz) : 0, sz, n);
       data.shellFlgs |= SHFLG_Pagecache;
     }else if( strcmp(z,"-lookaside")==0 ){
       int n, sz;

@@ -114,7 +114,7 @@ summarize the commands available in TH1:
   *  uplevel ?LEVEL? SCRIPT
   *  upvar ?FRAME? OTHERVAR MYVAR ?OTHERVAR MYVAR?
 
-All of the above commands works as in the original Tcl.  Refer to the
+All of the above commands work as in the original Tcl.  Refer to the
 <a href="https://www.tcl-lang.org/man/tcl/contents.htm">Tcl documentation</a>
 for details.
 
@@ -629,13 +629,3 @@ error is generated, it will be transformed into a Tcl script error.
 
 Evaluates the TH1 expression and returns its result verbatim.  If a TH1
 script error is generated, it will be transformed into a Tcl script error.
-
-Further Notes
--------------
-
-**To Do:** We would like to have a community volunteer go through and
-copy the documentation for each of these commands (with appropriate
-format changes and spelling and grammar corrections) into subsequent
-sections of this document. It is suggested that the list of extension
-commands be left intact - as a quick reference.  But it would be really
-nice to also have the details of what each command does.

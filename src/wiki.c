@@ -149,16 +149,9 @@ void wiki_render_by_mimetype(Blob *pWiki, const char *zMimetype){
   if( zMimetype==0 || fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0 ){
     wiki_convert(pWiki, 0, 0);
   }else if( fossil_strcmp(zMimetype, "text/x-markdown")==0 ){
-    Blob title = BLOB_INITIALIZER;
     Blob tail = BLOB_INITIALIZER;
-    markdown_to_html(pWiki, &title, &tail);
-#if 0
-    if( blob_size(&title)>0 ){
-      @ <h1>%s(blob_str(&title))</h1>
-    }
-#endif
+    markdown_to_html(pWiki, 0, &tail);
     @ %s(blob_str(&tail))
-    blob_reset(&title);
     blob_reset(&tail);
   }else{
     @ <pre>
