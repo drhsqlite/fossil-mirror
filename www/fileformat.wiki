@@ -11,7 +11,7 @@ searchable, and extensible by people not yet born.
 The global state of a fossil repository is an unordered
 set of <i>artifacts</i>.
 An artifact might be a source code file, the text of a wiki page,
-part of a trouble ticket, or one of several special control artifacts
+part of a trouble ticket, or one of several special artifacts
 used to show the relationships between other artifacts within the
 project.  Each artifact is normally represented on disk as a separate
 file.  Artifacts can be text or binary.
@@ -35,22 +35,7 @@ its hash is computed.  The name of an artifact in the repository
 is exactly the same SHA1 hash that is computed by sha1sum 
 on the file as it exists in your source tree.</p>
 
-Some artifacts have a particular format which gives them special
-meaning to fossil.  Fossil recognizes:
-
-<ul>
-<li> [#manifest | Manifests] </li>
-<li> [#cluster | Clusters] </li>
-<li> [#ctrl | Control Artifacts] </li>
-<li> [#wikichng | Wiki Pages] </li>
-<li> [#tktchng | Ticket Changes] </li>
-<li> [#attachment | Attachments] </li>
-<li> [#event | TechNotes] </li>
-</ul>
-
-These seven artifact types are described in the following sections.
-
-In the current implementation (as of 2009-01-25) the artifacts that
+In the current implementation (as of 2015-12-23) the artifacts that
 make up a fossil repository are stored as delta- and zlib-compressed
 blobs in an <a href="http://www.sqlite.org/">SQLite</a> database.  This
 is an implementation detail and might change in a future release.  For
@@ -63,8 +48,55 @@ artifact format.
 All of the artifacts can be extracted from a Fossil repository using
 the "fossil deconstruct" command.
 
+<h2>1.0 Special Artifacts</h2>
+
+Some artifacts have a particular format which gives them special
+meaning to fossil.  Fossil recognizes:
+
+<ul>
+<li> [#manifest | Manifests] </li>
+<li> [#directory | Directories] </li>
+<li> [#cluster | Clusters] </li>
+<li> [#ctrl | Tags] </li>
+<li> [#wikichng | Wiki Pages] </li>
+<li> [#tktchng | Ticket Changes] </li>
+<li> [#attachment | Attachments] </li>
+<li> [#event | TechNotes] </li>
+</ul>
+
+Any artifact is not one of the above eight special artifacts is a
+"content" artifact.  Every distinct version of every file under 
+management is a content artifact, as are attachments to wiki pages
+and tickets.
+
+Any artifact that follows the appropriate syntactic rules is a special
+artifact.  It is possible for the same artifact to be used as both
+a special artifact and a content artifact, thought this is rare and 
+probably undesirable.  (Future versions of Fossil might restrict attempts
+to check-in special artifacts as content files.)
+To prevent accidental occurrences of the same artifact being used as both
+a special artifact and a content artifact, the syntactic rules for
+special artifacts are very strict.
+
+All special artifacts are pure UTF8 text. Newline characters
+(ASCII 0x0a) separate the artifact into "cards".
+Each card begins with a single
+character "card type".  Zero or more arguments may follow
+the card type.  All arguments are separated from each other
+and from the card-type character by a single space
+character (ASCII 0x20).  There is no surplus white space between arguments
+and no leading or trailing whitespace except for the newline 
+character that acts as the card separator.
+
+All cards of a special artifact occur in strict sorted lexicographical order.
+No card may be duplicated.
+Some special artifacts (example: [#manifest|manifests])
+may be PGP clear-signed, but otherwise special artifacts
+may contain no additional text or data.
+
+
 <a name="manifest"></a>
-<h2>1.0 The Manifest</h2>
+<h2>1.1 The Manifest Artifact</h2>
 
 A manifest defines a check-in or version of the project
 source tree.  The manifest contains a list of artifacts for
@@ -73,26 +105,6 @@ well as information such as parent check-ins, the name of the
 programmer who created the check-in, the date and time when
 the check-in was created, and any check-in comments associated
 with the check-in.
-
-Any artifact in the repository that follows the syntactic rules
-of a manifest is a manifest.  Note that a manifest can
-be both a real manifest and also a content file, though this
-is rare.
-
-A manifest is a text file.  Newline characters
-(ASCII 0x0a) separate the file into "cards".
-Each card begins with a single
-character "card type".  Zero or more arguments may follow
-the card type.  All arguments are separated from each other
-and from the card-type character by a single space
-character.  There is no surplus white space between arguments
-and no leading or trailing whitespace except for the newline 
-character that acts as the card separator.
-
-All cards of the manifest occur in strict sorted lexicographical order.
-No card may be duplicated.
-The entire manifest may be PGP clear-signed, but otherwise it
-may contain no additional text or data beyond what is described here.
 
 Allowed cards in the manifest are as follows:
 
@@ -129,42 +141,68 @@ space and newline, no other whitespace characters are allowed in
 the check-in comment.  Nor are any unprintable characters allowed
 in the comment.
 
+A manifest has zero or one N-cards.  The N-card specifies the mimetype for the
+text in the comment of the C-card.  If the N-card is omitted, a default mimetype
+is used.
+
 A manifest must have exactly one D-card.  The sole argument to
 the D-card is a date-time stamp in the ISO8601 format.  The
 date and time should be in coordinated universal time (UTC).
-The format one of:
+The format must be one of:
 
 <blockquote>
 <i>YYYY</i><b>-</b><i>MM</i><b>-</b><i>DD</i><b>T</b><i>HH</i><b>:</b><i>MM</i><b>:</b><i>SS</i><br>
 <i>YYYY</i><b>-</b><i>MM</i><b>-</b><i>DD</i><b>T</b><i>HH</i><b>:</b><i>MM</i><b>:</b><i>SS</i><b>.</b><i>SSS</i>
 </blockquote>
 
-A manifest has zero or more F-cards.  Each F-card identifies a file
+A manifest has zero or more F-cards.  Each F-card identifies a file or
+subdirectory
 that is part of the check-in.  There are one, two, three, or four
-arguments.  The first argument is the pathname of the file in the
+arguments.  The first argument is the pathname of the file or
+subdirectory in the
 check-in relative to the root of the project file hierarchy.  No ".."
 or "." directories are allowed within the filename.  Space characters
 are escaped as in C-card comment text.  Backslash characters and
 newlines are not allowed within filenames.  The directory separator
 character is a forward slash (ASCII 0x2F).  The second argument to the
 F-card is the full 40-character lower-case hexadecimal SHA1 hash of
-the content artifact.  The second argument is required for baseline
+the content artifact, or of the [#directory|directory artifact] if
+the "d" permission is present.  The second argument is required for baseline
 manifests but is optional for delta manifests.  When the second
 argument to the F-card is omitted, it means that the file has been
 deleted relative to the baseline (files removed in baseline manifests
 versions are <em>not</em> added as F-cards). The optional 3rd argument
 defines any special access permissions associated with the file.  This
 can be defined as "x" to mean that the file is executable or "l"
-(small letter ell) to mean a symlink.  All files are always readable
-and writable.  This can be expressed by "w" permission if desired but
-is optional.  The file format might be extended with new permission
+(small letter ell) to mean a symlink or "d" to mean the entry describes
+a subdirectory rather than a file.  All files and subdirectories 
+are always readable and writable.  This can be expressed by "w" 
+permission if desired but the "w" permission is optional and is ignored
+by Fossil.  The file format might be extended with new permission
 letters in the future.  The optional 4th argument is the name of the
 same file as it existed in the parent check-in.  If the name of the
 file is unchanged from its parent, then the 4th argument is omitted.
 
-A manifest has zero or one N-cards.  The N-card specifies the mimetype for the
-text in the comment of the C-card.  If the N-card is omitted, a default mimetype
-is used.
+Manifests may be either flat or hierarchical.  A flat manifest lists
+all files in the check-in, including all files in subdirectories.  A
+flat manifest may not include F-cards with the "d" permission.  An
+heirarchical manifest only lists the files or subdirectories at the
+top-level of the check-in.  An heirarchical manifest may not include
+an F-card entries that have a directory separator character ("/").  
+An heirarchical manifest may not be a delta-manifest (it may not have
+a B-card) nor may it be used as a baseline-manifest by some other
+delta-manifest.  Hierarchical manifests
+are only recognized by Fossil versions 1.35 and later.  Repositories
+that contain hierarchical manifests will cause problems for earlier
+versions of Fossil.
+
+When an F-card refers to a subdirectory (that is to say, when the
+F-card is part of an hierarchical manifest and contains the "d"
+permission) then the referenced directory artifact must be a 
+[#directory|well-formed directory artifact] that contains a
+G-card that exactly matches the name of the subdirectory as assigned
+by the F-card.  If these conditions are not met, then the artifact is
+not a valid manifest.
 
 A manifest has zero or one P-cards.  Most manifests have one P-card.
 The P-card has a varying number of arguments that
@@ -237,29 +275,43 @@ consistent.
 A sample manifest from Fossil itself can be seen
 [/artifact/28987096ac | here].
 
+<a name="directory"></a>
+<h3>1.2 Directory Artifacts</h3>
+
+A directory artifact describes the files and subdirectories within a
+single directory of an hierarchical manifest.  Directory artifacts
+are only recognized by Fossil version 1.35 and later (circa 2015-12-23).
+
+Directory artifacts contain zero or more F-cards and exactly one Z-card,
+in the same format as a manifest.  A directory artifact also contains
+exactly one G-card with a single argument that is the pathname
+of the directory relative to the root of the repository.
+The format of the directory name in a G-card is
+the same as the format of a filename in an F-card.
+
+The F-cards in a directory artifact may not contain directory separator
+characters.  The content of subdirectories must be expressed using
+additional directory artifacts referenced by F-cards with the "d"
+permission.  All F-cards in a directory artifact must contain at least
+two arguments.
+
+When an F-card X of directory artifact Y refers to 
+subdirectory Z (that is to say, when F-card X contains
+the "d" permission and the second argument on X is the SHA1
+hash of directory artifact Z) then the G-card of Z must
+be the concatenation of the G-card on artifact Y, the
+directory separator character "/" and the first argument to
+the F-card X.  Otherwise, the artifact Y is not a valid
+directory artifact.
+
 <a name="cluster"></a>
-<h2>2.0 Clusters</h2>
+<h3>1.3 Clusters Artifacts</h3>
 
 A cluster is an artifact that declares the existence of other artifacts.
 Clusters are used during repository synchronization to help 
 reduce network traffic.  As such, clusters are an optimization and
 may be removed from a repository without loss or damage to the
-underlying project code.
-
-Clusters follow a syntax that is very similar to manifests.
-A Cluster is a line-oriented text file.  Newline characters
-(ASCII 0x0a) separate the artifact into cards.  Each card begins with a single
-character "card type".  Zero or more arguments may follow
-the card type.  All arguments are separated from each other
-and from the card-type character by a single space
-character.  There is no surplus white space between arguments
-and no leading or trailing whitespace except for the newline 
-character that acts as the card separator.
-All cards of a cluster occur in strict sorted lexicographical order.
-No card may be duplicated.
-The cluster may not contain additional text or data beyond 
-what is described here.
-Unlike manifests, clusters are never PGP signed.
+underlying project code.  Clusters may not be PGP clearsigned.
 
 Allowed cards in the cluster are as follows:
 
@@ -279,17 +331,14 @@ An example cluster from Fossil can be seen
 [/artifact/d03dbdd73a2a8 | here].
 
 <a name="ctrl"></a>
-<h2>3.0 Control Artifacts</h2>
+<h3>1.4 Tag Artifacts</h3>
 
-Control artifacts are used to assign properties to other artifacts
-within the repository.  The basic format of a control artifact is
-the same as a manifest or cluster.  A control artifact is a text
-file divided into cards by newline characters.  Each card has a
-single-character card type followed by arguments.  Spaces separate
-the card type and the arguments.  No surplus whitespace is allowed.
-All cards must occur in strict lexicographical order.
+Tag artifacts are used to assign properties to other artifacts
+within the repository.  Tag artifacts where called "control artifacts"
+in an earlier version of this document.  Though their name has changed
+in the documentation, their function has not.
 
-Allowed cards in a control artifact are as follows:
+Allowed cards in a tag artifact are as follows:
 
 <blockquote>
 <b>D</b> <i>time-and-date-stamp</i><br />
@@ -298,12 +347,12 @@ Allowed cards in a control artifact are as follows:
 <b>Z</b> <i>checksum</i><br />
 </blockquote>
 
-A control artifact must have one D card, one U card, one Z card and
+A tag artifact must have one D card, one U card, one Z card and
 one or more T cards.  No other cards or other text is
-allowed in a control artifact.  Control artifacts might be PGP
+allowed in a control artifact.  Tag artifacts might be PGP
 clearsigned.
 
-The D card and the Z card of a control artifact are the same
+The D card and the Z card of a tag artifact are the same
 as in a manifest.
 
 The T card represents a [./branching.wiki#tags | tag or property]
@@ -335,16 +384,14 @@ belongs to.  Symbolic tags begin with the "sym-" prefix.
 The U card is the name of the user that created the control 
 artifact.  The Z card is the usual required artifact checksum.
 
-An example control artifacts can be seen [/info/9d302ccda8 | here].
+An example tag artifacts can be seen [/info/9d302ccda8 | here].
 
 
 <a name="wikichng"></a>
-<h2>4.0 Wiki Pages</h2>
+<h3>1.5 Wiki Pages</h3>
 
-A wiki page is an artifact with a format similar to manifests,
-clusters, and control artifacts.  The artifact is divided into
-cards by newline characters.  The format of each card is as in
-manifests, clusters, and control artifacts.  Wiki artifacts accept
+A wiki artifact defines a single version of a single wiki
+page.  Wiki artifacts accept
 the following card types:
 
 <blockquote>
@@ -376,7 +423,7 @@ An example wiki artifact can be seen
 [/artifact?name=7b2f5fd0e0&txt=1 | here].
 
 <a name="tktchng"></a>
-<h2>5.0 Ticket Changes</h2>
+<h3>1.6 Ticket Changes</h3>
 
 A ticket-change artifact represents a change to a trouble ticket.
 The following cards are allowed on a ticket change artifact:
@@ -422,7 +469,7 @@ An example ticket-change artifact can be seen
 [/artifact/91f1ec6af053 | here].
 
 <a name="attachment"></a>
-<h2>6.0 Attachments</h2>
+<h3>1.7 Attachments</h3>
 
 An attachment artifact associates some other artifact that is the
 attachment (the source artifact) with a ticket or wiki page or 
@@ -464,7 +511,7 @@ The Z card is required.
 
 
 <a name="event"></a>
-<h2>7.0 Technical Notes</h2>
+<h3>1.8 Technical Notes</h3>
 
 A technical note or "technote" artifact (formerly known as an "event" artifact)
 associates a timeline comment and a page of text
@@ -511,7 +558,7 @@ the other.
 A technote might contain one or more T-cards used to set
 [./branching.wiki#tags | tags or properties]
 on the technote.  The format of the T-card is the same as
-described in [#ctrl | Control Artifacts] section above, except that the
+described in [#ctrl | Tag Artifacts] section above, except that the
 second argument is the single character "<b>*</b>" instead of an
 artifact ID and the name is always prefaced by "<b>+</b>".
 The <b>*</b> in place of the artifact ID indicates that
@@ -533,7 +580,7 @@ The Z card is the required checksum over the rest of the artifact.
 
 
 <a name="summary"></a>
-<h2>8.0 Card Summary</h2>
+<h2>2.0 Card Summary</h2>
 
 The following table summarizes the various kinds of cards that appear
 on Fossil artifacts. A blank entry means that combination of card and
@@ -545,12 +592,13 @@ or more such cards are required.
 <table border=1 width="100%">
 <tr>
 <th rowspan=2 valign=bottom>Card Format</th>
-<th colspan=7>Used By</th>
+<th colspan=8>Used By</th>
 </tr>
 <tr>
 <th>Manifest</th>
+<th>Directory</th>
 <th>Cluster</th>
-<th>Control</th>
+<th>Tag</th>
 <th>Wiki</th>
 <th>Ticket</th>
 <th>Attachment</th>
@@ -558,6 +606,7 @@ or more such cards are required.
 </tr>
 <tr>
 <td><b>A</b> <i>filename</i> <i>target</i> ?<i>source</i>?</td>
+<td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
@@ -575,11 +624,14 @@ or more such cards are required.
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
+<td>&nbsp;</td>
 </tr>
-<tr><td>&nbsp;</td><td colspan='7'>* = Required for delta manifests</td></tr>
+<tr><td>&nbsp;</td><td colspan='8'>* = Required for delta manifests,
+Disallowed for hierarchical manifests.</td></tr>
 <tr>
 <td><b>C</b> <i>comment-text</i></td>
 <td align=center><b>1</b></td>
+<td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
@@ -590,6 +642,7 @@ or more such cards are required.
 <tr>
 <td><b>D</b> <i>date-time-stamp</i></td>
 <td align=center><b>1</b></td>
+<td>&nbsp;</td>
 <td>&nbsp;</td>
 <td align=center><b>1</b></td>
 <td align=center><b>1</b></td>
@@ -605,10 +658,12 @@ or more such cards are required.
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
+<td>&nbsp;</td>
 <td align=center><b>1</b></td>
 </tr>
 <tr>
 <td><b>F</b> <i>filename</i> ?<i>uuid</i>? ?<i>permissions</i>? ?<i>oldname</i>?</td>
+<td align=center><b>0+</b></td>
 <td align=center><b>0+</b></td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
@@ -618,7 +673,19 @@ or more such cards are required.
 <td>&nbsp;</td>
 </tr>
 <tr>
+<td><b>G</b> <i>fileame</i>
+<td>&nbsp;</td>
+<td align=center><b>1</b></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
 <td><b>J</b> <i>name</i> ?<i>value</i>?</td>
+<td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
@@ -633,12 +700,14 @@ or more such cards are required.
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
+<td>&nbsp;</td>
 <td align=center><b>1</b></td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 </tr>
 <tr>
 <td><b>L</b> <i>wiki-title</i></td>
+<td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
@@ -649,6 +718,7 @@ or more such cards are required.
 </tr>
 <tr>
 <td><b>M</b> <i>uuid</i></td>
+<td>&nbsp;</td>
 <td>&nbsp;</td>
 <td align=center><b>1+</b></td>
 <td>&nbsp;</td>
@@ -662,6 +732,7 @@ or more such cards are required.
 <td align=center><b>0-1</b></td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
+<td>&nbsp;</td>
 <td align=center><b>0-1</b></td>
 <td>&nbsp;</td>
 <td align=center><b>0-1</b></td>
@@ -670,6 +741,7 @@ or more such cards are required.
 <tr>
 <td><b>P</b> <i>uuid ...</i></td>
 <td align=center><b>0-1</b></td>
+<td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td align=center><b>0-1</b></td>
@@ -686,6 +758,7 @@ or more such cards are required.
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
+<td>&nbsp;</td>
 </tr>
 <tr>
 <td><b>R</b> <i>md5sum</i></td>
@@ -696,9 +769,11 @@ or more such cards are required.
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
+<td>&nbsp;</td>
 <tr>
 <td><b>T</b> (<b>+</b>|<b>*</b>|<b>-</b>)<i>tagname</i> <i>uuid</i> ?<i>value</i>?</td>
 <td align=center><b>0+</b></td>
+<td>&nbsp;</td>
 <td>&nbsp;</td>
 <td align=center><b>1+</b></td>
 <td>&nbsp;</td>
@@ -710,6 +785,7 @@ or more such cards are required.
 <td><b>U</b> <i>username</i></td>
 <td align=center><b>1</b></td>
 <td>&nbsp;</td>
+<td>&nbsp;</td>
 <td align=center><b>1</b></td>
 <td align=center><b>1</b></td>
 <td align=center><b>1</b></td>
@@ -718,6 +794,7 @@ or more such cards are required.
 </tr>
 <tr>
 <td><b>W</b> <i>size</i></td>
+<td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
@@ -735,17 +812,18 @@ or more such cards are required.
 <td align=center><b>1</b></td>
 <td align=center><b>1</b></td>
 <td align=center><b>1</b></td>
+<td align=center><b>1</b></td>
 </tr>
 </table>
 
 
 <a name="addenda"></a>
-<h2>9.0 Addenda</h2>
+<h2>3.0 Addenda</h2>
 
-This section contains additional information which may be useful when
-implementing algorithms described above.
+This section contains additional information about the low-level artifact
+formats of Fossil.
 
-<h3>R Card Hash Calculation</h3>
+<h3>3.1 R-Card Hash Calculation</h3>
 
 Given a manifest file named <tt>MF</tt>, the following Bash shell code
 demonstrates how to compute the value of the R card in that manifest.
@@ -783,3 +861,32 @@ form here). That approach also won't work for delta manifests. Calculating
 the R-card for delta manifests requires traversing both the delta and its baseline in
 lexical order of the files, preferring the delta's copy if both contain
 a given file.
+
+<h3>3.2 Different Kinds Of Manifest Artifacts</h3>
+
+The original (1.0) version of Fossil only supported flat baseline
+manifests.  That means that all the files of a check-in had to be
+listed in every manifest.  Because manifests are delta-encoded, there
+is not a storage space issue.  Fossil was originally designed
+specifically to support the SQLite project, and as SQLite has fewer
+than 2000 files on any give version, a flat baseline manifest design
+worked well there and was simple to implement.
+
+However, some project (ex: NetBSD) contain a huge number of files in
+every version, and even though the manifests compressed will using
+delta-compression, many CPU cycles had to be spent to decompress those
+manifests.  To help make Fossil more efficient for large projects like
+NetBSD, the concept of a delta-manifest was added.  This helped a lot
+but was not a perfect solution.
+
+Later, the concept of an hierarchical manifest was added.  By breaking
+up each manifest into many separate subdirectories it is hoped that
+the processing of projects with many files can be better optimized.
+The hierarchical manifest design also more closely resembles the low-level
+file format used by Git, thus making pull and clone from Git repositories
+easier.
+
+In retrospect, it would have been better if Fossil had only
+hierarchical manifests.  But as there are many legacy repositories
+that use flat manifests and delta manifests, all three forms must
+be supported moving forward.
