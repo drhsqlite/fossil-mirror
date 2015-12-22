@@ -1,5 +1,5 @@
-C Describe\san\senhancement\sto\smanifest\sartifacts\sthat\sallows\sfor\san\shierarchical\ndescription\sof\sthe\sstructure\sof\sa\scheck-in.\s\sIt\sis\shoped\sthat\sthis\snew\sformat\nwill\swork\smore\sefficiently\sfor\slarge\srepositories,\sand\smake\sclone\sand\spull\sfrom\nGit\smuch\seasier\sand\sfaster.\s\sThis\scheck-in\sis\sa\sdocumentation\schange\sonly.\nthe\snew\shierarchical\smanifest\stype\shas\snot\syet\sbeen\simplemented\sin\scode.
-D 2015-12-22T07:18:28.420
+C Further\sdesign\schanges\sto\shierarchical\smanifests.\s\sStill\sno\sactual\scode.
+D 2015-12-22T13:40:22.451
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -694,7 +694,7 @@ F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/event.wiki 395b955e611769fd9aedf3ab489530b89ad5f224
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 93c4421d2bafd192dc61ea563df68aa25caaed95
-F www/fileformat.wiki 68fac26320d9d0332a4feecd80db38373d7fc129
+F www/fileformat.wiki 0b7c241ec5d403608e7c22653c0ffb1aad97212a
 F www/fiveminutes.wiki 3172b324738523b163b19a8c836d3d9a3ceb9b94
 F www/foss-cklist.wiki 77fe5872d7077a68e1b01e8dd5e3a48f7ee2b0dd
 F www/fossil-from-msvc.wiki f2c229553ff6304fa0c6e82d169e959498af98a8
@@ -744,10 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 604862508bc9f30e355b153967e5017c0c451b7f
-R 6902bee62d7107e1d6b36f55bb15e2f6
-T *branch * hierarchical-manifests
-T *sym-hierarchical-manifests *
-T -sym-trunk *
+P 7576a0f1b979662ea6ecec4ab3cd009a9bd5fbe2
+R f7958d1ba2a20b436f36fb0e0a3a5245
 U drh
-Z c69fcff0a98f38cbff4f8662fe86108f
+Z 144b9aea0f1027ee90cb3e4919738dc9

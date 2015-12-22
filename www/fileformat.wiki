@@ -113,6 +113,7 @@ Allowed cards in the manifest are as follows:
 <b>C</b> <i>checkin-comment</i><br>
 <b>D</b> <i>time-and-date-stamp</i><br>
 <b>F</b> <i>filename</i> ?<i>SHA1-hash</i>? ?<i>permissions</i>? ?<i>old-name</i>?<br>
+<b>G</b> <i>SHA1-hash</i><br>
 <b>N</b> <i>mimetype</i><br>
 <b>P</b> <i>SHA1-hash</i>+<br>
 <b>Q</b> (<b>+</b>|<b>-</b>)<i>SHA1-hash</i> ?<i>SHA1-hash</i>?<br>
@@ -155,8 +156,7 @@ The format must be one of:
 <i>YYYY</i><b>-</b><i>MM</i><b>-</b><i>DD</i><b>T</b><i>HH</i><b>:</b><i>MM</i><b>:</b><i>SS</i><b>.</b><i>SSS</i>
 </blockquote>
 
-A manifest has zero or more F-cards.  Each F-card identifies a file or
-subdirectory
+A manifest has zero or more F-cards.  Each F-card identifies a file
 that is part of the check-in.  There are one, two, three, or four
 arguments.  The first argument is the pathname of the file or
 subdirectory in the
@@ -166,43 +166,35 @@ are escaped as in C-card comment text.  Backslash characters and
 newlines are not allowed within filenames.  The directory separator
 character is a forward slash (ASCII 0x2F).  The second argument to the
 F-card is the full 40-character lower-case hexadecimal SHA1 hash of
-the content artifact, or of the [#directory|directory artifact] if
-the "d" permission is present.  The second argument is required for baseline
+the content artifact.  The second argument is required for baseline
 manifests but is optional for delta manifests.  When the second
 argument to the F-card is omitted, it means that the file has been
 deleted relative to the baseline (files removed in baseline manifests
 versions are <em>not</em> added as F-cards). The optional 3rd argument
-defines any special access permissions associated with the file.  This
-can be defined as "x" to mean that the file is executable or "l"
-(small letter ell) to mean a symlink or "d" to mean the entry describes
-a subdirectory rather than a file.  All files and subdirectories 
-are always readable and writable.  This can be expressed by "w" 
+defines any special access permissions associated with the file.  
+In a manifest, the permission string may contain 
+an "x" to mean that the file is executable or "l"
+(small letter ell) to mean the file is a symlink.
+All files are always readable and writable.  This can be expressed by "w" 
 permission if desired but the "w" permission is optional and is ignored
 by Fossil.  The file format might be extended with new permission
 letters in the future.  The optional 4th argument is the name of the
 same file as it existed in the parent check-in.  If the name of the
 file is unchanged from its parent, then the 4th argument is omitted.
 
-Manifests may be either flat or hierarchical.  A flat manifest lists
-all files in the check-in, including all files in subdirectories.  A
-flat manifest may not include F-cards with the "d" permission.  An
-heirarchical manifest only lists the files or subdirectories at the
-top-level of the check-in.  An heirarchical manifest may not include
-an F-card entries that have a directory separator character ("/").  
-An heirarchical manifest may not be a delta-manifest (it may not have
-a B-card) nor may it be used as a baseline-manifest by some other
-delta-manifest.  Hierarchical manifests
-are only recognized by Fossil versions 1.35 and later.  Repositories
-that contain hierarchical manifests will cause problems for earlier
-versions of Fossil.
+A G-card is an alternative way of specifying the files of a check-in.
+A single manifest may have many F-cards or a single G-card, but not
+both.  A manifest containing F-cards is called a "flat manifest" and
+a manifest that contains a G-card is called an "hierarchical manifest".
 
-When an F-card refers to a subdirectory (that is to say, when the
-F-card is part of an hierarchical manifest and contains the "d"
-permission) then the referenced directory artifact must be a 
-[#directory|well-formed directory artifact] that contains a
-G-card that exactly matches the name of the subdirectory as assigned
-by the F-card.  If these conditions are not met, then the artifact is
-not a valid manifest.
+A G-card contains a single argument which is the SHA1 hash of a
+[#directory|directory artifact] that defines the files and directories
+at the top-level of the check-in.  That directory artifact may contain
+F-cards with the "d" permission that reference other subdirectories
+in check-in file hierarchy.
+
+A G-card may not be used in a delta manifest.  No delta manifest may
+refer to an hierarchical manifest as its baseline.
 
 A manifest has zero or one P-cards.  Most manifests have one P-card.
 The P-card has a varying number of arguments that
@@ -283,26 +275,25 @@ single directory of an hierarchical manifest.  Directory artifacts
 are only recognized by Fossil version 1.35 and later (circa 2015-12-23).
 
 Directory artifacts contain zero or more F-cards and exactly one Z-card,
-in the same format as a manifest.  A directory artifact also contains
-exactly one G-card with a single argument that is the pathname
-of the directory relative to the root of the repository.
-The format of the directory name in a G-card is
-the same as the format of a filename in an F-card.
+in the same format as a manifest.
 
-The F-cards in a directory artifact may not contain directory separator
-characters.  The content of subdirectories must be expressed using
-additional directory artifacts referenced by F-cards with the "d"
-permission.  All F-cards in a directory artifact must contain at least
-two arguments.
+The F-cards of a directory artifact are slightly different from the F-cards
+in a [#manifest|manifest artifact].  
 
-When an F-card X of directory artifact Y refers to 
-subdirectory Z (that is to say, when F-card X contains
-the "d" permission and the second argument on X is the SHA1
-hash of directory artifact Z) then the G-card of Z must
-be the concatenation of the G-card on artifact Y, the
-directory separator character "/" and the first argument to
-the F-card X.  Otherwise, the artifact Y is not a valid
-directory artifact.
+<ul>
+<li>F-cards in a directory artifact may not have directory separator
+characters in their filename.  The F-cards of a directory specify only
+the files and subdirectories in that directory.
+<li>F-cards in a directory artifact may use the "d" permission character
+to indicate that the entry refers to a subdirectory.  In that case, the
+SHA1 hash on the second argument refers to another directory artifact,
+not to a content artifact.
+<li>F-cards in a directory artifact must have at last two arguments.
+</ul>
+
+The Z-card in a directory artifact is required and has the same format as
+it does in all other special artifacts.  Directory artifacts may not be
+PGP-clearsigned.
 
 <a name="cluster"></a>
 <h3>1.3 Clusters Artifacts</h3>
@@ -617,27 +608,14 @@ or more such cards are required.
 </tr>
 <tr>
 <td><b>B</b> <i>baseline</i></td>
-<td align=center><b>0-1*</b></td>
-<td>&nbsp;</td>
-<td>&nbsp;</td>
-<td>&nbsp;</td>
-<td>&nbsp;</td>
-<td>&nbsp;</td>
-<td>&nbsp;</td>
-<td>&nbsp;</td>
-</tr>
-<tr><td>&nbsp;</td><td colspan='8'>* = Required for delta manifests,
-Disallowed for hierarchical manifests.</td></tr>
-<tr>
-<td><b>C</b> <i>comment-text</i></td>
-<td align=center><b>1</b></td>
-<td>&nbsp;</td>
-<td>&nbsp;</td>
-<td>&nbsp;</td>
-<td>&nbsp;</td>
-<td>&nbsp;</td>
 <td align=center><b>0-1</b></td>
-<td align=center><b>0-1</b></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
 </tr>
 <tr>
 <td><b>D</b> <i>date-time-stamp</i></td>
@@ -673,9 +651,9 @@ Disallowed for hierarchical manifests.</td></tr>
 <td>&nbsp;</td>
 </tr>
 <tr>
-<td><b>G</b> <i>fileame</i>
+<td><b>G</b> <i>SHA1-hash</i>
+<td align=center><b>0-1</b></td>
 <td>&nbsp;</td>
-<td align=center><b>1</b></td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
@@ -872,8 +850,8 @@ specifically to support the SQLite project, and as SQLite has fewer
 than 2000 files on any give version, a flat baseline manifest design
 worked well there and was simple to implement.
 
-However, some project (ex: NetBSD) contain a huge number of files in
-every version, and even though the manifests compressed will using
+However, some other projects (ex: NetBSD) contain a huge number of files in
+every check-in, and even though the manifests compressed will using
 delta-compression, many CPU cycles had to be spent to decompress those
 manifests.  To help make Fossil more efficient for large projects like
 NetBSD, the concept of a delta-manifest was added.  This helped a lot
