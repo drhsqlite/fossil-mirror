@@ -39,17 +39,17 @@
 */
 #define LOOK_NONE    ((int)0x00000000) /* Nothing special was found. */
 #define LOOK_NUL     ((int)0x00000001) /* One or more NUL chars were found. */
-#define LOOK_CR      ((int)0x00000002) /* One or more CR chars were found. */
-#define LOOK_LONE_CR ((int)0x00000004) /* An unpaired CR char was found. */
-#define LOOK_LF      ((int)0x00000008) /* One or more LF chars were found. */
-#define LOOK_LONE_LF ((int)0x00000010) /* An unpaired LF char was found. */
-#define LOOK_CRLF    ((int)0x00000020) /* One or more CR/LF pairs were found. */
-#define LOOK_LONG    ((int)0x00000040) /* An over length line was found. */
-#define LOOK_ODD     ((int)0x00000080) /* An odd number of bytes was found. */
-#define LOOK_SHORT   ((int)0x00000100) /* Unable to perform full check. */
-#define LOOK_INVALID ((int)0x00000200) /* Invalid sequence was found. */
+#define LOOK_LONE_CR ((int)0x00000002) /* An unpaired CR char was found. */
+#define LOOK_LONE_LF ((int)0x00000004) /* An unpaired LF char was found. */
+#define LOOK_CRLF    ((int)0x00000008) /* One or more CR/LF pairs were found. */
+#define LOOK_LONG    ((int)0x00000010) /* An over length line was found. */
+#define LOOK_ODD     ((int)0x00000020) /* An odd number of bytes was found. */
+#define LOOK_SHORT   ((int)0x00000040) /* Unable to perform full check. */
+#define LOOK_INVALID ((int)0x00000080) /* Invalid sequence was found. */
 #define LOOK_BINARY  (LOOK_NUL | LOOK_LONG | LOOK_SHORT) /* May be binary. */
 #define LOOK_EOL     (LOOK_LONE_CR | LOOK_LONE_LF | LOOK_CRLF) /* Line seps. */
+#define LOOK_CR      (LOOK_LONE_CR | LOOK_CRLF) /* One or more CR chars. */
+#define LOOK_LF      (LOOK_LONE_LF | LOOK_CRLF) /* One or more LF chars. */
 #endif /* INTERFACE */
 
 
@@ -95,22 +95,20 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
   if( c==0 ){
     flags |= LOOK_NUL;  /* NUL character in a file -> binary */
   }else if( c=='\r' ){
-    flags |= LOOK_CR;
     if( n<=1 || z[1]!='\n' ){
       flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
     }
   }
   j = (c!='\n');
-  if( !j ) flags |= (LOOK_LF | LOOK_LONE_LF);  /* Found LF as first char */
+  if( !j ) flags |= (LOOK_LONE_LF);  /* Found LF as first char */
   while( !(flags&stopFlags) && --n>0 ){
     int c2 = c;
     c = *++z; ++j;
     if( c==0 ){
       flags |= LOOK_NUL;  /* NUL character in a file -> binary */
     }else if( c=='\n' ){
-      flags |= LOOK_LF;
       if( c2=='\r' ){
-        flags |= (LOOK_CR | LOOK_CRLF);  /* Found LF preceded by CR */
+        flags |= (LOOK_CRLF);  /* Found LF preceded by CR */
       }else{
         flags |= LOOK_LONE_LF;
       }
@@ -119,7 +117,6 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
       }
       j = 0;
     }else if( c=='\r' ){
-      flags |= LOOK_CR;
       if( n<=1 || z[1]!='\n' ){
         flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
       }
@@ -244,13 +241,12 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
   if( c==0 ){
     flags |= LOOK_NUL;  /* NUL character in a file -> binary */
   }else if( c=='\r' ){
-    flags |= LOOK_CR;
     if( n<(2*sizeof(WCHAR_T)) || UTF16_SWAP_IF(bReverse, z[1])!='\n' ){
       flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
     }
   }
   j = (c!='\n');
-  if( !j ) flags |= (LOOK_LF | LOOK_LONE_LF);  /* Found LF as first char */
+  if( !j ) flags |= (LOOK_LONE_LF);  /* Found LF as first char */
   while( !(flags&stopFlags) && ((n-=sizeof(WCHAR_T))>=sizeof(WCHAR_T)) ){
     int c2 = c;
     c = *++z;
@@ -261,9 +257,8 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
     if( c==0 ){
       flags |= LOOK_NUL;  /* NUL character in a file -> binary */
     }else if( c=='\n' ){
-      flags |= LOOK_LF;
       if( c2=='\r' ){
-        flags |= (LOOK_CR | LOOK_CRLF);  /* Found LF preceded by CR */
+        flags |= (LOOK_CRLF);  /* Found LF preceded by CR */
       }else{
         flags |= LOOK_LONE_LF;
       }
@@ -272,7 +267,6 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
       }
       j = 0;
     }else if( c=='\r' ){
-      flags |= LOOK_CR;
       if( n<(2*sizeof(WCHAR_T)) || UTF16_SWAP_IF(bReverse, z[1])!='\n' ){
         flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
       }

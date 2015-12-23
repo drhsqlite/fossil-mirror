@@ -1,5 +1,5 @@
-C Improvements\sto\sactivity\sreports.
-D 2015-12-23T01:36:05.954
+C Enhancements\sto\sthe\slookslike\sfunctions.
+D 2015-12-23T01:37:57.973
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -441,7 +441,7 @@ F src/linenoise.c 9c1a8a9a1d33f79191cb5a104067201a8cee6de1
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 48e28e14943671f38ff81cdbdb6db93564bed895
-F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
+F src/lookslike.c b8eb793c2cc1844ed87e21c8c0a623547ba3be88
 F src/main.c 6407bdfe5c4c08103ea999a0404339e45253115f
 F src/main.mk 29222c3dafd8664690482d11733671ad8245c3ff
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
@@ -744,8 +744,8 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 604862508bc9f30e355b153967e5017c0c451b7f 2c5a5e82be8c30d768da35e2a5ad641b6ddcf685
-R 94dd4a9ad578b86da044a6d270ae5825
-T +closed 2c5a5e82be8c30d768da35e2a5ad641b6ddcf685
+P c94dc804c4b6c893ad4397e86707e6306928eda4 255327f0534ccd11dbdcbff1448f6034c9a3abbf
+R 7004c30fcc1e4463c68676606ea4a653
+T +closed 255327f0534ccd11dbdcbff1448f6034c9a3abbf
 U drh
-Z 98978cb2ff93aea125cde56c9f54197e
+Z 4cb1731b978983c44cd8038f1ed421a1
