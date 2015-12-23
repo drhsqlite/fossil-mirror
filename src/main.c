@@ -1556,6 +1556,13 @@ static void process_one_web_page(
   int idx;
   int i;
 
+  /* Handle universal query parameters */
+  if( PB("utc") ){
+    g.fTimeFormat = 1;
+  }else if( PB("localtime") ){
+    g.fTimeFormat = 2;
+  }
+
   /* If the repository has not been opened already, then find the
   ** repository based on the first element of PATH_INFO and open it.
   */

@@ -461,8 +461,8 @@ void access_log_page(void){
   style_header("Access Log");
   blob_zero(&sql);
   blob_append_sql(&sql,
-    "SELECT uname, ipaddr, datetime(mtime%s), success"
-    "  FROM accesslog", timeline_utc()
+    "SELECT uname, ipaddr, datetime(mtime,toLocal()), success"
+    "  FROM accesslog"
   );
   if( y==1 ){
     blob_append(&sql, "  WHERE success", -1);

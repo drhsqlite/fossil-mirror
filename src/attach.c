@@ -43,11 +43,10 @@ void attachlist_page(void){
   login_check_credentials();
   blob_zero(&sql);
   blob_append_sql(&sql,
-     "SELECT datetime(mtime%s), src, target, filename,"
+     "SELECT datetime(mtime,toLocal()), src, target, filename,"
      "       comment, user,"
      "       (SELECT uuid FROM blob WHERE rid=attachid), attachid"
-     "  FROM attachment",
-     timeline_utc()
+     "  FROM attachment"
   );
   if( zPage ){
     if( g.perm.RdWiki==0 ){ login_needed(g.anon.RdWiki); return; }
@@ -576,12 +575,12 @@ void attachment_list(
   int cnt = 0;
   Stmt q;
   db_prepare(&q,
-     "SELECT datetime(mtime%s), filename, user,"
+     "SELECT datetime(mtime,toLocal()), filename, user,"
      "       (SELECT uuid FROM blob WHERE rid=attachid), src"
      "  FROM attachment"
      " WHERE isLatest AND src!='' AND target=%Q"
      " ORDER BY mtime DESC",
-     timeline_utc(), zTarget
+     zTarget
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zDate = db_column_text(&q, 0);

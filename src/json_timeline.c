@@ -230,14 +230,14 @@ static char json_timeline_add_time_clause(Blob *pSql){
   if(zAfter&&*zAfter){
     while( fossil_isspace(*zAfter) ) ++zAfter;
     blob_appendf(pSql,
-                 " AND event.mtime>=(SELECT julianday(%Q,'utc')) "
+                 " AND event.mtime>=(SELECT julianday(%Q,fromLocal())) "
                  " ORDER BY event.mtime ASC ",
                  zAfter);
     rc = 1;
   }else if(zBefore && *zBefore){
     while( fossil_isspace(*zBefore) ) ++zBefore;
     blob_appendf(pSql,
-                 " AND event.mtime<=(SELECT julianday(%Q,'utc')) "
+                 " AND event.mtime<=(SELECT julianday(%Q,fromLocal())) "
                  " ORDER BY event.mtime DESC ",
                  zBefore);
     rc = -1;

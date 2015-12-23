@@ -1029,12 +1029,11 @@ static void timeline_temp_table(void){
 ** for a timeline query for the WWW interface.
 */
 const char *timeline_query_for_www(void){
-  static const char *zBase = 0;
-  static const char zBaseSql[] =
+  static const char zBase[] =
     @ SELECT
     @   blob.rid AS blobRid,
     @   uuid AS uuid,
-    @   datetime(event.mtime%s) AS timestamp,
+    @   datetime(event.mtime,toLocal()) AS timestamp,
     @   coalesce(ecomment, comment) AS comment,
     @   coalesce(euser, user) AS user,
     @   blob.rid IN leaf AS leaf,
@@ -1049,9 +1048,6 @@ const char *timeline_query_for_www(void){
     @  FROM event CROSS JOIN blob
     @ WHERE blob.rid=event.objid
   ;
-  if( zBase==0 ){
-    zBase = mprintf(zBaseSql /*works-like: "%s"*/, timeline_utc());
-  }
   return zBase;
 }
 
@@ -1079,7 +1075,7 @@ double symbolic_name_to_mtime(const char *z){
   int rid;
   if( z==0 ) return -1.0;
   if( fossil_isdate(z) ){
-    mtime = db_double(0.0, "SELECT julianday(%Q,'utc')", z);
+    mtime = db_double(0.0, "SELECT julianday(%Q,fromLocal())", z);
     if( mtime>0.0 ) return mtime;
   }
   rid = symbolic_name_to_rid(z, "*");
@@ -1941,7 +1937,7 @@ const char *timeline_query_for_tty(void){
     @ SELECT
     @   blob.rid AS rid,
     @   uuid,
-    @   datetime(event.mtime%s) AS mDateTime,
+    @   datetime(event.mtime,toLocal()) AS mDateTime,
     @   coalesce(ecomment,comment)
     @     || ' (user: ' || coalesce(euser,user,'?')
     @     || (SELECT case when length(x)>0 then ' tags: ' || x else '' end
@@ -1962,7 +1958,7 @@ const char *timeline_query_for_tty(void){
     @ WHERE blob.rid=event.objid
     @   AND tag.tagname='branch'
   ;
-  return mprintf(zBaseSql /*works-like: "%s"*/, timeline_utc());
+  return zBaseSql;
 }
 
 /*
@@ -2120,7 +2116,7 @@ void timeline_cmd(void){
     if( mode==0 ){
       if( isIsoDate(zOrigin) ) zShift = ",'+1 day'";
     }
-    zDate = mprintf("(SELECT julianday(%Q%s, 'utc'))", zOrigin, zShift);
+    zDate = mprintf("(SELECT julianday(%Q%s, fromLocal())", zOrigin, zShift);
   }
 
   if( zFilePattern ){
@@ -2187,28 +2183,6 @@ void timeline_cmd(void){
   blob_reset(&sql);
   print_timeline(&q, n, width, verboseFlag);
   db_finalize(&q);
-}
-
-/*
-** Return one of two things:
-**
-**   ",'localtime'"  if the timeline-utc property is set to 0.
-**
-**   ""              (empty string) otherwise.
-*/
-const char *timeline_utc(){
-  if( g.fTimeFormat==0 ){
-    if( db_get_int("timeline-utc", 1) ){
-      g.fTimeFormat = 1;
-    }else{
-      g.fTimeFormat = 2;
-    }
-  }
-  if( g.fTimeFormat==1 ){
-    return "";
-  }else{
-    return ",'localtime'";
-  }
 }
 
 

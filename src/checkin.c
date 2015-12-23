@@ -329,7 +329,7 @@ static void ls_cmd_rev(
 
   compute_fileage(rid,0);
   db_prepare(&q,
-    "SELECT datetime(fileage.mtime, 'localtime'), fileage.pathname,\n"
+    "SELECT datetime(fileage.mtime, toLocal()), fileage.pathname,\n"
     "       blob.size\n"
     "  FROM fileage, blob\n"
     " WHERE blob.rid=fileage.fid %s\n"
@@ -431,10 +431,10 @@ void ls_cmd(void){
   if( showAge ){
     db_prepare(&q,
        "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0),"
-       "       datetime(checkin_mtime(%d,rid),'unixepoch'%s)"
+       "       datetime(checkin_mtime(%d,rid),'unixepoch',toLocal())"
        "  FROM vfile %s"
        " ORDER BY %s",
-       vid, timeline_utc(), blob_sql_text(&where), zOrderBy /*safe-for-%s*/
+       vid, blob_sql_text(&where), zOrderBy /*safe-for-%s*/
     );
   }else{
     db_prepare(&q,

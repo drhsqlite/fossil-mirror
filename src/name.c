@@ -156,7 +156,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   if( memcmp(zTag, "date:", 5)==0 ){
     rid = db_int(0,
       "SELECT objid FROM event"
-      " WHERE mtime<=julianday(%Q,'utc') AND type GLOB '%q'"
+      " WHERE mtime<=julianday(%Q,fromLocal()) AND type GLOB '%q'"
       " ORDER BY mtime DESC LIMIT 1",
       &zTag[5], zType);
     return rid;
@@ -164,7 +164,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   if( fossil_isdate(zTag) ){
     rid = db_int(0,
       "SELECT objid FROM event"
-      " WHERE mtime<=julianday(%Q,'utc') AND type GLOB '%q'"
+      " WHERE mtime<=julianday(%Q,fromLocal()) AND type GLOB '%q'"
       " ORDER BY mtime DESC LIMIT 1",
       zTag, zType);
     if( rid) return rid;
@@ -532,11 +532,11 @@ void whatis_rid(int rid, int verboseFlag){
 
   /* Basic information about the object. */
   db_prepare(&q,
-     "SELECT uuid, size, datetime(mtime%s), ipaddr"
+     "SELECT uuid, size, datetime(mtime,toLocal()), ipaddr"
      "  FROM blob, rcvfrom"
      " WHERE rid=%d"
      "   AND rcvfrom.rcvid=blob.rcvid",
-     timeline_utc(), rid);
+     rid);
   if( db_step(&q)==SQLITE_ROW ){
     if( verboseFlag ){
       fossil_print("artifact:   %s (%d)\n", db_column_text(&q,0), rid);
@@ -587,9 +587,9 @@ void whatis_rid(int rid, int verboseFlag){
 
   /* Check for entries on the timeline that reference this object */
   db_prepare(&q,
-     "SELECT type, datetime(mtime%s),"
+     "SELECT type, datetime(mtime,toLocal()),"
      "       coalesce(euser,user), coalesce(ecomment,comment)"
-     "  FROM event WHERE objid=%d", timeline_utc(), rid);
+     "  FROM event WHERE objid=%d", rid);
   if( db_step(&q)==SQLITE_ROW ){
     const char *zType;
     switch( db_column_text(&q,0)[0] ){
@@ -609,7 +609,7 @@ void whatis_rid(int rid, int verboseFlag){
 
   /* Check to see if this object is used as a file in a check-in */
   db_prepare(&q,
-    "SELECT filename.name, blob.uuid, datetime(event.mtime%s),"
+    "SELECT filename.name, blob.uuid, datetime(event.mtime,toLocal()),"
     "       coalesce(euser,user), coalesce(ecomment,comment)"
     "  FROM mlink, filename, blob, event"
     " WHERE mlink.fid=%d"
@@ -617,7 +617,7 @@ void whatis_rid(int rid, int verboseFlag){
     "   AND event.objid=mlink.mid"
     "   AND blob.rid=mlink.mid"
     " ORDER BY event.mtime DESC /*sort*/",
-    timeline_utc(), rid);
+    rid);
   while( db_step(&q)==SQLITE_ROW ){
     fossil_print("file:       %s\n", db_column_text(&q,0));
     fossil_print("            part of [%S] by %s on %s\n",
@@ -634,7 +634,7 @@ void whatis_rid(int rid, int verboseFlag){
     "SELECT attachment.filename,"
     "       attachment.comment,"
     "       attachment.user,"
-    "       datetime(attachment.mtime%s),"
+    "       datetime(attachment.mtime,toLocal()),"
     "       attachment.target,"
     "       CASE WHEN EXISTS(SELECT 1 FROM tag WHERE tagname=('tkt-'||target))"
     "            THEN 'ticket'"
@@ -644,7 +644,7 @@ void whatis_rid(int rid, int verboseFlag){
     "       (SELECT uuid FROM blob WHERE rid=attachid)"
     "  FROM attachment JOIN blob ON attachment.src=blob.uuid"
     " WHERE blob.rid=%d",
-    timeline_utc(), rid
+    rid
   );
   while( db_step(&q)==SQLITE_ROW ){
     fossil_print("attachment: %s\n", db_column_text(&q,0));

@@ -169,7 +169,7 @@ static void dir_cmd_rev(
   rid = th1_name_to_typed_rid(interp, zRev, "ci");
   compute_fileage(rid, zGlob);
   db_prepare(&q,
-    "SELECT datetime(fileage.mtime, 'localtime'), fileage.pathname,\n"
+    "SELECT datetime(fileage.mtime, toLocal()), fileage.pathname,\n"
     "       blob.size\n"
     "  FROM fileage, blob\n"
     " WHERE blob.rid=fileage.fid \n"
@@ -551,7 +551,7 @@ static int dateCmd(
 ){
   char *zOut;
   if( argc>=2 && argl[1]==6 && memcmp(argv[1],"-local",6)==0 ){
-    zOut = db_text("??", "SELECT datetime('now'%s)", timeline_utc());
+    zOut = db_text("??", "SELECT datetime('now',toLocal())");
   }else{
     zOut = db_text("??", "SELECT datetime('now')");
   }

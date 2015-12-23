@@ -184,7 +184,7 @@ void finfo_cmd(void){
     }
     zFilename = blob_str(&fname);
     db_prepare(&q,
-        "SELECT DISTINCT b.uuid, ci.uuid, date(event.mtime%s),"
+        "SELECT DISTINCT b.uuid, ci.uuid, date(event.mtime,toLocal()),"
         "       coalesce(event.ecomment, event.comment),"
         "       coalesce(event.euser, event.user),"
         "       (SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0"
@@ -196,7 +196,7 @@ void finfo_cmd(void){
         "   AND event.objid=mlink.mid"
         "   AND event.objid=ci.rid"
         " ORDER BY event.mtime DESC LIMIT %d OFFSET %d",
-        timeline_utc(), TAG_BRANCH, zFilename, filename_collation(),
+        TAG_BRANCH, zFilename, filename_collation(),
         iLimit, iOffset
     );
     blob_zero(&line);
@@ -334,7 +334,7 @@ void finfo_page(void){
   blob_zero(&sql);
   blob_append_sql(&sql,
     "SELECT"
-    " datetime(min(event.mtime)%s),"                 /* Date of change */
+    " datetime(min(event.mtime),toLocal()),"         /* Date of change */
     " coalesce(event.ecomment, event.comment),"      /* Check-in comment */
     " coalesce(event.euser, event.user),"            /* User who made chng */
     " mlink.pid,"                                    /* Parent file rid */
@@ -350,7 +350,7 @@ void finfo_page(void){
     "  FROM mlink, event"
     " WHERE mlink.fnid=%d"
     "   AND event.objid=mlink.mid",
-    timeline_utc(), TAG_BRANCH, fnid
+    TAG_BRANCH, fnid
   );
   if( (zA = P("a"))!=0 ){
     blob_append_sql(&sql, " AND event.mtime>=julianday('%q')", zA);

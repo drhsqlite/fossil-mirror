@@ -795,6 +795,65 @@ void db_sym2rid_function(
 }
 
 /*
+** The toLocal() SQL function returns a string that is an argument to a
+** date/time function that is appropriate for modifying the time for display.
+** If UTC time display is selected, no modification occurs.  If local time
+** display is selected, the time is adjusted appropriately.
+**
+** Example usage:
+**
+**         SELECT datetime('now',toLocal());
+*/
+void db_tolocal_function(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  if( g.fTimeFormat==0 ){
+    if( db_get_int("timeline-utc", 1) ){
+      g.fTimeFormat = 1;
+    }else{
+      g.fTimeFormat = 2;
+    }
+  }
+  if( g.fTimeFormat==1 ){
+    sqlite3_result_text(context, "0 seconds", -1, SQLITE_STATIC);
+  }else{
+    sqlite3_result_text(context, "localtime", -1, SQLITE_STATIC);
+  }
+}
+
+/*
+** The fromLocal() SQL function returns a string that is an argument to a
+** date/time function that is appropriate to convert an input time to UTC.
+** If UTC time display is selected, no modification occurs.  If local time
+** display is selected, the time is adjusted from local to UTC.
+**
+** Example usage:
+**
+**         SELECT julianday(:user_input,fromLocal());
+*/
+void db_fromlocal_function(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  if( g.fTimeFormat==0 ){
+    if( db_get_int("timeline-utc", 1) ){
+      g.fTimeFormat = 1;
+    }else{
+      g.fTimeFormat = 2;
+    }
+  }
+  if( g.fTimeFormat==1 ){
+    sqlite3_result_text(context, "0 seconds", -1, SQLITE_STATIC);
+  }else{
+    sqlite3_result_text(context, "utc", -1, SQLITE_STATIC);
+  }
+}
+
+
+/*
 ** Register the SQL functions that are useful both to the internal
 ** representation and to the "fossil sql" command.
 */
@@ -806,7 +865,11 @@ void db_add_aux_functions(sqlite3 *db){
   sqlite3_create_function(db, "symbolic_name_to_rid", 2, SQLITE_UTF8, 0,
                           db_sym2rid_function, 0, 0);
   sqlite3_create_function(db, "now", 0, SQLITE_UTF8, 0,
-                                 db_now_function, 0, 0);
+                          db_now_function, 0, 0);
+  sqlite3_create_function(db, "toLocal", 0, SQLITE_UTF8, 0,
+                          db_tolocal_function, 0, 0);
+  sqlite3_create_function(db, "fromLocal", 0, SQLITE_UTF8, 0,
+                          db_fromlocal_function, 0, 0);
 }
 
 
