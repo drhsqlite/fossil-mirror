@@ -1,5 +1,5 @@
-C Enhancements\sto\sthe\slookslike\sfunctions.
-D 2015-12-23T01:37:57.973
+C Change\spiechart\stable\sto\sview\ssince\stables\shave\sundefined\sorder
+D 2015-12-23T11:41:58.668
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -485,7 +485,7 @@ F src/sqlite3.c 3114987d1944fbb86524244f31a499bb073d543d
 F src/sqlite3.h 4d668b2c69164d186b235186b315042464d7e373
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 9fa919c1c78db3952e181e0bf955b039aca0db26
-F src/statrep.c 4f11eab5a4c84506471dae87b36e32de4d0c666b
+F src/statrep.c ef92de5651dfe96f98e4e5cbed09c5d1de3a74be
 F src/style.c 1a7a0b84d1404a6420819498e0697219eb90357d
 F src/sync.c 430351487d739560d75ea3d561e6ef6539c26974
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
@@ -744,8 +744,10 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c94dc804c4b6c893ad4397e86707e6306928eda4 255327f0534ccd11dbdcbff1448f6034c9a3abbf
-R 7004c30fcc1e4463c68676606ea4a653
-T +closed 255327f0534ccd11dbdcbff1448f6034c9a3abbf
-U drh
-Z 4cb1731b978983c44cd8038f1ed421a1
+P 6b292eaa78192628c071bc3553a64102c3ada2b9
+R c1a349effead893664a388928a65bf58
+T *branch * enhance-reports
+T *sym-enhance-reports *
+T -sym-trunk *
+U baruch
+Z 6107d174a3c5c59893dae09e19e976d5
