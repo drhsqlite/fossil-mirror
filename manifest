@@ -1,5 +1,5 @@
-C Restore\soriginal\sdefinitions\sof\sthe\s'LOOK_*'\sflags.
-D 2015-12-23T21:35:43.397
+C Fix\ssome\soutdated\scomments\sfor\sclarity.
+D 2015-12-23T21:37:14.455
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -441,7 +441,7 @@ F src/linenoise.c 9c1a8a9a1d33f79191cb5a104067201a8cee6de1
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 48e28e14943671f38ff81cdbdb6db93564bed895
-F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
+F src/lookslike.c 9103d15912b792a65874f04e185f2a74a477ebb4
 F src/main.c 48a8db90d5e83223bd719827ca89bad2bca4c537
 F src/main.mk 29222c3dafd8664690482d11733671ad8245c3ff
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
@@ -744,8 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ea63a2d1f409581afde02949a51b68ac30133a0e
-Q -6b292eaa78192628c071bc3553a64102c3ada2b9
-R 898f177c883002583a65353d961f7fde
+P 3161968463c0c6d59d2dee4b7349f00e45a29fe0
+R 4f9eadd393ba8fa12644fdbdf05504b1
 U mistachkin
-Z 2c97eb201ce1232972ab90c7ac30573b
+Z b0240c22e65ad9afd12bcbcc4d7d191c
