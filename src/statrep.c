@@ -670,7 +670,6 @@ static void stats_report_year_weeks(const char *zUserName){
 **                     current year).
 */
 void stats_report_page(){
-  HQuery url;                        /* URL for various branch links */
   const char *zView = P("view");     /* Which view/report to show. */
   int eType = RPT_NONE;              /* Numeric code for view/report to show */
   int i;                             /* Loop counter */
@@ -712,8 +711,6 @@ void stats_report_page(){
       break;
     }
   }
-  url_initialize(&url, "reports");
-  cgi_query_parameters_to_url(&url);
   if( eType!=RPT_NONE ){
     int nView = 0;                     /* Slots used in azView[] */
     for(i=0; i<ArraySize(aViewType); i++){
@@ -725,7 +722,7 @@ void stats_report_page(){
     }
     style_submenu_multichoice("view", nView/2, azView, 0);
     if( eType!=RPT_BYUSER ){
-      style_submenu_sql("u","User:",
+      style_submenu_sql("user","User:",
          "SELECT '', 'All Users' UNION ALL "
          "SELECT x, x FROM ("
          "  SELECT DISTINCT trim(coalesce(euser,user)) AS x FROM event %s"
@@ -735,7 +732,6 @@ void stats_report_page(){
     }
   }
   style_submenu_element("Stats", "Stats", "%R/stat");
-  url_reset(&url);
   style_header("Activity Reports");
   switch( eType ){
     case RPT_BYYEAR:
