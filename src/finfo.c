@@ -327,6 +327,9 @@ void finfo_page(void){
     style_footer();
     return;
   }
+  if( g.perm.Admin ){
+    style_submenu_element("MLink Table", "mtab", "%R/mlink?name=%t", zFilename);
+  }
   if( baseCheckin ){
     compute_direct_ancestors(baseCheckin);
   }
@@ -581,9 +584,80 @@ void mlink_page(void){
     @ Requires either a name= or ci= query parameter
     @ </span>
   }else if( zFName ){
-    @ <span class='generalError'>
-    @ name= query parameter is not yet implemented.
-    @ </span>
+    int fnid = db_int(0,"SELECT fnid FROM filename WHERE name=%Q",zFName);
+    if( fnid<=0 ) fossil_fatal("no such file: \"%s\"", zFName);
+    db_prepare(&q,
+       "SELECT"
+       /* 0 */ "  datetime(event.mtime,toLocal()),"
+       /* 1 */ "  (SELECT uuid FROM blob WHERE rid=mlink.mid),"
+       /* 2 */ "  (SELECT uuid FROM blob WHERE rid=mlink.pmid),"
+       /* 3 */ "  isaux,"
+       /* 4 */ "  (SELECT uuid FROM blob WHERE rid=mlink.fid),"
+       /* 5 */ "  (SELECT uuid FROM blob WHERE rid=mlink.pid),"
+       /* 6 */ "  mperm,"
+       /* 7 */ "  (SELECT name FROM filename WHERE fnid=mlink.pfnid)"
+       "  FROM mlink, event"
+       " WHERE mlink.fnid=%d"
+       "   AND event.objid=mlink.mid"
+       " ORDER BY 1 DESC",
+       fnid
+    );
+    @ <h1>MLINK table for file
+    @ <a href='%R/finfo?name=%t(zFName)'>%h(zFName)</a></h1>
+    @ <div class='brlist'>
+    @ <table id='mlinktable'>
+    @ <thead><tr>
+    @ <th>Date</th>
+    @ <th>Check-in</th>
+    @ <th>Parent Check-in</th>
+    @ <th>Merge?</th>
+    @ <th>New</th>
+    @ <th>Old</th>
+    @ <th>Exe Bit?</th>
+    @ <th>Prior Name</th>
+    @ </tr></thead>
+    @ <tbody>
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zDate = db_column_text(&q,0);
+      const char *zCkin = db_column_text(&q,1);
+      const char *zParent = db_column_text(&q,2);
+      int isMerge = db_column_int(&q,3);
+      const char *zFid = db_column_text(&q,4);
+      const char *zPid = db_column_text(&q,5);
+      int isExe = db_column_int(&q,6);
+      const char *zPrior = db_column_text(&q,7);
+      @ <tr>
+      @ <td><a href='%R/timeline?c=%!S(zCkin)'>%s(zDate)</a></td>
+      @ <td><a href='%R/info/%!S(zCkin)'>%S(zCkin)</a></td>
+      if( zParent ){
+        @ <td><a href='%R/info/%!S(zPid)'>%S(zParent)</a></td>
+      }else{
+        @ <td><i>(New)</i></td>
+      }
+      @ <td align='center'>%s(isMerge?"&#x2713;":"")</td>
+      if( zFid ){
+        @ <td><a href='%R/info/%!S(zFid)'>%S(zFid)</a></td>
+      }else{
+        @ <td><i>(Deleted)</i></td>
+      }
+      if( zPid ){
+        @ <td><a href='%R/info/%!S(zPid)'>%S(zPid)</a>
+      }else{
+        @ <td><i>(New)</i></td>
+      }
+      @ <td align='center'>%s(isExe?"&#x2713;":"")</td>
+      if( zPrior ){
+        @ <td><a href='%R/finfo?name=%t(zPrior)'>%h(zPrior)</a></td>
+      }else{
+        @ <td></td>
+      }
+      @ </tr>
+    }
+    db_finalize(&q);
+    @ </tbody>
+    @ </table>
+    @ </div>
+    output_table_sorting_javascript("mlinktable","tttxtttt",1);
   }else{
     int mid = name_to_rid_www("ci");
     db_prepare(&q,
