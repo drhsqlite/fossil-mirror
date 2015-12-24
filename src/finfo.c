@@ -398,7 +398,8 @@ void finfo_page(void){
     }else{
       blob_appendf(&title, "Ancestors of file ");
     }
-    blob_appendf(&title,"<a href='%R/finfo?name=%T'>%h</a>", zFilename, zFilename);
+    blob_appendf(&title,"<a href='%R/finfo?name=%T'>%h</a>",
+                 zFilename, zFilename);
     if( fShowId ) blob_appendf(&title, " (%d)", fnid);
     blob_appendf(&title, " from check-in %z%S</a>", zLink, zUuid);
     if( fShowId ) blob_appendf(&title, " (%d)", baseCheckin);
@@ -471,7 +472,8 @@ void finfo_page(void){
     zTime[5] = 0;
     @ <tr><td class="timelineTime">
     @ %z(href("%R/timeline?c=%t",zDate))%s(zTime)</a></td>
-    @ <td class="timelineGraph"><div id="m%d(gidx)" class="tl-nodemark"></div></td>
+    @ <td class="timelineGraph"><div id="m%d(gidx)" class="tl-nodemark"></div>
+    @ </td>
     if( zBgClr && zBgClr[0] ){
       @ <td class="timelineTableCell" style="background-color: %h(zBgClr);">
     }else{

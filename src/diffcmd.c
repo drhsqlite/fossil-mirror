@@ -76,7 +76,6 @@ struct FileDirList {
 ** if azInclude is NULL, then always include zFile.
 */
 static int file_dir_match(FileDirList *p, const char *zFile){
-  int i = 0;
   if( p==0 || strcmp(p->zName,".")==0 ) return 1;
   if( filenames_are_case_sensitive() ){
     while( p->zName ){

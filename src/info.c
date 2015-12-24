@@ -215,7 +215,7 @@ void info_cmd(void){
       show_common_info(vid, "checkout:", 1, 1);
     }
     fossil_print("check-ins:    %d\n",
-                 db_int(-1, "SELECT count(*) FROM event WHERE type='ci' /*scan*/"));
+             db_int(-1, "SELECT count(*) FROM event WHERE type='ci' /*scan*/"));
   }else{
     int rid;
     rid = name_to_rid(g.argv[2]);
@@ -600,8 +600,10 @@ void ci_page(void){
       hyperlink_to_user(zUser,zDate,"</td></tr>");
     }
     if( zEComment ){
-      @ <tr><th>Edited&nbsp;Comment:</th><td class="infoComment">%!W(zEComment)</td></tr>
-      @ <tr><th>Original&nbsp;Comment:</th><td class="infoComment">%!W(zComment)</td></tr>
+      @ <tr><th>Edited&nbsp;Comment:</th>
+      @     <td class="infoComment">%!W(zEComment)</td></tr>
+      @ <tr><th>Original&nbsp;Comment:</th>
+      @     <td class="infoComment">%!W(zComment)</td></tr>
     }else{
       @ <tr><th>Comment:</th><td class="infoComment">%!W(zComment)</td></tr>
     }
@@ -1628,7 +1630,7 @@ void hexdump_page(void){
   if( g.perm.Admin ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
-      style_submenu_element("Unshun","Unshun", "%s/shun?accept=%s&sub=1#delshun",
+      style_submenu_element("Unshun","Unshun","%s/shun?accept=%s&sub=1#delshun",
             g.zTop, zUuid);
     }else{
       style_submenu_element("Shun","Shun", "%s/shun?shun=%s#addshun",
@@ -1851,7 +1853,7 @@ void artifact_page(void){
   if( g.perm.Admin ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
-      style_submenu_element("Unshun","Unshun", "%s/shun?accept=%s&sub=1#accshun",
+      style_submenu_element("Unshun","Unshun","%s/shun?accept=%s&sub=1#accshun",
             g.zTop, zUuid);
     }else{
       style_submenu_element("Shun","Shun", "%s/shun?shun=%s#addshun",
@@ -1928,7 +1930,7 @@ void artifact_page(void){
       @ <iframe src="%R/raw/%T(blob_str(&downloadName))?name=%s(zUuid)"
       @   width="100%%" frameborder="0" marginwidth="0" marginheight="0"
       @   sandbox="allow-same-origin"
-      @   onload="this.height = this.contentDocument.documentElement.scrollHeight;">
+      @   onload="this.height=this.contentDocument.documentElement.scrollHeight;">
       @ </iframe>
     }else{
       style_submenu_element("Hex","Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
