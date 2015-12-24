@@ -1350,9 +1350,9 @@ ManifestFile *manifest_file_find(Manifest *p, const char *zName){
 ** Edited files have both mlink.pid!=0 and mlink.fid!=0
 */
 static void add_mlink(
-  int pmid, Manifest *pParent,    /* Parent check-in */
-  int mid,  Manifest *pChild,     /* The child check-in */
-  int isPrim                      /* TRUE if pmid is the primary parent of mid */
+  int pmid, Manifest *pParent,  /* Parent check-in */
+  int mid,  Manifest *pChild,   /* The child check-in */
+  int isPrim                    /* TRUE if pmid is the primary parent of mid */
 ){
   Blob otherContent;
   int otherRid;
@@ -2112,7 +2112,9 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
         blob_appendf(&comment, " Timestamp %h.", zValue);
         continue;
       }else if( memcmp(zName, "-sym-",5)==0 ){
-        if( !branchMove ) blob_appendf(&comment, " Cancel tag \"%h\"", &zName[5]);
+        if( !branchMove ){
+          blob_appendf(&comment, " Cancel tag \"%h\"", &zName[5]);
+        }
       }else if( memcmp(zName, "*sym-",5)==0 ){
         if( !branchMove ){
           blob_appendf(&comment, " Add propagating tag \"%h\"", &zName[5]);
