@@ -602,17 +602,18 @@ void mlink_page(void){
        mid
     );
     @ <h1>MLINK table for check-in %h(zCI)</h1>
-    showContext(mid);
+    render_checkin_context(mid, 1);
     @ <hr>
     @ <div class='brlist'>
     @ <table id='mlinktable'>
     @ <thead><tr>
     @ <th>File</th>
     @ <th>From</th>
+    @ <th>Merge?</th>
     @ <th>New</th>
     @ <th>Old</th>
-    @ <th>Exec</th>
-    @ <th>Renamed From</th>
+    @ <th>Exe Bit?</th>
+    @ <th>Prior Name</th>
     @ </tr></thead>
     @ <tbody>
     while( db_step(&q)==SQLITE_ROW ){
@@ -622,6 +623,7 @@ void mlink_page(void){
       const char *zParent = db_column_text(&q,7);
       const char *zPrior = db_column_text(&q,5);
       int isExec = db_column_int(&q,8);
+      int isAux = db_column_int(&q,9);
       @ <tr>
       @ <td><a href='%R/finfo?name=%t(zName)'>%h(zName)</a></td>
       if( zParent ){
@@ -629,6 +631,7 @@ void mlink_page(void){
       }else{
         @ <td><i>(New)</i></td>
       }
+      @ <td align='center'>%s(isAux?"&#x2713;":"")</td>
       if( zFid ){
         @ <td><a href='%R/info/%!S(zFid)'>%S(zFid)</a></td>
       }else{
@@ -639,7 +642,7 @@ void mlink_page(void){
       }else{
         @ <td><i>(New)</i></td>
       }
-      @ <td>%s(isExec?"X":"")</td>
+      @ <td align='center'>%s(isExec?"&#x2713;":"")</td>
       if( zPrior ){
         @ <td><a href='%R/finfo?name=%t(zPrior)'>%h(zPrior)</a></td>
       }else{
@@ -651,7 +654,7 @@ void mlink_page(void){
     @ </tbody>
     @ </table>
     @ </div>
-    output_table_sorting_javascript("mlinktable","tttttt",1);
+    output_table_sorting_javascript("mlinktable","ttxtttt",1);
   }
   style_footer();
 }

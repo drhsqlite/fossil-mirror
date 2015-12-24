@@ -297,7 +297,7 @@ static void showTags(int rid){
 ** Show the context graph (immediate parents and children) for
 ** check-in rid.
 */
-void showContext(int rid){
+void render_checkin_context(int rid, int parentsOnly){
   Blob sql;
   Stmt q;
   blob_zero(&sql);
@@ -305,10 +305,14 @@ void showContext(int rid){
   db_multi_exec(
      "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY);"
      "INSERT INTO ok VALUES(%d);"
-     "INSERT OR IGNORE INTO ok SELECT pid FROM plink WHERE cid=%d;"
-     "INSERT OR IGNORE INTO ok SELECT cid FROM plink WHERE pid=%d;",
-     rid, rid, rid
+     "INSERT OR IGNORE INTO ok SELECT pid FROM plink WHERE cid=%d;",
+     rid, rid
   );
+  if( !parentsOnly ){
+    db_multi_exec(
+      "INSERT OR IGNORE INTO ok SELECT cid FROM plink WHERE pid=%d;", rid
+    );
+  }
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_sql_text(&sql));
   www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH, 0, 0, rid, 0);
@@ -692,7 +696,7 @@ void ci_page(void){
   db_finalize(&q1);
   showTags(rid);
   @ <div class="section">Context</div>
-  showContext(rid);
+  render_checkin_context(rid, 0);
   @ <div class="section">Changes</div>
   @ <div class="sectionmenu">
   verboseFlag = g.zPath[0]!='c';

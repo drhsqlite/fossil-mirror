@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion\sto\sfix\sa\nharmless\scompiler\swarning\sthat\scomes\sup\son\snewer\sMacs.
-D 2015-12-24T14:57:22.095
+C Improvements\sto\sthe\s/mlink\swebpage.
+D 2015-12-24T19:18:09.319
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -408,7 +408,7 @@ F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
 F src/file.c 96e88d124e5a031652e30ef1abc06e69b125c736
-F src/finfo.c 8fa72d308f3adf4c812bf63755badb8c9292501f
+F src/finfo.c 5ade592d609a0d2d618e40a5d7f08f23191c613f
 F src/foci.c 693596989fbb12a01c31317a7adf0d1ce85c7903
 F src/fusefs.c e25405b83122ed8369aa63125897348e5eb3cab2
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -419,7 +419,7 @@ F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c f163b545730ddb73c1d411663f6225f439531511
-F src/info.c 8ec0528e387ba7b72834773a54cd332f41116632
+F src/info.c 3826af4933096cfb0f3d8d9b9c894b0976c5fd62
 F src/json.c 18266f277275d058aadb979b74c8b3af7791d649
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3fdc2c01279ae85539dee9bffb98b880e4778f73
-R da04a8cecaed1f0948ac3259cf815661
+P 44c147b078acc406a575d097328a6ba1ad668590
+R 3a74a461cac2da21b2debf773f02140c
 U drh
-Z 4afd9e49b49bef3467ca2db944d46de1
+Z f2f38bf48fe576386c06f30f5f32ed03
