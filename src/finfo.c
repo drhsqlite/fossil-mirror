@@ -558,3 +558,100 @@ void finfo_page(void){
   timeline_output_graph_javascript(pGraph, 0, 1);
   style_footer();
 }
+
+/*
+** WEBPAGE: mlink
+** URL: /mlink?name=FILENAME
+** URL: /mlink?ci=NAME
+**
+** Show all MLINK table entries for a particular file, or for
+** a particular check-in.  This screen is intended for use by developers
+** in debugging Fossil.
+*/
+void mlink_page(void){
+  const char *zFName = P("name");
+  const char *zCI = P("ci");
+  Stmt q;
+  
+  login_check_credentials();
+  if( !g.perm.Admin ){ login_needed(g.anon.Admin); return; }
+  style_header("MLINK Table");
+  if( zFName==0 && zCI==0 ){
+    @ <span class='generalError'>
+    @ Requires either a name= or ci= query parameter
+    @ </span>
+  }else if( zFName ){
+    @ <span class='generalError'>
+    @ name= query parameter is not yet implemented.
+    @ </span>
+  }else{
+    int mid = name_to_rid_www("ci");
+    db_prepare(&q,
+       "SELECT"
+       /* 0 */ "  (SELECT name FROM filename WHERE fnid=mlink.fnid),"
+       /* 1 */ "  fid,"
+       /* 2 */ "  (SELECT uuid FROM blob WHERE rid=mlink.fid),"
+       /* 3 */ "  pid,"
+       /* 4 */ "  (SELECT uuid FROM blob WHERE rid=mlink.pid),"
+       /* 5 */ "  (SELECT name FROM filename WHERE fnid=mlink.pfnid),"
+       /* 6 */ "  pmid,"
+       /* 7 */ "  (SELECT uuid FROM blob WHERE rid=mlink.pmid),"
+       /* 8 */ "  mperm,"
+       /* 9 */ "  isaux"
+       "  FROM mlink WHERE mid=%d ORDER BY 1",
+       mid
+    );
+    @ <h1>MLINK table for check-in %h(zCI)</h1>
+    showContext(mid);
+    @ <hr>
+    @ <div class='brlist'>
+    @ <table id='mlinktable'>
+    @ <thead><tr>
+    @ <th>File</th>
+    @ <th>From</th>
+    @ <th>New</th>
+    @ <th>Old</th>
+    @ <th>Exec</th>
+    @ <th>Renamed From</th>
+    @ </tr></thead>
+    @ <tbody>
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zName = db_column_text(&q,0);
+      const char *zFid = db_column_text(&q,2);
+      const char *zPid = db_column_text(&q,4);
+      const char *zParent = db_column_text(&q,7);
+      const char *zPrior = db_column_text(&q,5);
+      int isExec = db_column_int(&q,8);
+      @ <tr>
+      @ <td><a href='%R/finfo?name=%t(zName)'>%h(zName)</a></td>
+      if( zParent ){
+        @ <td><a href='%R/info/%!S(zPid)'>%S(zParent)</a></td>
+      }else{
+        @ <td><i>(New)</i></td>
+      }
+      if( zFid ){
+        @ <td><a href='%R/info/%!S(zFid)'>%S(zFid)</a></td>
+      }else{
+        @ <td><i>(Deleted)</i></td>
+      }
+      if( zPid ){
+        @ <td><a href='%R/info/%!S(zPid)'>%S(zPid)</a>
+      }else{
+        @ <td><i>(New)</i></td>
+      }
+      @ <td>%s(isExec?"X":"")</td>
+      if( zPrior ){
+        @ <td><a href='%R/finfo?name=%t(zPrior)'>%h(zPrior)</a></td>
+      }else{
+        @ <td></td>
+      }
+      @ </tr>
+    }
+    db_finalize(&q);
+    @ </tbody>
+    @ </table>
+    @ </div>
+    output_table_sorting_javascript("mlinktable","tttttt",1);
+  }
+  style_footer();
+}

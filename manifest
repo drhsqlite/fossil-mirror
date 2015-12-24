@@ -1,5 +1,5 @@
-C Fix\sa\sharmless\scompiler\swarning\sand\sseveral\sover-length\ssource\scode\slines.
-D 2015-12-24T13:28:15.770
+C Add\sthe\s/mlink\spage\s(accessible\sonly\sby\sAdmin\susers)\sthat\sshows\sMLINK\ntable\scontent\sfor\sa\scheck-in\sfor\sdebugging\spurposes.
+D 2015-12-24T14:36:53.339
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -408,7 +408,7 @@ F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
 F src/file.c 96e88d124e5a031652e30ef1abc06e69b125c736
-F src/finfo.c 7c5419b6f9a212b3c2a1d2f1e6d7a9f1ad530e13
+F src/finfo.c 8fa72d308f3adf4c812bf63755badb8c9292501f
 F src/foci.c 693596989fbb12a01c31317a7adf0d1ce85c7903
 F src/fusefs.c e25405b83122ed8369aa63125897348e5eb3cab2
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -419,7 +419,7 @@ F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c f163b545730ddb73c1d411663f6225f439531511
-F src/info.c 27e2ad4f547dbb4735b536cf5065fa362174315d
+F src/info.c 8ec0528e387ba7b72834773a54cd332f41116632
 F src/json.c 18266f277275d058aadb979b74c8b3af7791d649
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6e3fcebcfca057ba0e6192f90a9697765b823fcf
-R 5356f06b41f55691b089c5c132000333
+P d94362b6ae9736685e11be087572958417325ee0
+R e52332d81cf4d75b137a23f45aae74a0
 U drh
-Z bd8e54501b14f22e80f95c7d74a10757
+Z f1846356ce090e510b79661448cd89a9

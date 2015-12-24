@@ -297,10 +297,9 @@ static void showTags(int rid){
 ** Show the context graph (immediate parents and children) for
 ** check-in rid.
 */
-static void showContext(int rid){
+void showContext(int rid){
   Blob sql;
   Stmt q;
-  @ <div class="section">Context</div>
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_www(), -1);
   db_multi_exec(
@@ -692,6 +691,7 @@ void ci_page(void){
   }
   db_finalize(&q1);
   showTags(rid);
+  @ <div class="section">Context</div>
   showContext(rid);
   @ <div class="section">Changes</div>
   @ <div class="sectionmenu">
@@ -729,6 +729,9 @@ void ci_page(void){
   if( zParent ){
     @ %z(xhref("class='button'","%R/vpatch?from=%!S&to=%!S",zParent,zUuid))
     @ Patch</a>
+  }
+  if( g.perm.Admin ){
+    @ %z(xhref("class='button'","%R/mlink?ci=%!S",zUuid))MLink Table</a>
   }
   @</div>
   if( pRe ){
