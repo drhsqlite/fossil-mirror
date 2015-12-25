@@ -130,7 +130,12 @@ static void import_reset(int freeAll){
 ** If saveUuid is true, then pContent is a commit record.  Record its
 ** UUID in gg.zPrevCheckin.
 */
-static int fast_insert_content(Blob *pContent, const char *zMark, int saveUuid){
+static int fast_insert_content(
+  Blob *pContent,          /* Content to insert */
+  const char *zMark,       /* Label using this mark, if not NULL */
+  int saveUuid,            /* Save SHA1 hash in gg.zPrevCheckin */
+  int doParse              /* Invoke manifest_crosslink() */
+){
   Blob hash;
   Blob cmpr;
   int rid;
@@ -150,6 +155,9 @@ static int fast_insert_content(Blob *pContent, const char *zMark, int saveUuid){
     db_reset(&ins);
     blob_reset(&cmpr);
     rid = db_last_insert_rowid();
+    if( doParse ){
+      manifest_crosslink(rid, pContent, MC_NONE);
+    }
   }
   if( zMark ){
     db_multi_exec(
@@ -178,7 +186,7 @@ static int fast_insert_content(Blob *pContent, const char *zMark, int saveUuid){
 static void finish_blob(void){
   Blob content;
   blob_init(&content, gg.aData, gg.nData);
-  fast_insert_content(&content, gg.zMark, 0);
+  fast_insert_content(&content, gg.zMark, 0, 0);
   blob_reset(&content);
   import_reset(0);
 }
@@ -196,8 +204,7 @@ static void finish_tag(void){
     blob_appendf(&record, "U %F\n", gg.zUser);
     md5sum_blob(&record, &cksum);
     blob_appendf(&record, "Z %b\n", &cksum);
-    fast_insert_content(&record, 0, 0);
-    blob_reset(&record);
+    fast_insert_content(&record, 0, 0, 1);
     blob_reset(&cksum);
   }
   import_reset(0);
@@ -240,6 +247,7 @@ static void finish_commit(void){
   blob_zero(&record);
   blob_appendf(&record, "C %F\n", gg.zComment);
   blob_appendf(&record, "D %s\n", gg.zDate);
+  if( !g.fQuiet ) fossil_print("%.10s\r", gg.zDate);
   for(i=0; i<gg.nFile; i++){
     const char *zUuid = gg.aFile[i].zUuid;
     if( zUuid==0 ) continue;
@@ -292,8 +300,7 @@ static void finish_commit(void){
   blob_appendf(&record, "U %F\n", gg.zUser);
   md5sum_blob(&record, &cksum);
   blob_appendf(&record, "Z %b\n", &cksum);
-  fast_insert_content(&record, gg.zMark, 1);
-  blob_reset(&record);
+  fast_insert_content(&record, gg.zMark, 1, 1);
   blob_reset(&cksum);
 
   /* The "git fast-export" command might output multiple "commit" lines
@@ -1505,6 +1512,7 @@ static void svn_dump_import(FILE *pIn){
 ** Common Options:
 **   -i|--incremental   allow importing into an existing repository
 **   -f|--force         overwrite repository if already exist
+**   -q|--quiet         omit progress output
 **
 ** The --incremental option allows an existing repository to be extended
 ** with new content.
@@ -1640,15 +1648,17 @@ void import_cmd(void){
        "CREATE TEMP TABLE xtag(tname TEXT UNIQUE, tcontent TEXT);"
     );
 
+    manifest_crosslink_begin();
     git_fast_import(pIn);
     db_prepare(&q, "SELECT tcontent FROM xtag");
     while( db_step(&q)==SQLITE_ROW ){
       Blob record;
       db_ephemeral_blob(&q, 0, &record);
-      fast_insert_content(&record, 0, 0);
+      fast_insert_content(&record, 0, 0, 1);
       import_reset(0);
     }
     db_finalize(&q);
+    manifest_crosslink_end(MC_NONE);
   }
 
   verify_cancel();

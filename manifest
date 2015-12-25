@@ -1,5 +1,5 @@
-C Add\sa\sconfiguration\soption\sthat\swill\struncate\sthe\sdisplay\sof\scheck-in\ncomments\son\stimelines\sat\sthe\sfirst\sblank\sline.
-D 2015-12-25T03:20:19.713
+C Fix\sthe\s"fossil\simport\s--git"\scommand\sso\sthat\sit\sdoes\sdelta\scompression\non\sthe\sfly,\sand\shence\suses\smuch\sless\stemporary\sdisk\sspace.\s\sAlso\sshow\nprogress\sinformation\sunless\s--quiet\sis\sused.
+D 2015-12-25T13:42:54.219
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -418,7 +418,7 @@ F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
-F src/import.c f163b545730ddb73c1d411663f6225f439531511
+F src/import.c c23ad04d717c83321e3ab64985b660bdc0a043bf
 F src/info.c 3826af4933096cfb0f3d8d9b9c894b0976c5fd62
 F src/json.c 18266f277275d058aadb979b74c8b3af7791d649
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 953357515ccf2fc9d0e6e6b3ad5c05186c7343a2
-R 507b8996688d438dfefd392836b51a78
+P 96101215aefb4691b26e85337d2a2dbd1d845ec4
+R 55a7146f616736d2c7080133e758ba7d
 U drh
-Z c3aaf78729e0d640fe5a961d831a0715
+Z 7621a7db4260be0f36ce5d4e44c04e68
