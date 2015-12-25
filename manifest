@@ -1,5 +1,5 @@
-C Add\s"Related"\sand\s"Branch\sOnly"\sbuttons\sto\sthe\st=\sand\sr=\squery\sparameters\nfor\s/timeline.
-D 2015-12-25T02:25:56.811
+C Add\sa\sconfiguration\soption\sthat\swill\struncate\sthe\sdisplay\sof\scheck-in\ncomments\son\stimelines\sat\sthe\sfirst\sblank\sline.
+D 2015-12-25T03:20:19.713
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -474,7 +474,7 @@ F src/report.c dfa9f1671b5f26e461e7473d34d10951eadfdea2
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c 3ddd0bd72f6a9af5a92b4f4113577d1a0ff7c75d
-F src/setup.c ac704e6cd92c86fef9a0edda055c31f5b43be9db
+F src/setup.c b1b74ef83b01a10962e6b71c0b459e18eb31a4b3
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c abbc74ea43dbf2f306ea18282d666683fb5efab2
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
@@ -495,7 +495,7 @@ F src/th.h 1e7ae1613afa730a75df06d7fd1f17c7ff4564f4
 F src/th_lang.c e37a4bae6c05ed442bc90ba3fa18be2683e2a6a1
 F src/th_main.c 7d85cdca12e2c95970f90aaaa962a466b55009ba
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
-F src/timeline.c b0991c074460a4fc58a1ebac9ec8831f5b34613d
+F src/timeline.c 7c92baf3f93cb9ccabb4064cba816f5554896fd2
 F src/tkt.c 09fedb774dc3ee893d01ce2a6050809796ef66c9
 F src/tktsetup.c 32e23747e8d3f36fc390a6197dda2209d98cad09
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e2c53534b59487b1fceb850f8cfe5f791fe8dfe8
-R b5b27818b6938a9a9ba671c71dd04a2a
+P 953357515ccf2fc9d0e6e6b3ad5c05186c7343a2
+R 507b8996688d438dfefd392836b51a78
 U drh
-Z 49a60dde60cef6b22b0cb1da49ef72ac
+Z c3aaf78729e0d640fe5a961d831a0715

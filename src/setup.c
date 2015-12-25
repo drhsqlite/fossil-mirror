@@ -1378,6 +1378,12 @@ void setup_timeline(void){
   @ display formatting features such as fonts and line-wrapping behavior.)</p>
 
   @ <hr />
+  onoff_attribute("Truncate comment at first blank line",
+                  "timeline-truncate-at-blank", "ttb", 0, 0);
+  @ <p>In timeline displays, check-in comments are displayed only through
+  @ the first blank line.</p>
+
+  @ <hr />
   onoff_attribute("Use Universal Coordinated Time (UTC)",
                   "timeline-utc", "utc", 1, 0);
   @ <p>Show times as UTC (also sometimes called Greenwich Mean Time (GMT) or
