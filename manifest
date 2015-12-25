@@ -1,5 +1,5 @@
-C Fix\sthe\s"fossil\simport\s--git"\scommand\sso\sthat\sit\sdoes\sdelta\scompression\non\sthe\sfly,\sand\shence\suses\smuch\sless\stemporary\sdisk\sspace.\s\sAlso\sshow\nprogress\sinformation\sunless\s--quiet\sis\sused.
-D 2015-12-25T13:42:54.219
+C Performance\soptimization\son\sthe\sdelta\sgenerator.
+D 2015-12-25T14:46:13.340
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -397,7 +397,7 @@ F src/cson_amalgamation.c ce18de7d62186d08d6c15a7efbd66bf009310439
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 19e5cdcc57473efdb94d7ef7c73454c81e516625
-F src/delta.c d0dd6f11845026bad3fccadf52ebb7bb9f508cb3
+F src/delta.c 17102bbd7c42c91cf666e3dbd187752c0cbd358a
 F src/deltacmd.c 4ff465c4331af328c6691103745de17e92d36007
 F src/descendants.c 6cb824a041723f2bf8e82765386ed5974e335c92
 F src/diff.c 9e68056cec9391693463aefb1954d7672698cd05
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 96101215aefb4691b26e85337d2a2dbd1d845ec4
-R 55a7146f616736d2c7080133e758ba7d
+P 063779a14cb7c4a7da4ed7ce453a213b370b252d
+R 60e3d2513e1ca76a30b8967e02d4c4c2
 U drh
-Z 7621a7db4260be0f36ce5d4e44c04e68
+Z ebd4b567b217f7ce9a06489f9f9fb0b0

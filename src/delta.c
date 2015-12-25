@@ -107,9 +107,9 @@ static void hash_init(hash *pHash, const char *z){
   a = b = 0;
   for(i=0; i<NHASH; i++){
     a += z[i];
-    b += (NHASH-i)*z[i];
-    pHash->z[i] = z[i];
+    b += a;
   }
+  memcpy(pHash->z, z, NHASH);
   pHash->a = a & 0xffff;
   pHash->b = b & 0xffff;
   pHash->i = 0;
@@ -131,6 +131,24 @@ static void hash_next(hash *pHash, int c){
 */
 static u32 hash_32bit(hash *pHash){
   return (pHash->a & 0xffff) | (((u32)(pHash->b & 0xffff))<<16);
+}
+
+/*
+** Compute a hash on NHASH bytes.
+**
+** This routine is intended to be equivalent to:
+**    hash h;
+**    hash_init(&h, zInput);
+**    return hash_32bit(&h);
+*/
+static u32 hash_once(const char *z){
+  u16 a, b, i;
+  a = b = 0;
+  for(i=0; i<NHASH; i++){
+    a += z[i];
+    b += a;
+  }
+  return a | (((u32)b)<<16);
 }
 
 /*
@@ -332,9 +350,7 @@ int delta_create(
   memset(landmark, -1, nHash*sizeof(int));
   memset(collide, -1, nHash*sizeof(int));
   for(i=0; i<lenSrc-NHASH; i+=NHASH){
-    int hv;
-    hash_init(&h, &zSrc[i]);
-    hv = hash_32bit(&h) % nHash;
+    int hv = hash_once(&zSrc[i]) % nHash;
     collide[i/NHASH] = landmark[hv];
     landmark[hv] = i/NHASH;
   }
