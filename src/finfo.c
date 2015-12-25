@@ -594,8 +594,9 @@ void mlink_page(void){
        /* 3 */ "  isaux,"
        /* 4 */ "  (SELECT uuid FROM blob WHERE rid=mlink.fid),"
        /* 5 */ "  (SELECT uuid FROM blob WHERE rid=mlink.pid),"
-       /* 6 */ "  mperm,"
-       /* 7 */ "  (SELECT name FROM filename WHERE fnid=mlink.pfnid)"
+       /* 6 */ "  mlink.pid,"
+       /* 7 */ "  mperm,"
+       /* 8 */ "  (SELECT name FROM filename WHERE fnid=mlink.pfnid)"
        "  FROM mlink, event"
        " WHERE mlink.fnid=%d"
        "   AND event.objid=mlink.mid"
@@ -624,8 +625,8 @@ void mlink_page(void){
       int isMerge = db_column_int(&q,3);
       const char *zFid = db_column_text(&q,4);
       const char *zPid = db_column_text(&q,5);
-      int isExe = db_column_int(&q,6);
-      const char *zPrior = db_column_text(&q,7);
+      int isExe = db_column_int(&q,7);
+      const char *zPrior = db_column_text(&q,8);
       @ <tr>
       @ <td><a href='%R/timeline?c=%!S(zCkin)'>%s(zDate)</a></td>
       @ <td><a href='%R/info/%!S(zCkin)'>%S(zCkin)</a></td>
@@ -642,6 +643,8 @@ void mlink_page(void){
       }
       if( zPid ){
         @ <td><a href='%R/info/%!S(zPid)'>%S(zPid)</a>
+      }else if( db_column_int(&q,6)<0 ){
+        @ <td><i>(Added by merge)</i></td>
       }else{
         @ <td><i>(New)</i></td>
       }
@@ -663,15 +666,13 @@ void mlink_page(void){
     db_prepare(&q,
        "SELECT"
        /* 0 */ "  (SELECT name FROM filename WHERE fnid=mlink.fnid),"
-       /* 1 */ "  fid,"
-       /* 2 */ "  (SELECT uuid FROM blob WHERE rid=mlink.fid),"
-       /* 3 */ "  pid,"
-       /* 4 */ "  (SELECT uuid FROM blob WHERE rid=mlink.pid),"
-       /* 5 */ "  (SELECT name FROM filename WHERE fnid=mlink.pfnid),"
-       /* 6 */ "  pmid,"
-       /* 7 */ "  (SELECT uuid FROM blob WHERE rid=mlink.pmid),"
-       /* 8 */ "  mperm,"
-       /* 9 */ "  isaux"
+       /* 1 */ "  (SELECT uuid FROM blob WHERE rid=mlink.fid),"
+       /* 2 */ "  pid,"
+       /* 3 */ "  (SELECT uuid FROM blob WHERE rid=mlink.pid),"
+       /* 4 */ "  (SELECT name FROM filename WHERE fnid=mlink.pfnid),"
+       /* 5 */ "  (SELECT uuid FROM blob WHERE rid=mlink.pmid),"
+       /* 6 */ "  mperm,"
+       /* 7 */ "  isaux"
        "  FROM mlink WHERE mid=%d ORDER BY 1",
        mid
     );
@@ -692,12 +693,12 @@ void mlink_page(void){
     @ <tbody>
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q,0);
-      const char *zFid = db_column_text(&q,2);
-      const char *zPid = db_column_text(&q,4);
-      const char *zParent = db_column_text(&q,7);
-      const char *zPrior = db_column_text(&q,5);
-      int isExec = db_column_int(&q,8);
-      int isAux = db_column_int(&q,9);
+      const char *zFid = db_column_text(&q,1);
+      const char *zPid = db_column_text(&q,3);
+      const char *zPrior = db_column_text(&q,4);
+      const char *zParent = db_column_text(&q,5);
+      int isExec = db_column_int(&q,6);
+      int isAux = db_column_int(&q,7);
       @ <tr>
       @ <td><a href='%R/finfo?name=%t(zName)'>%h(zName)</a></td>
       if( zParent ){
@@ -713,6 +714,8 @@ void mlink_page(void){
       }
       if( zPid ){
         @ <td><a href='%R/info/%!S(zPid)'>%S(zPid)</a>
+      }else if( db_column_int(&q,2)<0 ){
+        @ <td><i>(Added by merge)</i></td>
       }else{
         @ <td><i>(New)</i></td>
       }

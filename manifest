@@ -1,5 +1,5 @@
-C Fix\ssome\sover-length\ssource\scode\slines.\s\sNo\sfunctional\schanges.
-D 2015-12-24T20:50:40.320
+C Improvements\sto\sthe\sway\smlink\sis\scomputed.\s\sSome\sunnecessary\smlink\sentries\nare\ssuppressed.\s\sRunning\s"fossil\srebuild"\sis\srecommended.
+D 2015-12-25T00:20:29.963
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -408,7 +408,7 @@ F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
 F src/file.c 96e88d124e5a031652e30ef1abc06e69b125c736
-F src/finfo.c 06bc9221a2f21a41fba6b486a17d1e574fdf4b19
+F src/finfo.c 9dcd6c54bf5fadfafe0b15cbb736ba0cf418c956
 F src/foci.c 693596989fbb12a01c31317a7adf0d1ce85c7903
 F src/fusefs.c e25405b83122ed8369aa63125897348e5eb3cab2
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -447,7 +447,7 @@ F src/main.mk 29222c3dafd8664690482d11733671ad8245c3ff
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 8b578a8eca1206ab171ff2d9b200ef46dbd917d0
-F src/manifest.c cbabf68de83723d46ba370876d9b79128009907a
+F src/manifest.c 7cb26f614b20461fc27be3004e18ab7808adfa93
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md fc02fd045690e6fb45fb0bc91be734913dc70d02
 F src/markdown_html.c c7392199eb39dad9f92c31aa352f4f3408da93bf
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a1721621f6828f42e44aeef56ea60d577b07a4e7
-R 191c767eb866e199a7ebe7920fa860e7
+P 9a8d082701b4a2160f982047044e081c9fbb8a52
+R 0f9dc6abb077273a2f8d51096f11c6f9
 U drh
-Z 6ce644cbe38137a66699bd171743fd75
+Z 91510287d5a295a5a453ab021c6eb058

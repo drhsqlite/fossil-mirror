@@ -1187,6 +1187,11 @@ int manifest_file_mperm(ManifestFile *pFile){
 /*
 ** Add a single entry to the mlink table.  Also add the filename to
 ** the filename table if it is not there already.
+**
+** An mlink entry is always created if isPrimary is true.  But if
+** isPrimary is false (meaning that pmid is a merge parent of mid)
+** then the mlink entry is only created if there is already an mlink
+** from primary parent for the same file.
 */
 static void add_one_mlink(
   int pmid,                 /* The parent manifest */
@@ -1200,7 +1205,8 @@ static void add_one_mlink(
   int mperm                 /* 1: exec, 2: symlink */
 ){
   int fnid, pfnid, pid, fid;
-  static Stmt s1;
+  int doInsert;
+  static Stmt s1, s2;
 
   fnid = filename_to_fnid(zFilename);
   if( zPrior==0 ){
@@ -1219,19 +1225,32 @@ static void add_one_mlink(
     fid = uuid_to_rid(zToUuid, 1);
     if( isPublic ) content_make_public(fid);
   }
-  db_static_prepare(&s1,
-    "INSERT INTO mlink(mid,fid,pmid,pid,fnid,pfnid,mperm,isaux)"
-    "VALUES(:m,:f,:pm,:p,:n,:pfn,:mp,:isaux)"
-  );
-  db_bind_int(&s1, ":m", mid);
-  db_bind_int(&s1, ":f", fid);
-  db_bind_int(&s1, ":pm", pmid);
-  db_bind_int(&s1, ":p", pid);
-  db_bind_int(&s1, ":n", fnid);
-  db_bind_int(&s1, ":pfn", pfnid);
-  db_bind_int(&s1, ":mp", mperm);
-  db_bind_int(&s1, ":isaux", isPrimary==0);
-  db_exec(&s1);
+  if( isPrimary ){
+    doInsert = 1;
+  }else{
+    db_static_prepare(&s2,
+      "SELECT 1 FROM mlink WHERE mid=:m AND fnid=:n AND NOT isaux"
+    );
+    db_bind_int(&s2, ":m", mid);
+    db_bind_int(&s2, ":n", fnid);
+    doInsert = db_step(&s2)==SQLITE_ROW;
+    db_reset(&s2);
+  }
+  if( doInsert ){
+    db_static_prepare(&s1,
+      "INSERT INTO mlink(mid,fid,pmid,pid,fnid,pfnid,mperm,isaux)"
+      "VALUES(:m,:f,:pm,:p,:n,:pfn,:mp,:isaux)"
+    );
+    db_bind_int(&s1, ":m", mid);
+    db_bind_int(&s1, ":f", fid);
+    db_bind_int(&s1, ":pm", pmid);
+    db_bind_int(&s1, ":p", pid);
+    db_bind_int(&s1, ":n", fnid);
+    db_bind_int(&s1, ":pfn", pfnid);
+    db_bind_int(&s1, ":mp", mperm);
+    db_bind_int(&s1, ":isaux", isPrimary==0);
+    db_exec(&s1);
+  }
   if( pid && fid ){
     content_deltify(pid, fid, 0);
   }
@@ -1348,6 +1367,15 @@ ManifestFile *manifest_file_find(Manifest *p, const char *zName){
 ** Added files have mlink.pid=0.
 ** File added by merge have mlink.pid=-1
 ** Edited files have both mlink.pid!=0 and mlink.fid!=0
+**
+** Many mlink entries for merge parents will only be added if another mlink
+** entry already exists for the same file from the primary parent.  Therefore,
+** to ensure that all merge-parent mlink entries are properly created:
+**
+**    (1) Make this routine a no-op if pParent is a merge parent and the
+**        primary parent is a phantom.
+**    (2) Invoke this routine recursively for merge-parents if pParent is the
+**        primary parent.
 */
 static void add_mlink(
   int pmid, Manifest *pParent,  /* Parent check-in */
@@ -1394,6 +1422,19 @@ static void add_mlink(
     return;
   }
   isPublic = !content_is_private(mid);
+  
+  /* If pParent is not the primary parent of pChild, and the primary
+  ** parent of pChild is a phantom, then abort this routine without
+  ** doing any work.  The mlink entries will be computed when the
+  ** primary parent dephantomizes.
+  */
+  if( !isPrim && otherRid==mid
+   && !db_exists("SELECT 1 FROM blob WHERE uuid=%Q AND size>0",
+                 pChild->azParent[0])
+  ){
+    manifest_cache_insert(*ppOther);
+    return;
+  }
 
   /* Try to make the parent manifest a delta from the child, if that
   ** is an appropriate thing to do.  For a new baseline, make the
@@ -1491,6 +1532,17 @@ static void add_mlink(
     }
   }
   manifest_cache_insert(*ppOther);
+  
+  /* If pParent is the primary parent of pChild, also run this analysis
+  ** for all merge parents of pChild
+  */
+  if( isPrim ){
+    for(i=1; i<pChild->nParent; i++){
+      pmid = uuid_to_rid(pChild->azParent[i], 0);
+      if( pmid<=0 ) continue;
+      add_mlink(pmid, 0, mid, pChild, 0);
+    }
+  }
 }
 
 /*
@@ -1800,9 +1852,9 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
            "INSERT OR IGNORE INTO plink(pid, cid, isprim, mtime, baseid)"
            "VALUES(%d, %d, %d, %.17g, %s)",
            pid, rid, i==0, p->rDate, zBaseId/*safe-for-%s*/);
-        add_mlink(pid, 0, rid, p, i==0);
         if( i==0 ) parentid = pid;
       }
+      add_mlink(parentid, 0, rid, p, 1);
       if( p->nParent>1 ){
         /* Change MLINK.PID from 0 to -1 for files that are added by merge. */
         db_multi_exec(
