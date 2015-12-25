@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sway\smlink\sis\scomputed.\s\sSome\sunnecessary\smlink\sentries\nare\ssuppressed.\s\sRunning\s"fossil\srebuild"\sis\srecommended.
-D 2015-12-25T00:20:29.963
+C Add\s"Related"\sand\s"Branch\sOnly"\sbuttons\sto\sthe\st=\sand\sr=\squery\sparameters\nfor\s/timeline.
+D 2015-12-25T02:25:56.811
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -495,7 +495,7 @@ F src/th.h 1e7ae1613afa730a75df06d7fd1f17c7ff4564f4
 F src/th_lang.c e37a4bae6c05ed442bc90ba3fa18be2683e2a6a1
 F src/th_main.c 7d85cdca12e2c95970f90aaaa962a466b55009ba
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
-F src/timeline.c a3537ba4ac8f4a6a063b8e72ac21ff381ce30114
+F src/timeline.c b0991c074460a4fc58a1ebac9ec8831f5b34613d
 F src/tkt.c 09fedb774dc3ee893d01ce2a6050809796ef66c9
 F src/tktsetup.c 32e23747e8d3f36fc390a6197dda2209d98cad09
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9a8d082701b4a2160f982047044e081c9fbb8a52
-R 0f9dc6abb077273a2f8d51096f11c6f9
+P e2c53534b59487b1fceb850f8cfe5f791fe8dfe8
+R b5b27818b6938a9a9ba671c71dd04a2a
 U drh
-Z 91510287d5a295a5a453ab021c6eb058
+Z 49a60dde60cef6b22b0cb1da49ef72ac
