@@ -104,8 +104,8 @@ struct hash {
 */
 static void hash_init(hash *pHash, const char *z){
   u16 a, b, i;
-  a = b = 0;
-  for(i=0; i<NHASH; i++){
+  a = b = z[0];
+  for(i=1; i<NHASH; i++){
     a += z[i];
     b += a;
   }
@@ -143,8 +143,8 @@ static u32 hash_32bit(hash *pHash){
 */
 static u32 hash_once(const char *z){
   u16 a, b, i;
-  a = b = 0;
-  for(i=0; i<NHASH; i++){
+  a = b = z[0];
+  for(i=1; i<NHASH; i++){
     a += z[i];
     b += a;
   }
