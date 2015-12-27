@@ -391,14 +391,17 @@ int delta_create(
         int cnt, ofst, litsz;
         int j, k, x, y;
         int sz;
+        int limitX;
 
         /* Beginning at iSrc, match forwards as far as we can.  j counts
         ** the number of characters that match */
         iSrc = iBlock*NHASH;
-        for(j=0, x=iSrc, y=base+i; x<lenSrc && y<lenOut; j++, x++, y++){
+        y = base+i;
+        limitX = ( lenSrc-iSrc <= lenOut-y ) ? lenSrc : iSrc + lenOut - y;
+        for(x=iSrc; x<limitX; x++, y++){
           if( zSrc[x]!=zOut[y] ) break;
         }
-        j--;
+        j = x - iSrc - 1;
 
         /* Beginning at iSrc-1, match backwards as far as we can.  k counts
         ** the number of characters that match */

@@ -1,5 +1,5 @@
-C For\sthe\s"fossil\sserver"\scommand,\sset\sthe\sHTTP_SERVER_HAD_REPOSITORY\sand\nHTTP_SERVER_HAD_CHECKOUT\sflags\sjust\sas\sthey\swould\shave\sbeen\swith\sthe\n"fossil\sui"\scommand.
-D 2015-12-27T18:49:34.046
+C Performance\soptimizations\sfor\sthe\sdelta\sgenerator.
+D 2015-12-27T20:05:36.164
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -397,7 +397,7 @@ F src/cson_amalgamation.c ce18de7d62186d08d6c15a7efbd66bf009310439
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 19e5cdcc57473efdb94d7ef7c73454c81e516625
-F src/delta.c 17102bbd7c42c91cf666e3dbd187752c0cbd358a
+F src/delta.c 28fb472f793f1b4c2484a9e90aeb453fecf4133a
 F src/deltacmd.c 23bacf7915f27f8438f86fbaa117ad94f7931093
 F src/descendants.c 6cb824a041723f2bf8e82765386ed5974e335c92
 F src/diff.c 9e68056cec9391693463aefb1954d7672698cd05
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 138313df99a6bbf16078897a5346e45c2046ad8b
-R a220f8c37c673370573bb6ffd80ee867
+P e4e09884778787f3e7a5dfd6acc90148d33eb68f
+R 65a1bd887106c8982682954f47835711
 U drh
-Z 396123a6ca345b82ffb2ea5efe3f7c2a
+Z c4ca5bcf168a69decaf42015182fcd6b
