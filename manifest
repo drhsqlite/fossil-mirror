@@ -1,5 +1,5 @@
-C Enhance\sthe\stest-delta-analyze\scommand\sto\sshow\sthe\ssize\sof\sthe\sdelta.
-D 2015-12-25T15:13:53.501
+C For\sthe\s"fossil\sserver"\scommand,\sset\sthe\sHTTP_SERVER_HAD_REPOSITORY\sand\nHTTP_SERVER_HAD_CHECKOUT\sflags\sjust\sas\sthey\swould\shave\sbeen\swith\sthe\n"fossil\sui"\scommand.
+D 2015-12-27T18:49:34.046
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -442,7 +442,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 48e28e14943671f38ff81cdbdb6db93564bed895
 F src/lookslike.c 9103d15912b792a65874f04e185f2a74a477ebb4
-F src/main.c 48a8db90d5e83223bd719827ca89bad2bca4c537
+F src/main.c 71af1f375e79ddc5d26eeb92cb875866a7c7c801
 F src/main.mk 29222c3dafd8664690482d11733671ad8245c3ff
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2dd25909dab7e1d1f04d9f25672e3e7d519d8b04
-R 08b6072f17e7fb0da89d06fa7f0de306
+P 138313df99a6bbf16078897a5346e45c2046ad8b
+R a220f8c37c673370573bb6ffd80ee867
 U drh
-Z 30956f1dac2b169bd6b9b31ef44c093b
+Z 396123a6ca345b82ffb2ea5efe3f7c2a
