@@ -1,5 +1,5 @@
-C Add\sthe\s--no-rebuild\sand\s--no-vacuum\soptions\sto\sthe\s"fossil\simport"\scommand.
-D 2015-12-29T20:18:04.756
+C Fix\scomment\stypos\sin\smain.c\s-\sincluding\ssome\scomments\sthat\sare\sused\sas\non-line\shelp\stext.
+D 2015-12-29T21:52:19.963
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -442,7 +442,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 48e28e14943671f38ff81cdbdb6db93564bed895
 F src/lookslike.c 9103d15912b792a65874f04e185f2a74a477ebb4
-F src/main.c 71af1f375e79ddc5d26eeb92cb875866a7c7c801
+F src/main.c 5cbae19db27ca1530c36455c2fdd8dfc77289bfe
 F src/main.mk 29222c3dafd8664690482d11733671ad8245c3ff
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ebe25922f5a6031f4b7a9fcd07061aac13d342ea
-R 9cbcbe95fa481a8ec09296e6ca5aa49f
+P 219f967cd7ac7c438944706e9c8fc8cd1c7c4a86
+R 3679ccd6b55fe9dae2f79a0e07a8c8c4
 U drh
-Z 7a324c298e04279ab2b062f45b60902d
+Z f2e58589828eb2800bdd34696e014fd9

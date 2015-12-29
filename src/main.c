@@ -1113,7 +1113,7 @@ void version_cmd(void){
 **    or: %fossil COMMAND --help
 **
 ** Display information on how to use COMMAND.  To display a list of
-** available commands one of:
+** available commands use one of:
 **
 **    %fossil help              Show common commands
 **    %fossil help -a|--all     Show both common and auxiliary commands
@@ -1429,7 +1429,8 @@ NORETURN void fossil_redirect_home(void){
 ** is a directory, of that directory.
 **
 ** The noJail flag means that the chroot jail is not entered.  But
-** privileges are still lowered to that of the the user-id and group-id.
+** privileges are still lowered to that of the user-id and group-id
+** of the repository file.
 */
 static char *enter_chroot_jail(char *zRepo, int noJail){
 #if !defined(_WIN32)
@@ -1536,7 +1537,7 @@ static int repo_list_page(void){
 ** Process the webpage specified by the PATH_INFO or REQUEST_URI
 ** environment variable.
 **
-** If the repository is not known, the a search is done through the
+** If the repository is not known, then a search is done through the
 ** file hierarchy rooted at g.zRepositoryName for a suitable repository
 ** with a name of $prefix.fossil, where $prefix is any prefix of PATH_INFO.
 ** Or, if an ordinary file named $prefix is found, and $prefix matches
@@ -2107,8 +2108,8 @@ void cmd_cgi(void){
 ** that will be used by a server, or else it is a directory that
 ** contains multiple repositories that can be served.  If g.argv[arg]
 ** is a directory, the repositories it contains must be named
-** "*.fossil".  If g.argv[arg] does not exists, then we must be within
-** a check-out and the repository to be served is the repository of
+** "*.fossil".  If g.argv[arg] does not exist, then we must be within
+** an open check-out and the repository serve is the repository of
 ** that check-out.
 **
 ** Open the repository to be served if it is known.  If g.argv[arg] is
@@ -2157,7 +2158,7 @@ static void find_server_repository(int arg, int fCreate){
 **
 **        fossil http INFILE OUTFILE IPADDR ?REPOSITORY?
 **
-** The argv==6 form is used by the win32 server only.
+** The argv==6 form (with no options) is used by the win32 server only.
 **
 ** COMMAND: http*
 **
@@ -2169,8 +2170,8 @@ static void find_server_repository(int arg, int fCreate){
 ** repository.
 **
 ** If REPOSITORY is a directory that contains one or more repositories,
-** either directly in REPOSITORY itself, or in subdirectories, and
-** with names of the form "*.fossil" then the a prefix of the URL pathname
+** either directly in REPOSITORY itself or in subdirectories, and
+** with names of the form "*.fossil" then a prefix of the URL pathname
 ** selects from among the various repositories.  If the pathname does
 ** not select a valid repository and the --notfound option is available,
 ** then the server redirects (HTTP code 302) to the URL of --notfound.
