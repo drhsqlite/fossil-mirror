@@ -1,5 +1,5 @@
-C Several\sdocumentation\swording\simprovements\son\sthe\sfront\spage.
-D 2015-12-29T05:43:30.248
+C Add\sthe\s--no-rebuild\sand\s--no-vacuum\soptions\sto\sthe\s"fossil\simport"\scommand.
+D 2015-12-29T20:18:04.756
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -418,7 +418,7 @@ F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
-F src/import.c c23ad04d717c83321e3ab64985b660bdc0a043bf
+F src/import.c dcacafa93eeca1980f4ac38311d93a16549e84ba
 F src/info.c 3826af4933096cfb0f3d8d9b9c894b0976c5fd62
 F src/json.c 18266f277275d058aadb979b74c8b3af7791d649
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 09d3e7ebf0d59ac39b44c4f319748ce96f0e45cd
-R b9c10c108c25261d4f837b17e24bd2f4
-U mistachkin
-Z 81336f56b12e0a6a615171ca0ef7933f
+P ebe25922f5a6031f4b7a9fcd07061aac13d342ea
+R 9cbcbe95fa481a8ec09296e6ca5aa49f
+U drh
+Z 7a324c298e04279ab2b062f45b60902d

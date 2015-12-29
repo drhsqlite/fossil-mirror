@@ -1513,10 +1513,11 @@ static void svn_dump_import(FILE *pIn){
 **   -i|--incremental   allow importing into an existing repository
 **   -f|--force         overwrite repository if already exist
 **   -q|--quiet         omit progress output
+**   --no-rebuild       skip the "rebuilding metadata" step
+**   --no-vacuum        skip the final VACUUM of the database file
 **
 ** The --incremental option allows an existing repository to be extended
 ** with new content.
-**
 **
 ** See also: export
 */
@@ -1526,6 +1527,8 @@ void import_cmd(void){
   Stmt q;
   int forceFlag = find_option("force", "f", 0)!=0;
   int svnFlag = find_option("svn", 0, 0)!=0;
+  int omitRebuild = find_option("no-rebuild",0,0)!=0;
+  int omitVacuum = find_option("no-vacuum",0,0)!=0;
 
   /* Options common to all input formats */
   int incrFlag = find_option("incremental", "i", 0)!=0;
@@ -1663,13 +1666,20 @@ void import_cmd(void){
 
   verify_cancel();
   db_end_transaction(0);
-  db_begin_transaction();
-  fossil_print("Rebuilding repository meta-data...\n");
-  rebuild_db(0, 1, !incrFlag);
-  verify_cancel();
-  db_end_transaction(0);
-  fossil_print("Vacuuming..."); fflush(stdout);
-  db_multi_exec("VACUUM");
+  fossil_print("                               \r");
+  if( omitRebuild ){
+    omitVacuum = 1;
+  }else{
+    db_begin_transaction();
+    fossil_print("Rebuilding repository meta-data...\n");
+    rebuild_db(0, 1, !incrFlag);
+    verify_cancel();
+    db_end_transaction(0);
+  }
+  if( !omitVacuum ){
+    fossil_print("Vacuuming..."); fflush(stdout);
+    db_multi_exec("VACUUM");
+  }
   fossil_print(" ok\n");
   if( !incrFlag ){
     fossil_print("project-id: %s\n", db_get("project-code", 0));
