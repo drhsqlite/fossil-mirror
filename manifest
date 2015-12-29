@@ -1,5 +1,5 @@
-C Further\sperformance\senhancements\son\sthe\sdelta\sgenerator.
-D 2015-12-27T21:02:32.057
+C Several\sdocumentation\swording\simprovements\son\sthe\sfront\spage.
+D 2015-12-29T05:43:30.248
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -711,7 +711,7 @@ F www/fossil_prompt.sh db68e2cae431b9e9f5dd672e2f56e2bde5a57d2a
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
-F www/index.wiki 89c650d5efb9273a21296d3b209bd1d00a4d230d
+F www/index.wiki d1cc125a4d1808e3245652695accba06e2b34b4e
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki f75b16c8bb734fe20d0d524c658f05dab006316c
 F www/mkdownload.tcl 5ac61a3e13cecaa67f1e31741113c96cbd41463f
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dbbe320297e55cb4396cd6c2461deb806cdf2f4d
-R 12754c1e27e3a8a06389ad11c4837ce0
-U drh
-Z f05d81167698e928c70313be811d7622
+P 09d3e7ebf0d59ac39b44c4f319748ce96f0e45cd
+R b9c10c108c25261d4f837b17e24bd2f4
+U mistachkin
+Z 81336f56b12e0a6a615171ca0ef7933f
