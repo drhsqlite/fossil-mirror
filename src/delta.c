@@ -228,7 +228,7 @@ static unsigned int checksum(const char *zIn, size_t N){
   const unsigned char *z = (const unsigned char *)zIn;
   const unsigned char *zEnd = (const unsigned char*)&zIn[N&~3];
   unsigned sum = 0;
-  assert( (3&(sqlite3_uint64)z)==0 );  /* Four-byte alignment */
+  assert( (z - (const unsigned char*)0)%4==0 );  /* Four-byte alignment */
   if( 0==*(char*)&byteOrderTest ){
     /* This is a big-endian machine */
     while( z<zEnd ){
