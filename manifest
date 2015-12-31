@@ -1,5 +1,5 @@
-C Use\sintrinsic\sbyte-swapping\sfunctions\sto\sboost\sthe\sperformance\sof\sdelta\nchecksums.
-D 2015-12-31T15:45:10.207
+C Add\sMIME\stypes\sfor\sC#\sand\sVB.NET.
+D 2015-12-31T15:46:47.119
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -403,7 +403,7 @@ F src/descendants.c 6cb824a041723f2bf8e82765386ed5974e335c92
 F src/diff.c 9e68056cec9391693463aefb1954d7672698cd05
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
 F src/diffcmd.c 6ccec8e05ddf7cad3755bfc6e5abf6972f6542ca
-F src/doc.c dd45c3247725cf64fd143a9554f020d2486423dc
+F src/doc.c ee445fb565ae8040e3362e28bbe4db353d987229
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
@@ -744,8 +744,8 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ec8394e166117a54f65af0fd0298a8b7d5e11bc9 726ab361a864a374d1b004126f6f477c1bd6972b
-R 9a48220b1db61fc96f6ead77f05f126a
-T +closed 726ab361a864a374d1b004126f6f477c1bd6972b
+P 7338b3a9510281e7d49643f55a5c27c24107f083 33dd770461397ba0dd93c0bbad3e38ed377e3236
+R 8cb7aacf1dd1db1eb927c2dce0ef97f6
+T +closed 33dd770461397ba0dd93c0bbad3e38ed377e3236
 U drh
-Z 5d5283c6f6bb6f6a71e8023a4e2b8d3e
+Z 63b28c4a4e7358a1eca8ad630e25a2bd
