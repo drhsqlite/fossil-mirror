@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\s3.10.0\sbeta\sfor\sSQLite\stesting.
-D 2015-12-31T15:44:10.198
+C Use\sintrinsic\sbyte-swapping\sfunctions\sto\sboost\sthe\sperformance\sof\sdelta\nchecksums.
+D 2015-12-31T15:45:10.207
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -397,7 +397,7 @@ F src/cson_amalgamation.c ce18de7d62186d08d6c15a7efbd66bf009310439
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 19e5cdcc57473efdb94d7ef7c73454c81e516625
-F src/delta.c b6ef89f5f188884a890a96a80db1563ab80c56ca
+F src/delta.c f57d9a48614e1fbe2174c0afe1eda7ff247eb254
 F src/deltacmd.c 23bacf7915f27f8438f86fbaa117ad94f7931093
 F src/descendants.c 6cb824a041723f2bf8e82765386ed5974e335c92
 F src/diff.c 9e68056cec9391693463aefb1954d7672698cd05
@@ -744,7 +744,8 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d76a980fd18f0694bf4e9cfc52106bebb69aef88
-R b45545aa406b2da28d026d28d3353be5
+P ec8394e166117a54f65af0fd0298a8b7d5e11bc9 726ab361a864a374d1b004126f6f477c1bd6972b
+R 9a48220b1db61fc96f6ead77f05f126a
+T +closed 726ab361a864a374d1b004126f6f477c1bd6972b
 U drh
-Z f3ce01812b4dcb8b3c6c03a85beebd44
+Z 5d5283c6f6bb6f6a71e8023a4e2b8d3e
