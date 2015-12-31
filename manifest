@@ -1,5 +1,5 @@
-C Fix\scomment\stypos\sin\smain.c\s-\sincluding\ssome\scomments\sthat\sare\sused\sas\non-line\shelp\stext.
-D 2015-12-29T21:52:19.963
+C Create\snew\sbranch\snamed\s"technoteattach"
+D 2015-12-31T10:58:56.322
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -744,7 +744,10 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 219f967cd7ac7c438944706e9c8fc8cd1c7c4a86
+P d76a980fd18f0694bf4e9cfc52106bebb69aef88
 R 3679ccd6b55fe9dae2f79a0e07a8c8c4
-U drh
-Z f2e58589828eb2800bdd34696e014fd9
+T *branch * technoteattach
+T *sym-technoteattach *
+T -sym-trunk *
+U dave.vines
+Z 606a5b69ab4859e8c9f030126922bc5d
