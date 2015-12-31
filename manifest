@@ -1,5 +1,5 @@
-C Add\sMIME\stypes\sfor\sC#\sand\sVB.NET.
-D 2015-12-31T15:46:47.119
+C Add\sthe\sability\sto\shave\sattachments\son\stechnotes.\s\sAdd\scommand-line\ssupport\nfor\stechnotes\sin\sthe\s"fossil\swiki"\scommand.
+D 2015-12-31T16:06:59.295
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -373,7 +373,7 @@ F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 026bd9dac971929fa07830d34993d0f00f99bcd2
 F src/allrepo.c 653a4fe5cb10da2811c3d394e8beca6b357de8b7
-F src/attach.c b238694cd2abf0fc56ece41694269080caa01236
+F src/attach.c 5f6f5ccc39aeb0f4d49b7696b7b520b515a53177
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c c8bdcf4812c9446bea503610d234772516bf572f
 F src/blob.c 10ee0528085b90be013d53935bceeeb83a7b1027
@@ -405,7 +405,7 @@ F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
 F src/diffcmd.c 6ccec8e05ddf7cad3755bfc6e5abf6972f6542ca
 F src/doc.c ee445fb565ae8040e3362e28bbe4db353d987229
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
-F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
+F src/event.c 55ac1712c44b5b84363350ebe0ef19233137a096
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
 F src/file.c 96e88d124e5a031652e30ef1abc06e69b125c736
 F src/finfo.c 9dcd6c54bf5fadfafe0b15cbb736ba0cf418c956
@@ -447,7 +447,7 @@ F src/main.mk 29222c3dafd8664690482d11733671ad8245c3ff
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 8b578a8eca1206ab171ff2d9b200ef46dbd917d0
-F src/manifest.c 7cb26f614b20461fc27be3004e18ab7808adfa93
+F src/manifest.c 23b298b020e3d62b3182e169e5e2a213c5078ea1
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md fc02fd045690e6fb45fb0bc91be734913dc70d02
 F src/markdown_html.c c7392199eb39dad9f92c31aa352f4f3408da93bf
@@ -508,7 +508,7 @@ F src/utf8.c 5c85c7e88b82b5fb48649c46f063ac94ab58eb20
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
 F src/vfile.c 3b7286065edf544811df9f41fc9f35e1d7207c51
-F src/wiki.c fe889812078d71c1d48867e601ab5def3f0be241
+F src/wiki.c cfbdc6b357435d3aa83ac5e6e949ea93e7f4e283
 F src/wikiformat.c f9fb5b8bc72c23d88bedcc8de1048f1081514d09
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c 4e680d7c8778be4439169f40a992ccc81f7ceec2
@@ -744,8 +744,8 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7338b3a9510281e7d49643f55a5c27c24107f083 33dd770461397ba0dd93c0bbad3e38ed377e3236
-R 8cb7aacf1dd1db1eb927c2dce0ef97f6
-T +closed 33dd770461397ba0dd93c0bbad3e38ed377e3236
+P 5e81f4c02596f01ccb7819c88bbdf039c56e074c 67288e935a01213ce4fd11496b763e2eb99f089c
+R e33d0a7ab5e3fa6b0433a55dfb851f51
+T +closed 67288e935a01213ce4fd11496b763e2eb99f089c
 U drh
-Z 63b28c4a4e7358a1eca8ad630e25a2bd
+Z 17b4160945890bf04b6768c3b0e31d69

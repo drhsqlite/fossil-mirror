@@ -2010,6 +2010,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     int prior, subsequent;
     int nWiki;
     char zLength[40];
+    Stmt qatt;
     while( fossil_isspace(p->zWiki[0]) ) p->zWiki++;
     nWiki = strlen(p->zWiki);
     sqlite3_snprintf(sizeof(zLength), zLength, "%d", nWiki);
@@ -2051,22 +2052,91 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
         TAG_BGCOLOR, rid
       );
     }
+    /* Locate and update comment for any attachments */
+    db_prepare(&qatt,
+       "SELECT attachid, src, target, filename FROM attachment"
+       " WHERE target=%Q",
+       p->zEventId
+    );
+    while( db_step(&qatt)==SQLITE_ROW ){
+      const char *zAttachId = db_column_text(&qatt, 0);
+      const char *zSrc = db_column_text(&qatt, 1);
+      const char *zTarget = db_column_text(&qatt, 2);
+      const char *zName = db_column_text(&qatt, 3);
+      const char isAdd = (zSrc && zSrc[0]) ? 1 : 0;
+      char *zComment;
+      if( isAdd ){
+        zComment = mprintf(
+             "Add attachment [/artifact/%!S|%h] to"
+             " tech note [/technote/%h|%.10h]",
+             zSrc, zName, zTarget, zTarget); 
+      }else{
+        zComment = mprintf("Delete attachment \"%h\" from tech note [%.10h]",
+             zName, zTarget);
+      }
+      db_multi_exec("UPDATE event SET comment=%Q, type='e'"
+                       " WHERE objid=%Q",
+                    zComment, zAttachId);
+      fossil_free(zComment);      
+    }
+    db_finalize(&qatt);
   }
   if( p->type==CFTYPE_TICKET ){
     char *zTag;
+    Stmt qatt;
     assert( manifest_crosslink_busy==1 );
     zTag = mprintf("tkt-%s", p->zTicketUuid);
     tag_insert(zTag, 1, 0, rid, p->rDate, rid);
     fossil_free(zTag);
     db_multi_exec("INSERT OR IGNORE INTO pending_tkt VALUES(%Q)",
                   p->zTicketUuid);
+    /* Locate and update comment for any attachments */
+    db_prepare(&qatt,
+       "SELECT attachid, src, target, filename FROM attachment"
+       " WHERE target=%Q",
+       p->zTicketUuid
+    );
+    while( db_step(&qatt)==SQLITE_ROW ){
+      const char *zAttachId = db_column_text(&qatt, 0);
+      const char *zSrc = db_column_text(&qatt, 1);
+      const char *zTarget = db_column_text(&qatt, 2);
+      const char *zName = db_column_text(&qatt, 3);
+      const char isAdd = (zSrc && zSrc[0]) ? 1 : 0;
+      char *zComment;
+      if( isAdd ){
+        zComment = mprintf(
+             "Add attachment [/artifact/%!S|%h] to ticket [%!S|%S]",
+             zSrc, zName, zTarget, zTarget);
+      }else{
+        zComment = mprintf("Delete attachment \"%h\" from ticket [%!S|%S]",
+             zName, zTarget, zTarget);
+      }
+      db_multi_exec("UPDATE event SET comment=%Q, type='t'"
+                       " WHERE objid=%Q",
+                    zComment, zAttachId);
+      fossil_free(zComment);      
+    }
+    db_finalize(&qatt);
   }
   if( p->type==CFTYPE_ATTACHMENT ){
     char *zComment = 0;
     const char isAdd = (p->zAttachSrc && p->zAttachSrc[0]) ? 1 : 0;
-    const char attachToType = fossil_is_uuid(p->zAttachTarget)
-      ? 't' /* attach to ticket */
-      : 'w' /* attach to wiki page */;
+    /* We assume that we're attaching to a wiki page until we
+    ** prove otherwise (which could on a later artifact if we
+    ** process the attachment artifact before the artifact to
+    ** which it is attached!) */
+    char attachToType = 'w';       
+    if( fossil_is_uuid(p->zAttachTarget) ){
+      if( db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'",
+            p->zAttachTarget)
+        ){
+        attachToType = 't';          /* Attaching to known ticket */
+      }else if( db_exists("SELECT 1 FROM tag WHERE tagname='event-%q'",
+                  p->zAttachTarget) 
+            ){
+        attachToType = 'e';          /* Attaching to known tech note */
+      }
+    }
     db_multi_exec(
        "INSERT INTO attachment(attachid, mtime, src, target,"
                               "filename, comment, user)"
@@ -2091,6 +2161,15 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
         zComment = mprintf("Delete attachment \"%h\" from wiki page [%h]",
              p->zAttachName, p->zAttachTarget);
       }
+    }else if( 'e' == attachToType ){
+      if( isAdd ){
+        zComment = mprintf(
+          "Add attachment [/artifact/%!S|%h] to tech note [/technote/%h|%.10h]",
+          p->zAttachSrc, p->zAttachName, p->zAttachTarget, p->zAttachTarget); 
+      }else{
+        zComment = mprintf("Delete attachment \"%h\" from tech note [%.10h]",
+             p->zAttachName, p->zAttachTarget);
+      }      
     }else{
       if( isAdd ){
         zComment = mprintf(

@@ -1139,32 +1139,40 @@ int wiki_cmd_commit(const char *zPageName, int isNew, Blob *pContent,
 /*
 ** COMMAND: wiki*
 **
-** Usage: %fossil wiki (export|create|commit|list) WikiName
+** Usage: ../fossil wiki (export|create|commit|list) WikiName
 **
-** Run various subcommands to work with wiki entries.
+** Run various subcommands to work with wiki entries or tech notes.
 **
-**     %fossil wiki export PAGENAME ?FILE?
+**    ../fossil wiki export ?PAGENAME? ?FILE? [-t|--technote DATETIME ]
 **
-**        Sends the latest version of the PAGENAME wiki
-**        entry to the given file or standard output.
+**       Sends the latest version of either the PAGENAME wiki entry
+**       or the DATETIME tech note to the given file or standard 
+**       output. One of PAGENAME or DATETIME must be specified.
 **
-**     %fossil wiki commit PAGENAME ?FILE? [-mimetype TEXT-FORMAT]
+**    ../fossil wiki (create|commit) PAGENAME ?FILE? ?OPTIONS?
+**              
+**       Create a new or commit changes to an existing wiki page or 
+**       technote from FILE or from standard input.
 **
-**        Commit changes to a wiki page from FILE or from standard
-**        input. The -mimetype (-M) flag specifies the mime type,
-**        defaulting to the type used by the previous version of
-**        the page or (for new pages) text/x-fossil-wiki.
+**       Options:
+**         -M|--mimetype TEXT-FORMAT   The mime type of the update defaulting
+**                                     defaulting to the type used by the 
+**                                     previous version of the page or (for 
+**                                     new pages) text/x-fossil-wiki.
+**         -t|--technote DATETIME      Specifies the timestamp of the technote
+**                                     to be created or updated.
+**         --technote-tags TAGS        The set of tags for a technote.
+**         --technote-bgcolor COLOR    The color used for the technote on the
+**                                     timeline.
 **
-**     %fossil wiki create PAGENAME ?FILE? [-mimetype TEXT-FORMAT]
+**    ../fossil wiki list ?--technote?
+**    ../fossil wiki ls ?--technote?
 **
-**        Create a new wiki page with initial content taken from
-**        FILE or from standard input.
-**
-**     %fossil wiki list
-**     %fossil wiki ls
-**
-**        Lists all wiki entries, one per line, ordered
-**        case-insensitively by name.
+**       Lists all wiki entries, one per line, ordered
+**       case-insensitively by name. The --technote flag
+**       specifies that technotes will be listed instead of
+**       the wiki entries, which will be listed in order
+**       timestamp.
 **
 */
 void wiki_cmd(void){
@@ -1181,29 +1189,50 @@ void wiki_cmd(void){
   if( strncmp(g.argv[2],"export",n)==0 ){
     const char *zPageName;        /* Name of the wiki page to export */
     const char *zFile;            /* Name of the output file (0=stdout) */
+    const char *zETime;           /* The name of the technote to export */
     int rid;                      /* Artifact ID of the wiki page */
     int i;                        /* Loop counter */
     char *zBody = 0;              /* Wiki page content */
     Blob body;                    /* Wiki page content */
     Manifest *pWiki = 0;          /* Parsed wiki page content */
-    if( (g.argc!=4) && (g.argc!=5) ){
-      usage("export PAGENAME ?FILE?");
-    }
-    zPageName = g.argv[3];
-    rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
-      " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
-      " ORDER BY x.mtime DESC LIMIT 1",
-      zPageName
-    );
-    if( (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))!=0 ){
-      zBody = pWiki->zWiki;
-    }
-    if( zBody==0 ){
-      fossil_fatal("wiki page [%s] not found",zPageName);
+
+    zETime = find_option("technote","t",1);
+    if( !zETime ){
+      if( (g.argc!=4) && (g.argc!=5) ){
+        usage("export PAGENAME ?FILE?");
+      }
+      zPageName = g.argv[3];
+      rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
+        " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
+        " ORDER BY x.mtime DESC LIMIT 1",
+        zPageName
+      );
+      if( (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))!=0 ){
+        zBody = pWiki->zWiki;
+      }
+      if( zBody==0 ){
+        fossil_fatal("wiki page [%s] not found",zPageName);
+      }
+      zFile = (g.argc==4) ? "-" : g.argv[4];
+    }else{
+      if( (g.argc!=3) && (g.argc!=4) ){
+        usage("export ?FILE? --technote DATETIME");
+      }
+      rid = db_int(0, "SELECT objid FROM event"
+        " WHERE datetime(mtime)=datetime('%q') AND type='e'"
+        " ORDER BY mtime DESC LIMIT 1",
+        zETime
+      );
+      if( (pWiki = manifest_get(rid, CFTYPE_EVENT, 0))!=0 ){
+        zBody = pWiki->zWiki;
+      }
+      if( zBody==0 ){
+        fossil_fatal("technote not found");
+      }
+      zFile = (g.argc==3) ? "-" : g.argv[3];
     }
     for(i=strlen(zBody); i>0 && fossil_isspace(zBody[i-1]); i--){}
     zBody[i] = 0;
-    zFile  = (g.argc==4) ? "-" : g.argv[4];
     blob_init(&body, zBody, -1);
     blob_append(&body, "\n", 1);
     blob_write_to_file(&body, zFile);
@@ -1217,8 +1246,13 @@ void wiki_cmd(void){
     int rid;
     Manifest *pWiki = 0;          /* Parsed wiki page content */
     const char *zMimeType = find_option("mimetype", "M", 1);
+    const char *zETime = find_option("technote", "t", 1);
+    const char *zTags = find_option("technote-tags", NULL, 1);
+    const char *zClr = find_option("technote-bgcolor", NULL, 1);
     if( g.argc!=4 && g.argc!=5 ){
-      usage("commit|create PAGENAME ?FILE? [-mimetype TEXT-FORMAT]");
+      usage("commit|create PAGENAME ?FILE? [--mimetype TEXT-FORMAT]"
+            " [--technote DATETIME] [--technote-tags TAGS]"
+            " [--technote-bgcolor COLOR]");
     }
     zPageName = g.argv[3];
     if( g.argc==4 ){
@@ -1228,22 +1262,50 @@ void wiki_cmd(void){
     }
     if(!zMimeType || !*zMimeType){
       /* Try to deduce the mime type based on the prior version. */
-      rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
-                   " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
-                   " ORDER BY x.mtime DESC LIMIT 1",
-                   zPageName
-                   );
-      if(rid>0 && (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))!=0
-         && (pWiki->zMimetype && *pWiki->zMimetype)){
-        zMimeType = pWiki->zMimetype;
+      if ( !zETime ){ 
+        rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
+                     " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
+                     " ORDER BY x.mtime DESC LIMIT 1",
+                     zPageName
+                     );
+        if(rid>0 && (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))!=0
+           && (pWiki->zMimetype && *pWiki->zMimetype)){
+          zMimeType = pWiki->zMimetype;
+        }
+      }else{
+        rid = db_int(0, "SELECT objid FROM event"
+                     " WHERE datetime(mtime)=datetime('%q') AND type='e'"
+                     " ORDER BY mtime DESC LIMIT 1",
+                     zPageName
+                     );
+        if(rid>0 && (pWiki = manifest_get(rid, CFTYPE_EVENT, 0))!=0
+           && (pWiki->zMimetype && *pWiki->zMimetype)){
+          zMimeType = pWiki->zMimetype;
+        }
       }
     }
-    if( g.argv[2][1]=='r' ){
-      wiki_cmd_commit(zPageName, 1, &content, zMimeType, 1);
-      fossil_print("Created new wiki page %s.\n", zPageName);
+    if( !zETime ){
+      if( g.argv[2][1]=='r' ){
+        wiki_cmd_commit(zPageName, 1, &content, zMimeType, 1);
+        fossil_print("Created new wiki page %s.\n", zPageName);
+      }else{
+        wiki_cmd_commit(zPageName, 0, &content, zMimeType, 1);
+        fossil_print("Updated wiki page %s.\n", zPageName);
+      }
     }else{
-      wiki_cmd_commit(zPageName, 0, &content, zMimeType, 1);
-      fossil_print("Updated wiki page %s.\n", zPageName);
+      char *zMETime;          /* Normalized, mutable version of zETime */
+      zMETime = db_text(0, "SELECT coalesce(datetime(%Q),datetime('now'))",
+                        zETime);
+      if( g.argv[2][1]=='r' ){
+        event_cmd_commit(zMETime, 1, &content, zMimeType, zPageName,
+                         zTags, zClr);
+        fossil_print("Created new tech note %s.\n", zMETime);
+      }else{
+        event_cmd_commit(zMETime, 0, &content, zMimeType, zPageName,
+                         zTags, zClr);
+        fossil_print("Updated tech note %s.\n", zMETime);
+      }
+      free(zMETime);
     }
     manifest_destroy(pWiki);
     blob_reset(&content);
@@ -1255,10 +1317,17 @@ void wiki_cmd(void){
   }else if(( strncmp(g.argv[2],"list",n)==0 )
           || ( strncmp(g.argv[2],"ls",n)==0 )){
     Stmt q;
-    db_prepare(&q,
-      "SELECT substr(tagname, 6) FROM tag WHERE tagname GLOB 'wiki-*'"
-      " ORDER BY lower(tagname) /*sort*/"
-    );
+    if ( !find_option("technote","t",0) ){
+      db_prepare(&q,
+        "SELECT substr(tagname, 6) FROM tag WHERE tagname GLOB 'wiki-*'"
+        " ORDER BY lower(tagname) /*sort*/"
+      );
+    }else{
+      db_prepare(&q,
+        "SELECT datetime(mtime) FROM event WHERE type='e'"
+        " ORDER BY mtime /*sort*/"
+      );
+    }
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       fossil_print( "%s\n",zName);
