@@ -1,5 +1,5 @@
-C [c541b6e734]\sAdd\s-technote\soption\sto\swiki\scommand
-D 2015-12-31T11:20:37.747
+C [c541b6e734]\sAdd\sattachments\sto\stechnotes
+D 2015-12-31T11:31:37.833
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -373,7 +373,7 @@ F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 026bd9dac971929fa07830d34993d0f00f99bcd2
 F src/allrepo.c 653a4fe5cb10da2811c3d394e8beca6b357de8b7
-F src/attach.c b238694cd2abf0fc56ece41694269080caa01236
+F src/attach.c 5f6f5ccc39aeb0f4d49b7696b7b520b515a53177
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c c8bdcf4812c9446bea503610d234772516bf572f
 F src/blob.c 10ee0528085b90be013d53935bceeeb83a7b1027
@@ -405,7 +405,7 @@ F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
 F src/diffcmd.c 6ccec8e05ddf7cad3755bfc6e5abf6972f6542ca
 F src/doc.c dd45c3247725cf64fd143a9554f020d2486423dc
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
-F src/event.c 5849f66d560f698ba995097cae3dea87e412cf6c
+F src/event.c add0c02280aab392ee71574f094298d6bc4d5fbd
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
 F src/file.c 96e88d124e5a031652e30ef1abc06e69b125c736
 F src/finfo.c 9dcd6c54bf5fadfafe0b15cbb736ba0cf418c956
@@ -447,7 +447,7 @@ F src/main.mk 29222c3dafd8664690482d11733671ad8245c3ff
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 8b578a8eca1206ab171ff2d9b200ef46dbd917d0
-F src/manifest.c 7cb26f614b20461fc27be3004e18ab7808adfa93
+F src/manifest.c 989354609ba6ef2defb387b7cadf85d456743673
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md fc02fd045690e6fb45fb0bc91be734913dc70d02
 F src/markdown_html.c c7392199eb39dad9f92c31aa352f4f3408da93bf
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5906ebc7559058405cf695e0e0c311fe9c89b309
-R a936495431e62d40b4bc1e442a538605
+P 467e493e89d20a10cb01d899ad2f11ae38b38cd3
+R 4f7afa67675ccf0d6763ad82013a2ae4
 U dave.vines
-Z b2612ec61dee7bbcd09eca402cc18e20
+Z 97facff224ee11e7a7e73cb69626912b

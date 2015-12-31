@@ -64,7 +64,7 @@ void hyperlink_to_event_tagid(int tagid){
 void event_page(void){
   int rid = 0;             /* rid of the event artifact */
   char *zUuid;             /* UUID corresponding to rid */
-  const char *zId;    /* Event identifier */
+  const char *zId;         /* Event identifier */
   const char *zVerbose;    /* Value of verbose option */
   char *zETime;            /* Time of the tech-note */
   char *zATime;            /* Time the artifact was created */
@@ -77,6 +77,7 @@ void event_page(void){
   Stmt q1;                 /* Query to search for the technote */
   int verboseFlag;         /* True to show details */
   const char *zMimetype = 0;  /* Mimetype of the document */
+  const char *zFullId;     /* Full event identifier */
 
 
   /* wiki-read privilege is needed in order to read tech-notes.
@@ -152,6 +153,11 @@ void event_page(void){
   style_header("%s", blob_str(&title));
   if( g.perm.WrWiki && g.perm.Write && nextRid==0 ){
     style_submenu_element("Edit", 0, "%R/technoteedit?name=%!S", zId);
+    if( g.perm.Attach ){
+      style_submenu_element("Attach", "Add an attachment",
+           "%R/attachadd?technote=%!S&from=%R/technote/%!S", 
+           zId, zId);
+    }
   }
   zETime = db_text(0, "SELECT datetime(%.17g)", pTNote->rEventDate);
   style_submenu_element("Context", 0, "%R/timeline?c=%.20s", zId);
@@ -218,6 +224,11 @@ void event_page(void){
     @ %h(blob_str(&fullbody))
     @ </pre>
   }
+  zFullId = db_text(0, "SELECT SUBSTR(tagname,7)"
+                       "  FROM tag"
+                       " WHERE tagname GLOB 'event-%q*'",
+                    zId);
+  attachment_list(zFullId, "<hr /><h2>Attachments:</h2><ul>");
   style_footer();
   manifest_destroy(pTNote);
 }
