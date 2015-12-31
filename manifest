@@ -1,5 +1,5 @@
-C Create\snew\sbranch\snamed\s"technoteattach"
-D 2015-12-31T10:58:56.322
+C [c541b6e734]\sAdd\s-technote\soption\sto\swiki\scommand
+D 2015-12-31T11:20:37.747
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -405,7 +405,7 @@ F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
 F src/diffcmd.c 6ccec8e05ddf7cad3755bfc6e5abf6972f6542ca
 F src/doc.c dd45c3247725cf64fd143a9554f020d2486423dc
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
-F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
+F src/event.c 5849f66d560f698ba995097cae3dea87e412cf6c
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
 F src/file.c 96e88d124e5a031652e30ef1abc06e69b125c736
 F src/finfo.c 9dcd6c54bf5fadfafe0b15cbb736ba0cf418c956
@@ -508,7 +508,7 @@ F src/utf8.c 5c85c7e88b82b5fb48649c46f063ac94ab58eb20
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
 F src/vfile.c 3b7286065edf544811df9f41fc9f35e1d7207c51
-F src/wiki.c fe889812078d71c1d48867e601ab5def3f0be241
+F src/wiki.c aea1bfe8487831bc9f06840a21977aa824ef24ed
 F src/wikiformat.c f9fb5b8bc72c23d88bedcc8de1048f1081514d09
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c 4e680d7c8778be4439169f40a992ccc81f7ceec2
@@ -744,10 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d76a980fd18f0694bf4e9cfc52106bebb69aef88
-R 3679ccd6b55fe9dae2f79a0e07a8c8c4
-T *branch * technoteattach
-T *sym-technoteattach *
-T -sym-trunk *
+P 5906ebc7559058405cf695e0e0c311fe9c89b309
+R a936495431e62d40b4bc1e442a538605
 U dave.vines
-Z 606a5b69ab4859e8c9f030126922bc5d
+Z b2612ec61dee7bbcd09eca402cc18e20
