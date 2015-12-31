@@ -1,5 +1,5 @@
-C Fix\scomment\stypos\sin\smain.c\s-\sincluding\ssome\scomments\sthat\sare\sused\sas\non-line\shelp\stext.
-D 2015-12-29T21:52:19.963
+C Update\sthe\sbuilt-in\sSQLite\sto\s3.10.0\sbeta\sfor\sSQLite\stesting.
+D 2015-12-31T15:44:10.198
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -476,13 +476,13 @@ F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c 3ddd0bd72f6a9af5a92b4f4113577d1a0ff7c75d
 F src/setup.c b1b74ef83b01a10962e6b71c0b459e18eb31a4b3
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
-F src/shell.c abbc74ea43dbf2f306ea18282d666683fb5efab2
+F src/shell.c ace08b69cd9702143cf87b5bd20b744a56f832fd
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 44d3881e497cf9bec8ea6dcf73830502ab59202c
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c 92ea0d86ad0efb47fba0055a88479ac9ad5df219
-F src/sqlite3.h 4edb3db5c07fb871b72b4b942390ae2c8252b62e
+F src/sqlite3.c 32e574c35e11467cf08714415b27c2dfbcefba13
+F src/sqlite3.h 64802a2d3cf5bcf1afe72b15159095748be9a0dc
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 9fa919c1c78db3952e181e0bf955b039aca0db26
 F src/statrep.c 4f11eab5a4c84506471dae87b36e32de4d0c666b
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 219f967cd7ac7c438944706e9c8fc8cd1c7c4a86
-R 3679ccd6b55fe9dae2f79a0e07a8c8c4
+P d76a980fd18f0694bf4e9cfc52106bebb69aef88
+R b45545aa406b2da28d026d28d3353be5
 U drh
-Z f2e58589828eb2800bdd34696e014fd9
+Z f3ce01812b4dcb8b3c6c03a85beebd44
