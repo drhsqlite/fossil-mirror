@@ -1,5 +1,5 @@
-C Fix\sa\sharmless\scompiler\swarning\sin\san\sassert()\sin\sdelta.c.
-D 2015-12-31T16:10:08.209
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\ssecond\sbeta\sfor\s3.10.0.
+D 2016-01-01T17:30:03.712
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -481,8 +481,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 44d3881e497cf9bec8ea6dcf73830502ab59202c
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c 32e574c35e11467cf08714415b27c2dfbcefba13
-F src/sqlite3.h 64802a2d3cf5bcf1afe72b15159095748be9a0dc
+F src/sqlite3.c 46f9e689b68fc6c3a059721f1168a0268e78d3f7
+F src/sqlite3.h 2c4aaae2c02ab816aebde200b2cbdd8b7e7feeab
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 9fa919c1c78db3952e181e0bf955b039aca0db26
 F src/statrep.c 4f11eab5a4c84506471dae87b36e32de4d0c666b
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 045deb27ce9f959fa8cc8ed20d9359eb2bb15223
-R f612a18581ab3242f52bf7a867d54228
+P d891af8385a4d4c0c935f167c52bd17e8ccaf85a
+R bdfeb211a6b9bafb759597c0adccab50
 U drh
-Z bac589342e5318e46e6aa9603026a30a
+Z 982dc3bf20c0d10aacb944d0a245dcde
