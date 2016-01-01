@@ -382,9 +382,9 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   if( !isRepeat ) g.parseCnt[0]++;
   z = blob_materialize(pContent);
   n = blob_size(pContent);
-  if( pErr && (n<=0 || z[n-1]!='\n') ){
+  if( n<=0 || z[n-1]!='\n' ){
     blob_reset(pContent);
-    blob_append(pErr, n ? "not terminated with \\n" : "zero-length", -1);
+    blob_appendf(pErr, "%s", n ? "not terminated with \\n" : "zero-length");
     return 0;
   }
 

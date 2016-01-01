@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\ssecond\sbeta\sfor\s3.10.0.
-D 2016-01-01T17:30:03.712
+C Fix\sa\sbug\sin\sthe\smanifest\sparser\sthat\scan\scause\sa\sread\soff\sthe\send\sof\sa\sbuffer\nwhen\sdoing\sa\s"fossil\srebuild"\son\sa\srepository\sthat\scontains\sartifacts\sthat\nstart\sout\slooking\slike\sa\svalid\sspecial\sartifact\sbut\sare\snot\sterminated\sby\s\\n.\nThis\sfixes\sa\sbug\sintroduced\sby\scheck-in\s[49b0ff15922674].
+D 2016-01-01T20:49:26.184
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -447,7 +447,7 @@ F src/main.mk 29222c3dafd8664690482d11733671ad8245c3ff
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 8b578a8eca1206ab171ff2d9b200ef46dbd917d0
-F src/manifest.c 23b298b020e3d62b3182e169e5e2a213c5078ea1
+F src/manifest.c a520159adafb16098a08535b2bbd6984198b5cdf
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md fc02fd045690e6fb45fb0bc91be734913dc70d02
 F src/markdown_html.c c7392199eb39dad9f92c31aa352f4f3408da93bf
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d891af8385a4d4c0c935f167c52bd17e8ccaf85a
-R bdfeb211a6b9bafb759597c0adccab50
+P 987a80ef06635a6e8745ec3848360bb2a93f032a
+R 8d6bf02fd820780d8592792dd88b71d1
 U drh
-Z 982dc3bf20c0d10aacb944d0a245dcde
+Z 51429db5e2709981b782daeea5f3d6c3
