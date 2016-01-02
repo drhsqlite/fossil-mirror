@@ -1,5 +1,5 @@
-C Fix\sa\sharmless\scompiler\swarning\sin\san\sassert()\sin\sdelta.c.
-D 2015-12-31T16:10:08.209
+C Create\snew\sbranch\snamed\s"technoteattachcli"
+D 2016-01-02T10:34:25.398
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -744,7 +744,12 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 045deb27ce9f959fa8cc8ed20d9359eb2bb15223
+P d891af8385a4d4c0c935f167c52bd17e8ccaf85a
 R f612a18581ab3242f52bf7a867d54228
-U drh
-Z bac589342e5318e46e6aa9603026a30a
+T *bgcolor * #fec084
+T *branch * technoteattachcli
+T *sym-technoteattachcli *
+T +private *
+T -sym-trunk *
+U dave.vines
+Z f6c6e444d9fbc907bf60f9541971dd0c
