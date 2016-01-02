@@ -1,5 +1,5 @@
-C Create\snew\sbranch\snamed\s"technoteattachcli"
-D 2016-01-02T10:34:25.398
+C [c541b6e734]\sAdd\scli\sfor\sattaching\sto\swiki\spages\sand\stech\snotes
+D 2016-01-02T10:46:44.956
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -373,7 +373,7 @@ F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 026bd9dac971929fa07830d34993d0f00f99bcd2
 F src/allrepo.c 653a4fe5cb10da2811c3d394e8beca6b357de8b7
-F src/attach.c 5f6f5ccc39aeb0f4d49b7696b7b520b515a53177
+F src/attach.c ea4baddc483bd0f86a02c49f35a5a31b04a5a077
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c c8bdcf4812c9446bea503610d234772516bf572f
 F src/blob.c 10ee0528085b90be013d53935bceeeb83a7b1027
@@ -419,7 +419,7 @@ F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c dcacafa93eeca1980f4ac38311d93a16549e84ba
-F src/info.c 3826af4933096cfb0f3d8d9b9c894b0976c5fd62
+F src/info.c 1236e6e43d0d43d0119a3b373f871b8a8da227c1
 F src/json.c 18266f277275d058aadb979b74c8b3af7791d649
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -508,7 +508,7 @@ F src/utf8.c 5c85c7e88b82b5fb48649c46f063ac94ab58eb20
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
 F src/vfile.c 3b7286065edf544811df9f41fc9f35e1d7207c51
-F src/wiki.c cfbdc6b357435d3aa83ac5e6e949ea93e7f4e283
+F src/wiki.c 31f9e0be98c53527eb02683bd4fe87557ab5bec5
 F src/wikiformat.c f9fb5b8bc72c23d88bedcc8de1048f1081514d09
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c 4e680d7c8778be4439169f40a992ccc81f7ceec2
@@ -744,12 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d891af8385a4d4c0c935f167c52bd17e8ccaf85a
-R f612a18581ab3242f52bf7a867d54228
-T *bgcolor * #fec084
-T *branch * technoteattachcli
-T *sym-technoteattachcli *
-T +private *
-T -sym-trunk *
+P 5712fa8f133228f12eeaeb9b103ecc28bec819c4
+R 5c54f06b6ea279133f32d1b41081c6ca
 U dave.vines
-Z f6c6e444d9fbc907bf60f9541971dd0c
+Z 7adfa840b89b6343bccce2e2068217b5

@@ -250,6 +250,62 @@ static void attach_put(
 
 
 /*
+** Commit a new attachment into the repository
+*/
+void attach_commit(
+  const char *zName,                   /* The filename of the attachment */
+  const char *zTarget,                 /* The artifact uuid to attach to */
+  const char *aContent,                /* The content of the attachment */
+  int         szContent,               /* The length of the attachment */
+  int         needModerator,           /* Moderate the attachment? */
+  const char *zComment                 /* The comment for the attachment */
+){
+    Blob content;
+    Blob manifest;
+    Blob cksum;
+    char *zUUID;
+    char *zDate;
+    int rid;
+    int i, n;
+    int addCompress = 0;
+    Manifest *pManifest;
+
+    db_begin_transaction();
+    blob_init(&content, aContent, szContent);
+    pManifest = manifest_parse(&content, 0, 0);
+    manifest_destroy(pManifest);
+    blob_init(&content, aContent, szContent);
+    if( pManifest ){
+      blob_compress(&content, &content);
+      addCompress = 1;
+    }
+    rid = content_put_ex(&content, 0, 0, 0, needModerator);
+    zUUID = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+    blob_zero(&manifest);
+    for(i=n=0; zName[i]; i++){
+      if( zName[i]=='/' || zName[i]=='\\' ) n = i+1;
+    }
+    zName += n;
+    if( zName[0]==0 ) zName = "unknown";
+    blob_appendf(&manifest, "A %F%s %F %s\n",
+                 zName, addCompress ? ".gz" : "", zTarget, zUUID);
+    while( fossil_isspace(zComment[0]) ) zComment++;
+    n = strlen(zComment);
+    while( n>0 && fossil_isspace(zComment[n-1]) ){ n--; }
+    if( n>0 ){
+      blob_appendf(&manifest, "C %#F\n", n, zComment);
+    }
+    zDate = date_in_standard_format("now");
+    blob_appendf(&manifest, "D %s\n", zDate);
+    blob_appendf(&manifest, "U %F\n", login_name());
+    md5sum_blob(&manifest, &cksum);
+    blob_appendf(&manifest, "Z %b\n", &cksum);
+    attach_put(&manifest, rid, needModerator);
+    assert( blob_is_reset(&manifest) );
+    db_end_transaction(0);
+}
+
+/*
 ** WEBPAGE: attachadd
 ** Add a new attachment.
 **
@@ -324,55 +380,10 @@ void attachadd_page(void){
     cgi_redirect(zFrom);
   }
   if( P("ok") && szContent>0 && (goodCaptcha = captcha_is_correct()) ){
-    Blob content;
-    Blob manifest;
-    Blob cksum;
-    char *zUUID;
-    const char *zComment;
-    char *zDate;
-    int rid;
-    int i, n;
-    int addCompress = 0;
-    Manifest *pManifest;
-    int needModerator;
-
-    db_begin_transaction();
-    blob_init(&content, aContent, szContent);
-    pManifest = manifest_parse(&content, 0, 0);
-    manifest_destroy(pManifest);
-    blob_init(&content, aContent, szContent);
-    if( pManifest ){
-      blob_compress(&content, &content);
-      addCompress = 1;
-    }
-    needModerator =
-         (zTkt!=0 && ticket_need_moderation(0)) ||
-         (zPage!=0 && wiki_need_moderation(0));
-    rid = content_put_ex(&content, 0, 0, 0, needModerator);
-    zUUID = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-    blob_zero(&manifest);
-    for(i=n=0; zName[i]; i++){
-      if( zName[i]=='/' || zName[i]=='\\' ) n = i;
-    }
-    zName += n;
-    if( zName[0]==0 ) zName = "unknown";
-    blob_appendf(&manifest, "A %F%s %F %s\n",
-                 zName, addCompress ? ".gz" : "", zTarget, zUUID);
-    zComment = PD("comment", "");
-    while( fossil_isspace(zComment[0]) ) zComment++;
-    n = strlen(zComment);
-    while( n>0 && fossil_isspace(zComment[n-1]) ){ n--; }
-    if( n>0 ){
-      blob_appendf(&manifest, "C %#F\n", n, zComment);
-    }
-    zDate = date_in_standard_format("now");
-    blob_appendf(&manifest, "D %s\n", zDate);
-    blob_appendf(&manifest, "U %F\n", login_name());
-    md5sum_blob(&manifest, &cksum);
-    blob_appendf(&manifest, "Z %b\n", &cksum);
-    attach_put(&manifest, rid, needModerator);
-    assert( blob_is_reset(&manifest) );
-    db_end_transaction(0);
+    int needModerator = (zTkt!=0 && ticket_need_moderation(0)) ||
+                        (zPage!=0 && wiki_need_moderation(0));
+    const char *zComment = PD("comment", "");
+    attach_commit(zName, zTarget, aContent, szContent, needModerator, zComment);
     cgi_redirect(zFrom);
   }
   style_header("Add Attachment");

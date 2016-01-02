@@ -1385,10 +1385,28 @@ int object_description(
     }
     objType |= OBJTYPE_ATTACHMENT;
     if( strlen(zTarget)==UUID_SIZE && validate16(zTarget,UUID_SIZE) ){
-      if( g.perm.Hyperlink && g.anon.RdTkt ){
-        @ ticket [%z(href("%R/tktview?name=%!S",zTarget))%S(zTarget)</a>]
+      if ( db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'",
+            zTarget)
+      ){
+        if( g.perm.Hyperlink && g.anon.RdTkt ){
+          @ ticket [%z(href("%R/tktview?name=%!S",zTarget))%S(zTarget)</a>]
+        }else{
+          @ ticket [%S(zTarget)]
+        }
+      }else if( db_exists("SELECT 1 FROM tag WHERE tagname='event-%q'",
+            zTarget)
+      ){
+        if( g.perm.Hyperlink && g.anon.RdWiki ){
+          @ tech note [%z(href("%R/technote/%h",zTarget))%S(zTarget)</a>]
+        }else{
+          @ tech note [%S(zTarget)]
+        }
       }else{
-        @ ticket [%S(zTarget)]
+        if( g.perm.Hyperlink && g.anon.RdWiki ){
+          @ wiki page [%z(href("%R/wiki?name=%t",zTarget))%h(zTarget)</a>]
+        }else{
+          @ wiki page [%h(zTarget)]
+        }
       }
     }else{
       if( g.perm.Hyperlink && g.anon.RdWiki ){
