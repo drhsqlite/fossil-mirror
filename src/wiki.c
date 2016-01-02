@@ -1165,8 +1165,8 @@ int wiki_cmd_commit(const char *zPageName, int isNew, Blob *pContent,
 **         --technote-bgcolor COLOR    The color used for the technote on the
 **                                     timeline.
 **
-**    %fossil wiki list ?-technote?
-**    %fossil wiki ls ?-technote?
+**    %fossil wiki list ?--technote?
+**    %fossil wiki ls ?--technote?
 **
 **       Lists all wiki entries, one per line, ordered
 **       case-insensitively by name. The --technote flag
