@@ -2543,7 +2543,7 @@ const Setting aSetting[] = {
   { "keep-glob",        0,             40, 1, 0, ""                    },
   { "localauth",        0,              0, 0, 0, "off"                 },
   { "main-branch",      0,             40, 0, 0, "trunk"               },
-  { "manifest",         0,              0, 1, 0, "off"                 },
+  { "manifest",         0,              5, 0, 0, "off"                 },
   { "max-loadavg",      0,             25, 0, 0, "0.0"                 },
   { "max-upload",       0,             25, 0, 0, "250000"              },
   { "mtime-changes",    0,              0, 0, 0, "on"                  },
@@ -2747,9 +2747,12 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **
 **    main-branch      The primary branch for the project.  Default: trunk
 **
-**    manifest         If enabled, automatically create files "manifest" and
-**     (versionable)   "manifest.uuid" in every checkout.  The SQLite and
-**                     Fossil repositories both require this.  Default: off.
+**    manifest         If set to a true boolean value, automatically create
+**     (versionable)   files "manifest" and "manifest.uuid" in every checkout.
+**                     Optionally use combinations of characters 'r'
+**                     for "manifest", 'u' for "manifest.uuid" and 't' for
+**                     "manifest.tags".  The SQLite and Fossil repositories
+**                     both require manifests.  Default: off.
 **
 **    max-loadavg      Some CPU-intensive web pages (ex: /zip, /tarball, /blame)
 **                     are disallowed if the system load average goes above this
