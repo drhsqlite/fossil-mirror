@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\ssecond\sbeta\sfor\s3.10.0.
-D 2016-01-01T17:30:03.712
+C Started\swork\son\sallowing\smanifest.tags\sto\sautomatically\sbe\screated\scontaining\sthe\scheckout's\stags.\sRepurposed\sthe\smanifest\ssetting\sslightly\sallowing\smanifest\sand\smanifest.uuid\sto\sbe\stoggled\sindividually,\sbut\skeeping\sbackwards\scompatibility.
+D 2016-01-03T20:58:53.842
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -385,7 +385,7 @@ F src/cache.c d174d5926e1af9a243a0768ca23bc38e11d2652e
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 38b5b08eda88b4d256948d431e2f0094009644ae
 F src/checkin.c 6b8d4ffd4e6c05dc4b08b0f2238a0b965d7d6f11
-F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
+F src/checkout.c 714d3b3c0e8e2f4142d021a6d9bcc3321a989bf5
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c a855ad9e6db9760ee41451e358a393f89996daed
 F src/codecheck1.c bf92e19b6a521f947c07960aae3f2aa9a21e4c42
@@ -396,7 +396,7 @@ F src/content.c 49fd70d3136fbeb4794b7ef2f76c977c3ea77013
 F src/cson_amalgamation.c ce18de7d62186d08d6c15a7efbd66bf009310439
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 19e5cdcc57473efdb94d7ef7c73454c81e516625
+F src/db.c adb5e2f69b65e9ae44503c5a85865071180cfd8f
 F src/delta.c ab405c78d6559ea61563e2500c28f135a26c8b62
 F src/deltacmd.c 23bacf7915f27f8438f86fbaa117ad94f7931093
 F src/descendants.c 6cb824a041723f2bf8e82765386ed5974e335c92
@@ -744,7 +744,10 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d891af8385a4d4c0c935f167c52bd17e8ccaf85a
-R bdfeb211a6b9bafb759597c0adccab50
-U drh
-Z 982dc3bf20c0d10aacb944d0a245dcde
+P 987a80ef06635a6e8745ec3848360bb2a93f032a
+R 410ef20dc2d2b5fb242a9dc058b787bd
+T *branch * jan-manifest-tags
+T *sym-jan-manifest-tags *
+T -sym-trunk *
+U jan
+Z 013713e62859d451fae18998b44b8d12

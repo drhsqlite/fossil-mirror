@@ -2209,6 +2209,41 @@ void db_lset_int(const char *zName, int value){
   db_multi_exec("REPLACE INTO vvar(name,value) VALUES(%Q,%d)", zName, value);
 }
 
+#if INTERFACE
+/* Manifest generation flags */
+#define MFESTFLG_RAW  0x01
+#define MFESTFLG_UUID 0x02
+#define MFESTFLG_TAGS 0x04
+#endif /* INTERFACE */
+
+/*
+** Get the manifest setting.  For backwards compatibility first check if the
+** value is a boolean.  If it's not a boolean, treat each character as a flag
+** to enable a manifest type.  This system puts certain boundary conditions on
+** which letters can be used to represent flags (any permutation fo flags must
+** not be able to fully form one of the boolean values).
+*/
+int db_get_manifest_setting(void){
+  int flg;
+  char *zVal = db_get("manifest", "off");
+  if( is_false(zVal) ){
+    return 0;
+  }else if( is_truth(zVal) ) {
+    return MFESTFLG_RAW|MFESTFLG_UUID;
+  }
+  flg = 0;
+  while( *zVal ){
+   switch( *zVal ){
+     case 'r': flg |= MFESTFLG_RAW;  break;
+     case 'u': flg |= MFESTFLG_UUID; break;
+     case 't': flg |= MFESTFLG_TAGS; break;
+    }
+    zVal++;
+  }
+  return flg;
+}
+
+
 /*
 ** Record the name of a local repository in the global_config() database.
 ** The repository filename %s is recorded as an entry with a "name" field
