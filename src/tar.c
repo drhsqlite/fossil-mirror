@@ -488,21 +488,42 @@ void tarball_of_checkin(int rid, Blob *pTar, const char *zDir){
 
   pManifest = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( pManifest ){
+    int flg;
     mTime = (pManifest->rDate - 2440587.5)*86400.0;
     tar_begin(mTime);
-    if( db_get_boolean("manifest", 0) ){
-      blob_append(&filename, "manifest", -1);
-      zName = blob_str(&filename);
-      sha1sum_blob(&mfile, &hash);
-      sterilize_manifest(&mfile);
-      tar_add_file(zName, &mfile, 0, mTime);
+    flg = db_get_manifest_setting();
+    if( flg ){
+      if( flg & (MFESTFLG_RAW|MFESTFLG_UUID) ){
+        if( flg & MFESTFLG_RAW ){
+          blob_append(&filename, "manifest", -1);
+          zName = blob_str(&filename);
+        }
+        if( flg & MFESTFLG_UUID ){
+          sha1sum_blob(&mfile, &hash);
+        }
+        if( flg & MFESTFLG_RAW ) {
+          sterilize_manifest(&mfile);
+          tar_add_file(zName, &mfile, 0, mTime);
+        }
+      }
       blob_reset(&mfile);
-      blob_append(&hash, "\n", 1);
-      blob_resize(&filename, nPrefix);
-      blob_append(&filename, "manifest.uuid", -1);
-      zName = blob_str(&filename);
-      tar_add_file(zName, &hash, 0, mTime);
-      blob_reset(&hash);
+      if( flg & MFESTFLG_UUID ){
+        blob_append(&hash, "\n", 1);
+        blob_resize(&filename, nPrefix);
+        blob_append(&filename, "manifest.uuid", -1);
+        zName = blob_str(&filename);
+        tar_add_file(zName, &hash, 0, mTime);
+        blob_reset(&hash);
+      }
+      if( flg & MFESTFLG_TAGS ){
+        Blob tagslist;
+        blob_zero(&tagslist);
+        get_checkin_taglist(rid, &tagslist);
+        blob_resize(&filename, nPrefix);
+        blob_append(&filename, "manifest.tags", -1);
+        tar_add_file(zName, &tagslist, 0, mTime);
+        blob_reset(&tagslist);
+      }
     }
     manifest_file_rewind(pManifest);
     while( (pFile = manifest_file_next(pManifest,0))!=0 ){

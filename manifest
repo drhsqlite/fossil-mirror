@@ -1,5 +1,5 @@
-C Add\smanifest.tags\sto\sthe\slist\sof\spotentially\sreserved\snames\sand\sdecouple\smanifest\sand\smanifest.uuid\sfrom\seach\sother.
-D 2016-01-03T22:54:15.007
+C Add\smanifest.tags\sto\starballs\swhen\sappropriate,\sand\sdecouple\smanifest\sand\smanifest.uuid.
+D 2016-01-03T23:55:15.087
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -489,7 +489,7 @@ F src/statrep.c 4f11eab5a4c84506471dae87b36e32de4d0c666b
 F src/style.c 1a7a0b84d1404a6420819498e0697219eb90357d
 F src/sync.c 430351487d739560d75ea3d561e6ef6539c26974
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
-F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
+F src/tar.c 227b6155eef2fe8a66671a2bfa24e7bd920248a4
 F src/th.c e9840f21b1bb1bc03fdba17c818728e132e254b7
 F src/th.h 1e7ae1613afa730a75df06d7fd1f17c7ff4564f4
 F src/th_lang.c e37a4bae6c05ed442bc90ba3fa18be2683e2a6a1
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 226e7c28427e9d191d7fb62c25488d195ce1ecf2
-R 4089a54eb3c0382b31dc73b24817d311
+P 142cb7aabdc746a5cf82104325a16cb8e54e6ccc
+R 3318036ed32eb620698fb3d131f1d4b4
 U jan
-Z 84a62758a1edee96faafc4995b23f5f4
+Z bda0ccafca612bfd805b4999365c774f
