@@ -2225,7 +2225,7 @@ void db_lset_int(const char *zName, int value){
 */
 int db_get_manifest_setting(void){
   int flg;
-  char *zVal = db_get("manifest", "off");
+  char *zVal = db_get_versioned("manifest", "off");
   if( is_false(zVal) ){
     return 0;
   }else if( is_truth(zVal) ) {
