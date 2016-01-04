@@ -1,5 +1,5 @@
-C Code\snormalization;\stabs->spaces.
-D 2016-01-04T00:36:40.495
+C Conditionally\ssave\smanifests\son\scommit.
+D 2016-01-04T02:16:47.104
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -384,7 +384,7 @@ F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c d174d5926e1af9a243a0768ca23bc38e11d2652e
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 38b5b08eda88b4d256948d431e2f0094009644ae
-F src/checkin.c 6b8d4ffd4e6c05dc4b08b0f2238a0b965d7d6f11
+F src/checkin.c 9ad1cb69205086d0b6e7843fe802c2ffc708925e
 F src/checkout.c 142872ea91dec838a54513bd780aab710b1a03b0
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c a855ad9e6db9760ee41451e358a393f89996daed
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aed6fe5308202bd284da9d96bd1076cb932ae555
-R 52eb75a5c47f7fef36ef8b23a2dedbdf
+P de30eec201b6100df0ac081077c7d53e45089d7c
+R 1b2b8b9beeb8dc920b1c8555109188cb
 U jan
-Z 01aa5f71a3c3c41b73024f2ec7bdbdbf
+Z eaa5895a7ec8711f0539927d468bbc21
