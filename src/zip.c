@@ -346,22 +346,46 @@ void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
 
   pManifest = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( pManifest ){
+    int flg;
     char *zName;
     zip_set_timedate(pManifest->rDate);
-    if( db_get_boolean("manifest", 0) ){
-      blob_append(&filename, "manifest", -1);
-      zName = blob_str(&filename);
-      zip_add_folders(zName);
-      sha1sum_blob(&mfile, &hash);
-      sterilize_manifest(&mfile);
-      zip_add_file(zName, &mfile, 0);
+    flg = db_get_manifest_setting();
+    if( flg ){
+      if( flg & (MFESTFLG_RAW|MFESTFLG_UUID) ){
+        if( flg & MFESTFLG_RAW ){
+          blob_append(&filename, "manifest", -1);
+          zName = blob_str(&filename);
+          zip_add_folders(zName);
+        }
+        if( flg & MFESTFLG_UUID ){
+          sha1sum_blob(&mfile, &hash);
+        }
+        if( flg & MFESTFLG_RAW ){
+          sterilize_manifest(&mfile);
+          zip_add_file(zName, &mfile, 0);
+        }
+      }
       blob_reset(&mfile);
-      blob_append(&hash, "\n", 1);
-      blob_resize(&filename, nPrefix);
-      blob_append(&filename, "manifest.uuid", -1);
-      zName = blob_str(&filename);
-      zip_add_file(zName, &hash, 0);
-      blob_reset(&hash);
+      if( flg & MFESTFLG_UUID ){
+        blob_append(&hash, "\n", 1);
+        blob_resize(&filename, nPrefix);
+        blob_append(&filename, "manifest.uuid", -1);
+        zName = blob_str(&filename);
+        zip_add_folders(zName);
+        zip_add_file(zName, &hash, 0);
+        blob_reset(&hash);
+      }
+      if( flg & MFESTFLG_TAGS ){
+        Blob tagslist;
+        blob_zero(&tagslist);
+        get_checkin_taglist(rid, &tagslist);
+        blob_resize(&filename, nPrefix);
+        blob_append(&filename, "manifest.tags", -1);
+        zName = blob_str(&filename);
+        zip_add_folders(zName);
+        zip_add_file(zName, &tagslist, 0);
+        blob_reset(&tagslist);
+      }
     }
     manifest_file_rewind(pManifest);
     while( (pFile = manifest_file_next(pManifest,0))!=0 ){
