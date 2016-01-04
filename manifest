@@ -1,5 +1,5 @@
-C Add\smanifest.tags\sto\starballs\swhen\sappropriate,\sand\sdecouple\smanifest\sand\smanifest.uuid.
-D 2016-01-03T23:55:15.087
+C Added\sa\smissing\sfinalize.
+D 2016-01-04T00:19:00.298
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -385,7 +385,7 @@ F src/cache.c d174d5926e1af9a243a0768ca23bc38e11d2652e
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 38b5b08eda88b4d256948d431e2f0094009644ae
 F src/checkin.c 6b8d4ffd4e6c05dc4b08b0f2238a0b965d7d6f11
-F src/checkout.c 714d3b3c0e8e2f4142d021a6d9bcc3321a989bf5
+F src/checkout.c 73f8b6d9af9e0dd6b2a0f9067779be9f95b65e1b
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c a855ad9e6db9760ee41451e358a393f89996daed
 F src/codecheck1.c bf92e19b6a521f947c07960aae3f2aa9a21e4c42
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 142cb7aabdc746a5cf82104325a16cb8e54e6ccc
-R 3318036ed32eb620698fb3d131f1d4b4
+P 80ceedbdeabc970e853427ca81184838aba89ff4
+R 714b520d8c91118b5de7cf01dbafcb11
 U jan
-Z bda0ccafca612bfd805b4999365c774f
+Z af619328af603c5ec046f23ffffe68b5

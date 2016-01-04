@@ -203,6 +203,7 @@ void get_checkin_taglist(int rid, Blob *pOut){
     blob_appendf(pOut, "%s\n", zName);
   }
   db_reset(&stmt);
+  db_finalize(&stmt);
 }
 
 
