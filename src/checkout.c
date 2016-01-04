@@ -194,6 +194,7 @@ void get_checkin_taglist(int rid, Blob *pOut){
   db_prepare(&stmt, "SELECT substr(tagname, 5)"
                     "  FROM tagxref, tag"
                     " WHERE tagxref.rid=%d"
+                    "   AND tagxref.tagtype>0"
                     "   AND tag.tagid=tagxref.tagid"
                     "   AND tag.tagname GLOB 'sym-*'", rid);
   while( db_step(&stmt)==SQLITE_ROW ){
