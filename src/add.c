@@ -81,8 +81,8 @@ const char *fossil_reserved_name(int N, int omitRepo){
     int flg;
   }aManifestflags[] = {
     { "manifest",      MFESTFLG_RAW },
-	 { "manifest.uuid", MFESTFLG_UUID },
-	 { "manifest.tags", MFESTFLG_TAGS }
+    { "manifest.uuid", MFESTFLG_UUID },
+    { "manifest.tags", MFESTFLG_TAGS }
   };
   static const char *azManifests[3];
 

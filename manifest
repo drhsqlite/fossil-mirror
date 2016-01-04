@@ -1,5 +1,5 @@
-C Add\smanifest.tags\sto\sgenerated\szips,\sand\sdecouple\smanifest\sand\smanifest.uuid.
-D 2016-01-04T00:28:40.757
+C Code\snormalization;\stabs->spaces.
+D 2016-01-04T00:36:40.495
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -371,7 +371,7 @@ F skins/xekri/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 0394bc456638b8febe6378b45503be9db8674207
+F src/add.c 7a15ac5ea485a2e732b01d67c4905b1a76bc9fff
 F src/allrepo.c 653a4fe5cb10da2811c3d394e8beca6b357de8b7
 F src/attach.c 5f6f5ccc39aeb0f4d49b7696b7b520b515a53177
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
@@ -385,7 +385,7 @@ F src/cache.c d174d5926e1af9a243a0768ca23bc38e11d2652e
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 38b5b08eda88b4d256948d431e2f0094009644ae
 F src/checkin.c 6b8d4ffd4e6c05dc4b08b0f2238a0b965d7d6f11
-F src/checkout.c 73f8b6d9af9e0dd6b2a0f9067779be9f95b65e1b
+F src/checkout.c 142872ea91dec838a54513bd780aab710b1a03b0
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c a855ad9e6db9760ee41451e358a393f89996daed
 F src/codecheck1.c bf92e19b6a521f947c07960aae3f2aa9a21e4c42
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 185669ce21dab6bf1f227fdb977c61d9e7879ec2
-R 59486ffc8e77c42b809d70dc174e09e7
+P aed6fe5308202bd284da9d96bd1076cb932ae555
+R 52eb75a5c47f7fef36ef8b23a2dedbdf
 U jan
-Z 990d2baadb7e794430aeecc7c3fc1e5b
+Z 01aa5f71a3c3c41b73024f2ec7bdbdbf

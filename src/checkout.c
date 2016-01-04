@@ -149,19 +149,19 @@ void manifest_to_disk(int vid){
       blob_zero(&hash);
       sha1sum_blob(&manifest, &hash);
       sterilize_manifest(&manifest);
-		if( flg & MFESTFLG_RAW ){
+      if( flg & MFESTFLG_RAW ){
         blob_write_to_file(&manifest, zManFile);
       }
       free(zManFile);
     }
-	 if( flg & MFESTFLG_UUID ){
+    if( flg & MFESTFLG_UUID ){
       zManFile = mprintf("%smanifest.uuid", g.zLocalRoot);
       blob_append(&hash, "\n", 1);
       blob_write_to_file(&hash, zManFile);
       free(zManFile);
       blob_reset(&hash);
     }
-	 if( flg & MFESTFLG_TAGS ){
+    if( flg & MFESTFLG_TAGS ){
       blob_zero(&taglist);
       zManFile = mprintf("%smanifest.tags", g.zLocalRoot);
       get_checkin_taglist(vid, &taglist);
