@@ -521,6 +521,7 @@ void tarball_of_checkin(int rid, Blob *pTar, const char *zDir){
         get_checkin_taglist(rid, &tagslist);
         blob_resize(&filename, nPrefix);
         blob_append(&filename, "manifest.tags", -1);
+        zName = blob_str(&filename);
         tar_add_file(zName, &tagslist, 0, mTime);
         blob_reset(&tagslist);
       }

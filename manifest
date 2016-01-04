@@ -1,5 +1,5 @@
-C Added\sa\smissing\sfinalize.
-D 2016-01-04T00:19:00.298
+C Fix:\sExtract\sfilename\sfor\smanifest.tags.
+D 2016-01-04T00:22:03.079
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -489,7 +489,7 @@ F src/statrep.c 4f11eab5a4c84506471dae87b36e32de4d0c666b
 F src/style.c 1a7a0b84d1404a6420819498e0697219eb90357d
 F src/sync.c 430351487d739560d75ea3d561e6ef6539c26974
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
-F src/tar.c 227b6155eef2fe8a66671a2bfa24e7bd920248a4
+F src/tar.c ecbf6a514fc779e9ca9cbadbb0ae24805722c5d1
 F src/th.c e9840f21b1bb1bc03fdba17c818728e132e254b7
 F src/th.h 1e7ae1613afa730a75df06d7fd1f17c7ff4564f4
 F src/th_lang.c e37a4bae6c05ed442bc90ba3fa18be2683e2a6a1
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 80ceedbdeabc970e853427ca81184838aba89ff4
-R 714b520d8c91118b5de7cf01dbafcb11
+P 6a56db89f66fb1b2e1de9308e9274eac5f1d48dc
+R badfc5f97700dc3a86516e874257f52c
 U jan
-Z af619328af603c5ec046f23ffffe68b5
+Z e3f82ecb8b965a588332424cb8dc142f
