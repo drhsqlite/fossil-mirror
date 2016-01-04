@@ -1,5 +1,5 @@
-C Filter\stags.
-D 2016-01-04T03:10:27.313
+C Update\smanifests\son\stag\schange.
+D 2016-01-04T03:41:15.881
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -488,7 +488,7 @@ F src/stat.c 9fa919c1c78db3952e181e0bf955b039aca0db26
 F src/statrep.c 4f11eab5a4c84506471dae87b36e32de4d0c666b
 F src/style.c 1a7a0b84d1404a6420819498e0697219eb90357d
 F src/sync.c 430351487d739560d75ea3d561e6ef6539c26974
-F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
+F src/tag.c 3947cce7e9f712cf3c5c031426e7165b4a353b33
 F src/tar.c ecbf6a514fc779e9ca9cbadbb0ae24805722c5d1
 F src/th.c e9840f21b1bb1bc03fdba17c818728e132e254b7
 F src/th.h 1e7ae1613afa730a75df06d7fd1f17c7ff4564f4
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dacecc79aa591b645c973b83a0554980b93f545e
-R 8a04ed2e2721f6dfca87e49cb44ebfa9
+P 53f2e7c54094efa60e82ffcbba769d1b4bcc9ea2
+R 38288b1d1b26bc4e64337a160a0225d1
 U jan
-Z 21de84a8fcbf41c24681c71ecf547b0f
+Z 34ed269c2a6550627a16922cd1ce7321
