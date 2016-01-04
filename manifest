@@ -1,5 +1,5 @@
-C Conditionally\ssave\smanifests\son\scommit.
-D 2016-01-04T02:16:47.104
+C Handle\sthe\sthree\smanifest\sfiles\sseparately\sso\smanifest\sgeneration\sreconfigurations\scan\sbe\shandled\sproperly.
+D 2016-01-04T02:54:39.521
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -385,7 +385,7 @@ F src/cache.c d174d5926e1af9a243a0768ca23bc38e11d2652e
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 38b5b08eda88b4d256948d431e2f0094009644ae
 F src/checkin.c 9ad1cb69205086d0b6e7843fe802c2ffc708925e
-F src/checkout.c 142872ea91dec838a54513bd780aab710b1a03b0
+F src/checkout.c 60bb3666d3eb7ba1e6bd10e44df2504b21eb7f20
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c a855ad9e6db9760ee41451e358a393f89996daed
 F src/codecheck1.c bf92e19b6a521f947c07960aae3f2aa9a21e4c42
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P de30eec201b6100df0ac081077c7d53e45089d7c
-R 1b2b8b9beeb8dc920b1c8555109188cb
+P 46b9adb70fc21d4d2a36e8d55d6d48b4ae622106
+R 1b71e086a72e3792d187c70236a899d9
 U jan
-Z eaa5895a7ec8711f0539927d468bbc21
+Z 85615a1d61faac90ce9f469039a884da

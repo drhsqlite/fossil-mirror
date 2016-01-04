@@ -141,51 +141,50 @@ void manifest_to_disk(int vid){
   int flg;
 
   flg = db_get_manifest_setting();
-  if( flg ){
-    if( flg & (MFESTFLG_RAW|MFESTFLG_UUID) ){
-      blob_zero(&manifest);
-      content_get(vid, &manifest);
-      zManFile = mprintf("%smanifest", g.zLocalRoot);
-      blob_zero(&hash);
-      sha1sum_blob(&manifest, &hash);
-      sterilize_manifest(&manifest);
-      if( flg & MFESTFLG_RAW ){
-        blob_write_to_file(&manifest, zManFile);
+
+  if( flg & (MFESTFLG_RAW|MFESTFLG_UUID) ){
+    blob_zero(&manifest);
+    content_get(vid, &manifest);
+    zManFile = mprintf("%smanifest", g.zLocalRoot);
+    blob_zero(&hash);
+    sha1sum_blob(&manifest, &hash);
+    sterilize_manifest(&manifest);
+    if( flg & MFESTFLG_RAW ){
+      blob_write_to_file(&manifest, zManFile);
+    }else{
+      if( !db_exists("SELECT 1 FROM vfile WHERE pathname='manifest'") ){
+        file_delete(zManFile);
       }
-      free(zManFile);
     }
-    if( flg & MFESTFLG_UUID ){
-      zManFile = mprintf("%smanifest.uuid", g.zLocalRoot);
-      blob_append(&hash, "\n", 1);
-      blob_write_to_file(&hash, zManFile);
-      free(zManFile);
-      blob_reset(&hash);
-    }
-    if( flg & MFESTFLG_TAGS ){
-      blob_zero(&taglist);
-      zManFile = mprintf("%smanifest.tags", g.zLocalRoot);
-      get_checkin_taglist(vid, &taglist);
-      blob_write_to_file(&taglist, zManFile);
-      free(zManFile);
-    }
+    free(zManFile);
+  }
+  if( flg & MFESTFLG_UUID ){
+    zManFile = mprintf("%smanifest.uuid", g.zLocalRoot);
+    blob_append(&hash, "\n", 1);
+    blob_write_to_file(&hash, zManFile);
+    free(zManFile);
+    blob_reset(&hash);
   }else{
-    if( !db_exists("SELECT 1 FROM vfile WHERE pathname='manifest'") ){
-      zManFile = mprintf("%smanifest", g.zLocalRoot);
-      file_delete(zManFile);
-      free(zManFile);
-    }
     if( !db_exists("SELECT 1 FROM vfile WHERE pathname='manifest.uuid'") ){
       zManFile = mprintf("%smanifest.uuid", g.zLocalRoot);
       file_delete(zManFile);
       free(zManFile);
     }
+  }
+  if( flg & MFESTFLG_TAGS ){
+    blob_zero(&taglist);
+    zManFile = mprintf("%smanifest.tags", g.zLocalRoot);
+    get_checkin_taglist(vid, &taglist);
+    blob_write_to_file(&taglist, zManFile);
+    free(zManFile);
+    blob_reset(&taglist);
+  }else{
     if( !db_exists("SELECT 1 FROM vfile WHERE pathname='manifest.tags'") ){
       zManFile = mprintf("%smanifest.tags", g.zLocalRoot);
       file_delete(zManFile);
       free(zManFile);
     }
   }
-
 }
 
 void get_checkin_taglist(int rid, Blob *pOut){
