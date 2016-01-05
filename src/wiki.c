@@ -1195,6 +1195,7 @@ void wiki_cmd(void){
     char *zBody = 0;              /* Wiki page content */
     Blob body;                    /* Wiki page content */
     Manifest *pWiki = 0;          /* Parsed wiki page content */
+
     zETime = find_option("technote","t",1);
     if( !zETime ){
       if( (g.argc!=4) && (g.argc!=5) ){
