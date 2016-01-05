@@ -1,5 +1,5 @@
-C Fix\sa\sbug\sin\sthe\smanifest\sparser\sthat\scan\scause\sa\sread\soff\sthe\send\sof\sa\sbuffer\nwhen\sdoing\sa\s"fossil\srebuild"\son\sa\srepository\sthat\scontains\sartifacts\sthat\nstart\sout\slooking\slike\sa\svalid\sspecial\sartifact\sbut\sare\snot\sterminated\sby\s\\n.\nThis\sfixes\sa\sbug\sintroduced\sby\scheck-in\s[49b0ff15922674].
-D 2016-01-01T20:49:26.184
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\snext\s3.10.0\sbeta.
+D 2016-01-05T04:52:59.124
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -476,13 +476,13 @@ F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c 3ddd0bd72f6a9af5a92b4f4113577d1a0ff7c75d
 F src/setup.c b1b74ef83b01a10962e6b71c0b459e18eb31a4b3
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
-F src/shell.c ace08b69cd9702143cf87b5bd20b744a56f832fd
+F src/shell.c ed71dc7679e6f087a3f1ea3f9dae4b0fae7209c3
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 44d3881e497cf9bec8ea6dcf73830502ab59202c
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c 46f9e689b68fc6c3a059721f1168a0268e78d3f7
-F src/sqlite3.h 2c4aaae2c02ab816aebde200b2cbdd8b7e7feeab
+F src/sqlite3.c dc0804e5ce67307d57729e6bca65678510945f85
+F src/sqlite3.h 692e190dabb6aa723542aa011ed32d384ee307d0
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 9fa919c1c78db3952e181e0bf955b039aca0db26
 F src/statrep.c 4f11eab5a4c84506471dae87b36e32de4d0c666b
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 987a80ef06635a6e8745ec3848360bb2a93f032a
-R 8d6bf02fd820780d8592792dd88b71d1
+P 6013aea0c2a5e32ceac5b07992f03e7a7ad4148c
+R c53495ad4613740c5586c3151a1e0a87
 U drh
-Z 51429db5e2709981b782daeea5f3d6c3
+Z f6a6d8e83017504f58534ee0aaca07ee
