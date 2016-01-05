@@ -681,3 +681,96 @@ void attachment_list(
   db_finalize(&q);
 
 }
+
+/*
+** COMMAND: attachment*
+**
+** Usage: %fossil attachment add ?PAGENAME? FILENAME [-t|--technote DATETIME ]
+**
+**       Add an attachment to an existing wiki page or tech note. One of
+**       PAGENAME or DATETIME must be specified.
+**
+*/
+void attachment_cmd(void){
+  int n;
+  db_find_and_open_repository(0, 0);
+  if( g.argc<3 ){
+    goto attachment_cmd_usage;
+  }
+  n = strlen(g.argv[2]);
+  if( n==0 ){
+    goto attachment_cmd_usage;
+  }
+
+  if( strncmp(g.argv[2],"add",n)==0 ){
+    const char *zPageName;        /* Name of the wiki page to attach to */
+    const char *zFile;            /* Name of the file to be attached */
+    const char *zETime;           /* The name of the technote to attach to */
+    Manifest *pWiki = 0;          /* Parsed wiki page content */
+    char *zBody = 0;              /* Wiki page content */
+    int rid;
+    const char *zTarget;          /* Target of the attachment */
+    Blob content;                 /* The content of the attachment */
+    zETime = find_option("technote","t",1);
+    if( !zETime ){
+      if( g.argc!=5 ){
+        usage("attachment add PAGENAME FILENAME");
+      }
+      zPageName = g.argv[3];
+      rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
+        " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
+        " ORDER BY x.mtime DESC LIMIT 1",
+        zPageName
+      );        
+      if( (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))!=0 ){
+        zBody = pWiki->zWiki;
+      }
+      if( zBody==0 ){
+        fossil_fatal("wiki page [%s] not found",zPageName);
+      }
+      zTarget = zPageName;
+      zFile = g.argv[4];
+    }else{
+      if( g.argc!=4 ){
+        usage("attachment add FILENAME --technote DATETIME");
+      }
+      rid = db_int(0, "SELECT objid FROM event"
+        " WHERE datetime(mtime)=datetime('%q') AND type='e'"
+        " ORDER BY mtime DESC LIMIT 1",
+        zETime
+      );
+      if( (pWiki = manifest_get(rid, CFTYPE_EVENT, 0))!=0 ){
+        zBody = pWiki->zWiki;
+      }
+      if( zBody==0 ){
+        fossil_fatal("technote [%s] not found",zETime);
+      }
+      zTarget = db_text(0,
+        "SELECT substr(tagname,7) FROM tag WHERE tagid=(SELECT tagid FROM event WHERE objid='%d')",
+        rid
+      );
+      zFile = g.argv[3];
+    }
+    blob_read_from_file(&content, zFile);
+    user_select();
+    attach_commit(
+      zFile,                   /* The filename of the attachment */
+      zTarget,                 /* The artifact uuid to attach to */
+      blob_buffer(&content),   /* The content of the attachment */
+      blob_size(&content),     /* The length of the attachment */
+      0,                       /* No need to moderate the attachment */
+      ""                       /* Empty attachment comment */
+    );
+    if( !zETime ){
+      fossil_print("Attached %s to wiki page %s.\n", zFile, zPageName);
+    }else{
+      fossil_print("Attached %s to tech note %s.\n", zFile, zETime);
+    }
+  }else{
+    goto attachment_cmd_usage;
+  }
+  return;
+
+attachment_cmd_usage:
+  usage("attachment add ?PAGENAME? FILENAME [-t|--technote DATETIME ]");
+}
