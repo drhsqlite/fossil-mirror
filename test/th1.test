@@ -1205,7 +1205,6 @@ test th1-markdown-3 {[normalize_result] eq {{} {<div class="markdown">
 fossil test-th-eval {markdown "Test1\n=====\n*This is a test.*"}
 test th1-markdown-4 {[normalize_result] eq {Test1 {<div class="markdown">
 
-<h1>Test1</h1>
 <p><em>This is a test.</em></p>
 
 </div>
@@ -1219,7 +1218,6 @@ fossil test-th-eval [string map \
 test th1-markdown-5 {[normalize_result] eq \
 {{Markdown Formatter Test Document} {<div class="markdown">
 
-<h1>Markdown Formatter Test Document</h1>
 <p>This document is designed to test the markdown formatter.</p>
 
 <ul>
