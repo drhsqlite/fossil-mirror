@@ -1,5 +1,5 @@
-C Add\s'-quiet'\scommand\sline\soption\sto\sthe\stest\ssuite.
-D 2016-01-06T17:18:53.043
+C Do\snot\sset\sthe\sdirectory\spermission\sbit\son\sempty\sfiles\swhen\screating\sa\sZIP\sarchive.
+D 2016-01-06T19:44:04.785
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -515,7 +515,7 @@ F src/winhttp.c 4e680d7c8778be4439169f40a992ccc81f7ceec2
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 360b9fb86e3709b78d1902aa89a227f957a66ba3
 F src/xfersetup.c 0f967a3fca7ad9fa3aa350d121851e71064823be
-F src/zip.c 211de642fc72c1e93f9083f3affc85f3c8febe30
+F src/zip.c e6d05f48e84e36609ad6c161deb8b563b094ecc3
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test c380f431db6dd2278924e2e8c80e916b5c54923f
@@ -744,7 +744,10 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 52ee83c72945446a11de6d0125b4d9eeebaf07c3
-R 9e456298f5a4a5d9b017da49a6b4d100
+P c2e42166ef4504c0cd3d49ab34fe5a63d9b33c5b
+R 7c2d1c3bb8c0ba501fe147db3cfe6814
+T *branch * pending-review
+T *sym-pending-review *
+T -sym-trunk *
 U mistachkin
-Z 0ffda4a3b34e20954563402968e80f29
+Z a4d8b524c0c89a4a79a592e22259f836

@@ -144,14 +144,14 @@ void zip_add_file(const char *zName, const Blob *pFile, int mPerm){
   /* Fill in as much of the header as we know.
   */
   nBlob = pFile ? blob_size(pFile) : 0;
-  if( nBlob>0 ){
+  if( pFile ){ /* This is a file, possibly empty... */
     iMethod = 8;
     switch( mPerm ){
       case PERM_LNK:   iMode = 0120755;   break;
       case PERM_EXE:   iMode = 0100755;   break;
       default:         iMode = 0100644;   break;
     }
-  }else{
+  }else{       /* This is a directory, no blob... */
     iMethod = 0;
     iMode = 040755;
   }
