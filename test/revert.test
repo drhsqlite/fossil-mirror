@@ -72,11 +72,11 @@ fossil mv f3 f3n
 # Test 'fossil revert' with no arguments
 #
 revert-test 1-1 {} {
-  UNMANAGE: f0
-  REVERTED: f1
-  REVERTED: f2
-  REVERTED: f3
-  DELETE: f3n
+  UNMANAGE f0
+  REVERT   f1
+  REVERT   f2
+  REVERT   f3
+  DELETE   f3n
 } -addremove {
   ADDED f0
 } -exists {f0 f1 f2 f3} -notexists f3n
@@ -84,7 +84,7 @@ revert-test 1-1 {} {
 # Test with a single filename argument
 #
 revert-test 1-2 f0 {
-  UNMANAGE: f0
+  UNMANAGE f0
 } -changes {
   DELETED f1
   EDITED f2
@@ -94,7 +94,7 @@ revert-test 1-2 f0 {
 } -exists {f0 f2 f3n} -notexists f3
 
 revert-test 1-3 f1 {
-  REVERTED: f1
+  REVERT   f1
 } -changes {
   ADDED f0
   EDITED f2
@@ -102,7 +102,7 @@ revert-test 1-3 f1 {
 } -exists {f0 f1 f2 f3n} -notexists f3
 
 revert-test 1-4 f2 {
-  REVERTED: f2
+  REVERT   f2
 } -changes {
   ADDED f0
   DELETED f1
@@ -113,8 +113,8 @@ revert-test 1-4 f2 {
 # is used as an argument to 'fossil revert'
 #
 revert-test 1-5 f3 {
-  REVERTED: f3
-  DELETE: f3n
+  REVERT   f3
+  DELETE   f3n
 } -changes {
   ADDED f0
   DELETED f1
@@ -122,8 +122,8 @@ revert-test 1-5 f3 {
 } -exists {f0 f2 f3} -notexists {f1 f3n}
 
 revert-test 1-6 f3n {
-  REVERTED: f3
-  DELETE: f3n
+  REVERT   f3
+  DELETE   f3n
 } -changes {
   ADDED f0
   DELETED f1
@@ -133,10 +133,10 @@ revert-test 1-6 f3n {
 # Test with multiple filename arguments
 #
 revert-test 1-7 {f0 f2 f3n} {
-  UNMANAGE: f0
-  REVERTED: f2
-  REVERTED: f3
-  DELETE: f3n
+  UNMANAGE f0
+  REVERT   f2
+  REVERT   f3
+  DELETE   f3n
 } -changes {
   DELETED f1
 } -addremove {
@@ -158,6 +158,6 @@ write_file f1 "f1b"
 fossil add f1
 
 revert-test 2-1 {} {
-  REVERTED: f1
-  DELETE: f1n
+  REVERT   f1
+  DELETE   f1n
 } -exists {f1} -notexists {f1n}
