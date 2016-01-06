@@ -59,13 +59,6 @@ if {[llength $argv]==0} {
   }
 }
 
-set tempPath [expr {[info exists env(TEMP)] ? \
-    $env(TEMP) : [file dirname [info script]]}]
-
-if {$tcl_platform(platform) eq "windows"} then {
-  set tempPath [string map [list \\ /] $tempPath]
-}
-
 # start protocol
 #
 proc protInit {cmd} {
@@ -256,7 +249,7 @@ proc writeTh1SetupFile { data } {
 #
 proc saveTh1SetupFile {} {
   set oldFileName [getTh1SetupFileName]
-  if {[file exists $oldFileName]} then {
+  if {[file exists $oldFileName]} {
     set newFileName [getSavedTh1SetupFileName]
     catch {file delete $newFileName}
     file rename $oldFileName $newFileName
@@ -269,7 +262,7 @@ proc saveTh1SetupFile {} {
 proc restoreTh1SetupFile {} {
   set oldFileName [getSavedTh1SetupFileName]
   set newFileName [getTh1SetupFileName]
-  if {[file exists $oldFileName]} then {
+  if {[file exists $oldFileName]} {
     catch {file delete $newFileName}
     file rename $oldFileName $newFileName
   } else {
@@ -369,7 +362,7 @@ proc test_fossil_http { repository dataFileName url } {
   fossil http $inFileName $outFileName 127.0.0.1 $repository --localauth
   set result [expr {[file exists $outFileName] ? [read_file $outFileName] : ""}]
 
-  if {1} then {
+  if {1} {
     catch {file delete $inFileName}
     catch {file delete $outFileName}
   }
@@ -419,6 +412,20 @@ proc next_to_last_data_line {} {
 # returns the third to last line of the normalized result.
 proc third_to_last_data_line {} {
   return [lindex [split [normalize_result] \n] end-2]
+}
+
+set tempPath [expr {[info exists env(TEMP)] ? \
+    $env(TEMP) : [file dirname [info script]]}]
+
+if {$tcl_platform(platform) eq "windows"} {
+  set tempPath [string map [list \\ /] $tempPath]
+}
+
+if {[catch {
+  write_file [file join $tempPath temporary.txt] [clock seconds]
+} error] != 0} {
+  error "could not write file to directory \"$tempPath\",\
+please set TEMP variable in environment: $error"
 }
 
 protInit $fossilexe
