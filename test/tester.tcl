@@ -52,6 +52,14 @@ if {$i>=0} {
   set VERBOSE 0
 }
 
+set i [lsearch $argv -quiet]
+if {$i>=0} {
+  set QUIET 1
+  set argv [lreplace $argv $i $i]
+} else {
+  set QUIET 0
+}
+
 if {[llength $argv]==0} {
   foreach f [lsort [glob $testdir/*.test]] {
     set base [file root [file tail $f]]
@@ -72,8 +80,10 @@ proc protInit {cmd} {
 
 # write protocol
 #
-proc protOut {msg} {
-  puts stdout $msg
+proc protOut {msg {noQuiet 0}} {
+  if {$noQuiet || !$::QUIET} {
+    puts stdout $msg
+  }
   if {$::PROT} {
     set out [open [file join $::testrundir prot] a]
     fconfigure $out -translation platform
@@ -121,7 +131,7 @@ proc fossil_maybe_answer {answer args} {
   global RESULT CODE
   set CODE $rc
   if {$rc} {
-    protOut "ERROR: $result"
+    protOut "ERROR: $result" 1
   } elseif {$::VERBOSE} {
     protOut "RESULT: $result"
   }
@@ -202,8 +212,8 @@ proc test_status_list {name result expected} {
   if {$result eq $expected} {
     test $name 1
   } else {
-    protOut "  Expected:\n    [join $expected "\n    "]"
-    protOut "  Got:\n    [join $result "\n    "]"
+    protOut "  Expected:\n    [join $expected "\n    "]" 1
+    protOut "  Got:\n    [join $result "\n    "]" 1
     test $name 0
   }
 }
@@ -277,13 +287,14 @@ proc restoreTh1SetupFile {} {
 #
 set test_count 0
 proc test {name expr} {
-  global bad_test test_count
+  global bad_test test_count RESULT
   incr test_count
   set r [uplevel 1 [list expr $expr]]
   if {$r} {
     protOut "test $name OK"
   } else {
-    protOut "test $name FAILED!"
+    protOut "test $name FAILED!" 1
+    if {$::QUIET} {protOut "RESULT: $RESULT" 1}
     lappend bad_test $name
     if {$::HALT} exit
   }
@@ -441,7 +452,9 @@ foreach testfile $argv {
   cd $origwd
 }
 set nErr [llength $bad_test]
-protOut "***** Final result: $nErr errors out of $test_count tests"
+if {$nErr>0 || !$::QUIET} {
+  protOut "***** Final result: $nErr errors out of $test_count tests" 1
+}
 if {$nErr>0} {
-  protOut "***** Failures: $bad_test"
+  protOut "***** Failures: $bad_test" 1
 }
