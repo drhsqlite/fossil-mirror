@@ -1,5 +1,5 @@
-C In\sthe\s'clean'\stest,\sadjust\sformatting\sof\sexpected\sresults\scontaining\s'NEW',\sto\saccount\sfor\srecent\scode\schanges.
-D 2016-01-06T03:53:38.668
+C In\sthe\s'mv-rm'\stest,\sadjust\sformatting\sof\sexpected\sresults\scontaining\s'DELETE'\sand\s'REVERT',\salso\sto\saccount\sfor\srecent\scode\schanges.
+D 2016-01-06T04:01:37.883
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -540,7 +540,7 @@ F test/merge5.test 62da8dd2d919b63c7bf239ae245be38bd106f563
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test 3fac7909f72a94ae05174404b1c9a7c68dd43824
 F test/merge_renames.test 97d1fb5da183979dad760964c026a96736eccdde
-F test/mv-rm.test 8165257224586ed6850bfd859c83cb8ed071b487
+F test/mv-rm.test c4cd3d592b28db47146ecf8e9f4ef4786c67e8b0
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
 F test/revert.test f40952b11bbc88f2540b9cc2876107dcec14b14e
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a489aecc541e85a8b80fd544ba17df24f4f0bad5
-R 87f346a06455a9eaef1775d1456e4f3e
+P 81df0a48f7350f434e910c9ea68f1e1dec21d1e3
+R cb9c7ccef65e061c2592639558839ac0
 U mistachkin
-Z 99d65ba4c9f15711c84c360baa28e8b2
+Z cb550634cfe28c4298557b333240b8c1
