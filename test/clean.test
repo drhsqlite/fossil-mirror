@@ -59,7 +59,7 @@ test clean-5 {[normalize_result] eq {}}
 ###############################################################################
 
 fossil undo
-test clean-6 {[normalize_result] eq {NEW f2}}
+test clean-6 {[normalize_result] eq {NEW    f2}}
 test clean-7 {[read_file f2] eq "f2 line"}
 
 ###############################################################################
@@ -89,7 +89,7 @@ test clean-11 {[normalize_result] eq {f3}}
 ###############################################################################
 
 fossil undo
-test clean-12 {[normalize_result] eq {NEW f2}}
+test clean-12 {[normalize_result] eq {NEW    f2}}
 test clean-13 {[read_file f2] eq "f2 line"}
 test clean-14 {[read_file f3] eq [string repeat ABCDEFGHIJK 1048576]}
 
@@ -114,7 +114,7 @@ test clean-17 {[normalize_result] eq {}}
 ###############################################################################
 
 fossil undo
-test clean-18 {[normalize_result] eq {NEW f2}}
+test clean-18 {[normalize_result] eq {NEW    f2}}
 test clean-19 {[read_file f2] eq "f2 line"}
 
 ###############################################################################

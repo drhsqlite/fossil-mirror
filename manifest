@@ -1,5 +1,5 @@
-C Adjust\stwo\smarkdown\stests\sso\sthey\spass\sagain.
-D 2016-01-06T03:49:23.988
+C In\sthe\s'clean'\stest,\sadjust\sformatting\sof\sexpected\sresults\scontaining\s'NEW',\sto\saccount\sfor\srecent\scode\schanges.
+D 2016-01-06T03:53:38.668
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -519,7 +519,7 @@ F src/zip.c 211de642fc72c1e93f9083f3affc85f3c8febe30
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test c380f431db6dd2278924e2e8c80e916b5c54923f
-F test/clean.test 8faec79cea1a3b9fb6b6ed2bdeeb6c9afeaada99
+F test/clean.test aa1a4537d87b1829118984e8fac680107027b70e
 F test/cmdline.test 4532df2c904f035fc2a3be3bca6c5514def515a8
 F test/comment.test 3d18947b36ad7dcc914ed905eb950c9fb84a1ec6
 F test/contains-selector.test 6ecd602b6786ebedca580b8e82e402c6f9aec2fd
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e2bd4bfced4915d381ac6089b6c5d8e2e6b78415
-R 7a66ec91d6facca3cf86160c20a65853
+P a489aecc541e85a8b80fd544ba17df24f4f0bad5
+R 87f346a06455a9eaef1775d1456e4f3e
 U mistachkin
-Z 775095839a078a676cec8e8c24c119bf
+Z 99d65ba4c9f15711c84c360baa28e8b2
