@@ -52,18 +52,19 @@ if {$i>=0} {
   set VERBOSE 0
 }
 
+set i [lsearch $argv -quiet]
+if {$i>=0} {
+  set QUIET 1
+  set argv [lreplace $argv $i $i]
+} else {
+  set QUIET 0
+}
+
 if {[llength $argv]==0} {
   foreach f [lsort [glob $testdir/*.test]] {
     set base [file root [file tail $f]]
     lappend argv $base
   }
-}
-
-set tempPath [expr {[info exists env(TEMP)] ? \
-    $env(TEMP) : [file dirname [info script]]}]
-
-if {$tcl_platform(platform) eq "windows"} then {
-  set tempPath [string map [list \\ /] $tempPath]
 }
 
 # start protocol
@@ -79,8 +80,10 @@ proc protInit {cmd} {
 
 # write protocol
 #
-proc protOut {msg} {
-  puts stdout $msg
+proc protOut {msg {noQuiet 0}} {
+  if {$noQuiet || !$::QUIET} {
+    puts stdout $msg
+  }
   if {$::PROT} {
     set out [open [file join $::testrundir prot] a]
     fconfigure $out -translation platform
@@ -128,7 +131,7 @@ proc fossil_maybe_answer {answer args} {
   global RESULT CODE
   set CODE $rc
   if {$rc} {
-    protOut "ERROR: $result"
+    protOut "ERROR: $result" 1
   } elseif {$::VERBOSE} {
     protOut "RESULT: $result"
   }
@@ -209,8 +212,8 @@ proc test_status_list {name result expected} {
   if {$result eq $expected} {
     test $name 1
   } else {
-    protOut "  Expected:\n    [join $expected "\n    "]"
-    protOut "  Got:\n    [join $result "\n    "]"
+    protOut "  Expected:\n    [join $expected "\n    "]" 1
+    protOut "  Got:\n    [join $result "\n    "]" 1
     test $name 0
   }
 }
@@ -256,7 +259,7 @@ proc writeTh1SetupFile { data } {
 #
 proc saveTh1SetupFile {} {
   set oldFileName [getTh1SetupFileName]
-  if {[file exists $oldFileName]} then {
+  if {[file exists $oldFileName]} {
     set newFileName [getSavedTh1SetupFileName]
     catch {file delete $newFileName}
     file rename $oldFileName $newFileName
@@ -269,7 +272,7 @@ proc saveTh1SetupFile {} {
 proc restoreTh1SetupFile {} {
   set oldFileName [getSavedTh1SetupFileName]
   set newFileName [getTh1SetupFileName]
-  if {[file exists $oldFileName]} then {
+  if {[file exists $oldFileName]} {
     catch {file delete $newFileName}
     file rename $oldFileName $newFileName
   } else {
@@ -284,13 +287,14 @@ proc restoreTh1SetupFile {} {
 #
 set test_count 0
 proc test {name expr} {
-  global bad_test test_count
+  global bad_test test_count RESULT
   incr test_count
   set r [uplevel 1 [list expr $expr]]
   if {$r} {
     protOut "test $name OK"
   } else {
-    protOut "test $name FAILED!"
+    protOut "test $name FAILED!" 1
+    if {$::QUIET} {protOut "RESULT: $RESULT" 1}
     lappend bad_test $name
     if {$::HALT} exit
   }
@@ -369,7 +373,7 @@ proc test_fossil_http { repository dataFileName url } {
   fossil http $inFileName $outFileName 127.0.0.1 $repository --localauth
   set result [expr {[file exists $outFileName] ? [read_file $outFileName] : ""}]
 
-  if {1} then {
+  if {1} {
     catch {file delete $inFileName}
     catch {file delete $outFileName}
   }
@@ -421,6 +425,20 @@ proc third_to_last_data_line {} {
   return [lindex [split [normalize_result] \n] end-2]
 }
 
+set tempPath [expr {[info exists env(TEMP)] ? \
+    $env(TEMP) : [file dirname [info script]]}]
+
+if {$tcl_platform(platform) eq "windows"} {
+  set tempPath [string map [list \\ /] $tempPath]
+}
+
+if {[catch {
+  write_file [file join $tempPath temporary.txt] [clock seconds]
+} error] != 0} {
+  error "could not write file to directory \"$tempPath\",\
+please set TEMP variable in environment: $error"
+}
+
 protInit $fossilexe
 foreach testfile $argv {
   set dir [file root [file tail $testfile]]
@@ -434,7 +452,9 @@ foreach testfile $argv {
   cd $origwd
 }
 set nErr [llength $bad_test]
-protOut "***** Final result: $nErr errors out of $test_count tests"
+if {$nErr>0 || !$::QUIET} {
+  protOut "***** Final result: $nErr errors out of $test_count tests" 1
+}
 if {$nErr>0} {
-  protOut "***** Failures: $bad_test"
+  protOut "***** Failures: $bad_test" 1
 }

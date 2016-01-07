@@ -1,5 +1,5 @@
-C Update\smanifests\son\stag\schange.
-D 2016-01-04T03:41:15.881
+C Merge\strunk.
+D 2016-01-07T10:02:19.674
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -447,7 +447,7 @@ F src/main.mk 29222c3dafd8664690482d11733671ad8245c3ff
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 8b578a8eca1206ab171ff2d9b200ef46dbd917d0
-F src/manifest.c 23b298b020e3d62b3182e169e5e2a213c5078ea1
+F src/manifest.c a520159adafb16098a08535b2bbd6984198b5cdf
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md fc02fd045690e6fb45fb0bc91be734913dc70d02
 F src/markdown_html.c c7392199eb39dad9f92c31aa352f4f3408da93bf
@@ -476,13 +476,13 @@ F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c 3ddd0bd72f6a9af5a92b4f4113577d1a0ff7c75d
 F src/setup.c b1b74ef83b01a10962e6b71c0b459e18eb31a4b3
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
-F src/shell.c ace08b69cd9702143cf87b5bd20b744a56f832fd
+F src/shell.c ed71dc7679e6f087a3f1ea3f9dae4b0fae7209c3
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 44d3881e497cf9bec8ea6dcf73830502ab59202c
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c 46f9e689b68fc6c3a059721f1168a0268e78d3f7
-F src/sqlite3.h 2c4aaae2c02ab816aebde200b2cbdd8b7e7feeab
+F src/sqlite3.c b92ca988ebb6df02ac0c8f866dbf3256740408ac
+F src/sqlite3.h 1c7d2d969a1ae143ad49180fd491ef0c2fe20ba4
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 9fa919c1c78db3952e181e0bf955b039aca0db26
 F src/statrep.c 4f11eab5a4c84506471dae87b36e32de4d0c666b
@@ -515,11 +515,11 @@ F src/winhttp.c 4e680d7c8778be4439169f40a992ccc81f7ceec2
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 360b9fb86e3709b78d1902aa89a227f957a66ba3
 F src/xfersetup.c 0f967a3fca7ad9fa3aa350d121851e71064823be
-F src/zip.c 9fe1c1b1425f0295d4bd4600830f04ca62b685db
+F src/zip.c f2e89be4e932249751b17896b5ea955ab60e47c2
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test c380f431db6dd2278924e2e8c80e916b5c54923f
-F test/clean.test 8faec79cea1a3b9fb6b6ed2bdeeb6c9afeaada99
+F test/clean.test aa1a4537d87b1829118984e8fac680107027b70e
 F test/cmdline.test 4532df2c904f035fc2a3be3bca6c5514def515a8
 F test/comment.test 3d18947b36ad7dcc914ed905eb950c9fb84a1ec6
 F test/contains-selector.test 6ecd602b6786ebedca580b8e82e402c6f9aec2fd
@@ -540,13 +540,13 @@ F test/merge5.test 62da8dd2d919b63c7bf239ae245be38bd106f563
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test 3fac7909f72a94ae05174404b1c9a7c68dd43824
 F test/merge_renames.test 97d1fb5da183979dad760964c026a96736eccdde
-F test/mv-rm.test 8165257224586ed6850bfd859c83cb8ed071b487
+F test/mv-rm.test c4cd3d592b28db47146ecf8e9f4ef4786c67e8b0
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
-F test/revert.test f40952b11bbc88f2540b9cc2876107dcec14b14e
+F test/revert.test fb5534cb82c93755241c384e200ea771c5ecb76c
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 362aeb51f50e69a8bc0fed9704684cc5530a8ea3
+F test/tester.tcl 53dcdf31941e2053d3a69b67a8bf042552a79994
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test b09ff99726b78609549c9880e3522497c138b935
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -562,7 +562,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test a12b735b1940d05bbb467503360cb29b85bebe92
+F test/th1.test 531b6d78139c0727e75c7e98eccff16787e99f26
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 9b9447e346cbc663d6f3c51e00adbc1ba2d296a2
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 53f2e7c54094efa60e82ffcbba769d1b4bcc9ea2
-R 38288b1d1b26bc4e64337a160a0225d1
+P 6f8f8667c944eb6592225a004ac7da430ab8d9c5 3d5cf48bf2828ecd8f2e04d7ca02a86c77cfa4c1
+R 773b655e7f6f7ae8c4b7c32089aa437e
 U jan
-Z 34ed269c2a6550627a16922cd1ce7321
+Z c5bdac9b9e74b55f3afd0b3ab8b88c6d
