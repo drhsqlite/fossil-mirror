@@ -288,7 +288,7 @@ the files and subdirectories in that directory.
 to indicate that the entry refers to a subdirectory.  In that case, the
 SHA1 hash on the second argument refers to another directory artifact,
 not to a content artifact.
-<li>F-cards in a directory artifact must have at last two arguments.
+<li>F-cards in a directory artifact must have at least two arguments.
 </ul>
 
 The Z-card in a directory artifact is required and has the same format as

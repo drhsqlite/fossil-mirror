@@ -1,5 +1,5 @@
-C Further\sdesign\schanges\sto\shierarchical\smanifests.\s\sStill\sno\sactual\scode.
-D 2015-12-22T13:40:22.451
+C minor\stypo\sfix.
+D 2016-01-07T20:42:05.295
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -694,7 +694,7 @@ F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/event.wiki 395b955e611769fd9aedf3ab489530b89ad5f224
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 93c4421d2bafd192dc61ea563df68aa25caaed95
-F www/fileformat.wiki 0b7c241ec5d403608e7c22653c0ffb1aad97212a
+F www/fileformat.wiki 9ef84f4adfc3f2d916e3583a6da28200e7537cc5
 F www/fiveminutes.wiki 3172b324738523b163b19a8c836d3d9a3ceb9b94
 F www/foss-cklist.wiki 77fe5872d7077a68e1b01e8dd5e3a48f7ee2b0dd
 F www/fossil-from-msvc.wiki f2c229553ff6304fa0c6e82d169e959498af98a8
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7576a0f1b979662ea6ecec4ab3cd009a9bd5fbe2
-R f7958d1ba2a20b436f36fb0e0a3a5245
-U drh
-Z 144b9aea0f1027ee90cb3e4919738dc9
+P 47aa92824027e7740ceca498a442308e8e462351
+R a01ebe04fc8ce4c0b1370ca2138d2247
+U stephan
+Z 96836d8c8d277f3abbb6ab8f25040358
