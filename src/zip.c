@@ -145,7 +145,7 @@ void zip_add_file(const char *zName, const Blob *pFile, int mPerm){
   */
   nBlob = pFile ? blob_size(pFile) : 0;
   if( pFile ){ /* This is a file, possibly empty... */
-    iMethod = 8;
+    iMethod = (nBlob>0) ? 8 : 0; /* Cannot compress zero bytes. */
     switch( mPerm ){
       case PERM_LNK:   iMode = 0120755;   break;
       case PERM_EXE:   iMode = 0100755;   break;
