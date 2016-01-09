@@ -18,7 +18,7 @@
 # TH1 Commands
 #
 
-set dir [file dirname [info script]]
+set dir [file dirname [info script]]; repo_init
 
 ###############################################################################
 
@@ -641,7 +641,10 @@ test th1-header-1 {$RESULT eq {TH_ERROR: repository unavailable}}
 
 ###############################################################################
 
-fossil test-th-eval --open-config "styleHeader {Page Title Here}"
+run_in_checkout {
+  fossil test-th-eval --open-config "styleHeader {Page Title Here}"
+}
+
 test th1-header-2 {[regexp -- {<title>Fossil: Page Title Here</title>} $RESULT]}
 
 ###############################################################################
@@ -724,7 +727,10 @@ test th1-artifact-2 {$RESULT eq {TH_ERROR: repository unavailable}}
 
 ###############################################################################
 
-fossil test-th-eval --open-config "artifact tip"
+run_in_checkout {
+  fossil test-th-eval --open-config "artifact tip"
+}
+
 test th1-artifact-3 {[regexp -- {F test/th1\.test [0-9a-f]{40}} $RESULT]}
 
 ###############################################################################
@@ -744,7 +750,10 @@ test th1-artifact-6 {$RESULT eq {TH_ERROR: repository unavailable}}
 
 ###############################################################################
 
-fossil test-th-eval --open-config "artifact tip test/th1.test"
+run_in_checkout {
+  fossil test-th-eval --open-config "artifact tip test/th1.test"
+}
+
 test th1-artifact-7 {[regexp -- {th1-artifact-7} $RESULT]}
 
 ###############################################################################
@@ -1262,8 +1271,10 @@ test th1-encode64-2 {$RESULT eq "dGVzdAA="}
 # TODO: Modify the result of this test if the source file (i.e.
 #       "ajax/cgi-bin/fossil-json.cgi.example") changes.
 #
-fossil test-th-eval --open-config \
-    {encode64 [artifact trunk ajax/cgi-bin/fossil-json.cgi.example]}
+run_in_checkout {
+  fossil test-th-eval --open-config \
+      {encode64 [artifact trunk ajax/cgi-bin/fossil-json.cgi.example]}
+}
 
 test th1-encode64-3 {$RESULT eq \
 "IyEvcGF0aC90by9mb3NzaWwvYmluYXJ5CnJlcG9zaXRvcnk6IC9wYXRoL3RvL3JlcG8uZnNsCg=="}

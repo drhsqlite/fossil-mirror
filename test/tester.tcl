@@ -23,6 +23,7 @@
 # is the name of the executable to be tested.
 #
 
+set testfiledir [file dirname [info script]]
 set testrundir [pwd]
 set testdir [file normalize [file dir $argv0]]
 set fossilexe [file normalize [lindex $argv 0]]
@@ -189,6 +190,23 @@ proc repo_init {{filename ".rep.fossil"}} {
   exec $::fossilexe open $filename
   exec $::fossilexe clean -f
   exec $::fossilexe set mtime-changes off
+}
+
+# This (rarely used) procedure is designed to run a test within the Fossil
+# source checkout (e.g. one that does NOT modify any state), while saving
+# and restoring the current directory (e.g. one used when running a test
+# file outside of the Fossil source checkout).  Please do NOT use this
+# procedure unless you are absolutely sure it does not modify the state of
+# the repository or source checkout in any way.
+#
+proc run_in_checkout { script {dir ""} } {
+  if {[string length $dir] == 0} {set dir $::testfiledir}
+  set savedPwd [pwd]; cd $dir
+  set code [catch {
+    uplevel 1 $script
+  } result]
+  cd $savedPwd; unset savedPwd
+  return -code $code $result
 }
 
 # Normalize file status lists (like those returned by 'fossil changes')

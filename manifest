@@ -1,5 +1,5 @@
-C Follow\sup\sto\sthe\sprevious\scheck-in:\ssave\sand\srestore\sthe\scurrent\sdirectory.
-D 2016-01-09T18:58:38.337
+C Modify\s'th1'\stest\sfile\sto\srun\smost\sof\sits\stests\soutside\sof\sthe\sFossil\ssource\scheckout\susing\sa\snew\stest\ssuite\sinfrastructure\sprocedure.
+D 2016-01-09T19:14:24.173
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -546,7 +546,7 @@ F test/revert.test fb5534cb82c93755241c384e200ea771c5ecb76c
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 53dcdf31941e2053d3a69b67a8bf042552a79994
+F test/tester.tcl f818da2cf18e9c9cfd41fb4e26a48afa10d1412f
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test b09ff99726b78609549c9880e3522497c138b935
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -562,7 +562,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test 531b6d78139c0727e75c7e98eccff16787e99f26
+F test/th1.test b15f5a54352c9273353aac94e002b6f1da514a55
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 9b9447e346cbc663d6f3c51e00adbc1ba2d296a2
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 19c216391a0ad79edb428e1b527e7c7937841c63
-R c1f398624833858e40dddec3b31fd666
+P d141b84a9972805fe1f0ba7218e32324999524fb
+R 7abfc9a2feb513f7d54128cc04c61a2b
 U mistachkin
-Z 953a5d20092311c02d04c1bc70093bd2
+Z f20896532a36a2b4219edca56b7c2115
