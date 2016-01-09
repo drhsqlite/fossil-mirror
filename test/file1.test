@@ -18,6 +18,8 @@
 # File utilities
 #
 
+repo_init
+
 proc simplify-name {testname args} {
   set i 1
   foreach {path result} $args {
@@ -67,6 +69,9 @@ if {$::tcl_platform(os)=="Windows NT"} {
   simplify-name 108 //?/a:/a/b a:/a/b //?/UNC/a/b //a/b //?/ {}
   simplify-name 109 \\\\?\\a:\\a\\b a:/a/b \\\\?\\UNC\\a\\b //a/b \\\\?\\ {}
 }
+
+# This is needed because we are now running outside of the Fossil checkout.
+file mkdir file1; cd file1
 
 # Those directories are only needed for the testcase being able to "--chdir" to it.
 file mkdir test1
