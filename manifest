@@ -1,5 +1,5 @@
-C Fix\sthe\s'file1'\stest\sso\sthat\sit\scan\s(only)\srun\soutside\sof\sthe\sFossil\scheckout.
-D 2016-01-09T18:56:08.330
+C Follow\sup\sto\sthe\sprevious\scheck-in:\ssave\sand\srestore\sthe\scurrent\sdirectory.
+D 2016-01-09T18:58:38.337
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -525,7 +525,7 @@ F test/comment.test 3d18947b36ad7dcc914ed905eb950c9fb84a1ec6
 F test/contains-selector.test 6ecd602b6786ebedca580b8e82e402c6f9aec2fd
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/diff-test-1.wiki 597fbb13c9c3da02e09a53d128f3b5d4dd5cadda
-F test/file1.test f12935dc38c82b69cadf57b02acf7778b0ecfa4d
+F test/file1.test c6d67d9f8feff132224280bdc1723a1542c8601e
 F test/fileStat.th1 e3e30f7b46488c26215a6d713be36ad4ed595132
 F test/fileage-test-1.wiki d249e897fdd41038c17f3b66d374e509830da1eb
 F test/glob.test 027f2aa0b0c737a0f27d51800802a08f07561beb
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ecedaf93991c66a4a9d311f0f97a62253f51a7be
-R 467fb796e168b0c1a602d91c31ebd931
+P 19c216391a0ad79edb428e1b527e7c7937841c63
+R c1f398624833858e40dddec3b31fd666
 U mistachkin
-Z 720ea3eeaa95e539d87644730eb591c8
+Z 953a5d20092311c02d04c1bc70093bd2

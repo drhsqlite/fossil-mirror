@@ -71,7 +71,7 @@ if {$::tcl_platform(os)=="Windows NT"} {
 }
 
 # This is needed because we are now running outside of the Fossil checkout.
-file mkdir file1; cd file1
+file mkdir file1; set savedPwd [pwd]; cd file1
 
 # Those directories are only needed for the testcase being able to "--chdir" to it.
 file mkdir test1
@@ -96,3 +96,5 @@ absolute-tree-name 103 . [pwd] $dirname/file1
 
 catch {file delete test1/test2}
 catch {file delete test1}
+
+if {[info exists savedPwd]} {cd $savedPwd; unset savedPwd}
