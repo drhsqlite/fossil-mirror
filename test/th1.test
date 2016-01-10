@@ -556,12 +556,18 @@ test th1-expr-49 {$RESULT eq {TH_ERROR: expected integer, got: "-0x"}}
 
 ###############################################################################
 
-fossil test-th-eval "checkout 1"; # NOTE: Assumes running "in tree".
+run_in_checkout {
+  fossil test-th-eval "checkout 1"
+}
+
 test th1-checkout-1 {[string length $RESULT] > 0}
 
 ###############################################################################
 
-fossil test-th-eval "checkout"; # NOTE: Assumes running "in tree".
+run_in_checkout {
+  fossil test-th-eval "checkout"
+}
+
 test th1-checkout-2 {[string length $RESULT] > 0}
 
 ###############################################################################
@@ -768,13 +774,18 @@ test th1-artifact-9 {$RESULT eq {TH_ERROR: manifest not found}}
 
 ###############################################################################
 
-fossil test-th-eval "globalState checkout"
+run_in_checkout {
+  fossil test-th-eval "globalState checkout"
+}
+
 test th1-globalState-1 {[string length $RESULT] > 0}
 
 ###############################################################################
 
-fossil test-th-eval "globalState checkout"
-test th1-globalState-2 {$RESULT eq [fossil test-th-eval checkout]}
+run_in_checkout {
+  fossil test-th-eval "globalState checkout"
+  test th1-globalState-2 {$RESULT eq [fossil test-th-eval checkout]}
+}
 
 ###############################################################################
 
@@ -803,13 +814,18 @@ test th1-globalState-7 {$RESULT eq "foserrors.log"}
 
 ###############################################################################
 
-fossil test-th-eval "globalState repository"
+run_in_checkout {
+  fossil test-th-eval "globalState repository"
+}
+
 test th1-globalState-8 {[string length $RESULT] > 0}
 
 ###############################################################################
 
-fossil test-th-eval "globalState repository"
-test th1-globalState-9 {$RESULT eq [fossil test-th-eval repository]}
+run_in_checkout {
+  fossil test-th-eval "globalState repository"
+  test th1-globalState-9 {$RESULT eq [fossil test-th-eval repository]}
+}
 
 ###############################################################################
 

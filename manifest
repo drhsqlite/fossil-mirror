@@ -1,5 +1,5 @@
-C Modify\s'th1'\stest\sfile\sto\srun\smost\sof\sits\stests\soutside\sof\sthe\sFossil\ssource\scheckout\susing\sa\snew\stest\ssuite\sinfrastructure\sprocedure.
-D 2016-01-09T19:14:24.173
+C More\stest\sfixes\sin\sthe\s'th1'\stest\sfile.
+D 2016-01-10T01:43:41.720
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -562,7 +562,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test b15f5a54352c9273353aac94e002b6f1da514a55
+F test/th1.test da8550f62fb4b691ace542c5642e943858c90b6d
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 9b9447e346cbc663d6f3c51e00adbc1ba2d296a2
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d141b84a9972805fe1f0ba7218e32324999524fb
-R 7abfc9a2feb513f7d54128cc04c61a2b
+P 7b9b5807f48f9e53b06d800ac488f78d351d3e9d
+R 00b83687ca7b4e95b4d764a68a2f9a58
 U mistachkin
-Z f20896532a36a2b4219edca56b7c2115
+Z 910371058764c0aea17c3a2b8fa6c0fd
