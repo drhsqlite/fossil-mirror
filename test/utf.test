@@ -41,6 +41,7 @@ proc utf-check {testname args} {
   }
 }
 
+unset -nocomplain enc
 array set enc [list     \
       0 binary          \
       1 binary          \
@@ -48,6 +49,7 @@ array set enc [list     \
       3 unicode-reverse \
 ]
 
+unset -nocomplain bom
 array set bom [list                                         \
       0 ""                                                  \
       1 \xEF\xBB\xBF                                        \
@@ -57,6 +59,7 @@ array set bom [list                                         \
             "\xFE\xFF" : "\xFF\xFE"}]                       \
 ]
 
+unset -nocomplain data
 array set data [list                          \
       0 ""                                    \
       1 \r                                    \
@@ -241,6 +244,7 @@ array set data [list                          \
     180 \xF4\x90\x80\x80\r\n                  \
 ]
 
+unset -nocomplain extraData
 array set extraData [list                     \
       0 ""                                    \
       1 Z                                     \

@@ -1,5 +1,5 @@
-C Modify\s'th1-tcl'\stest\sto\smake\sit\srun\soutside\sof\sthe\sFossil\ssource\scheckout.
-D 2016-01-11T00:43:50.169
+C Prevent\sthe\s'array\sset'\scommands\sin\sthe\s'utf.test'\sfile\sfrom\scausing\sproblems\sif\sthere\sare\spre-existing\sscalar\svariables.
+D 2016-01-11T19:46:30.799
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -565,7 +565,7 @@ F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
 F test/th1.test da8550f62fb4b691ace542c5642e943858c90b6d
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
-F test/utf.test 9b9447e346cbc663d6f3c51e00adbc1ba2d296a2
+F test/utf.test 7fd75c8d3699ff96e9bdaa69ac40be3d9323b8dc
 F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9bfdc5c68208f5e3b98b8f95d367b9fd37d0f84b
-R f04e93939534f932ecf8cd3d7803c15f
+P 18d7d266493805a9f49c8d5732bedf15bf42eb35
+R f23d75a696008206d64da29ba8a193a6
 U mistachkin
-Z a0cee789aae98962c86d5f5a65c38a11
+Z 4f138b70c05db7629be718cd5a396d8b
