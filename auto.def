@@ -133,16 +133,17 @@ if {$tclpath ne ""} {
     set tclprivatestubs [opt-bool with-tcl-private-stubs]
     # Note parse-tclconfig-sh is in autosetup/local.tcl
     if {$tclpath eq "1"} {
+        set tcldir [file join [file dirname $autosetup(dir)] compat/tcl-8.6]
         if {$tclprivatestubs} {
-            set tclconfig(TCL_INCLUDE_SPEC) -Icompat/tcl-8.6/generic
+            set tclconfig(TCL_INCLUDE_SPEC) -I[file join $tcldir generic]
             set tclconfig(TCL_VERSION) {Private Stubs}
             set tclconfig(TCL_PATCH_LEVEL) {}
-            set tclconfig(TCL_PREFIX) {compat/tcl-8.6}
+            set tclconfig(TCL_PREFIX) $tcldir
             set tclconfig(TCL_LD_FLAGS) { }
         } else {
             # Use the system Tcl. Look in some likely places.
             array set tclconfig [parse-tclconfig-sh \
-                compat/tcl-8.6/unix compat/tcl-8.6/win \
+                [file join $tcldir unix] [file join $tcldir win] \
                 /usr /usr/local /usr/share /opt/local]
             set msg "on your system"
         }
