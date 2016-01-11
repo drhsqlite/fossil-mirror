@@ -251,8 +251,7 @@ proc getTh1SetupFileName {} {
   #       test suite; alternatively, the root of the source tree
   #       could be obtained directly from Fossil.
   #
-  return [file normalize [file join [file dirname $::testdir] \
-      .fossil-settings th1-setup]]
+  return [file normalize [file join .fossil-settings th1-setup]]
 }
 
 # Return the saved name of the versioned settings file containing
@@ -269,7 +268,9 @@ proc getSavedTh1SetupFileName {} {
 # original TH1 setup script.
 #
 proc writeTh1SetupFile { data } {
-  return [write_file [getTh1SetupFileName] $data]
+  set fileName [getTh1SetupFileName]
+  file mkdir [file dirname $fileName]
+  return [write_file $fileName $data]
 }
 
 # Saves the TH1 setup script file by renaming it, based on the current
