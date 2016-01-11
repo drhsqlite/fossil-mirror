@@ -1,5 +1,5 @@
-C Allow\sthe\s'th1'\stest\sfile\sto\sfully\spass\swith\sor\swithout\sthe\s'tcl'\sand\s'th1-hooks'\ssettings\senabled.
-D 2016-01-11T21:09:29.836
+C Remove\ssuperfluous\suse\sof\s'file\sjoin'\sfrom\s'auto.def'.
+D 2016-01-11T22:16:00.616
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -45,7 +45,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 6554a77a5ef1cdad8bae43cd734c152db17a2246
+F auto.def a8516b4d6de3aa9311789cda5506fc059fe54cb7
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 4e0b671b54288fc64d851d056822ee5fec4d3365
 F autosetup/autosetup f80eb8d3ebc34b06b08095daf8d964a898ea2777 x
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2fbbd4f61d5c8bfe7ff8fbd804ac7f81496dfe7e
-R eb070333faf26c191ca13ba4e96b0511
+P a9dc33d415730a64ba4dde7c38e6c750bdc2fec7
+R 9b219aa094eb4f9b5518a0ea3ada307a
 U mistachkin
-Z 367fb7596c7a3d092fccf4d50a0c7606
+Z 019763ef9c8c359137b1c0da274aa640
