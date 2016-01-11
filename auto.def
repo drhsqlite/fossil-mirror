@@ -6,7 +6,8 @@ options {
     with-openssl:path|auto|none
                          => {Look for OpenSSL in the given path, or auto or none}
     with-miniz=0         => {Use miniz from the source tree}
-    with-zlib:path|auto  => {Look for zlib in the given path or in the source tree}
+    with-zlib:path|auto|tree
+                         => {Look for zlib in the given path, or auto or in the source tree}
     with-exec-rel-paths=0
                          => {Enable relative paths for external diff/gdiff}
     with-legacy-mv-rm=0  => {Enable legacy behavior for mv/rm (skip checkout files)}
@@ -287,14 +288,14 @@ if {[opt-bool with-miniz]} {
 } else {
     # Check for zlib, using the given location if specified
     set zlibpath [opt-val with-zlib]
-    if {$zlibpath in {auto ""}} {
+    if {$zlibpath eq "tree"} {
         set zlibdir [file dirname $autosetup(dir)]/compat/zlib
         cc-with [list -cflags "-I$zlibdir"]
         define-append EXTRA_CFLAGS -I$zlibdir
         define-append LIBS $zlibdir/libz.a
         msg-result "Using zlib in source tree"
     } else {
-        if {$zlibpath ne ""} {
+        if {$zlibpath ni {auto ""}} {
             cc-with [list -cflags "-I$zlibpath -L$zlibpath"]
             define-append EXTRA_CFLAGS -I$zlibpath
             define-append EXTRA_LDFLAGS -L$zlibpath

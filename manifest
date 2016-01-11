@@ -1,5 +1,5 @@
-C By\sdefault,\sforce\sthe\szlib\sin\sthe\ssource\stree\sto\sbe\sused.
-D 2016-01-11T22:17:49.794
+C By\sdefault,\suse\sthe\sautomatic\szlib\sdetection.\s\sWhen\s--with-zlib=tree\sis\sused,\suse\szlib\sfrom\sthe\ssource\stree.
+D 2016-01-11T22:27:08.492
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -45,7 +45,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 93b08ed70e0752c998aa2329e445ada900a65832
+F auto.def 2c4c74df822526aec6ecbb55065904b73cbbec5f
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 4e0b671b54288fc64d851d056822ee5fec4d3365
 F autosetup/autosetup f80eb8d3ebc34b06b08095daf8d964a898ea2777 x
@@ -744,10 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3728aa62ab9ea462d5f22c5e92e8d0216300b1a7
-R 5c058dfb7811950be64098d95fea9368
-T *branch * useTreeZlib
-T *sym-useTreeZlib *
-T -sym-trunk *
+P 7b4153ff03982b8afc9acb3631b677916d5c749f
+R 78a8ad9cc560d52d062796af0a3ecfc0
 U mistachkin
-Z 5c7c7d3d3703b62d58b7e54fa096d70a
+Z 11e52a6ca33ae2c44a92571f65a053ca
