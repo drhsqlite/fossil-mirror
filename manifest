@@ -1,5 +1,5 @@
-C Skip\stest\s'th1-tcl2'\sif\sthe\sSQLite\spackage\sfor\sTcl\sis\snot\savailable.
-D 2016-01-11T21:08:27.274
+C Allow\sthe\s'th1'\stest\sfile\sto\sfully\spass\swith\sor\swithout\sthe\s'tcl'\sand\s'th1-hooks'\ssettings\senabled.
+D 2016-01-11T21:09:29.836
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -562,7 +562,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test da8550f62fb4b691ace542c5642e943858c90b6d
+F test/th1.test 878234d55d2e5472dfac49083c01f94ac5f0bd10
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 7fd75c8d3699ff96e9bdaa69ac40be3d9323b8dc
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 39f53e086ccbeda840a2d0b6bb4e65001d2dd1d6
-R 4216f3a828d7ca558d85176e78438e2a
+P 2fbbd4f61d5c8bfe7ff8fbd804ac7f81496dfe7e
+R eb070333faf26c191ca13ba4e96b0511
 U mistachkin
-Z 4d434298f4fd0a158d2b301152290048
+Z 367fb7596c7a3d092fccf4d50a0c7606
