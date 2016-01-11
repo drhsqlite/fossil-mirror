@@ -37,7 +37,10 @@ set env(TH1_ENABLE_TCL) 1; # Tcl integration must be enabled for this test.
 
 ###############################################################################
 
-set data [fossil info]
+run_in_checkout {
+  set data [fossil info]
+}
+
 regexp -line -- {^repository:   (.*)$} $data dummy repository
 
 if {[string length $repository] == 0 || ![file exists $repository]} then {
@@ -48,8 +51,10 @@ set dataFileName [file join $::testdir th1-docs-input.txt]
 
 ###############################################################################
 
-set RESULT [test_fossil_http \
-    $repository $dataFileName /doc/trunk/test/fileStat.th1]
+run_in_checkout {
+  set RESULT [test_fossil_http \
+      $repository $dataFileName /doc/trunk/test/fileStat.th1]
+}
 
 test th1-docs-1a {[regexp {<title>Fossil: test/fileStat.th1</title>} $RESULT]}
 test th1-docs-1b {[regexp {>\[[0-9a-f]{40}\]<} $RESULT]}
