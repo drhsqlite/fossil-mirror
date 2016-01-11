@@ -1,5 +1,5 @@
-C More\stest\sfixes\sin\sthe\s'th1'\stest\sfile.
-D 2016-01-10T01:43:41.720
+C Correct\smissing\sparenthesis\stypo\sin\stimeline\squery\sgeneration\slogic.
+D 2016-01-11T00:29:51.886
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -495,7 +495,7 @@ F src/th.h 1e7ae1613afa730a75df06d7fd1f17c7ff4564f4
 F src/th_lang.c e37a4bae6c05ed442bc90ba3fa18be2683e2a6a1
 F src/th_main.c 7d85cdca12e2c95970f90aaaa962a466b55009ba
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
-F src/timeline.c 7c92baf3f93cb9ccabb4064cba816f5554896fd2
+F src/timeline.c 8ab92a00887db5eb873d35f5c5c8ffa2d4691ed1
 F src/tkt.c 09fedb774dc3ee893d01ce2a6050809796ef66c9
 F src/tktsetup.c 32e23747e8d3f36fc390a6197dda2209d98cad09
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7b9b5807f48f9e53b06d800ac488f78d351d3e9d
-R 00b83687ca7b4e95b4d764a68a2f9a58
+P 5d49329fc24d9a6084519d8e1474945160911eee
+R 3c38b6b7aed918bb16f72d703d2711ba
 U mistachkin
-Z 910371058764c0aea17c3a2b8fa6c0fd
+Z 3b0afcb22252937a79f003ae623243c5

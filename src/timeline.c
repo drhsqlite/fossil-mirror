@@ -2135,7 +2135,7 @@ void timeline_cmd(void){
     if( mode==0 ){
       if( isIsoDate(zOrigin) ) zShift = ",'+1 day'";
     }
-    zDate = mprintf("(SELECT julianday(%Q%s, fromLocal())", zOrigin, zShift);
+    zDate = mprintf("(SELECT julianday(%Q%s, fromLocal()))", zOrigin, zShift);
   }
 
   if( zFilePattern ){
