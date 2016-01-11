@@ -64,10 +64,14 @@ three words now$} [normalize_result]]}
 
 ###############################################################################
 
-fossil test-th-render --open-config \
-    [file nativename [file join $dir th1-tcl2.txt]]
+if {[catch {package require sqlite3}] == 0} {
+  fossil test-th-render --open-config \
+      [file nativename [file join $dir th1-tcl2.txt]]
 
-test th1-tcl-2 {[regexp -- {^\d+$} [normalize_result]]}
+  test th1-tcl-2 {[regexp -- {^\d+$} [normalize_result]]}
+} else {
+  puts stderr "Skipping 'th1-tcl-2', SQLite package for Tcl not available"
+}
 
 ###############################################################################
 
