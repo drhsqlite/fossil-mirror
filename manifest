@@ -1,5 +1,5 @@
-C More\simprovements\sto\sthe\s'th1'\stest\sfile.
-D 2016-01-12T03:14:29.190
+C In\sthe\sMinGW\smakefile,\smove\sincluded\sLIBs\safter\sthe\sobject\sfiles.
+D 2016-01-12T18:55:35.044
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -446,7 +446,7 @@ F src/main.c 5cbae19db27ca1530c36455c2fdd8dfc77289bfe
 F src/main.mk 29222c3dafd8664690482d11733671ad8245c3ff
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 8b578a8eca1206ab171ff2d9b200ef46dbd917d0
+F src/makemake.tcl fd5d2799e25709aa38e44cd4e37bd0c6aa16031d
 F src/manifest.c a520159adafb16098a08535b2bbd6984198b5cdf
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md fc02fd045690e6fb45fb0bc91be734913dc70d02
@@ -627,8 +627,8 @@ F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F win/Makefile.PellesCGMake 72214df8c066828363c1b7f48e647a146b484ca6
 F win/Makefile.dmc 65d9d67850656c427e6572a746df023d9d6629e7
-F win/Makefile.mingw d9fe414e532bfc8deae70f8f2b1e8134731ba7f9
-F win/Makefile.mingw.mistachkin bfec981ca67a30435bc39ecd3f8e6c4832072b04
+F win/Makefile.mingw 5414422f104639eaa372c0a143a980276ab1d6ad
+F win/Makefile.mingw.mistachkin 0127942e5ce78a1ace92927cd542bc3f695699db
 F win/Makefile.msc 8b7b2c4815115ac25505ad148cf034f7b6664c88
 F win/buildmsvc.bat d2daa4ad2586518ed72ab03f3b5dfe33bfc406d7
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8435adc47150796470a75856d225b67ecb3c2264
-R 0a92be778f2f25eacdea92b0dfb53e91
+P fc14f1431286cc5107b6e318e19d3c29384ba4f6
+R 4c3e6a53318496716ea0c98b356cd657
 U mistachkin
-Z 12de9c74de09e83ac540c856171239bc
+Z 9c2f41aeb19052f26c196aa796ee7006
