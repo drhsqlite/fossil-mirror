@@ -254,7 +254,7 @@ void cache_initialize(void){
 **    status       Show a summary of cache status.
 **
 ** The cache is stored in a file that is distinct from the repository
-** but that is held in the same directory as the repository.  To cache
+** but that is held in the same directory as the repository.  The cache
 ** file can be deleted in order to completely disable the cache.
 */
 void cache_cmd(void){

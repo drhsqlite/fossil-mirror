@@ -1,5 +1,5 @@
-C In\sthe\sMinGW\smakefile,\smove\sincluded\sLIBs\safter\sthe\sobject\sfiles.
-D 2016-01-12T18:55:35.044
+C Fix\sa\stypo\sin\sa\scomment\sin\scache.c.
+D 2016-01-12T22:44:25.069
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -381,7 +381,7 @@ F src/branch.c 09724980278de18e9bbff5da85950c3febd811eb
 F src/browse.c 96dbc7580b4ac9d42dd9d3f3accd52946b3258ac
 F src/builtin.c 31c17d18b565c7766021913c89be4180b3ee4a56
 F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
-F src/cache.c d174d5926e1af9a243a0768ca23bc38e11d2652e
+F src/cache.c c42b6bf7490ac4758a6bc83a1bcaf4f89353f28d
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 38b5b08eda88b4d256948d431e2f0094009644ae
 F src/checkin.c 6b8d4ffd4e6c05dc4b08b0f2238a0b965d7d6f11
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fc14f1431286cc5107b6e318e19d3c29384ba4f6
-R 4c3e6a53318496716ea0c98b356cd657
-U mistachkin
-Z 9c2f41aeb19052f26c196aa796ee7006
+P c7117ab458bd01cb40c39603a012d0224a61a749
+R 6c12b9a665f30c99abdf139a6835c73a
+U drh
+Z 89eda904a066b7f93c5716e750277ad5
