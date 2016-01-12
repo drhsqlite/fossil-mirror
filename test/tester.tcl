@@ -192,6 +192,26 @@ proc repo_init {{filename ".rep.fossil"}} {
   exec $::fossilexe set mtime-changes off
 }
 
+# This procedure only returns non-zero if the Tcl integration feature was
+# enabled at compile-time and is now enabled at runtime.
+proc is_tcl_usable_by_fossil {} {
+  fossil test-th-eval "hasfeature tcl"
+  if {$::RESULT ne "1"} {return 0}
+  fossil test-th-eval "setting tcl"
+  if {$::RESULT eq "1"} {return 1}
+  return [info exists ::env(TH1_ENABLE_TCL)]
+}
+
+# This procedure only returns non-zero if the TH1 hooks feature was enabled
+# at compile-time and is now enabled at runtime.
+proc are_th1_hooks_usable_by_fossil {} {
+  fossil test-th-eval "hasfeature th1Hooks"
+  if {$::RESULT ne "1"} {return 0}
+  fossil test-th-eval "setting th1-hooks"
+  if {$::RESULT eq "1"} {return 1}
+  return [info exists ::env(TH1_ENABLE_HOOKS)]
+}
+
 # This (rarely used) procedure is designed to run a test within the Fossil
 # source checkout (e.g. one that does NOT modify any state), while saving
 # and restoring the current directory (e.g. one used when running a test

@@ -22,13 +22,8 @@ set dir [file dirname [info script]]; repo_init
 
 ###############################################################################
 
-fossil test-th-eval --open-config "setting tcl"
-set th1Tcl [expr {$RESULT eq "1" || [info exists ::env(TH1_ENABLE_TCL)]}]
-
-###############################################################################
-
-fossil test-th-eval --open-config "setting th1-hooks"
-set th1Hooks [expr {$RESULT eq "1" || [info exists ::env(TH1_ENABLE_HOOKS)]}]
+set th1Tcl [is_tcl_usable_by_fossil]
+set th1Hooks [are_th1_hooks_usable_by_fossil]
 
 ###############################################################################
 
@@ -562,6 +557,7 @@ test th1-expr-49 {$RESULT eq {TH_ERROR: expected integer, got: "-0x"}}
 ###############################################################################
 
 run_in_checkout {
+  # NOTE: The "1" here forces the checkout to be opened.
   fossil test-th-eval "checkout 1"
 }
 
@@ -570,7 +566,12 @@ test th1-checkout-1 {[string length $RESULT] > 0}
 ###############################################################################
 
 run_in_checkout {
-  fossil test-th-eval "checkout"
+  if {$th1Hooks} {
+    fossil test-th-eval "checkout"
+  } else {
+    # NOTE: No TH1 hooks, force checkout to be populated.
+    fossil test-th-eval --open-config "checkout"
+  }
 }
 
 test th1-checkout-2 {[string length $RESULT] > 0}
@@ -780,7 +781,12 @@ test th1-artifact-9 {$RESULT eq {TH_ERROR: manifest not found}}
 ###############################################################################
 
 run_in_checkout {
-  fossil test-th-eval "globalState checkout"
+  if {$th1Hooks} {
+    fossil test-th-eval "globalState checkout"
+  } else {
+    # NOTE: No TH1 hooks, force checkout to be populated.
+    fossil test-th-eval --open-config "globalState checkout"
+  }
 }
 
 test th1-globalState-1 {[string length $RESULT] > 0}
@@ -788,8 +794,16 @@ test th1-globalState-1 {[string length $RESULT] > 0}
 ###############################################################################
 
 run_in_checkout {
-  fossil test-th-eval "globalState checkout"
-  test th1-globalState-2 {$RESULT eq [fossil test-th-eval checkout]}
+  if {$th1Hooks} {
+    fossil test-th-eval "globalState checkout"
+    test th1-globalState-2 {$RESULT eq [fossil test-th-eval checkout]}
+  } else {
+    # NOTE: No TH1 hooks, force checkout to be populated.
+    fossil test-th-eval --open-config "globalState checkout"
+
+    test th1-globalState-2 {$RESULT eq \
+        [fossil test-th-eval --open-config checkout]}
+  }
 }
 
 ###############################################################################
@@ -820,7 +834,12 @@ test th1-globalState-7 {$RESULT eq "foserrors.log"}
 ###############################################################################
 
 run_in_checkout {
-  fossil test-th-eval "globalState repository"
+  if {$th1Hooks} {
+    fossil test-th-eval "globalState repository"
+  } else {
+    # NOTE: No TH1 hooks, force repository to be populated.
+    fossil test-th-eval --open-config "globalState repository"
+  }
 }
 
 test th1-globalState-8 {[string length $RESULT] > 0}
@@ -828,8 +847,16 @@ test th1-globalState-8 {[string length $RESULT] > 0}
 ###############################################################################
 
 run_in_checkout {
-  fossil test-th-eval "globalState repository"
-  test th1-globalState-9 {$RESULT eq [fossil test-th-eval repository]}
+  if {$th1Hooks} {
+    fossil test-th-eval "globalState repository"
+    test th1-globalState-9 {$RESULT eq [fossil test-th-eval repository]}
+  } else {
+    # NOTE: No TH1 hooks, force repository to be populated.
+    fossil test-th-eval --open-config "globalState repository"
+
+    test th1-globalState-9 {$RESULT eq \
+        [fossil test-th-eval --open-config repository]}
+  }
 }
 
 ###############################################################################
@@ -888,8 +915,8 @@ test th1-reinitialize-2 {$RESULT ne ""}
 ###############################################################################
 
 #
-# NOTE: This test may fail if the command names do not always come
-#       out in a deterministic order from TH1.
+# NOTE: This test may fail if the command names do not always come out in a
+#       deterministic order from TH1.
 #
 fossil test-th-eval "info commands"
 
