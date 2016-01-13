@@ -50,7 +50,7 @@ set env(HOME) [pwd]
 
 # Construct a test repository
 #
-exec sqlite3 m5.fossil <$testdir/${testfile}_repo.sql
+exec fossil sqlite3 --no-repository m5.fossil <$testdir/${testfile}_repo.sql
 fossil rebuild m5.fossil
 fossil open m5.fossil
 fossil user default drh --user drh
