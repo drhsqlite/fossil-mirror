@@ -1,5 +1,5 @@
-C The\stest\sfile\sdirectory\ssaved\sby\sthe\stest\ssuite\sinfrastructure\sshould\sbe\snormalized.
-D 2016-01-13T00:38:26.871
+C Add\sthe\s".vfslist"\scommand\sto\s"fossil\ssqlite"
+D 2016-01-13T11:53:33.982
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -476,7 +476,7 @@ F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c 3ddd0bd72f6a9af5a92b4f4113577d1a0ff7c75d
 F src/setup.c b1b74ef83b01a10962e6b71c0b459e18eb31a4b3
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
-F src/shell.c ed71dc7679e6f087a3f1ea3f9dae4b0fae7209c3
+F src/shell.c dcd7a83645ef2a58ee9c6d0ea4714d877d7835c4
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 44d3881e497cf9bec8ea6dcf73830502ab59202c
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ca1e4ed3d62adc041fbc4867badfa6964fa416e0
-R 1b7c6a842f79a791ed464d96eca54811
-U mistachkin
-Z a60a1b53b35d6dda3a603297132e38b2
+P be81a2fd3cd569d044cd94a0be8ce5e3c00448ef
+R 734844c3058394e38c71e2c6c76e2bfa
+U jan.nijtmans
+Z 9f0681606e537b8bcc2581afbcc21e0c
