@@ -23,9 +23,9 @@
 # is the name of the executable to be tested.
 #
 
-set testfiledir [file dirname [info script]]
+set testfiledir [file normalize [file dirname [info script]]]
 set testrundir [pwd]
-set testdir [file normalize [file dir $argv0]]
+set testdir [file normalize [file dirname $argv0]]
 set fossilexe [file normalize [lindex $argv 0]]
 set argv [lrange $argv 1 end]
 
