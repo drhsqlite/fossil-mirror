@@ -199,10 +199,8 @@ static int sqlcmd_autoinit(
 **     SELECT * FROM foci WHERE checkinID=symbolic_name_to_rid('trunk');
 */
 void cmd_sqlite3(void){
-  int noRepository;
   extern int sqlite3_shell(int, char**);
-  noRepository = find_option("no-repository", 0, 0)!=0;
-  if( !noRepository ){
+  if( !find_option("no-repository", 0, 0)!=0 ){
     db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
     db_close(1);
   }

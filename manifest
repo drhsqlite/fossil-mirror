@@ -1,5 +1,5 @@
-C Add\sthe\s'--no-repository'\soption\sto\sthe\s'fossil\ssqlite3'\scommand\sand\smake\suse\sof\sit\sfor\sthe\smerge5\stest.
-D 2016-01-13T01:31:10.860
+C Simplify\sthe\sprevious\scheck-in.
+D 2016-01-13T06:19:39.272
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -480,7 +480,7 @@ F src/shell.c ed71dc7679e6f087a3f1ea3f9dae4b0fae7209c3
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 44d3881e497cf9bec8ea6dcf73830502ab59202c
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
-F src/sqlcmd.c 2c67fcfb70585f6d63d6b083e73c831d12b23e6a
+F src/sqlcmd.c ed83de0ffb51fca996d0a37de6ab63d23926d1e0
 F src/sqlite3.c b92ca988ebb6df02ac0c8f866dbf3256740408ac
 F src/sqlite3.h 1c7d2d969a1ae143ad49180fd491ef0c2fe20ba4
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
@@ -744,10 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P be81a2fd3cd569d044cd94a0be8ce5e3c00448ef
-R 94b9e37a66c9f5ab61a21bcebdf4a729
-T *branch * sqlCmdNoRepo
-T *sym-sqlCmdNoRepo *
-T -sym-trunk *
+P 56f74a120d0aac8773b0c43e2a3c8f7f13b709d1
+R 4f84a815e7857fc576a034becd228f92
 U mistachkin
-Z ecbd9f06a6af8fad1ae7f31be22ebfab
+Z c9ab6eb99bcaeb85f94bfe81b354384e
