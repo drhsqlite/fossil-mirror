@@ -1,5 +1,5 @@
-C Add\sthe\s".vfslist"\scommand\sto\s"fossil\ssqlite"
-D 2016-01-13T11:53:33.982
+C Add\sthe\s'--no-repository'\soption\sto\sthe\s'fossil\ssqlite3'\scommand\sand\smake\suse\sof\sit\sfor\sthe\smerge5\stest.
+D 2016-01-14T05:34:02.088
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -480,7 +480,7 @@ F src/shell.c dcd7a83645ef2a58ee9c6d0ea4714d877d7835c4
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 44d3881e497cf9bec8ea6dcf73830502ab59202c
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
-F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
+F src/sqlcmd.c ed83de0ffb51fca996d0a37de6ab63d23926d1e0
 F src/sqlite3.c b92ca988ebb6df02ac0c8f866dbf3256740408ac
 F src/sqlite3.h 1c7d2d969a1ae143ad49180fd491ef0c2fe20ba4
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
@@ -536,7 +536,7 @@ F test/merge1.test 4734854393f717824ae96b3de8524a2401a21921
 F test/merge2.test 1915d0a7cf117dd7448d6ccc30b54b4cd85a942c
 F test/merge3.test 637ad5275604c7fe17340b32338aadf2a1f27c07
 F test/merge4.test e9b9b3826dc271ae75523a5fa0a08fe17b0cd722
-F test/merge5.test 62da8dd2d919b63c7bf239ae245be38bd106f563
+F test/merge5.test 1729f3a9891c7f063dcf6305f2c10d2ddcbd390f
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test 3fac7909f72a94ae05174404b1c9a7c68dd43824
 F test/merge_renames.test 97d1fb5da183979dad760964c026a96736eccdde
@@ -744,7 +744,8 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P be81a2fd3cd569d044cd94a0be8ce5e3c00448ef
-R 734844c3058394e38c71e2c6c76e2bfa
-U jan.nijtmans
-Z 9f0681606e537b8bcc2581afbcc21e0c
+P 42c4d8f2d537a87659c32463c1c72231b149f370 384482a87c077666f965e108713815bd371816bf
+R f7aa4d3c3d3b035478ceb8ccd151cb36
+T +closed 384482a87c077666f965e108713815bd371816bf
+U mistachkin
+Z aaff826a89c736e4652bb834c333092e

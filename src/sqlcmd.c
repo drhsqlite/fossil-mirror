@@ -154,12 +154,16 @@ static int sqlcmd_autoinit(
 /*
 ** COMMAND: sqlite3
 **
-** Usage: %fossil sqlite3 ?DATABASE? ?OPTIONS?
+** Usage: %fossil sqlite3 ?FOSSIL_OPTS? ?DATABASE? ?SHELL_OPTS?
 **
-** Run the standalone sqlite3 command-line shell on DATABASE with OPTIONS.
+** Run the standalone sqlite3 command-line shell on DATABASE with SHELL_OPTS.
 ** If DATABASE is omitted, then the repository that serves the working
 ** directory is opened.  See https://www.sqlite.org/cli.html for additional
 ** information.
+**
+** Fossil Options:
+**
+**    --no-repository           Skip opening the repository database.
 **
 ** WARNING:  Careless use of this command can corrupt a Fossil repository
 ** in ways that are unrecoverable.  Be sure you know what you are doing before
@@ -196,8 +200,10 @@ static int sqlcmd_autoinit(
 */
 void cmd_sqlite3(void){
   extern int sqlite3_shell(int, char**);
-  db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
-  db_close(1);
+  if( !find_option("no-repository", 0, 0)!=0 ){
+    db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
+    db_close(1);
+  }
   sqlite3_shutdown();
   sqlite3_shell(g.argc-1, g.argv+1);
   sqlite3_cancel_auto_extension((void(*)(void))sqlcmd_autoinit);
