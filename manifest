@@ -1,5 +1,5 @@
-C Pick\sup\srecent\sautosetup\schanges\sfrom\supstream.
-D 2016-01-14T20:38:05.375
+C Fix\stypo\sthat\sprevented\sthe\s--no-repository\soption\sfrom\sworking.
+D 2016-01-14T20:40:11.772
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -480,7 +480,7 @@ F src/shell.c dcd7a83645ef2a58ee9c6d0ea4714d877d7835c4
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 44d3881e497cf9bec8ea6dcf73830502ab59202c
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
-F src/sqlcmd.c ed83de0ffb51fca996d0a37de6ab63d23926d1e0
+F src/sqlcmd.c 1015e3ea6c02144a1c2d8c2afc2468f755f8a367
 F src/sqlite3.c aa154b2d33432571acaabb308c58df9c1ca7e047
 F src/sqlite3.h 83e24bb22bb56a7b4ff0e327c91f028aac68226f
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cc265caba7c239baf45df83ec57b7eaf68393e7e
-R 360a3e5701accc69a39a3dfd7d084165
+P b2e6a234c4d96e81d572a7597c7d0d8cf6d0777f
+R b63571ca6b27868c66b102c77f2a9992
 U mistachkin
-Z 7e482760463cd1f679d22577d2e1fad1
+Z 6a48ab25f9d594593fc772cbdc409918
