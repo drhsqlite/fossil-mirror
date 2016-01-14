@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.11.0\salpha\sversion.
-D 2016-01-14T14:20:52.637
+C Use\sthe\seditor\ssetting\sin\samend\stest\sfor\sinteractive\sedits\sbecause\sit\shas\s\nprecedence\sover\sboth\sVISUAL\sand\sEDITOR.
+D 2016-01-14T15:35:49.972
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -518,7 +518,7 @@ F src/xfersetup.c 0f967a3fca7ad9fa3aa350d121851e71064823be
 F src/zip.c 8567f81eca8762b4bf08c20a72b70e87696c6cd2
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
-F test/amend.test c380f431db6dd2278924e2e8c80e916b5c54923f
+F test/amend.test 7167dcf6bd7ac4c3b38a198edf7edbc70693cc08
 F test/clean.test aa1a4537d87b1829118984e8fac680107027b70e
 F test/cmdline.test 4532df2c904f035fc2a3be3bca6c5514def515a8
 F test/comment.test 3d18947b36ad7dcc914ed905eb950c9fb84a1ec6
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2e1ccc6a36d4de8ce9db11819fd9ecec00a17ec5
-R 4880ccaf7335fe767a2724e31edf1a0a
-U drh
-Z 1306a06a5b15eacf976cc8f7d6ebcc8f
+P c9fad621f72c44cc33c8bb6996a30c6562cd144e
+R 18b54195cf2c11eda5cadad886e0b990
+U andybradford
+Z 0c4c0d23dfb941ada406ec2bb9f5e58a

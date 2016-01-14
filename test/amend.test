@@ -376,10 +376,9 @@ if {[catch {exec which ed} result]} {
   if {$VERBOSE} { protOut "Install ed for interactive comment test: $result" }
   test-comment 5 $UUID "ed required for interactive edit"
 } else {
-  set env(EDITOR) "ed -s"
+  fossil settings editor "ed -s"
   set comment "interactive edited comment"
   fossil_maybe_answer "a\n$comment\n.\nw\nq\n" amend $UUID --edit-comment
-  unset env(EDITOR)
   test-comment 5 $UUID $comment
 }
 
