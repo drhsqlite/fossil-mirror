@@ -1,5 +1,5 @@
-C Add\sthe\s'--no-repository'\soption\sto\sthe\s'fossil\ssqlite3'\scommand\sand\smake\suse\sof\sit\sfor\sthe\smerge5\stest.
-D 2016-01-14T05:34:02.088
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.11.0\salpha\sversion.
+D 2016-01-14T14:20:52.637
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -481,8 +481,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 44d3881e497cf9bec8ea6dcf73830502ab59202c
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c ed83de0ffb51fca996d0a37de6ab63d23926d1e0
-F src/sqlite3.c b92ca988ebb6df02ac0c8f866dbf3256740408ac
-F src/sqlite3.h 1c7d2d969a1ae143ad49180fd491ef0c2fe20ba4
+F src/sqlite3.c aa154b2d33432571acaabb308c58df9c1ca7e047
+F src/sqlite3.h 83e24bb22bb56a7b4ff0e327c91f028aac68226f
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 9fa919c1c78db3952e181e0bf955b039aca0db26
 F src/statrep.c 4f11eab5a4c84506471dae87b36e32de4d0c666b
@@ -744,8 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 42c4d8f2d537a87659c32463c1c72231b149f370 384482a87c077666f965e108713815bd371816bf
-R f7aa4d3c3d3b035478ceb8ccd151cb36
-T +closed 384482a87c077666f965e108713815bd371816bf
-U mistachkin
-Z aaff826a89c736e4652bb834c333092e
+P 2e1ccc6a36d4de8ce9db11819fd9ecec00a17ec5
+R 4880ccaf7335fe767a2724e31edf1a0a
+U drh
+Z 1306a06a5b15eacf976cc8f7d6ebcc8f
