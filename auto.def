@@ -232,10 +232,9 @@ if {$tclpath ne ""} {
 }
 
 # Helper for OpenSSL checking
-proc check-for-openssl {msg {cflags {}}} {
+proc check-for-openssl {msg {cflags {}} {libs {-lssl -lcrypto}}} {
     msg-checking "Checking for $msg..."
     set rc 0
-    set libs {-lssl -lcrypto}
     if {[is_mingw]} {
         lappend libs -lgdi32 -lwsock32
     }
@@ -311,7 +310,8 @@ if {$ssldirs ne "none"} {
         set msg "ssl in $ssldir"
         set cflags "-I$ssldir/include"
         set ldflags "-L$ssldir"
-        set found [check-for-openssl "ssl in source tree" "$cflags $ldflags"]
+        set ssllibs "$ssldir/libssl.a $ssldir/libcrypto.a"
+        set found [check-for-openssl "ssl in source tree" "$cflags $ldflags" $ssllibs]
     } else {
         if {$ssldirs in {auto ""}} {
             catch {
@@ -345,7 +345,11 @@ if {$ssldirs ne "none"} {
         define FOSSIL_ENABLE_SSL
         define-append EXTRA_CFLAGS $cflags
         define-append EXTRA_LDFLAGS $ldflags
-        define-append LIBS -lssl -lcrypto
+        if {[info exists ssllibs]} {
+            define-append LIBS $ssllibs
+        } else {
+            define-append LIBS -lssl -lcrypto
+        }
         if {[is_mingw]} {
             define-append LIBS -lgdi32 -lwsock32
         }

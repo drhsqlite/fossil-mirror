@@ -1,5 +1,5 @@
-C Fix\suse\sof\slinenoise.\s\sFine-tune\scheck\sfor\sin-tree\sOpenSSL.
-D 2016-01-16T22:25:14.058
+C Further\srefinements\sto\spermit\sOpenSSL\sin\stree\sto\swork\sconsistently.
+D 2016-01-16T22:51:04.149
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -45,7 +45,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 7da9fb0868384c6a91b7ca43f8ee914fee070b8f
+F auto.def f949083821e500c2327ad8887cb9d30ace1444c8
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 4e0b671b54288fc64d851d056822ee5fec4d3365
 F autosetup/autosetup 7b5ae324561a38804875517af9b7c6e7f42f930d x
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2c7eee4c9a5550b3e87ca97123be692964dd1936
-R 9e0ffca3d58653eada84f0d63d39c6c1
+P 54307c4d7d90c3d76ab0b4d72d28e4e5eda4e70d
+R b0aae0352beb08d0cfa36868e57088cf
 U mistachkin
-Z a0b6f6636faf17658fec1a1b2b26955f
+Z b4df14db789f14fbb1f71ca9928a42a2
