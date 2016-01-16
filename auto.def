@@ -239,7 +239,7 @@ proc check-for-openssl {msg {cflags {}}} {
     if {[is_mingw]} {
         lappend libs -lgdi32 -lwsock32
     }
-    if {[info exists ::zlib_for_ssl]} then {
+    if {[info exists ::zlib_for_ssl]} {
         lappend libs $::zlib_for_ssl
     }
     msg-quiet cc-with [list -cflags $cflags -libs $libs] {
@@ -264,6 +264,9 @@ if {[opt-bool with-miniz]} {
     set zlibpath [opt-val with-zlib]
     if {$zlibpath eq "tree"} {
         set zlibdir [file dirname $autosetup(dir)]/compat/zlib
+        if {![file isdirectory $zlibdir]} {
+            user-error "The zlib in source tree directory does not exist"
+        }
         cc-with [list -cflags "-I$zlibdir -L$zlibdir"]
         define-append EXTRA_CFLAGS -I$zlibdir
         define-append LIBS $zlibdir/libz.a
@@ -291,6 +294,9 @@ if {$ssldirs ne "none"} {
     set found 0
     if {$ssldirs eq "tree"} {
         set ssldir [file dirname $autosetup(dir)]/compat/openssl
+        if {![file isdirectory $ssldir]} {
+            user-error "The OpenSSL in source tree directory does not exist"
+        }
         set msg "ssl in $ssldir"
         set cflags "-I$ssldir/include"
         set ldflags "-L$ssldir"
