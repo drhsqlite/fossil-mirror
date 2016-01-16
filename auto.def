@@ -3,11 +3,11 @@
 use cc cc-lib
 
 options {
-    with-openssl:path|auto|none
-                         => {Look for OpenSSL in the given path, or auto or none}
+    with-openssl:path|auto|tree|none
+                         => {Look for OpenSSL in the given path, automatically, in the source tree, or none}
     with-miniz=0         => {Use miniz from the source tree}
     with-zlib:path|auto|tree
-                         => {Look for zlib in the given path, or auto or in the source tree}
+                         => {Look for zlib in the given path, automatically, in the source tree, or none}
     with-exec-rel-paths=0
                          => {Enable relative paths for external diff/gdiff}
     with-legacy-mv-rm=0  => {Enable legacy behavior for mv/rm (skip checkout files)}
@@ -38,6 +38,7 @@ cc-check-progs tclsh
 define EXTRA_CFLAGS ""
 define EXTRA_LDFLAGS ""
 define USE_SYSTEM_SQLITE 0
+define USE_LINENOISE 0
 
 if {![opt-bool internal-sqlite]} {
   proc find_internal_sqlite {} {
@@ -70,6 +71,21 @@ if {![opt-bool internal-sqlite]} {
   }
 
   find_internal_sqlite
+}
+
+proc is_mingw {} {
+    return [string match *mingw* [get-define host]]
+}
+
+if {[is_mingw]} {
+    define-append EXTRA_CFLAGS -DBROKEN_MINGW_CMDLINE
+    define-append LIBS -lkernel32 -lws2_32 -lmingw32
+} else {
+    #
+    # NOTE: All platforms except MinGW should use the linenoise
+    #       package.  It is currently unsupported on Win32.
+    #
+    define USE_LINENOISE 1
 }
 
 if {[string match *-solaris* [get-define host]]} {
@@ -219,7 +235,14 @@ if {$tclpath ne ""} {
 proc check-for-openssl {msg {cflags {}}} {
     msg-checking "Checking for $msg..."
     set rc 0
-    msg-quiet cc-with [list -cflags $cflags -libs {-lssl -lcrypto}] {
+    set libs {-lssl -lcrypto}
+    if {[is_mingw]} {
+        lappend libs -lgdi32 -lwsock32
+    }
+    if {[info exists ::zlib_for_ssl]} then {
+        lappend libs $::zlib_for_ssl
+    }
+    msg-quiet cc-with [list -cflags $cflags -libs $libs] {
         if {[cc-check-includes openssl/ssl.h] && [cc-check-functions SSL_new]} {
             incr rc
         }
@@ -233,34 +256,71 @@ proc check-for-openssl {msg {cflags {}}} {
     }
 }
 
+if {[opt-bool with-miniz]} {
+    define FOSSIL_ENABLE_MINIZ 1
+    msg-result "Using miniz for compression"
+} else {
+    # Check for zlib, using the given location if specified
+    set zlibpath [opt-val with-zlib]
+    if {$zlibpath eq "tree"} {
+        set zlibdir [file dirname $autosetup(dir)]/compat/zlib
+        cc-with [list -cflags "-I$zlibdir -L$zlibdir"]
+        define-append EXTRA_CFLAGS -I$zlibdir
+        define-append LIBS $zlibdir/libz.a
+        set ::zlib_for_ssl $zlibdir/libz.a
+        msg-result "Using zlib in source tree"
+    } else {
+        if {$zlibpath ni {auto ""}} {
+            cc-with [list -cflags "-I$zlibpath -L$zlibpath"]
+            define-append EXTRA_CFLAGS -I$zlibpath
+            define-append EXTRA_LDFLAGS -L$zlibpath
+            msg-result "Using zlib from $zlibpath"
+        }
+        if {![cc-check-includes zlib.h] || ![cc-check-function-in-lib inflateEnd z]} {
+            user-error "zlib not found please install it or specify the location with --with-zlib"
+        }
+        set ::zlib_for_ssl -lz
+    }
+}
+
 set ssldirs [opt-val with-openssl]
 if {$ssldirs ne "none"} {
-    set found 0
-    if {$ssldirs in {auto ""}} {
-        catch {
-            set cflags [exec pkg-config openssl --cflags-only-I]
-            set ldflags [exec pkg-config openssl --libs-only-L]
-
-            set found [check-for-openssl "ssl via pkg-config" "$cflags $ldflags"]
-        } msg
-        if {!$found} {
-            set ssldirs "{} /usr/sfw /usr/local/ssl /usr/lib/ssl /usr/ssl /usr/pkg /usr/local /usr"
-        }
+    if {[opt-bool with-miniz]} {
+        user-error "The --with-miniz option is incompatible with OpenSSL"
     }
-    if {!$found} {
-        foreach dir $ssldirs {
-            if {$dir eq ""} {
-                set msg "system ssl"
-                set cflags ""
-                set ldflags ""
-            } else {
-                set msg "ssl in $dir"
-                set cflags "-I$dir/include"
-                set ldflags "-L$dir/lib"
+    set found 0
+    if {$ssldirs eq "tree"} {
+        set ssldir [file dirname $autosetup(dir)]/compat/openssl
+        set msg "ssl in $ssldir"
+        set cflags "-I$ssldir/include"
+        set ldflags "-L$ssldir"
+        set found [check-for-openssl "ssl in source tree" "$cflags $ldflags"]
+    } else {
+        if {$ssldirs in {auto ""}} {
+            catch {
+                set cflags [exec pkg-config openssl --cflags-only-I]
+                set ldflags [exec pkg-config openssl --libs-only-L]
+                set found [check-for-openssl "ssl via pkg-config" "$cflags $ldflags"]
+            } msg
+            if {!$found} {
+                set ssldirs "{} /usr/sfw /usr/local/ssl /usr/lib/ssl /usr/ssl /usr/pkg /usr/local /usr"
             }
-            if {[check-for-openssl $msg "$cflags $ldflags"]} {
-                incr found
-                break
+        }
+        if {!$found} {
+            foreach dir $ssldirs {
+                if {$dir eq ""} {
+                    set msg "system ssl"
+                    set cflags ""
+                    set ldflags ""
+                } else {
+                    set msg "ssl in $dir"
+                    set cflags "-I$dir/include"
+                    set ldflags "-L$dir/lib"
+                }
+                if {[check-for-openssl $msg "$cflags $ldflags"]} {
+                    incr found
+                    break
+                }
             }
         }
     }
@@ -269,6 +329,9 @@ if {$ssldirs ne "none"} {
         define-append EXTRA_CFLAGS $cflags
         define-append EXTRA_LDFLAGS $ldflags
         define-append LIBS -lssl -lcrypto
+        if {[is_mingw]} {
+            define-append LIBS -lgdi32 -lwsock32
+        }
         msg-result "HTTPS support enabled"
 
         # Silence OpenSSL deprecation warnings on Mac OS X 10.7.
@@ -282,36 +345,11 @@ if {$ssldirs ne "none"} {
     }
 }
 
-if {[opt-bool with-miniz]} {
-    define FOSSIL_ENABLE_MINIZ 1
-    msg-result "Using miniz for compression"
-} else {
-    # Check for zlib, using the given location if specified
-    set zlibpath [opt-val with-zlib]
-    if {$zlibpath eq "tree"} {
-        set zlibdir [file dirname $autosetup(dir)]/compat/zlib
-        cc-with [list -cflags "-I$zlibdir"]
-        define-append EXTRA_CFLAGS -I$zlibdir
-        define-append LIBS $zlibdir/libz.a
-        msg-result "Using zlib in source tree"
-    } else {
-        if {$zlibpath ni {auto ""}} {
-            cc-with [list -cflags "-I$zlibpath -L$zlibpath"]
-            define-append EXTRA_CFLAGS -I$zlibpath
-            define-append EXTRA_LDFLAGS -L$zlibpath
-            msg-result "Using zlib from $zlibpath"
-        }
-        if {![cc-check-includes zlib.h] || ![cc-check-function-in-lib inflateEnd z]} {
-            user-error "zlib not found please install it or specify the location with --with-zlib"
-        }
-    }
-}
-
 # Network functions require libraries on some systems
 cc-check-function-in-lib gethostbyname nsl
 if {![cc-check-function-in-lib socket {socket network}]} {
     # Last resort, may be Windows
-    if {[string match *mingw* [get-define host]]} {
+    if {[is_mingw]} {
         define-append LIBS -lwsock32
     }
 }
