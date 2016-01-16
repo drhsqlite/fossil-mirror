@@ -7,7 +7,7 @@ options {
                          => {Look for OpenSSL in the given path, automatically, in the source tree, or none}
     with-miniz=0         => {Use miniz from the source tree}
     with-zlib:path|auto|tree
-                         => {Look for zlib in the given path, automatically, in the source tree, or none}
+                         => {Look for zlib in the given path, automatically, or in the source tree}
     with-exec-rel-paths=0
                          => {Enable relative paths for external diff/gdiff}
     with-legacy-mv-rm=0  => {Enable legacy behavior for mv/rm (skip checkout files)}
