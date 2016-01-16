@@ -339,13 +339,23 @@ SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 MINIZ_OBJ.0 =
 MINIZ_OBJ.1 = $(OBJDIR)/miniz.o
 MINIZ_OBJ.  = $(MINIZ_OBJ.0)
+
+# The USE_LINENOISE variable may be undefined, set to 0, or set
+# to 1. If it is set to 0, then there is no need to build or link
+# the linenoise.o object.
+LINENOISE_DEF.0 =
+LINENOISE_DEF.1 = -DHAVE_LINENOISE
+LINENOISE_DEF.  = $(LINENOISE_DEF.0)
+LINENOISE_OBJ.0 =
+LINENOISE_OBJ.1 = $(OBJDIR)/linenoise.o
+LINENOISE_OBJ.  = $(LINENOISE_OBJ.0)
 }]
 
 writeln [string map [list <<<NEXT_LINE>>> \\] {
 EXTRAOBJ = <<<NEXT_LINE>>>
  $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE)) <<<NEXT_LINE>>>
  $(MINIZ_OBJ.$(FOSSIL_ENABLE_MINIZ)) <<<NEXT_LINE>>>
- $(OBJDIR)/linenoise.o <<<NEXT_LINE>>>
+ $(LINENOISE_OBJ.$(USE_LINENOISE)) <<<NEXT_LINE>>>
  $(OBJDIR)/shell.o <<<NEXT_LINE>>>
  $(OBJDIR)/th.o <<<NEXT_LINE>>>
  $(OBJDIR)/th_lang.o <<<NEXT_LINE>>>
@@ -406,7 +416,7 @@ writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
 writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) -c \$(SRCDIR)/sqlite3.c -o \$@\n"
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
-writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) -DHAVE_LINENOISE -c \$(SRCDIR)/shell.c -o \$@\n"
+writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) \$(LINENOISE_DEF.\$(USE_LINENOISE)) -c \$(SRCDIR)/shell.c -o \$@\n"
 
 writeln "\$(OBJDIR)/linenoise.o:\t\$(SRCDIR)/linenoise.c \$(SRCDIR)/linenoise.h"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/linenoise.c -o \$@\n"
