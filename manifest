@@ -1,5 +1,5 @@
-C Sync\sup\sthe\s'makemake.tcl'\stool.
-D 2016-01-16T21:36:52.247
+C Fix\suse\sof\slinenoise.\s\sFine-tune\scheck\sfor\sin-tree\sOpenSSL.
+D 2016-01-16T22:25:14.058
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -11,7 +11,7 @@ F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile e6126edc40fe1da6bd47c6c5f1beede3b9c3eaf7
 F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
-F Makefile.in 4c745f08a8ecfe6e1f227e2a6d33cce3adc532d0
+F Makefile.in ea7f637f751d181d2ec957d6ec53fd4adc144717
 F VERSION 7d88475c68cba7127d611641fa69160437b6885e
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
@@ -45,7 +45,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def df818febefbbe549d7db950c04c4398e257210a9
+F auto.def 7da9fb0868384c6a91b7ca43f8ee914fee070b8f
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 4e0b671b54288fc64d851d056822ee5fec4d3365
 F autosetup/autosetup 7b5ae324561a38804875517af9b7c6e7f42f930d x
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c76ea6b4ec49874effaccdb3a08fedd40e5a25c2
-R ff9b6d1733ed2d11b0617a12b9f64f6d
+P 2c7eee4c9a5550b3e87ca97123be692964dd1936
+R 9e0ffca3d58653eada84f0d63d39c6c1
 U mistachkin
-Z ecc0e985c5d323d8a411befba21dd898
+Z a0b6f6636faf17658fec1a1b2b26955f

@@ -243,8 +243,19 @@ proc check-for-openssl {msg {cflags {}}} {
         lappend libs $::zlib_for_ssl
     }
     msg-quiet cc-with [list -cflags $cflags -libs $libs] {
-        if {[cc-check-includes openssl/ssl.h] && [cc-check-functions SSL_new]} {
+        if {[cc-check-includes openssl/ssl.h] && \
+                [cc-check-functions SSL_new]} {
             incr rc
+        }
+    }
+    if {!$rc && ![is_mingw]} {
+        # On some systems, OpenSSL appears to require -ldl to link.
+        lappend libs -ldl
+        msg-quiet cc-with [list -cflags $cflags -libs $libs] {
+            if {[cc-check-includes openssl/ssl.h] && \
+                    [cc-check-functions SSL_new]} {
+                incr rc
+            }
         }
     }
     if {$rc} {
