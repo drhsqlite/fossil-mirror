@@ -233,6 +233,31 @@ proc check-for-openssl {msg {cflags {}}} {
     }
 }
 
+if {[opt-bool with-miniz]} {
+    define FOSSIL_ENABLE_MINIZ 1
+    msg-result "Using miniz for compression"
+} else {
+    # Check for zlib, using the given location if specified
+    set zlibpath [opt-val with-zlib]
+    if {$zlibpath eq "tree"} {
+        set zlibdir [file dirname $autosetup(dir)]/compat/zlib
+        cc-with [list -cflags "-I$zlibdir"]
+        define-append EXTRA_CFLAGS -I$zlibdir
+        define-append LIBS $zlibdir/libz.a
+        msg-result "Using zlib in source tree"
+    } else {
+        if {$zlibpath ni {auto ""}} {
+            cc-with [list -cflags "-I$zlibpath -L$zlibpath"]
+            define-append EXTRA_CFLAGS -I$zlibpath
+            define-append EXTRA_LDFLAGS -L$zlibpath
+            msg-result "Using zlib from $zlibpath"
+        }
+        if {![cc-check-includes zlib.h] || ![cc-check-function-in-lib inflateEnd z]} {
+            user-error "zlib not found please install it or specify the location with --with-zlib"
+        }
+    }
+}
+
 set ssldirs [opt-val with-openssl]
 if {$ssldirs ne "none"} {
     set found 0
@@ -279,31 +304,6 @@ if {$ssldirs ne "none"} {
         }
     } else {
         user-error "OpenSSL not found. Consider --with-openssl=none to disable HTTPS support"
-    }
-}
-
-if {[opt-bool with-miniz]} {
-    define FOSSIL_ENABLE_MINIZ 1
-    msg-result "Using miniz for compression"
-} else {
-    # Check for zlib, using the given location if specified
-    set zlibpath [opt-val with-zlib]
-    if {$zlibpath eq "tree"} {
-        set zlibdir [file dirname $autosetup(dir)]/compat/zlib
-        cc-with [list -cflags "-I$zlibdir"]
-        define-append EXTRA_CFLAGS -I$zlibdir
-        define-append LIBS $zlibdir/libz.a
-        msg-result "Using zlib in source tree"
-    } else {
-        if {$zlibpath ni {auto ""}} {
-            cc-with [list -cflags "-I$zlibpath -L$zlibpath"]
-            define-append EXTRA_CFLAGS -I$zlibpath
-            define-append EXTRA_LDFLAGS -L$zlibpath
-            msg-result "Using zlib from $zlibpath"
-        }
-        if {![cc-check-includes zlib.h] || ![cc-check-function-in-lib inflateEnd z]} {
-            user-error "zlib not found please install it or specify the location with --with-zlib"
-        }
     }
 }
 
