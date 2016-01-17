@@ -9,6 +9,26 @@
 #include <string.h>
 #include <assert.h>
 
+/*
+** Values used for element values in the tcl_platform array.
+*/
+
+#if !defined(TH1_ENGINE)
+#  define TH1_ENGINE         "TH1"
+#endif
+
+#if !defined(TH1_PLATFORM)
+#  if defined(_WIN32) || defined(WIN32)
+#    define TH1_PLATFORM     "windows"
+#  else
+#    define TH1_PLATFORM     "unix"
+#  endif
+#endif
+
+/*
+** Forward declarations for structures defined below.
+*/
+
 typedef struct Th_Command        Th_Command;
 typedef struct Th_Frame          Th_Frame;
 typedef struct Th_Variable       Th_Variable;
@@ -1760,6 +1780,18 @@ int Th_StringAppend(
 }
 
 /*
+** Initialize an interpreter.
+*/
+static int thInitialize(Th_Interp *interp){
+  assert(interp->pFrame);
+
+  Th_SetVar(interp, (char *)"::tcl_platform(engine)", -1, TH1_ENGINE, -1);
+  Th_SetVar(interp, (char *)"::tcl_platform(platform)", -1, TH1_PLATFORM, -1);
+
+  return TH_OK;
+}
+
+/*
 ** Delete an interpreter.
 */
 void Th_DeleteInterp(Th_Interp *interp){
@@ -1792,6 +1824,7 @@ Th_Interp * Th_CreateInterp(Th_Vtab *pVtab){
   p->pVtab = pVtab;
   p->paCmd = Th_HashNew(p);
   thPushFrame(p, (Th_Frame *)&p[1]);
+  thInitialize(p);
 
   return p;
 }

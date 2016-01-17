@@ -946,9 +946,9 @@ fossil test-th-eval "info vars"
 
 if {$th1Hooks} {
   test th1-info-vars-1 {$RESULT eq \
-      "th_stack_trace cmd_flags cmd_name cmd_args"}
+      "th_stack_trace cmd_flags tcl_platform cmd_name cmd_args"}
 } else {
-  test th1-info-vars-1 {$RESULT eq ""}
+  test th1-info-vars-1 {$RESULT eq "tcl_platform"}
 }
 
 ###############################################################################
@@ -957,9 +957,9 @@ fossil test-th-eval "set x 1; info vars"
 
 if {$th1Hooks} {
   test th1-info-vars-2 {$RESULT eq \
-      "x th_stack_trace cmd_flags cmd_name cmd_args"}
+      "x th_stack_trace cmd_flags tcl_platform cmd_name cmd_args"}
 } else {
-  test th1-info-vars-2 {$RESULT eq "x"}
+  test th1-info-vars-2 {$RESULT eq "x tcl_platform"}
 }
 
 ###############################################################################
@@ -968,9 +968,9 @@ fossil test-th-eval "set x 1; unset x; info vars"
 
 if {$th1Hooks} {
   test th1-info-vars-3 {$RESULT eq \
-      "th_stack_trace cmd_flags cmd_name cmd_args"}
+      "th_stack_trace cmd_flags tcl_platform cmd_name cmd_args"}
 } else {
-  test th1-info-vars-3 {$RESULT eq ""}
+  test th1-info-vars-3 {$RESULT eq "tcl_platform"}
 }
 
 ###############################################################################
@@ -984,9 +984,9 @@ fossil test-th-eval "set y 1; proc foo {} {set x 1; uplevel 1 {info vars}}; foo"
 
 if {$th1Hooks} {
   test th1-info-vars-5 {$RESULT eq \
-      "th_stack_trace y cmd_flags cmd_name cmd_args"}
+      "th_stack_trace y cmd_flags tcl_platform cmd_name cmd_args"}
 } else {
-  test th1-info-vars-5 {$RESULT eq "y"}
+  test th1-info-vars-5 {$RESULT eq "y tcl_platform"}
 }
 
 ###############################################################################
@@ -1363,3 +1363,13 @@ run_in_checkout {
 
 test th1-encode64-3 {$RESULT eq \
 "IyEvcGF0aC90by9mb3NzaWwvYmluYXJ5CnJlcG9zaXRvcnk6IC9wYXRoL3RvL3JlcG8uZnNsCg=="}
+
+###############################################################################
+
+fossil test-th-eval {set tcl_platform(engine)}
+test th1-platform-1 {$RESULT eq "TH1"}
+
+###############################################################################
+
+fossil test-th-eval {set tcl_platform(platform)}
+test th1-platform-2 {$RESULT eq "windows" || $RESULT eq "unix"}

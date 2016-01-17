@@ -1,5 +1,5 @@
-C Better\sruntime\ssettings\sdetection\sby\sthe\s'th1'\stest\sfile.
-D 2016-01-17T22:12:21.673
+C Add\ssupport\sfor\sthe\stcl_platform(platform)\sand\stcl_platform(engine)\sarray\selements\sto\sTH1.
+D 2016-01-17T22:17:14.110
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -490,7 +490,7 @@ F src/style.c 1a7a0b84d1404a6420819498e0697219eb90357d
 F src/sync.c 430351487d739560d75ea3d561e6ef6539c26974
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
-F src/th.c e9840f21b1bb1bc03fdba17c818728e132e254b7
+F src/th.c c9c1c71d4cb2ddcceeef76e0da7debe7a97ebaa2
 F src/th.h 1e7ae1613afa730a75df06d7fd1f17c7ff4564f4
 F src/th_lang.c e37a4bae6c05ed442bc90ba3fa18be2683e2a6a1
 F src/th_main.c 7d85cdca12e2c95970f90aaaa962a466b55009ba
@@ -562,7 +562,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test dbe31f8593f3517b80967200aa45e2d7e814efdd
+F test/th1.test 6ad1735d047d418cc87035f0cfd82f194c053c01
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 7fd75c8d3699ff96e9bdaa69ac40be3d9323b8dc
@@ -744,7 +744,10 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P acbee54e8ba8a3bd9a8f18baabd8bde4814fc0ac
-R 26d8a2e337d8aa830491288d796498f3
+P d8d2222b91854e24e05df11046770ed27d6deb06
+R 65fcf228d3d051e877ea5fac89b05816
+T *branch * tclPlatform
+T *sym-tclPlatform *
+T -sym-trunk *
 U mistachkin
-Z 8cc67ecbf167768e9d7a7f87cbb7df05
+Z 600b288e6e00db5e7aa594d2614f5fd5
