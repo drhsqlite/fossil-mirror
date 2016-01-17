@@ -199,6 +199,8 @@ proc is_tcl_usable_by_fossil {} {
   if {$::RESULT ne "1"} {return 0}
   fossil test-th-eval "setting tcl"
   if {$::RESULT eq "1"} {return 1}
+  fossil test-th-eval --open-config "setting tcl"
+  if {$::RESULT eq "1"} {return 1}
   return [info exists ::env(TH1_ENABLE_TCL)]
 }
 
@@ -208,6 +210,8 @@ proc are_th1_hooks_usable_by_fossil {} {
   fossil test-th-eval "hasfeature th1Hooks"
   if {$::RESULT ne "1"} {return 0}
   fossil test-th-eval "setting th1-hooks"
+  if {$::RESULT eq "1"} {return 1}
+  fossil test-th-eval --open-config "setting th1-hooks"
   if {$::RESULT eq "1"} {return 1}
   return [info exists ::env(TH1_ENABLE_HOOKS)]
 }
