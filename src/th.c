@@ -13,15 +13,15 @@
 ** Values used for element values in the tcl_platform array.
 */
 
-#if !defined(TH1_ENGINE)
-#  define TH1_ENGINE         "TH1"
+#if !defined(TH_ENGINE)
+#  define TH_ENGINE          "TH1"
 #endif
 
-#if !defined(TH1_PLATFORM)
+#if !defined(TH_PLATFORM)
 #  if defined(_WIN32) || defined(WIN32)
-#    define TH1_PLATFORM     "windows"
+#    define TH_PLATFORM      "windows"
 #  else
-#    define TH1_PLATFORM     "unix"
+#    define TH_PLATFORM      "unix"
 #  endif
 #endif
 
@@ -1785,8 +1785,8 @@ int Th_StringAppend(
 static int thInitialize(Th_Interp *interp){
   assert(interp->pFrame);
 
-  Th_SetVar(interp, (char *)"::tcl_platform(engine)", -1, TH1_ENGINE, -1);
-  Th_SetVar(interp, (char *)"::tcl_platform(platform)", -1, TH1_PLATFORM, -1);
+  Th_SetVar(interp, (char *)"::tcl_platform(engine)", -1, TH_ENGINE, -1);
+  Th_SetVar(interp, (char *)"::tcl_platform(platform)", -1, TH_PLATFORM, -1);
 
   return TH_OK;
 }
