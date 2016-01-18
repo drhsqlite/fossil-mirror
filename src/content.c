@@ -1149,6 +1149,7 @@ void test_content_erase(void){
   int i;
   Blob x;
   char c;
+  Stmt q;
   prompt_user("This command erases information from the repository and\n"
               "might irrecoverably damage the repository.  Make sure you\n"
               "have a backup copy!\n"
@@ -1158,12 +1159,19 @@ void test_content_erase(void){
   if( c!='y' && c!='Y' ) return;
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
   db_begin_transaction();
+  db_prepare(&q, "SELECT rid FROM delta WHERE srcid=:rid");
   for(i=2; i<g.argc; i++){
     int rid = atoi(g.argv[i]);
     fossil_print("Erasing artifact %d (%s)\n", 
                  rid, db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid));
-    content_undelta(rid);
+    db_bind_int(&q, ":rid", rid);
+    while( db_step(&q)==SQLITE_ROW ){
+      content_undelta(db_column_int(&q,0));
+    }
+    db_reset(&q);
     db_multi_exec("DELETE FROM blob WHERE rid=%d", rid);
+    db_multi_exec("DELETE FROM delta WHERE rid=%d", rid);
   }
+  db_finalize(&q);
   db_end_transaction(0);
 }
