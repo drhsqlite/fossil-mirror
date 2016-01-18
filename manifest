@@ -1,5 +1,5 @@
-C Improve\ssome\scomments.
-D 2016-01-18T17:48:37.760
+C Improved\serror\smessage\swhen\sa\sreceived\sartifact\shas\san\sincorrect\shash.
+D 2016-01-18T22:34:55.905
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -513,7 +513,7 @@ F src/wikiformat.c f9fb5b8bc72c23d88bedcc8de1048f1081514d09
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c 4e680d7c8778be4439169f40a992ccc81f7ceec2
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c 360b9fb86e3709b78d1902aa89a227f957a66ba3
+F src/xfer.c f504819c3b8282a46f9dd5dc9499e9360a78439d
 F src/xfersetup.c 0f967a3fca7ad9fa3aa350d121851e71064823be
 F src/zip.c 8567f81eca8762b4bf08c20a72b70e87696c6cd2
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ea7813da5680dafa7a3c60ddd936fde582125312
-R d9a3307bb45c4f2422a5bd655114682a
-U mistachkin
-Z 5aee04a10230647768972d52d019cb1f
+P dda5d11d98bfdc1febe618f5039ae58c53578d7f
+R 43fe95f1c8b96313546f1aae0aaec7f1
+U drh
+Z 9e4d306a8f23620ab21b2906d85fbea1
