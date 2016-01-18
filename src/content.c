@@ -711,7 +711,7 @@ void content_undelta(int rid){
 */
 void test_content_undelta_cmd(void){
   int rid;
-  if( g.argc!=2 ) usage("RECORDID");
+  if( g.argc!=3 ) usage("RECORDID");
   db_must_be_within_tree();
   rid = atoi(g.argv[2]);
   content_undelta(rid);
