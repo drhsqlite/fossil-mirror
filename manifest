@@ -1,5 +1,5 @@
-C Update\sTH1\sdocs.
-D 2016-01-18T01:42:03.398
+C Merge\strunk.
+D 2016-01-18T01:43:40.280
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 07324777f2f13e35a10a1c469384cde3dce01bfa
+P d4bdaeab305b0632b62e762a5f3195d914bf80a0 2427250b01a6b0920acd8d58d624c1e39f6fb56f
 R 0a08a10be66f42bf31ca3eca027512b4
 U mistachkin
-Z 5e4e3550e0bf8b16ba8b01385ec74043
+Z ea4dfadf94c6c615ba18e88d70c348be
