@@ -2945,8 +2945,7 @@ int Th_ListAppendVariables(Th_Interp *interp, char **pzList, int *pnList){
 /*
 ** Appends all array element names for the specified array variable to the
 ** specified list and returns TH_OK upon success.  Any other return value
-** indicates an error.  If the current frame cannot be obtained, TH_ERROR
-** is returned.
+** indicates an error.
 */
 int Th_ListAppendArray(
   Th_Interp *interp,
