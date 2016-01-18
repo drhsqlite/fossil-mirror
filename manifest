@@ -1,5 +1,5 @@
-C Add\sthe\stest-erase-content\scommand.
-D 2016-01-18T23:13:06.892
+C Improved\s"help"\sfor\sthe\s"fossil\swhatis"\scommand.
+D 2016-01-18T23:19:59.874
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -459,7 +459,7 @@ F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
 F src/mkindex.c 8b49a351b060c3e9203dacbacfc8216f760f8da2
 F src/mkversion.c 40ed302872cc5795c76efb3ab089fc1aedba18f1
 F src/moderate.c 8ab2bd4bda9a6b6765f99ddea7950dc5c6bad007
-F src/name.c 47a238aee2ca28012c5c3a25065e52ce3a53cd5f
+F src/name.c 7c41f968598cbbb88efae5b58da426598315728c
 F src/path.c 9455d26c4bf91ae949abd55536a1a20d863c486b
 F src/piechart.c 6b2d49434b036d495ec30378520dd1054b03c920
 F src/pivot.c f03ae2edfb53590f6dee86c1a0d93441feb0f816
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4c8e6d91d2dd8b3fd872a5a1d65ca89d50f139cd
-R a705c9f4bf2bb02cb1a6fdecc636c265
+P e709bf16e7708359140da40a0fb5bb3b43b80943
+R e792f125f2409043f5b0a45c250c23c3
 U drh
-Z 93b3919f6911accf0a0c6fc1638661fd
+Z c66a62b5c10b1e08d326dc9e222b8f38
