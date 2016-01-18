@@ -955,6 +955,8 @@ void test_integrity(void){
       if( anCA[i] ) fossil_print("  %d %ss\n", anCA[i], azType[i]);
     }
   }
+  fossil_print("low-level database integrity-check: ");
+  fossil_print("%s\n", db_text(0, "PRAGMA integrity_check(10)"));
 }
 
 /*
