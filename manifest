@@ -1,5 +1,5 @@
-C Add\sthe\s'array\sexists'\sand\s'array\snames'\ssub-commands\sto\sTH1.\s\sAdd\stcl_platform(engine)\sand\stcl_platform(platform)\sto\sTH1.
-D 2016-01-18T17:41:20.065
+C Improve\ssome\scomments.
+D 2016-01-18T17:48:37.760
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -490,7 +490,7 @@ F src/style.c 1a7a0b84d1404a6420819498e0697219eb90357d
 F src/sync.c 430351487d739560d75ea3d561e6ef6539c26974
 F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
-F src/th.c 4844178b3f6e58bbd71baf8d9cdf38bf85375c08
+F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c 06a9347ab27f937117ef9aa26a1df68722d56bfa
 F src/th_main.c 7d85cdca12e2c95970f90aaaa962a466b55009ba
@@ -744,8 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 786017890d282e42abdb4ac9c4cf3b2fc654d0db 042dac535a9a9e8d701f98150fb012ccf8a06f9c
-R a63268a0ec5ade0653fe5cc669de0565
-T +closed 042dac535a9a9e8d701f98150fb012ccf8a06f9c
+P ea7813da5680dafa7a3c60ddd936fde582125312
+R d9a3307bb45c4f2422a5bd655114682a
 U mistachkin
-Z 97ec092de426aba98d4ad87e9a6c7477
+Z 5aee04a10230647768972d52d019cb1f

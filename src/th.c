@@ -2908,7 +2908,11 @@ int Th_SetResultDouble(Th_Interp *interp, double fVal){
 ** and returns TH_OK upon success.  Any other return value indicates an
 ** error.
 */
-int Th_ListAppendCommands(Th_Interp *interp, char **pzList, int *pnList){
+int Th_ListAppendCommands(
+  Th_Interp *interp,      /* Interpreter context */
+  char **pzList,          /* OUT: List of command names */
+  int *pnList             /* OUT: Number of command names */
+){
   Th_InterpAndList *p = (Th_InterpAndList *)Th_Malloc(
     interp, sizeof(Th_InterpAndList)
   );
@@ -2925,7 +2929,11 @@ int Th_ListAppendCommands(Th_Interp *interp, char **pzList, int *pnList){
 ** and returns TH_OK upon success.  Any other return value indicates an
 ** error.  If the current frame cannot be obtained, TH_ERROR is returned.
 */
-int Th_ListAppendVariables(Th_Interp *interp, char **pzList, int *pnList){
+int Th_ListAppendVariables(
+  Th_Interp *interp,      /* Interpreter context */
+  char **pzList,          /* OUT: List of variable names */
+  int *pnList             /* OUT: Number of variable names */
+){
   Th_Frame *pFrame = getFrame(interp, 0);
   if( pFrame ){
     Th_InterpAndList *p = (Th_InterpAndList *)Th_Malloc(
@@ -2948,7 +2956,7 @@ int Th_ListAppendVariables(Th_Interp *interp, char **pzList, int *pnList){
 ** indicates an error.
 */
 int Th_ListAppendArray(
-  Th_Interp *interp,
+  Th_Interp *interp,      /* Interpreter context */
   const char *zVar,       /* Pointer to variable name */
   int nVar,               /* Number of bytes at nVar */
   char **pzList,          /* OUT: List of array element names */
