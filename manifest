@@ -1,5 +1,5 @@
-C Improved\serror\smessage\swhen\sa\sreceived\sartifact\shas\san\sincorrect\shash.
-D 2016-01-18T22:34:55.905
+C Add\sthe\stest-erase-content\scommand.
+D 2016-01-18T23:13:06.892
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -392,7 +392,7 @@ F src/codecheck1.c bf92e19b6a521f947c07960aae3f2aa9a21e4c42
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
 F src/config.h 5b0f2c55c62691916d4477f37109d3356a1dcecf
 F src/configure.c 8808ccad7ef1c74ad3ca9cf802db9b9b4d05d1d9
-F src/content.c 536295ee47d5041e557d3ff6f58fd273e6f1187c
+F src/content.c 85169c2ec83df6e39d750a1290888673a83bd9a7
 F src/cson_amalgamation.c ce18de7d62186d08d6c15a7efbd66bf009310439
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dda5d11d98bfdc1febe618f5039ae58c53578d7f
-R 43fe95f1c8b96313546f1aae0aaec7f1
+P 4c8e6d91d2dd8b3fd872a5a1d65ca89d50f139cd
+R a705c9f4bf2bb02cb1a6fdecc636c265
 U drh
-Z 9e4d306a8f23620ab21b2906d85fbea1
+Z 93b3919f6911accf0a0c6fc1638661fd
