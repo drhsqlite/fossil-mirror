@@ -928,7 +928,7 @@ if {$th1Tcl} {
       puts return checkout decorate artifact trace wiki proc tclInvoke hascap\
       globalState continue getParameter hasfeature setting lsearch breakpoint\
       upvar render repository string unset setParameter list error info rename\
-      tclExpr anycap tclEval httpize tclMakeSafe}}
+      tclExpr array anycap tclEval httpize tclMakeSafe}}
 } else {
   test th1-info-commands-1 {$RESULT eq {linecount htmlize date stime\
       enable_output uplevel dir http expr glob_match utime styleFooter encode64\
@@ -936,7 +936,7 @@ if {$th1Tcl} {
       anoncap randhex llength for set break regexp markdown styleHeader puts\
       return checkout decorate artifact trace wiki proc hascap globalState\
       continue getParameter hasfeature setting lsearch breakpoint upvar render\
-      repository string unset setParameter list error info rename anycap\
+      repository string unset setParameter list error info rename array anycap\
       httpize}}
 }
 
@@ -988,6 +988,61 @@ if {$th1Hooks} {
 } else {
   test th1-info-vars-5 {$RESULT eq "y tcl_platform"}
 }
+
+###############################################################################
+
+fossil test-th-eval "array exists foo"
+test th1-array-exists-1 {$RESULT eq "0"}
+
+###############################################################################
+
+fossil test-th-eval "set foo(x) 1; array exists foo"
+test th1-array-exists-2 {$RESULT eq "1"}
+
+###############################################################################
+
+fossil test-th-eval "set foo(x) 1; unset foo(x); array exists foo"
+test th1-array-exists-3 {$RESULT eq "1"}
+
+###############################################################################
+
+fossil test-th-eval "set foo(x) 1; unset foo; array exists foo"
+test th1-array-exists-4 {$RESULT eq "0"}
+
+###############################################################################
+
+fossil test-th-eval "set foo 1; array exists foo"
+test th1-array-exists-5 {$RESULT eq "0"}
+
+###############################################################################
+
+fossil test-th-eval "array names foo"
+test th1-array-names-1 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval "set foo 2; array names foo"
+test th1-array-names-2 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval "set foo 2; unset foo; set foo(x) 2; array names foo"
+test th1-array-names-3 {$RESULT eq "x"}
+
+###############################################################################
+
+fossil test-th-eval "set foo(x) 2; array names foo"
+test th1-array-names-4 {$RESULT eq "x"}
+
+###############################################################################
+
+fossil test-th-eval "set foo(x) 2; set foo(y) 2; array names foo"
+test th1-array-names-5 {$RESULT eq "x y"}
+
+###############################################################################
+
+fossil test-th-eval "set foo(x) 2; unset foo(x); array names foo"
+test th1-array-names-6 {$RESULT eq ""}
 
 ###############################################################################
 
@@ -1366,10 +1421,20 @@ test th1-encode64-3 {$RESULT eq \
 
 ###############################################################################
 
+fossil test-th-eval {array exists tcl_platform}
+test th1-platform-1 {$RESULT eq "1"}
+
+###############################################################################
+
+fossil test-th-eval {array names tcl_platform}
+test th1-platform-2 {$RESULT eq "engine platform"}
+
+###############################################################################
+
 fossil test-th-eval {set tcl_platform(engine)}
-test th1-platform-1 {$RESULT eq "TH1"}
+test th1-platform-3 {$RESULT eq "TH1"}
 
 ###############################################################################
 
 fossil test-th-eval {set tcl_platform(platform)}
-test th1-platform-2 {$RESULT eq "windows" || $RESULT eq "unix"}
+test th1-platform-4 {$RESULT eq "windows" || $RESULT eq "unix"}

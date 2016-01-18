@@ -1255,6 +1255,14 @@ int Th_ExistsVar(Th_Interp *interp, const char *zVar, int nVar){
 }
 
 /*
+** Return true if array variable (zVar, nVar) exists.
+*/
+int Th_ExistsArrayVar(Th_Interp *interp, const char *zVar, int nVar){
+  Th_Variable *pValue = thFindValue(interp, zVar, nVar, 0, 1, 1, 0);
+  return pValue && !pValue->zData && pValue->pHash;
+}
+
+/*
 ** String (zVar, nVar) must contain the name of a scalar variable or
 ** array member. If the variable does not exist it is created. The
 ** variable is set to the value supplied in string (zValue, nValue).
@@ -2932,4 +2940,34 @@ int Th_ListAppendVariables(Th_Interp *interp, char **pzList, int *pnList){
   }else{
     return TH_ERROR;
   }
+}
+
+/*
+** Appends all array element names for the specified array variable to the
+** specified list and returns TH_OK upon success.  Any other return value
+** indicates an error.  If the current frame cannot be obtained, TH_ERROR
+** is returned.
+*/
+int Th_ListAppendArray(
+  Th_Interp *interp,
+  const char *zVar,       /* Pointer to variable name */
+  int nVar,               /* Number of bytes at nVar */
+  char **pzList,          /* OUT: List of array element names */
+  int *pnList             /* OUT: Number of array element names */
+){
+  Th_Variable *pValue = thFindValue(interp, zVar, nVar, 0, 1, 1, 0);
+  if( pValue && !pValue->zData && pValue->pHash ){
+    Th_InterpAndList *p = (Th_InterpAndList *)Th_Malloc(
+      interp, sizeof(Th_InterpAndList)
+    );
+    p->interp = interp;
+    p->pzList = pzList;
+    p->pnList = pnList;
+    Th_HashIterate(interp, pValue->pHash, thListAppendHashKey, p);
+    Th_Free(interp, p);
+  }else{
+    *pzList = 0;
+    *pnList = 0;
+  }
+  return TH_OK;
 }

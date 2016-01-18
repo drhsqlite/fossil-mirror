@@ -974,6 +974,48 @@ static int info_vars_command(
 /*
 ** TH Syntax:
 **
+**   array exists VARNAME
+*/
+static int array_exists_command(
+  Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
+){
+  int rc;
+
+  if( argc!=3 ){
+    return Th_WrongNumArgs(interp, "array exists var");
+  }
+  rc = Th_ExistsArrayVar(interp, argv[2], argl[2]);
+  Th_SetResultInt(interp, rc);
+  return TH_OK;
+}
+
+/*
+** TH Syntax:
+**
+**   array names
+*/
+static int array_names_command(
+  Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
+){
+  int rc;
+  char *zElem = 0;
+  int nElem = 0;
+
+  if( argc!=3 ){
+    return Th_WrongNumArgs(interp, "array names varname");
+  }
+  rc = Th_ListAppendArray(interp, argv[2], argl[2], &zElem, &nElem);
+  if( rc!=TH_OK ){
+    return rc;
+  }
+  Th_SetResult(interp, zElem, nElem);
+  if( zElem ) Th_Free(interp, zElem);
+  return TH_OK;
+}
+
+/*
+** TH Syntax:
+**
 **   unset VAR
 */
 static int unset_command(
@@ -1066,6 +1108,27 @@ static int info_command(
     { "commands", info_commands_command },
     { "exists",   info_exists_command },
     { "vars",     info_vars_command },
+    { 0, 0 }
+  };
+  return Th_CallSubCommand(interp, ctx, argc, argv, argl, aSub);
+}
+
+/*
+** TH Syntax:
+**
+**   array exists VARNAME
+**   array names VARNAME
+*/
+static int array_command(
+  Th_Interp *interp,
+  void *ctx,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  static const Th_SubCommand aSub[] = {
+    { "exists", array_exists_command },
+    { "names",  array_names_command },
     { 0, 0 }
   };
   return Th_CallSubCommand(interp, ctx, argc, argv, argl, aSub);
@@ -1184,6 +1247,7 @@ int th_register_language(Th_Interp *interp){
     Th_CommandProc xProc;
     void *pContext;
   } aCommand[] = {
+    {"array",    array_command,   0},
     {"catch",    catch_command,   0},
     {"expr",     expr_command,    0},
     {"for",      for_command,     0},

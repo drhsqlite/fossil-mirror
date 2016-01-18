@@ -85,6 +85,8 @@ repertoire of commands.  TH1, as it is designed to be minimalist and
 embedded has a greatly reduced command set.  The following bullets
 summarize the commands available in TH1:
 
+  *  array exists VARNAME
+  *  array names VARNAME
   *  break
   *  catch SCRIPT ?VARIABLE?
   *  continue
