@@ -1,5 +1,5 @@
-C Fix\scomment.
-D 2016-01-18T02:22:01.437
+C Update\schange\slog.
+D 2016-01-18T03:05:35.642
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -659,7 +659,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 2ac7311933956b8d8b465a047c206db767184117
-F www/changes.wiki 8ec0c7587e580c4f3da5296f9f8f7477753945f8
+F www/changes.wiki 449d2457e85d0546840d73376b0f09551c42900b
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 115a0ecdac918232061bbc19124ea83e0a27d938
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fd4ada4a11dfb399f6995fcef5390ab4531c7639
-R 4cb9c717fd8c224308199c5b0926b5fd
+P 1a3f326b3a6406e2e582ab9c86c2f09392204474
+R 2cff83c31f2ef3782ad7ca3f52634a9c
 U mistachkin
-Z 8cbb78737d3dceff682d3b50dbc26167
+Z 194a930cbdb018b8da1dec359d70257d

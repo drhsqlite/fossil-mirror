@@ -21,6 +21,12 @@
      within those directories.
   *  Fix the [/help?cmd=add|fossil add] command so that it shows "SKIP" for
      files added that were already under management.
+  *  TH1 enhancements:
+     <ul><li>Add <nowiki>[array exists]</nowiki> command.</li>
+     <li>Add minimal <nowiki>[array names]</nowiki> command.</li>
+     <li>Add tcl_platform(engine) and tcl_platform(platform) array
+     elements.</li>
+     </ul>
 
 <h2>Changes for Version 1.34 (2015-11-02)</h2>
 
