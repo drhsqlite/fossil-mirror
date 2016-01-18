@@ -9,6 +9,26 @@
 #include <string.h>
 #include <assert.h>
 
+/*
+** Values used for element values in the tcl_platform array.
+*/
+
+#if !defined(TH_ENGINE)
+#  define TH_ENGINE          "TH1"
+#endif
+
+#if !defined(TH_PLATFORM)
+#  if defined(_WIN32) || defined(WIN32)
+#    define TH_PLATFORM      "windows"
+#  else
+#    define TH_PLATFORM      "unix"
+#  endif
+#endif
+
+/*
+** Forward declarations for structures defined below.
+*/
+
 typedef struct Th_Command        Th_Command;
 typedef struct Th_Frame          Th_Frame;
 typedef struct Th_Variable       Th_Variable;
@@ -1235,6 +1255,14 @@ int Th_ExistsVar(Th_Interp *interp, const char *zVar, int nVar){
 }
 
 /*
+** Return true if array variable (zVar, nVar) exists.
+*/
+int Th_ExistsArrayVar(Th_Interp *interp, const char *zVar, int nVar){
+  Th_Variable *pValue = thFindValue(interp, zVar, nVar, 0, 1, 1, 0);
+  return pValue && !pValue->zData && pValue->pHash;
+}
+
+/*
 ** String (zVar, nVar) must contain the name of a scalar variable or
 ** array member. If the variable does not exist it is created. The
 ** variable is set to the value supplied in string (zValue, nValue).
@@ -1760,6 +1788,18 @@ int Th_StringAppend(
 }
 
 /*
+** Initialize an interpreter.
+*/
+static int thInitialize(Th_Interp *interp){
+  assert(interp->pFrame);
+
+  Th_SetVar(interp, (char *)"::tcl_platform(engine)", -1, TH_ENGINE, -1);
+  Th_SetVar(interp, (char *)"::tcl_platform(platform)", -1, TH_PLATFORM, -1);
+
+  return TH_OK;
+}
+
+/*
 ** Delete an interpreter.
 */
 void Th_DeleteInterp(Th_Interp *interp){
@@ -1792,6 +1832,7 @@ Th_Interp * Th_CreateInterp(Th_Vtab *pVtab){
   p->pVtab = pVtab;
   p->paCmd = Th_HashNew(p);
   thPushFrame(p, (Th_Frame *)&p[1]);
+  thInitialize(p);
 
   return p;
 }
@@ -2899,4 +2940,33 @@ int Th_ListAppendVariables(Th_Interp *interp, char **pzList, int *pnList){
   }else{
     return TH_ERROR;
   }
+}
+
+/*
+** Appends all array element names for the specified array variable to the
+** specified list and returns TH_OK upon success.  Any other return value
+** indicates an error.
+*/
+int Th_ListAppendArray(
+  Th_Interp *interp,
+  const char *zVar,       /* Pointer to variable name */
+  int nVar,               /* Number of bytes at nVar */
+  char **pzList,          /* OUT: List of array element names */
+  int *pnList             /* OUT: Number of array element names */
+){
+  Th_Variable *pValue = thFindValue(interp, zVar, nVar, 0, 1, 1, 0);
+  if( pValue && !pValue->zData && pValue->pHash ){
+    Th_InterpAndList *p = (Th_InterpAndList *)Th_Malloc(
+      interp, sizeof(Th_InterpAndList)
+    );
+    p->interp = interp;
+    p->pzList = pzList;
+    p->pnList = pnList;
+    Th_HashIterate(interp, pValue->pHash, thListAppendHashKey, p);
+    Th_Free(interp, p);
+  }else{
+    *pzList = 0;
+    *pnList = 0;
+  }
+  return TH_OK;
 }

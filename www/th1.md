@@ -85,6 +85,8 @@ repertoire of commands.  TH1, as it is designed to be minimalist and
 embedded has a greatly reduced command set.  The following bullets
 summarize the commands available in TH1:
 
+  *  array exists VARNAME
+  *  array names VARNAME
   *  break
   *  catch SCRIPT ?VARIABLE?
   *  continue
@@ -121,6 +123,8 @@ for details.
 Summary of Core TH1 Variables
 -----------------------------
 
+  *  tcl\_platform(engine) -- _This will always have the value "TH1"._
+  *  tcl\_platform(platform) -- _This will have the value "windows" or "unix"._
   *  th\_stack\_trace -- _This will contain error stack information._
 
 TH1 Extended Commands
