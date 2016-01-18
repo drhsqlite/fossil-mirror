@@ -118,6 +118,13 @@ All of the above commands work as in the original Tcl.  Refer to the
 <a href="https://www.tcl-lang.org/man/tcl/contents.htm">Tcl documentation</a>
 for details.
 
+Summary of Core TH1 Variables
+-----------------------------
+
+  *  tcl\_platform(engine) -- _This will always have the value "TH1"._
+  *  tcl\_platform(platform) -- _This will have the value "windows" or "unix"._
+  *  th\_stack\_trace -- _This will contain error stack information._
+
 TH1 Extended Commands
 ---------------------
 
@@ -132,10 +139,10 @@ features of Fossil.  The following is a summary of the extended commands:
   *  date
   *  decorate
   *  dir
-  *  enable_output
+  *  enable\_output
   *  encode64
   *  getParameter
-  *  glob_match
+  *  glob\_match
   *  globalState
   *  hascap
   *  hasfeature
@@ -250,10 +257,10 @@ element containing at least three elements: the file name, the file
 size (in bytes), and the file last modification time (relative to the
 time zone configured for the repository).
 
-<a name="enable_output"></a>TH1 enable_output Command
------------------------------------------------------
+<a name="enable_output"></a>TH1 enable\_output Command
+------------------------------------------------------
 
-  *  enable_output BOOLEAN
+  *  enable\_output BOOLEAN
 
 Enable or disable sending output when the combobox, puts, or wiki
 commands are used.
@@ -273,10 +280,10 @@ Encode the specified string using Base64 and return the result.
 Returns the value of the specified query parameter or the specified
 default value when there is no matching query parameter.
 
-<a name="glob_match"></a>TH1 glob_match Command
------------------------------------------------
+<a name="glob_match"></a>TH1 glob\_match Command
+------------------------------------------------
 
-  *  glob_match ?-one? ?--? patternList string
+  *  glob\_match ?-one? ?--? patternList string
 
 Checks the string against the specified glob pattern -OR- list of glob
 patterns and returns non-zero if there is a match.
