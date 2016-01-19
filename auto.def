@@ -79,7 +79,7 @@ proc is_mingw {} {
 
 if {[is_mingw]} {
     define-append EXTRA_CFLAGS -DBROKEN_MINGW_CMDLINE
-    define-append LIBS -lkernel32 -lws2_32 -lmingw32
+    define-append LIBS -lkernel32 -lws2_32
 } else {
     #
     # NOTE: All platforms except MinGW should use the linenoise
