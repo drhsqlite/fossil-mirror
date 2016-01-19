@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sa\snewer\sversion\sthat\sfixes\sC89-isms\sin\sFTS5.
-D 2016-01-19T01:37:24.809
+C Get\sconfigure\sand\smake,\svia\sautosetup,\sworking\son\sMinGW.
+D 2016-01-19T18:48:18.946
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -11,7 +11,7 @@ F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile e6126edc40fe1da6bd47c6c5f1beede3b9c3eaf7
 F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
-F Makefile.in 4c745f08a8ecfe6e1f227e2a6d33cce3adc532d0
+F Makefile.in ea7f637f751d181d2ec957d6ec53fd4adc144717
 F VERSION 7d88475c68cba7127d611641fa69160437b6885e
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
@@ -45,7 +45,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 2c4c74df822526aec6ecbb55065904b73cbbec5f
+F auto.def f949083821e500c2327ad8887cb9d30ace1444c8
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 4e0b671b54288fc64d851d056822ee5fec4d3365
 F autosetup/autosetup 7b5ae324561a38804875517af9b7c6e7f42f930d x
@@ -443,10 +443,10 @@ F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 48e28e14943671f38ff81cdbdb6db93564bed895
 F src/lookslike.c 9103d15912b792a65874f04e185f2a74a477ebb4
 F src/main.c 5cbae19db27ca1530c36455c2fdd8dfc77289bfe
-F src/main.mk 29222c3dafd8664690482d11733671ad8245c3ff
+F src/main.mk 9e159023f50de1e869bbe4172dc4b25fe6a72cfa
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl fd5d2799e25709aa38e44cd4e37bd0c6aa16031d
+F src/makemake.tcl eea0f9eb21db3c3e84df732fdf7d6f938b773da5
 F src/manifest.c a520159adafb16098a08535b2bbd6984198b5cdf
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md fc02fd045690e6fb45fb0bc91be734913dc70d02
@@ -659,7 +659,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 2ac7311933956b8d8b465a047c206db767184117
-F www/changes.wiki 449d2457e85d0546840d73376b0f09551c42900b
+F www/changes.wiki d3987fab2c9f37585576a6fe3aa3324d20f9cf43
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 115a0ecdac918232061bbc19124ea83e0a27d938
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -744,7 +744,8 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d0cabcb617b05ce4e05e391f50abaf7299a7a1b8
-R 52cf5ec941941cda234dbcf394c8f414
-U drh
-Z ae6318c4e1cc257dc1dfe06346395632
+P 0d120a6102c662b469f4ac44c199bdfbfb531ec1 853a2285913b190b4e080be016c4042113a3cb19
+R bb3721a751402ca8a0b1037e62c46b52
+T +closed 853a2285913b190b4e080be016c4042113a3cb19
+U mistachkin
+Z 34e43ad53f7d0111e75fc34004dbb4f5
