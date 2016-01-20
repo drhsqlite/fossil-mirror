@@ -1190,7 +1190,7 @@ static int pkgconfig_get_command(
       Th_ErrorMessage(interp, "key not known", argv[2], argl[2]);
       return TH_ERROR;
   }
-  Th_SetResult(interp, "core" , -1);
+  Th_SetResult(interp, "TH1" , -1);
   return TH_OK;
 }
 

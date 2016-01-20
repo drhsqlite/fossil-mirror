@@ -1,5 +1,5 @@
-C How\sabout\sthe\sTIP\s#59\sway\sof\sTIP\s#440?\s\s\s\s"::tcl::pkgconfig\sget\sengine"\s\s\s\s->\s"core"
-D 2016-01-20T22:33:13.209
+C Of\scourse,\sthe\svalue\sof\s"::tcl::pkgconfig\sget\sengine"\sshould\sbe\s"TH1"
+D 2016-01-20T22:41:32.603
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -492,7 +492,7 @@ F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
-F src/th_lang.c 9b05851f81ab753262f1eb13c75896fb4d773faf
+F src/th_lang.c e04dbc49d39b924d9f358b98a4cabc37c232eafe
 F src/th_main.c 7d85cdca12e2c95970f90aaaa962a466b55009ba
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
 F src/timeline.c 8ab92a00887db5eb873d35f5c5c8ffa2d4691ed1
@@ -744,7 +744,8 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6bb2308fcb9a8d318313f5da0cd84d15803e4bd2
-R c997d1987c7e6360efccd30917d99ebd
+P fbc9e292ec5740778d438cb38085bdbc8a302d3d
+R f7d86264110c0d09d1ef8d16dbddfc27
+T +closed *
 U jan.nijtmans
-Z f85fd3048600f17061bb5480a56da255
+Z 13bf125fcc94ccc558e5e56ad8a67c29
