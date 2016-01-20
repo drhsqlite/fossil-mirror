@@ -1,5 +1,5 @@
-C Remove\ssuperfluous\slibrary\sreference\swhen\scompiling\swith\sMinGW.
-D 2016-01-19T18:59:38.717
+C Upgrade\sthe\sbuild-in\sSQLite\sto\sa\snew\s3.11.0\salpha\sthat\sfixes\sthe\sLIKE\soperator\nbug\sfound\sin\s3.10.0.
+D 2016-01-20T14:42:19.883
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -481,8 +481,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 44d3881e497cf9bec8ea6dcf73830502ab59202c
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c 1015e3ea6c02144a1c2d8c2afc2468f755f8a367
-F src/sqlite3.c 7a36162889d5a7972f06bbd865d286d6375d6da5
-F src/sqlite3.h d870531ee0fee0e5232c00dae862cd2c1f089308
+F src/sqlite3.c 85e562c5872a63f2e55883a550963896e6f89ad3
+F src/sqlite3.h 5e5204199820f5035ac1f219f6de938bca7a63e8
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 9fa919c1c78db3952e181e0bf955b039aca0db26
 F src/statrep.c 4f11eab5a4c84506471dae87b36e32de4d0c666b
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a0061bb2ed9b1433e732d77e48846dd356784ea0
-R 43f08d2d639dcbca0afece80589c127e
-U mistachkin
-Z 749a0b910967443246f140e4f4a4c70f
+P 9a091248757ae42b50e3cdb518caab7c49467ccd
+R 486aaf4fe84c32a2d4892d6323ea7806
+U drh
+Z c7598734415534a8ce698a0d6d348951
