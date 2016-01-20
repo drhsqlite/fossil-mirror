@@ -1,5 +1,5 @@
-C Remove\ssuperfluous\slibrary\sreference\swhen\scompiling\swith\sMinGW.
-D 2016-01-19T18:59:38.717
+C Remove\seven\sfusefs\scommand\sfrom\snon\sfuse-enabled\sbuilds
+D 2016-01-20T12:15:45.819
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -410,7 +410,7 @@ F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
 F src/file.c 96e88d124e5a031652e30ef1abc06e69b125c736
 F src/finfo.c 9dcd6c54bf5fadfafe0b15cbb736ba0cf418c956
 F src/foci.c 693596989fbb12a01c31317a7adf0d1ce85c7903
-F src/fusefs.c e25405b83122ed8369aa63125897348e5eb3cab2
+F src/fusefs.c cdd7d74f520287ffe8f533d727d6111bfa8cf794
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 845e2bcf72cfced7b9dee6b7b5093c92b05e11b0
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
@@ -744,7 +744,10 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a0061bb2ed9b1433e732d77e48846dd356784ea0
-R 43f08d2d639dcbca0afece80589c127e
-U mistachkin
-Z 749a0b910967443246f140e4f4a4c70f
+P 9a091248757ae42b50e3cdb518caab7c49467ccd
+R 71836d80f8e15ea6f28e9158c1de0756
+T *branch * pending-review
+T *sym-pending-review *
+T -sym-trunk *
+U baruch
+Z 90d4f0b605af20e436c0e1f5093c419e
