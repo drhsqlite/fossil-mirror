@@ -9,6 +9,7 @@
 ** new commands.
 */
 
+#include "VERSION.h"
 #include "config.h"
 #include "th.h"
 #include <string.h>
@@ -1135,6 +1136,45 @@ static int array_command(
 }
 
 /*
+** TH Syntax:
+**
+**   package require Tcl
+*/
+static int package_require_command(
+  Th_Interp *interp,
+  void *ctx,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( strcmp(argv[2], "Tcl") ){
+      Th_ErrorMessage(interp, "can't find package", argv[2], argl[2]);
+      return TH_ERROR;
+  }
+  Th_SetResult(interp, RELEASE_VERSION "+fossil-scm.org." MANIFEST_UUID , -1);
+  return TH_OK;
+}
+
+/*
+** TH Syntax:
+**
+**   package require Tcl
+*/
+static int package_command(
+  Th_Interp *interp,
+  void *ctx,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  static const Th_SubCommand aSub[] = {
+    { "require", package_require_command },
+    { 0, 0 }
+  };
+  return Th_CallSubCommand(interp, ctx, argc, argv, argl, aSub);
+}
+
+/*
 ** Convert the script level frame specification (used by the commands
 ** [uplevel] and [upvar]) in (zFrame, nFrame) to an integer frame as
 ** used by Th_LinkVar() and Th_Eval(). If successful, write the integer
@@ -1257,6 +1297,7 @@ int th_register_language(Th_Interp *interp){
     {"list",     list_command,    0},
     {"llength",  llength_command, 0},
     {"lsearch",  lsearch_command, 0},
+    {"package",  package_command, 0},
     {"proc",     proc_command,    0},
     {"rename",   rename_command,  0},
     {"set",      set_command,     0},
