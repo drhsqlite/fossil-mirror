@@ -343,6 +343,10 @@ static void new_brlist_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("Branches");
+  style_submenu_element("Timeline", "Timeline", "brtimeline");
+  style_submenu_element("All", "All", "brlist?all");
+  style_submenu_element("Closed","Closed","brlist?closed");
+  style_submenu_element("Color-Test", "Color-Test", "brlist?colortest");
   style_adunit_config(ADUNIT_RIGHT_OK);
   login_anonymous_available();
 
@@ -426,7 +430,7 @@ void brlist_page(void){
   style_submenu_element("Timeline", "Timeline", "brtimeline");
   if( showClosed ){
     style_submenu_element("All", "All", "brlist?all");
-    style_submenu_element("Open","Open","brlist?open");
+    style_submenu_element("Open","Open","brlist");
   }else if( showAll ){
     style_submenu_element("Closed", "Closed", "brlist?closed");
     style_submenu_element("Open","Open","brlist");
@@ -491,7 +495,7 @@ void brlist_page(void){
 }
 
 /*
-** This routine is called while for each check-in that is rendered by
+** This routine is called for each check-in that is rendered by
 ** the timeline of a "brlist" page.  Add some additional hyperlinks
 ** to the end of the line.
 */
