@@ -1759,6 +1759,7 @@ void page_timeline(void){
           timeline_submenu(&url, "Older", "b", zDate, "c");
           zOlderButton = fossil_strdup(url_render(&url, "b", zDate, "c", 0));
         }
+        zDate = db_text(0, "SELECT max(timestamp) FROM timeline /*scan*/");
         if( nAfter>=nEntry ){
           timeline_submenu(&url, "Newer", "a", zDate, "c");
         }
