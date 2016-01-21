@@ -1768,12 +1768,18 @@ void page_timeline(void){
       }else{
         if( zAfter || n==nEntry ){
           zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
+          if( !zDate || !zDate[0] ){
+            zDate = mprintf("%s", zAfter);
+          }
           timeline_submenu(&url, "Older", "b", zDate, "a");
           zOlderButton = fossil_strdup(url_render(&url, "b", zDate, "a", 0));
           free(zDate);
         }
         if( zBefore || (zAfter && n==nEntry) ){
           zDate = db_text(0, "SELECT max(timestamp) FROM timeline /*scan*/");
+          if( !zDate || !zDate[0] ){
+            zDate = mprintf("%s", (zBefore ? zBefore : zAfter));
+          }
           timeline_submenu(&url, "Newer", "a", zDate, "b");
           free(zDate);
         }
