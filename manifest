@@ -1,5 +1,5 @@
-C Fix\s"Newer"\sbutton\sin\stimeline\swhen\susing\s"c"\sparameter
-D 2016-01-20T23:07:16.192
+C Fix\smemory\sleak\sfrom\sprevious\scommit
+D 2016-01-21T10:32:32.234
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -495,7 +495,7 @@ F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c 06a9347ab27f937117ef9aa26a1df68722d56bfa
 F src/th_main.c 7d85cdca12e2c95970f90aaaa962a466b55009ba
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
-F src/timeline.c fbeccfaf8b57dc353e8a63ff8840cad84c032bac
+F src/timeline.c a9232ad5beb5cd27112b5c6cb4d4124313446831
 F src/tkt.c 09fedb774dc3ee893d01ce2a6050809796ef66c9
 F src/tktsetup.c 32e23747e8d3f36fc390a6197dda2209d98cad09
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
@@ -744,10 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9a091248757ae42b50e3cdb518caab7c49467ccd
-R c995be30e26fb7d092d98a08c6c13bb1
-T *branch * pending-review
-T *sym-pending-review *
-T -sym-trunk *
+P 28dd7c1daaf38d66e468dd3c96992f6fdce62e52
+R 3bdde5930fc4203d74509ed121f93949
 U baruch
-Z 06e7da1d355dc93f5fa417c5c34c2e09
+Z 78ecc2df5eded3df79b7c751fa9cc16b

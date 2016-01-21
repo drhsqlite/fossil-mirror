@@ -1754,16 +1754,17 @@ void page_timeline(void){
         nAfter = db_int(0,
           "SELECT count(*) FROM timeline WHERE etype!='div'"
           "   AND sortby>=%f /*scan*/", rCirca);
-        zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
         if( nBefore>=nEntry ){
+          zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
           timeline_submenu(&url, "Older", "b", zDate, "c");
           zOlderButton = fossil_strdup(url_render(&url, "b", zDate, "c", 0));
+          free(zDate);
         }
-        zDate = db_text(0, "SELECT max(timestamp) FROM timeline /*scan*/");
         if( nAfter>=nEntry ){
+          zDate = db_text(0, "SELECT max(timestamp) FROM timeline /*scan*/");
           timeline_submenu(&url, "Newer", "a", zDate, "c");
+          free(zDate);
         }
-        free(zDate);
       }else{
         if( zAfter || n==nEntry ){
           zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
