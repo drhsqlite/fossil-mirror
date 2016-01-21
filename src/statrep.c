@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2013 Stephen Beal
+** Copyright (c) 2013 Stephan Beal
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -243,6 +243,7 @@ static void stats_report_by_month_year(char includeMonth,
           @ <td></td>
           @ <td colspan='2'>Yearly total: %d(nEventsPerYear)</td>
           @</tr>
+          showYearTotal = 0;
         }
         nEventsPerYear = 0;
         memcpy(zPrevYear,zTimeframe,4);
