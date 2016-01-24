@@ -1,5 +1,5 @@
-C fixed\scondition\swhich\scaused\sthe\s"Yearly\stotal"\srow\sto\snot\sbe\srendered\son\sthe\soldest\syear\sin\sthe\sbymonth\sreport\sin\ssome\scases.
-D 2016-01-21T12:44:09.245
+C Add\soption\sto\sshow\sreal\sbranch\scolors\sin\sbranch\slist
+D 2016-01-24T14:43:16.209
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -377,7 +377,7 @@ F src/attach.c 5f6f5ccc39aeb0f4d49b7696b7b520b515a53177
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c c8bdcf4812c9446bea503610d234772516bf572f
 F src/blob.c 10ee0528085b90be013d53935bceeeb83a7b1027
-F src/branch.c 09724980278de18e9bbff5da85950c3febd811eb
+F src/branch.c 5d793cb4f8a7a87af4a29c021f71814bfd45c899
 F src/browse.c 96dbc7580b4ac9d42dd9d3f3accd52946b3258ac
 F src/builtin.c 31c17d18b565c7766021913c89be4180b3ee4a56
 F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
@@ -744,7 +744,10 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2bd670ac3cfb1fbbabf857e093d5b945a284c9fe
-R aa6b8166c4412bf5e4de912bb30926fe
-U stephan
-Z 18e89d8febf2d07a7848c08908123c87
+P ec3dd27f97571cd66a2ac129fce0d0a738d58182
+R 41a9330a50e8f982f366e8ecf5ea2dd1
+T *branch * pending-review
+T *sym-pending-review *
+T -sym-trunk *
+U baruch
+Z 8d97fbe7e12c098f2b5375288af607d1
