@@ -137,7 +137,7 @@ proc fossil_maybe_answer {answer args} {
   global RESULT CODE
   set CODE $rc
   if {($rc && !$expectError) || (!$rc && $expectError)} {
-      protOut "ERROR: $result" 1
+    protOut "ERROR: $result" 1
   } elseif {$::VERBOSE} {
     protOut "RESULT: $result"
   }
