@@ -950,6 +950,21 @@ static int info_commands_command(
 /*
 ** TH Syntax:
 **
+**   info runtime
+*/
+static int info_runtime_command(
+  Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
+){
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "info runtime");
+  }
+  Th_SetResult(interp, "TH1", -1);
+  return TH_OK;
+}
+
+/*
+** TH Syntax:
+**
 **   info vars
 */
 static int info_vars_command(
@@ -1107,6 +1122,7 @@ static int info_command(
   static const Th_SubCommand aSub[] = {
     { "commands", info_commands_command },
     { "exists",   info_exists_command },
+    { "runtime",  info_runtime_command },
     { "vars",     info_vars_command },
     { 0, 0 }
   };

@@ -1,5 +1,5 @@
-C Fix\sa\scomment\swith\swrong\sparameters\sdescription
-D 2016-01-26T13:18:49.702
+C Redo\sTIP\s#440\salternative\s-\sagain\s-\snow\susing\sthe\s"info\sruntime"\scommand.
+D 2016-01-26T14:12:46.192
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -492,7 +492,7 @@ F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
-F src/th_lang.c 06a9347ab27f937117ef9aa26a1df68722d56bfa
+F src/th_lang.c b525cbb44ff1f34018a425b3a7b5f0eb1ef38ee0
 F src/th_main.c 7d85cdca12e2c95970f90aaaa962a466b55009ba
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
 F src/timeline.c 8ab92a00887db5eb873d35f5c5c8ffa2d4691ed1
@@ -744,7 +744,10 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ec3dd27f97571cd66a2ac129fce0d0a738d58182
-R 2c191e14980b5d3b2ede72beb41c9995
-U baruch
-Z f13458e11b1d01c2fa0ac766fa545442
+P 12cf825f663e49ab1184063045ad63d60204fcf2 2ba6587cc531bac4e40f711619c504ebbf0b103f
+R d938bf1345881320672f055f5adfe517
+T *branch * tip-440-alt
+T *sym-tip-440-alt *
+T -sym-trunk *
+U jan.nijtmans
+Z 06e0da392598625aae8b1acabf66e7d3
