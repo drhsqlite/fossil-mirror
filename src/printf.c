@@ -234,15 +234,7 @@ static int wiki_convert_flags(int altForm2){
 ** The root program.  All variations call this core.
 **
 ** INPUTS:
-**   func   This is a pointer to a function taking three arguments
-**            1. A pointer to anything.  Same as the "arg" parameter.
-**            2. A pointer to the list of characters to be output
-**               (Note, this list is NOT null terminated.)
-**            3. An integer number of characters to be output.
-**               (Note: This number might be zero.)
-**
-**   arg    This is the pointer to anything which will be passed as the
-**          first argument to "func".  Use it for whatever you like.
+**   pBlob  This is the blob where the output will be built.
 **
 **   fmt    This is the format string, as in the usual print.
 **

@@ -1,5 +1,5 @@
-C fixed\scondition\swhich\scaused\sthe\s"Yearly\stotal"\srow\sto\snot\sbe\srendered\son\sthe\soldest\syear\sin\sthe\sbymonth\sreport\sin\ssome\scases.
-D 2016-01-21T12:44:09.245
+C Fix\sa\scomment\swith\swrong\sparameters\sdescription
+D 2016-01-26T13:18:49.702
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -465,7 +465,7 @@ F src/piechart.c 6b2d49434b036d495ec30378520dd1054b03c920
 F src/pivot.c f03ae2edfb53590f6dee86c1a0d93441feb0f816
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c 78a4915aa521ca35c1882ac53f5c53b1c7a03272
+F src/printf.c 2de9ca8ea140e35da05eafeb6a447a2fd4069438
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c ccadb516f305a7ab7ff416a87e6c02b7568d5656
 F src/rebuild.c f0c44f8f0a5d941f1b59bbaa6ef1266b59d50a68
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2bd670ac3cfb1fbbabf857e093d5b945a284c9fe
-R aa6b8166c4412bf5e4de912bb30926fe
-U stephan
-Z 18e89d8febf2d07a7848c08908123c87
+P ec3dd27f97571cd66a2ac129fce0d0a738d58182
+R 2c191e14980b5d3b2ede72beb41c9995
+U baruch
+Z f13458e11b1d01c2fa0ac766fa545442
