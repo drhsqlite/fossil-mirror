@@ -1135,6 +1135,45 @@ static int array_command(
 }
 
 /*
+** TH Syntax:
+**
+**   ::tcl::pkgconfig get KEY (TODO: replace this with real KEY) 
+*/
+static int pkgconfig_get_command(
+  Th_Interp *interp,
+  void *ctx,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( strcmp(argv[2], "KEY") ){
+      Th_ErrorMessage(interp, "key not known", argv[2], argl[2]);
+      return TH_ERROR;
+  }
+  Th_SetResult(interp, "TH1" , -1);
+  return TH_OK;
+}
+
+/*
+** TH Syntax:
+**
+**   ::tcl::pkgconfig get
+*/
+static int pkgconfig_command(
+  Th_Interp *interp,
+  void *ctx,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  static const Th_SubCommand aSub[] = {
+    { "get", pkgconfig_get_command },
+    { 0, 0 }
+  };
+  return Th_CallSubCommand(interp, ctx, argc, argv, argl, aSub);
+}
+
+/*
 ** Convert the script level frame specification (used by the commands
 ** [uplevel] and [upvar]) in (zFrame, nFrame) to an integer frame as
 ** used by Th_LinkVar() and Th_Eval(). If successful, write the integer
@@ -1271,6 +1310,8 @@ int th_register_language(Th_Interp *interp){
     {"break",    simple_command, (void *)TH_BREAK},
     {"continue", simple_command, (void *)TH_CONTINUE},
     {"error",    simple_command, (void *)TH_ERROR},
+
+    {"::tcl::pkgconfig",   pkgconfig_command,  0},
 
     {0, 0, 0}
   };
