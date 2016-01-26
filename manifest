@@ -1,5 +1,5 @@
-C Fix\sa\scomment\swith\swrong\sparameters\sdescription
-D 2016-01-26T13:18:49.702
+C Improved\serror\smessage\swhen\sthe\s"ls"\scommand\sis\sused\swith\s-R\sbut\swithout\s-r.
+D 2016-01-26T15:42:09.957
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -384,7 +384,7 @@ F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c c42b6bf7490ac4758a6bc83a1bcaf4f89353f28d
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 38b5b08eda88b4d256948d431e2f0094009644ae
-F src/checkin.c 6b8d4ffd4e6c05dc4b08b0f2238a0b965d7d6f11
+F src/checkin.c 2bd9b624190c79d774d7806eb5791a239b82ceef
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c a855ad9e6db9760ee41451e358a393f89996daed
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ec3dd27f97571cd66a2ac129fce0d0a738d58182
-R 2c191e14980b5d3b2ede72beb41c9995
-U baruch
-Z f13458e11b1d01c2fa0ac766fa545442
+P 12cf825f663e49ab1184063045ad63d60204fcf2
+R c58f8b522a4fa2080295c3608de6d9e6
+U drh
+Z dece4c070f0167c5bd506852f14fe153
