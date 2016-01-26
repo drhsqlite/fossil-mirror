@@ -1,5 +1,5 @@
-C fixed\scondition\swhich\scaused\sthe\s"Yearly\stotal"\srow\sto\snot\sbe\srendered\son\sthe\soldest\syear\sin\sthe\sbymonth\sreport\sin\ssome\scases.
-D 2016-01-21T12:44:09.245
+C Create\snew\sbranch\snamed\s"rberteig-json-test"
+D 2016-01-26T01:36:23.305
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -744,7 +744,10 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2bd670ac3cfb1fbbabf857e093d5b945a284c9fe
+P ec3dd27f97571cd66a2ac129fce0d0a738d58182
 R aa6b8166c4412bf5e4de912bb30926fe
-U stephan
-Z 18e89d8febf2d07a7848c08908123c87
+T *branch * rberteig-json-test
+T *sym-rberteig-json-test *
+T -sym-trunk *
+U Ross
+Z 107af1d5c15233f9473c375dfae39a7b
