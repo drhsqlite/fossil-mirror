@@ -1,0 +1,175 @@
+#
+# Copyright (c) 2011 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+# Test JSON Support
+#
+
+# We need a JSON parser to effectively test the JSON produced by
+# fossil. It looks like the one from tcllib is exactly what we need.
+# On ActiveTcl, add it with teacup. On other platforms, YMMV.
+# teacup install json
+# teacup install json::write
+package require json
+
+# Make sure we have a build with the json command at all and that it
+# is not stubbed out
+fossil help -a
+if {[string first json $RESULT] eq ""} {
+  puts "Fossil was not compiled with JSON support."; return
+}
+fossil json -expectError 
+if {$RESULT eq ""} {
+  puts "Fossil was not compiled with JSON support."; return
+}
+
+# and that the json itself smells ok and has the expected API error code in it
+set JR [::json::json2dict $RESULT]
+test json-1 {[dict get $JR resultCode] eq "FOSSIL-4102"}
+
+# Use the CLI interface to execute a JSON command. Sets the global
+# RESULT to the response text, and JR to a Tcl dict conversion of the
+# response body.
+#
+# Returns "200" or "500".
+proc fossil_json {args} {
+    global RESULT JR
+    uplevel 1 fossil json {*}$args
+    set JR [::json::json2dict $RESULT]
+    return "200"
+}
+
+# Use the HTTP interface to fetch a JSON API URL. Sets the globals
+# RESULT to the HTTP response body, and JR to a Tcl dict conversion of
+# the response body.
+# 
+# Returns the status code from the HTTP header.
+proc fossil_http_json {url} {
+    global RESULT JR
+    set request "GET $url HTTP/1.1\r\nHost: localhost\r\nUser-Agent: Fossil"
+    set RESULT [fossil_maybe_answer $request http]
+    regexp {(?w)(.*)^\s*$(.*)} $RESULT dummy head body
+    regexp {^HTTP\S+\s+(\d\d\d)\s+(.*)$} $head dummy status msg
+    if {$status eq "200"} {
+	set JR [::json::json2dict $body]
+    }
+    return $status
+}
+
+# Inspect the envelope part of a returned JSON structure to confirm
+# that it has specific fields and that it lacks specific fields.
+proc test_json_envelope {testname okfields badfields} {
+    global JR
+    set i 1
+    foreach f $okfields {
+	test "$testname-$i" {[dict exists $JR $f]}
+	incr i
+    }
+    foreach f $badfields {
+	test "$testname-$i" {![dict exists $JR $f]}
+	incr i
+    }
+}
+
+# Inspect the envelope of a normal successful result
+proc test_json_envelope_ok {testname} {
+    test_json_envelope $testname [concat fossil timestamp command procTimeUs \
+	procTimeMs payload] [concat resultCode resultText]
+}
+
+# Inspect the payload of a successful result to confirm that it has
+# specific fields and that it lacks specific fields.
+proc test_json_payload {testname okfields badfields} {
+    global JR
+    set i 1
+    foreach f $okfields {
+	test "$testname-P-$i" {[dict exists $JR payload $f]}
+	incr i
+    }
+    foreach f $badfields {
+	test "$testname-P-$i" {![dict exists $JR payload $f]}
+	incr i
+    }
+}
+
+# The JSON API generally assumes we have a respository, so let it have one.
+repo_init
+
+# Check for basic envelope fields in the result with an error
+fossil_json -expectError
+test_json_envelope json-enverr [concat resultCode fossil timestamp \
+    resultText command procTimeUs procTimeMs] {}
+test json-enverr-rc-1 {[dict get $JR resultCode] eq "FOSSIL-3002"}
+
+
+# Check for basic envelope fields in the result with a successful
+# command
+set HAIfields [concat manifestUuid manifestVersion manifestDate \
+    manifestYear releaseVersion releaseVersionNumber \
+    resultCodeParanoiaLevel jsonApiVersion]
+
+fossil_json HAI
+test_json_envelope_ok json-HAI
+test_json_payload json-HAI $HAIfields {}
+
+# Check for basic envelope fields in a HTTP result with a successful
+# command
+fossil_http_json /json/HAI
+test_json_envelope_ok json-http-HAI
+test_json_payload json-http-HAI $HAIfields {}
+
+#### ARTIFACT
+
+# sha1 of 0 bytes and a file to match in a commit
+set UUID_empty da39a3ee5e6b4b0d3255bfef95601890afd80709
+write_file empty ""
+fossil add empty
+fossil ci -m "empty file"
+
+# json artifact (checkin)
+fossil_json [concat artifact tip]
+test_json_envelope_ok json-artifact
+test json-artifact-checkin {[dict get $JR payload type] eq "checkin"}
+test_json_payload json-artifact \
+    [concat type uuid isLeaf timestamp user comment parents tags files] {}
+
+# json artifact (file)
+fossil_json [concat artifact $UUID_empty]
+test_json_envelope_ok json-artifact
+test json-artifact-file {[dict get $JR payload type] eq "file"}
+test_json_payload json-artifact [concat type uuid size checkins] {}
+
+# json artifact (wiki)
+# name, uuid, parent, user, timestamp, size, content?
+
+
+#### AUTHENTICATION
+#### BRANCHES
+#### CONFIG
+#### DIFFS
+#### DIRECTORY LISTING
+#### FILE INFO
+#### QUERY
+#### STATS
+#### STATUS
+#### TAGS
+#### TICKETS
+#### TICKET REPORTS
+#### TIMELINE
+#### USER MANAGEMENT
+#### VERSION AKA HAI
+#### WIKI
+#### UNAVOIDABLE MISC

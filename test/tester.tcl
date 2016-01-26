@@ -115,6 +115,11 @@ proc fossil {args} {
 proc fossil_maybe_answer {answer args} {
   global fossilexe
   set cmd $fossilexe
+  set expectError 0
+  if {[lindex $args end] eq "-expectError"} {
+    set expectError 1
+    set args [lrange $args 0 end-1]
+  }
   foreach a $args {
     lappend cmd $a
   }
@@ -131,8 +136,8 @@ proc fossil_maybe_answer {answer args} {
   }
   global RESULT CODE
   set CODE $rc
-  if {$rc} {
-    protOut "ERROR: $result" 1
+  if {($rc && !$expectError) || (!$rc && $expectError)} {
+      protOut "ERROR: $result" 1
   } elseif {$::VERBOSE} {
     protOut "RESULT: $result"
   }

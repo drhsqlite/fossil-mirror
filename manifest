@@ -1,5 +1,5 @@
-C Create\snew\sbranch\snamed\s"rberteig-json-test"
-D 2016-01-26T01:36:23.305
+C Place\sa\scornerstone\sfor\sscaffolding\sof\sthe\stest\scases\sfor\sthe\sfossil\sjson\scommand\sand\srelated\sREST\sAPI.\sThis\sbegins\swith\san\sextension\sto\sfossil_maybe_answer\sin\stester.tcl\sthat\sadds\sa\s-expectError\soption\sto\sflag\sinvocations\sof\sfossil\sthat\sare\sexpected\sto\sexit\swith\serror\sstatus\sand\snot\slog\sit\swhen\s-quiet\sis\sin\seffect.\sThe\snew\sfile\sjson.test\shas\sthe\sfirst\sfew\stest\scases\sfor\sfossil\sjson,\sall\sof\swhich\sare\scurrently\spassing.
+D 2016-01-26T01:46:56.626
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -530,6 +530,7 @@ F test/fileStat.th1 e3e30f7b46488c26215a6d713be36ad4ed595132
 F test/fileage-test-1.wiki d249e897fdd41038c17f3b66d374e509830da1eb
 F test/glob.test 027f2aa0b0c737a0f27d51800802a08f07561beb
 F test/graph-test-1.wiki 1bbf8bd05dfd5205c589569d911477c27aeb4d51
+F test/json.test e32706f8d97481a6698c2114b7b87fa366fbdabd
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/merge1.test 4734854393f717824ae96b3de8524a2401a21921
@@ -546,7 +547,7 @@ F test/revert.test fb5534cb82c93755241c384e200ea771c5ecb76c
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl c85672522a1b4f65f40ef92213ba5f9728c800a0
+F test/tester.tcl 91ea82e1a5e5631491c5f0532855fde944b0163a
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 797a2d6167b7277bce160cd5943b3a08ea43d014
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -744,10 +745,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ec3dd27f97571cd66a2ac129fce0d0a738d58182
-R aa6b8166c4412bf5e4de912bb30926fe
-T *branch * rberteig-json-test
-T *sym-rberteig-json-test *
-T -sym-trunk *
+P 50891558215f562a8be31d95213a41a45e417e05
+R 983097642f675d4acd89e2857277ad61
 U Ross
-Z 107af1d5c15233f9473c375dfae39a7b
+Z cfd712054b7a4a70b75b5aa602b5577d
