@@ -1,5 +1,5 @@
-C Update\scopyright\sdate\sto\sthis\syear\ssince\sthe\sJSON\stests\sare\snew\sthis\syear.\sFix\sindentation\sof\sTcl\sto\smatch\sestablished\sconvention.\sAdd\stest\sof\sJSON\sAPI\sversion\sto\sreflect\searliest\sI\sexpect\sto\spass\sthese\stests.\sDocument\sblock\sof\sVersion\sand\sHAI,\sand\sadd\sversion\sfor\sconsistency.
-D 2016-01-27T00:44:23.598
+C Merged\sfrom\strunk\sto\spick\sup\stest\scase\sedits\smade\sthere,\salong\swith\srecent\scosmetic\sfixes.
+D 2016-01-27T01:28:16.788
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -384,7 +384,7 @@ F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c c42b6bf7490ac4758a6bc83a1bcaf4f89353f28d
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 38b5b08eda88b4d256948d431e2f0094009644ae
-F src/checkin.c 6b8d4ffd4e6c05dc4b08b0f2238a0b965d7d6f11
+F src/checkin.c 2bd9b624190c79d774d7806eb5791a239b82ceef
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c a855ad9e6db9760ee41451e358a393f89996daed
@@ -465,7 +465,7 @@ F src/piechart.c 6b2d49434b036d495ec30378520dd1054b03c920
 F src/pivot.c f03ae2edfb53590f6dee86c1a0d93441feb0f816
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c 78a4915aa521ca35c1882ac53f5c53b1c7a03272
+F src/printf.c 2de9ca8ea140e35da05eafeb6a447a2fd4069438
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c ccadb516f305a7ab7ff416a87e6c02b7568d5656
 F src/rebuild.c f0c44f8f0a5d941f1b59bbaa6ef1266b59d50a68
@@ -518,7 +518,7 @@ F src/xfersetup.c 0f967a3fca7ad9fa3aa350d121851e71064823be
 F src/zip.c 8567f81eca8762b4bf08c20a72b70e87696c6cd2
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
-F test/amend.test 7167dcf6bd7ac4c3b38a198edf7edbc70693cc08
+F test/amend.test 10b038c5202e76d146ab36f85fad6ac817678522
 F test/clean.test aa1a4537d87b1829118984e8fac680107027b70e
 F test/cmdline.test 4532df2c904f035fc2a3be3bca6c5514def515a8
 F test/comment.test 3d18947b36ad7dcc914ed905eb950c9fb84a1ec6
@@ -543,7 +543,7 @@ F test/merge6.test 3fac7909f72a94ae05174404b1c9a7c68dd43824
 F test/merge_renames.test 97d1fb5da183979dad760964c026a96736eccdde
 F test/mv-rm.test c4cd3d592b28db47146ecf8e9f4ef4786c67e8b0
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
-F test/revert.test fb5534cb82c93755241c384e200ea771c5ecb76c
+F test/revert.test 4eda6bb8ca71e4cb16f88afc8cfa2f8fe711d438
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
@@ -745,7 +745,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2ff6ceb9853b6d1f87e67ce32029347c717a81f1
-R 13ddafa92b794b7f3ad2d5f840f7a0fe
-U Ross
-Z c14bf485265092be6682bfc9be989b0d
+P c4f8d88fd91a8925f832e1b58228cdf7f8aff3c1 08a35878143688847c79cf3adcd183ecdfb95373
+R cba3fa45ced2b5818ce201cc77344f2c
+U rberteig
+Z 2d06ea6f912567a548fe613986326047
