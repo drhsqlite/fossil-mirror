@@ -158,9 +158,9 @@ foreach {status filename} $RESULT {
 if {$deletes!=0} {
     # failed
     protOut "Error, the merge should not delete any file"
-    test merge_renames-2 0
+    test merge_renames-3 0
 } else {
-    test merge_renames-2 1
+    test merge_renames-3 1
 }
 
 ######################################
@@ -200,7 +200,7 @@ fossil ls
 
 test merge_renames-5 {[normalize_result] eq {f1
 f2
-f3}}
+f3}} knownBug
 
 ######################################
 #

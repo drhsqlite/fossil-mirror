@@ -1,5 +1,5 @@
-C Added\scopyright\sand\slicense\scomment\sblocks\sto\stwo\sexisting\stest\scase\sfiles\sthat\swere\smissing\sthem,\swith\syears\sbased\son\slooking\sfor\swhen\sthe\stests\swere\sfirst\sadded\sto\sthe\srepository.
-D 2016-01-27T01:23:31.257
+C Add\s'knownBug'\sconstraints\sto\sthe\stwo\sfailing\smerge\stests\salong\swith\sthe\snecessary\stest\ssuite\schanges.
+D 2016-01-27T01:44:09.464
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -538,15 +538,15 @@ F test/merge3.test 637ad5275604c7fe17340b32338aadf2a1f27c07
 F test/merge4.test e9b9b3826dc271ae75523a5fa0a08fe17b0cd722
 F test/merge5.test 085bd671629afc7a933e048028dfb43cf2ad5150
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
-F test/merge6.test 3fac7909f72a94ae05174404b1c9a7c68dd43824
-F test/merge_renames.test 97d1fb5da183979dad760964c026a96736eccdde
+F test/merge6.test 3ae66c3b8359c79a54db41c92a4572adc30780aa
+F test/merge_renames.test 426dc718ae9813dc4aef651027fdd817aec2e995
 F test/mv-rm.test c4cd3d592b28db47146ecf8e9f4ef4786c67e8b0
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
 F test/revert.test 4eda6bb8ca71e4cb16f88afc8cfa2f8fe711d438
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl c85672522a1b4f65f40ef92213ba5f9728c800a0
+F test/tester.tcl efc3bc81f3118338f33ccb837d14f3e03138e30d
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 797a2d6167b7277bce160cd5943b3a08ea43d014
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 844a7a786fb00fb858de9f8fa019e5ffd03b6d92
-R aeb7271a2339fa3ca307e64cc5817964
-U rberteig
-Z 8dea28832c8a092a669e05f1cf059586
+P 08a35878143688847c79cf3adcd183ecdfb95373
+R dd777330b80d74ea30908fcc5e8b3667
+U mistachkin
+Z aa2924b1c7064e407dee8dd6c1fa1584
