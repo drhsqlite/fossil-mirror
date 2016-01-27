@@ -1,5 +1,5 @@
-C Minor\sspacing\sfix.
-D 2016-01-26T02:45:04.385
+C Update\scopyright\sdate\sto\sthis\syear\ssince\sthe\sJSON\stests\sare\snew\sthis\syear.\sFix\sindentation\sof\sTcl\sto\smatch\sestablished\sconvention.\sAdd\stest\sof\sJSON\sAPI\sversion\sto\sreflect\searliest\sI\sexpect\sto\spass\sthese\stests.\sDocument\sblock\sof\sVersion\sand\sHAI,\sand\sadd\sversion\sfor\sconsistency.
+D 2016-01-27T00:44:23.598
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -530,7 +530,7 @@ F test/fileStat.th1 e3e30f7b46488c26215a6d713be36ad4ed595132
 F test/fileage-test-1.wiki d249e897fdd41038c17f3b66d374e509830da1eb
 F test/glob.test 027f2aa0b0c737a0f27d51800802a08f07561beb
 F test/graph-test-1.wiki 1bbf8bd05dfd5205c589569d911477c27aeb4d51
-F test/json.test e32706f8d97481a6698c2114b7b87fa366fbdabd
+F test/json.test 37b95450f81abd7d82d6e82feea091aaf41f7118
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/merge1.test 4734854393f717824ae96b3de8524a2401a21921
@@ -745,7 +745,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 95080f47e265f34e17bea66f534176d543aacfec
-R b9756304cb4c971e077f837a18191d32
-U mistachkin
-Z c3be2774f42414d51383012ce7fe9a33
+P 2ff6ceb9853b6d1f87e67ce32029347c717a81f1
+R 13ddafa92b794b7f3ad2d5f840f7a0fe
+U Ross
+Z c14bf485265092be6682bfc9be989b0d

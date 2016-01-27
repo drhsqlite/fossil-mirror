@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2011 D. Richard Hipp
+# Copyright (c) 2016 D. Richard Hipp
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the Simplified BSD License (also
@@ -46,10 +46,10 @@ test json-1 {[dict get $JR resultCode] eq "FOSSIL-4102"}
 #
 # Returns "200" or "500".
 proc fossil_json {args} {
-    global RESULT JR
-    uplevel 1 fossil json {*}$args
-    set JR [::json::json2dict $RESULT]
-    return "200"
+  global RESULT JR
+  uplevel 1 fossil json {*}$args
+  set JR [::json::json2dict $RESULT]
+  return "200"
 }
 
 # Use the HTTP interface to fetch a JSON API URL. Sets the globals
@@ -58,52 +58,54 @@ proc fossil_json {args} {
 # 
 # Returns the status code from the HTTP header.
 proc fossil_http_json {url} {
-    global RESULT JR
-    set request "GET $url HTTP/1.1\r\nHost: localhost\r\nUser-Agent: Fossil"
-    set RESULT [fossil_maybe_answer $request http]
-    regexp {(?w)(.*)^\s*$(.*)} $RESULT dummy head body
-    regexp {^HTTP\S+\s+(\d\d\d)\s+(.*)$} $head dummy status msg
-    if {$status eq "200"} {
-	set JR [::json::json2dict $body]
-    }
-    return $status
+  global RESULT JR
+  set request "GET $url HTTP/1.1\r\nHost: localhost\r\nUser-Agent: Fossil"
+  set RESULT [fossil_maybe_answer $request http]
+  regexp {(?w)(.*)^\s*$(.*)} $RESULT dummy head body
+  regexp {^HTTP\S+\s+(\d\d\d)\s+(.*)$} $head dummy status msg
+  if {$status eq "200"} {
+    set JR [::json::json2dict $body]
+  }
+  return $status
 }
 
 # Inspect the envelope part of a returned JSON structure to confirm
 # that it has specific fields and that it lacks specific fields.
 proc test_json_envelope {testname okfields badfields} {
-    global JR
-    set i 1
-    foreach f $okfields {
-	test "$testname-$i" {[dict exists $JR $f]}
-	incr i
-    }
-    foreach f $badfields {
-	test "$testname-$i" {![dict exists $JR $f]}
-	incr i
-    }
+  global JR
+  set i 1
+  foreach f $okfields {
+    test "$testname-$i" {[dict exists $JR $f]}
+    incr i
+  }
+  foreach f $badfields {
+    test "$testname-$i" {![dict exists $JR $f]}
+    incr i
+  }
 }
 
 # Inspect the envelope of a normal successful result
 proc test_json_envelope_ok {testname} {
-    test_json_envelope $testname [concat fossil timestamp command procTimeUs \
-	procTimeMs payload] [concat resultCode resultText]
+  test_json_envelope $testname [concat fossil timestamp command procTimeUs \
+  procTimeMs payload] [concat resultCode resultText]
 }
 
 # Inspect the payload of a successful result to confirm that it has
 # specific fields and that it lacks specific fields.
 proc test_json_payload {testname okfields badfields} {
-    global JR
-    set i 1
-    foreach f $okfields {
-	test "$testname-P-$i" {[dict exists $JR payload $f]}
-	incr i
-    }
-    foreach f $badfields {
-	test "$testname-P-$i" {![dict exists $JR payload $f]}
-	incr i
-    }
+  global JR
+  set i 1
+  foreach f $okfields {
+    test "$testname-P-$i" {[dict exists $JR payload $f]}
+    incr i
+  }
+  foreach f $badfields {
+    test "$testname-P-$i" {![dict exists $JR payload $f]}
+    incr i
+  }
 }
+
+#### VERSION AKA HAI
 
 # The JSON API generally assumes we have a respository, so let it have one.
 repo_init
@@ -111,25 +113,33 @@ repo_init
 # Check for basic envelope fields in the result with an error
 fossil_json -expectError
 test_json_envelope json-enverr [concat resultCode fossil timestamp \
-    resultText command procTimeUs procTimeMs] {}
+resultText command procTimeUs procTimeMs] {}
 test json-enverr-rc-1 {[dict get $JR resultCode] eq "FOSSIL-3002"}
 
 
 # Check for basic envelope fields in the result with a successful
 # command
 set HAIfields [concat manifestUuid manifestVersion manifestDate \
-    manifestYear releaseVersion releaseVersionNumber \
-    resultCodeParanoiaLevel jsonApiVersion]
+manifestYear releaseVersion releaseVersionNumber \
+resultCodeParanoiaLevel jsonApiVersion]
 
 fossil_json HAI
 test_json_envelope_ok json-HAI
 test_json_payload json-HAI $HAIfields {}
+test json-HAI-api {[dict get $JR payload jsonApiVersion] >= 20120713}
 
 # Check for basic envelope fields in a HTTP result with a successful
 # command
 fossil_http_json /json/HAI
 test_json_envelope_ok json-http-HAI
 test_json_payload json-http-HAI $HAIfields {}
+test json-http-HAI-api {[dict get $JR payload jsonApiVersion] >= 20120713}
+
+
+fossil_json version
+test_json_envelope_ok json-version
+test_json_payload json-version $HAIfields {}
+test json-version-api {[dict get $JR payload jsonApiVersion] >= 20120713}
 
 #### ARTIFACT
 
@@ -144,7 +154,7 @@ fossil_json [concat artifact tip]
 test_json_envelope_ok json-artifact
 test json-artifact-checkin {[dict get $JR payload type] eq "checkin"}
 test_json_payload json-artifact \
-    [concat type uuid isLeaf timestamp user comment parents tags files] {}
+[concat type uuid isLeaf timestamp user comment parents tags files] {}
 
 # json artifact (file)
 fossil_json [concat artifact $UUID_empty]
@@ -170,6 +180,7 @@ test_json_payload json-artifact [concat type uuid size checkins] {}
 #### TICKET REPORTS
 #### TIMELINE
 #### USER MANAGEMENT
-#### VERSION AKA HAI
 #### WIKI
 #### UNAVOIDABLE MISC
+
+
