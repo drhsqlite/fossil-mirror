@@ -1,5 +1,5 @@
-C Marked\sinvocations\sof\sfossil\sthat\sare\sexpected\sto\sreturn\sa\snon-zero\sstatus\swith\sthe\s-expectError\sflag\sin\sthe\samend,\sclean,\sand\smerge5\stest\sfiles.\sThis\smakes\stester.tcl\s-quiet\sbe\struely\squiet\sfor\sthose\sfiles\swhen\sall\stests\sare\spassing.\sDeliberately\sdid\snot\smark\sthe\sinvocation\sin\smerge6.test\swhich\sforeshadows\sthe\sfailure\sof\sthe\smerge_multi-4\stest,\sas\sit\sis\snot\sclear\sto\sme\swhether\sthe\sbug\sis\sin\sthe\stest\scase\sor\sin\sfossil.
-D 2016-01-27T02:14:06.873
+C Merge\sthe\snew\sknownBug\sconstraint\ssupport\sfrom\strunk.
+D 2016-01-27T02:29:24.946
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -539,15 +539,15 @@ F test/merge3.test 637ad5275604c7fe17340b32338aadf2a1f27c07
 F test/merge4.test e9b9b3826dc271ae75523a5fa0a08fe17b0cd722
 F test/merge5.test 4ca266f425c0bb75bd4547b1628b860aca850dec
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
-F test/merge6.test 3fac7909f72a94ae05174404b1c9a7c68dd43824
-F test/merge_renames.test 97d1fb5da183979dad760964c026a96736eccdde
+F test/merge6.test 3ae66c3b8359c79a54db41c92a4572adc30780aa
+F test/merge_renames.test 426dc718ae9813dc4aef651027fdd817aec2e995
 F test/mv-rm.test c4cd3d592b28db47146ecf8e9f4ef4786c67e8b0
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
 F test/revert.test 4eda6bb8ca71e4cb16f88afc8cfa2f8fe711d438
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 8437367fd713afe870d9b077600e0a3c0c2d199e
+F test/tester.tcl e98973419e4268d984a58a6645205ba1f221e7ce
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 797a2d6167b7277bce160cd5943b3a08ea43d014
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -745,7 +745,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4e0e141e0d7249c1619ee5eb3ba441eecda037ec
-R ce720d3772ce022796d94993f63602fe
+P 62f59956f52bc00ca7f52139d5306b1019ba478f f77fbed8e306e22ead8e50d6c525e212f6e699b5
+R 77d2bee6682d47a61026f1a83efd3f1b
 U rberteig
-Z 79d3302dd9c2053d1dcedeb71fddb6bc
+Z 1c8687c92fa09d790e0cef2c51ea351e

@@ -61,6 +61,14 @@ if {$i>=0} {
   set QUIET 0
 }
 
+set i [lsearch $argv -strict]
+if {$i>=0} {
+  set STRICT 1
+  set argv [lreplace $argv $i $i]
+} else {
+  set STRICT 0
+}
+
 if {[llength $argv]==0} {
   foreach f [lsort [glob $testdir/*.test]] {
     set base [file root [file tail $f]]
@@ -334,20 +342,31 @@ proc restoreTh1SetupFile {} {
 # Perform a test
 #
 set test_count 0
-proc test {name expr} {
-  global bad_test test_count RESULT
+proc test {name expr {constraints ""}} {
+  global bad_test ignored_test test_count RESULT
   incr test_count
+  set knownBug [expr {"knownBug" in $constraints}]
   set r [uplevel 1 [list expr $expr]]
   if {$r} {
-    protOut "test $name OK"
+    if {$knownBug && !$::STRICT} {
+      protOut "test $name OK (knownBug)?"
+    } else {
+      protOut "test $name OK"
+    }
   } else {
-    protOut "test $name FAILED!" 1
-    if {$::QUIET} {protOut "RESULT: $RESULT" 1}
-    lappend bad_test $name
-    if {$::HALT} exit
+    if {$knownBug && !$::STRICT} {
+      protOut "test $name FAILED (knownBug)!" 1
+      lappend ignored_test $name
+    } else {
+      protOut "test $name FAILED!" 1
+      if {$::QUIET} {protOut "RESULT: $RESULT" 1}
+      lappend bad_test $name
+      if {$::HALT} exit
+    }
   }
 }
 set bad_test {}
+set ignored_test {}
 
 # Return a random string N characters long.
 #
@@ -501,8 +520,15 @@ foreach testfile $argv {
 }
 set nErr [llength $bad_test]
 if {$nErr>0 || !$::QUIET} {
-  protOut "***** Final result: $nErr errors out of $test_count tests" 1
+  protOut "***** Final results: $nErr errors out of $test_count tests" 1
 }
 if {$nErr>0} {
-  protOut "***** Failures: $bad_test" 1
+  protOut "***** Considered failures: $bad_test" 1
+}
+set nErr [llength $ignored_test]
+if {$nErr>0 || !$::QUIET} {
+  protOut "***** Ignored results: $nErr ignored errors out of $test_count tests" 1
+}
+if {$nErr>0} {
+  protOut "***** Ignored failures: $ignored_test" 1
 }
