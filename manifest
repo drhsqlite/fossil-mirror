@@ -1,5 +1,5 @@
-C Improved\serror\smessage\swhen\sthe\s"ls"\scommand\sis\sused\swith\s-R\sbut\swithout\s-r.
-D 2016-01-26T15:42:09.957
+C Added\scopyright\sand\slicense\scomment\sblocks\sto\stwo\sexisting\stest\scase\sfiles\sthat\swere\smissing\sthem,\swith\syears\sbased\son\slooking\sfor\swhen\sthe\stests\swere\sfirst\sadded\sto\sthe\srepository.
+D 2016-01-27T01:23:31.257
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -518,7 +518,7 @@ F src/xfersetup.c 0f967a3fca7ad9fa3aa350d121851e71064823be
 F src/zip.c 8567f81eca8762b4bf08c20a72b70e87696c6cd2
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
-F test/amend.test 7167dcf6bd7ac4c3b38a198edf7edbc70693cc08
+F test/amend.test 10b038c5202e76d146ab36f85fad6ac817678522
 F test/clean.test aa1a4537d87b1829118984e8fac680107027b70e
 F test/cmdline.test 4532df2c904f035fc2a3be3bca6c5514def515a8
 F test/comment.test 3d18947b36ad7dcc914ed905eb950c9fb84a1ec6
@@ -542,7 +542,7 @@ F test/merge6.test 3fac7909f72a94ae05174404b1c9a7c68dd43824
 F test/merge_renames.test 97d1fb5da183979dad760964c026a96736eccdde
 F test/mv-rm.test c4cd3d592b28db47146ecf8e9f4ef4786c67e8b0
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
-F test/revert.test fb5534cb82c93755241c384e200ea771c5ecb76c
+F test/revert.test 4eda6bb8ca71e4cb16f88afc8cfa2f8fe711d438
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 12cf825f663e49ab1184063045ad63d60204fcf2
-R c58f8b522a4fa2080295c3608de6d9e6
-U drh
-Z dece4c070f0167c5bd506852f14fe153
+P 844a7a786fb00fb858de9f8fa019e5ffd03b6d92
+R aeb7271a2339fa3ca307e64cc5817964
+U rberteig
+Z 8dea28832c8a092a669e05f1cf059586
