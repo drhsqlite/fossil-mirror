@@ -338,7 +338,7 @@ proc restoreTh1SetupFile {} {
 #
 set test_count 0
 proc test {name expr {constraints ""}} {
-  global bad_test test_count RESULT
+  global bad_test ignored_test test_count RESULT
   incr test_count
   set knownBug [expr {"knownBug" in $constraints}]
   set r [uplevel 1 [list expr $expr]]
@@ -351,6 +351,7 @@ proc test {name expr {constraints ""}} {
   } else {
     if {$knownBug && !$::STRICT} {
       protOut "test $name FAILED (knownBug)!" 1
+      lappend ignored_test $name
     } else {
       protOut "test $name FAILED!" 1
       if {$::QUIET} {protOut "RESULT: $RESULT" 1}
@@ -360,6 +361,7 @@ proc test {name expr {constraints ""}} {
   }
 }
 set bad_test {}
+set ignored_test {}
 
 # Return a random string N characters long.
 #
@@ -513,8 +515,15 @@ foreach testfile $argv {
 }
 set nErr [llength $bad_test]
 if {$nErr>0 || !$::QUIET} {
-  protOut "***** Final result: $nErr errors out of $test_count tests" 1
+  protOut "***** Final results: $nErr errors out of $test_count tests" 1
 }
 if {$nErr>0} {
-  protOut "***** Failures: $bad_test" 1
+  protOut "***** Considered failures: $bad_test" 1
+}
+set nErr [llength $ignored_test]
+if {$nErr>0 || !$::QUIET} {
+  protOut "***** Ignored results: $nErr ignored errors out of $test_count tests" 1
+}
+if {$nErr>0} {
+  protOut "***** Ignored failures: $ignored_test" 1
 }
