@@ -1,5 +1,5 @@
-C Merged\sfrom\strunk\sto\spick\sup\stest\scase\sedits\smade\sthere,\salong\swith\srecent\scosmetic\sfixes.
-D 2016-01-27T01:28:16.788
+C Marked\sinvocations\sof\sfossil\sthat\sare\sexpected\sto\sreturn\sa\snon-zero\sstatus\swith\sthe\s-expectError\sflag\sin\sthe\samend,\sclean,\sand\smerge5\stest\sfiles.\sThis\smakes\stester.tcl\s-quiet\sbe\struely\squiet\sfor\sthose\sfiles\swhen\sall\stests\sare\spassing.\sDeliberately\sdid\snot\smark\sthe\sinvocation\sin\smerge6.test\swhich\sforeshadows\sthe\sfailure\sof\sthe\smerge_multi-4\stest,\sas\sit\sis\snot\sclear\sto\sme\swhether\sthe\sbug\sis\sin\sthe\stest\scase\sor\sin\sfossil.
+D 2016-01-27T02:14:06.873
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -518,8 +518,8 @@ F src/xfersetup.c 0f967a3fca7ad9fa3aa350d121851e71064823be
 F src/zip.c 8567f81eca8762b4bf08c20a72b70e87696c6cd2
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
-F test/amend.test 10b038c5202e76d146ab36f85fad6ac817678522
-F test/clean.test aa1a4537d87b1829118984e8fac680107027b70e
+F test/amend.test 1fb06b97f9565a39f9d430706427451bf414dcf6
+F test/clean.test d3fa1067501eb72ad9fa838830621a1eae7a1b09
 F test/cmdline.test 4532df2c904f035fc2a3be3bca6c5514def515a8
 F test/comment.test 3d18947b36ad7dcc914ed905eb950c9fb84a1ec6
 F test/contains-selector.test 6ecd602b6786ebedca580b8e82e402c6f9aec2fd
@@ -537,7 +537,7 @@ F test/merge1.test 4734854393f717824ae96b3de8524a2401a21921
 F test/merge2.test 1915d0a7cf117dd7448d6ccc30b54b4cd85a942c
 F test/merge3.test 637ad5275604c7fe17340b32338aadf2a1f27c07
 F test/merge4.test e9b9b3826dc271ae75523a5fa0a08fe17b0cd722
-F test/merge5.test 085bd671629afc7a933e048028dfb43cf2ad5150
+F test/merge5.test 4ca266f425c0bb75bd4547b1628b860aca850dec
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test 3fac7909f72a94ae05174404b1c9a7c68dd43824
 F test/merge_renames.test 97d1fb5da183979dad760964c026a96736eccdde
@@ -745,7 +745,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c4f8d88fd91a8925f832e1b58228cdf7f8aff3c1 08a35878143688847c79cf3adcd183ecdfb95373
-R cba3fa45ced2b5818ce201cc77344f2c
+P 4e0e141e0d7249c1619ee5eb3ba441eecda037ec
+R ce720d3772ce022796d94993f63602fe
 U rberteig
-Z 2d06ea6f912567a548fe613986326047
+Z 79d3302dd9c2053d1dcedeb71fddb6bc
