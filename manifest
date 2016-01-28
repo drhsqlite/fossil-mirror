@@ -1,5 +1,5 @@
-C Improve\sMinGW\sbuild\sdocs.
-D 2016-01-28T20:39:46.123
+C Add\stest-version\sweb\spage.\s\sRefactor\scommand\sline\s'version'\scommand\sinto\sa\sfunction\sto\shelp\sfacilitate\sthat.
+D 2016-01-28T21:32:21.748
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -442,7 +442,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 48e28e14943671f38ff81cdbdb6db93564bed895
 F src/lookslike.c 9103d15912b792a65874f04e185f2a74a477ebb4
-F src/main.c 5cbae19db27ca1530c36455c2fdd8dfc77289bfe
+F src/main.c 6286e53086391862c6a738007a06b0a8558d23a3
 F src/main.mk 9e159023f50de1e869bbe4172dc4b25fe6a72cfa
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -744,7 +744,10 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2948c3fe22b876b7d7565227d57218e66e1f9272
-R bf1ce78ff9c3cea7e1f1562febb1e9eb
+P c1c680eb289550f82d41de5532493312fbaaaf3e
+R 2ad6b5333390d6b55673e3ef05baf100
+T *branch * testVersionPage
+T *sym-testVersionPage *
+T -sym-trunk *
 U mistachkin
-Z d0a94fd2eb4742f66eb9d15bf920c69e
+Z 01fc95aeb9fbaff96dd81670791aef80
