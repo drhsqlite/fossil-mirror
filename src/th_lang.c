@@ -992,7 +992,7 @@ static int array_exists_command(
 /*
 ** TH Syntax:
 **
-**   array names
+**   array names VARNAME
 */
 static int array_names_command(
   Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
@@ -1016,7 +1016,7 @@ static int array_names_command(
 /*
 ** TH Syntax:
 **
-**   unset VAR
+**   unset VARNAME
 */
 static int unset_command(
   Th_Interp *interp,

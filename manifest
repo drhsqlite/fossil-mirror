@@ -1,5 +1,5 @@
-C Update\sreferenced\sOpenSSL\sversion.
-D 2016-01-28T19:48:30.344
+C Correct\ssome\sTH1\scommand\ssyntax\scomments.
+D 2016-01-28T20:18:36.582
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -492,7 +492,7 @@ F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
-F src/th_lang.c 06a9347ab27f937117ef9aa26a1df68722d56bfa
+F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c 165d0fdef163f658ba0db12f278d7cc940c45328
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
 F src/timeline.c 8ab92a00887db5eb873d35f5c5c8ffa2d4691ed1
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f141fbeac5d923217477673b04e3ac9ba5f7d61e
-R 73e411aa4c4f97bd98531af2aab573c5
+P 0c860dd9e75e9e0bb5cf3af3c958a86c05652dac
+R efd28ef9db27328c224bb0f24100467a
 U mistachkin
-Z 70049bb3092239cbc84dcb0be682b720
+Z 3788e6340a58888489258e1dd70daa87
