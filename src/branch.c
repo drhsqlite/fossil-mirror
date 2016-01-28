@@ -345,10 +345,6 @@ static void new_brlist_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("Branches");
-  style_submenu_element("Timeline", "Timeline", "brtimeline");
-  style_submenu_element("All", "All", "brlist?all");
-  style_submenu_element("Closed","Closed","brlist?closed");
-  style_submenu_element("Color-Test", "Color-Test", "brlist?colortest");
   style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_binary("colors", "Show branch colors", "No branch colors", 0);
   login_anonymous_available();
