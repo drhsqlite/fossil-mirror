@@ -176,6 +176,56 @@ test_dict_keys json-artifact-wiki-artifact $artifact \
 
 
 #### AUTHENTICATION
+fossil_json anonymousPassword
+test_json_envelope_ok json-anonymousPassword-env
+test_json_payload json-anonymousPassword {seed password} {}
+set seed [dict get $JR payload seed]
+set pass [dict get $JR payload password]
+
+write_file anon-1 [subst {
+{
+  "command":"login",
+  "payload":{
+    "name":"anonymous",
+    "anonymousSeed":$seed,
+    "password":"$pass"
+  }
+}
+}]
+fossil_json --json-input anon-1
+test_json_envelope_ok json-login-a-env
+test_json_payload json-login-a {authToken name capabilities loginCookieName} {}
+set AuthAnon [dict get $JR payload]
+
+fossil user new U1 User-1 Uone
+fossil user capabilities U1 s
+write_file u1 {
+{
+  "command":"login",
+  "payload":{
+    "name":"U1",
+    "password":"Uone"
+  }
+}
+}
+fossil_json --json-input u1
+test_json_envelope_ok json-login-u1-env
+test_json_payload json-login-u1 {authToken name capabilities loginCookieName} {}
+set AuthU1 [dict get $JR payload]
+#puts $AuthAnon
+#puts $AuthU1
+
+# json cap
+# Bug? The CLI user has all rights, and no auth token affects that.
+write_file u2 [subst {
+  {"command":"cap",
+   "authToken":"[dict get $AuthAnon]"
+  }
+}]
+fossil_json --json-input u2
+test_json_envelope_ok json-cap-env
+#puts [dict get $JR payload]
+
 #### BRANCHES
 #### CONFIG
 #### DIFFS
@@ -256,9 +306,45 @@ test_json_payload json-wiki-diff [list v1 v2 diff] {}
 test json-wiki-diff-v1 {[dict get $JR payload v1] eq $uuid1}
 test json-wiki-diff-v1 {[dict get $JR payload v2] eq $uuid2}
 set diff [dict get $JR payload diff]
-test json-wiki-diff-diff {[string first "+consectetur adipisicing elit" $diff] >= 0} ;#knownBug
+test json-wiki-diff-diff {[string first "+consectetur adipisicing elit" $diff] >= 0} knownBug
 #puts [dict get $JR payload diff]
+
+# wiki preview
+#
+# takes a string in fossil wiki markup and return an HTML fragment.
+# This command does not make use of the actual wiki content (much?)
+# at all.
+write_file req3.json {
+  {
+    "command":"wiki/preview",
+    "payload":"Lorem ipsum dolor sic amet.\nconsectetur adipisicing elit."
+  }
+}
+fossil_json --json-input req3.json
+test_json_envelope_ok json-wiki-preview-env
+set pv [dict get $JR payload]
+test json-wiki-preview-out-1 {[string first "<p>Lorem ipsum" $pv] == 0}
+test json-wiki-preview-out-2 {[string last "<p>" $pv] == 0}
 
 #### UNAVOIDABLE MISC
 
+# json g
+fossil_json g
+test_json_envelope_ok json-g-env
+#puts [llength [dict keys [dict get $JR payload]]]
+test json-g-g {[llength [dict keys [dict get $JR payload]]] >= 60};# 64 on my PC
+
+# json rebuild
+fossil_json rebuild
+test_json_envelope json-rebuild-env [concat fossil timestamp command procTimeUs \
+  procTimeMs] [concat payload resultCode resultText]
+
+# json resultCodes
+fossil_json resultCodes
+test_json_envelope_ok json-resultCodes-env
+set codes [dict get $JR payload]
+test json-resultCodes-codes-1 {[llength $codes] >= 35} ;# count as of API 20120713
+# foreach c $codes {
+#   puts [dict values $c]
+# }
 
