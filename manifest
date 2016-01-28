@@ -1,5 +1,5 @@
-C Revise\stest\sresult\ssummary\sto\sinclude\s'ignored'\sresults\sfrom\stests\smarked\swith\s'knownBug'.
-D 2016-01-27T01:55:16.532
+C Make\sthe\sMSVC\sbatch\sbuild\stool\ssub-routine\s'fn_UnsetVariable'\sa\sbit\smore\srobust.
+D 2016-01-28T00:08:55.056
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -630,7 +630,7 @@ F win/Makefile.dmc 65d9d67850656c427e6572a746df023d9d6629e7
 F win/Makefile.mingw 5414422f104639eaa372c0a143a980276ab1d6ad
 F win/Makefile.mingw.mistachkin 0127942e5ce78a1ace92927cd542bc3f695699db
 F win/Makefile.msc 8b7b2c4815115ac25505ad148cf034f7b6664c88
-F win/buildmsvc.bat d2daa4ad2586518ed72ab03f3b5dfe33bfc406d7
+F win/buildmsvc.bat c500c2f66b3001fe2b604a1c0b523125f5a7482f
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc a03d2ee7e2fcb64ab9ff0b4d3284c8f89412e66f
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 60285f58765128176e4505eee752272875cacca3
-R 893a702bfe3e210743e27f7ddd5918da
+P f77fbed8e306e22ead8e50d6c525e212f6e699b5
+R 259ddc8b8cc75537d2b7f4f7eaa8bc07
 U mistachkin
-Z 07117e89cbdaf3fd239502c7f419b0a1
+Z fb7d2342f29fc63e6e462eab040cfd5b
