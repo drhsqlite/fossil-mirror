@@ -1,5 +1,5 @@
-C Improve\sMinGW\sbuild\sdocs.
-D 2016-01-28T20:39:46.123
+C Test\sof\sfeature\sbranches,\sdo\snot\smerge.
+D 2016-01-28T20:51:06.978
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -377,7 +377,7 @@ F src/attach.c 5f6f5ccc39aeb0f4d49b7696b7b520b515a53177
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c c8bdcf4812c9446bea503610d234772516bf572f
 F src/blob.c 10ee0528085b90be013d53935bceeeb83a7b1027
-F src/branch.c 09724980278de18e9bbff5da85950c3febd811eb
+F src/branch.c cf0dbbf107af1ba817dad6d8bba319c7f07e6f6d
 F src/browse.c 96dbc7580b4ac9d42dd9d3f3accd52946b3258ac
 F src/builtin.c 31c17d18b565c7766021913c89be4180b3ee4a56
 F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
@@ -495,7 +495,7 @@ F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c 165d0fdef163f658ba0db12f278d7cc940c45328
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
-F src/timeline.c 8ab92a00887db5eb873d35f5c5c8ffa2d4691ed1
+F src/timeline.c 171cf60e88a27dcbbb51710de7e6c6530decc9bb
 F src/tkt.c 09fedb774dc3ee893d01ce2a6050809796ef66c9
 F src/tktsetup.c 32e23747e8d3f36fc390a6197dda2209d98cad09
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
@@ -744,7 +744,10 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2948c3fe22b876b7d7565227d57218e66e1f9272
-R bf1ce78ff9c3cea7e1f1562febb1e9eb
+P c1c680eb289550f82d41de5532493312fbaaaf3e 0e782b3d7c05fae7371eff248590ccb4f46228c9 26fc65f99c035dac7f2f3819d3cdfba4ffc72982 737e8d2394dbaf03d622f57412190cf7af14900d
+R 96355b57d0e7a486337aeec7e6c883a9
+T *branch * test-only
+T *sym-test-only *
+T -sym-trunk *
 U mistachkin
-Z d0a94fd2eb4742f66eb9d15bf920c69e
+Z a70f37e32ee70b3a88dea53017993fdc

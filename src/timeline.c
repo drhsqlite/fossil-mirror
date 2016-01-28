@@ -1522,32 +1522,34 @@ void page_timeline(void){
     int n, nBefore, nAfter;
     const char *zEType = "timeline item";
     char *zDate;
+    Blob cond;
+    blob_zero(&cond);
     if( zUses ){
-      blob_append_sql(&sql, " AND event.objid IN usesfile ");
+      blob_append_sql(&cond, " AND event.objid IN usesfile ");
     }
     if( renameOnly ){
-      blob_append_sql(&sql, " AND event.objid IN rnfile ");
+      blob_append_sql(&cond, " AND event.objid IN rnfile ");
     }
     if( forkOnly ){
-      blob_append_sql(&sql, " AND event.objid IN rnfork ");
+      blob_append_sql(&cond, " AND event.objid IN rnfork ");
     }
     if( bisectOnly ){
-      blob_append_sql(&sql, " AND event.objid IN (SELECT rid FROM bilog) ");
+      blob_append_sql(&cond, " AND event.objid IN (SELECT rid FROM bilog) ");
     }
     if( zYearMonth ){
-      blob_append_sql(&sql, " AND %Q=strftime('%%Y-%%m',event.mtime) ",
+      blob_append_sql(&cond, " AND %Q=strftime('%%Y-%%m',event.mtime) ",
                    zYearMonth);
     }
     else if( zYearWeek ){
-      blob_append_sql(&sql, " AND %Q=strftime('%%Y-%%W',event.mtime) ",
+      blob_append_sql(&cond, " AND %Q=strftime('%%Y-%%W',event.mtime) ",
                    zYearWeek);
     }
     else if( zDay ){
-      blob_append_sql(&sql, " AND %Q=strftime('%%Y-%%m-%%d',event.mtime) ",
+      blob_append_sql(&cond, " AND %Q=strftime('%%Y-%%m-%%d',event.mtime) ",
                    zDay);
     }
     if( tagid ){
-      blob_append_sql(&sql,
+      blob_append_sql(&cond,
         " AND (EXISTS(SELECT 1 FROM tagxref"
             " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)\n", tagid);
 
@@ -1558,26 +1560,26 @@ void page_timeline(void){
         ** useful in helping to visualize what has happened on a quiescent
         ** branch that is infrequently merged with a much more activate branch.
         */
-        blob_append_sql(&sql,
+        blob_append_sql(&cond,
           " OR EXISTS(SELECT 1 FROM plink CROSS JOIN tagxref ON rid=cid"
                      " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)\n",
            tagid
         );
         if( (tmFlags & TIMELINE_UNHIDE)==0 ){
-          blob_append_sql(&sql,
+          blob_append_sql(&cond,
             " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"
                        " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)\n",
             TAG_HIDDEN
           );
         }
         if( P("mionly")==0 ){
-          blob_append_sql(&sql,
+          blob_append_sql(&cond,
             " OR EXISTS(SELECT 1 FROM plink CROSS JOIN tagxref ON rid=pid"
                        " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)\n",
             tagid
           );
           if( (tmFlags & TIMELINE_UNHIDE)==0 ){
-            blob_append_sql(&sql,
+            blob_append_sql(&cond,
               " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
               " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)\n",
               TAG_HIDDEN
@@ -1585,7 +1587,7 @@ void page_timeline(void){
           }
         }
       }
-      blob_append_sql(&sql, ")");
+      blob_append_sql(&cond, ")");
     }
     if( (zType[0]=='w' && !g.perm.RdWiki)
      || (zType[0]=='t' && !g.perm.RdTkt)
@@ -1598,23 +1600,23 @@ void page_timeline(void){
     if( zType[0]=='a' ){
       if( !g.perm.Read || !g.perm.RdWiki || !g.perm.RdTkt ){
         char cSep = '(';
-        blob_append_sql(&sql, " AND event.type IN ");
+        blob_append_sql(&cond, " AND event.type IN ");
         if( g.perm.Read ){
-          blob_append_sql(&sql, "%c'ci','g'", cSep);
+          blob_append_sql(&cond, "%c'ci','g'", cSep);
           cSep = ',';
         }
         if( g.perm.RdWiki ){
-          blob_append_sql(&sql, "%c'w','e'", cSep);
+          blob_append_sql(&cond, "%c'w','e'", cSep);
           cSep = ',';
         }
         if( g.perm.RdTkt ){
-          blob_append_sql(&sql, "%c't'", cSep);
+          blob_append_sql(&cond, "%c't'", cSep);
           cSep = ',';
         }
-        blob_append_sql(&sql, ")");
+        blob_append_sql(&cond, ")");
       }
     }else{ /* zType!="all" */
-      blob_append_sql(&sql, " AND event.type=%Q", zType);
+      blob_append_sql(&cond, " AND event.type=%Q", zType);
       if( zType[0]=='c' ){
         zEType = "check-in";
       }else if( zType[0]=='w' ){
@@ -1634,18 +1636,19 @@ void page_timeline(void){
         zCirca = zBefore = zAfter = 0;
         nEntry = -1;
       }
-      blob_append_sql(&sql, " AND (event.user=%Q OR event.euser=%Q)",
+      blob_append_sql(&cond, " AND (event.user=%Q OR event.euser=%Q)",
                    zUser, zUser);
       zThisUser = zUser;
     }
     if( zSearch ){
-      blob_append_sql(&sql,
+      blob_append_sql(&cond,
         " AND (event.comment LIKE '%%%q%%' OR event.brief LIKE '%%%q%%')",
         zSearch, zSearch);
     }
     rBefore = symbolic_name_to_mtime(zBefore);
     rAfter = symbolic_name_to_mtime(zAfter);
     rCirca = symbolic_name_to_mtime(zCirca);
+    blob_append_sql(&sql, "%s", blob_sql_text(&cond));
     if( rAfter>0.0 ){
       if( rBefore>0.0 ){
         blob_append_sql(&sql,
@@ -1747,34 +1750,35 @@ void page_timeline(void){
       blob_appendf(&desc, " matching \"%h\"", zSearch);
     }
     if( g.perm.Hyperlink ){
-      if( zCirca && rCirca ){
-        nBefore = db_int(0,
-          "SELECT count(*) FROM timeline WHERE etype!='div'"
-          "   AND sortby<=%f /*scan*/", rCirca);
-        nAfter = db_int(0,
-          "SELECT count(*) FROM timeline WHERE etype!='div'"
-          "   AND sortby>=%f /*scan*/", rCirca);
-        zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
-        if( nBefore>=nEntry ){
-          timeline_submenu(&url, "Older", "b", zDate, "c");
-          zOlderButton = fossil_strdup(url_render(&url, "b", zDate, "c", 0));
-        }
-        if( nAfter>=nEntry ){
-          timeline_submenu(&url, "Newer", "a", zDate, "c");
-        }
-        free(zDate);
-      }else{
-        if( zAfter || n==nEntry ){
-          zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
+      double rDate;
+      zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
+      if( (!zDate || !zDate[0]) && ( zAfter || zBefore ) ){
+        zDate = mprintf("%s", (zAfter ? zAfter : zBefore));
+      }
+      if( zDate ){
+        rDate = symbolic_name_to_mtime(zDate);
+        if( db_int(0,
+            "SELECT EXISTS (SELECT 1 FROM event WHERE mtime<=%.17g%s)",
+            rDate-ONE_SECOND, blob_sql_text(&cond))
+        ){
           timeline_submenu(&url, "Older", "b", zDate, "a");
           zOlderButton = fossil_strdup(url_render(&url, "b", zDate, "a", 0));
-          free(zDate);
         }
-        if( zBefore || (zAfter && n==nEntry) ){
-          zDate = db_text(0, "SELECT max(timestamp) FROM timeline /*scan*/");
+        free(zDate);
+      }
+      zDate = db_text(0, "SELECT max(timestamp) FROM timeline /*scan*/");
+      if( (!zDate || !zDate[0]) && ( zAfter || zBefore ) ){
+        zDate = mprintf("%s", (zBefore ? zBefore : zAfter));
+      }
+      if( zDate ){
+        rDate = symbolic_name_to_mtime(zDate);
+        if( db_int(0,
+            "SELECT EXISTS (SELECT 1 FROM event WHERE mtime>=%.17g%s)",
+            rDate+ONE_SECOND, blob_sql_text(&cond))
+        ){
           timeline_submenu(&url, "Newer", "a", zDate, "b");
-          free(zDate);
         }
+        free(zDate);
       }
       if( zType[0]=='a' || zType[0]=='c' ){
         if( (tmFlags & TIMELINE_UNHIDE)==0 ){
@@ -1786,6 +1790,7 @@ void page_timeline(void){
       style_submenu_binary("v","With Files","Without Files",
                            zType[0]!='a' && zType[0]!='c');
     }
+    blob_zero(&cond);
   }
   if( PB("showsql") ){
     @ <pre>%h(blob_sql_text(&sql))</pre>
