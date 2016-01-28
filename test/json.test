@@ -26,7 +26,10 @@
 package require json
 
 # Make sure we have a build with the json command at all and that it
-# is not stubbed out
+# is not stubbed out. This assumes the current (as of 2016-01-27)
+# practice of eliminating all trace of the fossil json command when
+# not configured. If that changes, these conditions might not prevent
+# the rest of this file from running.
 fossil help -a
 if {[string first json $RESULT] eq ""} {
   puts "Fossil was not compiled with JSON support."; return
@@ -69,19 +72,23 @@ proc fossil_http_json {url} {
   return $status
 }
 
-# Inspect the envelope part of a returned JSON structure to confirm
-# that it has specific fields and that it lacks specific fields.
-proc test_json_envelope {testname okfields badfields} {
-  global JR
+# Inspect a dict for keys it must have and keys it must not have
+proc test_dict_keys {testname D okfields badfields} {
   set i 1
   foreach f $okfields {
-    test "$testname-$i" {[dict exists $JR $f]}
+    test "$testname-$i" {[dict exists $D $f]}
     incr i
   }
   foreach f $badfields {
-    test "$testname-$i" {![dict exists $JR $f]}
+    test "$testname-$i" {![dict exists $D $f]}
     incr i
   }
+}
+
+# Inspect the envelope part of a returned JSON structure to confirm
+# that it has specific fields and that it lacks specific fields.
+proc test_json_envelope {testname okfields badfields} {
+  test_dict_keys $testname $::JR $okfields $badfields
 }
 
 # Inspect the envelope of a normal successful result
@@ -93,16 +100,7 @@ proc test_json_envelope_ok {testname} {
 # Inspect the payload of a successful result to confirm that it has
 # specific fields and that it lacks specific fields.
 proc test_json_payload {testname okfields badfields} {
-  global JR
-  set i 1
-  foreach f $okfields {
-    test "$testname-P-$i" {[dict exists $JR payload $f]}
-    incr i
-  }
-  foreach f $badfields {
-    test "$testname-P-$i" {![dict exists $JR payload $f]}
-    incr i
-  }
+  test_dict_keys $testname [dict get $::JR payload] $okfields $badfields
 }
 
 #### VERSION AKA HAI
@@ -151,19 +149,30 @@ fossil ci -m "empty file"
 
 # json artifact (checkin)
 fossil_json [concat artifact tip]
-test_json_envelope_ok json-artifact
+test_json_envelope_ok json-artifact-checkin-env
 test json-artifact-checkin {[dict get $JR payload type] eq "checkin"}
 test_json_payload json-artifact \
 [concat type uuid isLeaf timestamp user comment parents tags files] {}
 
 # json artifact (file)
 fossil_json [concat artifact $UUID_empty]
-test_json_envelope_ok json-artifact
+test_json_envelope_ok json-artifact-file-env
 test json-artifact-file {[dict get $JR payload type] eq "file"}
 test_json_payload json-artifact [concat type uuid size checkins] {}
 
 # json artifact (wiki)
-# name, uuid, parent, user, timestamp, size, content?
+fossil wiki create Empty <<""
+fossil_json wiki get Empty
+test json-wiki-get {[dict get $JR payload name] eq "Empty"}
+set uuid [dict get $JR payload uuid]
+fossil_json artifact $uuid
+test_json_envelope_ok json-artifact-wiki-env
+test json-artifact-wiki {[dict get $JR payload type] eq "wiki"}
+test_json_payload json-artifact-wiki [list type uuid artifact] {}
+set artifact [dict get $JR payload artifact]
+test_dict_keys json-artifact-wiki-artifact $artifact \
+  [list name uuid user timestamp size] {}
+# name, uuid, parent?, user, timestamp, size?, content?
 
 
 #### AUTHENTICATION
@@ -180,7 +189,76 @@ test_json_payload json-artifact [concat type uuid size checkins] {}
 #### TICKET REPORTS
 #### TIMELINE
 #### USER MANAGEMENT
+
 #### WIKI
+
+# wiki list
+fossil_json wiki list
+test_json_envelope_ok json-wiki-list-env 
+set pages  [dict get $JR payload]
+test json-wiki-1 {[llength $pages] == 1}
+test json-wiki-2 {[lindex  $pages 0] eq "Empty"}
+fossil_json wiki list --verbose
+set pages  [dict get $JR payload]
+test json-wiki-verbose-1 {[llength $pages] == 1}
+test_dict_keys json-wiki-verbose-pages [lindex $pages 0] [list name uuid user timestamp size] {}
+
+# wiki get
+fossil_json wiki get Empty
+test_json_envelope_ok json-wiki-get-env 
+# this page has only one version, so no parent should be listed
+test_json_payload json-wiki-get [list name uuid user timestamp size content] [list parent]
+
+
+# wiki create
+# requires an authToken? Not from CLI.
+
+write_file req.json {
+  {
+    "command":"wiki/create",
+    "payload":{
+      "name":"Page2",
+      "content":"Lorem ipsum dolor sic amet."
+    }
+  }
+}
+fossil_json --json-input req.json
+test_json_envelope_ok json-wiki-create-env
+fossil_json wiki get Page2
+test_json_envelope_ok json-wiki-create-get-env
+test_json_payload json-wiki-save-get [list name uuid user timestamp size content] {parent}
+set uuid1 [dict get $JR payload uuid]
+
+# wiki save
+
+write_file req2.json {
+  {
+    "command":"wiki/save",
+    "payload":{
+      "name":"Page2",
+      "content":"Lorem ipsum dolor sic amet.\nconsectetur adipisicing elit."
+    }
+  }
+}
+fossil_json --json-input req2.json
+test_json_envelope_ok json-wiki-save-env
+fossil_json wiki get Page2
+test_json_envelope_ok json-wiki-save-get-env
+test_json_payload json-wiki-save-get [list name uuid user timestamp size parent content] {}
+set uuid2 [dict get $JR payload uuid]
+test json-wiki-save-parent {[dict get $JR payload parent] eq $uuid1}
+
+# wiki diff
+
+fossil_json wiki diff $uuid1 $uuid2
+test_json_envelope_ok json-wiki-diff-env
+test_json_payload json-wiki-diff [list v1 v2 diff] {}
+test json-wiki-diff-v1 {[dict get $JR payload v1] eq $uuid1}
+test json-wiki-diff-v1 {[dict get $JR payload v2] eq $uuid2}
+set diff [dict get $JR payload diff]
+test json-wiki-diff-diff {[string first "+consectetur adipisicing elit" $diff] >= 0} ;#knownBug
+#puts [dict get $JR payload diff]
+
 #### UNAVOIDABLE MISC
 
 

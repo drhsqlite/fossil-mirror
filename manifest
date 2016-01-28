@@ -1,5 +1,5 @@
-C Merge\sthe\snew\sknownBug\sconstraint\ssupport\sfrom\strunk.
-D 2016-01-27T02:29:24.946
+C Refactoring\sin\sthe\sjson\stests.\sAdd\scoverage\sof\s/json/wiki.\sNote\sdiscrepency\sbetween\sdocumentation\sand\sexecution\sof\s/json/wiki/diff.
+D 2016-01-28T01:19:50.613
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -530,7 +530,7 @@ F test/fileStat.th1 e3e30f7b46488c26215a6d713be36ad4ed595132
 F test/fileage-test-1.wiki d249e897fdd41038c17f3b66d374e509830da1eb
 F test/glob.test 027f2aa0b0c737a0f27d51800802a08f07561beb
 F test/graph-test-1.wiki 1bbf8bd05dfd5205c589569d911477c27aeb4d51
-F test/json.test 37b95450f81abd7d82d6e82feea091aaf41f7118
+F test/json.test 7ee8233f315b2b1c1ac542621771e0261b84ce9d
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/merge1.test 4734854393f717824ae96b3de8524a2401a21921
@@ -745,7 +745,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 62f59956f52bc00ca7f52139d5306b1019ba478f f77fbed8e306e22ead8e50d6c525e212f6e699b5
-R 77d2bee6682d47a61026f1a83efd3f1b
+P 2ada5ec76e630c85c85d4e14153aa50f7ec628bc
+R 50e45251b1c427a4cfc510e6c72b32a9
 U rberteig
-Z 1c8687c92fa09d790e0cef2c51ea351e
+Z 7a1c0f03f5efba2dea8585a6cfd94b05
