@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2013 Stephen Beal
+** Copyright (c) 2013 Stephan Beal
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -243,6 +243,7 @@ static void stats_report_by_month_year(char includeMonth,
           @ <td></td>
           @ <td colspan='2'>Yearly total: %d(nEventsPerYear)</td>
           @</tr>
+          showYearTotal = 0;
         }
         nEventsPerYear = 0;
         memcpy(zPrevYear,zTimeframe,4);
@@ -336,8 +337,8 @@ static void stats_report_by_user(){
   @ <h1>Timeline Events
   @ (%s(stats_report_label_for_type())) by User</h1>
   db_multi_exec(
-    "CREATE TEMP TABLE piechart(amt,label);"
-    "INSERT INTO piechart SELECT count(*), ifnull(euser,user) FROM v_reports"
+    "CREATE TEMP VIEW piechart(amt,label) AS"
+    " SELECT count(*), ifnull(euser,user) FROM v_reports"
                          " GROUP BY ifnull(euser,user) ORDER BY count(*) DESC;"
   );
   if( db_int(0, "SELECT count(*) FROM piechart")>=2 ){
@@ -484,20 +485,22 @@ static void stats_report_day_of_week(const char *zUserName){
   }
   @ </h1>
   db_multi_exec(
-    "CREATE TEMP TABLE piechart(amt,label);"
-    "INSERT INTO piechart"
-    " SELECT count(*), cast(strftime('%%w', mtime) AS INT) FROM v_reports"
-     " WHERE ifnull(coalesce(euser,user,'')=%Q,1)"
-     " GROUP BY 2 ORDER BY 2;"
-    "UPDATE piechart SET label = CASE label"
-    "  WHEN 0 THEN 'Sunday'"
-    "  WHEN 1 THEN 'Monday'"
-    "  WHEN 2 THEN 'Tuesday'"
-    "  WHEN 3 THEN 'Wednesday'"
-    "  WHEN 4 THEN 'Thursday'"
-    "  WHEN 5 THEN 'Friday'"
-    "  WHEN 6 THEN 'Saturday'"
-    "  ELSE 'ERROR' END;", zUserName
+    "CREATE TEMP VIEW piechart(amt,label) AS"
+    " SELECT count(*),"
+    "   CASE cast(strftime('%%w', mtime) AS INT)"
+    "    WHEN 0 THEN 'Sunday'"
+    "    WHEN 1 THEN 'Monday'"
+    "    WHEN 2 THEN 'Tuesday'"
+    "    WHEN 3 THEN 'Wednesday'"
+    "    WHEN 4 THEN 'Thursday'"
+    "    WHEN 5 THEN 'Friday'"
+    "    WHEN 6 THEN 'Saturday'"
+    "    ELSE 'ERROR'"
+    "   END"
+    "  FROM v_reports"
+    "  WHERE ifnull(coalesce(euser,user,'')=%Q,1)"
+    "  GROUP BY 2 ORDER BY cast(strftime('%%w', mtime) AS INT);"
+    , zUserName
   );
   if( db_int(0, "SELECT count(*) FROM piechart")>=2 ){
     @ <center><svg width=700 height=400>

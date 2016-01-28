@@ -1519,7 +1519,7 @@ void page_timeline(void){
     }
   }else{
     /* Otherwise, a timeline based on a span of time */
-    int n, nBefore, nAfter;
+    int n;
     const char *zEType = "timeline item";
     char *zDate;
     Blob cond;

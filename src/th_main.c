@@ -2293,7 +2293,7 @@ int Th_Render(const char *z){
 **     --th-trace           Trace TH1 execution (for debugging purposes)
 */
 void test_th_render(void){
-  int forceCgi = 0, fullHttpReply = 0;
+  int forceCgi, fullHttpReply;
   Blob in;
   Th_InitTraceLog();
   forceCgi = find_option("cgi", 0, 0)!=0;
@@ -2320,7 +2320,7 @@ void test_th_render(void){
 ** Usage: %fossil test-th-eval SCRIPT
 **
 ** Evaluate SCRIPT as if it were a header or footer or ticket rendering
-** script, evaluate it, and show the results on standard output.
+** script and show the results on standard output.
 **
 ** Options:
 **
@@ -2341,11 +2341,55 @@ void test_th_eval(void){
   if( find_option("open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
   }
+  verify_all_options();
   if( g.argc!=3 ){
     usage("script");
   }
   Th_FossilInit(TH_INIT_DEFAULT);
   rc = Th_Eval(g.interp, 0, g.argv[2], -1);
+  zRc = Th_ReturnCodeName(rc, 1);
+  fossil_print("%s%s%s\n", zRc, zRc ? ": " : "", Th_GetResult(g.interp, 0));
+  Th_PrintTraceLog();
+  if( forceCgi ) cgi_reply();
+}
+
+/*
+** COMMAND: test-th-source
+**
+** Usage: %fossil test-th-source FILE
+**
+** Evaluate the contents of the file named "FILE" as if it were a header
+** or footer or ticket rendering script and show the results on standard
+** output.
+**
+** Options:
+**
+**     --cgi                Include a CGI response header in the output
+**     --http               Include an HTTP response header in the output
+**     --open-config        Open the configuration database
+**     --th-trace           Trace TH1 execution (for debugging purposes)
+*/
+void test_th_source(void){
+  int rc;
+  const char *zRc;
+  int forceCgi, fullHttpReply;
+  Blob in;
+  Th_InitTraceLog();
+  forceCgi = find_option("cgi", 0, 0)!=0;
+  fullHttpReply = find_option("http", 0, 0)!=0;
+  if( fullHttpReply ) forceCgi = 1;
+  if( forceCgi ) Th_ForceCgi(fullHttpReply);
+  if( find_option("open-config", 0, 0)!=0 ){
+    Th_OpenConfig(1);
+  }
+  verify_all_options();
+  if( g.argc!=3 ){
+    usage("file");
+  }
+  blob_zero(&in);
+  blob_read_from_file(&in, g.argv[2]);
+  Th_FossilInit(TH_INIT_DEFAULT);
+  rc = Th_Eval(g.interp, 0, blob_str(&in), -1);
   zRc = Th_ReturnCodeName(rc, 1);
   fossil_print("%s%s%s\n", zRc, zRc ? ": " : "", Th_GetResult(g.interp, 0));
   Th_PrintTraceLog();
@@ -2358,7 +2402,7 @@ void test_th_eval(void){
 **
 ** Usage: %fossil test-th-hook TYPE NAME FLAGS
 **
-** Executes the TH1 script configured for the pre-operation (i.e. a command
+** Evaluates the TH1 script configured for the pre-operation (i.e. a command
 ** or web page) "hook" or post-operation "notification".  The results of the
 ** script evaluation, if any, will be printed to the standard output channel.
 ** The NAME argument must be the name of a command or web page; however, it
@@ -2399,6 +2443,7 @@ void test_th_hook(void){
   fullHttpReply = find_option("http", 0, 0)!=0;
   if( fullHttpReply ) forceCgi = 1;
   if( forceCgi ) Th_ForceCgi(fullHttpReply);
+  verify_all_options();
   if( g.argc<5 ){
     usage("TYPE NAME FLAGS");
   }
