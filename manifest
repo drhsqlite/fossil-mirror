@@ -1,5 +1,5 @@
-C Improve\sMinGW\sbuild\sdocs.
-D 2016-01-28T20:39:46.123
+C fixed\stype\sof\sJsonPageDef::runMode\sfrom\schar\sto\sint\sbecause\sit\suses\snegative\svalues\sand\schar\sis\sunsigned\sby\sARM\splatforms.
+D 2016-01-29T07:00:45.188
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -424,7 +424,7 @@ F src/json.c 18266f277275d058aadb979b74c8b3af7791d649
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
 F src/json_config.c 1bbf8fc1b98f951f94dedc1a191c138f110b7a5d
-F src/json_detail.h 7d9cdc126617216623145aaea42a914a93cf983c
+F src/json_detail.h 76bc835feb671a5001d4a20bd3f0c8882f228382
 F src/json_diff.c 784180c67a6bb8547dcb9adc430678c8286ab3ff
 F src/json_dir.c bd7be6f09d9c4d951e68b9562ad13d15aa76fb70
 F src/json_finfo.c 65693ef509f62591cec2fb2198b66f852742be80
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2948c3fe22b876b7d7565227d57218e66e1f9272
-R bf1ce78ff9c3cea7e1f1562febb1e9eb
-U mistachkin
-Z d0a94fd2eb4742f66eb9d15bf920c69e
+P c1c680eb289550f82d41de5532493312fbaaaf3e
+R 23e525451a631e1e36cc91fe024807c0
+U stephan
+Z 1168cd6991430d76b2625dd49c551541
