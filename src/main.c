@@ -1128,8 +1128,11 @@ void version_cmd(void){
 */
 void test_version_page(void){
   Blob versionInfo;
-  int verboseFlag = P("verbose")!=0;
+  int verboseFlag;
 
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  verboseFlag = P("verbose")!=0;
   style_header("Version Information");
   get_version_blob(&versionInfo, verboseFlag);
   @ <blockquote><pre>
