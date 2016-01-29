@@ -135,6 +135,7 @@ proc fossil_maybe_answer {answer args} {
 
   flush stdout
   if {[string length $answer] > 0} {
+    protOut $answer
     set prompt_file [file join $::tempPath fossil_prompt_answer]
     write_file $prompt_file $answer\n
     set rc [catch {eval exec $cmd <$prompt_file} result]
