@@ -536,3 +536,32 @@ test json-resultCodes-codes-1 {[llength $codes] >= 35} ;# count as of API 201207
 #   puts [dict values $c]
 # }
 
+
+##### From the API Docs
+# Reminder to self: in March 2012 i saw a corner-case which returns
+# HTML output. To reproduce: chmod 444 REPO, then submit a request
+# which writes something (timeline creates a temp table). The "repo
+# is not writable" error comes back as HTML. i don't know if the
+# error happens before we have made the determination that the app is
+# in JSON mode or if the error handling is incorrectly not
+# recognizing JSON mode. 
+#
+#repo_init x.fossil
+#catch {exec chmod 444 .rep.fossil}; # Unix. What about Win?
+fossil_http_json /json/timeline/checkin $U1Cookie
+test json-ROrepo-1-1 {$CODE == 0}
+test json-ROrepo-1-2 {[regexp {\}\s*$} $RESULT]}
+test json-ROrepo-1-3 {![regexp {SQLITE_[A-Z]+:} $RESULT]}
+test_json_envelope_ok json-http-timeline1
+protOut "chmod 444 repo"
+catch {exec chmod 444 .rep.fossil}; # Unix. What about Win?
+fossil_http_json /json/timeline/checkin $U1Cookie -expectError
+test json-ROrepo-2-1 {$CODE != 0}
+test json-ROrepo-2-2 {[regexp {\}\s*$} $RESULT]} knownBug
+test json-ROrepo-2-3 {![regexp {SQLITE_[A-Z]+:} $RESULT]} knownBug
+#test_json_envelope_ok json-http-timeline2
+
+
+catch {exec chmod 666 .rep.fossil}; # Unix. What about Win?
+
+
