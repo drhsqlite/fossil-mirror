@@ -99,6 +99,7 @@ if {![opt-bool internal-sqlite]} {
         # Success. Update symbols and return.
         #
         define USE_SYSTEM_SQLITE 1
+        define-append LIBS -lsqlite3
         define-append LIBS $extralibs
         return
       }
