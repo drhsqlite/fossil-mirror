@@ -160,7 +160,7 @@ test json-artifact-file {[dict get $JR payload type] eq "file"}
 test_json_payload json-artifact [concat type uuid size checkins] {}
 
 # json artifact (wiki)
-fossil wiki create Empty empty
+fossil wiki create Empty <<"-=BLANK=-"
 fossil_json wiki get Empty
 test json-wiki-get {[dict get $JR payload name] eq "Empty"}
 set uuid [dict get $JR payload uuid]
@@ -236,7 +236,7 @@ test_json_envelope_ok json-cap-env
 # moot from CLI.
 test json-cap-CLI {[dict get $JR payload permissionFlags setup]}
 
-test TODO-JSON-POST-AUTHENTICATION false knownBug
+test TODO-json-post-authentication false knownBug
 #TODO: implement support for POST with JSON payload from file
 #fossil_http_post_json /json anon-2
 #test_json_envelope_ok json-cap-http-env
@@ -251,24 +251,179 @@ test json-whoami-cli-name {[dict get $JR payload name] eq "nobody"}
 test_hascaps json-whoami-cli-cap "gjorz" [dict get $JR payload capabilities]
 
 #### BRANCHES
+# json branch list
 fossil_json branch list
 test_json_envelope_ok json-branch-list-env
 test_json_payload json-branch-list {range current branches} {}
+test json-branch-list-cur {[dict get $JR payload current] eq "trunk"}
+test json-branch-list-cnt {[llength [dict get $JR payload branches]] == 1}
+test json-branch-list-val {[dict get $JR payload branches] eq "trunk"}
 
+# json branch create
+fossil_json branch create alpha --basis trunk
+test_json_envelope_ok json-branch-create-env
+test_json_payload json-branch-create {name basis rid uuid isPrivate} {}
 
 
 #### CONFIG
+# json config get AREA
+# AREAs are skin ticket project all skin-backup
+foreach a [list skin ticket project all skin-backup] {
+  fossil_json config get $a 
+  test_json_envelope_ok json-config-$a-env
+  # payload depends on specific area and may be completely empty
+}
+
 #### DIFFS
+# json diff v1 v2
+test TODO-json-diff false knownBug
+
+
 #### DIRECTORY LISTING
+# json dir DIRNAME
+fossil_json dir 
+test_json_envelope_ok json-dir-env
+test_json_payload json-dir {name entries} {}
+
 #### FILE INFO
+# json finfo FILENAME
+fossil_json finfo empty
+test_json_envelope_ok json-finfo-env
+test_json_payload json-finfo {name checkins} {}
+
 #### QUERY
+# json query SQLCODE
+fossil_json query {"SELECT * FROM reportfmt"}
+test_json_envelope_ok json-query-env
+test_json_payload json-query {columns rows} {}
+
 #### STATS
+# json stat
+fossil_json stat
+test_json_envelope_ok json-stat-env
+test_json_payload json-stat {repositorySize ageDays ageYears projectCode compiler sqlite} \
+{blobCount deltaCount uncompressedArtifactSize averageArtifactSize maxArtifactSize \
+compressionRatio checkinCount fileCount wikiPageCount ticketCount}
+
+fossil_json stat -f
+test_json_envelope_ok json-stat-env
+test_json_payload json-stat {repositorySize \
+blobCount deltaCount uncompressedArtifactSize averageArtifactSize maxArtifactSize \
+compressionRatio checkinCount fileCount wikiPageCount ticketCount \
+ageDays ageYears projectCode compiler sqlite} {}
+
+
 #### STATUS
+# NOTE: Local checkout required
+# json status
+fossil_json status
+test_json_envelope_ok json-status-env
+test_json_payload json-status {repository localRoot checkout files errorCount} {}
+
 #### TAGS
+
+# json tag add NAME CHECKIN VALUE
+fossil_json tag add blue trunk green
+test_json_envelope_ok json-tag-add-env
+test_json_payload json-tag-add {name value propagate raw appliedTo} {}
+
+
+# json tag cancel NAME CHECKIN
+fossil_json tag add cancel alpha
+test_json_envelope_ok json-tag-cancel-env
+# BUG? Doc says no payload.
+test_json_payload json-tag-cancel {name value propagate raw appliedTo} {}
+
+# json tag find NAME
+fossil_json tag find alpha
+test_json_envelope_ok json-tag-find-env
+test_json_payload json-tag-find {name raw type limit artifacts} {}
+test json-tag-find-count {[llength [dict get $JR payload artifacts]] >= 1}
+
+# json tag list CHECKIN
+fossil_json tag list
+test_json_envelope_ok json-tag-list-env
+test_json_payload json-tag-list {raw includeTickets tags} {}
+test json-tag-list-count {[llength [dict get $JR payload tags]] >= 2}
+
+
 #### TICKETS
+# API Docs say not yet defined, so it isn't quite fair to mark this
+# category as TODO for the test cases...
+# test TODO-json-tickets false knownBug
+
 #### TICKET REPORTS
+
+# json report get NUMBER
+fossil_json report get 1
+test_json_envelope_ok json-report-get-env
+test_json_payload json-report-get {report owner title timestamp columns sqlCode} {}
+
+# json report list
+fossil_json report list
+test_json_envelope_ok json-report-list-env
+#test_json_payload json-report-list {raw includeTickets tags} {}
+test json-report-list-count {[llength [dict get $JR payload]] >= 1}
+
+
+# json report run NUMBER
+fossil_json report run 1
+test_json_envelope_ok json-report-run-1-env
+test_json_payload json-report-list {report title sqlcode columnNames tickets} {}
+test json-report-list-count {[llength [dict get $JR payload columnNames]] >= 7}
+test json-report-list-count {[llength [dict get $JR payload tickets]] >= 0}
+
+
 #### TIMELINE
+
+# json timeline checkin
+fossil_json timeline checkin
+test_json_envelope_ok json-timeline-checkin-env
+test_json_payload json-timeline-checkin {limit timeline} {}
+set i 0
+foreach t [dict get $JR payload timeline] {
+  # parents appears only for entries that have a parent
+  # files appears only if requested by the --files parameter
+  test_dict_keys json-timeline-checkin-$i $t {type uuid timestamp comment user isLeaf tags} {}
+  incr i
+}
+
+# json timeline ci
+fossil_json timeline ci
+test json-timeline-ci {[dict get $JR resultCode] ne "FOSSIL-1102"} knownBug
+#test_json_payload json-timeline-ci {limit timeline} {}
+
+# json timeline ticket
+fossil_json timeline ticket
+test_json_envelope_ok json-timeline-ticket-env
+test_json_payload json-timeline-ticket {limit timeline} {}
+
+# json timeline wiki
+fossil_json timeline wiki
+test_json_envelope_ok json-timeline-wiki-env
+test_json_payload json-timeline-wiki {limit timeline} {}
+
+
 #### USER MANAGEMENT
+
+# json user get
+foreach u [list nobody anonymous reader developer U1] {
+  fossil_json user get $u
+  test_json_envelope_ok json-user-get-$u-env
+  test_json_payload json-user-get-$u {uid name capabilities info timestamp} {}
+}
+
+# json user list
+fossil_json user list
+test_json_envelope_ok json-user-list-env
+set i 0
+foreach u [dict get $JR payload] {
+  test_dict_keys json-user-list-$i $u {uid name capabilities info timestamp} {}
+  incr i
+}
+
+# json user save
+test TODO-json-user-save false knownBug
 
 #### WIKI
 
