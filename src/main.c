@@ -1013,6 +1013,79 @@ const char *get_version(){
 }
 
 /*
+** This function populates a blob with version information.  It is used by
+** the "version" command and "test-version" web page.  It assumes the blob
+** passed to it is uninitialized; otherwise, it will leak memory.
+*/
+static void get_version_blob(
+  Blob *pOut,                 /* Write the manifest here */
+  int bVerbose                /* Non-zero for full information. */
+){
+#if defined(FOSSIL_ENABLE_TCL)
+  int rc;
+  const char *zRc;
+#endif
+  blob_zero(pOut);
+  blob_appendf(pOut, "This is fossil version %s\n", get_version());
+  if( !bVerbose ) return;
+  blob_appendf(pOut, "Compiled on %s %s using %s (%d-bit)\n",
+               __DATE__, __TIME__, COMPILER_NAME, sizeof(void*)*8);
+  blob_appendf(pOut, "SQLite %s %.30s\n", sqlite3_libversion(),
+               sqlite3_sourceid());
+  blob_appendf(pOut, "Schema version %s\n", AUX_SCHEMA_MAX);
+#if defined(FOSSIL_ENABLE_MINIZ)
+  blob_appendf(pOut, "miniz %s, loaded %s\n", MZ_VERSION, mz_version());
+#else
+  blob_appendf(pOut, "zlib %s, loaded %s\n", ZLIB_VERSION, zlibVersion());
+#endif
+#if defined(FOSSIL_ENABLE_SSL)
+  blob_appendf(pOut, "SSL (%s)\n", SSLeay_version(SSLEAY_VERSION));
+#endif
+#if defined(FOSSIL_ENABLE_LEGACY_MV_RM)
+  blob_append(pOut, "LEGACY_MV_RM\n", -1);
+#endif
+#if defined(FOSSIL_ENABLE_EXEC_REL_PATHS)
+  blob_append(pOut, "EXEC_REL_PATHS\n", -1);
+#endif
+#if defined(FOSSIL_ENABLE_TH1_DOCS)
+  blob_append(pOut, "TH1_DOCS\n", -1);
+#endif
+#if defined(FOSSIL_ENABLE_TH1_HOOKS)
+  blob_append(pOut, "TH1_HOOKS\n", -1);
+#endif
+#if defined(FOSSIL_ENABLE_TCL)
+  Th_FossilInit(TH_INIT_DEFAULT | TH_INIT_FORCE_TCL);
+  rc = Th_Eval(g.interp, 0, "tclInvoke info patchlevel", -1);
+  zRc = Th_ReturnCodeName(rc, 0);
+  blob_appendf(pOut, "TCL (Tcl %s, loaded %s: %s)\n",
+    TCL_PATCH_LEVEL, zRc, Th_GetResult(g.interp, 0)
+  );
+#endif
+#if defined(USE_TCL_STUBS)
+  blob_append(pOut, "USE_TCL_STUBS\n", -1);
+#endif
+#if defined(FOSSIL_ENABLE_TCL_STUBS)
+  blob_append(pOut, "TCL_STUBS\n", -1);
+#endif
+#if defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS)
+  blob_append(pOut, "TCL_PRIVATE_STUBS\n", -1);
+#endif
+#if defined(FOSSIL_ENABLE_JSON)
+  blob_appendf(pOut, "JSON (API %s)\n", FOSSIL_JSON_API_VERSION);
+#endif
+#if defined(BROKEN_MINGW_CMDLINE)
+  blob_append(pOut, "MBCS_COMMAND_LINE\n", -1);
+#else
+  blob_append(pOut, "UNICODE_COMMAND_LINE\n", -1);
+#endif
+#if defined(FOSSIL_DYNAMIC_BUILD)
+  blob_append(pOut, "DYNAMIC_BUILD\n", -1);
+#else
+  blob_append(pOut, "STATIC_BUILD\n", -1);
+#endif
+}
+
+/*
 ** This function returns the user-agent string for Fossil, for
 ** use in HTTP(S) requests.
 */
@@ -1021,6 +1094,7 @@ const char *get_user_agent(){
                                 " " MANIFEST_VERSION ")";
   return version;
 }
+
 
 /*
 ** COMMAND: version
@@ -1033,76 +1107,35 @@ const char *get_user_agent(){
 ** with
 */
 void version_cmd(void){
-  int verboseFlag = 0;
-
-  fossil_print("This is fossil version %s\n", get_version());
-  verboseFlag = find_option("verbose","v",0)!=0;
+  Blob versionInfo;
+  int verboseFlag = find_option("verbose","v",0)!=0;
 
   /* We should be done with options.. */
   verify_all_options();
+  get_version_blob(&versionInfo, verboseFlag);
+  fossil_print("%s", blob_str(&versionInfo));
+}
 
-  if(!verboseFlag){
-    return;
-  }else{
-#if defined(FOSSIL_ENABLE_TCL)
-    int rc;
-    const char *zRc;
-#endif
-    fossil_print("Compiled on %s %s using %s (%d-bit)\n",
-                 __DATE__, __TIME__, COMPILER_NAME, sizeof(void*)*8);
-    fossil_print("SQLite %s %.30s\n", sqlite3_libversion(), sqlite3_sourceid());
-    fossil_print("Schema version %s\n", AUX_SCHEMA_MAX);
-#if defined(FOSSIL_ENABLE_MINIZ)
-    fossil_print("miniz %s, loaded %s\n", MZ_VERSION, mz_version());
-#else
-    fossil_print("zlib %s, loaded %s\n", ZLIB_VERSION, zlibVersion());
-#endif
-#if defined(FOSSIL_ENABLE_SSL)
-    fossil_print("SSL (%s)\n", SSLeay_version(SSLEAY_VERSION));
-#endif
-#if defined(FOSSIL_ENABLE_LEGACY_MV_RM)
-    fossil_print("LEGACY_MV_RM\n");
-#endif
-#if defined(FOSSIL_ENABLE_EXEC_REL_PATHS)
-    fossil_print("EXEC_REL_PATHS\n");
-#endif
-#if defined(FOSSIL_ENABLE_TH1_DOCS)
-    fossil_print("TH1_DOCS\n");
-#endif
-#if defined(FOSSIL_ENABLE_TH1_HOOKS)
-    fossil_print("TH1_HOOKS\n");
-#endif
-#if defined(FOSSIL_ENABLE_TCL)
-    Th_FossilInit(TH_INIT_DEFAULT | TH_INIT_FORCE_TCL);
-    rc = Th_Eval(g.interp, 0, "tclInvoke info patchlevel", -1);
-    zRc = Th_ReturnCodeName(rc, 0);
-    fossil_print("TCL (Tcl %s, loaded %s: %s)\n",
-      TCL_PATCH_LEVEL, zRc, Th_GetResult(g.interp, 0)
-    );
-#endif
-#if defined(USE_TCL_STUBS)
-    fossil_print("USE_TCL_STUBS\n");
-#endif
-#if defined(FOSSIL_ENABLE_TCL_STUBS)
-    fossil_print("TCL_STUBS\n");
-#endif
-#if defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS)
-    fossil_print("TCL_PRIVATE_STUBS\n");
-#endif
-#if defined(FOSSIL_ENABLE_JSON)
-    fossil_print("JSON (API %s)\n", FOSSIL_JSON_API_VERSION);
-#endif
-#if defined(BROKEN_MINGW_CMDLINE)
-    fossil_print("MBCS_COMMAND_LINE\n");
-#else
-    fossil_print("UNICODE_COMMAND_LINE\n");
-#endif
-#if defined(FOSSIL_DYNAMIC_BUILD)
-    fossil_print("DYNAMIC_BUILD\n");
-#else
-    fossil_print("STATIC_BUILD\n");
-#endif
-  }
+
+/*
+** WEBPAGE: test-version
+**
+** Show the version information for Fossil.
+**
+** Query parameters:
+**
+**    verbose       Show all available details.
+*/
+void test_version_page(void){
+  Blob versionInfo;
+  int verboseFlag = P("verbose")!=0;
+
+  style_header("Version Information");
+  get_version_blob(&versionInfo, verboseFlag);
+  @ <blockquote><pre>
+  @ %h(blob_str(&versionInfo))
+  @ </pre></blockquote>
+  style_footer();
 }
 
 

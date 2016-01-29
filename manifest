@@ -1,5 +1,5 @@
-C fixed\stype\sof\sJsonPageDef::runMode\sfrom\schar\sto\sint\sbecause\sit\suses\snegative\svalues\sand\schar\sis\sunsigned\sby\sARM\splatforms.
-D 2016-01-29T07:00:45.188
+C Add\stest-version\sweb\spage.\sRefactor\scommand\sline\s'version'\scommand\scode\sinto\sa\sfunction\sto\shelp\sfacilitate\sthat.
+D 2016-01-29T21:03:53.826
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -442,7 +442,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 48e28e14943671f38ff81cdbdb6db93564bed895
 F src/lookslike.c 9103d15912b792a65874f04e185f2a74a477ebb4
-F src/main.c 5cbae19db27ca1530c36455c2fdd8dfc77289bfe
+F src/main.c 6286e53086391862c6a738007a06b0a8558d23a3
 F src/main.mk 9e159023f50de1e869bbe4172dc4b25fe6a72cfa
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -744,7 +744,8 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c1c680eb289550f82d41de5532493312fbaaaf3e
-R 23e525451a631e1e36cc91fe024807c0
-U stephan
-Z 1168cd6991430d76b2625dd49c551541
+P 8f6b78e7b20a9f64fb6d2488c809786cb4b7fb8a eb7a7a33215b70c941f5ba1b993b601a0d27e245
+R dd3754ce9bec229e4eab037b67befe47
+T +closed eb7a7a33215b70c941f5ba1b993b601a0d27e245
+U mistachkin
+Z f452380f572e4cfbe01cd21d78706043
