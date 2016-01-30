@@ -1,5 +1,5 @@
-C Make\sconfigure\smore\srobust\swhen\susing\sthe\sin-tree\szlib\sand\sOpenSSL.
-D 2016-01-30T01:28:31.165
+C Improve\sauto-detection\sof\sTcl\son\ssystems\swhere\s-lpthread\sis\smissing\sfrom\sTCL_LIB_SPEC.
+D 2016-01-30T04:29:11.902
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -45,7 +45,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def c325a65f271b1475bbf38c106595752894ed2303
+F auto.def 6ab6a6c3c4007a77aa5ca850071fb4a0db2e69e2
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 4e0b671b54288fc64d851d056822ee5fec4d3365
 F autosetup/autosetup 7b5ae324561a38804875517af9b7c6e7f42f930d x
@@ -744,8 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 83b2acb7047866e43721313b7356176da6473b08 98881d8970b25a039cf9a8546596dc791be8bab0
-R 927c7a859fee8c084f7c9ba5012e8cf2
-T +closed 98881d8970b25a039cf9a8546596dc791be8bab0
+P b41f42841f029b88a2fce1a7f8cc5c0ae7eb6719
+R 4a56253939664bbad34681f4a1e524ff
 U mistachkin
-Z 1c7e4239e2121623724aec76f220b315
+Z 48b375c259ab45685d691290063f3157
