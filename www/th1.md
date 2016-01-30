@@ -157,6 +157,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  puts
   *  query
   *  randhex
+  *  redirect
   *  regexp
   *  reinitialize
   *  render
