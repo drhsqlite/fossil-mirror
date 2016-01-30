@@ -426,7 +426,7 @@ test_json_payload json-tag-add {name value propagate raw appliedTo} {}
 # json tag cancel NAME CHECKIN
 fossil_json tag add cancel alpha
 test_json_envelope_ok json-tag-cancel-env
-# BUG? Doc says no payload.
+# DOCBUG? Doc says no payload.
 test_json_payload json-tag-cancel {name value propagate raw appliedTo} {}
 
 # json tag find NAME
@@ -518,7 +518,16 @@ foreach u [dict get $JR payload] {
 }
 
 # json user save
-test TODO-json-user-save false knownBug
+fossil json user save --uid -1 --name U2 --password Utwo 
+test_json_envelope_ok json-user-save-env
+# DOCBUG? Doc says payload is "same as /json/user/get" but actual
+# result was an array of one user similar to /json/user/list.
+set i 0
+foreach u [dict get $JR payload] {
+  test_dict_keys json-user-save-$i $u {uid name capabilities info timestamp} {}
+  incr i
+}
+#test_json_payload json-user-save {uid name capabilities info timestamp} {}
 
 #### WIKI
 
