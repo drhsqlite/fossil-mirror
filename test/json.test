@@ -73,6 +73,53 @@ proc fossil_http_json {url {cookie "Muppet=Monster"} args} {
 }
 
 
+# Use the HTTP interface to POST a JSON API URL. Sets the globals
+# RESULT to the HTTP response body, and JR to a Tcl dict conversion of
+# the response body.
+#
+# Returns the status code from the HTTP header.
+proc fossil_post_json {url data {cookie "Muppet=Monster"} args} {
+  global RESULT JR 
+
+  # set up a full GET or POST HTTP request
+  set len [string length $data]
+  if {$len > 0} {
+    set request [subst {POST $url HTTP/1.0\r
+Host: localhost\r
+User-Agent: Fossil-Test\r
+Cookie: $cookie\r
+Content-Type: application/json
+Content-Length $len
+\r
+$data}]
+  } else {
+    set request [subst {GET $url HTTP/1.0\r
+Host: localhost\r
+User-Agent: Fossil-Test\r
+Cookie: $cookie\r
+\r
+}]
+  }
+
+  # handle the actual request
+  flush stdout
+  #exec $fossilexe
+  set RESULT [fossil_maybe_answer $request http {*}$args]
+
+  # separate HTTP headers from body
+  regexp {(?w)(.*)^\s*$(.*)} $RESULT dummy head body
+  regexp {^HTTP\S+\s+(\d\d\d)\s+(.*)$} $head dummy status msg
+  if {$status eq "200"} {
+    if {[string length $body] > 0} {
+      set JR [::json::json2dict $body]
+    } else {
+      set JR ""
+    }
+  }
+  return $status
+}
+
+
 # Inspect a dict for keys it must have and keys it must not have
 proc test_dict_keys {testname D okfields badfields} {
   set i 1
@@ -236,15 +283,32 @@ write_file anon-2 [subst {
 }]
 fossil_json --json-input anon-2
 test_json_envelope_ok json-cap-env
-# No point checking any other flags, setup implies all, and all are
-# moot from CLI.
 test json-cap-CLI {[dict get $JR payload permissionFlags setup]}
 
-test TODO-json-post-authentication false knownBug
-#TODO: implement support for POST with JSON payload from file
-#fossil_http_post_json /json anon-2
-#test_json_envelope_ok json-cap-http-env
-#test json-cap-http {![dict get $JR payload permissionFlags setup]}
+# json cap via POST with authToken in request envelope
+set anon2 [read_file anon-2]
+fossil_post_json "/json/cap" $anon2
+test json-cap-POSTenv-env-0 {[string length $JR] > 0}
+test_json_envelope_ok json-cap-POSTenv-env
+test json-cap-POSTenv-name {[dict get $JR payload name] eq "anonymous"} knownBug
+test json-cap-POSTenv-notsetup {![dict get $JR payload permissionFlags setup]}
+
+
+# json cap via GET with authToken in Cookie header
+fossil_post_json "/json/cap" {} $AnonCookie
+test json-cap-GETcookie-env-0 {[string length $JR] > 0}
+test_json_envelope_ok json-cap-GETcookie-env
+test json-cap-GETcookie-name {[dict get $JR payload name] eq "anonymous"}
+test json-cap-GETcookie-notsetup {![dict get $JR payload permissionFlags setup]}
+
+
+# json cap via GET with authToken in a parameter
+fossil_post_json "/json/cap?authToken=[dict get $AuthAnon authToken]" {}
+test json-cap-GETcookie-env-0 {[string length $JR] > 0}
+test_json_envelope_ok json-cap-GETcookie-env
+test json-cap-GETcookie-name {[dict get $JR payload name] eq "anonymous"}
+test json-cap-GETcookie-notsetup {![dict get $JR payload permissionFlags setup]}
+
 
 # whoami
 # via CLI with no auth token supplied
