@@ -72,6 +72,7 @@ proc fossil_http_json {url {cookie "Muppet=Monster"} args} {
   return $status
 }
 
+
 # Inspect a dict for keys it must have and keys it must not have
 proc test_dict_keys {testname D okfields badfields} {
   set i 1
@@ -279,7 +280,34 @@ foreach a [list skin ticket project all skin-backup] {
 
 #### DIFFS
 # json diff v1 v2
-test TODO-json-diff false knownBug
+
+write_file fish {
+ABCD goldfish
+}
+fossil add fish
+fossil ci -m "goldfish"
+fossil_json finfo fish
+set fishHist [dict get $JR payload checkins]
+set fishV1 [dict get [lindex $fishHist 0] uuid]
+
+write_file fish {
+ABCD goldfish
+LMNO goldfish
+}
+fossil ci -m "goldfish"
+fossil_json finfo fish
+set fishHist [dict get $JR payload checkins]
+set fishV2 [dict get [lindex $fishHist 0] uuid]
+
+test fossil-diff-setup {$fishV1 ne $fishV2}
+fossil_json diff $fishV1 $fishV2
+test_json_envelope_ok json-diff-env
+test_json_payload json-diff {from to diff} {}
+test json-diff-v1 {[dict get $JR payload from] eq $fishV1}
+test json-diff-v2 {[dict get $JR payload to] eq $fishV2}
+set diff [dict get $JR payload diff]
+test json-diff-diff {[string first "+LMNO goldfish" $diff] >= 0}
+protOut [dict get $JR payload diff]
 
 
 #### DIRECTORY LISTING
@@ -537,7 +565,9 @@ test json-resultCodes-codes-1 {[llength $codes] >= 35} ;# count as of API 201207
 # }
 
 
-##### From the API Docs
+
+#### From the API Docs
+
 # Reminder to self: in March 2012 i saw a corner-case which returns
 # HTML output. To reproduce: chmod 444 REPO, then submit a request
 # which writes something (timeline creates a temp table). The "repo
@@ -560,8 +590,6 @@ test json-ROrepo-2-1 {$CODE != 0}
 test json-ROrepo-2-2 {[regexp {\}\s*$} $RESULT]} knownBug
 test json-ROrepo-2-3 {![regexp {SQLITE_[A-Z]+:} $RESULT]} knownBug
 #test_json_envelope_ok json-http-timeline2
-
-
 catch {exec chmod 666 .rep.fossil}; # Unix. What about Win?
 
 
