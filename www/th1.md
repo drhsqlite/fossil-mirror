@@ -425,6 +425,14 @@ to each invocation of CODE.
 Returns a string of N*2 random hexadecimal digits with N<50.  If N is
 omitted, use a value of 10.
 
+<a name="redirect"></a>TH1 redirect Command
+-------------------------------------------
+
+  *  redirect URL
+
+Issues an HTTP redirect (302) to the specified URL and then exits the
+process.
+
 <a name="regexp"></a>TH1 regexp Command
 ---------------------------------------
 

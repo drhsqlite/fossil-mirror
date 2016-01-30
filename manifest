@@ -1,5 +1,5 @@
-C Improve\sauto-detection\sof\sTcl\son\ssystems\swhere\s-lpthread\sis\smissing\sfrom\sTCL_LIB_SPEC.
-D 2016-01-30T04:29:11.902
+C Add\sthe\s'redirect'\scommand\sto\sTH1.
+D 2016-01-30T21:40:30.640
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -493,7 +493,7 @@ F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
-F src/th_main.c 165d0fdef163f658ba0db12f278d7cc940c45328
+F src/th_main.c ff4e374e8e6cf31d752af8eddc26a48cd32b35a4
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
 F src/timeline.c 8ab92a00887db5eb873d35f5c5c8ffa2d4691ed1
 F src/tkt.c 09fedb774dc3ee893d01ce2a6050809796ef66c9
@@ -736,7 +736,7 @@ F www/stats.wiki e6c82bd6579f755896c47b22dbab18e27b1f5bc4
 F www/style.wiki da3a414d4c57c3da2636daf0baf6964ba72ce70b
 F www/sync.wiki ecd7e356270a40e81649970c1b606767db68d9e3
 F www/tech_overview.wiki 66d893fd0bca7f5dbc659ab0b4e9dde987e4fdb3
-F www/th1.md f07fc592f031590f262f4e2f5cb1441f27a4a57b
+F www/th1.md 830b3e793cca3a1e0b2ec5b84705f79c9cc0c160
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b41f42841f029b88a2fce1a7f8cc5c0ae7eb6719
-R 4a56253939664bbad34681f4a1e524ff
+P 352e2ef9c62efd07a5057a1b37fe9766bf555721
+R 5ba4650c4659182612ebfa26e711edbb
 U mistachkin
-Z 48b375c259ab45685d691290063f3157
+Z 0a736741db1696db2377c3e4a5e539dc

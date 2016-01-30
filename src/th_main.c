@@ -434,6 +434,27 @@ static int putsCmd(
 }
 
 /*
+** TH1 command: redirect URL
+**
+** Issues an HTTP redirect (302) to the specified URL and then exits the
+** process.
+*/
+static int redirectCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "redirect URL");
+  }
+  cgi_redirect(argv[1]);
+  Th_SetResult(interp, argv[1], argl[1]); /* NOT REACHED */
+  return TH_OK;
+}
+
+/*
 ** TH1 command: markdown STRING
 **
 ** Renders the input string as markdown.  The result is a two-element list.
@@ -1774,6 +1795,7 @@ void Th_FossilInit(u32 flags){
     {"puts",          putsCmd,              (void*)&aFlags[1]},
     {"query",         queryCmd,             0},
     {"randhex",       randhexCmd,           0},
+    {"redirect",      redirectCmd,          0},
     {"regexp",        regexpCmd,            0},
     {"reinitialize",  reinitializeCmd,      0},
     {"render",        renderCmd,            0},
