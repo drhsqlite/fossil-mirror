@@ -189,8 +189,8 @@ proc check-for-openssl {msg {cflags {}} {libs {-lssl -lcrypto}}} {
     if {[is_mingw]} {
         lappend libs -lgdi32 -lwsock32
     }
-    if {[info exists ::zlib_for_ssl]} {
-        lappend libs $::zlib_for_ssl
+    if {[info exists ::zlib_lib]} {
+        lappend libs $::zlib_lib
     }
     msg-quiet cc-with [list -cflags $cflags -libs $libs] {
         if {[cc-check-includes openssl/ssl.h] && \
@@ -231,7 +231,7 @@ if {[opt-bool with-miniz]} {
         cc-with [list -cflags "-I$zlibdir -L$zlibdir"]
         define-append EXTRA_CFLAGS -I$zlibdir
         define-append LIBS $zlibdir/libz.a
-        set ::zlib_for_ssl $zlibdir/libz.a
+        set ::zlib_lib $zlibdir/libz.a
         msg-result "Using zlib in source tree"
     } else {
         if {$zlibpath ni {auto ""}} {
@@ -243,7 +243,7 @@ if {[opt-bool with-miniz]} {
         if {![cc-check-includes zlib.h] || ![check-function-in-lib inflateEnd z]} {
             user-error "zlib not found please install it or specify the location with --with-zlib"
         }
-        set ::zlib_for_ssl -lz
+        set ::zlib_lib -lz
     }
 }
 
@@ -301,6 +301,9 @@ if {$ssldirs ne "none"} {
         } else {
             define-append LIBS -lssl -lcrypto
         }
+        if {[info exists ::zlib_lib]} {
+            define-append LIBS $::zlib_lib
+        }
         if {[is_mingw]} {
             define-append LIBS -lgdi32 -lwsock32
         }
@@ -314,6 +317,10 @@ if {$ssldirs ne "none"} {
         }
     } else {
         user-error "OpenSSL not found. Consider --with-openssl=none to disable HTTPS support"
+    }
+} else {
+    if {[info exists ::zlib_lib]} {
+        define-append LIBS $::zlib_lib
     }
 }
 
