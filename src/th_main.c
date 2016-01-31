@@ -455,6 +455,49 @@ static int redirectCmd(
 }
 
 /*
+** TH1 command: insertCsrf
+**
+** While rendering a form, call this command to add the Anti-CSRF token
+** as a hidden element of the form.
+*/
+static int insertCsrfCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=1 ){
+    return Th_WrongNumArgs(interp, "insertCsrf");
+  }
+  login_insert_csrf_secret();
+  return TH_OK;
+}
+
+/*
+** TH1 command: verifyCsrf
+**
+** Before using the results of a form, first call this command to verify
+** that this Anti-CSRF token is present and is valid.  If the Anti-CSRF token
+** is missing or is incorrect, that indicates a cross-site scripting attack.
+** If the event of an attack is detected, an error message is generated and
+** all further processing is aborted.
+*/
+static int verifyCsrfCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=1 ){
+    return Th_WrongNumArgs(interp, "verifyCsrf");
+  }
+  login_verify_csrf_secret();
+  return TH_OK;
+}
+
+/*
 ** TH1 command: markdown STRING
 **
 ** Renders the input string as markdown.  The result is a two-element list.
@@ -1790,6 +1833,7 @@ void Th_FossilInit(u32 flags){
     {"html",          putsCmd,              (void*)&aFlags[0]},
     {"htmlize",       htmlizeCmd,           0},
     {"http",          httpCmd,              0},
+    {"insertCsrf",    insertCsrfCmd,        0},
     {"linecount",     linecntCmd,           0},
     {"markdown",      markdownCmd,          0},
     {"puts",          putsCmd,              (void*)&aFlags[1]},
@@ -1809,6 +1853,7 @@ void Th_FossilInit(u32 flags){
     {"trace",         traceCmd,             0},
     {"stime",         stimeCmd,             0},
     {"utime",         utimeCmd,             0},
+    {"verifyCsrf",    verifyCsrfCmd,        0},
     {"wiki",          wikiCmd,              (void*)&aFlags[0]},
     {0, 0, 0}
   };
