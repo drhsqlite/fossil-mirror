@@ -1291,8 +1291,9 @@ void login_insert_csrf_secret(void){
 /*
 ** Before using the results of a form, first call this routine to verify
 ** that this Anti-CSRF token is present and is valid.  If the Anti-CSRF token
-** is missing or is incorrect, that indicates a cross-site scripting attach
-** so emits an error message and abort.
+** is missing or is incorrect, that indicates a cross-site scripting attack.
+** If the event of an attack is detected, an error message is generated and
+** all further processing is aborted.
 */
 void login_verify_csrf_secret(void){
   if( g.okCsrf ) return;
