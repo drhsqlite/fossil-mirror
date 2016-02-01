@@ -1399,7 +1399,13 @@ static void set_base_url(const char *zAltBase){
   if( zAltBase ){
     int i, n, c;
     g.zTop = g.zBaseURL = mprintf("%s", zAltBase);
-    if( memcmp(g.zTop, "http://", 7)!=0 && memcmp(g.zTop,"https://",8)!=0 ){
+    if( strncmp(g.zTop, "http://", 7)==0 ){
+      /* it is HTTP, replace prefix with HTTPS. */
+      g.zHttpsURL = mprintf("https://%s", &g.zTop[7]);
+    }else if( strncmp(g.zTop, "https://", 8)==0 ){
+      /* it is already HTTPS, use it. */
+      g.zHttpsURL = mprintf("%s", g.zTop);
+    }else{
       fossil_fatal("argument to --baseurl should be 'http://host/path'"
                    " or 'https://host/path'");
     }
