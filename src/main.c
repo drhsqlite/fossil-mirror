@@ -2437,7 +2437,9 @@ static int binaryOnPath(const char *zBinary){
 **   --files GLOBLIST    Comma-separated list of glob patterns for static files
 **   --localauth         enable automatic login for requests from localhost
 **   --localhost         listen on 127.0.0.1 only (always true for "ui")
+**   --https             signal a request coming in via https
 **   --nojail            Drop root privileges but do not enter the chroot jail
+**   --nossl             signal that no SSL connections are available
 **   --notfound URL      Redirect
 **   -P|--port TCPPORT   listen to request on port TCPPORT
 **   --th-trace          trace TH1 execution (for debugging purposes)
@@ -2499,6 +2501,13 @@ void cmd_webserver(void){
   if( zAltBase ){
     set_base_url(zAltBase);
   }
+  g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
+  if( find_option("https",0,0)!=0 ){
+    cgi_replace_parameter("HTTPS","on");
+  }else{
+    /* without --https, defaults to not available. */
+    g.sslNotAvailable = 1;
+  }
   if( find_option("localhost", 0, 0)!=0 ){
     flags |= HTTP_SERVER_LOCALHOST;
   }
@@ -2559,7 +2568,6 @@ void cmd_webserver(void){
   if( cgi_http_server(iPort, mxPort, zBrowserCmd, zIpAddr, flags) ){
     fossil_fatal("unable to listen on TCP socket %d", iPort);
   }
-  g.sslNotAvailable = 1;
   g.httpIn = stdin;
   g.httpOut = stdout;
   if( g.fHttpTrace || g.fSqlTrace ){
