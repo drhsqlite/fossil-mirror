@@ -1077,15 +1077,16 @@ void login_set_capabilities(const char *zCap, unsigned flags){
   }
   for(i=0; zCap[i]; i++){
     switch( zCap[i] ){
-      case 's':   p->Setup = 1;  /* Fall thru into Admin */
+      case 's':   p->Setup = 1; /* Fall thru into Admin */
       case 'a':   p->Admin = p->RdTkt = p->WrTkt = p->Zip =
-                           p->RdWiki = p->WrWiki = p->NewWiki =
-                           p->ApndWiki = p->Hyperlink = p->Clone =
-                           p->NewTkt = p->Password = p->RdAddr =
-                           p->TktFmt = p->Attach = p->ApndTkt =
-                           p->ModWiki = p->ModTkt = 1;
-                           /* Fall thru into Read/Write */
-      case 'i':   p->Read = p->Write = 1;                     break;
+                             p->RdWiki = p->WrWiki = p->NewWiki =
+                             p->ApndWiki = p->Hyperlink = p->Clone =
+                             p->NewTkt = p->Password = p->RdAddr =
+                             p->TktFmt = p->Attach = p->ApndTkt =
+                             p->ModWiki = p->ModTkt = p->Delete =
+                             p->Private = 1;
+                             /* Fall thru into Read/Write */
+      case 'i':   p->Read = p->Write = 1;                      break;
       case 'o':   p->Read = 1;                                 break;
       case 'z':   p->Zip = 1;                                  break;
 
@@ -1095,7 +1096,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
       case 'p':   p->Password = 1;                             break;
 
       case 'j':   p->RdWiki = 1;                               break;
-      case 'k':   p->WrWiki = p->RdWiki = p->ApndWiki =1;    break;
+      case 'k':   p->WrWiki = p->RdWiki = p->ApndWiki =1;      break;
       case 'm':   p->ApndWiki = 1;                             break;
       case 'f':   p->NewWiki = 1;                              break;
       case 'l':   p->ModWiki = 1;                              break;
@@ -1183,7 +1184,7 @@ int login_has_capability(const char *zCap, int nCap, u32 flgs){
       case 'x':  rc = p->Private;   break;
       /* case 'y': */
       case 'z':  rc = p->Zip;       break;
-      default:   rc = 0;             break;
+      default:   rc = 0;            break;
     }
   }
   return rc;

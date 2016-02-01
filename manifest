@@ -1,5 +1,5 @@
-C Minor\scorrections\sto\scomments\sfor\slogin_verify_csrf_secret().
-D 2016-01-31T21:03:02.107
+C Test\sof\slatest\sfeature\sbranches,\sdo\snot\smerge.
+D 2016-02-01T04:38:19.839
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -440,9 +440,9 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c 9c1a8a9a1d33f79191cb5a104067201a8cee6de1
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
-F src/login.c 4f4d333a92531c0b175739c84e0c08fded72e431
+F src/login.c 9010b62121a41566e330f62c238061ca4c6b4f98
 F src/lookslike.c 9103d15912b792a65874f04e185f2a74a477ebb4
-F src/main.c 09f7d49031a1a0d4ebba480c85e6e384d448fe56
+F src/main.c 6f377425b6444c51717e1f3ac8955678b8f8b3f9
 F src/main.mk 9e159023f50de1e869bbe4172dc4b25fe6a72cfa
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -493,7 +493,7 @@ F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
-F src/th_main.c ff4e374e8e6cf31d752af8eddc26a48cd32b35a4
+F src/th_main.c 5884aaf5fe408cff8bd4f98a66047bfd7ebbaf78
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
 F src/timeline.c 8ab92a00887db5eb873d35f5c5c8ffa2d4691ed1
 F src/tkt.c 09fedb774dc3ee893d01ce2a6050809796ef66c9
@@ -736,7 +736,7 @@ F www/stats.wiki e6c82bd6579f755896c47b22dbab18e27b1f5bc4
 F www/style.wiki da3a414d4c57c3da2636daf0baf6964ba72ce70b
 F www/sync.wiki ecd7e356270a40e81649970c1b606767db68d9e3
 F www/tech_overview.wiki 66d893fd0bca7f5dbc659ab0b4e9dde987e4fdb3
-F www/th1.md f93f7c8749ad225a36677e420db14672a28ad799
+F www/th1.md 51322aa2145476ab6e220c44007af83460b9739f
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
@@ -744,7 +744,10 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eb0cf27ab7c92bd15b1319f329e787c1484c1c34
-R 018e8a644f291f73865d87099545aa0d
+P 3c47e0c66a60c2cab6667e748540f0a2a2a1c32e 0357c1693064377a59b330925a24226a06b7c448 62f8ac1f692a09b54e1dd7c4cad60e9000459339 c3a17f81cff300eddc2eaed7dbe26d840c9d6c3a 2bf596c9d518549416313950277e8f627ad4431f
+R 156134b6a0d3f3259c520c1ad6a16efe
+T *branch * feature-test
+T *sym-feature-test *
+T -sym-trunk *
 U mistachkin
-Z a982ed2467687c37cb4410e6d1447ba8
+Z 69d2f8cc126a0f8365e2bfad4203968a
