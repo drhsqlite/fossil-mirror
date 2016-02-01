@@ -1,5 +1,5 @@
-C Minor\scorrections\sto\scomments\sfor\slogin_verify_csrf_secret().
-D 2016-01-31T21:03:02.107
+C Having\sthe\s'setup'\sor\s'admin'\spermission\sshould\simply\shaving\sthe\s'delete'\sand\s'private'\spermissions\sas\swell\s(i.e.\ssince\sthey\scan\schange\stheir\sown\spermissions\sanyhow).
+D 2016-02-01T03:56:50.025
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -440,7 +440,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c 9c1a8a9a1d33f79191cb5a104067201a8cee6de1
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
-F src/login.c 4f4d333a92531c0b175739c84e0c08fded72e431
+F src/login.c 9010b62121a41566e330f62c238061ca4c6b4f98
 F src/lookslike.c 9103d15912b792a65874f04e185f2a74a477ebb4
 F src/main.c 09f7d49031a1a0d4ebba480c85e6e384d448fe56
 F src/main.mk 9e159023f50de1e869bbe4172dc4b25fe6a72cfa
@@ -744,7 +744,10 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eb0cf27ab7c92bd15b1319f329e787c1484c1c34
-R 018e8a644f291f73865d87099545aa0d
+P 3c47e0c66a60c2cab6667e748540f0a2a2a1c32e
+R 5d80ae00007518a34e6b0a321c1d4ab2
+T *branch * adminPerms
+T *sym-adminPerms *
+T -sym-trunk *
 U mistachkin
-Z a982ed2467687c37cb4410e6d1447ba8
+Z 984f1c725409204f0f4f34b127d16782
