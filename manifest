@@ -1,5 +1,5 @@
-C Minor\scorrections\sto\scomments\sfor\slogin_verify_csrf_secret().
-D 2016-01-31T21:03:02.107
+C The\s'g.zHttpsURL'\svariable\sshould\sbe\spopulated\seven\swhen\sthe\s--baseurl\soption\sis\sused.
+D 2016-02-01T04:11:05.533
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -442,7 +442,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 4f4d333a92531c0b175739c84e0c08fded72e431
 F src/lookslike.c 9103d15912b792a65874f04e185f2a74a477ebb4
-F src/main.c 09f7d49031a1a0d4ebba480c85e6e384d448fe56
+F src/main.c d5e2a158e80468d5122c922b1e883ea8cbc5c762
 F src/main.mk 9e159023f50de1e869bbe4172dc4b25fe6a72cfa
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -744,7 +744,10 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eb0cf27ab7c92bd15b1319f329e787c1484c1c34
-R 018e8a644f291f73865d87099545aa0d
+P 3c47e0c66a60c2cab6667e748540f0a2a2a1c32e
+R 24e50d8c821d88d04b93ebc6a60f5792
+T *branch * httpsBaseUrl
+T *sym-httpsBaseUrl *
+T -sym-trunk *
 U mistachkin
-Z a982ed2467687c37cb4410e6d1447ba8
+Z 4f303365fdbb8a94f16c25c203adf03a
