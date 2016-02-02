@@ -518,16 +518,21 @@ foreach u [dict get $JR payload] {
 }
 
 # json user save
-fossil json user save --uid -1 --name U2 --password Utwo 
+fossil_json user save --uid -1 --name U2 --password Utwo 
 test_json_envelope_ok json-user-save-env
+test_json_payload json-user-save {uid name capabilities info timestamp} {}
+
+
 # DOCBUG? Doc says payload is "same as /json/user/get" but actual
 # result was an array of one user similar to /json/user/list.
-set i 0
-foreach u [dict get $JR payload] {
-  test_dict_keys json-user-save-$i $u {uid name capabilities info timestamp} {}
-  incr i
-}
-#test_json_payload json-user-save {uid name capabilities info timestamp} {}
+#set i 0
+#foreach u [dict get $JR payload] {
+#  test_dict_keys json-user-save-$i $u {uid name capabilities info timestamp} {}
+#  incr i
+#}
+#test json-user-save-count {$i == 1}
+
+
 
 #### WIKI
 
@@ -636,6 +641,9 @@ test json-resultCodes-codes-1 {[llength $codes] >= 35} ;# count as of API 201207
 # foreach c $codes {
 #   puts [dict values $c]
 # }
+foreach r $codes {
+  protOut "# [dict get $r resultCode] [dict get $r cSymbol]\n#     [dict get $r description]"
+}
 
 
 
@@ -665,4 +673,166 @@ test json-ROrepo-2-3 {![regexp {SQLITE_[A-Z]+:} $RESULT]} knownBug
 #test_json_envelope_ok json-http-timeline2
 catch {exec chmod 666 .rep.fossil}; # Unix. What about Win?
 
+
+#### Result Codes
+# Test cases designed to stimulate each (documented) error code.
+
+# FOSSIL-0000 
+# Not returned by any command. We generally verify that in the
+# test_json_envelope_ok command by verifying that the resultCode
+# field is not present. Should any JSON endpoint begin to use the
+# range reserved for non-fatal warnings, those tests will fail.
+#
+# Notice that code is not included in the list returned from
+# /json/resultCodes.
+
+
+# FOSSIL-1000 FSL_JSON_E_GENERIC
+#     Generic error
+
+# FOSSIL-1101 FSL_JSON_E_INVALID_REQUEST
+#     Invalid request
+write_file e1101.json {
+  ["command","nope"]
+}
+fossil_json --json-input e1101.json -expectError
+test json-RC-1101-array-CLI-exit {$CODE != 0}
+test_json_envelope json-RC-1101-array-env {fossil timestamp command procTimeUs \
+procTimeMs resultCode resultText} {payload}
+test json-RC-1101-array-code {[dict get $JR resultCode] eq "FOSSIL-1101"}
+
+write_file e1101.json {
+  "Not really a command but more of a suggestion"
+}
+fossil_json --json-input e1101.json -expectError
+test json-RC-1101-string-CLI-exit {$CODE != 0}
+test_json_envelope json-RC-1101-string-env {fossil timestamp command procTimeUs \
+procTimeMs resultCode resultText} {payload}
+test json-RC-1101-string-code {[dict get $JR resultCode] eq "FOSSIL-1101"}
+
+
+
+
+# FOSSIL-1102 FSL_JSON_E_UNKNOWN_COMMAND
+#     Unknown command or subcommand
+fossil_json NoSuchEndpoint -expectError
+test json-RC-1102-CLI-exit {$CODE != 0}
+test_json_envelope json-RC-1102-env {fossil timestamp command procTimeUs \
+procTimeMs resultCode resultText} {payload}
+test json-RC-1102-code {[dict get $JR resultCode] eq "FOSSIL-1102"}
+
+write_file e1102.json {
+  {
+    "command":"no/such/endpoint"
+  }
+}
+fossil_json --json-input e1102.json -expectError
+test json-env-RC-1102-CLI-exit {$CODE != 0}
+test_json_envelope json-env-RC-1102-env {fossil timestamp command procTimeUs \
+procTimeMs resultCode resultText} {payload}
+test json-env-RC-1102-code {[dict get $JR resultCode] eq "FOSSIL-1102"}
+
+
+# FOSSIL-1103 FSL_JSON_E_UNKNOWN
+#     Unknown error
+
+write_file bad.sql  {
+CREATE TABLE spam(a integer, b text);
+}
+exec sqlite3 bad.fossil <bad.sql
+#exec $::fossilexe sqlite3 --no-repository bad.fossil <bad.sql
+#fossil_json HAI -R bad.fossil -expectError
+
+# FOSSIL-1104 FSL_JSON_E_TIMEOUT
+#     Timeout reached
+# FOSSIL-1105 FSL_JSON_E_ASSERT
+#     Assertion failed
+# FOSSIL-1106 FSL_JSON_E_ALLOC
+#     Resource allocation failed
+# FOSSIL-1107 FSL_JSON_E_NYI
+#     Not yet implemented
+# FOSSIL-1108 FSL_JSON_E_PANIC
+#     x
+# FOSSIL-1109 FSL_JSON_E_MANIFEST_READ_FAILED
+#     Reading artifact manifest failed
+# FOSSIL-1110 FSL_JSON_E_FILE_OPEN_FAILED
+#     Opening file failed
+
+# FOSSIL-2000 FSL_JSON_E_AUTH
+#     Authentication error
+# FOSSIL-2001 FSL_JSON_E_MISSING_AUTH
+#     Authentication info missing from request
+# FOSSIL-2002 FSL_JSON_E_DENIED
+#     Access denied
+# FOSSIL-2003 FSL_JSON_E_WRONG_MODE
+#     Request not allowed (wrong operation mode)
+# FOSSIL-2100 FSL_JSON_E_LOGIN_FAILED
+#     Login failed
+# FOSSIL-2101 FSL_JSON_E_LOGIN_FAILED_NOSEED
+#     Anonymous login attempt was missing password seed
+# FOSSIL-2102 FSL_JSON_E_LOGIN_FAILED_NONAME
+#     Login failed - name not supplied
+# FOSSIL-2103 FSL_JSON_E_LOGIN_FAILED_NOPW
+#     Login failed - password not supplied
+# FOSSIL-2104 FSL_JSON_E_LOGIN_FAILED_NOTFOUND
+#     Login failed - no match found
+
+# FOSSIL-3000 FSL_JSON_E_USAGE
+#     Usage error
+# FOSSIL-3001 FSL_JSON_E_INVALID_ARGS
+#     Invalid argument(s)
+
+# FOSSIL-3002 FSL_JSON_E_MISSING_ARGS
+#     Missing argument(s)
+write_file e3002.json {
+  {"color":"yellow",
+   "really":"no, blue",
+   "number":42
+  }
+}
+fossil_json --json-input e3002.json -expectError
+test json-RC-3002-strange-CLI-exit {$CODE != 0}
+test_json_envelope json-RC-3002-strange-env {fossil timestamp command procTimeUs \
+procTimeMs resultCode resultText} {payload}
+test json-RC-3002-strange-code {[dict get $JR resultCode] eq "FOSSIL-3002"}
+
+
+# FOSSIL-3003 FSL_JSON_E_AMBIGUOUS_UUID
+#     Resource identifier is ambiguous
+# FOSSIL-3004 FSL_JSON_E_UNRESOLVED_UUID
+#     Provided uuid/tag/branch could not be resolved
+# FOSSIL-3005 FSL_JSON_E_RESOURCE_ALREADY_EXISTS
+#     Resource already exists
+# FOSSIL-3006 FSL_JSON_E_RESOURCE_NOT_FOUND
+#     Resource not found
+
+# FOSSIL-4000 FSL_JSON_E_DB
+#     Database error
+# FOSSIL-4001 FSL_JSON_E_STMT_PREP
+#     Statement preparation failed
+# FOSSIL-4002 FSL_JSON_E_STMT_BIND
+#     Statement parameter binding failed
+# FOSSIL-4003 FSL_JSON_E_STMT_EXEC
+#     Statement execution/stepping failed
+# FOSSIL-4004 FSL_JSON_E_DB_LOCKED
+#     Database is locked
+# FOSSIL-4101 FSL_JSON_E_DB_NEEDS_REBUILD
+#     Fossil repository needs to be rebuilt
+
+# FOSSIL-4102 FSL_JSON_E_DB_NOT_FOUND
+#     Fossil repository db file could not be found.
+fossil close
+fossil_json HAI -expectError
+test json-RC-4102-CLI-exit {$CODE != 0}
+test_json_envelope json-RC-1102-env {fossil timestamp command procTimeUs \
+procTimeMs resultCode resultText} {payload}
+test json-1 {[dict get $JR resultCode] eq "FOSSIL-4102"}
+fossil open .rep.fossil
+
+# FOSSIL-4103 FSL_JSON_E_DB_NOT_VALID
+#     Fossil repository db file is not valid.
+write_file nope.fossil {
+This is not a fossil repo. It ought to be a SQLite db with a well-known schema,
+but it is actually just a block of text.
+}
 
