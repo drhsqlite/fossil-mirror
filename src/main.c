@@ -158,6 +158,7 @@ struct Global {
   char *zPath;            /* Name of webpage being served */
   char *zExtra;           /* Extra path information past the webpage name */
   char *zBaseURL;         /* Full text of the URL being served */
+  char *zAltBaseURL;      /* Value of --baseurl option, if any */
   char *zHttpsURL;        /* zBaseURL translated to https: */
   char *zTop;             /* Parent directory of zPath */
   const char *zContentType;  /* The content type of the input HTTP request */
@@ -1398,7 +1399,7 @@ static void set_base_url(const char *zAltBase){
   if( g.zBaseURL!=0 ) return;
   if( zAltBase ){
     int i, n, c;
-    g.zTop = g.zBaseURL = mprintf("%s", zAltBase);
+    g.zTop = g.zBaseURL = g.zAltBaseURL = mprintf("%s", zAltBase);
     if( strncmp(g.zTop, "http://", 7)==0 ){
       /* it is HTTP, replace prefix with HTTPS. */
       g.zHttpsURL = mprintf("https://%s", &g.zTop[7]);
@@ -1595,6 +1596,7 @@ static void process_one_web_page(
   int allowRepoList           /* Send repo list for "/" URL */
 ){
   const char *zPathInfo;
+  const char *zFullPathInfo;
   char *zPath = NULL;
   int idx;
   int i;
@@ -1609,7 +1611,17 @@ static void process_one_web_page(
   /* If the repository has not been opened already, then find the
   ** repository based on the first element of PATH_INFO and open it.
   */
-  zPathInfo = PD("PATH_INFO","");
+  zPathInfo = zFullPathInfo = PD("PATH_INFO","");
+  /* If zAltBaseURL is present (i.e. the --baseurl option was used),
+  ** make sure to skip over the portion of zTop that appears in the
+  ** value of zAltBaseURL; otherwise, it may be duplicated later.
+  */
+  if( g.zAltBaseURL && g.zTop ){
+    int nTop = strlen(g.zTop);
+    if ( strncmp(zPathInfo, g.zTop, nTop)==0 ){
+      zPathInfo += nTop;
+    }
+  }
   if( !g.repositoryOpen ){
     char *zRepo, *zToFree;
     const char *zOldScript = PD("SCRIPT_NAME", "");
@@ -1617,10 +1629,10 @@ static void process_one_web_page(
     int j, k;
     i64 szFile;
 
-    i = zPathInfo[0]!=0;
+    i = zFullPathInfo[0]!=0;
     while( 1 ){
-      while( zPathInfo[i] && zPathInfo[i]!='/' ){ i++; }
-      zRepo = zToFree = mprintf("%s%.*s.fossil",g.zRepositoryName,i,zPathInfo);
+      while( zFullPathInfo[i] && zFullPathInfo[i]!='/' ){ i++; }
+      zRepo = zToFree = mprintf("%s%.*s.fossil",g.zRepositoryName,i,zFullPathInfo);
 
       /* To avoid mischief, make sure the repository basename contains no
       ** characters other than alphanumerics, "/", "_", "-", and ".", and
@@ -1647,15 +1659,17 @@ static void process_one_web_page(
         /* this should only be set from the --baseurl option, not CGI  */
         if( g.zBaseURL && g.zBaseURL[0]!=0 && g.zTop && g.zTop[0]!=0 &&
             file_isdir(g.zRepositoryName)==1 ){
-          g.zBaseURL = mprintf("%s%.*s", g.zBaseURL, i, zPathInfo);
-          g.zTop = mprintf("%s%.*s", g.zTop, i, zPathInfo);
+          if( zPathInfo==zFullPathInfo ){
+            g.zBaseURL = mprintf("%s%.*s", g.zBaseURL, i, zPathInfo);
+            g.zTop = mprintf("%s%.*s", g.zTop, i, zPathInfo);
+          }
         }
       }
       if( szFile<0 && i>0 ){
         const char *zMimetype;
         assert( fossil_strcmp(&zRepo[j], ".fossil")==0 );
         zRepo[j] = 0;
-        if( zPathInfo[i]=='/' && file_isdir(zRepo)==1 ){
+        if( zFullPathInfo[i]=='/' && file_isdir(zRepo)==1 ){
           fossil_free(zToFree);
           i++;
           continue;
@@ -1679,7 +1693,7 @@ static void process_one_web_page(
 
       if( szFile<1024 ){
         set_base_url(0);
-        if( strcmp(zPathInfo,"/")==0
+        if( strcmp(zFullPathInfo,"/")==0
                   && allowRepoList
                   && repo_list_page() ){
           /* Will return a list of repositories */
@@ -1700,9 +1714,9 @@ static void process_one_web_page(
       }
       break;
     }
-    zNewScript = mprintf("%s%.*s", zOldScript, i, zPathInfo);
-    cgi_replace_parameter("PATH_INFO", &zPathInfo[i+1]);
-    zPathInfo += i;
+    zNewScript = mprintf("%s%.*s", zOldScript, i, zFullPathInfo);
+    cgi_replace_parameter("PATH_INFO", &zFullPathInfo[i+1]);
+    zFullPathInfo += i;
     cgi_replace_parameter("SCRIPT_NAME", zNewScript);
     db_open_repository(zRepo);
     if( g.fHttpTrace ){
@@ -1710,7 +1724,7 @@ static void process_one_web_page(
           "# repository: [%s]\n"
           "# new PATH_INFO = [%s]\n"
           "# new SCRIPT_NAME = [%s]\n",
-          zRepo, zPathInfo, zNewScript);
+          zRepo, zFullPathInfo, zNewScript);
     }
   }
 
@@ -1719,11 +1733,11 @@ static void process_one_web_page(
   */
   if( g.zContentType &&
       strncmp(g.zContentType, "application/x-fossil", 20)==0 ){
-    zPathInfo = "/xfer";
+    zFullPathInfo = "/xfer";
   }
   set_base_url(0);
-  if( zPathInfo==0 || zPathInfo[0]==0
-      || (zPathInfo[0]=='/' && zPathInfo[1]==0) ){
+  if( zFullPathInfo==0 || zFullPathInfo[0]==0
+      || (zFullPathInfo[0]=='/' && zFullPathInfo[1]==0) ){
 #ifdef FOSSIL_ENABLE_JSON
     if(g.json.isJsonMode){
       json_err(FSL_JSON_E_RESOURCE_NOT_FOUND,NULL,1);
@@ -1732,7 +1746,7 @@ static void process_one_web_page(
 #endif
     fossil_redirect_home() /*does not return*/;
   }else{
-    zPath = mprintf("%s", zPathInfo);
+    zPath = mprintf("%s", zFullPathInfo);
   }
 
   /* Make g.zPath point to the first element of the path.  Make
