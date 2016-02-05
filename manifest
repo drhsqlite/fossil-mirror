@@ -1,5 +1,5 @@
-C Add\s--https\sand\s--nossl\soptions\sto\sthe\s'server'\scommand.
-D 2016-02-01T20:38:52.435
+C On\sWindows,\snormalize\sthe\sFossil\sexecutable\sfile\sextension\sused\sby\sthe\stest\ssuite.
+D 2016-02-05T23:46:56.764
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -546,7 +546,7 @@ F test/revert.test 4eda6bb8ca71e4cb16f88afc8cfa2f8fe711d438
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 31eef5889b7d70ec0d91acf1e14b167a6a3576f5
+F test/tester.tcl 57d2881023f05d1e866297afd119d8126685bbaf
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 797a2d6167b7277bce160cd5943b3a08ea43d014
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -744,8 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4110f52297205596b153176fc83fb77410ed7a89 2bf596c9d518549416313950277e8f627ad4431f
-R bfb22e0665a6ee2684c841555470f9af
-T +closed 2bf596c9d518549416313950277e8f627ad4431f
+P b8c7af5bd9b503f4af70160cb8b4d6a6d2a241e8
+R b5782fbf9895a63dbcff796e1eef7d62
 U mistachkin
-Z 7d0f69c847acff2e21e5bbd1e2deda4b
+Z e09bc7519323399205fe33be94759cc3

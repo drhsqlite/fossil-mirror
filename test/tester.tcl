@@ -27,6 +27,12 @@ set testfiledir [file normalize [file dirname [info script]]]
 set testrundir [pwd]
 set testdir [file normalize [file dirname $argv0]]
 set fossilexe [file normalize [lindex $argv 0]]
+
+if {$tcl_platform(platform) eq "windows" && \
+    [string length [file extension $fossilexe]] == 0} {
+  append fossilexe .exe
+}
+
 set argv [lrange $argv 1 end]
 
 set i [lsearch $argv -halt]
