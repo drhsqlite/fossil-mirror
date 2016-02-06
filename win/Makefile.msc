@@ -95,7 +95,7 @@ FOSSIL_ENABLE_WINXP = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.0.2e
+SSLDIR    = $(B)\compat\openssl-1.0.2f
 SSLINCDIR = $(SSLDIR)\inc32
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)\out32dll

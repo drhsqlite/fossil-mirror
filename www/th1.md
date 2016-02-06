@@ -152,11 +152,13 @@ features of Fossil.  The following is a summary of the extended commands:
   *  htmlize
   *  http
   *  httpize
+  *  insertCsrf
   *  linecount
   *  markdown
   *  puts
   *  query
   *  randhex
+  *  redirect
   *  regexp
   *  reinitialize
   *  render
@@ -175,6 +177,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  trace
   *  stime
   *  utime
+  *  verifyCsrf
   *  wiki
 
 Each of the commands above is documented by a block comment above their
@@ -381,6 +384,14 @@ are not currently implemented.
 Escape all characters of STRING which have special meaning in URI
 components.  Returns the escaped string.
 
+<a name="insertCsrf"></a>TH1 insertCsrf Command
+-----------------------------------------------
+
+  *  insertCsrf
+
+While rendering a form, call this command to add the Anti-CSRF token
+as a hidden element of the form.
+
 <a name="linecount"></a>TH1 linecount Command
 ---------------------------------------------
 
@@ -424,6 +435,14 @@ to each invocation of CODE.
 
 Returns a string of N*2 random hexadecimal digits with N<50.  If N is
 omitted, use a value of 10.
+
+<a name="redirect"></a>TH1 redirect Command
+-------------------------------------------
+
+  *  redirect URL
+
+Issues an HTTP redirect (302) to the specified URL and then exits the
+process.
 
 <a name="regexp"></a>TH1 regexp Command
 ---------------------------------------
@@ -600,6 +619,17 @@ process in system space.
 
 Returns the number of microseconds of CPU time consumed by the current
 process in user space.
+
+<a name="verifyCsrf"></a>TH1 verifyCsrf Command
+-----------------------------------------------
+
+  *  verifyCsrf
+
+Before using the results of a form, first call this command to verify
+that this Anti-CSRF token is present and is valid.  If the Anti-CSRF token
+is missing or is incorrect, that indicates a cross-site scripting attack.
+If the event of an attack is detected, an error message is generated and
+all further processing is aborted.
 
 <a name="wiki"></a>TH1 wiki Command
 -----------------------------------
