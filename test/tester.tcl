@@ -506,6 +506,8 @@ if {$tcl_platform(platform) eq "windows"} {
   set tempPath [string map [list \\ /] $tempPath]
 }
 
+set tempPath [file normalize $tempPath]
+
 if {[catch {
   write_file [file join $tempPath temporary.txt] [clock seconds]
 } error] != 0} {
