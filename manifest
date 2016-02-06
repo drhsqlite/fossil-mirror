@@ -1,5 +1,5 @@
-C Improve\sthe\sMSVC\sbuild\stool\ssub-routine\s'fn_UnsetVariable'.
-D 2016-02-06T02:27:25.275
+C Add\stest\scases\sfor\sfossil\sjson.\sImprove\sthe\stest\ssuite\sto\ssupport\sa\sway\sto\streat\sexpected\snon-zero\sstatus\sexits\sfrom\sfossil\sas\ssuccess\swhen\swarrented.\sMade\sminor\sbug\sfixes\sto\sthe\stest\sframework,\sand\sto\sseveral\stest\scases\sunrelated\sto\sJSON\ssupport.
+D 2016-02-06T02:46:40.652
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -518,8 +518,8 @@ F src/xfersetup.c 0f967a3fca7ad9fa3aa350d121851e71064823be
 F src/zip.c 8567f81eca8762b4bf08c20a72b70e87696c6cd2
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
-F test/amend.test 10b038c5202e76d146ab36f85fad6ac817678522
-F test/clean.test aa1a4537d87b1829118984e8fac680107027b70e
+F test/amend.test 1fb06b97f9565a39f9d430706427451bf414dcf6
+F test/clean.test d3fa1067501eb72ad9fa838830621a1eae7a1b09
 F test/cmdline.test 4532df2c904f035fc2a3be3bca6c5514def515a8
 F test/comment.test 3d18947b36ad7dcc914ed905eb950c9fb84a1ec6
 F test/contains-selector.test 6ecd602b6786ebedca580b8e82e402c6f9aec2fd
@@ -530,13 +530,14 @@ F test/fileStat.th1 e3e30f7b46488c26215a6d713be36ad4ed595132
 F test/fileage-test-1.wiki d249e897fdd41038c17f3b66d374e509830da1eb
 F test/glob.test 027f2aa0b0c737a0f27d51800802a08f07561beb
 F test/graph-test-1.wiki 1bbf8bd05dfd5205c589569d911477c27aeb4d51
+F test/json.test 23361eb3a8ad58c09ef96a3c156d7d11c10152df
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/merge1.test 4734854393f717824ae96b3de8524a2401a21921
 F test/merge2.test 1915d0a7cf117dd7448d6ccc30b54b4cd85a942c
 F test/merge3.test 637ad5275604c7fe17340b32338aadf2a1f27c07
 F test/merge4.test e9b9b3826dc271ae75523a5fa0a08fe17b0cd722
-F test/merge5.test 085bd671629afc7a933e048028dfb43cf2ad5150
+F test/merge5.test 4ca266f425c0bb75bd4547b1628b860aca850dec
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test 3ae66c3b8359c79a54db41c92a4572adc30780aa
 F test/merge_renames.test 426dc718ae9813dc4aef651027fdd817aec2e995
@@ -546,7 +547,7 @@ F test/revert.test 4eda6bb8ca71e4cb16f88afc8cfa2f8fe711d438
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 57d2881023f05d1e866297afd119d8126685bbaf
+F test/tester.tcl becdda6b5c83ce7649634cc22b7dfaa1fc5eb4ba
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 797a2d6167b7277bce160cd5943b3a08ea43d014
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -562,7 +563,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test a54a3bd49bf1176d4193eddc27c577a1d8a9b8d7
+F test/th1.test 9ea9b07ce4ca712f871b9431dd58bf7f1d4af860
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 7fd75c8d3699ff96e9bdaa69ac40be3d9323b8dc
@@ -744,7 +745,8 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 74ce4181d90f62456700b9d742f9506dca2a3cf6
-R f5e9aeabcf6a1856856761e497aaca59
-U mistachkin
-Z 15c91288946ef71c4b0730a9fccecaf7
+P 4c163cd71560883666b3fdcb28a0a565c1401b38 2de15c8e3b85ccc6f4aa51cf79de75390e2495bf
+R 054a695c5749d3fe316af1483548fab4
+T +closed 2de15c8e3b85ccc6f4aa51cf79de75390e2495bf
+U rberteig
+Z bdbc216b49351a746a6c72280aa23054
