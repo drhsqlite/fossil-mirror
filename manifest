@@ -1,5 +1,5 @@
-C On\sWindows,\snormalize\sthe\sFossil\sexecutable\sfile\sextension\sused\sby\sthe\stest\ssuite.
-D 2016-02-05T23:46:56.764
+C Improve\sthe\sMSVC\sbuild\stool\ssub-routine\s'fn_UnsetVariable'.
+D 2016-02-06T02:27:25.275
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -630,7 +630,7 @@ F win/Makefile.dmc 65d9d67850656c427e6572a746df023d9d6629e7
 F win/Makefile.mingw 3ae7e0e5386c9211c83f6b184a9980e92441e8cc
 F win/Makefile.mingw.mistachkin f6f384c20164a0daf2b85fc2be01cd5ce06ecfe7
 F win/Makefile.msc c4153b7a79432997742a7fa9984df6e9e3eb4256
-F win/buildmsvc.bat c500c2f66b3001fe2b604a1c0b523125f5a7482f
+F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc a03d2ee7e2fcb64ab9ff0b4d3284c8f89412e66f
@@ -744,7 +744,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b8c7af5bd9b503f4af70160cb8b4d6a6d2a241e8
-R b5782fbf9895a63dbcff796e1eef7d62
+P 74ce4181d90f62456700b9d742f9506dca2a3cf6
+R f5e9aeabcf6a1856856761e497aaca59
 U mistachkin
-Z e09bc7519323399205fe33be94759cc3
+Z 15c91288946ef71c4b0730a9fccecaf7
