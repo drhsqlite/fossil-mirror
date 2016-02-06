@@ -25,23 +25,33 @@
 # teacup install json::write
 package require json
 
+proc json2dict {txt} {
+  set rc [catch {::json::json2dict $txt} result options]
+  if {$rc != 0} {
+    protOut "JSON ERROR: $result" 
+    return {}
+  }
+  return $result
+}
+
 # Make sure we have a build with the json command at all and that it
 # is not stubbed out. This assumes the current (as of 2016-01-27)
 # practice of eliminating all trace of the fossil json command when
 # not configured. If that changes, these conditions might not prevent
 # the rest of this file from running.
 fossil help -a
-if {[string first json $RESULT] eq ""} {
-  puts "Fossil was not compiled with JSON support."; return
-}
-fossil json -expectError 
-if {$RESULT eq ""} {
-  puts "Fossil was not compiled with JSON support."; return
+if {[string first json $RESULT] < 0} {
+  puts "Fossil was not compiled with JSON support (fossil help -a)."; return
 }
 
 # and that the json itself smells ok and has the expected API error code in it
-set JR [::json::json2dict $RESULT]
-test json-1 {[dict get $JR resultCode] eq "FOSSIL-4102"}
+fossil json -expectError 
+set JR [json2dict $RESULT]
+if {$JR eq ""} {
+  puts "Fossil was not compiled with JSON support (bad JSON)."; return
+}
+test json-1 {[dict exists $JR resultCode]
+             && [dict get $JR resultCode] eq "FOSSIL-4102"}
 
 # Use the CLI interface to execute a JSON command. Sets the global
 # RESULT to the response text, and JR to a Tcl dict conversion of the
@@ -51,7 +61,7 @@ test json-1 {[dict get $JR resultCode] eq "FOSSIL-4102"}
 proc fossil_json {args} {
   global RESULT JR
   uplevel 1 fossil json {*}$args
-  set JR [::json::json2dict $RESULT]
+  set JR [json2dict $RESULT]
   return "200"
 }
 
@@ -67,7 +77,7 @@ proc fossil_http_json {url {cookie "Muppet=Monster"} args} {
   regexp {(?w)(.*)^\s*$(.*)} $RESULT dummy head body
   regexp {^HTTP\S+\s+(\d\d\d)\s+(.*)$} $head dummy status msg
   if {$status eq "200"} {
-    set JR [::json::json2dict $body]
+    set JR [json2dict $body]
   }
   return $status
 }
@@ -111,7 +121,7 @@ Cookie: $cookie\r
   regexp {^HTTP\S+\s+(\d\d\d)\s+(.*)$} $head dummy status msg
   if {$status eq "200"} {
     if {[string length $body] > 0} {
-      set JR [::json::json2dict $body]
+      set JR [json2dict $body]
     } else {
       set JR ""
     }
@@ -600,7 +610,7 @@ test_json_payload json-wiki-diff [list v1 v2 diff] {}
 test json-wiki-diff-v1 {[dict get $JR payload v1] eq $uuid1}
 test json-wiki-diff-v1 {[dict get $JR payload v2] eq $uuid2}
 set diff [dict get $JR payload diff]
-test json-wiki-diff-diff {[string first "+consectetur adipisicing elit" $diff] >= 0} knownBug
+test json-wiki-diff-diff {[string first "+consectetur adipisicing elit" $diff] >= 0}
 #puts [dict get $JR payload diff]
 
 # wiki preview
