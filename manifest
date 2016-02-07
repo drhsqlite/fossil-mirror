@@ -1,5 +1,5 @@
-C Use\sthe\s'hasfeature'\sTH1\scommand\sto\stest\sif\sJSON\swas\sincluded\sat\scompile-time.
-D 2016-02-07T22:55:32.433
+C Make\sthe\sread-only\sjson\stest\swork\son\sWindows.
+D 2016-02-07T23:22:10.636
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -530,7 +530,7 @@ F test/fileStat.th1 e3e30f7b46488c26215a6d713be36ad4ed595132
 F test/fileage-test-1.wiki d249e897fdd41038c17f3b66d374e509830da1eb
 F test/glob.test 027f2aa0b0c737a0f27d51800802a08f07561beb
 F test/graph-test-1.wiki 1bbf8bd05dfd5205c589569d911477c27aeb4d51
-F test/json.test fc142c03f3b6d89ec14d63bde8207d98f8487b22
+F test/json.test a0924ac9762a184a00b14e65b2b7fcde03ddbbe8
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/merge1.test 4734854393f717824ae96b3de8524a2401a21921
@@ -745,7 +745,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5d700c7d852ff11f688b92ab7eb434069a8cbdf7
-R a54e444bab6975b00aa59b44aa6991ba
+P 09a46c287359f04f74170571ea739d9d271e4b88
+R 4dfae2472649ad401c01ae93b3303fb5
 U mistachkin
-Z e8c9be4bfdb94ea722ae716b1059ebd0
+Z e4ef0cf56dbdb0fce5f57f38936d7093
