@@ -39,6 +39,7 @@ define EXTRA_CFLAGS ""
 define EXTRA_LDFLAGS ""
 define USE_SYSTEM_SQLITE 0
 define USE_LINENOISE 0
+define FOSSIL_ENABLE_MINIZ 0
 
 # This procedure is a customized version of "cc-check-function-in-lib",
 # that does not modify the LIBS variable.  Its use prevents prematurely
