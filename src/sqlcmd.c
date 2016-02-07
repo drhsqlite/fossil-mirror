@@ -199,18 +199,17 @@ static int sqlcmd_autoinit(
 **     SELECT * FROM foci WHERE checkinID=symbolic_name_to_rid('trunk');
 */
 void cmd_sqlite3(void){
+  int noRepository;
   extern int sqlite3_shell(int, char**);
-  if( find_option("no-repository", 0, 0)==0 ){
+  noRepository = find_option("no-repository", 0, 0)!=0;
+  if( !noRepository ){
     db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
-    db_close(1);
   }
+  fossil_close(1, noRepository);
   sqlite3_shutdown();
   sqlite3_shell(g.argc-1, g.argv+1);
   sqlite3_cancel_auto_extension((void(*)(void))sqlcmd_autoinit);
-  g.db = 0;
-  g.zMainDbType = 0;
-  g.repositoryOpen = 0;
-  g.localOpen = 0;
+  fossil_close(0, noRepository);
 }
 
 /*
@@ -220,4 +219,17 @@ void cmd_sqlite3(void){
 void fossil_open(const char **pzRepoName){
   sqlite3_auto_extension((void(*)(void))sqlcmd_autoinit);
   *pzRepoName = g.zRepositoryName;
+}
+
+/*
+** This routine closes the Fossil databases and/or invalidates the global
+** state variables that keep track of them.
+*/
+void fossil_close(int bDb, int noRepository){
+  if( bDb ) db_close(1);
+  if( noRepository ) g.zRepositoryName = 0;
+  g.db = 0;
+  g.zMainDbType = 0;
+  g.repositoryOpen = 0;
+  g.localOpen = 0;
 }
