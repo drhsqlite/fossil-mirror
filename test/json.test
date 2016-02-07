@@ -18,6 +18,16 @@
 # Test JSON Support
 #
 
+# Make sure we have a build with the json command at all and that it
+# is not stubbed out. This assumes the current (as of 2016-01-27)
+# practice of eliminating all trace of the fossil json command when
+# not configured. If that changes, these conditions might not prevent
+# the rest of this file from running.
+fossil help -a
+if {[string first json $RESULT] < 0} {
+  puts "Fossil was not compiled with JSON support (fossil help -a)."; return
+}
+
 # We need a JSON parser to effectively test the JSON produced by
 # fossil. It looks like the one from tcllib is exactly what we need.
 # On ActiveTcl, add it with teacup. On other platforms, YMMV.
@@ -32,16 +42,6 @@ proc json2dict {txt} {
     return {}
   }
   return $result
-}
-
-# Make sure we have a build with the json command at all and that it
-# is not stubbed out. This assumes the current (as of 2016-01-27)
-# practice of eliminating all trace of the fossil json command when
-# not configured. If that changes, these conditions might not prevent
-# the rest of this file from running.
-fossil help -a
-if {[string first json $RESULT] < 0} {
-  puts "Fossil was not compiled with JSON support (fossil help -a)."; return
 }
 
 # and that the json itself smells ok and has the expected API error code in it
