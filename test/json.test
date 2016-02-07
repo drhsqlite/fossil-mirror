@@ -23,9 +23,10 @@
 # practice of eliminating all trace of the fossil json command when
 # not configured. If that changes, these conditions might not prevent
 # the rest of this file from running.
-fossil help -a
-if {[string first json $RESULT] < 0} {
-  puts "Fossil was not compiled with JSON support (fossil help -a)."; return
+fossil test-th-eval "hasfeature json"
+
+if {$::RESULT ne "1"} then {
+  puts "Fossil was not compiled with JSON support."; return
 }
 
 # We need a JSON parser to effectively test the JSON produced by
@@ -38,14 +39,14 @@ package require json
 proc json2dict {txt} {
   set rc [catch {::json::json2dict $txt} result options]
   if {$rc != 0} {
-    protOut "JSON ERROR: $result" 
+    protOut "JSON ERROR: $result"
     return {}
   }
   return $result
 }
 
 # and that the json itself smells ok and has the expected API error code in it
-fossil json -expectError 
+fossil json -expectError
 set JR [json2dict $RESULT]
 if {$JR eq ""} {
   puts "Fossil was not compiled with JSON support (bad JSON)."; return
@@ -68,7 +69,7 @@ proc fossil_json {args} {
 # Use the HTTP interface to GET a JSON API URL. Sets the globals
 # RESULT to the HTTP response body, and JR to a Tcl dict conversion of
 # the response body.
-# 
+#
 # Returns the status code from the HTTP header.
 proc fossil_http_json {url {cookie "Muppet=Monster"} args} {
   global RESULT JR
@@ -89,7 +90,7 @@ proc fossil_http_json {url {cookie "Muppet=Monster"} args} {
 #
 # Returns the status code from the HTTP header.
 proc fossil_post_json {url data {cookie "Muppet=Monster"} args} {
-  global RESULT JR 
+  global RESULT JR
 
   # set up a full GET or POST HTTP request
   set len [string length $data]
@@ -347,7 +348,7 @@ test_json_payload json-branch-create {name basis rid uuid isPrivate} {}
 # json config get AREA
 # AREAs are skin ticket project all skin-backup
 foreach a [list skin ticket project all skin-backup] {
-  fossil_json config get $a 
+  fossil_json config get $a
   test_json_envelope_ok json-config-$a-env
   # payload depends on specific area and may be completely empty
 }
@@ -386,7 +387,7 @@ protOut [dict get $JR payload diff]
 
 #### DIRECTORY LISTING
 # json dir DIRNAME
-fossil_json dir 
+fossil_json dir
 test_json_envelope_ok json-dir-env
 test_json_payload json-dir {name entries} {}
 
@@ -528,7 +529,7 @@ foreach u [dict get $JR payload] {
 }
 
 # json user save
-fossil_json user save --uid -1 --name U2 --password Utwo 
+fossil_json user save --uid -1 --name U2 --password Utwo
 test_json_envelope_ok json-user-save-env
 test_json_payload json-user-save {uid name capabilities info timestamp} {}
 
@@ -548,7 +549,7 @@ test_json_payload json-user-save {uid name capabilities info timestamp} {}
 
 # wiki list
 fossil_json wiki list
-test_json_envelope_ok json-wiki-list-env 
+test_json_envelope_ok json-wiki-list-env
 set pages  [dict get $JR payload]
 test json-wiki-1 {[llength $pages] == 1}
 test json-wiki-2 {[lindex  $pages 0] eq "Empty"}
@@ -559,7 +560,7 @@ test_dict_keys json-wiki-verbose-pages [lindex $pages 0] [list name uuid user ti
 
 # wiki get
 fossil_json wiki get Empty
-test_json_envelope_ok json-wiki-get-env 
+test_json_envelope_ok json-wiki-get-env
 # this page has only one version, so no parent should be listed
 test_json_payload json-wiki-get [list name uuid user timestamp size content] [list parent]
 
@@ -665,7 +666,7 @@ foreach r $codes {
 # is not writable" error comes back as HTML. i don't know if the
 # error happens before we have made the determination that the app is
 # in JSON mode or if the error handling is incorrectly not
-# recognizing JSON mode. 
+# recognizing JSON mode.
 #
 #repo_init x.fossil
 #catch {exec chmod 444 .rep.fossil}; # Unix. What about Win?
@@ -687,7 +688,7 @@ catch {exec chmod 666 .rep.fossil}; # Unix. What about Win?
 #### Result Codes
 # Test cases designed to stimulate each (documented) error code.
 
-# FOSSIL-0000 
+# FOSSIL-0000
 # Not returned by any command. We generally verify that in the
 # test_json_envelope_ok command by verifying that the resultCode
 # field is not present. Should any JSON endpoint begin to use the
@@ -845,4 +846,3 @@ write_file nope.fossil {
 This is not a fossil repo. It ought to be a SQLite db with a well-known schema,
 but it is actually just a block of text.
 }
-
