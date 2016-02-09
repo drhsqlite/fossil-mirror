@@ -1,5 +1,5 @@
-C Robustify\s'--with-miniz'\soption\shandling\sin\s'auto.def'.
-D 2016-02-07T23:35:16.492
+C json:\sadded\sa\sfew\sassertions\sand\schanged\sa\sfew\schars\sto\sints\sto\savoid\spotential\ssignedness\sproblems\son\sARM.
+D 2016-02-09T14:12:06.525
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -383,7 +383,7 @@ F src/builtin.c 31c17d18b565c7766021913c89be4180b3ee4a56
 F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c c42b6bf7490ac4758a6bc83a1bcaf4f89353f28d
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
-F src/cgi.c 38b5b08eda88b4d256948d431e2f0094009644ae
+F src/cgi.c 10310d276e72e3e34343e3385c0b39fac5cd826e
 F src/checkin.c 2bd9b624190c79d774d7806eb5791a239b82ceef
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -420,7 +420,7 @@ F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c dcacafa93eeca1980f4ac38311d93a16549e84ba
 F src/info.c 3826af4933096cfb0f3d8d9b9c894b0976c5fd62
-F src/json.c 18266f277275d058aadb979b74c8b3af7791d649
+F src/json.c 6df1d80dece8968b344e4b730aae8151c7c61955
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
 F src/json_config.c 1bbf8fc1b98f951f94dedc1a191c138f110b7a5d
@@ -745,7 +745,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f9c14d7d6d9d3f19db5802a36adb498570bb435a
-R bd6e6a54f0620844d9a9385b8be8f62a
-U mistachkin
-Z 975a03a46a55ae2e6da96b969dc70a99
+P 7cadfc973630281839a402cf89d26cd17f0d03d7
+R 0611a10fac368fc6d006f897b6fe6739
+U stephan
+Z a4f994ae7f550137060f8e4188e792a7
