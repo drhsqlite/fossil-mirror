@@ -1,5 +1,5 @@
-C json:\sadded\sa\sfew\sassertions\sand\schanged\sa\sfew\schars\sto\sints\sto\savoid\spotential\ssignedness\sproblems\son\sARM.
-D 2016-02-09T14:12:06.525
+C Update\sthe\sbuilt-in\sSQLite\sto\s3.11.0\sbeta\s1.
+D 2016-02-09T15:09:24.211
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -481,8 +481,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 44d3881e497cf9bec8ea6dcf73830502ab59202c
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c de27ee9014eea9c2dcc86f4700e9e459b4347dcd
-F src/sqlite3.c 85e562c5872a63f2e55883a550963896e6f89ad3
-F src/sqlite3.h 5e5204199820f5035ac1f219f6de938bca7a63e8
+F src/sqlite3.c 054f6b2e5d929e986009b020dc4534421538571b
+F src/sqlite3.h 93dbcb210e7ebd188b66f33304be8990f34bb32f
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 9fa919c1c78db3952e181e0bf955b039aca0db26
 F src/statrep.c 061c9df02d134454c32e34cc29807adc594e1bc2
@@ -745,7 +745,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7cadfc973630281839a402cf89d26cd17f0d03d7
-R 0611a10fac368fc6d006f897b6fe6739
-U stephan
-Z a4f994ae7f550137060f8e4188e792a7
+P 5c0dc2d3528a85ea74463ec801f7d5f22e608c0d
+R 714588356659dc5a3fb815d47733cd5a
+U drh
+Z c226afdec46f782b3b0e90890d5be96f

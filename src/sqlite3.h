@@ -113,7 +113,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.11.0"
 #define SQLITE_VERSION_NUMBER 3011000
-#define SQLITE_SOURCE_ID      "2016-01-20 14:22:41 204432ee72fda8e82d244c4aa18de7ec4811b8e1"
+#define SQLITE_SOURCE_ID      "2016-02-09 02:12:20 ca72be8618e5d466d6f35819ca8bbd2b84269959"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -5697,7 +5697,7 @@ struct sqlite3_index_info {
   /* Inputs */
   int nConstraint;           /* Number of entries in aConstraint */
   struct sqlite3_index_constraint {
-     int iColumn;              /* Column on left-hand side of constraint */
+     int iColumn;              /* Column constrained.  -1 for ROWID */
      unsigned char op;         /* Constraint operator */
      unsigned char usable;     /* True if this constraint is usable */
      int iTermOffset;          /* Used internally - xBestIndex should ignore */
