@@ -1,5 +1,5 @@
-C Add\s/usr/local/opt/openssl\sto\sthe\slist\sof\sdirectories\sfor\swhich\sOpenSSL\sis\nsearched\s(as\sthis\sis\sthe\sdirectory\sinto\swhich\sbrew\sinstalls\sOpenSSL\son\smacs.)
-D 2016-02-10T21:19:15.734
+C Create\sbasic\stests\sfor\sfossil\sstash\swith\sa\snew\sfile,\san\sedited\sfile,\sa\srenamed\sfile\sand\san\suntouched\sfile.\sUse\sfossil\sstash\ssubcommands\sto\sconfirm\sthat\sthe\sright\sinformation\sgot\sstored,\sand\stests\sborrowed\sfrom\srevert.test\sto\sverify\sthat\sthe\sfile\ssystem\salso\shas\sthe\sexpected\scontent.\sNote\sthat\sthis\sdoes\snot\scurrently\scover\sthe\sedge\scase\screated\sby\sfossil\smv\s--soft,\slet\salone\sthe\sapparent\sassertion\sfailure\sreported\son\slist\srelated\sto\sstash\sand\sfossil\smv\s--soft.\sThese\stests\spass\son\smy\sWindows\sconfiguration\sas\sof\s[92877364].
+D 2016-02-10T23:36:07.135
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -544,6 +544,7 @@ F test/merge_renames.test 426dc718ae9813dc4aef651027fdd817aec2e995
 F test/mv-rm.test c4cd3d592b28db47146ecf8e9f4ef4786c67e8b0
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
 F test/revert.test 4eda6bb8ca71e4cb16f88afc8cfa2f8fe711d438
+F test/stash.test d1aacf344f8533a6269cd1c8b27b21f24eadece2
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
@@ -745,7 +746,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e00968a5a064861eac53d1cf697c36d8435a8ac7
-R e569ec453725f50b05c52a2145016b08
-U drh
-Z 6d3bcb231579db892543fde7710e83bc
+P 928773647c47450cfab1d43563ba6f4cbc599ef0
+R 9e14804180d3bb573e5bd29f07d8cc90
+U rberteig
+Z d5a2645b6d9353ad839039fafbae34e1
