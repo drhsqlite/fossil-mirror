@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sinclude\sthe\slatest\schanges,\sand\sespecially\nthe\snew\sauto-explain\smode\sin\sthe\scommand-line\sshell.
-D 2016-02-09T20:16:42.787
+C Add\s/usr/local/opt/openssl\sto\sthe\slist\sof\sdirectories\sfor\swhich\sOpenSSL\sis\nsearched\s(as\sthis\sis\sthe\sdirectory\sinto\swhich\sbrew\sinstalls\sOpenSSL\son\smacs.)
+D 2016-02-10T21:19:15.734
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -45,7 +45,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def bca11304f37c21b1d01a32c581555a88e34f6c6e
+F auto.def 71360c5c142a4db1172b3acfeb4cbe7ba866149a
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 4e0b671b54288fc64d851d056822ee5fec4d3365
 F autosetup/autosetup 7b5ae324561a38804875517af9b7c6e7f42f930d x
@@ -745,7 +745,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 56283544079cf6e79b1c17762c090e14d3b8979c
-R e4aee1909da18c7e58a6703c689c9338
+P e00968a5a064861eac53d1cf697c36d8435a8ac7
+R e569ec453725f50b05c52a2145016b08
 U drh
-Z 40ef1d19b560b19c2089cfa8caad7c67
+Z 6d3bcb231579db892543fde7710e83bc

@@ -272,7 +272,8 @@ if {$ssldirs ne "none"} {
                 set found [check-for-openssl "ssl via pkg-config" "$cflags $ldflags"]
             } msg
             if {!$found} {
-                set ssldirs "{} /usr/sfw /usr/local/ssl /usr/lib/ssl /usr/ssl /usr/pkg /usr/local /usr"
+                set ssldirs "{} /usr/sfw /usr/local/ssl /usr/lib/ssl /usr/ssl \
+                             /usr/pkg /usr/local /usr /usr/local/opt/openssl"
             }
         }
         if {!$found} {
