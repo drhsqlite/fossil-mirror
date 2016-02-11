@@ -1,5 +1,5 @@
-C Fix\scolumn\ssorting\son\sticket\sreports.
-D 2016-02-11T14:41:53.141
+C Added\stest\sfor\sfossil\srevert\swith\sa\sfile\smarked\sfor\sRENAME\sbut\snot\sactually\srenamed\son\sdisk\sto\stest/revert.test.
+D 2016-02-11T18:06:40.808
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -543,7 +543,7 @@ F test/merge6.test 3ae66c3b8359c79a54db41c92a4572adc30780aa
 F test/merge_renames.test 426dc718ae9813dc4aef651027fdd817aec2e995
 F test/mv-rm.test c4cd3d592b28db47146ecf8e9f4ef4786c67e8b0
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
-F test/revert.test 4eda6bb8ca71e4cb16f88afc8cfa2f8fe711d438
+F test/revert.test 2afb167072c28d3527f821ce5828967e9c34b390
 F test/stash.test d1aacf344f8533a6269cd1c8b27b21f24eadece2
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
@@ -746,7 +746,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3f3eada10014f184bc272f539383f7ad2ee2ddde
-R fa14f6cc56b3f9df77d9fbfedfebe6d5
-U drh
-Z f08f7f37e1b82fc348131d5f17829789
+P 0e555dee63dab159b8fd5894fa1d0e208decb8a7
+R ba30ec6faa4bcf579ac7b6d1f0438b57
+U rberteig
+Z fd0df7bcd656b7ff6cc55abbbd94f916
