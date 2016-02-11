@@ -1,5 +1,5 @@
-C Create\sbasic\stests\sfor\sfossil\sstash\swith\sa\snew\sfile,\san\sedited\sfile,\sa\srenamed\sfile\sand\san\suntouched\sfile.\sUse\sfossil\sstash\ssubcommands\sto\sconfirm\sthat\sthe\sright\sinformation\sgot\sstored,\sand\stests\sborrowed\sfrom\srevert.test\sto\sverify\sthat\sthe\sfile\ssystem\salso\shas\sthe\sexpected\scontent.\sNote\sthat\sthis\sdoes\snot\scurrently\scover\sthe\sedge\scase\screated\sby\sfossil\smv\s--soft,\slet\salone\sthe\sapparent\sassertion\sfailure\sreported\son\slist\srelated\sto\sstash\sand\sfossil\smv\s--soft.\sThese\stests\spass\son\smy\sWindows\sconfiguration\sas\sof\s[92877364].
-D 2016-02-10T23:36:07.135
+C Fix\scolumn\ssorting\son\sticket\sreports.
+D 2016-02-11T14:41:53.141
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -470,7 +470,7 @@ F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c ccadb516f305a7ab7ff416a87e6c02b7568d5656
 F src/rebuild.c f0c44f8f0a5d941f1b59bbaa6ef1266b59d50a68
 F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
-F src/report.c dfa9f1671b5f26e461e7473d34d10951eadfdea2
+F src/report.c c38e6071aa3f10bbbb72d5db9b5473dac7cc70e4
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c 3ddd0bd72f6a9af5a92b4f4113577d1a0ff7c75d
@@ -746,7 +746,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 928773647c47450cfab1d43563ba6f4cbc599ef0
-R 9e14804180d3bb573e5bd29f07d8cc90
-U rberteig
-Z d5a2645b6d9353ad839039fafbae34e1
+P 3f3eada10014f184bc272f539383f7ad2ee2ddde
+R fa14f6cc56b3f9df77d9fbfedfebe6d5
+U drh
+Z f08f7f37e1b82fc348131d5f17829789
