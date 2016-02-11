@@ -1,5 +1,5 @@
-C Added\stest\sfor\sfossil\srevert\swith\sa\sfile\smarked\sfor\sRENAME\sbut\snot\sactually\srenamed\son\sdisk\sto\stest/revert.test.
-D 2016-02-11T18:06:40.808
+C Added\sthe\sability\sto\spass\sthe\sknownBug\sconstraint\sthrough\stest_status_list\sto\stest.\sAdded\scapability\sfor\sknown\sbug\smarking\sof\ssegments\sof\sstash-test,\sand\suse\sit\sto\smark\sproblems\swith\sstashing\srenamed\sfiles.\sAlso\sadded\schecking\sin\sstash-test\sfor\sthe\sexit\sstatus,\sand\ssupport\sfor\s-expectError.
+D 2016-02-11T20:32:13.275
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -544,11 +544,11 @@ F test/merge_renames.test 426dc718ae9813dc4aef651027fdd817aec2e995
 F test/mv-rm.test c4cd3d592b28db47146ecf8e9f4ef4786c67e8b0
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
 F test/revert.test 2afb167072c28d3527f821ce5828967e9c34b390
-F test/stash.test d1aacf344f8533a6269cd1c8b27b21f24eadece2
+F test/stash.test 2651d8d579c5611068bdad658baffed1da994a93
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl efe2c8610543543dcf670adf152239e3cee92152
+F test/tester.tcl 23cab1e4088458a2c7fdd159a48a5d2b199c0e0b
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 797a2d6167b7277bce160cd5943b3a08ea43d014
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -746,7 +746,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0e555dee63dab159b8fd5894fa1d0e208decb8a7
-R ba30ec6faa4bcf579ac7b6d1f0438b57
+P 8b727021af01020a46a5c5fc63bc5b78fb8ac303
+R a7cf0ba43cef3f6af020f56d01e94293
 U rberteig
-Z fd0df7bcd656b7ff6cc55abbbd94f916
+Z 9236e0c2d9056ab235980cb7d77ff0f8

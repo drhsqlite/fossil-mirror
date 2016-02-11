@@ -268,15 +268,15 @@ proc normalize_status_list {list} {
 
 # Perform a test comparing two status lists
 #
-proc test_status_list {name result expected} {
+proc test_status_list {name result expected {constraints ""}} {
   set expected [normalize_status_list $expected]
   set result [normalize_status_list $result]
   if {$result eq $expected} {
-    test $name 1
+    test $name 1 $constraints
   } else {
     protOut "  Expected:\n    [join $expected "\n    "]" 1
     protOut "  Got:\n    [join $result "\n    "]" 1
-    test $name 0
+    test $name 0 $constraints
   }
 }
 

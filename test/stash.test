@@ -20,26 +20,58 @@
 # 
 #
 
+proc knownBug {t tests} {
+  return [expr {$t in $tests ? "knownBug" : ""}]
+}
+
 # Test 'fossil stash' against expected results from 'fossil changes' and
 # 'fossil addremove -n', as well as by verifying the existence of files
-# on the file system. 'fossil undo' is called after each test
+# on the file system. Unlike the similar function found in
+# revert.test, 'fossil undo' is not called after each test because
+# many stash operations aren't undoable, and because further testing
+# of the stash content is more likely to be useful.
 #
+# The extra list "-knownbugs" is a list of areas that should be
+# marked as "knownBug" to the inner call to test. Known areas are:
+#  -code       The exit status of fossil stash
+#  -result     The result string didn't match
+#  -changes    The changed file set didn't match
+#  -addremove  The addremove result set didn't match
+#  -exists     One or more listed files don't exist
+#  -notexists  One or more listed files do exist
+#
+# Also, if the exit status of fossil stash does not match
+# expectations, the rest of the areas are not tested.
 proc stash-test {testid stashArgs expectedStashOutput args} {
   global RESULT
   set passed 1
   
   set args [dict merge {
-    -changes {} -addremove {} -exists {} -notexists {}
+    -changes {} -addremove {} -exists {} -notexists {} -knownbugs {}
   } $args]
-  
+
+  set knownbugs [dict get $args "-knownbugs"]
+
   set result [fossil stash {*}$stashArgs]
-  test_status_list stash-$testid $result $expectedStashOutput
+  set code $::CODE
+  if {[lindex $stashArgs end] eq "-expectError"} {
+    test stash-$testid-CODE {$code}  [knownBug "-code" $knownbugs]
+    if {!$code} {
+      return
+    }
+  } else {
+    test stash-$testid-CODE {!$code}  [knownBug "-code" $knownbugs]
+    if {$code} {
+      return
+    }
+  }
+  test_status_list stash-$testid $result $expectedStashOutput [knownBug "-result" $knownbugs]
   
   set statusListTests [list -changes changes -addremove {addremove -n}]
   foreach {key fossilArgs} $statusListTests {
     set expected [dict get $args $key]
     set result [fossil {*}$fossilArgs] 
-    test_status_list stash-$testid$key $result $expected
+    test_status_list stash-$testid$key $result $expected [knownBug $key $knownbugs]
   }
   
   set fileExistsTests [list -exists 1 does -notexists 0 should]
@@ -50,7 +82,7 @@ proc stash-test {testid stashArgs expectedStashOutput args} {
         protOut "  Failure: File $verb not exist: $path"
       }
     }
-    test stash-$testid$key $passed
+    test stash-$testid$key $passed [knownBug $key $knownbugs]
   }
   
   #fossil undo
@@ -167,21 +199,19 @@ stash-test 2 pop {
 fossil stash list
 test stash-2-list {[first_data_line] eq "empty stash"}
 
-if {false} {
-# skip this test, what should stash actually do with a 
-# soft rename?
 
 # Test stashed mv without touching the file system
 fossil checkout --force c1
 fossil clean
 fossil mv --soft f1 f1new
 #no such file: c:/Users/Ross/Documents/tmp/ftest/stash/f1b
-stash-test x1 {save -m "B 2016-02-09"} {
+stash-test x1 {save -m "Reported 2016-02-09"} {
   REVERT   f1
   DELETE   f1new
 } -changes {
 } -addremove {
-} -exists {f1 f2 f3} -notexists {f1new}
+} -exists {f1 f2 f3} -notexists {f1new} -knownbugs {-code -result}
+
 # Issue reported by email to fossil-users
 #   from Warren Young, dated Tue, 9 Feb 2016 01:22:54 -0700
 #   with checkin [b8c7af5bd9] plus a local patch on CentOS 5
@@ -190,7 +220,29 @@ stash-test x1 {save -m "B 2016-02-09"} {
 # fossil: ./src/delta.c:231: checksum: Assertion '...' failed.
 # Should be triggered by the above stash-x1 test.
 
-}
+
+# Test stashing the combination of a renamed file and an added file that
+# uses the renamed file's original filename. I expect to see the same
+# behavior as fossil revert: calmly back out both the rename and the
+# add, and presumably stash the content of the added file before it
+# is replaced by the revert.
+#
+repo_init
+write_file f1 "f1"
+fossil add f1
+fossil commit -m "add f1"
+
+write_file f1n "f1n"
+fossil mv f1 f1n
+write_file f1 "f1b"
+fossil add f1
+
+stash-test 2-1 {save -m "f1b"} {
+  REVERT   f1
+  DELETE   f1n
+} -exists {f1} -notexists {f1n} -knownbugs {-code -result}
+# TODO: add tests that verify the saved stash is sensible. Possibly
+# by applying it and checking results.
 
 
 # fossil stash snapshot ?-m|--comment COMMENT? ?FILES...?
