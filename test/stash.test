@@ -245,6 +245,63 @@ stash-test 2-1 {save -m "f1b"} {
 # by applying it and checking results.
 
 
+repo_init
+write_file f1 "f1"
+write_file f2 "f2"
+fossil add f1 f2
+fossil commit -m "baseline"
+
+write_file f3 "f3"
+fossil add f3
+stash-test 3-1 {save -m f3} {
+  UNMANAGE f3
+} -addremove {
+  ADDED f3
+} -exists {f1 f2 f3} -notexists {}
+#fossil status
+fossil stash show
+test stash-3-1-show {[normalize_result] eq {ADDED f3
+Index: f3
+==================================================================
+--- f3
++++ f3
+@@ -0,0 +1,1 @@
++f3}}
+stash-test 3-1-pop {pop} {
+  ADDED f3
+} -changes {
+  ADDED f3
+} -addremove {
+} -exists {f1 f2 f3} -notexists {}
+fossil status
+
+
+
+repo_init
+write_file f1 "f1"
+write_file f2 "f2"
+fossil add f1 f2
+fossil commit -m "baseline"
+fossil mv --hard f2 f2n
+fossil changes
+stash-test 3-2 {save -m f2n} {
+  REVERT f2
+  DELETE f2n
+} -exists {f1 f2} -notexists {f2n} -knownbugs {-result}
+#fossil status
+fossil stash show
+test 3-2-show-1 {![regexp {\sf1} $RESULT]} knownBug
+test 3-2-show-2 {[regexp {\sf2n} $RESULT]}
+stash-test 3-2-pop {pop} {
+  UPDATE f1
+  UPDATE f2n
+} -changes {
+  RENAMED    f2n
+} -addremove {
+  ADDED  f2n
+  DELETED  f2
+} -exists {f1 f2n} -notexists {f2} -knownbugs {-changes}
+
 # fossil stash snapshot ?-m|--comment COMMENT? ?FILES...?
 # fossil stash apply ?STASHID?
 # fossil stash goto ?STASHID?
