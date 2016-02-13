@@ -280,6 +280,11 @@ static void stash_apply(int stashid, int nConflict){
     if( fossil_strcmp(zOrig,zNew)!=0 ){
       undo_save(zOrig);
       file_delete(zOPath);
+      db_multi_exec(
+        "UPDATE vfile SET pathname='%q', origname='%q'"
+        " WHERE pathname='%q' %s AND vid=%d",
+        zNew, zOrig, zOrig, filename_collation(), vid
+      );
     }
   }
   stash_add_files_in_sfile(vid);

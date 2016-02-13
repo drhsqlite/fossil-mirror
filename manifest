@@ -1,5 +1,5 @@
-C More\sfossil\sstash\scases,\sthis\stime\swith\ssnapshot\sand\sinteresting\sresults\sof\sfossil\sstash\sdiff\sin\swhen\sa\sDELETE\swas\ssnapshotted.
-D 2016-02-13T02:42:22.013
+C If\sa\sfile\shas\sbeen\srenamed\sin\sa\sstash,\srestore\sthis\sinformation\salso\sin\sthe\nvfile\stable\sso\sit\sdoesn't\sshow\sup\sas\sMISSING.
+D 2016-02-13T05:00:38.802
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -483,7 +483,7 @@ F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c de27ee9014eea9c2dcc86f4700e9e459b4347dcd
 F src/sqlite3.c 2cf4a88c02cf8cc340332aa4af92a4595842d3b0
 F src/sqlite3.h 3c6f212b4ad997159028e9a41f4cf6923bd0f15b
-F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
+F src/stash.c 5afbb7b7aaade29fda40a0a199124e1a0d772b99
 F src/stat.c 9fa919c1c78db3952e181e0bf955b039aca0db26
 F src/statrep.c 061c9df02d134454c32e34cc29807adc594e1bc2
 F src/style.c 1a7a0b84d1404a6420819498e0697219eb90357d
@@ -746,7 +746,10 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 34cf38b0974fa518d3e95056028e47ebc1e9485e
-R 166c209e7557e78c6f7beca6b9c4986f
-U rberteig
-Z a0c48e2517aa153edd7560e95c05d7e5
+P 94b95307741d72392aae427eebc46ccaf08fa87a
+R f8597a68e7bb707eea19962bad2e2087
+T *branch * pending-review
+T *sym-pending-review *
+T -sym-trunk *
+U andybradford
+Z 0591f2b1655f0f003fa7392e67a5c67e
