@@ -192,11 +192,9 @@ stash-test 2 pop {
   ADDED      f0
   MISSING    f1
   EDITED     f2
-  MISSING    f3
+  RENAMED    f3n
 } -addremove {
-  ADDED  f3n
   DELETED  f1
-  DELETED  f3
 } -exists {f0 f2 f3n} -notexists {f1 f3}
 
 # Confirm there is no longer a stash saved
@@ -297,10 +295,9 @@ fossil add f1 f2
 fossil commit -m "baseline"
 
 fossil mv --hard f2 f2n
-test_result_state stash-3-4-mv "mv --hard f2 f2n" {
-  RENAME f2 f2n
-  MOVED_FILE f2
-} -changes {
+test_result_state stash-3-2-mv "mv --hard f2 f2n" \
+  "RENAME f2 f2n\n MOVED_FILE [file normalize f2]" \
+-changes {
   RENAMED f2n
 } -addremove {
 } -exists {f1 f2n} -notexists {f2}
@@ -318,8 +315,6 @@ stash-test 3-2-pop {pop} {
 } -changes {
   RENAMED    f2n
 } -addremove {
-  ADDED  f2n
-  DELETED  f2
 } -exists {f1 f2n} -notexists {f2} -knownbugs {-changes}
 
 

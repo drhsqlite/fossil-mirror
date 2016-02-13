@@ -1,5 +1,5 @@
-C If\sa\sfile\shas\sbeen\srenamed\sin\sa\sstash,\srestore\sthis\sinformation\salso\sin\sthe\nvfile\stable\sso\sit\sdoesn't\sshow\sup\sas\sMISSING.
-D 2016-02-13T05:00:38.802
+C Updated\sstash.test\sto\sreflect\sthe\sincidental\schanges\sin\soutput\scaused\sby\sthe\schanges\smade\sin\s[fea4d80ee7].
+D 2016-02-13T06:57:17.526
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -544,7 +544,7 @@ F test/merge_renames.test 426dc718ae9813dc4aef651027fdd817aec2e995
 F test/mv-rm.test c4cd3d592b28db47146ecf8e9f4ef4786c67e8b0
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
 F test/revert.test 2afb167072c28d3527f821ce5828967e9c34b390
-F test/stash.test 3a01ed38196daca18128c14f8910cd9ae98a18dc
+F test/stash.test be98132bb33d3ba8a997b6e19c929d1bca984394
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
@@ -746,10 +746,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 94b95307741d72392aae427eebc46ccaf08fa87a
-R f8597a68e7bb707eea19962bad2e2087
-T *branch * pending-review
-T *sym-pending-review *
-T -sym-trunk *
-U andybradford
-Z 0591f2b1655f0f003fa7392e67a5c67e
+P fea4d80ee7b880bb9f91d663613e0c4777d6ac45
+R 8531d234e0626ec874b85b43ea0ae8ef
+U rberteig
+Z b7c466a9580ae1858523e86c6eca7c79
