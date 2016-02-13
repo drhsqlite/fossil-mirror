@@ -1,5 +1,5 @@
-C Added\snew\sedge\scase\stests\sto\sstash.test,\srelated\sto\sstashing\srenamed\sfiles.
-D 2016-02-12T19:53:19.719
+C More\sfossil\sstash\scases,\sthis\stime\swith\ssnapshot\sand\sinteresting\sresults\sof\sfossil\sstash\sdiff\sin\swhen\sa\sDELETE\swas\ssnapshotted.
+D 2016-02-13T02:42:22.013
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -544,7 +544,7 @@ F test/merge_renames.test 426dc718ae9813dc4aef651027fdd817aec2e995
 F test/mv-rm.test c4cd3d592b28db47146ecf8e9f4ef4786c67e8b0
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
 F test/revert.test 2afb167072c28d3527f821ce5828967e9c34b390
-F test/stash.test 4529ed21cfb9630bfb916e30074f51eaa570cc5f
+F test/stash.test 3a01ed38196daca18128c14f8910cd9ae98a18dc
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
@@ -746,7 +746,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b23be81fa6a06f9062be2d919a38bc522b00001f
-R f4c501ecc44dab8a2dae6c37911b3b7d
+P 34cf38b0974fa518d3e95056028e47ebc1e9485e
+R 166c209e7557e78c6f7beca6b9c4986f
 U rberteig
-Z 2cd8ed5ce201ec02e605ea45b2e019f4
+Z a0c48e2517aa153edd7560e95c05d7e5
