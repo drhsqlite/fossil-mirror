@@ -41,7 +41,7 @@ static const char zStashInit[] =
 @   origname TEXT,                     -- Original filename
 @   newname TEXT,                      -- New name for file at next check-in
 @   delta BLOB,                        -- Delta from baseline. Content if rid=0
-@   PRIMARY KEY(origname, stashid)
+@   PRIMARY KEY(newname, stashid)
 @ );
 @ INSERT OR IGNORE INTO vvar(name, value) VALUES('stash-next', 1);
 ;

@@ -1,5 +1,5 @@
-C Updated\sstash.test\sto\sreflect\sthe\sincidental\schanges\sin\soutput\scaused\sby\sthe\schanges\smade\sin\s[fea4d80ee7].
-D 2016-02-13T06:57:17.526
+C Given\sthat\sboth\sorigname\sand\snewname\sare\salways\sprovided\swhen\sstashing\sa\sfile,\nallow\sboth\sa\srename\sand\san\sadd\sby\schanging\sthe\sPRIMARY\sKEY\sfor\sstashfile.\s\sThis\sdoes\smean\sthe\sschema\sfor\sstashfile\shas\schanged\sand\sto\stake\sadvantage\sit\swill\sbe\nnecessary\sto\sclose\sand\sopen\sthe\srepository\sagain\s(or\supdate\smanually\swith\sSQL).
+D 2016-02-17T04:49:44.566
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -483,7 +483,7 @@ F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c de27ee9014eea9c2dcc86f4700e9e459b4347dcd
 F src/sqlite3.c 2cf4a88c02cf8cc340332aa4af92a4595842d3b0
 F src/sqlite3.h 3c6f212b4ad997159028e9a41f4cf6923bd0f15b
-F src/stash.c 5afbb7b7aaade29fda40a0a199124e1a0d772b99
+F src/stash.c 7b5b1006cda9b2b70af03841fad23498886ca23d
 F src/stat.c 9fa919c1c78db3952e181e0bf955b039aca0db26
 F src/statrep.c 061c9df02d134454c32e34cc29807adc594e1bc2
 F src/style.c 1a7a0b84d1404a6420819498e0697219eb90357d
@@ -746,7 +746,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fea4d80ee7b880bb9f91d663613e0c4777d6ac45
-R 8531d234e0626ec874b85b43ea0ae8ef
-U rberteig
-Z b7c466a9580ae1858523e86c6eca7c79
+P a9afb1f0497efee1c2c4498899ca1beec88455cb
+R 9d8f4c16ba73130b6398b5a60c95e121
+U andybradford
+Z 3d8514677f6279387d80af61737101df
