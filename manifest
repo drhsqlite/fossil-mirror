@@ -1,5 +1,5 @@
-C Minor\sformatting\schange\sto\sthe\stest-delta-analyze\scommand.
-D 2016-02-17T22:10:58.167
+C Minor\scorrection\sto\sthe\sP-card\sdocs.
+D 2016-02-18T10:13:22.566
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -696,7 +696,7 @@ F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/event.wiki 395b955e611769fd9aedf3ab489530b89ad5f224
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 93c4421d2bafd192dc61ea563df68aa25caaed95
-F www/fileformat.wiki 1cd023bfde51e32161cee8f0824be255f76e30e8
+F www/fileformat.wiki af854d348597683c299788a44fc33f5835510511
 F www/fiveminutes.wiki 3172b324738523b163b19a8c836d3d9a3ceb9b94
 F www/foss-cklist.wiki 77fe5872d7077a68e1b01e8dd5e3a48f7ee2b0dd
 F www/fossil-from-msvc.wiki f2c229553ff6304fa0c6e82d169e959498af98a8
@@ -746,7 +746,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7ad8230273fa79de7785ef80b1c878bbc5a7132d
-R de9ae3a0101164329e0649ad5ed502c7
-U drh
-Z 9f6fd6de2a3824957cea895d30c58389
+P 7935571bea1debaf8771e9e3757d8cc68a5d0d2e
+R 3d19ad3e66ccea23c3f330f091e80893
+U stephan
+Z 5ec8c553509f9cafa1171b5c0c1fd2d3
