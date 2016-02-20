@@ -233,7 +233,7 @@ static void wiki_standard_submenu(unsigned int ok){
   if( (ok & W_BLOG)!=0
 #endif
   if( (ok & W_SANDBOX)!=0 ){
-    style_submenu_element("Sandbox", "Sandbox", "%R/wiki?name=Sandbox");
+    style_submenu_element("Sandbox", "Sandbox", "%R/wiki/Sandbox");
   }
 }
 
@@ -256,14 +256,14 @@ void wiki_helppage(void){
   }
   { char *zHomePageName = db_get("project-name",0);
     if( zHomePageName ){
-      @ <li> %z(href("%R/wiki?name=%t",zHomePageName))
+      @ <li> %z(href("%R/wiki/%t",zHomePageName))
       @      %h(zHomePageName)</a> project home page.</li>
     }
   }
   @ <li> %z(href("%R/timeline?y=w"))Recent changes</a> to wiki pages.</li>
   @ <li> Formatting rules for %z(href("%R/wiki_rules"))Fossil Wiki</a> and for
   @ %z(href("%R/md_rules"))Markdown Wiki</a>.</li>
-  @ <li> Use the %z(href("%R/wiki?name=Sandbox"))Sandbox</a>
+  @ <li> Use the %z(href("%R/wiki/Sandbox"))Sandbox</a>
   @      to experiment.</li>
   if( g.anon.NewWiki ){
     @ <li>  Create a %z(href("%R/wikinew"))new wiki page</a>.</li>
@@ -301,7 +301,7 @@ void wiki_srchpage(void){
 
 /*
 ** WEBPAGE: wiki
-** URL: /wiki?name=PAGENAME
+** URL: /wiki/PAGENAME
 */
 void wiki_page(void){
   char *zTag;
@@ -354,7 +354,7 @@ void wiki_page(void){
   if( !g.isHome ){
     if( rid ){
       style_submenu_element("Diff", "Last change",
-                 "%R/wdiff?name=%T&a=%d", zPageName, rid);
+                 "%R/wdiff/%T&a=%d", zPageName, rid);
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
       style_submenu_element("Details", "Details",
                    "%R/info/%s", zUuid);
@@ -362,11 +362,11 @@ void wiki_page(void){
     if( (rid && g.anon.WrWiki) || (!rid && g.anon.NewWiki) ){
       if( db_get_boolean("wysiwyg-wiki", 0) ){
         style_submenu_element("Edit", "Edit Wiki Page",
-             "%s/wikiedit?name=%T&wysiwyg=1",
+             "%s/wikiedit/%T&wysiwyg=1",
              g.zTop, zPageName);
       }else{
         style_submenu_element("Edit", "Edit Wiki Page",
-             "%s/wikiedit?name=%T",
+             "%s/wikiedit/%T",
              g.zTop, zPageName);
       }
     }
@@ -377,11 +377,11 @@ void wiki_page(void){
     }
     if( rid && g.anon.ApndWiki ){
       style_submenu_element("Append", "Add A Comment",
-           "%s/wikiappend?name=%T&mimetype=%s",
+           "%s/wikiappend/%T&mimetype=%s",
            g.zTop, zPageName, zMimetype);
     }
     if( g.perm.Hyperlink ){
-      style_submenu_element("History", "History", "%s/whistory?name=%T",
+      style_submenu_element("History", "History", "%s/whistory/%T",
            g.zTop, zPageName);
     }
   }
@@ -455,7 +455,7 @@ static const char *mimetype_common_name(const char *zMimetype){
 
 /*
 ** WEBPAGE: wikiedit
-** URL: /wikiedit?name=PAGENAME
+** URL: /wikiedit/PAGENAME
 **
 ** Edit a wiki page.
 */
@@ -549,10 +549,10 @@ void wikiedit_page(void){
       wiki_put(&wiki, 0, wiki_need_moderation(0));
     }
     db_end_transaction(0);
-    cgi_redirectf("wiki?name=%T", zPageName);
+    cgi_redirectf("wiki/%T", zPageName);
   }
   if( P("cancel")!=0 ){
-    cgi_redirectf("wiki?name=%T", zPageName);
+    cgi_redirectf("wiki/%T", zPageName);
     return;
   }
   if( zBody==0 ){
@@ -640,9 +640,9 @@ void wikinew_page(void){
     if( fossil_strcmp(zMimetype,"text/x-fossil-wiki")==0
      && db_get_boolean("wysiwyg-wiki", 0)
     ){
-      cgi_redirectf("wikiedit?name=%T&wysiwyg=1", zName);
+      cgi_redirectf("wikiedit/%T&wysiwyg=1", zName);
     }else{
-      cgi_redirectf("wikiedit?name=%T&mimetype=%s", zName, zMimetype);
+      cgi_redirectf("wikiedit/%T&mimetype=%s", zName, zMimetype);
     }
   }
   style_header("Create A New Wiki Page");
@@ -703,7 +703,7 @@ static void appendRemark(Blob *p, const char *zMimetype){
 
 /*
 ** WEBPAGE: wikiappend
-** URL: /wikiappend?name=PAGENAME&mimetype=MIMETYPE
+** URL: /wikiappend/PAGENAME&mimetype=MIMETYPE
 **
 ** Append text to the end of a wiki page.
 */
@@ -784,10 +784,10 @@ void wikiappend_page(void){
       wiki_put(&wiki, rid, wiki_need_moderation(0));
       db_end_transaction(0);
     }
-    cgi_redirectf("wiki?name=%T", zPageName);
+    cgi_redirectf("wiki/%T", zPageName);
   }
   if( P("cancel")!=0 ){
-    cgi_redirectf("wiki?name=%T", zPageName);
+    cgi_redirectf("wiki/%T", zPageName);
     return;
   }
   style_set_current_page("%T?name=%T", g.zPath, zPageName);
@@ -835,13 +835,13 @@ static const char *zWikiPageName;
 */
 static void wiki_history_extra(int rid){
   if( db_exists("SELECT 1 FROM tagxref WHERE rid=%d", rid) ){
-    @ %z(href("%R/wdiff?name=%t&a=%d",zWikiPageName,rid))[diff]</a>
+    @ %z(href("%R/wdiff/%t&a=%d",zWikiPageName,rid))[diff]</a>
   }
 }
 
 /*
 ** WEBPAGE: whistory
-** URL: /whistory?name=PAGENAME
+** URL: /whistory/PAGENAME
 **
 ** Show the complete change history for a single wiki page.
 */
@@ -868,7 +868,7 @@ void whistory_page(void){
 
 /*
 ** WEBPAGE: wdiff
-** URL: /whistory?name=PAGENAME&a=RID1&b=RID2
+** URL: /whistory/PAGENAME&a=RID1&b=RID2
 **
 ** Show the difference between two wiki pages.
 */
@@ -958,9 +958,9 @@ void wcontent_page(void){
     const char *zName = db_column_text(&q, 0);
     int size = db_column_int(&q, 1);
     if( size>0 ){
-      @ <li>%z(href("%R/wiki?name=%T",zName))%h(zName)</a></li>
+      @ <li>%z(href("%R/wiki/%T",zName))%h(zName)</a></li>
     }else if( showAll ){
-      @ <li>%z(href("%R/wiki?name=%T",zName))<s>%h(zName)</s></a></li>
+      @ <li>%z(href("%R/wiki/%T",zName))<s>%h(zName)</s></a></li>
     }
   }
   db_finalize(&q);
@@ -988,7 +988,7 @@ void wfind_page(void){
     zTitle);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
-    @ <li>%z(href("%R/wiki?name=%T",zName))%h(zName)</a></li>
+    @ <li>%z(href("%R/wiki/%T",zName))%h(zName)</a></li>
   }
   db_finalize(&q);
   @ </ul>

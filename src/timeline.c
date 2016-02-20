@@ -1141,7 +1141,7 @@ char *names_of_file(const char *zUuid){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFN = db_column_text(&q, 0);
     blob_appendf(&out, "%s%z%h</a>", zSep,
-          href("%R/finfo?name=%t", zFN), zFN);
+          href("%R/finfo/%t", zFN), zFN);
     zSep = " or ";
   }
   db_finalize(&q);

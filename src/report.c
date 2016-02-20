@@ -782,7 +782,7 @@ static int generate_html(
       }
     }else if( azName[i][0]=='#' ){
       zTid = zData;
-      @ <td valign="top">%z(href("%R/tktview?name=%h",zData))%h(zData)</a></td>
+      @ <td valign="top">%z(href("%R/tktview/%h",zData))%h(zData)</a></td>
     }else if( zData[0]==0 ){
       @ <td valign="top">&nbsp;</td>
     }else{

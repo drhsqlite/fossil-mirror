@@ -561,8 +561,8 @@ void test_rename_list_page(void){
     const char *zUuid = db_column_text(&q, 3);
     @ <tr>
     @ <td>%z(href("%R/timeline?c=%t",zDate))%s(zDate)</a></td>
-    @ <td>%z(href("%R/finfo?name=%t",zOld))%h(zOld)</a></td>
-    @ <td>%z(href("%R/finfo?name=%t",zNew))%h(zNew)</a></td>
+    @ <td>%z(href("%R/finfo/%t",zOld))%h(zOld)</a></td>
+    @ <td>%z(href("%R/finfo/%t",zNew))%h(zNew)</a></td>
     @ <td>%z(href("%R/info/%!S",zUuid))%S(zUuid)</a></td></tr>
   }
   @ </table>

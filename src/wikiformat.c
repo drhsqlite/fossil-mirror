@@ -1261,7 +1261,7 @@ static void openHyperlink(
             && db_int(0, "SELECT datetime(%Q) NOT NULL", zTarget) ){
     blob_appendf(p->pOut, "<a href=\"%R/timeline?c=%T\">", zTarget);
   }else if( (z = validWikiPageName(p, zTarget))!=0 ){
-    blob_appendf(p->pOut, "<a href=\"%R/wiki?name=%T\">", z);
+    blob_appendf(p->pOut, "<a href=\"%R/wiki/%T\">", z);
   }else if( zTarget>=&zOrig[2] && !fossil_isspace(zTarget[-2]) ){
     /* Probably an array subscript in code */
     zTerm = "";

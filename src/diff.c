@@ -2355,7 +2355,7 @@ void annotation_page(void){
   }
 
   if( showLog ){
-    char *zLink = href("%R/finfo?name=%t&ci=%!S",zFilename,zCI);
+    char *zLink = href("%R/finfo/%t?ci=%!S",zFilename,zCI);
     @ <h2>Ancestors of %z(zLink)%h(zFilename)</a> analyzed:</h2>
     @ <ol>
     for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
@@ -2383,12 +2383,12 @@ void annotation_page(void){
   }
   if( !ann.bLimit ){
     @ <h2>Origin for each line in
-    @ %z(href("%R/finfo?name=%h&ci=%!S", zFilename, zCI))%h(zFilename)</a>
+    @ %z(href("%R/finfo/%h?ci=%!S", zFilename, zCI))%h(zFilename)</a>
     @ from check-in %z(href("%R/info/%!S",zCI))%S(zCI)</a>:</h2>
     iLimit = ann.nVers+10;
   }else{
     @ <h2>Lines added by the %d(iLimit) most recent ancestors of
-    @ %z(href("%R/finfo?name=%h&ci=%!S", zFilename, zCI))%h(zFilename)</a>
+    @ %z(href("%R/finfo/%h?ci=%!S", zFilename, zCI))%h(zFilename)</a>
     @ from check-in %z(href("%R/info/%!S",zCI))%S(zCI)</a>:</h2>
   }
   @ <pre>

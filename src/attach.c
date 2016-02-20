@@ -124,13 +124,13 @@ void attachlist_page(void){
         zSrc = "Added to";
       }
       if( type==1 ){
-        @ %s(zSrc) ticket <a href="%R/tktview?name=%s(zTarget)">
+        @ %s(zSrc) ticket <a href="%R/tktview/%s(zTarget)">
         @ %S(zTarget)</a>
       }else if( type==2 ){
         @ %s(zSrc) tech note <a href="%R/technote/%s(zTarget)">
         @ %S(zTarget)</a>
       }else{
-        @ %s(zSrc) wiki page <a href="%R/wiki?name=%t(zTarget)">
+        @ %s(zSrc) wiki page <a href="%R/wiki/%t(zTarget)">
         @ %h(zTarget)</a>
       }
     }else{
@@ -289,7 +289,7 @@ void attachadd_page(void){
       fossil_redirect_home();
     }
     zTarget = zPage;
-    zTargetType = mprintf("Wiki Page <a href=\"%R/wiki?name=%h\">%h</a>",
+    zTargetType = mprintf("Wiki Page <a href=\"%R/wiki/%h\">%h</a>",
                            zPage, zPage);
   }else if ( zTechNote ){
     if( g.perm.Write==0 || g.perm.ApndWiki==0 || g.perm.Attach==0 ){
@@ -405,7 +405,7 @@ void attachadd_page(void){
 
 /*
 ** WEBPAGE: ainfo
-** URL: /ainfo?name=ARTIFACTID
+** URL: /ainfo/ARTIFACTID
 **
 ** Show the details of an attachment artifact.
 */
@@ -533,7 +533,7 @@ void ainfo_page(void){
       if( zTktUuid ){
         cgi_redirectf("%R/tktview/%!S", zTktUuid);
       }else{
-        cgi_redirectf("%R/wiki?name=%t", zWikiName);
+        cgi_redirectf("%R/wiki/%t", zWikiName);
       }
       return;
     }
@@ -570,7 +570,7 @@ void ainfo_page(void){
   }
   if( zWikiName ){
     @ <tr><th>Wiki&nbsp;Page:</th>
-    @ <td>%z(href("%R/wiki?name=%t",zWikiName))%h(zWikiName)</a></td></tr>
+    @ <td>%z(href("%R/wiki/%t",zWikiName))%h(zWikiName)</a></td></tr>
   }
   @ <tr><th>Date:</th><td>
   hyperlink_to_date(zDate, "</td></tr>");

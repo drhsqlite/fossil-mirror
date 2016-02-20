@@ -262,7 +262,7 @@ static cson_value * json_page_dir_list(){
       cson_object_set_s(zEntry, zKeyTime,
           cson_value_new_integer( (cson_int_t)ts ));
       cson_object_set_s(zEntry, zKeyRaw,
-                        json_new_string_f("/raw/%T?name=%t",
+                        json_new_string_f("/raw/%T/%t",
                                           fullName, u));
     }
   }

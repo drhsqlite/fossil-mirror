@@ -87,11 +87,11 @@ void hyperlinked_path(
     for(j=i; zPath[j] && zPath[j]!='/'; j++){}
     if( zPath[j] && g.perm.Hyperlink ){
       if( zCI ){
-        char *zLink = href("%R/%s?name=%#T%s&ci=%!S", zURI, j, zPath, zREx,zCI);
+        char *zLink = href("%R/%s/%#T%s?ci=%!S", zURI, j, zPath, zREx,zCI);
         blob_appendf(pOut, "%s%z%#h</a>",
                      zSep, zLink, j-i, &zPath[i]);
       }else{
-        char *zLink = href("%R/%s?name=%#T%s", zURI, j, zPath, zREx);
+        char *zLink = href("%R/%s/%#T%s", zURI, j, zPath, zREx);
         blob_appendf(pOut, "%s%z%#h</a>",
                      zSep, zLink, j-i, &zPath[i]);
       }
@@ -188,17 +188,17 @@ void page_dir(void){
                           url_render(&sURI, "ci", "tip", 0, 0));
   }
   if( zCI ){
-    @ <h2>Files of check-in [%z(href("vinfo?name=%!S",zUuid))%S(zUuid)</a>]
+    @ <h2>Files of check-in [%z(href("vinfo/%!S",zUuid))%S(zUuid)</a>]
     @ %s(blob_str(&dirname))</h2>
-    zSubdirLink = mprintf("%R/dir?ci=%!S&name=%T", zUuid, zPrefix);
+    zSubdirLink = mprintf("%R/dir/?ci=%!S&name=%T", zUuid, zPrefix);
     if( nD==0 ){
-      style_submenu_element("File Ages", "File Ages", "%R/fileage?name=%!S",
+      style_submenu_element("File Ages", "File Ages", "%R/fileage/%!S",
                             zUuid);
     }
   }else{
     @ <h2>The union of all files from all check-ins
     @ %s(blob_str(&dirname))</h2>
-    zSubdirLink = mprintf("%R/dir?name=%T", zPrefix);
+    zSubdirLink = mprintf("%R/dir/%T", zPrefix);
   }
   style_submenu_element("All", "All", "%s",
                         url_render(&sURI, "ci", 0, 0, 0));
@@ -292,7 +292,7 @@ void page_dir(void){
         const char *zUuid = db_column_text(&q, 1);
         zLink = href("%R/artifact/%!S",zUuid);
       }else{
-        zLink = href("%R/finfo?name=%T%T",zPrefix,zFN);
+        zLink = href("%R/finfo/%T%T",zPrefix,zFN);
       }
       @ <li class="%z(fileext_class(zFN))">%z(zLink)%h(zFN)</a></li>
     }
@@ -630,7 +630,7 @@ void page_tree(void){
     style_submenu_element("All", "All", "%s",
                           url_render(&sURI, "ci", 0, 0, 0));
     if( nD==0 && !showDirOnly ){
-      style_submenu_element("File Ages", "File Ages", "%R/fileage?name=%s",
+      style_submenu_element("File Ages", "File Ages", "%R/fileage/%s",
                             zUuid);
     }
   }
@@ -710,7 +710,7 @@ void page_tree(void){
     if( sqlite3_strnicmp(zCI, zUuid, (int)strlen(zCI))!=0 ){
       @ "%h(zCI)"
     }
-    @ [%z(href("vinfo?name=%!S",zUuid))%S(zUuid)</a>] %s(blob_str(&dirname))
+    @ [%z(href("vinfo/%!S",zUuid))%S(zUuid)</a>] %s(blob_str(&dirname))
   }else{
     int n = db_int(0, "SELECT count(*) FROM plink");
     @ <h2>%s(zObjType) from all %d(n) check-ins %s(blob_str(&dirname))
@@ -774,7 +774,7 @@ void page_tree(void){
       if( zCI ){
         zLink = href("%R/artifact/%!S",p->zUuid);
       }else{
-        zLink = href("%R/finfo?name=%T",p->zFullName);
+        zLink = href("%R/finfo/%T",p->zFullName);
       }
       @ <li class="%z(zFileClass)%s(zLastClass)"><div class="filetreeline">
       @ %z(zLink)%h(p->zName)</a>

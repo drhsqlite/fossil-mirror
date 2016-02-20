@@ -441,7 +441,7 @@ static void showAllFields(void){
 
 /*
 ** WEBPAGE: tktview
-** URL:  tktview?name=UUID
+** URL:  tktview/UUID
 **
 ** View a ticket identified by the name= query parameter.
 */
@@ -453,7 +453,7 @@ void tktview_page(void){
   login_check_credentials();
   if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
   if( g.anon.WrTkt || g.anon.ApndTkt ){
-    style_submenu_element("Edit", "Edit The Ticket", "%s/tktedit?name=%T",
+    style_submenu_element("Edit", "Edit The Ticket", "%s/tktedit/%T",
         g.zTop, PD("name",""));
   }
   if( g.perm.Hyperlink ){
@@ -746,7 +746,7 @@ void tktedit_page(void){
   }
   zName = P("name");
   if( P("cancel") ){
-    cgi_redirectf("tktview?name=%T", zName);
+    cgi_redirectf("tktview/%T", zName);
   }
   style_header("Edit Ticket");
   if( zName==0 || (nName = strlen(zName))<4 || nName>UUID_SIZE
@@ -829,7 +829,7 @@ char *ticket_schema_check(const char *zSchema){
 
 /*
 ** WEBPAGE: tkttimeline
-** URL: /tkttimeline?name=TICKETUUID&y=TYPE
+** URL: /tkttimeline/TICKETUUID&y=TYPE
 **
 ** Show the change history for a single ticket in timeline format.
 */
@@ -852,10 +852,10 @@ void tkttimeline_page(void){
   zType = PD("y","a");
   if( zType[0]!='c' ){
     style_submenu_element("Check-ins", "Check-ins",
-       "%s/tkttimeline?name=%T&y=ci", g.zTop, zUuid);
+       "%s/tkttimeline/%T&y=ci", g.zTop, zUuid);
   }else{
     style_submenu_element("Timeline", "Timeline",
-       "%s/tkttimeline?name=%T", g.zTop, zUuid);
+       "%s/tkttimeline/%T", g.zTop, zUuid);
   }
   style_submenu_element("History", "History",
     "%s/tkthistory/%s", g.zTop, zUuid);
@@ -908,7 +908,7 @@ void tkttimeline_page(void){
 
 /*
 ** WEBPAGE: tkthistory
-** URL: /tkthistory?name=TICKETUUID
+** URL: /tkthistory/TICKETUUID
 **
 ** Show the complete change history for a single ticket
 */
@@ -929,9 +929,9 @@ void tkthistory_page(void){
   style_submenu_element("Status", "Status",
     "%s/info/%s", g.zTop, zUuid);
   style_submenu_element("Check-ins", "Check-ins",
-    "%s/tkttimeline?name=%s&y=ci", g.zTop, zUuid);
+    "%s/tkttimeline/%s&y=ci", g.zTop, zUuid);
   style_submenu_element("Timeline", "Timeline",
-    "%s/tkttimeline?name=%s", g.zTop, zUuid);
+    "%s/tkttimeline/%s", g.zTop, zUuid);
   if( P("plaintext")!=0 ){
     style_submenu_element("Formatted", "Formatted",
                           "%R/tkthistory/%s", zUuid);

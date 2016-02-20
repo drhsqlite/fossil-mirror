@@ -278,7 +278,7 @@ void cat_cmd(void){
 
 /*
 ** WEBPAGE: finfo
-** URL: /finfo?name=FILENAME
+** URL: /finfo/FILENAME
 **
 ** Show the change history for a single file.
 **
@@ -328,7 +328,7 @@ void finfo_page(void){
     return;
   }
   if( g.perm.Admin ){
-    style_submenu_element("MLink Table", "mtab", "%R/mlink?name=%t", zFilename);
+    style_submenu_element("MLink Table", "mtab", "%R/mlink/%t", zFilename);
   }
   if( baseCheckin ){
     compute_direct_ancestors(baseCheckin);
@@ -401,7 +401,7 @@ void finfo_page(void){
     }else{
       blob_appendf(&title, "Ancestors of file ");
     }
-    blob_appendf(&title,"<a href='%R/finfo?name=%T'>%h</a>",
+    blob_appendf(&title,"<a href='%R/finfo/%T'>%h</a>",
                  zFilename, zFilename);
     if( fShowId ) blob_appendf(&title, " (%d)", fnid);
     blob_appendf(&title, " from check-in %z%S</a>", zLink, zUuid);
@@ -489,7 +489,7 @@ void finfo_page(void){
         char *zPrevName = db_text(0, "SELECT name FROM filename WHERE fnid=%d",
                                   pfnid);
         @ <b>Renamed</b> from
-        @ %z(href("%R/finfo?name=%t", zPrevName))%h(zPrevName)</a>
+        @ %z(href("%R/finfo/%t", zPrevName))%h(zPrevName)</a>
       }
       @ %z(href("%R/artifact/%!S",zUuid))[%S(zUuid)]</a>
       if( fShowId ){
@@ -506,7 +506,7 @@ void finfo_page(void){
         fmid, zFilename);
       if( zNewName ){
         @ <b>Renamed</b> to
-        @ %z(href("%R/finfo?name=%t",zNewName))%h(zNewName)</a> by check-in
+        @ %z(href("%R/finfo/%t",zNewName))%h(zNewName)</a> by check-in
         fossil_free(zNewName);
       }else{
         @ <b>Deleted</b> by check-in
@@ -540,7 +540,7 @@ void finfo_page(void){
           @ %d(aParent[ii])
         }
       }
-      zAncLink = href("%R/finfo?name=%T&ci=%!S&debug=1",zFilename,zCkin);
+      zAncLink = href("%R/finfo/%T?ci=%!S&debug=1",zFilename,zCkin);
       @ %z(zAncLink)[ancestry]</a>
     }
     tag_private_status(frid);
@@ -564,7 +564,7 @@ void finfo_page(void){
 
 /*
 ** WEBPAGE: mlink
-** URL: /mlink?name=FILENAME
+** URL: /mlink/FILENAME
 ** URL: /mlink?ci=NAME
 **
 ** Show all MLINK table entries for a particular file, or for
@@ -604,7 +604,7 @@ void mlink_page(void){
        fnid
     );
     @ <h1>MLINK table for file
-    @ <a href='%R/finfo?name=%t(zFName)'>%h(zFName)</a></h1>
+    @ <a href='%R/finfo/%t(zFName)'>%h(zFName)</a></h1>
     @ <div class='brlist'>
     @ <table id='mlinktable'>
     @ <thead><tr>
@@ -650,7 +650,7 @@ void mlink_page(void){
       }
       @ <td align='center'>%s(isExe?"&#x2713;":"")</td>
       if( zPrior ){
-        @ <td><a href='%R/finfo?name=%t(zPrior)'>%h(zPrior)</a></td>
+        @ <td><a href='%R/finfo/%t(zPrior)'>%h(zPrior)</a></td>
       }else{
         @ <td></td>
       }
@@ -700,7 +700,7 @@ void mlink_page(void){
       int isExec = db_column_int(&q,6);
       int isAux = db_column_int(&q,7);
       @ <tr>
-      @ <td><a href='%R/finfo?name=%t(zName)'>%h(zName)</a></td>
+      @ <td><a href='%R/finfo/%t(zName)'>%h(zName)</a></td>
       if( zParent ){
         @ <td><a href='%R/info/%!S(zPid)'>%S(zParent)</a></td>
       }else{
@@ -721,7 +721,7 @@ void mlink_page(void){
       }
       @ <td align='center'>%s(isExec?"&#x2713;":"")</td>
       if( zPrior ){
-        @ <td><a href='%R/finfo?name=%t(zPrior)'>%h(zPrior)</a></td>
+        @ <td><a href='%R/finfo/%t(zPrior)'>%h(zPrior)</a></td>
       }else{
         @ <td></td>
       }

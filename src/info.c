@@ -398,15 +398,15 @@ static void append_file_change_line(
   }else{
     if( zOld && zNew ){
       if( fossil_strcmp(zOld, zNew)!=0 ){
-        @ Modified %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
+        @ Modified %z(href("%R/finfo/%T",zName))%h(zName)</a>
         @ from %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>
         @ to %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
       }else if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
         @ Name change
-        @ from %z(href("%R/finfo?name=%T",zOldName))%h(zOldName)</a>
-        @ to %z(href("%R/finfo?name=%T",zName))%h(zName)</a>.
+        @ from %z(href("%R/finfo/%T",zOldName))%h(zOldName)</a>
+        @ to %z(href("%R/finfo/%T",zName))%h(zName)</a>.
       }else{
-        @ %z(href("%R/finfo?name=%T",zName))%h(zName)</a> became
+        @ %z(href("%R/finfo/%T",zName))%h(zName)</a> became
         if( mperm==PERM_EXE ){
           @ executable with contents
         }else if( mperm==PERM_LNK ){
@@ -417,10 +417,10 @@ static void append_file_change_line(
         @ %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
       }
     }else if( zOld ){
-      @ Deleted %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
+      @ Deleted %z(href("%R/finfo/%T",zName))%h(zName)</a>
       @ version %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>.
     }else{
-      @ Added %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
+      @ Added %z(href("%R/finfo/%T",zName))%h(zName)</a>
       @ version %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
     }
     if( diffFlags ){
@@ -502,8 +502,8 @@ u64 construct_diff_flags(int verboseFlag, int sideBySide){
 /*
 ** WEBPAGE: vinfo
 ** WEBPAGE: ci
-** URL:  /ci?name=ARTIFACTID
-** URL:  /vinfo?name=ARTIFACTID
+** URL:  /ci/ARTIFACTID
+** URL:  /vinfo/ARTIFACTID
 **
 ** Display information about a particular check-in.
 **
@@ -678,7 +678,7 @@ void ci_page(void){
       @ <tr><th>Other&nbsp;Links:</th>
       @   <td>
       @     %z(href("%R/tree?ci=%!S",zUuid))files</a>
-      @   | %z(href("%R/fileage?name=%!S",zUuid))file ages</a>
+      @   | %z(href("%R/fileage/%!S",zUuid))file ages</a>
       @   | %z(href("%R/tree?nofiles&type=tree&ci=%!S",zUuid))folders</a>
       @   | %z(href("%R/artifact/%!S",zUuid))manifest</a>
       if( g.anon.Write ){
@@ -770,7 +770,7 @@ void ci_page(void){
 
 /*
 ** WEBPAGE: winfo
-** URL:  /winfo?name=UUID
+** URL:  /winfo/UUID
 **
 ** Display information about a wiki page.
 */
@@ -801,7 +801,7 @@ void winfo_page(void){
       */
       if( db_exists("SELECT 1 FROM tagxref JOIN tag USING(tagid)"
                     " WHERE rid=%d AND tagname LIKE 'wiki-%%'", rid) ){
-        cgi_redirectf("%R/wiki?name=%T", pWiki->zWikiTitle);
+        cgi_redirectf("%R/wiki/%T", pWiki->zWikiTitle);
         /*NOTREACHED*/
       }else{
         cgi_redirectf("%R/modreq");
@@ -816,9 +816,9 @@ void winfo_page(void){
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   zDate = db_text(0, "SELECT datetime(%.17g)", pWiki->rDate);
   style_submenu_element("Raw", "Raw", "artifact/%s", zUuid);
-  style_submenu_element("History", "History", "whistory?name=%t",
+  style_submenu_element("History", "History", "whistory/%t",
                         pWiki->zWikiTitle);
-  style_submenu_element("Page", "Page", "wiki?name=%t",
+  style_submenu_element("Page", "Page", "wiki/%t",
                         pWiki->zWikiTitle);
   login_anonymous_available();
   @ <div class="section">Overview</div>
@@ -1247,7 +1247,7 @@ int object_description(
         @ <li>File
       }
       objType |= OBJTYPE_CONTENT;
-      @ %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
+      @ %z(href("%R/finfo/%T",zName))%h(zName)</a>
       tag_private_status(rid);
       if( showDetail ){
         @ <ul>
@@ -1271,7 +1271,7 @@ int object_description(
     @ &mdash; %!W(zCom) (user:
     hyperlink_to_user(zUser,zDate,")");
     if( g.perm.Hyperlink ){
-      @ %z(href("%R/finfo?name=%T&ci=%!S",zName,zVers))[ancestry]</a>
+      @ %z(href("%R/finfo/%T?ci=%!S",zName,zVers))[ancestry]</a>
       @ %z(href("%R/annotate?filename=%T&checkin=%!S",zName,zVers))
       @ [annotate]</a>
       @ %z(href("%R/blame?filename=%T&checkin=%!S",zName,zVers))
@@ -1308,7 +1308,7 @@ int object_description(
       @ Wiki page
     }
     objType |= OBJTYPE_WIKI;
-    @ [%z(href("%R/wiki?name=%t",zPagename))%h(zPagename)</a>] by
+    @ [%z(href("%R/wiki/%t",zPagename))%h(zPagename)</a>] by
     hyperlink_to_user(zUser,zDate," on");
     hyperlink_to_date(zDate,".");
     nWiki++;
@@ -1386,13 +1386,13 @@ int object_description(
     objType |= OBJTYPE_ATTACHMENT;
     if( strlen(zTarget)==UUID_SIZE && validate16(zTarget,UUID_SIZE) ){
       if( g.perm.Hyperlink && g.anon.RdTkt ){
-        @ ticket [%z(href("%R/tktview?name=%!S",zTarget))%S(zTarget)</a>]
+        @ ticket [%z(href("%R/tktview/%!S",zTarget))%S(zTarget)</a>]
       }else{
         @ ticket [%S(zTarget)]
       }
     }else{
       if( g.perm.Hyperlink && g.anon.RdWiki ){
-        @ wiki page [%z(href("%R/wiki?name=%t",zTarget))%h(zTarget)</a>]
+        @ wiki page [%z(href("%R/wiki/%t",zTarget))%h(zTarget)</a>]
       }else{
         @ wiki page [%h(zTarget)]
       }
@@ -1522,7 +1522,7 @@ void diff_page(void){
 
 /*
 ** WEBPAGE: raw
-** URL: /raw?name=ARTIFACTID&m=TYPE
+** URL: /raw/ARTIFACTID&m=TYPE
 **
 ** Return the uninterpreted content of an artifact.  Used primarily
 ** to view artifacts that are images.
@@ -1614,7 +1614,7 @@ static void hexdump(Blob *pBlob){
 
 /*
 ** WEBPAGE: hexdump
-** URL: /hexdump?name=ARTIFACTID
+** URL: /hexdump/ARTIFACTID
 **
 ** Show the complete content of a file identified by ARTIFACTID
 ** as preformatted text.
@@ -1655,7 +1655,7 @@ void hexdump_page(void){
   if( P("verbose")!=0 ) objdescFlags |= OBJDESC_DETAIL;
   object_description(rid, objdescFlags, &downloadName);
   style_submenu_element("Download", "Download",
-        "%s/raw/%T?name=%s", g.zTop, blob_str(&downloadName), zUuid);
+        "%s/raw/%T/%s", g.zTop, blob_str(&downloadName), zUuid);
   @ <hr />
   content_get(rid, &content);
   @ <blockquote><pre>
@@ -1853,7 +1853,7 @@ void artifact_page(void){
   blob_zero(&downloadName);
   objType = object_description(rid, objdescFlags, &downloadName);
   if( !descOnly && P("download")!=0 ){
-    cgi_redirectf("%R/raw/%T?name=%s", blob_str(&downloadName),
+    cgi_redirectf("%R/raw/%T/%s", blob_str(&downloadName),
           db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid));
     /*NOTREACHED*/
   }
@@ -1891,7 +1891,7 @@ void artifact_page(void){
     db_finalize(&q);
   }
   style_submenu_element("Download", "Download",
-          "%R/raw/%T?name=%s", blob_str(&downloadName), zUuid);
+          "%R/raw/%T/%s", blob_str(&downloadName), zUuid);
   if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
     style_submenu_element("Check-ins Using", "Check-ins Using",
           "%R/timeline?n=200&uf=%s",zUuid);
@@ -1940,7 +1940,7 @@ void artifact_page(void){
       @   onload="this.height=this.contentDocument.documentElement.scrollHeight;">
       @ </iframe>
     }else{
-      style_submenu_element("Hex","Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
+      style_submenu_element("Hex","Hex", "%s/hexdump/%s", g.zTop, zUuid);
       blob_to_utf8_no_bom(&content, 0);
       zMime = mimetype_from_content(&content);
       @ <blockquote>
@@ -1969,7 +1969,7 @@ void artifact_page(void){
 
 /*
 ** WEBPAGE: tinfo
-** URL: /tinfo?name=ARTIFACTID
+** URL: /tinfo/ARTIFACTID
 **
 ** Show the details of a ticket change control artifact.
 */
@@ -2487,7 +2487,7 @@ void ci_edit_page(void){
                         "  FROM event WHERE objid=%d", rid);
   if( zComment==0 ) fossil_redirect_home();
   if( P("cancel") ){
-    cgi_redirectf("ci?name=%s", zUuid);
+    cgi_redirectf("ci/%s", zUuid);
   }
   if( g.perm.Setup ) zChngTime = P("chngtime");
   zNewComment = PD("c",zComment);
@@ -2550,7 +2550,7 @@ void ci_edit_page(void){
     if( zNewTagFlag[0] && zNewTag[0] ) add_tag(zNewTag);
     if( zNewBrFlag[0] && zNewBranch[0] ) change_branch(rid,zNewBranch);
     apply_newtags(&ctrl, rid, zUuid);
-    cgi_redirectf("ci?name=%s", zUuid);
+    cgi_redirectf("ci/%s", zUuid);
   }
   blob_zero(&comment);
   blob_append(&comment, zNewComment, -1);
