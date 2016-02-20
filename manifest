@@ -1,5 +1,5 @@
-C Minor\scorrection\sto\sthe\sP-card\sdocs.
-D 2016-02-18T10:13:22.566
+C Preserve\sthe\strailing\sslash\sfor\scheckouts\sso\sfossil\scan\sremove\sa\scheckout\sthat\nno\slonger\sexists\sbut\sis\sstill\sa\sdirectory.
+D 2016-02-20T20:53:40.564
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -372,7 +372,7 @@ F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 026bd9dac971929fa07830d34993d0f00f99bcd2
-F src/allrepo.c 653a4fe5cb10da2811c3d394e8beca6b357de8b7
+F src/allrepo.c 25455c1e2665a60adfd7a5f606c04021b11040af
 F src/attach.c 5f6f5ccc39aeb0f4d49b7696b7b520b515a53177
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c c8bdcf4812c9446bea503610d234772516bf572f
@@ -746,7 +746,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7935571bea1debaf8771e9e3757d8cc68a5d0d2e
-R 3d19ad3e66ccea23c3f330f091e80893
-U stephan
-Z 5ec8c553509f9cafa1171b5c0c1fd2d3
+P 576d64c94311fcadbea5957f122480242fd6258a
+R 97be1968855cdd3ba67c1720a41676c3
+U andybradford
+Z fec40950bacf9008db15f16f301ec62f
