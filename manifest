@@ -1,5 +1,5 @@
-C Preserve\sthe\strailing\sslash\sfor\scheckouts\sso\sfossil\scan\sremove\sa\scheckout\sthat\nno\slonger\sexists\sbut\sis\sstill\sa\sdirectory.
-D 2016-02-20T20:53:40.564
+C Since\sfossil\snow\suses\sthe\sfunction\ssqlite_strlike(),\sdon't\sallow\sit\sto\sbuild/run\swith\sSQLite\sversions\s<\s3.10.0\sany\smore.
+D 2016-02-23T10:47:09.812
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -45,7 +45,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 71360c5c142a4db1172b3acfeb4cbe7ba866149a
+F auto.def 6068b5fa48a2cb23177380b649e22fca339ea743
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 4e0b671b54288fc64d851d056822ee5fec4d3365
 F autosetup/autosetup 7b5ae324561a38804875517af9b7c6e7f42f930d x
@@ -442,7 +442,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 9010b62121a41566e330f62c238061ca4c6b4f98
 F src/lookslike.c 9103d15912b792a65874f04e185f2a74a477ebb4
-F src/main.c 744f0089f5b51530060211ca0693167f0070256d
+F src/main.c e75796be5338a81c0ed31879287935f07af90523
 F src/main.mk 9e159023f50de1e869bbe4172dc4b25fe6a72cfa
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -746,7 +746,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 576d64c94311fcadbea5957f122480242fd6258a
-R 97be1968855cdd3ba67c1720a41676c3
-U andybradford
-Z fec40950bacf9008db15f16f301ec62f
+P f7a5e10ce93372801b37292c43a0261c901e1ed1
+R 75e5de799515ced23d11d8091004b1d3
+U jan.nijtmans
+Z 83e1f4de1a4a9a69086f58cd4b4281f5
