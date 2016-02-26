@@ -1,5 +1,5 @@
-C Minor\sformatting\schange\sto\sthe\stest-delta-analyze\scommand.
-D 2016-02-17T22:10:58.167
+C Add\s-e\sas\sa\sshort\soption\sfor\s--edit-comment\sin\sthe\samend\scommand.
+D 2016-02-26T02:54:35.146
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -419,7 +419,7 @@ F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c dcacafa93eeca1980f4ac38311d93a16549e84ba
-F src/info.c 3826af4933096cfb0f3d8d9b9c894b0976c5fd62
+F src/info.c e6bb4582e084481d842e921984425b4da3d57ad7
 F src/json.c 6df1d80dece8968b344e4b730aae8151c7c61955
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -746,7 +746,10 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7ad8230273fa79de7785ef80b1c878bbc5a7132d
-R de9ae3a0101164329e0649ad5ed502c7
-U drh
-Z 9f6fd6de2a3824957cea895d30c58389
+P 7935571bea1debaf8771e9e3757d8cc68a5d0d2e
+R 10d8ad949b8a87a09b6aec0bce8c4b24
+T *branch * pending-review
+T *sym-pending-review *
+T -sym-trunk *
+U rberteig
+Z 9fd9b1838531d1deab775c80bc5e8801
