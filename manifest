@@ -1,5 +1,5 @@
-C Since\sfossil\snow\suses\sthe\sfunction\ssqlite_strlike(),\sdon't\sallow\sit\sto\sbuild/run\swith\sSQLite\sversions\s<\s3.10.0\sany\smore.
-D 2016-02-23T10:47:09.812
+C Fix\s"fossil\sco"\sso\sthat\sit\shonors\sthe\s--quiet\sflag.
+D 2016-02-26T16:05:07.748
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -385,7 +385,7 @@ F src/cache.c c42b6bf7490ac4758a6bc83a1bcaf4f89353f28d
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 10310d276e72e3e34343e3385c0b39fac5cd826e
 F src/checkin.c 2bd9b624190c79d774d7806eb5791a239b82ceef
-F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
+F src/checkout.c 4e223f43a4318c9efb0e8df4d890aab4b1bbba09
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c a855ad9e6db9760ee41451e358a393f89996daed
 F src/codecheck1.c bf92e19b6a521f947c07960aae3f2aa9a21e4c42
@@ -746,7 +746,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f7a5e10ce93372801b37292c43a0261c901e1ed1
-R 75e5de799515ced23d11d8091004b1d3
-U jan.nijtmans
-Z 83e1f4de1a4a9a69086f58cd4b4281f5
+P 8ed01e8021d4154f57ba014e8cc6e6188df91a43
+R 16e47ec05d9141925ec227654ea84ab1
+U drh
+Z 4f6e9141c2d56c69079e97aa32bb0af3
