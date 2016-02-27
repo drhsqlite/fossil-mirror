@@ -1,5 +1,5 @@
-C Given\sthat\sboth\sorigname\sand\snewname\sare\salways\sprovided\swhen\sstashing\sa\sfile,\nallow\sboth\sa\srename\sand\san\sadd\sby\schanging\sthe\sPRIMARY\sKEY\sfor\sstashfile.\s\sThis\sdoes\smean\sthe\sschema\sfor\sstashfile\shas\schanged\sand\sto\stake\sadvantage\sit\swill\sbe\nnecessary\sto\sclose\sand\sopen\sthe\srepository\sagain\s(or\supdate\smanually\swith\sSQL).
-D 2016-02-17T04:49:44.566
+C Bring\sin\slatest\sdevelopments\son\strunk.
+D 2016-02-27T16:38:29.444
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -45,7 +45,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 71360c5c142a4db1172b3acfeb4cbe7ba866149a
+F auto.def 6068b5fa48a2cb23177380b649e22fca339ea743
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 4e0b671b54288fc64d851d056822ee5fec4d3365
 F autosetup/autosetup 7b5ae324561a38804875517af9b7c6e7f42f930d x
@@ -372,7 +372,7 @@ F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 026bd9dac971929fa07830d34993d0f00f99bcd2
-F src/allrepo.c 653a4fe5cb10da2811c3d394e8beca6b357de8b7
+F src/allrepo.c 25455c1e2665a60adfd7a5f606c04021b11040af
 F src/attach.c 5f6f5ccc39aeb0f4d49b7696b7b520b515a53177
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c c8bdcf4812c9446bea503610d234772516bf572f
@@ -385,7 +385,7 @@ F src/cache.c c42b6bf7490ac4758a6bc83a1bcaf4f89353f28d
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 10310d276e72e3e34343e3385c0b39fac5cd826e
 F src/checkin.c 2bd9b624190c79d774d7806eb5791a239b82ceef
-F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
+F src/checkout.c 4e223f43a4318c9efb0e8df4d890aab4b1bbba09
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c a855ad9e6db9760ee41451e358a393f89996daed
 F src/codecheck1.c bf92e19b6a521f947c07960aae3f2aa9a21e4c42
@@ -398,7 +398,7 @@ F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 19e5cdcc57473efdb94d7ef7c73454c81e516625
 F src/delta.c ab405c78d6559ea61563e2500c28f135a26c8b62
-F src/deltacmd.c 23bacf7915f27f8438f86fbaa117ad94f7931093
+F src/deltacmd.c 754470dba5bce684c84cd9354d572a77cdd1f402
 F src/descendants.c 6cb824a041723f2bf8e82765386ed5974e335c92
 F src/diff.c 9e68056cec9391693463aefb1954d7672698cd05
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
@@ -419,7 +419,7 @@ F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c dcacafa93eeca1980f4ac38311d93a16549e84ba
-F src/info.c 3826af4933096cfb0f3d8d9b9c894b0976c5fd62
+F src/info.c e6bb4582e084481d842e921984425b4da3d57ad7
 F src/json.c 6df1d80dece8968b344e4b730aae8151c7c61955
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -442,7 +442,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 9010b62121a41566e330f62c238061ca4c6b4f98
 F src/lookslike.c 9103d15912b792a65874f04e185f2a74a477ebb4
-F src/main.c 744f0089f5b51530060211ca0693167f0070256d
+F src/main.c e75796be5338a81c0ed31879287935f07af90523
 F src/main.mk 9e159023f50de1e869bbe4172dc4b25fe6a72cfa
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -481,8 +481,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 44d3881e497cf9bec8ea6dcf73830502ab59202c
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c de27ee9014eea9c2dcc86f4700e9e459b4347dcd
-F src/sqlite3.c 2cf4a88c02cf8cc340332aa4af92a4595842d3b0
-F src/sqlite3.h 3c6f212b4ad997159028e9a41f4cf6923bd0f15b
+F src/sqlite3.c df01436c5fcfe72d1a95bc172158219796e1a90b
+F src/sqlite3.h 7756708e607c3831bbc43b84475aef8e11fabc7a
 F src/stash.c 7b5b1006cda9b2b70af03841fad23498886ca23d
 F src/stat.c 9fa919c1c78db3952e181e0bf955b039aca0db26
 F src/statrep.c 061c9df02d134454c32e34cc29807adc594e1bc2
@@ -548,7 +548,7 @@ F test/stash.test be98132bb33d3ba8a997b6e19c929d1bca984394
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 23cab1e4088458a2c7fdd159a48a5d2b199c0e0b
+F test/tester.tcl a67810c094c61d294516d2c01300516bf336a99e
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 797a2d6167b7277bce160cd5943b3a08ea43d014
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -696,7 +696,7 @@ F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/event.wiki 395b955e611769fd9aedf3ab489530b89ad5f224
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 93c4421d2bafd192dc61ea563df68aa25caaed95
-F www/fileformat.wiki 1cd023bfde51e32161cee8f0824be255f76e30e8
+F www/fileformat.wiki af854d348597683c299788a44fc33f5835510511
 F www/fiveminutes.wiki 3172b324738523b163b19a8c836d3d9a3ceb9b94
 F www/foss-cklist.wiki 77fe5872d7077a68e1b01e8dd5e3a48f7ee2b0dd
 F www/fossil-from-msvc.wiki f2c229553ff6304fa0c6e82d169e959498af98a8
@@ -746,7 +746,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a9afb1f0497efee1c2c4498899ca1beec88455cb
-R 9d8f4c16ba73130b6398b5a60c95e121
+P ca574f818ac1efff9856acbb385c5c01c0d4cb19 dc72fd9624dcd15b0782fa7687fb8778920307bf
+R 2245546ca0a78d6a03bfb0cfe0b82d6a
 U andybradford
-Z 3d8514677f6279387d80af61737101df
+Z 707ea821917cbe12b1af81431a14ff0d

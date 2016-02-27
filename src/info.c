@@ -2801,7 +2801,7 @@ static void prepare_amend_comment(
 **    --author USER           Make USER the author for check-in
 **    -m|--comment COMMENT    Make COMMENT the check-in comment
 **    -M|--message-file FILE  Read the amended comment from FILE
-**    --edit-comment          Launch editor to revise comment
+**    -e|--edit-comment       Launch editor to revise comment
 **    --date DATE             Make DATE the check-in time
 **    --bgcolor COLOR         Apply COLOR to this check-in
 **    --branchcolor COLOR     Apply and propagate COLOR to the branch
@@ -2843,7 +2843,7 @@ void ci_amend_cmd(void){
   Stmt q;
 
   if( g.argc==3 ) usage(AMEND_USAGE_STMT);
-  fEditComment = find_option("edit-comment",0,0)!=0;
+  fEditComment = find_option("edit-comment","e",0)!=0;
   zNewComment = find_option("comment","m",1);
   zComFile = find_option("message-file","M",1);
   zNewBranch = find_option("branch",0,1);
