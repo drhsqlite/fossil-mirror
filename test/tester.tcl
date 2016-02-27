@@ -199,9 +199,10 @@ proc repo_init {{filename ".rep.fossil"}} {
     if {![regexp {use --repository} $res]} {
       error "In an open checkout: cannot initialize a new repository here."
     }
-    # Fossil will write data on $HOME, running 'fossil new' here.
+    # Fossil will write data on $FOSSIL_HOME, running 'fossil new' here.
     # We need not to clutter the $HOME of the test caller.
     #
+    set ::env(FOSSIL_HOME) [pwd]
     set ::env(HOME) [pwd]
   }
   catch {exec $::fossilexe close -f}

@@ -1,5 +1,5 @@
-C Add\s-e\sas\sa\sshort\soption\sfor\s--edit-comment\sin\sfossil\samend.
-D 2016-02-26T18:42:57.986
+C Fix\sglitch\sin\stester.tcl\son\sWindows\swhich\scaused\srepo_init\sto\sfail\sto\sguard\sthe\susers's\slists\sof\sall\srepositories\sand\scheckouts.\sSetting\sFOSSIL_HOME\sas\swell\sas\sHOME\sto\s[pwd]\sresolves\sthis\sneatly,\sand\slikely\smakes\sit\smore\srobust\son\sother\splatforms\ssince\sFOSSIL_HOME\sis\salways\schecked\sfirst\sand\sif\sset\sby\sa\suser,\swould\sstill\soverride\sthe\sattempt\smade\sby\srepo_init\sto\sprotect\sthem.
+D 2016-02-27T02:12:31.285
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -548,7 +548,7 @@ F test/stash.test 3a01ed38196daca18128c14f8910cd9ae98a18dc
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 23cab1e4088458a2c7fdd159a48a5d2b199c0e0b
+F test/tester.tcl a67810c094c61d294516d2c01300516bf336a99e
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 797a2d6167b7277bce160cd5943b3a08ea43d014
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -746,8 +746,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f3e8e3ead384995fdefb2dea2f53e484d497f06b 769bc7b43661387d171a6c985f6ee5dba9dc7409
-R b22ac4e81b88a497743960ca3aadf997
-T +closed 769bc7b43661387d171a6c985f6ee5dba9dc7409
+P 9ea1f140436a1907c3c7fd84be05ccb4723ca9b5
+R 12b35d6efd1e93650e239c9ab28c8b8e
 U rberteig
-Z 79229cf522a0a9a29b454240e79f6871
+Z affa901a4b63687c6b317517ba907d85
