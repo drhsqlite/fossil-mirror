@@ -1,5 +1,5 @@
-C Add\sa\snew\sdocument\scovering\sglobal\soptions\sand\senvironment\svariables\sused\sby\sfossil.\sThis\sis\sa\swork\sin\sprogress,\sbut\ssnapshotted\sas\sit\sstands\sso\sthat\sothers\scan\spoke\sat\sit.
-D 2016-02-27T02:22:51.876
+C Fix\sincorrect\sbuild\sinstruction\sat\sthe\stop\sof\smkindex.tcl.
+D 2016-02-27T07:06:29.649
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -718,7 +718,7 @@ F www/index.wiki d1cc125a4d1808e3245652695accba06e2b34b4e
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki f75b16c8bb734fe20d0d524c658f05dab006316c
 F www/mkdownload.tcl 5ac61a3e13cecaa67f1e31741113c96cbd41463f
-F www/mkindex.tcl 52442e489059bbb6f02887d30193cf8e4bc11810
+F www/mkindex.tcl 23e4d98c3b4c8e67f233547e21b9effe961943b5
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 336916afde4ff470e87fc43066063623a9a74c8a
 F www/permutedindex.html 24480ebfa9589c59a27671385f72e9888d644c92
@@ -747,10 +747,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dc72fd9624dcd15b0782fa7687fb8778920307bf
-R 58a9843746c2f8245468848042916df6
-T *branch * ross-doc-env
-T *sym-ross-doc-env *
-T -sym-trunk *
+P 946ed34da3aa8b89a57eaa22175b4eaee278af80
+R f443bef6bd7b143adfb8a2957698a106
 U rberteig
-Z 9d9efc3e66379daef3363f02dc751103
+Z 05a61ec4bf0000523b3e638e28d3ef01
