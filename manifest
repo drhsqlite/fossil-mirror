@@ -1,5 +1,5 @@
-C Fix\sglitch\sin\stester.tcl\son\sWindows\swhich\scaused\srepo_init\sto\sfail\sto\sguard\sthe\susers's\slists\sof\sall\srepositories\sand\scheckouts.\sSetting\sFOSSIL_HOME\sas\swell\sas\sHOME\sto\s[pwd]\sresolves\sthis\sneatly,\sand\slikely\smakes\sit\smore\srobust\son\sother\splatforms\ssince\sFOSSIL_HOME\sis\salways\schecked\sfirst\sand\sif\sset\sby\sa\suser,\swould\sstill\soverride\sthe\sattempt\smade\sby\srepo_init\sto\sprotect\sthem.
-D 2016-02-27T02:12:31.285
+C Add\sa\snew\sdocument\scovering\sglobal\soptions\sand\senvironment\svariables\sused\sby\sfossil.\sThis\sis\sa\swork\sin\sprogress,\sbut\ssnapshotted\sas\sit\sstands\sso\sthat\sothers\scan\spoke\sat\sit.
+D 2016-02-27T02:22:51.876
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -693,6 +693,7 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
+F www/env-opts.md c8b47df1f6c960b6d75967b3f1f4ad5276adf3dd
 F www/event.wiki 395b955e611769fd9aedf3ab489530b89ad5f224
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 93c4421d2bafd192dc61ea563df68aa25caaed95
@@ -717,10 +718,10 @@ F www/index.wiki d1cc125a4d1808e3245652695accba06e2b34b4e
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki f75b16c8bb734fe20d0d524c658f05dab006316c
 F www/mkdownload.tcl 5ac61a3e13cecaa67f1e31741113c96cbd41463f
-F www/mkindex.tcl e6a1265e3dd6ae2933df10dc5021ffc778728790
+F www/mkindex.tcl 52442e489059bbb6f02887d30193cf8e4bc11810
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 336916afde4ff470e87fc43066063623a9a74c8a
-F www/permutedindex.html 0c4e7ba6b933ef5bf03a49fcfa5b0928a4cb338a
+F www/permutedindex.html 24480ebfa9589c59a27671385f72e9888d644c92
 F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
 F www/private.wiki 72344489bbae6f7955369559b6ab22e01a64259b
 F www/qandc.wiki e07b21da221b05afeb1905f17af3765045952ba8
@@ -746,7 +747,10 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9ea1f140436a1907c3c7fd84be05ccb4723ca9b5
-R 12b35d6efd1e93650e239c9ab28c8b8e
+P dc72fd9624dcd15b0782fa7687fb8778920307bf
+R 58a9843746c2f8245468848042916df6
+T *branch * ross-doc-env
+T *sym-ross-doc-env *
+T -sym-trunk *
 U rberteig
-Z affa901a4b63687c6b317517ba907d85
+Z 9d9efc3e66379daef3363f02dc751103

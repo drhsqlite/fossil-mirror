@@ -26,6 +26,7 @@ set doclist {
   delta_encoder_algorithm.wiki {Fossil Delta Encoding Algorithm}
   delta_format.wiki {Fossil Delta Format}
   embeddeddoc.wiki {Embedded Project Documentation}
+  env-opts.md {Environment Variables and Global Options}
   event.wiki {Events}
   faq.wiki {Frequently Asked Questions}
   fileformat.wiki {Fossil File Format}
