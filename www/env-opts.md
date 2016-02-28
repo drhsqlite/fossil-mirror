@@ -22,10 +22,16 @@ it is assumed to be another flag and is treated as such. `--args
 FILENAME` may be used in conjunction with any other flags.
 
 `--case-sensitive BOOL`: Override the `case-sensitive` setting, which
-can override the native preferences of the platform: insensitive on
-WIndows, sensitive on Unix.
+can override the native preferences of the platform for case sensitive
+file names: insensitive on Windows, sensitive on Unix. There are
+probably odd interactions possible if you mix case sensitive and case
+insensitive file systems on any single platform. This option or the
+global setting should be used to force the case sensitivity to the
+most sensible condition. 
 
-`--chdir DIRECTORY`:
+`--chdir DIRECTORY`: 
+
+
 
 `--comfmtflags NUMBER`:
 
@@ -79,6 +85,19 @@ used as the location of the `~/.fossil` file.
 Overridden by the local or global `editor` setting or the `VISUAL`
 environment variable.
 
+`FOSSIL_FORCE_TICKET_MODERATION`: If set, *ALL* changes for tickets
+will be required to go through moderation (even those performed by the
+local interactive user via the command line).  This can be useful for
+local (or remote) testing of the moderation subsystem and its impact
+on the contents and status of tickets.
+
+`FOSSIL_FORCE_WIKI_MODERATION`: If set, *ALL* changes for wiki pages
+will be required to go through moderation (even those performed by the
+local interactive user via the command line).  This can be useful for
+local (or remote) testing of the moderation subsystem and its impact
+on the contents and status of wiki pages.
+
+
 `FOSSIL_HOME`: Location of the `~/.fossil` file. The first environment
 variable found in the environment from the list `FOSSIL_HOME`,
 `LOCALAPPDATA` (Windows), `APPDATA` (Windows), `HOMEDRIVE` and
@@ -90,6 +109,10 @@ location of the `~/.fossil` file.
 found in the environment from the list `FOSSIL_USER`, `USERNAME`
 (Windows), `USER`, and `LOGNAME` is the user name. If none of those
 are set, then the default user name is "root".
+
+`FOSSIL_TCL_PATH`: When Tcl stubs support is configured, point to a
+specific folder containing the version of Tcl to load at run time.
+
 
 `FOSSIL_VFS`: Name a VFS to load into SQLite. 
 
@@ -110,6 +133,10 @@ The first environment variable found in the environment from the list
 used as the location of the `~/.fossil` file. 
 
 `HTTP_HOST`: If defined, included in error log messages.
+
+`http_proxy`: If the global or local settings `proxy` is not set, this
+is used as the default value for the `proxy` setting.
+
 
 `HTTP_USER_AGENT`: If defined, included in error log messages.
 
@@ -145,7 +172,14 @@ the remote host.
 
 `SCRIPT_NAME`: If defined, included in error log messages.
 
-`SSH_CONNECTION`:
+`SSH_CONNECTION`: Informs CGI processing if the remote client is SSH.
+
+`SQLITE_FORCE_PROXY_LOCKING`: From `sqlite3.c`, 1 means force always
+use proxy, 0 means never use proxy, and undefined means use proxy for
+non-local files only.
+
+`SQLITE_TMPDIR`: Names the temporary file location to SQLite. 
+
 
 `SYSTEMROOT`: (Windows) Used to locate `notepad.exe` as a
 fall back comment editor.
@@ -170,12 +204,22 @@ strictly necessary, but makes debugging memory leaks easier. See
 [main.c near line 386](/artifact/e75796be5338a81c?ln=386,391) for the
 code.
 
+`TH1_ENABLE_DOCS`: Override the local or global setting `tcl-docs`
+to enable TH1 documents in fossil.
+
+`TH1_ENABLE_HOOKS`: Override the local or global setting `tcl-hooks`
+to enable TH1 hooks in fossil.
+
+`TH1_ENABLE_TCL`: Override the local or global setting `tcl` to enable
+TCL in fossil.
 
 `TMP`: On Windows, the location of temporary files. The first
 environment variable found in the environment that names an existing
 directory from the list `TMP`, `TEMP`, `USERPROFILE`, the Windows
 directory (usually `C:\WINDOWS`), `TEMP`, `TMP`, and the current
 directory (aka `.`) is the temporary folder. 
+
+`TMPDIR`: Names the temporary file location to SQLite.
 
 
 `USER`: Name of the default user account if the local or global
@@ -241,6 +285,8 @@ only a dot is seen.
 
 ### Default Username
 
+
+
 When creating a new repository, fossil wants to guess a sensible user
 name to make the default user granted the "s" permission.
 
@@ -258,6 +304,33 @@ If `default-user` is not set, then the first found environment
 variable from the list `FOSSIL_USER`, `USERNAME` (Windows), `USER`,
 and `LOGNAME` is the user name. If none of those are set, then the
 default user name is "root".
+
+
+**TODO** Compare `db_create_default_users()` in `db.c` to
+`user_select()` in `user.c` which checks in a different order...
+
+Figure out what user is at the controls.
+
+   1.  Use the --user and -U command-line options.
+
+   2.  If the local database is open, check in VVAR.   ???
+
+   3.  Check the default user in the repository (setting
+   `default-user`)
+
+   4.  Try the `FOSSIL_USER` environment variable.
+
+   5.  Try the `USER` environment variable.
+
+   6.  Try the `LOGNAME` environment variable.
+
+   7.  Try the `USERNAME` environment variable.
+
+   8.  Check if the user can be extracted from the remote URL, if
+   there is a remote URL.
+
+
+
 
 ### Error logging
 
@@ -277,6 +350,14 @@ The user's home directory is specified by the first environment
 variable found in the environment from the list `FOSSIL_HOME`,
 `LOCALAPPDATA` (Windows), `APPDATA` (Windows), `HOMEDRIVE` and
 `HOMEPATH` (Windows, used together), and `HOME`. 
+
+SQLite has its own notion of the user's home directory, which is only
+exposed if the interactive SQL shell is run with the "fossil
+sqlite3" command. Being a separate library, SQLite uses many of the
+same variables to find the home directory, but uses them in a
+different order, and does not use the `FOSSIL_HOME` variable at all.
+
+
 
 ### SQLite VFS to use
 
@@ -298,7 +379,10 @@ folder as the merge result.
 Other temporary files need a home. On Unix-like systems, the first
 folder from the hard coded list `/var/tmp`, `/usr/tmp`, `/tmp`,
 `/temp`, and `.` that is found to exist in the file system is used by
-fossil. 
+fossil. The SQLite library has its own code for finding a safe place for
+temporary files. It checks the environment variables `SQLITE_TMPDIR`
+and `TMPDIR` ahead of the hard coded list `/var/tmp`, `/usr/tmp`,
+`/tmp`, and `.` for the first directory that exists.
 
 On Windows, fossil calls [`GetTempPath`][gtp], and also queries the
 environment variables `TEMP`, and `TMP`. If none of those three places
@@ -310,6 +394,8 @@ not having `TEMP`, `TMP`, or `USERPROFILE` set is almost guaranteed to
 cause trouble.
 
 [gtp]: https://msdn.microsoft.com/en-us/library/windows/desktop/aa364992%28v=vs.85%29.aspx 
+
+
 
 That said, it is not unusual for utilities on all platforms to assume
 that `TEMP` or `TMP` point somewhere safe for temporary files.
