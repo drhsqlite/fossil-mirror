@@ -29,44 +29,62 @@ insensitive file systems on any single platform. This option or the
 global setting should be used to force the case sensitivity to the
 most sensible condition. 
 
-`--chdir DIRECTORY`: 
+`--chdir DIRECTORY`: Change to the named directory before processing
+any commands. 
 
 
+`--comfmtflags NUMBER`: Specify flags that control how check-in
+comments and certain other text outputs are formatted for display. The
+flags are individual bits in `NUMBER`: 
 
-`--comfmtflags NUMBER`:
+     0   no special formatting 
+     1   legacy algorithm (default)  
+     2   trim leading CR and LF 
+     4   trim leading and trailing spaces 
+     8   word break 
+    16   line break before comment
 
 
-`--errorlog ERRLOG`:
+`--errorlog ERRLOG`: Name a file to which fossil will log panics,
+errors, and warnings.
+
 
 `--help`: If `--help` is found anywhere on the command line, translate
 the command to `fossil help cmdname` where `cmdname` is the first
 argument that does not begin with a `-` character.  If all arguments
 start with `-`, translate to `fossil help argv[1] argv[2]...`. 
 
-`--httptrace`:
+`--httptrace`: (Sets `g.fHttpTrace`.) Trace outbound HTTP requests.
 
-`--localtime`:
+`--localtime`: Override the `timeline-utc` option to explicitly use
+local time.
 
 `--nocgi`: Prevent fossil from acting as a CGI by default even if the
 `GATEWAY_INTERFACE` environment variable is set.
 
-`--no-th-hook`:
+`--no-th-hook`: (Sets `g.fNoThHook`.)
 
-`--quiet`:
+`--quiet`: (Sets `g.fQuiet`.) Cause fossil to suppress various messages and progress
+indicators that would otherwise be printed. 
 
-`--sqltrace`:
+`--sqltrace`: (Sets `g.SqlTrace`.) Implies `--sqlstats`. Trace certain
+SQLite database activity, especially showing every SQL query
+processed.
 
-`--sqlstats`:
+`--sqlstats`: (Sets `g.fSqlStats`.) Print a number of performance
+statistics about each SQLite database used when it is closed.
 
-`--sshtrace`:
+`--sshtrace`: (Sets `g.fSshTrace`.)
 
 `--ssl-identity SSLIDENTITY`:
 
-`--systemtrace`:
+`--systemtrace`: (Sets `g.fSystemTrace`.) Trace all commands launched
+as sub processes.
 
-`--user LOGIN`: Also `-U LOGIN`.
+`--user LOGIN`: Also `-U LOGIN`. Set the user name.
 
-`--utc`:
+`--utc`: Override the `timeline-utc` option to explicitly use
+UTC time.
 
 `--vfs VFSNAME`: Load the named VFS into SQLite.
 
