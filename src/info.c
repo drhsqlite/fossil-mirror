@@ -1955,6 +1955,7 @@ void artifact_page(void){
           @ </pre>
         }
       }else if( strncmp(zMime, "image/", 6)==0 ){
+        @ <i>(file is %d(blob_size(&content)) bytes of image data)</i><br>
         @ <img src="%R/raw/%s(zUuid)?m=%s(zMime)" />
         style_submenu_element("Image", "Image",
                               "%R/raw/%s?m=%s", zUuid, zMime);
