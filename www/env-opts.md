@@ -27,21 +27,21 @@ file names: insensitive on Windows, sensitive on Unix. There are
 probably odd interactions possible if you mix case sensitive and case
 insensitive file systems on any single platform. This option or the
 global setting should be used to force the case sensitivity to the
-most sensible condition. 
+most sensible condition.
 
 `--chdir DIRECTORY`: Change to the named directory before processing
-any commands. 
+any commands.
 
 
 `--comfmtflags NUMBER`: Specify flags that control how check-in
 comments and certain other text outputs are formatted for display. The
-flags are individual bits in `NUMBER`: 
+flags are individual bits in `NUMBER`:
 
-     0   no special formatting 
-     1   legacy algorithm (default)  
-     2   trim leading CR and LF 
-     4   trim leading and trailing spaces 
-     8   word break 
+     0   no special formatting
+     1   legacy algorithm (default)
+     2   trim leading CR and LF
+     4   trim leading and trailing spaces
+     8   word break
     16   line break before comment
 
 
@@ -52,7 +52,7 @@ errors, and warnings.
 `--help`: If `--help` is found anywhere on the command line, translate
 the command to `fossil help cmdname` where `cmdname` is the first
 argument that does not begin with a `-` character.  If all arguments
-start with `-`, translate to `fossil help argv[1] argv[2]...`. 
+start with `-`, translate to `fossil help argv[1] argv[2]...`.
 
 `--httptrace`: (Sets `g.fHttpTrace`.) Trace outbound HTTP requests.
 
@@ -62,10 +62,11 @@ local time.
 `--nocgi`: Prevent fossil from acting as a CGI by default even if the
 `GATEWAY_INTERFACE` environment variable is set.
 
-`--no-th-hook`: (Sets `g.fNoThHook`.)
+`--no-th-hook`: (Sets `g.fNoThHook`.) Override the `th1-hooks` setting
+and prevent any TH1 hooks from being executed.
 
 `--quiet`: (Sets `g.fQuiet`.) Cause fossil to suppress various messages and progress
-indicators that would otherwise be printed. 
+indicators that would otherwise be printed.
 
 `--sqltrace`: (Sets `g.SqlTrace`.) Implies `--sqlstats`. Trace certain
 SQLite database activity, especially showing every SQL query
@@ -97,7 +98,7 @@ Environment Variables
 environment variable found in the environment from the list
 `FOSSIL_HOME`, `LOCALAPPDATA` (Windows), `APPDATA` (Windows),
 `HOMEDRIVE` and `HOMEPATH` (Windows, used together), and `HOME` is
-used as the location of the `~/.fossil` file. 
+used as the location of the `~/.fossil` file.
 
 `EDITOR`: Name the editor to use for check-in and stash comments.
 Overridden by the local or global `editor` setting or the `VISUAL`
@@ -120,7 +121,7 @@ on the contents and status of wiki pages.
 variable found in the environment from the list `FOSSIL_HOME`,
 `LOCALAPPDATA` (Windows), `APPDATA` (Windows), `HOMEDRIVE` and
 `HOMEPATH` (Windows, used together), and `HOME` is used as the
-location of the `~/.fossil` file. 
+location of the `~/.fossil` file.
 
 `FOSSIL_USER`: Name of the default user account if the local or global
 `default-user` setting is not present. The first environment variable
@@ -133,7 +134,7 @@ specific file or folder containing the version of Tcl to load at run
 time.
 
 
-`FOSSIL_VFS`: Name a VFS to load into SQLite. 
+`FOSSIL_VFS`: Name a VFS to load into SQLite.
 
 `GATEWAY_INTERFACE`: If present and the `--nocgi` option is not, assume
 fossil is invoked from a web server as a CGI command, and act
@@ -143,13 +144,13 @@ accordingly.
 variable found in the environment from the list `FOSSIL_HOME`,
 `LOCALAPPDATA` (Windows), `APPDATA` (Windows), `HOMEDRIVE` and
 `HOMEPATH` (Windows, used together), and `HOME` is used as the
-location of the `~/.fossil` file. 
+location of the `~/.fossil` file.
 
 `HOMEDRIVE`, `HOMEPATH`: (Windows) Location of the `~/.fossil` file.
 The first environment variable found in the environment from the list
 `FOSSIL_HOME`, `LOCALAPPDATA` (Windows), `APPDATA` (Windows),
 `HOMEDRIVE` and `HOMEPATH` (Windows, used together), and `HOME` is
-used as the location of the `~/.fossil` file. 
+used as the location of the `~/.fossil` file.
 
 `HTTP_HOST`: If defined, included in error log messages.
 
@@ -164,7 +165,7 @@ is used as the default value for the `proxy` setting.
 environment variable found in the environment from the list
 `FOSSIL_HOME`, `LOCALAPPDATA` (Windows), `APPDATA` (Windows),
 `HOMEDRIVE` and `HOMEPATH` (Windows, used together), and `HOME` is
-used as the location of the `~/.fossil` file. 
+used as the location of the `~/.fossil` file.
 
 `LOGNAME`: Name of the default user account if the local or global
 `default-user` setting is not present. The first environment variable
@@ -197,7 +198,7 @@ the remote host.
 use proxy, 0 means never use proxy, and undefined means use proxy for
 non-local files only.
 
-`SQLITE_TMPDIR`: Names the temporary file location to SQLite. 
+`SQLITE_TMPDIR`: Names the temporary file location to SQLite.
 
 
 `SYSTEMROOT`: (Windows) Used to locate `notepad.exe` as a
@@ -207,7 +208,7 @@ fall back comment editor.
 environment variable found in the environment that names an existing
 directory from the list `TMP`, `TEMP`, `USERPROFILE`, the Windows
 directory (usually `C:\WINDOWS`), `TEMP`, `TMP`, and the current
-directory (aka `.`) is the temporary folder. 
+directory (aka `.`) is the temporary folder.
 
 `TERM`: If the linenoise library is used (almost certainly not on
 Windows), it will check `TERM` to verify that the interactive terminal
@@ -236,7 +237,7 @@ TCL in fossil.
 environment variable found in the environment that names an existing
 directory from the list `TMP`, `TEMP`, `USERPROFILE`, the Windows
 directory (usually `C:\WINDOWS`), `TEMP`, `TMP`, and the current
-directory (aka `.`) is the temporary folder. 
+directory (aka `.`) is the temporary folder.
 
 `TMPDIR`: Names the temporary file location to SQLite.
 
@@ -257,7 +258,7 @@ are set, then the default user name is "root".
 environment variable found in the environment that names an existing
 directory from the list `TMP`, `TEMP`, `USERPROFILE`, the Windows
 directory (usually `C:\WINDOWS`), `TEMP`, `TMP`, and the current
-directory (aka `.`) is the temporary folder. 
+directory (aka `.`) is the temporary folder.
 
 `VISUAL`: Name the editor to use for check-in and stash comments.
 Overrides the `EDITOR` environment variable. Overridden by the local
@@ -312,7 +313,7 @@ name to make the default user granted the "s" permission.
 Fossil will use the setting `default-user` if set. Normally, a local
 setting would override a global setting, but when creating a new
 repository it is more than a little unlikely that there is an open
-checkout to provide the local setting. 
+checkout to provide the local setting.
 
 **TODO:** Any interaction caused by nesting repositories is not
 documented, but should be. Similarly for simply having the current
@@ -356,7 +357,7 @@ Figure out what user is at the controls.
 If logging errors to a file, fossil will include the values of the
 following environment variables in the error log entry if they are
 defined: `HTTP_HOST`, `HTTP_USER_AGENT`, `PATH_INFO`, `QUERY_STRING`,
-`REMOTE_ADDR`, `REQUEST_METHOD`, `REQUEST_URI`, and `SCRIPT_NAME`. 
+`REMOTE_ADDR`, `REQUEST_METHOD`, `REQUEST_URI`, and `SCRIPT_NAME`.
 
 
 ### Home Directory
@@ -368,7 +369,7 @@ repositories and checkouts used by `fossil all`.
 The user's home directory is specified by the first environment
 variable found in the environment from the list `FOSSIL_HOME`,
 `LOCALAPPDATA` (Windows), `APPDATA` (Windows), `HOMEDRIVE` and
-`HOMEPATH` (Windows, used together), and `HOME`. 
+`HOMEPATH` (Windows, used together), and `HOME`.
 
 SQLite has its own notion of the user's home directory, which is only
 exposed if the interactive SQL shell is run with the "fossil
@@ -412,7 +413,7 @@ versions of Windows is generally *not* writable by the logged in user,
 not having `TEMP`, `TMP`, or `USERPROFILE` set is almost guaranteed to
 cause trouble.
 
-[gtp]: https://msdn.microsoft.com/en-us/library/windows/desktop/aa364992%28v=vs.85%29.aspx 
+[gtp]: https://msdn.microsoft.com/en-us/library/windows/desktop/aa364992%28v=vs.85%29.aspx
 
 
 
