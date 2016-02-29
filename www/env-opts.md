@@ -111,7 +111,8 @@ found in the environment from the list `FOSSIL_USER`, `USERNAME`
 are set, then the default user name is "root".
 
 `FOSSIL_TCL_PATH`: When Tcl stubs support is configured, point to a
-specific folder containing the version of Tcl to load at run time.
+specific file or folder containing the version of Tcl to load at run
+time.
 
 
 `FOSSIL_VFS`: Name a VFS to load into SQLite. 
