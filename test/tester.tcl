@@ -194,17 +194,6 @@ proc same_file {a b} {
 # Create and open a new Fossil repository and clean the checkout
 #
 proc repo_init {{filename ".rep.fossil"}} {
-  if {$::env(HOME) ne [pwd]} {
-    catch {exec $::fossilexe info} res
-    if {![regexp {use --repository} $res]} {
-      error "In an open checkout: cannot initialize a new repository here."
-    }
-    # Fossil will write data on $FOSSIL_HOME, running 'fossil new' here.
-    # We need not to clutter the $HOME of the test caller.
-    #
-    set ::env(FOSSIL_HOME) [pwd]
-    set ::env(HOME) [pwd]
-  }
   catch {exec $::fossilexe close -f}
   file delete $filename
   exec $::fossilexe new $filename
@@ -523,6 +512,10 @@ foreach testfile $argv {
   file mkdir $dir
   set origwd [pwd]
   cd $dir
+  # FOSSIL_HOME overrides the location of the configuration database. Set this
+  # here so as not to pollute the user's normal settings and repository lists.
+  # Done before every test in case it gets modified.
+  set env(FOSSIL_HOME) $origwd
   protOut "***** $testfile ******"
   source $testdir/$testfile.test
   protOut "***** End of $testfile: [llength $bad_test] errors so far ******"

@@ -43,10 +43,6 @@ if {![regexp {use --repository} $res]} {
   puts stderr "Cannot run this test within an open checkout"
   return
 }
-#
-# Fossil will write data on $HOME, running 'fossil open' here.
-# We need not to clutter the $HOME of the test caller.
-set env(HOME) [pwd]
 
 # Construct a test repository
 #

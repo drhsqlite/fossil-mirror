@@ -1,5 +1,5 @@
-C Update\sreferenced\sOpenSSL\sversion.
-D 2016-03-01T16:32:10.192
+C Set\sthe\sFOSSIL_HOME\senvvar\sbefore\seach\stest.\sUse\sthe\sroot\stest\srun\sdirectory\sinstead\sof\sthe\sdirectories\screated\sfor\seach\stest\sfile\sso\sthe\sconfig\sDB\sfile\son\sWindows\sdoesn't\smess\sup\stests\sof\scommands\slike\saddremove\sand\sextras.
+D 2016-03-01T21:50:24.922
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -537,7 +537,7 @@ F test/merge1.test 4734854393f717824ae96b3de8524a2401a21921
 F test/merge2.test 1915d0a7cf117dd7448d6ccc30b54b4cd85a942c
 F test/merge3.test 637ad5275604c7fe17340b32338aadf2a1f27c07
 F test/merge4.test e9b9b3826dc271ae75523a5fa0a08fe17b0cd722
-F test/merge5.test 4ca266f425c0bb75bd4547b1628b860aca850dec
+F test/merge5.test 85583eb7abbd87c38096e602e0c95cbe5ea8360d
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test 3ae66c3b8359c79a54db41c92a4572adc30780aa
 F test/merge_renames.test 426dc718ae9813dc4aef651027fdd817aec2e995
@@ -548,7 +548,7 @@ F test/stash.test 3a01ed38196daca18128c14f8910cd9ae98a18dc
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl a67810c094c61d294516d2c01300516bf336a99e
+F test/tester.tcl 98e70fee09fccd49f2d2f1d647195193ef5e8a04
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 797a2d6167b7277bce160cd5943b3a08ea43d014
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -746,7 +746,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f4c6e49a43d07bb71f0628506a63ad81b5ccaec0
-R 9cf938b7713f26b42943fadf91d71646
-U mistachkin
-Z ce411cc451e03f75684c3495e6333c28
+P a9e3db1f707d4998d836571302be0fe62138c3df
+R afbf5461b299420af17966dad58ab896
+U joel
+Z 37c2e4ed18149ae483b644a635b62091
