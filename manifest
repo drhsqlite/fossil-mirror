@@ -1,5 +1,5 @@
-C Show\sthe\snumber\sof\sbytes\sfor\simage\sartifacts\sand\sattachments\sas\swell.
-D 2016-02-29T21:23:58.618
+C Update\sreferenced\sOpenSSL\sversion.
+D 2016-03-01T16:32:10.192
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -446,7 +446,7 @@ F src/main.c e75796be5338a81c0ed31879287935f07af90523
 F src/main.mk 9e159023f50de1e869bbe4172dc4b25fe6a72cfa
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 67bbb33dc96447264ce0e4396da6d4965ce3eab4
+F src/makemake.tcl 980c247a8e4242e71b5a1f9ea8cfe92e48663496
 F src/manifest.c a520159adafb16098a08535b2bbd6984198b5cdf
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md fc02fd045690e6fb45fb0bc91be734913dc70d02
@@ -629,9 +629,9 @@ F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F win/Makefile.PellesCGMake 72214df8c066828363c1b7f48e647a146b484ca6
 F win/Makefile.dmc 65d9d67850656c427e6572a746df023d9d6629e7
-F win/Makefile.mingw 3ae7e0e5386c9211c83f6b184a9980e92441e8cc
-F win/Makefile.mingw.mistachkin f6f384c20164a0daf2b85fc2be01cd5ce06ecfe7
-F win/Makefile.msc c4153b7a79432997742a7fa9984df6e9e3eb4256
+F win/Makefile.mingw 3d064c1041e0391a765d6d10a24bf9db99dbeccb
+F win/Makefile.mingw.mistachkin e2aa9a684544526eb6265555c631ff66900ed7fe
+F win/Makefile.msc e41353083f35078b4cad78b27f407c6fa6821bc8
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -660,7 +660,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 55838578c80d95e28ad565d843bf01b0d6fe39fe
+F www/build.wiki 9a9ff3e2df5ebcfad7ec72298bfd41137cbbbb81
 F www/changes.wiki d3987fab2c9f37585576a6fe3aa3324d20f9cf43
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 115a0ecdac918232061bbc19124ea83e0a27d938
@@ -746,7 +746,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dc72fd9624dcd15b0782fa7687fb8778920307bf
-R 9d7589966195f4f17de5164e767a5193
+P f4c6e49a43d07bb71f0628506a63ad81b5ccaec0
+R 9cf938b7713f26b42943fadf91d71646
 U mistachkin
-Z 63d791f45682d7f1b2b6c0d717fe6e4e
+Z ce411cc451e03f75684c3495e6333c28
