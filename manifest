@@ -1,5 +1,5 @@
-C Change\sdb_create_default_users()\sto\salign\sits\suse\sof\senvironment\svariables\sto\sset\sthe\suser\sname\sto\smatch\suser_select(),\sand\stry\sall\svariables\son\sboth\sUnix\sand\sWindows.
-D 2016-03-01T21:38:36.671
+C Add\snew\stest-usernames\scommand\sto\sdump\sall\sof\sthe\svarious\ssources\sof\sthe\scurrent\suser\sname\sin\sthe\sorder\stested.
+D 2016-03-02T01:56:12.385
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -503,7 +503,7 @@ F src/undo.c 52ec5c24a6dcf1937026e2d9f86791fd1913cdf6
 F src/unicode.c f26b9f26d4ac399f7b03cfac16ec72336c7f06c9
 F src/update.c 404e7daea8b200e2708329b49850d62e68e716f7
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
-F src/user.c 64ceb772b57b8efd21eb89a2efde2d78f1ede78c
+F src/user.c 0335b8389a957ea4ca1e19d740f7b60303ebb8bf
 F src/utf8.c 5c85c7e88b82b5fb48649c46f063ac94ab58eb20
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
@@ -747,7 +747,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a56f2089497d6fc5377328bbf0ff4c623e5fbcaf
-R 2b57538e95253302c8384680a0674916
+P ace9e00f965b187b717c871ccf6a2225f1d1faa4
+R f78eeadafd7f21c0f2f5bee922755753
 U rberteig
-Z c372b0db017803198d2a33a7a574ac2b
+Z 0d5de74aadec9f39efaa5850431f39d5
