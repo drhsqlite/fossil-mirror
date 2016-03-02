@@ -192,6 +192,10 @@ proc same_file {a b} {
 }
 
 proc require_no_open_checkout {} {
+  if {[info exists ::env(FOSSIL_TEST_DANGEROUS_IGNORE_OPEN_CHECKOUT)] && \
+      $::env(FOSSIL_TEST_DANGEROUS_IGNORE_OPEN_CHECKOUT) eq "YES_DO_IT"} {
+    return
+  }
   catch {exec $::fossilexe info} res
   if {![regexp {use --repository} $res]} {
     set projectName <unknown>
