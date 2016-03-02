@@ -213,6 +213,23 @@ proc get_script_or_fail {} {
   return $fileName
 }
 
+proc robust_delete { path {force ""} } {
+  set error "unknown error"
+  for {set try 0} {$try < 10} {incr try} {
+    if {$force eq "YES_DO_IT"} {
+      if {[catch {file delete -force $path} error] == 0} {
+        return
+      }
+    } else {
+      if {[catch {file delete $path} error] == 0} {
+        return
+      }
+    }
+    after [expr {$try * 100}]
+  }
+  error "cannot delete \"$path\": $error"
+}
+
 proc test_cleanup {} {
   if {![info exists ::tempRepoPath]} {return}
   if {![file exists $::tempRepoPath]} {return}
@@ -222,28 +239,26 @@ proc test_cleanup {} {
       [string range $::tempRepoPath 0 $tempPathEnd] ne $::tempPath} {
     error "Temporary repository path has wrong parent during cleanup."
   }
-  if {[info exists ::tempSavedPwd]} {
-    cd $::tempSavedPwd; unset ::tempSavedPwd
-  }
+  if {[info exists ::tempSavedPwd]} {cd $::tempSavedPwd; unset ::tempSavedPwd}
   # First, attempt to delete the specific temporary repository directories
   # for this test file.
   set scriptName [file tail [get_script_or_fail]]
   foreach repoSeed $::tempRepoSeeds {
     set repoPath [file join $::tempRepoPath $repoSeed $scriptName]
-    catch {file delete -force $repoPath}; # FORCE, arbitrary children.
+    robust_delete $repoPath YES_DO_IT; # FORCE, arbitrary children.
     set seedPath [file join $::tempRepoPath $repoSeed]
-    catch {file delete $seedPath}; # NO FORCE.
+    robust_delete $seedPath; # NO FORCE.
   }
   # Next, attempt to gracefully delete the temporary repository directory
   # for this process.
-  catch {file delete $::tempRepoPath}
+  robust_delete $::tempRepoPath
   # Finally, attempt to gracefully delete the temporary home directory.
   if {$::tcl_platform(platform) eq "windows"} {
-    catch {file delete [file join $::tempHomePath _fossil]}
+    robust_delete [file join $::tempHomePath _fossil]
   } else {
-    catch {file delete [file join $::tempHomePath .fossil]}
+    robust_delete [file join $::tempHomePath .fossil]
   }
-  catch {file delete $::tempHomePath}
+  robust_delete $::tempHomePath
 }
 
 proc is_home_elsewhere {} {
@@ -265,8 +280,8 @@ proc set_home_to_elsewhere {} {
 #
 proc repo_init {{filename ".rep.fossil"}} {
   set_home_to_elsewhere
-  set repoSeed [string trim [clock seconds] -]
   set ::tempRepoPath [file join $::tempPath repo_[pid]]
+  set repoSeed [appendArgs [string trim [clock seconds] -] _ [getSeqNo]]
   lappend ::tempRepoSeeds $repoSeed
   set repoPath [file join \
       $::tempRepoPath $repoSeed [file tail [get_script_or_fail]]]
@@ -276,7 +291,7 @@ proc repo_init {{filename ".rep.fossil"}} {
     error "could not make directory \"$repoPath\",\
 please set TEMP variable in environment: $error"
   }
-  set ::tempSavedPwd [pwd]; cd $repoPath
+  if {![info exists ::tempSavedPwd]} {set ::tempSavedPwd [pwd]}; cd $repoPath
   exec $::fossilexe new $filename
   exec $::fossilexe open $filename
   exec $::fossilexe set mtime-changes off

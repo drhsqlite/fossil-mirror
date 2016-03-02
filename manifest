@@ -1,5 +1,5 @@
-C Refactoring,\sfixes\sto\sthe\sprevious\scheck-in,\setc.
-D 2016-03-02T07:13:37.750
+C Do\snot\srely\son\s'clock\sseconds'\s(alone)\sbeing\sunique\sbetween\s'repo_init'\scalls.\s\sMake\stemporary\sdirectory\sdeletion\smore\srobust.\s\sOnly\ssave\sthe\scurrent\sdirectory\son\sthe\sfirst\s'repo_init'\scall\sper\stest.
+D 2016-03-02T07:31:15.852
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -548,7 +548,7 @@ F test/stash.test 1caf264bf649e2040c3a1fa29d289d0c04223596
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl d1cae3702ae2df9ca54f1f2d9ad68bf0a0a00023
+F test/tester.tcl 4c889ae46d3e8fe828dd462659b2eff4b336380e
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 532ce459c6b4c0177ab629500082d206994ee6a0
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -746,7 +746,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c464935bcd5717ad49e2fbb19f72ae60f335900a
-R f03f205541a7b2e7b16fd4cb08ca76ed
+P cda4cc8b805bccc94f4880b5b88187af0a1fc181
+R 640cd357021c18f696426e0704444bac
 U mistachkin
-Z 29b83451cfb2a0ea088f5d3d2b2e0f15
+Z 671c4ca8f12d06f9cfef99b49bccf3de
