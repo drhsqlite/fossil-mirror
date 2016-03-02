@@ -222,10 +222,22 @@ proc test_cleanup {} {
       [string range $::tempRepoPath 0 $tempPathEnd] ne $::tempPath} {
     error "Temporary repository path has wrong parent during cleanup."
   }
-  catch {file delete -force $::tempRepoPath}
   if {[info exists ::tempSavedPwd]} {
     cd $::tempSavedPwd; unset ::tempSavedPwd
   }
+  # First, attempt to forcibly delete the specific temporary repository
+  # directory.
+  catch {file delete -force $::tempRepoPath}
+  # Next, attempt to gracefully delete the temporary repository directories.
+  catch {file delete [file join $::tempPath repo_[pid] $::tempRepoSeed]}
+  catch {file delete [file join $::tempPath repo_[pid]]}
+  # Finally, attempt to gracefully delete the temporary home.
+  if {$::tcl_platform(platform) eq "windows"} {
+    catch {file delete [file join $::tempHomePath _fossil]}
+  } else {
+    catch {file delete [file join $::tempHomePath .fossil]}
+  }
+  catch {file delete $::tempHomePath}
 }
 
 proc is_home_elsewhere {} {
@@ -247,9 +259,9 @@ proc set_home_to_elsewhere {} {
 #
 proc repo_init {{filename ".rep.fossil"}} {
   set_home_to_elsewhere
+  set ::tempRepoSeed [string trim [clock seconds] -]
   set ::tempRepoPath [file join \
-      $::tempPath repo_[pid] [string trim [clock seconds] -] \
-      [file tail [get_script_or_fail]]]
+      $::tempPath repo_[pid] $::tempRepoSeed [file tail [get_script_or_fail]]]
   if {[catch {
     file mkdir $::tempRepoPath
   } error] != 0} {
@@ -559,9 +571,10 @@ if {$tcl_platform(platform) eq "windows"} {
 set tempPath [file normalize $tempPath]
 
 if {[catch {
-  write_file [file join $tempPath temporary.txt] [clock seconds]
+  set tempFile [file join $tempPath temporary.txt]
+  write_file $tempFile [clock seconds]; file delete $tempFile
 } error] != 0} {
-  error "could not write file to directory \"$tempPath\",\
+  error "could not write file \"$tempFile\" in directory \"$tempPath\",\
 please set TEMP variable in environment: $error"
 }
 
