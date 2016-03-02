@@ -1,5 +1,5 @@
-C Adjust\sthe\s'merge5'\stest\sas\swell.
-D 2016-03-02T08:25:20.529
+C Make\ssure\s'repo_init'\sis\scalled\sbefore\s'pwd'.
+D 2016-03-02T08:35:41.227
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -541,7 +541,7 @@ F test/merge5.test 841e4fa069e49da628554e455fe659b91ab40b49
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test 2fc7fbcc431d9f6144e34206d90c5168733a6296
 F test/merge_renames.test 2e0c0e6f70ba1b793c9836c10c43ad1d9a69c088
-F test/mv-rm.test 1bbe4c17ea58b80e7b7644d05d63a881b345c888
+F test/mv-rm.test f0366fb7967863dcc23c732678827c2055f41446
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
 F test/revert.test 91db0673a5a5ebd55e34ac92a3b29116847aee77
 F test/stash.test 1caf264bf649e2040c3a1fa29d289d0c04223596
@@ -553,7 +553,7 @@ F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test a810f73e0119cd7dcb937a869a301dd7962f764c
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-hooks.test 192d4d0138748126d53158e594f5d40fe765b810
-F test/th1-repo.test 24480991d22a92f98797e1e92574d26aacfc069c
+F test/th1-repo.test 4151581751462dd27e14260e134f54ab16ad6bbe
 F test/th1-tcl.test c5cd18f444f4922b579f22b8dc14ac398dc2229e
 F test/th1-tcl1.txt c60e664b138a2189b637c254d55a05819db1521d
 F test/th1-tcl2.txt 9f7e7ea7cc6c75df78c5efb761d10a4e8e354401
@@ -746,7 +746,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3a578e049598d1dba9e0632c552c604135051b3a
-R 1c4445d2deda68e09afc2d986a950db5
+P b460373e015a2b0c6d6bbfdfac83c6d7f62bccc8
+R f439134cef3cd96be0076151e5786261
 U drh
-Z fae254c14a2350b54c029db5eedad6a8
+Z 2f924896b65abd0970ba5fbc5bb86c66
