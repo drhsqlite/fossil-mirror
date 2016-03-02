@@ -1,5 +1,5 @@
-C Add\snew\stest-usernames\scommand\sto\sdump\sall\sof\sthe\svarious\ssources\sof\sthe\scurrent\suser\sname\sin\sthe\sorder\stested.
-D 2016-03-02T01:56:12.385
+C Rewrite\sthe\ssection\son\sfossil\susernames\sselection,\sfix\stypos\sand\simprove\swording\shere\sand\sthere.
+D 2016-03-02T01:57:30.122
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -693,7 +693,7 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/env-opts.md 5a019df842b73567674a06da8e0f56f25e23b1fb
+F www/env-opts.md 24cd1701a95934c1eb1e56e21544fda7762e5572
 F www/event.wiki 395b955e611769fd9aedf3ab489530b89ad5f224
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 93c4421d2bafd192dc61ea563df68aa25caaed95
@@ -747,7 +747,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ace9e00f965b187b717c871ccf6a2225f1d1faa4
-R f78eeadafd7f21c0f2f5bee922755753
+P 5de13cb19cf06c745ad8ffeaf1f9c61d326b56ca
+R b849a7da745dd40dc2b842775a83da06
 U rberteig
-Z 0d5de74aadec9f39efaa5850431f39d5
+Z ead3c6a57d21f2c1e872e4cf7141911f

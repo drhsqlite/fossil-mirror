@@ -82,7 +82,8 @@ statistics about each SQLite database used when it is closed.
 `--systemtrace`: (Sets `g.fSystemTrace`.) Trace all commands launched
 as sub processes.
 
-`--user LOGIN`: Also `-U LOGIN`. Set the user name.
+`--user LOGIN`: (Sets `g.zLogin`) Also `-U LOGIN`. Set the user name
+used with the repository.
 
 `--utc`: Override the `timeline-utc` option to explicitly use
 UTC time.
@@ -278,10 +279,11 @@ Notes on Related Values
 
 The JSON API implementation looks up many values in the first of
 several places searched. This unifies the parameter handling logic,
-allows the caller to choose whether to prefer URL parameters or the
-POST payload, and allows the `fossil json` command to share most of
-the same logic as the `/json` API path. The search order is a POST
-payload, GET/COOKIE/non-JSON POST, JSON POST, the system environment.
+allows the caller to choose whether to prefer URL parameters, request
+headers, or the POST payload, and allows the `fossil json` command to
+share most of the same logic as the `/json` API path. The search order
+is a POST payload, GET/COOKIE/non-JSON POST, JSON POST, the system
+environment.
 
 See the comment above the implementation of [`json_getenv`][json.c]
 for some further discussion.
@@ -303,61 +305,66 @@ displayed on stdout, and stdin is read until a single line containing
 only a dot is seen.
 
 
-### Default Username
-
-
-
-When creating a new repository, fossil wants to guess a sensible user
-name to make the default user granted the "s" permission.
-
-Fossil will use the setting `default-user` if set. Normally, a local
-setting would override a global setting, but when creating a new
-repository it is more than a little unlikely that there is an open
-checkout to provide the local setting.
-
-**TODO:** Any interaction caused by nesting repositories is not
-documented, but should be. Similarly for simply having the current
-directory inside a checkout regardless of whether the created repo
-will be nested.
-
-If `default-user` is not set, then the first found environment
-variable from the list `FOSSIL_USER`, `USERNAME` (Windows), `USER`,
-and `LOGNAME` is the user name. If none of those are set, then the
-default user name is "root".
-
-
-**TODO** Compare `db_create_default_users()` in `db.c` to
-`user_select()` in `user.c` which checks in a different order...
-
-Figure out what user is at the controls.
-
-   1.  Use the --user and -U command-line options.
-
-   2.  If the local database is open, check in VVAR.   ???
-
-   3.  Check the default user in the repository (setting
-   `default-user`)
-
-   4.  Try the `FOSSIL_USER` environment variable.
-
-   5.  Try the `USER` environment variable.
-
-   6.  Try the `LOGNAME` environment variable.
-
-   7.  Try the `USERNAME` environment variable.
-
-   8.  Check if the user can be extracted from the remote URL, if
-   there is a remote URL.
-
-
-
-
 ### Error logging
 
 If logging errors to a file, fossil will include the values of the
 following environment variables in the error log entry if they are
 defined: `HTTP_HOST`, `HTTP_USER_AGENT`, `PATH_INFO`, `QUERY_STRING`,
 `REMOTE_ADDR`, `REQUEST_METHOD`, `REQUEST_URI`, and `SCRIPT_NAME`.
+
+
+
+### Fossil Username
+
+In absence of any explicit setting, fossil will use the same name you
+logged in to your platform with, as the user name when interacting
+with local and remote repositories. Note that only the name is shared,
+fossil makes no attempt to share or leverage any platform's
+authentication mechanisms or passwords.
+
+When logging in to a repository, it tries a series of sources for the
+user name, and the first non-blank name that succeeds is the logged in
+user. The order is:
+
+1.  The --user and -U command-line options.
+2.  If running within an open checkout (the local database is open),
+    check in its table of values stored per open checkout for the
+    value stored by `fossil user default USERNAME`.
+3.  The default user in the repository (setting `default-user`)
+4.  The `FOSSIL_USER` environment variable.
+5.  The `USER` environment variable.
+6.  The `LOGNAME` environment variable.
+7.  The `USERNAME` environment variable.
+8.  Check if the user can be extracted from the remote URL, if
+    there is a remote URL.
+
+Items 2 and 3 are both set by `fossil user default USERNAME`, the
+first within an open checkout, the second outside and using the `-R
+REPOSITORY` option to identify the repository. Both cases require that
+the named user be present in the repository when the default user is
+assigned. Although the default user is internally stored as if it were
+a setting named `default-user`, it is not accessible through
+the `fossil set` command.
+
+Items 5, 6, and 7 cover most of the names of an environment variable
+set automatically by the platform with the name of the platform's
+logged in user for use by programs. Historically, `USER` comes from
+Unix System-V, `LOGNAME` from BSD, and `USERNAME` from Windows, but
+many Linux distributions will set both `USER` and `LOGNAME` for broad
+compatibility.
+
+When creating a new repository, fossil needs a user name for the admin
+user granted the "s" permission. But since fossil generally expects
+that `fossil new` or `fossil clone` are used outside of any checkout
+(especially when run for the first time without any checkouts at all
+or the users's global settings database), it looks in a shorter list
+of places for a non-blank name. In the special case of a clone,
+`default-user` can be copied from the original, and so it can be set
+in the clone even before any users have been created, and in that case
+it will be the new admin user. If `default-user` is not set, then the
+first found environment variable from the list `FOSSIL_USER`, `USER`,
+`LOGNAME`, and `USERNAME`, is the user name. As a final fallback, if
+none of those are set, then the default user name is "root".
 
 
 ### Home Directory
