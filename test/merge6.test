@@ -22,7 +22,7 @@
 # TEST 1: Handle multiple merges each with one or more ADDED files #
 ####################################################################
 
-repo_init
+test_setup
 fossil ls
 
 test merge_multi-0 {[normalize_result] eq {}}

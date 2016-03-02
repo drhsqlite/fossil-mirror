@@ -93,7 +93,7 @@ proc stash-test {testid stashArgs expectedStashOutput args} {
 }
 
 require_no_open_checkout
-repo_init
+test_setup
 
 # Prepare first commit
 #
@@ -228,7 +228,7 @@ stash-test WY-1 {save -m "Reported 2016-02-09"} {
 # add, and presumably stash the content of the added file before it
 # is replaced by the revert.
 #
-repo_init
+test_setup
 write_file f1 "f1"
 fossil add f1
 fossil commit -m "add f1"
@@ -251,7 +251,7 @@ stash-test 2-1 {save -m "f1b"} {
 # fossil revert, fossil stash save unmanages the new file, but 
 # leaves the copy present on disk. This is undocumented, but 
 # probably sensible.
-repo_init
+test_setup
 write_file f1 "f1"
 write_file f2 "f2"
 fossil add f1 f2
@@ -285,7 +285,7 @@ fossil status
 # Test stashing a rename of one file with at least one file
 # unchanged. This should stash (and revert) just the rename
 # operation. Instead it also stores and touches the unchanged file. 
-repo_init
+test_setup
 write_file f1 "f1"
 write_file f2 "f2"
 fossil add f1 f2
@@ -322,7 +322,7 @@ stash-test 3-2-pop {pop} {
 ########
 # fossil stash snapshot ?-m|--comment COMMENT? ?FILES...?
 
-repo_init
+test_setup
 write_file f1 "f1"
 write_file f2 "f2"
 write_file f3 "f3"

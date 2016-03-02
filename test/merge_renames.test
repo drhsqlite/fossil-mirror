@@ -10,7 +10,7 @@ require_no_open_checkout
 #  Reported: Ticket [554f44ee74e3d]  #
 ######################################
 
-repo_init
+test_setup
 
 write_file f1 "line"
 fossil add f1
@@ -68,7 +68,7 @@ if {$deletes!=0} {
 #  Reported: Ticket [74413366fe5067] #
 ######################################
 
-repo_init
+test_setup
 
 write_file f1 "line"
 fossil add f1
@@ -116,7 +116,7 @@ if {$deletes!=0} {
 #  Reported: Ticket [30b28cf351]     #
 ######################################
 
-repo_init
+test_setup
 
 write_file f1 "line"
 fossil add f1
@@ -171,7 +171,7 @@ if {$deletes!=0} {
 #  Handle Rename/Add via Merge       #
 ######################################
 
-repo_init
+test_setup
 
 write_file f1 "old f1 line"
 fossil add f1

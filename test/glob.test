@@ -18,7 +18,7 @@
 # Test glob pattern parsing
 #
 
-repo_init ""
+test_setup ""
 
 proc glob-parse {testname args} {
   set i 1

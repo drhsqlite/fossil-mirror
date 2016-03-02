@@ -49,7 +49,7 @@ proc uuid_from_checkout {var} {
 }
 
 # Make sure we are not in an open repository and initialize new repository
-repo_init
+test_setup
 
 ########################################
 # Setup: Add file and commit           #

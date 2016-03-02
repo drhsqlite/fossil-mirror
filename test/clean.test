@@ -18,7 +18,7 @@
 # Tests of the "clean" command, including the ability to undo it.
 #
 
-repo_init
+test_setup
 
 ###############################################################################
 

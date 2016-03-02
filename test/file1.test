@@ -18,7 +18,7 @@
 # File utilities
 #
 
-repo_init
+test_setup
 
 proc simplify-name {testname args} {
   set i 1

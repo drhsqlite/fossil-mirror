@@ -165,7 +165,7 @@ proc test_json_payload {testname okfields badfields} {
 #### VERSION AKA HAI
 
 # The JSON API generally assumes we have a respository, so let it have one.
-repo_init
+test_setup
 
 # Check for basic envelope fields in the result with an error
 fossil_json -expectError
@@ -668,7 +668,7 @@ foreach r $codes {
 # in JSON mode or if the error handling is incorrectly not
 # recognizing JSON mode.
 #
-#repo_init x.fossil
+#test_setup x.fossil
 #catch {exec chmod 444 .rep.fossil}; # Unix. What about Win?
 fossil_http_json /json/timeline/checkin $U1Cookie
 test json-ROrepo-1-1 {$CODE == 0}

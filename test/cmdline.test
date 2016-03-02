@@ -18,7 +18,7 @@
 # Test command line parsing
 #
 
-repo_init ""
+test_setup ""
 
 proc cmd-line {testname args} {
   set i 1

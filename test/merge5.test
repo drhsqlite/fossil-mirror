@@ -38,7 +38,7 @@ proc checkout-test {testid expected_content} {
   }    
 }
 
-require_no_open_checkout; repo_init ""
+require_no_open_checkout; test_setup ""
 
 # Construct a test repository
 #

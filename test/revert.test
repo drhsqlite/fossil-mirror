@@ -57,7 +57,7 @@ proc revert-test {testid revertArgs expectedRevertOutput args} {
 }
 
 require_no_open_checkout
-repo_init
+test_setup
 
 # Prepare first commit
 #
@@ -159,7 +159,7 @@ revert-test 1-7 {f0 f2 f3n} {
 # Test reverting the combination of a renamed file and an added file that
 # uses the renamed file's original filename.
 #
-repo_init
+test_setup
 write_file f1 "f1"
 fossil add f1
 fossil commit -m "add f1"
@@ -177,7 +177,7 @@ revert-test 2-1 {} {
 
 # Test reverting a rename in the repo but not completed in the file
 # system
-repo_init
+test_setup
 write_file f1 "f1"
 fossil add f1
 fossil commit -m "add f1"

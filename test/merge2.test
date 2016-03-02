@@ -18,7 +18,7 @@
 # Tests of the delta mechanism.
 #
 
-repo_init ""
+test_setup ""
 
 set filelist [glob $testdir/*]
 foreach f $filelist {

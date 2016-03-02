@@ -24,7 +24,7 @@ require_no_open_checkout
 # Setup: Add Files and Commit          #
 ########################################
 
-repo_init; set rootDir [file normalize [pwd]]
+test_setup; set rootDir [file normalize [pwd]]
 
 set undoMsg "\n \"fossil undo\" is\
 available to undo changes to the\

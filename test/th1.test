@@ -18,7 +18,7 @@
 # TH1 Commands
 #
 
-set dir [file dirname [info script]]; repo_init
+set dir [file dirname [info script]]; test_setup
 
 ###############################################################################
 

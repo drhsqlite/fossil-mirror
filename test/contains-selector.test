@@ -18,7 +18,7 @@
 # Test containsSelector() function in src/style.c
 #
 
-repo_init ""
+test_setup ""
 
 proc contains-selector {testId css selectorResultMap} {
   set css [string trim $css]

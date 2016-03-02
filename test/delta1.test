@@ -18,7 +18,7 @@
 # Tests of the delta mechanism.
 #
 
-repo_init ""
+test_setup ""
 
 # Use test script files as the basis for this test.
 #

@@ -18,7 +18,7 @@
 # Tests of the 3-way merge
 #
 
-repo_init ""
+test_setup ""
 
 write_file_indented t1 {
   111 - This is line one of the demo program - 1111

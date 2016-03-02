@@ -287,7 +287,7 @@ proc set_home_to_elsewhere {} {
 #
 # Create and open a new Fossil repository and clean the checkout
 #
-proc repo_init {{filename ".rep.fossil"}} {
+proc test_setup {{filename ".rep.fossil"}} {
   set_home_to_elsewhere
   if {![info exists ::tempRepoPath]} {
     set ::tempRepoPath [file join $::tempPath repo_[pid]]

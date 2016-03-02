@@ -27,7 +27,7 @@ require_no_open_checkout
 # Setup: Add Files and Commit          #
 ########################################
 
-repo_init; set rootDir [file normalize [pwd]]
+test_setup; set rootDir [file normalize [pwd]]
 
 write_file f1.md  "f1"
 write_file f2.md  "f2"
