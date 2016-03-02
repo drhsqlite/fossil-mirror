@@ -1,5 +1,5 @@
-C All\stest\sfiles\smust\snow\scall\s'repo_init',\susing\san\sempty\sstring\sif\sthey\sdo\snot\srequire\sa\snew\srepository.
-D 2016-03-02T08:13:59.976
+C Adjust\sthe\s'merge5'\stest\sas\swell.
+D 2016-03-02T08:25:20.529
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -537,7 +537,7 @@ F test/merge1.test ce4e7c16992a61c39f9c87c8724952882dcf25e6
 F test/merge2.test f50828fb35e91961fb243f0cf016f54d887706bb
 F test/merge3.test 1fdf46caa42dc2023603de44e026ec3d69f1f165
 F test/merge4.test 1c7421222e5ea01d94b9b392d5d1ea91d8163c34
-F test/merge5.test dbe989b5f8040b24bf5ce8152883b87bb8cba18f
+F test/merge5.test 841e4fa069e49da628554e455fe659b91ab40b49
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test 2fc7fbcc431d9f6144e34206d90c5168733a6296
 F test/merge_renames.test 2e0c0e6f70ba1b793c9836c10c43ad1d9a69c088
@@ -746,7 +746,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 004b3ffd938fd87c21caf220a77e9765cc2cf582
-R 0bd987fc695f394f43088685b999fa09
+P 3a578e049598d1dba9e0632c552c604135051b3a
+R 1c4445d2deda68e09afc2d986a950db5
 U drh
-Z 7b89ef8692825f0e679b48ba41100042
+Z fae254c14a2350b54c029db5eedad6a8
