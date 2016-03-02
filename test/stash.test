@@ -391,3 +391,7 @@ test stash-4-3-show-3 {[regexp {ADDED f0} $RESULT]}
 
 #fossil checkout --force c1
 #fossil clean
+
+###############################################################################
+
+test_cleanup

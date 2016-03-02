@@ -65,3 +65,7 @@ test merge_multi-4 {[normalize_result] eq {f1
 f2
 f3
 f4}} knownBug
+
+###############################################################################
+
+test_cleanup

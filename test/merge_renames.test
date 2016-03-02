@@ -205,3 +205,7 @@ f3}} knownBug
 #  [c26c63eb1b] - 'merge --backout' does not handle conflicts properly
 #  [953031915f] - Lack of warning when overwriting extra files
 #  [4df5f38f1e] - Troubles merging a file delete with a file change
+
+###############################################################################
+
+test_cleanup

@@ -205,6 +205,29 @@ rooted at \"$localRoot\", testing halted"
   }
 }
 
+proc get_script_or_fail {} {
+  set fileName [file normalize [info script]]
+  if {[string length $fileName] == 0 || ![file exists $fileName]} {
+    error "Failed to obtain the file name of the test being run."
+  }
+  return $fileName
+}
+
+proc test_cleanup {} {
+  if {![info exists ::tempRepoPath]} {return}
+  if {![file exists $::tempRepoPath]} {return}
+  if {![file isdirectory $::tempRepoPath]} {return}
+  set tempPathEnd [expr {[string length $::tempPath] - 1}]
+  if {[string length $::tempPath] == 0 || \
+      [string range $::tempRepoPath 0 $tempPathEnd] ne $::tempPath} {
+    error "Temporary repository path has wrong parent during cleanup."
+  }
+  catch {file delete -force $::tempRepoPath}
+  if {[info exists ::tempSavedPwd]} {
+    cd $::tempSavedPwd; unset ::tempSavedPwd
+  }
+}
+
 proc is_home_elsewhere {} {
   return [expr {[info exists ::env(FOSSIL_HOME)] && \
       $::env(FOSSIL_HOME) eq $::tempHomePath}]
@@ -215,10 +238,7 @@ proc set_home_to_elsewhere {} {
   # Fossil will write data on $HOME (or $FOSSIL_HOME).  We need not
   # to clutter the real $HOME (or $FOSSIL_HOME) of the test caller.
   #
-  if {[is_home_elsewhere]} {
-    protOut "***** FOSSIL_HOME is already elsewhere"
-    return
-  }
+  if {[is_home_elsewhere]} {return}
   set ::env(FOSSIL_HOME) $::tempHomePath
 }
 
@@ -226,15 +246,19 @@ proc set_home_to_elsewhere {} {
 # Create and open a new Fossil repository and clean the checkout
 #
 proc repo_init {{filename ".rep.fossil"}} {
-  if {![is_home_elsewhere]} {
-    require_no_open_checkout
-    set_home_to_elsewhere
+  set_home_to_elsewhere
+  set ::tempRepoPath [file join \
+      $tempPath repo_[pid] [string trim [clock seconds] -] \
+      [file tail [get_script_or_fail]]]
+  if {[catch {
+    file mkdir $::tempRepoPath
+  } error] != 0} {
+    error "could not make directory \"$::tempRepoPath\",\
+please set TEMP variable in environment: $error"
   }
-  catch {exec $::fossilexe close -f}
-  file delete $filename
+  set ::tempSavedPwd [pwd]; cd $::tempRepoPath
   exec $::fossilexe new $filename
   exec $::fossilexe open $filename
-  exec $::fossilexe clean -f
   exec $::fossilexe set mtime-changes off
 }
 

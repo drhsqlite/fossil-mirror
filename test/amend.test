@@ -403,3 +403,7 @@ if {[catch {exec which ed} result]} {
 ########################################
 fossil amend {} -close -expectError
 test amend-null-uuid {$CODE && [string first "no such check-in" $RESULT] != -1}
+
+###############################################################################
+
+test_cleanup

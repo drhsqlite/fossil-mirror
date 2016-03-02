@@ -175,3 +175,7 @@ test th1-tcl-16 {[normalize_result] eq {2}}
 
 fossil test-th-eval "tclMakeSafe; tclEval set x 2; tclEval info vars x"
 test th1-tcl-17 {[normalize_result] eq {x}}
+
+###############################################################################
+
+test_cleanup

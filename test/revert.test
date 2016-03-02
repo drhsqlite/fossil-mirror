@@ -188,3 +188,7 @@ revert-test 3-1 {} {
   REVERT f1
   DELETE f1new
 } -exists {f1} -notexists {f1n}
+
+###############################################################################
+
+test_cleanup

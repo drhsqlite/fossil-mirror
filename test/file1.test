@@ -98,3 +98,7 @@ catch {file delete test1/test2}
 catch {file delete test1}
 
 if {[info exists savedPwd]} {cd $savedPwd; unset savedPwd}
+
+###############################################################################
+
+test_cleanup

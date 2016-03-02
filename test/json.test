@@ -847,3 +847,7 @@ write_file nope.fossil {
 This is not a fossil repo. It ought to be a SQLite db with a well-known schema,
 but it is actually just a block of text.
 }
+
+###############################################################################
+
+test_cleanup

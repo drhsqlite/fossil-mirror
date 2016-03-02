@@ -303,3 +303,7 @@ checkout-test 142 {
   98e47f99bb9fed4fdcd407f553615ca7f15a38a2  three.txt
   e58c5da3e6007d0e30600ea31611813093ad180f  two-rename.txt
 }
+
+###############################################################################
+
+test_cleanup

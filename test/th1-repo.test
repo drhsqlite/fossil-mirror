@@ -84,3 +84,7 @@ test th1-dir-3.9 {[regexp -- $dateTime [lindex [lindex $RESULT 2] 2]]}
 test th1-dir-3.10 {[lindex [lindex $RESULT 3] 0] eq "subdirC/f10.md"}
 test th1-dir-3.11 {[lindex [lindex $RESULT 3] 1] == 3}
 test th1-dir-3.12 {[regexp -- $dateTime [lindex [lindex $RESULT 3] 2]]}
+
+###############################################################################
+
+test_cleanup

@@ -28,3 +28,7 @@ proc cmd-line {testname args} {
 }
 cmd-line 100 abc abc a\"bc a\"bc \"abc\" \"abc\"
 cmd-line 101 * * *.* *.*
+
+###############################################################################
+
+test_cleanup
