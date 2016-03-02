@@ -1566,7 +1566,7 @@ void import_cmd(void){
     db_create_repository(g.argv[2]);
   }
   db_open_repository(g.argv[2]);
-  db_open_config(0);
+  db_open_config(0, 0);
 
   db_begin_transaction();
   if( !incrFlag ) db_initial_setup(0, 0, 0);

@@ -143,7 +143,7 @@ void clone_cmd(void){
   if( g.argc < 4 ){
     usage("?OPTIONS? FILE-OR-URL NEW-REPOSITORY");
   }
-  db_open_config(0);
+  db_open_config(0, 0);
   if( -1 != file_size(g.argv[3]) ){
     fossil_fatal("file already exists: %s", g.argv[3]);
   }

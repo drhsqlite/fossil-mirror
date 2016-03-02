@@ -1768,7 +1768,7 @@ void Th_OpenConfig(
     }
   }
   if( !Th_IsConfigOpen() ){
-    db_open_config(0);
+    db_open_config(0, 1);
     if( Th_IsConfigOpen() ){
       g.th1Flags |= TH_STATE_CONFIG;
     }else{

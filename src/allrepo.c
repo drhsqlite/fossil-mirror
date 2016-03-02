@@ -187,7 +187,7 @@ void all_cmd(void){
     usage("SUBCOMMAND ...");
   }
   n = strlen(g.argv[2]);
-  db_open_config(1);
+  db_open_config(1, 0);
   blob_zero(&extra);
   zCmd = g.argv[2];
   if( !login_is_nobody() ) blob_appendf(&extra, " -U %s", g.zLogin);

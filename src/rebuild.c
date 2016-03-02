@@ -960,7 +960,7 @@ void reconstruct_cmd(void) {
   /* We should be done with options.. */
   verify_all_options();
 
-  db_open_config(0);
+  db_open_config(0, 0);
   db_begin_transaction();
   db_initial_setup(0, 0, 0);
 
