@@ -225,15 +225,19 @@ proc test_cleanup {} {
   if {[info exists ::tempSavedPwd]} {
     cd $::tempSavedPwd; unset ::tempSavedPwd
   }
-  # First, attempt to forcibly delete the specific temporary repository
-  # directory.
-  catch {file delete -force $::tempRepoPath}
-  # Next, attempt to gracefully delete the temporary repository directories.
+  # First, attempt to delete the specific temporary repository directories
+  # for this test file.
+  set scriptName [file tail [get_script_or_fail]]
   foreach repoSeed $::tempRepoSeeds {
-    catch {file delete [file join $::tempPath repo_[pid] $repoSeed]}
+    set repoPath [file join $::tempRepoPath $repoSeed $scriptName]
+    catch {file delete -force $repoPath}; # FORCE, arbitrary children.
+    set seedPath [file join $::tempRepoPath $repoSeed]
+    catch {file delete $seedPath}; # NO FORCE.
   }
-  catch {file delete [file join $::tempPath repo_[pid]]}
-  # Finally, attempt to gracefully delete the temporary home.
+  # Next, attempt to gracefully delete the temporary repository directory
+  # for this process.
+  catch {file delete $::tempRepoPath}
+  # Finally, attempt to gracefully delete the temporary home directory.
   if {$::tcl_platform(platform) eq "windows"} {
     catch {file delete [file join $::tempHomePath _fossil]}
   } else {
@@ -262,16 +266,17 @@ proc set_home_to_elsewhere {} {
 proc repo_init {{filename ".rep.fossil"}} {
   set_home_to_elsewhere
   set repoSeed [string trim [clock seconds] -]
+  set ::tempRepoPath [file join $::tempPath repo_[pid]]
   lappend ::tempRepoSeeds $repoSeed
-  set ::tempRepoPath [file join \
-      $::tempPath repo_[pid] $repoSeed [file tail [get_script_or_fail]]]
+  set repoPath [file join \
+      $::tempRepoPath $repoSeed [file tail [get_script_or_fail]]]
   if {[catch {
-    file mkdir $::tempRepoPath
+    file mkdir $repoPath
   } error] != 0} {
-    error "could not make directory \"$::tempRepoPath\",\
+    error "could not make directory \"$repoPath\",\
 please set TEMP variable in environment: $error"
   }
-  set ::tempSavedPwd [pwd]; cd $::tempRepoPath
+  set ::tempSavedPwd [pwd]; cd $repoPath
   exec $::fossilexe new $filename
   exec $::fossilexe open $filename
   exec $::fossilexe set mtime-changes off
