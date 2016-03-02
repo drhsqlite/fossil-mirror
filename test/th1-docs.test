@@ -18,6 +18,8 @@
 # TH1 Docs
 #
 
+repo_init ""
+
 fossil test-th-eval "hasfeature th1Docs"
 
 if {$::RESULT ne "1"} {

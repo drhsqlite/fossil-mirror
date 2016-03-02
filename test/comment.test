@@ -18,6 +18,10 @@
 # Test comment formatting and printing.
 #
 
+repo_init ""
+
+###############################################################################
+
 fossil test-comment-format "" ""
 test comment-1 {$RESULT eq "\n(1 lines output)"}
 

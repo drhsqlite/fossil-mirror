@@ -18,6 +18,8 @@
 # Test containsSelector() function in src/style.c
 #
 
+repo_init ""
+
 proc contains-selector {testId css selectorResultMap} {
   set css [string trim $css]
   set filename [file join $::tempPath compare-selector.css]

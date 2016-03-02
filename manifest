@@ -1,5 +1,5 @@
-C Do\snot\srely\son\s'clock\sseconds'\s(alone)\sbeing\sunique\sbetween\s'repo_init'\scalls.\s\sMake\stemporary\sdirectory\sdeletion\smore\srobust.\s\sOnly\ssave\sthe\scurrent\sdirectory\son\sthe\sfirst\s'repo_init'\scall\sper\stest.
-D 2016-03-02T07:31:15.852
+C All\stest\sfiles\smust\snow\scall\s'repo_init',\susing\san\sempty\sstring\sif\sthey\sdo\snot\srequire\sa\snew\srepository.
+D 2016-03-02T08:13:59.976
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -520,23 +520,23 @@ F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test 513948c6b165d1884f9d2764acd138c02f54d18f
 F test/clean.test 798a0f7e7cd1879e1050ffccbc9833385bd3d42b
-F test/cmdline.test 591fe7fc4f7ffefc433a7d16a59aeaa0350c4bbe
-F test/comment.test fde689e46e1793cbdba5a8dcd8e3ffc7326dd2f1
-F test/contains-selector.test 91d88e0d3eea9894eb1665f3af18bb30ede8ca88
-F test/delta1.test 5d8f429e703fab3ef1d0f1432fb0b37f9f69fde8
+F test/cmdline.test cb5521bb55558daf03f247ff8139e3e1ca9cf1f0
+F test/comment.test ff80d8851512225d36b16367b16e20c2b9cac896
+F test/contains-selector.test d9851a5ed943e3ba448fff182d6affdf9be09e92
+F test/delta1.test 703f2deca4b5462ad9578cd7030aa4b6f7abb21b
 F test/diff-test-1.wiki 597fbb13c9c3da02e09a53d128f3b5d4dd5cadda
 F test/file1.test 4f29c15e652f00deb3c281ff694acb189c1f5ab1
 F test/fileStat.th1 e3e30f7b46488c26215a6d713be36ad4ed595132
 F test/fileage-test-1.wiki d249e897fdd41038c17f3b66d374e509830da1eb
-F test/glob.test f4fcfc42d70a437fb03fd11e6dd8247160e711a6
+F test/glob.test 11b23f2382acb047f2dd3898623d49bc244c7bb7
 F test/graph-test-1.wiki 1bbf8bd05dfd5205c589569d911477c27aeb4d51
 F test/json.test e4b63adf6f429c14172019b662a3298372546744
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
-F test/merge1.test 9bb10520edae29efe4401920d15546a8e274ebf5
-F test/merge2.test 3c352d39ccdeb4a57aecbe3846e9047d080e38a5
-F test/merge3.test 0e8141342f30a989ccaaaaf4eab1b6416b8c77f0
-F test/merge4.test ad714385206e1f80677ab008723e3f5c4e08d49d
+F test/merge1.test ce4e7c16992a61c39f9c87c8724952882dcf25e6
+F test/merge2.test f50828fb35e91961fb243f0cf016f54d887706bb
+F test/merge3.test 1fdf46caa42dc2023603de44e026ec3d69f1f165
+F test/merge4.test 1c7421222e5ea01d94b9b392d5d1ea91d8163c34
 F test/merge5.test dbe989b5f8040b24bf5ce8152883b87bb8cba18f
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test 2fc7fbcc431d9f6144e34206d90c5168733a6296
@@ -548,9 +548,9 @@ F test/stash.test 1caf264bf649e2040c3a1fa29d289d0c04223596
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 4c889ae46d3e8fe828dd462659b2eff4b336380e
+F test/tester.tcl 01de0eeb2693ea24c8e98ed2c9babee150de603d
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
-F test/th1-docs.test 532ce459c6b4c0177ab629500082d206994ee6a0
+F test/th1-docs.test a810f73e0119cd7dcb937a869a301dd7962f764c
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-hooks.test 192d4d0138748126d53158e594f5d40fe765b810
 F test/th1-repo.test 24480991d22a92f98797e1e92574d26aacfc069c
@@ -567,7 +567,7 @@ F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
 F test/th1.test ae11722a9dcb878e70bf036e3303b35fc567dd6d
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
-F test/utf.test 3ed60b965103b75ad143fdb74a30ba931a40febf
+F test/utf.test d423422675a13e2fbaf384eb36f98d73b06f7194
 F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03
@@ -746,7 +746,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cda4cc8b805bccc94f4880b5b88187af0a1fc181
-R 640cd357021c18f696426e0704444bac
-U mistachkin
-Z 671c4ca8f12d06f9cfef99b49bccf3de
+P 004b3ffd938fd87c21caf220a77e9765cc2cf582
+R 0bd987fc695f394f43088685b999fa09
+U drh
+Z 7b89ef8692825f0e679b48ba41100042

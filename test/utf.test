@@ -18,6 +18,8 @@
 # Test UTF-8/UTF-16 detection
 #
 
+repo_init ""
+
 proc swap_byte_order {str} {
   set result ""
   for {set i 0} {$i < [string length $str]} {incr i} {

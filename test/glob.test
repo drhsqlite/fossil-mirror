@@ -18,6 +18,8 @@
 # Test glob pattern parsing
 #
 
+repo_init ""
+
 proc glob-parse {testname args} {
   set i 1
   foreach {pattern string result} $args {

@@ -18,6 +18,8 @@
 # Tests of the 3-way merge
 #
 
+repo_init ""
+
 proc merge-test {testid basis v1 v2 result1 result2} {
   write_file t1 [join [string trim $basis] \n]\n
   write_file t2 [join [string trim $v1] \n]\n

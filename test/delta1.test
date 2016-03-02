@@ -18,6 +18,8 @@
 # Tests of the delta mechanism.
 #
 
+repo_init ""
+
 # Use test script files as the basis for this test.
 #
 # For each test, copy the file intact to "./t1".  Make

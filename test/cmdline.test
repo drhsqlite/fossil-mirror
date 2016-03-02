@@ -18,6 +18,8 @@
 # Test command line parsing
 #
 
+repo_init ""
+
 proc cmd-line {testname args} {
   set i 1
   foreach {cmdline result} $args {

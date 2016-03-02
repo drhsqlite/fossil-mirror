@@ -18,6 +18,8 @@
 # Tests of the delta mechanism.
 #
 
+repo_init ""
+
 set filelist [glob $testdir/*]
 foreach f $filelist {
   if {[file isdir $f]} continue

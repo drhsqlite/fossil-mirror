@@ -201,7 +201,7 @@ proc require_no_open_checkout {} {
     regexp -line -- {^local-root: (.*)$} $res dummy localRoot
     set localRoot [string trim $localRoot]
     error "Detected an open checkout of project \"$projectName\",\
-rooted at \"$localRoot\", testing halted"
+rooted at \"$localRoot\", testing halted."
   }
 }
 
@@ -227,7 +227,7 @@ proc robust_delete { path {force ""} } {
     }
     after [expr {$try * 100}]
   }
-  error "cannot delete \"$path\": $error"
+  error "Could not delete \"$path\", error: $error"
 }
 
 proc test_cleanup {} {
@@ -252,7 +252,12 @@ proc test_cleanup {} {
   # Next, attempt to gracefully delete the temporary repository directory
   # for this process.
   robust_delete $::tempRepoPath
-  # Finally, attempt to gracefully delete the temporary home directory.
+  # Finally, attempt to gracefully delete the temporary home directory,
+  # unless forbidden by external forces.
+  if {![info exists ::tempKeepHome]} {delete_temporary_home}
+}
+
+proc delete_temporary_home {} {
   if {$::tcl_platform(platform) eq "windows"} {
     robust_delete [file join $::tempHomePath _fossil]
   } else {
@@ -280,7 +285,9 @@ proc set_home_to_elsewhere {} {
 #
 proc repo_init {{filename ".rep.fossil"}} {
   set_home_to_elsewhere
-  set ::tempRepoPath [file join $::tempPath repo_[pid]]
+  if {![info exists ::tempRepoPath]} {
+    set ::tempRepoPath [file join $::tempPath repo_[pid]]
+  }
   set repoSeed [appendArgs [string trim [clock seconds] -] _ [getSeqNo]]
   lappend ::tempRepoSeeds $repoSeed
   set repoPath [file join \
@@ -288,13 +295,15 @@ proc repo_init {{filename ".rep.fossil"}} {
   if {[catch {
     file mkdir $repoPath
   } error] != 0} {
-    error "could not make directory \"$repoPath\",\
-please set TEMP variable in environment: $error"
+    error "Could not make directory \"$repoPath\",\
+please set TEMP variable in environment, error: $error"
   }
   if {![info exists ::tempSavedPwd]} {set ::tempSavedPwd [pwd]}; cd $repoPath
-  exec $::fossilexe new $filename
-  exec $::fossilexe open $filename
-  exec $::fossilexe set mtime-changes off
+  if {[string length $filename] > 0} {
+    exec $::fossilexe new $filename
+    exec $::fossilexe open $filename
+    exec $::fossilexe set mtime-changes off
+  }
 }
 
 # This procedure only returns non-zero if the Tcl integration feature was
@@ -597,8 +606,8 @@ if {[catch {
   set tempFile [file join $tempPath temporary.txt]
   write_file $tempFile [clock seconds]; file delete $tempFile
 } error] != 0} {
-  error "could not write file \"$tempFile\" in directory \"$tempPath\",\
-please set TEMP variable in environment: $error"
+  error "Could not write file \"$tempFile\" in directory \"$tempPath\",\
+please set TEMP variable in environment, error: $error"
 }
 
 set tempHomePath [file join $tempPath home_[pid]]
@@ -606,22 +615,18 @@ set tempHomePath [file join $tempPath home_[pid]]
 if {[catch {
   file mkdir $tempHomePath
 } error] != 0} {
-  error "could not make directory \"$tempHomePath\",\
-please set TEMP variable in environment: $error"
+  error "Could not make directory \"$tempHomePath\",\
+please set TEMP variable in environment, error: $error"
 }
 
 protInit $fossilexe
+set ::tempKeepHome 1
 foreach testfile $argv {
-  set dir [file root [file tail $testfile]]
-  file delete -force $dir
-  file mkdir $dir
-  set origwd [pwd]
-  cd $dir
   protOut "***** $testfile ******"
   source $testdir/$testfile.test
   protOut "***** End of $testfile: [llength $bad_test] errors so far ******"
-  cd $origwd
 }
+unset ::tempKeepHome; delete_temporary_home
 set nErr [llength $bad_test]
 if {$nErr>0 || !$::QUIET} {
   protOut "***** Final results: $nErr errors out of $test_count tests" 1
