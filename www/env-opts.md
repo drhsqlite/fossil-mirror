@@ -124,11 +124,12 @@ variable found in the environment from the list `FOSSIL_HOME`,
 `HOMEPATH` (Windows, used together), and `HOME` is used as the
 location of the `~/.fossil` file.
 
-`FOSSIL_USER`: Name of the default user account if the local or global
-`default-user` setting is not present. The first environment variable
-found in the environment from the list `FOSSIL_USER`, `USERNAME`
-(Windows), `USER`, and `LOGNAME` is the user name. If none of those
-are set, then the default user name is "root".
+`FOSSIL_USER`: Name of the default user account if the checkout, local
+or global `default-user` setting is not present. The first environment
+variable found in the environment from the list `FOSSIL_USER`, `USER`,
+`LOGNAME`, and `USERNAME` is the user name. If none of those are set,
+then the default user name is "root". See the discussion of Fossil
+Username below for a lot more detail.
 
 `FOSSIL_TCL_PATH`: When Tcl stubs support is configured, point to a
 specific file or folder containing the version of Tcl to load at run
@@ -168,11 +169,9 @@ environment variable found in the environment from the list
 `HOMEDRIVE` and `HOMEPATH` (Windows, used together), and `HOME` is
 used as the location of the `~/.fossil` file.
 
-`LOGNAME`: Name of the default user account if the local or global
-`default-user` setting is not present. The first environment variable
-found in the environment from the list `FOSSIL_USER`, `USERNAME`
-(Windows), `USER`, and `LOGNAME` is the user name. If none of those
-are set, then the default user name is "root".
+`LOGNAME`: Name of the logged in user on many Unix-like platforms.
+Used as the fossil user name if `FOSSIL_USER` is not specified. See
+the discussion of Fossil Username below for a lot more detail.
 
 `PATH`: Used by most platforms to locate programs invoked without a
 fully qualified name. Explicitly used by `fossil ui` on certain platforms
@@ -243,17 +242,13 @@ directory (aka `.`) is the temporary folder.
 `TMPDIR`: Names the temporary file location to SQLite.
 
 
-`USER`: Name of the default user account if the local or global
-`default-user` setting is not present. The first environment variable
-found in the environment from the list `FOSSIL_USER`, `USERNAME`
-(Windows), `USER`, and `LOGNAME` is the user name. If none of those
-are set, then the default user name is "root".
+`USER`: Name of the logged in user on many Unix-like platforms.
+Used as the fossil user name if `FOSSIL_USER` is not specified. See
+the discussion of Fossil Username below for a lot more detail.
 
-`USERNAME`: Name of the default user account if the local or global
-`default-user` setting is not present. The first environment variable
-found in the environment from the list `FOSSIL_USER`, `USERNAME`
-(Windows), `USER`, and `LOGNAME` is the user name. If none of those
-are set, then the default user name is "root".
+`USERNAME`: Name of the logged in user on Windows platforms.
+Used as the fossil user name if `FOSSIL_USER` is not specified. See
+the discussion of Fossil Username below for a lot more detail.
 
 `USERPROFILE`: On Windows, the location of temporary files. The first
 environment variable found in the environment that names an existing
@@ -264,10 +259,6 @@ directory (aka `.`) is the temporary folder.
 `VISUAL`: Name the editor to use for check-in and stash comments.
 Overrides the `EDITOR` environment variable. Overridden by the local
 or global `editor` setting.
-
-
-
-
 
 
 
