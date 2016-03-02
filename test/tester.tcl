@@ -248,7 +248,7 @@ proc set_home_to_elsewhere {} {
 proc repo_init {{filename ".rep.fossil"}} {
   set_home_to_elsewhere
   set ::tempRepoPath [file join \
-      $tempPath repo_[pid] [string trim [clock seconds] -] \
+      $::tempPath repo_[pid] [string trim [clock seconds] -] \
       [file tail [get_script_or_fail]]]
   if {[catch {
     file mkdir $::tempRepoPath
