@@ -1,5 +1,5 @@
-C Robustify\sthe\scleanup\sprocess.
-D 2016-03-02T06:58:21.422
+C Attempt\sto\smake\ssure\sthat\smultiple\scalls\sto\s'repo_init'\sget\sproperly\scleaned\sup.
+D 2016-03-02T07:00:54.773
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -548,7 +548,7 @@ F test/stash.test 1caf264bf649e2040c3a1fa29d289d0c04223596
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 226b55732dee73109f6ce0ea1dea6d18bb250654
+F test/tester.tcl 2e388bba9ba67710199313bf8590e5ab41dacb77
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 532ce459c6b4c0177ab629500082d206994ee6a0
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -746,7 +746,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5c674ff2711fa4c3633c79b52c63ad7d38a45604
-R b403189806d0da0b0bb1767bf14da250
+P ee5214b7edc79518b663c0ed852b05a50c0ca544
+R 6311c418e1486959158c0e8cf450b1bc
 U mistachkin
-Z be7d3a3f1509161d197e1ef5665ba5ba
+Z 8de1a8339c9cb2f0a77b713ac14a7b4c

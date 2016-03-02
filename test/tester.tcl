@@ -229,7 +229,9 @@ proc test_cleanup {} {
   # directory.
   catch {file delete -force $::tempRepoPath}
   # Next, attempt to gracefully delete the temporary repository directories.
-  catch {file delete [file join $::tempPath repo_[pid] $::tempRepoSeed]}
+  foreach repoSeed $::tempRepoSeeds {
+    catch {file delete [file join $::tempPath repo_[pid] $repoSeed]}
+  }
   catch {file delete [file join $::tempPath repo_[pid]]}
   # Finally, attempt to gracefully delete the temporary home.
   if {$::tcl_platform(platform) eq "windows"} {
@@ -259,9 +261,10 @@ proc set_home_to_elsewhere {} {
 #
 proc repo_init {{filename ".rep.fossil"}} {
   set_home_to_elsewhere
-  set ::tempRepoSeed [string trim [clock seconds] -]
+  set repoSeed [string trim [clock seconds] -]
+  lappend ::tempRepoSeeds $repoSeed
   set ::tempRepoPath [file join \
-      $::tempPath repo_[pid] $::tempRepoSeed [file tail [get_script_or_fail]]]
+      $::tempPath repo_[pid] $repoSeed [file tail [get_script_or_fail]]]
   if {[catch {
     file mkdir $::tempRepoPath
   } error] != 0} {
