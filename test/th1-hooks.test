@@ -20,7 +20,7 @@
 
 fossil test-th-eval "hasfeature th1Hooks"
 
-if {$::RESULT ne "1"} then {
+if {$::RESULT ne "1"} {
   puts "Fossil was not compiled with TH1 hooks support."; return
 }
 
@@ -108,7 +108,7 @@ set testTh1Setup {
 set data [fossil info]
 regexp -line -- {^repository:   (.*)$} $data dummy repository
 
-if {[string length $repository] == 0 || ![file exists $repository]} then {
+if {[string length $repository] == 0 || ![file exists $repository]} {
   error "unable to locate repository"
 }
 

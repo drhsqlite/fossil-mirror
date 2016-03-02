@@ -28,7 +28,7 @@ repo_init
 
 fossil test-th-eval "hasfeature tcl"
 
-if {$::RESULT ne "1"} then {
+if {$::RESULT ne "1"} {
   puts "Fossil was not compiled with Tcl support."; return
 }
 

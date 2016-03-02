@@ -886,7 +886,7 @@ test th1-globalState-14 {[string length $RESULT] == 0}
 
 ###############################################################################
 
-if {$tcl_platform(platform) eq "windows"} then {
+if {$tcl_platform(platform) eq "windows"} {
   set altVfs win32-longpath
 } else {
   set altVfs unix-dotfile

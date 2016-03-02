@@ -191,19 +191,44 @@ proc same_file {a b} {
   return [expr {$x==$y}]
 }
 
+proc require_no_open_checkout {} {
+  catch {exec $::fossilexe info} res
+  if {![regexp {use --repository} $res]} {
+    set projectName <unknown>
+    set localRoot <unknown>
+    regexp -line -- {^project-name: (.*)$} $res dummy projectName
+    set projectName [string trim $projectName]
+    regexp -line -- {^local-root: (.*)$} $res dummy localRoot
+    set localRoot [string trim $localRoot]
+    error "Detected an open checkout of project \"$projectName\",\
+rooted at \"$localRoot\", testing halted"
+  }
+}
+
+proc is_home_elsewhere {} {
+  return [expr {[info exists ::env(FOSSIL_HOME)] && \
+      $::env(FOSSIL_HOME) eq $::tempHomePath}]
+}
+
+proc set_home_to_elsewhere {} {
+  #
+  # Fossil will write data on $HOME (or $FOSSIL_HOME).  We need not
+  # to clutter the real $HOME (or $FOSSIL_HOME) of the test caller.
+  #
+  if {[is_home_elsewhere]} {
+    protOut "***** FOSSIL_HOME is already elsewhere"
+    return
+  }
+  set ::env(FOSSIL_HOME) $::tempHomePath
+}
+
+#
 # Create and open a new Fossil repository and clean the checkout
 #
 proc repo_init {{filename ".rep.fossil"}} {
-  if {$::env(HOME) ne [pwd]} {
-    catch {exec $::fossilexe info} res
-    if {![regexp {use --repository} $res]} {
-      error "In an open checkout: cannot initialize a new repository here."
-    }
-    # Fossil will write data on $FOSSIL_HOME, running 'fossil new' here.
-    # We need not to clutter the $HOME of the test caller.
-    #
-    set ::env(FOSSIL_HOME) [pwd]
-    set ::env(HOME) [pwd]
+  if {![is_home_elsewhere]} {
+    require_no_open_checkout
+    set_home_to_elsewhere
   }
   catch {exec $::fossilexe close -f}
   file delete $filename
@@ -513,6 +538,15 @@ if {[catch {
   write_file [file join $tempPath temporary.txt] [clock seconds]
 } error] != 0} {
   error "could not write file to directory \"$tempPath\",\
+please set TEMP variable in environment: $error"
+}
+
+set tempHomePath [file join $tempPath home_[pid]]
+
+if {[catch {
+  file mkdir $tempHomePath
+} error] != 0} {
+  error "could not make directory \"$tempHomePath\",\
 please set TEMP variable in environment: $error"
 }
 

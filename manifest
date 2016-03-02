@@ -1,5 +1,5 @@
-C Permit\sthe\sTH1\shooks\ssubsystem\sto\scheck\sfor\sthe\sconfiguration\swithout\sraising\sa\s'fatal'\serror.
-D 2016-03-02T02:10:40.915
+C Work\sin\sprogress\son\scleaning\sup\shome/repo\shandling\sin\sthe\stest\ssuite.
+D 2016-03-02T06:22:44.506
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -537,24 +537,24 @@ F test/merge1.test 4734854393f717824ae96b3de8524a2401a21921
 F test/merge2.test 1915d0a7cf117dd7448d6ccc30b54b4cd85a942c
 F test/merge3.test 637ad5275604c7fe17340b32338aadf2a1f27c07
 F test/merge4.test e9b9b3826dc271ae75523a5fa0a08fe17b0cd722
-F test/merge5.test 4ca266f425c0bb75bd4547b1628b860aca850dec
+F test/merge5.test e45dc4b647ddcfe51d5e34b92a5c6127959fe261
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test 3ae66c3b8359c79a54db41c92a4572adc30780aa
-F test/merge_renames.test 426dc718ae9813dc4aef651027fdd817aec2e995
-F test/mv-rm.test c4cd3d592b28db47146ecf8e9f4ef4786c67e8b0
+F test/merge_renames.test b18be8d5360cef9169f4dd8d5dc49e56b8c6bc8a
+F test/mv-rm.test 3bc983230a39ef21b94ac34a0292d4cc9df1e8a6
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
-F test/revert.test 2afb167072c28d3527f821ce5828967e9c34b390
-F test/stash.test 3a01ed38196daca18128c14f8910cd9ae98a18dc
+F test/revert.test 3758f73e4d735469a14861fbe19f14b4514d2467
+F test/stash.test 33f53b8a15bc38c013fac17e9b2fc1e10a36d70e
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl a67810c094c61d294516d2c01300516bf336a99e
+F test/tester.tcl 1fb84055b45a5386cbd6c5398510dcf86565d777
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
-F test/th1-docs.test 797a2d6167b7277bce160cd5943b3a08ea43d014
+F test/th1-docs.test a7d952f34b248d5ebc790242b0ab0917e20dae12
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
-F test/th1-hooks.test 2ece5355a9115deb69ef2f0b104c69c6ee9177a1
-F test/th1-repo.test 58c1c8787e4e62ba9cdcc532bb2745bfe26c8572
-F test/th1-tcl.test ec7e57939064359c69a6aa60ce4c26298c32ae05
+F test/th1-hooks.test fa0f4cc7b38d31980531984e6c380b60b1cb23cd
+F test/th1-repo.test 17122969db363718ad1bc7c1d2efc581191e60a4
+F test/th1-tcl.test 89a211f8fbbcbff3e3c0dbe952e4b958f56a65f2
 F test/th1-tcl1.txt c60e664b138a2189b637c254d55a05819db1521d
 F test/th1-tcl2.txt 9f7e7ea7cc6c75df78c5efb761d10a4e8e354401
 F test/th1-tcl3.txt 208d6e2a9a68969df9220f6f6c190402a62b4919
@@ -564,7 +564,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test 9ea9b07ce4ca712f871b9431dd58bf7f1d4af860
+F test/th1.test 7deae458b051dc2f27483c7161d2bc85f060011e
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 7fd75c8d3699ff96e9bdaa69ac40be3d9323b8dc
@@ -746,7 +746,10 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a9e3db1f707d4998d836571302be0fe62138c3df
-R 8a730cd8fa0d843f61786c9f72422c98
+P b06cd631f1804300c5088f85a0ebcc067e20c72d
+R f68d505f8c0777ee33ed8283724d4a70
+T *branch * testerCleanup
+T *sym-testerCleanup *
+T -sym-trunk *
 U mistachkin
-Z 064d87e4c7ac17dc38cfd6563ffc39ee
+Z bf52aa0c7a2a6a550a0b5aac4253ba7d

@@ -92,12 +92,7 @@ proc stash-test {testid stashArgs expectedStashOutput args} {
   return [test_result_state stash-$testid "stash $stashArgs" $expectedStashOutput {*}$args] 
 }
 
-catch {exec $::fossilexe info} res
-if {![regexp {use --repository} $res]} {
-  puts stderr "Cannot run this test within an open checkout"
-  return
-}
-
+require_no_open_checkout
 repo_init
 
 # Prepare first commit

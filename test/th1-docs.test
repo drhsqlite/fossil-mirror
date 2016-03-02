@@ -20,13 +20,13 @@
 
 fossil test-th-eval "hasfeature th1Docs"
 
-if {$::RESULT ne "1"} then {
+if {$::RESULT ne "1"} {
   puts "Fossil was not compiled with TH1 docs support."; return
 }
 
 fossil test-th-eval "hasfeature tcl"
 
-if {$::RESULT ne "1"} then {
+if {$::RESULT ne "1"} {
   puts "Fossil was not compiled with Tcl support."; return
 }
 
@@ -43,7 +43,7 @@ run_in_checkout {
 
 regexp -line -- {^repository:   (.*)$} $data dummy repository
 
-if {[string length $repository] == 0 || ![file exists $repository]} then {
+if {[string length $repository] == 0 || ![file exists $repository]} {
   error "unable to locate repository"
 }
 
