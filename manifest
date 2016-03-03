@@ -1,5 +1,5 @@
-C Improve\shandling\sof\ssetting\sup\sthe\sinitial\stemporary\sdirectory.
-D 2016-03-03T21:50:56.009
+C Treat\s'file\snormalize'\swith\sa\sbit\smore\sskepticism.
+D 2016-03-03T22:12:51.989
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -548,7 +548,7 @@ F test/stash.test f9c2bba31afe77b62967ea11e59e438c950325ec
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 5dd07c682202a113f7ba6cfc1cdd7deb77dd2537
+F test/tester.tcl aecf2a783d94695339a43f8ad6bded3449c1a5f4
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 3a95822e5006f404b51bb6dccacc340a452d3f4e
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -746,7 +746,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b01a51f43ae0e9f4890ec78fae6c5384a55b4091
-R b668ef9fa884316adfd78b49fb281755
+P e6e79ac6fbc1404991c84952a6bb9c3b925dea4a
+R b99ff6c7a36753f9c7edaf191b14ae59
 U mistachkin
-Z 40d187605a111e4cd8a2ea47218734c1
+Z d8f714149c7195248d3912571e9ca2c0

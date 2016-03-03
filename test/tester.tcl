@@ -421,8 +421,10 @@ proc getTemporaryPath {} {
     set value [getEnvironmentVariable $name]
 
     if {[string length $value] > 0} then {
+      set value [file normalize $value]
+
       if {[file exists $value] && [file isdirectory $value]} then {
-        return [file normalize $value]
+        return $value
       }
     }
   }
