@@ -57,6 +57,7 @@ test_setup
 
 if {![uuid_from_checkout UUIDINIT]} {
   test amend-checkout-failure false
+  test_cleanup
   return
 }
 write_file datafile "data"
@@ -64,6 +65,7 @@ fossil add datafile
 fossil commit -m "c1"
 if {![uuid_from_commit $RESULT UUID]} {
   test amend-setup-failure false
+  test_cleanup
   return
 }
 
