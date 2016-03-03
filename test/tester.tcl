@@ -234,6 +234,11 @@ proc robust_delete { path {force ""} } {
   error "Could not delete \"$path\", error: $error"
 }
 
+proc test_cleanup_then_return {} {
+  uplevel 1 [list test_cleanup]
+  return -code return
+}
+
 proc test_cleanup {} {
   if {![info exists ::tempRepoPath]} {return}
   if {![file exists $::tempRepoPath]} {return}

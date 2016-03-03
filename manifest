@@ -1,5 +1,5 @@
-C When\spossible,\sdon't\scall\stest_setup\suntil\safter\sany\schecks\sthat\smay\scause\sa\stest\sscript\sto\sexit\searly.\sOtherwise,\stest_cleanup\sshould\sbe\scalled\sbefore\sreturning.
-D 2016-03-03T06:46:31.321
+C Centralize\searly-return\shandling\sfrom\sthe\stests,\salways\scalling\sthe\stest\scleanup\s(which\sis\sharmless\sif\snot\sneeded).
+D 2016-03-03T18:49:37.358
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -518,7 +518,7 @@ F src/xfersetup.c 0f967a3fca7ad9fa3aa350d121851e71064823be
 F src/zip.c 8567f81eca8762b4bf08c20a72b70e87696c6cd2
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
-F test/amend.test be55c243c00f87b7505244439600778bdb90b973
+F test/amend.test 90daf2da8220909241784045fa11bce22d5591bf
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
 F test/cmdline.test df50383ebf00e7a444e29f2f755867f843c37df7
 F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
@@ -530,7 +530,7 @@ F test/fileStat.th1 e3e30f7b46488c26215a6d713be36ad4ed595132
 F test/fileage-test-1.wiki d249e897fdd41038c17f3b66d374e509830da1eb
 F test/glob.test e135d6e1333452beece53619e9a67cd9224ab00c
 F test/graph-test-1.wiki 1bbf8bd05dfd5205c589569d911477c27aeb4d51
-F test/json.test 76e2e8d9a15bcc91e8c32a08e9d20be32cd8fd97
+F test/json.test 65f8333164e43173ad47634035ab6d2c8635ed86
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/merge1.test 0f11a55b5d71fa668b53ffc4cdeb23997e9cb042
@@ -548,13 +548,13 @@ F test/stash.test f9c2bba31afe77b62967ea11e59e438c950325ec
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 1751356eda4fcfe3429b706d53aa744b7ccf1431
+F test/tester.tcl ce83cff974bda2eaaf3eadca2e6c3444b11c3ef2
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
-F test/th1-docs.test 68eda245b13cb5a4a54fdb3af498c7672bd59f70
+F test/th1-docs.test 3a95822e5006f404b51bb6dccacc340a452d3f4e
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
-F test/th1-hooks.test 8c5159b125a1065b72a8f94c57e633667bcc2044
+F test/th1-hooks.test 303c3d5f4a7159bd6de3e0ec810d2d0e322294cb
 F test/th1-repo.test 3c89b1ab7105d87ec3d20f34fcb475600a4bfa80
-F test/th1-tcl.test 94cbbcb29bcb9b6213e5aadd0d30b3caa184753c
+F test/th1-tcl.test f25feb77b3fdb92321da886a35f3c321fbf0ab8a
 F test/th1-tcl1.txt c60e664b138a2189b637c254d55a05819db1521d
 F test/th1-tcl2.txt 9f7e7ea7cc6c75df78c5efb761d10a4e8e354401
 F test/th1-tcl3.txt 208d6e2a9a68969df9220f6f6c190402a62b4919
@@ -746,7 +746,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 186e6a71b917bc3fa40cab5e3a3d54e0b3cdfa9c
-R 313463fbe7fc8fd2e120d033b8280185
-U joel
-Z b3e9d1dd492270493828f4f66aac006a
+P 314e9b35663d36c8cad4543517490cdc7505278c
+R f8a91bc3ae5fde67bbb553b0f55c5fd6
+U mistachkin
+Z 0fd66a0d6fe30d830a5ac14192acc340

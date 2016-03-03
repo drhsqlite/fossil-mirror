@@ -21,14 +21,18 @@
 fossil test-th-eval "hasfeature th1Docs"
 
 if {$::RESULT ne "1"} {
-  puts "Fossil was not compiled with TH1 docs support."; return
+  puts "Fossil was not compiled with TH1 docs support."
+  test_cleanup_then_return
 }
 
 fossil test-th-eval "hasfeature tcl"
 
 if {$::RESULT ne "1"} {
-  puts "Fossil was not compiled with Tcl support."; return
+  puts "Fossil was not compiled with Tcl support."
+  test_cleanup_then_return
 }
+
+###############################################################################
 
 test_setup ""
 
