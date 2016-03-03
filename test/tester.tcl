@@ -389,6 +389,61 @@ proc appendArgs {args} {
   eval append result $args
 }
 
+# Returns the value of the specified environment variable -OR- any empty
+# string if it does not exist.
+#
+proc getEnvironmentVariable { name } {
+  return [expr {[info exists ::env($name)] ? $::env($name) : ""}]
+}
+
+# Returns a usable temporary directory -OR- fails the testing process.
+#
+proc getTemporaryPath {} {
+  #
+  # NOTE: Build the list of "temporary directory" environment variables
+  #       to check, including all reasonable "cases" of the environment
+  #       variable names.
+  #
+  set names [list]
+
+  #
+  # TODO: Add more here, if necessary.
+  #
+  foreach name [list FOSSIL_TEST_TEMP FOSSIL_TEMP TEMP TMP] {
+    lappend names [string toupper $name] [string tolower $name] \
+        [string totitle $name]
+  }
+
+  #
+  # NOTE: Check if we can use any of the environment variables.
+  #
+  foreach name $names {
+    set value [getEnvironmentVariable $name]
+
+    if {[string length $value] > 0} then {
+      if {[file exists $value] && [file isdirectory $value]} then {
+        return [file normalize $value]
+      }
+    }
+  }
+
+  #
+  # NOTE: On non-Windows systems, fallback to /tmp if it is usable.
+  #
+  if {$::tcl_platform(platform) ne "windows"} {
+    set value /tmp
+
+    if {[file exists $value] && [file isdirectory $value]} then {
+      return $value
+    }
+  }
+
+  #
+  # NOTE: There must be a usable temporary directory to continue testing.
+  #
+  error "Cannot find a usable temporary directory, testing halted."
+}
+
 # Return the name of the versioned settings file containing the TH1
 # setup script.
 #
@@ -602,14 +657,11 @@ proc third_to_last_data_line {} {
   return [lindex [split [normalize_result] \n] end-2]
 }
 
-set tempPath [expr {[info exists env(TEMP)] ? \
-    $env(TEMP) : [file dirname [info script]]}]
+set tempPath [getTemporaryPath]
 
 if {$tcl_platform(platform) eq "windows"} {
   set tempPath [string map [list \\ /] $tempPath]
 }
-
-set tempPath [file normalize $tempPath]
 
 if {[catch {
   set tempFile [file join $tempPath temporary.txt]
