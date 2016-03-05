@@ -35,6 +35,14 @@ if {$tcl_platform(platform) eq "windows" && \
 
 set argv [lrange $argv 1 end]
 
+set i [lsearch $argv -keep]
+if {$i>=0} {
+  set KEEP 1
+  set argv [lreplace $argv $i $i]
+} else {
+  set KEEP 0
+}
+
 set i [lsearch $argv -halt]
 if {$i>=0} {
   set HALT 1
@@ -240,6 +248,7 @@ proc test_cleanup_then_return {} {
 }
 
 proc test_cleanup {} {
+  if {$::KEEP} {return}; # All cleanup disabled?
   if {![info exists ::tempRepoPath]} {return}
   if {![file exists $::tempRepoPath]} {return}
   if {![file isdirectory $::tempRepoPath]} {return}
@@ -267,6 +276,7 @@ proc test_cleanup {} {
 }
 
 proc delete_temporary_home {} {
+  if {$::KEEP} {return}; # All cleanup disabled?
   if {$::tcl_platform(platform) eq "windows"} {
     robust_delete [file join $::tempHomePath _fossil]
   } else {
