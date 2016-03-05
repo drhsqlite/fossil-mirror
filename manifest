@@ -1,5 +1,5 @@
-C Permit\sthe\sTH1\shooks\ssubsystem\sto\scheck\sfor\sthe\sconfiguration\swithout\sraising\sa\s'fatal'\serror.
-D 2016-03-02T02:10:40.915
+C Added\sadd_content_sql_commands()\sto\s/admin_sql,\sas\sper\sML\sdiscussion.
+D 2016-03-05T20:01:35.953
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -474,7 +474,7 @@ F src/report.c c38e6071aa3f10bbbb72d5db9b5473dac7cc70e4
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c 3ddd0bd72f6a9af5a92b4f4113577d1a0ff7c75d
-F src/setup.c b1b74ef83b01a10962e6b71c0b459e18eb31a4b3
+F src/setup.c 3197515d5b3094b190d6b1ef7d198ac48d9e3a19
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c 0367440658104bf2ce8d8a9a5a713a4b11c9acbe
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
@@ -746,7 +746,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a9e3db1f707d4998d836571302be0fe62138c3df
-R 8a730cd8fa0d843f61786c9f72422c98
-U mistachkin
-Z 064d87e4c7ac17dc38cfd6563ffc39ee
+P b06cd631f1804300c5088f85a0ebcc067e20c72d
+R 3eb27ed04e1c1fde5422b8db0ceb0cff
+U stephan
+Z 6259373855de16d2b6a1b84d07ea55c8
