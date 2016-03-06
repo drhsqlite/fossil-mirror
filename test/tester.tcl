@@ -27,6 +27,12 @@ set testfiledir [file normalize [file dirname [info script]]]
 set testrundir [pwd]
 set testdir [file normalize [file dirname $argv0]]
 set fossilexe [file normalize [lindex $argv 0]]
+
+if {$tcl_platform(platform) eq "windows" && \
+    [string length [file extension $fossilexe]] == 0} {
+  append fossilexe .exe
+}
+
 set argv [lrange $argv 1 end]
 
 set i [lsearch $argv -halt]
@@ -123,6 +129,11 @@ proc fossil {args} {
 proc fossil_maybe_answer {answer args} {
   global fossilexe
   set cmd $fossilexe
+  set expectError 0
+  if {[lindex $args end] eq "-expectError"} {
+    set expectError 1
+    set args [lrange $args 0 end-1]
+  }
   foreach a $args {
     lappend cmd $a
   }
@@ -130,6 +141,7 @@ proc fossil_maybe_answer {answer args} {
 
   flush stdout
   if {[string length $answer] > 0} {
+    protOut $answer
     set prompt_file [file join $::tempPath fossil_prompt_answer]
     write_file $prompt_file $answer\n
     set rc [catch {eval exec $cmd <$prompt_file} result]
@@ -139,7 +151,7 @@ proc fossil_maybe_answer {answer args} {
   }
   global RESULT CODE
   set CODE $rc
-  if {$rc} {
+  if {($rc && !$expectError) || (!$rc && $expectError)} {
     protOut "ERROR: $result" 1
   } elseif {$::VERBOSE} {
     protOut "RESULT: $result"
@@ -187,9 +199,10 @@ proc repo_init {{filename ".rep.fossil"}} {
     if {![regexp {use --repository} $res]} {
       error "In an open checkout: cannot initialize a new repository here."
     }
-    # Fossil will write data on $HOME, running 'fossil new' here.
+    # Fossil will write data on $FOSSIL_HOME, running 'fossil new' here.
     # We need not to clutter the $HOME of the test caller.
     #
+    set ::env(FOSSIL_HOME) [pwd]
     set ::env(HOME) [pwd]
   }
   catch {exec $::fossilexe close -f}
@@ -256,15 +269,15 @@ proc normalize_status_list {list} {
 
 # Perform a test comparing two status lists
 #
-proc test_status_list {name result expected} {
+proc test_status_list {name result expected {constraints ""}} {
   set expected [normalize_status_list $expected]
   set result [normalize_status_list $result]
   if {$result eq $expected} {
-    test $name 1
+    test $name 1 $constraints
   } else {
     protOut "  Expected:\n    [join $expected "\n    "]" 1
     protOut "  Got:\n    [join $result "\n    "]" 1
-    test $name 0
+    test $name 0 $constraints
   }
 }
 
@@ -493,6 +506,8 @@ set tempPath [expr {[info exists env(TEMP)] ? \
 if {$tcl_platform(platform) eq "windows"} {
   set tempPath [string map [list \\ /] $tempPath]
 }
+
+set tempPath [file normalize $tempPath]
 
 if {[catch {
   write_file [file join $tempPath temporary.txt] [clock seconds]

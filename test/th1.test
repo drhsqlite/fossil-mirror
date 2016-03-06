@@ -915,38 +915,36 @@ test th1-reinitialize-2 {$RESULT ne ""}
 ###############################################################################
 
 #
-# NOTE: This test may fail if the command names do not always come out in a
-#       deterministic order from TH1.
+# NOTE: This test will fail if the command names are added to TH1, or
+#       moved from Tcl builds to plain or the reverse. Sorting the 
+#       command lists eliminates a dependence on order.
 #
 fossil test-th-eval "info commands"
-
+set sorted_result [lsort $RESULT]
+protOut "Sorted: $sorted_result"
+set base_commands {anoncap anycap array artifact break breakpoint catch\
+      checkout combobox continue date decorate dir enable_output encode64\
+      error expr for getParameter glob_match globalState hascap hasfeature\
+      html htmlize http httpize if info insertCsrf lindex linecount list\
+      llength lsearch markdown proc puts query randhex redirect regexp\
+      reinitialize rename render repository return searchable set\
+      setParameter setting stime string styleFooter styleHeader tclReady\
+      trace unset uplevel upvar utime verifyCsrf wiki}
+set tcl_commands {tclEval tclExpr tclInvoke tclIsSafe tclMakeSafe}
 if {$th1Tcl} {
-  test th1-info-commands-1 {$RESULT eq {linecount htmlize date stime\
-      enable_output uplevel dir http expr glob_match utime styleFooter encode64\
-      catch if tclReady searchable reinitialize combobox lindex tclIsSafe query\
-      html anoncap randhex llength for set break regexp markdown styleHeader\
-      puts return checkout decorate artifact trace wiki proc tclInvoke hascap\
-      globalState continue getParameter hasfeature setting lsearch breakpoint\
-      upvar render repository string unset setParameter list error info rename\
-      tclExpr array anycap tclEval httpize tclMakeSafe}}
+  test th1-info-commands-1 {$sorted_result eq [lsort "$base_commands $tcl_commands"]}
 } else {
-  test th1-info-commands-1 {$RESULT eq {linecount htmlize date stime\
-      enable_output uplevel dir http expr glob_match utime styleFooter encode64\
-      catch if tclReady searchable reinitialize combobox lindex query html\
-      anoncap randhex llength for set break regexp markdown styleHeader puts\
-      return checkout decorate artifact trace wiki proc hascap globalState\
-      continue getParameter hasfeature setting lsearch breakpoint upvar render\
-      repository string unset setParameter list error info rename array anycap\
-      httpize}}
+  test th1-info-commands-1 {$sorted_result eq [lsort "$base_commands"]}
 }
+
 
 ###############################################################################
 
 fossil test-th-eval "info vars"
 
 if {$th1Hooks} {
-  test th1-info-vars-1 {$RESULT eq \
-      "th_stack_trace cmd_flags tcl_platform cmd_name cmd_args"}
+  test th1-info-vars-1 {[lsort $RESULT] eq \
+      [lsort "th_stack_trace cmd_flags tcl_platform cmd_name cmd_args"]}
 } else {
   test th1-info-vars-1 {$RESULT eq "tcl_platform"}
 }
@@ -956,10 +954,10 @@ if {$th1Hooks} {
 fossil test-th-eval "set x 1; info vars"
 
 if {$th1Hooks} {
-  test th1-info-vars-2 {$RESULT eq \
-      "x th_stack_trace cmd_flags tcl_platform cmd_name cmd_args"}
+  test th1-info-vars-2 {[lsort $RESULT] eq \
+      [lsort "x th_stack_trace cmd_flags tcl_platform cmd_name cmd_args"]}
 } else {
-  test th1-info-vars-2 {$RESULT eq "x tcl_platform"}
+  test th1-info-vars-2 {[lsort $RESULT] eq [lsort "x tcl_platform"]}
 }
 
 ###############################################################################
@@ -967,8 +965,8 @@ if {$th1Hooks} {
 fossil test-th-eval "set x 1; unset x; info vars"
 
 if {$th1Hooks} {
-  test th1-info-vars-3 {$RESULT eq \
-      "th_stack_trace cmd_flags tcl_platform cmd_name cmd_args"}
+  test th1-info-vars-3 {[lsort $RESULT] eq \
+      [lsort "th_stack_trace cmd_flags tcl_platform cmd_name cmd_args"]}
 } else {
   test th1-info-vars-3 {$RESULT eq "tcl_platform"}
 }
@@ -983,10 +981,10 @@ test th1-info-vars-4 {$RESULT eq "x"}
 fossil test-th-eval "set y 1; proc foo {} {set x 1; uplevel 1 {info vars}}; foo"
 
 if {$th1Hooks} {
-  test th1-info-vars-5 {$RESULT eq \
-      "th_stack_trace y cmd_flags tcl_platform cmd_name cmd_args"}
+  test th1-info-vars-5 {[lsort $RESULT] eq \
+      [lsort "th_stack_trace y cmd_flags tcl_platform cmd_name cmd_args"]}
 } else {
-  test th1-info-vars-5 {$RESULT eq "y tcl_platform"}
+  test th1-info-vars-5 {[lsort $RESULT] eq [lsort "y tcl_platform"]}
 }
 
 ###############################################################################
