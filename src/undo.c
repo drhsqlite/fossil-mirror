@@ -77,9 +77,9 @@ static void undo_one(const char *zPathname, int redoFlag){
     }
     if( old_exists ){
       if( new_exists ){
-        fossil_print("%s %s\n", redoFlag ? "REDO" : "UNDO", zPathname);
+        fossil_print("%s   %s\n", redoFlag ? "REDO" : "UNDO", zPathname);
       }else{
-        fossil_print("NEW %s\n", zPathname);
+        fossil_print("NEW    %s\n", zPathname);
       }
       if( new_exists && (new_link || old_link) ){
         file_delete(zFullname);

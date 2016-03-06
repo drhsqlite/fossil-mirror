@@ -429,10 +429,12 @@ void access_log_page(void){
   Stmt q;
   int cnt = 0;
   int rc;
+  int fLogEnabled;
 
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(0); return; }
   create_accesslog_table();
+
 
   if( P("delall") && P("delallbtn") ){
     db_multi_exec("DELETE FROM accesslog");
@@ -459,8 +461,8 @@ void access_log_page(void){
   style_header("Access Log");
   blob_zero(&sql);
   blob_append_sql(&sql,
-    "SELECT uname, ipaddr, datetime(mtime%s), success"
-    "  FROM accesslog", timeline_utc()
+    "SELECT uname, ipaddr, datetime(mtime,toLocal()), success"
+    "  FROM accesslog"
   );
   if( y==1 ){
     blob_append(&sql, "  WHERE success", -1);
@@ -474,7 +476,11 @@ void access_log_page(void){
               n, y);
   }
   rc = db_prepare_ignore_error(&q, "%s", blob_sql_text(&sql));
-  @ <center><table border="1" cellpadding="5" id='logtable'>
+  @ <center>
+  fLogEnabled = db_get_boolean("access-log", 0);
+  @ <div>Access logging is %s(fLogEnabled?"on":"off").
+  @ (Change this on the <a href="setup_settings">settings</a> page.)</div>
+  @ <table border="1" cellpadding="5" id='logtable'>
   @ <thead><tr><th width="33%%">Date</th><th width="34%%">User</th>
   @ <th width="33%%">IP Address</th></tr></thead><tbody>
   while( rc==SQLITE_OK && db_step(&q)==SQLITE_ROW ){

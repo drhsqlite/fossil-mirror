@@ -19,7 +19,6 @@
 #
 
 catch {exec $::fossilexe info} res
-puts res=$res
 if {![regexp {use --repository} $res]} {
   puts stderr "Cannot run this test within an open checkout"
   return
@@ -72,7 +71,7 @@ test mv-soft-relative-1 {$RESULT eq "RENAME f1 subdir1/f1"}
 
 fossil revert
 test mv-soft-relative-2 {
-  [normalize_result] eq "DELETE: subdir1/f1\nREVERTED: f1${undoMsg}"
+  [normalize_result] eq "DELETE   subdir1/f1\nREVERT   f1${undoMsg}"
 }
 
 cd $rootDir
@@ -89,7 +88,7 @@ test mv-soft-relative-3 {$RESULT eq "RENAME f2 subdir2/f2"}
 
 fossil revert
 test mv-soft-relative-4 {
-  [normalize_result] eq "DELETE: subdir2/f2\nREVERTED: f2${undoMsg}"
+  [normalize_result] eq "DELETE   subdir2/f2\nREVERT   f2${undoMsg}"
 }
 
 cd $rootDir
@@ -108,7 +107,7 @@ test mv-hard-relative-1 {
 
 fossil revert
 test mv-hard-relative-2 {
-  [normalize_result] eq "DELETE: subdir3/f3\nREVERTED: f3${undoMsg}"
+  [normalize_result] eq "DELETE   subdir3/f3\nREVERT   f3${undoMsg}"
 }
 
 cd $rootDir
@@ -127,7 +126,7 @@ test mv-hard-relative-3 {
 
 fossil revert
 test mv-hard-relative-4 {
-  [normalize_result] eq "DELETE: subdir4/f4\nREVERTED: f4${undoMsg}"
+  [normalize_result] eq "DELETE   subdir4/f4\nREVERT   f4${undoMsg}"
 }
 
 cd $rootDir
@@ -144,7 +143,7 @@ test mv-soft-absolute-1 {$RESULT eq "RENAME f5 subdir5/f5"}
 
 fossil revert
 test mv-soft-absolute-2 {
-  [normalize_result] eq "DELETE: subdir5/f5\nREVERTED: f5${undoMsg}"
+  [normalize_result] eq "DELETE   subdir5/f5\nREVERT   f5${undoMsg}"
 }
 
 cd $rootDir
@@ -161,7 +160,7 @@ test mv-soft-absolute-3 {$RESULT eq "RENAME f6 subdir6/f6"}
 
 fossil revert
 test mv-soft-absolute-4 {
-  [normalize_result] eq "DELETE: subdir6/f6\nREVERTED: f6${undoMsg}"
+  [normalize_result] eq "DELETE   subdir6/f6\nREVERT   f6${undoMsg}"
 }
 
 cd $rootDir
@@ -180,7 +179,7 @@ test mv-hard-absolute-1 {
 
 fossil revert
 test mv-hard-absolute-2 {
-  [normalize_result] eq "DELETE: subdir7/f7\nREVERTED: f7${undoMsg}"
+  [normalize_result] eq "DELETE   subdir7/f7\nREVERT   f7${undoMsg}"
 }
 
 cd $rootDir
@@ -199,7 +198,7 @@ test mv-hard-absolute-3 {
 
 fossil revert
 test mv-hard-absolute-4 {
-  [normalize_result] eq "DELETE: subdir8/f8\nREVERTED: f8${undoMsg}"
+  [normalize_result] eq "DELETE   subdir8/f8\nREVERT   f8${undoMsg}"
 }
 
 cd $rootDir
@@ -225,7 +224,7 @@ test rm-soft-relative-3 {
 fossil revert
 test rm-soft-relative-4 {
   [normalize_result] eq \
-  "REVERTED: subdirB/f9\nREVERTED: subdirC/f10\nREVERTED: subdirC/f11${undoMsg}"
+  "REVERT   subdirB/f9\nREVERT   subdirC/f10\nREVERT   subdirC/f11${undoMsg}"
 }
 
 cd $rootDir
@@ -242,7 +241,7 @@ test rm-soft-relative-5 {$RESULT eq "DELETED f2"}
 
 fossil revert
 test rm-soft-relative-6 {
-  [normalize_result] eq "REVERTED: f2${undoMsg}"
+  [normalize_result] eq "REVERT   f2${undoMsg}"
 }
 
 cd $rootDir
@@ -275,7 +274,7 @@ ${rootDir}/subdirC/f10\nDELETED_FILE ${rootDir}/subdirC/f11"
 fossil revert
 test rm-hard-relative-4 {
   [normalize_result] eq \
-  "REVERTED: subdirB/f9\nREVERTED: subdirC/f10\nREVERTED: subdirC/f11${undoMsg}"
+  "REVERT   subdirB/f9\nREVERT   subdirC/f10\nREVERT   subdirC/f11${undoMsg}"
 }
 
 cd $rootDir
@@ -294,7 +293,7 @@ test rm-hard-relative-5 {
 
 fossil revert
 test rm-hard-relative-6 {
-  [normalize_result] eq "REVERTED: f4${undoMsg}"
+  [normalize_result] eq "REVERT   f4${undoMsg}"
 }
 
 cd $rootDir
@@ -320,7 +319,7 @@ test rm-soft-absolute-3 {
 fossil revert
 test rm-soft-absolute-4 {
   [normalize_result] eq \
-  "REVERTED: subdirB/f9\nREVERTED: subdirC/f10\nREVERTED: subdirC/f11${undoMsg}"
+  "REVERT   subdirB/f9\nREVERT   subdirC/f10\nREVERT   subdirC/f11${undoMsg}"
 }
 
 cd $rootDir
@@ -337,7 +336,7 @@ test rm-soft-absolute-5 {$RESULT eq "DELETED f6"}
 
 fossil revert
 test rm-soft-absolute-6 {
-  [normalize_result] eq "REVERTED: f6${undoMsg}"
+  [normalize_result] eq "REVERT   f6${undoMsg}"
 }
 
 cd $rootDir
@@ -368,7 +367,7 @@ ${rootDir}/subdirC/f10\nDELETED_FILE ${rootDir}/subdirC/f11"
 fossil revert
 test rm-hard-absolute-4 {
   [normalize_result] eq \
-  "REVERTED: subdirB/f9\nREVERTED: subdirC/f10\nREVERTED: subdirC/f11${undoMsg}"
+  "REVERT   subdirB/f9\nREVERT   subdirC/f10\nREVERT   subdirC/f11${undoMsg}"
 }
 
 cd $rootDir
@@ -387,7 +386,7 @@ test rm-hard-absolute-5 {
 
 fossil revert
 test rm-hard-absolute-6 {
-  [normalize_result] eq "REVERTED: f8${undoMsg}"
+  [normalize_result] eq "REVERT   f8${undoMsg}"
 }
 
 cd $rootDir

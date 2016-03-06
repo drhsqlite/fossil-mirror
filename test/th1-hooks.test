@@ -26,6 +26,11 @@ if {$::RESULT ne "1"} then {
 
 ###############################################################################
 
+repo_init
+write_file f1 "f1"; fossil add f1; fossil commit -m "c1"
+
+###############################################################################
+
 set env(TH1_ENABLE_HOOKS) 1; # TH1 hooks must be enabled for this test.
 
 ###############################################################################
@@ -132,7 +137,7 @@ test th1-cmd-hooks-2b {[second_data_line] eq {ERROR: unsupported timeline}}
 
 ###############################################################################
 
-fossil timeline now
+fossil timeline -n -1 now
 test th1-cmd-hooks-3a {[first_data_line] eq \
     {<h1><b>command_hook timeline</b></h1>}}
 
@@ -173,7 +178,9 @@ test th1-custom-cmd-4a {[string trim $RESULT] eq \
 ###############################################################################
 
 set RESULT [test_fossil_http $repository $dataFileName /timeline]
-test th1-web-hooks-1a {[regexp {<title>Fossil: Timeline</title>} $RESULT]}
+
+test th1-web-hooks-1a {[regexp \
+    {<title>Unnamed Fossil Project: Timeline</title>} $RESULT]}
 
 test th1-web-hooks-1b {[regexp [appendArgs \
     {<h1><b>command_hook http webpage_hook timeline} " " \

@@ -80,9 +80,9 @@ void transport_stats(i64 *pnSent, i64 *pnRcvd, int resetFlag){
 ** Default SSH command
 */
 #ifdef _WIN32
-static char zDefaultSshCmd[] = "plink -ssh -T";
+static const char zDefaultSshCmd[] = "plink -ssh -T";
 #else
-static char zDefaultSshCmd[] = "ssh -e none -T";
+static const char zDefaultSshCmd[] = "ssh -e none -T";
 #endif
 
 /*
@@ -92,7 +92,7 @@ int transport_ssh_open(UrlData *pUrlData){
   /* For SSH we need to create and run SSH fossil http
   ** to talk to the remote machine.
   */
-  const char *zSsh;  /* The base SSH command */
+  char *zSsh;        /* The base SSH command */
   Blob zCmd;         /* The SSH command */
   char *zHost;       /* The host name to contact */
   int n;             /* Size of prefix string */

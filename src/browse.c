@@ -601,7 +601,7 @@ void page_tree(void){
       linkTip = rid != symbolic_name_to_rid("tip", "ci");
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
       rNow = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", rid);
-      zNow = db_text("", "SELECT datetime(mtime,'localtime')"
+      zNow = db_text("", "SELECT datetime(mtime,toLocal())"
                          " FROM event WHERE objid=%d", rid);
     }else{
       zCI = 0;
@@ -609,7 +609,7 @@ void page_tree(void){
   }
   if( zCI==0 ){
     rNow = db_double(0.0, "SELECT max(mtime) FROM event");
-    zNow = db_text("", "SELECT datetime(max(mtime),'localtime') FROM event");
+    zNow = db_text("", "SELECT datetime(max(mtime),toLocal()) FROM event");
   }
 
   /* Compute the title of the page */
@@ -1031,7 +1031,7 @@ void fileage_page(void){
   }
   zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
   baseTime = db_double(0.0,"SELECT mtime FROM event WHERE objid=%d", rid);
-  zNow = db_text("", "SELECT datetime(mtime,'localtime') FROM event"
+  zNow = db_text("", "SELECT datetime(mtime,toLocal()) FROM event"
                      " WHERE objid=%d", rid);
   style_submenu_element("Tree-View", "Tree-View",
                         "%R/tree?ci=%T&mtime=1&type=tree",

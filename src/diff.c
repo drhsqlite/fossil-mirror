@@ -791,7 +791,40 @@ static void sbsWriteLineChange(
     }
     if( nSuffix==nLeft || nSuffix==nRight ) nPrefix = 0;
   }
-  if( nPrefix+nSuffix > nShort ) nPrefix = nShort - nSuffix;
+
+  /* If the prefix and suffix overlap, that means that we are dealing with
+  ** a pure insertion or deletion of text that can have multiple alignments.
+  ** Try to find an alignment to begins and ends on whitespace, or on
+  ** punctuation, rather than in the middle of a name or number.
+  */
+  if( nPrefix+nSuffix > nShort ){
+    int iBest = -1;
+    int iBestVal = -1;
+    int i;
+    int nLong = nLeft<nRight ? nRight : nLeft;
+    int nGap = nLong - nShort;
+    for(i=nShort-nSuffix; i<=nPrefix; i++){
+       int iVal = 0;
+       char c = zLeft[i];
+       if( fossil_isspace(c) ){
+         iVal += 5;
+       }else if( !fossil_isalnum(c) ){
+         iVal += 2;
+       }
+       c = zLeft[i+nGap-1];
+       if( fossil_isspace(c) ){
+         iVal += 5;
+       }else if( !fossil_isalnum(c) ){
+         iVal += 2;
+       }
+       if( iVal>iBestVal ){
+         iBestVal = iVal;
+         iBest = i;
+       }
+    }
+    nPrefix = iBest;
+    nSuffix = nShort - nPrefix;
+  }
 
   /* A single chunk of text inserted on the right */
   if( nPrefix+nSuffix==nLeft ){
@@ -2057,9 +2090,7 @@ static int annotation_start(Annotator *p, Blob *pInput, u64 diffFlags){
 /*
 ** The input pParent is the next most recent ancestor of the file
 ** being annotated.  Do another step of the annotation.  Return true
-** if additional annotation is required.  zPName is the tag to insert
-** on each line of the file being annotated that was contributed by
-** pParent.  Memory to hold zPName is leaked.
+** if additional annotation is required.
 */
 static int annotation_step(Annotator *p, Blob *pParent, int iVers, u64 diffFlags){
   int i, j;
@@ -2110,8 +2141,7 @@ static int annotation_step(Annotator *p, Blob *pParent, int iVers, u64 diffFlags
 
 /*
 ** Compute a complete annotation on a file.  The file is identified
-** by its filename number (filename.fnid) and the baseline in which
-** it was checked in (mlink.mid).
+** by its filename number (filename.fnid) and check-in (mlink.mid).
 */
 static void annotate_file(
   Annotator *p,        /* The annotator */
@@ -2268,7 +2298,7 @@ void annotation_page(void){
   }
 
   /* compute the annotation */
-  compute_direct_ancestors(mid, 10000000);
+  compute_direct_ancestors(mid);
   annotate_file(&ann, fnid, mid, iLimit, annFlags);
   zCI = ann.aVers[0].zMUuid;
 
@@ -2474,7 +2504,7 @@ void annotate_cmd(void){
     fossil_fatal("Not in a checkout");
   }
   if( iLimit<=0 ) iLimit = 1000000000;
-  compute_direct_ancestors(cid, 1000000);
+  compute_direct_ancestors(cid);
   mid = db_int(0, "SELECT mlink.mid FROM mlink, ancestor "
           " WHERE mlink.fid=%d AND mlink.fnid=%d AND mlink.mid=ancestor.rid"
           " ORDER BY ancestor.generation ASC LIMIT 1",

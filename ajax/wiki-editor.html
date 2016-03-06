@@ -5,14 +5,14 @@
 <head>
 	<title>Fossil/JSON Wiki Editor Prototype</title>
 	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script> 
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
     <script type="text/javascript" src="js/whajaj.js"></script>
     <script type="text/javascript" src="js/fossil-ajaj.js"></script>
 
 <style type='text/css'>
 th {
   text-align: left;
-  background-color: #ececec;  
+  background-color: #ececec;
 }
 
 .dangerWillRobinson {
@@ -217,7 +217,7 @@ jQuery(document).ready(function(){
                 if(!TheApp.pages.hasOwnProperty(k)) continue;
                 li.push(k);
             }
-            return li;                
+            return li;
         })();
         var i, p, a, tgt = TheApp.jqe.pageListArea;
         tgt.text('');
@@ -324,7 +324,7 @@ See also: <a href='index.html'>main test page</a>.
 <b>Login:</b>
 <br/>
 <input type='button' value='Anon. Login' onclick='TheApp.cgi.login()' />
-or: 
+or:
 name:<input type='text' id='textUser' value='json-demo' size='12'/>
 pw:<input type='password' id='textPassword' value='json-demo' size='12'/>
 <input type='button' value='login' onclick='TheApp.cgi.login(jQuery("#textUser").val(),jQuery("#textPassword").val(),{onResponse:TheApp.onLogin})' />

@@ -569,13 +569,12 @@ void search_cmd(void){
      "CREATE TEMP TABLE srch(rid,uuid,date,comment,x);"
      "CREATE INDEX srch_idx1 ON srch(x);"
      "INSERT INTO srch(rid,uuid,date,comment,x)"
-     "   SELECT blob.rid, uuid, datetime(event.mtime%s),"
+     "   SELECT blob.rid, uuid, datetime(event.mtime,toLocal()),"
      "          coalesce(ecomment,comment),"
      "          search_score()"
      "     FROM event, blob"
      "    WHERE blob.rid=event.objid"
-     "      AND search_match(coalesce(ecomment,comment));",
-     timeline_utc()
+     "      AND search_match(coalesce(ecomment,comment));"
   );
   iBest = db_int(0, "SELECT max(x) FROM srch");
   blob_append(&sql,

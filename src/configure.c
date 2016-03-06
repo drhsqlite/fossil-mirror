@@ -884,11 +884,11 @@ static void export_config(
 void configuration_cmd(void){
   int n;
   const char *zMethod;
-  if( g.argc<3 ){
-    usage("export|import|merge|pull|reset ...");
-  }
   db_find_and_open_repository(0, 0);
-  db_open_config(0);
+  db_open_config(0, 0);
+  if( g.argc<3 ){
+    usage("SUBCOMMAND ...");
+  }
   zMethod = g.argv[2];
   n = strlen(zMethod);
   if( strncmp(zMethod, "export", n)==0 ){

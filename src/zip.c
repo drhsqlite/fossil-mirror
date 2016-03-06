@@ -144,14 +144,14 @@ void zip_add_file(const char *zName, const Blob *pFile, int mPerm){
   /* Fill in as much of the header as we know.
   */
   nBlob = pFile ? blob_size(pFile) : 0;
-  if( nBlob>0 ){
-    iMethod = 8;
+  if( pFile ){ /* This is a file, possibly empty... */
+    iMethod = (nBlob>0) ? 8 : 0; /* Cannot compress zero bytes. */
     switch( mPerm ){
       case PERM_LNK:   iMode = 0120755;   break;
       case PERM_EXE:   iMode = 0100755;   break;
       default:         iMode = 0100644;   break;
     }
-  }else{
+  }else{       /* This is a directory, no blob... */
     iMethod = 0;
     iMode = 040755;
   }
@@ -477,7 +477,7 @@ void baseline_zip_page(void){
   }
   if( referred_from_login() ){
     style_header("ZIP Archive Download");
-    @ <form action='%R/zip'>
+    @ <form action='%R/zip/%h(zName).zip'>
     cgi_query_parameters_to_hidden();
     @ <p>ZIP Archive named <b>%h(zName).zip</b> holding the content
     @ of check-in <b>%h(zRid)</b>:

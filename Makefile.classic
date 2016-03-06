@@ -54,7 +54,7 @@ TCC += -DFOSSIL_DYNAMIC_BUILD=1
 #    library in the source tree is being used.  There are no other
 #    required dependencies.
 ZLIB_LIB.0 = -lz
-ZLIB_LIB.1 = 
+ZLIB_LIB.1 =
 ZLIB_LIB.  = $(ZLIB_LIB.0)
 
 # If using zlib:

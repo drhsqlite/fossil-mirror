@@ -23,9 +23,16 @@
 # is the name of the executable to be tested.
 #
 
+set testfiledir [file normalize [file dirname [info script]]]
 set testrundir [pwd]
-set testdir [file normalize [file dir $argv0]]
+set testdir [file normalize [file dirname $argv0]]
 set fossilexe [file normalize [lindex $argv 0]]
+
+if {$tcl_platform(platform) eq "windows" && \
+    [string length [file extension $fossilexe]] == 0} {
+  append fossilexe .exe
+}
+
 set argv [lrange $argv 1 end]
 
 set i [lsearch $argv -halt]
@@ -52,18 +59,27 @@ if {$i>=0} {
   set VERBOSE 0
 }
 
+set i [lsearch $argv -quiet]
+if {$i>=0} {
+  set QUIET 1
+  set argv [lreplace $argv $i $i]
+} else {
+  set QUIET 0
+}
+
+set i [lsearch $argv -strict]
+if {$i>=0} {
+  set STRICT 1
+  set argv [lreplace $argv $i $i]
+} else {
+  set STRICT 0
+}
+
 if {[llength $argv]==0} {
   foreach f [lsort [glob $testdir/*.test]] {
     set base [file root [file tail $f]]
     lappend argv $base
   }
-}
-
-set tempPath [expr {[info exists env(TEMP)] ? \
-    $env(TEMP) : [file dirname [info script]]}]
-
-if {$tcl_platform(platform) eq "windows"} then {
-  set tempPath [string map [list \\ /] $tempPath]
 }
 
 # start protocol
@@ -79,8 +95,10 @@ proc protInit {cmd} {
 
 # write protocol
 #
-proc protOut {msg} {
-  puts stdout $msg
+proc protOut {msg {noQuiet 0}} {
+  if {$noQuiet || !$::QUIET} {
+    puts stdout $msg
+  }
   if {$::PROT} {
     set out [open [file join $::testrundir prot] a]
     fconfigure $out -translation platform
@@ -111,6 +129,11 @@ proc fossil {args} {
 proc fossil_maybe_answer {answer args} {
   global fossilexe
   set cmd $fossilexe
+  set expectError 0
+  if {[lindex $args end] eq "-expectError"} {
+    set expectError 1
+    set args [lrange $args 0 end-1]
+  }
   foreach a $args {
     lappend cmd $a
   }
@@ -118,6 +141,7 @@ proc fossil_maybe_answer {answer args} {
 
   flush stdout
   if {[string length $answer] > 0} {
+    protOut $answer
     set prompt_file [file join $::tempPath fossil_prompt_answer]
     write_file $prompt_file $answer\n
     set rc [catch {eval exec $cmd <$prompt_file} result]
@@ -127,8 +151,8 @@ proc fossil_maybe_answer {answer args} {
   }
   global RESULT CODE
   set CODE $rc
-  if {$rc} {
-    protOut "ERROR: $result"
+  if {($rc && !$expectError) || (!$rc && $expectError)} {
+    protOut "ERROR: $result" 1
   } elseif {$::VERBOSE} {
     protOut "RESULT: $result"
   }
@@ -175,9 +199,10 @@ proc repo_init {{filename ".rep.fossil"}} {
     if {![regexp {use --repository} $res]} {
       error "In an open checkout: cannot initialize a new repository here."
     }
-    # Fossil will write data on $HOME, running 'fossil new' here.
+    # Fossil will write data on $FOSSIL_HOME, running 'fossil new' here.
     # We need not to clutter the $HOME of the test caller.
     #
+    set ::env(FOSSIL_HOME) [pwd]
     set ::env(HOME) [pwd]
   }
   catch {exec $::fossilexe close -f}
@@ -186,6 +211,47 @@ proc repo_init {{filename ".rep.fossil"}} {
   exec $::fossilexe open $filename
   exec $::fossilexe clean -f
   exec $::fossilexe set mtime-changes off
+}
+
+# This procedure only returns non-zero if the Tcl integration feature was
+# enabled at compile-time and is now enabled at runtime.
+proc is_tcl_usable_by_fossil {} {
+  fossil test-th-eval "hasfeature tcl"
+  if {$::RESULT ne "1"} {return 0}
+  fossil test-th-eval "setting tcl"
+  if {$::RESULT eq "1"} {return 1}
+  fossil test-th-eval --open-config "setting tcl"
+  if {$::RESULT eq "1"} {return 1}
+  return [info exists ::env(TH1_ENABLE_TCL)]
+}
+
+# This procedure only returns non-zero if the TH1 hooks feature was enabled
+# at compile-time and is now enabled at runtime.
+proc are_th1_hooks_usable_by_fossil {} {
+  fossil test-th-eval "hasfeature th1Hooks"
+  if {$::RESULT ne "1"} {return 0}
+  fossil test-th-eval "setting th1-hooks"
+  if {$::RESULT eq "1"} {return 1}
+  fossil test-th-eval --open-config "setting th1-hooks"
+  if {$::RESULT eq "1"} {return 1}
+  return [info exists ::env(TH1_ENABLE_HOOKS)]
+}
+
+# This (rarely used) procedure is designed to run a test within the Fossil
+# source checkout (e.g. one that does NOT modify any state), while saving
+# and restoring the current directory (e.g. one used when running a test
+# file outside of the Fossil source checkout).  Please do NOT use this
+# procedure unless you are absolutely sure it does not modify the state of
+# the repository or source checkout in any way.
+#
+proc run_in_checkout { script {dir ""} } {
+  if {[string length $dir] == 0} {set dir $::testfiledir}
+  set savedPwd [pwd]; cd $dir
+  set code [catch {
+    uplevel 1 $script
+  } result]
+  cd $savedPwd; unset savedPwd
+  return -code $code $result
 }
 
 # Normalize file status lists (like those returned by 'fossil changes')
@@ -203,15 +269,15 @@ proc normalize_status_list {list} {
 
 # Perform a test comparing two status lists
 #
-proc test_status_list {name result expected} {
+proc test_status_list {name result expected {constraints ""}} {
   set expected [normalize_status_list $expected]
   set result [normalize_status_list $result]
   if {$result eq $expected} {
-    test $name 1
+    test $name 1 $constraints
   } else {
-    protOut "  Expected:\n    [join $expected "\n    "]"
-    protOut "  Got:\n    [join $result "\n    "]"
-    test $name 0
+    protOut "  Expected:\n    [join $expected "\n    "]" 1
+    protOut "  Got:\n    [join $result "\n    "]" 1
+    test $name 0 $constraints
   }
 }
 
@@ -230,8 +296,7 @@ proc getTh1SetupFileName {} {
   #       test suite; alternatively, the root of the source tree
   #       could be obtained directly from Fossil.
   #
-  return [file normalize [file join [file dirname $::testdir] \
-      .fossil-settings th1-setup]]
+  return [file normalize [file join .fossil-settings th1-setup]]
 }
 
 # Return the saved name of the versioned settings file containing
@@ -248,7 +313,9 @@ proc getSavedTh1SetupFileName {} {
 # original TH1 setup script.
 #
 proc writeTh1SetupFile { data } {
-  return [write_file [getTh1SetupFileName] $data]
+  set fileName [getTh1SetupFileName]
+  file mkdir [file dirname $fileName]
+  return [write_file $fileName $data]
 }
 
 # Saves the TH1 setup script file by renaming it, based on the current
@@ -256,7 +323,7 @@ proc writeTh1SetupFile { data } {
 #
 proc saveTh1SetupFile {} {
   set oldFileName [getTh1SetupFileName]
-  if {[file exists $oldFileName]} then {
+  if {[file exists $oldFileName]} {
     set newFileName [getSavedTh1SetupFileName]
     catch {file delete $newFileName}
     file rename $oldFileName $newFileName
@@ -269,7 +336,7 @@ proc saveTh1SetupFile {} {
 proc restoreTh1SetupFile {} {
   set oldFileName [getSavedTh1SetupFileName]
   set newFileName [getTh1SetupFileName]
-  if {[file exists $oldFileName]} then {
+  if {[file exists $oldFileName]} {
     catch {file delete $newFileName}
     file rename $oldFileName $newFileName
   } else {
@@ -283,19 +350,31 @@ proc restoreTh1SetupFile {} {
 # Perform a test
 #
 set test_count 0
-proc test {name expr} {
-  global bad_test test_count
+proc test {name expr {constraints ""}} {
+  global bad_test ignored_test test_count RESULT
   incr test_count
+  set knownBug [expr {"knownBug" in $constraints}]
   set r [uplevel 1 [list expr $expr]]
   if {$r} {
-    protOut "test $name OK"
+    if {$knownBug && !$::STRICT} {
+      protOut "test $name OK (knownBug)?"
+    } else {
+      protOut "test $name OK"
+    }
   } else {
-    protOut "test $name FAILED!"
-    lappend bad_test $name
-    if {$::HALT} exit
+    if {$knownBug && !$::STRICT} {
+      protOut "test $name FAILED (knownBug)!" 1
+      lappend ignored_test $name
+    } else {
+      protOut "test $name FAILED!" 1
+      if {$::QUIET} {protOut "RESULT: $RESULT" 1}
+      lappend bad_test $name
+      if {$::HALT} exit
+    }
   }
 }
 set bad_test {}
+set ignored_test {}
 
 # Return a random string N characters long.
 #
@@ -369,7 +448,7 @@ proc test_fossil_http { repository dataFileName url } {
   fossil http $inFileName $outFileName 127.0.0.1 $repository --localauth
   set result [expr {[file exists $outFileName] ? [read_file $outFileName] : ""}]
 
-  if {1} then {
+  if {1} {
     catch {file delete $inFileName}
     catch {file delete $outFileName}
   }
@@ -421,6 +500,22 @@ proc third_to_last_data_line {} {
   return [lindex [split [normalize_result] \n] end-2]
 }
 
+set tempPath [expr {[info exists env(TEMP)] ? \
+    $env(TEMP) : [file dirname [info script]]}]
+
+if {$tcl_platform(platform) eq "windows"} {
+  set tempPath [string map [list \\ /] $tempPath]
+}
+
+set tempPath [file normalize $tempPath]
+
+if {[catch {
+  write_file [file join $tempPath temporary.txt] [clock seconds]
+} error] != 0} {
+  error "could not write file to directory \"$tempPath\",\
+please set TEMP variable in environment: $error"
+}
+
 protInit $fossilexe
 foreach testfile $argv {
   set dir [file root [file tail $testfile]]
@@ -434,7 +529,16 @@ foreach testfile $argv {
   cd $origwd
 }
 set nErr [llength $bad_test]
-protOut "***** Final result: $nErr errors out of $test_count tests"
+if {$nErr>0 || !$::QUIET} {
+  protOut "***** Final results: $nErr errors out of $test_count tests" 1
+}
 if {$nErr>0} {
-  protOut "***** Failures: $bad_test"
+  protOut "***** Considered failures: $bad_test" 1
+}
+set nErr [llength $ignored_test]
+if {$nErr>0 || !$::QUIET} {
+  protOut "***** Ignored results: $nErr ignored errors out of $test_count tests" 1
+}
+if {$nErr>0} {
+  protOut "***** Ignored failures: $ignored_test" 1
 }

@@ -494,7 +494,7 @@ void purge_cmd(void){
   }else if( strncmp(zSubcmd, "list", n)==0 || strcmp(zSubcmd,"ls")==0 ){
     int showDetail = find_option("l","l",0)!=0;
     if( !db_table_exists("repository","purgeevent") ) return;
-    db_prepare(&q, "SELECT peid, datetime(ctime,'unixepoch','localtime')"
+    db_prepare(&q, "SELECT peid, datetime(ctime,'unixepoch',toLocal())"
                    " FROM purgeevent");
     while( db_step(&q)==SQLITE_ROW ){
       fossil_print("%4d on %s\n", db_column_int(&q,0), db_column_text(&q,1));

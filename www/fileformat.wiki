@@ -176,7 +176,8 @@ The first predecessor is the direct ancestor of the manifest.
 Other arguments define manifests with which the first was
 merged to yield the current manifest.  Most manifests have
 a P-card with a single argument.  The first manifest in the
-project has no ancestors and thus has no P-card.
+project has no ancestors and thus has no P-card or (depending
+on the Fossil version) an empty P-card (no arguments).
 
 A manifest has zero or more Q-cards.  A Q-card is similar to a P-card
 in that it defines a predecessor to the current check-in.  But

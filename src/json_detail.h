@@ -186,7 +186,7 @@ typedef struct JsonPageDef{
   ** between them has disappeared in most (or all) cases, so 0 is
   ** the standard value.
   */
-  char runMode;
+  int runMode;
 } JsonPageDef;
 
 /*
