@@ -548,7 +548,7 @@ static cson_value * json_wiki_diff(){
   blob_init(&w2, pW2->zWiki, -1);
   blob_zero(&d);
   diffFlags = DIFF_IGNORE_EOLWS | DIFF_STRIP_EOLCR;
-  text_diff(&w2, &w1, &d, 0, diffFlags);
+  text_diff(&w1, &w2, &d, 0, diffFlags);
   blob_reset(&w1);
   blob_reset(&w2);
 

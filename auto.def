@@ -39,6 +39,43 @@ define EXTRA_CFLAGS ""
 define EXTRA_LDFLAGS ""
 define USE_SYSTEM_SQLITE 0
 define USE_LINENOISE 0
+define FOSSIL_ENABLE_MINIZ 0
+
+# This procedure is a customized version of "cc-check-function-in-lib",
+# that does not modify the LIBS variable.  Its use prevents prematurely
+# pulling in libraries that will be added later anyhow (e.g. "-ldl").
+proc check-function-in-lib {function libs {otherlibs {}}} {
+    if {[string length $otherlibs]} {
+        msg-checking "Checking for $function in $libs with $otherlibs..."
+    } else {
+        msg-checking "Checking for $function in $libs..."
+    }
+    set found 0
+    cc-with [list -libs $otherlibs] {
+        if {[cctest_function $function]} {
+            msg-result "none needed"
+            define lib_$function ""
+            incr found
+        } else {
+            foreach lib $libs {
+                cc-with [list -libs -l$lib] {
+                    if {[cctest_function $function]} {
+                        msg-result -l$lib
+                        define lib_$function -l$lib
+                        incr found
+                        break
+                    }
+                }
+            }
+        }
+    }
+    if {$found} {
+        define [feature-define-name $function]
+    } else {
+        msg-result "no"
+    }
+    return $found
+}
 
 if {![opt-bool internal-sqlite]} {
   proc find_internal_sqlite {} {
@@ -51,18 +88,19 @@ if {![opt-bool internal-sqlite]} {
     foreach extralibs {{} {-ldl}} {
 
       # Locate the system SQLite by searching for sqlite3_open(). Then check
-      # if sqlite3_strglob() can be found as well. If we can find open() but
-      # not strglob(), then the system SQLite is too old to link against
+      # if sqlite3_strlike() can be found as well. If we can find open() but
+      # not strlike(), then the system SQLite is too old to link against
       # fossil.
       #
-      if {[cc-check-function-in-lib sqlite3_open sqlite3 $extralibs]} {
-        if {![cc-check-function-in-lib sqlite3_malloc64 sqlite3 $extralibs]} {
-          user-error "system sqlite3 too old (require >= 3.8.7)"
+      if {[check-function-in-lib sqlite3_open sqlite3 $extralibs]} {
+        if {![check-function-in-lib sqlite3_strlike sqlite3 $extralibs]} {
+          user-error "system sqlite3 too old (require >= 3.10.0)"
         }
 
         # Success. Update symbols and return.
         #
         define USE_SYSTEM_SQLITE 1
+        define-append LIBS -lsqlite3
         define-append LIBS $extralibs
         return
       }
@@ -145,6 +183,149 @@ if {[opt-bool static]} {
     define FOSSIL_DYNAMIC_BUILD
 }
 
+# Helper for OpenSSL checking
+proc check-for-openssl {msg {cflags {}} {libs {-lssl -lcrypto}}} {
+    msg-checking "Checking for $msg..."
+    set rc 0
+    if {[is_mingw]} {
+        lappend libs -lgdi32 -lwsock32
+    }
+    if {[info exists ::zlib_lib]} {
+        lappend libs $::zlib_lib
+    }
+    msg-quiet cc-with [list -cflags $cflags -libs $libs] {
+        if {[cc-check-includes openssl/ssl.h] && \
+                [cc-check-functions SSL_new]} {
+            incr rc
+        }
+    }
+    if {!$rc && ![is_mingw]} {
+        # On some systems, OpenSSL appears to require -ldl to link.
+        lappend libs -ldl
+        msg-quiet cc-with [list -cflags $cflags -libs $libs] {
+            if {[cc-check-includes openssl/ssl.h] && \
+                    [cc-check-functions SSL_new]} {
+                incr rc
+            }
+        }
+    }
+    if {$rc} {
+        msg-result "ok"
+        return 1
+    } else {
+        msg-result "no"
+        return 0
+    }
+}
+
+if {[opt-bool with-miniz]} {
+    define FOSSIL_ENABLE_MINIZ 1
+    msg-result "Using miniz for compression"
+} else {
+    # Check for zlib, using the given location if specified
+    set zlibpath [opt-val with-zlib]
+    if {$zlibpath eq "tree"} {
+        set zlibdir [file dirname $autosetup(dir)]/compat/zlib
+        if {![file isdirectory $zlibdir]} {
+            user-error "The zlib in source tree directory does not exist"
+        }
+        cc-with [list -cflags "-I$zlibdir -L$zlibdir"]
+        define-append EXTRA_CFLAGS -I$zlibdir
+        define-append LIBS $zlibdir/libz.a
+        set ::zlib_lib $zlibdir/libz.a
+        msg-result "Using zlib in source tree"
+    } else {
+        if {$zlibpath ni {auto ""}} {
+            cc-with [list -cflags "-I$zlibpath -L$zlibpath"]
+            define-append EXTRA_CFLAGS -I$zlibpath
+            define-append EXTRA_LDFLAGS -L$zlibpath
+            msg-result "Using zlib from $zlibpath"
+        }
+        if {![cc-check-includes zlib.h] || ![check-function-in-lib inflateEnd z]} {
+            user-error "zlib not found please install it or specify the location with --with-zlib"
+        }
+        set ::zlib_lib -lz
+    }
+}
+
+set ssldirs [opt-val with-openssl]
+if {$ssldirs ne "none"} {
+    if {[opt-bool with-miniz]} {
+        user-error "The --with-miniz option is incompatible with OpenSSL"
+    }
+    set found 0
+    if {$ssldirs eq "tree"} {
+        set ssldir [file dirname $autosetup(dir)]/compat/openssl
+        if {![file isdirectory $ssldir]} {
+            user-error "The OpenSSL in source tree directory does not exist"
+        }
+        set msg "ssl in $ssldir"
+        set cflags "-I$ssldir/include"
+        set ldflags "-L$ssldir"
+        set ssllibs "$ssldir/libssl.a $ssldir/libcrypto.a"
+        set found [check-for-openssl "ssl in source tree" "$cflags $ldflags" $ssllibs]
+    } else {
+        if {$ssldirs in {auto ""}} {
+            catch {
+                set cflags [exec pkg-config openssl --cflags-only-I]
+                set ldflags [exec pkg-config openssl --libs-only-L]
+                set found [check-for-openssl "ssl via pkg-config" "$cflags $ldflags"]
+            } msg
+            if {!$found} {
+                set ssldirs "{} /usr/sfw /usr/local/ssl /usr/lib/ssl /usr/ssl \
+                             /usr/pkg /usr/local /usr /usr/local/opt/openssl"
+            }
+        }
+        if {!$found} {
+            foreach dir $ssldirs {
+                if {$dir eq ""} {
+                    set msg "system ssl"
+                    set cflags ""
+                    set ldflags ""
+                } else {
+                    set msg "ssl in $dir"
+                    set cflags "-I$dir/include"
+                    set ldflags "-L$dir/lib"
+                }
+                if {[check-for-openssl $msg "$cflags $ldflags"]} {
+                    incr found
+                    break
+                }
+            }
+        }
+    }
+    if {$found} {
+        define FOSSIL_ENABLE_SSL
+        define-append EXTRA_CFLAGS $cflags
+        define-append EXTRA_LDFLAGS $ldflags
+        if {[info exists ssllibs]} {
+            define-append LIBS $ssllibs
+        } else {
+            define-append LIBS -lssl -lcrypto
+        }
+        if {[info exists ::zlib_lib]} {
+            define-append LIBS $::zlib_lib
+        }
+        if {[is_mingw]} {
+            define-append LIBS -lgdi32 -lwsock32
+        }
+        msg-result "HTTPS support enabled"
+
+        # Silence OpenSSL deprecation warnings on Mac OS X 10.7.
+        if {[string match *-darwin* [get-define host]]} {
+            if {[cctest -cflags {-Wdeprecated-declarations}]} {
+                define-append EXTRA_CFLAGS -Wdeprecated-declarations
+            }
+        }
+    } else {
+        user-error "OpenSSL not found. Consider --with-openssl=none to disable HTTPS support"
+    }
+} else {
+    if {[info exists ::zlib_lib]} {
+        define-append LIBS $::zlib_lib
+    }
+}
+
 set tclpath [opt-val with-tcl]
 if {$tclpath ne ""} {
     set tclprivatestubs [opt-bool with-tcl-private-stubs]
@@ -213,6 +394,23 @@ if {$tclpath ne ""} {
                 }
             }
         }
+        if {!$foundtcl && ![string match *-lpthread* $libs]} {
+            # On some systems, TCL_LIB_SPEC appears to be missing
+            # "-lpthread".  Try adding it.
+            msg-result "Adding \"-lpthread\" and retrying for Tcl..."
+            set libs "$libs -lpthread"
+            cc-with [list -cflags $cflags -libs $libs] {
+                if {$tclstubs} {
+                    if {[cc-check-functions Tcl_InitStubs]} {
+                        set foundtcl 1
+                    }
+                } else {
+                    if {[cc-check-functions Tcl_CreateInterp]} {
+                        set foundtcl 1
+                    }
+                }
+            }
+        }
         if {!$foundtcl} {
             if {$tclstubs} {
                 user-error "Cannot find a usable Tcl stubs library $msg"
@@ -227,143 +425,22 @@ if {$tclpath ne ""} {
         define-append LIBS $libs
     }
     define-append EXTRA_CFLAGS $cflags
+    if {[info exists zlibpath] && $zlibpath eq "tree"} {
+      #
+      # NOTE: When using zlib in the source tree, prevent Tcl from
+      #       pulling in the system one.
+      #
+      set tclconfig(TCL_LD_FLAGS) [string map [list -lz ""] \
+          $tclconfig(TCL_LD_FLAGS)]
+    }
+    #
+    # NOTE: Remove "-ldl" from the TCL_LD_FLAGS because it will be
+    #       be checked for near the bottom of this file.
+    #
+    set tclconfig(TCL_LD_FLAGS) [string map [list -ldl ""] \
+        $tclconfig(TCL_LD_FLAGS)]
     define-append EXTRA_LDFLAGS $tclconfig(TCL_LD_FLAGS)
     define FOSSIL_ENABLE_TCL
-}
-
-# Helper for OpenSSL checking
-proc check-for-openssl {msg {cflags {}} {libs {-lssl -lcrypto}}} {
-    msg-checking "Checking for $msg..."
-    set rc 0
-    if {[is_mingw]} {
-        lappend libs -lgdi32 -lwsock32
-    }
-    if {[info exists ::zlib_for_ssl]} {
-        lappend libs $::zlib_for_ssl
-    }
-    msg-quiet cc-with [list -cflags $cflags -libs $libs] {
-        if {[cc-check-includes openssl/ssl.h] && \
-                [cc-check-functions SSL_new]} {
-            incr rc
-        }
-    }
-    if {!$rc && ![is_mingw]} {
-        # On some systems, OpenSSL appears to require -ldl to link.
-        lappend libs -ldl
-        msg-quiet cc-with [list -cflags $cflags -libs $libs] {
-            if {[cc-check-includes openssl/ssl.h] && \
-                    [cc-check-functions SSL_new]} {
-                incr rc
-            }
-        }
-    }
-    if {$rc} {
-        msg-result "ok"
-        return 1
-    } else {
-        msg-result "no"
-        return 0
-    }
-}
-
-if {[opt-bool with-miniz]} {
-    define FOSSIL_ENABLE_MINIZ 1
-    msg-result "Using miniz for compression"
-} else {
-    # Check for zlib, using the given location if specified
-    set zlibpath [opt-val with-zlib]
-    if {$zlibpath eq "tree"} {
-        set zlibdir [file dirname $autosetup(dir)]/compat/zlib
-        if {![file isdirectory $zlibdir]} {
-            user-error "The zlib in source tree directory does not exist"
-        }
-        cc-with [list -cflags "-I$zlibdir -L$zlibdir"]
-        define-append EXTRA_CFLAGS -I$zlibdir
-        define-append LIBS $zlibdir/libz.a
-        set ::zlib_for_ssl $zlibdir/libz.a
-        msg-result "Using zlib in source tree"
-    } else {
-        if {$zlibpath ni {auto ""}} {
-            cc-with [list -cflags "-I$zlibpath -L$zlibpath"]
-            define-append EXTRA_CFLAGS -I$zlibpath
-            define-append EXTRA_LDFLAGS -L$zlibpath
-            msg-result "Using zlib from $zlibpath"
-        }
-        if {![cc-check-includes zlib.h] || ![cc-check-function-in-lib inflateEnd z]} {
-            user-error "zlib not found please install it or specify the location with --with-zlib"
-        }
-        set ::zlib_for_ssl -lz
-    }
-}
-
-set ssldirs [opt-val with-openssl]
-if {$ssldirs ne "none"} {
-    if {[opt-bool with-miniz]} {
-        user-error "The --with-miniz option is incompatible with OpenSSL"
-    }
-    set found 0
-    if {$ssldirs eq "tree"} {
-        set ssldir [file dirname $autosetup(dir)]/compat/openssl
-        if {![file isdirectory $ssldir]} {
-            user-error "The OpenSSL in source tree directory does not exist"
-        }
-        set msg "ssl in $ssldir"
-        set cflags "-I$ssldir/include"
-        set ldflags "-L$ssldir"
-        set ssllibs "$ssldir/libssl.a $ssldir/libcrypto.a"
-        set found [check-for-openssl "ssl in source tree" "$cflags $ldflags" $ssllibs]
-    } else {
-        if {$ssldirs in {auto ""}} {
-            catch {
-                set cflags [exec pkg-config openssl --cflags-only-I]
-                set ldflags [exec pkg-config openssl --libs-only-L]
-                set found [check-for-openssl "ssl via pkg-config" "$cflags $ldflags"]
-            } msg
-            if {!$found} {
-                set ssldirs "{} /usr/sfw /usr/local/ssl /usr/lib/ssl /usr/ssl /usr/pkg /usr/local /usr"
-            }
-        }
-        if {!$found} {
-            foreach dir $ssldirs {
-                if {$dir eq ""} {
-                    set msg "system ssl"
-                    set cflags ""
-                    set ldflags ""
-                } else {
-                    set msg "ssl in $dir"
-                    set cflags "-I$dir/include"
-                    set ldflags "-L$dir/lib"
-                }
-                if {[check-for-openssl $msg "$cflags $ldflags"]} {
-                    incr found
-                    break
-                }
-            }
-        }
-    }
-    if {$found} {
-        define FOSSIL_ENABLE_SSL
-        define-append EXTRA_CFLAGS $cflags
-        define-append EXTRA_LDFLAGS $ldflags
-        if {[info exists ssllibs]} {
-            define-append LIBS $ssllibs
-        } else {
-            define-append LIBS -lssl -lcrypto
-        }
-        if {[is_mingw]} {
-            define-append LIBS -lgdi32 -lwsock32
-        }
-        msg-result "HTTPS support enabled"
-
-        # Silence OpenSSL deprecation warnings on Mac OS X 10.7.
-        if {[string match *-darwin* [get-define host]]} {
-            if {[cctest -cflags {-Wdeprecated-declarations}]} {
-                define-append EXTRA_CFLAGS -Wdeprecated-declarations
-            }
-        }
-    } else {
-        user-error "OpenSSL not found. Consider --with-openssl=none to disable HTTPS support"
-    }
 }
 
 # Network functions require libraries on some systems

@@ -27,6 +27,12 @@ set testfiledir [file normalize [file dirname [info script]]]
 set testrundir [pwd]
 set testdir [file normalize [file dirname $argv0]]
 set fossilexe [file normalize [lindex $argv 0]]
+
+if {$tcl_platform(platform) eq "windows" && \
+    [string length [file extension $fossilexe]] == 0} {
+  append fossilexe .exe
+}
+
 set argv [lrange $argv 1 end]
 
 set i [lsearch $argv -halt]
@@ -59,6 +65,14 @@ if {$i>=0} {
   set argv [lreplace $argv $i $i]
 } else {
   set QUIET 0
+}
+
+set i [lsearch $argv -strict]
+if {$i>=0} {
+  set STRICT 1
+  set argv [lreplace $argv $i $i]
+} else {
+  set STRICT 0
 }
 
 if {[llength $argv]==0} {
@@ -115,6 +129,11 @@ proc fossil {args} {
 proc fossil_maybe_answer {answer args} {
   global fossilexe
   set cmd $fossilexe
+  set expectError 0
+  if {[lindex $args end] eq "-expectError"} {
+    set expectError 1
+    set args [lrange $args 0 end-1]
+  }
   foreach a $args {
     lappend cmd $a
   }
@@ -122,6 +141,7 @@ proc fossil_maybe_answer {answer args} {
 
   flush stdout
   if {[string length $answer] > 0} {
+    protOut $answer
     set prompt_file [file join $::tempPath fossil_prompt_answer]
     write_file $prompt_file $answer\n
     set rc [catch {eval exec $cmd <$prompt_file} result]
@@ -131,7 +151,7 @@ proc fossil_maybe_answer {answer args} {
   }
   global RESULT CODE
   set CODE $rc
-  if {$rc} {
+  if {($rc && !$expectError) || (!$rc && $expectError)} {
     protOut "ERROR: $result" 1
   } elseif {$::VERBOSE} {
     protOut "RESULT: $result"
@@ -179,9 +199,10 @@ proc repo_init {{filename ".rep.fossil"}} {
     if {![regexp {use --repository} $res]} {
       error "In an open checkout: cannot initialize a new repository here."
     }
-    # Fossil will write data on $HOME, running 'fossil new' here.
+    # Fossil will write data on $FOSSIL_HOME, running 'fossil new' here.
     # We need not to clutter the $HOME of the test caller.
     #
+    set ::env(FOSSIL_HOME) [pwd]
     set ::env(HOME) [pwd]
   }
   catch {exec $::fossilexe close -f}
@@ -248,15 +269,15 @@ proc normalize_status_list {list} {
 
 # Perform a test comparing two status lists
 #
-proc test_status_list {name result expected} {
+proc test_status_list {name result expected {constraints ""}} {
   set expected [normalize_status_list $expected]
   set result [normalize_status_list $result]
   if {$result eq $expected} {
-    test $name 1
+    test $name 1 $constraints
   } else {
     protOut "  Expected:\n    [join $expected "\n    "]" 1
     protOut "  Got:\n    [join $result "\n    "]" 1
-    test $name 0
+    test $name 0 $constraints
   }
 }
 
@@ -329,20 +350,31 @@ proc restoreTh1SetupFile {} {
 # Perform a test
 #
 set test_count 0
-proc test {name expr} {
-  global bad_test test_count RESULT
+proc test {name expr {constraints ""}} {
+  global bad_test ignored_test test_count RESULT
   incr test_count
+  set knownBug [expr {"knownBug" in $constraints}]
   set r [uplevel 1 [list expr $expr]]
   if {$r} {
-    protOut "test $name OK"
+    if {$knownBug && !$::STRICT} {
+      protOut "test $name OK (knownBug)?"
+    } else {
+      protOut "test $name OK"
+    }
   } else {
-    protOut "test $name FAILED!" 1
-    if {$::QUIET} {protOut "RESULT: $RESULT" 1}
-    lappend bad_test $name
-    if {$::HALT} exit
+    if {$knownBug && !$::STRICT} {
+      protOut "test $name FAILED (knownBug)!" 1
+      lappend ignored_test $name
+    } else {
+      protOut "test $name FAILED!" 1
+      if {$::QUIET} {protOut "RESULT: $RESULT" 1}
+      lappend bad_test $name
+      if {$::HALT} exit
+    }
   }
 }
 set bad_test {}
+set ignored_test {}
 
 # Return a random string N characters long.
 #
@@ -475,6 +507,8 @@ if {$tcl_platform(platform) eq "windows"} {
   set tempPath [string map [list \\ /] $tempPath]
 }
 
+set tempPath [file normalize $tempPath]
+
 if {[catch {
   write_file [file join $tempPath temporary.txt] [clock seconds]
 } error] != 0} {
@@ -496,8 +530,15 @@ foreach testfile $argv {
 }
 set nErr [llength $bad_test]
 if {$nErr>0 || !$::QUIET} {
-  protOut "***** Final result: $nErr errors out of $test_count tests" 1
+  protOut "***** Final results: $nErr errors out of $test_count tests" 1
 }
 if {$nErr>0} {
-  protOut "***** Failures: $bad_test" 1
+  protOut "***** Considered failures: $bad_test" 1
+}
+set nErr [llength $ignored_test]
+if {$nErr>0 || !$::QUIET} {
+  protOut "***** Ignored results: $nErr ignored errors out of $test_count tests" 1
+}
+if {$nErr>0} {
+  protOut "***** Ignored failures: $ignored_test" 1
 }
