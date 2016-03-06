@@ -885,7 +885,7 @@ void configuration_cmd(void){
   int n;
   const char *zMethod;
   db_find_and_open_repository(0, 0);
-  db_open_config(0);
+  db_open_config(0, 0);
   if( g.argc<3 ){
     usage("SUBCOMMAND ...");
   }

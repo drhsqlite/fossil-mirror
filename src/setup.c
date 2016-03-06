@@ -1884,6 +1884,7 @@ void sql_page(void){
     login_needed(0);
     return;
   }
+  add_content_sql_commands(g.db);
   db_begin_transaction();
   style_header("Raw SQL Commands");
   @ <p><b>Caution:</b> There are no restrictions on the SQL that can be
