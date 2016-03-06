@@ -39,6 +39,7 @@ define EXTRA_CFLAGS ""
 define EXTRA_LDFLAGS ""
 define USE_SYSTEM_SQLITE 0
 define USE_LINENOISE 0
+define FOSSIL_ENABLE_MINIZ 0
 
 # This procedure is a customized version of "cc-check-function-in-lib",
 # that does not modify the LIBS variable.  Its use prevents prematurely
@@ -87,13 +88,13 @@ if {![opt-bool internal-sqlite]} {
     foreach extralibs {{} {-ldl}} {
 
       # Locate the system SQLite by searching for sqlite3_open(). Then check
-      # if sqlite3_strglob() can be found as well. If we can find open() but
-      # not strglob(), then the system SQLite is too old to link against
+      # if sqlite3_strlike() can be found as well. If we can find open() but
+      # not strlike(), then the system SQLite is too old to link against
       # fossil.
       #
       if {[check-function-in-lib sqlite3_open sqlite3 $extralibs]} {
-        if {![check-function-in-lib sqlite3_malloc64 sqlite3 $extralibs]} {
-          user-error "system sqlite3 too old (require >= 3.8.7)"
+        if {![check-function-in-lib sqlite3_strlike sqlite3 $extralibs]} {
+          user-error "system sqlite3 too old (require >= 3.10.0)"
         }
 
         # Success. Update symbols and return.
@@ -271,7 +272,8 @@ if {$ssldirs ne "none"} {
                 set found [check-for-openssl "ssl via pkg-config" "$cflags $ldflags"]
             } msg
             if {!$found} {
-                set ssldirs "{} /usr/sfw /usr/local/ssl /usr/lib/ssl /usr/ssl /usr/pkg /usr/local /usr"
+                set ssldirs "{} /usr/sfw /usr/local/ssl /usr/lib/ssl /usr/ssl \
+                             /usr/pkg /usr/local /usr /usr/local/opt/openssl"
             }
         }
         if {!$found} {

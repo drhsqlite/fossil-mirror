@@ -957,7 +957,7 @@ static int db_exec_readonly(
 **
 ** Capital letters mean sort in reverse order.
 ** If there are fewer characters in zColumnTypes[] than their are columns,
-** the all extra columns assume type "t" (text).
+** then all extra columns assume type "t" (text).
 **
 ** The third parameter is the column that was initially sorted (using 1-based
 ** column numbers, like SQL).  Make this value 0 if none of the columns are
@@ -975,6 +975,8 @@ void output_table_sorting_javascript(
   @ function SortableTable(tableEl,columnTypes,initSort){
   @   this.tbody = tableEl.getElementsByTagName('tbody');
   @   this.columnTypes = columnTypes;
+  @   var ncols = tableEl.rows[0].cells.length;
+  @   for(var i = columnTypes.length; i<=ncols; i++){this.columnTypes += 't';}
   @   this.sort = function (cell) {
   @     var column = cell.cellIndex;
   @     var sortFn;
@@ -985,9 +987,7 @@ void output_table_sorting_javascript(
   if( strchr(zColumnTypes,'N') ){
     @       case "N": sortFn = this.sortReverseNumeric;  break;
   }
-  if( strchr(zColumnTypes,'t') ){
-    @       case "t": sortFn = this.sortText;  break;
-  }
+  @       case "t": sortFn = this.sortText;  break;
   if( strchr(zColumnTypes,'T') ){
     @       case "T": sortFn = this.sortReverseText;  break;
   }
@@ -1033,16 +1033,14 @@ void output_table_sorting_javascript(
   @       hdrCell.className = clsName;
   @     }
   @   }
-  if( strchr(zColumnTypes,'t') ){
-    @   this.sortText = function(a,b) {
-    @     var i = thisObject.sortIndex;
-    @     aa = a.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
-    @     bb = b.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
-    @     if(aa<bb) return -1;
-    @     if(aa==bb) return a.rowIndex-b.rowIndex;
-    @     return 1;
-    @   }
-  }
+  @   this.sortText = function(a,b) {
+  @     var i = thisObject.sortIndex;
+  @     aa = a.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
+  @     bb = b.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
+  @     if(aa<bb) return -1;
+  @     if(aa==bb) return a.rowIndex-b.rowIndex;
+  @     return 1;
+  @   }
   if( strchr(zColumnTypes,'T') ){
     @   this.sortReverseText = function(a,b) {
     @     var i = thisObject.sortIndex;

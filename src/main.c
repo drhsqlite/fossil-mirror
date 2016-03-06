@@ -594,8 +594,8 @@ int main(int argc, char **argv)
   const char *zCmdName = "unknown";
   int idx;
   int rc;
-  if( sqlite3_libversion_number()<3008007 ){
-    fossil_fatal("Unsuitable SQLite version %s, must be at least 3.8.7",
+  if( sqlite3_libversion_number()<3010000 ){
+    fossil_fatal("Unsuitable SQLite version %s, must be at least 3.10.0",
                  sqlite3_libversion());
   }
   sqlite3_config(SQLITE_CONFIG_MULTITHREAD);

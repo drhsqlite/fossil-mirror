@@ -138,7 +138,7 @@ f4}}
 
 ###############################################################################
 
-fossil undo
+fossil undo -expectError
 test clean-23 {[normalize_result] eq {nothing to undo}}
 
 ###############################################################################
@@ -154,7 +154,7 @@ test clean-25 {[normalize_result] eq {}}
 
 ###############################################################################
 
-fossil undo
+fossil undo -expectError
 test clean-26 {[normalize_result] eq {nothing to undo}}
 
 ###############################################################################
@@ -180,7 +180,7 @@ test clean-29 {[normalize_result] eq {}}
 
 ###############################################################################
 
-fossil undo
+fossil undo -expectError
 test clean-30 {[normalize_result] eq {nothing to undo}}
 
 ###############################################################################

@@ -224,6 +224,7 @@ char const * json_rc_cstr( int code ){
 */
 void json_gc_add( char const * key, cson_value * v ){
   int const rc = cson_array_append( g.json.gc.a, v );
+
   assert( NULL != g.json.gc.a );
   if( 0 != rc ){
     cson_value_free( v );
@@ -480,7 +481,7 @@ char const * json_find_option_cstr(char const * zKey,
 int json_find_option_bool(char const * zKey,
                           char const * zCLILong,
                           char const * zCLIShort,
-                          char dflt ){
+                          int dflt ){
   int rc = -1;
   if(!g.isHTTP){
     if(NULL != find_option(zCLILong ? zCLILong : zKey,
@@ -633,7 +634,8 @@ void json_send_response( cson_value const * pResponse ){
 ** The result of this call are cached for future calls.
 */
 cson_value * json_auth_token(){
-  if( !g.json.authToken ){
+    assert(g.json.gc.a && "json_main_bootstrap() was not called!");
+    if( !g.json.authToken ){
     /* Try to get an authorization token from GET parameter, POSTed
        JSON, or fossil cookie (in that order). */
     g.json.authToken = json_getenv(FossilJsonKeys.authToken);
@@ -706,7 +708,9 @@ void json_main_bootstrap(){
   */
   v = cson_value_new_array();
   g.json.gc.v = v;
+  assert(0 != g.json.gc.v);
   g.json.gc.a = cson_value_get_array(v);
+  assert(0 != g.json.gc.a);
   cson_value_add_reference(v)
     /* Needed to allow us to include this value in other JSON
        containers without transferring ownership to those containers.
@@ -757,6 +761,7 @@ void json_warn( int code, char const * fmt, ... ){
   assert( (code>FSL_JSON_W_START)
           && (code<FSL_JSON_W_END)
           && "Invalid warning code.");
+  assert(g.json.gc.a && "json_main_bootstrap() was not called!");
   if(!g.json.warnings){
     g.json.warnings = cson_new_array();
     assert((NULL != g.json.warnings) && "Alloc error.");
@@ -803,7 +808,7 @@ void json_warn( int code, char const * fmt, ... ){
 */
 int json_string_split( char const * zStr,
                        char separator,
-                       char doDeHttp,
+                       int doDeHttp,
                        cson_array * target ){
   char const * p = zStr /* current byte */;
   char const * head  /* current start-of-token */;
@@ -878,7 +883,7 @@ int json_string_split( char const * zStr,
 */
 cson_value * json_string_split2( char const * zStr,
                                  char separator,
-                                 char doDeHttp ){
+                                 int doDeHttp ){
   cson_array * a = cson_new_array();
   int rc = json_string_split( zStr, separator, doDeHttp, a );
   if( 0>=rc ){
@@ -906,6 +911,7 @@ cson_value * json_string_split2( char const * zStr,
 static void json_mode_bootstrap(){
   static char once = 0  /* guard against multiple runs */;
   char const * zPath = P("PATH_INFO");
+  assert(g.json.gc.a && "json_main_bootstrap() was not called!");
   assert( (0==once) && "json_mode_bootstrap() called too many times!");
   if( once ){
     return;
@@ -1084,7 +1090,7 @@ static void json_mode_bootstrap(){
 ** find_option() to get those.
 **
 */
-char const * json_command_arg(unsigned char ndx){
+char const * json_command_arg(unsigned short ndx){
   cson_array * ar = g.json.cmd.a;
   assert((NULL!=ar) && "Internal error. Was json_mode_bootstrap() called?");
   assert((g.argc>1) && "Internal error - we never should have gotten this far.");
@@ -1499,7 +1505,7 @@ static cson_value * json_create_response( int resultCode,
 ** is used as-is. If it is NULL then g.zErrMsg is checked, and if that
 ** is NULL then json_err_cstr(code) is used.
 */
-void json_err( int code, char const * msg, char alsoOutput ){
+void json_err( int code, char const * msg, int alsoOutput ){
   int rc = code ? code : (g.json.resultCode
                           ? g.json.resultCode
                           : FSL_JSON_E_UNKNOWN);
@@ -1664,7 +1670,7 @@ cson_value * json_stmt_to_array_of_values(Stmt *pStmt,
 ** to simplify the trivial use-cases (which don't need a Blob).
 */
 cson_value * json_sql_to_array_of_obj(Blob * pSql, cson_array * pTgt,
-                                      char resetBlob){
+                                      int resetBlob){
   Stmt q = empty_Stmt;
   cson_value * pay = NULL;
   assert( blob_size(pSql) > 0 );
@@ -1689,7 +1695,7 @@ cson_value * json_sql_to_array_of_obj(Blob * pSql, cson_array * pTgt,
 ** If there are no tags then this function returns NULL, not an empty
 ** Array.
 */
-cson_value * json_tags_for_checkin_rid(int rid, char propagatingOnly){
+cson_value * json_tags_for_checkin_rid(int rid, int propagatingOnly){
   cson_value * v = NULL;
   char * tags = info_tags_of_checkin(rid, propagatingOnly);
   if(tags){
@@ -2223,6 +2229,7 @@ static int json_dispatch_root_command( char const * zCommand ){
 */
 void json_page_top(void){
   char const * zCommand;
+  assert(g.json.gc.a && "json_main_bootstrap() was not called!");
   json_mode_bootstrap();
   zCommand = json_command_arg(1);
   if(!zCommand || !*zCommand){
