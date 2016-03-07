@@ -1,5 +1,5 @@
-C Add\sa\s'-keep'\scommand\sline\soption\sto\sthe\stest\ssuite\sto\sprevent\sany\stest\scleanup\sfrom\staking\splace.
-D 2016-03-05T00:16:39.058
+C Tweak\smake\stest\sto\snot\sinclude\sthe\sobsolete\sscary\swarning,\sto\suse\sthe\s-quiet\sflag,\sand\sto\sinclude\sthe\sempty\sby\sdefault\sTESTFLAGS\smacro\sso\sthat\smake\stest\scan\sbe\sused\sas\san\seasy\sway\sto\sinvoke\sthe\stest\srunner.\sChanges\smade\sin\smakemake.tcl,\swhich\swas\sthen\srun\sto\sregenerate\smain.mk.
+D 2016-03-07T20:33:07.163
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -443,10 +443,10 @@ F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 9010b62121a41566e330f62c238061ca4c6b4f98
 F src/lookslike.c 9103d15912b792a65874f04e185f2a74a477ebb4
 F src/main.c e75796be5338a81c0ed31879287935f07af90523
-F src/main.mk 9e159023f50de1e869bbe4172dc4b25fe6a72cfa
+F src/main.mk 3c852b97f84551d69cb8e530c071431e37238913
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 980c247a8e4242e71b5a1f9ea8cfe92e48663496
+F src/makemake.tcl 3031aab0288140dc56ea6f8d9dfa650ca9aa18ef
 F src/manifest.c a520159adafb16098a08535b2bbd6984198b5cdf
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md fc02fd045690e6fb45fb0bc91be734913dc70d02
@@ -746,7 +746,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e264125a2cb435fca8c5d0d325dbc4eb84fa98fc
-R e1d43c4cc2a9b2024bd0e86838ec5746
-U mistachkin
-Z 94dc42871221f5047dbdce509da0905d
+P 95f7fe5a8f65c5d59a43e1396b64c496e792d26d
+R 66847dddead2ef8291e1741129cd5644
+U rberteig
+Z bcdc6a504b272d5f451350e4a5e137cc
