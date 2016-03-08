@@ -26,7 +26,8 @@
 fossil test-th-eval "hasfeature json"
 
 if {$::RESULT ne "1"} then {
-  puts "Fossil was not compiled with JSON support."; return
+  puts "Fossil was not compiled with JSON support."
+  test_cleanup_then_return
 }
 
 # We need a JSON parser to effectively test the JSON produced by
@@ -49,7 +50,8 @@ proc json2dict {txt} {
 fossil json -expectError
 set JR [json2dict $RESULT]
 if {$JR eq ""} {
-  puts "Fossil was not compiled with JSON support (bad JSON)."; return
+  puts "Fossil was not compiled with JSON support (bad JSON)."
+  test_cleanup_then_return
 }
 test json-1 {[dict exists $JR resultCode]
              && [dict get $JR resultCode] eq "FOSSIL-4102"}
@@ -165,7 +167,7 @@ proc test_json_payload {testname okfields badfields} {
 #### VERSION AKA HAI
 
 # The JSON API generally assumes we have a respository, so let it have one.
-repo_init
+test_setup
 
 # Check for basic envelope fields in the result with an error
 fossil_json -expectError
@@ -668,7 +670,7 @@ foreach r $codes {
 # in JSON mode or if the error handling is incorrectly not
 # recognizing JSON mode.
 #
-#repo_init x.fossil
+#test_setup x.fossil
 #catch {exec chmod 444 .rep.fossil}; # Unix. What about Win?
 fossil_http_json /json/timeline/checkin $U1Cookie
 test json-ROrepo-1-1 {$CODE == 0}
@@ -847,3 +849,7 @@ write_file nope.fossil {
 This is not a fossil repo. It ought to be a SQLite db with a well-known schema,
 but it is actually just a block of text.
 }
+
+###############################################################################
+
+test_cleanup

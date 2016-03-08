@@ -18,6 +18,8 @@
 # Test UTF-8/UTF-16 detection
 #
 
+test_setup ""
+
 proc swap_byte_order {str} {
   set result ""
   for {set i 0} {$i < [string length $str]} {incr i} {
@@ -23492,3 +23494,7 @@ Has flag LOOK_SHORT: no}
 ############################ END GENERATED SECTION ############################
 
 deleteTestFiles $tempPath 100
+
+###############################################################################
+
+test_cleanup

@@ -35,6 +35,14 @@ if {$tcl_platform(platform) eq "windows" && \
 
 set argv [lrange $argv 1 end]
 
+set i [lsearch $argv -keep]
+if {$i>=0} {
+  set KEEP 1
+  set argv [lreplace $argv $i $i]
+} else {
+  set KEEP 0
+}
+
 set i [lsearch $argv -halt]
 if {$i>=0} {
   set HALT 1
@@ -191,26 +199,130 @@ proc same_file {a b} {
   return [expr {$x==$y}]
 }
 
+proc require_no_open_checkout {} {
+  if {[info exists ::env(FOSSIL_TEST_DANGEROUS_IGNORE_OPEN_CHECKOUT)] && \
+      $::env(FOSSIL_TEST_DANGEROUS_IGNORE_OPEN_CHECKOUT) eq "YES_DO_IT"} {
+    return
+  }
+  catch {exec $::fossilexe info} res
+  if {![regexp {use --repository} $res]} {
+    set projectName <unknown>
+    set localRoot <unknown>
+    regexp -line -- {^project-name: (.*)$} $res dummy projectName
+    set projectName [string trim $projectName]
+    regexp -line -- {^local-root: (.*)$} $res dummy localRoot
+    set localRoot [string trim $localRoot]
+    error "Detected an open checkout of project \"$projectName\",\
+rooted at \"$localRoot\", testing halted."
+  }
+}
+
+proc get_script_or_fail {} {
+  set fileName [file normalize [info script]]
+  if {[string length $fileName] == 0 || ![file exists $fileName]} {
+    error "Failed to obtain the file name of the test being run."
+  }
+  return $fileName
+}
+
+proc robust_delete { path {force ""} } {
+  set error "unknown error"
+  for {set try 0} {$try < 10} {incr try} {
+    if {$force eq "YES_DO_IT"} {
+      if {[catch {file delete -force $path} error] == 0} {
+        return
+      }
+    } else {
+      if {[catch {file delete $path} error] == 0} {
+        return
+      }
+    }
+    after [expr {$try * 100}]
+  }
+  error "Could not delete \"$path\", error: $error"
+}
+
+proc test_cleanup_then_return {} {
+  uplevel 1 [list test_cleanup]
+  return -code return
+}
+
+proc test_cleanup {} {
+  if {$::KEEP} {return}; # All cleanup disabled?
+  if {![info exists ::tempRepoPath]} {return}
+  if {![file exists $::tempRepoPath]} {return}
+  if {![file isdirectory $::tempRepoPath]} {return}
+  set tempPathEnd [expr {[string length $::tempPath] - 1}]
+  if {[string length $::tempPath] == 0 || \
+      [string range $::tempRepoPath 0 $tempPathEnd] ne $::tempPath} {
+    error "Temporary repository path has wrong parent during cleanup."
+  }
+  if {[info exists ::tempSavedPwd]} {cd $::tempSavedPwd; unset ::tempSavedPwd}
+  # First, attempt to delete the specific temporary repository directories
+  # for this test file.
+  set scriptName [file tail [get_script_or_fail]]
+  foreach repoSeed $::tempRepoSeeds {
+    set repoPath [file join $::tempRepoPath $repoSeed $scriptName]
+    robust_delete $repoPath YES_DO_IT; # FORCE, arbitrary children.
+    set seedPath [file join $::tempRepoPath $repoSeed]
+    robust_delete $seedPath; # NO FORCE.
+  }
+  # Next, attempt to gracefully delete the temporary repository directory
+  # for this process.
+  robust_delete $::tempRepoPath
+  # Finally, attempt to gracefully delete the temporary home directory,
+  # unless forbidden by external forces.
+  if {![info exists ::tempKeepHome]} {delete_temporary_home}
+}
+
+proc delete_temporary_home {} {
+  if {$::KEEP} {return}; # All cleanup disabled?
+  if {$::tcl_platform(platform) eq "windows"} {
+    robust_delete [file join $::tempHomePath _fossil]
+  } else {
+    robust_delete [file join $::tempHomePath .fossil]
+  }
+  robust_delete $::tempHomePath
+}
+
+proc is_home_elsewhere {} {
+  return [expr {[info exists ::env(FOSSIL_HOME)] && \
+      $::env(FOSSIL_HOME) eq $::tempHomePath}]
+}
+
+proc set_home_to_elsewhere {} {
+  #
+  # Fossil will write data on $HOME (or $FOSSIL_HOME).  We need not
+  # to clutter the real $HOME (or $FOSSIL_HOME) of the test caller.
+  #
+  if {[is_home_elsewhere]} {return}
+  set ::env(FOSSIL_HOME) $::tempHomePath
+}
+
+#
 # Create and open a new Fossil repository and clean the checkout
 #
-proc repo_init {{filename ".rep.fossil"}} {
-  if {$::env(HOME) ne [pwd]} {
-    catch {exec $::fossilexe info} res
-    if {![regexp {use --repository} $res]} {
-      error "In an open checkout: cannot initialize a new repository here."
-    }
-    # Fossil will write data on $FOSSIL_HOME, running 'fossil new' here.
-    # We need not to clutter the $HOME of the test caller.
-    #
-    set ::env(FOSSIL_HOME) [pwd]
-    set ::env(HOME) [pwd]
+proc test_setup {{filename ".rep.fossil"}} {
+  set_home_to_elsewhere
+  if {![info exists ::tempRepoPath]} {
+    set ::tempRepoPath [file join $::tempPath repo_[pid]]
   }
-  catch {exec $::fossilexe close -f}
-  file delete $filename
-  exec $::fossilexe new $filename
-  exec $::fossilexe open $filename
-  exec $::fossilexe clean -f
-  exec $::fossilexe set mtime-changes off
+  set repoSeed [appendArgs [string trim [clock seconds] -] _ [getSeqNo]]
+  lappend ::tempRepoSeeds $repoSeed
+  set repoPath [file join \
+      $::tempRepoPath $repoSeed [file tail [get_script_or_fail]]]
+  if {[catch {
+    file mkdir $repoPath
+  } error] != 0} {
+    error "Could not make directory \"$repoPath\",\
+please set TEMP variable in environment, error: $error"
+  }
+  if {![info exists ::tempSavedPwd]} {set ::tempSavedPwd [pwd]}; cd $repoPath
+  if {[string length $filename] > 0} {
+    exec $::fossilexe new $filename
+    exec $::fossilexe open $filename
+    exec $::fossilexe set mtime-changes off
+  }
 }
 
 # This procedure only returns non-zero if the Tcl integration feature was
@@ -285,6 +397,63 @@ proc test_status_list {name result expected {constraints ""}} {
 #
 proc appendArgs {args} {
   eval append result $args
+}
+
+# Returns the value of the specified environment variable -OR- any empty
+# string if it does not exist.
+#
+proc getEnvironmentVariable { name } {
+  return [expr {[info exists ::env($name)] ? $::env($name) : ""}]
+}
+
+# Returns a usable temporary directory -OR- fails the testing process.
+#
+proc getTemporaryPath {} {
+  #
+  # NOTE: Build the list of "temporary directory" environment variables
+  #       to check, including all reasonable "cases" of the environment
+  #       variable names.
+  #
+  set names [list]
+
+  #
+  # TODO: Add more here, if necessary.
+  #
+  foreach name [list FOSSIL_TEST_TEMP FOSSIL_TEMP TEMP TMP] {
+    lappend names [string toupper $name] [string tolower $name] \
+        [string totitle $name]
+  }
+
+  #
+  # NOTE: Check if we can use any of the environment variables.
+  #
+  foreach name $names {
+    set value [getEnvironmentVariable $name]
+
+    if {[string length $value] > 0} then {
+      set value [file normalize $value]
+
+      if {[file exists $value] && [file isdirectory $value]} then {
+        return $value
+      }
+    }
+  }
+
+  #
+  # NOTE: On non-Windows systems, fallback to /tmp if it is usable.
+  #
+  if {$::tcl_platform(platform) ne "windows"} {
+    set value /tmp
+
+    if {[file exists $value] && [file isdirectory $value]} then {
+      return $value
+    }
+  }
+
+  #
+  # NOTE: There must be a usable temporary directory to continue testing.
+  #
+  error "Cannot find a usable temporary directory, testing halted."
 }
 
 # Return the name of the versioned settings file containing the TH1
@@ -500,34 +669,37 @@ proc third_to_last_data_line {} {
   return [lindex [split [normalize_result] \n] end-2]
 }
 
-set tempPath [expr {[info exists env(TEMP)] ? \
-    $env(TEMP) : [file dirname [info script]]}]
+set tempPath [getTemporaryPath]
 
 if {$tcl_platform(platform) eq "windows"} {
   set tempPath [string map [list \\ /] $tempPath]
 }
 
-set tempPath [file normalize $tempPath]
+if {[catch {
+  set tempFile [file join $tempPath temporary.txt]
+  write_file $tempFile [clock seconds]; file delete $tempFile
+} error] != 0} {
+  error "Could not write file \"$tempFile\" in directory \"$tempPath\",\
+please set TEMP variable in environment, error: $error"
+}
+
+set tempHomePath [file join $tempPath home_[pid]]
 
 if {[catch {
-  write_file [file join $tempPath temporary.txt] [clock seconds]
+  file mkdir $tempHomePath
 } error] != 0} {
-  error "could not write file to directory \"$tempPath\",\
-please set TEMP variable in environment: $error"
+  error "Could not make directory \"$tempHomePath\",\
+please set TEMP variable in environment, error: $error"
 }
 
 protInit $fossilexe
+set ::tempKeepHome 1
 foreach testfile $argv {
-  set dir [file root [file tail $testfile]]
-  file delete -force $dir
-  file mkdir $dir
-  set origwd [pwd]
-  cd $dir
   protOut "***** $testfile ******"
   source $testdir/$testfile.test
   protOut "***** End of $testfile: [llength $bad_test] errors so far ******"
-  cd $origwd
 }
+unset ::tempKeepHome; delete_temporary_home
 set nErr [llength $bad_test]
 if {$nErr>0 || !$::QUIET} {
   protOut "***** Final results: $nErr errors out of $test_count tests" 1

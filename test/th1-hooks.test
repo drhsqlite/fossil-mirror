@@ -20,13 +20,17 @@
 
 fossil test-th-eval "hasfeature th1Hooks"
 
-if {$::RESULT ne "1"} then {
-  puts "Fossil was not compiled with TH1 hooks support."; return
+if {$::RESULT ne "1"} {
+  puts "Fossil was not compiled with TH1 hooks support."
+  test_cleanup_then_return
 }
 
 ###############################################################################
 
-repo_init
+test_setup
+
+###############################################################################
+
 write_file f1 "f1"; fossil add f1; fossil commit -m "c1"
 
 ###############################################################################
@@ -108,7 +112,7 @@ set testTh1Setup {
 set data [fossil info]
 regexp -line -- {^repository:   (.*)$} $data dummy repository
 
-if {[string length $repository] == 0 || ![file exists $repository]} then {
+if {[string length $repository] == 0 || ![file exists $repository]} {
   error "unable to locate repository"
 }
 
@@ -197,3 +201,7 @@ test th1-custom-web-1b {[last_data_line] eq \
 ###############################################################################
 
 restoreTh1SetupFile
+
+###############################################################################
+
+test_cleanup

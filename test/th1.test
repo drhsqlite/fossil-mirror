@@ -18,7 +18,7 @@
 # TH1 Commands
 #
 
-set dir [file dirname [info script]]; repo_init
+set dir [file dirname [info script]]; test_setup
 
 ###############################################################################
 
@@ -886,7 +886,7 @@ test th1-globalState-14 {[string length $RESULT] == 0}
 
 ###############################################################################
 
-if {$tcl_platform(platform) eq "windows"} then {
+if {$tcl_platform(platform) eq "windows"} {
   set altVfs win32-longpath
 } else {
   set altVfs unix-dotfile
@@ -1453,3 +1453,7 @@ write_file $th1FileName {
 fossil test-th-source $th1FileName
 test th1-source-1 {$RESULT eq {TH_RETURN: 0 1 2 3 4 5 6 7 8 9}}
 file delete $th1FileName
+
+###############################################################################
+
+test_cleanup

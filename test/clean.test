@@ -18,7 +18,7 @@
 # Tests of the "clean" command, including the ability to undo it.
 #
 
-repo_init
+test_setup
 
 ###############################################################################
 
@@ -187,3 +187,7 @@ test clean-30 {[normalize_result] eq {nothing to undo}}
 
 fossil extra
 test clean-31 {[normalize_result] eq {}}
+
+###############################################################################
+
+test_cleanup

@@ -18,6 +18,8 @@
 # Test command line parsing
 #
 
+test_setup ""
+
 proc cmd-line {testname args} {
   set i 1
   foreach {cmdline result} $args {
@@ -28,3 +30,7 @@ proc cmd-line {testname args} {
 }
 cmd-line 100 abc abc a\"bc a\"bc \"abc\" \"abc\"
 cmd-line 101 * * *.* *.*
+
+###############################################################################
+
+test_cleanup

@@ -18,23 +18,17 @@
 # MV / RM Commands
 #
 
-catch {exec $::fossilexe info} res
-if {![regexp {use --repository} $res]} {
-  puts stderr "Cannot run this test within an open checkout"
-  return
-}
+require_no_open_checkout
 
 ########################################
 # Setup: Add Files and Commit          #
 ########################################
 
-set rootDir [file normalize [pwd]]
+test_setup; set rootDir [file normalize [pwd]]
 
 set undoMsg "\n \"fossil undo\" is\
 available to undo changes to the\
 working checkout."
-
-repo_init
 
 write_file f1 "f1"
 write_file f2 "f2"
@@ -389,3 +383,7 @@ test rm-hard-absolute-6 {
 }
 
 cd $rootDir
+
+###############################################################################
+
+test_cleanup
