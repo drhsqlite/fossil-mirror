@@ -787,9 +787,11 @@ static void process_files_to_move(
       const char *zOldName = db_column_text(&move, 0);
       const char *zNewName = db_column_text(&move, 1);
       if( !dryRunFlag ){
-        if( file_isdir(zOldName)==1 ){
-          if( file_isdir(zNewName)==0 ){
-            file_rename(zOldName, zNewName);
+        int isOldDir = file_isdir(zOldName);
+        if( isOldDir==1 ){
+          int isNewDir = file_isdir(zNewName);
+          if( isNewDir==0 ){
+            file_rename(zOldName, zNewName, isOldDir, isNewDir);
           }
         }else{
           if( file_wd_islink(zOldName) ){

@@ -1,5 +1,5 @@
-C Merge\supdates\sfrom\strunk.
-D 2016-03-06T06:26:31.961
+C Fix\scompilation\sissues\scause\sby\sthe\strunk\smerge.
+D 2016-03-11T23:38:47.228
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -371,7 +371,7 @@ F skins/xekri/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c dd5541313ee5372d587691086a283a673e9235e8
+F src/add.c f192f326c99668df8be826d7bdbdd8d19f7b5f4e
 F src/allrepo.c 12318d357d48a1c013e1bfafe100d3c95f466285
 F src/attach.c f35c74213de213acb286d9356aece616cba97824
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
@@ -407,7 +407,7 @@ F src/doc.c ee445fb565ae8040e3362e28bbe4db353d987229
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 55ac1712c44b5b84363350ebe0ef19233137a096
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
-F src/file.c b53eb8976a631fac3aead410f481c16625d5eb13
+F src/file.c b673d8357c2d7caedf545066e32fe46b436177e8
 F src/finfo.c 9dcd6c54bf5fadfafe0b15cbb736ba0cf418c956
 F src/foci.c 693596989fbb12a01c31317a7adf0d1ce85c7903
 F src/fusefs.c e25405b83122ed8369aa63125897348e5eb3cab2
@@ -746,7 +746,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b86127e187a00bfc0b0025601b8c88a393103c02 93f514ca2c4532e6eddc372ab8460b3a770ec49b
-R d62872385977ee0cb3079c738a318f99
+P abd131b83c2a37c583cbff17a298e03e39ab04f0
+R 53b0d43072b3daef3956887890aaeae9
 U mistachkin
-Z 1d07ffacb084a2dd78c19c802ec20e6e
+Z 46d1b8a46ddaa320d0a363e8f3119b84

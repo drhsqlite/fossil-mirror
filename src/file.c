@@ -406,19 +406,24 @@ char *file_dirname(const char *z){
 ** Rename a file or directory.
 ** Returns zero upon success.
 */
-int file_rename(const char *zFrom, const char *zTo){
+int file_rename(
+  const char *zFrom,
+  const char *zTo,
+  int isFromDir,
+  int isToDir
+){
   int rc;
 #if defined(_WIN32)
-  wchar_t *zMbcsFrom = fossil_utf8_to_filename(zFrom);
-  wchar_t *zMbcsTo = fossil_utf8_to_filename(zTo);
+  wchar_t *zMbcsFrom = fossil_utf8_to_path(zFrom, isFromDir);
+  wchar_t *zMbcsTo = fossil_utf8_to_path(zTo, isToDir);
   rc = _wrename(zMbcsFrom, zMbcsTo);
 #else
-  char *zMbcsFrom = fossil_utf8_to_filename(zFrom);
-  char *zMbcsTo = fossil_utf8_to_filename(zTo);
+  char *zMbcsFrom = fossil_utf8_to_path(zFrom, isFromDir);
+  char *zMbcsTo = fossil_utf8_to_path(zTo, isToDir);
   rc = rename(zMbcsFrom, zMbcsTo);
 #endif
-  fossil_filename_free(zMbcsTo);
-  fossil_filename_free(zMbcsFrom);
+  fossil_path_free(zMbcsTo);
+  fossil_path_free(zMbcsFrom);
   return rc;
 }
 
