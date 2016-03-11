@@ -18,12 +18,12 @@
 # TH1 Commands
 #
 
-set dir [file dirname [info script]]
+set dir [file dirname [info script]]; test_setup
 
 ###############################################################################
 
-fossil test-th-eval --open-config "setting th1-hooks"
-set th1Hooks [expr {$RESULT eq "1"}]
+set th1Tcl [is_tcl_usable_by_fossil]
+set th1Hooks [are_th1_hooks_usable_by_fossil]
 
 ###############################################################################
 
@@ -556,12 +556,24 @@ test th1-expr-49 {$RESULT eq {TH_ERROR: expected integer, got: "-0x"}}
 
 ###############################################################################
 
-fossil test-th-eval "checkout 1"; # NOTE: Assumes running "in tree".
+run_in_checkout {
+  # NOTE: The "1" here forces the checkout to be opened.
+  fossil test-th-eval "checkout 1"
+}
+
 test th1-checkout-1 {[string length $RESULT] > 0}
 
 ###############################################################################
 
-fossil test-th-eval "checkout"; # NOTE: Assumes running "in tree".
+run_in_checkout {
+  if {$th1Hooks} {
+    fossil test-th-eval "checkout"
+  } else {
+    # NOTE: No TH1 hooks, force checkout to be populated.
+    fossil test-th-eval --open-config "checkout"
+  }
+}
+
 test th1-checkout-2 {[string length $RESULT] > 0}
 
 ###############################################################################
@@ -641,7 +653,10 @@ test th1-header-1 {$RESULT eq {TH_ERROR: repository unavailable}}
 
 ###############################################################################
 
-fossil test-th-eval --open-config "styleHeader {Page Title Here}"
+run_in_checkout {
+  fossil test-th-eval --open-config "styleHeader {Page Title Here}"
+}
+
 test th1-header-2 {[regexp -- {<title>Fossil: Page Title Here</title>} $RESULT]}
 
 ###############################################################################
@@ -724,7 +739,10 @@ test th1-artifact-2 {$RESULT eq {TH_ERROR: repository unavailable}}
 
 ###############################################################################
 
-fossil test-th-eval --open-config "artifact tip"
+run_in_checkout {
+  fossil test-th-eval --open-config "artifact tip"
+}
+
 test th1-artifact-3 {[regexp -- {F test/th1\.test [0-9a-f]{40}} $RESULT]}
 
 ###############################################################################
@@ -744,7 +762,10 @@ test th1-artifact-6 {$RESULT eq {TH_ERROR: repository unavailable}}
 
 ###############################################################################
 
-fossil test-th-eval --open-config "artifact tip test/th1.test"
+run_in_checkout {
+  fossil test-th-eval --open-config "artifact tip test/th1.test"
+}
+
 test th1-artifact-7 {[regexp -- {th1-artifact-7} $RESULT]}
 
 ###############################################################################
@@ -759,13 +780,31 @@ test th1-artifact-9 {$RESULT eq {TH_ERROR: manifest not found}}
 
 ###############################################################################
 
-fossil test-th-eval "globalState checkout"
+run_in_checkout {
+  if {$th1Hooks} {
+    fossil test-th-eval "globalState checkout"
+  } else {
+    # NOTE: No TH1 hooks, force checkout to be populated.
+    fossil test-th-eval --open-config "globalState checkout"
+  }
+}
+
 test th1-globalState-1 {[string length $RESULT] > 0}
 
 ###############################################################################
 
-fossil test-th-eval "globalState checkout"
-test th1-globalState-2 {$RESULT eq [fossil test-th-eval checkout]}
+run_in_checkout {
+  if {$th1Hooks} {
+    fossil test-th-eval "globalState checkout"
+    test th1-globalState-2 {$RESULT eq [fossil test-th-eval checkout]}
+  } else {
+    # NOTE: No TH1 hooks, force checkout to be populated.
+    fossil test-th-eval --open-config "globalState checkout"
+
+    test th1-globalState-2 {$RESULT eq \
+        [fossil test-th-eval --open-config checkout]}
+  }
+}
 
 ###############################################################################
 
@@ -794,13 +833,31 @@ test th1-globalState-7 {$RESULT eq "foserrors.log"}
 
 ###############################################################################
 
-fossil test-th-eval "globalState repository"
+run_in_checkout {
+  if {$th1Hooks} {
+    fossil test-th-eval "globalState repository"
+  } else {
+    # NOTE: No TH1 hooks, force repository to be populated.
+    fossil test-th-eval --open-config "globalState repository"
+  }
+}
+
 test th1-globalState-8 {[string length $RESULT] > 0}
 
 ###############################################################################
 
-fossil test-th-eval "globalState repository"
-test th1-globalState-9 {$RESULT eq [fossil test-th-eval repository]}
+run_in_checkout {
+  if {$th1Hooks} {
+    fossil test-th-eval "globalState repository"
+    test th1-globalState-9 {$RESULT eq [fossil test-th-eval repository]}
+  } else {
+    # NOTE: No TH1 hooks, force repository to be populated.
+    fossil test-th-eval --open-config "globalState repository"
+
+    test th1-globalState-9 {$RESULT eq \
+        [fossil test-th-eval --open-config repository]}
+  }
+}
 
 ###############################################################################
 
@@ -829,7 +886,7 @@ test th1-globalState-14 {[string length $RESULT] == 0}
 
 ###############################################################################
 
-if {$tcl_platform(platform) eq "windows"} then {
+if {$tcl_platform(platform) eq "windows"} {
   set altVfs win32-longpath
 } else {
   set altVfs unix-dotfile
@@ -858,32 +915,61 @@ test th1-reinitialize-2 {$RESULT ne ""}
 ###############################################################################
 
 #
-# NOTE: This test may fail if the command names do not always come
-#       out in a deterministic order from TH1.
+# NOTE: This test will fail if the command names are added to TH1, or
+#       moved from Tcl builds to plain or the reverse. Sorting the 
+#       command lists eliminates a dependence on order.
 #
 fossil test-th-eval "info commands"
-test th1-info-commands-1 {$RESULT eq {linecount htmlize date stime\
-enable_output uplevel dir http expr glob_match utime styleFooter encode64\
-catch if tclReady searchable reinitialize combobox lindex query html anoncap\
-randhex llength for set break regexp markdown styleHeader puts return checkout\
-decorate artifact trace wiki proc hascap globalState continue getParameter\
-hasfeature setting lsearch breakpoint upvar render repository string unset\
-setParameter list error info rename anycap httpize}}
+set sorted_result [lsort $RESULT]
+protOut "Sorted: $sorted_result"
+set base_commands {anoncap anycap array artifact break breakpoint catch\
+      checkout combobox continue date decorate dir enable_output encode64\
+      error expr for getParameter glob_match globalState hascap hasfeature\
+      html htmlize http httpize if info insertCsrf lindex linecount list\
+      llength lsearch markdown proc puts query randhex redirect regexp\
+      reinitialize rename render repository return searchable set\
+      setParameter setting stime string styleFooter styleHeader tclReady\
+      trace unset uplevel upvar utime verifyCsrf wiki}
+set tcl_commands {tclEval tclExpr tclInvoke tclIsSafe tclMakeSafe}
+if {$th1Tcl} {
+  test th1-info-commands-1 {$sorted_result eq [lsort "$base_commands $tcl_commands"]}
+} else {
+  test th1-info-commands-1 {$sorted_result eq [lsort "$base_commands"]}
+}
+
 
 ###############################################################################
 
 fossil test-th-eval "info vars"
-test th1-info-vars-1 {$RESULT eq ""}
+
+if {$th1Hooks} {
+  test th1-info-vars-1 {[lsort $RESULT] eq \
+      [lsort "th_stack_trace cmd_flags tcl_platform cmd_name cmd_args"]}
+} else {
+  test th1-info-vars-1 {$RESULT eq "tcl_platform"}
+}
 
 ###############################################################################
 
 fossil test-th-eval "set x 1; info vars"
-test th1-info-vars-2 {$RESULT eq "x"}
+
+if {$th1Hooks} {
+  test th1-info-vars-2 {[lsort $RESULT] eq \
+      [lsort "x th_stack_trace cmd_flags tcl_platform cmd_name cmd_args"]}
+} else {
+  test th1-info-vars-2 {[lsort $RESULT] eq [lsort "x tcl_platform"]}
+}
 
 ###############################################################################
 
 fossil test-th-eval "set x 1; unset x; info vars"
-test th1-info-vars-3 {$RESULT eq ""}
+
+if {$th1Hooks} {
+  test th1-info-vars-3 {[lsort $RESULT] eq \
+      [lsort "th_stack_trace cmd_flags tcl_platform cmd_name cmd_args"]}
+} else {
+  test th1-info-vars-3 {$RESULT eq "tcl_platform"}
+}
 
 ###############################################################################
 
@@ -893,7 +979,68 @@ test th1-info-vars-4 {$RESULT eq "x"}
 ###############################################################################
 
 fossil test-th-eval "set y 1; proc foo {} {set x 1; uplevel 1 {info vars}}; foo"
-test th1-info-vars-5 {$RESULT eq "y"}
+
+if {$th1Hooks} {
+  test th1-info-vars-5 {[lsort $RESULT] eq \
+      [lsort "th_stack_trace y cmd_flags tcl_platform cmd_name cmd_args"]}
+} else {
+  test th1-info-vars-5 {[lsort $RESULT] eq [lsort "y tcl_platform"]}
+}
+
+###############################################################################
+
+fossil test-th-eval "array exists foo"
+test th1-array-exists-1 {$RESULT eq "0"}
+
+###############################################################################
+
+fossil test-th-eval "set foo(x) 1; array exists foo"
+test th1-array-exists-2 {$RESULT eq "1"}
+
+###############################################################################
+
+fossil test-th-eval "set foo(x) 1; unset foo(x); array exists foo"
+test th1-array-exists-3 {$RESULT eq "1"}
+
+###############################################################################
+
+fossil test-th-eval "set foo(x) 1; unset foo; array exists foo"
+test th1-array-exists-4 {$RESULT eq "0"}
+
+###############################################################################
+
+fossil test-th-eval "set foo 1; array exists foo"
+test th1-array-exists-5 {$RESULT eq "0"}
+
+###############################################################################
+
+fossil test-th-eval "array names foo"
+test th1-array-names-1 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval "set foo 2; array names foo"
+test th1-array-names-2 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval "set foo 2; unset foo; set foo(x) 2; array names foo"
+test th1-array-names-3 {$RESULT eq "x"}
+
+###############################################################################
+
+fossil test-th-eval "set foo(x) 2; array names foo"
+test th1-array-names-4 {$RESULT eq "x"}
+
+###############################################################################
+
+fossil test-th-eval "set foo(x) 2; set foo(y) 2; array names foo"
+test th1-array-names-5 {$RESULT eq "x y"}
+
+###############################################################################
+
+fossil test-th-eval "set foo(x) 2; unset foo(x); array names foo"
+test th1-array-names-6 {$RESULT eq ""}
 
 ###############################################################################
 
@@ -1262,8 +1409,51 @@ test th1-encode64-2 {$RESULT eq "dGVzdAA="}
 # TODO: Modify the result of this test if the source file (i.e.
 #       "ajax/cgi-bin/fossil-json.cgi.example") changes.
 #
-fossil test-th-eval --open-config \
-    {encode64 [artifact trunk ajax/cgi-bin/fossil-json.cgi.example]}
+run_in_checkout {
+  fossil test-th-eval --open-config \
+      {encode64 [artifact trunk ajax/cgi-bin/fossil-json.cgi.example]}
+}
 
 test th1-encode64-3 {$RESULT eq \
 "IyEvcGF0aC90by9mb3NzaWwvYmluYXJ5CnJlcG9zaXRvcnk6IC9wYXRoL3RvL3JlcG8uZnNsCg=="}
+
+###############################################################################
+
+fossil test-th-eval {array exists tcl_platform}
+test th1-platform-1 {$RESULT eq "1"}
+
+###############################################################################
+
+fossil test-th-eval {array names tcl_platform}
+test th1-platform-2 {$RESULT eq "engine platform"}
+
+###############################################################################
+
+fossil test-th-eval {set tcl_platform(engine)}
+test th1-platform-3 {$RESULT eq "TH1"}
+
+###############################################################################
+
+fossil test-th-eval {set tcl_platform(platform)}
+test th1-platform-4 {$RESULT eq "windows" || $RESULT eq "unix"}
+
+###############################################################################
+
+set th1FileName [file join $::tempPath th1-[pid].th1]
+
+write_file $th1FileName {
+  set x ""
+  for {set i 0} {$i < 10} {set i [expr {$i + 1}]} {
+    set x "$x $i"
+  }
+  return [string trim $x]
+  set y; # NOTE: Never hit.
+}
+
+fossil test-th-source $th1FileName
+test th1-source-1 {$RESULT eq {TH_RETURN: 0 1 2 3 4 5 6 7 8 9}}
+file delete $th1FileName
+
+###############################################################################
+
+test_cleanup

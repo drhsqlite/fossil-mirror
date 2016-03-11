@@ -20,9 +20,18 @@
 
 fossil test-th-eval "hasfeature th1Hooks"
 
-if {$::RESULT ne "1"} then {
-  puts "Fossil was not compiled with TH1 hooks support."; return
+if {$::RESULT ne "1"} {
+  puts "Fossil was not compiled with TH1 hooks support."
+  test_cleanup_then_return
 }
+
+###############################################################################
+
+test_setup
+
+###############################################################################
+
+write_file f1 "f1"; fossil add f1; fossil commit -m "c1"
 
 ###############################################################################
 
@@ -103,7 +112,7 @@ set testTh1Setup {
 set data [fossil info]
 regexp -line -- {^repository:   (.*)$} $data dummy repository
 
-if {[string length $repository] == 0 || ![file exists $repository]} then {
+if {[string length $repository] == 0 || ![file exists $repository]} {
   error "unable to locate repository"
 }
 
@@ -132,7 +141,7 @@ test th1-cmd-hooks-2b {[second_data_line] eq {ERROR: unsupported timeline}}
 
 ###############################################################################
 
-fossil timeline now
+fossil timeline -n -1 now
 test th1-cmd-hooks-3a {[first_data_line] eq \
     {<h1><b>command_hook timeline</b></h1>}}
 
@@ -173,7 +182,9 @@ test th1-custom-cmd-4a {[string trim $RESULT] eq \
 ###############################################################################
 
 set RESULT [test_fossil_http $repository $dataFileName /timeline]
-test th1-web-hooks-1a {[regexp {<title>Fossil: Timeline</title>} $RESULT]}
+
+test th1-web-hooks-1a {[regexp \
+    {<title>Unnamed Fossil Project: Timeline</title>} $RESULT]}
 
 test th1-web-hooks-1b {[regexp [appendArgs \
     {<h1><b>command_hook http webpage_hook timeline} " " \
@@ -190,3 +201,7 @@ test th1-custom-web-1b {[last_data_line] eq \
 ###############################################################################
 
 restoreTh1SetupFile
+
+###############################################################################
+
+test_cleanup

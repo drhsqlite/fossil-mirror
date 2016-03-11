@@ -101,9 +101,9 @@ void delta_analyze_cmd(void){
   blob_reset(&target);
   blob_reset(&delta);
   fossil_print("original size:  %8d\n", sz1);
-  fossil_print("bytes copied:   %8d (%.1f%% of target)\n",
+  fossil_print("bytes copied:   %8d (%.2f%% of target)\n",
                nCopy, (100.0*nCopy)/sz2);
-  fossil_print("bytes inserted: %8d (%.1f%% of target)\n",
+  fossil_print("bytes inserted: %8d (%.2f%% of target)\n",
                nInsert, (100.0*nInsert)/sz2);
   fossil_print("final size:     %8d\n", sz2);
   fossil_print("delta size:     %8d\n", sz3);

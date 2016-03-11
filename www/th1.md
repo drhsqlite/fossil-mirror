@@ -85,6 +85,8 @@ repertoire of commands.  TH1, as it is designed to be minimalist and
 embedded has a greatly reduced command set.  The following bullets
 summarize the commands available in TH1:
 
+  *  array exists VARNAME
+  *  array names VARNAME
   *  break
   *  catch SCRIPT ?VARIABLE?
   *  continue
@@ -118,6 +120,13 @@ All of the above commands work as in the original Tcl.  Refer to the
 <a href="https://www.tcl-lang.org/man/tcl/contents.htm">Tcl documentation</a>
 for details.
 
+Summary of Core TH1 Variables
+-----------------------------
+
+  *  tcl\_platform(engine) -- _This will always have the value "TH1"._
+  *  tcl\_platform(platform) -- _This will have the value "windows" or "unix"._
+  *  th\_stack\_trace -- _This will contain error stack information._
+
 TH1 Extended Commands
 ---------------------
 
@@ -132,10 +141,10 @@ features of Fossil.  The following is a summary of the extended commands:
   *  date
   *  decorate
   *  dir
-  *  enable_output
+  *  enable\_output
   *  encode64
   *  getParameter
-  *  glob_match
+  *  glob\_match
   *  globalState
   *  hascap
   *  hasfeature
@@ -143,11 +152,13 @@ features of Fossil.  The following is a summary of the extended commands:
   *  htmlize
   *  http
   *  httpize
+  *  insertCsrf
   *  linecount
   *  markdown
   *  puts
   *  query
   *  randhex
+  *  redirect
   *  regexp
   *  reinitialize
   *  render
@@ -166,6 +177,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  trace
   *  stime
   *  utime
+  *  verifyCsrf
   *  wiki
 
 Each of the commands above is documented by a block comment above their
@@ -250,10 +262,10 @@ element containing at least three elements: the file name, the file
 size (in bytes), and the file last modification time (relative to the
 time zone configured for the repository).
 
-<a name="enable_output"></a>TH1 enable_output Command
------------------------------------------------------
+<a name="enable_output"></a>TH1 enable\_output Command
+------------------------------------------------------
 
-  *  enable_output BOOLEAN
+  *  enable\_output BOOLEAN
 
 Enable or disable sending output when the combobox, puts, or wiki
 commands are used.
@@ -273,10 +285,10 @@ Encode the specified string using Base64 and return the result.
 Returns the value of the specified query parameter or the specified
 default value when there is no matching query parameter.
 
-<a name="glob_match"></a>TH1 glob_match Command
------------------------------------------------
+<a name="glob_match"></a>TH1 glob\_match Command
+------------------------------------------------
 
-  *  glob_match ?-one? ?--? patternList string
+  *  glob\_match ?-one? ?--? patternList string
 
 Checks the string against the specified glob pattern -OR- list of glob
 patterns and returns non-zero if there is a match.
@@ -372,6 +384,14 @@ are not currently implemented.
 Escape all characters of STRING which have special meaning in URI
 components.  Returns the escaped string.
 
+<a name="insertCsrf"></a>TH1 insertCsrf Command
+-----------------------------------------------
+
+  *  insertCsrf
+
+While rendering a form, call this command to add the Anti-CSRF token
+as a hidden element of the form.
+
 <a name="linecount"></a>TH1 linecount Command
 ---------------------------------------------
 
@@ -415,6 +435,14 @@ to each invocation of CODE.
 
 Returns a string of N*2 random hexadecimal digits with N<50.  If N is
 omitted, use a value of 10.
+
+<a name="redirect"></a>TH1 redirect Command
+-------------------------------------------
+
+  *  redirect URL
+
+Issues an HTTP redirect (302) to the specified URL and then exits the
+process.
 
 <a name="regexp"></a>TH1 regexp Command
 ---------------------------------------
@@ -591,6 +619,17 @@ process in system space.
 
 Returns the number of microseconds of CPU time consumed by the current
 process in user space.
+
+<a name="verifyCsrf"></a>TH1 verifyCsrf Command
+-----------------------------------------------
+
+  *  verifyCsrf
+
+Before using the results of a form, first call this command to verify
+that this Anti-CSRF token is present and is valid.  If the Anti-CSRF token
+is missing or is incorrect, that indicates a cross-site scripting attack.
+If the event of an attack is detected, an error message is generated and
+all further processing is aborted.
 
 <a name="wiki"></a>TH1 wiki Command
 -----------------------------------

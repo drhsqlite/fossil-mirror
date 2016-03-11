@@ -672,6 +672,12 @@ void whatis_rid(int rid, int verboseFlag){
 ** Resolve the symbol NAME into its canonical 40-character SHA1-hash
 ** artifact name and provide a description of what role that artifact
 ** plays.
+**
+** Options:
+**
+**    --type TYPE          Only find artifacts of TYPE (one of: 'ci', 't',
+**                         'w', 'g', or 'e').
+**    -v|--verbose         Provide extra information (such as the RID)
 */
 void whatis_cmd(void){
   int rid;

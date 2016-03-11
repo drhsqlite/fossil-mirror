@@ -1,4 +1,20 @@
 #
+# Copyright (c) 2015 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
 # Tests for the "amend" command.
 #
 
@@ -33,7 +49,7 @@ proc uuid_from_checkout {var} {
 }
 
 # Make sure we are not in an open repository and initialize new repository
-repo_init
+test_setup
 
 ########################################
 # Setup: Add file and commit           #
@@ -41,14 +57,14 @@ repo_init
 
 if {![uuid_from_checkout UUIDINIT]} {
   test amend-checkout-failure false
-  return
+  test_cleanup_then_return
 }
 write_file datafile "data"
 fossil add datafile
 fossil commit -m "c1"
 if {![uuid_from_commit $RESULT UUID]} {
   test amend-setup-failure false
-  return
+  test_cleanup_then_return
 }
 
 ########################################
@@ -207,7 +223,7 @@ set sc 0
 foreach badformat $badformats {
   incr sc
   set datetime [clock format $timestamp -format $badformat -gmt 1]
-  fossil amend $UUIDINIT -date $datetime
+  fossil amend $UUIDINIT -date $datetime -expectError
   test amend-date-2.$sc {[string first "YYYY-MM-DD HH:MM:SS" $RESULT] != -1}
 }
 
@@ -247,7 +263,7 @@ test amend-close-1.2 {[string first "closed" $RESULT] != -1}
 fossil timeline -n 1
 test amend-close-1.3 {[string match {*Marked*"Closed".*} $RESULT]}
 write_file datafile "cllf"
-fossil commit -m "should fail"
+fossil commit -m "should fail" -expectError
 test amend-close-2 {[string first "closed leaf" $RESULT] != -1}
 
 set UUID3 UUID3
@@ -271,7 +287,7 @@ test amend-close-3.3 {
   [string match "*Add*propagating*\"closed\".*" $RESULT]
 }
 write_file datafile "changed"
-fossil commit -m "should fail"
+fossil commit -m "should fail" -expectError
 test amend-close-3.4 {[string first "closed leaf" $RESULT] != -1}
 
 ########################################
@@ -376,15 +392,18 @@ if {[catch {exec which ed} result]} {
   if {$VERBOSE} { protOut "Install ed for interactive comment test: $result" }
   test-comment 5 $UUID "ed required for interactive edit"
 } else {
-  set env(EDITOR) "ed -s"
+  fossil settings editor "ed -s"
   set comment "interactive edited comment"
   fossil_maybe_answer "a\n$comment\n.\nw\nq\n" amend $UUID --edit-comment
-  unset env(EDITOR)
   test-comment 5 $UUID $comment
 }
 
 ########################################
 # Test: NULL UUID                      #
 ########################################
-fossil amend {} -close
+fossil amend {} -close -expectError
 test amend-null-uuid {$CODE && [string first "no such check-in" $RESULT] != -1}
+
+###############################################################################
+
+test_cleanup

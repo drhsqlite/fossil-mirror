@@ -18,6 +18,8 @@
 # Tests of the delta mechanism.
 #
 
+test_setup ""
+
 # Use test script files as the basis for this test.
 #
 # For each test, copy the file intact to "./t1".  Make
@@ -43,3 +45,7 @@ foreach f $filelist {
     test delta-$base-$i-3 {$RESULT=="ok"}
   }
 }
+
+###############################################################################
+
+test_cleanup
