@@ -1,5 +1,5 @@
-C Fix\scompilation\sissues\scause\sby\sthe\strunk\smerge.
-D 2016-03-11T23:38:47.228
+C Update\sthe\sexpected\sresults\sof\sthe\stests\sto\saccount\sfor\strunk\schanges.
+D 2016-03-12T00:47:33.484
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -541,7 +541,7 @@ F test/merge5.test 4ca266f425c0bb75bd4547b1628b860aca850dec
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test 3ae66c3b8359c79a54db41c92a4572adc30780aa
 F test/merge_renames.test 426dc718ae9813dc4aef651027fdd817aec2e995
-F test/mv-rm.test 0bd1bdc8fc8de35113a921f734b8099d2e200cc2
+F test/mv-rm.test 154465272ff35aa76447b329c58878232f40024f
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
 F test/revert.test 2afb167072c28d3527f821ce5828967e9c34b390
 F test/stash.test 3a01ed38196daca18128c14f8910cd9ae98a18dc
@@ -746,7 +746,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P abd131b83c2a37c583cbff17a298e03e39ab04f0
-R 53b0d43072b3daef3956887890aaeae9
+P 12453740c7089157342a232ef17ebb8652b921b3
+R e542fd8b988de1f1a3f0ba2cead909b1
 U mistachkin
-Z 46d1b8a46ddaa320d0a363e8f3119b84
+Z 34d1298e220892d8ee0ed663f3f4d403

@@ -405,7 +405,7 @@ test mv-file-new-directory-3 {[read_file d2/f13] eq "f12"}
 
 fossil revert
 test mv-file-new-directory-4 {
-  [normalize_result] eq "DELETE: d2/f13\nREVERTED: f12${undoMsg}"
+  [normalize_result] eq "DELETE   d2/f13\nREVERT   f12${undoMsg}"
 }
 
 test mv-file-new-directory-5 {[file size f12] == 3}
@@ -429,7 +429,7 @@ test mv-file-new-directory-11 {[read_file subdirD/f11] eq "f11"}
 
 fossil revert
 test mv-file-new-directory-12 {
-  [normalize_result] eq "REVERTED: subdirC/f10\nREVERTED: subdirC/f11${undoMsg}"
+  [normalize_result] eq "REVERT   subdirC/f10\nREVERT   subdirC/f11${undoMsg}"
 }
 
 test mv-file-new-directory-13 {[file size subdirC/f10] == 3}
