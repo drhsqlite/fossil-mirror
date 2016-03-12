@@ -1,5 +1,5 @@
-C New\sdocumentation\sof\senviornment\svariables,\sglobal\soptions\sto\sthe\sfossil\scommand,\sand\show\sthey\sinteract,\salong\swith\sa\stweak\sto\sregularize\sthe\stwo\splaces\sthat\sguessed\sthe\scurrent\suser\sname\sto\suse\sthe\ssame\senvironment\svariables\sin\sthe\ssame\sorder.
-D 2016-03-12T00:24:14.303
+C Add\smore\senvironment\svariables\sto\sthe\sdocs.
+D 2016-03-12T01:07:17.436
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -693,7 +693,7 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/env-opts.md 6b312784f81ccf20baa96edad75390c8a5a631b6
+F www/env-opts.md f986e2fd17aa271e24ea590fd652366ff1df1d45
 F www/event.wiki 395b955e611769fd9aedf3ab489530b89ad5f224
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 93c4421d2bafd192dc61ea563df68aa25caaed95
@@ -747,8 +747,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fa5922169348382d82571233252606a77f6f2234 809e80a1d9e9c59b2e9cc6ba9fadce33c2163b22
-R 7e75aa7a9fa58bf54922a50b47461c83
-T +closed 809e80a1d9e9c59b2e9cc6ba9fadce33c2163b22
-U rberteig
-Z 28ca104e3ec0a75565b79808e57417e9
+P 1ad4ae2720836443ddbb6b8ea5e7bf0aadc6b33e
+R 16c6b78f6421a8bacf5ece8d4938ac8d
+U mistachkin
+Z 123c212b59c629617ace12140d49da1a

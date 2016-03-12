@@ -135,6 +135,20 @@ Username below for a lot more detail.
 specific file or folder containing the version of Tcl to load at run
 time.
 
+`FOSSIL_TEMP`: Fallback location of the temporary directories and files
+created and deleted when running the test suite. The first environment
+variable found in the environment from the list `FOSSIL_TEST_TEMP`,
+`FOSSIL_TEMP`, `TEMP`, and `TMP` is used.
+
+`FOSSIL_TEST_DANGEROUS_IGNORE_OPEN_CHECKOUT`: When set to the literal
+value `YES_DO_IT`, the test suite will relax the constraint that some
+tests may not run within an open checkout.  This is subject to removal
+in the future.
+
+`FOSSIL_TEST_TEMP`: Primary location of the temporary directories
+and files created and deleted when running the test suite. The
+first environment variable found in the environment from the list
+`FOSSIL_TEST_TEMP`, `FOSSIL_TEMP`, `TEMP`, and `TMP` is used.
 
 `FOSSIL_VFS`: Name a VFS to load into SQLite.
 
