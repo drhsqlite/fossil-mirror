@@ -64,11 +64,6 @@ FOSSIL_ENABLE_JSON = 0
 FOSSIL_ENABLE_LEGACY_MV_RM = 0
 !endif
 
-# Enable use of miniz instead of zlib?
-!ifndef FOSSIL_ENABLE_MINIZ
-FOSSIL_ENABLE_MINIZ = 0
-!endif
-
 # Enable OpenSSL support?
 !ifndef FOSSIL_ENABLE_SSL
 FOSSIL_ENABLE_SSL = 0
@@ -184,10 +179,7 @@ ZLIB      = zlib.lib
 !endif
 
 INCL      = /I. /I$(SRCDIR) /I$B\win\include
-
-!if $(FOSSIL_ENABLE_MINIZ)==0
 INCL      = $(INCL) /I$(ZINCDIR)
-!endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
 INCL      = $(INCL) /I$(SSLINCDIR)
@@ -250,15 +242,8 @@ TCC       = $(TCC) /DFOSSIL_DYNAMIC_BUILD=1
 RCC       = $(RCC) /DFOSSIL_DYNAMIC_BUILD=1
 !endif
 
-!if $(FOSSIL_ENABLE_MINIZ)==0
 LIBS      = $(LIBS) $(ZLIB)
 LIBDIR    = $(LIBDIR) /LIBPATH:$(ZLIBDIR)
-!endif
-
-!if $(FOSSIL_ENABLE_MINIZ)!=0
-TCC       = $(TCC) /DFOSSIL_ENABLE_MINIZ=1
-RCC       = $(RCC) /DFOSSIL_ENABLE_MINIZ=1
-!endif
 
 !if $(FOSSIL_ENABLE_JSON)!=0
 TCC       = $(TCC) /DFOSSIL_ENABLE_JSON=1
@@ -325,10 +310,6 @@ SHELL_OPTIONS = /Dmain=sqlite3_shell \
                 /Dsystem=fossil_system \
                 /Dgetenv=fossil_getenv \
                 /Dfopen=fossil_fopen
-
-MINIZ_OPTIONS = /DMINIZ_NO_STDIO \
-                /DMINIZ_NO_TIME \
-                /DMINIZ_NO_ARCHIVE_APIS
 
 SRC   = add_.c \
         allrepo_.c \
@@ -625,9 +606,6 @@ OBJ   = $(OX)\add$O \
         $(OX)\xfer$O \
         $(OX)\xfersetup$O \
         $(OX)\zip$O \
-!if $(FOSSIL_ENABLE_MINIZ)!=0
-        $(OX)\miniz$O \
-!endif
         $(OX)\fossil.res
 
 
@@ -660,10 +638,8 @@ openssl:
 !endif
 !endif
 
-!if $(FOSSIL_ENABLE_MINIZ)==0
 !if $(FOSSIL_BUILD_ZLIB)!=0
 APPTARGETS = $(APPTARGETS) zlib
-!endif
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
@@ -805,9 +781,6 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\xfer.obj >> $@
 	echo $(OX)\xfersetup.obj >> $@
 	echo $(OX)\zip.obj >> $@
-!if $(FOSSIL_ENABLE_MINIZ)!=0
-	echo $(OX)\miniz.obj >> $@
-!endif
 	echo $(LIBS) >> $@
 
 $(OX):
@@ -845,9 +818,6 @@ $(OX)\th_lang$O : $(SRCDIR)\th_lang.c
 
 $(OX)\th_tcl$O : $(SRCDIR)\th_tcl.c
 	$(TCC) /Fo$@ -c $**
-
-$(OX)\miniz$O : $(SRCDIR)\miniz.c
-	$(TCC) /Fo$@ -c $(MINIZ_OPTIONS) $(SRCDIR)\miniz.c
 
 VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 	$** > $@

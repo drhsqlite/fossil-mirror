@@ -32,17 +32,7 @@
 #define _RC_COMPILE_
 #include "config.h"
 #include "sqlite3.h"
-
-#if defined(FOSSIL_ENABLE_MINIZ)
-#if defined(__MINGW32__)
-#include "minizver.h"
-#else
-#define MINIZ_HEADER_FILE_ONLY
-#include "miniz.c"
-#endif /* defined(__MINGW32__) */
-#else
 #include "zlib.h"
-#endif /* defined(FOSSIL_ENABLE_MINIZ) */
 
 #if defined(FOSSIL_ENABLE_SSL)
 #include "openssl/opensslv.h"
@@ -109,11 +99,7 @@ BEGIN
 #else
       VALUE "DynamicBuild", "no\0"
 #endif
-#if defined(FOSSIL_ENABLE_MINIZ)
-      VALUE "MinizVersion", "miniz " MZ_VERSION "\0"
-#else
       VALUE "ZlibVersion", "zlib " ZLIB_VERSION "\0"
-#endif /* defined(FOSSIL_ENABLE_MINIZ) */
 #if defined(BROKEN_MINGW_CMDLINE)
       VALUE "CommandLineIsUnicode", "No\0"
 #else

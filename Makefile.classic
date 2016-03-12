@@ -37,10 +37,6 @@ E =
 #TCC = gcc -g -O0 -Wall -fprofile-arcs -ftest-coverage
 TCC = gcc -g -Os -Wall
 
-# To use the included miniz library
-# FOSSIL_ENABLE_MINIZ = 1
-# TCC += -DFOSSIL_ENABLE_MINIZ
-
 # To add support for HTTPS
 TCC += -DFOSSIL_ENABLE_SSL
 
@@ -50,15 +46,14 @@ TCC += -DFOSSIL_ENABLE_SSL
 TCC += -DFOSSIL_DYNAMIC_BUILD=1
 
 #### Extra arguments for linking the finished binary.  Fossil needs
-#    to link against the Z-Lib compression library unless the miniz
-#    library in the source tree is being used.  There are no other
-#    required dependencies.
+#    to link against the Z-Lib compression library.  There are no
+#    other required dependencies.
 ZLIB_LIB.0 = -lz
 ZLIB_LIB.1 =
 ZLIB_LIB.  = $(ZLIB_LIB.0)
 
 # If using zlib:
-LIB += $(ZLIB_LIB.$(FOSSIL_ENABLE_MINIZ)) $(LDFLAGS)
+LIB += $(ZLIB_LIB.0) $(LDFLAGS)
 
 # If using HTTPS:
 LIB += -lcrypto -lssl

@@ -22,12 +22,7 @@
 */
 #include "config.h"
 #include "sqlcmd.h"
-#if defined(FOSSIL_ENABLE_MINIZ)
-#  define MINIZ_HEADER_FILE_ONLY
-#  include "miniz.c"
-#else
-#  include <zlib.h>
-#endif
+#include <zlib.h>
 
 /*
 ** Implementation of the "content(X)" SQL function.  Return the complete

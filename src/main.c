@@ -35,12 +35,7 @@
 #ifdef FOSSIL_ENABLE_SSL
 #  include "openssl/crypto.h"
 #endif
-#if defined(FOSSIL_ENABLE_MINIZ)
-#  define MINIZ_HEADER_FILE_ONLY
-#  include "miniz.c"
-#else
-#  include <zlib.h>
-#endif
+#include <zlib.h>
 #if INTERFACE
 #ifdef FOSSIL_ENABLE_TCL
 #  include "tcl.h"
@@ -1033,11 +1028,7 @@ static void get_version_blob(
   blob_appendf(pOut, "SQLite %s %.30s\n", sqlite3_libversion(),
                sqlite3_sourceid());
   blob_appendf(pOut, "Schema version %s\n", AUX_SCHEMA_MAX);
-#if defined(FOSSIL_ENABLE_MINIZ)
-  blob_appendf(pOut, "miniz %s, loaded %s\n", MZ_VERSION, mz_version());
-#else
   blob_appendf(pOut, "zlib %s, loaded %s\n", ZLIB_VERSION, zlibVersion());
-#endif
 #if defined(FOSSIL_ENABLE_SSL)
   blob_appendf(pOut, "SSL (%s)\n", SSLeay_version(SSLEAY_VERSION));
 #endif

@@ -91,10 +91,6 @@ FOSSIL_ENABLE_TCL_PRIVATE_STUBS = 1
 #
 # USE_SYSTEM_SQLITE = 1
 
-#### Use the miniz compression library
-#
-# FOSSIL_ENABLE_MINIZ = 1
-
 #### Use the Tcl source directory instead of the install directory?
 #    This is useful when Tcl has been compiled statically with MinGW.
 #
@@ -130,13 +126,8 @@ endif
 #
 ifndef X64
 SSLCONFIG = mingw
-ifndef FOSSIL_ENABLE_MINIZ
 ZLIBCONFIG = LOC="-DASMV -DASMINF" OBJA="inffas86.o match.o"
 LIBTARGETS = $(ZLIBDIR)/inffas86.o $(ZLIBDIR)/match.o
-else
-ZLIBCONFIG =
-LIBTARGETS =
-endif
 else
 SSLCONFIG = mingw64
 ZLIBCONFIG =
@@ -151,9 +142,7 @@ SSLCONFIG += no-ssl2 no-ssl3 no-shared
 #### When using zlib, make sure that OpenSSL is configured to use the zlib
 #    that Fossil knows about (i.e. the one within the source tree).
 #
-ifndef FOSSIL_ENABLE_MINIZ
 SSLCONFIG +=  --with-zlib-lib=$(PWD)/$(ZLIBDIR) --with-zlib-include=$(PWD)/$(ZLIBDIR) zlib
-endif
 
 #### The directories where the OpenSSL include and library files are located.
 #    The recommended usage here is to use the Sysinternals junction tool
@@ -218,20 +207,15 @@ else
 TCC += -Os
 endif
 
-#### When not using the miniz compression library, zlib is required.
+#### zlib is required.
 #
-ifndef FOSSIL_ENABLE_MINIZ
 TCC += -L$(ZLIBDIR) -I$(ZINCDIR)
-endif
 
 #### Compile resources for use in building executables that will run
 #    on the target platform.
 #
 RCC = $(PREFIX)windres -I$(SRCDIR)
-
-ifndef FOSSIL_ENABLE_MINIZ
 RCC += -I$(ZINCDIR)
-endif
 
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
@@ -248,12 +232,6 @@ else
 TCC += -L$(TCLLIBDIR) -I$(TCLINCDIR)
 RCC += -I$(TCLINCDIR)
 endif
-endif
-
-# With miniz (i.e. instead of zlib)
-ifdef FOSSIL_ENABLE_MINIZ
-TCC += -DFOSSIL_ENABLE_MINIZ=1
-RCC += -DFOSSIL_ENABLE_MINIZ=1
 endif
 
 # With MinGW command line handling workaround
@@ -355,11 +333,9 @@ endif
 #
 LIB += -lmingwex
 
-#### When not using the miniz compression library, zlib is required.
+#### zlib is required.
 #
-ifndef FOSSIL_ENABLE_MINIZ
 LIB += -lz
-endif
 
 #### These libraries MUST appear in the same order as they do for Tcl
 #    or linking with it will not work (exact reason unknown).
@@ -854,12 +830,10 @@ all:	$(OBJDIR) $(APPNAME)
 
 $(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc $(OBJDIR)/VERSION.h
 ifdef USE_WINDOWS
-	$(CAT) $(subst /,\,$(SRCDIR)\miniz.c) | $(GREP) "define MZ_VERSION" > $(subst /,\,$(OBJDIR)\minizver.h)
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.rc) $(subst /,\,$(OBJDIR))
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.ico) $(subst /,\,$(OBJDIR))
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.exe.manifest) $(subst /,\,$(OBJDIR))
 else
-	$(CAT) $(SRCDIR)/miniz.c | $(GREP) "define MZ_VERSION" > $(OBJDIR)/minizver.h
 	$(CP) $(SRCDIR)/../win/fossil.rc $(OBJDIR)
 	$(CP) $(SRCDIR)/../win/fossil.ico $(OBJDIR)
 	$(CP) $(SRCDIR)/../win/fossil.exe.manifest $(OBJDIR)
@@ -917,17 +891,9 @@ SQLITE3_OBJ.1 =
 SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 
-# The FOSSIL_ENABLE_MINIZ variable may be undefined, set to 0, or
-# set to 1.  If it is set to 1, the miniz library included in the
-# source tree should be used; otherwise, it should not.
-MINIZ_OBJ.0 =
-MINIZ_OBJ.1 = $(OBJDIR)/miniz.o
-MINIZ_OBJ.  = $(MINIZ_OBJ.0)
-
 
 EXTRAOBJ = \
  $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE)) \
- $(MINIZ_OBJ.$(FOSSIL_ENABLE_MINIZ)) \
  $(OBJDIR)/shell.o \
  $(OBJDIR)/th.o \
  $(OBJDIR)/th_lang.o \
@@ -947,10 +913,7 @@ $(ZLIBDIR)/inffas86.o:
 $(ZLIBDIR)/match.o:
 	$(TCC) -c -o $@ -DASMV $(ZLIBDIR)/contrib/asm686/match.S
 
-
-ifndef FOSSIL_ENABLE_MINIZ
 LIBTARGETS += zlib
-endif
 
 openssl:	$(LIBTARGETS)
 	cd $(OPENSSLLIBDIR);./Configure --cross-compile-prefix=$(PREFIX) $(SSLCONFIG)
@@ -2110,10 +2073,6 @@ SHELL_OPTIONS = -Dmain=sqlite3_shell \
                 -Dgetenv=fossil_getenv \
                 -Dfopen=fossil_fopen
 
-MINIZ_OPTIONS = -DMINIZ_NO_STDIO \
-                -DMINIZ_NO_TIME \
-                -DMINIZ_NO_ARCHIVE_APIS
-
 $(OBJDIR)/sqlite3.o:	$(SRCDIR)/sqlite3.c $(SRCDIR)/../win/Makefile.mingw.mistachkin
 	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) -c $(SRCDIR)/sqlite3.c -o $@
 
@@ -2133,7 +2092,4 @@ $(OBJDIR)/th_lang.o:	$(SRCDIR)/th_lang.c
 
 $(OBJDIR)/th_tcl.o:	$(SRCDIR)/th_tcl.c
 	$(XTCC) -c $(SRCDIR)/th_tcl.c -o $@
-
-$(OBJDIR)/miniz.o:	$(SRCDIR)/miniz.c
-	$(XTCC) $(MINIZ_OPTIONS) -c $(SRCDIR)/miniz.c -o $@
 
