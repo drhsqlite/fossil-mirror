@@ -180,7 +180,6 @@ void prompt_user(const char *zPrompt, Blob *pIn){
   }
 }
 
-
 /*
 ** COMMAND: user*
 **
@@ -386,6 +385,32 @@ void user_select(void){
     "or setting a default user with \"fossil user default USER\".\n"
   );
   fossil_fatal("cannot determine user");
+}
+
+/*
+** COMMAND: test-usernames
+** 
+** Usage: %fossil test-usernames 
+**
+** Print details about sources of fossil usernames.
+*/
+void test_usernames_cmd(void){
+  db_find_and_open_repository(0, 0);
+  
+  fossil_print("Initial g.zLogin: %s\n", g.zLogin);
+  fossil_print("Initial g.userUid: %d\n", g.userUid);
+  fossil_print("checkout default-user: %s\n", g.localOpen ?
+               db_lget("default-user","") : "<<no open checkout>>");
+  fossil_print("default-user: %s\n", db_get("default-user",""));
+  fossil_print("FOSSIL_USER: %s\n", fossil_getenv("FOSSIL_USER"));
+  fossil_print("USER: %s\n", fossil_getenv("USER"));
+  fossil_print("LOGNAME: %s\n", fossil_getenv("LOGNAME"));
+  fossil_print("USERNAME: %s\n", fossil_getenv("USERNAME"));
+  url_parse(0, 0);
+  fossil_print("URL user: %s\n", g.url.user);
+  user_select();
+  fossil_print("Final g.zLogin: %s\n", g.zLogin);
+  fossil_print("Final g.userUid: %d\n", g.userUid);
 }
 
 

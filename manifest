@@ -1,5 +1,5 @@
-C Cleanup,\smodularize,\sand\srobustify\sall\stest\ssetup\sand\scleanup.
-D 2016-03-08T19:37:54.246
+C New\sdocumentation\sof\senviornment\svariables,\sglobal\soptions\sto\sthe\sfossil\scommand,\sand\show\sthey\sinteract,\salong\swith\sa\stweak\sto\sregularize\sthe\stwo\splaces\sthat\sguessed\sthe\scurrent\suser\sname\sto\suse\sthe\ssame\senvironment\svariables\sin\sthe\ssame\sorder.
+D 2016-03-12T00:24:14.303
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -396,7 +396,7 @@ F src/content.c e1348f2e7a66e303eb8b96d250e3900ff799a6fc
 F src/cson_amalgamation.c ce18de7d62186d08d6c15a7efbd66bf009310439
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 433c7aaea1ab4b64561d17b974e5d9239ad39e32
+F src/db.c 728bced35b23f15d6536687c866293eea402af52
 F src/delta.c ab405c78d6559ea61563e2500c28f135a26c8b62
 F src/deltacmd.c 754470dba5bce684c84cd9354d572a77cdd1f402
 F src/descendants.c 6cb824a041723f2bf8e82765386ed5974e335c92
@@ -503,7 +503,7 @@ F src/undo.c 52ec5c24a6dcf1937026e2d9f86791fd1913cdf6
 F src/unicode.c f26b9f26d4ac399f7b03cfac16ec72336c7f06c9
 F src/update.c 404e7daea8b200e2708329b49850d62e68e716f7
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
-F src/user.c 64ceb772b57b8efd21eb89a2efde2d78f1ede78c
+F src/user.c 0335b8389a957ea4ca1e19d740f7b60303ebb8bf
 F src/utf8.c 5c85c7e88b82b5fb48649c46f063ac94ab58eb20
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
@@ -693,6 +693,7 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
+F www/env-opts.md 6b312784f81ccf20baa96edad75390c8a5a631b6
 F www/event.wiki 395b955e611769fd9aedf3ab489530b89ad5f224
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 93c4421d2bafd192dc61ea563df68aa25caaed95
@@ -717,10 +718,10 @@ F www/index.wiki d1cc125a4d1808e3245652695accba06e2b34b4e
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki f75b16c8bb734fe20d0d524c658f05dab006316c
 F www/mkdownload.tcl 5ac61a3e13cecaa67f1e31741113c96cbd41463f
-F www/mkindex.tcl e6a1265e3dd6ae2933df10dc5021ffc778728790
+F www/mkindex.tcl 23e4d98c3b4c8e67f233547e21b9effe961943b5
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 336916afde4ff470e87fc43066063623a9a74c8a
-F www/permutedindex.html 0c4e7ba6b933ef5bf03a49fcfa5b0928a4cb338a
+F www/permutedindex.html 24480ebfa9589c59a27671385f72e9888d644c92
 F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
 F www/private.wiki 72344489bbae6f7955369559b6ab22e01a64259b
 F www/qandc.wiki e07b21da221b05afeb1905f17af3765045952ba8
@@ -746,8 +747,8 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 93f514ca2c4532e6eddc372ab8460b3a770ec49b 9dc8ff235efdb85193fa1158178af46704e973b9
-R dee8631d8ef63aa03b31786655d9acbc
-T +closed 9dc8ff235efdb85193fa1158178af46704e973b9
-U mistachkin
-Z 51564885fbfe81187268f4f184804d9f
+P fa5922169348382d82571233252606a77f6f2234 809e80a1d9e9c59b2e9cc6ba9fadce33c2163b22
+R 7e75aa7a9fa58bf54922a50b47461c83
+T +closed 809e80a1d9e9c59b2e9cc6ba9fadce33c2163b22
+U rberteig
+Z 28ca104e3ec0a75565b79808e57417e9
