@@ -1,5 +1,5 @@
-C Add\smore\senvironment\svariables\sto\sthe\sdocs.
-D 2016-03-12T01:07:17.436
+C Fix\stwo\sissues\swith\sOlder/Newer\sbuttons\sat\stimeline\sedges.
+D 2016-03-13T21:08:39.703
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -495,7 +495,7 @@ F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c 464b8b4609c6c31f649783757cb8e49928c9d953
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
-F src/timeline.c 8ab92a00887db5eb873d35f5c5c8ffa2d4691ed1
+F src/timeline.c 96398c9dffad6d67ca7923552c117391f32a90b8
 F src/tkt.c 09fedb774dc3ee893d01ce2a6050809796ef66c9
 F src/tktsetup.c 32e23747e8d3f36fc390a6197dda2209d98cad09
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
@@ -747,7 +747,8 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1ad4ae2720836443ddbb6b8ea5e7bf0aadc6b33e
-R 16c6b78f6421a8bacf5ece8d4938ac8d
-U mistachkin
-Z 123c212b59c629617ace12140d49da1a
+P f4f3af4adb62e807f7e1a88d33b2f41ee13879a6 370c003d150375851416a3d55de44774b85a89fd
+R f31db5e9639e1149180b1d6628da7e14
+T +closed 370c003d150375851416a3d55de44774b85a89fd
+U rberteig
+Z 1c71b9187564759070323681d978c833
