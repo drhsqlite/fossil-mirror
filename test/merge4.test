@@ -18,6 +18,8 @@
 # Tests of the 3-way merge
 #
 
+test_setup ""
+
 proc merge-test {testid basis v1 v2 result1 result2} {
   write_file t1 [join [string trim $basis] \n]\n
   write_file t2 [join [string trim $v1] \n]\n
@@ -95,3 +97,7 @@ merge-test 1003 {
 } {
   2b 3b 4c 5c 6c 7b 8b
 }
+
+###############################################################################
+
+test_cleanup

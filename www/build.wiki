@@ -113,19 +113,25 @@ running configure, you can also use: <b>make -f Makefile.classic</b>.  You may
 want to make minor edits to Makefile.classic to configure the build for your
 system.
 
-<li><p><i>MinGW3.x (not 4.0)/MinGW-w64</i> → Use the mingw makefile:
-"<b>make -f win/Makefile.mingw</b>". On a Windows box you will
-need either Cygwin or Msys as build environment. On Cygwin, Linux
-or Darwin you may want to make minor edits to win/Makefile.mingw
-to configure the cross-compile environment.
+<li><p><i>MinGW 3.x (<u>not</u> 4.x) / MinGW-w64</i> → Use the MinGW makefile:
+"<b>make -f win/Makefile.mingw</b>".  On a Windows box you will need either
+Cygwin or Msys as build environment. On Cygwin, Linux or Darwin you may want
+to make minor edits to win/Makefile.mingw to configure the cross-compile
+environment.
 
 To enable the native [./th1.md#tclEval | Tcl integration feature], use a
 command line like the following (all on one line):
 
 <b>make -f win/Makefile.mingw FOSSIL_ENABLE_TCL=1 FOSSIL_ENABLE_TCL_STUBS=1 FOSSIL_ENABLE_TCL_PRIVATE_STUBS=1</b>
 
-Hint: don't use MinGW-4.0, it will compile but fossil won't work correctly, see
-<a href="https://www.fossil-scm.org/index.html/tktview/18cff45a4e210430e24c">https://www.fossil-scm.org/index.html/tktview/18cff45a4e210430e24c</a>.
+Alternatively, <b>./configure</b> may now be used to create a Makefile
+suitable for use with MinGW; however, options passed to configure that are
+not applicable on Windows may cause the configuration or compilation to fail
+(e.g. fusefs, internal-sqlite, etc).
+
+<i>HINT</i>: Do <u>not</u> use MinGW-4.x, it may compile but the Fossil binary
+will not work correctly, see
+[https://www.fossil-scm.org/index.html/tktview/18cff45a4e210430e24c | ticket].
 
 <li><p><i>MSVC</i> → Use the MSVC makefile.  First
 change to the "win/" subdirectory ("<b>cd win</b>") then run
@@ -137,7 +143,7 @@ first <a href="https://www.openssl.org/source/">download the official
 source code for OpenSSL</a> and extract it to an appropriately named
 "<b>openssl-X.Y.ZA</b>" subdirectory within the local
 [/tree?ci=trunk&name=compat | compat] directory (e.g.
-"<b>compat/openssl-1.0.2e</b>"), then make sure that some recent
+"<b>compat/openssl-1.0.2g</b>"), then make sure that some recent
 <a href="http://www.perl.org/">Perl</a> binaries are installed locally,
 and finally run one of the following commands:
 <blockquote><pre>

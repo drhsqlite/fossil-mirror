@@ -434,6 +434,70 @@ static int putsCmd(
 }
 
 /*
+** TH1 command: redirect URL
+**
+** Issues an HTTP redirect (302) to the specified URL and then exits the
+** process.
+*/
+static int redirectCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "redirect URL");
+  }
+  cgi_redirect(argv[1]);
+  Th_SetResult(interp, argv[1], argl[1]); /* NOT REACHED */
+  return TH_OK;
+}
+
+/*
+** TH1 command: insertCsrf
+**
+** While rendering a form, call this command to add the Anti-CSRF token
+** as a hidden element of the form.
+*/
+static int insertCsrfCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=1 ){
+    return Th_WrongNumArgs(interp, "insertCsrf");
+  }
+  login_insert_csrf_secret();
+  return TH_OK;
+}
+
+/*
+** TH1 command: verifyCsrf
+**
+** Before using the results of a form, first call this command to verify
+** that this Anti-CSRF token is present and is valid.  If the Anti-CSRF token
+** is missing or is incorrect, that indicates a cross-site scripting attack.
+** If the event of an attack is detected, an error message is generated and
+** all further processing is aborted.
+*/
+static int verifyCsrfCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=1 ){
+    return Th_WrongNumArgs(interp, "verifyCsrf");
+  }
+  login_verify_csrf_secret();
+  return TH_OK;
+}
+
+/*
 ** TH1 command: markdown STRING
 **
 ** Renders the input string as markdown.  The result is a two-element list.
@@ -1704,7 +1768,7 @@ void Th_OpenConfig(
     }
   }
   if( !Th_IsConfigOpen() ){
-    db_open_config(0);
+    db_open_config(0, 1);
     if( Th_IsConfigOpen() ){
       g.th1Flags |= TH_STATE_CONFIG;
     }else{
@@ -1769,11 +1833,13 @@ void Th_FossilInit(u32 flags){
     {"html",          putsCmd,              (void*)&aFlags[0]},
     {"htmlize",       htmlizeCmd,           0},
     {"http",          httpCmd,              0},
+    {"insertCsrf",    insertCsrfCmd,        0},
     {"linecount",     linecntCmd,           0},
     {"markdown",      markdownCmd,          0},
     {"puts",          putsCmd,              (void*)&aFlags[1]},
     {"query",         queryCmd,             0},
     {"randhex",       randhexCmd,           0},
+    {"redirect",      redirectCmd,          0},
     {"regexp",        regexpCmd,            0},
     {"reinitialize",  reinitializeCmd,      0},
     {"render",        renderCmd,            0},
@@ -1787,6 +1853,7 @@ void Th_FossilInit(u32 flags){
     {"trace",         traceCmd,             0},
     {"stime",         stimeCmd,             0},
     {"utime",         utimeCmd,             0},
+    {"verifyCsrf",    verifyCsrfCmd,        0},
     {"wiki",          wikiCmd,              (void*)&aFlags[0]},
     {0, 0, 0}
   };
@@ -2293,7 +2360,7 @@ int Th_Render(const char *z){
 **     --th-trace           Trace TH1 execution (for debugging purposes)
 */
 void test_th_render(void){
-  int forceCgi = 0, fullHttpReply = 0;
+  int forceCgi, fullHttpReply;
   Blob in;
   Th_InitTraceLog();
   forceCgi = find_option("cgi", 0, 0)!=0;
@@ -2320,7 +2387,7 @@ void test_th_render(void){
 ** Usage: %fossil test-th-eval SCRIPT
 **
 ** Evaluate SCRIPT as if it were a header or footer or ticket rendering
-** script, evaluate it, and show the results on standard output.
+** script and show the results on standard output.
 **
 ** Options:
 **
@@ -2341,11 +2408,55 @@ void test_th_eval(void){
   if( find_option("open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
   }
+  verify_all_options();
   if( g.argc!=3 ){
     usage("script");
   }
   Th_FossilInit(TH_INIT_DEFAULT);
   rc = Th_Eval(g.interp, 0, g.argv[2], -1);
+  zRc = Th_ReturnCodeName(rc, 1);
+  fossil_print("%s%s%s\n", zRc, zRc ? ": " : "", Th_GetResult(g.interp, 0));
+  Th_PrintTraceLog();
+  if( forceCgi ) cgi_reply();
+}
+
+/*
+** COMMAND: test-th-source
+**
+** Usage: %fossil test-th-source FILE
+**
+** Evaluate the contents of the file named "FILE" as if it were a header
+** or footer or ticket rendering script and show the results on standard
+** output.
+**
+** Options:
+**
+**     --cgi                Include a CGI response header in the output
+**     --http               Include an HTTP response header in the output
+**     --open-config        Open the configuration database
+**     --th-trace           Trace TH1 execution (for debugging purposes)
+*/
+void test_th_source(void){
+  int rc;
+  const char *zRc;
+  int forceCgi, fullHttpReply;
+  Blob in;
+  Th_InitTraceLog();
+  forceCgi = find_option("cgi", 0, 0)!=0;
+  fullHttpReply = find_option("http", 0, 0)!=0;
+  if( fullHttpReply ) forceCgi = 1;
+  if( forceCgi ) Th_ForceCgi(fullHttpReply);
+  if( find_option("open-config", 0, 0)!=0 ){
+    Th_OpenConfig(1);
+  }
+  verify_all_options();
+  if( g.argc!=3 ){
+    usage("file");
+  }
+  blob_zero(&in);
+  blob_read_from_file(&in, g.argv[2]);
+  Th_FossilInit(TH_INIT_DEFAULT);
+  rc = Th_Eval(g.interp, 0, blob_str(&in), -1);
   zRc = Th_ReturnCodeName(rc, 1);
   fossil_print("%s%s%s\n", zRc, zRc ? ": " : "", Th_GetResult(g.interp, 0));
   Th_PrintTraceLog();
@@ -2358,7 +2469,7 @@ void test_th_eval(void){
 **
 ** Usage: %fossil test-th-hook TYPE NAME FLAGS
 **
-** Executes the TH1 script configured for the pre-operation (i.e. a command
+** Evaluates the TH1 script configured for the pre-operation (i.e. a command
 ** or web page) "hook" or post-operation "notification".  The results of the
 ** script evaluation, if any, will be printed to the standard output channel.
 ** The NAME argument must be the name of a command or web page; however, it
@@ -2399,6 +2510,7 @@ void test_th_hook(void){
   fullHttpReply = find_option("http", 0, 0)!=0;
   if( fullHttpReply ) forceCgi = 1;
   if( forceCgi ) Th_ForceCgi(fullHttpReply);
+  verify_all_options();
   if( g.argc<5 ){
     usage("TYPE NAME FLAGS");
   }

@@ -16,11 +16,21 @@
      of ancestors that are used for [/help?cmd=/blame|/blame].
   *  Added the --page option to the [/help?cmd=ui|fossil ui] command
   *  Added the [/help?cmd=bisect|fossil bisect ui] command
-  *  Enhanced the [/help?cmd=diff|fossil diff] command so that it accepts 
+  *  Enhanced the [/help?cmd=diff|fossil diff] command so that it accepts
      directory names as arguments and computes diffs on all files contained
      within those directories.
   *  Fix the [/help?cmd=add|fossil add] command so that it shows "SKIP" for
      files added that were already under management.
+  *  TH1 enhancements:
+     <ul><li>Add <nowiki>[array exists]</nowiki> command.</li>
+     <li>Add minimal <nowiki>[array names]</nowiki> command.</li>
+     <li>Add tcl_platform(engine) and tcl_platform(platform) array
+     elements.</li>
+     </ul>
+  *  Get autosetup working with MinGW.
+  *  Fix autosetup detection of zlib in the source tree.
+  *  Added autosetup detection of OpenSSL when it may be present under the
+     "compat" subdirectory of the source tree.
 
 <h2>Changes for Version 1.34 (2015-11-02)</h2>
 

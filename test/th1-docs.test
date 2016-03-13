@@ -20,15 +20,21 @@
 
 fossil test-th-eval "hasfeature th1Docs"
 
-if {$::RESULT ne "1"} then {
-  puts "Fossil was not compiled with TH1 docs support."; return
+if {$::RESULT ne "1"} {
+  puts "Fossil was not compiled with TH1 docs support."
+  test_cleanup_then_return
 }
 
 fossil test-th-eval "hasfeature tcl"
 
-if {$::RESULT ne "1"} then {
-  puts "Fossil was not compiled with Tcl support."; return
+if {$::RESULT ne "1"} {
+  puts "Fossil was not compiled with Tcl support."
+  test_cleanup_then_return
 }
+
+###############################################################################
+
+test_setup ""
 
 ###############################################################################
 
@@ -37,10 +43,13 @@ set env(TH1_ENABLE_TCL) 1; # Tcl integration must be enabled for this test.
 
 ###############################################################################
 
-set data [fossil info]
+run_in_checkout {
+  set data [fossil info]
+}
+
 regexp -line -- {^repository:   (.*)$} $data dummy repository
 
-if {[string length $repository] == 0 || ![file exists $repository]} then {
+if {[string length $repository] == 0 || ![file exists $repository]} {
   error "unable to locate repository"
 }
 
@@ -48,9 +57,15 @@ set dataFileName [file join $::testdir th1-docs-input.txt]
 
 ###############################################################################
 
-set RESULT [test_fossil_http \
-    $repository $dataFileName /doc/trunk/test/fileStat.th1]
+run_in_checkout {
+  set RESULT [test_fossil_http \
+      $repository $dataFileName /doc/trunk/test/fileStat.th1]
+}
 
 test th1-docs-1a {[regexp {<title>Fossil: test/fileStat.th1</title>} $RESULT]}
 test th1-docs-1b {[regexp {>\[[0-9a-f]{40}\]<} $RESULT]}
 test th1-docs-1c {[regexp { contains \d+ files\.} $RESULT]}
+
+###############################################################################
+
+test_cleanup

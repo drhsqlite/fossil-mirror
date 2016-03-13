@@ -193,7 +193,9 @@ static void xfer_accept_file(
   }
   sha1sum_blob(&content, &hash);
   if( !blob_eq_str(&pXfer->aToken[1], blob_str(&hash), -1) ){
-    blob_appendf(&pXfer->err, "content does not match sha1 hash");
+    blob_appendf(&pXfer->err,
+        "wrong hash on received artifact: expected %s but got %s",
+        blob_str(&pXfer->aToken[1]), blob_str(&hash));
   }
   rid = content_put_ex(&content, blob_str(&hash), 0, 0, isPriv);
   Th_AppendToList(pzUuidList, pnUuidList, blob_str(&hash), blob_size(&hash));

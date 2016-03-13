@@ -711,7 +711,7 @@ void content_undelta(int rid){
 */
 void test_content_undelta_cmd(void){
   int rid;
-  if( g.argc!=2 ) usage("RECORDID");
+  if( g.argc!=3 ) usage("RECORDID");
   db_must_be_within_tree();
   rid = atoi(g.argv[2]);
   content_undelta(rid);
@@ -907,7 +907,7 @@ void test_integrity(void){
     }
     sha1sum_blob(&content, &cksum);
     if( fossil_strcmp(blob_str(&cksum), zUuid)!=0 ){
-      fossil_print("checksum mismatch on artifact %d: wanted %s but got %s\n",
+      fossil_print("wrong hash on artifact %d: wanted %s but got %s\n",
                    rid, zUuid, blob_str(&cksum));
       nErr++;
     }
@@ -955,6 +955,8 @@ void test_integrity(void){
       if( anCA[i] ) fossil_print("  %d %ss\n", anCA[i], azType[i]);
     }
   }
+  fossil_print("low-level database integrity-check: ");
+  fossil_print("%s\n", db_text(0, "PRAGMA integrity_check(10)"));
 }
 
 /*
@@ -1125,4 +1127,51 @@ void test_missing(void){
     fossil_print("%d missing or shunned references in %d control artifacts\n",
                  nErr, nArtifact);
   }
+}
+
+/*
+** COMMAND: test-content-erase
+**
+** Usage: %fossil test-content-erase RID ....
+**
+** Remove all traces of one or more artifacts from the local repository.
+**
+** WARNING: This command destroys data and can cause you to lose work.
+** Make sure you have a backup copy before using this command!
+**
+** WARNING: You must run "fossil rebuild" after this command to rebuild
+** the metadata.
+**
+** Note that the arguments are the integer raw RID values from the BLOB table,
+** not SHA1 hashs or labels.
+*/
+void test_content_erase(void){
+  int i;
+  Blob x;
+  char c;
+  Stmt q;
+  prompt_user("This command erases information from the repository and\n"
+              "might irrecoverably damage the repository.  Make sure you\n"
+              "have a backup copy!\n"
+              "Continue? (y/N)? ", &x);
+  c = blob_str(&x)[0];
+  blob_reset(&x);
+  if( c!='y' && c!='Y' ) return;
+  db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
+  db_begin_transaction();
+  db_prepare(&q, "SELECT rid FROM delta WHERE srcid=:rid");
+  for(i=2; i<g.argc; i++){
+    int rid = atoi(g.argv[i]);
+    fossil_print("Erasing artifact %d (%s)\n", 
+                 rid, db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid));
+    db_bind_int(&q, ":rid", rid);
+    while( db_step(&q)==SQLITE_ROW ){
+      content_undelta(db_column_int(&q,0));
+    }
+    db_reset(&q);
+    db_multi_exec("DELETE FROM blob WHERE rid=%d", rid);
+    db_multi_exec("DELETE FROM delta WHERE rid=%d", rid);
+  }
+  db_finalize(&q);
+  db_end_transaction(0);
 }

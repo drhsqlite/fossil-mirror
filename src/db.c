@@ -983,11 +983,11 @@ void db_close_config(){
 ** connection so that we can join between the various databases.  In that
 ** case, invoke this routine with useAttach as 1.
 */
-void db_open_config(int useAttach){
+int db_open_config(int useAttach, int isOptional){
   char *zDbName;
   char *zHome;
   if( g.zConfigDbName ){
-    if( useAttach==g.useAttach ) return;
+    if( useAttach==g.useAttach ) return 1; /* Already open. */
     db_close_config();
   }
   zHome = fossil_getenv("FOSSIL_HOME");
@@ -1004,6 +1004,7 @@ void db_open_config(int useAttach){
     }
   }
   if( zHome==0 ){
+    if( isOptional ) return 0;
     fossil_fatal("cannot locate home directory - please set the "
                  "FOSSIL_HOME, LOCALAPPDATA, APPDATA, or HOMEPATH "
                  "environment variables");
@@ -1013,11 +1014,13 @@ void db_open_config(int useAttach){
     zHome = fossil_getenv("HOME");
   }
   if( zHome==0 ){
+    if( isOptional ) return 0;
     fossil_fatal("cannot locate home directory - please set the "
                  "FOSSIL_HOME or HOME environment variables");
   }
 #endif
   if( file_isdir(zHome)!=1 ){
+    if( isOptional ) return 0;
     fossil_fatal("invalid home directory: %s", zHome);
   }
 #if defined(_WIN32) || defined(__CYGWIN__)
@@ -1028,11 +1031,13 @@ void db_open_config(int useAttach){
 #endif
   if( file_size(zDbName)<1024*3 ){
     if( file_access(zHome, W_OK) ){
+      if( isOptional ) return 0;
       fossil_fatal("home directory %s must be writeable", zHome);
     }
     db_init_database(zDbName, zConfigSchema, (char*)0);
   }
   if( file_access(zDbName, W_OK) ){
+    if( isOptional ) return 0;
     fossil_fatal("configuration file %s must be writeable", zDbName);
   }
   if( useAttach ){
@@ -1045,6 +1050,7 @@ void db_open_config(int useAttach){
     g.zConfigDbType = "configdb";
   }
   g.zConfigDbName = zDbName;
+  return 1;
 }
 
 /*
@@ -1158,6 +1164,9 @@ int db_open_local(const char *zDbName){
     for(i=0; i<count(aDbName); i++){
       sqlite3_snprintf(sizeof(zPwd)-n, &zPwd[n], "/%s", aDbName[i]);
       if( isValidLocalDb(zPwd) ){
+        if( db_open_config(0, 1)==0 ){
+          return 0; /* Configuration could not be opened */
+        }
         /* Found a valid checkout database file */
         g.zLocalDbName = mprintf("%s", zPwd);
         zPwd[n] = 0;
@@ -1167,7 +1176,6 @@ int db_open_local(const char *zDbName){
         }
         g.zLocalRoot = mprintf("%s/", zPwd);
         g.localOpen = 1;
-        db_open_config(0);
         db_open_repository(zDbName);
         return 1;
       }
@@ -1521,14 +1529,13 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
     zUser = fossil_getenv("FOSSIL_USER");
   }
   if( zUser==0 ){
-#if defined(_WIN32)
-    zUser = fossil_getenv("USERNAME");
-#else
     zUser = fossil_getenv("USER");
-    if( zUser==0 ){
-      zUser = fossil_getenv("LOGNAME");
-    }
-#endif
+  }
+  if( zUser==0 ){
+    zUser = fossil_getenv("LOGNAME");
+  }
+  if( zUser==0 ){
+    zUser = fossil_getenv("USERNAME");
   }
   if( zUser==0 ){
     zUser = "root";
@@ -1732,7 +1739,7 @@ void create_repository_cmd(void){
 
   db_create_repository(g.argv[2]);
   db_open_repository(g.argv[2]);
-  db_open_config(0);
+  db_open_config(0, 0);
   if( zTemplate ) db_attach(zTemplate, "settingSrc");
   db_begin_transaction();
   if( zDate==0 ) zDate = "now";
@@ -2825,7 +2832,7 @@ void setting_cmd(void){
   int i;
   int globalFlag = find_option("global","g",0)!=0;
   int unsetFlag = g.argv[1][0]=='u';
-  db_open_config(1);
+  db_open_config(1, 0);
   if( !globalFlag ){
     db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0);
   }

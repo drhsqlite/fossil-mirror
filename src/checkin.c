@@ -398,6 +398,8 @@ void ls_cmd(void){
     verify_all_options();
     ls_cmd_rev(zRev,verboseFlag,showAge,timeOrder);
     return;
+  }else if( find_option("R",0,1)!=0 ){
+    fossil_fatal("the -r is required in addition to -R");
   }
 
   db_must_be_within_tree();

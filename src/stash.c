@@ -480,7 +480,7 @@ void stash_cmd(void){
   int stashid = 0;
   undo_capture_command_line();
   db_must_be_within_tree();
-  db_open_config(0);
+  db_open_config(0, 0);
   db_begin_transaction();
   zDb = db_name("localdb");
   db_multi_exec(zStashInit /*works-like:"%w,%w"*/, zDb, zDb);
