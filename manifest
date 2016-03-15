@@ -1,5 +1,5 @@
-C Minor\simprovements\sto\sthe\snew\sdocs.
-D 2016-03-15T14:02:56.346
+C Another\sdoc\sformatting\stweak.
+D 2016-03-15T14:04:18.002
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -693,7 +693,7 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/env-opts.md a3e1aac0125aed997e4d0b2a18fff20de82e6ac3
+F www/env-opts.md e7e83848e2454cc06624c152395b8bff67a7cb79
 F www/event.wiki 395b955e611769fd9aedf3ab489530b89ad5f224
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 93c4421d2bafd192dc61ea563df68aa25caaed95
@@ -747,7 +747,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 81b76085e52ad86ee4e6770b1bd517c6abae6857
-R 1196e3fbba5f27cb4187f5e31da9b107
+P 2e2e13b9c64d90a55decaeb2307a9789fc363def
+R 0bbda1b4eefcddbd010e132db210ec3a
 U mistachkin
-Z 5b52837e5002f8d3dd888868cfe9395f
+Z f5ed1ac0ceb81de656e7136e8fe869b8

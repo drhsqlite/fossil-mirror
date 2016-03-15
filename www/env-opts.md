@@ -43,12 +43,12 @@ individual bits in `NUMBER`, which must be specified in base 10:
 
   * _2_ &mdash; Trims leading and trailing carriage-returns and line-feeds
         where they do not materially impact pre-existing formatting
-        (i.e. at the start of the comment string -AND- right before
+        (i.e. at the start of the comment string _and_ right before
         line indentation).
 
   * _4_ &mdash; Trims leading and trailing spaces where they do not materially
         impact the pre-existing formatting (i.e. at the start of the
-        comment string -AND- right before line indentation).
+        comment string _and_ right before line indentation).
 
   * _8_ &mdash; Attempts to break lines on word boundaries while honoring the
         logical line length.
