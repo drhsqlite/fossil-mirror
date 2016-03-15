@@ -1758,7 +1758,8 @@ void page_timeline(void){
       if( zDate ){
         rDate = symbolic_name_to_mtime(zDate);
         if( db_int(0,
-            "SELECT EXISTS (SELECT 1 FROM event WHERE mtime<=%.17g%s)",
+            "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
+            " WHERE blob.rid=event.objid AND mtime<=%.17g%s)",
             rDate-ONE_SECOND, blob_sql_text(&cond))
         ){
           timeline_submenu(&url, "Older", "b", zDate, "a");
@@ -1773,7 +1774,8 @@ void page_timeline(void){
       if( zDate ){
         rDate = symbolic_name_to_mtime(zDate);
         if( db_int(0,
-            "SELECT EXISTS (SELECT 1 FROM event WHERE mtime>=%.17g%s)",
+            "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
+            " WHERE blob.rid=event.objid AND mtime>=%.17g%s)",
             rDate+ONE_SECOND, blob_sql_text(&cond))
         ){
           timeline_submenu(&url, "Newer", "a", zDate, "b");
