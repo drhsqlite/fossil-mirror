@@ -787,12 +787,20 @@ static void process_files_to_move(
       const char *zOldName = db_column_text(&move, 0);
       const char *zNewName = db_column_text(&move, 1);
       if( !dryRunFlag ){
-        if( file_wd_islink(zOldName) ){
-          symlink_copy(zOldName, zNewName);
+        int isOldDir = file_isdir(zOldName);
+        if( isOldDir==1 ){
+          int isNewDir = file_isdir(zNewName);
+          if( isNewDir==0 ){
+            file_rename(zOldName, zNewName, isOldDir, isNewDir);
+          }
         }else{
-          file_copy(zOldName, zNewName);
+          if( file_wd_islink(zOldName) ){
+            symlink_copy(zOldName, zNewName);
+          }else{
+            file_copy(zOldName, zNewName);
+          }
+          file_delete(zOldName);
         }
-        file_delete(zOldName);
       }
       fossil_print("MOVED_FILE %s\n", zOldName);
     }

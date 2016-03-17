@@ -1,5 +1,5 @@
-C Another\sdoc\sformatting\stweak.
-D 2016-03-15T14:04:18.002
+C Fix\sdirectory\snaming\sissue\swith\s\swith\sthe\s--hard\soption\sas\sreported\svia\sthe\smailing\slist.
+D 2016-03-17T19:30:48.728
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -371,7 +371,7 @@ F skins/xekri/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 026bd9dac971929fa07830d34993d0f00f99bcd2
+F src/add.c f192f326c99668df8be826d7bdbdd8d19f7b5f4e
 F src/allrepo.c 12318d357d48a1c013e1bfafe100d3c95f466285
 F src/attach.c f35c74213de213acb286d9356aece616cba97824
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
@@ -407,7 +407,7 @@ F src/doc.c ee445fb565ae8040e3362e28bbe4db353d987229
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 55ac1712c44b5b84363350ebe0ef19233137a096
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
-F src/file.c 96e88d124e5a031652e30ef1abc06e69b125c736
+F src/file.c b673d8357c2d7caedf545066e32fe46b436177e8
 F src/finfo.c 9dcd6c54bf5fadfafe0b15cbb736ba0cf418c956
 F src/foci.c 693596989fbb12a01c31317a7adf0d1ce85c7903
 F src/fusefs.c e25405b83122ed8369aa63125897348e5eb3cab2
@@ -541,7 +541,7 @@ F test/merge5.test aadadc4b34b77b94dc711ee0b0ae2f760abaecf9
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test ac9dd0f4c76990c91f6483844852831c2eb1a95e
 F test/merge_renames.test e0b500a812c61318b3e1c277021429ca3c045570
-F test/mv-rm.test bdbda91872dd731e9df0ea3ded51e5b99eb3390f
+F test/mv-rm.test a46185f0a8443bf422e222b47f360e5c341e9306
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
 F test/revert.test 7387258ce11b1214c5b82be47792d2c98316fd52
 F test/stash.test f9c2bba31afe77b62967ea11e59e438c950325ec
@@ -747,7 +747,8 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2e2e13b9c64d90a55decaeb2307a9789fc363def
-R 0bbda1b4eefcddbd010e132db210ec3a
+P ed36875ff761fe9e2203fccb374339578243412d b51139853667ff1fc56eb66d401e2e68faecde97
+R f57491350420775a880646d1383cc4b7
+T +closed b51139853667ff1fc56eb66d401e2e68faecde97
 U mistachkin
-Z f5ed1ac0ceb81de656e7136e8fe869b8
+Z 1b8e4e88430f39239af96bb9598adc1a
