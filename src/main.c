@@ -1595,6 +1595,7 @@ static void process_one_web_page(
   int allowRepoList           /* Send repo list for "/" URL */
 ){
   const char *zPathInfo;
+  const char *zDirPathInfo;
   char *zPath = NULL;
   int idx;
   int i;
@@ -1609,7 +1610,17 @@ static void process_one_web_page(
   /* If the repository has not been opened already, then find the
   ** repository based on the first element of PATH_INFO and open it.
   */
-  zPathInfo = PD("PATH_INFO","");
+  zDirPathInfo = zPathInfo = PD("PATH_INFO","");
+  /* For the PATH_INFO that will be used to help build the final
+  ** g.zBaseURL and g.zTop (only), skip over the initial directory
+  ** portion of PATH_INFO; otherwise, it may be duplicated.
+  */
+  if( g.zTop ){
+    int nTop = strlen(g.zTop);
+    if ( strncmp(zDirPathInfo, g.zTop, nTop)==0 ){
+      zDirPathInfo += nTop;
+    }
+  }
   if( !g.repositoryOpen ){
     char *zRepo, *zToFree;
     const char *zOldScript = PD("SCRIPT_NAME", "");
@@ -1647,8 +1658,10 @@ static void process_one_web_page(
         /* this should only be set from the --baseurl option, not CGI  */
         if( g.zBaseURL && g.zBaseURL[0]!=0 && g.zTop && g.zTop[0]!=0 &&
             file_isdir(g.zRepositoryName)==1 ){
-          g.zBaseURL = mprintf("%s%.*s", g.zBaseURL, i, zPathInfo);
-          g.zTop = mprintf("%s%.*s", g.zTop, i, zPathInfo);
+          if( zPathInfo==zDirPathInfo ){
+            g.zBaseURL = mprintf("%s%.*s", g.zBaseURL, i, zPathInfo);
+            g.zTop = mprintf("%s%.*s", g.zTop, i, zPathInfo);
+          }
         }
       }
       if( szFile<0 && i>0 ){

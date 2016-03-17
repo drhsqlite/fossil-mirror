@@ -1,5 +1,5 @@
-C Fix\sdirectory\snaming\sissue\swith\s\swith\sthe\s--hard\soption\sas\sreported\svia\sthe\smailing\slist.
-D 2016-03-17T19:30:48.728
+C Simpler\salternative\sto\s[7063f8d4cc].\sSkips\sinitial\sdirectory\sportion\sof\sPATH_INFO\swhen\sbuilding\sthe\sg.zBaseURL\sand\sg.zTop\sused\swith\sa\sdirectory\sof\srepositories.
+D 2016-03-17T19:32:06.986
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -442,7 +442,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 9010b62121a41566e330f62c238061ca4c6b4f98
 F src/lookslike.c 9103d15912b792a65874f04e185f2a74a477ebb4
-F src/main.c e75796be5338a81c0ed31879287935f07af90523
+F src/main.c a633a8fee5469321889801ec4d663f2ce5e84011
 F src/main.mk 3c852b97f84551d69cb8e530c071431e37238913
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -747,8 +747,8 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ed36875ff761fe9e2203fccb374339578243412d b51139853667ff1fc56eb66d401e2e68faecde97
-R f57491350420775a880646d1383cc4b7
-T +closed b51139853667ff1fc56eb66d401e2e68faecde97
+P 1f694e17046a8c8c7ebbbdebb6b9017bb50757f3 45ed23d94624b44abacb66b4a88abec3721dd250
+R 1f6b53dc7442338053904a0e95fc05b7
+T +closed 45ed23d94624b44abacb66b4a88abec3721dd250
 U mistachkin
-Z 1b8e4e88430f39239af96bb9598adc1a
+Z dae0d723f02d87651ad6dcb92714752c
