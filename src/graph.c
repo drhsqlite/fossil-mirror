@@ -328,6 +328,18 @@ static void find_max_rail(GraphContext *p){
   }
 }
 
+/*
+** Draw a riser from pRow to the top of the graph
+*/
+static void riser_to_top(GraphRow *pRow){
+  u64 mask = BIT(pRow->iRail);
+  pRow->aiRiser[pRow->iRail] = 0;
+  while( pRow ){
+    pRow->railInUse |= mask;
+    pRow = pRow->pPrev;
+  }
+}
+
 
 /*
 ** Compute the complete graph
@@ -467,11 +479,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
         if( omitDescenders || pRow->isLeaf ){
           /* no-op */
         }else{
-          pRow->aiRiser[pRow->iRail] = 0;
-          mask = BIT(pRow->iRail);
-          for(pLoop=pRow; pLoop; pLoop=pLoop->pPrev){
-            pLoop->railInUse |= mask;
-          }
+          riser_to_top(pRow);
         }
       }
       continue;
@@ -513,6 +521,8 @@ void graph_finish(GraphContext *p, int omitDescenders){
     pRow->railInUse |= mask;
     if( pRow->pChild ){
       assignChildrenToRail(pRow);
+    }else if( !pRow->isLeaf ){
+      riser_to_top(pRow);
     }
     if( pParent ){
       for(pLoop=pParent->pPrev; pLoop && pLoop!=pRow; pLoop=pLoop->pPrev){
