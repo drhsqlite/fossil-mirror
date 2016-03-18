@@ -1,5 +1,5 @@
-C Fix\sa\scase\sin\sthe\sgraph\srenderer\swhere\sa\snon-leaf\snode\swhose\simmediate\schild\nis\snot\son\sscreen\sdid\snow\sshow\sthe\sarrow\sgoing\sstraight\sup\sto\sthe\stop\sof\sthe\npage.
-D 2016-03-18T14:10:03.191
+C Draw\sthe\supward\sriser\sarrow\sjust\sa\sshort\sways,\snot\sto\sthe\stop\sof\sscreen,\sfor\nnodes\swhose\snext\schild\sis\soff-screen.
+D 2016-03-18T14:35:16.888
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -412,7 +412,7 @@ F src/finfo.c 9dcd6c54bf5fadfafe0b15cbb736ba0cf418c956
 F src/foci.c 693596989fbb12a01c31317a7adf0d1ce85c7903
 F src/fusefs.c e25405b83122ed8369aa63125897348e5eb3cab2
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
-F src/graph.c dd1994aa9bbba4fd2a6d954ff21dc5f52e90ed91
+F src/graph.c 9644ae39192e84da2d4e5a7057262378ef86cbca
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
 F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
@@ -495,7 +495,7 @@ F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c 464b8b4609c6c31f649783757cb8e49928c9d953
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
-F src/timeline.c 53f500124a709b176b3f2ba8fd051b2726c83850
+F src/timeline.c ffeeaa96cd5304ac096d5882e67e1f55f812899b
 F src/tkt.c 09fedb774dc3ee893d01ce2a6050809796ef66c9
 F src/tktsetup.c 32e23747e8d3f36fc390a6197dda2209d98cad09
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
@@ -747,7 +747,10 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f73411025e8ebec70029040962f5faf7f419e1ab
-R b2ff6f11be6c84f89b71f13ee76d0ce8
+P da4a3b4ffb6447e16f308f6fd9be012f68af3dd1
+R 28c1acb2eeec8775f8711e51d6538e44
+T *branch * short-offscreen-risers
+T *sym-short-offscreen-risers *
+T -sym-trunk *
 U drh
-Z f9c12bf66bca755584554245de5e2e23
+Z 4a727f6d47283ee67cf20173c131aa95

@@ -903,7 +903,7 @@ void timeline_output_graph_javascript(
     @   n.onclick = clickOnNode;
     @   n.style.zIndex = 10;
     if( !omitDescenders ){
-      @   if( p.u==0 ) drawUpArrow(p,{x: p.x, y: -node.h},p.fg);
+      @   if( p.u==0 ) drawUpArrow(p,{x: p.x, y: p.y-40},p.fg);
       @   if( p.d ) drawUpArrow({x: p.x, y: btm-node.h/2},p,p.fg);
     }
     @   if( p.mo>=0 ){

@@ -329,12 +329,15 @@ static void find_max_rail(GraphContext *p){
 }
 
 /*
-** Draw a riser from pRow to the top of the graph
+** pRow has direct children, but they are all off-screen and not
+** shown on the current graph.  Therefore, draw an arrow up from
+** pRow but terminate it in empty space.
 */
-static void riser_to_top(GraphRow *pRow){
+static void riserToOffScreenChild(GraphRow *pRow){
   u64 mask = BIT(pRow->iRail);
   pRow->aiRiser[pRow->iRail] = 0;
-  while( pRow ){
+  int n = 0;
+  while( pRow && (n++)<3 ){
     pRow->railInUse |= mask;
     pRow = pRow->pPrev;
   }
@@ -479,7 +482,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
         if( omitDescenders || pRow->isLeaf ){
           /* no-op */
         }else{
-          riser_to_top(pRow);
+          riserToOffScreenChild(pRow);
         }
       }
       continue;
@@ -522,7 +525,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
     if( pRow->pChild ){
       assignChildrenToRail(pRow);
     }else if( !pRow->isLeaf ){
-      riser_to_top(pRow);
+      riserToOffScreenChild(pRow);
     }
     if( pParent ){
       for(pLoop=pParent->pPrev; pLoop && pLoop!=pRow; pLoop=pLoop->pPrev){
