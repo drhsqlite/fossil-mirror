@@ -1,5 +1,5 @@
-C Simpler\salternative\sto\s[7063f8d4cc].\sSkips\sinitial\sdirectory\sportion\sof\sPATH_INFO\swhen\sbuilding\sthe\sg.zBaseURL\sand\sg.zTop\sused\swith\sa\sdirectory\sof\srepositories.
-D 2016-03-17T19:32:06.986
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\smost\srecent\s3.12.0\salpha.
+D 2016-03-18T12:00:18.413
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -476,13 +476,13 @@ F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c 3ddd0bd72f6a9af5a92b4f4113577d1a0ff7c75d
 F src/setup.c 3197515d5b3094b190d6b1ef7d198ac48d9e3a19
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
-F src/shell.c 0367440658104bf2ce8d8a9a5a713a4b11c9acbe
+F src/shell.c 5e0ab1e708dc294330ccd8230536e1801f60822e
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 44d3881e497cf9bec8ea6dcf73830502ab59202c
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c de27ee9014eea9c2dcc86f4700e9e459b4347dcd
-F src/sqlite3.c df01436c5fcfe72d1a95bc172158219796e1a90b
-F src/sqlite3.h 7756708e607c3831bbc43b84475aef8e11fabc7a
+F src/sqlite3.c 065fa7093a601920c73c599827332018bce20c4f
+F src/sqlite3.h f5829894f66db3f5d431acf33fc4a8194a22f7b3
 F src/stash.c ccb0d94252422f28178119825a99c6bce45924d6
 F src/stat.c 9fa919c1c78db3952e181e0bf955b039aca0db26
 F src/statrep.c 061c9df02d134454c32e34cc29807adc594e1bc2
@@ -747,8 +747,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1f694e17046a8c8c7ebbbdebb6b9017bb50757f3 45ed23d94624b44abacb66b4a88abec3721dd250
-R 1f6b53dc7442338053904a0e95fc05b7
-T +closed 45ed23d94624b44abacb66b4a88abec3721dd250
-U mistachkin
-Z dae0d723f02d87651ad6dcb92714752c
+P abb19e88645db6c940c640d728e8724e1c56b246
+R c9aa6aa3ead7e55ff556441e81e7d36f
+U drh
+Z 4ad94ec8bbb5cdac583e3cd993b561fb
