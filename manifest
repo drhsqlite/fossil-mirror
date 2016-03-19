@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sinclude\sthe\s"PRAGMA\sintegrity_check"\sfix.
-D 2016-03-19T00:55:56.153
+C Merge\srisers\smust\snot\sgo\sstraight\sup\sto\sanother\snode\son\sthe\ssame\srail.
+D 2016-03-19T15:17:31.728
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -412,7 +412,7 @@ F src/finfo.c 9dcd6c54bf5fadfafe0b15cbb736ba0cf418c956
 F src/foci.c 693596989fbb12a01c31317a7adf0d1ce85c7903
 F src/fusefs.c e25405b83122ed8369aa63125897348e5eb3cab2
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
-F src/graph.c 9644ae39192e84da2d4e5a7057262378ef86cbca
+F src/graph.c 6a3baf75865ae70aa613460a9ff4453904c2c4d7
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
 F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
@@ -747,7 +747,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 70ba2951f2802a2f76691bb9f04ffddc14b95076
-R 3460b5fa348805e5d5ad0f47797f9ff3
+P 9245076e5e4bb5f3bf5e7654d3fdb8608f0c0ca3
+R 32cef37b1c6646032d5e4af17b222f3e
 U drh
-Z 3f4d7baae94f927eee06c5a5ff02da38
+Z f91054e6c562712ad78c755bc0299a03
