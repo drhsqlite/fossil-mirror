@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sinclude\sthe\s"PRAGMA\sintegrity_check"\sfix.
-D 2016-03-19T03:05:13.611
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sfirst\s3.12.0\sbeta.
+D 2016-03-21T16:08:57.820
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -481,8 +481,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 44d3881e497cf9bec8ea6dcf73830502ab59202c
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c de27ee9014eea9c2dcc86f4700e9e459b4347dcd
-F src/sqlite3.c ed922b155f0fbf45c25616b6a283d5c44e4d0d11
-F src/sqlite3.h dd3f07cdabb7fab6c9921549e0268e384e745cb0
+F src/sqlite3.c 30f9b80530b9a193e24ff00e6fd08d382c74c603
+F src/sqlite3.h 48d5b484e8c41c05669d6672285c84bc5f746f4c
 F src/stash.c ccb0d94252422f28178119825a99c6bce45924d6
 F src/stat.c 9fa919c1c78db3952e181e0bf955b039aca0db26
 F src/statrep.c 061c9df02d134454c32e34cc29807adc594e1bc2
@@ -747,8 +747,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P da4a3b4ffb6447e16f308f6fd9be012f68af3dd1
-Q +9245076e5e4bb5f3bf5e7654d3fdb8608f0c0ca3
-R 33ce4cc6f5a90905e6e8bc213d975a42
+P 567ab1937e1a15bee3ee566f78ee2678666982d1
+R 524ec5dea3567cc411a4fed069265c94
 U drh
-Z df4b9c143b84d4f39495aa06cee4dfd5
+Z bfc7380a4e296fe3b9e6a51a17d22afb
