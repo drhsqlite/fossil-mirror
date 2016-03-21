@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sfirst\s3.12.0\sbeta.
-D 2016-03-21T16:08:57.820
+C Fix\sthe\sgraph\sof\schanges\sfor\sindividual\sfiles\s-\sbroken\sby\srecent\swork\son\s\nthe\sgraph\sgenerator.
+D 2016-03-21T16:34:50.244
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -412,7 +412,7 @@ F src/finfo.c 9dcd6c54bf5fadfafe0b15cbb736ba0cf418c956
 F src/foci.c 693596989fbb12a01c31317a7adf0d1ce85c7903
 F src/fusefs.c e25405b83122ed8369aa63125897348e5eb3cab2
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
-F src/graph.c dd1994aa9bbba4fd2a6d954ff21dc5f52e90ed91
+F src/graph.c 8d766b73f318358fec439cc52ea3c02874340fb8
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
 F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
@@ -747,7 +747,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 567ab1937e1a15bee3ee566f78ee2678666982d1
-R 524ec5dea3567cc411a4fed069265c94
+P fbc2f1c287495c38605713ead0f6a88e1b4f03c5
+R a35feabfa9ee8cbbc06c926b26447a37
 U drh
-Z bfc7380a4e296fe3b9e6a51a17d22afb
+Z bf176400877a7611b4063920f115b1e1

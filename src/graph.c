@@ -521,7 +521,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
     pRow->railInUse |= mask;
     if( pRow->pChild ){
       assignChildrenToRail(pRow);
-    }else if( !pRow->isLeaf ){
+    }else if( !pRow->isLeaf && !omitDescenders ){
       riser_to_top(pRow);
     }
     if( pParent ){
