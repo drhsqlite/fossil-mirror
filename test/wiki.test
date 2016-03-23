@@ -159,6 +159,7 @@ test wiki-29 {$CODE == 0}
 
 ###############################################################################
 # Check a technote appears on the timeline
+after 1200
 write_file f8 "Contents of a 'unique' tech note"
 fossil wiki create {Unique technote} f8 --technote now
 fossil timeline
