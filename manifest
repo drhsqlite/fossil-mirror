@@ -1,5 +1,5 @@
-C Merged\strunk\sfor\schanges\ssince\sJanuary\sand\stest\ssuite\simprovements.
-D 2016-03-13T23:55:23.490
+C Added\swiki.test\sas\sreceived\sfrom\sDavid\sVines.\sThis\sis\sa\ssnapshot,\sthe\stest\sfile\s(usually)\sruns,\sbut\shas\san\sissue\sthat\sI\sam\sdiagnosing\srelated\sto\sthe\stest\swiki-30.
+D 2016-03-23T20:51:01.047
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -571,6 +571,7 @@ F test/utf.test 4f476e82c536d8a56e9b27c8da460f8f92139d79
 F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03
+F test/wiki.test aacfd629140db50cab78ca73fd2e8a7e551e29e7
 F tools/cvs2fossil/changeset 1c99ad8ca9b2f049266d63e0bcc5f26196c72627
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -747,7 +748,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d4dc7ad8dc8cbce73b4b077f45928e9c51161c0b f7c19ec0cc098d2d1901a647b957099a367a4cc8
-R 67c43e1c90c924754c46ece5db5924aa
+P 8fa24960ac9d724c138d3e11c6d6f1a753ed159d
+R 05e522200f96b1def585392e1e14f060
 U rberteig
-Z 8dc8c94c3b4d3ac71be09ce38496eb8f
+Z d89b0f7f4de88d4f9686abbae2abe8a2

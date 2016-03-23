@@ -1,0 +1,170 @@
+#
+# Copyright (c) 2016 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+# Test wiki and attachment command Support
+#
+
+test_setup
+
+# Return true if two files are similar (i.e. not only compress trailing spaces
+# from a line, but remove any final LF from the file as well)
+proc similar_file {a b} {
+  set x [read_file $a]
+  regsub -all { +\n} $x \n x
+  regsub -all {\n$} $x {} x
+  set y [read_file $b]
+  regsub -all { +\n} $y \n y
+  regsub -all {\n$} $y {} y
+  return [expr {$x==$y}]
+}
+
+###############################################################################
+# Initially there should be no wiki entries
+fossil wiki list
+test wiki-0 {[normalize_result] eq {}}
+
+###############################################################################
+# Adding an entry should add it to the wiki list
+write_file f1 "first wiki note"
+fossil wiki create tcltest f1
+test wiki-1 {$CODE == 0}
+fossil wiki list
+test wiki-2 {[normalize_result] eq {tcltest}}
+
+###############################################################################
+# Trying to add the same entry should fail
+fossil wiki create tcltest f1 -expectError
+test wiki-3 {$CODE != 0}
+
+###############################################################################
+# exporting the wiki page should give back similar text
+fossil wiki export tcltest a1
+test wiki-4 {[similar_file f1 a1]}
+
+###############################################################################
+# commiting a change to an existing page should replace the page on export
+write_file f2 "second version of the page"
+fossil wiki commit tcltest f2
+test wiki-5 {$CODE == 0}
+fossil wiki export tcltest a2
+test wiki-6 {[similar_file f2 a2]}
+
+###############################################################################
+# But we shouldn't be able to update non-existant pages
+fossil wiki commit doesntexist f1 -expectError
+test wiki-7 {$CODE != 0}
+
+###############################################################################
+# There shouldn't be any tech notes at this point
+fossil wiki list --technote
+test wiki-8 {[normalize_result] eq {}}
+
+###############################################################################
+# Creating a tech note without specifying the timestamp should add a technote
+write_file f3 "A technote"
+fossil wiki create technote f3 --technote {2016-01-01 12:34}
+test wiki-9 {$CODE == 0}
+fossil wiki list --technote
+test wiki-10 {[normalize_result] eq {2016-01-01 12:34:00}}
+
+###############################################################################
+# exporting that technote should give back similar text
+fossil wiki export a3 --technote {2016-01-01 12:34:00}
+test wiki-11 {[similar_file f3 a3]}
+
+###############################################################################
+# Trying to add a technote with the same timestamp should fail
+fossil wiki create 2ndnote f3 -technote {2016-01-01 12:34} -expectError
+test wiki-13 {$CODE != 0}
+
+###############################################################################
+# commiting a change to an existing technote should replace the page on export
+write_file f4 "technote 2nd variant"
+fossil wiki commit technote f4 --technote {2016-01-01 12:34}
+test wiki-14 {$CODE == 0}
+fossil wiki export a4 --technote {2016-01-01 12:34}
+test wiki-15 {[similar_file f4 a4]}
+
+###############################################################################
+# But we shouldn't be able to update non-existant pages
+fossil wiki commit doesntexist f1 -expectError
+test wiki-16 {$CODE != 0}
+
+###############################################################################
+# Check specifying tags for a technote is OK 
+write_file f5 "technote with tags"
+fossil wiki create {tagged technote} f5 --technote {2016-01-02 12:34} --technote-tags {A B}
+test wiki-17 {$CODE == 0}
+write_file f5.1 "editted and tagged technote"
+fossil wiki commit {tagged technote} f5 --technote {2016-01-02 12:34} --technote-tags {C D}
+test wiki-18 {$CODE == 0}
+
+###############################################################################
+# Check specifying a bgcolor for a technote is OK
+write_file f6 "bgcolored technote"
+fossil wiki create bgcolor f6 --technote {2016-01-03 12:34} --technote-bgcolor red
+test wiki-19 {$CODE == 0}
+write_file f6.1 "editted technote with a background color"
+fossil wiki commit bgcolor f6.1 --technote {2016-01-03 12:34} --technote-bgcolor yellow
+test wiki-20 {$CODE == 0}
+
+###############################################################################
+# Test adding an attachment to both a non-existant (should fail) and existing wiki page
+write_file fa "This is a file to be attached"
+fossil attachment add doesntexist fa -expectError
+test wiki-21 {$CODE != 0}
+fossil attachment add tcltest fa
+test wiki-22 {$CODE == 0}
+
+###############################################################################
+# Test adding an attachment to borg a non-existant (should fail) and existing tech note
+fossil attachment add fa --technote {2016-07-22 12:00} -expectError
+test wiki-23 {$CODE != 0}
+fossil attachment add fa --technote {2016-01-03 12:34}
+test wiki-24 {$CODE == 0}
+
+###############################################################################
+# Check that a wiki page with an attachment can be updated
+fossil wiki commit tcltest f1
+test wiki-25 {$CODE == 0}
+
+###############################################################################
+# Check that a technote with an attachment can be updated
+fossil wiki commit technote f6 --technote {2016-01-03 12:34}
+test wiki-26 {$CODE == 0}
+fossil wiki commit technote f6 --technote {2016-01-03 12:34} --technote-tags {E F}
+test wiki-27 {$CODE == 0}
+fossil wiki commit technote f6 --technote {2016-01-03 12:34} --technote-bgcolor blue
+test wiki-28 {$CODE == 0}
+
+###############################################################################
+# Check longest form of timestamp for the technote
+write_file f7 "Different timestamps"
+fossil wiki create technotenow f7 --technote {2016-01-04 12:34:56+00:00}
+test wiki-29 {$CODE == 0}
+
+###############################################################################
+# Check a technote appears on the timeline
+write_file f8 "Contents of a 'unique' tech note"
+fossil wiki create {Unique technote} f8 --technote now
+fossil timeline
+test wiki-30 {[string match *Unique*technote* [second_data_line]]}
+
+###############################################################################
+
+test_cleanup
+
