@@ -1152,18 +1152,21 @@ int wiki_cmd_commit(const char *zPageName, int isNew, Blob *pContent,
 **    %fossil wiki (create|commit) PAGENAME ?FILE? ?OPTIONS?
 **              
 **       Create a new or commit changes to an existing wiki page or 
-**       technote from FILE or from standard input.
+**       technote from FILE or from standard input. PAGENAME is the
+**       name of the wiki entry or the timeline comment of the
+**       technote.
 **
 **       Options:
-**         -M|--mimetype TEXT-FORMAT   The mime type of the update defaulting
-**                                     defaulting to the type used by the 
-**                                     previous version of the page or (for 
-**                                     new pages) text/x-fossil-wiki.
-**         -t|--technote DATETIME      Specifies the timestamp of the technote
-**                                     to be created or updated.
+**         -M|--mimetype TEXT-FORMAT   The mime type of the update.
+**                                     Defaults to the type used by
+**                                     the previous version of the
+**                                     page, or text/x-fossil-wiki.
+**         -t|--technote DATETIME      Specifies the timestamp of
+**                                     the technote to be created or
+**                                     updated.
 **         --technote-tags TAGS        The set of tags for a technote.
-**         --technote-bgcolor COLOR    The color used for the technote on the
-**                                     timeline.
+**         --technote-bgcolor COLOR    The color used for the technote
+**                                     on the timeline.
 **
 **    %fossil wiki list ?--technote?
 **    %fossil wiki ls ?--technote?

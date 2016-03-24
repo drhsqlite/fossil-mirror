@@ -74,7 +74,7 @@ fossil wiki list --technote
 test wiki-8 {[normalize_result] eq {}}
 
 ###############################################################################
-# Creating a tech note without specifying the timestamp should add a technote
+# Creating a tech note with a specified timestamp should add a technote
 write_file f3 "A technote"
 fossil wiki create technote f3 --technote {2016-01-01 12:34}
 test wiki-9 {$CODE == 0}
@@ -159,11 +159,62 @@ test wiki-29 {$CODE == 0}
 
 ###############################################################################
 # Check a technote appears on the timeline
-after 1200
 write_file f8 "Contents of a 'unique' tech note"
-fossil wiki create {Unique technote} f8 --technote now
+fossil wiki create {Unique technote} f8 --technote {2016-01-05 01:02:03}
 fossil timeline
-test wiki-30 {[string match *Unique*technote* [second_data_line]]}
+test wiki-30 {[string match *Unique*technote* $RESULT]}
+
+
+###############################################################################
+# Check for a collision between an attachment and a note, this is a
+# bug that results from some code apparently treating the attachment
+# entry as if it were a technote when it isn't really. 
+#
+# First, wait for the top of the next second so the attachment
+# happens at a known time, then add an attachment to an existing note
+# and a new note immediately after. 
+
+set t0 [clock seconds]
+while {$t0 == [clock seconds]} {
+  after 100
+}
+set t1 [clock format [clock seconds] -gmt 1 -format "%Y-%m-%d %H:%M:%S"]
+write_file f9 "Timestamp: $t1"
+fossil attachment add f9 --technote {2016-01-05 01:02:03}
+test wiki-31 {$CODE == 0}
+fossil wiki create {Attachment collision} f9 --technote now
+test wiki-32 {$CODE == 0} knownBug
+#
+# Now waste time until the next second so that the remaining tests
+# don't have to suffer from this known bug with attachments. This
+# delay could be removed if that bug is fixed, but probably shouldn't
+# be.
+set t0 [clock seconds]
+while {$t0 == [clock seconds]} {
+  after 100
+}
+
+###############################################################################
+# Check a technote with no timestamp can not be created, but that
+# "now" is a valid stamp.
+set t2 [clock format [clock seconds] -gmt 1 -format "%Y-%m-%d %H:%M:%S"]
+write_file f10 "Even unstampted notes are delivered.\nStamped $t2"
+fossil wiki create "Unstamped Note" f10 --technote -expectError
+test wiki-33 {$CODE != 0}
+fossil wiki create "Unstamped Note" f10 --technote now
+test wiki-34 {$CODE == 0}
+fossil wiki list -t 
+test wiki-35 {[string match "*$t2*" $RESULT]}
+###############################################################################
+# Check an attachment to it in the same second works. 
+write_file f11 "Time Stamp was $t2"
+fossil attachment add f11 --technote $t2
+test wiki-36 {$CODE == 0}
+fossil timeline
+test wiki-36-1 {$CODE == 0}
+fossil wiki list -t
+test wiki-36-2 {$CODE == 0}
+
 
 ###############################################################################
 
