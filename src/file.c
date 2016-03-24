@@ -521,7 +521,7 @@ void test_set_mtime(void){
   char *zDate;
   i64 iMTime;
   if( g.argc!=4 ){
-    usage("test-set-mtime FILENAME DATE/TIME");
+    usage("FILENAME DATE/TIME");
   }
   db_open_or_attach(":memory:", "mem", 0);
   iMTime = db_int64(0, "SELECT strftime('%%s',%Q)", g.argv[3]);

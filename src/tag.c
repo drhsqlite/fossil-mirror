@@ -522,7 +522,7 @@ void tag_cmd(void){
       }
       db_finalize(&q);
     }else{
-      usage("tag list ?CHECK-IN?");
+      usage("list ?CHECK-IN?");
     }
   }else
   {

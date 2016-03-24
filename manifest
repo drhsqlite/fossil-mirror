@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\ssecond\s3.12.0\sbeta.
-D 2016-03-22T16:34:48.664
+C Reviewed\sall\sUsage:\smessages\sfor\sconsistency\sand\sfixed\sa\sfew\swhere\sthe\sfossil\scommand\s\nwas\snamed\sin\sthe\scall\sto\susage(),\scausing\sthe\sdisplayed\susage\sto\sshow\sthe\scommand\sname\ntwice.\sAffected\scommands\sare\sbisect\soptions,\stest-fileage,\stest-set-mtime,\swhatis,\nremote-url,\sand\stag\slist.
+D 2016-03-24T18:23:45.920
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -375,10 +375,10 @@ F src/add.c f192f326c99668df8be826d7bdbdd8d19f7b5f4e
 F src/allrepo.c 12318d357d48a1c013e1bfafe100d3c95f466285
 F src/attach.c f35c74213de213acb286d9356aece616cba97824
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
-F src/bisect.c c8bdcf4812c9446bea503610d234772516bf572f
+F src/bisect.c abd167c9f2c5398782ca6d48ea1ee612163a7685
 F src/blob.c 10ee0528085b90be013d53935bceeeb83a7b1027
 F src/branch.c 09724980278de18e9bbff5da85950c3febd811eb
-F src/browse.c 96dbc7580b4ac9d42dd9d3f3accd52946b3258ac
+F src/browse.c 798a52b69cba53eec28f6a5b13ca23ec6bbf97b6
 F src/builtin.c 31c17d18b565c7766021913c89be4180b3ee4a56
 F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c c42b6bf7490ac4758a6bc83a1bcaf4f89353f28d
@@ -407,7 +407,7 @@ F src/doc.c ee445fb565ae8040e3362e28bbe4db353d987229
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
 F src/event.c 55ac1712c44b5b84363350ebe0ef19233137a096
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
-F src/file.c b673d8357c2d7caedf545066e32fe46b436177e8
+F src/file.c 2902ca147ee0756396378ba3736e80d57593f4e1
 F src/finfo.c 9dcd6c54bf5fadfafe0b15cbb736ba0cf418c956
 F src/foci.c 693596989fbb12a01c31317a7adf0d1ce85c7903
 F src/fusefs.c e25405b83122ed8369aa63125897348e5eb3cab2
@@ -459,7 +459,7 @@ F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
 F src/mkindex.c 8b49a351b060c3e9203dacbacfc8216f760f8da2
 F src/mkversion.c 40ed302872cc5795c76efb3ab089fc1aedba18f1
 F src/moderate.c 8ab2bd4bda9a6b6765f99ddea7950dc5c6bad007
-F src/name.c 7c41f968598cbbb88efae5b58da426598315728c
+F src/name.c c18080a294bfeb2dbf8babd3294e8e66fbcda18e
 F src/path.c 9455d26c4bf91ae949abd55536a1a20d863c486b
 F src/piechart.c 6b2d49434b036d495ec30378520dd1054b03c920
 F src/pivot.c f03ae2edfb53590f6dee86c1a0d93441feb0f816
@@ -487,8 +487,8 @@ F src/stash.c ccb0d94252422f28178119825a99c6bce45924d6
 F src/stat.c 9fa919c1c78db3952e181e0bf955b039aca0db26
 F src/statrep.c 061c9df02d134454c32e34cc29807adc594e1bc2
 F src/style.c 1a7a0b84d1404a6420819498e0697219eb90357d
-F src/sync.c 3b1511abc32c7640c57fe3e304bf2a9c3e98ed0b
-F src/tag.c 7d5fce007b31f441fc6d907248251e529495a474
+F src/sync.c a364458e80a69d05f64a447d402949b05db1fe8d
+F src/tag.c b3e44b4005cebac7d1253c5d76520aec1b9fc96e
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
@@ -747,7 +747,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c693d82da27742ef23b631a4bee8ecd9af9b0dcc
-R 955012c6846014052f562438cb7c9f21
-U drh
-Z 174e767062734918d4f6ebdaf14748de
+P 314f194227c63e6c95801d917f30a42f607429b7
+R 00893899e2314357aa0c41e0261ca748
+U rberteig
+Z ee41ceb18d17b87365ef83136627c0fb

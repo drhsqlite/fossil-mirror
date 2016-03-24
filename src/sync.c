@@ -318,7 +318,7 @@ void remote_url_cmd(void){
   verify_all_options();
 
   if( g.argc!=2 && g.argc!=3 ){
-    usage("remote-url ?URL|off?");
+    usage("?URL|off?");
   }
   if( g.argc==3 ){
     db_unset("last-sync-url", 0);

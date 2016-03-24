@@ -692,7 +692,7 @@ void whatis_cmd(void){
   /* We should be done with options.. */
   verify_all_options();
 
-  if( g.argc<3 ) usage("whatis NAME ...");
+  if( g.argc<3 ) usage("NAME ...");
   for(i=2; i<g.argc; i++){
     zName = g.argv[i];
     if( i>2 ) fossil_print("%.79c\n",'-');
