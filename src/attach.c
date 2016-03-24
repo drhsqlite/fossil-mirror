@@ -716,7 +716,7 @@ void attachment_cmd(void){
     zETime = find_option("technote","t",1);
     if( !zETime ){
       if( g.argc!=5 ){
-        usage("attachment add PAGENAME FILENAME");
+        usage("add PAGENAME FILENAME");
       }
       zPageName = g.argv[3];
       rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
@@ -734,7 +734,7 @@ void attachment_cmd(void){
       zFile = g.argv[4];
     }else{
       if( g.argc!=4 ){
-        usage("attachment add FILENAME --technote DATETIME");
+        usage("add FILENAME --technote DATETIME");
       }
       rid = db_int(0, "SELECT objid FROM event"
         " WHERE datetime(mtime)=datetime('%q') AND type='e'"
@@ -774,5 +774,5 @@ void attachment_cmd(void){
   return;
 
 attachment_cmd_usage:
-  usage("attachment add ?PAGENAME? FILENAME [-t|--technote DATETIME ]");
+  usage("add ?PAGENAME? FILENAME [-t|--technote DATETIME ]");
 }

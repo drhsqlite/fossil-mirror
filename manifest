@@ -1,5 +1,5 @@
-C Add\sa\s1.2\ssec\sdelay\sbefore\sthe\stest\swiki-30\sbecause\sit\sexplicitly\suses\sthe\scurrent\sdate\sand\stime,\sand\sother\schanges\smade\sto\stechnotes\simplicitly\suse\sthe\scurrent\stime,\scausing\sa\stechnote\sname\scollision\sif\sthe\stest\sscript\shappens\sto\sexecute\swith\sthe\srelevent\sbits\shappening\swithin\sthe\ssame\swall\sclock\ssecond,\sat\sleast\son\sWindows.\sThis\sis\spartly\sa\skludge\sto\smake\sthis\stest\scase\spass\sreliably.\sIt\swould\sprobably\sbe\sbetter\sfor\stest\scases\sto\snot\shave\smore\sthan\sone\sreference\sto\s'now'\sin\sa\sway\sthat\swould\scause\sa\sname\scollision,\sthat\sis\sworth\sfurther\sinvestigation.\sAlso,\sat\sfirst\sglance\sit\sdoesn't\slook\slike\sthe\ssuite\sactually\screated\sto\stechnotes\sat\sthe\ssame\ssecond,\sbut\srather\sit\swas\sone\sof\sthe\sedits\sto\san\solder\stechnote\sthat\sis\scausing\sthe\scollision.
-D 2016-03-23T21:19:28.707
+C Fixed\sinconsistent\scalls\sto\susage()\sin\sthe\sattachment\scommand\swhich\sresult\sin\sprinting\sthe\sfossil\scommand\sname\stwice\sin\sthe\sUsage:\smessage.
+D 2016-03-24T18:28:20.034
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -373,7 +373,7 @@ F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 026bd9dac971929fa07830d34993d0f00f99bcd2
 F src/allrepo.c 12318d357d48a1c013e1bfafe100d3c95f466285
-F src/attach.c f4b6f2f784563e44e3e4b7972b7c3f14b6d28f68
+F src/attach.c 9604a458e3a2b84ad2005c8899a0d7a25f56d0fb
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c c8bdcf4812c9446bea503610d234772516bf572f
 F src/blob.c 10ee0528085b90be013d53935bceeeb83a7b1027
@@ -748,7 +748,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f7513f874964e4a1a72f6f88c1a76f513c19f146
-R b3fa993f40b43adce5438c2505668141
+P c29c75c938f9c0002ee8effffe7d67a68e8b0877
+R 1283e701efe288864d9bc011c02bf243
 U rberteig
-Z 74c5cce844bf381d48887b6ed3631142
+Z 350c2f1e4c89176e7f9b213793d22336
