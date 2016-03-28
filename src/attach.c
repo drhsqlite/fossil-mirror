@@ -358,7 +358,7 @@ void attachadd_page(void){
       if( zTechNote==0) fossil_redirect_home();
     }
     zTarget = zTechNote;
-    zTargetType = mprintf("Tech Note <a href=\"%R/technote/%h\">%h</a>",
+    zTargetType = mprintf("Tech Note <a href=\"%R/technote/%s\">%S</a>",
                            zTechNote, zTechNote);
   
   }else{

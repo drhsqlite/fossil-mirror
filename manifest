@@ -1,5 +1,5 @@
-C Fixed\ssome\stypos\sand\sattempted\sto\simprove\sdocumentation\sof\sthe\sfossil\swiki\scommand.\sAdded\sand\srearranged\stest\scasesd\sfor\sfossil\swiki\sto\sexplicitly\sinclude\sa\sknownBug\scase\sfor\sthe\scollision\sbetween\sa\sprevious\sattachment\sand\sa\snew\stechnote\sthat\shappen\sto\soccur\sin\sthe\ssame\ssecond.\sNote\sthat\sthe\sreverse\sorder\sdoes\snot\sfail,\sas\sdemonstrated\sby\ssome\sadditional\stests.
-D 2016-03-24T22:27:12.667
+C Stop\susing\s10h\sas\sthe\sformat\sfor\stech\snote\sids.\sNote\sthat\sthe\scomment\sfor\sany\sexisting\sattachments\sto\stech\snotes\swon't\schange\sas\sthe\scomment\sis\sgenerated\swhen\sthe\sattachment\sis\smade\s(since\sthis\schange\sis\snew,\sI'd\sexpect\sthere\sto\sbe\snone\soutside\sof\smy\sown\spersonal\sfossil\srepositories)
+D 2016-03-28T12:12:07.394
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -373,7 +373,7 @@ F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 026bd9dac971929fa07830d34993d0f00f99bcd2
 F src/allrepo.c 12318d357d48a1c013e1bfafe100d3c95f466285
-F src/attach.c 9604a458e3a2b84ad2005c8899a0d7a25f56d0fb
+F src/attach.c f205c8294689abe6fc235dd8c605dae33ad336dd
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c c8bdcf4812c9446bea503610d234772516bf572f
 F src/blob.c 10ee0528085b90be013d53935bceeeb83a7b1027
@@ -447,7 +447,7 @@ F src/main.mk 3c852b97f84551d69cb8e530c071431e37238913
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 3031aab0288140dc56ea6f8d9dfa650ca9aa18ef
-F src/manifest.c a520159adafb16098a08535b2bbd6984198b5cdf
+F src/manifest.c 5739475e5ecd86a53f1333c8c04f61aba010d2fd
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md fc02fd045690e6fb45fb0bc91be734913dc70d02
 F src/markdown_html.c c7392199eb39dad9f92c31aa352f4f3408da93bf
@@ -748,7 +748,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 420a5fc0bf0d3b5c39aea72ccad852f64d135113
-R 1b332fbc4a128e40d5ab3874b8b91fb4
-U rberteig
-Z 034412a01ca889a49a9aae5cb7c971c5
+P b81125e2501b52e42f9f86bd0c710adbd166e572
+R 4fc134f437b509b7b709d13033a7e5db
+U dave.vines
+Z 1d04775a78d3bcffb8e27f4bff17d5b3

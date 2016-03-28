@@ -2068,11 +2068,13 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       if( isAdd ){
         zComment = mprintf(
              "Add attachment [/artifact/%!S|%h] to"
-             " tech note [/technote/%h|%.10h]",
+             " tech note [/technote/%!S|%S]",
              zSrc, zName, zTarget, zTarget); 
       }else{
-        zComment = mprintf("Delete attachment \"%h\" from tech note [%.10h]",
-             zName, zTarget);
+        zComment = mprintf(
+             "Delete attachment \"%h\" from"
+             " tech note [/technote/%!S|%S]",
+             zName, zTarget, zTarget);
       }
       db_multi_exec("UPDATE event SET comment=%Q, type='e'"
                        " WHERE objid=%Q",
@@ -2164,11 +2166,14 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     }else if( 'e' == attachToType ){
       if( isAdd ){
         zComment = mprintf(
-          "Add attachment [/artifact/%!S|%h] to tech note [/technote/%h|%.10h]",
+          "Add attachment [/artifact/%!S|%h] to tech note [/technote/%!S|%S]",
           p->zAttachSrc, p->zAttachName, p->zAttachTarget, p->zAttachTarget); 
       }else{
-        zComment = mprintf("Delete attachment \"%h\" from tech note [%.10h]",
-             p->zAttachName, p->zAttachTarget);
+        zComment = mprintf(
+             "Delete attachment \"/artifact/%!S|%h\" from"
+             " tech note [/technote/%!S|%S]",
+             p->zAttachName, p->zAttachName,
+             p->zAttachTarget,p->zAttachTarget);
       }      
     }else{
       if( isAdd ){
