@@ -1,5 +1,5 @@
-C Update\sreferenced\sOpenSSL\sversion
-D 2016-03-01T17:32:00.000
+C Update\sSQLite\sto\s3.12.0.\sFedora\s22\s->\s23
+D 2016-03-29T11:43:22.124
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -9,7 +9,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile c7e39f0670b8a4740761d38bb1fb7becfca8fd08
+F Dockerfile bfde8ac86adbda73261fe0b6d4fffb26495ba0e3
 F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
 F Makefile.in 4c745f08a8ecfe6e1f227e2a6d33cce3adc532d0
 F VERSION a75c890f5a88bff69d63f342449e76fb3f720928
@@ -476,13 +476,13 @@ F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b02a73b942028631eacf484ae3f83a3a4edd3518
 F src/setup.c 63ef85778a8ca6007f8ded284589272f87d392bd
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
-F src/shell.c d25df04168d6ba5a4fa05bdbf859df667f9eb621
+F src/shell.c 5e0ab1e708dc294330ccd8230536e1801f60822e
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 44d3881e497cf9bec8ea6dcf73830502ab59202c
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c df01436c5fcfe72d1a95bc172158219796e1a90b
-F src/sqlite3.h 7756708e607c3831bbc43b84475aef8e11fabc7a
+F src/sqlite3.c cba2be96d27cb51978cd4a200397a4ad178986eb
+F src/sqlite3.h 928b1de9b43419d64cc6ed6141c64353bc54b598
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 69ab1f0d78ccb91fc81f8f3930046025034a3250
 F src/statrep.c 2475cba0c91bdaa6f51a61565732ece308fadf42
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dd22f5708287c4a1ab57c951a83d51a8879b7751
-R ca3b0cca5666476c83e02e6db9a675c1
+P 60a0deb2930db38c157129a4758317582d5416cf
+R aa4660589dcffa5ea437a5b242b4c183
 U jan.nijtmans
-Z 59bc4afbbb91ffa5ca71cad3f43fba4c
+Z 9ae390ff00714e1c72881ad2c801f554
