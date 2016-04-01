@@ -557,6 +557,8 @@ void event_cmd_commit(
   const char *zId;        /* id of the tech note */
   rid = db_int(0, "SELECT objid FROM event"
         " WHERE datetime(mtime)=datetime('%q') AND type = 'e'"
+           " AND tagid IS NOT NULL"
+        " ORDER BY mtime DESC"
         " LIMIT 1",
         zETime
   );

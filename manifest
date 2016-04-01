@@ -1,5 +1,5 @@
-C Stop\susing\s10h\sas\sthe\sformat\sfor\stech\snote\sids.\sNote\sthat\sthe\scomment\sfor\sany\sexisting\sattachments\sto\stech\snotes\swon't\schange\sas\sthe\scomment\sis\sgenerated\swhen\sthe\sattachment\sis\smade\s(since\sthis\schange\sis\snew,\sI'd\sexpect\sthere\sto\sbe\snone\soutside\sof\smy\sown\spersonal\sfossil\srepositories)
-D 2016-03-28T12:12:07.394
+C Remove\snon\stech\snotes\sfrom\sthe\slist\sand\serror\schecking\sperformed\sby\sfossil\swiki\s--technote.\sAmbiguity\sof\stech\snote\swith\sthe\ssame\stimestamp\sresolved\sin\sfavour\sof\sthe\stech\snote\swith\sthe\shighest\smodification\stimestamp.
+D 2016-04-01T14:47:09.752
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -405,7 +405,7 @@ F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
 F src/diffcmd.c 6ccec8e05ddf7cad3755bfc6e5abf6972f6542ca
 F src/doc.c ee445fb565ae8040e3362e28bbe4db353d987229
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
-F src/event.c 55ac1712c44b5b84363350ebe0ef19233137a096
+F src/event.c e10090d6ba1e1f3ef9e4a04b273159764b6d7c64
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
 F src/file.c 96e88d124e5a031652e30ef1abc06e69b125c736
 F src/finfo.c 9dcd6c54bf5fadfafe0b15cbb736ba0cf418c956
@@ -508,7 +508,7 @@ F src/utf8.c 5c85c7e88b82b5fb48649c46f063ac94ab58eb20
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
 F src/vfile.c 3b7286065edf544811df9f41fc9f35e1d7207c51
-F src/wiki.c bb7c6e7409cd0c9a20414376e05f4e29a55b106a
+F src/wiki.c 22676ebd638e0efa1108f8f42ac91e78beaef164
 F src/wikiformat.c f9fb5b8bc72c23d88bedcc8de1048f1081514d09
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c 4e680d7c8778be4439169f40a992ccc81f7ceec2
@@ -571,7 +571,7 @@ F test/utf.test 4f476e82c536d8a56e9b27c8da460f8f92139d79
 F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03
-F test/wiki.test 463df0571663aabcd3cb8750272908c1a63d739d
+F test/wiki.test b2dd426388dc43afce73e875bbcbcf44efda89c9
 F tools/cvs2fossil/changeset 1c99ad8ca9b2f049266d63e0bcc5f26196c72627
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -748,7 +748,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b81125e2501b52e42f9f86bd0c710adbd166e572
-R 4fc134f437b509b7b709d13033a7e5db
+P 4ce3c62b53694f97394962ba621a933860623f67
+R fc5ad00b85121232d18af01bc3c2d4e5
 U dave.vines
-Z 1d04775a78d3bcffb8e27f4bff17d5b3
+Z e1b4053fa6dbd2e89695a655a912862c

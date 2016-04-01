@@ -183,19 +183,17 @@ write_file f9 "Timestamp: $t1"
 fossil attachment add f9 --technote {2016-01-05 01:02:03}
 test wiki-31 {$CODE == 0}
 fossil wiki create {Attachment collision} f9 --technote now
-test wiki-32 {$CODE == 0} knownBug
+test wiki-32 {$CODE == 0}
 #
 # Now waste time until the next second so that the remaining tests
-# don't have to suffer from this known bug with attachments. This
-# delay could be removed if that bug is fixed, but probably shouldn't
-# be.
+# don't have to worry about a potential collision
 set t0 [clock seconds]
 while {$t0 == [clock seconds]} {
   after 100
 }
 
 ###############################################################################
-# Check a technote with no timestamp can not be created, but that
+# Check a technote with no timestamp cannot be created, but that
 # "now" is a valid stamp.
 set t2 [clock format [clock seconds] -gmt 1 -format "%Y-%m-%d %H:%M:%S"]
 write_file f10 "Even unstampted notes are delivered.\nStamped $t2"
@@ -205,6 +203,7 @@ fossil wiki create "Unstamped Note" f10 --technote now
 test wiki-34 {$CODE == 0}
 fossil wiki list -t 
 test wiki-35 {[string match "*$t2*" $RESULT]}
+
 ###############################################################################
 # Check an attachment to it in the same second works. 
 write_file f11 "Time Stamp was $t2"
@@ -215,6 +214,12 @@ test wiki-36-1 {$CODE == 0}
 fossil wiki list -t
 test wiki-36-2 {$CODE == 0}
 
+###############################################################################
+# Check that we have the expected number of tech notes on the list (and not 
+# extra ones from other events (such as the attachments) - 7 tech notes 
+# expected created by tests 9, 17, 19, 29, 31, 32 and 34 
+fossil wiki list --technote
+test wiki-37 {[llength [split $RESULT "\n"]] == 7}
 
 ###############################################################################
 

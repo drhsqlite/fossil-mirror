@@ -1278,6 +1278,7 @@ void wiki_cmd(void){
       }else{
         rid = db_int(0, "SELECT objid FROM event"
                      " WHERE datetime(mtime)=datetime('%q') AND type='e'"
+                        " AND tagid IS NOT NULL"
                      " ORDER BY mtime DESC LIMIT 1",
                      zPageName
                      );
@@ -1328,6 +1329,7 @@ void wiki_cmd(void){
     }else{
       db_prepare(&q,
         "SELECT datetime(mtime) FROM event WHERE type='e'"
+          " AND tagid IS NOT NULL"
         " ORDER BY mtime /*sort*/"
       );
     }
