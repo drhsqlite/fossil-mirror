@@ -141,7 +141,7 @@ char *hash_color(const char *z){
 }
 
 /*
-** COMMAND:  test-hash-color
+** COMMAND: test-hash-color
 **
 ** Usage: %fossil test-hash-color TAG ...
 **
@@ -156,7 +156,7 @@ void test_hash_color(void){
 }
 
 /*
-** WEBPAGE:  hash-color-test
+** WEBPAGE: hash-color-test
 **
 ** Print out the color names associated with each tag.  Used for
 ** testing the hash_color() function.

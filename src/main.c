@@ -2621,7 +2621,7 @@ void cmd_webserver(void){
 }
 
 /*
-** COMMAND:  test-echo
+** COMMAND: test-echo
 **
 ** Usage:  %fossil test-echo [--hex] ARGS...
 **

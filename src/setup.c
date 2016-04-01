@@ -1435,7 +1435,7 @@ void setup_timeline(void){
 /*
 ** WEBPAGE: setup_settings
 **
-** Change or view miscellanous settings.  Part of the
+** Change or view miscellaneous settings.  Part of the
 ** Admin pages requiring Admin privileges.
 */
 void setup_settings(void){

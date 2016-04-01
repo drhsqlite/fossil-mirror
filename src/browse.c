@@ -1001,7 +1001,7 @@ void test_fileage_cmd(void){
 }
 
 /*
-** WEBPAGE:  fileage
+** WEBPAGE: fileage
 **
 ** Show all files in a single check-in (identified by the name= query
 ** parameter) in order of increasing age.

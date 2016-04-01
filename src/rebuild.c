@@ -684,7 +684,7 @@ void rebuild_database(void){
 }
 
 /*
-** COMMAND:  test-detach  ?REPOSITORY?
+** COMMAND: test-detach  ?REPOSITORY?
 **
 ** Change the project-code and make other changes in order to prevent
 ** the repository from ever again pushing or pulling to other
@@ -705,7 +705,7 @@ void test_detach_cmd(void){
 }
 
 /*
-** COMMAND:  test-create-clusters
+** COMMAND: test-create-clusters
 **
 ** Create clusters for all unclustered artifacts if the number of unclustered
 ** artifacts exceeds the current clustering threshold.
