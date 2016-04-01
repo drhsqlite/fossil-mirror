@@ -2773,7 +2773,7 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **                     If set, this will override the OS default list of
 **                     OpenSSL CAs. If unset, the default list will be used.
 **                     Some platforms may add additional certificates.
-**                     Check your platform behaviour is as required if the
+**                     Checking your platform behaviour is required if the
 **                     exact contents of the CA root is critical for your
 **                     application.
 **

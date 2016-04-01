@@ -89,7 +89,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 **
 ** Available operations are:
 **
-**    cache       Mangages the cache used for potentially expensive web
+**    cache       Manages the cache used for potentially expensive web
 **                pages.  Any additional arguments are passed on verbatim
 **                to the cache command.
 **

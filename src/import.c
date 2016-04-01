@@ -1511,7 +1511,7 @@ static void svn_dump_import(FILE *pIn){
 **
 ** Common Options:
 **   -i|--incremental   allow importing into an existing repository
-**   -f|--force         overwrite repository if already exist
+**   -f|--force         overwrite repository if already exists
 **   -q|--quiet         omit progress output
 **   --no-rebuild       skip the "rebuilding metadata" step
 **   --no-vacuum        skip the final VACUUM of the database file

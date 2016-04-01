@@ -764,7 +764,7 @@ const char *diff_get_binary_glob(void){
 **
 ** Show the difference between the current version of each of the FILEs
 ** specified (as they exist on disk) and that same file as it was checked
-** out.  Or if the FILE arguments are omitted, show the unsaved changed
+** out.  Or if the FILE arguments are omitted, show the unsaved changes
 ** currently in the working check-out.
 **
 ** If the "--from VERSION" or "-r VERSION" option is used it specifies

@@ -171,7 +171,7 @@ static int sqlcmd_autoinit(
 **
 ** The following extensions to the usual SQLite commands are provided:
 **
-**    content(X)                Return the contenxt of artifact X.  X can be a
+**    content(X)                Return the content of artifact X.  X can be a
 **                              SHA1 hash or prefix or a tag.
 **
 **    compress(X)               Compress text X.
@@ -182,7 +182,7 @@ static int sqlcmd_autoinit(
 **    checkin_mtime(X,Y)        Return the mtime for the file Y (a BLOB.RID)
 **                              found in check-in X (another BLOB.RID value).
 **
-**    symbolic_name_to_rid(X)   Return a the BLOB.RID corresponding to symbolic
+**    symbolic_name_to_rid(X)   Return the BLOB.RID corresponding to symbolic
 **                              name X.
 **
 **    now()                     Return the number of seconds since 1970.

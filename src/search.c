@@ -1636,7 +1636,7 @@ void search_rebuild_index(void){
 **     enable cdtw        Enable various kinds of search. c=Check-ins,
 **                        d=Documents, t=Tickets, w=Wiki.
 **
-**     disable cdtw       Disable versious kinds of search
+**     disable cdtw       Disable various kinds of search
 **
 **     stemmer (on|off)   Turn the Porter stemmer on or off for indexed
 **                        search.  (Unindexed search is never stemmed.)

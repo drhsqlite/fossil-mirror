@@ -446,7 +446,7 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
 **      on the most recent occurrance of that branch.
 **
 **           --explain         Make no changes, but show what would happen.
-**           --dry-run         Make no chances.
+**           --dry-run         Make no changes.
 **
 **   fossil purge list|ls ?-l?
 **

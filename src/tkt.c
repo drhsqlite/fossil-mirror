@@ -1111,7 +1111,7 @@ void ticket_output_change_artifact(Manifest *pTkt, const char *zListType){
 **     resolution, title, and comment, but other field names can be added
 **     or substituted in customized installations.
 **
-**     If you use +FIELD, the VALUE Is appended to the field FIELD.
+**     If you use +FIELD, the VALUE is appended to the field FIELD.
 **     You can use more than one field/value pair on the commandline.
 **     Using -q|--quote  enables the special character decoding as
 **     in "ticket show". So it's possible, to set multiline text or

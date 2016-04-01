@@ -453,7 +453,7 @@ void sha1_shared_secret_sql_function(
 ** %fossil sha1sum FILE...
 **
 ** Compute an SHA1 checksum of all files named on the command-line.
-** If an file is named "-" then take its content from standard input.
+** If a file is named "-" then take its content from standard input.
 */
 void sha1sum_test(void){
   int i;
