@@ -1,3 +1,4 @@
+
 /*
 ** Copyright (c) 2007 D. Richard Hipp
 **
@@ -720,6 +721,8 @@ void revert_cmd(void){
   int i;
   int errCode;
   Stmt q;
+  int vid;
+  int mergeReverted = 0;
 
   undo_capture_command_line();
   zRevision = find_option("revision", "r", 1);
@@ -735,27 +738,57 @@ void revert_cmd(void){
   db_begin_transaction();
   undo_begin();
   db_multi_exec("CREATE TEMP TABLE torevert(name UNIQUE);");
+  vid = db_lget_int("checkout", 0);
+  vfile_check_signature(vid, 0);
 
   if( g.argc>2 ){
+    int rid = 0;
+    if( zRevision ){
+      rid = name_to_typed_rid(zRevision, "ci");
+      load_vfile_from_rid(rid);
+    }
     for(i=2; i<g.argc; i++){
       Blob fname;
       zFile = mprintf("%/", g.argv[i]);
       blob_zero(&fname);
       file_tree_name(zFile, &fname, 0, 1);
       db_multi_exec(
-        "REPLACE INTO torevert VALUES(%B);"
         "INSERT OR IGNORE INTO torevert"
         " SELECT pathname"
+        "   FROM vfile v"
+        "  WHERE vid=%d AND (pathname %s=%B OR origname %s=%B)"
+        "    AND (chnged OR deleted OR rid=0 OR pathname!=origname OR rid!=("
+        "      SELECT rid FROM vfile WHERE vid=%d AND pathname=v.pathname));"
+        "INSERT OR IGNORE INTO torevert"
+        " SELECT origname"
         "   FROM vfile"
-        "  WHERE origname=%B;",
-        &fname, &fname
+        "  WHERE vid=%d AND origname %s=%B"
+        "    AND pathname IN (SELECT name FROM torevert);",
+        vid, filename_collation(), &fname, filename_collation(), &fname, rid,
+        vid, filename_collation(), &fname
       );
+      free(zFile);
       blob_reset(&fname);
     }
+    if( rid ) db_multi_exec("DELETE FROM vfile WHERE vid=%d", rid);
+    /* Refuse to revert a renamed file if another file exists in its
+    ** original location that wasn't specified when calling revert.
+    */
+    db_prepare(&q,
+      " SELECT origname, pathname"
+      "   FROM vfile"
+      "  WHERE pathname IN (SELECT name FROM torevert)"
+      "    AND origname NOT IN (SELECT name FROM torevert)"
+      "    AND origname IN (SELECT pathname FROM vfile)"
+    );
+    if( db_step(&q)==SQLITE_ROW ){
+      const char *zOrig = db_column_text(&q, 0);
+      zFile = db_column_text(&q, 1);
+      fossil_fatal("cannot revert '%s' without '%s'", zFile, zOrig);
+    }
+    db_finalize(&q);
   }else{
-    int vid;
-    vid = db_lget_int("checkout", 0);
-    vfile_check_signature(vid, 0);
+    mergeReverted = db_exists("SELECT 1 FROM vmerge");
     db_multi_exec(
       "DELETE FROM vmerge;"
       "INSERT OR IGNORE INTO torevert "
@@ -764,14 +797,36 @@ void revert_cmd(void){
       "  WHERE chnged OR deleted OR rid=0 OR pathname!=origname;"
     );
   }
+
+  /* If there's nothing to revert, rollback and exit so the previous undo
+  ** state isn't unnecessarily discarded.
+  */
+  if( !mergeReverted && !db_exists("SELECT 1 FROM torevert") ){
+    db_end_transaction(1);
+    return;
+  }
+
   db_multi_exec(
     "INSERT OR IGNORE INTO torevert"
     " SELECT origname"
     "   FROM vfile"
     "  WHERE origname!=pathname AND pathname IN (SELECT name FROM torevert);"
   );
+
+  /* Revert pathnames. Added files (rid==0) that are to be reverted will
+  ** have a NULL pathname until their VFILE entries are deleted.
+  */
+  db_multi_exec(
+    "UPDATE vfile"
+    "   SET pathname=NULL, origname=coalesce(origname,pathname)"
+    " WHERE pathname IN (SELECT name FROM torevert);"
+    "UPDATE vfile"
+    "   SET pathname=origname, origname=NULL"
+    " WHERE pathname IS NULL AND rid>0;"
+  );
+  
   blob_zero(&record);
-  db_prepare(&q, "SELECT name FROM torevert");
+  db_prepare(&q, "SELECT name FROM torevert ORDER BY name");
   if( zRevision==0 ){
     int vid = db_lget_int("checkout", 0);
     zRevision = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
@@ -784,22 +839,17 @@ void revert_cmd(void){
     zFull = mprintf("%/%/", g.zLocalRoot, zFile);
     errCode = historical_version_of_file(zRevision, zFile, &record,
                                          &isLink, &isExe, 0, 2);
-    if( errCode==2 ){
-      if( db_int(0, "SELECT rid FROM vfile WHERE pathname=%Q OR origname=%Q",
-                 zFile, zFile)==0 ){
+    if( errCode==2
+        || !db_exists("SELECT 1 FROM vfile WHERE pathname=%Q", zFile) ){
+      if( db_exists("SELECT 1 FROM vfile"
+                    " WHERE pathname IS NULL AND origname=%Q",
+                    zFile) ){
         fossil_print("UNMANAGE %s\n", zFile);
       }else{
         undo_save(zFile);
         file_delete(zFull);
         fossil_print("DELETE   %s\n", zFile);
       }
-      db_multi_exec(
-        "UPDATE OR REPLACE vfile"
-        "   SET pathname=origname, origname=NULL"
-        " WHERE pathname=%Q AND origname!=pathname;"
-        "DELETE FROM vfile WHERE pathname=%Q",
-        zFile, zFile
-      );
     }else{
       sqlite3_int64 mtime;
       undo_save(zFile);
@@ -817,14 +867,15 @@ void revert_cmd(void){
       db_multi_exec(
          "UPDATE vfile"
          "   SET mtime=%lld, chnged=0, deleted=0, isexe=%d, islink=%d,mrid=rid"
-         " WHERE pathname=%Q OR origname=%Q",
-         mtime, isExe, isLink, zFile, zFile
+         " WHERE pathname=%Q",
+         mtime, isExe, isLink, zFile
       );
     }
     blob_reset(&record);
     free(zFull);
   }
   db_finalize(&q);
+  db_multi_exec("DELETE FROM vfile WHERE pathname IS NULL");
   undo_finish();
   db_end_transaction(0);
 }

@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\s3.12.0\sfinal.
-D 2016-03-29T10:38:38.027
+C The\srevert\scommand\sno\slonger\sresets\sthe\sundo\sstate\sif\snothing\sis\sactually\sreverted.\sAdditional\stests\sand\sbug\sfixes\sas\swell.
+D 2016-04-01T04:04:52.491
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -501,7 +501,7 @@ F src/tktsetup.c 32e23747e8d3f36fc390a6197dda2209d98cad09
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c 52ec5c24a6dcf1937026e2d9f86791fd1913cdf6
 F src/unicode.c f26b9f26d4ac399f7b03cfac16ec72336c7f06c9
-F src/update.c 404e7daea8b200e2708329b49850d62e68e716f7
+F src/update.c 45677835dd9c0e5773ff3267948c6ef1a1f99c2a
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c 0335b8389a957ea4ca1e19d740f7b60303ebb8bf
 F src/utf8.c 5c85c7e88b82b5fb48649c46f063ac94ab58eb20
@@ -541,9 +541,9 @@ F test/merge5.test aadadc4b34b77b94dc711ee0b0ae2f760abaecf9
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test ac9dd0f4c76990c91f6483844852831c2eb1a95e
 F test/merge_renames.test e0b500a812c61318b3e1c277021429ca3c045570
-F test/mv-rm.test a46185f0a8443bf422e222b47f360e5c341e9306
+F test/mv-rm.test 6b1c53c260080db0cf00e657ebe3b2431b47d241
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
-F test/revert.test 7387258ce11b1214c5b82be47792d2c98316fd52
+F test/revert.test 8c1d9533d23f0ea643242be3d82ada109dd84543
 F test/stash.test f9c2bba31afe77b62967ea11e59e438c950325ec
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
@@ -747,7 +747,10 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 57f1eaecb80dcf27271d6bf380f71a03ebb780b8
-R 18a13f40228a092eb0966359916194ae
-U drh
-Z 8cd8b43533654115d93850fa36de1656
+P 996705f5aa7c643bd4e8a008888ab3ec9dc86f4a
+R e46d7caeee469a85f49133ef4a866098
+T *branch * revert
+T *sym-revert *
+T -sym-trunk *
+U joel
+Z 5fb0aee26f59c8f0283494adda715dcd

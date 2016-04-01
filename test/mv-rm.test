@@ -65,7 +65,7 @@ test mv-soft-relative-1 {$RESULT eq "RENAME f1 subdir1/f1"}
 
 fossil revert
 test mv-soft-relative-2 {
-  [normalize_result] eq "DELETE   subdir1/f1\nREVERT   f1${undoMsg}"
+  [normalize_result] eq "REVERT   f1\nDELETE   subdir1/f1${undoMsg}"
 }
 
 cd $rootDir
@@ -82,7 +82,7 @@ test mv-soft-relative-3 {$RESULT eq "RENAME f2 subdir2/f2"}
 
 fossil revert
 test mv-soft-relative-4 {
-  [normalize_result] eq "DELETE   subdir2/f2\nREVERT   f2${undoMsg}"
+  [normalize_result] eq "REVERT   f2\nDELETE   subdir2/f2${undoMsg}"
 }
 
 cd $rootDir
@@ -101,7 +101,7 @@ test mv-hard-relative-1 {
 
 fossil revert
 test mv-hard-relative-2 {
-  [normalize_result] eq "DELETE   subdir3/f3\nREVERT   f3${undoMsg}"
+  [normalize_result] eq "REVERT   f3\nDELETE   subdir3/f3${undoMsg}"
 }
 
 cd $rootDir
@@ -120,7 +120,7 @@ test mv-hard-relative-3 {
 
 fossil revert
 test mv-hard-relative-4 {
-  [normalize_result] eq "DELETE   subdir4/f4\nREVERT   f4${undoMsg}"
+  [normalize_result] eq "REVERT   f4\nDELETE   subdir4/f4${undoMsg}"
 }
 
 cd $rootDir
@@ -137,7 +137,7 @@ test mv-soft-absolute-1 {$RESULT eq "RENAME f5 subdir5/f5"}
 
 fossil revert
 test mv-soft-absolute-2 {
-  [normalize_result] eq "DELETE   subdir5/f5\nREVERT   f5${undoMsg}"
+  [normalize_result] eq "REVERT   f5\nDELETE   subdir5/f5${undoMsg}"
 }
 
 cd $rootDir
@@ -154,7 +154,7 @@ test mv-soft-absolute-3 {$RESULT eq "RENAME f6 subdir6/f6"}
 
 fossil revert
 test mv-soft-absolute-4 {
-  [normalize_result] eq "DELETE   subdir6/f6\nREVERT   f6${undoMsg}"
+  [normalize_result] eq "REVERT   f6\nDELETE   subdir6/f6${undoMsg}"
 }
 
 cd $rootDir
@@ -173,7 +173,7 @@ test mv-hard-absolute-1 {
 
 fossil revert
 test mv-hard-absolute-2 {
-  [normalize_result] eq "DELETE   subdir7/f7\nREVERT   f7${undoMsg}"
+  [normalize_result] eq "REVERT   f7\nDELETE   subdir7/f7${undoMsg}"
 }
 
 cd $rootDir
@@ -192,7 +192,7 @@ test mv-hard-absolute-3 {
 
 fossil revert
 test mv-hard-absolute-4 {
-  [normalize_result] eq "DELETE   subdir8/f8\nREVERT   f8${undoMsg}"
+  [normalize_result] eq "REVERT   f8\nDELETE   subdir8/f8${undoMsg}"
 }
 
 cd $rootDir
