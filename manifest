@@ -1,5 +1,5 @@
-C The\srevert\scommand\sno\slonger\sresets\sthe\sundo\sstate\sif\snothing\sis\sactually\sreverted.\sAdditional\stests\sand\sbug\sfixes\sas\swell.
-D 2016-04-01T04:04:52.491
+C Remove\ssuperfluous\sinitialization\sof\s$passed.
+D 2016-04-02T04:28:57.321
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -543,7 +543,7 @@ F test/merge6.test ac9dd0f4c76990c91f6483844852831c2eb1a95e
 F test/merge_renames.test e0b500a812c61318b3e1c277021429ca3c045570
 F test/mv-rm.test 6b1c53c260080db0cf00e657ebe3b2431b47d241
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
-F test/revert.test 8c1d9533d23f0ea643242be3d82ada109dd84543
+F test/revert.test 2eda1ba258cf379b695b6efcee609990ed969790
 F test/stash.test f9c2bba31afe77b62967ea11e59e438c950325ec
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
@@ -747,10 +747,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 996705f5aa7c643bd4e8a008888ab3ec9dc86f4a
-R e46d7caeee469a85f49133ef4a866098
-T *branch * revert
-T *sym-revert *
-T -sym-trunk *
+P 418dd7ac51ba4e1547fb9b0ca55c29856a4c33c2
+R f3b4320eb21355401b25014ee53005d3
 U joel
-Z 5fb0aee26f59c8f0283494adda715dcd
+Z 3440c65f5bf80a5f2e0a3567f2a28ff6

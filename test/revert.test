@@ -25,8 +25,6 @@
 # on the file system. 'fossil undo' is called after each test
 #
 proc revert-test {testid revertArgs expectedRevertOutput args} {
-  set passed 1
-  
   set args [dict merge {
     -changes {} -addremove {} -exists {} -notexists {}
   } $args]
