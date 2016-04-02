@@ -433,7 +433,7 @@ void leaves_cmd(void){
 }
 
 /*
-** WEBPAGE:  leaves
+** WEBPAGE: leaves
 **
 ** Show leaf check-ins in a timeline.  By default only open leaves
 ** are listed.

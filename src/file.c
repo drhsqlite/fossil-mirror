@@ -924,7 +924,7 @@ void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
 }
 
 /*
-** COMMAND:  test-canonical-name
+** COMMAND: test-canonical-name
 ** Usage: %fossil test-canonical-name FILENAME...
 **
 ** Test the operation of the canonical name generator.
@@ -1061,7 +1061,7 @@ void file_relative_name(const char *zOrigName, Blob *pOut, int slash){
 }
 
 /*
-** COMMAND:  test-relative-name
+** COMMAND: test-relative-name
 **
 ** Test the operation of the relative name generator.
 */
@@ -1175,7 +1175,7 @@ int file_tree_name(
 }
 
 /*
-** COMMAND:  test-tree-name
+** COMMAND: test-tree-name
 **
 ** Test the operation of the tree name generator.
 **

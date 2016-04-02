@@ -149,7 +149,7 @@ int pivot_find(void){
 }
 
 /*
-** COMMAND:  test-find-pivot
+** COMMAND: test-find-pivot
 **
 ** Test the pivot_find() procedure.
 */

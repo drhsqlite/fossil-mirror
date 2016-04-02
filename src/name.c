@@ -373,7 +373,7 @@ int name_collisions(const char *zName){
 }
 
 /*
-** COMMAND:  test-name-to-id
+** COMMAND: test-name-to-id
 **
 ** Convert a name to a full artifact ID.
 */

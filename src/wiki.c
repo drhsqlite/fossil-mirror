@@ -1139,34 +1139,33 @@ int wiki_cmd_commit(const char *zPageName, int isNew, Blob *pContent,
 /*
 ** COMMAND: wiki*
 **
-** Usage: ../fossil wiki (export|create|commit|list) WikiName
+** Usage: %fossil wiki (export|create|commit|list) WikiName
 **
 ** Run various subcommands to work with wiki entries or tech notes.
 **
-**    ../fossil wiki export ?PAGENAME? ?FILE? [-t|--technote DATETIME ]
+**    %fossil wiki export ?PAGENAME? ?FILE? [-t|--technote DATETIME ]
 **
 **       Sends the latest version of either the PAGENAME wiki entry
 **       or the DATETIME tech note to the given file or standard 
 **       output. One of PAGENAME or DATETIME must be specified.
 **
-**    ../fossil wiki (create|commit) PAGENAME ?FILE? ?OPTIONS?
+**    %fossil wiki (create|commit) PAGENAME ?FILE? ?OPTIONS?
 **              
 **       Create a new or commit changes to an existing wiki page or 
 **       technote from FILE or from standard input.
 **
 **       Options:
-**         -M|--mimetype TEXT-FORMAT   The mime type of the update defaulting
-**                                     defaulting to the type used by the 
-**                                     previous version of the page or (for 
-**                                     new pages) text/x-fossil-wiki.
+**         -M|--mimetype TEXT-FORMAT   The mimetype of the update defaulting
+**                                     to the type used by the previous version
+**                                     of the page or text/x-fossil-wiki.
 **         -t|--technote DATETIME      Specifies the timestamp of the technote
 **                                     to be created or updated.
 **         --technote-tags TAGS        The set of tags for a technote.
 **         --technote-bgcolor COLOR    The color used for the technote on the
 **                                     timeline.
 **
-**    ../fossil wiki list ?--technote?
-**    ../fossil wiki ls ?--technote?
+**    %fossil wiki list ?--technote?
+**    %fossil wiki ls ?--technote?
 **
 **       Lists all wiki entries, one per line, ordered
 **       case-insensitively by name. The --technote flag

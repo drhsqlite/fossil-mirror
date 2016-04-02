@@ -348,7 +348,7 @@ const char *mimetype_from_name(const char *zName){
 }
 
 /*
-** COMMAND:  test-mimetype
+** COMMAND: test-mimetype
 **
 ** Usage: %fossil test-mimetype FILENAME...
 **
@@ -553,10 +553,10 @@ static void convert_href_and_output(Blob *pIn){
 ** found, then FILE is completely replaced by "404.md" and tried.  If that
 ** is not found, then a default 404 screen is generated.
 **
-** Headers and footers are added for text/x-fossil-wiki and text/md
-** If the document has mimetype text/html then headers and footers are
-** usually not added.  However, a text/html document begins with the
-** following div:
+** If the file's mimetype is "text/x-fossil-wiki" or "text/x-markdown"
+** then headers and footers are added. If the document has mimetype
+** text/html then headers and footers are usually not added.  However,
+** if a "text/html" document begins with the following div:
 **
 **       <div class='fossil-doc' data-title='TEXT'>
 **

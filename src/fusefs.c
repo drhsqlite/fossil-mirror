@@ -291,14 +291,14 @@ static struct fuse_operations fusefs_methods = {
 **
 ** Usage: %fossil fusefs [--debug] DIRECTORY
 **
-** This command uses the Fuse Filesystem to mount a directory at
-** DIRECTORY that contains the content of all check-ins in the
+** This command uses the Fuse Filesystem (FuseFS) to mount a directory
+** at DIRECTORY that contains the content of all check-ins in the
 ** repository.  The names of files are DIRECTORY/checkins/VERSION/PATH
 ** where DIRECTORY is the root of the mount, VERSION is any valid
 ** check-in name (examples: "trunk" or "tip" or a tag or any unique
-** prefix of a SHA1 hash, etc) and PATH is the pathname of the file
-** in the check-in.  If DIRECTORY does not exist, then an attempt is
-** made to create it.
+** prefix of a SHA1 hash, etc) and PATH is the pathname of the file in
+** the check-in.  If DIRECTORY does not exist, then an attempt is made
+** to create it.
 **
 ** The DIRECTORY/checkins directory is not searchable so one cannot
 ** do "ls DIRECTORY/checkins" to get a listing of all possible check-in
@@ -308,7 +308,7 @@ static struct fuse_operations fusefs_methods = {
 ** file hierarchy.
 **
 ** The FuseFS typically only works on Linux, and then only on Linux
-** systems that have the right kernel drivers and have install the
+** systems that have the right kernel drivers and have installed the
 ** appropriate support libraries.
 **
 ** After stopping the "fossil fusefs" command, it might also be necessary

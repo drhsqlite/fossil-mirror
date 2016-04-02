@@ -574,7 +574,7 @@ int win32_http_service(
 
 /* dupe ifdef needed for mkindex
 ** COMMAND: winsrv*
-** Usage: fossil winsrv METHOD ?SERVICE-NAME? ?OPTIONS?
+** Usage: %fossil winsrv METHOD ?SERVICE-NAME? ?OPTIONS?
 **
 ** Where METHOD is one of: create delete show start stop.
 **
@@ -585,7 +585,7 @@ int win32_http_service(
 ** In the following description of the methods, "Fossil-DSCM" will be
 ** used as the default SERVICE-NAME:
 **
-**    fossil winsrv create ?SERVICE-NAME? ?OPTIONS?
+**    %fossil winsrv create ?SERVICE-NAME? ?OPTIONS?
 **
 **         Creates a service. Available options include:
 **
@@ -658,23 +658,23 @@ int win32_http_service(
 **              Create an SCGI server instead of an HTTP server
 **
 **
-**    fossil winsrv delete ?SERVICE-NAME?
+**    %fossil winsrv delete ?SERVICE-NAME?
 **
 **         Deletes a service. If the service is currently running, it will be
 **         stopped first and then deleted.
 **
 **
-**    fossil winsrv show ?SERVICE-NAME?
+**    %fossil winsrv show ?SERVICE-NAME?
 **
 **         Shows how the service is configured and its current state.
 **
 **
-**    fossil winsrv start ?SERVICE-NAME?
+**    %fossil winsrv start ?SERVICE-NAME?
 **
 **         Start the service.
 **
 **
-**    fossil winsrv stop ?SERVICE-NAME?
+**    %fossil winsrv stop ?SERVICE-NAME?
 **
 **         Stop the service.
 **

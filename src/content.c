@@ -336,7 +336,7 @@ void artifact_cmd(void){
 }
 
 /*
-** COMMAND:  test-content-rawget
+** COMMAND: test-content-rawget
 **
 ** Extract a blob from the database and write it into a file.  This
 ** version does not expand the delta.
@@ -665,7 +665,7 @@ int content_new(const char *zUuid, int isPrivate){
 
 
 /*
-** COMMAND:  test-content-put
+** COMMAND: test-content-put
 **
 ** Usage: %fossil test-content-put FILE
 **
@@ -705,7 +705,7 @@ void content_undelta(int rid){
 }
 
 /*
-** COMMAND:  test-content-undelta
+** COMMAND: test-content-undelta
 **
 ** Make sure the content at RECORDID is not a delta
 */
@@ -816,7 +816,7 @@ int content_deltify(int rid, int srcid, int force){
 }
 
 /*
-** COMMAND:  test-content-deltify
+** COMMAND: test-content-deltify
 **
 ** Convert the content at RID into a delta from SRCID.
 */
