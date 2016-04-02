@@ -1,5 +1,5 @@
-C Add\snew\sfossil\stest-all-help\scommand.\sSpell\schecked\sand\sproof\sread\sall\shelp\stext.\sFixed\stypos.\sReworded\sfor\sclarity\sin\sa\sfew\splaces.\sCleaned\sup\sa\sfew\sinconsistencies\sof\sformatting.\sNo\scode\schanges\sother\sthan\sthe\snew\scommand.\sPasses\sall\stests.
-D 2016-04-02T00:56:29.802
+C Coding\sstyle\stweaks\sfor\sthe\snew\s'test-all-help'\scommand.
+D 2016-04-02T03:47:02.276
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -442,7 +442,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 9010b62121a41566e330f62c238061ca4c6b4f98
 F src/lookslike.c 9103d15912b792a65874f04e185f2a74a477ebb4
-F src/main.c a29f2ba5308a3aff42129adbc0b2db7c3d4a4383
+F src/main.c b7072d8bb804cd7ca8e3289d66502ba3a297a870
 F src/main.mk 3c852b97f84551d69cb8e530c071431e37238913
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -747,8 +747,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b6b50b12447961105483642b5becbeb6472f4010 1b0a3cf3b321bfd0935baa861d35865e2ff874c8
-R a51a4aa153f9e27fe0a60cf8d4249822
-T +closed 1b0a3cf3b321bfd0935baa861d35865e2ff874c8
-U rberteig
-Z 17291a1548e66c72886fef3d877edcdb
+P 26eef7f84add7a31a117727fb4e3f4b6a8d36ff4
+R e1ffb70c9d29b5c5b00541c68bde786e
+U mistachkin
+Z 278a92a272d05a22dbb13ca439fb3630
