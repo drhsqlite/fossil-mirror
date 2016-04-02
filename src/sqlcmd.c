@@ -190,7 +190,7 @@ static int sqlcmd_autoinit(
 **    REGEXP                    The REGEXP operator works, unlike in
 **                              standard SQLite.
 **
-**    files_of_checkin          The "files_of_check" virtual table is
+**    files_of_checkin          The "files_of_checkin" virtual table is
 **                              available for decoding manifests.
 **
 ** Usage example for files_of_checkin:

@@ -520,17 +520,22 @@ void search_sql_setup(sqlite3 *db){
 ** COMMAND: search*
 ** %fossil search [-all|-a] [-limit|-n #] [-width|-W #] pattern...
 **
-** Search for timeline entries matching all words
-** provided on the command line. Whole-word matches
-** scope more highly than partial matches.
-**
-** Outputs, by default, some top-N fraction of the
-** results. The -all option can be used to output
-** all matches, regardless of their search score.
-** The -limit option can be used to limit the number
-** of entries returned.  The -width option can be
-** used to set the output width used when printing
+** Search for timeline entries matching all words provided on the
+** command line. Whole-word matches scope more highly than partial
 ** matches.
+**
+** Outputs, by default, some top-N fraction of the results. The -all
+** option can be used to output all matches, regardless of their search
+** score.  The -limit option can be used to limit the number of entries
+** returned.  The -width option can be used to set the output width used
+** when printing matches.
+**
+** Options:
+**
+**     -a|--all          Output all matches, not just best matches.
+**     -n|--limit N      Limit output to N matches.
+**     -W|--width WIDTH  Set display width to WIDTH columns, 0 for
+**                       unlimited. Defaults the terminal's width.
 */
 void search_cmd(void){
   Blob pattern;

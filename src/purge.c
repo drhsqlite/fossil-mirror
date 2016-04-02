@@ -439,10 +439,10 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
 **
 **      Move the check-ins identified by TAGS and all of their descendants
 **      out of the repository and into the graveyard.  The "checkins"
-**      subcommand keyword is option and can be omitted as long as TAGS
+**      subcommand keyword is optional and can be omitted as long as TAGS
 **      does not conflict with any other subcommand.
 **
-**      If a TAGS includes a branch name then it means all the check-ins
+**      If TAGS includes a branch name then it means all the check-ins
 **      on the most recent occurrance of that branch.
 **
 **           --explain         Make no changes, but show what would happen.

@@ -1225,6 +1225,26 @@ void help_cmd(void){
   putchar('\n');
 }
 
+
+/*
+** COMMAND: test-all-help
+** %fossil test-all-help
+**
+** Show all help text.  Useful for proof-reading.
+*/
+void test_all_help_cmd(void){
+    int i;
+    fossil_print("All commands and pages:\n\n");
+    for(i=0; i<count(aCommand); i++){
+        //if( memcmp(aCommand[i].zName, "test", 4)==0 ) continue;
+        fossil_print("# %s\n", aCommand[i].zName);
+        fossil_print("%s\n\n", aCmdHelp[i].zText);
+    }
+    fossil_print("---\n");
+    version_cmd();
+}
+
+
 /*
 ** WEBPAGE: help
 ** URL: /help?name=CMD
