@@ -1,5 +1,5 @@
-C Add\sa\splain-text\sequivalent\sof\sthe\s/test-all-help\spage\sto\sthe\sCLI.\sComplete\sa\sfirst\spass\sfor\sspelling\sand\sminor\sgrammar\sover\sall\scommand\sand\spage\shelp\stext.
-D 2016-04-02T00:00:38.752
+C Add\ssome\soptions\sto\sthe\stest-all-help\scommand.
+D 2016-04-02T00:35:58.052
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -442,7 +442,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 9010b62121a41566e330f62c238061ca4c6b4f98
 F src/lookslike.c 9103d15912b792a65874f04e185f2a74a477ebb4
-F src/main.c e222e7c61edccbc3e9f5fc565c1ae47b90f284c2
+F src/main.c a29f2ba5308a3aff42129adbc0b2db7c3d4a4383
 F src/main.mk 3c852b97f84551d69cb8e530c071431e37238913
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -747,7 +747,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2a4e31bd8dfeea42acaf7a947ac588723b6308f7
-R a20ab0186d7824de9014c50205c287c6
+P f070ec99aed31e464cd3e8eb0e15cb685f718d5b
+R a51a4aa153f9e27fe0a60cf8d4249822
 U rberteig
-Z a7244ca642f51245c5c245ccb7a49ea5
+Z 77ee4e6bf8b7bc495e9732160de27346

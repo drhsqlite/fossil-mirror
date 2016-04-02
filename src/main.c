@@ -1228,15 +1228,39 @@ void help_cmd(void){
 
 /*
 ** COMMAND: test-all-help
-** %fossil test-all-help
+** %fossil test-all-help ?OPTIONS?
 **
-** Show all help text.  Useful for proof-reading.
+** Show help text for commands and pages.  Useful for proof-reading.
+** Defaults to just the CLI commands. Specify --www to see only the web
+** pages, or --everything to see both commands and pages.
+**
+** Options:
+**    -e|--everything   Show all commands and pages.
+**    -t|--test         Include test- commands
+**    -w|--www          Show WWW pages.
 */
 void test_all_help_cmd(void){
     int i;
-    fossil_print("All commands and pages:\n\n");
+    int mask = CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER;
+
+    if( find_option("www","w",0) ){
+        mask = CMDFLAG_WEBPAGE;
+    }
+    if( find_option("everything","e",0) ){
+        mask = CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER | CMDFLAG_WEBPAGE;
+    }
+    if( find_option("test","t",0) ){
+        mask |= CMDFLAG_TEST;
+    }
+
+    fossil_print("Help text for:\n");
+    if( mask & CMDFLAG_1ST_TIER )   fossil_print(" * Commands\n");
+    if( mask & CMDFLAG_2ND_TIER )   fossil_print(" * Auxiliary commands\n");
+    if( mask & CMDFLAG_TEST )   fossil_print(" * Test commands\n");
+    if( mask & CMDFLAG_WEBPAGE )   fossil_print(" * Web pages\n");
+    fossil_print("---\n");
     for(i=0; i<count(aCommand); i++){
-        //if( memcmp(aCommand[i].zName, "test", 4)==0 ) continue;
+        if( (aCommand[i].cmdFlags & mask)==0 ) continue;
         fossil_print("# %s\n", aCommand[i].zName);
         fossil_print("%s\n\n", aCmdHelp[i].zText);
     }
