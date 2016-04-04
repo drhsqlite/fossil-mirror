@@ -219,7 +219,36 @@ test wiki-36-2 {$CODE == 0}
 # extra ones from other events (such as the attachments) - 7 tech notes 
 # expected created by tests 9, 17, 19, 29, 31, 32 and 34 
 fossil wiki list --technote
-test wiki-37 {[llength [split $RESULT "\n"]] == 7}
+set technotelist [split $RESULT "\n"] 
+test wiki-37 {[llength $technotelist] == 7}
+
+###############################################################################
+# Check that using the show-artifact-ids shows the same tech notes in the same
+# order (with the artifact id as the first word of the line
+fossil wiki list --technote --show-artifact-ids
+set technoteartifactlist [split $RESULT "\n"]
+test wiki-38 {[llength $technoteartifactlist] == 7}
+for {set i 0} {$i < [llength $technotelist]} {incr i} {
+  set match "*"
+  append match [lindex $technotelist $i]
+  test "wiki-39-$i" {[string match $match [lindex $technoteartifactlist $i]]} 
+}
+
+###############################################################################
+# Similarly check that wiki pages can have their artifact ids displayed
+# Note: the tests above have only created a single wiki page, hence the list
+# should be of length 1 at this point (created by test 1)
+fossil wiki list
+set wikilist [split $RESULT "\n"]
+test wiki-40 {[llength $wikilist] == 1}
+fossil wiki list --show-artifact-ids
+set wikiartifactlist [split $RESULT "\n"]
+test wiki-41 {[llength $wikilist] == [llength $wikiartifactlist]}
+for {set i 0} {$i < [llength $wikilist]} {incr i} {
+  set match "*"
+  append match [lindex $wikilist $i]
+  test "wiki-42-$i" {[string match $match [lindex $wikiartifactlist $i]]}
+}
 
 ###############################################################################
 

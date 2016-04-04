@@ -1168,14 +1168,21 @@ int wiki_cmd_commit(const char *zPageName, int isNew, Blob *pContent,
 **         --technote-bgcolor COLOR    The color used for the technote
 **                                     on the timeline.
 **
-**    %fossil wiki list ?--technote?
-**    %fossil wiki ls ?--technote?
+**    %fossil wiki list ?OPTIONS?
+**    %fossil wiki ls ?OPTIONS?
 **
 **       Lists all wiki entries, one per line, ordered
-**       case-insensitively by name. The --technote flag
-**       specifies that technotes will be listed instead of
-**       the wiki entries, which will be listed in order
-**       timestamp.
+**       case-insensitively by name. 
+**
+**       Options:
+**         --technote                  Technotes will be listed instead of
+**                                     pages. The technotes will be in order
+**                                     of timestamp with the most recent
+**                                     first.
+**         --show-artifact-ids         The artifact id of the wiki page or 
+**                                     tech note will be listed along side the
+**                                     page name or timestamp. The artifact id
+**                                     will be the first word on each line.
 **
 */
 void wiki_cmd(void){
@@ -1321,20 +1328,36 @@ void wiki_cmd(void){
   }else if(( strncmp(g.argv[2],"list",n)==0 )
           || ( strncmp(g.argv[2],"ls",n)==0 )){
     Stmt q;
+    int showIds = find_option("show-artifact-ids","s",0)!=0;
+
     if ( !find_option("technote","t",0) ){
       db_prepare(&q,
-        "SELECT substr(tagname, 6) FROM tag WHERE tagname GLOB 'wiki-*'"
+        "SELECT substr(t.tagname, 6), b.uuid" 
+         " FROM tag t, tagxref x, blob b"
+        " WHERE tagname GLOB 'wiki-*'"
+          " AND t.tagid=x.tagid AND b.rid=x.rid"
+          " AND x.mtime=(SELECT MAX(xx.mtime)"
+                         " FROM tagxref xx"
+                        " WHERE xx.tagid=x.tagid)"
         " ORDER BY lower(tagname) /*sort*/"
       );
     }else{
       db_prepare(&q,
-        "SELECT datetime(mtime) FROM event WHERE type='e'"
-          " AND tagid IS NOT NULL"
-        " ORDER BY mtime /*sort*/"
+        "SELECT datetime(e.mtime), substr(t.tagname,7) "
+         " FROM event e, tag t"
+        " WHERE e.type='e'"
+          " AND e.tagid IS NOT NULL"
+          " AND t.tagid=e.tagid"
+        " ORDER BY e.mtime DESC /*sort*/"
       );
     }
+  
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
+      if (showIds) {
+        const char *zUuid = db_column_text(&q, 1);
+        fossil_print("%s ",zUuid);
+      }
       fossil_print( "%s\n",zName);
     }
     db_finalize(&q);
