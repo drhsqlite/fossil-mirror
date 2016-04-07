@@ -987,7 +987,7 @@ static void command_list(const char *zPrefix, int cmdMask){
 /*
 ** COMMAND: test-list-webpage
 **
-** List all web pages
+** List all web pages.
 */
 void cmd_test_webpage_list(void){
   int i, nCmd;
@@ -1227,7 +1227,8 @@ void help_cmd(void){
 
 /*
 ** COMMAND: test-all-help
-** %fossil test-all-help ?OPTIONS?
+** 
+** Usage: %fossil test-all-help ?OPTIONS?
 **
 ** Show help text for commands and pages.  Useful for proof-reading.
 ** Defaults to just the CLI commands.  Specify --www to see only the
@@ -2451,7 +2452,7 @@ static int binaryOnPath(const char *zBinary){
 ** COMMAND: ui
 **
 ** Usage: %fossil server ?OPTIONS? ?REPOSITORY?
-**    Or: %fossil ui ?OPTIONS? ?REPOSITORY?
+**    or: %fossil ui ?OPTIONS? ?REPOSITORY?
 **
 ** Open a socket and begin listening and responding to HTTP requests on
 ** TCP port 8080, or on any other TCP port defined by the -P or

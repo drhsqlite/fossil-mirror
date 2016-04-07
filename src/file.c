@@ -824,7 +824,7 @@ int file_simplify_name(char *z, int n, int slash){
 /*
 ** COMMAND: test-simplify-name
 **
-** %fossil test-simplify-name FILENAME...
+** Usage: %fossil test-simplify-name FILENAME...
 **
 ** Print the simplified versions of each FILENAME.
 */
@@ -925,6 +925,7 @@ void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
 
 /*
 ** COMMAND: test-canonical-name
+** 
 ** Usage: %fossil test-canonical-name FILENAME...
 **
 ** Test the operation of the canonical name generator.

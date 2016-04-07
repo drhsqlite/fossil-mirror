@@ -319,7 +319,7 @@ static int search_match(
 /*
 ** COMMAND: test-match
 **
-** Usage: fossil test-match SEARCHSTRING FILE1 FILE2 ...
+** Usage: %fossil test-match SEARCHSTRING FILE1 FILE2 ...
 */
 void test_match_cmd(void){
   Search *p;
@@ -518,7 +518,8 @@ void search_sql_setup(sqlite3 *db){
 ** Testing the search function.
 **
 ** COMMAND: search*
-** %fossil search [-all|-a] [-limit|-n #] [-width|-W #] pattern...
+** 
+** Usage: %fossil search [-all|-a] [-limit|-n #] [-width|-W #] pattern...
 **
 ** Search for timeline entries matching all words provided on the
 ** command line. Whole-word matches scope more highly than partial

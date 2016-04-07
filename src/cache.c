@@ -239,6 +239,7 @@ void cache_initialize(void){
 
 /*
 ** COMMAND: cache*
+** 
 ** Usage: %fossil cache SUBCOMMAND
 **
 ** Manage the cache used for potentially expensive web pages such as

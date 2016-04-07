@@ -1721,7 +1721,7 @@ void wiki_write(const char *zIn, int flags){
 /*
 ** COMMAND: test-wiki-render
 **
-** %fossil test-wiki-render FILE [OPTIONS]
+** Usage: %fossil test-wiki-render FILE [OPTIONS]
 **
 ** Options:
 **    --buttons        Set the WIKI_BUTTONS flag

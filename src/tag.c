@@ -238,7 +238,8 @@ int tag_insert(
 
 /*
 ** COMMAND: test-tag
-** %fossil test-tag (+|*|-)TAGNAME ARTIFACT-ID ?VALUE?
+**
+** Usage: %fossil test-tag (+|*|-)TAGNAME ARTIFACT-ID ?VALUE?
 **
 ** Add a tag or anti-tag to the rebuildable tables of the local repository.
 ** No tag artifact is created so the new tag is erased the next
@@ -335,6 +336,7 @@ void tag_add_artifact(
 
 /*
 ** COMMAND: tag
+**
 ** Usage: %fossil tag SUBCOMMAND ...
 **
 ** Run various subcommands to control tags and properties.

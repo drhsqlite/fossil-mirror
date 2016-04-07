@@ -574,6 +574,7 @@ int win32_http_service(
 
 /* dupe ifdef needed for mkindex
 ** COMMAND: winsrv*
+** 
 ** Usage: %fossil winsrv METHOD ?SERVICE-NAME? ?OPTIONS?
 **
 ** Where METHOD is one of: create delete show start stop.

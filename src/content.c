@@ -962,7 +962,7 @@ void test_integrity(void){
 /*
 ** COMMAND: test-orphans
 **
-** Search the repository for orphaned artifacts
+** Search the repository for orphaned artifacts.
 */
 void test_orphans(void){
   Stmt q;

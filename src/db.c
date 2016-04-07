@@ -1691,7 +1691,7 @@ void db_initial_setup(
 ** COMMAND: init
 **
 ** Usage: %fossil new ?OPTIONS? FILENAME
-**    Or: %fossil init ?OPTIONS? FILENAME
+**    or: %fossil init ?OPTIONS? FILENAME
 **
 ** Create a repository for a new project in the file named FILENAME.
 ** This command is distinct from "clone".  The "clone" command makes
@@ -2581,8 +2581,8 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 ** COMMAND: settings
 ** COMMAND: unset*
 **
-** %fossil settings ?PROPERTY? ?VALUE? ?OPTIONS?
-** %fossil unset PROPERTY ?OPTIONS?
+** Usage: %fossil settings ?PROPERTY? ?VALUE? ?OPTIONS?
+**    or: %fossil unset PROPERTY ?OPTIONS?
 **
 ** The "settings" command with no arguments lists all properties and their
 ** values.  With just a property name it shows the value of that property.
@@ -2933,7 +2933,8 @@ char *db_timespan_name(double rSpan){
 
 /*
 ** COMMAND: test-timespan
-** %fossil test-timespan TIMESTAMP
+** 
+** Usage: %fossil test-timespan TIMESTAMP
 **
 ** Print the approximate span of time from now to TIMESTAMP.
 */
@@ -2949,7 +2950,8 @@ void test_timespan_cmd(void){
 
 /*
 ** COMMAND: test-without-rowid
-** %fossil test-without-rowid FILENAME...
+** 
+** Usage: %fossil test-without-rowid FILENAME...
 **
 ** Change the Fossil repository FILENAME to make use of the WITHOUT ROWID
 ** optimization.  FILENAME can also be the ~/.fossil file or a local
