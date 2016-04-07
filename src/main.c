@@ -2546,7 +2546,6 @@ void cmd_webserver(void){
   if( isUiCmd ){
     zInitPage = find_option("page", 0, 1);
   }
-  if( zInitPage==0 ) zInitPage = "";
   zNotFound = find_option("notfound", 0, 1);
   allowRepoList = find_option("repolist",0,0)!=0;
   zAltBase = find_option("baseurl", 0, 1);
@@ -2576,6 +2575,13 @@ void cmd_webserver(void){
     allowRepoList = 1;
   }
   find_server_repository(2, fCreate);
+  if( zInitPage==0 ){
+    if( isUiCmd && g.localOpen ){
+      zInitPage = "timeline?c=current";
+    }else{
+      zInitPage = "";
+    }
+  }
   if( zPort ){
     int i;
     for(i=strlen(zPort)-1; i>=0 && zPort[i]!=':'; i--){}
