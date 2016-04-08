@@ -1,5 +1,5 @@
-C Make\susage\sof\s'Usage:'\sand\s'or:'\sconsistent\sin\sall\shelp\stext.
-D 2016-04-07T18:41:54.876
+C Each\scall\sto\ssocket_open()\sautomatically\scloses\sany\spreviously\sopened\ssocket.
+D 2016-04-08T11:24:18.137
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -415,7 +415,7 @@ F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 8d766b73f318358fec439cc52ea3c02874340fb8
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
 F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
-F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
+F src/http_socket.c c38d7bff255b35cc7cfe13405b67c32878f9d838
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c 27ecf5430e34456ead372fb44d9f6fd0789b3b05
@@ -747,7 +747,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3602486f25d1cad01c782e206df7456458c5beb0
-R 9d6e2d6e5dfb562fc9d8a85e6407b8d5
-U rberteig
-Z 06e4bf0f901c48b0ba3e26585ee6d2a1
+P 8bfd9951cabf0efc40a32447fa18cefa7bc84f3f
+R 4fc73009676a51e52ccde220b7b29000
+U drh
+Z 59bfa7b8e4f81d35a51a6db921c16e33
