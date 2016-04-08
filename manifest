@@ -1,5 +1,5 @@
-C Update\sSQLite\sto\s3.12.0.\sFedora\s22\s->\s23
-D 2016-03-29T11:43:22.124
+C Update\sSQLite\sto\s3.12.1
+D 2016-04-08T19:09:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -481,8 +481,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 44d3881e497cf9bec8ea6dcf73830502ab59202c
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c 9038553d94b648b9bf36cdbb40d54f4419dec2a1
-F src/sqlite3.c cba2be96d27cb51978cd4a200397a4ad178986eb
-F src/sqlite3.h 928b1de9b43419d64cc6ed6141c64353bc54b598
+F src/sqlite3.c ebb18593350779850e3e1a930eb84a70fca8c1d1
+F src/sqlite3.h a16d4417d743161fd15e9a0acd838e1f4a84a44f
 F src/stash.c 0d91aa426c56f58447c74d11d8728bcc098d741d
 F src/stat.c 69ab1f0d78ccb91fc81f8f3930046025034a3250
 F src/statrep.c 2475cba0c91bdaa6f51a61565732ece308fadf42
@@ -743,7 +743,7 @@ F www/webpage-ex.md 1ad9898e28a0d974527fde99034cc82353b5d929
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 60a0deb2930db38c157129a4758317582d5416cf
-R aa4660589dcffa5ea437a5b242b4c183
+P 15471bc70fb52f0e8e0ad8dcc8bc3d311c2f59f8
+R 2f6f73458587beaede6f97447a7d6800
 U jan.nijtmans
-Z 9ae390ff00714e1c72881ad2c801f554
+Z 90f4fdd297446ee81fa1d20661611982
