@@ -91,7 +91,7 @@ cson_value * json_page_finfo(){
     /*printf("zCheckin=[%s], zU=[%s]", zCheckin, zU);*/
     if(rc<=0){
       json_set_err((rc<0) ? FSL_JSON_E_AMBIGUOUS_UUID : FSL_JSON_E_RESOURCE_NOT_FOUND,
-                   "Checkin UUID %s.", (rc<0) ? "is ambiguous" : "not found");
+                   "Check-in UUID %s.", (rc<0) ? "is ambiguous" : "not found");
       blob_reset(&sql);
       return NULL;
     }

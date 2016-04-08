@@ -369,6 +369,7 @@ char *encode64(const char *zData, int nData){
 
 /*
 ** COMMAND: test-encode64
+** 
 ** Usage: %fossil test-encode64 STRING
 */
 void test_encode64_cmd(void){
@@ -434,6 +435,7 @@ char *decode64(const char *z64, int *pnByte){
 
 /*
 ** COMMAND: test-decode64
+** 
 ** Usage: %fossil test-decode64 STRING
 */
 void test_decode64_cmd(void){
@@ -608,6 +610,10 @@ char *unobscure(const char *zIn){
 ** utilities for decoding passwords found in the database.
 **
 ** COMMAND: test-obscure
+**
+** For each command-line argument X, run both obscure(X) and
+** unobscure(obscure(X)) and print the results.  This is used for testing
+** and debugging of the obscure() and unobscure() functions.
 */
 void test_obscure_cmd(void){
   int i;

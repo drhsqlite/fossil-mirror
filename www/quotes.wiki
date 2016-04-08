@@ -7,7 +7,7 @@ by the creator of Fossil, so of course there is selection bias...
 <h2>On The Usability Of Git:</h2>
 
 <ol>
-<li>Git approaches the useability of iptables, which is to say, utterly 
+<li>Git approaches the usability of iptables, which is to say, utterly 
 unusable unless you have the manpage tattooed on you arm.
 
 <blockquote>
@@ -34,12 +34,11 @@ And it <b>will</b> break down.
 <i>Nick Farina at [http://nfarina.com/post/9868516270/git-is-simpler]</i>
 </blockquote>
 
-<li>We've been using git and github for a few months now, and it's not 
-intuitive... I'm hoping someone will make a set of standard wrappers/GUI
-for making git bearable.
+<li>Initial revision of "git", The information manager from hell
 
 <blockquote>
-<i>maro at [http://news.ycombinator.com/item?id=1433387]</i>
+<i>Linus Torvalds - 2005-04-07 22:13:13<br>
+Commit comment on the very first source-code check-in for git
 </blockquote>
 
 <li>I've been experimenting a lot with git at work.  
@@ -73,12 +72,23 @@ Demented workflow complexity on acid?
    2014-09-01.</i>
 </blockquote>
 
+<li>If programmers _really_ wanted to help scientists, they'd build a version control
+system that was more usable than Git.
+
+<blockquote>
+<i>Tweet by Greg Wilson @gvwilson on 2015-02-22 17:47</i>
+</blockquote>
+
+<li><img src='xkcd-git.gif' align='top'>
+
+<blockquote><i>Randall Munroe.  [http://xkcd.com/1597/]</i></blockquote>
+
 </ol>
 
 <h2>On The Usability Of Fossil:</h2>
 
 <ol>
-<li value=9>
+<li value=11>
 Fossil mesmerizes me with simplicity especially after I struggled to
 get a bug-tracking system to work with mercurial.
 
@@ -103,6 +113,14 @@ such simplicity and flexibility!!!
 <i>zengr at [http://stackoverflow.com/questions/138621/best-version-control-for-lone-developer]</i>
 </blockquote>
 
+<li>This is my favourite VCS. I can carry it on a USB. And it's a complete system, with it's own
+server, ticketing system, Wiki pages, and a very, very helpful timeline visualization. And 
+the entire program in a single file!
+
+<blockquote>
+<i>thunderbong commenting on hacker news: [https://news.ycombinator.com/item?id=9131619]</i>
+</blockquote>
+
 
 </ol>
 
@@ -110,7 +128,7 @@ such simplicity and flexibility!!!
 <h2>On Git Versus Fossil</h2>
 
 <ol>
-<li value=12>
+<li value=15>
 Just want to say thanks for fossil making my life easier.... 
 Also <nowiki>[for]</nowiki> not having a misanthropic command line interface.
 

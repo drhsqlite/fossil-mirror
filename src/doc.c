@@ -37,11 +37,6 @@ const char *mimetype_from_content(Blob *pBlob){
   int n;
   const unsigned char *x;
 
-  static const char isBinary[256] = {
-     1, 1, 1, 1,  1, 1, 1, 1,    1, 0, 0, 0,  0, 0, 1, 1,
-     1, 1, 1, 1,  1, 1, 1, 1,    1, 1, 0, 0,  1, 1, 1, 1
-  };
-
   /* A table of mimetypes based on file content prefixes
   */
   static const struct {
@@ -56,17 +51,11 @@ const char *mimetype_from_content(Blob *pBlob){
     { "\377\330\377",            3, "image/jpeg" },
   };
 
-  x = (const unsigned char*)blob_buffer(pBlob);
-  n = blob_size(pBlob);
-  for(i=0; i<n; i++){
-    unsigned char c = x[i];
-    if( isBinary[c] ){
-      break;
-    }
-  }
-  if( i>=n ){
+  if( !looks_like_binary(pBlob) ) {
     return 0;   /* Plain text */
   }
+  x = (const unsigned char*)blob_buffer(pBlob);
+  n = blob_size(pBlob);
   for(i=0; i<ArraySize(aMime); i++){
     if( n>=aMime[i].size && memcmp(x, aMime[i].zPrefix, aMime[i].size)==0 ){
       return aMime[i].zMimetype;
@@ -106,8 +95,10 @@ static const struct {
   { "com",        3, "application/x-msdos-program"       },
   { "cpio",       4, "application/x-cpio"                },
   { "cpt",        3, "application/mac-compactpro"        },
+  { "cs",         2, "text/plain"                        },
   { "csh",        3, "application/x-csh"                 },
   { "css",        3, "text/css"                          },
+  { "csv",        3, "text/csv"                          },
   { "dcr",        3, "application/x-director"            },
   { "deb",        3, "application/x-debian-package"      },
   { "dir",        3, "application/x-director"            },
@@ -161,7 +152,7 @@ static const struct {
   { "lzh",        3, "application/octet-stream"          },
   { "m",          1, "text/plain"                        },
   { "m3u",        3, "audio/x-mpegurl"                   },
-  { "man",        3, "application/x-troff-man"           },
+  { "man",        3, "text/plain"                        },
   { "markdown",   8, "text/x-markdown"                   },
   { "md",         2, "text/x-markdown"                   },
   { "me",         2, "application/x-troff-me"            },
@@ -182,6 +173,7 @@ static const struct {
   { "mpga",       4, "audio/mpeg"                        },
   { "ms",         2, "application/x-troff-ms"            },
   { "msh",        3, "model/mesh"                        },
+  { "n",          1, "text/plain"                        },
   { "nc",         2, "application/x-netcdf"              },
   { "oda",        3, "application/oda"                   },
   { "odp",        3, "application/vnd.oasis.opendocument.presentation" },
@@ -266,6 +258,7 @@ static const struct {
   { "txt",        3, "text/plain"                        },
   { "unv",        3, "application/i-deas"                },
   { "ustar",      5, "application/x-ustar"               },
+  { "vb",         2, "text/plain"                        },
   { "vcd",        3, "application/x-cdlink"              },
   { "vda",        3, "application/vda"                   },
   { "viv",        3, "video/vnd.vivo"                    },
@@ -295,6 +288,20 @@ static const struct {
 };
 
 /*
+** Verify that all entries in the aMime[] table are in sorted order.
+** Abort with a fatal error if any is out-of-order.
+*/
+static void mimetype_verify(void){
+  int i;
+  for(i=1; i<ArraySize(aMime); i++){
+    if( fossil_strcmp(aMime[i-1].zSuffix,aMime[i].zSuffix)>=0 ){
+      fossil_fatal("mimetypes out of sequence: %s before %s",
+                   aMime[i-1].zSuffix, aMime[i].zSuffix);
+    }
+  }
+}
+
+/*
 ** Guess the mime-type of a document based on its name.
 */
 const char *mimetype_from_name(const char *zName){
@@ -310,12 +317,7 @@ const char *mimetype_from_name(const char *zName){
   ** order
   */
   if( fossil_strcmp(zName, "mimetype-test")==0 ){
-    for(i=1; i<ArraySize(aMime); i++){
-      if( fossil_strcmp(aMime[i-1].zSuffix,aMime[i].zSuffix)>=0 ){
-        fossil_fatal("mimetypes out of sequence: %s before %s",
-                     aMime[i-1].zSuffix, aMime[i].zSuffix);
-      }
-    }
+    mimetype_verify();
     return "ok";
   }
 #endif
@@ -346,7 +348,7 @@ const char *mimetype_from_name(const char *zName){
 }
 
 /*
-** COMMAND:  test-mimetype
+** COMMAND: test-mimetype
 **
 ** Usage: %fossil test-mimetype FILENAME...
 **
@@ -358,6 +360,7 @@ const char *mimetype_from_name(const char *zName){
 */
 void mimetype_test_cmd(void){
   int i;
+  mimetype_verify();
   for(i=2; i<g.argc; i++){
     fossil_print("%-20s -> %s\n", g.argv[i], mimetype_from_name(g.argv[i]));
   }
@@ -371,6 +374,7 @@ void mimetype_test_cmd(void){
 */
 void mimetype_list_page(void){
   int i;
+  mimetype_verify();
   style_header("Mimetype List");
   @ <p>The Fossil <a href="%R/help?cmd=/doc">/doc</a> page uses filename
   @ suffixes and the following table to guess at the appropriate mimetype
@@ -452,7 +456,7 @@ int doc_is_embedded_html(Blob *pContent, Blob *pTitle){
 }
 
 /*
-** Look for a file named zName in the checkin with RID=vid.  Load the content
+** Look for a file named zName in the check-in with RID=vid.  Load the content
 ** of that file into pContent and return the RID for the file.  Or return 0
 ** if the file is not found or could not be loaded.
 */
@@ -461,7 +465,7 @@ int doc_load_content(int vid, const char *zName, Blob *pContent){
   if( !db_table_exists("repository","vcache") ){
     db_multi_exec(
       "CREATE TABLE IF NOT EXISTS vcache(\n"
-      "  vid INTEGER,         -- checkin ID\n"
+      "  vid INTEGER,         -- check-in ID\n"
       "  fname TEXT,          -- filename\n"
       "  rid INTEGER,         -- artifact ID\n"
       "  PRIMARY KEY(vid,fname)\n"
@@ -485,6 +489,36 @@ int doc_load_content(int vid, const char *zName, Blob *pContent){
     rid = 0;
   }
   return rid;
+}
+
+/*
+** Transfer content to the output.  During the transfer, when text of
+** the followign form is seen:
+**
+**       href="$ROOT/
+**       action="$ROOT/
+**
+** Convert $ROOT to the root URI of the repository.  Allow ' in place of "
+** and any case for href.
+*/
+static void convert_href_and_output(Blob *pIn){
+  int i, base;
+  int n = blob_size(pIn);
+  char *z = blob_buffer(pIn);
+  for(base=0, i=7; i<n; i++){
+    if( z[i]=='$' 
+     && strncmp(&z[i],"$ROOT/", 6)==0
+     && (z[i-1]=='\'' || z[i-1]=='"')
+     && i-base>=9
+     && (fossil_strnicmp(&z[i-7]," href=", 6)==0 ||
+           fossil_strnicmp(&z[i-9]," action=", 8)==0)
+    ){
+      blob_append(cgi_output_blob(), &z[base], i-base);
+      blob_appendf(cgi_output_blob(), "%R");
+      base = i+5;
+    }
+  }
+  blob_append(cgi_output_blob(), &z[base], i-base);
 }
 
 /*
@@ -512,17 +546,33 @@ int doc_load_content(int vid, const char *zName, Blob *pContent){
 **
 ** The file extension is used to decide how to render the file.
 **
-** If FILE ends in "/" then names "FILE/index.html", "FILE/index.wiki",
-** and "FILE/index.md" are  in that order.  If none of those are found,
-** then FILE is completely replaced by "404.md" and tried.  If that is
-** not found, then a default 404 screen is generated.
+** If FILE ends in "/" then the names "FILE/index.html", "FILE/index.wiki",
+** and "FILE/index.md" are tried in that order.  If the binary was compiled
+** with TH1 embedded documentation support and the "th1-docs" setting is
+** enabled, the name "FILE/index.th1" is also tried.  If none of those are
+** found, then FILE is completely replaced by "404.md" and tried.  If that
+** is not found, then a default 404 screen is generated.
+**
+** If the file's mimetype is "text/x-fossil-wiki" or "text/x-markdown"
+** then headers and footers are added. If the document has mimetype
+** text/html then headers and footers are usually not added.  However,
+** if a "text/html" document begins with the following div:
+**
+**       <div class='fossil-doc' data-title='TEXT'>
+**
+** then headers and footers are supplied.  The optional data-title field
+** specifies the title of the document in that case.
+**
+** For fossil-doc documents and for markdown documents, text of the
+** form:  "href='$ROOT/" or "action='$ROOT" has the $ROOT name expanded
+** to the top-level of the repository.
 */
 void doc_page(void){
   const char *zName;                /* Argument to the /doc page */
   const char *zOrigName = "?";      /* Original document name */
   const char *zMime;                /* Document MIME type */
-  char *zCheckin = "tip";           /* The checkin holding the document */
-  int vid = 0;                      /* Artifact of checkin */
+  char *zCheckin = "tip";           /* The check-in holding the document */
+  int vid = 0;                      /* Artifact of check-in */
   int rid = 0;                      /* Artifact of file */
   int i;                            /* Loop counter */
   Blob filebody;                    /* Content of the documentation file */
@@ -530,17 +580,21 @@ void doc_page(void){
   int nMiss = (-1);                 /* Failed attempts to find the document */
   static const char *const azSuffix[] = {
      "index.html", "index.wiki", "index.md"
+#ifdef FOSSIL_ENABLE_TH1_DOCS
+      , "index.th1"
+#endif
   };
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   blob_init(&title, 0, 0);
   db_begin_transaction();
   while( rid==0 && (++nMiss)<=ArraySize(azSuffix) ){
-    zName = PD("name", "tip/index.wiki");
+    zName = P("name");
+    if( zName==0 || zName[0]==0 ) zName = "tip/index.wiki";
     for(i=0; zName[i] && zName[i]!='/'; i++){}
     zCheckin = mprintf("%.*s", i, zName);
-    if( fossil_strcmp(zCheckin,"ckout")==0 && db_open_local(0)==0 ){
+    if( fossil_strcmp(zCheckin,"ckout")==0 && g.localOpen==0 ){
       zCheckin = "tip";
     }
     if( nMiss==ArraySize(azSuffix) ){
@@ -615,7 +669,7 @@ void doc_page(void){
       style_header("%s", nMiss>=ArraySize(azSuffix)?
                         "Not Found" : "Documentation");
     }
-    blob_append(cgi_output_blob(), blob_buffer(&tail), blob_size(&tail));
+    convert_href_and_output(&tail);
     style_footer();
   }else if( fossil_strcmp(zMime, "text/plain")==0 ){
     style_header("Documentation");
@@ -627,10 +681,10 @@ void doc_page(void){
             && doc_is_embedded_html(&filebody, &title) ){
     if( blob_size(&title)==0 ) blob_append(&title,zName,-1);
     style_header("%s", blob_str(&title));
-    blob_append(cgi_output_blob(), blob_buffer(&filebody),blob_size(&filebody));
+    convert_href_and_output(&filebody);
     style_footer();
 #ifdef FOSSIL_ENABLE_TH1_DOCS
-  }else if( db_get_boolean("th1-docs", 0) &&
+  }else if( Th_AreDocsEnabled() &&
             fossil_strcmp(zMime, "application/x-th1")==0 ){
     style_header("%h", zName);
     Th_Render(blob_str(&filebody));
@@ -764,7 +818,8 @@ static const unsigned char aBackground[] = {
 /*
 ** WEBPAGE: background
 **
-** Return the background image.
+** Return the background image.  If no background image is defined, a
+** built-in 16x16 pixel white GIF is returned.
 */
 void background_page(void){
   Blob bgimg;
@@ -783,9 +838,15 @@ void background_page(void){
 
 
 /*
-** WEBPAGE: /docsrch
+** WEBPAGE: docsrch
 **
-** Search for documents that match a user-supplied pattern.
+** Search for documents that match a user-supplied full-text search pattern.
+** If no pattern is specified (by the s= query parameter) then the user
+** is prompted to enter a search string.
+**
+** Query parameters:
+**
+**     s=PATTERN             Search for PATTERN
 */
 void doc_search_page(void){
   login_check_credentials();

@@ -25,9 +25,7 @@
 # include <windows.h>
 #else
 # include <termios.h>
-# if defined(TIOCGWINSZ)
-#  include <sys/ioctl.h>
-# endif
+# include <sys/ioctl.h>
 #endif
 
 #if INTERFACE

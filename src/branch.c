@@ -341,7 +341,7 @@ static void new_brlist_page(void){
   Stmt q;
   double rNow;
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("Branches");
   style_adunit_config(ADUNIT_RIGHT_OK);
   login_anonymous_available();
@@ -352,7 +352,7 @@ static void new_brlist_page(void){
   @ <thead><tr>
   @ <th>Branch Name</th>
   @ <th>Age</th>
-  @ <th>Checkins</th>
+  @ <th>Check-ins</th>
   @ <th>Status</th>
   @ <th>Resolution</th>
   @ </tr></thead><tbody>
@@ -374,7 +374,7 @@ static void new_brlist_page(void){
     @ <td>%s(isClosed?"closed":"")</td>
     if( zMergeTo ){
       @ <td>merged into
-      @ %z(href("%R/timeline?f=%s",zLastCkin))%h(zMergeTo)</a></td>
+      @ %z(href("%R/timeline?f=%!S",zLastCkin))%h(zMergeTo)</a></td>
     }else{
       @ <td></td>
     }
@@ -388,7 +388,10 @@ static void new_brlist_page(void){
 
 /*
 ** WEBPAGE: brlist
-** Show a list of branches
+** Show a list of branches.  With no query parameters, a sortable table
+** is used to show all branches.  If query parameters are present a
+** fixed bullet list is shown.
+**
 ** Query parameters:
 **
 **     all         Show all branches
@@ -410,7 +413,7 @@ void brlist_page(void){
     return;
   }
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( colorTest ){
     showClosed = 0;
     showAll = 1;
@@ -437,6 +440,7 @@ void brlist_page(void){
     style_submenu_element("All", "All", "brlist?all");
   }
   login_anonymous_available();
+#if 0
   style_sidebox_begin("Nomenclature:", "33%");
   @ <ol>
   @ <li> An <div class="sideboxDescribed">%z(href("brlist"))
@@ -452,6 +456,7 @@ void brlist_page(void){
   @ reopened).</li>
   @ </ol>
   style_sidebox_end();
+#endif
 
   branch_prepare_list_query(&q, brFlags);
   cnt = 0;
@@ -517,7 +522,7 @@ void brtimeline_page(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
 
   style_header("Branches");
   style_submenu_element("List", "List", "brlist");

@@ -177,10 +177,8 @@ void update_cmd(void){
       latestFlag = 1;
     }else{
       tid = name_to_typed_rid(g.argv[2],"ci");
-      if( tid==0 ){
-        fossil_fatal("no such version: %s", g.argv[2]);
-      }else if( !is_a_version(tid) ){
-        fossil_fatal("no such version: %s", g.argv[2]);
+       if( tid==0 || !is_a_version(tid) ){
+        fossil_fatal("no such check-in: %s", g.argv[2]);
       }
     }
   }
@@ -356,7 +354,7 @@ void update_cmd(void){
     blob_append(&sql, "DELETE FROM fv WHERE ", -1);
     zSep = "";
     for(i=3; i<g.argc; i++){
-      file_tree_name(g.argv[i], &treename, 1);
+      file_tree_name(g.argv[i], &treename, 0, 1);
       if( file_wd_isdir(g.argv[i])==1 ){
         if( blob_size(&treename) != 1 || blob_str(&treename)[0] != '.' ){
           blob_append_sql(&sql, "%sfn NOT GLOB '%q/*' ",
@@ -428,22 +426,22 @@ void update_cmd(void){
       }else{
         fossil_print("ADD %s\n", zName);
       }
-      undo_save(zName);
+      if( !dryRunFlag && !internalUpdate ) undo_save(zName);
       if( !dryRunFlag ) vfile_to_disk(0, idt, 0, 0);
     }else if( idt>0 && idv>0 && ridt!=ridv && (chnged==0 || deleted) ){
       /* The file is unedited.  Change it to the target version */
-      undo_save(zName);
       if( deleted ){
         fossil_print("UPDATE %s - change to unmanaged file\n", zName);
       }else{
         fossil_print("UPDATE %s\n", zName);
       }
+      if( !dryRunFlag && !internalUpdate ) undo_save(zName);
       if( !dryRunFlag ) vfile_to_disk(0, idt, 0, 0);
     }else if( idt>0 && idv>0 && !deleted && file_wd_size(zFullPath)<0 ){
       /* The file missing from the local check-out. Restore it to the
       ** version that appears in the target. */
       fossil_print("UPDATE %s\n", zName);
-      undo_save(zName);
+      if( !dryRunFlag && !internalUpdate ) undo_save(zName);
       if( !dryRunFlag ) vfile_to_disk(0, idt, 0, 0);
     }else if( idt==0 && idv>0 ){
       if( ridv==0 ){
@@ -458,7 +456,7 @@ void update_cmd(void){
         nConflict++;
       }else{
         fossil_print("REMOVE %s\n", zName);
-        undo_save(zName);
+        if( !dryRunFlag && !internalUpdate ) undo_save(zName);
         if( !dryRunFlag ) file_delete(zFullPath);
       }
     }else if( idt>0 && idv>0 && ridt!=ridv && chnged ){
@@ -475,7 +473,7 @@ void update_cmd(void){
         nConflict++;
       }else{
         unsigned mergeFlags = dryRunFlag ? MERGE_DRYRUN : 0;
-        undo_save(zName);
+        if( !dryRunFlag && !internalUpdate ) undo_save(zName);
         content_get(ridt, &t);
         content_get(ridv, &v);
         rc = merge_3way(&v, zFullPath, &t, &r, mergeFlags);
@@ -546,6 +544,7 @@ void update_cmd(void){
       nMerge++;
     }
     db_finalize(&q);
+    leaf_ambiguity_warning(tid, tid);
 
     if( nConflict ){
       if( internalUpdate ){
@@ -589,39 +588,28 @@ void update_cmd(void){
 }
 
 /*
-** Make sure empty directories are created
+** Create empty directories specified by the empty-dirs setting.
 */
 void ensure_empty_dirs_created(void){
-  /* Make empty directories? */
   char *zEmptyDirs = db_get("empty-dirs", 0);
   if( zEmptyDirs!=0 ){
-    char *bc;
+    int i;
     Blob dirName;
     Blob dirsList;
 
-    blob_zero(&dirsList);
-    blob_init(&dirsList, zEmptyDirs, strlen(zEmptyDirs));
-    /* Replace commas by spaces */
-    bc = blob_str(&dirsList);
-    while( (*bc)!='\0' ){
-      if( (*bc)==',' ) { *bc = ' '; }
-      ++bc;
+    zEmptyDirs = fossil_strdup(zEmptyDirs);
+    for(i=0; zEmptyDirs[i]; i++){
+      if( zEmptyDirs[i]==',' ) zEmptyDirs[i] = ' ';
     }
-    /* Make directories */
-    blob_zero(&dirName);
+    blob_init(&dirsList, zEmptyDirs, -1);
     while( blob_token(&dirsList, &dirName) ){
-      const char *zDir = blob_str(&dirName);
-      /* Make full pathname of the directory */
-      Blob path;
-      const char *zPath;
-
-      blob_zero(&path);
-      blob_appendf(&path, "%s/%s", g.zLocalRoot, zDir);
-      zPath = blob_str(&path);
-      /* Handle various cases of existence of the directory */
+      char *zDir = blob_str(&dirName);
+      char *zPath = mprintf("%s/%s", g.zLocalRoot, zDir);
       switch( file_wd_isdir(zPath) ){
         case 0: { /* doesn't exist */
-          if( file_mkdir(zPath, 0)!=0 ) {
+          fossil_free(zPath);
+          zPath = mprintf("%s/%s/x", g.zLocalRoot, zDir);
+          if( file_mkfolder(zPath, 0, 1)!=0 ) {
             fossil_warning("couldn't create directory %s as "
                            "required by empty-dirs setting", zDir);
           }
@@ -636,24 +624,27 @@ void ensure_empty_dirs_created(void){
                          "by empty-dirs setting", zDir);
         }
       }
-      blob_reset(&path);
+      fossil_free(zPath);
+      blob_reset(&dirName);
     }
+    blob_reset(&dirsList);
+    fossil_free(zEmptyDirs);
   }
 }
 
 
 /*
-** Get the contents of a file within the checking "revision".  If
+** Get the contents of a file within the check-in "revision".  If
 ** revision==NULL then get the file content for the current checkout.
 */
 int historical_version_of_file(
-  const char *revision,    /* The checkin containing the file */
+  const char *revision,    /* The check-in containing the file */
   const char *file,        /* Full treename of the file */
   Blob *content,           /* Put the content here */
   int *pIsLink,            /* Set to true if file is link. */
   int *pIsExe,             /* Set to true if file is executable */
   int *pIsBin,             /* Set to true if file is binary */
-  int errCode              /* Error code if file not found.  Panic if 0. */
+  int errCode              /* Error code if file not found.  Panic if <= 0. */
 ){
   Manifest *pManifest;
   ManifestFile *pFile;
@@ -668,7 +659,7 @@ int historical_version_of_file(
   }
   if( !is_a_version(rid) ){
     if( errCode>0 ) return errCode;
-    fossil_fatal("no such checkin: %s", revision);
+    fossil_fatal("no such check-in: %s", revision);
   }
   pManifest = manifest_get(rid, CFTYPE_MANIFEST, 0);
 
@@ -688,13 +679,13 @@ int historical_version_of_file(
     }
     manifest_destroy(pManifest);
     if( errCode<=0 ){
-      fossil_fatal("file %s does not exist in checkin: %s", file, revision);
+      fossil_fatal("file %s does not exist in check-in: %s", file, revision);
     }
   }else if( errCode<=0 ){
     if( revision==0 ){
       revision = db_text("current", "SELECT uuid FROM blob WHERE rid=%d", rid);
     }
-    fossil_fatal("could not parse manifest for checkin: %s", revision);
+    fossil_fatal("could not parse manifest for check-in: %s", revision);
   }
   return errCode;
 }
@@ -749,7 +740,8 @@ void revert_cmd(void){
     for(i=2; i<g.argc; i++){
       Blob fname;
       zFile = mprintf("%/", g.argv[i]);
-      file_tree_name(zFile, &fname, 1);
+      blob_zero(&fname);
+      file_tree_name(zFile, &fname, 0, 1);
       db_multi_exec(
         "REPLACE INTO torevert VALUES(%B);"
         "INSERT OR IGNORE INTO torevert"
@@ -795,11 +787,11 @@ void revert_cmd(void){
     if( errCode==2 ){
       if( db_int(0, "SELECT rid FROM vfile WHERE pathname=%Q OR origname=%Q",
                  zFile, zFile)==0 ){
-        fossil_print("UNMANAGE: %s\n", zFile);
+        fossil_print("UNMANAGE %s\n", zFile);
       }else{
         undo_save(zFile);
         file_delete(zFull);
-        fossil_print("DELETE: %s\n", zFile);
+        fossil_print("DELETE   %s\n", zFile);
       }
       db_multi_exec(
         "UPDATE OR REPLACE vfile"
@@ -811,7 +803,7 @@ void revert_cmd(void){
     }else{
       sqlite3_int64 mtime;
       undo_save(zFile);
-      if( file_wd_size(zFull)>=0 && (isLink || file_wd_islink(zFull)) ){
+      if( file_wd_size(zFull)>=0 && (isLink || file_wd_islink(0)) ){
         file_delete(zFull);
       }
       if( isLink ){
@@ -820,7 +812,7 @@ void revert_cmd(void){
         blob_write_to_file(&record, zFull);
       }
       file_wd_setexe(zFull, isExe);
-      fossil_print("REVERTED: %s\n", zFile);
+      fossil_print("REVERT   %s\n", zFile);
       mtime = file_wd_mtime(zFull);
       db_multi_exec(
          "UPDATE vfile"

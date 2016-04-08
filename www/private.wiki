@@ -18,7 +18,7 @@ The --private option causes Fossil to put the check-in in a new branch
 named "private".  That branch will not participate in subsequent clone,
 sync, push, or pull operations.  The branch will remain on the one local
 repository where it was created.  Note that you only use the --private
-option for the first checkin that creates the private branch.
+option for the first check-in that creates the private branch.
 Additional checkins into the private branch remain private automatically.
 
 <h2>Publishing Private Changes</h2>
@@ -43,11 +43,11 @@ visible to other users of the project.
 A private branch normally stays on the one repository where it was
 originally created.  But sometimes you want to share private branches
 with another repository.  For example, you might be building a cross-platform
-application and have separate repositories on your windows laptop, 
-your linux desktop, and your iMac.  You can transfer private branches
+application and have separate repositories on your Windows laptop, 
+your Linux desktop, and your iMac.  You can transfer private branches
 between these machines by using the --private option on the "sync",
 "push", "pull", and "clone" commands.  For example, if you are running
-"fossil server" on your linux box and you want to clone that repository
+"fossil server" on your Linux box and you want to clone that repository
 to your Mac, including all private branches, use:
 
 <blockquote><pre>

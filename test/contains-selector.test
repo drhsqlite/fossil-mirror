@@ -1,0 +1,55 @@
+#
+# Copyright (c) 2015 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+# Test containsSelector() function in src/style.c
+#
+
+test_setup ""
+
+proc contains-selector {testId css selectorResultMap} {
+  set css [string trim $css]
+  set filename [file join $::tempPath compare-selector.css]
+  set fh [open $filename w]
+  puts -nonewline $fh $css
+  close $fh
+  foreach {selector found} $selectorResultMap {
+    set expected "$selector [expr {$found ? "found" : "not found"}]"
+    set result [fossil test-contains-selector $filename $selector]
+    test "contains-selector $testId $selector" {$result eq $expected}
+  }
+  file delete $filename
+}
+
+contains-selector 1 {
+  .a.b {}
+  .c .de {}
+  /* comment */
+  .c .d, .e /* comment */ {}
+} {
+  .a 0
+  .b 0
+  .a.b 1
+  .c 0
+  .d 0
+  {.c.d} 0
+  {.c .d} 1
+  .e 1
+}
+
+###############################################################################
+
+test_cleanup

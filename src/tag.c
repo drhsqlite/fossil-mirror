@@ -62,7 +62,7 @@ static void tag_propagate(
   db_bind_double(&s, ":mtime", mtime);
 
   if( tagType==2 ){
-    /* Set the propagated tag marker on checkin :rid */
+    /* Set the propagated tag marker on check-in :rid */
     db_prepare(&ins,
        "REPLACE INTO tagxref(tagid, tagtype, srcid, origid, value, mtime, rid)"
        "VALUES(%d,2,0,%d,%Q,:mtime,:rid)",
@@ -70,7 +70,7 @@ static void tag_propagate(
     );
     db_bind_double(&ins, ":mtime", mtime);
   }else{
-    /* Remove all references to the tag from checkin :rid */
+    /* Remove all references to the tag from check-in :rid */
     zValue = 0;
     db_prepare(&ins,
        "DELETE FROM tagxref WHERE tagid=%d AND rid=:rid", tagid
@@ -238,7 +238,8 @@ int tag_insert(
 
 /*
 ** COMMAND: test-tag
-** %fossil test-tag (+|*|-)TAGNAME ARTIFACT-ID ?VALUE?
+**
+** Usage: %fossil test-tag (+|*|-)TAGNAME ARTIFACT-ID ?VALUE?
 **
 ** Add a tag or anti-tag to the rebuildable tables of the local repository.
 ** No tag artifact is created so the new tag is erased the next
@@ -335,27 +336,43 @@ void tag_add_artifact(
 
 /*
 ** COMMAND: tag
+**
 ** Usage: %fossil tag SUBCOMMAND ...
 **
-** Run various subcommands to control tags and properties
+** Run various subcommands to control tags and properties.
 **
-**     %fossil tag add ?--raw? ?--propagate? TAGNAME CHECK-IN ?VALUE?
+**     %fossil tag add ?OPTIONS? TAGNAME CHECK-IN ?VALUE?
 **
 **         Add a new tag or property to CHECK-IN. The tag will
 **         be usable instead of a CHECK-IN in commands such as
 **         update and merge.  If the --propagate flag is present,
 **         the tag value propagates to all descendants of CHECK-IN
 **
+**         Options:
+**           --raw                     Raw tag name.
+**           --propagate               Propagating tag.
+**           --date-override DATETIME  Set date and time added.
+**           --user-override USER      Name USER when adding the tag.
+**         
+**         The --date-override and --user-override options support
+**         importing history from other SCM systems. DATETIME has
+**         the form 'YYYY-MMM-DD HH:MM:SS'.
+**
 **     %fossil tag cancel ?--raw? TAGNAME CHECK-IN
 **
 **         Remove the tag TAGNAME from CHECK-IN, and also remove
 **         the propagation of the tag to any descendants.
 **
-**     %fossil tag find ?--raw? ?-t|--type TYPE? ?-n|--limit #? TAGNAME
+**     %fossil tag find ?OPTIONS? TAGNAME
 **
 **         List all objects that use TAGNAME.  TYPE can be "ci" for
-**         checkins or "e" for events. The limit option limits the number
+**         check-ins or "e" for events. The limit option limits the number
 **         of results to the given value.
+**         
+**         Options:
+**           --raw           Raw tag name.
+**           -t|--type TYPE  One of "ci", or "e".
+**           -n|--limit N    Limit to N results.
 **
 **     %fossil tag list|ls ?--raw? ?CHECK-IN?
 **
@@ -381,10 +398,6 @@ void tag_add_artifact(
 **
 ** will assume that "decaf" is a tag/branch name.
 **
-** only allow --date-override and --user-override in
-**   %fossil tag add --date-override 'YYYY-MMM-DD HH:MM:SS' \\
-**                   --user-override user
-** in order to import history from other scm systems
 */
 void tag_cmd(void){
   int n;
@@ -522,7 +535,7 @@ void tag_cmd(void){
       }
       db_finalize(&q);
     }else{
-      usage("tag list ?CHECK-IN?");
+      usage("list ?CHECK-IN?");
     }
   }else
   {
@@ -538,13 +551,15 @@ tag_cmd_usage:
 
 /*
 ** WEBPAGE: taglist
+**
+** List all non-propagating symbolic tags.
 */
 void taglist_page(void){
   Stmt q;
 
   login_check_credentials();
   if( !g.perm.Read ){
-    login_needed();
+    login_needed(g.anon.Read);
   }
   login_anonymous_available();
   style_header("Tags");
@@ -577,12 +592,15 @@ void taglist_page(void){
 
 /*
 ** WEBPAGE: /tagtimeline
+**
+** Render a timeline with all check-ins that contain non-propagating
+** symbolic tags.
 */
 void tagtimeline_page(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
 
   style_header("Tagged Check-ins");
   style_submenu_element("List", "List", "taglist");

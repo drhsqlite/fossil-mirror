@@ -1,8 +1,8 @@
 # Markdown formatting rules
 
-In addition to its native Wiki formatting syntax, Fossil supports Markdown syntax as specified by 
-[John Gruber's original Markdown implementation](http://daringfireball.net/projects/markdown/). 
-For lots of examples - not repeated here - please refer to its 
+In addition to its native Wiki formatting syntax, Fossil supports Markdown syntax as specified by
+[John Gruber's original Markdown implementation](http://daringfireball.net/projects/markdown/).
+For lots of examples - not repeated here - please refer to its
 [syntax description](http://daringfireball.net/projects/markdown/syntax), of which the page you
 are reading is an extract.
 
@@ -14,14 +14,14 @@ This page itself uses Markdown formatting.
 
       * A **paragraph** is a group of consecutive lines. Paragraphs are separated by blank lines.
 
-      * A **Header** is a line of text underlined with equal signs or hyphens, or prefixed by a 
+      * A **Header** is a line of text underlined with equal signs or hyphens, or prefixed by a
         number of hash marks.
 
       * **Block quotes** are blocks of text prefixed by '>'.
 
       * **Ordered list** items are prefixed by a number and a period. **Unordered list** items
         are prefixed by a hyphen, asterisk or plus sign. Prefix and item text are separated by
-        whitespace. 
+        whitespace.
 
       * **Code blocks** are formed by lines of text (possibly including empty lines) prefixed by
         at least 4 spaces or a tab.
@@ -36,14 +36,14 @@ This page itself uses Markdown formatting.
         - **automatic links** are URLs or email addresses enclosed in angle brackets
           ('<' and '>'), and are displayed as such.
 
-        - **inline links** consist of the displayed link text in square brackets ('[' and ']'), 
-          followed by the link target in parentheses. 
+        - **inline links** consist of the displayed link text in square brackets ('[' and ']'),
+          followed by the link target in parentheses.
 
-        - **reference links** separate _link instance_ from _link definition_. A link instance 
-          consists of the displayed link text in square brackets, followed by a link definition name 
-          in square brackets. 
+        - **reference links** separate _link instance_ from _link definition_. A link instance
+          consists of the displayed link text in square brackets, followed by a link definition name
+          in square brackets.
           The corresponding link definition can occur anywhere on the page, and consists
-          of the link definition name in square brackets followed by a colon, whitespace and the 
+          of the link definition name in square brackets followed by a colon, whitespace and the
           link target.
 
       * **Emphasis** can be given by wrapping text in one or two asterisks or underscores - use
@@ -51,7 +51,7 @@ This page itself uses Markdown formatting.
 
       * A **code span** is text wrapped in backticks ('`').
 
-      * **Images** use a syntax much like inline or reference links, but with alt attribute text 
+      * **Images** use a syntax much like inline or reference links, but with alt attribute text
         ('img alt=...') instead of link text, and the first pair of square
         brackets in an image instance prefixed by an exclamation mark.
 
@@ -90,7 +90,7 @@ level.
 Not every line in a paragraph needs to be prefixed by '>' in order to make it a block quote,
 only the first line.
 
-Block quoted paragraphs can be nested by using multiple '>' characters as prefix. 
+Block quoted paragraphs can be nested by using multiple '>' characters as prefix.
 
 Within a block quote, Markdown formatting (e.g. lists, emphasis) still works as normal.
 
@@ -101,8 +101,8 @@ A list item prefix need not occur first on its line; up to 3 leading spaces are 
 
 For unordered lists, asterisks, hyphens and plus signs can be used interchangeably.
 
-For ordered lists, arbitrary numbers can be used as part of an item prefix; the items will be 
-renumbered during rendering. However, future implementations may demand that the number used 
+For ordered lists, arbitrary numbers can be used as part of an item prefix; the items will be
+renumbered during rendering. However, future implementations may demand that the number used
 for the first item in a list indicates an offset to be used for subsequent items.
 
 For list items spanning multiple lines, subsequent lines can be indented using an arbitrary amount
@@ -110,7 +110,7 @@ of whitespace.
 
 List items will be wrapped in HTML `<p>` tags if they are separated by blank lines.
 
-A list item may span multiple paragraphs. At least the first line of each such paragraph must 
+A list item may span multiple paragraphs. At least the first line of each such paragraph must
 be indented using at least 4 spaces or a tab character.
 
 Block quotes within list items must have their '>' delimiters indented using 4 up to 7 spaces.
@@ -133,27 +133,27 @@ Regular Markdown syntax is not processed within code blocks.
 
 #### Automatic links
 
-When rendering automatic links to email addresses, HTML encoding obfuscation is used to 
+When rendering automatic links to email addresses, HTML encoding obfuscation is used to
 prevent some spambots from harvesting.
 
 #### Inline links
 
 Links to resources on the same server can use relative paths (i.e. can start with a '/').
 
-An optional title for the link (e.g. to have mouseover text in the browser) may be given behind 
-the link target but within the parentheses, in single and double quotes, and separated from the 
-link target by whitespace. 
+An optional title for the link (e.g. to have mouseover text in the browser) may be given behind
+the link target but within the parentheses, in single and double quotes, and separated from the
+link target by whitespace.
 
 #### Reference links
 
-> Each reference link consists of 
+> Each reference link consists of
 >
 >   - one or more _link instances_ at appropriate locations in the page text
 >   - a single _link definition_ at an arbitrary location on the page
-> 
+>
 > During rendering, each link instance is resolved, and the corresponding definition is
 > filled in. No separate link definition clauses occur in the rendered output.
-> 
+>
 > There are 3 fields involved in link instances and definitions:
 >
 >   - link text (i.e. the text that is displayed at the resulting link)
@@ -199,7 +199,7 @@ side of emphasis start or end punctuation characters.
 To include a literal backtick character in a code span, use multiple backticks as opening and
 closing delimiters.
 
-Whitespace may exist immediately after the opening delimiter and before the closing delimiter 
+Whitespace may exist immediately after the opening delimiter and before the closing delimiter
 of a code span, to allow for code fragments starting or ending with a backtick.
 
 Within a code span - like within a code block - angle brackets and ampersands are automatically encoded to make including
@@ -211,13 +211,13 @@ If necessary, HTML must be used to specify image dimensions. Markdown has no pro
 
 ### Inline HTML
 
-Start and end tags of 
+Start and end tags of
 a HTML block level construct (`<div>`, `<table>` etc) must be separated from surrounding
 context using blank lines, and must both occur at the start of a line.
 
 No extra unwanted `<p>` HTML tags are added around HTML block level tags.
 
-Markdown formatting within HTML block level tags is not processed; however, formatting within 
+Markdown formatting within HTML block level tags is not processed; however, formatting within
 span level tags (e.g. `<mark>`) is processed normally.
 
 ### Escaping Markdown punctuation

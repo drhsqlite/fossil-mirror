@@ -28,7 +28,7 @@
 **
 ** Produce an RSS feed of the timeline.
 **
-** TYPE may be: all, ci (show checkins only), t (show tickets only),
+** TYPE may be: all, ci (show check-ins only), t (show tickets only),
 ** w (show wiki only).
 **
 ** LIMIT is the number of items to show.
@@ -61,7 +61,10 @@ void page_timeline_rss(void){
     @   coalesce(ecomment,comment),
     @   coalesce(euser,user),
     @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim),
-    @   (SELECT count(*) FROM plink WHERE cid=blob.rid)
+    @   (SELECT count(*) FROM plink WHERE cid=blob.rid),
+    @   (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref
+    @     WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid
+    @       AND tagxref.rid=blob.rid AND tagxref.tagtype>0) AS tags
     @ FROM event, blob
     @ WHERE blob.rid=event.objid
   ;
@@ -96,7 +99,7 @@ void page_timeline_rss(void){
         blob_append(&bSQL, " AND event.type=='ci'", -1);
       }
     }else if( !g.perm.RdTkt ){
-      assert( !g.perm.RdTkt &&& g.perm.Read && g.perm.RdWiki );
+      assert( !g.perm.RdTkt && g.perm.Read && g.perm.RdWiki );
       blob_append(&bSQL, " AND event.type!='t'", -1);
     }
   }
@@ -169,11 +172,14 @@ void page_timeline_rss(void){
     const char *zCom = db_column_text(&q, 3);
     const char *zAuthor = db_column_text(&q, 4);
     char *zPrefix = "";
+    char *zSuffix = 0;
     char *zDate;
     int nChild = db_column_int(&q, 5);
     int nParent = db_column_int(&q, 6);
+    const char *zTagList = db_column_text(&q, 7);
     time_t ts;
 
+    if( zTagList && zTagList[0]==0 ) zTagList = 0;
     ts = (time_t)((db_column_double(&q,2) - 2440587.5)*86400.0);
     zDate = cgi_rfc822_datestamp(ts);
 
@@ -185,15 +191,20 @@ void page_timeline_rss(void){
       zPrefix = "*FORK* ";
     }
 
+    if( zTagList ){
+      zSuffix = mprintf(" (tags: %s)", zTagList);
+    }
+
     @     <item>
-    @       <title>%s(zPrefix)%h(zCom)</title>
+    @       <title>%s(zPrefix)%h(zCom)%h(zSuffix)</title>
     @       <link>%s(g.zBaseURL)/info/%s(zId)</link>
-    @       <description>%s(zPrefix)%h(zCom)</description>
+    @       <description>%s(zPrefix)%h(zCom)%h(zSuffix)</description>
     @       <pubDate>%s(zDate)</pubDate>
     @       <dc:creator>%h(zAuthor)</dc:creator>
     @       <guid>%s(g.zBaseURL)/info/%s(zId)</guid>
     @     </item>
     free(zDate);
+    free(zSuffix);
     nLine++;
   }
 
@@ -215,7 +226,7 @@ void page_timeline_rss(void){
 ** feed of the timeline to stdout. Options:
 **
 ** -type|y FLAG
-**    may be: all (default), ci (show checkins only), t (show tickets only),
+**    may be: all (default), ci (show check-ins only), t (show tickets only),
 **    w (show wiki only).
 **
 ** -limit|n LIMIT
@@ -262,7 +273,10 @@ void cmd_timeline_rss(void){
     @   coalesce(ecomment,comment),
     @   coalesce(euser,user),
     @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim),
-    @   (SELECT count(*) FROM plink WHERE cid=blob.rid)
+    @   (SELECT count(*) FROM plink WHERE cid=blob.rid),
+    @   (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref
+    @     WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid
+    @       AND tagxref.rid=blob.rid AND tagxref.tagtype>0) AS tags
     @ FROM event, blob
     @ WHERE blob.rid=event.objid
   ;
@@ -352,11 +366,14 @@ void cmd_timeline_rss(void){
     const char *zCom = db_column_text(&q, 3);
     const char *zAuthor = db_column_text(&q, 4);
     char *zPrefix = "";
+    char *zSuffix = 0;
     char *zDate;
     int nChild = db_column_int(&q, 5);
     int nParent = db_column_int(&q, 6);
+    const char *zTagList = db_column_text(&q, 7);
     time_t ts;
 
+    if( zTagList && zTagList[0]==0 ) zTagList = 0;
     ts = (time_t)((db_column_double(&q,2) - 2440587.5)*86400.0);
     zDate = cgi_rfc822_datestamp(ts);
 
@@ -368,15 +385,20 @@ void cmd_timeline_rss(void){
       zPrefix = "*FORK* ";
     }
 
+    if( zTagList ){
+      zSuffix = mprintf(" (tags: %s)", zTagList);
+    }
+
     fossil_print("<item>");
-    fossil_print("<title>%s%h</title>\n", zPrefix, zCom);
+    fossil_print("<title>%s%h%h</title>\n", zPrefix, zCom, zSuffix);
     fossil_print("<link>%s/info/%s</link>\n", zBaseURL, zId);
-    fossil_print("<description>%s%h</description>\n", zPrefix, zCom);
+    fossil_print("<description>%s%h%h</description>\n", zPrefix, zCom, zSuffix);
     fossil_print("<pubDate>%s</pubDate>\n", zDate);
     fossil_print("<dc:creator>%h</dc:creator>\n", zAuthor);
     fossil_print("<guid>%s/info/%s</guid>\n", g.zBaseURL, zId);
     fossil_print("</item>\n");
     free(zDate);
+    free(zSuffix);
     nLine++;
   }
 

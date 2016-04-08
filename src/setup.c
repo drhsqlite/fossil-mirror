@@ -56,12 +56,14 @@ void setup_menu_entry(
 
 
 /*
-** WEBPAGE: /setup
+** WEBPAGE: setup
+**
+** Main menu for the administrative pages.  Requires Admin privileges.
 */
 void setup_page(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
   }
 
   style_header("Server Administration");
@@ -71,7 +73,7 @@ void setup_page(void){
   if( !cgi_header_contains("<base href=") ){
     @ <p class="generalError"><b>Configuration Error:</b> Please add
     @ <tt>&lt;base href="$secureurl/$current_page"&gt;</tt> after
-    @ <tt>&lt;head&gt;</tt> in the <a href="setup_header">HTML header</a>!</p>
+    @ <tt>&lt;head&gt;</tt> in the <a href="setup_skinedit?w=2">HTML header</a>!</p>
   }
 
 #if !defined(_WIN32)
@@ -109,13 +111,7 @@ void setup_page(void){
   setup_menu_entry("Transfers", "xfersetup",
     "Configure the transfer system for this repository");
   setup_menu_entry("Skins", "setup_skin",
-    "Select from a menu of prepackaged \"skins\" for the web interface");
-  setup_menu_entry("CSS", "setup_editcss",
-    "Edit the Cascading Style Sheet used by all pages of this repository");
-  setup_menu_entry("Header", "setup_header",
-    "Edit HTML text inserted at the top of every page");
-  setup_menu_entry("Footer", "setup_footer",
-    "Edit HTML text inserted at the bottom of every page");
+    "Select and/or modify the web interface \"skins\"");
   setup_menu_entry("Moderation", "setup_modreq",
     "Enable/Disable requiring moderator approval of Wiki and/or Ticket"
     " changes and attachments.");
@@ -132,7 +128,9 @@ void setup_page(void){
   setup_menu_entry("Administrative Log", "admin_log",
     "View the admin_log entries");
   setup_menu_entry("Stats", "stat",
-    "Display repository statistics");
+    "Repository Status Reports");
+  setup_menu_entry("Sitemap", "sitemap",
+    "Links to miscellaneous pages");
   setup_menu_entry("SQL", "admin_sql",
     "Enter raw SQL commands");
   setup_menu_entry("TH1", "admin_th1",
@@ -146,80 +144,107 @@ void setup_page(void){
 ** WEBPAGE: setup_ulist
 **
 ** Show a list of users.  Clicking on any user jumps to the edit
-** screen for that user.
+** screen for that user.  Requires Admin privileges.
 */
 void setup_ulist(void){
   Stmt s;
-  int prevLevel = 0;
 
   login_check_credentials();
   if( !g.perm.Admin ){
-    login_needed();
+    login_needed(0);
     return;
   }
 
   style_submenu_element("Add", "Add User", "setup_uedit");
+  style_submenu_element("Log", "Access Log", "access_log");
+  style_submenu_element("Help", "Help", "setup_ulist_notes");
   style_header("User List");
-  @ <table class="usetupLayoutTable">
-  @ <tr><td class="usetupColumnLayout">
-  @ <span class="note">Users:</span>
-  @ <table class="usetupUserList">
-  prevLevel = 0;
+  @ <table border=1 cellpadding=2 cellspacing=0 class='userTable'>
+  @ <thead><tr><th>UID <th>Category <th>Capabilities <th>Info <th>Last Change</tr></thead>
+  @ <tbody>
   db_prepare(&s,
-     "SELECT uid, login, cap, info, 1 FROM user"
-     " WHERE login IN ('anonymous','nobody','developer','reader') "
-     " UNION ALL "
-     "SELECT uid, login, cap, info, 2 FROM user"
-     " WHERE login NOT IN ('anonymous','nobody','developer','reader') "
-     "ORDER BY 5, 2 COLLATE nocase"
+     "SELECT uid, login, cap, date(mtime,'unixepoch')"
+     "  FROM user"
+     " WHERE login IN ('anonymous','nobody','developer','reader')"
+     " ORDER BY login"
   );
   while( db_step(&s)==SQLITE_ROW ){
-    int iLevel = db_column_int(&s, 4);
-    const char *zCap = db_column_text(&s, 2);
+    int uid = db_column_int(&s, 0);
     const char *zLogin = db_column_text(&s, 1);
-    if( iLevel>prevLevel ){
-      if( prevLevel>0 ){
-        @ <tr><td colspan="3"><hr></td></tr>
-      }
-      if( iLevel==1 ){
-        @ <tr>
-        @   <th class="usetupListUser"
-        @    style="text-align: right;padding-right: 20px;">Category</th>
-        @   <th class="usetupListCap"
-        @    style="text-align: center;padding-right: 15px;">Capabilities</th>
-        @   <th class="usetupListCon"
-        @    style="text-align: left;">Notes</th>
-        @ </tr>
-      }else{
-        @ <tr>
-        @   <th class="usetupListUser"
-        @    style="text-align: right;padding-right: 20px;">User&nbsp;ID</th>
-        @   <th class="usetupListCap"
-        @    style="text-align: center;padding-right: 15px;">Capabilities</th>
-        @   <th class="usetupListCon"
-        @    style="text-align: left;">Contact&nbsp;Info</th>
-        @ </tr>
-      }
-      prevLevel = iLevel;
-    }
+    const char *zCap = db_column_text(&s, 2);
+    const char *zDate = db_column_text(&s, 4);
     @ <tr>
-    @ <td class="usetupListUser"
-    @     style="text-align: right;padding-right: 20px;white-space:nowrap;">
-    if( g.perm.Admin && (zCap[0]!='s' || g.perm.Setup) ){
-      @ <a href="setup_uedit?id=%d(db_column_int(&s,0))">
+    @ <td><a href='setup_uedit?id=%d(uid)'>%d(uid)</a>
+    @ <td><a href='setup_uedit?id=%d(uid)'>%h(zLogin)</a>
+    @ <td>%h(zCap)
+    
+    if( fossil_strcmp(zLogin,"anonymous")==0 ){
+      @ <td>All logged-in users
+    }else if( fossil_strcmp(zLogin,"developer")==0 ){
+      @ <td>Users with '<b>v</b>' capability
+    }else if( fossil_strcmp(zLogin,"nobody")==0 ){
+      @ <td>All users without login
+    }else if( fossil_strcmp(zLogin,"reader")==0 ){
+      @ <td>Users with '<b>u</b>' capability
+    }else{
+      @ <td>
     }
-    @ %h(zLogin)
-    if( g.perm.Admin ){
-      @ </a>
+    if( zDate && zDate[0] ){
+      @ <td>%h(zDate)
+    }else{
+      @ <td>
     }
-    @ </td>
-    @ <td class="usetupListCap" style="text-align: center;padding-right: 15px;">%s(zCap)</td>
-    @ <td  class="usetupListCon"  style="text-align: left;">%h(db_column_text(&s,3))</td>
     @ </tr>
   }
-  @ </table>
-  @ </td><td class="usetupColumnLayout">
-  @ <span class="note">Notes:</span>
+  db_finalize(&s);
+  @ </tbody></table>
+  @ <div class='section'>Users</div>
+  @ <table border=1 cellpadding=2 cellspacing=0 class='userTable' id='userlist'>
+  @ <thead><tr>
+  @ <th>ID<th>Login<th>Caps<th>Info<th>Date<th>Expire</tr></thead>
+  @ <tbody>
+  db_prepare(&s,
+     "SELECT uid, login, cap, info, date(mtime,'unixepoch'), lower(login) AS sortkey, "
+     "       CASE WHEN info LIKE '%%expires 20%%'"
+             "    THEN substr(info,instr(lower(info),'expires')+8,10)"
+             "    END AS exp"
+     "  FROM user"
+     " WHERE login NOT IN ('anonymous','nobody','developer','reader')"
+     " ORDER BY sortkey"
+  );
+  while( db_step(&s)==SQLITE_ROW ){
+    int uid = db_column_int(&s, 0);
+    const char *zLogin = db_column_text(&s, 1);
+    const char *zCap = db_column_text(&s, 2);
+    const char *zInfo = db_column_text(&s, 3);
+    const char *zDate = db_column_text(&s, 4);
+    const char *zSortKey = db_column_text(&s,5);
+    const char *zExp = db_column_text(&s,6);
+    @ <tr>
+    @ <td><a href='setup_uedit?id=%d(uid)'>%d(uid)</a>
+    @ <td data-sortkey='%h(zSortKey)'><a href='setup_uedit?id=%d(uid)'>%h(zLogin)</a>
+    @ <td>%h(zCap)
+    @ <td>%h(zInfo)
+    @ <td>%h(zDate?zDate:"")
+    @ <td>%h(zExp?zExp:"")
+    @ </tr>
+  }
+  @ </tbody></table>
+  db_finalize(&s);
+  output_table_sorting_javascript("userlist","nktxTT",2);
+  style_footer();
+}
+
+/*
+** WEBPAGE: setup_ulist_notes
+**
+** A documentation page showing notes about user configuration.  This information
+** used to be a side-bar on the user list page, but has been factored out for
+** improved presentation.
+*/
+void setup_ulist_notes(void){
+  style_header("User Configuration Notes");
+  @ <h1>User Configuration Notes:</h1>
   @ <ol>
   @ <li><p>The permission flags are as follows:</p>
   @ <table>
@@ -301,10 +326,9 @@ void setup_ulist(void){
   @ </p></li>
   @
   @ </ol>
-  @ </td></tr></table>
   style_footer();
-  db_finalize(&s);
 }
+
 
 /*
 ** Return true if zPw is a valid password string.  A valid
@@ -321,7 +345,10 @@ static int isValidPwString(const char *zPw){
 }
 
 /*
-** WEBPAGE: /setup_uedit
+** WEBPAGE: setup_uedit
+**
+** Edit information about a user or create a new user.
+** Requires Admin privileges.
 */
 void user_edit(void){
   const char *zId, *zLogin, *zInfo, *zCap, *zPw;
@@ -331,14 +358,14 @@ void user_edit(void){
   int uid, i;
   int higherUser = 0;  /* True if user being edited is SETUP and the */
                        /* user doing the editing is ADMIN.  Disallow editing */
-  char *inherit[128];
+  const char *inherit[128];
   int a[128];
   const char *oa[128];
 
   /* Must have ADMIN privileges to access this page
   */
   login_check_credentials();
-  if( !g.perm.Admin ){ login_needed(); return; }
+  if( !g.perm.Admin ){ login_needed(0); return; }
 
   /* Check to see if an ADMIN user is trying to edit a SETUP account.
   ** Don't allow that.
@@ -909,7 +936,7 @@ void entry_attribute(
   int width,            /* Width of the entry box */
   const char *zVar,     /* The corresponding row in the VAR table */
   const char *zQParm,   /* The query parameter */
-  char *zDflt,          /* Default value if VAR table entry does not exist */
+  const char *zDflt,    /* Default value if VAR table entry does not exist */
   int disabled          /* 1 if disabled */
 ){
   const char *zVal = db_get(zVar, zDflt);
@@ -932,7 +959,7 @@ void entry_attribute(
 /*
 ** Generate a text box for an attribute.
 */
-static void textarea_attribute(
+const char *textarea_attribute(
   const char *zLabel,   /* The text label on the textarea */
   int rows,             /* Rows in the textarea */
   int cols,             /* Columns in the textarea */
@@ -941,7 +968,7 @@ static void textarea_attribute(
   const char *zDflt,    /* Default value if VAR table entry does not exist */
   int disabled          /* 1 if the textarea should  not be editable */
 ){
-  const char *z = db_get(zVar, (char*)zDflt);
+  const char *z = db_get(zVar, zDflt);
   const char *zQ = P(zQP);
   if( zQ && !disabled && fossil_strcmp(zQ,z)!=0){
     const int nZQ = (int)strlen(zQ);
@@ -961,6 +988,7 @@ static void textarea_attribute(
       @ <span class="textareaLabel">%s(zLabel)</span>
     }
   }
+  return z;
 }
 
 /*
@@ -974,7 +1002,7 @@ static void multiple_choice_attribute(
   int nChoice,          /* Number of choices */
   const char *const *azChoice /* Choices. 2 per choice: (VAR value, Display) */
 ){
-  const char *z = db_get(zVar, (char*)zDflt);
+  const char *z = db_get(zVar, zDflt);
   const char *zQ = P(zQP);
   int i;
   if( zQ && fossil_strcmp(zQ,z)!=0){
@@ -996,11 +1024,14 @@ static void multiple_choice_attribute(
 
 /*
 ** WEBPAGE: setup_access
+**
+** The access-control settings page.  Requires Admin privileges.
 */
 void setup_access(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
 
   style_header("Access Control Settings");
@@ -1020,11 +1051,11 @@ void setup_access(void){
      "localauth", "localauth", 0, 0);
   @ <p>When enabled, the password sign-in is always required for
   @ web access.  When disabled, unrestricted web access from 127.0.0.1
-  @ is allowed for the <a href="%s(g.zTop)/help/ui">fossil ui</a> command or
-  @ from the <a href="%s(g.zTop)/help/server">fossil server</a>,
-  @ <a href="%s(g.zTop)/help/http">fossil http</a> commands when the
+  @ is allowed for the <a href="%R/help/ui">fossil ui</a> command or
+  @ from the <a href="%R/help/server">fossil server</a>,
+  @ <a href="%R/help/http">fossil http</a> commands when the
   @ "--localauth" command line options is used, or from the
-  @ <a href="%s(g.zTop)/help/cgi">fossil cgi</a> if a line containing
+  @ <a href="%R/help/cgi">fossil cgi</a> if a line containing
   @ the word "localauth" appears in the CGI script.
   @
   @ <p>A password is always required if any one or more
@@ -1033,8 +1064,8 @@ void setup_access(void){
   @ <li> This button is checked
   @ <li> The inbound TCP/IP connection is not from 127.0.0.1
   @ <li> The server is started using either of the
-  @ <a href="%s(g.zTop)/help/server">fossil server</a> or
-  @ <a href="%s(g.zTop)/help/server">fossil http</a> commands
+  @ <a href="%R/help/server">fossil server</a> or
+  @ <a href="%R/help/server">fossil http</a> commands
   @ without the "--localauth" option.
   @ <li> The server is started from CGI without the "localauth" keyword
   @ in the CGI script.
@@ -1192,6 +1223,9 @@ void setup_access(void){
 
 /*
 ** WEBPAGE: setup_login_group
+**
+** Change how the current repository participates in a login
+** group.
 */
 void setup_login_group(void){
   const char *zGroup;
@@ -1205,7 +1239,8 @@ void setup_login_group(void){
 
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   file_canonical_name(g.zRepositoryName, &fullName, 0);
   zSelfRepo = fossil_strdup(blob_str(&fullName));
@@ -1304,6 +1339,9 @@ void setup_login_group(void){
 
 /*
 ** WEBPAGE: setup_timeline
+**
+** Edit administrative settings controlling the display of
+** timelines.
 */
 void setup_timeline(void){
   double tmDiff;
@@ -1317,7 +1355,8 @@ void setup_timeline(void){
   };
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
 
   style_header("Timeline Display Preferences");
@@ -1337,6 +1376,12 @@ void setup_timeline(void){
   @ <p>In timeline displays, check-in comments are displayed literally,
   @ without any wiki or HTML interpretation.  (Note: Use CSS to change
   @ display formatting features such as fonts and line-wrapping behavior.)</p>
+
+  @ <hr />
+  onoff_attribute("Truncate comment at first blank line",
+                  "timeline-truncate-at-blank", "ttb", 0, 0);
+  @ <p>In timeline displays, check-in comments are displayed only through
+  @ the first blank line.</p>
 
   @ <hr />
   onoff_attribute("Use Universal Coordinated Time (UTC)",
@@ -1389,13 +1434,17 @@ void setup_timeline(void){
 
 /*
 ** WEBPAGE: setup_settings
+**
+** Change or view miscellaneous settings.  Part of the
+** Admin pages requiring Admin privileges.
 */
 void setup_settings(void){
   Setting const *pSet;
 
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
 
   (void) aCmdHelp; /* NOTE: Silence compiler warning. */
@@ -1459,7 +1508,8 @@ void setup_settings(void){
   @ </td></tr></table>
   @ </div></form>
   @ <p>Settings marked with (v) are 'versionable' and will be overridden
-  @ by the contents of files named <tt>.fossil-settings/PROPERTY</tt>.
+  @ by the contents of files named <tt>.fossil-settings/PROPERTY</tt>
+  @ in the check-out root.
   @ If such a file is present, the corresponding field above is not
   @ editable.</p><hr /><p>
   @ These settings work in the same way, as the <kbd>set</kbd>
@@ -1471,11 +1521,14 @@ void setup_settings(void){
 
 /*
 ** WEBPAGE: setup_config
+**
+** The "Admin/Configuration" page.  Requires Admin privilege.
 */
 void setup_config(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
 
   style_header("WWW Configuration");
@@ -1548,158 +1601,15 @@ void setup_config(void){
 }
 
 /*
-** WEBPAGE: setup_editcss
-*/
-void setup_editcss(void){
-  login_check_credentials();
-  if( !g.perm.Setup ){
-    login_needed();
-  }
-  db_begin_transaction();
-  if( P("clear")!=0 ){
-    db_multi_exec("DELETE FROM config WHERE name='css'");
-    cgi_replace_parameter("css", builtin_text("skins/default/css.txt"));
-    db_end_transaction(0);
-    cgi_redirect("setup_editcss");
-  }
-  if( P("submit")!=0 ){
-    textarea_attribute(0, 0, 0, "css", "css",
-                       builtin_text("skins/default/css.txt"), 0);
-    db_end_transaction(0);
-    cgi_redirect("setup_editcss");
-  }
-  style_header("Edit CSS");
-  @ <form action="%s(g.zTop)/setup_editcss" method="post"><div>
-  login_insert_csrf_secret();
-  @ Edit the CSS below:<br />
-  textarea_attribute("", 35, 80, "css", "css",
-                     builtin_text("skins/default/css.txt"), 0);
-  @ <br />
-  @ <input type="submit" name="submit" value="Apply Changes" />
-  @ <input type="submit" name="clear" value="Revert To Default" />
-  @ </div></form>
-  @ <p><span class="note">Note:</span> Press your browser Reload button after
-  @ modifying the CSS in order to pull in the modified CSS file.</p>
-  @ <hr />
-  @ The default CSS is shown below for reference.  Other examples
-  @ of CSS files can be seen on the <a href="setup_skin">skins page</a>.
-  @ See also the <a href="setup_header">header</a> and
-  @ <a href="setup_footer">footer</a> editing screens.
-  @ <blockquote><pre>
-  cgi_append_default_css();
-  @ </pre></blockquote>
-  style_footer();
-  db_end_transaction(0);
-}
-
-/*
-** WEBPAGE: setup_header
-*/
-void setup_header(void){
-  login_check_credentials();
-  if( !g.perm.Setup ){
-    login_needed();
-  }
-  db_begin_transaction();
-  if( P("clear")!=0 ){
-    db_multi_exec("DELETE FROM config WHERE name='header'");
-    cgi_replace_parameter("header", builtin_text("skins/default/header.txt"));
-  }else if( P("submit")!=0 ){
-    textarea_attribute(0, 0, 0, "header", "header",
-                       builtin_text("skins/default/header.txt"), 0);
-  }else if( P("fixbase")!=0 ){
-    const char *z = db_get("header",
-                           (char*)builtin_text("skins/default/header.txt"));
-    char *zHead = strstr(z, "<head>");
-    if( strstr(z, "<base href=")==0 && zHead!=0 ){
-      char *zNew;
-      char *zTail = &zHead[6];
-      while( fossil_isspace(zTail[0]) ) zTail++;
-      zNew = mprintf("%.*s\n<base href=\"$secureurl/$current_page\" />\n%s",
-                     zHead+6-z, z, zTail);
-      cgi_replace_parameter("header", zNew);
-      db_set("header", zNew, 0);
-    }
-  }
-
-  style_header("Edit Page Header");
-  @ <form action="%R/setup_header" method="post"><div>
-
-  /* Make sure the header contains <base href="...">.   Issue a warning
-  ** if it does not. */
-  if( !cgi_header_contains("<base href=") ){
-    @ <p class="generalError">Please add
-    @ <tt>&lt;base href="$secureurl/$current_page"&gt;</tt> after
-    @ <tt>&lt;head&gt;</tt> in the header!
-    @ <input type="submit" name="fixbase" value="Add &lt;base&gt; Now"></p>
-  }
-
-  login_insert_csrf_secret();
-  @ <p>Edit HTML text with embedded TH1 (a Tcl dialect) that will be used to
-  @ generate the beginning of every page through start of the main
-  @ menu.</p>
-  textarea_attribute("", 35, 80, "header", "header",
-                     builtin_text("skins/default/header.txt"), 0);
-  @ <br />
-  @ <input type="submit" name="submit" value="Apply Changes" />
-  @ <input type="submit" name="clear" value="Revert To Default" />
-  @ </div></form>
-  @ <hr />
-  @ The default header is shown below for reference.  Other examples
-  @ of headers can be seen on the <a href="setup_skin">skins page</a>.
-  @ See also the <a href="setup_editcss">CSS</a> and
-  @ <a href="setup_footer">footer</a> editing screens.
-  @ <blockquote><pre>
-  @ %h(builtin_text("skins/default/header.txt"))
-  @ </pre></blockquote>
-  style_footer();
-  db_end_transaction(0);
-}
-
-/*
-** WEBPAGE: setup_footer
-*/
-void setup_footer(void){
-  login_check_credentials();
-  if( !g.perm.Setup ){
-    login_needed();
-  }
-  db_begin_transaction();
-  if( P("clear")!=0 ){
-    db_multi_exec("DELETE FROM config WHERE name='footer'");
-    cgi_replace_parameter("footer", builtin_text("skins/default/footer.txt"));
-  }
-
-  style_header("Edit Page Footer");
-  @ <form action="%s(g.zTop)/setup_footer" method="post"><div>
-  login_insert_csrf_secret();
-  @ <p>Edit HTML text with embedded TH1 (a Tcl dialect) that will be used to
-  @ generate the end of every page.</p>
-  textarea_attribute("", 20, 80, "footer", "footer",
-                     builtin_text("skins/default/footer.txt"), 0);
-  @ <br />
-  @ <input type="submit" name="submit" value="Apply Changes" />
-  @ <input type="submit" name="clear" value="Revert To Default" />
-  @ </div></form>
-  @ <hr />
-  @ The default footer is shown below for reference.  Other examples
-  @ of footers can be seen on the <a href="setup_skin">skins page</a>.
-  @ See also the <a href="setup_editcss">CSS</a> and
-  @ <a href="setup_header">header</a> editing screens.
-  @ <blockquote><pre>
-  @ %h(builtin_text("skins/default/footer.txt"))
-  @ </pre></blockquote>
-  style_footer();
-  db_end_transaction(0);
-}
-
-/*
 ** WEBPAGE: setup_modreq
+**
+** Admin page for setting up moderation of tickets and wiki.
 */
 void setup_modreq(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
 
   style_header("Moderator For Wiki And Tickets");
@@ -1710,7 +1620,7 @@ void setup_modreq(void){
   onoff_attribute("Moderate ticket changes",
      "modreq-tkt", "modreq-tkt", 0, 0);
   @ <p>When enabled, any change to tickets is subject to the approval
-  @ a ticket moderator - a user with the "q" or Mod-Tkt privilege.
+  @ by a ticket moderator - a user with the "q" or Mod-Tkt privilege.
   @ Ticket changes enter the system and are shown locally, but are not
   @ synced until they are approved.  The moderator has the option to
   @ delete the change rather than approve it.  Ticket changes made by
@@ -1721,7 +1631,7 @@ void setup_modreq(void){
   onoff_attribute("Moderate wiki changes",
      "modreq-wiki", "modreq-wiki", 0, 0);
   @ <p>When enabled, any change to wiki is subject to the approval
-  @ a ticket moderator - a user with the "l" or Mod-Wiki privilege.
+  @ by a wiki moderator - a user with the "l" or Mod-Wiki privilege.
   @ Wiki changes enter the system and are shown locally, but are not
   @ synced until they are approved.  The moderator has the option to
   @ delete the change rather than approve it.  Wiki changes made by
@@ -1739,11 +1649,15 @@ void setup_modreq(void){
 
 /*
 ** WEBPAGE: setup_adunit
+**
+** Administrative page for configuring and controlling ad units
+** and how they are displayed.
 */
 void setup_adunit(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   db_begin_transaction();
   if( P("clear")!=0 ){
@@ -1775,7 +1689,7 @@ void setup_adunit(void){
   @ <li>The "Banner Ad-Unit" is used for wide pages.
   @ <li>The "Right-Column Ad-Unit" is used on pages with tall, narrow content.
   @ <li>If the "Right-Column Ad-Unit" is blank, the "Banner Ad-Unit" is used on all pages.
-  @ <li>Suggested <a href="setup_editcss">CSS</a> changes:
+  @ <li>Suggested <a href="setup_skinedit?w=0">CSS</a> changes:
   @ <blockquote><pre>
   @ div.adunit_banner {
   @   margin: auto;
@@ -1806,6 +1720,8 @@ void setup_adunit(void){
 
 /*
 ** WEBPAGE: setup_logo
+**
+** Administrative page for changing the logo image.
 */
 void setup_logo(void){
   const char *zLogoMtime = db_get_mtime("logo-image", 0, 0);
@@ -1824,7 +1740,8 @@ void setup_logo(void){
   }
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   db_begin_transaction();
   if( P("setlogo")!=0 && zLogoMime && zLogoMime[0] && szLogoImg>0 ){
@@ -1888,8 +1805,8 @@ void setup_logo(void){
   @ <p>The logo is accessible to all users at this URL:
   @ <a href="%s(g.zBaseURL)/logo">%s(g.zBaseURL)/logo</a>.
   @ The logo may or may not appear on each
-  @ page depending on the <a href="setup_editcss">CSS</a> and
-  @ <a href="setup_header">header setup</a>.
+  @ page depending on the <a href="setup_skinedit?w=0">CSS</a> and
+  @ <a href="setup_skinedit?w=2">header setup</a>.
   @ To change the logo image, use the following form:</p>
   login_insert_csrf_secret();
   @ Logo Image file:
@@ -1910,8 +1827,8 @@ void setup_logo(void){
   @ <p>The background image is accessible to all users at this URL:
   @ <a href="%s(g.zBaseURL)/background">%s(g.zBaseURL)/background</a>.
   @ The background image may or may not appear on each
-  @ page depending on the <a href="setup_editcss">CSS</a> and
-  @ <a href="setup_header">header setup</a>.
+  @ page depending on the <a href="setup_skinedit?w=0">CSS</a> and
+  @ <a href="setup_skinedit?w=2">header setup</a>.
   @ To change the background image, use the following form:</p>
   login_insert_csrf_secret();
   @ Background image file:
@@ -1957,21 +1874,24 @@ int raw_sql_query_authorizer(
 ** WEBPAGE: admin_sql
 **
 ** Run raw SQL commands against the database file using the web interface.
+** Requires Admin privileges.
 */
 void sql_page(void){
   const char *zQ = P("q");
   int go = P("go")!=0;
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
+  add_content_sql_commands(g.db);
   db_begin_transaction();
   style_header("Raw SQL Commands");
   @ <p><b>Caution:</b> There are no restrictions on the SQL that can be
   @ run by this page.  You can do serious and irrepairable damage to the
   @ repository.  Proceed with extreme caution.</p>
   @
-  @ <p>Only a the first statement in the entry box will be run.
+  @ <p>Only the first statement in the entry box will be run.
   @ Any subsequent statements will be silently ignored.</p>
   @
   @ <p>Database names:<ul><li>repository &rarr; %s(db_name("repository"))
@@ -2077,14 +1997,15 @@ void sql_page(void){
 **
 ** Run raw TH1 commands using the web interface.  If Tcl integration was
 ** enabled at compile-time and the "tcl" setting is enabled, Tcl commands
-** may be run as well.
+** may be run as well.  Requires Admin privilege.
 */
 void th1_page(void){
   const char *zQ = P("q");
   int go = P("go")!=0;
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   db_begin_transaction();
   style_header("Raw TH1 Commands");
@@ -2144,13 +2065,15 @@ void page_admin_log(){
   int counter = 0;
   login_check_credentials();
   if( !g.perm.Setup && !g.perm.Admin ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   style_header("Admin Log");
   create_admin_log_table();
   limit = atoi(PD("n","20"));
   fLogEnabled = db_get_boolean("admin-log", 0);
-  @ <div>Admin logging is %s(fLogEnabled?"on":"off").</div>
+  @ <div>Admin logging is %s(fLogEnabled?"on":"off").
+  @ (Change this on the <a href="setup_settings">settings</a> page.)</div>
 
 
   @ <div>Limit results to: <span>
@@ -2196,12 +2119,13 @@ void page_admin_log(){
 /*
 ** WEBPAGE: srchsetup
 **
-** Configure the search engine.
+** Configure the search engine.  Requires Admin privilege.
 */
 void page_srchsetup(){
   login_check_credentials();
   if( !g.perm.Setup && !g.perm.Admin ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   style_header("Search Configuration");
   @ <form action="%s(g.zTop)/srchsetup" method="post"><div>
@@ -2253,12 +2177,14 @@ void page_srchsetup(){
   if( search_index_exists() ){
     @ <p>Currently using an SQLite FTS4 search index. This makes search
     @ run faster, especially on large repositories, but takes up space.</p>
+    onoff_attribute("Use Porter Stemmer","search-stemmer","ss",0,0);
     @ <p><input type="submit" name="fts0" value="Delete The Full-Text Index">
     @ <input type="submit" name="fts1" value="Rebuild The Full-Text Index">
   }else{
     @ <p>The SQLite FTS4 search index is disabled.  All searching will be
     @ a full-text scan.  This usually works fine, but can be slow for
     @ larger repositories.</p>
+    onoff_attribute("Use Porter Stemmer","search-stemmer","ss",0,0);
     @ <p><input type="submit" name="fts1" value="Create A Full-Text Index">
   }
   @ </div></form>

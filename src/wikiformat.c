@@ -469,7 +469,7 @@ static int wikiUsesHtml(void){
 ** the markup including the initial "<" and the terminating ">".  If
 ** it is not well-formed markup, return 0.
 */
-static int markupLength(const char *z){
+int htmlTagLength(const char *z){
   int n = 1;
   int inparen = 0;
   int c;
@@ -664,7 +664,7 @@ static int linkLength(const char *z){
 static int nextWikiToken(const char *z, Renderer *p, int *pTokenType){
   int n;
   if( z[0]=='<' ){
-    n = markupLength(z);
+    n = htmlTagLength(z);
     if( n>0 ){
       *pTokenType = TOKEN_MARKUP;
       return n;
@@ -764,7 +764,7 @@ struct ParsedMarkup {
 ** The content of z[] might be modified by converting characters
 ** to lowercase and by inserting some "\000" characters.
 */
-static void parseMarkup(ParsedMarkup *p, char *z){
+static int parseMarkup(ParsedMarkup *p, char *z){
   int i, j, c;
   int iACode;
   char *zValue;
@@ -796,7 +796,7 @@ static void parseMarkup(ParsedMarkup *p, char *z){
     p->aAttr[0].cTerm = c = z[i];
     z[i++] = 0;
     p->nAttr = 1;
-    if( c=='>' ) return;
+    if( c=='>' ) return 0;
   }
   while( fossil_isspace(z[i]) ){ i++; }
   while( c!='>' && p->nAttr<8 && fossil_isalpha(z[i]) ){
@@ -843,6 +843,7 @@ static void parseMarkup(ParsedMarkup *p, char *z){
     while( fossil_isspace(z[i]) ){ i++; }
     if( z[i]=='>' || (z[i]=='/' && z[i+1]=='>') ) break;
   }
+  return seen;
 }
 
 /*
@@ -962,7 +963,7 @@ static void popStack(Renderer *p){
     int iCode;
     p->nStack--;
     iCode = p->aStack[p->nStack].iCode;
-    if( iCode!=MARKUP_DIV && p->pOut ){
+    if( (iCode!=MARKUP_DIV || p->aStack[p->nStack].zId==0) && p->pOut ){
       blob_appendf(p->pOut, "</%s>", aMarkup[iCode].zName);
     }
   }
@@ -1152,7 +1153,9 @@ static const char *validWikiPageName(Renderer *p, const char *zTarget){
   if( strcmp(zTarget, "Sandbox")==0 ) return zTarget;
   if( wiki_name_is_wellformed((const unsigned char *)zTarget)
    && ((p->state & WIKI_NOBADLINKS)==0 ||
-        db_exists("SELECT 1 FROM tag WHERE tagname GLOB 'wiki-%q'", zTarget))
+        db_exists("SELECT 1 FROM tag WHERE tagname GLOB 'wiki-%q'"
+                  " AND (SELECT value FROM tagxref WHERE tagid=tag.tagid"
+                  " ORDER BY mtime DESC LIMIT 1) > 0", zTarget))
   ){
     return zTarget;
   }
@@ -1208,7 +1211,7 @@ static void openHyperlink(
   ){
     blob_appendf(p->pOut, "<a href=\"%s\">", zTarget);
   }else if( zTarget[0]=='/' ){
-    blob_appendf(p->pOut, "<a href=\"%s%h\">", g.zTop, zTarget);
+    blob_appendf(p->pOut, "<a href=\"%R%h\">", zTarget);
   }else if( zTarget[0]=='.'
          && (zTarget[1]=='/' || (zTarget[1]=='.' && zTarget[2]=='/'))
          && (p->state & WIKI_LINKSONLY)==0 ){
@@ -1251,6 +1254,8 @@ static void openHyperlink(
     }else if( g.perm.Hyperlink ){
       blob_appendf(p->pOut, "%z[",href("%R/info/%s", zTarget));
       zTerm = "]</a>";
+    }else{
+      zTerm = "";
     }
   }else if( strlen(zTarget)>=10 && fossil_isdigit(zTarget[0]) && zTarget[4]=='-'
             && db_int(0, "SELECT datetime(%Q) NOT NULL", zTarget) ){
@@ -1482,7 +1487,7 @@ static void wiki_render(Renderer *p, char *z){
       case TOKEN_MARKUP: {
         const char *zId;
         int iDiv;
-        parseMarkup(&markup, z);
+        int mAttr = parseMarkup(&markup, z);
 
         /* Convert <title> to <h1 align='center'> */
         if( markup.iCode==MARKUP_TITLE && !p->inVerbatim ){
@@ -1569,7 +1574,7 @@ static void wiki_render(Renderer *p, char *z){
 
         /* Push <div> markup onto the stack together with the id=ID attribute.
         */
-        if( markup.iCode==MARKUP_DIV ){
+        if( markup.iCode==MARKUP_DIV && (mAttr & ATTR_ID)!=0 ){
           pushStackWithId(p, markup.iCode, markupId(&markup),
                           (p->state & ALLOW_WIKI)!=0);
         }else
@@ -1716,7 +1721,7 @@ void wiki_write(const char *zIn, int flags){
 /*
 ** COMMAND: test-wiki-render
 **
-** %fossil test-wiki-render FILE [OPTIONS]
+** Usage: %fossil test-wiki-render FILE [OPTIONS]
 **
 ** Options:
 **    --buttons        Set the WIKI_BUTTONS flag
@@ -1967,13 +1972,22 @@ void wiki_extract_links(
 */
 static int nextHtmlToken(const char *z){
   int n;
-  if( z[0]=='<' ){
-    n = markupLength(z);
+  char c;
+  if( (c=z[0])=='<' ){
+    n = htmlTagLength(z);
     if( n<=0 ) n = 1;
-  }else if( fossil_isspace(z[0]) ){
+  }else if( fossil_isspace(c) ){
     for(n=1; z[n] && fossil_isspace(z[n]); n++){}
+  }else if( c=='&' ){
+    n = z[1]=='#' ? 2 : 1;
+    while( fossil_isalnum(z[n]) ) n++;
+    if( z[n]==';' ) n++;
   }else{
-    for(n=1; z[n] && z[n]!='<' && !fossil_isspace(z[n]); n++){}
+    n = 1;
+    for(n=1; 1; n++){
+      if( (c = z[n]) > '<' ) continue;
+      if( c=='<' || c=='&' || fossil_isspace(c) || c==0 ) break;
+    }
   }
   return n;
 }
@@ -2084,6 +2098,9 @@ void htmlTidy(const char *zIn, Blob *pOut){
 
 /*
 ** COMMAND: test-html-tidy
+**
+** Run the htmlTidy() routine on the content of all files named on
+** the command-line and write the results to standard output.
 */
 void test_html_tidy(void){
   Blob in, out;
@@ -2102,12 +2119,18 @@ void test_html_tidy(void){
 /*
 ** Remove all HTML markup from the input text.  The output written into
 ** pOut is pure text.
+**
+** Put the title on the first line, if there is any <title> markup.
+** If there is no <title>, then create a blank first line.
 */
 void html_to_plaintext(const char *zIn, Blob *pOut){
   int n;
   int i, j;
+  int inTitle = 0;          /* True between <title>...</title> */
+  int seenText = 0;         /* True after first non-whitespace seen */
   int nNL = 0;              /* Number of \n characters at the end of pOut */
   int nWS = 0;              /* True if pOut ends with whitespace */
+  while( fossil_isspace(zIn[0]) ) zIn++;
   while( zIn[0] ){
     n = nextHtmlToken(zIn);
     if( zIn[0]=='<' && n>1 ){
@@ -2132,22 +2155,62 @@ void html_to_plaintext(const char *zIn, Blob *pOut){
         if( zIn[0]=='<' ) zIn += n;
         continue;
       }
-      if( !isCloseTag && (eType & (MUTYPE_BLOCK|MUTYPE_TABLE))!=0 ){
-        if( nNL==0 ){      
+      if( eTag==MARKUP_TITLE ){
+        inTitle = !isCloseTag;
+      }
+      if( !isCloseTag && seenText && (eType & (MUTYPE_BLOCK|MUTYPE_TABLE))!=0 ){
+        if( nNL==0 ){
           blob_append(pOut, "\n", 1);
           nNL++;
         }
         nWS = 1;
       }
     }else if( fossil_isspace(zIn[0]) ){
-      for(i=nNL=0; i<n; i++) if( zIn[i]=='\n' ) nNL++;
-      if( !nWS ){
-        blob_append(pOut, nNL ? "\n" : " ", 1);
+      if( seenText ){
+        nNL = 0;
+        if( !inTitle ){ /* '\n' -> ' ' within <title> */
+          for(i=0; i<n; i++) if( zIn[i]=='\n' ) nNL++;
+        }
+        if( !nWS ){
+          blob_append(pOut, nNL ? "\n" : " ", 1);
+          nWS = 1;
+        }
+      }
+    }else if( zIn[0]=='&' ){
+      char c = '?';
+      if( zIn[1]=='#' ){
+        int x = atoi(&zIn[1]);
+        if( x>0 && x<=127 ) c = x;
+      }else{
+        static const struct { int n; char c; char *z; } aEntity[] = {
+           { 5, '&', "&amp;"   },
+           { 4, '<', "&lt;"    },
+           { 4, '>', "&gt;"    },
+           { 6, ' ', "&nbsp;"  },
+        };
+        int jj;
+        for(jj=0; jj<ArraySize(aEntity); jj++){
+          if( aEntity[jj].n==n && strncmp(aEntity[jj].z,zIn,n)==0 ){
+            c = aEntity[jj].c;
+            break;
+          }
+        }
+      }
+      if( fossil_isspace(c) ){
+        if( nWS==0 && seenText ) blob_append(pOut, &c, 1);
         nWS = 1;
+        nNL = c=='\n';
+      }else{
+        if( !seenText && !inTitle ) blob_append(pOut, "\n", 1);
+        seenText = 1;
+        nNL = nWS = 0;
+        blob_append(pOut, &c, 1);
       }
     }else{
-      blob_append(pOut, zIn, n);
+      if( !seenText && !inTitle ) blob_append(pOut, "\n", 1);
+      seenText = 1;
       nNL = nWS = 0;
+      blob_append(pOut, zIn, n);
     }
     zIn += n;
   }
@@ -2156,6 +2219,15 @@ void html_to_plaintext(const char *zIn, Blob *pOut){
 
 /*
 ** COMMAND: test-html-to-text
+**
+** Usage: %fossil test-html-to-text FILE ...
+**
+** Read all files named on the command-line.  Convert the file
+** content from HTML to text and write the results on standard
+** output.
+**
+** This command is intended as a test and debug interface for
+** the html_to_plaintext() routine.
 */
 void test_html_to_text(void){
   Blob in, out;

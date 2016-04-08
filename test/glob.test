@@ -18,6 +18,8 @@
 # Test glob pattern parsing
 #
 
+test_setup ""
+
 proc glob-parse {testname args} {
   set i 1
   foreach {pattern string result} $args {
@@ -182,3 +184,7 @@ glob-parse 119 "'o*,two three,four'" "one,two three,four" \
 {SQL expression: (x GLOB 'o*,two three,four')
 pattern[0] = [o*,two three,four]
 1 one,two three,four}]
+
+###############################################################################
+
+test_cleanup

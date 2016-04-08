@@ -26,6 +26,44 @@
 #endif
 #include <time.h>
 
+/* Two custom conversions are used to show a prefix of SHA1 hashes:
+**
+**      %!S       Prefix of a length appropriate for URLs
+**      %S        Prefix of a length appropriate for human display
+**
+** The following macros help determine those lengths.  FOSSIL_HASH_DIGITS
+** is the default number of digits to display to humans.  This value can
+** be overridden using the hash-digits setting.  FOSSIL_HASH_DIGITS_URL
+** is the minimum number of digits to be used in URLs.  The number used
+** will always be at least 6 more than the number used for human output,
+** or 40 if the number of digits in human output is 34 or more.
+*/
+#ifndef FOSSIL_HASH_DIGITS
+# define FOSSIL_HASH_DIGITS 10       /* For %S (human display) */
+#endif
+#ifndef FOSSIL_HASH_DIGITS_URL
+# define FOSSIL_HASH_DIGITS_URL 16   /* For %!S (embedded in URLs) */
+#endif
+
+/*
+** Return the number of SHA1 hash digits to display.  The number is for
+** human output if the bForUrl is false and is destined for a URL if
+** bForUrl is false.
+*/
+static int hashDigits(int bForUrl){
+  static int nDigitHuman = 0;
+  static int nDigitUrl = 0;
+  if( nDigitHuman==0 ){
+    nDigitHuman = db_get_int("hash-digits", FOSSIL_HASH_DIGITS);
+    if( nDigitHuman < 6 ) nDigitHuman = 6;
+    if( nDigitHuman > 40 ) nDigitHuman = 40;
+    nDigitUrl = nDigitHuman + 6;
+    if( nDigitUrl < FOSSIL_HASH_DIGITS_URL ) nDigitUrl = FOSSIL_HASH_DIGITS_URL;
+    if( nDigitUrl > 40 ) nDigitUrl = 40;
+  }
+  return bForUrl ? nDigitUrl : nDigitHuman;
+}
+
 /*
 ** Conversion types fall into various categories as defined by the
 ** following enumeration.
@@ -170,8 +208,8 @@ static int StrNLen32(const char *z, int N){
 ** comments on a timeline.  These flag settings are determined by
 ** configuration parameters.
 **
-** The altForm2 argument is true for "%!w" (with the "!" alternate-form-2
-** flags) and is false for plain "%w".  The ! indicates that the text is
+** The altForm2 argument is true for "%!W" (with the "!" alternate-form-2
+** flags) and is false for plain "%W".  The ! indicates that the text is
 ** to be rendered on a form rather than the timeline and that block markup
 ** is acceptable even if the "timeline-block-markup" setting is false.
 */
@@ -196,15 +234,7 @@ static int wiki_convert_flags(int altForm2){
 ** The root program.  All variations call this core.
 **
 ** INPUTS:
-**   func   This is a pointer to a function taking three arguments
-**            1. A pointer to anything.  Same as the "arg" parameter.
-**            2. A pointer to the list of characters to be output
-**               (Note, this list is NOT null terminated.)
-**            3. An integer number of characters to be output.
-**               (Note: This number might be zero.)
-**
-**   arg    This is the pointer to anything which will be passed as the
-**          first argument to "func".  Use it for whatever you like.
+**   pBlob  This is the blob where the output will be built.
 **
 **   fmt    This is the format string, as in the usual print.
 **
@@ -622,12 +652,7 @@ int vxprintf(
         }else if( xtype==etDYNSTRING ){
           zExtra = bufpt;
         }else if( xtype==etSTRINGID ){
-          precision = 0;
-          while( bufpt[precision]>='0' && bufpt[precision]<='9' ){
-            precision++;
-          }
-          if( bufpt[precision]!=0 ) precision++;
-          if( precision<10 ) precision=10;
+          precision = 	hashDigits(flag_altform2);
         }
         length = StrNLen32(bufpt, limit);
         if( precision>=0 && precision<length ) length = precision;
@@ -951,7 +976,7 @@ static void fossil_errorlog(const char *zFormat, ...){
     char *p;
     if( (p = fossil_getenv(azEnv[i]))!=0 ){
       fprintf(out, "%s=%s\n", azEnv[i], p);
-      fossil_filename_free(p);
+      fossil_path_free(p);
     }else if( (z = P(azEnv[i]))!=0 ){
       fprintf(out, "%s=%s\n", azEnv[i], z);
     }

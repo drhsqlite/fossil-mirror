@@ -17,7 +17,7 @@ Fossil.
 
 If you do not wish to submit a Contributor Agreement, we would still
 welcome your suggestions and example code, but we will not use your code
-directly - we will be forced to reimplement your changes from scratch which
+directly - we will be forced to re-implement your changes from scratch which
 might take longer.
 
 <h2>2.0 Submitting Patches</h2>
@@ -53,7 +53,7 @@ Contributors are asked to make all non-trivial changes on a branch.  The
 Fossil Architect (Richard Hipp) will merge changes onto the trunk.</p>
 
 Contributors are required to following the
-[./checkin.wiki | pre-checkin checklist] prior to every checkin to
+[./checkin.wiki | pre-checkin checklist] prior to every check-in to
 the Fossil self-hosting repository.  This checklist is short and succinct
 and should only require a few seconds to follow.  Contributors 
 should print out a copy of the pre-checkin checklist and keep

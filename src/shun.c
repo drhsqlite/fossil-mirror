@@ -37,6 +37,9 @@ int uuid_is_shunned(const char *zUuid){
 
 /*
 ** WEBPAGE: shun
+**
+** View the SHA1 hashes of all shunned artifacts.  Add new hashes
+** to the shun set.  Requires Admin privilege.
 */
 void shun_page(void){
   Stmt q;
@@ -51,7 +54,8 @@ void shun_page(void){
 
   login_check_credentials();
   if( !g.perm.Admin ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   if( P("rebuild") ){
     db_close(1);
@@ -110,7 +114,7 @@ void shun_page(void){
     if( allExist ){
       @ <p class="noMoreShun">Artifact(s)<br />
       for( p = zUuid ; *p ; p += UUID_SIZE+1 ){
-        @ <a href="%s(g.zTop)/artifact/%s(p)">%s(p)</a><br />
+        @ <a href="%R/artifact/%s(p)">%s(p)</a><br />
       }
       @ are no longer being shunned.</p>
     }else{
@@ -148,7 +152,7 @@ void shun_page(void){
     }
     @ <p class="shunned">Artifact(s)<br />
     for( p = zUuid ; *p ; p += UUID_SIZE+1 ){
-      @ <a href="%s(g.zTop)/artifact/%s(p)">%s(p)</a><br />
+      @ <a href="%R/artifact/%s(p)">%s(p)</a><br />
     }
     @ have been shunned.  They will no longer be pushed.
     @ They will be removed from the repository the next time the repository
@@ -250,7 +254,7 @@ void shun_page(void){
     int stillExists = db_column_int(&q, 1);
     cnt++;
     if( stillExists ){
-      @ <b><a href="%s(g.zTop)/artifact/%s(zUuid)">%s(zUuid)</a></b><br />
+      @ <b><a href="%R/artifact/%s(zUuid)">%s(zUuid)</a></b><br />
     }else{
       @ <b>%s(zUuid)</b><br />
     }
@@ -294,6 +298,11 @@ void shun_artifacts(void){
 ** WEBPAGE: rcvfromlist
 **
 ** Show a listing of RCVFROM table entries.
+**
+** The RCVFROM table records where this repository received each
+** artifact, including the time of receipt, user, and IP address.
+**
+** Access requires Admin privilege.
 */
 void rcvfromlist_page(void){
   int ofst = atoi(PD("ofst","0"));
@@ -303,7 +312,8 @@ void rcvfromlist_page(void){
 
   login_check_credentials();
   if( !g.perm.Admin ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   style_header("Artifact Receipts");
   if( showAll ){
@@ -375,7 +385,8 @@ void rcvfromlist_page(void){
 /*
 ** WEBPAGE: rcvfrom
 **
-** Show a single RCVFROM table entry.
+** Show a single RCVFROM table entry identified by the rcvid= query
+** parameters.  Requires Admin privilege.
 */
 void rcvfrom_page(void){
   int rcvid = atoi(PD("rcvid","0"));
@@ -383,7 +394,8 @@ void rcvfrom_page(void){
 
   login_check_credentials();
   if( !g.perm.Admin ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   style_header("Artifact Receipt %d", rcvid);
   if( db_exists(
@@ -438,7 +450,7 @@ void rcvfrom_page(void){
     int size = db_column_int(&q, 2);
     const char *zDesc = db_column_text(&q, 3);
     if( zDesc==0 ) zDesc = "";
-    @ <a href="%s(g.zTop)/info/%s(zUuid)">%s(zUuid)</a>
+    @ <a href="%R/info/%s(zUuid)">%s(zUuid)</a>
     @ %h(zDesc) (size: %d(size))<br />
   }
   @ </td></tr>

@@ -86,6 +86,7 @@ SRC = \
   $(SRCDIR)/moderate.c \
   $(SRCDIR)/name.c \
   $(SRCDIR)/path.c \
+  $(SRCDIR)/piechart.c \
   $(SRCDIR)/pivot.c \
   $(SRCDIR)/popen.c \
   $(SRCDIR)/pqueue.c \
@@ -134,30 +135,53 @@ SRC = \
   $(SRCDIR)/zip.c
 
 EXTRA_FILES = \
+  $(SRCDIR)/../skins/aht/details.txt \
   $(SRCDIR)/../skins/black_and_white/css.txt \
+  $(SRCDIR)/../skins/black_and_white/details.txt \
   $(SRCDIR)/../skins/black_and_white/footer.txt \
   $(SRCDIR)/../skins/black_and_white/header.txt \
+  $(SRCDIR)/../skins/blitz/css.txt \
+  $(SRCDIR)/../skins/blitz/details.txt \
+  $(SRCDIR)/../skins/blitz/footer.txt \
+  $(SRCDIR)/../skins/blitz/header.txt \
+  $(SRCDIR)/../skins/blitz/ticket.txt \
+  $(SRCDIR)/../skins/blitz_no_logo/css.txt \
+  $(SRCDIR)/../skins/blitz_no_logo/details.txt \
+  $(SRCDIR)/../skins/blitz_no_logo/footer.txt \
+  $(SRCDIR)/../skins/blitz_no_logo/header.txt \
+  $(SRCDIR)/../skins/blitz_no_logo/ticket.txt \
   $(SRCDIR)/../skins/default/css.txt \
+  $(SRCDIR)/../skins/default/details.txt \
   $(SRCDIR)/../skins/default/footer.txt \
   $(SRCDIR)/../skins/default/header.txt \
   $(SRCDIR)/../skins/eagle/css.txt \
+  $(SRCDIR)/../skins/eagle/details.txt \
   $(SRCDIR)/../skins/eagle/footer.txt \
   $(SRCDIR)/../skins/eagle/header.txt \
   $(SRCDIR)/../skins/enhanced1/css.txt \
+  $(SRCDIR)/../skins/enhanced1/details.txt \
   $(SRCDIR)/../skins/enhanced1/footer.txt \
   $(SRCDIR)/../skins/enhanced1/header.txt \
-  $(SRCDIR)/../skins/etienne1/css.txt \
-  $(SRCDIR)/../skins/etienne1/footer.txt \
-  $(SRCDIR)/../skins/etienne1/header.txt \
   $(SRCDIR)/../skins/khaki/css.txt \
+  $(SRCDIR)/../skins/khaki/details.txt \
   $(SRCDIR)/../skins/khaki/footer.txt \
   $(SRCDIR)/../skins/khaki/header.txt \
+  $(SRCDIR)/../skins/original/css.txt \
+  $(SRCDIR)/../skins/original/details.txt \
+  $(SRCDIR)/../skins/original/footer.txt \
+  $(SRCDIR)/../skins/original/header.txt \
   $(SRCDIR)/../skins/plain_gray/css.txt \
+  $(SRCDIR)/../skins/plain_gray/details.txt \
   $(SRCDIR)/../skins/plain_gray/footer.txt \
   $(SRCDIR)/../skins/plain_gray/header.txt \
   $(SRCDIR)/../skins/rounded1/css.txt \
+  $(SRCDIR)/../skins/rounded1/details.txt \
   $(SRCDIR)/../skins/rounded1/footer.txt \
   $(SRCDIR)/../skins/rounded1/header.txt \
+  $(SRCDIR)/../skins/xekri/css.txt \
+  $(SRCDIR)/../skins/xekri/details.txt \
+  $(SRCDIR)/../skins/xekri/footer.txt \
+  $(SRCDIR)/../skins/xekri/header.txt \
   $(SRCDIR)/diff.tcl \
   $(SRCDIR)/markdown.md
 
@@ -234,6 +258,7 @@ TRANS_SRC = \
   $(OBJDIR)/moderate_.c \
   $(OBJDIR)/name_.c \
   $(OBJDIR)/path_.c \
+  $(OBJDIR)/piechart_.c \
   $(OBJDIR)/pivot_.c \
   $(OBJDIR)/popen_.c \
   $(OBJDIR)/pqueue_.c \
@@ -354,6 +379,7 @@ OBJ = \
  $(OBJDIR)/moderate.o \
  $(OBJDIR)/name.o \
  $(OBJDIR)/path.o \
+ $(OBJDIR)/piechart.o \
  $(OBJDIR)/pivot.o \
  $(OBJDIR)/popen.o \
  $(OBJDIR)/pqueue.o \
@@ -435,11 +461,21 @@ $(OBJDIR)/mkversion:	$(SRCDIR)/mkversion.c
 $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
 	$(BCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
 
-# WARNING. DANGER. Running the test suite modifies the repository the
-# build is done from, i.e. the checkout belongs to. Do not sync/push
-# the repository after running the tests.
+# Run the test suite. 
+# Other flags that can be included in TESTFLAGS are:
+#
+#  -halt     Stop testing after the first failed test
+#  -keep     Keep the temporary workspace for debugging
+#  -prot     Write a detailed log of the tests to the file ./prot
+#  -verbose  Include even more details in the output
+#  -quiet    Hide most output from the terminal
+#  -strict   Treat known bugs as failures
+#
+# TESTFLAGS can also include names of specific test files to limit
+# the run to just those test cases.
+#
 test:	$(OBJDIR) $(APPNAME)
-	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME)
+	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME) -quiet $(TESTFLAGS)
 
 $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion
 	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid  $(SRCDIR)/../manifest  $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
@@ -452,7 +488,11 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_DEFAULT_FILE_FORMAT=4 \
                  -DSQLITE_OMIT_DEPRECATED \
                  -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
-                 -DSQLITE_ENABLE_FTS4
+                 -DSQLITE_ENABLE_FTS4 \
+                 -DSQLITE_ENABLE_FTS3_PARENTHESIS \
+                 -DSQLITE_ENABLE_DBSTAT_VTAB \
+                 -DSQLITE_ENABLE_JSON1 \
+                 -DSQLITE_ENABLE_FTS5
 
 # Setup the options used to compile the included SQLite shell.
 SHELL_OPTIONS = -Dmain=sqlite3_shell \
@@ -480,10 +520,21 @@ MINIZ_OBJ.0 =
 MINIZ_OBJ.1 = $(OBJDIR)/miniz.o
 MINIZ_OBJ.  = $(MINIZ_OBJ.0)
 
+# The USE_LINENOISE variable may be undefined, set to 0, or set
+# to 1. If it is set to 0, then there is no need to build or link
+# the linenoise.o object.
+LINENOISE_DEF.0 =
+LINENOISE_DEF.1 = -DHAVE_LINENOISE
+LINENOISE_DEF.  = $(LINENOISE_DEF.0)
+LINENOISE_OBJ.0 =
+LINENOISE_OBJ.1 = $(OBJDIR)/linenoise.o
+LINENOISE_OBJ.  = $(LINENOISE_OBJ.0)
+
 
 EXTRAOBJ = \
  $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE)) \
  $(MINIZ_OBJ.$(FOSSIL_ENABLE_MINIZ)) \
+ $(LINENOISE_OBJ.$(USE_LINENOISE)) \
  $(OBJDIR)/shell.o \
  $(OBJDIR)/th.o \
  $(OBJDIR)/th_lang.o \
@@ -584,6 +635,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/moderate_.c:$(OBJDIR)/moderate.h \
 	$(OBJDIR)/name_.c:$(OBJDIR)/name.h \
 	$(OBJDIR)/path_.c:$(OBJDIR)/path.h \
+	$(OBJDIR)/piechart_.c:$(OBJDIR)/piechart.h \
 	$(OBJDIR)/pivot_.c:$(OBJDIR)/pivot.h \
 	$(OBJDIR)/popen_.c:$(OBJDIR)/popen.h \
 	$(OBJDIR)/pqueue_.c:$(OBJDIR)/pqueue.h \
@@ -1213,6 +1265,14 @@ $(OBJDIR)/path.o:	$(OBJDIR)/path_.c $(OBJDIR)/path.h $(SRCDIR)/config.h
 
 $(OBJDIR)/path.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/piechart_.c:	$(SRCDIR)/piechart.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/piechart.c >$@
+
+$(OBJDIR)/piechart.o:	$(OBJDIR)/piechart_.c $(OBJDIR)/piechart.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/piechart.o -c $(OBJDIR)/piechart_.c
+
+$(OBJDIR)/piechart.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/pivot_.c:	$(SRCDIR)/pivot.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/pivot.c >$@
 
@@ -1585,7 +1645,10 @@ $(OBJDIR)/sqlite3.o:	$(SRCDIR)/sqlite3.c
 	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) -c $(SRCDIR)/sqlite3.c -o $@
 
 $(OBJDIR)/shell.o:	$(SRCDIR)/shell.c $(SRCDIR)/sqlite3.h
-	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) -c $(SRCDIR)/shell.c -o $@
+	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) $(LINENOISE_DEF.$(USE_LINENOISE)) -c $(SRCDIR)/shell.c -o $@
+
+$(OBJDIR)/linenoise.o:	$(SRCDIR)/linenoise.c $(SRCDIR)/linenoise.h
+	$(XTCC) -c $(SRCDIR)/linenoise.c -o $@
 
 $(OBJDIR)/th.o:	$(SRCDIR)/th.c
 	$(XTCC) -c $(SRCDIR)/th.c -o $@

@@ -67,10 +67,6 @@ static void db_err(const char *zFormat, ...){
   va_list ap;
   char *z;
   int rc = 1;
-  static const char zRebuildMsg[] =
-      "If you have recently updated your fossil executable, you might\n"
-      "need to run \"fossil all rebuild\" to bring the repository\n"
-      "schemas up to date.\n";
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
@@ -90,11 +86,10 @@ static void db_err(const char *zFormat, ...){
   }
   else if( g.cgiOutput ){
     g.cgiOutput = 0;
-    cgi_printf("<h1>Database Error</h1>\n"
-               "<pre>%h</pre>\n<p>%s</p>\n", z, zRebuildMsg);
+    cgi_printf("<h1>Database Error</h1>\n<p>%h</p>\n", z);
     cgi_reply();
   }else{
-    fprintf(stderr, "%s: %s\n\n%s", g.argv[0], z, zRebuildMsg);
+    fprintf(stderr, "%s: %s\n", g.argv[0], z);
   }
   free(z);
   db_force_rollback();
@@ -166,10 +161,12 @@ void db_end_transaction(int rollbackFlag){
   if( db.nBegin==0 ){
     int i;
     if( db.doRollback==0 && db.nPriorChanges<sqlite3_total_changes(g.db) ){
+      i = 0;
       while( db.nBeforeCommit ){
         db.nBeforeCommit--;
-        sqlite3_exec(g.db, db.azBeforeCommit[db.nBeforeCommit], 0, 0, 0);
-        sqlite3_free(db.azBeforeCommit[db.nBeforeCommit]);
+        sqlite3_exec(g.db, db.azBeforeCommit[i], 0, 0, 0);
+        sqlite3_free(db.azBeforeCommit[i]);
+        i++;
       }
       leaf_do_pending_checks();
     }
@@ -798,6 +795,65 @@ void db_sym2rid_function(
 }
 
 /*
+** The toLocal() SQL function returns a string that is an argument to a
+** date/time function that is appropriate for modifying the time for display.
+** If UTC time display is selected, no modification occurs.  If local time
+** display is selected, the time is adjusted appropriately.
+**
+** Example usage:
+**
+**         SELECT datetime('now',toLocal());
+*/
+void db_tolocal_function(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  if( g.fTimeFormat==0 ){
+    if( db_get_int("timeline-utc", 1) ){
+      g.fTimeFormat = 1;
+    }else{
+      g.fTimeFormat = 2;
+    }
+  }
+  if( g.fTimeFormat==1 ){
+    sqlite3_result_text(context, "0 seconds", -1, SQLITE_STATIC);
+  }else{
+    sqlite3_result_text(context, "localtime", -1, SQLITE_STATIC);
+  }
+}
+
+/*
+** The fromLocal() SQL function returns a string that is an argument to a
+** date/time function that is appropriate to convert an input time to UTC.
+** If UTC time display is selected, no modification occurs.  If local time
+** display is selected, the time is adjusted from local to UTC.
+**
+** Example usage:
+**
+**         SELECT julianday(:user_input,fromLocal());
+*/
+void db_fromlocal_function(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  if( g.fTimeFormat==0 ){
+    if( db_get_int("timeline-utc", 1) ){
+      g.fTimeFormat = 1;
+    }else{
+      g.fTimeFormat = 2;
+    }
+  }
+  if( g.fTimeFormat==1 ){
+    sqlite3_result_text(context, "0 seconds", -1, SQLITE_STATIC);
+  }else{
+    sqlite3_result_text(context, "utc", -1, SQLITE_STATIC);
+  }
+}
+
+
+/*
 ** Register the SQL functions that are useful both to the internal
 ** representation and to the "fossil sql" command.
 */
@@ -809,7 +865,11 @@ void db_add_aux_functions(sqlite3 *db){
   sqlite3_create_function(db, "symbolic_name_to_rid", 2, SQLITE_UTF8, 0,
                           db_sym2rid_function, 0, 0);
   sqlite3_create_function(db, "now", 0, SQLITE_UTF8, 0,
-                                 db_now_function, 0, 0);
+                          db_now_function, 0, 0);
+  sqlite3_create_function(db, "toLocal", 0, SQLITE_UTF8, 0,
+                          db_tolocal_function, 0, 0);
+  sqlite3_create_function(db, "fromLocal", 0, SQLITE_UTF8, 0,
+                          db_fromlocal_function, 0, 0);
 }
 
 
@@ -923,11 +983,11 @@ void db_close_config(){
 ** connection so that we can join between the various databases.  In that
 ** case, invoke this routine with useAttach as 1.
 */
-void db_open_config(int useAttach){
+int db_open_config(int useAttach, int isOptional){
   char *zDbName;
   char *zHome;
   if( g.zConfigDbName ){
-    if( useAttach==g.useAttach ) return;
+    if( useAttach==g.useAttach ) return 1; /* Already open. */
     db_close_config();
   }
   zHome = fossil_getenv("FOSSIL_HOME");
@@ -944,6 +1004,7 @@ void db_open_config(int useAttach){
     }
   }
   if( zHome==0 ){
+    if( isOptional ) return 0;
     fossil_fatal("cannot locate home directory - please set the "
                  "FOSSIL_HOME, LOCALAPPDATA, APPDATA, or HOMEPATH "
                  "environment variables");
@@ -953,11 +1014,13 @@ void db_open_config(int useAttach){
     zHome = fossil_getenv("HOME");
   }
   if( zHome==0 ){
+    if( isOptional ) return 0;
     fossil_fatal("cannot locate home directory - please set the "
                  "FOSSIL_HOME or HOME environment variables");
   }
 #endif
   if( file_isdir(zHome)!=1 ){
+    if( isOptional ) return 0;
     fossil_fatal("invalid home directory: %s", zHome);
   }
 #if defined(_WIN32) || defined(__CYGWIN__)
@@ -968,11 +1031,13 @@ void db_open_config(int useAttach){
 #endif
   if( file_size(zDbName)<1024*3 ){
     if( file_access(zHome, W_OK) ){
+      if( isOptional ) return 0;
       fossil_fatal("home directory %s must be writeable", zHome);
     }
     db_init_database(zDbName, zConfigSchema, (char*)0);
   }
   if( file_access(zDbName, W_OK) ){
+    if( isOptional ) return 0;
     fossil_fatal("configuration file %s must be writeable", zDbName);
   }
   if( useAttach ){
@@ -985,6 +1050,7 @@ void db_open_config(int useAttach){
     g.zConfigDbType = "configdb";
   }
   g.zConfigDbName = zDbName;
+  return 1;
 }
 
 /*
@@ -1098,6 +1164,9 @@ int db_open_local(const char *zDbName){
     for(i=0; i<count(aDbName); i++){
       sqlite3_snprintf(sizeof(zPwd)-n, &zPwd[n], "/%s", aDbName[i]);
       if( isValidLocalDb(zPwd) ){
+        if( db_open_config(0, 1)==0 ){
+          return 0; /* Configuration could not be opened */
+        }
         /* Found a valid checkout database file */
         g.zLocalDbName = mprintf("%s", zPwd);
         zPwd[n] = 0;
@@ -1107,7 +1176,6 @@ int db_open_local(const char *zDbName){
         }
         g.zLocalRoot = mprintf("%s/", zPwd);
         g.localOpen = 1;
-        db_open_config(0);
         db_open_repository(zDbName);
         return 1;
       }
@@ -1138,6 +1206,18 @@ const char *db_repository_filename(void){
     }
   }
   return zRepo;
+}
+
+/*
+** Returns non-zero if the default value for the "allow-symlinks" setting
+** is "on".
+*/
+int db_allow_symlinks_by_default(void){
+#if defined(_WIN32)
+  return 0;
+#else
+  return 1;
+#endif
 }
 
 /*
@@ -1177,7 +1257,8 @@ void db_open_repository(const char *zDbName){
   db_open_or_attach(g.zRepositoryName, "repository", 0);
   g.repositoryOpen = 1;
   /* Cache "allow-symlinks" option, because we'll need it on every stat call */
-  g.allowSymlinks = db_get_boolean("allow-symlinks", 0);
+  g.allowSymlinks = db_get_boolean("allow-symlinks",
+                                   db_allow_symlinks_by_default());
   g.zAuxSchema = db_get("aux-schema","");
 
   /* Verify that the PLINK table has a new column added by the
@@ -1263,7 +1344,8 @@ rep_not_found:
 const char *db_name(const char *zDb){
   assert( fossil_strcmp(zDb,"localdb")==0
        || fossil_strcmp(zDb,"configdb")==0
-       || fossil_strcmp(zDb,"repository")==0 );
+       || fossil_strcmp(zDb,"repository")==0
+       || fossil_strcmp(zDb,"temp")==0 );
   if( fossil_strcmp(zDb, g.zMainDbType)==0 ) zDb = "main";
   return zDb;
 }
@@ -1447,14 +1529,13 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
     zUser = fossil_getenv("FOSSIL_USER");
   }
   if( zUser==0 ){
-#if defined(_WIN32)
-    zUser = fossil_getenv("USERNAME");
-#else
     zUser = fossil_getenv("USER");
-    if( zUser==0 ){
-      zUser = fossil_getenv("LOGNAME");
-    }
-#endif
+  }
+  if( zUser==0 ){
+    zUser = fossil_getenv("LOGNAME");
+  }
+  if( zUser==0 ){
+    zUser = fossil_getenv("USERNAME");
   }
   if( zUser==0 ){
     zUser = "root";
@@ -1477,38 +1558,6 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
        "INSERT OR IGNORE INTO user(login,pw,cap,info)"
        "   VALUES('reader','','kptw','Reader');"
     );
-  }
-}
-
-/*
-** This function sets the server and project codes if they do not already
-** exist.  Currently, it should be called only by the db_initial_setup()
-** or cmd_webserver() functions, the latter being used to facilitate more
-** robust integration with "canned image" environments (e.g. Docker).
-*/
-void db_setup_server_and_project_codes(
-  int optional
-){
-  if( !optional ){
-    db_multi_exec(
-        "INSERT INTO config(name,value,mtime)"
-        " VALUES('server-code', lower(hex(randomblob(20))),now());"
-        "INSERT INTO config(name,value,mtime)"
-        " VALUES('project-code', lower(hex(randomblob(20))),now());"
-    );
-  }else if( db_is_writeable("repository") ){
-    if( db_get("server-code", 0)==0 ) {
-      db_multi_exec(
-          "INSERT INTO config(name,value,mtime)"
-          " VALUES('server-code', lower(hex(randomblob(20))),now());"
-      );
-    }
-    if( db_get("project-code", 0)==0 ) {
-      db_multi_exec(
-          "INSERT INTO config(name,value,mtime)"
-          " VALUES('project-code', lower(hex(randomblob(20))),now());"
-      );
-    }
   }
 }
 
@@ -1553,8 +1602,7 @@ const char *db_setting_inop_rhs(){
 void db_initial_setup(
   const char *zTemplate,       /* Repository from which to copy settings. */
   const char *zInitialDate,    /* Initial date of repository. (ex: "now") */
-  const char *zDefaultUser,    /* Default user for the repository */
-  int makeServerCodes          /* True to make new server & project codes */
+  const char *zDefaultUser     /* Default user for the repository */
 ){
   char *zDate;
   Blob hash;
@@ -1563,9 +1611,12 @@ void db_initial_setup(
   db_set("content-schema", CONTENT_SCHEMA, 0);
   db_set("aux-schema", AUX_SCHEMA_MAX, 0);
   db_set("rebuilt", get_version(), 0);
-  if( makeServerCodes ){
-    db_setup_server_and_project_codes(0);
-  }
+  db_multi_exec(
+      "INSERT INTO config(name,value,mtime)"
+      " VALUES('server-code', lower(hex(randomblob(20))),now());"
+      "INSERT INTO config(name,value,mtime)"
+      " VALUES('project-code', lower(hex(randomblob(20))),now());"
+  );
   if( !db_is_global("autosync") ) db_set_int("autosync", 1, 0);
   if( !db_is_global("localauth") ) db_set_int("localauth", 0, 0);
   if( !db_is_global("timeline-plaintext") ){
@@ -1640,7 +1691,7 @@ void db_initial_setup(
 ** COMMAND: init
 **
 ** Usage: %fossil new ?OPTIONS? FILENAME
-**    Or: %fossil init ?OPTIONS? FILENAME
+**    or: %fossil init ?OPTIONS? FILENAME
 **
 ** Create a repository for a new project in the file named FILENAME.
 ** This command is distinct from "clone".  The "clone" command makes
@@ -1662,8 +1713,7 @@ void db_initial_setup(
 ** Options:
 **    --template      FILE      copy settings from repository file
 **    --admin-user|-A USERNAME  select given USERNAME as admin user
-**    --date-override DATETIME  use DATETIME as time of the initial checkin
-**                              (default: do not create an initial checkin)
+**    --date-override DATETIME  use DATETIME as time of the initial check-in
 **
 ** See also: clone
 */
@@ -1672,37 +1722,32 @@ void create_repository_cmd(void){
   const char *zTemplate;      /* Repository from which to copy settings */
   const char *zDate;          /* Date of the initial check-in */
   const char *zDefaultUser;   /* Optional name of the default user */
-  int makeServerCodes;
 
   zTemplate = find_option("template",0,1);
   zDate = find_option("date-override",0,1);
   zDefaultUser = find_option("admin-user","A",1);
-  makeServerCodes = find_option("docker", 0, 0)==0;
-
-  find_option("empty", 0, 0); /* deprecated */
   /* We should be done with options.. */
   verify_all_options();
 
   if( g.argc!=3 ){
     usage("REPOSITORY-NAME");
   }
- 
+
   if( -1 != file_size(g.argv[2]) ){
     fossil_fatal("file already exists: %s", g.argv[2]);
   }
 
   db_create_repository(g.argv[2]);
   db_open_repository(g.argv[2]);
-  db_open_config(0);
+  db_open_config(0, 0);
   if( zTemplate ) db_attach(zTemplate, "settingSrc");
   db_begin_transaction();
-  db_initial_setup(zTemplate, zDate, zDefaultUser, makeServerCodes);
+  if( zDate==0 ) zDate = "now";
+  db_initial_setup(zTemplate, zDate, zDefaultUser);
   db_end_transaction(0);
   if( zTemplate ) db_detach("settingSrc");
-  if( makeServerCodes ){
-    fossil_print("project-id: %s\n", db_get("project-code", 0));
-    fossil_print("server-id:  %s\n", db_get("server-code", 0));
-  }
+  fossil_print("project-id: %s\n", db_get("project-code", 0));
+  fossil_print("server-id:  %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   fossil_print("admin-user: %s (initial password is \"%s\")\n",
                g.zLogin, zPassword);
@@ -1928,20 +1973,21 @@ void db_swap_connections(void){
 ** found.
 **
 ** If the zNonVersionedSetting parameter is not NULL then it holds the
-** non-versioned value for this setting.  If both a versioned and ad
+** non-versioned value for this setting.  If both a versioned and a
 ** non-versioned value exist and are not equal, then a warning message
 ** might be generated.
 */
 char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
   char *zVersionedSetting = 0;
   int noWarn = 0;
+  int found = 0;
   struct _cacheEntry {
     struct _cacheEntry *next;
     const char *zName, *zValue;
   } *cacheEntry = 0;
   static struct _cacheEntry *cache = 0;
 
-  if( !g.localOpen) return zNonVersionedSetting;
+  if( !g.localOpen && g.zOpenRevision==0 ) return zNonVersionedSetting;
   /* Look up name in cache */
   cacheEntry = cache;
   while( cacheEntry!=0 ){
@@ -1951,26 +1997,38 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
     }
     cacheEntry = cacheEntry->next;
   }
-  /* Attempt to read value from file in checkout if there wasn't a cache hit
-  ** and a checkout is open. */
+  /* Attempt to read value from file in checkout if there wasn't a cache hit. */
   if( cacheEntry==0 ){
     Blob versionedPathname;
-    char *zVersionedPathname;
+    Blob setting;
     blob_zero(&versionedPathname);
+    blob_zero(&setting);
     blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
                  g.zLocalRoot, zName);
-    zVersionedPathname = blob_str(&versionedPathname);
-    if( file_size(zVersionedPathname)>=0 ){
+    if( !g.localOpen ){
+      /* Repository is in the process of being opened, but files have not been
+       * written to disk. Load from the database. */
+      Blob noWarnFile;
+      if( historical_version_of_file(g.zOpenRevision,
+                                     blob_str(&versionedPathname),
+                                     &setting, 0, 0, 0, 2)!=2 ){
+        found = 1;
+      }
+      /* See if there's a no-warn flag */
+      blob_append(&versionedPathname, ".no-warn", -1);
+      blob_zero(&noWarnFile);
+      if( historical_version_of_file(g.zOpenRevision,
+                                     blob_str(&versionedPathname),
+                                     &noWarnFile, 0, 0, 0, 2)!=2 ){
+        noWarn = 1;
+      }
+      blob_reset(&noWarnFile);
+    }else if( file_size(blob_str(&versionedPathname))>=0 ){
       /* File exists, and contains the value for this setting. Load from
       ** the file. */
-      Blob setting;
-      blob_zero(&setting);
-      if( blob_read_from_file(&setting, zVersionedPathname) >= 0 ){
-        blob_trim(&setting); /* Avoid non-obvious problems with line endings
-                             ** on boolean properties */
-        zVersionedSetting = strdup(blob_str(&setting));
+      if( blob_read_from_file(&setting, blob_str(&versionedPathname))>=0 ){
+        found = 1;
       }
-      blob_reset(&setting);
       /* See if there's a no-warn flag */
       blob_append(&versionedPathname, ".no-warn", -1);
       if( file_size(blob_str(&versionedPathname))>=0 ){
@@ -1978,6 +2036,12 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
       }
     }
     blob_reset(&versionedPathname);
+    if( found ){
+      blob_trim(&setting); /* Avoid non-obvious problems with line endings
+                           ** on boolean properties */
+      zVersionedSetting = fossil_strdup(blob_str(&setting));
+    }
+    blob_reset(&setting);
     /* Store result in cache, which can be the value or 0 if not found */
     cacheEntry = (struct _cacheEntry*)fossil_malloc(sizeof(struct _cacheEntry));
     cacheEntry->next = cache;
@@ -1995,8 +2059,9 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
         "setting %s has both versioned and non-versioned values: using "
         "versioned value from file .fossil-settings/%s (to silence this "
         "warning, either create an empty file named "
-        ".fossil-settings/%s.no-warn or delete the non-versioned setting "
-        " with \"fossil unset %s\")", zName, zName, zName, zName
+        ".fossil-settings/%s.no-warn in the check-out root, "
+        "or delete the non-versioned setting "
+        "with \"fossil unset %s\")", zName, zName, zName, zName
     );
   }
   /* Prefer the versioned setting */
@@ -2013,7 +2078,7 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
 ** setting is returned instead.  If zName is a versioned setting, then
 ** versioned value takes priority.
 */
-char *db_get(const char *zName, char *zDefault){
+char *db_get(const char *zName, const char *zDefault){
   char *z = 0;
   const Setting *pSetting = db_find_setting(zName, 0);
   if( g.repositoryOpen ){
@@ -2033,18 +2098,18 @@ char *db_get(const char *zName, char *zDefault){
     if( zDefault==0 && pSetting && pSetting->def[0] ){
       z = fossil_strdup(pSetting->def);
     }else{
-      z = zDefault;
+      z = fossil_strdup(zDefault);
     }
   }
   return z;
 }
-char *db_get_mtime(const char *zName, char *zFormat, char *zDefault){
+char *db_get_mtime(const char *zName, const char *zFormat, const char *zDefault){
   char *z = 0;
   if( g.repositoryOpen ){
     z = db_text(0, "SELECT mtime FROM config WHERE name=%Q", zName);
   }
   if( z==0 ){
-    z = zDefault;
+    z = fossil_strdup(zDefault);
   }else if( zFormat!=0 ){
     z = db_text(0, "SELECT strftime(%Q,%Q,'unixepoch');", zFormat, z);
   }
@@ -2130,8 +2195,15 @@ int db_get_boolean(const char *zName, int dflt){
   if( is_false(zVal) ) return 0;
   return dflt;
 }
-char *db_lget(const char *zName, char *zDefault){
-  return db_text((char*)zDefault,
+int db_get_versioned_boolean(const char *zName, int dflt){
+  char *zVal = db_get_versioned(zName, 0);
+  if( zVal==0 ) return dflt;
+  if( is_truth(zVal) ) return 1;
+  if( is_false(zVal) ) return 0;
+  return dflt;
+}
+char *db_lget(const char *zName, const char *zDefault){
+  return db_text(zDefault,
                  "SELECT value FROM vvar WHERE name=%Q", zName);
 }
 void db_lset(const char *zName, const char *zValue){
@@ -2239,8 +2311,7 @@ void cmd_open(void){
   int keepFlag;
   int forceMissingFlag;
   int allowNested;
-  char **oldArgv;
-  int oldArgc;
+  int allowSymlinks;
   static char *azNewArgv[] = { 0, "checkout", "--prompt", 0, 0, 0, 0 };
 
   url_proxy_options();
@@ -2259,6 +2330,30 @@ void cmd_open(void){
     fossil_fatal("already within an open tree rooted at %s", g.zLocalRoot);
   }
   db_open_repository(g.argv[2]);
+
+  /* Figure out which revision to open. */
+  if( !emptyFlag ){
+    if( g.argc==4 ){
+      g.zOpenRevision = g.argv[3];
+    }else if( db_exists("SELECT 1 FROM event WHERE type='ci'") ){
+      g.zOpenRevision = db_get("main-branch", "trunk");
+    }
+  }
+
+  if( g.zOpenRevision ){
+    /* Since the repository is open and we know the revision now,
+    ** refresh the allow-symlinks flag.  Since neither the local
+    ** checkout nor the configuration database are open at this
+    ** point, this should always return the versioned setting,
+    ** if any, or the default value, which is negative one.  The
+    ** value negative one, in this context, means that the code
+    ** below should fallback to using the setting value from the
+    ** repository or global configuration databases only. */
+    allowSymlinks = db_get_versioned_boolean("allow-symlinks", -1);
+  }else{
+    allowSymlinks = -1; /* Use non-versioned settings only. */
+  }
+
 #if defined(_WIN32) || defined(__CYGWIN__)
 # define LOCALDB_NAME "./_FOSSIL_"
 #else
@@ -2271,21 +2366,33 @@ void cmd_open(void){
                    (char*)0);
   db_delete_on_failure(LOCALDB_NAME);
   db_open_local(0);
+  if( allowSymlinks>=0 ){
+    /* Use the value from the versioned setting, which was read
+    ** prior to opening the local checkout (i.e. which is most
+    ** likely empty and does not actually contain any versioned
+    ** setting files yet).  Normally, this value would be given
+    ** first priority within db_get_boolean(); however, this is
+    ** a special case because we know the on-disk files may not
+    ** exist yet. */
+    g.allowSymlinks = allowSymlinks;
+  }else{
+    /* Since the local checkout may not have any files at this
+    ** point, this will probably be the setting value from the
+    ** repository or global configuration databases. */
+    g.allowSymlinks = db_get_boolean("allow-symlinks",
+                                     db_allow_symlinks_by_default());
+  }
   db_lset("repository", g.argv[2]);
   db_record_repository_filename(g.argv[2]);
   db_lset_int("checkout", 0);
-  oldArgv = g.argv;
-  oldArgc = g.argc;
   azNewArgv[0] = g.argv[0];
   g.argv = azNewArgv;
   if( !emptyFlag ){
     g.argc = 3;
-    if( oldArgc==4 ){
-      azNewArgv[g.argc-1] = oldArgv[3];
-    }else if( !db_exists("SELECT 1 FROM event WHERE type='ci'") ){
-      azNewArgv[g.argc-1] = "--latest";
+    if( g.zOpenRevision ){
+      azNewArgv[g.argc-1] = g.zOpenRevision;
     }else{
-      azNewArgv[g.argc-1] = db_get("main-branch", "trunk");
+      azNewArgv[g.argc-1] = "--latest";
     }
     if( keepFlag ){
       azNewArgv[g.argc++] = "--keep";
@@ -2328,7 +2435,7 @@ static void print_setting(const Setting *pSetting){
     /* Check to see if this is overridden by a versionable settings file */
     Blob versionedPathname;
     blob_zero(&versionedPathname);
-    blob_appendf(&versionedPathname, "%s/.fossil-settings/%s",
+    blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
                  g.zLocalRoot, pSetting->name);
     if( file_size(blob_str(&versionedPathname))>=0 ){
       fossil_print("  (overridden by contents of file .fossil-settings/%s)\n",
@@ -2366,7 +2473,11 @@ struct Setting {
 const Setting aSetting[] = {
   { "access-log",       0,              0, 0, 0, "off"                 },
   { "admin-log",        0,              0, 0, 0, "off"                 },
+#if defined(_WIN32)
   { "allow-symlinks",   0,              0, 1, 0, "off"                 },
+#else
+  { "allow-symlinks",   0,              0, 1, 0, "on"                  },
+#endif
   { "auto-captcha",     "autocaptcha",  0, 0, 0, "on"                  },
   { "auto-hyperlink",   0,              0, 0, 0, "on",                 },
   { "auto-shun",        0,              0, 0, 0, "on"                  },
@@ -2386,11 +2497,18 @@ const Setting aSetting[] = {
   { "diff-binary",      0,              0, 0, 0, "on"                  },
   { "diff-command",     0,             40, 0, 0, ""                    },
   { "dont-push",        0,              0, 0, 0, "off"                 },
+  { "dotfiles",         0,              0, 1, 0, "off"                 },
   { "editor",           0,             32, 0, 0, ""                    },
   { "empty-dirs",       0,             40, 1, 0, ""                    },
   { "encoding-glob",    0,             40, 1, 0, ""                    },
+#if defined(FOSSIL_ENABLE_EXEC_REL_PATHS)
+  { "exec-rel-paths",   0,              0, 0, 0, "on"                  },
+#else
+  { "exec-rel-paths",   0,              0, 0, 0, "off"                 },
+#endif
   { "gdiff-command",    0,             40, 0, 0, "gdiff"               },
   { "gmerge-command",   0,             40, 0, 0, ""                    },
+  { "hash-digits",      0,              5, 0, 0, "10"                  },
   { "http-port",        0,             16, 0, 0, "8080"                },
   { "https-login",      0,              0, 0, 0, "off"                 },
   { "ignore-glob",      0,             40, 1, 0, ""                    },
@@ -2401,6 +2519,9 @@ const Setting aSetting[] = {
   { "max-loadavg",      0,             25, 0, 0, "0.0"                 },
   { "max-upload",       0,             25, 0, 0, "250000"              },
   { "mtime-changes",    0,              0, 0, 0, "on"                  },
+#if FOSSIL_ENABLE_LEGACY_MV_RM
+  { "mv-rm-files",      0,              0, 0, 0, "off"                 },
+#endif
   { "pgp-command",      0,             40, 0, 0, "gpg --clearsign -o " },
   { "proxy",            0,             32, 0, 0, "off"                 },
   { "relative-paths",   0,              0, 0, 0, "on"                  },
@@ -2422,7 +2543,6 @@ const Setting aSetting[] = {
   { "th1-setup",        0,             40, 1, 1, ""                    },
   { "th1-uri-regexp",   0,             40, 1, 0, ""                    },
   { "web-browser",      0,             32, 0, 0, ""                    },
-  { "white-foreground", 0,              0, 0, 0, "off"                 },
   { 0,0,0,0,0,0 }
 };
 
@@ -2461,15 +2581,15 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 ** COMMAND: settings
 ** COMMAND: unset*
 **
-** %fossil settings ?PROPERTY? ?VALUE? ?OPTIONS?
-** %fossil unset PROPERTY ?OPTIONS?
+** Usage: %fossil settings ?PROPERTY? ?VALUE? ?OPTIONS?
+**    or: %fossil unset PROPERTY ?OPTIONS?
 **
 ** The "settings" command with no arguments lists all properties and their
 ** values.  With just a property name it shows the value of that property.
 ** With a value argument it changes the property for the current repository.
 **
 ** Settings marked as versionable are overridden by the contents of the
-** file named .fossil-settings/PROPERTY in the checked out files, if that
+** file named .fossil-settings/PROPERTY in the check-out root, if that
 ** file exists.
 **
 ** The "unset" command clears a property setting.
@@ -2546,6 +2666,9 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **    dont-push        Prevent this repository from pushing from client to
 **                     server.  Useful when setting up a private branch.
 **
+**    dotfiles         Include --dotfiles option for all compatible commands.
+**     (versionable)
+**
 **    editor           Text editor command used for check-in comments.
 **
 **    empty-dirs       A comma or newline-separated list of pathnames. On
@@ -2559,6 +2682,9 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **                     use another encoding than ASCII or UTF-8. Set to "*"
 **                     to disable encoding checking.
 **
+**    exec-rel-paths   When executing certain external commands (e.g. diff and
+**                     gdiff), use relative paths.
+**
 **    gdiff-command    External command to run when performing a graphical
 **                     diff. If undefined, text diff will be used.
 **
@@ -2567,6 +2693,9 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **                     Ex: kdiff3 "%baseline" "%original" "%merge" -o "%output"
 **                     Ex: xxdiff "%original" "%baseline" "%merge" -M "%output"
 **                     Ex: meld "%baseline" "%original" "%merge" "%output"
+**
+**    hash-digits      The number of hexadecimal digits of the SHA1 hash to
+**                     display.  (Default: 10; Minimum: 6)
 **
 **    http-port        The TCP/IP port number to use by the "server"
 **                     and "ui" commands.  Default: 8080
@@ -2607,6 +2736,12 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **    mtime-changes    Use file modification times (mtimes) to detect when
 **                     files have been modified.  (Default "on".)
 **
+**    mv-rm-files      If enabled (and Fossil was compiled with legacy "mv/rm"
+**                     support), the "mv" and "rename" commands will also move
+**                     the associated files within the checkout -AND- the "rm"
+**                     and "delete" commands will also remove the associated
+**                     files from within the checkout.  Default: off.
+**
 **    pgp-command      Command used to clear-sign manifests at check-in.
 **                     The default is "gpg --clearsign -o ".
 **
@@ -2638,7 +2773,7 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **                     If set, this will override the OS default list of
 **                     OpenSSL CAs. If unset, the default list will be used.
 **                     Some platforms may add additional certificates.
-**                     Check your platform behaviour is as required if the
+**                     Checking your platform behaviour is required if the
 **                     exact contents of the CA root is critical for your
 **                     application.
 **
@@ -2697,7 +2832,7 @@ void setting_cmd(void){
   int i;
   int globalFlag = find_option("global","g",0)!=0;
   int unsetFlag = g.argv[1][0]=='u';
-  db_open_config(1);
+  db_open_config(1, 0);
   if( !globalFlag ){
     db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0);
   }
@@ -2798,7 +2933,8 @@ char *db_timespan_name(double rSpan){
 
 /*
 ** COMMAND: test-timespan
-** %fossil test-timespan TIMESTAMP
+** 
+** Usage: %fossil test-timespan TIMESTAMP
 **
 ** Print the approximate span of time from now to TIMESTAMP.
 */
@@ -2814,7 +2950,8 @@ void test_timespan_cmd(void){
 
 /*
 ** COMMAND: test-without-rowid
-** %fossil test-without-rowid FILENAME...
+** 
+** Usage: %fossil test-without-rowid FILENAME...
 **
 ** Change the Fossil repository FILENAME to make use of the WITHOUT ROWID
 ** optimization.  FILENAME can also be the ~/.fossil file or a local

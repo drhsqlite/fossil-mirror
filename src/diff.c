@@ -791,7 +791,40 @@ static void sbsWriteLineChange(
     }
     if( nSuffix==nLeft || nSuffix==nRight ) nPrefix = 0;
   }
-  if( nPrefix+nSuffix > nShort ) nPrefix = nShort - nSuffix;
+
+  /* If the prefix and suffix overlap, that means that we are dealing with
+  ** a pure insertion or deletion of text that can have multiple alignments.
+  ** Try to find an alignment to begins and ends on whitespace, or on
+  ** punctuation, rather than in the middle of a name or number.
+  */
+  if( nPrefix+nSuffix > nShort ){
+    int iBest = -1;
+    int iBestVal = -1;
+    int i;
+    int nLong = nLeft<nRight ? nRight : nLeft;
+    int nGap = nLong - nShort;
+    for(i=nShort-nSuffix; i<=nPrefix; i++){
+       int iVal = 0;
+       char c = zLeft[i];
+       if( fossil_isspace(c) ){
+         iVal += 5;
+       }else if( !fossil_isalnum(c) ){
+         iVal += 2;
+       }
+       c = zLeft[i+nGap-1];
+       if( fossil_isspace(c) ){
+         iVal += 5;
+       }else if( !fossil_isalnum(c) ){
+         iVal += 2;
+       }
+       if( iVal>iBestVal ){
+         iBestVal = iVal;
+         iBest = i;
+       }
+    }
+    nPrefix = iBest;
+    nSuffix = nShort - nPrefix;
+  }
 
   /* A single chunk of text inserted on the right */
   if( nPrefix+nSuffix==nLeft ){
@@ -1931,6 +1964,12 @@ u64 diff_options(void){
 
 /*
 ** COMMAND: test-rawdiff
+**
+** Usage: %fossil test-rawdiff FILE1 FILE2
+**
+** Show a minimal sequence of Copy/Delete/Insert operations needed to convert
+** FILE1 into FILE2.  This command is intended for use in testing and debugging
+** the built-in difference engine of Fossil.
 */
 void test_rawdiff_cmd(void){
   Blob a, b;
@@ -2051,9 +2090,7 @@ static int annotation_start(Annotator *p, Blob *pInput, u64 diffFlags){
 /*
 ** The input pParent is the next most recent ancestor of the file
 ** being annotated.  Do another step of the annotation.  Return true
-** if additional annotation is required.  zPName is the tag to insert
-** on each line of the file being annotated that was contributed by
-** pParent.  Memory to hold zPName is leaked.
+** if additional annotation is required.
 */
 static int annotation_step(Annotator *p, Blob *pParent, int iVers, u64 diffFlags){
   int i, j;
@@ -2104,8 +2141,7 @@ static int annotation_step(Annotator *p, Blob *pParent, int iVers, u64 diffFlags
 
 /*
 ** Compute a complete annotation on a file.  The file is identified
-** by its filename number (filename.fnid) and the baseline in which
-** it was checked in (mlink.mid).
+** by its filename number (filename.fnid) and check-in (mlink.mid).
 */
 static void annotate_file(
   Annotator *p,        /* The annotator */
@@ -2209,13 +2245,23 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 ** WEBPAGE: blame
 ** WEBPAGE: praise
 **
+** URL: /annotate?checkin=ID&filename=FILENAME
+** URL: /blame?checkin=ID&filename=FILENAME
+** URL: /praise?checkin=ID&filename=FILENAME
+**
+** Show the most recent change to each line of a text file.  /annotate shows
+** the date of the changes and the check-in SHA1 hash (with a link to the
+** check-in).  /blame and /praise also show the user who made the check-in.
+**
 ** Query parameters:
 **
 **    checkin=ID          The manifest ID at which to start the annotation
 **    filename=FILENAME   The filename.
 **    filevers            Show file versions rather than check-in versions
-**    log=BOOLEAN         Show a log of versions analyzed
 **    limit=N             Limit the search depth to N ancestors
+**    log=BOOLEAN         Show a log of versions analyzed
+**    w                   Ignore whitespace
+**
 */
 void annotation_page(void){
   int mid;
@@ -2236,7 +2282,7 @@ void annotation_page(void){
   /* Gather query parameters */
   showLog = atoi(PD("log","1"));
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( exclude_spiders("annotate") ) return;
   load_control();
   mid = name_to_typed_rid(PD("checkin","0"),"ci");
@@ -2252,7 +2298,7 @@ void annotation_page(void){
   }
 
   /* compute the annotation */
-  compute_direct_ancestors(mid, 10000000);
+  compute_direct_ancestors(mid);
   annotate_file(&ann, fnid, mid, iLimit, annFlags);
   zCI = ann.aVers[0].zMUuid;
 
@@ -2296,7 +2342,7 @@ void annotation_page(void){
     style_submenu_element("20 Ancestors", "20 Ancestors",
        "%s", url_render(&url, "limit", "20", 0, 0));
   }
-  if( db_get_boolean("white-foreground", 0) ){
+  if( skin_detail_boolean("white-foreground") ){
     clr1 = 0xa04040;
     clr2 = 0x4059a0;
   }else{
@@ -2309,13 +2355,13 @@ void annotation_page(void){
   }
 
   if( showLog ){
-    char *zLink = href("%R/finfo?name=%t&ci=%s",zFilename,zCI);
+    char *zLink = href("%R/finfo?name=%t&ci=%!S",zFilename,zCI);
     @ <h2>Ancestors of %z(zLink)%h(zFilename)</a> analyzed:</h2>
     @ <ol>
     for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
       @ <li><span style='background-color:%s(p->zBgColor);'>%s(p->zDate)
-      @ check-in %z(href("%R/info/%s",p->zMUuid))%S(p->zMUuid)</a>
-      @ artifact %z(href("%R/artifact/%s",p->zFUuid))%S(p->zFUuid)</a>
+      @ check-in %z(href("%R/info/%!S",p->zMUuid))%S(p->zMUuid)</a>
+      @ artifact %z(href("%R/artifact/%!S",p->zFUuid))%S(p->zFUuid)</a>
       @ </span>
 #if 0
       if( i>0 ){
@@ -2337,13 +2383,13 @@ void annotation_page(void){
   }
   if( !ann.bLimit ){
     @ <h2>Origin for each line in
-    @ %z(href("%R/finfo?name=%h&ci=%s", zFilename, zCI))%h(zFilename)</a>
-    @ from check-in %z(href("%R/info/%s",zCI))%S(zCI)</a>:</h2>
+    @ %z(href("%R/finfo?name=%h&ci=%!S", zFilename, zCI))%h(zFilename)</a>
+    @ from check-in %z(href("%R/info/%!S",zCI))%S(zCI)</a>:</h2>
     iLimit = ann.nVers+10;
   }else{
     @ <h2>Lines added by the %d(iLimit) most recent ancestors of
-    @ %z(href("%R/finfo?name=%h&ci=%s", zFilename, zCI))%h(zFilename)</a>
-    @ from check-in %z(href("%R/info/%s",zCI))%S(zCI)</a>:</h2>
+    @ %z(href("%R/finfo?name=%h&ci=%!S", zFilename, zCI))%h(zFilename)</a>
+    @ from check-in %z(href("%R/info/%!S",zCI))%S(zCI)</a>:</h2>
   }
   @ <pre>
   for(i=0; i<ann.nOrig; i++){
@@ -2357,7 +2403,7 @@ void annotation_page(void){
     if( bBlame ){
       if( iVers>=0 ){
         struct AnnVers *p = ann.aVers+iVers;
-        char *zLink = xhref("target='infowindow'", "%R/info/%s", p->zMUuid);
+        char *zLink = xhref("target='infowindow'", "%R/info/%!S", p->zMUuid);
         sqlite3_snprintf(sizeof(zPrefix), zPrefix,
              "<span style='background-color:%s'>"
              "%s%.10s</a> %s</span> %13.13s:",
@@ -2369,7 +2415,7 @@ void annotation_page(void){
     }else{
       if( iVers>=0 ){
         struct AnnVers *p = ann.aVers+iVers;
-        char *zLink = xhref("target='infowindow'", "%R/info/%s", p->zMUuid);
+        char *zLink = xhref("target='infowindow'", "%R/info/%!S", p->zMUuid);
         sqlite3_snprintf(sizeof(zPrefix), zPrefix,
              "<span style='background-color:%s'>"
              "%s%.10s</a> %s</span> %4d:",
@@ -2391,12 +2437,12 @@ void annotation_page(void){
 ** COMMAND: blame
 ** COMMAND: praise
 **
-** %fossil (annotate|blame|praise) ?OPTIONS? FILENAME
+** Usage: %fossil (annotate|blame|praise) ?OPTIONS? FILENAME
 **
 ** Output the text of a file with markings to show when each line of
 ** the file was last modified.  The "annotate" command shows line numbers
 ** and omits the username.  The "blame" and "praise" commands show the user
-** who made each checkin and omits the line number.
+** who made each check-in and omits the line number.
 **
 ** Options:
 **   --filevers                 Show file version numbers rather than check-in versions
@@ -2436,14 +2482,14 @@ void annotate_cmd(void){
   }
   fileVers = find_option("filevers",0,0)!=0;
   db_must_be_within_tree();
- 
+
   /* We should be done with options.. */
   verify_all_options();
 
   if( g.argc<3 ) {
     usage("FILENAME");
   }
-  file_tree_name(g.argv[2], &treename, 1);
+  file_tree_name(g.argv[2], &treename, 0, 1);
   zFilename = blob_str(&treename);
   fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
   if( fnid==0 ){
@@ -2458,7 +2504,7 @@ void annotate_cmd(void){
     fossil_fatal("Not in a checkout");
   }
   if( iLimit<=0 ) iLimit = 1000000000;
-  compute_direct_ancestors(cid, 1000000);
+  compute_direct_ancestors(cid);
   mid = db_int(0, "SELECT mlink.mid FROM mlink, ancestor "
           " WHERE mlink.fid=%d AND mlink.fnid=%d AND mlink.mid=ancestor.rid"
           " ORDER BY ancestor.generation ASC LIMIT 1",

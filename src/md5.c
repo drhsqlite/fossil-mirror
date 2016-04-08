@@ -424,6 +424,7 @@ int md5sum_blob(const Blob *pIn, Blob *pCksum){
 
 /*
 ** COMMAND: md5sum*
+** 
 ** Usage: %fossil md5sum FILES....
 **
 ** Compute an MD5 checksum of all files named on the command-line.

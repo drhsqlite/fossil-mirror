@@ -16,7 +16,7 @@
 *******************************************************************************
 **
 ** This file contains code used to implement the "purge" command and
-** related functionality for removing checkins from a repository.  It also
+** related functionality for removing check-ins from a repository.  It also
 ** manages the graveyard of purged content.
 */
 #include "config.h"
@@ -30,12 +30,12 @@
 ** purge event, multiple artifacts might have been removed.  Each removed
 ** artifact is stored as an entry in the purgeitem table.
 **
-** The purgeevent and purgeitem tables are not synced, even by the 
-** "fossil config" command.  They exist only as a backup in case of a 
+** The purgeevent and purgeitem tables are not synced, even by the
+** "fossil config" command.  They exist only as a backup in case of a
 ** mistaken purge or for content recovery in case there is a bug in the
 ** purge command.
 */
-static const char zPurgeInit[] = 
+static const char zPurgeInit[] =
 @ CREATE TABLE IF NOT EXISTS "%w".purgeevent(
 @   peid INTEGER PRIMARY KEY,  -- Unique ID for the purge event
 @   ctime DATETIME,            -- When purge occurred.  Seconds since 1970.
@@ -44,7 +44,7 @@ static const char zPurgeInit[] =
 @ CREATE TABLE IF NOT EXISTS "%w".purgeitem(
 @   piid INTEGER PRIMARY KEY,  -- ID for the purge item
 @   peid INTEGER REFERENCES purgeevent ON DELETE CASCADE, -- Purge event
-@   orid INTEGER,              -- Original RID before purged 
+@   orid INTEGER,              -- Original RID before purged
 @   uuid TEXT NOT NULL,        -- SHA1 hash of the purged artifact
 @   srcid INTEGER,             -- Basis purgeitem for delta compression
 @   isPrivate BOOLEAN,         -- True if artifact was originally private
@@ -124,7 +124,7 @@ int purge_artifact_list(
   /* Construct the graveyard and copy the artifacts to be purged into the
   ** graveyard */
   if( moveToGraveyard ){
-    db_multi_exec(zPurgeInit /*works-like:"%w%w"*/, 
+    db_multi_exec(zPurgeInit /*works-like:"%w%w"*/,
                   db_name("repository"), db_name("repository"));
     db_multi_exec(
       "INSERT INTO purgeevent(ctime,pnotes) VALUES(now(),%Q)", zNote
@@ -195,15 +195,15 @@ int purge_artifact_list(
 }
 
 /*
-** The TEMP table named zTab contains RIDs for a set of checkins.  
+** The TEMP table named zTab contains RIDs for a set of check-ins.
 **
-** Check to see if any checkin in zTab is a baseline manifest for some
+** Check to see if any check-in in zTab is a baseline manifest for some
 ** delta manifest that is not in zTab.  Return true if zTab contains a
 ** baseline for a delta that is not in zTab.
 **
-** This is a database integrity preservation check.  The checkins in zTab
+** This is a database integrity preservation check.  The check-ins in zTab
 ** are about to be deleted or otherwise made inaccessible.  This routine
-** is checking to ensure that purging the checkins in zTab will not delete
+** is checking to ensure that purging the check-ins in zTab will not delete
 ** a baseline manifest out from under a delta.
 */
 int purge_baseline_out_from_under_delta(const char *zTab){
@@ -220,15 +220,15 @@ int purge_baseline_out_from_under_delta(const char *zTab){
 
 
 /*
-** The TEMP table named zTab contains the RIDs for a set of checkin
+** The TEMP table named zTab contains the RIDs for a set of check-in
 ** artifacts.  Expand this set (by adding new entries to zTab) to include
-** all other artifacts that are used the set of checkins in
+** all other artifacts that are used the set of check-ins in
 ** the original list.
 **
 ** If the bExclusive flag is true, then the set is only expanded by
-** artifacts that are used exclusively by the checkins in the set.
-** When bExclusive is false, then all artifacts used by the checkins
-** are added even if those artifacts are also used by other checkins
+** artifacts that are used exclusively by the check-ins in the set.
+** When bExclusive is false, then all artifacts used by the check-ins
+** are added even if those artifacts are also used by other check-ins
 ** not in the set.
 **
 ** The "fossil publish" command with the (undocumented) --test and
@@ -277,7 +277,7 @@ void find_checkin_associates(const char *zTab, int bExclusive){
       zTab, zTab, zTab
     );
   }
-  
+
   /* Transfer the extra artifacts into zTab */
   db_multi_exec(
     "INSERT OR IGNORE INTO \"%w\" SELECT fid FROM \"%w_files\";"
@@ -379,7 +379,7 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
     }
     bag_insert(&busy, iSrc);
   }
-  db_prepare(&q, 
+  db_prepare(&q,
      "SELECT uuid, data, isPrivate, ix.piid"
      "  FROM ix, purgeitem"
      " WHERE ix.srcid=%d"
@@ -437,16 +437,16 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
 **
 **   fossil purge ?checkins? TAGS... ?OPTIONS?
 **
-**      Move the checkins identified by TAGS and all of their descendants
-**      out of the repository and into the graveyard.  The "checkins" 
-**      subcommand keyword is option and can be omitted as long as TAGS
+**      Move the check-ins identified by TAGS and all of their descendants
+**      out of the repository and into the graveyard.  The "checkins"
+**      subcommand keyword is optional and can be omitted as long as TAGS
 **      does not conflict with any other subcommand.
 **
-**      If a TAGS includes a branch name then it means all the checkins
+**      If TAGS includes a branch name then it means all the check-ins
 **      on the most recent occurrance of that branch.
 **
 **           --explain         Make no changes, but show what would happen.
-**           --dry-run         Make no chances.
+**           --dry-run         Make no changes.
 **
 **   fossil purge list|ls ?-l?
 **
@@ -494,7 +494,7 @@ void purge_cmd(void){
   }else if( strncmp(zSubcmd, "list", n)==0 || strcmp(zSubcmd,"ls")==0 ){
     int showDetail = find_option("l","l",0)!=0;
     if( !db_table_exists("repository","purgeevent") ) return;
-    db_prepare(&q, "SELECT peid, datetime(ctime,'unixepoch','localtime')"
+    db_prepare(&q, "SELECT peid, datetime(ctime,'unixepoch',toLocal())"
                    " FROM purgeevent");
     while( db_step(&q)==SQLITE_ROW ){
       fossil_print("%4d on %s\n", db_column_int(&q,0), db_column_text(&q,1));
@@ -573,7 +573,7 @@ void purge_cmd(void){
       describe_artifacts_to_stdout("IN ok", 0);
     }else{
       int peid = purge_artifact_list("ok","",1);
-      fossil_print("%d checkins and %d artifacts purged.\n", nCkin, nArtifact);
+      fossil_print("%d check-ins and %d artifacts purged.\n", nCkin, nArtifact);
       fossil_print("undoable using \"%s purge undo %d\".\n",
                     g.nameOfExe, peid);
     }

@@ -82,24 +82,28 @@ void delete_private_content(void){
 /*
 ** COMMAND: clone
 **
-** Usage: %fossil clone ?OPTIONS? URL FILENAME
+** Usage: %fossil clone ?OPTIONS? URI FILENAME
 **
-** Make a clone of a repository specified by URL in the local
+** Make a clone of a repository specified by URI in the local
 ** file named FILENAME.
 **
-** URL must be in one of the following form: ([...] mean optional)
+** URI may be one of the following form: ([...] mean optional)
 **   HTTP/HTTPS protocol:
 **     http[s]://[userid[:password]@]host[:port][/path]
 **
 **   SSH protocol:
-**     ssh://[userid[:password]@]host[:port]/path/to/repo.fossil\\
+**     ssh://[userid@]host[:port]/path/to/repo.fossil\\
 **     [?fossil=path/to/fossil.exe]
 **
 **   Filesystem:
 **     [file://]path/to/repo.fossil
 **
-**   Note: For ssh and filesystem, path must have an extra leading
+** Note 1: For ssh and filesystem, path must have an extra leading
 **         '/' to use an absolute path.
+**
+** Note 2: Use %HH escapes for special characters in the userid and 
+**         password.  For example "%40" in place of "@", "%2f" in place
+**         of "/", and "%3a" in place of ":".
 **
 ** By default, your current login name is used to create the default
 ** admin user. This can be overridden using the -A|--admin-user
@@ -107,11 +111,11 @@ void delete_private_content(void){
 **
 ** Options:
 **    --admin-user|-A USERNAME   Make USERNAME the administrator
-**    --once                     Don't save url.
+**    --once                     Don't remember the URI.
 **    --private                  Also clone private branches
-**    --ssl-identity=filename    Use the SSL identity if requested by the server
-**    --ssh-command|-c 'command' Use this SSH command
-**    --httpauth|-B 'user:pass'  Add HTTP Basic Authorization to requests
+**    --ssl-identity FILENAME    Use the SSL identity if requested by the server
+**    --ssh-command|-c SSH       Use SSH as the "ssh" command
+**    --httpauth|-B USER:PASS    Add HTTP Basic Authorization to requests
 **    --verbose                  Show more statistics in output
 **
 ** See also: init
@@ -139,7 +143,7 @@ void clone_cmd(void){
   if( g.argc < 4 ){
     usage("?OPTIONS? FILE-OR-URL NEW-REPOSITORY");
   }
-  db_open_config(0);
+  db_open_config(0, 0);
   if( -1 != file_size(g.argv[3]) ){
     fossil_fatal("file already exists: %s", g.argv[3]);
   }
@@ -166,7 +170,7 @@ void clone_cmd(void){
     db_open_repository(g.argv[3]);
     db_begin_transaction();
     db_record_repository_filename(g.argv[3]);
-    db_initial_setup(0, 0, zDefaultUser, 0);
+    db_initial_setup(0, 0, zDefaultUser);
     user_select();
     db_set("content-schema", CONTENT_SCHEMA, 0);
     db_set("aux-schema", AUX_SCHEMA_MAX, 0);
@@ -184,6 +188,7 @@ void clone_cmd(void){
     db_multi_exec(
       "REPLACE INTO config(name,value,mtime)"
       " VALUES('server-code', lower(hex(randomblob(20))), now());"
+      "DELETE FROM config WHERE name='project-code';"
     );
     url_enable_proxy(0);
     clone_ssh_db_set_options();
@@ -203,11 +208,19 @@ void clone_cmd(void){
   db_begin_transaction();
   fossil_print("Rebuilding repository meta-data...\n");
   rebuild_db(0, 1, 0);
-  fossil_print("project-id: %s\n", db_get("project-code", 0));
+  fossil_print("Extra delta compression... "); fflush(stdout);
+  extra_deltification();
+  db_end_transaction(0);
+  fossil_print("\nVacuuming the database... "); fflush(stdout);
+  if( db_int(0, "PRAGMA page_count")>1000
+   && db_int(0, "PRAGMA page_size")<8192 ){
+     db_multi_exec("PRAGMA page_size=8192;");
+  }
+  db_multi_exec("VACUUM");
+  fossil_print("\nproject-id: %s\n", db_get("project-code", 0));
   fossil_print("server-id:  %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   fossil_print("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
-  db_end_transaction(0);
 }
 
 /*

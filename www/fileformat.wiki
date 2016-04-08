@@ -45,7 +45,7 @@ meaning to fossil.  Fossil recognizes:
 <li> [#wikichng | Wiki Pages] </li>
 <li> [#tktchng | Ticket Changes] </li>
 <li> [#attachment | Attachments] </li>
-<li> [#event | Events] </li>
+<li> [#event | TechNotes] </li>
 </ul>
 
 These seven artifact types are described in the following sections.
@@ -115,7 +115,7 @@ another manifest that serves as the "baseline" for this manifest.  A
 manifest that has a B-card is called a delta-manifest and a manifest
 that omits the B-card is a baseline-manifest.  The other manifest
 identified by the argument of the B-card must be a baseline-manifest.
-A baseline-manifest records the complete contents of a checkin.
+A baseline-manifest records the complete contents of a check-in.
 A delta-manifest records only changes from its baseline.  
 
 A manifest must have exactly one C-card.  The sole argument to
@@ -176,7 +176,8 @@ The first predecessor is the direct ancestor of the manifest.
 Other arguments define manifests with which the first was
 merged to yield the current manifest.  Most manifests have
 a P-card with a single argument.  The first manifest in the
-project has no ancestors and thus has no P-card.
+project has no ancestors and thus has no P-card or (depending
+on the Fossil version) an empty P-card (no arguments).
 
 A manifest has zero or more Q-cards.  A Q-card is similar to a P-card
 in that it defines a predecessor to the current check-in.  But
@@ -315,11 +316,11 @@ first value is the tag name.  The first character of the tag
 is either "+", "-", or "*".  The "+" means the tag should be added
 to the artifact.  The "-" means the tag should be removed.
 The "*" character means the tag should be added to the artifact
-and all direct descendants (but not descendents through a merge) down
+and all direct descendants (but not descendants through a merge) down
 to but not including the first descendant that contains a 
 more recent "-", "*", or "+" tag with the same name.
 The optional third argument is the value of the tag.  A tag
-without a value is a boolean.
+without a value is a Boolean.
 
 When two or more tags with the same name are applied to the
 same artifact, the tag with the latest (most recent) date is
@@ -425,7 +426,8 @@ An example ticket-change artifact can be seen
 <h2>6.0 Attachments</h2>
 
 An attachment artifact associates some other artifact that is the
-attachment (the source artifact) with a ticket or wiki page or event to which
+attachment (the source artifact) with a ticket or wiki page or 
+technical note to which
 the attachment is connected (the target artifact).
 The following cards are allowed on an attachment artifact:
 
@@ -439,8 +441,8 @@ The following cards are allowed on an attachment artifact:
 </blockquote>
 
 The A card specifies a filename for the attachment in its first argument.
-The second argument to the A card is the name
-of the wiki page or ticket or event to which the attachment is connected.  The
+The second argument to the A card is the name of the wiki page or
+ticket or technical note to which the attachment is connected.  The
 third argument is either missing or else it is the 40-character artifact 
 ID of the attachment itself.  A missing third argument means that the
 attachment should be deleted.
@@ -463,18 +465,19 @@ The Z card is required.
 
 
 <a name="event"></a>
-<h2>7.0 Events</h2>
+<h2>7.0 Technical Notes</h2>
 
-An event artifact associates a timeline comment and a page of text
-(similar to a wiki page) with a point in time.  Events can be used
+A technical note or "technote" artifact (formerly known as an "event" artifact)
+associates a timeline comment and a page of text
+(similar to a wiki page) with a point in time.  Technotes can be used
 to record project milestones, release notes, blog entries, process
 checkpoints, or news articles.
-The following cards are allowed on an event artifact:
+The following cards are allowed on an technote artifact:
 
 <blockquote>
 <b>C</b> <i>comment</i><br>
 <b>D</b> <i>time-and-date-stamp</i><br />
-<b>E</b> <i>event-time</i> <i>event-id</i><br />
+<b>E</b> <i>technote-time</i> <i>technote-id</i><br />
 <b>N</b> <i>mimetype</i><br />
 <b>P</b> <i>parent-artifact-id</i>+<br />
 <b>T</b> <b>+</b><i>tag-name</i> <b>*</b> ?<i>value</i>?<br />
@@ -484,31 +487,31 @@ The following cards are allowed on an event artifact:
 </blockquote>
 
 The C card contains text that is displayed on the timeline for the
-event.  The C card is optional, but there can only be one.
+technote.  The C card is optional, but there can only be one.
 
 A single D card is required to give the date and time when the 
-event artifact was created.  This is different from the time at which
-the event occurs.
+technote artifact was created.  This is different from the time at which
+the technote appears on the timeline.
 
-A single E card gives the time of the event (the point on the timeline
-where the event is displayed) and a unique identifier for the event.
-When there are multiple artifacts with the same event-id, the one with
-the most recent D card is the only one used.  The event-id must be a
+A single E card gives the time of the technote (the point on the timeline
+where the technote is displayed) and a unique identifier for the technote.
+When there are multiple artifacts with the same technote-id, the one with
+the most recent D card is the only one used.  The technote-id must be a
 40-character lower-case hexadecimal string.
 
-The optional N card specifies the mimetype of the text of the event
+The optional N card specifies the mimetype of the text of the technote
 that is contained in the W card.  If the N card is omitted, then the
 W card text mimetype is assumed to be text/x-fossil, which is the
 Fossil wiki format.
 
-The optional P card specifies a prior event with the same event-id from
-which the current event is an edit.  The P card is a hint to the system
-that it might be space efficient to store one event as a delta of the
-other.
+The optional P card specifies a prior technote with the same technote-id
+from which the current technote is an edit.  The P card is a hint to the
+system that it might be space efficient to store one technote as a delta of
+the other.
 
-An event might contain one or more T-cards used to set
+A technote might contain one or more T-cards used to set
 [./branching.wiki#tags | tags or properties]
-on the event.  The format of the T-card is the same as
+on the technote.  The format of the T-card is the same as
 described in [#ctrl | Control Artifacts] section above, except that the
 second argument is the single character "<b>*</b>" instead of an
 artifact ID and the name is always prefaced by "<b>+</b>".
@@ -518,13 +521,13 @@ possible to encode the current artifact ID as part of an artifact,
 since the act of inserting the artifact ID would change the artifact ID,
 hence a <b>*</b> is used to represent "self".  The "<b>+</b>" on the
 name means that tags can only be add and they can only be non-propagating
-tags.  A an event, T cards are normally used to set the background
+tags.  In a technote, T cards are normally used to set the background
 display color for timelines.
 
-The optional U card gives name of the user who entered the event.
+The optional U card gives name of the user who entered the technote.
 
 A single W card provides wiki text for the document associated with the
-event.  The format of the W card is exactly the same as for a 
+technote.  The format of the W card is exactly the same as for a 
 [#wikichng | wiki artifact].
 
 The Z card is the required checksum over the rest of the artifact.
@@ -552,7 +555,7 @@ or more such cards are required.
 <th>Wiki</th>
 <th>Ticket</th>
 <th>Attachment</th>
-<th>Event</th>
+<th>Technote</th>
 </tr>
 <tr>
 <td><b>A</b> <i>filename</i> <i>target</i> ?<i>source</i>?</td>
@@ -596,7 +599,7 @@ or more such cards are required.
 <td align=center><b>1</b></td>
 </tr>
 <tr>
-<td><b>E</b> <i>event-time event-id</i></td>
+<td><b>E</b> <i>technote-time technote-id</i></td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>

@@ -7,8 +7,8 @@ Fossil uses [/wiki_rules | wiki markup] for many things:
    *  Description and comments in [./bugtheory.wiki | bug reports].
    *  Check-in comments.
    *  [./embeddeddoc.wiki | Embedded documentation] files whose
-      name ends in "wiki".
-   *  [./event.wiki | Event descriptions].
+      name ends in ".wiki".
+   *  [./event.wiki | Technical notes].
 
 The [/wiki_rules | formatting rules] for fossil wiki
 are designed to be simple and intuitive.  The idea is that wiki provides
@@ -33,6 +33,10 @@ was considered but was rejected for the following reasons:
       there is nothing new to learn.  And, though cumbersome, the HTML
       does not need to be used very often so is not a burden.
 
+UPDATE: Since 2012, Fossil also contains a [/md_rules | Markdown]
+rendering engine.  Markdown can optionally be used to format 
+[./embeddeddoc.wiki | embedded documents], wiki pages, 
+[./event.wiki | technical notes], and bug report text.
 
 <h2>Stand-alone Wiki Pages</h2>
 

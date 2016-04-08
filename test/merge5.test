@@ -38,20 +38,11 @@ proc checkout-test {testid expected_content} {
   }    
 }
 
-catch {exec $::fossilexe info} res
-puts res=$res
-if {![regexp {use --repository} $res]} {
-  puts stderr "Cannot run this test within an open checkout"
-  return
-}
-#
-# Fossil will write data on $HOME, running 'fossil open' here.
-# We need not to clutter the $HOME of the test caller.
-set env(HOME) [pwd]
+require_no_open_checkout; test_setup ""
 
 # Construct a test repository
 #
-exec sqlite3 m5.fossil <$testdir/${testfile}_repo.sql
+exec $::fossilexe sqlite3 --no-repository m5.fossil <$testdir/${testfile}_repo.sql
 fossil rebuild m5.fossil
 fossil open m5.fossil
 fossil user default drh --user drh
@@ -225,7 +216,7 @@ checkout-test 120 {
   ed24d19d726d173f18dbf4a9a0f8514daa3e3ca4  three.txt
   278a402316510f6ae4a77186796a6bde78c7dbc1  two.txt
 }
-fossil merge br4
+fossil merge br4 -expectError
 checkout-test 121 {
   35815cf5804e8933eab64ae34e00bbb381be72c5  four.txt
   ed24d19d726d173f18dbf4a9a0f8514daa3e3ca4  three.txt
@@ -238,7 +229,7 @@ checkout-test 122 {
   ed24d19d726d173f18dbf4a9a0f8514daa3e3ca4  three.txt
   278a402316510f6ae4a77186796a6bde78c7dbc1  two.txt
 }
-fossil merge br1
+fossil merge br1 -expectError
 checkout-test 123 {
   6e167b139c294bed560e2e30b352361b101e1f39  four.txt
   ed24d19d726d173f18dbf4a9a0f8514daa3e3ca4  three.txt
@@ -312,3 +303,7 @@ checkout-test 142 {
   98e47f99bb9fed4fdcd407f553615ca7f15a38a2  three.txt
   e58c5da3e6007d0e30600ea31611813093ad180f  two-rename.txt
 }
+
+###############################################################################
+
+test_cleanup

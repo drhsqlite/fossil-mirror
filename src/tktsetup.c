@@ -23,13 +23,14 @@
 #include <assert.h>
 
 /*
-** Main sub-menu for configuring the ticketing system.
 ** WEBPAGE: tktsetup
+** Main sub-menu for configuring the ticketing system.
 */
 void tktsetup_page(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
 
   style_header("Ticket Setup");
@@ -100,7 +101,7 @@ static const char zDefaultTicketTable[] =
 ** Return the ticket table definition
 */
 const char *ticket_table_schema(void){
-  return db_get("ticket-table", (char*)zDefaultTicketTable);
+  return db_get("ticket-table", zDefaultTicketTable);
 }
 
 /*
@@ -120,15 +121,16 @@ static void tktsetup_generic(
 
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
-  if( P("setup") ){
+  if( PB("setup") ){
     cgi_redirect("tktsetup");
   }
   isSubmit = P("submit")!=0;
   z = P("x");
   if( z==0 ){
-    z = db_get(zDbField, (char*)zDfltValue);
+    z = db_get(zDbField, zDfltValue);
   }
   style_header("Edit %s", zTitle);
   if( P("clear")!=0 ){
@@ -167,6 +169,8 @@ static void tktsetup_generic(
 
 /*
 ** WEBPAGE: tktsetup_tab
+** Administrative page for defining the "ticket" table used
+** to hold ticket information.
 */
 void tktsetup_tab_page(void){
   static const char zDesc[] =
@@ -238,11 +242,13 @@ static const char zDefaultTicketCommon[] =
 ** Return the ticket common code.
 */
 const char *ticket_common_code(void){
-  return db_get("ticket-common", (char*)zDefaultTicketCommon);
+  return db_get("ticket-common", zDefaultTicketCommon);
 }
 
 /*
 ** WEBPAGE: tktsetup_com
+** Administrative page used to define TH1 script that is
+** common to all ticket screens.
 */
 void tktsetup_com_page(void){
   static const char zDesc[] =
@@ -268,11 +274,13 @@ static const char zDefaultTicketChange[] =
 ** Return the ticket change code.
 */
 const char *ticket_change_code(void){
-  return db_get("ticket-change", (char*)zDefaultTicketChange);
+  return db_get("ticket-change", zDefaultTicketChange);
 }
 
 /*
 ** WEBPAGE: tktsetup_change
+** Administrative screen used to view or edit the TH1 script
+** that shows ticket changes.
 */
 void tktsetup_change_page(void){
   static const char zDesc[] =
@@ -411,11 +419,13 @@ static const char zDefaultNew[] =
 ** Return the code used to generate the new ticket page
 */
 const char *ticket_newpage_code(void){
-  return db_get("ticket-newpage", (char*)zDefaultNew);
+  return db_get("ticket-newpage", zDefaultNew);
 }
 
 /*
 ** WEBPAGE: tktsetup_newpage
+** Administrative page used to view or edit the TH1 script used
+** to enter new tickets.
 */
 void tktsetup_newpage_page(void){
   static const char zDesc[] =
@@ -550,11 +560,13 @@ static const char zDefaultView[] =
 ** Return the code used to generate the view ticket page
 */
 const char *ticket_viewpage_code(void){
-  return db_get("ticket-viewpage", (char*)zDefaultView);
+  return db_get("ticket-viewpage", zDefaultView);
 }
 
 /*
 ** WEBPAGE: tktsetup_viewpage
+** Administrative page used to view or edit the TH1 script that
+** displays individual tickets.
 */
 void tktsetup_viewpage_page(void){
   static const char zDesc[] =
@@ -689,11 +701,13 @@ static const char zDefaultEdit[] =
 ** Return the code used to generate the edit ticket page
 */
 const char *ticket_editpage_code(void){
-  return db_get("ticket-editpage", (char*)zDefaultEdit);
+  return db_get("ticket-editpage", zDefaultEdit);
 }
 
 /*
 ** WEBPAGE: tktsetup_editpage
+** Administrative page for viewing or editing the TH1 script that
+** drives the ticket editing page.
 */
 void tktsetup_editpage_page(void){
   static const char zDesc[] =
@@ -715,7 +729,7 @@ void tktsetup_editpage_page(void){
 */
 static const char zDefaultReportList[] =
 @ <th1>
-@ if {[hascap n]} {
+@ if {[anoncap n]} {
 @   html "<p>Enter a new ticket:</p>"
 @   html "<ul><li><a href='tktnew'>New ticket</a></li></ul>"
 @ }
@@ -727,12 +741,12 @@ static const char zDefaultReportList[] =
 @ </ol>
 @
 @ <th1>
-@ if {[hascap t q]} {
+@ if {[anoncap t q]} {
 @   html "<p>Other options:</p>\n<ul>\n"
-@   if {[hascap t]} {
+@   if {[anoncap t]} {
 @     html "<li><a href='rptnew'>New report format</a></li>\n"
 @   }
-@   if {[hascap q]} {
+@   if {[anoncap q]} {
 @     html "<li><a href='modreq'>Tend to pending moderation requests</a></li>\n"
 @   }
 @ }
@@ -743,11 +757,13 @@ static const char zDefaultReportList[] =
 ** Return the code used to generate the report list
 */
 const char *ticket_reportlist_code(void){
-  return db_get("ticket-reportlist", (char*)zDefaultReportList);
+  return db_get("ticket-reportlist", zDefaultReportList);
 }
 
 /*
 ** WEBPAGE: tktsetup_reportlist
+** Administrative page used to view or edit the TH1 script that
+** defines the "report list" page.
 */
 void tktsetup_reportlist(void){
   static const char zDesc[] =
@@ -795,6 +811,9 @@ char *ticket_report_template(void){
 
 /*
 ** WEBPAGE: tktsetup_rpttplt
+**
+** Administrative page used to view or edit the ticket report
+** template.
 */
 void tktsetup_rpttplt_page(void){
   static const char zDesc[] =
@@ -831,11 +850,14 @@ static const char zDefaultKey[] =
 ** Return the template ticket report format:
 */
 const char *ticket_key_template(void){
-  return db_get("ticket-key-template", (char*)zDefaultKey);
+  return db_get("ticket-key-template", zDefaultKey);
 }
 
 /*
 ** WEBPAGE: tktsetup_keytplt
+**
+** Administrative page used to view or edit the Key template
+** for tickets.
 */
 void tktsetup_keytplt_page(void){
   static const char zDesc[] =
@@ -856,11 +878,15 @@ void tktsetup_keytplt_page(void){
 
 /*
 ** WEBPAGE: tktsetup_timeline
+**
+** Administrative page used ot configure how tickets are
+** rendered on timeline views.
 */
 void tktsetup_timeline_page(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
 
   if( P("setup") ){

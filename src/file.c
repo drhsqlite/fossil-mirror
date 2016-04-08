@@ -26,6 +26,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include "file.h"
@@ -60,6 +61,12 @@ struct fossilStat {
 };
 #endif
 
+#if defined(_WIN32) || defined(__CYGWIN__)
+# define fossil_isdirsep(a)    (((a) == '/') || ((a) == '\\'))
+#else
+# define fossil_isdirsep(a)    ((a) == '/')
+#endif
+
 #endif /* INTERFACE */
 
 #if !defined(_WIN32) || !(defined(__MSVCRT__) || defined(_MSC_VER))
@@ -82,7 +89,7 @@ static struct fossilStat fileStat;
 */
 static int fossil_stat(const char *zFilename, struct fossilStat *buf, int isWd){
   int rc;
-  void *zMbcs = fossil_utf8_to_filename(zFilename);
+  void *zMbcs = fossil_utf8_to_path(zFilename, 0);
 #if !defined(_WIN32)
   if( isWd && g.allowSymlinks ){
     rc = lstat(zMbcs, buf);
@@ -92,7 +99,7 @@ static int fossil_stat(const char *zFilename, struct fossilStat *buf, int isWd){
 #else
   rc = win32_stat(zMbcs, buf, isWd);
 #endif
-  fossil_filename_free(zMbcs);
+  fossil_path_free(zMbcs);
   return rc;
 }
 
@@ -234,28 +241,20 @@ void symlink_copy(const char *zFrom, const char *zTo){
 
 /*
 ** Return file permissions (normal, executable, or symlink):
-**   - PERM_EXE if file is executable;
+**   - PERM_EXE on Unix if file is executable;
 **   - PERM_LNK on Unix if file is symlink and allow-symlinks option is on;
 **   - PERM_REG for all other cases (regular file, directory, fifo, etc).
 */
 int file_wd_perm(const char *zFilename){
-  if( getStat(zFilename, 1) ) return PERM_REG;
-#if defined(_WIN32)
-#  ifndef S_IXUSR
-#    define S_IXUSR  _S_IEXEC
-#  endif
-  if( S_ISREG(fileStat.st_mode) && ((S_IXUSR)&fileStat.st_mode)!=0 )
-    return PERM_EXE;
-  else
-    return PERM_REG;
-#else
-  if( S_ISREG(fileStat.st_mode) && ((S_IXUSR)&fileStat.st_mode)!=0 )
-    return PERM_EXE;
-  else if( g.allowSymlinks && S_ISLNK(fileStat.st_mode) )
-    return PERM_LNK;
-  else
-    return PERM_REG;
+#if !defined(_WIN32)
+  if( !getStat(zFilename, 1) ){
+     if( S_ISREG(fileStat.st_mode) && ((S_IXUSR)&fileStat.st_mode)!=0 )
+      return PERM_EXE;
+    else if( g.allowSymlinks && S_ISLNK(fileStat.st_mode) )
+      return PERM_LNK;
+  }
 #endif
+  return PERM_REG;
 }
 
 /*
@@ -318,13 +317,13 @@ int file_wd_isdir(const char *zFilename){
 */
 int file_access(const char *zFilename, int flags){
   int rc;
-  void *zMbcs = fossil_utf8_to_filename(zFilename);
+  void *zMbcs = fossil_utf8_to_path(zFilename, 0);
 #ifdef _WIN32
   rc = win32_access(zMbcs, flags);
 #else
   rc = access(zMbcs, flags);
 #endif
-  fossil_filename_free(zMbcs);
+  fossil_path_free(zMbcs);
   return rc;
 }
 
@@ -335,7 +334,7 @@ int file_access(const char *zFilename, int flags){
 */
 int file_chdir(const char *zChDir, int bChroot){
   int rc;
-  void *zPath = fossil_utf8_to_filename(zChDir);
+  void *zPath = fossil_utf8_to_path(zChDir, 1);
 #ifdef _WIN32
   rc = win32_chdir(zPath, bChroot);
 #else
@@ -345,7 +344,7 @@ int file_chdir(const char *zChDir, int bChroot){
     if( !rc ) rc = chdir("/");
   }
 #endif
-  fossil_filename_free(zPath);
+  fossil_path_free(zPath);
   return rc;
 }
 
@@ -380,11 +379,52 @@ char *file_newname(const char *zBase, const char *zSuffix, int relFlag){
 */
 const char *file_tail(const char *z){
   const char *zTail = z;
+  if( !zTail ) return 0;
   while( z[0] ){
-    if( z[0]=='/' ) zTail = &z[1];
+    if( fossil_isdirsep(z[0]) ) zTail = &z[1];
     z++;
   }
   return zTail;
+}
+
+/*
+** Return the directory of a file path name.  The directory is all components
+** except the last one.  For example, the directory of "/a/b/c.d" is "/a/b".
+** If there is no directory, NULL is returned; otherwise, the returned memory
+** should be freed via fossil_free().
+*/
+char *file_dirname(const char *z){
+  const char *zTail = file_tail(z);
+  if( zTail && zTail!=z ){
+    return mprintf("%.*s", (int)(zTail-z-1), z);
+  }else{
+    return 0;
+  }
+}
+
+/*
+** Rename a file or directory.
+** Returns zero upon success.
+*/
+int file_rename(
+  const char *zFrom,
+  const char *zTo,
+  int isFromDir,
+  int isToDir
+){
+  int rc;
+#if defined(_WIN32)
+  wchar_t *zMbcsFrom = fossil_utf8_to_path(zFrom, isFromDir);
+  wchar_t *zMbcsTo = fossil_utf8_to_path(zTo, isToDir);
+  rc = _wrename(zMbcsFrom, zMbcsTo);
+#else
+  char *zMbcsFrom = fossil_utf8_to_path(zFrom, isFromDir);
+  char *zMbcsTo = fossil_utf8_to_path(zTo, isToDir);
+  rc = rename(zMbcsFrom, zMbcsTo);
+#endif
+  fossil_path_free(zMbcsTo);
+  fossil_path_free(zMbcsFrom);
+  return rc;
 }
 
 /*
@@ -396,7 +436,7 @@ void file_copy(const char *zFrom, const char *zTo){
   char zBuf[8192];
   in = fossil_fopen(zFrom, "rb");
   if( in==0 ) fossil_fatal("cannot open \"%s\" for reading", zFrom);
-  file_mkfolder(zTo, 0);
+  file_mkfolder(zTo, 0, 0);
   out = fossil_fopen(zTo, "wb");
   if( out==0 ) fossil_fatal("cannot open \"%s\" for writing", zTo);
   while( (got=fread(zBuf, 1, sizeof(zBuf), in))>0 ){
@@ -457,16 +497,16 @@ void file_set_mtime(const char *zFilename, i64 newMTime){
   memset(tv, 0, sizeof(tv[0])*2);
   tv[0].tv_sec = newMTime;
   tv[1].tv_sec = newMTime;
-  zMbcs = fossil_utf8_to_filename(zFilename);
+  zMbcs = fossil_utf8_to_path(zFilename, 0);
   utimes(zMbcs, tv);
 #else
   struct _utimbuf tb;
-  wchar_t *zMbcs = fossil_utf8_to_filename(zFilename);
+  wchar_t *zMbcs = fossil_utf8_to_path(zFilename, 0);
   tb.actime = newMTime;
   tb.modtime = newMTime;
   _wutime(zMbcs, &tb);
 #endif
-  fossil_filename_free(zMbcs);
+  fossil_path_free(zMbcs);
 }
 
 /*
@@ -481,7 +521,7 @@ void test_set_mtime(void){
   char *zDate;
   i64 iMTime;
   if( g.argc!=4 ){
-    usage("test-set-mtime FILENAME DATE/TIME");
+    usage("FILENAME DATE/TIME");
   }
   db_open_or_attach(":memory:", "mem", 0);
   iMTime = db_int64(0, "SELECT strftime('%%s',%Q)", g.argv[3]);
@@ -500,13 +540,13 @@ void test_set_mtime(void){
 int file_delete(const char *zFilename){
   int rc;
 #ifdef _WIN32
-  wchar_t *z = fossil_utf8_to_filename(zFilename);
+  wchar_t *z = fossil_utf8_to_path(zFilename, 0);
   rc = _wunlink(z);
 #else
-  char *z = fossil_utf8_to_filename(zFilename);
+  char *z = fossil_utf8_to_path(zFilename, 0);
   rc = unlink(zFilename);
 #endif
-  fossil_filename_free(z);
+  fossil_path_free(z);
   return rc;
 }
 
@@ -525,13 +565,13 @@ int file_mkdir(const char *zName, int forceFlag){
   }
   if( rc!=1 ){
 #if defined(_WIN32)
-    wchar_t *zMbcs = fossil_utf8_to_filename(zName);
+    wchar_t *zMbcs = fossil_utf8_to_path(zName, 1);
     rc = _wmkdir(zMbcs);
 #else
-    char *zMbcs = fossil_utf8_to_filename(zName);
+    char *zMbcs = fossil_utf8_to_path(zName, 1);
     rc = mkdir(zName, 0755);
 #endif
-    fossil_filename_free(zMbcs);
+    fossil_path_free(zMbcs);
     return rc;
   }
   return 0;
@@ -540,9 +580,12 @@ int file_mkdir(const char *zName, int forceFlag){
 /*
 ** Create the tree of directories in which zFilename belongs, if that sequence
 ** of directories does not already exist.
+**
+** On success, return zero.  On error, return errorReturn if positive, otherwise
+** print an error message and abort.
 */
-void file_mkfolder(const char *zFilename, int forceFlag){
-  int i, nName;
+int file_mkfolder(const char *zFilename, int forceFlag, int errorReturn){
+  int i, nName, rc = 0;
   char *zName;
 
   nName = strlen(zFilename);
@@ -560,8 +603,11 @@ void file_mkfolder(const char *zFilename, int forceFlag){
       if( !(i==2 && zName[1]==':') ){
 #endif
         if( file_mkdir(zName, forceFlag) && file_isdir(zName)!=1 ){
-          fossil_fatal_recursive("unable to create directory %s", zName);
-          return;
+          if (errorReturn <= 0) {
+            fossil_fatal_recursive("unable to create directory %s", zName);
+          }
+          rc = errorReturn;
+          break;
         }
 #if defined(_WIN32) || defined(__CYGWIN__)
       }
@@ -570,6 +616,7 @@ void file_mkfolder(const char *zFilename, int forceFlag){
     }
   }
   free(zName);
+  return rc;
 }
 
 /*
@@ -583,13 +630,13 @@ int file_rmdir(const char *zName){
   if( rc==2 ) return 1; /* cannot remove normal file */
   if( rc==1 ){
 #if defined(_WIN32)
-    wchar_t *zMbcs = fossil_utf8_to_filename(zName);
+    wchar_t *zMbcs = fossil_utf8_to_path(zName, 1);
     rc = _wrmdir(zMbcs);
 #else
-    char *zMbcs = fossil_utf8_to_filename(zName);
+    char *zMbcs = fossil_utf8_to_path(zName, 1);
     rc = rmdir(zName);
 #endif
-    fossil_filename_free(zMbcs);
+    fossil_path_free(zMbcs);
     return rc;
   }
   return 0;
@@ -777,7 +824,7 @@ int file_simplify_name(char *z, int n, int slash){
 /*
 ** COMMAND: test-simplify-name
 **
-** %fossil test-simplify-name FILENAME...
+** Usage: %fossil test-simplify-name FILENAME...
 **
 ** Print the simplified versions of each FILENAME.
 */
@@ -820,11 +867,10 @@ void file_getcwd(char *zBuf, int nBuf){
 ** if it is relative.
 */
 int file_is_absolute_path(const char *zPath){
-  if( zPath[0]=='/'
+  if( fossil_isdirsep(zPath[0])
 #if defined(_WIN32) || defined(__CYGWIN__)
-      || zPath[0]=='\\'
       || (fossil_isalpha(zPath[0]) && zPath[1]==':'
-           && (zPath[2]=='\\' || zPath[2]=='/'))
+           && (fossil_isdirsep(zPath[2]) || zPath[2]=='\0'))
 #endif
   ){
     return 1;
@@ -878,7 +924,8 @@ void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
 }
 
 /*
-** COMMAND:  test-canonical-name
+** COMMAND: test-canonical-name
+** 
 ** Usage: %fossil test-canonical-name FILENAME...
 **
 ** Test the operation of the canonical name generator.
@@ -1015,7 +1062,7 @@ void file_relative_name(const char *zOrigName, Blob *pOut, int slash){
 }
 
 /*
-** COMMAND:  test-relative-name
+** COMMAND: test-relative-name
 **
 ** Test the operation of the relative name generator.
 */
@@ -1032,14 +1079,21 @@ void cmd_test_relative_name(void){
 }
 
 /*
-** Compute a pathname for a file relative to the root of the local
-** tree.  Return TRUE on success.  On failure, print and error
-** message and quit if the errFatal flag is true.  If errFatal is
-** false, then simply return 0.
-**
-** The root of the tree is defined by the g.zLocalRoot variable.
+** Compute a full path name for a file in the local tree.  If
+** the absolute flag is non-zero, the computed path will be
+** absolute, starting with the root path of the local tree;
+** otherwise, it will be relative to the root of the local
+** tree.  In both cases, the root of the local tree is defined
+** by the g.zLocalRoot variable.  Return TRUE on success.  On
+** failure, print and error message and quit if the errFatal
+** flag is true.  If errFatal is false, then simply return 0.
 */
-int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
+int file_tree_name(
+  const char *zOrigName,
+  Blob *pOut,
+  int absolute,
+  int errFatal
+){
   Blob localRoot;
   int nLocalRoot;
   char *zLocalRoot;
@@ -1050,8 +1104,27 @@ int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
 
   blob_zero(pOut);
   if( !g.localOpen ){
-    blob_appendf(pOut, "%s", zOrigName);
-    return 1;
+    if( absolute && !file_is_absolute_path(zOrigName) ){
+      if( errFatal ){
+        fossil_fatal("relative to absolute needs open checkout tree: %s",
+                     zOrigName);
+      }
+      return 0;
+    }else{
+      /*
+      ** The original path may be relative or absolute; however, without
+      ** an open checkout tree, the only things we can do at this point
+      ** is return it verbatim or generate a fatal error.  The caller is
+      ** probably expecting a tree-relative path name will be returned;
+      ** however, most places where this function is called already check
+      ** if the local checkout tree is open, either directly or indirectly,
+      ** which would make this situation impossible.  Alternatively, they
+      ** could check the returned path using the file_is_absolute_path()
+      ** function.
+      */
+      blob_appendf(pOut, "%s", zOrigName);
+      return 1;
+    }
   }
   file_canonical_name(g.zLocalRoot, &localRoot, 1);
   nLocalRoot = blob_size(&localRoot);
@@ -1069,7 +1142,11 @@ int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
   /* Special case.  zOrigName refers to g.zLocalRoot directory. */
   if( (nFull==nLocalRoot-1 && xCmp(zLocalRoot, zFull, nFull)==0)
       || (nFull==1 && zFull[0]=='/' && nLocalRoot==1 && zLocalRoot[0]=='/') ){
-    blob_append(pOut, ".", 1);
+    if( absolute ){
+      blob_append(pOut, zLocalRoot, nLocalRoot);
+    }else{
+      blob_append(pOut, ".", 1);
+    }
     blob_reset(&localRoot);
     blob_reset(&full);
     return 1;
@@ -1083,28 +1160,39 @@ int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
     }
     return 0;
   }
-  blob_append(pOut, &zFull[nLocalRoot], nFull-nLocalRoot);
+  if( absolute ){
+    if( !file_is_absolute_path(zOrigName) ){
+      blob_append(pOut, zLocalRoot, nLocalRoot);
+    }
+    blob_append(pOut, zOrigName, -1);
+    blob_resize(pOut, file_simplify_name(blob_buffer(pOut),
+                                         blob_size(pOut), 0));
+  }else{
+    blob_append(pOut, &zFull[nLocalRoot], nFull-nLocalRoot);
+  }
   blob_reset(&localRoot);
   blob_reset(&full);
   return 1;
 }
 
 /*
-** COMMAND:  test-tree-name
+** COMMAND: test-tree-name
 **
 ** Test the operation of the tree name generator.
 **
 ** Options:
+**   --absolute           Return an absolute path instead of a relative one.
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is
 **                        a boolean: "yes", "no", "true", "false", etc.
 */
 void cmd_test_tree_name(void){
   int i;
   Blob x;
+  int absoluteFlag = find_option("absolute",0,0)!=0;
   db_find_and_open_repository(0,0);
   blob_zero(&x);
   for(i=2; i<g.argc; i++){
-    if( file_tree_name(g.argv[i], &x, 1) ){
+    if( file_tree_name(g.argv[i], &x, absoluteFlag, 1) ){
       fossil_print("%s\n", blob_buffer(&x));
       blob_reset(&x);
     }
@@ -1184,7 +1272,7 @@ void file_tempname(int nBuf, char *zBuf){
   wchar_t zTmpPath[MAX_PATH];
 
   if( GetTempPathW(MAX_PATH, zTmpPath) ){
-    azDirs[0] = fossil_filename_to_utf8(zTmpPath);
+    azDirs[0] = fossil_path_to_utf8(zTmpPath);
   }
 
   azDirs[1] = fossil_getenv("TEMP");
@@ -1218,9 +1306,9 @@ void file_tempname(int nBuf, char *zBuf){
   }while( file_size(zBuf)>=0 );
 
 #if defined(_WIN32)
-  fossil_filename_free((char *)azDirs[0]);
-  fossil_filename_free((char *)azDirs[1]);
-  fossil_filename_free((char *)azDirs[2]);
+  fossil_path_free((char *)azDirs[0]);
+  fossil_path_free((char *)azDirs[1]);
+  fossil_path_free((char *)azDirs[2]);
 #endif
 }
 
@@ -1250,7 +1338,7 @@ int file_is_the_same(Blob *pContent, const char *zName){
 
 /*
 ** Return the value of an environment variable as UTF8.
-** Use fossil_filename_free() to release resources.
+** Use fossil_path_free() to release resources.
 */
 char *fossil_getenv(const char *zName){
 #ifdef _WIN32
@@ -1260,7 +1348,7 @@ char *fossil_getenv(const char *zName){
 #else
   char *zValue = getenv(zName);
 #endif
-  if( zValue ) zValue = fossil_filename_to_utf8(zValue);
+  if( zValue ) zValue = fossil_path_to_utf8(zValue);
   return zValue;
 }
 
@@ -1289,9 +1377,9 @@ int fossil_setenv(const char *zName, const char *zValue){
 FILE *fossil_fopen(const char *zName, const char *zMode){
 #ifdef _WIN32
   wchar_t *uMode = fossil_utf8_to_unicode(zMode);
-  wchar_t *uName = fossil_utf8_to_filename(zName);
+  wchar_t *uName = fossil_utf8_to_path(zName, 0);
   FILE *f = _wfopen(uName, uMode);
-  fossil_filename_free(uName);
+  fossil_path_free(uName);
   fossil_unicode_free(uMode);
 #else
   FILE *f = fopen(zName, zMode);

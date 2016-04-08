@@ -88,6 +88,7 @@ static struct {
   { "css",                    CONFIGSET_CSS  },
   { "header",                 CONFIGSET_SKIN },
   { "footer",                 CONFIGSET_SKIN },
+  { "details",                CONFIGSET_SKIN },
   { "logo-mimetype",          CONFIGSET_SKIN },
   { "logo-image",             CONFIGSET_SKIN },
   { "background-mimetype",    CONFIGSET_SKIN },
@@ -98,7 +99,7 @@ static struct {
   { "adunit",                 CONFIGSET_SKIN },
   { "adunit-omit-if-admin",   CONFIGSET_SKIN },
   { "adunit-omit-if-user",    CONFIGSET_SKIN },
-  { "white-foreground",       CONFIGSET_SKIN },
+
 #ifdef FOSSIL_ENABLE_TH1_DOCS
   { "th1-docs",               CONFIGSET_TH1 },
 #endif
@@ -126,6 +127,11 @@ static struct {
   { "encoding-glob",          CONFIGSET_PROJ },
   { "empty-dirs",             CONFIGSET_PROJ },
   { "allow-symlinks",         CONFIGSET_PROJ },
+  { "dotfiles",               CONFIGSET_PROJ },
+
+#ifdef FOSSIL_ENABLE_LEGACY_MV_RM
+  { "mv-rm-files",            CONFIGSET_PROJ },
+#endif
 
   { "ticket-table",           CONFIGSET_TKT  },
   { "ticket-common",          CONFIGSET_TKT  },
@@ -826,7 +832,7 @@ static void export_config(
 ** Usage: %fossil configuration METHOD ... ?OPTIONS?
 **
 ** Where METHOD is one of: export import merge pull push reset.  All methods
-** accept the -R or --repository option to specific a repository.
+** accept the -R or --repository option to specify a repository.
 **
 **    %fossil configuration export AREA FILENAME
 **
@@ -859,7 +865,7 @@ static void export_config(
 **         by URL.  Admin privilege is required on the remote server for
 **         this to work.  When the same record exists both locally and on
 **         the remote end, the one that was most recently changed wins.
-**         Use the --legacy flag when talking to holder servers.
+**         Use the --legacy flag when talking to older servers.
 **
 **    %fossil configuration reset AREA
 **
@@ -878,11 +884,11 @@ static void export_config(
 void configuration_cmd(void){
   int n;
   const char *zMethod;
-  if( g.argc<3 ){
-    usage("export|import|merge|pull|reset ...");
-  }
   db_find_and_open_repository(0, 0);
-  db_open_config(0);
+  db_open_config(0, 0);
+  if( g.argc<3 ){
+    usage("SUBCOMMAND ...");
+  }
   zMethod = g.argv[2];
   n = strlen(zMethod);
   if( strncmp(zMethod, "export", n)==0 ){

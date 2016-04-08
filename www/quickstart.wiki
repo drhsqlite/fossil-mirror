@@ -55,30 +55,35 @@ and painlessly.</p>
     <b>fossil clone</b> <i>URL  repository-filename</i>
     </blockquote>
     
-    <p>The <i>URL</i> above is the http URL for the fossil repository
-    you want to clone, and it may include a "user:password" part, e.g.
-    <tt>http://user:password@www.fossil-scm.org/fossil</tt>. You can
-    call the new repository anything you want - there are no naming
-    restrictions.  As an example, you can clone the fossil repository
-    this way:</p>
+    <p>The <i>URL</i> specifies the fossil repository
+    you want to clone.  The <i>repository-filename</i> is the new local
+    filename into which the cloned repository will be written.  For
+    example:
     
     <blockquote>
     <b>fossil clone http://www.fossil-scm.org/ myclone.fossil</b>
     </blockquote>
 
-    <p>The new local copy of the repository is stored in a single file,
-    which in the example above is named "myclone.fossil".
-    You can name your repositories anything you want.  The ".fossil" suffix
-    is not required.</p>
+    <p>If the remote repository requires a login, include a 
+    userid in the URL like this:
 
-    <p>Note: If you are behind a restrictive firewall, you might need
+    <blockquote>
+    <b>fossil clone http://</b><i>userid</i><b>@www.fossil-scm.org/ myclone.fossil</b>
+    </blockquote>
+ 
+
+    <p>You will be prompted separately for the password.
+     Use "%HH" escapes for special characters in the userid. 
+     Examples: "%40" in place of "@" and "%2F" in place of "/".
+
+    <p>If you are behind a restrictive firewall, you might need
     to <a href="#proxy">specify an HTTP proxy</a>.</p>
 
     <p>A Fossil repository is a single disk file.  Instead of cloning,
     you can just make a copy of the repository file (for example, using
     "scp").  Note, however, that the repository file contains auxiliary
     information above and beyond the versioned files, including some
-    sensitive information such as password hashs and email addresses.  If you
+    sensitive information such as password hashes and email addresses.  If you
     want to share Fossil repositories directly, consider running the
     [/help/scrub|fossil scrub] command to remove sensitive information
     before transmitting the file.
@@ -338,7 +343,7 @@ and painlessly.</p>
     <li>[./server.wiki#scgi|SCGI]
     </ul>
 
-    <p>The the [./selfhost.wiki | self-hosting fossil repositories] use
+    <p>The [./selfhost.wiki | self-hosting fossil repositories] use
     CGI.  
 
 <a name="proxy"></a>

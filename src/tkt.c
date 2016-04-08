@@ -139,9 +139,9 @@ static void initializeVariablesFromDb(void){
   int i, n, size, j;
 
   zName = PD("name","-none-");
-  db_prepare(&q, "SELECT datetime(tkt_mtime%s) AS tkt_datetime, *"
+  db_prepare(&q, "SELECT datetime(tkt_mtime,toLocal()) AS tkt_datetime, *"
                  "  FROM ticket WHERE tkt_uuid GLOB '%q*'",
-                 timeline_utc(), zName);
+                 zName);
   if( db_step(&q)==SQLITE_ROW ){
     n = db_column_count(&q);
     for(i=0; i<n; i++){
@@ -430,7 +430,7 @@ static void showAllFields(void){
   for(i=0; i<nField; i++){
     @ <li>aField[%d(i)].zName = "%h(aField[i].zName)";
     @ originally = "%h(aField[i].zValue)";
-    @ currently = "%h(PD(aField[i].zName,""))"";
+    @ currently = "%h(PD(aField[i].zName,""))";
     if( aField[i].zAppend ){
       @ zAppend = "%h(aField[i].zAppend)";
     }
@@ -443,7 +443,7 @@ static void showAllFields(void){
 ** WEBPAGE: tktview
 ** URL:  tktview?name=UUID
 **
-** View a ticket.
+** View a ticket identified by the name= query parameter.
 */
 void tktview_page(void){
   const char *zScript;
@@ -451,8 +451,8 @@ void tktview_page(void){
   const char *zUuid = PD("name","");
 
   login_check_credentials();
-  if( !g.perm.RdTkt ){ login_needed(); return; }
-  if( g.perm.WrTkt || g.perm.ApndTkt ){
+  if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
+  if( g.anon.WrTkt || g.anon.ApndTkt ){
     style_submenu_element("Edit", "Edit The Ticket", "%s/tktedit?name=%T",
         g.zTop, PD("name",""));
   }
@@ -464,11 +464,11 @@ void tktview_page(void){
     style_submenu_element("Check-ins", "Check-ins Of This Ticket",
         "%s/tkttimeline/%T?y=ci", g.zTop, zUuid);
   }
-  if( g.perm.NewTkt ){
+  if( g.anon.NewTkt ){
     style_submenu_element("New Ticket", "Create a new ticket",
         "%s/tktnew", g.zTop);
   }
-  if( g.perm.ApndTkt && g.perm.Attach ){
+  if( g.anon.ApndTkt && g.anon.Attach ){
     style_submenu_element("Attach", "Add An Attachment",
         "%s/attachadd?tkt=%T&from=%s/tktview/%t",
         g.zTop, zUuid, g.zTop, zUuid);
@@ -689,7 +689,7 @@ void tktnew_page(void){
   char *zNewUuid = 0;
 
   login_check_credentials();
-  if( !g.perm.NewTkt ){ login_needed(); return; }
+  if( !g.perm.NewTkt ){ login_needed(g.anon.NewTkt); return; }
   if( P("cancel") ){
     cgi_redirect("home");
   }
@@ -740,7 +740,10 @@ void tktedit_page(void){
   int nRec;
 
   login_check_credentials();
-  if( !g.perm.ApndTkt && !g.perm.WrTkt ){ login_needed(); return; }
+  if( !g.perm.ApndTkt && !g.perm.WrTkt ){
+    login_needed(g.anon.ApndTkt || g.anon.WrTkt);
+    return;
+  }
   zName = P("name");
   if( P("cancel") ){
     cgi_redirectf("tktview?name=%T", zName);
@@ -841,7 +844,10 @@ void tkttimeline_page(void){
   const char *zType;
 
   login_check_credentials();
-  if( !g.perm.Hyperlink || !g.perm.RdTkt ){ login_needed(); return; }
+  if( !g.perm.Hyperlink || !g.perm.RdTkt ){
+    login_needed(g.anon.Hyperlink && g.anon.RdTkt);
+    return;
+  }
   zUuid = PD("name","");
   zType = PD("y","a");
   if( zType[0]!='c' ){
@@ -856,7 +862,7 @@ void tkttimeline_page(void){
   style_submenu_element("Status", "Status",
     "%s/info/%s", g.zTop, zUuid);
   if( zType[0]=='c' ){
-    zTitle = mprintf("Check-Ins Associated With Ticket %h", zUuid);
+    zTitle = mprintf("Check-ins Associated With Ticket %h", zUuid);
   }else{
     zTitle = mprintf("Timeline Of Ticket %h", zUuid);
   }
@@ -914,7 +920,10 @@ void tkthistory_page(void){
   int nChng = 0;
 
   login_check_credentials();
-  if( !g.perm.Hyperlink || !g.perm.RdTkt ){ login_needed(); return; }
+  if( !g.perm.Hyperlink || !g.perm.RdTkt ){
+    login_needed(g.anon.Hyperlink && g.anon.RdTkt);
+    return;
+  }
   zUuid = PD("name","");
   zTitle = mprintf("History Of Ticket %h", zUuid);
   style_submenu_element("Status", "Status",
@@ -939,17 +948,17 @@ void tkthistory_page(void){
     return;
   }
   db_prepare(&q,
-    "SELECT datetime(mtime%s), objid, uuid, NULL, NULL, NULL"
+    "SELECT datetime(mtime,toLocal()), objid, uuid, NULL, NULL, NULL"
     "  FROM event, blob"
     " WHERE objid IN (SELECT rid FROM tagxref WHERE tagid=%d)"
     "   AND blob.rid=event.objid"
     " UNION "
-    "SELECT datetime(mtime%s), attachid, uuid, src, filename, user"
+    "SELECT datetime(mtime,toLocal()), attachid, uuid, src, filename, user"
     "  FROM attachment, blob"
     " WHERE target=(SELECT substr(tagname,5) FROM tag WHERE tagid=%d)"
     "   AND blob.rid=attachid"
     " ORDER BY 1",
-    timeline_utc(), tagid, timeline_utc(), tagid
+    tagid, tagid
   );
   while( db_step(&q)==SQLITE_ROW ){
     Manifest *pTicket;
@@ -970,9 +979,9 @@ void tkthistory_page(void){
       }else{
         @
         @ <li><p>Add attachment
-        @ "%z(href("%R/artifact/%s",zSrc))%s(zFile)</a>"
+        @ "%z(href("%R/artifact/%!S",zSrc))%s(zFile)</a>"
       }
-      @ [%z(href("%R/artifact/%s",zChngUuid))%S(zChngUuid)</a>]
+      @ [%z(href("%R/artifact/%!S",zChngUuid))%S(zChngUuid)</a>]
       @ (rid %d(rid)) by
       hyperlink_to_user(zUser,zDate," on");
       hyperlink_to_date(zDate, ".</p>");
@@ -981,7 +990,7 @@ void tkthistory_page(void){
       if( pTicket ){
         @
         @ <li><p>Ticket change
-        @ [%z(href("%R/artifact/%s",zChngUuid))%S(zChngUuid)</a>]
+        @ [%z(href("%R/artifact/%!S",zChngUuid))%S(zChngUuid)</a>]
         @ (rid %d(rid)) by
         hyperlink_to_user(pTicket->zUser,zDate," on");
         hyperlink_to_date(zDate, ":");
@@ -1049,19 +1058,20 @@ void ticket_output_change_artifact(Manifest *pTkt, const char *zListType){
 
 /*
 ** COMMAND: ticket*
+**
 ** Usage: %fossil ticket SUBCOMMAND ...
 **
 ** Run various subcommands to control tickets
 **
-**   %fossil ticket show (REPORTTITLE|REPORTNR) ?TICKETFILTER? ?options?
+**   %fossil ticket show (REPORTTITLE|REPORTNR) ?TICKETFILTER? ?OPTIONS?
 **
-**     options can be:
-**       ?-l|--limit LIMITCHAR?
-**       ?-q|--quote?
-**       ?-R|--repository FILE?
+**     Options:
+**       -l|--limit LIMITCHAR
+**       -q|--quote
+**       -R|--repository FILE
 **
 **     Run the ticket report, identified by the report format title
-**     used in the gui. The data is written as flat file on stdout,
+**     used in the GUI. The data is written as flat file on stdout,
 **     using TAB as separator. The separator can be changed using
 **     the -l or --limit option.
 **
@@ -1071,53 +1081,54 @@ void ticket_output_change_artifact(Manifest *pTkt, const char *zListType){
 **                 TICKETFILTER may be [#]='uuuuuuuuu'
 **       example:  Report only lists rows with status not open
 **                 TICKETFILTER: status != 'open'
-**     If the option -q|--quote is used, the tickets are encoded by
-**     quoting special chars(space -> \\s, tab -> \\t, newline -> \\n,
-**     cr -> \\r, formfeed -> \\f, vtab -> \\v, nul -> \\0, \\ -> \\\\).
-**     Otherwise, the simplified encoding as on the show report raw
-**     page in the gui is used. This has no effect in JSON mode.
+**                 
+**     If --quote is used, the tickets are encoded by quoting special
+**     chars (space -> \\s, tab -> \\t, newline -> \\n, cr -> \\r,
+**     formfeed -> \\f, vtab -> \\v, nul -> \\0, \\ -> \\\\).
+**     Otherwise, the simplified encoding as on the show report raw page
+**     in the GUI is used. This has no effect in JSON mode.
 **
-**     Instead of the report title its possible to use the report
-**     number. Using the special report number 0 list all columns,
-**     defined in the ticket table.
+**     Instead of the report title it's possible to use the report
+**     number; the special report number 0 lists all columns defined in
+**     the ticket table.
 **
 **   %fossil ticket list fields
 **   %fossil ticket ls fields
 **
-**     list all fields, defined for ticket in the fossil repository
+**     List all fields defined for ticket in the fossil repository.
 **
 **   %fossil ticket list reports
 **   %fossil ticket ls reports
 **
-**     list all ticket reports, defined in the fossil repository
+**     List all ticket reports defined in the fossil repository.
 **
 **   %fossil ticket set TICKETUUID (FIELD VALUE)+ ?-q|--quote?
 **   %fossil ticket change TICKETUUID (FIELD VALUE)+ ?-q|--quote?
 **
-**     change ticket identified by TICKETUUID and set the value of
-**     field FIELD to VALUE.
+**     Change ticket identified by TICKETUUID to set the values of
+**     each field FIELD to VALUE.
 **
 **     Field names as defined in the TICKET table.  By default, these
 **     names include: type, status, subsystem, priority, severity, foundin,
 **     resolution, title, and comment, but other field names can be added
 **     or substituted in customized installations.
 **
-**     If you use +FIELD, the VALUE Is appended to the field FIELD.
-**     You can use more than one field/value pair on the commandline.
-**     Using -q|--quote  enables the special character decoding as
-**     in "ticket show". So it's possible, to set multiline text or
-**     text with special characters.
+**     If you use +FIELD, the VALUE is appended to the field FIELD.  You
+**     can use more than one field/value pair on the commandline.  Using
+**     --quote enables the special character decoding as in "ticket
+**     show", which allows setting multiline text or text with special
+**     characters.
 **
 **   %fossil ticket add FIELD VALUE ?FIELD VALUE .. ? ?-q|--quote?
 **
-**     like set, but create a new ticket with the given values.
+**     Like set, but create a new ticket with the given values.
 **
 **   %fossil ticket history TICKETUUID
 **
 **     Show the complete change history for the ticket
 **
-** The values in set|add are not validated against the definitions
-** given in "Ticket Common Script".
+** Note that the values in set|add are not validated against the
+** definitions given in "Ticket Common Script".
 */
 void ticket_cmd(void){
   int n;
@@ -1247,18 +1258,18 @@ void ticket_cmd(void){
           fossil_fatal("no such ticket %h", zTktUuid);
         }
         db_prepare(&q,
-          "SELECT datetime(mtime%s), objid, NULL, NULL, NULL"
+          "SELECT datetime(mtime,toLocal()), objid, NULL, NULL, NULL"
           "  FROM event, blob"
           " WHERE objid IN (SELECT rid FROM tagxref WHERE tagid=%d)"
           "   AND blob.rid=event.objid"
           " UNION "
-          "SELECT datetime(mtime%s), attachid, filename, "
+          "SELECT datetime(mtime,toLocal()), attachid, filename, "
           "       src, user"
           "  FROM attachment, blob"
           " WHERE target=(SELECT substr(tagname,5) FROM tag WHERE tagid=%d)"
           "   AND blob.rid=attachid"
           " ORDER BY 1 DESC",
-          timeline_utc(), tagid, timeline_utc(), tagid
+          tagid, tagid
         );
         while( db_step(&q)==SQLITE_ROW ){
           Manifest *pTicket;
@@ -1405,7 +1416,7 @@ void ticket_standard_submenu(unsigned int ok){
   if( (ok & T_REPLIST)!=0 ){
     style_submenu_element("Reports","Reports","%R/reportlist");
   }
-  if( (ok & T_NEW)!=0 && g.perm.NewTkt ){
+  if( (ok & T_NEW)!=0 && g.anon.NewTkt ){
     style_submenu_element("New","New","%R/tktnew");
   }
 }

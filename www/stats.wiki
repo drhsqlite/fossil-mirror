@@ -7,7 +7,7 @@ Does it use a lot of disk space or bandwidth?  Is it scalable?
 In an attempt to answers these questions, this report looks at several
 projects that use fossil for configuration management and examines how
 well they are working.  The following table is a summary of the results.
-(Last updated on 2012-02-26.)
+(Last updated on 2015-02-28.)
 Explanation and analysis follows the table.
 
 <table border=1>
@@ -15,8 +15,7 @@ Explanation and analysis follows the table.
 <th>Project</th>
 <th>Number Of Artifacts</th>
 <th>Number Of Check-ins</th>
-<th>Project&nbsp;Duration<br>(as of 2009-08-23)</th>
-<th>Average Check-ins Per Day</th>
+<th>Project&nbsp;Duration<br>(as of 2015-02-28)</th>
 <th>Uncompressed Size</th>
 <th>Repository Size</th>
 <th>Compression Ratio</th>
@@ -25,74 +24,68 @@ Explanation and analysis follows the table.
 
 <tr align="center">
 <td>[http://www.sqlite.org/src/timeline | SQLite]
-<td>41113
-<td>9943
-<td>4290&nbsp;days<br>11.75&nbsp;yrs
-<td>2.32
-<td>2.09&nbsp;GB
-<td>33.2&nbsp;MB
-<td>63:1
-<td>23.2&nbsp;MB
+<td>56089
+<td>14357
+<td>5388&nbsp;days<br>14.75&nbsp;years
+<td>3.4&nbsp;GB
+<td>45.5&nbsp;MB
+<td>73:1
+<td>29.9&nbsp;MB
 </tr>
 
 <tr align="center">
-<td>[http://core.tcl.tk/tcl/timeline | TCL]
-<td>74806
-<td>13541
-<td>5085&nbsp;days<br>13.92&nbsp;yrs
-<td>2.66
-<td>5.2&nbsp;GB
-<td>86&nbsp;MB
-<td>60:1
-<td>67.0&nbsp;MB
+<td>[http://core.tcl-lang.org/tcl/timeline | TCL]
+<td>139662
+<td>18125
+<td>6183&nbsp;days<br>16.93&nbsp;years
+<td>6.6&nbsp;GB
+<td>192.6&nbsp;MB
+<td>34:1
+<td>117.1&nbsp;MB
 </tr>
 
 <tr align="center">
 <td>[/timeline | Fossil]
-<td>15561
-<td>3764
-<td>1681&nbsp;days<br>4.6&nbsp;yrs
-<td>2.24
-<td>721&nbsp;MB
-<td>18.8&nbsp;MB
-<td>38:1
-<td>12.0&nbsp;MB
+<td>29937
+<td>8238
+<td>2779&nbsp;days<br>7.61&nbsp;years
+<td>2.3&nbsp;GB
+<td>34.0&nbsp;MB
+<td>67:1
+<td>21.5&nbsp;MB
 </tr>
 
 <tr align="center">
 <td>[http://www.sqlite.org/slt/timeline | SLT]
-<td>2174
-<td>100
-<td>1183&nbsp;days<br>3.24&nbsp;yrs
-<td>0.08
-<td>1.94&nbsp;GB
-<td>143&nbsp;MB
-<td>12:1
-<td>141&nbsp;MB
+<td>2278
+<td>136
+<td>2282&nbsp;days<br>6.25&nbsp;years
+<td>2.0&nbsp;GB
+<td>144.7&nbsp;MB
+<td>13:1
+<td>142.1&nbsp;MB
 </tr>
 
 <tr align="center">
 <td>[http://www.sqlite.org/th3.html | TH3]
-<td>5624
-<td>1472
-<td>1248&nbsp;days<br>3.42&nbsp;yrs
-<td>1.78
-<td>252&nbsp;MB
-<td>12.5&nbsp;MB
-<td>20:1
-<td>12.2&nbsp;MB
+<td>8729
+<td>2406
+<td>2347&nbsp;days<br>6.43&nbsp;years
+<td>386&nbsp;MB
+<td>15.2&nbsp;MB
+<td>25:1
+<td>12.6&nbsp;MB
 </tr>
 
 <tr align="center">
 <td>[http://www.sqlite.org/docsrc/timeline | SQLite Docs]
-<td>3664
-<td>1003
-<td>1567&nbsp;days<br>4.29&nbsp;yrs
-<td>0.64
-<td>108&nbsp;MB
-<td>6.6&nbsp;MB
-<td>16:1
-<td>5.71&nbsp;MB
+<td>5503
+<td>1631
+<td>2666&nbsp;days<br>7.30&nbsp;years
+<td>194&nbsp;MB
+<td>10.9&nbsp;MB
+<td>17:1
+<td>8.37&nbsp;MB
 </tr>
 
 </table>
@@ -119,13 +112,11 @@ the repository assuming they were all uncompressed and stored
 separately on the disk.  Fossil makes use of delta compression between related
 versions of the same file, and then uses zlib compression on the resulting
 deltas.  The total resulting repository size is shown after the uncompressed
-size.  For this chart, "fossil rebuild --compress" was run on each repository
-prior to measuring its compressed size.  Repository sizes would typically 
-be 20% larger without that rebuild.
+size.
 
 On the right end of the table, we show the "Clone Bandwidth".  This is the
 total number of bytes sent from server back to the client.  The number of
-bytes sent from client to server is neglible in comparison.
+bytes sent from client to server is negligible in comparison.
 These byte counts include HTTP protocol overhead.
 
 In the table and throughout this article,
@@ -134,13 +125,13 @@ not <a href="http://en.wikipedia.org/wiki/Gibibyte">gibibytes</a>
 (2<sup><small>30</small></sup> bytes).  Similarly, "MB" and "KB"
 means megabytes and kilobytes, not mebibytes and kibibytes.
 
-<h2>Analysis And Supplimental Data</h2>
+<h2>Analysis And Supplemental Data</h2>
 
 Perhaps the two most interesting datapoints in the above table are SQLite
 and SLT.  SQLite is a long-running project with long revision chains.
 Some of the files in SQLite have been edited over a thousand times.
 Each of these edits is stored as a delta, and hence the SQLite project
-gets excellent 63:1 compression.  SLT, on the other hand, consists of
+gets excellent 73:1 compression.  SLT, on the other hand, consists of
 many large (megabyte-sized) SQL scripts that have one or maybe two
 edits each.  There is very little delta compression occurring and so the
 overall repository compression ratio is much lower.  Note also that
@@ -148,12 +139,12 @@ quite a bit more bandwidth is required to clone SLT than SQLite.
 
 For the first nine years of its development, SQLite was versioned by CVS.
 The resulting CVS repository measured over 320MB in size.  So, the
-developers were surprised to see that this entire project could be cloned in
-fossil using only about 23.2MB of network traffic.  (This 23.2MB includes
-all the changes to SQLite that have been made since the conversion from
-CVS.  Of those changes are omitted, the clone bandwidth drops to 13MB.)
+developers were surprised to see that the equivalent Fossil project (the
+first nine years on SQLite) would clone with only 13MB of bandwidth.
 The "sync" protocol
 used by fossil has turned out to be surprisingly efficient.  A typical
-check-in on SQLite might use 3 or 4KB of network bandwidth total.  Hardly
-worth measuring.  The sync protocol is efficient enough that, once cloned,
-Fossil could easily be used over a dial-up connection.
+check-in on SQLite might use 3 or 4KB of network bandwidth.
+For example, the [04eef9522386a59e] check-in used a single HTTP request
+of 2099 bytes and got back a reply of 1116 bytes.
+The sync protocol is efficient enough that, once cloned,
+Fossil can easily be used over a dial-up connection.

@@ -1,0 +1,115 @@
+<h4>$<title></h4>
+<table class="tktDsp">
+<tr><td class="tktDspLabel">Ticket&nbsp;UUID</td>
+<th1>
+if {[info exists tkt_uuid]} {
+  if {[hascap s]} {
+    html "<td class='tktDspValue' colspan='3'>$tkt_uuid "
+    html "($tkt_id)</td></tr>\n"
+  } else {
+    html "<td class='tktDspValue' colspan='3'>$tkt_uuid</td></tr>\n"
+  }
+} else {
+  if {[hascap s]} {
+    html "<td class='tktDspValue' colspan='3'>Deleted "
+    html "(0)</td></tr>\n"
+  } else {
+    html "<td class='tktDspValue' colspan='3'>Deleted</td></tr>\n"
+  }
+}
+</th1>
+<tr><td class="tktDspLabel">Status</td><td class="tktDspValue">
+$<status>
+</td>
+<td class="tktDspLabel">Type</td><td class="tktDspValue">
+$<type>
+</td></tr>
+<tr><td class="tktDspLabel">Severity</td><td class="tktDspValue">
+$<severity>
+</td>
+<td class="tktDspLabel">Priority</td><td class="tktDspValue">
+$<priority>
+</td></tr>
+<tr><td class="tktDspLabel">Subsystem</td><td class="tktDspValue">
+$<subsystem>
+</td>
+<td class="tktDspLabel">Resolution</td><td class="tktDspValue">
+$<resolution>
+</td></tr>
+<tr><td class="tktDspLabel">Last&nbsp;Modified</td><td class="tktDspValue">
+<th1>
+if {[info exists tkt_datetime]} {
+  html $tkt_datetime
+}
+</th1>
+</td>
+<th1>enable_output [hascap e]</th1>
+  <td class="tktDspLabel">Contact</td><td class="tktDspValue">
+  $<private_contact>
+  </td>
+<th1>enable_output 1</th1>
+</tr>
+<tr><td class="tktDspLabel">Version&nbsp;Found&nbsp;In</td>
+<td colspan="3" valign="top" class="tktDspValue">
+$<foundin>
+</td></tr>
+
+<th1>
+if {[info exists comment]} {
+  if {[string length $comment]>10} {
+    html {
+      <tr>
+        <td class="tktDescLabel">Description</td>
+        <td class="tktDescValue" colspan="3">
+    }
+    if {[info exists plaintext]} {
+      set r [randhex]
+      wiki "<verbatim-$r links>\n$comment\n</verbatim-$r>"
+    } else {
+      wiki $comment
+    }
+    html "</td></tr>\n"
+  }
+}
+</th1>
+</table>
+
+<div class="tktComments">
+<th1>
+set seenRow 0
+set alwaysPlaintext [info exists plaintext]
+query {SELECT datetime(tkt_mtime) AS xdate, login AS xlogin,
+              mimetype as xmimetype, icomment AS xcomment,
+              username AS xusername
+         FROM ticketchng
+        WHERE tkt_id=$tkt_id AND length(icomment)>0} {
+          if {$seenRow eq "0"} {
+            html "<h5>User Comments</h5>\n"
+            set seenRow 1
+          }
+  html "<div class='tktComment'>\n"
+  html "<div class='tktCommentHeader'>\n"
+  html "<div class='pull-right'>$xdate</div>\n"
+  html "<span class='tktCommentLogin'>[htmlize $xlogin]</span>"
+  if {$xlogin ne $xusername && [string length $xusername]>0} {
+    html " (claiming to be <span class='tktCommentLogin'>[htmlize $xusername]</span>)"
+  }
+  html " commented</div>\n"
+  html "<div class='tktCommentBody'>\n"
+  if {$alwaysPlaintext || $xmimetype eq "text/plain"} {
+    set r [randhex]
+    if {$xmimetype ne "text/plain"} {html "([htmlize $xmimetype])\n"}
+    wiki "<verbatim-$r>[string trimright $xcomment]</verbatim-$r>\n"
+  } elseif {$xmimetype eq "text/x-fossil-wiki"} {
+    wiki "<p>\n[string trimright $xcomment]\n</p>\n"
+  } elseif {$xmimetype eq "text/html"} {
+    wiki "<p><nowiki>\n[string trimright $xcomment]\n</nowiki></p>\n"
+  } else {
+    set r [randhex]
+    wiki "<verbatim-$r links>[string trimright $xcomment]</verbatim-$r>\n"
+  }
+  html "</div><!-- end comment body -->\n"
+  html "</div><!-- end comment -->\n"
+}
+</th1>
+</div>

@@ -29,67 +29,145 @@ P       = .pdb
 PERLDIR = C:\Perl\bin
 PERL    = perl.exe
 
-# Uncomment to enable debug symbols
-# DEBUG = 1
+# Enable debugging symbols?
+!ifndef DEBUG
+DEBUG = 0
+!endif
 
-# Uncomment to support Windows XP with Visual Studio 201x
-# FOSSIL_ENABLE_WINXP = 1
+# Build the OpenSSL libraries?
+!ifndef FOSSIL_BUILD_SSL
+FOSSIL_BUILD_SSL = 0
+!endif
 
-# Uncomment to enable JSON API
-# FOSSIL_ENABLE_JSON = 1
+# Build the included zlib library?
+!ifndef FOSSIL_BUILD_ZLIB
+FOSSIL_BUILD_ZLIB = 1
+!endif
 
-# Uncomment to enable miniz usage
-# FOSSIL_ENABLE_MINIZ = 1
+# Link everything except SQLite dynamically?
+!ifndef FOSSIL_DYNAMIC_BUILD
+FOSSIL_DYNAMIC_BUILD = 0
+!endif
 
-# Uncomment to enable SSL support
-# FOSSIL_ENABLE_SSL = 1
+# Enable relative paths in external diff/gdiff?
+!ifndef FOSSIL_ENABLE_EXEC_REL_PATHS
+FOSSIL_ENABLE_EXEC_REL_PATHS = 0
+!endif
 
-# Uncomment to build SSL libraries
-# FOSSIL_BUILD_SSL = 1
+# Enable the JSON API?
+!ifndef FOSSIL_ENABLE_JSON
+FOSSIL_ENABLE_JSON = 0
+!endif
 
-# Uncomment to enable TH1 scripts in embedded documentation files
-# FOSSIL_ENABLE_TH1_DOCS = 1
+# Enable legacy treatment of the mv/rm commands?
+!ifndef FOSSIL_ENABLE_LEGACY_MV_RM
+FOSSIL_ENABLE_LEGACY_MV_RM = 0
+!endif
 
-# Uncomment to enable TH1 hooks
-# FOSSIL_ENABLE_TH1_HOOKS = 1
+# Enable use of miniz instead of zlib?
+!ifndef FOSSIL_ENABLE_MINIZ
+FOSSIL_ENABLE_MINIZ = 0
+!endif
 
-# Uncomment to enable Tcl support
-# FOSSIL_ENABLE_TCL = 1
+# Enable OpenSSL support?
+!ifndef FOSSIL_ENABLE_SSL
+FOSSIL_ENABLE_SSL = 0
+!endif
 
-!ifdef FOSSIL_ENABLE_SSL
-SSLDIR    = $(B)\compat\openssl-1.0.2
+# Enable the Tcl integration subsystem?
+!ifndef FOSSIL_ENABLE_TCL
+FOSSIL_ENABLE_TCL = 0
+!endif
+
+# Enable TH1 scripts in embedded documentation files?
+!ifndef FOSSIL_ENABLE_TH1_DOCS
+FOSSIL_ENABLE_TH1_DOCS = 0
+!endif
+
+# Enable TH1 hooks for commands and web pages?
+!ifndef FOSSIL_ENABLE_TH1_HOOKS
+FOSSIL_ENABLE_TH1_HOOKS = 0
+!endif
+
+# Enable support for Windows XP with Visual Studio 201x?
+!ifndef FOSSIL_ENABLE_WINXP
+FOSSIL_ENABLE_WINXP = 0
+!endif
+
+!if $(FOSSIL_ENABLE_SSL)!=0
+SSLDIR    = $(B)\compat\openssl-1.0.2g
 SSLINCDIR = $(SSLDIR)\inc32
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
+SSLLIBDIR = $(SSLDIR)\out32dll
+!else
 SSLLIBDIR = $(SSLDIR)\out32
+!endif
 SSLLFLAGS = /nologo /opt:ref /debug
 SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 !message Using 'x64' platform for OpenSSL...
-# BUGBUG (OpenSSL): Apparently, using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN64A no-asm no-ssl2 no-ssl3 no-shared
-SSLCONFIG = VC-WIN64A no-asm no-shared
+# BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
+# SSLCONFIG = VC-WIN64A no-asm no-ssl2 no-ssl3
+SSLCONFIG = VC-WIN64A no-asm
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
+SSLCONFIG = $(SSLCONFIG) shared
+!else
+SSLCONFIG = $(SSLCONFIG) no-shared
+!endif
 SSLSETUP  = ms\do_win64a.bat
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
+SSLNMAKE  = ms\ntdll.mak all
+!else
 SSLNMAKE  = ms\nt.mak all
+!endif
+# BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
+!if $(FOSSIL_DYNAMIC_BUILD)==0
 SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
+!endif
 !elseif "$(PLATFORM)"=="ia64"
 !message Using 'ia64' platform for OpenSSL...
-# BUGBUG (OpenSSL): Apparently, using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN64I no-asm no-ssl2 no-ssl3 no-shared
-SSLCONFIG = VC-WIN64I no-asm no-shared
+# BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
+# SSLCONFIG = VC-WIN64I no-asm no-ssl2 no-ssl3
+SSLCONFIG = VC-WIN64I no-asm
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
+SSLCONFIG = $(SSLCONFIG) shared
+!else
+SSLCONFIG = $(SSLCONFIG) no-shared
+!endif
 SSLSETUP  = ms\do_win64i.bat
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
+SSLNMAKE  = ms\ntdll.mak all
+!else
 SSLNMAKE  = ms\nt.mak all
+!endif
+# BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
+!if $(FOSSIL_DYNAMIC_BUILD)==0
 SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
+!endif
 !else
 !message Assuming 'x86' platform for OpenSSL...
-# BUGBUG (OpenSSL): Apparently, using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN32 no-asm no-ssl2 no-ssl3 no-shared
-SSLCONFIG = VC-WIN32 no-asm no-shared
+# BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
+# SSLCONFIG = VC-WIN32 no-asm no-ssl2 no-ssl3
+SSLCONFIG = VC-WIN32 no-asm
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
+SSLCONFIG = $(SSLCONFIG) shared
+!else
+SSLCONFIG = $(SSLCONFIG) no-shared
+!endif
 SSLSETUP  = ms\do_ms.bat
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
+SSLNMAKE  = ms\ntdll.mak all
+!else
 SSLNMAKE  = ms\nt.mak all
+!endif
+# BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
+!if $(FOSSIL_DYNAMIC_BUILD)==0
 SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
+!endif
 !endif
 !endif
 
-!ifdef FOSSIL_ENABLE_TCL
+!if $(FOSSIL_ENABLE_TCL)!=0
 TCLDIR    = $(B)\compat\tcl-8.6
 TCLSRCDIR = $(TCLDIR)
 TCLINCDIR = $(TCLSRCDIR)\generic
@@ -98,26 +176,37 @@ TCLINCDIR = $(TCLSRCDIR)\generic
 # zlib options
 ZINCDIR   = $(B)\compat\zlib
 ZLIBDIR   = $(B)\compat\zlib
+
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
+ZLIB      = zdll.lib
+!else
 ZLIB      = zlib.lib
+!endif
 
 INCL      = /I. /I$(SRCDIR) /I$B\win\include
 
-!ifndef FOSSIL_ENABLE_MINIZ
+!if $(FOSSIL_ENABLE_MINIZ)==0
 INCL      = $(INCL) /I$(ZINCDIR)
 !endif
 
-!ifdef FOSSIL_ENABLE_SSL
+!if $(FOSSIL_ENABLE_SSL)!=0
 INCL      = $(INCL) /I$(SSLINCDIR)
 !endif
 
-!ifdef FOSSIL_ENABLE_TCL
+!if $(FOSSIL_ENABLE_TCL)!=0
 INCL      = $(INCL) /I$(TCLINCDIR)
 !endif
 
 CFLAGS    = /nologo
-LDFLAGS   = /NODEFAULTLIB:msvcrt /MANIFEST:NO
+LDFLAGS   =
 
-!ifdef FOSSIL_ENABLE_WINXP
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
+LDFLAGS   = $(LDFLAGS) /MANIFEST
+!else
+LDFLAGS   = $(LDFLAGS) /NODEFAULTLIB:msvcrt /MANIFEST:NO
+!endif
+
+!if $(FOSSIL_ENABLE_WINXP)!=0
 XPCFLAGS  = $(XPCFLAGS) /D_USING_V110_SDK71_=1
 CFLAGS    = $(CFLAGS) $(XPCFLAGS)
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
@@ -128,52 +217,82 @@ XPLDFLAGS = $(XPLDFLAGS) /SUBSYSTEM:CONSOLE,5.01
 LDFLAGS   = $(LDFLAGS) $(XPLDFLAGS)
 !endif
 
-!ifdef DEBUG
-CFLAGS    = $(CFLAGS) /Zi /MTd /Od
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
+!if $(DEBUG)!=0
+CRTFLAGS = /MDd
+!else
+CRTFLAGS = /MD
+!endif
+!else
+!if $(DEBUG)!=0
+CRTFLAGS = /MTd
+!else
+CRTFLAGS = /MT
+!endif
+!endif
+
+!if $(DEBUG)!=0
+CFLAGS    = $(CFLAGS) /Zi $(CRTFLAGS) /Od
 LDFLAGS   = $(LDFLAGS) /DEBUG
 !else
-CFLAGS    = $(CFLAGS) /MT /O2
+CFLAGS    = $(CFLAGS) $(CRTFLAGS) /O2
 !endif
 
 BCC       = $(CC) $(CFLAGS)
 TCC       = $(CC) /c $(CFLAGS) $(MSCDEF) $(INCL)
-RCC       = rc /D_WIN32 /D_MSC_VER $(MSCDEF) $(INCL)
+RCC       = $(RC) /D_WIN32 /D_MSC_VER $(MSCDEF) $(INCL)
+MTC       = mt
 LIBS      = ws2_32.lib advapi32.lib
 LIBDIR    =
 
-!ifndef FOSSIL_ENABLE_MINIZ
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
+TCC       = $(TCC) /DFOSSIL_DYNAMIC_BUILD=1
+RCC       = $(RCC) /DFOSSIL_DYNAMIC_BUILD=1
+!endif
+
+!if $(FOSSIL_ENABLE_MINIZ)==0
 LIBS      = $(LIBS) $(ZLIB)
 LIBDIR    = $(LIBDIR) /LIBPATH:$(ZLIBDIR)
 !endif
 
-!ifdef FOSSIL_ENABLE_MINIZ
+!if $(FOSSIL_ENABLE_MINIZ)!=0
 TCC       = $(TCC) /DFOSSIL_ENABLE_MINIZ=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_MINIZ=1
 !endif
 
-!ifdef FOSSIL_ENABLE_JSON
+!if $(FOSSIL_ENABLE_JSON)!=0
 TCC       = $(TCC) /DFOSSIL_ENABLE_JSON=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_JSON=1
 !endif
 
-!ifdef FOSSIL_ENABLE_SSL
+!if $(FOSSIL_ENABLE_SSL)!=0
 TCC       = $(TCC) /DFOSSIL_ENABLE_SSL=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_SSL=1
 LIBS      = $(LIBS) $(SSLLIB)
 LIBDIR    = $(LIBDIR) /LIBPATH:$(SSLLIBDIR)
 !endif
 
-!ifdef FOSSIL_ENABLE_TH1_DOCS
+!if $(FOSSIL_ENABLE_EXEC_REL_PATHS)!=0
+TCC       = $(TCC) /DFOSSIL_ENABLE_EXEC_REL_PATHS=1
+RCC       = $(RCC) /DFOSSIL_ENABLE_EXEC_REL_PATHS=1
+!endif
+
+!if $(FOSSIL_ENABLE_LEGACY_MV_RM)!=0
+TCC       = $(TCC) /DFOSSIL_ENABLE_LEGACY_MV_RM=1
+RCC       = $(RCC) /DFOSSIL_ENABLE_LEGACY_MV_RM=1
+!endif
+
+!if $(FOSSIL_ENABLE_TH1_DOCS)!=0
 TCC       = $(TCC) /DFOSSIL_ENABLE_TH1_DOCS=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_TH1_DOCS=1
 !endif
 
-!ifdef FOSSIL_ENABLE_TH1_HOOKS
+!if $(FOSSIL_ENABLE_TH1_HOOKS)!=0
 TCC       = $(TCC) /DFOSSIL_ENABLE_TH1_HOOKS=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_TH1_HOOKS=1
 !endif
 
-!ifdef FOSSIL_ENABLE_TCL
+!if $(FOSSIL_ENABLE_TCL)!=0
 TCC       = $(TCC) /DFOSSIL_ENABLE_TCL=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_TCL=1
 TCC       = $(TCC) /DFOSSIL_ENABLE_TCL_STUBS=1
@@ -192,6 +311,10 @@ SQLITE_OPTIONS = /DNDEBUG=1 \
                  /DSQLITE_OMIT_DEPRECATED \
                  /DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                  /DSQLITE_ENABLE_FTS4 \
+                 /DSQLITE_ENABLE_FTS3_PARENTHESIS \
+                 /DSQLITE_ENABLE_DBSTAT_VTAB \
+                 /DSQLITE_ENABLE_JSON1 \
+                 /DSQLITE_ENABLE_FTS5 \
                  /DSQLITE_WIN32_NO_ANSI
 
 SHELL_OPTIONS = /Dmain=sqlite3_shell \
@@ -279,6 +402,7 @@ SRC   = add_.c \
         moderate_.c \
         name_.c \
         path_.c \
+        piechart_.c \
         pivot_.c \
         popen_.c \
         pqueue_.c \
@@ -326,30 +450,53 @@ SRC   = add_.c \
         xfersetup_.c \
         zip_.c
 
-EXTRA_FILES   = $(SRCDIR)\../skins/black_and_white/css.txt \
+EXTRA_FILES   = $(SRCDIR)\../skins/aht/details.txt \
+        $(SRCDIR)\../skins/black_and_white/css.txt \
+        $(SRCDIR)\../skins/black_and_white/details.txt \
         $(SRCDIR)\../skins/black_and_white/footer.txt \
         $(SRCDIR)\../skins/black_and_white/header.txt \
+        $(SRCDIR)\../skins/blitz/css.txt \
+        $(SRCDIR)\../skins/blitz/details.txt \
+        $(SRCDIR)\../skins/blitz/footer.txt \
+        $(SRCDIR)\../skins/blitz/header.txt \
+        $(SRCDIR)\../skins/blitz/ticket.txt \
+        $(SRCDIR)\../skins/blitz_no_logo/css.txt \
+        $(SRCDIR)\../skins/blitz_no_logo/details.txt \
+        $(SRCDIR)\../skins/blitz_no_logo/footer.txt \
+        $(SRCDIR)\../skins/blitz_no_logo/header.txt \
+        $(SRCDIR)\../skins/blitz_no_logo/ticket.txt \
         $(SRCDIR)\../skins/default/css.txt \
+        $(SRCDIR)\../skins/default/details.txt \
         $(SRCDIR)\../skins/default/footer.txt \
         $(SRCDIR)\../skins/default/header.txt \
         $(SRCDIR)\../skins/eagle/css.txt \
+        $(SRCDIR)\../skins/eagle/details.txt \
         $(SRCDIR)\../skins/eagle/footer.txt \
         $(SRCDIR)\../skins/eagle/header.txt \
         $(SRCDIR)\../skins/enhanced1/css.txt \
+        $(SRCDIR)\../skins/enhanced1/details.txt \
         $(SRCDIR)\../skins/enhanced1/footer.txt \
         $(SRCDIR)\../skins/enhanced1/header.txt \
-        $(SRCDIR)\../skins/etienne1/css.txt \
-        $(SRCDIR)\../skins/etienne1/footer.txt \
-        $(SRCDIR)\../skins/etienne1/header.txt \
         $(SRCDIR)\../skins/khaki/css.txt \
+        $(SRCDIR)\../skins/khaki/details.txt \
         $(SRCDIR)\../skins/khaki/footer.txt \
         $(SRCDIR)\../skins/khaki/header.txt \
+        $(SRCDIR)\../skins/original/css.txt \
+        $(SRCDIR)\../skins/original/details.txt \
+        $(SRCDIR)\../skins/original/footer.txt \
+        $(SRCDIR)\../skins/original/header.txt \
         $(SRCDIR)\../skins/plain_gray/css.txt \
+        $(SRCDIR)\../skins/plain_gray/details.txt \
         $(SRCDIR)\../skins/plain_gray/footer.txt \
         $(SRCDIR)\../skins/plain_gray/header.txt \
         $(SRCDIR)\../skins/rounded1/css.txt \
+        $(SRCDIR)\../skins/rounded1/details.txt \
         $(SRCDIR)\../skins/rounded1/footer.txt \
         $(SRCDIR)\../skins/rounded1/header.txt \
+        $(SRCDIR)\../skins/xekri/css.txt \
+        $(SRCDIR)\../skins/xekri/details.txt \
+        $(SRCDIR)\../skins/xekri/footer.txt \
+        $(SRCDIR)\../skins/xekri/header.txt \
         $(SRCDIR)\diff.tcl \
         $(SRCDIR)\markdown.md
 
@@ -426,6 +573,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\moderate$O \
         $(OX)\name$O \
         $(OX)\path$O \
+        $(OX)\piechart$O \
         $(OX)\pivot$O \
         $(OX)\popen$O \
         $(OX)\pqueue$O \
@@ -477,7 +625,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\xfer$O \
         $(OX)\xfersetup$O \
         $(OX)\zip$O \
-!ifdef FOSSIL_ENABLE_MINIZ
+!if $(FOSSIL_ENABLE_MINIZ)!=0
         $(OX)\miniz$O \
 !endif
         $(OX)\fossil.res
@@ -491,13 +639,13 @@ all: $(OX) $(APPNAME)
 
 zlib:
 	@echo Building zlib from "$(ZLIBDIR)"...
-!ifdef FOSSIL_ENABLE_WINXP
+!if $(FOSSIL_ENABLE_WINXP)!=0
 	@pushd "$(ZLIBDIR)" && $(MAKE) /f win32\Makefile.msc $(ZLIB) "CC=cl $(XPCFLAGS)" "LD=link $(XPLDFLAGS)" && popd
 !else
 	@pushd "$(ZLIBDIR)" && $(MAKE) /f win32\Makefile.msc $(ZLIB) && popd
 !endif
 
-!ifdef FOSSIL_ENABLE_SSL
+!if $(FOSSIL_ENABLE_SSL)!=0
 openssl:
 	@echo Building OpenSSL from "$(SSLDIR)"...
 !if "$(PERLDIR)" != ""
@@ -505,19 +653,21 @@ openssl:
 !endif
 	@pushd "$(SSLDIR)" && $(PERL) Configure $(SSLCONFIG) && popd
 	@pushd "$(SSLDIR)" && call $(SSLSETUP) && popd
-!ifdef FOSSIL_ENABLE_WINXP
+!if $(FOSSIL_ENABLE_WINXP)!=0
 	@pushd "$(SSLDIR)" && $(MAKE) /f $(SSLNMAKE) "CC=cl $(SSLCFLAGS) $(XPCFLAGS)" "LFLAGS=$(SSLLFLAGS) $(XPLDFLAGS)" && popd
 !else
 	@pushd "$(SSLDIR)" && $(MAKE) /f $(SSLNMAKE) "CC=cl $(SSLCFLAGS)" && popd
 !endif
 !endif
 
-!ifndef FOSSIL_ENABLE_MINIZ
+!if $(FOSSIL_ENABLE_MINIZ)==0
+!if $(FOSSIL_BUILD_ZLIB)!=0
 APPTARGETS = $(APPTARGETS) zlib
 !endif
+!endif
 
-!ifdef FOSSIL_ENABLE_SSL
-!ifdef FOSSIL_BUILD_SSL
+!if $(FOSSIL_ENABLE_SSL)!=0
+!if $(FOSSIL_BUILD_SSL)!=0
 APPTARGETS = $(APPTARGETS) openssl
 !endif
 !endif
@@ -526,6 +676,8 @@ $(APPNAME) : $(APPTARGETS) translate$E mkindex$E codecheck1$E headers $(OBJ) $(O
 	cd $(OX)
 	codecheck1$E $(SRC)
 	link $(LDFLAGS) /OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
+	if exist $@.manifest \
+		$(MTC) -nologo -manifest $@.manifest -outputresource:$@;1
 
 $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\add.obj > $@
@@ -601,6 +753,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\moderate.obj >> $@
 	echo $(OX)\name.obj >> $@
 	echo $(OX)\path.obj >> $@
+	echo $(OX)\piechart.obj >> $@
 	echo $(OX)\pivot.obj >> $@
 	echo $(OX)\popen.obj >> $@
 	echo $(OX)\pqueue.obj >> $@
@@ -652,7 +805,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\xfer.obj >> $@
 	echo $(OX)\xfersetup.obj >> $@
 	echo $(OX)\zip.obj >> $@
-!ifdef FOSSIL_ENABLE_MINIZ
+!if $(FOSSIL_ENABLE_MINIZ)!=0
 	echo $(OX)\miniz.obj >> $@
 !endif
 	echo $(LIBS) >> $@
@@ -708,32 +861,32 @@ builtin_data.h:	mkbuiltin$E $(EXTRA_FILES)
 	mkbuiltin$E --prefix $(SRCDIR)/ $(EXTRA_FILES) > $@
 
 clean:
-	-del $(OX)\*.obj
-	-del *.obj
-	-del *_.c
-	-del *.h
-	-del *.ilk
-	-del *.map
-	-del *.res
-	-del headers
-	-del linkopts
-	-del vc*.pdb
+	del $(OX)\*.obj 2>NUL
+	del *.obj 2>NUL
+	del *_.c 2>NUL
+	del *.h 2>NUL
+	del *.ilk 2>NUL
+	del *.map 2>NUL
+	del *.res 2>NUL
+	del headers 2>NUL
+	del linkopts 2>NUL
+	del vc*.pdb 2>NUL
 
 realclean: clean
-	-del $(APPNAME)
-	-del $(PDBNAME)
-	-del translate$E
-	-del translate$P
-	-del mkindex$E
-	-del mkindex$P
-	-del makeheaders$E
-	-del makeheaders$P
-	-del mkversion$E
-	-del mkversion$P
-	-del codecheck1$E
-	-del codecheck1$P
-	-del mkbuiltin$E
-	-del mkbuiltin$P
+	del $(APPNAME) 2>NUL
+	del $(PDBNAME) 2>NUL
+	del translate$E 2>NUL
+	del translate$P 2>NUL
+	del mkindex$E 2>NUL
+	del mkindex$P 2>NUL
+	del makeheaders$E 2>NUL
+	del makeheaders$P 2>NUL
+	del mkversion$E 2>NUL
+	del mkversion$P 2>NUL
+	del codecheck1$E 2>NUL
+	del codecheck1$P 2>NUL
+	del mkbuiltin$E 2>NUL
+	del mkbuiltin$P 2>NUL
 
 $(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h
@@ -1183,6 +1336,12 @@ $(OX)\path$O : path_.c path.h
 path_.c : $(SRCDIR)\path.c
 	translate$E $** > $@
 
+$(OX)\piechart$O : piechart_.c piechart.h
+	$(TCC) /Fo$@ -c piechart_.c
+
+piechart_.c : $(SRCDIR)\piechart.c
+	translate$E $** > $@
+
 $(OX)\pivot$O : pivot_.c pivot.h
 	$(TCC) /Fo$@ -c pivot_.c
 
@@ -1535,6 +1694,7 @@ headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 			moderate_.c:moderate.h \
 			name_.c:name.h \
 			path_.c:path.h \
+			piechart_.c:piechart.h \
 			pivot_.c:pivot.h \
 			popen_.c:popen.h \
 			pqueue_.c:pqueue.h \

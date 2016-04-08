@@ -74,8 +74,8 @@ struct FossilUserPerms {
   char Delete;           /* d: delete wiki or tickets */
   char Password;         /* p: change password */
   char Query;            /* q: create new reports */
-  char Write;            /* i: xfer inbound. checkin */
-  char Read;             /* o: xfer outbound. checkout */
+  char Write;            /* i: xfer inbound. check-in */
+  char Read;             /* o: xfer outbound. check-out */
   char Hyperlink;        /* h: enable the display of hyperlinks */
   char Clone;            /* g: clone */
   char RdWiki;           /* j: view wiki via web */
@@ -104,13 +104,14 @@ struct FossilUserPerms {
 struct TclContext {
   int argc;              /* Number of original (expanded) arguments. */
   char **argv;           /* Full copy of the original (expanded) arguments. */
-  void *library;         /* The Tcl library module handle. */
+  void *hLibrary;        /* The Tcl library module handle. */
   void *xFindExecutable; /* See tcl_FindExecutableProc in th_tcl.c. */
   void *xCreateInterp;   /* See tcl_CreateInterpProc in th_tcl.c. */
   void *xDeleteInterp;   /* See tcl_DeleteInterpProc in th_tcl.c. */
   void *xFinalize;       /* See tcl_FinalizeProc in th_tcl.c. */
   Tcl_Interp *interp;    /* The on-demand created Tcl interpreter. */
   int useObjProc;        /* Non-zero if an objProc can be called directly. */
+  int useTip285;         /* Non-zero if TIP #285 is available. */
   char *setup;           /* The optional Tcl setup script. */
   void *xPreEval;        /* Optional, called before Tcl_Eval*(). */
   void *pPreContext;     /* Optional, provided to xPreEval(). */
@@ -137,6 +138,7 @@ struct Global {
   char *zLocalDbName;     /* Name of the local database */
   const char *zMainDbType;/* "configdb", "localdb", or "repository" */
   const char *zConfigDbType;  /* "configdb", "localdb", or "repository" */
+  char *zOpenRevision;    /* Check-in version to use during database open */
   int localOpen;          /* True if the local database is open */
   char *zLocalRoot;       /* The directory holding the  local database */
   int minPrefix;          /* Number of digits needed for a distinct UUID */
@@ -195,8 +197,13 @@ struct Global {
   char *zIpAddr;          /* The remote IP address */
   char *zNonce;           /* The nonce used for login */
 
-  /* permissions used by the server */
+  /* permissions available to current user */
   struct FossilUserPerms perm;
+
+  /* permissions available to current user or to "anonymous".
+  ** This is the logical union of perm permissions above with
+  ** the value that perm would take if g.zLogin were "anonymous". */
+  struct FossilUserPerms anon;
 
 #ifdef FOSSIL_ENABLE_TCL
   /* all Tcl related context necessary for integration */
@@ -415,11 +422,11 @@ static void expand_args_option(int argc, void *argv){
 #if defined(_WIN32) && defined(BROKEN_MINGW_CMDLINE)
   for(i=0; i<g.argc; i++) g.argv[i] = fossil_mbcs_to_utf8(g.argv[i]);
 #else
-  for(i=0; i<g.argc; i++) g.argv[i] = fossil_filename_to_utf8(g.argv[i]);
+  for(i=0; i<g.argc; i++) g.argv[i] = fossil_path_to_utf8(g.argv[i]);
 #endif
 #if defined(_WIN32)
   GetModuleFileNameW(NULL, buf, MAX_PATH);
-  g.nameOfExe = fossil_filename_to_utf8(buf);
+  g.nameOfExe = fossil_path_to_utf8(buf);
 #else
   g.nameOfExe = g.argv[0];
 #endif
@@ -587,8 +594,8 @@ int main(int argc, char **argv)
   const char *zCmdName = "unknown";
   int idx;
   int rc;
-  if( sqlite3_libversion_number()<3008003 ){
-    fossil_fatal("Unsuitable SQLite version %s, must be at least 3.8.3",
+  if( sqlite3_libversion_number()<3010000 ){
+    fossil_fatal("Unsuitable SQLite version %s, must be at least 3.10.0",
                  sqlite3_libversion());
   }
   sqlite3_config(SQLITE_CONFIG_MULTITHREAD);
@@ -653,6 +660,7 @@ int main(int argc, char **argv)
   }else{
     const char *zChdir = find_option("chdir",0,1);
     g.isHTTP = 0;
+    g.rcvid = 0;
     g.fQuiet = find_option("quiet", 0, 0)!=0;
     g.fSqlTrace = find_option("sqltrace", 0, 0)!=0;
     g.fSqlStats = find_option("sqlstats", 0, 0)!=0;
@@ -677,15 +685,28 @@ int main(int argc, char **argv)
       fossil_fatal("unable to change directories to %s", zChdir);
     }
     if( find_option("help",0,0)!=0 ){
-      /* --help anywhere on the command line is translated into
-      ** "fossil help argv[1] argv[2]..." */
-      int i;
+      /* If --help is found anywhere on the command line, translate the command
+       * to "fossil help cmdname" where "cmdname" is the first argument that
+       * does not begin with a "-" character.  If all arguments start with "-",
+       * translate to "fossil help argv[1] argv[2]...". */
+      int i, nNewArgc;
       char **zNewArgv = fossil_malloc( sizeof(char*)*(g.argc+2) );
-      for(i=1; i<g.argc; i++) zNewArgv[i+1] = g.argv[i];
-      zNewArgv[i+1] = 0;
       zNewArgv[0] = g.argv[0];
       zNewArgv[1] = "help";
-      g.argc++;
+      for(i=1; i<g.argc; i++){
+        if( g.argv[i][0]!='-' ){
+          nNewArgc = 3;
+          zNewArgv[2] = g.argv[i];
+          zNewArgv[3] = 0;
+          break;
+        }
+      }
+      if( i==g.argc ){
+        for(i=1; i<g.argc; i++) zNewArgv[i+1] = g.argv[i];
+        nNewArgc = g.argc+1;
+        zNewArgv[i+1] = 0;
+      }
+      g.argc = nNewArgc;
       g.argv = zNewArgv;
     }
     zCmdName = g.argv[1];
@@ -859,6 +880,40 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
 }
 
 /*
+** Look for multiple occurrences of a command-line option with the
+** corresponding argument.
+**
+** Return a malloc allocated array of pointers to the arguments.
+**
+** pnUsedArgs is used to store the number of matched arguments.
+**
+** Caller is responsible to free allocated memory.
+*/
+const char **find_repeatable_option(
+  const char *zLong,
+  const char *zShort,
+  int *pnUsedArgs
+){
+  const char *zOption;
+  const char **pzArgs = 0;
+  int nAllocArgs = 0;
+  int nUsedArgs = 0;
+
+  while( (zOption = find_option(zLong, zShort, 1))!=0 ){
+    if( pzArgs==0 && nAllocArgs==0 ){
+      nAllocArgs = 1;
+      pzArgs = fossil_malloc( nAllocArgs*sizeof(pzArgs[0]) );
+    }else if( nAllocArgs<=nUsedArgs ){
+      nAllocArgs = nAllocArgs*2;
+      pzArgs = fossil_realloc( (void *)pzArgs, nAllocArgs*sizeof(pzArgs[0]) );
+    }
+    pzArgs[nUsedArgs++] = zOption;
+  }
+  *pnUsedArgs = nUsedArgs;
+  return pzArgs;
+}
+
+/*
 ** Look for a repository command-line option.  If present, [re-]cache it in
 ** the global state and return the new pointer, freeing any previous value.
 ** If absent and there is no cached value, return NULL.
@@ -932,7 +987,7 @@ static void command_list(const char *zPrefix, int cmdMask){
 /*
 ** COMMAND: test-list-webpage
 **
-** List all web pages
+** List all web pages.
 */
 void cmd_test_webpage_list(void){
   int i, nCmd;
@@ -958,6 +1013,79 @@ const char *get_version(){
 }
 
 /*
+** This function populates a blob with version information.  It is used by
+** the "version" command and "test-version" web page.  It assumes the blob
+** passed to it is uninitialized; otherwise, it will leak memory.
+*/
+static void get_version_blob(
+  Blob *pOut,                 /* Write the manifest here */
+  int bVerbose                /* Non-zero for full information. */
+){
+#if defined(FOSSIL_ENABLE_TCL)
+  int rc;
+  const char *zRc;
+#endif
+  blob_zero(pOut);
+  blob_appendf(pOut, "This is fossil version %s\n", get_version());
+  if( !bVerbose ) return;
+  blob_appendf(pOut, "Compiled on %s %s using %s (%d-bit)\n",
+               __DATE__, __TIME__, COMPILER_NAME, sizeof(void*)*8);
+  blob_appendf(pOut, "SQLite %s %.30s\n", sqlite3_libversion(),
+               sqlite3_sourceid());
+  blob_appendf(pOut, "Schema version %s\n", AUX_SCHEMA_MAX);
+#if defined(FOSSIL_ENABLE_MINIZ)
+  blob_appendf(pOut, "miniz %s, loaded %s\n", MZ_VERSION, mz_version());
+#else
+  blob_appendf(pOut, "zlib %s, loaded %s\n", ZLIB_VERSION, zlibVersion());
+#endif
+#if defined(FOSSIL_ENABLE_SSL)
+  blob_appendf(pOut, "SSL (%s)\n", SSLeay_version(SSLEAY_VERSION));
+#endif
+#if defined(FOSSIL_ENABLE_LEGACY_MV_RM)
+  blob_append(pOut, "LEGACY_MV_RM\n", -1);
+#endif
+#if defined(FOSSIL_ENABLE_EXEC_REL_PATHS)
+  blob_append(pOut, "EXEC_REL_PATHS\n", -1);
+#endif
+#if defined(FOSSIL_ENABLE_TH1_DOCS)
+  blob_append(pOut, "TH1_DOCS\n", -1);
+#endif
+#if defined(FOSSIL_ENABLE_TH1_HOOKS)
+  blob_append(pOut, "TH1_HOOKS\n", -1);
+#endif
+#if defined(FOSSIL_ENABLE_TCL)
+  Th_FossilInit(TH_INIT_DEFAULT | TH_INIT_FORCE_TCL);
+  rc = Th_Eval(g.interp, 0, "tclInvoke info patchlevel", -1);
+  zRc = Th_ReturnCodeName(rc, 0);
+  blob_appendf(pOut, "TCL (Tcl %s, loaded %s: %s)\n",
+    TCL_PATCH_LEVEL, zRc, Th_GetResult(g.interp, 0)
+  );
+#endif
+#if defined(USE_TCL_STUBS)
+  blob_append(pOut, "USE_TCL_STUBS\n", -1);
+#endif
+#if defined(FOSSIL_ENABLE_TCL_STUBS)
+  blob_append(pOut, "TCL_STUBS\n", -1);
+#endif
+#if defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS)
+  blob_append(pOut, "TCL_PRIVATE_STUBS\n", -1);
+#endif
+#if defined(FOSSIL_ENABLE_JSON)
+  blob_appendf(pOut, "JSON (API %s)\n", FOSSIL_JSON_API_VERSION);
+#endif
+#if defined(BROKEN_MINGW_CMDLINE)
+  blob_append(pOut, "MBCS_COMMAND_LINE\n", -1);
+#else
+  blob_append(pOut, "UNICODE_COMMAND_LINE\n", -1);
+#endif
+#if defined(FOSSIL_DYNAMIC_BUILD)
+  blob_append(pOut, "DYNAMIC_BUILD\n", -1);
+#else
+  blob_append(pOut, "STATIC_BUILD\n", -1);
+#endif
+}
+
+/*
 ** This function returns the user-agent string for Fossil, for
 ** use in HTTP(S) requests.
 */
@@ -966,6 +1094,7 @@ const char *get_user_agent(){
                                 " " MANIFEST_VERSION ")";
   return version;
 }
+
 
 /*
 ** COMMAND: version
@@ -978,60 +1107,38 @@ const char *get_user_agent(){
 ** with
 */
 void version_cmd(void){
-  int verboseFlag = 0;
-
-  fossil_print("This is fossil version %s\n", get_version());
-  verboseFlag = find_option("verbose","v",0)!=0;
+  Blob versionInfo;
+  int verboseFlag = find_option("verbose","v",0)!=0;
 
   /* We should be done with options.. */
   verify_all_options();
+  get_version_blob(&versionInfo, verboseFlag);
+  fossil_print("%s", blob_str(&versionInfo));
+}
 
-  if(!verboseFlag){
-    return;
-  }else{
-#if defined(FOSSIL_ENABLE_TCL)
-    int rc;
-    const char *zRc;
-#endif
-    fossil_print("Compiled on %s %s using %s (%d-bit)\n",
-                 __DATE__, __TIME__, COMPILER_NAME, sizeof(void*)*8);
-    fossil_print("SQLite %s %.30s\n", sqlite3_libversion(), sqlite3_sourceid());
-    fossil_print("Schema version %s\n", AUX_SCHEMA_MAX);
-#if defined(FOSSIL_ENABLE_MINIZ)
-    fossil_print("miniz %s, loaded %s\n", MZ_VERSION, mz_version());
-#else
-    fossil_print("zlib %s, loaded %s\n", ZLIB_VERSION, zlibVersion());
-#endif
-#if defined(FOSSIL_ENABLE_SSL)
-    fossil_print("SSL (%s)\n", SSLeay_version(SSLEAY_VERSION));
-#endif
-#if defined(FOSSIL_ENABLE_TH1_DOCS)
-    fossil_print("TH1_DOCS\n");
-#endif
-#if defined(FOSSIL_ENABLE_TH1_HOOKS)
-    fossil_print("TH1_HOOKS\n");
-#endif
-#if defined(FOSSIL_ENABLE_TCL)
-    Th_FossilInit(TH_INIT_DEFAULT | TH_INIT_FORCE_TCL);
-    rc = Th_Eval(g.interp, 0, "tclInvoke info patchlevel", -1);
-    zRc = Th_ReturnCodeName(rc, 0);
-    fossil_print("TCL (Tcl %s, loaded %s: %s)\n",
-      TCL_PATCH_LEVEL, zRc, Th_GetResult(g.interp, 0)
-    );
-#endif
-#if defined(USE_TCL_STUBS)
-    fossil_print("USE_TCL_STUBS\n");
-#endif
-#if defined(FOSSIL_ENABLE_TCL_STUBS)
-    fossil_print("TCL_STUBS\n");
-#endif
-#if defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS)
-    fossil_print("TCL_PRIVATE_STUBS\n");
-#endif
-#if defined(FOSSIL_ENABLE_JSON)
-    fossil_print("JSON (API %s)\n", FOSSIL_JSON_API_VERSION);
-#endif
-  }
+
+/*
+** WEBPAGE: test-version
+**
+** Show the version information for Fossil.
+**
+** Query parameters:
+**
+**    verbose       Show all available details.
+*/
+void test_version_page(void){
+  Blob versionInfo;
+  int verboseFlag;
+
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  verboseFlag = P("verbose")!=0;
+  style_header("Version Information");
+  get_version_blob(&versionInfo, verboseFlag);
+  @ <blockquote><pre>
+  @ %h(blob_str(&versionInfo))
+  @ </pre></blockquote>
+  style_footer();
 }
 
 
@@ -1039,16 +1146,16 @@ void version_cmd(void){
 ** COMMAND: help
 **
 ** Usage: %fossil help COMMAND
-**    or: %fossil COMMAND -help
+**    or: %fossil COMMAND --help
 **
 ** Display information on how to use COMMAND.  To display a list of
-** available commands one of:
+** available commands use one of:
 **
 **    %fossil help              Show common commands
-**    %fossil help --a|-all     Show both common and auxiliary commands
-**    %fossil help --t|-test    Show test commands only
-**    %fossil help --x|-aux     Show auxiliary commands only
-**    %fossil help --w|-www     Show list of WWW pages
+**    %fossil help -a|--all     Show both common and auxiliary commands
+**    %fossil help -t|--test    Show test commands only
+**    %fossil help -x|--aux     Show auxiliary commands only
+**    %fossil help -w|--www     Show list of WWW pages
 */
 void help_cmd(void){
   int rc, idx, isPage = 0;
@@ -1119,8 +1226,53 @@ void help_cmd(void){
 }
 
 /*
+** COMMAND: test-all-help
+** 
+** Usage: %fossil test-all-help ?OPTIONS?
+**
+** Show help text for commands and pages.  Useful for proof-reading.
+** Defaults to just the CLI commands.  Specify --www to see only the
+** web pages, or --everything to see both commands and pages.
+**
+** Options:
+**    -e|--everything   Show all commands and pages.
+**    -t|--test         Include test- commands
+**    -w|--www          Show WWW pages.
+*/
+void test_all_help_cmd(void){
+  int i;
+  int mask = CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER;
+
+  if( find_option("www","w",0) ){
+    mask = CMDFLAG_WEBPAGE;
+  }
+  if( find_option("everything","e",0) ){
+    mask = CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER | CMDFLAG_WEBPAGE;
+  }
+  if( find_option("test","t",0) ){
+    mask |= CMDFLAG_TEST;
+  }
+  fossil_print("Help text for:\n");
+  if( mask & CMDFLAG_1ST_TIER ) fossil_print(" * Commands\n");
+  if( mask & CMDFLAG_2ND_TIER ) fossil_print(" * Auxiliary commands\n");
+  if( mask & CMDFLAG_TEST )     fossil_print(" * Test commands\n");
+  if( mask & CMDFLAG_WEBPAGE )  fossil_print(" * Web pages\n");
+  fossil_print("---\n");
+  for(i=0; i<count(aCommand); i++){
+    if( (aCommand[i].cmdFlags & mask)==0 ) continue;
+    fossil_print("# %s\n", aCommand[i].zName);
+    fossil_print("%s\n\n", aCmdHelp[i].zText);
+  }
+  fossil_print("---\n");
+  version_cmd();
+}
+
+/*
 ** WEBPAGE: help
-** URL: /help/CMD
+** URL: /help?name=CMD
+**
+** Show the built-in help text for CMD.  CMD can be a command-line interface
+** command or a page name from the web interface.
 */
 void help_page(void){
   const char *zCmd = P("cmd");
@@ -1175,7 +1327,7 @@ void help_page(void){
       if( j==0 ){
         @ <td valign="top"><ul>
       }
-      @ <li><a href="%s(g.zTop)/help?cmd=%s(z)">%s(z)</a></li>
+      @ <li><a href="%R/help?cmd=%s(z)">%s(z)</a></li>
       j++;
       if( j>=n ){
         @ </ul></td>
@@ -1188,7 +1340,6 @@ void help_page(void){
     @ </tr></table>
 
     @ <h1>Available web UI pages:</h1>
-    @ (Only pages with help text are linked.)
     @ <table border="0"><tr>
     for(i=j=0; i<count(aCommand); i++){
       const char *z = aCommand[i].zName;
@@ -1203,7 +1354,7 @@ void help_page(void){
         @ <td valign="top"><ul>
       }
       if( aCmdHelp[i].zText && *aCmdHelp[i].zText ){
-        @ <li><a href="%s(g.zTop)/help?cmd=%s(z)">%s(z+1)</a></li>
+        @ <li><a href="%R/help?cmd=%s(z)">%s(z+1)</a></li>
       }else{
         @ <li>%s(z+1)</li>
       }
@@ -1233,7 +1384,7 @@ void help_page(void){
         @ <td valign="top"><ul>
       }
       if( aCmdHelp[i].zText && *aCmdHelp[i].zText ){
-        @ <li><a href="%s(g.zTop)/help?cmd=%s(z)">%s(z)</a></li>
+        @ <li><a href="%R/help?cmd=%s(z)">%s(z)</a></li>
       }else{
         @ <li>%s(z)</li>
       }
@@ -1290,7 +1441,13 @@ static void set_base_url(const char *zAltBase){
   if( zAltBase ){
     int i, n, c;
     g.zTop = g.zBaseURL = mprintf("%s", zAltBase);
-    if( memcmp(g.zTop, "http://", 7)!=0 && memcmp(g.zTop,"https://",8)!=0 ){
+    if( strncmp(g.zTop, "http://", 7)==0 ){
+      /* it is HTTP, replace prefix with HTTPS. */
+      g.zHttpsURL = mprintf("https://%s", &g.zTop[7]);
+    }else if( strncmp(g.zTop, "https://", 8)==0 ){
+      /* it is already HTTPS, use it. */
+      g.zHttpsURL = mprintf("%s", g.zTop);
+    }else{
       fossil_fatal("argument to --baseurl should be 'http://host/path'"
                    " or 'https://host/path'");
     }
@@ -1354,8 +1511,12 @@ NORETURN void fossil_redirect_home(void){
 **
 ** Assume the user-id and group-id of the repository, or if zRepo
 ** is a directory, of that directory.
+**
+** The noJail flag means that the chroot jail is not entered.  But
+** privileges are still lowered to that of the user-id and group-id
+** of the repository file.
 */
-static char *enter_chroot_jail(char *zRepo){
+static char *enter_chroot_jail(char *zRepo, int noJail){
 #if !defined(_WIN32)
   if( getuid()==0 ){
     int i;
@@ -1368,22 +1529,24 @@ static char *enter_chroot_jail(char *zRepo){
 
     file_canonical_name(zRepo, &dir, 0);
     zDir = blob_str(&dir);
-    if( file_isdir(zDir)==1 ){
-      if( file_chdir(zDir, 1) ){
-        fossil_fatal("unable to chroot into %s", zDir);
-      }
-      zRepo = "/";
-    }else{
-      for(i=strlen(zDir)-1; i>0 && zDir[i]!='/'; i--){}
-      if( zDir[i]!='/' ) fossil_fatal("bad repository name: %s", zRepo);
-      if( i>0 ){
-        zDir[i] = 0;
+    if( !noJail ){
+      if( file_isdir(zDir)==1 ){
         if( file_chdir(zDir, 1) ){
           fossil_fatal("unable to chroot into %s", zDir);
         }
-        zDir[i] = '/';
+        zRepo = "/";
+      }else{
+        for(i=strlen(zDir)-1; i>0 && zDir[i]!='/'; i--){}
+        if( zDir[i]!='/' ) fossil_fatal("bad repository name: %s", zRepo);
+        if( i>0 ){
+          zDir[i] = 0;
+          if( file_chdir(zDir, 1) ){
+            fossil_fatal("unable to chroot into %s", zDir);
+          }
+          zDir[i] = '/';
+        }
+        zRepo = &zDir[i];
       }
-      zRepo = &zDir[i];
     }
     if( stat(zRepo, &sStat)!=0 ){
       fossil_fatal("cannot stat() repository: %s", zRepo);
@@ -1402,6 +1565,51 @@ static char *enter_chroot_jail(char *zRepo){
 }
 
 /*
+** Generate a web-page that lists all repositories located under the
+** g.zRepositoryName directory and return non-zero.
+**
+** Or, if no repositories can be located beneath g.zRepositoryName,
+** return 0.
+*/
+static int repo_list_page(void){
+  Blob base;
+  int n = 0;
+
+  assert( g.db==0 );
+  blob_init(&base, g.zRepositoryName, -1);
+  sqlite3_open(":memory:", &g.db);
+  db_multi_exec("CREATE TABLE sfile(x TEXT);");
+  db_multi_exec("CREATE TABLE vfile(pathname);");
+  vfile_scan(&base, blob_size(&base), 0, 0, 0);
+  db_multi_exec("DELETE FROM sfile WHERE x NOT GLOB '*[^/].fossil'");
+  n = db_int(0, "SELECT count(*) FROM sfile");
+  if( n>0 ){
+    Stmt q;
+    @ <html>
+    @ <head>
+    @ <title>Repository List</title>
+    @ </head>
+    @ <body>
+    @ <h1>Available Repositories:</h1>
+    @ <ol>
+    db_prepare(&q, "SELECT x, substr(x,-7,-100000)||'/home'"
+                   " FROM sfile ORDER BY x COLLATE nocase;");
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zName = db_column_text(&q, 0);
+      const char *zUrl = db_column_text(&q, 1);
+      @ <li><a href="%h(zUrl)" target="_blank">%h(zName)</a></li>
+    }
+    @ </ol>
+    @ </body>
+    @ </html>
+    cgi_reply();
+  }
+  sqlite3_close(g.db);
+  g.db = 0;
+  return n;
+}
+
+/*
 ** Preconditions:
 **
 **  * Environment variables are set up according to the CGI standard.
@@ -1413,7 +1621,7 @@ static char *enter_chroot_jail(char *zRepo){
 ** Process the webpage specified by the PATH_INFO or REQUEST_URI
 ** environment variable.
 **
-** If the repository is not known, the a search is done through the
+** If the repository is not known, then a search is done through the
 ** file hierarchy rooted at g.zRepositoryName for a suitable repository
 ** with a name of $prefix.fossil, where $prefix is any prefix of PATH_INFO.
 ** Or, if an ordinary file named $prefix is found, and $prefix matches
@@ -1423,16 +1631,38 @@ static char *enter_chroot_jail(char *zRepo){
 **
 ** If no suitable webpage is found, try to redirect to zNotFound.
 */
-static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
+static void process_one_web_page(
+  const char *zNotFound,      /* Redirect here on a 404 if not NULL */
+  Glob *pFileGlob,            /* Deliver static files matching */
+  int allowRepoList           /* Send repo list for "/" URL */
+){
   const char *zPathInfo;
+  const char *zDirPathInfo;
   char *zPath = NULL;
   int idx;
   int i;
 
+  /* Handle universal query parameters */
+  if( PB("utc") ){
+    g.fTimeFormat = 1;
+  }else if( PB("localtime") ){
+    g.fTimeFormat = 2;
+  }
+
   /* If the repository has not been opened already, then find the
   ** repository based on the first element of PATH_INFO and open it.
   */
-  zPathInfo = PD("PATH_INFO","");
+  zDirPathInfo = zPathInfo = PD("PATH_INFO","");
+  /* For the PATH_INFO that will be used to help build the final
+  ** g.zBaseURL and g.zTop (only), skip over the initial directory
+  ** portion of PATH_INFO; otherwise, it may be duplicated.
+  */
+  if( g.zTop ){
+    int nTop = strlen(g.zTop);
+    if ( strncmp(zDirPathInfo, g.zTop, nTop)==0 ){
+      zDirPathInfo += nTop;
+    }
+  }
   if( !g.repositoryOpen ){
     char *zRepo, *zToFree;
     const char *zOldScript = PD("SCRIPT_NAME", "");
@@ -1464,9 +1694,17 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
         szFile = 1;
         break;
       }
-      if( szFile==0 ){
+      if( szFile==0 && sqlite3_strglob("*/.fossil",zRepo)!=0 ){
         if( zRepo[0]=='/' && zRepo[1]=='/' ){ zRepo++; j--; }
         szFile = file_size(zRepo);
+        /* this should only be set from the --baseurl option, not CGI  */
+        if( g.zBaseURL && g.zBaseURL[0]!=0 && g.zTop && g.zTop[0]!=0 &&
+            file_isdir(g.zRepositoryName)==1 ){
+          if( zPathInfo==zDirPathInfo ){
+            g.zBaseURL = mprintf("%s%.*s", g.zBaseURL, i, zPathInfo);
+            g.zTop = mprintf("%s%.*s", g.zTop, i, zPathInfo);
+          }
+        }
       }
       if( szFile<0 && i>0 ){
         const char *zMimetype;
@@ -1496,7 +1734,11 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
 
       if( szFile<1024 ){
         set_base_url(0);
-        if( zNotFound ){
+        if( strcmp(zPathInfo,"/")==0
+                  && allowRepoList
+                  && repo_list_page() ){
+          /* Will return a list of repositories */
+        }else if( zNotFound ){
           cgi_redirect(zNotFound);
         }else{
 #ifdef FOSSIL_ENABLE_JSON
@@ -1797,6 +2039,7 @@ void cmd_cgi(void){
   char **azRedirect = 0;             /* List of repositories to redirect to */
   int nRedirect = 0;                 /* Number of entries in azRedirect */
   Glob *pFileGlob = 0;               /* Pattern for files */
+  int allowRepoList = 0;             /* Allow lists of repository files */
   Blob config, line, key, value, value2;
   if( g.argc==3 && fossil_strcmp(g.argv[1],"cgi")==0 ){
     zFile = g.argv[2];
@@ -1853,6 +2096,15 @@ void cmd_cgi(void){
       ** from IP address 127.0.0.1.  Do not bother checking credentials.
       */
       g.useLocalauth = 1;
+      continue;
+    }
+    if( blob_eq(&key, "repolist") ){
+      /* repolist
+      **
+      ** If using "directory:" and the URL is "/" then generate a page
+      ** showing a list of available repositories.
+      */
+      allowRepoList = 1;
       continue;
     }
     if( blob_eq(&key, "redirect:") && blob_token(&line, &value)
@@ -1923,6 +2175,18 @@ void cmd_cgi(void){
       blob_reset(&value);
       continue;
     }
+    if( blob_eq(&key, "skin:") && blob_token(&line, &value) ){
+      /* skin: LABEL
+      **
+      ** Use one of the built-in skins defined by LABEL.  LABEL is the
+      ** name of the subdirectory under the skins/ directory that holds
+      ** the elements of the built-in skin.  If LABEL does not match,
+      ** this directive is a silent no-op.
+      */
+      skin_use_alternative(blob_str(&value));
+      blob_reset(&value);
+      continue;
+    }
   }
   blob_reset(&config);
   if( g.db==0 && g.zRepositoryName==0 && nRedirect==0 ){
@@ -1932,7 +2196,7 @@ void cmd_cgi(void){
   if( nRedirect ){
     redirect_web_page(nRedirect, azRedirect);
   }else{
-    process_one_web_page(zNotFound, pFileGlob);
+    process_one_web_page(zNotFound, pFileGlob, allowRepoList);
   }
 }
 
@@ -1941,8 +2205,8 @@ void cmd_cgi(void){
 ** that will be used by a server, or else it is a directory that
 ** contains multiple repositories that can be served.  If g.argv[arg]
 ** is a directory, the repositories it contains must be named
-** "*.fossil".  If g.argv[arg] does not exists, then we must be within
-** a check-out and the repository to be served is the repository of
+** "*.fossil".  If g.argv[arg] does not exist, then we must be within
+** an open check-out and the repository serve is the repository of
 ** that check-out.
 **
 ** Open the repository to be served if it is known.  If g.argv[arg] is
@@ -1951,21 +2215,38 @@ void cmd_cgi(void){
 ** opened later by process_one_web_page() based on the content of
 ** the PATH_INFO variable.
 **
-** If disallowDir is set, then the directory full of repositories method
-** is disallowed.
+** If the fCreate flag is set, then create the repository if it
+** does not already exist.
 */
-static void find_server_repository(int disallowDir, int arg){
+static void find_server_repository(int arg, int fCreate){
   if( g.argc<=arg ){
     db_must_be_within_tree();
-  }else if( file_isdir(g.argv[arg])==1 ){
-    if( disallowDir ){
-      fossil_fatal("\"%s\" is a directory, not a repository file", g.argv[arg]);
-    }else{
-      g.zRepositoryName = mprintf("%s", g.argv[arg]);
-      file_simplify_name(g.zRepositoryName, -1, 0);
-    }
   }else{
-    db_open_repository(g.argv[arg]);
+    const char *zRepo = g.argv[arg];
+    int isDir = file_isdir(zRepo);
+    if( isDir==1 ){
+      g.zRepositoryName = mprintf("%s", zRepo);
+      file_simplify_name(g.zRepositoryName, -1, 0);
+    }else{
+      if( isDir==0 && fCreate ){
+        const char *zPassword;
+        db_create_repository(zRepo);
+        db_open_repository(zRepo);
+        db_begin_transaction();
+        db_initial_setup(0, "now", g.zLogin);
+        db_end_transaction(0);
+        fossil_print("project-id: %s\n", db_get("project-code", 0));
+        fossil_print("server-id:  %s\n", db_get("server-code", 0));
+        zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
+        fossil_print("admin-user: %s (initial password is \"%s\")\n",
+                     g.zLogin, zPassword);
+        cache_initialize();
+        g.zLogin = 0;
+        g.userUid = 0;
+      }else{
+        db_open_repository(zRepo);
+      }
+    }
   }
 }
 
@@ -1974,7 +2255,7 @@ static void find_server_repository(int disallowDir, int arg){
 **
 **        fossil http INFILE OUTFILE IPADDR ?REPOSITORY?
 **
-** The argv==6 form is used by the win32 server only.
+** The argv==6 form (with no options) is used by the win32 server only.
 **
 ** COMMAND: http*
 **
@@ -1986,8 +2267,8 @@ static void find_server_repository(int disallowDir, int arg){
 ** repository.
 **
 ** If REPOSITORY is a directory that contains one or more repositories,
-** either directly in REPOSITORY itself, or in subdirectories, and
-** with names of the form "*.fossil" then the a prefix of the URL pathname
+** either directly in REPOSITORY itself or in subdirectories, and
+** with names of the form "*.fossil" then a prefix of the URL pathname
 ** selects from among the various repositories.  If the pathname does
 ** not select a valid repository and the --notfound option is available,
 ** then the server redirects (HTTP code 302) to the URL of --notfound.
@@ -2008,14 +2289,17 @@ static void find_server_repository(int disallowDir, int arg){
 ** enabled.
 **
 ** Options:
+**   --baseurl URL    base URL (useful with reverse proxies)
+**   --files GLOB     comma-separate glob patterns for static file to serve
 **   --localauth      enable automatic login for local connections
 **   --host NAME      specify hostname of the server
 **   --https          signal a request coming in via https
+**   --nojail         drop root privilege but do not enter the chroot jail
 **   --nossl          signal that no SSL connections are available
 **   --notfound URL   use URL as "HTTP 404, object not found" page.
-**   --files GLOB     comma-separate glob patterns for static file to serve
-**   --baseurl URL    base URL (useful with reverse proxies)
+**   --repolist       If REPOSITORY is directory, URL "/" lists all repos
 **   --scgi           Interpret input as SCGI rather than HTTP
+**   --skin LABEL     Use override skin LABEL
 **
 ** See also: cgi, server, winsrv
 */
@@ -2026,6 +2310,8 @@ void cmd_http(void){
   const char *zAltBase;
   const char *zFileGlob;
   int useSCGI;
+  int noJail;
+  int allowRepoList;
 
   /* The winhttp module passes the --files option as --files-urlenc with
   ** the argument being URL encoded, to avoid wildcard expansion in the
@@ -2039,7 +2325,10 @@ void cmd_http(void){
   }else{
     zFileGlob = find_option("files",0,1);
   }
+  skin_override();
   zNotFound = find_option("notfound", 0, 1);
+  noJail = find_option("nojail",0,0)!=0;
+  allowRepoList = find_option("repolist",0,0)!=0;
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
   useSCGI = find_option("scgi", 0, 0)!=0;
@@ -2051,7 +2340,6 @@ void cmd_http(void){
   }
   zHost = find_option("host", 0, 1);
   if( zHost ) cgi_replace_parameter("HTTP_HOST",zHost);
-  g.cgiOutput = 1;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -2059,16 +2347,17 @@ void cmd_http(void){
   if( g.argc!=2 && g.argc!=3 && g.argc!=5 && g.argc!=6 ){
     fossil_fatal("no repository specified");
   }
+  g.cgiOutput = 1;
   g.fullHttpReply = 1;
   if( g.argc>=5 ){
     g.httpIn = fossil_fopen(g.argv[2], "rb");
     g.httpOut = fossil_fopen(g.argv[3], "wb");
     zIpAddr = g.argv[4];
-    find_server_repository(0, 5);
+    find_server_repository(5, 0);
   }else{
     g.httpIn = stdin;
     g.httpOut = stdout;
-    find_server_repository(0, 2);
+    find_server_repository(2, 0);
   }
   if( zIpAddr==0 ){
     zIpAddr = cgi_ssh_remote_addr(0);
@@ -2076,7 +2365,7 @@ void cmd_http(void){
       g.fSshClient |= CGI_SSH_CLIENT;
     }
   }
-  g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
+  g.zRepositoryName = enter_chroot_jail(g.zRepositoryName, noJail);
   if( useSCGI ){
     cgi_handle_scgi_request();
   }else if( g.fSshClient & CGI_SSH_CLIENT ){
@@ -2084,7 +2373,7 @@ void cmd_http(void){
   }else{
     cgi_handle_http_request(zIpAddr);
   }
-  process_one_web_page(zNotFound, glob_create(zFileGlob));
+  process_one_web_page(zNotFound, glob_create(zFileGlob), allowRepoList);
 }
 
 /*
@@ -2094,7 +2383,7 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
   blob_zero(&g.cgiIn);
   do{
     cgi_handle_ssh_http_request(zIpAddr);
-    process_one_web_page(0, FileGlob);
+    process_one_web_page(0, FileGlob, 0);
     blob_reset(&g.cgiIn);
   } while ( g.fSshClient & CGI_SSH_FOSSIL ||
           g.fSshClient & CGI_SSH_COMPAT );
@@ -2104,7 +2393,11 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 ** Note that the following command is used by ssh:// processing.
 **
 ** COMMAND: test-http
+**
 ** Works like the http command but gives setup permission to all users.
+**
+** Options:
+**   --th-trace          trace TH1 execution (for debugging purposes)
 **
 */
 void cmd_test_http(void){
@@ -2115,7 +2408,7 @@ void cmd_test_http(void){
   g.useLocalauth = 1;
   g.httpIn = stdin;
   g.httpOut = stdout;
-  find_server_repository(0, 2);
+  find_server_repository(2, 0);
   g.cgiOutput = 1;
   g.fullHttpReply = 1;
   zIpAddr = cgi_ssh_remote_addr(0);
@@ -2125,7 +2418,7 @@ void cmd_test_http(void){
   }else{
     cgi_set_parameter("REMOTE_ADDR", "127.0.0.1");
     cgi_handle_http_request(0);
-    process_one_web_page(0, 0);
+    process_one_web_page(0, 0, 0);
   }
 }
 
@@ -2159,7 +2452,7 @@ static int binaryOnPath(const char *zBinary){
 ** COMMAND: ui
 **
 ** Usage: %fossil server ?OPTIONS? ?REPOSITORY?
-**    Or: %fossil ui ?OPTIONS? ?REPOSITORY?
+**    or: %fossil ui ?OPTIONS? ?REPOSITORY?
 **
 ** Open a socket and begin listening and responding to HTTP requests on
 ** TCP port 8080, or on any other TCP port defined by the -P or
@@ -2172,8 +2465,8 @@ static int binaryOnPath(const char *zBinary){
 ** only process HTTP traffic from the local machine.
 **
 ** The REPOSITORY can be a directory (aka folder) that contains one or
-** more repositories with names ending in ".fossil".  In this case, the
-** a prefix of the URL pathname is used to search the directory for an
+** more repositories with names ending in ".fossil".  In this case, a
+** prefix of the URL pathname is used to search the directory for an
 ** appropriate repository.  To thwart mischief, the pathname in the URL must
 ** contain only alphanumerics, "_", "/", "-", and ".", and no "-" may
 ** occur after "/", and every "." must be surrounded on both sides by
@@ -2186,22 +2479,29 @@ static int binaryOnPath(const char *zBinary){
 ** also present.
 **
 ** By default, the "ui" command provides full administrative access without
-** having to log in.  This can be disabled by setting turning off the
-** "localauth" setting.  Automatic login for the "server" command is available
-** if the --localauth option is present and the "localauth" setting is off
-** and the connection is from localhost.  The optional REPOSITORY argument
-** to "ui" may be a directory and will function as "server" if and only if
-** the --notfound option is used.
+** having to log in.  This can be disabled by turning off the "localauth"
+** setting.  Automatic login for the "server" command is available if the
+** --localauth option is present and the "localauth" setting is off and the
+** connection is from localhost.  The "ui" command also enables --repolist
+** by default.
 **
 ** Options:
+**   --baseurl URL       Use URL as the base (useful for reverse proxies)
+**   --create            Create a new REPOSITORY if it does not already exist
+**   --page PAGE         Start "ui" on PAGE.  ex: --page "timeline?y=ci"
+**   --files GLOBLIST    Comma-separated list of glob patterns for static files
 **   --localauth         enable automatic login for requests from localhost
 **   --localhost         listen on 127.0.0.1 only (always true for "ui")
+**   --https             signal a request coming in via https
+**   --nojail            Drop root privileges but do not enter the chroot jail
+**   --nossl             signal that no SSL connections are available
+**   --notfound URL      Redirect
 **   -P|--port TCPPORT   listen to request on port TCPPORT
 **   --th-trace          trace TH1 execution (for debugging purposes)
-**   --baseurl URL       Use URL as the base (useful for reverse proxies)
-**   --notfound URL      Redirect
-**   --files GLOBLIST    Comma-separated list of glob patterns for static files
+**   --repolist          If REPOSITORY is dir, URL "/" lists repos.
 **   --scgi              Accept SCGI rather than HTTP
+**   --skin LABEL        Use override skin LABEL
+
 **
 ** See also: cgi, http, winsrv
 */
@@ -2213,9 +2513,15 @@ void cmd_webserver(void){
   int isUiCmd;              /* True if command is "ui", not "server' */
   const char *zNotFound;    /* The --notfound option or NULL */
   int flags = 0;            /* Server flags */
-  const char *zAltBase;     /* Argument to the --baseurl option */
-  const char *zFileGlob;    /* Static content must match this */
-  char *zIpAddr = 0;        /* Bind to this IP address */
+#if !defined(_WIN32)
+  int noJail;               /* Do not enter the chroot jail */
+#endif
+  int allowRepoList;         /* List repositories on URL "/" */
+  const char *zAltBase;      /* Argument to the --baseurl option */
+  const char *zFileGlob;     /* Static content must match this */
+  char *zIpAddr = 0;         /* Bind to this IP address */
+  int fCreate = 0;           /* The --create flag */
+  const char *zInitPage = 0; /* Start on this page.  --page option */
 
 #if defined(_WIN32)
   const char *zStopperFile;    /* Name of file used to terminate server */
@@ -2230,14 +2536,31 @@ void cmd_webserver(void){
   }else{
     zFileGlob = find_option("files",0,1);
   }
+  skin_override();
+#if !defined(_WIN32)
+  noJail = find_option("nojail",0,0)!=0;
+#endif
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   Th_InitTraceLog();
   zPort = find_option("port", "P", 1);
+  isUiCmd = g.argv[1][0]=='u';
+  if( isUiCmd ){
+    zInitPage = find_option("page", 0, 1);
+  }
   zNotFound = find_option("notfound", 0, 1);
+  allowRepoList = find_option("repolist",0,0)!=0;
   zAltBase = find_option("baseurl", 0, 1);
+  fCreate = find_option("create",0,0)!=0;
   if( find_option("scgi", 0, 0)!=0 ) flags |= HTTP_SERVER_SCGI;
   if( zAltBase ){
     set_base_url(zAltBase);
+  }
+  g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
+  if( find_option("https",0,0)!=0 ){
+    cgi_replace_parameter("HTTPS","on");
+  }else{
+    /* without --https, defaults to not available. */
+    g.sslNotAvailable = 1;
   }
   if( find_option("localhost", 0, 0)!=0 ){
     flags |= HTTP_SERVER_LOCALHOST;
@@ -2247,12 +2570,19 @@ void cmd_webserver(void){
   verify_all_options();
 
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
-  isUiCmd = g.argv[1][0]=='u';
   if( isUiCmd ){
-    flags |= HTTP_SERVER_LOCALHOST;
+    flags |= HTTP_SERVER_LOCALHOST|HTTP_SERVER_REPOLIST;
     g.useLocalauth = 1;
+    allowRepoList = 1;
   }
-  find_server_repository(isUiCmd && zNotFound==0, 2);
+  find_server_repository(2, fCreate);
+  if( zInitPage==0 ){
+    if( isUiCmd && g.localOpen ){
+      zInitPage = "timeline?c=current";
+    }else{
+      zInitPage = "";
+    }
+  }
   if( zPort ){
     int i;
     for(i=strlen(zPort)-1; i>=0 && zPort[i]!=':'; i--){}
@@ -2286,47 +2616,51 @@ void cmd_webserver(void){
     zBrowser = db_get("web-browser", "open");
 #endif
     if( zIpAddr ){
-      zBrowserCmd = mprintf("%s http://%s:%%d/ &", zBrowser, zIpAddr);
+      zBrowserCmd = mprintf("%s http://%s:%%d/%s &",
+                            zBrowser, zIpAddr, zInitPage);
     }else{
-      zBrowserCmd = mprintf("%s http://localhost:%%d/ &", zBrowser);
+      zBrowserCmd = mprintf("%s http://localhost:%%d/%s &",
+                            zBrowser, zInitPage);
     }
-    if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
-    if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
-  }else{
-    db_setup_server_and_project_codes(1);
   }
+  if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
+  if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
   db_close(1);
   if( cgi_http_server(iPort, mxPort, zBrowserCmd, zIpAddr, flags) ){
     fossil_fatal("unable to listen on TCP socket %d", iPort);
   }
-  g.sslNotAvailable = 1;
   g.httpIn = stdin;
   g.httpOut = stdout;
   if( g.fHttpTrace || g.fSqlTrace ){
     fprintf(stderr, "====== SERVER pid %d =======\n", getpid());
   }
   g.cgiOutput = 1;
-  find_server_repository(isUiCmd && zNotFound==0, 2);
-  g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
+  find_server_repository(2, 0);
+  g.zRepositoryName = enter_chroot_jail(g.zRepositoryName, noJail);
   if( flags & HTTP_SERVER_SCGI ){
     cgi_handle_scgi_request();
   }else{
     cgi_handle_http_request(0);
   }
-  process_one_web_page(zNotFound, glob_create(zFileGlob));
+  process_one_web_page(zNotFound, glob_create(zFileGlob), allowRepoList);
 #else
   /* Win32 implementation */
   if( isUiCmd ){
     zBrowser = db_get("web-browser", "start");
     if( zIpAddr ){
-      zBrowserCmd = mprintf("%s http://%s:%%d/ &", zBrowser, zIpAddr);
+      zBrowserCmd = mprintf("%s http://%s:%%d/%s &",
+                            zBrowser, zIpAddr, zInitPage);
     }else{
-      zBrowserCmd = mprintf("%s http://localhost:%%d/ &", zBrowser);
+      zBrowserCmd = mprintf("%s http://localhost:%%d/%s &",
+                            zBrowser, zInitPage);
     }
-    if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
-    if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
   }
+  if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
+  if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
   db_close(1);
+  if( allowRepoList ){
+    flags |= HTTP_SERVER_REPOLIST;
+  }
   if( win32_http_service(iPort, zNotFound, zFileGlob, flags) ){
     win32_http_server(iPort, mxPort, zBrowserCmd,
                       zStopperFile, zNotFound, zFileGlob, zIpAddr, flags);
@@ -2335,7 +2669,7 @@ void cmd_webserver(void){
 }
 
 /*
-** COMMAND:  test-echo
+** COMMAND: test-echo
 **
 ** Usage:  %fossil test-echo [--hex] ARGS...
 **
@@ -2343,7 +2677,7 @@ void cmd_webserver(void){
 ** wildcard expansion behavior of the host shell can be investigated.
 **
 ** With the --hex option, show the output as hexadecimal.  This can be used
-** to verify the fossil_filename_to_utf8() routine on Windows and Mac.
+** to verify the fossil_path_to_utf8() routine on Windows and Mac.
 */
 void test_echo_cmd(void){
   int i, j;

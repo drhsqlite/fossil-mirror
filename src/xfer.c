@@ -193,7 +193,9 @@ static void xfer_accept_file(
   }
   sha1sum_blob(&content, &hash);
   if( !blob_eq_str(&pXfer->aToken[1], blob_str(&hash), -1) ){
-    blob_appendf(&pXfer->err, "content does not match sha1 hash");
+    blob_appendf(&pXfer->err,
+        "wrong hash on received artifact: expected %s but got %s",
+        blob_str(&pXfer->aToken[1]), blob_str(&hash));
   }
   rid = content_put_ex(&content, blob_str(&hash), 0, 0, isPriv);
   Th_AppendToList(pzUuidList, pnUuidList, blob_str(&hash), blob_size(&hash));
@@ -710,6 +712,7 @@ void create_cluster(void){
         blob_appendf(&cluster, "Z %b\n", &cksum);
         blob_reset(&cksum);
         rid = content_put(&cluster);
+        manifest_crosslink(rid, &cluster, MC_NONE);
         blob_reset(&cluster);
         nUncl -= nRow;
         nRow = 0;
@@ -727,7 +730,8 @@ void create_cluster(void){
       md5sum_blob(&cluster, &cksum);
       blob_appendf(&cluster, "Z %b\n", &cksum);
       blob_reset(&cksum);
-      content_put(&cluster);
+      rid = content_put(&cluster);
+      manifest_crosslink(rid, &cluster, MC_NONE);
       blob_reset(&cluster);
     }
   }
@@ -1737,12 +1741,8 @@ int client_sync(
       if( blob_eq(&xfer.aToken[0],"push")
        && xfer.nToken==3
        && (syncFlags & SYNC_CLONE)!=0
-       && blob_is_uuid(&xfer.aToken[1])
        && blob_is_uuid(&xfer.aToken[2])
       ){
-        if( blob_eq_str(&xfer.aToken[1], zSCode, -1) ){
-          fossil_fatal("server loop");
-        }
         if( zPCode==0 ){
           zPCode = mprintf("%b", &xfer.aToken[2]);
           db_set("project-code", zPCode, 0);
@@ -1977,6 +1977,10 @@ int client_sync(
     manifest_crosslink_end(MC_PERMIT_HOOKS);
     content_enable_dephantomize(1);
     db_end_transaction(0);
+  }
+  if( (syncFlags & SYNC_CLONE)==0 && g.rcvid && fossil_any_has_fork(g.rcvid) ){
+    fossil_warning("***** WARNING: a fork has occurred *****\n"
+                   "use \"fossil leaves -multiple\" for more details.");
   }
   return nErr;
 }

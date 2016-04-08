@@ -230,23 +230,32 @@ cache_read_done:
 }
 
 /*
+** Create a cache database for the current repository if no such
+** database already exists.
+*/
+void cache_initialize(void){
+  sqlite3_close(cacheOpen(1));
+}
+
+/*
 ** COMMAND: cache*
+** 
 ** Usage: %fossil cache SUBCOMMAND
 **
 ** Manage the cache used for potentially expensive web pages such as
-** /zip and /tarball.   SUBCOMMAND an be:
+** /zip and /tarball.   SUBCOMMAND can be:
 **
 **    clear        Remove all entries from the cache.
 **
-**    init         Create the cache file if it does not already exists.
+**    init         Create the cache file if it does not already exist.
 **
 **    list|ls      List the keys and content sizes and other stats for
-**                 all entries currently in the cache
+**                 all entries currently in the cache.
 **
-**    status       Show a summary of cache status.
+**    status       Show a summary of the cache status.
 **
 ** The cache is stored in a file that is distinct from the repository
-** but that is held in the same directory as the repository.  To cache
+** but that is held in the same directory as the repository.  The cache
 ** file can be deleted in order to completely disable the cache.
 */
 void cache_cmd(void){
@@ -324,7 +333,7 @@ void cache_cmd(void){
 /*
 ** WEBPAGE: cachestat
 **
-** Show information about the webpage cache
+** Show information about the webpage cache.  Requires Admin privilege.
 */
 void cache_page(void){
   sqlite3 *db;
@@ -332,7 +341,7 @@ void cache_page(void){
   char zBuf[100];
 
   login_check_credentials();
-  if( !g.perm.Setup ){ login_needed(); return; }
+  if( !g.perm.Setup ){ login_needed(0); return; }
   style_header("Web Cache Status");
   db = cacheOpen(0);
   if( db==0 ){
@@ -374,13 +383,14 @@ void cache_page(void){
 **
 ** Download a single entry for the cache, identified by KEY.
 ** This page is normally a hyperlink from the /cachestat page.
+** Requires Admin privilege.
 */
 void cache_getpage(void){
   const char *zKey;
   Blob content;
 
   login_check_credentials();
-  if( !g.perm.Setup ){ login_needed(); return; }
+  if( !g.perm.Setup ){ login_needed(0); return; }
   zKey = PD("key","");
   blob_zero(&content);
   if( cache_read(&content, zKey)==0 ){

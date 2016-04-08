@@ -30,7 +30,7 @@ static void report_format_hints(void);
 #endif
 
 /*
-** WEBPAGE: /reportlist
+** WEBPAGE: reportlist
 **
 ** Main menu for Tickets.
 */
@@ -42,7 +42,10 @@ void view_list(void){
   int cnt = 0;
 
   login_check_credentials();
-  if( !g.perm.RdTkt && !g.perm.NewTkt ){ login_needed(); return; }
+  if( !g.perm.RdTkt && !g.perm.NewTkt ){
+    login_needed(g.anon.RdTkt || g.anon.NewTkt);
+    return;
+  }
   style_header("Ticket Main Menu");
   ticket_standard_submenu(T_ALL_BUT(T_REPLIST));
   if( g.thTrace ) Th_Trace("BEGIN_REPORTLIST<br />\n", -1);
@@ -283,7 +286,11 @@ char *verify_sql_statement(char *zSql){
 }
 
 /*
-** WEBPAGE: /rptsql
+** WEBPAGE: rptsql
+** URL: /rptsql?rn=N
+**
+** Display the SQL query used to generate a ticket report.  The rn=N
+** query parameter identifies the specific report number to be displayed.
 */
 void view_see_sql(void){
   int rn;
@@ -295,7 +302,7 @@ void view_see_sql(void){
 
   login_check_credentials();
   if( !g.perm.TktFmt ){
-    login_needed();
+    login_needed(g.anon.TktFmt);
     return;
   }
   rn = atoi(PD("rn","0"));
@@ -331,8 +338,17 @@ void view_see_sql(void){
 }
 
 /*
-** WEBPAGE: /rptnew
-** WEBPAGE: /rptedit
+** WEBPAGE: rptnew
+** WEBPAGE: rptedit
+**
+** Create (/rptnew) or edit (/rptedit) a ticket report format.
+** Query parameters:
+**
+**     rn=N           Ticket report number. (required)
+**     t=TITLE        Title of the report format
+**     w=USER         Owner of the report format
+**     s=SQL          SQL text used to implement the report
+**     k=KEY          Color key
 */
 void view_edit(void){
   int rn;
@@ -345,7 +361,7 @@ void view_edit(void){
 
   login_check_credentials();
   if( !g.perm.TktFmt ){
-    login_needed();
+    login_needed(g.anon.TktFmt);
     return;
   }
   /*view_add_functions(0);*/
@@ -941,7 +957,7 @@ static int db_exec_readonly(
 **
 ** Capital letters mean sort in reverse order.
 ** If there are fewer characters in zColumnTypes[] than their are columns,
-** the all extra columns assume type "t" (text).
+** then all extra columns assume type "t" (text).
 **
 ** The third parameter is the column that was initially sorted (using 1-based
 ** column numbers, like SQL).  Make this value 0 if none of the columns are
@@ -959,13 +975,28 @@ void output_table_sorting_javascript(
   @ function SortableTable(tableEl,columnTypes,initSort){
   @   this.tbody = tableEl.getElementsByTagName('tbody');
   @   this.columnTypes = columnTypes;
+  @   var ncols = tableEl.rows[0].cells.length;
+  @   for(var i = columnTypes.length; i<=ncols; i++){this.columnTypes += 't';}
   @   this.sort = function (cell) {
   @     var column = cell.cellIndex;
   @     var sortFn;
   @     switch( cell.sortType ){
-  @       case "N": case "n":  sortFn = this.sortNumeric;  break;
-  @       case "T": case "t":  sortFn = this.sortText;     break;
-  @       case "K": case "k":  sortFn = this.sortKey;      break;
+  if( strchr(zColumnTypes,'n') ){
+    @       case "n": sortFn = this.sortNumeric;  break;
+  }
+  if( strchr(zColumnTypes,'N') ){
+    @       case "N": sortFn = this.sortReverseNumeric;  break;
+  }
+  @       case "t": sortFn = this.sortText;  break;
+  if( strchr(zColumnTypes,'T') ){
+    @       case "T": sortFn = this.sortReverseText;  break;
+  }
+  if( strchr(zColumnTypes,'k') ){
+    @       case "k": sortFn = this.sortKey;  break;
+  }
+  if( strchr(zColumnTypes,'K') ){
+    @       case "K": sortFn = this.sortReverseKey;  break;
+  }
   @       default:  return;
   @     }
   @     this.sortIndex = column;
@@ -979,9 +1010,6 @@ void output_table_sorting_javascript(
   @     }else{
   @       newRows.sort(sortFn);
   @       this.prevColumn = this.sortIndex+1;
-  @       if( cell.sortType>="A" && cell.sortType<="Z" ){
-  @         newRows.reverse();
-  @       }
   @     }
   @     for (i=0;i<newRows.length;i++) {
   @       this.tbody[0].appendChild(newRows[i]);
@@ -1009,27 +1037,62 @@ void output_table_sorting_javascript(
   @     var i = thisObject.sortIndex;
   @     aa = a.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
   @     bb = b.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
-  @     if(aa==bb) return a.rowIndex-b.rowIndex;
   @     if(aa<bb) return -1;
+  @     if(aa==bb) return a.rowIndex-b.rowIndex;
   @     return 1;
   @   }
-  @   this.sortNumeric = function(a,b) {
-  @     var i = thisObject.sortIndex;
-  @     aa = parseFloat(a.cells[i].textContent);
-  @     if (isNaN(aa)) aa = 0;
-  @     bb = parseFloat(b.cells[i].textContent);
-  @     if (isNaN(bb)) bb = 0;
-  @     if(aa==bb) return a.rowIndex-b.rowIndex;
-  @     return aa-bb;
-  @   }
-  @   this.sortKey = function(a,b) {
-  @     var i = thisObject.sortIndex;
-  @     aa = a.cells[i].getAttribute("data-sortkey");
-  @     bb = b.cells[i].getAttribute("data-sortkey");
-  @     if(aa==bb) return a.rowIndex-b.rowIndex;
-  @     if(aa<bb) return -1;
-  @     return 1;
-  @   }
+  if( strchr(zColumnTypes,'T') ){
+    @   this.sortReverseText = function(a,b) {
+    @     var i = thisObject.sortIndex;
+    @     aa = a.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
+    @     bb = b.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
+    @     if(aa<bb) return +1;
+    @     if(aa==bb) return a.rowIndex-b.rowIndex;
+    @     return -1;
+    @   }
+  }
+  if( strchr(zColumnTypes,'n') ){
+    @   this.sortNumeric = function(a,b) {
+    @     var i = thisObject.sortIndex;
+    @     aa = parseFloat(a.cells[i].textContent);
+    @     if (isNaN(aa)) aa = 0;
+    @     bb = parseFloat(b.cells[i].textContent);
+    @     if (isNaN(bb)) bb = 0;
+    @     if(aa==bb) return a.rowIndex-b.rowIndex;
+    @     return aa-bb;
+    @   }
+  }
+  if( strchr(zColumnTypes,'N') ){
+    @   this.sortReverseNumeric = function(a,b) {
+    @     var i = thisObject.sortIndex;
+    @     aa = parseFloat(a.cells[i].textContent);
+    @     if (isNaN(aa)) aa = 0;
+    @     bb = parseFloat(b.cells[i].textContent);
+    @     if (isNaN(bb)) bb = 0;
+    @     if(aa==bb) return a.rowIndex-b.rowIndex;
+    @     return bb-aa;
+    @   }
+  }
+  if( strchr(zColumnTypes,'k') ){
+    @   this.sortKey = function(a,b) {
+    @     var i = thisObject.sortIndex;
+    @     aa = a.cells[i].getAttribute("data-sortkey");
+    @     bb = b.cells[i].getAttribute("data-sortkey");
+    @     if(aa<bb) return -1;
+    @     if(aa==bb) return a.rowIndex-b.rowIndex;
+    @     return 1;
+    @   }
+  }
+  if( strchr(zColumnTypes,'K') ){
+    @   this.sortReverseKey = function(a,b) {
+    @     var i = thisObject.sortIndex;
+    @     aa = a.cells[i].getAttribute("data-sortkey");
+    @     bb = b.cells[i].getAttribute("data-sortkey");
+    @     if(aa<bb) return +1;
+    @     if(aa==bb) return a.rowIndex-b.rowIndex;
+    @     return -1;
+    @   }
+  }
   @   var x = tableEl.getElementsByTagName('thead');
   @   if(!(this.tbody && this.tbody[0].rows && this.tbody[0].rows.length>0)){
   @     return;
@@ -1060,7 +1123,7 @@ void output_table_sorting_javascript(
 
 
 /*
-** WEBPAGE: /rptview
+** WEBPAGE: rptview
 **
 ** Generate a report.  The rn query parameter is the report number
 ** corresponding to REPORTFMT.RN.  If the tablist query parameter exists,
@@ -1069,7 +1132,7 @@ void output_table_sorting_javascript(
 */
 void rptview_page(void){
   int count = 0;
-  int rn;
+  int rn, rc;
   char *zSql;
   char *zTitle;
   char *zOwner;
@@ -1080,25 +1143,29 @@ void rptview_page(void){
   char *zErr2 = 0;
 
   login_check_credentials();
-  if( !g.perm.RdTkt ){ login_needed(); return; }
-  rn = atoi(PD("rn","0"));
-  if( rn==0 ){
-    cgi_redirect("reportlist");
-    return;
-  }
+  if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
   tabs = P("tablist")!=0;
-  /* view_add_functions(tabs); */
   db_prepare(&q,
-    "SELECT title, sqlcode, owner, cols FROM reportfmt WHERE rn=%d", rn);
-  if( db_step(&q)!=SQLITE_ROW ){
-    cgi_redirect("reportlist");
+    "SELECT title, sqlcode, owner, cols, rn FROM reportfmt WHERE rn=%d",
+     atoi(PD("rn","0")));
+  rc = db_step(&q);
+  if( rc!=SQLITE_ROW ){
     db_finalize(&q);
+    db_prepare(&q,
+      "SELECT title, sqlcode, owner, cols, rn FROM reportfmt WHERE title GLOB %Q",
+      P("title"));
+    rc = db_step(&q);
+  }
+  if( rc!=SQLITE_ROW ){
+    db_finalize(&q);
+    cgi_redirect("reportlist");
     return;
   }
   zTitle = db_column_malloc(&q, 0);
   zSql = db_column_malloc(&q, 1);
   zOwner = db_column_malloc(&q, 2);
   zClrKey = db_column_malloc(&q, 3);
+  rn = db_column_int(&q,4);
   db_finalize(&q);
 
   if( P("order_by") ){

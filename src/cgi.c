@@ -74,13 +74,13 @@
 
 /*
 ** The HTTP reply is generated in two pieces: the header and the body.
-** These pieces are generated separately because they are not necessary
+** These pieces are generated separately because they are not necessarily
 ** produced in order.  Parts of the header might be built after all or
 ** part of the body.  The header and body are accumulated in separate
 ** Blob structures then output sequentially once everything has been
 ** built.
 **
-** The cgi_destination() interface switch between the buffers.
+** The cgi_destination() interface switches between the buffers.
 */
 static Blob cgiContent[2] = { BLOB_INITIALIZER, BLOB_INITIALIZER };
 static Blob *pContent = &cgiContent[0];
@@ -467,6 +467,7 @@ void cgi_set_parameter_nocopy(const char *zName, const char *zValue, int isQP){
   }
   aParamQP[nUsedQP].seq = seqQP++;
   aParamQP[nUsedQP].isQP = isQP;
+  aParamQP[nUsedQP].cTag = 0;
   nUsedQP++;
   sortQP = 1;
 }
@@ -797,6 +798,7 @@ void cgi_parse_POST_JSON( FILE * zIn, unsigned int contentLen ){
   CgiPostReadState state;
   cson_parse_opt popt = cson_parse_opt_empty;
   cson_parse_info pinfo = cson_parse_info_empty;
+  assert(g.json.gc.a && "json_main_bootstrap() was not called!");
   popt.maxDepth = 15;
   state.fh = zIn;
   state.len = contentLen;
@@ -1051,7 +1053,7 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
   ** letter, then check to see if there is an environment variable
   ** with the given name.
   */
-  if( fossil_isupper(zName[0]) ){
+  if( zName && fossil_isupper(zName[0]) ){
     const char *zValue = fossil_getenv(zName);
     if( zValue ){
       cgi_set_parameter_nocopy(zName, zValue, 0);
@@ -1682,6 +1684,7 @@ void cgi_handle_scgi_request(void){
 #define HTTP_SERVER_SCGI           0x0002     /* SCGI instead of HTTP */
 #define HTTP_SERVER_HAD_REPOSITORY 0x0004     /* Was the repository open? */
 #define HTTP_SERVER_HAD_CHECKOUT   0x0008     /* Was a checkout open? */
+#define HTTP_SERVER_REPOLIST       0x0010     /* Allow repo listing */
 
 #endif /* INTERFACE */
 

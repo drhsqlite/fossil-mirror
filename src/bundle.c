@@ -30,7 +30,7 @@
 ** basis, which is presumably in the master repository.  If NULL, then
 ** data contains contain without delta compression.
 */
-static const char zBundleInit[] = 
+static const char zBundleInit[] =
 @ CREATE TABLE IF NOT EXISTS "%w".bconfig(
 @   bcname TEXT,
 @   bcvalue ANY
@@ -157,7 +157,7 @@ static void bundle_append_cmd(void){
 
   verify_all_options();
   bundle_attach_file(g.argv[3], "b1", 1);
-  db_prepare(&q, 
+  db_prepare(&q,
     "INSERT INTO bblob(blobid, uuid, sz, delta, data, notes) "
     "VALUES(NULL, $uuid, $sz, NULL, $data, $filename)");
   db_begin_transaction();
@@ -181,16 +181,16 @@ static void bundle_append_cmd(void){
 }
 
 /*
-** Identify a subsection of the checkin tree using command-line switches.
+** Identify a subsection of the check-in tree using command-line switches.
 ** There must be one of the following switch available:
 **
-**     --branch BRANCHNAME          All checkins on the most recent
+**     --branch BRANCHNAME          All check-ins on the most recent
 **                                  instance of BRANCHNAME
-**     --from TAG1 [--to TAG2]      Checkin TAG1 and all primary descendants
+**     --from TAG1 [--to TAG2]      Check-in TAG1 and all primary descendants
 **                                  up to and including TAG2
-**     --checkin TAG                Checkin TAG only
+**     --checkin TAG                Check-in TAG only
 **
-** Store the RIDs for all applicable checkins in the zTab table that 
+** Store the RIDs for all applicable check-ins in the zTab table that
 ** should already exist.  Invoke fossil_fatal() if any kind of error is
 ** seen.
 */
@@ -256,18 +256,18 @@ void subtree_from_arguments(const char *zTab){
 **
 ** Usage: %fossil test-subtree ?OPTIONS?
 **
-** Show the subset of checkins that match the supplied options.  This
+** Show the subset of check-ins that match the supplied options.  This
 ** command is used to test the subtree_from_options() subroutine in the
 ** implementation and does not really have any other practical use that
 ** we know of.
 **
 ** Options:
-**    --branch BRANCH           Include only checkins on BRANCH
+**    --branch BRANCH           Include only check-ins on BRANCH
 **    --from TAG                Start the subtree at TAG
 **    --to TAG                  End the subtree at TAG
-**    --checkin TAG             The subtree is the single checkin TAG
+**    --checkin TAG             The subtree is the single check-in TAG
 **    --all                     Include FILE and TAG artifacts
-**    --exclusive               Include FILES exclusively on checkins
+**    --exclusive               Include FILES exclusively on check-ins
 */
 void test_subtree_cmd(void){
   int bAll = find_option("all",0,0)!=0;
@@ -433,7 +433,7 @@ static void bundle_import_elements(int iSrc, Blob *pBasis, int isPriv){
     }
     bag_insert(&busy, iSrc);
   }
-  db_prepare(&q, 
+  db_prepare(&q,
      "SELECT uuid, data, bblob.delta, bix.blobid"
      "  FROM bix, bblob"
      " WHERE bix.delta=%d"
@@ -625,7 +625,7 @@ static void bundle_import_cmd(void){
   bundle_import_elements(0, 0, isPriv);
   manifest_crosslink_end(0);
   describe_artifacts_to_stdout("IN got", "Imported content:");
-  db_end_transaction(0);    
+  db_end_transaction(0);
 }
 
 /* fossil bundle purge BUNDLE
@@ -633,7 +633,7 @@ static void bundle_import_cmd(void){
 ** Try to undo a prior "bundle import BUNDLE".
 **
 ** If the --force option is omitted, then this will only work if
-** there have been no checkins or tags added that use the import.
+** there have been no check-ins or tags added that use the import.
 **
 ** This routine never removes content that is not already in the bundle
 ** so the bundle serves as a backup.  The purge can be undone using
@@ -648,7 +648,7 @@ static void bundle_purge_cmd(void){
   bundle_attach_file(zFile, "b1", 0);
   db_begin_transaction();
 
-  /* Find all checkins of the bundle */
+  /* Find all check-ins of the bundle */
   db_multi_exec(
     "CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY);"
     "INSERT OR IGNORE INTO ok SELECT blob.rid FROM bblob, blob, plink"
@@ -656,7 +656,7 @@ static void bundle_purge_cmd(void){
     "   AND plink.cid=blob.rid;"
   );
 
-  /* Check to see if new checkins have been committed to checkins in
+  /* Check to see if new check-ins have been committed to check-ins in
   ** the bundle.  Do not allow the purge if that is true and if --force
   ** is omitted.
   */
@@ -673,7 +673,7 @@ static void bundle_purge_cmd(void){
     }
     db_finalize(&q);
     if( n>0 ){
-      fossil_fatal("checkins above are derived from checkins in the bundle.");
+      fossil_fatal("check-ins above are derived from check-ins in the bundle.");
     }
   }
 
@@ -694,7 +694,7 @@ static void bundle_purge_cmd(void){
     );
     if( db_changes() ){
       describe_artifacts_to_stdout("IN err1", 0);
-      fossil_fatal("artifacts above associated with bundle checkins "
+      fossil_fatal("artifacts above associated with bundle check-ins "
                    " are not in the bundle");
     }else{
       db_multi_exec("DROP TABLE err1;");
@@ -742,21 +742,21 @@ static void bundle_purge_cmd(void){
 **   fossil bundle export BUNDLE ?OPTIONS?
 **
 **      Generate a new bundle, in the file named BUNDLE, that contains a
-**      subset of the checkins in the repository (usually a single branch)
+**      subset of the check-ins in the repository (usually a single branch)
 **      described by the --branch, --from, --to, and/or --checkin options,
 **      at least one of which is required.  If BUNDLE already exists, the
 **      specified content is added to the bundle.
 **
 **         --branch BRANCH            Package all check-ins on BRANCH.
-**         --from TAG1 --to TAG2      Package checkins between TAG1 and TAG2.
-**         --checkin TAG              Package the single checkin TAG
+**         --from TAG1 --to TAG2      Package check-ins between TAG1 and TAG2.
+**         --checkin TAG              Package the single check-in TAG
 **         --standalone               Do no use delta-encoding against
 **                                      artifacts not in the bundle
 **
 **   fossil bundle extend BUNDLE
 **
 **      The BUNDLE must already exist.  This subcommand adds to the bundle
-**      any checkins that are descendants of checkins already in the bundle,
+**      any check-ins that are descendants of check-ins already in the bundle,
 **      and any tags that apply to artifacts in the bundle.
 **
 **   fossil bundle import BUNDLE ?--publish?
@@ -771,16 +771,16 @@ static void bundle_purge_cmd(void){
 **
 **   fossil bundle purge BUNDLE
 **
-**      Remove from the repository all files that are used exclusively 
-**      by checkins in BUNDLE.  This has the effect of undoing a
+**      Remove from the repository all files that are used exclusively
+**      by check-ins in BUNDLE.  This has the effect of undoing a
 **      "fossil bundle import".
 **
 ** SUMMARY:
 **   fossil bundle append BUNDLE FILE...              Add files to BUNDLE
 **   fossil bundle cat BUNDLE UUID...                 Extract file from BUNDLE
 **   fossil bundle export BUNDLE ?OPTIONS?            Create a new BUNDLE
-**          --branch BRANCH --from TAG1 --to TAG2       Checkins to include
-**          --checkin TAG                               Use only checkin TAG
+**          --branch BRANCH --from TAG1 --to TAG2       Check-ins to include
+**          --checkin TAG                               Use only check-in TAG
 **          --standalone                                Omit dependencies
 **   fossil bundle extend BUNDLE                      Update with newer content
 **   fossil bundle import BUNDLE ?OPTIONS?            Import a bundle
@@ -788,6 +788,8 @@ static void bundle_purge_cmd(void){
 **          --force                                     Cross-repo import
 **   fossil bundle ls BUNDLE                          List content of a bundle
 **   fossil bundle purge BUNDLE                       Undo an import
+**
+** See also: publish
 */
 void bundle_cmd(void){
   const char *zSubcmd;

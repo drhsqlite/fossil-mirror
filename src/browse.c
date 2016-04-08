@@ -87,7 +87,7 @@ void hyperlinked_path(
     for(j=i; zPath[j] && zPath[j]!='/'; j++){}
     if( zPath[j] && g.perm.Hyperlink ){
       if( zCI ){
-        char *zLink = href("%R/%s?name=%#T%s&ci=%s", zURI, j, zPath, zREx, zCI);
+        char *zLink = href("%R/%s?name=%#T%s&ci=%!S", zURI, j, zPath, zREx,zCI);
         blob_appendf(pOut, "%s%z%#h</a>",
                      zSep, zLink, j-i, &zPath[i]);
       }else{
@@ -107,10 +107,17 @@ void hyperlinked_path(
 /*
 ** WEBPAGE: dir
 **
+** Show the files and subdirectories within a single directory of the
+** source tree.  Only files for a single check-in are shown if the ci=
+** query parameter is present.  If ci= is missing, the union of files
+** across all check-ins is shown.
+**
 ** Query parameters:
 **
 **    name=PATH        Directory to display.  Optional.  Top-level if missing
 **    ci=LABEL         Show only files in this check-in.  Optional.
+**    type=TYPE        TYPE=flat: use this display
+**                     TYPE=tree: use the /tree display instead
 */
 void page_dir(void){
   char *zD = fossil_strdup(P("name"));
@@ -132,7 +139,7 @@ void page_dir(void){
 
   if( strcmp(PD("type","flat"),"tree")==0 ){ page_tree(); return; }
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   while( nD>1 && zD[nD-2]=='/' ){ zD[(--nD)-1] = 0; }
   style_header("File List");
   style_adunit_config(ADUNIT_RIGHT_OK);
@@ -181,11 +188,11 @@ void page_dir(void){
                           url_render(&sURI, "ci", "tip", 0, 0));
   }
   if( zCI ){
-    @ <h2>Files of check-in [%z(href("vinfo?name=%s",zUuid))%S(zUuid)</a>]
+    @ <h2>Files of check-in [%z(href("vinfo?name=%!S",zUuid))%S(zUuid)</a>]
     @ %s(blob_str(&dirname))</h2>
-    zSubdirLink = mprintf("%R/dir?ci=%s&name=%T", zUuid, zPrefix);
+    zSubdirLink = mprintf("%R/dir?ci=%!S&name=%T", zUuid, zPrefix);
     if( nD==0 ){
-      style_submenu_element("File Ages", "File Ages", "%R/fileage?name=%s",
+      style_submenu_element("File Ages", "File Ages", "%R/fileage?name=%!S",
                             zUuid);
     }
   }else{
@@ -283,7 +290,7 @@ void page_dir(void){
       const char *zLink;
       if( zCI ){
         const char *zUuid = db_column_text(&q, 1);
-        zLink = href("%R/artifact/%s",zUuid);
+        zLink = href("%R/artifact/%!S",zUuid);
       }else{
         zLink = href("%R/finfo?name=%T%T",zPrefix,zFN);
       }
@@ -506,8 +513,16 @@ static void relinkTree(FileTree *pTree, FileTreeNode *pRoot){
 /*
 ** WEBPAGE: tree
 **
+** Show the files using a tree-view.  If the ci= query parameter is present
+** then show only the files for the check-in identified.  If ci= is omitted,
+** then show the union of files over all check-ins.
+**
+** The type=tree query parameter is required or else the /dir format is
+** used.
+**
 ** Query parameters:
 **
+**    type=tree        Required to prevent use of /dir format
 **    name=PATH        Directory to display.  Optional
 **    ci=LABEL         Show only files in this check-in.  Optional.
 **    re=REGEXP        Show only files matching REGEXP.  Optional.
@@ -544,7 +559,7 @@ void page_tree(void){
   if( strcmp(PD("type","flat"),"flat")==0 ){ page_dir(); return; }
   memset(&sTree, 0, sizeof(sTree));
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   while( nD>1 && zD[nD-2]=='/' ){ zD[(--nD)-1] = 0; }
   sqlite3_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
                           pathelementFunc, 0, 0);
@@ -586,7 +601,7 @@ void page_tree(void){
       linkTip = rid != symbolic_name_to_rid("tip", "ci");
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
       rNow = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", rid);
-      zNow = db_text("", "SELECT datetime(mtime,'localtime')"
+      zNow = db_text("", "SELECT datetime(mtime,toLocal())"
                          " FROM event WHERE objid=%d", rid);
     }else{
       zCI = 0;
@@ -594,7 +609,7 @@ void page_tree(void){
   }
   if( zCI==0 ){
     rNow = db_double(0.0, "SELECT max(mtime) FROM event");
-    zNow = db_text("", "SELECT datetime(max(mtime),'localtime') FROM event");
+    zNow = db_text("", "SELECT datetime(max(mtime),toLocal()) FROM event");
   }
 
   /* Compute the title of the page */
@@ -695,7 +710,7 @@ void page_tree(void){
     if( sqlite3_strnicmp(zCI, zUuid, (int)strlen(zCI))!=0 ){
       @ "%h(zCI)"
     }
-    @ [%z(href("vinfo?name=%s",zUuid))%S(zUuid)</a>] %s(blob_str(&dirname))
+    @ [%z(href("vinfo?name=%!S",zUuid))%S(zUuid)</a>] %s(blob_str(&dirname))
   }else{
     int n = db_int(0, "SELECT count(*) FROM plink");
     @ <h2>%s(zObjType) from all %d(n) check-ins %s(blob_str(&dirname))
@@ -757,7 +772,7 @@ void page_tree(void){
       const char *zFileClass = fileext_class(p->zName);
       char *zLink;
       if( zCI ){
-        zLink = href("%R/artifact/%.16s",p->zUuid);
+        zLink = href("%R/artifact/%!S",p->zUuid);
       }else{
         zLink = href("%R/finfo?name=%T",p->zFullName);
       }
@@ -875,7 +890,7 @@ const char *fileext_class(const char *zFilename){
 }
 
 /*
-** SQL used to compute the age of all files in checkin :ckin whose
+** SQL used to compute the age of all files in check-in :ckin whose
 ** names match :glob
 */
 static const char zComputeFileAgeSetup[] =
@@ -907,7 +922,7 @@ static const char zComputeFileAgeRun[] =
 @      AND mlink.fid=blob.rid
 @      AND mlink.fid!=mlink.pid
 @      AND mlink.mid IN (SELECT x FROM ckin)
-@      AND event.objid=mlink.mid      
+@      AND event.objid=mlink.mid
 @  ORDER BY event.mtime ASC;
 ;
 
@@ -915,7 +930,7 @@ static const char zComputeFileAgeRun[] =
 ** Look at all file containing in the version "vid".  Construct a
 ** temporary table named "fileage" that contains the file-id for each
 ** files, the pathname, the check-in where the file was added, and the
-** mtime on that checkin. If zGlob and *zGlob then only files matching
+** mtime on that check-in. If zGlob and *zGlob then only files matching
 ** the given glob are computed.
 */
 int compute_fileage(int vid, const char* zGlob){
@@ -966,7 +981,7 @@ void test_fileage_cmd(void){
   const char *zGlob = find_option("glob",0,1);
   db_find_and_open_repository(0,0);
   verify_all_options();
-  if( g.argc!=3 ) usage("test-fileage CHECKIN");
+  if( g.argc!=3 ) usage("CHECKIN");
   mid = name_to_typed_rid(g.argv[2],"ci");
   compute_fileage(mid, zGlob);
   db_prepare(&q,
@@ -986,10 +1001,13 @@ void test_fileage_cmd(void){
 }
 
 /*
-** WEBPAGE:  fileage
+** WEBPAGE: fileage
+**
+** Show all files in a single check-in (identified by the name= query
+** parameter) in order of increasing age.
 **
 ** Parameters:
-**   name=VERSION   Selects the checkin version (default=tip).
+**   name=VERSION   Selects the check-in version (default=tip).
 **   glob=STRING    Only shows files matching this glob pattern
 **                  (e.g. *.c or *.txt).
 **   showid         Show RID values for debugging
@@ -999,12 +1017,12 @@ void fileage_page(void){
   const char *zName;
   const char *zGlob;
   const char *zUuid;
-  const char *zNow;            /* Time of checkin */
+  const char *zNow;            /* Time of check-in */
   int showId = PB("showid");
   Stmt q1, q2;
   double baseTime;
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   zName = P("name");
   if( zName==0 ) zName = "tip";
   rid = symbolic_name_to_rid(zName, "ci");
@@ -1013,7 +1031,7 @@ void fileage_page(void){
   }
   zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
   baseTime = db_double(0.0,"SELECT mtime FROM event WHERE objid=%d", rid);
-  zNow = db_text("", "SELECT datetime(mtime,'localtime') FROM event"
+  zNow = db_text("", "SELECT datetime(mtime,toLocal()) FROM event"
                      " WHERE objid=%d", rid);
   style_submenu_element("Tree-View", "Tree-View",
                         "%R/tree?ci=%T&mtime=1&type=tree",
@@ -1024,18 +1042,18 @@ void fileage_page(void){
   db_multi_exec("CREATE INDEX fileage_ix1 ON fileage(mid,pathname);");
 
   @ <h2>Files in
-  @ %z(href("%R/info?name=%T",zUuid))[%S(zUuid)]</a>
+  @ %z(href("%R/info/%!S",zUuid))[%S(zUuid)]</a>
   if( zGlob && zGlob[0] ){
     @ that match "%h(zGlob)" and
   }
   @ ordered by check-in time</h2>
   @
-  @ <p>Times are relative to the checkin time for
-  @ %z(href("%R/ci/%s",zUuid))[%S(zUuid)]</a> which is
+  @ <p>Times are relative to the check-in time for
+  @ %z(href("%R/ci/%!S",zUuid))[%S(zUuid)]</a> which is
   @ %z(href("%R/timeline?c=%t",zNow))%s(zNow)</a>.</p>
   @
   @ <div class='fileage'><table>
-  @ <tr><th>Time</th><th>Files</th><th>Checkin</th></tr>
+  @ <tr><th>Time</th><th>Files</th><th>Check-in</th></tr>
   db_prepare(&q1,
     "SELECT event.mtime, event.objid, blob.uuid,\n"
     "       coalesce(event.ecomment,event.comment),\n"
@@ -1071,22 +1089,22 @@ void fileage_page(void){
       const char *zFile = db_column_text(&q2,1);
       int fid = db_column_int(&q2,2);
       if( showId ){
-        @ %z(href("%R/artifact/%s",zFUuid))%h(zFile)</a> (%d(fid))<br>
+        @ %z(href("%R/artifact/%!S",zFUuid))%h(zFile)</a> (%d(fid))<br>
       }else{
-        @ %z(href("%R/artifact/%s",zFUuid))%h(zFile)</a><br>
+        @ %z(href("%R/artifact/%!S",zFUuid))%h(zFile)</a><br>
       }
     }
     db_reset(&q2);
     @ </td>
     @ <td>
-    @ %z(href("%R/info/%s",zUuid))[%S(zUuid)]</a>
+    @ %z(href("%R/info/%!S",zUuid))[%S(zUuid)]</a>
     if( showId ){
       @ (%d(mid))
     }
     @ %W(zComment) (user:
-    @ %z(href("%R/timeline?u=%t&c=%t&nd&n=200",zUser,zUuid))%h(zUser)</a>,
+    @ %z(href("%R/timeline?u=%t&c=%!S&nd&n=200",zUser,zUuid))%h(zUser)</a>,
     @ branch:
-    @ %z(href("%R/timeline?r=%t&c=%t&nd&n=200",zBranch,zUuid))%h(zBranch)</a>)
+    @ %z(href("%R/timeline?r=%t&c=%!S&nd&n=200",zBranch,zUuid))%h(zBranch)</a>)
     @ </td></tr>
     @
     fossil_free(zAge);

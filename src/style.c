@@ -50,7 +50,7 @@ static struct SubmenuCtrl {
   unsigned char eType;       /* FF_ENTRY, FF_MULTI, FF_BINARY */
   unsigned char isDisabled;  /* True if this control is grayed out */
   short int iSize;           /* Width for FF_ENTRY.  Count for FF_MULTI */
-  const char **azChoice;     /* value/display pairs for FF_MULTI */
+  const char *const *azChoice;/* value/display pairs for FF_MULTI */
   const char *zFalse;        /* FF_BINARY label when false */
 } aSubmenuCtrl[20];
 static int nSubmenuCtrl = 0;
@@ -276,7 +276,7 @@ void style_submenu_binary(
 void style_submenu_multichoice(
   const char *zName,       /* Query parameter name */
   int nChoice,             /* Number of options */
-  const char **azChoice,   /* value/display pairs.  2*nChoice entries */
+  const char *const *azChoice,/* value/display pairs.  2*nChoice entries */
   int isDisabled           /* True if this control is disabled */
 ){
   assert( nSubmenuCtrl < ArraySize(aSubmenuCtrl) );
@@ -286,6 +286,40 @@ void style_submenu_multichoice(
   aSubmenuCtrl[nSubmenuCtrl].isDisabled = isDisabled;
   aSubmenuCtrl[nSubmenuCtrl].eType = FF_MULTI;
   nSubmenuCtrl++;
+}
+void style_submenu_sql(
+  const char *zName,       /* Query parameter name */
+  const char *zLabel,      /* Label on the control */
+  const char *zFormat,     /* Format string for SQL command for choices */
+  ...                      /* Arguments to the format string */
+){
+  Stmt q;
+  int n = 0;
+  int nAlloc = 0;
+  char **az = 0;
+  va_list ap;
+
+  va_start(ap, zFormat);
+  db_vprepare(&q, 0, zFormat, ap);
+  va_end(ap);
+  while( SQLITE_ROW==db_step(&q) ){
+    if( n+2>=nAlloc ){
+      nAlloc += nAlloc + 20;
+      az = fossil_realloc(az, sizeof(char*)*nAlloc);
+    }
+    az[n++] = fossil_strdup(db_column_text(&q,0));
+    az[n++] = fossil_strdup(db_column_text(&q,1));
+  }
+  db_finalize(&q);
+  if( n>0 ){
+    aSubmenuCtrl[nSubmenuCtrl].zName = zName;
+    aSubmenuCtrl[nSubmenuCtrl].zLabel = zLabel;
+    aSubmenuCtrl[nSubmenuCtrl].iSize = n/2;
+    aSubmenuCtrl[nSubmenuCtrl].azChoice = (const char *const *)az;
+    aSubmenuCtrl[nSubmenuCtrl].isDisabled = 0;
+    aSubmenuCtrl[nSubmenuCtrl].eType = FF_MULTI;
+    nSubmenuCtrl++;
+  }
 }
 
 
@@ -327,12 +361,10 @@ static void url_var(
   const char *zConfigName,
   const char *zPageName
 ){
-  char *zMtime = db_get_mtime(zConfigName, 0, 0);
-  char *zUrl = mprintf("%s/%s/%s%.5s", g.zTop, zPageName, zMtime,
-                       MANIFEST_UUID);
   char *zVarName = mprintf("%s_url", zVarPrefix);
+  char *zUrl = mprintf("%R/%s?id=%x", zPageName,
+                       skin_id(zConfigName));
   Th_Store(zVarName, zUrl);
-  free(zMtime);
   free(zUrl);
   free(zVarName);
 }
@@ -355,8 +387,7 @@ static void image_url_var(const char *zImageName){
 void style_header(const char *zTitleFormat, ...){
   va_list ap;
   char *zTitle;
-  const char *zHeader = db_get("header", 0);
-  if( zHeader==0 ) zHeader = builtin_text("skins/default/header.txt");
+  const char *zHeader = skin_get("header");
   login_check_credentials();
 
   va_start(ap, zTitleFormat);
@@ -409,9 +440,9 @@ void style_header(const char *zTitleFormat, ...){
   */
   @ <script>
   @ function gebi(x){
-  @ if(/^#/.test(x)) x = x.substr(1);
+  @ if(x.substr(0,1)=='#') x = x.substr(1);
   @ var e = document.getElementById(x);
-  @ if(!e) throw new Error("Expecting element with ID "+x);
+  @ if(!e) throw new Error('Expecting element with ID '+x);
   @ else return e;}
   @ </script>
 }
@@ -506,11 +537,11 @@ void style_footer(void){
           case FF_ENTRY: {
             cgi_printf(
                "<span class='submenuctrl'>"
-               "&nbsp;%h<input type='text' name='%s' size='%d' "
-               "value='%h'%s></span>\n",
+               "&nbsp;%h<input type='text' name='%s' size='%d' maxlength='%d'"
+               " value='%h'%s></span>\n",
                aSubmenuCtrl[i].zLabel,
                zQPN,
-               aSubmenuCtrl[i].iSize,
+               aSubmenuCtrl[i].iSize, aSubmenuCtrl[i].iSize,
                PD(zQPN,""),
                zDisabled
             );
@@ -519,6 +550,9 @@ void style_footer(void){
           case FF_MULTI: {
             int j;
             const char *zVal = P(zQPN);
+            if( aSubmenuCtrl[i].zLabel ){
+              cgi_printf("&nbsp;%h", aSubmenuCtrl[i].zLabel);
+            }
             cgi_printf(
                "<select class='submenuctrl' size='1' name='%s'%s "
                "onchange='gebi(\"f01\").submit();'>\n",
@@ -594,8 +628,7 @@ void style_footer(void){
   ** the footer will be generating </html> */
   style_resolve_href();
 
-  zFooter = db_get("footer", 0);
-  if( zFooter==0 ) zFooter = builtin_text("skins/default/footer.txt");
+  zFooter = skin_get("footer");
   if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br />\n", -1);
   Th_Render(zFooter);
   if( g.thTrace ) Th_Trace("END_FOOTER<br />\n", -1);
@@ -707,10 +740,103 @@ const struct strctCssDefaults {
     @   white-space: nowrap;
   },
   { "td.timelineGraph",
-    "the format for the grap placeholder cells in timelines",
+    "the format for the graph placeholder cells in timelines",
     @ width: 20px;
     @ text-align: left;
     @ vertical-align: top;
+  },
+  { ".tl-canvas",
+    "timeline graph canvas",
+    @   margin: 0 6px 0 10px;
+  },
+  { ".tl-rail",
+    "maximum rail spacing",
+    @   width: 18px;
+  },
+  { ".tl-mergeoffset",
+    "maximum spacing between merge risers and primary child risers",
+    @   width: 2px;
+  },
+  { ".tl-nodemark",
+    "adjusts the vertical position of graph nodes",
+    @   margin-top: 5px;
+  },
+  { ".tl-node",
+    "commit node",
+    @   width: 10px;
+    @   height: 10px;
+    @   border: 1px solid #000;
+    @   background: #fff;
+    @   cursor: pointer;
+  },
+  { ".tl-node.leaf:after",
+    "leaf commit marker",
+    @   content: '';
+    @   position: absolute;
+    @   top: 3px;
+    @   left: 3px;
+    @   width: 4px;
+    @   height: 4px;
+    @   background: #000;
+  },
+  { ".tl-node.sel:after",
+    "selected commit node marker",
+    @   content: '';
+    @   position: absolute;
+    @   top: 2px;
+    @   left: 2px;
+    @   width: 6px;
+    @   height: 6px;
+    @   background: red;
+  },
+  { ".tl-arrow",
+    "arrow",
+    @   width: 0;
+    @   height: 0;
+    @   transform: scale(.999);
+    @   border: 0 solid transparent;
+  },
+  { ".tl-arrow.u",
+    "up arrow",
+    @   margin-top: -1px;
+    @   border-width: 0 3px;
+    @   border-bottom: 7px solid #000;
+  },
+  { ".tl-arrow.u.sm",
+    "small up arrow",
+    @   border-bottom: 5px solid #000;
+  },
+  { ".tl-line",
+    "line",
+    @   background: #000;
+    @   width: 2px;
+  },
+  { ".tl-arrow.merge",
+    "merge arrow",
+    @   height: 1px;
+    @   border-width: 2px 0;
+  },
+  { ".tl-arrow.merge.l",
+    "left merge arrow",
+    @   border-right: 3px solid #000;
+  },
+  { ".tl-arrow.merge.r",
+    "right merge arrow",
+    @   border-left: 3px solid #000;
+  },
+  { ".tl-line.merge",
+    "merge line",
+    @   width: 1px;
+  },
+  { ".tl-arrow.warp",
+    "timewarp arrow",
+    @   margin-left: 1px;
+    @   border-width: 3px 0;
+    @   border-left: 7px solid #600000;
+  },
+  { ".tl-line.warp",
+    "timewarp line",
+    @   background: #600000;
   },
   { "a.tagLink",
     "the format for the tag links",
@@ -827,7 +953,7 @@ const struct strctCssDefaults {
   { "ul.browser li.file",
     "List element in the 'flat-view' file browser for a file",
     "  background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP"
-    "\\/\\/\\/yEhIf\\/\\/\\/wAAACH5BAEHAAIALAAAAAAQABAAAAIvlIKpxqcfm" 
+    "\\/\\/\\/yEhIf\\/\\/\\/wAAACH5BAEHAAIALAAAAAAQABAAAAIvlIKpxqcfm"
     "gOUvoaqDSCxrEEfF14GqFXImJZsu73wepJzVMNxrtNTj3NATMKhpwAAOw==);\n"
     "  background-repeat: no-repeat;\n"
     "  background-position: 0px center;\n"
@@ -1049,7 +1175,7 @@ const struct strctCssDefaults {
     @   border-style: solid;
   },
   { "input.checkinUserColor",
-    "format for user color input on checkin edit page",
+    "format for user color input on check-in edit page",
     @ /* no special definitions, class defined, to enable color pickers, f.e.:
     @ **  add the color picker found at http:jscolor.com  as java script include
     @ **  to the header and configure the java script file with
@@ -1111,6 +1237,10 @@ const struct strctCssDefaults {
     "List of files in a timeline",
     @   margin-top: 3px;
     @   line-height: 100%;
+  },
+  { "ul.filelist li",
+    "List of files in a timeline",
+    @   padding-top: 1px;
   },
   { "table.sbsdiffcols",
     "side-by-side diff display (column-based)",
@@ -1228,10 +1358,6 @@ const struct strctCssDefaults {
     "format for capabilities string, mentioned on the user edit page",
     @ font-weight: bold;
   },
-  { "#canvas", "timeline graph node colors",
-    @ color: black;
-    @ background-color: white;
-  },
   { "table.adminLogTable",
     "Class for the /admin_log table",
     @ text-align: left;
@@ -1268,7 +1394,6 @@ const struct strctCssDefaults {
   },
   { ".fileage td:nth-child(3)",
     "fileage third column (the check-in comment)",
-    @ word-break: break-all;
     @ word-wrap: break-word;
     @ max-width: 50%;
   },
@@ -1339,42 +1464,64 @@ void cgi_append_default_css(void) {
 }
 
 /*
-** Search string zHaystack for zNeedle.  zNeedle must be an isolated
-** word with space or punctuation on either size.
+** Search string zCss for zSelector.
 **
 ** Return true if found.  Return false if not found
 */
-static int containsString(const char *zHaystack, const char *zNeedle){
-  char *z;
+static int containsSelector(const char *zCss, const char *zSelector){
+  const char *z;
   int n;
+  int selectorLen = (int)strlen(zSelector);
 
-  while( zHaystack[0] ){
-    z = strstr(zHaystack, zNeedle);
+  for(z=zCss; *z; z+=selectorLen){
+    z = strstr(z, zSelector);
     if( z==0 ) return 0;
-    n = (int)strlen(zNeedle);
-    if( (z==zHaystack || !fossil_isalnum(z[-1])) && !fossil_isalnum(z[n]) ){
-      return 1;
+    if( z!=zCss ){
+      for( n=-1; z+n!=zCss && fossil_isspace(z[n]); n--);
+      if( z+n!=zCss && z[n]!=',' && z[n]!= '}' && z[n]!='/' ) continue;
     }
-    zHaystack = z + n;
+    for( n=selectorLen; z[n] && fossil_isspace(z[n]); n++ );
+    if( z[n]==',' || z[n]=='{' || z[n]=='/' ) return 1;
   }
   return 0;
+}
+
+/*
+** COMMAND: test-contains-selector
+**
+** Usage: %fossil test-contains-selector FILENAME SELECTOR
+**
+** Determine if the CSS stylesheet FILENAME contains SELECTOR.
+*/
+void contains_selector_cmd(void){
+  int found;
+  char *zSelector;
+  Blob css;
+  if( g.argc!=4 ) usage("FILENAME SELECTOR");
+  blob_read_from_file(&css, g.argv[2]);
+  zSelector = g.argv[3];
+  found = containsSelector(blob_str(&css), zSelector);
+  fossil_print("%s %s\n", zSelector, found ? "found" : "not found");
+  blob_reset(&css);
 }
 
 
 /*
 ** WEBPAGE: style.css
+**
+** Return the style sheet.
 */
 void page_style_css(void){
   Blob css;
   int i;
 
   cgi_set_content_type("text/css");
-  blob_init(&css,db_get("css",(char*)builtin_text("skins/default/css.txt")),-1);
+  blob_init(&css,skin_get("css"),-1);
 
   /* add special missing definitions */
   for(i=1; cssDefaultList[i].elementClass; i++){
     char *z = blob_str(&css);
-    if( !containsString(z, cssDefaultList[i].elementClass) ){
+    if( !containsSelector(z, cssDefaultList[i].elementClass) ){
       blob_appendf(&css, "/* %s */\n%s {\n%s}\n",
           cssDefaultList[i].comment,
           cssDefaultList[i].elementClass,
@@ -1398,6 +1545,9 @@ void page_style_css(void){
 
 /*
 ** WEBPAGE: test_env
+**
+** Display CGI-variables and other aspects of the run-time
+** environment, for debugging and trouble-shooting purposes.
 */
 void page_test_env(void){
   char c;
@@ -1411,11 +1561,14 @@ void page_test_env(void){
     "HTTP_USER_AGENT", "HTTP_REFERER", "PATH_INFO", "PATH_TRANSLATED",
     "QUERY_STRING", "REMOTE_ADDR", "REMOTE_PORT", "REQUEST_METHOD",
     "REQUEST_URI", "SCRIPT_FILENAME", "SCRIPT_NAME", "SERVER_PROTOCOL",
+    "HOME", "FOSSIL_HOME", "USERNAME", "USER", "FOSSIL_USER",
+    "SQLITE_TMPDIR", "TMPDIR",
+    "TEMP", "TMP", "FOSSIL_VFS"
   };
 
   login_check_credentials();
   if( !g.perm.Admin && !g.perm.Setup && !db_get_boolean("test_env_enable",0) ){
-    login_needed();
+    login_needed(0);
     return;
   }
   for(i=0; i<count(azCgiVars); i++) (void)P(azCgiVars[i]);
@@ -1434,13 +1587,21 @@ void page_test_env(void){
   @ g.zTop = %h(g.zTop)<br />
   @ g.zPath = %h(g.zPath)<br />
   for(i=0, c='a'; c<='z'; c++){
-    if( login_has_capability(&c, 1) ) zCap[i++] = c;
+    if( login_has_capability(&c, 1, 0) ) zCap[i++] = c;
   }
   zCap[i] = 0;
   @ g.userUid = %d(g.userUid)<br />
   @ g.zLogin = %h(g.zLogin)<br />
   @ g.isHuman = %d(g.isHuman)<br />
   @ capabilities = %s(zCap)<br />
+  for(i=0, c='a'; c<='z'; c++){
+    if( login_has_capability(&c, 1, LOGIN_ANON)
+         && !login_has_capability(&c, 1, 0) ) zCap[i++] = c;
+  }
+  zCap[i] = 0;
+  if( i>0 ){
+    @ anonymous-adds = %s(zCap)<br />
+  }
   @ g.zRepositoryName = %h(g.zRepositoryName)<br />
   @ load_average() = %f(load_average())<br />
   @ <hr>
@@ -1461,9 +1622,8 @@ void page_test_env(void){
 }
 
 /*
-** This page is a honeypot for spiders and bots.
-**
 ** WEBPAGE: honeypot
+** This page is a honeypot for spiders and bots.
 */
 void honeypot_page(void){
   cgi_set_status(403, "Forbidden");

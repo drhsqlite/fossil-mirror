@@ -262,7 +262,7 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
     {
       /* We have found a region where different edits to V1 and V2 overlap.
       ** This is a merge conflict.  Find the size of the conflict, then
-      ** output both possible edits separate by distinctive marks.
+      ** output both possible edits separated by distinctive marks.
       */
       int sz = 1;    /* Size of the conflict in lines */
       nConflict++;
@@ -342,7 +342,7 @@ int file_contains_merge_marker(const char *zFullpath){
 }
 
 /*
-** COMMAND:  3-way-merge*
+** COMMAND: 3-way-merge*
 **
 ** Usage: %fossil 3-way-merge BASELINE V1 V2 MERGED
 **
