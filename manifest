@@ -1,5 +1,5 @@
-C Each\scall\sto\ssocket_open()\sautomatically\scloses\sany\spreviously\sopened\ssocket.
-D 2016-04-08T11:24:18.137
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion,\swhich\sincludes\nfixes\sadded\ssince\sthe\s3.12.0\srelease.
+D 2016-04-08T13:09:11.288
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -476,13 +476,13 @@ F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c 1be2c1663b0e5be621cc914535922bb8c6608d64
 F src/setup.c 38cc6e299ba8eecb803fe8a0c12f9957cab0d191
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
-F src/shell.c 5e0ab1e708dc294330ccd8230536e1801f60822e
+F src/shell.c b7922fa264f8c8d72a5ec6dd0b091e15a93c4de5
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 6fbec2fbaf3bb39566f2550b12f58127c9bfa850
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c 1f488b95eb75abe7e91b1a1a56a03c4e7e807b39
-F src/sqlite3.c cba2be96d27cb51978cd4a200397a4ad178986eb
-F src/sqlite3.h 928b1de9b43419d64cc6ed6141c64353bc54b598
+F src/sqlite3.c 329081e93430317fd601e0b858914c0a6cb6e454
+F src/sqlite3.h 807284185205bb9e7f9d1d797a6dd40de7bcde68
 F src/stash.c ccb0d94252422f28178119825a99c6bce45924d6
 F src/stat.c 9fa919c1c78db3952e181e0bf955b039aca0db26
 F src/statrep.c 061c9df02d134454c32e34cc29807adc594e1bc2
@@ -747,7 +747,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8bfd9951cabf0efc40a32447fa18cefa7bc84f3f
-R 4fc73009676a51e52ccde220b7b29000
+P a0dae8555a32dde5b033344fee8b647b0f744ef2
+R a250a4da9ed317b3fd974738e3479a83
 U drh
-Z 59bfa7b8e4f81d35a51a6db921c16e33
+Z 1fdb2b6a57845e06d41b2be604d245b2
