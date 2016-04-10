@@ -230,14 +230,14 @@ static char json_timeline_add_time_clause(Blob *pSql){
   if(zAfter&&*zAfter){
     while( fossil_isspace(*zAfter) ) ++zAfter;
     blob_appendf(pSql,
-                 " AND event.mtime>=(SELECT julianday(%Q,'utc')) "
+                 " AND event.mtime>=(SELECT julianday(%Q,fromLocal())) "
                  " ORDER BY event.mtime ASC ",
                  zAfter);
     rc = 1;
   }else if(zBefore && *zBefore){
     while( fossil_isspace(*zBefore) ) ++zBefore;
     blob_appendf(pSql,
-                 " AND event.mtime<=(SELECT julianday(%Q,'utc')) "
+                 " AND event.mtime<=(SELECT julianday(%Q,fromLocal())) "
                  " ORDER BY event.mtime DESC ",
                  zBefore);
     rc = -1;
@@ -328,7 +328,7 @@ cson_value * json_get_changed_files(int rid, int flags){
            "       blob.size as size"
            "  FROM mlink, blob"
            " WHERE mid=%d AND pid!=fid"
-           " AND blob.rid=fid "
+           " AND blob.rid=fid AND NOT mlink.isaux"
            " ORDER BY name /*sort*/",
              rid
              );

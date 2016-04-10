@@ -170,7 +170,8 @@ static int add_one_file(
   if( db_exists("SELECT 1 FROM vfile"
                 " WHERE pathname=%Q %s", zPath, filename_collation()) ){
     db_multi_exec("UPDATE vfile SET deleted=0"
-                  " WHERE pathname=%Q %s", zPath, filename_collation());
+                  " WHERE pathname=%Q %s AND deleted",
+                  zPath, filename_collation());
   }else{
     char *zFullname = mprintf("%s%s", g.zLocalRoot, zPath);
     int isExe = file_wd_isexe(zFullname);
@@ -715,8 +716,12 @@ static void mv_one_file(
                          zNew, filename_collation());
   if( x>=0 ){
     if( x==0 ){
-      fossil_fatal("cannot rename '%s' to '%s' since another file named '%s'"
-                   " is currently under management", zOrig, zNew, zNew);
+      if( !filenames_are_case_sensitive() && fossil_stricmp(zOrig,zNew)==0 ){
+        /* Case change only */
+      }else{
+        fossil_fatal("cannot rename '%s' to '%s' since another file named '%s'"
+                     " is currently under management", zOrig, zNew, zNew);
+      }
     }else{
       fossil_fatal("cannot rename '%s' to '%s' since the delete of '%s' has "
                    "not yet been committed", zOrig, zNew, zNew);
@@ -745,15 +750,19 @@ static void add_file_to_move(
   static int tableCreated = 0;
   Blob fullOldName;
   Blob fullNewName;
+  char *zOld, *zNew;
   if( !tableCreated ){
     db_multi_exec("CREATE TEMP TABLE fmove(x TEXT PRIMARY KEY %s, y TEXT %s)",
                   filename_collation(), filename_collation());
     tableCreated = 1;
   }
   file_tree_name(zOldName, &fullOldName, 1, 1);
+  zOld = blob_str(&fullOldName);
   file_tree_name(zNewName, &fullNewName, 1, 1);
-  db_multi_exec("INSERT INTO fmove VALUES('%q','%q');",
-                blob_str(&fullOldName), blob_str(&fullNewName));
+  zNew = blob_str(&fullNewName);
+  if( filenames_are_case_sensitive() || fossil_stricmp(zOld,zNew)!=0 ){
+    db_multi_exec("INSERT INTO fmove VALUES('%q','%q');", zOld, zNew);
+  }
   blob_reset(&fullNewName);
   blob_reset(&fullOldName);
 }
@@ -778,12 +787,20 @@ static void process_files_to_move(
       const char *zOldName = db_column_text(&move, 0);
       const char *zNewName = db_column_text(&move, 1);
       if( !dryRunFlag ){
-        if( file_wd_islink(zOldName) ){
-          symlink_copy(zOldName, zNewName);
+        int isOldDir = file_isdir(zOldName);
+        if( isOldDir==1 ){
+          int isNewDir = file_isdir(zNewName);
+          if( isNewDir==0 ){
+            file_rename(zOldName, zNewName, isOldDir, isNewDir);
+          }
         }else{
-          file_copy(zOldName, zNewName);
+          if( file_wd_islink(zOldName) ){
+            symlink_copy(zOldName, zNewName);
+          }else{
+            file_copy(zOldName, zNewName);
+          }
+          file_delete(zOldName);
         }
-        file_delete(zOldName);
       }
       fossil_print("MOVED_FILE %s\n", zOldName);
     }

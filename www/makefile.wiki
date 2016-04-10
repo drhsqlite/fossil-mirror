@@ -73,7 +73,7 @@ makeheaders preprocessor program:
   11.  [../src/makeheaders.html | makeheaders.html]
 
 Click on the link to read this documentation.  In addition there is
-a [http://www.tcl.tk/ | Tcl] script used to build the various makefiles:
+a [http://www.tcl-lang.org/ | Tcl] script used to build the various makefiles:
 
   12.  makemake.tcl
 

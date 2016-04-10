@@ -80,7 +80,7 @@ void stat_page(void){
   }
   style_submenu_element("Activity Reports", 0, "reports");
   style_submenu_element("SHA1 Collisions", 0, "hash-collisions");
-  if( sqlite3_libversion_number()>=3008010 ){
+  if( sqlite3_compileoption_used("ENABLE_DBSTAT_VTAB") ){
     style_submenu_element("Table Sizes", 0, "repo-tabsize");
   }
   @ <table class="label-value">

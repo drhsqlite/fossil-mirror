@@ -319,7 +319,7 @@ static int search_match(
 /*
 ** COMMAND: test-match
 **
-** Usage: fossil test-match SEARCHSTRING FILE1 FILE2 ...
+** Usage: %fossil test-match SEARCHSTRING FILE1 FILE2 ...
 */
 void test_match_cmd(void){
   Search *p;
@@ -518,19 +518,25 @@ void search_sql_setup(sqlite3 *db){
 ** Testing the search function.
 **
 ** COMMAND: search*
-** %fossil search [-all|-a] [-limit|-n #] [-width|-W #] pattern...
+** 
+** Usage: %fossil search [-all|-a] [-limit|-n #] [-width|-W #] pattern...
 **
-** Search for timeline entries matching all words
-** provided on the command line. Whole-word matches
-** scope more highly than partial matches.
-**
-** Outputs, by default, some top-N fraction of the
-** results. The -all option can be used to output
-** all matches, regardless of their search score.
-** The -limit option can be used to limit the number
-** of entries returned.  The -width option can be
-** used to set the output width used when printing
+** Search for timeline entries matching all words provided on the
+** command line. Whole-word matches scope more highly than partial
 ** matches.
+**
+** Outputs, by default, some top-N fraction of the results. The -all
+** option can be used to output all matches, regardless of their search
+** score.  The -limit option can be used to limit the number of entries
+** returned.  The -width option can be used to set the output width used
+** when printing matches.
+**
+** Options:
+**
+**     -a|--all          Output all matches, not just best matches.
+**     -n|--limit N      Limit output to N matches.
+**     -W|--width WIDTH  Set display width to WIDTH columns, 0 for
+**                       unlimited. Defaults the terminal's width.
 */
 void search_cmd(void){
   Blob pattern;
@@ -569,13 +575,12 @@ void search_cmd(void){
      "CREATE TEMP TABLE srch(rid,uuid,date,comment,x);"
      "CREATE INDEX srch_idx1 ON srch(x);"
      "INSERT INTO srch(rid,uuid,date,comment,x)"
-     "   SELECT blob.rid, uuid, datetime(event.mtime%s),"
+     "   SELECT blob.rid, uuid, datetime(event.mtime,toLocal()),"
      "          coalesce(ecomment,comment),"
      "          search_score()"
      "     FROM event, blob"
      "    WHERE blob.rid=event.objid"
-     "      AND search_match(coalesce(ecomment,comment));",
-     timeline_utc()
+     "      AND search_match(coalesce(ecomment,comment));"
   );
   iBest = db_int(0, "SELECT max(x) FROM srch");
   blob_append(&sql,
@@ -1637,7 +1642,7 @@ void search_rebuild_index(void){
 **     enable cdtw        Enable various kinds of search. c=Check-ins,
 **                        d=Documents, t=Tickets, w=Wiki.
 **
-**     disable cdtw       Disable versious kinds of search
+**     disable cdtw       Disable various kinds of search
 **
 **     stemmer (on|off)   Turn the Porter stemmer on or off for indexed
 **                        search.  (Unindexed search is never stemmed.)

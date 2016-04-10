@@ -163,6 +163,8 @@ set SQLITE_OPTIONS {
   -DSQLITE_ENABLE_FTS4
   -DSQLITE_ENABLE_FTS3_PARENTHESIS
   -DSQLITE_ENABLE_DBSTAT_VTAB
+  -DSQLITE_ENABLE_JSON1
+  -DSQLITE_ENABLE_FTS5
 }
 #lappend SQLITE_OPTIONS -DSQLITE_ENABLE_FTS3=1
 #lappend SQLITE_OPTIONS -DSQLITE_ENABLE_STAT4
@@ -173,6 +175,7 @@ set SQLITE_OPTIONS {
 #
 set SHELL_OPTIONS {
   -Dmain=sqlite3_shell
+  -DSQLITE_SHELL_IS_UTF8=1
   -DSQLITE_OMIT_LOAD_EXTENSION=1
   -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE)
   -DSQLITE_SHELL_DBNAME_PROC=fossil_open
@@ -303,11 +306,21 @@ $(OBJDIR)/mkversion:	$(SRCDIR)/mkversion.c
 $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
 	$(BCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
 
-# WARNING. DANGER. Running the test suite modifies the repository the
-# build is done from, i.e. the checkout belongs to. Do not sync/push
-# the repository after running the tests.
+# Run the test suite. 
+# Other flags that can be included in TESTFLAGS are:
+#
+#  -halt     Stop testing after the first failed test
+#  -keep     Keep the temporary workspace for debugging
+#  -prot     Write a detailed log of the tests to the file ./prot
+#  -verbose  Include even more details in the output
+#  -quiet    Hide most output from the terminal
+#  -strict   Treat known bugs as failures
+#
+# TESTFLAGS can also include names of specific test files to limit
+# the run to just those test cases.
+#
 test:	$(OBJDIR) $(APPNAME)
-	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME)
+	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME) -quiet $(TESTFLAGS)
 
 $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion
 	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid \
@@ -337,13 +350,23 @@ SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 MINIZ_OBJ.0 =
 MINIZ_OBJ.1 = $(OBJDIR)/miniz.o
 MINIZ_OBJ.  = $(MINIZ_OBJ.0)
+
+# The USE_LINENOISE variable may be undefined, set to 0, or set
+# to 1. If it is set to 0, then there is no need to build or link
+# the linenoise.o object.
+LINENOISE_DEF.0 =
+LINENOISE_DEF.1 = -DHAVE_LINENOISE
+LINENOISE_DEF.  = $(LINENOISE_DEF.0)
+LINENOISE_OBJ.0 =
+LINENOISE_OBJ.1 = $(OBJDIR)/linenoise.o
+LINENOISE_OBJ.  = $(LINENOISE_OBJ.0)
 }]
 
 writeln [string map [list <<<NEXT_LINE>>> \\] {
 EXTRAOBJ = <<<NEXT_LINE>>>
  $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE)) <<<NEXT_LINE>>>
  $(MINIZ_OBJ.$(FOSSIL_ENABLE_MINIZ)) <<<NEXT_LINE>>>
- $(OBJDIR)/linenoise.o <<<NEXT_LINE>>>
+ $(LINENOISE_OBJ.$(USE_LINENOISE)) <<<NEXT_LINE>>>
  $(OBJDIR)/shell.o <<<NEXT_LINE>>>
  $(OBJDIR)/th.o <<<NEXT_LINE>>>
  $(OBJDIR)/th_lang.o <<<NEXT_LINE>>>
@@ -404,7 +427,7 @@ writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
 writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) -c \$(SRCDIR)/sqlite3.c -o \$@\n"
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
-writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) -DHAVE_LINENOISE -c \$(SRCDIR)/shell.c -o \$@\n"
+writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) \$(LINENOISE_DEF.\$(USE_LINENOISE)) -c \$(SRCDIR)/shell.c -o \$@\n"
 
 writeln "\$(OBJDIR)/linenoise.o:\t\$(SRCDIR)/linenoise.c \$(SRCDIR)/linenoise.h"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/linenoise.c -o \$@\n"
@@ -458,6 +481,10 @@ writeln {#!/usr/bin/make
 # This is a makefile for use on Cygwin/Darwin/FreeBSD/Linux/Windows using
 # MinGW or MinGW-w64.
 #
+# Some of the special options which can be passed to make
+#   USE_WINDOWS=1    if building under a windows command prompt
+#   X64=1            if using an unprefixed 64-bit mingw compiler
+#
 
 #### Select one of MinGW, MinGW-w64 (32-bit) or MinGW-w64 (64-bit) compilers.
 #    By default, this is an empty string (i.e. use the native compiler).
@@ -501,6 +528,10 @@ BCC = gcc
 #    issues when building incrementally).
 #
 # FOSSIL_BUILD_SSL = 1
+
+#### Enable relative paths in external diff/gdiff
+#
+# FOSSIL_ENABLE_EXEC_REL_PATHS = 1
 
 #### Enable legacy treatment of mv/rm (skip checkout files)
 #
@@ -599,7 +630,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2c
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2g
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -646,19 +677,21 @@ endif
 #    the finished binary for fossil.  The BCC compiler above is used
 #    for building intermediate code-generator tools.
 #
-TCC = $(PREFIX)gcc -Os -Wall
-
-#### When not using the miniz compression library, zlib is required.
-#
-ifndef FOSSIL_ENABLE_MINIZ
-TCC += -L$(ZLIBDIR) -I$(ZINCDIR)
-endif
+TCC = $(PREFIX)gcc -Wall
 
 #### Add the necessary command line options to build with debugging
 #    symbols, if enabled.
 #
 ifdef FOSSIL_ENABLE_SYMBOLS
 TCC += -g
+else
+TCC += -Os
+endif
+
+#### When not using the miniz compression library, zlib is required.
+#
+ifndef FOSSIL_ENABLE_MINIZ
+TCC += -L$(ZLIBDIR) -I$(ZINCDIR)
 endif
 
 #### Compile resources for use in building executables that will run
@@ -705,6 +738,12 @@ TCC += -DFOSSIL_ENABLE_SSL=1
 RCC += -DFOSSIL_ENABLE_SSL=1
 endif
 
+# With relative paths in external diff/gdiff
+ifdef FOSSIL_ENABLE_EXEC_REL_PATHS
+TCC += -DFOSSIL_ENABLE_EXEC_REL_PATHS=1
+RCC += -DFOSSIL_ENABLE_EXEC_REL_PATHS=1
+endif
+
 # With legacy treatment of mv/rm
 ifdef FOSSIL_ENABLE_LEGACY_MV_RM
 TCC += -DFOSSIL_ENABLE_LEGACY_MV_RM=1
@@ -747,10 +786,14 @@ TCC += -DFOSSIL_ENABLE_JSON=1
 RCC += -DFOSSIL_ENABLE_JSON=1
 endif
 
-#### We add the -static option here so that we can build a static
-#    executable that will run in a chroot jail.
+#### The option -static has no effect on MinGW(-w64), only dynamic
+#    executables can be built when linking with MSVCRT.  OpenSSL
+#    (optional) and zlib (required) however are always linked in
+#    statically.  Therefore, the FOSSIL_DYNAMIC_BUILD option does
+#    not really apply to MinGW (i.e. since ALL external libraries
+#    are NOT linked dynamically).
 #
-LIB = -static
+# LIB = -static
 
 #### MinGW: If available, use the Unicode capable runtime startup code.
 #
@@ -1010,7 +1053,7 @@ endif
 
 $(APPNAME):	$(APPTARGETS) $(OBJDIR)/headers $(CODECHECK1) $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o
 	$(CODECHECK1) $(TRANS_SRC)
-	$(TCC) -o $@ $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o
+	$(TCC) -o $@ $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o $(LIB)
 
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
@@ -1310,70 +1353,145 @@ P       = .pdb
 PERLDIR = C:\Perl\bin
 PERL    = perl.exe
 
-# Uncomment to enable debug symbols
-# DEBUG = 1
+# Enable debugging symbols?
+!ifndef DEBUG
+DEBUG = 0
+!endif
 
-# Uncomment to support Windows XP with Visual Studio 201x
-# FOSSIL_ENABLE_WINXP = 1
+# Build the OpenSSL libraries?
+!ifndef FOSSIL_BUILD_SSL
+FOSSIL_BUILD_SSL = 0
+!endif
 
-# Uncomment to enable JSON API
-# FOSSIL_ENABLE_JSON = 1
+# Build the included zlib library?
+!ifndef FOSSIL_BUILD_ZLIB
+FOSSIL_BUILD_ZLIB = 1
+!endif
 
-# Uncomment to enable miniz usage
-# FOSSIL_ENABLE_MINIZ = 1
+# Link everything except SQLite dynamically?
+!ifndef FOSSIL_DYNAMIC_BUILD
+FOSSIL_DYNAMIC_BUILD = 0
+!endif
 
-# Uncomment to enable SSL support
-# FOSSIL_ENABLE_SSL = 1
+# Enable relative paths in external diff/gdiff?
+!ifndef FOSSIL_ENABLE_EXEC_REL_PATHS
+FOSSIL_ENABLE_EXEC_REL_PATHS = 0
+!endif
 
-# Uncomment to build SSL libraries
-# FOSSIL_BUILD_SSL = 1
+# Enable the JSON API?
+!ifndef FOSSIL_ENABLE_JSON
+FOSSIL_ENABLE_JSON = 0
+!endif
 
-# Uncomment to enable legacy treatment of mv/rm
-# FOSSIL_ENABLE_LEGACY_MV_RM = 1
+# Enable legacy treatment of the mv/rm commands?
+!ifndef FOSSIL_ENABLE_LEGACY_MV_RM
+FOSSIL_ENABLE_LEGACY_MV_RM = 0
+!endif
 
-# Uncomment to enable TH1 scripts in embedded documentation files
-# FOSSIL_ENABLE_TH1_DOCS = 1
+# Enable use of miniz instead of zlib?
+!ifndef FOSSIL_ENABLE_MINIZ
+FOSSIL_ENABLE_MINIZ = 0
+!endif
 
-# Uncomment to enable TH1 hooks
-# FOSSIL_ENABLE_TH1_HOOKS = 1
+# Enable OpenSSL support?
+!ifndef FOSSIL_ENABLE_SSL
+FOSSIL_ENABLE_SSL = 0
+!endif
 
-# Uncomment to enable Tcl support
-# FOSSIL_ENABLE_TCL = 1
+# Enable the Tcl integration subsystem?
+!ifndef FOSSIL_ENABLE_TCL
+FOSSIL_ENABLE_TCL = 0
+!endif
 
-!ifdef FOSSIL_ENABLE_SSL
-SSLDIR    = $(B)\compat\openssl-1.0.2c
+# Enable TH1 scripts in embedded documentation files?
+!ifndef FOSSIL_ENABLE_TH1_DOCS
+FOSSIL_ENABLE_TH1_DOCS = 0
+!endif
+
+# Enable TH1 hooks for commands and web pages?
+!ifndef FOSSIL_ENABLE_TH1_HOOKS
+FOSSIL_ENABLE_TH1_HOOKS = 0
+!endif
+
+# Enable support for Windows XP with Visual Studio 201x?
+!ifndef FOSSIL_ENABLE_WINXP
+FOSSIL_ENABLE_WINXP = 0
+!endif
+
+!if $(FOSSIL_ENABLE_SSL)!=0
+SSLDIR    = $(B)\compat\openssl-1.0.2g
 SSLINCDIR = $(SSLDIR)\inc32
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
+SSLLIBDIR = $(SSLDIR)\out32dll
+!else
 SSLLIBDIR = $(SSLDIR)\out32
+!endif
 SSLLFLAGS = /nologo /opt:ref /debug
 SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 !message Using 'x64' platform for OpenSSL...
-# BUGBUG (OpenSSL): Apparently, using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN64A no-asm no-ssl2 no-ssl3 no-shared
-SSLCONFIG = VC-WIN64A no-asm no-shared
+# BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
+# SSLCONFIG = VC-WIN64A no-asm no-ssl2 no-ssl3
+SSLCONFIG = VC-WIN64A no-asm
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
+SSLCONFIG = $(SSLCONFIG) shared
+!else
+SSLCONFIG = $(SSLCONFIG) no-shared
+!endif
 SSLSETUP  = ms\do_win64a.bat
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
+SSLNMAKE  = ms\ntdll.mak all
+!else
 SSLNMAKE  = ms\nt.mak all
+!endif
+# BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
+!if $(FOSSIL_DYNAMIC_BUILD)==0
 SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
+!endif
 !elseif "$(PLATFORM)"=="ia64"
 !message Using 'ia64' platform for OpenSSL...
-# BUGBUG (OpenSSL): Apparently, using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN64I no-asm no-ssl2 no-ssl3 no-shared
-SSLCONFIG = VC-WIN64I no-asm no-shared
+# BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
+# SSLCONFIG = VC-WIN64I no-asm no-ssl2 no-ssl3
+SSLCONFIG = VC-WIN64I no-asm
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
+SSLCONFIG = $(SSLCONFIG) shared
+!else
+SSLCONFIG = $(SSLCONFIG) no-shared
+!endif
 SSLSETUP  = ms\do_win64i.bat
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
+SSLNMAKE  = ms\ntdll.mak all
+!else
 SSLNMAKE  = ms\nt.mak all
+!endif
+# BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
+!if $(FOSSIL_DYNAMIC_BUILD)==0
 SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
+!endif
 !else
 !message Assuming 'x86' platform for OpenSSL...
-# BUGBUG (OpenSSL): Apparently, using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN32 no-asm no-ssl2 no-ssl3 no-shared
-SSLCONFIG = VC-WIN32 no-asm no-shared
+# BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
+# SSLCONFIG = VC-WIN32 no-asm no-ssl2 no-ssl3
+SSLCONFIG = VC-WIN32 no-asm
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
+SSLCONFIG = $(SSLCONFIG) shared
+!else
+SSLCONFIG = $(SSLCONFIG) no-shared
+!endif
 SSLSETUP  = ms\do_ms.bat
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
+SSLNMAKE  = ms\ntdll.mak all
+!else
 SSLNMAKE  = ms\nt.mak all
+!endif
+# BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
+!if $(FOSSIL_DYNAMIC_BUILD)==0
 SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
+!endif
 !endif
 !endif
 
-!ifdef FOSSIL_ENABLE_TCL
+!if $(FOSSIL_ENABLE_TCL)!=0
 TCLDIR    = $(B)\compat\tcl-8.6
 TCLSRCDIR = $(TCLDIR)
 TCLINCDIR = $(TCLSRCDIR)\generic
@@ -1382,26 +1500,37 @@ TCLINCDIR = $(TCLSRCDIR)\generic
 # zlib options
 ZINCDIR   = $(B)\compat\zlib
 ZLIBDIR   = $(B)\compat\zlib
+
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
+ZLIB      = zdll.lib
+!else
 ZLIB      = zlib.lib
+!endif
 
 INCL      = /I. /I$(SRCDIR) /I$B\win\include
 
-!ifndef FOSSIL_ENABLE_MINIZ
+!if $(FOSSIL_ENABLE_MINIZ)==0
 INCL      = $(INCL) /I$(ZINCDIR)
 !endif
 
-!ifdef FOSSIL_ENABLE_SSL
+!if $(FOSSIL_ENABLE_SSL)!=0
 INCL      = $(INCL) /I$(SSLINCDIR)
 !endif
 
-!ifdef FOSSIL_ENABLE_TCL
+!if $(FOSSIL_ENABLE_TCL)!=0
 INCL      = $(INCL) /I$(TCLINCDIR)
 !endif
 
 CFLAGS    = /nologo
-LDFLAGS   = /NODEFAULTLIB:msvcrt /MANIFEST:NO
+LDFLAGS   =
 
-!ifdef FOSSIL_ENABLE_WINXP
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
+LDFLAGS   = $(LDFLAGS) /MANIFEST
+!else
+LDFLAGS   = $(LDFLAGS) /NODEFAULTLIB:msvcrt /MANIFEST:NO
+!endif
+
+!if $(FOSSIL_ENABLE_WINXP)!=0
 XPCFLAGS  = $(XPCFLAGS) /D_USING_V110_SDK71_=1
 CFLAGS    = $(CFLAGS) $(XPCFLAGS)
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
@@ -1412,57 +1541,82 @@ XPLDFLAGS = $(XPLDFLAGS) /SUBSYSTEM:CONSOLE,5.01
 LDFLAGS   = $(LDFLAGS) $(XPLDFLAGS)
 !endif
 
-!ifdef DEBUG
-CFLAGS    = $(CFLAGS) /Zi /MTd /Od
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
+!if $(DEBUG)!=0
+CRTFLAGS = /MDd
+!else
+CRTFLAGS = /MD
+!endif
+!else
+!if $(DEBUG)!=0
+CRTFLAGS = /MTd
+!else
+CRTFLAGS = /MT
+!endif
+!endif
+
+!if $(DEBUG)!=0
+CFLAGS    = $(CFLAGS) /Zi $(CRTFLAGS) /Od
 LDFLAGS   = $(LDFLAGS) /DEBUG
 !else
-CFLAGS    = $(CFLAGS) /MT /O2
+CFLAGS    = $(CFLAGS) $(CRTFLAGS) /O2
 !endif
 
 BCC       = $(CC) $(CFLAGS)
 TCC       = $(CC) /c $(CFLAGS) $(MSCDEF) $(INCL)
-RCC       = rc /D_WIN32 /D_MSC_VER $(MSCDEF) $(INCL)
+RCC       = $(RC) /D_WIN32 /D_MSC_VER $(MSCDEF) $(INCL)
+MTC       = mt
 LIBS      = ws2_32.lib advapi32.lib
 LIBDIR    =
 
-!ifndef FOSSIL_ENABLE_MINIZ
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
+TCC       = $(TCC) /DFOSSIL_DYNAMIC_BUILD=1
+RCC       = $(RCC) /DFOSSIL_DYNAMIC_BUILD=1
+!endif
+
+!if $(FOSSIL_ENABLE_MINIZ)==0
 LIBS      = $(LIBS) $(ZLIB)
 LIBDIR    = $(LIBDIR) /LIBPATH:$(ZLIBDIR)
 !endif
 
-!ifdef FOSSIL_ENABLE_MINIZ
+!if $(FOSSIL_ENABLE_MINIZ)!=0
 TCC       = $(TCC) /DFOSSIL_ENABLE_MINIZ=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_MINIZ=1
 !endif
 
-!ifdef FOSSIL_ENABLE_JSON
+!if $(FOSSIL_ENABLE_JSON)!=0
 TCC       = $(TCC) /DFOSSIL_ENABLE_JSON=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_JSON=1
 !endif
 
-!ifdef FOSSIL_ENABLE_SSL
+!if $(FOSSIL_ENABLE_SSL)!=0
 TCC       = $(TCC) /DFOSSIL_ENABLE_SSL=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_SSL=1
 LIBS      = $(LIBS) $(SSLLIB)
 LIBDIR    = $(LIBDIR) /LIBPATH:$(SSLLIBDIR)
 !endif
 
-!ifdef FOSSIL_ENABLE_LEGACY_MV_RM
+!if $(FOSSIL_ENABLE_EXEC_REL_PATHS)!=0
+TCC       = $(TCC) /DFOSSIL_ENABLE_EXEC_REL_PATHS=1
+RCC       = $(RCC) /DFOSSIL_ENABLE_EXEC_REL_PATHS=1
+!endif
+
+!if $(FOSSIL_ENABLE_LEGACY_MV_RM)!=0
 TCC       = $(TCC) /DFOSSIL_ENABLE_LEGACY_MV_RM=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_LEGACY_MV_RM=1
 !endif
 
-!ifdef FOSSIL_ENABLE_TH1_DOCS
+!if $(FOSSIL_ENABLE_TH1_DOCS)!=0
 TCC       = $(TCC) /DFOSSIL_ENABLE_TH1_DOCS=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_TH1_DOCS=1
 !endif
 
-!ifdef FOSSIL_ENABLE_TH1_HOOKS
+!if $(FOSSIL_ENABLE_TH1_HOOKS)!=0
 TCC       = $(TCC) /DFOSSIL_ENABLE_TH1_HOOKS=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_TH1_HOOKS=1
 !endif
 
-!ifdef FOSSIL_ENABLE_TCL
+!if $(FOSSIL_ENABLE_TCL)!=0
 TCC       = $(TCC) /DFOSSIL_ENABLE_TCL=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_TCL=1
 TCC       = $(TCC) /DFOSSIL_ENABLE_TCL_STUBS=1
@@ -1518,12 +1672,12 @@ foreach s [lsort [concat $src $AdditionalObj]] {
 if {$i > 0} {
   writeln " \\"
 }
-writeln "!ifdef FOSSIL_ENABLE_MINIZ"
+writeln "!if \$(FOSSIL_ENABLE_MINIZ)!=0"
 writeln -nonewline "        "
 writeln "\$(OX)\\miniz\$O \\"; incr i
 writeln "!endif"
 writeln -nonewline "        \$(OX)\\fossil.res\n\n"
-writeln {
+writeln [string map [list <<<NEXT_LINE>>> \\] {
 APPNAME    = $(OX)\fossil$(E)
 PDBNAME    = $(OX)\fossil$(P)
 APPTARGETS =
@@ -1532,13 +1686,13 @@ all: $(OX) $(APPNAME)
 
 zlib:
 	@echo Building zlib from "$(ZLIBDIR)"...
-!ifdef FOSSIL_ENABLE_WINXP
+!if $(FOSSIL_ENABLE_WINXP)!=0
 	@pushd "$(ZLIBDIR)" && $(MAKE) /f win32\Makefile.msc $(ZLIB) "CC=cl $(XPCFLAGS)" "LD=link $(XPLDFLAGS)" && popd
 !else
 	@pushd "$(ZLIBDIR)" && $(MAKE) /f win32\Makefile.msc $(ZLIB) && popd
 !endif
 
-!ifdef FOSSIL_ENABLE_SSL
+!if $(FOSSIL_ENABLE_SSL)!=0
 openssl:
 	@echo Building OpenSSL from "$(SSLDIR)"...
 !if "$(PERLDIR)" != ""
@@ -1546,19 +1700,21 @@ openssl:
 !endif
 	@pushd "$(SSLDIR)" && $(PERL) Configure $(SSLCONFIG) && popd
 	@pushd "$(SSLDIR)" && call $(SSLSETUP) && popd
-!ifdef FOSSIL_ENABLE_WINXP
+!if $(FOSSIL_ENABLE_WINXP)!=0
 	@pushd "$(SSLDIR)" && $(MAKE) /f $(SSLNMAKE) "CC=cl $(SSLCFLAGS) $(XPCFLAGS)" "LFLAGS=$(SSLLFLAGS) $(XPLDFLAGS)" && popd
 !else
 	@pushd "$(SSLDIR)" && $(MAKE) /f $(SSLNMAKE) "CC=cl $(SSLCFLAGS)" && popd
 !endif
 !endif
 
-!ifndef FOSSIL_ENABLE_MINIZ
+!if $(FOSSIL_ENABLE_MINIZ)==0
+!if $(FOSSIL_BUILD_ZLIB)!=0
 APPTARGETS = $(APPTARGETS) zlib
 !endif
+!endif
 
-!ifdef FOSSIL_ENABLE_SSL
-!ifdef FOSSIL_BUILD_SSL
+!if $(FOSSIL_ENABLE_SSL)!=0
+!if $(FOSSIL_BUILD_SSL)!=0
 APPTARGETS = $(APPTARGETS) openssl
 !endif
 !endif
@@ -1567,15 +1723,17 @@ $(APPNAME) : $(APPTARGETS) translate$E mkindex$E codecheck1$E headers $(OBJ) $(O
 	cd $(OX)
 	codecheck1$E $(SRC)
 	link $(LDFLAGS) /OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
+	if exist $@.manifest <<<NEXT_LINE>>>
+		$(MTC) -nologo -manifest $@.manifest -outputresource:$@;1
 
-$(OX)\linkopts: $B\win\Makefile.msc}
+$(OX)\linkopts: $B\win\Makefile.msc}]
 set redir {>}
 foreach s [lsort [concat $src $AdditionalObj]] {
   writeln "\techo \$(OX)\\$s.obj $redir \$@"
   set redir {>>}
 }
 set redir {>>}
-writeln "!ifdef FOSSIL_ENABLE_MINIZ"
+writeln "!if \$(FOSSIL_ENABLE_MINIZ)!=0"
 writeln "\techo \$(OX)\\miniz.obj $redir \$@"
 writeln "!endif"
 writeln "\techo \$(LIBS) $redir \$@"

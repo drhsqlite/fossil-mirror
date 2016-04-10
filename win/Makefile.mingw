@@ -11,6 +11,10 @@
 # This is a makefile for use on Cygwin/Darwin/FreeBSD/Linux/Windows using
 # MinGW or MinGW-w64.
 #
+# Some of the special options which can be passed to make
+#   USE_WINDOWS=1    if building under a windows command prompt
+#   X64=1            if using an unprefixed 64-bit mingw compiler
+#
 
 #### Select one of MinGW, MinGW-w64 (32-bit) or MinGW-w64 (64-bit) compilers.
 #    By default, this is an empty string (i.e. use the native compiler).
@@ -54,6 +58,10 @@ BCC = gcc
 #    issues when building incrementally).
 #
 # FOSSIL_BUILD_SSL = 1
+
+#### Enable relative paths in external diff/gdiff
+#
+# FOSSIL_ENABLE_EXEC_REL_PATHS = 1
 
 #### Enable legacy treatment of mv/rm (skip checkout files)
 #
@@ -152,7 +160,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2c
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2g
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -199,19 +207,21 @@ endif
 #    the finished binary for fossil.  The BCC compiler above is used
 #    for building intermediate code-generator tools.
 #
-TCC = $(PREFIX)gcc -Os -Wall
-
-#### When not using the miniz compression library, zlib is required.
-#
-ifndef FOSSIL_ENABLE_MINIZ
-TCC += -L$(ZLIBDIR) -I$(ZINCDIR)
-endif
+TCC = $(PREFIX)gcc -Wall
 
 #### Add the necessary command line options to build with debugging
 #    symbols, if enabled.
 #
 ifdef FOSSIL_ENABLE_SYMBOLS
 TCC += -g
+else
+TCC += -Os
+endif
+
+#### When not using the miniz compression library, zlib is required.
+#
+ifndef FOSSIL_ENABLE_MINIZ
+TCC += -L$(ZLIBDIR) -I$(ZINCDIR)
 endif
 
 #### Compile resources for use in building executables that will run
@@ -258,6 +268,12 @@ TCC += -DFOSSIL_ENABLE_SSL=1
 RCC += -DFOSSIL_ENABLE_SSL=1
 endif
 
+# With relative paths in external diff/gdiff
+ifdef FOSSIL_ENABLE_EXEC_REL_PATHS
+TCC += -DFOSSIL_ENABLE_EXEC_REL_PATHS=1
+RCC += -DFOSSIL_ENABLE_EXEC_REL_PATHS=1
+endif
+
 # With legacy treatment of mv/rm
 ifdef FOSSIL_ENABLE_LEGACY_MV_RM
 TCC += -DFOSSIL_ENABLE_LEGACY_MV_RM=1
@@ -300,10 +316,14 @@ TCC += -DFOSSIL_ENABLE_JSON=1
 RCC += -DFOSSIL_ENABLE_JSON=1
 endif
 
-#### We add the -static option here so that we can build a static
-#    executable that will run in a chroot jail.
+#### The option -static has no effect on MinGW(-w64), only dynamic
+#    executables can be built when linking with MSVCRT.  OpenSSL
+#    (optional) and zlib (required) however are always linked in
+#    statically.  Therefore, the FOSSIL_DYNAMIC_BUILD option does
+#    not really apply to MinGW (i.e. since ALL external libraries
+#    are NOT linked dynamically).
 #
-LIB = -static
+# LIB = -static
 
 #### MinGW: If available, use the Unicode capable runtime startup code.
 #
@@ -954,7 +974,7 @@ endif
 
 $(APPNAME):	$(APPTARGETS) $(OBJDIR)/headers $(CODECHECK1) $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o
 	$(CODECHECK1) $(TRANS_SRC)
-	$(TCC) -o $@ $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o
+	$(TCC) -o $@ $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o $(LIB)
 
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
@@ -2074,12 +2094,15 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_ENABLE_FTS4 \
                  -DSQLITE_ENABLE_FTS3_PARENTHESIS \
                  -DSQLITE_ENABLE_DBSTAT_VTAB \
+                 -DSQLITE_ENABLE_JSON1 \
+                 -DSQLITE_ENABLE_FTS5 \
                  -DSQLITE_WIN32_NO_ANSI \
                  -D_HAVE__MINGW_H \
                  -DSQLITE_USE_MALLOC_H \
                  -DSQLITE_USE_MSIZE
 
 SHELL_OPTIONS = -Dmain=sqlite3_shell \
+                -DSQLITE_SHELL_IS_UTF8=1 \
                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
                 -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE) \
                 -DSQLITE_SHELL_DBNAME_PROC=fossil_open \

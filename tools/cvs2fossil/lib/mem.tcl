@@ -50,8 +50,8 @@ namespace eval ::vc::tools::mem {
 
 	struct::list assign [minfo] _ _ _ cba _ mba
 
-	set dc [expr $cba - $lcba] ; set lcba $cba	
-	set dm [expr $mba - $lmba] ; set lmba $mba	
+	set dc [expr $cba - $lcba] ; set lcba $cba
+	set dm [expr $mba - $lmba] ; set lmba $mba
 
 	# projection: 1          2 3          4 5         6 7          6 8         10
 	return "[F [incr mid]] | [F $cba] | [F $dc] | [F $mba] | [F $dm] |=| "

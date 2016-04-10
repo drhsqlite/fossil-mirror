@@ -439,14 +439,14 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
 **
 **      Move the check-ins identified by TAGS and all of their descendants
 **      out of the repository and into the graveyard.  The "checkins"
-**      subcommand keyword is option and can be omitted as long as TAGS
+**      subcommand keyword is optional and can be omitted as long as TAGS
 **      does not conflict with any other subcommand.
 **
-**      If a TAGS includes a branch name then it means all the check-ins
+**      If TAGS includes a branch name then it means all the check-ins
 **      on the most recent occurrance of that branch.
 **
 **           --explain         Make no changes, but show what would happen.
-**           --dry-run         Make no chances.
+**           --dry-run         Make no changes.
 **
 **   fossil purge list|ls ?-l?
 **
@@ -494,7 +494,7 @@ void purge_cmd(void){
   }else if( strncmp(zSubcmd, "list", n)==0 || strcmp(zSubcmd,"ls")==0 ){
     int showDetail = find_option("l","l",0)!=0;
     if( !db_table_exists("repository","purgeevent") ) return;
-    db_prepare(&q, "SELECT peid, datetime(ctime,'unixepoch','localtime')"
+    db_prepare(&q, "SELECT peid, datetime(ctime,'unixepoch',toLocal())"
                    " FROM purgeevent");
     while( db_step(&q)==SQLITE_ROW ){
       fossil_print("%4d on %s\n", db_column_int(&q,0), db_column_text(&q,1));

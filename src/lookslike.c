@@ -97,7 +97,7 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
   }else if( c=='\r' ){
     flags |= LOOK_CR;
     if( n<=1 || z[1]!='\n' ){
-      flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
+      flags |= LOOK_LONE_CR;  /* Not enough chars or next char not LF */
     }
   }
   j = (c!='\n');
@@ -121,7 +121,7 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
     }else if( c=='\r' ){
       flags |= LOOK_CR;
       if( n<=1 || z[1]!='\n' ){
-        flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
+        flags |= LOOK_LONE_CR;  /* Not enough chars or next char not LF */
       }
     }
   }
@@ -246,7 +246,7 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
   }else if( c=='\r' ){
     flags |= LOOK_CR;
     if( n<(2*sizeof(WCHAR_T)) || UTF16_SWAP_IF(bReverse, z[1])!='\n' ){
-      flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
+      flags |= LOOK_LONE_CR;  /* Not enough chars or next char not LF */
     }
   }
   j = (c!='\n');
@@ -274,7 +274,7 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
     }else if( c=='\r' ){
       flags |= LOOK_CR;
       if( n<(2*sizeof(WCHAR_T)) || UTF16_SWAP_IF(bReverse, z[1])!='\n' ){
-        flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
+        flags |= LOOK_LONE_CR;  /* Not enough chars or next char not LF */
       }
     }
   }

@@ -17,6 +17,7 @@ names:
 <li> <b>current</b>
 <li> <b>next</b>
 <li> <b>previous</b> or <b>prev</b>
+<li> <b>ckout</b> for embedded docs
 </ul>
 </ul>
 </td></tr>
@@ -218,6 +219,12 @@ repository) then a few extra tags apply.  The "current" tag means the
 current check-out.  The "next" tag means the youngest child of the
 current check-out.  And the "previous" or "prev" tag means the primary
 (non-merge) parent of the current check-out.
+
+For embedded documentation, the tag "ckout" means the version as present in
+the local source tree on disk, provided that the web server is started using
+"fossil ui" or "fossil server" from within the source tree. This tag can be 
+used to preview local changes to documentation before committing them. It does
+not apply to CLI commands.
 
 <h2>Additional Examples</h2>
 
