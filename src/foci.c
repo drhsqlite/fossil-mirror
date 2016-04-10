@@ -169,13 +169,14 @@ static int fociFilter(
   manifest_destroy(pCur->pMan);
   if( idxNum ){
     pCur->pMan = manifest_get(sqlite3_value_int(argv[0]), CFTYPE_MANIFEST, 0);
-    pCur->iFile = 0;
-    manifest_file_rewind(pCur->pMan);
-    pCur->pFile = manifest_file_next(pCur->pMan, 0);
+    if( pCur->pMan ){
+      manifest_file_rewind(pCur->pMan);
+      pCur->pFile = manifest_file_next(pCur->pMan, 0);
+    }
   }else{
     pCur->pMan = 0;
-    pCur->iFile = 0;
   }
+  pCur->iFile = 0;
   return SQLITE_OK;
 }
 

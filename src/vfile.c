@@ -503,7 +503,7 @@ void vfile_scan(
   }
   depth++;
 
-  zNative = fossil_utf8_to_filename(blob_str(pPath));
+  zNative = fossil_utf8_to_path(blob_str(pPath), 1);
   d = opendir(zNative);
   if( d ){
     while( (pEntry=readdir(d))!=0 ){
@@ -514,7 +514,7 @@ void vfile_scan(
         if( pEntry->d_name[1]==0 ) continue;
         if( pEntry->d_name[1]=='.' && pEntry->d_name[2]==0 ) continue;
       }
-      zUtf8 = fossil_filename_to_utf8(pEntry->d_name);
+      zUtf8 = fossil_path_to_utf8(pEntry->d_name);
       blob_appendf(pPath, "/%s", zUtf8);
       zPath = blob_str(pPath);
       if( glob_match(pIgnore1, &zPath[nPrefix+1]) ||
@@ -541,12 +541,12 @@ void vfile_scan(
           db_reset(&ins);
         }
       }
-      fossil_filename_free(zUtf8);
+      fossil_path_free(zUtf8);
       blob_resize(pPath, origSize);
     }
     closedir(d);
   }
-  fossil_filename_free(zNative);
+  fossil_path_free(zNative);
 
   depth--;
   if( depth==0 ){
@@ -615,7 +615,7 @@ int vfile_dir_scan(
   }
   depth++;
 
-  zNative = fossil_utf8_to_filename(blob_str(pPath));
+  zNative = fossil_utf8_to_path(blob_str(pPath), 1);
   d = opendir(zNative);
   if( d ){
     while( (pEntry=readdir(d))!=0 ){
@@ -628,7 +628,7 @@ int vfile_dir_scan(
         if( pEntry->d_name[1]=='.' && pEntry->d_name[2]==0 ) continue;
       }
       zOrigPath = mprintf("%s", blob_str(pPath));
-      zUtf8 = fossil_filename_to_utf8(pEntry->d_name);
+      zUtf8 = fossil_path_to_utf8(pEntry->d_name);
       blob_appendf(pPath, "/%s", zUtf8);
       zPath = blob_str(pPath);
       if( glob_match(pIgnore1, &zPath[nPrefix+1]) ||
@@ -662,13 +662,13 @@ int vfile_dir_scan(
         db_reset(&upd);
         result++; /* found 1 normal file */
       }
-      fossil_filename_free(zUtf8);
+      fossil_path_free(zUtf8);
       blob_resize(pPath, origSize);
       fossil_free(zOrigPath);
     }
     closedir(d);
   }
-  fossil_filename_free(zNative);
+  fossil_path_free(zNative);
 
   depth--;
   if( depth==0 ){

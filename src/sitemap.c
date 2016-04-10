@@ -22,10 +22,10 @@
 #include <assert.h>
 
 /*
-** WEBPAGE:  sitemap
+** WEBPAGE: sitemap
 **
 ** List some of the web pages offered by the Fossil web engine.  This
-** page is intended as a suppliment to the menu bar on the main screen.
+** page is intended as a supplement to the menu bar on the main screen.
 ** That is, this page is designed to hold links that are omitted from
 ** the main menu due to lack of space.
 */
@@ -117,6 +117,7 @@ void sitemap_page(void){
       @       this repository</a></li>
     }
     @   <li>%z(href("%R/bloblist"))List of Artifacts</a></li>
+    @   <li>%z(href("%R/timewarps"))List of "Timewarp" Check-ins</a></li>
     @   </ul>
     @ </li>
   }
@@ -138,9 +139,6 @@ void sitemap_page(void){
   @   <ul>
   if( g.perm.Admin || db_get_boolean("test_env_enable",0) ){
     @   <li>%z(href("%R/test_env"))CGI Environment Test</a></li>
-  }
-  if( g.perm.Read && g.perm.Hyperlink ){
-    @   <li>%z(href("%R/test_timewarps"))List of "Timewarp" Check-ins</a></li>
   }
   if( g.perm.Read ){
     @   <li>%z(href("%R/test-rename-list"))List of file renames</a></li>

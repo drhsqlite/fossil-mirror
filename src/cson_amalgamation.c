@@ -32,7 +32,7 @@
 typedef __int64 JSON_int_t;
 #define JSON_PARSER_INTEGER_SSCANF_TOKEN "%I64d"
 #define JSON_PARSER_INTEGER_SPRINTF_TOKEN "%I64d"
-#elif __STDC_VERSION__ >= 199901L || HAVE_LONG_LONG == 1
+#elif (__STDC_VERSION__ >= 199901L) || (HAVE_LONG_LONG == 1)
 typedef long long JSON_int_t;
 #define JSON_PARSER_INTEGER_SSCANF_TOKEN "%lld"
 #define JSON_PARSER_INTEGER_SPRINTF_TOKEN "%lld"
@@ -1480,7 +1480,7 @@ typedef struct cson_value_api cson_value_api;
 /**
    Empty-initialized cson_value_api object.
 */
-static const cson_value_api cson_value_api_empty = cson_value_api_empty_m;
+/*static const cson_value_api cson_value_api_empty = cson_value_api_empty_m;*/
 
 
 typedef unsigned int cson_counter_t;
@@ -1531,11 +1531,6 @@ struct cson_value
 /**
    Empty-initialized cson_value object.
 */
-#define cson_value_empty_m { &cson_value_api_empty/*api*/, NULL/*value*/, 0/*refcount*/ }
-/**
-   Empty-initialized cson_value object.
-*/
-static const cson_value cson_value_empty = cson_value_empty_m;
 const cson_parse_opt cson_parse_opt_empty = cson_parse_opt_empty_m;
 const cson_output_opt cson_output_opt_empty = cson_output_opt_empty_m;
 const cson_object_iterator cson_object_iterator_empty = cson_object_iterator_empty_m;
@@ -1560,8 +1555,6 @@ static const cson_value_api cson_value_api_array = { CSON_TYPE_ARRAY, cson_value
 static const cson_value_api cson_value_api_object = { CSON_TYPE_OBJECT, cson_value_destroy_object };
 
 static const cson_value cson_value_undef = { &cson_value_api_undef, NULL, 0 };
-static const cson_value cson_value_null_empty = { &cson_value_api_null, NULL, 0 };
-static const cson_value cson_value_bool_empty = { &cson_value_api_bool, NULL, 0 };
 static const cson_value cson_value_integer_empty = { &cson_value_api_integer, NULL, 0 };
 static const cson_value cson_value_double_empty = { &cson_value_api_double, NULL, 0 };
 static const cson_value cson_value_string_empty = { &cson_value_api_string, NULL, 0 };
@@ -2120,7 +2113,7 @@ struct cson_kvp_list
 };
 typedef struct cson_kvp_list cson_kvp_list;
 #define cson_kvp_list_empty_m {NULL/*list*/,0/*count*/,0/*alloced*/}
-static const cson_kvp_list cson_kvp_list_empty = cson_kvp_list_empty_m;
+/*static const cson_kvp_list cson_kvp_list_empty = cson_kvp_list_empty_m;*/
 
 struct cson_object
 {
@@ -2311,7 +2304,7 @@ char cson_value_is_undef( cson_value const * v )
 #define ISA(T,TID) char cson_value_is_##T( cson_value const * v ) {       \
         /*return (v && v->api) ? cson_value_is_a(v,CSON_TYPE_##TID) : 0;*/ \
         return (v && (v->api == &cson_value_api_##T)) ? 1 : 0; \
-    } static const char bogusPlaceHolderForEmacsIndention##TID = CSON_TYPE_##TID
+    } extern char bogusPlaceHolderForEmacsIndention##TID
 ISA(null,NULL);
 ISA(bool,BOOL);
 ISA(integer,INTEGER);
@@ -3789,7 +3782,7 @@ static int cson_str_to_json( char const * str, unsigned int len,
         int ch;
         unsigned char clen = 0;
         char escChar[3] = {'\\',0,0};
-        enum { UBLen = 8 };
+        enum { UBLen = 13 };
         char ubuf[UBLen];
         int rc = 0;
         rc = f(state, "\"", 1 );
@@ -3881,13 +3874,27 @@ static int cson_str_to_json( char const * str, unsigned int len,
                 assume_latin1:
 #endif
                 memset(ubuf,0,UBLen);
-                rc = sprintf(ubuf, "\\u%04x",ch);
-                if( rc != 6 )
-                {
-                    rc = cson_rc.RangeError;
-                    break;
+                if(ch <= 0xFFFF){
+                    rc = sprintf(ubuf, "\\u%04x",ch);
+                    if( rc != 6 )
+                    {
+                        rc = cson_rc.RangeError;
+                        break;
+                    }
+                    rc = f( state, ubuf, 6 );
+                }else{ /* encode as a UTF16 surrogate pair */
+                    /* http://unicodebook.readthedocs.org/en/latest/unicode_encodings.html#surrogates */
+                    ch -= 0x10000;
+                    rc = sprintf(ubuf, "\\u%04x\\u%04x",
+                                 (0xd800 | (ch>>10)),
+                                 (0xdc00 | (ch & 0x3ff)));
+                    if( rc != 12 )
+                    {
+                        rc = cson_rc.RangeError;
+                        break;
+                    }
+                    rc = f( state, ubuf, 12 );
                 }
-                rc = f( state, ubuf, 6 );
                 continue;
             }
         }

@@ -156,7 +156,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   if( memcmp(zTag, "date:", 5)==0 ){
     rid = db_int(0,
       "SELECT objid FROM event"
-      " WHERE mtime<=julianday(%Q,'utc') AND type GLOB '%q'"
+      " WHERE mtime<=julianday(%Q,fromLocal()) AND type GLOB '%q'"
       " ORDER BY mtime DESC LIMIT 1",
       &zTag[5], zType);
     return rid;
@@ -164,7 +164,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   if( fossil_isdate(zTag) ){
     rid = db_int(0,
       "SELECT objid FROM event"
-      " WHERE mtime<=julianday(%Q,'utc') AND type GLOB '%q'"
+      " WHERE mtime<=julianday(%Q,fromLocal()) AND type GLOB '%q'"
       " ORDER BY mtime DESC LIMIT 1",
       zTag, zType);
     if( rid) return rid;
@@ -373,7 +373,7 @@ int name_collisions(const char *zName){
 }
 
 /*
-** COMMAND:  test-name-to-id
+** COMMAND: test-name-to-id
 **
 ** Convert a name to a full artifact ID.
 */
@@ -532,11 +532,11 @@ void whatis_rid(int rid, int verboseFlag){
 
   /* Basic information about the object. */
   db_prepare(&q,
-     "SELECT uuid, size, datetime(mtime%s), ipaddr"
+     "SELECT uuid, size, datetime(mtime,toLocal()), ipaddr"
      "  FROM blob, rcvfrom"
      " WHERE rid=%d"
      "   AND rcvfrom.rcvid=blob.rcvid",
-     timeline_utc(), rid);
+     rid);
   if( db_step(&q)==SQLITE_ROW ){
     if( verboseFlag ){
       fossil_print("artifact:   %s (%d)\n", db_column_text(&q,0), rid);
@@ -587,9 +587,9 @@ void whatis_rid(int rid, int verboseFlag){
 
   /* Check for entries on the timeline that reference this object */
   db_prepare(&q,
-     "SELECT type, datetime(mtime%s),"
+     "SELECT type, datetime(mtime,toLocal()),"
      "       coalesce(euser,user), coalesce(ecomment,comment)"
-     "  FROM event WHERE objid=%d", timeline_utc(), rid);
+     "  FROM event WHERE objid=%d", rid);
   if( db_step(&q)==SQLITE_ROW ){
     const char *zType;
     switch( db_column_text(&q,0)[0] ){
@@ -609,7 +609,7 @@ void whatis_rid(int rid, int verboseFlag){
 
   /* Check to see if this object is used as a file in a check-in */
   db_prepare(&q,
-    "SELECT filename.name, blob.uuid, datetime(event.mtime%s),"
+    "SELECT filename.name, blob.uuid, datetime(event.mtime,toLocal()),"
     "       coalesce(euser,user), coalesce(ecomment,comment)"
     "  FROM mlink, filename, blob, event"
     " WHERE mlink.fid=%d"
@@ -617,7 +617,7 @@ void whatis_rid(int rid, int verboseFlag){
     "   AND event.objid=mlink.mid"
     "   AND blob.rid=mlink.mid"
     " ORDER BY event.mtime DESC /*sort*/",
-    timeline_utc(), rid);
+    rid);
   while( db_step(&q)==SQLITE_ROW ){
     fossil_print("file:       %s\n", db_column_text(&q,0));
     fossil_print("            part of [%S] by %s on %s\n",
@@ -634,7 +634,7 @@ void whatis_rid(int rid, int verboseFlag){
     "SELECT attachment.filename,"
     "       attachment.comment,"
     "       attachment.user,"
-    "       datetime(attachment.mtime%s),"
+    "       datetime(attachment.mtime,toLocal()),"
     "       attachment.target,"
     "       CASE WHEN EXISTS(SELECT 1 FROM tag WHERE tagname=('tkt-'||target))"
     "            THEN 'ticket'"
@@ -644,7 +644,7 @@ void whatis_rid(int rid, int verboseFlag){
     "       (SELECT uuid FROM blob WHERE rid=attachid)"
     "  FROM attachment JOIN blob ON attachment.src=blob.uuid"
     " WHERE blob.rid=%d",
-    timeline_utc(), rid
+    rid
   );
   while( db_step(&q)==SQLITE_ROW ){
     fossil_print("attachment: %s\n", db_column_text(&q,0));
@@ -667,11 +667,18 @@ void whatis_rid(int rid, int verboseFlag){
 
 /*
 ** COMMAND: whatis*
+** 
 ** Usage: %fossil whatis NAME
 **
 ** Resolve the symbol NAME into its canonical 40-character SHA1-hash
 ** artifact name and provide a description of what role that artifact
 ** plays.
+**
+** Options:
+**
+**    --type TYPE          Only find artifacts of TYPE (one of: 'ci', 't',
+**                         'w', 'g', or 'e').
+**    -v|--verbose         Provide extra information (such as the RID)
 */
 void whatis_cmd(void){
   int rid;
@@ -686,7 +693,7 @@ void whatis_cmd(void){
   /* We should be done with options.. */
   verify_all_options();
 
-  if( g.argc<3 ) usage("whatis NAME ...");
+  if( g.argc<3 ) usage("NAME ...");
   for(i=2; i<g.argc; i++){
     zName = g.argv[i];
     if( i>2 ) fossil_print("%.79c\n",'-');
@@ -716,6 +723,7 @@ void whatis_cmd(void){
 
 /*
 ** COMMAND: test-whatis-all
+** 
 ** Usage: %fossil test-whatis-all
 **
 ** Show "whatis" information about every artifact in the repository
@@ -735,6 +743,7 @@ void test_whatis_all_cmd(void){
 
 /*
 ** COMMAND: test-ambiguous
+** 
 ** Usage: %fossil test-ambiguous [--minsize N]
 **
 ** Show a list of ambiguous SHA1-hash abbreviations of N characters or
@@ -841,11 +850,12 @@ void describe_artifacts(const char *zWhere){
   /* Cluster artifacts */
   db_multi_exec(
     "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
-    "SELECT blob.rid, blob.uuid, tagxref.mtime, 'cluster', 'cluster'\n"
-    "  FROM tagxref, blob\n"
+    "SELECT blob.rid, blob.uuid, rcvfrom.mtime, 'cluster', 'cluster'\n"
+    "  FROM tagxref, blob, rcvfrom\n"
     " WHERE (tagxref.rid %s)\n"
     "   AND tagxref.tagid=(SELECT tagid FROM tag WHERE tagname='cluster')\n"
-    "   AND blob.rid=tagxref.rid;",
+    "   AND blob.rid=tagxref.rid"
+    "   AND rcvfrom.rcvid=blob.rcvid;",
     zWhere /*safe-for-%s*/
   );
 
@@ -980,18 +990,21 @@ void test_describe_artifacts_cmd(void){
 **
 **   n=N         Show N artifacts
 **   s=S         Start with artifact number S
+**   unpub       Show only unpublished artifacts
 */
 void bloblist_page(void){
   Stmt q;
   int s = atoi(PD("s","0"));
   int n = atoi(PD("n","5000"));
   int mx = db_int(0, "SELECT max(rid) FROM blob");
+  int unpubOnly = PB("unpub");
   char *zRange;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("List Of Artifacts");
-  if( mx>n && P("s")==0 ){
+  style_submenu_element("250 Largest", 0, "bigbloblist");
+  if( !unpubOnly && mx>n && P("s")==0 ){
     int i;
     @ <p>Select a range of artifacts to view:</p>
     @ <ul>
@@ -1003,11 +1016,16 @@ void bloblist_page(void){
     style_footer();
     return;
   }
-  if( mx>n ){
+  if( !unpubOnly && mx>n ){
     style_submenu_element("Index", "Index", "bloblist");
   }
-  zRange = mprintf("BETWEEN %d AND %d", s, s+n-1);
+  if( unpubOnly ){
+    zRange = mprintf("IN private");
+  }else{
+    zRange = mprintf("BETWEEN %d AND %d", s, s+n-1);
+  }
   describe_artifacts(zRange);
+  fossil_free(zRange);
   db_prepare(&q,
     "SELECT rid, uuid, summary, isPrivate FROM description ORDER BY rid"
   );
@@ -1016,9 +1034,9 @@ void bloblist_page(void){
     int rid = db_column_int(&q,0);
     const char *zUuid = db_column_text(&q, 1);
     const char *zDesc = db_column_text(&q, 2);
-    int isPriv = db_column_int(&q,2);
+    int isPriv = db_column_int(&q,3);
     @ <tr><td align="right">%d(rid)</td>
-    @ <td>&nbsp;%z(href("%R/info/%!S",zUuid))%s(zUuid)</a>&nbsp;</td>
+    @ <td>&nbsp;%z(href("%R/info/%!S",zUuid))%S(zUuid)</a>&nbsp;</td>
     @ <td align="left">%h(zDesc)</td>
     if( isPriv ){
       @ <td>(unpublished)</td>
@@ -1027,6 +1045,62 @@ void bloblist_page(void){
   }
   @ </table>
   db_finalize(&q);
+  style_footer();
+}
+
+/*
+** WEBPAGE: bigbloblist
+**
+** Return a page showing the largest artifacts in the repository in order
+** of decreasing size.
+**
+**   n=N         Show the top N artifacts
+*/
+void bigbloblist_page(void){
+  Stmt q;
+  int n = atoi(PD("n","250"));
+
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  style_header("%d Largest Artifacts", n);
+  db_multi_exec(
+    "CREATE TEMP TABLE toshow(rid INTEGER PRIMARY KEY);"
+    "INSERT INTO toshow(rid)"
+    "  SELECT rid FROM blob"
+    "   ORDER BY length(content) DESC"
+    "   LIMIT %d;", n
+  );
+  describe_artifacts("IN toshow");
+  db_prepare(&q,
+    "SELECT description.rid, description.uuid, description.summary,"
+    "       length(blob.content), coalesce(delta.srcid,''),"
+    "       datetime(description.ctime)"
+    "  FROM description, blob LEFT JOIN delta ON delta.rid=blob.rid"
+    " WHERE description.rid=blob.rid"
+    " ORDER BY length(content) DESC"
+  );
+  @ <table cellpadding="2" cellspacing="0" border="1" id="bigblobtab">
+  @ <thead><tr><th align="right">Size<th align="right">RID
+  @ <th align="right">Delta From<th>SHA1<th>Description<th>Date</tr></thead>
+  @ <tbody>
+  while( db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q,0);
+    const char *zUuid = db_column_text(&q, 1);
+    const char *zDesc = db_column_text(&q, 2);
+    int sz = db_column_int(&q,3);
+    const char *zSrcId = db_column_text(&q,4);
+    const char *zDate = db_column_text(&q,5);
+    @ <tr><td align="right">%d(sz)</td>
+    @ <td align="right">%d(rid)</td>
+    @ <td align="right">%s(zSrcId)</td>
+    @ <td>&nbsp;%z(href("%R/info/%!S",zUuid))%S(zUuid)</a>&nbsp;</td>
+    @ <td align="left">%h(zDesc)</td>
+    @ <td align="left">%z(href("%R/timeline?c=%T",zDate))%s(zDate)</a></td>
+    @ </tr>
+  }
+  @ </tbody></table>
+  db_finalize(&q);
+  output_table_sorting_javascript("bigblobtab", "NnnttT", -1);
   style_footer();
 }
 

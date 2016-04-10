@@ -87,7 +87,7 @@ query {SELECT datetime(tkt_mtime) AS xdate, login AS xlogin,
             html "<h5>User Comments</h5>\n"
             set seenRow 1
           }
-  html "<div class='tktComment'>\n"          
+  html "<div class='tktComment'>\n"
   html "<div class='tktCommentHeader'>\n"
   html "<div class='pull-right'>$xdate</div>\n"
   html "<span class='tktCommentLogin'>[htmlize $xlogin]</span>"

@@ -601,7 +601,7 @@ void page_tree(void){
       linkTip = rid != symbolic_name_to_rid("tip", "ci");
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
       rNow = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", rid);
-      zNow = db_text("", "SELECT datetime(mtime,'localtime')"
+      zNow = db_text("", "SELECT datetime(mtime,toLocal())"
                          " FROM event WHERE objid=%d", rid);
     }else{
       zCI = 0;
@@ -609,7 +609,7 @@ void page_tree(void){
   }
   if( zCI==0 ){
     rNow = db_double(0.0, "SELECT max(mtime) FROM event");
-    zNow = db_text("", "SELECT datetime(max(mtime),'localtime') FROM event");
+    zNow = db_text("", "SELECT datetime(max(mtime),toLocal()) FROM event");
   }
 
   /* Compute the title of the page */
@@ -981,7 +981,7 @@ void test_fileage_cmd(void){
   const char *zGlob = find_option("glob",0,1);
   db_find_and_open_repository(0,0);
   verify_all_options();
-  if( g.argc!=3 ) usage("test-fileage CHECKIN");
+  if( g.argc!=3 ) usage("CHECKIN");
   mid = name_to_typed_rid(g.argv[2],"ci");
   compute_fileage(mid, zGlob);
   db_prepare(&q,
@@ -1001,7 +1001,7 @@ void test_fileage_cmd(void){
 }
 
 /*
-** WEBPAGE:  fileage
+** WEBPAGE: fileage
 **
 ** Show all files in a single check-in (identified by the name= query
 ** parameter) in order of increasing age.
@@ -1031,7 +1031,7 @@ void fileage_page(void){
   }
   zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
   baseTime = db_double(0.0,"SELECT mtime FROM event WHERE objid=%d", rid);
-  zNow = db_text("", "SELECT datetime(mtime,'localtime') FROM event"
+  zNow = db_text("", "SELECT datetime(mtime,toLocal()) FROM event"
                      " WHERE objid=%d", rid);
   style_submenu_element("Tree-View", "Tree-View",
                         "%R/tree?ci=%T&mtime=1&type=tree",

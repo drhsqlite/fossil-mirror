@@ -121,7 +121,7 @@ int fossil_isalnum(char c){
 /*
 ** COMMAND: test-isspace
 **
-** Verify that the fossil_isspace() routine is working correctly but
+** Verify that the fossil_isspace() routine is working correctly by
 ** testing it on all possible inputs.
 */
 void isspace_cmd(void){
@@ -273,6 +273,7 @@ void blob_zero(Blob *pBlob){
 ** Append text or data to the end of a blob.
 */
 void blob_append(Blob *pBlob, const char *aData, int nData){
+  assert( aData!=0 || nData==0 );
   blob_is_init(pBlob);
   if( nData<0 ) nData = strlen(aData);
   if( nData==0 ) return;

@@ -89,6 +89,10 @@ static void collect_argv(Blob *pExtra, int iStart){
 **
 ** Available operations are:
 **
+**    cache       Manages the cache used for potentially expensive web
+**                pages.  Any additional arguments are passed on verbatim
+**                to the cache command.
+**
 **    changes     Shows all local checkouts that have uncommitted changes.
 **                This operation has no additional options.
 **
@@ -100,6 +104,8 @@ static void collect_argv(Blob *pExtra, int iStart){
 **                be deleted beforehand is highly recommended.  The command
 **                line options supported by the clean command itself, if any
 **                are present, are passed along verbatim.
+**
+**    config      Only the "config pull AREA" command works.
 **
 **    dbstat      Run the "dbstat" command on all repositories.
 **
@@ -181,7 +187,7 @@ void all_cmd(void){
     usage("SUBCOMMAND ...");
   }
   n = strlen(g.argv[2]);
-  db_open_config(1);
+  db_open_config(1, 0);
   blob_zero(&extra);
   zCmd = g.argv[2];
   if( !login_is_nobody() ) blob_appendf(&extra, " -U %s", g.zLogin);
@@ -194,15 +200,26 @@ void all_cmd(void){
     collect_argument_value(&extra, "case-sensitive");
     collect_argument_value(&extra, "clean");
     collect_argument(&extra, "dirsonly",0);
+    collect_argument(&extra, "disable-undo",0);
     collect_argument(&extra, "dotfiles",0);
     collect_argument(&extra, "emptydirs",0);
     collect_argument(&extra, "force","f");
     collect_argument_value(&extra, "ignore");
     collect_argument_value(&extra, "keep");
+    collect_argument(&extra, "no-prompt",0);
     collect_argument(&extra, "temp",0);
     collect_argument(&extra, "verbose","v");
     collect_argument(&extra, "whatif",0);
     useCheckouts = 1;
+  }else if( strncmp(zCmd, "config", n)==0 ){
+    zCmd = "config -R";
+    collect_argv(&extra, 3);
+    (void)find_option("legacy",0,0);
+    (void)find_option("overwrite",0,0);
+    verify_all_options();
+    if( g.argc!=5 || fossil_strcmp(g.argv[3],"pull")!=0 ){
+      usage("configure pull AREA ?OPTIONS?");
+    }
   }else if( strncmp(zCmd, "dbstat", n)==0 ){
     zCmd = "dbstat --omit-version-info -R";
     showLabel = 1;
@@ -277,7 +294,7 @@ void all_cmd(void){
     verify_all_options();
     db_begin_transaction();
     for(j=3; j<g.argc; j++, blob_reset(&sql), blob_reset(&fn)){
-      file_canonical_name(g.argv[j], &fn, 0);
+      file_canonical_name(g.argv[j], &fn, useCheckouts?1:0);
       blob_append_sql(&sql,
          "DELETE FROM global_config WHERE name GLOB '%s:%q'",
          useCheckouts?"ckout":"repo", blob_str(&fn)
@@ -329,9 +346,13 @@ void all_cmd(void){
     zCmd = "info";
     showLabel = 1;
     quiet = 1;
+  }else if( strncmp(zCmd, "cache", n)==0 ){
+    zCmd = "cache -R";
+    showLabel = 1;
+    collect_argv(&extra, 3);
   }else{
     fossil_fatal("\"all\" subcommand should be one of: "
-                 "add changes clean dbstat extras fts-config ignore "
+                 "add cache changes clean dbstat extras fts-config ignore "
                  "info list ls pull push rebuild setting sync unset");
   }
   verify_all_options();

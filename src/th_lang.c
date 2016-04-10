@@ -497,9 +497,11 @@ static int proc_command(
   ** ProcDefn.hasArgs flag. The "args" parameter does not require an
   ** entry in the ProcDefn.azParam[] or ProcDefn.azDefault[] arrays.
   */
-  if( anParam[nParam-1]==4 && 0==memcmp(azParam[nParam-1], "args", 4) ){
-    p->hasArgs = 1;
-    nParam--;
+  if( nParam>0 ){
+    if( anParam[nParam-1]==4 && 0==memcmp(azParam[nParam-1], "args", 4) ){
+      p->hasArgs = 1;
+      nParam--;
+    }
   }
 
   p->nParam    = nParam;
@@ -724,23 +726,42 @@ static int string_first_command(
 static int string_is_command(
   Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
 ){
-  int i;
-  int iRes = 1;
   if( argc!=4 ){
     return Th_WrongNumArgs(interp, "string is class string");
   }
-  if( argl[2]!=5 || 0!=memcmp(argv[2], "alnum", 5) ){
-    Th_ErrorMessage(interp, "Expected alnum, got: ", argv[2], argl[2]);
+  if( argl[2]==5 && 0==memcmp(argv[2], "alnum", 5) ){
+    int i;
+    int iRes = 1;
+
+    for(i=0; i<argl[3]; i++){
+      if( !th_isalnum(argv[3][i]) ){
+        iRes = 0;
+      }
+    }
+
+    return Th_SetResultInt(interp, iRes);
+  }else if( argl[2]==6 && 0==memcmp(argv[2], "double", 6) ){
+    double fVal;
+    if( Th_ToDouble(interp, argv[3], argl[3], &fVal)==TH_OK ){
+      return Th_SetResultInt(interp, 1);
+    }
+    return Th_SetResultInt(interp, 0);
+  }else if( argl[2]==7 && 0==memcmp(argv[2], "integer", 7) ){
+    int iVal;
+    if( Th_ToInt(interp, argv[3], argl[3], &iVal)==TH_OK ){
+      return Th_SetResultInt(interp, 1);
+    }
+    return Th_SetResultInt(interp, 0);
+  }else if( argl[2]==4 && 0==memcmp(argv[2], "list", 4) ){
+    if( Th_SplitList(interp, argv[3], argl[3], 0, 0, 0)==TH_OK ){
+      return Th_SetResultInt(interp, 1);
+    }
+    return Th_SetResultInt(interp, 0);
+  }else{
+    Th_ErrorMessage(interp,
+        "Expected alnum, double, integer, or list, got:", argv[2], argl[2]);
     return TH_ERROR;
   }
-
-  for(i=0; i<argl[3]; i++){
-    if( !th_isalnum(argv[3][i]) ){
-      iRes = 0;
-    }
-  }
-
-  return Th_SetResultInt(interp, iRes);
 }
 
 /*
@@ -953,7 +974,49 @@ static int info_vars_command(
 /*
 ** TH Syntax:
 **
-**   unset VAR
+**   array exists VARNAME
+*/
+static int array_exists_command(
+  Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
+){
+  int rc;
+
+  if( argc!=3 ){
+    return Th_WrongNumArgs(interp, "array exists var");
+  }
+  rc = Th_ExistsArrayVar(interp, argv[2], argl[2]);
+  Th_SetResultInt(interp, rc);
+  return TH_OK;
+}
+
+/*
+** TH Syntax:
+**
+**   array names VARNAME
+*/
+static int array_names_command(
+  Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
+){
+  int rc;
+  char *zElem = 0;
+  int nElem = 0;
+
+  if( argc!=3 ){
+    return Th_WrongNumArgs(interp, "array names varname");
+  }
+  rc = Th_ListAppendArray(interp, argv[2], argl[2], &zElem, &nElem);
+  if( rc!=TH_OK ){
+    return rc;
+  }
+  Th_SetResult(interp, zElem, nElem);
+  if( zElem ) Th_Free(interp, zElem);
+  return TH_OK;
+}
+
+/*
+** TH Syntax:
+**
+**   unset VARNAME
 */
 static int unset_command(
   Th_Interp *interp,
@@ -1045,6 +1108,27 @@ static int info_command(
     { "commands", info_commands_command },
     { "exists",   info_exists_command },
     { "vars",     info_vars_command },
+    { 0, 0 }
+  };
+  return Th_CallSubCommand(interp, ctx, argc, argv, argl, aSub);
+}
+
+/*
+** TH Syntax:
+**
+**   array exists VARNAME
+**   array names VARNAME
+*/
+static int array_command(
+  Th_Interp *interp,
+  void *ctx,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  static const Th_SubCommand aSub[] = {
+    { "exists", array_exists_command },
+    { "names",  array_names_command },
     { 0, 0 }
   };
   return Th_CallSubCommand(interp, ctx, argc, argv, argl, aSub);
@@ -1163,6 +1247,7 @@ int th_register_language(Th_Interp *interp){
     Th_CommandProc xProc;
     void *pContext;
   } aCommand[] = {
+    {"array",    array_command,   0},
     {"catch",    catch_command,   0},
     {"expr",     expr_command,    0},
     {"for",      for_command,     0},

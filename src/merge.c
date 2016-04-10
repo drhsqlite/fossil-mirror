@@ -28,13 +28,13 @@
 void print_checkin_description(int rid, int indent, const char *zLabel){
   Stmt q;
   db_prepare(&q,
-     "SELECT datetime(mtime%s),"
+     "SELECT datetime(mtime,toLocal()),"
      "       coalesce(euser,user), coalesce(ecomment,comment),"
      "       (SELECT uuid FROM blob WHERE rid=%d),"
      "       (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref"
      "         WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid"
      "           AND tagxref.rid=%d AND tagxref.tagtype>0)"
-     "  FROM event WHERE objid=%d", timeline_utc(), rid, rid, rid);
+     "  FROM event WHERE objid=%d", rid, rid, rid);
   if( db_step(&q)==SQLITE_ROW ){
     const char *zTagList = db_column_text(&q, 4);
     char *zCom;
@@ -229,6 +229,12 @@ void merge_cmd(void){
   if( vid==0 ){
     fossil_fatal("nothing is checked out");
   }
+  if( !dryRunFlag ){
+    if( autosync_loop(SYNC_PULL + SYNC_VERBOSE*verboseFlag,
+                      db_get_int("autosync-tries", 1)) ){
+      fossil_fatal("Cannot proceed with merge");
+    }
+  }
 
   /* Find mid, the artifactID of the version to be merged into the current
   ** check-out */
@@ -259,12 +265,12 @@ void merge_cmd(void){
     }
     db_prepare(&q,
       "SELECT blob.uuid,"
-          "   datetime(event.mtime%s),"
+          "   datetime(event.mtime,toLocal()),"
           "   coalesce(ecomment, comment),"
           "   coalesce(euser, user)"
       "  FROM event, blob"
       " WHERE event.objid=%d AND blob.rid=%d",
-      timeline_utc(), mid, mid
+      mid, mid
     );
     if( db_step(&q)==SQLITE_ROW ){
       char *zCom = mprintf("Merging fork [%S] at %s by %s: \"%s\"",
@@ -594,7 +600,7 @@ void merge_cmd(void){
       fossil_print("***** Cannot merge symlink %s\n", zName);
       nConflict++;
     }else{
-      undo_save(zName);
+      if( !dryRunFlag ) undo_save(zName);
       zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
       content_get(ridp, &p);
       content_get(ridm, &m);
@@ -645,7 +651,7 @@ void merge_cmd(void){
       fossil_warning("WARNING: local edits lost for %s\n", zName);
       nConflict++;
     }
-    undo_save(zName);
+    if( !dryRunFlag ) undo_save(zName);
     db_multi_exec(
       "UPDATE vfile SET deleted=1 WHERE id=%d", idv
     );
@@ -671,8 +677,8 @@ void merge_cmd(void){
     const char *zOldName = db_column_text(&q, 1);
     const char *zNewName = db_column_text(&q, 2);
     fossil_print("RENAME %s -> %s\n", zOldName, zNewName);
-    undo_save(zOldName);
-    undo_save(zNewName);
+    if( !dryRunFlag ) undo_save(zOldName);
+    if( !dryRunFlag ) undo_save(zNewName);
     db_multi_exec(
       "UPDATE vfile SET pathname=%Q, origname=coalesce(origname,pathname)"
       " WHERE id=%d AND vid=%d", zNewName, idv, vid
@@ -728,6 +734,6 @@ void merge_cmd(void){
   }else{
     db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(0,%d)", mid);
   }
-  undo_finish();
+  if( !dryRunFlag ) undo_finish();
   db_end_transaction(dryRunFlag);
 }

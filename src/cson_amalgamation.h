@@ -69,19 +69,43 @@ typedef long cson_int_t;
 
 /** @typedef double_or_long_double cson_double_t
 
-This is the type of double value used by the library.
-It is only lightly tested with long double, and when using
-long double the memory requirements for such values goes
-up.
+    This is the type of double value used by the library.
+    It is only lightly tested with long double, and when using
+    long double the memory requirements for such values goes
+    up.
+
+    Note that by default cson uses C-API defaults for numeric
+    precision. To use a custom precision throughout the library, one
+    needs to define the macros CSON_DOUBLE_T_SFMT and/or
+    CSON_DOUBLE_T_PFMT macros to include their desired precision, and
+    must build BOTH cson AND the client using these same values. For
+    example:
+
+    @code
+    #define CSON_DOUBLE_T_PFMT ".8Lf" // for Modified Julian Day values
+    #define HAVE_LONG_DOUBLE
+    @endcode
+
+    (Only CSON_DOUBLE_T_PFTM should be needed for most
+    purposes.)
 */
-#if 0
-typedef long double cson_double_t;
-#define CSON_DOUBLE_T_SFMT "Lf"
-#define CSON_DOUBLE_T_PFMT "Lf"
+
+#if defined(HAVE_LONG_DOUBLE)
+   typedef long double cson_double_t;
+#  ifndef CSON_DOUBLE_T_SFMT
+#    define CSON_DOUBLE_T_SFMT "Lf"
+#  endif
+#  ifndef CSON_DOUBLE_T_PFMT
+#    define CSON_DOUBLE_T_PFMT "Lf"
+#  endif
 #else
-typedef double cson_double_t;
-#define CSON_DOUBLE_T_SFMT "f"
-#define CSON_DOUBLE_T_PFMT "f"
+   typedef double cson_double_t;
+#  ifndef CSON_DOUBLE_T_SFMT
+#    define CSON_DOUBLE_T_SFMT "f"
+#  endif
+#  ifndef CSON_DOUBLE_T_PFMT
+#    define CSON_DOUBLE_T_PFMT "f"
+#  endif
 #endif
 
 /** @def CSON_VOID_PTR_IS_BIG

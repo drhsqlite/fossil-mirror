@@ -238,7 +238,8 @@ int tag_insert(
 
 /*
 ** COMMAND: test-tag
-** %fossil test-tag (+|*|-)TAGNAME ARTIFACT-ID ?VALUE?
+**
+** Usage: %fossil test-tag (+|*|-)TAGNAME ARTIFACT-ID ?VALUE?
 **
 ** Add a tag or anti-tag to the rebuildable tables of the local repository.
 ** No tag artifact is created so the new tag is erased the next
@@ -335,27 +336,43 @@ void tag_add_artifact(
 
 /*
 ** COMMAND: tag
+**
 ** Usage: %fossil tag SUBCOMMAND ...
 **
-** Run various subcommands to control tags and properties
+** Run various subcommands to control tags and properties.
 **
-**     %fossil tag add ?--raw? ?--propagate? TAGNAME CHECK-IN ?VALUE?
+**     %fossil tag add ?OPTIONS? TAGNAME CHECK-IN ?VALUE?
 **
 **         Add a new tag or property to CHECK-IN. The tag will
 **         be usable instead of a CHECK-IN in commands such as
 **         update and merge.  If the --propagate flag is present,
 **         the tag value propagates to all descendants of CHECK-IN
 **
+**         Options:
+**           --raw                     Raw tag name.
+**           --propagate               Propagating tag.
+**           --date-override DATETIME  Set date and time added.
+**           --user-override USER      Name USER when adding the tag.
+**         
+**         The --date-override and --user-override options support
+**         importing history from other SCM systems. DATETIME has
+**         the form 'YYYY-MMM-DD HH:MM:SS'.
+**
 **     %fossil tag cancel ?--raw? TAGNAME CHECK-IN
 **
 **         Remove the tag TAGNAME from CHECK-IN, and also remove
 **         the propagation of the tag to any descendants.
 **
-**     %fossil tag find ?--raw? ?-t|--type TYPE? ?-n|--limit #? TAGNAME
+**     %fossil tag find ?OPTIONS? TAGNAME
 **
 **         List all objects that use TAGNAME.  TYPE can be "ci" for
 **         check-ins or "e" for events. The limit option limits the number
 **         of results to the given value.
+**         
+**         Options:
+**           --raw           Raw tag name.
+**           -t|--type TYPE  One of "ci", or "e".
+**           -n|--limit N    Limit to N results.
 **
 **     %fossil tag list|ls ?--raw? ?CHECK-IN?
 **
@@ -381,10 +398,6 @@ void tag_add_artifact(
 **
 ** will assume that "decaf" is a tag/branch name.
 **
-** only allow --date-override and --user-override in
-**   %fossil tag add --date-override 'YYYY-MMM-DD HH:MM:SS' \\
-**                   --user-override user
-** in order to import history from other scm systems
 */
 void tag_cmd(void){
   int n;
@@ -522,7 +535,7 @@ void tag_cmd(void){
       }
       db_finalize(&q);
     }else{
-      usage("tag list ?CHECK-IN?");
+      usage("list ?CHECK-IN?");
     }
   }else
   {

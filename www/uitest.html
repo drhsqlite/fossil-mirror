@@ -10,17 +10,17 @@
 //////////////////////////////////////////////////////////////////////////
 {
  url: "timeline",
- desc: 
+ desc:
    "Simple timeline of most recent check-ins. Verify that all submenus work."
 },
 {
  url: "timeline?n=125",
- desc: 
+ desc:
    "Timeline with 125 entries.  Verify that submenus preserve the entry count."
 },
 {
  url: "wiki",
- desc: 
+ desc:
    "The wiki homepage"
 }
 //////////////////////////////////////////////////////////////////////////////
@@ -100,7 +100,7 @@
   xstart.href = baseURI + aTest[0].url;
   function startTest(){
     setTimeout(loadPage,1);
-  } 
+  }
   function prevTest(){
     if( iTest<=0 ) return false;
     iTest--;

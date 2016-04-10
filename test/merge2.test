@@ -18,6 +18,8 @@
 # Tests of the delta mechanism.
 #
 
+test_setup ""
+
 set filelist [glob $testdir/*]
 foreach f $filelist {
   if {[file isdir $f]} continue
@@ -40,3 +42,7 @@ foreach f $filelist {
     test merge-$base-$i-32 {[same_file a32 t32]}
   }
 }
+
+###############################################################################
+
+test_cleanup

@@ -2,7 +2,7 @@
 
 Fossil source code should following the style guidelines below.
 
-<b>General points:</b>:
+<b>General points</b>:
 
   10.  No line of code exceeds 80 characters in length.  (Occasional
        exceptions are made for HTML text on @-lines.)
@@ -69,7 +69,7 @@ Fossil source code should following the style guidelines below.
   <li>  All code subblocks are enclosed in {...}.
 
 
-  <li> <b>assert() macros are used as follows </b>:
+  <li> <b>assert() macros are used as follows</b>:
     <ol type="a">
 
   <li>  Function preconditions are clearly stated and verified by asserts.

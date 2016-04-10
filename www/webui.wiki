@@ -63,7 +63,7 @@ from within an open check-out, you can omit the repository name:
 The latter case is a very useful short-cut when you are working on a
 Fossil project and you want to quickly do some work with the web interface.
 Notice that Fossil automatically finds an unused TCP port to run the
-server own and automatically points your web browser to the correct
+server on and automatically points your web browser to the correct
 URL.  So there is never any fumbling around trying to find an open
 port or to type arcane strings into your browser URL entry box.
 The interface just pops right up, ready to run.

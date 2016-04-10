@@ -58,7 +58,7 @@ const char *builtin_text(const char *zFilename){
 /*
 ** COMMAND: test-builtin-list
 **
-** List the names and sizes of all built-in resources
+** List the names and sizes of all built-in resources.
 */
 void test_builtin_list(void){
   int i;
