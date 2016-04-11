@@ -1,5 +1,5 @@
-C Update\sthe\scustom\sMinGW\smakefile.
-D 2016-04-09T16:57:16.099
+C Fix\stypo\sin\sdocs.
+D 2016-04-11T23:23:14.399
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -693,7 +693,7 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/env-opts.md e7e83848e2454cc06624c152395b8bff67a7cb79
+F www/env-opts.md 0daf6800fb53ce88976f76a7607ed6a427c45653
 F www/event.wiki 395b955e611769fd9aedf3ab489530b89ad5f224
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 93c4421d2bafd192dc61ea563df68aa25caaed95
@@ -747,7 +747,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a233ed2168f63f6d80f25831e22c2b901bc8c401
-R 45602102852d56f2fdb2f392189cfbdb
+P 96dec24eaf2e7a604aee71faf2deb2421db4e035
+R f9d05794107cdd37ab4e5d4240fc9893
 U mistachkin
-Z ee707f92866aba3f3b8049ae0f70decf
+Z 3d0c34a901a384a625d5002ddff0bdf7
