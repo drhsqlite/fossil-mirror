@@ -1,5 +1,5 @@
-C Fix\stypo\sin\sdocs.
-D 2016-04-11T23:23:14.399
+C Update\sSCGI\sdocs\sbased\son\sfeedback\sfrom\sthe\smailing\slist.
+D 2016-04-12T14:19:37.603
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -728,7 +728,7 @@ F www/qandc.wiki e07b21da221b05afeb1905f17af3765045952ba8
 F www/quickstart.wiki d4ead37f048c87a56497d475023d1678e22dfa61
 F www/quotes.wiki 09a040dcc9ae1c3a9121940e3a2255471f8d59cf
 F www/reviews.wiki 866e545f89fce7cff29c96a29ab10586692f3964
-F www/scgi.wiki 45a497a26ea940ef945a4c34cc1458ddddf304d6
+F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki d1e2fc5baf9ade46815499c9758256a22efe8142
 F www/selfhost.wiki 03de31d67690fe47972589e4e1e395e11559c85c
 F www/server.wiki 2fb4f17803997a766ad9d30fba4c4fb429acb004
@@ -747,7 +747,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 96dec24eaf2e7a604aee71faf2deb2421db4e035
-R f9d05794107cdd37ab4e5d4240fc9893
+P 16ef8ee9f9ca82d411b2c8d9f343fe559312af18
+R 1a64a1cb9c63ee9f887b19fa3a961319
 U mistachkin
-Z 3d0c34a901a384a625d5002ddff0bdf7
+Z f10817c75a52249d6d43edb5f7b76575
