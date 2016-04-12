@@ -1137,17 +1137,60 @@ int wiki_cmd_commit(const char *zPageName, int isNew, Blob *pContent,
 }
 
 /*
+** Determine the rid for a tech note given either its id or its
+** timestamp. Returns 0 if there is no such item and-1 if the details 
+** are ambiguous and could refer to multiple items
+*/
+int wiki_technote_to_rid(const char *zETime) {
+  int rid=0;                    /* Artifact ID of the tech note */
+  int nETime = strlen(zETime);
+  Stmt q;
+  if( nETime>=4 && nETime<=UUID_SIZE && validate16(zETime, nETime) ){
+    char zUuid[UUID_SIZE+1];
+    memcpy(zUuid, zETime, nETime+1);
+    canonical16(zUuid, nETime);
+    db_prepare(&q,
+      "SELECT e.objid"
+      "  FROM event e, tag t"
+      " WHERE e.type='e' AND e.tagid IS NOT NULL AND t.tagid=e.tagid"
+      "   AND t.tagname GLOB 'event-%q*'",
+      zUuid
+    );
+    if( db_step(&q)==SQLITE_ROW ){
+      rid = db_column_int(&q, 0);
+      if( db_step(&q)==SQLITE_ROW ) rid = -1;
+    }
+    db_finalize(&q);
+  }
+  if (!rid) {
+    if (strlen(zETime)>4) {
+      rid = db_int(0, "SELECT objid"
+                      " FROM event"
+                      " WHERE datetime(mtime)=datetime('%q')"
+                      " AND type='e'"
+                      " ORDER BY mtime DESC LIMIT 1",
+                   zETime);
+    }
+  }
+  return rid;
+}
+
+/*
 ** COMMAND: wiki*
 **
 ** Usage: %fossil wiki (export|create|commit|list) WikiName
 **
 ** Run various subcommands to work with wiki entries or tech notes.
 **
-**    %fossil wiki export ?PAGENAME? ?FILE? [-t|--technote DATETIME ]
+**    %fossil wiki export PAGENAME ?FILE?
+**    %fossil wiki export ?FILE? -t|--technote DATETIME|TECHNOTE-ID 
 **
-**       Sends the latest version of either the PAGENAME wiki entry
-**       or the DATETIME tech note to the given file or standard 
-**       output. One of PAGENAME or DATETIME must be specified.
+**       Sends the latest version of either a wiki page or of a tech note
+**       to the given file or standard output. 
+**       If PAGENAME is provided, the wiki page will be output. For
+**       a tech note either DATETIME or TECHNOTE-ID must be specified. If 
+**       DATETIME is used, the most recently modified tech note with that
+**       DATETIME will be sent.
 **
 **    %fossil wiki (create|commit) PAGENAME ?FILE? ?OPTIONS?
 **              
@@ -1179,10 +1222,11 @@ int wiki_cmd_commit(const char *zPageName, int isNew, Blob *pContent,
 **                                     pages. The technotes will be in order
 **                                     of timestamp with the most recent
 **                                     first.
-**         --show-artifact-ids         The artifact id of the wiki page or 
-**                                     tech note will be listed along side the
-**                                     page name or timestamp. The artifact id
-**                                     will be the first word on each line.
+**         --show-technote-ids         The id of the tech note will be listed
+**                                     along side the timestamp. The tech note
+**                                     id will be the first word on each line.
+**                                     This option only applies if the
+**                                     --technote option is also specified.
 **
 */
 void wiki_cmd(void){
@@ -1226,13 +1270,12 @@ void wiki_cmd(void){
       zFile = (g.argc==4) ? "-" : g.argv[4];
     }else{
       if( (g.argc!=3) && (g.argc!=4) ){
-        usage("export ?FILE? --technote DATETIME");
+        usage("export ?FILE? --technote DATETIME|TECHNOTE-ID");
       }
-      rid = db_int(0, "SELECT objid FROM event"
-        " WHERE datetime(mtime)=datetime('%q') AND type='e'"
-        " ORDER BY mtime DESC LIMIT 1",
-        zETime
-      );
+      rid = wiki_technote_to_rid(zETime);
+      if (rid == -1) {
+        fossil_fatal("ambiguous tech note id: %s", zETime);
+      }
       if( (pWiki = manifest_get(rid, CFTYPE_EVENT, 0))!=0 ){
         zBody = pWiki->zWiki;
       }
@@ -1328,22 +1371,17 @@ void wiki_cmd(void){
   }else if(( strncmp(g.argv[2],"list",n)==0 )
           || ( strncmp(g.argv[2],"ls",n)==0 )){
     Stmt q;
-    int showIds = find_option("show-artifact-ids","s",0)!=0;
+    int showIds = 0;
 
     if ( !find_option("technote","t",0) ){
       db_prepare(&q,
-        "SELECT substr(t.tagname, 6), b.uuid" 
-         " FROM tag t, tagxref x, blob b"
-        " WHERE tagname GLOB 'wiki-*'"
-          " AND t.tagid=x.tagid AND b.rid=x.rid"
-          " AND x.mtime=(SELECT MAX(xx.mtime)"
-                         " FROM tagxref xx"
-                        " WHERE xx.tagid=x.tagid)"
+        "SELECT substr(tagname, 6) FROM tag WHERE tagname GLOB 'wiki-*'"
         " ORDER BY lower(tagname) /*sort*/"
       );
     }else{
+      showIds = find_option("show-technote-ids","s",0)!=0;
       db_prepare(&q,
-        "SELECT datetime(e.mtime), substr(t.tagname,7) "
+        "SELECT datetime(e.mtime), substr(t.tagname,7)"
          " FROM event e, tag t"
         " WHERE e.type='e'"
           " AND e.tagid IS NOT NULL"

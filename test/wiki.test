@@ -223,34 +223,74 @@ set technotelist [split $RESULT "\n"]
 test wiki-37 {[llength $technotelist] == 7}
 
 ###############################################################################
-# Check that using the show-artifact-ids shows the same tech notes in the same
-# order (with the artifact id as the first word of the line
-fossil wiki list --technote --show-artifact-ids
-set technoteartifactlist [split $RESULT "\n"]
-test wiki-38 {[llength $technoteartifactlist] == 7}
+# Check that using the show-technote-ids shows the same tech notes in the same
+# order (with the technote id as the first word of the line
+fossil wiki list --technote --show-technote-ids
+set technoteidlist [split $RESULT "\n"]
+test wiki-38 {[llength $technotelist] == 7}
 for {set i 0} {$i < [llength $technotelist]} {incr i} {
-  set match "*"
+  set match "???????????????????????????????????????? "
   append match [lindex $technotelist $i]
-  test "wiki-39-$i" {[string match $match [lindex $technoteartifactlist $i]]} 
+  test "wiki-39-$i" {[string match $match [lindex $technoteidlist $i]]}
 }
 
 ###############################################################################
-# Similarly check that wiki pages can have their artifact ids displayed
-# Note: the tests above have only created a single wiki page, hence the list
-# should be of length 1 at this point (created by test 1)
-fossil wiki list
-set wikilist [split $RESULT "\n"]
-test wiki-40 {[llength $wikilist] == 1}
-fossil wiki list --show-artifact-ids
-set wikiartifactlist [split $RESULT "\n"]
-test wiki-41 {[llength $wikilist] == [llength $wikiartifactlist]}
-for {set i 0} {$i < [llength $wikilist]} {incr i} {
-  set match "*"
-  append match [lindex $wikilist $i]
-  test "wiki-42-$i" {[string match $match [lindex $wikiartifactlist $i]]}
-}
+# Create new tech note with a old timestamp so that it is oldest and then check that
+# the contents of the oldest tech note (by tech note id, both full and short) match up
+write_file f12 "A really old tech note"
+fossil wiki create {Old tech note} f12 --technote {2001-07-07 09:08:07}
+fossil wiki list --technote --show-technote-ids
+set technotelist [split $RESULT "\n"]
+set oldesttechnoteid [lindex [split [lindex $technotelist [llength $technotelist]-1]] 0]
+fossil wiki export a12 --technote $oldesttechnoteid
+test wiki-40 {[similar_file f12 a12]}
 
 ###############################################################################
+# Also check that we can specify a prefix of the tech note id (note: with
+# 8 items in the tech note at this point there is a chance of a collision.
+# However with the chance of the collision being 1 in approx 10^22 if I use a 20
+# character prefix I'll ignore that possibility for this test.
+fossil wiki export a12.1 --technote [string range $oldesttechnoteid 0 20]
+test wiki-41 {[similar_file f12 a12.1]}
 
+###############################################################################
+# Now we need to force a collision in the first four characters of the tech
+# note id if we don't already have one so we can check we get an error if the
+# tech note id is ambiguous
+set idcounts [dict create]
+set maxcount 0
+fossil wiki list --technote --show-technote-ids
+set technotelist [split $RESULT "\n"]
+for {set i 0} {$i < [llength $technotelist]} {incr i} {
+  set fullid [lindex $technotelist $i]
+  set id [string range $fullid 0 3]
+  dict incr idcounts $id
+  if {[dict get $idcounts $id] > $maxcount} {
+    set maxid $id
+    incr maxcount 
+  }
+}
+# get i so that, as a julian date, it is in the 1800s, i.e., older than
+# any other tech note, but after 1 AD
+set i 2400000
+while {$maxcount < 2} {
+  # keep getting older
+  incr i -1
+  write_file collision "A tech note with timestamp of jday=$i"
+  fossil wiki create "timestamp of $i" collision --technote "$i"
+  fossil wiki list --technote --show-technote-ids
+  set technotelist [split $RESULT "\n"]
+  set oldesttechnoteid [lindex [split [lindex $technotelist [llength $technotelist]-1]] 0]
+  set id [string range $oldesttechnoteid 0 3]
+  dict incr idcounts $id
+  if {[dict get $idcounts $id] > $maxcount} {
+    set maxid $id
+    incr maxcount 
+  }
+}
+fossil wiki export a13 --technote $maxid -expectError
+test wiki-42 {$CODE != 0}
+
+###############################################################################
 test_cleanup
 
