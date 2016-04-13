@@ -1,5 +1,5 @@
-C Update\sSCGI\sdocs\sbased\son\sfeedback\sfrom\sthe\smailing\slist.
-D 2016-04-12T14:19:37.603
+C Update\s<dirent.h>\sfor\sVisual\sStudio\sto\slatest\sversion\s1.21\s(September\s2015)
+D 2016-04-13T08:19:59.900
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -636,7 +636,7 @@ F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc a03d2ee7e2fcb64ab9ff0b4d3284c8f89412e66f
-F win/include/dirent.h 0e00ac29eb8c2e237bc460ae4481cc74a1bf9e00
+F win/include/dirent.h 6ee52548d06862a6d8a387d8dd580833f802c6c3
 F win/include/unistd.h 44f9195ff0279791af08c504f58939ba0ca01c4b
 F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
@@ -747,7 +747,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 16ef8ee9f9ca82d411b2c8d9f343fe559312af18
-R 1a64a1cb9c63ee9f887b19fa3a961319
-U mistachkin
-Z f10817c75a52249d6d43edb5f7b76575
+P 5b5cbfc92628787d551ac1e9936438b6fdb80c90
+R a7f382fdfd11334fa36e8a4724b42e9f
+U jan.nijtmans
+Z 57731f463ae2d96350def08e6e60c920
