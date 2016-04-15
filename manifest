@@ -1,5 +1,5 @@
-C Update\s<dirent.h>\sfor\sVisual\sStudio\sto\slatest\sversion\s1.21\s(September\s2015)
-D 2016-04-13T08:19:59.900
+C Missed\sa\splace\swhere\sthe\sSCGI\sdocs\sneeded\supdating.
+D 2016-04-15T19:46:58.024
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -731,7 +731,7 @@ F www/reviews.wiki 866e545f89fce7cff29c96a29ab10586692f3964
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki d1e2fc5baf9ade46815499c9758256a22efe8142
 F www/selfhost.wiki 03de31d67690fe47972589e4e1e395e11559c85c
-F www/server.wiki 2fb4f17803997a766ad9d30fba4c4fb429acb004
+F www/server.wiki 782ca2e63e3812e9a3c71fe8511b7b58ba91a762
 F www/settings.wiki 12b7e736432b0081a7e6a3d7b9e184d04f482ef7
 F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
@@ -747,7 +747,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5b5cbfc92628787d551ac1e9936438b6fdb80c90
-R a7f382fdfd11334fa36e8a4724b42e9f
-U jan.nijtmans
-Z 57731f463ae2d96350def08e6e60c920
+P dd498bbac7f8cf96a4fd4fad234673a582c0850c
+R d1c0adacabab78e082d76b2b22c3f2dc
+U mistachkin
+Z 1a6a8e0383926262acec4f32474c65f0
