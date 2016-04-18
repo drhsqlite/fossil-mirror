@@ -1,5 +1,5 @@
-C add\sTECHNOTEID\sto\sfossil\swiki\sexport.\sRename\s--show-artifact-ids\sto\s--show-technote-ids\son\sfossil\swiki\slist\s(and\signore\soption\sfor\swiki\spages\sas\sthe\spage\sname\suniquely\sidentifies\swiki\spage\sname).\sRename\sdone\sas\stech\snote\sids\sare\snot\sartifact\sids\s(e.g.\sthey\scannot\sbe\sused\son\sfossil\sartifact)
-D 2016-04-12T19:14:14.991
+C add\sTECHNOTEID\sto\sfossil\swiki\scommit\sand\sallow\screation\sof\smultiple\stech\snotes\swith\sthe\ssame\stimestamp\s(as\salready\spermitted\sby\sthe\sGUI).
+D 2016-04-18T08:17:57.367
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -405,7 +405,7 @@ F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
 F src/diffcmd.c 6ccec8e05ddf7cad3755bfc6e5abf6972f6542ca
 F src/doc.c ee445fb565ae8040e3362e28bbe4db353d987229
 F src/encode.c 68aefc417e28d6ae9adb0a05f79dc46b5ecf1167
-F src/event.c e10090d6ba1e1f3ef9e4a04b273159764b6d7c64
+F src/event.c 2297422e15a1b8ae743833eb25c769069f93b464
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
 F src/file.c 96e88d124e5a031652e30ef1abc06e69b125c736
 F src/finfo.c 9dcd6c54bf5fadfafe0b15cbb736ba0cf418c956
@@ -435,7 +435,7 @@ F src/json_status.c 0a9f959d19f4b90c879ad50ef0cd376262d8247b
 F src/json_tag.c 2a9e6dac502055a795ef6ade37faa024d480015b
 F src/json_timeline.c 5a9ce59def16a55b7affbf834dd1e13d876efe76
 F src/json_user.c 66fc65a1647616819074eb8ae4534f0822b2fb55
-F src/json_wiki.c 44f0ee2d0643e2e4bdbc4fcc632a92f679e0b4f9
+F src/json_wiki.c 2cb77871dd29a5e15016aa29e1c1bf7b5261600a
 F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c 9c1a8a9a1d33f79191cb5a104067201a8cee6de1
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
@@ -508,7 +508,7 @@ F src/utf8.c 5c85c7e88b82b5fb48649c46f063ac94ab58eb20
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
 F src/vfile.c 3b7286065edf544811df9f41fc9f35e1d7207c51
-F src/wiki.c 87eef79f202b8c8ef03b8c34af74650f022c7f7e
+F src/wiki.c 0fd822966579194b54b5627006c13c3b8cb0986a
 F src/wikiformat.c f9fb5b8bc72c23d88bedcc8de1048f1081514d09
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c 4e680d7c8778be4439169f40a992ccc81f7ceec2
@@ -571,7 +571,7 @@ F test/utf.test 4f476e82c536d8a56e9b27c8da460f8f92139d79
 F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03
-F test/wiki.test 231f71402b1edc59f02b12e3d3d07a9cd260927c
+F test/wiki.test e36fba92c5ae0ef144f8c665360a6e2c5b1504c0
 F tools/cvs2fossil/changeset 1c99ad8ca9b2f049266d63e0bcc5f26196c72627
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -748,7 +748,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cbda43e71bda52f04c7d5f44c0067340d01542c0
-R de0019e74db1ca2936debf98b164c45a
+P f486d0f0694b0549788e0bf58d7c33dd7ef271d5
+R 342a57002c302b0f0816e36b83f91797
 U dave.vines
-Z 8c7a31323c47e8d2c5bb4a1bdb0337f5
+Z ddce7041fdfc9b7ed11442d843765d2c

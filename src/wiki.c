@@ -1070,9 +1070,8 @@ void wikirules_page(void){
 
 /*
 ** Add a new wiki page to the repository.  The page name is
-** given by the zPageName parameter.  isNew must be true to create
-** a new page.  If no previous page with the name zPageName exists
-** and isNew is false, then this routine throws an error.
+** given by the zPageName parameter.  rid must be zero to create
+** a new page otherwise the page identified by rid is updated.
 **
 ** The content of the new page is given by the blob pContent.
 **
@@ -1080,32 +1079,12 @@ void wikirules_page(void){
 ** empty, or "text/x-fossil-wiki" (the default format) then it is
 ** ignored.
 */
-int wiki_cmd_commit(const char *zPageName, int isNew, Blob *pContent,
+int wiki_cmd_commit(const char *zPageName, int rid, Blob *pContent,
                     const char *zMimeType, int localUser){
   Blob wiki;              /* Wiki page content */
   Blob cksum;             /* wiki checksum */
-  int rid;                /* artifact ID of parent page */
   char *zDate;            /* timestamp */
   char *zUuid;            /* uuid for rid */
-
-  rid = db_int(0,
-     "SELECT x.rid FROM tag t, tagxref x"
-     " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
-     " ORDER BY x.mtime DESC LIMIT 1",
-     zPageName
-  );
-  if( rid==0 && !isNew ){
-#ifdef FOSSIL_ENABLE_JSON
-    g.json.resultCode = FSL_JSON_E_RESOURCE_NOT_FOUND;
-#endif
-    fossil_fatal("no such wiki page: %s", zPageName);
-  }
-  if( rid!=0 && isNew ){
-#ifdef FOSSIL_ENABLE_JSON
-    g.json.resultCode = FSL_JSON_E_RESOURCE_ALREADY_EXISTS;
-#endif
-    fossil_fatal("wiki page %s already exists", zPageName);
-  }
 
   blob_zero(&wiki);
   zDate = date_in_standard_format("now");
@@ -1138,8 +1117,8 @@ int wiki_cmd_commit(const char *zPageName, int isNew, Blob *pContent,
 
 /*
 ** Determine the rid for a tech note given either its id or its
-** timestamp. Returns 0 if there is no such item and-1 if the details 
-** are ambiguous and could refer to multiple items
+** timestamp. Returns 0 if there is no such item and -1 if the details
+** are ambiguous and could refer to multiple items.
 */
 int wiki_technote_to_rid(const char *zETime) {
   int rid=0;                    /* Artifact ID of the tech note */
@@ -1206,7 +1185,11 @@ int wiki_technote_to_rid(const char *zETime) {
 **                                     page, or text/x-fossil-wiki.
 **         -t|--technote DATETIME      Specifies the timestamp of
 **                                     the technote to be created or
-**                                     updated.
+**                                     updated. When updating a tech note
+**                                     the most recently modified with the
+**                                     specified timestamp will be updated.
+**         -t|--technote TECHNOTE-ID   Specifies the technote to be
+**                                     updated by its technote id.
 **         --technote-tags TAGS        The set of tags for a technote.
 **         --technote-bgcolor COLOR    The color used for the technote
 **                                     on the timeline.
@@ -1326,40 +1309,52 @@ void wiki_cmd(void){
           zMimeType = pWiki->zMimetype;
         }
       }else{
-        rid = db_int(0, "SELECT objid FROM event"
-                     " WHERE datetime(mtime)=datetime('%q') AND type='e'"
-                        " AND tagid IS NOT NULL"
-                     " ORDER BY mtime DESC LIMIT 1",
-                     zPageName
-                     );
+        rid = wiki_technote_to_rid(zETime);
         if(rid>0 && (pWiki = manifest_get(rid, CFTYPE_EVENT, 0))!=0
            && (pWiki->zMimetype && *pWiki->zMimetype)){
           zMimeType = pWiki->zMimetype;
         }
       }
     }
+    if( g.argv[2][1]=='r' && rid>0 ){
+      if ( !zETime ){
+        fossil_fatal("wiki page %s already exists", zPageName);
+      }else{
+        /* Creating a tech note with same timestamp is permitted
+           and should create a new tech note */
+        rid = 0; 
+      }
+    }else if( g.argv[2][1]=='o' && rid == 0 ){
+      if ( !zETime ){
+        fossil_fatal("no such wiki page: %s", zPageName);
+      }else{
+        fossil_fatal("no such tech note: %s", zETime);
+      }
+    }
+
     if( !zETime ){
+      wiki_cmd_commit(zPageName, rid, &content, zMimeType, 1);
       if( g.argv[2][1]=='r' ){
-        wiki_cmd_commit(zPageName, 1, &content, zMimeType, 1);
         fossil_print("Created new wiki page %s.\n", zPageName);
       }else{
-        wiki_cmd_commit(zPageName, 0, &content, zMimeType, 1);
         fossil_print("Updated wiki page %s.\n", zPageName);
       }
     }else{
-      char *zMETime;          /* Normalized, mutable version of zETime */
-      zMETime = db_text(0, "SELECT coalesce(datetime(%Q),datetime('now'))",
-                        zETime);
-      if( g.argv[2][1]=='r' ){
-        event_cmd_commit(zMETime, 1, &content, zMimeType, zPageName,
+      if( rid != -1 ){
+        char *zMETime;          /* Normalized, mutable version of zETime */
+        zMETime = db_text(0, "SELECT coalesce(datetime(%Q),datetime('now'))",
+                          zETime);
+        event_cmd_commit(zMETime, rid, &content, zMimeType, zPageName,
                          zTags, zClr);
-        fossil_print("Created new tech note %s.\n", zMETime);
+        if( g.argv[2][1]=='r' ){
+          fossil_print("Created new tech note %s.\n", zMETime);
+        }else{
+          fossil_print("Updated tech note %s.\n", zMETime);
+        }
+        free(zMETime);
       }else{
-        event_cmd_commit(zMETime, 0, &content, zMimeType, zPageName,
-                         zTags, zClr);
-        fossil_print("Updated tech note %s.\n", zMETime);
+        fossil_fatal("ambiguous tech note id: %s", zETime);
       }
-      free(zMETime);
     }
     manifest_destroy(pWiki);
     blob_reset(&content);
