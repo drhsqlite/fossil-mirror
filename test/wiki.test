@@ -313,16 +313,28 @@ fossil wiki export a14 --technote $anoldtechnoteid
 test wiki-43 {[similar_file f14 a14]}
 
 ###############################################################################
+# Check we can add attachments to a technote by its id
+fossil attachment add fa --technote $anoldtechnoteid
+test wiki-44 {$CODE == 0}
+
+###############################################################################
 # Also check that we can specify a prefix of the tech note id
 write_file f15 "Updated text for the really old tech note specified by its id"
 fossil wiki commit {Old tech note} f15 --technote [string range $anoldtechnoteid 0 20]
 fossil wiki export a15 --technote $anoldtechnoteid
-test wiki-44 {[similar_file f15 a15]}
+test wiki-45 {[similar_file f15 a15]}
+
+###############################################################################
+# Check we can add attachments to a technote by a prefix of its id
+fossil attachment add fa --technote [string range $anoldtechnoteid 0 20]
+test wiki-46 {$CODE == 0}
 
 ###############################################################################
 # And we get an error for the ambiguous tech note id
 fossil wiki commit {Old tech note} f15 --technote $duplicateid -expectError
-test wiki-45  {$CODE != 0}
+test wiki-47 {$CODE != 0}
+fossil attachment add fa --technote $duplicateid -expectError
+test wiki-48 {$CODE != 0}
 
 ###############################################################################
 test_cleanup

@@ -1,5 +1,5 @@
-C add\sTECHNOTEID\sto\sfossil\swiki\scommit\sand\sallow\screation\sof\smultiple\stech\snotes\swith\sthe\ssame\stimestamp\s(as\salready\spermitted\sby\sthe\sGUI).
-D 2016-04-18T08:17:57.367
+C add\sTECHNOTEID\sto\sfossil\sattach\scommand
+D 2016-04-18T13:36:59.277
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -373,7 +373,7 @@ F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 026bd9dac971929fa07830d34993d0f00f99bcd2
 F src/allrepo.c 12318d357d48a1c013e1bfafe100d3c95f466285
-F src/attach.c f205c8294689abe6fc235dd8c605dae33ad336dd
+F src/attach.c a547e2d8f577ca0ee528df6d654a405c6de0ec4a
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c c8bdcf4812c9446bea503610d234772516bf572f
 F src/blob.c 10ee0528085b90be013d53935bceeeb83a7b1027
@@ -508,7 +508,7 @@ F src/utf8.c 5c85c7e88b82b5fb48649c46f063ac94ab58eb20
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
 F src/vfile.c 3b7286065edf544811df9f41fc9f35e1d7207c51
-F src/wiki.c 0fd822966579194b54b5627006c13c3b8cb0986a
+F src/wiki.c f0329cafd3aac98c1a6f832bb395616ff67a810a
 F src/wikiformat.c f9fb5b8bc72c23d88bedcc8de1048f1081514d09
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c 4e680d7c8778be4439169f40a992ccc81f7ceec2
@@ -571,7 +571,7 @@ F test/utf.test 4f476e82c536d8a56e9b27c8da460f8f92139d79
 F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03
-F test/wiki.test e36fba92c5ae0ef144f8c665360a6e2c5b1504c0
+F test/wiki.test fc7380db15fcc7407eab451d467207d242f2ddb7
 F tools/cvs2fossil/changeset 1c99ad8ca9b2f049266d63e0bcc5f26196c72627
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -748,7 +748,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f486d0f0694b0549788e0bf58d7c33dd7ef271d5
-R 342a57002c302b0f0816e36b83f91797
+P aeaef8fbb1d8c1a289e9c68cd0d45646ed08091c
+R 28aa885e2bd0bb7aecaef61408aee9de
 U dave.vines
-Z ddce7041fdfc9b7ed11442d843765d2c
+Z c6c117e5060f05b617f24683ea829f9f

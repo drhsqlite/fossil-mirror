@@ -1144,9 +1144,10 @@ int wiki_technote_to_rid(const char *zETime) {
   if (!rid) {
     if (strlen(zETime)>4) {
       rid = db_int(0, "SELECT objid"
-                      " FROM event"
+                      "  FROM event"
                       " WHERE datetime(mtime)=datetime('%q')"
-                      " AND type='e'"
+                      "   AND type='e'"
+                      "   AND tagid IS NOT NULL"
                       " ORDER BY mtime DESC LIMIT 1",
                    zETime);
     }

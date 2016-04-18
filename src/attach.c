@@ -687,11 +687,20 @@ void attachment_list(
 /*
 ** COMMAND: attachment*
 **
-** Usage: %fossil attachment add ?PAGENAME? FILENAME [-t|--technote DATETIME ]
+** Usage: %fossil attachment add ?PAGENAME? FILENAME ?OPTIONS?
 **
-**       Add an attachment to an existing wiki page or tech note. One of
-**       PAGENAME or DATETIME must be specified.
+**       Add an attachment to an existing wiki page or tech note.
 **
+**       Options:
+**         -t|--technote DATETIME      Specifies the timestamp of
+**                                     the technote to which the attachment
+**                                     is to be made. The attachment will be
+**                                     to the most recently modified tech note
+**                                     with the specified timestamp.
+**         -t|--technote TECHNOTE-ID   Specifies the technote to be
+**                                     updated by its technote id.
+**
+**       One of PAGENAME, DATETIME or TECHNOTE-ID must be specified.
 */
 void attachment_cmd(void){
   int n;
@@ -734,13 +743,12 @@ void attachment_cmd(void){
       zFile = g.argv[4];
     }else{
       if( g.argc!=4 ){
-        usage("add FILENAME --technote DATETIME");
+        usage("add FILENAME --technote DATETIME|TECHNOTE-ID");
       }
-      rid = db_int(0, "SELECT objid FROM event"
-        " WHERE datetime(mtime)=datetime('%q') AND type='e'"
-        " ORDER BY mtime DESC LIMIT 1",
-        zETime
-      );
+      rid = wiki_technote_to_rid(zETime);
+      if( rid<0 ){
+        fossil_fatal("ambiguous tech note id: %s", zETime);
+      }
       if( (pWiki = manifest_get(rid, CFTYPE_EVENT, 0))!=0 ){
         zBody = pWiki->zWiki;
       }
