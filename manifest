@@ -1,5 +1,5 @@
-C add\sTECHNOTEID\sto\sfossil\sattach\scommand
-D 2016-04-18T13:36:59.277
+C Sanitize\sthe\smimetypes\son\sboth\sthe\sCLI\sand\sjson.\sAllow\smore\sfriendly\snames\sfor\sthe\ssupported\smimetypes\sas\swell\sas\sthe\sformal\smimetypes
+D 2016-04-18T19:18:19.383
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -435,7 +435,7 @@ F src/json_status.c 0a9f959d19f4b90c879ad50ef0cd376262d8247b
 F src/json_tag.c 2a9e6dac502055a795ef6ade37faa024d480015b
 F src/json_timeline.c 5a9ce59def16a55b7affbf834dd1e13d876efe76
 F src/json_user.c 66fc65a1647616819074eb8ae4534f0822b2fb55
-F src/json_wiki.c 2cb77871dd29a5e15016aa29e1c1bf7b5261600a
+F src/json_wiki.c 6a3666cb1869fa3118b1cd23b354f94b5f726a8d
 F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c 9c1a8a9a1d33f79191cb5a104067201a8cee6de1
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
@@ -508,7 +508,7 @@ F src/utf8.c 5c85c7e88b82b5fb48649c46f063ac94ab58eb20
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
 F src/vfile.c 3b7286065edf544811df9f41fc9f35e1d7207c51
-F src/wiki.c f0329cafd3aac98c1a6f832bb395616ff67a810a
+F src/wiki.c adb458a537944db2f92d9b4abf49fc9273cfbe9b
 F src/wikiformat.c f9fb5b8bc72c23d88bedcc8de1048f1081514d09
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c 4e680d7c8778be4439169f40a992ccc81f7ceec2
@@ -748,7 +748,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aeaef8fbb1d8c1a289e9c68cd0d45646ed08091c
-R 28aa885e2bd0bb7aecaef61408aee9de
+P 70131d08e27bf47f50a40132dd80dd85f657c3e6
+R 3c884b0ae71a24142d19e1bc5161dcdb
 U dave.vines
-Z c6c117e5060f05b617f24683ea829f9f
+Z 0a86a72c40fad4369f1021203255d768

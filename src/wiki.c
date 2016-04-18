@@ -125,15 +125,29 @@ static int is_sandbox(const char *zPagename){
 }
 
 /*
+** Formal, common and short names for the various wiki styles.
+*/
+static const char *const azStyles[] = {
+  "text/x-fossil-wiki", "Fossil Wiki", "wiki",
+  "text/x-markdown",    "Markdown",    "markdown",
+  "text/plain",         "Plain Text",  "plain"
+};
+
+/*
 ** Only allow certain mimetypes through.
 ** All others become "text/x-fossil-wiki"
 */
 const char *wiki_filter_mimetypes(const char *zMimetype){
-  if( zMimetype!=0 &&
-      ( fossil_strcmp(zMimetype, "text/x-markdown")==0
-        || fossil_strcmp(zMimetype, "text/plain")==0 )
-  ){
-    return zMimetype;
+  if( zMimetype!=0 ){
+    for(int i=0; i<sizeof(azStyles)/sizeof(azStyles[0]); i+=3){
+      if( fossil_strcmp(zMimetype,azStyles[i+2])==0 ){
+        return azStyles[i];
+      }
+    }
+    if(  fossil_strcmp(zMimetype, "text/x-markdown")==0
+        || fossil_strcmp(zMimetype, "text/plain")==0 ){
+      return zMimetype;
+    }
   }
   return "text/x-fossil-wiki";
 }
@@ -415,22 +429,13 @@ static void wiki_put(Blob *pWiki, int parent, int needMod){
 }
 
 /*
-** Formal names and common names for the various wiki styles.
-*/
-static const char *const azStyles[] = {
-  "text/x-fossil-wiki", "Fossil Wiki",
-  "text/x-markdown",    "Markdown",
-  "text/plain",         "Plain Text"
-};
-
-/*
 ** Output a selection box from which the user can select the
 ** wiki mimetype.
 */
 void mimetype_option_menu(const char *zMimetype){
   unsigned i;
   @ <select name="mimetype" size="1">
-  for(i=0; i<sizeof(azStyles)/sizeof(azStyles[0]); i+=2){
+  for(i=0; i<sizeof(azStyles)/sizeof(azStyles[0]); i+=3){
     if( fossil_strcmp(zMimetype,azStyles[i])==0 ){
       @ <option value="%s(azStyles[i])" selected>%s(azStyles[i+1])</option>
     }else{
@@ -1316,6 +1321,8 @@ void wiki_cmd(void){
           zMimeType = pWiki->zMimetype;
         }
       }
+    }else{
+      zMimeType = wiki_filter_mimetypes(zMimeType);
     }
     if( g.argv[2][1]=='r' && rid>0 ){
       if ( !zETime ){
