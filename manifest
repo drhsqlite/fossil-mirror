@@ -1,5 +1,5 @@
-C Check\sthe\sreturn\scode\sform\sblob_delta_apply()\sto\smake\ssure\sthere\sare\sno\nerrors\sprior\sto\susing\sthe\sresult.
-D 2016-04-19T03:16:00.532
+C Use\sretry\slogic\sfor\sSSL\sread/write\sas\sdescribed\sin\sthe\sOpenSSL\sdocs.
+D 2016-04-19T17:44:05.255
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -416,7 +416,7 @@ F src/graph.c 8d766b73f318358fec439cc52ea3c02874340fb8
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
 F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c c38d7bff255b35cc7cfe13405b67c32878f9d838
-F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
+F src/http_ssl.c dea4a130aba592848e7a43f635272cd8d7be7592
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c 27ecf5430e34456ead372fb44d9f6fd0789b3b05
 F src/info.c 93a0bd32c9a34d84307207ed7845bdbaafc0f8f7
@@ -748,7 +748,8 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 451f04f6fe631c3db2c8bbe8f25391419d586c46
-R 6db8bdc77b48c547141431fc8eb6099d
-U drh
-Z ceb0c120957d1e19474f6f76bccfb601
+P 85fc2e0a4801349657df46b4e75a343b8cc98c27 c13b6ba7271841a572b900b28d469a517a6cbbc8
+R 196fb59ac0a78cedd0ea47d4271b19e8
+T +closed c13b6ba7271841a572b900b28d469a517a6cbbc8
+U mistachkin
+Z 3fd55cc93fc5d2646e481bd67f9f28b4
