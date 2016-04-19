@@ -1,5 +1,5 @@
-C Minor\sedits\sto\sunify\smerge\scommand\swarning\smessages,\splus\stests.
-D 2016-04-18T21:57:28.049
+C Check\sthe\sreturn\scode\sform\sblob_delta_apply()\sto\smake\ssure\sthere\sare\sno\nerrors\sprior\sto\susing\sthe\sresult.
+D 2016-04-19T03:16:00.532
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -392,7 +392,7 @@ F src/codecheck1.c bf92e19b6a521f947c07960aae3f2aa9a21e4c42
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
 F src/config.h 5b0f2c55c62691916d4477f37109d3356a1dcecf
 F src/configure.c e709349116d50f53152da7e8d409ad5232395c47
-F src/content.c 9aacfc9918f74ac11a7cec5492dd2b58a1ec6ccc
+F src/content.c 80a10dc10ce85269b02061a5d7cfe2b0936f8400
 F src/cson_amalgamation.c ce18de7d62186d08d6c15a7efbd66bf009310439
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
@@ -748,7 +748,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 13f6887bc3b7bd6ba27cb96d11e995112062f11e
-R c1c5ed2830188ad5841feecbd38d8f04
-U joel
-Z 3da595f3cb05c7403e76437f0e4c83e0
+P 451f04f6fe631c3db2c8bbe8f25391419d586c46
+R 6db8bdc77b48c547141431fc8eb6099d
+U drh
+Z ceb0c120957d1e19474f6f76bccfb601
