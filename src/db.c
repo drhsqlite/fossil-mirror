@@ -872,6 +872,22 @@ void db_add_aux_functions(sqlite3 *db){
                           db_fromlocal_function, 0, 0);
 }
 
+/*
+** If the database file zDbFile has a name that suggests that it is
+** encrypted, then prompt for the encryption key.
+*/
+static void db_encryption_key(
+  const char *zDbFile,   /* Name of the database file */
+  Blob *pKey             /* Put the encryption key here */
+){
+  blob_init(pKey, 0, 0);
+  if( sqlite3_strglob("*efossil", zDbFile)==0 ){
+    char *zPrompt = mprintf("\rencryption key for '%s': ", zDbFile);
+    prompt_for_password(zPrompt, pKey, 0);
+    fossil_free(zPrompt);
+  }
+}
+
 
 /*
 ** Open a database file.  Return a pointer to the new database
@@ -880,6 +896,7 @@ void db_add_aux_functions(sqlite3 *db){
 LOCAL sqlite3 *db_open(const char *zDbName){
   int rc;
   sqlite3 *db;
+  Blob key;
 
   if( g.fSqlTrace ) fossil_trace("-- sqlite3_open: [%s]\n", zDbName);
   rc = sqlite3_open_v2(
@@ -890,6 +907,13 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   if( rc!=SQLITE_OK ){
     db_err("[%s]: %s", zDbName, sqlite3_errmsg(db));
   }
+  db_encryption_key(zDbName, &key);
+  if( blob_size(&key)>0 ){
+    char *zCmd = sqlite3_mprintf("PRAGMA key(%Q)", blob_str(&key));
+    sqlite3_exec(db, zCmd, 0, 0, 0);
+    sqlite3_free(zCmd);
+  }
+  blob_reset(&key);
   sqlite3_busy_timeout(db, 5000);
   sqlite3_wal_autocheckpoint(db, 1);  /* Set to checkpoint frequently */
   sqlite3_create_function(db, "user", 0, SQLITE_UTF8, 0, db_sql_user, 0, 0);
@@ -923,7 +947,11 @@ void db_detach(const char *zLabel){
 ** the name zLabel.
 */
 void db_attach(const char *zDbName, const char *zLabel){
-  db_multi_exec("ATTACH DATABASE %Q AS %Q", zDbName, zLabel);
+  Blob key;
+  db_encryption_key(zDbName, &key);
+  db_multi_exec("ATTACH DATABASE %Q AS %Q KEY %Q",
+                zDbName, zLabel, blob_str(&key));
+  blob_reset(&key);
 }
 
 /*
