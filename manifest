@@ -1,9 +1,9 @@
-C Add\sthe\sability\sto\suse\sa\srepository\sthat\sis\sin\sa\sdatabase\sprotected\sby\sthe\n[http://www.hwaci.com/sw/sqlite/see.html|SQLite\sEncryption\sExtension\s(SEE)].\nSEE\sis\sproprietary\scode\sand\sis\snot\sincluded\sin\sthis\stree,\sbut\sif\sa\suser\shas\na\scopy\sof\sSEE,\swith\sthis\schange\sshe\scan\scompile\sa\sversion\sof\sFossil\sthat\suses\nit.
-D 2016-04-22T18:08:55.054
+C Add\san\sentry\sto\sthe\signore-glob\ssetting\sto\shelp\sprevent\sthe\sSEE-enabled\sSQLite\nsource\sfile\sfrom\sbeing\sadded\sto\sthis\spublic\srepository\sby\smistake.
+D 2016-04-22T18:33:56.991
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
-F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
+F .fossil-settings/ignore-glob bb03826803c124e531e88a8b1469e63d813b3134
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -748,8 +748,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4abf607937fac8e00269c2ce8f067b868ef21ef6 a7563f08db720bf878b46d739bb23c6940287244
-R ff3a722891d03d65ee6d0354ccf1c2f6
-T +closed a7563f08db720bf878b46d739bb23c6940287244
+P ed871fb5fabd163534279dbc68add79ca2c20b84
+R 573cfb2b99aa36771bd8e8edac0992dd
 U drh
-Z 2162aba3bc1f8af89e9941c033e266a4
+Z a766111241f00c17f006618a614784f8
