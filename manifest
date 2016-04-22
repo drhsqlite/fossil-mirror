@@ -1,5 +1,5 @@
-C Use\sretry\slogic\sfor\sSSL\sread/write\sas\sdescribed\sin\sthe\sOpenSSL\sdocs.
-D 2016-04-19T17:44:05.255
+C Add\sthe\sability\sto\suse\sa\srepository\sthat\sis\sin\sa\sdatabase\sprotected\sby\sthe\n[http://www.hwaci.com/sw/sqlite/see.html|SQLite\sEncryption\sExtension\s(SEE)].\nSEE\sis\sproprietary\scode\sand\sis\snot\sincluded\sin\sthis\stree,\sbut\sif\sa\suser\shas\na\scopy\sof\sSEE,\swith\sthis\schange\sshe\scan\scompile\sa\sversion\sof\sFossil\sthat\suses\nit.
+D 2016-04-22T18:08:55.054
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -11,7 +11,7 @@ F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile e6126edc40fe1da6bd47c6c5f1beede3b9c3eaf7
 F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
-F Makefile.in ea7f637f751d181d2ec957d6ec53fd4adc144717
+F Makefile.in e68d67b0141655f3f6934ad35df484e50e84ff32
 F VERSION 7d88475c68cba7127d611641fa69160437b6885e
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
@@ -45,7 +45,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 6068b5fa48a2cb23177380b649e22fca339ea743
+F auto.def c7ab199c60cf3bfed2c0e8b86cede10ecb318747
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 4e0b671b54288fc64d851d056822ee5fec4d3365
 F autosetup/autosetup 7b5ae324561a38804875517af9b7c6e7f42f930d x
@@ -396,7 +396,7 @@ F src/content.c 80a10dc10ce85269b02061a5d7cfe2b0936f8400
 F src/cson_amalgamation.c ce18de7d62186d08d6c15a7efbd66bf009310439
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 4fc334dc46dbe5e63d189f784420e4b5b0604fec
+F src/db.c 428a0e18a392bb6024cd55b89312cd21e25b2d73
 F src/delta.c ab405c78d6559ea61563e2500c28f135a26c8b62
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 48ba0c208d74e5a8c4b33e43ea066d236d3a4694
@@ -443,10 +443,10 @@ F src/loadctrl.c 32febde85f14593a503aadbb51983d37fce009c2
 F src/login.c 9010b62121a41566e330f62c238061ca4c6b4f98
 F src/lookslike.c 9103d15912b792a65874f04e185f2a74a477ebb4
 F src/main.c 2c2d97aec0e94680b40edf2f0cbc368d77d7c4c2
-F src/main.mk c52cca43a3ac067b1d7b98d9b4898f510c1c9609
+F src/main.mk 3ba7f5a07fc2f3489b5373a6c54439660cd87608
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl c94978088a0bb586b5d0cdca776f815fea022ffb
+F src/makemake.tcl 2482897ea9cefbc983ec8be22c57234ca3777f09
 F src/manifest.c a520159adafb16098a08535b2bbd6984198b5cdf
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md fc02fd045690e6fb45fb0bc91be734913dc70d02
@@ -748,8 +748,8 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 85fc2e0a4801349657df46b4e75a343b8cc98c27 c13b6ba7271841a572b900b28d469a517a6cbbc8
-R 196fb59ac0a78cedd0ea47d4271b19e8
-T +closed c13b6ba7271841a572b900b28d469a517a6cbbc8
-U mistachkin
-Z 3fd55cc93fc5d2646e481bd67f9f28b4
+P 4abf607937fac8e00269c2ce8f067b868ef21ef6 a7563f08db720bf878b46d739bb23c6940287244
+R ff3a722891d03d65ee6d0354ccf1c2f6
+T +closed a7563f08db720bf878b46d739bb23c6940287244
+U drh
+Z 2162aba3bc1f8af89e9941c033e266a4
