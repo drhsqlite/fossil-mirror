@@ -883,6 +883,7 @@ static void db_encryption_key(
   Blob *pKey             /* Put the encryption key here */
 ){
   blob_init(pKey, 0, 0);
+#if USE_SEE
   if( sqlite3_strglob("*efossil", zDbFile)==0 ){
     static char *zSavedKey = 0;
     if( zSavedKey ){
@@ -894,6 +895,7 @@ static void db_encryption_key(
       zSavedKey = fossil_strdup(blob_str(pKey));
     }
   }
+#endif
 }
 
 
