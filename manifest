@@ -1,5 +1,5 @@
-C Updates\sto\ssupport\sbuilding\swith\sthe\sSQLite\sEncryption\sExtension\son\sWindows.
-D 2016-04-22T20:00:54.571
+C Minor\smakefile\sconsistency\sfix.
+D 2016-04-22T20:02:25.035
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -443,7 +443,7 @@ F src/loadctrl.c 32febde85f14593a503aadbb51983d37fce009c2
 F src/login.c 9010b62121a41566e330f62c238061ca4c6b4f98
 F src/lookslike.c 9103d15912b792a65874f04e185f2a74a477ebb4
 F src/main.c 4b9e7c1c5ab5def3b79e8eb45f1df7dd22826222
-F src/main.mk ee8b0259a8ded319cd57ee919f44bba094636c53
+F src/main.mk 3a87a2fb1805dd53c67589bfa2b65e54f4a87559
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 2bd104ca3017b2a08ab3a9812eb98bc809ae70dc
@@ -748,7 +748,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fa3e672aecd3cb3ca57c55df4ac11ca419fdb7da
-R e2d0caa675bc8c7f31e587ea351c59eb
+P 9129f6f6225a91a28d22b7a8141396379fa50e22
+R 297f8e7afb7cbc0449c5efd4c8dfd1e6
 U mistachkin
-Z 0b9134dd38b2f4ffbb5c8a20be549f9e
+Z 7ecd0316644b2d305f108edfc943b739

@@ -510,8 +510,8 @@ MINIZ_OPTIONS = -DMINIZ_NO_STDIO \
 # to 1. If it is set to 1, then there is no need to build or link
 # the sqlite3.o object. Instead, the system SQLite will be linked
 # using -lsqlite3.
-SQLITE3_OBJ.1 =
 SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
+SQLITE3_OBJ.1 =
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 
 # The FOSSIL_ENABLE_MINIZ variable may be undefined, set to 0, or
@@ -535,12 +535,12 @@ LINENOISE_OBJ.  = $(LINENOISE_OBJ.0)
 # 0, ordinary SQLite is used.  If 1, then sqlite3-see.c (not part of
 # the source tree) is used and extra flags are provided to enable
 # the SQLite Encryption Extension.
-SQLITE3_SRC.1 = sqlite3-see.c
 SQLITE3_SRC.0 = sqlite3.c
+SQLITE3_SRC.1 = sqlite3-see.c
 SQLITE3_SRC. = sqlite3.c
 SQLITE3_SRC = $(SRCDIR)/$(SQLITE3_SRC.$(USE_SEE))
-SEE_FLAGS.1 = -DSQLITE_HAS_CODEC
 SEE_FLAGS.0 =
+SEE_FLAGS.1 = -DSQLITE_HAS_CODEC
 SEE_FLAGS. =
 SEE_FLAGS = $(SEE_FLAGS.$(USE_SEE))
 
