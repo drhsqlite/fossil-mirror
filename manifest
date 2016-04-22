@@ -1,5 +1,5 @@
-C Prompt\sfor\sand\suse\sthe\sencryption\skey\sfor\sencrypted\srepositories.
-D 2016-04-22T17:56:30.624
+C Avoid\sreprompting\sfor\sthe\sencryption\skey\son\severy\sHTTP\srequest\swhen\srunning\n"fossil\sui"\son\san\sencrypted\srepository.
+D 2016-04-22T18:03:27.737
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -396,7 +396,7 @@ F src/content.c 80a10dc10ce85269b02061a5d7cfe2b0936f8400
 F src/cson_amalgamation.c ce18de7d62186d08d6c15a7efbd66bf009310439
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 111d704f665e23d5e5494792e5a9c8e570fde02b
+F src/db.c 428a0e18a392bb6024cd55b89312cd21e25b2d73
 F src/delta.c ab405c78d6559ea61563e2500c28f135a26c8b62
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 48ba0c208d74e5a8c4b33e43ea066d236d3a4694
@@ -748,7 +748,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1ec6712e8ad694ebdd977d6f4b8f1ae4d221bc5a
-R d4902aa6ee4d6c48d3898d827f7e1408
+P 3a02d7b6314b804933cec83ba2d3879bb19f06f2
+R ff3a722891d03d65ee6d0354ccf1c2f6
 U drh
-Z ccefd6ae27c62d0e16989237805d2f8c
+Z f6f9b438166161f1db4b13710533207a

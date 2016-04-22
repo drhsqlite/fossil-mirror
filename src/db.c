@@ -874,7 +874,9 @@ void db_add_aux_functions(sqlite3 *db){
 
 /*
 ** If the database file zDbFile has a name that suggests that it is
-** encrypted, then prompt for the encryption key.
+** encrypted, then prompt for the encryption key and return it in the
+** blob *pKey.  Or, if the encryption key has previously been requested,
+** just return a copy of the previous result.
 */
 static void db_encryption_key(
   const char *zDbFile,   /* Name of the database file */
@@ -882,9 +884,15 @@ static void db_encryption_key(
 ){
   blob_init(pKey, 0, 0);
   if( sqlite3_strglob("*efossil", zDbFile)==0 ){
-    char *zPrompt = mprintf("\rencryption key for '%s': ", zDbFile);
-    prompt_for_password(zPrompt, pKey, 0);
-    fossil_free(zPrompt);
+    static char *zSavedKey = 0;
+    if( zSavedKey ){
+      blob_set(pKey, zSavedKey);
+    }else{
+      char *zPrompt = mprintf("\rencryption key for '%s': ", zDbFile);
+      prompt_for_password(zPrompt, pKey, 0);
+      fossil_free(zPrompt);
+      zSavedKey = fossil_strdup(blob_str(pKey));
+    }
   }
 }
 
