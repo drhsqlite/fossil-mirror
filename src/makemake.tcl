@@ -360,6 +360,19 @@ LINENOISE_DEF.  = $(LINENOISE_DEF.0)
 LINENOISE_OBJ.0 =
 LINENOISE_OBJ.1 = $(OBJDIR)/linenoise.o
 LINENOISE_OBJ.  = $(LINENOISE_OBJ.0)
+
+# The USE_SEE variable may be undefined, 0 or 1.  If undefined or
+# 0, ordinary SQLite is used.  If 1, then sqlite3-see.c (not part of
+# the source tree) is used and extra flags are provided to enable
+# the SQLite Encryption Extension.
+SQLITE3_SRC.1 = sqlite3-see.c
+SQLITE3_SRC.0 = sqlite3.c
+SQLITE3_SRC. = sqlite3.c
+SQLITE3_SRC = $(SRCDIR)/$(SQLITE3_SRC.$(USE_SEE))
+SEE_FLAGS.1 = -DSQLITE_HAS_CODEC
+SEE_FLAGS.0 = 
+SEE_FLAGS. = 
+SEE_FLAGS = $(SEE_FLAGS.$(USE_SEE))
 }]
 
 writeln [string map [list <<<NEXT_LINE>>> \\] {
@@ -423,8 +436,9 @@ foreach s [lsort $src] {
   writeln "\$(OBJDIR)/$s.h:\t\$(OBJDIR)/headers\n"
 }
 
-writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
-writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) -c \$(SRCDIR)/sqlite3.c -o \$@\n"
+writeln "\$(OBJDIR)/sqlite3.o:\t\$(SQLITE3_SRC)"
+writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) \$(SEE_FLAGS) \\"
+writeln "\t\t-c \$(SQLITE3_SRC) -o $@"
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
 writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) \$(LINENOISE_DEF.\$(USE_LINENOISE)) -c \$(SRCDIR)/shell.c -o \$@\n"
