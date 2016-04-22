@@ -1083,6 +1083,9 @@ static void get_version_blob(
 #else
   blob_append(pOut, "STATIC_BUILD\n", -1);
 #endif
+#if defined(USE_SEE)
+  blob_append(pOut, "USE_SEE\n", -1);
+#endif
 }
 
 /*

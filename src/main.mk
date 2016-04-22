@@ -461,7 +461,7 @@ $(OBJDIR)/mkversion:	$(SRCDIR)/mkversion.c
 $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
 	$(BCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
 
-# Run the test suite. 
+# Run the test suite.
 # Other flags that can be included in TESTFLAGS are:
 #
 #  -halt     Stop testing after the first failed test
@@ -540,8 +540,8 @@ SQLITE3_SRC.0 = sqlite3.c
 SQLITE3_SRC. = sqlite3.c
 SQLITE3_SRC = $(SRCDIR)/$(SQLITE3_SRC.$(USE_SEE))
 SEE_FLAGS.1 = -DSQLITE_HAS_CODEC
-SEE_FLAGS.0 = 
-SEE_FLAGS. = 
+SEE_FLAGS.0 =
+SEE_FLAGS. =
 SEE_FLAGS = $(SEE_FLAGS.$(USE_SEE))
 
 

@@ -138,6 +138,7 @@ if {[opt-bool fossil-debug]} {
 }
 
 if {[opt-bool with-see]} {
+    define-append EXTRA_CFLAGS -DUSE_SEE
     define USE_SEE 1
     msg-result "Enabling encryption support"
 }
