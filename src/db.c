@@ -884,7 +884,7 @@ static void db_encryption_key(
 ){
   blob_init(pKey, 0, 0);
 #if USE_SEE
-  if( sqlite3_strglob("*efossil", zDbFile)==0 ){
+  if( sqlite3_strglob("*.efossil", zDbFile)==0 ){
     static char *zSavedKey = 0;
     if( zSavedKey ){
       blob_set(pKey, zSavedKey);
