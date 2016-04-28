@@ -1,5 +1,5 @@
-C Make\sthe\sglob\spattern\sfor\sencrypted\srepositories\sa\sbit\smore\sstrict.
-D 2016-04-25T04:13:18.758
+C Fix\s(harmless)\smingw\scompiler\swarning\ssrc/vfile.c:\svariables\s‘currentPerm’\sand\s‘origPerm’\sset\sbut\snot\sused\s[-Wunused-but-set-variable]
+D 2016-04-28T14:32:51.527
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -507,7 +507,7 @@ F src/user.c 0335b8389a957ea4ca1e19d740f7b60303ebb8bf
 F src/utf8.c 5c85c7e88b82b5fb48649c46f063ac94ab58eb20
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
-F src/vfile.c 3b7286065edf544811df9f41fc9f35e1d7207c51
+F src/vfile.c 9d44ee4a0cf612b2fb257699b3f52c12a094f02f
 F src/wiki.c 678931a344b73549027f5a55272808326d514893
 F src/wikiformat.c 1d750982147d9c51fa40e89e40241a33408adaf6
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
@@ -748,7 +748,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 60026ba3cbb99e4f15ad0335fdfa4f78b3df4da0
-R b56c79ea654a9e8fdedbb132a08ba2ec
-U mistachkin
-Z 83c88c9aa3900ee9a18a78c9bf98c33a
+P 980fdda64b30a1d7f4d50942ce7c9dc3ed27c096
+R 5267cf331d504d4159277fbab016e1ca
+U jan.nijtmans
+Z 903de35a1b63b8c02b921a28cce3415c
