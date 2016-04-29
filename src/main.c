@@ -2664,9 +2664,9 @@ void cmd_webserver(void){
   if( allowRepoList ){
     flags |= HTTP_SERVER_REPOLIST;
   }
-  if( win32_http_service(iPort, zNotFound, zFileGlob, flags) ){
-    win32_http_server(iPort, mxPort, zBrowserCmd,
-                      zStopperFile, zNotFound, zFileGlob, zIpAddr, flags);
+  if( win32_http_service(iPort, zAltBase, zNotFound, zFileGlob, flags) ){
+    win32_http_server(iPort, mxPort, zBrowserCmd, zStopperFile,
+                      zAltBase, zNotFound, zFileGlob, zIpAddr, flags);
   }
 #endif
 }
