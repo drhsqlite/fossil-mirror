@@ -1,5 +1,5 @@
-C Make\soption\s--baseurl\swork\son\sWindows
-D 2016-04-29T08:28:27.329
+C Make\soptions\s--repolist\sand\s--baseurl\swork\stogether,\sif\sthe\soriginal\sURL\sdoesn't\send\swith\s'/'.
+D 2016-04-29T10:28:21.321
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -442,7 +442,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 32febde85f14593a503aadbb51983d37fce009c2
 F src/login.c 9010b62121a41566e330f62c238061ca4c6b4f98
 F src/lookslike.c 9103d15912b792a65874f04e185f2a74a477ebb4
-F src/main.c 82a5c7ef28f478867580626ef883df65458927d4
+F src/main.c 4989ed094f56af540084d2cf3a3e8954d8dc924b
 F src/main.mk 3a87a2fb1805dd53c67589bfa2b65e54f4a87559
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -748,7 +748,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c2000668555aeef23de17932ae1e6da006dd091c
-R 6db7fc288ef95134ac205cbf63cf93bb
+P 6f35075ad72b8608bd5ce2fccf093495331d1187
+R e39764a731b5a22796481c8e8fc33d37
 U jan.nijtmans
-Z 152003bf313cd4f0fc7f307ba2d5f1b7
+Z 6c48601de79792bf4a2312badc048e5a

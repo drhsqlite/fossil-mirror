@@ -1590,6 +1590,7 @@ static int repo_list_page(void){
     Stmt q;
     @ <html>
     @ <head>
+    @ <base href="%s(g.zBaseURL)/" />
     @ <title>Repository List</title>
     @ </head>
     @ <body>
@@ -1600,7 +1601,7 @@ static int repo_list_page(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       const char *zUrl = db_column_text(&q, 1);
-      @ <li><a href="%h(zUrl)" target="_blank">%h(zName)</a></li>
+      @ <li><a href="%R/%h(zUrl)" target="_blank">%h(zName)</a></li>
     }
     @ </ol>
     @ </body>
