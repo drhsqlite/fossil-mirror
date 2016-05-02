@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\san\searly\sbeta\sof\s3.13.0\sfor\stesting.
-D 2016-05-02T16:14:54.353
+C Do\snot\srun\s"all"\scommands\sagainst\sencrypted\srepos\sif\sencryption\sis\snot\nsupported.
+D 2016-05-02T16:19:42.676
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -372,7 +372,7 @@ F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c f192f326c99668df8be826d7bdbdd8d19f7b5f4e
-F src/allrepo.c 8dca2a51d70736110b67f639d628b907c0b767a8
+F src/allrepo.c 3e2be421c00f83a103fdb2e5492d9b833ff54856
 F src/attach.c 238d36f986b290bc45f0d9b1f9fe8e25095a448d
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c abd167c9f2c5398782ca6d48ea1ee612163a7685
@@ -748,7 +748,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7c4628a568c01a11642e18c119c93aa1d85632ed
-R d4efa4971cceb0f8eb78be89d3dea60c
+P fc5f1728d562adcdfc7b7e8a0ace64bc1d335ddd
+R 1cb25d97a5fcaaf40fb4a5e6735cab1b
 U drh
-Z 2f31d35b5e193c3f0870a9b923787dd0
+Z 1916f34b6a78698bad771d4f1203fa24
