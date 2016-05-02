@@ -1,5 +1,5 @@
-C merge\strunk
-D 2016-05-02T16:18:00.000
+C Not\sall\sheaders\sknow\sabout\sSQLITE_CONFIG_EXPLAIN_COMMENTS
+D 2016-05-02T16:21:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -476,7 +476,7 @@ F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c 1be2c1663b0e5be621cc914535922bb8c6608d64
 F src/setup.c 38cc6e299ba8eecb803fe8a0c12f9957cab0d191
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
-F src/shell.c 8dc2ac60ca90eff95807dfaa57543066383647b8
+F src/shell.c a7b38ca5338e5b2659c2694eb6a30760a99a9c88
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 6fbec2fbaf3bb39566f2550b12f58127c9bfa850
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
@@ -748,10 +748,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fc5f1728d562adcdfc7b7e8a0ace64bc1d335ddd ff571668c41735d425279cecab6fe1518a21a920
-R 595a87336acbf25575fc8162b1fcc179
-T *branch * sqlite3-compat
-T *sym-sqlite3-compat *
-T -sym-trunk *
+P 0437cf965c400072bbc3315d1ce0ca67c0498a87
+R aadd88d4026fdddd4d486691d80fb1ec
 U jan.nijtmans
-Z 46d2de8c1e672ea4f5db2248e3c5b8ba
+Z 83bdb7734293b1f95830f0d856f7085c
