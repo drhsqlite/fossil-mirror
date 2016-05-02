@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\san\searly\sbeta\sof\s3.13.0\sfor\stesting.
-D 2016-05-02T16:14:54.353
+C merge\strunk
+D 2016-05-02T16:18:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -396,7 +396,7 @@ F src/content.c 80a10dc10ce85269b02061a5d7cfe2b0936f8400
 F src/cson_amalgamation.c ce18de7d62186d08d6c15a7efbd66bf009310439
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 38dc7d512214b7f6be778000a115ec92bb88711a
+F src/db.c f06e35f657e6f806b53690ec7c71501eb655f933
 F src/delta.c ab405c78d6559ea61563e2500c28f135a26c8b62
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 48ba0c208d74e5a8c4b33e43ea066d236d3a4694
@@ -442,7 +442,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 32febde85f14593a503aadbb51983d37fce009c2
 F src/login.c 9010b62121a41566e330f62c238061ca4c6b4f98
 F src/lookslike.c 9103d15912b792a65874f04e185f2a74a477ebb4
-F src/main.c 4989ed094f56af540084d2cf3a3e8954d8dc924b
+F src/main.c dc9095989ae1933c79baebf8da075b06450f19ff
 F src/main.mk 3a87a2fb1805dd53c67589bfa2b65e54f4a87559
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -476,7 +476,7 @@ F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c 1be2c1663b0e5be621cc914535922bb8c6608d64
 F src/setup.c 38cc6e299ba8eecb803fe8a0c12f9957cab0d191
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
-F src/shell.c 14ff7f660530a52b117d110ba3390b7b2eb719b6
+F src/shell.c 8dc2ac60ca90eff95807dfaa57543066383647b8
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 6fbec2fbaf3bb39566f2550b12f58127c9bfa850
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
@@ -748,7 +748,10 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7c4628a568c01a11642e18c119c93aa1d85632ed
-R d4efa4971cceb0f8eb78be89d3dea60c
-U drh
-Z 2f31d35b5e193c3f0870a9b923787dd0
+P fc5f1728d562adcdfc7b7e8a0ace64bc1d335ddd ff571668c41735d425279cecab6fe1518a21a920
+R 595a87336acbf25575fc8162b1fcc179
+T *branch * sqlite3-compat
+T *sym-sqlite3-compat *
+T -sym-trunk *
+U jan.nijtmans
+Z 46d2de8c1e672ea4f5db2248e3c5b8ba

@@ -598,6 +598,7 @@ int main(int argc, char **argv)
     fossil_fatal("Unsuitable SQLite version %s, must be at least 3.10.0",
                  sqlite3_libversion());
   }
+  sqlite3_config(64); /* SQLITE_CONFIG_EXPLAIN_COMMENTS */
   sqlite3_config(SQLITE_CONFIG_MULTITHREAD);
   sqlite3_config(SQLITE_CONFIG_LOG, fossil_sqlite_log, 0);
   memset(&g, 0, sizeof(g));
@@ -2237,7 +2238,7 @@ static void find_server_repository(int arg, int fCreate){
         db_create_repository(zRepo);
         db_open_repository(zRepo);
         db_begin_transaction();
-        db_initial_setup(0, "now", g.zLogin);
+        db_initial_setup(0, 0, g.zLogin);
         db_end_transaction(0);
         fossil_print("project-id: %s\n", db_get("project-code", 0));
         fossil_print("server-id:  %s\n", db_get("server-code", 0));
