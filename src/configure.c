@@ -832,7 +832,7 @@ static void export_config(
 ** Usage: %fossil configuration METHOD ... ?OPTIONS?
 **
 ** Where METHOD is one of: export import merge pull push reset.  All methods
-** accept the -R or --repository option to specific a repository.
+** accept the -R or --repository option to specify a repository.
 **
 **    %fossil configuration export AREA FILENAME
 **

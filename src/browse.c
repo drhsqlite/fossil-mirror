@@ -981,7 +981,7 @@ void test_fileage_cmd(void){
   const char *zGlob = find_option("glob",0,1);
   db_find_and_open_repository(0,0);
   verify_all_options();
-  if( g.argc!=3 ) usage("test-fileage CHECKIN");
+  if( g.argc!=3 ) usage("CHECKIN");
   mid = name_to_typed_rid(g.argv[2],"ci");
   compute_fileage(mid, zGlob);
   db_prepare(&q,
@@ -1001,7 +1001,7 @@ void test_fileage_cmd(void){
 }
 
 /*
-** WEBPAGE:  fileage
+** WEBPAGE: fileage
 **
 ** Show all files in a single check-in (identified by the name= query
 ** parameter) in order of increasing age.

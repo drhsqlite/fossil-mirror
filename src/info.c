@@ -1452,7 +1452,8 @@ int object_description(
 **
 ** Two arguments, v1 and v2, identify the files to be diffed.  Show the
 ** difference between the two artifacts.  Show diff side by side unless sbs
-** is 0.  Generate plaintext if "patch" is present.
+** is 0.  Generate plain text if "patch" is present, otherwise generate
+** "pretty" HTML.
 **
 ** Additional parameters:
 **
@@ -1840,7 +1841,7 @@ void output_text_with_line_numbers(
 **   ln              - show line numbers
 **   ln=N            - highlight line number N
 **   ln=M-N          - highlight lines M through N inclusive
-**   ln=M-N+Y-Z      - higllight lines M through N and Y through Z (inclusive)
+**   ln=M-N+Y-Z      - highlight lines M through N and Y through Z (inclusive)
 **   verbose         - show more detail in the description
 **   download        - redirect to the download (artifact page only)
 **

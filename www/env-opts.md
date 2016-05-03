@@ -33,16 +33,29 @@ most sensible condition.
 any commands.
 
 
-`--comfmtflags NUMBER`: Specify flags that control how check-in
-comments and certain other text outputs are formatted for display. The
-flags are individual bits in `NUMBER`:
+`--comfmtflags NUMBER`: Specify flags that control how check-in comments
+and certain other text outputs are formatted for display. The flags are
+individual bits in `NUMBER`, which must be specified in base 10:
 
-     0   no special formatting
-     1   legacy algorithm (default)
-     2   trim leading CR and LF
-     4   trim leading and trailing spaces
-     8   word break
-    16   line break before comment
+  * _0_ &mdash; Uses the revised algorithm with no special handling.
+
+  * _1_ &mdash; Uses the legacy algorithm, other flags are ignored.
+
+  * _2_ &mdash; Trims leading and trailing carriage-returns and line-feeds
+        where they do not materially impact pre-existing formatting
+        (i.e. at the start of the comment string _and_ right before
+        line indentation).
+
+  * _4_ &mdash; Trims leading and trailing spaces where they do not materially
+        impact the pre-existing formatting (i.e. at the start of the
+        comment string _and_ right before line indentation).
+
+  * _8_ &mdash; Attempts to break lines on word boundaries while honoring the
+        logical line length.
+
+  * _16_ &mdash; Looks for the original comment text within the text being
+         printed.  Upon matching, a new line will be emitted, thus
+         preserving more of the pre-existing formatting.
 
 
 `--errorlog ERRLOG`: Name a file to which fossil will log panics,
@@ -212,7 +225,8 @@ the remote host.
 use proxy, 0 means never use proxy, and undefined means use proxy for
 non-local files only.
 
-`SQLITE_TMPDIR`: Names the temporary file location to SQLite.
+`SQLITE_TMPDIR`: Names the temporary file location for SQLite.  When
+set, this will be used instead of `TMPDIR`.
 
 
 `SYSTEMROOT`: (Windows) Used to locate `notepad.exe` as a
@@ -245,7 +259,7 @@ to enable TH1 documents in fossil.
 to enable TH1 hooks in fossil.
 
 `TH1_ENABLE_TCL`: Override the local or global setting `tcl` to enable
-TCL in fossil.
+Tcl in fossil.
 
 `TMP`: On Windows, the location of temporary files. The first
 environment variable found in the environment that names an existing
@@ -253,7 +267,7 @@ directory from the list `TMP`, `TEMP`, `USERPROFILE`, the Windows
 directory (usually `C:\WINDOWS`), `TEMP`, `TMP`, and the current
 directory (aka `.`) is the temporary folder.
 
-`TMPDIR`: Names the temporary file location to SQLite.
+`TMPDIR`: Names the temporary file location for SQLite.
 
 
 `USER`: Name of the logged in user on many Unix-like platforms.

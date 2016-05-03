@@ -684,7 +684,9 @@ void rebuild_database(void){
 }
 
 /*
-** COMMAND:  test-detach  ?REPOSITORY?
+** COMMAND: test-detach
+** 
+** Usage: %fossil test-detach  ?REPOSITORY?
 **
 ** Change the project-code and make other changes in order to prevent
 ** the repository from ever again pushing or pulling to other
@@ -705,7 +707,7 @@ void test_detach_cmd(void){
 }
 
 /*
-** COMMAND:  test-create-clusters
+** COMMAND: test-create-clusters
 **
 ** Create clusters for all unclustered artifacts if the number of unclustered
 ** artifacts exceeds the current clustering threshold.
@@ -796,7 +798,8 @@ void test_clusters_cmd(void){
 
 /*
 ** COMMAND: scrub*
-** %fossil scrub ?OPTIONS? ?REPOSITORY?
+** 
+** Usage: %fossil scrub ?OPTIONS? ?REPOSITORY?
 **
 ** The command removes sensitive information (such as passwords) from a
 ** repository so that the repository can be sent to an untrusted reader.

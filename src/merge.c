@@ -498,7 +498,7 @@ void merge_cmd(void){
   while( db_step(&q)==SQLITE_ROW ){
     int idm = db_column_int(&q, 0);
     char *zName = db_text(0, "SELECT pathname FROM vfile WHERE id=%d", idm);
-    fossil_warning("WARNING - no common ancestor: %s", zName);
+    fossil_warning("WARNING: no common ancestor for %s", zName);
     free(zName);
     db_multi_exec("UPDATE fv SET idm=0 WHERE idm=%d", idm);
   }
@@ -648,7 +648,7 @@ void merge_cmd(void){
     /* Delete the file idv */
     fossil_print("DELETE %s\n", zName);
     if( chnged ){
-      fossil_warning("WARNING: local edits lost for %s\n", zName);
+      fossil_warning("WARNING: local edits lost for %s", zName);
       nConflict++;
     }
     if( !dryRunFlag ) undo_save(zName);

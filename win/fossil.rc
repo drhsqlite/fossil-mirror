@@ -163,6 +163,11 @@ BEGIN
 #if defined(FOSSIL_ENABLE_JSON)
       VALUE "JsonEnabled", "Yes, cson " FOSSIL_JSON_API_VERSION "\0"
 #endif /* defined(FOSSIL_ENABLE_JSON) */
+#if defined(USE_SEE)
+      VALUE "UseSeeEnabled", "Yes\0"
+#else
+      VALUE "UseSeeEnabled", "No\0"
+#endif /* defined(USE_SEE) */
       VALUE "MarkdownEnabled", "Yes\0"
     END
   END

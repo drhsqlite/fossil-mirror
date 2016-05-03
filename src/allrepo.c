@@ -89,7 +89,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 **
 ** Available operations are:
 **
-**    cache       Mangages the cache used for potentially expensive web
+**    cache       Manages the cache used for potentially expensive web
 **                pages.  Any additional arguments are passed on verbatim
 **                to the cache command.
 **
@@ -379,6 +379,9 @@ void all_cmd(void){
   db_prepare(&q, "SELECT name, tag FROM repolist ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFilename = db_column_text(&q, 0);
+#if !USE_SEE
+    if( sqlite3_strglob("*.efossil", zFilename)==0 ) continue;
+#endif
     if( file_access(zFilename, F_OK)
      || !file_is_canonical(zFilename)
      || (useCheckouts && file_isdir(zFilename)!=1)

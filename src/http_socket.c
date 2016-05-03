@@ -148,8 +148,8 @@ int socket_open(UrlData *pUrlData){
   char zRemote[NI_MAXHOST];
 
   socket_global_init();
+  socket_close();
   memset(&hints, 0, sizeof(struct addrinfo));
-  assert( iSocket<0 );
   hints.ai_family = g.fIPv4 ? AF_INET : AF_UNSPEC;
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_protocol = IPPROTO_TCP;

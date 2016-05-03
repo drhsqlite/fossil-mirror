@@ -548,6 +548,7 @@ static void locate_unmanaged_files(
 
 /*
 ** COMMAND: extras
+** 
 ** Usage: %fossil extras ?OPTIONS? ?PATH1 ...?
 **
 ** Print a list of all files in the source tree that are not part of
@@ -633,6 +634,7 @@ void extras_cmd(void){
 
 /*
 ** COMMAND: clean
+** 
 ** Usage: %fossil clean ?OPTIONS? ?PATH ...?
 **
 ** Delete all "extra" files in the source tree.  "Extra" files are

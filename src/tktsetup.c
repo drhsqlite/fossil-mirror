@@ -279,7 +279,7 @@ const char *ticket_change_code(void){
 
 /*
 ** WEBPAGE: tktsetup_change
-** Adminstrative screen used to view or edit the TH1 script
+** Administrative screen used to view or edit the TH1 script
 ** that shows ticket changes.
 */
 void tktsetup_change_page(void){

@@ -94,6 +94,11 @@ FOSSIL_ENABLE_TH1_HOOKS = 0
 FOSSIL_ENABLE_WINXP = 0
 !endif
 
+# Enable support for the SQLite Encryption Extension?
+!ifndef USE_SEE
+USE_SEE = 0
+!endif
+
 !if $(FOSSIL_ENABLE_SSL)!=0
 SSLDIR    = $(B)\compat\openssl-1.0.2g
 SSLINCDIR = $(SSLDIR)\inc32
@@ -303,6 +308,11 @@ TCC       = $(TCC) /DUSE_TCL_STUBS=1
 RCC       = $(RCC) /DUSE_TCL_STUBS=1
 !endif
 
+!if $(USE_SEE)!=0
+TCC       = $(TCC) /DUSE_SEE=1
+RCC       = $(RCC) /DUSE_SEE=1
+!endif
+
 SQLITE_OPTIONS = /DNDEBUG=1 \
                  /DSQLITE_OMIT_LOAD_EXTENSION=1 \
                  /DSQLITE_ENABLE_LOCKING_STYLE=0 \
@@ -318,6 +328,7 @@ SQLITE_OPTIONS = /DNDEBUG=1 \
                  /DSQLITE_WIN32_NO_ANSI
 
 SHELL_OPTIONS = /Dmain=sqlite3_shell \
+                /DSQLITE_SHELL_IS_UTF8=1 \
                 /DSQLITE_OMIT_LOAD_EXTENSION=1 \
                 /DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE) \
                 /DSQLITE_SHELL_DBNAME_PROC=fossil_open \
@@ -834,8 +845,14 @@ codecheck1$E: $(SRCDIR)\codecheck1.c
 $(OX)\shell$O : $(SRCDIR)\shell.c $B\win\Makefile.msc
 	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) -c $(SRCDIR)\shell.c
 
-$(OX)\sqlite3$O : $(SRCDIR)\sqlite3.c $B\win\Makefile.msc
-	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SRCDIR)\sqlite3.c
+!if $(USE_SEE)!=0
+SQLITE3_SRC = $(SRCDIR)\sqlite3-see.c
+!else
+SQLITE3_SRC = $(SRCDIR)\sqlite3.c
+!endif
+
+$(OX)\sqlite3$O : $(SQLITE3_SRC) $B\win\Makefile.msc
+	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SEE_FLAGS) $(SQLITE3_SRC)
 
 $(OX)\th$O : $(SRCDIR)\th.c
 	$(TCC) /Fo$@ -c $**

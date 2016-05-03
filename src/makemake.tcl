@@ -175,6 +175,7 @@ set SQLITE_OPTIONS {
 #
 set SHELL_OPTIONS {
   -Dmain=sqlite3_shell
+  -DSQLITE_SHELL_IS_UTF8=1
   -DSQLITE_OMIT_LOAD_EXTENSION=1
   -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE)
   -DSQLITE_SHELL_DBNAME_PROC=fossil_open
@@ -305,7 +306,7 @@ $(OBJDIR)/mkversion:	$(SRCDIR)/mkversion.c
 $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
 	$(BCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
 
-# Run the test suite. 
+# Run the test suite.
 # Other flags that can be included in TESTFLAGS are:
 #
 #  -halt     Stop testing after the first failed test
@@ -359,6 +360,19 @@ LINENOISE_DEF.  = $(LINENOISE_DEF.0)
 LINENOISE_OBJ.0 =
 LINENOISE_OBJ.1 = $(OBJDIR)/linenoise.o
 LINENOISE_OBJ.  = $(LINENOISE_OBJ.0)
+
+# The USE_SEE variable may be undefined, 0 or 1.  If undefined or
+# 0, ordinary SQLite is used.  If 1, then sqlite3-see.c (not part of
+# the source tree) is used and extra flags are provided to enable
+# the SQLite Encryption Extension.
+SQLITE3_SRC.0 = sqlite3.c
+SQLITE3_SRC.1 = sqlite3-see.c
+SQLITE3_SRC. = sqlite3.c
+SQLITE3_SRC = $(SRCDIR)/$(SQLITE3_SRC.$(USE_SEE))
+SEE_FLAGS.0 =
+SEE_FLAGS.1 = -DSQLITE_HAS_CODEC
+SEE_FLAGS. =
+SEE_FLAGS = $(SEE_FLAGS.$(USE_SEE))
 }]
 
 writeln [string map [list <<<NEXT_LINE>>> \\] {
@@ -422,8 +436,9 @@ foreach s [lsort $src] {
   writeln "\$(OBJDIR)/$s.h:\t\$(OBJDIR)/headers\n"
 }
 
-writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
-writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) -c \$(SRCDIR)/sqlite3.c -o \$@\n"
+writeln "\$(OBJDIR)/sqlite3.o:\t\$(SQLITE3_SRC)"
+writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) \$(SEE_FLAGS) \\"
+writeln "\t\t-c \$(SQLITE3_SRC) -o \$@"
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
 writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) \$(LINENOISE_DEF.\$(USE_LINENOISE)) -c \$(SRCDIR)/shell.c -o \$@\n"
@@ -559,6 +574,10 @@ BCC = gcc
 #### Use 'system' SQLite
 #
 # USE_SYSTEM_SQLITE = 1
+
+#### Use the SQLite Encryption Extension
+#
+# USE_SEE = 1
 
 #### Use the miniz compression library
 #
@@ -785,6 +804,12 @@ TCC += -DFOSSIL_ENABLE_JSON=1
 RCC += -DFOSSIL_ENABLE_JSON=1
 endif
 
+# With SQLite Encryption Extension support
+ifdef USE_SEE
+TCC += -DUSE_SEE=1
+RCC += -DUSE_SEE=1
+endif
+
 #### The option -static has no effect on MinGW(-w64), only dynamic
 #    executables can be built when linking with MSVCRT.  OpenSSL
 #    (optional) and zlib (required) however are always linked in
@@ -999,6 +1024,19 @@ SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 MINIZ_OBJ.0 =
 MINIZ_OBJ.1 = $(OBJDIR)/miniz.o
 MINIZ_OBJ.  = $(MINIZ_OBJ.0)
+
+# The USE_SEE variable may be undefined, 0 or 1.  If undefined or
+# 0, ordinary SQLite is used.  If 1, then sqlite3-see.c (not part of
+# the source tree) is used and extra flags are provided to enable
+# the SQLite Encryption Extension.
+SQLITE3_SRC.0 = sqlite3.c
+SQLITE3_SRC.1 = sqlite3-see.c
+SQLITE3_SRC. = sqlite3.c
+SQLITE3_SRC = $(SRCDIR)/$(SQLITE3_SRC.$(USE_SEE))
+SEE_FLAGS.0 =
+SEE_FLAGS.1 = -DSQLITE_HAS_CODEC
+SEE_FLAGS. =
+SEE_FLAGS = $(SEE_FLAGS.$(USE_SEE))
 }
 
 writeln [string map [list <<<NEXT_LINE>>> \\] {
@@ -1124,8 +1162,9 @@ writeln "SHELL_OPTIONS = [join $SHELL_WIN32_OPTIONS $j]\n"
 set j " \\\n                "
 writeln "MINIZ_OPTIONS = [join $MINIZ_WIN32_OPTIONS $j]\n"
 
-writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c \$(SRCDIR)/../win/Makefile.mingw"
-writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) -c \$(SRCDIR)/sqlite3.c -o \$@\n"
+writeln "\$(OBJDIR)/sqlite3.o:\t\$(SQLITE3_SRC) \$(SRCDIR)/../win/Makefile.mingw"
+writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) \$(SEE_FLAGS) \\"
+writeln "\t\t-c \$(SQLITE3_SRC) -o \$@\n"
 
 writeln "\$(OBJDIR)/cson_amalgamation.o:\t\$(SRCDIR)/cson_amalgamation.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/cson_amalgamation.c -o \$@\n"
@@ -1417,6 +1456,11 @@ FOSSIL_ENABLE_TH1_HOOKS = 0
 FOSSIL_ENABLE_WINXP = 0
 !endif
 
+# Enable support for the SQLite Encryption Extension?
+!ifndef USE_SEE
+USE_SEE = 0
+!endif
+
 !if $(FOSSIL_ENABLE_SSL)!=0
 SSLDIR    = $(B)\compat\openssl-1.0.2g
 SSLINCDIR = $(SSLDIR)\inc32
@@ -1625,6 +1669,11 @@ RCC       = $(RCC) /DFOSSIL_ENABLE_TCL_PRIVATE_STUBS=1
 TCC       = $(TCC) /DUSE_TCL_STUBS=1
 RCC       = $(RCC) /DUSE_TCL_STUBS=1
 !endif
+
+!if $(USE_SEE)!=0
+TCC       = $(TCC) /DUSE_SEE=1
+RCC       = $(RCC) /DUSE_SEE=1
+!endif
 }
 regsub -all {[-]D} [join $SQLITE_WIN32_OPTIONS { }] {/D} MSC_SQLITE_OPTIONS
 set j " \\\n                 "
@@ -1761,8 +1810,14 @@ codecheck1$E: $(SRCDIR)\codecheck1.c
 $(OX)\shell$O : $(SRCDIR)\shell.c $B\win\Makefile.msc
 	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) -c $(SRCDIR)\shell.c
 
-$(OX)\sqlite3$O : $(SRCDIR)\sqlite3.c $B\win\Makefile.msc
-	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SRCDIR)\sqlite3.c
+!if $(USE_SEE)!=0
+SQLITE3_SRC = $(SRCDIR)\sqlite3-see.c
+!else
+SQLITE3_SRC = $(SRCDIR)\sqlite3.c
+!endif
+
+$(OX)\sqlite3$O : $(SQLITE3_SRC) $B\win\Makefile.msc
+	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SEE_FLAGS) $(SQLITE3_SRC)
 
 $(OX)\th$O : $(SRCDIR)\th.c
 	$(TCC) /Fo$@ -c $**

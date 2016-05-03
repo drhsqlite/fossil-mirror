@@ -764,7 +764,7 @@ const char *diff_get_binary_glob(void){
 **
 ** Show the difference between the current version of each of the FILEs
 ** specified (as they exist on disk) and that same file as it was checked
-** out.  Or if the FILE arguments are omitted, show the unsaved changed
+** out.  Or if the FILE arguments are omitted, show the unsaved changes
 ** currently in the working check-out.
 **
 ** If the "--from VERSION" or "-r VERSION" option is used it specifies
@@ -799,15 +799,15 @@ const char *diff_get_binary_glob(void){
 **   --diff-binary BOOL         Include binary files when using external commands
 **   --exec-abs-paths           Force absolute path names with external commands.
 **   --exec-rel-paths           Force relative path names with external commands.
-**   --from|-r VERSION          select VERSION as source for the diff
-**   --internal|-i              use internal diff logic
-**   --side-by-side|-y          side-by-side diff
+**   --from|-r VERSION          Select VERSION as source for the diff
+**   --internal|-i              Use internal diff logic
+**   --side-by-side|-y          Side-by-side diff
 **   --strip-trailing-cr        Strip trailing CR
 **   --tk                       Launch a Tcl/Tk GUI for display
-**   --to VERSION               select VERSION as target for the diff
+**   --to VERSION               Select VERSION as target for the diff
 **   --undo                     Diff against the "undo" buffer
-**   --unified                  unified diff
-**   -v|--verbose               output complete text of added or deleted files
+**   --unified                  Unified diff
+**   -v|--verbose               Output complete text of added or deleted files
 **   -w|--ignore-all-space      Ignore white space when comparing lines
 **   -W|--width <num>           Width of lines in side-by-side diff
 **   -Z|--ignore-trailing-space Ignore changes to end-of-line whitespace

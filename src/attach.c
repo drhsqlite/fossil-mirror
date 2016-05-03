@@ -32,8 +32,8 @@
 ** If none is given, all attachments are listed.  If one is given,
 ** only attachments for the designated technote, ticket or wiki page
 ** are shown. TECHNOTEUUID and TICKETUUID may be just a prefix of the
-** relevant tech note or ticket, in which case all attachments of all
-** tech notes or tickets with the prefix will be listed.
+** relevant technical note or ticket, in which case all attachments
+** of all technical notes or tickets with the prefix will be listed.
 */
 void attachlist_page(void){
   const char *zPage = P("page");

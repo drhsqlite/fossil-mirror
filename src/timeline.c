@@ -141,7 +141,7 @@ char *hash_color(const char *z){
 }
 
 /*
-** COMMAND:  test-hash-color
+** COMMAND: test-hash-color
 **
 ** Usage: %fossil test-hash-color TAG ...
 **
@@ -156,7 +156,7 @@ void test_hash_color(void){
 }
 
 /*
-** WEBPAGE:  hash-color-test
+** WEBPAGE: hash-color-test
 **
 ** Print out the color names associated with each tag.  Used for
 ** testing the hash_color() function.
@@ -1214,7 +1214,7 @@ static void timeline_y_submenu(int isDisabled){
 **    uf=FUUID       Show only check-ins that use given file version
 **    brbg           Background color from branch name
 **    ubg            Background color from user
-**    namechng       Show only check-ins that filename changes
+**    namechng       Show only check-ins that have filename changes
 **    forks          Show only forks and their children
 **    ym=YYYY-MM     Show only events for the given year/month.
 **    ymd=YYYY-MM-DD Show only events on the given day
@@ -1758,7 +1758,8 @@ void page_timeline(void){
       if( zDate ){
         rDate = symbolic_name_to_mtime(zDate);
         if( db_int(0,
-            "SELECT EXISTS (SELECT 1 FROM event WHERE mtime<=%.17g%s)",
+            "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
+            " WHERE blob.rid=event.objid AND mtime<=%.17g%s)",
             rDate-ONE_SECOND, blob_sql_text(&cond))
         ){
           timeline_submenu(&url, "Older", "b", zDate, "a");
@@ -1773,7 +1774,8 @@ void page_timeline(void){
       if( zDate ){
         rDate = symbolic_name_to_mtime(zDate);
         if( db_int(0,
-            "SELECT EXISTS (SELECT 1 FROM event WHERE mtime>=%.17g%s)",
+            "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
+            " WHERE blob.rid=event.objid AND mtime>=%.17g%s)",
             rDate+ONE_SECOND, blob_sql_text(&cond))
         ){
           timeline_submenu(&url, "Newer", "a", zDate, "b");
@@ -2014,7 +2016,7 @@ static int isIsoDate(const char *z){
 **
 ** The CHECKIN can be any unique prefix of 4 characters or more.
 ** The DATETIME should be in the ISO8601 format.  For
-** examples: "2007-08-18 07:21:21".  You can also say "current"
+** example: "2007-08-18 07:21:21".  You can also say "current"
 ** for the current version or "now" for the current time.
 **
 ** Options:

@@ -2437,7 +2437,7 @@ void annotation_page(void){
 ** COMMAND: blame
 ** COMMAND: praise
 **
-** %fossil (annotate|blame|praise) ?OPTIONS? FILENAME
+** Usage: %fossil (annotate|blame|praise) ?OPTIONS? FILENAME
 **
 ** Output the text of a file with markings to show when each line of
 ** the file was last modified.  The "annotate" command shows line numbers

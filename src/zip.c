@@ -390,7 +390,7 @@ void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
 ** Usage: %fossil zip VERSION OUTPUTFILE [--name DIRECTORYNAME] [-R|--repository REPO]
 **
 ** Generate a ZIP archive for a specified version.  If the --name option is
-** used, it argument becomes the name of the top-level directory in the
+** used, its argument becomes the name of the top-level directory in the
 ** resulting ZIP archive.  If --name is omitted, the top-level directory
 ** named is derived from the project name, the check-in date and time, and
 ** the artifact ID of the check-in.

@@ -253,9 +253,9 @@ void push_cmd(void){
 **
 ** Usage: %fossil sync ?URL? ?options?
 **
-** Synchronize all sharable changes between the local repository and a
-** a remote repository.  Sharable changes include public check-ins, and wiki,
-** ticket, and tech-note edits.
+** Synchronize all sharable changes between the local repository and a a
+** remote repository.  Sharable changes include public check-ins and
+** edits to wiki pages, tickets, and technical notes.
 **
 ** If URL is not specified, then the URL from the most recent clone, push,
 ** pull, remote-url, or sync command is used.  See "fossil help clone" for
@@ -318,7 +318,7 @@ void remote_url_cmd(void){
   verify_all_options();
 
   if( g.argc!=2 && g.argc!=3 ){
-    usage("remote-url ?URL|off?");
+    usage("?URL|off?");
   }
   if( g.argc==3 ){
     db_unset("last-sync-url", 0);

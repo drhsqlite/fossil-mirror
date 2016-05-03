@@ -51,15 +51,17 @@ void hyperlink_to_event_tagid(int tagid){
 ** WEBPAGE: technote
 ** WEBPAGE: event
 **
-** Display a "technical note" or "tech-note" (formerly called an "event").
+** Display a technical note (formerly called an "event").
 **
 ** PARAMETERS:
 **
-**  name=ID          // Identify the tech-note to display. ID must be complete
-**  aid=ARTIFACTID   // Which specific version of the tech-note.  Optional.
-**  v=BOOLEAN        // Show details if TRUE.  Default is FALSE.  Optional.
+**  name=ID           Identify the technical note to display. ID must be
+**                    complete.
+**  aid=ARTIFACTID    Which specific version of the tech-note.  Optional.
+**  v=BOOLEAN         Show details if TRUE.  Default is FALSE.  Optional.
 **
-** Display an existing event identified by EVENTID
+** Display an existing tech-note identified by its ID, optionally at a
+** specific version, and optionally with additional details. 
 */
 void event_page(void){
   int rid = 0;             /* rid of the event artifact */
@@ -342,11 +344,11 @@ int event_commit_common(
 ** WEBPAGE: technoteedit
 ** WEBPAGE: eventedit
 **
-** Revise or create a technical note (formerly called an 'event').
+** Revise or create a technical note (formerly called an "event").
 **
 ** Parameters:
 **
-**    name=ID           Hex hash ID of the tech-note.  If omitted, a new
+**    name=ID           Hex hash ID of the tech-note. If omitted, a new
 **                      tech-note is created.
 */
 void eventedit_page(void){

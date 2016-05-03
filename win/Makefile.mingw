@@ -91,6 +91,10 @@ BCC = gcc
 #
 # USE_SYSTEM_SQLITE = 1
 
+#### Use the SQLite Encryption Extension
+#
+# USE_SEE = 1
+
 #### Use the miniz compression library
 #
 # FOSSIL_ENABLE_MINIZ = 1
@@ -314,6 +318,12 @@ endif
 ifdef FOSSIL_ENABLE_JSON
 TCC += -DFOSSIL_ENABLE_JSON=1
 RCC += -DFOSSIL_ENABLE_JSON=1
+endif
+
+# With SQLite Encryption Extension support
+ifdef USE_SEE
+TCC += -DUSE_SEE=1
+RCC += -DUSE_SEE=1
 endif
 
 #### The option -static has no effect on MinGW(-w64), only dynamic
@@ -923,6 +933,19 @@ SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 MINIZ_OBJ.0 =
 MINIZ_OBJ.1 = $(OBJDIR)/miniz.o
 MINIZ_OBJ.  = $(MINIZ_OBJ.0)
+
+# The USE_SEE variable may be undefined, 0 or 1.  If undefined or
+# 0, ordinary SQLite is used.  If 1, then sqlite3-see.c (not part of
+# the source tree) is used and extra flags are provided to enable
+# the SQLite Encryption Extension.
+SQLITE3_SRC.1 = sqlite3-see.c
+SQLITE3_SRC.0 = sqlite3.c
+SQLITE3_SRC. = sqlite3.c
+SQLITE3_SRC = $(SRCDIR)/$(SQLITE3_SRC.$(USE_SEE))
+SEE_FLAGS.1 = -DSQLITE_HAS_CODEC
+SEE_FLAGS.0 =
+SEE_FLAGS. =
+SEE_FLAGS = $(SEE_FLAGS.$(USE_SEE))
 
 
 EXTRAOBJ = \
@@ -2102,6 +2125,7 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_USE_MSIZE
 
 SHELL_OPTIONS = -Dmain=sqlite3_shell \
+                -DSQLITE_SHELL_IS_UTF8=1 \
                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
                 -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE) \
                 -DSQLITE_SHELL_DBNAME_PROC=fossil_open \
@@ -2114,8 +2138,9 @@ MINIZ_OPTIONS = -DMINIZ_NO_STDIO \
                 -DMINIZ_NO_TIME \
                 -DMINIZ_NO_ARCHIVE_APIS
 
-$(OBJDIR)/sqlite3.o:	$(SRCDIR)/sqlite3.c $(SRCDIR)/../win/Makefile.mingw
-	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) -c $(SRCDIR)/sqlite3.c -o $@
+$(OBJDIR)/sqlite3.o:	$(SQLITE3_SRC) $(SRCDIR)/../win/Makefile.mingw
+	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SEE_FLAGS) \
+		-c $(SQLITE3_SRC) -o $@
 
 $(OBJDIR)/cson_amalgamation.o:	$(SRCDIR)/cson_amalgamation.c
 	$(XTCC) -c $(SRCDIR)/cson_amalgamation.c -o $@
