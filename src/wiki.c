@@ -139,7 +139,8 @@ static const char *const azStyles[] = {
 */
 const char *wiki_filter_mimetypes(const char *zMimetype){
   if( zMimetype!=0 ){
-    for(int i=0; i<sizeof(azStyles)/sizeof(azStyles[0]); i+=3){
+    int i;    
+    for(i=0; i<sizeof(azStyles)/sizeof(azStyles[0]); i+=3){
       if( fossil_strcmp(zMimetype,azStyles[i+2])==0 ){
         return azStyles[i];
       }
