@@ -1208,11 +1208,11 @@ int wiki_technote_to_rid(const char *zETime) {
 **       case-insensitively by name. 
 **
 **       Options:
-**         --technote                  Technotes will be listed instead of
+**         -t|--technote               Technotes will be listed instead of
 **                                     pages. The technotes will be in order
 **                                     of timestamp with the most recent
 **                                     first.
-**         --show-technote-ids         The id of the tech note will be listed
+**         -s|--show-technote-ids      The id of the tech note will be listed
 **                                     along side the timestamp. The tech note
 **                                     id will be the first word on each line.
 **                                     This option only applies if the

@@ -1,5 +1,5 @@
-C Merged\strunk\sand\sresolved\sconflicts.\sPasses\sall\scurrent\stests.
-D 2016-05-03T08:17:56.144
+C Document\sshort\soptions\sfor\sfossil\swiki\slist\scommand.
+D 2016-05-04T00:22:08.541
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -508,7 +508,7 @@ F src/utf8.c 5c85c7e88b82b5fb48649c46f063ac94ab58eb20
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
 F src/vfile.c 9d44ee4a0cf612b2fb257699b3f52c12a094f02f
-F src/wiki.c e5e5c82eb13218f6b9ae6aa11429faa5c4a93d59
+F src/wiki.c 6710643fd9eaed16388da96e2e729e87dd7840d7
 F src/wikiformat.c 1d750982147d9c51fa40e89e40241a33408adaf6
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c 48fd71cc903a898eda9a7945a43fd33689eef823
@@ -749,7 +749,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5a0dbf97ba551d294b24e42cb5cce678d9a0d3cf a13ef5e6a6bf0d55e14e77078197335684a202e2
-R 3c127ca394f5fad62fdfd5887c5a0a6d
+P 8c8ccac9beaee2bdad9baf27ddd6e7054ac84a80
+R 1103d65cebf41601f6269436d11557d0
 U rberteig
-Z d77e424784f0916597d5e925224a8726
+Z e6b8f856a7a1c5454e8fb255acd252c2
