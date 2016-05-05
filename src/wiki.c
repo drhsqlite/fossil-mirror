@@ -1154,7 +1154,7 @@ int wiki_technote_to_rid(const char *zETime) {
                       " WHERE datetime(mtime)=datetime('%q')"
                       "   AND type='e'"
                       "   AND tagid IS NOT NULL"
-                      " ORDER BY mtime DESC LIMIT 1",
+                      " ORDER BY objid DESC LIMIT 1",
                    zETime);
     }
   }
@@ -1193,8 +1193,9 @@ int wiki_technote_to_rid(const char *zETime) {
 **         -t|--technote DATETIME      Specifies the timestamp of
 **                                     the technote to be created or
 **                                     updated. When updating a tech note
-**                                     the most recently modified with the
-**                                     specified timestamp will be updated.
+**                                     the most recently modified tech note
+**                                     with the specified timestamp will be
+**                                     updated.
 **         -t|--technote TECHNOTE-ID   Specifies the technote to be
 **                                     updated by its technote id.
 **         --technote-tags TAGS        The set of tags for a technote.
