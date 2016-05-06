@@ -389,6 +389,41 @@ test_status_list merge_renames-10-8 $RESULT {
 test_file_contents merge_renames-10-9 f1 "f2.1"
 test_file_contents merge_renames-10-10 f2 "f1.1"
 
+############################################
+#  Test 11                                 #
+#  Specifying a baseline                   #
+############################################
+
+test_setup
+
+write_file f1 "line"
+fossil add f1
+fossil commit -m "add f1"
+
+write_file f1 "line\nline2"
+fossil commit -b b -m "edit f2" --tag p1
+
+fossil mv --hard f1 f2
+fossil commit -m "f1 -> f2"
+
+write_file f2 "line\nline2\nline3"
+fossil commit -m "edit f2" --tag p2
+
+write_file f2 "line\nline2\nline3\nline4"
+fossil commit -m "edit f2"
+
+fossil update trunk
+fossil merge --baseline p1 b
+test_status_list merge_renames-11-1 $RESULT {
+  MERGE f1
+  RENAME f1 -> f2
+}
+test_file_contents merge_renames-11-2 f2 "line\nline3\nline4"
+fossil revert
+fossil merge --baseline p2 b
+test_status_list merge_renames-11-3 $RESULT {MERGE f1}
+test_file_contents merge_renames-11-4 f1 "line\nline4"
+
 ######################################
 #
 # Tests for troubles not specifically linked with renames but that I'd like to

@@ -229,6 +229,7 @@ void merge_cmd(void){
   int debugFlag;        /* True if --debug is present */
   int nConflict = 0;    /* Number of conflicts seen */
   int nOverwrite = 0;   /* Number of unmanaged files overwritten */
+  char vAncestor = 'p'; /* If P is an ancestor of V then 'p', else 'n' */
   Stmt q;
 
 
@@ -385,6 +386,17 @@ void merge_cmd(void){
   if( load_vfile_from_rid(pid) && !forceMissingFlag ){
     fossil_fatal("missing content, unable to merge");
   }
+  if( zPivot ){
+    vAncestor = db_exists(
+      "WITH RECURSIVE ancestor(id) AS ("
+      "  VALUES(%d)"
+      "  UNION ALL"
+      "  SELECT pid FROM plink, ancestor"
+      "   WHERE cid=ancestor.id AND pid!=%d AND cid!=%d)"
+      "SELECT 1 FROM ancestor WHERE id=%d LIMIT 1",
+      vid, nid, pid, pid
+    ) ? 'p' : 'n';
+  }
   if( debugFlag ){
     char *z;
     z = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nid);
@@ -435,14 +447,14 @@ void merge_cmd(void){
   ** Add files found in V
   */
   db_multi_exec(
-    "UPDATE OR IGNORE fv SET fn=coalesce(fnp,fnn) WHERE fn IS NULL;"
+    "UPDATE OR IGNORE fv SET fn=coalesce(fn%c,fnn) WHERE fn IS NULL;"
     "REPLACE INTO fv(fn,fnp,fnm,fnn,idv,ridv,islinkv,isexe,chnged)"
     " SELECT pathname, fnp, fnm, fnn, id, rid, islink, vf.isexe, vf.chnged"
     "   FROM vfile vf"
     "   LEFT JOIN fv ON fn=coalesce(origname,pathname)"
     "    AND rid>0 AND vf.chnged NOT IN (3,5)"
     "  WHERE vid=%d;",
-    vid
+    vAncestor, vid
   );
 
   /*
