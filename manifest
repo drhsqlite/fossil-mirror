@@ -1,5 +1,5 @@
-C Improve\sthe\smerge\scommand's\sability\sto\shandle\svarious\sscenarios\sinvolving\srenames.
-D 2016-05-06T19:49:56.114
+C find_filename_changes()\sshould\sreport\sa\srename\seven\sif\sthe\sfile\sends\sup\sreverting\sback\sto\sits\soriginal\sname.
+D 2016-05-06T20:00:06.481
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -460,7 +460,7 @@ F src/mkindex.c 8b49a351b060c3e9203dacbacfc8216f760f8da2
 F src/mkversion.c 40ed302872cc5795c76efb3ab089fc1aedba18f1
 F src/moderate.c 8ab2bd4bda9a6b6765f99ddea7950dc5c6bad007
 F src/name.c d5441ee273883c98589da5c527b088ae7a9a1139
-F src/path.c bfc63bc43d342145259c525178f77caac38614bf
+F src/path.c cce5fdfa571861a81e1a48e893e5a52dd2703a5f
 F src/piechart.c 6b2d49434b036d495ec30378520dd1054b03c920
 F src/pivot.c 2f9b97dad4267f3b5a9e89e14b711f326cb3f3a0
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
@@ -540,7 +540,7 @@ F test/merge4.test d563164c477885bcaecb6ea28e824b698bdd57bb
 F test/merge5.test aadadc4b34b77b94dc711ee0b0ae2f760abaecf9
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test 50b1c16adce0050bc946e3d64b14df9ab82f37e0
-F test/merge_renames.test 727794e344a9182c789b30990d96d9a3db88a06d
+F test/merge_renames.test 0b720d974cc7170a19d3b45d85070bfd4488899f
 F test/merge_warn.test d4a98c6ff14e4bb142d784f96c88d152d9599529
 F test/mv-rm.test a46185f0a8443bf422e222b47f360e5c341e9306
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
@@ -748,10 +748,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 539925123083102a460e28dcd840909373413ec5
-R 2ac28424672556cab006ad7f49220a95
-T *branch * merge-renames
-T *sym-merge-renames *
-T -sym-trunk *
+P 423029b153bed49bb48cf9f26f24dfba321eac6e
+R a032dfcce31598851a90dbcc57374687
 U joel
-Z aaa868a752debece5893aa940d3cb161
+Z c1460547a0ae13ce25b2d4a729aed61e

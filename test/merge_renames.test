@@ -333,6 +333,62 @@ test_status_list merge_renames-9-6 $RESULT "
 "
 test merge_renames-9-7 {[fossil changes] eq ""}
 
+###################################################################
+#  Test 10                                                        #
+#  Merge swapped filenames, backout the swap, then merge changes  #
+###################################################################
+
+test_setup
+
+write_file f1 "f1"
+write_file f2 "f2"
+fossil add f1 f2
+fossil commit -m "add files" ;# N
+
+fossil mv --hard f1 f1-tmp
+fossil mv --hard f2 f1
+fossil mv --hard f1-tmp f2
+fossil commit -b b -m "swap f1, f2" ;# P
+
+fossil update trunk
+fossil merge b
+test_status_list merge_renames-10-1 $RESULT {
+  RENAME f1 -> f2
+  RENAME f2 -> f1
+}
+test_file_contents merge_renames-10-2 f1 "f2"
+test_file_contents merge_renames-10-3 f2 "f1"
+fossil commit -m "merge b"
+
+fossil update b
+write_file f1 f1.1
+write_file f2 f2.1
+fossil commit -m "edit" ;# M
+
+fossil update trunk
+fossil merge --backout trunk
+test_status_list merge_renames-10-4 $RESULT {
+  RENAME f1 -> f2
+  RENAME f2 -> f1
+}
+test_file_contents merge_renames-10-5 f1 "f1"
+test_file_contents merge_renames-10-6 f2 "f2"
+test_status_list merge_renames-10-7 [fossil changes] "
+  RENAMED f1
+  RENAMED f2
+  BACKOUT [commit_id trunk]
+"
+fossil commit -m "swap back" ;# V
+
+fossil merge b
+test_status_list merge_renames-10-8 $RESULT {
+  UPDATE f1
+  UPDATE f2
+}
+
+test_file_contents merge_renames-10-9 f1 "f2.1"
+test_file_contents merge_renames-10-10 f2 "f1.1"
+
 ######################################
 #
 # Tests for troubles not specifically linked with renames but that I'd like to
