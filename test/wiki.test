@@ -32,6 +32,37 @@ proc similar_file {a b} {
   return [expr {$x==$y}]
 }
 
+# Return the mime type in the manifest for a given wiki page
+# Defaults to "error: some text" if the manifest can't be located and
+# "text/x-fossil-wiki" (the default mimetype for rendering)
+# if the N card is omitted in the manifest.
+# Note: Makes fossil calls, so $CODE and $RESULT will be corrupted
+proc get_mime_type {name} {
+  global CODE RESULT
+  fossil http << "GET /wiki?name=$name"
+  if {$CODE != 0} {
+    return error: /wiki?name=$name $CODE $RESULT"
+  }
+  set CODE [regexp {href="/info/([0-9a-f]+)"} $RESULT match info]
+  if {$CODE == 0} {
+    return "error: No info link found for wiki page $name"
+  }
+  fossil http << "GET /artifact/$info"
+  if {$CODE != 0} {
+    return "error: /artifact/$info $CODE $RESULT"
+  }
+  set CODE [regexp {<pre>(.*)</pre>} $RESULT match pre]
+  if {$CODE == 0} {
+    return "error: No pre block in /artifact/$info"
+  }
+  set CODE [regexp -line {^N (.*)$} $pre match mimetype]
+  if {$CODE == 0} {
+    return "text/x-fossil-wiki"
+  }
+  return $mimetype
+}
+
+
 ###############################################################################
 # Initially there should be no wiki entries
 fossil wiki list
@@ -335,6 +366,33 @@ fossil wiki commit {Old tech note} f15 --technote $duplicateid -expectError
 test wiki-47 {$CODE != 0}
 fossil attachment add fa --technote $duplicateid -expectError
 test wiki-48 {$CODE != 0}
+
+###############################################################################
+# Check the default mimetype is text/x-fossil-wiki
+test wiki-49 {[get_mime_type tcltest] == "text/x-fossil-wiki"}
+
+###############################################################################
+# Check long form of the mimetypes are recorded correctly
+fossil wiki create tcltest-x-fossil f1 -mimetype text/x-fossil-wiki
+test wiki-50 {[get_mime_type tcltest-x-fossil] == "text/x-fossil-wiki"}
+fossil wiki create tcltest-x-markdown f1 -mimetype text/x-markdown
+test wiki-51 {[get_mime_type tcltest-x-markdown] == "text/x-markdown"}
+fossil wiki create tcltest-plain f1 -mimetype text/plain
+test wiki-52 {[get_mime_type tcltest-plain] == "text/plain"}
+fossil wiki create tcltest-x-random f1 -mimetype text/x-random
+test wiki-53 {[get_mime_type tcltest-x-random] == "text/x-fossil-wiki"}
+
+###############################################################################
+# Check short form of the mimetypes are recorded correctly
+fossil wiki create tcltest-x-fossil-short f1 -mimetype wiki
+test wiki-54 {[get_mime_type tcltest-x-fossil-short] == "text/x-fossil-wiki"}
+fossil wiki create tcltest-x-markdown-short f1 -mimetype markdown
+test wiki-55 {[get_mime_type tcltest-x-markdown-short] == "text/x-markdown"}
+fossil wiki create tcltest-plain-short f1 -mimetype plain
+test wiki-56 {[get_mime_type tcltest-plain-short] == "text/plain"}
+fossil wiki create tcltest-x-random-short f1 -mimetype random
+test wiki-57 {[get_mime_type tcltest-x-random-short] == "text/x-fossil-wiki"}
+
 
 ###############################################################################
 test_cleanup

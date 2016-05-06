@@ -1,5 +1,5 @@
-C Fix\sbug\sdetected\sby\swiki-15\sand\swiki-15.1.\sLeft\shand\sthought\sthat\sthe\smtime\scolumn\swas\sthe\stimestamp\sof\sthe\stech\snote.\sRight\shand\sthought\sthat\sthe\smtime\scolumn\swas\sthe\slast\smodification\stime\sof\sthe\stech\snote.\sLeft\shand\swas\sright\sand\sthe\srelevant\squery\shas\sbeen\supdated\sto\suse\sthe\sobjid\s(assigned\sas\sthe\snew\stech\snote\smanifest\sis\sadded)\sas\sthe\sindication\sof\sthe\smost\srecently\smodified\sversion\sof\sthe\stech\snote
-D 2016-05-05T18:26:07.380
+C Add\stests\sfor\sthe\smimetype\son\swiki\scommand.\sUpdate\shelp\stext\sto\slist\svalid\smimetypes
+D 2016-05-06T14:08:11.470
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -508,7 +508,7 @@ F src/utf8.c 5c85c7e88b82b5fb48649c46f063ac94ab58eb20
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
 F src/vfile.c 9d44ee4a0cf612b2fb257699b3f52c12a094f02f
-F src/wiki.c 46365dd390d9d84872faf139fd3688d1d4bfcd56
+F src/wiki.c 2faf0dfe93196c16717c6876a5e78243acfdfa39
 F src/wikiformat.c 1d750982147d9c51fa40e89e40241a33408adaf6
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c 48fd71cc903a898eda9a7945a43fd33689eef823
@@ -572,7 +572,7 @@ F test/utf.test 4f476e82c536d8a56e9b27c8da460f8f92139d79
 F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03
-F test/wiki.test fc7380db15fcc7407eab451d467207d242f2ddb7
+F test/wiki.test ba8646414369ad2cc87061738662d004740ed20f
 F tools/cvs2fossil/changeset 1c99ad8ca9b2f049266d63e0bcc5f26196c72627
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -749,7 +749,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 99b1a1eae0e4a10f53a7aa52adaa353341a65c54
-R 4b2b852a24f85f4b414aa2d9e8fc315a
+P e9d7c5aa29c3fca8ac29f6faa050df48a62ae7a0
+R afebd92c5095b78d17ef341172802afb
 U dave.vines
-Z 7f72514a70567344b274aed4e78e75a9
+Z fdcb7aa53d23810fc6d4f072877e8b52

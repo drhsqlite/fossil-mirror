@@ -1190,6 +1190,10 @@ int wiki_technote_to_rid(const char *zETime) {
 **                                     Defaults to the type used by
 **                                     the previous version of the
 **                                     page, or text/x-fossil-wiki.
+**                                     Valid values are: text/x-fossil-wiki,
+**                                     text/markdown and text/plain. fossil,
+**                                     markdown or plain can be specified as
+**                                     synonyms of these values.
 **         -t|--technote DATETIME      Specifies the timestamp of
 **                                     the technote to be created or
 **                                     updated. When updating a tech note
