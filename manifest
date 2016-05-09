@@ -1,5 +1,5 @@
-C Update\sreferenced\sOpenSSL\sversion.
-D 2016-05-03T20:30:31.861
+C Change\sthe\shelp\sfor\s'export'\sto\srefer\sto\s'tech\snotes',\snot\s'events'.
+D 2016-05-09T04:58:35.022
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -406,7 +406,7 @@ F src/diffcmd.c 3759afcedb06bb0d76844e0b724cd28b36ede262
 F src/doc.c aad06cde815b7051a133044a2cd9306e2739600f
 F src/encode.c 56fc8f102eda32549652df47fa253fc910e737a9
 F src/event.c f07ee2ca0c971cebb29cbd11e1a3c81b9da0b101
-F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
+F src/export.c 16ac5cfaeb7dc2d15860597967058866d9513500
 F src/file.c 8e85e61f94faf64efd92db024e19d83cf30ac0a1
 F src/finfo.c 9dcd6c54bf5fadfafe0b15cbb736ba0cf418c956
 F src/foci.c 693596989fbb12a01c31317a7adf0d1ce85c7903
@@ -748,7 +748,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a13ef5e6a6bf0d55e14e77078197335684a202e2
-R 9d97201cbf6f159682f0cf5f90c12154
+P 539925123083102a460e28dcd840909373413ec5
+R 0fb1d045f78a5c3a80d96f7f8edea131
 U mistachkin
-Z 4b51b380dc4a90fbd8ff4cb06c5df051
+Z e4ff2faa0b48f8c813f9d7d786117a70

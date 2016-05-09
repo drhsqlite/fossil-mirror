@@ -114,7 +114,7 @@ static void print_person(const char *zUser){
 ** option to specify a Fossil repository to be exported.
 **
 ** Only check-ins are exported using --git.  Git does not support tickets
-** or wiki or events or attachments, so none of those are exported.
+** or wiki or tech notes or attachments, so none of those are exported.
 **
 ** If the "--import-marks FILE" option is used, it contains a list of
 ** rids to skip.
