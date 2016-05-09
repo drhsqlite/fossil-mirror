@@ -339,20 +339,22 @@ void merge_cmd(void){
       fossil_fatal("cannot find an ancestor for %s", g.argv[2]);
     }
   }else{
-    pivot_set_primary(mid);
-    pivot_set_secondary(vid);
-    db_prepare(&q, "SELECT merge FROM vmerge WHERE id=0");
-    while( db_step(&q)==SQLITE_ROW ){
-      pivot_set_secondary(db_column_int(&q,0));
-    }
-    db_finalize(&q);
     if( !zPivot ){
+      pivot_set_primary(mid);
+      pivot_set_secondary(vid);
+      db_prepare(&q, "SELECT merge FROM vmerge WHERE id=0");
+      while( db_step(&q)==SQLITE_ROW ){
+        pivot_set_secondary(db_column_int(&q,0));
+      }
+      db_finalize(&q);
       pid = pivot_find(0);
       if( pid<=0 ){
         fossil_fatal("cannot find a common ancestor between the current "
                      "checkout and %s", g.argv[2]);
       }
     }
+    pivot_set_primary(mid);
+    pivot_set_secondary(vid);
     nid = pivot_find(1);
   }
   if( backoutFlag ){

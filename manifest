@@ -1,5 +1,5 @@
-C Handle\smerges\swith\sa\sspecified\sbaseline\sthat\scomes\safter\sa\scommit\swith\srenames.
-D 2016-05-06T20:27:57.118
+C Call\spivot_set_*()\sbefore\seach\spivot_find()\scall.
+D 2016-05-09T23:48:37.816
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -452,7 +452,7 @@ F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md fc02fd045690e6fb45fb0bc91be734913dc70d02
 F src/markdown_html.c c7392199eb39dad9f92c31aa352f4f3408da93bf
 F src/md5.c 563baca0c92ef17c42aa32d31bf595a62c030177
-F src/merge.c 5baf1e14ad29786db7ac65d4218633bdeb67bae2
+F src/merge.c cc30b8d03fe30d835b25d051d5d7d62903ee5982
 F src/merge3.c 555743dac3e0365a3406c262cd27cf94bec351c3
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
@@ -748,7 +748,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0e9d50b1481dc80bbff8ba4a529e52b98c3ed850
-R 6a827c8bdf1f88f1b3f4d4e3823d7379
+P 8da901bb98dbe06c39cf22c82079a31e59e8b5f4
+R d155b521fe0dc82c3de7dc99897f29a8
 U joel
-Z 99260e35febaadbe21c25e865c078ba0
+Z f38a7995616f3351c7ae1e7b74c1dfe8
