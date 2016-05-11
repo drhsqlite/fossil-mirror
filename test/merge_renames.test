@@ -253,31 +253,27 @@ test_file_contents merge_renames-7-3 f3 "f2"
 
 test_setup
 
-write_file f1 "f1"
-fossil commit -m "add f1"
+write_file f1 "f1.1"
+fossil add f1
+fossil commit -b b1 -m "add f1"
 
 fossil update trunk
-write_file f2 "f2.1"
-fossil add f2
-fossil commit -b b1 -m "add f2"
-
-fossil update trunk
-write_file f2 "f2.2"
-fossil add f2
-fossil commit -b b2 -m "add f2"
+write_file f1 "f1.2"
+fossil add f1
+fossil commit -b b2 -m "add f1"
 
 fossil update trunk
 fossil merge b1
 fossil merge b2
 test_status_list merge_renames-8-1 $RESULT {
-  WARNING: no common ancestor for f2
+  WARNING: no common ancestor for f1
 }
 
 fossil revert
 fossil merge --integrate b1
 fossil merge b2
 test_status_list merge_renames-8-2 $RESULT {
-  WARNING: no common ancestor for f2
+  WARNING: no common ancestor for f1
 }
 
 #############################################
