@@ -424,6 +424,54 @@ fossil merge --baseline p2 b
 test_status_list merge_renames-11-3 $RESULT {MERGE f1}
 test_file_contents merge_renames-11-4 f1 "line\nline4"
 
+#################################################################
+#  Test 12                                                      #
+#  Merge involving a pivot that isn't a first-parent ancestor   #
+#  of either the checked-out commit or the commit being merged  #
+#################################################################
+
+test_setup
+
+write_file f1 "f1\n"
+fossil add f1
+fossil commit -m "add f1" --tag n
+
+fossil mv --hard f1 f1n
+fossil commit -m "f1 -> f1n"
+
+fossil mv --hard f1n f1v
+write_file f1v "f1v\n"
+fossil commit -b v -m "f1n -> f1v, edit f1v"
+
+fossil update trunk
+fossil mv --hard f1n f1m
+fossil commit -b m -m "f1n -> f1m"
+
+fossil update n
+fossil mv --hard f1 f1p
+write_file f1p "f1\np"
+fossil commit -b p -m "f1 -> f1p, edit f1p"
+
+fossil update m
+fossil merge p
+test_status_list merge_renames-12-1 $RESULT {UPDATE f1m}
+test_file_contents merge_renames-12-2 f1m "f1\np"
+fossil commit -m "merge p"
+
+write_file f1m "f1\nm"
+fossil commit -m "edit f1m"
+
+fossil update v
+fossil merge p
+test_status_list merge_renames-12-3 $RESULT {MERGE f1v}
+test_file_contents merge_renames-12-4 f1v "f1v\np"
+fossil commit -m "merge p"
+
+fossil merge m
+test_status_list merge_renames-12-5 $RESULT {MERGE f1v}
+test_file_contents merge_renames-12-6 f1v "f1v\nm"
+fossil commit -m "merge m"
+
 ######################################
 #
 # Tests for troubles not specifically linked with renames but that I'd like to

@@ -356,6 +356,11 @@ void merge_cmd(void){
     pivot_set_primary(mid);
     pivot_set_secondary(vid);
     nid = pivot_find(1);
+    if( nid!=pid ){
+      pivot_set_primary(nid);
+      pivot_set_secondary(pid);
+      nid = pivot_find(1);
+    }
   }
   if( backoutFlag ){
     int t = pid;
