@@ -755,13 +755,11 @@ void merge_cmd(void){
   ** Add to V files that are not in V or P but are in M
   */
   db_prepare(&q,
-    "SELECT idm, rowid, fnm FROM fv"
+    "SELECT idm, fnm FROM fv"
     " WHERE idp=0 AND idv=0 AND idm>0"
   );
   while( db_step(&q)==SQLITE_ROW ){
     int idm = db_column_int(&q, 0);
-    int rowid = db_column_int(&q, 1);
-    int idv;
     const char *zName;
     char *zFullName;
     db_multi_exec(
@@ -769,9 +767,7 @@ void merge_cmd(void){
       "  SELECT %d,%d,0,rid,mrid,isexe,islink,pathname FROM vfile WHERE id=%d",
       vid, integrateFlag?5:3, idm
     );
-    idv = db_last_insert_rowid();
-    db_multi_exec("UPDATE fv SET idv=%d WHERE rowid=%d", idv, rowid);
-    zName = db_column_text(&q, 2);
+    zName = db_column_text(&q, 1);
     zFullName = mprintf("%s%s", g.zLocalRoot, zName);
     if( file_wd_isfile_or_link(zFullName)
         && !db_exists("SELECT 1 FROM fv WHERE fn=%Q", zName) ){

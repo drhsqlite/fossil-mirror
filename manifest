@@ -1,5 +1,5 @@
-C Remove\sunnecessary\sfirst\scommit\s(that\sisn't\sactually\sa\scommit\sbecause\sI\sdidn't\scall\s"fossil\sadd"\sfirst...)\sin\stest\s8.
-D 2016-05-11T22:23:20.230
+C Remove\sunnecessary\scode.
+D 2016-05-12T20:18:44.635
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -452,7 +452,7 @@ F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md fc02fd045690e6fb45fb0bc91be734913dc70d02
 F src/markdown_html.c c7392199eb39dad9f92c31aa352f4f3408da93bf
 F src/md5.c 563baca0c92ef17c42aa32d31bf595a62c030177
-F src/merge.c d763e3b9932e55af416ede9d073ea4c517e48c90
+F src/merge.c a9e5226a821f3cf109924eaff4fb33dfb4fc2b26
 F src/merge3.c 555743dac3e0365a3406c262cd27cf94bec351c3
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
@@ -748,7 +748,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8bf221e5345bf2d9f9fd02ac7c4404d80acca75b
-R b9495e38e5e277ac128fbdfb06e0b0ed
+P 1385c8d456a4b2620d5a89faa6b5b8f0957e4670
+R 4e68c597c1e2ae17e61785e0e7dd87f9
 U joel
-Z 14684997b435544f7a178f881a8fb2a4
+Z 8477651b43bd34d391ad70b2a35cb75b
