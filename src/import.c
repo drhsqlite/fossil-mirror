@@ -36,6 +36,16 @@ struct ImportFile {
 };
 #endif
 
+/*
+** State information common to all import types.
+*/
+static struct {
+  const char *zTrunkName;     /* Name of trunk branch */
+  const char *zBranchPre;     /* Prepended to non-trunk branch names */
+  const char *zBranchSuf;     /* Appended to non-trunk branch names */
+  const char *zTagPre;        /* Prepended to non-trunk tag names */
+  const char *zTagSuf;        /* Appended to non-trunk tag names */
+} gimport;
 
 /*
 ** State information about an on-going fast-import parse.
@@ -200,7 +210,8 @@ static void finish_tag(void){
   if( gg.zDate && gg.zTag && gg.zFrom && gg.zUser ){
     blob_zero(&record);
     blob_appendf(&record, "D %s\n", gg.zDate);
-    blob_appendf(&record, "T +%F %s\n", gg.zTag, gg.zFrom);
+    blob_appendf(&record, "T +%F%F%F %s\n", gimport.zTagPre, gg.zTag,
+        gimport.zTagSuf, gg.zFrom);
     blob_appendf(&record, "U %F\n", gg.zUser);
     md5sum_blob(&record, &cksum);
     blob_appendf(&record, "Z %b\n", &cksum);
@@ -277,14 +288,17 @@ static void finish_commit(void){
   ** in sorted order and without any duplicates. Otherwise, fossil will not
   ** recognize the document as a valid manifest. */
   if( !gg.tagCommit && fossil_strcmp(zFromBranch, gg.zBranch)!=0 ){
-    aTCard[nTCard++] = mprintf("T *branch * %F\n", gg.zBranch);
-    aTCard[nTCard++] = mprintf("T *sym-%F *\n", gg.zBranch);
+    aTCard[nTCard++] = mprintf("T *branch * %F%F%F\n", gimport.zBranchPre,
+        gg.zBranch, gimport.zBranchSuf);
+    aTCard[nTCard++] = mprintf("T *sym-%F%F%F *\n", gimport.zBranchPre,
+        gg.zBranch, gimport.zBranchSuf);
     if( zFromBranch ){
-      aTCard[nTCard++] = mprintf("T -sym-%F *\n", zFromBranch);
+      aTCard[nTCard++] = mprintf("T -sym-%F%F%F *\n", gimport.zBranchPre,
+          zFromBranch, gimport.zBranchSuf);
     }
   }
   if( gg.zFrom==0 ){
-    aTCard[nTCard++] = mprintf("T *sym-trunk *\n");
+    aTCard[nTCard++] = mprintf("T *sym-%F *\n", gimport.zTrunkName);
   }
   qsort(aTCard, nTCard, sizeof(char *), string_cmp);
   for(i=0; i<nTCard; i++){
@@ -315,7 +329,8 @@ static void finish_commit(void){
   */
   if( gg.tagCommit && gg.zDate && gg.zUser && gg.zFrom ){
     blob_appendf(&record, "D %s\n", gg.zDate);
-    blob_appendf(&record, "T +sym-%F %s\n", gg.zBranch, gg.zPrevCheckin);
+    blob_appendf(&record, "T +sym-%F%F%F %s\n", gimport.zBranchPre, gg.zBranch,
+        gimport.zBranchSuf, gg.zPrevCheckin);
     blob_appendf(&record, "U %F\n", gg.zUser);
     md5sum_blob(&record, &cksum);
     blob_appendf(&record, "Z %b\n", &cksum);
@@ -751,7 +766,9 @@ static struct{
   const char *zTags;          /* Name of tags folder in repo root */
   int lenTags;                /* String length of zTags */
   Bag newBranches;            /* Branches that were created in this revision */
-  int incrFlag;               /* Add svn-rev-nn tags on every checkin */
+  int revFlag;                /* Add svn-rev-nn tags on every checkin */
+  const char *zRevPre;        /* Prepended to revision tag names */
+  const char *zRevSuf;        /* Appended to revision tag names */
 } gsvn;
 typedef struct {
   char *zKey;
@@ -1020,34 +1037,43 @@ static void svn_finish_revision(){
                       parentBranch
               );
             blob_appendf(&manifest, "P %s\n", zParentUuid);
-            blob_appendf(&manifest, "T *branch * %F\n", zBranch);
-            blob_appendf(&manifest, "T *sym-%F *\n", zBranch);
-            if( gsvn.incrFlag ){
-              blob_appendf(&manifest, "T +sym-svn-rev-%d *\n", gsvn.rev);
+            blob_appendf(&manifest, "T *branch * %F%F%F\n", gimport.zBranchPre,
+                zBranch, gimport.zBranchSuf);
+            blob_appendf(&manifest, "T *sym-%F%F%F *\n", gimport.zBranchPre,
+                zBranch, gimport.zBranchSuf);
+            if( gsvn.revFlag ){
+              blob_appendf(&manifest, "T +sym-%Fr%d%F *\n", gimport.zTagPre,
+                  gsvn.rev, gimport.zTagSuf);
             }
-            blob_appendf(&manifest, "T -sym-%F *\n", zParentBranch);
+            blob_appendf(&manifest, "T -sym-%F%F%F *\n", gimport.zBranchPre,
+                zParentBranch, gimport.zBranchSuf);
             fossil_free(zParentBranch);
           }else{
             char *zMergeUuid = rid_to_uuid(mergeRid);
             blob_appendf(&manifest, "P %s %s\n", zParentUuid, zMergeUuid);
-            if( gsvn.incrFlag ){
-              blob_appendf(&manifest, "T +sym-svn-rev-%d *\n", gsvn.rev);
+            if( gsvn.revFlag ){
+              blob_appendf(&manifest, "T +sym-%F%d%F *\n", gsvn.zRevPre,
+                  gsvn.rev, gsvn.zRevSuf);
             }
             fossil_free(zMergeUuid);
           }
           fossil_free(zParentUuid);
         }else{
-          blob_appendf(&manifest, "T *branch * %F\n", zBranch);
-          blob_appendf(&manifest, "T *sym-%F *\n", zBranch);
-          if( gsvn.incrFlag ){
-            blob_appendf(&manifest, "T +sym-svn-rev-%d *\n", gsvn.rev);
+          blob_appendf(&manifest, "T *branch * %F%F%F\n",
+              gimport.zBranchPre, zBranch, gimport.zBranchSuf);
+          blob_appendf(&manifest, "T *sym-%F%F%F *\n", gimport.zBranchPre,
+              zBranch, gimport.zBranchSuf);
+          if( gsvn.revFlag ){
+            blob_appendf(&manifest, "T +sym-%F%d%F *\n", gsvn.zRevPre, gsvn.rev,
+                gsvn.zRevSuf);
           }
         }
       }else if( branchType==SVN_TAG ){
         char *zParentUuid = rid_to_uuid(parentRid);
         blob_reset(&manifest);
         blob_appendf(&manifest, "D %s\n", gsvn.zDate);
-        blob_appendf(&manifest, "T +sym-%F %s\n", zBranch, zParentUuid);
+        blob_appendf(&manifest, "T +sym-%F%F%F %s\n", gimport.zTagPre, zBranch,
+            gimport.zTagSuf, zParentUuid);
         fossil_free(zParentUuid);
       }
     }else{
@@ -1056,7 +1082,8 @@ static void svn_finish_revision(){
       if( branchType!=SVN_TAG ){
         blob_appendf(&manifest, "T +closed %s\n", zParentUuid);
       }else{
-        blob_appendf(&manifest, "T -sym-%F %s\n", zBranch, zParentUuid);
+        blob_appendf(&manifest, "T -sym-%F%F%F %s\n", gimport.zBranchPre,
+            zBranch, gimport.zBranchSuf, zParentUuid);
       }
       fossil_free(zParentUuid);
     }
@@ -1497,27 +1524,39 @@ static void svn_dump_import(FILE *pIn){
 **
 **   --git        Import from the git-fast-export file format (default)
 **
-**   --svn        Import from the svnadmin-dump file format. The default
+**   --svn        Import from the svnadmin-dump file format.  The default
 **                behaviour (unless overridden by --flat) is to treat 3
 **                folders in the SVN root as special, following the
-**                common layout of SVN repositories. These are (by
-**                default) trunk/, branches/ and tags/
+**                common layout of SVN repositories.  These are (by
+**                default) trunk/, branches/ and tags/.  The SVN --deltas
+**                format is supported but not required.
 **                Options:
 **                  --trunk FOLDER     Name of trunk folder
 **                  --branches FOLDER  Name of branches folder
 **                  --tags FOLDER      Name of tags folder
 **                  --base PATH        Path to project root in repository
 **                  --flat             The whole dump is a single branch
+**                  --rev-tags         Tag each revision, implied by -i
+**                  --no-rev-tags      Disables tagging effect of -i
+**                  --rename-rev PAT   Rev tag names, default "svn-rev-%"
 **
 ** Common Options:
-**   -i|--incremental   allow importing into an existing repository
-**   -f|--force         overwrite repository if already exists
-**   -q|--quiet         omit progress output
-**   --no-rebuild       skip the "rebuilding metadata" step
-**   --no-vacuum        skip the final VACUUM of the database file
+**   -i|--incremental     allow importing into an existing repository
+**   -f|--force           overwrite repository if already exists
+**   -q|--quiet           omit progress output
+**   --no-rebuild         skip the "rebuilding metadata" step
+**   --no-vacuum          skip the final VACUUM of the database file
+**   --rename-trunk NAME  use NAME as name of imported trunk branch
+**   --rename-branch PAT  rename all branch names using PAT pattern
+**   --rename-tag PAT     rename all tag names using PAT pattern
 **
 ** The --incremental option allows an existing repository to be extended
-** with new content.
+** with new content.  The --rename-* options may be useful to avoid name
+** conflicts when using the --incremental option.
+**
+** The argument to --rename-* contains one "%" character to be replaced
+** with the original name.  For example, "--rename-tag svn-%-tag" renames
+** the tag called "release" to "svn-release-tag".
 **
 ** See also: export
 */
@@ -1537,16 +1576,51 @@ void import_cmd(void){
   const char *zBase="";
   int flatFlag=0;
 
+  /* Interpret --rename-* options.  Use a table to avoid code duplication. */
+  const struct {
+    const char *zOpt, **varPre, *zDefaultPre, **varSuf, *zDefaultSuf;
+    int format; /* 1=git, 2=svn, 3=any */
+  } renOpts[] = {
+    {"rename-branch", &gimport.zBranchPre,   "", &gimport.zBranchSuf, "", 3},
+    {"rename-tag"   , &gimport.zTagPre   ,   "", &gimport.zTagSuf   , "", 3},
+    {"rename-rev"   , &gsvn.zRevPre, "svn-rev-", &gsvn.zRevSuf      , "", 2},
+  }, *renOpt = renOpts;
+  int i;
+  for( i = 0; i < sizeof(renOpts) / sizeof(*renOpts); ++i, ++renOpt ){
+    if( 1 << svnFlag & renOpt->format ){
+      const char *zArgument = find_option(renOpt->zOpt, 0, 1);
+      if( zArgument ){
+         const char *sep = strchr(zArgument, '%');
+         if( !sep ){
+           fossil_fatal("missing '%%' in argument to --%s", renOpt->zOpt);
+         }else if( strchr(sep + 1, '%') ){
+           fossil_fatal("multiple '%%' in argument to --%s", renOpt->zOpt);
+         }
+         *renOpt->varPre = fossil_malloc(sep - zArgument + 1);
+         memcpy((char *)*renOpt->varPre, zArgument, sep - zArgument);
+         ((char *)*renOpt->varPre)[sep - zArgument] = 0;
+         *renOpt->varSuf = sep + 1;
+       }else{
+         *renOpt->varPre = renOpt->zDefaultPre;
+         *renOpt->varSuf = renOpt->zDefaultSuf;
+       }
+    }
+  }
+  if( !(gimport.zTrunkName = find_option("rename-trunk", 0, 1)) ){
+    gimport.zTrunkName = "trunk";
+  }
+
   if( svnFlag ){
-    /* Get --svn related options here, so verify_all_options() fail when svn
-     * only option are specify with --git
+    /* Get --svn related options here, so verify_all_options() fails when
+     * svn-only options are specified with --git
      */
     zBase = find_option("base", 0, 1);
     flatFlag = find_option("flat", 0, 0)!=0;
     gsvn.zTrunk = find_option("trunk", 0, 1);
     gsvn.zBranches = find_option("branches", 0, 1);
     gsvn.zTags = find_option("tags", 0, 1);
-    gsvn.incrFlag = incrFlag;
+    gsvn.revFlag = find_option("rev-tags", 0, 0)
+                || (incrFlag && !find_option("no-rev-tags", 0, 0));
   }else{
     find_option("git",0,0);  /* Skip the --git option for now */
   }

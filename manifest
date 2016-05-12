@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sfirst\s3.13.0\sbeta\sfor\stesting.
-D 2016-05-09T22:15:09.319
+C Add\s-rename-trunk,\s-rename-branch,\s-rename-tag,\s-rename-rev,\s-rev-tags,\sand\s-no-rev-tags\soptions\sto\simport\scommand
+D 2016-05-12T16:12:15.124
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -418,7 +418,7 @@ F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c c38d7bff255b35cc7cfe13405b67c32878f9d838
 F src/http_ssl.c dea4a130aba592848e7a43f635272cd8d7be7592
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
-F src/import.c 27ecf5430e34456ead372fb44d9f6fd0789b3b05
+F src/import.c ee07ca998b1a9c8a39b52c8ec5685d02162db1c6
 F src/info.c 93a0bd32c9a34d84307207ed7845bdbaafc0f8f7
 F src/json.c 6df1d80dece8968b344e4b730aae8151c7c61955
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
@@ -748,7 +748,9 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2fd471dc92cc5de6bd5e35926615866a1ce64143
-R e8919bbb1bc5e4e17b3d611d2b5bc7d2
-U drh
-Z 940e8ab65c2330e7a00133c9818bd443
+P 45daaced43d792ab390a5304002fcf93350f2db5
+T *branch * andygoth-import-rename
+T *sym-andygoth-import-rename *
+T -sym-trunk *
+U andygoth
+Z 22417d659294382d0e2f87a4b7d721dc
