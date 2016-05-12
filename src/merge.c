@@ -507,8 +507,8 @@ void merge_cmd(void){
     " ridm=coalesce((SELECT rid FROM vfile WHERE vid=%d AND fnm=pathname),0),"
     " islinkm=coalesce((SELECT islink FROM vfile"
                     " WHERE vid=%d AND fnm=pathname),0),"
-    " isexe=coalesce(isexe,"
-    "   (SELECT isexe FROM vfile WHERE vid=%d AND fnm=pathname))",
+    " isexe=coalesce((SELECT isexe FROM vfile WHERE vid=%d AND fnm=pathname),"
+    "   isexe)",
     mid, mid, mid, mid
   );
 
@@ -535,6 +535,27 @@ void merge_cmd(void){
     }
     db_finalize(&q);
   }
+
+  /*
+  ** Update the execute bit on files where it's changed from P->M but not P->V
+  */
+  db_prepare(&q,
+    "SELECT idv, fn, fv.isexe FROM fv, vfile p, vfile v"
+    " WHERE p.id=idp AND v.id=idv AND fv.isexe!=p.isexe AND v.isexe=p.isexe"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    int idv = db_column_int(&q, 0);
+    const char *zName = db_column_text(&q, 1);
+    int isExe = db_column_int(&q, 2);
+    fossil_print("%s %s\n", isExe ? "EXECUTABLE" : "UNEXEC", zName);
+    if( !dryRunFlag ){
+      char *zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
+      file_wd_setexe(zFullPath, isExe);
+      free(zFullPath);
+      db_multi_exec("UPDATE vfile SET isexe=%d WHERE id=%d", isExe, idv);
+    }
+  }
+  db_finalize(&q);
 
   /*
   ** Find files in M and V but not in P and report conflicts.
