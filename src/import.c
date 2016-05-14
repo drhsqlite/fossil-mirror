@@ -769,6 +769,7 @@ static struct{
   int revFlag;                /* Add svn-rev-nn tags on every checkin */
   const char *zRevPre;        /* Prepended to revision tag names */
   const char *zRevSuf;        /* Appended to revision tag names */
+  const char **azIgnTree;     /* NULL-terminated list of dirs to ignore */
 } gsvn;
 typedef struct {
   char *zKey;
@@ -1182,10 +1183,23 @@ static void svn_apply_svndiff(Blob *pDiff, Blob *pSrc, Blob *pOut){
 
 /*
 ** Extract the branch or tag that the given path is on. Return the branch ID.
- */
+** Return 0 if not a branch, tag, or trunk, or if ignored by --ignore-tree.
+*/
 static int svn_parse_path(char *zPath, char **zFile, int *type){
   char *zBranch = 0;
   int branchId = 0;
+  if( gsvn.azIgnTree ){
+    const char **pzIgnTree;
+    unsigned nPath = strlen(zPath);
+    for( pzIgnTree = gsvn.azIgnTree; *pzIgnTree; ++pzIgnTree ){
+      const char *zIgn = *pzIgnTree;
+      int nIgn = strlen(zIgn);
+      if( strncmp(zPath, zIgn, nIgn) == 0
+       && ( nPath == nIgn || (nPath > nIgn && zPath[nIgn] == '/')) ){
+        return 0;
+      }
+    }
+  }
   *type = SVN_UNKNOWN;
   *zFile = 0;
   if( gsvn.lenTrunk==0 ){
@@ -1539,6 +1553,7 @@ static void svn_dump_import(FILE *pIn){
 **                  --rev-tags         Tag each revision, implied by -i
 **                  --no-rev-tags      Disables tagging effect of -i
 **                  --rename-rev PAT   Rev tag names, default "svn-rev-%"
+**                  --ignore-tree DIR  Ignores subtree rooted at DIR
 **
 ** Common Options:
 **   -i|--incremental     allow importing into an existing repository
@@ -1557,6 +1572,10 @@ static void svn_dump_import(FILE *pIn){
 ** The argument to --rename-* contains one "%" character to be replaced
 ** with the original name.  For example, "--rename-tag svn-%-tag" renames
 ** the tag called "release" to "svn-release-tag".
+**
+** --ignore-tree is useful for importing Subversion repositories which
+** move branches to subdirectories of "branches/deleted" instead of
+** deleting them.  It can be supplied multiple times if necessary.
 **
 ** See also: export
 */
@@ -1614,6 +1633,16 @@ void import_cmd(void){
     /* Get --svn related options here, so verify_all_options() fails when
      * svn-only options are specified with --git
      */
+    const char *zIgnTree;
+    unsigned nIgnTree = 0;
+    while( (zIgnTree = find_option("ignore-tree", 0, 1)) ){
+      if ( *zIgnTree ){
+        gsvn.azIgnTree = fossil_realloc(gsvn.azIgnTree,
+            sizeof(*gsvn.azIgnTree) * (nIgnTree + 2));
+        gsvn.azIgnTree[nIgnTree++] = zIgnTree;
+        gsvn.azIgnTree[nIgnTree] = 0;
+      }
+    }
     zBase = find_option("base", 0, 1);
     flatFlag = find_option("flat", 0, 0)!=0;
     gsvn.zTrunk = find_option("trunk", 0, 1);
