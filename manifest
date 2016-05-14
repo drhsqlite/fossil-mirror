@@ -1,5 +1,5 @@
-C Collected\simprovements\sto\sthe\sfossil\swiki\sand\sattach\scommands\sto\ssupport\stechnotes\sas\swell\sas\swiki\spages,\sincluding\sattachments\sto\seither\sand\snew\stest\scases.\sPasses\sall\stests.
-D 2016-05-14T00:48:50.907
+C Create\snew\sbranch\snamed\s"nick.lloyd-git-interop"
+D 2016-05-14T21:01:56.928
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -749,8 +749,10 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 45daaced43d792ab390a5304002fcf93350f2db5 6fa5570b9a2cc6e6b4e7a5c4ad8dfed1d61d7df1
+P 05cd9fa2bfd7656b561226945275b606f5c42786
 R b1f4e38083d8323592cbe423e5b84783
-T +closed 6fa5570b9a2cc6e6b4e7a5c4ad8dfed1d61d7df1
-U rberteig
-Z 33e6dffb4733b8aba85d83c4ac2ac454
+T *branch * nick.lloyd-git-interop
+T *sym-nick.lloyd-git-interop *
+T -sym-trunk *
+U nick.lloyd
+Z 57a35db2b3071ba72807806a3554dceb
