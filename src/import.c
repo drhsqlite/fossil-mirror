@@ -1479,7 +1479,7 @@ static void svn_dump_import(FILE *pIn){
         if( zKind==0 ){
           fossil_fatal("Missing Node-kind");
         }
-        if( strncmp(zKind, "dir", 3)!=0 ){
+        if( rec.contentFlag && strncmp(zKind, "dir", 3)!=0 ){
           if( deltaFlag ){
             Blob deltaSrc;
             Blob target;
