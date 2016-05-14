@@ -989,11 +989,13 @@ static void svn_finish_revision(){
     }
     if( parentRid>0 ){
       pParentManifest = manifest_get(parentRid, CFTYPE_MANIFEST, 0);
-      pParentFile = manifest_file_next(pParentManifest, 0);
-      parentBranch = db_int(0, "SELECT tbranch FROM xrevisions WHERE trid=%d",
-                            parentRid);
-      if( parentBranch!=branchId && branchType!=SVN_TAG ){
-        sameAsParent = 0;
+      if( pParentManifest ){
+        pParentFile = manifest_file_next(pParentManifest, 0);
+        parentBranch = db_int(0, "SELECT tbranch FROM xrevisions WHERE trid=%d",
+                              parentRid);
+        if( parentBranch!=branchId && branchType!=SVN_TAG ){
+          sameAsParent = 0;
+        }
       }
     }
     if( mergeRid<MAX_INT_32 ){
