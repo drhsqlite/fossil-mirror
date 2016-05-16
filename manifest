@@ -1,5 +1,5 @@
-C Collected\simprovements\sto\sthe\sfossil\swiki\sand\sattach\scommands\sto\ssupport\stechnotes\sas\swell\sas\swiki\spages,\sincluding\sattachments\sto\seither\sand\snew\stest\scases.\sPasses\sall\stests.
-D 2016-05-14T00:48:50.907
+C Improve\sthe\smerge\scommand's\sability\sto\shandle\svarious\sscenarios\s\ninvolving\srenames.
+D 2016-05-16T17:46:09.856
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -452,7 +452,7 @@ F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md fc02fd045690e6fb45fb0bc91be734913dc70d02
 F src/markdown_html.c c7392199eb39dad9f92c31aa352f4f3408da93bf
 F src/md5.c 563baca0c92ef17c42aa32d31bf595a62c030177
-F src/merge.c cb45f39415ab0947503d0e7cf483f7dc4634732a
+F src/merge.c 13be35f2e995711a87504d8504098f9a62b34765
 F src/merge3.c 555743dac3e0365a3406c262cd27cf94bec351c3
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
@@ -460,9 +460,9 @@ F src/mkindex.c 8b49a351b060c3e9203dacbacfc8216f760f8da2
 F src/mkversion.c 40ed302872cc5795c76efb3ab089fc1aedba18f1
 F src/moderate.c 8ab2bd4bda9a6b6765f99ddea7950dc5c6bad007
 F src/name.c d5441ee273883c98589da5c527b088ae7a9a1139
-F src/path.c bfc63bc43d342145259c525178f77caac38614bf
+F src/path.c cce5fdfa571861a81e1a48e893e5a52dd2703a5f
 F src/piechart.c 6b2d49434b036d495ec30378520dd1054b03c920
-F src/pivot.c fb48ba0f66221e916f3597cec853d5fb2751f9f2
+F src/pivot.c 2f9b97dad4267f3b5a9e89e14b711f326cb3f3a0
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 2de9ca8ea140e35da05eafeb6a447a2fd4069438
@@ -539,8 +539,9 @@ F test/merge3.test 70db9ae7c679efad5d5b371114a3cc609818e01a
 F test/merge4.test d563164c477885bcaecb6ea28e824b698bdd57bb
 F test/merge5.test aadadc4b34b77b94dc711ee0b0ae2f760abaecf9
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
-F test/merge6.test ac9dd0f4c76990c91f6483844852831c2eb1a95e
-F test/merge_renames.test e0b500a812c61318b3e1c277021429ca3c045570
+F test/merge6.test 50b1c16adce0050bc946e3d64b14df9ab82f37e0
+F test/merge_exe.test f888647a3305bf2a4ddd77f947e486ae72fced09
+F test/merge_renames.test 73a5d0e41410d142003cb233d2f0f398d8421072
 F test/merge_warn.test d4a98c6ff14e4bb142d784f96c88d152d9599529
 F test/mv-rm.test a46185f0a8443bf422e222b47f360e5c341e9306
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
@@ -549,7 +550,7 @@ F test/stash.test f9c2bba31afe77b62967ea11e59e438c950325ec
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 97418ce6cda673e83ea1a5ef714e1edd24dc6657
+F test/tester.tcl db9f4d759b2c54443cb9f07d7e491249cc6eaa97
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 3a95822e5006f404b51bb6dccacc340a452d3f4e
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -749,8 +750,8 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 45daaced43d792ab390a5304002fcf93350f2db5 6fa5570b9a2cc6e6b4e7a5c4ad8dfed1d61d7df1
-R b1f4e38083d8323592cbe423e5b84783
-T +closed 6fa5570b9a2cc6e6b4e7a5c4ad8dfed1d61d7df1
-U rberteig
-Z 33e6dffb4733b8aba85d83c4ac2ac454
+P 05cd9fa2bfd7656b561226945275b606f5c42786 3683508e989bf09b62bdff2de22b3bd2ab78da07
+R 8d49ba776f5141bc3f5055bf7aadad36
+T +closed 3683508e989bf09b62bdff2de22b3bd2ab78da07
+U drh
+Z 39c5dc9ca94eedcd779d596a6aa81a1f

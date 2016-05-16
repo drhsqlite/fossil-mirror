@@ -454,7 +454,6 @@ void find_filename_changes(
     for(pChng=pAll, i=0; pChng; pChng=pChng->pNext){
       if( pChng->newName==0 ) continue;
       if( pChng->origName==0 ) continue;
-      if( pChng->newName==pChng->origName ) continue;
       aChng[i] = pChng->origName;
       aChng[i+1] = pChng->newName;
       if( zDebug ){
