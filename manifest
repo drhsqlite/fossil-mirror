@@ -1,5 +1,5 @@
-C Add\s--import-marks\sand\s--export-marks\soptions\sto\s`fossil\simport'\ssubcommand.\n\nThis\sallows\sone\sto\ssave\sall\sgit-generated\smarks\sfollowing\san\simport.\s\sPPreviously,\nperforming\san\sincremental\simport\sfrom\sgit\sresulted\sin\snew\scommits\sbeing\simported\nas\sorphans,\sand\strying\sto\sperform\san\sexport\sto\sgit\sat\ssome\slater\stime\sresultedd\nin\sgit\scomplaining\sof\sundefined\smarks.\sTo\sremedy\sthis,\sthe\sformat\sof\sthe\smarks\nfile\sis\samended\sto\sinclude\sthe\srid,\smark,\sand\sUUID\sof\seach\scommit.\sNow,\sfossil\nand\sgit\sagree\son\sthe\smapping\sbetween\scommits\sand\smarks,\sso\supdates\sin\seither\ndirection\scan\sbe\sperformed\seasily.
-D 2016-05-14T21:41:35.057
+C Remove\sC99-isms\sthat\sMSVC\shas\strouble\swith.
+D 2016-05-16T17:58:16.515
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -406,7 +406,7 @@ F src/diffcmd.c 3759afcedb06bb0d76844e0b724cd28b36ede262
 F src/doc.c aad06cde815b7051a133044a2cd9306e2739600f
 F src/encode.c 56fc8f102eda32549652df47fa253fc910e737a9
 F src/event.c 0edff3caaceed4fbee6ec8c20f480a94f467f5cf
-F src/export.c 58ca9b6220b352d97025ec22effb8ea63c287175
+F src/export.c 2df2303209ef2f326b4dd414a9f097c1e38ba38e
 F src/file.c 8e85e61f94faf64efd92db024e19d83cf30ac0a1
 F src/finfo.c 9dcd6c54bf5fadfafe0b15cbb736ba0cf418c956
 F src/foci.c 693596989fbb12a01c31317a7adf0d1ce85c7903
@@ -418,7 +418,7 @@ F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c c38d7bff255b35cc7cfe13405b67c32878f9d838
 F src/http_ssl.c dea4a130aba592848e7a43f635272cd8d7be7592
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
-F src/import.c 0c01dc75d41b5756dcd482ba8c629a0ef254d0d2
+F src/import.c a4d6275c24c70901f8850a0ded267237810d8fb1
 F src/info.c df2e9776a08ec549d917adc9f4924f7b4ca57c07
 F src/json.c 6df1d80dece8968b344e4b730aae8151c7c61955
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
@@ -749,7 +749,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1af797c337378a4c071cedf05a4680180d1e7555
-R ca4ca83deb8d0b2cb8badbfcecd84a5f
-U nick.lloyd
-Z 1a22e4f45e37f54146288bfbeb6028f9
+P c26213be47b980847c85bac250cfe45e52f6154b
+R c0e836d5f536d752e44a1f0c19580f24
+U drh
+Z 9b70dba7dd1061cca8fb2a97d6f403fc

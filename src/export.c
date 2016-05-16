@@ -27,7 +27,7 @@
 **   holds information for translating between git commits
 **   and fossil commits.
 **   -git_name: This is the mark name that identifies the commit to git.
-**              It will always begin with a `:'.
+**              It will always begin with a ':'.
 **   -rid: The unique object ID that identifies this commit within the
 **         repository database.
 **   -uuid: The SHA-1 of artifact corresponding to rid.
@@ -119,7 +119,7 @@ static void print_person(const char *zUser){
 
 /*
 ** insert_commit_xref()
-**   Insert a new (mark,rid,uuid) entry into the `xmark' table.
+**   Insert a new (mark,rid,uuid) entry into the 'xmark' table.
 **   zName and zUuid must be non-null and must point to NULL-terminated strings.
 */
 void insert_commit_xref(int rid, const char *zName, const char *zUuid){
@@ -132,9 +132,9 @@ void insert_commit_xref(int rid, const char *zName, const char *zUuid){
 
 /*
 ** create_mark()
-**   Create a new (mark,rid,uuid) entry for the given rid in the `xmark' table,
+**   Create a new (mark,rid,uuid) entry for the given rid in the 'xmark' table,
 **   and return that information as a struct mark_t in *mark.
-**   This function returns -1 in the case where `rid' does not exist, otherwise
+**   This function returns -1 in the case where 'rid' does not exist, otherwise
 **   it returns 0.
 **   mark->name is dynamically allocated and is owned by the caller upon return.
 */
@@ -157,8 +157,8 @@ int create_mark(int rid, struct mark_t *mark){
 /*
 ** mark_name_from_rid()
 **   Find the mark associated with the given rid.  Mark names always start
-**   with ':', and are pulled from the `xmark' temporary table.
-**   This function returns NULL if the rid does not exist in the `xmark' table.
+**   with ':', and are pulled from the 'xmark' temporary table.
+**   This function returns NULL if the rid does not exist in the 'xmark' table.
 **   Otherwise, it returns the name of the mark, which is dynamically allocated
 **   and is owned by the caller of this function.
 */
@@ -177,11 +177,11 @@ char * mark_name_from_rid(int rid){
 
 /*
 ** parse_mark()
-**   Create a new (mark,rid,uuid) entry in the `xmark' table given a line
+**   Create a new (mark,rid,uuid) entry in the 'xmark' table given a line
 **   from a marks file.  Return the cross-ref information as a struct mark_t
 **   in *mark.
 **   This function returns -1 in the case that the line is blank, malformed, or
-**   the rid/uuid named in `line' does not match what is in the repository
+**   the rid/uuid named in 'line' does not match what is in the repository
 **   database.  Otherwise, 0 is returned.
 **   mark->name is dynamically allocated, and owned by the caller.
 */
@@ -226,20 +226,20 @@ int parse_mark(char *line, struct mark_t *mark){
     return -1;
   }
 
-  /* insert a cross-ref into the `xmark' table */
+  /* insert a cross-ref into the 'xmark' table */
   insert_commit_xref(mark->rid, mark->name, mark->uuid);
   return 0;
 }
 
 /*
 ** import_marks()
-**   Import the marks specified in file `f' into the `xmark' table.
-**   If `blobs' is non-null, insert all blob marks into it.
-**   If `vers' is non-null, insert all commit marks into it.
+**   Import the marks specified in file 'f' into the 'xmark' table.
+**   If 'blobs' is non-null, insert all blob marks into it.
+**   If 'vers' is non-null, insert all commit marks into it.
 **   Each line in the file must be at most 100 characters in length.  This
 **   seems like a reasonable maximum for a 40-character uuid, and 1-13
 **   character rid.
-**   The function returns -1 if any of the lines in file `f' are malformed,
+**   The function returns -1 if any of the lines in file 'f' are malformed,
 **   or the rid/uuid information doesn't match what is in the repository
 **   database.  Otherwise, 0 is returned.
 */
@@ -247,20 +247,20 @@ int import_marks(FILE* f, Bag *blobs, Bag *vers){
   char line[101];
   size_t len;
   while(fgets(line, sizeof(line), f)){
+    struct mark_t mark;
     if(strlen(line)==100&&line[99]!='\n'){
       /* line too long */
       return -1;
     }
-    struct mark_t mark;
-    if(parse_mark(line, &mark)<0){
+    if( parse_mark(line, &mark)<0 ){
       return -1;
-    }else if(line[0]=='b'){
-      /* Don't import blob marks into `xmark' table--git doesn't use them,
+    }else if( line[0]=='b' ){
+      /* Don't import blob marks into 'xmark' table--git doesn't use them,
       ** so they need to be left free for git to reuse. */
       if(blobs!=NULL){
         bag_insert(blobs, mark.rid);
       }
-    }else if(vers!=NULL){
+    }else if( vers!=NULL ){
       bag_insert(vers, mark.rid);
     }
     free(mark.name);
@@ -269,18 +269,17 @@ int import_marks(FILE* f, Bag *blobs, Bag *vers){
 }
 
 /*
-** export_marks()
-**   If `blobs' is non-null, it must point to a Bag of blob rids to be
-**   written to disk.  Blob rids are written as 'b<rid>'.
-**   If `vers' is non-null, it must point to a Bag of commit rids to be
-**   written to disk.  Commit rids are written as 'c<rid> :<mark> <uuid>'.
-**   All commit (mark,rid,uuid) tuples are stored in `xmark' table.
-**   This function does not fail, but may produce errors if a uuid cannot
-**   be found for an rid in `vers'.
+**  If 'blobs' is non-null, it must point to a Bag of blob rids to be
+**  written to disk.  Blob rids are written as 'b<rid>'.
+**  If 'vers' is non-null, it must point to a Bag of commit rids to be
+**  written to disk.  Commit rids are written as 'c<rid> :<mark> <uuid>'.
+**  All commit (mark,rid,uuid) tuples are stored in 'xmark' table.
+**  This function does not fail, but may produce errors if a uuid cannot
+**  be found for an rid in 'vers'.
 */
 void export_marks(FILE* f, Bag *blobs, Bag *vers){
   int rid;
-  if(blobs!=NULL){
+  if( blobs!=NULL ){
     rid = bag_first(blobs);
     if(rid!=0){
       do{
@@ -288,20 +287,21 @@ void export_marks(FILE* f, Bag *blobs, Bag *vers){
       }while((rid = bag_next(blobs, rid))!=0);
     }
   }
-  if(vers!=NULL){
+  if( vers!=NULL ){
     rid = bag_first(vers);
-    if(rid!=0){
+    if( rid!=0 ){
       do{
         char *zUuid = rid_to_uuid(rid);
+        char *zMark;
         if(zUuid==NULL){
           fossil_trace("No uuid matching rid=%d when exporting marks\n", rid);
           continue;
         }
-        char *zMark = mark_name_from_rid(rid);
+        zMark = mark_name_from_rid(rid);
         fprintf(f, "c%d %s %s\n", rid, zMark, zUuid);
         free(zMark);
         free(zUuid);
-      }while((rid = bag_next(vers, rid))!=0);
+      }while( (rid = bag_next(vers, rid))!=0 );
     }
   }
 }

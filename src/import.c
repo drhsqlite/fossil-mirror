@@ -1687,6 +1687,7 @@ void import_cmd(void){
     if(markfile_out){
       int rid;
       Stmt q_marks;
+      FILE *f;
       db_prepare(&q_marks, "SELECT DISTINCT trid FROM xmark");
       while( db_step(&q_marks)==SQLITE_ROW){
         rid = db_column_int(&q_marks, 0);
@@ -1699,7 +1700,7 @@ void import_cmd(void){
         }
       }
       db_finalize(&q_marks);
-      FILE* f = fossil_fopen(markfile_out, "w");
+      f = fossil_fopen(markfile_out, "w");
       if(!f){
         fossil_fatal("cannot open %s for writing\n", markfile_out);
       }
