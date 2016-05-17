@@ -1,5 +1,5 @@
-C Add\slogic\sto\sprocess\s"parent"\stags.\s\sAdd\sthe\s"reparent"\scommand\sused\sto\ncreate\san\sappropriate\sparent\stag\sto\scause\sa\scheck-in\sto\sbe\sreparented.
-D 2016-05-17T00:46:16.635
+C Remove\sextra\s"+"\sthat\swas\sbeing\sprefixed\sto\sthe\sparent\stag\sin\sthe\sreparent\scommand.\s\stag_add_artifact()\salready\sprefixes\sone\s"+"\sbecause\sits\sfifth\sargument\sis\s1.
+D 2016-05-17T04:36:50.210
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -488,7 +488,7 @@ F src/stat.c 9fa919c1c78db3952e181e0bf955b039aca0db26
 F src/statrep.c 061c9df02d134454c32e34cc29807adc594e1bc2
 F src/style.c 1a7a0b84d1404a6420819498e0697219eb90357d
 F src/sync.c 953773f3bdabd4f4cad20c484ce2ed3c61a451e3
-F src/tag.c b20aa8c092b6341a71e9b4b8335c8563f0f05d60
+F src/tag.c e80b1a748cc051c702d4dc40117e8c9d98ada9c8
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
@@ -750,10 +750,6 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b3acfa2e4acd84bf9fac3017e2bdb4b17115eabd
-R 5c55117f786d7410cac2526017831c93
-T *branch * reparent
-T *sym-reparent *
-T -sym-trunk *
-U drh
-Z 747b6d59fb65ab307f964d9044cde525
+P 5c5a364d5e106d9c38b37d1b9b25ed023e829498
+U andygoth
+Z 783fc21a2bb16cf86051fd010d1fcd80

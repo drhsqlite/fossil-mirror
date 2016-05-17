@@ -601,7 +601,7 @@ void reparent_cmd(void){
     tag_insert("parent", 1, blob_str(&value), -1, 0.0, rid);
   }else{
     zUuid = rid_to_uuid(rid);
-    tag_add_artifact("+","parent",zUuid,blob_str(&value),1,0,0);
+    tag_add_artifact("","parent",zUuid,blob_str(&value),1,0,0);
   }
 }
 
