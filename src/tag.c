@@ -150,6 +150,9 @@ int tag_findid(const char *zTag, int createFlag){
 
 /*
 ** Insert a tag into the database.
+**
+** Also translate zTag into a tagid and return the tagid.  (In other words
+** if zTag is "bgcolor" then return TAG_BGCOLOR.)
 */
 int tag_insert(
   const char *zTag,        /* Name of the tag (w/o the "+" or "-" prefix */
@@ -229,6 +232,9 @@ int tag_insert(
                   "       omtime=coalesce(omtime,mtime)"
                   " WHERE objid=%d",
                   zValue, rid);
+  }
+  if( tagid==TAG_PARENT && tagtype==1 ){
+    manifest_reparent_checkin(rid, zValue);
   }
   if( tagtype==1 ) tagtype = 0;
   tag_propagate(rid, tagid, tagtype, rid, zValue, mtime);
@@ -548,6 +554,57 @@ void tag_cmd(void){
 tag_cmd_usage:
   usage("add|cancel|find|list ...");
 }
+
+/*
+** COMMAND: reparent*
+**
+** Usage: %fossil reparent [OPTIONS] CHECK-IN PARENT ....
+**
+** Create a "parent" tag that causes CHECK-IN to be interpreted as a
+** child of PARENT.  If multiple PARENTs are listed, then the first is
+** the primary parent and others are merge ancestors.
+**
+** This is an experts-only command.  It is used to patch of a repository
+** that has been damaged by a shun or that has been pieced together from
+** two or more separate repositories.  You should never need to reparent
+** during normal operations.
+**
+** Reparenting is accomplished by adding a parent tag.  So to undo the
+** reparenting operation, simply delete the tag.
+**
+**    --test         Make database entries but do not add the tag artifact.
+**                   So the reparent operation will be undone by the next
+**                   "fossil rebuild" command.
+*/
+void reparent_cmd(void){
+  int bTest = find_option("test","",0)!=0;
+  int rid;
+  int i;
+  Blob value;
+  char *zUuid;
+
+  db_find_and_open_repository(0, 0);
+  verify_all_options();
+  if( g.argc<4 ){
+    usage("reparent [OPTIONS] PARENT ...");
+  }
+  rid = name_to_typed_rid(g.argv[2], "ci");
+  blob_init(&value, 0, 0);
+  for(i=3; i<g.argc; i++){
+    int pid = name_to_typed_rid(g.argv[i], "ci");
+    if( i>3 ) blob_append(&value, " ", 1);
+    zUuid = rid_to_uuid(pid);
+    blob_append(&value, zUuid, UUID_SIZE);
+    fossil_free(zUuid);
+  }
+  if( bTest ){
+    tag_insert("parent", 1, blob_str(&value), -1, 0.0, rid);
+  }else{
+    zUuid = rid_to_uuid(rid);
+    tag_add_artifact("+","parent",zUuid,blob_str(&value),1,0,0);
+  }
+}
+
 
 /*
 ** WEBPAGE: taglist

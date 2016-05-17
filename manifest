@@ -1,5 +1,5 @@
-C Add\sthe\s--import-marks\sand\s--export-marks\soptions\sto\s"fossil\simport"\swhen\sthe\n--git\soption\sis\sused.
-D 2016-05-16T18:00:16.953
+C Add\slogic\sto\sprocess\s"parent"\stags.\s\sAdd\sthe\s"reparent"\scommand\sused\sto\ncreate\san\sappropriate\sparent\stag\sto\scause\sa\scheck-in\sto\sbe\sreparented.
+D 2016-05-17T00:46:16.635
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -418,7 +418,7 @@ F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c c38d7bff255b35cc7cfe13405b67c32878f9d838
 F src/http_ssl.c dea4a130aba592848e7a43f635272cd8d7be7592
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
-F src/import.c a4d6275c24c70901f8850a0ded267237810d8fb1
+F src/import.c 3ad909be7cbf964b87b3edb40bac0b95c9812f96
 F src/info.c df2e9776a08ec549d917adc9f4924f7b4ca57c07
 F src/json.c 6df1d80dece8968b344e4b730aae8151c7c61955
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
@@ -447,7 +447,7 @@ F src/main.mk 3a87a2fb1805dd53c67589bfa2b65e54f4a87559
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl b7de9654dac2ac54c36d53a578faadd1a3665379
-F src/manifest.c 5739475e5ecd86a53f1333c8c04f61aba010d2fd
+F src/manifest.c cede9a580dd60d6ca75b2d10ea783a2e3a2559ed
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md fc02fd045690e6fb45fb0bc91be734913dc70d02
 F src/markdown_html.c c7392199eb39dad9f92c31aa352f4f3408da93bf
@@ -488,7 +488,7 @@ F src/stat.c 9fa919c1c78db3952e181e0bf955b039aca0db26
 F src/statrep.c 061c9df02d134454c32e34cc29807adc594e1bc2
 F src/style.c 1a7a0b84d1404a6420819498e0697219eb90357d
 F src/sync.c 953773f3bdabd4f4cad20c484ce2ed3c61a451e3
-F src/tag.c be1923babfee2deb99a2297c1da780324061eda8
+F src/tag.c b20aa8c092b6341a71e9b4b8335c8563f0f05d60
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
@@ -750,7 +750,10 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 41c2220934de8cb8d90126d5083df3e95e961b8c addfe489901ee676e67a50a017eaf6df2c3cb317
-R 7e5fcd4493fc95926ba48d2cdf3018e7
+P b3acfa2e4acd84bf9fac3017e2bdb4b17115eabd
+R 5c55117f786d7410cac2526017831c93
+T *branch * reparent
+T *sym-reparent *
+T -sym-trunk *
 U drh
-Z e9deb0a05ee6dd7843e24d29630f1f1a
+Z 747b6d59fb65ab307f964d9044cde525
