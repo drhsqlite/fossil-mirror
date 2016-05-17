@@ -1,5 +1,5 @@
-C Adds\soption\sto\sshow\sbranch\scolors\son\sbrlist\spage
-D 2016-05-17T11:35:56.925
+C tiny\scleanup
+D 2016-05-17T11:44:57.734
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -377,7 +377,7 @@ F src/attach.c 5a850f69e2f073b062e550043911b09fdf8fd9e2
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c abd167c9f2c5398782ca6d48ea1ee612163a7685
 F src/blob.c c30701f00b13110a7a9c4c3f9e5969969f6a63ad
-F src/branch.c 5d793cb4f8a7a87af4a29c021f71814bfd45c899
+F src/branch.c 8420885fedf30c3cf64c2392dee59a87425c97ab
 F src/browse.c c5f31adcb4a223232bb0bdf7f2e6fcc66b5ee123
 F src/builtin.c b2dcfcade2054c083b03a18e3ab5026d51eb2dcb
 F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
@@ -750,10 +750,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f9decff05e419d24144dde03c8518c87c3a070a6 4bd2b54592a08fe023f35ba77e3cdcb81f2f2882
-R 7a05e1c2b10414c665a2f0dd7f202c8f
-T *branch * brlist-cleanup
-T *sym-brlist-cleanup *
-T -sym-trunk *
+P 2fa1a8a935b18266774090eb1b5ba53bb4678fb8
+R 7f9253962dfcd327c96511ee91bf11fa
 U baruch
-Z 8af00b0ad3a4175f0afd57b798093be3
+Z be7bd93a50555cfa993fbb0d13ed3eda
