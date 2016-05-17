@@ -187,7 +187,6 @@ char * mark_name_from_rid(int rid){
 */
 int parse_mark(char *line, struct mark_t *mark){
   char *cur_tok;
-  char type;
   cur_tok = strtok(line, " \t");
   if(!cur_tok||strlen(cur_tok)<2){
     return -1;
@@ -245,7 +244,6 @@ int parse_mark(char *line, struct mark_t *mark){
 */
 int import_marks(FILE* f, Bag *blobs, Bag *vers){
   char line[101];
-  size_t len;
   while(fgets(line, sizeof(line), f)){
     struct mark_t mark;
     if(strlen(line)==100&&line[99]!='\n'){
@@ -359,7 +357,6 @@ void export_cmd(void){
   db_multi_exec("CREATE TEMP TABLE xmark(tname TEXT UNIQUE, trid INT, tuuid TEXT)");
   if( markfile_in!=0 ){
     Stmt qb,qc;
-    char line[100];
     FILE *f;
     int rid;
 

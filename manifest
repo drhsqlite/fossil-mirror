@@ -1,5 +1,5 @@
-C Add\sthe\s--import-marks\sand\s--export-marks\soptions\sto\s"fossil\simport"\swhen\sthe\n--git\soption\sis\sused.
-D 2016-05-16T18:00:16.953
+C Remove\sunused\svariables
+D 2016-05-17T04:16:36.625
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -406,7 +406,7 @@ F src/diffcmd.c 3759afcedb06bb0d76844e0b724cd28b36ede262
 F src/doc.c aad06cde815b7051a133044a2cd9306e2739600f
 F src/encode.c 56fc8f102eda32549652df47fa253fc910e737a9
 F src/event.c 0edff3caaceed4fbee6ec8c20f480a94f467f5cf
-F src/export.c 2df2303209ef2f326b4dd414a9f097c1e38ba38e
+F src/export.c 78ed59a60b4595935abe1503eb2d1b31eb1560a5
 F src/file.c 8e85e61f94faf64efd92db024e19d83cf30ac0a1
 F src/finfo.c 9dcd6c54bf5fadfafe0b15cbb736ba0cf418c956
 F src/foci.c 693596989fbb12a01c31317a7adf0d1ce85c7903
@@ -750,7 +750,6 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 41c2220934de8cb8d90126d5083df3e95e961b8c addfe489901ee676e67a50a017eaf6df2c3cb317
-R 7e5fcd4493fc95926ba48d2cdf3018e7
-U drh
-Z e9deb0a05ee6dd7843e24d29630f1f1a
+P b3acfa2e4acd84bf9fac3017e2bdb4b17115eabd
+U andygoth
+Z b71adad52c986cf1df4b4ebdba3beebe
