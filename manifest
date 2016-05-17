@@ -1,5 +1,5 @@
-C Remove\sunused\svariables
-D 2016-05-17T04:16:36.625
+C Adds\soption\sto\sshow\sbranch\scolors\son\sbrlist\spage
+D 2016-05-17T11:35:56.925
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -10,11 +10,11 @@ F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b47
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile e6126edc40fe1da6bd47c6c5f1beede3b9c3eaf7
-F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
-F Makefile.in e68d67b0141655f3f6934ad35df484e50e84ff32
+F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9 x
+F Makefile.in e68d67b0141655f3f6934ad35df484e50e84ff32 x
 F VERSION 7d88475c68cba7127d611641fa69160437b6885e
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
-F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
+F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
 F ajax/i-test/rhino-test.js c0e2d874caa424a8cb1628c8d85a4a6b197b8d32
 F ajax/index.html ff6a9f6bedd406784a6bfb1238beb8deee713069
@@ -60,7 +60,7 @@ F autosetup/find-tclsh f973558ad74bd8e4d55b677d9c166cbb35f34186 x
 F autosetup/jimsh0.c c4b6eb336c5fb548e747b1dc50ffc710fc0f7df0
 F autosetup/local.tcl 3a6a7704f546f0863f86f69df7af1858de9c41c9
 F autosetup/system.tcl bf1a78484db3dd5eb9986bc3a412664275b9be94
-F autosetup/test-tclsh f197a4c7bfa8bde7672864fc36dcbc7f85bdda6c x
+F autosetup/test-tclsh f197a4c7bfa8bde7672864fc36dcbc7f85bdda6c
 F compat/tcl-8.6/generic/tcl.h 3e49f8e5404fd60181c69b6d0ad075e12c4fbd4d
 F compat/tcl-8.6/generic/tclDecls.h 9f431aa5c9a819efa078fadecf3fb1214137455d
 F compat/tcl-8.6/generic/tclPlatDecls.h 05f8965cb99af1c9bb78ff437e991f49a598f7b7
@@ -141,12 +141,12 @@ F compat/zlib/contrib/iostream3/TODO c40d91b8e4051c4fac646e0213dee173e207bcee
 F compat/zlib/contrib/iostream3/test.cc b81342fb774937c210f5718ad5783f1eed13f7a7
 F compat/zlib/contrib/iostream3/zfstream.cc 19b83e921e89a638ebf978ca2beea7aefd78f9c2
 F compat/zlib/contrib/iostream3/zfstream.h 351a3f5bfb93196701cc86b27db866a18ca54105
-F compat/zlib/contrib/masmx64/bld_ml64.bat 1d723acf46ecfb6e16922ea55309cee9c77b9d49 x
+F compat/zlib/contrib/masmx64/bld_ml64.bat 1d723acf46ecfb6e16922ea55309cee9c77b9d49
 F compat/zlib/contrib/masmx64/gvmat64.asm 3c72c7b7f6c82e72b25a700eebccd0a987e7ba7b
 F compat/zlib/contrib/masmx64/inffas8664.c a179f3e1a04b5db58eaf6fcc473567794e0391f8
 F compat/zlib/contrib/masmx64/inffasx64.asm 249b0329964e35481e8e6217220f474e3076d35a
 F compat/zlib/contrib/masmx64/readme.txt 3f2e049fdd6fc4c914a0d9a099dfe735cd0e3b86
-F compat/zlib/contrib/masmx86/bld_ml32.bat d2bcdd2fcb5e43ee260f510c25cf2b98318e9b0c x
+F compat/zlib/contrib/masmx86/bld_ml32.bat d2bcdd2fcb5e43ee260f510c25cf2b98318e9b0c
 F compat/zlib/contrib/masmx86/inffas32.asm 6f42ac182d48c31346bb6dc04ab74f85157eb0b9
 F compat/zlib/contrib/masmx86/match686.asm 34529073d91211b48f2d8d6cad58202f50cb2047
 F compat/zlib/contrib/masmx86/readme.txt 287dd9febd8dc4b56b07ca84e4cfcf90d21dc09d
@@ -302,11 +302,11 @@ F compat/zlib/zlib.h 400d35465f179a4acacb5fe749e6ce20a0bbdb84
 F compat/zlib/zlib.map 603e372e4e00806da3ee1b535c2afee27c44ba39
 F compat/zlib/zlib.pc.cmakein c80d6efe2a2991a1836ee797f75b12c9d60b6783
 F compat/zlib/zlib.pc.in 3ebc107b34d82b134e9f5933c2a569eb6e952ce4
-F compat/zlib/zlib2ansi e9859eecf47ae66280573d73969c061989615134
+F compat/zlib/zlib2ansi e9859eecf47ae66280573d73969c061989615134 x
 F compat/zlib/zutil.c e1af709bff21ae0d4331119a7fc4c19f82932043
 F compat/zlib/zutil.h b909d27ef9ce51639f76b7ea6b62721e7d1b6bf7
 F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
-F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
+F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f x
 F fossil.1 5dafc0a0e37de8b6d38ca807a12e9e56619812d5
 F setup/fossil.iss 57e01e1feb0198de025417c0a98f1d4b1c444f53
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
@@ -377,7 +377,7 @@ F src/attach.c 5a850f69e2f073b062e550043911b09fdf8fd9e2
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c abd167c9f2c5398782ca6d48ea1ee612163a7685
 F src/blob.c c30701f00b13110a7a9c4c3f9e5969969f6a63ad
-F src/branch.c 09724980278de18e9bbff5da85950c3febd811eb
+F src/branch.c 5d793cb4f8a7a87af4a29c021f71814bfd45c899
 F src/browse.c c5f31adcb4a223232bb0bdf7f2e6fcc66b5ee123
 F src/builtin.c b2dcfcade2054c083b03a18e3ab5026d51eb2dcb
 F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
@@ -446,7 +446,7 @@ F src/main.c 4989ed094f56af540084d2cf3a3e8954d8dc924b
 F src/main.mk 3a87a2fb1805dd53c67589bfa2b65e54f4a87559
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl b7de9654dac2ac54c36d53a578faadd1a3665379
+F src/makemake.tcl b7de9654dac2ac54c36d53a578faadd1a3665379 x
 F src/manifest.c 5739475e5ecd86a53f1333c8c04f61aba010d2fd
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md fc02fd045690e6fb45fb0bc91be734913dc70d02
@@ -531,7 +531,7 @@ F test/fileage-test-1.wiki d249e897fdd41038c17f3b66d374e509830da1eb
 F test/glob.test e135d6e1333452beece53619e9a67cd9224ab00c
 F test/graph-test-1.wiki 1bbf8bd05dfd5205c589569d911477c27aeb4d51
 F test/json.test 65f8333164e43173ad47634035ab6d2c8635ed86
-F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
+F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391 x
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/merge1.test 0f11a55b5d71fa668b53ffc4cdeb23997e9cb042
 F test/merge2.test 4fcf75ee09305e6a783b5329376b7e2441e764b1
@@ -567,19 +567,19 @@ F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
 F test/th1.test 3f1c857798c35c8c50869e0b1a5665128814bd6d
-F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
-F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
+F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f x
+F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667 x
 F test/utf.test 4f476e82c536d8a56e9b27c8da460f8f92139d79
 F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
-F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03
+F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03 x
 F test/wiki.test ba8646414369ad2cc87061738662d004740ed20f
-F tools/cvs2fossil/changeset 1c99ad8ca9b2f049266d63e0bcc5f26196c72627
-F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
+F tools/cvs2fossil/changeset 1c99ad8ca9b2f049266d63e0bcc5f26196c72627 x
+F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26 x
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
 F tools/cvs2fossil/doc/README 6d655c3f823db2a177d32af6d904ca0426a74e9b
-F tools/cvs2fossil/filerevtree b6e112463408bbcf51287f58dd997e256f3cd390
-F tools/cvs2fossil/getmemoryseries.tcl a93703a60d1c154bea2a5b8f2a66a46dc9a511d7
+F tools/cvs2fossil/filerevtree b6e112463408bbcf51287f58dd997e256f3cd390 x
+F tools/cvs2fossil/getmemoryseries.tcl a93703a60d1c154bea2a5b8f2a66a46dc9a511d7 x
 F tools/cvs2fossil/lib/c2f_blobstore.tcl b63bce5767afb8a5e50b6ba5be213a0dea3a88bf
 F tools/cvs2fossil/lib/c2f_cyclebreaker.tcl 59ef48a9b8851e680f238e1243e86c05a81428c8
 F tools/cvs2fossil/lib/c2f_file.tcl 43f6a2b4c2c2c71a7eb62dea1168cd3f4f33c75b
@@ -623,17 +623,17 @@ F tools/cvs2fossil/lib/misc.tcl b4a6c1a89033c497001ff7db53f337921dbea56f
 F tools/cvs2fossil/lib/pkgIndex.tcl b810fde76079e77e850013d65ca6cf1a5ea62a36
 F tools/cvs2fossil/lib/rcsparser.tcl 6518936d0c3152fb53024c91aa587de15b354262
 F tools/cvs2fossil/lib/trouble.tcl c6cef7555cede649dab283c4a15ea0d2ec71d042
-F tools/cvs2fossil/lodtree eadeb78341c0c59f1dec0f0db0383bf797f5ca8f
-F tools/cvs2fossil/showg 3b5479d1527a33cf1316fcab935a127d86cf3532
-F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
-F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
+F tools/cvs2fossil/lodtree eadeb78341c0c59f1dec0f0db0383bf797f5ca8f x
+F tools/cvs2fossil/showg 3b5479d1527a33cf1316fcab935a127d86cf3532 x
+F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6 x
+F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88 x
 F tools/fossil-autocomplete.bash 1135105ee18b95823944e2fa425806d3bc0f4252
-F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
+F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0 x
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F win/Makefile.PellesCGMake 50eda9fe4b21df1ff4009b89454fd9013752cee4
 F win/Makefile.dmc d35f8195adeeeee792c1e5e96b14e0b86328807b
-F win/Makefile.mingw 752ebc32b7b81d7d0e3cb3559152d31a4d766a1c
-F win/Makefile.mingw.mistachkin 92c29c53591d66310278760fa584c9e76ae999dd
+F win/Makefile.mingw 752ebc32b7b81d7d0e3cb3559152d31a4d766a1c x
+F win/Makefile.mingw.mistachkin 92c29c53591d66310278760fa584c9e76ae999dd x
 F win/Makefile.msc 05c7b9a84c66a0ab0c233be087636bcbf2775c3d
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -698,7 +698,7 @@ F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/env-opts.md 0daf6800fb53ce88976f76a7607ed6a427c45653
 F www/event.wiki 395b955e611769fd9aedf3ab489530b89ad5f224
-F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
+F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922 x
 F www/faq.wiki 93c4421d2bafd192dc61ea563df68aa25caaed95
 F www/fileformat.wiki af854d348597683c299788a44fc33f5835510511
 F www/fiveminutes.wiki 3172b324738523b163b19a8c836d3d9a3ceb9b94
@@ -720,8 +720,8 @@ F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki d1cc125a4d1808e3245652695accba06e2b34b4e
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki f75b16c8bb734fe20d0d524c658f05dab006316c
-F www/mkdownload.tcl 5ac61a3e13cecaa67f1e31741113c96cbd41463f
-F www/mkindex.tcl 23e4d98c3b4c8e67f233547e21b9effe961943b5
+F www/mkdownload.tcl 5ac61a3e13cecaa67f1e31741113c96cbd41463f x
+F www/mkindex.tcl 23e4d98c3b4c8e67f233547e21b9effe961943b5 x
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 336916afde4ff470e87fc43066063623a9a74c8a
 F www/permutedindex.html 24480ebfa9589c59a27671385f72e9888d644c92
@@ -750,6 +750,10 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b3acfa2e4acd84bf9fac3017e2bdb4b17115eabd
-U andygoth
-Z b71adad52c986cf1df4b4ebdba3beebe
+P f9decff05e419d24144dde03c8518c87c3a070a6 4bd2b54592a08fe023f35ba77e3cdcb81f2f2882
+R 7a05e1c2b10414c665a2f0dd7f202c8f
+T *branch * brlist-cleanup
+T *sym-brlist-cleanup *
+T -sym-trunk *
+U baruch
+Z 8af00b0ad3a4175f0afd57b798093be3
