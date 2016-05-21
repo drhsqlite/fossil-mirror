@@ -642,14 +642,24 @@ void extras_cmd(void){
 ** arguments appear, then only the files named, or files contained with
 ** directories named, will be removed.
 **
-** Prompts are issued to confirm the removal of each file, unless
-** the --force flag is used or unless the file matches glob pattern
-** specified by the --clean option.  No file that matches glob patterns
-** specified by --ignore or --keep will ever be deleted. The default
-** values for --clean, --ignore, and --keep are determined by the
-** (versionable) clean-glob, ignore-glob, and keep-glob settings.
-** Files and subdirectories whose names begin with "." are automatically
-** ignored unless the --dotfiles option is used.
+** If the --prompt option is used, prompts are issued to confirm the
+** permanent removal of each file.  Otherwise, files are backed up to the
+** undo buffer prior to removal, and prompts are issued only for files
+** whose removal cannot be undone due to their large size or due to
+** --disable-undo being used.
+** 
+** The --force option treats all prompts as having been answered yes,
+** whereas --no-prompt treats them as having been answered no.
+** 
+** Files matching any glob pattern specified by the --clean option are
+** deleted without prompting, and the removal cannot be undone.
+**
+** No file that matches glob patterns specified by --ignore or --keep will
+** ever be deleted.  Files and subdirectories whose names begin with "."
+** are automatically ignored unless the --dotfiles option is used.
+** 
+** The default values for --clean, --ignore, and --keep are determined by
+** the (versionable) clean-glob, ignore-glob, and keep-glob settings.
 **
 ** The --verily option ignores the keep-glob and ignore-glob settings and
 ** turns on --force, --emptydirs, --dotfiles, and --disable-undo.  Use the
