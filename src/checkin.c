@@ -637,13 +637,12 @@ void extras_cmd(void){
 ** 
 ** Usage: %fossil clean ?OPTIONS? ?PATH ...?
 **
-** Delete all "extra" files in the source tree.  "Extra" files are
-** files that are not officially part of the checkout. This operation
-** cannot be undone. If one or more PATH arguments appear, then only
-** the files named, or files contained with directories named, will be
-** removed.
+** Delete all "extra" files in the source tree.  "Extra" files are files
+** that are not officially part of the checkout.  If one or more PATH
+** arguments appear, then only the files named, or files contained with
+** directories named, will be removed.
 **
-** Prompted are issued to confirm the removal of each file, unless
+** Prompts are issued to confirm the removal of each file, unless
 ** the --force flag is used or unless the file matches glob pattern
 ** specified by the --clean option.  No file that matches glob patterns
 ** specified by --ignore or --keep will ever be deleted. The default
@@ -652,10 +651,10 @@ void extras_cmd(void){
 ** Files and subdirectories whose names begin with "." are automatically
 ** ignored unless the --dotfiles option is used.
 **
-** The --verily option ignores the keep-glob and ignore-glob settings
-** and turns on --force, --dotfiles, and --emptydirs.  Use the --verily
-** option when you really want to clean up everything.  Extreme care
-** should be exercised when using the --verily option.
+** The --verily option ignores the keep-glob and ignore-glob settings and
+** turns on --force, --emptydirs, --dotfiles, and --disable-undo.  Use the
+** --verily option when you really want to clean up everything.  Extreme
+** care should be exercised when using the --verily option.
 **
 ** Options:
 **    --allckouts      Check for empty directories within any checkouts
