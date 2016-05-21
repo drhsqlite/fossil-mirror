@@ -1,5 +1,5 @@
-C Correct\sclean-glob\sexample\sto\suse\scommas\sas\sdelimiters\ssince\swhitespace\s(other\sthan\snewline)\sis\snot\sa\svalid\sdelimiter
-D 2016-05-21T21:00:58.411
+C Point\sout\sthat\sclean\s-prompt\simplies\s-disable-undo
+D 2016-05-21T22:48:52.445
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -384,7 +384,7 @@ F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c da7afcbe8fd2a0bb2ce13866988c5a35ea8e6eaf
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 10310d276e72e3e34343e3385c0b39fac5cd826e
-F src/checkin.c b10cb13cc7b0eb608419594aa1f560cf4e138521
+F src/checkin.c 5bbf4072cb34b6b915fc1a337142c9ad58b12ffe
 F src/checkout.c 6a0d559bdd0d825d83beabd7b00a2d57d878b253
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c e2ad376a51231876336d7e91ca96cb63ec81cf1a
@@ -750,6 +750,6 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 15aa04ab0c6fea77840c093911df1e7e2ecd62eb
+P 1640479b7dd081357b8a22b9a1beb4ef795e4b40
 U andygoth
-Z dc1d2b35afff304ee9819d308e2509a3
+Z 6c1dc7862749206b3f3bd6f374881f1a

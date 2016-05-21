@@ -689,7 +689,8 @@ void extras_cmd(void){
 **                     therefore, directories that contain only files
 **                     that were removed will be removed as well.
 **    -f|--force       Remove files without prompting.
-**    -i|--prompt      Prompt before removing each file.
+**    -i|--prompt      Prompt before removing each file.  This option
+**                     implies the --disable-undo option.
 **    -x|--verily      WARNING: Removes everything that is not a managed
 **                     file or the repository itself.  This option
 **                     implies the --force, --emptydirs, --dotfiles, and
