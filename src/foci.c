@@ -15,19 +15,18 @@
 **
 *******************************************************************************
 **
-** This routine implements an SQLite virtual table that gives all of the
-** files associated with a single check-in.
+** This routine implements eponymous virtual table for SQLite that gives
+** all of the files associated with a single check-in.
 **
-** The filename "foci" is short for "Files of Check-in".
+** The source code filename "foci" is short for "Files of Check-in".
 **
 ** Usage example:
 **
-**    CREATE VIRTUAL TABLE temp.foci USING files_of_checkin;
-**                      -- ^^^^--- important!
-**    SELECT * FROM foci WHERE checkinID=symbolic_name_to_rid('trunk');
+**    SELECT * FROM files_of_checkin
+**     WHERE checkinID=symbolic_name_to_rid('trunk');
 **
 ** The symbolic_name_to_rid('trunk') function finds the BLOB.RID value
-** corresponding to the 'trunk' tag.  Then the files_of_checkin virtual table
+** corresponding to the 'trunk' tag.  Then the foci virtual table
 ** decodes the manifest defined by that BLOB and returns all files described
 ** by that manifest.  The "schema" for the temp.foci table is:
 **

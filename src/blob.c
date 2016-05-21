@@ -121,7 +121,7 @@ int fossil_isalnum(char c){
 /*
 ** COMMAND: test-isspace
 **
-** Verify that the fossil_isspace() routine is working correctly but
+** Verify that the fossil_isspace() routine is working correctly by
 ** testing it on all possible inputs.
 */
 void isspace_cmd(void){
