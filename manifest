@@ -1,5 +1,5 @@
-C Further\simprovements\sto\sthe\sdocumentation\sfor\sclean\sto\sbetter\smatch\sthe\simplementation
-D 2016-05-21T20:37:11.877
+C Update\sdescription\sof\sclean-glob\sin\saccordance\swith\spast\supdates\sto\sthe\sclean\scommand
+D 2016-05-21T20:57:12.376
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -396,7 +396,7 @@ F src/content.c 80a10dc10ce85269b02061a5d7cfe2b0936f8400
 F src/cson_amalgamation.c ce18de7d62186d08d6c15a7efbd66bf009310439
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 38dc7d512214b7f6be778000a115ec92bb88711a
+F src/db.c fcdfe5cfb676638157f9a4916f0ac3b8af0064bc
 F src/delta.c ab405c78d6559ea61563e2500c28f135a26c8b62
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 48ba0c208d74e5a8c4b33e43ea066d236d3a4694
@@ -750,6 +750,6 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d7955bf18c0774433ea86789b004de7d8dce866a
+P dd77130500515345fa2002799c071c3934e66d24
 U andygoth
-Z cdb50d459032c82364263a708ad6976d
+Z c3db0811d5fccde88101cd19a747a1ac
