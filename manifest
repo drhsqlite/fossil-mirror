@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sa\sreally\sclean\sbuild\sof\sversion\s3.13.0\sfinal
-D 2016-05-19T14:12:25.014
+C Adjust\sdocumentation\sfor\sextras\scommand\sto\ssay\sCSG\sinstead\sof\sGLOBPATTERN\sfor\smore\sinternally\sconsistent\sterminology
+D 2016-05-21T16:54:29.878
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -384,7 +384,7 @@ F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c da7afcbe8fd2a0bb2ce13866988c5a35ea8e6eaf
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 10310d276e72e3e34343e3385c0b39fac5cd826e
-F src/checkin.c a5fdfefbd869435f199b6e7b1a4729b50dc0dbf4
+F src/checkin.c 89a04602d6f97ccd6a1bc665fa851b2c924eb21b
 F src/checkout.c 6a0d559bdd0d825d83beabd7b00a2d57d878b253
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c e2ad376a51231876336d7e91ca96cb63ec81cf1a
@@ -750,7 +750,6 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3747b4b5ea9e4c9b7e9730806178670e7aae009a
-R ff138bd2044f3276d63e94236c899a2a
-U jan.nijtmans
-Z cf6412435592159ac2731234a94339e8
+P b817253a51537d3d57bb8184d4624203262ae3ff
+U andygoth
+Z e60282317923b35a1b3917c445010615

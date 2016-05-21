@@ -551,16 +551,16 @@ static void locate_unmanaged_files(
 ** 
 ** Usage: %fossil extras ?OPTIONS? ?PATH1 ...?
 **
-** Print a list of all files in the source tree that are not part of
-** the current checkout.  See also the "clean" command. If paths are
-** specified, only files in the given directories will be listed.
+** Print a list of all files in the source tree that are not part of the
+** current checkout. See also the "clean" command. If paths are specified,
+** only files in the given directories will be listed.
 **
 ** Files and subdirectories whose names begin with "." are normally
 ** ignored but can be included by adding the --dotfiles option.
 **
-** The GLOBPATTERN is a comma-separated list of GLOB expressions for
-** files that are ignored.  The GLOBPATTERN specified by the "ignore-glob"
-** is used if the --ignore option is omitted.
+** Files whose names match any of the glob patterns in the "ignore-glob"
+** setting are ignored. This setting can be overridden by the --ignore
+** option, whose CSG argument is a comma-separated list of glob patterns.
 **
 ** Pathnames are displayed according to the "relative-paths" setting,
 ** unless overridden by the --abs-paths or --rel-paths options.
