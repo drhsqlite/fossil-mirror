@@ -795,6 +795,65 @@ void db_sym2rid_function(
 }
 
 /*
+** The toLocal() SQL function returns a string that is an argument to a
+** date/time function that is appropriate for modifying the time for display.
+** If UTC time display is selected, no modification occurs.  If local time
+** display is selected, the time is adjusted appropriately.
+**
+** Example usage:
+**
+**         SELECT datetime('now',toLocal());
+*/
+void db_tolocal_function(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  if( g.fTimeFormat==0 ){
+    if( db_get_int("timeline-utc", 1) ){
+      g.fTimeFormat = 1;
+    }else{
+      g.fTimeFormat = 2;
+    }
+  }
+  if( g.fTimeFormat==1 ){
+    sqlite3_result_text(context, "0 seconds", -1, SQLITE_STATIC);
+  }else{
+    sqlite3_result_text(context, "localtime", -1, SQLITE_STATIC);
+  }
+}
+
+/*
+** The fromLocal() SQL function returns a string that is an argument to a
+** date/time function that is appropriate to convert an input time to UTC.
+** If UTC time display is selected, no modification occurs.  If local time
+** display is selected, the time is adjusted from local to UTC.
+**
+** Example usage:
+**
+**         SELECT julianday(:user_input,fromLocal());
+*/
+void db_fromlocal_function(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  if( g.fTimeFormat==0 ){
+    if( db_get_int("timeline-utc", 1) ){
+      g.fTimeFormat = 1;
+    }else{
+      g.fTimeFormat = 2;
+    }
+  }
+  if( g.fTimeFormat==1 ){
+    sqlite3_result_text(context, "0 seconds", -1, SQLITE_STATIC);
+  }else{
+    sqlite3_result_text(context, "utc", -1, SQLITE_STATIC);
+  }
+}
+
+
+/*
 ** Register the SQL functions that are useful both to the internal
 ** representation and to the "fossil sql" command.
 */
@@ -806,7 +865,37 @@ void db_add_aux_functions(sqlite3 *db){
   sqlite3_create_function(db, "symbolic_name_to_rid", 2, SQLITE_UTF8, 0,
                           db_sym2rid_function, 0, 0);
   sqlite3_create_function(db, "now", 0, SQLITE_UTF8, 0,
-                                 db_now_function, 0, 0);
+                          db_now_function, 0, 0);
+  sqlite3_create_function(db, "toLocal", 0, SQLITE_UTF8, 0,
+                          db_tolocal_function, 0, 0);
+  sqlite3_create_function(db, "fromLocal", 0, SQLITE_UTF8, 0,
+                          db_fromlocal_function, 0, 0);
+}
+
+/*
+** If the database file zDbFile has a name that suggests that it is
+** encrypted, then prompt for the encryption key and return it in the
+** blob *pKey.  Or, if the encryption key has previously been requested,
+** just return a copy of the previous result.
+*/
+static void db_encryption_key(
+  const char *zDbFile,   /* Name of the database file */
+  Blob *pKey             /* Put the encryption key here */
+){
+  blob_init(pKey, 0, 0);
+#if USE_SEE
+  if( sqlite3_strglob("*.efossil", zDbFile)==0 ){
+    static char *zSavedKey = 0;
+    if( zSavedKey ){
+      blob_set(pKey, zSavedKey);
+    }else{
+      char *zPrompt = mprintf("\rencryption key for '%s': ", zDbFile);
+      prompt_for_password(zPrompt, pKey, 0);
+      fossil_free(zPrompt);
+      zSavedKey = fossil_strdup(blob_str(pKey));
+    }
+  }
+#endif
 }
 
 
@@ -817,6 +906,7 @@ void db_add_aux_functions(sqlite3 *db){
 LOCAL sqlite3 *db_open(const char *zDbName){
   int rc;
   sqlite3 *db;
+  Blob key;
 
   if( g.fSqlTrace ) fossil_trace("-- sqlite3_open: [%s]\n", zDbName);
   rc = sqlite3_open_v2(
@@ -827,6 +917,13 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   if( rc!=SQLITE_OK ){
     db_err("[%s]: %s", zDbName, sqlite3_errmsg(db));
   }
+  db_encryption_key(zDbName, &key);
+  if( blob_size(&key)>0 ){
+    char *zCmd = sqlite3_mprintf("PRAGMA key(%Q)", blob_str(&key));
+    sqlite3_exec(db, zCmd, 0, 0, 0);
+    sqlite3_free(zCmd);
+  }
+  blob_reset(&key);
   sqlite3_busy_timeout(db, 5000);
   sqlite3_wal_autocheckpoint(db, 1);  /* Set to checkpoint frequently */
   sqlite3_create_function(db, "user", 0, SQLITE_UTF8, 0, db_sql_user, 0, 0);
@@ -860,7 +957,11 @@ void db_detach(const char *zLabel){
 ** the name zLabel.
 */
 void db_attach(const char *zDbName, const char *zLabel){
-  db_multi_exec("ATTACH DATABASE %Q AS %Q", zDbName, zLabel);
+  Blob key;
+  db_encryption_key(zDbName, &key);
+  db_multi_exec("ATTACH DATABASE %Q AS %Q KEY %Q",
+                zDbName, zLabel, blob_str(&key));
+  blob_reset(&key);
 }
 
 /*
@@ -920,11 +1021,11 @@ void db_close_config(){
 ** connection so that we can join between the various databases.  In that
 ** case, invoke this routine with useAttach as 1.
 */
-void db_open_config(int useAttach){
+int db_open_config(int useAttach, int isOptional){
   char *zDbName;
   char *zHome;
   if( g.zConfigDbName ){
-    if( useAttach==g.useAttach ) return;
+    if( useAttach==g.useAttach ) return 1; /* Already open. */
     db_close_config();
   }
   zHome = fossil_getenv("FOSSIL_HOME");
@@ -941,6 +1042,7 @@ void db_open_config(int useAttach){
     }
   }
   if( zHome==0 ){
+    if( isOptional ) return 0;
     fossil_fatal("cannot locate home directory - please set the "
                  "FOSSIL_HOME, LOCALAPPDATA, APPDATA, or HOMEPATH "
                  "environment variables");
@@ -950,11 +1052,13 @@ void db_open_config(int useAttach){
     zHome = fossil_getenv("HOME");
   }
   if( zHome==0 ){
+    if( isOptional ) return 0;
     fossil_fatal("cannot locate home directory - please set the "
                  "FOSSIL_HOME or HOME environment variables");
   }
 #endif
   if( file_isdir(zHome)!=1 ){
+    if( isOptional ) return 0;
     fossil_fatal("invalid home directory: %s", zHome);
   }
 #if defined(_WIN32) || defined(__CYGWIN__)
@@ -965,11 +1069,13 @@ void db_open_config(int useAttach){
 #endif
   if( file_size(zDbName)<1024*3 ){
     if( file_access(zHome, W_OK) ){
+      if( isOptional ) return 0;
       fossil_fatal("home directory %s must be writeable", zHome);
     }
     db_init_database(zDbName, zConfigSchema, (char*)0);
   }
   if( file_access(zDbName, W_OK) ){
+    if( isOptional ) return 0;
     fossil_fatal("configuration file %s must be writeable", zDbName);
   }
   if( useAttach ){
@@ -982,6 +1088,7 @@ void db_open_config(int useAttach){
     g.zConfigDbType = "configdb";
   }
   g.zConfigDbName = zDbName;
+  return 1;
 }
 
 /*
@@ -1095,6 +1202,9 @@ int db_open_local(const char *zDbName){
     for(i=0; i<count(aDbName); i++){
       sqlite3_snprintf(sizeof(zPwd)-n, &zPwd[n], "/%s", aDbName[i]);
       if( isValidLocalDb(zPwd) ){
+        if( db_open_config(0, 1)==0 ){
+          return 0; /* Configuration could not be opened */
+        }
         /* Found a valid checkout database file */
         g.zLocalDbName = mprintf("%s", zPwd);
         zPwd[n] = 0;
@@ -1104,7 +1214,6 @@ int db_open_local(const char *zDbName){
         }
         g.zLocalRoot = mprintf("%s/", zPwd);
         g.localOpen = 1;
-        db_open_config(0);
         db_open_repository(zDbName);
         return 1;
       }
@@ -1135,6 +1244,18 @@ const char *db_repository_filename(void){
     }
   }
   return zRepo;
+}
+
+/*
+** Returns non-zero if the default value for the "allow-symlinks" setting
+** is "on".
+*/
+int db_allow_symlinks_by_default(void){
+#if defined(_WIN32)
+  return 0;
+#else
+  return 1;
+#endif
 }
 
 /*
@@ -1174,7 +1295,8 @@ void db_open_repository(const char *zDbName){
   db_open_or_attach(g.zRepositoryName, "repository", 0);
   g.repositoryOpen = 1;
   /* Cache "allow-symlinks" option, because we'll need it on every stat call */
-  g.allowSymlinks = db_get_boolean("allow-symlinks", 0);
+  g.allowSymlinks = db_get_boolean("allow-symlinks",
+                                   db_allow_symlinks_by_default());
   g.zAuxSchema = db_get("aux-schema","");
 
   /* Verify that the PLINK table has a new column added by the
@@ -1445,14 +1567,13 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
     zUser = fossil_getenv("FOSSIL_USER");
   }
   if( zUser==0 ){
-#if defined(_WIN32)
-    zUser = fossil_getenv("USERNAME");
-#else
     zUser = fossil_getenv("USER");
-    if( zUser==0 ){
-      zUser = fossil_getenv("LOGNAME");
-    }
-#endif
+  }
+  if( zUser==0 ){
+    zUser = fossil_getenv("LOGNAME");
+  }
+  if( zUser==0 ){
+    zUser = fossil_getenv("USERNAME");
   }
   if( zUser==0 ){
     zUser = "root";
@@ -1608,7 +1729,7 @@ void db_initial_setup(
 ** COMMAND: init
 **
 ** Usage: %fossil new ?OPTIONS? FILENAME
-**    Or: %fossil init ?OPTIONS? FILENAME
+**    or: %fossil init ?OPTIONS? FILENAME
 **
 ** Create a repository for a new project in the file named FILENAME.
 ** This command is distinct from "clone".  The "clone" command makes
@@ -1656,7 +1777,7 @@ void create_repository_cmd(void){
 
   db_create_repository(g.argv[2]);
   db_open_repository(g.argv[2]);
-  db_open_config(0);
+  db_open_config(0, 0);
   if( zTemplate ) db_attach(zTemplate, "settingSrc");
   db_begin_transaction();
   if( zDate==0 ) zDate = "now";
@@ -2112,6 +2233,13 @@ int db_get_boolean(const char *zName, int dflt){
   if( is_false(zVal) ) return 0;
   return dflt;
 }
+int db_get_versioned_boolean(const char *zName, int dflt){
+  char *zVal = db_get_versioned(zName, 0);
+  if( zVal==0 ) return dflt;
+  if( is_truth(zVal) ) return 1;
+  if( is_false(zVal) ) return 0;
+  return dflt;
+}
 char *db_lget(const char *zName, const char *zDefault){
   return db_text(zDefault,
                  "SELECT value FROM vvar WHERE name=%Q", zName);
@@ -2221,6 +2349,7 @@ void cmd_open(void){
   int keepFlag;
   int forceMissingFlag;
   int allowNested;
+  int allowSymlinks;
   static char *azNewArgv[] = { 0, "checkout", "--prompt", 0, 0, 0, 0 };
 
   url_proxy_options();
@@ -2249,6 +2378,20 @@ void cmd_open(void){
     }
   }
 
+  if( g.zOpenRevision ){
+    /* Since the repository is open and we know the revision now,
+    ** refresh the allow-symlinks flag.  Since neither the local
+    ** checkout nor the configuration database are open at this
+    ** point, this should always return the versioned setting,
+    ** if any, or the default value, which is negative one.  The
+    ** value negative one, in this context, means that the code
+    ** below should fallback to using the setting value from the
+    ** repository or global configuration databases only. */
+    allowSymlinks = db_get_versioned_boolean("allow-symlinks", -1);
+  }else{
+    allowSymlinks = -1; /* Use non-versioned settings only. */
+  }
+
 #if defined(_WIN32) || defined(__CYGWIN__)
 # define LOCALDB_NAME "./_FOSSIL_"
 #else
@@ -2261,10 +2404,21 @@ void cmd_open(void){
                    (char*)0);
   db_delete_on_failure(LOCALDB_NAME);
   db_open_local(0);
-  if( g.zOpenRevision ){
-    /* Since the repository is open and we know the revision now,
-    ** refresh the allow-symlinks flag. */
-    g.allowSymlinks = db_get_boolean("allow-symlinks", 0);
+  if( allowSymlinks>=0 ){
+    /* Use the value from the versioned setting, which was read
+    ** prior to opening the local checkout (i.e. which is most
+    ** likely empty and does not actually contain any versioned
+    ** setting files yet).  Normally, this value would be given
+    ** first priority within db_get_boolean(); however, this is
+    ** a special case because we know the on-disk files may not
+    ** exist yet. */
+    g.allowSymlinks = allowSymlinks;
+  }else{
+    /* Since the local checkout may not have any files at this
+    ** point, this will probably be the setting value from the
+    ** repository or global configuration databases. */
+    g.allowSymlinks = db_get_boolean("allow-symlinks",
+                                     db_allow_symlinks_by_default());
   }
   db_lset("repository", g.argv[2]);
   db_record_repository_filename(g.argv[2]);
@@ -2395,7 +2549,6 @@ const Setting aSetting[] = {
   { "http-port",        0,             16, 0, 0, "8080"                },
   { "https-login",      0,              0, 0, 0, "off"                 },
   { "ignore-glob",      0,             40, 1, 0, ""                    },
-  { "keep-glob",        0,             40, 1, 0, ""                    },
   { "localauth",        0,              0, 0, 0, "off"                 },
   { "main-branch",      0,             40, 0, 0, "trunk"               },
   { "manifest",         0,              0, 1, 0, "off"                 },
@@ -2464,8 +2617,8 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 ** COMMAND: settings
 ** COMMAND: unset*
 **
-** %fossil settings ?PROPERTY? ?VALUE? ?OPTIONS?
-** %fossil unset PROPERTY ?OPTIONS?
+** Usage: %fossil settings ?PROPERTY? ?VALUE? ?OPTIONS?
+**    or: %fossil unset PROPERTY ?OPTIONS?
 **
 ** The "settings" command with no arguments lists all properties and their
 ** values.  With just a property name it shows the value of that property.
@@ -2586,10 +2739,6 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **                     "clean", and "extra" commands will ignore.
 **                     Example:  *.log *.a *.lib *.o
 **
-**    keep-glob        The VALUE is a comma or newline-separated list of GLOB
-**     (versionable)   patterns specifying files that the "clean" command will
-**                     keep.  Example:  *.log customCode.c notes.txt
-**
 **    localauth        If enabled, require that HTTP connections from
 **                     127.0.0.1 be authenticated by password.  If
 **                     false, all HTTP requests from localhost have
@@ -2651,7 +2800,7 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **                     If set, this will override the OS default list of
 **                     OpenSSL CAs. If unset, the default list will be used.
 **                     Some platforms may add additional certificates.
-**                     Check your platform behaviour is as required if the
+**                     Checking your platform behaviour is required if the
 **                     exact contents of the CA root is critical for your
 **                     application.
 **
@@ -2710,7 +2859,7 @@ void setting_cmd(void){
   int i;
   int globalFlag = find_option("global","g",0)!=0;
   int unsetFlag = g.argv[1][0]=='u';
-  db_open_config(1);
+  db_open_config(1, 0);
   if( !globalFlag ){
     db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0);
   }
@@ -2811,7 +2960,8 @@ char *db_timespan_name(double rSpan){
 
 /*
 ** COMMAND: test-timespan
-** %fossil test-timespan TIMESTAMP
+** 
+** Usage: %fossil test-timespan TIMESTAMP
 **
 ** Print the approximate span of time from now to TIMESTAMP.
 */
@@ -2827,7 +2977,8 @@ void test_timespan_cmd(void){
 
 /*
 ** COMMAND: test-without-rowid
-** %fossil test-without-rowid FILENAME...
+** 
+** Usage: %fossil test-without-rowid FILENAME...
 **
 ** Change the Fossil repository FILENAME to make use of the WITHOUT ROWID
 ** optimization.  FILENAME can also be the ~/.fossil file or a local

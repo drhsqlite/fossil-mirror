@@ -121,7 +121,6 @@ static struct {
   { "manifest",               CONFIGSET_PROJ },
   { "binary-glob",            CONFIGSET_PROJ },
   { "ignore-glob",            CONFIGSET_PROJ },
-  { "keep-glob",              CONFIGSET_PROJ },
   { "crnl-glob",              CONFIGSET_PROJ },
   { "encoding-glob",          CONFIGSET_PROJ },
   { "empty-dirs",             CONFIGSET_PROJ },
@@ -831,7 +830,7 @@ static void export_config(
 ** Usage: %fossil configuration METHOD ... ?OPTIONS?
 **
 ** Where METHOD is one of: export import merge pull push reset.  All methods
-** accept the -R or --repository option to specific a repository.
+** accept the -R or --repository option to specify a repository.
 **
 **    %fossil configuration export AREA FILENAME
 **
@@ -883,11 +882,11 @@ static void export_config(
 void configuration_cmd(void){
   int n;
   const char *zMethod;
-  if( g.argc<3 ){
-    usage("export|import|merge|pull|reset ...");
-  }
   db_find_and_open_repository(0, 0);
-  db_open_config(0);
+  db_open_config(0, 0);
+  if( g.argc<3 ){
+    usage("SUBCOMMAND ...");
+  }
   zMethod = g.argv[2];
   n = strlen(zMethod);
   if( strncmp(zMethod, "export", n)==0 ){

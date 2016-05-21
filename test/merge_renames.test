@@ -3,18 +3,19 @@
 #
 #
 
-catch {exec $::fossilexe info} res
-if {![regexp {use --repository} $res]} {
-  puts stderr "Cannot run this test within an open checkout"
-  return
+proc commit_id {version} {
+  regexp -line {^artifact:\s+(\S+)} [fossil whatis $version] - id
+  return $id
 }
+
+require_no_open_checkout
 
 ######################################
 #  Test 1                            #
 #  Reported: Ticket [554f44ee74e3d]  #
 ######################################
 
-repo_init
+test_setup
 
 write_file f1 "line"
 fossil add f1
@@ -37,8 +38,7 @@ write_file f1 "line6"
 fossil commit -m "c4"
 
 fossil update pivot
-fossil mv f1 f2
-file rename -force f1 f2
+fossil mv --hard f1 f2
 fossil commit -b rename -m "c5"
 
 fossil merge trunk
@@ -50,29 +50,14 @@ fossil add f3
 fossil commit -b branch2 -m "newbranch"
 
 fossil merge trunk
-puts $RESULT
-
-set deletes 0
-foreach {status filename} $RESULT {
-    if {$status=="DELETE"} {
-        set deletes [expr $deletes + 1]
-    }
-}
-
-if {$deletes!=0} {
-    # failed
-    protOut "Error, the merge should not delete any file"
-    test merge_renames-1 0
-} else {
-    test merge_renames-1 1
-}
+test_status_list merge_renames-1 $RESULT {UPDATE f1}
 
 ######################################
 #  Test 2                            #
 #  Reported: Ticket [74413366fe5067] #
 ######################################
 
-repo_init
+test_setup
 
 write_file f1 "line"
 fossil add f1
@@ -83,8 +68,7 @@ write_file f2 "line2"
 fossil add f2
 fossil commit -m "newfile"
 
-fossil mv f2 f2new
-file rename -force f2 f2new
+fossil mv --hard f2 f2new
 fossil commit -m "rename"
 
 fossil update pivot
@@ -97,30 +81,14 @@ fossil commit -m "trunk merged"
 fossil update trunk
 
 fossil merge branch
-puts $RESULT
-
-# Not a nice way to check, but I don't know more tcl now
-set deletes 0
-foreach {status filename} $RESULT {
-    if {$status=="DELETE"} {
-        set deletes [expr $deletes + 1]
-    }
-}
-
-if {$deletes!=0} {
-    # failed
-    protOut "Error, the merge should not delete any file"
-    test merge_renames-2 0
-} else {
-    test merge_renames-2 1
-}
+test_status_list merge_renames-2 $RESULT {UPDATE f1}
 
 ######################################
 #  Test 3                            #
 #  Reported: Ticket [30b28cf351]     #
 ######################################
 
-repo_init
+test_setup
 
 write_file f1 "line"
 fossil add f1
@@ -131,8 +99,7 @@ write_file f2 "line2"
 fossil add f2
 fossil commit -m "newfile"
 
-fossil mv f2 f2new
-file rename -force f2 f2new
+fossil mv --hard f2 f2new
 fossil commit -m "rename"
 
 fossil update pivot
@@ -145,37 +112,36 @@ fossil commit -m "trunk merged"
 fossil update trunk
 
 fossil merge branch
-puts $RESULT
-
-# Not a nice way to check, but I don't know more tcl now
-set deletes 0
-foreach {status filename} $RESULT {
-    if {$status=="DELETE"} {
-        set deletes [expr $deletes + 1]
-    }
-}
-
-if {$deletes!=0} {
-    # failed
-    protOut "Error, the merge should not delete any file"
-    test merge_renames-2 0
-} else {
-    test merge_renames-2 1
-}
+test_status_list merge_renames-3 $RESULT {UPDATE f1}
 
 ######################################
 #  Test 4                            #
 #  Reported: Ticket [67176c3aa4]     #
 ######################################
 
-# TO BE WRITTEN.
+test_setup
+
+write_file f1 "f1"
+fossil add f1
+fossil commit -m "add f1"
+
+write_file f1 "f1.1"
+fossil commit --branch b -m "change f1"
+
+fossil update trunk
+fossil mv --hard f1 f2
+fossil commit -m "f1 -> f2"
+
+fossil merge b
+test_status_list merge_renames-4-1 $RESULT {UPDATE f2}
+test_file_contents merge_renames-4-2 f2 "f1.1"
 
 ######################################
 #  Test 5                            #
 #  Handle Rename/Add via Merge       #
 ######################################
 
-repo_init
+test_setup
 
 write_file f1 "old f1 line"
 fossil add f1
@@ -186,21 +152,321 @@ fossil add f3
 fossil commit -m "branch file" -b branch_for_f3
 
 fossil update trunk
-fossil mv f1 f2
-file rename -force f1 f2
+fossil mv --hard f1 f2
 write_file f1 "new f1 line"
 fossil add f1
 fossil commit -m "rename and add file with old name"
 
 fossil update branch_for_f3
 fossil merge trunk
+test_status_list merge_renames-5-1 $RESULT {
+  RENAME f1 -> f2
+  ADDED f1
+}
+
 fossil commit -m "trunk merged, should have 3 files"
 
 fossil ls
 
-test merge_renames-5 {[normalize_result] eq {f1
+test merge_renames-5-2 {[normalize_result] eq {f1
 f2
 f3}}
+
+#####################################
+#  Test 6                           #
+#  Merging a branch multiple times  #
+#####################################
+
+test_setup
+
+write_file f1 "f1"
+fossil add f1
+fossil commit -m "add f1"
+
+fossil mv --hard f1 f2
+fossil commit -b b -m "f1 -> f2"
+
+fossil update trunk
+write_file f3 "f3"
+write_file f4 "f4"
+fossil add f3 f4
+fossil ci -m "add f3, f4"
+
+fossil mv --hard f3 f3-old
+fossil mv --hard f4 f3
+fossil mv --hard f3-old f4
+fossil ci -m "swap f3 and f4"
+
+write_file f1 "f1.1"
+fossil commit -m "edit f1"
+
+fossil update b
+fossil merge trunk
+fossil commit -m "merge trunk"
+
+fossil update trunk
+write_file f1 "f1.2"
+write_file f3 "f3.1"
+write_file f4 "f4.1"
+fossil commit -m "edit f1, f4"
+
+fossil update b
+fossil merge trunk
+test_status_list merge_renames-6-1 $RESULT {
+  UPDATE f2
+  UPDATE f3
+  UPDATE f4
+}
+test_file_contents merge_renames-6-2 f2 "f1.2"
+test_file_contents merge_renames-6-3 f3 "f3.1"
+test_file_contents merge_renames-6-4 f4 "f4.1"
+
+########################################################################
+#  Test 7                                                              #
+#  Merging with an uncommitted rename of a file that has been renamed  #
+#  in the merged branch and adding a new file with the original name   #
+########################################################################
+
+test_setup
+
+write_file f1 "f1"
+fossil add f1
+fossil commit -m "add f1"
+
+fossil mv --hard f1 f2
+write_file f2 "f2"
+fossil commit -b b -m "f1 -> f2, edit f2"
+
+fossil update trunk
+fossil mv --hard f1 f3
+write_file f1 "f1.1"
+fossil add f1
+fossil merge b
+test_status_list merge_renames-7-1 $RESULT {UPDATE f3}
+test_file_contents merge_renames-7-2 f1 "f1.1"
+test_file_contents merge_renames-7-3 f3 "f2"
+
+######################################################
+#  Test 8                                            #
+#  Merging two branches that both add the same file  #
+######################################################
+
+test_setup
+
+write_file f1 "f1.1"
+fossil add f1
+fossil commit -b b1 -m "add f1"
+
+fossil update trunk
+write_file f1 "f1.2"
+fossil add f1
+fossil commit -b b2 -m "add f1"
+
+fossil update trunk
+fossil merge b1
+fossil merge b2
+test_status_list merge_renames-8-1 $RESULT {
+  WARNING: no common ancestor for f1
+}
+
+fossil revert
+fossil merge --integrate b1
+fossil merge b2
+test_status_list merge_renames-8-2 $RESULT {
+  WARNING: no common ancestor for f1
+}
+
+#############################################
+#  Test 9                                   #
+#  Merging a delete/rename/add combination  #
+#############################################
+
+test_setup
+
+write_file f1 "f1"
+write_file f2 "f2"
+fossil add f1 f2
+fossil commit -m "add files"
+
+fossil rm --hard f2
+fossil commit -b b -m "delete f2"
+
+fossil mv --hard f1 f2
+fossil commit -m "f1 -> f2"
+
+write_file f1 "f1.1"
+fossil add f1
+fossil commit -m "add new f1"
+
+fossil update trunk
+fossil merge b
+set expectedMerge {
+  DELETE f2
+  RENAME f1 -> f2
+  ADDED f1
+}
+test_status_list merge_renames-9-1 $RESULT $expectedMerge
+fossil changes
+test_status_list merge_renames-9-2 $RESULT "
+  MERGED_WITH [commit_id b]
+  ADDED_BY_MERGE f1
+  RENAMED f2
+  DELETED f2 (overwritten by rename)
+"
+test_file_contents merge_renames-9-3 f1 "f1.1"
+test_file_contents merge_renames-9-4 f2 "f1"
+
+# Undo and ensure a dry run merge results in no changes
+fossil undo
+test_status_list merge_renames-9-5 $RESULT {
+  UNDO f1
+  UNDO f2
+}
+fossil merge -n b
+test_status_list merge_renames-9-6 $RESULT "
+  $expectedMerge
+  REMINDER: this was a dry run - no files were actually changed.
+"
+test merge_renames-9-7 {[fossil changes] eq ""}
+
+###################################################################
+#  Test 10                                                        #
+#  Merge swapped filenames, backout the swap, then merge changes  #
+###################################################################
+
+test_setup
+
+write_file f1 "f1"
+write_file f2 "f2"
+fossil add f1 f2
+fossil commit -m "add files" ;# N
+
+fossil mv --hard f1 f1-tmp
+fossil mv --hard f2 f1
+fossil mv --hard f1-tmp f2
+fossil commit -b b -m "swap f1, f2" ;# P
+
+fossil update trunk
+fossil merge b
+test_status_list merge_renames-10-1 $RESULT {
+  RENAME f1 -> f2
+  RENAME f2 -> f1
+}
+test_file_contents merge_renames-10-2 f1 "f2"
+test_file_contents merge_renames-10-3 f2 "f1"
+fossil commit -m "merge b"
+
+fossil update b
+write_file f1 f1.1
+write_file f2 f2.1
+fossil commit -m "edit" ;# M
+
+fossil update trunk
+fossil merge --backout trunk
+test_status_list merge_renames-10-4 $RESULT {
+  RENAME f1 -> f2
+  RENAME f2 -> f1
+}
+test_file_contents merge_renames-10-5 f1 "f1"
+test_file_contents merge_renames-10-6 f2 "f2"
+test_status_list merge_renames-10-7 [fossil changes] "
+  RENAMED f1
+  RENAMED f2
+  BACKOUT [commit_id trunk]
+"
+fossil commit -m "swap back" ;# V
+
+fossil merge b
+test_status_list merge_renames-10-8 $RESULT {
+  UPDATE f1
+  UPDATE f2
+}
+
+test_file_contents merge_renames-10-9 f1 "f2.1"
+test_file_contents merge_renames-10-10 f2 "f1.1"
+
+############################################
+#  Test 11                                 #
+#  Specifying a baseline                   #
+############################################
+
+test_setup
+
+write_file f1 "line"
+fossil add f1
+fossil commit -m "add f1"
+
+write_file f1 "line\nline2"
+fossil commit -b b -m "edit f2" --tag p1
+
+fossil mv --hard f1 f2
+fossil commit -m "f1 -> f2"
+
+write_file f2 "line\nline2\nline3"
+fossil commit -m "edit f2" --tag p2
+
+write_file f2 "line\nline2\nline3\nline4"
+fossil commit -m "edit f2"
+
+fossil update trunk
+fossil merge --baseline p1 b
+test_status_list merge_renames-11-1 $RESULT {
+  MERGE f1
+  RENAME f1 -> f2
+}
+test_file_contents merge_renames-11-2 f2 "line\nline3\nline4"
+fossil revert
+fossil merge --baseline p2 b
+test_status_list merge_renames-11-3 $RESULT {MERGE f1}
+test_file_contents merge_renames-11-4 f1 "line\nline4"
+
+#################################################################
+#  Test 12                                                      #
+#  Merge involving a pivot that isn't a first-parent ancestor   #
+#  of either the checked-out commit or the commit being merged  #
+#################################################################
+
+test_setup
+
+write_file f1 "f1\n"
+fossil add f1
+fossil commit -m "add f1" --tag n
+
+fossil mv --hard f1 f1n
+fossil commit -m "f1 -> f1n"
+
+fossil mv --hard f1n f1v
+write_file f1v "f1v\n"
+fossil commit -b v -m "f1n -> f1v, edit f1v"
+
+fossil update trunk
+fossil mv --hard f1n f1m
+fossil commit -b m -m "f1n -> f1m"
+
+fossil update n
+fossil mv --hard f1 f1p
+write_file f1p "f1\np"
+fossil commit -b p -m "f1 -> f1p, edit f1p"
+
+fossil update m
+fossil merge p
+test_status_list merge_renames-12-1 $RESULT {UPDATE f1m}
+test_file_contents merge_renames-12-2 f1m "f1\np"
+fossil commit -m "merge p"
+
+write_file f1m "f1\nm"
+fossil commit -m "edit f1m"
+
+fossil update v
+fossil merge p
+test_status_list merge_renames-12-3 $RESULT {MERGE f1v}
+test_file_contents merge_renames-12-4 f1v "f1v\np"
+fossil commit -m "merge p"
+
+fossil merge m
+test_status_list merge_renames-12-5 $RESULT {MERGE f1v}
+test_file_contents merge_renames-12-6 f1v "f1v\nm"
+fossil commit -m "merge m"
 
 ######################################
 #
@@ -209,3 +475,7 @@ f3}}
 #  [c26c63eb1b] - 'merge --backout' does not handle conflicts properly
 #  [953031915f] - Lack of warning when overwriting extra files
 #  [4df5f38f1e] - Troubles merging a file delete with a file change
+
+###############################################################################
+
+test_cleanup

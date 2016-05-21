@@ -329,7 +329,7 @@ static void ls_cmd_rev(
 
   compute_fileage(rid,0);
   db_prepare(&q,
-    "SELECT datetime(fileage.mtime, 'localtime'), fileage.pathname,\n"
+    "SELECT datetime(fileage.mtime, toLocal()), fileage.pathname,\n"
     "       blob.size\n"
     "  FROM fileage, blob\n"
     " WHERE blob.rid=fileage.fid %s\n"
@@ -398,6 +398,8 @@ void ls_cmd(void){
     verify_all_options();
     ls_cmd_rev(zRev,verboseFlag,showAge,timeOrder);
     return;
+  }else if( find_option("R",0,1)!=0 ){
+    fossil_fatal("the -r is required in addition to -R");
   }
 
   db_must_be_within_tree();
@@ -431,10 +433,10 @@ void ls_cmd(void){
   if( showAge ){
     db_prepare(&q,
        "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0),"
-       "       datetime(checkin_mtime(%d,rid),'unixepoch'%s)"
+       "       datetime(checkin_mtime(%d,rid),'unixepoch',toLocal())"
        "  FROM vfile %s"
        " ORDER BY %s",
-       vid, timeline_utc(), blob_sql_text(&where), zOrderBy /*safe-for-%s*/
+       vid, blob_sql_text(&where), zOrderBy /*safe-for-%s*/
     );
   }else{
     db_prepare(&q,
@@ -545,18 +547,19 @@ static void locate_unmanaged_files(
 
 /*
 ** COMMAND: extras
+** 
 ** Usage: %fossil extras ?OPTIONS? ?PATH1 ...?
 **
-** Print a list of all files in the source tree that are not part of
-** the current checkout.  See also the "clean" command. If paths are
-** specified, only files in the given directories will be listed.
+** Print a list of all files in the source tree that are not part of the
+** current checkout. See also the "clean" command. If paths are specified,
+** only files in the given directories will be listed.
 **
 ** Files and subdirectories whose names begin with "." are normally
 ** ignored but can be included by adding the --dotfiles option.
 **
-** The GLOBPATTERN is a comma-separated list of GLOB expressions for
-** files that are ignored.  The GLOBPATTERN specified by the "ignore-glob"
-** is used if the --ignore option is omitted.
+** Files whose names match any of the glob patterns in the "ignore-glob"
+** setting are ignored. This setting can be overridden by the --ignore
+** option, whose CSG argument is a comma-separated list of glob patterns.
 **
 ** Pathnames are displayed according to the "relative-paths" setting,
 ** unless overridden by the --abs-paths or --rel-paths options.
@@ -630,26 +633,34 @@ void extras_cmd(void){
 
 /*
 ** COMMAND: clean
+** 
 ** Usage: %fossil clean ?OPTIONS? ?PATH ...?
 **
-** Delete all "extra" files in the source tree.  "Extra" files are
-** files that are not officially part of the checkout. This operation
-** cannot be undone. If one or more PATH arguments appear, then only
-** the files named, or files contained with directories named, will be
-** removed.
+** Delete all "extra" files in the source tree.  "Extra" files are files
+** that are not officially part of the checkout.  If one or more PATH
+** arguments appear, then only the files named, or files contained with
+** directories named, will be removed.
 **
-** Prompted are issued to confirm the removal of each file, unless
-** the --force flag is used or unless the file matches glob pattern
-** specified by the --ignore or --keep will ever be deleted. The
-** default values for --ignore, and --keep are determined by the
-** (versionable) clean-glob, ignore-glob, and keep-glob settings.
-** Files and subdirectories whose names begin with "." are automatically
-** ignored unless the --dotfiles option is used.
+** If the --prompt option is used, prompts are issued to confirm the
+** permanent removal of each file.  Otherwise, files are backed up to the
+** undo buffer prior to removal, and prompts are issued only for files
+** whose removal cannot be undone due to their large size or due to
+** --disable-undo being used.
+** 
+** The --force option treats all prompts as having been answered yes,
+** whereas --no-prompt treats them as having been answered no.
+** 
+** No file that matches glob patterns specified by --ignore will
+** ever be deleted.  Files and subdirectories whose names begin with "."
+** are automatically ignored unless the --dotfiles option is used.
+** 
+** The default value for --ignore is determined by the (versionable)
+** ignore-glob setting.
 **
-** The --verily option ignores the keep-glob and ignore-glob settings
-** and turns on --dotfiles, and --emptydirs.  Use the --verily
-** option when you really want to clean up everything.  Extreme care
-** should be exercised when using the --verily option.
+** The --verily option ignores the ignore-glob setting and turns on
+** --emptydirs and --dotfiles.  Use the --verily option when you really
+** want to clean up everything.  Extreme care should be exercised when
+** using the --verily option.
 **
 ** Options:
 **    --allckouts      Check for empty directories within any checkouts
@@ -674,17 +685,15 @@ void extras_cmd(void){
 **                     therefore, directories that contain only files
 **                     that were removed will be removed as well.
 **    -f|--force       Remove files without prompting.
-**    -i|--prompt      Prompt before removing each file.
+**    -i|--prompt      Prompt before removing each file.  This option
+**                     implies the --disable-undo option.
 **    -x|--verily      WARNING: Removes everything that is not a managed
 **                     file or the repository itself.  This option
 **                     implies the --emptydirs and --dotfiles options.
-**                     --disable-undo options.  Furthermore, it completely
-**                     disregards ignore-glob settings.
-**                     Compatibile with "git clean -x".
+**                     Furthermore, it completely disregards the ignore-glob
+**                     settings.  However, it does honor the --ignore option.
 **    --ignore <CSG>   Ignore files matching patterns from the
 **                     comma separated list of glob patterns.
-**    --keep <CSG>     Keep files matching this comma separated
-**                     list of glob patterns.
 **    -n|--dry-run     Delete nothing, but display what would have been
 **                     deleted.
 **    --no-prompt      This option disables prompting the user for input
@@ -701,8 +710,8 @@ void clean_cmd(void){
   int alwaysPrompt = 0;
   unsigned scanFlags = 0;
   int verilyFlag = 0;
-  const char *zIgnoreFlag, *zKeepFlag, *zCleanFlag;
-  Glob *pIgnore, *pKeep, *pClean;
+  const char *zIgnoreFlag;
+  Glob *pIgnore;
   int nRoot;
 
 #ifndef UNDO_SIZE_LIMIT  /* TODO: Setting? */
@@ -728,26 +737,19 @@ void clean_cmd(void){
   if( find_option("allckouts",0,0)!=0 ) scanFlags |= SCAN_NESTED;
   zIgnoreFlag = find_option("ignore",0,1);
   verboseFlag = find_option("verbose","v",0)!=0;
-  zKeepFlag = find_option("keep",0,1);
   db_must_be_within_tree();
   if( find_option("verily","x",0)!=0 ){
     verilyFlag = 1;
     emptyDirsFlag = 1;
-    disableUndo = 1;
     scanFlags |= SCAN_ALL;
-    zCleanFlag = 0;
     noPrompt = 1;
   }
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
-  if( zKeepFlag==0 && !verilyFlag ){
-    zKeepFlag = db_get("keep-glob", 0);
-  }
   if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
   verify_all_options();
   pIgnore = glob_create(zIgnoreFlag);
-  pKeep = glob_create(zKeepFlag);
   nRoot = (int)strlen(g.zLocalRoot);
   g.allowSymlinks = 1;  /* Find symlinks too */
   if( !dirsOnlyFlag ){
@@ -768,15 +770,7 @@ void clean_cmd(void){
     db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
-      if( glob_match(pKeep, zName+nRoot) ){
-        if( verboseFlag ){
-          fossil_print("KEPT file \"%s\" not removed (due to --keep"
-                       " or \"keep-glob\")\n", zName+nRoot);
-        }
-        continue;
-      }
-      if( !dryRunFlag
-          && !(verilyFlag && glob_match(pIgnore, zName+nRoot)) ){
+      if( !dryRunFlag && !(verilyFlag && glob_match(pIgnore, zName+nRoot)) ){
         char *zPrompt = 0;
         char cReply;
         Blob ans = empty_blob;
@@ -849,12 +843,24 @@ void clean_cmd(void){
     );
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
-      if( glob_match(pKeep, zName+nRoot) ){
-        if( verboseFlag ){
-          fossil_print("KEPT directory \"%s\" not removed (due to --keep"
-                       " or \"keep-glob\")\n", zName+nRoot);
+      if( !(verilyFlag && glob_match(pIgnore, zName+nRoot)) ){
+        char cReply;
+        if( !noPrompt ){
+          Blob ans;
+          char *prompt = mprintf("Remove empty directory \"%s\" (a=all/y/N)? ",
+                                 zName+nRoot);
+          prompt_user(prompt, &ans);
+          cReply = blob_str(&ans)[0];
+          fossil_free(prompt);
+          blob_reset(&ans);
+        }else{
+          cReply = 'N';
         }
-        continue;
+        if( cReply=='a' || cReply=='A' ){
+          allDirFlag = 1;
+        }else if( cReply!='y' && cReply!='Y' ){
+          continue;
+        }
       }
       if( dryRunFlag || file_rmdir(zName)==0 ){
         if( verboseFlag || dryRunFlag ){
@@ -867,7 +873,6 @@ void clean_cmd(void){
     db_finalize(&q);
     glob_free(pEmptyDirs);
   }
-  glob_free(pKeep);
   glob_free(pIgnore);
 }
 
@@ -899,7 +904,7 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
   if( zEditor==0 ){
     zEditor = mprintf("%s\\notepad.exe", fossil_getenv("SYSTEMROOT"));
 #if defined(__CYGWIN__)
-    zEditor = fossil_utf8_to_filename(zEditor);
+    zEditor = fossil_utf8_to_path(zEditor, 0);
     blob_add_cr(pPrompt);
 #endif
   }

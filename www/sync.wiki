@@ -412,10 +412,8 @@ following values:
 <li> index-page
 <li> manifest
 <li> binary-glob
-<li> clean-glob
-<ul></td><td valign="top"><ul>
 <li> ignore-glob
-<li> keep-glob
+<ul></td><td valign="top"><ul>
 <li> crnl-glob
 <li> encoding-glob
 <li> empty-dirs
@@ -425,9 +423,9 @@ following values:
 <li> ticket-common
 <li> ticket-change
 <li> ticket-newpage
-<ul></td><td valign="top"><ul>
 <li> ticket-viewpage
 <li> ticket-editpage
+<ul></td><td valign="top"><ul>
 <li> ticket-reportlist
 <li> ticket-report-template
 <li> ticket-key-template

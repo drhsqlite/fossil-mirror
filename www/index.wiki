@@ -122,9 +122,11 @@ management system with these advanced features:
   *  How Fossil does [./password.wiki | password management].
   *  On-line [/help | help].
   *  Documentation on the
-     [http://www.sqliteconcepts.org/THManual.pdf | TH1 scripting language] used
-     to configure the ticketing subsystem and the [./th1.md | extra commands]
-     provided by Fossil itself.
+     [http://www.sqliteconcepts.org/THManual.pdf | TH1 scripting language],
+     used to customize [./custom_ticket.wiki | ticketing], and several other
+     subsystems, including [./customskin.md | theming].
+  *  List of [./th1.md | TH1 commands provided by Fossil itself] that expose
+     its key functionality to TH1 scripts.
   *  A free hosting server for Fossil repositories is available at
      [http://chiselapp.com/].
   *  How to [./server.wiki | set up a server] for your repository.

@@ -171,15 +171,14 @@ static void bisect_append_log(int rid){
 }
 
 /*
-** Show a chart of bisect "good" and "bad" versions.  The chart can be
-** sorted either chronologically by bisect time, or by check-in time.
+** Create a TEMP table named "bilog" that contains the complete history
+** of the current bisect.
 */
-static void bisect_chart(int sortByCkinTime){
+void bisect_create_bilog_table(int iCurrent){
   char *zLog = db_lget("bisect-log","");
   Blob log, id;
   Stmt q;
   int cnt = 0;
-  int iCurrent = db_lget_int("checkout",0);
   blob_init(&log, zLog, -1);
   db_multi_exec(
      "CREATE TEMP TABLE bilog("
@@ -198,11 +197,23 @@ static void bisect_chart(int sortByCkinTime){
     db_step(&q);
     db_reset(&q);
   }
-  db_bind_int(&q, ":seq", ++cnt);
-  db_bind_text(&q, ":stat", "CURRENT");
-  db_bind_int(&q, ":rid", iCurrent);
-  db_step(&q);
+  if( iCurrent>0 ){
+    db_bind_int(&q, ":seq", ++cnt);
+    db_bind_text(&q, ":stat", "CURRENT");
+    db_bind_int(&q, ":rid", iCurrent);
+    db_step(&q);
+  }
   db_finalize(&q);
+}
+
+/*
+** Show a chart of bisect "good" and "bad" versions.  The chart can be
+** sorted either chronologically by bisect time, or by check-in time.
+*/
+static void bisect_chart(int sortByCkinTime){
+  Stmt q;
+  int iCurrent = db_lget_int("checkout",0);
+  bisect_create_bilog_table(iCurrent);
   db_prepare(&q,
     "SELECT bilog.seq, bilog.stat,"
     "       substr(blob.uuid,1,16), datetime(event.mtime),"
@@ -268,6 +279,11 @@ static void bisect_chart(int sortByCkinTime){
 **
 **     List the versions in between "bad" and "good".
 **
+**   fossil bisect ui
+**
+**     Like "fossil ui" except start on a timeline that shows only the
+**     check-ins that are part of the current bisect.
+**
 **   fossil bisect undo
 **
 **     Undo the most recent "good" or "bad" command.
@@ -282,6 +298,7 @@ static void bisect_chart(int sortByCkinTime){
 **   fossil bisect options
 **   fossil bisect reset
 **   fossil bisect status
+**   fossil bisect ui
 **   fossil bisect undo
 */
 void bisect_cmd(void){
@@ -416,13 +433,23 @@ void bisect_cmd(void){
         fossil_fatal("no such bisect option: %s", g.argv[3]);
       }
     }else{
-      usage("bisect option ?NAME? ?VALUE?");
+      usage("options ?NAME? ?VALUE?");
     }
   }else if( strncmp(zCmd, "reset", n)==0 ){
     db_multi_exec(
       "DELETE FROM vvar WHERE name IN "
       " ('bisect-good', 'bisect-bad', 'bisect-log')"
     );
+  }else if( strcmp(zCmd, "ui")==0 ){
+    char *newArgv[8];
+    newArgv[0] = g.argv[0];
+    newArgv[1] = "ui";
+    newArgv[2] = "--page";
+    newArgv[3] = "timeline?bisect";
+    newArgv[4] = 0;
+    g.argv = newArgv;
+    g.argc = 4;
+    cmd_webserver();
   }else if( strncmp(zCmd, "vlist", n)==0
          || strncmp(zCmd, "ls", n)==0
          || strncmp(zCmd, "status", n)==0
@@ -430,6 +457,6 @@ void bisect_cmd(void){
     int fAll = find_option("all", "a", 0)!=0;
     bisect_list(!fAll);
   }else if( !foundCmd ){
-    usage("bad|good|log|next|options|reset|status|undo");
+    usage("bad|good|log|next|options|reset|status|ui|undo");
   }
 }

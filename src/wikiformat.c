@@ -469,7 +469,7 @@ static int wikiUsesHtml(void){
 ** the markup including the initial "<" and the terminating ">".  If
 ** it is not well-formed markup, return 0.
 */
-static int markupLength(const char *z){
+int htmlTagLength(const char *z){
   int n = 1;
   int inparen = 0;
   int c;
@@ -664,7 +664,7 @@ static int linkLength(const char *z){
 static int nextWikiToken(const char *z, Renderer *p, int *pTokenType){
   int n;
   if( z[0]=='<' ){
-    n = markupLength(z);
+    n = htmlTagLength(z);
     if( n>0 ){
       *pTokenType = TOKEN_MARKUP;
       return n;
@@ -1721,7 +1721,7 @@ void wiki_write(const char *zIn, int flags){
 /*
 ** COMMAND: test-wiki-render
 **
-** %fossil test-wiki-render FILE [OPTIONS]
+** Usage: %fossil test-wiki-render FILE [OPTIONS]
 **
 ** Options:
 **    --buttons        Set the WIKI_BUTTONS flag
@@ -1974,7 +1974,7 @@ static int nextHtmlToken(const char *z){
   int n;
   char c;
   if( (c=z[0])=='<' ){
-    n = markupLength(z);
+    n = htmlTagLength(z);
     if( n<=0 ) n = 1;
   }else if( fossil_isspace(c) ){
     for(n=1; z[n] && fossil_isspace(z[n]); n++){}
