@@ -2680,7 +2680,7 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **    clean-glob       The VALUE is a comma or newline-separated list of GLOB
 **     (versionable)   patterns specifying files that the "clean" command will
 **                     delete without prompting or allowing undo.
-**                     Example: *.a *.lib *.o
+**                     Example: *.a,*.lib,*.o
 **
 **    clearsign        When enabled, fossil will attempt to sign all commits
 **                     with gpg.  When disabled (the default), commits will
