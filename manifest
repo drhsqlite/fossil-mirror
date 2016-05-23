@@ -1,5 +1,5 @@
-C Remove\sextra\s"+"\sthat\swas\sbeing\sprefixed\sto\sthe\sparent\stag\sin\sthe\sreparent\scommand.\s\stag_add_artifact()\salready\sprefixes\sone\s"+"\sbecause\sits\sfifth\sargument\sis\s1.
-D 2016-05-17T04:36:50.210
+C Merge\strunk
+D 2016-05-23T15:37:37.279
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -384,7 +384,7 @@ F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c da7afcbe8fd2a0bb2ce13866988c5a35ea8e6eaf
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 10310d276e72e3e34343e3385c0b39fac5cd826e
-F src/checkin.c a5fdfefbd869435f199b6e7b1a4729b50dc0dbf4
+F src/checkin.c 5bbf4072cb34b6b915fc1a337142c9ad58b12ffe
 F src/checkout.c 6a0d559bdd0d825d83beabd7b00a2d57d878b253
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c e2ad376a51231876336d7e91ca96cb63ec81cf1a
@@ -396,7 +396,7 @@ F src/content.c 80a10dc10ce85269b02061a5d7cfe2b0936f8400
 F src/cson_amalgamation.c ce18de7d62186d08d6c15a7efbd66bf009310439
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 38dc7d512214b7f6be778000a115ec92bb88711a
+F src/db.c 7a1a55d63f51733fdb3fe2888e49b9492d63e4b3
 F src/delta.c ab405c78d6559ea61563e2500c28f135a26c8b62
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 48ba0c208d74e5a8c4b33e43ea066d236d3a4694
@@ -406,10 +406,10 @@ F src/diffcmd.c 3759afcedb06bb0d76844e0b724cd28b36ede262
 F src/doc.c aad06cde815b7051a133044a2cd9306e2739600f
 F src/encode.c 56fc8f102eda32549652df47fa253fc910e737a9
 F src/event.c 0edff3caaceed4fbee6ec8c20f480a94f467f5cf
-F src/export.c 2df2303209ef2f326b4dd414a9f097c1e38ba38e
+F src/export.c 78ed59a60b4595935abe1503eb2d1b31eb1560a5
 F src/file.c 8e85e61f94faf64efd92db024e19d83cf30ac0a1
 F src/finfo.c 9dcd6c54bf5fadfafe0b15cbb736ba0cf418c956
-F src/foci.c 693596989fbb12a01c31317a7adf0d1ce85c7903
+F src/foci.c 66ff462be6c5415183c2c900a1d23d031d3cdb88
 F src/fusefs.c 719dc13de3dcebf8b963d65e5da46e1a5c197803
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 8d766b73f318358fec439cc52ea3c02874340fb8
@@ -481,8 +481,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 6fbec2fbaf3bb39566f2550b12f58127c9bfa850
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c 1f488b95eb75abe7e91b1a1a56a03c4e7e807b39
-F src/sqlite3.c 34f2d1424433e7440b255a24dc95d46e50d6f033
-F src/sqlite3.h 6df60269849748d16f0ba9e754c9d791548414e9
+F src/sqlite3.c 9b9171b1e6ce7a980e6b714e9c0d9112657ad552
+F src/sqlite3.h a41446e48e7bfdcb052e1773572ad7bc662c68e1
 F src/stash.c ccb0d94252422f28178119825a99c6bce45924d6
 F src/stat.c 9fa919c1c78db3952e181e0bf955b039aca0db26
 F src/statrep.c 061c9df02d134454c32e34cc29807adc594e1bc2
@@ -696,6 +696,7 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
+F www/encryptedrepos.wiki d666d205ed5726ad0046eb0ec708726f73225bd7
 F www/env-opts.md 0daf6800fb53ce88976f76a7607ed6a427c45653
 F www/event.wiki 395b955e611769fd9aedf3ab489530b89ad5f224
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
@@ -750,6 +751,6 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5c5a364d5e106d9c38b37d1b9b25ed023e829498
+P 6b4565002b827e36bad685b3db6d39335e7c6290 893905c83e3dd515d7f13ea2e144fc757923fa14
 U andygoth
-Z 783fc21a2bb16cf86051fd010d1fcd80
+Z 4154ea634cd3c317443e9d98eff64c96
