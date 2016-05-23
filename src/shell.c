@@ -669,6 +669,7 @@ struct ShellState {
 #define MODE_Csv      7  /* Quote strings, numbers are plain */
 #define MODE_Explain  8  /* Like MODE_Column, but do not truncate data */
 #define MODE_Ascii    9  /* Use ASCII unit and record separators (0x1F/0x1E) */
+#define MODE_Pretty  10  /* Pretty-print schemas */
 
 static const char *modeDescr[] = {
   "line",
@@ -681,6 +682,7 @@ static const char *modeDescr[] = {
   "csv",
   "explain",
   "ascii",
+  "prettyprint",
 };
 
 /*
@@ -1054,7 +1056,70 @@ static int shell_callback(
       }
       break;
     }
-    case MODE_Semi:
+    case MODE_Semi: {   /* .schema and .fullschema output */
+      utf8_printf(p->out, "%s;\n", azArg[0]);
+      break;
+    }
+    case MODE_Pretty: {  /* .schema and .fullschema with --indent */
+      char *z;
+      int j;
+      int nParen = 0;
+      char cEnd = 0;
+      char c;
+      int nLine = 0;
+      assert( nArg==1 );
+      if( azArg[0]==0 ) break;
+      if( sqlite3_strlike("CREATE VIEW%", azArg[0], 0)==0
+       || sqlite3_strlike("CREATE TRIG%", azArg[0], 0)==0
+      ){
+        utf8_printf(p->out, "%s;\n", azArg[0]);
+        break;
+      }
+      z = sqlite3_mprintf("%s", azArg[0]);
+      j = 0;
+      for(i=0; IsSpace(z[i]); i++){}
+      for(; (c = z[i])!=0; i++){
+        if( IsSpace(c) ){
+          if( IsSpace(z[j-1]) || z[j-1]=='(' ) continue;
+        }else if( (c=='(' || c==')') && j>0 && IsSpace(z[j-1]) ){
+          j--;
+        }
+        z[j++] = c;
+      }
+      while( j>0 && IsSpace(z[j-1]) ){ j--; }
+      z[j] = 0;
+      if( strlen30(z)>=79 ){
+        for(i=j=0; (c = z[i])!=0; i++){
+          if( c==cEnd ){
+            cEnd = 0;
+          }else if( c=='"' || c=='\'' || c=='`' ){
+            cEnd = c;
+          }else if( c=='[' ){
+            cEnd = ']';
+          }else if( c=='(' ){
+            nParen++;
+          }else if( c==')' ){
+            nParen--;
+            if( nLine>0 && nParen==0 && j>0 ){
+              utf8_printf(p->out, "%.*s\n", j, z);
+              j = 0;
+            }
+          }
+          z[j++] = c;
+          if( nParen==1 && (c=='(' || c==',' || c=='\n') ){
+            if( c=='\n' ) j--;
+            utf8_printf(p->out, "%.*s\n  ", j, z);
+            j = 0;
+            nLine++;
+            while( IsSpace(z[i+1]) ){ i++; }
+          }
+        }
+        z[j] = 0;
+      }
+      utf8_printf(p->out, "%s;\n", z);
+      sqlite3_free(z);
+      break;
+    }
     case MODE_List: {
       if( p->cnt++==0 && p->showHeader ){
         for(i=0; i<nArg; i++){
@@ -1069,8 +1134,6 @@ static int shell_callback(
         utf8_printf(p->out, "%s", z);
         if( i<nArg-1 ){
           utf8_printf(p->out, "%s", p->colSeparator);
-        }else if( p->cMode==MODE_Semi ){
-          utf8_printf(p->out, ";%s", p->rowSeparator);
         }else{
           utf8_printf(p->out, "%s", p->rowSeparator);
         }
@@ -1670,7 +1733,7 @@ static void explain_data_prepare(ShellState *p, sqlite3_stmt *pSql){
     if( str_in_array(zOp, azGoto) && p2op<p->nIndent
      && (abYield[p2op] || sqlite3_column_int(pSql, 2))
     ){
-      for(i=p2op+1; i<iOp; i++) p->aiIndent[i] += 2;
+      for(i=p2op; i<iOp; i++) p->aiIndent[i] += 2;
     }
   }
 
@@ -1687,6 +1750,104 @@ static void explain_data_delete(ShellState *p){
   p->aiIndent = 0;
   p->nIndent = 0;
   p->iIndent = 0;
+}
+
+/*
+** Disable and restore .wheretrace and .selecttrace settings.
+*/
+#if defined(SQLITE_DEBUG) && defined(SQLITE_ENABLE_SELECTTRACE)
+extern int sqlite3SelectTrace;
+static int savedSelectTrace;
+#endif
+#if defined(SQLITE_DEBUG) && defined(SQLITE_ENABLE_WHERETRACE)
+extern int sqlite3WhereTrace;
+static int savedWhereTrace;
+#endif
+static void disable_debug_trace_modes(void){
+#if defined(SQLITE_DEBUG) && defined(SQLITE_ENABLE_SELECTTRACE)
+  savedSelectTrace = sqlite3SelectTrace;
+  sqlite3SelectTrace = 0;
+#endif
+#if defined(SQLITE_DEBUG) && defined(SQLITE_ENABLE_WHERETRACE)
+  savedWhereTrace = sqlite3WhereTrace;
+  sqlite3WhereTrace = 0;
+#endif
+}
+static void restore_debug_trace_modes(void){
+#if defined(SQLITE_DEBUG) && defined(SQLITE_ENABLE_SELECTTRACE)
+  sqlite3SelectTrace = savedSelectTrace;
+#endif
+#if defined(SQLITE_DEBUG) && defined(SQLITE_ENABLE_WHERETRACE)
+  sqlite3WhereTrace = savedWhereTrace;
+#endif
+}
+
+/*
+** Run a prepared statement
+*/
+static void exec_prepared_stmt(
+  ShellState *pArg,                                /* Pointer to ShellState */
+  sqlite3_stmt *pStmt,                             /* Statment to run */
+  int (*xCallback)(void*,int,char**,char**,int*)   /* Callback function */
+){
+  int rc;
+
+  /* perform the first step.  this will tell us if we
+  ** have a result set or not and how wide it is.
+  */
+  rc = sqlite3_step(pStmt);
+  /* if we have a result set... */
+  if( SQLITE_ROW == rc ){
+    /* if we have a callback... */
+    if( xCallback ){
+      /* allocate space for col name ptr, value ptr, and type */
+      int nCol = sqlite3_column_count(pStmt);
+      void *pData = sqlite3_malloc64(3*nCol*sizeof(const char*) + 1);
+      if( !pData ){
+        rc = SQLITE_NOMEM;
+      }else{
+        char **azCols = (char **)pData;      /* Names of result columns */
+        char **azVals = &azCols[nCol];       /* Results */
+        int *aiTypes = (int *)&azVals[nCol]; /* Result types */
+        int i, x;
+        assert(sizeof(int) <= sizeof(char *));
+        /* save off ptrs to column names */
+        for(i=0; i<nCol; i++){
+          azCols[i] = (char *)sqlite3_column_name(pStmt, i);
+        }
+        do{
+          /* extract the data and data types */
+          for(i=0; i<nCol; i++){
+            aiTypes[i] = x = sqlite3_column_type(pStmt, i);
+            if( x==SQLITE_BLOB && pArg && pArg->cMode==MODE_Insert ){
+              azVals[i] = "";
+            }else{
+              azVals[i] = (char*)sqlite3_column_text(pStmt, i);
+            }
+            if( !azVals[i] && (aiTypes[i]!=SQLITE_NULL) ){
+              rc = SQLITE_NOMEM;
+              break; /* from for */
+            }
+          } /* end for */
+
+          /* if data and types extracted successfully... */
+          if( SQLITE_ROW == rc ){
+            /* call the supplied callback with the result row data */
+            if( xCallback(pArg, nCol, azVals, azCols, aiTypes) ){
+              rc = SQLITE_ABORT;
+            }else{
+              rc = sqlite3_step(pStmt);
+            }
+          }
+        } while( SQLITE_ROW == rc );
+        sqlite3_free(pData);
+      }
+    }else{
+      do{
+        rc = sqlite3_step(pStmt);
+      } while( rc == SQLITE_ROW );
+    }
+  }
 }
 
 /*
@@ -1716,6 +1877,7 @@ static int shell_exec(
   }
 
   while( zSql[0] && (SQLITE_OK == rc) ){
+    static const char *zStmtSql;
     rc = sqlite3_prepare_v2(db, zSql, -1, &pStmt, &zLeftover);
     if( SQLITE_OK != rc ){
       if( pzErrMsg ){
@@ -1728,6 +1890,8 @@ static int shell_exec(
         while( IsSpace(zSql[0]) ) zSql++;
         continue;
       }
+      zStmtSql = sqlite3_sql(pStmt);
+      while( IsSpace(zStmtSql[0]) ) zStmtSql++;
 
       /* save off the prepared statment handle and reset row count */
       if( pArg ){
@@ -1737,15 +1901,15 @@ static int shell_exec(
 
       /* echo the sql statement if echo on */
       if( pArg && pArg->echoOn ){
-        const char *zStmtSql = sqlite3_sql(pStmt);
         utf8_printf(pArg->out, "%s\n", zStmtSql ? zStmtSql : zSql);
       }
 
       /* Show the EXPLAIN QUERY PLAN if .eqp is on */
-      if( pArg && pArg->autoEQP ){
+      if( pArg && pArg->autoEQP && sqlite3_strlike("EXPLAIN%",zStmtSql,0)!=0 ){
         sqlite3_stmt *pExplain;
-        char *zEQP = sqlite3_mprintf("EXPLAIN QUERY PLAN %s",
-                                     sqlite3_sql(pStmt));
+        char *zEQP;
+        disable_debug_trace_modes();
+        zEQP = sqlite3_mprintf("EXPLAIN QUERY PLAN %s", zStmtSql);
         rc = sqlite3_prepare_v2(db, zEQP, -1, &pExplain, 0);
         if( rc==SQLITE_OK ){
           while( sqlite3_step(pExplain)==SQLITE_ROW ){
@@ -1757,13 +1921,27 @@ static int shell_exec(
         }
         sqlite3_finalize(pExplain);
         sqlite3_free(zEQP);
+        if( pArg->autoEQP>=2 ){
+          /* Also do an EXPLAIN for ".eqp full" mode */
+          zEQP = sqlite3_mprintf("EXPLAIN %s", zStmtSql);
+          rc = sqlite3_prepare_v2(db, zEQP, -1, &pExplain, 0);
+          if( rc==SQLITE_OK ){
+            pArg->cMode = MODE_Explain;
+            explain_data_prepare(pArg, pExplain);
+            exec_prepared_stmt(pArg, pExplain, xCallback);
+            explain_data_delete(pArg);
+          }
+          sqlite3_finalize(pExplain);
+          sqlite3_free(zEQP);
+        }
+        restore_debug_trace_modes();
       }
 
       if( pArg ){
         pArg->cMode = pArg->mode;
         if( pArg->autoExplain
          && sqlite3_column_count(pStmt)==8
-         && sqlite3_strlike("%EXPLAIN%", sqlite3_sql(pStmt),0)==0
+         && sqlite3_strlike("EXPLAIN%", zStmtSql,0)==0
         ){
           pArg->cMode = MODE_Explain;
         }
@@ -1775,63 +1953,7 @@ static int shell_exec(
         }
       }
 
-      /* perform the first step.  this will tell us if we
-      ** have a result set or not and how wide it is.
-      */
-      rc = sqlite3_step(pStmt);
-      /* if we have a result set... */
-      if( SQLITE_ROW == rc ){
-        /* if we have a callback... */
-        if( xCallback ){
-          /* allocate space for col name ptr, value ptr, and type */
-          int nCol = sqlite3_column_count(pStmt);
-          void *pData = sqlite3_malloc64(3*nCol*sizeof(const char*) + 1);
-          if( !pData ){
-            rc = SQLITE_NOMEM;
-          }else{
-            char **azCols = (char **)pData;      /* Names of result columns */
-            char **azVals = &azCols[nCol];       /* Results */
-            int *aiTypes = (int *)&azVals[nCol]; /* Result types */
-            int i, x;
-            assert(sizeof(int) <= sizeof(char *));
-            /* save off ptrs to column names */
-            for(i=0; i<nCol; i++){
-              azCols[i] = (char *)sqlite3_column_name(pStmt, i);
-            }
-            do{
-              /* extract the data and data types */
-              for(i=0; i<nCol; i++){
-                aiTypes[i] = x = sqlite3_column_type(pStmt, i);
-                if( x==SQLITE_BLOB && pArg && pArg->cMode==MODE_Insert ){
-                  azVals[i] = "";
-                }else{
-                  azVals[i] = (char*)sqlite3_column_text(pStmt, i);
-                }
-                if( !azVals[i] && (aiTypes[i]!=SQLITE_NULL) ){
-                  rc = SQLITE_NOMEM;
-                  break; /* from for */
-                }
-              } /* end for */
-
-              /* if data and types extracted successfully... */
-              if( SQLITE_ROW == rc ){
-                /* call the supplied callback with the result row data */
-                if( xCallback(pArg, nCol, azVals, azCols, aiTypes) ){
-                  rc = SQLITE_ABORT;
-                }else{
-                  rc = sqlite3_step(pStmt);
-                }
-              }
-            } while( SQLITE_ROW == rc );
-            sqlite3_free(pData);
-          }
-        }else{
-          do{
-            rc = sqlite3_step(pStmt);
-          } while( rc == SQLITE_ROW );
-        }
-      }
-
+      exec_prepared_stmt(pArg, pStmt, xCallback);
       explain_data_delete(pArg);
 
       /* print usage stats if stats on */
@@ -2021,10 +2143,10 @@ static char zHelp[] =
   "                         If TABLE specified, only dump tables matching\n"
   "                         LIKE pattern TABLE.\n"
   ".echo on|off           Turn command echo on or off\n"
-  ".eqp on|off            Enable or disable automatic EXPLAIN QUERY PLAN\n"
+  ".eqp on|off|full       Enable or disable automatic EXPLAIN QUERY PLAN\n"
   ".exit                  Exit this program\n"
   ".explain ?on|off|auto? Turn EXPLAIN output mode on or off or to automatic\n"
-  ".fullschema            Show schema and the content of sqlite_stat tables\n"
+  ".fullschema ?--indent? Show schema and the content of sqlite_stat tables\n"
   ".headers on|off        Turn display of headers on or off\n"
   ".help                  Show this message\n"
   ".import FILE TABLE     Import data from FILE into TABLE\n"
@@ -2060,9 +2182,8 @@ static char zHelp[] =
   ".restore ?DB? FILE     Restore content of DB (default \"main\") from FILE\n"
   ".save FILE             Write in-memory database into FILE\n"
   ".scanstats on|off      Turn sqlite3_stmt_scanstatus() metrics on or off\n"
-  ".schema ?TABLE?        Show the CREATE statements\n"
-  "                         If TABLE specified, only show tables matching\n"
-  "                         LIKE pattern TABLE.\n"
+  ".schema ?PATTERN?      Show the CREATE statements matching PATTERN\n"
+  "                          Add --indent for pretty-printing\n"
   ".separator COL ?ROW?   Change the column separator and optionally the row\n"
   "                         separator for both the output mode and .import\n"
 #if defined(SQLITE_ENABLE_SESSION)
@@ -2934,6 +3055,17 @@ static int shellNomemError(void){
 }
 
 /*
+** Compare the string as a command-line option with either one or two
+** initial "-" characters.
+*/
+static int optionMatch(const char *zStr, const char *zOpt){
+  if( zStr[0]!='-' ) return 0;
+  zStr++;
+  if( zStr[0]=='-' ) zStr++;
+  return strcmp(zStr, zOpt)==0;
+}
+
+/*
 ** If an input line begins with "." then invoke this routine to
 ** process that line.
 **
@@ -3181,9 +3313,13 @@ static int do_meta_command(char *zLine, ShellState *p){
 
   if( c=='e' && strncmp(azArg[0], "eqp", n)==0 ){
     if( nArg==2 ){
-      p->autoEQP = booleanValue(azArg[1]);
+      if( strcmp(azArg[1],"full")==0 ){
+        p->autoEQP = 2;
+      }else{
+        p->autoEQP = booleanValue(azArg[1]);
+      }
     }else{
-      raw_printf(stderr, "Usage: .eqp on|off\n");
+      raw_printf(stderr, "Usage: .eqp on|off|full\n");
       rc = 1;
     }
   }else
@@ -3219,15 +3355,19 @@ static int do_meta_command(char *zLine, ShellState *p){
     ShellState data;
     char *zErrMsg = 0;
     int doStats = 0;
+    memcpy(&data, p, sizeof(data));
+    data.showHeader = 0;
+    data.cMode = data.mode = MODE_Semi;
+    if( nArg==2 && optionMatch(azArg[1], "indent") ){
+      data.cMode = data.mode = MODE_Pretty;
+      nArg = 1;
+    }
     if( nArg!=1 ){
-      raw_printf(stderr, "Usage: .fullschema\n");
+      raw_printf(stderr, "Usage: .fullschema ?--indent?\n");
       rc = 1;
       goto meta_command_exit;
     }
     open_db(p, 0);
-    memcpy(&data, p, sizeof(data));
-    data.showHeader = 0;
-    data.cMode = data.mode = MODE_Semi;
     rc = sqlite3_exec(p->db,
        "SELECT sql FROM"
        "  (SELECT sql sql, type type, tbl_name tbl_name, name name, rowid x"
@@ -3862,7 +4002,12 @@ static int do_meta_command(char *zLine, ShellState *p){
     memcpy(&data, p, sizeof(data));
     data.showHeader = 0;
     data.cMode = data.mode = MODE_Semi;
-    if( nArg==2 ){
+    if( nArg>=2 && optionMatch(azArg[1], "indent") ){
+      data.cMode = data.mode = MODE_Pretty;
+      nArg--;
+      if( nArg==2 ) azArg[1] = azArg[2];
+    }
+    if( nArg==2 && azArg[1][0]!='-' ){
       int i;
       for(i=0; azArg[1][i]; i++) azArg[1][i] = ToLower(azArg[1][i]);
       if( strcmp(azArg[1],"sqlite_master")==0 ){
@@ -3917,7 +4062,7 @@ static int do_meta_command(char *zLine, ShellState *p){
          callback, &data, &zErrMsg
       );
     }else{
-      raw_printf(stderr, "Usage: .schema ?LIKE-PATTERN?\n");
+      raw_printf(stderr, "Usage: .schema ?--indent? ?LIKE-PATTERN?\n");
       rc = 1;
       goto meta_command_exit;
     }
@@ -3935,7 +4080,6 @@ static int do_meta_command(char *zLine, ShellState *p){
 
 #if defined(SQLITE_DEBUG) && defined(SQLITE_ENABLE_SELECTTRACE)
   if( c=='s' && n==11 && strncmp(azArg[0], "selecttrace", n)==0 ){
-    extern int sqlite3SelectTrace;
     sqlite3SelectTrace = integerValue(azArg[1]);
   }else
 #endif
@@ -4195,17 +4339,18 @@ static int do_meta_command(char *zLine, ShellState *p){
   }else
 
   if( c=='s' && strncmp(azArg[0], "show", n)==0 ){
+    static const char *azBool[] = { "off", "on", "full", "unk" };
     int i;
     if( nArg!=1 ){
       raw_printf(stderr, "Usage: .show\n");
       rc = 1;
       goto meta_command_exit;
     }
-    utf8_printf(p->out, "%12.12s: %s\n","echo", p->echoOn ? "on" : "off");
-    utf8_printf(p->out, "%12.12s: %s\n","eqp", p->autoEQP ? "on" : "off");
+    utf8_printf(p->out, "%12.12s: %s\n","echo", azBool[p->echoOn!=0]);
+    utf8_printf(p->out, "%12.12s: %s\n","eqp", azBool[p->autoEQP&3]);
     utf8_printf(p->out, "%12.12s: %s\n","explain",
          p->mode==MODE_Explain ? "on" : p->autoExplain ? "auto" : "off");
-    utf8_printf(p->out,"%12.12s: %s\n","headers", p->showHeader ? "on" : "off");
+    utf8_printf(p->out,"%12.12s: %s\n","headers", azBool[p->showHeader!=0]);
     utf8_printf(p->out, "%12.12s: %s\n","mode", modeDescr[p->mode]);
     utf8_printf(p->out, "%12.12s: ", "nullvalue");
       output_c_string(p->out, p->nullValue);
@@ -4218,7 +4363,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     utf8_printf(p->out,"%12.12s: ", "rowseparator");
       output_c_string(p->out, p->rowSeparator);
       raw_printf(p->out, "\n");
-    utf8_printf(p->out, "%12.12s: %s\n","stats", p->statsOn ? "on" : "off");
+    utf8_printf(p->out, "%12.12s: %s\n","stats", azBool[p->statsOn!=0]);
     utf8_printf(p->out, "%12.12s: ", "width");
     for (i=0;i<(int)ArraySize(p->colWidth) && p->colWidth[i] != 0;i++) {
       raw_printf(p->out, "%d ", p->colWidth[i]);
@@ -4633,7 +4778,6 @@ static int do_meta_command(char *zLine, ShellState *p){
 
 #if defined(SQLITE_DEBUG) && defined(SQLITE_ENABLE_WHERETRACE)
   if( c=='w' && strncmp(azArg[0], "wheretrace", n)==0 ){
-    extern int sqlite3WhereTrace;
     sqlite3WhereTrace = nArg>=2 ? booleanValue(azArg[1]) : 0xff;
   }else
 #endif
@@ -5301,6 +5445,8 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
       data.echoOn = 1;
     }else if( strcmp(z,"-eqp")==0 ){
       data.autoEQP = 1;
+    }else if( strcmp(z,"-eqpfull")==0 ){
+      data.autoEQP = 2;
     }else if( strcmp(z,"-stats")==0 ){
       data.statsOn = 1;
     }else if( strcmp(z,"-scanstats")==0 ){

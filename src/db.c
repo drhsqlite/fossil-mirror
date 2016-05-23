@@ -872,6 +872,32 @@ void db_add_aux_functions(sqlite3 *db){
                           db_fromlocal_function, 0, 0);
 }
 
+/*
+** If the database file zDbFile has a name that suggests that it is
+** encrypted, then prompt for the encryption key and return it in the
+** blob *pKey.  Or, if the encryption key has previously been requested,
+** just return a copy of the previous result.
+*/
+static void db_encryption_key(
+  const char *zDbFile,   /* Name of the database file */
+  Blob *pKey             /* Put the encryption key here */
+){
+  blob_init(pKey, 0, 0);
+#if USE_SEE
+  if( sqlite3_strglob("*.efossil", zDbFile)==0 ){
+    static char *zSavedKey = 0;
+    if( zSavedKey ){
+      blob_set(pKey, zSavedKey);
+    }else{
+      char *zPrompt = mprintf("\rencryption key for '%s': ", zDbFile);
+      prompt_for_password(zPrompt, pKey, 0);
+      fossil_free(zPrompt);
+      zSavedKey = fossil_strdup(blob_str(pKey));
+    }
+  }
+#endif
+}
+
 
 /*
 ** Open a database file.  Return a pointer to the new database
@@ -880,6 +906,7 @@ void db_add_aux_functions(sqlite3 *db){
 LOCAL sqlite3 *db_open(const char *zDbName){
   int rc;
   sqlite3 *db;
+  Blob key;
 
   if( g.fSqlTrace ) fossil_trace("-- sqlite3_open: [%s]\n", zDbName);
   rc = sqlite3_open_v2(
@@ -890,6 +917,13 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   if( rc!=SQLITE_OK ){
     db_err("[%s]: %s", zDbName, sqlite3_errmsg(db));
   }
+  db_encryption_key(zDbName, &key);
+  if( blob_size(&key)>0 ){
+    char *zCmd = sqlite3_mprintf("PRAGMA key(%Q)", blob_str(&key));
+    sqlite3_exec(db, zCmd, 0, 0, 0);
+    sqlite3_free(zCmd);
+  }
+  blob_reset(&key);
   sqlite3_busy_timeout(db, 5000);
   sqlite3_wal_autocheckpoint(db, 1);  /* Set to checkpoint frequently */
   sqlite3_create_function(db, "user", 0, SQLITE_UTF8, 0, db_sql_user, 0, 0);
@@ -923,7 +957,11 @@ void db_detach(const char *zLabel){
 ** the name zLabel.
 */
 void db_attach(const char *zDbName, const char *zLabel){
-  db_multi_exec("ATTACH DATABASE %Q AS %Q", zDbName, zLabel);
+  Blob key;
+  db_encryption_key(zDbName, &key);
+  db_multi_exec("ATTACH DATABASE %Q AS %Q KEY %Q",
+                zDbName, zLabel, blob_str(&key));
+  blob_reset(&key);
 }
 
 /*
@@ -2641,8 +2679,8 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **
 **    clean-glob       The VALUE is a comma or newline-separated list of GLOB
 **     (versionable)   patterns specifying files that the "clean" command will
-**                     delete without prompting even when the -force flag has
-**                     not been used.  Example:  *.a *.lib *.o
+**                     delete without prompting or allowing undo.
+**                     Example: *.a,*.lib,*.o
 **
 **    clearsign        When enabled, fossil will attempt to sign all commits
 **                     with gpg.  When disabled (the default), commits will

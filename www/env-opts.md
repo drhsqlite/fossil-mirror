@@ -53,7 +53,7 @@ individual bits in `NUMBER`, which must be specified in base 10:
   * _8_ &mdash; Attempts to break lines on word boundaries while honoring the
         logical line length.
 
-  * _10_ &mdash; Looks for the original comment text within the text being
+  * _16_ &mdash; Looks for the original comment text within the text being
          printed.  Upon matching, a new line will be emitted, thus
          preserving more of the pre-existing formatting.
 

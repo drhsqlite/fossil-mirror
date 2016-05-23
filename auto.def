@@ -17,6 +17,7 @@ options {
     with-tcl-stubs=0     => {Enable Tcl integration via stubs library mechanism}
     with-tcl-private-stubs=0
                          => {Enable Tcl integration via private stubs mechanism}
+    with-see=0           => {Enable the SQLite Encryption Extension (SEE)}
     internal-sqlite=1    => {Don't use the internal SQLite, use the system one}
     static=0             => {Link a static executable}
     fusefs=1             => {Disable the Fuse Filesystem}
@@ -40,6 +41,7 @@ define EXTRA_LDFLAGS ""
 define USE_SYSTEM_SQLITE 0
 define USE_LINENOISE 0
 define FOSSIL_ENABLE_MINIZ 0
+define USE_SEE 0
 
 # This procedure is a customized version of "cc-check-function-in-lib",
 # that does not modify the LIBS variable.  Its use prevents prematurely
@@ -133,6 +135,12 @@ if {[string match *-solaris* [get-define host]]} {
 if {[opt-bool fossil-debug]} {
     define-append EXTRA_CFLAGS -DFOSSIL_DEBUG
     msg-result "Debugging support enabled"
+}
+
+if {[opt-bool with-see]} {
+    define-append EXTRA_CFLAGS -DUSE_SEE
+    define USE_SEE 1
+    msg-result "Enabling encryption support"
 }
 
 if {[opt-bool json]} {
