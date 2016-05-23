@@ -123,6 +123,7 @@ static struct {
   { "clean-glob",             CONFIGSET_PROJ },
   { "ignore-glob",            CONFIGSET_PROJ },
   { "keep-glob",              CONFIGSET_PROJ },
+  { "crlf-glob",              CONFIGSET_PROJ },
   { "crnl-glob",              CONFIGSET_PROJ },
   { "encoding-glob",          CONFIGSET_PROJ },
   { "empty-dirs",             CONFIGSET_PROJ },

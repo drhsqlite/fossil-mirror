@@ -1,4 +1,4 @@
-<title>The Fossil Sync Protocol</title>
+﻿<title>The Fossil Sync Protocol</title>
 
 <p>Fossil supports commands <b>push</b>, <b>pull</b>, and <b>sync</b>
 for transferring information from one repository to another.  The
@@ -416,6 +416,7 @@ following values:
 <ul></td><td valign="top"><ul>
 <li> ignore-glob
 <li> keep-glob
+<li> crlf-glob
 <li> crnl-glob
 <li> encoding-glob
 <li> empty-dirs

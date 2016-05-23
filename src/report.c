@@ -131,8 +131,8 @@ char *extract_integer(const char *zOrig){
 
 /*
 ** Remove blank lines from the beginning of a string and
-** all whitespace from the end. Removes whitespace preceding a NL,
-** which also converts any CRNL sequence into a single NL.
+** all whitespace from the end. Removes whitespace preceding a LF,
+** which also converts any CRLF sequence into a single LF.
 */
 char *remove_blank_lines(const char *zOrig){
   int i, j, n;

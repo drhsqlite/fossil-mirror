@@ -2530,6 +2530,7 @@ const Setting aSetting[] = {
 #endif
   { "clean-glob",       0,             40, 1, 0, ""                    },
   { "clearsign",        0,              0, 0, 0, "off"                 },
+  { "crlf-glob",        0,             40, 1, 0, ""                    },
   { "crnl-glob",        0,             40, 1, 0, ""                    },
   { "default-perms",    0,             16, 0, 0, "u"                   },
   { "diff-binary",      0,              0, 0, 0, "on"                  },
@@ -2686,9 +2687,10 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **                     with gpg.  When disabled (the default), commits will
 **                     be unsigned.  Default: off
 **
-**    crnl-glob        A comma or newline-separated list of GLOB patterns for
-**     (versionable)   text files in which it is ok to have CR, CR+NL or mixed
-**                     line endings. Set to "*" to disable CR+NL checking.
+**    crlf-glob        A comma or newline-separated list of GLOB patterns for
+**     (versionable)   text files in which it is ok to have CR, CR+LF or mixed
+**                     line endings. Set to "*" to disable CR+LF checking.
+**                     The crnl-glob setting is a compatibility alias.
 **
 **    default-perms    Permissions given automatically to new users.  For more
 **                     information on permissions see Users page in Server

@@ -1,5 +1,5 @@
-C Add\sbrief\sdocumentation\sfor\scompiling\sand\susing\sencrypted\srepositories.
-D 2016-05-23T01:05:08.848
+C Rename\scrnl-glob\sto\scrlf-glob,\sretaining\ssupport\sfor\scrnl-glob\sas\sa\scompatibility\salias.\s\sChange\sterminology\sfrom\sNL\sto\sLF\sthroughout,\sexcepting\scases\swhere\sNL\smeans\snewline\sand\snot\sline\sfeed.\s\sAlso\sdon't\schange\slinenoise.c\swhich\sis\sthird-party\scode.
+D 2016-05-23T15:34:13.104
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -384,19 +384,19 @@ F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c da7afcbe8fd2a0bb2ce13866988c5a35ea8e6eaf
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 10310d276e72e3e34343e3385c0b39fac5cd826e
-F src/checkin.c 5bbf4072cb34b6b915fc1a337142c9ad58b12ffe
+F src/checkin.c ccf25e2fd8c21693eb73526a0034b9028618bc90
 F src/checkout.c 6a0d559bdd0d825d83beabd7b00a2d57d878b253
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c e2ad376a51231876336d7e91ca96cb63ec81cf1a
 F src/codecheck1.c bf92e19b6a521f947c07960aae3f2aa9a21e4c42
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
 F src/config.h 5b0f2c55c62691916d4477f37109d3356a1dcecf
-F src/configure.c e709349116d50f53152da7e8d409ad5232395c47
+F src/configure.c a80ec832fa3c379f99b6c7947adbd5b609c3fdf7
 F src/content.c 80a10dc10ce85269b02061a5d7cfe2b0936f8400
 F src/cson_amalgamation.c ce18de7d62186d08d6c15a7efbd66bf009310439
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 7a1a55d63f51733fdb3fe2888e49b9492d63e4b3
+F src/db.c 1493d8cb0a4e2b603f465d6cb7427b6c148a8bb5
 F src/delta.c ab405c78d6559ea61563e2500c28f135a26c8b62
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 48ba0c208d74e5a8c4b33e43ea066d236d3a4694
@@ -423,7 +423,7 @@ F src/info.c df2e9776a08ec549d917adc9f4924f7b4ca57c07
 F src/json.c 6df1d80dece8968b344e4b730aae8151c7c61955
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
-F src/json_config.c 1bbf8fc1b98f951f94dedc1a191c138f110b7a5d
+F src/json_config.c f53fa14ab92730d30be35311b52a17848eeabe44
 F src/json_detail.h 76bc835feb671a5001d4a20bd3f0c8882f228382
 F src/json_diff.c 784180c67a6bb8547dcb9adc430678c8286ab3ff
 F src/json_dir.c bd7be6f09d9c4d951e68b9562ad13d15aa76fb70
@@ -465,12 +465,12 @@ F src/piechart.c 6b2d49434b036d495ec30378520dd1054b03c920
 F src/pivot.c 2f9b97dad4267f3b5a9e89e14b711f326cb3f3a0
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c 2de9ca8ea140e35da05eafeb6a447a2fd4069438
+F src/printf.c d4fe5c01bec71239e6e3cb460478e86c82114700
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c fd863a2daeef16a585b67f7b01a3f34f463c6d68
 F src/rebuild.c 382e418f6883e371e057dcbfe97054d60e294bf7
 F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
-F src/report.c c38e6071aa3f10bbbb72d5db9b5473dac7cc70e4
+F src/report.c 0d173484b2a9a7326dbfaa206b6e6337c166e868
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c 1be2c1663b0e5be621cc914535922bb8c6608d64
@@ -736,12 +736,12 @@ F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki d1e2fc5baf9ade46815499c9758256a22efe8142
 F www/selfhost.wiki 03de31d67690fe47972589e4e1e395e11559c85c
 F www/server.wiki 782ca2e63e3812e9a3c71fe8511b7b58ba91a762
-F www/settings.wiki 12b7e736432b0081a7e6a3d7b9e184d04f482ef7
+F www/settings.wiki 9fc7d3d27a9eae545141d186c361eaeb8ed1780e
 F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki e6c82bd6579f755896c47b22dbab18e27b1f5bc4
 F www/style.wiki da3a414d4c57c3da2636daf0baf6964ba72ce70b
-F www/sync.wiki ecd7e356270a40e81649970c1b606767db68d9e3
+F www/sync.wiki 3e816da37cad9f268b1a35e80a67e5c4020dee2a
 F www/tech_overview.wiki 66d893fd0bca7f5dbc659ab0b4e9dde987e4fdb3
 F www/th1.md cce5b4ec03727680ec48dede21bb6aa82931d7c2
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
@@ -751,7 +751,9 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b5601dc3c4785ab26b809117ae136db9f63da1f4
-R cc28d24d1e8b6bb304e230684af68594
-U drh
-Z ce3e57582155770e7e8894ffd9564a5a
+P 893905c83e3dd515d7f13ea2e144fc757923fa14
+T *branch * andygoth-crlf
+T *sym-andygoth-crlf *
+T -sym-trunk *
+U andygoth
+Z f36b346f885197469938e32ed400f180
