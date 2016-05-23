@@ -1539,6 +1539,9 @@ static void svn_dump_import(FILE *pIn){
 ** The following formats are currently understood by this command
 **
 **   --git        Import from the git-fast-export file format (default)
+**                Options:
+**                  --import-marks FILE Restore marks table from FILE
+**                  --export-marks FILE Save marks table to FILE
 **
 **   --svn        Import from the svnadmin-dump file format.  The default
 **                behaviour (unless overridden by --flat) is to treat 3
@@ -1587,6 +1590,7 @@ void import_cmd(void){
   Stmt q;
   int forceFlag = find_option("force", "f", 0)!=0;
   int svnFlag = find_option("svn", 0, 0)!=0;
+  int gitFlag = find_option("git", 0, 0)!=0;
   int omitRebuild = find_option("no-rebuild",0,0)!=0;
   int omitVacuum = find_option("no-vacuum",0,0)!=0;
 
@@ -1596,6 +1600,10 @@ void import_cmd(void){
   /* Options for --svn only */
   const char *zBase="";
   int flatFlag=0;
+
+  /* Options for --git only */
+  const char *markfile_in;
+  const char *markfile_out;
 
   /* Interpret --rename-* options.  Use a table to avoid code duplication. */
   const struct {
@@ -1652,8 +1660,9 @@ void import_cmd(void){
     gsvn.zTags = find_option("tags", 0, 1);
     gsvn.revFlag = find_option("rev-tags", 0, 0)
                 || (incrFlag && !find_option("no-rev-tags", 0, 0));
-  }else{
-    find_option("git",0,0);  /* Skip the --git option for now */
+  }else if( gitFlag ){
+    markfile_in = find_option("import-marks", 0, 1);
+    markfile_out = find_option("export-marks", 0, 1);
   }
   verify_all_options();
 
@@ -1731,6 +1740,9 @@ void import_cmd(void){
     }
     svn_dump_import(pIn);
   }else{
+    Bag blobs, vers;
+    bag_init(&blobs);
+    bag_init(&vers);
     /* The following temp-tables are used to hold information needed for
     ** the import.
     **
@@ -1756,6 +1768,17 @@ void import_cmd(void){
        "CREATE TEMP TABLE xtag(tname TEXT UNIQUE, tcontent TEXT);"
     );
 
+    if(markfile_in){
+      FILE *f = fossil_fopen(markfile_in, "r");
+      if(!f){
+        fossil_fatal("cannot open %s for reading\n", markfile_in);
+      }
+      if(import_marks(f, &blobs, NULL)<0){
+        fossil_fatal("error importing marks from file: %s\n", markfile_in);
+      }
+      fclose(f);
+    }
+
     manifest_crosslink_begin();
     git_fast_import(pIn);
     db_prepare(&q, "SELECT tcontent FROM xtag");
@@ -1766,6 +1789,31 @@ void import_cmd(void){
       import_reset(0);
     }
     db_finalize(&q);
+    if(markfile_out){
+      int rid;
+      Stmt q_marks;
+      FILE *f;
+      db_prepare(&q_marks, "SELECT DISTINCT trid FROM xmark");
+      while( db_step(&q_marks)==SQLITE_ROW){
+        rid = db_column_int(&q_marks, 0);
+        if(db_int(0, "SELECT count(objid) FROM event WHERE objid=%d AND type='ci'", rid)==0){
+          if(bag_find(&blobs, rid)==0){
+            bag_insert(&blobs, rid);
+          }
+        }else{
+          bag_insert(&vers, rid);
+        }
+      }
+      db_finalize(&q_marks);
+      f = fossil_fopen(markfile_out, "w");
+      if(!f){
+        fossil_fatal("cannot open %s for writing\n", markfile_out);
+      }
+      export_marks(f, &blobs, &vers);
+      fclose(f);
+      bag_clear(&blobs);
+      bag_clear(&vers);
+    }
     manifest_crosslink_end(MC_NONE);
   }
 

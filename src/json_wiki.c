@@ -376,8 +376,9 @@ static cson_value * json_wiki_create_or_save(char createMode,
   }
 
   zMimeType = json_find_option_cstr("mimetype","mimetype","M");
+  zMimeType = wiki_filter_mimetypes(zMimeType);
 
-  wiki_cmd_commit(zPageName, 0==rid, &content, zMimeType, 0);
+  wiki_cmd_commit(zPageName, rid, &content, zMimeType, 0);
   blob_reset(&content);
   /*
     Our return value here has a race condition: if this operation

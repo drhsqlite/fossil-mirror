@@ -1,0 +1,93 @@
+#
+# Copyright (c) 2016 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+# Testing changes to a file's execute bit caused by a merge
+#
+
+if {$tcl_platform(platform) eq "unix"} {
+  proc setx {fn isexe} {
+    file attributes $fn -permissions [expr {$isexe ? "+" : "-"}]x
+  }
+
+  proc test_exe {fn expected} {
+    test merge_exe-$fn {[file executable $fn]==$expected}
+  }
+} else {
+  # WARNING: This is a hack for setting and testing a file's execute bit
+  # on Windows. Never operate directly on Fossil database files like this
+  # unless you really need to and really know what you're doing.
+
+  proc query {sql} {
+    return [exec $::fossilexe sqlite3 --no-repository _FOSSIL_ $sql]
+  }
+
+  proc setx {fn isexe} {
+    set isexe [expr {bool($isexe)}]
+    query "UPDATE vfile SET isexe=$isexe WHERE pathname='$fn'"
+  }
+
+  proc test_exe {fn expected} {
+    set result [query "SELECT isexe FROM vfile WHERE pathname='$fn'"]
+    test merge_exe-$fn {$result==$expected}
+  }
+}
+
+test_setup
+
+write_file f1 "line"
+write_file f2 "line"
+write_file f3 "line"
+write_file f4 "line"
+fossil addremove
+setx f3 1
+setx f4 1
+fossil commit -m "add files"
+
+write_file f0 "f0"
+fossil add f0
+setx f0 1
+fossil mv --hard f1 f1n
+setx f1n 1
+write_file f2 "line\nline2"
+setx f2 1
+write_file f3 "line\nline2"
+setx f3 0
+setx f4 0
+fossil commit -b b -m "changes"
+
+fossil update trunk
+write_file f3 "line3\nline"
+fossil commit -m "edit f3"
+
+fossil merge b
+test_status_list merge_exe-mrg $RESULT {
+  EXECUTABLE f1
+  EXECUTABLE f2
+  UNEXEC f3
+  UNEXEC f4
+  UPDATE f2
+  MERGE f3
+  RENAME f1 -> f1n
+  ADDED f0
+}
+foreach {fn isexe} {f0 1 f1n 1 f2 1 f3 0 f4 0} {
+  test_exe $fn $isexe
+}
+
+###############################################################################
+
+test_cleanup
