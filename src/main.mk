@@ -461,7 +461,7 @@ $(OBJDIR)/mkversion:	$(SRCDIR)/mkversion.c
 $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
 	$(BCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
 
-# Run the test suite. 
+# Run the test suite.
 # Other flags that can be included in TESTFLAGS are:
 #
 #  -halt     Stop testing after the first failed test
@@ -510,8 +510,8 @@ MINIZ_OPTIONS = -DMINIZ_NO_STDIO \
 # to 1. If it is set to 1, then there is no need to build or link
 # the sqlite3.o object. Instead, the system SQLite will be linked
 # using -lsqlite3.
-SQLITE3_OBJ.1 =
 SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
+SQLITE3_OBJ.1 =
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 
 # The FOSSIL_ENABLE_MINIZ variable may be undefined, set to 0, or
@@ -530,6 +530,19 @@ LINENOISE_DEF.  = $(LINENOISE_DEF.0)
 LINENOISE_OBJ.0 =
 LINENOISE_OBJ.1 = $(OBJDIR)/linenoise.o
 LINENOISE_OBJ.  = $(LINENOISE_OBJ.0)
+
+# The USE_SEE variable may be undefined, 0 or 1.  If undefined or
+# 0, ordinary SQLite is used.  If 1, then sqlite3-see.c (not part of
+# the source tree) is used and extra flags are provided to enable
+# the SQLite Encryption Extension.
+SQLITE3_SRC.0 = sqlite3.c
+SQLITE3_SRC.1 = sqlite3-see.c
+SQLITE3_SRC. = sqlite3.c
+SQLITE3_SRC = $(SRCDIR)/$(SQLITE3_SRC.$(USE_SEE))
+SEE_FLAGS.0 =
+SEE_FLAGS.1 = -DSQLITE_HAS_CODEC
+SEE_FLAGS. =
+SEE_FLAGS = $(SEE_FLAGS.$(USE_SEE))
 
 
 EXTRAOBJ = \
@@ -1642,9 +1655,9 @@ $(OBJDIR)/zip.o:	$(OBJDIR)/zip_.c $(OBJDIR)/zip.h $(SRCDIR)/config.h
 
 $(OBJDIR)/zip.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/sqlite3.o:	$(SRCDIR)/sqlite3.c
-	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) -c $(SRCDIR)/sqlite3.c -o $@
-
+$(OBJDIR)/sqlite3.o:	$(SQLITE3_SRC)
+	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SEE_FLAGS) \
+		-c $(SQLITE3_SRC) -o $@
 $(OBJDIR)/shell.o:	$(SRCDIR)/shell.c $(SRCDIR)/sqlite3.h
 	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) $(LINENOISE_DEF.$(USE_LINENOISE)) -c $(SRCDIR)/shell.c -o $@
 

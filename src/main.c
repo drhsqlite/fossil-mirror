@@ -1083,6 +1083,9 @@ static void get_version_blob(
 #else
   blob_append(pOut, "STATIC_BUILD\n", -1);
 #endif
+#if defined(USE_SEE)
+  blob_append(pOut, "USE_SEE\n", -1);
+#endif
 }
 
 /*
@@ -1587,6 +1590,7 @@ static int repo_list_page(void){
     Stmt q;
     @ <html>
     @ <head>
+    @ <base href="%s(g.zBaseURL)/" />
     @ <title>Repository List</title>
     @ </head>
     @ <body>
@@ -1597,7 +1601,7 @@ static int repo_list_page(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       const char *zUrl = db_column_text(&q, 1);
-      @ <li><a href="%h(zUrl)" target="_blank">%h(zName)</a></li>
+      @ <li><a href="%R/%h(zUrl)" target="_blank">%h(zName)</a></li>
     }
     @ </ol>
     @ </body>
@@ -2661,9 +2665,9 @@ void cmd_webserver(void){
   if( allowRepoList ){
     flags |= HTTP_SERVER_REPOLIST;
   }
-  if( win32_http_service(iPort, zNotFound, zFileGlob, flags) ){
-    win32_http_server(iPort, mxPort, zBrowserCmd,
-                      zStopperFile, zNotFound, zFileGlob, zIpAddr, flags);
+  if( win32_http_service(iPort, zAltBase, zNotFound, zFileGlob, flags) ){
+    win32_http_server(iPort, mxPort, zBrowserCmd, zStopperFile,
+                      zAltBase, zNotFound, zFileGlob, zIpAddr, flags);
   }
 #endif
 }

@@ -3,3 +3,4 @@ compat/tcl*
 fossil
 fossil.exe
 win/fossil.exe
+*sqlite3-see.*

@@ -189,8 +189,10 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
     const char *zName;
     int chnged = 0;
     int oldChnged;
+#ifndef _WIN32
     int origPerm;
     int currentPerm;
+#endif
     i64 oldMtime;
     i64 currentMtime;
     i64 origSize;
@@ -205,8 +207,10 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
     origSize = db_column_int64(&q, 6);
     currentSize = file_wd_size(zName);
     currentMtime = file_wd_mtime(0);
+#ifndef _WIN32
     origPerm = db_column_int(&q, 8);
     currentPerm = file_wd_perm(zName);
+#endif
     if( chnged==0 && (isDeleted || rid==0) ){
       /* "fossil rm" or "fossil add" always change the file */
       chnged = 1;

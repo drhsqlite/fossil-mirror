@@ -284,14 +284,17 @@ int content_get(int rid, Blob *pBlob){
     while( rc && n>=0 ){
       rc = content_of_blob(a[n], &delta);
       if( rc ){
-        blob_delta_apply(pBlob, &delta, &next);
-        blob_reset(&delta);
-        if( (mx-n)%8==0 ){
-          content_cache_insert(a[n+1], pBlob);
+        if( blob_delta_apply(pBlob, &delta, &next)<0 ){
+          rc = 1;
         }else{
-          blob_reset(pBlob);
+          blob_reset(&delta);
+          if( (mx-n)%8==0 ){
+            content_cache_insert(a[n+1], pBlob);
+          }else{
+            blob_reset(pBlob);
+          }
+          *pBlob = next;
         }
-        *pBlob = next;
       }
       n--;
     }

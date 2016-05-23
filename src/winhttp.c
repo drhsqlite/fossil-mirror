@@ -35,7 +35,7 @@ struct HttpRequest {
   SOCKET s;              /* Socket on which to receive data */
   SOCKADDR_IN addr;      /* Address from which data is coming */
   int flags;             /* Flags passed to win32_http_server() */
-  const char *zOptions;  /* --notfound and/or --localauth options */
+  const char *zOptions;  /* --baseurl, --notfound and/or --localauth options */
 };
 
 /*
@@ -238,6 +238,7 @@ void win32_http_server(
   int mnPort, int mxPort,   /* Range of allowed TCP port numbers */
   const char *zBrowser,     /* Command to launch browser.  (Or NULL) */
   const char *zStopper,     /* Stop server when this file is exists (Or NULL) */
+  const char *zBaseUrl,     /* The --baseurl option, or NULL */
   const char *zNotFound,    /* The --notfound option, or NULL */
   const char *zFileGlob,    /* The --fileglob option, or NULL */
   const char *zIpAddr,      /* Bind to this IP address, if not NULL */
@@ -253,6 +254,9 @@ void win32_http_server(
 
   if( zStopper ) file_delete(zStopper);
   blob_zero(&options);
+  if( zBaseUrl ){
+    blob_appendf(&options, " --baseurl %s", zBaseUrl);
+  }
   if( zNotFound ){
     blob_appendf(&options, " --notfound %s", zNotFound);
   }
@@ -367,6 +371,7 @@ void win32_http_server(
 typedef struct HttpService HttpService;
 struct HttpService {
   int port;                 /* Port on which the http server should run */
+  const char *zBaseUrl;     /* The --baseurl option, or NULL */
   const char *zNotFound;    /* The --notfound option, or NULL */
   const char *zFileGlob;    /* The --files option, or NULL */
   int flags;                /* One or more HTTP_SERVER_ flags */
@@ -378,7 +383,7 @@ struct HttpService {
 /*
 ** Variables used for running as windows service.
 */
-static HttpService hsData = {8080, NULL, NULL, 0, 0, NULL, INVALID_SOCKET};
+static HttpService hsData = {8080, NULL, NULL, NULL, 0, 0, NULL, INVALID_SOCKET};
 static SERVICE_STATUS ssStatus;
 static SERVICE_STATUS_HANDLE sshStatusHandle;
 
@@ -519,8 +524,8 @@ static void WINAPI win32_http_service_main(
 
    /* Execute the http server */
   win32_http_server(hsData.port, hsData.port,
-                    NULL, NULL, hsData.zNotFound, hsData.zFileGlob, 0,
-                    hsData.flags);
+                    NULL, NULL, hsData.zBaseUrl, hsData.zNotFound,
+                    hsData.zFileGlob, 0, hsData.flags);
 
   /* Service has stopped now. */
   win32_report_service_status(SERVICE_STOPPED, NO_ERROR, 0);
@@ -547,6 +552,7 @@ LOCAL void win32_http_service_running(SOCKET s){
 */
 int win32_http_service(
   int nPort,                /* TCP port number */
+  const char *zBaseUrl,     /* The --baseurl option, or NULL */
   const char *zNotFound,    /* The --notfound option, or NULL */
   const char *zFileGlob,    /* The --files option, or NULL */
   int flags                 /* One or more HTTP_SERVER_ flags */
@@ -557,6 +563,7 @@ int win32_http_service(
 
   /* Initialize the HttpService structure. */
   hsData.port = nPort;
+  hsData.zBaseUrl = zBaseUrl;
   hsData.zNotFound = zNotFound;
   hsData.zFileGlob = zFileGlob;
   hsData.flags = flags;
@@ -574,7 +581,7 @@ int win32_http_service(
 
 /* dupe ifdef needed for mkindex
 ** COMMAND: winsrv*
-** 
+**
 ** Usage: %fossil winsrv METHOD ?SERVICE-NAME? ?OPTIONS?
 **
 ** Where METHOD is one of: create delete show start stop.
@@ -618,6 +625,10 @@ int win32_http_service(
 **
 **         The following options are more or less the same as for the "server"
 **         command and influence the behaviour of the http server:
+**
+**         --baseurl URL
+**
+**              Use URL as the base (useful for reverse proxies)
 **
 **         -P|--port TCPPORT
 **
@@ -701,6 +712,7 @@ void cmd_win32_service(void){
     SERVICE_DESCRIPTIONW
       svcDescr = {L"Fossil - Distributed Software Configuration Management"};
     DWORD dwStartType = SERVICE_DEMAND_START;
+    const char *zAltBase    = find_option("baseurl", 0, 1);
     const char *zDisplay    = find_option("display", "D", 1);
     const char *zStart      = find_option("start", "S", 1);
     const char *zUsername   = find_option("username", "U", 1);
@@ -756,6 +768,7 @@ void cmd_win32_service(void){
     /* Build the fully-qualified path to the service binary file. */
     blob_zero(&binPath);
     blob_appendf(&binPath, "\"%s\" server", g.nameOfExe);
+    if( zAltBase ) blob_appendf(&binPath, " --baseurl %s", zAltBase);
     if( zPort ) blob_appendf(&binPath, " --port %s", zPort);
     if( useSCGI ) blob_appendf(&binPath, " --scgi");
     if( allowRepoList ) blob_appendf(&binPath, " --repolist");
