@@ -139,8 +139,17 @@
 #    else
 #      define COMPILER_NAME "mingw32"
 #    endif
-#  elif defined(_WIN32)
-#    define COMPILER_NAME "win32"
+#  elif defined(__clang__)
+#    if !defined(COMPILER_VERSION)
+#      if defined(__clang_version__)
+#        define COMPILER_VERSION __clang_version__
+#      endif
+#    endif
+#    if defined(COMPILER_VERSION) && !defined(NO_COMPILER_VERSION)
+#      define COMPILER_NAME "clang-" COMPILER_VERSION
+#    else
+#      define COMPILER_NAME "clang"
+#    endif
 #  elif defined(__GNUC__)
 #    if !defined(COMPILER_VERSION)
 #      if defined(__VERSION__)
@@ -152,6 +161,8 @@
 #    else
 #      define COMPILER_NAME "gcc"
 #    endif
+#  elif defined(_WIN32)
+#    define COMPILER_NAME "win32"
 #  else
 #    define COMPILER_NAME "unknown"
 #  endif

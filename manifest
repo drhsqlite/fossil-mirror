@@ -1,5 +1,5 @@
-C Compiler\swarning\sand\scoding\sstyle\sfixes.
-D 2016-05-27T21:03:35.225
+C Add\sClang\sto\sthe\slist\sof\sdetected\scompilers\sin\s'config.h'.
+D 2016-05-27T21:14:10.086
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -390,7 +390,7 @@ F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c e2ad376a51231876336d7e91ca96cb63ec81cf1a
 F src/codecheck1.c bf92e19b6a521f947c07960aae3f2aa9a21e4c42
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
-F src/config.h 5b0f2c55c62691916d4477f37109d3356a1dcecf
+F src/config.h a5462f110be3ada18df8e50cc923b9fa7de3e1cc
 F src/configure.c e709349116d50f53152da7e8d409ad5232395c47
 F src/content.c 80a10dc10ce85269b02061a5d7cfe2b0936f8400
 F src/cson_amalgamation.c ce18de7d62186d08d6c15a7efbd66bf009310439
@@ -751,7 +751,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 893905c83e3dd515d7f13ea2e144fc757923fa14
-R e325c4a596b019bcf94596df11f60275
+P d0374689105abd9750a97a557f40e250a37bbfd9
+R 54cca6642073a2aba8ca94eabee53a07
 U mistachkin
-Z 42b72546f3d407ab44330ed17d0303c5
+Z f802b9f06161064cc9e6baae3efd03fd
