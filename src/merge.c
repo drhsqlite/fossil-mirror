@@ -215,7 +215,7 @@ static void add_renames(
 void merge_cmd(void){
   int vid;              /* Current version "V" */
   int mid;              /* Version we are merging from "M" */
-  int pid;              /* The pivot version - most recent common ancestor P */
+  int pid = 0;          /* The pivot version - most recent common ancestor P */
   int nid = 0;          /* The name pivot version "N" */
   int verboseFlag;      /* True if the -v|--verbose option is present */
   int integrateFlag;    /* True if the --integrate option is present */

@@ -1185,7 +1185,7 @@ void rptview_page(void){
 
   count = 0;
   if( !tabs ){
-    struct GenerateHTML sState;
+    struct GenerateHTML sState = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
     db_multi_exec("PRAGMA empty_result_callbacks=ON");
     style_submenu_element("Raw", "Raw",

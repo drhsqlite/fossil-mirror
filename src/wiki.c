@@ -1268,7 +1268,7 @@ void wiki_cmd(void){
         usage("export ?FILE? --technote DATETIME|TECHNOTE-ID");
       }
       rid = wiki_technote_to_rid(zETime);
-      if (rid == -1) {
+      if ( rid==-1 ){
         fossil_fatal("ambiguous tech note id: %s", zETime);
       }
       if( (pWiki = manifest_get(rid, CFTYPE_EVENT, 0))!=0 ){
@@ -1291,7 +1291,7 @@ void wiki_cmd(void){
             || strncmp(g.argv[2],"create",n)==0 ){
     const char *zPageName;        /* page name */
     Blob content;                 /* Input content */
-    int rid;
+    int rid = 0;
     Manifest *pWiki = 0;          /* Parsed wiki page content */
     const char *zMimeType = find_option("mimetype", "M", 1);
     const char *zETime = find_option("technote", "t", 1);
@@ -1308,7 +1308,7 @@ void wiki_cmd(void){
     }else{
       blob_read_from_file(&content, g.argv[4]);
     }
-    if(!zMimeType || !*zMimeType){
+    if( !zMimeType || !*zMimeType ){
       /* Try to deduce the mime type based on the prior version. */
       if ( !zETime ){ 
         rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
@@ -1316,14 +1316,14 @@ void wiki_cmd(void){
                      " ORDER BY x.mtime DESC LIMIT 1",
                      zPageName
                      );
-        if(rid>0 && (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))!=0
-           && (pWiki->zMimetype && *pWiki->zMimetype)){
+        if( rid>0 && (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))!=0
+           && (pWiki->zMimetype && *pWiki->zMimetype) ){
           zMimeType = pWiki->zMimetype;
         }
       }else{
         rid = wiki_technote_to_rid(zETime);
-        if(rid>0 && (pWiki = manifest_get(rid, CFTYPE_EVENT, 0))!=0
-           && (pWiki->zMimetype && *pWiki->zMimetype)){
+        if( rid>0 && (pWiki = manifest_get(rid, CFTYPE_EVENT, 0))!=0
+           && (pWiki->zMimetype && *pWiki->zMimetype) ){
           zMimeType = pWiki->zMimetype;
         }
       }
@@ -1401,7 +1401,7 @@ void wiki_cmd(void){
   
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
-      if (showIds) {
+      if( showIds ){
         const char *zUuid = db_column_text(&q, 1);
         fossil_print("%s ",zUuid);
       }

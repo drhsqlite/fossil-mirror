@@ -714,7 +714,7 @@ void attachment_cmd(void){
   }
 
   if( strncmp(g.argv[2],"add",n)==0 ){
-    const char *zPageName;        /* Name of the wiki page to attach to */
+    const char *zPageName = 0;    /* Name of the wiki page to attach to */
     const char *zFile;            /* Name of the file to be attached */
     const char *zETime;           /* The name of the technote to attach to */
     Manifest *pWiki = 0;          /* Parsed wiki page content */

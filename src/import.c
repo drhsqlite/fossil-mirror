@@ -1538,12 +1538,12 @@ void import_cmd(void){
   int incrFlag = find_option("incremental", "i", 0)!=0;
 
   /* Options for --svn only */
-  const char *zBase="";
-  int flatFlag=0;
+  const char *zBase = "";
+  int flatFlag = 0;
 
   /* Options for --git only */
-  const char *markfile_in;
-  const char *markfile_out;
+  const char *markfile_in = 0;
+  const char *markfile_out = 0;
 
   if( svnFlag ){
     /* Get --svn related options here, so verify_all_options() fail when svn
@@ -1663,9 +1663,9 @@ void import_cmd(void){
        "CREATE TEMP TABLE xtag(tname TEXT UNIQUE, tcontent TEXT);"
     );
 
-    if(markfile_in){
+    if( markfile_in ){
       FILE *f = fossil_fopen(markfile_in, "r");
-      if(!f){
+      if( !f ){
         fossil_fatal("cannot open %s for reading\n", markfile_in);
       }
       if(import_marks(f, &blobs, NULL)<0){
@@ -1684,15 +1684,16 @@ void import_cmd(void){
       import_reset(0);
     }
     db_finalize(&q);
-    if(markfile_out){
+    if( markfile_out ){
       int rid;
       Stmt q_marks;
       FILE *f;
       db_prepare(&q_marks, "SELECT DISTINCT trid FROM xmark");
-      while( db_step(&q_marks)==SQLITE_ROW){
+      while( db_step(&q_marks)==SQLITE_ROW ){
         rid = db_column_int(&q_marks, 0);
-        if(db_int(0, "SELECT count(objid) FROM event WHERE objid=%d AND type='ci'", rid)==0){
-          if(bag_find(&blobs, rid)==0){
+        if( db_int(0, "SELECT count(objid) FROM event"
+                      " WHERE objid=%d AND type='ci'", rid)==0 ){
+          if( bag_find(&blobs, rid)==0 ){
             bag_insert(&blobs, rid);
           }
         }else{
@@ -1701,7 +1702,7 @@ void import_cmd(void){
       }
       db_finalize(&q_marks);
       f = fossil_fopen(markfile_out, "w");
-      if(!f){
+      if( !f ){
         fossil_fatal("cannot open %s for writing\n", markfile_out);
       }
       export_marks(f, &blobs, &vers);
