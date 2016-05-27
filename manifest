@@ -1,5 +1,5 @@
-C Compilation\s'portability'\senhancements\sfor\sMinGW.
-D 2016-05-27T22:25:11.134
+C Further\scompiler\sportability\senhancements\sin\sthe\sMinGW\smakefiles.
+D 2016-05-27T22:51:57.809
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -446,7 +446,7 @@ F src/main.c 4989ed094f56af540084d2cf3a3e8954d8dc924b
 F src/main.mk 3a87a2fb1805dd53c67589bfa2b65e54f4a87559
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl b7ab10190650971d4333946bf1b54df6771c93a3
+F src/makemake.tcl 53faafa942d30f2f1f093594fa996a3c2f77b353
 F src/manifest.c 5739475e5ecd86a53f1333c8c04f61aba010d2fd
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md fc02fd045690e6fb45fb0bc91be734913dc70d02
@@ -632,8 +632,8 @@ F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F win/Makefile.PellesCGMake 50eda9fe4b21df1ff4009b89454fd9013752cee4
 F win/Makefile.dmc d35f8195adeeeee792c1e5e96b14e0b86328807b
-F win/Makefile.mingw 1437e2a5a61d845998f62af495a6071bded1bc62
-F win/Makefile.mingw.mistachkin 78104a07e2ad1df95e4f267b5694ba4b94de68aa
+F win/Makefile.mingw 403a658698b42c66533256ada6560e1200c19c26
+F win/Makefile.mingw.mistachkin 2071c45a843caa365ef8858e3a69ec3f1a2f56db
 F win/Makefile.msc 05c7b9a84c66a0ab0c233be087636bcbf2775c3d
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -751,7 +751,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 67cdb9b186ee858953b71df33c1891c4195a99ee
-R fb89a5e061be0ceef0ebd0b7b6ed2e7b
+P 1bb6f3d34c429670df7f3770b2bfa0c25dc7872f
+R 81a0bd08cbf64f124d79ceed49575edb
 U mistachkin
-Z 0b43f44b4073f020e80c3704851006dd
+Z 76497d6d502ad673633d25ea8f6d1732

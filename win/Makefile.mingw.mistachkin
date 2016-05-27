@@ -35,12 +35,20 @@ SRCDIR = src
 #
 OBJDIR = wbld
 
+#### C compiler for use in building executables that will run on
+#    the platform that is doing the build.  This is used to compile
+#    code-generator programs as part of the build process.  See TCC
+#    and TCCEXE below for the C compiler for building the finished
+#    binary.
+#
+BCCEXE = gcc
+
 #### C Compiler and options for use in building executables that
 #    will run on the platform that is doing the build.  This is used
 #    to compile code-generator programs as part of the build process.
 #    See TCC below for the C compiler for building the finished binary.
 #
-BCC = gcc
+BCC = $(BCCEXE)
 
 #### Enable compiling with debug symbols (much larger binary)
 #
@@ -205,13 +213,21 @@ LIBTCL = -ltcl86
 TCLTARGET = binaries
 endif
 
-#### C Compile and options for use in building executables that
-#    will run on the target platform.  This is usually the same
+#### C compiler for use in building executables that will run on the
+#    target platform.  This is usually the same as BCCEXE, unless you
+#    are cross-compiling.  This C compiler builds the finished binary
+#    for fossil.  See BCC and BCCEXE above for the C compiler for
+#    building intermediate code-generator tools.
+#
+TCCEXE = gcc
+
+#### C compiler and options for use in building executables that will
+#    run on the target platform.  This is usually the almost the same
 #    as BCC, unless you are cross-compiling.  This C compiler builds
 #    the finished binary for fossil.  The BCC compiler above is used
 #    for building intermediate code-generator tools.
 #
-TCC = $(PREFIX)gcc -Wall
+TCC = $(PREFIX)$(TCCEXE) -Wall
 
 #### Add the necessary command line options to build with debugging
 #    symbols, if enabled.
