@@ -205,13 +205,18 @@ TCLLIBDIR = $(TCLDIR)/lib
 #
 ifdef FOSSIL_ENABLE_TCL_STUBS
 ifndef FOSSIL_ENABLE_TCL_PRIVATE_STUBS
-LIBTCL = -ltclstub86
+LIBTCL = $(XLDARG) -ltclstub86
 endif
 TCLTARGET = libtclstub86.a
 else
-LIBTCL = -ltcl86
+LIBTCL = $(XLDARG) -ltcl86
 TCLTARGET = binaries
 endif
+
+#### The prefix for all arguments that should be passed to the linker.
+#    GCC does not need this; however, other compilers may.
+#
+XLDARG =
 
 #### C compiler for use in building executables that will run on the
 #    target platform.  This is usually the same as BCCEXE, unless you
@@ -241,7 +246,7 @@ endif
 #### When not using the miniz compression library, zlib is required.
 #
 ifndef FOSSIL_ENABLE_MINIZ
-TCC += -L$(ZLIBDIR) -I$(ZINCDIR)
+TCC += $(XLDARG) -L$(ZLIBDIR) -I$(ZINCDIR)
 endif
 
 #### Compile resources for use in building executables that will run
@@ -255,17 +260,17 @@ endif
 
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
-TCC += -L$(OPENSSLLIBDIR) -I$(OPENSSLINCDIR)
+TCC += $(XLDARG) -L$(OPENSSLLIBDIR) -I$(OPENSSLINCDIR)
 RCC += -I$(OPENSSLINCDIR)
 endif
 
 # With Tcl support
 ifdef FOSSIL_ENABLE_TCL
 ifdef FOSSIL_TCL_SOURCE
-TCC += -L$(TCLSRCDIR)/win -I$(TCLSRCDIR)/generic -I$(TCLSRCDIR)/win
+TCC += $(XLDARG) -L$(TCLSRCDIR)/win -I$(TCLSRCDIR)/generic -I$(TCLSRCDIR)/win
 RCC += -I$(TCLSRCDIR)/generic -I$(TCLSRCDIR)/win
 else
-TCC += -L$(TCLLIBDIR) -I$(TCLINCDIR)
+TCC += $(XLDARG) -L$(TCLLIBDIR) -I$(TCLINCDIR)
 RCC += -I$(TCLINCDIR)
 endif
 endif
@@ -360,13 +365,13 @@ endif
 #### SQLite: If enabled, use the system SQLite library.
 #
 ifdef USE_SYSTEM_SQLITE
-LIB += -lsqlite3
+LIB += $(XLDARG) -lsqlite3
 endif
 
 #### OpenSSL: Add the necessary libraries required, if enabled.
 #
 ifdef FOSSIL_ENABLE_SSL
-LIB += -lssl -lcrypto -lgdi32
+LIB += $(XLDARG) -lssl $(XLDARG) -lcrypto $(XLDARG) -lgdi32
 endif
 
 #### Tcl: Add the necessary libraries required, if enabled.
@@ -379,12 +384,12 @@ endif
 #    to link against the Z-Lib compression library.  There are no
 #    other mandatory dependencies.
 #
-LIB += -lmingwex
+LIB += $(XLDARG) -lmingwex
 
 #### When not using the miniz compression library, zlib is required.
 #
 ifndef FOSSIL_ENABLE_MINIZ
-LIB += -lz
+LIB += $(XLDARG) -lz
 endif
 
 #### These libraries MUST appear in the same order as they do for Tcl
@@ -392,12 +397,14 @@ endif
 #
 ifdef FOSSIL_ENABLE_TCL
 ifdef FOSSIL_ENABLE_TCL_STUBS
-LIB += -lkernel32 -lws2_32
+LIB += $(XLDARG) -lkernel32 $(XLDARG) -lws2_32
 else
-LIB += -lnetapi32 -lkernel32 -luser32 -ladvapi32 -lws2_32
+LIB += $(XLDARG) -lnetapi32 $(XLDARG) -lkernel32
+LIB += $(XLDARG) -luser32 $(XLDARG) -ladvapi32
+LIB += $(XLDARG) -lws2_32
 endif
 else
-LIB += -lkernel32 -lws2_32
+LIB += $(XLDARG) -lkernel32 $(XLDARG) -lws2_32
 endif
 
 #### Tcl shell for use in running the fossil test suite.  This is only
@@ -975,10 +982,10 @@ EXTRAOBJ = \
 
 
 zlib:
-	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) $(ZLIBCONFIG) -f win32/Makefile.gcc libz.a
+	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) $(ZLIBCONFIG) -f win32/Makefile.gcc libz.a
 
 clean-zlib:
-	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc clean
+	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) -f win32/Makefile.gcc clean
 
 $(ZLIBDIR)/inffas86.o:
 	$(TCC) -c -o $@ -DASMINF -I$(ZLIBDIR) -O3 $(ZLIBDIR)/contrib/inflate86/inffas86.c
@@ -2138,7 +2145,7 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_ENABLE_JSON1 \
                  -DSQLITE_ENABLE_FTS5 \
                  -DSQLITE_WIN32_NO_ANSI \
-                 -D_HAVE__MINGW_H \
+                 $(MINGW_OPTIONS) \
                  -DSQLITE_USE_MALLOC_H \
                  -DSQLITE_USE_MSIZE
 
