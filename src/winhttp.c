@@ -23,6 +23,7 @@
 #ifdef _WIN32
 /* This code is for win32 only */
 #include <windows.h>
+#include <process.h>
 #include "winhttp.h"
 
 /*

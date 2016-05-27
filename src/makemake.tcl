@@ -340,8 +340,8 @@ MINIZ_OPTIONS = <<<MINIZ_OPTIONS>>>
 # to 1. If it is set to 1, then there is no need to build or link
 # the sqlite3.o object. Instead, the system SQLite will be linked
 # using -lsqlite3.
-SQLITE3_OBJ.1 =
 SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
+SQLITE3_OBJ.1 =
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 
 # The FOSSIL_ENABLE_MINIZ variable may be undefined, set to 0, or
@@ -1014,8 +1014,8 @@ $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(MKVERSIO
 # to 1. If it is set to 1, then there is no need to build or link
 # the sqlite3.o object. Instead, the system SQLite will be linked
 # using -lsqlite3.
-SQLITE3_OBJ.1 =
 SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
+SQLITE3_OBJ.1 =
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 
 # The FOSSIL_ENABLE_MINIZ variable may be undefined, set to 0, or
@@ -1145,11 +1145,14 @@ foreach s [lsort $src] {
   writeln "\$(OBJDIR)/${s}.h:\t\$(OBJDIR)/headers\n"
 }
 
+writeln {MINGW_OPTIONS = -D_HAVE__MINGW_H
+}
+
 set SQLITE_WIN32_OPTIONS $SQLITE_OPTIONS
 lappend SQLITE_WIN32_OPTIONS -DSQLITE_WIN32_NO_ANSI
 
 set MINGW_SQLITE_OPTIONS $SQLITE_WIN32_OPTIONS
-lappend MINGW_SQLITE_OPTIONS -D_HAVE__MINGW_H
+lappend MINGW_SQLITE_OPTIONS {$(MINGW_OPTIONS)}
 lappend MINGW_SQLITE_OPTIONS -DSQLITE_USE_MALLOC_H
 lappend MINGW_SQLITE_OPTIONS -DSQLITE_USE_MSIZE
 

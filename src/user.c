@@ -21,6 +21,9 @@
 #include "config.h"
 #include "user.h"
 
+#if defined(_WIN32)
+#include <conio.h>
+#endif
 
 /*
 ** Strip leading and trailing space from a string and add the string
