@@ -1,5 +1,5 @@
-C Fix\scompiler\swarning\sseen\swith\sMSVC.
-D 2016-05-28T02:37:31.844
+C Improve\sthe\sheader\scomment\son\sfrom/to\stimeline\sto\sshow\sthe\snumber\sof\scheck-ins\non\sthe\spath.
+D 2016-05-28T22:58:54.092
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -495,7 +495,7 @@ F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c 8c4b87efa1db73e2c40e6303a3f8151cd1028fb1
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
-F src/timeline.c 4e34d584ea4a5c5767cc93e35cbc7123021275c7
+F src/timeline.c e2882839cb1816f63e63b0926cd3094c708cb891
 F src/tkt.c 9f7aa06b8373bdda402558ad55184a802ad0c9c6
 F src/tktsetup.c c7af6bda5acc77a83532e5662494ba6233c0eec8
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
@@ -751,7 +751,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cc828822c52a918d8c11e59a75ba219d49f11841
-R 8f1c0e5bef1380a3bfa55b72720bcac0
-U mistachkin
-Z cdc07a95bf00d71dd0b204a9489d6cd6
+P 2fc8222f8285dd634724a6132319a939176577e1
+R 6eec90483fc7e3b39c7e841a18a13ba2
+U drh
+Z 41c968dc205b09af63ec2bf1e612af95

@@ -1442,12 +1442,13 @@ void page_timeline(void){
     }
     blob_append(&sql, ")", -1);
     path_reset();
-    blob_append(&desc, "All nodes on the path from ", -1);
+    tmFlags |= TIMELINE_DISJOINT;
+    db_multi_exec("%s", blob_sql_text(&sql));
+    blob_appendf(&desc, "%d check-ins going from ", 
+                 db_int(0, "SELECT count(*) FROM timeline"));
     blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h", zFrom), zFrom);
     blob_append(&desc, " to ", -1);
     blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h",zTo), zTo);
-    tmFlags |= TIMELINE_DISJOINT;
-    db_multi_exec("%s", blob_sql_text(&sql));
   }else if( (p_rid || d_rid) && g.perm.Read ){
     /* If p= or d= is present, ignore all other parameters other than n= */
     char *zUuid;
