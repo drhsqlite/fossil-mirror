@@ -494,7 +494,7 @@ void user_edit(void){
   }
 
   /* figure out inherited permissions */
-  memset(inherit, 0, sizeof(inherit));
+  memset((char *)inherit, 0, sizeof(inherit));
   if( fossil_strcmp(zLogin, "developer") ){
     char *z1, *z2;
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='developer'");

@@ -1,5 +1,5 @@
-C Improve\sSEE\s(shell)\ssupport\sin\sthe\sbuild\sprocess.
-D 2016-05-28T02:37:13.446
+C Fix\scompiler\swarning\sseen\swith\sMSVC.
+D 2016-05-28T02:37:31.844
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -474,7 +474,7 @@ F src/report.c 3dd19351cd1461653bd07a234d3cc4aaff8845ac
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c 0c90730db6b6a4f1285dabf5032686c729c1e2c1
-F src/setup.c 38cc6e299ba8eecb803fe8a0c12f9957cab0d191
+F src/setup.c 7ebb7ea12f4a3d5d44b6ab00ae96052282f315ea
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
 F src/shell.c 14ff7f660530a52b117d110ba3390b7b2eb719b6
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
@@ -751,7 +751,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8f2dd0106ef3b5aab0d21d320770cb84de945657
-R cefab3cb98e4614a9b88e549433558ef
+P cc828822c52a918d8c11e59a75ba219d49f11841
+R 8f1c0e5bef1380a3bfa55b72720bcac0
 U mistachkin
-Z 938e0f840a42dc69a2526e3ffb9f7fa1
+Z cdc07a95bf00d71dd0b204a9489d6cd6
