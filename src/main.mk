@@ -539,6 +539,10 @@ SQLITE3_SRC.0 = sqlite3.c
 SQLITE3_SRC.1 = sqlite3-see.c
 SQLITE3_SRC. = sqlite3.c
 SQLITE3_SRC = $(SRCDIR)/$(SQLITE3_SRC.$(USE_SEE))
+SQLITE3_SHELL_SRC.0 = shell.c
+SQLITE3_SHELL_SRC.1 = shell-see.c
+SQLITE3_SHELL_SRC. = shell.c
+SQLITE3_SHELL_SRC = $(SRCDIR)/$(SQLITE3_SHELL_SRC.$(USE_SEE))
 SEE_FLAGS.0 =
 SEE_FLAGS.1 = -DSQLITE_HAS_CODEC
 SEE_FLAGS. =
@@ -1658,8 +1662,8 @@ $(OBJDIR)/zip.h:	$(OBJDIR)/headers
 $(OBJDIR)/sqlite3.o:	$(SQLITE3_SRC)
 	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SEE_FLAGS) \
 		-c $(SQLITE3_SRC) -o $@
-$(OBJDIR)/shell.o:	$(SRCDIR)/shell.c $(SRCDIR)/sqlite3.h
-	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) $(LINENOISE_DEF.$(USE_LINENOISE)) -c $(SRCDIR)/shell.c -o $@
+$(OBJDIR)/shell.o:	$(SQLITE3_SHELL_SRC) $(SRCDIR)/sqlite3.h
+	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) $(LINENOISE_DEF.$(USE_LINENOISE)) -c $(SQLITE3_SHELL_SRC) -o $@
 
 $(OBJDIR)/linenoise.o:	$(SRCDIR)/linenoise.c $(SRCDIR)/linenoise.h
 	$(XTCC) -c $(SRCDIR)/linenoise.c -o $@

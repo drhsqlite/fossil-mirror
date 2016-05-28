@@ -842,8 +842,14 @@ mkversion$E: $(SRCDIR)\mkversion.c
 codecheck1$E: $(SRCDIR)\codecheck1.c
 	$(BCC) $**
 
-$(OX)\shell$O : $(SRCDIR)\shell.c $B\win\Makefile.msc
-	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) -c $(SRCDIR)\shell.c
+!if $(USE_SEE)!=0
+SQLITE3_SHELL_SRC = $(SRCDIR)\shell-see.c
+!else
+SQLITE3_SHELL_SRC = $(SRCDIR)\shell.c
+!endif
+
+$(OX)\shell$O : $(SQLITE3_SHELL_SRC) $B\win\Makefile.msc
+	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) -c $(SQLITE3_SHELL_SRC)
 
 !if $(USE_SEE)!=0
 SQLITE3_SRC = $(SRCDIR)\sqlite3-see.c

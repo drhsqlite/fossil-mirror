@@ -369,6 +369,10 @@ SQLITE3_SRC.0 = sqlite3.c
 SQLITE3_SRC.1 = sqlite3-see.c
 SQLITE3_SRC. = sqlite3.c
 SQLITE3_SRC = $(SRCDIR)/$(SQLITE3_SRC.$(USE_SEE))
+SQLITE3_SHELL_SRC.0 = shell.c
+SQLITE3_SHELL_SRC.1 = shell-see.c
+SQLITE3_SHELL_SRC. = shell.c
+SQLITE3_SHELL_SRC = $(SRCDIR)/$(SQLITE3_SHELL_SRC.$(USE_SEE))
 SEE_FLAGS.0 =
 SEE_FLAGS.1 = -DSQLITE_HAS_CODEC
 SEE_FLAGS. =
@@ -440,8 +444,8 @@ writeln "\$(OBJDIR)/sqlite3.o:\t\$(SQLITE3_SRC)"
 writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) \$(SEE_FLAGS) \\"
 writeln "\t\t-c \$(SQLITE3_SRC) -o \$@"
 
-writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
-writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) \$(LINENOISE_DEF.\$(USE_LINENOISE)) -c \$(SRCDIR)/shell.c -o \$@\n"
+writeln "\$(OBJDIR)/shell.o:\t\$(SQLITE3_SHELL_SRC) \$(SRCDIR)/sqlite3.h"
+writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) \$(LINENOISE_DEF.\$(USE_LINENOISE)) -c \$(SQLITE3_SHELL_SRC) -o \$@\n"
 
 writeln "\$(OBJDIR)/linenoise.o:\t\$(SRCDIR)/linenoise.c \$(SRCDIR)/linenoise.h"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/linenoise.c -o \$@\n"
@@ -1049,6 +1053,10 @@ SQLITE3_SRC.0 = sqlite3.c
 SQLITE3_SRC.1 = sqlite3-see.c
 SQLITE3_SRC. = sqlite3.c
 SQLITE3_SRC = $(SRCDIR)/$(SQLITE3_SRC.$(USE_SEE))
+SQLITE3_SHELL_SRC.0 = shell.c
+SQLITE3_SHELL_SRC.1 = shell-see.c
+SQLITE3_SHELL_SRC. = shell.c
+SQLITE3_SHELL_SRC = $(SRCDIR)/$(SQLITE3_SHELL_SRC.$(USE_SEE))
 SEE_FLAGS.0 =
 SEE_FLAGS.1 = -DSQLITE_HAS_CODEC
 SEE_FLAGS. =
@@ -1190,8 +1198,8 @@ writeln "\$(OBJDIR)/cson_amalgamation.o:\t\$(SRCDIR)/cson_amalgamation.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/cson_amalgamation.c -o \$@\n"
 writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_config.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_dir.o \$(OBJDIR)/jsos_finfo.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_query.o \$(OBJDIR)/json_report.o \$(OBJDIR)/json_status.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_user.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h\n"
 
-writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h \$(SRCDIR)/../win/Makefile.mingw"
-writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) -c \$(SRCDIR)/shell.c -o \$@\n"
+writeln "\$(OBJDIR)/shell.o:\t\$(SQLITE3_SHELL_SRC) \$(SRCDIR)/sqlite3.h \$(SRCDIR)/../win/Makefile.mingw"
+writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) -c \$(SQLITE3_SHELL_SRC) -o \$@\n"
 
 writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th.c -o \$@\n"
@@ -1827,8 +1835,14 @@ mkversion$E: $(SRCDIR)\mkversion.c
 codecheck1$E: $(SRCDIR)\codecheck1.c
 	$(BCC) $**
 
-$(OX)\shell$O : $(SRCDIR)\shell.c $B\win\Makefile.msc
-	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) -c $(SRCDIR)\shell.c
+!if $(USE_SEE)!=0
+SQLITE3_SHELL_SRC = $(SRCDIR)\shell-see.c
+!else
+SQLITE3_SHELL_SRC = $(SRCDIR)\shell.c
+!endif
+
+$(OX)\shell$O : $(SQLITE3_SHELL_SRC) $B\win\Makefile.msc
+	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) -c $(SQLITE3_SHELL_SRC)
 
 !if $(USE_SEE)!=0
 SQLITE3_SRC = $(SRCDIR)\sqlite3-see.c
