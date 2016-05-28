@@ -1,5 +1,5 @@
-C Further\scompiler\sportability\senhancements\sin\sthe\sMinGW\smakefiles.
-D 2016-05-27T22:51:57.809
+C MinGW\smakefile\sintegration\sfixes,\smostly\sfor\szlib.\s\sAlso,\sClang\scan\sdefine\s_MSC_VER\sin\ssome\scircumstances;\stherefore,\scheck\sfor\sClang\sfirst\sin\s'config.h'.
+D 2016-05-28T00:16:29.106
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -390,7 +390,7 @@ F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c e2ad376a51231876336d7e91ca96cb63ec81cf1a
 F src/codecheck1.c bf92e19b6a521f947c07960aae3f2aa9a21e4c42
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
-F src/config.h a5462f110be3ada18df8e50cc923b9fa7de3e1cc
+F src/config.h b91f4223f2653503759e1205343db9f94d134973
 F src/configure.c e709349116d50f53152da7e8d409ad5232395c47
 F src/content.c 80a10dc10ce85269b02061a5d7cfe2b0936f8400
 F src/cson_amalgamation.c ce18de7d62186d08d6c15a7efbd66bf009310439
@@ -446,7 +446,7 @@ F src/main.c 4989ed094f56af540084d2cf3a3e8954d8dc924b
 F src/main.mk 3a87a2fb1805dd53c67589bfa2b65e54f4a87559
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 53faafa942d30f2f1f093594fa996a3c2f77b353
+F src/makemake.tcl dd6b2fc52249d01e35d5bf28060dd2feb3f2d7d5
 F src/manifest.c 5739475e5ecd86a53f1333c8c04f61aba010d2fd
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md fc02fd045690e6fb45fb0bc91be734913dc70d02
@@ -632,8 +632,8 @@ F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F win/Makefile.PellesCGMake 50eda9fe4b21df1ff4009b89454fd9013752cee4
 F win/Makefile.dmc d35f8195adeeeee792c1e5e96b14e0b86328807b
-F win/Makefile.mingw 403a658698b42c66533256ada6560e1200c19c26
-F win/Makefile.mingw.mistachkin 2071c45a843caa365ef8858e3a69ec3f1a2f56db
+F win/Makefile.mingw 3e96c57d3911d1fc0f64e44fab585e0f25ddfe68
+F win/Makefile.mingw.mistachkin bc25182e8b3357272becdcec9f6b472459926ac0
 F win/Makefile.msc 05c7b9a84c66a0ab0c233be087636bcbf2775c3d
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -751,7 +751,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1bb6f3d34c429670df7f3770b2bfa0c25dc7872f
-R 81a0bd08cbf64f124d79ceed49575edb
+P de609c7cac37d95efb9c57689d1ac02c83feee3e
+R bf7f484736afe0f27c24a66e18d97d81
 U mistachkin
-Z 76497d6d502ad673633d25ea8f6d1732
+Z 1ef6868ca2a802fd35a4a7056f8cb81d

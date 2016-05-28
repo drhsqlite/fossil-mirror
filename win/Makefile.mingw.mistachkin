@@ -144,15 +144,15 @@ ifndef X64
 SSLCONFIG = mingw
 ifndef FOSSIL_ENABLE_MINIZ
 ZLIBCONFIG = LOC="-DASMV -DASMINF" OBJA="inffas86.o match.o"
-LIBTARGETS = $(ZLIBDIR)/inffas86.o $(ZLIBDIR)/match.o
+ZLIBTARGETS = $(ZLIBDIR)/inffas86.o $(ZLIBDIR)/match.o
 else
 ZLIBCONFIG =
-LIBTARGETS =
+ZLIBTARGETS =
 endif
 else
 SSLCONFIG = mingw64
 ZLIBCONFIG =
-LIBTARGETS =
+ZLIBTARGETS =
 endif
 
 #### Disable creation of the OpenSSL shared libraries.  Also, disable support
@@ -974,38 +974,39 @@ EXTRAOBJ = \
  $(OBJDIR)/cson_amalgamation.o
 
 
-zlib:
-	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) $(ZLIBCONFIG) -f win32/Makefile.gcc libz.a
-
-clean-zlib:
-	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc clean
-
 $(ZLIBDIR)/inffas86.o:
 	$(TCC) -c -o $@ -DASMINF -I$(ZLIBDIR) -O3 $(ZLIBDIR)/contrib/inflate86/inffas86.c
 
 $(ZLIBDIR)/match.o:
 	$(TCC) -c -o $@ -DASMV $(ZLIBDIR)/contrib/asm686/match.S
 
+zlib:	$(ZLIBTARGETS)
+	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) $(ZLIBCONFIG) -f win32/Makefile.gcc libz.a
 
-ifndef FOSSIL_ENABLE_MINIZ
-LIBTARGETS += zlib
+clean-zlib:
+	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) -f win32/Makefile.gcc clean
+
+ifdef FOSSIL_ENABLE_MINIZ
+BLDTARGETS =
+else
+BLDTARGETS = zlib
 endif
 
-openssl:	$(LIBTARGETS)
+openssl:	$(BLDTARGETS)
 	cd $(OPENSSLLIBDIR);./Configure --cross-compile-prefix=$(PREFIX) $(SSLCONFIG)
-	$(MAKE) -C $(OPENSSLLIBDIR) build_libs
+	$(MAKE) -C $(OPENSSLLIBDIR) CC=$(TCCEXE) build_libs
 
 clean-openssl:
-	$(MAKE) -C $(OPENSSLLIBDIR) clean
+	$(MAKE) -C $(OPENSSLLIBDIR) CC=$(TCCEXE) clean
 
 tcl:
 	cd $(TCLSRCDIR)/win;./configure
-	$(MAKE) -C $(TCLSRCDIR)/win $(TCLTARGET)
+	$(MAKE) -C $(TCLSRCDIR)/win CC=$(TCCEXE) $(TCLTARGET)
 
 clean-tcl:
-	$(MAKE) -C $(TCLSRCDIR)/win distclean
+	$(MAKE) -C $(TCLSRCDIR)/win CC=$(TCCEXE) distclean
 
-APPTARGETS += $(LIBTARGETS)
+APPTARGETS += $(BLDTARGETS)
 
 ifdef FOSSIL_BUILD_SSL
 APPTARGETS += openssl
@@ -2138,7 +2139,7 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_ENABLE_JSON1 \
                  -DSQLITE_ENABLE_FTS5 \
                  -DSQLITE_WIN32_NO_ANSI \
-                 -D_HAVE__MINGW_H \
+                 $(MINGW_OPTIONS) \
                  -DSQLITE_USE_MALLOC_H \
                  -DSQLITE_USE_MSIZE
 
