@@ -1,5 +1,5 @@
-C Fix\scompiler\swarning\sseen\swith\sMSVC.
-D 2016-05-28T02:37:31.844
+C Enhancements\sto\sSEE\sintegration.
+D 2016-05-28T21:23:11.417
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -396,7 +396,7 @@ F src/content.c 80a10dc10ce85269b02061a5d7cfe2b0936f8400
 F src/cson_amalgamation.c ce18de7d62186d08d6c15a7efbd66bf009310439
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 7a1a55d63f51733fdb3fe2888e49b9492d63e4b3
+F src/db.c 674ed2b49e7fd688faa07e4f9f8d359a79435c1b
 F src/delta.c ab405c78d6559ea61563e2500c28f135a26c8b62
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 48ba0c208d74e5a8c4b33e43ea066d236d3a4694
@@ -442,7 +442,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 32febde85f14593a503aadbb51983d37fce009c2
 F src/login.c 9010b62121a41566e330f62c238061ca4c6b4f98
 F src/lookslike.c 9103d15912b792a65874f04e185f2a74a477ebb4
-F src/main.c 4989ed094f56af540084d2cf3a3e8954d8dc924b
+F src/main.c 2a862362cef3ef7a787d05ecf0423be3fc7f118d
 F src/main.mk 1786fa94018b8d0aaba88936d7dfa11acee5a984
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -503,9 +503,9 @@ F src/undo.c 52ec5c24a6dcf1937026e2d9f86791fd1913cdf6
 F src/unicode.c f26b9f26d4ac399f7b03cfac16ec72336c7f06c9
 F src/update.c 404e7daea8b200e2708329b49850d62e68e716f7
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
-F src/user.c 0131b991e38c8e8be03c2db788ab7e554ca03368
+F src/user.c d2a6573c8b1cfd5e114ef2469aba31467bcc939f
 F src/utf8.c 5c85c7e88b82b5fb48649c46f063ac94ab58eb20
-F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
+F src/util.c 2b396c37cc50995bc133c4b75472e1694c587f24
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
 F src/vfile.c 9d44ee4a0cf612b2fb257699b3f52c12a094f02f
 F src/wiki.c cf3ea249dd800dabdf01b6d98475cc5f61cbed0e
@@ -751,7 +751,10 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cc828822c52a918d8c11e59a75ba219d49f11841
-R 8f1c0e5bef1380a3bfa55b72720bcac0
+P 2fc8222f8285dd634724a6132319a939176577e1
+R dfd43928e315ca414821ea490d8dbb13
+T *branch * seeEnhanced
+T *sym-seeEnhanced *
+T -sym-trunk *
 U mistachkin
-Z cdc07a95bf00d71dd0b204a9489d6cd6
+Z 13b5c8647f42bbb0c8e7638b5860a6ad
