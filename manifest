@@ -1,5 +1,5 @@
-C Improved\slinkages\sbetween\sthe\svarious\sstatus\spages.
-D 2016-05-29T20:58:49.479
+C Improved\sMarkdown\sdocumentation.
+D 2016-05-29T22:59:32.183
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -449,7 +449,7 @@ F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl e06e4121a9bbb94342c789959df2b879fba5af4d
 F src/manifest.c 5739475e5ecd86a53f1333c8c04f61aba010d2fd
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
-F src/markdown.md fc02fd045690e6fb45fb0bc91be734913dc70d02
+F src/markdown.md c0c2e98daa14f576d5e5d917f2fe7b5b95ccb5fe
 F src/markdown_html.c c7392199eb39dad9f92c31aa352f4f3408da93bf
 F src/md5.c 563baca0c92ef17c42aa32d31bf595a62c030177
 F src/merge.c 701c5c41220677b66cc2b93ca07b6f4122fe9c93
@@ -685,7 +685,7 @@ F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
 F www/delta_encoder_algorithm.wiki 9686168c940fc6e88065a845918e9b7e77e881c8
 F www/delta_format.wiki df258b69a8be9a4e3f4ce6dbef3077cfb3dcb89c
-F www/embeddeddoc.wiki b0a84f7535827c2d612d9cd6598f028d12cf55e6
+F www/embeddeddoc.wiki f946411b7f9fd30baa0a624fe7367efeaee2b9c6
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
@@ -749,9 +749,9 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
-F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
+F www/wikitheory.wiki cc88238014c1e0593b21bd1408b2900e1e136487
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6d1ef3c4fbcbd12542b2184f9a0ea4332699e185
-R 6e35d71f10224792483f74f879076787
+P ba4a9ca84dc1958bb9105fba97feb08ba6ea0f84
+R ba28017d27ceec320afc02ffd7ccce36
 U drh
-Z da008d2941040e1777c10e0314078dde
+Z 64191dfa06eeb10a0c0a5ff33592c399
