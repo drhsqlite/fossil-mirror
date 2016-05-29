@@ -1,5 +1,5 @@
-C Improve\sthe\sheader\scomment\son\sfrom/to\stimeline\sto\sshow\sthe\snumber\sof\scheck-ins\non\sthe\spath.
-D 2016-05-28T22:58:54.092
+C Improved\slinkages\sbetween\sthe\svarious\sstatus\spages.
+D 2016-05-29T20:58:49.479
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -484,9 +484,9 @@ F src/sqlcmd.c 1f488b95eb75abe7e91b1a1a56a03c4e7e807b39
 F src/sqlite3.c 9b9171b1e6ce7a980e6b714e9c0d9112657ad552
 F src/sqlite3.h a41446e48e7bfdcb052e1773572ad7bc662c68e1
 F src/stash.c ccb0d94252422f28178119825a99c6bce45924d6
-F src/stat.c 9fa919c1c78db3952e181e0bf955b039aca0db26
+F src/stat.c 82a4439d096fe0fb231e27f49f2b2ff13dacf014
 F src/statrep.c 061c9df02d134454c32e34cc29807adc594e1bc2
-F src/style.c 1a7a0b84d1404a6420819498e0697219eb90357d
+F src/style.c 91017c67834894398479bc6f25db8a0585c33f35
 F src/sync.c 953773f3bdabd4f4cad20c484ce2ed3c61a451e3
 F src/tag.c be1923babfee2deb99a2297c1da780324061eda8
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
@@ -751,7 +751,7 @@ F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2fc8222f8285dd634724a6132319a939176577e1
-R 6eec90483fc7e3b39c7e841a18a13ba2
+P 6d1ef3c4fbcbd12542b2184f9a0ea4332699e185
+R 6e35d71f10224792483f74f879076787
 U drh
-Z 41c968dc205b09af63ec2bf1e612af95
+Z da008d2941040e1777c10e0314078dde

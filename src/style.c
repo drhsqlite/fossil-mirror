@@ -1579,6 +1579,8 @@ void page_test_env(void){
   }else{
     style_submenu_element("Hide Cookies", 0, "%R/test_env");
   }
+  style_submenu_element("Stats", 0, "%R/stat");
+
 #if !defined(_WIN32)
   @ uid=%d(getuid()), gid=%d(getgid())<br />
 #endif
