@@ -1,5 +1,5 @@
-C Improved\sMarkdown\sdocumentation.
-D 2016-05-29T22:59:32.183
+C Minor\sdocumentation\supdates.
+D 2016-05-29T23:57:10.299
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -700,7 +700,7 @@ F www/encryptedrepos.wiki d666d205ed5726ad0046eb0ec708726f73225bd7
 F www/env-opts.md 0daf6800fb53ce88976f76a7607ed6a427c45653
 F www/event.wiki 395b955e611769fd9aedf3ab489530b89ad5f224
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
-F www/faq.wiki 93c4421d2bafd192dc61ea563df68aa25caaed95
+F www/faq.wiki 7d1363cc33701f1df53cf0f5479546adcde6d781
 F www/fileformat.wiki af854d348597683c299788a44fc33f5835510511
 F www/fiveminutes.wiki 3172b324738523b163b19a8c836d3d9a3ceb9b94
 F www/foss-cklist.wiki 77fe5872d7077a68e1b01e8dd5e3a48f7ee2b0dd
@@ -718,7 +718,7 @@ F www/fossil_prompt.sh db68e2cae431b9e9f5dd672e2f56e2bde5a57d2a
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
-F www/index.wiki d1cc125a4d1808e3245652695accba06e2b34b4e
+F www/index.wiki 50018cdbdfd9b391e908a54a4ccd15d91332c581
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki f75b16c8bb734fe20d0d524c658f05dab006316c
 F www/mkdownload.tcl 5ac61a3e13cecaa67f1e31741113c96cbd41463f
@@ -747,11 +747,11 @@ F www/th1.md cce5b4ec03727680ec48dede21bb6aa82931d7c2
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
-F www/webpage-ex.md 6622072c0a946095ace86ec458e7c6fb2af2cc0a
+F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki cc88238014c1e0593b21bd1408b2900e1e136487
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ba4a9ca84dc1958bb9105fba97feb08ba6ea0f84
-R ba28017d27ceec320afc02ffd7ccce36
+P 5fcc1d5c59ea28ff67cdbdafe4774143358d2b59
+R bed35bf8f5db3c3a78dcee51c93a48c5
 U drh
-Z 64191dfa06eeb10a0c0a5ff33592c399
+Z d1c31e6e514478de3a6b4052ad971e73
