@@ -1,5 +1,5 @@
-C Add\sa\snew\srobot\sdetection\sstring.
-D 2016-05-30T21:10:56.046
+C On\sa\smerge\sor\supdate,\sprompt\sto\scontinue\sof\sautosync\sfails,\sjust\slike\sis\sdone\sfor\scommit.
+D 2016-05-30T22:30:46.601
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -377,14 +377,14 @@ F src/attach.c 88373a8d3d14dc3e71beed2e863e0029ca6c4eae
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c abd167c9f2c5398782ca6d48ea1ee612163a7685
 F src/blob.c c30701f00b13110a7a9c4c3f9e5969969f6a63ad
-F src/branch.c 09724980278de18e9bbff5da85950c3febd811eb
+F src/branch.c fb34c1491e15c8a5d4cd6b4274a3cba7b455601e
 F src/browse.c c5f31adcb4a223232bb0bdf7f2e6fcc66b5ee123
 F src/builtin.c b2dcfcade2054c083b03a18e3ab5026d51eb2dcb
 F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c da7afcbe8fd2a0bb2ce13866988c5a35ea8e6eaf
 F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
 F src/cgi.c 10310d276e72e3e34343e3385c0b39fac5cd826e
-F src/checkin.c 5bbf4072cb34b6b915fc1a337142c9ad58b12ffe
+F src/checkin.c a0b5dc3272721c50c9714950f9213ff5c843e3a8
 F src/checkout.c 6a0d559bdd0d825d83beabd7b00a2d57d878b253
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c e2ad376a51231876336d7e91ca96cb63ec81cf1a
@@ -452,7 +452,7 @@ F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md c0c2e98daa14f576d5e5d917f2fe7b5b95ccb5fe
 F src/markdown_html.c c7392199eb39dad9f92c31aa352f4f3408da93bf
 F src/md5.c 563baca0c92ef17c42aa32d31bf595a62c030177
-F src/merge.c 701c5c41220677b66cc2b93ca07b6f4122fe9c93
+F src/merge.c d30fc9d0becc3f00b718cadebf9015284ee4d174
 F src/merge3.c 555743dac3e0365a3406c262cd27cf94bec351c3
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
@@ -487,7 +487,7 @@ F src/stash.c ccb0d94252422f28178119825a99c6bce45924d6
 F src/stat.c 82a4439d096fe0fb231e27f49f2b2ff13dacf014
 F src/statrep.c 061c9df02d134454c32e34cc29807adc594e1bc2
 F src/style.c 91017c67834894398479bc6f25db8a0585c33f35
-F src/sync.c 953773f3bdabd4f4cad20c484ce2ed3c61a451e3
+F src/sync.c cc287e14c4387dfa7a8f050cbec523ece71d664e
 F src/tag.c be1923babfee2deb99a2297c1da780324061eda8
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
@@ -501,7 +501,7 @@ F src/tktsetup.c c7af6bda5acc77a83532e5662494ba6233c0eec8
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c 52ec5c24a6dcf1937026e2d9f86791fd1913cdf6
 F src/unicode.c f26b9f26d4ac399f7b03cfac16ec72336c7f06c9
-F src/update.c 404e7daea8b200e2708329b49850d62e68e716f7
+F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c 0131b991e38c8e8be03c2db788ab7e554ca03368
 F src/utf8.c 5c85c7e88b82b5fb48649c46f063ac94ab58eb20
@@ -751,7 +751,8 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 24cfcee7ccd17a81a088b08bcde86a61f1131fde
-R e81349dfc2a3dc56486d0ac2682054d1
+P 1e2d76ecb204347c580f1571e384f4bed5be5845 d5575d14dee9244c43a80c4b254ed4116012397a
+R f5875bc2bad7d4c5a53634a80e80f89e
+T +closed d5575d14dee9244c43a80c4b254ed4116012397a
 U drh
-Z 827931ccf787376b0baf57b6ec5074bb
+Z 7ea5b0d231bd267ac93e471cdf97e926
