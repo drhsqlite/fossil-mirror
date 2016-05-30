@@ -18,7 +18,7 @@ simple documents together with a safe subset of HTML for more complex
 formatting tasks.
 
 The [/md_rules | Markdown formatting rules] are more complex, but
-are also more widely know, and are thus provided as an alternative.
+are also more widely known, and are thus provided as an alternative.
 
 <h2>Stand-alone Wiki Pages</h2>
 

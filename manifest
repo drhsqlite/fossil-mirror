@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\s/timeline\sdocumentation.
-D 2016-05-30T00:42:02.470
+C Fix\sa\stypo\sin\sthe\swiki\sdocumentation.
+D 2016-05-30T10:14:52.524
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -749,9 +749,9 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
-F www/wikitheory.wiki cc88238014c1e0593b21bd1408b2900e1e136487
+F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ac8aa0c6d9be690f002f433718efd919b4046e5c
-R 32a5605c1a3215f56238a88ee2dbb23a
+P e448abd0eaff223f39ea4c15b39bc2fc57322ce1
+R 858da45c78c0df5eacde97ab0f01f0dc
 U drh
-Z b86b867fe1629b4cfc6b64d1b3d7dd41
+Z 3e29b7eb3ba784baaebd50b6ebf3f662
