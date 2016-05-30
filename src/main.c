@@ -1285,9 +1285,14 @@ void help_page(void){
   if( zCmd ){
     int rc, idx;
     char *z, *s, *d;
-    const char *zCmdOrPage = ('/'==*zCmd) ? "page" : "command";
     style_submenu_element("Command-List", "Command-List", "%s/help", g.zTop);
-    @ <h1>The "%s(zCmd)" %s(zCmdOrPage):</h1>
+    if( *zCmd=='/' ){
+      /* Some of the webpages require query parameters in order to work.
+      ** @ <h1>The "<a href='%R%s(zCmd)'>%s(zCmd)</a>" page:</h1> */
+      @ <h1>The "%s(zCmd)" page:</h1>
+    }else{
+      @ <h1>The "%s(zCmd)" command:</h1>
+    }
     rc = name_search(zCmd, aCommand, count(aCommand), 0, &idx);
     if( rc==1 ){
       @ unknown command: %s(zCmd)

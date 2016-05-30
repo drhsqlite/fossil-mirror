@@ -1195,28 +1195,28 @@ static void timeline_y_submenu(int isDisabled){
 **    b=TIMEORTAG    before this event
 **    c=TIMEORTAG    "circa" this event
 **    m=TIMEORTAG    mark this event
-**    n=COUNT        max number of events in output
-**    p=UUID         artifact and up to COUNT parents and ancestors
-**    d=UUID         artifact and up to COUNT descendants
-**    dp=UUID        The same as d=UUID&p=UUID
-**    t=TAGID        show only check-ins with the given tagid
-**    r=TAGID        show check-ins related to tagid
-**    u=USER         only if belonging to this user
+**    n=COUNT        suggested number of events in output
+**    p=CHECKIN      parents and ancestors of CHECKIN
+**    d=CHECKIN      descendants of CHECIN
+**    dp=CHECKIN     The same as d=CHECKIN&p=CHECKIN
+**    t=TAG          show only check-ins with the given TAG
+**    r=TAG          show check-ins related to TAG
+**    u=USER         only show items associated with USER
 **    y=TYPE         'ci', 'w', 't', 'e', or (default) 'all'
-**    s=TEXT         string search (comment and brief)
-**    ng             Suppress the graph if present
-**    nd             Suppress "divider" lines
+**    ng             No Graph.
+**    nd             Do not highlight the focus check-in
 **    v              Show details of files changed
-**    f=UUID         Show family (immediate parents and children) of UUID
-**    from=UUID      Path from...
-**    to=UUID          ... to this
+**    f=CHECKIN      Show family (immediate parents and children) of CHECKIN
+**    from=CHECKIN   Path from...
+**    to=CHECKIN       ... to this
 **    shortest         ... show only the shortest path
-**    uf=FUUID       Show only check-ins that use given file version
+**    uf=FILE_SHA1   Show only check-ins that contain the given file version
 **    brbg           Background color from branch name
 **    ubg            Background color from user
 **    namechng       Show only check-ins that have filename changes
 **    forks          Show only forks and their children
 **    ym=YYYY-MM     Show only events for the given year/month.
+**    yw=YYYY-WW     Show only events for the given week of the given year
 **    ymd=YYYY-MM-DD Show only events on the given day
 **    datefmt=N      Override the date format
 **    bisect         Show the check-ins that are in the current bisect    
@@ -1225,9 +1225,6 @@ static void timeline_y_submenu(int isDisabled){
 ** appear, then u=, y=, a=, and b= are ignored.
 **
 ** If both a= and b= appear then both upper and lower bounds are honored.
-**
-** If n= is missing, the default count is 50 for most queries but
-** drops to 11 for c= queries.
 */
 void page_timeline(void){
   Stmt q;                            /* Query used to generate the timeline */
