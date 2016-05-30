@@ -190,13 +190,9 @@ static int sqlcmd_autoinit(
 **    REGEXP                    The REGEXP operator works, unlike in
 **                              standard SQLite.
 **
-**    files_of_checkin          The "files_of_checkin" virtual table is
-**                              available for decoding manifests.
-**
-** Usage example for files_of_checkin:
-**
-**     CREATE VIRTUAL TABLE temp.foci USING files_of_checkin;
-**     SELECT * FROM foci WHERE checkinID=symbolic_name_to_rid('trunk');
+**    files_of_checkin(X)       A table-valued function that returns info on
+**                              all files contained in check-in X.  Example:
+**                                SELECT * FROM files_of_checkin('trunk');
 */
 void cmd_sqlite3(void){
   int noRepository;
