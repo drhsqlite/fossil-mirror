@@ -1816,12 +1816,8 @@ void commit_cmd(void){
   ** Autosync if autosync is enabled and this is not a private check-in.
   */
   if( !g.markPrivate ){
-    if( autosync_loop(SYNC_PULL, db_get_int("autosync-tries", 1)) ){
-      prompt_user("continue in spite of sync failure (y/N)? ", &ans);
-      cReply = blob_str(&ans)[0];
-      if( cReply!='y' && cReply!='Y' ){
-        fossil_exit(1);
-      }
+    if( autosync_loop(SYNC_PULL, db_get_int("autosync-tries", 1), 1) ){
+      fossil_exit(1);
     }
   }
 
@@ -2238,7 +2234,7 @@ void commit_cmd(void){
   db_end_transaction(0);
 
   if( !g.markPrivate ){
-    autosync_loop(SYNC_PUSH|SYNC_PULL, db_get_int("autosync-tries", 1));
+    autosync_loop(SYNC_PUSH|SYNC_PULL, db_get_int("autosync-tries", 1), 0);
   }
   if( count_nonbranch_children(vid)>1 ){
     fossil_print("**** warning: a fork has occurred *****\n");
