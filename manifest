@@ -1,5 +1,5 @@
-C On\sa\smerge\sor\supdate,\sprompt\sto\scontinue\sof\sautosync\sfails,\sjust\slike\sis\sdone\sfor\scommit.
-D 2016-05-30T22:30:46.601
+C Improved\shandling\sof\sexclude_robots().\s\sAdd\sthe\s"isrobot"\squery\sparameter\sfor\ntesting.
+D 2016-05-31T01:16:22.055
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -378,11 +378,11 @@ F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c abd167c9f2c5398782ca6d48ea1ee612163a7685
 F src/blob.c c30701f00b13110a7a9c4c3f9e5969969f6a63ad
 F src/branch.c fb34c1491e15c8a5d4cd6b4274a3cba7b455601e
-F src/browse.c c5f31adcb4a223232bb0bdf7f2e6fcc66b5ee123
+F src/browse.c 7014aae7937ef036bf16ccb907a999221d130e21
 F src/builtin.c b2dcfcade2054c083b03a18e3ab5026d51eb2dcb
 F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c da7afcbe8fd2a0bb2ce13866988c5a35ea8e6eaf
-F src/captcha.c 0ec2ed2bf4d3997c5cab5f9493435ec7493feee4
+F src/captcha.c 6934c86fdd6238cb29f68b92eb81811ed5d4c851
 F src/cgi.c 10310d276e72e3e34343e3385c0b39fac5cd826e
 F src/checkin.c a0b5dc3272721c50c9714950f9213ff5c843e3a8
 F src/checkout.c 6a0d559bdd0d825d83beabd7b00a2d57d878b253
@@ -400,7 +400,7 @@ F src/db.c 7a1a55d63f51733fdb3fe2888e49b9492d63e4b3
 F src/delta.c ab405c78d6559ea61563e2500c28f135a26c8b62
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 48ba0c208d74e5a8c4b33e43ea066d236d3a4694
-F src/diff.c 1d8bbe68afbd62e1946365b8e7e1665ffcc4d2ab
+F src/diff.c 4daaf556f6b30510fbd0d3b7eb720967a7845046
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
 F src/diffcmd.c 3759afcedb06bb0d76844e0b724cd28b36ede262
 F src/doc.c aad06cde815b7051a133044a2cd9306e2739600f
@@ -440,7 +440,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c 9c1a8a9a1d33f79191cb5a104067201a8cee6de1
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 32febde85f14593a503aadbb51983d37fce009c2
-F src/login.c 4bea2255def014a26d125320bb839de27f64e556
+F src/login.c 13788b9e70f2cfb13ea4e975a4117c68ed8115f0
 F src/lookslike.c 9103d15912b792a65874f04e185f2a74a477ebb4
 F src/main.c dce9dcdab977a0b02f744b63bc387e8970dfe27a
 F src/main.mk 1786fa94018b8d0aaba88936d7dfa11acee5a984
@@ -751,8 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1e2d76ecb204347c580f1571e384f4bed5be5845 d5575d14dee9244c43a80c4b254ed4116012397a
-R f5875bc2bad7d4c5a53634a80e80f89e
-T +closed d5575d14dee9244c43a80c4b254ed4116012397a
+P d685096f99a977909bcb8931a55d5cba2e02819c
+R 67f0da75b59082582e984c999ffdcc7f
 U drh
-Z 7ea5b0d231bd267ac93e471cdf97e926
+Z 417d15264c48b2c9963a6da3c7690d1a

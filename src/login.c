@@ -997,7 +997,13 @@ void login_check_credentials(void){
   if( fossil_strcmp(g.zLogin,"nobody")==0 ){
     g.zLogin = 0;
   }
-  g.isHuman = g.zLogin==0 ? isHuman(P("HTTP_USER_AGENT")) : 1;
+  if( PB("isrobot") ){
+    g.isHuman = 0;
+  }else if( g.zLogin==0 ){
+    g.isHuman = isHuman(P("HTTP_USER_AGENT"));
+  }else{
+    g.isHuman = 1;
+  }
 
   /* Set the capabilities */
   login_replace_capabilities(zCap, 0);
