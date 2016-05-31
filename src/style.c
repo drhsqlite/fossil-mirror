@@ -203,7 +203,7 @@ void style_resolve_href(void){
     @ gebi("form%d(i+1)").action="%s(aFormAction[i])";
   }
   @ }
-  if( sqlite3_strglob("*Opera Mini/[1-9]*", P("HTTP_USER_AGENT"))==0 ){
+  if( sqlite3_strglob("*Opera Mini/[1-9]*", PD("HTTP_USER_AGENT",""))==0 ){
     /* Special case for Opera Mini, which executes JS server-side */
     @ var isOperaMini = Object.prototype.toString.call(window.operamini)
     @                   === "[object OperaMini]";
@@ -362,7 +362,7 @@ static void url_var(
   const char *zPageName
 ){
   char *zVarName = mprintf("%s_url", zVarPrefix);
-  char *zUrl = mprintf("%s/%s?id=%x", g.zTop, zPageName,
+  char *zUrl = mprintf("%R/%s?id=%x", zPageName,
                        skin_id(zConfigName));
   Th_Store(zVarName, zUrl);
   free(zUrl);
@@ -1561,6 +1561,9 @@ void page_test_env(void){
     "HTTP_USER_AGENT", "HTTP_REFERER", "PATH_INFO", "PATH_TRANSLATED",
     "QUERY_STRING", "REMOTE_ADDR", "REMOTE_PORT", "REQUEST_METHOD",
     "REQUEST_URI", "SCRIPT_FILENAME", "SCRIPT_NAME", "SERVER_PROTOCOL",
+    "HOME", "FOSSIL_HOME", "USERNAME", "USER", "FOSSIL_USER",
+    "SQLITE_TMPDIR", "TMPDIR",
+    "TEMP", "TMP", "FOSSIL_VFS"
   };
 
   login_check_credentials();
@@ -1576,6 +1579,8 @@ void page_test_env(void){
   }else{
     style_submenu_element("Hide Cookies", 0, "%R/test_env");
   }
+  style_submenu_element("Stats", 0, "%R/stat");
+
 #if !defined(_WIN32)
   @ uid=%d(getuid()), gid=%d(getgid())<br />
 #endif

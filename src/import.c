@@ -130,7 +130,12 @@ static void import_reset(int freeAll){
 ** If saveUuid is true, then pContent is a commit record.  Record its
 ** UUID in gg.zPrevCheckin.
 */
-static int fast_insert_content(Blob *pContent, const char *zMark, int saveUuid){
+static int fast_insert_content(
+  Blob *pContent,          /* Content to insert */
+  const char *zMark,       /* Label using this mark, if not NULL */
+  int saveUuid,            /* Save SHA1 hash in gg.zPrevCheckin */
+  int doParse              /* Invoke manifest_crosslink() */
+){
   Blob hash;
   Blob cmpr;
   int rid;
@@ -150,6 +155,9 @@ static int fast_insert_content(Blob *pContent, const char *zMark, int saveUuid){
     db_reset(&ins);
     blob_reset(&cmpr);
     rid = db_last_insert_rowid();
+    if( doParse ){
+      manifest_crosslink(rid, pContent, MC_NONE);
+    }
   }
   if( zMark ){
     db_multi_exec(
@@ -178,7 +186,7 @@ static int fast_insert_content(Blob *pContent, const char *zMark, int saveUuid){
 static void finish_blob(void){
   Blob content;
   blob_init(&content, gg.aData, gg.nData);
-  fast_insert_content(&content, gg.zMark, 0);
+  fast_insert_content(&content, gg.zMark, 0, 0);
   blob_reset(&content);
   import_reset(0);
 }
@@ -196,8 +204,7 @@ static void finish_tag(void){
     blob_appendf(&record, "U %F\n", gg.zUser);
     md5sum_blob(&record, &cksum);
     blob_appendf(&record, "Z %b\n", &cksum);
-    fast_insert_content(&record, 0, 0);
-    blob_reset(&record);
+    fast_insert_content(&record, 0, 0, 1);
     blob_reset(&cksum);
   }
   import_reset(0);
@@ -240,6 +247,7 @@ static void finish_commit(void){
   blob_zero(&record);
   blob_appendf(&record, "C %F\n", gg.zComment);
   blob_appendf(&record, "D %s\n", gg.zDate);
+  if( !g.fQuiet ) fossil_print("%.10s\r", gg.zDate);
   for(i=0; i<gg.nFile; i++){
     const char *zUuid = gg.aFile[i].zUuid;
     if( zUuid==0 ) continue;
@@ -292,8 +300,7 @@ static void finish_commit(void){
   blob_appendf(&record, "U %F\n", gg.zUser);
   md5sum_blob(&record, &cksum);
   blob_appendf(&record, "Z %b\n", &cksum);
-  fast_insert_content(&record, gg.zMark, 1);
-  blob_reset(&record);
+  fast_insert_content(&record, gg.zMark, 1, 1);
   blob_reset(&cksum);
 
   /* The "git fast-export" command might output multiple "commit" lines
@@ -465,7 +472,20 @@ static void dequote_git_filename(char *zName){
   if( zName[n-1]!='"' ) return;
   for(i=0, j=1; j<n-1; j++){
     char c = zName[j];
-    if( c=='\\' ) c = zName[++j];
+    int x;
+    if( c=='\\' ){
+      if( j+3 <= n-1
+       && zName[j+1]>='0' && zName[j+1]<='3'
+       && zName[j+2]>='0' && zName[j+2]<='7'
+       && zName[j+3]>='0' && zName[j+3]<='7'
+       && (x = 64*(zName[j+1]-'0') + 8*(zName[j+2]-'0') + zName[j+3]-'0')!=0
+      ){
+        c = (unsigned char)x;
+        j += 3;
+      }else{
+        c = zName[++j];
+      }
+    }
     zName[i++] = c;
   }
   zName[i] = 0;
@@ -531,7 +551,7 @@ static void git_fast_import(FILE *pIn){
       trim_newline(&zLine[4]);
       gg.zTag = fossil_strdup(&zLine[4]);
     }else
-    if( strncmp(zLine, "reset ", 4)==0 ){
+    if( strncmp(zLine, "reset ", 6)==0 ){
       gg.xFinish();
     }else
     if( strncmp(zLine, "checkpoint", 10)==0 ){
@@ -1476,6 +1496,9 @@ static void svn_dump_import(FILE *pIn){
 ** The following formats are currently understood by this command
 **
 **   --git        Import from the git-fast-export file format (default)
+**                Options:
+**                  --import-marks FILE Restore marks table from FILE
+**                  --export-marks FILE Save marks table to FILE
 **
 **   --svn        Import from the svnadmin-dump file format. The default
 **                behaviour (unless overridden by --flat) is to treat 3
@@ -1491,11 +1514,13 @@ static void svn_dump_import(FILE *pIn){
 **
 ** Common Options:
 **   -i|--incremental   allow importing into an existing repository
-**   -f|--force         overwrite repository if already exist
+**   -f|--force         overwrite repository if already exists
+**   -q|--quiet         omit progress output
+**   --no-rebuild       skip the "rebuilding metadata" step
+**   --no-vacuum        skip the final VACUUM of the database file
 **
 ** The --incremental option allows an existing repository to be extended
 ** with new content.
-**
 **
 ** See also: export
 */
@@ -1505,13 +1530,20 @@ void import_cmd(void){
   Stmt q;
   int forceFlag = find_option("force", "f", 0)!=0;
   int svnFlag = find_option("svn", 0, 0)!=0;
+  int gitFlag = find_option("git", 0, 0)!=0;
+  int omitRebuild = find_option("no-rebuild",0,0)!=0;
+  int omitVacuum = find_option("no-vacuum",0,0)!=0;
 
   /* Options common to all input formats */
   int incrFlag = find_option("incremental", "i", 0)!=0;
 
   /* Options for --svn only */
-  const char *zBase="";
-  int flatFlag=0;
+  const char *zBase = "";
+  int flatFlag = 0;
+
+  /* Options for --git only */
+  const char *markfile_in = 0;
+  const char *markfile_out = 0;
 
   if( svnFlag ){
     /* Get --svn related options here, so verify_all_options() fail when svn
@@ -1523,8 +1555,9 @@ void import_cmd(void){
     gsvn.zBranches = find_option("branches", 0, 1);
     gsvn.zTags = find_option("tags", 0, 1);
     gsvn.incrFlag = incrFlag;
-  }else{
-    find_option("git",0,0);  /* Skip the --git option for now */
+  }else if( gitFlag ){
+    markfile_in = find_option("import-marks", 0, 1);
+    markfile_out = find_option("export-marks", 0, 1);
   }
   verify_all_options();
 
@@ -1542,7 +1575,7 @@ void import_cmd(void){
     db_create_repository(g.argv[2]);
   }
   db_open_repository(g.argv[2]);
-  db_open_config(0);
+  db_open_config(0, 0);
 
   db_begin_transaction();
   if( !incrFlag ) db_initial_setup(0, 0, 0);
@@ -1602,6 +1635,9 @@ void import_cmd(void){
     }
     svn_dump_import(pIn);
   }else{
+    Bag blobs, vers;
+    bag_init(&blobs);
+    bag_init(&vers);
     /* The following temp-tables are used to hold information needed for
     ** the import.
     **
@@ -1627,26 +1663,72 @@ void import_cmd(void){
        "CREATE TEMP TABLE xtag(tname TEXT UNIQUE, tcontent TEXT);"
     );
 
+    if( markfile_in ){
+      FILE *f = fossil_fopen(markfile_in, "r");
+      if( !f ){
+        fossil_fatal("cannot open %s for reading\n", markfile_in);
+      }
+      if(import_marks(f, &blobs, NULL)<0){
+        fossil_fatal("error importing marks from file: %s\n", markfile_in);
+      }
+      fclose(f);
+    }
+
+    manifest_crosslink_begin();
     git_fast_import(pIn);
     db_prepare(&q, "SELECT tcontent FROM xtag");
     while( db_step(&q)==SQLITE_ROW ){
       Blob record;
       db_ephemeral_blob(&q, 0, &record);
-      fast_insert_content(&record, 0, 0);
+      fast_insert_content(&record, 0, 0, 1);
       import_reset(0);
     }
     db_finalize(&q);
+    if( markfile_out ){
+      int rid;
+      Stmt q_marks;
+      FILE *f;
+      db_prepare(&q_marks, "SELECT DISTINCT trid FROM xmark");
+      while( db_step(&q_marks)==SQLITE_ROW ){
+        rid = db_column_int(&q_marks, 0);
+        if( db_int(0, "SELECT count(objid) FROM event"
+                      " WHERE objid=%d AND type='ci'", rid)==0 ){
+          if( bag_find(&blobs, rid)==0 ){
+            bag_insert(&blobs, rid);
+          }
+        }else{
+          bag_insert(&vers, rid);
+        }
+      }
+      db_finalize(&q_marks);
+      f = fossil_fopen(markfile_out, "w");
+      if( !f ){
+        fossil_fatal("cannot open %s for writing\n", markfile_out);
+      }
+      export_marks(f, &blobs, &vers);
+      fclose(f);
+      bag_clear(&blobs);
+      bag_clear(&vers);
+    }
+    manifest_crosslink_end(MC_NONE);
   }
 
   verify_cancel();
   db_end_transaction(0);
-  db_begin_transaction();
-  fossil_print("Rebuilding repository meta-data...\n");
-  rebuild_db(0, 1, !incrFlag);
-  verify_cancel();
-  db_end_transaction(0);
-  fossil_print("Vacuuming..."); fflush(stdout);
-  db_multi_exec("VACUUM");
+  fossil_print("                               \r");
+  if( omitRebuild ){
+    omitVacuum = 1;
+  }else{
+    db_begin_transaction();
+    fossil_print("Rebuilding repository meta-data...\n");
+    rebuild_db(0, 1, !incrFlag);
+    verify_cancel();
+    db_end_transaction(0);
+  }
+  if( !omitVacuum ){
+    fossil_print("Vacuuming..."); fflush(stdout);
+    db_multi_exec("VACUUM");
+  }
   fossil_print(" ok\n");
   if( !incrFlag ){
     fossil_print("project-id: %s\n", db_get("project-code", 0));

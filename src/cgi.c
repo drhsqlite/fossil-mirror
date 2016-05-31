@@ -798,6 +798,7 @@ void cgi_parse_POST_JSON( FILE * zIn, unsigned int contentLen ){
   CgiPostReadState state;
   cson_parse_opt popt = cson_parse_opt_empty;
   cson_parse_info pinfo = cson_parse_info_empty;
+  assert(g.json.gc.a && "json_main_bootstrap() was not called!");
   popt.maxDepth = 15;
   state.fh = zIn;
   state.len = contentLen;

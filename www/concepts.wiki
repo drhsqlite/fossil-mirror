@@ -13,7 +13,7 @@ distinguish itself from the others by being extremely simple
 to setup and operate.
 
 This document is intended as a quick introduction to the concepts
-behind fossil.
+behind Fossil.
 
 <h2>2.0 Composition Of A Project</h2>
 <img src="concept1.gif" align="right" hspace="10">
@@ -24,7 +24,7 @@ the end product.  The source tree changes over time as the
 software grows and expands and as features are added and bugs
 are fixed.  A snapshot of the source tree at any point in time
 is called a "version" or "revision" or a "baseline" of the product.
-In fossil, we use the name "check-in".
+In Fossil, we use the name "check-in".
 
 A "repository" is a database that contains copies of all historical
 check-ins for a project.  Check-ins are normally stored in the
@@ -34,20 +34,20 @@ Think of the repository as a safe place where all your old check-ins are
 securely stored away and available for retrieval whenever you need
 them.
 
-A repository in fossil is a single file on your disk.  This file
+A repository in Fossil is a single file on your disk.  This file
 might be rather large (dozens or hundreds of megabytes for a large
 or long running project) but it is nevertheless just a file.  You
 can move it around, rename it, write it out to a memory stick, or
 do anything else you normally do with files.
 
-Each source tree that is controlled by fossil is associated with
+Each source tree that is controlled by Fossil is associated with
 a single repository on the local disk drive.  You can tie two or more
 source trees to a single repository if you want (though one
 tree per repository is the most common configuration.)  So a
 single repository can be associated with many source trees, but
 each source tree is associated with only one repository.
 
-Fossil source trees may not overlap.  A fossil source tree is identified
+Fossil source trees may not overlap.  A Fossil source tree is identified
 by a file named "_FOSSIL_" (or ".fslckout", but this article will always
 use the name "_FOSSIL_") in the root directory of the source tree.  Every
 file that is a sibling of _FOSSIL_ and every file in every subfolder is
@@ -100,9 +100,9 @@ b4104959a67175f02d6b415480be22a239f1f077<br>
 997c9d6ae03ad114b2b57f04e9eeef17dcb82788
 </b></blockquote>
 
-When referring to an artifact using fossil, you can use a unique
+When referring to an artifact using Fossil, you can use a unique
 prefix of the artifact ID that is four characters or longer.  This saves
-a lot of typing.  When displaying artifact IDs, fossil will usually only
+a lot of typing.  When displaying artifact IDs, Fossil will usually only
 show the first 10 digits since that is normally enough to uniquely
 identify a file.
 
@@ -132,7 +132,7 @@ that source tree.  The manifest contains the (complete) artifact ID
 of the file and the name of the file as it appears on disk,
 and thus serves as a mapping from artifact ID to disk name.  The artifact ID
 of the manifest is the identifier for the entire check-in.  When
-you look at a "timeline" of changes in fossil, the ID associated
+you look at a "timeline" of changes in Fossil, the ID associated
 with each check-in or commit is really just the artifact ID of the
 manifest for that check-in.
 
@@ -171,7 +171,7 @@ be PGP clearsigned.</p>
     <b>sync</b>, and <b>clone</b>.</li>
 <li>A particular <u>version</u> of a particular file is an <b>artifact</b>
     that is identified by an <b>artifact ID</b>.</li>
-<li>Artifacts tracked by fossil are inherently immutable.</li>
+<li>Artifacts tracked by Fossil are inherently immutable.</li>
 <li>Fossil automatically generates a <b>manifest</b> file that identifies
     every artifact in a check-in.</li>
 <li>The artifact ID of the manifest is the identifier of the check-in.</li>
@@ -179,9 +179,9 @@ be PGP clearsigned.</p>
 
 <h2>3.0 Fossil - The Program</h2>
 
-Fossil is software.  The implementation of fossil is in the form
+Fossil is software.  The implementation of Fossil is in the form
 of a single executable named "fossil" (or "fossil.exe" on Windows).
-To install fossil on your system,
+To install Fossil on your system,
 all you have to do is obtain a copy of this one executable file (either
 by downloading a
 <a href="http://www.fossil-scm.org/download.html">pre-compiled version</a>
@@ -189,31 +189,31 @@ or [./build.wiki | compiling it yourself]) and then
 putting that file somewhere on your PATH.
 
 Fossil is completely self-contained.  It is not necessary to
-install any other software in order to use fossil.  You do <u>not</u> need
+install any other software in order to use Fossil.  You do <u>not</u> need
 CVS, gzip, diff, rsync, Python, Perl, Tcl, Java, apache, PostgreSQL, MySQL,
 SQLite, patch, or any similar software on your system in order to use
-fossil effectively.  You will want to have some kind of text editor
+Fossil effectively.  You will want to have some kind of text editor
 for entering check-in comments.  Fossil will use whatever text editor
 is identified by your VISUAL environment variable.  Fossil will also
 use GPG to clearsign your manifests if you happen to have it installed,
-but fossil will skip that step if GPG missing from your system.
-You can optionally set up fossil to use external "diff" programs, 
-though fossil has an excellent built-in "diff" algorithm that works
+but Fossil will skip that step if GPG missing from your system.
+You can optionally set up Fossil to use external "diff" programs, 
+though Fossil has an excellent built-in "diff" algorithm that works
 fine for most people.  If you happen to have Tcl/Tk installed on your
 system, Fossil will use it to generate a graphical "diff" display when
 you use the --tk option to the "diff" command, but this too is entirely
 optional.
 
 
-To uninstall fossil, simply delete the executable.
+To uninstall Fossil, simply delete the executable.
 
-To upgrade an older version of fossil to a newer version, just
+To upgrade an older version of Fossil to a newer version, just
 replace the old executable with the new one.  You might need to 
 run "<b>fossil all rebuild</b>" to restructure your repositories after
 an upgrade.  Running "all rebuild" never hurts, so when upgrading it
 is a good policy to run it even if it is not strictly necessary.
 
-To use fossil, simply type the name of the executable in your
+To use Fossil, simply type the name of the executable in your
 shell, followed by one of the various built-in commands and
 arguments appropriate for that command.  For example:
 
@@ -223,7 +223,7 @@ fossil help
 
 In the next section, when we say things like "use the <b>help</b>
 command" we mean to use the command name "help" as the first
-token after the name of the fossil executable, as shown above.
+token after the name of the Fossil executable, as shown above.
 
 <a name="workflow"></a>
 <h2>4.0 Workflow</h2>
@@ -237,10 +237,10 @@ keeps your changes in synchronization with your co-workers through
 the use of a central server.  The manual-merge mode is the standard workflow
 for GIT or Mercurial in that your local repository develops
 independently of your coworkers and you share and merge your changes manually.
-An interesting feature of fossil is that it supports both autosync
+An interesting feature of Fossil is that it supports both autosync
 and manual-merge work flows.
 
-The default setting for fossil is to be in autosync mode.  You
+The default setting for Fossil is to be in autosync mode.  You
 can change the autosync setting or check the current autosync
 setting using commands like:
 
@@ -250,7 +250,7 @@ fossil setting autosync off<br>
 <b>fossil settings</b>
 </blockquote>
 
-By default, fossil runs with autosync mode turned on.  The
+By default, Fossil runs with autosync mode turned on.  The
 authors finds that projects run more smoothly in autosync mode since
 autosync helps to prevent pointless forking and merge and helps keeps
 all collaborators working on exactly the same code rather than on their
@@ -292,7 +292,7 @@ to exist in historical check-ins.)  Test your changes.
 Create a new check-in using the <b>commit</b> command.  You will be prompted
 for a check-in comment and also for your GPG key if you have GPG installed.
 The commit copies the edits you have made in your local source
-tree into your local repository.  After your commit completes, fossil will
+tree into your local repository.  After your commit completes, Fossil will
 automatically <b>push</b> your changes back to the server
 you cloned from or whatever server you most recently synced with.
 </li>
@@ -397,7 +397,7 @@ Repeat all of the above until you have generated great software.
 With other configuration management software, setting up a server is
 a lot of work and normally takes time, patience, and a lot of system
 knowledge.  Fossil is designed to avoid this frustration.  Setting up
-a server with fossil is ridiculously easy.  You have four options:</p>
+a server with Fossil is ridiculously easy.  You have four options:</p>
 
 <ol>
 <li><p><b>Stand-alone server.</b>

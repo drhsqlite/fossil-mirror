@@ -245,7 +245,7 @@ void checkout_cmd(void){
   }
   db_multi_exec("DELETE FROM vfile WHERE vid!=%d", vid);
   if( !keepFlag ){
-    vfile_to_disk(vid, 0, 1, promptFlag);
+    vfile_to_disk(vid, 0, !g.fQuiet, promptFlag);
   }
   checkout_set_all_exe(vid);
   manifest_to_disk(vid);
@@ -288,7 +288,7 @@ static void unlink_local_database(int manifestOnly){
 ** Usage: %fossil close ?OPTIONS?
 **
 ** The opposite of "open".  Close the current database connection.
-** Require a -f or --force flag if there are unsaved changed in the
+** Require a -f or --force flag if there are unsaved changes in the
 ** current check-out or if there is non-empty stash.
 **
 ** Options:

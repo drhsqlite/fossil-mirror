@@ -1,0 +1,60 @@
+#
+# Copyright (c) 2016 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+# Testing "merge" command warnings
+#
+
+test_setup
+
+write_file f1 "f1"
+fossil add f1
+fossil commit -m "add f1" --tag pivot
+
+write_file f2 "f2"
+fossil add f2
+fossil commit -m "add f2"
+
+fossil update pivot
+fossil rm --hard f1
+write_file f2 "f2.1"
+write_file f3 "f3"
+fossil add f2 f3
+fossil commit -b b -m "delete f1, add f2 and f3" --tag mrg
+
+write_file f4 "f4"
+fossil add f4
+fossil commit -m "add f4"
+
+fossil update trunk
+write_file f1 "f1.1"
+write_file f3 "f3.1"
+fossil merge --integrate mrg
+test_status_list merge_warn-1 $RESULT {
+  WARNING: no common ancestor for f2
+  DELETE f1
+  WARNING: local edits lost for f1
+  ADDED f3 (overwrites an unmanaged file)
+  WARNING: 1 merge conflicts
+  WARNING: 1 unmanaged files were overwritten
+}
+test merge_warn-2 {
+  [string first "ignoring --integrate: mrg is not a leaf" $RESULT]>=0
+}
+
+###############################################################################
+
+test_cleanup

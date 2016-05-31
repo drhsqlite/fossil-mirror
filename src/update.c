@@ -155,8 +155,8 @@ void update_cmd(void){
   user_select();
   if( !dryRunFlag && !internalUpdate ){
     if( autosync_loop(SYNC_PULL + SYNC_VERBOSE*verboseFlag,
-                      db_get_int("autosync-tries", 1)) ){
-      fossil_fatal("Cannot proceed with update");
+                      db_get_int("autosync-tries", 1), 1) ){
+      fossil_fatal("update abandoned due to sync failure");
     }
   }
 

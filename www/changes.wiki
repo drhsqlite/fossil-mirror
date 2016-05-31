@@ -1,25 +1,72 @@
 <title>Change Log</title>
 
-<h2>Changes for Version 1.34 (2015-??-??)</h2>
+<h2>Changes for Version 1.35 (2016-00-00)</h2>
 
-  *  Fix --hard option to [/help?cmd=mv|fossil mv] and [/help?cmd=rm|fossil rm]
-     to enable them to work properly with certain relative paths.
+  *  Enable symlinks by default on all non-Windows platforms.
+  *  Rework the [/help?cmd=/setup_ulist|/setup_list page] (the User List page)
+     to display all users
+     in a click-to-sort table.
+  *  Fix backslash-octal escape on filenames while importing from git
+  *  When markdown documents begin with &lt;h1&gt; HTML elements, use that
+     header at the document title.
+  *  Added the [/help?cmd=/bigbloblist|/bigbloblist page].
+  *  Enhance the [/help?cmd=/finfo|/finfo page] so that when it is showing
+     the ancestors of a particular file version, it only shows direct
+     ancestors and omits changes on branches, thus making it show the same set
+     of ancestors that are used for [/help?cmd=/blame|/blame].
+  *  Added the --page option to the [/help?cmd=ui|fossil ui] command
+  *  Added the [/help?cmd=bisect|fossil bisect ui] command
+  *  Enhanced the [/help?cmd=diff|fossil diff] command so that it accepts
+     directory names as arguments and computes diffs on all files contained
+     within those directories.
+  *  Fix the [/help?cmd=add|fossil add] command so that it shows "SKIP" for
+     files added that were already under management.
+  *  TH1 enhancements:
+     <ul><li>Add <nowiki>[array exists]</nowiki> command.</li>
+     <li>Add minimal <nowiki>[array names]</nowiki> command.</li>
+     <li>Add tcl_platform(engine) and tcl_platform(platform) array
+     elements.</li>
+     </ul>
+  *  Get autosetup working with MinGW.
+  *  Fix autosetup detection of zlib in the source tree.
+  *  Added autosetup detection of OpenSSL when it may be present under the
+     "compat" subdirectory of the source tree.
+  *  Option --baseurl now works on Windows.
+
+<h2>Changes for Version 1.34 (2015-11-02)</h2>
+
   *  Make the [/help?cmd=clean|fossil clean] command undoable for files less
      than 10MiB.
-  *  Add minimal <nowiki>[lsearch]</nowiki> command to TH1. Only exact
-     case-sensitive matching is supported.
-  *  Add the <nowiki>[glob_match]</nowiki>, <nowiki>[markdown]</nowiki>, and
-     <nowiki>[dir]</nowiki> commands to TH1.
-  *  Add the <nowiki>[tclIsSafe] and [tclMakeSafe]</nowiki> TH1 commands to
-     the Tcl integration subsystem.
-  *  Add 'double', 'integer', and 'list' classes to the
-     <nowiki>[string is]</nowiki> command in TH1.
   *  Update internal Unicode character tables, used in regular expression
      handling, from version 7.0 to 8.0.
   *  Add the new [/help?cmd=amend|amend] command which is used to modify
      tags of a "check-in".
   *  Fix bug in [/help?cmd=import|import] command, handling version 3 of
      the svndump format for subversion.
+  *  Add the [/help?cmd=all|all cache] command.
+  *  TH1 enhancements:
+     <ul><li>Add minimal <nowiki>[lsearch]</nowiki> command. Only exact
+     case-sensitive matching is supported.</li>
+     <li>Add the <nowiki>[glob_match]</nowiki>, <nowiki>[markdown]</nowiki>,
+     <nowiki>[dir]</nowiki>, and <nowiki>[encode64]</nowiki> commands.</li>
+     <li>Add the <nowiki>[tclIsSafe] and [tclMakeSafe]</nowiki> commands to
+     the Tcl integration subsystem.</li>
+     <li>Add 'double', 'integer', and 'list' classes to the
+     <nowiki>[string is]</nowiki> command.</li>
+     </ul>
+  *  Add the --undo option to the [/help?cmd=diff|diff] command.
+  *  Build-in Antirez's "linenoise" command-line editing library for use with
+     the [/help?cmd=sqlite3|fossil sql] command on Unix platforms.
+  *  Add [/help?cmd=stash|stash cat] as an alias for the
+     [/help?cmd=stash|stash show] command.
+  *  Automatically pull before [/help?cmd=merge|fossil merge] when auto-sync
+     is enabled.
+  *  Fix --hard option to [/help?cmd=mv|fossil mv] and [/help?cmd=rm|fossil rm]
+     to enable them to work properly with certain relative paths.
+  *  Change the mimetype for ".n" and ".man" files to text/plain.
+  *  Display improvements in the [/help?cmd=bisect|fossil bisect chart] command.
+  *  Updated the built-in SQLite to version 3.9.1 and activated JSON1 and FTS5
+     support (both currently unused within Fossil).
 
 <h2>Changes for Version 1.33 (2015-05-23)</h2>
   *  Improved fork detection on [/help?cmd=update|fossil update],

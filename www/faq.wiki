@@ -27,7 +27,10 @@ Just run:
 
 And your default web browser should pop up and automatically point to
 the fossil interface.  (Hint:  You can omit the <i>REPOSITORY-FILENAME</i>
-if you are within an open check-out.)</blockquote></li>
+if you are within an open check-out.)
+
+See also: [http://fuelscm.org/]
+</blockquote></li>
 
 <a name="q2"></a>
 <p><b>(2) What is the difference between a "branch" and a "fork"?</b></p>

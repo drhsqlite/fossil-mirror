@@ -1,0 +1,37 @@
+<title>How To Use Encrypted Repositories</title>
+<h2>Introduction</h2><blockquote>
+Fossil can be compiled so that it works with encrypted repositories using
+the [https://www.sqlite.org/see/doc/trunk/www/readme.wiki|SQLite Encryption Extension].
+This technical note explains the process.
+</blockquote>
+<h2>Building An Encryption-Enabled Fossil</h2><blockquote>
+The SQLite Encryption Extension (SEE) is proprietary software and requires 
+[http://www.hwaci.com/cgi-bin/see-step1|purchasing a license].
+<p>
+Assuming you have an SEE license, the first step of compiling Fossil to
+use SEE is to create an SEE-enabled version of the SQLite database source code.
+This alternative SQLite database source file should be called "sqlite3-see.c"
+and should be placed in the src/ subfolder of the Fossil sources, right beside
+the public-domain "sqlite3.c" source file.
+<p>
+Add the --with-see command-line option to the configuration script to enable
+the use of SEE on unix-like systems.
+<blockquote><pre>
+./configure --with-see; make
+</pre></blockquote>
+<p>To build for Windows using MSVC, add
+the "USE_SEE=1" argument to the "nmake" command line.
+<blockquote><pre>
+nmake -f makefile.msc USE_SEE=1
+</pre></blockquote>
+</blockquote>
+<h2>Using Encrypted Repositories</h2><blockquote>
+Any Fossil repositories whose filename ends with ".efossil" is taken to be
+an encrypted repository.  Fossil will prompt for the encryption password and
+attempt to open the repository database using that password.
+<p>
+Every use of an encrypted repository requires retyping the encryption password.
+<p>
+On Windows, the "fossil server" and "fossil ui" commands do not
+(currently) work on an encrypted repository.
+</blockquote>

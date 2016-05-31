@@ -27,6 +27,14 @@
 #include "tcl.h"
 
 /*
+** This macro is used to verify that the header version of Tcl meets some
+** minimum requirement.
+*/
+#define MINIMUM_TCL_VERSION(major, minor) \
+  ((TCL_MAJOR_VERSION > (major)) || \
+   ((TCL_MAJOR_VERSION == (major)) && (TCL_MINOR_VERSION >= (minor))))
+
+/*
 ** These macros are designed to reduce the redundant code required to marshal
 ** arguments from TH1 to Tcl.
 */
@@ -287,6 +295,7 @@ static int canUseObjProc(){
 ** 8.6 and higher.
 */
 static int canUseTip285(){
+#if MINIMUM_TCL_VERSION(8, 6)
   int major = -1, minor = -1, patchLevel = -1, type = -1;
 
   Tcl_GetVersion(&major, &minor, &patchLevel, &type);
@@ -294,6 +303,9 @@ static int canUseTip285(){
     return 0; /* NOTE: Invalid version info, assume bad. */
   }
   return (major>8 || (major==8 && minor>=6));
+#else
+  return 0;
+#endif
 }
 
 /*
@@ -1066,9 +1078,11 @@ int evaluateTclWithEvents(
     if( Tcl_InterpDeleted(tclInterp) ){
       break;
     }
+#if MINIMUM_TCL_VERSION(8, 6)
     if( useTip285 && Tcl_Canceled(tclInterp, 0)!=TCL_OK ){
       break;
     }
+#endif
   }
   Tcl_Release((ClientData)tclInterp);
   return rc;

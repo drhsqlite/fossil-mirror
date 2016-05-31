@@ -37,7 +37,7 @@
 #endif
 
 #ifndef FSCTL_GET_REPARSE_POINT
-# define FSCTL_GET_REPARSE_POINT (((0x00000009) << 16) | ((0x00000000) << 14) | ((42) << 2) | (0)) 
+# define FSCTL_GET_REPARSE_POINT (((0x00000009) << 16) | ((0x00000000) << 14) | ((42) << 2) | (0))
 #endif
 
 static HANDLE dllhandle = NULL;
@@ -109,10 +109,10 @@ int win32_lstat(const wchar_t *zFilename, struct fossilStat *buf){
     /* if it is a reparse point it *might* be a symbolic link */
     /* so defer to win32_readlink to actually check */
     if( attr.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT ){
-      char *tname = fossil_filename_to_utf8(zFilename);
+      char *tname = fossil_path_to_utf8(zFilename);
       char tlink[LINK_BUFFER_SIZE];
       tlen = win32_readlink(tname, tlink, sizeof(tlink));
-      fossil_filename_free(tname);
+      fossil_path_free(tname);
     }
 
     ULARGE_INTEGER ull;
@@ -230,12 +230,12 @@ ssize_t win32_readlink(const char *path, char *buf, size_t bufsiz){
         data->SymbolicLinkReparseBuffer.PathBuffer[offset + length] = 0;
 
         /* convert the filename to utf8, copy it, and discard the converted copy */
-        temp = fossil_filename_to_utf8(data->SymbolicLinkReparseBuffer.PathBuffer + offset);
+        temp = fossil_path_to_utf8(data->SymbolicLinkReparseBuffer.PathBuffer + offset);
         rv = strlen(temp);
         if( rv >= bufsiz )
           rv = bufsiz;
         memcpy(buf, temp, rv);
-        fossil_filename_free(temp);
+        fossil_path_free(temp);
       }
 
       fossil_free(data);
@@ -285,7 +285,7 @@ int win32_symlink(const char *oldpath, const char *newpath){
   wchar_t *zMbcs, *zMbcsOld;
 
   /* does oldpath exist? is it a dir or a file? */
-  zMbcsOld = fossil_utf8_to_filename(oldpath);
+  zMbcsOld = fossil_utf8_to_path(oldpath, 0);
   if( win32_stat(zMbcsOld, &stat) == 0 ){
     if( stat.st_mode == S_IFDIR ){
       flags = SYMBOLIC_LINK_FLAG_DIRECTORY;
@@ -293,13 +293,13 @@ int win32_symlink(const char *oldpath, const char *newpath){
   }
 
   /* remove newpath before creating the symlink */
-  zMbcs = fossil_utf8_to_filename(newpath);
+  zMbcs = fossil_utf8_to_path(newpath, 0);
   win32_unlink_rmdir(zMbcs);
   if( isVistaOrLater() ){
     created = createSymbolicLinkW(zMbcs, zMbcsOld, flags);
   }
-  fossil_filename_free(zMbcs);
-  fossil_filename_free(zMbcsOld);
+  fossil_path_free(zMbcs);
+  fossil_path_free(zMbcsOld);
 
   /* if the symlink was not created, create a plain text file */
   if( !created ){
@@ -325,7 +325,7 @@ int win32_check_symlink_type_changed(const char* zName){
   wchar_t* zMbcs;
   fossilStat lstat_buf, stat_buf;
   WIN32_FILE_ATTRIBUTE_DATA lstat_attr;
-  zMbcs = fossil_utf8_to_filename(zName);
+  zMbcs = fossil_utf8_to_path(zName, 0);
   if( win32_stat(zMbcs, &stat_buf) != 0 ){
     stat_buf.st_mode = S_IFREG;
   }
@@ -334,7 +334,7 @@ int win32_check_symlink_type_changed(const char* zName){
     (lstat_buf.st_mode == S_IFLNK) &&
     GetFileAttributesExW(zMbcs, GetFileExInfoStandard, &lstat_attr) &&
     ((stat_buf.st_mode == S_IFDIR) != ((lstat_attr.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY));
-  fossil_filename_free(zMbcs);
+  fossil_path_free(zMbcs);
   return changed;
 }
 
@@ -396,7 +396,7 @@ int win32_symlinks_supported(const char* zFilename){
   /* assume no support for symlinks */
   success = 0;
 
-  pFilename = fossil_utf8_to_filename(zFilename);
+  pFilename = fossil_utf8_to_path(zFilename, 0);
 
   /* given the filename we're interested in, symlinks are supported if */
   /* 1. we can get the full name of the path from the given path */
@@ -415,7 +415,7 @@ int win32_symlinks_supported(const char* zFilename){
     }
   }
 
-  fossil_filename_free(pFilename);
+  fossil_path_free(pFilename);
 
   return success;
 }
@@ -656,10 +656,10 @@ void win32_getcwd(char *zBuf, int nBuf){
   if( GetCurrentDirectoryW(nBuf, zWide)==0 ){
     fossil_fatal("cannot find current working directory.");
   }
-  zUtf8 = fossil_filename_to_utf8(zWide);
+  zUtf8 = fossil_path_to_utf8(zWide);
   fossil_free(zWide);
   for(i=0; zUtf8[i]; i++) if( zUtf8[i]=='\\' ) zUtf8[i] = '/';
   strncpy(zBuf, zUtf8, nBuf);
-  fossil_filename_free(zUtf8);
+  fossil_path_free(zUtf8);
 }
 #endif /* _WIN32  -- This code is for win32 only */

@@ -40,7 +40,7 @@ int autosync(int flags){
   }
   zAutosync = db_get("autosync", 0);
   if( zAutosync ){
-    if( (flags & SYNC_PUSH)!=0 && memcmp(zAutosync,"pull",4)==0 ){
+    if( (flags & SYNC_PUSH)!=0 && fossil_strncmp(zAutosync,"pull",4)==0 ){
       return 0;   /* Do not auto-push when autosync=pullonly */
     }
     if( is_false(zAutosync) ){
@@ -79,9 +79,13 @@ int autosync(int flags){
 
 /*
 ** This routine will try a number of times to perform autosync with a
-** 0.5 second sleep between attempts; returning the last autosync status.
+** 0.5 second sleep between attempts.
+**
+** Return zero on success and non-zero on a failure.  If failure occurs
+** and doPrompt flag is true, ask the user if they want to continue, and
+** if they answer "yes" then return zero in spite of the failure.
 */
-int autosync_loop(int flags, int nTries){
+int autosync_loop(int flags, int nTries, int doPrompt){
   int n = 0;
   int rc = 0;
   while( (n==0 || n<nTries) && (rc=autosync(flags)) ){
@@ -93,6 +97,14 @@ int autosync_loop(int flags, int nTries){
         fossil_warning("Autosync failed.");
       }
     }
+  }
+  if( rc && doPrompt ){
+    Blob ans;
+    char cReply;
+    prompt_user("continue in spite of sync failure (y/N)? ", &ans);
+    cReply = blob_str(&ans)[0];
+    if( cReply=='y' || cReply=='Y' ) rc = 0;
+    blob_reset(&ans);
   }
   return rc;
 }
@@ -130,7 +142,7 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
   url_proxy_options();
   clone_ssh_find_options();
   db_find_and_open_repository(0, 0);
-  db_open_config(0);
+  db_open_config(0, 0);
   if( g.argc==2 ){
     if( db_get_boolean("auto-shun",1) ) configSync = CONFIGSET_SHUN;
   }else if( g.argc==3 ){
@@ -165,24 +177,31 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
 **
 ** Usage: %fossil pull ?URL? ?options?
 **
-** Pull changes from a remote repository into the local repository.
-** Use the "-R REPO" or "--repository REPO" command-line options
-** to specify an alternative repository file.
+** Pull all sharable changes from a remote repository into the local repository.
+** Sharable changes include public check-ins, and wiki, ticket, and tech-note
+** edits.  Add the --private option to pull private branches.  Use the 
+** "configuration pull" command to pull website configuration details.
 **
-** See clone usage for possible URL formats.
+** If URL is not specified, then the URL from the most recent clone, push,
+** pull, remote-url, or sync command is used.  See "fossil help clone" for
+** details on the URL formats.
 **
-** If the URL is not specified, then the URL from the most recent
-** clone, push, pull, remote-url, or sync command is used.
+** Options:
 **
-** The URL specified normally becomes the new "remote-url" used for
-** subsequent push, pull, and sync operations.  However, the "--once"
-** command-line option makes the URL a one-time-use URL that is not
-** saved.
+**   -B|--httpauth USER:PASS    Credentials for the simple HTTP auth protocol,
+**                              if required by the remote website
+**   --ipv4                     Use only IPv4, not IPv6
+**   --once                     Do not remember URL for subsequent syncs
+**   --proxy PROXY              Use the specified HTTP proxy
+**   --private                  Pull private branches too
+**   -R|--repository REPO       Repository to pull into
+**   --ssl-identity FILE        Local SSL credentials, if requested by remote
+**   --ssh-command SSH          Use SSH as the "ssh" command
+**   -v|--verbose               Additional (debugging) output
+**   --verily                   Exchange extra information with the remote
+**                              to ensure no content is overlooked
 **
-** Use the --private option to pull private branches from the
-** remote repository.
-**
-** See also: clone, push, sync, remote-url
+** See also: clone, config pull, push, remote-url, sync
 */
 void pull_cmd(void){
   unsigned configFlags = 0;
@@ -200,24 +219,31 @@ void pull_cmd(void){
 **
 ** Usage: %fossil push ?URL? ?options?
 **
-** Push changes in the local repository over into a remote repository.
-** Use the "-R REPO" or "--repository REPO" command-line options
-** to specify an alternative repository file.
+** Push all sharable changes from the local repository to a remote repository.
+** Sharable changes include public check-ins, and wiki, ticket, and tech-note
+** edits.  Use --private to also push private branches.  Use the 
+** "configuration pull" command to push website configuration details.
 **
-** See clone usage for possible URL formats.
+** If URL is not specified, then the URL from the most recent clone, push,
+** pull, remote-url, or sync command is used.  See "fossil help clone" for
+** details on the URL formats.
 **
-** If the URL is not specified, then the URL from the most recent
-** clone, push, pull, remote-url, or sync command is used.
+** Options:
 **
-** The URL specified normally becomes the new "remote-url" used for
-** subsequent push, pull, and sync operations.  However, the "--once"
-** command-line option makes the URL a one-time-use URL that is not
-** saved.
+**   -B|--httpauth USER:PASS    Credentials for the simple HTTP auth protocol,
+**                              if required by the remote website
+**   --ipv4                     Use only IPv4, not IPv6
+**   --once                     Do not remember URL for subsequent syncs
+**   --proxy PROXY              Use the specified HTTP proxy
+**   --private                  Pull private branches too
+**   -R|--repository REPO       Repository to pull into
+**   --ssl-identity FILE        Local SSL credentials, if requested by remote
+**   --ssh-command SSH          Use SSH as the "ssh" command
+**   -v|--verbose               Additional (debugging) output
+**   --verily                   Exchange extra information with the remote
+**                              to ensure no content is overlooked
 **
-** Use the --private option to push private branches to the
-** remote repository.
-**
-** See also: clone, pull, sync, remote-url
+** See also: clone, config push, pull, remote-url, sync
 */
 void push_cmd(void){
   unsigned configFlags = 0;
@@ -239,25 +265,30 @@ void push_cmd(void){
 **
 ** Usage: %fossil sync ?URL? ?options?
 **
-** Synchronize the local repository with a remote repository.  This is
-** the equivalent of running both "push" and "pull" at the same time.
-** Use the "-R REPO" or "--repository REPO" command-line options
-** to specify an alternative repository file.
+** Synchronize all sharable changes between the local repository and a a
+** remote repository.  Sharable changes include public check-ins and
+** edits to wiki pages, tickets, and technical notes.
 **
-** See clone usage for possible URL formats.
+** If URL is not specified, then the URL from the most recent clone, push,
+** pull, remote-url, or sync command is used.  See "fossil help clone" for
+** details on the URL formats.
 **
-** If the URL is not specified, then the URL from the most recent
-** successful clone, push, pull, remote-url, or sync command is used.
+** Options:
 **
-** The URL specified normally becomes the new "remote-url" used for
-** subsequent push, pull, and sync operations.  However, the "--once"
-** command-line option makes the URL a one-time-use URL that is not
-** saved.
+**   -B|--httpauth USER:PASS    Credentials for the simple HTTP auth protocol,
+**                              if required by the remote website
+**   --ipv4                     Use only IPv4, not IPv6
+**   --once                     Do not remember URL for subsequent syncs
+**   --proxy PROXY              Use the specified HTTP proxy
+**   --private                  Pull private branches too
+**   -R|--repository REPO       Repository to pull into
+**   --ssl-identity FILE        Local SSL credentials, if requested by remote
+**   --ssh-command SSH          Use SSH as the "ssh" command
+**   -v|--verbose               Additional (debugging) output
+**   --verily                   Exchange extra information with the remote
+**                              to ensure no content is overlooked
 **
-** Use the --private option to sync private branches with the
-** remote repository.
-**
-** See also:  clone, push, pull, remote-url
+** See also: clone, pull, push, remote-url
 */
 void sync_cmd(void){
   unsigned configFlags = 0;
@@ -287,7 +318,7 @@ void sync_cmd(void){
 ** The default remote-url is used by auto-syncing and by "sync", "push",
 ** "pull" that omit the server URL.
 **
-** See clone usage for possible URL formats.
+** See "fossil help clone" for further information about URL formats
 **
 ** See also: clone, push, pull, sync
 */
@@ -299,7 +330,7 @@ void remote_url_cmd(void){
   verify_all_options();
 
   if( g.argc!=2 && g.argc!=3 ){
-    usage("remote-url ?URL|off?");
+    usage("?URL|off?");
   }
   if( g.argc==3 ){
     db_unset("last-sync-url", 0);

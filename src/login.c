@@ -218,7 +218,9 @@ int login_search_uid(const char *zUsername, const char *zPasswd){
              " WHERE login=%Q"
              "   AND length(cap)>0 AND length(pw)>0"
              "   AND login NOT IN ('anonymous','nobody','developer','reader')"
-             "   AND (pw=%Q OR (length(pw)<>40 AND pw=%Q))",
+             "   AND (pw=%Q OR (length(pw)<>40 AND pw=%Q))"
+             "   AND (info NOT LIKE '%%expires 20%%'"
+             "      OR substr(info,instr(lower(info),'expires')+8,10)>datetime('now'))",
              zUsername, zSha1Pw, zPasswd
              );
   free(zSha1Pw);
@@ -393,6 +395,13 @@ static int isHuman(const char *zAgent){
   }
   if( strncmp(zAgent, "Mozilla/", 8)==0 ){
     if( atoi(&zAgent[8])<4 ) return 0;  /* Many bots advertise as Mozilla/3 */
+
+    /* 2016-05-30:  A pernicious spider that likes to walk Fossil timelines has
+    ** been detected on the SQLite website.  The spider changes its user-agent
+    ** string frequently, but it always seems to include the following text:
+    */
+    if( sqlite3_strglob("*Safari/537.36Mozilla/5.0*", zAgent)==0 ) return 0;
+
     if( sqlite3_strglob("*Firefox/[1-9]*", zAgent)==0 ) return 1;
     if( sqlite3_strglob("*Chrome/[1-9]*", zAgent)==0 ) return 1;
     if( sqlite3_strglob("*(compatible;?MSIE?[1789]*", zAgent)==0 ) return 1;
@@ -988,7 +997,13 @@ void login_check_credentials(void){
   if( fossil_strcmp(g.zLogin,"nobody")==0 ){
     g.zLogin = 0;
   }
-  g.isHuman = g.zLogin==0 ? isHuman(P("HTTP_USER_AGENT")) : 1;
+  if( PB("isrobot") ){
+    g.isHuman = 0;
+  }else if( g.zLogin==0 ){
+    g.isHuman = isHuman(P("HTTP_USER_AGENT"));
+  }else{
+    g.isHuman = 1;
+  }
 
   /* Set the capabilities */
   login_replace_capabilities(zCap, 0);
@@ -1075,15 +1090,16 @@ void login_set_capabilities(const char *zCap, unsigned flags){
   }
   for(i=0; zCap[i]; i++){
     switch( zCap[i] ){
-      case 's':   p->Setup = 1;  /* Fall thru into Admin */
+      case 's':   p->Setup = 1; /* Fall thru into Admin */
       case 'a':   p->Admin = p->RdTkt = p->WrTkt = p->Zip =
-                           p->RdWiki = p->WrWiki = p->NewWiki =
-                           p->ApndWiki = p->Hyperlink = p->Clone =
-                           p->NewTkt = p->Password = p->RdAddr =
-                           p->TktFmt = p->Attach = p->ApndTkt =
-                           p->ModWiki = p->ModTkt = 1;
-                           /* Fall thru into Read/Write */
-      case 'i':   p->Read = p->Write = 1;                     break;
+                             p->RdWiki = p->WrWiki = p->NewWiki =
+                             p->ApndWiki = p->Hyperlink = p->Clone =
+                             p->NewTkt = p->Password = p->RdAddr =
+                             p->TktFmt = p->Attach = p->ApndTkt =
+                             p->ModWiki = p->ModTkt = p->Delete =
+                             p->Private = 1;
+                             /* Fall thru into Read/Write */
+      case 'i':   p->Read = p->Write = 1;                      break;
       case 'o':   p->Read = 1;                                 break;
       case 'z':   p->Zip = 1;                                  break;
 
@@ -1093,7 +1109,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
       case 'p':   p->Password = 1;                             break;
 
       case 'j':   p->RdWiki = 1;                               break;
-      case 'k':   p->WrWiki = p->RdWiki = p->ApndWiki =1;    break;
+      case 'k':   p->WrWiki = p->RdWiki = p->ApndWiki =1;      break;
       case 'm':   p->ApndWiki = 1;                             break;
       case 'f':   p->NewWiki = 1;                              break;
       case 'l':   p->ModWiki = 1;                              break;
@@ -1181,7 +1197,7 @@ int login_has_capability(const char *zCap, int nCap, u32 flgs){
       case 'x':  rc = p->Private;   break;
       /* case 'y': */
       case 'z':  rc = p->Zip;       break;
-      default:   rc = 0;             break;
+      default:   rc = 0;            break;
     }
   }
   return rc;
@@ -1289,8 +1305,9 @@ void login_insert_csrf_secret(void){
 /*
 ** Before using the results of a form, first call this routine to verify
 ** that this Anti-CSRF token is present and is valid.  If the Anti-CSRF token
-** is missing or is incorrect, that indicates a cross-site scripting attach
-** so emits an error message and abort.
+** is missing or is incorrect, that indicates a cross-site scripting attack.
+** If the event of an attack is detected, an error message is generated and
+** all further processing is aborted.
 */
 void login_verify_csrf_secret(void){
   if( g.okCsrf ) return;

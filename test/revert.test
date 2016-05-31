@@ -1,4 +1,21 @@
 #
+# Copyright (c) 2013 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+#
 # Tests for 'fossil revert'
 # 
 #
@@ -39,13 +56,8 @@ proc revert-test {testid revertArgs expectedRevertOutput args} {
   fossil undo
 }
 
-catch {exec $::fossilexe info} res
-if {![regexp {use --repository} $res]} {
-  puts stderr "Cannot run this test within an open checkout"
-  return
-}
-
-repo_init
+require_no_open_checkout
+test_setup
 
 # Prepare first commit
 #
@@ -72,11 +84,11 @@ fossil mv f3 f3n
 # Test 'fossil revert' with no arguments
 #
 revert-test 1-1 {} {
-  UNMANAGE: f0
-  REVERTED: f1
-  REVERTED: f2
-  REVERTED: f3
-  DELETE: f3n
+  UNMANAGE f0
+  REVERT   f1
+  REVERT   f2
+  REVERT   f3
+  DELETE   f3n
 } -addremove {
   ADDED f0
 } -exists {f0 f1 f2 f3} -notexists f3n
@@ -84,7 +96,7 @@ revert-test 1-1 {} {
 # Test with a single filename argument
 #
 revert-test 1-2 f0 {
-  UNMANAGE: f0
+  UNMANAGE f0
 } -changes {
   DELETED f1
   EDITED f2
@@ -94,7 +106,7 @@ revert-test 1-2 f0 {
 } -exists {f0 f2 f3n} -notexists f3
 
 revert-test 1-3 f1 {
-  REVERTED: f1
+  REVERT   f1
 } -changes {
   ADDED f0
   EDITED f2
@@ -102,7 +114,7 @@ revert-test 1-3 f1 {
 } -exists {f0 f1 f2 f3n} -notexists f3
 
 revert-test 1-4 f2 {
-  REVERTED: f2
+  REVERT   f2
 } -changes {
   ADDED f0
   DELETED f1
@@ -113,8 +125,8 @@ revert-test 1-4 f2 {
 # is used as an argument to 'fossil revert'
 #
 revert-test 1-5 f3 {
-  REVERTED: f3
-  DELETE: f3n
+  REVERT   f3
+  DELETE   f3n
 } -changes {
   ADDED f0
   DELETED f1
@@ -122,8 +134,8 @@ revert-test 1-5 f3 {
 } -exists {f0 f2 f3} -notexists {f1 f3n}
 
 revert-test 1-6 f3n {
-  REVERTED: f3
-  DELETE: f3n
+  REVERT   f3
+  DELETE   f3n
 } -changes {
   ADDED f0
   DELETED f1
@@ -133,10 +145,10 @@ revert-test 1-6 f3n {
 # Test with multiple filename arguments
 #
 revert-test 1-7 {f0 f2 f3n} {
-  UNMANAGE: f0
-  REVERTED: f2
-  REVERTED: f3
-  DELETE: f3n
+  UNMANAGE f0
+  REVERT   f2
+  REVERT   f3
+  DELETE   f3n
 } -changes {
   DELETED f1
 } -addremove {
@@ -147,7 +159,7 @@ revert-test 1-7 {f0 f2 f3n} {
 # Test reverting the combination of a renamed file and an added file that
 # uses the renamed file's original filename.
 #
-repo_init
+test_setup
 write_file f1 "f1"
 fossil add f1
 fossil commit -m "add f1"
@@ -158,6 +170,25 @@ write_file f1 "f1b"
 fossil add f1
 
 revert-test 2-1 {} {
-  REVERTED: f1
-  DELETE: f1n
+  REVERT   f1
+  DELETE   f1n
 } -exists {f1} -notexists {f1n}
+
+
+# Test reverting a rename in the repo but not completed in the file
+# system
+test_setup
+write_file f1 "f1"
+fossil add f1
+fossil commit -m "add f1"
+fossil mv --soft f1 f1new
+test 3-mv-1 {[file exists f1]}
+test 3-mv-2 {![file exists f1new]}
+revert-test 3-1 {} {
+  REVERT f1
+  DELETE f1new
+} -exists {f1} -notexists {f1n}
+
+###############################################################################
+
+test_cleanup

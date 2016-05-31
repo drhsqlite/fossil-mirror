@@ -226,13 +226,13 @@ int leaf_ambiguity_warning(int rid, int currentCkout){
   db_prepare(&q,
     "SELECT"
     "  (SELECT uuid FROM blob WHERE rid=leaf.rid),"
-    "  (SELECT datetime(mtime%s) FROM event WHERE objid=leaf.rid),"
+    "  (SELECT datetime(mtime,toLocal()) FROM event WHERE objid=leaf.rid),"
     "  leaf.rid"
     "  FROM leaf"
     " WHERE (SELECT value FROM tagxref WHERE tagid=%d AND rid=leaf.rid)=%Q"
     "   AND NOT %z"
     " ORDER BY 2 DESC",
-    timeline_utc(), TAG_BRANCH, zBr, leaf_is_closed_sql("leaf.rid")
+    TAG_BRANCH, zBr, leaf_is_closed_sql("leaf.rid")
   );
   while( db_step(&q)==SQLITE_ROW ){
     blob_appendf(&msg, "\n  (%d) %s [%S]%s",

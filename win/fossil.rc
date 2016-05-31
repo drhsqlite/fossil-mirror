@@ -127,6 +127,11 @@ BEGIN
 #else
       VALUE "LegacyMvRm", "No\0"
 #endif /* defined(FOSSIL_ENABLE_LEGACY_MV_RM) */
+#if defined(FOSSIL_ENABLE_EXEC_REL_PATHS)
+      VALUE "ExecRelPaths", "Yes\0"
+#else
+      VALUE "ExecRelPaths", "No\0"
+#endif /* defined(FOSSIL_ENABLE_EXEC_REL_PATHS) */
 #if defined(FOSSIL_ENABLE_TH1_DOCS)
       VALUE "Th1Docs", "Yes\0"
 #else
@@ -158,6 +163,11 @@ BEGIN
 #if defined(FOSSIL_ENABLE_JSON)
       VALUE "JsonEnabled", "Yes, cson " FOSSIL_JSON_API_VERSION "\0"
 #endif /* defined(FOSSIL_ENABLE_JSON) */
+#if defined(USE_SEE)
+      VALUE "UseSeeEnabled", "Yes\0"
+#else
+      VALUE "UseSeeEnabled", "No\0"
+#endif /* defined(USE_SEE) */
       VALUE "MarkdownEnabled", "Yes\0"
     END
   END

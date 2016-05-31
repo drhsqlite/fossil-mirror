@@ -116,7 +116,7 @@ static void xfersetup_generic(
   isSubmit = P("submit")!=0;
   z = P("x");
   if( z==0 ){
-    z = db_get(zDbField, (char*)zDfltValue);
+    z = db_get(zDbField, zDfltValue);
   }
   style_header("Edit %s", zTitle);
   if( P("clear")!=0 ){

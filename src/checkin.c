@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -64,7 +64,8 @@ static void status_report(
   }
 
   db_prepare(&q,
-    "SELECT pathname, deleted, chnged, rid, coalesce(origname!=pathname,0), islink"
+    "SELECT pathname, deleted, chnged,"
+    "       rid, coalesce(origname!=pathname,0), islink"
     "  FROM vfile "
     " WHERE is_selected(id) %s"
     "   AND (chnged OR deleted OR rid=0 OR pathname!=origname)"
@@ -328,7 +329,7 @@ static void ls_cmd_rev(
 
   compute_fileage(rid,0);
   db_prepare(&q,
-    "SELECT datetime(fileage.mtime, 'localtime'), fileage.pathname,\n"
+    "SELECT datetime(fileage.mtime, toLocal()), fileage.pathname,\n"
     "       blob.size\n"
     "  FROM fileage, blob\n"
     " WHERE blob.rid=fileage.fid %s\n"
@@ -397,6 +398,8 @@ void ls_cmd(void){
     verify_all_options();
     ls_cmd_rev(zRev,verboseFlag,showAge,timeOrder);
     return;
+  }else if( find_option("R",0,1)!=0 ){
+    fossil_fatal("the -r is required in addition to -R");
   }
 
   db_must_be_within_tree();
@@ -430,14 +433,15 @@ void ls_cmd(void){
   if( showAge ){
     db_prepare(&q,
        "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0),"
-       "       datetime(checkin_mtime(%d,rid),'unixepoch'%s)"
+       "       datetime(checkin_mtime(%d,rid),'unixepoch',toLocal())"
        "  FROM vfile %s"
        " ORDER BY %s",
-       vid, timeline_utc(), blob_sql_text(&where), zOrderBy /*safe-for-%s*/
+       vid, blob_sql_text(&where), zOrderBy /*safe-for-%s*/
     );
   }else{
     db_prepare(&q,
-       "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0), islink"
+       "SELECT pathname, deleted, rid, chnged,"
+       "       coalesce(origname!=pathname,0), islink"
        "  FROM vfile %s"
        " ORDER BY %s", blob_sql_text(&where), zOrderBy /*safe-for-%s*/
     );
@@ -544,18 +548,19 @@ static void locate_unmanaged_files(
 
 /*
 ** COMMAND: extras
+** 
 ** Usage: %fossil extras ?OPTIONS? ?PATH1 ...?
 **
-** Print a list of all files in the source tree that are not part of
-** the current checkout.  See also the "clean" command. If paths are
-** specified, only files in the given directories will be listed.
+** Print a list of all files in the source tree that are not part of the
+** current checkout. See also the "clean" command. If paths are specified,
+** only files in the given directories will be listed.
 **
 ** Files and subdirectories whose names begin with "." are normally
 ** ignored but can be included by adding the --dotfiles option.
 **
-** The GLOBPATTERN is a comma-separated list of GLOB expressions for
-** files that are ignored.  The GLOBPATTERN specified by the "ignore-glob"
-** is used if the --ignore option is omitted.
+** Files whose names match any of the glob patterns in the "ignore-glob"
+** setting are ignored. This setting can be overridden by the --ignore
+** option, whose CSG argument is a comma-separated list of glob patterns.
 **
 ** Pathnames are displayed according to the "relative-paths" setting,
 ** unless overridden by the --abs-paths or --rel-paths options.
@@ -629,27 +634,37 @@ void extras_cmd(void){
 
 /*
 ** COMMAND: clean
+** 
 ** Usage: %fossil clean ?OPTIONS? ?PATH ...?
 **
-** Delete all "extra" files in the source tree.  "Extra" files are
-** files that are not officially part of the checkout. This operation
-** cannot be undone. If one or more PATH arguments appear, then only
-** the files named, or files contained with directories named, will be
-** removed.
+** Delete all "extra" files in the source tree.  "Extra" files are files
+** that are not officially part of the checkout.  If one or more PATH
+** arguments appear, then only the files named, or files contained with
+** directories named, will be removed.
 **
-** Prompted are issued to confirm the removal of each file, unless
-** the --force flag is used or unless the file matches glob pattern
-** specified by the --clean option.  No file that matches glob patterns
-** specified by --ignore or --keep will ever be deleted. The default
-** values for --clean, --ignore, and --keep are determined by the
-** (versionable) clean-glob, ignore-glob, and keep-glob settings.
-** Files and subdirectories whose names begin with "." are automatically
-** ignored unless the --dotfiles option is used.
+** If the --prompt option is used, prompts are issued to confirm the
+** permanent removal of each file.  Otherwise, files are backed up to the
+** undo buffer prior to removal, and prompts are issued only for files
+** whose removal cannot be undone due to their large size or due to
+** --disable-undo being used.
+** 
+** The --force option treats all prompts as having been answered yes,
+** whereas --no-prompt treats them as having been answered no.
+** 
+** Files matching any glob pattern specified by the --clean option are
+** deleted without prompting, and the removal cannot be undone.
 **
-** The --verily option ignores the keep-glob and ignore-glob settings
-** and turns on --force, --dotfiles, and --emptydirs.  Use the --verily
-** option when you really want to clean up everything.  Extreme care
-** should be exercised when using the --verily option.
+** No file that matches glob patterns specified by --ignore or --keep will
+** ever be deleted.  Files and subdirectories whose names begin with "."
+** are automatically ignored unless the --dotfiles option is used.
+** 
+** The default values for --clean, --ignore, and --keep are determined by
+** the (versionable) clean-glob, ignore-glob, and keep-glob settings.
+**
+** The --verily option ignores the keep-glob and ignore-glob settings and
+** turns on --force, --emptydirs, --dotfiles, and --disable-undo.  Use the
+** --verily option when you really want to clean up everything.  Extreme
+** care should be exercised when using the --verily option.
 **
 ** Options:
 **    --allckouts      Check for empty directories within any checkouts
@@ -674,6 +689,8 @@ void extras_cmd(void){
 **                     therefore, directories that contain only files
 **                     that were removed will be removed as well.
 **    -f|--force       Remove files without prompting.
+**    -i|--prompt      Prompt before removing each file.  This option
+**                     implies the --disable-undo option.
 **    -x|--verily      WARNING: Removes everything that is not a managed
 **                     file or the repository itself.  This option
 **                     implies the --force, --emptydirs, --dotfiles, and
@@ -702,6 +719,7 @@ void clean_cmd(void){
   int allFileFlag, allDirFlag, dryRunFlag, verboseFlag;
   int emptyDirsFlag, dirsOnlyFlag;
   int disableUndo, noPrompt;
+  int alwaysPrompt = 0;
   unsigned scanFlags = 0;
   int verilyFlag = 0;
   const char *zIgnoreFlag, *zKeepFlag, *zCleanFlag;
@@ -722,6 +740,7 @@ void clean_cmd(void){
   }
   disableUndo = find_option("disable-undo",0,0)!=0;
   noPrompt = find_option("no-prompt",0,0)!=0;
+  alwaysPrompt = find_option("prompt","i",0)!=0;
   allFileFlag = allDirFlag = find_option("force","f",0)!=0;
   dirsOnlyFlag = find_option("dirsonly",0,0)!=0;
   emptyDirsFlag = find_option("emptydirs","d",0)!=0 || dirsOnlyFlag;
@@ -781,22 +800,39 @@ void clean_cmd(void){
         continue;
       }
       if( !dryRunFlag && !glob_match(pClean, zName+nRoot) ){
+        char *zPrompt = 0;
+        char cReply;
+        Blob ans = empty_blob;
         int undoRc = UNDO_NONE;
-        if( !disableUndo ){
+        if( alwaysPrompt ){
+          zPrompt = mprintf("Remove unmanaged file \"%s\" (a=all/y/N)? ",
+                            zName+nRoot);
+          prompt_user(zPrompt, &ans);
+          fossil_free(zPrompt);
+          cReply = fossil_toupper(blob_str(&ans)[0]);
+          blob_reset(&ans);
+          if( cReply=='N' ) continue;
+          if( cReply=='A' ){
+            allFileFlag = 1;
+            alwaysPrompt = 0;
+          }else{
+            undoRc = UNDO_SAVED_OK;
+          }
+        }else if( !disableUndo ){
           undoRc = undo_maybe_save(zName+nRoot, UNDO_SIZE_LIMIT);
         }
         if( undoRc!=UNDO_SAVED_OK ){
-          char cReply;
           if( allFileFlag ){
             cReply = 'Y';
           }else if( !noPrompt ){
             Blob ans;
-            char *prompt = mprintf("\nWARNING: Deletion of this file will "
-                                   "not be undoable via the 'undo'\n"
-                                   "         command because %s.\n\n"
-                                   "Remove unmanaged file \"%s\" (a=all/y/N)? ",
-                                   undo_save_message(undoRc), zName+nRoot);
-            prompt_user(prompt, &ans);
+            zPrompt = mprintf("\nWARNING: Deletion of this file will "
+                              "not be undoable via the 'undo'\n"
+                              "         command because %s.\n\n"
+                              "Remove unmanaged file \"%s\" (a=all/y/N)? ",
+                              undo_save_message(undoRc), zName+nRoot);
+            prompt_user(zPrompt, &ans);
+            fossil_free(zPrompt);
             cReply = blob_str(&ans)[0];
             blob_reset(&ans);
           }else{
@@ -813,7 +849,7 @@ void clean_cmd(void){
         if( verboseFlag || dryRunFlag ){
           fossil_print("Removed unmanaged file: %s\n", zName+nRoot);
         }
-      }else if( verboseFlag ){
+      }else{
         fossil_print("Could not remove file: %s\n", zName+nRoot);
       }
     }
@@ -851,6 +887,7 @@ void clean_cmd(void){
                                  zName+nRoot);
           prompt_user(prompt, &ans);
           cReply = blob_str(&ans)[0];
+          fossil_free(prompt);
           blob_reset(&ans);
         }else{
           cReply = 'N';
@@ -905,7 +942,7 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
   if( zEditor==0 ){
     zEditor = mprintf("%s\\notepad.exe", fossil_getenv("SYSTEMROOT"));
 #if defined(__CYGWIN__)
-    zEditor = fossil_utf8_to_filename(zEditor);
+    zEditor = fossil_utf8_to_path(zEditor, 0);
     blob_add_cr(pPrompt);
 #endif
   }
@@ -1657,6 +1694,8 @@ static int tagCmp(const void *a, const void *b){
 **    --sha1sum                  verify file status using SHA1 hashing rather
 **                               than relying on file mtimes
 **    --tag TAG-NAME             assign given tag TAG-NAME to the check-in
+**    --date-override DATE       DATE to use instead of 'now'
+**    --user-override USER       USER to use instead of the current default
 **
 ** See also: branch, changes, checkout, extras, sync
 */
@@ -1780,12 +1819,8 @@ void commit_cmd(void){
   ** Autosync if autosync is enabled and this is not a private check-in.
   */
   if( !g.markPrivate ){
-    if( autosync_loop(SYNC_PULL, db_get_int("autosync-tries", 1)) ){
-      prompt_user("continue in spite of sync failure (y/N)? ", &ans);
-      cReply = blob_str(&ans)[0];
-      if( cReply!='y' && cReply!='Y' ){
-        fossil_exit(1);
-      }
+    if( autosync_loop(SYNC_PULL, db_get_int("autosync-tries", 1), 1) ){
+      fossil_exit(1);
     }
   }
 
@@ -2202,7 +2237,7 @@ void commit_cmd(void){
   db_end_transaction(0);
 
   if( !g.markPrivate ){
-    autosync_loop(SYNC_PUSH|SYNC_PULL, db_get_int("autosync-tries", 1));
+    autosync_loop(SYNC_PUSH|SYNC_PULL, db_get_int("autosync-tries", 1), 0);
   }
   if( count_nonbranch_children(vid)>1 ){
     fossil_print("**** warning: a fork has occurred *****\n");

@@ -182,40 +182,25 @@ void compute_ancestors(int rid, int N, int directOnly){
 }
 
 /*
-** Compute up to N direct ancestors (merge ancestors do not count)
+** Compute all direct ancestors (merge ancestors do not count)
 ** for the check-in rid and put them in a table named "ancestor".
 ** Label each generation with consecutive integers going backwards
 ** in time such that rid has the smallest generation number and the oldest
 ** direct ancestor as the largest generation number.
 */
-void compute_direct_ancestors(int rid, int N){
-  Stmt ins;
-  Stmt q;
-  int gen = 0;
+void compute_direct_ancestors(int rid){
   db_multi_exec(
     "CREATE TEMP TABLE IF NOT EXISTS ancestor(rid INTEGER UNIQUE NOT NULL,"
                                             " generation INTEGER PRIMARY KEY);"
     "DELETE FROM ancestor;"
-    "INSERT INTO ancestor VALUES(%d, 0);", rid
+    "WITH RECURSIVE g(x,i) AS ("
+    "  VALUES(%d,1)"
+    "  UNION ALL"
+    "  SELECT plink.pid, g.i+1 FROM plink, g"
+    "   WHERE plink.cid=g.x AND plink.isprim)"
+    "INSERT INTO ancestor(rid,generation) SELECT x,i FROM g;", 
+    rid
   );
-  db_prepare(&ins, "INSERT INTO ancestor VALUES(:rid, :gen)");
-  db_prepare(&q,
-    "SELECT pid FROM plink"
-    " WHERE cid=:rid AND isprim"
-  );
-  while( (N--)>0 ){
-    db_bind_int(&q, ":rid", rid);
-    if( db_step(&q)!=SQLITE_ROW ) break;
-    rid = db_column_int(&q, 0);
-    db_reset(&q);
-    gen++;
-    db_bind_int(&ins, ":rid", rid);
-    db_bind_int(&ins, ":gen", gen);
-    db_step(&ins);
-    db_reset(&ins);
-  }
-  db_finalize(&ins);
-  db_finalize(&q);
 }
 
 /*
@@ -448,7 +433,7 @@ void leaves_cmd(void){
 }
 
 /*
-** WEBPAGE:  leaves
+** WEBPAGE: leaves
 **
 ** Show leaf check-ins in a timeline.  By default only open leaves
 ** are listed.
