@@ -1,5 +1,5 @@
-C Improved\shandling\sof\sexclude_robots().\s\sAdd\sthe\s"isrobot"\squery\sparameter\sfor\ntesting.
-D 2016-05-31T01:16:22.055
+C Fix\sa\sbug\sin\sthe\sspider\sexcluder.
+D 2016-05-31T01:57:03.188
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -382,7 +382,7 @@ F src/browse.c 7014aae7937ef036bf16ccb907a999221d130e21
 F src/builtin.c b2dcfcade2054c083b03a18e3ab5026d51eb2dcb
 F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c da7afcbe8fd2a0bb2ce13866988c5a35ea8e6eaf
-F src/captcha.c 6934c86fdd6238cb29f68b92eb81811ed5d4c851
+F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c 10310d276e72e3e34343e3385c0b39fac5cd826e
 F src/checkin.c a0b5dc3272721c50c9714950f9213ff5c843e3a8
 F src/checkout.c 6a0d559bdd0d825d83beabd7b00a2d57d878b253
@@ -486,7 +486,7 @@ F src/sqlite3.h a41446e48e7bfdcb052e1773572ad7bc662c68e1
 F src/stash.c ccb0d94252422f28178119825a99c6bce45924d6
 F src/stat.c 82a4439d096fe0fb231e27f49f2b2ff13dacf014
 F src/statrep.c 061c9df02d134454c32e34cc29807adc594e1bc2
-F src/style.c 91017c67834894398479bc6f25db8a0585c33f35
+F src/style.c c0d37267d5b043c8c6e50436b2829328974b4dd9
 F src/sync.c cc287e14c4387dfa7a8f050cbec523ece71d664e
 F src/tag.c be1923babfee2deb99a2297c1da780324061eda8
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
@@ -751,7 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d685096f99a977909bcb8931a55d5cba2e02819c
-R 67f0da75b59082582e984c999ffdcc7f
+P abcd5df2672bbde8badb3471c4be1f0edcc42c9c
+R 7c656ad8382b96ce173090fbc4a18aa6
 U drh
-Z 417d15264c48b2c9963a6da3c7690d1a
+Z b8bfb6c12b1bf11ed3b35e432ca99890
