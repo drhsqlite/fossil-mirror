@@ -167,7 +167,7 @@ static int sqlcmd_autoinit(
 **
 ** WARNING:  Careless use of this command can corrupt a Fossil repository
 ** in ways that are unrecoverable.  Be sure you know what you are doing before
-** running any SQL commands that modifies the repository database.
+** running any SQL commands that modify the repository database.
 **
 ** The following extensions to the usual SQLite commands are provided:
 **

@@ -1,5 +1,5 @@
-C Fix\sa\sbug\sin\sthe\sspider\sexcluder.
-D 2016-05-31T01:57:03.188
+C Fix\stypo\sin\ssqlite3\scommand\sdocumentation
+D 2016-06-05T17:02:35.270
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -480,7 +480,7 @@ F src/shell.c 14ff7f660530a52b117d110ba3390b7b2eb719b6
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 6fbec2fbaf3bb39566f2550b12f58127c9bfa850
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
-F src/sqlcmd.c 4be5f7cc5c87959fcbcd030ba4bc9b3e1e24d4ca
+F src/sqlcmd.c 67a6b4ac894633d8346dc890a5b179a0ac3b1925
 F src/sqlite3.c 9b9171b1e6ce7a980e6b714e9c0d9112657ad552
 F src/sqlite3.h a41446e48e7bfdcb052e1773572ad7bc662c68e1
 F src/stash.c ccb0d94252422f28178119825a99c6bce45924d6
@@ -751,7 +751,6 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P abcd5df2672bbde8badb3471c4be1f0edcc42c9c
-R 7c656ad8382b96ce173090fbc4a18aa6
-U drh
-Z b8bfb6c12b1bf11ed3b35e432ca99890
+P 8583ca38eb285560e1e7d64094c5b0bdb5b4b5b1
+U andygoth
+Z a3c46e58bf0752ad47c679ef1d154eb0
