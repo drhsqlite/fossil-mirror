@@ -1,5 +1,5 @@
-C Fix\stypo\sin\ssqlite3\scommand\sdocumentation
-D 2016-06-05T17:02:35.270
+C Minor\sefficiency\simprovement\sby\sdefining\sSQLITE_LIKE_DOESNT_MATCH_BLOBS=1
+D 2016-06-06T10:07:35.828
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -443,10 +443,10 @@ F src/loadctrl.c 32febde85f14593a503aadbb51983d37fce009c2
 F src/login.c 13788b9e70f2cfb13ea4e975a4117c68ed8115f0
 F src/lookslike.c 9103d15912b792a65874f04e185f2a74a477ebb4
 F src/main.c dce9dcdab977a0b02f744b63bc387e8970dfe27a
-F src/main.mk 1786fa94018b8d0aaba88936d7dfa11acee5a984
+F src/main.mk 61f9c92dd66b356e9245ee43360023bdd7cf2d80
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl e06e4121a9bbb94342c789959df2b879fba5af4d
+F src/makemake.tcl 7aa2028c30e67a4effdf7458b12a7d2f200b1f50
 F src/manifest.c 5739475e5ecd86a53f1333c8c04f61aba010d2fd
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md c0c2e98daa14f576d5e5d917f2fe7b5b95ccb5fe
@@ -630,11 +630,11 @@ F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil-autocomplete.bash 1135105ee18b95823944e2fa425806d3bc0f4252
 F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
-F win/Makefile.PellesCGMake 50eda9fe4b21df1ff4009b89454fd9013752cee4
-F win/Makefile.dmc d35f8195adeeeee792c1e5e96b14e0b86328807b
-F win/Makefile.mingw 6be2ea1064ebcd7ab47619d9ae88ccbe19e84efb
-F win/Makefile.mingw.mistachkin 233be99d1514f9af20b0ebd273a6cd5aedb2f536
-F win/Makefile.msc 6edb4692f6e77d90d2ded42859bedc7c02993b26
+F win/Makefile.PellesCGMake 7a28a56f548bfad3f4e6ad2749333c0a0ad95acc
+F win/Makefile.dmc 7b34774cbcbe369f7f7a95692aa0c3ce8a985e2d
+F win/Makefile.mingw ada7a71d9030a452c308d437f71fa86b50dc2d19
+F win/Makefile.mingw.mistachkin f95b18713581d630fc7e1c6630e3690f31f0d7c4
+F win/Makefile.msc 42632bb4c72f5fb0a70834cb761a3bc81b226cdb
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -720,7 +720,7 @@ F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki 50018cdbdfd9b391e908a54a4ccd15d91332c581
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
-F www/makefile.wiki f75b16c8bb734fe20d0d524c658f05dab006316c
+F www/makefile.wiki 30c7129ffb00c58699b87e84a2c0b696d7c10406
 F www/mkdownload.tcl 5ac61a3e13cecaa67f1e31741113c96cbd41463f
 F www/mkindex.tcl 23e4d98c3b4c8e67f233547e21b9effe961943b5
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
@@ -751,6 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8583ca38eb285560e1e7d64094c5b0bdb5b4b5b1
-U andygoth
-Z a3c46e58bf0752ad47c679ef1d154eb0
+P fba7d9e452fe1b7826aadf08d12dade1390d907d
+R 0b618f573ff8104f711ec7a6f7d343a8
+U jan.nijtmans
+Z f628c64b3a4da0ad784fd8c8142f8b9b
