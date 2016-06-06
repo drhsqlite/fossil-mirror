@@ -1416,3 +1416,22 @@ void wiki_cmd(void){
 wiki_cmd_usage:
   usage("export|create|commit|list ...");
 }
+
+/*
+** COMMAND: test-markdown-render
+**
+** Usage: %fossil test-markdown-render FILE
+**
+** Render markdown wiki from FILE to stdout.
+** 
+*/
+void test_markhown_render(void){
+  Blob in, out;
+  db_find_and_open_repository(0,0);
+  verify_all_options();
+  if( g.argc!=3 ) usage("FILE");
+  blob_zero(&out);
+  blob_read_from_file(&in, g.argv[2]);
+  markdown_to_html(&in, 0, &out);
+  blob_write_to_file(&out, "-");
+}
