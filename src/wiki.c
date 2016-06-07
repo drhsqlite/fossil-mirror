@@ -1425,7 +1425,7 @@ wiki_cmd_usage:
 ** Render markdown wiki from FILE to stdout.
 ** 
 */
-void test_markhown_render(void){
+void test_markdown_render(void){
   Blob in, out;
   db_find_and_open_repository(0,0);
   verify_all_options();
