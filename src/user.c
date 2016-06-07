@@ -91,11 +91,49 @@ static char *getpass(const char *prompt){
 }
 #endif
 
+#if defined(_WIN32) || defined(WIN32)
+# include <io.h>
+# include <fcntl.h>
+# undef popen
+# define popen _popen
+# undef pclose
+# define pclose _pclose
+#endif
+
 /*
 ** Do a single prompt for a passphrase.  Store the results in the blob.
+**
+** If the FOSSIL_PWREADER environment variable is set, then it will
+** be the name of a program that prompts the user for their password/
+** passphrase in a secure manner.  The program should take one or more
+** arguments which are the prompts and should output the acquired
+** passphrase as a single line on stdout.  This function will read the
+** output using popen().
+**
+** If FOSSIL_PWREADER is not set, or if it is not the name of an
+** executable, then use the C-library getpass() routine.
+**
+** The return value is a pointer to a static buffer that is overwritten
+** on subsequent calls to this same routine.
 */
 static void prompt_for_passphrase(const char *zPrompt, Blob *pPassphrase){
-  char *z = getpass(zPrompt);
+  char *z;
+  const char *zProg = fossil_getenv("FOSSIL_PWREADER");
+  if( zProg && zProg[0] ){
+    static char zPass[100];
+    Blob cmd;
+    FILE *in;
+    blob_zero(&cmd);
+    blob_appendf(&cmd, "%s \"Fossil Passphrase\" \"%s\"", zProg, zPrompt);
+    zPass[0] = 0;
+    in = popen(blob_str(&cmd), "r");
+    fgets(zPass, sizeof(zPass), in);
+    pclose(in);
+    blob_reset(&cmd);
+    z = zPass;
+  }else{
+    z = getpass(zPrompt);
+  }
   strip_string(pPassphrase, z);
 }
 

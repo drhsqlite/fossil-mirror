@@ -1,5 +1,5 @@
-C Fix\stypo\sin\stest_markdown_render\sfunction\sname.\s(no\sfunctional\schange\ssince\nthe\scommand\sname\swas\sokay).
-D 2016-06-07T01:26:03.072
+C If\sthe\sFOSSIL_PWREADER\senvironment\svariable\sis\sset\sto\sthe\sname\sof\sa\sprogram,\nthen\suse\sthat\sprogram\sto\sprompt\sand\sread\spasswords\sand\spassphrases\sfrom\sthe\nuser\swhen\srequired,\sin\splace\sof\sthe\sgetpass()\slibrary\sroutine.
+D 2016-06-07T15:27:25.052
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -503,7 +503,7 @@ F src/undo.c 52ec5c24a6dcf1937026e2d9f86791fd1913cdf6
 F src/unicode.c f26b9f26d4ac399f7b03cfac16ec72336c7f06c9
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
-F src/user.c 0131b991e38c8e8be03c2db788ab7e554ca03368
+F src/user.c b76f44f85f5df5aeab9eba0c892d73a9335f5ea8
 F src/utf8.c 5c85c7e88b82b5fb48649c46f063ac94ab58eb20
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
@@ -751,7 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 67f5df3b59981a28aa061b9a55a463afcc69d44c
-R b8f2da77120b05688b6dfd23abe4526b
-U mgagnon
-Z bbedcf9f4843cc00f611945c44810e4b
+P c94b49add807c52f397e14444ccaed81a1fee880
+R c17e83b16a9b38476209613978a04187
+U drh
+Z 2ecd5b70b356e7a93f96d42c2c48a08c
