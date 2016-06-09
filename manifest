@@ -1,5 +1,5 @@
-C Use\ssqlite3_snprintf\sinstead\sbecause\sit\sguarantees\sthat\sthe\sbuffer\swill\sbe\nzero-terminated\sand\sto\savoid\swarnings\son\sOpenBSD.
-D 2016-06-09T02:22:52.786
+C Add\smimetypes\sfor\sbz2\sand\sbzip.
+D 2016-06-09T15:26:44.731
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -403,7 +403,7 @@ F src/descendants.c 48ba0c208d74e5a8c4b33e43ea066d236d3a4694
 F src/diff.c 4daaf556f6b30510fbd0d3b7eb720967a7845046
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
 F src/diffcmd.c 3759afcedb06bb0d76844e0b724cd28b36ede262
-F src/doc.c aad06cde815b7051a133044a2cd9306e2739600f
+F src/doc.c c8f8250a5de7674877598a60263a237bdd33e204
 F src/encode.c 56fc8f102eda32549652df47fa253fc910e737a9
 F src/event.c 0edff3caaceed4fbee6ec8c20f480a94f467f5cf
 F src/export.c ab705fb1bdb609c49cab3aa686fd74b5cd8e83d4
@@ -751,7 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 55f3f3d42d546182eea390ad0af7026a4739f996
-R f0bb6cdcc035c7ac68a8e634d7282115
-U andybradford
-Z d37ec28c115d3a477d00d22be9d99f1f
+P 460b93b53e5f0c385382ca92587319008e6f10bf
+R bcbe6f8226549f2bb36e16507188f6ab
+U drh
+Z 8e61ebe9e7775782e014e82644c3be51

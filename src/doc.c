@@ -86,6 +86,8 @@ static const struct {
   { "bat",        3, "application/x-msdos-program"       },
   { "bcpio",      5, "application/x-bcpio"               },
   { "bin",        3, "application/octet-stream"          },
+  { "bz2",        3, "application/x-bzip2"               },
+  { "bzip",       4, "application/x-bzip"                },
   { "c",          1, "text/plain"                        },
   { "cc",         2, "text/plain"                        },
   { "ccad",       4, "application/clariscad"             },
