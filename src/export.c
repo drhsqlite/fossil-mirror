@@ -146,9 +146,9 @@ int create_mark(int rid, struct mark_t *mark){
     return -1;
   }
   mark->rid = rid;
-  sprintf(sid, ":%d", COMMITMARK(rid));
+  sqlite3_snprintf(sizeof(sid), sid, ":%d", COMMITMARK(rid));
   mark->name = fossil_strdup(sid);
-  strcpy(mark->uuid, zUuid);
+  sqlite3_snprintf(sizeof(mark->uuid), mark->uuid, "%s", zUuid);
   free(zUuid);
   insert_commit_xref(mark->rid, mark->name, mark->uuid);
   return 0;
@@ -215,7 +215,7 @@ int parse_mark(char *line, struct mark_t *mark){
     fossil_trace("Invalid SHA-1 in marks file: %s\n", cur_tok);
     return -1;
   }else{
-    strcpy(mark->uuid, cur_tok);
+    sqlite3_snprintf(sizeof(mark->uuid), mark->uuid, "%s", cur_tok);
   }
 
   /* make sure that rid corresponds to UUID */
