@@ -163,7 +163,17 @@ int invalid_utf8(const Blob *pContent){
           (((c2!=0xf4) || (c>=0x90)) && ((c2!=0xc0) || (c!=0x80))) ){
         return LOOK_INVALID; /* Invalid UTF-8 */
       }
+      /* the first byte of the sequence is okay
+      ** but we need to check the rest
+      ** convert next byte to a prefix byte of the next shorter sequence
+      ** or a simple space character if the two byte seq was valid
+      */
       c = (c2 >= 0xe0) ? (c2<<1)+1 : ' ';
+      /* edge case: if three byte sequence started with 0xe0
+      ** it becomes 0xc1, which is a too short two byte sequence
+      ** so fix it up to be the start of a valid two byte sequence
+      */
+      if (c == 0xc1) c = 0xc2;
     }
   }
   return (c>=0x80) ? LOOK_INVALID : 0; /* Last byte must be ASCII. */
