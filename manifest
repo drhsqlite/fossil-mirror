@@ -1,5 +1,5 @@
-C Enhancements\sto\sSVN\simport
-D 2016-06-10T14:43:47.908
+C Update\sthe\schange\slog\sto\sinclude\sthe\sreparent\scommand.
+D 2016-06-10T14:48:56.418
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -664,7 +664,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 70f43c1027728f15883cbde8099ee2eec2da8c0f
-F www/changes.wiki de14be1df524c354449b3ee729df2c0f1cb97c61
+F www/changes.wiki 139cc97f743d3c710e671d3bc373943ef3fca714
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 115a0ecdac918232061bbc19124ea83e0a27d938
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -751,8 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 96164bb2b137b482894749129d9cd206d819320d 6164dac54c3a135fd76b5d06d2b8b58139dd840b
-R 2fb803f03e03766e04da77cccd1d32e0
-T +closed 6164dac54c3a135fd76b5d06d2b8b58139dd840b
+P fa9ead30dc76c2cc2624ee71931632f3fdd4dd2d
+R 967bf82bc654e3684e328ef6ff798a14
 U drh
-Z 2c2602649635d4db24bb5216693e298e
+Z 0beadad066b76624f730b6ce079dc310

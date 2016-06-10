@@ -32,6 +32,7 @@
   *  Fix autosetup detection of zlib in the source tree.
   *  Added autosetup detection of OpenSSL when it may be present under the
      "compat" subdirectory of the source tree.
+  *  Added the [/help?cmd=reparent|fossil reparent] command
   *  Added --include and --exclude options to [/help?cmd=tarball|fossil tarball]
      and [/help?cmd=zip|fossil zip] and the in= and ex= query parameters to the
      [/help?cmd=/tarball|/tarball] and [/help?cmd=/zip|/zip] web pages.
