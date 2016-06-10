@@ -1,5 +1,5 @@
-C Add\smany\stest-cases\sof\s(possible)\sinvalid\sUTF-8\ssequences
-D 2016-06-10T11:49:21.885
+C Slightly\smore\sefficient\sthan\sprevious\scommit
+D 2016-06-10T12:03:47.094
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -441,7 +441,7 @@ F src/linenoise.c 9c1a8a9a1d33f79191cb5a104067201a8cee6de1
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 32febde85f14593a503aadbb51983d37fce009c2
 F src/login.c 13788b9e70f2cfb13ea4e975a4117c68ed8115f0
-F src/lookslike.c 2363367e818844caffa4bd5a9becf5d0fc15c207
+F src/lookslike.c 26d0132bd7aca0c37737f277065cbc0af31e0b2a
 F src/main.c dce9dcdab977a0b02f744b63bc387e8970dfe27a
 F src/main.mk 61f9c92dd66b356e9245ee43360023bdd7cf2d80
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
@@ -751,7 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 87da6f97d7863f90dc8cb75413508a3ee1bf3aa8
-R 7ae8775dc9a26e6e1fd7b134d97135cd
+P acf7fe47bf427ef04dd7dacab9382f20bd8cf793
+R 04b4f8a9ed9d91ef55f43768f22dbdf3
 U jan.nijtmans
-Z e73fd26736e697f5084985347d2fc8d7
+Z 1231b3de2afee5aeced06c79bc6911c0

@@ -164,13 +164,10 @@ int invalid_utf8(const Blob *pContent){
         return LOOK_INVALID; /* Invalid UTF-8 */
       }
       if( c2>=0xe0 ){
-        if( c2>=0xf0 ){
-          if (c2==0xf0 && c<0x90) return LOOK_INVALID; /* Invalid UTF-8 */
-          c = (c2<<1)|3;
-        }else{
-          if (c2==0xe0 && c<0xa0) return LOOK_INVALID; /* Invalid UTF-8 */
-          c = (c2<<1)|3;
+        if ((c2==0xf0 && c<0x90)||(c2==0xe0 && c<0xa0)){
+          return LOOK_INVALID; /* Invalid UTF-8, too short */
         }
+        c = (c2<<1)|3;
       }else{
         c = ' ';
       }
