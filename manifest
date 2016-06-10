@@ -1,5 +1,5 @@
-C Fix\stypos\sin\sthe\sfossil-v-git.wiki\sdocument.
-D 2016-06-10T13:46:46.850
+C Updates\sto\sthe\schange\slog.
+D 2016-06-10T14:16:09.382
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -664,7 +664,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 70f43c1027728f15883cbde8099ee2eec2da8c0f
-F www/changes.wiki 038d03ba1c757e31fd41c8ffd70a6b47257f9827
+F www/changes.wiki de14be1df524c354449b3ee729df2c0f1cb97c61
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 115a0ecdac918232061bbc19124ea83e0a27d938
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -751,7 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a6725ea5c5b924bd3e0944d1d6e8b76c75a24275
-R 3f66aa8b7f9b8d8dc689f1f73311c52b
+P 5566c8535ae3c0af98cf064bd3d370a197ba6867
+R 75c198d6c771d5850ea7a1a10ac48b09
 U drh
-Z b7eaaf2debe3262de96c3e04126754f8
+Z 9cb3e98261664fb2fc41f7cc75cb8ea4
