@@ -6,7 +6,7 @@ If you start out using one DVCS and later decide you like the other better,
 you can easily [./inout.wiki | move your content]&#185;.
 
 Fossil and [http://git-scm.com | Git] are very similar in many respects,
-but there are also important differences.
+but they also have important differences.
 See the table below for
 a high-level summary and the text that follows for more details.
 
@@ -42,7 +42,7 @@ exporting from Fossil to Git.</i></small>
 
 <h3>3.1 Feature Set</h3>
 
-Git provides file versioning services only, whereas Fossil adds an
+Git provides file versioning services only, whereas Fossil adds
 integrated [./wikitheory.wiki | wiki],
 [./bugtheory.wiki | ticketing &amp; bug tracking],
 [./embeddeddoc.wiki | embedded documentation], and
@@ -81,7 +81,7 @@ difference is more than an implementation detail.  It
 has important consequences.
 
 With Git, one can easily locate the ancestors of a particular check-in
-by following the pointers embedded the check-in object, but it is
+by following the pointers embedded in the check-in object, but it is
 difficult to go the other direction and locate the descendants of a
 check-in.  It is so difficult, in fact, that neither native Git nor
 GitHub provide this capability.  With Git, if you are looking at some
@@ -124,7 +124,7 @@ low-friction path.
 
 Git encourages a style in which individual developers work in relative
 isolation, maintaining their
-own branches and the occasionally rebasing and pushing selected changes up
+own branches and occasionally rebasing and pushing selected changes up
 to the main repository.  Developers using Git often have their own
 private branches that nobody else ever sees.  Work becomes siloed.
 This is exactly what one wants when doing bazaar-style development.

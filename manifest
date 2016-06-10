@@ -1,5 +1,5 @@
-C Add\sthe\s"Special\sFeatures"\ssubheading\sin\sthe\sMarkdown\sdocumentation.
-D 2016-06-10T13:28:09.346
+C Fix\stypos\sin\sthe\sfossil-v-git.wiki\sdocument.
+D 2016-06-10T13:46:46.850
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -705,7 +705,7 @@ F www/fileformat.wiki af854d348597683c299788a44fc33f5835510511
 F www/fiveminutes.wiki 3172b324738523b163b19a8c836d3d9a3ceb9b94
 F www/foss-cklist.wiki 77fe5872d7077a68e1b01e8dd5e3a48f7ee2b0dd
 F www/fossil-from-msvc.wiki f2c229553ff6304fa0c6e82d169e959498af98a8
-F www/fossil-v-git.wiki a2bef838c28cb80ab0c2f388fd53540e433ffc2e
+F www/fossil-v-git.wiki d8c5d45c8c16bbd69809aa1cf5985fb12ee0dcc9
 F www/fossil.eps 672ae6297081bd6a1c9565a9cae7c8299a1d61e3
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps d8e0aba6acbeb3cba071ed894783ca9b8de9a310
@@ -751,7 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 38a4707413e3b3b246f2b418b6bbcd3f2d24241f
-R 518f12506d32f8e427dd477dce27ccb0
+P a6725ea5c5b924bd3e0944d1d6e8b76c75a24275
+R 3f66aa8b7f9b8d8dc689f1f73311c52b
 U drh
-Z 738de38a6e053611e203fea5e356bc76
+Z b7eaaf2debe3262de96c3e04126754f8
