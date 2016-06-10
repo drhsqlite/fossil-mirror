@@ -1,5 +1,5 @@
-C Add\sthe\s"fossil\sreparent"\scommand\sand\sthe\s--dryrun\soption\son\s"fossil\stag\sadd"\nand\s"fossil\stag\scancel".
-D 2016-06-10T14:41:09.200
+C Enhancements\sto\sSVN\simport
+D 2016-06-10T14:43:47.908
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -418,7 +418,7 @@ F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c c38d7bff255b35cc7cfe13405b67c32878f9d838
 F src/http_ssl.c dea4a130aba592848e7a43f635272cd8d7be7592
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
-F src/import.c 19fed0531b64d621260ee25571a1668d83b303ab
+F src/import.c 060b06a4066a6f3bbedad39ffdb275b4e2153723
 F src/info.c df2e9776a08ec549d917adc9f4924f7b4ca57c07
 F src/json.c 6df1d80dece8968b344e4b730aae8151c7c61955
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
@@ -751,8 +751,8 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ecd3dc53c4b6cd74a37dba44fdae3662cb9c589a 9cf12e655fdb03f3d583097182817c22adacd1cd
-R 0d11e50eebd0efa93f1e8e23692b450f
-T +closed 9cf12e655fdb03f3d583097182817c22adacd1cd
+P 96164bb2b137b482894749129d9cd206d819320d 6164dac54c3a135fd76b5d06d2b8b58139dd840b
+R 2fb803f03e03766e04da77cccd1d32e0
+T +closed 6164dac54c3a135fd76b5d06d2b8b58139dd840b
 U drh
-Z 5438674b645589950d69cdbaab12cd41
+Z 2c2602649635d4db24bb5216693e298e
