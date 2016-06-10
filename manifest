@@ -1,5 +1,5 @@
-C Add\sthe\s--include\sand\s--exclude\soptions\sto\sthe\starball\sand\szip\scommands\sand\nthe\sin=\sand\sex=\squery\sparameters\sto\sthe\s/tarball\sand\s/zip\swebpages.
-D 2016-06-10T12:46:44.849
+C For\sMarkdown\shyperlinks,\sif\sthe\sURL\sbegins\swith\s"/"\sthen\sprepend\sthe\sroot\nof\srepository.\s\sThis\sallows\srepository-relative\shyperlinks.
+D 2016-06-10T13:06:17.436
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -450,7 +450,7 @@ F src/makemake.tcl 7aa2028c30e67a4effdf7458b12a7d2f200b1f50
 F src/manifest.c 5739475e5ecd86a53f1333c8c04f61aba010d2fd
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md c0c2e98daa14f576d5e5d917f2fe7b5b95ccb5fe
-F src/markdown_html.c c7392199eb39dad9f92c31aa352f4f3408da93bf
+F src/markdown_html.c 0b945713361c2d24ee1fbbcc981ab02af9b484a9
 F src/md5.c 563baca0c92ef17c42aa32d31bf595a62c030177
 F src/merge.c d30fc9d0becc3f00b718cadebf9015284ee4d174
 F src/merge3.c 555743dac3e0365a3406c262cd27cf94bec351c3
@@ -751,7 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1ca598325e65101444daf14effd9b4e42b78ea47
-R 14aa3bb196ead0d227ea2c22d25e25df
+P ef449a1173c556b2a25d084de6408bd53b5da67c
+R df84b35541f5e036b26e9b60cfe843f3
 U drh
-Z e62e290cebf42ecfe749ac89ee232a42
+Z 631a4f6cc33627abedf567ed1b0faa9b
