@@ -138,45 +138,82 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
 /*
 ** Checks for proper UTF-8. It uses the method described in:
 **   http://en.wikipedia.org/wiki/UTF-8#Invalid_byte_sequences
-** except for the "overlong form" of \u0000 which is not considered invalid
-** here: Some languages like Java and Tcl use it. For UTF-8 characters
-** > 7f, the variable 'c2' not necessary means the previous character.
-** It's number of higher 1-bits indicate the number of continuation bytes
-** that are expected to be followed. E.g. when 'c2' has a value in the range
-** 0xc0..0xdf it means that 'c' is expected to contain the last continuation
-** byte of a UTF-8 character. A value 0xe0..0xef means that after 'c' one
-** more continuation byte is expected.
+** except for the "overlong form" of \u0000 (Modified UTF-8)
+** which is not considered invalid here: Some languages like
+** Java and Tcl use it. This function also considers valid
+** the derivatives CESU-8 & WTF-8 (as described in the same
+** wikipedia article referenced previously).
 */
 
-int invalid_utf8(const Blob *pContent){
-  const unsigned char *z = (unsigned char *) blob_buffer(pContent);
-  unsigned int n = blob_size(pContent);
-  unsigned char c, c2;
+int invalid_utf8(const Blob *pContent)
+{
+  /* definitions for various utf-8 sequence lengths */
+  static unsigned char def_1a[] = { 1, 0x00, 0x7F };
+  static unsigned char def_2a[] = { 2, 0xC0, 0xC0, 0x80, 0x80 };
+  static unsigned char def_2b[] = { 2, 0xC2, 0xDF, 0x80, 0xBF };
+  static unsigned char def_3a[] = { 3, 0xE0, 0xE0, 0xA0, 0xBF, 0x80, 0xBF };
+  static unsigned char def_3b[] = { 3, 0xE1, 0xEF, 0x80, 0xBF, 0x80, 0xBF };
+  static unsigned char def_4a[] = { 4, 0xF0, 0xF0, 0x90, 0xBF, 0x80, 0xBF, 0x80, 0xBF };
+  static unsigned char def_4b[] = { 4, 0xF1, 0xF3, 0x80, 0xBF, 0x80, 0xBF, 0x80, 0xBF };
+  static unsigned char def_4c[] = { 4, 0xF4, 0xF4, 0x80, 0x8F, 0x80, 0xBF, 0x80, 0xBF };
 
-  if( n==0 ) return 0;  /* Empty file -> OK */
-  c = *z;
-  while( --n>0 ){
-    c2 = c;
-    c = *++z;
-    if( c2>=0x80 ){
-      if( ((c2<0xc2) || (c2>=0xf4) || ((c&0xc0)!=0x80)) &&
-          (((c2!=0xf4) || (c>=0x90)) && ((c2!=0xc0) || (c!=0x80))) ){
-        return LOOK_INVALID; /* Invalid UTF-8 */
-      }
-      /* the first byte of the sequence is okay
-      ** but we need to check the rest
-      ** convert next byte to a prefix byte of the next shorter sequence
-      ** or a simple space character if the two byte seq was valid
-      */
-      c = (c2 >= 0xe0) ? (c2<<1)+1 : ' ';
-      /* edge case: if three byte sequence started with 0xe0
-      ** it becomes 0xc1, which is a too short two byte sequence
-      ** so fix it up to be the start of a valid two byte sequence
-      */
-      if (c == 0xc1) c = 0xc2;
+  /* an array of all the definitions */
+  static unsigned char* def_arr[] = { def_1a, def_2a, def_2b, def_3a, def_3b, def_4a, def_4b, def_4c, NULL };
+
+  /* a table used for quick lookup of the definition that goes with a particular lead byte */
+  static unsigned char* lb_tab[256] = { NULL };
+
+  /* a pointer to the table; NULL means not yet setup */
+  static unsigned char** lb_ptr = NULL;
+
+  /* if the table pointer hasn't been initialized */
+  if (lb_ptr == NULL)
+  {
+    lb_ptr = lb_tab;
+
+    /* for each definition, set the lead byte table pointer to the proper definition */
+    unsigned char** pp = def_arr;
+    while (*pp != NULL)
+    {
+      unsigned char lo = pp[0][1];
+      unsigned char hi = pp[0][2];
+      unsigned char i;
+      for (i = lo; i <= hi; ++i)
+        lb_ptr[i] = pp[0];
+      ++pp;
     }
   }
-  return (c>=0x80) ? LOOK_INVALID : 0; /* Last byte must be ASCII. */
+
+  /* buffer pointer and size */
+  const unsigned char *z = (unsigned char *)blob_buffer(pContent);
+  unsigned int n = blob_size(pContent);
+
+  /* while we haven't checked all the bytes in the buffer */
+  while (n > 0)
+  {
+    /* get the definition for this lead byte */
+    unsigned char* def = lb_ptr[*z];
+    unsigned char i;
+
+    /* if the definition doesn't exist, or there aren't enough bytes left, return invalid */
+    if (!def || (n < def[0]))
+      return LOOK_INVALID;
+
+    /* we already know byte #0 is good, so check the remaining bytes */
+    for (i = 1; i < def[0]; ++i)
+    {
+      /* if the byte is outside the allowed range for this definition, return invalid */
+      if ((z[i] < def[1 + i * 2 + 0]) || (z[i] > def[1 + i * 2 + 1]))
+        return LOOK_INVALID;
+    }
+
+    /* advance to the next sequence */
+    z += def[0];
+    n -= def[0];
+  }
+
+  /* we made it all the way through the buffer so it's not invalid */
+  return 0;
 }
 
 
