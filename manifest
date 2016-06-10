@@ -1,5 +1,5 @@
-C Add\smimetypes\sfor\sbz2\sand\sbzip.
-D 2016-06-09T15:26:44.731
+C Fix\scorner-case\sin\sinvalid\sutf-8\sdetection,\swith\smodified\stest-cases.\sAdditional\stest-cases\sstill\sto\sbe\sdone.
+D 2016-06-10T10:23:16.959
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -441,7 +441,7 @@ F src/linenoise.c 9c1a8a9a1d33f79191cb5a104067201a8cee6de1
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 32febde85f14593a503aadbb51983d37fce009c2
 F src/login.c 13788b9e70f2cfb13ea4e975a4117c68ed8115f0
-F src/lookslike.c 9103d15912b792a65874f04e185f2a74a477ebb4
+F src/lookslike.c 2363367e818844caffa4bd5a9becf5d0fc15c207
 F src/main.c dce9dcdab977a0b02f744b63bc387e8970dfe27a
 F src/main.mk 61f9c92dd66b356e9245ee43360023bdd7cf2d80
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
@@ -569,7 +569,7 @@ F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
 F test/th1.test 3f1c857798c35c8c50869e0b1a5665128814bd6d
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
-F test/utf.test 4f476e82c536d8a56e9b27c8da460f8f92139d79
+F test/utf.test 9f57146e189b601bbabb1902b48fc5179a182fa4
 F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03
@@ -751,7 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 460b93b53e5f0c385382ca92587319008e6f10bf
-R bcbe6f8226549f2bb36e16507188f6ab
-U drh
-Z 8e61ebe9e7775782e014e82644c3be51
+P c7e9625d4238f324f551e0bb306d6fca35ab66fc
+R e3c10dc7ed4629a9a96d64f1bb904c3d
+U jan.nijtmans
+Z e279edee291876ab4b7cfbfd24a6c315
