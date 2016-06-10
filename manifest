@@ -1,5 +1,5 @@
-C Merge\sadditional\stest-cases\sfrom\strunk.\sAll\spass\snow.
-D 2016-06-10T11:52:05.195
+C performance\soptimizations
+D 2016-06-10T20:45:49.330
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -441,7 +441,7 @@ F src/linenoise.c 9c1a8a9a1d33f79191cb5a104067201a8cee6de1
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 32febde85f14593a503aadbb51983d37fce009c2
 F src/login.c 13788b9e70f2cfb13ea4e975a4117c68ed8115f0
-F src/lookslike.c 5fbfda7d7b12056b8b7d3c427472faef4154799f
+F src/lookslike.c ab10216cc76526a26bdb57c17363fd0efbc73d9d
 F src/main.c dce9dcdab977a0b02f744b63bc387e8970dfe27a
 F src/main.mk 61f9c92dd66b356e9245ee43360023bdd7cf2d80
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
@@ -751,7 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e58334a00799c303c6ad187e6c84c2151457b146 acf7fe47bf427ef04dd7dacab9382f20bd8cf793
-R dd1fe022d21863e2e1b2e719d1e7890f
-U jan.nijtmans
-Z 6b14f33f5896a079dca74a67cc3e684e
+P 8a65d6f05c51962c14f562aaae0398fc99226156
+R 74f58eebf3c74d71edae22328fe68146
+U sdr
+Z 85262c7faff7c2415823c03ce451d7ad

@@ -145,10 +145,9 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
 ** wikipedia article referenced previously).
 */
 
-int invalid_utf8(const Blob *pContent)
+int invalid_utf8_b(const Blob *pContent)
 {
   /* definitions for various utf-8 sequence lengths */
-  static unsigned char def_1a[] = { 1, 0x00, 0x7F };
   static unsigned char def_2a[] = { 2, 0xC0, 0xC0, 0x80, 0x80 };
   static unsigned char def_2b[] = { 2, 0xC2, 0xDF, 0x80, 0xBF };
   static unsigned char def_3a[] = { 3, 0xE0, 0xE0, 0xA0, 0xBF, 0x80, 0xBF };
@@ -158,7 +157,7 @@ int invalid_utf8(const Blob *pContent)
   static unsigned char def_4c[] = { 4, 0xF4, 0xF4, 0x80, 0x8F, 0x80, 0xBF, 0x80, 0xBF };
 
   /* an array of all the definitions */
-  static unsigned char* def_arr[] = { def_1a, def_2a, def_2b, def_3a, def_3b, def_4a, def_4b, def_4c, NULL };
+  static unsigned char* def_arr[] = { def_2a, def_2b, def_3a, def_3b, def_4a, def_4b, def_4c, NULL };
 
   /* a table used for quick lookup of the definition that goes with a particular lead byte */
   static unsigned char* lb_tab[256] = { NULL };
@@ -191,25 +190,43 @@ int invalid_utf8(const Blob *pContent)
   /* while we haven't checked all the bytes in the buffer */
   while (n > 0)
   {
-    /* get the definition for this lead byte */
-    unsigned char* def = lb_ptr[*z];
-    unsigned char i;
-
-    /* if the definition doesn't exist, or there aren't enough bytes left, return invalid */
-    if (!def || (n < def[0]))
-      return LOOK_INVALID;
-
-    /* we already know byte #0 is good, so check the remaining bytes */
-    for (i = 1; i < def[0]; ++i)
+    /* ascii is trivial */
+    if (*z < 0x80)
     {
-      /* if the byte is outside the allowed range for this definition, return invalid */
-      if ((z[i] < def[1 + i * 2 + 0]) || (z[i] > def[1 + i * 2 + 1]))
-        return LOOK_INVALID;
+      ++z;
+      --n;
     }
+    else
+    {
+      /* get the definition for this lead byte */
+      unsigned char* def = lb_ptr[*z++];
+      unsigned char i, len;
 
-    /* advance to the next sequence */
-    z += def[0];
-    n -= def[0];
+      /* if the definition doesn't exist, return invalid */
+      if (!def)
+        return LOOK_INVALID;
+
+      /* get the expected sequence length */
+      len = *def;
+
+      /* if there aren't enough bytes left, return invalid */
+      if (n < len)
+        return LOOK_INVALID;
+
+      /* skip the length & lead byte range */
+      def += 3;
+
+      /* we already know byte #0 is good, so check the remaining bytes */
+      for (i = 1; i < len; ++i)
+      {
+        /* if the byte is outside the allowed range for this definition, return invalid */
+        if ((*z < *def++) || (*z++ > *def++))
+          return LOOK_INVALID;
+      }
+
+      /* advance to the next sequence */
+      n -= len;
+    }
   }
 
   /* we made it all the way through the buffer so it's not invalid */
