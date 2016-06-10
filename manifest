@@ -1,5 +1,5 @@
-C Updates\sto\sthe\schange\slog.
-D 2016-06-10T14:16:09.382
+C Add\sthe\s"fossil\sreparent"\scommand\sand\sthe\s--dryrun\soption\son\s"fossil\stag\sadd"\nand\s"fossil\stag\scancel".
+D 2016-06-10T14:41:09.200
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -418,7 +418,7 @@ F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c c38d7bff255b35cc7cfe13405b67c32878f9d838
 F src/http_ssl.c dea4a130aba592848e7a43f635272cd8d7be7592
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
-F src/import.c 7d25fd7c00f52e0d64eff2110b92eb11267e5def
+F src/import.c 19fed0531b64d621260ee25571a1668d83b303ab
 F src/info.c df2e9776a08ec549d917adc9f4924f7b4ca57c07
 F src/json.c 6df1d80dece8968b344e4b730aae8151c7c61955
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
@@ -447,7 +447,7 @@ F src/main.mk 61f9c92dd66b356e9245ee43360023bdd7cf2d80
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 7aa2028c30e67a4effdf7458b12a7d2f200b1f50
-F src/manifest.c 5739475e5ecd86a53f1333c8c04f61aba010d2fd
+F src/manifest.c cede9a580dd60d6ca75b2d10ea783a2e3a2559ed
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
 F src/markdown_html.c 0b945713361c2d24ee1fbbcc981ab02af9b484a9
@@ -488,7 +488,7 @@ F src/stat.c 82a4439d096fe0fb231e27f49f2b2ff13dacf014
 F src/statrep.c 061c9df02d134454c32e34cc29807adc594e1bc2
 F src/style.c c0d37267d5b043c8c6e50436b2829328974b4dd9
 F src/sync.c cc287e14c4387dfa7a8f050cbec523ece71d664e
-F src/tag.c be1923babfee2deb99a2297c1da780324061eda8
+F src/tag.c 98b6205ee452dc3fba417ec8725864a2d7af3ba8
 F src/tar.c 2f7b59239522e0560bf109749314fb262cae5d58
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
@@ -751,7 +751,8 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5566c8535ae3c0af98cf064bd3d370a197ba6867
-R 75c198d6c771d5850ea7a1a10ac48b09
+P ecd3dc53c4b6cd74a37dba44fdae3662cb9c589a 9cf12e655fdb03f3d583097182817c22adacd1cd
+R 0d11e50eebd0efa93f1e8e23692b450f
+T +closed 9cf12e655fdb03f3d583097182817c22adacd1cd
 U drh
-Z 9cb3e98261664fb2fc41f7cc75cb8ea4
+Z 5438674b645589950d69cdbaab12cd41

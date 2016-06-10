@@ -1546,8 +1546,120 @@ static void add_mlink(
 }
 
 /*
+** For a check-in with RID "rid" that has nParent parent check-ins given
+** by the UUIDs in azParent[], create all appropriate plink and mlink table
+** entries.
+**
+** The primary parent is the first UUID on the azParent[] list.
+**
+** Return the RID of the primary parent.
+*/
+static int manifest_add_checkin_linkages(
+  int rid,                   /* The RID of the check-in */
+  Manifest *p,               /* Manifest for this check-in */
+  int nParent,               /* Number of parents for this check-in */
+  char **azParent            /* UUIDs for each parent */
+){
+  int i;
+  int parentid = 0;
+  char zBaseId[30];    /* Baseline manifest RID for deltas.  "NULL" otherwise */
+  Stmt q;
+
+  if( p->zBaseline ){
+     sqlite3_snprintf(sizeof(zBaseId), zBaseId, "%d", 
+                      uuid_to_rid(p->zBaseline,1));
+  }else{
+     sqlite3_snprintf(sizeof(zBaseId), zBaseId, "NULL");
+  }
+  for(i=0; i<nParent; i++){
+    int pid = uuid_to_rid(azParent[i], 1);
+    db_multi_exec(
+       "INSERT OR IGNORE INTO plink(pid, cid, isprim, mtime, baseid)"
+        "VALUES(%d, %d, %d, %.17g, %s)",
+       pid, rid, i==0, p->rDate, zBaseId/*safe-for-%s*/);
+    if( i==0 ) parentid = pid;
+  }
+  add_mlink(parentid, 0, rid, p, 1);
+  if( nParent>1 ){
+    /* Change MLINK.PID from 0 to -1 for files that are added by merge. */
+    db_multi_exec(
+      "UPDATE mlink SET pid=-1"
+      " WHERE mid=%d"
+      "   AND pid=0"
+      "   AND fnid IN "
+      "  (SELECT fnid FROM mlink WHERE mid=%d GROUP BY fnid"
+      "    HAVING count(*)<%d)",
+      rid, rid, nParent
+    );
+  }
+  db_prepare(&q, "SELECT cid, isprim FROM plink WHERE pid=%d", rid);
+  while( db_step(&q)==SQLITE_ROW ){
+    int cid = db_column_int(&q, 0);
+    int isprim = db_column_int(&q, 1);
+    add_mlink(rid, p, cid, 0, isprim);
+  }
+  db_finalize(&q);
+  if( nParent==0 ){
+    /* For root files (files without parents) add mlink entries
+    ** showing all content as new. */
+    int isPublic = !content_is_private(rid);
+    for(i=0; i<p->nFile; i++){
+      add_one_mlink(0, 0, rid, p->aFile[i].zUuid, p->aFile[i].zName, 0,
+                    isPublic, 1, manifest_file_mperm(&p->aFile[i]));
+    }
+  }
+  return parentid;
+}
+
+/*
+** There exists a "parent" tag against checkin rid that has value zValue.
+** If value is well-formed (meaning that is is a list of UUIDs), then use 
+** zValue to reparent check-in rid.
+*/
+void manifest_reparent_checkin(int rid, const char *zValue){
+  int nParent;
+  char *zCopy = 0;
+  char **azParent = 0;
+  Manifest *p = 0;
+  int i;
+  int n = (int)strlen(zValue);
+  nParent = (n+1)/(UUID_SIZE+1);
+  if( nParent*(UUID_SIZE+1) - 1 !=n ) return;
+  if( nParent<1 ) return;
+  zCopy = fossil_strdup(zValue);
+  azParent = fossil_malloc( sizeof(azParent[0])*nParent );
+  for(i=0; i<nParent; i++){
+    azParent[i] = &zCopy[i*(UUID_SIZE+1)];
+    if( i<nParent-1 && azParent[i][UUID_SIZE]!=' ' ) break;
+    azParent[i][UUID_SIZE] = 0;
+    if( !validate16(azParent[i],UUID_SIZE) ) break;
+  }
+  if( i==nParent 
+   && !db_exists("SELECT 1 FROM plink WHERE cid=%d AND pid=%d",
+                 rid, uuid_to_rid(azParent[0],0))
+  ){
+    p = manifest_get(rid, CFTYPE_MANIFEST, 0);
+  }
+  if( p!=0 ){
+    db_multi_exec(
+       "DELETE FROM plink WHERE cid=%d;"
+       "DELETE FROM mlink WHERE mid=%d;",
+       rid, rid
+    );
+    manifest_add_checkin_linkages(rid,p,nParent,azParent);
+  }
+  manifest_destroy(p);
+  fossil_free(azParent);
+  fossil_free(zCopy);
+}
+
+/*
 ** Setup to do multiple manifest_crosslink() calls.
-** This is only required if processing ticket changes.
+**
+** This routine creates TEMP tables for holding information for
+** processing that must be deferred until all artifacts have been
+** seen at least once.  The deferred processing is accomplished
+** by the call to manifest_crosslink_end().
 */
 void manifest_crosslink_begin(void){
   assert( manifest_crosslink_busy==0 );
@@ -1594,6 +1706,17 @@ int manifest_crosslink_end(int flags){
       zScript = xfer_ticket_code();
     }
   }
+  db_prepare(&q, 
+     "SELECT rid, value FROM tagxref"
+     " WHERE tagid=%d AND tagtype=1",
+     TAG_PARENT
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q,0);
+    const char *zValue = db_column_text(&q,1);
+    manifest_reparent_checkin(rid, zValue);
+  }
+  db_finalize(&q);
   db_prepare(&q, "SELECT uuid FROM pending_tkt");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
@@ -1839,50 +1962,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     }
     if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
       char *zCom;
-      char zBaseId[30];
-      if( p->zBaseline ){
-        sqlite3_snprintf(sizeof(zBaseId), zBaseId, "%d",
-                         uuid_to_rid(p->zBaseline,1));
-      }else{
-        sqlite3_snprintf(sizeof(zBaseId), zBaseId, "NULL");
-      }
-      for(i=0; i<p->nParent; i++){
-        int pid = uuid_to_rid(p->azParent[i], 1);
-        db_multi_exec(
-           "INSERT OR IGNORE INTO plink(pid, cid, isprim, mtime, baseid)"
-           "VALUES(%d, %d, %d, %.17g, %s)",
-           pid, rid, i==0, p->rDate, zBaseId/*safe-for-%s*/);
-        if( i==0 ) parentid = pid;
-      }
-      add_mlink(parentid, 0, rid, p, 1);
-      if( p->nParent>1 ){
-        /* Change MLINK.PID from 0 to -1 for files that are added by merge. */
-        db_multi_exec(
-           "UPDATE mlink SET pid=-1"
-           " WHERE mid=%d"
-           "   AND pid=0"
-           "   AND fnid IN "
-           "  (SELECT fnid FROM mlink WHERE mid=%d GROUP BY fnid"
-           "    HAVING count(*)<%d)",
-           rid, rid, p->nParent
-        );
-      }
-      db_prepare(&q, "SELECT cid, isprim FROM plink WHERE pid=%d", rid);
-      while( db_step(&q)==SQLITE_ROW ){
-        int cid = db_column_int(&q, 0);
-        int isprim = db_column_int(&q, 1);
-        add_mlink(rid, p, cid, 0, isprim);
-      }
-      db_finalize(&q);
-      if( p->nParent==0 ){
-        /* For root files (files without parents) add mlink entries
-        ** showing all content as new. */
-        int isPublic = !content_is_private(rid);
-        for(i=0; i<p->nFile; i++){
-          add_one_mlink(0, 0, rid, p->aFile[i].zUuid, p->aFile[i].zName, 0,
-                        isPublic, 1, manifest_file_mperm(&p->aFile[i]));
-        }
-      }
+      parentid = manifest_add_checkin_linkages(rid,p,p->nParent,p->azParent);
       search_doc_touch('c', rid, 0);
       db_multi_exec(
         "REPLACE INTO event(type,mtime,objid,user,comment,"

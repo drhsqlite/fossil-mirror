@@ -927,8 +927,7 @@ static int svn_read_rec(FILE *pIn, SvnRecord *rec){
 ** The returned string is allocated via db_text() and must be
 ** free()d by the caller.
 */
-char * rid_to_uuid(int rid)
-{
+char *rid_to_uuid(int rid){
   return db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
 }
 
