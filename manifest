@@ -1,5 +1,5 @@
-C Fix\scorner-case\sin\sinvalid\sutf-8\sdetection,\swith\smodified\stest-cases.\sAdditional\stest-cases\sstill\sto\sbe\sdone.
-D 2016-06-10T10:23:16.959
+C Add\smany\stest-cases\sof\s(possible)\sinvalid\sUTF-8\ssequences
+D 2016-06-10T11:49:21.885
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -569,7 +569,7 @@ F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
 F test/th1.test 3f1c857798c35c8c50869e0b1a5665128814bd6d
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
-F test/utf.test 9f57146e189b601bbabb1902b48fc5179a182fa4
+F test/utf.test 482701be866b2b896a14bb4352e912d2730cde4d
 F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03
@@ -751,7 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c7e9625d4238f324f551e0bb306d6fca35ab66fc
-R e3c10dc7ed4629a9a96d64f1bb904c3d
+P 87da6f97d7863f90dc8cb75413508a3ee1bf3aa8
+R 7ae8775dc9a26e6e1fd7b134d97135cd
 U jan.nijtmans
-Z e279edee291876ab4b7cfbfd24a6c315
+Z e73fd26736e697f5084985347d2fc8d7
