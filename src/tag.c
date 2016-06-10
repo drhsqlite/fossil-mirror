@@ -282,8 +282,21 @@ void testtag_cmd(void){
 }
 
 /*
+** OR this value into the tagtype argument to tag_add_artifact to
+** cause the tag to be displayed on standard output rather than be
+** inserted.  Used for --dryrun options and debugging.
+*/
+#if INTERFACE
+#define TAG_ADD_DRYRUN  0x04
+#endif
+
+/*
 ** Add a control record to the repository that either creates
 ** or cancels a tag.
+**
+** tagtype should normally be 0, 1, or 2.  But if the TAG_ADD_DRYRUN bit
+** is also set, then simply print the text of the tag on standard output
+** (for testing purposes) rather than create the tag.
 */
 void tag_add_artifact(
   const char *zPrefix,        /* Prefix to prepend to tag name */
@@ -301,7 +314,12 @@ void tag_add_artifact(
   Blob ctrl;
   Blob cksum;
   static const char zTagtype[] = { '-', '+', '*' };
+  int dryRun = 0;
 
+  if( tagtype & TAG_ADD_DRYRUN ){
+    tagtype &= ~TAG_ADD_DRYRUN;
+    dryRun = 1;
+  }
   assert( tagtype>=0 && tagtype<=2 );
   user_select();
   blob_zero(&uuid);
@@ -335,8 +353,13 @@ void tag_add_artifact(
   blob_appendf(&ctrl, "U %F\n", zUserOvrd ? zUserOvrd : login_name());
   md5sum_blob(&ctrl, &cksum);
   blob_appendf(&ctrl, "Z %b\n", &cksum);
-  nrid = content_put(&ctrl);
-  manifest_crosslink(nrid, &ctrl, MC_PERMIT_HOOKS);
+  if( dryRun ){
+    fossil_print("%s", blob_str(&ctrl));
+    blob_reset(&ctrl);
+  }else{
+    nrid = content_put(&ctrl);
+    manifest_crosslink(nrid, &ctrl, MC_PERMIT_HOOKS);
+  }
   assert( blob_is_reset(&ctrl) );
 }
 
@@ -355,10 +378,12 @@ void tag_add_artifact(
 **         the tag value propagates to all descendants of CHECK-IN
 **
 **         Options:
-**           --raw                     Raw tag name.
-**           --propagate               Propagating tag.
-**           --date-override DATETIME  Set date and time added.
-**           --user-override USER      Name USER when adding the tag.
+**           --raw                       Raw tag name.
+**           --propagate                 Propagating tag.
+**           --date-override DATETIME    Set date and time added.
+**           --user-override USER        Name USER when adding the tag.
+**           --dryrun|-n                 Display the tag text, but to not
+**                                       actually insert it into the database.
 **         
 **         The --date-override and --user-override options support
 **         importing history from other SCM systems. DATETIME has
@@ -367,7 +392,8 @@ void tag_add_artifact(
 **     %fossil tag cancel ?--raw? TAGNAME CHECK-IN
 **
 **         Remove the tag TAGNAME from CHECK-IN, and also remove
-**         the propagation of the tag to any descendants.
+**         the propagation of the tag to any descendants.  Use the
+**         the --dryrun or -n options to see what would have happened.
 **
 **     %fossil tag find ?OPTIONS? TAGNAME
 **
@@ -424,15 +450,17 @@ void tag_cmd(void){
 
   if( strncmp(g.argv[2],"add",n)==0 ){
     char *zValue;
+    int dryRun = 0;
     const char *zDateOvrd = find_option("date-override",0,1);
     const char *zUserOvrd = find_option("user-override",0,1);
+    if( find_option("dryrun","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
     if( g.argc!=5 && g.argc!=6 ){
-      usage("add ?--raw? ?--propagate? TAGNAME CHECK-IN ?VALUE?");
+      usage("add ?options? TAGNAME CHECK-IN ?VALUE?");
     }
     zValue = g.argc==6 ? g.argv[5] : 0;
     db_begin_transaction();
     tag_add_artifact(zPrefix, g.argv[3], g.argv[4], zValue,
-                     1+fPropagate,zDateOvrd,zUserOvrd);
+                     1+fPropagate+dryRun,zDateOvrd,zUserOvrd);
     db_end_transaction(0);
   }else
 
@@ -442,11 +470,13 @@ void tag_cmd(void){
   }else
 
   if( strncmp(g.argv[2],"cancel",n)==0 ){
+    int dryRun = 0;
+    if( find_option("dryrun","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
     if( g.argc!=5 ){
-      usage("cancel ?--raw? TAGNAME CHECK-IN");
+      usage("cancel ?options? TAGNAME CHECK-IN");
     }
     db_begin_transaction();
-    tag_add_artifact(zPrefix, g.argv[3], g.argv[4], 0, 0, 0, 0);
+    tag_add_artifact(zPrefix, g.argv[3], g.argv[4], 0, dryRun, 0, 0);
     db_end_transaction(0);
   }else
 
@@ -564,7 +594,7 @@ tag_cmd_usage:
 ** child of PARENT.  If multiple PARENTs are listed, then the first is
 ** the primary parent and others are merge ancestors.
 **
-** This is an experts-only command.  It is used to patch of a repository
+** This is an experts-only command.  It is used to patch up a repository
 ** that has been damaged by a shun or that has been pieced together from
 ** two or more separate repositories.  You should never need to reparent
 ** during normal operations.
@@ -572,9 +602,11 @@ tag_cmd_usage:
 ** Reparenting is accomplished by adding a parent tag.  So to undo the
 ** reparenting operation, simply delete the tag.
 **
-**    --test         Make database entries but do not add the tag artifact.
-**                   So the reparent operation will be undone by the next
-**                   "fossil rebuild" command.
+**    --test           Make database entries but do not add the tag artifact.
+**                     So the reparent operation will be undone by the next
+**                     "fossil rebuild" command.
+**    --dryrun | -n    Print the tag that would have been created but do not
+**                     actually change the database in any way.
 */
 void reparent_cmd(void){
   int bTest = find_option("test","",0)!=0;
@@ -582,7 +614,9 @@ void reparent_cmd(void){
   int i;
   Blob value;
   char *zUuid;
+  int dryRun = 0;
 
+  if( find_option("dryrun","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
   db_find_and_open_repository(0, 0);
   verify_all_options();
   if( g.argc<4 ){
@@ -597,11 +631,11 @@ void reparent_cmd(void){
     blob_append(&value, zUuid, UUID_SIZE);
     fossil_free(zUuid);
   }
-  if( bTest ){
+  if( bTest && !dryRun ){
     tag_insert("parent", 1, blob_str(&value), -1, 0.0, rid);
   }else{
     zUuid = rid_to_uuid(rid);
-    tag_add_artifact("","parent",zUuid,blob_str(&value),1,0,0);
+    tag_add_artifact("","parent",zUuid,blob_str(&value),1|dryRun,0,0);
   }
 }
 
