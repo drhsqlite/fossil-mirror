@@ -1,5 +1,5 @@
-C For\sMarkdown\shyperlinks,\sif\sthe\sURL\sbegins\swith\s"/"\sthen\sprepend\sthe\sroot\nof\srepository.\s\sThis\sallows\srepository-relative\shyperlinks.
-D 2016-06-10T13:06:17.436
+C Add\sthe\s"Special\sFeatures"\ssubheading\sin\sthe\sMarkdown\sdocumentation.
+D 2016-06-10T13:28:09.346
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -449,7 +449,7 @@ F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 7aa2028c30e67a4effdf7458b12a7d2f200b1f50
 F src/manifest.c 5739475e5ecd86a53f1333c8c04f61aba010d2fd
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
-F src/markdown.md c0c2e98daa14f576d5e5d917f2fe7b5b95ccb5fe
+F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
 F src/markdown_html.c 0b945713361c2d24ee1fbbcc981ab02af9b484a9
 F src/md5.c 563baca0c92ef17c42aa32d31bf595a62c030177
 F src/merge.c d30fc9d0becc3f00b718cadebf9015284ee4d174
@@ -751,7 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ef449a1173c556b2a25d084de6408bd53b5da67c
-R df84b35541f5e036b26e9b60cfe843f3
+P 38a4707413e3b3b246f2b418b6bbcd3f2d24241f
+R 518f12506d32f8e427dd477dce27ccb0
 U drh
-Z 631a4f6cc33627abedf567ed1b0faa9b
+Z 738de38a6e053611e203fea5e356bc76
