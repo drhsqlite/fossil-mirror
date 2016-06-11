@@ -134,7 +134,6 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
   return flags;
 }
 
-
 /*
 ** Checks for proper UTF-8. It uses the method described in:
 **   http://en.wikipedia.org/wiki/UTF-8#Invalid_byte_sequences
@@ -145,84 +144,101 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
 ** wikipedia article referenced previously).
 */
 
-int invalid_utf8(const Blob *pContent) {
-  /* definitions for various utf-8 sequence lengths */
-  static unsigned char def_2a[] = { 2, 0xC0, 0xC0, 0x80, 0x80 };
-  static unsigned char def_2b[] = { 2, 0xC2, 0xDF, 0x80, 0xBF };
-  static unsigned char def_3a[] = { 3, 0xE0, 0xE0, 0xA0, 0xBF, 0x80, 0xBF };
-  static unsigned char def_3b[] = { 3, 0xE1, 0xEF, 0x80, 0xBF, 0x80, 0xBF };
-  static unsigned char def_4a[] = { 4, 0xF0, 0xF0, 0x90, 0xBF, 0x80, 0xBF, 0x80, 0xBF };
-  static unsigned char def_4b[] = { 4, 0xF1, 0xF3, 0x80, 0xBF, 0x80, 0xBF, 0x80, 0xBF };
-  static unsigned char def_4c[] = { 4, 0xF4, 0xF4, 0x80, 0x8F, 0x80, 0xBF, 0x80, 0xBF };
+int invalid_utf8(
+  const Blob *pContent
+){
+  /* definitions for various UTF-8 sequence lengths */
+  static unsigned char def_2a[] = {
+    2, 0xC0, 0xC0, 0x80, 0x80
+  };
+  static unsigned char def_2b[] = {
+    2, 0xC2, 0xDF, 0x80, 0xBF
+  };
+  static unsigned char def_3a[] = {
+    3, 0xE0, 0xE0, 0xA0, 0xBF, 0x80, 0xBF
+  };
+  static unsigned char def_3b[] = {
+    3, 0xE1, 0xEF, 0x80, 0xBF, 0x80, 0xBF
+  };
+  static unsigned char def_4a[] = {
+    4, 0xF0, 0xF0, 0x90, 0xBF, 0x80, 0xBF, 0x80, 0xBF
+  };
+  static unsigned char def_4b[] = {
+    4, 0xF1, 0xF3, 0x80, 0xBF, 0x80, 0xBF, 0x80, 0xBF
+  };
+  static unsigned char def_4c[] = {
+    4, 0xF4, 0xF4, 0x80, 0x8F, 0x80, 0xBF, 0x80, 0xBF
+  };
 
   /* an array of all the definitions */
-  static unsigned char* def_arr[] = { def_2a, def_2b, def_3a, def_3b, def_4a, def_4b, def_4c, NULL };
+  static unsigned char* def_arr[] = {
+    def_2a, def_2b, def_3a, def_3b, def_4a, def_4b, def_4c, NULL
+  };
 
-  /* a table used for quick lookup of the definition that goes with a particular lead byte */
+  /* a table used for quick lookup of the definition that goes with a
+   * particular lead byte */
   static unsigned char* lb_tab[256] = { NULL };
 
   /* a pointer to the table; NULL means not yet setup */
   static unsigned char** lb_ptr = NULL;
 
-  /* if the table pointer hasn't been initialized */
-  if (lb_ptr == NULL) {
-    lb_ptr = lb_tab;
+  /* buffer pointer and size */
+  const unsigned char *z;
+  unsigned int n;
 
-    /* for each definition, set the lead byte table pointer to the proper definition */
-    unsigned char** pp = def_arr;
-    while (*pp != NULL) {
+  /* if the table pointer hasn't been initialized */
+  if( lb_ptr==NULL ){
+    unsigned char** pp;
+    /* for each definition, set the lead byte table pointer to the
+     * proper definition */
+    lb_ptr = lb_tab;
+    pp = def_arr;
+    while( *pp!=NULL ){
       unsigned char lo = pp[0][1];
       unsigned char hi = pp[0][2];
       unsigned char i;
-      for (i = lo; i <= hi; ++i)
+      for(i=lo; i<=hi; ++i){
         lb_ptr[i] = pp[0];
+      }
       ++pp;
     }
   }
-
-  /* buffer pointer and size */
-  const unsigned char *z = (unsigned char *)blob_buffer(pContent);
-  unsigned int n = blob_size(pContent);
-
+  z = (unsigned char *)blob_buffer(pContent);
+  n = blob_size(pContent);
   /* while we haven't checked all the bytes in the buffer */
-  while (n > 0) {
-
+  while( n>0 ){
     /* ascii is trivial */
-    if (*z < 0x80) {
+    if( *z<0x80 ){
       ++z;
       --n;
-    } else {
+    }else{
       /* get the definition for this lead byte */
       unsigned char* def = lb_ptr[*z++];
       unsigned char i, len;
 
       /* if the definition doesn't exist, return invalid */
-      if (!def) return LOOK_INVALID;
-
+      if( !def ) return LOOK_INVALID;
       /* get the expected sequence length */
       len = *def;
-
       /* if there aren't enough bytes left, return invalid */
-      if (n < len) return LOOK_INVALID;
-
+      if( n<len ) return LOOK_INVALID;
       /* skip the length & lead byte range */
       def += 3;
-
       /* we already know byte #0 is good, so check the remaining bytes */
-      for (i = 1; i < len; ++i)
-        /* if the byte is outside the allowed range for this definition, return invalid */
-        if ((*z < *def++) || (*z++ > *def++))
+      for(i=1; i<len; ++i){
+        /* if the byte is outside the allowed range for this definition,
+         * return invalid */
+        if( (*z<*def++) || (*z++>*def++) ){
           return LOOK_INVALID;
-
+        }
+      }
       /* advance to the next sequence */
       n -= len;
     }
   }
-
   /* we made it all the way through the buffer so it's not invalid */
-  return 0;
+  return LOOK_NONE;
 }
-
 
 /*
 ** Define the type needed to represent a Unicode (UTF-16) character.
@@ -454,7 +470,7 @@ void looks_like_utf_test_cmd(void){
     if( fUnicode ){
       lookFlags = looks_like_utf16(&blob, bRevUtf16, 0);
     }else{
-      lookFlags = looks_like_utf8(&blob, 0)|invalid_utf8(&blob);
+      lookFlags = looks_like_utf8(&blob, 0) | invalid_utf8(&blob);
     }
   }
   fossil_print("File \"%s\" has %d bytes.\n",g.argv[2],blob_size(&blob));
