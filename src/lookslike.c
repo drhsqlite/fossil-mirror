@@ -145,8 +145,7 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
 ** wikipedia article referenced previously).
 */
 
-int invalid_utf8(const Blob *pContent)
-{
+int invalid_utf8(const Blob *pContent) {
   /* definitions for various utf-8 sequence lengths */
   static unsigned char def_2a[] = { 2, 0xC0, 0xC0, 0x80, 0x80 };
   static unsigned char def_2b[] = { 2, 0xC2, 0xDF, 0x80, 0xBF };
@@ -166,14 +165,12 @@ int invalid_utf8(const Blob *pContent)
   static unsigned char** lb_ptr = NULL;
 
   /* if the table pointer hasn't been initialized */
-  if (lb_ptr == NULL)
-  {
+  if (lb_ptr == NULL) {
     lb_ptr = lb_tab;
 
     /* for each definition, set the lead byte table pointer to the proper definition */
     unsigned char** pp = def_arr;
-    while (*pp != NULL)
-    {
+    while (*pp != NULL) {
       unsigned char lo = pp[0][1];
       unsigned char hi = pp[0][2];
       unsigned char i;
@@ -188,41 +185,34 @@ int invalid_utf8(const Blob *pContent)
   unsigned int n = blob_size(pContent);
 
   /* while we haven't checked all the bytes in the buffer */
-  while (n > 0)
-  {
+  while (n > 0) {
+
     /* ascii is trivial */
-    if (*z < 0x80)
-    {
+    if (*z < 0x80) {
       ++z;
       --n;
-    }
-    else
-    {
+    } else {
       /* get the definition for this lead byte */
       unsigned char* def = lb_ptr[*z++];
       unsigned char i, len;
 
       /* if the definition doesn't exist, return invalid */
-      if (!def)
-        return LOOK_INVALID;
+      if (!def) return LOOK_INVALID;
 
       /* get the expected sequence length */
       len = *def;
 
       /* if there aren't enough bytes left, return invalid */
-      if (n < len)
-        return LOOK_INVALID;
+      if (n < len) return LOOK_INVALID;
 
       /* skip the length & lead byte range */
       def += 3;
 
       /* we already know byte #0 is good, so check the remaining bytes */
       for (i = 1; i < len; ++i)
-      {
         /* if the byte is outside the allowed range for this definition, return invalid */
         if ((*z < *def++) || (*z++ > *def++))
           return LOOK_INVALID;
-      }
 
       /* advance to the next sequence */
       n -= len;
