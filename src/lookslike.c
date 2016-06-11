@@ -145,7 +145,7 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
 ** wikipedia article referenced previously).
 */
 
-int invalid_utf8_b(const Blob *pContent)
+int invalid_utf8(const Blob *pContent)
 {
   /* definitions for various utf-8 sequence lengths */
   static unsigned char def_2a[] = { 2, 0xC0, 0xC0, 0x80, 0x80 };
