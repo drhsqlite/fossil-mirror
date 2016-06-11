@@ -1,5 +1,5 @@
-C added\snew\stests\sfor\sinvalid\sutf8\ssequences
-D 2016-06-11T00:06:39.428
+C Fix\sharmless\scompiler\swarning.
+D 2016-06-11T05:27:31.714
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -409,7 +409,7 @@ F src/event.c 0edff3caaceed4fbee6ec8c20f480a94f467f5cf
 F src/export.c ab705fb1bdb609c49cab3aa686fd74b5cd8e83d4
 F src/file.c 8e85e61f94faf64efd92db024e19d83cf30ac0a1
 F src/finfo.c 9dcd6c54bf5fadfafe0b15cbb736ba0cf418c956
-F src/foci.c c967a79b5b14889637c62fd70bb83a54a21faeef
+F src/foci.c a385eb9a5d3ab814021f998a4ba5cee0d81bfc64
 F src/fusefs.c 719dc13de3dcebf8b963d65e5da46e1a5c197803
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 8d766b73f318358fec439cc52ea3c02874340fb8
@@ -751,7 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 084a409e83dae31003dcb360484d0412cb7e830f
-R 2e24c751f3142a2e06132fe535d4ab42
-U sdr
-Z 600557276ae35cd3a32cf788f900fedb
+P 6da500a156b76e301db89864f6a70fdc03bf9df0
+R bc8f3b3d8d49a9fb7a4798faa29a5ca7
+U mistachkin
+Z 69fe7f0e85e6c516250edf3f28f9fbe0

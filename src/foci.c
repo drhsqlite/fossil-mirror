@@ -192,7 +192,7 @@ static int fociFilter(
     if( idxNum==1 ){
       rid = sqlite3_value_int(argv[0]);
     }else{
-      rid = symbolic_name_to_rid(sqlite3_value_text(argv[0]), "ci");
+      rid = symbolic_name_to_rid((const char*)sqlite3_value_text(argv[0]),"ci");
     }
     pCur->pMan = manifest_get(rid, CFTYPE_MANIFEST, 0);
     if( pCur->pMan ){
