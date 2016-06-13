@@ -1,5 +1,5 @@
-C For\sthe\s"setenv:"\sline\sof\sCGI\sscripts,\sif\sthe\sVALUE\sfield\sis\somitted,\sunset\nthe\svariable.
-D 2016-06-11T20:13:22.836
+C Fix\shandling\sof\sbyte\ssequence\s\\xF4\\x00\sin\sutf-8\svalidation.\sNow\sall\stests\spass\sagain.\sThanks\sto\sScott\sRobinson\sfor\sdiscovering\sthis!
+D 2016-06-13T08:29:06.037
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -441,7 +441,7 @@ F src/linenoise.c 9c1a8a9a1d33f79191cb5a104067201a8cee6de1
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 32febde85f14593a503aadbb51983d37fce009c2
 F src/login.c 13788b9e70f2cfb13ea4e975a4117c68ed8115f0
-F src/lookslike.c 26d0132bd7aca0c37737f277065cbc0af31e0b2a
+F src/lookslike.c c96a3f58ac329024b3defc2f89b62db2bed3bc26
 F src/main.c 663246084eded6c69a9c4ecdf17d6f30ae43df7e
 F src/main.mk 61f9c92dd66b356e9245ee43360023bdd7cf2d80
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
@@ -751,7 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0e9a144ba7f9783df8b1490dcf6cd80a59cf0549
-R fd7a43943896dea84c4636e3901c36e5
-U drh
-Z b5192d02acd5ecce5fc304fa28bab81a
+P 72df287cf3556a04a8321e578485184ad75964cf
+R b1c5e0face516c83208ac68dc450aa52
+U jan.nijtmans
+Z 5d5d12e7eb5944951156c749467062b6
