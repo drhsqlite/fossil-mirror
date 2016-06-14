@@ -159,12 +159,12 @@ int invalid_utf8(const Blob *pContent){
     c2 = c;
     c = *++z;
     if( c2>=0x80 ){
-      if( ((c&0xc0)!=0x80) || ((c2<0xc2) || (c2>=0xf4)) &&
-          (((c2!=0xf4) || (c>=0x90)) && ((c2!=0xc0) || (c!=0x80))) ){
+      if( ((c&0xc0)!=0x80) || (((c2<0xc2) || (c2>=0xf4)) &&
+          (((c2!=0xf4) || (c>=0x90)) && ((c2!=0xc0) || (c!=0x80)))) ){
         return LOOK_INVALID; /* Invalid UTF-8 */
       }
       if( c2>=0xe0 ){
-        if ((c2==0xf0 && c<0x90)||(c2==0xe0 && c<0xa0)){
+        if ((c2==0xf0 && c<0x90)||(c2==0xe0 && c<0xa0) ){
           return LOOK_INVALID; /* Invalid UTF-8, too short */
         }
         c = (c2<<1)|3;
