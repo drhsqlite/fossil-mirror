@@ -1,5 +1,5 @@
-C restructured\sthe\sinvalid_utf8\sso\sthat\sit\sdoesn't\shave\sto\sinitialize\sthe\stable\son\sthe\sfirst\spass\sand\sshrink\sthe\ssize\sof\sthe\stable
-D 2016-06-14T18:06:07.548
+C merged\sfrom\strunk
+D 2016-06-14T18:08:59.148
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -12,7 +12,7 @@ F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile e6126edc40fe1da6bd47c6c5f1beede3b9c3eaf7
 F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
 F Makefile.in e68d67b0141655f3f6934ad35df484e50e84ff32
-F VERSION 7d88475c68cba7127d611641fa69160437b6885e
+F VERSION ea3b32fdf753b0b9cc7b2dddfd8fe26be61d0960
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -393,7 +393,7 @@ F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
 F src/config.h b91f4223f2653503759e1205343db9f94d134973
 F src/configure.c e709349116d50f53152da7e8d409ad5232395c47
 F src/content.c 80a10dc10ce85269b02061a5d7cfe2b0936f8400
-F src/cson_amalgamation.c ce18de7d62186d08d6c15a7efbd66bf009310439
+F src/cson_amalgamation.c a7551c0bc4b4572c01ef8f0927c4255876f1fde3
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 7a1a55d63f51733fdb3fe2888e49b9492d63e4b3
@@ -447,7 +447,7 @@ F src/main.mk 61f9c92dd66b356e9245ee43360023bdd7cf2d80
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 7aa2028c30e67a4effdf7458b12a7d2f200b1f50
-F src/manifest.c f2232158d122110ce25a5de6131bd61627181591
+F src/manifest.c e904566ce0f19b57b920b05a48c42cb578fbd851
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
 F src/markdown_html.c 0b945713361c2d24ee1fbbcc981ab02af9b484a9
@@ -479,7 +479,7 @@ F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
 F src/shell.c 14ff7f660530a52b117d110ba3390b7b2eb719b6
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 6fbec2fbaf3bb39566f2550b12f58127c9bfa850
-F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
+F src/skins.c 524384aafbe9e7707d3b87f42ee72fa63fe91796
 F src/sqlcmd.c 67a6b4ac894633d8346dc890a5b179a0ac3b1925
 F src/sqlite3.c 9b9171b1e6ce7a980e6b714e9c0d9112657ad552
 F src/sqlite3.h a41446e48e7bfdcb052e1773572ad7bc662c68e1
@@ -496,11 +496,11 @@ F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c 8c4b87efa1db73e2c40e6303a3f8151cd1028fb1
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
 F src/timeline.c a9034a22a1060c1f5eeb7be471fdd9a6472d83b4
-F src/tkt.c 9f7aa06b8373bdda402558ad55184a802ad0c9c6
+F src/tkt.c 90529c044296e3a13b909a4b356c87d1917fff12
 F src/tktsetup.c c7af6bda5acc77a83532e5662494ba6233c0eec8
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c 52ec5c24a6dcf1937026e2d9f86791fd1913cdf6
-F src/unicode.c f26b9f26d4ac399f7b03cfac16ec72336c7f06c9
+F src/unicode.c 8e02b4fd6af9e735bda68eb06e3be90b6b901a87
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c b76f44f85f5df5aeab9eba0c892d73a9335f5ea8
@@ -664,7 +664,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 70f43c1027728f15883cbde8099ee2eec2da8c0f
-F www/changes.wiki 139cc97f743d3c710e671d3bc373943ef3fca714
+F www/changes.wiki 561b22db815694f8722f5d80de29944c8e84ec63
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 115a0ecdac918232061bbc19124ea83e0a27d938
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -724,7 +724,7 @@ F www/makefile.wiki 30c7129ffb00c58699b87e84a2c0b696d7c10406
 F www/mkdownload.tcl 5ac61a3e13cecaa67f1e31741113c96cbd41463f
 F www/mkindex.tcl 23e4d98c3b4c8e67f233547e21b9effe961943b5
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
-F www/password.wiki 336916afde4ff470e87fc43066063623a9a74c8a
+F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
 F www/permutedindex.html 24480ebfa9589c59a27671385f72e9888d644c92
 F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
 F www/private.wiki 72344489bbae6f7955369559b6ab22e01a64259b
@@ -751,7 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d22c72bc9248b5e766b881e45e392b72af7cc2b9
-R 30c9f4223757931c6171a509b2afcaba
+P d3fc377276b80b413d1d0f2eed2cd5d57517d029 3b3310a7b387c91dd09ed224e812a3304cc2e5fc
+R 0cfba3adeb5b0e9446d03ef1508a602d
 U sdr
-Z 1368ea6caa5cfc772a322591e05c7270
+Z 5c76caf5a83177b7bf0bd14a16475ca7

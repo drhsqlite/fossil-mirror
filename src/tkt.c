@@ -425,7 +425,7 @@ void test_ticket_rebuild(void){
 */
 static void showAllFields(void){
   int i;
-  @ <font color="blue">
+  @ <div style="color:blue">
   @ <p>Database fields:</p><ul>
   for(i=0; i<nField; i++){
     @ <li>aField[%d(i)].zName = "%h(aField[i].zName)";
@@ -436,7 +436,7 @@ static void showAllFields(void){
     }
     @ mUsed = %d(aField[i].mUsed);
   }
-  @ </ul></font>
+  @ </ul></div>
 }
 
 /*
@@ -654,11 +654,12 @@ static int submitTicketCmd(
   if( g.zPath[0]=='d' ){
     const char *zNeedMod = needMod ? "required" : "skipped";
     /* If called from /debug_tktnew or /debug_tktedit... */
-    @ <font color="blue">
+    @ <div style="color:blue">
     @ <p>Ticket artifact that would have been submitted:</p>
     @ <blockquote><pre>%h(blob_str(&tktchng))</pre></blockquote>
     @ <blockquote><pre>Moderation would be %h(zNeedMod).</pre></blockquote>
-    @ <hr /></font>
+    @ </div>
+    @ <hr>
     return TH_OK;
   }else{
     if( g.thTrace ){
