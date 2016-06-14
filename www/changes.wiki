@@ -1,6 +1,11 @@
 <title>Change Log</title>
 
-<h2>Changes for Version 1.35 (2016-00-00)</h2>
+<h2>Changes for Version 1.36 (2016-00-00)</h2>
+
+  *  Update internal Unicode character tables, used in regular expression
+     handling, from version 8.0 to 9.0.
+
+<h2>Changes for Version 1.35 (2016-06-14)</h2>
 
   *  Enable symlinks by default on all non-Windows platforms.
   *  Enhance the [/md_rules|Markdown formatting] so that hyperlinks that begin

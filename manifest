@@ -1,5 +1,5 @@
-C Fix\stwo\smore\sharmless\sgcc\swarning\smessage\s(one\sof\sthem\sas\ssuggested\sby\sStephan\sBeal)
-D 2016-06-14T12:07:15.771
+C Update\sinternal\sUnicode\scharacter\stables,\sused\sin\sregular\sexpression\shandling,\sfrom\sversion\s8.0\sto\s9.0.
+D 2016-06-14T12:27:33.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -500,7 +500,7 @@ F src/tkt.c 9f7aa06b8373bdda402558ad55184a802ad0c9c6
 F src/tktsetup.c c7af6bda5acc77a83532e5662494ba6233c0eec8
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c 52ec5c24a6dcf1937026e2d9f86791fd1913cdf6
-F src/unicode.c f26b9f26d4ac399f7b03cfac16ec72336c7f06c9
+F src/unicode.c 8e02b4fd6af9e735bda68eb06e3be90b6b901a87
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c b76f44f85f5df5aeab9eba0c892d73a9335f5ea8
@@ -664,7 +664,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 70f43c1027728f15883cbde8099ee2eec2da8c0f
-F www/changes.wiki 139cc97f743d3c710e671d3bc373943ef3fca714
+F www/changes.wiki 561b22db815694f8722f5d80de29944c8e84ec63
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 115a0ecdac918232061bbc19124ea83e0a27d938
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -751,7 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3aa86af6aaad5d14a92db90dc238477c1e8ede8c
-R df4bd6c31f480d0a62e4434ccdf0fc0b
+P 6ef54dfaf7fd90a49ccd10c81a81cbc117a027ba
+R 06d1a1eb2cd3da5ca2f47a8f8282df94
 U jan.nijtmans
-Z 7bf5a68e2d53820b32e64017b1d6c0a4
+Z 7f43af2efd6e54e24a016ac2223f360c
