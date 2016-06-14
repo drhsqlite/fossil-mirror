@@ -1,5 +1,5 @@
-C Further\scoding\sstyle\simprovements\sfor\sthe\snew\sinvalid_utf8()\sfunction.
-D 2016-06-11T05:23:21.644
+C merged\sfrom\strunk
+D 2016-06-14T05:00:27.632
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -409,7 +409,7 @@ F src/event.c 0edff3caaceed4fbee6ec8c20f480a94f467f5cf
 F src/export.c ab705fb1bdb609c49cab3aa686fd74b5cd8e83d4
 F src/file.c 8e85e61f94faf64efd92db024e19d83cf30ac0a1
 F src/finfo.c 9dcd6c54bf5fadfafe0b15cbb736ba0cf418c956
-F src/foci.c c967a79b5b14889637c62fd70bb83a54a21faeef
+F src/foci.c a385eb9a5d3ab814021f998a4ba5cee0d81bfc64
 F src/fusefs.c 719dc13de3dcebf8b963d65e5da46e1a5c197803
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 8d766b73f318358fec439cc52ea3c02874340fb8
@@ -442,12 +442,12 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 32febde85f14593a503aadbb51983d37fce009c2
 F src/login.c 13788b9e70f2cfb13ea4e975a4117c68ed8115f0
 F src/lookslike.c 3faa960099dba279b8ea9d28789ca37eb52f69ab
-F src/main.c dce9dcdab977a0b02f744b63bc387e8970dfe27a
+F src/main.c 663246084eded6c69a9c4ecdf17d6f30ae43df7e
 F src/main.mk 61f9c92dd66b356e9245ee43360023bdd7cf2d80
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 7aa2028c30e67a4effdf7458b12a7d2f200b1f50
-F src/manifest.c cede9a580dd60d6ca75b2d10ea783a2e3a2559ed
+F src/manifest.c f2232158d122110ce25a5de6131bd61627181591
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
 F src/markdown_html.c 0b945713361c2d24ee1fbbcc981ab02af9b484a9
@@ -751,7 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dd3bb22cd726f26e785776d50f605a469a03870d
-R 81a3257baf80859ed7c27850c304547e
-U mistachkin
-Z 84f19785bc623e354370cbfb1b176106
+P 2fb7d59beed17f94613e3108de7460681d0e0a1c 5684672ab72780f7fe5f6c1909ae3a6e21f21997
+R 72fac56d1f8e1e3e91dbfce7f30fd863
+U sdr
+Z e6b22048b7945023a94ec6f9aac414c5

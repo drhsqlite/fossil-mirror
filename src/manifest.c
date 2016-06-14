@@ -1613,7 +1613,7 @@ static int manifest_add_checkin_linkages(
 
 /*
 ** There exists a "parent" tag against checkin rid that has value zValue.
-** If value is well-formed (meaning that is is a list of UUIDs), then use 
+** If value is well-formed (meaning that it is a list of UUIDs), then use 
 ** zValue to reparent check-in rid.
 */
 void manifest_reparent_checkin(int rid, const char *zValue){
