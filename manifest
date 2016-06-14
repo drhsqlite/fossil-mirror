@@ -1,5 +1,5 @@
-C Version\s1.35
-D 2016-06-14T11:10:39.659
+C Fix\stwo\smore\sharmless\sgcc\swarning\smessage\s(one\sof\sthem\sas\ssuggested\sby\sStephan\sBeal)
+D 2016-06-14T12:07:15.771
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -393,7 +393,7 @@ F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
 F src/config.h b91f4223f2653503759e1205343db9f94d134973
 F src/configure.c e709349116d50f53152da7e8d409ad5232395c47
 F src/content.c 80a10dc10ce85269b02061a5d7cfe2b0936f8400
-F src/cson_amalgamation.c ce18de7d62186d08d6c15a7efbd66bf009310439
+F src/cson_amalgamation.c a7551c0bc4b4572c01ef8f0927c4255876f1fde3
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 7a1a55d63f51733fdb3fe2888e49b9492d63e4b3
@@ -447,7 +447,7 @@ F src/main.mk 61f9c92dd66b356e9245ee43360023bdd7cf2d80
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 7aa2028c30e67a4effdf7458b12a7d2f200b1f50
-F src/manifest.c f2232158d122110ce25a5de6131bd61627181591
+F src/manifest.c e904566ce0f19b57b920b05a48c42cb578fbd851
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
 F src/markdown_html.c 0b945713361c2d24ee1fbbcc981ab02af9b484a9
@@ -751,10 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e449ede35ee20c58b70e9e7c1669a8b08da72564
-R 5bfedf94f47ef171ea48830b85d538bb
-T +bgcolor * #d0c0ff
-T +sym-release *
-T +sym-version-1.35 *
-U drh
-Z 567b0098acc116926d195f68b173a88c
+P 3aa86af6aaad5d14a92db90dc238477c1e8ede8c
+R df4bd6c31f480d0a62e4434ccdf0fc0b
+U jan.nijtmans
+Z 7bf5a68e2d53820b32e64017b1d6c0a4

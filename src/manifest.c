@@ -1422,7 +1422,7 @@ static void add_mlink(
     return;
   }
   isPublic = !content_is_private(mid);
-  
+
   /* If pParent is not the primary parent of pChild, and the primary
   ** parent of pChild is a phantom, then abort this routine without
   ** doing any work.  The mlink entries will be computed when the
@@ -1532,7 +1532,7 @@ static void add_mlink(
     }
   }
   manifest_cache_insert(*ppOther);
-  
+
   /* If pParent is the primary parent of pChild, also run this analysis
   ** for all merge parents of pChild
   */
@@ -1566,7 +1566,7 @@ static int manifest_add_checkin_linkages(
   Stmt q;
 
   if( p->zBaseline ){
-     sqlite3_snprintf(sizeof(zBaseId), zBaseId, "%d", 
+     sqlite3_snprintf(sizeof(zBaseId), zBaseId, "%d",
                       uuid_to_rid(p->zBaseline,1));
   }else{
      sqlite3_snprintf(sizeof(zBaseId), zBaseId, "NULL");
@@ -1613,7 +1613,7 @@ static int manifest_add_checkin_linkages(
 
 /*
 ** There exists a "parent" tag against checkin rid that has value zValue.
-** If value is well-formed (meaning that it is a list of UUIDs), then use 
+** If value is well-formed (meaning that it is a list of UUIDs), then use
 ** zValue to reparent check-in rid.
 */
 void manifest_reparent_checkin(int rid, const char *zValue){
@@ -1634,7 +1634,7 @@ void manifest_reparent_checkin(int rid, const char *zValue){
     azParent[i][UUID_SIZE] = 0;
     if( !validate16(azParent[i],UUID_SIZE) ) break;
   }
-  if( i==nParent 
+  if( i==nParent
    && !db_exists("SELECT 1 FROM plink WHERE cid=%d AND pid=%d",
                  rid, uuid_to_rid(azParent[0],0))
   ){
@@ -1706,7 +1706,7 @@ int manifest_crosslink_end(int flags){
       zScript = xfer_ticket_code();
     }
   }
-  db_prepare(&q, 
+  db_prepare(&q,
      "SELECT rid, value FROM tagxref"
      " WHERE tagid=%d AND tagtype=1",
      TAG_PARENT
@@ -1923,7 +1923,6 @@ static int tag_compare(const void *a, const void *b){
 int manifest_crosslink(int rid, Blob *pContent, int flags){
   int i, rc = TH_OK;
   Manifest *p;
-  Stmt q;
   int parentid = 0;
   int permitHooks = (flags & MC_PERMIT_HOOKS);
   const char *zScript = 0;
@@ -2149,7 +2148,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
         zComment = mprintf(
              "Add attachment [/artifact/%!S|%h] to"
              " tech note [/technote/%!S|%S]",
-             zSrc, zName, zTarget, zTarget); 
+             zSrc, zName, zTarget, zTarget);
       }else{
         zComment = mprintf(
              "Delete attachment \"%h\" from"
@@ -2159,7 +2158,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       db_multi_exec("UPDATE event SET comment=%Q, type='e'"
                        " WHERE objid=%Q",
                     zComment, zAttachId);
-      fossil_free(zComment);      
+      fossil_free(zComment);
     }
     db_finalize(&qatt);
   }
@@ -2196,7 +2195,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       db_multi_exec("UPDATE event SET comment=%Q, type='t'"
                        " WHERE objid=%Q",
                     zComment, zAttachId);
-      fossil_free(zComment);      
+      fossil_free(zComment);
     }
     db_finalize(&qatt);
   }
@@ -2207,14 +2206,14 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     ** prove otherwise (which could on a later artifact if we
     ** process the attachment artifact before the artifact to
     ** which it is attached!) */
-    char attachToType = 'w';       
+    char attachToType = 'w';
     if( fossil_is_uuid(p->zAttachTarget) ){
       if( db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'",
             p->zAttachTarget)
         ){
         attachToType = 't';          /* Attaching to known ticket */
       }else if( db_exists("SELECT 1 FROM tag WHERE tagname='event-%q'",
-                  p->zAttachTarget) 
+                  p->zAttachTarget)
             ){
         attachToType = 'e';          /* Attaching to known tech note */
       }
@@ -2247,14 +2246,14 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       if( isAdd ){
         zComment = mprintf(
           "Add attachment [/artifact/%!S|%h] to tech note [/technote/%!S|%S]",
-          p->zAttachSrc, p->zAttachName, p->zAttachTarget, p->zAttachTarget); 
+          p->zAttachSrc, p->zAttachName, p->zAttachTarget, p->zAttachTarget);
       }else{
         zComment = mprintf(
              "Delete attachment \"/artifact/%!S|%h\" from"
              " tech note [/technote/%!S|%S]",
              p->zAttachName, p->zAttachName,
              p->zAttachTarget,p->zAttachTarget);
-      }      
+      }
     }else{
       if( isAdd ){
         zComment = mprintf(
