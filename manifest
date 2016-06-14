@@ -1,5 +1,5 @@
-C Update\sinternal\sUnicode\scharacter\stables,\sused\sin\sregular\sexpression\shandling,\sfrom\sversion\s8.0\sto\s9.0.
-D 2016-06-14T12:27:33.000
+C Increase\sthe\sversion\snumber\sto\s1.36.
+D 2016-06-14T12:35:18.859
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -12,7 +12,7 @@ F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile e6126edc40fe1da6bd47c6c5f1beede3b9c3eaf7
 F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
 F Makefile.in e68d67b0141655f3f6934ad35df484e50e84ff32
-F VERSION 7d88475c68cba7127d611641fa69160437b6885e
+F VERSION ea3b32fdf753b0b9cc7b2dddfd8fe26be61d0960
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -751,7 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6ef54dfaf7fd90a49ccd10c81a81cbc117a027ba
-R 06d1a1eb2cd3da5ca2f47a8f8282df94
-U jan.nijtmans
-Z 7f43af2efd6e54e24a016ac2223f360c
+P efe6ebb4b111a6f2a0a4ae6456217523c0d47e96
+R 90d906f379cd14b17c776384a14f28a2
+U drh
+Z 5a7339e36c83402f8e1e42aca35fa606
