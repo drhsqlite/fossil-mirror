@@ -436,7 +436,7 @@ static void showAllFields(void){
     }
     @ mUsed = %d(aField[i].mUsed);
   }
-  @ </ul></font>
+  @ </ul></div>
 }
 
 /*

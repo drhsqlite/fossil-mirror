@@ -1,5 +1,5 @@
-C In\sstead\sof\s&lt;font\scolor=xxx,\suse\sstyle=color:xxx\sin\ssome\splaces.
-D 2016-06-14T14:08:06.157
+C Forgot\sclose\stag\sin\sprevious\scommit
+D 2016-06-14T14:11:51.332
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -496,7 +496,7 @@ F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c 8c4b87efa1db73e2c40e6303a3f8151cd1028fb1
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
 F src/timeline.c a9034a22a1060c1f5eeb7be471fdd9a6472d83b4
-F src/tkt.c 7a560ed97c75d0bfe495c071744c6984a805cce0
+F src/tkt.c 90529c044296e3a13b909a4b356c87d1917fff12
 F src/tktsetup.c c7af6bda5acc77a83532e5662494ba6233c0eec8
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c 52ec5c24a6dcf1937026e2d9f86791fd1913cdf6
@@ -751,8 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fd547b831861a3ee3862bab3589be7b4fadeabdd
-Q +46861220d300f7a92aa0a8031673d383d2958cc2
-R 19341c81835f3552c10d690e34676a8e
+P d1f60caac3a826bd2af68f32de0082a7dc34c972
+R 9dfd1bb7c9054e8532e6a7a98832efb5
 U jan.nijtmans
-Z a4786e2660a6b8298d9ce356a673ac7f
+Z 21569c8e0b412482caedd79319c9db87
