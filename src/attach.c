@@ -28,7 +28,7 @@
 **    tkt=TICKETUUID
 **    page=WIKIPAGE
 **
-** At most one of technote=, tkt= or page= are supplied. 
+** At most one of technote=, tkt= or page= are supplied.
 ** If none is given, all attachments are listed.  If one is given,
 ** only attachments for the designated technote, ticket or wiki page
 ** are shown. TECHNOTEUUID and TICKETUUID may be just a prefix of the
@@ -111,7 +111,7 @@ void attachlist_page(void){
     if( moderation_pending(attachid) ){
       @ <span class="modpending">*** Awaiting Moderator Approval ***</span>
     }
-    @ <br><a href="%R/attachview?%s(zUrlTail)">%h(zFilename)</a>
+    @ <br /><a href="%R/attachview?%s(zUrlTail)">%h(zFilename)</a>
     @ [<a href="%R/attachdownload/%t(zFilename)?%s(zUrlTail)">download</a>]<br />
     if( zComment ) while( fossil_isspace(zComment[0]) ) zComment++;
     if( zComment && zComment[0] ){
@@ -360,7 +360,7 @@ void attachadd_page(void){
     zTarget = zTechNote;
     zTargetType = mprintf("Tech Note <a href=\"%R/technote/%s\">%S</a>",
                            zTechNote, zTechNote);
-  
+
   }else{
     if( g.perm.ApndTkt==0 || g.perm.Attach==0 ){
       login_needed(g.anon.ApndTkt && g.anon.Attach);
@@ -495,7 +495,7 @@ void ainfo_page(void){
   zDate = db_text(0, "SELECT datetime(%.12f)", pAttach->rDate);
 
   if( P("confirm")
-   && ((zTktUuid && g.perm.WrTkt) || 
+   && ((zTktUuid && g.perm.WrTkt) ||
        (zWikiName && g.perm.WrWiki) ||
        (zTNUuid && g.perm.Write && g.perm.WrWiki))
   ){
@@ -629,7 +629,7 @@ void ainfo_page(void){
     }
   }else if( strncmp(zMime, "image/", 6)==0 ){
     int sz = db_int(0, "SELECT size FROM blob WHERE rid=%d", ridSrc);
-    @ <i>(file is %d(sz) bytes of image data)</i><br>
+    @ <i>(file is %d(sz) bytes of image data)</i><br />
     @ <img src="%R/raw/%s(zSrc)?m=%s(zMime)"></img>
     style_submenu_element("Image", "Image", "%R/raw/%s?m=%s", zSrc, zMime);
   }else{
@@ -732,7 +732,7 @@ void attachment_cmd(void){
         " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
         " ORDER BY x.mtime DESC LIMIT 1",
         zPageName
-      );        
+      );
       if( (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))!=0 ){
         zBody = pWiki->zWiki;
       }

@@ -177,7 +177,7 @@ void setup_ulist(void){
     @ <td><a href='setup_uedit?id=%d(uid)'>%d(uid)</a>
     @ <td><a href='setup_uedit?id=%d(uid)'>%h(zLogin)</a>
     @ <td>%h(zCap)
-    
+
     if( fossil_strcmp(zLogin,"anonymous")==0 ){
       @ <td>All logged-in users
     }else if( fossil_strcmp(zLogin,"developer")==0 ){
@@ -1156,10 +1156,10 @@ void setup_access(void){
   onoff_attribute("Enable hyperlinks for humans (as deduced from the UserAgent "
                   " HTTP header string)",
                   "auto-hyperlink-ishuman", "ahis", 0, 0);
-  @ <br>
+  @ <br />
   onoff_attribute("Require mouse movement before enabling hyperlinks",
                   "auto-hyperlink-mouseover", "ahmo", 0, 0);
-  @ <br>
+  @ <br />
   entry_attribute("Delay before enabling hyperlinks (milliseconds)", 5,
                   "auto-hyperlink-delay", "ah-delay", "10", 0);
   @ </blockquote>
@@ -1316,7 +1316,7 @@ void setup_login_group(void){
     @ To leave this login group press
     @ <input type="submit" value="Leave Login Group" name="leave">
     @ </form></p>
-    @ <hr><h2>Implementation Details</h2>
+    @ <hr /><h2>Implementation Details</h2>
     @ <p>The following are fields from the CONFIG table related to login-groups,
     @ provided here for instructional and debugging purposes:</p>
     @ <table border='1' id='configTab'>
@@ -2155,17 +2155,17 @@ void page_srchsetup(){
   @ <p>When searching documents, use the versions of the files found at the
   @ type of the "Document Branch" branch.  Recommended value: "trunk".
   @ Document search is disabled if blank.
-  @ <hr/>
+  @ <hr />
   onoff_attribute("Search Check-in Comments", "search-ci", "sc", 0, 0);
-  @ <br>
+  @ <br />
   onoff_attribute("Search Documents", "search-doc", "sd", 0, 0);
-  @ <br>
+  @ <br />
   onoff_attribute("Search Tickets", "search-tkt", "st", 0, 0);
-  @ <br>
+  @ <br />
   onoff_attribute("Search Wiki","search-wiki", "sw", 0, 0);
-  @ <hr/>
+  @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
-  @ <hr/>
+  @ <hr />
   if( P("fts0") ){
     search_drop_index();
   }else if( P("fts1") ){

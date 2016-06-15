@@ -518,7 +518,7 @@ void search_sql_setup(sqlite3 *db){
 ** Testing the search function.
 **
 ** COMMAND: search*
-** 
+**
 ** Usage: %fossil search [-all|-a] [-limit|-n #] [-width|-W #] pattern...
 **
 ** Search for timeline entries matching all words provided on the
@@ -951,7 +951,7 @@ int search_run_and_output(
     if( fDebug ){
       @ (%e(db_column_double(&q,3)), %s(db_column_text(&q,4)))
     }
-    @ <br><span class='snippet'>%z(cleanSnippet(zSnippet))</span></li>
+    @ <br /><span class='snippet'>%z(cleanSnippet(zSnippet))</span></li>
   }
   db_finalize(&q);
   if( nRow ){

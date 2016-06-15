@@ -686,16 +686,16 @@ void tarball_page(void){
   if( zExclude ) blob_appendf(&cacheKey, ",ex=%Q", zExclude);
   blob_appendf(&cacheKey, "/%q", zName);
   zKey = blob_str(&cacheKey);
-    
+
   if( P("debug")!=0 ){
     style_header("Tarball Generator Debug Screen");
-    @ zName = "%h(zName)"<br>
-    @ rid = %d(rid)<br>
+    @ zName = "%h(zName)"<br />
+    @ rid = %d(rid)<br />
     if( zInclude ){
-      @ zInclude = "%h(zInclude)"<br>
+      @ zInclude = "%h(zInclude)"<br />
     }
     if( zExclude ){
-      @ zExclude = "%h(zExclude)"<br>
+      @ zExclude = "%h(zExclude)"<br />
     }
     @ zKey = "%h(zKey)"
     style_footer();

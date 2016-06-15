@@ -1351,7 +1351,7 @@ int object_description(
           objType |= OBJTYPE_EVENT;
           hyperlink_to_event_tagid(db_column_int(&q, 5));
         }else{
-          @ Attachment to technote 
+          @ Attachment to technote
         }
       }else{
         @ Tag referencing
@@ -1979,7 +1979,7 @@ void artifact_page(void){
           @ </pre>
         }
       }else if( strncmp(zMime, "image/", 6)==0 ){
-        @ <i>(file is %d(blob_size(&content)) bytes of image data)</i><br>
+        @ <i>(file is %d(blob_size(&content)) bytes of image data)</i><br />
         @ <img src="%R/raw/%s(zUuid)?m=%s(zMime)" />
         style_submenu_element("Image", "Image",
                               "%R/raw/%s?m=%s", zUuid, zMime);
@@ -2074,7 +2074,7 @@ void tinfo_page(void){
   @ <tr><th>Ticket:</th>
   @ <td>%z(href("%R/tktview/%s",zTktName))%s(zTktName)</a>
   if( zTktTitle ){
-        @<br>%h(zTktTitle)
+        @<br />%h(zTktTitle)
   }
   @</td></tr>
   @ <tr><th>Date:</th><td>
