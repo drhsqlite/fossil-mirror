@@ -145,25 +145,25 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
 */
 
 /* definitions for various UTF-8 sequence lengths */
-static const unsigned char us2a[] = {
+static const unsigned char us2a[] = { /* for lead byte 0xC0 */
   2, 0x80, 0x80
 };
-static const unsigned char us2b[] = {
+static const unsigned char us2b[] = { /* for lead bytes 0xC2-0xDF */
   2, 0x80, 0xBF
 };
-static const unsigned char us3a[] = {
+static const unsigned char us3a[] = { /* for lead byte 0xE0 */
   3, 0xA0, 0xBF, 0x80, 0xBF
 };
-static const unsigned char us3b[] = {
+static const unsigned char us3b[] = { /* for lead bytes 0xE1-0xEF */
   3, 0x80, 0xBF, 0x80, 0xBF
 };
-static const unsigned char us4a[] = {
+static const unsigned char us4a[] = { /* for lead byte 0xF0 */
   4, 0x90, 0xBF, 0x80, 0xBF, 0x80, 0xBF
 };
-static const unsigned char us4b[] = {
+static const unsigned char us4b[] = { /* for lead bytes 0xF1-0xF3 */
   4, 0x80, 0xBF, 0x80, 0xBF, 0x80, 0xBF
 };
-static const unsigned char us4c[] = {
+static const unsigned char us4c[] = { /* for lead byte 0xF4 */
   4, 0x80, 0x8F, 0x80, 0xBF, 0x80, 0xBF
 };
 

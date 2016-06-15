@@ -1,5 +1,5 @@
-C Simplifications\sand\sconstification
-D 2016-06-15T08:19:12.596
+C added\sa\sfew\scomments
+D 2016-06-15T15:00:15.369
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -441,7 +441,7 @@ F src/linenoise.c 9c1a8a9a1d33f79191cb5a104067201a8cee6de1
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 32febde85f14593a503aadbb51983d37fce009c2
 F src/login.c 13788b9e70f2cfb13ea4e975a4117c68ed8115f0
-F src/lookslike.c cdbc67e459ddf14813f7c5f219900ee3cbb0a7f4
+F src/lookslike.c 9dea2b0cac6b9ea4387558ee0d779317c0c85b0d
 F src/main.c 663246084eded6c69a9c4ecdf17d6f30ae43df7e
 F src/main.mk 61f9c92dd66b356e9245ee43360023bdd7cf2d80
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
@@ -751,7 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 12675ab794495717b4c68b896ac8e0fc80b34542
-R c38b727312defea5082e34f38234ece0
-U jan.nijtmans
-Z bddfaf7cab5dc81df702b897fd85c1bf
+P 6051c441edda95837da361f9bb764befb93954b0
+R 11b604b051db57ba75225306cd508da3
+U sdr
+Z bd388f298686729c32db4a8fc38a61de
