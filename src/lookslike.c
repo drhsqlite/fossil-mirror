@@ -146,30 +146,30 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
 
 /* definitions for various UTF-8 sequence lengths */
 static const unsigned char us2a[] = {
-  2, 0xC0, 0xC0, 0x80, 0x80
+  2, 0x80, 0x80
 };
 static const unsigned char us2b[] = {
-  2, 0xC2, 0xDF, 0x80, 0xBF
+  2, 0x80, 0xBF
 };
 static const unsigned char us3a[] = {
-  3, 0xE0, 0xE0, 0xA0, 0xBF, 0x80, 0xBF
+  3, 0xA0, 0xBF, 0x80, 0xBF
 };
 static const unsigned char us3b[] = {
-  3, 0xE1, 0xEF, 0x80, 0xBF, 0x80, 0xBF
+  3, 0x80, 0xBF, 0x80, 0xBF
 };
 static const unsigned char us4a[] = {
-  4, 0xF0, 0xF0, 0x90, 0xBF, 0x80, 0xBF, 0x80, 0xBF
+  4, 0x90, 0xBF, 0x80, 0xBF, 0x80, 0xBF
 };
 static const unsigned char us4b[] = {
-  4, 0xF1, 0xF3, 0x80, 0xBF, 0x80, 0xBF, 0x80, 0xBF
+  4, 0x80, 0xBF, 0x80, 0xBF, 0x80, 0xBF
 };
 static const unsigned char us4c[] = {
-  4, 0xF4, 0xF4, 0x80, 0x8F, 0x80, 0xBF, 0x80, 0xBF
+  4, 0x80, 0x8F, 0x80, 0xBF, 0x80, 0xBF
 };
 
 /* a table used for quick lookup of the definition that goes with a
  * particular lead byte */
-static const unsigned char* lb_tab[] = {
+static const unsigned char* const lb_tab[] = {
   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -203,17 +203,15 @@ int invalid_utf8(
       --n;
     }else{
       /* get the definition for this lead byte */
-      unsigned char* def = lb_tab[(*z++)-0x80];
+      const unsigned char* def = lb_tab[(*z++)-0x80];
       unsigned char i, len;
 
       /* if the definition doesn't exist, return invalid */
       if( !def ) return LOOK_INVALID;
       /* get the expected sequence length */
-      len = *def;
+      len = *def++;
       /* if there aren't enough bytes left, return invalid */
       if( n<len ) return LOOK_INVALID;
-      /* skip the length & lead byte range */
-      def += 3;
       /* we already know byte #0 is good, so check the remaining bytes */
       for(i=1; i<len; ++i){
         /* if the byte is outside the allowed range for this definition,
