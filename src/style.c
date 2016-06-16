@@ -402,6 +402,7 @@ void style_header(const char *zTitleFormat, ...){
 
   /* Generate the header up through the main menu */
   Th_Store("project_name", db_get("project-name","Unnamed Fossil Project"));
+  Th_Store("project_description", db_get("project-description",""));
   Th_Store("title", zTitle);
   Th_Store("baseurl", g.zBaseURL);
   Th_Store("secureurl", login_wants_https_redirect()? g.zHttpsURL: g.zBaseURL);

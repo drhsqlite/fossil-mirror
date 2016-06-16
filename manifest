@@ -1,5 +1,5 @@
-C Minor\sfurther\sspeed-up:\sOnly\sincrement\spointer\sif\sreally\sneeded.
-D 2016-06-16T11:39:43.167
+C Add\sthe\s'project_description'\svariable\sfor\sTH1\sstyle\sscripts.
+D 2016-06-16T16:28:02.565
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -486,7 +486,7 @@ F src/sqlite3.h a41446e48e7bfdcb052e1773572ad7bc662c68e1
 F src/stash.c ccb0d94252422f28178119825a99c6bce45924d6
 F src/stat.c 82a4439d096fe0fb231e27f49f2b2ff13dacf014
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
-F src/style.c c0d37267d5b043c8c6e50436b2829328974b4dd9
+F src/style.c 453bc52d729e3b4baed6ae500ea84f359e0c4802
 F src/sync.c cc287e14c4387dfa7a8f050cbec523ece71d664e
 F src/tag.c 98b6205ee452dc3fba417ec8725864a2d7af3ba8
 F src/tar.c 2c940b4142885bbcf4d82975da8552be3d7bb5a9
@@ -676,7 +676,7 @@ F www/copyright-release.html 9da08b126c7c1a7874e44b5cff92db512f36962b
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/custom_ticket.wiki 4083c719eee18ea9dad81d335e45e9af8e29ec4e
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
-F www/customskin.md 827386e6fd0ca33d52f7a663c3c45edde4df1e9a
+F www/customskin.md b780e7be44eb68faade0fb647376e1815009d211
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -751,7 +751,10 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6a59dbbb99b12982b4c3adea7d2a8d002600b293
-R 3ac1113289379dac025d4b14fa378a7a
-U jan.nijtmans
-Z 5256138c5f4f7e002fc2c0df34d1873d
+P 5be2e9cf7d44838ae42f9505afc7d38e9b22d425
+R 43dfebaaae6e114f6d7b64b907d7926e
+T *branch * prjDesc
+T *sym-prjDesc *
+T -sym-trunk *
+U mistachkin
+Z 118f1cd3de4c6801fce3f63935e80e74
