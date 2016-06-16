@@ -221,11 +221,13 @@ int invalid_utf8(
         return LOOK_INVALID;
       }
       if( len > 2 ){
-        if( (*z<0x80) || (*z++>0xBF) ){
-          return LOOK_INVALID;
+        /* if the next byte is not between 0x80 and 0xBF, return invalid */
+        if( (*z++&0xC0)!=0x80 ){
+           return LOOK_INVALID;
         }
         if( len > 3 ){
-          if( (*z<0x80) || (*z++>0xBF) ){
+          /* if the next byte is not between 0x80 and 0xBF, return invalid */
+          if( (*z++&0xC0)!=0x80 ){
             return LOOK_INVALID;
           }
         }
