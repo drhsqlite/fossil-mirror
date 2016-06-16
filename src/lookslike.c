@@ -157,14 +157,6 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
 /* a table used for quick lookup of the definition that goes with a
  * particular lead byte */
 static const unsigned char lb_tab[] = {
-  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
-  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
-  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
-  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
-  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
-  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
-  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
-  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
   US2A, US0A, US2B, US2B, US2B, US2B, US2B, US2B,
   US2B, US2B, US2B, US2B, US2B, US2B, US2B, US2B,
   US2B, US2B, US2B, US2B, US2B, US2B, US2B, US2B,
@@ -188,9 +180,11 @@ int invalid_utf8(
     if( *z<0x80 ){
       ++z;
       --n;
+    }else if( *z<0xC0 ){
+      return LOOK_INVALID;
     }else{
       /* get the definition for this lead byte */
-      const unsigned char* def = &lb_tab[(3 * *z++)-0x180];
+      const unsigned char* def = &lb_tab[(3 * *z++)-0x240];
       unsigned char len;
 
       /* get the expected sequence length */
