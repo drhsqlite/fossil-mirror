@@ -162,14 +162,6 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
 /* a table used for quick lookup of the definition that goes with a
  * particular lead byte */
 static const unsigned char lb_tab[] = {
-  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
-  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
-  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
-  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
-  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
-  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
-  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
-  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
   US2A, US0A, US2B, US2B, US2B, US2B, US2B, US2B,
   US2B, US2B, US2B, US2B, US2B, US2B, US2B, US2B,
   US2B, US2B, US2B, US2B, US2B, US2B, US2B, US2B,
@@ -192,8 +184,8 @@ int invalid_utf8(
   while( --n>0 ){
     c2 = c;
     c = *++z;
-    if( c2>=0x80 ){
-      const unsigned char *def = &lb_tab[(2*c2)-0x100];
+    if( c2>=0xC0 ){
+      const unsigned char *def = &lb_tab[(2*c2)-0x180];
       if( (c<*def) || (c>*++def) ){
         return LOOK_INVALID; /* Invalid UTF-8 */
       }
@@ -202,6 +194,8 @@ int invalid_utf8(
       }else{
         c = ' ';
       }
+    }else if( c2>=0x80 ){
+      return LOOK_INVALID;
     }
   }
   return (c>=0x80) ? LOOK_INVALID : 0; /* Last byte must be ASCII. */
