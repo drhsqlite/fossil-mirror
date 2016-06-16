@@ -194,7 +194,7 @@ int invalid_utf8(
     c = *++z;
     if( c2>=0x80 ){
       const unsigned char *def = &lb_tab[(2*c2)-0x100];
-      if( (c<*def++) || (c>*def++) ){
+      if( (c<*def) || (c>*++def) ){
         return LOOK_INVALID; /* Invalid UTF-8 */
       }
       if( c2>=0xe0 ){
