@@ -150,47 +150,34 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
 */
 
 /* definitions for various UTF-8 sequence lengths */
-static const unsigned char us2a[] = { /* for lead byte 0xC0 */
-  0x80, 0x80
-};
-static const unsigned char us2b[] = { /* for lead bytes 0xC2-0xDF */
-  0x80, 0xBF
-};
-static const unsigned char us3a[] = { /* for lead byte 0xE0 */
-  0xA0, 0xBF
-};
-static const unsigned char us3b[] = { /* for lead bytes 0xE1-0xEF */
-  0x80, 0xBF
-};
-static const unsigned char us4a[] = { /* for lead byte 0xF0 */
-  0x90, 0xBF
-};
-static const unsigned char us4b[] = { /* for lead bytes 0xF1-0xF3 */
-  0x80, 0xBF
-};
-static const unsigned char us4c[] = { /* for lead byte 0xF4 */
-  0x80, 0x8F
-};
+#define US2A  0x80, 0x80 /* for lead byte 0xC0 */
+#define US2B  0x80, 0xBF /* for lead bytes 0xC2-0xDF */
+#define US3A  0xA0, 0xBF /* for lead byte 0xE0 */
+#define US3B  0x80, 0xBF /* for lead bytes 0xE1-0xEF */
+#define US4A  0x90, 0xBF /* for lead byte 0xF0 */
+#define US4B  0x80, 0xBF /* for lead bytes 0xF1-0xF3 */
+#define US4C  0x80, 0x8F /* for lead byte 0xF4 */
+#define US0A  0xFF, 0x00 /* for any other lead byte */
 
 /* a table used for quick lookup of the definition that goes with a
  * particular lead byte */
-static const unsigned char* const lb_tab[] = {
-  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-  us2a, NULL, us2b, us2b, us2b, us2b, us2b, us2b,
-  us2b, us2b, us2b, us2b, us2b, us2b, us2b, us2b,
-  us2b, us2b, us2b, us2b, us2b, us2b, us2b, us2b,
-  us2b, us2b, us2b, us2b, us2b, us2b, us2b, us2b,
-  us3a, us3b, us3b, us3b, us3b, us3b, us3b, us3b,
-  us3b, us3b, us3b, us3b, us3b, us3b, us3b, us3b,
-  us4a, us4b, us4b, us4b, us4c, NULL, NULL, NULL,
-  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+static const unsigned char lb_tab[] = {
+  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
+  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
+  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
+  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
+  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
+  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
+  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
+  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
+  US2A, US0A, US2B, US2B, US2B, US2B, US2B, US2B,
+  US2B, US2B, US2B, US2B, US2B, US2B, US2B, US2B,
+  US2B, US2B, US2B, US2B, US2B, US2B, US2B, US2B,
+  US2B, US2B, US2B, US2B, US2B, US2B, US2B, US2B,
+  US3A, US3B, US3B, US3B, US3B, US3B, US3B, US3B,
+  US3B, US3B, US3B, US3B, US3B, US3B, US3B, US3B,
+  US4A, US4B, US4B, US4B, US4C, US0A, US0A, US0A,
+  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A
 };
 
 int invalid_utf8(
@@ -206,8 +193,8 @@ int invalid_utf8(
     c2 = c;
     c = *++z;
     if( c2>=0x80 ){
-      const unsigned char *def = lb_tab[(c2)-0x80];
-      if( !def || (c<*def++) || (c>*def++) ){
+      const unsigned char *def = &lb_tab[(2*c2)-0x100];
+      if( (c<*def++) || (c>*def++) ){
         return LOOK_INVALID; /* Invalid UTF-8 */
       }
       if( c2>=0xe0 ){

@@ -1,5 +1,5 @@
-C Use\sfaster\stable-based\sapproach\swhen\schecking\sfor\sinvalid\sutf-8,\sin\sstead\sof\scomplex\sbit-operations.
-D 2016-06-16T09:13:25.583
+C Further\sinvalid_utf8()\simprovement:\sSave\sone\sindirection\sand\sa\scheck,\sand\smake\sthe\stable\ssize\seven\ssmaller.
+D 2016-06-16T09:44:12.190
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -441,7 +441,7 @@ F src/linenoise.c 9c1a8a9a1d33f79191cb5a104067201a8cee6de1
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 32febde85f14593a503aadbb51983d37fce009c2
 F src/login.c 13788b9e70f2cfb13ea4e975a4117c68ed8115f0
-F src/lookslike.c 418e5cc01147ffdd943b5c072120415ec3ef9a4c
+F src/lookslike.c 0c5600e754ca51a792da0a14662e8d40236e182b
 F src/main.c 663246084eded6c69a9c4ecdf17d6f30ae43df7e
 F src/main.mk 61f9c92dd66b356e9245ee43360023bdd7cf2d80
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
@@ -751,7 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bd559ff0d0db4e833d3843b8c6b95f3e9d938954
-R 0df925d64cbbd2de45dcf65134d022e5
+P 60349a6617490676a2ea1a31fdce56decb641dc6
+R 7db5dbeaf6beeada2391d18e7ad3547b
 U jan.nijtmans
-Z f16410cc87027981b27cfeef12e74391
+Z cf8fae1373b65bcd359795d6096747f7
