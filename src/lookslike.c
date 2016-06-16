@@ -152,19 +152,19 @@ static const unsigned char us2b[] = { /* for lead bytes 0xC2-0xDF */
   2, 0x80, 0xBF
 };
 static const unsigned char us3a[] = { /* for lead byte 0xE0 */
-  3, 0xA0, 0xBF, 0x80, 0xBF
+  3, 0xA0, 0xBF
 };
 static const unsigned char us3b[] = { /* for lead bytes 0xE1-0xEF */
-  3, 0x80, 0xBF, 0x80, 0xBF
+  3, 0x80, 0xBF
 };
 static const unsigned char us4a[] = { /* for lead byte 0xF0 */
-  4, 0x90, 0xBF, 0x80, 0xBF, 0x80, 0xBF
+  4, 0x90, 0xBF
 };
 static const unsigned char us4b[] = { /* for lead bytes 0xF1-0xF3 */
-  4, 0x80, 0xBF, 0x80, 0xBF, 0x80, 0xBF
+  4, 0x80, 0xBF
 };
 static const unsigned char us4c[] = { /* for lead byte 0xF4 */
-  4, 0x80, 0x8F, 0x80, 0xBF, 0x80, 0xBF
+  4, 0x80, 0x8F
 };
 
 /* a table used for quick lookup of the definition that goes with a
@@ -204,20 +204,30 @@ int invalid_utf8(
     }else{
       /* get the definition for this lead byte */
       const unsigned char* def = lb_tab[(*z++)-0x80];
-      unsigned char i, len;
+      unsigned char len;
 
       /* if the definition doesn't exist, return invalid */
       if( !def ) return LOOK_INVALID;
       /* get the expected sequence length */
       len = *def++;
       /* if there aren't enough bytes left, return invalid */
-      if( n<len ) return LOOK_INVALID;
+      if( n<len ) {
+        return LOOK_INVALID;
+      }
       /* we already know byte #0 is good, so check the remaining bytes */
-      for(i=1; i<len; ++i){
+      if( (*z<*def++) || (*z++>*def++) ){
         /* if the byte is outside the allowed range for this definition,
          * return invalid */
-        if( (*z<*def++) || (*z++>*def++) ){
+        return LOOK_INVALID;
+      }
+      if( len > 2 ){
+        if( (*z<0x80) || (*z++>0xBF) ){
           return LOOK_INVALID;
+        }
+        if( len > 3 ){
+          if( (*z<0x80) || (*z++>0xBF) ){
+            return LOOK_INVALID;
+          }
         }
       }
       /* advance to the next sequence */
