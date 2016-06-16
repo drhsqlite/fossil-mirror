@@ -1090,9 +1090,9 @@ void fileage_page(void){
       const char *zFile = db_column_text(&q2,1);
       int fid = db_column_int(&q2,2);
       if( showId ){
-        @ %z(href("%R/artifact/%!S",zFUuid))%h(zFile)</a> (%d(fid))<br>
+        @ %z(href("%R/artifact/%!S",zFUuid))%h(zFile)</a> (%d(fid))<br />
       }else{
-        @ %z(href("%R/artifact/%!S",zFUuid))%h(zFile)</a><br>
+        @ %z(href("%R/artifact/%!S",zFUuid))%h(zFile)</a><br />
       }
     }
     db_reset(&q2);

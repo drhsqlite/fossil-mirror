@@ -180,7 +180,7 @@ void test_hash_color_page(void){
     }
   }
   if( cnt ){
-    @ <hr>
+    @ <hr />
   }
   @ <form method="post" action="%s(g.zTop)/hash-color-test">
   @ <p>Enter candidate branch names below and see them displayed in their
@@ -301,7 +301,7 @@ void www_print_timeline(
     }
     if( fossil_strcmp(zType,"div")==0 ){
       if( !prevWasDivider ){
-        @ <tr><td colspan="3"><hr class="timelineMarker"/></td></tr>
+        @ <tr><td colspan="3"><hr class="timelineMarker" /></td></tr>
       }
       prevWasDivider = 1;
       continue;
@@ -1219,7 +1219,7 @@ static void timeline_y_submenu(int isDisabled){
 **    yw=YYYY-WW     Show only events for the given week of the given year
 **    ymd=YYYY-MM-DD Show only events on the given day
 **    datefmt=N      Override the date format
-**    bisect         Show the check-ins that are in the current bisect    
+**    bisect         Show the check-ins that are in the current bisect
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
@@ -1441,7 +1441,7 @@ void page_timeline(void){
     path_reset();
     tmFlags |= TIMELINE_DISJOINT;
     db_multi_exec("%s", blob_sql_text(&sql));
-    blob_appendf(&desc, "%d check-ins going from ", 
+    blob_appendf(&desc, "%d check-ins going from ",
                  db_int(0, "SELECT count(*) FROM timeline"));
     blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h", zFrom), zFrom);
     blob_append(&desc, " to ", -1);
@@ -1734,7 +1734,7 @@ void page_timeline(void){
     }
     if( rAfter>0.0 ){
       if( rBefore>0.0 ){
-        blob_appendf(&desc, " occurring between %h and %h.<br>",
+        blob_appendf(&desc, " occurring between %h and %h.<br />",
                      zAfter, zBefore);
       }else{
         blob_appendf(&desc, " occurring on or after %h.<br />", zAfter);

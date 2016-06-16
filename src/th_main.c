@@ -284,7 +284,7 @@ static int enableOutputCmd(
   }
   rc = Th_ToInt(interp, argv[argc-1], argl[argc-1], &enableOutput);
   if( g.thTrace ){
-    Th_Trace("enable_output {%.*s} -> %d<br>\n", argl[1],argv[1],enableOutput);
+    Th_Trace("enable_output {%.*s} -> %d<br />\n", argl[1],argv[1],enableOutput);
   }
   return rc;
 }
@@ -334,7 +334,7 @@ static void sendError(const char *z, int n, int forceCgi){
   int savedEnable = enableOutput;
   enableOutput = 1;
   if( forceCgi || g.cgiOutput ){
-    sendText("<hr><p class=\"thmainError\">", -1, 0);
+    sendText("<hr /><p class=\"thmainError\">", -1, 0);
   }
   sendText("ERROR: ", -1, 0);
   sendText((char*)z, n, 1);
@@ -2329,7 +2329,7 @@ int Th_Render(const char *z){
       z += i+5;
       for(i=0; z[i] && (z[i]!='<' || !isEndScriptTag(&z[i])); i++){}
       if( g.thTrace ){
-        Th_Trace("eval {<pre>%#h</pre>}<br>", i, z);
+        Th_Trace("eval {<pre>%#h</pre>}<br />", i, z);
       }
       rc = Th_Eval(g.interp, 0, (const char*)z, i);
       if( rc!=TH_OK ) break;
