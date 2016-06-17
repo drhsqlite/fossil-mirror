@@ -1,5 +1,5 @@
-C shrunk\ssize\sof\slead\sbyte\stable\sfor\sinvalid_utf8,\sand\stook\sa\sshortcut\sto\sinvalidate\slead\sbytes\sbetween\s0x80\s&\s0xBF\sinclusive
-D 2016-06-16T22:14:29.606
+C Remove\sa\sfunction\swhich\sisn't\suse\sanywhere
+D 2016-06-17T07:24:03.450
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -376,7 +376,7 @@ F src/allrepo.c 3e2be421c00f83a103fdb2e5492d9b833ff54856
 F src/attach.c 3d0f4416538b9154333fba4717670584669bf9eb
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c abd167c9f2c5398782ca6d48ea1ee612163a7685
-F src/blob.c c30701f00b13110a7a9c4c3f9e5969969f6a63ad
+F src/blob.c 54ba03df02f021dedcb0efcb639c225196d4702d
 F src/branch.c fb34c1491e15c8a5d4cd6b4274a3cba7b455601e
 F src/browse.c 8f0bb9b6e6e31df9875c081239745a33567c7c84
 F src/builtin.c b2dcfcade2054c083b03a18e3ab5026d51eb2dcb
@@ -751,7 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5be2e9cf7d44838ae42f9505afc7d38e9b22d425
-R ee77aec318c71746bbc99f667774a3ce
-U sdr
-Z b188eee57e45022875aa20917375a25d
+P 69328517f5726df77c55f842ad934a992f849036
+R 6dff6e7d533562cb0de00e43b22da019
+U jan.nijtmans
+Z 3e4fb6cd04843d40a3922f046df3396e

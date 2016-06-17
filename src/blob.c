@@ -655,9 +655,6 @@ int blob_is_uuid(Blob *pBlob){
   return blob_size(pBlob)==UUID_SIZE
          && validate16(blob_buffer(pBlob), UUID_SIZE);
 }
-int blob_is_uuid_n(Blob *pBlob, int n){
-  return blob_size(pBlob)==n && validate16(blob_buffer(pBlob), n);
-}
 
 /*
 ** Return true if the blob contains a valid 32-bit integer.  Store
