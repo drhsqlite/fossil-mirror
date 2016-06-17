@@ -1,5 +1,5 @@
-C Remove\sa\sfunction\swhich\sisn't\suse\sanywhere
-D 2016-06-17T07:24:03.450
+C More\sconsistancy\sin\susing\s<br\s/>\sand\s<hr\s/>\sHTML\stags
+D 2016-06-17T09:45:08.961
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -400,7 +400,7 @@ F src/db.c 7a1a55d63f51733fdb3fe2888e49b9492d63e4b3
 F src/delta.c ab405c78d6559ea61563e2500c28f135a26c8b62
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 48ba0c208d74e5a8c4b33e43ea066d236d3a4694
-F src/diff.c 4daaf556f6b30510fbd0d3b7eb720967a7845046
+F src/diff.c c53eea5dfd52d092d298178bc40c70500d3c7fc6
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
 F src/diffcmd.c 3759afcedb06bb0d76844e0b724cd28b36ede262
 F src/doc.c c8f8250a5de7674877598a60263a237bdd33e204
@@ -486,7 +486,7 @@ F src/sqlite3.h a41446e48e7bfdcb052e1773572ad7bc662c68e1
 F src/stash.c ccb0d94252422f28178119825a99c6bce45924d6
 F src/stat.c 82a4439d096fe0fb231e27f49f2b2ff13dacf014
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
-F src/style.c c0d37267d5b043c8c6e50436b2829328974b4dd9
+F src/style.c 85ca473e8cd7ba551cd6e4f865f8ebbd45d3289d
 F src/sync.c cc287e14c4387dfa7a8f050cbec523ece71d664e
 F src/tag.c 98b6205ee452dc3fba417ec8725864a2d7af3ba8
 F src/tar.c 2c940b4142885bbcf4d82975da8552be3d7bb5a9
@@ -496,19 +496,19 @@ F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c 50799260b94c4c27cc0394c42eb35db1ef7613f3
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
 F src/timeline.c 246e9420fb63c373863db32c64da517bd01428d2
-F src/tkt.c 90529c044296e3a13b909a4b356c87d1917fff12
+F src/tkt.c 0d7059f823642ea6c26c07081ee94b6cbb663408
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c 52ec5c24a6dcf1937026e2d9f86791fd1913cdf6
 F src/unicode.c 8e02b4fd6af9e735bda68eb06e3be90b6b901a87
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
-F src/user.c b76f44f85f5df5aeab9eba0c892d73a9335f5ea8
+F src/user.c 30dfae07e1ddd95b4b46dc173fb8f0ea272084e9
 F src/utf8.c 5c85c7e88b82b5fb48649c46f063ac94ab58eb20
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
 F src/vfile.c 9d44ee4a0cf612b2fb257699b3f52c12a094f02f
-F src/wiki.c 466b28ccd7de9cbfacdd44068975a766e88517b3
+F src/wiki.c 5c5031dc81b8524231b0eb73d0ff1335afdab662
 F src/wikiformat.c 1d750982147d9c51fa40e89e40241a33408adaf6
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c 3553bd8fd0af7941a2526a1126695cc8018bccb5
@@ -751,7 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 69328517f5726df77c55f842ad934a992f849036
-R 6dff6e7d533562cb0de00e43b22da019
+P e2a280fc890e2c7afa0e27908ab5c6f98ed4276d
+R 82b796e95de444c6716dabd5a99dd288
 U jan.nijtmans
-Z 3e4fb6cd04843d40a3922f046df3396e
+Z ed67d96046b23958f269da8f1287dae0

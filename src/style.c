@@ -1606,11 +1606,11 @@ void page_test_env(void){
   }
   @ g.zRepositoryName = %h(g.zRepositoryName)<br />
   @ load_average() = %f(load_average())<br />
-  @ <hr>
+  @ <hr />
   P("HTTP_USER_AGENT");
   cgi_print_all(showAll);
   if( showAll && blob_size(&g.httpHeader)>0 ){
-    @ <hr>
+    @ <hr />
     @ <pre>
     @ %h(blob_str(&g.httpHeader))
     @ </pre>

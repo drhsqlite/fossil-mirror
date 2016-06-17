@@ -430,14 +430,14 @@ void user_select(void){
 
 /*
 ** COMMAND: test-usernames
-** 
-** Usage: %fossil test-usernames 
+**
+** Usage: %fossil test-usernames
 **
 ** Print details about sources of fossil usernames.
 */
 void test_usernames_cmd(void){
   db_find_and_open_repository(0, 0);
-  
+
   fossil_print("Initial g.zLogin: %s\n", g.zLogin);
   fossil_print("Initial g.userUid: %d\n", g.userUid);
   fossil_print("checkout default-user: %s\n", g.localOpen ?
@@ -573,7 +573,7 @@ void access_log_page(void){
   }
   @ </tbody></table></center>
   db_finalize(&q);
-  @ <hr>
+  @ <hr />
   @ <form method="post" action="%s(g.zTop)/access_log">
   @ <label><input type="checkbox" name="delold">
   @ Delete all but the most recent 200 entries</input></label>

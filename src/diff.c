@@ -2379,7 +2379,7 @@ void annotation_page(void){
 #endif
     }
     @ </ol>
-    @ <hr>
+    @ <hr />
   }
   if( !ann.bLimit ){
     @ <h2>Origin for each line in
