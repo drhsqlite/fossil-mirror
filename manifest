@@ -1,5 +1,5 @@
-C More\sconsistancy\sin\susing\s<br\s/>\sand\s<hr\s/>\sHTML\stags
-D 2016-06-17T09:45:08.961
+C Fix\sa\stypo\sin\sthe\sbuilt-in\sdocumentation\sfor\sthe\s"tarball"\scommand.
+D 2016-06-17T12:38:32.978
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -489,7 +489,7 @@ F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
 F src/style.c 85ca473e8cd7ba551cd6e4f865f8ebbd45d3289d
 F src/sync.c cc287e14c4387dfa7a8f050cbec523ece71d664e
 F src/tag.c 98b6205ee452dc3fba417ec8725864a2d7af3ba8
-F src/tar.c 2c940b4142885bbcf4d82975da8552be3d7bb5a9
+F src/tar.c 3d8ec6d43a730d3bfdf73fc86bff84587a0bab57
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
@@ -751,7 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e2a280fc890e2c7afa0e27908ab5c6f98ed4276d
-R 82b796e95de444c6716dabd5a99dd288
-U jan.nijtmans
-Z ed67d96046b23958f269da8f1287dae0
+P 63220d9403f97b649dbb2f1f66e71bd1ff9892a3
+R 6c5bc7b2d3bdbc3d684608d7d7a742fe
+U drh
+Z d5204ed258a44df00d206308e390916d

@@ -551,7 +551,7 @@ void tarball_of_checkin(
 ** Generate a compressed tarball for a specified version.  If the --name
 ** option is used, its argument becomes the name of the top-level directory
 ** in the resulting tarball.  If --name is omitted, the top-level directory
-** named is derived from the project name, the check-in date and time, and
+** name is derived from the project name, the check-in date and time, and
 ** the artifact ID of the check-in.
 **
 ** The GLOBLIST argument to --exclude and --include can be a comma-separated
