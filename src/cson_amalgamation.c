@@ -2879,7 +2879,7 @@ cson_value * cson_value_new_double( cson_double_t v )
         cson_value * c = cson_value_new(CSON_TYPE_DOUBLE,0);
         if( c )
         {
-            *CSON_DBL(c) = v;
+            memcpy(CSON_DBL(c), &v, sizeof(v));
         }
         return c;
     }

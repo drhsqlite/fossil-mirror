@@ -1,5 +1,5 @@
-C Fix\sa\stypo\sin\sthe\sbuilt-in\sdocumentation\sfor\sthe\s"tarball"\scommand.
-D 2016-06-17T12:38:32.978
+C fixed\sanother\sstrict\saliasing\swarning\sin\scson.
+D 2016-06-18T11:29:26.513
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -393,7 +393,7 @@ F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
 F src/config.h b91f4223f2653503759e1205343db9f94d134973
 F src/configure.c e709349116d50f53152da7e8d409ad5232395c47
 F src/content.c 80a10dc10ce85269b02061a5d7cfe2b0936f8400
-F src/cson_amalgamation.c a7551c0bc4b4572c01ef8f0927c4255876f1fde3
+F src/cson_amalgamation.c e220a3a91402d60424fa0843598cdfdaa319f193
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 7a1a55d63f51733fdb3fe2888e49b9492d63e4b3
@@ -751,7 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 63220d9403f97b649dbb2f1f66e71bd1ff9892a3
-R 6c5bc7b2d3bdbc3d684608d7d7a742fe
-U drh
-Z d5204ed258a44df00d206308e390916d
+P e0da91e96fc855c9c11e32505c773a8dc6df5c0e
+R 427102a2f2d7d178b91db58dc9eac5f7
+U stephan
+Z 7b238cbaf4bf7006e0c64eff31356c82
