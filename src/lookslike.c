@@ -150,18 +150,26 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
 */
 
 /* definitions for various UTF-8 sequence lengths */
-#define US2A  0x80, 0x80 /* for lead byte 0xC0 */
-#define US2B  0x80, 0xBF /* for lead bytes 0xC2-0xDF */
-#define US3A  0xA0, 0xBF /* for lead byte 0xE0 */
-#define US3B  0x80, 0xBF /* for lead bytes 0xE1-0xEF */
-#define US4A  0x90, 0xBF /* for lead byte 0xF0 */
-#define US4B  0x80, 0xBF /* for lead bytes 0xF1-0xF3 */
-#define US4C  0x80, 0x8F /* for lead byte 0xF4 */
+#define US2A  0x7F, 0x80 /* for lead byte 0xC0 */
+#define US2B  0x7F, 0xBF /* for lead bytes 0xC2-0xDF */
+#define US3A  0x9F, 0xBF /* for lead byte 0xE0 */
+#define US3B  0x7F, 0xBF /* for lead bytes 0xE1-0xEF */
+#define US4A  0x8F, 0xBF /* for lead byte 0xF0 */
+#define US4B  0x7F, 0xBF /* for lead bytes 0xF1-0xF3 */
+#define US4C  0x7F, 0x8F /* for lead byte 0xF4 */
 #define US0A  0xFF, 0x00 /* for any other lead byte */
 
 /* a table used for quick lookup of the definition that goes with a
  * particular lead byte */
 static const unsigned char lb_tab[] = {
+  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
+  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
+  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
+  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
+  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
+  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
+  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
+  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
   US2A, US0A, US2B, US2B, US2B, US2B, US2B, US2B,
   US2B, US2B, US2B, US2B, US2B, US2B, US2B, US2B,
   US2B, US2B, US2B, US2B, US2B, US2B, US2B, US2B,
@@ -177,28 +185,26 @@ int invalid_utf8(
 ){
   const unsigned char *z = (unsigned char *) blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
-  unsigned char c, c2;
+  unsigned char c; /* lead byte to be handled. */
 
   if( n==0 ) return 0;  /* Empty file -> OK */
   c = *z;
   while( --n>0 ){
-    c2 = c;
-    c = *++z;
-    if( c2>=0xC0 ){
-      const unsigned char *def = &lb_tab[(2*c2)-0x180];
-      if( (c<*def) || (c>*++def) ){
+    if( c>=0x80 ){
+      unsigned char fb = *++z; /* follow-up byte after lead byte */
+      const unsigned char *def; /* pointer to range table*/
+
+      c <<= 1; /* multiply by 2 and get rid of highest bit */
+      def = &lb_tab[c]; /* search fb's valid range in table */
+      if( (fb<=def[0]) || (fb>def[1]) ){
         return LOOK_INVALID; /* Invalid UTF-8 */
       }
-      if( c2>=0xe0 ){
-        c = (c2<<1)|3;
-      }else{
-        c = ' ';
-      }
-    }else if( c2>=0x80 ){
-      return LOOK_INVALID;
+      c = (c>=0xC0) ? (c|3) : ' '; /* determine next lead byte */
+    } else {
+      c = *++z;
     }
   }
-  return (c>=0x80) ? LOOK_INVALID : 0; /* Last byte must be ASCII. */
+  return (c>=0x80) ? LOOK_INVALID : 0; /* Final lead byte must be ASCII. */
 }
 
 /*
