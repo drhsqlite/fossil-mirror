@@ -149,14 +149,15 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
 ** more continuation byte is expected.
 */
 
-/* definitions for various UTF-8 sequence lengths */
-#define US2A  0x7F, 0x80 /* for lead byte 0xC0 */
-#define US2B  0x7F, 0xBF /* for lead bytes 0xC2-0xDF */
-#define US3A  0x9F, 0xBF /* for lead byte 0xE0 */
-#define US3B  0x7F, 0xBF /* for lead bytes 0xE1-0xEF */
-#define US4A  0x8F, 0xBF /* for lead byte 0xF0 */
-#define US4B  0x7F, 0xBF /* for lead bytes 0xF1-0xF3 */
-#define US4C  0x7F, 0x8F /* for lead byte 0xF4 */
+/* definitions for various UTF-8 sequence lengths, encoded as start value
+ * and size of each valid range belonging to some lead byte*/
+#define US2A  0x80, 0x01 /* for lead byte 0xC0 */
+#define US2B  0x80, 0x40 /* for lead bytes 0xC2-0xDF */
+#define US3A  0xA0, 0x20 /* for lead byte 0xE0 */
+#define US3B  0x80, 0x40 /* for lead bytes 0xE1-0xEF */
+#define US4A  0x90, 0x30 /* for lead byte 0xF0 */
+#define US4B  0x80, 0x40 /* for lead bytes 0xF1-0xF3 */
+#define US4C  0x80, 0x10 /* for lead byte 0xF4 */
 #define US0A  0xFF, 0x00 /* for any other lead byte */
 
 /* a table used for quick lookup of the definition that goes with a
@@ -191,12 +192,11 @@ int invalid_utf8(
   c = *z;
   while( --n>0 ){
     if( c>=0x80 ){
-      unsigned char fb = *++z; /* follow-up byte after lead byte */
       const unsigned char *def; /* pointer to range table*/
 
       c <<= 1; /* multiply by 2 and get rid of highest bit */
       def = &lb_tab[c]; /* search fb's valid range in table */
-      if( (fb<=def[0]) || (fb>def[1]) ){
+      if( (unsigned int)(*++z-def[0])>=def[1] ){
         return LOOK_INVALID; /* Invalid UTF-8 */
       }
       c = (c>=0xC0) ? (c|3) : ' '; /* determine next lead byte */
