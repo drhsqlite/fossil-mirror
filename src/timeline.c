@@ -1187,6 +1187,32 @@ static void timeline_y_submenu(int isDisabled){
 }
 
 /*
+** If the zChng string is not NULL, then it should be a comma-separated
+** list of glob patterns for filenames.  Add an term to the WHERE clause
+** for the SQL statement under construction that excludes any check-in that
+** does not modify one or more files matching the globs.
+*/
+static void addFileGlobExclusion(
+  const char *zChng,        /* The filename GLOB list */
+  Blob *pSql                /* The SELECT statement under construction */
+){
+  if( zChng==0 || zChng[0]==0 ) return;
+  blob_append_sql(pSql," AND event.objid IN ("
+      "SELECT mlink.mid FROM mlink, filename"
+      " WHERE mlink.fnid=filename.fnid AND %s)",
+      glob_expr("filename.name", zChng));
+}
+static void addFileGlobDescription(
+  const char *zChng,        /* The filename GLOB list */
+  Blob *pDescription        /* Result description */
+){
+  if( zChng==0 || zChng[0]==0 ) return;
+  blob_appendf(pDescription, " that include changes to files matching %Q",
+               zChng);
+}
+
+
+/*
 ** WEBPAGE: timeline
 **
 ** Query parameters:
@@ -1211,6 +1237,8 @@ static void timeline_y_submenu(int isDisabled){
 **    to=CHECKIN       ... to this
 **    shortest         ... show only the shortest path
 **    uf=FILE_SHA1   Show only check-ins that contain the given file version
+**    chng=GLOBLIST  Show only check-ins that involve changes to a file whose
+**                     name matches one of the comma-separate GLOBLIST.
 **    brbg           Background color from branch name
 **    ubg            Background color from user
 **    namechng       Show only check-ins that have filename changes
@@ -1247,6 +1275,7 @@ void page_timeline(void){
   const char *zYearMonth = P("ym");  /* Show check-ins for the given YYYY-MM */
   const char *zYearWeek = P("yw");   /* Check-ins for YYYY-WW (week-of-year) */
   const char *zDay = P("ymd");       /* Check-ins for the day YYYY-MM-DD */
+  const char *zChng = P("chng");     /* List of GLOBs for files that changed */
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
   int renameOnly = P("namechng")!=0; /* Show only check-ins that rename files */
   int forkOnly = PB("forks");        /* Show only forks and their children */
@@ -1439,13 +1468,17 @@ void page_timeline(void){
     }
     blob_append(&sql, ")", -1);
     path_reset();
+    addFileGlobExclusion(zChng, &sql);
     tmFlags |= TIMELINE_DISJOINT;
     db_multi_exec("%s", blob_sql_text(&sql));
+    style_submenu_binary("v","With Files","Without Files",
+                         zType[0]!='a' && zType[0]!='c');
     blob_appendf(&desc, "%d check-ins going from ",
                  db_int(0, "SELECT count(*) FROM timeline"));
     blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h", zFrom), zFrom);
     blob_append(&desc, " to ", -1);
     blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h",zTo), zTo);
+    addFileGlobDescription(zChng, &desc);
   }else if( (p_rid || d_rid) && g.perm.Read ){
     /* If p= or d= is present, ignore all other parameters other than n= */
     char *zUuid;
@@ -1522,6 +1555,7 @@ void page_timeline(void){
     char *zDate;
     Blob cond;
     blob_zero(&cond);
+    addFileGlobExclusion(zChng, &cond);
     if( zUses ){
       blob_append_sql(&cond, " AND event.objid IN usesfile ");
     }
@@ -1732,6 +1766,7 @@ void page_timeline(void){
       blob_appendf(&desc, " related to \"%h\"", zBrName);
       tmFlags |= TIMELINE_DISJOINT;
     }
+    addFileGlobDescription(zChng, &desc);
     if( rAfter>0.0 ){
       if( rBefore>0.0 ){
         blob_appendf(&desc, " occurring between %h and %h.<br />",

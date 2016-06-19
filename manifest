@@ -1,5 +1,5 @@
-C fixed\sanother\sstrict\saliasing\swarning\sin\scson.
-D 2016-06-18T11:29:26.513
+C Add\sthe\s"chng="\squery\sparameter\sto\sthe\s"/timeline"\spage.
+D 2016-06-19T18:49:37.153
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -495,7 +495,7 @@ F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c 50799260b94c4c27cc0394c42eb35db1ef7613f3
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
-F src/timeline.c 246e9420fb63c373863db32c64da517bd01428d2
+F src/timeline.c af2ad85f5251598e19b3c158ee099b5d81105dba
 F src/tkt.c 0d7059f823642ea6c26c07081ee94b6cbb663408
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
@@ -751,7 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e0da91e96fc855c9c11e32505c773a8dc6df5c0e
-R 427102a2f2d7d178b91db58dc9eac5f7
-U stephan
-Z 7b238cbaf4bf7006e0c64eff31356c82
+P 6bcfe1d22c13281a33468484dffc996e85c4b4c2
+R 6238d1ce30d0cd15c8afa1f983689d09
+U drh
+Z b0b05d16b1b6dc3d0a48697a0f1c6910
