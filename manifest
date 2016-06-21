@@ -1,5 +1,5 @@
-C Fix\sproblem\sreported\sby\sCarlo\sMiron\son\sfossil-dev\smailing\slist:\s[38a47074]\sbroke\sempty\smarkdown\slinks
-D 2016-06-21T15:20:11.900
+C Fix\stypos\sin\scomments.
+D 2016-06-21T20:03:27.496
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -372,7 +372,7 @@ F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c f192f326c99668df8be826d7bdbdd8d19f7b5f4e
-F src/allrepo.c 3e2be421c00f83a103fdb2e5492d9b833ff54856
+F src/allrepo.c 07ae72593c0aaf51f9a66077b69196f080f70a39
 F src/attach.c 3d0f4416538b9154333fba4717670584669bf9eb
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c abd167c9f2c5398782ca6d48ea1ee612163a7685
@@ -380,7 +380,7 @@ F src/blob.c 54ba03df02f021dedcb0efcb639c225196d4702d
 F src/branch.c fb34c1491e15c8a5d4cd6b4274a3cba7b455601e
 F src/browse.c 8f0bb9b6e6e31df9875c081239745a33567c7c84
 F src/builtin.c b2dcfcade2054c083b03a18e3ab5026d51eb2dcb
-F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
+F src/bundle.c 5d4c0f96c09606271b3d020cd1db687aca8776ba
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c 10310d276e72e3e34343e3385c0b39fac5cd826e
@@ -410,7 +410,7 @@ F src/export.c ab705fb1bdb609c49cab3aa686fd74b5cd8e83d4
 F src/file.c 8e85e61f94faf64efd92db024e19d83cf30ac0a1
 F src/finfo.c d096ae6388a68b81a8e001d0258294dd79462f22
 F src/foci.c a385eb9a5d3ab814021f998a4ba5cee0d81bfc64
-F src/fusefs.c 719dc13de3dcebf8b963d65e5da46e1a5c197803
+F src/fusefs.c 6369690cc543c1b3fe154776933f018f3c91518b
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 8d766b73f318358fec439cc52ea3c02874340fb8
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
@@ -448,7 +448,7 @@ F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 7aa2028c30e67a4effdf7458b12a7d2f200b1f50
 F src/manifest.c e904566ce0f19b57b920b05a48c42cb578fbd851
-F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
+F src/markdown.c 887bb75edb1cfc94d9206aef38ad11dec2bc4266
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
 F src/markdown_html.c c3dfb1f186d829528f4d4127cb73b71de490b32a
 F src/md5.c 563baca0c92ef17c42aa32d31bf595a62c030177
@@ -751,7 +751,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cb6b6c977b00e23098b36e535b256d0e59c79f5b
-R 4d989f30805b0965f977ecbd370f4bdf
-U jan.nijtmans
-Z b5bef51185715d8dd76df0eeaefe92a2
+P 6bbec5fb211b88d67fa3751b612f7fac4d35a473
+R b345188dfff54e4c2b31b19f861df18e
+U drh
+Z ada092ed656fb8427c2e8559f4cff16b

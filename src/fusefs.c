@@ -53,7 +53,7 @@ static struct sGlobal {
 } fusefs;
 
 /*
-** Clear the fusefs.sz[] array.
+** Clear the fusefs.az[] array.
 */
 static void fusefs_clear_path(void){
   int i;

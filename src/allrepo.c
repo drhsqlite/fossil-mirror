@@ -140,7 +140,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 **
 **    add         Add all the repositories named to the set of repositories
 **                tracked by Fossil.  Normally Fossil is able to keep up with
-**                this list by itself, but sometime it can benefit from this
+**                this list by itself, but sometimes it can benefit from this
 **                hint if you rename repositories.
 **
 **    ignore      Arguments are repositories that should be ignored by
