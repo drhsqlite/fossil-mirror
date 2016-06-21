@@ -1,5 +1,5 @@
-C Add\san\sexample\sto\sthe\swebpage-ex.md\sdocumentation\spage\sshowing\sthe\suse\sof\nthe\schng=\squery\sparameter\sof\stimeline.
-D 2016-06-21T11:37:54.698
+C Fix\sproblem\sreported\sby\sCarlo\sMiron\son\sfossil-dev\smailing\slist:\s[38a47074]\sbroke\sempty\smarkdown\slinks
+D 2016-06-21T15:20:11.900
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -450,7 +450,7 @@ F src/makemake.tcl 7aa2028c30e67a4effdf7458b12a7d2f200b1f50
 F src/manifest.c e904566ce0f19b57b920b05a48c42cb578fbd851
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
-F src/markdown_html.c 0b945713361c2d24ee1fbbcc981ab02af9b484a9
+F src/markdown_html.c c3dfb1f186d829528f4d4127cb73b71de490b32a
 F src/md5.c 563baca0c92ef17c42aa32d31bf595a62c030177
 F src/merge.c d30fc9d0becc3f00b718cadebf9015284ee4d174
 F src/merge3.c 555743dac3e0365a3406c262cd27cf94bec351c3
@@ -751,7 +751,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b2b62b8318700f9f1e3efc179d4e71bddaf62756
-R 0d2cf8dbd503e95bb9d472fc3ef40034
-U drh
-Z 5d857049d0a5c3b75c6d45e73e6f7e2f
+P cb6b6c977b00e23098b36e535b256d0e59c79f5b
+R 4d989f30805b0965f977ecbd370f4bdf
+U jan.nijtmans
+Z b5bef51185715d8dd76df0eeaefe92a2
