@@ -1,5 +1,5 @@
-C Add\sthe\s"chng="\squery\sparameter\sto\sthe\s"/timeline"\spage.
-D 2016-06-19T18:49:37.153
+C Add\san\sexample\sto\sthe\swebpage-ex.md\sdocumentation\spage\sshowing\sthe\suse\sof\nthe\schng=\squery\sparameter\sof\stimeline.
+D 2016-06-21T11:37:54.698
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -747,11 +747,11 @@ F www/th1.md cce5b4ec03727680ec48dede21bb6aa82931d7c2
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
-F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
+F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6bcfe1d22c13281a33468484dffc996e85c4b4c2
-R 6238d1ce30d0cd15c8afa1f983689d09
+P b2b62b8318700f9f1e3efc179d4e71bddaf62756
+R 0d2cf8dbd503e95bb9d472fc3ef40034
 U drh
-Z b0b05d16b1b6dc3d0a48697a0f1c6910
+Z 5d857049d0a5c3b75c6d45e73e6f7e2f
