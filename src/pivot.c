@@ -75,8 +75,10 @@ void pivot_set_secondary(int rid){
 ** Find the most recent common ancestor of the primary and one of
 ** the secondaries.  Return its rid.  Return 0 if no common ancestor
 ** can be found.
+**
+** If ignoreMerges is true, follow only "primary" parent links.
 */
-int pivot_find(void){
+int pivot_find(int ignoreMerges){
   Stmt q1, q2, u1, i1;
   int rid = 0;
 
@@ -104,7 +106,8 @@ int pivot_find(void){
     " WHERE plink.pid=:rid"
     "   AND plink.cid=B.rid"
     "   AND A.rid=:rid"
-    "   AND A.src!=B.src"
+    "   AND A.src!=B.src %s",
+    ignoreMerges ? "AND plink.isprim" : ""
   );
 
   /* Mark the :rid record has having been checked.  It is not the
@@ -124,7 +127,8 @@ int pivot_find(void){
     "       aqueue.src "
     "  FROM plink, aqueue"
     " WHERE plink.cid=:rid"
-    "   AND aqueue.rid=:rid"
+    "   AND aqueue.rid=:rid %s",
+    ignoreMerges ? "AND plink.isprim" : ""
   );
 
   while( db_step(&q1)==SQLITE_ROW ){
@@ -149,7 +153,7 @@ int pivot_find(void){
 }
 
 /*
-** COMMAND:  test-find-pivot
+** COMMAND: test-find-pivot
 **
 ** Test the pivot_find() procedure.
 */
@@ -163,7 +167,7 @@ void test_find_pivot(void){
   for(i=3; i<g.argc; i++){
     pivot_set_secondary(name_to_rid(g.argv[i]));
   }
-  rid = pivot_find();
+  rid = pivot_find(0);
   printf("pivot=%s\n",
          db_text("?","SELECT uuid FROM blob WHERE rid=%d",rid)
   );

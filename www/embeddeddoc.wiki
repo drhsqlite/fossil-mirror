@@ -71,7 +71,7 @@ including all the popular ones such as ".css", ".gif", ".htm",
 ".html", ".jpg", ".jpeg", ".png", and ".txt".
 
 Documentation files whose names end in ".wiki" use the 
-[/wiki_rules | same markup as wiki pages] -
+[/wiki_rules | fossil wiki markup] -
 a safe subset of HTML together with some wiki rules for paragraph
 breaks, lists, and hyperlinks. 
 Documentation files ending in ".md" or ".markdown" use the

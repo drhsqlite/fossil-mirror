@@ -127,6 +127,8 @@ void setup_page(void){
     "A record of login attempts");
   setup_menu_entry("Administrative Log", "admin_log",
     "View the admin_log entries");
+  setup_menu_entry("Stats", "stat",
+    "Repository Status Reports");
   setup_menu_entry("Sitemap", "sitemap",
     "Links to miscellaneous pages");
   setup_menu_entry("SQL", "admin_sql",
@@ -146,7 +148,6 @@ void setup_page(void){
 */
 void setup_ulist(void){
   Stmt s;
-  int prevLevel = 0;
 
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -155,67 +156,95 @@ void setup_ulist(void){
   }
 
   style_submenu_element("Add", "Add User", "setup_uedit");
+  style_submenu_element("Log", "Access Log", "access_log");
+  style_submenu_element("Help", "Help", "setup_ulist_notes");
   style_header("User List");
-  @ <table class="usetupLayoutTable">
-  @ <tr><td class="usetupColumnLayout">
-  @ <span class="note">Users:</span>
-  @ <table class="usetupUserList">
-  prevLevel = 0;
+  @ <table border=1 cellpadding=2 cellspacing=0 class='userTable'>
+  @ <thead><tr><th>UID <th>Category <th>Capabilities <th>Info <th>Last Change</tr></thead>
+  @ <tbody>
   db_prepare(&s,
-     "SELECT uid, login, cap, info, 1 FROM user"
-     " WHERE login IN ('anonymous','nobody','developer','reader') "
-     " UNION ALL "
-     "SELECT uid, login, cap, info, 2 FROM user"
-     " WHERE login NOT IN ('anonymous','nobody','developer','reader') "
-     "ORDER BY 5, 2 COLLATE nocase"
+     "SELECT uid, login, cap, date(mtime,'unixepoch')"
+     "  FROM user"
+     " WHERE login IN ('anonymous','nobody','developer','reader')"
+     " ORDER BY login"
   );
   while( db_step(&s)==SQLITE_ROW ){
-    int iLevel = db_column_int(&s, 4);
-    const char *zCap = db_column_text(&s, 2);
+    int uid = db_column_int(&s, 0);
     const char *zLogin = db_column_text(&s, 1);
-    if( iLevel>prevLevel ){
-      if( prevLevel>0 ){
-        @ <tr><td colspan="3"><hr></td></tr>
-      }
-      if( iLevel==1 ){
-        @ <tr>
-        @   <th class="usetupListUser"
-        @    style="text-align: right;padding-right: 20px;">Category</th>
-        @   <th class="usetupListCap"
-        @    style="text-align: center;padding-right: 15px;">Capabilities</th>
-        @   <th class="usetupListCon"
-        @    style="text-align: left;">Notes</th>
-        @ </tr>
-      }else{
-        @ <tr>
-        @   <th class="usetupListUser"
-        @    style="text-align: right;padding-right: 20px;">User&nbsp;ID</th>
-        @   <th class="usetupListCap"
-        @    style="text-align: center;padding-right: 15px;">Capabilities</th>
-        @   <th class="usetupListCon"
-        @    style="text-align: left;">Contact&nbsp;Info</th>
-        @ </tr>
-      }
-      prevLevel = iLevel;
-    }
+    const char *zCap = db_column_text(&s, 2);
+    const char *zDate = db_column_text(&s, 4);
     @ <tr>
-    @ <td class="usetupListUser"
-    @     style="text-align: right;padding-right: 20px;white-space:nowrap;">
-    if( g.perm.Admin && (zCap[0]!='s' || g.perm.Setup) ){
-      @ <a href="setup_uedit?id=%d(db_column_int(&s,0))">
+    @ <td><a href='setup_uedit?id=%d(uid)'>%d(uid)</a>
+    @ <td><a href='setup_uedit?id=%d(uid)'>%h(zLogin)</a>
+    @ <td>%h(zCap)
+
+    if( fossil_strcmp(zLogin,"anonymous")==0 ){
+      @ <td>All logged-in users
+    }else if( fossil_strcmp(zLogin,"developer")==0 ){
+      @ <td>Users with '<b>v</b>' capability
+    }else if( fossil_strcmp(zLogin,"nobody")==0 ){
+      @ <td>All users without login
+    }else if( fossil_strcmp(zLogin,"reader")==0 ){
+      @ <td>Users with '<b>u</b>' capability
+    }else{
+      @ <td>
     }
-    @ %h(zLogin)
-    if( g.perm.Admin ){
-      @ </a>
+    if( zDate && zDate[0] ){
+      @ <td>%h(zDate)
+    }else{
+      @ <td>
     }
-    @ </td>
-    @ <td class="usetupListCap" style="text-align: center;padding-right: 15px;">%s(zCap)</td>
-    @ <td  class="usetupListCon"  style="text-align: left;">%h(db_column_text(&s,3))</td>
     @ </tr>
   }
-  @ </table>
-  @ </td><td class="usetupColumnLayout">
-  @ <span class="note">Notes:</span>
+  db_finalize(&s);
+  @ </tbody></table>
+  @ <div class='section'>Users</div>
+  @ <table border=1 cellpadding=2 cellspacing=0 class='userTable' id='userlist'>
+  @ <thead><tr>
+  @ <th>ID<th>Login<th>Caps<th>Info<th>Date<th>Expire</tr></thead>
+  @ <tbody>
+  db_prepare(&s,
+     "SELECT uid, login, cap, info, date(mtime,'unixepoch'), lower(login) AS sortkey, "
+     "       CASE WHEN info LIKE '%%expires 20%%'"
+             "    THEN substr(info,instr(lower(info),'expires')+8,10)"
+             "    END AS exp"
+     "  FROM user"
+     " WHERE login NOT IN ('anonymous','nobody','developer','reader')"
+     " ORDER BY sortkey"
+  );
+  while( db_step(&s)==SQLITE_ROW ){
+    int uid = db_column_int(&s, 0);
+    const char *zLogin = db_column_text(&s, 1);
+    const char *zCap = db_column_text(&s, 2);
+    const char *zInfo = db_column_text(&s, 3);
+    const char *zDate = db_column_text(&s, 4);
+    const char *zSortKey = db_column_text(&s,5);
+    const char *zExp = db_column_text(&s,6);
+    @ <tr>
+    @ <td><a href='setup_uedit?id=%d(uid)'>%d(uid)</a>
+    @ <td data-sortkey='%h(zSortKey)'><a href='setup_uedit?id=%d(uid)'>%h(zLogin)</a>
+    @ <td>%h(zCap)
+    @ <td>%h(zInfo)
+    @ <td>%h(zDate?zDate:"")
+    @ <td>%h(zExp?zExp:"")
+    @ </tr>
+  }
+  @ </tbody></table>
+  db_finalize(&s);
+  output_table_sorting_javascript("userlist","nktxTT",2);
+  style_footer();
+}
+
+/*
+** WEBPAGE: setup_ulist_notes
+**
+** A documentation page showing notes about user configuration.  This information
+** used to be a side-bar on the user list page, but has been factored out for
+** improved presentation.
+*/
+void setup_ulist_notes(void){
+  style_header("User Configuration Notes");
+  @ <h1>User Configuration Notes:</h1>
   @ <ol>
   @ <li><p>The permission flags are as follows:</p>
   @ <table>
@@ -297,10 +326,9 @@ void setup_ulist(void){
   @ </p></li>
   @
   @ </ol>
-  @ </td></tr></table>
   style_footer();
-  db_finalize(&s);
 }
+
 
 /*
 ** Return true if zPw is a valid password string.  A valid
@@ -466,7 +494,7 @@ void user_edit(void){
   }
 
   /* figure out inherited permissions */
-  memset(inherit, 0, sizeof(inherit));
+  memset((char *)inherit, 0, sizeof(inherit));
   if( fossil_strcmp(zLogin, "developer") ){
     char *z1, *z2;
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='developer'");
@@ -1128,10 +1156,10 @@ void setup_access(void){
   onoff_attribute("Enable hyperlinks for humans (as deduced from the UserAgent "
                   " HTTP header string)",
                   "auto-hyperlink-ishuman", "ahis", 0, 0);
-  @ <br>
+  @ <br />
   onoff_attribute("Require mouse movement before enabling hyperlinks",
                   "auto-hyperlink-mouseover", "ahmo", 0, 0);
-  @ <br>
+  @ <br />
   entry_attribute("Delay before enabling hyperlinks (milliseconds)", 5,
                   "auto-hyperlink-delay", "ah-delay", "10", 0);
   @ </blockquote>
@@ -1288,7 +1316,7 @@ void setup_login_group(void){
     @ To leave this login group press
     @ <input type="submit" value="Leave Login Group" name="leave">
     @ </form></p>
-    @ <hr><h2>Implementation Details</h2>
+    @ <hr /><h2>Implementation Details</h2>
     @ <p>The following are fields from the CONFIG table related to login-groups,
     @ provided here for instructional and debugging purposes:</p>
     @ <table border='1' id='configTab'>
@@ -1350,6 +1378,12 @@ void setup_timeline(void){
   @ display formatting features such as fonts and line-wrapping behavior.)</p>
 
   @ <hr />
+  onoff_attribute("Truncate comment at first blank line",
+                  "timeline-truncate-at-blank", "ttb", 0, 0);
+  @ <p>In timeline displays, check-in comments are displayed only through
+  @ the first blank line.</p>
+
+  @ <hr />
   onoff_attribute("Use Universal Coordinated Time (UTC)",
                   "timeline-utc", "utc", 1, 0);
   @ <p>Show times as UTC (also sometimes called Greenwich Mean Time (GMT) or
@@ -1401,7 +1435,7 @@ void setup_timeline(void){
 /*
 ** WEBPAGE: setup_settings
 **
-** Change or view miscellanous settings.  Part of the
+** Change or view miscellaneous settings.  Part of the
 ** Admin pages requiring Admin privileges.
 */
 void setup_settings(void){
@@ -1850,13 +1884,14 @@ void sql_page(void){
     login_needed(0);
     return;
   }
+  add_content_sql_commands(g.db);
   db_begin_transaction();
   style_header("Raw SQL Commands");
   @ <p><b>Caution:</b> There are no restrictions on the SQL that can be
   @ run by this page.  You can do serious and irrepairable damage to the
   @ repository.  Proceed with extreme caution.</p>
   @
-  @ <p>Only a the first statement in the entry box will be run.
+  @ <p>Only the first statement in the entry box will be run.
   @ Any subsequent statements will be silently ignored.</p>
   @
   @ <p>Database names:<ul><li>repository &rarr; %s(db_name("repository"))
@@ -2037,7 +2072,8 @@ void page_admin_log(){
   create_admin_log_table();
   limit = atoi(PD("n","20"));
   fLogEnabled = db_get_boolean("admin-log", 0);
-  @ <div>Admin logging is %s(fLogEnabled?"on":"off").</div>
+  @ <div>Admin logging is %s(fLogEnabled?"on":"off").
+  @ (Change this on the <a href="setup_settings">settings</a> page.)</div>
 
 
   @ <div>Limit results to: <span>
@@ -2119,17 +2155,17 @@ void page_srchsetup(){
   @ <p>When searching documents, use the versions of the files found at the
   @ type of the "Document Branch" branch.  Recommended value: "trunk".
   @ Document search is disabled if blank.
-  @ <hr/>
+  @ <hr />
   onoff_attribute("Search Check-in Comments", "search-ci", "sc", 0, 0);
-  @ <br>
+  @ <br />
   onoff_attribute("Search Documents", "search-doc", "sd", 0, 0);
-  @ <br>
+  @ <br />
   onoff_attribute("Search Tickets", "search-tkt", "st", 0, 0);
-  @ <br>
+  @ <br />
   onoff_attribute("Search Wiki","search-wiki", "sw", 0, 0);
-  @ <hr/>
+  @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
-  @ <hr/>
+  @ <hr />
   if( P("fts0") ){
     search_drop_index();
   }else if( P("fts1") ){

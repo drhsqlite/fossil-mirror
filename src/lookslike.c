@@ -97,7 +97,7 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
   }else if( c=='\r' ){
     flags |= LOOK_CR;
     if( n<=1 || z[1]!='\n' ){
-      flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
+      flags |= LOOK_LONE_CR;  /* Not enough chars or next char not LF */
     }
   }
   j = (c!='\n');
@@ -121,7 +121,7 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
     }else if( c=='\r' ){
       flags |= LOOK_CR;
       if( n<=1 || z[1]!='\n' ){
-        flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
+        flags |= LOOK_LONE_CR;  /* Not enough chars or next char not LF */
       }
     }
   }
@@ -134,12 +134,13 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
   return flags;
 }
 
-
 /*
 ** Checks for proper UTF-8. It uses the method described in:
 **   http://en.wikipedia.org/wiki/UTF-8#Invalid_byte_sequences
 ** except for the "overlong form" of \u0000 which is not considered invalid
-** here: Some languages like Java and Tcl use it. For UTF-8 characters
+** here: Some languages like Java and Tcl use it. This function also
+** considers valid the derivatives CESU-8 & WTF-8 (as described in the
+** same wikipedia article referenced previously). For UTF-8 characters
 ** > 7f, the variable 'c2' not necessary means the previous character.
 ** It's number of higher 1-bits indicate the number of continuation bytes
 ** that are expected to be followed. E.g. when 'c2' has a value in the range
@@ -148,7 +149,32 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
 ** more continuation byte is expected.
 */
 
-int invalid_utf8(const Blob *pContent){
+/* definitions for various UTF-8 sequence lengths */
+#define US2A  0x80, 0x80 /* for lead byte 0xC0 */
+#define US2B  0x80, 0xBF /* for lead bytes 0xC2-0xDF */
+#define US3A  0xA0, 0xBF /* for lead byte 0xE0 */
+#define US3B  0x80, 0xBF /* for lead bytes 0xE1-0xEF */
+#define US4A  0x90, 0xBF /* for lead byte 0xF0 */
+#define US4B  0x80, 0xBF /* for lead bytes 0xF1-0xF3 */
+#define US4C  0x80, 0x8F /* for lead byte 0xF4 */
+#define US0A  0xFF, 0x00 /* for any other lead byte */
+
+/* a table used for quick lookup of the definition that goes with a
+ * particular lead byte */
+static const unsigned char lb_tab[] = {
+  US2A, US0A, US2B, US2B, US2B, US2B, US2B, US2B,
+  US2B, US2B, US2B, US2B, US2B, US2B, US2B, US2B,
+  US2B, US2B, US2B, US2B, US2B, US2B, US2B, US2B,
+  US2B, US2B, US2B, US2B, US2B, US2B, US2B, US2B,
+  US3A, US3B, US3B, US3B, US3B, US3B, US3B, US3B,
+  US3B, US3B, US3B, US3B, US3B, US3B, US3B, US3B,
+  US4A, US4B, US4B, US4B, US4C, US0A, US0A, US0A,
+  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A
+};
+
+int invalid_utf8(
+  const Blob *pContent
+){
   const unsigned char *z = (unsigned char *) blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
   unsigned char c, c2;
@@ -158,17 +184,22 @@ int invalid_utf8(const Blob *pContent){
   while( --n>0 ){
     c2 = c;
     c = *++z;
-    if( c2>=0x80 ){
-      if( ((c2<0xc2) || (c2>=0xf4) || ((c&0xc0)!=0x80)) &&
-          (((c2!=0xf4) || (c>=0x90)) && ((c2!=0xc0) || (c!=0x80))) ){
+    if( c2>=0xC0 ){
+      const unsigned char *def = &lb_tab[(2*c2)-0x180];
+      if( (c<*def) || (c>*++def) ){
         return LOOK_INVALID; /* Invalid UTF-8 */
       }
-      c = (c2 >= 0xe0) ? (c2<<1)+1 : ' ';
+      if( c2>=0xe0 ){
+        c = (c2<<1)|3;
+      }else{
+        c = ' ';
+      }
+    }else if( c2>=0x80 ){
+      return LOOK_INVALID;
     }
   }
   return (c>=0x80) ? LOOK_INVALID : 0; /* Last byte must be ASCII. */
 }
-
 
 /*
 ** Define the type needed to represent a Unicode (UTF-16) character.
@@ -246,7 +277,7 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
   }else if( c=='\r' ){
     flags |= LOOK_CR;
     if( n<(2*sizeof(WCHAR_T)) || UTF16_SWAP_IF(bReverse, z[1])!='\n' ){
-      flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
+      flags |= LOOK_LONE_CR;  /* Not enough chars or next char not LF */
     }
   }
   j = (c!='\n');
@@ -274,7 +305,7 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
     }else if( c=='\r' ){
       flags |= LOOK_CR;
       if( n<(2*sizeof(WCHAR_T)) || UTF16_SWAP_IF(bReverse, z[1])!='\n' ){
-        flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
+        flags |= LOOK_LONE_CR;  /* Not enough chars or next char not LF */
       }
     }
   }
@@ -400,7 +431,7 @@ void looks_like_utf_test_cmd(void){
     if( fUnicode ){
       lookFlags = looks_like_utf16(&blob, bRevUtf16, 0);
     }else{
-      lookFlags = looks_like_utf8(&blob, 0)|invalid_utf8(&blob);
+      lookFlags = looks_like_utf8(&blob, 0) | invalid_utf8(&blob);
     }
   }
   fossil_print("File \"%s\" has %d bytes.\n",g.argv[2],blob_size(&blob));

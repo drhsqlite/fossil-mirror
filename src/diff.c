@@ -2090,9 +2090,7 @@ static int annotation_start(Annotator *p, Blob *pInput, u64 diffFlags){
 /*
 ** The input pParent is the next most recent ancestor of the file
 ** being annotated.  Do another step of the annotation.  Return true
-** if additional annotation is required.  zPName is the tag to insert
-** on each line of the file being annotated that was contributed by
-** pParent.  Memory to hold zPName is leaked.
+** if additional annotation is required.
 */
 static int annotation_step(Annotator *p, Blob *pParent, int iVers, u64 diffFlags){
   int i, j;
@@ -2143,8 +2141,7 @@ static int annotation_step(Annotator *p, Blob *pParent, int iVers, u64 diffFlags
 
 /*
 ** Compute a complete annotation on a file.  The file is identified
-** by its filename number (filename.fnid) and the baseline in which
-** it was checked in (mlink.mid).
+** by its filename number (filename.fnid) and check-in (mlink.mid).
 */
 static void annotate_file(
   Annotator *p,        /* The annotator */
@@ -2286,7 +2283,7 @@ void annotation_page(void){
   showLog = atoi(PD("log","1"));
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  if( exclude_spiders("annotate") ) return;
+  if( exclude_spiders() ) return;
   load_control();
   mid = name_to_typed_rid(PD("checkin","0"),"ci");
   zFilename = P("filename");
@@ -2301,7 +2298,7 @@ void annotation_page(void){
   }
 
   /* compute the annotation */
-  compute_direct_ancestors(mid, 10000000);
+  compute_direct_ancestors(mid);
   annotate_file(&ann, fnid, mid, iLimit, annFlags);
   zCI = ann.aVers[0].zMUuid;
 
@@ -2382,7 +2379,7 @@ void annotation_page(void){
 #endif
     }
     @ </ol>
-    @ <hr>
+    @ <hr />
   }
   if( !ann.bLimit ){
     @ <h2>Origin for each line in
@@ -2440,7 +2437,7 @@ void annotation_page(void){
 ** COMMAND: blame
 ** COMMAND: praise
 **
-** %fossil (annotate|blame|praise) ?OPTIONS? FILENAME
+** Usage: %fossil (annotate|blame|praise) ?OPTIONS? FILENAME
 **
 ** Output the text of a file with markings to show when each line of
 ** the file was last modified.  The "annotate" command shows line numbers
@@ -2507,7 +2504,7 @@ void annotate_cmd(void){
     fossil_fatal("Not in a checkout");
   }
   if( iLimit<=0 ) iLimit = 1000000000;
-  compute_direct_ancestors(cid, 1000000);
+  compute_direct_ancestors(cid);
   mid = db_int(0, "SELECT mlink.mid FROM mlink, ancestor "
           " WHERE mlink.fid=%d AND mlink.fnid=%d AND mlink.mid=ancestor.rid"
           " ORDER BY ancestor.generation ASC LIMIT 1",

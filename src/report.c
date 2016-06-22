@@ -957,7 +957,7 @@ static int db_exec_readonly(
 **
 ** Capital letters mean sort in reverse order.
 ** If there are fewer characters in zColumnTypes[] than their are columns,
-** the all extra columns assume type "t" (text).
+** then all extra columns assume type "t" (text).
 **
 ** The third parameter is the column that was initially sorted (using 1-based
 ** column numbers, like SQL).  Make this value 0 if none of the columns are
@@ -975,13 +975,28 @@ void output_table_sorting_javascript(
   @ function SortableTable(tableEl,columnTypes,initSort){
   @   this.tbody = tableEl.getElementsByTagName('tbody');
   @   this.columnTypes = columnTypes;
+  @   var ncols = tableEl.rows[0].cells.length;
+  @   for(var i = columnTypes.length; i<=ncols; i++){this.columnTypes += 't';}
   @   this.sort = function (cell) {
   @     var column = cell.cellIndex;
   @     var sortFn;
   @     switch( cell.sortType ){
-  @       case "N": case "n":  sortFn = this.sortNumeric;  break;
-  @       case "T": case "t":  sortFn = this.sortText;     break;
-  @       case "K": case "k":  sortFn = this.sortKey;      break;
+  if( strchr(zColumnTypes,'n') ){
+    @       case "n": sortFn = this.sortNumeric;  break;
+  }
+  if( strchr(zColumnTypes,'N') ){
+    @       case "N": sortFn = this.sortReverseNumeric;  break;
+  }
+  @       case "t": sortFn = this.sortText;  break;
+  if( strchr(zColumnTypes,'T') ){
+    @       case "T": sortFn = this.sortReverseText;  break;
+  }
+  if( strchr(zColumnTypes,'k') ){
+    @       case "k": sortFn = this.sortKey;  break;
+  }
+  if( strchr(zColumnTypes,'K') ){
+    @       case "K": sortFn = this.sortReverseKey;  break;
+  }
   @       default:  return;
   @     }
   @     this.sortIndex = column;
@@ -995,9 +1010,6 @@ void output_table_sorting_javascript(
   @     }else{
   @       newRows.sort(sortFn);
   @       this.prevColumn = this.sortIndex+1;
-  @       if( cell.sortType>="A" && cell.sortType<="Z" ){
-  @         newRows.reverse();
-  @       }
   @     }
   @     for (i=0;i<newRows.length;i++) {
   @       this.tbody[0].appendChild(newRows[i]);
@@ -1025,27 +1037,62 @@ void output_table_sorting_javascript(
   @     var i = thisObject.sortIndex;
   @     aa = a.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
   @     bb = b.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
-  @     if(aa==bb) return a.rowIndex-b.rowIndex;
   @     if(aa<bb) return -1;
+  @     if(aa==bb) return a.rowIndex-b.rowIndex;
   @     return 1;
   @   }
-  @   this.sortNumeric = function(a,b) {
-  @     var i = thisObject.sortIndex;
-  @     aa = parseFloat(a.cells[i].textContent);
-  @     if (isNaN(aa)) aa = 0;
-  @     bb = parseFloat(b.cells[i].textContent);
-  @     if (isNaN(bb)) bb = 0;
-  @     if(aa==bb) return a.rowIndex-b.rowIndex;
-  @     return aa-bb;
-  @   }
-  @   this.sortKey = function(a,b) {
-  @     var i = thisObject.sortIndex;
-  @     aa = a.cells[i].getAttribute("data-sortkey");
-  @     bb = b.cells[i].getAttribute("data-sortkey");
-  @     if(aa==bb) return a.rowIndex-b.rowIndex;
-  @     if(aa<bb) return -1;
-  @     return 1;
-  @   }
+  if( strchr(zColumnTypes,'T') ){
+    @   this.sortReverseText = function(a,b) {
+    @     var i = thisObject.sortIndex;
+    @     aa = a.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
+    @     bb = b.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
+    @     if(aa<bb) return +1;
+    @     if(aa==bb) return a.rowIndex-b.rowIndex;
+    @     return -1;
+    @   }
+  }
+  if( strchr(zColumnTypes,'n') ){
+    @   this.sortNumeric = function(a,b) {
+    @     var i = thisObject.sortIndex;
+    @     aa = parseFloat(a.cells[i].textContent);
+    @     if (isNaN(aa)) aa = 0;
+    @     bb = parseFloat(b.cells[i].textContent);
+    @     if (isNaN(bb)) bb = 0;
+    @     if(aa==bb) return a.rowIndex-b.rowIndex;
+    @     return aa-bb;
+    @   }
+  }
+  if( strchr(zColumnTypes,'N') ){
+    @   this.sortReverseNumeric = function(a,b) {
+    @     var i = thisObject.sortIndex;
+    @     aa = parseFloat(a.cells[i].textContent);
+    @     if (isNaN(aa)) aa = 0;
+    @     bb = parseFloat(b.cells[i].textContent);
+    @     if (isNaN(bb)) bb = 0;
+    @     if(aa==bb) return a.rowIndex-b.rowIndex;
+    @     return bb-aa;
+    @   }
+  }
+  if( strchr(zColumnTypes,'k') ){
+    @   this.sortKey = function(a,b) {
+    @     var i = thisObject.sortIndex;
+    @     aa = a.cells[i].getAttribute("data-sortkey");
+    @     bb = b.cells[i].getAttribute("data-sortkey");
+    @     if(aa<bb) return -1;
+    @     if(aa==bb) return a.rowIndex-b.rowIndex;
+    @     return 1;
+    @   }
+  }
+  if( strchr(zColumnTypes,'K') ){
+    @   this.sortReverseKey = function(a,b) {
+    @     var i = thisObject.sortIndex;
+    @     aa = a.cells[i].getAttribute("data-sortkey");
+    @     bb = b.cells[i].getAttribute("data-sortkey");
+    @     if(aa<bb) return +1;
+    @     if(aa==bb) return a.rowIndex-b.rowIndex;
+    @     return -1;
+    @   }
+  }
   @   var x = tableEl.getElementsByTagName('thead');
   @   if(!(this.tbody && this.tbody[0].rows && this.tbody[0].rows.length>0)){
   @     return;
@@ -1138,7 +1185,7 @@ void rptview_page(void){
 
   count = 0;
   if( !tabs ){
-    struct GenerateHTML sState;
+    struct GenerateHTML sState = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
     db_multi_exec("PRAGMA empty_result_callbacks=ON");
     style_submenu_element("Raw", "Raw",

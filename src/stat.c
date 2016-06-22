@@ -80,8 +80,11 @@ void stat_page(void){
   }
   style_submenu_element("Activity Reports", 0, "reports");
   style_submenu_element("SHA1 Collisions", 0, "hash-collisions");
-  if( sqlite3_libversion_number()>=3008010 ){
+  if( sqlite3_compileoption_used("ENABLE_DBSTAT_VTAB") ){
     style_submenu_element("Table Sizes", 0, "repo-tabsize");
+  }
+  if( g.perm.Admin || g.perm.Setup || db_get_boolean("test_env_enable",0) ){
+    style_submenu_element("Environment", 0, "test_env");
   }
   @ <table class="label-value">
   @ <tr><th>Repository&nbsp;Size:</th><td>
@@ -365,6 +368,9 @@ void repo_schema_page(void){
   style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_element("Stat", "Repository Stats", "stat");
   style_submenu_element("URLs", "URLs and Checkouts", "urllist");
+  if( sqlite3_compileoption_used("ENABLE_DBSTAT_VTAB") ){
+    style_submenu_element("Table Sizes", 0, "repo-tabsize");
+  }
   db_prepare(&q, "SELECT sql FROM %s.sqlite_master WHERE sql IS NOT NULL",
              db_name("repository"));
   @ <pre>
@@ -391,9 +397,12 @@ void repo_tabsize_page(void){
   style_header("Repository Table Sizes");
   style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_element("Stat", "Repository Stats", "stat");
+  if( g.perm.Admin ){
+    style_submenu_element("Schema", "Repository Schema", "repo_schema");
+  }
   db_multi_exec(
     "CREATE VIRTUAL TABLE temp.dbx USING dbstat(%s);"
-    "CREATE TEMP TABLE trans(name TEXT PRIMARY KEY, tabname TEXT)WITHOUT ROWID;"
+    "CREATE TEMP TABLE trans(name TEXT PRIMARY KEY,tabname TEXT)WITHOUT ROWID;"
     "INSERT INTO trans(name,tabname)"
     "   SELECT name, tbl_name FROM %s.sqlite_master;"
     "CREATE TEMP TABLE piechart(amt REAL, label TEXT);"

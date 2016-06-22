@@ -2,8 +2,9 @@
 <h2>Introduction</h2><blockquote>
 <p>A server is not necessary to use Fossil, but a server does help in collaborating with
 peers.  A Fossil server also works well as a complete website for a project.
-For example, the complete <b>http://www.fossil-scm.org/</b> website, including the
-page you are now reading (but excepting the download page),
+For example, the complete [https://www.fossil-scm.org/] website, including the
+page you are now reading (but excepting the 
+[https://www.fossil-scm.org/download.html|download page]),
 is just a Fossil server displaying the content of the 
 self-hosting repository for Fossil.</p>
 <p>This article is a guide for setting up your own Fossil server.</p></blockquote>
@@ -228,6 +229,7 @@ location /demo_project/ {
     include scgi_params;
     scgi_pass localhost:9000;
     scgi_param SCRIPT_NAME "/demo_project";
+    scgi_param HTTPS "on";
 }
 </pre></blockquote>
 <p>

@@ -15,29 +15,34 @@
 **
 *******************************************************************************
 **
-** This routine implements an SQLite virtual table that gives all of the
-** files associated with a single check-in.
+** This routine implements eponymous virtual table for SQLite that gives
+** all of the files associated with a single check-in.  The table works
+** as a table-valued function.
 **
-** The filename "foci" is short for "Files of Check-in".
+** The source code filename "foci" is short for "Files of Check-in".
 **
 ** Usage example:
 **
-**    CREATE VIRTUAL TABLE temp.foci USING files_of_checkin;
-**                      -- ^^^^--- important!
-**    SELECT * FROM foci WHERE checkinID=symbolic_name_to_rid('trunk');
+**    SELECT * FROM files_of_checkin('trunk');
 **
-** The symbolic_name_to_rid('trunk') function finds the BLOB.RID value
-** corresponding to the 'trunk' tag.  Then the files_of_checkin virtual table
-** decodes the manifest defined by that BLOB and returns all files described
-** by that manifest.  The "schema" for the temp.foci table is:
+** The "schema" for the temp.foci table is:
 **
 **     CREATE TABLE files_of_checkin(
 **       checkinID    INTEGER,    -- RID for the check-in manifest
 **       filename     TEXT,       -- Name of a file
 **       uuid         TEXT,       -- SHA1 hash of the file
 **       previousName TEXT,       -- Name of the file in previous check-in
-**       perm         TEXT        -- Permissions on the file
+**       perm         TEXT,       -- Permissions on the file
+**       symname      TEXT HIDDEN -- Symbolic name of the check-in.
 **     );
+**
+** The hidden symname column is (optionally) used as a query parameter to 
+** identify the particular check-in to parse.  The checkinID parameter
+** (such is a unique numeric RID rather than symbolic name) can also be used
+** to identify the check-in.  Example:
+**
+**    SELECT * FROM files_of_checkin
+**     WHERE checkinID=symbolic_name_to_rid('trunk');
 **
 */
 #include "config.h"
@@ -53,9 +58,17 @@ static const char zFociSchema[] =
 @  filename     TEXT,       -- Name of a file
 @  uuid         TEXT,       -- SHA1 hash of the file
 @  previousName TEXT,       -- Name of the file in previous check-in
-@  perm         TEXT        -- Permissions on the file
+@  perm         TEXT,       -- Permissions on the file
+@  symname      TEXT HIDDEN -- Symbolic name of the check-in
 @ );
 ;
+
+#define FOCI_CHECKINID   0
+#define FOCI_FILENAME    1
+#define FOCI_UUID        2
+#define FOCI_PREVNAME    3
+#define FOCI_PERM        4
+#define FOCI_SYMNAME     5
 
 #if INTERFACE
 /*
@@ -105,15 +118,22 @@ static int fociDisconnect(sqlite3_vtab *pVtab){
 ** Available scan methods:
 **
 **   (0)     A full scan.  Visit every manifest in the repo.  (Slow)
-**   (1)     checkinID=?.  visit only the single manifest specifed.
+**   (1)     checkinID=?.  visit only the single manifest specified.
+**   (2)     symName=?     visit only the single manifest specified.
 */
 static int fociBestIndex(sqlite3_vtab *tab, sqlite3_index_info *pIdxInfo){
   int i;
   pIdxInfo->estimatedCost = 10000.0;
   for(i=0; i<pIdxInfo->nConstraint; i++){
-    if( pIdxInfo->aConstraint[i].iColumn==0
-     && pIdxInfo->aConstraint[i].op==SQLITE_INDEX_CONSTRAINT_EQ ){
-      pIdxInfo->idxNum = 1;
+    if( pIdxInfo->aConstraint[i].op==SQLITE_INDEX_CONSTRAINT_EQ
+     && (pIdxInfo->aConstraint[i].iColumn==FOCI_CHECKINID
+            || pIdxInfo->aConstraint[i].iColumn==FOCI_SYMNAME)
+    ){
+      if( pIdxInfo->aConstraint[i].iColumn==FOCI_CHECKINID ){
+        pIdxInfo->idxNum = 1;
+      }else{
+        pIdxInfo->idxNum = 2;
+      }
       pIdxInfo->estimatedCost = 1.0;
       pIdxInfo->aConstraintUsage[i].argvIndex = 1;
       pIdxInfo->aConstraintUsage[i].omit = 1;
@@ -168,7 +188,13 @@ static int fociFilter(
   FociCursor *pCur = (FociCursor *)pCursor;
   manifest_destroy(pCur->pMan);
   if( idxNum ){
-    pCur->pMan = manifest_get(sqlite3_value_int(argv[0]), CFTYPE_MANIFEST, 0);
+    int rid;
+    if( idxNum==1 ){
+      rid = sqlite3_value_int(argv[0]);
+    }else{
+      rid = symbolic_name_to_rid((const char*)sqlite3_value_text(argv[0]),"ci");
+    }
+    pCur->pMan = manifest_get(rid, CFTYPE_MANIFEST, 0);
     if( pCur->pMan ){
       manifest_file_rewind(pCur->pMan);
       pCur->pFile = manifest_file_next(pCur->pMan, 0);
@@ -187,24 +213,26 @@ static int fociColumn(
 ){
   FociCursor *pCsr = (FociCursor *)pCursor;
   switch( i ){
-    case 0:            /* checkinID */
+    case FOCI_CHECKINID:
       sqlite3_result_int(ctx, pCsr->pMan->rid);
       break;
-    case 1:            /* filename */
+    case FOCI_FILENAME:
       sqlite3_result_text(ctx, pCsr->pFile->zName, -1,
                           SQLITE_TRANSIENT);
       break;
-    case 2:            /* uuid */
+    case FOCI_UUID:
       sqlite3_result_text(ctx, pCsr->pFile->zUuid, -1,
                           SQLITE_TRANSIENT);
       break;
-    case 3:            /* previousName */
+    case FOCI_PREVNAME:
       sqlite3_result_text(ctx, pCsr->pFile->zPrior, -1,
                           SQLITE_TRANSIENT);
       break;
-    case 4:            /* perm */
+    case FOCI_PERM:
       sqlite3_result_text(ctx, pCsr->pFile->zPerm, -1,
                           SQLITE_TRANSIENT);
+      break;
+    case FOCI_SYMNAME:
       break;
   }
   return SQLITE_OK;

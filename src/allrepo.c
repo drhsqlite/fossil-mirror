@@ -89,7 +89,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 **
 ** Available operations are:
 **
-**    cache       Mangages the cache used for potentially expensive web
+**    cache       Manages the cache used for potentially expensive web
 **                pages.  Any additional arguments are passed on verbatim
 **                to the cache command.
 **
@@ -140,7 +140,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 **
 **    add         Add all the repositories named to the set of repositories
 **                tracked by Fossil.  Normally Fossil is able to keep up with
-**                this list by itself, but sometime it can benefit from this
+**                this list by itself, but sometimes it can benefit from this
 **                hint if you rename repositories.
 **
 **    ignore      Arguments are repositories that should be ignored by
@@ -187,7 +187,7 @@ void all_cmd(void){
     usage("SUBCOMMAND ...");
   }
   n = strlen(g.argv[2]);
-  db_open_config(1);
+  db_open_config(1, 0);
   blob_zero(&extra);
   zCmd = g.argv[2];
   if( !login_is_nobody() ) blob_appendf(&extra, " -U %s", g.zLogin);
@@ -294,7 +294,7 @@ void all_cmd(void){
     verify_all_options();
     db_begin_transaction();
     for(j=3; j<g.argc; j++, blob_reset(&sql), blob_reset(&fn)){
-      file_canonical_name(g.argv[j], &fn, 0);
+      file_canonical_name(g.argv[j], &fn, useCheckouts?1:0);
       blob_append_sql(&sql,
          "DELETE FROM global_config WHERE name GLOB '%s:%q'",
          useCheckouts?"ckout":"repo", blob_str(&fn)
@@ -379,6 +379,9 @@ void all_cmd(void){
   db_prepare(&q, "SELECT name, tag FROM repolist ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFilename = db_column_text(&q, 0);
+#if !USE_SEE
+    if( sqlite3_strglob("*.efossil", zFilename)==0 ) continue;
+#endif
     if( file_access(zFilename, F_OK)
      || !file_is_canonical(zFilename)
      || (useCheckouts && file_isdir(zFilename)!=1)

@@ -342,7 +342,7 @@ int file_contains_merge_marker(const char *zFullpath){
 }
 
 /*
-** COMMAND:  3-way-merge*
+** COMMAND: 3-way-merge*
 **
 ** Usage: %fossil 3-way-merge BASELINE V1 V2 MERGED
 **

@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2013 Stephen Beal
+** Copyright (c) 2013 Stephan Beal
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -243,6 +243,7 @@ static void stats_report_by_month_year(char includeMonth,
           @ <td></td>
           @ <td colspan='2'>Yearly total: %d(nEventsPerYear)</td>
           @</tr>
+          showYearTotal = 0;
         }
         nEventsPerYear = 0;
         memcpy(zPrevYear,zTimeframe,4);
@@ -312,8 +313,8 @@ static void stats_report_by_month_year(char includeMonth,
   if(nEventTotal){
     const char *zAvgLabel = includeMonth ? "month" : "year";
     int nAvg = iterations ? (nEventTotal/iterations) : 0;
-    @ <br><div>Total events: %d(nEventTotal)
-    @ <br>Average per active %s(zAvgLabel): %d(nAvg)
+    @ <br /><div>Total events: %d(nEventTotal)
+    @ <br />Average per active %s(zAvgLabel): %d(nAvg)
     @ </div>
   }
   if( !includeMonth ){
@@ -336,15 +337,14 @@ static void stats_report_by_user(){
   @ <h1>Timeline Events
   @ (%s(stats_report_label_for_type())) by User</h1>
   db_multi_exec(
-    "CREATE TEMP TABLE piechart(amt,label);"
-    "INSERT INTO piechart SELECT count(*), ifnull(euser,user) FROM v_reports"
+    "CREATE TEMP VIEW piechart(amt,label) AS"
+    " SELECT count(*), ifnull(euser,user) FROM v_reports"
                          " GROUP BY ifnull(euser,user) ORDER BY count(*) DESC;"
   );
   if( db_int(0, "SELECT count(*) FROM piechart")>=2 ){
     @ <svg class="statistics-report-pie-chart" width=700 height=400>
     piechart_render(700, 400, PIE_OTHER|PIE_PERCENT);
-    @ </svg>
-    @ <hr/>
+    @ </svg><hr />
   }
   @ <table class='statistics-report-table-events' border='0'
   @ cellpadding='2' cellspacing='0' id='statsTable'>
@@ -485,26 +485,27 @@ static void stats_report_day_of_week(const char *zUserName){
   }
   @ </h1>
   db_multi_exec(
-    "CREATE TEMP TABLE piechart(amt,label);"
-    "INSERT INTO piechart"
-    " SELECT count(*), cast(strftime('%%w', mtime) AS INT) FROM v_reports"
-     " WHERE ifnull(coalesce(euser,user,'')=%Q,1)"
-     " GROUP BY 2 ORDER BY 2;"
-    "UPDATE piechart SET label = CASE label"
-    "  WHEN 0 THEN 'Sunday'"
-    "  WHEN 1 THEN 'Monday'"
-    "  WHEN 2 THEN 'Tuesday'"
-    "  WHEN 3 THEN 'Wednesday'"
-    "  WHEN 4 THEN 'Thursday'"
-    "  WHEN 5 THEN 'Friday'"
-    "  WHEN 6 THEN 'Saturday'"
-    "  ELSE 'ERROR' END;", zUserName
+    "CREATE TEMP VIEW piechart(amt,label) AS"
+    " SELECT count(*),"
+    "   CASE cast(strftime('%%w', mtime) AS INT)"
+    "    WHEN 0 THEN 'Sunday'"
+    "    WHEN 1 THEN 'Monday'"
+    "    WHEN 2 THEN 'Tuesday'"
+    "    WHEN 3 THEN 'Wednesday'"
+    "    WHEN 4 THEN 'Thursday'"
+    "    WHEN 5 THEN 'Friday'"
+    "    WHEN 6 THEN 'Saturday'"
+    "    ELSE 'ERROR'"
+    "   END"
+    "  FROM v_reports"
+    "  WHERE ifnull(coalesce(euser,user,'')=%Q,1)"
+    "  GROUP BY 2 ORDER BY cast(strftime('%%w', mtime) AS INT);"
+    , zUserName
   );
   if( db_int(0, "SELECT count(*) FROM piechart")>=2 ){
     @ <svg class="statistics-report-pie-chart" width=700 height=400>
     piechart_render(700, 400, PIE_OTHER|PIE_PERCENT);
-    @ </svg>
-    @ <hr/>
+    @ </svg><hr />
   }
   @ <table class='statistics-report-table-events' border='0'
   @ cellpadding='2' cellspacing='0' id='statsTable'>
@@ -572,7 +573,7 @@ static void stats_report_year_weeks(const char *zUserName){
   if( zYear==0 || strlen(zYear)!=4 ){
     zYear = db_text("1970","SELECT substr(date('now'),1,4);");
   }
-  cgi_printf("<br/>");
+  cgi_printf("<br />");
   db_prepare(&q,
              "SELECT DISTINCT strftime('%%W',mtime) AS wk, "
              "       count(*) AS n "
@@ -634,7 +635,7 @@ static void stats_report_year_weeks(const char *zUserName){
   cgi_printf("</tbody></table>");
   if(total){
     int nAvg = iterations ? (total/iterations) : 0;
-    cgi_printf("<br><div>Total events: %d<br>"
+    cgi_printf("<br /><div>Total events: %d<br />"
                "Average per active week: %d</div>",
                total, nAvg);
   }
@@ -672,7 +673,6 @@ static void stats_report_year_weeks(const char *zUserName){
 **                     current year).
 */
 void stats_report_page(){
-  HQuery url;                        /* URL for various branch links */
   const char *zView = P("view");     /* Which view/report to show. */
   int eType = RPT_NONE;              /* Numeric code for view/report to show */
   int i;                             /* Loop counter */
@@ -714,8 +714,6 @@ void stats_report_page(){
       break;
     }
   }
-  url_initialize(&url, "reports");
-  cgi_query_parameters_to_url(&url);
   if( eType!=RPT_NONE ){
     int nView = 0;                     /* Slots used in azView[] */
     for(i=0; i<ArraySize(aViewType); i++){
@@ -727,7 +725,7 @@ void stats_report_page(){
     }
     style_submenu_multichoice("view", nView/2, azView, 0);
     if( eType!=RPT_BYUSER ){
-      style_submenu_sql("u","User:",
+      style_submenu_sql("user","User:",
          "SELECT '', 'All Users' UNION ALL "
          "SELECT x, x FROM ("
          "  SELECT DISTINCT trim(coalesce(euser,user)) AS x FROM event %s"
@@ -737,7 +735,6 @@ void stats_report_page(){
     }
   }
   style_submenu_element("Stats", "Stats", "%R/stat");
-  url_reset(&url);
   style_header("Activity Reports");
   switch( eType ){
     case RPT_BYYEAR:

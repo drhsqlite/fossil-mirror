@@ -24,9 +24,14 @@ set dir [file dirname [info script]]
 
 fossil test-th-eval "hasfeature tcl"
 
-if {$::RESULT ne "1"} then {
-  puts "Fossil was not compiled with Tcl support."; return
+if {$::RESULT ne "1"} {
+  puts "Fossil was not compiled with Tcl support."
+  test_cleanup_then_return
 }
+
+###############################################################################
+
+test_setup
 
 ###############################################################################
 
@@ -60,10 +65,14 @@ three words now$} [normalize_result]]}
 
 ###############################################################################
 
-fossil test-th-render --open-config \
-    [file nativename [file join $dir th1-tcl2.txt]]
+if {[catch {package require sqlite3}] == 0} {
+  fossil test-th-render --open-config \
+      [file nativename [file join $dir th1-tcl2.txt]]
 
-test th1-tcl-2 {[regexp -- {^\d+$} [normalize_result]]}
+  test th1-tcl-2 {[regexp -- {^\d+$} [normalize_result]]}
+} else {
+  puts stderr "Skipping 'th1-tcl-2', SQLite package for Tcl not available"
+}
 
 ###############################################################################
 
@@ -167,3 +176,7 @@ test th1-tcl-16 {[normalize_result] eq {2}}
 
 fossil test-th-eval "tclMakeSafe; tclEval set x 2; tclEval info vars x"
 test th1-tcl-17 {[normalize_result] eq {x}}
+
+###############################################################################
+
+test_cleanup

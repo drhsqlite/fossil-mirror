@@ -22,10 +22,10 @@
 #include <assert.h>
 
 /*
-** WEBPAGE:  sitemap
+** WEBPAGE: sitemap
 **
 ** List some of the web pages offered by the Fossil web engine.  This
-** page is intended as a suppliment to the menu bar on the main screen.
+** page is intended as a supplement to the menu bar on the main screen.
 ** That is, this page is designed to hold links that are omitted from
 ** the main menu due to lack of space.
 */
