@@ -1,5 +1,5 @@
-C Fix\stypos\sin\scomments.
-D 2016-06-21T20:03:27.496
+C Replace\ssome\susage\sof\s&lt;center&gt;\stags\swith\salign="center"\sattributes.
+D 2016-06-23T07:43:14.406
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -503,7 +503,7 @@ F src/undo.c 52ec5c24a6dcf1937026e2d9f86791fd1913cdf6
 F src/unicode.c 8e02b4fd6af9e735bda68eb06e3be90b6b901a87
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
-F src/user.c 30dfae07e1ddd95b4b46dc173fb8f0ea272084e9
+F src/user.c 63b607b58023e046d55b07cf2cc3f891a0cde21c
 F src/utf8.c 5c85c7e88b82b5fb48649c46f063ac94ab58eb20
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
@@ -655,7 +655,7 @@ F www/branch02.gif 55c3567748366595e1678a1c43448a9370ff105e
 F www/branch03.gif 3840bdbb5ed0f57104089c2888ee286d4c79a17b
 F www/branch04.gif 908b4fc1688810f78250e0a269741165ee31979a
 F www/branch05.gif 4808cbf6e0a4095580fca0f56a35f16ba975dbf9
-F www/branching.wiki 2375d7530edc4455e4c36a3c6b3474659ac983bf
+F www/branching.wiki f8a72263376e0997505bba9da690615c77fb157e
 F www/bugtheory.wiki e43e29be95b51db3cbe00dfc0c4cea6a3a424eec
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
 F www/build-icons/linux64.gif 522442bc41cc8399b8957ab3cb1af4f5fe46b11f
@@ -672,7 +672,7 @@ F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
 F www/concepts.wiki 02f6b5cafe6f2dd9d4b591e402bfcff1905b3aa9
 F www/contribute.wiki 9f7136d12f9099e615c8d5a414934e0b15613393
-F www/copyright-release.html 9da08b126c7c1a7874e44b5cff92db512f36962b
+F www/copyright-release.html 30e66dff9a65ca9302d5103d44f1a9c8fae2215d
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/custom_ticket.wiki 4083c719eee18ea9dad81d335e45e9af8e29ec4e
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
@@ -705,7 +705,7 @@ F www/fileformat.wiki af854d348597683c299788a44fc33f5835510511
 F www/fiveminutes.wiki 3172b324738523b163b19a8c836d3d9a3ceb9b94
 F www/foss-cklist.wiki 77fe5872d7077a68e1b01e8dd5e3a48f7ee2b0dd
 F www/fossil-from-msvc.wiki f2c229553ff6304fa0c6e82d169e959498af98a8
-F www/fossil-v-git.wiki d8c5d45c8c16bbd69809aa1cf5985fb12ee0dcc9
+F www/fossil-v-git.wiki 072cd93d7f8dd668d8d157c35b4f529a26de4bb7
 F www/fossil.eps 672ae6297081bd6a1c9565a9cae7c8299a1d61e3
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps d8e0aba6acbeb3cba071ed894783ca9b8de9a310
@@ -718,7 +718,7 @@ F www/fossil_prompt.sh db68e2cae431b9e9f5dd672e2f56e2bde5a57d2a
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
-F www/index.wiki 50018cdbdfd9b391e908a54a4ccd15d91332c581
+F www/index.wiki 3fc360452fd46c506e0f0abebee1c666b03e7857
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki 30c7129ffb00c58699b87e84a2c0b696d7c10406
 F www/mkdownload.tcl 5ac61a3e13cecaa67f1e31741113c96cbd41463f
@@ -741,8 +741,8 @@ F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki e6c82bd6579f755896c47b22dbab18e27b1f5bc4
 F www/style.wiki da3a414d4c57c3da2636daf0baf6964ba72ce70b
-F www/sync.wiki ecd7e356270a40e81649970c1b606767db68d9e3
-F www/tech_overview.wiki 66d893fd0bca7f5dbc659ab0b4e9dde987e4fdb3
+F www/sync.wiki 655cb0e7cbe59cf5726658af2b4f266ed45404f2
+F www/tech_overview.wiki 4d74d28dfc2515d7864c4ecbf7324be9919e3efd
 F www/th1.md cce5b4ec03727680ec48dede21bb6aa82931d7c2
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
@@ -751,7 +751,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6bbec5fb211b88d67fa3751b612f7fac4d35a473
-R b345188dfff54e4c2b31b19f861df18e
-U drh
-Z ada092ed656fb8427c2e8559f4cff16b
+P 243fc6c2467988f387f4257a226ff59fd10be2c5
+R 8110d4e58eda33aa94d8905e39712b27
+U jan.nijtmans
+Z 826dca36cc44a6a679194f2fd72a4698

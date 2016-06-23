@@ -7,8 +7,8 @@ A Technical Overview<br>Of The Design And Implementation<br>Of Fossil
 
 At its lowest level, a Fossil repository consists of an unordered set
 of immutable "artifacts".  You might think of these artifacts as "files",
-since in many cases the artifacts are exactly that.  
-But other "control artifacts" 
+since in many cases the artifacts are exactly that.
+But other "control artifacts"
 are also included in the mix.  These control artifacts define the relationships
 between artifacts - which files go together to form a particular
 version of the project, who checked in that version and when, what was
@@ -19,17 +19,17 @@ This low-level file format is called the "global state" of
 the repository, since this is the information that is synced to peer
 repositories using push and pull operations.   The low-level file format
 is also called "enduring" since it is intended to last for many years.
-The details of the low-level, enduring, global file format 
+The details of the low-level, enduring, global file format
 are [./fileformat.wiki | described separately].
 
 This article is about how Fossil is currently implemented.  Instead of
 dealing with vague abstractions of "enduring file formats" as the
 [./fileformat.wiki | other document] does, this article provides
-some detail on how Fossil actually stores information on disk.  
+some detail on how Fossil actually stores information on disk.
 
 <h2>2.0 Three Databases</h2>
 
-Fossil stores state information in 
+Fossil stores state information in
 [http://www.sqlite.org/ | SQLite] database files.
 SQLite keeps an entire relational database, including multiple tables and
 indices, in a single disk file.  The SQLite library allows the database
@@ -48,7 +48,7 @@ Fossil uses three separate classes of SQLite databases:
 The configuration database is a one-per-user database that holds
 global configuration information used by Fossil.  There is one
 repository database per project.  The repository database is the
-file that people are normally referring to when they say 
+file that people are normally referring to when they say
 "a Fossil repository".  The checkout database is found in the working
 checkout for a project and contains state information that is unique
 to that working checkout.
@@ -67,7 +67,7 @@ SQLite's [http://www.sqlite.org/lang_attach.html | ATTACH] command.
 The chart below provides a quick summary of how each of these
 database files are used by Fossil, with detailed discussion following.
 
-<center><table border="1" width="80%" cellpadding="0">
+<table border="1" width="80%" cellpadding="0" align="center">
 <tr>
 <td width="33%" valign="top">
 <h3 align="center">Configuration Database<br>"~/.fossil"</h3>
@@ -105,7 +105,6 @@ database files are used by Fossil, with detailed discussion following.
 </td>
 </tr>
 </table>
-</center>
 
 <h3>2.1 The Configuration Database</h3>
 
@@ -137,7 +136,7 @@ variable FOSSIL_HOME pointing to an appropriate (writable) directory.
 
 <h3>2.2 Repository Databases</h3>
 
-The repository database is the file that is commonly referred to as 
+The repository database is the file that is commonly referred to as
 "the repository".  This is because the repository database contains,
 among other things, the complete revision, ticket, and wiki history for
 a project.  It is customary to name the repository database after then
@@ -148,7 +147,7 @@ and the repository database for SQLite is called "sqlite.fossil".
 <h4>2.2.1 Global Project State</h4>
 
 The bulk of the repository database (typically 75 to 85%) consists
-of the artifacts that comprise the 
+of the artifacts that comprise the
 [./fileformat.wiki | enduring, global, shared state] of the project.
 The artifacts are stored as BLOBs, compressed using
 [http://www.zlib.net/ | zlib compression] and, where applicable,
@@ -162,14 +161,14 @@ of about 64:1.  The average size of a content BLOB in the database
 is around 500 bytes.
 
 Note that the zlib and delta compression is not an inherent part of the
-Fossil file format; it is just an optimization.  
+Fossil file format; it is just an optimization.
 The enduring file format for Fossil is the unordered
 set of artifacts. The compression techniques are just a detail of
 how the current implementation of Fossil happens to store these artifacts
 efficiently on disk.
 
 All of the original uncompressed and undeltaed artifacts can be extracted
-from a Fossil repository database using 
+from a Fossil repository database using
 the [/help/deconstruct | fossil deconstruct]
 command. Individual artifacts can be extracted using the
 [/help/artifact | fossil artifact] command.
@@ -177,7 +176,7 @@ When accessing the repository database using raw SQL and the
 [/help/sqlite3 | fossil sql] command, the extension function
 "<tt>content()</tt>" with a single argument which is the SHA1 hash
 of an artifact will return the complete undeleted and uncompressed
-content of that artifact.  
+content of that artifact.
 
 Going the other way, the [/help/reconstruct | fossil reconstruct]
 command will scan a directory hierarchy and add all files found to
@@ -227,7 +226,7 @@ that two different websites for the same project might have completely
 different display preferences and user communities.  One instance of the
 project might be a fork of the other, for example, which pulls from the
 other but never pushes and extends the project in ways that the keepers of
-the other website disapprove of.  
+the other website disapprove of.
 
 Display and processing information includes the following:
 
@@ -244,7 +243,7 @@ Display and processing information includes the following:
 Though the display and processing preferences do not move between
 repository instances using [/help/sync | fossil sync], this information
 can be shared between repositories using the
-[/help/config | fossil config push] and 
+[/help/config | fossil config push] and
 [/help/config | fossil config pull] commands.
 The display and processing information is also copied into new
 repositories when they are created using
@@ -253,18 +252,18 @@ repositories when they are created using
 <h4>2.2.4 User Credentials And Privileges</h4>
 
 Just because two development teams are collaborating on a project and allow
-push and/or pull between their repositories does not mean that they 
+push and/or pull between their repositories does not mean that they
 trust each other enough to share passwords and access privileges.
 Hence the names and emails and passwords and privileges of users are
 considered private information that is kept locally in each repository.
 
 Each repository database has a table holding the username, privileges,
 and login credentials for users authorized to interact with that particular
-database.  In addition, there is a table named "concealed" that maps the 
+database.  In addition, there is a table named "concealed" that maps the
 SHA1 hash of each users email address back into their true email address.
 The concealed table allows just the SHA1 hash of email addresses to
 be stored in tickets, and thus prevents actual email addresses from falling
-into the hands of spammers who happen to clone the repository. 
+into the hands of spammers who happen to clone the repository.
 
 The content of the user and concealed tables can be pushed and pulled using the
 [/help/config | fossil config push] and
@@ -280,7 +279,7 @@ new artifacts can be added but artifacts can never be removed.  But
 it sometimes happens that inappropriate content is mistakenly or
 maliciously added to a repository.  The only way to get rid of
 the undesired content is to [./shunning.wiki | "shun"] it.
-The "shun" table in the repository database records the SHA1 hash of 
+The "shun" table in the repository database records the SHA1 hash of
 all shunned artifacts.
 
 The shun table can be pushed or pulled using
