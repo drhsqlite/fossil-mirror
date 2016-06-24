@@ -1,5 +1,5 @@
-C Replace\ssome\susage\sof\s&lt;center&gt;\stags\swith\salign="center"\sattributes.
-D 2016-06-23T07:43:14.406
+C If\sthe\sFOSSIL_SECURITY_LEVEL\senvironment\svariable\sis\s2\sor\smore,\sthen\spresent\na\ssimple\ssubstitution\smatrix\swhen\sentering\spasswords,\sas\sa\sdefense\sagainst\nkey\sloggers.\s\sFor\sFOSSIL_SECURITY_LEVEL\sof\s1\sor\smore,\sdo\snot\sremember\sthe\nremote-url\spassword.
+D 2016-06-24T03:36:03.315
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -503,7 +503,7 @@ F src/undo.c 52ec5c24a6dcf1937026e2d9f86791fd1913cdf6
 F src/unicode.c 8e02b4fd6af9e735bda68eb06e3be90b6b901a87
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
-F src/user.c 63b607b58023e046d55b07cf2cc3f891a0cde21c
+F src/user.c ce247e9a66101e34e79fa2e0dfc8114e680c0237
 F src/utf8.c 5c85c7e88b82b5fb48649c46f063ac94ab58eb20
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
@@ -751,7 +751,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 243fc6c2467988f387f4257a226ff59fd10be2c5
-R 8110d4e58eda33aa94d8905e39712b27
-U jan.nijtmans
-Z 826dca36cc44a6a679194f2fd72a4698
+P fcfaae37dcbf82a1f49fc3972dabc93dea98f03c
+R 20e45711c6ba2f6d6235ba477185bb1d
+U drh
+Z 274f507d841932167cfdb9ceb3413b85

@@ -101,6 +101,75 @@ static char *getpass(const char *prompt){
 #endif
 
 /*
+** Scramble substitution matrix:
+*/
+static char aSubst[256];
+
+/*
+** Descramble the password
+*/
+static void userDescramble(char *z){
+  int i;
+  for(i=0; z[i]; i++) z[i] = aSubst[(unsigned char)z[i]];
+}
+
+/* Print a string in 5-letter groups */
+static void printFive(const unsigned char *z){
+  int i;
+  for(i=0; z[i]; i++){
+    if( i>0 && (i%5)==0 ) putchar(' ');
+    putchar(z[i]);
+  }
+  putchar('\n');
+}
+
+/* Return a pseudo-random integer between 0 and N-1 */
+static int randint(int N){
+  unsigned char x;
+  assert( N<256 );
+  sqlite3_randomness(1, &x);
+  return x % N;
+}
+
+/*
+** Generate and print a random scrambling of letters a through z (omitting x)
+** and set up the aSubst[] matrix to descramble.
+*/
+static void userGenerateScrambleCode(void){
+  unsigned char zOrig[30];
+  unsigned char zA[30];
+  unsigned char zB[30];
+  int nA = 25;
+  int nB = 0;
+  int i;
+  memcpy(zOrig, "abcdefghijklmnopqrstuvwyz", nA+1);
+  memcpy(zA, zOrig, nA+1);
+  assert( nA==(int)strlen((char*)zA) );
+  for(i=0; i<sizeof(aSubst); i++) aSubst[i] = i;
+  printFive(zA);
+  while( nA>0 ){
+    int x = randint(nA);
+    zB[nB++] = zA[x];
+    zA[x] = zA[--nA];
+  }
+  assert( nB==25 );
+  zB[nB] = 0;
+  printFive(zB);
+  for(i=0; i<nB; i++) aSubst[zB[i]] = zOrig[i];
+}
+
+/*
+** Return the value of the FOSSIL_SECURITY_LEVEL environment variable.
+** Or return 0 if that variable does not exist.
+*/
+int fossil_security_level(void){
+  const char *zLevel = fossil_getenv("FOSSIL_SECURITY_LEVEL");
+  if( zLevel==0 ) return 0;
+  return atoi(zLevel);
+}
+
+
+/*
 ** Do a single prompt for a passphrase.  Store the results in the blob.
 **
 ** If the FOSSIL_PWREADER environment variable is set, then it will
@@ -119,6 +188,7 @@ static char *getpass(const char *prompt){
 static void prompt_for_passphrase(const char *zPrompt, Blob *pPassphrase){
   char *z;
   const char *zProg = fossil_getenv("FOSSIL_PWREADER");
+  const char *zSecure;
   if( zProg && zProg[0] ){
     static char zPass[100];
     Blob cmd;
@@ -131,6 +201,12 @@ static void prompt_for_passphrase(const char *zPrompt, Blob *pPassphrase){
     pclose(in);
     blob_reset(&cmd);
     z = zPass;
+  }else if( fossil_security_level()>=2 ){
+    userGenerateScrambleCode();
+    z = getpass(zPrompt);
+    if( z ) userDescramble(z);
+    printf("\033[3A\033[J");  /* Erase previous three lines */
+    fflush(stdout);
   }else{
     z = getpass(zPrompt);
   }
@@ -182,6 +258,7 @@ int save_password_prompt(const char *passwd){
   if( (old!=0) && fossil_strcmp(unobscure(old), passwd)==0 ){
      return 0;
   }
+  if( fossil_security_level()>=1 ) return 0;
   prompt_user("remember password (Y/n)? ", &x);
   c = blob_str(&x)[0];
   blob_reset(&x);
