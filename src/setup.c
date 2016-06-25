@@ -2158,6 +2158,8 @@ void page_srchsetup(){
   @ <hr />
   onoff_attribute("Search Check-in Comments", "search-ci", "sc", 0, 0);
   @ <br />
+  onoff_attribute("Search Check-in Diffs","search-diff", "sx", 0, 0);
+  @ <br />
   onoff_attribute("Search Documents", "search-doc", "sd", 0, 0);
   @ <br />
   onoff_attribute("Search Tickets", "search-tkt", "st", 0, 0);

@@ -929,3 +929,80 @@ void vpatch_page(void){
   cgi_set_content_type("text/plain");
   diff_two_versions(zFrom, zTo, 0, 0, 0, DIFF_VERBOSE, 0);
 }
+
+/*
+** Compute a string (into pOut) that is a diff of check-in "rid" and its
+** primary parent.  The diff has no context lines and is designed to support
+** full-text search.
+*/
+void diff_for_search(int rid, Blob *pOut){
+  Manifest *pFrom, *pTo;
+  ManifestFile *pFromFile, *pToFile;
+  const u64 diffFlags = DIFF_NO_ERRMSG | DIFF_IGNORE_ALLWS | DIFF_CONTEXT_EX;
+
+  pTo = manifest_get(rid, CFTYPE_MANIFEST, 0);
+  if( pTo==0 ) return;
+  if( pTo->nParent==0 ){
+    manifest_destroy(pTo);
+    return;
+  }
+  pFrom = manifest_get_by_name(pTo->azParent[0], 0);
+  manifest_file_rewind(pFrom);
+  manifest_file_rewind(pTo);
+  pFromFile = manifest_file_next(pFrom,0);
+  pToFile = manifest_file_next(pTo,0);
+
+  while( pFromFile || pToFile ){
+    int cmp;
+    if( pFromFile==0 ){
+      cmp = +1;
+    }else if( pToFile==0 ){
+      cmp = -1;
+    }else{
+      cmp = fossil_strcmp(pFromFile->zName, pToFile->zName);
+    }
+    if( cmp<0 ){
+      blob_appendf(pOut, "DELETED %s\n", pFromFile->zName);
+      pFromFile = manifest_file_next(pFrom,0);
+    }else if( cmp>0 ){
+      blob_appendf(pOut, "ADDED   %s\n", pToFile->zName);
+      pToFile = manifest_file_next(pTo,0);
+    }else if( fossil_strcmp(pFromFile->zUuid, pToFile->zUuid)==0 ){
+      /* No changes */
+      pFromFile = manifest_file_next(pFrom,0);
+      pToFile = manifest_file_next(pTo,0);
+    }else{
+      Blob fileA, fileB;
+      blob_appendf(pOut, "CHANGED %s\n", pToFile->zName);
+      rid = uuid_to_rid(pFromFile->zUuid, 0);
+      content_get(rid, &fileA);
+      rid = uuid_to_rid(pToFile->zUuid, 0);
+      content_get(rid, &fileB);
+      text_diff(&fileA, &fileB, pOut, 0, diffFlags);
+      blob_reset(&fileA);
+      blob_reset(&fileB);
+      pFromFile = manifest_file_next(pFrom,0);
+      pToFile = manifest_file_next(pTo,0);
+    }
+  }
+  manifest_destroy(pFrom);
+  manifest_destroy(pTo);
+}
+
+/*
+** Implement the diff(RID) SQL function that returns a text diff for
+** check-in RID.
+*/
+void diff_sqlfunc(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  int rid;
+  Blob out;
+  rid = sqlite3_value_int(argv[0]);
+  blob_init(&out, 0, 0);
+  diff_for_search(rid, &out);
+  sqlite3_result_text(context, blob_str(&out), blob_size(&out), SQLITE_TRANSIENT);
+  blob_reset(&out);
+}

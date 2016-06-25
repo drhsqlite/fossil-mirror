@@ -512,6 +512,8 @@ void search_sql_setup(sqlite3 *db){
      search_body_sqlfunc, 0, 0);
   sqlite3_create_function(db, "urlencode", 1, SQLITE_UTF8, 0,
      search_urlencode_sqlfunc, 0, 0);
+  sqlite3_create_function(db, "diff", 1, SQLITE_UTF8, 0,
+     diff_sqlfunc, 0, 0);
 }
 
 /*
@@ -602,7 +604,8 @@ void search_cmd(void){
 #define SRCH_DOC    0x0002    /* Search over embedded documents */
 #define SRCH_TKT    0x0004    /* Search over tickets */
 #define SRCH_WIKI   0x0008    /* Search over wiki */
-#define SRCH_ALL    0x000f    /* Search over everything */
+#define SRCH_DIFF   0x0010    /* Search check-in diffs */
+#define SRCH_ALL    0x001f    /* Search over everything */
 #endif
 
 /*
@@ -617,9 +620,10 @@ unsigned int search_restrict(unsigned int srchFlags){
      { SRCH_DOC,    "search-doc"  },
      { SRCH_TKT,    "search-tkt"  },
      { SRCH_WIKI,   "search-wiki" },
+     { SRCH_DIFF,   "search-diff" },
   };
   int i;
-  if( g.perm.Read==0 )   srchFlags &= ~(SRCH_CKIN|SRCH_DOC);
+  if( g.perm.Read==0 )   srchFlags &= ~(SRCH_CKIN|SRCH_DOC|SRCH_DIFF);
   if( g.perm.RdTkt==0 )  srchFlags &= ~(SRCH_TKT);
   if( g.perm.RdWiki==0 ) srchFlags &= ~(SRCH_WIKI);
   for(i=0; i<ArraySize(aSetng); i++){
@@ -843,6 +847,7 @@ static void search_indexed(
        { SRCH_DOC,   'd' },
        { SRCH_TKT,   't' },
        { SRCH_WIKI,  'w' },
+       { SRCH_DIFF,  'x' },
     };
     int i;
     for(i=0; i<ArraySize(aMask); i++){
@@ -990,6 +995,7 @@ void search_screen(unsigned srchFlags, int useYparam){
     case SRCH_DOC:   zType = " Docs";       zClass = "Doc";   break;
     case SRCH_TKT:   zType = " Tickets";    zClass = "Tkt";   break;
     case SRCH_WIKI:  zType = " Wiki";       zClass = "Wiki";  break;
+    case SRCH_DIFF:  zType = " Diffs";      zClass = "Diff";  break;
   }
   if( srchFlags==0 ){
     zDisable1 = " disabled";
@@ -1014,6 +1020,7 @@ void search_screen(unsigned srchFlags, int useYparam){
        { "d",    "Docs",       SRCH_DOC  },
        { "t",    "Tickets",    SRCH_TKT  },
        { "w",    "Wiki",       SRCH_WIKI },
+       { "z",    "Diff",       SRCH_DIFF },
     };
     const char *zY = PD("y","all");
     unsigned newFlags = srchFlags;
@@ -1065,6 +1072,7 @@ void search_screen(unsigned srchFlags, int useYparam){
 **                      d -> documentation
 **                      t -> tickets
 **                      w -> wiki
+**                      x -> diff
 **                    all -> everything
 */
 void search_page(void){
@@ -1171,6 +1179,7 @@ static void append_all_ticket_fields(Blob *pAccum, Stmt *pQuery, int iTitle){
 **                      w      Wiki page
 **                      c      Check-in comment
 **                      t      Ticket text
+**                      x      Check-in diffs
 **
 **    rid               The RID of an artifact that defines the object
 **                      being searched.
@@ -1184,6 +1193,7 @@ void search_stext(
   Blob *pOut             /* OUT: Initialize to the search text */
 ){
   blob_init(pOut, 0, 0);
+  /* printf("stext(%c%d)\n", cType, rid); fflush(stdout); */
   switch( cType ){
     case 'd': {   /* Documents */
       Blob doc;
@@ -1202,6 +1212,10 @@ void search_stext(
                             pOut);
       blob_reset(&wiki);
       manifest_destroy(pWiki);
+      break;
+    }
+    case 'x': {   /* Check-in diff */
+      diff_for_search(rid, pOut);
       break;
     }
     case 'c': {   /* Check-in Comments */
@@ -1414,6 +1428,10 @@ void search_fill_index(void){
     "  SELECT 'c', objid, 0 FROM event WHERE type='ci';"
   );
   db_multi_exec(
+    "INSERT OR IGNORE INTO ftsdocs(type,rid,idxed)"
+    "  SELECT 'x', objid, 0 FROM event WHERE type='ci';"
+  );
+  db_multi_exec(
     "WITH latest_wiki(rid,name,mtime) AS ("
     "  SELECT tagxref.rid, substr(tag.tagname,6), max(tagxref.mtime)"
     "    FROM tag, tagxref"
@@ -1549,6 +1567,28 @@ static void search_update_checkin_index(void){
 }
 
 /*
+** Deal with all of the unindexed 'x' terms in FTSDOCS
+*/
+static void search_update_diff_index(void){
+  db_multi_exec(
+    "INSERT INTO ftsidx(docid,title,body)"
+    " SELECT rowid, '', body('x',rid,NULL) FROM ftsdocs"
+    "  WHERE type='x' AND NOT idxed;"
+  );
+  db_multi_exec(
+    "REPLACE INTO ftsdocs(rowid,idxed,type,rid,name,label,url,mtime)"
+    "  SELECT ftsdocs.rowid, 1, 'x', ftsdocs.rid, NULL,"
+    "    printf('Check-in [%%.16s] on %%s',blob.uuid,datetime(event.mtime)),"
+    "    printf('/info/%%.20s',blob.uuid),"
+    "    event.mtime"
+    "  FROM ftsdocs, event, blob"
+    "  WHERE ftsdocs.type='x' AND NOT ftsdocs.idxed"
+    "    AND event.objid=ftsdocs.rid"
+    "    AND blob.rid=ftsdocs.rid"
+  );
+}
+
+/*
 ** Deal with all of the unindexed 't' terms in FTSDOCS
 */
 static void search_update_ticket_index(void){
@@ -1606,6 +1646,9 @@ void search_update_index(unsigned int srchFlags){
     search_update_doc_index();
     search_update_checkin_index();
   }
+  if( srchFlags & SRCH_DIFF ){
+    search_update_diff_index();
+  }
   if( srchFlags & SRCH_TKT ){
     search_update_ticket_index();
   }
@@ -1639,10 +1682,10 @@ void search_rebuild_index(void){
 **
 **     index (on|off)     Turn the search index on or off
 **
-**     enable cdtw        Enable various kinds of search. c=Check-ins,
-**                        d=Documents, t=Tickets, w=Wiki.
+**     enable cdtwx       Enable various kinds of search. c=Check-ins,
+**                        d=Documents, t=Tickets, w=Wiki, x=Diffs.
 **
-**     disable cdtw       Disable various kinds of search
+**     disable cdtwx      Disable various kinds of search
 **
 **     stemmer (on|off)   Turn the Porter stemmer on or off for indexed
 **                        search.  (Unindexed search is never stemmed.)
@@ -1659,10 +1702,11 @@ void test_fts_cmd(void){
      { 5,  "stemmer"  },
   };
   static const struct { char *zSetting; char *zName; char *zSw; } aSetng[] = {
-     { "search-ckin",   "check-in search:",  "c" },
-     { "search-doc",    "document search:",  "d" },
-     { "search-tkt",    "ticket search:",    "t" },
-     { "search-wiki",   "wiki search:",      "w" },
+     { "search-ckin",   "check-in comment search:",  "c" },
+     { "search-diff",   "check-in diff search:",     "x" },
+     { "search-doc",    "document search:",          "d" },
+     { "search-tkt",    "ticket search:",            "t" },
+     { "search-wiki",   "wiki search:",              "w" },
   };
   char *zSubCmd = 0;
   int i, j, n;
@@ -1685,6 +1729,8 @@ void test_fts_cmd(void){
     }
     iCmd = aCmd[i].iCmd;
   }
+  login_set_capabilities("s",0);
+  g.zTop = "";
   if( iCmd==1 ){
     if( search_index_exists() ) iAction = 2;
   }
@@ -1721,17 +1767,17 @@ void test_fts_cmd(void){
 
   /* Always show the status before ending */
   for(i=0; i<ArraySize(aSetng); i++){
-    fossil_print("%-16s %s\n", aSetng[i].zName,
+    fossil_print("%-25s %s\n", aSetng[i].zName,
        db_get_boolean(aSetng[i].zSetting,0) ? "on" : "off");
   }
-  fossil_print("%-16s %s\n", "Porter stemmer:",
+  fossil_print("%-25s %s\n", "Porter stemmer:",
        db_get_boolean("search-stemmer",0) ? "on" : "off");
   if( search_index_exists() ){
-    fossil_print("%-16s enabled\n", "full-text index:");
-    fossil_print("%-16s %d\n", "documents:",
+    fossil_print("%-25s enabled\n", "full-text index:");
+    fossil_print("%-25s %d\n", "documents:",
        db_int(0, "SELECT count(*) FROM ftsdocs"));
   }else{
-    fossil_print("%-16s disabled\n", "full-text index:");
+    fossil_print("%-25s disabled\n", "full-text index:");
   }
   db_end_transaction(0);
 }

@@ -42,6 +42,7 @@
 #define DIFF_CONTEXT_EX   (((u64)0x04)<<32) /* Use context even if zero */
 #define DIFF_NOTTOOBIG    (((u64)0x08)<<32) /* Only display if not too big */
 #define DIFF_STRIP_EOLCR  (((u64)0x10)<<32) /* Strip trailing CR */
+#define DIFF_NO_ERRMSG    (((u64)0x20)<<32) /* Do not generate error messages */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -1806,6 +1807,8 @@ int diff_width(u64 diffFlags){
 ** Append the error message to pOut.
 */
 void diff_errmsg(Blob *pOut, const char *msg, int diffFlags){
+  if( pOut==0 ) return;
+  if( diffFlags & DIFF_NO_ERRMSG ) return;
   if( diffFlags & DIFF_HTML ){
     blob_appendf(pOut, "<p class=\"generalError\">%s</p>", msg);
   }else{
@@ -1860,9 +1863,7 @@ int *text_diff(
   if( c.aFrom==0 || c.aTo==0 ){
     fossil_free(c.aFrom);
     fossil_free(c.aTo);
-    if( pOut ){
-      diff_errmsg(pOut, DIFF_CANNOT_COMPUTE_BINARY, diffFlags);
-    }
+    diff_errmsg(pOut, DIFF_CANNOT_COMPUTE_BINARY, diffFlags);
     return 0;
   }
 
@@ -1872,7 +1873,7 @@ int *text_diff(
     fossil_free(c.aFrom);
     fossil_free(c.aTo);
     fossil_free(c.aEdit);
-    if( pOut ) diff_errmsg(pOut, DIFF_WHITESPACE_ONLY, diffFlags);
+    diff_errmsg(pOut, DIFF_WHITESPACE_ONLY, diffFlags);
     return 0;
   }
   if( (diffFlags & DIFF_NOTTOOBIG)!=0 ){
@@ -1884,7 +1885,7 @@ int *text_diff(
       fossil_free(c.aFrom);
       fossil_free(c.aTo);
       fossil_free(c.aEdit);
-      if( pOut ) diff_errmsg(pOut, DIFF_TOO_MANY_CHANGES, diffFlags);
+      diff_errmsg(pOut, DIFF_TOO_MANY_CHANGES, diffFlags);
       return 0;
     }
   }

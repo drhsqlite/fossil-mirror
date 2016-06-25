@@ -1,5 +1,5 @@
-C If\sthe\sFOSSIL_SECURITY_LEVEL\senvironment\svariable\sis\s2\sor\smore,\sthen\spresent\na\ssimple\ssubstitution\smatrix\swhen\sentering\spasswords,\sas\sa\sdefense\sagainst\nkey\sloggers.\s\sFor\sFOSSIL_SECURITY_LEVEL\sof\s1\sor\smore,\sdo\snot\sremember\sthe\nremote-url\spassword.
-D 2016-06-24T03:36:03.315
+C Full-text\ssearch\sfor\scheck-in\sdiffs.\s\sThis\sworks,\sbut\sit\screates\sa\shuge\nindex\s(2x\sthe\ssize\sof\sthe\sBLOB\stable)\sin\sspite\sof\sbeing\sa\scontentless\sindex.\nThe\sindex\sis\sslow\sto\sbuild\sbecause\sof\sall\sthe\sdiffs\sthat\smust\sbe\scomputed.\nBecause\sthe\sindex\sis\scontentless,\sthe\ssnippet\sgenerator\sruns\svery\sslowly\son\nqueries\s-\sa\stypical\squery\swith\sa\scouple\shundred\shits\stakes\sseveral\sminutes.
+D 2016-06-25T03:56:04.910
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -400,9 +400,9 @@ F src/db.c 7a1a55d63f51733fdb3fe2888e49b9492d63e4b3
 F src/delta.c ab405c78d6559ea61563e2500c28f135a26c8b62
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 48ba0c208d74e5a8c4b33e43ea066d236d3a4694
-F src/diff.c c53eea5dfd52d092d298178bc40c70500d3c7fc6
+F src/diff.c 73188ce5a6d4933a1b96069ea4f2114ec25292bb
 F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
-F src/diffcmd.c 3759afcedb06bb0d76844e0b724cd28b36ede262
+F src/diffcmd.c 151a9d67ec0623eb8f56826934177101f067f4c7
 F src/doc.c c8f8250a5de7674877598a60263a237bdd33e204
 F src/encode.c 56fc8f102eda32549652df47fa253fc910e737a9
 F src/event.c 0edff3caaceed4fbee6ec8c20f480a94f467f5cf
@@ -473,8 +473,8 @@ F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c 3dd19351cd1461653bd07a234d3cc4aaff8845ac
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
-F src/search.c b44df10abbab7d4f63a61057eaa3fb4e0b5c693d
-F src/setup.c 92a2f31d374333757ad829815056f6782545261a
+F src/search.c 17aec70d057644b03973b8fee0057c4af9284329
+F src/setup.c b6be51028a914e0c89adc786ebbdf7d47437cff4
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
 F src/shell.c 14ff7f660530a52b117d110ba3390b7b2eb719b6
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
@@ -751,7 +751,10 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fcfaae37dcbf82a1f49fc3972dabc93dea98f03c
-R 20e45711c6ba2f6d6235ba477185bb1d
+P e1034c4c35195ef61602d4ec05a72e8681de6a98
+R a3728c2799b7ac246b2e96da8e117586
+T *branch * diff-search
+T *sym-diff-search *
+T -sym-trunk *
 U drh
-Z 274f507d841932167cfdb9ceb3413b85
+Z 27be6866919f283111407bbd6abc0969
