@@ -1,5 +1,5 @@
-C If\sthe\sFOSSIL_SECURITY_LEVEL\senvironment\svariable\sis\s2\sor\smore,\sthen\spresent\na\ssimple\ssubstitution\smatrix\swhen\sentering\spasswords,\sas\sa\sdefense\sagainst\nkey\sloggers.\s\sFor\sFOSSIL_SECURITY_LEVEL\sof\s1\sor\smore,\sdo\snot\sremember\sthe\nremote-url\spassword.
-D 2016-06-24T03:36:03.315
+C micro-optimizing\sinvalid_utf8\sfunction,\sshould\sbe\sas\sfast\sas\spossible\snow
+D 2016-06-26T17:05:45.687
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -441,7 +441,7 @@ F src/linenoise.c 9c1a8a9a1d33f79191cb5a104067201a8cee6de1
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 32febde85f14593a503aadbb51983d37fce009c2
 F src/login.c 13788b9e70f2cfb13ea4e975a4117c68ed8115f0
-F src/lookslike.c a9d7a605cac1fcb1c98cabbd535c161fd4ed21f8
+F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
 F src/main.c 663246084eded6c69a9c4ecdf17d6f30ae43df7e
 F src/main.mk 61f9c92dd66b356e9245ee43360023bdd7cf2d80
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
@@ -751,7 +751,8 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fcfaae37dcbf82a1f49fc3972dabc93dea98f03c
-R 20e45711c6ba2f6d6235ba477185bb1d
-U drh
-Z 274f507d841932167cfdb9ceb3413b85
+P e1034c4c35195ef61602d4ec05a72e8681de6a98 8bdd0abc7a4e95728c12103e3bbec38c911157af
+R 0605d0cf4990943d519f01300e81ad93
+T +closed 8bdd0abc7a4e95728c12103e3bbec38c911157af
+U jan.nijtmans
+Z 6bc5ca2da66c77df2dee98da7dcbde9e
