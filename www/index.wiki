@@ -20,7 +20,7 @@
      <li> [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org | archives]
      </ul>
 </ul>
-<center><img src="fossil3.gif"></center>
+<img src="fossil3.gif" align="center">
 </div>
 
 <p>Fossil is a simple, high-reliability, distributed software configuration
