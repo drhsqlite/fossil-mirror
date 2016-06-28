@@ -548,7 +548,7 @@ void user_edit(void){
     @ <input type="hidden" name="info" value="">
     @ <input type="hidden" name="pw" value="*">
   }
-  @ <script type='text/javascript'>
+  @ <script>
   @ function updateCapabilityString(){
   @   /*
   @   ** This function updates the "#usetupEditCapability" span content
@@ -732,7 +732,7 @@ void user_edit(void){
   @ </table>
   @ </div></form>
   @ </div>
-  @ <script type='text/javascript'>updateCapabilityString();</script>
+  @ <script>updateCapabilityString();</script>
   @ <h2>Privileges And Capabilities:</h2>
   @ <ul>
   if( higherUser ){

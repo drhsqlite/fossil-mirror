@@ -1,5 +1,5 @@
-C micro-optimizing\sinvalid_utf8\sfunction,\sshould\sbe\sas\sfast\sas\spossible\snow
-D 2016-06-26T17:05:45.687
+C Unnecessary\stype='text/javascript\son\s&lt;script&gt;\stag.
+D 2016-06-28T09:10:23.922
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -445,7 +445,7 @@ F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
 F src/main.c 663246084eded6c69a9c4ecdf17d6f30ae43df7e
 F src/main.mk 61f9c92dd66b356e9245ee43360023bdd7cf2d80
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
-F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
+F src/makeheaders.html 06decb89c665feb897540613d7d12527eb65dfe5
 F src/makemake.tcl 7aa2028c30e67a4effdf7458b12a7d2f200b1f50
 F src/manifest.c e904566ce0f19b57b920b05a48c42cb578fbd851
 F src/markdown.c 887bb75edb1cfc94d9206aef38ad11dec2bc4266
@@ -474,7 +474,7 @@ F src/report.c 3dd19351cd1461653bd07a234d3cc4aaff8845ac
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b44df10abbab7d4f63a61057eaa3fb4e0b5c693d
-F src/setup.c 92a2f31d374333757ad829815056f6782545261a
+F src/setup.c f772c3edb8ce2377e86b92eb6e6d054779eb68b1
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
 F src/shell.c 14ff7f660530a52b117d110ba3390b7b2eb719b6
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
@@ -672,7 +672,7 @@ F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
 F www/concepts.wiki 02f6b5cafe6f2dd9d4b591e402bfcff1905b3aa9
 F www/contribute.wiki 9f7136d12f9099e615c8d5a414934e0b15613393
-F www/copyright-release.html 30e66dff9a65ca9302d5103d44f1a9c8fae2215d
+F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/custom_ticket.wiki 4083c719eee18ea9dad81d335e45e9af8e29ec4e
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
@@ -751,8 +751,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e1034c4c35195ef61602d4ec05a72e8681de6a98 8bdd0abc7a4e95728c12103e3bbec38c911157af
-R 0605d0cf4990943d519f01300e81ad93
-T +closed 8bdd0abc7a4e95728c12103e3bbec38c911157af
+P 7c08a68503a45da327ac55ca9252d9a71b43ff17
+R f4c67ffb475a17a50d6db5a687da9e61
 U jan.nijtmans
-Z 6bc5ca2da66c77df2dee98da7dcbde9e
+Z 0114ee40ea58eb6d9adb47e9252dbed6
