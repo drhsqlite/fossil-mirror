@@ -483,12 +483,27 @@ void stash_cmd(void){
   const char *zCmd;
   int nCmd;
   int stashid = 0;
+  int rc;
   undo_capture_command_line();
   db_must_be_within_tree();
   db_open_config(0, 0);
   db_begin_transaction();
   zDb = db_name("localdb");
   db_multi_exec(zStashInit /*works-like:"%w,%w"*/, zDb, zDb);
+  rc = db_exists("SELECT 1 FROM sqlite_master"
+                 " WHERE name='stashfile'"
+                 "   AND sql GLOB '* PRIMARY KEY(origname, stashid)*'");
+  if( rc!=0 ){
+    db_multi_exec(
+      "CREATE TABLE \"%w\".stashfile_tmp AS SELECT * FROM stashfile;"
+      "DROP TABLE stashfile;", zDb
+    );
+    db_multi_exec(zStashInit /*works-like:"%w,%w"*/, zDb, zDb);
+    db_multi_exec(
+      "INSERT INTO stashfile SELECT * FROM stashfile_tmp;"
+      "DROP TABLE stashfile_tmp;"
+    );
+  }
   if( g.argc<=2 ){
     zCmd = "save";
   }else{

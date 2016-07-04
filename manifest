@@ -1,5 +1,5 @@
-C Merge\sin\strunk\sand\sresolve\sconflict.
-D 2016-07-04T20:13:29.234
+C Detect\sold\sstashfile\sschema\sand\srecreate\sto\sallow\sfile\srenames\sto\sbe\sstashed\nin\sexisting\scheckout\sdatabases.
+D 2016-07-04T22:08:07.426
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -483,7 +483,7 @@ F src/skins.c 524384aafbe9e7707d3b87f42ee72fa63fe91796
 F src/sqlcmd.c 67a6b4ac894633d8346dc890a5b179a0ac3b1925
 F src/sqlite3.c 9b9171b1e6ce7a980e6b714e9c0d9112657ad552
 F src/sqlite3.h a41446e48e7bfdcb052e1773572ad7bc662c68e1
-F src/stash.c 0c4aba4b06401a8549da6f3f37d555450bff6564
+F src/stash.c 319802c9cfcf513852f35f78f530cae86e6d6702
 F src/stat.c 82a4439d096fe0fb231e27f49f2b2ff13dacf014
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
 F src/style.c 85ca473e8cd7ba551cd6e4f865f8ebbd45d3289d
@@ -751,7 +751,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ccf01b243fd9d400d5d5bda2ff52aaab8e5e4d08 5cdaeb0d822d3aebcd82124ccb17dfab4a187842
-R c27457e06291a40263029e4a8ef47e90
+P 003b6581ef4336d90aaa83de31674a39615c596c
+R ccb82285270c443b765190823f9223f0
 U andybradford
-Z f8c5cdf9961e76aee0247ed4904e7300
+Z 24dbe7867b0f3f0617a7c6aff9cd920c
