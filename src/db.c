@@ -872,6 +872,32 @@ void db_add_aux_functions(sqlite3 *db){
                           db_fromlocal_function, 0, 0);
 }
 
+/*
+** If the database file zDbFile has a name that suggests that it is
+** encrypted, then prompt for the encryption key and return it in the
+** blob *pKey.  Or, if the encryption key has previously been requested,
+** just return a copy of the previous result.
+*/
+static void db_encryption_key(
+  const char *zDbFile,   /* Name of the database file */
+  Blob *pKey             /* Put the encryption key here */
+){
+  blob_init(pKey, 0, 0);
+#if USE_SEE
+  if( sqlite3_strglob("*.efossil", zDbFile)==0 ){
+    static char *zSavedKey = 0;
+    if( zSavedKey ){
+      blob_set(pKey, zSavedKey);
+    }else{
+      char *zPrompt = mprintf("\rencryption key for '%s': ", zDbFile);
+      prompt_for_password(zPrompt, pKey, 0);
+      fossil_free(zPrompt);
+      zSavedKey = fossil_strdup(blob_str(pKey));
+    }
+  }
+#endif
+}
+
 
 /*
 ** Open a database file.  Return a pointer to the new database
@@ -880,6 +906,7 @@ void db_add_aux_functions(sqlite3 *db){
 LOCAL sqlite3 *db_open(const char *zDbName){
   int rc;
   sqlite3 *db;
+  Blob key;
 
   if( g.fSqlTrace ) fossil_trace("-- sqlite3_open: [%s]\n", zDbName);
   rc = sqlite3_open_v2(
@@ -890,6 +917,13 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   if( rc!=SQLITE_OK ){
     db_err("[%s]: %s", zDbName, sqlite3_errmsg(db));
   }
+  db_encryption_key(zDbName, &key);
+  if( blob_size(&key)>0 ){
+    char *zCmd = sqlite3_mprintf("PRAGMA key(%Q)", blob_str(&key));
+    sqlite3_exec(db, zCmd, 0, 0, 0);
+    sqlite3_free(zCmd);
+  }
+  blob_reset(&key);
   sqlite3_busy_timeout(db, 5000);
   sqlite3_wal_autocheckpoint(db, 1);  /* Set to checkpoint frequently */
   sqlite3_create_function(db, "user", 0, SQLITE_UTF8, 0, db_sql_user, 0, 0);
@@ -923,7 +957,11 @@ void db_detach(const char *zLabel){
 ** the name zLabel.
 */
 void db_attach(const char *zDbName, const char *zLabel){
-  db_multi_exec("ATTACH DATABASE %Q AS %Q", zDbName, zLabel);
+  Blob key;
+  db_encryption_key(zDbName, &key);
+  db_multi_exec("ATTACH DATABASE %Q AS %Q KEY %Q",
+                zDbName, zLabel, blob_str(&key));
+  blob_reset(&key);
 }
 
 /*
@@ -1529,14 +1567,13 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
     zUser = fossil_getenv("FOSSIL_USER");
   }
   if( zUser==0 ){
-#if defined(_WIN32)
-    zUser = fossil_getenv("USERNAME");
-#else
     zUser = fossil_getenv("USER");
-    if( zUser==0 ){
-      zUser = fossil_getenv("LOGNAME");
-    }
-#endif
+  }
+  if( zUser==0 ){
+    zUser = fossil_getenv("LOGNAME");
+  }
+  if( zUser==0 ){
+    zUser = fossil_getenv("USERNAME");
   }
   if( zUser==0 ){
     zUser = "root";
@@ -1692,7 +1729,7 @@ void db_initial_setup(
 ** COMMAND: init
 **
 ** Usage: %fossil new ?OPTIONS? FILENAME
-**    Or: %fossil init ?OPTIONS? FILENAME
+**    or: %fossil init ?OPTIONS? FILENAME
 **
 ** Create a repository for a new project in the file named FILENAME.
 ** This command is distinct from "clone".  The "clone" command makes
@@ -2582,8 +2619,8 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 ** COMMAND: settings
 ** COMMAND: unset*
 **
-** %fossil settings ?PROPERTY? ?VALUE? ?OPTIONS?
-** %fossil unset PROPERTY ?OPTIONS?
+** Usage: %fossil settings ?PROPERTY? ?VALUE? ?OPTIONS?
+**    or: %fossil unset PROPERTY ?OPTIONS?
 **
 ** The "settings" command with no arguments lists all properties and their
 ** values.  With just a property name it shows the value of that property.
@@ -2642,8 +2679,8 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **
 **    clean-glob       The VALUE is a comma or newline-separated list of GLOB
 **     (versionable)   patterns specifying files that the "clean" command will
-**                     delete without prompting even when the -force flag has
-**                     not been used.  Example:  *.a *.lib *.o
+**                     delete without prompting or allowing undo.
+**                     Example: *.a,*.lib,*.o
 **
 **    clearsign        When enabled, fossil will attempt to sign all commits
 **                     with gpg.  When disabled (the default), commits will
@@ -2774,7 +2811,7 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **                     If set, this will override the OS default list of
 **                     OpenSSL CAs. If unset, the default list will be used.
 **                     Some platforms may add additional certificates.
-**                     Check your platform behaviour is as required if the
+**                     Checking your platform behaviour is required if the
 **                     exact contents of the CA root is critical for your
 **                     application.
 **
@@ -2934,7 +2971,8 @@ char *db_timespan_name(double rSpan){
 
 /*
 ** COMMAND: test-timespan
-** %fossil test-timespan TIMESTAMP
+** 
+** Usage: %fossil test-timespan TIMESTAMP
 **
 ** Print the approximate span of time from now to TIMESTAMP.
 */
@@ -2950,7 +2988,8 @@ void test_timespan_cmd(void){
 
 /*
 ** COMMAND: test-without-rowid
-** %fossil test-without-rowid FILENAME...
+** 
+** Usage: %fossil test-without-rowid FILENAME...
 **
 ** Change the Fossil repository FILENAME to make use of the WITHOUT ROWID
 ** optimization.  FILENAME can also be the ~/.fossil file or a local

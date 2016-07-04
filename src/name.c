@@ -373,7 +373,7 @@ int name_collisions(const char *zName){
 }
 
 /*
-** COMMAND:  test-name-to-id
+** COMMAND: test-name-to-id
 **
 ** Convert a name to a full artifact ID.
 */
@@ -667,6 +667,7 @@ void whatis_rid(int rid, int verboseFlag){
 
 /*
 ** COMMAND: whatis*
+** 
 ** Usage: %fossil whatis NAME
 **
 ** Resolve the symbol NAME into its canonical 40-character SHA1-hash
@@ -692,7 +693,7 @@ void whatis_cmd(void){
   /* We should be done with options.. */
   verify_all_options();
 
-  if( g.argc<3 ) usage("whatis NAME ...");
+  if( g.argc<3 ) usage("NAME ...");
   for(i=2; i<g.argc; i++){
     zName = g.argv[i];
     if( i>2 ) fossil_print("%.79c\n",'-');
@@ -722,6 +723,7 @@ void whatis_cmd(void){
 
 /*
 ** COMMAND: test-whatis-all
+** 
 ** Usage: %fossil test-whatis-all
 **
 ** Show "whatis" information about every artifact in the repository
@@ -741,6 +743,7 @@ void test_whatis_all_cmd(void){
 
 /*
 ** COMMAND: test-ambiguous
+** 
 ** Usage: %fossil test-ambiguous [--minsize N]
 **
 ** Show a list of ambiguous SHA1-hash abbreviations of N characters or

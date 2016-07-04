@@ -28,12 +28,12 @@
 **    tkt=TICKETUUID
 **    page=WIKIPAGE
 **
-** At most one of technote=, tkt= or page= are supplied. 
+** At most one of technote=, tkt= or page= are supplied.
 ** If none is given, all attachments are listed.  If one is given,
 ** only attachments for the designated technote, ticket or wiki page
 ** are shown. TECHNOTEUUID and TICKETUUID may be just a prefix of the
-** relevant tech note or ticket, in which case all attachments of all
-** tech notes or tickets with the prefix will be listed.
+** relevant technical note or ticket, in which case all attachments
+** of all technical notes or tickets with the prefix will be listed.
 */
 void attachlist_page(void){
   const char *zPage = P("page");
@@ -111,7 +111,7 @@ void attachlist_page(void){
     if( moderation_pending(attachid) ){
       @ <span class="modpending">*** Awaiting Moderator Approval ***</span>
     }
-    @ <br><a href="%R/attachview?%s(zUrlTail)">%h(zFilename)</a>
+    @ <br /><a href="%R/attachview?%s(zUrlTail)">%h(zFilename)</a>
     @ [<a href="%R/attachdownload/%t(zFilename)?%s(zUrlTail)">download</a>]<br />
     if( zComment ) while( fossil_isspace(zComment[0]) ) zComment++;
     if( zComment && zComment[0] ){
@@ -250,6 +250,62 @@ static void attach_put(
 
 
 /*
+** Commit a new attachment into the repository
+*/
+void attach_commit(
+  const char *zName,                   /* The filename of the attachment */
+  const char *zTarget,                 /* The artifact uuid to attach to */
+  const char *aContent,                /* The content of the attachment */
+  int         szContent,               /* The length of the attachment */
+  int         needModerator,           /* Moderate the attachment? */
+  const char *zComment                 /* The comment for the attachment */
+){
+    Blob content;
+    Blob manifest;
+    Blob cksum;
+    char *zUUID;
+    char *zDate;
+    int rid;
+    int i, n;
+    int addCompress = 0;
+    Manifest *pManifest;
+
+    db_begin_transaction();
+    blob_init(&content, aContent, szContent);
+    pManifest = manifest_parse(&content, 0, 0);
+    manifest_destroy(pManifest);
+    blob_init(&content, aContent, szContent);
+    if( pManifest ){
+      blob_compress(&content, &content);
+      addCompress = 1;
+    }
+    rid = content_put_ex(&content, 0, 0, 0, needModerator);
+    zUUID = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+    blob_zero(&manifest);
+    for(i=n=0; zName[i]; i++){
+      if( zName[i]=='/' || zName[i]=='\\' ) n = i+1;
+    }
+    zName += n;
+    if( zName[0]==0 ) zName = "unknown";
+    blob_appendf(&manifest, "A %F%s %F %s\n",
+                 zName, addCompress ? ".gz" : "", zTarget, zUUID);
+    while( fossil_isspace(zComment[0]) ) zComment++;
+    n = strlen(zComment);
+    while( n>0 && fossil_isspace(zComment[n-1]) ){ n--; }
+    if( n>0 ){
+      blob_appendf(&manifest, "C %#F\n", n, zComment);
+    }
+    zDate = date_in_standard_format("now");
+    blob_appendf(&manifest, "D %s\n", zDate);
+    blob_appendf(&manifest, "U %F\n", login_name());
+    md5sum_blob(&manifest, &cksum);
+    blob_appendf(&manifest, "Z %b\n", &cksum);
+    attach_put(&manifest, rid, needModerator);
+    assert( blob_is_reset(&manifest) );
+    db_end_transaction(0);
+}
+
+/*
 ** WEBPAGE: attachadd
 ** Add a new attachment.
 **
@@ -302,9 +358,9 @@ void attachadd_page(void){
       if( zTechNote==0) fossil_redirect_home();
     }
     zTarget = zTechNote;
-    zTargetType = mprintf("Tech Note <a href=\"%R/technote/%h\">%h</a>",
+    zTargetType = mprintf("Tech Note <a href=\"%R/technote/%s\">%S</a>",
                            zTechNote, zTechNote);
-  
+
   }else{
     if( g.perm.ApndTkt==0 || g.perm.Attach==0 ){
       login_needed(g.anon.ApndTkt && g.anon.Attach);
@@ -324,55 +380,10 @@ void attachadd_page(void){
     cgi_redirect(zFrom);
   }
   if( P("ok") && szContent>0 && (goodCaptcha = captcha_is_correct()) ){
-    Blob content;
-    Blob manifest;
-    Blob cksum;
-    char *zUUID;
-    const char *zComment;
-    char *zDate;
-    int rid;
-    int i, n;
-    int addCompress = 0;
-    Manifest *pManifest;
-    int needModerator;
-
-    db_begin_transaction();
-    blob_init(&content, aContent, szContent);
-    pManifest = manifest_parse(&content, 0, 0);
-    manifest_destroy(pManifest);
-    blob_init(&content, aContent, szContent);
-    if( pManifest ){
-      blob_compress(&content, &content);
-      addCompress = 1;
-    }
-    needModerator =
-         (zTkt!=0 && ticket_need_moderation(0)) ||
-         (zPage!=0 && wiki_need_moderation(0));
-    rid = content_put_ex(&content, 0, 0, 0, needModerator);
-    zUUID = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-    blob_zero(&manifest);
-    for(i=n=0; zName[i]; i++){
-      if( zName[i]=='/' || zName[i]=='\\' ) n = i;
-    }
-    zName += n;
-    if( zName[0]==0 ) zName = "unknown";
-    blob_appendf(&manifest, "A %F%s %F %s\n",
-                 zName, addCompress ? ".gz" : "", zTarget, zUUID);
-    zComment = PD("comment", "");
-    while( fossil_isspace(zComment[0]) ) zComment++;
-    n = strlen(zComment);
-    while( n>0 && fossil_isspace(zComment[n-1]) ){ n--; }
-    if( n>0 ){
-      blob_appendf(&manifest, "C %#F\n", n, zComment);
-    }
-    zDate = date_in_standard_format("now");
-    blob_appendf(&manifest, "D %s\n", zDate);
-    blob_appendf(&manifest, "U %F\n", login_name());
-    md5sum_blob(&manifest, &cksum);
-    blob_appendf(&manifest, "Z %b\n", &cksum);
-    attach_put(&manifest, rid, needModerator);
-    assert( blob_is_reset(&manifest) );
-    db_end_transaction(0);
+    int needModerator = (zTkt!=0 && ticket_need_moderation(0)) ||
+                        (zPage!=0 && wiki_need_moderation(0));
+    const char *zComment = PD("comment", "");
+    attach_commit(zName, zTarget, aContent, szContent, needModerator, zComment);
     cgi_redirect(zFrom);
   }
   style_header("Add Attachment");
@@ -484,7 +495,7 @@ void ainfo_page(void){
   zDate = db_text(0, "SELECT datetime(%.12f)", pAttach->rDate);
 
   if( P("confirm")
-   && ((zTktUuid && g.perm.WrTkt) || 
+   && ((zTktUuid && g.perm.WrTkt) ||
        (zWikiName && g.perm.WrWiki) ||
        (zTNUuid && g.perm.Write && g.perm.WrWiki))
   ){
@@ -618,7 +629,7 @@ void ainfo_page(void){
     }
   }else if( strncmp(zMime, "image/", 6)==0 ){
     int sz = db_int(0, "SELECT size FROM blob WHERE rid=%d", ridSrc);
-    @ <i>(file is %d(sz) bytes of image data)</i><br>
+    @ <i>(file is %d(sz) bytes of image data)</i><br />
     @ <img src="%R/raw/%s(zSrc)?m=%s(zMime)"></img>
     style_submenu_element("Image", "Image", "%R/raw/%s?m=%s", zSrc, zMime);
   }else{
@@ -671,4 +682,105 @@ void attachment_list(
   }
   db_finalize(&q);
 
+}
+
+/*
+** COMMAND: attachment*
+**
+** Usage: %fossil attachment add ?PAGENAME? FILENAME ?OPTIONS?
+**
+**       Add an attachment to an existing wiki page or tech note.
+**
+**       Options:
+**         -t|--technote DATETIME      Specifies the timestamp of
+**                                     the technote to which the attachment
+**                                     is to be made. The attachment will be
+**                                     to the most recently modified tech note
+**                                     with the specified timestamp.
+**         -t|--technote TECHNOTE-ID   Specifies the technote to be
+**                                     updated by its technote id.
+**
+**       One of PAGENAME, DATETIME or TECHNOTE-ID must be specified.
+*/
+void attachment_cmd(void){
+  int n;
+  db_find_and_open_repository(0, 0);
+  if( g.argc<3 ){
+    goto attachment_cmd_usage;
+  }
+  n = strlen(g.argv[2]);
+  if( n==0 ){
+    goto attachment_cmd_usage;
+  }
+
+  if( strncmp(g.argv[2],"add",n)==0 ){
+    const char *zPageName = 0;    /* Name of the wiki page to attach to */
+    const char *zFile;            /* Name of the file to be attached */
+    const char *zETime;           /* The name of the technote to attach to */
+    Manifest *pWiki = 0;          /* Parsed wiki page content */
+    char *zBody = 0;              /* Wiki page content */
+    int rid;
+    const char *zTarget;          /* Target of the attachment */
+    Blob content;                 /* The content of the attachment */
+    zETime = find_option("technote","t",1);
+    if( !zETime ){
+      if( g.argc!=5 ){
+        usage("add PAGENAME FILENAME");
+      }
+      zPageName = g.argv[3];
+      rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
+        " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
+        " ORDER BY x.mtime DESC LIMIT 1",
+        zPageName
+      );
+      if( (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))!=0 ){
+        zBody = pWiki->zWiki;
+      }
+      if( zBody==0 ){
+        fossil_fatal("wiki page [%s] not found",zPageName);
+      }
+      zTarget = zPageName;
+      zFile = g.argv[4];
+    }else{
+      if( g.argc!=4 ){
+        usage("add FILENAME --technote DATETIME|TECHNOTE-ID");
+      }
+      rid = wiki_technote_to_rid(zETime);
+      if( rid<0 ){
+        fossil_fatal("ambiguous tech note id: %s", zETime);
+      }
+      if( (pWiki = manifest_get(rid, CFTYPE_EVENT, 0))!=0 ){
+        zBody = pWiki->zWiki;
+      }
+      if( zBody==0 ){
+        fossil_fatal("technote [%s] not found",zETime);
+      }
+      zTarget = db_text(0,
+        "SELECT substr(tagname,7) FROM tag WHERE tagid=(SELECT tagid FROM event WHERE objid='%d')",
+        rid
+      );
+      zFile = g.argv[3];
+    }
+    blob_read_from_file(&content, zFile);
+    user_select();
+    attach_commit(
+      zFile,                   /* The filename of the attachment */
+      zTarget,                 /* The artifact uuid to attach to */
+      blob_buffer(&content),   /* The content of the attachment */
+      blob_size(&content),     /* The length of the attachment */
+      0,                       /* No need to moderate the attachment */
+      ""                       /* Empty attachment comment */
+    );
+    if( !zETime ){
+      fossil_print("Attached %s to wiki page %s.\n", zFile, zPageName);
+    }else{
+      fossil_print("Attached %s to tech note %s.\n", zFile, zETime);
+    }
+  }else{
+    goto attachment_cmd_usage;
+  }
+  return;
+
+attachment_cmd_usage:
+  usage("add ?PAGENAME? FILENAME [-t|--technote DATETIME ]");
 }

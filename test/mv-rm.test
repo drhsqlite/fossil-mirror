@@ -18,23 +18,17 @@
 # MV / RM Commands
 #
 
-catch {exec $::fossilexe info} res
-if {![regexp {use --repository} $res]} {
-  puts stderr "Cannot run this test within an open checkout"
-  return
-}
+require_no_open_checkout
 
 ########################################
 # Setup: Add Files and Commit          #
 ########################################
 
-set rootDir [file normalize [pwd]]
+test_setup; set rootDir [file normalize [pwd]]
 
 set undoMsg "\n \"fossil undo\" is\
 available to undo changes to the\
 working checkout."
-
-repo_init
 
 write_file f1 "f1"
 write_file f2 "f2"
@@ -54,8 +48,9 @@ write_file [file join $rootDir subdirB f9] "f9"
 file mkdir [file join $rootDir subdirC]
 write_file [file join $rootDir subdirC f10] "f10"
 write_file [file join $rootDir subdirC f11] "f11"
+write_file f12 "f12"
 
-fossil add f1 f2 f3 f4 f5 f6 f7 f8 subdirB/f9 subdirC/f10 subdirC/f11
+fossil add f1 f2 f3 f4 f5 f6 f7 f8 subdirB/f9 subdirC/f10 subdirC/f11 f12
 fossil commit -m "c1"
 
 ########################################
@@ -389,3 +384,55 @@ test rm-hard-absolute-6 {
 }
 
 cd $rootDir
+
+#######################################
+# Test 17: Move File to New Directory #
+#######################################
+
+fossil mv --hard f12 d2/f13
+test mv-file-new-directory-1 {
+  [normalize_result] eq "RENAME f12 d2/f13\nMOVED_FILE ${rootDir}/f12"
+}
+
+test mv-file-new-directory-2 {[file size d2/f13] == 3}
+test mv-file-new-directory-3 {[read_file d2/f13] eq "f12"}
+
+fossil revert
+test mv-file-new-directory-4 {
+  [normalize_result] eq "DELETE   d2/f13\nREVERT   f12${undoMsg}"
+}
+
+test mv-file-new-directory-5 {[file size f12] == 3}
+test mv-file-new-directory-6 {[read_file f12] eq "f12"}
+
+cd $rootDir
+
+############################################
+# Test 18: Move Directory to New Directory #
+############################################
+
+fossil mv --hard subdirC subdirD
+test mv-file-new-directory-7 {
+  [normalize_result] eq "RENAME subdirC subdirD\nMOVED_FILE ${rootDir}/subdirC"
+}
+
+test mv-file-new-directory-8 {[file size subdirD/f10] == 3}
+test mv-file-new-directory-9 {[read_file subdirD/f10] eq "f10"}
+test mv-file-new-directory-10 {[file size subdirD/f11] == 3}
+test mv-file-new-directory-11 {[read_file subdirD/f11] eq "f11"}
+
+fossil revert
+test mv-file-new-directory-12 {
+  [normalize_result] eq "REVERT   subdirC/f10\nREVERT   subdirC/f11${undoMsg}"
+}
+
+test mv-file-new-directory-13 {[file size subdirC/f10] == 3}
+test mv-file-new-directory-14 {[read_file subdirC/f10] eq "f10"}
+test mv-file-new-directory-15 {[file size subdirC/f11] == 3}
+test mv-file-new-directory-16 {[read_file subdirC/f11] eq "f11"}
+
+cd $rootDir
+
+###############################################################################
+
+test_cleanup

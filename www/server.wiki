@@ -229,6 +229,7 @@ location /demo_project/ {
     include scgi_params;
     scgi_pass localhost:9000;
     scgi_param SCRIPT_NAME "/demo_project";
+    scgi_param HTTPS "on";
 }
 </pre></blockquote>
 <p>

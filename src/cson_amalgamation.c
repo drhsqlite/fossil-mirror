@@ -21,10 +21,10 @@
 #		    define JSON_PARSER_DLL_API __declspec(dllimport)
 #       endif
 #   else
-#	    define JSON_PARSER_DLL_API 
+#	    define JSON_PARSER_DLL_API
 #   endif
 #else
-#	define JSON_PARSER_DLL_API 
+#	define JSON_PARSER_DLL_API
 #endif
 
 /* Determine the integer type use to parse non-floating point numbers */
@@ -36,7 +36,7 @@ typedef __int64 JSON_int_t;
 typedef long long JSON_int_t;
 #define JSON_PARSER_INTEGER_SSCANF_TOKEN "%lld"
 #define JSON_PARSER_INTEGER_SPRINTF_TOKEN "%lld"
-#else 
+#else
 typedef long JSON_int_t;
 #define JSON_PARSER_INTEGER_SSCANF_TOKEN "%ld"
 #define JSON_PARSER_INTEGER_SPRINTF_TOKEN "%ld"
@@ -45,9 +45,9 @@ typedef long JSON_int_t;
 
 #ifdef __cplusplus
 extern "C" {
-#endif 
+#endif
 
-typedef enum 
+typedef enum
 {
     JSON_E_NONE = 0,
     JSON_E_INVALID_CHAR,
@@ -62,7 +62,7 @@ typedef enum
     JSON_E_OUT_OF_MEMORY
 } JSON_error;
 
-typedef enum 
+typedef enum
 {
     JSON_T_NONE = 0,
     JSON_T_ARRAY_BEGIN,
@@ -82,9 +82,9 @@ typedef enum
 typedef struct JSON_value_struct {
     union {
         JSON_int_t integer_value;
-        
+
         double float_value;
-        
+
         struct {
             const char* value;
             size_t length;
@@ -94,17 +94,17 @@ typedef struct JSON_value_struct {
 
 typedef struct JSON_parser_struct* JSON_parser;
 
-/*! \brief JSON parser callback 
+/*! \brief JSON parser callback
 
     \param ctx The pointer passed to new_JSON_parser.
-    \param type An element of JSON_type but not JSON_T_NONE.    
+    \param type An element of JSON_type but not JSON_T_NONE.
     \param value A representation of the parsed value. This parameter is NULL for
         JSON_T_ARRAY_BEGIN, JSON_T_ARRAY_END, JSON_T_OBJECT_BEGIN, JSON_T_OBJECT_END,
         JSON_T_NULL, JSON_T_TRUE, and JSON_T_FALSE. String values are always returned
         as zero-terminated C strings.
 
     \return Non-zero if parsing should continue, else zero.
-*/    
+*/
 typedef int (*JSON_parser_callback)(void* ctx, int type, const JSON_value* value);
 
 
@@ -117,7 +117,7 @@ typedef void* (*JSON_malloc_t)(size_t n);
 */
 typedef void (*JSON_free_t)(void* mem);
 
-/*! \brief The structure used to configure a JSON parser object 
+/*! \brief The structure used to configure a JSON parser object
 */
 typedef struct {
     /** Pointer to a callback, called when the parser has something to tell
@@ -178,13 +178,13 @@ typedef struct {
 */
 JSON_PARSER_DLL_API void init_JSON_config(JSON_config * config);
 
-/*! \brief Create a JSON parser object 
+/*! \brief Create a JSON parser object
 
     \param config. Used to configure the parser. Set to NULL to use
         the default configuration. See init_JSON_config.  Its contents are
         copied by this function, so it need not outlive the returned
         object.
-    
+
     \return The parser object, which is owned by the caller and must eventually
     be freed by calling delete_JSON_parser().
 */
@@ -202,12 +202,12 @@ JSON_PARSER_DLL_API int JSON_parser_char(JSON_parser jc, int next_char);
 /*! \brief Finalize parsing.
 
     Call this method once after all input characters have been consumed.
-    
+
     \return Non-zero, if all parsed characters are valid JSON, zero otherwise.
 */
 JSON_PARSER_DLL_API int JSON_parser_done(JSON_parser jc);
 
-/*! \brief Determine if a given string is valid JSON white space 
+/*! \brief Determine if a given string is valid JSON white space
 
     \return Non-zero if the string is valid, zero otherwise.
 */
@@ -228,8 +228,8 @@ JSON_PARSER_DLL_API int JSON_parser_reset(JSON_parser jc);
 
 #ifdef __cplusplus
 }
-#endif 
-    
+#endif
+
 
 #endif /* JSON_PARSER_H */
 /* end file parser/JSON_parser.h */
@@ -1433,7 +1433,7 @@ extern "C" {
 #endif
 
 
-    
+
 /**
    This type holds the "vtbl" for type-specific operations when
    working with cson_value objects.
@@ -1609,7 +1609,7 @@ static const cson_string cson_string_empty = cson_string_empty_m;
 
 /**
  Holds special shared "constant" (though they are non-const)
- values. 
+ values.
 */
 static struct CSON_EMPTY_HOLDER_
 {
@@ -1622,13 +1622,13 @@ static struct CSON_EMPTY_HOLDER_
 
 /**
     Indexes into the CSON_SPECIAL_VALUES array.
-    
+
     If this enum changes in any way,
     makes damned sure that CSON_SPECIAL_VALUES is updated
     to match!!!
 */
 enum CSON_INTERNAL_VALUES {
-    
+
     CSON_VAL_UNDEF = 0,
     CSON_VAL_NULL = 1,
     CSON_VAL_TRUE = 2,
@@ -1644,7 +1644,7 @@ enum CSON_INTERNAL_VALUES {
 
   These values MUST be initialized in the order specified
   by the CSON_INTERNAL_VALUES enum.
-   
+
   Note that they are not const because they are used as
   shared-allocation objects in non-const contexts. However, the
   public API provides no way to modifying them, and clients who
@@ -1667,7 +1667,7 @@ static cson_value CSON_SPECIAL_VALUES[] = {
     Returns non-0 (true) if m is one of our special
     "built-in" values, e.g. from CSON_SPECIAL_VALUES and some
     "empty" values.
-     
+
     If this returns true, m MUST NOT be free()d!
  */
 static char cson_value_is_builtin( void const * m )
@@ -2185,7 +2185,7 @@ static int cson_value_list_visit( cson_value_list * self,
                                   void * visitorState );
 #endif
 #endif
-    
+
 #if 0
 #  define LIST_T cson_value_list
 #  define VALUE_T cson_value *
@@ -2364,7 +2364,7 @@ cson_value * cson_value_new_object()
 
 cson_object * cson_new_object()
 {
-    
+
     return cson_value_get_object( cson_value_new_object() );
 }
 
@@ -2610,7 +2610,7 @@ int cson_value_fetch_integer( cson_value const * val, cson_int_t * v )
         int rc = 0;
         switch(val->api->typeID)
         {
-            case CSON_TYPE_UNDEF: 
+            case CSON_TYPE_UNDEF:
             case CSON_TYPE_NULL:
               i = 0;
               break;
@@ -2663,7 +2663,7 @@ int cson_value_fetch_double( cson_value const * val, cson_double_t * v )
         int rc = 0;
         switch(val->api->typeID)
         {
-          case CSON_TYPE_UNDEF: 
+          case CSON_TYPE_UNDEF:
           case CSON_TYPE_NULL:
               d = 0;
               break;
@@ -2793,7 +2793,7 @@ int cson_array_append( cson_array * ar, cson_value * v )
    Removes and returns the last value from the given array,
    shrinking its size by 1. Returns NULL if ar is NULL,
    ar->list.count is 0, or the element at that index is NULL.
-   
+
 
    If removeRef is true then cson_value_free() is called to remove
    ar's reference count for the value. In that case NULL is returned,
@@ -2860,7 +2860,7 @@ cson_value * cson_value_new_integer( cson_int_t v )
 #endif
         if( c )
         {
-            *CSON_INT(c) = v;
+            memcpy(CSON_INT(c), &v, sizeof(v));
         }
         return c;
     }
@@ -2879,7 +2879,7 @@ cson_value * cson_value_new_double( cson_double_t v )
         cson_value * c = cson_value_new(CSON_TYPE_DOUBLE,0);
         if( c )
         {
-            *CSON_DBL(c) = v;
+            memcpy(CSON_DBL(c), &v, sizeof(v));
         }
         return c;
     }
@@ -3070,7 +3070,7 @@ static void cson_object_sort_props( cson_object * obj )
     }
 
 }
-#endif    
+#endif
 
 int cson_object_unset( cson_object * obj, char const * key )
 {
@@ -3240,7 +3240,7 @@ cson_value * cson_object_take( cson_object * obj, char const * key )
    Returns cson_rc.AllocError if an allocation fails.
 
    Returns 0 on success. On error, parsing must be ceased immediately.
-   
+
    Ownership of val is ALWAYS TRANSFERED to this function. If this
    function fails, val will be cleaned up and destroyed. (This
    simplifies error handling in the core parser.)
@@ -3487,7 +3487,7 @@ static int cson_parse_callback( void * cx, int type, JSON_value const * value )
       }
       case JSON_T_STRING: {
           cson_value * v = cson_value_new_string( value->vu.str.value, value->vu.str.length );
-          rc = ( NULL == v ) 
+          rc = ( NULL == v )
             ? cson_rc.AllocError
             : cson_parser_push_value( p, v );
           break;
@@ -3534,7 +3534,7 @@ static int cson_json_err_to_rc( JSON_error jrc )
 
    - Copy p->root's pointer and set p->root to NULL.
    - Eventually free up p->root with cson_value_free().
-   
+
    If you do not set p->root to NULL, p->root will be freed along with
    any other items inserted into it (or under it) during the parsing
    process.
@@ -3573,7 +3573,7 @@ int cson_parse( cson_value ** tgt, cson_data_source_f src, void * state,
     cson_parse_info info = info_ ? *info_ : cson_parse_info_empty;
     cson_parser p = cson_parser_empty;
     if( ! tgt || ! src ) return cson_rc.ArgError;
-    
+
     {
         JSON_config jopt = {0};
         init_JSON_config( &jopt );
@@ -4642,7 +4642,7 @@ static cson_value * cson_value_clone_ref( cson_value * v )
     cson_value_add_reference(rc);
     return rc;
 }
-    
+
 static cson_value * cson_value_clone_array( cson_value const * orig )
 {
     unsigned int i = 0;
@@ -4682,7 +4682,7 @@ static cson_value * cson_value_clone_array( cson_value const * orig )
     }
     return destV;
 }
-    
+
 static cson_value * cson_value_clone_object( cson_value const * orig )
 {
     cson_object const * src = cson_value_get_object( orig );
@@ -4836,7 +4836,7 @@ char * cson_pod_to_string( cson_value const * orig )
               cson_string const * jstr = cson_value_get_string(orig);
               unsigned const int slen = cson_string_length_bytes( jstr );
               assert( NULL != jstr );
-              v = cson_strdup( cson_string_cstr( jstr ), slen ); 
+              v = cson_strdup( cson_string_cstr( jstr ), slen );
               break;
           }
           case CSON_TYPE_INTEGER: {
@@ -4889,7 +4889,7 @@ char * cson_pod_to_string( cson_value const * orig )
               cson_string const * jstr = cson_value_get_string(orig);
               unsigned const int slen = cson_string_length_bytes( jstr );
               assert( NULL != jstr );
-              v = cson_strdup( cson_string_cstr( jstr ), slen ); 
+              v = cson_strdup( cson_string_cstr( jstr ), slen );
               break;
           }
           case CSON_TYPE_INTEGER: {
@@ -5353,7 +5353,7 @@ cson_value * cson_sqlite3_column_names( sqlite3_stmt * st )
     assert(st);
     colCount = sqlite3_column_count(st);
     if( colCount <= 0 ) return NULL;
-    
+
     aryV = cson_value_new_array();
     if( ! aryV ) return NULL;
     ary = cson_value_get_array(aryV);
@@ -5493,7 +5493,7 @@ cson_value * cson_sqlite3_row_to_array( sqlite3_stmt * st )
     return aryV;
 }
 
-    
+
 /**
     Internal impl of cson_sqlite3_stmt_to_json() when the 'fat'
     parameter is non-0.
@@ -5638,7 +5638,7 @@ int cson_sqlite3_sql_to_json( sqlite3 * db, cson_value ** tgt, char const * sql,
         rc = cson_sqlite3_stmt_to_json( st, tgt, fat );
         sqlite3_finalize( st );
         return rc;
-    }        
+    }
 }
 
 int cson_sqlite3_bind_value( sqlite3_stmt * st, int ndx, cson_value const * v )

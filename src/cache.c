@@ -239,6 +239,7 @@ void cache_initialize(void){
 
 /*
 ** COMMAND: cache*
+**
 ** Usage: %fossil cache SUBCOMMAND
 **
 ** Manage the cache used for potentially expensive web pages such as
@@ -246,12 +247,12 @@ void cache_initialize(void){
 **
 **    clear        Remove all entries from the cache.
 **
-**    init         Create the cache file if it does not already exists.
+**    init         Create the cache file if it does not already exist.
 **
 **    list|ls      List the keys and content sizes and other stats for
-**                 all entries currently in the cache
+**                 all entries currently in the cache.
 **
-**    status       Show a summary of cache status.
+**    status       Show a summary of the cache status.
 **
 ** The cache is stored in a file that is distinct from the repository
 ** but that is held in the same directory as the repository.  The cache
@@ -357,7 +358,7 @@ void cache_page(void){
       @ <ol>
       while( sqlite3_step(pStmt)==SQLITE_ROW ){
         const unsigned char *zName = sqlite3_column_text(pStmt,0);
-        @ <li><p>%z(href("%R/cacheget?key=%T",zName))%h(zName)</a><br>
+        @ <li><p>%z(href("%R/cacheget?key=%T",zName))%h(zName)</a><br />
         @ size: %s(sqlite3_column_text(pStmt,1))
         @ hit-count: %d(sqlite3_column_int(pStmt,2))
         @ last-access: %s(sqlite3_column_text(pStmt,3))</p></li>

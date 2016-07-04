@@ -533,7 +533,7 @@ void finfo_page(void){
     if( fDebug & FINFO_DEBUG_MLINK ){
       int ii;
       char *zAncLink;
-      @ <br>fid=%d(frid) pid=%d(fpid) mid=%d(fmid)
+      @ <br />fid=%d(frid) pid=%d(fpid) mid=%d(fmid)
       if( nParent>0 ){
         @ parents=%d(aParent[0])
         for(ii=1; ii<nParent; ii++){
@@ -575,7 +575,7 @@ void mlink_page(void){
   const char *zFName = P("name");
   const char *zCI = P("ci");
   Stmt q;
-  
+
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(g.anon.Admin); return; }
   style_header("MLINK Table");
@@ -678,7 +678,7 @@ void mlink_page(void){
     );
     @ <h1>MLINK table for check-in %h(zCI)</h1>
     render_checkin_context(mid, 1);
-    @ <hr>
+    @ <hr />
     @ <div class='brlist'>
     @ <table id='mlinktable'>
     @ <thead><tr>

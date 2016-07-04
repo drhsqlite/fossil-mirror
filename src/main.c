@@ -987,7 +987,7 @@ static void command_list(const char *zPrefix, int cmdMask){
 /*
 ** COMMAND: test-list-webpage
 **
-** List all web pages
+** List all web pages.
 */
 void cmd_test_webpage_list(void){
   int i, nCmd;
@@ -1082,6 +1082,9 @@ static void get_version_blob(
   blob_append(pOut, "DYNAMIC_BUILD\n", -1);
 #else
   blob_append(pOut, "STATIC_BUILD\n", -1);
+#endif
+#if defined(USE_SEE)
+  blob_append(pOut, "USE_SEE\n", -1);
 #endif
 }
 
@@ -1226,6 +1229,48 @@ void help_cmd(void){
 }
 
 /*
+** COMMAND: test-all-help
+** 
+** Usage: %fossil test-all-help ?OPTIONS?
+**
+** Show help text for commands and pages.  Useful for proof-reading.
+** Defaults to just the CLI commands.  Specify --www to see only the
+** web pages, or --everything to see both commands and pages.
+**
+** Options:
+**    -e|--everything   Show all commands and pages.
+**    -t|--test         Include test- commands
+**    -w|--www          Show WWW pages.
+*/
+void test_all_help_cmd(void){
+  int i;
+  int mask = CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER;
+
+  if( find_option("www","w",0) ){
+    mask = CMDFLAG_WEBPAGE;
+  }
+  if( find_option("everything","e",0) ){
+    mask = CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER | CMDFLAG_WEBPAGE;
+  }
+  if( find_option("test","t",0) ){
+    mask |= CMDFLAG_TEST;
+  }
+  fossil_print("Help text for:\n");
+  if( mask & CMDFLAG_1ST_TIER ) fossil_print(" * Commands\n");
+  if( mask & CMDFLAG_2ND_TIER ) fossil_print(" * Auxiliary commands\n");
+  if( mask & CMDFLAG_TEST )     fossil_print(" * Test commands\n");
+  if( mask & CMDFLAG_WEBPAGE )  fossil_print(" * Web pages\n");
+  fossil_print("---\n");
+  for(i=0; i<count(aCommand); i++){
+    if( (aCommand[i].cmdFlags & mask)==0 ) continue;
+    fossil_print("# %s\n", aCommand[i].zName);
+    fossil_print("%s\n\n", aCmdHelp[i].zText);
+  }
+  fossil_print("---\n");
+  version_cmd();
+}
+
+/*
 ** WEBPAGE: help
 ** URL: /help?name=CMD
 **
@@ -1240,9 +1285,14 @@ void help_page(void){
   if( zCmd ){
     int rc, idx;
     char *z, *s, *d;
-    const char *zCmdOrPage = ('/'==*zCmd) ? "page" : "command";
     style_submenu_element("Command-List", "Command-List", "%s/help", g.zTop);
-    @ <h1>The "%s(zCmd)" %s(zCmdOrPage):</h1>
+    if( *zCmd=='/' ){
+      /* Some of the webpages require query parameters in order to work.
+      ** @ <h1>The "<a href='%R%s(zCmd)'>%s(zCmd)</a>" page:</h1> */
+      @ <h1>The "%s(zCmd)" page:</h1>
+    }else{
+      @ <h1>The "%s(zCmd)" command:</h1>
+    }
     rc = name_search(zCmd, aCommand, count(aCommand), 0, &idx);
     if( rc==1 ){
       @ unknown command: %s(zCmd)
@@ -1545,6 +1595,7 @@ static int repo_list_page(void){
     Stmt q;
     @ <html>
     @ <head>
+    @ <base href="%s(g.zBaseURL)/" />
     @ <title>Repository List</title>
     @ </head>
     @ <body>
@@ -1555,7 +1606,7 @@ static int repo_list_page(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       const char *zUrl = db_column_text(&q, 1);
-      @ <li><a href="%h(zUrl)" target="_blank">%h(zName)</a></li>
+      @ <li><a href="%R/%h(zUrl)" target="_blank">%h(zName)</a></li>
     }
     @ </ol>
     @ </body>
@@ -1595,6 +1646,7 @@ static void process_one_web_page(
   int allowRepoList           /* Send repo list for "/" URL */
 ){
   const char *zPathInfo;
+  const char *zDirPathInfo;
   char *zPath = NULL;
   int idx;
   int i;
@@ -1609,7 +1661,17 @@ static void process_one_web_page(
   /* If the repository has not been opened already, then find the
   ** repository based on the first element of PATH_INFO and open it.
   */
-  zPathInfo = PD("PATH_INFO","");
+  zDirPathInfo = zPathInfo = PD("PATH_INFO","");
+  /* For the PATH_INFO that will be used to help build the final
+  ** g.zBaseURL and g.zTop (only), skip over the initial directory
+  ** portion of PATH_INFO; otherwise, it may be duplicated.
+  */
+  if( g.zTop ){
+    int nTop = strlen(g.zTop);
+    if ( strncmp(zDirPathInfo, g.zTop, nTop)==0 ){
+      zDirPathInfo += nTop;
+    }
+  }
   if( !g.repositoryOpen ){
     char *zRepo, *zToFree;
     const char *zOldScript = PD("SCRIPT_NAME", "");
@@ -1647,8 +1709,10 @@ static void process_one_web_page(
         /* this should only be set from the --baseurl option, not CGI  */
         if( g.zBaseURL && g.zBaseURL[0]!=0 && g.zTop && g.zTop[0]!=0 &&
             file_isdir(g.zRepositoryName)==1 ){
-          g.zBaseURL = mprintf("%s%.*s", g.zBaseURL, i, zPathInfo);
-          g.zTop = mprintf("%s%.*s", g.zTop, i, zPathInfo);
+          if( zPathInfo==zDirPathInfo ){
+            g.zBaseURL = mprintf("%s%.*s", g.zBaseURL, i, zPathInfo);
+            g.zTop = mprintf("%s%.*s", g.zTop, i, zPathInfo);
+          }
         }
       }
       if( szFile<0 && i>0 ){
@@ -2079,12 +2143,14 @@ void cmd_cgi(void){
       blob_reset(&value);
       continue;
     }
-    if( blob_eq(&key, "setenv:") && blob_token(&line, &value)
-            && blob_token(&line, &value2) ){
+    if( blob_eq(&key, "setenv:") && blob_token(&line, &value) ){
       /* setenv: NAME VALUE
+      ** setenv: NAME
       **
-      ** Sets environment variable NAME to VALUE
+      ** Sets environment variable NAME to VALUE.  If VALUE is omitted, then
+      ** the environment variable is unset.
       */
+      blob_token(&line,&value2);
       fossil_setenv(blob_str(&value), blob_str(&value2));
       blob_reset(&value);
       blob_reset(&value2);
@@ -2397,7 +2463,7 @@ static int binaryOnPath(const char *zBinary){
 ** COMMAND: ui
 **
 ** Usage: %fossil server ?OPTIONS? ?REPOSITORY?
-**    Or: %fossil ui ?OPTIONS? ?REPOSITORY?
+**    or: %fossil ui ?OPTIONS? ?REPOSITORY?
 **
 ** Open a socket and begin listening and responding to HTTP requests on
 ** TCP port 8080, or on any other TCP port defined by the -P or
@@ -2492,7 +2558,6 @@ void cmd_webserver(void){
   if( isUiCmd ){
     zInitPage = find_option("page", 0, 1);
   }
-  if( zInitPage==0 ) zInitPage = "";
   zNotFound = find_option("notfound", 0, 1);
   allowRepoList = find_option("repolist",0,0)!=0;
   zAltBase = find_option("baseurl", 0, 1);
@@ -2522,6 +2587,13 @@ void cmd_webserver(void){
     allowRepoList = 1;
   }
   find_server_repository(2, fCreate);
+  if( zInitPage==0 ){
+    if( isUiCmd && g.localOpen ){
+      zInitPage = "timeline?c=current";
+    }else{
+      zInitPage = "";
+    }
+  }
   if( zPort ){
     int i;
     for(i=strlen(zPort)-1; i>=0 && zPort[i]!=':'; i--){}
@@ -2600,15 +2672,15 @@ void cmd_webserver(void){
   if( allowRepoList ){
     flags |= HTTP_SERVER_REPOLIST;
   }
-  if( win32_http_service(iPort, zNotFound, zFileGlob, flags) ){
-    win32_http_server(iPort, mxPort, zBrowserCmd,
-                      zStopperFile, zNotFound, zFileGlob, zIpAddr, flags);
+  if( win32_http_service(iPort, zAltBase, zNotFound, zFileGlob, flags) ){
+    win32_http_server(iPort, mxPort, zBrowserCmd, zStopperFile,
+                      zAltBase, zNotFound, zFileGlob, zIpAddr, flags);
   }
 #endif
 }
 
 /*
-** COMMAND:  test-echo
+** COMMAND: test-echo
 **
 ** Usage:  %fossil test-echo [--hex] ARGS...
 **

@@ -454,11 +454,15 @@ X509 *ssl_get_certificate(UrlData *pUrlData, int *pTrusted){
 ** Send content out over the SSL connection.
 */
 size_t ssl_send(void *NotUsed, void *pContent, size_t N){
-  size_t sent;
   size_t total = 0;
   while( N>0 ){
-    sent = BIO_write(iBio, pContent, N);
-    if( sent<=0 ) break;
+    int sent = BIO_write(iBio, pContent, N);
+    if( sent<=0 ){
+      if( BIO_should_retry(iBio) ){
+        continue;
+      }
+      break;
+    }
     total += sent;
     N -= sent;
     pContent = (void*)&((char*)pContent)[sent];
@@ -470,11 +474,15 @@ size_t ssl_send(void *NotUsed, void *pContent, size_t N){
 ** Receive content back from the SSL connection.
 */
 size_t ssl_receive(void *NotUsed, void *pContent, size_t N){
-  size_t got;
   size_t total = 0;
   while( N>0 ){
-    got = BIO_read(iBio, pContent, N);
-    if( got<=0 ) break;
+    int got = BIO_read(iBio, pContent, N);
+    if( got<=0 ){
+      if( BIO_should_retry(iBio) ){
+        continue;
+      }
+      break;
+    }
     total += got;
     N -= got;
     pContent = (void*)&((char*)pContent)[got];

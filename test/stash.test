@@ -92,13 +92,8 @@ proc stash-test {testid stashArgs expectedStashOutput args} {
   return [test_result_state stash-$testid "stash $stashArgs" $expectedStashOutput {*}$args] 
 }
 
-catch {exec $::fossilexe info} res
-if {![regexp {use --repository} $res]} {
-  puts stderr "Cannot run this test within an open checkout"
-  return
-}
-
-repo_init
+require_no_open_checkout
+test_setup
 
 # Prepare first commit
 #
@@ -231,7 +226,7 @@ stash-test WY-1 {save -m "Reported 2016-02-09"} {
 # add, and presumably stash the content of the added file before it
 # is replaced by the revert.
 #
-repo_init
+test_setup
 write_file f1 "f1"
 fossil add f1
 fossil commit -m "add f1"
@@ -254,7 +249,7 @@ stash-test 2-1 {save -m "f1b"} {
 # fossil revert, fossil stash save unmanages the new file, but 
 # leaves the copy present on disk. This is undocumented, but 
 # probably sensible.
-repo_init
+test_setup
 write_file f1 "f1"
 write_file f2 "f2"
 fossil add f1 f2
@@ -288,16 +283,17 @@ fossil status
 # Test stashing a rename of one file with at least one file
 # unchanged. This should stash (and revert) just the rename
 # operation. Instead it also stores and touches the unchanged file. 
-repo_init
+test_setup
 write_file f1 "f1"
 write_file f2 "f2"
 fossil add f1 f2
 fossil commit -m "baseline"
 
 fossil mv --hard f2 f2n
-test_result_state stash-3-2-mv "mv --hard f2 f2n" \
-  "RENAME f2 f2n\n MOVED_FILE [file normalize f2]" \
--changes {
+test_result_state stash-3-2-mv "mv --hard f2 f2n" [concat {
+  RENAME f2 f2n
+  MOVED_FILE} [file normalize f2] {
+}] -changes {
   RENAMED f2n
 } -addremove {
 } -exists {f1 f2n} -notexists {f2}
@@ -322,7 +318,7 @@ stash-test 3-2-pop {pop} {
 ########
 # fossil stash snapshot ?-m|--comment COMMENT? ?FILES...?
 
-repo_init
+test_setup
 write_file f1 "f1"
 write_file f2 "f2"
 write_file f3 "f3"
@@ -359,7 +355,7 @@ stash-test 4-2 {snapshot -m "snap 2"} {
 } -addremove {
 } -exists {f0 f2 f3} -notexists {f1}
 fossil stash diff
-test stash-4-2-diff-CODE {!$::CODE} ;# knownBug
+test stash-4-2-diff-CODE {!$::CODE} knownBug
 fossil stash show
 test stash-4-2-show-1 {[regexp {DELETE f1} $RESULT]}
 test stash-4-2-show-2 {[regexp {CHANGED f2} $RESULT]}
@@ -378,7 +374,7 @@ stash-test 4-3 {snapshot -m "snap 3"} {
 } -addremove {
 } -exists {f0 f2 f3n} -notexists {f1 f3}
 fossil stash diff
-test stash-4-3-diff-CODE {!$::CODE} ;# knownBug
+test stash-4-3-diff-CODE {!$::CODE} knownBug
 fossil stash show
 test stash-4-3-show-1 {[regexp {DELETE f1} $RESULT]}
 test stash-4-3-show-2 {[regexp {CHANGED f2} $RESULT]}
@@ -391,3 +387,7 @@ test stash-4-3-show-3 {[regexp {ADDED f0} $RESULT]}
 
 #fossil checkout --force c1
 #fossil clean
+
+###############################################################################
+
+test_cleanup

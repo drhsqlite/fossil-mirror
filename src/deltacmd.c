@@ -43,7 +43,7 @@ int blob_delta_create(Blob *pOriginal, Blob *pTarget, Blob *pDelta){
 }
 
 /*
-** COMMAND:  test-delta-create
+** COMMAND: test-delta-create
 **
 ** Usage: %fossil test-delta-create FILE1 FILE2 DELTA
 **
@@ -71,7 +71,7 @@ void delta_create_cmd(void){
 }
 
 /*
-** COMMAND:  test-delta-analyze
+** COMMAND: test-delta-analyze
 **
 ** Usage: %fossil test-delta-analyze FILE1 FILE2
 **
@@ -143,7 +143,7 @@ int blob_delta_apply(Blob *pOriginal, Blob *pDelta, Blob *pTarget){
 }
 
 /*
-** COMMAND:  test-delta-apply
+** COMMAND: test-delta-apply
 **
 ** Usage: %fossil test-delta-apply FILE1 DELTA
 **
@@ -171,7 +171,7 @@ void delta_apply_cmd(void){
 
 
 /*
-** COMMAND:  test-delta
+** COMMAND: test-delta
 **
 ** Usage: %fossil test-delta FILE1 FILE2
 **

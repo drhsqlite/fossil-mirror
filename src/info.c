@@ -1332,6 +1332,7 @@ int object_description(
       const char *zCom = db_column_text(&q, 2);
       const char *zType = db_column_text(&q, 3);
       const char *zUuid = db_column_text(&q, 4);
+      int eventTagId = db_column_int(&q, 5);
       if( cnt>0 ){
         @ Also
       }
@@ -1345,13 +1346,17 @@ int object_description(
         @ Manifest of check-in
         objType |= OBJTYPE_CHECKIN;
       }else if( zType[0]=='e' ){
-        @ Instance of technote
-        objType |= OBJTYPE_EVENT;
-        hyperlink_to_event_tagid(db_column_int(&q, 5));
+        if( eventTagId != 0) {
+          @ Instance of technote
+          objType |= OBJTYPE_EVENT;
+          hyperlink_to_event_tagid(db_column_int(&q, 5));
+        }else{
+          @ Attachment to technote
+        }
       }else{
         @ Tag referencing
       }
-      if( zType[0]!='e' ){
+      if( zType[0]!='e' || eventTagId == 0){
         hyperlink_to_uuid(zUuid);
       }
       @ - %!W(zCom) by
@@ -1385,10 +1390,28 @@ int object_description(
     }
     objType |= OBJTYPE_ATTACHMENT;
     if( strlen(zTarget)==UUID_SIZE && validate16(zTarget,UUID_SIZE) ){
-      if( g.perm.Hyperlink && g.anon.RdTkt ){
-        @ ticket [%z(href("%R/tktview?name=%!S",zTarget))%S(zTarget)</a>]
+      if ( db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'",
+            zTarget)
+      ){
+        if( g.perm.Hyperlink && g.anon.RdTkt ){
+          @ ticket [%z(href("%R/tktview?name=%!S",zTarget))%S(zTarget)</a>]
+        }else{
+          @ ticket [%S(zTarget)]
+        }
+      }else if( db_exists("SELECT 1 FROM tag WHERE tagname='event-%q'",
+            zTarget)
+      ){
+        if( g.perm.Hyperlink && g.anon.RdWiki ){
+          @ tech note [%z(href("%R/technote/%h",zTarget))%S(zTarget)</a>]
+        }else{
+          @ tech note [%S(zTarget)]
+        }
       }else{
-        @ ticket [%S(zTarget)]
+        if( g.perm.Hyperlink && g.anon.RdWiki ){
+          @ wiki page [%z(href("%R/wiki?name=%t",zTarget))%h(zTarget)</a>]
+        }else{
+          @ wiki page [%h(zTarget)]
+        }
       }
     }else{
       if( g.perm.Hyperlink && g.anon.RdWiki ){
@@ -1429,7 +1452,8 @@ int object_description(
 **
 ** Two arguments, v1 and v2, identify the files to be diffed.  Show the
 ** difference between the two artifacts.  Show diff side by side unless sbs
-** is 0.  Generate plaintext if "patch" is present.
+** is 0.  Generate plain text if "patch" is present, otherwise generate
+** "pretty" HTML.
 **
 ** Additional parameters:
 **
@@ -1817,7 +1841,7 @@ void output_text_with_line_numbers(
 **   ln              - show line numbers
 **   ln=N            - highlight line number N
 **   ln=M-N          - highlight lines M through N inclusive
-**   ln=M-N+Y-Z      - higllight lines M through N and Y through Z (inclusive)
+**   ln=M-N+Y-Z      - highlight lines M through N and Y through Z (inclusive)
 **   verbose         - show more detail in the description
 **   download        - redirect to the download (artifact page only)
 **
@@ -1955,7 +1979,7 @@ void artifact_page(void){
           @ </pre>
         }
       }else if( strncmp(zMime, "image/", 6)==0 ){
-        @ <i>(file is %d(blob_size(&content)) bytes of image data)</i><br>
+        @ <i>(file is %d(blob_size(&content)) bytes of image data)</i><br />
         @ <img src="%R/raw/%s(zUuid)?m=%s(zMime)" />
         style_submenu_element("Image", "Image",
                               "%R/raw/%s?m=%s", zUuid, zMime);
@@ -2050,7 +2074,7 @@ void tinfo_page(void){
   @ <tr><th>Ticket:</th>
   @ <td>%z(href("%R/tktview/%s",zTktName))%s(zTktName)</a>
   if( zTktTitle ){
-        @<br>%h(zTktTitle)
+        @<br />%h(zTktTitle)
   }
   @</td></tr>
   @ <tr><th>Date:</th><td>

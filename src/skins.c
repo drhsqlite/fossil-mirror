@@ -495,7 +495,7 @@ void setup_skin(void){
 
   style_header("Skins");
   if( zErr ){
-    @ <p><font color="red">%h(zErr)</font></p>
+    @ <p style="color:red">%h(zErr)</p>
   }
   @ <p>A "skin" is a combination of
   @ <a href="setup_skinedit?w=0">CSS</a>,

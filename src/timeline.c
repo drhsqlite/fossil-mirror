@@ -141,7 +141,7 @@ char *hash_color(const char *z){
 }
 
 /*
-** COMMAND:  test-hash-color
+** COMMAND: test-hash-color
 **
 ** Usage: %fossil test-hash-color TAG ...
 **
@@ -156,7 +156,7 @@ void test_hash_color(void){
 }
 
 /*
-** WEBPAGE:  hash-color-test
+** WEBPAGE: hash-color-test
 **
 ** Print out the color names associated with each tag.  Used for
 ** testing the hash_color() function.
@@ -180,7 +180,7 @@ void test_hash_color_page(void){
     }
   }
   if( cnt ){
-    @ <hr>
+    @ <hr />
   }
   @ <form method="post" action="%s(g.zTop)/hash-color-test">
   @ <p>Enter candidate branch names below and see them displayed in their
@@ -301,7 +301,7 @@ void www_print_timeline(
     }
     if( fossil_strcmp(zType,"div")==0 ){
       if( !prevWasDivider ){
-        @ <tr><td colspan="3"><hr class="timelineMarker"/></td></tr>
+        @ <tr><td colspan="3"><hr class="timelineMarker" /></td></tr>
       }
       prevWasDivider = 1;
       continue;
@@ -1187,6 +1187,32 @@ static void timeline_y_submenu(int isDisabled){
 }
 
 /*
+** If the zChng string is not NULL, then it should be a comma-separated
+** list of glob patterns for filenames.  Add an term to the WHERE clause
+** for the SQL statement under construction that excludes any check-in that
+** does not modify one or more files matching the globs.
+*/
+static void addFileGlobExclusion(
+  const char *zChng,        /* The filename GLOB list */
+  Blob *pSql                /* The SELECT statement under construction */
+){
+  if( zChng==0 || zChng[0]==0 ) return;
+  blob_append_sql(pSql," AND event.objid IN ("
+      "SELECT mlink.mid FROM mlink, filename"
+      " WHERE mlink.fnid=filename.fnid AND %s)",
+      glob_expr("filename.name", zChng));
+}
+static void addFileGlobDescription(
+  const char *zChng,        /* The filename GLOB list */
+  Blob *pDescription        /* Result description */
+){
+  if( zChng==0 || zChng[0]==0 ) return;
+  blob_appendf(pDescription, " that include changes to files matching %Q",
+               zChng);
+}
+
+
+/*
 ** WEBPAGE: timeline
 **
 ** Query parameters:
@@ -1195,39 +1221,38 @@ static void timeline_y_submenu(int isDisabled){
 **    b=TIMEORTAG    before this event
 **    c=TIMEORTAG    "circa" this event
 **    m=TIMEORTAG    mark this event
-**    n=COUNT        max number of events in output
-**    p=UUID         artifact and up to COUNT parents and ancestors
-**    d=UUID         artifact and up to COUNT descendants
-**    dp=UUID        The same as d=UUID&p=UUID
-**    t=TAGID        show only check-ins with the given tagid
-**    r=TAGID        show check-ins related to tagid
-**    u=USER         only if belonging to this user
+**    n=COUNT        suggested number of events in output
+**    p=CHECKIN      parents and ancestors of CHECKIN
+**    d=CHECKIN      descendants of CHECIN
+**    dp=CHECKIN     The same as d=CHECKIN&p=CHECKIN
+**    t=TAG          show only check-ins with the given TAG
+**    r=TAG          show check-ins related to TAG
+**    u=USER         only show items associated with USER
 **    y=TYPE         'ci', 'w', 't', 'e', or (default) 'all'
-**    s=TEXT         string search (comment and brief)
-**    ng             Suppress the graph if present
-**    nd             Suppress "divider" lines
+**    ng             No Graph.
+**    nd             Do not highlight the focus check-in
 **    v              Show details of files changed
-**    f=UUID         Show family (immediate parents and children) of UUID
-**    from=UUID      Path from...
-**    to=UUID          ... to this
+**    f=CHECKIN      Show family (immediate parents and children) of CHECKIN
+**    from=CHECKIN   Path from...
+**    to=CHECKIN       ... to this
 **    shortest         ... show only the shortest path
-**    uf=FUUID       Show only check-ins that use given file version
+**    uf=FILE_SHA1   Show only check-ins that contain the given file version
+**    chng=GLOBLIST  Show only check-ins that involve changes to a file whose
+**                     name matches one of the comma-separate GLOBLIST.
 **    brbg           Background color from branch name
 **    ubg            Background color from user
-**    namechng       Show only check-ins that filename changes
+**    namechng       Show only check-ins that have filename changes
 **    forks          Show only forks and their children
 **    ym=YYYY-MM     Show only events for the given year/month.
+**    yw=YYYY-WW     Show only events for the given week of the given year
 **    ymd=YYYY-MM-DD Show only events on the given day
 **    datefmt=N      Override the date format
-**    bisect         Show the check-ins that are in the current bisect    
+**    bisect         Show the check-ins that are in the current bisect
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
 **
 ** If both a= and b= appear then both upper and lower bounds are honored.
-**
-** If n= is missing, the default count is 50 for most queries but
-** drops to 11 for c= queries.
 */
 void page_timeline(void){
   Stmt q;                            /* Query used to generate the timeline */
@@ -1250,6 +1275,7 @@ void page_timeline(void){
   const char *zYearMonth = P("ym");  /* Show check-ins for the given YYYY-MM */
   const char *zYearWeek = P("yw");   /* Check-ins for YYYY-WW (week-of-year) */
   const char *zDay = P("ymd");       /* Check-ins for the day YYYY-MM-DD */
+  const char *zChng = P("chng");     /* List of GLOBs for files that changed */
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
   int renameOnly = P("namechng")!=0; /* Show only check-ins that rename files */
   int forkOnly = PB("forks");        /* Show only forks and their children */
@@ -1442,12 +1468,17 @@ void page_timeline(void){
     }
     blob_append(&sql, ")", -1);
     path_reset();
-    blob_append(&desc, "All nodes on the path from ", -1);
+    addFileGlobExclusion(zChng, &sql);
+    tmFlags |= TIMELINE_DISJOINT;
+    db_multi_exec("%s", blob_sql_text(&sql));
+    style_submenu_binary("v","With Files","Without Files",
+                         zType[0]!='a' && zType[0]!='c');
+    blob_appendf(&desc, "%d check-ins going from ",
+                 db_int(0, "SELECT count(*) FROM timeline"));
     blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h", zFrom), zFrom);
     blob_append(&desc, " to ", -1);
     blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h",zTo), zTo);
-    tmFlags |= TIMELINE_DISJOINT;
-    db_multi_exec("%s", blob_sql_text(&sql));
+    addFileGlobDescription(zChng, &desc);
   }else if( (p_rid || d_rid) && g.perm.Read ){
     /* If p= or d= is present, ignore all other parameters other than n= */
     char *zUuid;
@@ -1519,35 +1550,38 @@ void page_timeline(void){
     }
   }else{
     /* Otherwise, a timeline based on a span of time */
-    int n, nBefore, nAfter;
+    int n;
     const char *zEType = "timeline item";
     char *zDate;
+    Blob cond;
+    blob_zero(&cond);
+    addFileGlobExclusion(zChng, &cond);
     if( zUses ){
-      blob_append_sql(&sql, " AND event.objid IN usesfile ");
+      blob_append_sql(&cond, " AND event.objid IN usesfile ");
     }
     if( renameOnly ){
-      blob_append_sql(&sql, " AND event.objid IN rnfile ");
+      blob_append_sql(&cond, " AND event.objid IN rnfile ");
     }
     if( forkOnly ){
-      blob_append_sql(&sql, " AND event.objid IN rnfork ");
+      blob_append_sql(&cond, " AND event.objid IN rnfork ");
     }
     if( bisectOnly ){
-      blob_append_sql(&sql, " AND event.objid IN (SELECT rid FROM bilog) ");
+      blob_append_sql(&cond, " AND event.objid IN (SELECT rid FROM bilog) ");
     }
     if( zYearMonth ){
-      blob_append_sql(&sql, " AND %Q=strftime('%%Y-%%m',event.mtime) ",
+      blob_append_sql(&cond, " AND %Q=strftime('%%Y-%%m',event.mtime) ",
                    zYearMonth);
     }
     else if( zYearWeek ){
-      blob_append_sql(&sql, " AND %Q=strftime('%%Y-%%W',event.mtime) ",
+      blob_append_sql(&cond, " AND %Q=strftime('%%Y-%%W',event.mtime) ",
                    zYearWeek);
     }
     else if( zDay ){
-      blob_append_sql(&sql, " AND %Q=strftime('%%Y-%%m-%%d',event.mtime) ",
+      blob_append_sql(&cond, " AND %Q=strftime('%%Y-%%m-%%d',event.mtime) ",
                    zDay);
     }
     if( tagid ){
-      blob_append_sql(&sql,
+      blob_append_sql(&cond,
         " AND (EXISTS(SELECT 1 FROM tagxref"
             " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)\n", tagid);
 
@@ -1558,26 +1592,26 @@ void page_timeline(void){
         ** useful in helping to visualize what has happened on a quiescent
         ** branch that is infrequently merged with a much more activate branch.
         */
-        blob_append_sql(&sql,
+        blob_append_sql(&cond,
           " OR EXISTS(SELECT 1 FROM plink CROSS JOIN tagxref ON rid=cid"
                      " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)\n",
            tagid
         );
         if( (tmFlags & TIMELINE_UNHIDE)==0 ){
-          blob_append_sql(&sql,
+          blob_append_sql(&cond,
             " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"
                        " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)\n",
             TAG_HIDDEN
           );
         }
         if( P("mionly")==0 ){
-          blob_append_sql(&sql,
+          blob_append_sql(&cond,
             " OR EXISTS(SELECT 1 FROM plink CROSS JOIN tagxref ON rid=pid"
                        " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)\n",
             tagid
           );
           if( (tmFlags & TIMELINE_UNHIDE)==0 ){
-            blob_append_sql(&sql,
+            blob_append_sql(&cond,
               " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
               " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)\n",
               TAG_HIDDEN
@@ -1585,7 +1619,7 @@ void page_timeline(void){
           }
         }
       }
-      blob_append_sql(&sql, ")");
+      blob_append_sql(&cond, ")");
     }
     if( (zType[0]=='w' && !g.perm.RdWiki)
      || (zType[0]=='t' && !g.perm.RdTkt)
@@ -1598,23 +1632,23 @@ void page_timeline(void){
     if( zType[0]=='a' ){
       if( !g.perm.Read || !g.perm.RdWiki || !g.perm.RdTkt ){
         char cSep = '(';
-        blob_append_sql(&sql, " AND event.type IN ");
+        blob_append_sql(&cond, " AND event.type IN ");
         if( g.perm.Read ){
-          blob_append_sql(&sql, "%c'ci','g'", cSep);
+          blob_append_sql(&cond, "%c'ci','g'", cSep);
           cSep = ',';
         }
         if( g.perm.RdWiki ){
-          blob_append_sql(&sql, "%c'w','e'", cSep);
+          blob_append_sql(&cond, "%c'w','e'", cSep);
           cSep = ',';
         }
         if( g.perm.RdTkt ){
-          blob_append_sql(&sql, "%c't'", cSep);
+          blob_append_sql(&cond, "%c't'", cSep);
           cSep = ',';
         }
-        blob_append_sql(&sql, ")");
+        blob_append_sql(&cond, ")");
       }
     }else{ /* zType!="all" */
-      blob_append_sql(&sql, " AND event.type=%Q", zType);
+      blob_append_sql(&cond, " AND event.type=%Q", zType);
       if( zType[0]=='c' ){
         zEType = "check-in";
       }else if( zType[0]=='w' ){
@@ -1634,18 +1668,19 @@ void page_timeline(void){
         zCirca = zBefore = zAfter = 0;
         nEntry = -1;
       }
-      blob_append_sql(&sql, " AND (event.user=%Q OR event.euser=%Q)",
+      blob_append_sql(&cond, " AND (event.user=%Q OR event.euser=%Q)",
                    zUser, zUser);
       zThisUser = zUser;
     }
     if( zSearch ){
-      blob_append_sql(&sql,
+      blob_append_sql(&cond,
         " AND (event.comment LIKE '%%%q%%' OR event.brief LIKE '%%%q%%')",
         zSearch, zSearch);
     }
     rBefore = symbolic_name_to_mtime(zBefore);
     rAfter = symbolic_name_to_mtime(zAfter);
     rCirca = symbolic_name_to_mtime(zCirca);
+    blob_append_sql(&sql, "%s", blob_sql_text(&cond));
     if( rAfter>0.0 ){
       if( rBefore>0.0 ){
         blob_append_sql(&sql,
@@ -1731,9 +1766,10 @@ void page_timeline(void){
       blob_appendf(&desc, " related to \"%h\"", zBrName);
       tmFlags |= TIMELINE_DISJOINT;
     }
+    addFileGlobDescription(zChng, &desc);
     if( rAfter>0.0 ){
       if( rBefore>0.0 ){
-        blob_appendf(&desc, " occurring between %h and %h.<br>",
+        blob_appendf(&desc, " occurring between %h and %h.<br />",
                      zAfter, zBefore);
       }else{
         blob_appendf(&desc, " occurring on or after %h.<br />", zAfter);
@@ -1747,34 +1783,37 @@ void page_timeline(void){
       blob_appendf(&desc, " matching \"%h\"", zSearch);
     }
     if( g.perm.Hyperlink ){
-      if( zCirca && rCirca ){
-        nBefore = db_int(0,
-          "SELECT count(*) FROM timeline WHERE etype!='div'"
-          "   AND sortby<=%f /*scan*/", rCirca);
-        nAfter = db_int(0,
-          "SELECT count(*) FROM timeline WHERE etype!='div'"
-          "   AND sortby>=%f /*scan*/", rCirca);
-        zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
-        if( nBefore>=nEntry ){
-          timeline_submenu(&url, "Older", "b", zDate, "c");
-          zOlderButton = fossil_strdup(url_render(&url, "b", zDate, "c", 0));
-        }
-        if( nAfter>=nEntry ){
-          timeline_submenu(&url, "Newer", "a", zDate, "c");
-        }
-        free(zDate);
-      }else{
-        if( zAfter || n==nEntry ){
-          zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
+      double rDate;
+      zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
+      if( (!zDate || !zDate[0]) && ( zAfter || zBefore ) ){
+        zDate = mprintf("%s", (zAfter ? zAfter : zBefore));
+      }
+      if( zDate ){
+        rDate = symbolic_name_to_mtime(zDate);
+        if( db_int(0,
+            "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
+            " WHERE blob.rid=event.objid AND mtime<=%.17g%s)",
+            rDate-ONE_SECOND, blob_sql_text(&cond))
+        ){
           timeline_submenu(&url, "Older", "b", zDate, "a");
           zOlderButton = fossil_strdup(url_render(&url, "b", zDate, "a", 0));
-          free(zDate);
         }
-        if( zBefore || (zAfter && n==nEntry) ){
-          zDate = db_text(0, "SELECT max(timestamp) FROM timeline /*scan*/");
+        free(zDate);
+      }
+      zDate = db_text(0, "SELECT max(timestamp) FROM timeline /*scan*/");
+      if( (!zDate || !zDate[0]) && ( zAfter || zBefore ) ){
+        zDate = mprintf("%s", (zBefore ? zBefore : zAfter));
+      }
+      if( zDate ){
+        rDate = symbolic_name_to_mtime(zDate);
+        if( db_int(0,
+            "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
+            " WHERE blob.rid=event.objid AND mtime>=%.17g%s)",
+            rDate+ONE_SECOND, blob_sql_text(&cond))
+        ){
           timeline_submenu(&url, "Newer", "a", zDate, "b");
-          free(zDate);
         }
+        free(zDate);
       }
       if( zType[0]=='a' || zType[0]=='c' ){
         if( (tmFlags & TIMELINE_UNHIDE)==0 ){
@@ -1786,6 +1825,7 @@ void page_timeline(void){
       style_submenu_binary("v","With Files","Without Files",
                            zType[0]!='a' && zType[0]!='c');
     }
+    blob_zero(&cond);
   }
   if( PB("showsql") ){
     @ <pre>%h(blob_sql_text(&sql))</pre>
@@ -2009,7 +2049,7 @@ static int isIsoDate(const char *z){
 **
 ** The CHECKIN can be any unique prefix of 4 characters or more.
 ** The DATETIME should be in the ISO8601 format.  For
-** examples: "2007-08-18 07:21:21".  You can also say "current"
+** example: "2007-08-18 07:21:21".  You can also say "current"
 ** for the current version or "now" for the current time.
 **
 ** Options:

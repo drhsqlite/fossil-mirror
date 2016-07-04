@@ -433,7 +433,7 @@ void bisect_cmd(void){
         fossil_fatal("no such bisect option: %s", g.argv[3]);
       }
     }else{
-      usage("bisect option ?NAME? ?VALUE?");
+      usage("options ?NAME? ?VALUE?");
     }
   }else if( strncmp(zCmd, "reset", n)==0 ){
     db_multi_exec(

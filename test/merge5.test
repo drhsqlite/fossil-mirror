@@ -38,15 +38,7 @@ proc checkout-test {testid expected_content} {
   }    
 }
 
-catch {exec $::fossilexe info} res
-if {![regexp {use --repository} $res]} {
-  puts stderr "Cannot run this test within an open checkout"
-  return
-}
-#
-# Fossil will write data on $HOME, running 'fossil open' here.
-# We need not to clutter the $HOME of the test caller.
-set env(HOME) [pwd]
+require_no_open_checkout; test_setup ""
 
 # Construct a test repository
 #
@@ -311,3 +303,7 @@ checkout-test 142 {
   98e47f99bb9fed4fdcd407f553615ca7f15a38a2  three.txt
   e58c5da3e6007d0e30600ea31611813093ad180f  two-rename.txt
 }
+
+###############################################################################
+
+test_cleanup

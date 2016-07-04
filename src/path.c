@@ -197,7 +197,7 @@ PathNode *path_midpoint(void){
 }
 
 /*
-** COMMAND:  test-shortest-path
+** COMMAND: test-shortest-path
 **
 ** Usage: %fossil test-shortest-path ?--no-merge? VERSION1 VERSION2
 **
@@ -303,7 +303,7 @@ int path_common_ancestor(int iMe, int iYou){
 }
 
 /*
-** COMMAND:  test-ancestor-path
+** COMMAND: test-ancestor-path
 **
 ** Usage: %fossil test-ancestor-path VERSION1 VERSION2
 **
@@ -454,7 +454,6 @@ void find_filename_changes(
     for(pChng=pAll, i=0; pChng; pChng=pChng->pNext){
       if( pChng->newName==0 ) continue;
       if( pChng->origName==0 ) continue;
-      if( pChng->newName==pChng->origName ) continue;
       aChng[i] = pChng->origName;
       aChng[i+1] = pChng->newName;
       if( zDebug ){

@@ -357,7 +357,13 @@ static int html_link(
   struct Blob *content,
   void *opaque
 ){
+  char *zLink = blob_buffer(link);
   BLOB_APPEND_LITERAL(ob, "<a href=\"");
+  if( zLink && zLink[0]=='/' ){
+    /* For any hyperlink that begins with "/", make it refer to the root
+    ** of the Fossil repository */
+    blob_append(ob, g.zTop, -1);
+  }
   html_escape(ob, blob_buffer(link), blob_size(link));
   if( title && blob_size(title)>0 ){
     BLOB_APPEND_LITERAL(ob, "\" title=\"");

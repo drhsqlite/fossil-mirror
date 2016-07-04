@@ -18,7 +18,7 @@
 # File utilities
 #
 
-repo_init
+test_setup
 
 proc simplify-name {testname args} {
   set i 1
@@ -98,3 +98,7 @@ catch {file delete test1/test2}
 catch {file delete test1}
 
 if {[info exists savedPwd]} {cd $savedPwd; unset savedPwd}
+
+###############################################################################
+
+test_cleanup

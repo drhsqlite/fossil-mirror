@@ -580,7 +580,7 @@ void captcha_test(void){
 ** a captcha challenge to allow the user agent to prove that it is human
 ** and return non-zero.
 */
-int exclude_spiders(const char *zPage){
+int exclude_spiders(void){
   const char *zCookieValue;
   char *zCookieName;
   if( g.isHuman ) return 0;
@@ -602,7 +602,7 @@ int exclude_spiders(const char *zPage){
 
   /* This appears to be a spider.  Offer the captcha */
   style_header("Verification");
-  form_begin(0, "%s", zPage);
+  @ <form method='POST' action='%s(g.zPath)'>
   cgi_query_parameters_to_hidden();
   @ <p>Please demonstrate that you are human, not a spider or robot</p>
   captcha_generate(1);

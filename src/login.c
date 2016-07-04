@@ -395,6 +395,13 @@ static int isHuman(const char *zAgent){
   }
   if( strncmp(zAgent, "Mozilla/", 8)==0 ){
     if( atoi(&zAgent[8])<4 ) return 0;  /* Many bots advertise as Mozilla/3 */
+
+    /* 2016-05-30:  A pernicious spider that likes to walk Fossil timelines has
+    ** been detected on the SQLite website.  The spider changes its user-agent
+    ** string frequently, but it always seems to include the following text:
+    */
+    if( sqlite3_strglob("*Safari/537.36Mozilla/5.0*", zAgent)==0 ) return 0;
+
     if( sqlite3_strglob("*Firefox/[1-9]*", zAgent)==0 ) return 1;
     if( sqlite3_strglob("*Chrome/[1-9]*", zAgent)==0 ) return 1;
     if( sqlite3_strglob("*(compatible;?MSIE?[1789]*", zAgent)==0 ) return 1;
@@ -990,7 +997,13 @@ void login_check_credentials(void){
   if( fossil_strcmp(g.zLogin,"nobody")==0 ){
     g.zLogin = 0;
   }
-  g.isHuman = g.zLogin==0 ? isHuman(P("HTTP_USER_AGENT")) : 1;
+  if( PB("isrobot") ){
+    g.isHuman = 0;
+  }else if( g.zLogin==0 ){
+    g.isHuman = isHuman(P("HTTP_USER_AGENT"));
+  }else{
+    g.isHuman = 1;
+  }
 
   /* Set the capabilities */
   login_replace_capabilities(zCap, 0);

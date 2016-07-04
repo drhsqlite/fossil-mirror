@@ -548,18 +548,19 @@ static void locate_unmanaged_files(
 
 /*
 ** COMMAND: extras
+** 
 ** Usage: %fossil extras ?OPTIONS? ?PATH1 ...?
 **
-** Print a list of all files in the source tree that are not part of
-** the current checkout.  See also the "clean" command. If paths are
-** specified, only files in the given directories will be listed.
+** Print a list of all files in the source tree that are not part of the
+** current checkout. See also the "clean" command. If paths are specified,
+** only files in the given directories will be listed.
 **
 ** Files and subdirectories whose names begin with "." are normally
 ** ignored but can be included by adding the --dotfiles option.
 **
-** The GLOBPATTERN is a comma-separated list of GLOB expressions for
-** files that are ignored.  The GLOBPATTERN specified by the "ignore-glob"
-** is used if the --ignore option is omitted.
+** Files whose names match any of the glob patterns in the "ignore-glob"
+** setting are ignored. This setting can be overridden by the --ignore
+** option, whose CSG argument is a comma-separated list of glob patterns.
 **
 ** Pathnames are displayed according to the "relative-paths" setting,
 ** unless overridden by the --abs-paths or --rel-paths options.
@@ -633,27 +634,37 @@ void extras_cmd(void){
 
 /*
 ** COMMAND: clean
+** 
 ** Usage: %fossil clean ?OPTIONS? ?PATH ...?
 **
-** Delete all "extra" files in the source tree.  "Extra" files are
-** files that are not officially part of the checkout. This operation
-** cannot be undone. If one or more PATH arguments appear, then only
-** the files named, or files contained with directories named, will be
-** removed.
+** Delete all "extra" files in the source tree.  "Extra" files are files
+** that are not officially part of the checkout.  If one or more PATH
+** arguments appear, then only the files named, or files contained with
+** directories named, will be removed.
 **
-** Prompted are issued to confirm the removal of each file, unless
-** the --force flag is used or unless the file matches glob pattern
-** specified by the --clean option.  No file that matches glob patterns
-** specified by --ignore or --keep will ever be deleted. The default
-** values for --clean, --ignore, and --keep are determined by the
-** (versionable) clean-glob, ignore-glob, and keep-glob settings.
-** Files and subdirectories whose names begin with "." are automatically
-** ignored unless the --dotfiles option is used.
+** If the --prompt option is used, prompts are issued to confirm the
+** permanent removal of each file.  Otherwise, files are backed up to the
+** undo buffer prior to removal, and prompts are issued only for files
+** whose removal cannot be undone due to their large size or due to
+** --disable-undo being used.
+** 
+** The --force option treats all prompts as having been answered yes,
+** whereas --no-prompt treats them as having been answered no.
+** 
+** Files matching any glob pattern specified by the --clean option are
+** deleted without prompting, and the removal cannot be undone.
 **
-** The --verily option ignores the keep-glob and ignore-glob settings
-** and turns on --force, --dotfiles, and --emptydirs.  Use the --verily
-** option when you really want to clean up everything.  Extreme care
-** should be exercised when using the --verily option.
+** No file that matches glob patterns specified by --ignore or --keep will
+** ever be deleted.  Files and subdirectories whose names begin with "."
+** are automatically ignored unless the --dotfiles option is used.
+** 
+** The default values for --clean, --ignore, and --keep are determined by
+** the (versionable) clean-glob, ignore-glob, and keep-glob settings.
+**
+** The --verily option ignores the keep-glob and ignore-glob settings and
+** turns on --force, --emptydirs, --dotfiles, and --disable-undo.  Use the
+** --verily option when you really want to clean up everything.  Extreme
+** care should be exercised when using the --verily option.
 **
 ** Options:
 **    --allckouts      Check for empty directories within any checkouts
@@ -678,7 +689,8 @@ void extras_cmd(void){
 **                     therefore, directories that contain only files
 **                     that were removed will be removed as well.
 **    -f|--force       Remove files without prompting.
-**    -i|--prompt      Prompt before removing each file.
+**    -i|--prompt      Prompt before removing each file.  This option
+**                     implies the --disable-undo option.
 **    -x|--verily      WARNING: Removes everything that is not a managed
 **                     file or the repository itself.  This option
 **                     implies the --force, --emptydirs, --dotfiles, and
@@ -1804,12 +1816,8 @@ void commit_cmd(void){
   ** Autosync if autosync is enabled and this is not a private check-in.
   */
   if( !g.markPrivate ){
-    if( autosync_loop(SYNC_PULL, db_get_int("autosync-tries", 1)) ){
-      prompt_user("continue in spite of sync failure (y/N)? ", &ans);
-      cReply = blob_str(&ans)[0];
-      if( cReply!='y' && cReply!='Y' ){
-        fossil_exit(1);
-      }
+    if( autosync_loop(SYNC_PULL, db_get_int("autosync-tries", 1), 1) ){
+      fossil_exit(1);
     }
   }
 
@@ -2226,7 +2234,7 @@ void commit_cmd(void){
   db_end_transaction(0);
 
   if( !g.markPrivate ){
-    autosync_loop(SYNC_PUSH|SYNC_PULL, db_get_int("autosync-tries", 1));
+    autosync_loop(SYNC_PUSH|SYNC_PULL, db_get_int("autosync-tries", 1), 0);
   }
   if( count_nonbranch_children(vid)>1 ){
     fossil_print("**** warning: a fork has occurred *****\n");

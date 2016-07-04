@@ -20,15 +20,21 @@
 
 fossil test-th-eval "hasfeature th1Docs"
 
-if {$::RESULT ne "1"} then {
-  puts "Fossil was not compiled with TH1 docs support."; return
+if {$::RESULT ne "1"} {
+  puts "Fossil was not compiled with TH1 docs support."
+  test_cleanup_then_return
 }
 
 fossil test-th-eval "hasfeature tcl"
 
-if {$::RESULT ne "1"} then {
-  puts "Fossil was not compiled with Tcl support."; return
+if {$::RESULT ne "1"} {
+  puts "Fossil was not compiled with Tcl support."
+  test_cleanup_then_return
 }
+
+###############################################################################
+
+test_setup ""
 
 ###############################################################################
 
@@ -43,7 +49,7 @@ run_in_checkout {
 
 regexp -line -- {^repository:   (.*)$} $data dummy repository
 
-if {[string length $repository] == 0 || ![file exists $repository]} then {
+if {[string length $repository] == 0 || ![file exists $repository]} {
   error "unable to locate repository"
 }
 
@@ -59,3 +65,7 @@ run_in_checkout {
 test th1-docs-1a {[regexp {<title>Fossil: test/fileStat.th1</title>} $RESULT]}
 test th1-docs-1b {[regexp {>\[[0-9a-f]{40}\]<} $RESULT]}
 test th1-docs-1c {[regexp { contains \d+ files\.} $RESULT]}
+
+###############################################################################
+
+test_cleanup
