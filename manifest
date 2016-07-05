@@ -1,5 +1,5 @@
-C Unnecessary\stype='text/javascript\son\s&lt;script&gt;\stag.
-D 2016-06-28T09:10:23.922
+C Partially\srevert\s[f73411025e8ebec7].\sThis\sfixes\sa\sproblem\sthat\swhen\sclosing\sa\sfork\sby\sjust\sdoing\s"fossil\smerge"\sand\sadditonal\sarrow\sgoing\sup\sis\sdisplayed.\sProbably\snot\sthe\sright\sfix.
+D 2016-07-05T14:17:30.884
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -412,7 +412,7 @@ F src/finfo.c d096ae6388a68b81a8e001d0258294dd79462f22
 F src/foci.c a385eb9a5d3ab814021f998a4ba5cee0d81bfc64
 F src/fusefs.c 6369690cc543c1b3fe154776933f018f3c91518b
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
-F src/graph.c 8d766b73f318358fec439cc52ea3c02874340fb8
+F src/graph.c 52be37fbbd34737698072f9035693f0f7889e5da
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
 F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c c38d7bff255b35cc7cfe13405b67c32878f9d838
@@ -751,7 +751,10 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7c08a68503a45da327ac55ca9252d9a71b43ff17
-R f4c67ffb475a17a50d6db5a687da9e61
+P 5cdaeb0d822d3aebcd82124ccb17dfab4a187842
+R 719c93f30c5fe935218c991f872deb34
+T *branch * close-fork-arrow
+T *sym-close-fork-arrow *
+T -sym-trunk *
 U jan.nijtmans
-Z 0114ee40ea58eb6d9adb47e9252dbed6
+Z 9771ab6ef7279fc753c6d65f2774dabf
