@@ -1,5 +1,5 @@
-C (cherry-pick)\sFix\sa\stimeline\sbug,\sshowing\san\sunintended\sarrow\swhen\sclosing\sa\sfork.
-D 2016-07-05T14:30:56.444
+C (cherry-pick)\sAnother\splace\swhere\schecking\sfor\spRow->isLeaf\sis\stoo\ssimple\s(which\scould\sresult\sin\smore\sphantom\sup-arrows)
+D 2016-07-05T14:47:55.378
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -412,7 +412,7 @@ F src/finfo.c 9dcd6c54bf5fadfafe0b15cbb736ba0cf418c956
 F src/foci.c a385eb9a5d3ab814021f998a4ba5cee0d81bfc64
 F src/fusefs.c 719dc13de3dcebf8b963d65e5da46e1a5c197803
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
-F src/graph.c 119c93573ad3fd3a8f75dec1228f39d65b957f05
+F src/graph.c 1e8070d743acae021523e423418c4c13d81b5a0f
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
 F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c c38d7bff255b35cc7cfe13405b67c32878f9d838
@@ -751,11 +751,8 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3aa86af6aaad5d14a92db90dc238477c1e8ede8c
-Q +f16e1a0eab404fcb835983c6d2049e7450dd2fbc
-R 948a7c3a102d58439a3cec4083c30ef6
-T *branch * branch-1.35
-T *sym-branch-1.35 *
-T -sym-trunk *
+P 4cae5c94ea2241b34375921fe384d5400ed1a229
+Q +8ce629f916c615f8f041aa3e219f727cff11b29c
+R a984c9d6fb5ae64dd8bbeb57449150ea
 U jan.nijtmans
-Z fb39b1d690b6af071c281696f2d0e472
+Z 662a726df98d39c5e724c185e1efc5a3
