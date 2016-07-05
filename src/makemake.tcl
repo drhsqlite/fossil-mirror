@@ -54,6 +54,7 @@ set src {
   file
   finfo
   foci
+  fshell
   fusefs
   glob
   graph
