@@ -476,7 +476,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
 
     if( pRow->iRail>=0 ){
       if( pRow->pChild==0 && !pRow->timeWarp ){
-        if( omitDescenders || pRow->isLeaf ){
+        if( omitDescenders || count_nonbranch_children(pRow->rid)==0 ){
           /* no-op */
         }else{
           riser_to_top(pRow);
