@@ -1,5 +1,5 @@
-C Add\sthe\s"fossil\sshell"\scommand.
-D 2016-07-05T14:40:40.107
+C Another\splace\swhere\schecking\sfor\spRow->isLeaf\sis\stoo\ssimple\s(which\scould\sresult\sin\smore\sphantom\sup-arrows)
+D 2016-07-05T14:47:22.569
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -413,7 +413,7 @@ F src/foci.c a385eb9a5d3ab814021f998a4ba5cee0d81bfc64
 F src/fshell.c 0f86b6204436fdb22378c913c7ffdceace467103
 F src/fusefs.c 6369690cc543c1b3fe154776933f018f3c91518b
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
-F src/graph.c 119c93573ad3fd3a8f75dec1228f39d65b957f05
+F src/graph.c 1e8070d743acae021523e423418c4c13d81b5a0f
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
 F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c c38d7bff255b35cc7cfe13405b67c32878f9d838
@@ -752,7 +752,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f16e1a0eab404fcb835983c6d2049e7450dd2fbc
-R c76e4c30a52044fc3b38700f5a9a2fab
-U drh
-Z 4c7950a24066ce563b292edea1ec3b42
+P ebcb9dffbf6d766960541d89a4d764694f008e58
+R 77becc41efd3f2e26768fbd7e041a2c7
+U jan.nijtmans
+Z 46225226747afcea1dfc8bc6ecd59b23
