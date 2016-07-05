@@ -12,7 +12,9 @@ Assuming you have an SEE license, the first step of compiling Fossil to
 use SEE is to create an SEE-enabled version of the SQLite database source code.
 This alternative SQLite database source file should be called "sqlite3-see.c"
 and should be placed in the src/ subfolder of the Fossil sources, right beside
-the public-domain "sqlite3.c" source file.
+the public-domain "sqlite3.c" source file.  Also make a copy of the SEE-enabled
+"shell.c" file, renamed as "shell-see.c", and place it in the src/ subfolder
+beside the original "shell.c".
 <p>
 Add the --with-see command-line option to the configuration script to enable
 the use of SEE on unix-like systems.
@@ -30,8 +32,12 @@ Any Fossil repositories whose filename ends with ".efossil" is taken to be
 an encrypted repository.  Fossil will prompt for the encryption password and
 attempt to open the repository database using that password.
 <p>
-Every use of an encrypted repository requires retyping the encryption password.
+Every invocation of fossil on an encrypted repository requires retyping the
+encryption password.
+To avoid excess password typing, consider using the "fossil shell"
+command which prompts for the password just once, then reuses it for each
+subsequent Fossil command entered at the prompt.
 <p>
-On Windows, the "fossil server" and "fossil ui" commands do not
+On Windows, the "fossil server", "fossil ui", and "fossil shell" commands do not
 (currently) work on an encrypted repository.
 </blockquote>

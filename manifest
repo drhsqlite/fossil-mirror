@@ -1,5 +1,5 @@
-C Another\splace\swhere\schecking\sfor\spRow->isLeaf\sis\stoo\ssimple\s(which\scould\sresult\sin\smore\sphantom\sup-arrows)
-D 2016-07-05T14:47:22.569
+C Updates\sto\sthe\sencrypted\sFossil\sdocumentation.
+D 2016-07-05T14:54:59.899
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -697,7 +697,7 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/encryptedrepos.wiki d666d205ed5726ad0046eb0ec708726f73225bd7
+F www/encryptedrepos.wiki e329b491f2b0dbf80f3e45c038de7924587aae01
 F www/env-opts.md 0daf6800fb53ce88976f76a7607ed6a427c45653
 F www/event.wiki 395b955e611769fd9aedf3ab489530b89ad5f224
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
@@ -723,10 +723,10 @@ F www/index.wiki 3fc360452fd46c506e0f0abebee1c666b03e7857
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki 30c7129ffb00c58699b87e84a2c0b696d7c10406
 F www/mkdownload.tcl 5ac61a3e13cecaa67f1e31741113c96cbd41463f
-F www/mkindex.tcl 23e4d98c3b4c8e67f233547e21b9effe961943b5
+F www/mkindex.tcl 7b1ae384f0a6c5966f2a9b674e12e4655b9d81e3
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
-F www/permutedindex.html 24480ebfa9589c59a27671385f72e9888d644c92
+F www/permutedindex.html c6c6b338f2fb98f6c89549136bfb85d5a7b30eed
 F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
 F www/private.wiki 72344489bbae6f7955369559b6ab22e01a64259b
 F www/qandc.wiki e07b21da221b05afeb1905f17af3765045952ba8
@@ -752,7 +752,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ebcb9dffbf6d766960541d89a4d764694f008e58
-R 77becc41efd3f2e26768fbd7e041a2c7
-U jan.nijtmans
-Z 46225226747afcea1dfc8bc6ecd59b23
+P 8ce629f916c615f8f041aa3e219f727cff11b29c
+R 703cf9e216c662ab0f7d58bcc57ee13e
+U drh
+Z 012a12cb1d24cf8552db7a02d6fec76d
