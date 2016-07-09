@@ -41,3 +41,29 @@ subsequent Fossil command entered at the prompt.
 On Windows, the "fossil server", "fossil ui", and "fossil shell" commands do not
 (currently) work on an encrypted repository.
 </blockquote>
+<h2>Additional Security</h2><blockquote>
+Use the FOSSIL_SECURITY_LEVEL environment for additional protection.
+<blockquote><pre>
+export FOSSIL_SECURITY_LEVEL=1
+</pre></blockquote>
+A setting of 1 or greater
+prevents fossil from trying to remember the previous sync password. Setting
+<blockquote><pre>
+export FOSSIL_SECURITY_LEVEL=2
+</pre></blockquote>
+A setting of 2 or greater
+causes all password prompts to be preceeded by a random translation matrix similar
+to the following:
+<blockquote><pre>
+abcde fghij klmno pqrst uvwyz
+qresw gjymu dpcoa fhkzv inlbt
+</pre></blockquote>
+When entering the password, the user must substitute the letter on the second
+line that corresponds to the letter on the first line.  Uppercase substitutes
+for uppercase inputs, and lowercase substitutes for lowercase inputs.  Letters
+that are not in the translation matrix (digits, punctuation, and "x") are not
+modified.  For example, given the
+translation matrix above, if the password is "pilot-9crazy-xube", then the user
+must type "fmpav-9ekqtb-xirw".  This simple substitution cypher helps prevent
+password capture by keyloggers.
+</blockquote>
