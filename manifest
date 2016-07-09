@@ -1,5 +1,5 @@
-C Updates\sto\sthe\sencrypted\sFossil\sdocumentation.
-D 2016-07-05T14:54:59.899
+C Fix\sspelling\sof\s"occurrence"
+D 2016-07-09T02:12:35.943
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -468,7 +468,7 @@ F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 2de9ca8ea140e35da05eafeb6a447a2fd4069438
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
-F src/purge.c fd863a2daeef16a585b67f7b01a3f34f463c6d68
+F src/purge.c 243a09ad25c3c63a8a1206d6abad37bc96f50745
 F src/rebuild.c 382e418f6883e371e057dcbfe97054d60e294bf7
 F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c 3dd19351cd1461653bd07a234d3cc4aaff8845ac
@@ -752,7 +752,6 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8ce629f916c615f8f041aa3e219f727cff11b29c
-R 703cf9e216c662ab0f7d58bcc57ee13e
-U drh
-Z 012a12cb1d24cf8552db7a02d6fec76d
+P 7fd600903f599770df2bfe7273ff9b5b872c6c9d
+U andygoth
+Z 2f6e36e7c78d246ce8d2517c29926e6b

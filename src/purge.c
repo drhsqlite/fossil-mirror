@@ -443,7 +443,7 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
 **      does not conflict with any other subcommand.
 **
 **      If TAGS includes a branch name then it means all the check-ins
-**      on the most recent occurrance of that branch.
+**      on the most recent occurrence of that branch.
 **
 **           --explain         Make no changes, but show what would happen.
 **           --dry-run         Make no changes.
