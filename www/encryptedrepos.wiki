@@ -47,7 +47,7 @@ Use the FOSSIL_SECURITY_LEVEL environment for additional protection.
 export FOSSIL_SECURITY_LEVEL=1
 </pre></blockquote>
 A setting of 1 or greater
-prevents fossil from trying to remember the previous sync password. Setting
+prevents fossil from trying to remember the previous sync password.
 <blockquote><pre>
 export FOSSIL_SECURITY_LEVEL=2
 </pre></blockquote>

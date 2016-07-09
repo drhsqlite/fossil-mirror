@@ -1,5 +1,5 @@
-C Documentation\son\sFOSSIL_SECURITY_LEVEL.
-D 2016-07-09T16:38:10.008
+C Fix\sa\stypo\sin\sthe\sFOSSIL_SECURITY_LEVEL\sdocumentation\sof\sthe\sprevious\scheck-in.
+D 2016-07-09T16:43:52.324
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -697,7 +697,7 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/encryptedrepos.wiki ae62ba04fcd3a815c4cd451839553521c53d259f
+F www/encryptedrepos.wiki fef4315cc63e7b350678de7cc7d55a7f3a9de29a
 F www/env-opts.md 0daf6800fb53ce88976f76a7607ed6a427c45653
 F www/event.wiki 395b955e611769fd9aedf3ab489530b89ad5f224
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
@@ -752,7 +752,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d064213b905d50e872066e45359e0909e253a5c1
-R 6313eab4c813c766c12bbfa439aad47b
+P 2b964533da914f5e394d4c3c1903ea011390798a
+R 7223f7012232dbb36f8af033c7737707
 U drh
-Z e9a3758b14d8da9b17ea4134f17452ee
+Z dec1c35a19d126f98f3573ec80d734e6
