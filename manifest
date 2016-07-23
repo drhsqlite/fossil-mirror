@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.14\salpha.\s\sUse\ssqlite3_trace_v2()\sinstead\nof\ssqlite3_trace(),\swhich\sis\snot\sdeprecated.
-D 2016-07-23T20:35:35.195
+C Fix\sharmless\scompiler\swarnings.
+D 2016-07-23T22:02:52.736
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -396,7 +396,7 @@ F src/content.c 80a10dc10ce85269b02061a5d7cfe2b0936f8400
 F src/cson_amalgamation.c e220a3a91402d60424fa0843598cdfdaa319f193
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 054a9ccdf042e9688905a2345a0d5fb868023af7
+F src/db.c 67e730602e17ab45d0fbe635a6dd637018802e8a
 F src/delta.c ab405c78d6559ea61563e2500c28f135a26c8b62
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 48ba0c208d74e5a8c4b33e43ea066d236d3a4694
@@ -410,7 +410,7 @@ F src/export.c ab705fb1bdb609c49cab3aa686fd74b5cd8e83d4
 F src/file.c 8e85e61f94faf64efd92db024e19d83cf30ac0a1
 F src/finfo.c d096ae6388a68b81a8e001d0258294dd79462f22
 F src/foci.c a385eb9a5d3ab814021f998a4ba5cee0d81bfc64
-F src/fshell.c 0f86b6204436fdb22378c913c7ffdceace467103
+F src/fshell.c 7aa31a558bbb57b339e4341b44923a8db1cd3670
 F src/fusefs.c 6369690cc543c1b3fe154776933f018f3c91518b
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 1e8070d743acae021523e423418c4c13d81b5a0f
@@ -752,7 +752,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2dec4bdfcbe1796f9d53974c29891faaea282f1c
-R 759dfb383ea0925621b824fba6042737
+P b9573e55c2933b5bc328e49fe539916700d82f92
+R 19e8af8ff3d9946e8356b18ecc0953ec
 U drh
-Z 6bf840c3bad0a4794e9aa73bd1c82eab
+Z cd272f867ad4c514f0d3490c28b99995
