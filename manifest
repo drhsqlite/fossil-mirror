@@ -1,5 +1,5 @@
-C Fix\sa\stypo\sin\sthe\sFOSSIL_SECURITY_LEVEL\sdocumentation\sof\sthe\sprevious\scheck-in.
-D 2016-07-09T16:43:52.324
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.14\salpha.\s\sUse\ssqlite3_trace_v2()\sinstead\nof\ssqlite3_trace(),\swhich\sis\snot\sdeprecated.
+D 2016-07-23T20:35:35.195
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -396,7 +396,7 @@ F src/content.c 80a10dc10ce85269b02061a5d7cfe2b0936f8400
 F src/cson_amalgamation.c e220a3a91402d60424fa0843598cdfdaa319f193
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 7a1a55d63f51733fdb3fe2888e49b9492d63e4b3
+F src/db.c 054a9ccdf042e9688905a2345a0d5fb868023af7
 F src/delta.c ab405c78d6559ea61563e2500c28f135a26c8b62
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 48ba0c208d74e5a8c4b33e43ea066d236d3a4694
@@ -477,13 +477,13 @@ F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b44df10abbab7d4f63a61057eaa3fb4e0b5c693d
 F src/setup.c f772c3edb8ce2377e86b92eb6e6d054779eb68b1
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
-F src/shell.c 14ff7f660530a52b117d110ba3390b7b2eb719b6
+F src/shell.c ad6375a1cbfb13786bfc7ae28e00d822aedefd35
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 6fbec2fbaf3bb39566f2550b12f58127c9bfa850
 F src/skins.c 524384aafbe9e7707d3b87f42ee72fa63fe91796
 F src/sqlcmd.c 67a6b4ac894633d8346dc890a5b179a0ac3b1925
-F src/sqlite3.c 9b9171b1e6ce7a980e6b714e9c0d9112657ad552
-F src/sqlite3.h a41446e48e7bfdcb052e1773572ad7bc662c68e1
+F src/sqlite3.c 3fd55a81839c11a2b798892edff684a6ad634d24
+F src/sqlite3.h 947f34642eb6a24ec8e5acbb3b0385ece582d720
 F src/stash.c ccb0d94252422f28178119825a99c6bce45924d6
 F src/stat.c 82a4439d096fe0fb231e27f49f2b2ff13dacf014
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
@@ -752,7 +752,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2b964533da914f5e394d4c3c1903ea011390798a
-R 7223f7012232dbb36f8af033c7737707
+P 2dec4bdfcbe1796f9d53974c29891faaea282f1c
+R 759dfb383ea0925621b824fba6042737
 U drh
-Z dec1c35a19d126f98f3573ec80d734e6
+Z 6bf840c3bad0a4794e9aa73bd1c82eab

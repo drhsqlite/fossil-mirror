@@ -30,8 +30,8 @@
 ** the version number) and changes its name to "sqlite3.h" as
 ** part of the build process.
 */
-#ifndef _SQLITE3_H_
-#define _SQLITE3_H_
+#ifndef SQLITE3_H
+#define SQLITE3_H
 #include <stdarg.h>     /* Needed for the definition of va_list */
 
 /*
@@ -111,9 +111,9 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.13.0"
-#define SQLITE_VERSION_NUMBER 3013000
-#define SQLITE_SOURCE_ID      "2016-05-18 10:57:30 fc49f556e48970561d7ab6a2f24fdd7d9eb81ff2"
+#define SQLITE_VERSION        "3.14.0"
+#define SQLITE_VERSION_NUMBER 3014000
+#define SQLITE_SOURCE_ID      "2016-07-23 20:27:41 c8e0539b970585cbb3619461a53abb0c3b308a17"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -506,6 +506,7 @@ SQLITE_API int SQLITE_STDCALL sqlite3_exec(
 #define SQLITE_NOTICE_RECOVER_ROLLBACK (SQLITE_NOTICE | (2<<8))
 #define SQLITE_WARNING_AUTOINDEX       (SQLITE_WARNING | (1<<8))
 #define SQLITE_AUTH_USER               (SQLITE_AUTH | (1<<8))
+#define SQLITE_OK_LOAD_PERMANENTLY     (SQLITE_OK | (1<<8))
 
 /*
 ** CAPI3REF: Flags For File Open Operations
@@ -2754,6 +2755,9 @@ SQLITE_API int SQLITE_STDCALL sqlite3_set_authorizer(
 ** CAPI3REF: Tracing And Profiling Functions
 ** METHOD: sqlite3
 **
+** These routines are deprecated. Use the [sqlite3_trace_v2()] interface
+** instead of the routines described here.
+**
 ** These routines register callback functions that can be used for
 ** tracing and profiling the execution of SQL statements.
 **
@@ -2779,9 +2783,100 @@ SQLITE_API int SQLITE_STDCALL sqlite3_set_authorizer(
 ** sqlite3_profile() function is considered experimental and is
 ** subject to change in future versions of SQLite.
 */
-SQLITE_API void *SQLITE_STDCALL sqlite3_trace(sqlite3*, void(*xTrace)(void*,const char*), void*);
-SQLITE_API SQLITE_EXPERIMENTAL void *SQLITE_STDCALL sqlite3_profile(sqlite3*,
+SQLITE_API SQLITE_DEPRECATED void *SQLITE_STDCALL sqlite3_trace(sqlite3*,
+   void(*xTrace)(void*,const char*), void*);
+SQLITE_API SQLITE_DEPRECATED void *SQLITE_STDCALL sqlite3_profile(sqlite3*,
    void(*xProfile)(void*,const char*,sqlite3_uint64), void*);
+
+/*
+** CAPI3REF: SQL Trace Event Codes
+** KEYWORDS: SQLITE_TRACE
+**
+** These constants identify classes of events that can be monitored
+** using the [sqlite3_trace_v2()] tracing logic.  The third argument
+** to [sqlite3_trace_v2()] is an OR-ed combination of one or more of
+** the following constants.  ^The first argument to the trace callback
+** is one of the following constants.
+**
+** New tracing constants may be added in future releases.
+**
+** ^A trace callback has four arguments: xCallback(T,C,P,X).
+** ^The T argument is one of the integer type codes above.
+** ^The C argument is a copy of the context pointer passed in as the
+** fourth argument to [sqlite3_trace_v2()].
+** The P and X arguments are pointers whose meanings depend on T.
+**
+** <dl>
+** [[SQLITE_TRACE_STMT]] <dt>SQLITE_TRACE_STMT</dt>
+** <dd>^An SQLITE_TRACE_STMT callback is invoked when a prepared statement
+** first begins running and possibly at other times during the
+** execution of the prepared statement, such as at the start of each
+** trigger subprogram. ^The P argument is a pointer to the
+** [prepared statement]. ^The X argument is a pointer to a string which
+** is the expanded SQL text of the prepared statement or a comment that
+** indicates the invocation of a trigger.
+**
+** [[SQLITE_TRACE_PROFILE]] <dt>SQLITE_TRACE_PROFILE</dt>
+** <dd>^An SQLITE_TRACE_PROFILE callback provides approximately the same
+** information as is provided by the [sqlite3_profile()] callback.
+** ^The P argument is a pointer to the [prepared statement] and the
+** X argument points to a 64-bit integer which is the estimated of
+** the number of nanosecond that the prepared statement took to run.
+** ^The SQLITE_TRACE_PROFILE callback is invoked when the statement finishes.
+**
+** [[SQLITE_TRACE_ROW]] <dt>SQLITE_TRACE_ROW</dt>
+** <dd>^An SQLITE_TRACE_ROW callback is invoked whenever a prepared
+** statement generates a single row of result.  
+** ^The P argument is a pointer to the [prepared statement] and the
+** X argument is unused.
+**
+** [[SQLITE_TRACE_CLOSE]] <dt>SQLITE_TRACE_CLOSE</dt>
+** <dd>^An SQLITE_TRACE_CLOSE callback is invoked when a database
+** connection closes.
+** ^The P argument is a pointer to the [database connection] object
+** and the X argument is unused.
+** </dl>
+*/
+#define SQLITE_TRACE_STMT       0x01
+#define SQLITE_TRACE_PROFILE    0x02
+#define SQLITE_TRACE_ROW        0x04
+#define SQLITE_TRACE_CLOSE      0x08
+
+/*
+** CAPI3REF: SQL Trace Hook
+** METHOD: sqlite3
+**
+** ^The sqlite3_trace_v2(D,M,X,P) interface registers a trace callback
+** function X against [database connection] D, using property mask M
+** and context pointer P.  ^If the X callback is
+** NULL or if the M mask is zero, then tracing is disabled.  The
+** M argument should be the bitwise OR-ed combination of
+** zero or more [SQLITE_TRACE] constants.
+**
+** ^Each call to either sqlite3_trace() or sqlite3_trace_v2() overrides 
+** (cancels) any prior calls to sqlite3_trace() or sqlite3_trace_v2().
+**
+** ^The X callback is invoked whenever any of the events identified by 
+** mask M occur.  ^The integer return value from the callback is currently
+** ignored, though this may change in future releases.  Callback
+** implementations should return zero to ensure future compatibility.
+**
+** ^A trace callback is invoked with four arguments: callback(T,C,P,X).
+** ^The T argument is one of the [SQLITE_TRACE]
+** constants to indicate why the callback was invoked.
+** ^The C argument is a copy of the context pointer.
+** The P and X arguments are pointers whose meanings depend on T.
+**
+** The sqlite3_trace_v2() interface is intended to replace the legacy
+** interfaces [sqlite3_trace()] and [sqlite3_profile()], both of which
+** are deprecated.
+*/
+SQLITE_API int SQLITE_STDCALL sqlite3_trace_v2(
+  sqlite3*,
+  unsigned uMask,
+  int(*xCallback)(unsigned,void*,void*,void*),
+  void *pCtx
+);
 
 /*
 ** CAPI3REF: Query Progress Callbacks
@@ -3401,11 +3496,35 @@ SQLITE_API int SQLITE_STDCALL sqlite3_prepare16_v2(
 ** CAPI3REF: Retrieving Statement SQL
 ** METHOD: sqlite3_stmt
 **
-** ^This interface can be used to retrieve a saved copy of the original
-** SQL text used to create a [prepared statement] if that statement was
-** compiled using either [sqlite3_prepare_v2()] or [sqlite3_prepare16_v2()].
+** ^The sqlite3_sql(P) interface returns a pointer to a copy of the UTF-8
+** SQL text used to create [prepared statement] P if P was
+** created by either [sqlite3_prepare_v2()] or [sqlite3_prepare16_v2()].
+** ^The sqlite3_expanded_sql(P) interface returns a pointer to a UTF-8
+** string containing the SQL text of prepared statement P with
+** [bound parameters] expanded.
+**
+** ^(For example, if a prepared statement is created using the SQL
+** text "SELECT $abc,:xyz" and if parameter $abc is bound to integer 2345
+** and parameter :xyz is unbound, then sqlite3_sql() will return
+** the original string, "SELECT $abc,:xyz" but sqlite3_expanded_sql()
+** will return "SELECT 2345,NULL".)^
+**
+** ^The sqlite3_expanded_sql() interface returns NULL if insufficient memory
+** is available to hold the result, or if the result would exceed the
+** the maximum string length determined by the [SQLITE_LIMIT_LENGTH].
+**
+** ^The [SQLITE_TRACE_SIZE_LIMIT] compile-time option limits the size of
+** bound parameter expansions.  ^The [SQLITE_OMIT_TRACE] compile-time
+** option causes sqlite3_expanded_sql() to always return NULL.
+**
+** ^The string returned by sqlite3_sql(P) is managed by SQLite and is
+** automatically freed when the prepared statement is finalized.
+** ^The string returned by sqlite3_expanded_sql(P), on the other hand,
+** is obtained from [sqlite3_malloc()] and must be free by the application
+** by passing it to [sqlite3_free()].
 */
 SQLITE_API const char *SQLITE_STDCALL sqlite3_sql(sqlite3_stmt *pStmt);
+SQLITE_API char *SQLITE_STDCALL sqlite3_expanded_sql(sqlite3_stmt *pStmt);
 
 /*
 ** CAPI3REF: Determine If An SQL Statement Writes The Database
@@ -6764,6 +6883,18 @@ SQLITE_API int SQLITE_STDCALL sqlite3_db_status(sqlite3*, int op, int *pCur, int
 ** memory used by all pager caches associated with the database connection.)^
 ** ^The highwater mark associated with SQLITE_DBSTATUS_CACHE_USED is always 0.
 **
+** [[SQLITE_DBSTATUS_CACHE_USED_SHARED]] 
+** ^(<dt>SQLITE_DBSTATUS_CACHE_USED_SHARED</dt>
+** <dd>This parameter is similar to DBSTATUS_CACHE_USED, except that if a
+** pager cache is shared between two or more connections the bytes of heap
+** memory used by that pager cache is divided evenly between the attached
+** connections.)^  In other words, if none of the pager caches associated
+** with the database connection are shared, this request returns the same
+** value as DBSTATUS_CACHE_USED. Or, if one or more or the pager caches are
+** shared, the value returned by this call will be smaller than that returned
+** by DBSTATUS_CACHE_USED. ^The highwater mark associated with
+** SQLITE_DBSTATUS_CACHE_USED_SHARED is always 0.
+**
 ** [[SQLITE_DBSTATUS_SCHEMA_USED]] ^(<dt>SQLITE_DBSTATUS_SCHEMA_USED</dt>
 ** <dd>This parameter returns the approximate number of bytes of heap
 ** memory used to store the schema for all databases associated
@@ -6821,7 +6952,8 @@ SQLITE_API int SQLITE_STDCALL sqlite3_db_status(sqlite3*, int op, int *pCur, int
 #define SQLITE_DBSTATUS_CACHE_MISS           8
 #define SQLITE_DBSTATUS_CACHE_WRITE          9
 #define SQLITE_DBSTATUS_DEFERRED_FKS        10
-#define SQLITE_DBSTATUS_MAX                 10   /* Largest defined DBSTATUS */
+#define SQLITE_DBSTATUS_CACHE_USED_SHARED   11
+#define SQLITE_DBSTATUS_MAX                 11   /* Largest defined DBSTATUS */
 
 
 /*
@@ -8204,7 +8336,7 @@ SQLITE_API SQLITE_EXPERIMENTAL int SQLITE_STDCALL sqlite3_snapshot_cmp(
 #ifdef __cplusplus
 }  /* End of the 'extern "C"' block */
 #endif
-#endif /* _SQLITE3_H_ */
+#endif /* SQLITE3_H */
 
 /******** Begin file sqlite3rtree.h *********/
 /*

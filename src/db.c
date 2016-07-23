@@ -936,7 +936,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   sqlite3_create_function(
     db, "if_selected", 3, SQLITE_UTF8, 0, file_is_selected,0,0
   );
-  if( g.fSqlTrace ) sqlite3_trace(db, db_sql_trace, 0);
+  if( g.fSqlTrace ) sqlite3_trace_v2(db, SQLITE_TRACE_STMT, db_sql_trace, 0);
   db_add_aux_functions(db);
   re_add_sql_func(db);  /* The REGEXP operator */
   foci_register(db);    /* The "files_of_checkin" virtual table */
@@ -1810,7 +1810,8 @@ LOCAL void db_sql_print(
     }
   }
 }
-LOCAL void db_sql_trace(void *notUsed, const char *zSql){
+LOCAL int db_sql_trace(int m, void *notUsed, void *pNotUsed2, void *pX){
+  const char *zSql = (const char*)pX;
   int n = strlen(zSql);
   fossil_trace("%s%s\n", zSql, (n>0 && zSql[n-1]==';') ? "" : ";");
 }
