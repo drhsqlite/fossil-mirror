@@ -113,7 +113,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.14.0"
 #define SQLITE_VERSION_NUMBER 3014000
-#define SQLITE_SOURCE_ID      "2016-07-23 20:27:41 c8e0539b970585cbb3619461a53abb0c3b308a17"
+#define SQLITE_SOURCE_ID      "2016-07-25 12:10:25 d6f6c87c9c0acf609a9d5bea818bb7a5437109a1"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -2813,8 +2813,11 @@ SQLITE_API SQLITE_DEPRECATED void *SQLITE_STDCALL sqlite3_profile(sqlite3*,
 ** execution of the prepared statement, such as at the start of each
 ** trigger subprogram. ^The P argument is a pointer to the
 ** [prepared statement]. ^The X argument is a pointer to a string which
-** is the expanded SQL text of the prepared statement or a comment that
-** indicates the invocation of a trigger.
+** is the unexpanded SQL text of the prepared statement or an SQL comment 
+** that indicates the invocation of a trigger.  ^The callback can compute
+** the same text that would have been returned by the legacy [sqlite3_trace()]
+** interface by using the X argument when X begins with "--" and invoking
+** [sqlite3_expanded_sql(P)] otherwise.
 **
 ** [[SQLITE_TRACE_PROFILE]] <dt>SQLITE_TRACE_PROFILE</dt>
 ** <dd>^An SQLITE_TRACE_PROFILE callback provides approximately the same

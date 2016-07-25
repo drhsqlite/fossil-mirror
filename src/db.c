@@ -1810,10 +1810,16 @@ LOCAL void db_sql_print(
     }
   }
 }
-LOCAL int db_sql_trace(unsigned m, void *notUsed, void *pNotUsed2, void *pX){
-  const char *zSql = (const char*)pX;
-  int n = strlen(zSql);
+LOCAL int db_sql_trace(unsigned m, void *notUsed, void *pP, void *pX){
+  sqlite3_stmt *pStmt = (sqlite3_stmt*)pP;
+  char *zSql;
+  int n;
+  const char *zArg = (const char*)pX;
+  if( zArg[0]=='-' ) return 0;
+  zSql = sqlite3_expanded_sql(pStmt);
+  n = (int)strlen(zSql);
   fossil_trace("%s%s\n", zSql, (n>0 && zSql[n-1]==';') ? "" : ";");
+  sqlite3_free(zSql);
   return 0;
 }
 
