@@ -1,5 +1,5 @@
-C Begin\senhancing\sthe\s"fossil\spurge"\scommand\sto\sbe\smuch\smore\sflexible\sand\npowerful.\s\sPlans\sare\sto\sprovide\sthe\sability\sto\spurge\sspecific\sfiles,\sor\stickets,\nor\swiki\spages,\swith\soptions\sto\slimit\sthe\stimeframe\sof\sthe\spurge.
-D 2016-07-28T05:02:13.080
+C Enhance\sthe\s"fossil\spurge"\scommand\sto\sallow\sit\sto\sspecify\sindividual\nartifacts\sand\sfiles\sto\sbe\spurged.
+D 2016-07-28T13:58:34.671
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -460,7 +460,7 @@ F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
 F src/mkindex.c 8b49a351b060c3e9203dacbacfc8216f760f8da2
 F src/mkversion.c 40ed302872cc5795c76efb3ab089fc1aedba18f1
 F src/moderate.c 8ab2bd4bda9a6b6765f99ddea7950dc5c6bad007
-F src/name.c d5441ee273883c98589da5c527b088ae7a9a1139
+F src/name.c 6d1f8513e5fa76fd7138d378a40f174e53fbdfd1
 F src/path.c cce5fdfa571861a81e1a48e893e5a52dd2703a5f
 F src/piechart.c 4014288219792cde395e84b6a43cc5736b3a9887
 F src/pivot.c 2f9b97dad4267f3b5a9e89e14b711f326cb3f3a0
@@ -468,7 +468,7 @@ F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 2de9ca8ea140e35da05eafeb6a447a2fd4069438
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
-F src/purge.c 5761ab1fa67dc2d768b9edd02117a5a6ff9be99d
+F src/purge.c bea92293c25487ac19bb1437418b8e0f249d0290
 F src/rebuild.c 382e418f6883e371e057dcbfe97054d60e294bf7
 F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c 3dd19351cd1461653bd07a234d3cc4aaff8845ac
@@ -752,10 +752,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f0d84833388b1191bec67bb1edc8a30908137462
-R 3c026b7c156d661ed959c9ff4aba80d8
-T *branch * purge
-T *sym-purge *
-T -sym-trunk *
+P 45fcac621f1e3c4425cb7caaaa9cd043f49afdc8
+R 3917fadbd838c39ce7cd0073bf03c17b
 U drh
-Z ba6d925d82dcc90667b6d9b10a91457a
+Z 4a0e261d3912fbfe8a0034a94de4f093
