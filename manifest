@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\suse\sthe\slatest\ssqlite3_trace_v2()\sinterface\nchanges.
-D 2016-07-25T12:25:18.105
+C Begin\senhancing\sthe\s"fossil\spurge"\scommand\sto\sbe\smuch\smore\sflexible\sand\npowerful.\s\sPlans\sare\sto\sprovide\sthe\sability\sto\spurge\sspecific\sfiles,\sor\stickets,\nor\swiki\spages,\swith\soptions\sto\slimit\sthe\stimeframe\sof\sthe\spurge.
+D 2016-07-28T05:02:13.080
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -468,7 +468,7 @@ F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 2de9ca8ea140e35da05eafeb6a447a2fd4069438
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
-F src/purge.c 243a09ad25c3c63a8a1206d6abad37bc96f50745
+F src/purge.c 5761ab1fa67dc2d768b9edd02117a5a6ff9be99d
 F src/rebuild.c 382e418f6883e371e057dcbfe97054d60e294bf7
 F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c 3dd19351cd1461653bd07a234d3cc4aaff8845ac
@@ -752,7 +752,10 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fd35e3396a86fb1bf025c66916486a30d4231977
-R 1f9408d3a4cb09f5a6dfe558b070aeaa
+P f0d84833388b1191bec67bb1edc8a30908137462
+R 3c026b7c156d661ed959c9ff4aba80d8
+T *branch * purge
+T *sym-purge *
+T -sym-trunk *
 U drh
-Z a62932b52eed1c49f8fb17cbc3d35b9c
+Z ba6d925d82dcc90667b6d9b10a91457a
