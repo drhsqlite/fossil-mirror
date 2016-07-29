@@ -391,7 +391,11 @@ proc searchOnOff {} {
           -command {searchNext -forwards +1 1.0 end}
       ::ttk::button .bb.sframe.pv -text \u2191 -width 1 \
           -command {searchNext -backwards -1 end 1.0}
-      pack .bb.sframe.nx .bb.sframe.pv -side left
+      tk_optionMenu .bb.sframe.typ ::search_type \
+           Exact {No Case} {RegExp} {Whole Word}
+      .bb.sframe.typ config -width 10
+      set ::search_type Exact
+      pack .bb.sframe.nx .bb.sframe.pv .bb.sframe.typ -side left
     }
     pack .bb.sframe -side left
   }
@@ -404,18 +408,24 @@ proc searchNext {direction incr start stop} {
   if {[lsearch [$w mark names] search]<0} {
     $w mark set search $start
   }
-  set idx [$w search -count count $direction -- \
+  switch $::search_type {
+    Exact        {set st -exact}
+    {No Case}    {set st -nocase}
+    {RegExp}     {set st -regexp}
+    {Whole Word} {set st -regexp; set pattern \\y$pattern\\y}
+  }
+  set idx [$w search -count count $direction $st -- \
               $pattern "search $incr chars" $stop]
   if {"$idx"==""} {
     set this $w
     set w $other
     set other $this
-    set idx [$w search -count count $direction -- $pattern $start $stop]
+    set idx [$w search -count count $direction $st -- $pattern $start $stop]
     if {"$idx"==""} {
       set this $w
       set w $other
       set other $this
-      set idx [$w search -count count $direction -- $pattern $start $stop]
+      set idx [$w search -count count $direction $st -- $pattern $start $stop]
     }
   }
   $w tag remove search 1.0 end
