@@ -375,12 +375,68 @@ proc invertDiff {} {
   foreach c $cgt {.mkr replace $c "$c +1 chars" <}
   .mkr config -state disabled
 }
+proc searchOnOff {} {
+  if {[info exists ::search]} {
+    unset ::search
+    .txtA tag remove search 1.0 end
+    .txtB tag remove search 1.0 end
+    pack forget .bb.sframe
+  } else {
+    set ::search .txtA
+    if {![winfo exists .bb.sframe]} {
+      frame .bb.sframe
+      ::ttk::entry .bb.sframe.e -width 10
+      pack .bb.sframe.e -side left -fill y -expand 1
+      ::ttk::button .bb.sframe.nx -text \u2193 -width 1 \
+          -command {searchNext -forwards +1 1.0 end}
+      ::ttk::button .bb.sframe.pv -text \u2191 -width 1 \
+          -command {searchNext -backwards -1 end 1.0}
+      pack .bb.sframe.nx .bb.sframe.pv -side left
+    }
+    pack .bb.sframe -side left
+  }
+}
+proc searchNext {direction incr start stop} {
+  set pattern [.bb.sframe.e get]
+  set count 0
+  set w $::search
+  if {"$w"==".txtA"} {set other .txtB} {set other .txtA}
+  if {[lsearch [$w mark names] search]<0} {
+    $w mark set search $start
+  }
+  set idx [$w search -count count $direction -- \
+              $pattern "search $incr chars" $stop]
+  if {"$idx"==""} {
+    set this $w
+    set w $other
+    set other $this
+    set idx [$w search -count count $direction -- $pattern $start $stop]
+    if {"$idx"==""} {
+      set this $w
+      set w $other
+      set other $this
+      set idx [$w search -count count $direction -- $pattern $start $stop]
+    }
+  }
+  $w tag remove search 1.0 end
+  $w mark unset search
+  $other tag remove search 1.0 end
+  $other mark unset search
+  if {"$idx"!=""} {
+    $w mark set search $idx
+    $w yview -pickplace $idx
+    $w tag add search search "$idx +$count chars"
+    $w tag config search -background {#fcc000}
+  }
+  set ::search $w
+}
 ::ttk::button .bb.quit -text {Quit} -command exit
 ::ttk::button .bb.invert -text {Invert} -command invertDiff
 ::ttk::button .bb.save -text {Save As...} -command saveDiff
+::ttk::button .bb.search -text {Search} -command searchOnOff
 pack .bb.quit .bb.invert -side left
 if {$fossilcmd!=""} {pack .bb.save -side left}
-pack .bb.files -side left
+pack .bb.files .bb.search -side left
 grid rowconfigure . 1 -weight 1
 grid columnconfigure . 1 -weight 1
 grid columnconfigure . 4 -weight 1
