@@ -229,15 +229,20 @@ proc sync-y {first last} {
 wm withdraw .
 wm title . $CFG(TITLE)
 wm iconname . $CFG(TITLE)
-bind . <q> exit
-bind . <Escape><Escape> exit
+# Keystroke bindings for on the top-level window for navigation and
+# control also fire when those same keystrokes are pressed in the
+# Search entry box.  Disable them, to prevent the diff screen from
+# disappearing abruptly and unexpectedly when searching for "q".
+#
+# bind . <q> exit
+# bind . <p> {catch searchPrev; break}
+# bind . <n> {catch searchNext; break}
+# bind . <Escape><Escape> exit
 bind . <Destroy> {after 0 exit}
 bind . <Tab> {cycleDiffs; break}
 bind . <<PrevWindow>> {cycleDiffs 1; break}
 bind . <Control-f> {searchOnOff; break}
-bind . <n> {catch searchNext; break}
 bind . <Control-g> {catch searchNext; break}
-bind . <p> {catch searchPrev; break}
 bind . <Return> {
   event generate bb.files <1>
   event generate .bb.files <ButtonRelease-1>

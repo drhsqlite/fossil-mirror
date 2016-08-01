@@ -1,5 +1,5 @@
-C Fix\sa\sC99-style\scomment.
-D 2016-08-01T12:45:47.950
+C Disable\snavigation\skey\sbinds\sin\sthe\s--tk\sdiff\sscreen.\s\sOtherwise,\spressing\n"q"\sin\sthe\sSearch\sentry\sbox\scauses\sthe\swhole\sdiff\swindow\sto\sdie.
+D 2016-08-01T13:50:34.357
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -401,7 +401,7 @@ F src/delta.c ab405c78d6559ea61563e2500c28f135a26c8b62
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 48ba0c208d74e5a8c4b33e43ea066d236d3a4694
 F src/diff.c c53eea5dfd52d092d298178bc40c70500d3c7fc6
-F src/diff.tcl fe8ba7aeb7d94add6ede53f24b4ec239b948f2fa
+F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 3759afcedb06bb0d76844e0b724cd28b36ede262
 F src/doc.c c8f8250a5de7674877598a60263a237bdd33e204
 F src/encode.c 56fc8f102eda32549652df47fa253fc910e737a9
@@ -752,8 +752,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3d7468454bf38914c8427dba78efd219ffc7bff1 c665a2f2144055496feb44c68534a754bd0d7de9
-R 83b23d170ff36a3b4a7681afca7f3ecf
-T +closed c665a2f2144055496feb44c68534a754bd0d7de9
+P 9e2f940ec588a89d004cefd4617c337481c2a49a
+R b354d75db11f61c2614ed109f86fc545
 U drh
-Z 7a9928c84a015146803ca7131f3db01f
+Z aa46dca5c44a29455930241cee560795
