@@ -1,5 +1,5 @@
-C Create\snew\sbranch\snamed\s"djvfixcommentstyle"
-D 2016-08-01T12:35:58.501
+C Use\sC89\scomments\s(not\sC99\sstyle).\sOnly\sthe\scomment\sdelimiters\shave\sbeen\schanged.
+D 2016-08-01T12:40:59.622
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -373,7 +373,7 @@ F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c f192f326c99668df8be826d7bdbdd8d19f7b5f4e
 F src/allrepo.c 07ae72593c0aaf51f9a66077b69196f080f70a39
-F src/attach.c 3d0f4416538b9154333fba4717670584669bf9eb
+F src/attach.c ac8b171ca9c495fda5568d6cf48e13749b9b5d2c
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c abd167c9f2c5398782ca6d48ea1ee612163a7685
 F src/blob.c 54ba03df02f021dedcb0efcb639c225196d4702d
@@ -752,10 +752,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3d7468454bf38914c8427dba78efd219ffc7bff1
-R 866d0cff2ab042edb0b5d2f21a87e98c
-T *branch * djvfixcommentstyle
-T *sym-djvfixcommentstyle *
-T -sym-trunk *
+P aea114d080d220a609d23fab854db007f0ef0169
+R 83b23d170ff36a3b4a7681afca7f3ecf
 U dave.vines
-Z de934ce7e19d7957121455b33c2fc62b
+Z 8275d235c979815b43c8a377bbdafac2
