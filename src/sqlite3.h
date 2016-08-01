@@ -122,7 +122,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.14.0"
 #define SQLITE_VERSION_NUMBER 3014000
-#define SQLITE_SOURCE_ID      "2016-07-29 04:12:18 544c990afd3b64064cc4d970ec5d7eb23eeb9914"
+#define SQLITE_SOURCE_ID      "2016-08-01 17:06:44 90d2c490fc2ed4e073711b84f989ca4d496dcfb5"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -1044,6 +1044,16 @@ struct sqlite3_io_methods {
 ** Mutexes are created using [sqlite3_mutex_alloc()].
 */
 typedef struct sqlite3_mutex sqlite3_mutex;
+
+/*
+** CAPI3REF: Loadable Extension Thunk
+**
+** A pointer to the opaque sqlite3_api_routines structure is passed as
+** the third parameter to entry points of [loadable extensions].  This
+** structure must be typedefed in order to work around compiler warnings
+** on some platforms.
+*/
+typedef struct sqlite3_api_routines sqlite3_api_routines;
 
 /*
 ** CAPI3REF: OS Interface Object
@@ -2242,7 +2252,7 @@ SQLITE_API int SQLITE_APICALL sqlite3_complete16(const void *sql);
 ** A busy handler must not close the database connection
 ** or [prepared statement] that invoked the busy handler.
 */
-SQLITE_API int SQLITE_APICALL sqlite3_busy_handler(sqlite3*, int(SQLITE_CALLBACK *)(void*,int), void*);
+SQLITE_API int SQLITE_APICALL sqlite3_busy_handler(sqlite3*,int(SQLITE_CALLBACK *)(void*,int),void*);
 
 /*
 ** CAPI3REF: Set A Busy Timeout
@@ -5681,7 +5691,7 @@ SQLITE_API int SQLITE_APICALL sqlite3_enable_load_extension(sqlite3 *db, int ono
 **
 ** ^(Even though the function prototype shows that xEntryPoint() takes
 ** no arguments and returns void, SQLite invokes xEntryPoint() with three
-** arguments and expects and integer result as if the signature of the
+** arguments and expects an integer result as if the signature of the
 ** entry point where as follows:
 **
 ** <blockquote><pre>
@@ -5707,10 +5717,7 @@ SQLITE_API int SQLITE_APICALL sqlite3_enable_load_extension(sqlite3 *db, int ono
 ** See also: [sqlite3_reset_auto_extension()]
 ** and [sqlite3_cancel_auto_extension()]
 */
-typedef struct sqlite3_api_routines sqlite3_api_routines;
-SQLITE_API int SQLITE_APICALL sqlite3_auto_extension(
-  int (SQLITE_CALLBACK *xEntryPoint)(sqlite3 *, char **, const sqlite3_api_routines *)
-);
+SQLITE_API int SQLITE_APICALL sqlite3_auto_extension(void(SQLITE_CALLBACK *xEntryPoint)(void));
 
 /*
 ** CAPI3REF: Cancel Automatic Extension Loading
@@ -5722,9 +5729,7 @@ SQLITE_API int SQLITE_APICALL sqlite3_auto_extension(
 ** unregistered and it returns 0 if X was not on the list of initialization
 ** routines.
 */
-SQLITE_API int SQLITE_APICALL sqlite3_cancel_auto_extension(
-  int (SQLITE_CALLBACK *xEntryPoint)(sqlite3 *, char **, const sqlite3_api_routines *)
-);
+SQLITE_API int SQLITE_APICALL sqlite3_cancel_auto_extension(void(SQLITE_CALLBACK *xEntryPoint)(void));
 
 /*
 ** CAPI3REF: Reset Automatic Extension Loading
