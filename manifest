@@ -1,5 +1,5 @@
-C Minor\sUI\senhancements\sin\sthe\s--tk\sdiff\sdisplay.
-D 2016-08-01T11:01:08.582
+C Fix\sa\sC99-style\scomment.
+D 2016-08-01T12:45:47.950
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -373,7 +373,7 @@ F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c f192f326c99668df8be826d7bdbdd8d19f7b5f4e
 F src/allrepo.c 07ae72593c0aaf51f9a66077b69196f080f70a39
-F src/attach.c 3d0f4416538b9154333fba4717670584669bf9eb
+F src/attach.c ac8b171ca9c495fda5568d6cf48e13749b9b5d2c
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c abd167c9f2c5398782ca6d48ea1ee612163a7685
 F src/blob.c 54ba03df02f021dedcb0efcb639c225196d4702d
@@ -752,7 +752,8 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2a5de7ea2e119a66b92cc6103325a8285eb4d09b
-R 866d0cff2ab042edb0b5d2f21a87e98c
+P 3d7468454bf38914c8427dba78efd219ffc7bff1 c665a2f2144055496feb44c68534a754bd0d7de9
+R 83b23d170ff36a3b4a7681afca7f3ecf
+T +closed c665a2f2144055496feb44c68534a754bd0d7de9
 U drh
-Z 7ecfd833fbd9ab4a93dbcf6596da850a
+Z 7a9928c84a015146803ca7131f3db01f
