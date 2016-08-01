@@ -1,5 +1,5 @@
-C Add\sthe\sability\sto\ssearch\sby\sNoCase,\sRegExp,\sor\sWholeWord.
-D 2016-07-29T21:40:16.319
+C Minor\sUI\senhancements\sin\sthe\s--tk\sdiff\sdisplay.
+D 2016-08-01T11:01:08.582
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -401,7 +401,7 @@ F src/delta.c ab405c78d6559ea61563e2500c28f135a26c8b62
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 48ba0c208d74e5a8c4b33e43ea066d236d3a4694
 F src/diff.c c53eea5dfd52d092d298178bc40c70500d3c7fc6
-F src/diff.tcl 2771240a781daa556ae4c4cf4037544373d0ed87
+F src/diff.tcl fe8ba7aeb7d94add6ede53f24b4ec239b948f2fa
 F src/diffcmd.c 3759afcedb06bb0d76844e0b724cd28b36ede262
 F src/doc.c c8f8250a5de7674877598a60263a237bdd33e204
 F src/encode.c 56fc8f102eda32549652df47fa253fc910e737a9
@@ -752,7 +752,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cea60811508f85af03b462695049b2a53fc1d289
-R 7e57b0b2b369e835c70e1c201f4c7ae9
+P 2a5de7ea2e119a66b92cc6103325a8285eb4d09b
+R 866d0cff2ab042edb0b5d2f21a87e98c
 U drh
-Z 8c6f066888965684a028d53548d4df8a
+Z 7ecfd833fbd9ab4a93dbcf6596da850a

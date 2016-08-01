@@ -230,11 +230,16 @@ wm withdraw .
 wm title . $CFG(TITLE)
 wm iconname . $CFG(TITLE)
 bind . <q> exit
+bind . <Escape><Escape> exit
 bind . <Destroy> {after 0 exit}
 bind . <Tab> {cycleDiffs; break}
 bind . <<PrevWindow>> {cycleDiffs 1; break}
+bind . <Control-f> {searchOnOff; break}
+bind . <n> {catch searchNext; break}
+bind . <Control-g> {catch searchNext; break}
+bind . <p> {catch searchPrev; break}
 bind . <Return> {
-  event generate .bb.files <1>
+  event generate bb.files <1>
   event generate .bb.files <ButtonRelease-1>
   break
 }
@@ -261,6 +266,10 @@ foreach {key axis args} {
 
 frame .bb
 ::ttk::menubutton .bb.files -text "Files"
+if {[tk windowingsystem] eq "win32"} {
+  ::ttk::style theme use winnative
+  .bb.files configure -padding {20 1 10 2}
+}
 toplevel .wfiles
 wm withdraw .wfiles
 update idletasks
@@ -360,6 +369,7 @@ proc invertDiff {} {
     grid config .lnA -column 3
     grid config .txtA -column 4
     .txtA tag config rm -background $CFG(ADD_BG)
+    .bb.invert config -text Uninvert
   } else {
     grid config .lnA -column 0
     grid config .txtA -column 1
@@ -367,6 +377,7 @@ proc invertDiff {} {
     grid config .lnB -column 3
     grid config .txtB -column 4
     .txtB tag config add -background $CFG(ADD_BG)
+    .bb.invert config -text Invert
   }
   .mkr config -state normal
   set clt [.mkr search -all < 1.0 end]
@@ -387,10 +398,9 @@ proc searchOnOff {} {
       frame .bb.sframe
       ::ttk::entry .bb.sframe.e -width 10
       pack .bb.sframe.e -side left -fill y -expand 1
-      ::ttk::button .bb.sframe.nx -text \u2193 -width 1 \
-          -command {searchNext -forwards +1 1.0 end}
-      ::ttk::button .bb.sframe.pv -text \u2191 -width 1 \
-          -command {searchNext -backwards -1 end 1.0}
+      bind .bb.sframe.e <Return> {searchNext; break}
+      ::ttk::button .bb.sframe.nx -text \u2193 -width 1 -command searchNext
+      ::ttk::button .bb.sframe.pv -text \u2191 -width 1 -command searchPrev
       tk_optionMenu .bb.sframe.typ ::search_type \
            Exact {No Case} {RegExp} {Whole Word}
       .bb.sframe.typ config -width 10
@@ -398,10 +408,14 @@ proc searchOnOff {} {
       pack .bb.sframe.nx .bb.sframe.pv .bb.sframe.typ -side left
     }
     pack .bb.sframe -side left
+    after idle {focus .bb.sframe.e}
   }
 }
-proc searchNext {direction incr start stop} {
+proc searchNext {} {searchStep -forwards +1 1.0 end}
+proc searchPrev {} {searchStep -backwards -1 end 1.0}
+proc searchStep {direction incr start stop} {
   set pattern [.bb.sframe.e get]
+  if {$pattern==""} return
   set count 0
   set w $::search
   if {"$w"==".txtA"} {set other .txtB} {set other .txtA}
@@ -417,14 +431,12 @@ proc searchNext {direction incr start stop} {
   set idx [$w search -count count $direction $st -- \
               $pattern "search $incr chars" $stop]
   if {"$idx"==""} {
-    set this $w
-    set w $other
-    set other $this
-    set idx [$w search -count count $direction $st -- $pattern $start $stop]
-    if {"$idx"==""} {
+    set idx [$other search -count count $direction $st -- $pattern $start $stop]
+    if {"$idx"!=""} {
       set this $w
       set w $other
       set other $this
+    } else {
       set idx [$w search -count count $direction $st -- $pattern $start $stop]
     }
   }
