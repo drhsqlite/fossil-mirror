@@ -1,5 +1,5 @@
-C Minor\sUI\senhancements\sin\sthe\s--tk\sdiff\sdisplay.
-D 2016-08-01T11:01:08.582
+C Create\snew\sbranch\snamed\s"djvfixcommentstyle"
+D 2016-08-01T12:35:58.501
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -752,7 +752,10 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2a5de7ea2e119a66b92cc6103325a8285eb4d09b
+P 3d7468454bf38914c8427dba78efd219ffc7bff1
 R 866d0cff2ab042edb0b5d2f21a87e98c
-U drh
-Z 7ecfd833fbd9ab4a93dbcf6596da850a
+T *branch * djvfixcommentstyle
+T *sym-djvfixcommentstyle *
+T -sym-trunk *
+U dave.vines
+Z de934ce7e19d7957121455b33c2fc62b
