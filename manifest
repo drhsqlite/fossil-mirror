@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.14\sfirst\sbeta.
-D 2016-08-01T17:09:39.585
+C Compiler\swarning\sfixes.\s\sThis\sincludes\sdisabling\sthe\sundocumented\nFOSSIL_PWREADER\sfeature\sand\supgrading\sthe\sbuilt-in\sSQLite.
+D 2016-08-02T08:46:38.555
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -410,7 +410,7 @@ F src/export.c ab705fb1bdb609c49cab3aa686fd74b5cd8e83d4
 F src/file.c 8e85e61f94faf64efd92db024e19d83cf30ac0a1
 F src/finfo.c d096ae6388a68b81a8e001d0258294dd79462f22
 F src/foci.c a385eb9a5d3ab814021f998a4ba5cee0d81bfc64
-F src/fshell.c 7aa31a558bbb57b339e4341b44923a8db1cd3670
+F src/fshell.c 5c6a1ac0cf20ac78f1e1b13edf1a1e9220a2faba
 F src/fusefs.c 6369690cc543c1b3fe154776933f018f3c91518b
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 1e8070d743acae021523e423418c4c13d81b5a0f
@@ -445,7 +445,7 @@ F src/login.c 13788b9e70f2cfb13ea4e975a4117c68ed8115f0
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
 F src/main.c 663246084eded6c69a9c4ecdf17d6f30ae43df7e
 F src/main.mk 8d842af44e6565ef0e1406ce2beaebaf8c0d8394
-F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
+F src/makeheaders.c e8444028f575e84075e46cf47f2080fa6d2c2115
 F src/makeheaders.html 06decb89c665feb897540613d7d12527eb65dfe5
 F src/makemake.tcl c8216084aeb35262ff9abfd4a2d5c3a9ccc2d176
 F src/manifest.c e904566ce0f19b57b920b05a48c42cb578fbd851
@@ -482,8 +482,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 6fbec2fbaf3bb39566f2550b12f58127c9bfa850
 F src/skins.c 524384aafbe9e7707d3b87f42ee72fa63fe91796
 F src/sqlcmd.c 67a6b4ac894633d8346dc890a5b179a0ac3b1925
-F src/sqlite3.c 230e7d33f7e6ff9f97ade3f2b6cdc8f6b54558b0
-F src/sqlite3.h bdd2342b820839544c42950cce0d4327663be927
+F src/sqlite3.c 957f10bedf6e8a2a2ca13494de3295fbb01b08c3
+F src/sqlite3.h 6ffe58ad5b99b3de31d4b159c7a1338f8b178682
 F src/stash.c ccb0d94252422f28178119825a99c6bce45924d6
 F src/stat.c 82a4439d096fe0fb231e27f49f2b2ff13dacf014
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
@@ -504,7 +504,7 @@ F src/undo.c 52ec5c24a6dcf1937026e2d9f86791fd1913cdf6
 F src/unicode.c 8e02b4fd6af9e735bda68eb06e3be90b6b901a87
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
-F src/user.c ce247e9a66101e34e79fa2e0dfc8114e680c0237
+F src/user.c e2c08deb9a3ce011d3db10f70216a7988485e29a
 F src/utf8.c 5c85c7e88b82b5fb48649c46f063ac94ab58eb20
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
@@ -752,7 +752,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f6d9583173cbd6d2b170fac338721c6b10ed9456
-R 17fc58087c031f75aa695d234c40bd64
+P f475b943eb84c23be3c833052735d0b4b3c72a76
+R a1a4101448f71ffecafd5aa4fa92aa3f
 U drh
-Z 2e665a0e6f1effad3f69e0eb8161ff3b
+Z 4650aa550582ec489a4905a8e3cab736
