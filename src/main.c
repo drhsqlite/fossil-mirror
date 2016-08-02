@@ -2025,20 +2025,67 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 /*
 ** COMMAND: cgi*
 **
-** Usage: %fossil ?cgi? SCRIPT
+** Usage: %fossil ?cgi? FILE
 **
-** The SCRIPT argument is the name of a file that is the CGI script
-** that is being run.  The command name, "cgi", may be omitted if
-** the GATEWAY_INTERFACE environment variable is set to "CGI" (which
-** should always be the case for CGI scripts run by a webserver.)  The
-** SCRIPT file should look something like this:
+** This command causes Fossil to generate reply to a CGI request.
+**
+** The FILE argument is the name of a control file that provides Fossil
+** with important information such as where to find its repository.  In
+** a typical CGI deployment, FILE is the name of the CGI script and will
+** typically look something like this:
 **
 **      #!/usr/bin/fossil
 **      repository: /home/somebody/project.db
 **
-** The second line defines the name of the repository.  After locating
-** the repository, fossil will generate a webpage on stdout based on
-** the values of standard CGI environment variables.
+** The command name, "cgi", may be omitted if the GATEWAY_INTERFACE
+** environment variable is set to "CGI", which should always be the
+** case for CGI scripts run by a webserver.  Fossil ignores any lines
+** that begin with "#".
+**
+** The following control lines are recognized:
+**
+**    repository: PATH         Name of the Fossil repository
+**
+**    directory:  PATH         Name of a directory containing many Fossil
+**                             repositories whose names all end with ".fossil".
+**                             There should only be one of "repository:"
+**                             or "directory:"
+**
+**    notfound: URL            When in "directory:" mode, redirect to
+**                             URL if no suitable repository is found.
+**
+**    localauth                Grant administrator privileges to connections
+**                             from 127.0.0.1 or ::1.
+**
+**    skin: LABEL              Use the built-in skin called LABEL rather than
+**                             the default.  If there are no skins called LABEL
+**                             then this line is a no-op.
+**
+**    files: GLOBLIST          GLOBLIST is a comma-separated list of GLOB
+**                             patterns that specify files that can be
+**                             returned verbatim.  This feature allows Fossil
+**                             to act as a web server returning static
+**                             content.
+**
+**    setenv: NAME VALUE       Set environment variable NAME to VALUE.  Or
+**                             if VALUE is omitted, unset NAME.
+**
+**    HOME: PATH               Shorthand for "setenv: HOME PATH"
+**
+**    debug: FILE              Causing debugging information to be written
+**                             into FILE.
+**
+**    errorlog: FILE           Warnings, errors, and panics written to FILE.
+**
+**    redirect: REPO URL       Extract the "name" query parameter and search
+**                             REPO for a check-in or ticket that matches the
+**                             value of "name", then redirect to URL.  There
+**                             can be multiple "redirect:" lines that are
+**                             processed in order.  If the REPO is "*", then
+**                             an unconditional redirect to URL is taken.
+**
+** Most CGI files contain only a "repository:" line.  It is uncommon to
+** use any other option.
 **
 ** See also: http, server, winsrv
 */
