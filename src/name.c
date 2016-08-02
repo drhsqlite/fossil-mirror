@@ -936,12 +936,17 @@ void describe_artifacts(const char *zWhere){
 }
 
 /*
-** Print the content of the description table on stdout
+** Print the content of the description table on stdout.
+**
+** The description table is computed using the WHERE clause zWhere if
+** the zWhere parameter is not NULL.  If zWhere is NULL, then this
+** routine assumes that the description table already exists and is
+** populated and merely prints the contents.
 */
 int describe_artifacts_to_stdout(const char *zWhere, const char *zLabel){
   Stmt q;
   int cnt = 0;
-  describe_artifacts(zWhere);
+  if( zWhere!=0 ) describe_artifacts(zWhere);
   db_prepare(&q,
     "SELECT uuid, summary, isPrivate\n"
     "  FROM description\n"
@@ -958,7 +963,7 @@ int describe_artifacts_to_stdout(const char *zWhere, const char *zLabel){
     cnt++;
   }
   db_finalize(&q);
-  db_multi_exec("DELETE FROM description;");
+  if( zWhere!=0 ) db_multi_exec("DELETE FROM description;");
   return cnt;
 }
 
