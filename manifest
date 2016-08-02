@@ -1,5 +1,5 @@
-C Compiler\swarning\sfixes.\s\sThis\sincludes\sdisabling\sthe\sundocumented\nFOSSIL_PWREADER\sfeature\sand\supgrading\sthe\sbuilt-in\sSQLite.
-D 2016-08-02T08:46:38.555
+C Corrections\sto\sinformation\sabout\srunning\sFossil\sin\sa\schroot\sjail.
+D 2016-08-02T09:10:45.722
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -736,7 +736,7 @@ F www/reviews.wiki 866e545f89fce7cff29c96a29ab10586692f3964
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki d1e2fc5baf9ade46815499c9758256a22efe8142
 F www/selfhost.wiki 03de31d67690fe47972589e4e1e395e11559c85c
-F www/server.wiki 782ca2e63e3812e9a3c71fe8511b7b58ba91a762
+F www/server.wiki 99fb9a59df8d04b6cb6f9f4b3c9fae93dc85e392
 F www/settings.wiki 12b7e736432b0081a7e6a3d7b9e184d04f482ef7
 F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
@@ -752,7 +752,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f475b943eb84c23be3c833052735d0b4b3c72a76
-R a1a4101448f71ffecafd5aa4fa92aa3f
+P f35b46d4cb49d343aa41c115917e25d3dfd81953
+R 84dfce23f0d9a1c8339b695d2f5d7e2f
 U drh
-Z 4650aa550582ec489a4905a8e3cab736
+Z edb90b3023ef2810faae229875d16403
