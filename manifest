@@ -1,5 +1,5 @@
-C Improved\shelp\sand\sremove\sredundant\sfile\slistings\sfor\sthe\s"fossil\spurge"\ncommand.
-D 2016-08-02T14:52:01.149
+C Add\sa\sfurther\swarning\son\sthe\spurge\scommand\sto\sindicate\sthat\sit\sis\sdicey.\nThat\sextra\swarning\smakes\sthe\spurge\scode\spermissible\sto\sadd\sto\strunk.
+D 2016-08-02T15:17:06.408
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -468,7 +468,7 @@ F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 2de9ca8ea140e35da05eafeb6a447a2fd4069438
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
-F src/purge.c 57e2928111493de61364f02b364f5bb0c627fb3b
+F src/purge.c fd1e58206712643f39e561bdabc273e9abe15dbe
 F src/rebuild.c 382e418f6883e371e057dcbfe97054d60e294bf7
 F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c 3dd19351cd1461653bd07a234d3cc4aaff8845ac
@@ -752,7 +752,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 12f8633aa1cfe9be17c211869b6f0adac4f75247
-R a53da6afc60f75835aad6659e992f616
+P 2c53d022c340a4c69a2d77aa5db03b717c38944f
+R 3b5e6d9724469634d1d04eb1d8e746e3
 U drh
-Z 5ae48557d57861f2187f83b55e704b5e
+Z c7521cabc73a199c9c77b825291c4989
