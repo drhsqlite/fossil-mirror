@@ -1,5 +1,5 @@
-C Enhance\sthe\s"fossil\spurge"\scommand\sto\sallow\sit\sto\sspecify\sindividual\nartifacts\sand\sfiles\sto\sbe\spurged.
-D 2016-07-28T13:58:34.671
+C Sync\sup\swith\sthe\strunk.
+D 2016-08-02T14:41:49.202
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -373,7 +373,7 @@ F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c f192f326c99668df8be826d7bdbdd8d19f7b5f4e
 F src/allrepo.c 07ae72593c0aaf51f9a66077b69196f080f70a39
-F src/attach.c 3d0f4416538b9154333fba4717670584669bf9eb
+F src/attach.c ac8b171ca9c495fda5568d6cf48e13749b9b5d2c
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c abd167c9f2c5398782ca6d48ea1ee612163a7685
 F src/blob.c 54ba03df02f021dedcb0efcb639c225196d4702d
@@ -401,7 +401,7 @@ F src/delta.c ab405c78d6559ea61563e2500c28f135a26c8b62
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 48ba0c208d74e5a8c4b33e43ea066d236d3a4694
 F src/diff.c c53eea5dfd52d092d298178bc40c70500d3c7fc6
-F src/diff.tcl 587933b55b28b63c3e4bb0ba91f257a49640bd0f
+F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 3759afcedb06bb0d76844e0b724cd28b36ede262
 F src/doc.c c8f8250a5de7674877598a60263a237bdd33e204
 F src/encode.c 56fc8f102eda32549652df47fa253fc910e737a9
@@ -410,7 +410,7 @@ F src/export.c ab705fb1bdb609c49cab3aa686fd74b5cd8e83d4
 F src/file.c 8e85e61f94faf64efd92db024e19d83cf30ac0a1
 F src/finfo.c d096ae6388a68b81a8e001d0258294dd79462f22
 F src/foci.c a385eb9a5d3ab814021f998a4ba5cee0d81bfc64
-F src/fshell.c 7aa31a558bbb57b339e4341b44923a8db1cd3670
+F src/fshell.c 5c6a1ac0cf20ac78f1e1b13edf1a1e9220a2faba
 F src/fusefs.c 6369690cc543c1b3fe154776933f018f3c91518b
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 1e8070d743acae021523e423418c4c13d81b5a0f
@@ -445,7 +445,7 @@ F src/login.c 13788b9e70f2cfb13ea4e975a4117c68ed8115f0
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
 F src/main.c 663246084eded6c69a9c4ecdf17d6f30ae43df7e
 F src/main.mk 8d842af44e6565ef0e1406ce2beaebaf8c0d8394
-F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
+F src/makeheaders.c e8444028f575e84075e46cf47f2080fa6d2c2115
 F src/makeheaders.html 06decb89c665feb897540613d7d12527eb65dfe5
 F src/makemake.tcl c8216084aeb35262ff9abfd4a2d5c3a9ccc2d176
 F src/manifest.c e904566ce0f19b57b920b05a48c42cb578fbd851
@@ -477,13 +477,13 @@ F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b44df10abbab7d4f63a61057eaa3fb4e0b5c693d
 F src/setup.c f772c3edb8ce2377e86b92eb6e6d054779eb68b1
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
-F src/shell.c 9351fc6de11e1d908648c0a92d85627138e3dee5
+F src/shell.c 79dda477be6c96eba6e952a934957ad36f87acc7
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 6fbec2fbaf3bb39566f2550b12f58127c9bfa850
 F src/skins.c 524384aafbe9e7707d3b87f42ee72fa63fe91796
 F src/sqlcmd.c 67a6b4ac894633d8346dc890a5b179a0ac3b1925
-F src/sqlite3.c ad7e6b7b2728a673d6a518ac9e54107ff6b45d9a
-F src/sqlite3.h 29356c490eecfd67080764550378348b28a0de47
+F src/sqlite3.c 957f10bedf6e8a2a2ca13494de3295fbb01b08c3
+F src/sqlite3.h 6ffe58ad5b99b3de31d4b159c7a1338f8b178682
 F src/stash.c ccb0d94252422f28178119825a99c6bce45924d6
 F src/stat.c 82a4439d096fe0fb231e27f49f2b2ff13dacf014
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
@@ -504,7 +504,7 @@ F src/undo.c 52ec5c24a6dcf1937026e2d9f86791fd1913cdf6
 F src/unicode.c 8e02b4fd6af9e735bda68eb06e3be90b6b901a87
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
-F src/user.c ce247e9a66101e34e79fa2e0dfc8114e680c0237
+F src/user.c e2c08deb9a3ce011d3db10f70216a7988485e29a
 F src/utf8.c 5c85c7e88b82b5fb48649c46f063ac94ab58eb20
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
@@ -736,7 +736,7 @@ F www/reviews.wiki 866e545f89fce7cff29c96a29ab10586692f3964
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki d1e2fc5baf9ade46815499c9758256a22efe8142
 F www/selfhost.wiki 03de31d67690fe47972589e4e1e395e11559c85c
-F www/server.wiki 782ca2e63e3812e9a3c71fe8511b7b58ba91a762
+F www/server.wiki 99fb9a59df8d04b6cb6f9f4b3c9fae93dc85e392
 F www/settings.wiki 12b7e736432b0081a7e6a3d7b9e184d04f482ef7
 F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
@@ -752,7 +752,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 45fcac621f1e3c4425cb7caaaa9cd043f49afdc8
-R 3917fadbd838c39ce7cd0073bf03c17b
+P 263fd2dab2ec443af58b7d835be75dad2274622b f1a480e130fecefc11da95418812cc10bd21a7e9
+R 0f76645ca7c55e6f61ea1886d41ae51e
 U drh
-Z 4a0e261d3912fbfe8a0034a94de4f093
+Z ca7f5a9c879c7fe786aed863e150161f

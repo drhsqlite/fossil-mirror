@@ -88,7 +88,7 @@ void attachlist_page(void){
     const char *zUser = db_column_text(&q, 5);
     const char *zUuid = db_column_text(&q, 6);
     int attachid = db_column_int(&q, 7);
-    // type 0 is a wiki page, 1 is a ticket, 2 is a tech note
+    /* type 0 is a wiki page, 1 is a ticket, 2 is a tech note */
     int type = db_column_int(&q, 8);
     const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
     int i;

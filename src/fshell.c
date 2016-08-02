@@ -29,6 +29,11 @@
 #include "fshell.h"
 #include <ctype.h>
 
+#ifndef _WIN32
+#include <sys/types.h>
+#include <sys/wait.h>
+#endif
+
 
 /*
 ** COMMAND: shell*
