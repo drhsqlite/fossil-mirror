@@ -1,5 +1,5 @@
-C Add\sdocumentation\sof\sthe\srepolist\smode\sto\sthe\sCGI\scommand.
-D 2016-08-02T17:59:01.559
+C Fix\sa\stypo\sin\sthe\s"fossil\spurge"\scommand\sdocumentation.
+D 2016-08-02T18:17:55.709
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -468,7 +468,7 @@ F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 2de9ca8ea140e35da05eafeb6a447a2fd4069438
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
-F src/purge.c cae0af721752d5dafebd29a3e4ae5cc5e755cc13
+F src/purge.c 00e8a4851accabf2aa26f492480cf8de282f9508
 F src/rebuild.c 382e418f6883e371e057dcbfe97054d60e294bf7
 F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c 3dd19351cd1461653bd07a234d3cc4aaff8845ac
@@ -752,7 +752,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 66d003805153abdc0104a66d7c86f5044c4a1395
-R 51d5bbef49847c57fd554cd902154298
-U rberteig
-Z da14a5e6f9e35e4ddcf18808e307ff43
+P 20e9731ccdfa78fe3a66992c8d1577320a8a5ea2
+R 967a7dabe126a5a8a9e550c75dbea87b
+U drh
+Z eb5863231cf1567c079639d73bd2ac92
