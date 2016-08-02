@@ -2054,6 +2054,10 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **    notfound: URL            When in "directory:" mode, redirect to
 **                             URL if no suitable repository is found.
 **
+**    repolist                 When in "directory:" mode, display a page
+**                             showing a list of available repositories if
+**                             the URL is "/".
+**
 **    localauth                Grant administrator privileges to connections
 **                             from 127.0.0.1 or ::1.
 **

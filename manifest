@@ -1,5 +1,5 @@
-C Improved\sdocumentation\sfor\sthe\s"fossil\scgi"\scommand.
-D 2016-08-02T17:17:01.758
+C Add\sdocumentation\sof\sthe\srepolist\smode\sto\sthe\sCGI\scommand.
+D 2016-08-02T17:59:01.559
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -443,7 +443,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 32febde85f14593a503aadbb51983d37fce009c2
 F src/login.c 13788b9e70f2cfb13ea4e975a4117c68ed8115f0
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
-F src/main.c 2389c8d274c8779578767aa782b949b9ead8c695
+F src/main.c ec910699792ba37effab59913e954ef7d169ac41
 F src/main.mk 8d842af44e6565ef0e1406ce2beaebaf8c0d8394
 F src/makeheaders.c e8444028f575e84075e46cf47f2080fa6d2c2115
 F src/makeheaders.html 06decb89c665feb897540613d7d12527eb65dfe5
@@ -752,7 +752,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b78a32f43d5d0430ab8d64528516dd4a20d34a43
-R 3937990081c0628af7cd04168b4f905d
-U drh
-Z 3ab12e5ff2865b9a868b1e8b8efd693b
+P 66d003805153abdc0104a66d7c86f5044c4a1395
+R 51d5bbef49847c57fd554cd902154298
+U rberteig
+Z da14a5e6f9e35e4ddcf18808e307ff43
