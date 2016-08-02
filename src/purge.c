@@ -454,7 +454,8 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
 **
 ** The purge command removes content from a repository and stores that content
 ** in a "graveyard".  The graveyard exists so that content can be recovered
-** using the "fossil purge undo" command.
+** using the "fossil purge undo" command.  The "fossil purge obliterate"
+** command empties the graveyard, making the content unrecoverable.
 **
 ** ==== WARNING: This command can potentially destroy historical data and ====
 ** ==== leave your repository in a goofy state. Know what you are doing!  ====
@@ -578,7 +579,6 @@ void purge_cmd(void){
       fossil_fatal("cannot purge the current checkout");
     }
     find_checkin_associates("ok", 1);
-    describe_artifacts_to_stdout("IN ok", 0);
     purge_artifact_list("ok", "", purgeFlags);
     db_end_transaction(0);
   }else if( strncmp(zSubcmd, "files", n)==0 ){
@@ -594,7 +594,6 @@ void purge_cmd(void){
          g.argv[i], g.argv[i]
       );
     }
-    describe_artifacts_to_stdout("IN ok", 0);
     purge_artifact_list("ok", "", purgeFlags);
     db_end_transaction(0);
   }else if( strncmp(zSubcmd, "list", n)==0 || strcmp(zSubcmd,"ls")==0 ){
