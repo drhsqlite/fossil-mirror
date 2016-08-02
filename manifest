@@ -1,5 +1,5 @@
-C Fix\sa\stypo\sin\sthe\s"fossil\spurge"\scommand\sdocumentation.
-D 2016-08-02T18:17:55.709
+C New\sdocumentation\son\show\sCGI\sworks\sin\sFossil.\s\sThis\sis\sa\swork-in-progress.
+D 2016-08-02T19:42:13.524
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -646,6 +646,7 @@ F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
+F www/aboutcgi.wiki 52368785475b63bf6b25f1d6776696f3dd5c39bd
 F www/adding_code.wiki b769f1c0b4fd661ea7d3a22e6bbc10d9ebeed677
 F www/antibot.wiki 2cb08df5fdf129d683b1fa104c93c6785660432b
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
@@ -723,10 +724,10 @@ F www/index.wiki 3fc360452fd46c506e0f0abebee1c666b03e7857
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki 30c7129ffb00c58699b87e84a2c0b696d7c10406
 F www/mkdownload.tcl 5ac61a3e13cecaa67f1e31741113c96cbd41463f
-F www/mkindex.tcl 7b1ae384f0a6c5966f2a9b674e12e4655b9d81e3
+F www/mkindex.tcl 5f918c097ce054d34ff6d82396f6c0ef7401118e
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
-F www/permutedindex.html c6c6b338f2fb98f6c89549136bfb85d5a7b30eed
+F www/permutedindex.html dbad632e2a8e5354b9f996432fbbbd9958c9f6d6
 F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
 F www/private.wiki 72344489bbae6f7955369559b6ab22e01a64259b
 F www/qandc.wiki e07b21da221b05afeb1905f17af3765045952ba8
@@ -736,7 +737,7 @@ F www/reviews.wiki 866e545f89fce7cff29c96a29ab10586692f3964
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki d1e2fc5baf9ade46815499c9758256a22efe8142
 F www/selfhost.wiki 03de31d67690fe47972589e4e1e395e11559c85c
-F www/server.wiki 99fb9a59df8d04b6cb6f9f4b3c9fae93dc85e392
+F www/server.wiki c7830779213b4bee163eabeaeb984724472acbd1
 F www/settings.wiki 12b7e736432b0081a7e6a3d7b9e184d04f482ef7
 F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
@@ -752,7 +753,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 20e9731ccdfa78fe3a66992c8d1577320a8a5ea2
-R 967a7dabe126a5a8a9e550c75dbea87b
+P c14ecc432af739bcaca83e420e26db7eb5abf1e5
+R 74dc2870e128e10d35e8dcd952e0ebab
 U drh
-Z eb5863231cf1567c079639d73bd2ac92
+Z 353b3506e817cb96aa1abaa81dd4c9d6

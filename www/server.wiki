@@ -7,7 +7,9 @@ page you are now reading (but excepting the
 [https://www.fossil-scm.org/download.html|download page]),
 is just a Fossil server displaying the content of the 
 self-hosting repository for Fossil.</p>
-<p>This article is a guide for setting up your own Fossil server.</p></blockquote>
+<p>This article is a guide for setting up your own Fossil server.
+<p>See the [./aboutcgi.wiki|How CGI Works In Fossil] document for background
+information on the underlying technology.</p></blockquote>
 <h2>Overview</h2><blockquote>
 There are basically four ways to set up a Fossil server:
 <ol>
