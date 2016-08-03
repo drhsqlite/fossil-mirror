@@ -1,5 +1,5 @@
-C Merge\swith\strunk;\sresolved\star\sand\szip\sgeneration\sto\shandle\sinclude/exclude\sglobs.
-D 2016-08-03T01:18:14.693
+C For\sopened\sworking\strees,\sstore\scurrent\sbranch\sat\stop\sof\smanifest.tags.
+D 2016-08-03T14:30:54.525
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -385,7 +385,7 @@ F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c 10310d276e72e3e34343e3385c0b39fac5cd826e
 F src/checkin.c 3ec16c33aa72df94f072924f8d657d28a1bda4f4
-F src/checkout.c 7b819b9f12ea67c1778ab52272ea84959d0d647e
+F src/checkout.c 7863675d360b5d56a11108f92049153ebc51a4a7
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c e2ad376a51231876336d7e91ca96cb63ec81cf1a
 F src/codecheck1.c bf92e19b6a521f947c07960aae3f2aa9a21e4c42
@@ -752,7 +752,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9a41671bb2ffdb317fa743a3ce1d7c92e5545253 b78a32f43d5d0430ab8d64528516dd4a20d34a43
-R 9e2b28b75a45515134846f93678e4fbe
+P de9e7651a97afcc2b1bb669cbd3dbdd86bb0e19d
+R 6645ae4de8e7bf720b10270155245b24
 U jan
-Z eb79e69afd120787dced4ebe7d3169ac
+Z 39e47ac2f0757702cbec5175f3d32f52
