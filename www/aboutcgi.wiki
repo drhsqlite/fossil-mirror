@@ -1,7 +1,7 @@
 <title>How CGI Works In Fossil</title>
 <h2>Introduction</h2><blockquote>
 <p>CGI or "Common Gateway Interface" is a venerable yet reliable technique for
-generating dynamic web content.  This article give a quick background on how
+generating dynamic web content.  This article gives a quick background on how
 CGI works and describes how Fossil can act as a CGI service.
 <p>This is a "how it works" guide.  If you just want to set up Fossil
 as a CGI server, see the [./server.wiki | Fossil Server Setup] page.
@@ -92,7 +92,7 @@ like the following:
 repository: /home/www/repos/project.fossil
 </pre></blockquote>
 The first line of the script is a 
-"[https://en.wikipedia.org/wiki/Shebang_%28Unix%29|shebank]"
+"[https://en.wikipedia.org/wiki/Shebang_%28Unix%29|shebang]"
 that tells the operating system what program to use as the interpreter
 for this script.  On unix, when you execute a script that starts with
 a shebang, the operating system runs the program identified by the
@@ -159,10 +159,10 @@ directory: /home/www/repos
 Suppose the /home/www/repos directory contains files named
 <b>one.fossil</b>, <b>two.fossil</b>, and <b>subdir/three.fossil</b>.
 Further suppose that the name of the CGI script (relative to the root
-of the webservers document area) is "cgis/example2".  Then to
+of the webserver document area) is "cgis/example2".  Then to
 see the timeline for the "three.fossil" repository, the URL would be:
 <blockquote>
-<b>http://yourstuff.com/cgis/example2/subdir/three/timeline</b>
+<b>http://example.com/cgis/example2/subdir/three/timeline</b>
 </blockquote>
 Here is what happens:
 <ol>
@@ -197,7 +197,7 @@ source is seen as a space of key/value pairs which are loaded into an
 internal property hash table.  The code that runs to generate the reply
 can then reference various properties values.
 Fossil does not care where the value of each property comes from (POST
-content, cookies, or query parameters) only that the property exist 
+content, cookies, or query parameters) only that the property exists
 and has a value.
 <li><p>
 The "[/help?cmd=ui|fossil ui]" and "[/help?cmd=server|fossil server]" commands
