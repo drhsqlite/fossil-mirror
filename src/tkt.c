@@ -425,7 +425,7 @@ void test_ticket_rebuild(void){
 */
 static void showAllFields(void){
   int i;
-  @ <font color="blue">
+  @ <div style="color:blue">
   @ <p>Database fields:</p><ul>
   for(i=0; i<nField; i++){
     @ <li>aField[%d(i)].zName = "%h(aField[i].zName)";
@@ -436,7 +436,7 @@ static void showAllFields(void){
     }
     @ mUsed = %d(aField[i].mUsed);
   }
-  @ </ul></font>
+  @ </ul></div>
 }
 
 /*
@@ -654,11 +654,12 @@ static int submitTicketCmd(
   if( g.zPath[0]=='d' ){
     const char *zNeedMod = needMod ? "required" : "skipped";
     /* If called from /debug_tktnew or /debug_tktedit... */
-    @ <font color="blue">
+    @ <div style="color:blue">
     @ <p>Ticket artifact that would have been submitted:</p>
     @ <blockquote><pre>%h(blob_str(&tktchng))</pre></blockquote>
     @ <blockquote><pre>Moderation would be %h(zNeedMod).</pre></blockquote>
-    @ <hr /></font>
+    @ </div>
+    @ <hr />
     return TH_OK;
   }else{
     if( g.thTrace ){
@@ -1058,19 +1059,20 @@ void ticket_output_change_artifact(Manifest *pTkt, const char *zListType){
 
 /*
 ** COMMAND: ticket*
+**
 ** Usage: %fossil ticket SUBCOMMAND ...
 **
 ** Run various subcommands to control tickets
 **
-**   %fossil ticket show (REPORTTITLE|REPORTNR) ?TICKETFILTER? ?options?
+**   %fossil ticket show (REPORTTITLE|REPORTNR) ?TICKETFILTER? ?OPTIONS?
 **
-**     options can be:
-**       ?-l|--limit LIMITCHAR?
-**       ?-q|--quote?
-**       ?-R|--repository FILE?
+**     Options:
+**       -l|--limit LIMITCHAR
+**       -q|--quote
+**       -R|--repository FILE
 **
 **     Run the ticket report, identified by the report format title
-**     used in the gui. The data is written as flat file on stdout,
+**     used in the GUI. The data is written as flat file on stdout,
 **     using TAB as separator. The separator can be changed using
 **     the -l or --limit option.
 **
@@ -1080,53 +1082,54 @@ void ticket_output_change_artifact(Manifest *pTkt, const char *zListType){
 **                 TICKETFILTER may be [#]='uuuuuuuuu'
 **       example:  Report only lists rows with status not open
 **                 TICKETFILTER: status != 'open'
-**     If the option -q|--quote is used, the tickets are encoded by
-**     quoting special chars(space -> \\s, tab -> \\t, newline -> \\n,
-**     cr -> \\r, formfeed -> \\f, vtab -> \\v, nul -> \\0, \\ -> \\\\).
-**     Otherwise, the simplified encoding as on the show report raw
-**     page in the gui is used. This has no effect in JSON mode.
 **
-**     Instead of the report title its possible to use the report
-**     number. Using the special report number 0 list all columns,
-**     defined in the ticket table.
+**     If --quote is used, the tickets are encoded by quoting special
+**     chars (space -> \\s, tab -> \\t, newline -> \\n, cr -> \\r,
+**     formfeed -> \\f, vtab -> \\v, nul -> \\0, \\ -> \\\\).
+**     Otherwise, the simplified encoding as on the show report raw page
+**     in the GUI is used. This has no effect in JSON mode.
+**
+**     Instead of the report title it's possible to use the report
+**     number; the special report number 0 lists all columns defined in
+**     the ticket table.
 **
 **   %fossil ticket list fields
 **   %fossil ticket ls fields
 **
-**     list all fields, defined for ticket in the fossil repository
+**     List all fields defined for ticket in the fossil repository.
 **
 **   %fossil ticket list reports
 **   %fossil ticket ls reports
 **
-**     list all ticket reports, defined in the fossil repository
+**     List all ticket reports defined in the fossil repository.
 **
 **   %fossil ticket set TICKETUUID (FIELD VALUE)+ ?-q|--quote?
 **   %fossil ticket change TICKETUUID (FIELD VALUE)+ ?-q|--quote?
 **
-**     change ticket identified by TICKETUUID and set the value of
-**     field FIELD to VALUE.
+**     Change ticket identified by TICKETUUID to set the values of
+**     each field FIELD to VALUE.
 **
 **     Field names as defined in the TICKET table.  By default, these
 **     names include: type, status, subsystem, priority, severity, foundin,
 **     resolution, title, and comment, but other field names can be added
 **     or substituted in customized installations.
 **
-**     If you use +FIELD, the VALUE Is appended to the field FIELD.
-**     You can use more than one field/value pair on the commandline.
-**     Using -q|--quote  enables the special character decoding as
-**     in "ticket show". So it's possible, to set multiline text or
-**     text with special characters.
+**     If you use +FIELD, the VALUE is appended to the field FIELD.  You
+**     can use more than one field/value pair on the commandline.  Using
+**     --quote enables the special character decoding as in "ticket
+**     show", which allows setting multiline text or text with special
+**     characters.
 **
 **   %fossil ticket add FIELD VALUE ?FIELD VALUE .. ? ?-q|--quote?
 **
-**     like set, but create a new ticket with the given values.
+**     Like set, but create a new ticket with the given values.
 **
 **   %fossil ticket history TICKETUUID
 **
 **     Show the complete change history for the ticket
 **
-** The values in set|add are not validated against the definitions
-** given in "Ticket Common Script".
+** Note that the values in set|add are not validated against the
+** definitions given in "Ticket Common Script".
 */
 void ticket_cmd(void){
   int n;

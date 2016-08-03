@@ -229,6 +229,7 @@ location /demo_project/ {
     include scgi_params;
     scgi_pass localhost:9000;
     scgi_param SCRIPT_NAME "/demo_project";
+    scgi_param HTTPS "on";
 }
 </pre></blockquote>
 <p>
@@ -347,11 +348,12 @@ file in the "proc" virtual filesystem.  If you are running a Fossil instance
 inside a chroot() jail on Linux, you will need to make the "/proc" file
 system available inside that jail in order for this feature to work.  On
 the self-hosting Fossil repository, this was accomplished by adding a line
-to the "/etc/mtab" or "/etc/fstab" file that looks like:
+to the "/etc/fstab" file that looks like:
 <blockquote><pre>
-chroot_jail_proc /home/www/proc proc r 0 0
+chroot_jail_proc /home/www/proc proc ro 0 0
 </pre></blockquote>
-Pathnames should be adjusted for individual systems, of course.
+The /home/www/proc pathname should be adjusted so that the "/proc" component is
+in the root of the chroot jail, of course.
 <p>
 To see if the load-average limiter is functional, visit the [/test_env] page
 of the server to view the current load average.  If the value for the load

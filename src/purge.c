@@ -24,7 +24,7 @@
 #include <assert.h>
 
 /*
-** SQL code used to initialize the schema of a bundle.
+** SQL code used to initialize the schema of the graveyard.
 **
 ** The purgeevent table contains one entry for each purge event.  For each
 ** purge event, multiple artifacts might have been removed.  Each removed
@@ -55,6 +55,15 @@ static const char zPurgeInit[] =
 ;
 
 /*
+** Flags for the purge_artifact_list() function.
+*/
+#if INTERFACE
+#define PURGE_MOVETO_GRAVEYARD  0x0001    /* Move artifacts in graveyard */
+#define PURGE_EXPLAIN_ONLY      0x0002    /* Show what would have happened */
+#define PURGE_PRINT_SUMMARY     0x0004    /* Print a summary report at end */
+#endif
+
+/*
 ** This routine purges multiple artifacts from the repository, transfering
 ** those artifacts into the PURGEITEM table.
 **
@@ -83,13 +92,13 @@ static const char zPurgeInit[] =
 **        corresponding ticket entries.  Possibly remove entries from
 **        the ticket table.
 **
-** Stops 1-4 (saving the purged artifacts into the graveyard) are only
+** Steps 1-4 (saving the purged artifacts into the graveyard) are only
 ** undertaken if the moveToGraveyard flag is true.
 */
 int purge_artifact_list(
   const char *zTab,       /* TEMP table containing list of RIDS to be purged */
   const char *zNote,      /* Text of the purgeevent.pnotes field */
-  int moveToGraveyard     /* Move purged artifacts into the graveyard */
+  unsigned purgeFlags     /* zero or more PURGE_* flags */
 ){
   int peid = 0;                 /* New purgeevent ID */
   Stmt q;                       /* General-use prepared statement */
@@ -100,6 +109,16 @@ int purge_artifact_list(
   z = sqlite3_mprintf("IN \"%w\"", zTab);
   describe_artifacts(z);
   sqlite3_free(z);
+  describe_artifacts_to_stdout(0, 0);
+
+  /* The explain-only flags causes this routine to list the artifacts
+  ** that would have been purged but to not actually make any changes
+  ** to the repository.
+  */
+  if( purgeFlags & PURGE_EXPLAIN_ONLY ){
+    db_end_transaction(0);
+    return 0;
+  }
 
   /* Make sure we are not removing a manifest that is the baseline of some
   ** manifest that is being left behind.  This step is not strictly necessary.
@@ -123,7 +142,7 @@ int purge_artifact_list(
 
   /* Construct the graveyard and copy the artifacts to be purged into the
   ** graveyard */
-  if( moveToGraveyard ){
+  if( purgeFlags & PURGE_MOVETO_GRAVEYARD ){
     db_multi_exec(zPurgeInit /*works-like:"%w%w"*/,
                   db_name("repository"), db_name("repository"));
     db_multi_exec(
@@ -191,6 +210,13 @@ int purge_artifact_list(
 
   /* Mission accomplished */
   db_end_transaction(0);
+
+  if( purgeFlags & PURGE_PRINT_SUMMARY ){
+    fossil_print("%d artifacts purged\n",
+                  db_int(0, "SELECT count(*) FROM \"%w\";", zTab));
+    fossil_print("undoable using \"%s purge undo %d\".\n",
+                  g.nameOfExe, peid);
+  }
   return peid;
 }
 
@@ -222,7 +248,7 @@ int purge_baseline_out_from_under_delta(const char *zTab){
 /*
 ** The TEMP table named zTab contains the RIDs for a set of check-in
 ** artifacts.  Expand this set (by adding new entries to zTab) to include
-** all other artifacts that are used the set of check-ins in
+** all other artifacts that are used by the check-ins in
 ** the original list.
 **
 ** If the bExclusive flag is true, then the set is only expanded by
@@ -424,60 +450,109 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
 }
 
 /*
-** COMMAND: purge
+** COMMAND: purge*
 **
 ** The purge command removes content from a repository and stores that content
 ** in a "graveyard".  The graveyard exists so that content can be recovered
-** using the "fossil purge undo" command.
+** using the "fossil purge undo" command.  The "fossil purge obliterate"
+** command empties the graveyard, making the content unrecoverable.
+**
+** ==== WARNING: This command can potentially destroy historical data and ====
+** ==== leave your repository in a goofy state. Know what you are doing!  ====
+** ==== Make a backup of your repository before using this command!       ====
+**
+** ==== FURTHER WARNING: This command is a work-in-progress and may yet   ====
+** ==== contains bugs.                                                    ====
+**
+**   fossil purge artifacts UUID... ?OPTIONS?
+**
+**      Move arbitrary artifacts identified by the UUID list into the 
+**      graveyard.
 **
 **   fossil purge cat UUID...
 **
 **      Write the content of one or more artifacts in the graveyard onto
 **      standard output.
 **
-**   fossil purge ?checkins? TAGS... ?OPTIONS?
+**   fossil purge checkins TAGS... ?OPTIONS?
 **
-**      Move the check-ins identified by TAGS and all of their descendants
-**      out of the repository and into the graveyard.  The "checkins"
-**      subcommand keyword is option and can be omitted as long as TAGS
-**      does not conflict with any other subcommand.
+**      Move the check-ins or branches identified by TAGS and all of 
+**      their descendants out of the repository and into the graveyard.
+**      If TAGS includes a branch name then it means all the check-ins
+**      on the most recent occurrence of that branch.
 **
-**      If a TAGS includes a branch name then it means all the check-ins
-**      on the most recent occurrance of that branch.
+**   fossil purge files NAME ... ?OPTIONS?
 **
-**           --explain         Make no changes, but show what would happen.
-**           --dry-run         Make no chances.
+**      Move all instances of files called NAME into the graveyard.
+**      NAME should be the name of the file relative to the root of the
+**      repository.  If NAME is a directory, then all files within that
+**      directory are moved.
 **
 **   fossil purge list|ls ?-l?
 **
 **      Show the graveyard of prior purges.  The -l option gives more
 **      detail in the output.
 **
-**   fossil purge obliterate ID...
+**   fossil purge obliterate ID... ?--force?
 **
 **      Remove one or more purge events from the graveyard.  Once a purge
-**      event is obliterated, it can no longer be undone.
+**      event is obliterated, it can no longer be undone.  The --force
+**      option suppresses the confirmation prompt.
+**
+**   fossil purge tickets NAME ... ?OPTIONS?
+**
+**      TBD...
 **
 **   fossil purge undo ID
 **
 **      Restore the content previously removed by purge ID.
 **
+**   fossil purge wiki NAME ... ?OPTIONS?
+**
+**      TBD...
+**
+** COMMON OPTIONS:
+**
+**   --explain         Make no changes, but show what would happen.
+**   --dry-run         An alias for --explain
+**
 ** SUMMARY:
+**   fossil purge artifacts UUID.. [OPTIONS]
 **   fossil purge cat UUID...
-**   fossil purge [checkins] TAGS... [--explain]
+**   fossil purge checkins TAGS... [OPTIONS]
+**   fossil purge files FILENAME... [OPTIONS]
 **   fossil purge list
 **   fossil purge obliterate ID...
+**   fossil purge tickets NAME... [OPTIONS]
 **   fossil purge undo ID
+**   fossil purge wiki NAME... [OPTIONS]
 */
 void purge_cmd(void){
+  int purgeFlags = PURGE_MOVETO_GRAVEYARD | PURGE_PRINT_SUMMARY;
   const char *zSubcmd;
   int n;
+  int i;
   Stmt q;
+
   if( g.argc<3 ) usage("SUBCOMMAND ?ARGS?");
   zSubcmd = g.argv[2];
   db_find_and_open_repository(0,0);
   n = (int)strlen(zSubcmd);
-  if( strncmp(zSubcmd, "cat", n)==0 ){
+  if( find_option("explain",0,0)!=0 || find_option("dry-run",0,0)!=0 ){
+    purgeFlags |= PURGE_EXPLAIN_ONLY;
+  }
+  if( strncmp(zSubcmd, "artifacts", n)==0 ){
+    verify_all_options();
+    db_begin_transaction();
+    db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
+    for(i=3; i<g.argc; i++){
+      int r = name_to_typed_rid(g.argv[i], "");
+      db_multi_exec("INSERT OR IGNORE INTO ok(rid) VALUES(%d);", r);
+    }
+    describe_artifacts_to_stdout("IN ok", 0);
+    purge_artifact_list("ok", "", purgeFlags);
+    db_end_transaction(0);
+  }else if( strncmp(zSubcmd, "cat", n)==0 ){
     int i, piid;
     Blob content;
     if( g.argc<4 ) usage("cat UUID...");
@@ -489,8 +564,41 @@ void purge_cmd(void){
       blob_write_to_file(&content, "-");
       blob_reset(&content);
     }
-  /* The "checkins" subcommand goes here in alphabetical order, but it must
-  ** be moved to the end since it is the default case */
+  }else if( strncmp(zSubcmd, "checkins", n)==0 ){
+    int vid;
+    if( find_option("explain",0,0)!=0 || find_option("dry-run",0,0)!=0 ){
+      purgeFlags |= PURGE_EXPLAIN_ONLY;
+    }
+    verify_all_options();
+    db_begin_transaction();
+    if( g.argc<=3 ) usage("checkins TAGS... [OPTIONS]");
+    db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
+    for(i=3; i<g.argc; i++){
+      int r = name_to_typed_rid(g.argv[i], "br");
+      compute_descendants(r, 1000000000);
+    }
+    vid = db_lget_int("checkout",0);
+    if( db_exists("SELECT 1 FROM ok WHERE rid=%d",vid) ){
+      fossil_fatal("cannot purge the current checkout");
+    }
+    find_checkin_associates("ok", 1);
+    purge_artifact_list("ok", "", purgeFlags);
+    db_end_transaction(0);
+  }else if( strncmp(zSubcmd, "files", n)==0 ){
+    verify_all_options();
+    db_begin_transaction();
+    db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
+    for(i=3; i<g.argc; i++){
+      db_multi_exec(
+         "INSERT OR IGNORE INTO ok(rid) "
+         "  SELECT fid FROM mlink, filename"
+         "   WHERE mlink.fnid=filename.fnid"
+         "     AND (filename.name=%Q OR filename.name GLOB '%q/*')",
+         g.argv[i], g.argv[i]
+      );
+    }
+    purge_artifact_list("ok", "", purgeFlags);
+    db_end_transaction(0);
   }else if( strncmp(zSubcmd, "list", n)==0 || strcmp(zSubcmd,"ls")==0 ){
     int showDetail = find_option("l","l",0)!=0;
     if( !db_table_exists("repository","purgeevent") ) return;
@@ -505,7 +613,19 @@ void purge_cmd(void){
     db_finalize(&q);
   }else if( strncmp(zSubcmd, "obliterate", n)==0 ){
     int i;
+    int bForce = find_option("force","f",0)!=0;
     if( g.argc<4 ) usage("obliterate ID...");
+    if( !bForce ){
+      Blob ans;
+      char cReply;
+      prompt_user(
+         "Obliterating the graveyard will permanently delete information.\n"
+         "Changes cannot be undone.  Continue (y/N)? ", &ans);
+      cReply = blob_str(&ans)[0];
+      if( cReply!='y' && cReply!='Y' ){
+        fossil_exit(1);
+      }
+    }
     db_begin_transaction();
     for(i=3; i<g.argc; i++){
       int peid = atoi(g.argv[i]);
@@ -519,64 +639,41 @@ void purge_cmd(void){
       );
     }
     db_end_transaction(0);
+  }else if( strncmp(zSubcmd, "tickets", n)==0 ){
+    fossil_fatal("not yet implemented....");
   }else if( strncmp(zSubcmd, "undo", n)==0 ){
     int peid;
     if( g.argc!=4 ) usage("undo ID");
     peid = atoi(g.argv[3]);
-    db_begin_transaction();
-    db_multi_exec(
-      "CREATE TEMP TABLE ix("
-      "  piid INTEGER PRIMARY KEY,"
-      "  srcid INTEGER"
-      ");"
-      "CREATE INDEX ixsrcid ON ix(srcid);"
-      "INSERT INTO ix(piid,srcid) "
-      "  SELECT piid, coalesce(srcid,0) FROM purgeitem WHERE peid=%d;",
-      peid
-    );
-    db_multi_exec(
-      "DELETE FROM shun"
-      " WHERE uuid IN (SELECT uuid FROM purgeitem WHERE peid=%d);",
-      peid
-    );
-    manifest_crosslink_begin();
-    purge_item_resurrect(0, 0);
-    manifest_crosslink_end(0);
-    db_multi_exec("DELETE FROM purgeevent WHERE peid=%d", peid);
-    db_multi_exec("DELETE FROM purgeitem WHERE peid=%d", peid);
-    db_end_transaction(0);
+    if( (purgeFlags & PURGE_EXPLAIN_ONLY)==0 ){
+      db_begin_transaction();
+      db_multi_exec(
+        "CREATE TEMP TABLE ix("
+        "  piid INTEGER PRIMARY KEY,"
+        "  srcid INTEGER"
+        ");"
+        "CREATE INDEX ixsrcid ON ix(srcid);"
+        "INSERT INTO ix(piid,srcid) "
+        "  SELECT piid, coalesce(srcid,0) FROM purgeitem WHERE peid=%d;",
+        peid
+      );
+      db_multi_exec(
+        "DELETE FROM shun"
+        " WHERE uuid IN (SELECT uuid FROM purgeitem WHERE peid=%d);",
+        peid
+      );
+      manifest_crosslink_begin();
+      purge_item_resurrect(0, 0);
+      manifest_crosslink_end(0);
+      db_multi_exec("DELETE FROM purgeevent WHERE peid=%d", peid);
+      db_multi_exec("DELETE FROM purgeitem WHERE peid=%d", peid);
+      db_end_transaction(0);
+    }
+  }else if( strncmp(zSubcmd, "wiki", n)==0 ){
+    fossil_fatal("not yet implemented....");
   }else{
-    /* The "checkins" command is the default and so must occur last */
-    int explainOnly = find_option("explain",0,0)!=0;
-    int dryRun = find_option("dry-run",0,0)!=0;
-    int i;
-    int vid;
-    int nCkin;
-    int nArtifact;
-    verify_all_options();
-    db_begin_transaction();
-    i = strncmp(zSubcmd,"checkins",n)==0 ? 3 : 2;
-    if( i>=g.argc ) usage("[checkin] TAGS... [--explain]");
-    db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
-    for(; i<g.argc; i++){
-      int r = name_to_typed_rid(g.argv[i], "br");
-      compute_descendants(r, 1000000000);
-    }
-    vid = db_lget_int("checkout",0);
-    if( db_exists("SELECT 1 FROM ok WHERE rid=%d",vid) ){
-      fossil_fatal("cannot purge the current checkout");
-    }
-    nCkin = db_int(0, "SELECT count(*) FROM ok");
-    find_checkin_associates("ok", 1);
-    nArtifact = db_int(0, "SELECT count(*) FROM ok");
-    if( explainOnly ){
-      describe_artifacts_to_stdout("IN ok", 0);
-    }else{
-      int peid = purge_artifact_list("ok","",1);
-      fossil_print("%d check-ins and %d artifacts purged.\n", nCkin, nArtifact);
-      fossil_print("undoable using \"%s purge undo %d\".\n",
-                    g.nameOfExe, peid);
-    }
-    db_end_transaction(explainOnly||dryRun);
+    fossil_fatal("unknown subcommand \"%s\".\n"
+                 "should be one of:  cat, checkins, files, list, obliterate,"
+                 " tickets, undo, wiki", zSubcmd);
   }
 }

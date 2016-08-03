@@ -373,7 +373,7 @@ int name_collisions(const char *zName){
 }
 
 /*
-** COMMAND:  test-name-to-id
+** COMMAND: test-name-to-id
 **
 ** Convert a name to a full artifact ID.
 */
@@ -667,6 +667,7 @@ void whatis_rid(int rid, int verboseFlag){
 
 /*
 ** COMMAND: whatis*
+** 
 ** Usage: %fossil whatis NAME
 **
 ** Resolve the symbol NAME into its canonical 40-character SHA1-hash
@@ -692,7 +693,7 @@ void whatis_cmd(void){
   /* We should be done with options.. */
   verify_all_options();
 
-  if( g.argc<3 ) usage("whatis NAME ...");
+  if( g.argc<3 ) usage("NAME ...");
   for(i=2; i<g.argc; i++){
     zName = g.argv[i];
     if( i>2 ) fossil_print("%.79c\n",'-');
@@ -722,6 +723,7 @@ void whatis_cmd(void){
 
 /*
 ** COMMAND: test-whatis-all
+** 
 ** Usage: %fossil test-whatis-all
 **
 ** Show "whatis" information about every artifact in the repository
@@ -741,6 +743,7 @@ void test_whatis_all_cmd(void){
 
 /*
 ** COMMAND: test-ambiguous
+** 
 ** Usage: %fossil test-ambiguous [--minsize N]
 **
 ** Show a list of ambiguous SHA1-hash abbreviations of N characters or
@@ -933,12 +936,17 @@ void describe_artifacts(const char *zWhere){
 }
 
 /*
-** Print the content of the description table on stdout
+** Print the content of the description table on stdout.
+**
+** The description table is computed using the WHERE clause zWhere if
+** the zWhere parameter is not NULL.  If zWhere is NULL, then this
+** routine assumes that the description table already exists and is
+** populated and merely prints the contents.
 */
 int describe_artifacts_to_stdout(const char *zWhere, const char *zLabel){
   Stmt q;
   int cnt = 0;
-  describe_artifacts(zWhere);
+  if( zWhere!=0 ) describe_artifacts(zWhere);
   db_prepare(&q,
     "SELECT uuid, summary, isPrivate\n"
     "  FROM description\n"
@@ -955,7 +963,7 @@ int describe_artifacts_to_stdout(const char *zWhere, const char *zLabel){
     cnt++;
   }
   db_finalize(&q);
-  db_multi_exec("DELETE FROM description;");
+  if( zWhere!=0 ) db_multi_exec("DELETE FROM description;");
   return cnt;
 }
 

@@ -167,11 +167,11 @@ static int sqlcmd_autoinit(
 **
 ** WARNING:  Careless use of this command can corrupt a Fossil repository
 ** in ways that are unrecoverable.  Be sure you know what you are doing before
-** running any SQL commands that modifies the repository database.
+** running any SQL commands that modify the repository database.
 **
 ** The following extensions to the usual SQLite commands are provided:
 **
-**    content(X)                Return the contenxt of artifact X.  X can be a
+**    content(X)                Return the content of artifact X.  X can be a
 **                              SHA1 hash or prefix or a tag.
 **
 **    compress(X)               Compress text X.
@@ -182,7 +182,7 @@ static int sqlcmd_autoinit(
 **    checkin_mtime(X,Y)        Return the mtime for the file Y (a BLOB.RID)
 **                              found in check-in X (another BLOB.RID value).
 **
-**    symbolic_name_to_rid(X)   Return a the BLOB.RID corresponding to symbolic
+**    symbolic_name_to_rid(X)   Return the BLOB.RID corresponding to symbolic
 **                              name X.
 **
 **    now()                     Return the number of seconds since 1970.
@@ -190,13 +190,9 @@ static int sqlcmd_autoinit(
 **    REGEXP                    The REGEXP operator works, unlike in
 **                              standard SQLite.
 **
-**    files_of_checkin          The "files_of_check" virtual table is
-**                              available for decoding manifests.
-**
-** Usage example for files_of_checkin:
-**
-**     CREATE VIRTUAL TABLE temp.foci USING files_of_checkin;
-**     SELECT * FROM foci WHERE checkinID=symbolic_name_to_rid('trunk');
+**    files_of_checkin(X)       A table-valued function that returns info on
+**                              all files contained in check-in X.  Example:
+**                                SELECT * FROM files_of_checkin('trunk');
 */
 void cmd_sqlite3(void){
   int noRepository;

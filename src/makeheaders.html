@@ -145,10 +145,10 @@ This means that the entire program must be recompiled frequently,
 leading to a lengthy modify-compile-test cycle and a corresponding
 decrease in programmer productivity.
 <p><li>
-The C programming language requires that declarations depending upon 
+The C programming language requires that declarations depending upon
 each other must occur in a particular order.
 In a program with complex, interwoven data structures, the correct
-declaration order can become very difficult to determine manually, 
+declaration order can become very difficult to determine manually,
 especially when the declarations involved are spread out over several
 files.
 </ol>
@@ -160,7 +160,7 @@ files.
 <p>
 The makeheaders program is designed to ameliorate the problems associated
 with the traditional C programming model by automatically generating
-the interface information in the .h files from 
+the interface information in the .h files from
 interface information contained in other .h files and
 from implementation information in the .c files.
 When the makeheaders program is run, it scans the source
@@ -197,7 +197,7 @@ The generated .h file contains the minimal set of declarations needed
 by the .c file.
 This means that when something changes, a minimal amount of recompilation
 is required to produce an updated executable.
-Experience has shown that this gives a dramatic improvement 
+Experience has shown that this gives a dramatic improvement
 in programmer productivity by facilitating a rapid modify-compile-test
 cycle during development.
 <p><li>
@@ -239,7 +239,7 @@ appropriate.
 But if makeheaders sees that the .h file that it has generated is no
 different from the .h file it generated last time, it doesn't update
 the file.
-This prevents the corresponding .c files from having to 
+This prevents the corresponding .c files from having to
 be needlessly recompiled.
 </p>
 
@@ -301,7 +301,7 @@ In this example, makeheaders will scan the three files named
 but because of the colon on the end of third filename
 it will only generate headers for the first two files.
 Unfortunately,
-it is not possible to get makeheaders to process any file whose 
+it is not possible to get makeheaders to process any file whose
 name contains a colon.
 </p>
 
@@ -339,7 +339,7 @@ Such prototypes are normally omitted.
 Finally, makeheaders also includes a ``-doc'' option.
 This command line option prevents makeheaders from generating any
 headers at all.
-Instead, makeheaders will write to standard output 
+Instead, makeheaders will write to standard output
 information about every definition and declaration that it encounters
 in its scan of source files.
 The information output includes the type of the definition or
@@ -384,7 +384,7 @@ This section will describe several typical uses of makeheaders.
 The simpliest way to use makeheaders is to put all definitions in
 one or more .c files and all structure and type declarations in
 separate .h files.
-The only restriction is that you should take care to chose basenames 
+The only restriction is that you should take care to chose basenames
 for your .h files that are different from the basenames for you
 .c files.
 Recall that if your .c file is named (for example) ``alpha.c''
@@ -461,18 +461,18 @@ command:
 
 The makeheaders program will scan all of the .c files and all of the
 manually written .h files and then automatically generate .h files
-corresponding to all .c files.  
+corresponding to all .c files.
 </p>
 
 <p>
 Note that
-the wildcard expression used in the above example, 
+the wildcard expression used in the above example,
 ``<code>*.[ch]</code>'',
 will expand to include all .h files in the current directory, both
 those entered manually be the programmer and others generated automatically
 by a prior run of makeheaders.
 But that is not a problem.
-The makeheaders program will recognize and ignore any files it 
+The makeheaders program will recognize and ignore any files it
 has previously generated that show up on its input list.
 </p>
 
@@ -532,7 +532,7 @@ declaration of that variable is placed in the header of every
 <p><li>
 When a structure, union or enumeration declaration or a
 function prototype or a C++ class declaration appears in a
-manually produced .h file, that declaration is copied into the 
+manually produced .h file, that declaration is copied into the
 automatically generated
 .h files of all .c files that use the structure, union, enumeration,
 function or class.
@@ -612,9 +612,9 @@ it were a .h file by enclosing that part of the .c file within:
    #if INTERFACE
    #endif
 </pre>
-Thus any structure definitions that appear after the 
-``#if INTERFACE'' but before the corresponding 
-``#endif'' are eligable to be copied into the 
+Thus any structure definitions that appear after the
+``#if INTERFACE'' but before the corresponding
+``#endif'' are eligable to be copied into the
 automatically generated
 .h files of other .c files.
 </p>
@@ -730,7 +730,7 @@ or definitions within
 will become part of the exported interface.
 The ``#if EXPORT_INTERFACE'' mechanism can be used in either
 .c or .h files.
-(The ``#if INTERFACE'' can also be used in both .h and .c files, 
+(The ``#if INTERFACE'' can also be used in both .h and .c files,
 but since it's use in a .h file would be redundant, we haven't mentioned
 it before.)
 </p>
@@ -753,7 +753,7 @@ of private declarations into the correct order for us automatically.
 Or, we could have static functions and procedures for which we would like
 makeheaders to generate prototypes, but the arguments to these
 functions and procedures uses private declarations.
-In both of these cases, we want makeheaders to be aware of the 
+In both of these cases, we want makeheaders to be aware of the
 private declarations and copy them into the local header file,
 but we don't want makeheaders to propagate the
 declarations outside of the file in which they are declared.
@@ -817,7 +817,7 @@ generate a header file named ``alpha.hpp''.
 <p>
 Makeheaders augments class definitions by inserting prototypes to
 methods were appropriate.  If a method definition begins with one
-of the special keywords <b>PUBLIC</b>, <b>PROTECTED</b>, or 
+of the special keywords <b>PUBLIC</b>, <b>PROTECTED</b>, or
 <b>PRIVATE</b> (in upper-case to distinguish them from the regular
 C++ keywords with the same meaning) then a prototype for that
 method will be inserted into the class definition.  If none of
@@ -876,7 +876,7 @@ Perhaps these issued will be addressed in future revisions.
 <h3>3.7 Conditional Compilation</h3>
 
 <p>
-The makeheaders program understands and tracks the conditional 
+The makeheaders program understands and tracks the conditional
 compilation constructs in the source code files it scans.
 Hence, if the following code appears in a source file
 <pre>
@@ -1056,7 +1056,7 @@ as well as Cygwin32 and MSVC 5.0 for Win32.
 <h2>6.0 Summary And Conclusion</h2>
 
 <p>
-The makeheaders program will automatically generate a minimal header file 
+The makeheaders program will automatically generate a minimal header file
 for each of a set of C source and header files, and will
 generate a composite header file for the entire source file suite,
 for either internal or external use.

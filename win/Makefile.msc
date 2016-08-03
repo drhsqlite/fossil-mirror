@@ -94,8 +94,13 @@ FOSSIL_ENABLE_TH1_HOOKS = 0
 FOSSIL_ENABLE_WINXP = 0
 !endif
 
+# Enable support for the SQLite Encryption Extension?
+!ifndef USE_SEE
+USE_SEE = 0
+!endif
+
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.0.2g
+SSLDIR    = $(B)\compat\openssl-1.0.2h
 SSLINCDIR = $(SSLDIR)\inc32
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)\out32dll
@@ -303,9 +308,15 @@ TCC       = $(TCC) /DUSE_TCL_STUBS=1
 RCC       = $(RCC) /DUSE_TCL_STUBS=1
 !endif
 
+!if $(USE_SEE)!=0
+TCC       = $(TCC) /DUSE_SEE=1
+RCC       = $(RCC) /DUSE_SEE=1
+!endif
+
 SQLITE_OPTIONS = /DNDEBUG=1 \
                  /DSQLITE_OMIT_LOAD_EXTENSION=1 \
                  /DSQLITE_ENABLE_LOCKING_STYLE=0 \
+                 /DSQLITE_LIKE_DOESNT_MATCH_BLOBS=1 \
                  /DSQLITE_THREADSAFE=0 \
                  /DSQLITE_DEFAULT_FILE_FORMAT=4 \
                  /DSQLITE_OMIT_DEPRECATED \
@@ -318,6 +329,7 @@ SQLITE_OPTIONS = /DNDEBUG=1 \
                  /DSQLITE_WIN32_NO_ANSI
 
 SHELL_OPTIONS = /Dmain=sqlite3_shell \
+                /DSQLITE_SHELL_IS_UTF8=1 \
                 /DSQLITE_OMIT_LOAD_EXTENSION=1 \
                 /DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE) \
                 /DSQLITE_SHELL_DBNAME_PROC=fossil_open \
@@ -363,6 +375,7 @@ SRC   = add_.c \
         file_.c \
         finfo_.c \
         foci_.c \
+        fshell_.c \
         fusefs_.c \
         glob_.c \
         graph_.c \
@@ -534,6 +547,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\file$O \
         $(OX)\finfo$O \
         $(OX)\foci$O \
+        $(OX)\fshell$O \
         $(OX)\fusefs$O \
         $(OX)\glob$O \
         $(OX)\graph$O \
@@ -714,6 +728,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\file.obj >> $@
 	echo $(OX)\finfo.obj >> $@
 	echo $(OX)\foci.obj >> $@
+	echo $(OX)\fshell.obj >> $@
 	echo $(OX)\fusefs.obj >> $@
 	echo $(OX)\glob.obj >> $@
 	echo $(OX)\graph.obj >> $@
@@ -831,11 +846,23 @@ mkversion$E: $(SRCDIR)\mkversion.c
 codecheck1$E: $(SRCDIR)\codecheck1.c
 	$(BCC) $**
 
-$(OX)\shell$O : $(SRCDIR)\shell.c $B\win\Makefile.msc
-	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) -c $(SRCDIR)\shell.c
+!if $(USE_SEE)!=0
+SQLITE3_SHELL_SRC = $(SRCDIR)\shell-see.c
+!else
+SQLITE3_SHELL_SRC = $(SRCDIR)\shell.c
+!endif
 
-$(OX)\sqlite3$O : $(SRCDIR)\sqlite3.c $B\win\Makefile.msc
-	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SRCDIR)\sqlite3.c
+$(OX)\shell$O : $(SQLITE3_SHELL_SRC) $B\win\Makefile.msc
+	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) -c $(SQLITE3_SHELL_SRC)
+
+!if $(USE_SEE)!=0
+SQLITE3_SRC = $(SRCDIR)\sqlite3-see.c
+!else
+SQLITE3_SRC = $(SRCDIR)\sqlite3.c
+!endif
+
+$(OX)\sqlite3$O : $(SQLITE3_SRC) $B\win\Makefile.msc
+	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SEE_FLAGS) $(SQLITE3_SRC)
 
 $(OX)\th$O : $(SRCDIR)\th.c
 	$(TCC) /Fo$@ -c $**
@@ -1100,6 +1127,12 @@ $(OX)\foci$O : foci_.c foci.h
 	$(TCC) /Fo$@ -c foci_.c
 
 foci_.c : $(SRCDIR)\foci.c
+	translate$E $** > $@
+
+$(OX)\fshell$O : fshell_.c fshell.h
+	$(TCC) /Fo$@ -c fshell_.c
+
+fshell_.c : $(SRCDIR)\fshell.c
 	translate$E $** > $@
 
 $(OX)\fusefs$O : fusefs_.c fusefs.h
@@ -1655,6 +1688,7 @@ headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 			file_.c:file.h \
 			finfo_.c:finfo.h \
 			foci_.c:foci.h \
+			fshell_.c:fshell.h \
 			fusefs_.c:fusefs.h \
 			glob_.c:glob.h \
 			graph_.c:graph.h \

@@ -393,6 +393,25 @@ proc test_status_list {name result expected {constraints ""}} {
   }
 }
 
+# Perform a test on the contents of a file
+#
+proc test_file_contents {name path expected {constraints ""}} {
+  if {[file exists $path]} {
+    set result [read_file $path]
+    set passed [expr {$result eq $expected}]
+    if {!$passed} {
+      set expectedLines [split $expected "\n"]
+      set resultLines [split $result "\n"]
+      protOut "  Expected:\n    [join $expectedLines "\n    "]" 1
+      protOut "  Got:\n    [join $resultLines "\n    "]" 1
+    }
+  } else {
+    set passed 0
+    protOut "  File does not exist: $path" 1
+  }
+  test $name $passed $constraints
+}
+
 # Append all arguments into a single value and then returns it.
 #
 proc appendArgs {args} {

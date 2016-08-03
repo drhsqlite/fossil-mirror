@@ -26,6 +26,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include "file.h"
@@ -402,6 +403,31 @@ char *file_dirname(const char *z){
 }
 
 /*
+** Rename a file or directory.
+** Returns zero upon success.
+*/
+int file_rename(
+  const char *zFrom,
+  const char *zTo,
+  int isFromDir,
+  int isToDir
+){
+  int rc;
+#if defined(_WIN32)
+  wchar_t *zMbcsFrom = fossil_utf8_to_path(zFrom, isFromDir);
+  wchar_t *zMbcsTo = fossil_utf8_to_path(zTo, isToDir);
+  rc = _wrename(zMbcsFrom, zMbcsTo);
+#else
+  char *zMbcsFrom = fossil_utf8_to_path(zFrom, isFromDir);
+  char *zMbcsTo = fossil_utf8_to_path(zTo, isToDir);
+  rc = rename(zMbcsFrom, zMbcsTo);
+#endif
+  fossil_path_free(zMbcsTo);
+  fossil_path_free(zMbcsFrom);
+  return rc;
+}
+
+/*
 ** Copy the content of a file from one place to another.
 */
 void file_copy(const char *zFrom, const char *zTo){
@@ -495,7 +521,7 @@ void test_set_mtime(void){
   char *zDate;
   i64 iMTime;
   if( g.argc!=4 ){
-    usage("test-set-mtime FILENAME DATE/TIME");
+    usage("FILENAME DATE/TIME");
   }
   db_open_or_attach(":memory:", "mem", 0);
   iMTime = db_int64(0, "SELECT strftime('%%s',%Q)", g.argv[3]);
@@ -798,7 +824,7 @@ int file_simplify_name(char *z, int n, int slash){
 /*
 ** COMMAND: test-simplify-name
 **
-** %fossil test-simplify-name FILENAME...
+** Usage: %fossil test-simplify-name FILENAME...
 **
 ** Print the simplified versions of each FILENAME.
 */
@@ -898,7 +924,8 @@ void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
 }
 
 /*
-** COMMAND:  test-canonical-name
+** COMMAND: test-canonical-name
+** 
 ** Usage: %fossil test-canonical-name FILENAME...
 **
 ** Test the operation of the canonical name generator.
@@ -1035,7 +1062,7 @@ void file_relative_name(const char *zOrigName, Blob *pOut, int slash){
 }
 
 /*
-** COMMAND:  test-relative-name
+** COMMAND: test-relative-name
 **
 ** Test the operation of the relative name generator.
 */
@@ -1149,7 +1176,7 @@ int file_tree_name(
 }
 
 /*
-** COMMAND:  test-tree-name
+** COMMAND: test-tree-name
 **
 ** Test the operation of the tree name generator.
 **

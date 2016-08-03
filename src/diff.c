@@ -2283,7 +2283,7 @@ void annotation_page(void){
   showLog = atoi(PD("log","1"));
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  if( exclude_spiders("annotate") ) return;
+  if( exclude_spiders() ) return;
   load_control();
   mid = name_to_typed_rid(PD("checkin","0"),"ci");
   zFilename = P("filename");
@@ -2379,7 +2379,7 @@ void annotation_page(void){
 #endif
     }
     @ </ol>
-    @ <hr>
+    @ <hr />
   }
   if( !ann.bLimit ){
     @ <h2>Origin for each line in
@@ -2437,7 +2437,7 @@ void annotation_page(void){
 ** COMMAND: blame
 ** COMMAND: praise
 **
-** %fossil (annotate|blame|praise) ?OPTIONS? FILENAME
+** Usage: %fossil (annotate|blame|praise) ?OPTIONS? FILENAME
 **
 ** Output the text of a file with markings to show when each line of
 ** the file was last modified.  The "annotate" command shows line numbers

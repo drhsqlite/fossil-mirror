@@ -121,7 +121,7 @@ int fossil_isalnum(char c){
 /*
 ** COMMAND: test-isspace
 **
-** Verify that the fossil_isspace() routine is working correctly but
+** Verify that the fossil_isspace() routine is working correctly by
 ** testing it on all possible inputs.
 */
 void isspace_cmd(void){
@@ -654,9 +654,6 @@ void blob_copy_lines(Blob *pTo, Blob *pFrom, int N){
 int blob_is_uuid(Blob *pBlob){
   return blob_size(pBlob)==UUID_SIZE
          && validate16(blob_buffer(pBlob), UUID_SIZE);
-}
-int blob_is_uuid_n(Blob *pBlob, int n){
-  return blob_size(pBlob)==n && validate16(blob_buffer(pBlob), n);
 }
 
 /*

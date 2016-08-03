@@ -6,7 +6,7 @@ If you start out using one DVCS and later decide you like the other better,
 you can easily [./inout.wiki | move your content]&#185;.
 
 Fossil and [http://git-scm.com | Git] are very similar in many respects,
-but there are also important differences.
+but they also have important differences.
 See the table below for
 a high-level summary and the text that follows for more details.
 
@@ -21,7 +21,7 @@ exporting from Fossil to Git.</i></small>
 
 <h2>2.0 Executive Summary:</h2>
 
-<blockquote><center><table border=1 cellpadding=5>
+<blockquote><table border=1 cellpadding=5 align=center>
 <tr><th width="50%">GIT</th><th width="50%">FOSSIL</th></tr>
 <tr><td>File versioning only</td>
     <td>Versioning, Tickets, Wiki, and Technotes</td></tr>
@@ -36,13 +36,13 @@ exporting from Fossil to Git.</i></small>
 <tr><td>Remembers what you should have done</td>
     <td>Remembers what you actually did</td></tr>
 <tr><td>GPL</td><td>BSD</td></tr>
-</table></center></blockquote>
+</table></blockquote>
 
 <h2>3.0 Discussion</h2>
 
 <h3>3.1 Feature Set</h3>
 
-Git provides file versioning services only, whereas Fossil adds an
+Git provides file versioning services only, whereas Fossil adds
 integrated [./wikitheory.wiki | wiki],
 [./bugtheory.wiki | ticketing &amp; bug tracking],
 [./embeddeddoc.wiki | embedded documentation], and
@@ -60,7 +60,7 @@ For developers who choose to self-host projects (rather than using a
 3rd-party service such as GitHub) Fossil is much easier to set up, since
 the stand-alone Fossil executable together with a 2-line CGI script
 suffice to instantiate a full-featured developer website.  To accomplish
-the same using Git requires locating, installing, configuring, integrating, 
+the same using Git requires locating, installing, configuring, integrating,
 and managing a wide assortment of separate tools.  Standing up a developer
 website using Fossil can be done in minutes, whereas doing the same using
 Git requires hours or days.
@@ -71,9 +71,9 @@ The baseline data structures for Fossil and Git are the same (modulo
 formatting details).  Both systems store check-ins as immutable
 objects referencing their immediate ancestors and named by their SHA1 hash.
 
-The difference is that Git stores its objects as individual files 
+The difference is that Git stores its objects as individual files
 in the ".git" folder or compressed into
-bespoke "pack-files", whereas Fossil stores its objects in a 
+bespoke "pack-files", whereas Fossil stores its objects in a
 relational ([https://www.sqlite.org/|SQLite]) database file.  To put it
 another way, Git uses an ad-hoc pile-of-files key/value database whereas
 Fossil uses a proven, general-purpose SQL database.  This
@@ -81,7 +81,7 @@ difference is more than an implementation detail.  It
 has important consequences.
 
 With Git, one can easily locate the ancestors of a particular check-in
-by following the pointers embedded the check-in object, but it is
+by following the pointers embedded in the check-in object, but it is
 difficult to go the other direction and locate the descendants of a
 check-in.  It is so difficult, in fact, that neither native Git nor
 GitHub provide this capability.  With Git, if you are looking at some
@@ -89,9 +89,9 @@ historical check-in then you cannot ask
 "what came next" or "what are the children of this check-in".
 
 Fossil, on the other hand, parses essential information about check-ins
-(parents, children, committers, comments, files changed, etc.) 
-into a relational database that can be easily 
-queried using concise SQL statements to find both ancestors and 
+(parents, children, committers, comments, files changed, etc.)
+into a relational database that can be easily
+queried using concise SQL statements to find both ancestors and
 descendents of a check-in.
 
 Leaf check-ins in Git that lack a "ref" become "detached", making them
@@ -102,7 +102,7 @@ a variety of attributes (parents, children, committer, date, full-text
 search of the check-in comment) and so detached heads are simply not possible.
 
 The ease with which check-ins can be located and queried in Fossil
-has resulted in a huge variety of reports and status screens 
+has resulted in a huge variety of reports and status screens
 ([./webpage-ex.md|examples]) that show project state
 in ways that help developers
 maintain enhanced awareness and comprehension
@@ -114,7 +114,7 @@ Fossil and Git promote different development styles.  Git promotes a
 "bazaar" development style in which numerous anonymous developers make
 small and sometimes haphazard contributions.  Fossil
 promotes a "cathedral" development model in which the project is
-closely supervised by an highly engaged architect and implemented by 
+closely supervised by an highly engaged architect and implemented by
 a clique of developers.
 
 Nota Bene:  This is not to say that Git cannot be used for cathedral-style
@@ -124,7 +124,7 @@ low-friction path.
 
 Git encourages a style in which individual developers work in relative
 isolation, maintaining their
-own branches and the occasionally rebasing and pushing selected changes up
+own branches and occasionally rebasing and pushing selected changes up
 to the main repository.  Developers using Git often have their own
 private branches that nobody else ever sees.  Work becomes siloed.
 This is exactly what one wants when doing bazaar-style development.
@@ -166,15 +166,15 @@ which can be recombined (by experts) to perform powerful operations.
 Git has a lot of complexity and many dependencies and requires an "installer"
 script or program to get it running.
 
-Fossil is a single self-contained stand-alone executable with hardly 
-any dependencies.  Fossil can be (and often is) run inside a 
+Fossil is a single self-contained stand-alone executable with hardly
+any dependencies.  Fossil can be (and often is) run inside a
 minimally configured chroot jail.  To install Fossil,
 one merely puts the executable on $PATH.
 
-The designer of Git says that the unix philosophy is to have lots of 
-small tools that collaborate to get the job done.  The designer of 
-Fossil says that the unix philosophy is "it just works".  Both 
-individuals have written their DVCSes to reflect their own view 
+The designer of Git says that the unix philosophy is to have lots of
+small tools that collaborate to get the job done.  The designer of
+Fossil says that the unix philosophy is "it just works".  Both
+individuals have written their DVCSes to reflect their own view
 of the "unix philosophy".
 
 <h3>3.6 One vs. Many Check-outs per Repository</h3>
@@ -182,7 +182,7 @@ of the "unix philosophy".
 A "repository" in Git is a pile-of-files in the ".git" subdirectory
 of a single check-out.  The check-out and the repository are inseperable.
 
-With Fossil, a "repository" is a single SQLite database file 	
+With Fossil, a "repository" is a single SQLite database file
 that can be stored anywhere.  There
 can be multiple active check-outs from the same repository, perhaps
 open on different branches or on different snapshots of the same branch.
@@ -203,7 +203,7 @@ Fossil, in contrast, puts more emphasis on recording exactly what happened,
 including all of the messy errors, dead-ends, experimental branches, and
 so forth.  One might argue that this
 makes the history of a Fossil project "messy".  But another point of view
-is that this makes the history "accurate".  In actual practice, the 
+is that this makes the history "accurate".  In actual practice, the
 superior reporting tools available in Fossil mean that the added "mess"
 is not a factor.
 
@@ -212,14 +212,14 @@ the victors, whereas Fossil records history as it actually happened.
 
 <h3>3.8 GPL vs. BSD</h3>
 
-Git is covered by the GPL license whereas Fossil is covered by 
+Git is covered by the GPL license whereas Fossil is covered by
 a two-clause BSD license.
 
 Consider the difference between GPL and BSD licenses:  GPL is designed
 to make writing easier at the expense of making reading harder.  BSD is
 designed to make reading easier and the expense of making writing harder.
 
-To a first approximation, the GPL license grants the right to read 
+To a first approximation, the GPL license grants the right to read
 source code to anyone who promises to give back enhancements.  In other
 words, the act of reading GPL source code (a prerequiste for making changes)
 implies acceptance of the license which requires updates to be contributed
@@ -251,7 +251,7 @@ cliquish, cathedral-style approach more typical of BSD-licensed projects.
 Most of the capabilities found in Git are also available in Fossil and
 the other way around. For example, both systems have local check-outs,
 remote repositories, push/pull/sync, bisect capabilities, and a "stash".
-Both systems store project history as a directed acyclic graph (DAG) 
+Both systems store project history as a directed acyclic graph (DAG)
 of immutable check-in objects.
 
 But there are a few capabilities in one system that are missing from the
@@ -273,12 +273,12 @@ other.
 
   *  <b>Named branches</b>
 
-   Branches in Fossil have persistent names that are propagated 
+   Branches in Fossil have persistent names that are propagated
    to collaborators via [/help?cmd=push|push] and [/help?cmd=pull|pull].
    All developers see the same name on the same branch.  Git, in contrast,
    uses only local branch names, so developers working on the
    same project can (and frequently do) use a different name for the
-   same branch.  
+   same branch.
 
   *  <b>The [/help?cmd=all|fossil all] command</b>
 

@@ -79,9 +79,13 @@ int autosync(int flags){
 
 /*
 ** This routine will try a number of times to perform autosync with a
-** 0.5 second sleep between attempts; returning the last autosync status.
+** 0.5 second sleep between attempts.
+**
+** Return zero on success and non-zero on a failure.  If failure occurs
+** and doPrompt flag is true, ask the user if they want to continue, and
+** if they answer "yes" then return zero in spite of the failure.
 */
-int autosync_loop(int flags, int nTries){
+int autosync_loop(int flags, int nTries, int doPrompt){
   int n = 0;
   int rc = 0;
   while( (n==0 || n<nTries) && (rc=autosync(flags)) ){
@@ -93,6 +97,14 @@ int autosync_loop(int flags, int nTries){
         fossil_warning("Autosync failed.");
       }
     }
+  }
+  if( rc && doPrompt ){
+    Blob ans;
+    char cReply;
+    prompt_user("continue in spite of sync failure (y/N)? ", &ans);
+    cReply = blob_str(&ans)[0];
+    if( cReply=='y' || cReply=='Y' ) rc = 0;
+    blob_reset(&ans);
   }
   return rc;
 }
@@ -253,9 +265,9 @@ void push_cmd(void){
 **
 ** Usage: %fossil sync ?URL? ?options?
 **
-** Synchronize all sharable changes between the local repository and a
-** a remote repository.  Sharable changes include public check-ins, and wiki,
-** ticket, and tech-note edits.
+** Synchronize all sharable changes between the local repository and a a
+** remote repository.  Sharable changes include public check-ins and
+** edits to wiki pages, tickets, and technical notes.
 **
 ** If URL is not specified, then the URL from the most recent clone, push,
 ** pull, remote-url, or sync command is used.  See "fossil help clone" for
@@ -318,7 +330,7 @@ void remote_url_cmd(void){
   verify_all_options();
 
   if( g.argc!=2 && g.argc!=3 ){
-    usage("remote-url ?URL|off?");
+    usage("?URL|off?");
   }
   if( g.argc==3 ){
     db_unset("last-sync-url", 0);

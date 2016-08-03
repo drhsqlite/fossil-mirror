@@ -47,6 +47,7 @@ SRC = \
   $(SRCDIR)/file.c \
   $(SRCDIR)/finfo.c \
   $(SRCDIR)/foci.c \
+  $(SRCDIR)/fshell.c \
   $(SRCDIR)/fusefs.c \
   $(SRCDIR)/glob.c \
   $(SRCDIR)/graph.c \
@@ -219,6 +220,7 @@ TRANS_SRC = \
   $(OBJDIR)/file_.c \
   $(OBJDIR)/finfo_.c \
   $(OBJDIR)/foci_.c \
+  $(OBJDIR)/fshell_.c \
   $(OBJDIR)/fusefs_.c \
   $(OBJDIR)/glob_.c \
   $(OBJDIR)/graph_.c \
@@ -340,6 +342,7 @@ OBJ = \
  $(OBJDIR)/file.o \
  $(OBJDIR)/finfo.o \
  $(OBJDIR)/foci.o \
+ $(OBJDIR)/fshell.o \
  $(OBJDIR)/fusefs.o \
  $(OBJDIR)/glob.o \
  $(OBJDIR)/graph.o \
@@ -461,7 +464,7 @@ $(OBJDIR)/mkversion:	$(SRCDIR)/mkversion.c
 $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
 	$(BCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
 
-# Run the test suite. 
+# Run the test suite.
 # Other flags that can be included in TESTFLAGS are:
 #
 #  -halt     Stop testing after the first failed test
@@ -484,6 +487,7 @@ $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/
 SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_OMIT_LOAD_EXTENSION=1 \
                  -DSQLITE_ENABLE_LOCKING_STYLE=0 \
+                 -DSQLITE_LIKE_DOESNT_MATCH_BLOBS=1 \
                  -DSQLITE_THREADSAFE=0 \
                  -DSQLITE_DEFAULT_FILE_FORMAT=4 \
                  -DSQLITE_OMIT_DEPRECATED \
@@ -496,6 +500,7 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
 
 # Setup the options used to compile the included SQLite shell.
 SHELL_OPTIONS = -Dmain=sqlite3_shell \
+                -DSQLITE_SHELL_IS_UTF8=1 \
                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
                 -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE) \
                 -DSQLITE_SHELL_DBNAME_PROC=fossil_open
@@ -509,8 +514,8 @@ MINIZ_OPTIONS = -DMINIZ_NO_STDIO \
 # to 1. If it is set to 1, then there is no need to build or link
 # the sqlite3.o object. Instead, the system SQLite will be linked
 # using -lsqlite3.
-SQLITE3_OBJ.1 =
 SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
+SQLITE3_OBJ.1 =
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 
 # The FOSSIL_ENABLE_MINIZ variable may be undefined, set to 0, or
@@ -529,6 +534,23 @@ LINENOISE_DEF.  = $(LINENOISE_DEF.0)
 LINENOISE_OBJ.0 =
 LINENOISE_OBJ.1 = $(OBJDIR)/linenoise.o
 LINENOISE_OBJ.  = $(LINENOISE_OBJ.0)
+
+# The USE_SEE variable may be undefined, 0 or 1.  If undefined or
+# 0, ordinary SQLite is used.  If 1, then sqlite3-see.c (not part of
+# the source tree) is used and extra flags are provided to enable
+# the SQLite Encryption Extension.
+SQLITE3_SRC.0 = sqlite3.c
+SQLITE3_SRC.1 = sqlite3-see.c
+SQLITE3_SRC. = sqlite3.c
+SQLITE3_SRC = $(SRCDIR)/$(SQLITE3_SRC.$(USE_SEE))
+SQLITE3_SHELL_SRC.0 = shell.c
+SQLITE3_SHELL_SRC.1 = shell-see.c
+SQLITE3_SHELL_SRC. = shell.c
+SQLITE3_SHELL_SRC = $(SRCDIR)/$(SQLITE3_SHELL_SRC.$(USE_SEE))
+SEE_FLAGS.0 =
+SEE_FLAGS.1 = -DSQLITE_HAS_CODEC
+SEE_FLAGS. =
+SEE_FLAGS = $(SEE_FLAGS.$(USE_SEE))
 
 
 EXTRAOBJ = \
@@ -596,6 +618,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/file_.c:$(OBJDIR)/file.h \
 	$(OBJDIR)/finfo_.c:$(OBJDIR)/finfo.h \
 	$(OBJDIR)/foci_.c:$(OBJDIR)/foci.h \
+	$(OBJDIR)/fshell_.c:$(OBJDIR)/fshell.h \
 	$(OBJDIR)/fusefs_.c:$(OBJDIR)/fusefs.h \
 	$(OBJDIR)/glob_.c:$(OBJDIR)/glob.h \
 	$(OBJDIR)/graph_.c:$(OBJDIR)/graph.h \
@@ -952,6 +975,14 @@ $(OBJDIR)/foci.o:	$(OBJDIR)/foci_.c $(OBJDIR)/foci.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/foci.o -c $(OBJDIR)/foci_.c
 
 $(OBJDIR)/foci.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/fshell_.c:	$(SRCDIR)/fshell.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/fshell.c >$@
+
+$(OBJDIR)/fshell.o:	$(OBJDIR)/fshell_.c $(OBJDIR)/fshell.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/fshell.o -c $(OBJDIR)/fshell_.c
+
+$(OBJDIR)/fshell.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/fusefs_.c:	$(SRCDIR)/fusefs.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/fusefs.c >$@
@@ -1641,11 +1672,11 @@ $(OBJDIR)/zip.o:	$(OBJDIR)/zip_.c $(OBJDIR)/zip.h $(SRCDIR)/config.h
 
 $(OBJDIR)/zip.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/sqlite3.o:	$(SRCDIR)/sqlite3.c
-	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) -c $(SRCDIR)/sqlite3.c -o $@
-
-$(OBJDIR)/shell.o:	$(SRCDIR)/shell.c $(SRCDIR)/sqlite3.h
-	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) $(LINENOISE_DEF.$(USE_LINENOISE)) -c $(SRCDIR)/shell.c -o $@
+$(OBJDIR)/sqlite3.o:	$(SQLITE3_SRC)
+	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SEE_FLAGS) \
+		-c $(SQLITE3_SRC) -o $@
+$(OBJDIR)/shell.o:	$(SQLITE3_SHELL_SRC) $(SRCDIR)/sqlite3.h
+	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) $(LINENOISE_DEF.$(USE_LINENOISE)) -c $(SQLITE3_SHELL_SRC) -o $@
 
 $(OBJDIR)/linenoise.o:	$(SRCDIR)/linenoise.c $(SRCDIR)/linenoise.h
 	$(XTCC) -c $(SRCDIR)/linenoise.c -o $@

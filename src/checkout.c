@@ -331,7 +331,7 @@ static void unlink_local_database(int manifestOnly){
 ** Usage: %fossil close ?OPTIONS?
 **
 ** The opposite of "open".  Close the current database connection.
-** Require a -f or --force flag if there are unsaved changed in the
+** Require a -f or --force flag if there are unsaved changes in the
 ** current check-out or if there is non-empty stash.
 **
 ** Options:

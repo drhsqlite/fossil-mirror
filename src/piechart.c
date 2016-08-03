@@ -301,18 +301,18 @@ void piechart_test_page(void){
     @ <svg width=%d(width) height=%d(height) style="border:1px solid #d3d3d3;">
     piechart_render(width,height, PIE_OTHER);
     @ </svg>
-    @ <hr>
+    @ <hr />
   }
   @ <form method="post" action='%R/test-piechart'>
   @ <p>One slice per line.  Value and then Label.<p>
-  @ <textarea name='data' rows='20' cols='80'>%h(zData)</textarea><br/>
+  @ <textarea name='data' rows='20' cols='80'>%h(zData)</textarea><br />
   @ Width: <input type='text' size='8' name='width' value='%d(width)'/>
-  @ Height: <input type='text' size='8' name='height' value='%d(height)'/><br/>
+  @ Height: <input type='text' size='8' name='height' value='%d(height)'/><br />
   @ <input type='hidden' name='width' value='%d(width)'/>
   @ <input type='hidden' name='height' value='%d(height)'/>
   @ <input type='submit' value='Draw The Pie Chart'/>
   @ </form>
-  @ <hr><p>Previous Data:</p>
+  @ <hr /><p>Previous Data:</p>
   @ <table border="1">
   db_prepare(&q, "SELECT rowid, amt, label FROM piechart");
   while( db_step(&q)==SQLITE_ROW ){

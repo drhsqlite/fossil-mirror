@@ -17,7 +17,7 @@ servers so that all servers have copies of all artifacts.  Because
 artifacts are unordered, the order in which artifacts are received
 at a server is inconsequential.  It is assumed that the SHA1 hashes
 of artifacts are unique - that every artifact has a different SHA1 hash.
-To a first approximation, synchronization proceeds by sharing lists 
+To a first approximation, synchronization proceeds by sharing lists
 SHA1 hashes of available artifacts, then sharing those artifacts that
 are not found on one side or the other of the connection.  In practice,
 a repository might contain millions of artifacts.  The list of
@@ -152,7 +152,7 @@ the concatenation of the nonce and the users password.</p>
 
 <p>For each login card, the server looks up the user and verifies
 that the nonce matches the SHA1 hash of the remainder of the
-message.  It then checks the signature hash to make sure the 
+message.  It then checks the signature hash to make sure the
 signature matches.  If everything
 checks out, then the client is granted all privileges of the
 specified user.</p>
@@ -164,7 +164,7 @@ privileges of each individual login.</p>
 <h3>3.3 File and Compressed File Cards</h3>
 
 <p>Artifacts are transferred using either "file" cards, or "cfile" cards.
-(The name "file" card comes from the fact that most artifacts correspond to 
+(The name "file" card comes from the fact that most artifacts correspond to
 files, and "cfile" is just a compressed file.)
 </p>
 
@@ -232,7 +232,7 @@ delta and the second argument is the ID of another artifact that is the
 source of the delta and the third argument is the original size of the
 delta artifact.</p>
 
-<p>Unlike file cards, cfile cards are only sent in one direction during a 
+<p>Unlike file cards, cfile cards are only sent in one direction during a
 clone from server to client for clone protocol version "3" or greater.</p>
 
 <h3>3.4 Push and Pull Cards</h3>
@@ -387,7 +387,7 @@ data elements.
 <p>As of [/timeline?r=trunk&c=2015-03-19+03%3A57%3A46&n=20|2015-03-19], the configuration-name must be one of the
 following values:
 
-<center><table border=0>
+<table border=0 align="center">
 <tr><td valign="top">
 <ul>
 <li> css
@@ -438,7 +438,7 @@ following values:
 <li> @concealed
 <li> @shun
 </ul></td></tr>
-</table></center>
+</table>
 
 <p>New configuration-names are likely to be added in future releases of
 Fossil.  If the server receives a configuration-name that it does not
@@ -455,7 +455,7 @@ The value of the configuration item is returned to the client using a
 
 <p>If the configuration-name begins with "@", that refers to a class of
 values instead of a single value.  The content of these configuration items
-is returned in a "config" card that contains pure SQL text that is 
+is returned in a "config" card that contains pure SQL text that is
 intended to be evaluated by the client.
 
 <p>The @user and @concealed configuration items contain sensitive information
@@ -493,7 +493,7 @@ operation.  An error card looks like this:</p>
 <p>The error message is English text that is encoded in order to
 be a single token.
 A space (ASCII 0x20) is represented as "\s" (ASCII 0x5C, 0x73).  A
-newline (ASCII 0x0a) is "\n" (ASCII 0x6C, x6E).  A backslash 
+newline (ASCII 0x0a) is "\n" (ASCII 0x6C, x6E).  A backslash
 (ASCII 0x5C) is represented as two backslashes "\\".  Apart from
 space and newline, no other whitespace characters nor any
 unprintable characters are allowed in
@@ -660,7 +660,7 @@ are combined with step (9) of a push.</p>
     The request and reply content type is "application/x-fossil".
 <li>HTTP request content is compressed using zlib.
 <li>The content of request and reply consists of cards with one
-    card per line.  
+    card per line.
 <li>Card formats are:
     <ul>
     <li> <b>login</b> <i>userid nonce signature</i>

@@ -75,7 +75,7 @@ static void tar_begin(sqlite3_int64 mTime){
 
 
 /*
-** verify that lla characters in 'zName' are in the
+** Verify that all characters in 'zName' are in the
 ** ISO646 (=ASCII) character set.
 */
 static int is_iso646_name(
@@ -92,7 +92,7 @@ static int is_iso646_name(
 
 
 /*
-**   copy string pSrc into pDst, truncating or padding with 0 if necessary
+**  copy string pSrc into pDst, truncating or padding with 0 if necessary
 */
 static void padded_copy(
   char *pDest,
@@ -448,11 +448,12 @@ void test_tarball_cmd(void){
 
 /*
 ** Given the RID for a check-in, construct a tarball containing
-** all files in that check-in
+** all files in that check-in that match pGlob (or all files if
+** pGlob is NULL).
 **
 ** If RID is for an object that is not a real manifest, then the
 ** resulting tarball contains a single file which is the RID
-** object.
+** object.  pInclude and pExclude are ignored in this case.
 **
 ** If the RID object does not exist in the repository, then
 ** pTar is zeroed.
@@ -464,7 +465,13 @@ void test_tarball_cmd(void){
 ** with source files. For example, pass a UUID or "ProjectName".
 **
 */
-void tarball_of_checkin(int rid, Blob *pTar, const char *zDir){
+void tarball_of_checkin(
+  int rid,             /* The RID of the checkin from which to form a tarball */
+  Blob *pTar,          /* Write the tarball into this blob */
+  const char *zDir,    /* Directory prefix for all file added to tarball */
+  Glob *pInclude,      /* Only add files matching this pattern */
+  Glob *pExclude       /* Exclude files matching this pattern */
+){
   Blob mfile, hash, file;
   Manifest *pManifest;
   ManifestFile *pFile;
@@ -488,26 +495,43 @@ void tarball_of_checkin(int rid, Blob *pTar, const char *zDir){
 
   pManifest = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( pManifest ){
-    int flg;
+    int flg, eflg = 0;
     mTime = (pManifest->rDate - 2440587.5)*86400.0;
     tar_begin(mTime);
     flg = db_get_manifest_setting();
     if( flg ){
-      if( flg & (MFESTFLG_RAW|MFESTFLG_UUID) ){
-        if( flg & MFESTFLG_RAW ){
+      /* eflg is the effective flags, taking include/exclude into account */
+      if( (pInclude==0 || glob_match(pInclude, "manifest"))
+       && !glob_match(pExclude, "manifest")
+       && (flg & MFESTFLG_RAW) ){
+        eflg |= MFESTFLG_RAW;
+      }
+      if( (pInclude==0 || glob_match(pInclude, "manifest.uuid"))
+       && !glob_match(pExclude, "manifest.uuid")
+       && (flg & MFESTFLG_UUID) ){
+        eflg |= MFESTFLG_UUID;
+      }
+      if( (pInclude==0 || glob_match(pInclude, "manifest.tags"))
+       && !glob_match(pExclude, "manifest.tags")
+       && (flg & MFESTFLG_TAGS) ){
+        eflg |= MFESTFLG_TAGS;
+      }
+
+      if( eflg & (MFESTFLG_RAW|MFESTFLG_UUID) ){
+        if( eflg & MFESTFLG_RAW ){
           blob_append(&filename, "manifest", -1);
           zName = blob_str(&filename);
         }
-        if( flg & MFESTFLG_UUID ){
+        if( eflg & MFESTFLG_UUID ){
           sha1sum_blob(&mfile, &hash);
         }
-        if( flg & MFESTFLG_RAW ) {
+        if( eflg & MFESTFLG_RAW ) {
           sterilize_manifest(&mfile);
           tar_add_file(zName, &mfile, 0, mTime);
         }
       }
       blob_reset(&mfile);
-      if( flg & MFESTFLG_UUID ){
+      if( eflg & MFESTFLG_UUID ){
         blob_append(&hash, "\n", 1);
         blob_resize(&filename, nPrefix);
         blob_append(&filename, "manifest.uuid", -1);
@@ -515,7 +539,7 @@ void tarball_of_checkin(int rid, Blob *pTar, const char *zDir){
         tar_add_file(zName, &hash, 0, mTime);
         blob_reset(&hash);
       }
-      if( flg & MFESTFLG_TAGS ){
+      if( eflg & MFESTFLG_TAGS ){
         Blob tagslist;
         blob_zero(&tagslist);
         get_checkin_taglist(rid, &tagslist);
@@ -528,7 +552,10 @@ void tarball_of_checkin(int rid, Blob *pTar, const char *zDir){
     }
     manifest_file_rewind(pManifest);
     while( (pFile = manifest_file_next(pManifest,0))!=0 ){
-      int fid = uuid_to_rid(pFile->zUuid, 0);
+      int fid;
+      if( pInclude!=0 && !glob_match(pInclude, pFile->zName) ) continue;
+      if( glob_match(pExclude, pFile->zName) ) continue;
+      fid = uuid_to_rid(pFile->zUuid, 0);
       if( fid ){
         content_get(fid, &file);
         blob_resize(&filename, nPrefix);
@@ -560,18 +587,33 @@ void tarball_of_checkin(int rid, Blob *pTar, const char *zDir){
 ** Generate a compressed tarball for a specified version.  If the --name
 ** option is used, its argument becomes the name of the top-level directory
 ** in the resulting tarball.  If --name is omitted, the top-level directory
-** named is derived from the project name, the check-in date and time, and
+** name is derived from the project name, the check-in date and time, and
 ** the artifact ID of the check-in.
 **
+** The GLOBLIST argument to --exclude and --include can be a comma-separated
+** list of glob patterns, where each glob pattern may optionally be enclosed
+** in "..." or '...' so that it may contain commas.  If a file matches both
+** --include and --exclude then it is excluded.
+**
 ** Options:
-**   --name DIRECTORYNAME   The name of the top-level directory in the archive
-**   -R REPOSITORY          Specify a Fossil repository
+**   -X|--exclude GLOBLIST   Comma-separated list of GLOBs of files to exclude
+**   --include GLOBLIST      Comma-separated list of GLOBs of files to include
+**   --name DIRECTORYNAME    The name of the top-level directory in the archive
+**   -R REPOSITORY           Specify a Fossil repository
 */
 void tarball_cmd(void){
   int rid;
   Blob tarball;
   const char *zName;
+  Glob *pInclude = 0;
+  Glob *pExclude = 0;
+  const char *zInclude;
+  const char *zExclude;
   zName = find_option("name", 0, 1);
+  zExclude = find_option("exclude", "X", 1);
+  if( zExclude ) pExclude = glob_create(zExclude);
+  zInclude = find_option("include", 0, 1);
+  if( zInclude ) pInclude = glob_create(zInclude);
   db_find_and_open_repository(0, 0);
 
   /* We should be done with options.. */
@@ -597,34 +639,48 @@ void tarball_cmd(void){
        db_get("project-name", "unnamed"), rid, rid
     );
   }
-  tarball_of_checkin(rid, &tarball, zName);
+  tarball_of_checkin(rid, &tarball, zName, pInclude, pExclude);
+  glob_free(pInclude);
+  glob_free(pExclude);
   blob_write_to_file(&tarball, g.argv[3]);
   blob_reset(&tarball);
 }
 
 /*
 ** WEBPAGE: tarball
-** URL: /tarball/RID.tar.gz
+** URL: /tarball
 **
-** Generate a compressed tarball for a check-in.
-** Return that tarball as the HTTP reply content.
+** Generate a compressed tarball for a check-in and return that
+** tarball as the HTTP reply content.
 **
-** Optional URL Parameters:
+** Query parameters:
 **
-** - name=NAME[.tar.gz] is base name of the output file. Defaults to
-** something project/version-specific. The prefix of the name, up to
-** the last '.', are used as the top-most directory name in the tar
-** output.
+**   name=NAME[.tar.gz]  The base name of the output file.  The default
+**                       value is a configuration parameter in the project
+**                       settings.  A prefix of the name, omitting the extension,
+**                       is used as the top-most directory name.
 **
-** - uuid=the version to tar (may be a tag/branch name).
-** Defaults to "trunk".
+**   uuid=TAG            The check-in that is turned into a tarball.
+**                       Defaults to "trunk".
 **
+**   in=PATTERN          Only include files that match the comma-separate
+**                       list of GLOB patterns in PATTERN, as with ex=
+**
+**   ex=PATTERN          Omit any file that match PATTERN.  PATTERN is a
+**                       comma-separated list of GLOB patterns, where each
+**                       pattern can optionally be quoted using ".." or '..'.
+**                       Any file matching both ex= and in= is excluded.
 */
 void tarball_page(void){
   int rid;
   char *zName, *zRid, *zKey;
   int nName, nRid;
-  Blob tarball;
+  const char *zInclude;         /* The in= query parameter */
+  const char *zExclude;         /* The ex= query parameter */
+  Blob cacheKey;                /* The key to cache */
+  Glob *pInclude = 0;           /* The compiled in= glob pattern */
+  Glob *pExclude = 0;           /* The compiled ex= glob pattern */
+  Blob tarball;                 /* Tarball accumulated here */
 
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
@@ -633,6 +689,11 @@ void tarball_page(void){
   nName = strlen(zName);
   zRid = mprintf("%s", PD("uuid","trunk"));
   nRid = strlen(zRid);
+  zInclude = P("in");
+  if( zInclude ) pInclude = glob_create(zInclude);
+  zExclude = P("ex");
+  if( zExclude ) pExclude = glob_create(zExclude);
+
   if( nName>7 && fossil_strcmp(&zName[nName-7], ".tar.gz")==0 ){
     /* Special case:  Remove the ".tar.gz" suffix.  */
     nName -= 7;
@@ -653,12 +714,25 @@ void tarball_page(void){
     return;
   }
   if( nRid==0 && nName>10 ) zName[10] = 0;
-  zKey = db_text(0, "SELECT '/tarball/'||uuid||'/%q'"
-                    "  FROM blob WHERE rid=%d",zName,rid);
+
+  /* Compute a unique key for the cache entry based on query parameters */
+  blob_init(&cacheKey, 0, 0);
+  blob_appendf(&cacheKey, "/tarball/%z", rid_to_uuid(rid));
+  if( zInclude ) blob_appendf(&cacheKey, ",in=%Q", zInclude);
+  if( zExclude ) blob_appendf(&cacheKey, ",ex=%Q", zExclude);
+  blob_appendf(&cacheKey, "/%q", zName);
+  zKey = blob_str(&cacheKey);
+
   if( P("debug")!=0 ){
     style_header("Tarball Generator Debug Screen");
-    @ zName = "%h(zName)"<br>
-    @ rid = %d(rid)<br>
+    @ zName = "%h(zName)"<br />
+    @ rid = %d(rid)<br />
+    if( zInclude ){
+      @ zInclude = "%h(zInclude)"<br />
+    }
+    if( zExclude ){
+      @ zExclude = "%h(zExclude)"<br />
+    }
     @ zKey = "%h(zKey)"
     style_footer();
     return;
@@ -676,12 +750,14 @@ void tarball_page(void){
   }
   blob_zero(&tarball);
   if( cache_read(&tarball, zKey)==0 ){
-    tarball_of_checkin(rid, &tarball, zName);
+    tarball_of_checkin(rid, &tarball, zName, pInclude, pExclude);
     cache_write(&tarball, zKey);
   }
-  free( zName );
-  free( zRid );
-  free( zKey );
+  glob_free(pInclude);
+  glob_free(pExclude);
+  fossil_free(zName);
+  fossil_free(zRid);
+  blob_reset(&cacheKey);
   cgi_set_content(&tarball);
   cgi_set_content_type("application/x-compressed");
 }

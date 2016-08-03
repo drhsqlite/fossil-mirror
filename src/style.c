@@ -203,7 +203,7 @@ void style_resolve_href(void){
     @ gebi("form%d(i+1)").action="%s(aFormAction[i])";
   }
   @ }
-  if( sqlite3_strglob("*Opera Mini/[1-9]*", P("HTTP_USER_AGENT"))==0 ){
+  if( sqlite3_strglob("*Opera Mini/[1-9]*", PD("HTTP_USER_AGENT",""))==0 ){
     /* Special case for Opera Mini, which executes JS server-side */
     @ var isOperaMini = Object.prototype.toString.call(window.operamini)
     @                   === "[object OperaMini]";
@@ -1579,6 +1579,8 @@ void page_test_env(void){
   }else{
     style_submenu_element("Hide Cookies", 0, "%R/test_env");
   }
+  style_submenu_element("Stats", 0, "%R/stat");
+
 #if !defined(_WIN32)
   @ uid=%d(getuid()), gid=%d(getgid())<br />
 #endif
@@ -1604,11 +1606,11 @@ void page_test_env(void){
   }
   @ g.zRepositoryName = %h(g.zRepositoryName)<br />
   @ load_average() = %f(load_average())<br />
-  @ <hr>
+  @ <hr />
   P("HTTP_USER_AGENT");
   cgi_print_all(showAll);
   if( showAll && blob_size(&g.httpHeader)>0 ){
-    @ <hr>
+    @ <hr />
     @ <pre>
     @ %h(blob_str(&g.httpHeader))
     @ </pre>

@@ -51,15 +51,17 @@ void hyperlink_to_event_tagid(int tagid){
 ** WEBPAGE: technote
 ** WEBPAGE: event
 **
-** Display a "technical note" or "tech-note" (formerly called an "event").
+** Display a technical note (formerly called an "event").
 **
 ** PARAMETERS:
 **
-**  name=ID          // Identify the tech-note to display. ID must be complete
-**  aid=ARTIFACTID   // Which specific version of the tech-note.  Optional.
-**  v=BOOLEAN        // Show details if TRUE.  Default is FALSE.  Optional.
+**  name=ID           Identify the technical note to display. ID must be
+**                    complete.
+**  aid=ARTIFACTID    Which specific version of the tech-note.  Optional.
+**  v=BOOLEAN         Show details if TRUE.  Default is FALSE.  Optional.
 **
-** Display an existing event identified by EVENTID
+** Display an existing tech-note identified by its ID, optionally at a
+** specific version, and optionally with additional details. 
 */
 void event_page(void){
   int rid = 0;             /* rid of the event artifact */
@@ -342,11 +344,11 @@ int event_commit_common(
 ** WEBPAGE: technoteedit
 ** WEBPAGE: eventedit
 **
-** Revise or create a technical note (formerly called an 'event').
+** Revise or create a technical note (formerly called an "event").
 **
 ** Parameters:
 **
-**    name=ID           Hex hash ID of the tech-note.  If omitted, a new
+**    name=ID           Hex hash ID of the tech-note. If omitted, a new
 **                      tech-note is created.
 */
 void eventedit_page(void){
@@ -540,40 +542,22 @@ void eventedit_page(void){
 
 /*
 ** Add a new tech note to the repository.  The timestamp is
-** given by the zETime parameter.  isNew must be true to create
+** given by the zETime parameter.  rid must be zero to create
 ** a new page.  If no previous page with the name zPageName exists
 ** and isNew is false, then this routine throws an error.
 */
 void event_cmd_commit(
   char *zETime,             /* timestamp */
-  int isNew,                /* true to create a new page */
+  int   rid,                /* Artifact id of the tech note */
   Blob *pContent,           /* content of the new page */
   const char *zMimeType,    /* mimetype of the content */
   const char *zComment,     /* comment to go on the timeline */
   const char *zTags,        /* tags */
   const char *zClr          /* background color */
 ){
-  int rid;                /* Artifact id of the tech note */
   const char *zId;        /* id of the tech note */
-  rid = db_int(0, "SELECT objid FROM event"
-        " WHERE datetime(mtime)=datetime('%q') AND type = 'e'"
-        " LIMIT 1",
-        zETime
-  );
-  if( rid==0 && !isNew ){
-#ifdef FOSSIL_ENABLE_JSON
-    g.json.resultCode = FSL_JSON_E_RESOURCE_NOT_FOUND;
-#endif
-    fossil_fatal("no such tech note: %s", zETime);
-  }
-  if( rid!=0 && isNew ){
-#ifdef FOSSIL_ENABLE_JSON
-    g.json.resultCode = FSL_JSON_E_RESOURCE_ALREADY_EXISTS;
-#endif
-    fossil_fatal("tech note %s already exists", zETime);
-  }
 
-  if ( isNew ){
+  if ( rid==0 ){
     zId = db_text(0, "SELECT lower(hex(randomblob(20)))");
   }else{
     zId = db_text(0,

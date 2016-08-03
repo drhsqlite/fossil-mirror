@@ -125,15 +125,30 @@ static int is_sandbox(const char *zPagename){
 }
 
 /*
+** Formal, common and short names for the various wiki styles.
+*/
+static const char *const azStyles[] = {
+  "text/x-fossil-wiki", "Fossil Wiki", "wiki",
+  "text/x-markdown",    "Markdown",    "markdown",
+  "text/plain",         "Plain Text",  "plain"
+};
+
+/*
 ** Only allow certain mimetypes through.
 ** All others become "text/x-fossil-wiki"
 */
 const char *wiki_filter_mimetypes(const char *zMimetype){
-  if( zMimetype!=0 &&
-      ( fossil_strcmp(zMimetype, "text/x-markdown")==0
-        || fossil_strcmp(zMimetype, "text/plain")==0 )
-  ){
-    return zMimetype;
+  if( zMimetype!=0 ){
+    int i;
+    for(i=0; i<sizeof(azStyles)/sizeof(azStyles[0]); i+=3){
+      if( fossil_strcmp(zMimetype,azStyles[i+2])==0 ){
+        return azStyles[i];
+      }
+    }
+    if(  fossil_strcmp(zMimetype, "text/x-markdown")==0
+        || fossil_strcmp(zMimetype, "text/plain")==0 ){
+      return zMimetype;
+    }
   }
   return "text/x-fossil-wiki";
 }
@@ -415,22 +430,13 @@ static void wiki_put(Blob *pWiki, int parent, int needMod){
 }
 
 /*
-** Formal names and common names for the various wiki styles.
-*/
-static const char *const azStyles[] = {
-  "text/x-fossil-wiki", "Fossil Wiki",
-  "text/x-markdown",    "Markdown",
-  "text/plain",         "Plain Text"
-};
-
-/*
 ** Output a selection box from which the user can select the
 ** wiki mimetype.
 */
 void mimetype_option_menu(const char *zMimetype){
   unsigned i;
   @ <select name="mimetype" size="1">
-  for(i=0; i<sizeof(azStyles)/sizeof(azStyles[0]); i+=2){
+  for(i=0; i<sizeof(azStyles)/sizeof(azStyles[0]); i+=3){
     if( fossil_strcmp(zMimetype,azStyles[i])==0 ){
       @ <option value="%s(azStyles[i])" selected>%s(azStyles[i+1])</option>
     }else{
@@ -678,7 +684,7 @@ static void appendRemark(Blob *p, const char *zMimetype){
   zUser = PD("u",g.zLogin);
   if( fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0 ){
     zId = db_text(0, "SELECT lower(hex(randomblob(8)))");
-    blob_appendf(p, "\n\n<hr><div id=\"%s\"><i>On %s UTC %h",
+    blob_appendf(p, "\n\n<hr /><div id=\"%s\"><i>On %s UTC %h",
       zId, zDate, login_name());
     if( zUser[0] && fossil_strcmp(zUser,login_name()) ){
       blob_appendf(p, " (claiming to be %h)", zUser);
@@ -799,9 +805,9 @@ void wikiappend_page(void){
     Blob preview;
     blob_zero(&preview);
     appendRemark(&preview, zMimetype);
-    @ Preview:<hr>
+    @ Preview:<hr />
     wiki_render_by_mimetype(&preview, zMimetype);
-    @ <hr>
+    @ <hr />
     blob_reset(&preview);
   }
   zUser = PD("u", g.zLogin);
@@ -1070,9 +1076,8 @@ void wikirules_page(void){
 
 /*
 ** Add a new wiki page to the repository.  The page name is
-** given by the zPageName parameter.  isNew must be true to create
-** a new page.  If no previous page with the name zPageName exists
-** and isNew is false, then this routine throws an error.
+** given by the zPageName parameter.  rid must be zero to create
+** a new page otherwise the page identified by rid is updated.
 **
 ** The content of the new page is given by the blob pContent.
 **
@@ -1080,32 +1085,12 @@ void wikirules_page(void){
 ** empty, or "text/x-fossil-wiki" (the default format) then it is
 ** ignored.
 */
-int wiki_cmd_commit(const char *zPageName, int isNew, Blob *pContent,
+int wiki_cmd_commit(const char *zPageName, int rid, Blob *pContent,
                     const char *zMimeType, int localUser){
   Blob wiki;              /* Wiki page content */
   Blob cksum;             /* wiki checksum */
-  int rid;                /* artifact ID of parent page */
   char *zDate;            /* timestamp */
   char *zUuid;            /* uuid for rid */
-
-  rid = db_int(0,
-     "SELECT x.rid FROM tag t, tagxref x"
-     " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
-     " ORDER BY x.mtime DESC LIMIT 1",
-     zPageName
-  );
-  if( rid==0 && !isNew ){
-#ifdef FOSSIL_ENABLE_JSON
-    g.json.resultCode = FSL_JSON_E_RESOURCE_NOT_FOUND;
-#endif
-    fossil_fatal("no such wiki page: %s", zPageName);
-  }
-  if( rid!=0 && isNew ){
-#ifdef FOSSIL_ENABLE_JSON
-    g.json.resultCode = FSL_JSON_E_RESOURCE_ALREADY_EXISTS;
-#endif
-    fossil_fatal("wiki page %s already exists", zPageName);
-  }
 
   blob_zero(&wiki);
   zDate = date_in_standard_format("now");
@@ -1137,42 +1122,106 @@ int wiki_cmd_commit(const char *zPageName, int isNew, Blob *pContent,
 }
 
 /*
+** Determine the rid for a tech note given either its id or its
+** timestamp. Returns 0 if there is no such item and -1 if the details
+** are ambiguous and could refer to multiple items.
+*/
+int wiki_technote_to_rid(const char *zETime) {
+  int rid=0;                    /* Artifact ID of the tech note */
+  int nETime = strlen(zETime);
+  Stmt q;
+  if( nETime>=4 && nETime<=UUID_SIZE && validate16(zETime, nETime) ){
+    char zUuid[UUID_SIZE+1];
+    memcpy(zUuid, zETime, nETime+1);
+    canonical16(zUuid, nETime);
+    db_prepare(&q,
+      "SELECT e.objid"
+      "  FROM event e, tag t"
+      " WHERE e.type='e' AND e.tagid IS NOT NULL AND t.tagid=e.tagid"
+      "   AND t.tagname GLOB 'event-%q*'",
+      zUuid
+    );
+    if( db_step(&q)==SQLITE_ROW ){
+      rid = db_column_int(&q, 0);
+      if( db_step(&q)==SQLITE_ROW ) rid = -1;
+    }
+    db_finalize(&q);
+  }
+  if (!rid) {
+    if (strlen(zETime)>4) {
+      rid = db_int(0, "SELECT objid"
+                      "  FROM event"
+                      " WHERE datetime(mtime)=datetime('%q')"
+                      "   AND type='e'"
+                      "   AND tagid IS NOT NULL"
+                      " ORDER BY objid DESC LIMIT 1",
+                   zETime);
+    }
+  }
+  return rid;
+}
+
+/*
 ** COMMAND: wiki*
 **
-** Usage: ../fossil wiki (export|create|commit|list) WikiName
+** Usage: %fossil wiki (export|create|commit|list) WikiName
 **
 ** Run various subcommands to work with wiki entries or tech notes.
 **
-**    ../fossil wiki export ?PAGENAME? ?FILE? [-t|--technote DATETIME ]
+**    %fossil wiki export PAGENAME ?FILE?
+**    %fossil wiki export ?FILE? -t|--technote DATETIME|TECHNOTE-ID
 **
-**       Sends the latest version of either the PAGENAME wiki entry
-**       or the DATETIME tech note to the given file or standard 
-**       output. One of PAGENAME or DATETIME must be specified.
+**       Sends the latest version of either a wiki page or of a tech note
+**       to the given file or standard output.
+**       If PAGENAME is provided, the wiki page will be output. For
+**       a tech note either DATETIME or TECHNOTE-ID must be specified. If
+**       DATETIME is used, the most recently modified tech note with that
+**       DATETIME will be sent.
 **
-**    ../fossil wiki (create|commit) PAGENAME ?FILE? ?OPTIONS?
-**              
-**       Create a new or commit changes to an existing wiki page or 
-**       technote from FILE or from standard input.
+**    %fossil wiki (create|commit) PAGENAME ?FILE? ?OPTIONS?
+**
+**       Create a new or commit changes to an existing wiki page or
+**       technote from FILE or from standard input. PAGENAME is the
+**       name of the wiki entry or the timeline comment of the
+**       technote.
 **
 **       Options:
-**         -M|--mimetype TEXT-FORMAT   The mime type of the update defaulting
-**                                     defaulting to the type used by the 
-**                                     previous version of the page or (for 
-**                                     new pages) text/x-fossil-wiki.
-**         -t|--technote DATETIME      Specifies the timestamp of the technote
-**                                     to be created or updated.
+**         -M|--mimetype TEXT-FORMAT   The mime type of the update.
+**                                     Defaults to the type used by
+**                                     the previous version of the
+**                                     page, or text/x-fossil-wiki.
+**                                     Valid values are: text/x-fossil-wiki,
+**                                     text/markdown and text/plain. fossil,
+**                                     markdown or plain can be specified as
+**                                     synonyms of these values.
+**         -t|--technote DATETIME      Specifies the timestamp of
+**                                     the technote to be created or
+**                                     updated. When updating a tech note
+**                                     the most recently modified tech note
+**                                     with the specified timestamp will be
+**                                     updated.
+**         -t|--technote TECHNOTE-ID   Specifies the technote to be
+**                                     updated by its technote id.
 **         --technote-tags TAGS        The set of tags for a technote.
-**         --technote-bgcolor COLOR    The color used for the technote on the
-**                                     timeline.
+**         --technote-bgcolor COLOR    The color used for the technote
+**                                     on the timeline.
 **
-**    ../fossil wiki list ?--technote?
-**    ../fossil wiki ls ?--technote?
+**    %fossil wiki list ?OPTIONS?
+**    %fossil wiki ls ?OPTIONS?
 **
 **       Lists all wiki entries, one per line, ordered
-**       case-insensitively by name. The --technote flag
-**       specifies that technotes will be listed instead of
-**       the wiki entries, which will be listed in order
-**       timestamp.
+**       case-insensitively by name.
+**
+**       Options:
+**         -t|--technote               Technotes will be listed instead of
+**                                     pages. The technotes will be in order
+**                                     of timestamp with the most recent
+**                                     first.
+**         -s|--show-technote-ids      The id of the tech note will be listed
+**                                     along side the timestamp. The tech note
+**                                     id will be the first word on each line.
+**                                     This option only applies if the
+**                                     --technote option is also specified.
 **
 */
 void wiki_cmd(void){
@@ -1216,18 +1265,17 @@ void wiki_cmd(void){
       zFile = (g.argc==4) ? "-" : g.argv[4];
     }else{
       if( (g.argc!=3) && (g.argc!=4) ){
-        usage("export ?FILE? --technote DATETIME");
+        usage("export ?FILE? --technote DATETIME|TECHNOTE-ID");
       }
-      rid = db_int(0, "SELECT objid FROM event"
-        " WHERE datetime(mtime)=datetime('%q') AND type='e'"
-        " ORDER BY mtime DESC LIMIT 1",
-        zETime
-      );
+      rid = wiki_technote_to_rid(zETime);
+      if ( rid==-1 ){
+        fossil_fatal("ambiguous tech note id: %s", zETime);
+      }
       if( (pWiki = manifest_get(rid, CFTYPE_EVENT, 0))!=0 ){
         zBody = pWiki->zWiki;
       }
       if( zBody==0 ){
-        fossil_fatal("technote not found");
+        fossil_fatal("technote [%s] not found",zETime);
       }
       zFile = (g.argc==3) ? "-" : g.argv[3];
     }
@@ -1243,7 +1291,7 @@ void wiki_cmd(void){
             || strncmp(g.argv[2],"create",n)==0 ){
     const char *zPageName;        /* page name */
     Blob content;                 /* Input content */
-    int rid;
+    int rid = 0;
     Manifest *pWiki = 0;          /* Parsed wiki page content */
     const char *zMimeType = find_option("mimetype", "M", 1);
     const char *zETime = find_option("technote", "t", 1);
@@ -1260,52 +1308,67 @@ void wiki_cmd(void){
     }else{
       blob_read_from_file(&content, g.argv[4]);
     }
-    if(!zMimeType || !*zMimeType){
+    if( !zMimeType || !*zMimeType ){
       /* Try to deduce the mime type based on the prior version. */
-      if ( !zETime ){ 
+      if ( !zETime ){
         rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
                      " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
                      " ORDER BY x.mtime DESC LIMIT 1",
                      zPageName
                      );
-        if(rid>0 && (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))!=0
-           && (pWiki->zMimetype && *pWiki->zMimetype)){
+        if( rid>0 && (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))!=0
+           && (pWiki->zMimetype && *pWiki->zMimetype) ){
           zMimeType = pWiki->zMimetype;
         }
       }else{
-        rid = db_int(0, "SELECT objid FROM event"
-                     " WHERE datetime(mtime)=datetime('%q') AND type='e'"
-                     " ORDER BY mtime DESC LIMIT 1",
-                     zPageName
-                     );
-        if(rid>0 && (pWiki = manifest_get(rid, CFTYPE_EVENT, 0))!=0
-           && (pWiki->zMimetype && *pWiki->zMimetype)){
+        rid = wiki_technote_to_rid(zETime);
+        if( rid>0 && (pWiki = manifest_get(rid, CFTYPE_EVENT, 0))!=0
+           && (pWiki->zMimetype && *pWiki->zMimetype) ){
           zMimeType = pWiki->zMimetype;
         }
       }
+    }else{
+      zMimeType = wiki_filter_mimetypes(zMimeType);
     }
+    if( g.argv[2][1]=='r' && rid>0 ){
+      if ( !zETime ){
+        fossil_fatal("wiki page %s already exists", zPageName);
+      }else{
+        /* Creating a tech note with same timestamp is permitted
+           and should create a new tech note */
+        rid = 0;
+      }
+    }else if( g.argv[2][1]=='o' && rid == 0 ){
+      if ( !zETime ){
+        fossil_fatal("no such wiki page: %s", zPageName);
+      }else{
+        fossil_fatal("no such tech note: %s", zETime);
+      }
+    }
+
     if( !zETime ){
+      wiki_cmd_commit(zPageName, rid, &content, zMimeType, 1);
       if( g.argv[2][1]=='r' ){
-        wiki_cmd_commit(zPageName, 1, &content, zMimeType, 1);
         fossil_print("Created new wiki page %s.\n", zPageName);
       }else{
-        wiki_cmd_commit(zPageName, 0, &content, zMimeType, 1);
         fossil_print("Updated wiki page %s.\n", zPageName);
       }
     }else{
-      char *zMETime;          /* Normalized, mutable version of zETime */
-      zMETime = db_text(0, "SELECT coalesce(datetime(%Q),datetime('now'))",
-                        zETime);
-      if( g.argv[2][1]=='r' ){
-        event_cmd_commit(zMETime, 1, &content, zMimeType, zPageName,
+      if( rid != -1 ){
+        char *zMETime;          /* Normalized, mutable version of zETime */
+        zMETime = db_text(0, "SELECT coalesce(datetime(%Q),datetime('now'))",
+                          zETime);
+        event_cmd_commit(zMETime, rid, &content, zMimeType, zPageName,
                          zTags, zClr);
-        fossil_print("Created new tech note %s.\n", zMETime);
+        if( g.argv[2][1]=='r' ){
+          fossil_print("Created new tech note %s.\n", zMETime);
+        }else{
+          fossil_print("Updated tech note %s.\n", zMETime);
+        }
+        free(zMETime);
       }else{
-        event_cmd_commit(zMETime, 0, &content, zMimeType, zPageName,
-                         zTags, zClr);
-        fossil_print("Updated tech note %s.\n", zMETime);
+        fossil_fatal("ambiguous tech note id: %s", zETime);
       }
-      free(zMETime);
     }
     manifest_destroy(pWiki);
     blob_reset(&content);
@@ -1317,19 +1380,31 @@ void wiki_cmd(void){
   }else if(( strncmp(g.argv[2],"list",n)==0 )
           || ( strncmp(g.argv[2],"ls",n)==0 )){
     Stmt q;
+    int showIds = 0;
+
     if ( !find_option("technote","t",0) ){
       db_prepare(&q,
         "SELECT substr(tagname, 6) FROM tag WHERE tagname GLOB 'wiki-*'"
         " ORDER BY lower(tagname) /*sort*/"
       );
     }else{
+      showIds = find_option("show-technote-ids","s",0)!=0;
       db_prepare(&q,
-        "SELECT datetime(mtime) FROM event WHERE type='e'"
-        " ORDER BY mtime /*sort*/"
+        "SELECT datetime(e.mtime), substr(t.tagname,7)"
+         " FROM event e, tag t"
+        " WHERE e.type='e'"
+          " AND e.tagid IS NOT NULL"
+          " AND t.tagid=e.tagid"
+        " ORDER BY e.mtime DESC /*sort*/"
       );
     }
+
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
+      if( showIds ){
+        const char *zUuid = db_column_text(&q, 1);
+        fossil_print("%s ",zUuid);
+      }
       fossil_print( "%s\n",zName);
     }
     db_finalize(&q);
@@ -1340,4 +1415,23 @@ void wiki_cmd(void){
 
 wiki_cmd_usage:
   usage("export|create|commit|list ...");
+}
+
+/*
+** COMMAND: test-markdown-render
+**
+** Usage: %fossil test-markdown-render FILE
+**
+** Render markdown wiki from FILE to stdout.
+**
+*/
+void test_markdown_render(void){
+  Blob in, out;
+  db_find_and_open_repository(0,0);
+  verify_all_options();
+  if( g.argc!=3 ) usage("FILE");
+  blob_zero(&out);
+  blob_read_from_file(&in, g.argv[2]);
+  markdown_to_html(&in, 0, &out);
+  blob_write_to_file(&out, "-");
 }
