@@ -2273,7 +2273,7 @@ void db_lset_int(const char *zName, int value){
 ** Get the manifest setting.  For backwards compatibility first check if the
 ** value is a boolean.  If it's not a boolean, treat each character as a flag
 ** to enable a manifest type.  This system puts certain boundary conditions on
-** which letters can be used to represent flags (any permutation fo flags must
+** which letters can be used to represent flags (any permutation of flags must
 ** not be able to fully form one of the boolean values).
 */
 int db_get_manifest_setting(void){

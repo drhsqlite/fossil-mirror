@@ -1,5 +1,5 @@
-C For\sopened\sworking\strees,\sstore\scurrent\sbranch\sat\stop\sof\smanifest.tags.
-D 2016-08-03T14:30:54.525
+C Comment\stypo\sfix.
+D 2016-08-03T14:31:13.131
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -396,7 +396,7 @@ F src/content.c 80a10dc10ce85269b02061a5d7cfe2b0936f8400
 F src/cson_amalgamation.c e220a3a91402d60424fa0843598cdfdaa319f193
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c cc44af86a440b066cfdbc895f42af0dc063247d8
+F src/db.c 80c7f7353f0980113eed538303314f2c7af469be
 F src/delta.c ab405c78d6559ea61563e2500c28f135a26c8b62
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 48ba0c208d74e5a8c4b33e43ea066d236d3a4694
@@ -752,7 +752,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P de9e7651a97afcc2b1bb669cbd3dbdd86bb0e19d
-R 6645ae4de8e7bf720b10270155245b24
+P 0fb54e5afe2a60e4605d61ea47050046fd355656
+R e7752284be9c7124011ca6df77cddf7d
 U jan
-Z 39e47ac2f0757702cbec5175f3d32f52
+Z c74282c6bd81c22170aef94c54987613
