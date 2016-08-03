@@ -190,7 +190,7 @@ void branch_new(void){
 #define BRL_BOTH             0x003 /* Show both open and closed branches */
 #define BRL_OPEN_CLOSED_MASK 0x003
 #define BRL_MTIME            0x004 /* Include lastest check-in time */
-#dfeine BRL_ORDERBY_MTIME    0x008 /* Sort by MTIME. (otherwise sort by name)*/
+#define BRL_ORDERBY_MTIME    0x008 /* Sort by MTIME. (otherwise sort by name)*/
 
 #endif /* INTERFACE */
 
