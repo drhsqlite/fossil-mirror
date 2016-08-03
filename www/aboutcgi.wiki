@@ -182,3 +182,33 @@ Here is what happens:
 <li> Fossil looks at the rest of PATH_INFO to see that the webpage
      requested is "timeline".
 </ol>
+</blockquote>
+<h2>Additional Observations</h2>
+<blockquote><ol type="I">
+<li><p>
+Fossil does not distinguish between the various HTTP methods (GET, PUT,
+DELETE, etc).  Fossil figures out what it needs to do purely from the
+webpage term of the URI.
+<li><p>
+Fossil does not distinguish between query parameters that are part of the
+URI, application/x-www-form-urlencoded or multipart/form-data encoded
+parameter that are part of the POST content, and cookies.  Each information
+source is seen as a space of key/value pairs which are loaded into an
+internal property hash table.  The code that runs to generate the reply
+can then reference various properties values.
+Fossil does not care where the value of each property comes from (POST
+content, cookies, or query parameters) only that the property exist 
+and has a value.
+<li><p>
+The "[/help?cmd=ui|fossil ui]" and "[/help?cmd=server|fossil server]" commands
+are implemented using a simple built-in web server that accepts incoming HTTP
+requests, translates each request into a CGI invocation, then creates a
+separate child Fossil process to handle each request.  In other words, CGI 
+is used internally to implement "fossil ui/server".
+<p>
+SCGI is processed using the same built-in web server, just modified
+to parse SCGI requests instead of HTTP requests.  Each SCGI request is
+converted into CGI, then Fossil creates a separate child Fossil 
+process to handle each CGI request.
+</ol>
+</blockquote>

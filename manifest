@@ -1,5 +1,5 @@
-C New\sdocumentation\son\show\sCGI\sworks\sin\sFossil.\s\sThis\sis\sa\swork-in-progress.
-D 2016-08-02T19:42:13.524
+C Improvements\sto\sthe\s"How\sCGI\sWorks"\spage.
+D 2016-08-03T01:24:46.078
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -646,7 +646,7 @@ F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
-F www/aboutcgi.wiki 52368785475b63bf6b25f1d6776696f3dd5c39bd
+F www/aboutcgi.wiki 3b22185ccad50e812fefc635e2654ae48a4560c6
 F www/adding_code.wiki b769f1c0b4fd661ea7d3a22e6bbc10d9ebeed677
 F www/antibot.wiki 2cb08df5fdf129d683b1fa104c93c6785660432b
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
@@ -753,7 +753,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c14ecc432af739bcaca83e420e26db7eb5abf1e5
-R 74dc2870e128e10d35e8dcd952e0ebab
+P c55f54d0fcfaf2781ec66a06a1ffb3113ac1cefd
+R 855dee67e25a2f8a0c40eb678bde03a5
 U drh
-Z 353b3506e817cb96aa1abaa81dd4c9d6
+Z 9463a083a0e7761e72107910946079ea
