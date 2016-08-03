@@ -145,18 +145,20 @@ void manifest_to_disk(int vid){
   if( flg & (MFESTFLG_RAW|MFESTFLG_UUID) ){
     blob_zero(&manifest);
     content_get(vid, &manifest);
-    zManFile = mprintf("%smanifest", g.zLocalRoot);
     blob_zero(&hash);
     sha1sum_blob(&manifest, &hash);
     sterilize_manifest(&manifest);
-    if( flg & MFESTFLG_RAW ){
-      blob_write_to_file(&manifest, zManFile);
-    }else{
-      if( !db_exists("SELECT 1 FROM vfile WHERE pathname='manifest'") ){
-        file_delete(zManFile);
-      }
-    }
+  }
+  if( flg & MFESTFLG_RAW ){
+    zManFile = mprintf("%smanifest", g.zLocalRoot);
+    blob_write_to_file(&manifest, zManFile);
     free(zManFile);
+  }else{
+    if( !db_exists("SELECT 1 FROM vfile WHERE pathname='manifest'") ){
+      zManFile = mprintf("%smanifest", g.zLocalRoot);
+      file_delete(zManFile);
+      free(zManFile);
+    }
   }
   if( flg & MFESTFLG_UUID ){
     zManFile = mprintf("%smanifest.uuid", g.zLocalRoot);
