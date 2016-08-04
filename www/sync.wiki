@@ -1,18 +1,14 @@
 <title>The Fossil Sync Protocol</title>
 
-<p>Fossil supports commands <b>push</b>, <b>pull</b>, and <b>sync</b>
-for transferring information from one repository to another.  The
-command is run on the client repository.  A URL for the server repository
-is specified as part of the command.  This document describes what happens
-behind the scenes in order to synchronize the information on the two
-repositories.</p>
+<p>This document describes the wire protocol used to synchronize 
+content between two Fossil repositories.</p>
 
 <h2>1.0 Overview</h2>
 
 <p>The global state of a fossil repository consists of an unordered
 collection of artifacts.  Each artifact is identified by its SHA1 hash
 expressed as a 40-character lower-case hexadecimal string.
-Synchronization is simply the process of sharing artifacts between
+Synchronization is the process of sharing artifacts between
 servers so that all servers have copies of all artifacts.  Because
 artifacts are unordered, the order in which artifacts are received
 at a server is inconsequential.  It is assumed that the SHA1 hashes
@@ -28,11 +24,12 @@ shared to a few hundred.</p>
 <p>Each repository also has local state.  The local state determines
 the web-page formatting preferences, authorized users, ticket formats,
 and similar information that varies from one repository to another.
-The local state is not transferred by the <b>push</b>, <b>pull</b>,
-and <b>sync</b> command, though some local state is transferred during
-a <b>clone</b> in order to initialize the local state of the new
-repository.  The <b>configuration push</b> and <b>configuration pull</b>
-commands can be used to send or receive local state.</p>
+The local state is not using transferred during a sync.  Except,	
+some local state is transferred during a [/help?cmd=clone|clone]
+in order to initialize the local state of the new repository.  And
+the [/help?cmd=configuration|config push] and
+[/help?cmd=configuration|config pull]
+commands can be an administrator to sync local state.</p>
 
 
 <h2>2.0 Transport</h2>
@@ -45,15 +42,26 @@ request.</p>
 <p>The server might be running as an independent server
 using the <b>server</b> command, or it might be launched from
 inetd or xinetd using the <b>http</b> command.  Or the server might
-be launched from CGI.  The details of how the server is configured
-to "listen" for incoming HTTP requests is immaterial.  The important
-point is that the server is listening for requests and the client
-is the issuer of the requests.</p>
+be launched from CGI.  
+(See "[./server.wiki|How To Configure A Fossil Server]" for details.)
+The specifics of how the server listens
+for incoming HTTP requests is immaterial to this protocol.
+The important point is that the server is listening for requests and 
+the client is the issuer of the requests.</p>
 
 <p>A single push, pull, or sync might involve multiple HTTP requests.
 The client maintains state between all requests.  But on the server
 side, each request is independent.  The server does not preserve
 any information about the client from one request to the next.</p>
+
+<h4>2.0.1 Encrypted Transport</h4>
+
+<p>In the current implementation of Fossil, the server only
+understands HTTP requests.  The client can send either 
+clear-text HTTP requested or or encrypted HTTPS requests.  But when
+HTTPS requests are sent, they first must be decrypted by a webserver
+or proxy before being passed to the Fossil server.  This limitation
+may be relaxed in a future release.</p>
 
 <h3>2.1 Server Identification</h3>
 
@@ -235,6 +243,22 @@ delta artifact.</p>
 <p>Unlike file cards, cfile cards are only sent in one direction during a
 clone from server to client for clone protocol version "3" or greater.</p>
 
+<h4>3.3.3 Private artifacts</h4>
+
+<p>"Private" content consist of artifacts that are not normally synced.
+However, private content will be synced when the
+the [/help?cmd=sync|fossil sync] command includes the "--private" option.
+</p>
+
+<p>Private content is marked by a "private" card:
+
+<blockquote>
+<b>private</b>
+</blockquote>
+
+<p>The private card has no arguments and must directly precede a
+file card that contains the private content.</p>
+
 <h3>3.4 Push and Pull Cards</h3>
 
 <p>Among the first cards in a client-to-server message are
@@ -257,6 +281,8 @@ for the transaction to proceed.</p>
 <p>The server will also send a push card back to the client
 during a clone.  This is how the client determines what project
 code to put in the new repository it is constructing.</p>
+
+<p>The <i>servercode</i> argument is currently unused.
 
 <h3>3.5 Clone Cards</h3>
 
@@ -322,14 +348,18 @@ server to client in order to indicate that the sender holds a copy
 of a particular artifact.  The format is:</p>
 
 <blockquote>
-<b>igot</b> <i>artifact-id</i>
+<b>igot</b> <i>artifact-id</i> ?<i>flag</i>?
 </blockquote>
 
-<p>The argument of the igot card is the ID of the artifact that
+<p>The first argument of the igot card is the ID of the artifact that
 the sender possesses.
 The receiver of an igot card will typically check to see if
 it also holds the same artifact and if not it will request the artifact
 using a gimme card in either the reply or in the next message.</p>
+
+<p>If the second argument exists and is "1", then the artifact
+identified by the first argument is private on the sender and should
+be ignored unless a "--private" [/help?cmd=sync|sync] is occurring.
 
 <h3>3.7 Gimme Cards</h3>
 
@@ -479,7 +509,46 @@ it had sent a corresponding reqconfig card in its request.
 <p>The content of the configuration item is used to overwrite the
 corresponding configuration data in the receiver.
 
-<h3>3.11 Error Cards</h3>
+<h3>3.11 Pragma Cards</h3>
+
+<p>The client may try to influence the behavior of the server by
+issuing a pragma card:
+
+<blockquote>
+<b>pragma</i> <i>name value...</i>
+</blockquote>
+
+<p>The "pragma" card has at least one argument which is the pragma name.
+The pragma name defines what the pragma does.
+A pragma might have zero or more "value" arguments
+depending on the pragma name.
+
+<p>New pragma names may be added to the protocol from time to time
+in order to enhance the capabilities of Fossil.
+Unknown pragmas are silently ignored, for backwards compatibility.
+
+<p>The following are the known pragma names as of 2016-08-03:
+
+<ol>
+<li><p><b>send-private</b>
+<p>The send-private pragma instructs the server to send all of its
+private artifacts to the client.  The server will only obey this
+request if the user has the "x" or "Private" privilege.
+
+<li><p><b>send-catalog</b>
+<p>The send-catalog pragma instructs the server to transmit igot
+cards for every known artifact.  This can help the client and server
+to get back in synchronization after a prior protocol error.  The
+"--verily" option to the [/help?cmd=sync|fossil sync] command causes
+the send-catalog pragma to be transmitted.</p>
+</ol>
+
+<h3>3.12 Comment Cards</h3>
+
+<p>Any card that begins with "#" (ASCII 0x23) is a comment card and
+is silently ignored.</p>
+
+<h3>3.13 Error Cards</h3>
 
 <p>If the server discovers anything wrong with a request, it generates
 an error card in its reply.  When the client sees the error card,
@@ -499,12 +568,7 @@ space and newline, no other whitespace characters nor any
 unprintable characters are allowed in
 the error message.</p>
 
-<h3>3.12 Comment Cards</h3>
-
-<p>Any card that begins with "#" (ASCII 0x23) is a comment card and
-is silently ignored.</p>
-
-<h3>3.13 Unknown Cards</h3>
+<h3>3.14 Unknown Cards</h3>
 
 <p>If either the client or the server sees a card that is not
 described above, then it generates an error and aborts.</p>
@@ -667,15 +731,20 @@ are combined with step (9) of a push.</p>
     <li> <b>push</b> <i>servercode projectcode</i>
     <li> <b>pull</b> <i>servercode projectcode</i>
     <li> <b>clone</b>
+    <li> <b>clone_seqno</b> <i>sequence-number</i>
     <li> <b>file</b> <i>artifact-id size</i> <b>\n</b> <i>content</i>
     <li> <b>file</b> <i>artifact-id delta-artifact-id size</i> <b>\n</b> <i>content</i>
-    <li> <b>igot</b> <i>artifact-id</i>
+    <li> <b>cfile</b> <i>artifact-id size</i> <b>\n</b> <i>content</i>
+    <li> <b>cfile</b> <i>artifact-id delta-artifact-id size</i> <b>\n</b> <i>content</i>
+    <li> <b>private</b>
+    <li> <b>igot</b> <i>artifact-id</i> ?<i>flag</i>?
     <li> <b>gimme</b> <i>artifact-id</i>
     <li> <b>cookie</b>  <i>cookie-text</i>
     <li> <b>reqconfig</b> <i>parameter-name</i>
     <li> <b>config</b> <i>parameter-name size</i> <b>\n</b> <i>content</i>
-    <li> <b>#</b> <i>arbitrary-text...</i>
+    <li> <b>pragma</b> <i>name</i> <i>value...</i>
     <li> <b>error</b> <i>error-message</i>
+    <li> <b>#</b> <i>arbitrary-text...</i>
     </ul>
 <li>Phantoms are artifacts that a repository knows exist but does not possess.
 <li>Clusters are artifacts that contain IDs of other artifacts.

@@ -1,5 +1,5 @@
-C Fix\sa\sminor\spreprocessor\sdirective\stypo.
-D 2016-08-03T14:04:16.579
+C Bring\sthe\ssync\sprotocol\sdocumentation\smore\sup-to-date.\s\sFix\stypos\sin\sthe\ncommand-line\sdocumentation\sfor\s"push"\sand\s"sync".
+D 2016-08-04T00:42:20.405
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -488,7 +488,7 @@ F src/stash.c ccb0d94252422f28178119825a99c6bce45924d6
 F src/stat.c 82a4439d096fe0fb231e27f49f2b2ff13dacf014
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
 F src/style.c 85ca473e8cd7ba551cd6e4f865f8ebbd45d3289d
-F src/sync.c cc287e14c4387dfa7a8f050cbec523ece71d664e
+F src/sync.c 84f9397743df8141e5794bfe5c9bfe7e1c2db8df
 F src/tag.c 98b6205ee452dc3fba417ec8725864a2d7af3ba8
 F src/tar.c 3d8ec6d43a730d3bfdf73fc86bff84587a0bab57
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
@@ -737,13 +737,13 @@ F www/reviews.wiki 866e545f89fce7cff29c96a29ab10586692f3964
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki d1e2fc5baf9ade46815499c9758256a22efe8142
 F www/selfhost.wiki 03de31d67690fe47972589e4e1e395e11559c85c
-F www/server.wiki c7830779213b4bee163eabeaeb984724472acbd1
+F www/server.wiki 3a16b44effdbcafd820f2e826b44bf00063ae317
 F www/settings.wiki 12b7e736432b0081a7e6a3d7b9e184d04f482ef7
 F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki e6c82bd6579f755896c47b22dbab18e27b1f5bc4
 F www/style.wiki da3a414d4c57c3da2636daf0baf6964ba72ce70b
-F www/sync.wiki 655cb0e7cbe59cf5726658af2b4f266ed45404f2
+F www/sync.wiki 6681bdddd1dc1f5d1d6ce5ddbe0cb04e9adac849
 F www/tech_overview.wiki 4d74d28dfc2515d7864c4ecbf7324be9919e3efd
 F www/th1.md cce5b4ec03727680ec48dede21bb6aa82931d7c2
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
@@ -753,7 +753,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9c87cb2912c3a1db38ebf260d309bcdda9ba7d76
-R 8701efe2aa36401f3a6065f4cf493c27
-U jan
-Z a07c09f04e0256af3465ccac59bcdce7
+P a5c08fde0ab2e9f700fd612ce53291debba5c977
+R 47d38e7089fd50650d0bafc14d110e6b
+U drh
+Z 445631e0b2e831d43615111b83705d6d

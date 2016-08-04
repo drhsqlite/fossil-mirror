@@ -8,8 +8,11 @@ page you are now reading (but excepting the
 is just a Fossil server displaying the content of the 
 self-hosting repository for Fossil.</p>
 <p>This article is a guide for setting up your own Fossil server.
-<p>See the [./aboutcgi.wiki|How CGI Works In Fossil] document for background
-information on the underlying technology.</p></blockquote>
+<p>See "[./aboutcgi.wiki|How CGI Works In Fossil]" for background
+information on the underlying CGI technology.
+See "[./sync.wiki|The Fossil Sync Protocol]" for information on the
+wire protocol used for client/server communication.</p>
+</blockquote>
 <h2>Overview</h2><blockquote>
 There are basically four ways to set up a Fossil server:
 <ol>
