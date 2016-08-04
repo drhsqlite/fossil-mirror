@@ -447,6 +447,7 @@ SRC   = add_.c \
         tktsetup_.c \
         undo_.c \
         unicode_.c \
+        unversioned_.c \
         update_.c \
         url_.c \
         user_.c \
@@ -624,6 +625,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\tktsetup$O \
         $(OX)\undo$O \
         $(OX)\unicode$O \
+        $(OX)\unversioned$O \
         $(OX)\update$O \
         $(OX)\url$O \
         $(OX)\user$O \
@@ -805,6 +807,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\tktsetup.obj >> $@
 	echo $(OX)\undo.obj >> $@
 	echo $(OX)\unicode.obj >> $@
+	echo $(OX)\unversioned.obj >> $@
 	echo $(OX)\update.obj >> $@
 	echo $(OX)\url.obj >> $@
 	echo $(OX)\user.obj >> $@
@@ -1561,6 +1564,12 @@ $(OX)\unicode$O : unicode_.c unicode.h
 unicode_.c : $(SRCDIR)\unicode.c
 	translate$E $** > $@
 
+$(OX)\unversioned$O : unversioned_.c unversioned.h
+	$(TCC) /Fo$@ -c unversioned_.c
+
+unversioned_.c : $(SRCDIR)\unversioned.c
+	translate$E $** > $@
+
 $(OX)\update$O : update_.c update.h
 	$(TCC) /Fo$@ -c update_.c
 
@@ -1760,6 +1769,7 @@ headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 			tktsetup_.c:tktsetup.h \
 			undo_.c:undo.h \
 			unicode_.c:unicode.h \
+			unversioned_.c:unversioned.h \
 			update_.c:update.h \
 			url_.c:url.h \
 			user_.c:user.h \

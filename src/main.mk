@@ -119,6 +119,7 @@ SRC = \
   $(SRCDIR)/tktsetup.c \
   $(SRCDIR)/undo.c \
   $(SRCDIR)/unicode.c \
+  $(SRCDIR)/unversioned.c \
   $(SRCDIR)/update.c \
   $(SRCDIR)/url.c \
   $(SRCDIR)/user.c \
@@ -292,6 +293,7 @@ TRANS_SRC = \
   $(OBJDIR)/tktsetup_.c \
   $(OBJDIR)/undo_.c \
   $(OBJDIR)/unicode_.c \
+  $(OBJDIR)/unversioned_.c \
   $(OBJDIR)/update_.c \
   $(OBJDIR)/url_.c \
   $(OBJDIR)/user_.c \
@@ -414,6 +416,7 @@ OBJ = \
  $(OBJDIR)/tktsetup.o \
  $(OBJDIR)/undo.o \
  $(OBJDIR)/unicode.o \
+ $(OBJDIR)/unversioned.o \
  $(OBJDIR)/update.o \
  $(OBJDIR)/url.o \
  $(OBJDIR)/user.o \
@@ -690,6 +693,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/tktsetup_.c:$(OBJDIR)/tktsetup.h \
 	$(OBJDIR)/undo_.c:$(OBJDIR)/undo.h \
 	$(OBJDIR)/unicode_.c:$(OBJDIR)/unicode.h \
+	$(OBJDIR)/unversioned_.c:$(OBJDIR)/unversioned.h \
 	$(OBJDIR)/update_.c:$(OBJDIR)/update.h \
 	$(OBJDIR)/url_.c:$(OBJDIR)/url.h \
 	$(OBJDIR)/user_.c:$(OBJDIR)/user.h \
@@ -1551,6 +1555,14 @@ $(OBJDIR)/unicode.o:	$(OBJDIR)/unicode_.c $(OBJDIR)/unicode.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/unicode.o -c $(OBJDIR)/unicode_.c
 
 $(OBJDIR)/unicode.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/unversioned_.c:	$(SRCDIR)/unversioned.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/unversioned.c >$@
+
+$(OBJDIR)/unversioned.o:	$(OBJDIR)/unversioned_.c $(OBJDIR)/unversioned.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/unversioned.o -c $(OBJDIR)/unversioned_.c
+
+$(OBJDIR)/unversioned.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/update_.c:	$(SRCDIR)/update.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/update.c >$@
