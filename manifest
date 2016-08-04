@@ -1,5 +1,5 @@
-C Bring\sthe\ssync\sprotocol\sdocumentation\smore\sup-to-date.\s\sFix\stypos\sin\sthe\ncommand-line\sdocumentation\sfor\s"push"\sand\s"sync".
-D 2016-08-04T00:42:20.405
+C Fix\sa\stypo\sin\sthe\ssync\sprotocol\sdocument.
+D 2016-08-04T11:34:08.388
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -743,7 +743,7 @@ F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki e6c82bd6579f755896c47b22dbab18e27b1f5bc4
 F www/style.wiki da3a414d4c57c3da2636daf0baf6964ba72ce70b
-F www/sync.wiki 6681bdddd1dc1f5d1d6ce5ddbe0cb04e9adac849
+F www/sync.wiki 60e366cfb0f429a3b77646ae92d8d9791a3af06b
 F www/tech_overview.wiki 4d74d28dfc2515d7864c4ecbf7324be9919e3efd
 F www/th1.md cce5b4ec03727680ec48dede21bb6aa82931d7c2
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
@@ -753,7 +753,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a5c08fde0ab2e9f700fd612ce53291debba5c977
-R 47d38e7089fd50650d0bafc14d110e6b
+P 3dcf69a7410b4066bc555bbb343a39c97b58158d
+R 69c075dfb78fd9563cb15f218ef21dd9
 U drh
-Z 445631e0b2e831d43615111b83705d6d
+Z 4f461a615b1d9f928178447f6b14e46f
