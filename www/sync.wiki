@@ -58,7 +58,7 @@ any information about the client from one request to the next.</p>
 
 <p>In the current implementation of Fossil, the server only
 understands HTTP requests.  The client can send either 
-clear-text HTTP requests or or encrypted HTTPS requests.  But when
+clear-text HTTP requests or encrypted HTTPS requests.  But when
 HTTPS requests are sent, they first must be decrypted by a webserver
 or proxy before being passed to the Fossil server.  This limitation
 may be relaxed in a future release.</p>
