@@ -1,5 +1,5 @@
-C Incremental\scheck-in.\s\s(Saving\smy\splace\sin\sorder\sto\sgo\swork\son\sother\sthings.)\nChanges\sare\suntested.
-D 2016-08-05T08:30:18.056
+C Add\sthe\s/uv\swebpage.
+D 2016-08-05T12:30:23.568
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -403,7 +403,7 @@ F src/descendants.c 48ba0c208d74e5a8c4b33e43ea066d236d3a4694
 F src/diff.c c53eea5dfd52d092d298178bc40c70500d3c7fc6
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 3759afcedb06bb0d76844e0b724cd28b36ede262
-F src/doc.c c8f8250a5de7674877598a60263a237bdd33e204
+F src/doc.c dfdaaff44e31de7f44c83445698125e6afb0da7a
 F src/encode.c 56fc8f102eda32549652df47fa253fc910e737a9
 F src/event.c 0edff3caaceed4fbee6ec8c20f480a94f467f5cf
 F src/export.c ab705fb1bdb609c49cab3aa686fd74b5cd8e83d4
@@ -754,7 +754,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4ce1c9b2f25dddae734e9c5fae25942f4f67bfe7
-R 68d6ef34bca38cdfa7fca9e32574a38e
+P a9463a7157129ee3cb6ecd1ca681c3b6f5a256a1
+R abaa89a36b0faabb9c8958a235c3edec
 U drh
-Z 58069bbd4778c0a847ed8bacf00caa49
+Z 40c0fa0b84484c80915c3b081d17c5a9
