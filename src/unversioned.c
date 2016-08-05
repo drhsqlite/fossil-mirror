@@ -29,7 +29,7 @@
 #include <time.h>
 
 /*
-** SQL code to implement the tables needed by the unverioned.
+** SQL code to implement the tables needed by the unversioned.
 */
 static const char zUnversionedInit[] =
 @ CREATE TABLE IF NOT EXISTS "%w".unversioned(
@@ -106,8 +106,60 @@ void unversioned_cmd(void){
     if( mtime<=0 ) fossil_fatal("bad timestamp: %Q", zMtime);
   }
   if( memcmp(zCmd, "add", nCmd)==0 ){
+    const char *zFile;
+    const char *zIn;
+    Blob file;
+    Blob hash;
+    Blob compressed;
+    Stmt ins;
+    if( g.argc!=4 && g.argc!=5 ) usage("add FILE ?INPUT?");
+    zFile = g.argv[3];
+    if( !file_is_simple_pathname(zFile,1) ){
+      fossil_fatal("'%Q' is not an acceptable filename", zFile);
+    }
+    zIn = g.argc==5 ? g.argv[4] : "-";
+    blob_init(&file,0,0);
+    blob_read_from_file(&file, zIn);
+    sha1sum_blob(&file, &hash);
+    blob_compress(&file, &compressed);
+    db_begin_transaction();
+    content_rcvid_init();
+    db_prepare(&ins,
+      "REPLACE INTO unversioned(name,rcvid,mtime,hash,sz,content)"
+      " VALUES(:name,:rcvid,:mtime,:hash,:sz,:content)"
+    );
+    db_bind_text(&ins, ":name", zFile);
+    db_bind_int(&ins, ":rcvid", g.rcvid);
+    db_bind_int64(&ins, ":mtime", mtime);
+    db_bind_text(&ins, ":hash", blob_str(&hash));
+    db_bind_int(&ins, ":sz", blob_size(&file));
+    db_bind_blob(&ins, ":content", &compressed);
+    db_step(&ins);
+    db_finalize(&ins);
+    blob_reset(&compressed);
+    blob_reset(&hash);
+    blob_reset(&file);
+    /* Clear the uvhash cache */
+    db_end_transaction(0);
   }else if( memcmp(zCmd, "cat", nCmd)==0 ){
   }else if( memcmp(zCmd, "list", nCmd)==0 || memcmp(zCmd, "ls", nCmd)==0 ){
+    Stmt q;
+    db_prepare(&q,
+      "SELECT hash, datetime(mtime,'unixepoch'), sz, name, content IS NULL"
+      "   FROM unversioned"
+      "  WHERE hash IS NOT NULL"
+      "  ORDER BY name;"
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      fossil_print("%12.12s %s %8d %s%s\n",
+         db_column_text(&q,0),
+         db_column_text(&q,1),
+         db_column_int(&q,2),
+         db_column_text(&q,3),
+         db_column_int(&q,4) ? " ** no content ** ": ""
+      );
+    }
+    db_finalize(&q);
   }else if( memcmp(zCmd, "revert", nCmd)==0 || memcmp(zCmd,"sync",nCmd)==0 ){
     fossil_fatal("not yet implemented...");
   }else if( memcmp(zCmd, "rm", nCmd)==0 ){
@@ -154,7 +206,7 @@ The client sends uvgimme if
 
    (a) it does not possess NAME or
    (b) if the NAME it holds has an earlier timestamp than TIMESTAMP or
-   (c) if the NAME it holds has the exact timestamp TIMESATMP but a
+   (c) if the NAME it holds has the exact timestamp TIMESTAMP but a
        lexicographically earliers HASH.
 
 Otherwise the client sends a uvfile.  The client also sends uvfile

@@ -456,6 +456,20 @@ void content_enable_dephantomize(int onoff){
 }
 
 /*
+** Make sure the g.rcvid global variable has been initialized.
+*/
+void content_rcvid_init(void){
+  if( g.rcvid==0 ){
+    db_multi_exec(
+       "INSERT INTO rcvfrom(uid, mtime, nonce, ipaddr)"
+       "VALUES(%d, julianday('now'), %Q, %Q)",
+       g.userUid, g.zNonce, g.zIpAddr
+    );
+    g.rcvid = db_last_insert_rowid();
+  }
+}
+
+/*
 ** Write content into the database.  Return the record ID.  If the
 ** content is already in the database, just return the record ID.
 **
@@ -532,14 +546,7 @@ int content_put_ex(
   db_finalize(&s1);
 
   /* Construct a received-from ID if we do not already have one */
-  if( g.rcvid==0 ){
-    db_multi_exec(
-       "INSERT INTO rcvfrom(uid, mtime, nonce, ipaddr)"
-       "VALUES(%d, julianday('now'), %Q, %Q)",
-       g.userUid, g.zNonce, g.zIpAddr
-    );
-    g.rcvid = db_last_insert_rowid();
-  }
+  content_rcvid_init();
 
   if( nBlob ){
     cmpr = pBlob[0];

@@ -1,5 +1,5 @@
-C Begin\swork\son\sthe\sability\sto\sstore\sand\ssync\sfiles\sfor\swhich\sno\shistory\sis\nkept.
-D 2016-08-04T22:49:10.784
+C Incremental\scheck-in.\s\s(Saving\smy\splace\sin\sorder\sto\sgo\swork\son\sother\sthings.)\nChanges\sare\suntested.
+D 2016-08-05T08:30:18.056
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -392,7 +392,7 @@ F src/codecheck1.c bf92e19b6a521f947c07960aae3f2aa9a21e4c42
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
 F src/config.h b91f4223f2653503759e1205343db9f94d134973
 F src/configure.c e709349116d50f53152da7e8d409ad5232395c47
-F src/content.c 80a10dc10ce85269b02061a5d7cfe2b0936f8400
+F src/content.c 9fda15c73e882f9f1fe4d41ad4be95f6fd0af64e
 F src/cson_amalgamation.c e220a3a91402d60424fa0843598cdfdaa319f193
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
@@ -502,7 +502,7 @@ F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c 52ec5c24a6dcf1937026e2d9f86791fd1913cdf6
 F src/unicode.c 8e02b4fd6af9e735bda68eb06e3be90b6b901a87
-F src/unversioned.c e3a9f067b533f8f75b68574198b7481dd720b606
+F src/unversioned.c 7ef54e90feb0887f2485c9b51816d96335fff514
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c e2c08deb9a3ce011d3db10f70216a7988485e29a
@@ -754,10 +754,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aa63cd405b1bb2d58dd5605007f6ff2fb5d0b4c7
-R fc12c796592d3b4a4aef1c2f9b2c6053
-T *branch * unversioned-files
-T *sym-unversioned-files *
-T -sym-trunk *
+P 4ce1c9b2f25dddae734e9c5fae25942f4f67bfe7
+R 68d6ef34bca38cdfa7fca9e32574a38e
 U drh
-Z 15545b2f3ac0cb8fde9633aa8ce045bc
+Z 58069bbd4778c0a847ed8bacf00caa49
