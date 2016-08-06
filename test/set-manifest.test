@@ -18,6 +18,19 @@
 # Test manifest setting
 #
 
+proc file_contains {fname match} {
+  set fp [open $fname r]
+  set contents [read $fp]
+  close $fp
+  set lines [split $contents "\n"]
+  foreach line $lines {
+    if {[regexp $match $line]} {
+      return 1
+    }
+  }
+  return 0
+}
+
 # We need a respository, so let it have one.
 test_setup
 
@@ -84,6 +97,36 @@ foreach v $truths {
 # Quick check for tags applied in trunk
 test_file_contents "set-manifest-6" "manifest.tags" "branch=trunk\ntrunk\n"
 
-# TODO: check content of manifest.tags file under more conditions
+
+##### Test manifest.tags file content updates after commits
+
+# Explicitly set manifest.tags mode
+fossil set manifest t
+test "set-manifest-7-1" {[file isfile manifest.tags]}
+
+# Add a tag and make sure it appears in manifest.tags
+fossil tag add manifest-7-tag-1 tip
+test "set-manifest-7-2" {[file_contains "manifest.tags" "^manifest-7-tag-1$"]}
+
+# Add a file and make sure tag has disappeared from manifest.tags
+write_file file1 "file1 contents"
+fossil add file1
+fossil commit -m "Added file1."
+test "set-manifest-7-3" {![file_contains "manifest.tags" "^manifest-7-tag-1$"]}
+
+# Add new tag and check that it is in manifest.tags
+fossil tag add manifest-7-tag-2 tip
+test "set-manifest-7-4" {[file_contains "manifest.tags" "^manifest-7-tag-2$"]}
+
+
+##### Tags manifest branch= updates
+
+# Add file, create new branch on commit and check that
+# manifest.tags has been updated appropriately
+write_file file3 "file3 contents"
+fossil add file3
+fossil commit -m "Added file3." --branch manifest-8-branch
+test "set-manifest-8" {[file_contains "manifest.tags" "^branch=manifest-8-branch$"]}
+
 
 test_cleanup

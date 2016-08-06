@@ -1,5 +1,5 @@
-C Add\sa\sbasic\sset\sof\stests\sfor\sthe\smanifest\sproperty,\sincluding\sminimal\scoverage\sof\sthe\sexistance\sof\sthe\stags\smanifest.\sThis\scan\sand\sshould\sbe\sextended\sto\scover\sinteresting\scontent\sfor\sthe\stags\smanifest,\sand\slikely\sshould\sbe\sextended\sto\scover\slots\smore\scorner\scases.\sThese\snew\stests\spass\son\sWindows,\sbut\sshould\sbe\stried\son\sat\sleast\sone\sunix-like\splatform.
-D 2016-08-05T00:46:30.449
+C Add\smore\stags\smanifest\stest\scases.\sCheck\sthe\smanifest.tags\scontents\supdates\son\stagging,\scommit\sand\sswitching\sbranches.\sTests\spass\ssuccessfully\son\sOS\sX.
+D 2016-08-06T16:20:31.372
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -547,7 +547,7 @@ F test/merge_warn.test d4a98c6ff14e4bb142d784f96c88d152d9599529
 F test/mv-rm.test a46185f0a8443bf422e222b47f360e5c341e9306
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
 F test/revert.test 7387258ce11b1214c5b82be47792d2c98316fd52
-F test/set-manifest.test 261098794727d3997a65946a920db1bb122efd45
+F test/set-manifest.test b517c1165afcf6e6b37b544041af5cdc877e3c2a
 F test/stash.test f9c2bba31afe77b62967ea11e59e438c950325ec
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
@@ -753,7 +753,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 81bf21bd6374e076211e1c95156a57f3d4990bbb
-R 1aaffb02d5e07132ac575375a0643a15
-U rberteig
-Z c8f832b954fbf65b773f15ed5e3e0f01
+P c33f02de133f6c1ceed546ec679cc39ae676e958
+R fd6ab4c066bd96af06c2abde229643f7
+U jan
+Z 07e36ed1e480cec7c5e53480fc56c250
