@@ -52,6 +52,37 @@ void unversioned_schema(void){
 }
 
 /*
+** Return a string which is the hash of the unversioned content.
+** This is the hash used by repositories to compare content before
+** exchanging a catalog.  So all repositories must compute this hash
+** in exactly the same way.
+**
+** If debugFlag is set, force the value to be recomputed and write
+** the text of the hashed string to stdout.
+*/
+const char *unversioned_content_hash(int debugFlag){
+  const char *zHash = debugFlag ? 0 : db_get("uv-hash", 0);
+  if( zHash==0 ){
+    Stmt q;
+    db_prepare(&q,
+      "SELECT printf('%%s %%s %%s\n',name,datetime(mtime,'unixepoch'),hash)"
+      "  FROM unversioned"
+      " WHERE hash IS NOT NULL"
+      " ORDER BY name"
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *z = db_column_text(&q, 0);
+      if( debugFlag ) fossil_print("%s", z);
+      sha1sum_step_text(z,-1);
+    }
+    db_finalize(&q);
+    db_set("uv-hash", sha1sum_finish(0), 0);
+    zHash = db_get("uv-hash",0);
+  }
+  return zHash;
+}
+
+/*
 ** COMMAND: unversioned
 **
 ** Usage: %fossil unversioned SUBCOMMAND ARGS...
@@ -63,14 +94,16 @@ void unversioned_schema(void){
 **
 ** Subcommands:
 **
-**    add FILE ?INPUT?     Add or update an unversioned file FILE in the local
-**                         repository so that it matches the INPUT file on disk.
-**                         Content is read from stdin if INPUT is "-" or omitted.
+**    add FILE ...         Add or update an unversioned files in the local
+**                         repository so that it matches FILE on disk.
+**                         Use "--as UVFILE" to give the file a different name
+**                         in the repository than what it called on disk.
 **                         Changes are not pushed to other repositories until
 **                         the next sync.
 **
-**    cat FILE ?OUTFILE?   Write the content of unversioned file FILE to OUTFILE
-**                         on disk, or to stdout if OUTFILE is "-" or is omitted.
+**    cat FILE ...         Concatenate the content of FILEs to stdout.
+**
+**    export FILE OUTPUT   Write the content of FILE into OUTPUT on disk
 **
 **    list | ls            Show all unversioned files held in the local repository.
 **
@@ -106,65 +139,136 @@ void unversioned_cmd(void){
     if( mtime<=0 ) fossil_fatal("bad timestamp: %Q", zMtime);
   }
   if( memcmp(zCmd, "add", nCmd)==0 ){
-    const char *zFile;
     const char *zIn;
+    const char *zAs;
     Blob file;
     Blob hash;
     Blob compressed;
     Stmt ins;
-    if( g.argc!=4 && g.argc!=5 ) usage("add FILE ?INPUT?");
-    zFile = g.argv[3];
-    if( !file_is_simple_pathname(zFile,1) ){
-      fossil_fatal("'%Q' is not an acceptable filename", zFile);
-    }
-    zIn = g.argc==5 ? g.argv[4] : "-";
-    blob_init(&file,0,0);
-    blob_read_from_file(&file, zIn);
-    sha1sum_blob(&file, &hash);
-    blob_compress(&file, &compressed);
+    int i;
+
+    zAs = find_option("as",0,1);
+    if( zAs && g.argc!=4 ) usage("add DISKFILE --as UVFILE");
+    verify_all_options();
     db_begin_transaction();
     content_rcvid_init();
     db_prepare(&ins,
       "REPLACE INTO unversioned(name,rcvid,mtime,hash,sz,content)"
       " VALUES(:name,:rcvid,:mtime,:hash,:sz,:content)"
     );
-    db_bind_text(&ins, ":name", zFile);
-    db_bind_int(&ins, ":rcvid", g.rcvid);
-    db_bind_int64(&ins, ":mtime", mtime);
-    db_bind_text(&ins, ":hash", blob_str(&hash));
-    db_bind_int(&ins, ":sz", blob_size(&file));
-    db_bind_blob(&ins, ":content", &compressed);
-    db_step(&ins);
+    for(i=3; i<g.argc; i++){
+      zIn = zAs ? zAs : g.argv[i];
+      if( zIn[0]==0 || zIn[0]=='/' || !file_is_simple_pathname(zIn,1) ){
+        fossil_fatal("'%Q' is not an acceptable filename", zIn);
+      }
+      blob_init(&file,0,0);
+      blob_read_from_file(&file, g.argv[i]);
+      sha1sum_blob(&file, &hash);
+      blob_compress(&file, &compressed);
+      db_bind_text(&ins, ":name", zIn);
+      db_bind_int(&ins, ":rcvid", g.rcvid);
+      db_bind_int64(&ins, ":mtime", mtime);
+      db_bind_text(&ins, ":hash", blob_str(&hash));
+      db_bind_int(&ins, ":sz", blob_size(&file));
+      db_bind_blob(&ins, ":content", &compressed);
+      db_step(&ins);
+      db_reset(&ins);
+      blob_reset(&compressed);
+      blob_reset(&hash);
+      blob_reset(&file);
+    }
     db_finalize(&ins);
-    blob_reset(&compressed);
-    blob_reset(&hash);
-    blob_reset(&file);
-    /* Clear the uvhash cache */
+    db_unset("uv-hash", 0);
     db_end_transaction(0);
   }else if( memcmp(zCmd, "cat", nCmd)==0 ){
+    int i;
+    verify_all_options();
+    db_begin_transaction();
+    for(i=3; i<g.argc; i++){
+      Blob content;
+      blob_init(&content, 0, 0);
+      db_blob(&content, "SELECT content FROM unversioned WHERE name=%Q",g.argv[i]);
+      if( blob_size(&content)==0 ){
+        fossil_fatal("no such uv-file: %Q", g.argv[i]);
+      }
+      blob_uncompress(&content, &content);
+      blob_write_to_file(&content, "-");
+      blob_reset(&content);
+    }
+    db_end_transaction(0);
+  }else if( memcmp(zCmd, "export", nCmd)==0 ){
+    Blob content;
+    verify_all_options();
+    if( g.argc!=5 ) usage("export UVFILE OUTPUT");
+    blob_init(&content, 0, 0);
+    db_blob(&content, "SELECT content FROM unversioned WHERE name=%Q", g.argv[3]);
+    if( blob_size(&content)==0 ){
+      fossil_fatal("no such uv-file: %Q", g.argv[3]);
+    }
+    blob_uncompress(&content, &content);
+    blob_write_to_file(&content, g.argv[4]);
+    blob_reset(&content);
+  }else if( memcmp(zCmd, "hash", nCmd)==0 ){  /* undocumented */
+    /* Show the hash value used during uv sync */
+    int debugFlag = find_option("debug",0,0)!=0;
+    fossil_print("%s\n", unversioned_content_hash(debugFlag));
   }else if( memcmp(zCmd, "list", nCmd)==0 || memcmp(zCmd, "ls", nCmd)==0 ){
     Stmt q;
-    db_prepare(&q,
-      "SELECT hash, datetime(mtime,'unixepoch'), sz, name, content IS NULL"
-      "   FROM unversioned"
-      "  WHERE hash IS NOT NULL"
-      "  ORDER BY name;"
-    );
-    while( db_step(&q)==SQLITE_ROW ){
-      fossil_print("%12.12s %s %8d %s%s\n",
-         db_column_text(&q,0),
-         db_column_text(&q,1),
-         db_column_int(&q,2),
-         db_column_text(&q,3),
-         db_column_int(&q,4) ? " ** no content ** ": ""
+    int allFlag = find_option("all","a",0)!=0;
+    int longFlag = find_option("l",0,0)!=0 || (nCmd>1 && zCmd[1]=='i');
+    verify_all_options();
+    if( !longFlag ){
+      if( allFlag ){
+        db_prepare(&q, "SELECT name FROM unversioned ORDER BY name");
+      }else{
+        db_prepare(&q, "SELECT name FROM unversioned WHERE hash IS NOT NULL"
+                       " ORDER BY name");
+      }
+      while( db_step(&q)==SQLITE_ROW ){
+        fossil_print("%s\n", db_column_text(&q,0));
+      }
+    }else{
+      db_prepare(&q,
+        "SELECT hash, datetime(mtime,'unixepoch'), sz, name, content IS NULL"
+        "   FROM unversioned"
+        "  ORDER BY name;"
       );
+      while( db_step(&q)==SQLITE_ROW ){
+        const char *zHash = db_column_text(&q, 0);
+        const char *zNoContent = "";
+        if( zHash==0 ){
+          if( !allFlag ) continue;
+          zHash = "(deleted)";
+        }else if( db_column_int(&q,4) ){
+          zNoContent = " (no content)";
+        }
+        fossil_print("%12.12s %s %8d %s%s\n",
+           zHash,
+           db_column_text(&q,1),
+           db_column_int(&q,2),
+           db_column_text(&q,3),
+           zNoContent
+        );
+      }
     }
     db_finalize(&q);
   }else if( memcmp(zCmd, "revert", nCmd)==0 || memcmp(zCmd,"sync",nCmd)==0 ){
     fossil_fatal("not yet implemented...");
   }else if( memcmp(zCmd, "rm", nCmd)==0 ){
+    int i;
+    verify_all_options();
+    db_begin_transaction();
+    for(i=3; i<g.argc; i++){
+      db_multi_exec(
+        "UPDATE unversioned"
+        "   SET hash=NULL, content=NULL, mtime=%lld, sz=0 WHERE name=%Q",
+        mtime, g.argv[i]
+      );
+    }
+    db_unset("uv-hash", 0);
+    db_end_transaction(0);
   }else{
-    usage("add|cat|ls|revert|rm|sync");
+    usage("add|cat|export|ls|revert|rm|sync");
   }
 }
 

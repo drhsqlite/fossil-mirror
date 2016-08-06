@@ -1,5 +1,5 @@
-C Add\sa\slink\sto\sthe\sweb-cache\sstatus\sscreen\sto\sthe\sAdmin\smain\smenu.
-D 2016-08-06T17:40:43.257
+C Complete\sthe\sparts\sof\sthe\s"fossil\sunversioned"\scommand\sused\sto\sadd\sand\sremove\ncontent.
+D 2016-08-06T21:01:18.899
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -502,7 +502,7 @@ F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c 52ec5c24a6dcf1937026e2d9f86791fd1913cdf6
 F src/unicode.c 8e02b4fd6af9e735bda68eb06e3be90b6b901a87
-F src/unversioned.c 7ef54e90feb0887f2485c9b51816d96335fff514
+F src/unversioned.c dd72281b3cc08ece634b025a504a793d09349a48
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c e2c08deb9a3ce011d3db10f70216a7988485e29a
@@ -754,7 +754,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 440defe233ae6bc14a62ff8d05fc1e87aa22458f
-R 79bc3672a8f145027fabf6ffd3a0e98f
+P 7c176f7aebb11bc39d790fddefd45e80e776d2ef
+R 7825bd63512f0fcc64f35caeb207f612
 U drh
-Z daf8253ca5d9d09f9455b79844fdbfdf
+Z c08c7fd8f61d471882670035cffc85ba
