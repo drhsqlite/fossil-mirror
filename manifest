@@ -1,5 +1,5 @@
-C Add\sthe\s/uv\swebpage.
-D 2016-08-05T12:30:23.568
+C Add\sa\slink\sto\sthe\sweb-cache\sstatus\sscreen\sto\sthe\sAdmin\smain\smenu.
+D 2016-08-06T17:40:43.257
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -475,7 +475,7 @@ F src/report.c 3dd19351cd1461653bd07a234d3cc4aaff8845ac
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b44df10abbab7d4f63a61057eaa3fb4e0b5c693d
-F src/setup.c f772c3edb8ce2377e86b92eb6e6d054779eb68b1
+F src/setup.c f93f841b1bbdf33999ed97a285d15f2212b78b0b
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
 F src/shell.c 79dda477be6c96eba6e952a934957ad36f87acc7
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
@@ -754,7 +754,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a9463a7157129ee3cb6ecd1ca681c3b6f5a256a1
-R abaa89a36b0faabb9c8958a235c3edec
+P 440defe233ae6bc14a62ff8d05fc1e87aa22458f
+R 79bc3672a8f145027fabf6ffd3a0e98f
 U drh
-Z 40c0fa0b84484c80915c3b081d17c5a9
+Z daf8253ca5d9d09f9455b79844fdbfdf
