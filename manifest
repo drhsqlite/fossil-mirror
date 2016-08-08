@@ -1,5 +1,5 @@
-C Add\sa\slink\sto\sthe\sweb-cache\sstatus\sscreen\sto\sthe\sAdmin\smain\smenu.
-D 2016-08-06T17:42:49.843
+C Update\sthe\sbuilt-in\sSQLite\sto\s3.14\srelease.
+D 2016-08-08T14:20:48.333
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -482,8 +482,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 6fbec2fbaf3bb39566f2550b12f58127c9bfa850
 F src/skins.c 524384aafbe9e7707d3b87f42ee72fa63fe91796
 F src/sqlcmd.c 67a6b4ac894633d8346dc890a5b179a0ac3b1925
-F src/sqlite3.c 94f01233e2b2ab22a4d531c8c3496f6288fd42b0
-F src/sqlite3.h f8cb04f18c220906ebed56c8806baebe24b28c12
+F src/sqlite3.c bd10391f42c91519e19372fc76957d4ef518659e
+F src/sqlite3.h 9233f3b3b811fc4722290126836954302500da1c
 F src/stash.c ccb0d94252422f28178119825a99c6bce45924d6
 F src/stat.c 82a4439d096fe0fb231e27f49f2b2ff13dacf014
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
@@ -753,8 +753,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aa63cd405b1bb2d58dd5605007f6ff2fb5d0b4c7
-Q +7c176f7aebb11bc39d790fddefd45e80e776d2ef
-R bd20d4512183b783a6b4e4d2c72f4e99
+P 4a4a51a541605fe6a95be36ecfb8181390f4ca66
+R 577936cfa430eeddc33a468887714a56
 U drh
-Z aa54aacdfca39e2ca9e8409c09a4654c
+Z c85c97a382e3e25671697b8480559746
