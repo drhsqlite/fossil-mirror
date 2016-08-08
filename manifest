@@ -1,5 +1,5 @@
-C Fix\san\sunused\svariable\sand\sadd\sa\sheader\scomment\sto\sget_checkin_taglist().
-D 2016-08-08T14:42:32.022
+C Merge\supdates\sfrom\strunk.
+D 2016-08-08T14:44:17.227
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -377,7 +377,7 @@ F src/attach.c ac8b171ca9c495fda5568d6cf48e13749b9b5d2c
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c abd167c9f2c5398782ca6d48ea1ee612163a7685
 F src/blob.c 54ba03df02f021dedcb0efcb639c225196d4702d
-F src/branch.c fb34c1491e15c8a5d4cd6b4274a3cba7b455601e
+F src/branch.c de905c943865c8d2be634800361c5c1e77c20eb2
 F src/browse.c 8f0bb9b6e6e31df9875c081239745a33567c7c84
 F src/builtin.c b2dcfcade2054c083b03a18e3ab5026d51eb2dcb
 F src/bundle.c 5d4c0f96c09606271b3d020cd1db687aca8776ba
@@ -443,7 +443,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 32febde85f14593a503aadbb51983d37fce009c2
 F src/login.c 13788b9e70f2cfb13ea4e975a4117c68ed8115f0
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
-F src/main.c 663246084eded6c69a9c4ecdf17d6f30ae43df7e
+F src/main.c ec910699792ba37effab59913e954ef7d169ac41
 F src/main.mk 8d842af44e6565ef0e1406ce2beaebaf8c0d8394
 F src/makeheaders.c e8444028f575e84075e46cf47f2080fa6d2c2115
 F src/makeheaders.html 06decb89c665feb897540613d7d12527eb65dfe5
@@ -468,27 +468,27 @@ F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 2de9ca8ea140e35da05eafeb6a447a2fd4069438
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
-F src/purge.c cae0af721752d5dafebd29a3e4ae5cc5e755cc13
+F src/purge.c 00e8a4851accabf2aa26f492480cf8de282f9508
 F src/rebuild.c 382e418f6883e371e057dcbfe97054d60e294bf7
 F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c 3dd19351cd1461653bd07a234d3cc4aaff8845ac
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b44df10abbab7d4f63a61057eaa3fb4e0b5c693d
-F src/setup.c f772c3edb8ce2377e86b92eb6e6d054779eb68b1
+F src/setup.c f93f841b1bbdf33999ed97a285d15f2212b78b0b
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
 F src/shell.c 79dda477be6c96eba6e952a934957ad36f87acc7
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 6fbec2fbaf3bb39566f2550b12f58127c9bfa850
 F src/skins.c 524384aafbe9e7707d3b87f42ee72fa63fe91796
 F src/sqlcmd.c 67a6b4ac894633d8346dc890a5b179a0ac3b1925
-F src/sqlite3.c 957f10bedf6e8a2a2ca13494de3295fbb01b08c3
-F src/sqlite3.h 6ffe58ad5b99b3de31d4b159c7a1338f8b178682
+F src/sqlite3.c bd10391f42c91519e19372fc76957d4ef518659e
+F src/sqlite3.h 9233f3b3b811fc4722290126836954302500da1c
 F src/stash.c ccb0d94252422f28178119825a99c6bce45924d6
 F src/stat.c 82a4439d096fe0fb231e27f49f2b2ff13dacf014
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
 F src/style.c 85ca473e8cd7ba551cd6e4f865f8ebbd45d3289d
-F src/sync.c cc287e14c4387dfa7a8f050cbec523ece71d664e
+F src/sync.c 84f9397743df8141e5794bfe5c9bfe7e1c2db8df
 F src/tag.c a84db6110a8f682beec34fc39df547077360a1c1
 F src/tar.c cb30437487715f5c245b4af5d1e078f801858a87
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
@@ -647,6 +647,7 @@ F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
+F www/aboutcgi.wiki 6c7673267f102dac018ed655441dad2fe8ff24ff
 F www/adding_code.wiki b769f1c0b4fd661ea7d3a22e6bbc10d9ebeed677
 F www/antibot.wiki 2cb08df5fdf129d683b1fa104c93c6785660432b
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
@@ -724,10 +725,10 @@ F www/index.wiki 3fc360452fd46c506e0f0abebee1c666b03e7857
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki 30c7129ffb00c58699b87e84a2c0b696d7c10406
 F www/mkdownload.tcl 5ac61a3e13cecaa67f1e31741113c96cbd41463f
-F www/mkindex.tcl 7b1ae384f0a6c5966f2a9b674e12e4655b9d81e3
+F www/mkindex.tcl 5f918c097ce054d34ff6d82396f6c0ef7401118e
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
-F www/permutedindex.html c6c6b338f2fb98f6c89549136bfb85d5a7b30eed
+F www/permutedindex.html dbad632e2a8e5354b9f996432fbbbd9958c9f6d6
 F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
 F www/private.wiki 72344489bbae6f7955369559b6ab22e01a64259b
 F www/qandc.wiki e07b21da221b05afeb1905f17af3765045952ba8
@@ -737,13 +738,13 @@ F www/reviews.wiki 866e545f89fce7cff29c96a29ab10586692f3964
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki d1e2fc5baf9ade46815499c9758256a22efe8142
 F www/selfhost.wiki 03de31d67690fe47972589e4e1e395e11559c85c
-F www/server.wiki 99fb9a59df8d04b6cb6f9f4b3c9fae93dc85e392
+F www/server.wiki 3a16b44effdbcafd820f2e826b44bf00063ae317
 F www/settings.wiki 12b7e736432b0081a7e6a3d7b9e184d04f482ef7
 F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki e6c82bd6579f755896c47b22dbab18e27b1f5bc4
 F www/style.wiki da3a414d4c57c3da2636daf0baf6964ba72ce70b
-F www/sync.wiki 655cb0e7cbe59cf5726658af2b4f266ed45404f2
+F www/sync.wiki cea4a416d05df435f107842216ef79f0cc0b2726
 F www/tech_overview.wiki 4d74d28dfc2515d7864c4ecbf7324be9919e3efd
 F www/th1.md cce5b4ec03727680ec48dede21bb6aa82931d7c2
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
@@ -753,7 +754,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2350b0681eaa9397cecfca5bfa32be5cf28638ab
-R 99d4b1ab5ac52f7912e9de5e8b467e63
+P 6c62828b7a34c40b5a2ef88069b72e004c0b88cb 60d5fee782d03aedf5248cfa604226b7533fbc47
+R d91f83ac88988e7ca1eb54f22d224cd1
 U drh
-Z b0c0c890f753273cbefb7a5d7b61e349
+Z be283674135b6b5b5b767519ae5e8b9d

@@ -462,7 +462,7 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
 ** ==== Make a backup of your repository before using this command!       ====
 **
 ** ==== FURTHER WARNING: This command is a work-in-progress and may yet   ====
-** ==== contains bugs.                                                    ====
+** ==== contain bugs.                                                     ====
 **
 **   fossil purge artifacts UUID... ?OPTIONS?
 **

@@ -235,7 +235,7 @@ void pull_cmd(void){
 **   --ipv4                     Use only IPv4, not IPv6
 **   --once                     Do not remember URL for subsequent syncs
 **   --proxy PROXY              Use the specified HTTP proxy
-**   --private                  Pull private branches too
+**   --private                  Push private branches too
 **   -R|--repository REPO       Repository to pull into
 **   --ssl-identity FILE        Local SSL credentials, if requested by remote
 **   --ssh-command SSH          Use SSH as the "ssh" command
@@ -280,7 +280,7 @@ void push_cmd(void){
 **   --ipv4                     Use only IPv4, not IPv6
 **   --once                     Do not remember URL for subsequent syncs
 **   --proxy PROXY              Use the specified HTTP proxy
-**   --private                  Pull private branches too
+**   --private                  Sync private branches too
 **   -R|--repository REPO       Repository to pull into
 **   --ssl-identity FILE        Local SSL credentials, if requested by remote
 **   --ssh-command SSH          Use SSH as the "ssh" command
