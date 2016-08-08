@@ -1,5 +1,5 @@
-C Complete\sthe\sparts\sof\sthe\s"fossil\sunversioned"\scommand\sused\sto\sadd\sand\sremove\ncontent.
-D 2016-08-06T21:01:18.899
+C Merge\schanges\sfrom\strunk.
+D 2016-08-08T14:31:17.801
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -482,8 +482,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 6fbec2fbaf3bb39566f2550b12f58127c9bfa850
 F src/skins.c 524384aafbe9e7707d3b87f42ee72fa63fe91796
 F src/sqlcmd.c 67a6b4ac894633d8346dc890a5b179a0ac3b1925
-F src/sqlite3.c 94f01233e2b2ab22a4d531c8c3496f6288fd42b0
-F src/sqlite3.h f8cb04f18c220906ebed56c8806baebe24b28c12
+F src/sqlite3.c bd10391f42c91519e19372fc76957d4ef518659e
+F src/sqlite3.h 9233f3b3b811fc4722290126836954302500da1c
 F src/stash.c ccb0d94252422f28178119825a99c6bce45924d6
 F src/stat.c 82a4439d096fe0fb231e27f49f2b2ff13dacf014
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
@@ -754,7 +754,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7c176f7aebb11bc39d790fddefd45e80e776d2ef
-R 7825bd63512f0fcc64f35caeb207f612
+P fb3c81d8ba0f632ad05fd59c7e8089ae745ed8b8 60d5fee782d03aedf5248cfa604226b7533fbc47
+R d29a839d11cf15408c16c9cae27544de
 U drh
-Z c08c7fd8f61d471882670035cffc85ba
+Z cb54dcda924c8b1a7bcba69a50dbf63f
