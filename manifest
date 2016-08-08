@@ -1,5 +1,5 @@
-C Add\smore\stags\smanifest\stest\scases.\sCheck\sthe\smanifest.tags\scontents\supdates\son\stagging,\scommit\sand\sswitching\sbranches.\sTests\spass\ssuccessfully\son\sOS\sX.
-D 2016-08-06T16:20:31.372
+C Fix\san\sunused\svariable\sand\sadd\sa\sheader\scomment\sto\sget_checkin_taglist().
+D 2016-08-08T14:42:32.022
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -385,7 +385,7 @@ F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c 10310d276e72e3e34343e3385c0b39fac5cd826e
 F src/checkin.c 3ec16c33aa72df94f072924f8d657d28a1bda4f4
-F src/checkout.c 4bd9db8add1c91aae9308c725db486b51dc4985e
+F src/checkout.c 84ea83fc02bbf41672011e1ed9a9ba9f2dad8b10
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c e2ad376a51231876336d7e91ca96cb63ec81cf1a
 F src/codecheck1.c bf92e19b6a521f947c07960aae3f2aa9a21e4c42
@@ -753,7 +753,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c33f02de133f6c1ceed546ec679cc39ae676e958
-R fd6ab4c066bd96af06c2abde229643f7
-U jan
-Z 07e36ed1e480cec7c5e53480fc56c250
+P 2350b0681eaa9397cecfca5bfa32be5cf28638ab
+R 99d4b1ab5ac52f7912e9de5e8b467e63
+U drh
+Z b0c0c890f753273cbefb7a5d7b61e349

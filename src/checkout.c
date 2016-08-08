@@ -189,8 +189,17 @@ void manifest_to_disk(int vid){
   }
 }
 
+/*
+** Find the branch name and all symbolic tags for a particular check-in
+** identified by "rid".
+**
+** The branch name is actually only extracted if this procedure is run
+** from within a local check-out.  And the branch name is not the branch
+** name for "rid" but rather the branch name for the current check-out.
+** It is unclear if the rid parameter is always the same as the current
+** check-out.
+*/
 void get_checkin_taglist(int rid, Blob *pOut){
-  char *zTags;
   Stmt stmt;
   blob_reset(pOut);
   if( g.localOpen ){
