@@ -1,5 +1,5 @@
-C Added\squick\schecks\sto\sverify\sthat\sthe\smanifest\sand\smanifest.uuid\sfiles\shave\ssensible\scontent,\sat\sleast\sfor\sthe\sinitial\sempty\scheckin.\sThis\sdoes\srequire\sthat\san\sSHA1\smodule\sbe\sinstalled\sfor\suse\sby\sthe\stest\sharness,\swhich\sI\sam\sslightly\ssurprised\swas\snot\salready\sneeded\sby\sany\sother\stest\scase.
-D 2016-08-08T19:37:21.412
+C Two\smanifest.tags\schanges:\s1)\sUnconditionally\sadd\sbranch.\s2)\sChange\sthe\sformat\sto\sexplicitly\sstate\stag\sor\sbranch\sentry.
+D 2016-08-08T21:42:37.954
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -385,7 +385,7 @@ F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c 10310d276e72e3e34343e3385c0b39fac5cd826e
 F src/checkin.c 3ec16c33aa72df94f072924f8d657d28a1bda4f4
-F src/checkout.c 84ea83fc02bbf41672011e1ed9a9ba9f2dad8b10
+F src/checkout.c 64448b8824afd02b9d8345807e99c70b229937ce
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c e2ad376a51231876336d7e91ca96cb63ec81cf1a
 F src/codecheck1.c bf92e19b6a521f947c07960aae3f2aa9a21e4c42
@@ -547,7 +547,7 @@ F test/merge_warn.test d4a98c6ff14e4bb142d784f96c88d152d9599529
 F test/mv-rm.test a46185f0a8443bf422e222b47f360e5c341e9306
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
 F test/revert.test 7387258ce11b1214c5b82be47792d2c98316fd52
-F test/set-manifest.test 3e645d92db81093c0f6e0dc0d9911f1fd7187db9
+F test/set-manifest.test b8c87fef4ae73a051669a2530dd736cab44e3040
 F test/stash.test f9c2bba31afe77b62967ea11e59e438c950325ec
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
@@ -754,7 +754,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f63576a79652366103f68dd54f68974fabb9d17d
-R 2cc8b1cc2f8c9ec639a446dae7cee578
-U rberteig
-Z 95012778d2f31b146162f76cc3d704dc
+P bf62b1608c62eab08762f4dfa9fd789db6356948
+R 6c7b983155254cd469cfd1f4ae71d749
+U jan
+Z 97d31795bb27f50d18645f624c00081d

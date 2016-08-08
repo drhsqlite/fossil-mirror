@@ -201,15 +201,11 @@ void manifest_to_disk(int vid){
 */
 void get_checkin_taglist(int rid, Blob *pOut){
   Stmt stmt;
+  char *zCurrent;
   blob_reset(pOut);
-  if( g.localOpen ){
-    char *zCurrent;
-    int vid;
-    vid = db_lget_int("checkout", 0);
-    zCurrent = db_text(0, "SELECT value FROM tagxref"
-                          " WHERE rid=%d AND tagid=%d", vid, TAG_BRANCH);
-    blob_appendf(pOut, "branch=%s\n", zCurrent);
-  }
+  zCurrent = db_text(0, "SELECT value FROM tagxref"
+                        " WHERE rid=%d AND tagid=%d", rid, TAG_BRANCH);
+  blob_appendf(pOut, "branch %s\n", zCurrent);
   db_prepare(&stmt, "SELECT substr(tagname, 5)"
                     "  FROM tagxref, tag"
                     " WHERE tagxref.rid=%d"
@@ -219,7 +215,7 @@ void get_checkin_taglist(int rid, Blob *pOut){
   while( db_step(&stmt)==SQLITE_ROW ){
     const char *zName;
     zName = db_column_text(&stmt, 0);
-    blob_appendf(pOut, "%s\n", zName);
+    blob_appendf(pOut, "tag %s\n", zName);
   }
   db_reset(&stmt);
   db_finalize(&stmt);
