@@ -372,7 +372,7 @@ static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
   db_bind_text(&q, ":name", blob_str(&pXfer->aToken[1]));
   db_bind_int(&q, ":rcvid", g.rcvid);
   db_bind_int64(&q, ":mtime", mtime);
-  db_bind_text(&q, ":hash", blob_str(&pXfer->aToken[5]));
+  db_bind_text(&q, ":hash", blob_str(pHash));
   db_bind_int(&q, ":sz", blob_size(&content));
   if( !nullContent ){
     blob_compress(&content, &content);
@@ -641,12 +641,12 @@ static void send_unversioned_file(Xfer *pXfer, const char *zName, int noContent)
   Stmt q1;
 
   if( noContent ){
-    db_static_prepare(&q1,
+    db_prepare(&q1,
       "SELECT mtime, hash, encoding, sz FROM unversioned WHERE name=%Q",
       zName
     );
   }else{
-    db_static_prepare(&q1,
+    db_prepare(&q1,
       "SELECT mtime, hash, encoding, sz, content FROM unversioned WHERE name=%Q",
       zName
     );
@@ -1840,7 +1840,7 @@ int client_sync(
       assert( (syncFlags & SYNC_UNVERSIONED)!=0 );
       assert( uvStatus==2 );
       db_prepare(&uvq, "SELECT name, mtimeOnly FROM uv_tosend");
-      while( db_step(&uvq) ){
+      while( db_step(&uvq)==SQLITE_ROW ){
         send_unversioned_file(&xfer, db_column_text(&uvq,0), db_column_int(&uvq,1));
         nCardSent++;
       }
@@ -1962,6 +1962,7 @@ int client_sync(
       */
       if( blob_eq(&xfer.aToken[0], "uvfile") ){
         xfer_accept_unversioned_file(&xfer, 1);
+        nArtifactRcvd++;
       }else
 
       /*   gimme UUID
@@ -2036,7 +2037,8 @@ int client_sync(
         iStatus = unversioned_status(zName, mtime, zHash);
         if( iStatus<=1 ){
           if( zHash[0]!='-' ){
-            @ uvgimme %s(zName)
+            blob_appendf(xfer.pOut, "uvgimme %s\n", zName);
+            nCardSent++;
           }else if( iStatus==1 ){
             db_multi_exec(
                "UPDATE unversioned"
