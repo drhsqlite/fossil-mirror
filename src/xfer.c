@@ -322,7 +322,7 @@ static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
   if( pXfer->nToken==5
    || !blob_is_filename(&pXfer->aToken[1])
    || !blob_is_int64(&pXfer->aToken[2], &mtime)
-   || (blob_eq(pHash,"-")!=0 && !blob_is_uuid(pHash))
+   || (!blob_eq(pHash,"-") && !blob_is_uuid(pHash))
    || !blob_is_int(&pXfer->aToken[4], &sz)
    || !blob_is_int(&pXfer->aToken[5], &flags)
   ){
@@ -2028,7 +2028,7 @@ int client_sync(
        && blob_is_filename(&xfer.aToken[1])
        && blob_is_int64(&xfer.aToken[2], &mtime)
        && blob_is_int(&xfer.aToken[4], &size)
-       && (blob_eq(&xfer.aToken[3],"-")==0 || blob_is_uuid(&xfer.aToken[3]))
+       && (blob_eq(&xfer.aToken[3],"-") || blob_is_uuid(&xfer.aToken[3]))
       ){
         const char *zName = blob_str(&xfer.aToken[1]);
         const char *zHash = blob_str(&xfer.aToken[3]);

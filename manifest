@@ -1,5 +1,5 @@
-C Fixes\sto\sthe\sunversioned\sfile\ssync\sprotocol.
-D 2016-08-09T17:18:56.763
+C Another\sunversioned\sfile\ssync\sfix.
+D 2016-08-09T17:31:55.223
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -515,7 +515,7 @@ F src/wikiformat.c 1d750982147d9c51fa40e89e40241a33408adaf6
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c 3553bd8fd0af7941a2526a1126695cc8018bccb5
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c 205c16ffcbdbb31f8a5b577acbdef422f22b9d71
+F src/xfer.c 346168727a3944f3fd64e15f70dafec13ea5f13f
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 47fb4c4c0de256254faf4cc08bc56e7128b72404
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -754,7 +754,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a3dcfe759541d1f266643241d2300aca7c358c1e
-R 5bfec8c8d95854bd2148abe60f5fcbb0
+P 5d913409b70a013d6fc7bd2463026f2bc0c86bd2
+R 9bf3b2b835bcc6d3ef38cd1e2b73a252
 U drh
-Z 7e3881c34ab50ec44dd0f2b416936003
+Z 7bfc13f62bec95efb090193603556eef
