@@ -1,5 +1,5 @@
-C Change\sthe\sschema\sfor\sthe\sunversioned\stable.\s\sAdd\ssome\sinitial\scode\sto\sdo\s\nunversioned\ssync,\sbut\sthe\scode\sis\sincomplete\sand\suntested.
-D 2016-08-09T12:37:03.186
+C More\swork\son\sunversioned\sfile\ssync.
+D 2016-08-09T15:29:27.388
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -488,7 +488,7 @@ F src/stash.c ccb0d94252422f28178119825a99c6bce45924d6
 F src/stat.c 82a4439d096fe0fb231e27f49f2b2ff13dacf014
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
 F src/style.c 85ca473e8cd7ba551cd6e4f865f8ebbd45d3289d
-F src/sync.c 4e714f3c4fd69f505c323296a66bf67b8d201db4
+F src/sync.c 1f00937378fd76692c7028ca66ffed20e2d93175
 F src/tag.c 98b6205ee452dc3fba417ec8725864a2d7af3ba8
 F src/tar.c 3d8ec6d43a730d3bfdf73fc86bff84587a0bab57
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
@@ -502,7 +502,7 @@ F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c 52ec5c24a6dcf1937026e2d9f86791fd1913cdf6
 F src/unicode.c 8e02b4fd6af9e735bda68eb06e3be90b6b901a87
-F src/unversioned.c 306ee86c7c19af19bd2250a85f51b147be586f5d
+F src/unversioned.c d81e474f5c2198accec50122e362071134cfd441
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c e2c08deb9a3ce011d3db10f70216a7988485e29a
@@ -515,7 +515,7 @@ F src/wikiformat.c 1d750982147d9c51fa40e89e40241a33408adaf6
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c 3553bd8fd0af7941a2526a1126695cc8018bccb5
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c 0b95ad644e0ff4e92c5ccef0536385bb51f290d0
+F src/xfer.c b1848fe0f200fb9faae6bc4b949d9d2666e3c859
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 47fb4c4c0de256254faf4cc08bc56e7128b72404
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -754,7 +754,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3506156a31f82d7c91a8d1d4e004703830374522
-R e9a858cd9a4d3ad9eca1024532ea2b85
+P 73932a32c5564e66d883359084dbc0a1b03a05c8
+R f876e9cef4edd532b4f3ac785f6f61b8
 U drh
-Z 7762572c5cfb60da77282b8cde57ff05
+Z 84dd921488c7ca6da5adc13d8517f47f

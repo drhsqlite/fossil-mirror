@@ -105,6 +105,40 @@ int unversioned_content(const char *zName, Blob *pContent){
 }
 
 /*
+** Check the status of unversioned file zName.  Return an integer status
+** code as follows:
+**
+**    0:     zName does not exist in the unversioned table.
+**    1:     zName exists and should be replaced by mtime/zHash.
+**    2:     zName exists and is the same as zHash but has a older mtime
+**    3:     zName exists and is identical to mtime/zHash in all respects.
+**    4:     zName exists and is the same as zHash but has a newer mtime.
+**    5:     zName exists and should override mtime/zHash.
+*/
+int unversioned_status(const char *zName, sqlite3_int64 mtime, const char *zHash){
+  int iStatus = 0;
+  Stmt q;
+  db_prepare(&q, "SELECT mtime, hash FROM unversioned WHERE name=%Q", zName);
+  if( db_step(&q)==SQLITE_ROW ){
+    const char *zLocalHash = db_column_text(&q, 1);
+    int hashCmp;
+    sqlite3_int64 iLocalMtime = db_column_int64(&q, 0);
+    int mtimeCmp = iLocalMtime<mtime ? -1 : (iLocalMtime==mtime ? 0 : +1);
+    if( zLocalHash==0 ) zLocalHash = "-";
+    hashCmp = strcmp(zLocalHash, zHash);
+    if( hashCmp==0 ){
+      iStatus = 3 + mtimeCmp;
+    }else if( mtimeCmp<0 || (mtimeCmp==0 && hashCmp<0) ){
+      iStatus = 1;
+    }else{
+      iStatus = 5;
+    }
+  }
+  db_finalize(&q);
+  return iStatus;
+}
+
+/*
 ** COMMAND: unversioned
 **
 ** Usage: %fossil unversioned SUBCOMMAND ARGS...
@@ -140,6 +174,8 @@ int unversioned_content(const char *zName, Blob *pContent){
 **                         the remote repository URL.  The most recent version of
 **                         each file is propagate to all repositories and all
 **                         prior versions are permanently forgotten.
+**
+**    touch FILE ...       Update the TIMESTAMP on all of the listed files
 **
 ** Options:
 **
@@ -273,7 +309,7 @@ void unversioned_cmd(void){
       }
     }
     db_finalize(&q);
-  }else if( memcmp(zCmd, "revert", nCmd)==0 || memcmp(zCmd,"sync",nCmd)==0 ){
+  }else if( memcmp(zCmd, "revert", nCmd)==0 ){
     fossil_fatal("not yet implemented...");
   }else if( memcmp(zCmd, "rm", nCmd)==0 ){
     int i;
@@ -288,7 +324,23 @@ void unversioned_cmd(void){
     }
     db_unset("uv-hash", 0);
     db_end_transaction(0);
+  }else if( memcmp(zCmd,"sync",nCmd)==0 ){
+    g.argv[1] = "sync";
+    g.argv[2] = "--uv";
+    sync_unversioned();
+  }else if( memcmp(zCmd, "touch", nCmd)==0 ){
+    int i;
+    verify_all_options();
+    db_begin_transaction();
+    for(i=3; i<g.argc; i++){
+      db_multi_exec(
+        "UPDATE unversioned SET mtime=%lld WHERE name=%Q",
+        mtime, g.argv[i]
+      );
+    }
+    db_unset("uv-hash", 0);
+    db_end_transaction(0);
   }else{
-    usage("add|cat|export|ls|revert|rm|sync");
+    usage("add|cat|export|ls|revert|rm|sync|touch");
   }
 }

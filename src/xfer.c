@@ -296,13 +296,15 @@ static void xfer_accept_compressed_file(
 **      uvfile NAME MTIME HASH SIZE FLAGS \n CONTENT
 **
 ** If the 0x0001 bit of FLAGS is set, that means the file has been 
-** deleted, SIZE is zero, the HASH is "0", and the "\n CONTENT" is omitted.
+** deleted, SIZE is zero, the HASH is "-", and the "\n CONTENT" is omitted.
 **
 ** SIZE is the number of bytes of CONTENT.  The CONTENT is uncompressed.
 ** HASH is the SHA1 hash of CONTENT.
 **
-** If the 0x0004 bit of FLAGS is set, that means the CONTENT size
-** is too big to transmit and so the "\n CONTENT" is omitted.
+** If the 0x0004 bit of FLAGS is set, that means the CONTENT is omitted.
+** The sender might have omitted the content because it is too big to
+** transmit, or because it is unchanged and this record exists purely
+** to update the MTIME.
 */
 static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
   sqlite3_int64 mtime;      /* The MTIME */
@@ -312,14 +314,15 @@ static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
   Blob content;             /* The CONTENT */
   Blob hash;                /* Hash computed from CONTENT to compare with HASH */
   Stmt q;                   /* SQL statements for comparison and insert */
-  int isDelete;             /* HASH is "0" indicating this is a delete operation */
+  int isDelete;             /* HASH is "-" indicating this is a delete operation */
   int nullContent;          /* True of CONTENT is NULL */
+  int iStatus;              /* Result from unversioned_status() */
 
   pHash = &pXfer->aToken[3];
   if( pXfer->nToken==5
    || !blob_is_filename(&pXfer->aToken[1])
    || !blob_is_int64(&pXfer->aToken[2], &mtime)
-   || (blob_eq(pHash,"0")!=0 && !blob_is_uuid(pHash))
+   || (blob_eq(pHash,"-")!=0 && !blob_is_uuid(pHash))
    || !blob_is_int(&pXfer->aToken[4], &sz)
    || !blob_is_int(&pXfer->aToken[5], &flags)
   ){
@@ -347,33 +350,19 @@ static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
   ** a uvfile card should never have been sent unless the overwrite should
   ** occur.  But do not trust the sender.  Double-check. 
   */
-  db_prepare(&q,
-    "SELECT mtime, hash FROM unversioned WHERE name=%Q",
-    blob_str(&pXfer->aToken[1])
-  );
-  if( db_step(&q)==SQLITE_ROW ){
-    sqlite3_int64 xtime = db_column_int64(&q, 0);
-    const char *xhash = db_column_text(&q, 1);
-    if( xtime>mtime ){
-      db_finalize(&q);
-      goto end_accept_unversioned_file;
-    }
-    if( xhash==0 ) xhash = "0";
-    if( xtime==mtime && strcmp(xhash, blob_str(pHash))>0 ){
-      db_finalize(&q);
-      goto end_accept_unversioned_file;
-    }
-  }
-  db_finalize(&q);
+  iStatus = unversioned_status(blob_str(&pXfer->aToken[1]), mtime, blob_str(pHash));
+  if( iStatus>=3 ) goto end_accept_unversioned_file;
   
   /* Store the content */
-  isDelete = blob_eq(pHash, "0");
+  isDelete = blob_eq(pHash, "-");
   if( isDelete ){
     db_prepare(&q,
       "UPDATE unversioned"
       "   SET rcvid=:rcvid, mtime=:mtime, hash=NULL, sz=0, content=NULL"
       " WHERE name=:name"
     );
+  }else if( iStatus==4 ){
+    db_prepare(&q, "UPDATE unversioned SET mtime=:mtime WHERE name=:name");
   }else{
     db_prepare(&q,
       "REPLACE INTO unversioned(name, rcvid, mtime, hash, sz, content)"
@@ -391,6 +380,7 @@ static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
   }
   db_step(&q);
   db_finalize(&q);
+  db_unset("uv-hash", 0);
 
 end_accept_unversioned_file:
   blob_reset(&content);
@@ -644,24 +634,35 @@ static void send_compressed_file(Xfer *pXfer, int rid){
 ** appropriate "uvfile" card.
 **
 **     uvfile NAME MTIME HASH SIZE FLAGS \n CONTENT
+**
+** If the noContent flag is set, omit the CONTENT and set the 0x0004 flag in FLAGS.
 */
-static void send_unversioned_file(Xfer *pXfer, const char *zName){
+static void send_unversioned_file(Xfer *pXfer, const char *zName, int noContent){
   Stmt q1;
 
-  db_static_prepare(&q1,
-    "SELECT mtime, hash, encoding, content FROM unversioned WHERE name=%Q",
-    zName
-  );
+  if( noContent ){
+    db_static_prepare(&q1,
+      "SELECT mtime, hash, encoding, sz FROM unversioned WHERE name=%Q",
+      zName
+    );
+  }else{
+    db_static_prepare(&q1,
+      "SELECT mtime, hash, encoding, sz, content FROM unversioned WHERE name=%Q",
+      zName
+    );
+  }
   if( db_step(&q1)==SQLITE_ROW ){
     sqlite3_int64 mtime = db_column_int64(&q1, 0);
     const char *zHash = db_column_text(&q1, 1);
     blob_appendf(pXfer->pOut, "uvfile %s %lld", zName, mtime);
     if( zHash==0 ){
       blob_append(pXfer->pOut, " 0 0 1\n", -1);
+    }else if( noContent ){
+      blob_appendf(pXfer->pOut, " %s %d 4\n", zHash, db_column_int(&q1,3));
     }else{
       Blob content;
       blob_init(&content, 0, 0);
-      db_column_blob(&q1, 3, &content);
+      db_column_blob(&q1, 4, &content);
       if( db_column_int(&q1, 2) ){
         blob_uncompress(&content, &content);
       }
@@ -1006,7 +1007,7 @@ static void send_unversioned_catalog(Xfer *pXfer){
       const char *zHash = db_column_text(&uvq,2);
       int sz = db_column_int(&uvq,3);
       nUvIgot++;
-      if( zHash==0 ){ sz = 0; zHash = "0"; }
+      if( zHash==0 ){ sz = 0; zHash = "-"; }
       blob_appendf(pXfer->pOut, "uvigot %s %lld %s %d\n", 
                    zName, mtime, zHash, sz);
     }
@@ -1247,7 +1248,7 @@ void page_xfer(void){
      && xfer.nToken==2
      && blob_is_filename(&xfer.aToken[1])
     ){
-      send_unversioned_file(&xfer, blob_str(&xfer.aToken[1]));
+      send_unversioned_file(&xfer, blob_str(&xfer.aToken[1]), 0);
     }else
 
     /*   igot UUID ?ISPRIVATE?
@@ -1429,7 +1430,6 @@ void page_xfer(void){
       blob_reset(&content);
       blob_seek(xfer.pIn, 1, BLOB_SEEK_CUR);
     }else
-
 
 
     /*    cookie TEXT
@@ -1707,7 +1707,14 @@ int client_sync(
   ** the names of files that do not need to be sent from client to server.
   */
   if( syncFlags & SYNC_UNVERSIONED ){
-    db_multi_exec("CREATE TEMP TABLE uv_dont_push(name TEXT PRIMARY KEY)WITHOUT ROWID;");
+    db_multi_exec(
+       "CREATE TEMP TABLE uv_toSend("
+       "  name TEXT PRIMARY KEY,"
+       "  mtimeOnly BOOLEAN"
+       ") WITHOUT ROWID;"
+       "INSERT INTO uv_toSend(name,mtimeOnly)"
+       "  SELECT name, 0 FROM unversioned WHERE hash IS NOT NULL;"
+    );
   }
 
   /*
@@ -1832,14 +1839,10 @@ int client_sync(
       Stmt uvq;
       assert( (syncFlags & SYNC_UNVERSIONED)!=0 );
       assert( uvStatus==2 );
-      db_prepare(&uvq,
-        "SELECT name FROM unversioned"
-        " WHERE hash IS NOT NULL"
-        " EXCEPT "
-        "SELECT name FROM uv_dont_send"
-      );
+      db_prepare(&uvq, "SELECT name, mtimeOnly FROM uv_tosend");
       while( db_step(&uvq) ){
-        send_unversioned_file(&xfer, db_column_text(&uvq,0));
+        send_unversioned_file(&xfer, db_column_text(&uvq,0), db_column_int(&uvq,1));
+        nCardSent++;
       }
       db_finalize(&uvq);
       uvDoPush = 0;
@@ -2007,23 +2010,52 @@ int client_sync(
         remote_has(rid);
       }else
 
-      /*   uvigot NAME TIMESTAMP HASH SIZE
+      /*   uvigot NAME MTIME HASH SIZE
       **
       ** Server announces that it has a particular unversioned file.  The
       ** server will only send this card if the client had previously sent
       ** a "pragma uv-hash" card with a hash that does not match.
       **
-      ** If the identified file needs to be transferred, then do the
-      ** transfer.
+      ** If the identified file needs to be transferred, then setup for the
+      ** transfer.  Generate a "uvgimme" card in the reply if the server version
+      ** is newer than the client.  Generate a "uvfile" card if the client version
+      ** is newer than the server.  If HASH is "-" (indicating that the file has
+      ** been deleted) and MTIME is newer, then do the deletion.
       */
       if( xfer.nToken==5
        && blob_eq(&xfer.aToken[0], "uvigot")
        && blob_is_filename(&xfer.aToken[1])
        && blob_is_int64(&xfer.aToken[2], &mtime)
        && blob_is_int(&xfer.aToken[4], &size)
-       && (size==0 || blob_is_uuid(&xfer.aToken[3]))
+       && (blob_eq(&xfer.aToken[3],"-")==0 || blob_is_uuid(&xfer.aToken[3]))
       ){
+        const char *zName = blob_str(&xfer.aToken[1]);
+        const char *zHash = blob_str(&xfer.aToken[3]);
+        int iStatus;
         if( uvStatus==0 ) uvStatus = 2;
+        iStatus = unversioned_status(zName, mtime, zHash);
+        if( iStatus<=1 ){
+          if( zHash[0]!='-' ){
+            @ uvgimme %s(zName)
+          }else if( iStatus==1 ){
+            db_multi_exec(
+               "UPDATE unversioned"
+               "   SET mtime=%lld, hash=NULL, sz=0, encoding=0, content=NULL"
+               " WHERE name=%Q", mtime, zName
+            );
+            db_unset("uv-hash", 0);
+          }
+        }else if( iStatus==2 ){
+          db_multi_exec(
+            "UPDATE unversioned SET mtime=%lld WHERE name=%Q", mtime, zName
+          );
+          db_unset("uv-hash", 0);
+        }
+        if( iStatus<=3 ){
+          db_multi_exec("DELETE FROM uv_tosend WHERE name=%Q", zName);
+        }else if( iStatus==4 ){
+          db_multi_exec("UPDATE uv_tosend SET mtimeOnly=1 WHERE name=%Q", zName);
+        }
       }else
 
       /*   push  SERVERCODE  PRODUCTCODE
@@ -2138,6 +2170,7 @@ int client_sync(
           uvStatus = 1;
         }else if( blob_eq(&xfer.aToken[1], "uv-push-ok") ){
           uvStatus = 2;
+          uvDoPush = 1;
         }
       }else
 
