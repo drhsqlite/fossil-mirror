@@ -680,9 +680,11 @@ static void send_unversioned_file(Xfer *pXfer, const char *zName, int noContent)
       }
       blob_appendf(pXfer->pOut, " %s %d 0\n", zHash, blob_size(&content));
       blob_append(pXfer->pOut, blob_buffer(&content), blob_size(&content));
+#if 0
       if( blob_buffer(pXfer->pOut)[blob_size(pXfer->pOut)-1]!='\n' ){
         blob_append(pXfer->pOut, "\n", 1);
       }
+#endif
       blob_reset(&content);
     }
   }
