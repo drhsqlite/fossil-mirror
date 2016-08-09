@@ -1,5 +1,5 @@
-C Another\sunversioned\sfile\ssync\sfix.
-D 2016-08-09T17:31:55.223
+C More\sfixes\sto\sthe\sunversioned\sfile\ssync\sprotocol.
+D 2016-08-09T18:59:03.399
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -502,7 +502,7 @@ F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c 52ec5c24a6dcf1937026e2d9f86791fd1913cdf6
 F src/unicode.c 8e02b4fd6af9e735bda68eb06e3be90b6b901a87
-F src/unversioned.c d81e474f5c2198accec50122e362071134cfd441
+F src/unversioned.c d37295ce55213d7bc50e62a762d830a250de8af4
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c e2c08deb9a3ce011d3db10f70216a7988485e29a
@@ -515,7 +515,7 @@ F src/wikiformat.c 1d750982147d9c51fa40e89e40241a33408adaf6
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c 3553bd8fd0af7941a2526a1126695cc8018bccb5
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c 346168727a3944f3fd64e15f70dafec13ea5f13f
+F src/xfer.c c942af9f51ff339779f3953fbeb3484a09d5c3d6
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 47fb4c4c0de256254faf4cc08bc56e7128b72404
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -754,7 +754,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5d913409b70a013d6fc7bd2463026f2bc0c86bd2
-R 9bf3b2b835bcc6d3ef38cd1e2b73a252
+P a6b66652d1ce91ce4dcf8d60467a1ee5e3584016
+R 3ed460bbe581c55606d6ebb8a08cfc69
 U drh
-Z 7bfc13f62bec95efb090193603556eef
+Z dec5bd88cf9c29c8e06fa295347981fa

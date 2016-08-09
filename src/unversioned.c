@@ -286,7 +286,7 @@ void unversioned_cmd(void){
       }
     }else{
       db_prepare(&q,
-        "SELECT hash, datetime(mtime,'unixepoch'), sz, name, content IS NULL"
+        "SELECT hash, datetime(mtime,'unixepoch'), sz, length(content), name"
         "   FROM unversioned"
         "  ORDER BY name;"
       );
@@ -296,14 +296,15 @@ void unversioned_cmd(void){
         if( zHash==0 ){
           if( !allFlag ) continue;
           zHash = "(deleted)";
-        }else if( db_column_int(&q,4) ){
+        }else if( db_column_type(&q,3)==SQLITE_NULL ){
           zNoContent = " (no content)";
         }
-        fossil_print("%12.12s %s %8d %s%s\n",
+        fossil_print("%12.12s %s %8d %8d %s%s\n",
            zHash,
            db_column_text(&q,1),
            db_column_int(&q,2),
-           db_column_text(&q,3),
+           db_column_int(&q,3),
+           db_column_text(&q,4),
            zNoContent
         );
       }

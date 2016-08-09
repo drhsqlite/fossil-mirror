@@ -313,6 +313,7 @@ static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
   int flags;                /* The FLAGS */
   Blob content;             /* The CONTENT */
   Blob hash;                /* Hash computed from CONTENT to compare with HASH */
+  Blob x;                   /* Compressed content */
   Stmt q;                   /* SQL statements for comparison and insert */
   int isDelete;             /* HASH is "-" indicating this is a delete operation */
   int nullContent;          /* True of CONTENT is NULL */
@@ -331,6 +332,7 @@ static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
   }
   blob_init(&content, 0, 0);
   blob_init(&hash, 0, 0);
+  blob_init(&x, 0, 0);
   if( sz>0 && (flags & 0x0005)==0 ){
     blob_extract(pXfer->pIn, sz, &content);
     nullContent = 0;
@@ -358,31 +360,41 @@ static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
   if( isDelete ){
     db_prepare(&q,
       "UPDATE unversioned"
-      "   SET rcvid=:rcvid, mtime=:mtime, hash=NULL, sz=0, content=NULL"
+      "   SET rcvid=:rcvid, mtime=:mtime, hash=NULL, sz=0, encoding=0, content=NULL"
       " WHERE name=:name"
     );
+    db_bind_int(&q, ":rcvid", g.rcvid);
   }else if( iStatus==4 ){
     db_prepare(&q, "UPDATE unversioned SET mtime=:mtime WHERE name=:name");
   }else{
     db_prepare(&q,
-      "REPLACE INTO unversioned(name, rcvid, mtime, hash, sz, content)"
-      " VALUES(:name,:rcvid,:mtime,:hash,:sz,:content)"
+      "REPLACE INTO unversioned(name, rcvid, mtime, hash, sz, encoding, content)"
+      " VALUES(:name,:rcvid,:mtime,:hash,:sz,:encoding,:content)"
     );
+    db_bind_int(&q, ":rcvid", g.rcvid);
+    db_bind_text(&q, ":hash", blob_str(pHash));
+    db_bind_int(&q, ":sz", blob_size(&content));
+    if( !nullContent ){
+      blob_compress(&content, &x);
+      if( blob_size(&x) < 0.8*blob_size(&content) ){
+        db_bind_blob(&q, ":content", &x);
+        db_bind_int(&q, ":encoding", 1);
+      }else{
+        db_bind_blob(&q, ":content", &content);
+        db_bind_int(&q, ":encoding", 0);
+      }
+    }else{
+      db_bind_int(&q, ":encoding", 0);
+    }
   }
   db_bind_text(&q, ":name", blob_str(&pXfer->aToken[1]));
-  db_bind_int(&q, ":rcvid", g.rcvid);
   db_bind_int64(&q, ":mtime", mtime);
-  db_bind_text(&q, ":hash", blob_str(pHash));
-  db_bind_int(&q, ":sz", blob_size(&content));
-  if( !nullContent ){
-    blob_compress(&content, &content);
-    db_bind_blob(&q, ":content", &content);
-  }
   db_step(&q);
   db_finalize(&q);
   db_unset("uv-hash", 0);
 
 end_accept_unversioned_file:
+  blob_reset(&x);
   blob_reset(&content);
   blob_reset(&hash);
 }
@@ -656,7 +668,7 @@ static void send_unversioned_file(Xfer *pXfer, const char *zName, int noContent)
     const char *zHash = db_column_text(&q1, 1);
     blob_appendf(pXfer->pOut, "uvfile %s %lld", zName, mtime);
     if( zHash==0 ){
-      blob_append(pXfer->pOut, " 0 0 1\n", -1);
+      blob_append(pXfer->pOut, " - 0 1\n", -1);
     }else if( noContent ){
       blob_appendf(pXfer->pOut, " %s %d 4\n", zHash, db_column_int(&q1,3));
     }else{
@@ -1708,7 +1720,7 @@ int client_sync(
   */
   if( syncFlags & SYNC_UNVERSIONED ){
     db_multi_exec(
-       "CREATE TEMP TABLE uv_toSend("
+       "CREATE TEMP TABLE uv_tosend("
        "  name TEXT PRIMARY KEY,"
        "  mtimeOnly BOOLEAN"
        ") WITHOUT ROWID;"
@@ -1843,6 +1855,7 @@ int client_sync(
       while( db_step(&uvq)==SQLITE_ROW ){
         send_unversioned_file(&xfer, db_column_text(&uvq,0), db_column_int(&uvq,1));
         nCardSent++;
+        nArtifactSent++;
       }
       db_finalize(&uvq);
       uvDoPush = 0;
@@ -2057,6 +2070,8 @@ int client_sync(
           db_multi_exec("DELETE FROM uv_tosend WHERE name=%Q", zName);
         }else if( iStatus==4 ){
           db_multi_exec("UPDATE uv_tosend SET mtimeOnly=1 WHERE name=%Q", zName);
+        }else if( iStatus==5 ){
+          db_multi_exec("REPLACE INTO uv_tosend(name,mtimeOnly) VALUES(%Q,0)", zName);
         }
       }else
 
