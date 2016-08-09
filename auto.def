@@ -90,13 +90,13 @@ if {![opt-bool internal-sqlite]} {
     foreach extralibs {{} {-ldl}} {
 
       # Locate the system SQLite by searching for sqlite3_open(). Then check
-      # if sqlite3_strlike() can be found as well. If we can find open() but
-      # not strlike(), then the system SQLite is too old to link against
+      # if sqlite3_trace_v2() can be found as well. If we can find open() but
+      # not trace_v2(), then the system SQLite is too old to link against
       # fossil.
       #
       if {[check-function-in-lib sqlite3_open sqlite3 $extralibs]} {
-        if {![check-function-in-lib sqlite3_strlike sqlite3 $extralibs]} {
-          user-error "system sqlite3 too old (require >= 3.10.0)"
+        if {![check-function-in-lib sqlite3_trace_v2 sqlite3 $extralibs]} {
+          user-error "system sqlite3 too old (require >= 3.14.0)"
         }
 
         # Success. Update symbols and return.

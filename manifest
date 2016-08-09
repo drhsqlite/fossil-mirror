@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\s3.14\srelease.
-D 2016-08-08T14:20:48.333
+C Since\sfossil\snow\suses\ssqlite3_trace_v2(),\sit\sneeds\sat\sleast\sthe\s'pi'\srelease\sof\sSQLite.
+D 2016-08-09T14:42:12.708
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -45,7 +45,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def c42d2c88ca519ec04f62d0499873173ab45cb2f0
+F auto.def 5c5eb360ec043073c3ba4280165e54fbb2999ac5
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 4e0b671b54288fc64d851d056822ee5fec4d3365
 F autosetup/autosetup 7b5ae324561a38804875517af9b7c6e7f42f930d x
@@ -443,7 +443,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 32febde85f14593a503aadbb51983d37fce009c2
 F src/login.c 13788b9e70f2cfb13ea4e975a4117c68ed8115f0
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
-F src/main.c ec910699792ba37effab59913e954ef7d169ac41
+F src/main.c abffd477eb95f418438fad7ffed06d2e86d08538
 F src/main.mk 8d842af44e6565ef0e1406ce2beaebaf8c0d8394
 F src/makeheaders.c e8444028f575e84075e46cf47f2080fa6d2c2115
 F src/makeheaders.html 06decb89c665feb897540613d7d12527eb65dfe5
@@ -753,7 +753,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4a4a51a541605fe6a95be36ecfb8181390f4ca66
-R 577936cfa430eeddc33a468887714a56
-U drh
-Z c85c97a382e3e25671697b8480559746
+P 60d5fee782d03aedf5248cfa604226b7533fbc47
+R 8ba87a4afeff1841b1e5f721a4f31066
+U jan.nijtmans
+Z 8267d64c1ca4803dfaaa1b46c2f72715
