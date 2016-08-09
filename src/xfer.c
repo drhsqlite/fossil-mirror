@@ -286,6 +286,118 @@ static void xfer_accept_compressed_file(
 }
 
 /*
+** The aToken[0..nToken-1] blob array is a parse of a "uvfile" line
+** message.  This routine finishes parsing that message and adds the
+** unversioned file to the "unversioned" table.
+**
+** The file line is in one of the following two forms:
+**
+**      uvfile NAME MTIME HASH SIZE FLAGS
+**      uvfile NAME MTIME HASH SIZE FLAGS \n CONTENT
+**
+** If the 0x0001 bit of FLAGS is set, that means the file has been 
+** deleted, SIZE is zero, the HASH is "0", and the "\n CONTENT" is omitted.
+**
+** SIZE is the number of bytes of CONTENT.  The CONTENT is uncompressed.
+** HASH is the SHA1 hash of CONTENT.
+**
+** If the 0x0004 bit of FLAGS is set, that means the CONTENT size
+** is too big to transmit and so the "\n CONTENT" is omitted.
+*/
+static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
+  sqlite3_int64 mtime;      /* The MTIME */
+  Blob *pHash;              /* The HASH value */
+  int sz;                   /* The SIZE */
+  int flags;                /* The FLAGS */
+  Blob content;             /* The CONTENT */
+  Blob hash;                /* Hash computed from CONTENT to compare with HASH */
+  Stmt q;                   /* SQL statements for comparison and insert */
+  int isDelete;             /* HASH is "0" indicating this is a delete operation */
+  int nullContent;          /* True of CONTENT is NULL */
+
+  pHash = &pXfer->aToken[3];
+  if( pXfer->nToken==5
+   || !blob_is_filename(&pXfer->aToken[1])
+   || !blob_is_int64(&pXfer->aToken[2], &mtime)
+   || (blob_eq(pHash,"0")!=0 && !blob_is_uuid(pHash))
+   || !blob_is_int(&pXfer->aToken[4], &sz)
+   || !blob_is_int(&pXfer->aToken[5], &flags)
+  ){
+    blob_appendf(&pXfer->err, "malformed uvfile line");
+    return;
+  }
+  blob_init(&content, 0, 0);
+  blob_init(&hash, 0, 0);
+  if( sz>0 && (flags & 0x0005)==0 ){
+    blob_extract(pXfer->pIn, sz, &content);
+    nullContent = 0;
+    sha1sum_blob(&content, &hash);
+    if( blob_compare(&hash, pHash)!=0 ){
+      blob_appendf(&pXfer->err, "in uvfile line, HASH does not match CONTENT");
+      goto end_accept_unversioned_file;
+    }
+  }else{
+    nullContent = 1;
+  }
+
+  /* The isWriter flag must be true in order to land the new file */
+  if( !isWriter ) goto end_accept_unversioned_file;
+
+  /* Check to see if current content really should be overwritten.  Ideally,
+  ** a uvfile card should never have been sent unless the overwrite should
+  ** occur.  But do not trust the sender.  Double-check. 
+  */
+  db_prepare(&q,
+    "SELECT mtime, hash FROM unversioned WHERE name=%Q",
+    blob_str(&pXfer->aToken[1])
+  );
+  if( db_step(&q)==SQLITE_ROW ){
+    sqlite3_int64 xtime = db_column_int64(&q, 0);
+    const char *xhash = db_column_text(&q, 1);
+    if( xtime>mtime ){
+      db_finalize(&q);
+      goto end_accept_unversioned_file;
+    }
+    if( xhash==0 ) xhash = "0";
+    if( xtime==mtime && strcmp(xhash, blob_str(pHash))>0 ){
+      db_finalize(&q);
+      goto end_accept_unversioned_file;
+    }
+  }
+  db_finalize(&q);
+  
+  /* Store the content */
+  isDelete = blob_eq(pHash, "0");
+  if( isDelete ){
+    db_prepare(&q,
+      "UPDATE unversioned"
+      "   SET rcvid=:rcvid, mtime=:mtime, hash=NULL, sz=0, content=NULL"
+      " WHERE name=:name"
+    );
+  }else{
+    db_prepare(&q,
+      "REPLACE INTO unversioned(name, rcvid, mtime, hash, sz, content)"
+      " VALUES(:name,:rcvid,:mtime,:hash,:sz,:content)"
+    );
+  }
+  db_bind_text(&q, ":name", blob_str(&pXfer->aToken[1]));
+  db_bind_int(&q, ":rcvid", g.rcvid);
+  db_bind_int64(&q, ":mtime", mtime);
+  db_bind_text(&q, ":hash", blob_str(&pXfer->aToken[5]));
+  db_bind_int(&q, ":sz", blob_size(&content));
+  if( !nullContent ){
+    blob_compress(&content, &content);
+    db_bind_blob(&q, ":content", &content);
+  }
+  db_step(&q);
+  db_finalize(&q);
+
+end_accept_unversioned_file:
+  blob_reset(&content);
+  blob_reset(&hash);
+}
+
+/*
 ** Try to send a file as a delta against its parent.
 ** If successful, return the number of bytes in the delta.
 ** If we cannot generate an appropriate delta, then send
@@ -525,6 +637,43 @@ static void send_compressed_file(Xfer *pXfer, int rid){
     }
   }
   db_reset(&q1);
+}
+
+/*
+** Send the unversioned file identified by zName by generating the
+** appropriate "uvfile" card.
+**
+**     uvfile NAME MTIME HASH SIZE FLAGS \n CONTENT
+*/
+static void send_unversioned_file(Xfer *pXfer, const char *zName){
+  Stmt q1;
+
+  db_static_prepare(&q1,
+    "SELECT mtime, hash, encoding, content FROM unversioned WHERE name=%Q",
+    zName
+  );
+  if( db_step(&q1)==SQLITE_ROW ){
+    sqlite3_int64 mtime = db_column_int64(&q1, 0);
+    const char *zHash = db_column_text(&q1, 1);
+    blob_appendf(pXfer->pOut, "uvfile %s %lld", zName, mtime);
+    if( zHash==0 ){
+      blob_append(pXfer->pOut, " 0 0 1\n", -1);
+    }else{
+      Blob content;
+      blob_init(&content, 0, 0);
+      db_column_blob(&q1, 3, &content);
+      if( db_column_int(&q1, 2) ){
+        blob_uncompress(&content, &content);
+      }
+      blob_appendf(pXfer->pOut, " %s %d 0\n", zHash, blob_size(&content));
+      blob_append(pXfer->pOut, blob_buffer(&content), blob_size(&content));
+      if( blob_buffer(pXfer->pOut)[blob_size(pXfer->pOut)-1]!='\n' ){
+        blob_append(pXfer->pOut, "\n", 1);
+      }
+      blob_reset(&content);
+    }
+  }
+  db_finalize(&q1);
 }
 
 /*
@@ -835,6 +984,36 @@ static void send_legacy_config_card(Xfer *pXfer, const char *zName){
   }
 }
 
+
+/*
+** pXfer is a "pragma uv-hash HASH" card.
+**
+** If HASH is different from the unversioned content hash on this server,
+** then send a bunch of uvigot cards, one for each entry unversioned file
+** on this server.
+*/
+static void send_unversioned_catalog(Xfer *pXfer){
+  unversioned_schema();
+  if( !blob_eq(&pXfer->aToken[2], unversioned_content_hash(0)) ){
+    int nUvIgot = 0;
+    Stmt uvq;
+    db_prepare(&uvq,
+       "SELECT name, mtime, hash, sz FROM unversioned"
+    );
+    while( db_step(&uvq)==SQLITE_ROW ){
+      const char *zName = db_column_text(&uvq,0);
+      sqlite3_int64 mtime = db_column_int64(&uvq,1);
+      const char *zHash = db_column_text(&uvq,2);
+      int sz = db_column_int(&uvq,3);
+      nUvIgot++;
+      if( zHash==0 ){ sz = 0; zHash = "0"; }
+      blob_appendf(pXfer->pOut, "uvigot %s %lld %s %d\n", 
+                   zName, mtime, zHash, sz);
+    }
+    db_finalize(&uvq);
+  }
+}
+
 /*
 ** Called when there is an attempt to transfer private content to and
 ** from a server without authorization.
@@ -1029,6 +1208,20 @@ void page_xfer(void){
       }
     }else
 
+    /*   uvfile NAME MTIME HASH SIZE FLAGS \n CONTENT
+    **
+    ** Accept an unversioned file from the client.
+    */
+    if( blob_eq(&xfer.aToken[0], "uvfile") ){
+      xfer_accept_unversioned_file(&xfer, g.perm.Write);
+      if( blob_size(&xfer.err) ){
+          cgi_reset_content();
+        @ error %T(blob_str(&xfer.err))
+        nErr++;
+        break;
+      }
+    }else
+
     /*   gimme UUID
     **
     ** Client is requesting a file.  Send it.
@@ -1044,6 +1237,17 @@ void page_xfer(void){
           send_file(&xfer, rid, &xfer.aToken[1], deltaFlag);
         }
       }
+    }else
+
+    /*   uvgimme NAME
+    **
+    ** Client is requesting an unversioned file.  Send it.
+    */
+    if( blob_eq(&xfer.aToken[0], "uvgimme")
+     && xfer.nToken==2
+     && blob_is_filename(&xfer.aToken[1])
+    ){
+      send_unversioned_file(&xfer, blob_str(&xfer.aToken[1]));
     }else
 
     /*   igot UUID ?ISPRIVATE?
@@ -1271,6 +1475,7 @@ void page_xfer(void){
     ** ignored.
     */
     if( blob_eq(&xfer.aToken[0], "pragma") && xfer.nToken>=2 ){
+
       /*   pragma send-private
       **
       ** If the user has the "x" privilege (which must be set explicitly -
@@ -1285,12 +1490,29 @@ void page_xfer(void){
           xfer.syncPrivate = 1;
         }
       }
+
       /*   pragma send-catalog
       **
       ** Send igot cards for all known artifacts.
       */
       if( blob_eq(&xfer.aToken[1], "send-catalog") ){
         xfer.resync = 0x7fffffff;
+      }
+
+      /*   pragma uv-hash HASH
+      **
+      ** The client wants to make sure that unversioned files are all synced.
+      ** If the HASH does not match, send a complete catalog of
+      ** "uvigot" cards.
+      */
+      if( blob_eq(&xfer.aToken[1], "uv-hash") && blob_is_uuid(&xfer.aToken[2]) ){
+        if( g.perm.Read && g.perm.Write ){
+          @ pragma uv-push-ok
+          send_unversioned_catalog(&xfer);
+        }else if( g.perm.Read ){
+          @ pragma uv-pull-only
+          send_unversioned_catalog(&xfer);
+        }
       }
     }else
 
@@ -1393,12 +1615,13 @@ static const char zBriefFormat[] =
 /*
 ** Flag options for controlling client_sync()
 */
-#define SYNC_PUSH      0x0001
-#define SYNC_PULL      0x0002
-#define SYNC_CLONE     0x0004
-#define SYNC_PRIVATE   0x0008
-#define SYNC_VERBOSE   0x0010
-#define SYNC_RESYNC    0x0020
+#define SYNC_PUSH           0x0001
+#define SYNC_PULL           0x0002
+#define SYNC_CLONE          0x0004
+#define SYNC_PRIVATE        0x0008
+#define SYNC_VERBOSE        0x0010
+#define SYNC_RESYNC         0x0020
+#define SYNC_UNVERSIONED    0x0040
 #endif
 
 /*
@@ -1425,7 +1648,7 @@ int client_sync(
   int nCardSent = 0;      /* Number of cards sent */
   int nCardRcvd = 0;      /* Number of cards received */
   int nCycle = 0;         /* Number of round trips to the server */
-  int size;               /* Size of a config value */
+  int size;               /* Size of a config value or uvfile */
   int origConfigRcvMask;  /* Original value of configRcvMask */
   int nFileRecv;          /* Number of files received */
   int mxPhantomReq = 200; /* Max number of phantoms to request per comm */
@@ -1446,9 +1669,13 @@ int client_sync(
   int nArtifactRcvd = 0;  /* Total artifacts received */
   const char *zOpType = 0;/* Push, Pull, Sync, Clone */
   double rSkew = 0.0;     /* Maximum time skew */
+  int uvHashSent = 0;     /* The "pragma uv-hash" message has been sent */
+  int uvStatus = 0;       /* 0: no I/O.  1: pull-only  2: push-and-pull */
+  int uvDoPush = 0;       /* If true, generate uvfile messages to send to server */
+  sqlite3_int64 mtime;    /* Modification time on a UV file */
 
   if( db_get_boolean("dont-push", 0) ) syncFlags &= ~SYNC_PUSH;
-  if( (syncFlags & (SYNC_PUSH|SYNC_PULL|SYNC_CLONE))==0
+  if( (syncFlags & (SYNC_PUSH|SYNC_PULL|SYNC_CLONE|SYNC_UNVERSIONED))==0
      && configRcvMask==0 && configSendMask==0 ) return 0;
 
   transport_stats(0, 0, 1);
@@ -1474,6 +1701,13 @@ int client_sync(
   /* Send the send-private pragma if we are trying to sync private data */
   if( syncFlags & SYNC_PRIVATE ){
     blob_append(&send, "pragma send-private\n", -1);
+  }
+
+  /* When syncing unversioned files, create a TEMP table in which to store
+  ** the names of files that do not need to be sent from client to server.
+  */
+  if( syncFlags & SYNC_UNVERSIONED ){
+    db_multi_exec("CREATE TEMP TABLE uv_dont_push(name TEXT PRIMARY KEY)WITHOUT ROWID;");
   }
 
   /*
@@ -1516,7 +1750,7 @@ int client_sync(
     );
     manifest_crosslink_begin();
 
-    /* Send make the most recently received cookie.  Let the server
+    /* Send back the most recently received cookie.  Let the server
     ** figure out if this is a cookie that it cares about.
     */
     zCookie = db_get("cookie", 0);
@@ -1561,6 +1795,19 @@ int client_sync(
       configRcvMask = 0;
     }
 
+    /* Send a request to sync unversioned files.  On a clone, delay sending
+    ** this until the second cycle since the login card might fail on
+    ** the first cycle.
+    */
+    if( (syncFlags & SYNC_UNVERSIONED)!=0
+     && ((syncFlags & SYNC_CLONE)==0 || nCycle>0)
+     && !uvHashSent
+    ){
+      blob_appendf(&send, "pragma uv-hash %s\n", unversioned_content_hash(0));
+      nCardSent++;
+      uvHashSent = 1;
+    }
+
     /* Send configuration parameters being pushed */
     if( configSendMask ){
       if( zOpType==0 ) zOpType = "Push";
@@ -1576,6 +1823,26 @@ int client_sync(
         nCardSent += configure_send_group(xfer.pOut, configSendMask, 0);
       }
       configSendMask = 0;
+    }
+
+    /* Send unversioned files present here on the client but missing or
+    ** obsolete on the server.
+    */
+    if( uvDoPush ){
+      Stmt uvq;
+      assert( (syncFlags & SYNC_UNVERSIONED)!=0 );
+      assert( uvStatus==2 );
+      db_prepare(&uvq,
+        "SELECT name FROM unversioned"
+        " WHERE hash IS NOT NULL"
+        " EXCEPT "
+        "SELECT name FROM uv_dont_send"
+      );
+      while( db_step(&uvq) ){
+        send_unversioned_file(&xfer, db_column_text(&uvq,0));
+      }
+      db_finalize(&uvq);
+      uvDoPush = 0;
     }
 
     /* Append randomness to the end of the message.  This makes all
@@ -1686,6 +1953,14 @@ int client_sync(
         nArtifactRcvd++;
       }else
 
+      /*   uvfile NAME MTIME HASH SIZE FLAGS \n CONTENT
+      **
+      ** Accept an unversioned file from the client.
+      */
+      if( blob_eq(&xfer.aToken[0], "uvfile") ){
+        xfer_accept_unversioned_file(&xfer, 1);
+      }else
+
       /*   gimme UUID
       **
       ** Server is requesting a file.  If the file is a manifest, assume
@@ -1732,6 +2007,24 @@ int client_sync(
         remote_has(rid);
       }else
 
+      /*   uvigot NAME TIMESTAMP HASH SIZE
+      **
+      ** Server announces that it has a particular unversioned file.  The
+      ** server will only send this card if the client had previously sent
+      ** a "pragma uv-hash" card with a hash that does not match.
+      **
+      ** If the identified file needs to be transferred, then do the
+      ** transfer.
+      */
+      if( xfer.nToken==5
+       && blob_eq(&xfer.aToken[0], "uvigot")
+       && blob_is_filename(&xfer.aToken[1])
+       && blob_is_int64(&xfer.aToken[2], &mtime)
+       && blob_is_int(&xfer.aToken[4], &size)
+       && (size==0 || blob_is_uuid(&xfer.aToken[3]))
+      ){
+        if( uvStatus==0 ) uvStatus = 2;
+      }else
 
       /*   push  SERVERCODE  PRODUCTCODE
       **
@@ -1835,6 +2128,17 @@ int client_sync(
       ** silently ignored.
       */
       if( blob_eq(&xfer.aToken[0], "pragma") && xfer.nToken>=2 ){
+        /* If the server is unwill to accept new unversioned content (because
+        ** this client lacks the necessary permissions) then it sends a
+        ** "uv-pull-only" pragma so that the client will know not to waste
+        ** bandwidth trying to upload unversioned content.  If the server
+        ** does accept new unversioned content, it sends "uv-push-ok".
+        */
+        if( blob_eq(&xfer.aToken[1], "uv-pull-only") ){
+          uvStatus = 1;
+        }else if( blob_eq(&xfer.aToken[1], "uv-push-ok") ){
+          uvStatus = 2;
+        }
       }else
 
       /*   error MESSAGE
@@ -1933,7 +2237,7 @@ int client_sync(
     /* If we have one or more files queued to send, then go
     ** another round
     */
-    if( xfer.nFileSent+xfer.nDeltaSent>0 ){
+    if( xfer.nFileSent+xfer.nDeltaSent>0 || uvDoPush ){
       go = 1;
     }
 

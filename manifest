@@ -1,5 +1,5 @@
-C Merge\schanges\sfrom\strunk.
-D 2016-08-08T14:31:17.801
+C Change\sthe\sschema\sfor\sthe\sunversioned\stable.\s\sAdd\ssome\sinitial\scode\sto\sdo\s\nunversioned\ssync,\sbut\sthe\scode\sis\sincomplete\sand\suntested.
+D 2016-08-09T12:37:03.186
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -376,7 +376,7 @@ F src/allrepo.c 07ae72593c0aaf51f9a66077b69196f080f70a39
 F src/attach.c ac8b171ca9c495fda5568d6cf48e13749b9b5d2c
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c abd167c9f2c5398782ca6d48ea1ee612163a7685
-F src/blob.c 54ba03df02f021dedcb0efcb639c225196d4702d
+F src/blob.c bfae99792364d38924b8205983a8ada244532776
 F src/branch.c de905c943865c8d2be634800361c5c1e77c20eb2
 F src/browse.c 8f0bb9b6e6e31df9875c081239745a33567c7c84
 F src/builtin.c b2dcfcade2054c083b03a18e3ab5026d51eb2dcb
@@ -403,7 +403,7 @@ F src/descendants.c 48ba0c208d74e5a8c4b33e43ea066d236d3a4694
 F src/diff.c c53eea5dfd52d092d298178bc40c70500d3c7fc6
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 3759afcedb06bb0d76844e0b724cd28b36ede262
-F src/doc.c dfdaaff44e31de7f44c83445698125e6afb0da7a
+F src/doc.c f3de1b4ae72e4e45c874c833812344e060418656
 F src/encode.c 56fc8f102eda32549652df47fa253fc910e737a9
 F src/event.c 0edff3caaceed4fbee6ec8c20f480a94f467f5cf
 F src/export.c ab705fb1bdb609c49cab3aa686fd74b5cd8e83d4
@@ -488,7 +488,7 @@ F src/stash.c ccb0d94252422f28178119825a99c6bce45924d6
 F src/stat.c 82a4439d096fe0fb231e27f49f2b2ff13dacf014
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
 F src/style.c 85ca473e8cd7ba551cd6e4f865f8ebbd45d3289d
-F src/sync.c 84f9397743df8141e5794bfe5c9bfe7e1c2db8df
+F src/sync.c 4e714f3c4fd69f505c323296a66bf67b8d201db4
 F src/tag.c 98b6205ee452dc3fba417ec8725864a2d7af3ba8
 F src/tar.c 3d8ec6d43a730d3bfdf73fc86bff84587a0bab57
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
@@ -502,7 +502,7 @@ F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c 52ec5c24a6dcf1937026e2d9f86791fd1913cdf6
 F src/unicode.c 8e02b4fd6af9e735bda68eb06e3be90b6b901a87
-F src/unversioned.c dd72281b3cc08ece634b025a504a793d09349a48
+F src/unversioned.c 306ee86c7c19af19bd2250a85f51b147be586f5d
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c e2c08deb9a3ce011d3db10f70216a7988485e29a
@@ -515,7 +515,7 @@ F src/wikiformat.c 1d750982147d9c51fa40e89e40241a33408adaf6
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c 3553bd8fd0af7941a2526a1126695cc8018bccb5
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c f504819c3b8282a46f9dd5dc9499e9360a78439d
+F src/xfer.c 0b95ad644e0ff4e92c5ccef0536385bb51f290d0
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 47fb4c4c0de256254faf4cc08bc56e7128b72404
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -754,7 +754,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fb3c81d8ba0f632ad05fd59c7e8089ae745ed8b8 60d5fee782d03aedf5248cfa604226b7533fbc47
-R d29a839d11cf15408c16c9cae27544de
+P 3506156a31f82d7c91a8d1d4e004703830374522
+R e9a858cd9a4d3ad9eca1024532ea2b85
 U drh
-Z cb54dcda924c8b1a7bcba69a50dbf63f
+Z 7762572c5cfb60da77282b8cde57ff05

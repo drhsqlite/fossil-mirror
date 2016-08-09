@@ -139,6 +139,9 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
   if( find_option("verily",0,0)!=0 ){
     *pSyncFlags |= SYNC_RESYNC;
   }
+  if( find_option("uv",0,0)!=0 ){
+    *pSyncFlags |= SYNC_UNVERSIONED;
+  }
   url_proxy_options();
   clone_ssh_find_options();
   db_find_and_open_repository(0, 0);

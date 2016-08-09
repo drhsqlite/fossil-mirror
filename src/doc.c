@@ -634,12 +634,7 @@ void doc_page(void){
       }
     }
     if( isUV ){
-      if( db_exists("SELECT 1 FROM unversioned"
-                    " WHERE name=%Q AND content IS NOT NULL", zName) ){
-        blob_init(&filebody, 0, 0);
-        db_blob(&filebody, "SELECT content FROM unversioned WHERE name=%Q",
-                zName);
-        blob_uncompress(&filebody, &filebody);
+      if( unversioned_content(zName, &filebody)==0 ){
         rid = 1;
         zDfltTitle = zName;
       }

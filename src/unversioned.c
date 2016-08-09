@@ -36,9 +36,10 @@ static const char zUnversionedInit[] =
 @   name TEXT PRIMARY KEY,       -- Name of the uv file
 @   rcvid INTEGER,               -- Where received from
 @   mtime DATETIME,              -- timestamp.  Seconds since 1970.
-@   hash TEXT,                   -- Content hash
+@   hash TEXT,                   -- Content hash.  NULL if a delete marker 
 @   sz INTEGER,                  -- size of content after decompression
-@   content BLOB                 -- zlib compressed content
+@   encoding INT,                -- 0: plaintext.  1: zlib compressed
+@   content BLOB                 -- content of the file.  NULL if oversized
 @ ) WITHOUT ROWID;
 ;
 
@@ -80,6 +81,27 @@ const char *unversioned_content_hash(int debugFlag){
     zHash = db_get("uv-hash",0);
   }
   return zHash;
+}
+
+/*
+** Initialize pContent to be the content of an unversioned file zName.
+**
+** Return 0 on success.  Return 1 if zName is not found.
+*/
+int unversioned_content(const char *zName, Blob *pContent){
+  Stmt q;
+  int rc = 1;
+  blob_init(pContent, 0, 0);
+  db_prepare(&q, "SELECT encoding, content FROM unversioned WHERE name=%Q", zName);
+  if( db_step(&q)==SQLITE_ROW ){
+    db_column_blob(&q, 1, pContent);
+    if( db_column_int(&q, 0)==1 ){
+      blob_uncompress(pContent, pContent);
+    }
+    rc = 0;
+  }
+  db_finalize(&q);
+  return rc;
 }
 
 /*
@@ -153,8 +175,8 @@ void unversioned_cmd(void){
     db_begin_transaction();
     content_rcvid_init();
     db_prepare(&ins,
-      "REPLACE INTO unversioned(name,rcvid,mtime,hash,sz,content)"
-      " VALUES(:name,:rcvid,:mtime,:hash,:sz,:content)"
+      "REPLACE INTO unversioned(name,rcvid,mtime,hash,sz,encoding,content)"
+      " VALUES(:name,:rcvid,:mtime,:hash,:sz,:encoding,:content)"
     );
     for(i=3; i<g.argc; i++){
       zIn = zAs ? zAs : g.argv[i];
@@ -170,7 +192,13 @@ void unversioned_cmd(void){
       db_bind_int64(&ins, ":mtime", mtime);
       db_bind_text(&ins, ":hash", blob_str(&hash));
       db_bind_int(&ins, ":sz", blob_size(&file));
-      db_bind_blob(&ins, ":content", &compressed);
+      if( blob_size(&compressed) <= 0.8*blob_size(&file) ){
+        db_bind_int(&ins, ":encoding", 1);
+        db_bind_blob(&ins, ":content", &compressed);
+      }else{
+        db_bind_int(&ins, ":encoding", 0);
+        db_bind_blob(&ins, ":content", &file);
+      }
       db_step(&ins);
       db_reset(&ins);
       blob_reset(&compressed);
@@ -186,13 +214,9 @@ void unversioned_cmd(void){
     db_begin_transaction();
     for(i=3; i<g.argc; i++){
       Blob content;
-      blob_init(&content, 0, 0);
-      db_blob(&content, "SELECT content FROM unversioned WHERE name=%Q",g.argv[i]);
-      if( blob_size(&content)==0 ){
-        fossil_fatal("no such uv-file: %Q", g.argv[i]);
+      if( unversioned_content(g.argv[i], &content)==0 ){
+        blob_write_to_file(&content, "-");
       }
-      blob_uncompress(&content, &content);
-      blob_write_to_file(&content, "-");
       blob_reset(&content);
     }
     db_end_transaction(0);
@@ -200,12 +224,9 @@ void unversioned_cmd(void){
     Blob content;
     verify_all_options();
     if( g.argc!=5 ) usage("export UVFILE OUTPUT");
-    blob_init(&content, 0, 0);
-    db_blob(&content, "SELECT content FROM unversioned WHERE name=%Q", g.argv[3]);
-    if( blob_size(&content)==0 ){
+    if( unversioned_content(g.argv[3], &content) ){
       fossil_fatal("no such uv-file: %Q", g.argv[3]);
     }
-    blob_uncompress(&content, &content);
     blob_write_to_file(&content, g.argv[4]);
     blob_reset(&content);
   }else if( memcmp(zCmd, "hash", nCmd)==0 ){  /* undocumented */
@@ -271,99 +292,3 @@ void unversioned_cmd(void){
     usage("add|cat|export|ls|revert|rm|sync");
   }
 }
-
-#if 0
-***************************************************************************
-DESIGN NOTES
-Web interface:
-
-    /uv/NAME
-    /uvctrl
-    /uvctrl?add=NAME&content=CONTENT
-    /uvctrl?rm=NAME
-
-Sync protocol:
-
-Client sends
-
-    pragma uvhash UVHASH
-
-If the server support UV and if the UVHASH is different, then the
-server replies with one or more of:
-
-    uvigot NAME TIMESTAMP HASH
-
-The HASH argument is omitted from deleted uv files.  The UVHASH in
-the initial pragma is simply the SHA1 of the uvigot lines, each
-terminated by \n, in lexicographical order.
-
-The client examines the uvigot lines and for each difference
-issues either:
-
-    uvgimme NAME
-
-or
-
-    uvfile NAME TIMESTAMP SIZE FLAGS \n CONTENT
-
-The client sends uvgimme if 
-
-   (a) it does not possess NAME or
-   (b) if the NAME it holds has an earlier timestamp than TIMESTAMP or
-   (c) if the NAME it holds has the exact timestamp TIMESTAMP but a
-       lexicographically earliers HASH.
-
-Otherwise the client sends a uvfile.  The client also sends uvfile
-cards for each unversioned file it holds which was not named by any
-uvigot card.
-
-On the uvfile card, the FLAGS value is an unsigned integer with
-the meaning assigned to the following bits:
-
-   0x0001     Record is deleted.  No CONTENT transmitted.
-
-   0x0002     CONTENT is zlib compressed.  SIZE is the compressed size.
-
-   0x0004     CONTENT is oversize and is omitted.  HASH sent instead.  SIZE
-              is the uncompressed size
-
-New FLAGS values may be added in future releases.
-
-Internal representation:
-
-   CREATE TABLE unversioned(
-     name TEXT PRIMARY KEY,       -- Name of the uv file
-     rcvid INTEGER,               -- Where received from
-     mtime DATETIME,              -- timestamp.  Julian day
-     hash TEXT,                   -- Content hash
-     sz INTEGER,                  -- size of content after decompression
-     content BLOB                 -- zlib compressed content
-   ) WITHOUT ROWID;
-
-The hash field is NULL for deleted content.  The content field is
-NULL for content that is unavailable.
-
-Other notes:
-
-The mimetype of UV content is determine by the suffix on the
-filename.
-
-UV content can be sent to any user with read/check-out privilege 'o'.
-New UV content will be accepted from users with write/check-in privilege 'i'.
-
-The current UVHASH value can be cached in the config table under the
-name of "uvhash".
-
-Clients that are UV-aware and would like to be initialized with UV
-content may send "pragma uvhash 0" upon initial clone, and the server
-will include all necessary uvfile cards in its replies.
-
-Clients or servers may send "pragma uv-size-limit SIZE" to inform the
-other side that UV files larger than SIZE should be transmitted using
-the "4" flag ("content omitted").  The hash is an extra parameter on
-the end of a uvfile/4 card.
-
-Clients and servers reject any UVFile with a timestamp that is too
-far in the future.
-***************************************************************************
-#endif
