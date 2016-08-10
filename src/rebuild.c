@@ -685,7 +685,7 @@ void rebuild_database(void){
 
 /*
 ** COMMAND: test-detach
-** 
+**
 ** Usage: %fossil test-detach  ?REPOSITORY?
 **
 ** Change the project-code and make other changes in order to prevent
@@ -798,7 +798,7 @@ void test_clusters_cmd(void){
 
 /*
 ** COMMAND: scrub*
-** 
+**
 ** Usage: %fossil scrub ?OPTIONS? ?REPOSITORY?
 **
 ** The command removes sensitive information (such as passwords) from a

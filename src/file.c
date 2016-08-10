@@ -925,7 +925,7 @@ void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
 
 /*
 ** COMMAND: test-canonical-name
-** 
+**
 ** Usage: %fossil test-canonical-name FILENAME...
 **
 ** Test the operation of the canonical name generator.

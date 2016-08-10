@@ -179,7 +179,7 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
 **
 ** Pull all sharable changes from a remote repository into the local repository.
 ** Sharable changes include public check-ins, and wiki, ticket, and tech-note
-** edits.  Add the --private option to pull private branches.  Use the 
+** edits.  Add the --private option to pull private branches.  Use the
 ** "configuration pull" command to pull website configuration details.
 **
 ** If URL is not specified, then the URL from the most recent clone, push,
@@ -221,7 +221,7 @@ void pull_cmd(void){
 **
 ** Push all sharable changes from the local repository to a remote repository.
 ** Sharable changes include public check-ins, and wiki, ticket, and tech-note
-** edits.  Use --private to also push private branches.  Use the 
+** edits.  Use --private to also push private branches.  Use the
 ** "configuration pull" command to push website configuration details.
 **
 ** If URL is not specified, then the URL from the most recent clone, push,

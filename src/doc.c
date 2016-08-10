@@ -508,7 +508,7 @@ static void convert_href_and_output(Blob *pIn){
   int n = blob_size(pIn);
   char *z = blob_buffer(pIn);
   for(base=0, i=7; i<n; i++){
-    if( z[i]=='$' 
+    if( z[i]=='$'
      && strncmp(&z[i],"$ROOT/", 6)==0
      && (z[i-1]=='\'' || z[i-1]=='"')
      && i-base>=9

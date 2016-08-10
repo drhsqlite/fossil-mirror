@@ -548,7 +548,7 @@ static void locate_unmanaged_files(
 
 /*
 ** COMMAND: extras
-** 
+**
 ** Usage: %fossil extras ?OPTIONS? ?PATH1 ...?
 **
 ** Print a list of all files in the source tree that are not part of the
@@ -634,7 +634,7 @@ void extras_cmd(void){
 
 /*
 ** COMMAND: clean
-** 
+**
 ** Usage: %fossil clean ?OPTIONS? ?PATH ...?
 **
 ** Delete all "extra" files in the source tree.  "Extra" files are files
@@ -647,17 +647,17 @@ void extras_cmd(void){
 ** undo buffer prior to removal, and prompts are issued only for files
 ** whose removal cannot be undone due to their large size or due to
 ** --disable-undo being used.
-** 
+**
 ** The --force option treats all prompts as having been answered yes,
 ** whereas --no-prompt treats them as having been answered no.
-** 
+**
 ** Files matching any glob pattern specified by the --clean option are
 ** deleted without prompting, and the removal cannot be undone.
 **
 ** No file that matches glob patterns specified by --ignore or --keep will
 ** ever be deleted.  Files and subdirectories whose names begin with "."
 ** are automatically ignored unless the --dotfiles option is used.
-** 
+**
 ** The default values for --clean, --ignore, and --keep are determined by
 ** the (versionable) clean-glob, ignore-glob, and keep-glob settings.
 **

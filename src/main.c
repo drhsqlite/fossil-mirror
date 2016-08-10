@@ -1230,7 +1230,7 @@ void help_cmd(void){
 
 /*
 ** COMMAND: test-all-help
-** 
+**
 ** Usage: %fossil test-all-help ?OPTIONS?
 **
 ** Show help text for commands and pages.  Useful for proof-reading.

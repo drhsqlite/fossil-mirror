@@ -2979,7 +2979,7 @@ char *db_timespan_name(double rSpan){
 
 /*
 ** COMMAND: test-timespan
-** 
+**
 ** Usage: %fossil test-timespan TIMESTAMP
 **
 ** Print the approximate span of time from now to TIMESTAMP.
@@ -2996,7 +2996,7 @@ void test_timespan_cmd(void){
 
 /*
 ** COMMAND: test-without-rowid
-** 
+**
 ** Usage: %fossil test-without-rowid FILENAME...
 **
 ** Change the Fossil repository FILENAME to make use of the WITHOUT ROWID

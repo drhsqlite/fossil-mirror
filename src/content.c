@@ -1165,7 +1165,7 @@ void test_content_erase(void){
   db_prepare(&q, "SELECT rid FROM delta WHERE srcid=:rid");
   for(i=2; i<g.argc; i++){
     int rid = atoi(g.argv[i]);
-    fossil_print("Erasing artifact %d (%s)\n", 
+    fossil_print("Erasing artifact %d (%s)\n",
                  rid, db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid));
     db_bind_int(&q, ":rid", rid);
     while( db_step(&q)==SQLITE_ROW ){
