@@ -1223,6 +1223,12 @@ int wiki_technote_to_rid(const char *zETime) {
 **                                     This option only applies if the
 **                                     --technote option is also specified.
 **
+** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
+** year-month-day form, it may be truncated, the "T" may be replaced by
+** a space, and it may also name a timezone offset from UTC as "-HH:MM"
+** (westward) or "+HH:MM" (eastward). Either no timezone suffix or "Z"
+** means UTC.
+**
 */
 void wiki_cmd(void){
   int n;

@@ -701,6 +701,12 @@ void attachment_list(
 **                                     updated by its technote id.
 **
 **       One of PAGENAME, DATETIME or TECHNOTE-ID must be specified.
+**
+** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
+** year-month-day form, it may be truncated, the "T" may be replaced by
+** a space, and it may also name a timezone offset from UTC as "-HH:MM"
+** (westward) or "+HH:MM" (eastward). Either no timezone suffix or "Z"
+** means UTC.
 */
 void attachment_cmd(void){
   int n;

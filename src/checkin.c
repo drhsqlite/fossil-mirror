@@ -1691,8 +1691,14 @@ static int tagCmp(const void *a, const void *b){
 **    --sha1sum                  verify file status using SHA1 hashing rather
 **                               than relying on file mtimes
 **    --tag TAG-NAME             assign given tag TAG-NAME to the check-in
-**    --date-override DATE       DATE to use instead of 'now'
+**    --date-override DATETIME   DATE to use instead of 'now'
 **    --user-override USER       USER to use instead of the current default
+**
+** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
+** year-month-day form, it may be truncated, the "T" may be replaced by
+** a space, and it may also name a timezone offset from UTC as "-HH:MM"
+** (westward) or "+HH:MM" (eastward). Either no timezone suffix or "Z"
+** means UTC.
 **
 ** See also: branch, changes, checkout, extras, sync
 */
