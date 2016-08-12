@@ -1,5 +1,5 @@
-C Update\schanges
-D 2016-08-10T09:07:11.473
+C Update\sthe\sbuilt-in\sSQLite\sto\s3.14.1\srelease
+D 2016-08-12T13:33:33.230
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -482,8 +482,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 6fbec2fbaf3bb39566f2550b12f58127c9bfa850
 F src/skins.c 524384aafbe9e7707d3b87f42ee72fa63fe91796
 F src/sqlcmd.c 67a6b4ac894633d8346dc890a5b179a0ac3b1925
-F src/sqlite3.c bd10391f42c91519e19372fc76957d4ef518659e
-F src/sqlite3.h 9233f3b3b811fc4722290126836954302500da1c
+F src/sqlite3.c d545b24892278272ce4e40e0567d69c8babf12ea
+F src/sqlite3.h 897022fa93ea23442ecfec5c4d84f54fb8b8aa52
 F src/stash.c ccb0d94252422f28178119825a99c6bce45924d6
 F src/stat.c 82a4439d096fe0fb231e27f49f2b2ff13dacf014
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
@@ -666,7 +666,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 70f43c1027728f15883cbde8099ee2eec2da8c0f
-F www/changes.wiki 2be02ce57fc6dc52ed046637d80fe439edf85dc7
+F www/changes.wiki e5af21371a33a3e411187597642f1d1daca17420
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 115a0ecdac918232061bbc19124ea83e0a27d938
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -753,7 +753,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c3b5f1d2f2379ee73d271a0e8cb3cfd6266ee3bd
-R c8f32f03bd5e4289e25c243b591acccb
+P 9a70aa7c89f26fa101b5c433b5c4494bd2d5ec7e
+R d1aea2176c68163a436acdd7a82e3205
 U jan.nijtmans
-Z 77674c695b7f587bdbe7d538dd116a23
+Z d89f7f8523df676ad9366060ba49cf1c

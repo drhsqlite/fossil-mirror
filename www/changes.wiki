@@ -4,8 +4,8 @@
 
   *  Update internal Unicode character tables, used in regular expression
      handling, from version 8.0 to 9.0.
-  *  Update the built-in SQLite to version 3.14.0. Doesn't work with
-     earlier SQLite versions any more.
+  *  Update the built-in SQLite to version 3.14.1. Doesn't work with
+     earlier SQLite versions than 3.14.0 any more.
 
 <h2>Changes for Version 1.35 (2016-06-14)</h2>
 
