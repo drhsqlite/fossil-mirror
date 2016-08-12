@@ -18,7 +18,7 @@
 # Test manifest setting
 #
 
-# We need SHA1 to effectively test the manifest files produced by 
+# We need SHA1 to effectively test the manifest files produced by
 # fossil. It looks like the one from tcllib is exactly what we need.
 # On ActiveTcl, add it with teacup. On other platforms, YMMV.
 # teacup install sha1
@@ -43,20 +43,20 @@ test_setup
 #### Verify classic behavior of the manifest setting
 
 # Setting is off by default, and there are no extra files.
-fossil settings manifest 
+fossil settings manifest
 test "set-manifest-1" {[regexp {^manifest *$} $RESULT]}
 set filelist [glob -nocomplain manifest*]
-test "set-manifest-1-n" {[llength $filelist] == 0} 
+test "set-manifest-1-n" {[llength $filelist] == 0}
 
 # Classic behavior: TRUE value creates manifest and manifest.uuid
 set truths [list true on 1]
 foreach v $truths {
   fossil settings manifest $v
   test "set-manifest-2-$v" {$RESULT eq ""}
-  fossil settings manifest 
+  fossil settings manifest
   test "set-manifest-2-$v-a" {[regexp "^manifest\\s+\\(local\\)\\s+$v\\s*$" $RESULT]}
   set filelist [glob manifest*]
-  test "set-manifest-2-$v-n" {[llength $filelist] == 2} 
+  test "set-manifest-2-$v-n" {[llength $filelist] == 2}
   foreach f $filelist {
     test "set-manifest-2-$v-f-$f" {[file isfile $f]}
   }
@@ -69,9 +69,9 @@ set uuid [string trim [read_file "manifest.uuid"]]
 test "set-manifest-2-uuid" {$ckid eq $uuid}
 
 # ... which is also the SHA1 of the file "manifest" before it was
-# sterilized by appending an extra line when writing the file. The 
+# sterilized by appending an extra line when writing the file. The
 # extra text begins with # and is a full line, so we'll just strip
-# it with a brute-force substitution. This probably has the right 
+# it with a brute-force substitution. This probably has the right
 # effect even if the checkin was PGP-signed, but we don't have that
 # setting turned on for this manifest in any case.
 regsub {(?m)^#.*\n} [read_file "manifest"] "" manifest
@@ -84,34 +84,34 @@ set falses [list false off 0]
 foreach v $falses {
   fossil settings manifest $v
   test "set-manifest-3-$v" {$RESULT eq ""}
-  fossil settings manifest 
+  fossil settings manifest
   test "set-manifest-3-$v-a" {[regexp "^manifest\\s+\\(local\\)\\s+$v\\s*$" $RESULT]}
   set filelist [glob -nocomplain manifest*]
-  test "set-manifest-3-$v-n" {[llength $filelist] == 0} 
+  test "set-manifest-3-$v-n" {[llength $filelist] == 0}
 }
 
 
 # Classic behavior: unset removes manifest and manifest.uuid
 fossil unset manifest
 test "set-manifest-4" {$RESULT eq ""}
-fossil settings manifest 
+fossil settings manifest
 test "set-manifest-4-a" {[regexp {^manifest *$} $RESULT]}
 set filelist [glob -nocomplain manifest*]
-test "set-manifest-4-n" {[llength $filelist] == 0} 
+test "set-manifest-4-n" {[llength $filelist] == 0}
 
 
 ##### Tags Manifest feature extends the manifest setting
 
 # Manifest Tags: use letters r, u, and t to select each of manifest,
-# manifest.uuid, and manifest.tags files. 
+# manifest.uuid, and manifest.tags files.
 set truths [list r u t ru ut rt rut]
 foreach v $truths {
   fossil settings manifest $v
   test "set-manifest-5-$v" {$RESULT eq ""}
-  fossil settings manifest 
+  fossil settings manifest
   test "set-manifest-5-$v-a" {[regexp "^manifest\\s+\\(local\\)\\s+$v\\s*$" $RESULT]}
   set filelist [glob manifest*]
-  test "set-manifest-5-$v-n" {[llength $filelist] == [string length $v]} 
+  test "set-manifest-5-$v-n" {[llength $filelist] == [string length $v]}
   foreach f $filelist {
     test "set-manifest-5-$v-f-$f" {[file isfile $f]}
   }

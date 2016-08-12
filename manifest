@@ -1,5 +1,5 @@
-C Two\smanifest.tags\schanges:\s1)\sUnconditionally\sadd\sbranch.\s2)\sChange\sthe\sformat\sto\sexplicitly\sstate\stag\sor\sbranch\sentry.
-D 2016-08-08T21:42:37.954
+C Trim\sa\sfew\strailing\swhitespaces.
+D 2016-08-12T02:55:13.811
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -547,7 +547,7 @@ F test/merge_warn.test d4a98c6ff14e4bb142d784f96c88d152d9599529
 F test/mv-rm.test a46185f0a8443bf422e222b47f360e5c341e9306
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
 F test/revert.test 7387258ce11b1214c5b82be47792d2c98316fd52
-F test/set-manifest.test b8c87fef4ae73a051669a2530dd736cab44e3040
+F test/set-manifest.test f389e51ce371794d5871e70adf66f81d59a9d654
 F test/stash.test f9c2bba31afe77b62967ea11e59e438c950325ec
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
@@ -754,7 +754,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bf62b1608c62eab08762f4dfa9fd789db6356948
-R 6c7b983155254cd469cfd1f4ae71d749
+P 0925f75a0c05f9cc7825cb7b9ed7d8a5fc249293
+R 240054f1f90da4f7f8c88d141bb54dd5
 U jan
-Z 97d31795bb27f50d18645f624c00081d
+Z c25b33cc286061312df7b3e50e7c4143
