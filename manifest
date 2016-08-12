@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\s3.14.1\srelease
-D 2016-08-12T13:33:33.230
+C Add\sexperimental\s'raw'\smode\sfor\sembedded\sTH1\sdocs\sfeature.
+D 2016-08-12T13:44:26.102
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -403,7 +403,7 @@ F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
 F src/diff.c c53eea5dfd52d092d298178bc40c70500d3c7fc6
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 3759afcedb06bb0d76844e0b724cd28b36ede262
-F src/doc.c 630aa8c212085a79d34680a043518c29de741803
+F src/doc.c d9adb2c719f55fbb7a8e2404046627e3e51e376c
 F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
 F src/event.c 6909284d77a688d63cc67b7b0929b8dda5397742
 F src/export.c ab705fb1bdb609c49cab3aa686fd74b5cd8e83d4
@@ -753,7 +753,8 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9a70aa7c89f26fa101b5c433b5c4494bd2d5ec7e
-R d1aea2176c68163a436acdd7a82e3205
-U jan.nijtmans
-Z d89f7f8523df676ad9366060ba49cf1c
+P f80532e92c938304dc67c8b917d7ff39b58c4f45 fbd31d4c2d5b154f777bd2bd94addafa19a6e4c7
+R 15e7b98bddecaf38167c929ac0d368c2
+T +closed fbd31d4c2d5b154f777bd2bd94addafa19a6e4c7
+U mistachkin
+Z b592fdcc141490cd34d54016f616c5b4

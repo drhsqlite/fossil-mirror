@@ -688,9 +688,14 @@ void doc_page(void){
 #ifdef FOSSIL_ENABLE_TH1_DOCS
   }else if( Th_AreDocsEnabled() &&
             fossil_strcmp(zMime, "application/x-th1")==0 ){
-    style_header("%h", zName);
+    int raw = P("raw")!=0;
+    if( !raw ){
+      style_header("%h", zName);
+    }
     Th_Render(blob_str(&filebody));
-    style_footer();
+    if( !raw ){
+      style_footer();
+    }
 #endif
   }else{
     cgi_set_content_type(zMime);
