@@ -1,5 +1,5 @@
-C Improved\sdocumentation\sof\sthe\sdate\sand\stime\sstamps\sunderstood\sby\smost\sfossil\scommands\sand\sweb\spages.\sNo\snon-documentation\schanges\swere\smade,\sbut\scomments\sin\seight\ssource\sfiles\swere\sedited.
-D 2016-08-12T22:45:05.808
+C update\schange-log
+D 2016-08-15T15:18:33.984
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -666,7 +666,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 70f43c1027728f15883cbde8099ee2eec2da8c0f
-F www/changes.wiki e5af21371a33a3e411187597642f1d1daca17420
+F www/changes.wiki 27bade1384974eee035f8933d11614fc954747e3
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 115a0ecdac918232061bbc19124ea83e0a27d938
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -753,7 +753,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ccd8a9cbe4fc43b0b373a0a415b445e9bbbeacc0
-R 8dc6772f81aac395e7ade0315844f627
-U rberteig
-Z 6355b091a8feaab75113470c5703a057
+P cd77e0649a6c0bd6632f11b4b55dec02b764d174
+R ff08c5cfed27a2ed29ba15332f312394
+U jan.nijtmans
+Z 305ef1c2a21047b7d260e5a72a94be90
