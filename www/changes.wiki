@@ -1,6 +1,11 @@
 <title>Change Log</title>
 
-<h2>Changes for Version 1.35 (2016-00-00)</h2>
+<h2>Changes for Version 1.35.1 (2016-00-00)</h2>
+
+  *  Update the built-in SQLite to version 3.14.1.
+  *  Fix [https://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg23622.html|multi-line timeline bug]
+
+<h2>Changes for Version 1.35 (2016-06-14)</h2>
 
   *  Enable symlinks by default on all non-Windows platforms.
   *  Enhance the [/md_rules|Markdown formatting] so that hyperlinks that begin

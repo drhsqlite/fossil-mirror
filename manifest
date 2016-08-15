@@ -1,5 +1,5 @@
-C (cherry-pick)\sAnother\splace\swhere\schecking\sfor\spRow->isLeaf\sis\stoo\ssimple\s(which\scould\sresult\sin\smore\sphantom\sup-arrows)
-D 2016-07-05T14:47:55.378
+C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.14.1
+D 2016-08-15T11:58:37.644
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -12,7 +12,7 @@ F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile 031e34bcb99c67ee0ea1664e0e99d29e5d3f3060
 F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
 F Makefile.in e68d67b0141655f3f6934ad35df484e50e84ff32
-F VERSION 7d88475c68cba7127d611641fa69160437b6885e
+F VERSION ed2c8516f78aef100301e652176ef60a5dc828e4
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -443,10 +443,10 @@ F src/loadctrl.c 32febde85f14593a503aadbb51983d37fce009c2
 F src/login.c 13788b9e70f2cfb13ea4e975a4117c68ed8115f0
 F src/lookslike.c 3ae7e19f08d8e9d24767fcfe89aa66593bb3d814
 F src/main.c 663246084eded6c69a9c4ecdf17d6f30ae43df7e
-F src/main.mk 61f9c92dd66b356e9245ee43360023bdd7cf2d80
+F src/main.mk 50c3682cf8a42ca928b3a10533c74b204d0f691e
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 7aa2028c30e67a4effdf7458b12a7d2f200b1f50
+F src/makemake.tcl a1bd85eec3bdb30b6cd22ae62dbca13d0f6e36da
 F src/manifest.c f2232158d122110ce25a5de6131bd61627181591
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
@@ -481,8 +481,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 6fbec2fbaf3bb39566f2550b12f58127c9bfa850
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c 67a6b4ac894633d8346dc890a5b179a0ac3b1925
-F src/sqlite3.c 9b9171b1e6ce7a980e6b714e9c0d9112657ad552
-F src/sqlite3.h a41446e48e7bfdcb052e1773572ad7bc662c68e1
+F src/sqlite3.c d545b24892278272ce4e40e0567d69c8babf12ea
+F src/sqlite3.h 897022fa93ea23442ecfec5c4d84f54fb8b8aa52
 F src/stash.c ccb0d94252422f28178119825a99c6bce45924d6
 F src/stat.c 82a4439d096fe0fb231e27f49f2b2ff13dacf014
 F src/statrep.c 061c9df02d134454c32e34cc29807adc594e1bc2
@@ -630,11 +630,11 @@ F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil-autocomplete.bash 1135105ee18b95823944e2fa425806d3bc0f4252
 F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
-F win/Makefile.PellesCGMake 7a28a56f548bfad3f4e6ad2749333c0a0ad95acc
-F win/Makefile.dmc 7b34774cbcbe369f7f7a95692aa0c3ce8a985e2d
-F win/Makefile.mingw ada7a71d9030a452c308d437f71fa86b50dc2d19
-F win/Makefile.mingw.mistachkin f95b18713581d630fc7e1c6630e3690f31f0d7c4
-F win/Makefile.msc 42632bb4c72f5fb0a70834cb761a3bc81b226cdb
+F win/Makefile.PellesCGMake 7175c45ddf40ea9086b1bc299d030e650cc57d59
+F win/Makefile.dmc 7e4668b1a8dbf00d8ed3796deb32e9b5313d347f
+F win/Makefile.mingw bd0a37110e9eec27fdf34fb0f76d61eed3dc0d0a
+F win/Makefile.mingw.mistachkin ab0330bcaa88bd9d7783b9d89a46df2c4d8e79ac
+F win/Makefile.msc fc73bc0025c61f897dc2a21de68e1f2698c9c616
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -664,7 +664,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 70f43c1027728f15883cbde8099ee2eec2da8c0f
-F www/changes.wiki 139cc97f743d3c710e671d3bc373943ef3fca714
+F www/changes.wiki 92ac468244061bec6a87da997cf2b3bc98d85888
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 115a0ecdac918232061bbc19124ea83e0a27d938
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -751,8 +751,7 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4cae5c94ea2241b34375921fe384d5400ed1a229
-Q +8ce629f916c615f8f041aa3e219f727cff11b29c
-R a984c9d6fb5ae64dd8bbeb57449150ea
+P 1af1a6628dc5886f2def051dad47fcd332a3c52a
+R 5a6c880b5643e5e7af9aa396f38e7d21
 U jan.nijtmans
-Z 662a726df98d39c5e724c185e1efc5a3
+Z 3207724b7af88edf16242ff734076533
