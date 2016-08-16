@@ -156,6 +156,17 @@ static void extraRepoInfo(void){
   db_finalize(&s);
 }
 
+/*
+** Show the parent project, if any
+*/
+static void showParentProject(void){
+  const char *zParentCode;
+  zParentCode = db_get("parent-project-code",0);
+  if( zParentCode ){
+    fossil_print("derived-from: %s %s\n", zParentCode, db_get("parent-project-name",""));
+  }
+}
+
 
 /*
 ** COMMAND: info
@@ -191,6 +202,7 @@ void info_cmd(void){
     db_record_repository_filename(g.argv[2]);
     fossil_print("project-name: %s\n", db_get("project-name", "<unnamed>"));
     fossil_print("project-code: %s\n", db_get("project-code", "<none>"));
+    showParentProject();
     extraRepoInfo();
     return;
   }
@@ -210,6 +222,7 @@ void info_cmd(void){
       fossil_print("config-db:    %s\n", g.zConfigDbName);
     }
     fossil_print("project-code: %s\n", db_get("project-code", ""));
+    showParentProject();
     vid = g.localOpen ? db_lget_int("checkout", 0) : 0;
     if( vid ){
       show_common_info(vid, "checkout:", 1, 1);

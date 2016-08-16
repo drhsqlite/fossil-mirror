@@ -15,9 +15,10 @@ set doclist {
   branching.wiki {Branching, Forking, Merging, and Tagging}
   bugtheory.wiki {Bug Tracking In Fossil}
   build.wiki {Compiling and Installing Fossil}
+  changes.wiki {Fossil Changelog}
   checkin_names.wiki {Check-in And Version Names}
   checkin.wiki {Check-in Checklist}
-  changes.wiki {Fossil Changelog}
+  childprojects.wiki {Child Projects}
   copyright-release.html {Contributor License Agreement}
   concepts.wiki {Fossil Core Concepts}
   contribute.wiki {Contributing Code or Documentation To The Fossil Project}
