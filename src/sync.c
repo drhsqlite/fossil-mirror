@@ -127,6 +127,7 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
   }
   zHttpAuth = find_option("httpauth","B",1);
   if( find_option("once",0,0)!=0 ) urlFlags &= ~URL_REMEMBER;
+  if( (*pSyncFlags) & SYNC_FROMPARENT ) urlFlags &= ~URL_REMEMBER;
   if( find_option("private",0,0)!=0 ){
     *pSyncFlags |= SYNC_PRIVATE;
   }
@@ -190,6 +191,7 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
 **
 **   -B|--httpauth USER:PASS    Credentials for the simple HTTP auth protocol,
 **                              if required by the remote website
+**   --from-parent-project      Pull content from the parent project
 **   --ipv4                     Use only IPv4, not IPv6
 **   --once                     Do not remember URL for subsequent syncs
 **   --proxy PROXY              Use the specified HTTP proxy
@@ -206,6 +208,9 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
 void pull_cmd(void){
   unsigned configFlags = 0;
   unsigned syncFlags = SYNC_PULL;
+  if( find_option("from-parent-project",0,0)!=0 ){
+    syncFlags |= SYNC_FROMPARENT;
+  }
   process_sync_args(&configFlags, &syncFlags);
 
   /* We should be done with options.. */

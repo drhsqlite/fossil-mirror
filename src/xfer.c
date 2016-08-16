@@ -1393,12 +1393,13 @@ static const char zBriefFormat[] =
 /*
 ** Flag options for controlling client_sync()
 */
-#define SYNC_PUSH      0x0001
-#define SYNC_PULL      0x0002
-#define SYNC_CLONE     0x0004
-#define SYNC_PRIVATE   0x0008
-#define SYNC_VERBOSE   0x0010
-#define SYNC_RESYNC    0x0020
+#define SYNC_PUSH        0x0001
+#define SYNC_PULL        0x0002
+#define SYNC_CLONE       0x0004
+#define SYNC_PRIVATE     0x0008
+#define SYNC_VERBOSE     0x0010
+#define SYNC_RESYNC      0x0020
+#define SYNC_FROMPARENT  0x0080
 #endif
 
 /*
@@ -1450,6 +1451,17 @@ int client_sync(
   if( db_get_boolean("dont-push", 0) ) syncFlags &= ~SYNC_PUSH;
   if( (syncFlags & (SYNC_PUSH|SYNC_PULL|SYNC_CLONE))==0
      && configRcvMask==0 && configSendMask==0 ) return 0;
+  if( syncFlags & SYNC_FROMPARENT ){
+    configRcvMask = 0;
+    configSendMask = 0;
+    syncFlags &= ~(SYNC_PUSH);
+    zPCode = db_get("parent-project-code", 0);
+    if( zPCode==0 || db_get("parent-project-name",0)==0 ){
+      fossil_fatal("there is no parent project: set the 'parent-project-code'"
+                   " and 'parent-project-name' config parameters set in order"
+                   " to pull from a parent project");
+    }
+  }
 
   transport_stats(0, 0, 1);
   socket_global_init();

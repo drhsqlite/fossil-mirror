@@ -149,9 +149,15 @@ void stat_page(void){
   @ </td></tr>
   p = db_get("project-code", 0);
   if( p ){
-    @ <tr><th>Project&nbsp;ID:</th><td>%h(p)</td></tr>
+    @ <tr><th>Project&nbsp;ID:</th>
+    @     <td>%h(p) %h(db_get("project-name",""))</td></tr>
   }
-  @ <tr><th>Server&nbsp;ID:</th><td>%h(db_get("server-code",""))</td></tr>
+  p = db_get("parent-project-code", 0);
+  if( p ){
+    @ <tr><th>Parent&nbsp;Project&nbsp;ID:</th>
+    @      <td>%h(p) %h(db_get("parent-project-name",""))</td></tr>
+  }
+  /* @ <tr><th>Server&nbsp;ID:</th><td>%h(db_get("server-code",""))</td></tr> */
   @ <tr><th>Fossil&nbsp;Version:</th><td>
   @ %h(MANIFEST_DATE) %h(MANIFEST_VERSION)
   @ (%h(RELEASE_VERSION)) [compiled using %h(COMPILER_NAME)]

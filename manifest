@@ -1,5 +1,5 @@
-C update\schange-log
-D 2016-08-15T15:18:33.984
+C Add\sthe\sability\sto\screate\sa\schild-project\srepository\sthat\scan\spull\sfrom\sits\nparent\srepository\sbut\snever\spush\sback.
+D 2016-08-16T15:32:58.481
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -380,7 +380,7 @@ F src/blob.c 54ba03df02f021dedcb0efcb639c225196d4702d
 F src/branch.c f23d02fee6314c726d95a2a82954d81632636723
 F src/browse.c 8f0bb9b6e6e31df9875c081239745a33567c7c84
 F src/builtin.c b2dcfcade2054c083b03a18e3ab5026d51eb2dcb
-F src/bundle.c 5d4c0f96c09606271b3d020cd1db687aca8776ba
+F src/bundle.c ea36067940920f7cb3769e66d991488cd2a9a1e9
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c 10310d276e72e3e34343e3385c0b39fac5cd826e
@@ -420,7 +420,7 @@ F src/http_socket.c c38d7bff255b35cc7cfe13405b67c32878f9d838
 F src/http_ssl.c dea4a130aba592848e7a43f635272cd8d7be7592
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c 060b06a4066a6f3bbedad39ffdb275b4e2153723
-F src/info.c 1a523845f485bcf4434836d3c3f3112fdab4608c
+F src/info.c a120fe39440d7994528d400c0adbcdb040f7b5ee
 F src/json.c 6df1d80dece8968b344e4b730aae8151c7c61955
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -485,10 +485,10 @@ F src/sqlcmd.c 67a6b4ac894633d8346dc890a5b179a0ac3b1925
 F src/sqlite3.c d545b24892278272ce4e40e0567d69c8babf12ea
 F src/sqlite3.h 897022fa93ea23442ecfec5c4d84f54fb8b8aa52
 F src/stash.c ccb0d94252422f28178119825a99c6bce45924d6
-F src/stat.c 82a4439d096fe0fb231e27f49f2b2ff13dacf014
+F src/stat.c 7a80b5879dc04f806168be96e704b89b6fd8f5de
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
 F src/style.c 85ca473e8cd7ba551cd6e4f865f8ebbd45d3289d
-F src/sync.c 9c006dc7267086b6a9ea4566b12aef77fd0e1e6f
+F src/sync.c b10d98f8479ee7a3c0d91ed86b4bd5dd586d2082
 F src/tag.c 06dddb67703250f4a40f3a2f0138aadfb67c28e7
 F src/tar.c 3d8ec6d43a730d3bfdf73fc86bff84587a0bab57
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
@@ -514,7 +514,7 @@ F src/wikiformat.c 1d750982147d9c51fa40e89e40241a33408adaf6
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c 3553bd8fd0af7941a2526a1126695cc8018bccb5
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c f504819c3b8282a46f9dd5dc9499e9360a78439d
+F src/xfer.c c0de61c35f9165b870f6a0e6887d791ffeda844d
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 4ff5fff5dba38f7b514db1194a69a6f634be6a34
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -669,6 +669,7 @@ F www/build.wiki 70f43c1027728f15883cbde8099ee2eec2da8c0f
 F www/changes.wiki 27bade1384974eee035f8933d11614fc954747e3
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 115a0ecdac918232061bbc19124ea83e0a27d938
+F www/childprojects.wiki d775511feb4f946f167ab78af11fc0d036683edc
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
@@ -724,10 +725,10 @@ F www/index.wiki 3fc360452fd46c506e0f0abebee1c666b03e7857
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki 30c7129ffb00c58699b87e84a2c0b696d7c10406
 F www/mkdownload.tcl 5ac61a3e13cecaa67f1e31741113c96cbd41463f
-F www/mkindex.tcl 5f918c097ce054d34ff6d82396f6c0ef7401118e
+F www/mkindex.tcl 099154c5414ad7d158d219293ffb11ef33165b86
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
-F www/permutedindex.html dbad632e2a8e5354b9f996432fbbbd9958c9f6d6
+F www/permutedindex.html 1ec23b0249d39f2a2d924263e5ee297e41b3c1b6
 F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
 F www/private.wiki 72344489bbae6f7955369559b6ab22e01a64259b
 F www/qandc.wiki e07b21da221b05afeb1905f17af3765045952ba8
@@ -753,7 +754,10 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cd77e0649a6c0bd6632f11b4b55dec02b764d174
-R ff08c5cfed27a2ed29ba15332f312394
-U jan.nijtmans
-Z 305ef1c2a21047b7d260e5a72a94be90
+P 4f3054bcb396e1ff87cbb793bcdec23239071fa2
+R ae20814e2324ee06cfe08e819e0485f7
+T *branch * child-projects
+T *sym-child-projects *
+T -sym-trunk *
+U drh
+Z db7e25c5f501ea1487736508379696b0
