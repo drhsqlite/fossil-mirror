@@ -1,5 +1,5 @@
-C Add\sthe\s/setup_ucap_list\sbuilt-in\sdocumentation\spage.\s\sImprovements\sto\sthe\n/setup_ulist_notes\sbuilt-in\sdocumentation\spage.
-D 2016-08-16T17:25:26.585
+C Add\sthe\s-nocomplain\soption\sto\sthe\sTH1\s"query"\scommand.\s\sAdd\sthe\sability\sto\nquery\sthe\sunversioned\stable,\sif\ssuch\sa\stable\sexists.
+D 2016-08-16T20:48:42.279
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -471,7 +471,7 @@ F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c 74469f4e5ae2137b72e5e84ad66dd7f28ba4c1a6
 F src/rebuild.c a7e68fcaaefd99f01bc2b3c9a347fcadb0eec867
 F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
-F src/report.c 3dd19351cd1461653bd07a234d3cc4aaff8845ac
+F src/report.c edb0630f05a707cfeb824eebe70edafee322106f
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b44df10abbab7d4f63a61057eaa3fb4e0b5c693d
@@ -494,7 +494,7 @@ F src/tar.c 3d8ec6d43a730d3bfdf73fc86bff84587a0bab57
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
-F src/th_main.c 50799260b94c4c27cc0394c42eb35db1ef7613f3
+F src/th_main.c 41f93f45c1ec178ee054ab577f203f4fee79ddad
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
 F src/timeline.c f851733577eb5df0182045dbcd371b3d04c62e94
 F src/tkt.c 0d7059f823642ea6c26c07081ee94b6cbb663408
@@ -754,7 +754,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dddc58da657a1a7cf09e271fe3fc0c21c0936fd3
-R 490506017a9f9307bf860b34249174bd
+P 70d898fe3cc24eb65497abefde4168e3531ce5d0
+R a25d0ad2aa916b0e92208dd5228cfb00
 U drh
-Z d78f5d24b0fe929c64e58c5efa84f4e0
+Z 965f063dc150b16f8eb25b2e1c108711

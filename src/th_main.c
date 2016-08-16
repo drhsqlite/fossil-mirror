@@ -1430,7 +1430,7 @@ static int randhexCmd(
 }
 
 /*
-** TH1 command: query SQL CODE
+** TH1 command: query [-nocomplain] SQL CODE
 **
 ** Run the SQL query given by the SQL argument.  For each row in the result
 ** set, run CODE.
@@ -1455,11 +1455,19 @@ static int queryCmd(
   int res = TH_OK;
   int nVar;
   char *zErr = 0;
+  int noComplain = 0;
 
+  if( argc>3 && argl[1]==11 && strncmp(argv[1], "-nocomplain", 11)==0 ){
+    argc--;
+    argv++;
+    argl++;
+    noComplain = 1;
+  }
   if( argc!=3 ){
     return Th_WrongNumArgs(interp, "query SQL CODE");
   }
   if( g.db==0 ){
+    if( noComplain ) return TH_OK;
     Th_ErrorMessage(interp, "database is not open", 0, 0);
     return TH_ERROR;
   }
@@ -1471,6 +1479,7 @@ static int queryCmd(
     rc = sqlite3_prepare_v2(g.db, argv[1], argl[1], &pStmt, &zTail);
     sqlite3_set_authorizer(g.db, 0, 0);
     if( rc!=0 || zErr!=0 ){
+      if( noComplain ) return TH_OK;
       Th_ErrorMessage(interp, "SQL error: ",
                       zErr ? zErr : sqlite3_errmsg(g.db), -1);
       return TH_ERROR;
@@ -1504,6 +1513,7 @@ static int queryCmd(
     }
     rc = sqlite3_finalize(pStmt);
     if( rc!=SQLITE_OK ){
+      if( noComplain ) return TH_OK;
       Th_ErrorMessage(interp, "SQL error: ", sqlite3_errmsg(g.db), -1);
       return TH_ERROR;
     }

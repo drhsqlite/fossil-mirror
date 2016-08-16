@@ -175,7 +175,7 @@ int report_query_authorizer(
   int rc = SQLITE_OK;
   if( *(char**)pError ){
     /* We've already seen an error.  No need to continue. */
-    return SQLITE_OK;
+    return SQLITE_DENY;
   }
   switch( code ){
     case SQLITE_SELECT:
@@ -194,6 +194,7 @@ int report_query_authorizer(
          "event",
          "tag",
          "tagxref",
+         "unversioned",
       };
       int i;
       if( fossil_strncmp(zArg1, "fx_", 3)==0 ){
