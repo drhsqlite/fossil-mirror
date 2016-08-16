@@ -296,6 +296,8 @@ static void setup_usercap_table(void){
      @   <td><i>Write-Tkt:</i> Edit tickets</td></tr>
      @ <tr><th valign="top">x</th>
      @   <td><i>Private:</i> Push and/or pull private branches</td></tr>
+     @ <tr><th valign="top">y</th>
+     @   <td><i>Write-Unver:</i> Push unversioned files</td></tr>
      @ <tr><th valign="top">z</th>
      @   <td><i>Zip download:</i> Download a ZIP archive or tarball</td></tr>
   @ </table>
@@ -716,6 +718,9 @@ void user_edit(void){
   @  <label><input type="checkbox" name="ax"%s(oa['x'])
   @                onchange="updateCapabilityString()" />
   @  Private%s(B('x'))</label><br />
+  @  <label><input type="checkbox" name="ay"%s(oa['y'])
+  @                onchange="updateCapabilityString()" />
+  @  Write Unverioned%s(B('y'))</label><br />
   @  <label><input type="checkbox" name="az"%s(oa['z'])
   @                onchange="updateCapabilityString()" />
   @  Download Zip%s(B('z'))</label>

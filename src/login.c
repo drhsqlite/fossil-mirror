@@ -1124,6 +1124,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
       case 't':   p->TktFmt = 1;                               break;
       case 'b':   p->Attach = 1;                               break;
       case 'x':   p->Private = 1;                              break;
+      case 'y':   p->WrUnver = 1;                              break;
 
       /* The "u" privileges is a little different.  It recursively
       ** inherits all privileges of the user named "reader" */

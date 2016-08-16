@@ -1,5 +1,5 @@
-C Merge\suser-list\sdocumentation\senhancements\sfrom\strunk.
-D 2016-08-16T17:26:48.923
+C Add\sthe\snew\s"y"\spermission\sletter\sthat\sgives\sauthority\sto\spush\sunversioned\nfiles.
+D 2016-08-16T19:36:14.482
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -441,9 +441,9 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c 9c1a8a9a1d33f79191cb5a104067201a8cee6de1
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c 13788b9e70f2cfb13ea4e975a4117c68ed8115f0
+F src/login.c 5458c3b2877efb97847eeb025919209dbb21ef3e
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
-F src/main.c 8b3c5df6b7766494d586f5b4fab53796f45fb12f
+F src/main.c d7e60dad99f6a5710ec6265cebeb538014c24fb7
 F src/main.mk 92218192e16d259e862839cb781c6f80d56e0418
 F src/makeheaders.c e8444028f575e84075e46cf47f2080fa6d2c2115
 F src/makeheaders.html 06decb89c665feb897540613d7d12527eb65dfe5
@@ -475,7 +475,7 @@ F src/report.c 3dd19351cd1461653bd07a234d3cc4aaff8845ac
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b44df10abbab7d4f63a61057eaa3fb4e0b5c693d
-F src/setup.c ee2e1f25e3d1a01a6cce259c59c0c23ade5b783b
+F src/setup.c c61f750976b23d6ee0cc2254d0d78f722a3311d4
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
 F src/shell.c 79dda477be6c96eba6e952a934957ad36f87acc7
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
@@ -515,7 +515,7 @@ F src/wikiformat.c 1d750982147d9c51fa40e89e40241a33408adaf6
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c 3553bd8fd0af7941a2526a1126695cc8018bccb5
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c f14d1c33a0234ed68ca51abb615b5a8026ce7fde
+F src/xfer.c eb47ac05013af3f2b17fe961faf4aa9ca48a6bf9
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 4ff5fff5dba38f7b514db1194a69a6f634be6a34
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -755,7 +755,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f6d4a2bfe3b4838ba043fd48d27f5d043ac36afa 70d898fe3cc24eb65497abefde4168e3531ce5d0
-R 0fe56fbffa4124a2fde8b26b36e0dc35
+P 8f773f2caac235ccdecfba3c1fa5e6dc4ee85591
+R 0dddb7f863390d7b774b9831a00b4e6b
 U drh
-Z 9039d0c6572e651f564c250f7811f360
+Z a07ac44785dd0eed02e9bc1c5684503f

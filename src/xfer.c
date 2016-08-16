@@ -1228,7 +1228,7 @@ void page_xfer(void){
     ** Accept an unversioned file from the client.
     */
     if( blob_eq(&xfer.aToken[0], "uvfile") ){
-      xfer_accept_unversioned_file(&xfer, g.perm.Write);
+      xfer_accept_unversioned_file(&xfer, g.perm.WrUnver);
       if( blob_size(&xfer.err) ){
           cgi_reset_content();
         @ error %T(blob_str(&xfer.err))
@@ -1520,7 +1520,7 @@ void page_xfer(void){
       ** "uvigot" cards.
       */
       if( blob_eq(&xfer.aToken[1], "uv-hash") && blob_is_uuid(&xfer.aToken[2]) ){
-        if( g.perm.Read && g.perm.Write ){
+        if( g.perm.Read && g.perm.WrUnver ){
           @ pragma uv-push-ok
           send_unversioned_catalog(&xfer);
         }else if( g.perm.Read ){
