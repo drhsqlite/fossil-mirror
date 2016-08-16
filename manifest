@@ -1,5 +1,5 @@
-C Merge\srecent\strunk\senhancements.
-D 2016-08-16T16:25:35.275
+C Merge\suser-list\sdocumentation\senhancements\sfrom\strunk.
+D 2016-08-16T17:26:48.923
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -475,7 +475,7 @@ F src/report.c 3dd19351cd1461653bd07a234d3cc4aaff8845ac
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b44df10abbab7d4f63a61057eaa3fb4e0b5c693d
-F src/setup.c f93f841b1bbdf33999ed97a285d15f2212b78b0b
+F src/setup.c ee2e1f25e3d1a01a6cce259c59c0c23ade5b783b
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
 F src/shell.c 79dda477be6c96eba6e952a934957ad36f87acc7
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
@@ -755,7 +755,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 71a50a1dd7de3fb9370b9dc9b55c663405cc6a43 dddc58da657a1a7cf09e271fe3fc0c21c0936fd3
-R 22a3f6c8105b3d5a526ab01cf7a72cd6
+P f6d4a2bfe3b4838ba043fd48d27f5d043ac36afa 70d898fe3cc24eb65497abefde4168e3531ce5d0
+R 0fe56fbffa4124a2fde8b26b36e0dc35
 U drh
-Z 8f5260b644bc3dff1fcbdd7cf98b97f1
+Z 9039d0c6572e651f564c250f7811f360

@@ -162,7 +162,10 @@ void setup_ulist(void){
   style_submenu_element("Help", "Help", "setup_ulist_notes");
   style_header("User List");
   @ <table border=1 cellpadding=2 cellspacing=0 class='userTable'>
-  @ <thead><tr><th>UID <th>Category <th>Capabilities <th>Info <th>Last Change</tr></thead>
+  @ <thead><tr>
+  @   <th>UID <th>Category
+  @   <th>Capabilities (<a href='%R/setup_ucap_list'>key</a>)
+  @   <th>Info <th>Last Change</tr></thead>
   @ <tbody>
   db_prepare(&s,
      "SELECT uid, login, cap, date(mtime,'unixepoch')"
@@ -238,17 +241,9 @@ void setup_ulist(void){
 }
 
 /*
-** WEBPAGE: setup_ulist_notes
-**
-** A documentation page showing notes about user configuration.  This information
-** used to be a side-bar on the user list page, but has been factored out for
-** improved presentation.
+** Render the user-capability table
 */
-void setup_ulist_notes(void){
-  style_header("User Configuration Notes");
-  @ <h1>User Configuration Notes:</h1>
-  @ <ol>
-  @ <li><p>The permission flags are as follows:</p>
+static void setup_usercap_table(void){
   @ <table>
      @ <tr><th valign="top">a</th>
      @   <td><i>Admin:</i> Create and delete users</td></tr>
@@ -304,8 +299,19 @@ void setup_ulist_notes(void){
      @ <tr><th valign="top">z</th>
      @   <td><i>Zip download:</i> Download a ZIP archive or tarball</td></tr>
   @ </table>
-  @ </li>
-  @
+}
+
+/*
+** WEBPAGE: setup_ulist_notes
+**
+** A documentation page showing notes about user configuration.  This information
+** used to be a side-bar on the user list page, but has been factored out for
+** improved presentation.
+*/
+void setup_ulist_notes(void){
+  style_header("User Configuration Notes");
+  @ <h1>User Configuration Notes:</h1>
+  @ <ol>
   @ <li><p>
   @ Every user, logged in or not, inherits the privileges of
   @ <span class="usertype">nobody</span>.
@@ -321,16 +327,37 @@ void setup_ulist_notes(void){
   @ </p></li>
   @
   @ <li><p>
+  @ Users with privilege <span class="capability">u</span> inherit the combined
+  @ privileges of <span class="usertype">reader</span>,
+  @ <span class="usertype">anonymous</span>, and
+  @ <span class="usertype">nobody</span>.
+  @ </p></li>
+  @
+  @ <li><p>
   @ Users with privilege <span class="capability">v</span> inherit the combined
   @ privileges of <span class="usertype">developer</span>,
   @ <span class="usertype">anonymous</span>, and
   @ <span class="usertype">nobody</span>.
   @ </p></li>
   @
+  @ <li><p>The permission flags are as follows:</p>
+  setup_usercap_table();
+  @ </li>
   @ </ol>
   style_footer();
 }
 
+/*
+** WEBPAGE: setup_ucap_list
+**
+** A documentation page showing the meaning of the various user capabilities
+** code letters.
+*/
+void setup_ucap_list(void){
+  style_header("User Capability Codes");
+  setup_usercap_table();
+  style_footer();
+}
 
 /*
 ** Return true if zPw is a valid password string.  A valid
