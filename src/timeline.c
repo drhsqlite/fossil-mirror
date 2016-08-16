@@ -2047,10 +2047,15 @@ static int isIsoDate(const char *z){
 **     descendants | children
 **     ancestors | parents
 **
-** The CHECKIN can be any unique prefix of 4 characters or more.
-** The DATETIME should be in the ISO8601 format.  For
-** example: "2007-08-18 07:21:21".  You can also say "current"
-** for the current version or "now" for the current time.
+** The CHECKIN can be any unique prefix of 4 characters or more. You
+** can also say "current" for the current version. 
+**
+** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
+** year-month-day form, it may be truncated, the "T" may be replaced by
+** a space, and it may also name a timezone offset from UTC as "-HH:MM"
+** (westward) or "+HH:MM" (eastward). Either no timezone suffix or "Z"
+** means UTC.
+**
 **
 ** Options:
 **   -n|--limit N         Output the first N entries (default 20 lines).

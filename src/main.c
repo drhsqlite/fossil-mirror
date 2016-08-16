@@ -594,8 +594,8 @@ int main(int argc, char **argv)
   const char *zCmdName = "unknown";
   int idx;
   int rc;
-  if( sqlite3_libversion_number()<3010000 ){
-    fossil_fatal("Unsuitable SQLite version %s, must be at least 3.10.0",
+  if( sqlite3_libversion_number()<3014000 ){
+    fossil_fatal("Unsuitable SQLite version %s, must be at least 3.14.0",
                  sqlite3_libversion());
   }
   sqlite3_config(SQLITE_CONFIG_MULTITHREAD);
@@ -1230,7 +1230,7 @@ void help_cmd(void){
 
 /*
 ** COMMAND: test-all-help
-** 
+**
 ** Usage: %fossil test-all-help ?OPTIONS?
 **
 ** Show help text for commands and pages.  Useful for proof-reading.

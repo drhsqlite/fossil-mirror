@@ -284,13 +284,18 @@ void cat_cmd(void){
 **
 ** Additional query parameters:
 **
-**    a=DATE     Only show changes after DATE
-**    b=DATE     Only show changes before DATE
+**    a=DATETIME Only show changes after DATETIME
+**    b=DATETIME Only show changes before DATETIME
 **    n=NUM      Show the first NUM changes only
 **    brbg       Background color by branch name
 **    ubg        Background color by user name
 **    ci=UUID    Ancestors of a particular check-in
 **    showid     Show RID values for debugging
+**
+** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
+** year-month-day form, it may be truncated, and it may also name a
+** timezone offset from UTC as "-HH:MM" (westward) or "+HH:MM"
+** (eastward). Either no timezone suffix or "Z" means UTC.
 */
 void finfo_page(void){
   Stmt q;

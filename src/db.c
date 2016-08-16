@@ -1753,6 +1753,12 @@ void db_initial_setup(
 **    --admin-user|-A USERNAME  select given USERNAME as admin user
 **    --date-override DATETIME  use DATETIME as time of the initial check-in
 **
+** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
+** year-month-day form, it may be truncated, the "T" may be replaced by
+** a space, and it may also name a timezone offset from UTC as "-HH:MM"
+** (westward) or "+HH:MM" (eastward). Either no timezone suffix or "Z"
+** means UTC.
+**
 ** See also: clone
 */
 void create_repository_cmd(void){
@@ -2979,7 +2985,7 @@ char *db_timespan_name(double rSpan){
 
 /*
 ** COMMAND: test-timespan
-** 
+**
 ** Usage: %fossil test-timespan TIMESTAMP
 **
 ** Print the approximate span of time from now to TIMESTAMP.
@@ -2996,7 +3002,7 @@ void test_timespan_cmd(void){
 
 /*
 ** COMMAND: test-without-rowid
-** 
+**
 ** Usage: %fossil test-without-rowid FILENAME...
 **
 ** Change the Fossil repository FILENAME to make use of the WITHOUT ROWID

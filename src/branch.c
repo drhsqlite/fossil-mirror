@@ -260,6 +260,12 @@ void branch_prepare_list_query(Stmt *pQuery, int brFlags){
 **        --date-override DATE  DATE to use instead of 'now'
 **        --user-override USER  USER to use instead of the current default
 **
+**        DATE may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
+**        year-month-day form, it may be truncated, the "T" may be
+**        replaced by a space, and it may also name a timezone offset
+**        from UTC as "-HH:MM" (westward) or "+HH:MM" (eastward).
+**        Either no timezone suffix or "Z" means UTC.
+**
 **    %fossil branch list ?-a|--all|-c|--closed?
 **    %fossil branch ls ?-a|--all|-c|--closed?
 **

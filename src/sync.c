@@ -131,6 +131,7 @@ static void process_sync_args(
   }
   zHttpAuth = find_option("httpauth","B",1);
   if( find_option("once",0,0)!=0 ) urlFlags &= ~URL_REMEMBER;
+  if( (*pSyncFlags) & SYNC_FROMPARENT ) urlFlags &= ~URL_REMEMBER;
   if( !uvOnly ){
     if( find_option("private",0,0)!=0 ){
       *pSyncFlags |= SYNC_PRIVATE;
@@ -144,6 +145,9 @@ static void process_sync_args(
   }
   if( find_option("uv",0,0)!=0 ){
     *pSyncFlags |= SYNC_UNVERSIONED;
+  }
+  if( find_option("private",0,0)!=0 ){
+    *pSyncFlags |= SYNC_PRIVATE;
   }
   if( find_option("verbose","v",0)!=0 ){
     *pSyncFlags |= SYNC_VERBOSE;
@@ -188,7 +192,7 @@ static void process_sync_args(
 **
 ** Pull all sharable changes from a remote repository into the local repository.
 ** Sharable changes include public check-ins, and wiki, ticket, and tech-note
-** edits.  Add the --private option to pull private branches.  Use the 
+** edits.  Add the --private option to pull private branches.  Use the
 ** "configuration pull" command to pull website configuration details.
 **
 ** If URL is not specified, then the URL from the most recent clone, push,
@@ -199,6 +203,7 @@ static void process_sync_args(
 **
 **   -B|--httpauth USER:PASS    Credentials for the simple HTTP auth protocol,
 **                              if required by the remote website
+**   --from-parent-project      Pull content from the parent project
 **   --ipv4                     Use only IPv4, not IPv6
 **   --once                     Do not remember URL for subsequent syncs
 **   --proxy PROXY              Use the specified HTTP proxy
@@ -215,6 +220,9 @@ static void process_sync_args(
 void pull_cmd(void){
   unsigned configFlags = 0;
   unsigned syncFlags = SYNC_PULL;
+  if( find_option("from-parent-project",0,0)!=0 ){
+    syncFlags |= SYNC_FROMPARENT;
+  }
   process_sync_args(&configFlags, &syncFlags, 0);
 
   /* We should be done with options.. */
@@ -230,7 +238,7 @@ void pull_cmd(void){
 **
 ** Push all sharable changes from the local repository to a remote repository.
 ** Sharable changes include public check-ins, and wiki, ticket, and tech-note
-** edits.  Use --private to also push private branches.  Use the 
+** edits.  Use --private to also push private branches.  Use the
 ** "configuration pull" command to push website configuration details.
 **
 ** If URL is not specified, then the URL from the most recent clone, push,

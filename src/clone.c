@@ -101,7 +101,7 @@ void delete_private_content(void){
 ** Note 1: For ssh and filesystem, path must have an extra leading
 **         '/' to use an absolute path.
 **
-** Note 2: Use %HH escapes for special characters in the userid and 
+** Note 2: Use %HH escapes for special characters in the userid and
 **         password.  For example "%40" in place of "@", "%2f" in place
 **         of "/", and "%3a" in place of ":".
 **
