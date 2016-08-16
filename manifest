@@ -1,5 +1,5 @@
-C Add\sthe\sability\sto\screate\sa\schild-project\srepository\sthat\scan\spull\sfrom\s\nits\sparent\srepository\sbut\snever\spush\sback.
-D 2016-08-16T16:17:05.685
+C Add\sthe\s/setup_ucap_list\sbuilt-in\sdocumentation\spage.\s\sImprovements\sto\sthe\n/setup_ulist_notes\sbuilt-in\sdocumentation\spage.
+D 2016-08-16T17:25:26.585
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -475,7 +475,7 @@ F src/report.c 3dd19351cd1461653bd07a234d3cc4aaff8845ac
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b44df10abbab7d4f63a61057eaa3fb4e0b5c693d
-F src/setup.c f93f841b1bbdf33999ed97a285d15f2212b78b0b
+F src/setup.c ee2e1f25e3d1a01a6cce259c59c0c23ade5b783b
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
 F src/shell.c 79dda477be6c96eba6e952a934957ad36f87acc7
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
@@ -754,8 +754,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4f3054bcb396e1ff87cbb793bcdec23239071fa2 0ab5ad5f36a3e4aa0fa1f800a53289ba94a2007c
-R ae20814e2324ee06cfe08e819e0485f7
-T +closed 0ab5ad5f36a3e4aa0fa1f800a53289ba94a2007c
+P dddc58da657a1a7cf09e271fe3fc0c21c0936fd3
+R 490506017a9f9307bf860b34249174bd
 U drh
-Z 92dfc259d2f862a19cf1e4c009be9e30
+Z d78f5d24b0fe929c64e58c5efa84f4e0
