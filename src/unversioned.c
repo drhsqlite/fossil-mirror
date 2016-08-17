@@ -356,6 +356,7 @@ void uvstat_page(void){
   sqlite3_int64 iNow;
   sqlite3_int64 iTotalSz = 0;
   int cnt = 0;
+  int n = 0;
   char zSzName[100];
 
   login_check_credentials();
@@ -375,20 +376,22 @@ void uvstat_page(void){
      " FROM unversioned"
    );
    iNow = db_int64(0, "SELECT strftime('%%s','now');");
-   @ <div class="uvlist">
-   @ <table cellpadding="2" cellspacing="0" border="1" id="uvtab">
-   @ <thead><tr>
-   @   <th> Name
-   @   <th> Age
-   @   <th> Size
-   @ </tr></thead>
-   @ <tbody>
    while( db_step(&q)==SQLITE_ROW ){
      const char *zName = db_column_text(&q, 0);
      sqlite3_int64 mtime = db_column_int(&q, 1);
      int isDeleted = db_column_int(&q, 2);
      int fullSize = db_column_int(&q, 3);
      char *zAge = human_readable_age((iNow - mtime)/86400.0);
+     if( (n++)==0 ){
+       @ <div class="uvlist">
+       @ <table cellpadding="2" cellspacing="0" border="1" id="uvtab">
+       @ <thead><tr>
+       @   <th> Name
+       @   <th> Age
+       @   <th> Size
+       @ </tr></thead>
+       @ <tbody>
+     }
      if( isDeleted ){
        sqlite3_snprintf(sizeof(zSzName), zSzName, "<i>Deleted</i>");
        fullSize = 0;
@@ -404,11 +407,15 @@ void uvstat_page(void){
      @ </tr>
      fossil_free(zAge);
    }
-   approxSizeName(sizeof(zSzName), zSzName, iTotalSz);
-   @ </tbody>
-   @ <tfoot><tr><td><b>Total over %d(cnt) files</b><td><td>%s(zSzName)</tfoot>
-   @ </table></div>
    db_finalize(&q);
-   output_table_sorting_javascript("uvtab","tKk",1);
+   if( n ){
+     approxSizeName(sizeof(zSzName), zSzName, iTotalSz);
+     @ </tbody>
+     @ <tfoot><tr><td><b>Total over %d(cnt) files</b><td><td>%s(zSzName)</tfoot>
+     @ </table></div>
+     output_table_sorting_javascript("uvtab","tKk",1);
+   }else{
+     @ No unversioned files on this server.
+   }
    style_footer();
 }
