@@ -4,7 +4,7 @@
 
 The default behavior of Fossil is to share everything (all check-ins,
 tickets, wiki, etc) between all clients and all servers.  Such a policy
-helps to promote a cohesive design for a cathedrial-style project run
+helps to promote a cohesive design for a cathedral-style project run
 by a small cliche of developers - the sort of project for which Fossil
 was designed.
 

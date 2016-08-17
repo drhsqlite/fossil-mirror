@@ -720,7 +720,7 @@ void user_edit(void){
   @  Private%s(B('x'))</label><br />
   @  <label><input type="checkbox" name="ay"%s(oa['y'])
   @                onchange="updateCapabilityString()" />
-  @  Write Unverioned%s(B('y'))</label><br />
+  @  Write Unversioned%s(B('y'))</label><br />
   @  <label><input type="checkbox" name="az"%s(oa['z'])
   @                onchange="updateCapabilityString()" />
   @  Download Zip%s(B('z'))</label>

@@ -1,5 +1,5 @@
-C For\sthe\s"query\s-nocomplain"\sTH1\scommand,\smake\ssure\sthe\sSQLite\slog\sdoes\snot\nadd\serror\smessages\sto\sthe\soutput.
-D 2016-08-17T15:56:16.587
+C Fix\stypos\sin\sdocumentation\sand\son\sthe\s"Setup/Users"\sscreen.
+D 2016-08-17T16:02:01.256
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -475,7 +475,7 @@ F src/report.c edb0630f05a707cfeb824eebe70edafee322106f
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b44df10abbab7d4f63a61057eaa3fb4e0b5c693d
-F src/setup.c c61f750976b23d6ee0cc2254d0d78f722a3311d4
+F src/setup.c f28fafa5e7fe72a0747fa61fa27ed8d7c074744b
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
 F src/shell.c 79dda477be6c96eba6e952a934957ad36f87acc7
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
@@ -670,7 +670,7 @@ F www/build.wiki 70f43c1027728f15883cbde8099ee2eec2da8c0f
 F www/changes.wiki 27bade1384974eee035f8933d11614fc954747e3
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 115a0ecdac918232061bbc19124ea83e0a27d938
-F www/childprojects.wiki d775511feb4f946f167ab78af11fc0d036683edc
+F www/childprojects.wiki 26e08e37f9d96562486c7698697a356d77cdad8f
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
@@ -755,7 +755,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 27d743e7083578210e7284300682d2334f221886
-R d15d80c236bd08122a3cc1a4ed315d78
+P 801eca62a83757271adf2e112e077fd0a3eecaa8
+R afd28863a37e67c7da1e1501876d9f41
 U drh
-Z f8ac2914efaff91893389be1dd915cd7
+Z 4df3bbebe21efff3354898ad1d75b7b6
