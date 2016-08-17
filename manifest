@@ -1,5 +1,5 @@
-C The\sadmin\sand\ssetup\susers\sautomatically\sget\sthe\swrite-unversioned\s('y')\npermission.
-D 2016-08-17T11:53:14.696
+C Limit\sthe\samount\sof\sunversioned\scontent\ssent\swith\seach\sHTTP\srequest.\s\sAlso:\nfix\sup\ssource\scode\slines\sin\sxfer.c\sto\sbe\sless\sthan\s80\scharacters\slong.
+D 2016-08-17T13:37:43.874
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -515,7 +515,7 @@ F src/wikiformat.c 1d750982147d9c51fa40e89e40241a33408adaf6
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c 3553bd8fd0af7941a2526a1126695cc8018bccb5
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c eb47ac05013af3f2b17fe961faf4aa9ca48a6bf9
+F src/xfer.c bf4ff78e83727453950c1f8df62aa063fc7365b9
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 4ff5fff5dba38f7b514db1194a69a6f634be6a34
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -755,7 +755,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 49007ecedf53f21971951d1f95bfbb77cb8b601f
-R a4adc001342e8faa44927f4d4bb83242
+P 0480400c39ac71f2ab155f885e0ab8c9dd1a7ae6
+R b3aaa88c7d44c0b4a29298aa4ab45977
 U drh
-Z 6f94d5e010800491459ee84b516c227c
+Z fddcdfc656a4ab8b1a89a7f70fe8f8f5
