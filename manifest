@@ -1,5 +1,5 @@
-C Fix\stypos\sin\sdocumentation\sand\son\sthe\s"Setup/Users"\sscreen.
-D 2016-08-17T16:02:01.256
+C Send\sthe\sparent-project-name\sand\sparent-project-code\sconfigurations\swhen\nsyncing\sthe\sproject\sconfigurations.
+D 2016-08-17T17:25:22.357
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -391,7 +391,7 @@ F src/clone.c 6d7b354e7807d7bc3333b6d33232605c171de135
 F src/codecheck1.c bf92e19b6a521f947c07960aae3f2aa9a21e4c42
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
 F src/config.h b91f4223f2653503759e1205343db9f94d134973
-F src/configure.c e709349116d50f53152da7e8d409ad5232395c47
+F src/configure.c ba6cd082894e2f08b71993a542990a617345007e
 F src/content.c 4ab3e97d89e9967105d5daa9b48a023528e52f3a
 F src/cson_amalgamation.c e220a3a91402d60424fa0843598cdfdaa319f193
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
@@ -755,7 +755,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 801eca62a83757271adf2e112e077fd0a3eecaa8
-R afd28863a37e67c7da1e1501876d9f41
+P 085bfaeec7d85ec452b548cc5e0e3a7d6ee6acc9
+R b4954ed71e52e6d34bfd19d7c28981c4
 U drh
-Z 4df3bbebe21efff3354898ad1d75b7b6
+Z d188f601964a8b4af38f57ad2fe9308a
