@@ -1,5 +1,5 @@
-C Merge\strunk\schanges.
-D 2016-08-16T20:49:11.432
+C Add\sthe\s/uvlist\swebpage.
+D 2016-08-17T09:28:28.567
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -502,7 +502,7 @@ F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c 52ec5c24a6dcf1937026e2d9f86791fd1913cdf6
 F src/unicode.c 8e02b4fd6af9e735bda68eb06e3be90b6b901a87
-F src/unversioned.c d37295ce55213d7bc50e62a762d830a250de8af4
+F src/unversioned.c 17ff93de589d7c2bf0ae6e7712bd7fe025a76d68
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c e2c08deb9a3ce011d3db10f70216a7988485e29a
@@ -755,7 +755,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5d703ba2ad20b6f596d1e070778ccb318bdd9d3f c8289bdce4b10243397a847979ce37f1cc0e4fdf
-R 672995ab8c3f00c90485622f785451f2
+P 78ccf4bcf5d5703c966ab339e0092571ca7975f4
+R 9bac4a567188a8674817b0ee81619792
 U drh
-Z da60d9962df9369ef1872da13cf1f3eb
+Z 8c5c02bfcebbd0fdb6113c5cb6136fdb

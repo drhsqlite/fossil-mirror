@@ -345,3 +345,70 @@ void unversioned_cmd(void){
     usage("add|cat|export|ls|revert|rm|sync|touch");
   }
 }
+
+/*
+** WEBPAGE: uvlist
+**
+** Display a list of all unversioned files in the repository.
+*/
+void uvstat_page(void){
+  Stmt q;
+  sqlite3_int64 iNow;
+  sqlite3_int64 iTotalSz = 0;
+  int cnt = 0;
+  char zSzName[100];
+
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  style_header("Unversioned Files");
+  if( !db_table_exists("repository","unversioned") ){
+    @ No unversioned files on this server
+    style_footer();
+    return;
+  }
+  db_prepare(&q,
+     "SELECT"
+     "   name,"
+     "   mtime,"
+     "   hash IS NULL,"
+     "   sz"
+     " FROM unversioned"
+   );
+   iNow = db_int64(0, "SELECT strftime('%%s','now');");
+   @ <div class="uvlist">
+   @ <table cellpadding="2" cellspacing="0" border="1" id="uvtab">
+   @ <thead><tr>
+   @   <th> Name
+   @   <th> Age
+   @   <th> Size
+   @ </tr></thead>
+   @ <tbody>
+   while( db_step(&q)==SQLITE_ROW ){
+     const char *zName = db_column_text(&q, 0);
+     sqlite3_int64 mtime = db_column_int(&q, 1);
+     int isDeleted = db_column_int(&q, 2);
+     int fullSize = db_column_int(&q, 3);
+     char *zAge = human_readable_age((iNow - mtime)/86400.0);
+     if( isDeleted ){
+       sqlite3_snprintf(sizeof(zSzName), zSzName, "<i>Deleted</i>");
+       fullSize = 0;
+     }else{
+       approxSizeName(sizeof(zSzName), zSzName, fullSize);
+       iTotalSz += fullSize;
+       cnt++;
+     }
+     @ <tr>
+     @ <td> <a href='%R/uv/%T(zName)'>%h(zName)</a> </td>
+     @ <td data-sortkey='%016llx(-mtime)'> %s(zAge) </td>
+     @ <td data-sortkey='%08x(fullSize)'> %s(zSzName) </td>
+     @ </tr>
+     fossil_free(zAge);
+   }
+   approxSizeName(sizeof(zSzName), zSzName, iTotalSz);
+   @ </tbody>
+   @ <tfoot><tr><td><b>Total over %d(cnt) files</b><td><td>%s(zSzName)</tfoot>
+   @ </table></div>
+   db_finalize(&q);
+   output_table_sorting_javascript("uvtab","tKk",1);
+   style_footer();
+}
