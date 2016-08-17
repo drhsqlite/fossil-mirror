@@ -1,5 +1,5 @@
-C Update\sthe\ssync\sprotocol\sdocumentation\sto\sdescribe\sthe\sunversioned\sfile\nsync.
-D 2016-08-17T14:40:18.335
+C Show\sthe\snumber\sand\stotal\ssize\sof\sunversioned\sfiles\son\sthe\s/stat\spage.\nAdd\sa\slink\sto\s/uvlist\sfrom\s/sitemap.
+D 2016-08-17T15:36:09.653
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -479,13 +479,13 @@ F src/setup.c c61f750976b23d6ee0cc2254d0d78f722a3311d4
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
 F src/shell.c 79dda477be6c96eba6e952a934957ad36f87acc7
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
-F src/sitemap.c 6fbec2fbaf3bb39566f2550b12f58127c9bfa850
+F src/sitemap.c b7c376b21d29322741c804e1f762b34aedb98ad1
 F src/skins.c 524384aafbe9e7707d3b87f42ee72fa63fe91796
 F src/sqlcmd.c 67a6b4ac894633d8346dc890a5b179a0ac3b1925
 F src/sqlite3.c d545b24892278272ce4e40e0567d69c8babf12ea
 F src/sqlite3.h 897022fa93ea23442ecfec5c4d84f54fb8b8aa52
 F src/stash.c ccb0d94252422f28178119825a99c6bce45924d6
-F src/stat.c 7a80b5879dc04f806168be96e704b89b6fd8f5de
+F src/stat.c f35100ab665ec46513e4af0bb25260b810a82696
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
 F src/style.c 85ca473e8cd7ba551cd6e4f865f8ebbd45d3289d
 F src/sync.c 3687bdd2199734ca019b679a883f8f98c9dd6cc9
@@ -755,7 +755,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P faa73ae0c4a82af20e48134750dddf21ae37859e
-R c6e0aef59a34135f01ba5e233640a002
+P d78094932026b0c3d161507d0e5b20c16b3a5d12
+R 12d2eaaa11794ea7d88352f61697b76f
 U drh
-Z c826bed11c0c9fe1c80b9a586d105d19
+Z 5c6042d41bea4179d13c5171d0e5dfc9
