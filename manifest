@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\sunversioned\sfiles\sstored\sin\sthe\srepository.
-D 2016-08-17T15:42:05.452
+C For\sthe\s"query\s-nocomplain"\sTH1\scommand,\smake\ssure\sthe\sSQLite\slog\sdoes\snot\nadd\serror\smessages\sto\sthe\soutput.
+D 2016-08-17T15:56:16.587
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -443,7 +443,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 0cece71ba7a39eed5134056cb608a87121bf6101
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
-F src/main.c d7e60dad99f6a5710ec6265cebeb538014c24fb7
+F src/main.c 6c99bae251d250130cf8c5dc851b660c7d49c85b
 F src/main.mk 92218192e16d259e862839cb781c6f80d56e0418
 F src/makeheaders.c e8444028f575e84075e46cf47f2080fa6d2c2115
 F src/makeheaders.html 06decb89c665feb897540613d7d12527eb65dfe5
@@ -494,7 +494,7 @@ F src/tar.c 3d8ec6d43a730d3bfdf73fc86bff84587a0bab57
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
-F src/th_main.c 41f93f45c1ec178ee054ab577f203f4fee79ddad
+F src/th_main.c 90af83efb8025dbb8f04133fa9ca13563579c223
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
 F src/timeline.c f851733577eb5df0182045dbcd371b3d04c62e94
 F src/tkt.c 0d7059f823642ea6c26c07081ee94b6cbb663408
@@ -755,8 +755,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c8289bdce4b10243397a847979ce37f1cc0e4fdf 83c7571f2840122985a90f9de0ef1e68a5b61743
-R 12d2eaaa11794ea7d88352f61697b76f
-T +closed 83c7571f2840122985a90f9de0ef1e68a5b61743
+P 27d743e7083578210e7284300682d2334f221886
+R d15d80c236bd08122a3cc1a4ed315d78
 U drh
-Z c7e23883fb4f92304b23bd1211b89105
+Z f8ac2914efaff91893389be1dd915cd7

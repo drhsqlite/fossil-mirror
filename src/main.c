@@ -131,6 +131,7 @@ struct Global {
   sqlite3 *dbConfig;      /* Separate connection for global_config table */
   char *zAuxSchema;       /* Main repository aux-schema */
   int useAttach;          /* True if global_config is attached to repository */
+  int dbIgnoreErrors;     /* Ignore database errors if true */
   const char *zConfigDbName;/* Path of the config database. NULL if not open */
   sqlite3_int64 now;      /* Seconds since 1970 */
   int repositoryOpen;     /* True if the main repository database is open */
@@ -561,6 +562,7 @@ static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
   if( iCode==SQLITE_WARNING ) return;
 #endif
   if( iCode==SQLITE_SCHEMA ) return;
+  if( g.dbIgnoreErrors ) return;
   fossil_warning("%s: %s", fossil_sqlite_return_code_name(iCode), zErrmsg);
 }
 

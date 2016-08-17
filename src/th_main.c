@@ -1430,6 +1430,18 @@ static int randhexCmd(
 }
 
 /*
+** Run sqlite3_step() while suppressing error messages sent to the
+** rendered webpage or to the console.
+*/
+static int ignore_errors_step(sqlite3_stmt *pStmt){
+  int rc;
+  g.dbIgnoreErrors++;
+  rc = sqlite3_step(pStmt);
+  g.dbIgnoreErrors--;
+  return rc;
+}
+
+/*
 ** TH1 command: query [-nocomplain] SQL CODE
 **
 ** Run the SQL query given by the SQL argument.  For each row in the result
@@ -1476,7 +1488,9 @@ static int queryCmd(
   while( res==TH_OK && nSql>0 ){
     zErr = 0;
     sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)&zErr);
+    g.dbIgnoreErrors++;
     rc = sqlite3_prepare_v2(g.db, argv[1], argl[1], &pStmt, &zTail);
+    g.dbIgnoreErrors--;
     sqlite3_set_authorizer(g.db, 0, 0);
     if( rc!=0 || zErr!=0 ){
       if( noComplain ) return TH_OK;
@@ -1499,7 +1513,7 @@ static int queryCmd(
         sqlite3_bind_text(pStmt, i, zVal, nVal, SQLITE_TRANSIENT);
       }
     }
-    while( res==TH_OK && sqlite3_step(pStmt)==SQLITE_ROW ){
+    while( res==TH_OK && ignore_errors_step(pStmt)==SQLITE_ROW ){
       int nCol = sqlite3_column_count(pStmt);
       for(i=0; i<nCol; i++){
         const char *zCol = sqlite3_column_name(pStmt, i);
