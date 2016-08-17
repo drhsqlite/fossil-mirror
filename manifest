@@ -1,5 +1,5 @@
-C Limit\sthe\samount\sof\sunversioned\scontent\ssent\swith\seach\sHTTP\srequest.\s\sAlso:\nfix\sup\ssource\scode\slines\sin\sxfer.c\sto\sbe\sless\sthan\s80\scharacters\slong.
-D 2016-08-17T13:37:43.874
+C Update\sthe\ssync\sprotocol\sdocumentation\sto\sdescribe\sthe\sunversioned\sfile\nsync.
+D 2016-08-17T14:40:18.335
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -745,7 +745,7 @@ F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki e6c82bd6579f755896c47b22dbab18e27b1f5bc4
 F www/style.wiki da3a414d4c57c3da2636daf0baf6964ba72ce70b
-F www/sync.wiki cea4a416d05df435f107842216ef79f0cc0b2726
+F www/sync.wiki c4ec0b4a2419d09fe4c318010468a69d41e306a9
 F www/tech_overview.wiki 4d74d28dfc2515d7864c4ecbf7324be9919e3efd
 F www/th1.md cce5b4ec03727680ec48dede21bb6aa82931d7c2
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
@@ -755,7 +755,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0480400c39ac71f2ab155f885e0ab8c9dd1a7ae6
-R b3aaa88c7d44c0b4a29298aa4ab45977
+P faa73ae0c4a82af20e48134750dddf21ae37859e
+R c6e0aef59a34135f01ba5e233640a002
 U drh
-Z fddcdfc656a4ab8b1a89a7f70fe8f8f5
+Z c826bed11c0c9fe1c80b9a586d105d19
