@@ -143,9 +143,6 @@ static void process_sync_args(
       *pSyncFlags |= SYNC_RESYNC;
     }
   }
-  if( find_option("uv",0,0)!=0 ){
-    *pSyncFlags |= SYNC_UNVERSIONED;
-  }
   if( find_option("private",0,0)!=0 ){
     *pSyncFlags |= SYNC_PRIVATE;
   }
@@ -301,6 +298,7 @@ void push_cmd(void){
 **   -R|--repository REPO       Repository to pull into
 **   --ssl-identity FILE        Local SSL credentials, if requested by remote
 **   --ssh-command SSH          Use SSH as the "ssh" command
+**   -u|--unversioned           Also sync unversioned content
 **   -v|--verbose               Additional (debugging) output
 **   --verily                   Exchange extra information with the remote
 **                              to ensure no content is overlooked
@@ -310,6 +308,9 @@ void push_cmd(void){
 void sync_cmd(void){
   unsigned configFlags = 0;
   unsigned syncFlags = SYNC_PUSH|SYNC_PULL;
+  if( find_option("unversioned","u",0)!=0 ){
+    syncFlags |= SYNC_UNVERSIONED;
+  }
   process_sync_args(&configFlags, &syncFlags, 0);
 
   /* We should be done with options.. */
@@ -323,11 +324,12 @@ void sync_cmd(void){
 }
 
 /*
-** Handle the "fossil unversioned sync" command.
+** Handle the "fossil unversioned sync" and "fossil unversioned revert"
+** commands.
 */
-void sync_unversioned(void){
+void sync_unversioned(unsigned syncFlags){
   unsigned configFlags = 0;
-  unsigned syncFlags = SYNC_UNVERSIONED;
+  (void)find_option("uv-noop",0,0);
   process_sync_args(&configFlags, &syncFlags, 1);
   verify_all_options();
   client_sync(syncFlags, 0, 0);

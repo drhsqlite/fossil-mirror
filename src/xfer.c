@@ -1646,14 +1646,15 @@ static const char zBriefFormat[] =
 /*
 ** Flag options for controlling client_sync()
 */
-#define SYNC_PUSH           0x0001
-#define SYNC_PULL           0x0002
-#define SYNC_CLONE          0x0004
-#define SYNC_PRIVATE        0x0008
-#define SYNC_VERBOSE        0x0010
-#define SYNC_RESYNC         0x0020
-#define SYNC_UNVERSIONED    0x0040
-#define SYNC_FROMPARENT     0x0080
+#define SYNC_PUSH           0x0001    /* push content client to server */
+#define SYNC_PULL           0x0002    /* pull content server to client */
+#define SYNC_CLONE          0x0004    /* clone the repository */
+#define SYNC_PRIVATE        0x0008    /* Also transfer private content */
+#define SYNC_VERBOSE        0x0010    /* Extra diagnostics */
+#define SYNC_RESYNC         0x0020    /* --verily */
+#define SYNC_UNVERSIONED    0x0040    /* Sync unversioned content */
+#define SYNC_UV_REVERT      0x0080    /* Copy server unversioned to client */
+#define SYNC_FROMPARENT     0x0100    /* Pull from the parent project */
 #endif
 
 /*
@@ -1751,7 +1752,7 @@ int client_sync(
   /* When syncing unversioned files, create a TEMP table in which to store
   ** the names of files that do not need to be sent from client to server.
   */
-  if( syncFlags & SYNC_UNVERSIONED ){
+  if( (syncFlags & SYNC_UNVERSIONED)!=0 ){
     db_multi_exec(
        "CREATE TEMP TABLE uv_tosend("
        "  name TEXT PRIMARY KEY,"
@@ -1879,23 +1880,38 @@ int client_sync(
 
     /* Send unversioned files present here on the client but missing or
     ** obsolete on the server.
+    **
+    ** Or, if the SYNC_UV_REVERT flag is set, delete the local unversioned
+    ** files that do not exist on the server.
     */
     if( uvDoPush ){
-      Stmt uvq;
-      int rc = SQLITE_OK;
       assert( (syncFlags & SYNC_UNVERSIONED)!=0 );
       assert( uvStatus==2 );
-      db_prepare(&uvq, "SELECT name, mtimeOnly FROM uv_tosend");
-      while( (rc = db_step(&uvq))==SQLITE_ROW ){
-        const char *zName = db_column_text(&uvq, 0);
-        send_unversioned_file(&xfer, zName, db_column_int(&uvq,1));
-        nCardSent++;
-        nArtifactSent++;
-        db_multi_exec("DELETE FROM uv_tosend WHERE name=%Q", zName);
-        if( blob_size(xfer.pOut)>xfer.mxSend ) break;
+      if( syncFlags & SYNC_UV_REVERT ){
+        db_multi_exec(
+          "DELETE FROM unversioned"
+          " WHERE name IN (SELECT name FROM uv_tosend);"
+          "DELETE FROM uv_tosend;"
+        );
+        uvDoPush = 0;
+      }else{
+        Stmt uvq;
+        int rc = SQLITE_OK;
+        db_prepare(&uvq, "SELECT name, mtimeOnly FROM uv_tosend");
+        while( (rc = db_step(&uvq))==SQLITE_ROW ){
+          const char *zName = db_column_text(&uvq, 0);
+          send_unversioned_file(&xfer, zName, db_column_int(&uvq,1));
+          nCardSent++;
+          nArtifactSent++;
+          db_multi_exec("DELETE FROM uv_tosend WHERE name=%Q", zName);
+          if( syncFlags & SYNC_VERBOSE ){
+            fossil_print("\rUnversioned-file sent: %s\n", zName);
+          }
+          if( blob_size(xfer.pOut)>xfer.mxSend ) break;
+        }
+        db_finalize(&uvq);
+        if( rc==SQLITE_DONE ) uvDoPush = 0;
       }
-      db_finalize(&uvq);
-      if( rc==SQLITE_DONE ) uvDoPush = 0;
     }
 
     /* Append randomness to the end of the message.  This makes all
@@ -2018,6 +2034,10 @@ int client_sync(
         xfer_accept_unversioned_file(&xfer, 1);
         nArtifactRcvd++;
         nUvFileRcvd++;
+        if( syncFlags & SYNC_VERBOSE ){
+          fossil_print("\rUnversioned-file received: %s\n",
+                       blob_str(&xfer.aToken[1]));
+        }
       }else
 
       /*   gimme UUID
@@ -2091,6 +2111,7 @@ int client_sync(
         int iStatus;
         if( uvStatus==0 ) uvStatus = 2;
         iStatus = unversioned_status(zName, mtime, zHash);
+        if( (syncFlags & SYNC_UV_REVERT)!=0 && iStatus==4 ) iStatus = 2;
         if( iStatus<=1 ){
           if( zHash[0]!='-' ){
             blob_appendf(xfer.pOut, "uvgimme %s\n", zName);
@@ -2231,6 +2252,7 @@ int client_sync(
         */
         if( blob_eq(&xfer.aToken[1], "uv-pull-only") ){
           uvStatus = 1;
+          if( syncFlags & SYNC_UV_REVERT ) uvDoPush = 1;
         }else if( blob_eq(&xfer.aToken[1], "uv-push-ok") ){
           uvStatus = 2;
           uvDoPush = 1;

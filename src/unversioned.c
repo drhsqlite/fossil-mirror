@@ -311,7 +311,9 @@ void unversioned_cmd(void){
     }
     db_finalize(&q);
   }else if( memcmp(zCmd, "revert", nCmd)==0 ){
-    fossil_fatal("not yet implemented...");
+    g.argv[1] = "sync";
+    g.argv[2] = "--uv-noop";
+    sync_unversioned(SYNC_UNVERSIONED|SYNC_UV_REVERT);
   }else if( memcmp(zCmd, "rm", nCmd)==0 ){
     int i;
     verify_all_options();
@@ -327,8 +329,8 @@ void unversioned_cmd(void){
     db_end_transaction(0);
   }else if( memcmp(zCmd,"sync",nCmd)==0 ){
     g.argv[1] = "sync";
-    g.argv[2] = "--uv";
-    sync_unversioned();
+    g.argv[2] = "--uv-noop";
+    sync_unversioned(SYNC_UNVERSIONED);
   }else if( memcmp(zCmd, "touch", nCmd)==0 ){
     int i;
     verify_all_options();
