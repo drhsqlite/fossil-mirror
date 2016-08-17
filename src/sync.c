@@ -115,7 +115,11 @@ int autosync_loop(int flags, int nTries, int doPrompt){
 ** of a server to sync against.  If no argument is given, use the
 ** most recently synced URL.  Remember the current URL for next time.
 */
-static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
+static void process_sync_args(
+  unsigned *pConfigFlags,      /* Write configuration flags here */
+  unsigned *pSyncFlags,        /* Write sync flags here */
+  int uvOnly                   /* Special handling flags for UV sync */
+){
   const char *zUrl = 0;
   const char *zHttpAuth = 0;
   unsigned configSync = 0;
@@ -128,21 +132,29 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
   zHttpAuth = find_option("httpauth","B",1);
   if( find_option("once",0,0)!=0 ) urlFlags &= ~URL_REMEMBER;
   if( (*pSyncFlags) & SYNC_FROMPARENT ) urlFlags &= ~URL_REMEMBER;
+  if( !uvOnly ){
+    if( find_option("private",0,0)!=0 ){
+      *pSyncFlags |= SYNC_PRIVATE;
+    }
+    /* The --verily option to sync, push, and pull forces extra igot cards
+    ** to be exchanged.  This can overcome malfunctions in the sync protocol.
+    */
+    if( find_option("verily",0,0)!=0 ){
+      *pSyncFlags |= SYNC_RESYNC;
+    }
+  }
+  if( find_option("uv",0,0)!=0 ){
+    *pSyncFlags |= SYNC_UNVERSIONED;
+  }
   if( find_option("private",0,0)!=0 ){
     *pSyncFlags |= SYNC_PRIVATE;
   }
   if( find_option("verbose","v",0)!=0 ){
     *pSyncFlags |= SYNC_VERBOSE;
   }
-  /* The --verily option to sync, push, and pull forces extra igot cards
-  ** to be exchanged.  This can overcome malfunctions in the sync protocol.
-  */
-  if( find_option("verily",0,0)!=0 ){
-    *pSyncFlags |= SYNC_RESYNC;
-  }
   url_proxy_options();
   clone_ssh_find_options();
-  db_find_and_open_repository(0, 0);
+  if( !uvOnly ) db_find_and_open_repository(0, 0);
   db_open_config(0, 0);
   if( g.argc==2 ){
     if( db_get_boolean("auto-shun",1) ) configSync = CONFIGSET_SHUN;
@@ -211,7 +223,7 @@ void pull_cmd(void){
   if( find_option("from-parent-project",0,0)!=0 ){
     syncFlags |= SYNC_FROMPARENT;
   }
-  process_sync_args(&configFlags, &syncFlags);
+  process_sync_args(&configFlags, &syncFlags, 0);
 
   /* We should be done with options.. */
   verify_all_options();
@@ -253,7 +265,7 @@ void pull_cmd(void){
 void push_cmd(void){
   unsigned configFlags = 0;
   unsigned syncFlags = SYNC_PUSH;
-  process_sync_args(&configFlags, &syncFlags);
+  process_sync_args(&configFlags, &syncFlags, 0);
 
   /* We should be done with options.. */
   verify_all_options();
@@ -298,7 +310,7 @@ void push_cmd(void){
 void sync_cmd(void){
   unsigned configFlags = 0;
   unsigned syncFlags = SYNC_PUSH|SYNC_PULL;
-  process_sync_args(&configFlags, &syncFlags);
+  process_sync_args(&configFlags, &syncFlags, 0);
 
   /* We should be done with options.. */
   verify_all_options();
@@ -308,6 +320,17 @@ void sync_cmd(void){
   if( (syncFlags & SYNC_PUSH)==0 ){
     fossil_warning("pull only: the 'dont-push' option is set");
   }
+}
+
+/*
+** Handle the "fossil unversioned sync" command.
+*/
+void sync_unversioned(void){
+  unsigned configFlags = 0;
+  unsigned syncFlags = SYNC_UNVERSIONED;
+  process_sync_args(&configFlags, &syncFlags, 1);
+  verify_all_options();
+  client_sync(syncFlags, 0, 0);
 }
 
 /*

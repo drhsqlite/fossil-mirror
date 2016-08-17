@@ -123,6 +123,27 @@ void stat_page(void){
       @ %d(a):%d(b)
       @ </td></tr>
     }
+    if( db_table_exists("repository","unversioned") ){
+      Stmt q;
+      char zStored[100];
+      db_prepare(&q,
+        "SELECT count(*), sum(sz), sum(length(content))"
+        "  FROM unversioned"
+        " WHERE length(hash)>1"
+      );
+      if( db_step(&q)==SQLITE_ROW && (n = db_column_int(&q,0))>0 ){
+        sqlite3_int64 iSz, iStored;
+        iSz = db_column_int64(&q,1);
+        iStored = db_column_int64(&q,2);
+        approxSizeName(sizeof(zBuf), zBuf, iSz);
+        approxSizeName(sizeof(zStored), zStored, iStored);
+        @ <tr><th>Unversioned&nbsp;Files:</th><td>
+        @ %z(href("%R/uvlist"))%d(n) files</a>,
+        @ total size %s(zBuf) uncompressed, %s(zStored) compressed
+        @ </td></tr>
+      }
+      db_finalize(&q);
+    }
     @ <tr><th>Number&nbsp;Of&nbsp;Check-ins:</th><td>
     n = db_int(0, "SELECT count(*) FROM event WHERE type='ci' /*scan*/");
     @ %d(n)
