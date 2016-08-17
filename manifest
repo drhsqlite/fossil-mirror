@@ -1,5 +1,5 @@
-C Do\snot\sshow\sa\sblank\stable\son\sthe\s/uvlist\spage\sif\sthe\sserver\scontains\sno\nunversioned\sfiles.\s\sInstead\sshow\sa\smessage\sexplaining\sthat\sno\sunversioned\nfiles\sare\spresent.
-D 2016-08-17T09:57:09.396
+C The\sadmin\sand\ssetup\susers\sautomatically\sget\sthe\swrite-unversioned\s('y')\npermission.
+D 2016-08-17T11:53:14.696
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -441,7 +441,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c 9c1a8a9a1d33f79191cb5a104067201a8cee6de1
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c 5458c3b2877efb97847eeb025919209dbb21ef3e
+F src/login.c 0cece71ba7a39eed5134056cb608a87121bf6101
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
 F src/main.c d7e60dad99f6a5710ec6265cebeb538014c24fb7
 F src/main.mk 92218192e16d259e862839cb781c6f80d56e0418
@@ -755,7 +755,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 52860aa6ab27dc1a7595e8033006fda8e288dfed
-R 10c4c6a88697aaf46b27d09662a284ed
+P 49007ecedf53f21971951d1f95bfbb77cb8b601f
+R a4adc001342e8faa44927f4d4bb83242
 U drh
-Z 56e14a2f2965c3a12e391d3708ac4f59
+Z 6f94d5e010800491459ee84b516c227c

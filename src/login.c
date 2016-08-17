@@ -1097,7 +1097,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
                              p->NewTkt = p->Password = p->RdAddr =
                              p->TktFmt = p->Attach = p->ApndTkt =
                              p->ModWiki = p->ModTkt = p->Delete =
-                             p->Private = 1;
+                             p->WrUnver = p->Private = 1;
                              /* Fall thru into Read/Write */
       case 'i':   p->Read = p->Write = 1;                      break;
       case 'o':   p->Read = 1;                                 break;
