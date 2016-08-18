@@ -1753,6 +1753,7 @@ int client_sync(
   ** the names of files that do not need to be sent from client to server.
   */
   if( (syncFlags & SYNC_UNVERSIONED)!=0 ){
+    unversioned_schema();
     db_multi_exec(
        "CREATE TEMP TABLE uv_tosend("
        "  name TEXT PRIMARY KEY,"
@@ -2359,10 +2360,6 @@ int client_sync(
       go = 1;
     }
 
-    /* Continue looping as long as new uvfile cards are being received
-    ** and uvgimme cards are being sent. */
-    if( nUvGimmeSent>0 && nUvFileRcvd>0 ) go = 1;
-
     /* If this is a clone, the go at least two rounds */
     if( (syncFlags & SYNC_CLONE)!=0 && nCycle==1 ) go = 1;
 
@@ -2372,6 +2369,11 @@ int client_sync(
     ** information which is only sent on the second round.
     */
     if( cloneSeqno<=0 && nCycle>1 ) go = 0;
+
+    /* Continue looping as long as new uvfile cards are being received
+    ** and uvgimme cards are being sent. */
+    if( nUvGimmeSent>0 && nUvFileRcvd>0 ) go = 1;
+
     db_multi_exec("DROP TABLE onremote");
     if( go ){
       manifest_crosslink_end(MC_PERMIT_HOOKS);

@@ -1,5 +1,5 @@
-C Fix\stypos\sin\sthe\ssync\sdocumentation.
-D 2016-08-18T11:16:18.782
+C Fix\sthe\s"fossil\srebuild"\scommand\sso\sthat\sit\sno\slonger\strashes\sthe\sunversioned\ncontent.\s\sAdd\sthe\s-u\soption\sto\s"fossil\sclone"\sto\sretrieve\sunversioned\scontent\nduring\sthe\sclone.
+D 2016-08-18T12:33:51.798
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -387,7 +387,7 @@ F src/cgi.c 10310d276e72e3e34343e3385c0b39fac5cd826e
 F src/checkin.c 45fb4e981e5ad1ccd2a53c46aa36bd2dfcf5309c
 F src/checkout.c 6a0d559bdd0d825d83beabd7b00a2d57d878b253
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
-F src/clone.c 6d7b354e7807d7bc3333b6d33232605c171de135
+F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
 F src/codecheck1.c bf92e19b6a521f947c07960aae3f2aa9a21e4c42
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
 F src/config.h b91f4223f2653503759e1205343db9f94d134973
@@ -469,7 +469,7 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 2de9ca8ea140e35da05eafeb6a447a2fd4069438
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c 74469f4e5ae2137b72e5e84ad66dd7f28ba4c1a6
-F src/rebuild.c a7e68fcaaefd99f01bc2b3c9a347fcadb0eec867
+F src/rebuild.c 517bb76c3345dd611d83ec342c6b5ab3492e91a2
 F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c edb0630f05a707cfeb824eebe70edafee322106f
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
@@ -515,7 +515,7 @@ F src/wikiformat.c 1d750982147d9c51fa40e89e40241a33408adaf6
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c 7e4c82fc91fe89b81ef4ae399944b8f035fe6789
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c 646f90797902e2d41634f18f58002a5d48879ad7
+F src/xfer.c 0db65439d0ff161782cf29a0b9e6c26ea1cc301c
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 4ff5fff5dba38f7b514db1194a69a6f634be6a34
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -755,7 +755,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a2730fea395dd1a72d1cc3ac98ddd49f4173e97b
-R 6d573be1a7f804be306163aa4ccbb744
+P d3dabbb08c67750a6e2d2f58e360b986d215d49a
+R 0efd5612739c975b58628932b3084cb8
 U drh
-Z 5bd6fc78ce5f86339608ec777cab16ef
+Z 5fe7002d24763eef3e42ae9d0a29172a

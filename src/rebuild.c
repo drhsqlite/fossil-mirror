@@ -351,7 +351,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
        " AND name NOT IN ('admin_log', 'blob','delta','rcvfrom','user',"
                          "'config','shun','private','reportfmt',"
                          "'concealed','accesslog','modreq',"
-                         "'purgeevent','purgeitem')"
+                         "'purgeevent','purgeitem','unversioned')"
        " AND name NOT GLOB 'sqlite_*'"
        " AND name NOT GLOB 'fx_*'"
     );
