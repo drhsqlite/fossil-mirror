@@ -1007,13 +1007,14 @@ void login_check_credentials(void){
 
   /* Set the capabilities */
   login_replace_capabilities(zCap, 0);
-  login_set_anon_nobody_capabilities();
 
   /* The auto-hyperlink setting allows hyperlinks to be displayed for users
   ** who do not have the "h" permission as long as their UserAgent string
   ** makes it appear that they are human.  Check to see if auto-hyperlink is
   ** enabled for this repository and make appropriate adjustments to the
-  ** permission flags if it is.
+  ** permission flags if it is.  This should be done before the permissions
+  ** are (potentially) copied to the anonymous permission set; otherwise,
+  ** those will be out-of-sync.
   */
   if( zCap[0]
    && !g.perm.Hyperlink
@@ -1023,6 +1024,16 @@ void login_check_credentials(void){
     g.perm.Hyperlink = 1;
     g.javascriptHyperlink = 1;
   }
+
+  /*
+  ** At this point, the capabilities for the logged in user are not going
+  ** to be modified anymore; therefore, we can copy them over to the ones
+  ** for the anonymous user.
+  **
+  ** WARNING: In the future, please do not add code after this point that
+  **          modifies the capabilities for the logged in user.
+  */
+  login_set_anon_nobody_capabilities();
 
   /* If the public-pages glob pattern is defined and REQUEST_URI matches
   ** one of the globs in public-pages, then also add in all default-perms

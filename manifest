@@ -1,5 +1,5 @@
-C When\stracing\sthe\s'anoncap'\sor\s'hascap'\scommands,\swhich\sshare\san\simplementation,\sshow\swhich\sone\sis\sbeing\straced.
-D 2016-08-18T02:54:01.322
+C Make\ssure\sauto-hyperlink\sworks\sfor\sanonymous.
+D 2016-08-18T11:03:36.357
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -441,7 +441,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c 9c1a8a9a1d33f79191cb5a104067201a8cee6de1
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c 60568dacff001c28ded53cfcc89e5c098ca23293
+F src/login.c 10e0e9b74cb44408807cb9a8910ca6ec72b11f35
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
 F src/main.c 5239fa68a3745a636226bc1f940e85b76acffb5c
 F src/main.mk 92218192e16d259e862839cb781c6f80d56e0418
@@ -755,7 +755,8 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 901f18393d1d9e75ce35262780f9eaeb27ebd85e
-R 4c4c7e0896472534c47d64792c4ce9d5
-U mistachkin
-Z d3ed54138cf6947e2d805499e372c6f2
+P 9066bf13717c56e86a59a2d3d905f2e753e5bc69 ae36cd66ae7f1370786b0206a83fbbc80b5f020b
+R b0d92d53b5a4e6c78ebb59f6f4954e78
+T +closed ae36cd66ae7f1370786b0206a83fbbc80b5f020b
+U drh
+Z 4088e5f51526db817af12f553f97fdc4
