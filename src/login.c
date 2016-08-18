@@ -1196,7 +1196,7 @@ int login_has_capability(const char *zCap, int nCap, u32 flgs){
       /* case 'v': DEVELOPER */
       case 'w':  rc = p->WrTkt;     break;
       case 'x':  rc = p->Private;   break;
-      /* case 'y': */
+      case 'y':  rc = p->WrUnver;   break;
       case 'z':  rc = p->Zip;       break;
       default:   rc = 0;            break;
     }

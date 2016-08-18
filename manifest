@@ -1,5 +1,5 @@
-C Update\scustom\sMinGW\smakefile.
-D 2016-08-18T01:01:17.159
+C Correct\schecking\sfor\sthe\snew\s'y'\spermission\s(write\sunversioned\sfiles).
+D 2016-08-18T01:40:48.054
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -441,7 +441,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c 9c1a8a9a1d33f79191cb5a104067201a8cee6de1
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c 0cece71ba7a39eed5134056cb608a87121bf6101
+F src/login.c 60568dacff001c28ded53cfcc89e5c098ca23293
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
 F src/main.c 6c99bae251d250130cf8c5dc851b660c7d49c85b
 F src/main.mk 92218192e16d259e862839cb781c6f80d56e0418
@@ -755,7 +755,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c18f23190a109b580b55ceb31239f7871013e415
-R 16fe4af086d453af6154d0c0289d4551
+P 638536e94e6ae978cd3d48c42adc7b2bd75486af
+R 9b440decc7025f410e27af9f98dd12ce
 U mistachkin
-Z 94c8769d33733eb9102ff77b1c7628d8
+Z 75c6597b94009205c43f351dd62fd716
