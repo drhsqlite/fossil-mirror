@@ -573,11 +573,26 @@ foreach perm [list a b c d e f g h i j k l m n o p q r s t u v w x y z] {
     fossil test-th-eval --set-user-caps "anycap $perm"
     test th1-anycap-yes-$perm-1 {$RESULT eq {1}}
 
+    set ::env(TH1_TEST_USER_CAPS) 1; # NOTE: Bad permission.
+    fossil test-th-eval --set-user-caps "anycap $perm"
+    test th1-anycap-no-$perm-1 {$RESULT eq {0}}
+    unset ::env(TH1_TEST_USER_CAPS)
+
     fossil test-th-eval --set-user-caps "hascap $perm"
     test th1-hascap-yes-$perm-1 {$RESULT eq {1}}
 
+    set ::env(TH1_TEST_USER_CAPS) 1; # NOTE: Bad permission.
+    fossil test-th-eval --set-user-caps "hascap $perm"
+    test th1-hascap-no-$perm-1 {$RESULT eq {0}}
+    unset ::env(TH1_TEST_USER_CAPS)
+
     fossil test-th-eval --set-anon-caps "anoncap $perm"
     test th1-anoncap-yes-$perm-1 {$RESULT eq {1}}
+
+    set ::env(TH1_TEST_ANON_CAPS) 1; # NOTE: Bad permission.
+    fossil test-th-eval --set-anon-caps "anoncap $perm"
+    test th1-anoncap-no-$perm-1 {$RESULT eq {0}}
+    unset ::env(TH1_TEST_ANON_CAPS)
   }
 }
 
@@ -612,17 +627,42 @@ run_in_checkout {
   fossil test-th-eval --set-user-caps "anycap oh"
   test th1-anycap-yes-multiple-1 {$RESULT eq {1}}
 
+  set ::env(TH1_TEST_USER_CAPS) o
+  fossil test-th-eval --set-user-caps "anycap oh"
+  test th1-anycap-yes-multiple-2 {$RESULT eq {1}}
+  unset ::env(TH1_TEST_USER_CAPS)
+
   fossil test-th-eval --set-user-caps "hascap oh"
   test th1-hascap-yes-multiple-1 {$RESULT eq {1}}
+
+  set ::env(TH1_TEST_USER_CAPS) o
+  fossil test-th-eval --set-user-caps "hascap oh"
+  test th1-hascap-no-multiple-3 {$RESULT eq {0}}
+  unset ::env(TH1_TEST_USER_CAPS)
 
   fossil test-th-eval --set-user-caps "hascap o h"
   test th1-hascap-yes-multiple-2 {$RESULT eq {1}}
 
+  set ::env(TH1_TEST_USER_CAPS) o
+  fossil test-th-eval --set-user-caps "hascap o h"
+  test th1-hascap-no-multiple-4 {$RESULT eq {0}}
+  unset ::env(TH1_TEST_USER_CAPS)
+
   fossil test-th-eval --set-anon-caps "anoncap oh"
   test th1-anoncap-yes-multiple-1 {$RESULT eq {1}}
 
+  set ::env(TH1_TEST_ANON_CAPS) o
+  fossil test-th-eval --set-anon-caps "anoncap oh"
+  test th1-anoncap-no-multiple-3 {$RESULT eq {0}}
+  unset ::env(TH1_TEST_ANON_CAPS)
+
   fossil test-th-eval --set-anon-caps "anoncap o h"
   test th1-anoncap-yes-multiple-2 {$RESULT eq {1}}
+
+  set ::env(TH1_TEST_ANON_CAPS) o
+  fossil test-th-eval --set-anon-caps "anoncap o h"
+  test th1-anoncap-no-multiple-4 {$RESULT eq {0}}
+  unset ::env(TH1_TEST_ANON_CAPS)
 }
 
 ###############################################################################

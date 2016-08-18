@@ -2403,11 +2403,13 @@ void test_th_render(void){
     Th_OpenConfig(1);
   }
   if( find_option("set-anon-caps", 0, 0)!=0 ){
-    login_set_capabilities("sx", LOGIN_ANON);
+    const char *zCap = fossil_getenv("TH1_TEST_ANON_CAPS");
+    login_set_capabilities(zCap ? zCap : "sx", LOGIN_ANON);
     g.useLocalauth = 1;
   }
   if( find_option("set-user-caps", 0, 0)!=0 ){
-    login_set_capabilities("sx", 0);
+    const char *zCap = fossil_getenv("TH1_TEST_USER_CAPS");
+    login_set_capabilities(zCap ? zCap : "sx", 0);
     g.useLocalauth = 1;
   }
   verify_all_options();
@@ -2451,11 +2453,13 @@ void test_th_eval(void){
     Th_OpenConfig(1);
   }
   if( find_option("set-anon-caps", 0, 0)!=0 ){
-    login_set_capabilities("sx", LOGIN_ANON);
+    const char *zCap = fossil_getenv("TH1_TEST_ANON_CAPS");
+    login_set_capabilities(zCap ? zCap : "sx", LOGIN_ANON);
     g.useLocalauth = 1;
   }
   if( find_option("set-user-caps", 0, 0)!=0 ){
-    login_set_capabilities("sx", 0);
+    const char *zCap = fossil_getenv("TH1_TEST_USER_CAPS");
+    login_set_capabilities(zCap ? zCap : "sx", 0);
     g.useLocalauth = 1;
   }
   verify_all_options();
@@ -2502,11 +2506,13 @@ void test_th_source(void){
     Th_OpenConfig(1);
   }
   if( find_option("set-anon-caps", 0, 0)!=0 ){
-    login_set_capabilities("sx", LOGIN_ANON);
+    const char *zCap = fossil_getenv("TH1_TEST_ANON_CAPS");
+    login_set_capabilities(zCap ? zCap : "sx", LOGIN_ANON);
     g.useLocalauth = 1;
   }
   if( find_option("set-user-caps", 0, 0)!=0 ){
-    login_set_capabilities("sx", 0);
+    const char *zCap = fossil_getenv("TH1_TEST_USER_CAPS");
+    login_set_capabilities(zCap ? zCap : "sx", 0);
     g.useLocalauth = 1;
   }
   verify_all_options();
