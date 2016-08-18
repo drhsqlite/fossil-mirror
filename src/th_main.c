@@ -2387,6 +2387,8 @@ int Th_Render(const char *z){
 **     --cgi                Include a CGI response header in the output
 **     --http               Include an HTTP response header in the output
 **     --open-config        Open the configuration database
+**     --set-anon-caps      Set anonymous login capabilities
+**     --set-user-caps      Set user login capabilities
 **     --th-trace           Trace TH1 execution (for debugging purposes)
 */
 void test_th_render(void){
@@ -2399,6 +2401,14 @@ void test_th_render(void){
   if( forceCgi ) Th_ForceCgi(fullHttpReply);
   if( find_option("open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
+  }
+  if( find_option("set-anon-caps", 0, 0)!=0 ){
+    login_set_capabilities("sx", LOGIN_ANON);
+    g.useLocalauth = 1;
+  }
+  if( find_option("set-user-caps", 0, 0)!=0 ){
+    login_set_capabilities("sx", 0);
+    g.useLocalauth = 1;
   }
   verify_all_options();
   if( g.argc<3 ){
@@ -2424,6 +2434,8 @@ void test_th_render(void){
 **     --cgi                Include a CGI response header in the output
 **     --http               Include an HTTP response header in the output
 **     --open-config        Open the configuration database
+**     --set-anon-caps      Set anonymous login capabilities
+**     --set-user-caps      Set user login capabilities
 **     --th-trace           Trace TH1 execution (for debugging purposes)
 */
 void test_th_eval(void){
@@ -2437,6 +2449,14 @@ void test_th_eval(void){
   if( forceCgi ) Th_ForceCgi(fullHttpReply);
   if( find_option("open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
+  }
+  if( find_option("set-anon-caps", 0, 0)!=0 ){
+    login_set_capabilities("sx", LOGIN_ANON);
+    g.useLocalauth = 1;
+  }
+  if( find_option("set-user-caps", 0, 0)!=0 ){
+    login_set_capabilities("sx", 0);
+    g.useLocalauth = 1;
   }
   verify_all_options();
   if( g.argc!=3 ){
@@ -2464,6 +2484,8 @@ void test_th_eval(void){
 **     --cgi                Include a CGI response header in the output
 **     --http               Include an HTTP response header in the output
 **     --open-config        Open the configuration database
+**     --set-anon-caps      Set anonymous login capabilities
+**     --set-user-caps      Set user login capabilities
 **     --th-trace           Trace TH1 execution (for debugging purposes)
 */
 void test_th_source(void){
@@ -2478,6 +2500,14 @@ void test_th_source(void){
   if( forceCgi ) Th_ForceCgi(fullHttpReply);
   if( find_option("open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
+  }
+  if( find_option("set-anon-caps", 0, 0)!=0 ){
+    login_set_capabilities("sx", LOGIN_ANON);
+    g.useLocalauth = 1;
+  }
+  if( find_option("set-user-caps", 0, 0)!=0 ){
+    login_set_capabilities("sx", 0);
+    g.useLocalauth = 1;
   }
   verify_all_options();
   if( g.argc!=3 ){

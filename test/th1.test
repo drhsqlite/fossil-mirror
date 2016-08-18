@@ -556,6 +556,65 @@ test th1-expr-49 {$RESULT eq {TH_ERROR: expected integer, got: "-0x"}}
 
 ###############################################################################
 
+foreach perm [list a b c d e f g h i j k l m n o p q r s t u v w x y z] {
+  if {$perm eq "u"} continue; # NOTE: Skip "reader" meta-permission.
+  if {$perm eq "v"} continue; # NOTE: Skip "developer" meta-permission.
+
+  fossil test-th-eval "anycap $perm"
+  test th1-anycap-no-$perm {$RESULT eq {0}}
+
+  fossil test-th-eval "hascap $perm"
+  test th1-hascap-no-$perm {$RESULT eq {0}}
+
+  fossil test-th-eval "anoncap $perm"
+  test th1-anoncap-no-$perm {$RESULT eq {0}}
+
+  run_in_checkout {
+    fossil test-th-eval --set-user-caps "anycap $perm"
+    test th1-anycap-yes-$perm {$RESULT eq {1}}
+
+    fossil test-th-eval --set-user-caps "hascap $perm"
+    test th1-hascap-yes-$perm {$RESULT eq {1}}
+
+    fossil test-th-eval --set-anon-caps "anoncap $perm"
+    test th1-anoncap-yes-$perm {$RESULT eq {1}}
+  }
+}
+
+fossil test-th-eval "anycap oh"
+test th1-anycap-no-multiple {$RESULT eq {0}}
+
+fossil test-th-eval "hascap oh"
+test th1-hascap-no-multiple1 {$RESULT eq {0}}
+
+fossil test-th-eval "hascap o h"
+test th1-hascap-no-multiple2 {$RESULT eq {0}}
+
+fossil test-th-eval "anoncap oh"
+test th1-anoncap-no-multiple1 {$RESULT eq {0}}
+
+fossil test-th-eval "anoncap o h"
+test th1-anoncap-no-multiple2 {$RESULT eq {0}}
+
+run_in_checkout {
+  fossil test-th-eval --set-user-caps "anycap oh"
+  test th1-anycap-yes-multiple1 {$RESULT eq {1}}
+
+  fossil test-th-eval --set-user-caps "hascap oh"
+  test th1-hascap-yes-multiple1 {$RESULT eq {1}}
+
+  fossil test-th-eval --set-user-caps "hascap o h"
+  test th1-hascap-yes-multiple2 {$RESULT eq {1}}
+
+  fossil test-th-eval --set-anon-caps "anoncap oh"
+  test th1-anoncap-yes-multiple1 {$RESULT eq {1}}
+
+  fossil test-th-eval --set-anon-caps "anoncap o h"
+  test th1-anoncap-yes-multiple2 {$RESULT eq {1}}
+}
+
+###############################################################################
+
 run_in_checkout {
   # NOTE: The "1" here forces the checkout to be opened.
   fossil test-th-eval "checkout 1"
@@ -916,7 +975,7 @@ test th1-reinitialize-2 {$RESULT ne ""}
 
 #
 # NOTE: This test will fail if the command names are added to TH1, or
-#       moved from Tcl builds to plain or the reverse. Sorting the 
+#       moved from Tcl builds to plain or the reverse. Sorting the
 #       command lists eliminates a dependence on order.
 #
 fossil test-th-eval "info commands"
