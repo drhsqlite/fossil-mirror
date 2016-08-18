@@ -7,10 +7,11 @@ development project:
   *  [./bugtheory.wiki | Ticketing and bug tracking]
   *  [./wikitheory.wiki | Wiki]
   *  [./embeddeddoc.wiki | On-line documentation]
-  *  Status information
-  *  Timelines
-  *  Graphs of revision and branching history
   *  [./event.wiki | Technical notes]
+  *  Timelines
+  *  Full text search over all of the above
+  *  Status information
+  *  Graphs of revision and branching history
   *  File and version lists and differences
   *  Download historical versions as ZIP archives
   *  Historical change data
