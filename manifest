@@ -1,5 +1,5 @@
-C Add\sthe\s-u/--unversioned\sflag\sto\sthe\s"fossil\ssync"\scommand.\nImplement\sthe\s"fossil\sunversioned\srevert"\scommand.
-D 2016-08-17T22:19:00.270
+C Update\scustom\sMinGW\smakefile.
+D 2016-08-18T01:01:17.159
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -635,7 +635,7 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F win/Makefile.PellesCGMake 7a28a56f548bfad3f4e6ad2749333c0a0ad95acc
 F win/Makefile.dmc 96033e0d175cd48f61689b66d0618b1a689d9122
 F win/Makefile.mingw e035c5f0e646841431fdbfccfb8729b610851f84
-F win/Makefile.mingw.mistachkin f95b18713581d630fc7e1c6630e3690f31f0d7c4
+F win/Makefile.mingw.mistachkin fb64483fdbcc127a337a3b490ec7e7de849083c8
 F win/Makefile.msc 124482c873428c3e033dfdea0e308d589733725c
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -755,7 +755,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 08e65c2bb1e16c011a9594e2a9626234d9adabe2
-R 931ace62b0cf9a4e84cb7263350957f7
-U drh
-Z 960d06aed2112f923451700b9a781d79
+P c18f23190a109b580b55ceb31239f7871013e415
+R 16fe4af086d453af6154d0c0289d4551
+U mistachkin
+Z 94c8769d33733eb9102ff77b1c7628d8
