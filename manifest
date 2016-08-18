@@ -1,5 +1,5 @@
-C Fix\sthe\s"fossil\srebuild"\scommand\sso\sthat\sit\sno\slonger\strashes\sthe\sunversioned\ncontent.\s\sAdd\sthe\s-u\soption\sto\s"fossil\sclone"\sto\sretrieve\sunversioned\scontent\nduring\sthe\sclone.
-D 2016-08-18T12:33:51.798
+C Add\sdocumentation\son\sunversioned\scontent.
+D 2016-08-18T13:20:05.033
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -722,14 +722,14 @@ F www/fossil_prompt.sh db68e2cae431b9e9f5dd672e2f56e2bde5a57d2a
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
-F www/index.wiki 3fc360452fd46c506e0f0abebee1c666b03e7857
+F www/index.wiki cb23ace3944512d8a033ccfc0efd035e5131aa26
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki 30c7129ffb00c58699b87e84a2c0b696d7c10406
 F www/mkdownload.tcl 5ac61a3e13cecaa67f1e31741113c96cbd41463f
-F www/mkindex.tcl 099154c5414ad7d158d219293ffb11ef33165b86
+F www/mkindex.tcl 740b3e7fee34bf5ee8ecb264bd101f8d4295d763
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
-F www/permutedindex.html 1ec23b0249d39f2a2d924263e5ee297e41b3c1b6
+F www/permutedindex.html 49a5bec3c96eca039019e4612f3e264dda628e03
 F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
 F www/private.wiki 72344489bbae6f7955369559b6ab22e01a64259b
 F www/qandc.wiki e07b21da221b05afeb1905f17af3765045952ba8
@@ -751,11 +751,12 @@ F www/th1.md cce5b4ec03727680ec48dede21bb6aa82931d7c2
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
+F www/unvers.wiki 66e756870708002f84c3d3fb508df75004c08768
 F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d3dabbb08c67750a6e2d2f58e360b986d215d49a
-R 0efd5612739c975b58628932b3084cb8
+P a5d8548f61512c4cba76af5aa31c25d96bf40485
+R fa7a51333a8f1227fc0139521cba9937
 U drh
-Z 5fe7002d24763eef3e42ae9d0a29172a
+Z 10b705b3240daa66c2d4a2a576ae3633
