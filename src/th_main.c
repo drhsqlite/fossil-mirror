@@ -639,14 +639,20 @@ static int hascapCmd(
   int *argl
 ){
   int rc = 1, i;
+  char *zCapList = 0;
+  int nCapList = 0;
   if( argc<2 ){
     return Th_WrongNumArgs(interp, "hascap STRING ...");
   }
   for(i=1; rc==1 && i<argc; i++){
+    if( g.thTrace ){
+      Th_ListAppend(interp, &zCapList, &nCapList, argv[i], argl[i]);
+    }
     rc = login_has_capability((char*)argv[i],argl[i],*(int*)p);
   }
   if( g.thTrace ){
-    Th_Trace("[hascap %#h] => %d<br />\n", argl[1], argv[1], rc);
+    Th_Trace("[hascap %#h] => %d<br />\n", nCapList, zCapList, rc);
+    Th_Free(interp, zCapList);
   }
   Th_SetResultInt(interp, rc);
   return TH_OK;
@@ -880,7 +886,7 @@ static int anycapCmd(
     rc = login_has_capability((char*)&argv[1][i],1,0);
   }
   if( g.thTrace ){
-    Th_Trace("[hascap %#h] => %d<br />\n", argl[1], argv[1], rc);
+    Th_Trace("[anycap %#h] => %d<br />\n", argl[1], argv[1], rc);
   }
   Th_SetResultInt(interp, rc);
   return TH_OK;

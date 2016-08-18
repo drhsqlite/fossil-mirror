@@ -1,5 +1,5 @@
-C Make\sthe\s'--th-trace'\soption\swork\sproperly\son\sWindows.
-D 2016-08-18T02:45:49.094
+C Correct\sTH1\stracing\srelated\sto\sthe\s'hascap'\sand\s'anycap'\sTH1\scommands.
+D 2016-08-18T02:51:27.665
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -494,7 +494,7 @@ F src/tar.c 3d8ec6d43a730d3bfdf73fc86bff84587a0bab57
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
-F src/th_main.c 0ecea6c5dc0f05b81190ae8a27244333100575dc
+F src/th_main.c 1ed614eb6303f5d3a616fdbbb4ad58948d5cac9f
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
 F src/timeline.c f851733577eb5df0182045dbcd371b3d04c62e94
 F src/tkt.c 0d7059f823642ea6c26c07081ee94b6cbb663408
@@ -755,7 +755,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1c0b1a58c60328c2b5710a9c7ab100f015b05b11
-R fc14e071a4f5e1c203878ef5325dcb7e
+P 11d3d721252fbcd98117b5bec864aa954b1aaa1b
+R 8cae97b0d2acdae39e6a3c323067246a
 U mistachkin
-Z c5b359dfea1e06067644c43d1d20bca3
+Z d49df7a59e53d30b6b80be9f86215bd5
