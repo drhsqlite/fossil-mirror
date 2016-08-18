@@ -2365,6 +2365,7 @@ static void find_server_repository(int arg, int fCreate){
 **   --repolist       If REPOSITORY is directory, URL "/" lists all repos
 **   --scgi           Interpret input as SCGI rather than HTTP
 **   --skin LABEL     Use override skin LABEL
+**   --th-trace       trace TH1 execution (for debugging purposes)
 **
 ** See also: cgi, server, winsrv
 */
@@ -2377,6 +2378,8 @@ void cmd_http(void){
   int useSCGI;
   int noJail;
   int allowRepoList;
+
+  Th_InitTraceLog();
 
   /* The winhttp module passes the --files option as --files-urlenc with
   ** the argument being URL encoded, to avoid wildcard expansion in the
