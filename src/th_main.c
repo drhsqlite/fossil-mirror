@@ -638,11 +638,11 @@ static int hascapCmd(
   const char **argv,
   int *argl
 ){
-  int rc = 0, i;
+  int rc = 1, i;
   if( argc<2 ){
     return Th_WrongNumArgs(interp, "hascap STRING ...");
   }
-  for(i=1; i<argc && rc==0; i++){
+  for(i=1; rc==1 && i<argc; i++){
     rc = login_has_capability((char*)argv[i],argl[i],*(int*)p);
   }
   if( g.thTrace ){
