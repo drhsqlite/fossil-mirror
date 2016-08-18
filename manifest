@@ -1,5 +1,5 @@
-C Some\scoding\sstyle\scorrections\sin\sthe\sTH1\stests.
-D 2016-08-18T01:50:58.445
+C Add\smore\senvironment\svariables\sto\sthe\s'test_env'\spage.
+D 2016-08-18T01:52:09.656
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -487,7 +487,7 @@ F src/sqlite3.h 897022fa93ea23442ecfec5c4d84f54fb8b8aa52
 F src/stash.c ccb0d94252422f28178119825a99c6bce45924d6
 F src/stat.c f35100ab665ec46513e4af0bb25260b810a82696
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
-F src/style.c 85ca473e8cd7ba551cd6e4f865f8ebbd45d3289d
+F src/style.c 71df0fbd14db41565c9d862dcd5f5fc996febe74
 F src/sync.c 276b812e26e878b3bd55bbb606effd105bb7cf5b
 F src/tag.c 06dddb67703250f4a40f3a2f0138aadfb67c28e7
 F src/tar.c 3d8ec6d43a730d3bfdf73fc86bff84587a0bab57
@@ -755,7 +755,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5ea2a4fb075cf024a293b756209c0fa6f39a2ce3
-R 40d90b59b5f29ae7a03da11a4cb9043d
+P 46e92c25e09d198131175b32d3bf3ed02bed322f
+R c11aa4eecfc0ff11445fc5a144e79a9b
 U mistachkin
-Z 4f1c4601dff4df43b2759dafdf2f5d24
+Z 331cf64d2991ba4bbe1092bb90aadecd
