@@ -423,7 +423,7 @@ The server might also send a uvigot card when it receives a uvgimme card
 but its reply message size is already oversized and hence unable to hold
 the usual uvfile reply.
 
-<p>When a client receives a "uvigot" card, it checks to see if the the
+<p>When a client receives a "uvigot" card, it checks to see if the
 file needs to be transfered from client to server or from server to client.
 If a client-to-server transmission is needed, the client schedules that
 transfer to occur on a subsequent HTTP request.  If a server-to-client
@@ -459,7 +459,7 @@ as follows:
 <p>The <i>name</i> is the name of the unversioned file found on the
 server that the client would like to have.  When a server sees a
 uvgimme card, it normally responses with a uvfile card, though it might
-also send anoter uvigot card if the HTTP reply is already oversized.
+also send another uvigot card if the HTTP reply is already oversized.
 
 <h3>3.8 Cookie Cards</h3>
 
@@ -861,7 +861,7 @@ the largest mtime value) is retained.
     to the uv-hash pragma is a hash of all filesnames, mtimes, and
     content hashes for the unversioned files held by the client.
     <hr>
-<li>If the unversion content hash from the client matches the unversioned
+<li>If the unversioned content hash from the client matches the unversioned
     content hash on the server, then nothing needs to be done and the
     server no-ops.  But if the hashes are different, then the server
     replies with either a uv-pull-only or a uv-push-ok pragma followed by
