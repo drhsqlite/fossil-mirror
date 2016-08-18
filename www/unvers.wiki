@@ -43,14 +43,14 @@ fossil unversioned sync
 </pre></blockquote>
 
 The [/help?cmd=sync|fossil sync] and [/help?cmd=clone|fossil clone]
-commands will synchronize unversion content if and only if the
+commands will synchronize unversioned content if and only if the
 "-u" (or "--unversioned") command-line option is supplied.  The
 [/help?cmd=unversioned|fossil unversioned sync] command will synchronize the
-unversion content without synchronizing anything else.
+unversioned content without synchronizing anything else.
 
 Notice that the "-u" option does not work on 
 [/help?cmd=push|fossil push] or [/help?cmd=pull|fossil pull].
-The "-u" option is only only available on "sync" and "clone".
+The "-u" option is only available on "sync" and "clone".
 
 A rough equivalent of an unversioned pull would be the
 [/help?cmd=unversioned|fossil unversioned revert] command.  The 
@@ -61,7 +61,7 @@ by the unversioned content found on the remote repository.
 <h2>Implementation Details</h2>
 
 <i>(This section outlines the current implementation of unversioned
-files.  This is not an interface spec and is hence subject to change.)</i>
+files.  This is not an interface spec and hence subject to change.)</i>
 
 Unversioned content is stored in the repository in the 
 "unversioned" table:
@@ -71,7 +71,7 @@ CREATE TABLE unversioned(
   name TEXT PRIMARY KEY,  -- Name of the file
   rcvid INTEGER,          -- From whence this file was received
   mtime DATETIME,         -- Last change (seconds since 1970)
-  hash TEXT,              -- SHA1 has of uncompressed content
+  hash TEXT,              -- SHA1 hash of uncompressed content
   sz INTEGER,             -- Size of uncompressed content
   encoding INT,           -- 0: plaintext  1: zlib compressed
   content BLOB            -- File content
