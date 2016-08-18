@@ -651,7 +651,7 @@ static int hascapCmd(
     rc = login_has_capability((char*)argv[i],argl[i],*(int*)p);
   }
   if( g.thTrace ){
-    Th_Trace("[hascap %#h] => %d<br />\n", nCapList, zCapList, rc);
+    Th_Trace("[%s %#h] => %d<br />\n", argv[0], nCapList, zCapList, rc);
     Th_Free(interp, zCapList);
   }
   Th_SetResultInt(interp, rc);
