@@ -1,5 +1,5 @@
-C Clarification\sof\scomments\son\sthe\sdb_set_main_schemaname()\sroutine.
-D 2016-08-19T09:14:36.335
+C Incorporate\sthe\sversion\sof\sSQLite\sthat\sallows\sVACUUM\son\sattached\sdatabases.
+D 2016-08-19T15:25:03.790
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -396,7 +396,7 @@ F src/content.c 4ab3e97d89e9967105d5daa9b48a023528e52f3a
 F src/cson_amalgamation.c e220a3a91402d60424fa0843598cdfdaa319f193
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c e3d8213b3b9cfb09725a118fa611159403dc5dcf
+F src/db.c 6cfbc153166f4a8da6b666e2f1795fe1e5cbaf3f
 F src/delta.c f3002e96cc35f37b9bab7c88f82e978e67342904
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
@@ -482,8 +482,8 @@ F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c b7c376b21d29322741c804e1f762b34aedb98ad1
 F src/skins.c 524384aafbe9e7707d3b87f42ee72fa63fe91796
 F src/sqlcmd.c 85c93b5f9c6836a0795a2576f3c21fe7f5354edf
-F src/sqlite3.c 785a1a36d449dd5c3172915bd8e4cd9f0d4cf193
-F src/sqlite3.h dd54d07ab68472db83931600f20b0ac09680abf1
+F src/sqlite3.c 1a8856e1bbc15142bb26388f63ac21ebf3141fb5
+F src/sqlite3.h 6be33a8b8eeff8e60367c7534327856b076a72b6
 F src/stash.c ced32acae9b125f723c6473f30cdfdf8b530dc37
 F src/stat.c 6a6e24276497f62d4574ac181ab15ba19471caa7
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
@@ -756,7 +756,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9eeaceab636960bfe1ed88e23a5cfec64d4537dd
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d858f3da52969aab1f881d517519ffe6d4561432
-R ed3015ebc22337ea4eb688ee847c20fb
+P 81184a02a56d714225535b0fe6b1c41b6cbb1b3c
+R deaba0cd563268ebc4284edebf9a74a3
 U drh
-Z 9c6518cd1406f0efbb06b748d22c3f37
+Z dbb45e0c7154464bd8fc5d1564c65351
