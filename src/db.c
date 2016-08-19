@@ -965,28 +965,17 @@ void db_attach(const char *zDbName, const char *zLabel){
 }
 
 /*
-** Change the schema name of the main database to from "main" to zLabel.
+** Change the schema name of the "main" database to zLabel.
 ** zLabel must be a static string that is unchanged for the life of
 ** the database connection.
+**
+** After calling this routine, db_database_slot(zLabel) should
+** return 0.
 */
 void db_set_main_schemaname(sqlite3 *db, const char *zLabel){
   if( sqlite3_db_config(db, SQLITE_DBCONFIG_MAINDBNAME, zLabel) ){
     fossil_fatal("Fossil requires a version of SQLite that supports the "
                  "SQLITE_DBCONFIG_MAINDBNAME interface.");
-  }
-}
-
-/*
-** zDbName is the name of a database file.  If no other database
-** file is open, then open this one.  If another database file is
-** already open, then attach zDbName using the name zLabel.
-*/
-void db_open_or_attach(const char *zDbName, const char *zLabel){
-  if( !g.db ){
-    g.db = db_open(zDbName);
-    db_set_main_schemaname(g.db, zLabel);
-  }else{
-    db_attach(zDbName, zLabel);
   }
 }
 
@@ -1009,6 +998,20 @@ int db_database_slot(const char *zLabel){
   }
   db_finalize(&q);
   return iSlot;
+}
+
+/*
+** zDbName is the name of a database file.  If no other database
+** file is open, then open this one.  If another database file is
+** already open, then attach zDbName using the name zLabel.
+*/
+void db_open_or_attach(const char *zDbName, const char *zLabel){
+  if( !g.db ){
+    g.db = db_open(zDbName);
+    db_set_main_schemaname(g.db, zLabel);
+  }else{
+    db_attach(zDbName, zLabel);
+  }
 }
 
 /*
