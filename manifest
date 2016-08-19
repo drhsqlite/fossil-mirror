@@ -1,5 +1,5 @@
-C Incorporate\sthe\sversion\sof\sSQLite\sthat\sallows\sVACUUM\son\sattached\sdatabases.
-D 2016-08-19T15:25:03.790
+C Handle\sthe\s"-u"\soption\son\s"fossil\sall\ssync".
+D 2016-08-19T16:25:16.303
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -372,7 +372,7 @@ F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 3b1b44a8faa1a3d9406f76790becfb08408cda2d
-F src/allrepo.c 07ae72593c0aaf51f9a66077b69196f080f70a39
+F src/allrepo.c a1dcd11e7630c15bb2634903eaeead5fd40a1fbd
 F src/attach.c c27c749e6a1334200565b076979b96e366a99bb5
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c abd167c9f2c5398782ca6d48ea1ee612163a7685
@@ -756,7 +756,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9eeaceab636960bfe1ed88e23a5cfec64d4537dd
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 81184a02a56d714225535b0fe6b1c41b6cbb1b3c
-R deaba0cd563268ebc4284edebf9a74a3
+P 80d0df0508de9d0c75f5a60264462e8825348515
+R 4634f1002b548a4a16b5705214cfa90c
 U drh
-Z dbb45e0c7154464bd8fc5d1564c65351
+Z 160fbcf256e4d0eff1c8ab261d024908
