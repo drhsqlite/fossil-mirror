@@ -1,5 +1,5 @@
-C Handle\sthe\s"-u"\soption\son\s"fossil\sall\ssync".
-D 2016-08-19T16:25:16.303
+C Fix\sthe\sdb_database_slot()\sroutine\sso\sthat\sit\sworks\sever\sif\sthe\sg.db\s\ndatabase\shas\sbeen\sclosed.
+D 2016-08-19T16:36:47.646
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -396,7 +396,7 @@ F src/content.c 4ab3e97d89e9967105d5daa9b48a023528e52f3a
 F src/cson_amalgamation.c e220a3a91402d60424fa0843598cdfdaa319f193
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 6cfbc153166f4a8da6b666e2f1795fe1e5cbaf3f
+F src/db.c 2337791575e46ad148d631a30726c71c51769567
 F src/delta.c f3002e96cc35f37b9bab7c88f82e978e67342904
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
@@ -756,7 +756,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9eeaceab636960bfe1ed88e23a5cfec64d4537dd
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 80d0df0508de9d0c75f5a60264462e8825348515
-R 4634f1002b548a4a16b5705214cfa90c
+P 5031cb08964f479ab48e367c626935f5cd908985
+R dc72d61902c4cb3498c86a7eba149668
 U drh
-Z 160fbcf256e4d0eff1c8ab261d024908
+Z 03de1a95052fde2dfbe0ff48fc942a87

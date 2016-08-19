@@ -989,6 +989,7 @@ void db_set_main_schemaname(sqlite3 *db, const char *zLabel){
 int db_database_slot(const char *zLabel){
   int iSlot = -1;
   Stmt q;
+  if( g.db==0 ) return -1;
   db_prepare(&q, "PRAGMA database_list");
   while( db_step(&q)==SQLITE_ROW ){
     if( fossil_strcmp(db_column_text(&q,1),zLabel)==0 ){
