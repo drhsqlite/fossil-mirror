@@ -130,16 +130,13 @@ struct Global {
   sqlite3 *db;            /* The connection to the databases */
   sqlite3 *dbConfig;      /* Separate connection for global_config table */
   char *zAuxSchema;       /* Main repository aux-schema */
-  int useAttach;          /* True if global_config is attached to repository */
   int dbIgnoreErrors;     /* Ignore database errors if true */
   const char *zConfigDbName;/* Path of the config database. NULL if not open */
   sqlite3_int64 now;      /* Seconds since 1970 */
   int repositoryOpen;     /* True if the main repository database is open */
   char *zRepositoryOption; /* Most recent cached repository option value */
-  char *zRepositoryName;  /* Name of the repository database */
-  char *zLocalDbName;     /* Name of the local database */
-  const char *zMainDbType;/* "configdb", "localdb", or "repository" */
-  const char *zConfigDbType;  /* "configdb", "localdb", or "repository" */
+  char *zRepositoryName;  /* Name of the repository database file */
+  char *zLocalDbName;     /* Name of the local database file */
   char *zOpenRevision;    /* Check-in version to use during database open */
   int localOpen;          /* True if the local database is open */
   char *zLocalRoot;       /* The directory holding the  local database */

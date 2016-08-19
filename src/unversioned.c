@@ -32,7 +32,7 @@
 ** SQL code to implement the tables needed by the unversioned.
 */
 static const char zUnversionedInit[] =
-@ CREATE TABLE IF NOT EXISTS "%w".unversioned(
+@ CREATE TABLE IF NOT EXISTS repository.unversioned(
 @   name TEXT PRIMARY KEY,       -- Name of the uv file
 @   rcvid INTEGER,               -- Where received from
 @   mtime DATETIME,              -- timestamp.  Seconds since 1970.
@@ -48,7 +48,7 @@ static const char zUnversionedInit[] =
 */
 void unversioned_schema(void){
   if( !db_table_exists("repository", "unversioned") ){
-    db_multi_exec(zUnversionedInit /*works-like:"%w"*/, db_name("repository"));
+    db_multi_exec(zUnversionedInit/*works-like:""*/);
   }
 }
 

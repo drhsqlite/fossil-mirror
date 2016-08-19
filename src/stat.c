@@ -63,7 +63,6 @@ void stat_page(void){
   i64 t, fsize;
   int n, m;
   int szMax, szAvg;
-  const char *zDb;
   int brief;
   char zBuf[100];
   const char *p;
@@ -190,12 +189,11 @@ void stat_page(void){
   @ %h(db_get_mtime("rebuilt","%Y-%m-%d %H:%M:%S","Never"))
   @ By Fossil %h(db_get("rebuilt","Unknown"))</td></tr>
   @ <tr><th>Database&nbsp;Stats:</th><td>
-  zDb = db_name("repository");
-  @ %d(db_int(0, "PRAGMA \"%w\".page_count", zDb)) pages,
-  @ %d(db_int(0, "PRAGMA \"%w\".page_size", zDb)) bytes/page,
-  @ %d(db_int(0, "PRAGMA \"%w\".freelist_count", zDb)) free pages,
-  @ %s(db_text(0, "PRAGMA \"%w\".encoding", zDb)),
-  @ %s(db_text(0, "PRAGMA \"%w\".journal_mode", zDb)) mode
+  @ %d(db_int(0, "PRAGMA repository.page_count")) pages,
+  @ %d(db_int(0, "PRAGMA repository.page_size")) bytes/page,
+  @ %d(db_int(0, "PRAGMA repository.freelist_count")) free pages,
+  @ %s(db_text(0, "PRAGMA repository.encoding")),
+  @ %s(db_text(0, "PRAGMA repository.journal_mode")) mode
   @ </td></tr>
 
   @ </table>
@@ -219,7 +217,6 @@ void dbstat_cmd(void){
   i64 t, fsize;
   int n, m;
   int szMax, szAvg;
-  const char *zDb;
   int brief;
   int omitVers;            /* Omit Fossil and SQLite version information */
   int dbCheck;             /* True for the --db-check option */
@@ -318,15 +315,14 @@ void dbstat_cmd(void){
                  sqlite3_sourceid(), &sqlite3_sourceid()[20],
                  sqlite3_libversion());
   }
-  zDb = db_name("repository");
   fossil_print("%*s%d pages, %d bytes/pg, %d free pages, "
                "%s, %s mode\n",
                colWidth, "database-stats:",
-               db_int(0, "PRAGMA \"%w\".page_count", zDb),
-               db_int(0, "PRAGMA \"%w\".page_size", zDb),
-               db_int(0, "PRAGMA \"%w\".freelist_count", zDb),
-               db_text(0, "PRAGMA \"%w\".encoding", zDb),
-               db_text(0, "PRAGMA \"%w\".journal_mode", zDb));
+               db_int(0, "PRAGMA repository.page_count"),
+               db_int(0, "PRAGMA repository.page_size"),
+               db_int(0, "PRAGMA repository.freelist_count"),
+               db_text(0, "PRAGMA repository.encoding"),
+               db_text(0, "PRAGMA repository.journal_mode"));
   if( dbCheck ){
     fossil_print("%*s%s\n", colWidth, "database-check:",
                  db_text(0, "PRAGMA quick_check(1)"));
@@ -398,8 +394,8 @@ void repo_schema_page(void){
   if( sqlite3_compileoption_used("ENABLE_DBSTAT_VTAB") ){
     style_submenu_element("Table Sizes", 0, "repo-tabsize");
   }
-  db_prepare(&q, "SELECT sql FROM %s.sqlite_master WHERE sql IS NOT NULL",
-             db_name("repository"));
+  db_prepare(&q,
+      "SELECT sql FROM repository.sqlite_master WHERE sql IS NOT NULL");
   @ <pre>
   while( db_step(&q)==SQLITE_ROW ){
     @ %h(db_column_text(&q, 0));
@@ -428,19 +424,18 @@ void repo_tabsize_page(void){
     style_submenu_element("Schema", "Repository Schema", "repo_schema");
   }
   db_multi_exec(
-    "CREATE VIRTUAL TABLE temp.dbx USING dbstat(%s);"
+    "CREATE VIRTUAL TABLE temp.dbx USING dbstat(repository);"
     "CREATE TEMP TABLE trans(name TEXT PRIMARY KEY,tabname TEXT)WITHOUT ROWID;"
     "INSERT INTO trans(name,tabname)"
-    "   SELECT name, tbl_name FROM %s.sqlite_master;"
+    "   SELECT name, tbl_name FROM repository.sqlite_master;"
     "CREATE TEMP TABLE piechart(amt REAL, label TEXT);"
     "INSERT INTO piechart(amt,label)"
     "  SELECT count(*), "
     "    coalesce((SELECT tabname FROM trans WHERE trans.name=dbx.name),name)"
     "    FROM dbx"
-    "   GROUP BY 2 ORDER BY 2;",
-    db_name("repository"), db_name("repository")
+    "   GROUP BY 2 ORDER BY 2;"
   );
-  nPageFree = db_int(0, "PRAGMA \"%w\".freelist_count", db_name("repository"));
+  nPageFree = db_int(0, "PRAGMA repository.freelist_count");
   if( nPageFree>0 ){
     db_multi_exec(
       "INSERT INTO piechart(amt,label) VALUES(%d,'freelist')",
@@ -457,19 +452,18 @@ void repo_tabsize_page(void){
   if( g.localOpen ){
     db_multi_exec(
       "DROP TABLE temp.dbx;"
-      "CREATE VIRTUAL TABLE temp.dbx USING dbstat(%s);"
+      "CREATE VIRTUAL TABLE temp.dbx USING dbstat(localdb);"
       "DELETE FROM trans;"
       "INSERT INTO trans(name,tabname)"
-      "   SELECT name, tbl_name FROM %s.sqlite_master;"
+      "   SELECT name, tbl_name FROM localdb.sqlite_master;"
       "DELETE FROM piechart;"
       "INSERT INTO piechart(amt,label)"
       "  SELECT count(*), "
       "    coalesce((SELECT tabname FROM trans WHERE trans.name=dbx.name),name)"
       "    FROM dbx"
-      "   GROUP BY 2 ORDER BY 2;",
-      db_name("localdb"), db_name("localdb")
+      "   GROUP BY 2 ORDER BY 2;"
     );
-    nPageFree = db_int(0, "PRAGMA \"%s\".freelist_count", db_name("localdb"));
+    nPageFree = db_int(0, "PRAGMA localdb.freelist_count");
     if( nPageFree>0 ){
       db_multi_exec(
         "INSERT INTO piechart(amt,label) VALUES(%d,'freelist')",
