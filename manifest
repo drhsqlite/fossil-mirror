@@ -1,5 +1,5 @@
-C Fix\sthe\sdb_database_slot()\sroutine\sso\sthat\sit\sworks\sever\sif\sthe\sg.db\s\ndatabase\shas\sbeen\sclosed.
-D 2016-08-19T16:36:47.646
+C Fix\scompilation\serrors\swhen\sthe\sJSON\sfeature\sis\senabled.
+D 2016-08-20T18:16:59.950
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -421,7 +421,7 @@ F src/http_ssl.c dea4a130aba592848e7a43f635272cd8d7be7592
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c 060b06a4066a6f3bbedad39ffdb275b4e2153723
 F src/info.c a120fe39440d7994528d400c0adbcdb040f7b5ee
-F src/json.c 74634a69c688da9970cf6df732cc60238a5c84ae
+F src/json.c dc2c7f146357683da2842cc84eb78a73221a80ba
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
 F src/json_config.c 1bbf8fc1b98f951f94dedc1a191c138f110b7a5d
@@ -756,7 +756,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9eeaceab636960bfe1ed88e23a5cfec64d4537dd
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5031cb08964f479ab48e367c626935f5cd908985
-R dc72d61902c4cb3498c86a7eba149668
-U drh
-Z 03de1a95052fde2dfbe0ff48fc942a87
+P 0c1f876e78e8f86b3beb803d434d920c3e0af3a2
+R c7333a00ab3f0c509c4a75a626c46e92
+U mistachkin
+Z 15baeedc43cdae829ac68a0a73def8b0

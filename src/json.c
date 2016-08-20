@@ -1297,8 +1297,6 @@ cson_value * json_g_to_json(){
   INT(g, nAux);
   INT(g, allowSymlinks);
 
-  CSTR(g, zMainDbType);
-  CSTR(g, zConfigDbType);
   CSTR(g, zOpenRevision);
   CSTR(g, zLocalRoot);
   CSTR(g, zPath);
@@ -1906,7 +1904,6 @@ cson_value * json_page_stat(){
   i64 t, fsize;
   int n, m;
   int full;
-  const char *zDb;
   enum { BufLen = 1000 };
   char zBuf[BufLen];
   cson_value * jv = NULL;
