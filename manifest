@@ -1,5 +1,5 @@
-C Fix\scompilation\serrors\swhen\sthe\sJSON\sfeature\sis\senabled.
-D 2016-08-20T18:16:59.950
+C Merge\stest\supdates\sfrom\strunk.
+D 2016-08-21T00:42:03.406
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -558,7 +558,7 @@ F test/th1-docs.test 3a95822e5006f404b51bb6dccacc340a452d3f4e
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-hooks.test 303c3d5f4a7159bd6de3e0ec810d2d0e322294cb
 F test/th1-repo.test 3c89b1ab7105d87ec3d20f34fcb475600a4bfa80
-F test/th1-tcl.test f25feb77b3fdb92321da886a35f3c321fbf0ab8a
+F test/th1-tcl.test dd99dd636a8862fa3619a94d7483d580c9890a1e
 F test/th1-tcl1.txt c60e664b138a2189b637c254d55a05819db1521d
 F test/th1-tcl2.txt 9f7e7ea7cc6c75df78c5efb761d10a4e8e354401
 F test/th1-tcl3.txt 208d6e2a9a68969df9220f6f6c190402a62b4919
@@ -756,7 +756,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9eeaceab636960bfe1ed88e23a5cfec64d4537dd
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0c1f876e78e8f86b3beb803d434d920c3e0af3a2
-R c7333a00ab3f0c509c4a75a626c46e92
+P e2f4f1f8d5c7aad3e36c0d35b8c0cd1ed28b8f14 6a73034e71d50b8c5e705aba1d2c6c2a4d124833
+R ffe83aaf18cf8a68319e88595f900fca
 U mistachkin
-Z 15baeedc43cdae829ac68a0a73def8b0
+Z 25a574d7a73b4c8a5d4eff7352838a75
