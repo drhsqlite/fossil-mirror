@@ -1052,7 +1052,7 @@ int db_open_config(int useAttach, int isOptional){
   char *zDbName;
   char *zHome;
   if( g.zConfigDbName ){
-    int alreadyAttached = db_database_slot("configdb")>=0;
+    int alreadyAttached = db_database_slot("configdb")>0;
     if( useAttach==alreadyAttached ) return 1; /* Already open. */
     db_close_config();
   }
