@@ -598,6 +598,7 @@ void doc_page(void){
   while( rid==0 && (++nMiss)<=ArraySize(azSuffix) ){
     zName = P("name");
     if( isUV ){
+      if( zName==0 ) zName = "";
       i = 0;
     }else{
       if( zName==0 || zName[0]==0 ) zName = "tip/index.wiki";
@@ -727,6 +728,9 @@ void doc_page(void){
   /* Jump here when unable to locate the document */
 doc_not_found:
   db_end_transaction(0);
+  if( isUV && P("name")==0 ){
+    return uvstat_page();
+  }
   cgi_set_status(404, "Not Found");
   style_header("Not Found");
   @ <p>Document %h(zOrigName) not found

@@ -1,5 +1,5 @@
-C Account\sfor\srecent\s'hr'\smarkup\schanges\sin\sthe\sth1-tcl\stests.
-D 2016-08-21T00:13:41.776
+C Fix\sthe\s/uv\spage\sso\sthat\sit\scorrectly\shandles\sa\smissing\s"name".\s\sFirst\sit\nlooks\sfor\s"index.html",\s"index.wiki",\s"index.md"\sand\s"index.th1",\sthen\sif\nnone\sof\sthose\sdocuments\sare\sfound,\sit\sdoes\sthe\sequivalent\sof\s/uvlist.
+D 2016-08-21T17:50:19.962
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -403,7 +403,7 @@ F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
 F src/diff.c c53eea5dfd52d092d298178bc40c70500d3c7fc6
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 3759afcedb06bb0d76844e0b724cd28b36ede262
-F src/doc.c cc885b20a1688ecb9e655f1c77fc31d5694979a1
+F src/doc.c 8439403b1dc006e15e19dc7ba981416d6a466401
 F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
 F src/event.c 6909284d77a688d63cc67b7b0929b8dda5397742
 F src/export.c ab705fb1bdb609c49cab3aa686fd74b5cd8e83d4
@@ -756,7 +756,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9eeaceab636960bfe1ed88e23a5cfec64d4537dd
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ce910a43c5cf5e4d57e3e57032781b1e612deba2
-R 52e4f5a468e28ffa38e37c57ea3e9d94
-U mistachkin
-Z ea0741e51095b4b8a9657aba23fceb5f
+P 6a73034e71d50b8c5e705aba1d2c6c2a4d124833
+R 323d2dca396d3026719398483404edd2
+U drh
+Z fb44bf7c7a643a60195b7698104f551f
