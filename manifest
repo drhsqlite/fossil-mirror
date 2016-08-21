@@ -1,5 +1,5 @@
-C Handle\sthe\s"-u"\soption\son\s"fossil\sall\ssync".
-D 2016-08-19T16:26:15.626
+C Account\sfor\srecent\s'hr'\smarkup\schanges\sin\sthe\sth1-tcl\stests.
+D 2016-08-21T00:13:41.776
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -558,7 +558,7 @@ F test/th1-docs.test 3a95822e5006f404b51bb6dccacc340a452d3f4e
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-hooks.test 303c3d5f4a7159bd6de3e0ec810d2d0e322294cb
 F test/th1-repo.test 3c89b1ab7105d87ec3d20f34fcb475600a4bfa80
-F test/th1-tcl.test f25feb77b3fdb92321da886a35f3c321fbf0ab8a
+F test/th1-tcl.test dd99dd636a8862fa3619a94d7483d580c9890a1e
 F test/th1-tcl1.txt c60e664b138a2189b637c254d55a05819db1521d
 F test/th1-tcl2.txt 9f7e7ea7cc6c75df78c5efb761d10a4e8e354401
 F test/th1-tcl3.txt 208d6e2a9a68969df9220f6f6c190402a62b4919
@@ -756,8 +756,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9eeaceab636960bfe1ed88e23a5cfec64d4537dd
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1a7656469a2493d07a0ee82f7970cc784c9cc98a
-Q +5031cb08964f479ab48e367c626935f5cd908985
-R 890ffb4ce39c7d70d0cf37e15e339589
-U drh
-Z e6a70107cd39619f3d244557a78aa79f
+P ce910a43c5cf5e4d57e3e57032781b1e612deba2
+R 52e4f5a468e28ffa38e37c57ea3e9d94
+U mistachkin
+Z ea0741e51095b4b8a9657aba23fceb5f
