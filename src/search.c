@@ -1345,7 +1345,7 @@ void test_convert_stext(void){
 */
 static const char zFtsSchema[] =
 @ -- One entry for each possible search result
-@ CREATE TABLE IF NOT EXISTS "%w".ftsdocs(
+@ CREATE TABLE IF NOT EXISTS repository.ftsdocs(
 @   rowid INTEGER PRIMARY KEY, -- Maps to the ftsidx.docid
 @   type CHAR(1),              -- Type of document
 @   rid INTEGER,               -- BLOB.RID or TAG.TAGID for the document
@@ -1357,19 +1357,19 @@ static const char zFtsSchema[] =
 @   bx TEXT,                   -- Temporary "body" content cache
 @   UNIQUE(type,rid)
 @ );
-@ CREATE INDEX "%w".ftsdocIdxed ON ftsdocs(type,rid,name) WHERE idxed==0;
-@ CREATE INDEX "%w".ftsdocName ON ftsdocs(name) WHERE type='w';
-@ CREATE VIEW IF NOT EXISTS "%w".ftscontent AS
+@ CREATE INDEX repository.ftsdocIdxed ON ftsdocs(type,rid,name) WHERE idxed==0;
+@ CREATE INDEX repository.ftsdocName ON ftsdocs(name) WHERE type='w';
+@ CREATE VIEW IF NOT EXISTS repository.ftscontent AS
 @   SELECT rowid, type, rid, name, idxed, label, url, mtime,
 @          title(type,rid,name) AS 'title', body(type,rid,name) AS 'body'
 @     FROM ftsdocs;
-@ CREATE VIRTUAL TABLE IF NOT EXISTS "%w".ftsidx
+@ CREATE VIRTUAL TABLE IF NOT EXISTS repository.ftsidx
 @   USING fts4(content="ftscontent", title, body%s);
 ;
 static const char zFtsDrop[] =
-@ DROP TABLE IF EXISTS "%w".ftsidx;
-@ DROP VIEW IF EXISTS "%w".ftscontent;
-@ DROP TABLE IF EXISTS "%w".ftsdocs;
+@ DROP TABLE IF EXISTS repository.ftsidx;
+@ DROP VIEW IF EXISTS repository.ftscontent;
+@ DROP TABLE IF EXISTS repository.ftsdocs;
 ;
 
 /*
@@ -1377,17 +1377,14 @@ static const char zFtsDrop[] =
 */
 static int searchIdxExists = -1;
 void search_create_index(void){
-  const char *zDb = db_name("repository");
   int useStemmer = db_get_boolean("search-stemmer",0);
   const char *zExtra = useStemmer ? ",tokenize=porter" : "";
   search_sql_setup(g.db);
-  db_multi_exec(zFtsSchema/*works-like:"%w%w%w%w%w%s"*/,
-       zDb, zDb, zDb, zDb, zDb, zExtra/*safe-for-%s*/);
+  db_multi_exec(zFtsSchema/*works-like:"%s"*/, zExtra/*safe-for-%s*/);
   searchIdxExists = 1;
 }
 void search_drop_index(void){
-  const char *zDb = db_name("repository");
-  db_multi_exec(zFtsDrop/*works-like:"%w%w%w"*/, zDb, zDb, zDb);
+  db_multi_exec(zFtsDrop/*works-like:""*/);
   searchIdxExists = 0;
 }
 

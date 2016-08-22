@@ -2231,8 +2231,8 @@ void commit_cmd(void){
 
   /* Commit */
   db_multi_exec("DELETE FROM vvar WHERE name='ci-comment'");
-  db_multi_exec("PRAGMA %s.application_id=252006673;", db_name("repository"));
-  db_multi_exec("PRAGMA %s.application_id=252006674;", db_name("localdb"));
+  db_multi_exec("PRAGMA repository.application_id=252006673;");
+  db_multi_exec("PRAGMA localdb.application_id=252006674;");
   if( dryRunFlag ){
     db_end_transaction(1);
     exit(1);

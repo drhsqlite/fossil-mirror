@@ -1928,12 +1928,12 @@ void sql_page(void){
   @ <p>Only the first statement in the entry box will be run.
   @ Any subsequent statements will be silently ignored.</p>
   @
-  @ <p>Database names:<ul><li>repository &rarr; %s(db_name("repository"))
+  @ <p>Database names:<ul><li>repository
   if( g.zConfigDbName ){
-    @ <li>config &rarr; %s(db_name("configdb"))
+    @ <li>configdb
   }
   if( g.localOpen ){
-    @ <li>local-checkout &rarr; %s(db_name("localdb"))
+    @ <li>localdb
   }
   @ </ul></p>
   @
@@ -1947,14 +1947,12 @@ void sql_page(void){
   @ </form>
   if( P("schema") ){
     zQ = sqlite3_mprintf(
-            "SELECT sql FROM %s.sqlite_master WHERE sql IS NOT NULL",
-            db_name("repository"));
+            "SELECT sql FROM repository.sqlite_master WHERE sql IS NOT NULL");
     go = 1;
   }else if( P("tablelist") ){
     zQ = sqlite3_mprintf(
-            "SELECT name FROM %s.sqlite_master WHERE type='table'"
-            " ORDER BY name",
-            db_name("repository"));
+            "SELECT name FROM repository.sqlite_master WHERE type='table'"
+            " ORDER BY name");
     go = 1;
   }
   if( go ){

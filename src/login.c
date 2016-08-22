@@ -176,12 +176,12 @@ int login_is_valid_anonymous(
 */
 void create_accesslog_table(void){
   db_multi_exec(
-    "CREATE TABLE IF NOT EXISTS %s.accesslog("
+    "CREATE TABLE IF NOT EXISTS repository.accesslog("
     "  uname TEXT,"
     "  ipaddr TEXT,"
     "  success BOOLEAN,"
     "  mtime TIMESTAMP"
-    ");", db_name("repository")
+    ");"
   );
 }
 
@@ -1568,7 +1568,7 @@ void login_group_join(
   const char *zSelf;         /* The ATTACH name of our repository */
 
   *pzErrMsg = 0;   /* Default to no errors */
-  zSelf = db_name("repository");
+  zSelf = "repository";
 
   /* Get the full pathname of the other repository */
   file_canonical_name(zRepo, &fullName, 0);

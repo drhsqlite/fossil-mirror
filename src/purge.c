@@ -144,7 +144,7 @@ int purge_artifact_list(
   ** graveyard */
   if( purgeFlags & PURGE_MOVETO_GRAVEYARD ){
     db_multi_exec(zPurgeInit /*works-like:"%w%w"*/,
-                  db_name("repository"), db_name("repository"));
+                  "repository", "repository");
     db_multi_exec(
       "INSERT INTO purgeevent(ctime,pnotes) VALUES(now(),%Q)", zNote
     );
