@@ -1,5 +1,5 @@
-C Fix\sthe\s/uv\spage\sso\sthat\sit\scorrectly\shandles\sa\smissing\s"name".\s\sFirst\sit\nlooks\sfor\s"index.html",\s"index.wiki",\s"index.md"\sand\s"index.th1",\sthen\sif\nnone\sof\sthose\sdocuments\sare\sfound,\sit\sdoes\sthe\sequivalent\sof\s/uvlist.
-D 2016-08-21T17:50:19.962
+C Fill\sin\sSQL\sparameters\sin\sreport\sformats\susing\sHTTP\squery\sparameter\svalues.
+D 2016-08-22T15:20:43.532
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -471,7 +471,7 @@ F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c 74469f4e5ae2137b72e5e84ad66dd7f28ba4c1a6
 F src/rebuild.c 517bb76c3345dd611d83ec342c6b5ab3492e91a2
 F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
-F src/report.c edb0630f05a707cfeb824eebe70edafee322106f
+F src/report.c 650149d0abc88d23c8571b64f3dfba23197bec2b
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c b44df10abbab7d4f63a61057eaa3fb4e0b5c693d
@@ -756,7 +756,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9eeaceab636960bfe1ed88e23a5cfec64d4537dd
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6a73034e71d50b8c5e705aba1d2c6c2a4d124833
-R 323d2dca396d3026719398483404edd2
+P 253795692b31080d7430b2e8dc9a2014930eeec6
+R 58e49ab1d09c0e9700962c26dcf3c724
 U drh
-Z fb44bf7c7a643a60195b7698104f551f
+Z a02a808fe5d667ca0e16f584f964f0c2
