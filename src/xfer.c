@@ -348,6 +348,9 @@ static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
   /* The isWriter flag must be true in order to land the new file */
   if( !isWriter ) goto end_accept_unversioned_file;
 
+  /* Make sure we have a valid g.rcvid marker */
+  content_rcvid_init();
+
   /* Check to see if current content really should be overwritten.  Ideally,
   ** a uvfile card should never have been sent unless the overwrite should
   ** occur.  But do not trust the sender.  Double-check. 

@@ -1,5 +1,5 @@
-C Remove\sthe\sdb_name()\sfunction.\s\sIn\sits\splace,\sthe\sSQLITE_DBCONFIG_MAINDBNAME\nfeature\sof\sSQLite\sis\sused\sto\sensure\sthat\sthe\sthree\sattached\sdatabases\sare\nalways\sexactly\snamed\s"repository",\s"configdb"\sand\s"localdb",\sregardless\sof\nwhich\sis\sopened\sfirst\sor\sthe\sorder\sin\swhich\sthey\sare\sattached.\s\sUpdate\sto\nthe\slatest\s3.15\salpha\sof\sSQLite\swhich\sis\snow\srequired\sfor\scorrect\noperation,\ssince\sSQLITE_DBCONFIG_MAINDBNAME\sis\srequired.
-D 2016-08-22T20:12:50.798
+C Create\sa\svalid\srcvfrom\sentry\swhen\sadding\sunversioned\scontent\sfrom\sthe\ncommand-line.
+D 2016-08-22T21:10:36.442
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -502,7 +502,7 @@ F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c 54c3baa046348a67821fda865269c84e80bb56b7
 F src/unicode.c 8e02b4fd6af9e735bda68eb06e3be90b6b901a87
-F src/unversioned.c 8be1f214589f1bc3cb2867d6477948b4f19005fe
+F src/unversioned.c 3ebdcb75e726eeb02546f857ae27f6e91d8e97b0
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c e2c08deb9a3ce011d3db10f70216a7988485e29a
@@ -515,7 +515,7 @@ F src/wikiformat.c 1d750982147d9c51fa40e89e40241a33408adaf6
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c 7e4c82fc91fe89b81ef4ae399944b8f035fe6789
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c 0db65439d0ff161782cf29a0b9e6c26ea1cc301c
+F src/xfer.c 7cbc39ae33e8a926bbf65edaeecd2d3306f20bd4
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 4ff5fff5dba38f7b514db1194a69a6f634be6a34
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -756,8 +756,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9eeaceab636960bfe1ed88e23a5cfec64d4537dd
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0ef09dc9cd8b7bad61930e7e3a18a6db651fecdb a12d712203e055c6b9864c2c80e509efd91f437a
-R 106e8ae3d0455b9009632884f5bb843b
-T +closed a12d712203e055c6b9864c2c80e509efd91f437a
+P 06aec61111d5e2f77df755ee8a244ab26a8bc392
+R f774502c33268b4762b0e672a04dcc6c
 U drh
-Z 9683d60dd39cf8f8562f387dffb6633c
+Z a42b20ff45505008fa5bed6be4571cf8

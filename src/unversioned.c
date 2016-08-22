@@ -209,6 +209,8 @@ void unversioned_cmd(void){
     if( zAs && g.argc!=4 ) usage("add DISKFILE --as UVFILE");
     verify_all_options();
     db_begin_transaction();
+    user_select();
+    g.zIpAddr = "command-line";
     content_rcvid_init();
     db_prepare(&ins,
       "REPLACE INTO unversioned(name,rcvid,mtime,hash,sz,encoding,content)"
@@ -373,17 +375,22 @@ void uvstat_page(void){
      "SELECT"
      "   name,"
      "   mtime,"
-     "   hash IS NULL,"
-     "   sz"
+     "   hash,"
+     "   sz,"
+     "   (SELECT login FROM rcvfrom, user"
+     "     WHERE user.uid=rcvfrom.uid AND rcvfrom.rcvid=unversioned.rcvid)"
      " FROM unversioned"
    );
    iNow = db_int64(0, "SELECT strftime('%%s','now');");
    while( db_step(&q)==SQLITE_ROW ){
      const char *zName = db_column_text(&q, 0);
      sqlite3_int64 mtime = db_column_int(&q, 1);
-     int isDeleted = db_column_int(&q, 2);
+     const char *zHash = db_column_text(&q, 2);
+     int isDeleted = zHash==0;
      int fullSize = db_column_int(&q, 3);
      char *zAge = human_readable_age((iNow - mtime)/86400.0);
+     const char *zLogin = db_column_text(&q, 4);
+     if( zLogin==0 ) zLogin = "";
      if( (n++)==0 ){
        @ <div class="uvlist">
        @ <table cellpadding="2" cellspacing="0" border="1" id="uvtab">
@@ -391,11 +398,14 @@ void uvstat_page(void){
        @   <th> Name
        @   <th> Age
        @   <th> Size
+       @   <th> User
+       @   <th> SHA1
        @ </tr></thead>
        @ <tbody>
      }
      if( isDeleted ){
        sqlite3_snprintf(sizeof(zSzName), zSzName, "<i>Deleted</i>");
+       zHash = "";
        fullSize = 0;
      }else{
        approxSizeName(sizeof(zSzName), zSzName, fullSize);
@@ -406,6 +416,8 @@ void uvstat_page(void){
      @ <td> <a href='%R/uv/%T(zName)'>%h(zName)</a> </td>
      @ <td data-sortkey='%016llx(-mtime)'> %s(zAge) </td>
      @ <td data-sortkey='%08x(fullSize)'> %s(zSzName) </td>
+     @ <td> %h(zLogin) </td>
+     @ <td> %h(zHash) </td>
      @ </tr>
      fossil_free(zAge);
    }
@@ -413,9 +425,10 @@ void uvstat_page(void){
    if( n ){
      approxSizeName(sizeof(zSzName), zSzName, iTotalSz);
      @ </tbody>
-     @ <tfoot><tr><td><b>Total over %d(cnt) files</b><td><td>%s(zSzName)</tfoot>
+     @ <tfoot><tr><td><b>Total over %d(cnt) files</b><td><td>%s(zSzName)
+     @ <td><td></tfoot>
      @ </table></div>
-     output_table_sorting_javascript("uvtab","tKk",1);
+     output_table_sorting_javascript("uvtab","tKktt",1);
    }else{
      @ No unversioned files on this server.
    }
