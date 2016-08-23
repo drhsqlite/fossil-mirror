@@ -1,5 +1,5 @@
-C Create\sa\svalid\srcvfrom\sentry\swhen\sadding\sunversioned\scontent\sfrom\sthe\ncommand-line.
-D 2016-08-22T21:10:36.442
+C Improved\sorigin\stracking\sfor\sunversioned\sfiles.\s\sShow\sAdmin/Setup\susers\nthe\srcvid\sand\sallow\sthem\sto\ssee\sthe\soriginating\sIP\saddress\sand\sto\sdelete\nunversioned\sfiles.\s\sUpdate\sthe\srcvfrom\stable\sviewer\sto\sinclude\sunversioned\nfile\sentries.
+D 2016-08-23T01:22:56.743
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -478,7 +478,7 @@ F src/search.c 5ee3087a8fadd05c7218714ea541251a143c93cd
 F src/setup.c 3b6d7487fe12baa680fdd270768f2765cdc471ff
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
 F src/shell.c 79dda477be6c96eba6e952a934957ad36f87acc7
-F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
+F src/shun.c 4c2e01c7775c09ed64b817ed9c3e6b6edce4aa57
 F src/sitemap.c b7c376b21d29322741c804e1f762b34aedb98ad1
 F src/skins.c 524384aafbe9e7707d3b87f42ee72fa63fe91796
 F src/sqlcmd.c 85c93b5f9c6836a0795a2576f3c21fe7f5354edf
@@ -502,7 +502,7 @@ F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c 54c3baa046348a67821fda865269c84e80bb56b7
 F src/unicode.c 8e02b4fd6af9e735bda68eb06e3be90b6b901a87
-F src/unversioned.c 3ebdcb75e726eeb02546f857ae27f6e91d8e97b0
+F src/unversioned.c b63c58230c6ef5ef3aa53f9afaff4a8cc5a0ed17
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c e2c08deb9a3ce011d3db10f70216a7988485e29a
@@ -756,7 +756,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9eeaceab636960bfe1ed88e23a5cfec64d4537dd
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 06aec61111d5e2f77df755ee8a244ab26a8bc392
-R f774502c33268b4762b0e672a04dcc6c
+P 7deeb51511eca1390c0c2126540e71ade55adfd5
+R 004fdc66470765df09e804a8b35c3fbb
 U drh
-Z a42b20ff45505008fa5bed6be4571cf8
+Z 1579eb9dad05e720b617ade489922587

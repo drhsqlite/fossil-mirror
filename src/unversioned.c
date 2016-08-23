@@ -378,7 +378,8 @@ void uvstat_page(void){
      "   hash,"
      "   sz,"
      "   (SELECT login FROM rcvfrom, user"
-     "     WHERE user.uid=rcvfrom.uid AND rcvfrom.rcvid=unversioned.rcvid)"
+     "     WHERE user.uid=rcvfrom.uid AND rcvfrom.rcvid=unversioned.rcvid),"
+     "   rcvid"
      " FROM unversioned"
    );
    iNow = db_int64(0, "SELECT strftime('%%s','now');");
@@ -390,6 +391,7 @@ void uvstat_page(void){
      int fullSize = db_column_int(&q, 3);
      char *zAge = human_readable_age((iNow - mtime)/86400.0);
      const char *zLogin = db_column_text(&q, 4);
+     int rcvid = db_column_int(&q,5);
      if( zLogin==0 ) zLogin = "";
      if( (n++)==0 ){
        @ <div class="uvlist">
@@ -400,6 +402,9 @@ void uvstat_page(void){
        @   <th> Size
        @   <th> User
        @   <th> SHA1
+       if( g.perm.Admin ){
+         @ <th> rcvid
+       }
        @ </tr></thead>
        @ <tbody>
      }
@@ -418,6 +423,13 @@ void uvstat_page(void){
      @ <td data-sortkey='%08x(fullSize)'> %s(zSzName) </td>
      @ <td> %h(zLogin) </td>
      @ <td> %h(zHash) </td>
+     if( g.perm.Admin ){
+       if( rcvid ){
+         @ <td> <a href="%R/rcvfrom?rcvid=%d(rcvid)">%d(rcvid)</a>
+       }else{
+         @ <td>
+       }
+     }
      @ </tr>
      fossil_free(zAge);
    }

@@ -329,6 +329,11 @@ void rcvfromlist_page(void){
     "CREATE TEMP TABLE rcvidUsed(x INTEGER PRIMARY KEY);"
     "INSERT OR IGNORE INTO rcvidUsed(x) SELECT rcvid FROM blob;"
   );
+  if( db_table_exists("repository","unversioned") ){
+    db_multi_exec(
+      "INSERT OR IGNORE INTO rcvidUsed(x) SELECT rcvid FROM unversioned;"
+    );
+  }
   db_prepare(&q,
     "SELECT rcvid, login, datetime(rcvfrom.mtime), rcvfrom.ipaddr,"
     "       EXISTS(SELECT 1 FROM rcvidUsed WHERE x=rcvfrom.rcvid)"
@@ -391,6 +396,7 @@ void rcvfromlist_page(void){
 void rcvfrom_page(void){
   int rcvid = atoi(PD("rcvid","0"));
   Stmt q;
+  int cnt;
 
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -443,17 +449,87 @@ void rcvfrom_page(void){
     "  FROM blob LEFT JOIN description ON (blob.rid=description.rid)"
     " WHERE blob.rcvid=%d", rcvid
   );
-  @ <tr><th valign="top" align="right">Artifacts:</th>
-  @ <td valign="top">
+  cnt = 0;
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 1);
     int size = db_column_int(&q, 2);
     const char *zDesc = db_column_text(&q, 3);
     if( zDesc==0 ) zDesc = "";
+    if( cnt==0 ){
+      @ <tr><th valign="top" align="right">Artifacts:</th>
+      @ <td valign="top">
+    }
+    cnt++;
     @ <a href="%R/info/%s(zUuid)">%s(zUuid)</a>
     @ %h(zDesc) (size: %d(size))<br />
   }
-  @ </td></tr>
+  if( cnt>0 ){
+    @ <p>
+    if( db_exists(
+      "SELECT 1 FROM blob WHERE rcvid=%d AND"
+      " NOT EXISTS (SELECT 1 FROM shun WHERE shun.uuid=blob.uuid)", rcvid)
+    ){
+      @ <form action='%R/shun'>
+      @ <input type="hidden" name="shun">
+      @ <input type="hidden" name="rcvid" value='%d(rcvid)'>
+      @ <input type="submit" value="Shun All These Artifacts">
+      @ </form>
+    }
+    if( db_exists(
+      "SELECT 1 FROM blob WHERE rcvid=%d AND"
+      " EXISTS (SELECT 1 FROM shun WHERE shun.uuid=blob.uuid)", rcvid)
+    ){
+      @ <form action='%R/shun'>
+      @ <input type="hidden" name="unshun">
+      @ <input type="hidden" name="rcvid" value='%d(rcvid)'>
+      @ <input type="submit" value="Unshun All These Artifacts">
+      @ </form>
+    }
+    @ </td></tr>
+  }
+  if( db_table_exists("repository","unversioned") ){
+    cnt = 0;
+    if( PB("uvdelete") && PB("confirmdelete") ){
+      db_multi_exec(
+        "DELETE FROM unversioned WHERE rcvid=%d", rcvid
+      );
+    }
+    db_finalize(&q);
+    db_prepare(&q, 
+      "SELECT name, hash, sz\n"
+      "  FROM unversioned "
+      " WHERE rcvid=%d", rcvid
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zName = db_column_text(&q,0);
+      const char *zHash = db_column_text(&q,1);
+      int size = db_column_int(&q,2);
+      int isDeleted = zHash==0;
+      if( cnt==0 ){
+        @ <tr><th valign="top" align="right">Unversioned&nbsp;Files:</th>
+        @ <td valign="top">
+      }
+      cnt++;
+      if( isDeleted ){
+        @ %h(zName) (deleted)<br />
+      }else{
+        @ <a href="%R/uv/%h(zName)">%h(zName)</a> (size: %d(size))<br />
+      }
+    }
+    if( cnt>0 ){
+      @ <p><form action='%R/rcvfrom'>
+      @ <input type="hidden" name="rcvid" value='%d(rcvid)'>
+      @ <input type="hidden" name="uvdelete" value="1">
+      if( PB("uvdelete") ){
+        @ <input type="hidden" name="confirmdelete" value="1">
+        @ <input type="submit" value="Confirm Deletion of These Files">
+      }else{
+        @ <input type="submit" value="Delete These Unversioned Files">
+      }
+      @ </form>
+      @ </td></tr>
+    }
+  }
   @ </table>
   db_finalize(&q);
   style_footer();
