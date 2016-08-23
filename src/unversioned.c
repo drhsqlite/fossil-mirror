@@ -441,7 +441,7 @@ void uvstat_page(void){
      @ <tfoot><tr><td><b>Total over %d(cnt) files</b><td><td>%s(zSzName)
      @ <td><td></tfoot>
      @ </table></div>
-     output_table_sorting_javascript("uvtab","tKktt",1);
+     output_table_sorting_javascript("uvtab","tkKttN",1);
    }else{
      @ No unversioned files on this server.
    }
