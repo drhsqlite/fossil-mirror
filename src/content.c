@@ -459,7 +459,7 @@ void content_enable_dephantomize(int onoff){
 ** Make sure the g.rcvid global variable has been initialized.
 **
 ** If the g.zIpAddr variable has not been set when this routine is
-** called, use zSrc as the source of content for the the rcvfrom
+** called, use zSrc as the source of content for the rcvfrom
 ** table entry.
 */
 void content_rcvid_init(const char *zSrc){

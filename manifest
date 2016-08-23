@@ -1,5 +1,5 @@
-C Fix\sa\sstray\ssingle-quote\scharacter\sin\sthe\sSVG\spie-chart\sgenerator.
-D 2016-08-23T14:04:23.132
+C Fix\sharmless\scomment\sand\sspacing\stypos.
+D 2016-08-23T14:12:26.907
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -392,7 +392,7 @@ F src/codecheck1.c 4f707cdaefe03f9b1d913a54326617113d941898
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
 F src/config.h b91f4223f2653503759e1205343db9f94d134973
 F src/configure.c ba6cd082894e2f08b71993a542990a617345007e
-F src/content.c 7446701b31f14387ea68ce8f4a716719c005c4f3
+F src/content.c 8d104749ac8db354f458a327529f8e8c0ece349c
 F src/cson_amalgamation.c e220a3a91402d60424fa0843598cdfdaa319f193
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
@@ -502,7 +502,7 @@ F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c 54c3baa046348a67821fda865269c84e80bb56b7
 F src/unicode.c 8e02b4fd6af9e735bda68eb06e3be90b6b901a87
-F src/unversioned.c f33e0fb3230cdcb63355758a34027a95babe261e
+F src/unversioned.c 952f7946100293d6ba9cced4fc14cfa5b9e491a8
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c e2c08deb9a3ce011d3db10f70216a7988485e29a
@@ -756,7 +756,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2e58eec68a175d5a3dd6218536e1f57c2f50336f
-R 4053c7feefbd1eb4e56b31e7be7fb4bf
+P f2980d8995a04c4bf1dde396045948c3e9220c4e
+R 4716a1004d7dd74726045c2b094d3dd0
 U drh
-Z 44cfd935fc45a73f240d583eb49e27ec
+Z 1d75ae6726680aa5d94f1483fa760793

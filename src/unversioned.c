@@ -36,7 +36,7 @@ static const char zUnversionedInit[] =
 @   name TEXT PRIMARY KEY,       -- Name of the uv file
 @   rcvid INTEGER,               -- Where received from
 @   mtime DATETIME,              -- timestamp.  Seconds since 1970.
-@   hash TEXT,                   -- Content hash.  NULL if a delete marker
+@   hash TEXT,                   -- Content hash.  NULL if a delete marker 
 @   sz INTEGER,                  -- size of content after decompression
 @   encoding INT,                -- 0: plaintext.  1: zlib compressed
 @   content BLOB                 -- content of the file.  NULL if oversized
@@ -312,7 +312,7 @@ void unversioned_cmd(void){
     if( unversioned_content(g.argv[3], &content) ){
       fossil_fatal("no such uv-file: %Q", g.argv[3]);
     }
-     blob_write_to_file(&content, g.argv[4]);
+    blob_write_to_file(&content, g.argv[4]);
     blob_reset(&content);
   }else if( memcmp(zCmd, "hash", nCmd)==0 ){  /* undocumented */
     /* Show the hash value used during uv sync */
