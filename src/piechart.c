@@ -253,7 +253,7 @@ void piechart_render(int width, int height, unsigned int pieFlags){
     }
     y5 = y4 - 3.0 + 6.0*(1.0 - p->rCos);
     @ <line stroke-width='1' stroke='%s(zFg)' class='piechartLine'
-    @  x1='%g(x3)' y1='%g(y3)' x2='%g(x4)' y2='%g(y4)''/>
+    @  x1='%g(x3)' y1='%g(y3)' x2='%g(x4)' y2='%g(y4)'/>
     @ <text text-anchor="%s(zAnc)" fill='%s(zFg)' class="piechartLabel"
     @  x='%g(x5)' y='%g(y5)'>%h(p->z)</text>
     fossil_free(p->z);

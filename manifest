@@ -1,5 +1,5 @@
-C Updates\sto\sthe\schange\slog.
-D 2016-08-23T13:52:56.680
+C Fix\sa\sstray\ssingle-quote\scharacter\sin\sthe\sSVG\spie-chart\sgenerator.
+D 2016-08-23T14:04:23.132
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -462,7 +462,7 @@ F src/mkversion.c 40ed302872cc5795c76efb3ab089fc1aedba18f1
 F src/moderate.c dc445cce064560577fb47311c2e23925b92c35d8
 F src/name.c 5192c05e225b2a82603f70289cb7833544c24e12
 F src/path.c cce5fdfa571861a81e1a48e893e5a52dd2703a5f
-F src/piechart.c 4014288219792cde395e84b6a43cc5736b3a9887
+F src/piechart.c d8a7dbc26aa5b3be64b340edd8e7669dea54e5ad
 F src/pivot.c 2f9b97dad4267f3b5a9e89e14b711f326cb3f3a0
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -756,7 +756,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4a8378581c5e537d0fed83b628b6f8b3347a9d47
-R 6625d6a5f4da3de1141db50fe0ea8db9
+P 2e58eec68a175d5a3dd6218536e1f57c2f50336f
+R 4053c7feefbd1eb4e56b31e7be7fb4bf
 U drh
-Z cf4a88fcf525251c2ffa6cc1a2b92db1
+Z 44cfd935fc45a73f240d583eb49e27ec
