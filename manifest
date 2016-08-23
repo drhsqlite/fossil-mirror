@@ -1,5 +1,5 @@
-C Improved\sorigin\stracking\sfor\sunversioned\sfiles.\s\sShow\sAdmin/Setup\susers\nthe\srcvid\sand\sallow\sthem\sto\ssee\sthe\soriginating\sIP\saddress\sand\sto\sdelete\nunversioned\sfiles.\s\sUpdate\sthe\srcvfrom\stable\sviewer\sto\sinclude\sunversioned\nfile\sentries.
-D 2016-08-23T01:22:56.743
+C In\sthe\s/uvlist,\sdo\snot\slink\sto\sdeleted\sfiles.
+D 2016-08-23T01:37:30.221
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -502,7 +502,7 @@ F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c 54c3baa046348a67821fda865269c84e80bb56b7
 F src/unicode.c 8e02b4fd6af9e735bda68eb06e3be90b6b901a87
-F src/unversioned.c b63c58230c6ef5ef3aa53f9afaff4a8cc5a0ed17
+F src/unversioned.c fa4b7ef9b1558ddabd9c407019b32a03614c8369
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c e2c08deb9a3ce011d3db10f70216a7988485e29a
@@ -756,7 +756,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9eeaceab636960bfe1ed88e23a5cfec64d4537dd
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7deeb51511eca1390c0c2126540e71ade55adfd5
-R 004fdc66470765df09e804a8b35c3fbb
+P 8972aae720b007e1d6a95c72de83b028fa39aa6c
+R 4beca8c27dac8cfd13c2ee4281690e53
 U drh
-Z 1579eb9dad05e720b617ade489922587
+Z a6dd43ec15d03bd6145e1f4aa331a319

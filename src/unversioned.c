@@ -408,17 +408,18 @@ void uvstat_page(void){
        @ </tr></thead>
        @ <tbody>
      }
+     @ <tr>
      if( isDeleted ){
        sqlite3_snprintf(sizeof(zSzName), zSzName, "<i>Deleted</i>");
        zHash = "";
        fullSize = 0;
+       @ <td> %h(zName) </td>
      }else{
        approxSizeName(sizeof(zSzName), zSzName, fullSize);
        iTotalSz += fullSize;
        cnt++;
+       @ <td> <a href='%R/uv/%T(zName)'>%h(zName)</a> </td>
      }
-     @ <tr>
-     @ <td> <a href='%R/uv/%T(zName)'>%h(zName)</a> </td>
      @ <td data-sortkey='%016llx(-mtime)'> %s(zAge) </td>
      @ <td data-sortkey='%08x(fullSize)'> %s(zSzName) </td>
      @ <td> %h(zLogin) </td>
