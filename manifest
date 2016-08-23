@@ -1,5 +1,5 @@
-C When\sthere\sis\sno\sargument\sto\sthe\s/uv\spage,\smake\s"index.wiki"\sthe\sdefault.\nDo\snot\sallow\s"index.html"\ssince\sthat\sprobably\swill\snot\shave\nthe\scorrect\s&lt;base&gt;\sheader.
-D 2016-08-23T13:31:19.632
+C Updates\sto\sthe\schange\slog.
+D 2016-08-23T13:52:56.680
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -667,7 +667,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 70f43c1027728f15883cbde8099ee2eec2da8c0f
-F www/changes.wiki aaf5cdc60d8bd97b57ce913ce372873ccd93fce9
+F www/changes.wiki 9c9207e0332f139ff7f5b0ed5a70d5d81bf5bd8a
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 115a0ecdac918232061bbc19124ea83e0a27d938
 F www/childprojects.wiki 26e08e37f9d96562486c7698697a356d77cdad8f
@@ -756,7 +756,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1d6b67822a7c595da71491fc775003359de5deef
-R 93039717331ab48fea53d6c1ab9b4e0e
+P 4a8378581c5e537d0fed83b628b6f8b3347a9d47
+R 6625d6a5f4da3de1141db50fe0ea8db9
 U drh
-Z 8e599e69a51b4aa85d522b69bae6db4d
+Z cf4a88fcf525251c2ffa6cc1a2b92db1
