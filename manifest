@@ -1,5 +1,5 @@
-C Add\sanother\stest\sto\scheck\sthe\svalue\sof\seach\sversionable\ssetting\safter\sit\sis\swritten.
-D 2016-08-23T02:19:25.893
+C Add\sa\scomment.
+D 2016-08-23T17:21:46.752
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -548,7 +548,7 @@ F test/merge_warn.test d4a98c6ff14e4bb142d784f96c88d152d9599529
 F test/mv-rm.test a46185f0a8443bf422e222b47f360e5c341e9306
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
 F test/revert.test 7387258ce11b1214c5b82be47792d2c98316fd52
-F test/settings-repo.test 1f8fa02f36cc011c399b252d535130afdc8e3b19
+F test/settings-repo.test cd46e963e1c983621373db38f57a0b936be347e6
 F test/settings.test 15a146c38e233e089ea1aebbf1ef7f9edfd23fd8
 F test/stash.test f9c2bba31afe77b62967ea11e59e438c950325ec
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
@@ -758,7 +758,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9eeaceab636960bfe1ed88e23a5cfec64d4537dd
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b9414210cd4dea6f3c1eb10dd4d08a73ddbf2fbe
-R 939d2d48a113498c3825a6a22d1605ca
+P 46228ffb1f2cdb8f161d95ec2fa6b70ce6cf5a0e
+R ffb1d75f80c92ee5a4f755c9da4f6a4c
 U mistachkin
-Z af4ada32b657ccacddcc926f9fc801e9
+Z 0aec1e92b89a9ff1df913e1a52638879

@@ -22,6 +22,15 @@ require_no_open_checkout
 set dir [file dirname [info script]]; test_setup
 
 ###############################################################################
+#
+# Complete syntax as tested:
+#
+#     fossil settings ?PROPERTY? ?VALUE? ?OPTIONS?
+#     fossil unset PROPERTY ?OPTIONS?
+#
+# Where the only supported options are "--global" and "--exact".
+#
+###############################################################################
 
 set all_settings [get_all_settings]
 
