@@ -1,5 +1,5 @@
-C Add\sextensive\stests\sfor\sthe\s'settings'\sand\s'unset'\scommands.\sAlso,\sadd\s--exact\soption\sto\sthe\s'settings'\s/\s'unset'\scommands.
-D 2016-08-23T17:30:56.304
+C Minor\stweak\sto\sthe\s'get_versionable_settings'\stest\ssuite\shelper\sroutine.
+D 2016-08-23T17:34:57.281
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -554,7 +554,7 @@ F test/stash.test 7308d81eca91aa889a41f947ce48025d07633ab9
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 80ec6027006798fcbf11cf439ea65092ca3d56f5
+F test/tester.tcl d7347cce73e49ae408cda7f01b5e0e31f9290d9f
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 3a95822e5006f404b51bb6dccacc340a452d3f4e
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -758,8 +758,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3a66ed0bee8ab3fc2d2221149f449a9ebe09ec17 ca6c8f9be80531d8b16df26133e1a2d914c736c6
-R 2f8cf372180e4f0543b044cca49b1dda
-T +closed ca6c8f9be80531d8b16df26133e1a2d914c736c6
+P 816bc43b8064bf4db40f96d71ba490a3941d6923
+R 5daaec6f48b28d46cd78226dac133661
 U mistachkin
-Z e59ed45746be59078d778b359a6585f8
+Z ac76276f958b4b9af0fe398cab8798e7

@@ -216,7 +216,7 @@ proc get_versionable_settings {} {
     lappend result tcl-setup
   }
 
-  return $result
+  return [lsort -dictionary $result]
 }
 
 # Returns the list of all supported settings.
