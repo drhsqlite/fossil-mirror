@@ -1,5 +1,5 @@
-C Better\sdefault\ssort\sorders\sfor\scolumns\son\sthe\s/uvlist
-D 2016-08-23T01:41:33.089
+C Add\sextensive\stests\sfor\sthe\s'settings'\sand\s'unset'\scommands.\s\sAlso,\sadd\s--exact\soption\sto\sthe\s'settings'\s/\s'unset'\scommands.
+D 2016-08-23T02:13:33.612
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -396,7 +396,7 @@ F src/content.c 4ab3e97d89e9967105d5daa9b48a023528e52f3a
 F src/cson_amalgamation.c e220a3a91402d60424fa0843598cdfdaa319f193
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 7e577017c0d3fc03ee1f4f73debf3aeb9bb34f4f
+F src/db.c f0452569b57d80e9e393d2152cb90aa19b3a939a
 F src/delta.c f3002e96cc35f37b9bab7c88f82e978e67342904
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
@@ -548,11 +548,13 @@ F test/merge_warn.test d4a98c6ff14e4bb142d784f96c88d152d9599529
 F test/mv-rm.test a46185f0a8443bf422e222b47f360e5c341e9306
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
 F test/revert.test 7387258ce11b1214c5b82be47792d2c98316fd52
+F test/settings-repo.test f70ad70df2c5b3a1ad3fc0f7724b76d58dd8943b
+F test/settings.test 15a146c38e233e089ea1aebbf1ef7f9edfd23fd8
 F test/stash.test f9c2bba31afe77b62967ea11e59e438c950325ec
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl db9f4d759b2c54443cb9f07d7e491249cc6eaa97
+F test/tester.tcl 80ec6027006798fcbf11cf439ea65092ca3d56f5
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 3a95822e5006f404b51bb6dccacc340a452d3f4e
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -756,7 +758,10 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9eeaceab636960bfe1ed88e23a5cfec64d4537dd
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d8b0489b81d333c3dcd2be055f08e39b6959fb99
-R f03520b0883ef6dbae6e37ab15bd8555
-U drh
-Z 33e9d5ae57f6d25a24d3e3e08c1a9deb
+P 401d9b29377dd55a7bd2788c73af0452504e155c
+R 273138690ac39da7ac2b643aaa159c08
+T *branch * settingsTest
+T *sym-settingsTest *
+T -sym-trunk *
+U mistachkin
+Z c954327a53f82e8395a5eb8d0208af4b
