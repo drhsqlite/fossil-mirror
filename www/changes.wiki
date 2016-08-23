@@ -4,8 +4,8 @@
 
   *  Update internal Unicode character tables, used in regular expression
      handling, from version 8.0 to 9.0.
-  *  Update the built-in SQLite to version 3.14.1. Doesn't work with
-     earlier SQLite versions than 3.14.0 any more.
+  *  Update the built-in SQLite to version 3.15 (beta). Doesn't work with
+     earlier SQLite versions than 3.15 any more.
   *  Fix [https://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg23618.html|multi-line timeline bug]
   *  Enhance the [/help?cmd=purge|fossil purge] command.
   *  New command [/help?cmd=shell|fossil shell].

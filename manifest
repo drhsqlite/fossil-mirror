@@ -1,5 +1,5 @@
-C eliminate\ssome\send-of-line\sspaces
-D 2016-08-23T12:13:25.754
+C update\schange\slog
+D 2016-08-23T12:14:32.584
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -667,7 +667,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 70f43c1027728f15883cbde8099ee2eec2da8c0f
-F www/changes.wiki 27bade1384974eee035f8933d11614fc954747e3
+F www/changes.wiki aaf5cdc60d8bd97b57ce913ce372873ccd93fce9
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 115a0ecdac918232061bbc19124ea83e0a27d938
 F www/childprojects.wiki 26e08e37f9d96562486c7698697a356d77cdad8f
@@ -756,7 +756,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ab4c1e2961a69e5104be3734ffcee7f09386f2f6
-R 58f8e167b26ffa7219569ab3201ae137
+P d32155d0642988c4ec14e5e4cdda8c5e89a8d1c0
+R cc01d04a13cd8ef673a449048a7987f7
 U jan.nijtmans
-Z 506a5cae13ea48d7a4c284c6535776e9
+Z c710549556b41563166431e579a7bd6b
