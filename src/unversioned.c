@@ -354,6 +354,9 @@ void unversioned_cmd(void){
 ** WEBPAGE: uvlist
 **
 ** Display a list of all unversioned files in the repository.
+** Query parameters:
+**
+**    byage=1          Order the initial display be decreasing age
 */
 void uvstat_page(void){
   Stmt q;
@@ -361,6 +364,7 @@ void uvstat_page(void){
   sqlite3_int64 iTotalSz = 0;
   int cnt = 0;
   int n = 0;
+  const char *zOrderBy = "name";
   char zSzName[100];
 
   login_check_credentials();
@@ -371,6 +375,7 @@ void uvstat_page(void){
     style_footer();
     return;
   }
+  if( PB("byage") ) zOrderBy = "mtime DESC";
   db_prepare(&q,
      "SELECT"
      "   name,"
@@ -380,7 +385,8 @@ void uvstat_page(void){
      "   (SELECT login FROM rcvfrom, user"
      "     WHERE user.uid=rcvfrom.uid AND rcvfrom.rcvid=unversioned.rcvid),"
      "   rcvid"
-     " FROM unversioned"
+     " FROM unversioned ORDER BY %s",
+     zOrderBy/*safe-for-%s*/
    );
    iNow = db_int64(0, "SELECT strftime('%%s','now');");
    while( db_step(&q)==SQLITE_ROW ){

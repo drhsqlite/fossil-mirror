@@ -1,5 +1,5 @@
-C Fix\sa\sharmless\sbut\sredundant\sspace\sin\sthe\sadmin_log\sschema\sdefinition.
-D 2016-08-23T10:13:32.409
+C Add\sa\slink\sto\sthe\s/uvlist\sscreen\sfrom\sthe\s/setup\smenu.\s\sAdd\sthe\sbyage=1\nquery\sparameter\sto\s/uvlist.
+D 2016-08-23T11:58:41.689
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -475,7 +475,7 @@ F src/report.c 650149d0abc88d23c8571b64f3dfba23197bec2b
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c 5ee3087a8fadd05c7218714ea541251a143c93cd
-F src/setup.c 3b6d7487fe12baa680fdd270768f2765cdc471ff
+F src/setup.c f179c3b0225b45c720b3ddc225463c7567427e90
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
 F src/shell.c 79dda477be6c96eba6e952a934957ad36f87acc7
 F src/shun.c 4c2e01c7775c09ed64b817ed9c3e6b6edce4aa57
@@ -502,7 +502,7 @@ F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c 54c3baa046348a67821fda865269c84e80bb56b7
 F src/unicode.c 8e02b4fd6af9e735bda68eb06e3be90b6b901a87
-F src/unversioned.c 7aac9241a43a0843a08519517bcbde828ec785e4
+F src/unversioned.c 89f53c3e184da109f6ef095d3f1274a79372bd30
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c e2c08deb9a3ce011d3db10f70216a7988485e29a
@@ -756,7 +756,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 9eeaceab636960bfe1ed88e23a5cfec64d4537dd
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 401d9b29377dd55a7bd2788c73af0452504e155c
-R 126e8ed569e243879e2a67fd40756d00
+P 18524551580288e07c278b6a1389f41014dace1a
+R c33d8acc824099f41dae9f3ecb9fa624
 U drh
-Z 9419c036ab9f645b4704634f39d2af9f
+Z a2a7fb240352eb10be3d0c89915cae9b
