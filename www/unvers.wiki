@@ -48,12 +48,12 @@ commands will synchronize unversioned content if and only if the
 [/help?cmd=unversioned|fossil unversioned sync] command will synchronize the
 unversioned content without synchronizing anything else.
 
-Notice that the "-u" option does not work on 
+Notice that the "-u" option does not work on
 [/help?cmd=push|fossil push] or [/help?cmd=pull|fossil pull].
 The "-u" option is only available on "sync" and "clone".
 
 A rough equivalent of an unversioned pull would be the
-[/help?cmd=unversioned|fossil unversioned revert] command.  The 
+[/help?cmd=unversioned|fossil unversioned revert] command.  The
 "unversioned revert"
 command causes the unversioned content on the local repository to overwritten
 by the unversioned content found on the remote repository.
@@ -63,7 +63,7 @@ by the unversioned content found on the remote repository.
 <i>(This section outlines the current implementation of unversioned
 files.  This is not an interface spec and hence subject to change.)</i>
 
-Unversioned content is stored in the repository in the 
+Unversioned content is stored in the repository in the
 "unversioned" table:
 
 <blockquote><pre>

@@ -3,7 +3,7 @@
 # Run this TCL script to generate a WIKI page that contains a
 # permuted index of the various documentation files.
 #
-#    tclsh mkindex.tcl 
+#    tclsh mkindex.tcl
 #
 
 set doclist {

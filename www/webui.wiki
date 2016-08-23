@@ -21,7 +21,7 @@ development project:
   *  Manage user credentials and access permissions
   *  And so forth... (some [./webpage-ex.md|examples])
 
-You get all of this, and more, for free when you use Fossil. 
+You get all of this, and more, for free when you use Fossil.
 There are no extra programs to install or setup.
 Everything you need is already pre-configured and built into the
 self-contained, stand-alone Fossil executable.
@@ -55,7 +55,7 @@ repository, simply type this:
 
 Substitute the name of your repository, of course.
 The "ui" command will start a webserver running (it figures out an
-available TCP port to use on its own) and then automatically launches 
+available TCP port to use on its own) and then automatically launches
 your web browser to point at that server.  If you run the "ui" command
 from within an open check-out, you can omit the repository name:
 
@@ -153,7 +153,7 @@ contains the file, then add a CGI script that looks something like this:
 Adjust the script above so that the paths are correct for your system,
 of course, and also make sure the Fossil binary is installed on the server.
 But that is <u>all</u> you have to do.  You now have everything you need to host
-a distributed software development project in less than five minutes using a 
+a distributed software development project in less than five minutes using a
 two-line CGI script.
 
 Instructions for setting up an SCGI server are
@@ -167,7 +167,7 @@ web interface looks like this:
 
   <verbatim>
   80 stream tcp nowait.1000 root /usr/local/bin/fossil \
-  /usr/local/bin/fossil http /home/www/sample-project.fossil 
+  /usr/local/bin/fossil http /home/www/sample-project.fossil
   </verbatim>
 
 As always, you'll want to adjust the pathnames to whatever is appropriate

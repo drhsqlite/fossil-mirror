@@ -2048,7 +2048,7 @@ static int isIsoDate(const char *z){
 **     ancestors | parents
 **
 ** The CHECKIN can be any unique prefix of 4 characters or more. You
-** can also say "current" for the current version. 
+** can also say "current" for the current version.
 **
 ** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
 ** year-month-day form, it may be truncated, the "T" may be replaced by

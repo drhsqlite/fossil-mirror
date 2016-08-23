@@ -92,7 +92,7 @@ void shell_cmd(void){
       }
     }
 
-    /* Special cases */    
+    /* Special cases */
     if( nArg<2 ) continue;
     if( fossil_strcmp(azArg[1],"exit")==0 ) break;
 
@@ -114,5 +114,5 @@ void shell_cmd(void){
       waitpid(childPid, &status, 0);
     }
   }
-#endif 
+#endif
 }

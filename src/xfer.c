@@ -295,7 +295,7 @@ static void xfer_accept_compressed_file(
 **      uvfile NAME MTIME HASH SIZE FLAGS
 **      uvfile NAME MTIME HASH SIZE FLAGS \n CONTENT
 **
-** If the 0x0001 bit of FLAGS is set, that means the file has been 
+** If the 0x0001 bit of FLAGS is set, that means the file has been
 ** deleted, SIZE is zero, the HASH is "-", and the "\n CONTENT" is omitted.
 **
 ** SIZE is the number of bytes of CONTENT.  The CONTENT is uncompressed.
@@ -353,12 +353,12 @@ static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
 
   /* Check to see if current content really should be overwritten.  Ideally,
   ** a uvfile card should never have been sent unless the overwrite should
-  ** occur.  But do not trust the sender.  Double-check. 
+  ** occur.  But do not trust the sender.  Double-check.
   */
   iStatus = unversioned_status(blob_str(&pXfer->aToken[1]), mtime,
                                blob_str(pHash));
   if( iStatus>=3 ) goto end_accept_unversioned_file;
-  
+
   /* Store the content */
   isDelete = blob_eq(pHash, "-");
   if( isDelete ){
@@ -1040,7 +1040,7 @@ static void send_unversioned_catalog(Xfer *pXfer){
       int sz = db_column_int(&uvq,3);
       nUvIgot++;
       if( zHash==0 ){ sz = 0; zHash = "-"; }
-      blob_appendf(pXfer->pOut, "uvigot %s %lld %s %d\n", 
+      blob_appendf(pXfer->pOut, "uvigot %s %lld %s %d\n",
                    zName, mtime, zHash, sz);
     }
     db_finalize(&uvq);

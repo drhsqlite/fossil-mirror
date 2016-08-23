@@ -1,5 +1,5 @@
-C Add\sa\slink\sto\sthe\s/uvlist\sscreen\sfrom\sthe\s/setup\smenu.\s\sAdd\sthe\sbyage=1\nquery\sparameter\sto\s/uvlist.
-D 2016-08-23T11:58:41.689
+C eliminate\ssome\send-of-line\sspaces
+D 2016-08-23T12:13:25.754
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -18,10 +18,10 @@ F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
 F ajax/i-test/rhino-test.js c0e2d874caa424a8cb1628c8d85a4a6b197b8d32
 F ajax/index.html ff6a9f6bedd406784a6bfb1238beb8deee713069
-F ajax/js/fossil-ajaj.js 7f57fa883df4e0bc9b0ee25fb7d3ead6e4808ae0
+F ajax/js/fossil-ajaj.js fd8e12d69fc9cd13e29c78030380045843b5de03
 F ajax/js/json2.js 2e347546543bf026d364e9d308007b18225c0cba
-F ajax/js/whajaj.js aaf43d1459ee6ea218da70ac02863b33f3740767
-F ajax/wiki-editor.html f5f431536421f661b473df92c20c552c68b712f3
+F ajax/js/whajaj.js ade739c26ef1798a47452cecca663ade34593636
+F ajax/wiki-editor.html caefc5f47b34b207207f4029b426cd4b5aee2fb5
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
 F art/CollRev3.dia d14a7b35e0af533998e705e771b504f8aaaead96
@@ -410,7 +410,7 @@ F src/export.c ab705fb1bdb609c49cab3aa686fd74b5cd8e83d4
 F src/file.c c1b31491b3a5d3ee010ef3f41491bcdc500a4161
 F src/finfo.c 52ff40efd749479219506ea1cc5bb2bd63d9bd61
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
-F src/fshell.c 5c6a1ac0cf20ac78f1e1b13edf1a1e9220a2faba
+F src/fshell.c 00dbabd3e544bb99c21e41a6750187d3d4b416ed
 F src/fusefs.c 6369690cc543c1b3fe154776933f018f3c91518b
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 1e8070d743acae021523e423418c4c13d81b5a0f
@@ -478,7 +478,7 @@ F src/search.c 5ee3087a8fadd05c7218714ea541251a143c93cd
 F src/setup.c f179c3b0225b45c720b3ddc225463c7567427e90
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
 F src/shell.c 79dda477be6c96eba6e952a934957ad36f87acc7
-F src/shun.c 4c2e01c7775c09ed64b817ed9c3e6b6edce4aa57
+F src/shun.c 7d0a7eeffdf515b2d78919408fe42e7142a9b532
 F src/sitemap.c b7c376b21d29322741c804e1f762b34aedb98ad1
 F src/skins.c 524384aafbe9e7707d3b87f42ee72fa63fe91796
 F src/sqlcmd.c 85c93b5f9c6836a0795a2576f3c21fe7f5354edf
@@ -496,13 +496,13 @@ F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c b60b8ecbe727b7f3ff7d97db0189fea3883cf24c
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
-F src/timeline.c f851733577eb5df0182045dbcd371b3d04c62e94
+F src/timeline.c 518b4e256c53e2af57f48682ae93f27d89eae979
 F src/tkt.c 0d7059f823642ea6c26c07081ee94b6cbb663408
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c 54c3baa046348a67821fda865269c84e80bb56b7
 F src/unicode.c 8e02b4fd6af9e735bda68eb06e3be90b6b901a87
-F src/unversioned.c 89f53c3e184da109f6ef095d3f1274a79372bd30
+F src/unversioned.c edb0a3f5310073ea79aa897070bafdd5a9728eb4
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c e2c08deb9a3ce011d3db10f70216a7988485e29a
@@ -515,12 +515,12 @@ F src/wikiformat.c 1d750982147d9c51fa40e89e40241a33408adaf6
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c 7e4c82fc91fe89b81ef4ae399944b8f035fe6789
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c 7cbc39ae33e8a926bbf65edaeecd2d3306f20bd4
+F src/xfer.c 21a406987964757da0ac3594c25de287a542100d
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 4ff5fff5dba38f7b514db1194a69a6f634be6a34
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
-F test/amend.test 90daf2da8220909241784045fa11bce22d5591bf
+F test/amend.test f89134d8bb0e36527248557c95c23f19fc687064
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
 F test/cmdline.test df50383ebf00e7a444e29f2f755867f843c37df7
 F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
@@ -547,8 +547,8 @@ F test/merge_renames.test 73a5d0e41410d142003cb233d2f0f398d8421072
 F test/merge_warn.test d4a98c6ff14e4bb142d784f96c88d152d9599529
 F test/mv-rm.test a46185f0a8443bf422e222b47f360e5c341e9306
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
-F test/revert.test 7387258ce11b1214c5b82be47792d2c98316fd52
-F test/stash.test f9c2bba31afe77b62967ea11e59e438c950325ec
+F test/revert.test f7798e8eab21bcf5550af8ac4ee6cb8d5f33cc78
+F test/stash.test 7308d81eca91aa889a41f947ce48025d07633ab9
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
@@ -575,7 +575,7 @@ F test/utf.test e2489218e27ea0c643185707e2a4fd33db59f13b
 F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03
-F test/wiki.test ba8646414369ad2cc87061738662d004740ed20f
+F test/wiki.test 001e9e3b99798346f161710f16719b75e0fb3f2b
 F tools/cvs2fossil/changeset 1c99ad8ca9b2f049266d63e0bcc5f26196c72627
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -726,7 +726,7 @@ F www/index.wiki cb23ace3944512d8a033ccfc0efd035e5131aa26
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki 30c7129ffb00c58699b87e84a2c0b696d7c10406
 F www/mkdownload.tcl 5ac61a3e13cecaa67f1e31741113c96cbd41463f
-F www/mkindex.tcl 740b3e7fee34bf5ee8ecb264bd101f8d4295d763
+F www/mkindex.tcl 6bf09d66ff3a6b9a38b235b4ddcadc0a9d173ea8
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
 F www/permutedindex.html 49a5bec3c96eca039019e4612f3e264dda628e03
@@ -751,12 +751,12 @@ F www/th1.md cce5b4ec03727680ec48dede21bb6aa82931d7c2
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
-F www/unvers.wiki c8e161a54db1b7fc4d4feaa74607b19e2cb8d54f
+F www/unvers.wiki 8d89bb91613dc053685c0c54448a11876935a375
 F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
-F www/webui.wiki 9eeaceab636960bfe1ed88e23a5cfec64d4537dd
+F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 18524551580288e07c278b6a1389f41014dace1a
-R c33d8acc824099f41dae9f3ecb9fa624
-U drh
-Z a2a7fb240352eb10be3d0c89915cae9b
+P ab4c1e2961a69e5104be3734ffcee7f09386f2f6
+R 58f8e167b26ffa7219569ab3201ae137
+U jan.nijtmans
+Z 506a5cae13ea48d7a4c284c6535776e9

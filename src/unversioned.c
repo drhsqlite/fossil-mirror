@@ -36,7 +36,7 @@ static const char zUnversionedInit[] =
 @   name TEXT PRIMARY KEY,       -- Name of the uv file
 @   rcvid INTEGER,               -- Where received from
 @   mtime DATETIME,              -- timestamp.  Seconds since 1970.
-@   hash TEXT,                   -- Content hash.  NULL if a delete marker 
+@   hash TEXT,                   -- Content hash.  NULL if a delete marker
 @   sz INTEGER,                  -- size of content after decompression
 @   encoding INT,                -- 0: plaintext.  1: zlib compressed
 @   content BLOB                 -- content of the file.  NULL if oversized

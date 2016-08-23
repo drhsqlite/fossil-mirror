@@ -495,11 +495,11 @@ void rcvfrom_page(void){
       );
     }
     db_finalize(&q);
-    db_prepare(&q, 
+    db_prepare(&q,
       "SELECT name, hash, sz\n"
       "  FROM unversioned "
       " WHERE rcvid=%d", rcvid
-    );
+    );
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q,0);
       const char *zHash = db_column_text(&q,1);
