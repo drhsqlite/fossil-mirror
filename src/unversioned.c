@@ -105,6 +105,44 @@ int unversioned_content(const char *zName, Blob *pContent){
 }
 
 /*
+** Write unversioned content into the database.
+*/
+static void unversioned_write(
+  const char *zUVFile,               /* Name of the unversioned file */
+  Blob *pContent,                    /* File content */
+  sqlite3_int64 mtime                /* Modification time */
+){
+  Stmt ins;
+  Blob compressed;
+  Blob hash;
+
+  db_prepare(&ins,
+    "REPLACE INTO unversioned(name,rcvid,mtime,hash,sz,encoding,content)"
+    " VALUES(:name,:rcvid,:mtime,:hash,:sz,:encoding,:content)"
+  );
+  sha1sum_blob(pContent, &hash);
+  blob_compress(pContent, &compressed);
+  db_bind_text(&ins, ":name", zUVFile);
+  db_bind_int(&ins, ":rcvid", g.rcvid);
+  db_bind_int64(&ins, ":mtime", mtime);
+  db_bind_text(&ins, ":hash", blob_str(&hash));
+  db_bind_int(&ins, ":sz", blob_size(pContent));
+  if( blob_size(&compressed) <= 0.8*blob_size(pContent) ){
+    db_bind_int(&ins, ":encoding", 1);
+    db_bind_blob(&ins, ":content", &compressed);
+  }else{
+    db_bind_int(&ins, ":encoding", 0);
+    db_bind_blob(&ins, ":content", pContent);
+  }
+  db_step(&ins);
+  blob_reset(&compressed);
+  blob_reset(&hash);
+  db_finalize(&ins);
+  db_unset("uv-hash", 0);
+}
+
+
+/*
 ** Check the status of unversioned file zName.  Return an integer status
 ** code as follows:
 **
@@ -159,6 +197,8 @@ int unversioned_status(const char *zName, sqlite3_int64 mtime, const char *zHash
 **
 **    cat FILE ...         Concatenate the content of FILEs to stdout.
 **
+**    edit FILE            Bring up FILE in a text editor for modification.
+**
 **    export FILE OUTPUT   Write the content of FILE into OUTPUT on disk
 **
 **    list | ls            Show all unversioned files held in the local repository.
@@ -200,22 +240,13 @@ void unversioned_cmd(void){
     const char *zIn;
     const char *zAs;
     Blob file;
-    Blob hash;
-    Blob compressed;
-    Stmt ins;
     int i;
 
     zAs = find_option("as",0,1);
     if( zAs && g.argc!=4 ) usage("add DISKFILE --as UVFILE");
     verify_all_options();
     db_begin_transaction();
-    user_select();
-    g.zIpAddr = "command-line";
-    content_rcvid_init();
-    db_prepare(&ins,
-      "REPLACE INTO unversioned(name,rcvid,mtime,hash,sz,encoding,content)"
-      " VALUES(:name,:rcvid,:mtime,:hash,:sz,:encoding,:content)"
-    );
+    content_rcvid_init("#!fossil unversioned add");
     for(i=3; i<g.argc; i++){
       zIn = zAs ? zAs : g.argv[i];
       if( zIn[0]==0 || zIn[0]=='/' || !file_is_simple_pathname(zIn,1) ){
@@ -223,28 +254,9 @@ void unversioned_cmd(void){
       }
       blob_init(&file,0,0);
       blob_read_from_file(&file, g.argv[i]);
-      sha1sum_blob(&file, &hash);
-      blob_compress(&file, &compressed);
-      db_bind_text(&ins, ":name", zIn);
-      db_bind_int(&ins, ":rcvid", g.rcvid);
-      db_bind_int64(&ins, ":mtime", mtime);
-      db_bind_text(&ins, ":hash", blob_str(&hash));
-      db_bind_int(&ins, ":sz", blob_size(&file));
-      if( blob_size(&compressed) <= 0.8*blob_size(&file) ){
-        db_bind_int(&ins, ":encoding", 1);
-        db_bind_blob(&ins, ":content", &compressed);
-      }else{
-        db_bind_int(&ins, ":encoding", 0);
-        db_bind_blob(&ins, ":content", &file);
-      }
-      db_step(&ins);
-      db_reset(&ins);
-      blob_reset(&compressed);
-      blob_reset(&hash);
+      unversioned_write(zIn, &file, mtime);
       blob_reset(&file);
     }
-    db_finalize(&ins);
-    db_unset("uv-hash", 0);
     db_end_transaction(0);
   }else if( memcmp(zCmd, "cat", nCmd)==0 ){
     int i;
@@ -258,6 +270,41 @@ void unversioned_cmd(void){
       blob_reset(&content);
     }
     db_end_transaction(0);
+  }else if( memcmp(zCmd, "edit", nCmd)==0 ){
+    const char *zEditor;    /* Name of the text-editor command */
+    const char *zTFile;     /* Temporary file */
+    const char *zUVFile;    /* Name of the unversioned file */
+    char *zCmd;             /* Command to run the text editor */
+    Blob content;           /* Content of the unversioned file */
+
+    verify_all_options();
+    if( g.argc!=4) usage("edit UVFILE");
+    zUVFile = g.argv[3];
+    zEditor = fossil_text_editor();
+    if( zEditor==0 ) fossil_fatal("no text editor - set the VISUAL env variable");
+    zTFile = fossil_temp_filename();
+    if( zTFile==0 ) fossil_fatal("cannot find a temporary filename");
+    db_begin_transaction();
+    content_rcvid_init("#!fossil unversioned edit");
+    if( unversioned_content(zUVFile, &content) ){
+      fossil_fatal("no such uv-file: %Q", zUVFile);
+    }
+    if( looks_like_binary(&content) ){
+      fossil_fatal("cannot edit binary content");
+    }
+    blob_write_to_file(&content, zTFile);
+    zCmd = mprintf("%s \"%s\"", zEditor, zTFile);
+    if( fossil_system(zCmd) ){
+      fossil_fatal("editor aborted: %Q", zCmd);
+    }
+    fossil_free(zCmd);
+    blob_reset(&content);
+    blob_read_from_file(&content, zTFile);
+    file_delete(zTFile);
+    if( zMtime==0 ) mtime = time(0);
+    unversioned_write(zUVFile, &content, mtime);
+    db_end_transaction(0);
+    blob_reset(&content);
   }else if( memcmp(zCmd, "export", nCmd)==0 ){
     Blob content;
     verify_all_options();
@@ -265,7 +312,7 @@ void unversioned_cmd(void){
     if( unversioned_content(g.argv[3], &content) ){
       fossil_fatal("no such uv-file: %Q", g.argv[3]);
     }
-    blob_write_to_file(&content, g.argv[4]);
+     blob_write_to_file(&content, g.argv[4]);
     blob_reset(&content);
   }else if( memcmp(zCmd, "hash", nCmd)==0 ){  /* undocumented */
     /* Show the hash value used during uv sync */
@@ -346,7 +393,7 @@ void unversioned_cmd(void){
     db_unset("uv-hash", 0);
     db_end_transaction(0);
   }else{
-    usage("add|cat|export|ls|revert|rm|sync|touch");
+    usage("add|cat|edit|export|ls|revert|rm|sync|touch");
   }
 }
 

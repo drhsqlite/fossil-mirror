@@ -457,13 +457,19 @@ void content_enable_dephantomize(int onoff){
 
 /*
 ** Make sure the g.rcvid global variable has been initialized.
+**
+** If the g.zIpAddr variable has not been set when this routine is
+** called, use zSrc as the source of content for the the rcvfrom
+** table entry.
 */
-void content_rcvid_init(void){
+void content_rcvid_init(const char *zSrc){
   if( g.rcvid==0 ){
+    user_select();
+    if( g.zIpAddr ) zSrc = g.zIpAddr;
     db_multi_exec(
        "INSERT INTO rcvfrom(uid, mtime, nonce, ipaddr)"
        "VALUES(%d, julianday('now'), %Q, %Q)",
-       g.userUid, g.zNonce, g.zIpAddr
+       g.userUid, g.zNonce, zSrc
     );
     g.rcvid = db_last_insert_rowid();
   }
@@ -546,7 +552,7 @@ int content_put_ex(
   db_finalize(&s1);
 
   /* Construct a received-from ID if we do not already have one */
-  content_rcvid_init();
+  content_rcvid_init(0);
 
   if( nBlob ){
     cmpr = pBlob[0];
