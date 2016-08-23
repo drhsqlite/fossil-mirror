@@ -217,14 +217,22 @@ foreach name $versionable_settings {
     [regexp -- [string map [list %name% $name] $pattern(1)] $data]
   }
 
+  set value #versionable_for_$name
   set fileName [file join .fossil-settings $name]
-  write_file $fileName versionable_for_$name
+  write_file $fileName $value
 
   fossil settings $name --exact
   set data [normalize_result]
 
   test settings-set-check1-versionable-$name {
     [regexp -- [string map [list %name% $name] $pattern(5)] $data]
+  }
+
+  fossil test-th-eval --open-config "setting $name"
+  set data [normalize_result]
+
+  test settings-set-check2-versionable-$name {
+    $data eq $value
   }
 
   file delete $fileName
