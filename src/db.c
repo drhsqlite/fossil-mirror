@@ -3085,7 +3085,7 @@ void create_admin_log_table(void){
     " id INTEGER PRIMARY KEY,\n"
     " time INTEGER, -- Seconds since 1970\n"
     " page TEXT,    -- path of page\n"
-    " who TEXT,     -- User who made the change\n "
+    " who TEXT,     -- User who made the change\n"
     " what TEXT     -- What changed\n"
     ")"
   );
