@@ -598,7 +598,7 @@ void doc_page(void){
   while( rid==0 && (++nMiss)<=ArraySize(azSuffix) ){
     zName = P("name");
     if( isUV ){
-      if( zName==0 ) zName = "";
+      if( zName==0 ) zName = "index.wiki";
       i = 0;
     }else{
       if( zName==0 || zName[0]==0 ) zName = "tip/index.wiki";

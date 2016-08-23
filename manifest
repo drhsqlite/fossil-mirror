@@ -1,5 +1,5 @@
-C Add\sthe\s"fossil\sunversioned\sedit\sUVFILE"\scommand.
-D 2016-08-23T13:01:19.654
+C When\sthere\sis\sno\sargument\sto\sthe\s/uv\spage,\smake\s"index.wiki"\sthe\sdefault.\nDo\snot\sallow\s"index.html"\ssince\sthat\sprobably\swill\snot\shave\nthe\scorrect\s&lt;base&gt;\sheader.
+D 2016-08-23T13:31:19.632
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -403,7 +403,7 @@ F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
 F src/diff.c c53eea5dfd52d092d298178bc40c70500d3c7fc6
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 3759afcedb06bb0d76844e0b724cd28b36ede262
-F src/doc.c 8439403b1dc006e15e19dc7ba981416d6a466401
+F src/doc.c 484b7d187372b37eb5314c0423da0aa9e46646ed
 F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
 F src/event.c 6909284d77a688d63cc67b7b0929b8dda5397742
 F src/export.c ab705fb1bdb609c49cab3aa686fd74b5cd8e83d4
@@ -756,7 +756,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 299614d16f2e45c66758c4457169e1163fb69d8a
-R 455a6ee6d78d895ce246cfc4f94adabc
+P 1d6b67822a7c595da71491fc775003359de5deef
+R 93039717331ab48fea53d6c1ab9b4e0e
 U drh
-Z 2166b2919c6b23b2658a4b8b02fb934a
+Z 8e599e69a51b4aa85d522b69bae6db4d
