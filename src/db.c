@@ -2883,12 +2883,16 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **   --global   set or unset the given property globally instead of
 **              setting or unsetting it for the open repository only.
 **
+**   --exact    only consider exact name matches.
+**
 ** See also: configuration
 */
 void setting_cmd(void){
   int i;
   int globalFlag = find_option("global","g",0)!=0;
+  int exactFlag = find_option("exact",0,0)!=0;
   int unsetFlag = g.argv[1][0]=='u';
+  verify_all_options();
   db_open_config(1, 0);
   if( !globalFlag ){
     db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0);
@@ -2918,7 +2922,7 @@ void setting_cmd(void){
   }else if( g.argc==3 || g.argc==4 ){
     const char *zName = g.argv[2];
     int n = (int)strlen(zName);
-    const Setting *pSetting = db_find_setting(zName, 1);
+    const Setting *pSetting = db_find_setting(zName, !exactFlag);
     if( pSetting==0 ){
       fossil_fatal("no such setting: %s", zName);
     }
@@ -2951,7 +2955,12 @@ void setting_cmd(void){
         manifest_to_disk(db_lget_int("checkout", 0));
       }
     }else{
-      while( pSetting->name && fossil_strncmp(pSetting->name,zName,n)==0 ){
+      while( pSetting->name ){
+        if( exactFlag ){
+          if( fossil_strcmp(pSetting->name,zName)!=0 ) break;
+        }else{
+          if( fossil_strncmp(pSetting->name,zName,n)!=0 ) break;
+        }
         print_setting(pSetting);
         pSetting++;
       }

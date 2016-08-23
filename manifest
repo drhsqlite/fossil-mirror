@@ -1,5 +1,5 @@
-C Fix\sharmless\scomment\sand\sspacing\stypos.
-D 2016-08-23T14:12:26.907
+C Add\sextensive\stests\sfor\sthe\s'settings'\sand\s'unset'\scommands.\sAlso,\sadd\s--exact\soption\sto\sthe\s'settings'\s/\s'unset'\scommands.
+D 2016-08-23T17:30:56.304
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -396,7 +396,7 @@ F src/content.c 8d104749ac8db354f458a327529f8e8c0ece349c
 F src/cson_amalgamation.c e220a3a91402d60424fa0843598cdfdaa319f193
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 8f8ac1206d254efd51b67286c0df9e5ad31fe671
+F src/db.c e1e3532112adcf233d380f6f8350acccf63147d2
 F src/delta.c f3002e96cc35f37b9bab7c88f82e978e67342904
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
@@ -548,11 +548,13 @@ F test/merge_warn.test d4a98c6ff14e4bb142d784f96c88d152d9599529
 F test/mv-rm.test a46185f0a8443bf422e222b47f360e5c341e9306
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
 F test/revert.test f7798e8eab21bcf5550af8ac4ee6cb8d5f33cc78
+F test/settings-repo.test cd46e963e1c983621373db38f57a0b936be347e6
+F test/settings.test 15a146c38e233e089ea1aebbf1ef7f9edfd23fd8
 F test/stash.test 7308d81eca91aa889a41f947ce48025d07633ab9
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl db9f4d759b2c54443cb9f07d7e491249cc6eaa97
+F test/tester.tcl 80ec6027006798fcbf11cf439ea65092ca3d56f5
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 3a95822e5006f404b51bb6dccacc340a452d3f4e
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -756,7 +758,8 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f2980d8995a04c4bf1dde396045948c3e9220c4e
-R 4716a1004d7dd74726045c2b094d3dd0
-U drh
-Z 1d75ae6726680aa5d94f1483fa760793
+P 3a66ed0bee8ab3fc2d2221149f449a9ebe09ec17 ca6c8f9be80531d8b16df26133e1a2d914c736c6
+R 2f8cf372180e4f0543b044cca49b1dda
+T +closed ca6c8f9be80531d8b16df26133e1a2d914c736c6
+U mistachkin
+Z e59ed45746be59078d778b359a6585f8
