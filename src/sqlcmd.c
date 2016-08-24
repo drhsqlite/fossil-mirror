@@ -140,7 +140,6 @@ static int sqlcmd_autoinit(
   const char **pzErrMsg,
   const void *notUsed
 ){
-  /* db_set_main_schemaname(db, "repository"); */
   add_content_sql_commands(db);
   db_add_aux_functions(db);
   re_add_sql_func(db);

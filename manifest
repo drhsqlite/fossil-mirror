@@ -1,5 +1,5 @@
-C In\sthe\spie-chart\sgenerator,\sif\sthere\sis\sa\swedge\spointing\sstraight\sdown,\nmake\ssure\sits\stext\slabel\sflows\soff\sto\sthe\sright,\snot\sthe\sleft.
-D 2016-08-24T14:08:07.915
+C Unbreak\scompilation\son\sCygwin.\sAllow\snotpad\sto\sbe\sused\sas\sunversioned\scontent\seditor\s(notepad\scannot\shandle\sUNIX\sline-endings)
+D 2016-08-24T14:56:14.267
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -481,7 +481,7 @@ F src/shell.c 79dda477be6c96eba6e952a934957ad36f87acc7
 F src/shun.c 7d0a7eeffdf515b2d78919408fe42e7142a9b532
 F src/sitemap.c b7c376b21d29322741c804e1f762b34aedb98ad1
 F src/skins.c 524384aafbe9e7707d3b87f42ee72fa63fe91796
-F src/sqlcmd.c 85c93b5f9c6836a0795a2576f3c21fe7f5354edf
+F src/sqlcmd.c a7dce974ba7afde541ed58df98bebce335ed75a5
 F src/sqlite3.c 96ff68842760e51523e619476e93ecbc08403134
 F src/sqlite3.h 4598bc789e11a494e541fce3ddf1424cf1fda5f9
 F src/stash.c ced32acae9b125f723c6473f30cdfdf8b530dc37
@@ -502,12 +502,12 @@ F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c 54c3baa046348a67821fda865269c84e80bb56b7
 F src/unicode.c 8e02b4fd6af9e735bda68eb06e3be90b6b901a87
-F src/unversioned.c 952f7946100293d6ba9cced4fc14cfa5b9e491a8
+F src/unversioned.c f86ba3024c1941113ffbf4ddda8f72ec08daa22a
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c e2c08deb9a3ce011d3db10f70216a7988485e29a
 F src/utf8.c 5c85c7e88b82b5fb48649c46f063ac94ab58eb20
-F src/util.c cad066defc228465776ba79d22bdf9a9133adf2d
+F src/util.c 08c5fc011a30bc2de134f0a405143a5f3a4e31a0
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
 F src/vfile.c 9d44ee4a0cf612b2fb257699b3f52c12a094f02f
 F src/wiki.c 8d56403100ca58020feeb4a76d2b7f08e861049e
@@ -758,7 +758,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f481fd6c9c000ca8146a4c6ee6b9370148b4d61f
-R ac390a683163d0eadfd7a95fe9528c35
-U drh
-Z 56d6671d50ba4bd59d7024d322fabb30
+P bb9c6a6f29ae81cedfd2f2740359f39676bf2b98
+R 9b28288d7112b2a900a15ef114ce0a73
+U jan.nijtmans
+Z 05268c818bb94a9af3ee514d6d777357

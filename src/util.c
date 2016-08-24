@@ -368,7 +368,6 @@ const char *fossil_text_editor(void){
     zEditor = mprintf("%s\\notepad.exe", fossil_getenv("SYSTEMROOT"));
 #if defined(__CYGWIN__)
     zEditor = fossil_utf8_to_path(zEditor, 0);
-    blob_add_cr(pPrompt);
 #endif
   }
 #endif

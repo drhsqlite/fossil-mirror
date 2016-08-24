@@ -36,7 +36,7 @@ static const char zUnversionedInit[] =
 @   name TEXT PRIMARY KEY,       -- Name of the uv file
 @   rcvid INTEGER,               -- Where received from
 @   mtime DATETIME,              -- timestamp.  Seconds since 1970.
-@   hash TEXT,                   -- Content hash.  NULL if a delete marker 
+@   hash TEXT,                   -- Content hash.  NULL if a delete marker
 @   sz INTEGER,                  -- size of content after decompression
 @   encoding INT,                -- 0: plaintext.  1: zlib compressed
 @   content BLOB                 -- content of the file.  NULL if oversized
@@ -292,6 +292,9 @@ void unversioned_cmd(void){
     if( looks_like_binary(&content) ){
       fossil_fatal("cannot edit binary content");
     }
+#if defined(_WIN32) || defined(__CYGWIN__)
+    blob_add_cr(&content);
+#endif
     blob_write_to_file(&content, zTFile);
     zCmd = mprintf("%s \"%s\"", zEditor, zTFile);
     if( fossil_system(zCmd) ){
@@ -300,6 +303,9 @@ void unversioned_cmd(void){
     fossil_free(zCmd);
     blob_reset(&content);
     blob_read_from_file(&content, zTFile);
+#if defined(_WIN32) || defined(__CYGWIN__)
+    blob_to_lf_only(&content);
+#endif
     file_delete(zTFile);
     if( zMtime==0 ) mtime = time(0);
     unversioned_write(zUVFile, &content, mtime);
