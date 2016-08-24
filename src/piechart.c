@@ -323,6 +323,9 @@ void piechart_test_page(void){
   @ <ul>
   @ <li> <a href='test-piechart?data=44,2,2,2,2,2,3,2,2,2,2,2,44'>Case 1</a>
   @ <li> <a href='test-piechart?data=2,2,2,2,2,44,44,2,2,2,2,2'>Case 2</a>
+  @ <li> <a href='test-piechart?data=20,2,2,2,2,2,2,2,2,2,2,80'>Case 3</a>
+  @ <li> <a href='test-piechart?data=80,2,2,2,2,2,2,2,2,2,2,20'>Case 4</a>
+  @ <li> <a href='test-piechart?data=2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2'>Case 5</a>
   @ </ul>
   style_footer();
 }
