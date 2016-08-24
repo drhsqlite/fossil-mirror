@@ -244,7 +244,7 @@ void piechart_render(int width, int height, unsigned int pieFlags){
         rLwrLeft = y4 + TEXT_HEIGHT;
       }
     }
-    if( x4<=cx ){
+    if( x4<cx ){
       x5 = x4 - 1.0;
       zAnc = "end";
     }else{

@@ -1,5 +1,5 @@
-C Minor\stweak\sto\sthe\s'get_versionable_settings'\stest\ssuite\shelper\sroutine.
-D 2016-08-23T17:34:57.281
+C In\sthe\spie-chart\sgenerator,\sif\sthere\sis\sa\swedge\spointing\sstraight\sdown,\nmake\ssure\sits\stext\slabel\sflows\soff\sto\sthe\sright,\snot\sthe\sleft.
+D 2016-08-24T14:08:07.915
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -462,7 +462,7 @@ F src/mkversion.c 40ed302872cc5795c76efb3ab089fc1aedba18f1
 F src/moderate.c dc445cce064560577fb47311c2e23925b92c35d8
 F src/name.c 5192c05e225b2a82603f70289cb7833544c24e12
 F src/path.c cce5fdfa571861a81e1a48e893e5a52dd2703a5f
-F src/piechart.c d8a7dbc26aa5b3be64b340edd8e7669dea54e5ad
+F src/piechart.c 965959804d3fef1d59b761c55a7eecb50f17ba66
 F src/pivot.c 2f9b97dad4267f3b5a9e89e14b711f326cb3f3a0
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -758,7 +758,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 816bc43b8064bf4db40f96d71ba490a3941d6923
-R 5daaec6f48b28d46cd78226dac133661
-U mistachkin
-Z ac76276f958b4b9af0fe398cab8798e7
+P f481fd6c9c000ca8146a4c6ee6b9370148b4d61f
+R ac390a683163d0eadfd7a95fe9528c35
+U drh
+Z 56d6671d50ba4bd59d7024d322fabb30
