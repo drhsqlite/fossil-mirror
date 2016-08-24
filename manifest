@@ -1,5 +1,5 @@
-C Unbreak\scompilation\son\sCygwin.\sAllow\snotpad\sto\sbe\sused\sas\sunversioned\scontent\seditor\s(notepad\scannot\shandle\sUNIX\sline-endings)
-D 2016-08-24T14:56:14.267
+C Simplification\sto\sthe\s/test-piechart\swebpage.\s\sInclude\ssample\stest\scases.
+D 2016-08-24T15:14:55.114
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -462,7 +462,7 @@ F src/mkversion.c 40ed302872cc5795c76efb3ab089fc1aedba18f1
 F src/moderate.c dc445cce064560577fb47311c2e23925b92c35d8
 F src/name.c 5192c05e225b2a82603f70289cb7833544c24e12
 F src/path.c cce5fdfa571861a81e1a48e893e5a52dd2703a5f
-F src/piechart.c 965959804d3fef1d59b761c55a7eecb50f17ba66
+F src/piechart.c 9590122d1fe3dd17bd8054c69df1df49e6be391c
 F src/pivot.c 2f9b97dad4267f3b5a9e89e14b711f326cb3f3a0
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -758,7 +758,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bb9c6a6f29ae81cedfd2f2740359f39676bf2b98
-R 9b28288d7112b2a900a15ef114ce0a73
-U jan.nijtmans
-Z 05268c818bb94a9af3ee514d6d777357
+P 6728970b766f7afff069239177c83dc4734ea424
+R 9b389be2d6a0dcd0bb4b98f836d2f4c9
+U drh
+Z f1790973c5873f92b937768a596d2773
