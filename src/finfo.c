@@ -413,7 +413,7 @@ void finfo_page(void){
     if( fShowId ) blob_appendf(&title, " (%d)", baseCheckin);
     fossil_free(zUuid);
   }else{
-    blob_appendf(&title, "History of files named ");
+    blob_appendf(&title, "History of ");
     hyperlinked_path(zFilename, &title, 0, "tree", "");
     if( fShowId ) blob_appendf(&title, " (%d)", fnid);
   }

@@ -1,5 +1,5 @@
-C Mention\sthe\snew\s'-nocomplain'\sto\sthe\sTH1\s'query'\scommand\sin\sthe\sdocumentation.
-D 2016-08-25T00:14:37.583
+C Improved\sheader\son\sthe\s/finfo\ssingle-file\stimeline\spage.
+D 2016-08-27T17:01:31.147
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -408,7 +408,7 @@ F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
 F src/event.c 6909284d77a688d63cc67b7b0929b8dda5397742
 F src/export.c ab705fb1bdb609c49cab3aa686fd74b5cd8e83d4
 F src/file.c c1b31491b3a5d3ee010ef3f41491bcdc500a4161
-F src/finfo.c 52ff40efd749479219506ea1cc5bb2bd63d9bd61
+F src/finfo.c ea4e48b5081bfae079c3b001fdd63f677d006767
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
 F src/fshell.c 00dbabd3e544bb99c21e41a6750187d3d4b416ed
 F src/fusefs.c 6369690cc543c1b3fe154776933f018f3c91518b
@@ -758,7 +758,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2ecdba9fe6e6018ab16c587eebe487825cc5444b
-R feb4f423252550bd3fbddec73181853b
-U mistachkin
-Z 4c92bd7671fabf770d13ebcc0d345510
+P 51fc4a3ec3dc54c16d36e5cec3e29e54eb7ea894
+R b968cc93f02771e7a89e8c5cfc3a27c1
+U drh
+Z e8b961d2ebf651925d162170bb97ed1d
