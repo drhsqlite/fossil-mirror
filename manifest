@@ -1,5 +1,5 @@
-C Improved\sheader\son\sthe\s/finfo\ssingle-file\stimeline\spage.
-D 2016-08-27T17:01:31.147
+C Fix\scomment\sand\sdocumentation\stypos.
+D 2016-08-27T21:16:29.558
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -376,7 +376,7 @@ F src/allrepo.c a1dcd11e7630c15bb2634903eaeead5fd40a1fbd
 F src/attach.c c27c749e6a1334200565b076979b96e366a99bb5
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c abd167c9f2c5398782ca6d48ea1ee612163a7685
-F src/blob.c bfae99792364d38924b8205983a8ada244532776
+F src/blob.c c0683f0e9fd0fb2b66ca62e8f1a54bd9873d6a28
 F src/branch.c f23d02fee6314c726d95a2a82954d81632636723
 F src/browse.c 8f0bb9b6e6e31df9875c081239745a33567c7c84
 F src/builtin.c b2dcfcade2054c083b03a18e3ab5026d51eb2dcb
@@ -393,7 +393,7 @@ F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
 F src/config.h b91f4223f2653503759e1205343db9f94d134973
 F src/configure.c ba6cd082894e2f08b71993a542990a617345007e
 F src/content.c 8d104749ac8db354f458a327529f8e8c0ece349c
-F src/cson_amalgamation.c e220a3a91402d60424fa0843598cdfdaa319f193
+F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c e1e3532112adcf233d380f6f8350acccf63147d2
@@ -460,7 +460,7 @@ F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
 F src/mkindex.c 8b49a351b060c3e9203dacbacfc8216f760f8da2
 F src/mkversion.c 40ed302872cc5795c76efb3ab089fc1aedba18f1
 F src/moderate.c dc445cce064560577fb47311c2e23925b92c35d8
-F src/name.c 5192c05e225b2a82603f70289cb7833544c24e12
+F src/name.c fbef706317c7f8ebc9d043713c0fb2b17e434bcb
 F src/path.c cce5fdfa571861a81e1a48e893e5a52dd2703a5f
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c 2f9b97dad4267f3b5a9e89e14b711f326cb3f3a0
@@ -475,7 +475,7 @@ F src/report.c 650149d0abc88d23c8571b64f3dfba23197bec2b
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c 5ee3087a8fadd05c7218714ea541251a143c93cd
-F src/setup.c f179c3b0225b45c720b3ddc225463c7567427e90
+F src/setup.c 2767f1df9359cce376500527a1c4a38ae986cc1a
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
 F src/shell.c 79dda477be6c96eba6e952a934957ad36f87acc7
 F src/shun.c 7d0a7eeffdf515b2d78919408fe42e7142a9b532
@@ -488,7 +488,7 @@ F src/stash.c ced32acae9b125f723c6473f30cdfdf8b530dc37
 F src/stat.c 6a6e24276497f62d4574ac181ab15ba19471caa7
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
 F src/style.c 71df0fbd14db41565c9d862dcd5f5fc996febe74
-F src/sync.c 276b812e26e878b3bd55bbb606effd105bb7cf5b
+F src/sync.c f2a51133fce42e67fafc13513e800c71c12fb3d3
 F src/tag.c 06dddb67703250f4a40f3a2f0138aadfb67c28e7
 F src/tar.c 3d8ec6d43a730d3bfdf73fc86bff84587a0bab57
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
@@ -661,7 +661,7 @@ F www/branch03.gif 3840bdbb5ed0f57104089c2888ee286d4c79a17b
 F www/branch04.gif 908b4fc1688810f78250e0a269741165ee31979a
 F www/branch05.gif 4808cbf6e0a4095580fca0f56a35f16ba975dbf9
 F www/branching.wiki f8a72263376e0997505bba9da690615c77fb157e
-F www/bugtheory.wiki e43e29be95b51db3cbe00dfc0c4cea6a3a424eec
+F www/bugtheory.wiki 035fbfb8a543204891f27628e9190a97f8d1b3a5
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
 F www/build-icons/linux64.gif 522442bc41cc8399b8957ab3cb1af4f5fe46b11f
 F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
@@ -758,7 +758,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 51fc4a3ec3dc54c16d36e5cec3e29e54eb7ea894
-R b968cc93f02771e7a89e8c5cfc3a27c1
+P 88c4a53e34ca8fa4c22c8c4f810e429467515021
+R 390e620313d146fa610bb1a41293e0ba
 U drh
-Z e8b961d2ebf651925d162170bb97ed1d
+Z 2f1a1be040bdc6c77869df085d4f3fce

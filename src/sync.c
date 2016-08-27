@@ -279,7 +279,7 @@ void push_cmd(void){
 **
 ** Usage: %fossil sync ?URL? ?options?
 **
-** Synchronize all sharable changes between the local repository and a a
+** Synchronize all sharable changes between the local repository and a
 ** remote repository.  Sharable changes include public check-ins and
 ** edits to wiki pages, tickets, and technical notes.
 **

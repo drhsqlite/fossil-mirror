@@ -1030,7 +1030,7 @@ int blob_uncompress(Blob *pIn, Blob *pOut){
 ** Usage: %fossil test-uncompress IN OUT
 **
 ** Read the content of file IN, uncompress that content, and write the
-** result into OUT.  This command is intended for testing of the the
+** result into OUT.  This command is intended for testing of the
 ** blob_compress() function.
 */
 void uncompress_cmd(void){

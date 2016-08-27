@@ -1174,7 +1174,7 @@ void setup_access(void){
   @ <p>Enable hyperlinks (the equivalent of the "h" permission) for all users
   @ including user "nobody", as long as (1) the User-Agent string in the
   @ HTTP header indicates that the request is coming from an actual human
-  @ being and not a a robot or spider and (2) the user agent is able to
+  @ being and not a robot or spider and (2) the user agent is able to
   @ run Javascript in order to set the href= attribute of hyperlinks.  Bots
   @ and spiders can forge a User-Agent string that makes them seem to be a
   @ normal browser and they can run javascript just like browsers.  But most
