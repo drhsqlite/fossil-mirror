@@ -29,7 +29,7 @@
 **
 **    (1) The full-scan search engine
 **    (2) The indexed search engine
-**    (3) Higher level interfaces that uses use either (1) or (2) according
+**    (3) Higher level interfaces that use either (1) or (b2) according
 **        to the current search configuration settings
 */
 #include "config.h"

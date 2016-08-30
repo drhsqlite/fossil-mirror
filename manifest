@@ -1,5 +1,5 @@
-C Put\sthe\s"trunk"\sin\sthe\sdocument\sURL\swhen\sthe\sftsdocs\stable\sis\sfirst\sconstructed,\nrather\sthan\stranslating\sthe\sURL\supon\sdisplay.
-D 2016-08-30T13:44:09.228
+C Fix\sa\stypo\sin\sa\scomment.\s\sNo\schanges\sto\scode.
+D 2016-08-30T15:15:15.751
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -474,7 +474,7 @@ F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c 650149d0abc88d23c8571b64f3dfba23197bec2b
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
-F src/search.c d15476c2c2369406e5b15cada132784db2760a43
+F src/search.c f48257b050c0024f6f0c61e486d1ac1913d093b1
 F src/setup.c 2767f1df9359cce376500527a1c4a38ae986cc1a
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
 F src/shell.c 79dda477be6c96eba6e952a934957ad36f87acc7
@@ -758,7 +758,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 375bc71ea6d10cfb3af23f76a66d9c06a6f9792e
-R df93d00f8eb972a5ea1236da90d094ee
+P 58034a489ae67a8dc541b44e4009e52b4e1d2647
+R b927aceb7ad499fa5447cdab375cb39c
 U drh
-Z 7dfcec98ee17f52d940c347ae1114aac
+Z 36273bbab18e3a34accc3d1124a9d49f
