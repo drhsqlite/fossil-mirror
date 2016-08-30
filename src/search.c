@@ -975,7 +975,6 @@ int search_run_and_output(
 ){
   Stmt q;
   int nRow = 0;
-  const char *zDocBr = 0;         /* The branch of documentation to search */
 
   srchFlags = search_restrict(srchFlags);
   if( srchFlags==0 ) return 0;
@@ -997,24 +996,13 @@ int search_run_and_output(
     const char *zUrl = db_column_text(&q, 0);
     const char *zSnippet = db_column_text(&q, 1);
     const char *zLabel = db_column_text(&q, 2);
-    const char *zId = db_column_text(&q,4);
     if( nRow==0 ){
       @ <ol>
     }
     nRow++;
-    if( strncmp(zUrl,"/doc/",5)==0 ){
-      /* Change the BRANCH in URLs like "/doc/BRANCH/path" into the
-      ** branch name specified by the doc-branch setting. */
-      int i;
-      if( zDocBr==0 ) zDocBr = db_get("doc-branch","trunk");
-      for(i=5; zUrl[i]; i++) if( zUrl[i]=='/' ){ i++; break; }
-      @ <li><p><a href='%R/doc/%T(zDocBr)/%T(zUrl+i)'>%h(zLabel)</a>
-    }else{
-      /* Non-"/doc/" URLs are delivered as is */
-      @ <li><p><a href='%R%T(zUrl)'>%h(zLabel)</a>
-    }
+    @ <li><p><a href='%R%T(zUrl)'>%h(zLabel)</a>
     if( fDebug ){
-      @ (%e(db_column_double(&q,3)), %s(zId))
+      @ (%e(db_column_double(&q,3)), %s(db_column_text(&q,4))
     }
     @ <br /><span class='snippet'>%z(cleanSnippet(zSnippet))</span></li>
   }
@@ -1546,7 +1534,6 @@ static void search_update_doc_index(void){
   const char *zDocBr = db_get("doc-branch","trunk");
   int ckid = zDocBr ? symbolic_name_to_rid(zDocBr,"ci") : 0;
   double rTime;
-  char *zBrUuid;
   if( ckid==0 ) return;
   if( !db_exists("SELECT 1 FROM ftsdocs WHERE type='c' AND rid=%d"
                  "   AND NOT idxed", ckid) ) return;
@@ -1554,7 +1541,6 @@ static void search_update_doc_index(void){
   /* If we get this far, it means that changes to 'd' entries are
   ** required. */
   rTime = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", ckid);
-  zBrUuid = db_text("","SELECT substr(uuid,1,20) FROM blob WHERE rid=%d",ckid);
   db_multi_exec(
     "CREATE TEMP TABLE current_docs(rid INTEGER PRIMARY KEY, name);"
     "CREATE VIRTUAL TABLE IF NOT EXISTS temp.foci USING files_of_checkin;"
@@ -1578,10 +1564,10 @@ static void search_update_doc_index(void){
     "  SELECT 'd', rid, name, 0,"
     "         title('d',rid,name),"
     "         body('d',rid,name),"
-    "         printf('/doc/%q/%%s',urlencode(name)),"
+    "         printf('/doc/%T/%%s',urlencode(name)),"
     "         %.17g"
     " FROM current_docs",
-    zBrUuid, rTime
+    zDocBr, rTime
   );
   db_multi_exec(
     "INSERT INTO ftsidx(docid,title,body)"
