@@ -15,13 +15,22 @@
 **
 *******************************************************************************
 **
-** This file contains code to implement a very simple search function
+** This file contains code to implement a search functions
 ** against timeline comments, check-in content, wiki pages, and/or tickets.
 **
-** The search is full-text like in that it is looking for words and ignores
-** punctuation and capitalization.  But it is more akin to "grep" in that
-** it scans the entire corpus for the search, and it does not support the
-** full functionality of FTS4.
+** The search can be either a per-query "grep"-like search that scans
+** the entire corpus.  Or it can use the FTS4 or FTS5 search engine of
+** SQLite.  The choice is a administrator configuration option.
+**
+** The first option is referred to as "full-scan search".  The second
+** option is called "indexed search".
+**
+** The code in this file is ordered approximately as follows:
+**
+**    (1) The full-scan search engine
+**    (2) The indexed search engine
+**    (3) Higher level interfaces that uses use either (1) or (2) according
+**        to the current search configuration settings
 */
 #include "config.h"
 #include "search.h"
@@ -29,11 +38,11 @@
 
 #if INTERFACE
 
-/* Maximum number of search terms */
+/* Maximum number of search terms for full-scan search */
 #define SEARCH_MAX_TERM   8
 
 /*
-** A compiled search pattern
+** A compiled search pattern used for full-scan search.
 */
 struct Search {
   int nTerm;            /* Number of search terms */
@@ -87,7 +96,7 @@ static const char isBoundary[] = {
 
 
 /*
-** Destroy a search context.
+** Destroy a full-scan search context.
 */
 void search_end(Search *p){
   if( p ){
@@ -102,7 +111,7 @@ void search_end(Search *p){
 }
 
 /*
-** Compile a search pattern
+** Compile a full-scan search pattern
 */
 static Search *search_init(
   const char *zPattern,       /* The search pattern */
@@ -159,7 +168,8 @@ static void snippet_text_append(
   }
 }
 
-/*
+/* This the core search engine for full-scan search.
+**
 ** Compare a search pattern against one or more input strings which
 ** collectively comprise a document.  Return a match score.  Any
 ** postive value means there was a match.  Zero means that one or
@@ -320,6 +330,9 @@ static int search_match(
 ** COMMAND: test-match
 **
 ** Usage: %fossil test-match SEARCHSTRING FILE1 FILE2 ...
+**
+** Run the full-scan search algorithm using SEARCHSTRING against
+** the text of the files listed.  Output matches and snippets.
 */
 void test_match_cmd(void){
   Search *p;
@@ -353,11 +366,15 @@ void test_match_cmd(void){
 }
 
 /*
-** An SQL function to initialize the global search pattern:
+** An SQL function to initialize the full-scan search pattern:
 **
 **     search_init(PATTERN,BEGIN,END,GAP,FLAGS)
 **
-** All arguments are optional.
+** All arguments are optional.  PATTERN is the search pattern.  If it
+** is omitted, then the global search pattern is reset.  BEGIN and END
+** and GAP are the strings used to construct snippets.  FLAGS is an
+** integer bit pattern containing the various SRCH_CKIN, SRCH_DOC,
+** SRCH_TKT, or SRCH_ALL bits to determine what is to be searched.
 */
 static void search_init_sqlfunc(
   sqlite3_context *context,
@@ -388,9 +405,11 @@ static void search_init_sqlfunc(
   }
 }
 
-/*
-** Try to match the input text against the search parameters set up
-** by the previous search_init() call.  Remember the results globally.
+/*     search_match(TEXT, TEXT, ....)
+**
+** Using the full-scan search engine created by the most recent call
+** to search_init(), match the input the TEXT arguments.
+** Remember the results global full-scan search object. 
 ** Return non-zero on a match and zero on a miss.
 */
 static void search_match_sqlfunc(
@@ -409,9 +428,10 @@ static void search_match_sqlfunc(
   sqlite3_result_int(context, rc);
 }
 
-/*
-** These SQL functions return the results of the last
-** call to the search_match() SQL function.
+
+/*      search_score()
+**
+** Return the match score for the last successful search_match call.
 */
 static void search_score_sqlfunc(
   sqlite3_context *context,
@@ -420,6 +440,11 @@ static void search_score_sqlfunc(
 ){
   sqlite3_result_int(context, gSearch.iScore);
 }
+
+/*      search_snippet()
+**
+** Return a snippet for the last successful search_match() call.
+*/
 static void search_snippet_sqlfunc(
   sqlite3_context *context,
   int argc,
@@ -431,7 +456,8 @@ static void search_snippet_sqlfunc(
   }
 }
 
-/*
+/*       stext(TYPE, RID, ARG)
+**
 ** This is an SQLite function that computes the searchable text.
 ** It is a wrapper around the search_stext() routine.  See the
 ** search_stext() routine for further detail.
@@ -447,6 +473,11 @@ static void search_stext_sqlfunc(
   sqlite3_result_text(context, search_stext_cached(zType[0],rid,zName,0), -1,
                       SQLITE_TRANSIENT);
 }
+
+/*       title(TYPE, RID, ARG)
+**
+** Return the title of the document to be search.
+*/
 static void search_title_sqlfunc(
   sqlite3_context *context,
   int argc,
@@ -463,6 +494,11 @@ static void search_title_sqlfunc(
     sqlite3_result_value(context, argv[2]);
   }
 }
+
+/*       body(TYPE, RID, ARG)
+**
+** Return the body of the document to be search.
+*/
 static void search_body_sqlfunc(
   sqlite3_context *context,
   int argc,
@@ -476,8 +512,10 @@ static void search_body_sqlfunc(
   sqlite3_result_text(context, z+nHdr+1, -1, SQLITE_TRANSIENT);
 }
 
-/*
-** Encode a string for use as a query parameter in a URL
+/*      urlencode(X)
+**
+** Encode a string for use as a query parameter in a URL.  This is
+** the equivalent of printf("%T",X).
 */
 static void search_urlencode_sqlfunc(
   sqlite3_context *context,
@@ -489,9 +527,8 @@ static void search_urlencode_sqlfunc(
 }
 
 /*
-** Register the "score()" SQL function to score its input text
-** using the given Search object.  Once this function is registered,
-** do not delete the Search object.
+** Register the various SQL functions (defined above) needed to implement
+** full-scan search.
 */
 void search_sql_setup(sqlite3 *db){
   static int once = 0;
@@ -638,12 +675,18 @@ unsigned int search_restrict(unsigned int srchFlags){
 /*
 ** When this routine is called, there already exists a table
 **
-**       x(label,url,score,date,snip).
+**       x(label,url,score,id,snip).
+**
+** label:  The "name" of the document containing the match
+** url:    A URL for the document
+** score:  How well the document matched
+** id:     The document id.  Format: xNNNNN, x: type, N: number
+** snip:   A snippet for the match
 **
 ** And the srchFlags parameter has been validated.  This routine
-** fills the X table with search results using a full-text scan.
+** fills the X table with search results using a full-scan search.
 **
-** The companion indexed scan routine is search_indexed().
+** The companion indexed search routine is search_indexed().
 */
 static void search_fullscan(
   const char *zPattern,       /* The query pattern */
@@ -807,12 +850,18 @@ static void search_rank_sqlfunc(
 /*
 ** When this routine is called, there already exists a table
 **
-**       x(label,url,score,date,snip).
+**       x(label,url,score,id,snip).
+**
+** label:  The "name" of the document containing the match
+** url:    A URL for the document
+** score:  How well the document matched
+** id:     The document id.  Format: xNNNNN, x: type, N: number
+** snip:   A snippet for the match
 **
 ** And the srchFlags parameter has been validated.  This routine
-** fills the X table with search results using a index scan.
+** fills the X table with search results using FTS indexed search.
 **
-** The companion full-text scan routine is search_fullscan().
+** The companion full-scan search routine is search_fullscan().
 */
 static void search_indexed(
   const char *zPattern,       /* The query pattern */
@@ -913,6 +962,10 @@ static char *cleanSnippet(const char *zSnip){
 ** Other web-pages can invoke this routine to add search results
 ** in the middle of the page.
 **
+** This routine works for both full-scan and indexed search.  The
+** appropriate low-level search routine is called according to the
+** current configuration.
+**
 ** Return the number of rows.
 */
 int search_run_and_output(
@@ -932,10 +985,10 @@ int search_run_and_output(
     "CREATE TEMP TABLE x(label,url,score,id,date,snip);"
   );
   if( !search_index_exists() ){
-    search_fullscan(zPattern, srchFlags);
+    search_fullscan(zPattern, srchFlags);  /* Full-scan search */
   }else{
-    search_update_index(srchFlags);
-    search_indexed(zPattern, srchFlags);
+    search_update_index(srchFlags);        /* Update the index, if necessary */
+    search_indexed(zPattern, srchFlags);   /* Indexed search */
   }
   db_prepare(&q, "SELECT url, snip, label, score, id"
                  "  FROM x"
@@ -1187,7 +1240,10 @@ static void append_all_ticket_fields(Blob *pAccum, Stmt *pQuery, int iTitle){
 **    rid               The RID of an artifact that defines the object
 **                      being searched.
 **
-**    zName             Name of the object being searched.
+**    zName             Name of the object being searched.  This is used
+**                      only to help figure out the mimetype (text/plain,
+**                      test/html, test/x-fossil-wiki, or text/x-markdown)
+**                      so that the code can know how to simplify the text.
 */
 void search_stext(
   char cType,            /* Type of document */
@@ -1290,7 +1346,7 @@ void search_stext(
 char *search_stext_cached(
   char cType,            /* Type of document */
   int rid,               /* BLOB.RID or TAG.TAGID value for document */
-  const char *zName,     /* Auxiliary information */
+  const char *zName,     /* Auxiliary information, for mimetype */
   int *pnTitle           /* OUT: length of title in bytes excluding \n */
 ){
   static struct {
@@ -1322,7 +1378,12 @@ char *search_stext_cached(
 /*
 ** COMMAND: test-search-stext
 **
-** Usage: fossil test-search-stext TYPE ARG1 ARG2
+** Usage: fossil test-search-stext TYPE RID NAME
+**
+** Compute the search text for document TYPE-RID whose name is NAME.
+** The TYPE is one of "c", "d", "t", or "w".  The RID is the document
+** ID.  The NAME is used to figure out a mimetype to use for formatting
+** the raw document text.
 */
 void test_search_stext(void){
   Blob out;
@@ -1743,4 +1804,95 @@ void test_fts_cmd(void){
     fossil_print("%-16s disabled\n", "full-text index:");
   }
   db_end_transaction(0);
+}
+
+/*
+** WEBPAGE: test-ftsdocs
+**
+** Show a table of all documents currently in the search index.
+*/
+void search_data_page(void){
+  Stmt q;
+  const char *zId = P("id");
+  const char *zType = P("y");
+  const char *zIdxed = P("ixed");
+  int id;
+  int cnt = 0;
+  login_check_credentials();
+  if( !g.perm.Admin ){ login_needed(0); return; }
+  if( !search_index_exists() ){
+    @ <p>Indexed search is disabled
+    style_footer();
+    return;
+  }
+  if( zId!=0 && (id = atoi(zId))>0 ){
+    /* Show information about a single ftsdocs entry */
+    style_header("Information about ftsdoc entry %d", id);
+    db_prepare(&q,
+      "SELECT type||rid, name, idxed, label, url, datetime(mtime)"
+      "  FROM ftsdocs WHERE rowid=%d", id
+    );
+    if( db_step(&q)==SQLITE_ROW ){
+      const char *zUrl = db_column_text(&q,4);
+      @ <table border=0>
+      @ <tr><td align='right'>rowid:<td>&nbsp;&nbsp;<td>%d(id)
+      @ <tr><td align='right'>id:<td><td>%s(db_column_text(&q,0))
+      @ <tr><td align='right'>name:<td><td>%h(db_column_text(&q,1))
+      @ <tr><td align='right'>idxed:<td><td>%d(db_column_int(&q,2))
+      @ <tr><td align='right'>label:<td><td>%h(db_column_text(&q,3))
+      @ <tr><td align='right'>url:<td><td>
+      @ <a href='%R%s(zUrl)'>%h(zUrl)</a>
+      @ <tr><td align='right'>mtime:<td><td>%s(db_column_text(&q,5))
+      @ </table>
+    }
+    db_finalize(&q);
+    style_footer();
+    return;
+  }
+  if( zType!=0 && zType[0]!=0 && zType[1]==0 &&
+      zIdxed!=0 && (zIdxed[0]=='1' || zIdxed[0]=='0') && zIdxed[1]==0
+  ){
+    int ixed = zIdxed[0]=='1';
+    style_header("List of '%c' documents that are%s indexed",
+                 zType[0], ixed ? "" : " not");
+    db_prepare(&q,
+      "SELECT rowid, type||rid ||' '|| coalesce(label,'')"
+      "  FROM ftsdocs WHERE type='%c' AND %s idxed",
+      zType[0], ixed ? "" : "NOT"
+    );
+    @ <ul>
+    while( db_step(&q)==SQLITE_ROW ){
+      @ <li> <a href='test-ftsdocs?id=%d(db_column_int(&q,0))'>
+      @ %h(db_column_text(&q,1))</a>
+    }
+    @ </ul>
+    db_finalize(&q);
+    style_footer();
+    return;
+  }
+  style_header("Summary of ftsdocs");
+  db_prepare(&q,
+     "SELECT type, idxed, count(*) FROM ftsdocs"
+     " GROUP BY 1, 2 ORDER BY 3 DESC"
+  );
+  @ <table border=1 cellpadding=3 cellspacing=0>
+  @ <thead>
+  @ <tr><th>Type<th>Indexed?<th>Count<th>Link
+  @ </thead>
+  @ <tbody>
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zType = db_column_text(&q,0);
+    int idxed = db_column_int(&q,1);
+    int n = db_column_int(&q,2);
+    @ <tr><td>%h(zType)<td>%d(idxed)
+    @ <td>%d(n)
+    @ <td><a href='test-ftsdocs?y=%s(zType)&ixed=%d(idxed)'>listing</a>
+    @ </tr>
+    cnt += n;
+  }
+  @ </tbody><tfooter>
+  @ <tr><th>Total<th><th>%d(cnt)<th>
+  @ </tfooter>
+  @ </table>
+  style_footer();
 }
