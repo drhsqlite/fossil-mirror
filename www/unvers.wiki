@@ -68,14 +68,15 @@ Unversioned content is stored in the repository in the
 
 <blockquote><pre>
 CREATE TABLE unversioned(
-  name TEXT PRIMARY KEY,  -- Name of the file
+  uvid INTEGER PRIMARY KEY AUTOINCREMENT,  -- unique ID for this file
+  name TEXT UNIQUE,       -- Name of the file
   rcvid INTEGER,          -- From whence this file was received
   mtime DATETIME,         -- Last change (seconds since 1970)
   hash TEXT,              -- SHA1 hash of uncompressed content
   sz INTEGER,             -- Size of uncompressed content
   encoding INT,           -- 0: plaintext  1: zlib compressed
   content BLOB            -- File content
-) WITHOUT ROWID;
+);
 </pre></blockquote>
 
 If there are no unversioned files in the repository, then the

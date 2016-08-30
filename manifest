@@ -1,5 +1,5 @@
-C Fix\sincorrect\sencoding\sof\shyperlinks\sin\ssearch\sresults.
-D 2016-08-30T17:06:06.851
+C Update\sthe\sunversioned\sfile\sdocumentation\sto\sshow\sthe\srevised\sschema.
+D 2016-08-30T18:27:02.176
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -753,12 +753,12 @@ F www/th1.md a66de6107f39467811162a4a466ac0008f10b228
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
-F www/unvers.wiki 8d89bb91613dc053685c0c54448a11876935a375
+F www/unvers.wiki a75ea510c408c0bb83c396afbe72948b8b2202cd
 F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 08cbc7b2e4fc2f618826583198a25190fde330d4
-R 70dd350825c46b5198a46029195a74b4
+P 9dba92f4a82c78c57910bdba0ae611d87b79eeb8
+R 12df33af85ea33f93ef5bf3d318e1b13
 U drh
-Z fbab148e1445cb761f1c6962a0b2b0f1
+Z 89c1116b01081b9083c128f1fd9e67c4
