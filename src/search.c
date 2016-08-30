@@ -922,6 +922,7 @@ int search_run_and_output(
 ){
   Stmt q;
   int nRow = 0;
+  const char *zDocBr = 0;         /* The branch of documentation to search */
 
   srchFlags = search_restrict(srchFlags);
   if( srchFlags==0 ) return 0;
@@ -943,13 +944,24 @@ int search_run_and_output(
     const char *zUrl = db_column_text(&q, 0);
     const char *zSnippet = db_column_text(&q, 1);
     const char *zLabel = db_column_text(&q, 2);
+    const char *zId = db_column_text(&q,4);
     if( nRow==0 ){
       @ <ol>
     }
     nRow++;
-    @ <li><p><a href='%R%s(zUrl)'>%h(zLabel)</a>
+    if( strncmp(zUrl,"/doc/",5)==0 ){
+      /* Change the BRANCH in URLs like "/doc/BRANCH/path" into the
+      ** branch name specified by the doc-branch setting. */
+      int i;
+      if( zDocBr==0 ) zDocBr = db_get("doc-branch","trunk");
+      for(i=5; zUrl[i]; i++) if( zUrl[i]=='/' ){ i++; break; }
+      @ <li><p><a href='%R/doc/%T(zDocBr)/%T(zUrl+i)'>%h(zLabel)</a>
+    }else{
+      /* Non-"/doc/" URLs are delivered as is */
+      @ <li><p><a href='%R%T(zUrl)'>%h(zLabel)</a>
+    }
     if( fDebug ){
-      @ (%e(db_column_double(&q,3)), %s(db_column_text(&q,4)))
+      @ (%e(db_column_double(&q,3)), %s(zId))
     }
     @ <br /><span class='snippet'>%z(cleanSnippet(zSnippet))</span></li>
   }
