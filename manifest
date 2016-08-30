@@ -1,5 +1,5 @@
-C Change\sthe\sUNVERSIONED\stable\sto\suse\san\sINTEGER\sPRIMARY\sKEY\swith\sAUTOINCREMENT.\nThis\sis\sa\sprecondition\sto\sadding\ssearch\sto\sunversioned\sfiles.\s\sTo\srebuild\nlegacy\srepos,\sfirst\sDROP\sthe\sold\sunversioned\stable,\sthen\srun\s"fossil\ssync\s-u".
-D 2016-08-30T16:34:39.194
+C Fix\sincorrect\sencoding\sof\shyperlinks\sin\ssearch\sresults.
+D 2016-08-30T17:06:06.851
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -474,7 +474,7 @@ F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c 650149d0abc88d23c8571b64f3dfba23197bec2b
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
-F src/search.c f48257b050c0024f6f0c61e486d1ac1913d093b1
+F src/search.c 36783ae66c3b319763b3efda0516d693a3c65ade
 F src/setup.c 2767f1df9359cce376500527a1c4a38ae986cc1a
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
 F src/shell.c 79dda477be6c96eba6e952a934957ad36f87acc7
@@ -758,7 +758,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P df80ab0ce93c9ca0c963cf0cc19da5fc07146b74
-R edfd6af872b9545a8b0066d5decf9cd7
+P 08cbc7b2e4fc2f618826583198a25190fde330d4
+R 70dd350825c46b5198a46029195a74b4
 U drh
-Z 545afa9059b0ff322e1597d16caa68d3
+Z fbab148e1445cb761f1c6962a0b2b0f1

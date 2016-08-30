@@ -1000,7 +1000,7 @@ int search_run_and_output(
       @ <ol>
     }
     nRow++;
-    @ <li><p><a href='%R%T(zUrl)'>%h(zLabel)</a>
+    @ <li><p><a href='%R%s(zUrl)'>%h(zLabel)</a>
     if( fDebug ){
       @ (%e(db_column_double(&q,3)), %s(db_column_text(&q,4))
     }
@@ -1053,7 +1053,7 @@ void search_screen(unsigned srchFlags, int useYparam){
     zDisable2 = "";
     zPattern = PD("s","");
   }
-  @ <form method='GET' action='%R/%t(g.zPath)'>
+  @ <form method='GET' action='%R/%T(g.zPath)'>
   if( zClass ){
     @ <div class='searchForm searchForm%s(zClass)'>
   }else{
