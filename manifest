@@ -1,5 +1,5 @@
-C Fix\sa\stypo\sin\sa\scomment.\s\sNo\schanges\sto\scode.
-D 2016-08-30T15:15:15.751
+C Fix\soverlength\ssource\slines\sin\sdiff.c.\s\sRaise\slimits\sand\sfix\sinappropriate\nuse\sof\smemcmp()\sin\smkindex.c.
+D 2016-08-30T15:49:08.917
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -400,7 +400,7 @@ F src/db.c e1e3532112adcf233d380f6f8350acccf63147d2
 F src/delta.c f3002e96cc35f37b9bab7c88f82e978e67342904
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
-F src/diff.c c53eea5dfd52d092d298178bc40c70500d3c7fc6
+F src/diff.c 188128a31bb3761d950e9e4a07fa95dea0c98b06
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 3759afcedb06bb0d76844e0b724cd28b36ede262
 F src/doc.c f46ada466f90f12ee7b5c6078808fdfc4dedb183
@@ -457,7 +457,7 @@ F src/merge.c d30fc9d0becc3f00b718cadebf9015284ee4d174
 F src/merge3.c 555743dac3e0365a3406c262cd27cf94bec351c3
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
-F src/mkindex.c 8b49a351b060c3e9203dacbacfc8216f760f8da2
+F src/mkindex.c f62031bbfe470abce7fd541931ef7c0440da2a15
 F src/mkversion.c 40ed302872cc5795c76efb3ab089fc1aedba18f1
 F src/moderate.c dc445cce064560577fb47311c2e23925b92c35d8
 F src/name.c fbef706317c7f8ebc9d043713c0fb2b17e434bcb
@@ -758,7 +758,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 58034a489ae67a8dc541b44e4009e52b4e1d2647
-R b927aceb7ad499fa5447cdab375cb39c
+P cd822353fa6e4b8382c11dfa04f1d6164841ef37
+R b399e98397a3c56ee88d73ef4bb781c4
 U drh
-Z 36273bbab18e3a34accc3d1124a9d49f
+Z 315cd4cbf6fb02be421a312d1cfd260a
