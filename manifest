@@ -1,5 +1,5 @@
-C Fix\soverlength\ssource\slines\sin\sdiff.c.\s\sRaise\slimits\sand\sfix\sinappropriate\nuse\sof\smemcmp()\sin\smkindex.c.
-D 2016-08-30T15:49:08.917
+C Change\sthe\sUNVERSIONED\stable\sto\suse\san\sINTEGER\sPRIMARY\sKEY\swith\sAUTOINCREMENT.\nThis\sis\sa\sprecondition\sto\sadding\ssearch\sto\sunversioned\sfiles.\s\sTo\srebuild\nlegacy\srepos,\sfirst\sDROP\sthe\sold\sunversioned\stable,\sthen\srun\s"fossil\ssync\s-u".
+D 2016-08-30T16:34:39.194
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -502,7 +502,7 @@ F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c 54c3baa046348a67821fda865269c84e80bb56b7
 F src/unicode.c 8e02b4fd6af9e735bda68eb06e3be90b6b901a87
-F src/unversioned.c f86ba3024c1941113ffbf4ddda8f72ec08daa22a
+F src/unversioned.c 3727ac04ff34a195ad84b49c0a6cb726503e0a1f
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c e2c08deb9a3ce011d3db10f70216a7988485e29a
@@ -758,7 +758,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cd822353fa6e4b8382c11dfa04f1d6164841ef37
-R b399e98397a3c56ee88d73ef4bb781c4
+P df80ab0ce93c9ca0c963cf0cc19da5fc07146b74
+R edfd6af872b9545a8b0066d5decf9cd7
 U drh
-Z 315cd4cbf6fb02be421a312d1cfd260a
+Z 545afa9059b0ff322e1597d16caa68d3
