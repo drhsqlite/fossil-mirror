@@ -1,5 +1,5 @@
-C Update\sthe\sunversioned\sfile\sdocumentation\sto\sshow\sthe\srevised\sschema.
-D 2016-08-30T18:27:02.176
+C Fix\stypo\sin\scomment.
+D 2016-08-31T04:59:14.423
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -488,7 +488,7 @@ F src/stash.c ced32acae9b125f723c6473f30cdfdf8b530dc37
 F src/stat.c 6a6e24276497f62d4574ac181ab15ba19471caa7
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
 F src/style.c 71df0fbd14db41565c9d862dcd5f5fc996febe74
-F src/sync.c f2a51133fce42e67fafc13513e800c71c12fb3d3
+F src/sync.c 1aa969b9aece17dd1076b2ab05e918f03cea991e
 F src/tag.c 06dddb67703250f4a40f3a2f0138aadfb67c28e7
 F src/tar.c 3d8ec6d43a730d3bfdf73fc86bff84587a0bab57
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
@@ -758,7 +758,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9dba92f4a82c78c57910bdba0ae611d87b79eeb8
-R 12df33af85ea33f93ef5bf3d318e1b13
-U drh
-Z 89c1116b01081b9083c128f1fd9e67c4
+P 26c985ce13a6a4d30de3183fbadf183d3cebe278
+R c5f6b673143b637f7e465993b954148c
+U mistachkin
+Z 998b26957548fb581560e097889b4789

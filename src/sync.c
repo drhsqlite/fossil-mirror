@@ -236,7 +236,7 @@ void pull_cmd(void){
 ** Push all sharable changes from the local repository to a remote repository.
 ** Sharable changes include public check-ins, and wiki, ticket, and tech-note
 ** edits.  Use --private to also push private branches.  Use the
-** "configuration pull" command to push website configuration details.
+** "configuration push" command to push website configuration details.
 **
 ** If URL is not specified, then the URL from the most recent clone, push,
 ** pull, remote-url, or sync command is used.  See "fossil help clone" for
