@@ -1,5 +1,5 @@
-C (cherry-pick)\sFix\sfor\slockup\son\smerge\swith\srename\sand\scustom\sbaseline.\sChange\sreceived\sfrom\sdrh\svia\smailing\slist.\sSee\s[http://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg23838.html]\sfor\sdetails.
-D 2016-09-07T08:05:11.321
+C (cherry-pick)\sFix\smingw64\sbuild\s(broken\sby\s[8f2dd0106ef3b5aa])
+D 2016-09-07T10:16:26.147
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -446,7 +446,7 @@ F src/main.c 663246084eded6c69a9c4ecdf17d6f30ae43df7e
 F src/main.mk 50c3682cf8a42ca928b3a10533c74b204d0f691e
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl a1bd85eec3bdb30b6cd22ae62dbca13d0f6e36da
+F src/makemake.tcl 050d2c5cc6141954cde0f51d3e8b5c1e4566093c
 F src/manifest.c f2232158d122110ce25a5de6131bd61627181591
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
@@ -632,8 +632,8 @@ F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F win/Makefile.PellesCGMake 7175c45ddf40ea9086b1bc299d030e650cc57d59
 F win/Makefile.dmc 7e4668b1a8dbf00d8ed3796deb32e9b5313d347f
-F win/Makefile.mingw bd0a37110e9eec27fdf34fb0f76d61eed3dc0d0a
-F win/Makefile.mingw.mistachkin ab0330bcaa88bd9d7783b9d89a46df2c4d8e79ac
+F win/Makefile.mingw 82c25771e8bcdf3b211457233ee1202f997808b6
+F win/Makefile.mingw.mistachkin a724a7a923cea238b9fd0c850b356492fc39b2f1
 F win/Makefile.msc fc73bc0025c61f897dc2a21de68e1f2698c9c616
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -751,8 +751,8 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8078930932ddbf503fbd8c039445362e0fffd60e
-Q +496c0fea3b4d48252171011fa34af7f917a05ca8
-R 8847032fc0f4ae7c433e5a74114e160d
+P 8166001e0acd6bc2539c909700f7183f7ba865ce
+Q +db59821f890cf66dc3187a88568499d4e0d77e97
+R a6e91ec9ffe979c95c68ac4a1211b03e
 U jan.nijtmans
-Z 88370fdd1c595bf70720df2960b4d167
+Z 64f02dc9c9bdf029bf42ba863bebfe4b
