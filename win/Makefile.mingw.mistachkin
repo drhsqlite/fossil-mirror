@@ -156,7 +156,7 @@ ZLIBTARGETS =
 endif
 
 #### Disable creation of the OpenSSL shared libraries.  Also, disable support
-#    for both SSLv2 and SSLv3 (i.e. thereby forcing the use of TLS).
+#    for SSLv3 (i.e. thereby forcing the use of TLS).
 #
 SSLCONFIG += no-ssl3 no-shared
 
