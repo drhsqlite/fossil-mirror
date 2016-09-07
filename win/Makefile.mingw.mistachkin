@@ -19,11 +19,11 @@
 #### Select one of MinGW, MinGW-w64 (32-bit) or MinGW-w64 (64-bit) compilers.
 #    By default, this is an empty string (i.e. use the native compiler).
 #
-# PREFIX =
+PREFIX =
 # PREFIX = mingw32-
 # PREFIX = i686-pc-mingw32-
 # PREFIX = i686-w64-mingw32-
-PREFIX = x86_64-w64-mingw32-
+# PREFIX = x86_64-w64-mingw32-
 
 #### The toplevel directory of the source tree.  Fossil can be built
 #    in a directory that is separate from the source tree.  Just change
@@ -65,11 +65,11 @@ FOSSIL_ENABLE_SSL = 1
 #### Automatically build OpenSSL when building Fossil (causes rebuild
 #    issues when building incrementally).
 #
-FOSSIL_BUILD_SSL = 1
+# FOSSIL_BUILD_SSL = 1
 
 #### Enable relative paths in external diff/gdiff
 #
-FOSSIL_ENABLE_EXEC_REL_PATHS = 1
+# FOSSIL_ENABLE_EXEC_REL_PATHS = 1
 
 #### Enable legacy treatment of mv/rm (skip checkout files)
 #

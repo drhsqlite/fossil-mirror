@@ -1,5 +1,5 @@
-C Complete\stransition\sto\sOpenSSL\s1.1.0,\swhich\sneeds\sadditional\slibrary\son\sWindows\s(crypt32.dll)\sand\swhich\shas\ssupport\sfor\sssl2\sremoved\scompletely.
-D 2016-09-07T11:12:30.982
+C Restore\sdefault\sconfiguration\sof\sMakefile.mingw.mistachkin\sto\swhat\sit\swas\sbefore
+D 2016-09-07T11:15:09.394
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -637,7 +637,7 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F win/Makefile.PellesCGMake 7a28a56f548bfad3f4e6ad2749333c0a0ad95acc
 F win/Makefile.dmc 96033e0d175cd48f61689b66d0618b1a689d9122
 F win/Makefile.mingw e9e9482f199394a8c3739fb84cb3ac3aa4df0a19
-F win/Makefile.mingw.mistachkin 56fd5c4847843f97df7686b09107b5fe56a565e3
+F win/Makefile.mingw.mistachkin 00db460e96750c259e1b5b4b03b9d14cd54e59cb
 F win/Makefile.msc e72b0a7f33323c4d382559651808435779c157c1
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -758,7 +758,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 958f1a89dc720e96687be38864479b35833fbeb0
-R 636613c09dddf749376b7adbf69e6dfc
+P 7839ff02860a93ff8e1ae209b06aedff3bdc852c
+R 677d765bd562d445264fd0557fd6d762
 U jan.nijtmans
-Z 17f13394e6e31970674a7024b65f3419
+Z 02bcf9a75af5dd6c153874ef08d50073
