@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.14.1
-D 2016-08-15T11:58:37.644
+C (cherry-pick)\sFix\sfor\slockup\son\smerge\swith\srename\sand\scustom\sbaseline.\sChange\sreceived\sfrom\sdrh\svia\smailing\slist.\sSee\s[http://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg23838.html]\sfor\sdetails.
+D 2016-09-07T08:05:11.321
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -452,7 +452,7 @@ F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
 F src/markdown_html.c 0b945713361c2d24ee1fbbcc981ab02af9b484a9
 F src/md5.c 563baca0c92ef17c42aa32d31bf595a62c030177
-F src/merge.c d30fc9d0becc3f00b718cadebf9015284ee4d174
+F src/merge.c 3da95cdecb4812fbe7ee547b5fce430f3278a023
 F src/merge3.c 555743dac3e0365a3406c262cd27cf94bec351c3
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
@@ -751,7 +751,8 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1af1a6628dc5886f2def051dad47fcd332a3c52a
-R 5a6c880b5643e5e7af9aa396f38e7d21
+P 8078930932ddbf503fbd8c039445362e0fffd60e
+Q +496c0fea3b4d48252171011fa34af7f917a05ca8
+R 8847032fc0f4ae7c433e5a74114e160d
 U jan.nijtmans
-Z 3207724b7af88edf16242ff734076533
+Z 88370fdd1c595bf70720df2960b4d167
