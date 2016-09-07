@@ -1,5 +1,5 @@
-C Add\sREMOTE_HOST\sto\sthe\stest_env\spage.
-D 2016-09-01T01:44:23.999
+C Fix\sfor\slockup\son\smerge\swith\srename\sand\scustom\sbaseline.\sChange\sreceived\sfrom\sdrh\svia\smailing\slist.\sSee\s[http://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg23838.html]\sfor\sdetails.
+D 2016-09-07T07:50:49.751
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -453,7 +453,7 @@ F src/markdown.c 887bb75edb1cfc94d9206aef38ad11dec2bc4266
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
 F src/markdown_html.c c3dfb1f186d829528f4d4127cb73b71de490b32a
 F src/md5.c dac99e954fb973805a127f36f9c51e0ab36ab39b
-F src/merge.c d30fc9d0becc3f00b718cadebf9015284ee4d174
+F src/merge.c 3da95cdecb4812fbe7ee547b5fce430f3278a023
 F src/merge3.c 555743dac3e0365a3406c262cd27cf94bec351c3
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
@@ -758,7 +758,8 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P af573d13098084f44fbccf578917b5c0b9901195
-R 41209a338fb4bc0027d40db2a38a650a
-U mistachkin
-Z c9cd7751f40de496673a2edd5ef9e6d4
+P 4d1f2d302b6727ad223417c85aa92bb0cdc8474e 0120be34ea8b8599302329667c1b0cfb08116087
+R f181e22f5f7a0b7de5a1a98188dac945
+T +closed 0120be34ea8b8599302329667c1b0cfb08116087
+U jan.nijtmans
+Z 268347852c977436a65f6eff92d10dec
