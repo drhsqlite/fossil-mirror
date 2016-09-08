@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.15\salpha\sthat\sincludes\sthe\nrow-value\senhancements.
-D 2016-09-08T14:51:48.337
+C Fix\stypos\sin\sthe\s"zip"\scommand\shelp\stext.
+D 2016-09-08T16:42:46.647
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -517,7 +517,7 @@ F src/winhttp.c 7e4c82fc91fe89b81ef4ae399944b8f035fe6789
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 42ff53debe408f9862f3e96ab80d7e322d0fc223
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
-F src/zip.c 4ff5fff5dba38f7b514db1194a69a6f634be6a34
+F src/zip.c 1d6ed8eaa3dc41c560edbce797af7d13bc4f6ee6
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test f89134d8bb0e36527248557c95c23f19fc687064
@@ -758,7 +758,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fd4fc1a9043eae56a78238530f0f1bd3b1369fb0
-R 8f3f5f64731e07be05ec3de9cddf8da2
+P be1ef87613f23fadd2252eacd9f615ac191895eb
+R 97f30e84dd01fe967804645677aeee09
 U drh
-Z 21946fffe53e46dfded6ba5a945663f1
+Z 92a6b4df5f8cb668bc10d028c2f25de8
