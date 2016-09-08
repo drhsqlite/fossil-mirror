@@ -420,7 +420,7 @@ Outputs the STRING unchanged.
 <a name="query"></a>TH1 query Command
 -------------------------------------
 
-  *  query SQL CODE
+  *  query ?-nocomplain? SQL CODE
 
 Runs the SQL query given by the SQL argument.  For each row in the result
 set, run CODE.

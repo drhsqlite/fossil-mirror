@@ -72,12 +72,12 @@ typedef struct Entry {
 /*
 ** Maximum number of entries
 */
-#define N_ENTRY 500
+#define N_ENTRY 5000
 
 /*
 ** Maximum size of a help message
 */
-#define MX_HELP 25000
+#define MX_HELP 250000
 
 /*
 ** Table of entries
@@ -93,7 +93,7 @@ int nHelp;
 /*
 ** Most recently encountered #if
 */
-char zIf[200];
+char zIf[2000];
 
 /*
 ** How many entries are used
@@ -156,7 +156,7 @@ void scan_for_if(const char *zLine){
   for(i=1; isspace(zLine[i]); i++){}
   if( zLine[i]==0 ) return;
   len = strlen(&zLine[i]);
-  if( memcmp(&zLine[i],"if",2)==0 ){
+  if( strncmp(&zLine[i],"if",2)==0 ){
     zIf[0] = '#';
     memcpy(&zIf[1], &zLine[i], len+1);
   }else if( zLine[i]=='e' ){
@@ -175,8 +175,8 @@ void scan_for_func(char *zLine){
    && isspace(zLine[2])
    && strlen(zLine)<sizeof(zHelp)-nHelp-1
    && nUsed>nFixed
-   && memcmp(zLine,"** COMMAND:",11)!=0
-   && memcmp(zLine,"** WEBPAGE:",11)!=0
+   && strncmp(zLine,"** COMMAND:",11)!=0
+   && strncmp(zLine,"** WEBPAGE:",11)!=0
   ){
     if( zLine[2]=='\n' ){
       zHelp[nHelp++] = '\n';
@@ -289,7 +289,7 @@ void build_table(void){
       if( z[n-1]=='*' ){
         n--;
         cmdFlags = 0x02;
-      }else if( memcmp(z, "test-", 5)==0 ){
+      }else if( strncmp(z, "test-", 5)==0 ){
         cmdFlags = 0x04;
       }
     }

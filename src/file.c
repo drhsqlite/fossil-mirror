@@ -523,7 +523,7 @@ void test_set_mtime(void){
   if( g.argc!=4 ){
     usage("FILENAME DATE/TIME");
   }
-  db_open_or_attach(":memory:", "mem", 0);
+  db_open_or_attach(":memory:", "mem");
   iMTime = db_int64(0, "SELECT strftime('%%s',%Q)", g.argv[3]);
   zFile = g.argv[2];
   file_set_mtime(zFile, iMTime);
@@ -925,7 +925,7 @@ void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
 
 /*
 ** COMMAND: test-canonical-name
-** 
+**
 ** Usage: %fossil test-canonical-name FILENAME...
 **
 ** Test the operation of the canonical name generator.

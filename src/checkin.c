@@ -548,7 +548,7 @@ static void locate_unmanaged_files(
 
 /*
 ** COMMAND: extras
-** 
+**
 ** Usage: %fossil extras ?OPTIONS? ?PATH1 ...?
 **
 ** Print a list of all files in the source tree that are not part of the
@@ -634,7 +634,7 @@ void extras_cmd(void){
 
 /*
 ** COMMAND: clean
-** 
+**
 ** Usage: %fossil clean ?OPTIONS? ?PATH ...?
 **
 ** Delete all "extra" files in the source tree.  "Extra" files are files
@@ -647,17 +647,17 @@ void extras_cmd(void){
 ** undo buffer prior to removal, and prompts are issued only for files
 ** whose removal cannot be undone due to their large size or due to
 ** --disable-undo being used.
-** 
+**
 ** The --force option treats all prompts as having been answered yes,
 ** whereas --no-prompt treats them as having been answered no.
-** 
+**
 ** Files matching any glob pattern specified by the --clean option are
 ** deleted without prompting, and the removal cannot be undone.
 **
 ** No file that matches glob patterns specified by --ignore or --keep will
 ** ever be deleted.  Files and subdirectories whose names begin with "."
 ** are automatically ignored unless the --dotfiles option is used.
-** 
+**
 ** The default values for --clean, --ignore, and --keep are determined by
 ** the (versionable) clean-glob, ignore-glob, and keep-glob settings.
 **
@@ -1691,8 +1691,14 @@ static int tagCmp(const void *a, const void *b){
 **    --sha1sum                  verify file status using SHA1 hashing rather
 **                               than relying on file mtimes
 **    --tag TAG-NAME             assign given tag TAG-NAME to the check-in
-**    --date-override DATE       DATE to use instead of 'now'
+**    --date-override DATETIME   DATE to use instead of 'now'
 **    --user-override USER       USER to use instead of the current default
+**
+** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
+** year-month-day form, it may be truncated, the "T" may be replaced by
+** a space, and it may also name a timezone offset from UTC as "-HH:MM"
+** (westward) or "+HH:MM" (eastward). Either no timezone suffix or "Z"
+** means UTC.
 **
 ** See also: branch, changes, checkout, extras, sync
 */
@@ -2225,8 +2231,8 @@ void commit_cmd(void){
 
   /* Commit */
   db_multi_exec("DELETE FROM vvar WHERE name='ci-comment'");
-  db_multi_exec("PRAGMA %s.application_id=252006673;", db_name("repository"));
-  db_multi_exec("PRAGMA %s.application_id=252006674;", db_name("localdb"));
+  db_multi_exec("PRAGMA repository.application_id=252006673;");
+  db_multi_exec("PRAGMA localdb.application_id=252006674;");
   if( dryRunFlag ){
     db_end_transaction(1);
     exit(1);

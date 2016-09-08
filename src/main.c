@@ -93,6 +93,7 @@ struct FossilUserPerms {
   char RdAddr;           /* e: read email addresses or other private data */
   char Zip;              /* z: download zipped artifact via /zip URL */
   char Private;          /* x: can send and receive private content */
+  char WrUnver;          /* y: can push unversioned content */
 };
 
 #ifdef FOSSIL_ENABLE_TCL
@@ -129,15 +130,13 @@ struct Global {
   sqlite3 *db;            /* The connection to the databases */
   sqlite3 *dbConfig;      /* Separate connection for global_config table */
   char *zAuxSchema;       /* Main repository aux-schema */
-  int useAttach;          /* True if global_config is attached to repository */
+  int dbIgnoreErrors;     /* Ignore database errors if true */
   const char *zConfigDbName;/* Path of the config database. NULL if not open */
   sqlite3_int64 now;      /* Seconds since 1970 */
   int repositoryOpen;     /* True if the main repository database is open */
   char *zRepositoryOption; /* Most recent cached repository option value */
-  char *zRepositoryName;  /* Name of the repository database */
-  char *zLocalDbName;     /* Name of the local database */
-  const char *zMainDbType;/* "configdb", "localdb", or "repository" */
-  const char *zConfigDbType;  /* "configdb", "localdb", or "repository" */
+  char *zRepositoryName;  /* Name of the repository database file */
+  char *zLocalDbName;     /* Name of the local database file */
   char *zOpenRevision;    /* Check-in version to use during database open */
   int localOpen;          /* True if the local database is open */
   char *zLocalRoot;       /* The directory holding the  local database */
@@ -560,6 +559,7 @@ static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
   if( iCode==SQLITE_WARNING ) return;
 #endif
   if( iCode==SQLITE_SCHEMA ) return;
+  if( g.dbIgnoreErrors ) return;
   fossil_warning("%s: %s", fossil_sqlite_return_code_name(iCode), zErrmsg);
 }
 
@@ -594,8 +594,8 @@ int main(int argc, char **argv)
   const char *zCmdName = "unknown";
   int idx;
   int rc;
-  if( sqlite3_libversion_number()<3010000 ){
-    fossil_fatal("Unsuitable SQLite version %s, must be at least 3.10.0",
+  if( sqlite3_libversion_number()<3014000 ){
+    fossil_fatal("Unsuitable SQLite version %s, must be at least 3.14.0",
                  sqlite3_libversion());
   }
   sqlite3_config(SQLITE_CONFIG_MULTITHREAD);
@@ -1230,7 +1230,7 @@ void help_cmd(void){
 
 /*
 ** COMMAND: test-all-help
-** 
+**
 ** Usage: %fossil test-all-help ?OPTIONS?
 **
 ** Show help text for commands and pages.  Useful for proof-reading.
@@ -2025,20 +2025,71 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 /*
 ** COMMAND: cgi*
 **
-** Usage: %fossil ?cgi? SCRIPT
+** Usage: %fossil ?cgi? FILE
 **
-** The SCRIPT argument is the name of a file that is the CGI script
-** that is being run.  The command name, "cgi", may be omitted if
-** the GATEWAY_INTERFACE environment variable is set to "CGI" (which
-** should always be the case for CGI scripts run by a webserver.)  The
-** SCRIPT file should look something like this:
+** This command causes Fossil to generate reply to a CGI request.
+**
+** The FILE argument is the name of a control file that provides Fossil
+** with important information such as where to find its repository.  In
+** a typical CGI deployment, FILE is the name of the CGI script and will
+** typically look something like this:
 **
 **      #!/usr/bin/fossil
 **      repository: /home/somebody/project.db
 **
-** The second line defines the name of the repository.  After locating
-** the repository, fossil will generate a webpage on stdout based on
-** the values of standard CGI environment variables.
+** The command name, "cgi", may be omitted if the GATEWAY_INTERFACE
+** environment variable is set to "CGI", which should always be the
+** case for CGI scripts run by a webserver.  Fossil ignores any lines
+** that begin with "#".
+**
+** The following control lines are recognized:
+**
+**    repository: PATH         Name of the Fossil repository
+**
+**    directory:  PATH         Name of a directory containing many Fossil
+**                             repositories whose names all end with ".fossil".
+**                             There should only be one of "repository:"
+**                             or "directory:"
+**
+**    notfound: URL            When in "directory:" mode, redirect to
+**                             URL if no suitable repository is found.
+**
+**    repolist                 When in "directory:" mode, display a page
+**                             showing a list of available repositories if
+**                             the URL is "/".
+**
+**    localauth                Grant administrator privileges to connections
+**                             from 127.0.0.1 or ::1.
+**
+**    skin: LABEL              Use the built-in skin called LABEL rather than
+**                             the default.  If there are no skins called LABEL
+**                             then this line is a no-op.
+**
+**    files: GLOBLIST          GLOBLIST is a comma-separated list of GLOB
+**                             patterns that specify files that can be
+**                             returned verbatim.  This feature allows Fossil
+**                             to act as a web server returning static
+**                             content.
+**
+**    setenv: NAME VALUE       Set environment variable NAME to VALUE.  Or
+**                             if VALUE is omitted, unset NAME.
+**
+**    HOME: PATH               Shorthand for "setenv: HOME PATH"
+**
+**    debug: FILE              Causing debugging information to be written
+**                             into FILE.
+**
+**    errorlog: FILE           Warnings, errors, and panics written to FILE.
+**
+**    redirect: REPO URL       Extract the "name" query parameter and search
+**                             REPO for a check-in or ticket that matches the
+**                             value of "name", then redirect to URL.  There
+**                             can be multiple "redirect:" lines that are
+**                             processed in order.  If the REPO is "*", then
+**                             an unconditional redirect to URL is taken.
+**
+** Most CGI files contain only a "repository:" line.  It is uncommon to
+** use any other option.
 **
 ** See also: http, server, winsrv
 */
@@ -2311,6 +2362,7 @@ static void find_server_repository(int arg, int fCreate){
 **   --repolist       If REPOSITORY is directory, URL "/" lists all repos
 **   --scgi           Interpret input as SCGI rather than HTTP
 **   --skin LABEL     Use override skin LABEL
+**   --th-trace       trace TH1 execution (for debugging purposes)
 **
 ** See also: cgi, server, winsrv
 */
@@ -2323,6 +2375,8 @@ void cmd_http(void){
   int useSCGI;
   int noJail;
   int allowRepoList;
+
+  Th_InitTraceLog();
 
   /* The winhttp module passes the --files option as --files-urlenc with
   ** the argument being URL encoded, to avoid wildcard expansion in the

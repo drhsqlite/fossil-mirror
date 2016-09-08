@@ -387,7 +387,7 @@ static void process_files_to_remove(
   int dryRunFlag /* Zero to actually operate on the file-system. */
 ){
   Stmt remove;
-  if( db_table_exists(db_name("temp"), "fremove") ){
+  if( db_table_exists("temp", "fremove") ){
     db_prepare(&remove, "SELECT x FROM fremove ORDER BY x;");
     while( db_step(&remove)==SQLITE_ROW ){
       const char *zOldName = db_column_text(&remove, 0);
@@ -552,9 +552,8 @@ int filenames_are_case_sensitive(void){
     }
     if( !caseSensitive && g.localOpen ){
       db_multi_exec(
-         "CREATE INDEX IF NOT EXISTS %s.vfile_nocase"
-         "  ON vfile(pathname COLLATE nocase)",
-         db_name("localdb")
+         "CREATE INDEX IF NOT EXISTS localdb.vfile_nocase"
+         "  ON vfile(pathname COLLATE nocase)"
       );
     }
   }
@@ -781,7 +780,7 @@ static void process_files_to_move(
   int dryRunFlag /* Zero to actually operate on the file-system. */
 ){
   Stmt move;
-  if( db_table_exists(db_name("temp"), "fmove") ){
+  if( db_table_exists("temp", "fmove") ){
     db_prepare(&move, "SELECT x, y FROM fmove ORDER BY x;");
     while( db_step(&move)==SQLITE_ROW ){
       const char *zOldName = db_column_text(&move, 0);

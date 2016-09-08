@@ -384,7 +384,7 @@ void tag_add_artifact(
 **           --user-override USER        Name USER when adding the tag.
 **           --dryrun|-n                 Display the tag text, but to not
 **                                       actually insert it into the database.
-**         
+**
 **         The --date-override and --user-override options support
 **         importing history from other SCM systems. DATETIME has
 **         the form 'YYYY-MMM-DD HH:MM:SS'.
@@ -400,7 +400,7 @@ void tag_add_artifact(
 **         List all objects that use TAGNAME.  TYPE can be "ci" for
 **         check-ins or "e" for events. The limit option limits the number
 **         of results to the given value.
-**         
+**
 **         Options:
 **           --raw           Raw tag name.
 **           -t|--type TYPE  One of "ci", or "e".

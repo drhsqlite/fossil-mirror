@@ -1,0 +1,99 @@
+<title>Unversioned Content</title>
+<h1 align="center">Unversioned Content</h1>
+
+"Unversioned content" or "unversioned files" are
+files stored in a Fossil repository without history.
+Only the newest version of each unversioned file is retained.
+
+Though history is omitted, unversioned content is synced between
+respositories.  In the event of a conflict during a sync, the most recent
+version of each unversioned file is retained and older versions are discarded.
+
+Unversioned files are useful for storing ephemeral content such as builds
+or frequently changing web pages.
+The [https://www.fossil-scm.org/fossil/uv/download.html|download] page of
+the self-hosting Fossil repository is stored as unversioned
+content, for example.
+
+<h2>Accessing Unversioned Files</h2>
+
+Unversioned files are <u>not</u> a part of a check-out.
+Unversioned files are intended to be accessible as web pages using
+URLs of the form:  "http://domain/cgi-script/<b>uv</b>/<i>FILENAME</i>".
+In other words, the URI method "<b>uv</b>" (short for "unversioned")
+followed by the name of the unversioned file will retrieve the content
+of the file.  The mimetype is inferred from the filename suffix.
+
+The content of unversioned files can also be retrieved using the
+[/help?cmd=unversioned|fossil unvers cat <i>FILENAME</i>] command.
+
+A list of all unversioned files on a server can be seen using
+the [/help?cmd=/uvlist|/uvlist] URL.  ([/uvlist|example]).
+
+<h2>Syncing Unversioned Files</h2>
+
+Unversioned content is synced between respositories, though not by default.
+Special commands or command-line options are required.
+Unversioned content can be synced using the following commands:
+
+<blockquote><pre>
+fossil sync <b>-u</b>
+fossil clone <b>-u</b> <i>URL local-repo-name</i>
+fossil unversioned sync
+</pre></blockquote>
+
+The [/help?cmd=sync|fossil sync] and [/help?cmd=clone|fossil clone]
+commands will synchronize unversioned content if and only if the
+"-u" (or "--unversioned") command-line option is supplied.  The
+[/help?cmd=unversioned|fossil unversioned sync] command will synchronize the
+unversioned content without synchronizing anything else.
+
+Notice that the "-u" option does not work on
+[/help?cmd=push|fossil push] or [/help?cmd=pull|fossil pull].
+The "-u" option is only available on "sync" and "clone".
+
+A rough equivalent of an unversioned pull would be the
+[/help?cmd=unversioned|fossil unversioned revert] command.  The
+"unversioned revert"
+command causes the unversioned content on the local repository to overwritten
+by the unversioned content found on the remote repository.
+
+<h2>Implementation Details</h2>
+
+<i>(This section outlines the current implementation of unversioned
+files.  This is not an interface spec and hence subject to change.)</i>
+
+Unversioned content is stored in the repository in the
+"unversioned" table:
+
+<blockquote><pre>
+CREATE TABLE unversioned(
+  uvid INTEGER PRIMARY KEY AUTOINCREMENT,  -- unique ID for this file
+  name TEXT UNIQUE,       -- Name of the file
+  rcvid INTEGER,          -- From whence this file was received
+  mtime DATETIME,         -- Last change (seconds since 1970)
+  hash TEXT,              -- SHA1 hash of uncompressed content
+  sz INTEGER,             -- Size of uncompressed content
+  encoding INT,           -- 0: plaintext  1: zlib compressed
+  content BLOB            -- File content
+);
+</pre></blockquote>
+
+If there are no unversioned files in the repository, then the
+"unversioned" table does not necessarily exist.
+A simple way to purge all unversioned content from a repository
+is to run:
+
+<blockquote><pre>
+fossil sql "DROP TABLE unversioned; VACUUM;"
+</pre></blockquote>
+
+No delta compression is performed on unversioned files, since there is no
+history to delta against.
+
+Unversioned content is exchanged between servers as whole, uncompressed
+files (though the content does get compressed when the overall HTTP message
+payload is compressed).  SHA1 hash exchanges are used to avoid sending
+content over the wire unnecessarily.  See the
+[./sync.wiki|synchronization protocol documentation] for further
+information.

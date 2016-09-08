@@ -54,6 +54,7 @@ set src {
   file
   finfo
   foci
+  fshell
   fusefs
   glob
   graph
@@ -124,6 +125,7 @@ set src {
   tktsetup
   undo
   unicode
+  unversioned
   update
   url
   user
@@ -1096,17 +1098,17 @@ endif
 
 openssl:	$(BLDTARGETS)
 	cd $(OPENSSLLIBDIR);./Configure --cross-compile-prefix=$(PREFIX) $(SSLCONFIG)
-	$(MAKE) -C $(OPENSSLLIBDIR) CC=$(TCCEXE) build_libs
+	$(MAKE) -C $(OPENSSLLIBDIR) PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) build_libs
 
 clean-openssl:
-	$(MAKE) -C $(OPENSSLLIBDIR) CC=$(TCCEXE) clean
+	$(MAKE) -C $(OPENSSLLIBDIR) PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) clean
 
 tcl:
 	cd $(TCLSRCDIR)/win;./configure
-	$(MAKE) -C $(TCLSRCDIR)/win CC=$(TCCEXE) $(TCLTARGET)
+	$(MAKE) -C $(TCLSRCDIR)/win PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) $(TCLTARGET)
 
 clean-tcl:
-	$(MAKE) -C $(TCLSRCDIR)/win CC=$(TCCEXE) distclean
+	$(MAKE) -C $(TCLSRCDIR)/win PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) distclean
 
 APPTARGETS += $(BLDTARGETS)
 

@@ -244,7 +244,7 @@ void piechart_render(int width, int height, unsigned int pieFlags){
         rLwrLeft = y4 + TEXT_HEIGHT;
       }
     }
-    if( x4<=cx ){
+    if( x4<cx ){
       x5 = x4 - 1.0;
       zAnc = "end";
     }else{
@@ -253,7 +253,7 @@ void piechart_render(int width, int height, unsigned int pieFlags){
     }
     y5 = y4 - 3.0 + 6.0*(1.0 - p->rCos);
     @ <line stroke-width='1' stroke='%s(zFg)' class='piechartLine'
-    @  x1='%g(x3)' y1='%g(y3)' x2='%g(x4)' y2='%g(y4)''/>
+    @  x1='%g(x3)' y1='%g(y3)' x2='%g(x4)' y2='%g(y4)'/>
     @ <text text-anchor="%s(zAnc)" fill='%s(zFg)' class="piechartLabel"
     @  x='%g(x5)' y='%g(y5)'>%h(p->z)</text>
     fossil_free(p->z);
@@ -269,11 +269,11 @@ void piechart_render(int width, int height, unsigned int pieFlags){
 */
 void piechart_test_page(void){
   const char *zData;
-  Stmt ins, q;
-  Blob all, line, token1, token2;
+  Stmt ins;
   int n = 0;
   int width;
   int height;
+  int i, j;
 
   login_check_credentials();
   style_header("Pie Chart Test");
@@ -282,45 +282,50 @@ void piechart_test_page(void){
   zData = PD("data","");
   width = atoi(PD("width","800"));
   height = atoi(PD("height","400"));
-  blob_init(&all, zData, -1);
-  while( blob_line(&all, &line) ){
+  i = 0;
+  while( zData[i] ){
     double rAmt;
-    if( blob_token(&line, &token1)==0 ) continue;
-    rAmt = atof(blob_str(&token1));
-    if( rAmt<=0.0 ) continue;
-    blob_tail(&line, &token2);
+    char *zLabel;
+    while( fossil_isspace(zData[i]) ){ i++; }
+    j = i;
+    while( fossil_isdigit(zData[j]) ){ j++; }
+    if( zData[j]=='.' ){
+      j++;
+      while( fossil_isdigit(zData[j]) ){ j++; }
+    }
+    if( i==j ) break;
+    rAmt = atof(&zData[i]);
+    i = j;
+    while( zData[i]==',' || fossil_isspace(zData[i]) ){ i++; }
+    n++;
+    zLabel = mprintf("label%02d-%g", n, rAmt);
     db_bind_double(&ins, ":amt", rAmt);
-    db_bind_text(&ins, ":label", blob_str(&token2));
+    db_bind_text(&ins, ":label", zLabel);
     db_step(&ins);
     db_reset(&ins);
-    n++;
+    fossil_free(zLabel);
   }
   db_finalize(&ins);
-  blob_reset(&all);
-  if( n>0 ){
+  if( n>1 ){
     @ <svg width=%d(width) height=%d(height) style="border:1px solid #d3d3d3;">
-    piechart_render(width,height, PIE_OTHER);
+    piechart_render(width,height, PIE_OTHER|PIE_PERCENT);
     @ </svg>
     @ <hr />
   }
-  @ <form method="post" action='%R/test-piechart'>
-  @ <p>One slice per line.  Value and then Label.<p>
-  @ <textarea name='data' rows='20' cols='80'>%h(zData)</textarea><br />
+  @ <form method="POST" action='%R/test-piechart'>
+  @ <p>Comma-separated list of slice widths:<br />
+  @ <input type='text' name='data' size='80' value='%h(zData)'/><br />
   @ Width: <input type='text' size='8' name='width' value='%d(width)'/>
   @ Height: <input type='text' size='8' name='height' value='%d(height)'/><br />
-  @ <input type='hidden' name='width' value='%d(width)'/>
-  @ <input type='hidden' name='height' value='%d(height)'/>
   @ <input type='submit' value='Draw The Pie Chart'/>
   @ </form>
-  @ <hr /><p>Previous Data:</p>
-  @ <table border="1">
-  db_prepare(&q, "SELECT rowid, amt, label FROM piechart");
-  while( db_step(&q)==SQLITE_ROW ){
-     @ <tr><td>%d(db_column_int(&q,0))</td>
-     @ <td>%g(db_column_double(&q,1))</td>
-     @ <td>%h(db_column_text(&q,2))</td></tr>
-  }
-  db_finalize(&q);
-  @ </table>
+  @ <p>Interesting test cases:
+  @ <ul>
+  @ <li> <a href='test-piechart?data=44,2,2,2,2,2,3,2,2,2,2,2,44'>Case 1</a>
+  @ <li> <a href='test-piechart?data=2,2,2,2,2,44,44,2,2,2,2,2'>Case 2</a>
+  @ <li> <a href='test-piechart?data=20,2,2,2,2,2,2,2,2,2,2,80'>Case 3</a>
+  @ <li> <a href='test-piechart?data=80,2,2,2,2,2,2,2,2,2,2,20'>Case 4</a>
+  @ <li> <a href='test-piechart?data=2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2'>Case 5</a>
+  @ </ul>
   style_footer();
 }

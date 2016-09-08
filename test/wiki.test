@@ -126,7 +126,7 @@ test wiki-11 {[similar_file f3 a3]}
 fossil wiki create 2ndnote f3 -technote {2016-01-01 12:34}
 test wiki-13 {$CODE == 0}
 fossil wiki list --technote
-set technotelist [split $RESULT "\n"] 
+set technotelist [split $RESULT "\n"]
 test wiki-13.1 {[llength $technotelist] == 2}
 
 ###############################################################################
@@ -149,7 +149,7 @@ fossil wiki commit doesntexist f1 -expectError
 test wiki-16 {$CODE != 0}
 
 ###############################################################################
-# Check specifying tags for a technote is OK 
+# Check specifying tags for a technote is OK
 write_file f5 "technote with tags"
 fossil wiki create {tagged technote} f5 --technote {2016-01-02 12:34} --technote-tags {A B}
 test wiki-17 {$CODE == 0}
@@ -210,12 +210,12 @@ test wiki-30 {[string match *Unique*technote* $RESULT]}
 
 ###############################################################################
 # Check for a collision between an attachment and a note, this was a
-# bug that resulted from some code treating the attachment entry as if it 
-# were a technote when it isn't really. 
+# bug that resulted from some code treating the attachment entry as if it
+# were a technote when it isn't really.
 #
 # First, wait for the top of the next second so the attachment
 # happens at a known time, then add an attachment to an existing note
-# and a new note immediately after. 
+# and a new note immediately after.
 
 set t0 [clock seconds]
 while {$t0 == [clock seconds]} {
@@ -244,11 +244,11 @@ fossil wiki create "Unstamped Note" f10 --technote -expectError
 test wiki-33 {$CODE != 0}
 fossil wiki create "Unstamped Note" f10 --technote now
 test wiki-34 {$CODE == 0}
-fossil wiki list -t 
+fossil wiki list -t
 test wiki-35 {[string match "*$t2*" $RESULT]}
 
 ###############################################################################
-# Check an attachment to it in the same second works. 
+# Check an attachment to it in the same second works.
 write_file f11 "Time Stamp was $t2"
 fossil attachment add f11 --technote $t2
 test wiki-36 {$CODE == 0}
@@ -258,11 +258,11 @@ fossil wiki list -t
 test wiki-36-2 {$CODE == 0}
 
 ###############################################################################
-# Check that we have the expected number of tech notes on the list (and not 
-# extra ones from other events (such as the attachments) - 8 tech notes 
-# expected created by tests 9, 13, 17, 19, 29, 31, 32 and 34 
+# Check that we have the expected number of tech notes on the list (and not
+# extra ones from other events (such as the attachments) - 8 tech notes
+# expected created by tests 9, 13, 17, 19, 29, 31, 32 and 34
 fossil wiki list --technote
-set technotelist [split $RESULT "\n"] 
+set technotelist [split $RESULT "\n"]
 test wiki-37 {[llength $technotelist] == 8}
 
 ###############################################################################
@@ -291,7 +291,7 @@ test wiki-40 {[similar_file f12 a12]}
 ###############################################################################
 # Also check that we can specify a prefix of the tech note id (note: with
 # 9 items in the tech note at this point there is a chance of a collision.
-# However with a 20 character prefix the chance of the collision is 
+# However with a 20 character prefix the chance of the collision is
 # approximately 1 in 10^22 so this test ignores that possibility.)
 fossil wiki export a12.1 --technote [string range $anoldtechnoteid 0 20]
 test wiki-41 {[similar_file f12 a12.1]}
@@ -310,7 +310,7 @@ for {set i 0} {$i < [llength $technotelist]} {incr i} {
   dict incr idcounts $id
   if {[dict get $idcounts $id] > $maxcount} {
     set maxid $id
-    incr maxcount 
+    incr maxcount
   }
 }
 # get i so that, as a julian date, it is in the 1800s, i.e., older than
@@ -328,7 +328,7 @@ while {$maxcount < 2} {
   dict incr idcounts $id
   if {[dict get $idcounts $id] > $maxcount} {
     set maxid $id
-    incr maxcount 
+    incr maxcount
   }
 }
 # Save the duplicate id for this and later tests
