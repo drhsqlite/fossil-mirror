@@ -763,7 +763,7 @@ static void bundle_purge_cmd(void){
 **
 **      Import all content from BUNDLE into the repository.  By default, the
 **      imported files are private and will not sync.  Use the --publish
-**      option makes the import public.
+**      option to make the import public.
 **
 **   fossil bundle ls BUNDLE
 **

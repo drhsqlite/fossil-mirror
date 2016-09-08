@@ -1,5 +1,5 @@
-C Simplify\sSSLLIBDIR\schange\sfrom\sthe\sprevious\scheck-in.
-D 2016-09-08T20:10:33.564
+C Merge\supdates\sfrom\strunk.
+D 2016-09-08T20:17:45.104
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -380,7 +380,7 @@ F src/blob.c c0683f0e9fd0fb2b66ca62e8f1a54bd9873d6a28
 F src/branch.c f23d02fee6314c726d95a2a82954d81632636723
 F src/browse.c 8f0bb9b6e6e31df9875c081239745a33567c7c84
 F src/builtin.c b2dcfcade2054c083b03a18e3ab5026d51eb2dcb
-F src/bundle.c ea36067940920f7cb3769e66d991488cd2a9a1e9
+F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c 10310d276e72e3e34343e3385c0b39fac5cd826e
@@ -477,13 +477,13 @@ F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c 36783ae66c3b319763b3efda0516d693a3c65ade
 F src/setup.c 2767f1df9359cce376500527a1c4a38ae986cc1a
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
-F src/shell.c 79dda477be6c96eba6e952a934957ad36f87acc7
+F src/shell.c de7c7e98846cacbfbe062cbd98bca899dfb720e3
 F src/shun.c 7d0a7eeffdf515b2d78919408fe42e7142a9b532
 F src/sitemap.c b7c376b21d29322741c804e1f762b34aedb98ad1
 F src/skins.c 524384aafbe9e7707d3b87f42ee72fa63fe91796
 F src/sqlcmd.c a7dce974ba7afde541ed58df98bebce335ed75a5
-F src/sqlite3.c 96ff68842760e51523e619476e93ecbc08403134
-F src/sqlite3.h 4598bc789e11a494e541fce3ddf1424cf1fda5f9
+F src/sqlite3.c fbcd4d9983a0247d34cd8776d04e6bdf49cd52eb
+F src/sqlite3.h 713e5952796937df3d6d48f6746262a402046696
 F src/stash.c ced32acae9b125f723c6473f30cdfdf8b530dc37
 F src/stat.c 6a6e24276497f62d4574ac181ab15ba19471caa7
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
@@ -517,7 +517,7 @@ F src/winhttp.c 7e4c82fc91fe89b81ef4ae399944b8f035fe6789
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 42ff53debe408f9862f3e96ab80d7e322d0fc223
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
-F src/zip.c 4ff5fff5dba38f7b514db1194a69a6f634be6a34
+F src/zip.c 1d6ed8eaa3dc41c560edbce797af7d13bc4f6ee6
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test f89134d8bb0e36527248557c95c23f19fc687064
@@ -758,7 +758,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 22049abd47aa41282556c001d90346a9245fa1c0
-R 9177fc8a4f7dce3f3e67efecd4a40ddb
+P bd25cd185d1273cbe26726307c40b0788a63f276 76242c28a0a354d3fada3cb1fcc086186f7811f5
+R 734c9862cdbd8c99777fe29af596ad61
 U mistachkin
-Z 10fb98930028ae95d45d4e3e5c51c851
+Z 3ac48d9bf110c0a0d12e870d9d76f733

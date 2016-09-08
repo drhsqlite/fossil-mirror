@@ -466,13 +466,13 @@ void zip_cmd(void){
 **
 ** Query parameters:
 **
-**   name=NAME[.tar.gz]  The base name of the output file.  The default
+**   name=NAME[.zip]     The base name of the output file.  The default
 **                       value is a configuration parameter in the project
 **                       settings.  A prefix of the name, omitting the extension,
 **                       is used as the top-most directory name.
 
 **
-**   uuid=TAG            The check-in that is turned into a tarball.
+**   uuid=TAG            The check-in that is turned into a ZIP file.
 **                       Defaults to "trunk".
 **
 **   in=PATTERN          Only include files that match the comma-separate
