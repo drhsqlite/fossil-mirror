@@ -261,6 +261,14 @@ to enable TH1 hooks in fossil.
 `TH1_ENABLE_TCL`: Override the local or global setting `tcl` to enable
 Tcl in fossil.
 
+`TH1_TEST_ANON_CAPS`: Override the default anonymous permissions used
+when processing the `--set-anon-caps` option for the `test-th-eval`,
+`test-th-render`, and `test-th-source` test commands.
+
+`TH1_TEST_USER_CAPS`: Override the default user permissions used when
+processing the `--set-user-caps` option for the `test-th-eval`,
+`test-th-render`, and `test-th-source` test commands.
+
 `TMP`: On Windows, the location of temporary files. The first
 environment variable found in the environment that names an existing
 directory from the list `TMP`, `TEMP`, `USERPROFILE`, the Windows

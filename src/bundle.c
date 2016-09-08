@@ -315,7 +315,7 @@ static void bundle_export_cmd(void){
   db_multi_exec(
     "INSERT INTO bconfig(bcname,bcvalue)"
     " SELECT name, value FROM config"
-    "  WHERE name IN ('project-code');"
+    "  WHERE name IN ('project-code','parent-project-code');"
   );
 
   /* Directly copy content from the repository into the bundle as long

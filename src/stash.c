@@ -25,13 +25,13 @@
 ** SQL code to implement the tables needed by the stash.
 */
 static const char zStashInit[] =
-@ CREATE TABLE IF NOT EXISTS "%w".stash(
+@ CREATE TABLE IF NOT EXISTS localdb.stash(
 @   stashid INTEGER PRIMARY KEY,     -- Unique stash identifier
 @   vid INTEGER,                     -- The baseline check-out for this stash
 @   comment TEXT,                    -- Comment for this stash.  Or NULL
 @   ctime TIMESTAMP                  -- When the stash was created
 @ );
-@ CREATE TABLE IF NOT EXISTS "%w".stashfile(
+@ CREATE TABLE IF NOT EXISTS localdb.stashfile(
 @   stashid INTEGER REFERENCES stash,  -- Stash that contains this file
 @   rid INTEGER,                       -- Baseline content in BLOB table or 0.
 @   isAdded BOOLEAN,                   -- True if this is an added file
@@ -479,7 +479,6 @@ static int stash_get_id(const char *zStashId){
 **  fossil stash [g]diff ?STASHID? ?DIFF-OPTIONS?
 */
 void stash_cmd(void){
-  const char *zDb;
   const char *zCmd;
   int nCmd;
   int stashid = 0;
@@ -488,8 +487,7 @@ void stash_cmd(void){
   db_must_be_within_tree();
   db_open_config(0, 0);
   db_begin_transaction();
-  zDb = db_name("localdb");
-  db_multi_exec(zStashInit /*works-like:"%w,%w"*/, zDb, zDb);
+  db_multi_exec(zStashInit /*works-like:""*/);
   rc = db_exists("SELECT 1 FROM sqlite_master"
                  " WHERE name='stashfile'"
                  "   AND sql GLOB '* PRIMARY KEY(origname, stashid)*'");

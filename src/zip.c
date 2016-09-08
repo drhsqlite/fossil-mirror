@@ -328,7 +328,7 @@ void zip_of_checkin(
   Blob *pZip,         /* Write the ZIP archive content into this blob */
   const char *zDir,   /* Top-level directory of the ZIP archive */
   Glob *pInclude,     /* Only include files that match this pattern */
-  Glob *pExclude      /* Exclude files that match this pattern */ 
+  Glob *pExclude      /* Exclude files that match this pattern */
 ){
   Blob mfile, hash, file;
   Manifest *pManifest;

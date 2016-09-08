@@ -190,7 +190,7 @@ void branch_new(void){
 #define BRL_BOTH             0x003 /* Show both open and closed branches */
 #define BRL_OPEN_CLOSED_MASK 0x003
 #define BRL_MTIME            0x004 /* Include lastest check-in time */
-#dfeine BRL_ORDERBY_MTIME    0x008 /* Sort by MTIME. (otherwise sort by name)*/
+#define BRL_ORDERBY_MTIME    0x008 /* Sort by MTIME. (otherwise sort by name)*/
 
 #endif /* INTERFACE */
 
@@ -259,6 +259,12 @@ void branch_prepare_list_query(Stmt *pQuery, int brFlags){
 **        --nosign              do not sign contents on this branch
 **        --date-override DATE  DATE to use instead of 'now'
 **        --user-override USER  USER to use instead of the current default
+**
+**        DATE may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
+**        year-month-day form, it may be truncated, the "T" may be
+**        replaced by a space, and it may also name a timezone offset
+**        from UTC as "-HH:MM" (westward) or "+HH:MM" (eastward).
+**        Either no timezone suffix or "Z" means UTC.
 **
 **    %fossil branch list ?-a|--all|-c|--closed?
 **    %fossil branch ls ?-a|--all|-c|--closed?

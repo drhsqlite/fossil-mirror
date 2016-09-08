@@ -3,10 +3,11 @@
 # Run this TCL script to generate a WIKI page that contains a
 # permuted index of the various documentation files.
 #
-#    tclsh mkindex.tcl 
+#    tclsh mkindex.tcl
 #
 
 set doclist {
+  aboutcgi.wiki {How CGI Works In Fossil}
   adding_code.wiki {Adding New Features To Fossil}
   adding_code.wiki {Hacking Fossil}
   antibot.wiki {Defense against Spiders and Bots}
@@ -14,9 +15,10 @@ set doclist {
   branching.wiki {Branching, Forking, Merging, and Tagging}
   bugtheory.wiki {Bug Tracking In Fossil}
   build.wiki {Compiling and Installing Fossil}
+  changes.wiki {Fossil Changelog}
   checkin_names.wiki {Check-in And Version Names}
   checkin.wiki {Check-in Checklist}
-  changes.wiki {Fossil Changelog}
+  childprojects.wiki {Child Projects}
   copyright-release.html {Contributor License Agreement}
   concepts.wiki {Fossil Core Concepts}
   contribute.wiki {Contributing Code or Documentation To The Fossil Project}
@@ -26,6 +28,7 @@ set doclist {
   delta_encoder_algorithm.wiki {Fossil Delta Encoding Algorithm}
   delta_format.wiki {Fossil Delta Format}
   embeddeddoc.wiki {Embedded Project Documentation}
+  encryptedrepos.wiki {How To Use Encrypted Repositories}
   env-opts.md {Environment Variables and Global Options}
   event.wiki {Events}
   faq.wiki {Frequently Asked Questions}
@@ -64,6 +67,7 @@ set doclist {
   th1.md {The TH1 Scripting Language}
   tickets.wiki {The Fossil Ticket System}
   theory1.wiki {Thoughts On The Design Of The Fossil DVCS}
+  unvers.wiki {Unversioned Files}
   webpage-ex.md {Webpage Examples}
   webui.wiki {The Fossil Web Interface}
   wikitheory.wiki {Wiki In Fossil}

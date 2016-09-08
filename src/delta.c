@@ -247,7 +247,7 @@ static unsigned int checksum(const char *zIn, size_t N){
       sum += _byteswap_ulong(*(unsigned*)z);
       z += 4;
     }
-#else    
+#else
     unsigned sum0 = 0;
     unsigned sum1 = 0;
     unsigned sum2 = 0;

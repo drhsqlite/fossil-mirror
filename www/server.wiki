@@ -7,7 +7,12 @@ page you are now reading (but excepting the
 [https://www.fossil-scm.org/download.html|download page]),
 is just a Fossil server displaying the content of the 
 self-hosting repository for Fossil.</p>
-<p>This article is a guide for setting up your own Fossil server.</p></blockquote>
+<p>This article is a guide for setting up your own Fossil server.
+<p>See "[./aboutcgi.wiki|How CGI Works In Fossil]" for background
+information on the underlying CGI technology.
+See "[./sync.wiki|The Fossil Sync Protocol]" for information on the
+wire protocol used for client/server communication.</p>
+</blockquote>
 <h2>Overview</h2><blockquote>
 There are basically four ways to set up a Fossil server:
 <ol>
@@ -348,11 +353,12 @@ file in the "proc" virtual filesystem.  If you are running a Fossil instance
 inside a chroot() jail on Linux, you will need to make the "/proc" file
 system available inside that jail in order for this feature to work.  On
 the self-hosting Fossil repository, this was accomplished by adding a line
-to the "/etc/mtab" or "/etc/fstab" file that looks like:
+to the "/etc/fstab" file that looks like:
 <blockquote><pre>
-chroot_jail_proc /home/www/proc proc r 0 0
+chroot_jail_proc /home/www/proc proc ro 0 0
 </pre></blockquote>
-Pathnames should be adjusted for individual systems, of course.
+The /home/www/proc pathname should be adjusted so that the "/proc" component is
+in the root of the chroot jail, of course.
 <p>
 To see if the load-average limiter is functional, visit the [/test_env] page
 of the server to view the current load average.  If the value for the load

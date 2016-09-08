@@ -115,7 +115,7 @@ struct DContext {
   int nFrom;         /* Number of lines in aFrom[] */
   DLine *aTo;        /* File on right side of the diff */
   int nTo;           /* Number of lines in aTo[] */
-  int (*same_fn)(const DLine *, const DLine *); /* Function to be used for comparing */
+  int (*same_fn)(const DLine*,const DLine*); /* comparison function */
 };
 
 /*
@@ -133,7 +133,12 @@ struct DContext {
 ** Profiling show that in most cases this routine consumes the bulk of
 ** the CPU time on a diff.
 */
-static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags){
+static DLine *break_into_lines(
+  const char *z,
+  int n,
+  int *pnLine,
+  u64 diffFlags
+){
   int nLine, i, j, k, s, x;
   unsigned int h, h2;
   DLine *a;
@@ -2092,7 +2097,12 @@ static int annotation_start(Annotator *p, Blob *pInput, u64 diffFlags){
 ** being annotated.  Do another step of the annotation.  Return true
 ** if additional annotation is required.
 */
-static int annotation_step(Annotator *p, Blob *pParent, int iVers, u64 diffFlags){
+static int annotation_step(
+  Annotator *p,
+  Blob *pParent,
+  int iVers,
+  u64 diffFlags
+){
   int i, j;
   int lnTo;
 
@@ -2136,8 +2146,8 @@ static int annotation_step(Annotator *p, Blob *pParent, int iVers, u64 diffFlags
 
 
 /* Annotation flags (any DIFF flag can be used as Annotation flag as well) */
-#define ANN_FILE_VERS   (((u64)0x20)<<32) /* Show file vers rather than commit vers */
-#define ANN_FILE_ANCEST (((u64)0x40)<<32) /* Prefer check-ins in the ANCESTOR table */
+#define ANN_FILE_VERS   (((u64)0x20)<<32) /* File vers not commit vers */
+#define ANN_FILE_ANCEST (((u64)0x40)<<32) /* Prefer checkins in the ANCESTOR */
 
 /*
 ** Compute a complete annotation on a file.  The file is identified
@@ -2445,11 +2455,12 @@ void annotation_page(void){
 ** who made each check-in and omits the line number.
 **
 ** Options:
-**   --filevers                 Show file version numbers rather than check-in versions
-**   -l|--log                   List all versions analyzed
-**   -n|--limit N               Only look backwards in time by N versions
-**   -w|--ignore-all-space      Ignore white space when comparing lines
-**   -Z|--ignore-trailing-space Ignore whitespace at line end
+**   --filevers                  Show file version numbers rather than
+**                               check-in versions
+**   -l|--log                    List all versions analyzed
+**   -n|--limit N                Only look backwards in time by N versions
+**   -w|--ignore-all-space       Ignore white space when comparing lines
+**   -Z|--ignore-trailing-space  Ignore whitespace at line end
 **
 ** See also: info, finfo, timeline
 */

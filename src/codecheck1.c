@@ -251,7 +251,6 @@ static int is_string_expr(const char *z){
 */
 static const char *azSafeFunc[] = {
   "filename_collation",
-  "db_name",
   "leaf_is_closed_sql",
   "timeline_query_for_www",
   "timeline_query_for_tty",

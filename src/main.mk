@@ -47,6 +47,7 @@ SRC = \
   $(SRCDIR)/file.c \
   $(SRCDIR)/finfo.c \
   $(SRCDIR)/foci.c \
+  $(SRCDIR)/fshell.c \
   $(SRCDIR)/fusefs.c \
   $(SRCDIR)/glob.c \
   $(SRCDIR)/graph.c \
@@ -118,6 +119,7 @@ SRC = \
   $(SRCDIR)/tktsetup.c \
   $(SRCDIR)/undo.c \
   $(SRCDIR)/unicode.c \
+  $(SRCDIR)/unversioned.c \
   $(SRCDIR)/update.c \
   $(SRCDIR)/url.c \
   $(SRCDIR)/user.c \
@@ -219,6 +221,7 @@ TRANS_SRC = \
   $(OBJDIR)/file_.c \
   $(OBJDIR)/finfo_.c \
   $(OBJDIR)/foci_.c \
+  $(OBJDIR)/fshell_.c \
   $(OBJDIR)/fusefs_.c \
   $(OBJDIR)/glob_.c \
   $(OBJDIR)/graph_.c \
@@ -290,6 +293,7 @@ TRANS_SRC = \
   $(OBJDIR)/tktsetup_.c \
   $(OBJDIR)/undo_.c \
   $(OBJDIR)/unicode_.c \
+  $(OBJDIR)/unversioned_.c \
   $(OBJDIR)/update_.c \
   $(OBJDIR)/url_.c \
   $(OBJDIR)/user_.c \
@@ -340,6 +344,7 @@ OBJ = \
  $(OBJDIR)/file.o \
  $(OBJDIR)/finfo.o \
  $(OBJDIR)/foci.o \
+ $(OBJDIR)/fshell.o \
  $(OBJDIR)/fusefs.o \
  $(OBJDIR)/glob.o \
  $(OBJDIR)/graph.o \
@@ -411,6 +416,7 @@ OBJ = \
  $(OBJDIR)/tktsetup.o \
  $(OBJDIR)/undo.o \
  $(OBJDIR)/unicode.o \
+ $(OBJDIR)/unversioned.o \
  $(OBJDIR)/update.o \
  $(OBJDIR)/url.o \
  $(OBJDIR)/user.o \
@@ -615,6 +621,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/file_.c:$(OBJDIR)/file.h \
 	$(OBJDIR)/finfo_.c:$(OBJDIR)/finfo.h \
 	$(OBJDIR)/foci_.c:$(OBJDIR)/foci.h \
+	$(OBJDIR)/fshell_.c:$(OBJDIR)/fshell.h \
 	$(OBJDIR)/fusefs_.c:$(OBJDIR)/fusefs.h \
 	$(OBJDIR)/glob_.c:$(OBJDIR)/glob.h \
 	$(OBJDIR)/graph_.c:$(OBJDIR)/graph.h \
@@ -686,6 +693,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/tktsetup_.c:$(OBJDIR)/tktsetup.h \
 	$(OBJDIR)/undo_.c:$(OBJDIR)/undo.h \
 	$(OBJDIR)/unicode_.c:$(OBJDIR)/unicode.h \
+	$(OBJDIR)/unversioned_.c:$(OBJDIR)/unversioned.h \
 	$(OBJDIR)/update_.c:$(OBJDIR)/update.h \
 	$(OBJDIR)/url_.c:$(OBJDIR)/url.h \
 	$(OBJDIR)/user_.c:$(OBJDIR)/user.h \
@@ -971,6 +979,14 @@ $(OBJDIR)/foci.o:	$(OBJDIR)/foci_.c $(OBJDIR)/foci.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/foci.o -c $(OBJDIR)/foci_.c
 
 $(OBJDIR)/foci.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/fshell_.c:	$(SRCDIR)/fshell.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/fshell.c >$@
+
+$(OBJDIR)/fshell.o:	$(OBJDIR)/fshell_.c $(OBJDIR)/fshell.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/fshell.o -c $(OBJDIR)/fshell_.c
+
+$(OBJDIR)/fshell.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/fusefs_.c:	$(SRCDIR)/fusefs.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/fusefs.c >$@
@@ -1539,6 +1555,14 @@ $(OBJDIR)/unicode.o:	$(OBJDIR)/unicode_.c $(OBJDIR)/unicode.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/unicode.o -c $(OBJDIR)/unicode_.c
 
 $(OBJDIR)/unicode.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/unversioned_.c:	$(SRCDIR)/unversioned.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/unversioned.c >$@
+
+$(OBJDIR)/unversioned.o:	$(OBJDIR)/unversioned_.c $(OBJDIR)/unversioned.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/unversioned.o -c $(OBJDIR)/unversioned_.c
+
+$(OBJDIR)/unversioned.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/update_.c:	$(SRCDIR)/update.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/update.c >$@

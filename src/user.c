@@ -172,23 +172,25 @@ int fossil_security_level(void){
 /*
 ** Do a single prompt for a passphrase.  Store the results in the blob.
 **
-** If the FOSSIL_PWREADER environment variable is set, then it will
-** be the name of a program that prompts the user for their password/
-** passphrase in a secure manner.  The program should take one or more
-** arguments which are the prompts and should output the acquired
-** passphrase as a single line on stdout.  This function will read the
-** output using popen().
-**
-** If FOSSIL_PWREADER is not set, or if it is not the name of an
-** executable, then use the C-library getpass() routine.
 **
 ** The return value is a pointer to a static buffer that is overwritten
 ** on subsequent calls to this same routine.
 */
 static void prompt_for_passphrase(const char *zPrompt, Blob *pPassphrase){
   char *z;
+#if 0
+  */
+  ** If the FOSSIL_PWREADER environment variable is set, then it will
+  ** be the name of a program that prompts the user for their password/
+  ** passphrase in a secure manner.  The program should take one or more
+  ** arguments which are the prompts and should output the acquired
+  ** passphrase as a single line on stdout.  This function will read the
+  ** output using popen().
+  **
+  ** If FOSSIL_PWREADER is not set, or if it is not the name of an
+  ** executable, then use the C-library getpass() routine.
+  */
   const char *zProg = fossil_getenv("FOSSIL_PWREADER");
-  const char *zSecure;
   if( zProg && zProg[0] ){
     static char zPass[100];
     Blob cmd;
@@ -201,7 +203,9 @@ static void prompt_for_passphrase(const char *zPrompt, Blob *pPassphrase){
     pclose(in);
     blob_reset(&cmd);
     z = zPass;
-  }else if( fossil_security_level()>=2 ){
+  }else
+#endif
+  if( fossil_security_level()>=2 ){
     userGenerateScrambleCode();
     z = getpass(zPrompt);
     if( z ) userDescramble(z);

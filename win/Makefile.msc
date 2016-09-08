@@ -100,7 +100,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.0.2h
+SSLDIR    = $(B)\compat\openssl-1.1.0
 SSLINCDIR = $(SSLDIR)\inc32
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)\out32dll
@@ -108,11 +108,11 @@ SSLLIBDIR = $(SSLDIR)\out32dll
 SSLLIBDIR = $(SSLDIR)\out32
 !endif
 SSLLFLAGS = /nologo /opt:ref /debug
-SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
+SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib crypt32.lib
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 !message Using 'x64' platform for OpenSSL...
 # BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN64A no-asm no-ssl2 no-ssl3
+# SSLCONFIG = VC-WIN64A no-asm no-ssl3
 SSLCONFIG = VC-WIN64A no-asm
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
@@ -127,12 +127,12 @@ SSLNMAKE  = ms\nt.mak all
 !endif
 # BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
 !if $(FOSSIL_DYNAMIC_BUILD)==0
-SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
+SSLCFLAGS = -DOPENSSL_NO_SSL3
 !endif
 !elseif "$(PLATFORM)"=="ia64"
 !message Using 'ia64' platform for OpenSSL...
 # BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN64I no-asm no-ssl2 no-ssl3
+# SSLCONFIG = VC-WIN64I no-asm no-ssl3
 SSLCONFIG = VC-WIN64I no-asm
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
@@ -147,12 +147,12 @@ SSLNMAKE  = ms\nt.mak all
 !endif
 # BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
 !if $(FOSSIL_DYNAMIC_BUILD)==0
-SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
+SSLCFLAGS = -DOPENSSL_NO_SSL3
 !endif
 !else
 !message Assuming 'x86' platform for OpenSSL...
 # BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN32 no-asm no-ssl2 no-ssl3
+# SSLCONFIG = VC-WIN32 no-asm no-ssl3
 SSLCONFIG = VC-WIN32 no-asm
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
@@ -167,7 +167,7 @@ SSLNMAKE  = ms\nt.mak all
 !endif
 # BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
 !if $(FOSSIL_DYNAMIC_BUILD)==0
-SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
+SSLCFLAGS = -DOPENSSL_NO_SSL3
 !endif
 !endif
 !endif
@@ -375,6 +375,7 @@ SRC   = add_.c \
         file_.c \
         finfo_.c \
         foci_.c \
+        fshell_.c \
         fusefs_.c \
         glob_.c \
         graph_.c \
@@ -446,6 +447,7 @@ SRC   = add_.c \
         tktsetup_.c \
         undo_.c \
         unicode_.c \
+        unversioned_.c \
         update_.c \
         url_.c \
         user_.c \
@@ -546,6 +548,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\file$O \
         $(OX)\finfo$O \
         $(OX)\foci$O \
+        $(OX)\fshell$O \
         $(OX)\fusefs$O \
         $(OX)\glob$O \
         $(OX)\graph$O \
@@ -622,6 +625,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\tktsetup$O \
         $(OX)\undo$O \
         $(OX)\unicode$O \
+        $(OX)\unversioned$O \
         $(OX)\update$O \
         $(OX)\url$O \
         $(OX)\user$O \
@@ -726,6 +730,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\file.obj >> $@
 	echo $(OX)\finfo.obj >> $@
 	echo $(OX)\foci.obj >> $@
+	echo $(OX)\fshell.obj >> $@
 	echo $(OX)\fusefs.obj >> $@
 	echo $(OX)\glob.obj >> $@
 	echo $(OX)\graph.obj >> $@
@@ -802,6 +807,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\tktsetup.obj >> $@
 	echo $(OX)\undo.obj >> $@
 	echo $(OX)\unicode.obj >> $@
+	echo $(OX)\unversioned.obj >> $@
 	echo $(OX)\update.obj >> $@
 	echo $(OX)\url.obj >> $@
 	echo $(OX)\user.obj >> $@
@@ -1124,6 +1130,12 @@ $(OX)\foci$O : foci_.c foci.h
 	$(TCC) /Fo$@ -c foci_.c
 
 foci_.c : $(SRCDIR)\foci.c
+	translate$E $** > $@
+
+$(OX)\fshell$O : fshell_.c fshell.h
+	$(TCC) /Fo$@ -c fshell_.c
+
+fshell_.c : $(SRCDIR)\fshell.c
 	translate$E $** > $@
 
 $(OX)\fusefs$O : fusefs_.c fusefs.h
@@ -1552,6 +1564,12 @@ $(OX)\unicode$O : unicode_.c unicode.h
 unicode_.c : $(SRCDIR)\unicode.c
 	translate$E $** > $@
 
+$(OX)\unversioned$O : unversioned_.c unversioned.h
+	$(TCC) /Fo$@ -c unversioned_.c
+
+unversioned_.c : $(SRCDIR)\unversioned.c
+	translate$E $** > $@
+
 $(OX)\update$O : update_.c update.h
 	$(TCC) /Fo$@ -c update_.c
 
@@ -1679,6 +1697,7 @@ headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 			file_.c:file.h \
 			finfo_.c:finfo.h \
 			foci_.c:foci.h \
+			fshell_.c:fshell.h \
 			fusefs_.c:fusefs.h \
 			glob_.c:glob.h \
 			graph_.c:graph.h \
@@ -1750,6 +1769,7 @@ headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 			tktsetup_.c:tktsetup.h \
 			undo_.c:undo.h \
 			unicode_.c:unicode.h \
+			unversioned_.c:unversioned.h \
 			update_.c:update.h \
 			url_.c:url.h \
 			user_.c:user.h \

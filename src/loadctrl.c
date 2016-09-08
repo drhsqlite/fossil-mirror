@@ -37,7 +37,7 @@ double load_average(void){
 
 /*
 ** COMMAND: test-loadavg
-** 
+**
 ** %fossil test-loadavg
 **
 ** Print the load average on the host machine.

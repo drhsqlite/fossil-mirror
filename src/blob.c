@@ -657,12 +657,40 @@ int blob_is_uuid(Blob *pBlob){
 }
 
 /*
+** Return true if the blob contains a valid filename
+*/
+int blob_is_filename(Blob *pBlob){
+  return file_is_simple_pathname(blob_str(pBlob), 1);
+}
+
+/*
 ** Return true if the blob contains a valid 32-bit integer.  Store
 ** the integer value in *pValue.
 */
 int blob_is_int(Blob *pBlob, int *pValue){
   const char *z = blob_buffer(pBlob);
   int i, n, c, v;
+  n = blob_size(pBlob);
+  v = 0;
+  for(i=0; i<n && (c = z[i])!=0 && c>='0' && c<='9'; i++){
+    v = v*10 + c - '0';
+  }
+  if( i==n ){
+    *pValue = v;
+    return 1;
+  }else{
+    return 0;
+  }
+}
+
+/*
+** Return true if the blob contains a valid 64-bit integer.  Store
+** the integer value in *pValue.
+*/
+int blob_is_int64(Blob *pBlob, sqlite3_int64 *pValue){
+  const char *z = blob_buffer(pBlob);
+  int i, n, c;
+  sqlite3_int64 v;
   n = blob_size(pBlob);
   v = 0;
   for(i=0; i<n && (c = z[i])!=0 && c>='0' && c<='9'; i++){
@@ -1002,7 +1030,7 @@ int blob_uncompress(Blob *pIn, Blob *pOut){
 ** Usage: %fossil test-uncompress IN OUT
 **
 ** Read the content of file IN, uncompress that content, and write the
-** result into OUT.  This command is intended for testing of the the
+** result into OUT.  This command is intended for testing of the
 ** blob_compress() function.
 */
 void uncompress_cmd(void){
