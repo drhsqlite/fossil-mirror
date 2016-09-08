@@ -1,5 +1,5 @@
-C First\sattempt\sat\sgetting\sthe\sMSVC\smakefile\sworking\swith\sOpenSSL\s1.1.0.
-D 2016-09-08T20:09:26.982
+C Simplify\sSSLLIBDIR\schange\sfrom\sthe\sprevious\scheck-in.
+D 2016-09-08T20:10:33.564
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -638,7 +638,7 @@ F win/Makefile.PellesCGMake 7a28a56f548bfad3f4e6ad2749333c0a0ad95acc
 F win/Makefile.dmc 96033e0d175cd48f61689b66d0618b1a689d9122
 F win/Makefile.mingw e9e9482f199394a8c3739fb84cb3ac3aa4df0a19
 F win/Makefile.mingw.mistachkin 54c8d9ae4b730ce2e8de1115608da258de85c253
-F win/Makefile.msc 9633f5a816607e9a004578f19a8599438e52f6e2
+F win/Makefile.msc a305b54993869231421d68a1de33948d644e9afb
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -758,7 +758,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b03f15635dd356beefaf2f2d238f2d17bf20d9bb
-R d055ccfdf5decbf54f3ce6ed4bb26953
+P 22049abd47aa41282556c001d90346a9245fa1c0
+R 9177fc8a4f7dce3f3e67efecd4a40ddb
 U mistachkin
-Z eab8a46977878bfe66efd1b65c83e6c5
+Z 10fb98930028ae95d45d4e3e5c51c851

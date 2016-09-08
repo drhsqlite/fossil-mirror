@@ -102,11 +102,7 @@ USE_SEE = 0
 !if $(FOSSIL_ENABLE_SSL)!=0
 SSLDIR    = $(B)\compat\openssl-1.1.0
 SSLINCDIR = $(SSLDIR)\include
-!if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)
-!else
-SSLLIBDIR = $(SSLDIR)
-!endif
 SSLNMAKE  = makefile all
 SSLLFLAGS = /nologo /opt:ref /debug
 SSLLIB    = libssl.lib libcrypto.lib user32.lib gdi32.lib crypt32.lib
