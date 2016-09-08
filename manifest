@@ -1,5 +1,5 @@
-C Fix\stypo\sin\sthe\son-line\shelp\sfor\sthe\sbundle\scommand.
-D 2016-09-08T14:19:02.043
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.15\salpha\sthat\sincludes\sthe\nrow-value\senhancements.
+D 2016-09-08T14:51:48.337
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -477,13 +477,13 @@ F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c 36783ae66c3b319763b3efda0516d693a3c65ade
 F src/setup.c 2767f1df9359cce376500527a1c4a38ae986cc1a
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
-F src/shell.c 79dda477be6c96eba6e952a934957ad36f87acc7
+F src/shell.c de7c7e98846cacbfbe062cbd98bca899dfb720e3
 F src/shun.c 7d0a7eeffdf515b2d78919408fe42e7142a9b532
 F src/sitemap.c b7c376b21d29322741c804e1f762b34aedb98ad1
 F src/skins.c 524384aafbe9e7707d3b87f42ee72fa63fe91796
 F src/sqlcmd.c a7dce974ba7afde541ed58df98bebce335ed75a5
-F src/sqlite3.c 96ff68842760e51523e619476e93ecbc08403134
-F src/sqlite3.h 4598bc789e11a494e541fce3ddf1424cf1fda5f9
+F src/sqlite3.c fbcd4d9983a0247d34cd8776d04e6bdf49cd52eb
+F src/sqlite3.h 713e5952796937df3d6d48f6746262a402046696
 F src/stash.c ced32acae9b125f723c6473f30cdfdf8b530dc37
 F src/stat.c 6a6e24276497f62d4574ac181ab15ba19471caa7
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
@@ -758,7 +758,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 460d5628a366f03121cb5c5a1de8c6aac509b65e
-R 60473c17a956f413cbbad4785489b8f5
+P fd4fc1a9043eae56a78238530f0f1bd3b1369fb0
+R 8f3f5f64731e07be05ec3de9cddf8da2
 U drh
-Z d6e94f77946401a46517f01b7c15114b
+Z 21946fffe53e46dfded6ba5a945663f1
