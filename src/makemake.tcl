@@ -854,7 +854,7 @@ endif
 #### OpenSSL: Add the necessary libraries required, if enabled.
 #
 ifdef FOSSIL_ENABLE_SSL
-LIB += -lssl -lcrypto -lgdi32
+LIB += -lssl -lcrypto -lgdi32 -lcrypt32
 endif
 
 #### Tcl: Add the necessary libraries required, if enabled.
@@ -1498,7 +1498,7 @@ SSLLIBDIR = $(SSLDIR)\out32dll
 SSLLIBDIR = $(SSLDIR)\out32
 !endif
 SSLLFLAGS = /nologo /opt:ref /debug
-SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
+SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib crypt32.lib
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 !message Using 'x64' platform for OpenSSL...
 # BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.

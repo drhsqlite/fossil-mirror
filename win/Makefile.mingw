@@ -366,7 +366,7 @@ endif
 #### OpenSSL: Add the necessary libraries required, if enabled.
 #
 ifdef FOSSIL_ENABLE_SSL
-LIB += -lssl -lcrypto -lgdi32
+LIB += -lssl -lcrypto -lgdi32 -lcrypt32
 endif
 
 #### Tcl: Add the necessary libraries required, if enabled.

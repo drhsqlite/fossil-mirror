@@ -1,5 +1,5 @@
-C (cherry-pick)\sFix\smingw64\sbuild\s(broken\sby\s[8f2dd0106ef3b5aa])
-D 2016-09-07T10:16:26.147
+C (cherry-pick)\sMake\sfossil\scompilable\swith\s(externally-built)\sopenssl-1.1.0.\sStill\scompiles/runs\swith\sopenssl\s1.0.2\sequally\swell\s(actual\sswitch\sis\snot\smade\syet)
+D 2016-09-08T09:22:49.609
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -45,7 +45,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def c42d2c88ca519ec04f62d0499873173ab45cb2f0
+F auto.def e799a1797a14b0475c45e833a72a171bf44564fc
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 4e0b671b54288fc64d851d056822ee5fec4d3365
 F autosetup/autosetup 7b5ae324561a38804875517af9b7c6e7f42f930d x
@@ -416,7 +416,7 @@ F src/graph.c 1e8070d743acae021523e423418c4c13d81b5a0f
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
 F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c c38d7bff255b35cc7cfe13405b67c32878f9d838
-F src/http_ssl.c dea4a130aba592848e7a43f635272cd8d7be7592
+F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c 060b06a4066a6f3bbedad39ffdb275b4e2153723
 F src/info.c df2e9776a08ec549d917adc9f4924f7b4ca57c07
@@ -446,7 +446,7 @@ F src/main.c 663246084eded6c69a9c4ecdf17d6f30ae43df7e
 F src/main.mk 50c3682cf8a42ca928b3a10533c74b204d0f691e
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 050d2c5cc6141954cde0f51d3e8b5c1e4566093c
+F src/makemake.tcl 3b6dc0cb5c2c61f09a1af925a1a700a9e973d01f
 F src/manifest.c f2232158d122110ce25a5de6131bd61627181591
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
@@ -632,9 +632,9 @@ F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F win/Makefile.PellesCGMake 7175c45ddf40ea9086b1bc299d030e650cc57d59
 F win/Makefile.dmc 7e4668b1a8dbf00d8ed3796deb32e9b5313d347f
-F win/Makefile.mingw 82c25771e8bcdf3b211457233ee1202f997808b6
-F win/Makefile.mingw.mistachkin a724a7a923cea238b9fd0c850b356492fc39b2f1
-F win/Makefile.msc fc73bc0025c61f897dc2a21de68e1f2698c9c616
+F win/Makefile.mingw 77953de2e1c4d2b18040d2dd3c1ed2177b590bae
+F win/Makefile.mingw.mistachkin 668d150159b582d284e2f9c9099cca52d82cbdc6
+F win/Makefile.msc 120df995f7c45da084dae6c6b48ebef17229593e
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -751,8 +751,8 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8166001e0acd6bc2539c909700f7183f7ba865ce
-Q +db59821f890cf66dc3187a88568499d4e0d77e97
-R a6e91ec9ffe979c95c68ac4a1211b03e
+P 8a4fa47ed137018a15e4e94015a1e6d4b4d3b11a
+Q +460d5628a366f03121cb5c5a1de8c6aac509b65e
+R 593bc723b201047f2bcaafe274c3a14a
 U jan.nijtmans
-Z 64f02dc9c9bdf029bf42ba863bebfe4b
+Z 02c229046bd059713302aec0c0080efe

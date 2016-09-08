@@ -196,7 +196,7 @@ proc check-for-openssl {msg {cflags {}} {libs {-lssl -lcrypto}}} {
     msg-checking "Checking for $msg..."
     set rc 0
     if {[is_mingw]} {
-        lappend libs -lgdi32 -lwsock32
+        lappend libs -lgdi32 -lwsock32 -lcrypt32
     }
     if {[info exists ::zlib_lib]} {
         lappend libs $::zlib_lib
@@ -315,7 +315,7 @@ if {$ssldirs ne "none"} {
             define-append LIBS $::zlib_lib
         }
         if {[is_mingw]} {
-            define-append LIBS -lgdi32 -lwsock32
+            define-append LIBS -lgdi32 -lwsock32 -lcrypt32
         }
         msg-result "HTTPS support enabled"
 
