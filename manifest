@@ -1,5 +1,5 @@
-C Make\sfossil\scompilable\swith\s(externally-built)\sopenssl-1.1.0.\sStill\scompiles/runs\swith\sopenssl\s1.1.2\sequally\swell\s(actual\sswitch\sis\snot\smade\syet)
-D 2016-09-08T09:08:57.007
+C Fix\stypo\sin\sthe\son-line\shelp\sfor\sthe\sbundle\scommand.
+D 2016-09-08T14:19:02.043
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -380,7 +380,7 @@ F src/blob.c c0683f0e9fd0fb2b66ca62e8f1a54bd9873d6a28
 F src/branch.c f23d02fee6314c726d95a2a82954d81632636723
 F src/browse.c 8f0bb9b6e6e31df9875c081239745a33567c7c84
 F src/builtin.c b2dcfcade2054c083b03a18e3ab5026d51eb2dcb
-F src/bundle.c ea36067940920f7cb3769e66d991488cd2a9a1e9
+F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c 10310d276e72e3e34343e3385c0b39fac5cd826e
@@ -758,7 +758,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P db59821f890cf66dc3187a88568499d4e0d77e97
-R c6d5acf671f12d50a00e41a45c58c45f
-U jan.nijtmans
-Z 09369570448241eec5868d8e8e10bfe8
+P 460d5628a366f03121cb5c5a1de8c6aac509b65e
+R 60473c17a956f413cbbad4785489b8f5
+U drh
+Z d6e94f77946401a46517f01b7c15114b
