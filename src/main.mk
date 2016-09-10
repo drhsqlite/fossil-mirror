@@ -489,6 +489,7 @@ $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/
 # Setup the options used to compile the included SQLite library.
 SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_OMIT_LOAD_EXTENSION=1 \
+                 -DSQLITE_OMIT_SHARED_CACHE \
                  -DSQLITE_ENABLE_LOCKING_STYLE=0 \
                  -DSQLITE_LIKE_DOESNT_MATCH_BLOBS=1 \
                  -DSQLITE_THREADSAFE=0 \
