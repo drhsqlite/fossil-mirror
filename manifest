@@ -1,5 +1,5 @@
-C Update\sthe\smakefiles\sso\sthat\sthe\sbuild-in\sSQLite\scompiles\swith\nSQLITE_OMIT_SHARED_CACHE.\s\sUpdate\sthe\sbuild-in\sSQLite\ssources\sto\sthe\slatest\n3.15\salpha,\swhich\scompiles\swithout\swarning\swith\sthe\sabove\soption.
-D 2016-09-10T20:01:51.448
+C Update\scustom\sMinGW\smakefile.
+D 2016-09-11T07:14:45.541
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -637,7 +637,7 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F win/Makefile.PellesCGMake 3889967985cbed1fcd6603685196c13b316d7b56
 F win/Makefile.dmc 0b6c192970a4c27f2eea80c5e3b0086f081d7f71
 F win/Makefile.mingw 4c82107acd23b774373d68e990f22fd9bb388ae4
-F win/Makefile.mingw.mistachkin afed7610b1eed10fb5c4185723d466e330c97d99
+F win/Makefile.mingw.mistachkin 4c81eadb63aaf846bd8e60e2201fba7376a40962
 F win/Makefile.msc fb9fea79dd5a57dc35ec926c17de89cade7396bc
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -758,7 +758,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 76242c28a0a354d3fada3cb1fcc086186f7811f5
-R 0c77a7df7627f4b2f90c943992d071c2
-U drh
-Z 110c031d1ac8e5289635d8443df00fc1
+P 871f978d9b080403b73408858a63353ddaaf85a3
+R f3458f541abf64492df47e6c84d64bc3
+U mistachkin
+Z f04d2f04ffb93890f5687cbd0056a221
