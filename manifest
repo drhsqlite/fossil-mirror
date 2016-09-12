@@ -1,5 +1,5 @@
-C Add\svarious\sbuilt-in\sdocumentation\spages\sto\sthe\sdocumentation\spermuted\nindex.
-D 2016-09-12T19:35:24.448
+C Previous\sdocumentation\schange\sdid\snot\swork\sfor\srepositories\sthat\sare\snot\nat\sthe\sroot\sof\sthe\sdomain.\s\sThis\sshould\sfix\sit.
+D 2016-09-12T19:40:02.891
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -728,10 +728,10 @@ F www/index.wiki cb23ace3944512d8a033ccfc0efd035e5131aa26
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki 30c7129ffb00c58699b87e84a2c0b696d7c10406
 F www/mkdownload.tcl 5ac61a3e13cecaa67f1e31741113c96cbd41463f
-F www/mkindex.tcl 3a97c72b1337ecd23b66d5002aac1391e045e728
+F www/mkindex.tcl 976629f23c973093c513d69741462ad35cf26ff9
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
-F www/permutedindex.html 5f9895ebb59c3d9ad28d19e72026a1c07201ed5b
+F www/permutedindex.html 3c6ee0a162b138131f3c1a4fcacadfe76d1105bf
 F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
 F www/private.wiki 72344489bbae6f7955369559b6ab22e01a64259b
 F www/qandc.wiki e07b21da221b05afeb1905f17af3765045952ba8
@@ -758,7 +758,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8ff4855db4488d817de71f0f393798035746965f
-R 64b866b0310887a11d58ddd238c4c55a
+P 46cebc87502a4ac4e0dbf772e80636b39d5299e0
+R a9a489b47fcd4217e1b26a7e82b91a70
 U drh
-Z 465e168c138f69f6b40a4b61d2358e36
+Z 2810df1c06c226020ad1f3bbbe905863

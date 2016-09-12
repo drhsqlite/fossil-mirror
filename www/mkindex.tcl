@@ -119,6 +119,7 @@ book</a>
 <ul>}
 foreach entry $permindex {
   foreach {title file} $entry break
+  if {[string match /* $file]} {set file ../../..$file}
   puts $out "<li><a href=\"$file\">$title</a></li>"
 }
 puts $out "</ul></div>"
