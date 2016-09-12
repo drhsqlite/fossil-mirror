@@ -38,10 +38,12 @@ set doclist {
   fossil-from-msvc.wiki {Integrating Fossil in the Microsoft Express 2010 IDE}
   fossil-v-git.wiki {Fossil Versus Git}
   hacker-howto.wiki {Hacker How-To}
+  /help {Lists of Commands and Webpages}
   hints.wiki {Fossil Tips And Usage Hints}
   index.wiki {Home Page}
   inout.wiki {Import And Export To And From Git}
   makefile.wiki {The Fossil Build Process}
+  /md_rules {Markdown Formatting Rules}
   newrepo.wiki {How To Create A New Fossil Repository}
   password.wiki {Password Management And Authentication}
   pop.wiki {Principles Of Operations}
@@ -56,6 +58,7 @@ set doclist {
   selfhost.wiki {Fossil Self Hosting Repositories}
   server.wiki {How To Configure A Fossil Server}
   settings.wiki {Fossil Settings}
+  /sitemap {Site Map}
   shunning.wiki {Shunning: Deleting Content From Fossil}
   stats.wiki {Performance Statistics}
   style.wiki {Source Code Style Guidelines}
@@ -71,6 +74,7 @@ set doclist {
   webpage-ex.md {Webpage Examples}
   webui.wiki {The Fossil Web Interface}
   wikitheory.wiki {Wiki In Fossil}
+  /wiki_rules {Wiki Formatting Rules}
 }
 
 set permindex {}
