@@ -1,5 +1,5 @@
-C Refactor\scommand\sand\swebpage\sname\slookup.\s\sMove\sall\sassociated\slogic\sout\nof\smain.c\sand\sinto\sa\snew\sfile\snamed\s"dispatch.c".\s\sThere\sis\snow\sa\ssingle\nconst\sarray\sof\sobjects\snamed\s"aCommand"\sthat\scontains\sall\scommand\sand\swebpage\nnames\stogether\swith\stheir\shelp\stext.
-D 2016-09-13T17:51:16.161
+C Fix\sup\ssome\scomments\son\sthe\scommand\sand\swebpage\sname\slookup\slogic.\s\sNo\nchanges\sto\scode.
+D 2016-09-13T18:03:21.019
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -403,7 +403,7 @@ F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
 F src/diff.c 188128a31bb3761d950e9e4a07fa95dea0c98b06
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 3759afcedb06bb0d76844e0b724cd28b36ede262
-F src/dispatch.c 0971646836f4acc18d749443c0aea8df17f00ffa
+F src/dispatch.c 58f79ddb351549a7460c0913b5280bd7f1e19a38
 F src/doc.c f46ada466f90f12ee7b5c6078808fdfc4dedb183
 F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
 F src/event.c 6909284d77a688d63cc67b7b0929b8dda5397742
@@ -458,7 +458,7 @@ F src/merge.c 3da95cdecb4812fbe7ee547b5fce430f3278a023
 F src/merge3.c 555743dac3e0365a3406c262cd27cf94bec351c3
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
-F src/mkindex.c d396c794f96e4c3167f486e57886b5dcd4423d8e
+F src/mkindex.c 1202371ece616d320a4cc3da47399847f9fb366c
 F src/mkversion.c 40ed302872cc5795c76efb3ab089fc1aedba18f1
 F src/moderate.c dc445cce064560577fb47311c2e23925b92c35d8
 F src/name.c fbef706317c7f8ebc9d043713c0fb2b17e434bcb
@@ -759,7 +759,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a85eb7c6dcc616b961a1ccee2bcad37d7e0b1932
-R ae86b3ab4faf3110506ae7f119716a59
+P e6aab1a437f2c950f90dfdb24889ecd256e8bbcf
+R 603ad531d4b928c66901fda9d809839b
 U drh
-Z 8ce86034e632821f852afcbf7bc0e064
+Z bcd1aa661086bd1797b41e34931b9067
