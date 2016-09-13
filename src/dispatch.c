@@ -48,10 +48,6 @@ struct CmdOrPage {
 #define CMDFLAG_COMMAND   0x0010      /* A command */
 /**************************************************************************/
 
-/* Only the bits above that are part of CMDFLAG_TH_MASK are passed into
-** the TH1 hook procedures. */
-#define CMDFLAG_TH_MASK   0x000f      /* Legacy flags only */
-
 /* Values for the 2nd parameter to dispatch_name_search() */
 #define CMDFLAG_ANY       0x0018      /* Match anything */
 #define CMDFLAG_PREFIX    0x0020      /* Prefix match is ok */

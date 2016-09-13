@@ -733,7 +733,7 @@ int main(int argc, char **argv)
   **              executed.
   */
   if( !g.isHTTP && !g.fNoThHook ){
-    rc = Th_CommandHook(pCmd->zName, pCmd->eCmdFlags & CMDFLAG_TH_MASK);
+    rc = Th_CommandHook(pCmd->zName, pCmd->eCmdFlags);
   }else{
     rc = TH_OK;
   }
@@ -744,7 +744,7 @@ int main(int argc, char **argv)
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
     }
     if( !g.isHTTP && !g.fNoThHook && (rc==TH_OK || rc==TH_CONTINUE) ){
-      Th_CommandNotify(pCmd->zName, pCmd->eCmdFlags & CMDFLAG_TH_MASK);
+      Th_CommandNotify(pCmd->zName, pCmd->eCmdFlags);
     }
   }
 #endif
@@ -1548,7 +1548,7 @@ static void process_one_web_page(
     */
     int rc;
     if( !g.fNoThHook ){
-      rc = Th_WebpageHook(pCmd->zName+1, pCmd->eCmdFlags & CMDFLAG_TH_MASK);
+      rc = Th_WebpageHook(pCmd->zName+1, pCmd->eCmdFlags);
     }else{
       rc = TH_OK;
     }
@@ -1559,7 +1559,7 @@ static void process_one_web_page(
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
       }
       if( !g.fNoThHook && (rc==TH_OK || rc==TH_CONTINUE) ){
-        Th_WebpageNotify(pCmd->zName+1, pCmd->eCmdFlags & CMDFLAG_TH_MASK);
+        Th_WebpageNotify(pCmd->zName+1, pCmd->eCmdFlags);
       }
     }
 #endif

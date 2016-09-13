@@ -1,5 +1,5 @@
-C Update\scustom\sMinGW\smakefile.
-D 2016-09-13T22:12:39.916
+C Pass\sthe\scommand\sflags\sinto\sthe\sTH1\shooks\sverbatim,\swithout\sany\smasking.
+D 2016-09-13T22:13:24.125
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -403,7 +403,7 @@ F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
 F src/diff.c 188128a31bb3761d950e9e4a07fa95dea0c98b06
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 3759afcedb06bb0d76844e0b724cd28b36ede262
-F src/dispatch.c 50654e5781281997daf72f956b763e4a7192682c
+F src/dispatch.c 6adca854d08d8196e8d8e393e8bb97f8394ef0d3
 F src/doc.c f46ada466f90f12ee7b5c6078808fdfc4dedb183
 F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
 F src/event.c 6909284d77a688d63cc67b7b0929b8dda5397742
@@ -444,7 +444,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 597ae479d42096c07d6e6f85f1d844ebb46089b3
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
-F src/main.c b575862587710350ef5adc4a9533d57eaa1ec410
+F src/main.c fc2da020a35fb3861fa3361d3b0967498c1b97f8
 F src/main.mk 9668cf26a3ef3a1eac8c62c61fffc591dc0aad16
 F src/makeheaders.c e8444028f575e84075e46cf47f2080fa6d2c2115
 F src/makeheaders.html 06decb89c665feb897540613d7d12527eb65dfe5
@@ -759,7 +759,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 555ddfecfa9aae065c2b87eee573049ac972ffe8
-R d0cfdca1a3253e0b8f7ce9ee48bb1637
+P b218dbb9f3ae268ddac6b49deb8eab14c7be9e0d
+R 6efe35e85d7021a150c3df0c57a3095c
 U mistachkin
-Z 8d27f0f85973645598f46bf6151946cf
+Z 7dc936ee0d13b3983ea6c2bc431a5658
