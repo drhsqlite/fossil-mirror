@@ -1540,7 +1540,7 @@ void setup_settings(void){
   @ If such a file is present, the corresponding field above is not
   @ editable.</p><hr /><p>
   @ These settings work the same as the 
-  @ <a href='%R/help?cmd=set'>fossil set</a command.
+  @ <a href='%R/help?cmd=set'>fossil set</a> command.
   db_end_transaction(0);
   style_footer();
 }

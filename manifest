@@ -1,5 +1,5 @@
-C Only\sinclude\sthe\sbuilt-in\shelp\stext\sonce,\sit\sthe\s"help"\scommand\simplementation,\nnot\salso\sin\sthe\s"setup"\scommand.\s\sThis\sreduces\sthe\ssize\sof\sthe\sbinary\sby\nthe\ssize\sof\sthe\sbuilt-in\shelp\stable.
-D 2016-09-13T01:38:13.523
+C Fix\stypo.
+D 2016-09-13T03:11:44.950
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -475,7 +475,7 @@ F src/report.c 650149d0abc88d23c8571b64f3dfba23197bec2b
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c 36783ae66c3b319763b3efda0516d693a3c65ade
-F src/setup.c fc351f0aa468a416bbdb9eb78380f9a46ce5e165
+F src/setup.c 484952c850954d1756ff20c3299c5ad036f89e7f
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
 F src/shell.c de7c7e98846cacbfbe062cbd98bca899dfb720e3
 F src/shun.c 7d0a7eeffdf515b2d78919408fe42e7142a9b532
@@ -758,7 +758,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9c4122744e7a912f99334550fed2f177230208b2
-R 2c1da7be48eaacad1c97130622a68fd9
-U drh
-Z d4f7a9d266150d753a5367d0446f3acb
+P b86a58ed172ee37fc936f885349a3e5f8afbca78
+R 240eb347f9903ed1d9547ca5aa2a449b
+U mistachkin
+Z e973b68021ab7b3b3533ed0c3adaa949
