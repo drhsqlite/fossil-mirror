@@ -1,5 +1,5 @@
-C Fix\sup\ssome\scomments\son\sthe\scommand\sand\swebpage\sname\slookup\slogic.\s\sNo\nchanges\sto\scode.
-D 2016-09-13T18:03:21.019
+C Revise\sthe\sCOMMAND:\sand\sWEBSITE:\sparsing\sto\sadd\sthe\sability\sto\sspecify\sflag\noptions\safter\sthe\scommand\sor\swebsite\sname.
+D 2016-09-13T19:59:52.402
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -392,7 +392,7 @@ F src/codecheck1.c 4f707cdaefe03f9b1d913a54326617113d941898
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
 F src/config.h b91f4223f2653503759e1205343db9f94d134973
 F src/configure.c ba6cd082894e2f08b71993a542990a617345007e
-F src/content.c 8d104749ac8db354f458a327529f8e8c0ece349c
+F src/content.c a6024f0400307f4c25d067d323a6cbdf38b78c81
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
@@ -403,7 +403,7 @@ F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
 F src/diff.c 188128a31bb3761d950e9e4a07fa95dea0c98b06
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 3759afcedb06bb0d76844e0b724cd28b36ede262
-F src/dispatch.c 58f79ddb351549a7460c0913b5280bd7f1e19a38
+F src/dispatch.c 50654e5781281997daf72f956b763e4a7192682c
 F src/doc.c f46ada466f90f12ee7b5c6078808fdfc4dedb183
 F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
 F src/event.c 6909284d77a688d63cc67b7b0929b8dda5397742
@@ -444,7 +444,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 597ae479d42096c07d6e6f85f1d844ebb46089b3
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
-F src/main.c fc2da020a35fb3861fa3361d3b0967498c1b97f8
+F src/main.c b575862587710350ef5adc4a9533d57eaa1ec410
 F src/main.mk 9668cf26a3ef3a1eac8c62c61fffc591dc0aad16
 F src/makeheaders.c e8444028f575e84075e46cf47f2080fa6d2c2115
 F src/makeheaders.html 06decb89c665feb897540613d7d12527eb65dfe5
@@ -458,7 +458,7 @@ F src/merge.c 3da95cdecb4812fbe7ee547b5fce430f3278a023
 F src/merge3.c 555743dac3e0365a3406c262cd27cf94bec351c3
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
-F src/mkindex.c 1202371ece616d320a4cc3da47399847f9fb366c
+F src/mkindex.c 2435acb51fdeb007a040f38ad1b3bd2bef38c10b
 F src/mkversion.c 40ed302872cc5795c76efb3ab089fc1aedba18f1
 F src/moderate.c dc445cce064560577fb47311c2e23925b92c35d8
 F src/name.c fbef706317c7f8ebc9d043713c0fb2b17e434bcb
@@ -759,7 +759,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e6aab1a437f2c950f90dfdb24889ecd256e8bbcf
-R 603ad531d4b928c66901fda9d809839b
+P 49703de740a8d74270610d907e5e5e542b936f16
+R 37b3f02b258db14237b67566060bca49
 U drh
-Z bcd1aa661086bd1797b41e34931b9067
+Z 7bfffb885d5bb556c0a6bc87d5aec242

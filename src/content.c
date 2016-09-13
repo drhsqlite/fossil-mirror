@@ -856,7 +856,7 @@ static int looks_like_control_artifact(Blob *p){
 }
 
 /*
-** COMMAND: test-integrity ?OPTIONS?
+** COMMAND: test-integrity
 **
 ** Verify that all content can be extracted from the BLOB table correctly.
 ** If the BLOB table is correct, then the repository can always be

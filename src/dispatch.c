@@ -37,14 +37,24 @@ struct CmdOrPage {
   unsigned eCmdFlags;      /* Flags */
 };
 
-/* Allowed values for CmdOrPage.eCmdFlags. */
-#define CMDFLAG_1ST_TIER  0x01      /* Most important commands */
-#define CMDFLAG_2ND_TIER  0x02      /* Obscure and seldom used commands */
-#define CMDFLAG_TEST      0x04      /* Commands for testing only */
-#define CMDFLAG_WEBPAGE   0x08      /* Web pages */
-#define CMDFLAG_COMMAND   0x10      /* A command */
-#define CMDFLAG_ANY       0x18      /* Match anything */
-#define CMDFLAG_PREFIX    0x20      /* Prefix match is ok */
+/***************************************************************************
+** These macros must match similar macros in mkindex.c
+** Allowed values for CmdOrPage.eCmdFlags.
+*/
+#define CMDFLAG_1ST_TIER  0x0001      /* Most important commands */
+#define CMDFLAG_2ND_TIER  0x0002      /* Obscure and seldom used commands */
+#define CMDFLAG_TEST      0x0004      /* Commands for testing only */
+#define CMDFLAG_WEBPAGE   0x0008      /* Web pages */
+#define CMDFLAG_COMMAND   0x0010      /* A command */
+/**************************************************************************/
+
+/* Only the bits above that are part of CMDFLAG_TH_MASK are passed into
+** the TH1 hook procedures. */
+#define CMDFLAG_TH_MASK   0x000f      /* Legacy flags only */
+
+/* Values for the 2nd parameter to dispatch_name_search() */
+#define CMDFLAG_ANY       0x0018      /* Match anything */
+#define CMDFLAG_PREFIX    0x0020      /* Prefix match is ok */
 
 #endif /* INTERFACE */
 
