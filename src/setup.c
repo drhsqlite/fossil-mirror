@@ -26,14 +26,6 @@
 #endif
 
 /*
-** The table of web pages supported by this application is generated
-** automatically by the "mkindex" program and written into a file
-** named "page_index.h".  We include that file here to get access
-** to the table.
-*/
-#include "page_index.h"
-
-/*
 ** Output a single entry for a menu generated using an HTML table.
 ** If zLink is not NULL or an empty string, then it is the page that
 ** the menu entry will hyperlink to.  If zLink is NULL or "", then
@@ -1483,7 +1475,6 @@ void setup_settings(void){
     return;
   }
 
-  (void) aCmdHelp; /* NOTE: Silence compiler warning. */
   style_header("Settings");
   if(!g.repositoryOpen){
     /* Provide read-only access to versioned settings,
@@ -1548,9 +1539,8 @@ void setup_settings(void){
   @ in the check-out root.
   @ If such a file is present, the corresponding field above is not
   @ editable.</p><hr /><p>
-  @ These settings work in the same way, as the <kbd>set</kbd>
-  @ commandline:<br />
-  @ </p><pre>%s(zHelp_setting_cmd)</pre>
+  @ These settings work the same as the 
+  @ <a href='%R/help?cmd=set'>fossil set</a command.
   db_end_transaction(0);
   style_footer();
 }
