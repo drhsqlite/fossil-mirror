@@ -1,5 +1,5 @@
-C Fix\stypo.
-D 2016-09-13T03:11:44.950
+C Fix\stimeline\scommand\sbug\sreported\sby\sRoy\sKeene.\s\sIf\sthe\snearest\sartifact\s\nfound\sis\sa\swiki\spage,\sit\smay\snot\shave\sa\schild,\sso\sinstead\suse\stime\stime\sof\nwhatever\sname_to_uuid\sfinds.\sFor\sexample:\nfossil\stimeline\safter\s2015-03-14T13:46:20
+D 2016-09-13T03:42:55.428
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -496,7 +496,7 @@ F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c b60b8ecbe727b7f3ff7d97db0189fea3883cf24c
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
-F src/timeline.c 518b4e256c53e2af57f48682ae93f27d89eae979
+F src/timeline.c 1d4152fb09de242b6c77f61fdec5d882f8c3ddae
 F src/tkt.c 0d7059f823642ea6c26c07081ee94b6cbb663408
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
@@ -758,7 +758,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b86a58ed172ee37fc936f885349a3e5f8afbca78
-R 240eb347f9903ed1d9547ca5aa2a449b
-U mistachkin
-Z e973b68021ab7b3b3533ed0c3adaa949
+P 88e1bef9ec833ddc57d4401d91742804f19800f3
+R 688cb3652f541b6955e2fa487b8f33ac
+U andybradford
+Z 5a6388eee5f8dedb5bb1fd23681878ce

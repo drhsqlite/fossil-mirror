@@ -2171,7 +2171,7 @@ void timeline_cmd(void){
     zDate = mprintf("(SELECT mtime FROM plink WHERE cid=%d)", objid);
   }else if( name_to_uuid(&uuid, 0, "*")==0 ){
     objid = db_int(0, "SELECT rid FROM blob WHERE uuid=%B", &uuid);
-    zDate = mprintf("(SELECT mtime FROM plink WHERE cid=%d)", objid);
+    zDate = mprintf("(SELECT mtime FROM event WHERE objid=%d)", objid);
   }else{
     const char *zShift = "";
     if( mode==3 || mode==4 ){
