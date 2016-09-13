@@ -1,5 +1,5 @@
-C Revise\sthe\sCOMMAND:\sand\sWEBSITE:\sparsing\sto\sadd\sthe\sability\sto\sspecify\sflag\noptions\safter\sthe\scommand\sor\swebsite\sname.
-D 2016-09-13T19:59:52.402
+C Update\scustom\sMinGW\smakefile.
+D 2016-09-13T22:12:39.916
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -638,7 +638,7 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F win/Makefile.PellesCGMake 3889967985cbed1fcd6603685196c13b316d7b56
 F win/Makefile.dmc e19e62c732cb103312ee10746edc9929fb9b4100
 F win/Makefile.mingw cd35816af5bbe823293cf70bcfc384b4e9eeae0c
-F win/Makefile.mingw.mistachkin 4c81eadb63aaf846bd8e60e2201fba7376a40962
+F win/Makefile.mingw.mistachkin fe86354d1ce84a7f66e3eac0f4e8f74dd6cb1baf
 F win/Makefile.msc a4acfb1c5eed163635b86e98d768bcf145508844
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -759,7 +759,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 49703de740a8d74270610d907e5e5e542b936f16
-R 37b3f02b258db14237b67566060bca49
-U drh
-Z 7bfffb885d5bb556c0a6bc87d5aec242
+P 555ddfecfa9aae065c2b87eee573049ac972ffe8
+R d0cfdca1a3253e0b8f7ce9ee48bb1637
+U mistachkin
+Z 8d27f0f85973645598f46bf6151946cf
