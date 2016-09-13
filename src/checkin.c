@@ -1472,6 +1472,7 @@ static int commit_warning(
   int crnlOk,           /* Non-zero if CR/NL warnings should be disabled. */
   int binOk,            /* Non-zero if binary warnings should be disabled. */
   int encodingOk,       /* Non-zero if encoding warnings should be disabled. */
+  int noPrompt,         /* Non-zero to disable prompts and assume 'No'. */
   const char *zFilename /* The full name of the file being committed. */
 ){
   int bReverse;           /* UTF-16 byte order is reversed? */
@@ -1564,9 +1565,14 @@ static int commit_warning(
                  " disable this warning.\n"
          "Commit anyhow (a=all/%sy/N)? ",
          blob_str(&fname), zWarning, zDisable, zConvert);
-    prompt_user(zMsg, &ans);
+    if( !noPrompt ){
+      prompt_user(zMsg, &ans);
+      cReply = blob_str(&ans)[0];
+      blob_reset(&ans);
+    }else{
+      cReply = 'N';
+    }
     fossil_free(zMsg);
-    cReply = blob_str(&ans)[0];
     if( cReply=='a' || cReply=='A' ){
       allOk = 1;
     }else if( *zConvert && (cReply=='c' || cReply=='C') ){
@@ -1597,7 +1603,6 @@ static int commit_warning(
       fossil_fatal("Abandoning commit due to %s in %s",
                    zWarning, blob_str(&fname));
     }
-    blob_reset(&ans);
     blob_reset(&fname);
   }
   return 0;
@@ -1685,6 +1690,9 @@ static int tagCmp(const void *a, const void *b){
 **    -M|--message-file FILE     read the commit comment from given file
 **    --mimetype MIMETYPE        mimetype of check-in comment
 **    -n|--dry-run               If given, display instead of run actions
+**    --no-prompt                This option disables prompting the user for
+**                               input and assumes an answer of 'No' for every
+**                               question.
 **    --no-warnings              omit all warnings about file contents
 **    --nosign                   do not attempt to sign this commit with gpg
 **    --private                  do not sync changes and their descendants
@@ -1715,6 +1723,7 @@ void commit_cmd(void){
   int noSign = 0;        /* True to omit signing the manifest using GPG */
   int isAMerge = 0;      /* True if checking in a merge */
   int noWarningFlag = 0; /* True if skipping all warnings */
+  int noPrompt = 0;      /* True if skipping all prompts */
   int forceFlag = 0;     /* Undocumented: Disables all checks */
   int forceDelta = 0;    /* Force a delta-manifest */
   int forceBaseline = 0; /* Force a baseline-manifest */
@@ -1762,6 +1771,7 @@ void commit_cmd(void){
   allowEmpty = find_option("allow-empty",0,0)!=0;
   allowFork = find_option("allow-fork",0,0)!=0;
   allowOlder = find_option("allow-older",0,0)!=0;
+  noPrompt = find_option("no-prompt", 0, 0)!=0;
   noWarningFlag = find_option("no-warnings", 0, 0)!=0;
   sCiInfo.zBranch = find_option("branch","b",1);
   sCiInfo.zColor = find_option("bgcolor",0,1);
@@ -1831,8 +1841,14 @@ void commit_cmd(void){
   ** clock skew
   */
   if( g.clockSkewSeen ){
-    prompt_user("continue in spite of time skew (y/N)? ", &ans);
-    cReply = blob_str(&ans)[0];
+    if( !noPrompt ){
+      prompt_user("continue in spite of time skew (y/N)? ", &ans);
+      cReply = blob_str(&ans)[0];
+      blob_reset(&ans);
+    }else{
+      fossil_print("Abandoning commit due to time skew\n");
+      cReply = 'N';
+    }
     if( cReply!='y' && cReply!='Y' ){
       fossil_exit(1);
     }
@@ -1849,9 +1865,16 @@ void commit_cmd(void){
   ** should be committed.
   */
   if( select_commit_files() ){
-    prompt_user("continue (y/N)? ", &ans);
-    cReply = blob_str(&ans)[0];
-    if( cReply!='y' && cReply!='Y' ) fossil_exit(1);
+    if( !noPrompt ){
+      prompt_user("continue (y/N)? ", &ans);
+      cReply = blob_str(&ans)[0];
+      blob_reset(&ans);
+    }else{
+      cReply = 'N';
+    }
+    if( cReply!='y' && cReply!='Y' ){
+      fossil_exit(1);
+    }
   }
   isAMerge = db_exists("SELECT 1 FROM vmerge WHERE id=0 OR id<-2");
   if( g.aCommitFile && isAMerge ){
@@ -1956,22 +1979,31 @@ void commit_cmd(void){
     blob_zero(&comment);
     blob_read_from_file(&comment, zComFile);
     blob_to_utf8_no_bom(&comment, 1);
-  }else if(dryRunFlag){
+  }else if( dryRunFlag ){
     blob_zero(&comment);
-  }else{
+  }else if( !noPrompt ){
     char *zInit = db_text(0, "SELECT value FROM vvar WHERE name='ci-comment'");
     prepare_commit_comment(&comment, zInit, &sCiInfo, vid);
     if( zInit && zInit[0] && fossil_strcmp(zInit, blob_str(&comment))==0 ){
       prompt_user("unchanged check-in comment.  continue (y/N)? ", &ans);
       cReply = blob_str(&ans)[0];
-      if( cReply!='y' && cReply!='Y' ) fossil_exit(1);
+      blob_reset(&ans);
+      if( cReply!='y' && cReply!='Y' ){
+        fossil_exit(1);
+      }
     }
     free(zInit);
   }
   if( blob_size(&comment)==0 ){
     if( !dryRunFlag ){
-      prompt_user("empty check-in comment.  continue (y/N)? ", &ans);
-      cReply = blob_str(&ans)[0];
+      if( !noPrompt ){
+        prompt_user("empty check-in comment.  continue (y/N)? ", &ans);
+        cReply = blob_str(&ans)[0];
+        blob_reset(&ans);
+      }else{
+        fossil_print("Abandoning commit due to empty check-in comment\n");
+        cReply = 'N';
+      }
       if( cReply!='y' && cReply!='Y' ){
         fossil_exit(1);
       }
@@ -2025,7 +2057,8 @@ void commit_cmd(void){
     /* Do not emit any warnings when they are disabled. */
     if( !noWarningFlag ){
       abortCommit |= commit_warning(&content, crnlOk, binOk,
-                                    encodingOk, zFullname);
+                                    encodingOk, noPrompt,
+                                    zFullname);
     }
     if( contains_merge_marker(&content) ){
       Blob fname; /* Relative pathname of the file */
@@ -2109,8 +2142,14 @@ void commit_cmd(void){
     }
   }
   if( !noSign && !g.markPrivate && clearsign(&manifest, &manifest) ){
-    prompt_user("unable to sign manifest.  continue (y/N)? ", &ans);
-    cReply = blob_str(&ans)[0];
+    if( !noPrompt ){
+      prompt_user("unable to sign manifest.  continue (y/N)? ", &ans);
+      cReply = blob_str(&ans)[0];
+      blob_reset(&ans);
+    }else{
+      fossil_print("Abandoning commit due to manifest signing failure\n");
+      cReply = 'N';
+    }
     if( cReply!='y' && cReply!='Y' ){
       fossil_exit(1);
     }
