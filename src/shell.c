@@ -524,7 +524,7 @@ static char *local_getline(char *zLine, FILE *in){
 #if defined(_WIN32) || defined(WIN32)
   /* For interactive input on Windows systems, translate the
   ** multi-byte characterset characters into UTF-8. */
-  if( stdin_is_interactive ){
+  if( stdin_is_interactive && in==stdin ){
     char *zTrans = sqlite3_win32_mbcs_to_utf8_v2(zLine, 0);
     if( zTrans ){
       int nTrans = strlen30(zTrans)+1;
@@ -2946,10 +2946,10 @@ static int db_int(ShellState *p, const char *zSql){
 /*
 ** Convert a 2-byte or 4-byte big-endian integer into a native integer
 */
-unsigned int get2byteInt(unsigned char *a){
+static unsigned int get2byteInt(unsigned char *a){
   return (a[0]<<8) + a[1];
 }
-unsigned int get4byteInt(unsigned char *a){
+static unsigned int get4byteInt(unsigned char *a){
   return (a[0]<<24) + (a[1]<<16) + (a[2]<<8) + a[3];
 }
 
@@ -4896,7 +4896,7 @@ static int process_input(ShellState *p, FILE *in){
     zLine = one_input_line(in, zLine, nSql>0);
     if( zLine==0 ){
       /* End of input */
-      if( stdin_is_interactive ) printf("\n");
+      if( in==0 && stdin_is_interactive ) printf("\n");
       break;
     }
     if( seenInterrupt ){
@@ -5317,6 +5317,8 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
       szHeap = integerValue(zSize);
       if( szHeap>0x7fff0000 ) szHeap = 0x7fff0000;
       sqlite3_config(SQLITE_CONFIG_HEAP, malloc((int)szHeap), (int)szHeap, 64);
+#else
+      (void)cmdline_option_value(argc, argv, ++i);
 #endif
     }else if( strcmp(z,"-scratch")==0 ){
       int n, sz;

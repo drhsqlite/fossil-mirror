@@ -1,5 +1,5 @@
-C (cherry-pick)\sMake\sfossil\scompilable\swith\s(externally-built)\sopenssl-1.1.0.\sStill\scompiles/runs\swith\sopenssl\s1.0.2\sequally\swell\s(actual\sswitch\sis\snot\smade\syet)
-D 2016-09-08T09:22:49.609
+C (cherry-pick):\sUpdate\sthe\smakefiles\sso\sthat\sthe\sbuild-in\sSQLite\scompiles\swith\sSQLITE_OMIT_SHARED_CACHE.\s\nUpdate\sthe\sbuild-in\sSQLite\ssources\sto\s3.15.2.
+D 2016-09-13T14:15:00.380
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -443,10 +443,10 @@ F src/loadctrl.c 32febde85f14593a503aadbb51983d37fce009c2
 F src/login.c 13788b9e70f2cfb13ea4e975a4117c68ed8115f0
 F src/lookslike.c 3ae7e19f08d8e9d24767fcfe89aa66593bb3d814
 F src/main.c 663246084eded6c69a9c4ecdf17d6f30ae43df7e
-F src/main.mk 50c3682cf8a42ca928b3a10533c74b204d0f691e
+F src/main.mk c6f8fd703e40b017335cdcc9c1fe60f4348b7e78
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 3b6dc0cb5c2c61f09a1af925a1a700a9e973d01f
+F src/makemake.tcl 66996ffa97fc93afd067c9dfdd0a4de97651a3dc
 F src/manifest.c f2232158d122110ce25a5de6131bd61627181591
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
@@ -476,13 +476,13 @@ F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c 0c90730db6b6a4f1285dabf5032686c729c1e2c1
 F src/setup.c 7ebb7ea12f4a3d5d44b6ab00ae96052282f315ea
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
-F src/shell.c 14ff7f660530a52b117d110ba3390b7b2eb719b6
+F src/shell.c 92863490169599e6ef3719c292e19680c4448287
 F src/shun.c a31e037850f11b14ffecaa2f46972e6175acec9a
 F src/sitemap.c 6fbec2fbaf3bb39566f2550b12f58127c9bfa850
 F src/skins.c 4927e792a7cbb90faea0ee5efffc7051a91de7ac
 F src/sqlcmd.c 67a6b4ac894633d8346dc890a5b179a0ac3b1925
-F src/sqlite3.c d545b24892278272ce4e40e0567d69c8babf12ea
-F src/sqlite3.h 897022fa93ea23442ecfec5c4d84f54fb8b8aa52
+F src/sqlite3.c bcc4a1989db45e7f223191f2d0f66c1c28946383
+F src/sqlite3.h 98d24663e292a498f37052475a923811f2aa7d69
 F src/stash.c ccb0d94252422f28178119825a99c6bce45924d6
 F src/stat.c 82a4439d096fe0fb231e27f49f2b2ff13dacf014
 F src/statrep.c 061c9df02d134454c32e34cc29807adc594e1bc2
@@ -630,11 +630,11 @@ F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil-autocomplete.bash 1135105ee18b95823944e2fa425806d3bc0f4252
 F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
-F win/Makefile.PellesCGMake 7175c45ddf40ea9086b1bc299d030e650cc57d59
-F win/Makefile.dmc 7e4668b1a8dbf00d8ed3796deb32e9b5313d347f
-F win/Makefile.mingw 77953de2e1c4d2b18040d2dd3c1ed2177b590bae
-F win/Makefile.mingw.mistachkin 668d150159b582d284e2f9c9099cca52d82cbdc6
-F win/Makefile.msc 120df995f7c45da084dae6c6b48ebef17229593e
+F win/Makefile.PellesCGMake 73a73ffd83bdd00fc12ad59904114ff9cbac4ad5
+F win/Makefile.dmc 1f380554d421505073577b92bc04c36668551f93
+F win/Makefile.mingw 479e83c06e5545e39e86ea2d8df365f8790fb19e
+F win/Makefile.mingw.mistachkin 2c7a17fd108cad5b1ee1dfb2188e5184b328671e
+F win/Makefile.msc 7963f5cdcc8374a90d2b7aff8f5808ee7ad03cff
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -751,8 +751,8 @@ F www/webpage-ex.md 0356f2201738e1434eb7bfcb898a3f66799e3f30
 F www/webui.wiki 9efb7f22521c203fd35e4dd1533ac203a8330a99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8a4fa47ed137018a15e4e94015a1e6d4b4d3b11a
-Q +460d5628a366f03121cb5c5a1de8c6aac509b65e
-R 593bc723b201047f2bcaafe274c3a14a
+P e122e8a72d80aa941b6ceda7c6dd7bb3d8e2cf27
+Q +871f978d9b080403b73408858a63353ddaaf85a3
+R dae575a4cc82ea255dd8806df6fcbe26
 U jan.nijtmans
-Z 02c229046bd059713302aec0c0080efe
+Z fb196c1ba00906d6bba7c73758d3fbfe
