@@ -62,11 +62,12 @@
 ** Each entry looks like this:
 */
 typedef struct Entry {
-  int eType;
-  char *zIf;
-  char *zFunc;
-  char *zPath;
-  char *zHelp;
+  int eType;        /* 0: webpage,  1: command */
+  char *zIf;        /* Enclose in #if */
+  char *zFunc;      /* Name of implementation */
+  char *zPath;      /* Webpage or command name */
+  char *zHelp;      /* Help text */
+  int iHelp;        /* Index of Help text */
 } Entry;
 
 /*
@@ -205,12 +206,14 @@ void scan_for_func(char *zLine){
   if( k<nHelp ){
     z = string_dup(&zHelp[k], nHelp-k);
   }else{
-    z = 0;
+    z = "";
   }
   for(k=nFixed; k<nUsed; k++){
     aEntry[k].zIf = zIf[0] ? string_dup(zIf, -1) : 0;
     aEntry[k].zFunc = string_dup(&zLine[i], j);
     aEntry[k].zHelp = z;
+    z = 0;
+    aEntry[k].iHelp = nFixed;
   }
   i+=j;
   while( isspace(zLine[i]) ){ i++; }
@@ -245,43 +248,41 @@ int e_compare(const void *a, const void *b){
 */
 void build_table(void){
   int i;
+  int nWeb = 0;
 
   qsort(aEntry, nFixed, sizeof(aEntry[0]), e_compare);
+
+  /* Output declarations for all the action functions */
   for(i=0; i<nFixed; i++){
     if( aEntry[i].zIf ) printf("%s", aEntry[i].zIf);
     printf("extern void %s(void);\n", aEntry[i].zFunc);
     if( aEntry[i].zIf ) printf("#endif\n");
   }
-  printf(
-    "typedef struct NameMap NameMap;\n"
-    "struct NameMap {\n"
-    "  const char *zName;\n"
-    "  void (*xFunc)(void);\n"
-    "  char cmdFlags;\n"
-    "};\n"
-    "#define CMDFLAG_1ST_TIER  0x01\n"
-    "#define CMDFLAG_2ND_TIER  0x02\n"
-    "#define CMDFLAG_TEST      0x04\n"
-    "#define CMDFLAG_WEBPAGE   0x08\n"
-    "static const NameMap aWebpage[] = {\n"
-  );
-  for(i=0; i<nFixed && aEntry[i].eType==0; i++){
-    const char *z = aEntry[i].zPath;
-    int n = strlen(z);
+
+  /* Output strings for all the help text */
+  for(i=0; i<nFixed; i++){
+    char *z = aEntry[i].zHelp;
+    if( z==0 ) continue;
     if( aEntry[i].zIf ) printf("%s", aEntry[i].zIf);
-    printf("  { \"%s\",%*s %s,%*s 1 },\n",
-      z,
-      25-n, "",
-      aEntry[i].zFunc,
-      (int)(35-strlen(aEntry[i].zFunc)), ""
-    );
+    printf("static const char zHelp%03d[] = \n", aEntry[i].iHelp);
+    printf("  \"");
+    while( *z ){
+      if( *z=='\n' ){
+        printf("\\n\"\n  \"");
+      }else if( *z=='"' ){
+        printf("\\\"");
+      }else{
+        putchar(*z);
+      }
+      z++;
+    }
+    printf("\";\n");
     if( aEntry[i].zIf ) printf("#endif\n");
   }
-  printf("};\n");
-  printf(
-    "static const NameMap aCommand[] = {\n"
-  );
-  for(i=0; i<nFixed /*&& aEntry[i].eType==1*/; i++){
+
+  /* Generate the aCommand[] table */
+  printf("static const CmdOrPage aCommand[] = {\n");
+  for(i=0; i<nFixed; i++){
     const char *z = aEntry[i].zPath;
     int n = strlen(z);
     int cmdFlags = (1==aEntry[i].eType) ? 0x01 : 0x08;
@@ -293,55 +294,23 @@ void build_table(void){
         cmdFlags = 0x04;
       }
     }
-    if( aEntry[i].zIf ) printf("%s", aEntry[i].zIf);
-    printf("  { \"%s%.*s\",%*s %s,%*s %d },\n",
-      (0x08 & cmdFlags) ? "/" : "",
-      n, z,
-      25-n, "",
+    if( aEntry[i].zIf ){
+      printf("%s", aEntry[i].zIf);
+    }else if( aEntry[i].eType==0 ){
+      nWeb++;
+    }
+    printf("  { \"%s%.*s\",%*s%s,%*szHelp%03d, %d },\n",
+      (0x08 & cmdFlags) ? "/" : "", n, z,
+      25-n-((0x8&cmdFlags)!=0), "",
       aEntry[i].zFunc,
-      (int)(35-strlen(aEntry[i].zFunc)), "",
+      (int)(30-strlen(aEntry[i].zFunc)), "",
+      aEntry[i].iHelp,
       cmdFlags
     );
     if( aEntry[i].zIf ) printf("#endif\n");
   }
   printf("};\n");
-  printf("#define FOSSIL_FIRST_CMD (sizeof(aWebpage)/sizeof(aWebpage[0]))\n");
-  for(i=0; i<nFixed; i++){
-    char *z = aEntry[i].zHelp;
-    if( z && z[0] ){
-      if( aEntry[i].zIf ) printf("%s", aEntry[i].zIf);
-      printf("static const char zHelp_%s[] = \n", aEntry[i].zFunc);
-      printf("  \"");
-      while( *z ){
-        if( *z=='\n' ){
-          printf("\\n\"\n  \"");
-        }else if( *z=='"' ){
-          printf("\\\"");
-        }else{
-          putchar(*z);
-        }
-        z++;
-      }
-      printf("\";\n");
-      if( aEntry[i].zIf ) printf("#endif\n");
-      aEntry[i].zHelp[0] = 0;
-    }
-  }
-  puts("struct CmdHelp {"
-       "int eType; "
-       "const char *zText;"
-       "};");
-  puts("static struct CmdHelp aCmdHelp[] = {");
-  for(i=0; i<nFixed; i++){
-    if( aEntry[i].zIf ) printf("%s", aEntry[i].zIf);
-    if( aEntry[i].zHelp==0 ){
-      printf("{%d, 0},\n", aEntry[i].eType);
-    }else{
-      printf("{%d, zHelp_%s},\n", aEntry[i].eType, aEntry[i].zFunc);
-    }
-    if( aEntry[i].zIf ) printf("#endif\n");
-  }
-  printf("};\n");
+  printf("#define FOSSIL_FIRST_CMD %d\n", nWeb);
 }
 
 /*

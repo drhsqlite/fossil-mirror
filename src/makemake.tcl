@@ -47,6 +47,7 @@ set src {
   descendants
   diff
   diffcmd
+  dispatch
   doc
   encode
   event
