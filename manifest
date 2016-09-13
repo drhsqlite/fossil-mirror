@@ -1,5 +1,5 @@
-C Fix\stimeline\scommand\sbug\sreported\sby\sRoy\sKeene.\s\sIf\sthe\snearest\sartifact\s\nfound\sis\sa\swiki\spage,\sit\smay\snot\shave\sa\schild,\sso\sinstead\suse\stime\stime\sof\nwhatever\sname_to_uuid\sfinds.\sFor\sexample:\nfossil\stimeline\safter\s2015-03-14T13:46:20
-D 2016-09-13T03:42:55.428
+C Add\s'--no-prompt'\soption\sto\sthe\s'commit'\scommand.
+D 2016-09-13T04:35:53.756
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -384,7 +384,7 @@ F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c 10310d276e72e3e34343e3385c0b39fac5cd826e
-F src/checkin.c 2151366814859eee9fdce1cbbb082430b0160202
+F src/checkin.c afcfc46855dfe27c9df06bc2c17383b85494289c
 F src/checkout.c 4a679339a163dfd10df94b9eed5d90d0921925dd
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
@@ -758,7 +758,10 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 88e1bef9ec833ddc57d4401d91742804f19800f3
-R 688cb3652f541b6955e2fa487b8f33ac
-U andybradford
-Z 5a6388eee5f8dedb5bb1fd23681878ce
+P a85eb7c6dcc616b961a1ccee2bcad37d7e0b1932
+R 5cb9ca424d632e371da347dc7a924a8c
+T *branch * commitNoPrompt
+T *sym-commitNoPrompt *
+T -sym-trunk *
+U mistachkin
+Z f1deba7889cd83805bdb0c79251ba4ee
