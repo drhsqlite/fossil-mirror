@@ -41,7 +41,7 @@
 ** and analysis only.
 **
 ** Commands are 1st-tier by default.  If the command name begins with
-** "test-" or if the command name as a "test" argument, then it becomes
+** "test-" or if the command name has a "test" argument, then it becomes
 ** a test command.  If the command name has a "2nd-tier" argument or ends
 ** with a "*" character, it is second tier.  Examples:
 **

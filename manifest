@@ -1,5 +1,5 @@
-C Add\s'--no-prompt'\soption\sto\sthe\s'commit'\scommand.
-D 2016-09-13T22:14:41.731
+C Fix\stypo\sin\scomment.
+D 2016-09-14T01:42:28.476
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -458,7 +458,7 @@ F src/merge.c 3da95cdecb4812fbe7ee547b5fce430f3278a023
 F src/merge3.c 555743dac3e0365a3406c262cd27cf94bec351c3
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
-F src/mkindex.c 2435acb51fdeb007a040f38ad1b3bd2bef38c10b
+F src/mkindex.c 29be5509c87df441a830bc94e166a2c58f340cd9
 F src/mkversion.c 40ed302872cc5795c76efb3ab089fc1aedba18f1
 F src/moderate.c dc445cce064560577fb47311c2e23925b92c35d8
 F src/name.c fbef706317c7f8ebc9d043713c0fb2b17e434bcb
@@ -759,8 +759,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9595cfcd456c953d2a45956a607f7587d9c63e3a 4f3f39c4bef86b73a143275828e1e858b0f70965
-R e9f1e7a37bd2e8bae58836f501ccab58
-T +closed 4f3f39c4bef86b73a143275828e1e858b0f70965
+P 29ef4f5d06f9a73f7423c5705718073f03061042
+R abcbe4004c5f6f8396def7977cc73ece
 U mistachkin
-Z 8381b3e8b6d2cb6be88865c0be88984f
+Z d83438999e5c2c4a69957fe96cde24eb
