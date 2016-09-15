@@ -470,7 +470,6 @@ void zip_cmd(void){
 **                       value is a configuration parameter in the project
 **                       settings.  A prefix of the name, omitting the extension,
 **                       is used as the top-most directory name.
-
 **
 **   uuid=TAG            The check-in that is turned into a ZIP file.
 **                       Defaults to "trunk".
@@ -525,6 +524,30 @@ void baseline_zip_page(void){
     @ Not found
     return;
   }
+  if( nRid==0 && nName>10 ) zName[10] = 0;
+
+  /* Compute a unique key for the cache entry based on query parameters */
+  blob_init(&cacheKey, 0, 0);
+  blob_appendf(&cacheKey, "/zip/%z", rid_to_uuid(rid));
+  blob_appendf(&cacheKey, "/%q", zName);
+  if( zInclude ) blob_appendf(&cacheKey, ",in=%Q", zInclude);
+  if( zExclude ) blob_appendf(&cacheKey, ",ex=%Q", zExclude);
+  zKey = blob_str(&cacheKey);
+
+  if( P("debug")!=0 ){
+    style_header("ZIP Archive Generator Debug Screen");
+    @ zName = "%h(zName)"<br />
+    @ rid = %d(rid)<br />
+    if( zInclude ){
+      @ zInclude = "%h(zInclude)"<br />
+    }
+    if( zExclude ){
+      @ zExclude = "%h(zExclude)"<br />
+    }
+    @ zKey = "%h(zKey)"
+    style_footer();
+    return;
+  }
   if( referred_from_login() ){
     style_header("ZIP Archive Download");
     @ <form action='%R/zip/%h(zName).zip'>
@@ -536,26 +559,16 @@ void baseline_zip_page(void){
     style_footer();
     return;
   }
-  if( nRid==0 && nName>10 ) zName[10] = 0;
-
-  /* Compute a unique key for the cache entry based on query parameters */
-  blob_init(&cacheKey, 0, 0);
-  blob_appendf(&cacheKey, "/zip/%z", rid_to_uuid(rid));
-  if( zInclude ) blob_appendf(&cacheKey, ",in=%Q", zInclude);
-  if( zExclude ) blob_appendf(&cacheKey, ",ex=%Q", zExclude);
-  blob_appendf(&cacheKey, "/%q", zName);
-  zKey = blob_str(&cacheKey);
-
   blob_zero(&zip);
   if( cache_read(&zip, zKey)==0 ){
     zip_of_checkin(rid, &zip, zName, pInclude, pExclude);
     cache_write(&zip, zKey);
   }
-  fossil_free( zName );
-  fossil_free( zRid );
-  blob_reset(&cacheKey);
   glob_free(pInclude);
   glob_free(pExclude);
+  fossil_free(zName);
+  fossil_free(zRid);
+  blob_reset(&cacheKey);
   cgi_set_content(&zip);
   cgi_set_content_type("application/zip");
 }

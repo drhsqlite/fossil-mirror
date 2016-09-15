@@ -682,9 +682,9 @@ void tarball_page(void){
   /* Compute a unique key for the cache entry based on query parameters */
   blob_init(&cacheKey, 0, 0);
   blob_appendf(&cacheKey, "/tarball/%z", rid_to_uuid(rid));
+  blob_appendf(&cacheKey, "/%q", zName);
   if( zInclude ) blob_appendf(&cacheKey, ",in=%Q", zInclude);
   if( zExclude ) blob_appendf(&cacheKey, ",ex=%Q", zExclude);
-  blob_appendf(&cacheKey, "/%q", zName);
   zKey = blob_str(&cacheKey);
 
   if( P("debug")!=0 ){
