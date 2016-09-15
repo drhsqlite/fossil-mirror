@@ -404,7 +404,7 @@ void zip_of_checkin(
 ** Generate a ZIP archive for a check-in.  If the --name option is
 ** used, its argument becomes the name of the top-level directory in the
 ** resulting ZIP archive.  If --name is omitted, the top-level directory
-** named is derived from the project name, the check-in date and time, and
+** name is derived from the project name, the check-in date and time, and
 ** the artifact ID of the check-in.
 **
 ** The GLOBLIST argument to --exclude and --include can be a comma-separated
@@ -439,7 +439,12 @@ void zip_cmd(void){
   if( g.argc!=4 ){
     usage("VERSION OUTPUTFILE");
   }
-  rid = name_to_typed_rid(g.argv[2],"ci");
+  rid = name_to_typed_rid(g.argv[2], "ci");
+  if( rid==0 ){
+    fossil_fatal("Check-in not found: %s", g.argv[2]);
+    return;
+  }
+
   if( zName==0 ){
     zName = db_text("default-name",
        "SELECT replace(%Q,' ','_') "
@@ -452,26 +457,27 @@ void zip_cmd(void){
     );
   }
   zip_of_checkin(rid, &zip, zName, pInclude, pExclude);
-  blob_write_to_file(&zip, g.argv[3]);
   glob_free(pInclude);
   glob_free(pExclude);
+  blob_write_to_file(&zip, g.argv[3]);
+  blob_reset(&zip);
 }
 
 /*
 ** WEBPAGE: zip
 ** URL: /zip
 **
-** Generate a ZIP archive for a checkin specified by the uuid= query parameter.
-** Return that ZIP archive as the HTTP reply content.
+** Generate a ZIP archive for the check-in specified by the "uuid"
+** query parameter.  Return that ZIP archive as the HTTP reply content.
 **
 ** Query parameters:
 **
 **   name=NAME[.zip]     The base name of the output file.  The default
 **                       value is a configuration parameter in the project
-**                       settings.  A prefix of the name, omitting the extension,
-**                       is used as the top-most directory name.
+**                       settings.  A prefix of the name, omitting the
+**                       extension, is used as the top-most directory name.
 **
-**   uuid=TAG            The check-in that is turned into a ZIP file.
+**   uuid=TAG            The check-in that is turned into a ZIP archive.
 **                       Defaults to "trunk".
 **
 **   in=PATTERN          Only include files that match the comma-separate
@@ -484,15 +490,14 @@ void zip_cmd(void){
 */
 void baseline_zip_page(void){
   int rid;
-  char *zName, *zRid;
+  char *zName, *zRid, *zKey;
   int nName, nRid;
-  Blob zip;
-  char *zKey;
   const char *zInclude;         /* The in= query parameter */
   const char *zExclude;         /* The ex= query parameter */
   Blob cacheKey;                /* The key to cache */
   Glob *pInclude = 0;           /* The compiled in= glob pattern */
   Glob *pExclude = 0;           /* The compiled ex= glob pattern */
+  Blob zip;                     /* ZIP archive accumulated here */
 
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
@@ -519,7 +524,7 @@ void baseline_zip_page(void){
       }
     }
   }
-  rid = name_to_typed_rid(nRid?zRid:zName,"ci");
+  rid = name_to_typed_rid(nRid?zRid:zName, "ci");
   if( rid==0 ){
     @ Not found
     return;
