@@ -1,5 +1,5 @@
-C Fix\stypo\sin\scomment.
-D 2016-09-15T19:42:25.315
+C Correct\sfork
+D 2016-09-15T19:51:02.124
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -449,7 +449,7 @@ F src/main.mk 9668cf26a3ef3a1eac8c62c61fffc591dc0aad16
 F src/makeheaders.c e8444028f575e84075e46cf47f2080fa6d2c2115
 F src/makeheaders.html 06decb89c665feb897540613d7d12527eb65dfe5
 F src/makemake.tcl fb2f51cb1879f0938d04c2807813f2d2f35fc64e
-F src/manifest.c e904566ce0f19b57b920b05a48c42cb578fbd851
+F src/manifest.c e037d26b34ec3631288032bf06fd79f188e115da
 F src/markdown.c 887bb75edb1cfc94d9206aef38ad11dec2bc4266
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
 F src/markdown_html.c c3dfb1f186d829528f4d4127cb73b71de490b32a
@@ -759,7 +759,6 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 953cfbd497b227b28846a9e08eeaca4702faabbb
-R cf0ce6297d592dde0a39598b6c994225
-U mistachkin
-Z a593bf86c190b4e4eb10f2fb1b13973f
+P adffcf5b606067fb61914412c4f389b000af53a4 f4b5881b33b39c616eb762a7391d000f28b1fc36
+U andygoth
+Z dc67089dfe5991372c108c5cea17ced1
