@@ -1,5 +1,5 @@
-C Make\sit\seasier\sto\sdebug\sthe\sZIP\sweb\spage.\sEnhance\sconsistency\sbetween\sthe\sTarball\sand\sZIP\sweb\spages.
-D 2016-09-15T19:41:23.958
+C Fix\stypo\sin\scomment.
+D 2016-09-15T19:42:25.315
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -491,7 +491,7 @@ F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
 F src/style.c 88afceaf6b3bcda35acaf15281cb44d353a822a5
 F src/sync.c 1aa969b9aece17dd1076b2ab05e918f03cea991e
 F src/tag.c 06dddb67703250f4a40f3a2f0138aadfb67c28e7
-F src/tar.c 2c0535c6aa99ca4df2dcf576b7c05a1da5c5701b
+F src/tar.c f6dbb51806fabf7d3105a614af119124da069eb3
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
@@ -759,8 +759,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a3d8b27b45173f69c176690af181e831d77b1d60 e5cbf41c04f1cb0d839b7526fb62ba0cc1a90369
-R 26e77db8857880b1dedab60ada3e0920
-T +closed e5cbf41c04f1cb0d839b7526fb62ba0cc1a90369
+P 953cfbd497b227b28846a9e08eeaca4702faabbb
+R cf0ce6297d592dde0a39598b6c994225
 U mistachkin
-Z f924819aaaab7dbd26e4b2bf11c31aa0
+Z a593bf86c190b4e4eb10f2fb1b13973f

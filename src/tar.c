@@ -615,7 +615,8 @@ void tarball_cmd(void){
 ** URL: /tarball
 **
 ** Generate a compressed tarball for the check-in specified by the "uuid"
-** query parameter.  Return that ZIP archive as the HTTP reply content.
+** query parameter.  Return that compressed tarball as the HTTP reply
+** content.
 **
 ** Query parameters:
 **
