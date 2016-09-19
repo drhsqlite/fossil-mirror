@@ -397,7 +397,7 @@ void merge_cmd(void){
     vAncestor = db_exists(
       "WITH RECURSIVE ancestor(id) AS ("
       "  VALUES(%d)"
-      "  UNION ALL"
+      "  UNION"
       "  SELECT pid FROM plink, ancestor"
       "   WHERE cid=ancestor.id AND pid!=%d AND cid!=%d)"
       "SELECT 1 FROM ancestor WHERE id=%d LIMIT 1",

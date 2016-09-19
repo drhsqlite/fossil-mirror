@@ -40,6 +40,7 @@ SRC = \
   $(SRCDIR)/descendants.c \
   $(SRCDIR)/diff.c \
   $(SRCDIR)/diffcmd.c \
+  $(SRCDIR)/dispatch.c \
   $(SRCDIR)/doc.c \
   $(SRCDIR)/encode.c \
   $(SRCDIR)/event.c \
@@ -214,6 +215,7 @@ TRANS_SRC = \
   $(OBJDIR)/descendants_.c \
   $(OBJDIR)/diff_.c \
   $(OBJDIR)/diffcmd_.c \
+  $(OBJDIR)/dispatch_.c \
   $(OBJDIR)/doc_.c \
   $(OBJDIR)/encode_.c \
   $(OBJDIR)/event_.c \
@@ -337,6 +339,7 @@ OBJ = \
  $(OBJDIR)/descendants.o \
  $(OBJDIR)/diff.o \
  $(OBJDIR)/diffcmd.o \
+ $(OBJDIR)/dispatch.o \
  $(OBJDIR)/doc.o \
  $(OBJDIR)/encode.o \
  $(OBJDIR)/event.o \
@@ -489,6 +492,7 @@ $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/
 # Setup the options used to compile the included SQLite library.
 SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_OMIT_LOAD_EXTENSION=1 \
+                 -DSQLITE_OMIT_SHARED_CACHE \
                  -DSQLITE_ENABLE_LOCKING_STYLE=0 \
                  -DSQLITE_LIKE_DOESNT_MATCH_BLOBS=1 \
                  -DSQLITE_THREADSAFE=0 \
@@ -614,6 +618,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/descendants_.c:$(OBJDIR)/descendants.h \
 	$(OBJDIR)/diff_.c:$(OBJDIR)/diff.h \
 	$(OBJDIR)/diffcmd_.c:$(OBJDIR)/diffcmd.h \
+	$(OBJDIR)/dispatch_.c:$(OBJDIR)/dispatch.h \
 	$(OBJDIR)/doc_.c:$(OBJDIR)/doc.h \
 	$(OBJDIR)/encode_.c:$(OBJDIR)/encode.h \
 	$(OBJDIR)/event_.c:$(OBJDIR)/event.h \
@@ -923,6 +928,14 @@ $(OBJDIR)/diffcmd.o:	$(OBJDIR)/diffcmd_.c $(OBJDIR)/diffcmd.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/diffcmd.o -c $(OBJDIR)/diffcmd_.c
 
 $(OBJDIR)/diffcmd.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/dispatch_.c:	$(SRCDIR)/dispatch.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/dispatch.c >$@
+
+$(OBJDIR)/dispatch.o:	$(OBJDIR)/dispatch_.c $(OBJDIR)/dispatch.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/dispatch.o -c $(OBJDIR)/dispatch_.c
+
+$(OBJDIR)/dispatch.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/doc_.c:	$(SRCDIR)/doc.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/doc.c >$@

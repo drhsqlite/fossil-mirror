@@ -2136,7 +2136,7 @@ int Th_AreHooksEnabled(void){
 */
 int Th_CommandHook(
   const char *zName,
-  char cmdFlags
+  unsigned int cmdFlags
 ){
   int rc = TH_OK;
   if( !Th_AreHooksEnabled() ) return rc;
@@ -2192,7 +2192,7 @@ int Th_CommandHook(
 */
 int Th_CommandNotify(
   const char *zName,
-  char cmdFlags
+  unsigned int cmdFlags
 ){
   int rc = TH_OK;
   if( !Th_AreHooksEnabled() ) return rc;
@@ -2223,7 +2223,7 @@ int Th_CommandNotify(
 */
 int Th_WebpageHook(
   const char *zName,
-  char cmdFlags
+  unsigned cmdFlags
 ){
   int rc = TH_OK;
   if( !Th_AreHooksEnabled() ) return rc;
@@ -2279,7 +2279,7 @@ int Th_WebpageHook(
 */
 int Th_WebpageNotify(
   const char *zName,
-  char cmdFlags
+  unsigned cmdFlags
 ){
   int rc = TH_OK;
   if( !Th_AreHooksEnabled() ) return rc;
@@ -2587,13 +2587,13 @@ void test_th_hook(void){
     usage("TYPE NAME FLAGS");
   }
   if( fossil_stricmp(g.argv[2], "cmdhook")==0 ){
-    rc = Th_CommandHook(g.argv[3], (char)atoi(g.argv[4]));
+    rc = Th_CommandHook(g.argv[3], (unsigned int)atoi(g.argv[4]));
   }else if( fossil_stricmp(g.argv[2], "cmdnotify")==0 ){
-    rc = Th_CommandNotify(g.argv[3], (char)atoi(g.argv[4]));
+    rc = Th_CommandNotify(g.argv[3], (unsigned int)atoi(g.argv[4]));
   }else if( fossil_stricmp(g.argv[2], "webhook")==0 ){
-    rc = Th_WebpageHook(g.argv[3], (char)atoi(g.argv[4]));
+    rc = Th_WebpageHook(g.argv[3], (unsigned int)atoi(g.argv[4]));
   }else if( fossil_stricmp(g.argv[2], "webnotify")==0 ){
-    rc = Th_WebpageNotify(g.argv[3], (char)atoi(g.argv[4]));
+    rc = Th_WebpageNotify(g.argv[3], (unsigned int)atoi(g.argv[4]));
   }else{
     fossil_fatal("Unknown TH1 hook %s\n", g.argv[2]);
   }

@@ -47,6 +47,7 @@ set src {
   descendants
   diff
   diffcmd
+  dispatch
   doc
   encode
   event
@@ -157,6 +158,7 @@ set extra_files {
 set SQLITE_OPTIONS {
   -DNDEBUG=1
   -DSQLITE_OMIT_LOAD_EXTENSION=1
+  -DSQLITE_OMIT_SHARED_CACHE
   -DSQLITE_ENABLE_LOCKING_STYLE=0
   -DSQLITE_LIKE_DOESNT_MATCH_BLOBS=1
   -DSQLITE_THREADSAFE=0
@@ -857,7 +859,7 @@ endif
 #### OpenSSL: Add the necessary libraries required, if enabled.
 #
 ifdef FOSSIL_ENABLE_SSL
-LIB += -lssl -lcrypto -lgdi32
+LIB += -lssl -lcrypto -lgdi32 -lcrypt32
 endif
 
 #### Tcl: Add the necessary libraries required, if enabled.
@@ -1098,17 +1100,17 @@ endif
 
 openssl:	$(BLDTARGETS)
 	cd $(OPENSSLLIBDIR);./Configure --cross-compile-prefix=$(PREFIX) $(SSLCONFIG)
-	$(MAKE) -C $(OPENSSLLIBDIR) CC=$(TCCEXE) build_libs
+	$(MAKE) -C $(OPENSSLLIBDIR) PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) build_libs
 
 clean-openssl:
-	$(MAKE) -C $(OPENSSLLIBDIR) CC=$(TCCEXE) clean
+	$(MAKE) -C $(OPENSSLLIBDIR) PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) clean
 
 tcl:
 	cd $(TCLSRCDIR)/win;./configure
-	$(MAKE) -C $(TCLSRCDIR)/win CC=$(TCCEXE) $(TCLTARGET)
+	$(MAKE) -C $(TCLSRCDIR)/win PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) $(TCLTARGET)
 
 clean-tcl:
-	$(MAKE) -C $(TCLSRCDIR)/win CC=$(TCCEXE) distclean
+	$(MAKE) -C $(TCLSRCDIR)/win PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) distclean
 
 APPTARGETS += $(BLDTARGETS)
 
@@ -1501,7 +1503,7 @@ SSLLIBDIR = $(SSLDIR)\out32dll
 SSLLIBDIR = $(SSLDIR)\out32
 !endif
 SSLLFLAGS = /nologo /opt:ref /debug
-SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
+SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib crypt32.lib
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 !message Using 'x64' platform for OpenSSL...
 # BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.

@@ -122,7 +122,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.15.0"
 #define SQLITE_VERSION_NUMBER 3015000
-#define SQLITE_SOURCE_ID      "2016-08-22 20:10:01 7839519349c7371cdb4e16a215eacd27004cbc62"
+#define SQLITE_SOURCE_ID      "2016-09-10 19:51:40 711c59171b22df04224183a713e6c36e0bb3bba8"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -9219,12 +9219,12 @@ int sqlite3changeset_concat(
 
 
 /*
-** Changegroup handle.
+** CAPI3REF: Changegroup Handle
 */
 typedef struct sqlite3_changegroup sqlite3_changegroup;
 
 /*
-** CAPI3REF: Combine two or more changesets into a single changeset.
+** CAPI3REF: Create A New Changegroup Object
 **
 ** An sqlite3_changegroup object is used to combine two or more changesets
 ** (or patchsets) into a single changeset (or patchset). A single changegroup
@@ -9261,6 +9261,8 @@ typedef struct sqlite3_changegroup sqlite3_changegroup;
 int sqlite3changegroup_new(sqlite3_changegroup **pp);
 
 /*
+** CAPI3REF: Add A Changeset To A Changegroup
+**
 ** Add all changes within the changeset (or patchset) in buffer pData (size
 ** nData bytes) to the changegroup. 
 **
@@ -9336,6 +9338,8 @@ int sqlite3changegroup_new(sqlite3_changegroup **pp);
 int sqlite3changegroup_add(sqlite3_changegroup*, int nData, void *pData);
 
 /*
+** CAPI3REF: Obtain A Composite Changeset From A Changegroup
+**
 ** Obtain a buffer containing a changeset (or patchset) representing the
 ** current contents of the changegroup. If the inputs to the changegroup
 ** were themselves changesets, the output is a changeset. Or, if the
@@ -9364,7 +9368,7 @@ int sqlite3changegroup_output(
 );
 
 /*
-** Delete a changegroup object.
+** CAPI3REF: Delete A Changegroup Object
 */
 void sqlite3changegroup_delete(sqlite3_changegroup*);
 
