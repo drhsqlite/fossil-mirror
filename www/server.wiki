@@ -42,7 +42,7 @@ access these using URLs of the form <b>http://localhost:8080/</b>, or if
 name of the repository file without the ".fossil" suffix.
 The difference between "ui" and "server" is that "ui" will
 also start a web browser and points it
-to the URL mentioned above, and "ui" command binds to
+to the URL mentioned above, and the "ui" command binds to
 the loopback IP address (127.0.0.1) only so that the "ui" command cannot be
 used to serve content to a different machine.
 </p>
