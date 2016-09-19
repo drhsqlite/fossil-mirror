@@ -1,5 +1,5 @@
-C Fix\sfor\sthe\s"-u"\soption\son\sclone\s-\smake\ssure\sat\sleast\sthree\sround-trips\soccur\nas\sit\stakes\sthat\smany\sto\sget\sthe\sUV\stransfer\sstarted.
-D 2016-09-19T14:50:54.600
+C Remove\sthe\sunused\suvStatus\svariable\sfrom\sthe\sclient-side\ssync\simplementation.
+D 2016-09-19T18:48:48.002
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -516,7 +516,7 @@ F src/wikiformat.c 1d750982147d9c51fa40e89e40241a33408adaf6
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c 7e4c82fc91fe89b81ef4ae399944b8f035fe6789
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c 92259b05786c59280ce7ae031043dc0258fcc0a0
+F src/xfer.c 6910fcb9f1d2740367b666ff56d1c1cb76d5bf3f
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c d463b5a9d1e46fed1a5e9e8e61a3cde8cec6003f
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -759,7 +759,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a1b50dad22a2f58b1905b0675da734f356c7c167
-R 29c8c9210e73554a46108d2d7d645341
+P 16306153c09dd89f5a8f1e29ac88ad65172f6920
+R d83462bc93f5722306ca594c56648db7
 U drh
-Z 091a0d2f498263ad1633594b09f3c08d
+Z a22719d9c22c24de0f8b10f66fd84abb

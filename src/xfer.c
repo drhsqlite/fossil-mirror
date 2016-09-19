@@ -1706,7 +1706,6 @@ int client_sync(
   const char *zOpType = 0;/* Push, Pull, Sync, Clone */
   double rSkew = 0.0;     /* Maximum time skew */
   int uvHashSent = 0;     /* The "pragma uv-hash" message has been sent */
-  int uvStatus = 0;       /* 0: no I/O.  1: pull-only  2: push-and-pull */
   int uvDoPush = 0;       /* Generate uvfile messages to send to server */
   int nUvGimmeSent = 0;   /* Number of uvgimme cards sent on this cycle */
   int nUvFileRcvd = 0;    /* Number of uvfile cards received on this cycle */
@@ -1890,7 +1889,6 @@ int client_sync(
     */
     if( uvDoPush ){
       assert( (syncFlags & SYNC_UNVERSIONED)!=0 );
-      assert( uvStatus==2 );
       if( syncFlags & SYNC_UV_REVERT ){
         db_multi_exec(
           "DELETE FROM unversioned"
@@ -2113,7 +2111,6 @@ int client_sync(
         const char *zName = blob_str(&xfer.aToken[1]);
         const char *zHash = blob_str(&xfer.aToken[3]);
         int iStatus;
-        if( uvStatus==0 ) uvStatus = 2;
         iStatus = unversioned_status(zName, mtime, zHash);
         if( (syncFlags & SYNC_UV_REVERT)!=0 && iStatus==4 ) iStatus = 2;
         if( iStatus<=1 ){
@@ -2255,10 +2252,8 @@ int client_sync(
         ** does accept new unversioned content, it sends "uv-push-ok".
         */
         if( blob_eq(&xfer.aToken[1], "uv-pull-only") ){
-          uvStatus = 1;
           if( syncFlags & SYNC_UV_REVERT ) uvDoPush = 1;
         }else if( blob_eq(&xfer.aToken[1], "uv-push-ok") ){
-          uvStatus = 2;
           uvDoPush = 1;
         }
       }else
