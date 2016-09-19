@@ -2375,7 +2375,7 @@ int client_sync(
 
     /* Continue looping as long as new uvfile cards are being received
     ** and uvgimme cards are being sent. */
-    if( nUvGimmeSent>0 && nUvFileRcvd>0 ) go = 1;
+    if( nUvGimmeSent>0 && (nUvFileRcvd>0 || nCycle<3) ) go = 1;
 
     db_multi_exec("DROP TABLE onremote");
     if( go ){
