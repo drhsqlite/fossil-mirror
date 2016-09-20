@@ -1,5 +1,5 @@
-C Fixes\sto\sthe\s"fossil\sunversioned\srevert"\scommand.
-D 2016-09-20T15:10:25.507
+C Add\sthe\s--verbose\sand\s--dryrun\soptions\sto\sthe\s"fossil\sunversioned\srevert"\nand\s"fossil\sunversioned\ssync"\scommands.
+D 2016-09-20T15:48:01.020
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -503,7 +503,7 @@ F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c 54c3baa046348a67821fda865269c84e80bb56b7
 F src/unicode.c 8e02b4fd6af9e735bda68eb06e3be90b6b901a87
-F src/unversioned.c 3727ac04ff34a195ad84b49c0a6cb726503e0a1f
+F src/unversioned.c 521ffe1c7ffa4131c7e3337dba277d347692a449
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c e2c08deb9a3ce011d3db10f70216a7988485e29a
@@ -516,7 +516,7 @@ F src/wikiformat.c 1d750982147d9c51fa40e89e40241a33408adaf6
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c 7e4c82fc91fe89b81ef4ae399944b8f035fe6789
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c 9add1f4939b17e7ecf0e3adcd19ff269e66e4c79
+F src/xfer.c 2ec42011d0df99c818a393ef6dd5ffe41b455afc
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c d463b5a9d1e46fed1a5e9e8e61a3cde8cec6003f
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -759,7 +759,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 515229c5cd33428fe9c11493d2c34841f38e9dcd
-R 8f66bd4d50dc41b96d38a60caa84358d
+P 122ab3fbfdb12ee8b87b11e6c4df8e24a6cef4fd
+R 55bc529d446aca111bdde3d96db0c1af
 U drh
-Z fb2f804c6981819722de598cff8685de
+Z 0826f37e6fa5e1d01e3dea6d83e4e3ad

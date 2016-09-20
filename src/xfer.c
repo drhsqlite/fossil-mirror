@@ -1658,6 +1658,8 @@ static const char zBriefFormat[] =
 #define SYNC_UNVERSIONED    0x0040    /* Sync unversioned content */
 #define SYNC_UV_REVERT      0x0080    /* Copy server unversioned to client */
 #define SYNC_FROMPARENT     0x0100    /* Pull from the parent project */
+#define SYNC_UV_TRACE       0x0200    /* Describe UV activities */
+#define SYNC_UV_DRYRUN      0x0400    /* Do not actually exchange files */
 #endif
 
 /*
@@ -1898,7 +1900,9 @@ int client_sync(
     */
     if( uvDoPush ){
       assert( (syncFlags & SYNC_UNVERSIONED)!=0 );
-      if( syncFlags & SYNC_UV_REVERT ){
+      if( syncFlags & SYNC_UV_DRYRUN ){
+        uvDoPush = 0;
+      }else if( syncFlags & SYNC_UV_REVERT ){
         db_multi_exec(
           "DELETE FROM unversioned"
           " WHERE name IN (SELECT name FROM uv_tosend);"
@@ -2124,6 +2128,20 @@ int client_sync(
         if( (syncFlags & SYNC_UV_REVERT)!=0 ){
           if( iStatus==4 ) iStatus = 2;
           if( iStatus==5 ) iStatus = 1;
+        }
+        if( syncFlags & (SYNC_UV_TRACE|SYNC_UV_DRYRUN) ){
+          const char *zMsg = 0;
+          switch( iStatus ){
+            case 0:
+            case 1: zMsg = "UV-PULL";             break; 
+            case 2: zMsg = "UV-PULL-MTIME-ONLY";  break;
+            case 4: zMsg = "UV-PUSH-MTIME-ONLY";  break;
+            case 5: zMsg = "UV-PUSH";             break;
+          }
+          if( zMsg ) fossil_print("\r%s: %s\n", zMsg, zName);
+          if( syncFlags & SYNC_UV_DRYRUN ){
+            iStatus = 99;  /* Prevent any changes or reply messages */
+          }
         }
         if( iStatus<=1 ){
           if( zHash[0]!='-' ){
