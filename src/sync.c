@@ -88,6 +88,11 @@ int autosync(int flags){
 int autosync_loop(int flags, int nTries, int doPrompt){
   int n = 0;
   int rc = 0;
+  if( (flags & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL)
+   && db_get_boolean("uv-sync",0)
+  ){
+    flags |= SYNC_UNVERSIONED;
+  }
   while( (n==0 || n<nTries) && (rc=autosync(flags)) ){
     if( rc ){
       if( ++n<nTries ){
@@ -125,6 +130,11 @@ static void process_sync_args(
   unsigned configSync = 0;
   unsigned urlFlags = URL_REMEMBER | URL_PROMPT_PW;
   int urlOptional = 0;
+  if( ((*pSyncFlags) & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL)
+   && db_get_boolean("uv-sync",0)
+  ){
+    *pSyncFlags |= SYNC_UNVERSIONED;
+  }
   if( find_option("autourl",0,0)!=0 ){
     urlOptional = 1;
     urlFlags = 0;

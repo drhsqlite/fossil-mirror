@@ -1154,6 +1154,7 @@ void page_xfer(void){
   int nUuidList = 0;
   char **pzUuidList = 0;
   int *pnUuidList = 0;
+  int uvCatalogSent = 0;
 
   if( fossil_strcmp(PD("REQUEST_METHOD","POST"),"POST") ){
      fossil_redirect_home();
@@ -1364,6 +1365,11 @@ void page_xfer(void){
         nErr++;
         break;
       }
+      if( db_get_boolean("uv-sync",0) && !uvCatalogSent ){
+        @ pragma uv-pull-only
+        send_unversioned_catalog(&xfer);
+        uvCatalogSent = 1;
+      }
       if( xfer.nToken==3
        && blob_is_int(&xfer.aToken[1], &iVers)
        && iVers>=2
@@ -1540,13 +1546,16 @@ void page_xfer(void){
       if( blob_eq(&xfer.aToken[1], "uv-hash")
        && blob_is_uuid(&xfer.aToken[2])
       ){
-        if( g.perm.Read && g.perm.WrUnver ){
-          @ pragma uv-push-ok
-          send_unversioned_catalog(&xfer);
-        }else if( g.perm.Read ){
-          @ pragma uv-pull-only
-          send_unversioned_catalog(&xfer);
+        if( !uvCatalogSent ){
+          if( g.perm.Read && g.perm.WrUnver ){
+            @ pragma uv-push-ok
+            send_unversioned_catalog(&xfer);
+          }else if( g.perm.Read ){
+            @ pragma uv-pull-only
+            send_unversioned_catalog(&xfer);
+          }
         }
+        uvCatalogSent = 1;
       }
     }else
 
@@ -1761,7 +1770,7 @@ int client_sync(
   ** side will normally cause many of these entries to be removed since they
   ** do not really need to be sent.
   */
-  if( (syncFlags & SYNC_UNVERSIONED)!=0 ){
+  if( (syncFlags & (SYNC_UNVERSIONED|SYNC_CLONE))!=0 ){
     unversioned_schema();
     db_multi_exec(
        "CREATE TEMP TABLE uv_tosend("
