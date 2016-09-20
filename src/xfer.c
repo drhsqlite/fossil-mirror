@@ -1752,14 +1752,19 @@ int client_sync(
   }
 
   /* When syncing unversioned files, create a TEMP table in which to store
-  ** the names of files that do not need to be sent from client to server.
+  ** the names of files that need to be sent from client to server.
+  **
+  ** The initial assumption is that all unversioned files need to be sent
+  ** to the other side.  But "uvigot" cards received back from the remote
+  ** side will normally cause many of these entries to be removed since they
+  ** do not really need to be sent.
   */
   if( (syncFlags & SYNC_UNVERSIONED)!=0 ){
     unversioned_schema();
     db_multi_exec(
        "CREATE TEMP TABLE uv_tosend("
-       "  name TEXT PRIMARY KEY,"
-       "  mtimeOnly BOOLEAN"
+       "  name TEXT PRIMARY KEY,"  /* Name of file to send client->server */
+       "  mtimeOnly BOOLEAN"       /* True to only send mtime, not content */
        ") WITHOUT ROWID;"
        "INSERT INTO uv_toSend(name,mtimeOnly)"
        "  SELECT name, 0 FROM unversioned WHERE hash IS NOT NULL;"
@@ -1886,6 +1891,10 @@ int client_sync(
     **
     ** Or, if the SYNC_UV_REVERT flag is set, delete the local unversioned
     ** files that do not exist on the server.
+    **
+    ** This happens on the second exchange, since we do not know what files
+    ** need to be sent until after the uvigot cards from the first exchange
+    ** have been processed.
     */
     if( uvDoPush ){
       assert( (syncFlags & SYNC_UNVERSIONED)!=0 );
@@ -2112,12 +2121,16 @@ int client_sync(
         const char *zHash = blob_str(&xfer.aToken[3]);
         int iStatus;
         iStatus = unversioned_status(zName, mtime, zHash);
-        if( (syncFlags & SYNC_UV_REVERT)!=0 && iStatus==4 ) iStatus = 2;
+        if( (syncFlags & SYNC_UV_REVERT)!=0 ){
+          if( iStatus==4 ) iStatus = 2;
+          if( iStatus==5 ) iStatus = 1;
+        }
         if( iStatus<=1 ){
           if( zHash[0]!='-' ){
             blob_appendf(xfer.pOut, "uvgimme %s\n", zName);
             nCardSent++;
             nUvGimmeSent++;
+            db_multi_exec("DELETE FROM unversioned WHERE name=%Q", zName);
           }else if( iStatus==1 ){
             db_multi_exec(
                "UPDATE unversioned"
