@@ -130,11 +130,6 @@ static void process_sync_args(
   unsigned configSync = 0;
   unsigned urlFlags = URL_REMEMBER | URL_PROMPT_PW;
   int urlOptional = 0;
-  if( ((*pSyncFlags) & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL)
-   && db_get_boolean("uv-sync",0)
-  ){
-    *pSyncFlags |= SYNC_UNVERSIONED;
-  }
   if( find_option("autourl",0,0)!=0 ){
     urlOptional = 1;
     urlFlags = 0;
@@ -167,6 +162,11 @@ static void process_sync_args(
     if( db_get_boolean("auto-shun",1) ) configSync = CONFIGSET_SHUN;
   }else if( g.argc==3 ){
     zUrl = g.argv[2];
+  }
+  if( ((*pSyncFlags) & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL)
+   && db_get_boolean("uv-sync",0)
+  ){
+    *pSyncFlags |= SYNC_UNVERSIONED;
   }
   if( urlFlags & URL_REMEMBER ){
     clone_ssh_db_set_options();

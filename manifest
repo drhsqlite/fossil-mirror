@@ -1,5 +1,5 @@
-C Add\sthe\suv-sync\ssetting,\swhich\sif\senabled\scauses\sthe\sserver\sto\sautomatically\nsend\sall\sunversioned\scontent\sas\spart\sof\sa\sclone,\sand\swhich\scauses\sall\ssyncs\nto\salso\ssync\sunversioned\scontent.
-D 2016-09-20T16:17:50.058
+C The\s"uv-sync"\sflag\swas\snot\sworking\sfor\sthe\s"fossil\ssync"\scommand.\s\sFixed\nby\sthis\scheck-in.
+D 2016-09-20T16:27:37.811
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -489,7 +489,7 @@ F src/stash.c ced32acae9b125f723c6473f30cdfdf8b530dc37
 F src/stat.c 6a6e24276497f62d4574ac181ab15ba19471caa7
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
 F src/style.c 88afceaf6b3bcda35acaf15281cb44d353a822a5
-F src/sync.c 12d5f0d60d08768164a21052e258e23d0d96e903
+F src/sync.c 9cc2947ef0f1ef73bd9fb1fa7291dd5df2c03ce9
 F src/tag.c 06dddb67703250f4a40f3a2f0138aadfb67c28e7
 F src/tar.c f6dbb51806fabf7d3105a614af119124da069eb3
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
@@ -759,7 +759,7 @@ F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b5641c5cffeef36f4bcaf8f93c90c50e5d7b5647
-R 01e5c873466b46d5a148f1b9de92a043
+P b9fd5947effbda64cbd50470ccf12c8b1c6aa6a8
+R b47db2e4d5789bbf2b74459ebb1c839d
 U drh
-Z 7e5787c612c87a40e7aab2bf1e3f6a4f
+Z 7df1b8926487a538b6429be4beed1042
