@@ -73,6 +73,8 @@ set doclist {
   unvers.wiki {Unversioned Files}
   webpage-ex.md {Webpage Examples}
   webui.wiki {The Fossil Web Interface}
+  whyusefossil.wiki {Why You Should Use Fossil}
+  whyusefossil.wiki {Benefits Of Version Control}
   wikitheory.wiki {Wiki In Fossil}
   /wiki_rules {Wiki Formatting Rules}
 }
