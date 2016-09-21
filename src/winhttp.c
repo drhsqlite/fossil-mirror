@@ -23,6 +23,7 @@
 #ifdef _WIN32
 /* This code is for win32 only */
 #include <windows.h>
+#include <process.h>
 #include "winhttp.h"
 
 /*
@@ -35,7 +36,7 @@ struct HttpRequest {
   SOCKET s;              /* Socket on which to receive data */
   SOCKADDR_IN addr;      /* Address from which data is coming */
   int flags;             /* Flags passed to win32_http_server() */
-  const char *zOptions;  /* --baseurl, --notfound and/or --localauth options */
+  const char *zOptions;  /* --baseurl, --notfound, --localauth, --th-trace */
 };
 
 /*
@@ -265,6 +266,9 @@ void win32_http_server(
   }
   if( g.useLocalauth ){
     blob_appendf(&options, " --localauth");
+  }
+  if( g.thTrace ){
+    blob_appendf(&options, " --th-trace");
   }
   if( flags & HTTP_SERVER_REPOLIST ){
     blob_appendf(&options, " --repolist");

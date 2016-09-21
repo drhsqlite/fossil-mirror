@@ -175,7 +175,7 @@ int report_query_authorizer(
   int rc = SQLITE_OK;
   if( *(char**)pError ){
     /* We've already seen an error.  No need to continue. */
-    return SQLITE_OK;
+    return SQLITE_DENY;
   }
   switch( code ){
     case SQLITE_SELECT:
@@ -194,6 +194,7 @@ int report_query_authorizer(
          "event",
          "tag",
          "tagxref",
+         "unversioned",
       };
       int i;
       if( fossil_strncmp(zArg1, "fx_", 3)==0 ){
@@ -897,6 +898,7 @@ static int db_exec_readonly(
   int nCol;                   /* Number of columns of output */
   const char **azVals = 0;    /* Text of all output columns */
   int i;                      /* Loop counter */
+  int nVar;                   /* Number of parameters */
 
   pStmt = 0;
   rc = sqlite3_prepare_v2(db, zSql, -1, &pStmt, &zLeftover);
@@ -913,9 +915,18 @@ static int db_exec_readonly(
     return SQLITE_ERROR;
   }
 
-  i = sqlite3_bind_parameter_index(pStmt, "$login");
-  if( i ) sqlite3_bind_text(pStmt, i, g.zLogin, -1, SQLITE_TRANSIENT);
-
+  nVar = sqlite3_bind_parameter_count(pStmt);
+  for(i=1; i<=nVar; i++){
+    const char *zVar = sqlite3_bind_parameter_name(pStmt, i);
+    if( zVar==0 ) continue;
+    if( zVar[0]!='$' && zVar[0]!='$' && zVar[0]!=':' ) continue;
+    if( !fossil_islower(zVar[1]) ) continue;
+    if( strcmp(zVar, "$login")==0 ){
+      sqlite3_bind_text(pStmt, i, g.zLogin, -1, SQLITE_TRANSIENT);
+    }else{
+      sqlite3_bind_text(pStmt, i, P(zVar+1), -1, SQLITE_TRANSIENT);
+    }
+  }
   nCol = sqlite3_column_count(pStmt);
   azVals = fossil_malloc(2*nCol*sizeof(const char*) + 1);
   while( (rc = sqlite3_step(pStmt))==SQLITE_ROW ){
@@ -1185,7 +1196,7 @@ void rptview_page(void){
 
   count = 0;
   if( !tabs ){
-    struct GenerateHTML sState;
+    struct GenerateHTML sState = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
     db_multi_exec("PRAGMA empty_result_callbacks=ON");
     style_submenu_element("Raw", "Raw",

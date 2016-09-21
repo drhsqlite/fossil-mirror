@@ -86,6 +86,8 @@ static const struct {
   { "bat",        3, "application/x-msdos-program"       },
   { "bcpio",      5, "application/x-bcpio"               },
   { "bin",        3, "application/octet-stream"          },
+  { "bz2",        3, "application/x-bzip2"               },
+  { "bzip",       4, "application/x-bzip"                },
   { "c",          1, "text/plain"                        },
   { "cc",         2, "text/plain"                        },
   { "ccad",       4, "application/clariscad"             },
@@ -506,7 +508,7 @@ static void convert_href_and_output(Blob *pIn){
   int n = blob_size(pIn);
   char *z = blob_buffer(pIn);
   for(base=0, i=7; i<n; i++){
-    if( z[i]=='$' 
+    if( z[i]=='$'
      && strncmp(&z[i],"$ROOT/", 6)==0
      && (z[i-1]=='\'' || z[i-1]=='"')
      && i-base>=9
@@ -522,8 +524,9 @@ static void convert_href_and_output(Blob *pIn){
 }
 
 /*
+** WEBPAGE: uv
 ** WEBPAGE: doc
-** URL: /doc?name=CHECKIN/FILE
+** URL: /uv/FILE
 ** URL: /doc/CHECKIN/FILE
 **
 ** CHECKIN can be either tag or SHA1 hash or timestamp identifying a
@@ -578,6 +581,8 @@ void doc_page(void){
   Blob filebody;                    /* Content of the documentation file */
   Blob title;                       /* Document title */
   int nMiss = (-1);                 /* Failed attempts to find the document */
+  int isUV = g.zPath[0]=='u';       /* True for /uv.  False for /doc */
+  const char *zDfltTitle;
   static const char *const azSuffix[] = {
      "index.html", "index.wiki", "index.md"
 #ifdef FOSSIL_ENABLE_TH1_DOCS
@@ -588,25 +593,35 @@ void doc_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   blob_init(&title, 0, 0);
+  zDfltTitle = isUV ? "" : "Documentation";
   db_begin_transaction();
   while( rid==0 && (++nMiss)<=ArraySize(azSuffix) ){
     zName = P("name");
-    if( zName==0 || zName[0]==0 ) zName = "tip/index.wiki";
-    for(i=0; zName[i] && zName[i]!='/'; i++){}
-    zCheckin = mprintf("%.*s", i, zName);
-    if( fossil_strcmp(zCheckin,"ckout")==0 && g.localOpen==0 ){
-      zCheckin = "tip";
+    if( isUV ){
+      if( zName==0 ) zName = "index.wiki";
+      i = 0;
+    }else{
+      if( zName==0 || zName[0]==0 ) zName = "tip/index.wiki";
+      for(i=0; zName[i] && zName[i]!='/'; i++){}
+      zCheckin = mprintf("%.*s", i, zName);
+      if( fossil_strcmp(zCheckin,"ckout")==0 && g.localOpen==0 ){
+        zCheckin = "tip";
+      }
     }
     if( nMiss==ArraySize(azSuffix) ){
       zName = "404.md";
     }else if( zName[i]==0 ){
       assert( nMiss>=0 && nMiss<ArraySize(azSuffix) );
       zName = azSuffix[nMiss];
-    }else{
+    }else if( !isUV ){
       zName += i;
     }
     while( zName[0]=='/' ){ zName++; }
-    g.zPath = mprintf("%s/%s/%s", g.zPath, zCheckin, zName);
+    if( isUV ){
+      g.zPath = mprintf("%s/%s", g.zPath, zName);
+    }else{
+      g.zPath = mprintf("%s/%s/%s", g.zPath, zCheckin, zName);
+    }
     if( nMiss==0 ) zOrigName = zName;
     if( !file_is_simple_pathname(zName, 1) ){
       if( sqlite3_strglob("*/", zName)==0 ){
@@ -619,7 +634,12 @@ void doc_page(void){
         goto doc_not_found;
       }
     }
-    if( fossil_strcmp(zCheckin,"ckout")==0 ){
+    if( isUV ){
+      if( unversioned_content(zName, &filebody)==0 ){
+        rid = 1;
+        zDfltTitle = zName;
+      }
+    }else if( fossil_strcmp(zCheckin,"ckout")==0 ){
       /* Read from the local checkout */
       char *zFullpath;
       db_must_be_within_tree();
@@ -645,10 +665,12 @@ void doc_page(void){
     zMime = mimetype_from_name(zName);
   }
   Th_Store("doc_name", zName);
-  Th_Store("doc_version", db_text(0, "SELECT '[' || substr(uuid,1,10) || ']'"
-                                     "  FROM blob WHERE rid=%d", vid));
-  Th_Store("doc_date", db_text(0, "SELECT datetime(mtime) FROM event"
-                                  " WHERE objid=%d AND type='ci'", vid));
+  if( vid ){
+    Th_Store("doc_version", db_text(0, "SELECT '[' || substr(uuid,1,10) || ']'"
+                                       "  FROM blob WHERE rid=%d", vid));
+    Th_Store("doc_date", db_text(0, "SELECT datetime(mtime) FROM event"
+                                    " WHERE objid=%d AND type='ci'", vid));
+  }
   if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0 ){
     Blob tail;
     style_adunit_config(ADUNIT_RIGHT_OK);
@@ -656,7 +678,7 @@ void doc_page(void){
       style_header("%s", blob_str(&title));
       wiki_convert(&tail, 0, WIKI_BUTTONS);
     }else{
-      style_header("Documentation");
+      style_header("%s", zDfltTitle);
       wiki_convert(&filebody, 0, WIKI_BUTTONS);
     }
     style_footer();
@@ -667,12 +689,12 @@ void doc_page(void){
       style_header("%s", blob_str(&title));
     }else{
       style_header("%s", nMiss>=ArraySize(azSuffix)?
-                        "Not Found" : "Documentation");
+                        "Not Found" : zDfltTitle);
     }
     convert_href_and_output(&tail);
     style_footer();
   }else if( fossil_strcmp(zMime, "text/plain")==0 ){
-    style_header("Documentation");
+    style_header("%s", zDfltTitle);
     @ <blockquote><pre>
     @ %h(blob_str(&filebody))
     @ </pre></blockquote>
@@ -686,9 +708,14 @@ void doc_page(void){
 #ifdef FOSSIL_ENABLE_TH1_DOCS
   }else if( Th_AreDocsEnabled() &&
             fossil_strcmp(zMime, "application/x-th1")==0 ){
-    style_header("%h", zName);
+    int raw = P("raw")!=0;
+    if( !raw ){
+      style_header("%h", zName);
+    }
     Th_Render(blob_str(&filebody));
-    style_footer();
+    if( !raw ){
+      style_footer();
+    }
 #endif
   }else{
     cgi_set_content_type(zMime);
@@ -701,6 +728,10 @@ void doc_page(void){
   /* Jump here when unable to locate the document */
 doc_not_found:
   db_end_transaction(0);
+  if( isUV && P("name")==0 ){
+    uvstat_page();
+    return;
+  }
   cgi_set_status(404, "Not Found");
   style_header("Not Found");
   @ <p>Document %h(zOrigName) not found

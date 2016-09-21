@@ -308,7 +308,7 @@ void close_cmd(void){
   }
   if( !forceFlag
    && db_table_exists("localdb","stash")
-   && db_exists("SELECT 1 FROM %s.stash", db_name("localdb"))
+   && db_exists("SELECT 1 FROM localdb.stash")
   ){
     fossil_fatal("closing the checkout will delete your stash");
   }

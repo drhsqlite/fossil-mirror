@@ -284,13 +284,18 @@ void cat_cmd(void){
 **
 ** Additional query parameters:
 **
-**    a=DATE     Only show changes after DATE
-**    b=DATE     Only show changes before DATE
+**    a=DATETIME Only show changes after DATETIME
+**    b=DATETIME Only show changes before DATETIME
 **    n=NUM      Show the first NUM changes only
 **    brbg       Background color by branch name
 **    ubg        Background color by user name
 **    ci=UUID    Ancestors of a particular check-in
 **    showid     Show RID values for debugging
+**
+** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
+** year-month-day form, it may be truncated, and it may also name a
+** timezone offset from UTC as "-HH:MM" (westward) or "+HH:MM"
+** (eastward). Either no timezone suffix or "Z" means UTC.
 */
 void finfo_page(void){
   Stmt q;
@@ -408,7 +413,7 @@ void finfo_page(void){
     if( fShowId ) blob_appendf(&title, " (%d)", baseCheckin);
     fossil_free(zUuid);
   }else{
-    blob_appendf(&title, "History of files named ");
+    blob_appendf(&title, "History of ");
     hyperlinked_path(zFilename, &title, 0, "tree", "");
     if( fShowId ) blob_appendf(&title, " (%d)", fnid);
   }
@@ -533,7 +538,7 @@ void finfo_page(void){
     if( fDebug & FINFO_DEBUG_MLINK ){
       int ii;
       char *zAncLink;
-      @ <br>fid=%d(frid) pid=%d(fpid) mid=%d(fmid)
+      @ <br />fid=%d(frid) pid=%d(fpid) mid=%d(fmid)
       if( nParent>0 ){
         @ parents=%d(aParent[0])
         for(ii=1; ii<nParent; ii++){
@@ -575,7 +580,7 @@ void mlink_page(void){
   const char *zFName = P("name");
   const char *zCI = P("ci");
   Stmt q;
-  
+
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(g.anon.Admin); return; }
   style_header("MLINK Table");
@@ -678,7 +683,7 @@ void mlink_page(void){
     );
     @ <h1>MLINK table for check-in %h(zCI)</h1>
     render_checkin_context(mid, 1);
-    @ <hr>
+    @ <hr />
     @ <div class='brlist'>
     @ <table id='mlinktable'>
     @ <thead><tr>

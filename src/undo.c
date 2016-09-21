@@ -227,9 +227,8 @@ void undo_capture_command_line(void){
 */
 void undo_begin(void){
   int cid;
-  const char *zDb = db_name("localdb");
   static const char zSql[] =
-    @ CREATE TABLE "%w".undo(
+    @ CREATE TABLE localdb.undo(
     @   pathname TEXT UNIQUE,             -- Name of the file
     @   redoflag BOOLEAN,                 -- 0 for undoable.  1 for redoable
     @   existsflag BOOLEAN,               -- True if the file exists
@@ -237,12 +236,12 @@ void undo_begin(void){
     @   isLink BOOLEAN,                   -- True if the file is symlink
     @   content BLOB                      -- Saved content
     @ );
-    @ CREATE TABLE "%w".undo_vfile AS SELECT * FROM vfile;
-    @ CREATE TABLE "%w".undo_vmerge AS SELECT * FROM vmerge;
+    @ CREATE TABLE localdb.undo_vfile AS SELECT * FROM vfile;
+    @ CREATE TABLE localdb.undo_vmerge AS SELECT * FROM vmerge;
   ;
   if( undoDisable ) return;
   undo_reset();
-  db_multi_exec(zSql/*works-like:"%w,%w,%w"*/, zDb, zDb, zDb);
+  db_multi_exec(zSql/*works-like:""*/);
   cid = db_lget_int("checkout", 0);
   db_lset_int("undo_checkout", cid);
   db_lset_int("undo_available", 1);
@@ -379,20 +378,19 @@ const char *undo_save_message(int rc){
 ** Make the current state of stashid undoable.
 */
 void undo_save_stash(int stashid){
-  const char *zDb = db_name("localdb");
   db_multi_exec(
-    "CREATE TABLE IF NOT EXISTS \"%w\".undo_stash"
+    "CREATE TABLE IF NOT EXISTS localdb.undo_stash"
     "  AS SELECT * FROM stash WHERE 0;"
     "INSERT INTO undo_stash"
     " SELECT * FROM stash WHERE stashid=%d;",
-    zDb, stashid
+    stashid
   );
   db_multi_exec(
-    "CREATE TABLE IF NOT EXISTS \"%w\".undo_stashfile"
+    "CREATE TABLE IF NOT EXISTS localdb.undo_stashfile"
     "  AS SELECT * FROM stashfile WHERE 0;"
     "INSERT INTO undo_stashfile"
     " SELECT * FROM stashfile WHERE stashid=%d;",
-    zDb, stashid
+    stashid
   );
 }
 

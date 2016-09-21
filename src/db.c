@@ -936,7 +936,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   sqlite3_create_function(
     db, "if_selected", 3, SQLITE_UTF8, 0, file_is_selected,0,0
   );
-  if( g.fSqlTrace ) sqlite3_trace(db, db_sql_trace, 0);
+  if( g.fSqlTrace ) sqlite3_trace_v2(db, SQLITE_TRACE_STMT, db_sql_trace, 0);
   db_add_aux_functions(db);
   re_add_sql_func(db);  /* The REGEXP operator */
   foci_register(db);    /* The "files_of_checkin" virtual table */
@@ -965,46 +965,73 @@ void db_attach(const char *zDbName, const char *zLabel){
 }
 
 /*
-** zDbName is the name of a database file.  If no other database
-** file is open, then open this one.  If another database file is
-** already open, then attach zDbName using the name zLabel.
+** Change the schema name of the "main" database to zLabel.
+** zLabel must be a static string that is unchanged for the life of
+** the database connection.
+**
+** After calling this routine, db_database_slot(zLabel) should
+** return 0.
 */
-void db_open_or_attach(
-  const char *zDbName,
-  const char *zLabel,
-  int *pWasAttached
-){
-  if( !g.db ){
-    assert( g.zMainDbType==0 );
-    g.db = db_open(zDbName);
-    g.zMainDbType = zLabel;
-    if( pWasAttached ) *pWasAttached = 0;
-  }else{
-    assert( g.zMainDbType!=0 );
-    db_attach(zDbName, zLabel);
-    if( pWasAttached ) *pWasAttached = 1;
+void db_set_main_schemaname(sqlite3 *db, const char *zLabel){
+  if( sqlite3_db_config(db, SQLITE_DBCONFIG_MAINDBNAME, zLabel) ){
+    fossil_fatal("Fossil requires a version of SQLite that supports the "
+                 "SQLITE_DBCONFIG_MAINDBNAME interface.");
   }
 }
 
 /*
-** Close the user database.
+** Return the slot number for database zLabel.  The first database
+** opened is slot 0.  The "temp" database is slot 1.  Attached databases
+** are slots 2 and higher.
+**
+** Return -1 if zLabel does not match any open database.
+*/
+int db_database_slot(const char *zLabel){
+  int iSlot = -1;
+  Stmt q;
+  if( g.db==0 ) return iSlot;
+  db_prepare(&q, "PRAGMA database_list");
+  while( db_step(&q)==SQLITE_ROW ){
+    if( fossil_strcmp(db_column_text(&q,1),zLabel)==0 ){
+      iSlot = db_column_int(&q, 0);
+      break;
+    }
+  }
+  db_finalize(&q);
+  return iSlot;
+}
+
+/*
+** zDbName is the name of a database file.  If no other database
+** file is open, then open this one.  If another database file is
+** already open, then attach zDbName using the name zLabel.
+*/
+void db_open_or_attach(const char *zDbName, const char *zLabel){
+  if( !g.db ){
+    g.db = db_open(zDbName);
+    db_set_main_schemaname(g.db, zLabel);
+  }else{
+    db_attach(zDbName, zLabel);
+  }
+}
+
+/*
+** Close the per-user database file in ~/.fossil
 */
 void db_close_config(){
-  if( g.useAttach ){
+  int iSlot = db_database_slot("configdb");
+  if( iSlot>0 ){
     db_detach("configdb");
-    g.useAttach = 0;
     g.zConfigDbName = 0;
   }else if( g.dbConfig ){
     sqlite3_wal_checkpoint(g.dbConfig, 0);
     sqlite3_close(g.dbConfig);
     g.dbConfig = 0;
-    g.zConfigDbType = 0;
     g.zConfigDbName = 0;
-  }else if( g.db && fossil_strcmp(g.zMainDbType, "configdb")==0 ){
+  }else if( g.db && 0==iSlot ){
     sqlite3_wal_checkpoint(g.db, 0);
     sqlite3_close(g.db);
     g.db = 0;
-    g.zMainDbType = 0;
     g.zConfigDbName = 0;
   }
 }
@@ -1025,7 +1052,8 @@ int db_open_config(int useAttach, int isOptional){
   char *zDbName;
   char *zHome;
   if( g.zConfigDbName ){
-    if( useAttach==g.useAttach ) return 1; /* Already open. */
+    int alreadyAttached = db_database_slot("configdb")>0;
+    if( useAttach==alreadyAttached ) return 1; /* Already open. */
     db_close_config();
   }
   zHome = fossil_getenv("FOSSIL_HOME");
@@ -1079,13 +1107,11 @@ int db_open_config(int useAttach, int isOptional){
     fossil_fatal("configuration file %s must be writeable", zDbName);
   }
   if( useAttach ){
-    db_open_or_attach(zDbName, "configdb", &g.useAttach);
+    db_open_or_attach(zDbName, "configdb");
     g.dbConfig = 0;
-    g.zConfigDbType = 0;
   }else{
-    g.useAttach = 0;
     g.dbConfig = db_open(zDbName);
-    g.zConfigDbType = "configdb";
+    db_set_main_schemaname(g.dbConfig, "configdb");
   }
   g.zConfigDbName = zDbName;
   return 1;
@@ -1098,9 +1124,8 @@ int db_table_exists(
   const char *zDb,      /* One of: NULL, "configdb", "localdb", "repository" */
   const char *zTable    /* Name of table */
 ){
-  return sqlite3_table_column_metadata(g.db,
-              zDb ? db_name(zDb) : 0, zTable, 0,
-              0, 0, 0, 0, 0)==SQLITE_OK;
+  return sqlite3_table_column_metadata(g.db, zDb, zTable, 0,
+                                       0, 0, 0, 0, 0)==SQLITE_OK;
 }
 
 /*
@@ -1113,9 +1138,8 @@ int db_table_has_column(
   const char *zTable,    /* Name of table */
   const char *zColumn    /* Name of column in table */
 ){
-  return sqlite3_table_column_metadata(g.db,
-              zDb ? db_name(zDb) : 0, zTable, zColumn,
-              0, 0, 0, 0, 0)==SQLITE_OK;
+  return sqlite3_table_column_metadata(g.db, zDb, zTable, zColumn,
+                                       0, 0, 0, 0, 0)==SQLITE_OK;
 }
 
 /*
@@ -1126,8 +1150,8 @@ static int db_local_table_exists_but_lacks_column(
   const char *zTable,
   const char *zColumn
 ){
-  return db_table_exists(db_name("localdb"), zTable)
-      && !db_table_has_column(db_name("localdb"), zTable, zColumn);
+  return db_table_exists("localdb", zTable)
+      && !db_table_has_column("localdb", zTable, zColumn);
 }
 
 /*
@@ -1141,9 +1165,9 @@ static int isValidLocalDb(const char *zDbName){
   if( file_access(zDbName, F_OK) ) return 0;
   lsize = file_size(zDbName);
   if( lsize%1024!=0 || lsize<4096 ) return 0;
-  db_open_or_attach(zDbName, "localdb", 0);
-  zVFileDef = db_text(0, "SELECT sql FROM %s.sqlite_master"
-                         " WHERE name=='vfile'", db_name("localdb"));
+  db_open_or_attach(zDbName, "localdb");
+  zVFileDef = db_text(0, "SELECT sql FROM localdb.sqlite_master"
+                         " WHERE name=='vfile'");
   if( zVFileDef==0 ) return 0;
 
   /* If the "isexe" column is missing from the vfile table, then
@@ -1292,7 +1316,7 @@ void db_open_repository(const char *zDbName){
     }
   }
   g.zRepositoryName = mprintf("%s", zDbName);
-  db_open_or_attach(g.zRepositoryName, "repository", 0);
+  db_open_or_attach(g.zRepositoryName, "repository");
   g.repositoryOpen = 1;
   /* Cache "allow-symlinks" option, because we'll need it on every stat call */
   g.allowSymlinks = db_get_boolean("allow-symlinks",
@@ -1306,7 +1330,7 @@ void db_open_repository(const char *zDbName){
   */
   if( !db_table_has_column("repository","plink","baseid") ){
     db_multi_exec(
-      "ALTER TABLE %s.plink ADD COLUMN baseid;", db_name("repository")
+      "ALTER TABLE repository.plink ADD COLUMN baseid;"
     );
   }
 
@@ -1318,9 +1342,8 @@ void db_open_repository(const char *zDbName){
   if( !db_table_has_column("repository","mlink","isaux") ){
     db_begin_transaction();
     db_multi_exec(
-      "ALTER TABLE %s.mlink ADD COLUMN pmid INTEGER DEFAULT 0;"
-      "ALTER TABLE %s.mlink ADD COLUMN isaux BOOLEAN DEFAULT 0;",
-      db_name("repository"), db_name("repository")
+      "ALTER TABLE repository.mlink ADD COLUMN pmid INTEGER DEFAULT 0;"
+      "ALTER TABLE repository.mlink ADD COLUMN isaux BOOLEAN DEFAULT 0;"
     );
     db_end_transaction(0);
   }
@@ -1377,18 +1400,6 @@ rep_not_found:
 }
 
 /*
-** Return the name of the database "localdb", "configdb", or "repository".
-*/
-const char *db_name(const char *zDb){
-  assert( fossil_strcmp(zDb,"localdb")==0
-       || fossil_strcmp(zDb,"configdb")==0
-       || fossil_strcmp(zDb,"repository")==0
-       || fossil_strcmp(zDb,"temp")==0 );
-  if( fossil_strcmp(zDb, g.zMainDbType)==0 ) zDb = "main";
-  return zDb;
-}
-
-/*
 ** Return TRUE if the schema is out-of-date
 */
 int db_schema_is_outofdate(void){
@@ -1400,7 +1411,7 @@ int db_schema_is_outofdate(void){
 ** Return true if the database is writeable
 */
 int db_is_writeable(const char *zName){
-  return g.db!=0 && !sqlite3_db_readonly(g.db, db_name(zName));
+  return g.db!=0 && !sqlite3_db_readonly(g.db, zName);
 }
 
 /*
@@ -1445,7 +1456,7 @@ void move_repo_cmd(void){
     fossil_fatal("not in a local checkout");
     return;
   }
-  db_open_or_attach(zRepo, "test_repo", 0);
+  db_open_or_attach(zRepo, "test_repo");
   db_lset("repository", blob_str(&repo));
   db_record_repository_filename(blob_str(&repo));
   db_close(1);
@@ -1505,14 +1516,14 @@ void db_close(int reportErrors){
   pStmt = 0;
   db_close_config();
 
-  /* If the localdb (the check-out database) is open and if it has
-  ** a lot of unused free space, then VACUUM it as we shut down.
+  /* If the localdb has a lot of unused free space,
+  ** then VACUUM it as we shut down.
   */
-  if( g.localOpen && strcmp(db_name("localdb"),"main")==0 ){
-    int nFree = db_int(0, "PRAGMA main.freelist_count");
-    int nTotal = db_int(0, "PRAGMA main.page_count");
+  if( db_database_slot("localdb")>=0 ){
+    int nFree = db_int(0, "PRAGMA localdb.freelist_count");
+    int nTotal = db_int(0, "PRAGMA localdb.page_count");
     if( nFree>nTotal/4 ){
-      db_multi_exec("VACUUM;");
+      db_multi_exec("VACUUM localdb;");
     }
   }
 
@@ -1526,14 +1537,11 @@ void db_close(int reportErrors){
       }
     }
     g.db = 0;
-    g.zMainDbType = 0;
   }
   g.repositoryOpen = 0;
   g.localOpen = 0;
   assert( g.dbConfig==0 );
-  assert( g.useAttach==0 );
   assert( g.zConfigDbName==0 );
-  assert( g.zConfigDbType==0 );
 }
 
 
@@ -1753,6 +1761,12 @@ void db_initial_setup(
 **    --admin-user|-A USERNAME  select given USERNAME as admin user
 **    --date-override DATETIME  use DATETIME as time of the initial check-in
 **
+** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
+** year-month-day form, it may be truncated, the "T" may be replaced by
+** a space, and it may also name a timezone offset from UTC as "-HH:MM"
+** (westward) or "+HH:MM" (eastward). Either no timezone suffix or "Z"
+** means UTC.
+**
 ** See also: clone
 */
 void create_repository_cmd(void){
@@ -1810,9 +1824,17 @@ LOCAL void db_sql_print(
     }
   }
 }
-LOCAL void db_sql_trace(void *notUsed, const char *zSql){
-  int n = strlen(zSql);
+LOCAL int db_sql_trace(unsigned m, void *notUsed, void *pP, void *pX){
+  sqlite3_stmt *pStmt = (sqlite3_stmt*)pP;
+  char *zSql;
+  int n;
+  const char *zArg = (const char*)pX;
+  if( zArg[0]=='-' ) return 0;
+  zSql = sqlite3_expanded_sql(pStmt);
+  n = (int)strlen(zSql);
   fossil_trace("%s%s\n", zSql, (n>0 && zSql[n-1]==';') ? "" : ";");
+  sqlite3_free(zSql);
+  return 0;
 }
 
 /*
@@ -1996,11 +2018,8 @@ void db_swap_connections(void){
   */
   if( g.dbConfig ){
     sqlite3 *dbTemp = g.db;
-    const char *zTempDbType = g.zMainDbType;
     g.db = g.dbConfig;
-    g.zMainDbType = g.zConfigDbType;
     g.dbConfig = dbTemp;
-    g.zConfigDbType = zTempDbType;
   }
 }
 
@@ -2580,6 +2599,7 @@ const Setting aSetting[] = {
 #endif
   { "th1-setup",        0,             40, 1, 1, ""                    },
   { "th1-uri-regexp",   0,             40, 1, 0, ""                    },
+  { "uv-sync",          0,              0, 0, 0, "off"                 },
   { "web-browser",      0,             32, 0, 0, ""                    },
   { 0,0,0,0,0,0 }
 };
@@ -2679,8 +2699,8 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **
 **    clean-glob       The VALUE is a comma or newline-separated list of GLOB
 **     (versionable)   patterns specifying files that the "clean" command will
-**                     delete without prompting even when the -force flag has
-**                     not been used.  Example:  *.a *.lib *.o
+**                     delete without prompting or allowing undo.
+**                     Example: *.a,*.lib,*.o
 **
 **    clearsign        When enabled, fossil will attempt to sign all commits
 **                     with gpg.  When disabled (the default), commits will
@@ -2855,6 +2875,11 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **     (versionable)   TH1 scripts.  If empty, no HTTP requests are allowed
 **                     whatsoever.  The default is an empty string.
 **
+**    uv-sync          If true, automatically send unversioned files as part
+**                     of a "fossil clone" or "fossil sync" command.  The
+**                     default is false, in which case the -u option is
+**                     needed to clone or sync unversioned files.
+**
 **    web-browser      A shell command used to launch your preferred
 **                     web browser when given a URL as an argument.
 **                     Defaults to "start" on windows, "open" on Mac,
@@ -2864,12 +2889,16 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **   --global   set or unset the given property globally instead of
 **              setting or unsetting it for the open repository only.
 **
+**   --exact    only consider exact name matches.
+**
 ** See also: configuration
 */
 void setting_cmd(void){
   int i;
   int globalFlag = find_option("global","g",0)!=0;
+  int exactFlag = find_option("exact",0,0)!=0;
   int unsetFlag = g.argv[1][0]=='u';
+  verify_all_options();
   db_open_config(1, 0);
   if( !globalFlag ){
     db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0);
@@ -2899,7 +2928,7 @@ void setting_cmd(void){
   }else if( g.argc==3 || g.argc==4 ){
     const char *zName = g.argv[2];
     int n = (int)strlen(zName);
-    const Setting *pSetting = db_find_setting(zName, 1);
+    const Setting *pSetting = db_find_setting(zName, !exactFlag);
     if( pSetting==0 ){
       fossil_fatal("no such setting: %s", zName);
     }
@@ -2932,7 +2961,12 @@ void setting_cmd(void){
         manifest_to_disk(db_lget_int("checkout", 0));
       }
     }else{
-      while( pSetting->name && fossil_strncmp(pSetting->name,zName,n)==0 ){
+      while( pSetting->name ){
+        if( exactFlag ){
+          if( fossil_strcmp(pSetting->name,zName)!=0 ) break;
+        }else{
+          if( fossil_strncmp(pSetting->name,zName,n)!=0 ) break;
+        }
         print_setting(pSetting);
         pSetting++;
       }
@@ -2971,7 +3005,7 @@ char *db_timespan_name(double rSpan){
 
 /*
 ** COMMAND: test-timespan
-** 
+**
 ** Usage: %fossil test-timespan TIMESTAMP
 **
 ** Print the approximate span of time from now to TIMESTAMP.
@@ -2988,7 +3022,7 @@ void test_timespan_cmd(void){
 
 /*
 ** COMMAND: test-without-rowid
-** 
+**
 ** Usage: %fossil test-without-rowid FILENAME...
 **
 ** Change the Fossil repository FILENAME to make use of the WITHOUT ROWID
@@ -3007,7 +3041,7 @@ void test_without_rowid(void){
   Blob allSql;
   int dryRun = find_option("dry-run", "n", 0)!=0;
   for(i=2; i<g.argc; i++){
-    db_open_or_attach(g.argv[i], "main", 0);
+    db_open_or_attach(g.argv[i], "main");
     blob_init(&allSql, "BEGIN;\n", -1);
     db_prepare(&q,
       "SELECT name, sql FROM main.sqlite_master "
@@ -3062,13 +3096,13 @@ void create_admin_log_table(void){
   if( once ) return;
   once = 1;
   db_multi_exec(
-    "CREATE TABLE IF NOT EXISTS \"%w\".admin_log(\n"
+    "CREATE TABLE IF NOT EXISTS repository.admin_log(\n"
     " id INTEGER PRIMARY KEY,\n"
     " time INTEGER, -- Seconds since 1970\n"
     " page TEXT,    -- path of page\n"
-    " who TEXT,     -- User who made the change\n "
+    " who TEXT,     -- User who made the change\n"
     " what TEXT     -- What changed\n"
-    ")", db_name("repository")
+    ")"
   );
 }
 

@@ -476,9 +476,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
 
     if( pRow->iRail>=0 ){
       if( pRow->pChild==0 && !pRow->timeWarp ){
-        if( omitDescenders || pRow->isLeaf ){
-          /* no-op */
-        }else{
+        if( !omitDescenders && count_nonbranch_children(pRow->rid)!=0 ){
           riser_to_top(pRow);
         }
       }
@@ -521,7 +519,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
     pRow->railInUse |= mask;
     if( pRow->pChild ){
       assignChildrenToRail(pRow);
-    }else if( !pRow->isLeaf && !omitDescenders ){
+    }else if( !omitDescenders && count_nonbranch_children(pRow->rid)!=0 ){
       riser_to_top(pRow);
     }
     if( pParent ){

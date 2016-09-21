@@ -548,19 +548,19 @@ static void locate_unmanaged_files(
 
 /*
 ** COMMAND: extras
-** 
+**
 ** Usage: %fossil extras ?OPTIONS? ?PATH1 ...?
 **
-** Print a list of all files in the source tree that are not part of
-** the current checkout.  See also the "clean" command. If paths are
-** specified, only files in the given directories will be listed.
+** Print a list of all files in the source tree that are not part of the
+** current checkout. See also the "clean" command. If paths are specified,
+** only files in the given directories will be listed.
 **
 ** Files and subdirectories whose names begin with "." are normally
 ** ignored but can be included by adding the --dotfiles option.
 **
-** The GLOBPATTERN is a comma-separated list of GLOB expressions for
-** files that are ignored.  The GLOBPATTERN specified by the "ignore-glob"
-** is used if the --ignore option is omitted.
+** Files whose names match any of the glob patterns in the "ignore-glob"
+** setting are ignored. This setting can be overridden by the --ignore
+** option, whose CSG argument is a comma-separated list of glob patterns.
 **
 ** Pathnames are displayed according to the "relative-paths" setting,
 ** unless overridden by the --abs-paths or --rel-paths options.
@@ -634,28 +634,37 @@ void extras_cmd(void){
 
 /*
 ** COMMAND: clean
-** 
+**
 ** Usage: %fossil clean ?OPTIONS? ?PATH ...?
 **
-** Delete all "extra" files in the source tree.  "Extra" files are
-** files that are not officially part of the checkout. This operation
-** cannot be undone. If one or more PATH arguments appear, then only
-** the files named, or files contained with directories named, will be
-** removed.
+** Delete all "extra" files in the source tree.  "Extra" files are files
+** that are not officially part of the checkout.  If one or more PATH
+** arguments appear, then only the files named, or files contained with
+** directories named, will be removed.
 **
-** Prompted are issued to confirm the removal of each file, unless
-** the --force flag is used or unless the file matches glob pattern
-** specified by the --clean option.  No file that matches glob patterns
-** specified by --ignore or --keep will ever be deleted. The default
-** values for --clean, --ignore, and --keep are determined by the
-** (versionable) clean-glob, ignore-glob, and keep-glob settings.
-** Files and subdirectories whose names begin with "." are automatically
-** ignored unless the --dotfiles option is used.
+** If the --prompt option is used, prompts are issued to confirm the
+** permanent removal of each file.  Otherwise, files are backed up to the
+** undo buffer prior to removal, and prompts are issued only for files
+** whose removal cannot be undone due to their large size or due to
+** --disable-undo being used.
 **
-** The --verily option ignores the keep-glob and ignore-glob settings
-** and turns on --force, --dotfiles, and --emptydirs.  Use the --verily
-** option when you really want to clean up everything.  Extreme care
-** should be exercised when using the --verily option.
+** The --force option treats all prompts as having been answered yes,
+** whereas --no-prompt treats them as having been answered no.
+**
+** Files matching any glob pattern specified by the --clean option are
+** deleted without prompting, and the removal cannot be undone.
+**
+** No file that matches glob patterns specified by --ignore or --keep will
+** ever be deleted.  Files and subdirectories whose names begin with "."
+** are automatically ignored unless the --dotfiles option is used.
+**
+** The default values for --clean, --ignore, and --keep are determined by
+** the (versionable) clean-glob, ignore-glob, and keep-glob settings.
+**
+** The --verily option ignores the keep-glob and ignore-glob settings and
+** turns on --force, --emptydirs, --dotfiles, and --disable-undo.  Use the
+** --verily option when you really want to clean up everything.  Extreme
+** care should be exercised when using the --verily option.
 **
 ** Options:
 **    --allckouts      Check for empty directories within any checkouts
@@ -680,7 +689,8 @@ void extras_cmd(void){
 **                     therefore, directories that contain only files
 **                     that were removed will be removed as well.
 **    -f|--force       Remove files without prompting.
-**    -i|--prompt      Prompt before removing each file.
+**    -i|--prompt      Prompt before removing each file.  This option
+**                     implies the --disable-undo option.
 **    -x|--verily      WARNING: Removes everything that is not a managed
 **                     file or the repository itself.  This option
 **                     implies the --force, --emptydirs, --dotfiles, and
@@ -1462,6 +1472,7 @@ static int commit_warning(
   int crnlOk,           /* Non-zero if CR/NL warnings should be disabled. */
   int binOk,            /* Non-zero if binary warnings should be disabled. */
   int encodingOk,       /* Non-zero if encoding warnings should be disabled. */
+  int noPrompt,         /* Non-zero to disable prompts and assume 'No'. */
   const char *zFilename /* The full name of the file being committed. */
 ){
   int bReverse;           /* UTF-16 byte order is reversed? */
@@ -1554,9 +1565,14 @@ static int commit_warning(
                  " disable this warning.\n"
          "Commit anyhow (a=all/%sy/N)? ",
          blob_str(&fname), zWarning, zDisable, zConvert);
-    prompt_user(zMsg, &ans);
+    if( !noPrompt ){
+      prompt_user(zMsg, &ans);
+      cReply = blob_str(&ans)[0];
+      blob_reset(&ans);
+    }else{
+      cReply = 'N';
+    }
     fossil_free(zMsg);
-    cReply = blob_str(&ans)[0];
     if( cReply=='a' || cReply=='A' ){
       allOk = 1;
     }else if( *zConvert && (cReply=='c' || cReply=='C') ){
@@ -1587,7 +1603,6 @@ static int commit_warning(
       fossil_fatal("Abandoning commit due to %s in %s",
                    zWarning, blob_str(&fname));
     }
-    blob_reset(&ans);
     blob_reset(&fname);
   }
   return 0;
@@ -1675,14 +1690,23 @@ static int tagCmp(const void *a, const void *b){
 **    -M|--message-file FILE     read the commit comment from given file
 **    --mimetype MIMETYPE        mimetype of check-in comment
 **    -n|--dry-run               If given, display instead of run actions
+**    --no-prompt                This option disables prompting the user for
+**                               input and assumes an answer of 'No' for every
+**                               question.
 **    --no-warnings              omit all warnings about file contents
 **    --nosign                   do not attempt to sign this commit with gpg
 **    --private                  do not sync changes and their descendants
 **    --sha1sum                  verify file status using SHA1 hashing rather
 **                               than relying on file mtimes
 **    --tag TAG-NAME             assign given tag TAG-NAME to the check-in
-**    --date-override DATE       DATE to use instead of 'now'
+**    --date-override DATETIME   DATE to use instead of 'now'
 **    --user-override USER       USER to use instead of the current default
+**
+** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
+** year-month-day form, it may be truncated, the "T" may be replaced by
+** a space, and it may also name a timezone offset from UTC as "-HH:MM"
+** (westward) or "+HH:MM" (eastward). Either no timezone suffix or "Z"
+** means UTC.
 **
 ** See also: branch, changes, checkout, extras, sync
 */
@@ -1699,6 +1723,7 @@ void commit_cmd(void){
   int noSign = 0;        /* True to omit signing the manifest using GPG */
   int isAMerge = 0;      /* True if checking in a merge */
   int noWarningFlag = 0; /* True if skipping all warnings */
+  int noPrompt = 0;      /* True if skipping all prompts */
   int forceFlag = 0;     /* Undocumented: Disables all checks */
   int forceDelta = 0;    /* Force a delta-manifest */
   int forceBaseline = 0; /* Force a baseline-manifest */
@@ -1746,6 +1771,7 @@ void commit_cmd(void){
   allowEmpty = find_option("allow-empty",0,0)!=0;
   allowFork = find_option("allow-fork",0,0)!=0;
   allowOlder = find_option("allow-older",0,0)!=0;
+  noPrompt = find_option("no-prompt", 0, 0)!=0;
   noWarningFlag = find_option("no-warnings", 0, 0)!=0;
   sCiInfo.zBranch = find_option("branch","b",1);
   sCiInfo.zColor = find_option("bgcolor",0,1);
@@ -1806,12 +1832,8 @@ void commit_cmd(void){
   ** Autosync if autosync is enabled and this is not a private check-in.
   */
   if( !g.markPrivate ){
-    if( autosync_loop(SYNC_PULL, db_get_int("autosync-tries", 1)) ){
-      prompt_user("continue in spite of sync failure (y/N)? ", &ans);
-      cReply = blob_str(&ans)[0];
-      if( cReply!='y' && cReply!='Y' ){
-        fossil_exit(1);
-      }
+    if( autosync_loop(SYNC_PULL, db_get_int("autosync-tries", 1), 1) ){
+      fossil_exit(1);
     }
   }
 
@@ -1819,8 +1841,14 @@ void commit_cmd(void){
   ** clock skew
   */
   if( g.clockSkewSeen ){
-    prompt_user("continue in spite of time skew (y/N)? ", &ans);
-    cReply = blob_str(&ans)[0];
+    if( !noPrompt ){
+      prompt_user("continue in spite of time skew (y/N)? ", &ans);
+      cReply = blob_str(&ans)[0];
+      blob_reset(&ans);
+    }else{
+      fossil_print("Abandoning commit due to time skew\n");
+      cReply = 'N';
+    }
     if( cReply!='y' && cReply!='Y' ){
       fossil_exit(1);
     }
@@ -1837,9 +1865,16 @@ void commit_cmd(void){
   ** should be committed.
   */
   if( select_commit_files() ){
-    prompt_user("continue (y/N)? ", &ans);
-    cReply = blob_str(&ans)[0];
-    if( cReply!='y' && cReply!='Y' ) fossil_exit(1);
+    if( !noPrompt ){
+      prompt_user("continue (y/N)? ", &ans);
+      cReply = blob_str(&ans)[0];
+      blob_reset(&ans);
+    }else{
+      cReply = 'N';
+    }
+    if( cReply!='y' && cReply!='Y' ){
+      fossil_exit(1);
+    }
   }
   isAMerge = db_exists("SELECT 1 FROM vmerge WHERE id=0 OR id<-2");
   if( g.aCommitFile && isAMerge ){
@@ -1944,22 +1979,31 @@ void commit_cmd(void){
     blob_zero(&comment);
     blob_read_from_file(&comment, zComFile);
     blob_to_utf8_no_bom(&comment, 1);
-  }else if(dryRunFlag){
+  }else if( dryRunFlag ){
     blob_zero(&comment);
-  }else{
+  }else if( !noPrompt ){
     char *zInit = db_text(0, "SELECT value FROM vvar WHERE name='ci-comment'");
     prepare_commit_comment(&comment, zInit, &sCiInfo, vid);
     if( zInit && zInit[0] && fossil_strcmp(zInit, blob_str(&comment))==0 ){
       prompt_user("unchanged check-in comment.  continue (y/N)? ", &ans);
       cReply = blob_str(&ans)[0];
-      if( cReply!='y' && cReply!='Y' ) fossil_exit(1);
+      blob_reset(&ans);
+      if( cReply!='y' && cReply!='Y' ){
+        fossil_exit(1);
+      }
     }
     free(zInit);
   }
   if( blob_size(&comment)==0 ){
     if( !dryRunFlag ){
-      prompt_user("empty check-in comment.  continue (y/N)? ", &ans);
-      cReply = blob_str(&ans)[0];
+      if( !noPrompt ){
+        prompt_user("empty check-in comment.  continue (y/N)? ", &ans);
+        cReply = blob_str(&ans)[0];
+        blob_reset(&ans);
+      }else{
+        fossil_print("Abandoning commit due to empty check-in comment\n");
+        cReply = 'N';
+      }
       if( cReply!='y' && cReply!='Y' ){
         fossil_exit(1);
       }
@@ -2013,7 +2057,8 @@ void commit_cmd(void){
     /* Do not emit any warnings when they are disabled. */
     if( !noWarningFlag ){
       abortCommit |= commit_warning(&content, crnlOk, binOk,
-                                    encodingOk, zFullname);
+                                    encodingOk, noPrompt,
+                                    zFullname);
     }
     if( contains_merge_marker(&content) ){
       Blob fname; /* Relative pathname of the file */
@@ -2097,8 +2142,14 @@ void commit_cmd(void){
     }
   }
   if( !noSign && !g.markPrivate && clearsign(&manifest, &manifest) ){
-    prompt_user("unable to sign manifest.  continue (y/N)? ", &ans);
-    cReply = blob_str(&ans)[0];
+    if( !noPrompt ){
+      prompt_user("unable to sign manifest.  continue (y/N)? ", &ans);
+      cReply = blob_str(&ans)[0];
+      blob_reset(&ans);
+    }else{
+      fossil_print("Abandoning commit due to manifest signing failure\n");
+      cReply = 'N';
+    }
     if( cReply!='y' && cReply!='Y' ){
       fossil_exit(1);
     }
@@ -2219,8 +2270,8 @@ void commit_cmd(void){
 
   /* Commit */
   db_multi_exec("DELETE FROM vvar WHERE name='ci-comment'");
-  db_multi_exec("PRAGMA %s.application_id=252006673;", db_name("repository"));
-  db_multi_exec("PRAGMA %s.application_id=252006674;", db_name("localdb"));
+  db_multi_exec("PRAGMA repository.application_id=252006673;");
+  db_multi_exec("PRAGMA localdb.application_id=252006674;");
   if( dryRunFlag ){
     db_end_transaction(1);
     exit(1);
@@ -2228,7 +2279,7 @@ void commit_cmd(void){
   db_end_transaction(0);
 
   if( !g.markPrivate ){
-    autosync_loop(SYNC_PUSH|SYNC_PULL, db_get_int("autosync-tries", 1));
+    autosync_loop(SYNC_PUSH|SYNC_PULL, db_get_int("autosync-tries", 1), 0);
   }
   if( count_nonbranch_children(vid)>1 ){
     fossil_print("**** warning: a fork has occurred *****\n");

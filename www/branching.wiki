@@ -4,11 +4,11 @@
 In a simple and perfect world, the development of a project would proceed
 linearly, as shown in figure 1.
 
-<center><table border=1 cellpadding=10 hspace=10 vspace=10>
+<table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
 <tr><td align="center">
 <img src="branch01.gif" width=280 height=68><br>
 Figure 1
-</td></tr></table></center>
+</td></tr></table>
 
 Each circle represents a check-in.  For the sake of clarity, the check-ins
 are given small consecutive numbers.  In a real system, of course, the
@@ -40,11 +40,11 @@ Alas, reality often interferes with the simple linear development of a
 project.  Suppose two programmers make independent modifications to check-in 2.
 After both changes are committed, the check-in graph looks like figure 2:
 
-<center><table border=1 cellpadding=10 hspace=10 vspace=10>
+<table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
 <tr><td align="center">
 <img src="branch02.gif" width=210 height=140><br>
 Figure 2
-</td></tr></table></center>
+</td></tr></table>
 
 The graph in figure 2 has two leaves: check-ins 3 and 4.  Check-in 2 has
 two children, check-ins 3 and 4.  We call this state a <i>fork</i>.
@@ -79,11 +79,11 @@ to merge in Bob's changes in her local copy of check-in 3.  Then she
 can commit the results as check-in 5.  This results in a DAG as shown
 in figure 3.
 
-<center><table border=1 cellpadding=10 hspace=10 vspace=10>
+<table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
 <tr><td align="center">
 <img src="branch03.gif" width=282 height=152><br>
 Figure 3
-</td></tr></table></center>
+</td></tr></table>
 
 Check-in 5 is a child of check-in 3 because it was created by editing
 check-in 3.  But check-in 5 also inherits the changes from check-in 4 by
@@ -126,11 +126,11 @@ instead of <i>forking</i>.
 Figure 4 shows an example of a project where there are two branches, one
 for development work and another for testing.
 
-<center><table border=1 cellpadding=10 hspace=10 vspace=10>
+<table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
 <tr><td align="center">
 <img src="branch04.gif" width=426 height=123><br>
 Figure 4
-</td></tr></table></center>
+</td></tr></table>
 
 The hypothetical scenario of figure 4 is this:  The project starts and
 progresses to a point where (at check-in 2)
@@ -166,11 +166,11 @@ Tags and properties are used in fossil to help express the intent, and
 thus to distinguish between forks and branches.  Figure 5 shows the
 same scenario as figure 4 but with tags and properties added:
 
-<center><table border=1 cellpadding=10 hspace=10 vspace=10>
+<table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
 <tr><td align="center">
 <img src="branch05.gif" width=485 height=177><br>
 Figure 5
-</td></tr></table></center>
+</td></tr></table>
 
 A <i>tag</i> is a name that is attached to a check-in.  A
 <i>property</i> is a name/value pair.  Internally, fossil implements
