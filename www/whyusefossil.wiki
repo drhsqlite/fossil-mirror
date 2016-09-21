@@ -36,7 +36,7 @@ version control<br>such as Git, Mercurial, or Subversion.</b></p>
      <li>Everyone always has the latest code
      <li>Failed disk-drives cause no loss of work
      <li>Avoid wasting time doing manual file copying
-     <li>Avoid human errors during manual backups
+     <li>Avoid human errors during manual backups.
      </ol>
   </ol>
 <li><p><b>Definitions</b></p>
@@ -50,9 +50,9 @@ version control<br>such as Git, Mercurial, or Subversion.</b></p>
      <ul>
      <li><p>Projects change and evolve.  The whole purpose of version
          control is to track and manage that evolution.
-     <li><p>Most projects consist of multiple files, but it is possible
+     <li><p>Most projects contain many files, but it is possible
          to have a project consisting of just a single file.
-     <li><p>Fossil (and most other version control systems) requires that
+     <li><p>Fossil requires that
          all the files for a project must be collected into a single
          directory hierarchy - a single folder possibly with layers
          of subfolders.  Fossil is not a good choice for managing a
@@ -90,12 +90,12 @@ version control<br>such as Git, Mercurial, or Subversion.</b></p>
           to recover the project.
       <li><p>Best practice is to keep all repositories for a user in a single
           folder.  Folders such as "~/Fossils" or "%USERPROFILE%\Fossils"
-          are recommended.  Fossil itself does not care where the repositories
+          are recommanded.  Fossil itself does not care where the repositories
           are stored.  Nor does Fossil require repositories to be
           kept in the same folder.  But it is easier to organize your work
           if all repositories are kept in the same place.
       </ul>
-  <li><p><b>Check-out</b> &rarr;
+  <li><p><b>Checkout</b> &rarr;
       a set of files that have been extracted from a
       repository and that represent a particular version or snapshot of
       the project.
@@ -120,7 +120,7 @@ version control<br>such as Git, Mercurial, or Subversion.</b></p>
       another name for a particular version of the project.
       A check-in is a collection of files inside of a repository that
       represent a snapshot of the project for an instant in time.
-      Check-ins exist only inside of the repository.  This contrasts with
+      Check-ins exist only inside of the repository.  This constrasts with
       a check-out which is a collection of files outside of the repository.
       <ul>
       <li><p>Every check-out knows the check-in from which it was derived.
@@ -244,7 +244,7 @@ version control<br>such as Git, Mercurial, or Subversion.</b></p>
   <li><p>Developers can follow experimental lines of development,  then
       revert back to an earlier stable version if the experiment does
       not work out.  Creativity is enhanced by allowing crazy ideas to
-      be investigated without destabilizing the project.
+      be investigated without destablizing the project.
   <li><p>Developers can work on several independent subprojects, flipping
       back and forth from one subproject to another at will, and merge
       patches together or back into the main line of development as they
