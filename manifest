@@ -1,5 +1,5 @@
-C Re-fix\sseveral\stypos.
-D 2016-09-21T16:59:46.063
+C Drop\ssupport\sfor\sthe\sundocumented\s(and\snon-working)\ssubrepository\sfeature\nunless\sthe\s-DFOSSIL_ENABLE_SUBREPOSITORY\scompile-time\soption\sis\sused.
+D 2016-09-21T17:06:54.408
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -444,7 +444,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 597ae479d42096c07d6e6f85f1d844ebb46089b3
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
-F src/main.c fc2da020a35fb3861fa3361d3b0967498c1b97f8
+F src/main.c 4882a728e162ae9a730418b380dbfb5167efdc13
 F src/main.mk 9668cf26a3ef3a1eac8c62c61fffc591dc0aad16
 F src/makeheaders.c e8444028f575e84075e46cf47f2080fa6d2c2115
 F src/makeheaders.html 06decb89c665feb897540613d7d12527eb65dfe5
@@ -760,7 +760,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki 6c0f800bdec70724af09b6f9c6272c5efbe355b9
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f2ce2e41d573169bd58f872dd6de568c73e43947
-R 6da585136d6660b82d152a08737f529d
-U mistachkin
-Z c15d26a07882e4f28b102bcd802beb1d
+P 6e1072c5b567f3639860a0cf5cec41ccd527d5cc
+R afbee9dd3e8bfced22df09bbbc2e1f05
+U drh
+Z be63db9ce115d00d523f054e4cbff1e2

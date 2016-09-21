@@ -1403,13 +1403,19 @@ static void process_one_web_page(
   ** g.zExtra point to everything past that point.
   */
   while(1){
-    char *zAltRepo = 0;
     g.zPath = &zPath[1];
     for(i=1; zPath[i] && zPath[i]!='/'; i++){}
     if( zPath[i]=='/' ){
       zPath[i] = 0;
       g.zExtra = &zPath[i+1];
 
+#ifdef FOSSIL_ENABLE_SUBREPOSITORY
+      char *zAltRepo = 0;
+      /* 2016-09-21: Subrepos are undocumented and apparently no longer work.
+      ** So they are now removed unless the -DFOSSIL_ENABLE_SUBREPOSITORY
+      ** compile-time option is used.  If there are no complaints after
+      ** a while, we can delete the code entirely.
+      */
       /* Look for sub-repositories.  A sub-repository is another repository
       ** that accepts the login credentials of the current repository.  A
       ** subrepository is identified by a CONFIG table entry "subrepo:NAME"
@@ -1447,6 +1453,7 @@ static void process_one_web_page(
         g.zTop = g.zBaseURL + nHost;
         continue;
       }
+#endif /* FOSSIL_ENABLE_SUBREPOSITORY */
     }else{
       g.zExtra = 0;
     }
