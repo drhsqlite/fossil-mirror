@@ -1,5 +1,5 @@
-C Merge\sin\slatest\sfrom\strunk
-D 2016-09-21T16:06:43.873
+C Fix\sa\sproblem\sthat\scan\soccasionally\soccur\swith\srepeated\ssyncs\sto/from\sa\sgit\srepository,\nwhere\sa\sfossil-generated\smark\sclashes\swith\sa\smark\spreviously\sgenerated\sby\sgit,\scausing\nthe\ssync\sto\sfail.
+D 2016-09-21T19:05:46.978
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -407,7 +407,7 @@ F src/dispatch.c 6adca854d08d8196e8d8e393e8bb97f8394ef0d3
 F src/doc.c f46ada466f90f12ee7b5c6078808fdfc4dedb183
 F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
 F src/event.c 6909284d77a688d63cc67b7b0929b8dda5397742
-F src/export.c ab705fb1bdb609c49cab3aa686fd74b5cd8e83d4
+F src/export.c 4c140f1f0ff9eb6ff0a50e4ff0198b860d03a7c4
 F src/file.c c1b31491b3a5d3ee010ef3f41491bcdc500a4161
 F src/finfo.c ea4e48b5081bfae079c3b001fdd63f677d006767
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
@@ -420,7 +420,7 @@ F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c c38d7bff255b35cc7cfe13405b67c32878f9d838
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
-F src/import.c 060b06a4066a6f3bbedad39ffdb275b4e2153723
+F src/import.c 1935508c3e4af6b9ae667b219213f84f13a18e69
 F src/info.c a120fe39440d7994528d400c0adbcdb040f7b5ee
 F src/json.c dc2c7f146357683da2842cc84eb78a73221a80ba
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
@@ -760,7 +760,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki cd726bf118be9afae0cbf129893d468a98e05c99
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P addfe489901ee676e67a50a017eaf6df2c3cb317 f2ce2e41d573169bd58f872dd6de568c73e43947
-R 08bba1ba05dd8693e83f801b51c4b4d8
+P 85a0ada6919b78f9a6ca42a58d75371457f8efb4
+R c482824c7a5c45f3154fa767b5594232
 U nick.lloyd
-Z 336336a98f82d00e36b94fcc55f13a4e
+Z cc407a73539af481a8cf568ab3903b95

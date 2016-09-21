@@ -134,11 +134,15 @@ void insert_commit_xref(int rid, const char *zName, const char *zUuid){
 ** create_mark()
 **   Create a new (mark,rid,uuid) entry for the given rid in the 'xmark' table,
 **   and return that information as a struct mark_t in *mark.
+**   *unused_mark is a value representing a mark that is free for use--that is,
+**   it does not appear in the marks file, and has not been used during this   
+**   export run.  Specifically, it is the supremum of the set of used marks    
+**   plus one.                                                                 
 **   This function returns -1 in the case where 'rid' does not exist, otherwise
 **   it returns 0.
 **   mark->name is dynamically allocated and is owned by the caller upon return.
 */
-int create_mark(int rid, struct mark_t *mark){
+int create_mark(int rid, struct mark_t *mark, unsigned int *unused_mark){
   char sid[13];
   char *zUuid = rid_to_uuid(rid);
   if(!zUuid){
@@ -146,7 +150,8 @@ int create_mark(int rid, struct mark_t *mark){
     return -1;
   }
   mark->rid = rid;
-  sqlite3_snprintf(sizeof(sid), sid, ":%d", COMMITMARK(rid));
+  sqlite3_snprintf(sizeof(sid), sid, ":%d", *unused_mark);
+  *unused_mark += 1;
   mark->name = fossil_strdup(sid);
   sqlite3_snprintf(sizeof(mark->uuid), mark->uuid, "%s", zUuid);
   free(zUuid);
@@ -158,15 +163,18 @@ int create_mark(int rid, struct mark_t *mark){
 ** mark_name_from_rid()
 **   Find the mark associated with the given rid.  Mark names always start
 **   with ':', and are pulled from the 'xmark' temporary table.
-**   This function returns NULL if the rid does not exist in the 'xmark' table.
-**   Otherwise, it returns the name of the mark, which is dynamically allocated
-**   and is owned by the caller of this function.
+**   If the given rid doesn't have a mark associated with it yet, one is
+**   created with a value of *unused_mark.
+**   *unused_mark functions exactly as in create_mark().
+**   This function returns NULL if the rid does not have an associated UUID,
+**   (i.e. is not valid).  Otherwise, it returns the name of the mark, which is
+**   dynamically allocated and is owned by the caller of this function.
 */
-char * mark_name_from_rid(int rid){
+char * mark_name_from_rid(int rid, unsigned int *unused_mark){
   char *zMark = db_text(0, "SELECT tname FROM xmark WHERE trid=%d", rid);
   if(zMark==NULL){
     struct mark_t mark;
-    if(create_mark(rid, &mark)==0){
+    if(create_mark(rid, &mark, unused_mark)==0){
       zMark = mark.name;
     }else{
       return NULL;
@@ -187,12 +195,14 @@ char * mark_name_from_rid(int rid){
 */
 int parse_mark(char *line, struct mark_t *mark){
   char *cur_tok;
+  char type_;
   cur_tok = strtok(line, " \t");
   if(!cur_tok||strlen(cur_tok)<2){
     return -1;
   }
   mark->rid = atoi(&cur_tok[1]);
-  if(cur_tok[0]!='c'){
+  type_ = cur_tok[0];
+  if(type_!='c'&&type_!='b'){
     /* This is probably a blob mark */
     mark->name = NULL;
     return 0;
@@ -204,7 +214,14 @@ int parse_mark(char *line, struct mark_t *mark){
     ** include the mark name and uuid.  create_mark() will name the new mark
     ** exactly as it was when exported to git, so that we should have a
     ** valid mapping from git sha1<->mark name<->fossil sha1. */
-    return create_mark(mark->rid, mark);
+    unsigned int mid;
+    if( type_=='c' ){
+      mid = COMMITMARK(mark->rid);
+    }
+    else{
+      mid = BLOBMARK(mark->rid);
+    }
+    return create_mark(mark->rid, mark, &mid);
   }else{
     mark->name = fossil_strdup(cur_tok);
   }
@@ -235,6 +252,9 @@ int parse_mark(char *line, struct mark_t *mark){
 **   Import the marks specified in file 'f' into the 'xmark' table.
 **   If 'blobs' is non-null, insert all blob marks into it.
 **   If 'vers' is non-null, insert all commit marks into it.
+**   If 'unused_marks' is non-null, upon return of this function, all values
+**   x >= *unused_marks are free to use as marks, i.e. they do not clash with
+**   any marks appearing in the marks file.
 **   Each line in the file must be at most 100 characters in length.  This
 **   seems like a reasonable maximum for a 40-character uuid, and 1-13
 **   character rid.
@@ -242,7 +262,7 @@ int parse_mark(char *line, struct mark_t *mark){
 **   or the rid/uuid information doesn't match what is in the repository
 **   database.  Otherwise, 0 is returned.
 */
-int import_marks(FILE* f, Bag *blobs, Bag *vers){
+int import_marks(FILE* f, Bag *blobs, Bag *vers, unsigned int *unused_mark){
   char line[101];
   while(fgets(line, sizeof(line), f)){
     struct mark_t mark;
@@ -253,17 +273,40 @@ int import_marks(FILE* f, Bag *blobs, Bag *vers){
     if( parse_mark(line, &mark)<0 ){
       return -1;
     }else if( line[0]=='b' ){
-      /* Don't import blob marks into 'xmark' table--git doesn't use them,
-      ** so they need to be left free for git to reuse. */
       if(blobs!=NULL){
         bag_insert(blobs, mark.rid);
       }
-    }else if( vers!=NULL ){
-      bag_insert(vers, mark.rid);
+    }else{
+      if( vers!=NULL ){
+        bag_insert(vers, mark.rid);
+      }
+    }
+    if( unused_mark!=NULL ){
+      unsigned int mid = atoi(mark.name + 1);
+      if( mid>=*unused_mark ){
+	*unused_mark = mid + 1;
+      }
     }
     free(mark.name);
   }
   return 0;
+}
+
+void export_mark(FILE* f, int rid, char obj_type)
+{
+  unsigned int z = 0;
+  char *zUuid = rid_to_uuid(rid);
+  char *zMark;
+  if(zUuid==NULL){
+    fossil_trace("No uuid matching rid=%d when exporting marks\n", rid);
+    return;
+  }
+  /* Since rid is already in the 'xmark' table, the value of z won't be
+  ** used, but pass in a valid pointer just to be safe. */
+  zMark = mark_name_from_rid(rid, &z);
+  fprintf(f, "%c%d %s %s\n", obj_type, rid, zMark, zUuid);
+  free(zMark);
+  free(zUuid);
 }
 
 /*
@@ -277,28 +320,20 @@ int import_marks(FILE* f, Bag *blobs, Bag *vers){
 */
 void export_marks(FILE* f, Bag *blobs, Bag *vers){
   int rid;
-  if( blobs!=NULL ){
+
+  if( blobs!=NULL ) {
     rid = bag_first(blobs);
-    if(rid!=0){
+    if( rid!=0 ){
       do{
-        fprintf(f, "b%d\n", rid);
-      }while((rid = bag_next(blobs, rid))!=0);
+        export_mark(f, rid, 'b');
+      }while( (rid = bag_next(blobs, rid))!=0 );
     }
   }
   if( vers!=NULL ){
     rid = bag_first(vers);
     if( rid!=0 ){
       do{
-        char *zUuid = rid_to_uuid(rid);
-        char *zMark;
-        if(zUuid==NULL){
-          fossil_trace("No uuid matching rid=%d when exporting marks\n", rid);
-          continue;
-        }
-        zMark = mark_name_from_rid(rid);
-        fprintf(f, "c%d %s %s\n", rid, zMark, zUuid);
-        free(zMark);
-        free(zUuid);
+        export_mark(f, rid, 'c');
       }while( (rid = bag_next(vers, rid))!=0 );
     }
   }
@@ -338,6 +373,7 @@ void export_cmd(void){
   Stmt q, q2, q3;
   int i;
   Bag blobs, vers;
+  unsigned int unused_mark = 1;
   const char *markfile_in;
   const char *markfile_out;
 
@@ -364,7 +400,7 @@ void export_cmd(void){
     if( f==0 ){
       fossil_fatal("cannot open %s for reading", markfile_in);
     }
-    if(import_marks(f, &blobs, &vers)<0){
+    if(import_marks(f, &blobs, &vers, &unused_mark)<0){
       fossil_fatal("error importing marks from file: %s\n", markfile_in);
     }
     db_prepare(&qb, "INSERT OR IGNORE INTO oldblob VALUES (:rid)");
@@ -418,11 +454,14 @@ void export_cmd(void){
     Blob content;
 
     while( !bag_find(&blobs, rid) ){
+      char *zMark;
       content_get(rid, &content);
       db_bind_int(&q2, ":rid", rid);
       db_step(&q2);
       db_reset(&q2);
-      printf("blob\nmark :%d\ndata %d\n", BLOBMARK(rid), blob_size(&content));
+      zMark = mark_name_from_rid(rid, &unused_mark);
+      printf("blob\nmark %s\ndata %d\n", zMark, blob_size(&content));
+      free(zMark);
       bag_insert(&blobs, rid);
       fwrite(blob_buffer(&content), 1, blob_size(&content), stdout);
       printf("\n");
@@ -472,7 +511,7 @@ void export_cmd(void){
     for(i=0; zBr[i]; i++){
       if( !fossil_isalnum(zBr[i]) ) zBr[i] = '_';
     }
-    zMark = mark_name_from_rid(ckinId);
+    zMark = mark_name_from_rid(ckinId, &unused_mark);
     printf("commit refs/heads/%s\nmark %s\n", zBr, zMark);
     free(zMark);
     free(zBr);
@@ -489,7 +528,7 @@ void export_cmd(void){
     );
     if( db_step(&q3) == SQLITE_ROW ){
       int pid = db_column_int(&q3, 0);
-      zMark = mark_name_from_rid(pid);
+      zMark = mark_name_from_rid(pid, &unused_mark);
       printf("from %s\n", zMark);
       free(zMark);
       db_prepare(&q4,
@@ -499,7 +538,7 @@ void export_cmd(void){
         " ORDER BY pid",
         ckinId);
       while( db_step(&q4)==SQLITE_ROW ){
-        zMark = mark_name_from_rid(db_column_int(&q4, 0));
+        zMark = mark_name_from_rid(db_column_int(&q4, 0), &unused_mark);
         printf("merge %s\n", zMark);
         free(zMark);
       }
@@ -521,13 +560,15 @@ void export_cmd(void){
       if( zNew==0)
         printf("D %s\n", zName);
       else if( bag_find(&blobs, zNew) ) {
+        zMark = mark_name_from_rid(zNew, &unused_mark);
         const char *zPerm;
         switch( mPerm ){
           case PERM_LNK:  zPerm = "120000";   break;
           case PERM_EXE:  zPerm = "100755";   break;
           default:        zPerm = "100644";   break;
         }
-        printf("M %s :%d %s\n", zPerm, BLOBMARK(zNew), zName);
+        printf("M %s %s %s\n", zPerm, zMark, zName);
+        free(zMark);
       }
     }
     db_finalize(&q4);
