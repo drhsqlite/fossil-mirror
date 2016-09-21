@@ -51,9 +51,9 @@ version control<br>such as Git, Mercurial, or Subversion.</b></p>
      <li><p>Projects change and evolve.  The whole purpose of version
          control is to track and manage that evolution.
      <li><p>Most projects consist of multiple files, but it is possible
-         have a project consisting of just a single file.
+         to have a project consisting of just a single file.
      <li><p>Fossil (and most other version control systems) requires that
-         all the files for a project be collected into a single
+         all the files for a project must be collected into a single
          directory hierarchy - a single folder possibly with layers
          of subfolders.  Fossil is not a good choice for managing a
          project that has files scattered hither and yon all over
@@ -87,11 +87,11 @@ version control<br>such as Git, Mercurial, or Subversion.</b></p>
       <li><p>Fossil works fine with just a single copy of the repository.
           But in that case there is no redundancy.  If that one repository
           file is lost due to a hardware malfunction, then there is no way
-          to recovery the project.
+          to recover the project.
       <li><p>Best practice is to keep all repositories for a user in a single
           folder.  Folders such as "~/Fossils" or "%USERPROFILE%\Fossils"
           are recommended.  Fossil itself does not care where the repositories
-          are stored.  Nor does Fossil require that repositories all be
+          are stored.  Nor does Fossil require repositories to be
           kept in the same folder.  But it is easier to organize your work
           if all repositories are kept in the same place.
       </ul>
@@ -170,7 +170,7 @@ version control<br>such as Git, Mercurial, or Subversion.</b></p>
   <li><p><b>sync</b> &rarr;
       Do both a "push" and a "pull" at the same time.
   <li><p><b>add</b> &rarr;
-      Add a new file to the local check-out.  The file must already
+      Add a new file to the local check-out.  The file must already be
       on disk.  This command tells Fossil to start tracking and managing
       the file.  This command affects only the local check-out and does
       not modify any repository.  The new file is inserted into the
