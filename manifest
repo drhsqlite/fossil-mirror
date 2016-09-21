@@ -1,5 +1,5 @@
-C Fix\sa\scouple\stypos.
-D 2016-09-21T03:00:24.081
+C Fix\sa\scouple\smore\stypos.
+D 2016-09-21T03:03:57.628
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -757,10 +757,10 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/unvers.wiki a75ea510c408c0bb83c396afbe72948b8b2202cd
 F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
-F www/whyusefossil.wiki fc7c5f8b4a1f66a1bd4d09f3d518e519b16cd5c2
+F www/whyusefossil.wiki a6f626ce40dc34ec0b86d564d85c34271c232ae5
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d8b18eb9afd248ec5ced8d97af1f7c22d9d55b4c
-R 46b645e3e6346b7bcbfe74db8d1594da
+P 680f3c1d08394418cb80cd29fa78cb74f29ce3a0
+R b521dd84fa11b1bfb6ac8c091378181f
 U mistachkin
-Z 3ffaa457b2d0081260a0cb616062eafc
+Z 0bb4aa0430648386c53cb80890bd9aad

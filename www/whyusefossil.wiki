@@ -36,7 +36,7 @@ version control<br>such as Git, Mercurial, or Subversion.</b></p>
      <li>Everyone always has the latest code
      <li>Failed disk-drives cause no loss of work
      <li>Avoid wasting time doing manual file copying
-     <li>Avoid human errors during manual backups.
+     <li>Avoid human errors during manual backups
      </ol>
   </ol>
 <li><p><b>Definitions</b></p>
@@ -95,7 +95,7 @@ version control<br>such as Git, Mercurial, or Subversion.</b></p>
           kept in the same folder.  But it is easier to organize your work
           if all repositories are kept in the same place.
       </ul>
-  <li><p><b>Checkout</b> &rarr;
+  <li><p><b>Check-out</b> &rarr;
       a set of files that have been extracted from a
       repository and that represent a particular version or snapshot of
       the project.
