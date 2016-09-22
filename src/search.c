@@ -1592,16 +1592,16 @@ static void search_update_checkin_index(void){
     "  WHERE type='c' AND NOT idxed;"
   );
   db_multi_exec(
-    "UPDATE ftsdocs"
-    " SET (idxed,name,label,url,mtime) = "
-    "  (SELECT 1, NULL,"
-    "    printf('Check-in [%%.16s] on %%s',blob.uuid,datetime(event.mtime)),"
-    "    printf('/timeline?y=ci&c=%%.20s',blob.uuid),"
-    "    event.mtime"
-    "   FROM event, blob"
-    "   WHERE event.objid=ftsdocs.rid"
-    "     AND blob.rid=ftsdocs.rid)"
-    "  WHERE ftsdocs.type='c' AND NOT ftsdocs.idxed"
+    "UPDATE ftsdocs SET idxed=1, name=NULL,"
+    " (label,url,mtime) = "
+    "  (SELECT printf('Check-in [%%.16s] on %%s',blob.uuid,"
+    "                 datetime(event.mtime)),"
+    "          printf('/timeline?y=ci&c=%%.20s',blob.uuid),"
+    "          event.mtime"
+    "     FROM event, blob"
+    "    WHERE event.objid=ftsdocs.rid"
+    "      AND blob.rid=ftsdocs.rid)"
+    "WHERE ftsdocs.type='c' AND NOT ftsdocs.idxed"
   );
 }
 
@@ -1616,15 +1616,15 @@ static void search_update_ticket_index(void){
   );
   if( db_changes()==0 ) return;
   db_multi_exec(
-    "REPLACE INTO ftsdocs(rowid,idxed,type,rid,name,label,url,mtime)"
-    "  SELECT ftsdocs.rowid, 1, 't', ftsdocs.rid, NULL,"
-    "    printf('Ticket: %%s (%%s)',title('t',tkt_id,null),"
-    "           datetime(tkt_mtime)),"
-    "    printf('/tktview/%%.20s',tkt_uuid),"
-    "    tkt_mtime"
-    "  FROM ftsdocs, ticket"
-    "  WHERE ftsdocs.type='t' AND NOT ftsdocs.idxed"
-    "    AND ticket.tkt_id=ftsdocs.rid"
+    "UPDATE ftsdocs SET idxed=1, name=NULL,"
+    "  (label,url,mtime) ="
+    "  (SELECT printf('Ticket: %%s (%%s)',title('t',tkt_id,null),"
+    "                 datetime(tkt_mtime)),"
+    "          printf('/tktview/%%.20s',tkt_uuid),"
+    "          tkt_mtime"
+    "     FROM ticket"
+    "    WHERE tkt_id=ftsdocs.rid)"
+    "WHERE ftsdocs.type='t' AND NOT ftsdocs.idxed"
   );
 }
 
@@ -1639,14 +1639,14 @@ static void search_update_wiki_index(void){
   );
   if( db_changes()==0 ) return;
   db_multi_exec(
-    "REPLACE INTO ftsdocs(rowid,idxed,type,rid,name,label,url,mtime)"
-    "  SELECT ftsdocs.rowid, 1, 'w', ftsdocs.rid, ftsdocs.name,"
-    "    'Wiki: '||ftsdocs.name,"
-    "    '/wiki?name='||urlencode(ftsdocs.name),"
-    "    tagxref.mtime"
-    "  FROM ftsdocs, tagxref"
-    "  WHERE ftsdocs.type='w' AND NOT ftsdocs.idxed"
-    "    AND tagxref.rid=ftsdocs.rid"
+    "UPDATE ftsdocs SET idxed=1,"
+    "  (name,label,url,mtime) = "
+    "    (SELECT ftsdocs.name,"
+    "            'Wiki: '||ftsdocs.name,"
+    "            '/wiki?name='||urlencode(ftsdocs.name),"
+    "            tagxref.mtime"
+    "       FROM tagxref WHERE tagxref.rid=ftsdocs.rid)"
+    " WHERE ftsdocs.type='w' AND NOT ftsdocs.idxed"
   );
 }
 

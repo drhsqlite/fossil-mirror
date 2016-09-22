@@ -1,5 +1,5 @@
-C Fix\sthe\s"fossil\sfts-config\sreindex"\scommand\sso\sthat\sit\sreally\sdoes\sreindex\neverything.\s\sFix\sthe\smarkdown\sHTML\sformatter\sso\sthat\sit\scan\sbe\srun\sfrom\sthe\ncommand-line.\s\sChange\sa\squery\sin\sthe\ssearch\sengine\sto\suse\sa\srow-value\supdate,\nin\sorder\sto\sbeta-test\sthe\snew\srow-value\supdate\smechanism\sof\sSQLite.
-D 2016-09-22T20:55:54.872
+C More\suse\sof\srow-values\sin\sthe\ssearch\smechanism.
+D 2016-09-22T21:14:53.524
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -475,7 +475,7 @@ F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c 650149d0abc88d23c8571b64f3dfba23197bec2b
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
-F src/search.c 87a414c4d612984bca738a8617be10b156fb21ee
+F src/search.c e5d6a82db484f0e004a51278744ed0092f503923
 F src/setup.c ea2dd3e6ea0d0fe41ae4f16d362c9f8812955f96
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
 F src/shell.c b80396d2fadce4681397707e30078bf416e1dec2
@@ -760,7 +760,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki 6c0f800bdec70724af09b6f9c6272c5efbe355b9
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 60426fbcdd3bf06d6e929d698445cd7baca1da60
-R b39abeb67ff2dfb5a42f8230f1304dc8
+P b1b4eaa5644e7e20994f1aff383cb29fa2e5d4c9
+R 93c93506066908f8a17ba3dc292c79ce
 U drh
-Z d12a05a820d9539e6360322d7efca7c1
+Z 4b9eaf0db0458ba986c90fdeeca30fe6
