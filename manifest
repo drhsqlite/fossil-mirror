@@ -1,5 +1,5 @@
-C Update\sto\sthe\slatest\sSQLite\s3.15.0\sbeta\sfor\stesting.\s\sAdjust\sthe\sSQLite\ncompilation\sto\suse\sthe\s"lean"\sconfiguration.
-D 2016-09-22T19:47:27.444
+C Update\scustom\sMinGW\smakefile.
+D 2016-09-22T20:02:01.254
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -638,7 +638,7 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F win/Makefile.PellesCGMake e6b5bfbf54e07271b48f697fb534db835bf22734
 F win/Makefile.dmc 449cd12f68165054e4b2a416c5b7e8fb0ad92d1b
 F win/Makefile.mingw ad1813303077a6780a568ec802a68e505bc432fd
-F win/Makefile.mingw.mistachkin 2972a52b4672970ac700e80a45733214395bc575
+F win/Makefile.mingw.mistachkin 5724bcd76cd9487c6eb34aa0c4ab0dc4564addeb
 F win/Makefile.msc 39a1cbc4b372dedaba180113e0d27fe11a070f02
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -760,7 +760,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki 6c0f800bdec70724af09b6f9c6272c5efbe355b9
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 16b7a0ebc3b2e83f185849acb8effa4f5fad8e4c
-R d41565a5744ac9b7b31e994469325048
-U drh
-Z 5600fab1709b9a80ef84ca617140d6e7
+P 121201eb35eeeaaa23f2c1edd3ea1614ff0528ce
+R c645eda05b133501ac8100f8bb8adf95
+U mistachkin
+Z a457bae53a4f631594e92d26bd58406e
