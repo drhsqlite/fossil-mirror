@@ -1592,15 +1592,16 @@ static void search_update_checkin_index(void){
     "  WHERE type='c' AND NOT idxed;"
   );
   db_multi_exec(
-    "REPLACE INTO ftsdocs(rowid,idxed,type,rid,name,label,url,mtime)"
-    "  SELECT ftsdocs.rowid, 1, 'c', ftsdocs.rid, NULL,"
+    "UPDATE ftsdocs"
+    " SET (idxed,name,label,url,mtime) = "
+    "  (SELECT 1, NULL,"
     "    printf('Check-in [%%.16s] on %%s',blob.uuid,datetime(event.mtime)),"
     "    printf('/timeline?y=ci&c=%%.20s',blob.uuid),"
     "    event.mtime"
-    "  FROM ftsdocs, event, blob"
+    "   FROM event, blob"
+    "   WHERE event.objid=ftsdocs.rid"
+    "     AND blob.rid=ftsdocs.rid)"
     "  WHERE ftsdocs.type='c' AND NOT ftsdocs.idxed"
-    "    AND event.objid=ftsdocs.rid"
-    "    AND blob.rid=ftsdocs.rid"
   );
 }
 
@@ -1706,7 +1707,7 @@ void search_rebuild_index(void){
 ** The current search settings are displayed after any changes are applied.
 ** Run this command with no arguments to simply see the settings.
 */
-void test_fts_cmd(void){
+void fts_config_cmd(void){
   static const struct { int iCmd; const char *z; } aCmd[] = {
      { 1,  "reindex"  },
      { 2,  "index"    },
@@ -1741,6 +1742,9 @@ void test_fts_cmd(void){
     }
     iCmd = aCmd[i].iCmd;
   }
+  g.perm.Read = 1;
+  g.perm.RdTkt = 1;
+  g.perm.RdWiki = 1;
   if( iCmd==1 ){
     if( search_index_exists() ) iAction = 2;
   }
