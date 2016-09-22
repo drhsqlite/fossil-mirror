@@ -1,5 +1,5 @@
-C Update\sreferenced\sOpenSSL\sversion.
-D 2016-09-22T17:58:05.173
+C Update\sto\sthe\slatest\sSQLite\s3.15.0\sbeta\sfor\stesting.\s\sAdjust\sthe\sSQLite\ncompilation\sto\suse\sthe\s"lean"\sconfiguration.
+D 2016-09-22T19:47:27.444
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -445,10 +445,10 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 597ae479d42096c07d6e6f85f1d844ebb46089b3
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
 F src/main.c 4882a728e162ae9a730418b380dbfb5167efdc13
-F src/main.mk 9668cf26a3ef3a1eac8c62c61fffc591dc0aad16
+F src/main.mk 1caea8e08377b259f23e0e4836cb50d79be9edbe
 F src/makeheaders.c e8444028f575e84075e46cf47f2080fa6d2c2115
 F src/makeheaders.html 06decb89c665feb897540613d7d12527eb65dfe5
-F src/makemake.tcl b0b186054b4e03a83b38b010dfc0d744066dd994
+F src/makemake.tcl b55c1ba1e69ebd0b76c7e4b3711f081db5dfe0cd
 F src/manifest.c e037d26b34ec3631288032bf06fd79f188e115da
 F src/markdown.c 887bb75edb1cfc94d9206aef38ad11dec2bc4266
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
@@ -478,13 +478,13 @@ F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c 36783ae66c3b319763b3efda0516d693a3c65ade
 F src/setup.c ea2dd3e6ea0d0fe41ae4f16d362c9f8812955f96
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
-F src/shell.c de7c7e98846cacbfbe062cbd98bca899dfb720e3
+F src/shell.c b80396d2fadce4681397707e30078bf416e1dec2
 F src/shun.c 7d0a7eeffdf515b2d78919408fe42e7142a9b532
 F src/sitemap.c b7c376b21d29322741c804e1f762b34aedb98ad1
 F src/skins.c 524384aafbe9e7707d3b87f42ee72fa63fe91796
 F src/sqlcmd.c a7dce974ba7afde541ed58df98bebce335ed75a5
-F src/sqlite3.c 14ca3d20b6ceb7fb4e66c5a42b9eed41a16671f9
-F src/sqlite3.h 6e81b3a43b63d949904a38a1c24f57a08a8c1417
+F src/sqlite3.c 6129bad66161d7b97337b75e66cac1938602c876
+F src/sqlite3.h bd5acfef7e951393ded71f4d5bd1a61495b82b0b
 F src/stash.c ced32acae9b125f723c6473f30cdfdf8b530dc37
 F src/stat.c 6a6e24276497f62d4574ac181ab15ba19471caa7
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
@@ -635,11 +635,11 @@ F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil-autocomplete.bash 1135105ee18b95823944e2fa425806d3bc0f4252
 F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
-F win/Makefile.PellesCGMake 3889967985cbed1fcd6603685196c13b316d7b56
-F win/Makefile.dmc e19e62c732cb103312ee10746edc9929fb9b4100
-F win/Makefile.mingw 52818f0bdb3a983140ed330f15fadb82884025d7
+F win/Makefile.PellesCGMake e6b5bfbf54e07271b48f697fb534db835bf22734
+F win/Makefile.dmc 449cd12f68165054e4b2a416c5b7e8fb0ad92d1b
+F win/Makefile.mingw ad1813303077a6780a568ec802a68e505bc432fd
 F win/Makefile.mingw.mistachkin 2972a52b4672970ac700e80a45733214395bc575
-F win/Makefile.msc ca456a7e0115387d7b9055c87ef76f3854ed4c7a
+F win/Makefile.msc 39a1cbc4b372dedaba180113e0d27fe11a070f02
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -760,7 +760,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki 6c0f800bdec70724af09b6f9c6272c5efbe355b9
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d8c917eebad1e94b82053cb5f092f1558e1bb72a
-R 5cf5824bb369ebce5e2a6d4f03b08496
-U mistachkin
-Z 3c4179ad3bfafdf2df3e8819f8877966
+P 16b7a0ebc3b2e83f185849acb8effa4f5fad8e4c
+R d41565a5744ac9b7b31e994469325048
+U drh
+Z 5600fab1709b9a80ef84ca617140d6e7
