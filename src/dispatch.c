@@ -34,7 +34,7 @@ struct CmdOrPage {
   const char *zName;       /* Name.  Webpages start with "/". Commands do not */
   void (*xFunc)(void);     /* Function that implements the command or webpage */
   const char *zHelp;       /* Raw help text */
-  unsigned eCmdFlags;      /* Flags */
+  unsigned int eCmdFlags;  /* Flags */
 };
 
 /***************************************************************************
