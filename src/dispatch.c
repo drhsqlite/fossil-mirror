@@ -180,6 +180,32 @@ void test_all_help_cmd(void){
 }
 
 /*
+** Attempt to reformat plain-text help into HTML for display on a webpage.
+**
+** The HTML output is appended to Blob pHtml, which should already be
+** initialized.
+*/
+static void help_to_html(const char *zHelp, Blob *pHtml){
+  char *s;
+  char *d;
+  char *z;
+
+  /* Transform "%fossil" into just "fossil" */
+  z = s = d = mprintf("%s", zHelp);
+  while( *s ){
+    if( *s=='%' && strncmp(s, "%fossil", 7)==0 ){
+      s++;
+    }else{
+      *d++ = *s++;
+    }
+  }
+  *d = 0;
+
+  blob_appendf(pHtml, "<pre>\n%h\n</pre>\n", z);
+  fossil_free(z);
+}
+
+/*
 ** WEBPAGE: help
 ** URL: /help?name=CMD
 **
@@ -193,7 +219,6 @@ void help_page(void){
   style_header("Command-line Help");
   if( zCmd ){
     int rc;
-    char *z, *s, *d;
     const CmdOrPage *pCmd = 0;
 
     style_submenu_element("Command-List", "Command-List", "%s/help", g.zTop);
@@ -210,23 +235,12 @@ void help_page(void){
     }else if( rc==2 ){
       @ ambiguous command prefix: %s(zCmd)
     }else{
-      z = (char*)pCmd->zHelp;
-      if( z[0]==0 ){
+      if( pCmd->zHelp[0]==0 ){
         @ no help available for the %s(pCmd->zName) command
       }else{
-        z=s=d=mprintf("%s",z);
-        while( *s ){
-          if( *s=='%' && strncmp(s, "%fossil", 7)==0 ){
-            s++;
-          }else{
-            *d++ = *s++;
-          }
-        }
-        *d = 0;
-        @ <blockquote><pre>
-        @ %h(z)
-        @ </pre></blockquote>
-        fossil_free(z);
+        @ <blockquote>
+        help_to_html(pCmd->zHelp, cgi_output_blob());
+        @ </blockquote>
       }
     }
   }else{
@@ -333,9 +347,9 @@ void test_all_help_page(void){
   for(i=0; i<MX_COMMAND; i++){
     if( memcmp(aCommand[i].zName, "test", 4)==0 ) continue;
     @ <h2>%s(aCommand[i].zName):</h2>
-    @ <blockquote><pre>
-    @ %h(aCommand[i].zHelp)
-    @ </pre></blockquote>
+    @ <blockquote>
+    help_to_html(aCommand[i].zHelp, cgi_output_blob());
+    @ </blockquote>
   }
   style_footer();
 }

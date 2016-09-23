@@ -1,5 +1,5 @@
-C Clarify\sthe\sexact\stype\sused\sfor\scmdFlags.
-D 2016-09-23T02:10:46.793
+C Add\sthe\shelp_to_html()\sroutine\swhich\stransforms\splaintext\shelp\sinto\sHTML\sfor\ndisplay\son\sweb\spages.\s\sSo\sfar\sit\sonly\ssurrounds\sthe\stext\swith\s\n&lt;pre&gt;..&lt;/pre&gt;.\s\sBut\sit\scan\s(in\stheory)\sbe\senhanced\sto\sdo\smore\nsophisticated\sformatting.
+D 2016-09-23T13:53:25.831
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -406,7 +406,7 @@ F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
 F src/diff.c 188128a31bb3761d950e9e4a07fa95dea0c98b06
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 3759afcedb06bb0d76844e0b724cd28b36ede262
-F src/dispatch.c 16b2448660577475ca1b3eaa427c5773479373bb
+F src/dispatch.c 5bac4dbd13dbd3d6284e4f91341d404c8cb1d96c
 F src/doc.c f46ada466f90f12ee7b5c6078808fdfc4dedb183
 F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
 F src/event.c 6909284d77a688d63cc67b7b0929b8dda5397742
@@ -763,7 +763,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki 6c0f800bdec70724af09b6f9c6272c5efbe355b9
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a29e05d1ef0456764ceb93b8e3639d1ace84774c
-R 3af2937599dcefa431f32dfb3452bfe5
-U mistachkin
-Z 842693383f5a29c92efba61cbb06698e
+P 3ca2bc105a9c9a253c35b95571fce1db52aa5455
+R cc57ecd82145460affa7a771bfe6af78
+U drh
+Z bdd4b50687e29e43490580af97765158
