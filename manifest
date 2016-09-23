@@ -1,5 +1,5 @@
-C Merge\supdates\sfrom\strunk.
-D 2016-09-23T02:40:56.273
+C Coding\sstyle\stweaks.
+D 2016-09-23T02:46:48.648
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -410,7 +410,7 @@ F src/dispatch.c 16b2448660577475ca1b3eaa427c5773479373bb
 F src/doc.c f46ada466f90f12ee7b5c6078808fdfc4dedb183
 F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
 F src/event.c 6909284d77a688d63cc67b7b0929b8dda5397742
-F src/export.c 4c140f1f0ff9eb6ff0a50e4ff0198b860d03a7c4
+F src/export.c 37884a109fba338a1bc7ea0a3debb88e484f3afd
 F src/file.c c1b31491b3a5d3ee010ef3f41491bcdc500a4161
 F src/finfo.c ea4e48b5081bfae079c3b001fdd63f677d006767
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
@@ -423,7 +423,7 @@ F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c c38d7bff255b35cc7cfe13405b67c32878f9d838
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
-F src/import.c 1935508c3e4af6b9ae667b219213f84f13a18e69
+F src/import.c fdcbb80b692877f173f28c0cd1bb9e7b10c5069f
 F src/info.c a120fe39440d7994528d400c0adbcdb040f7b5ee
 F src/json.c dc2c7f146357683da2842cc84eb78a73221a80ba
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
@@ -763,7 +763,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki 6c0f800bdec70724af09b6f9c6272c5efbe355b9
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 69668f8c57a081b40ab195295326e42bd845a5fb 3ca2bc105a9c9a253c35b95571fce1db52aa5455
-R 28ffc451b6c0222b9a1d463f0d99d391
+P 98f4ee8f71b67adf374fa1024b6e3b49d9f4f91f
+R e98e2a875f47b3916947cde08ff90942
 U mistachkin
-Z 75dd5b12f8a130e5dca332f61adb6928
+Z 5e8d6fa37f0fc1cb899d373e2b9e08c1

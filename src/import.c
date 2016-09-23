@@ -1772,7 +1772,7 @@ void import_cmd(void){
       if( !f ){
         fossil_fatal("cannot open %s for reading\n", markfile_in);
       }
-      if(import_marks(f, &blobs, NULL, NULL)<0){
+      if( import_marks(f, &blobs, NULL, NULL)<0 ){
         fossil_fatal("error importing marks from file: %s\n", markfile_in);
       }
       fclose(f);
