@@ -176,12 +176,12 @@ int login_is_valid_anonymous(
 */
 void create_accesslog_table(void){
   db_multi_exec(
-    "CREATE TABLE IF NOT EXISTS %s.accesslog("
+    "CREATE TABLE IF NOT EXISTS repository.accesslog("
     "  uname TEXT,"
     "  ipaddr TEXT,"
     "  success BOOLEAN,"
     "  mtime TIMESTAMP"
-    ");", db_name("repository")
+    ");"
   );
 }
 
@@ -395,6 +395,13 @@ static int isHuman(const char *zAgent){
   }
   if( strncmp(zAgent, "Mozilla/", 8)==0 ){
     if( atoi(&zAgent[8])<4 ) return 0;  /* Many bots advertise as Mozilla/3 */
+
+    /* 2016-05-30:  A pernicious spider that likes to walk Fossil timelines has
+    ** been detected on the SQLite website.  The spider changes its user-agent
+    ** string frequently, but it always seems to include the following text:
+    */
+    if( sqlite3_strglob("*Safari/537.36Mozilla/5.0*", zAgent)==0 ) return 0;
+
     if( sqlite3_strglob("*Firefox/[1-9]*", zAgent)==0 ) return 1;
     if( sqlite3_strglob("*Chrome/[1-9]*", zAgent)==0 ) return 1;
     if( sqlite3_strglob("*(compatible;?MSIE?[1789]*", zAgent)==0 ) return 1;
@@ -990,17 +997,24 @@ void login_check_credentials(void){
   if( fossil_strcmp(g.zLogin,"nobody")==0 ){
     g.zLogin = 0;
   }
-  g.isHuman = g.zLogin==0 ? isHuman(P("HTTP_USER_AGENT")) : 1;
+  if( PB("isrobot") ){
+    g.isHuman = 0;
+  }else if( g.zLogin==0 ){
+    g.isHuman = isHuman(P("HTTP_USER_AGENT"));
+  }else{
+    g.isHuman = 1;
+  }
 
   /* Set the capabilities */
   login_replace_capabilities(zCap, 0);
-  login_set_anon_nobody_capabilities();
 
   /* The auto-hyperlink setting allows hyperlinks to be displayed for users
   ** who do not have the "h" permission as long as their UserAgent string
   ** makes it appear that they are human.  Check to see if auto-hyperlink is
   ** enabled for this repository and make appropriate adjustments to the
-  ** permission flags if it is.
+  ** permission flags if it is.  This should be done before the permissions
+  ** are (potentially) copied to the anonymous permission set; otherwise,
+  ** those will be out-of-sync.
   */
   if( zCap[0]
    && !g.perm.Hyperlink
@@ -1010,6 +1024,16 @@ void login_check_credentials(void){
     g.perm.Hyperlink = 1;
     g.javascriptHyperlink = 1;
   }
+
+  /*
+  ** At this point, the capabilities for the logged in user are not going
+  ** to be modified anymore; therefore, we can copy them over to the ones
+  ** for the anonymous user.
+  **
+  ** WARNING: In the future, please do not add code after this point that
+  **          modifies the capabilities for the logged in user.
+  */
+  login_set_anon_nobody_capabilities();
 
   /* If the public-pages glob pattern is defined and REQUEST_URI matches
   ** one of the globs in public-pages, then also add in all default-perms
@@ -1084,7 +1108,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
                              p->NewTkt = p->Password = p->RdAddr =
                              p->TktFmt = p->Attach = p->ApndTkt =
                              p->ModWiki = p->ModTkt = p->Delete =
-                             p->Private = 1;
+                             p->WrUnver = p->Private = 1;
                              /* Fall thru into Read/Write */
       case 'i':   p->Read = p->Write = 1;                      break;
       case 'o':   p->Read = 1;                                 break;
@@ -1111,6 +1135,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
       case 't':   p->TktFmt = 1;                               break;
       case 'b':   p->Attach = 1;                               break;
       case 'x':   p->Private = 1;                              break;
+      case 'y':   p->WrUnver = 1;                              break;
 
       /* The "u" privileges is a little different.  It recursively
       ** inherits all privileges of the user named "reader" */
@@ -1182,7 +1207,7 @@ int login_has_capability(const char *zCap, int nCap, u32 flgs){
       /* case 'v': DEVELOPER */
       case 'w':  rc = p->WrTkt;     break;
       case 'x':  rc = p->Private;   break;
-      /* case 'y': */
+      case 'y':  rc = p->WrUnver;   break;
       case 'z':  rc = p->Zip;       break;
       default:   rc = 0;            break;
     }
@@ -1543,7 +1568,7 @@ void login_group_join(
   const char *zSelf;         /* The ATTACH name of our repository */
 
   *pzErrMsg = 0;   /* Default to no errors */
-  zSelf = db_name("repository");
+  zSelf = "repository";
 
   /* Get the full pathname of the other repository */
   file_canonical_name(zRepo, &fullName, 0);

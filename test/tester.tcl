@@ -189,6 +189,118 @@ proc write_file_indented {filename txt} {
   write_file $filename [string trim [string map [list "\n  " \n] $txt]]\n
 }
 
+# Returns the list of all supported versionable settings.
+#
+proc get_versionable_settings {} {
+  #
+  # TODO: If the list of supported versionable settings in "db.c" is modified,
+  #       this list (and procedure) most likely needs to be modified as well.
+  #
+  set result [list \
+      allow-symlinks \
+      binary-glob \
+      clean-glob \
+      crnl-glob \
+      dotfiles \
+      empty-dirs \
+      encoding-glob \
+      ignore-glob \
+      keep-glob \
+      manifest \
+      th1-setup \
+      th1-uri-regexp]
+
+  fossil test-th-eval "hasfeature tcl"
+
+  if {$::RESULT eq "1"} {
+    lappend result tcl-setup
+  }
+
+  return [lsort -dictionary $result]
+}
+
+# Returns the list of all supported settings.
+#
+proc get_all_settings {} {
+  #
+  # TODO: If the list of supported settings in "db.c" is modified, this list
+  #       (and procedure) most likely needs to be modified as well.
+  #
+  set result [list \
+      access-log \
+      admin-log \
+      allow-symlinks \
+      auto-captcha \
+      auto-hyperlink \
+      auto-shun \
+      autosync \
+      autosync-tries \
+      binary-glob \
+      case-sensitive \
+      clean-glob \
+      clearsign \
+      crnl-glob \
+      default-perms \
+      diff-binary \
+      diff-command \
+      dont-push \
+      dotfiles \
+      editor \
+      empty-dirs \
+      encoding-glob \
+      exec-rel-paths \
+      gdiff-command \
+      gmerge-command \
+      hash-digits \
+      http-port \
+      https-login \
+      ignore-glob \
+      keep-glob \
+      localauth \
+      main-branch \
+      manifest \
+      max-loadavg \
+      max-upload \
+      mtime-changes \
+      pgp-command \
+      proxy \
+      relative-paths \
+      repo-cksum \
+      self-register \
+      ssh-command \
+      ssl-ca-location \
+      ssl-identity \
+      th1-setup \
+      th1-uri-regexp \
+      web-browser]
+
+  fossil test-th-eval "hasfeature legacyMvRm"
+
+  if {$::RESULT eq "1"} {
+    lappend result mv-rm-files
+  }
+
+  fossil test-th-eval "hasfeature tcl"
+
+  if {$::RESULT eq "1"} {
+    lappend result tcl tcl-setup
+  }
+
+  fossil test-th-eval "hasfeature th1Docs"
+
+  if {$::RESULT eq "1"} {
+    lappend result th1-docs
+  }
+
+  fossil test-th-eval "hasfeature th1Hooks"
+
+  if {$::RESULT eq "1"} {
+    lappend result th1-hooks
+  }
+
+  return [lsort -dictionary $result]
+}
+
 # Return true if two files are the same
 #
 proc same_file {a b} {
@@ -656,6 +768,11 @@ proc getSeqNo {} {
 # fixup the whitespace in the result to make it easier to compare.
 proc normalize_result {} {
   return [string map [list \r\n \n] [string trim $::RESULT]]
+}
+
+# fixup the line-endings in the result to make it easier to compare.
+proc normalize_result_no_trim {} {
+  return [string map [list \r\n \n] $::RESULT]
 }
 
 # returns the first line of the normalized result.

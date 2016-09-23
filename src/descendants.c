@@ -198,7 +198,7 @@ void compute_direct_ancestors(int rid){
     "  UNION ALL"
     "  SELECT plink.pid, g.i+1 FROM plink, g"
     "   WHERE plink.cid=g.x AND plink.isprim)"
-    "INSERT INTO ancestor(rid,generation) SELECT x,i FROM g;", 
+    "INSERT INTO ancestor(rid,generation) SELECT x,i FROM g;",
     rid
   );
 }

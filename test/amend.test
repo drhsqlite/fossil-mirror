@@ -306,7 +306,7 @@ foreach {tagt result} $tagtests {
   set t2exp "*"
   set t3exp "*"
   set t5exp "*"
-  foreach tag $tagt { 
+  foreach tag $tagt {
     lappend tags -tag $tag
     lappend cancels -cancel $tag
   }

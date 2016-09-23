@@ -3,10 +3,11 @@
 # Run this TCL script to generate a WIKI page that contains a
 # permuted index of the various documentation files.
 #
-#    tclsh mkindex.tcl 
+#    tclsh mkindex.tcl
 #
 
 set doclist {
+  aboutcgi.wiki {How CGI Works In Fossil}
   adding_code.wiki {Adding New Features To Fossil}
   adding_code.wiki {Hacking Fossil}
   antibot.wiki {Defense against Spiders and Bots}
@@ -14,9 +15,10 @@ set doclist {
   branching.wiki {Branching, Forking, Merging, and Tagging}
   bugtheory.wiki {Bug Tracking In Fossil}
   build.wiki {Compiling and Installing Fossil}
+  changes.wiki {Fossil Changelog}
   checkin_names.wiki {Check-in And Version Names}
   checkin.wiki {Check-in Checklist}
-  changes.wiki {Fossil Changelog}
+  childprojects.wiki {Child Projects}
   copyright-release.html {Contributor License Agreement}
   concepts.wiki {Fossil Core Concepts}
   contribute.wiki {Contributing Code or Documentation To The Fossil Project}
@@ -26,6 +28,7 @@ set doclist {
   delta_encoder_algorithm.wiki {Fossil Delta Encoding Algorithm}
   delta_format.wiki {Fossil Delta Format}
   embeddeddoc.wiki {Embedded Project Documentation}
+  encryptedrepos.wiki {How To Use Encrypted Repositories}
   env-opts.md {Environment Variables and Global Options}
   event.wiki {Events}
   faq.wiki {Frequently Asked Questions}
@@ -35,10 +38,12 @@ set doclist {
   fossil-from-msvc.wiki {Integrating Fossil in the Microsoft Express 2010 IDE}
   fossil-v-git.wiki {Fossil Versus Git}
   hacker-howto.wiki {Hacker How-To}
+  /help {Lists of Commands and Webpages}
   hints.wiki {Fossil Tips And Usage Hints}
   index.wiki {Home Page}
   inout.wiki {Import And Export To And From Git}
   makefile.wiki {The Fossil Build Process}
+  /md_rules {Markdown Formatting Rules}
   newrepo.wiki {How To Create A New Fossil Repository}
   password.wiki {Password Management And Authentication}
   pop.wiki {Principles Of Operations}
@@ -53,6 +58,7 @@ set doclist {
   selfhost.wiki {Fossil Self Hosting Repositories}
   server.wiki {How To Configure A Fossil Server}
   settings.wiki {Fossil Settings}
+  /sitemap {Site Map}
   shunning.wiki {Shunning: Deleting Content From Fossil}
   stats.wiki {Performance Statistics}
   style.wiki {Source Code Style Guidelines}
@@ -64,9 +70,13 @@ set doclist {
   th1.md {The TH1 Scripting Language}
   tickets.wiki {The Fossil Ticket System}
   theory1.wiki {Thoughts On The Design Of The Fossil DVCS}
+  unvers.wiki {Unversioned Files}
   webpage-ex.md {Webpage Examples}
   webui.wiki {The Fossil Web Interface}
+  whyusefossil.wiki {Why You Should Use Fossil}
+  whyusefossil.wiki {Benefits Of Version Control}
   wikitheory.wiki {Wiki In Fossil}
+  /wiki_rules {Wiki Formatting Rules}
 }
 
 set permindex {}
@@ -111,6 +121,7 @@ book</a>
 <ul>}
 foreach entry $permindex {
   foreach {title file} $entry break
+  if {[string match /* $file]} {set file ../../..$file}
   puts $out "<li><a href=\"$file\">$title</a></li>"
 }
 puts $out "</ul></div>"

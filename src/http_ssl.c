@@ -296,7 +296,7 @@ int ssl_open(UrlData *pUrlData){
 
   if( !pUrlData->useProxy ){
     BIO_set_conn_hostname(iBio, pUrlData->name);
-    BIO_set_conn_int_port(iBio, &pUrlData->port);
+    BIO_ctrl(iBio,BIO_C_SET_CONNECT,3,(char *)&pUrlData->port);
     if( BIO_do_connect(iBio)<=0 ){
       ssl_set_errmsg("SSL: cannot connect to host %s:%d (%s)",
           pUrlData->name, pUrlData->port, ERR_reason_error_string(ERR_get_error()));
@@ -391,7 +391,7 @@ int ssl_open(UrlData *pUrlData){
   */
   {
     /* IPv4 only code */
-    const unsigned char *ip = (const unsigned char *) BIO_get_conn_ip(iBio);
+    const unsigned char *ip = (const unsigned char *) BIO_ptr_ctrl(iBio,BIO_C_GET_CONNECT,2);
     g.zIpAddr = mprintf("%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
   }
 

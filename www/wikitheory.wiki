@@ -1,42 +1,24 @@
 <title>Wiki In Fossil</title>
 <h2>Introduction</h2>
 
-Fossil uses [/wiki_rules | wiki markup] for many things:
+Fossil uses [/wiki_rules | Fossil wiki markup] and/or
+[/md_rules | Markdown markup] for many things:
 
    *  Stand-alone wiki pages.
    *  Description and comments in [./bugtheory.wiki | bug reports].
    *  Check-in comments.
    *  [./embeddeddoc.wiki | Embedded documentation] files whose
-      name ends in ".wiki".
+      name ends in ".wiki" or ".md" or ".markdown".
    *  [./event.wiki | Technical notes].
 
-The [/wiki_rules | formatting rules] for fossil wiki
+The [/wiki_rules | formatting rules for fossil wiki]
 are designed to be simple and intuitive.  The idea is that wiki provides
 paragraph breaks, numbered and bulleted lists, and hyperlinking for
 simple documents together with a safe subset of HTML for more complex
 formatting tasks.
 
-Some commentators feel that the use of HTML is a mistake and that
-fossil should use the markup language of the
-<i>fill-in-your-favorite</i> wiki engine instead.  That approach
-was considered but was rejected for the following reasons:
-
-  1.  There is no standard wiki markup language.  Every wiki engine does
-      it a little differently.
-
-  2.  The wiki markup used by fossil, though limited, is common to most
-      other wiki engines, is intuitive, and is sufficient for 90% of
-      all formatting tasks.
-
-  3.  Where the fossil wiki markup language is insufficient, HTML is
-      used.  HTML is a standard language familiar to most programmers so
-      there is nothing new to learn.  And, though cumbersome, the HTML
-      does not need to be used very often so is not a burden.
-
-UPDATE: Since 2012, Fossil also contains a [/md_rules | Markdown]
-rendering engine.  Markdown can optionally be used to format 
-[./embeddeddoc.wiki | embedded documents], wiki pages, 
-[./event.wiki | technical notes], and bug report text.
+The [/md_rules | Markdown formatting rules] are more complex, but
+are also more widely known, and are thus provided as an alternative.
 
 <h2>Stand-alone Wiki Pages</h2>
 
@@ -60,8 +42,9 @@ of type [./fileformat.wiki#wikichng | "Wiki Page"].
 
 <h2>Embedded Documentation</h2>
 
-Files in the source tree that use the ".wiki" suffix can be accessed
-and displayed using special URLs to the fossil server.  This allows
+Files in the source tree that use the ".wiki", ".md", or ".markdown" suffixes
+can be accessed and displayed using special URLs to the fossil server.  
+This allows
 project documentation to be stored in the source tree and accessed 
 online.  (Details are described [./embeddeddoc.wiki | separately].)
 
@@ -70,7 +53,7 @@ wrong with that.  But other projects prefer to keep documentation as part
 of the source tree, so that it is versioned along with the source tree and
 so that only developers with check-in privileges can change it.  
 Embedded documentation serves this latter purpose.  Both forms of documentation
-use the exact same wiki markup language.  Some projects may choose to
+use the exact same markup.  Some projects may choose to
 use both forms of documentation at the same time.  Because the same
 format is used, it is trivial to move a file from wiki to embedded documentation
 or back again as the project evolves.

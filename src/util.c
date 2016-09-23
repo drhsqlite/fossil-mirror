@@ -399,3 +399,52 @@ int fossil_all_whitespace(const char *z){
   while( fossil_isspace(z[0]) ){ z++; }
   return z[0]==0;
 }
+
+/*
+** Return the name of the users preferred text editor.  Return NULL if
+** not found.
+**
+** Search algorithm:
+** (1) The local "editor" setting
+** (2) The global "editor" setting
+** (3) The VISUAL environment variable
+** (4) The EDITOR environment variable
+** (5) (Windows only:) "notepad.exe"
+*/
+const char *fossil_text_editor(void){
+  const char *zEditor = db_get("editor", 0);
+  if( zEditor==0 ){
+    zEditor = fossil_getenv("VISUAL");
+  }
+  if( zEditor==0 ){
+    zEditor = fossil_getenv("EDITOR");
+  }
+#if defined(_WIN32) || defined(__CYGWIN__)
+  if( zEditor==0 ){
+    zEditor = mprintf("%s\\notepad.exe", fossil_getenv("SYSTEMROOT"));
+#if defined(__CYGWIN__)
+    zEditor = fossil_utf8_to_path(zEditor, 0);
+#endif
+  }
+#endif
+  return zEditor;
+}
+
+/*
+** Construct a temporary filename.
+**
+** The returned string is obtained from sqlite3_malloc() and must be
+** freed by the caller.
+*/
+char *fossil_temp_filename(void){
+  char *zTFile = 0;
+  sqlite3 *db;
+  if( g.db ){
+    db = g.db;
+  }else{
+    sqlite3_open("",&db);
+  }
+  sqlite3_file_control(db, 0, SQLITE_FCNTL_TEMPFILENAME, (void*)&zTFile);
+  if( g.db==0 ) sqlite3_close(db);
+  return zTFile;
+}

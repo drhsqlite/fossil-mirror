@@ -66,6 +66,11 @@ other examples.
      href='$ROOT/timeline?u=drh&c=2014-01-08&y=ci'>Example</a>
      Show check-ins circa 2014-01-08 by user "drh".
 
+  *  <a target='_blank' class='exbtn'
+     href='$ROOT/timeline?from=version-1.34&to=version-1.35&chng=src/timeline.c,src/doc.c'>Example</a>
+     Show all check-ins between version-1.34 and version-1.35 that make
+     changes to either of the files src/timeline.c or src/doc.c.
+
      <big><b>&rarr;</b></big> (Hint:  In the pages above, click the graph nodes
      for any two check-ins or files to see a diff.)
      <big><b>&larr;</b></big>
@@ -121,3 +126,7 @@ other examples.
   *  <a target='_blank' class='exbtn'
      href='$ROOT/hash-collisions'>Example</a>
      SHA1 prefix collisions
+
+  *  <a target='_blank' class='exbtn'
+     href='$ROOT/sitemap'>Example</a>
+     The "sitemap" containing links to many other pages

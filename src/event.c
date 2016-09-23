@@ -61,7 +61,7 @@ void hyperlink_to_event_tagid(int tagid){
 **  v=BOOLEAN         Show details if TRUE.  Default is FALSE.  Optional.
 **
 ** Display an existing tech-note identified by its ID, optionally at a
-** specific version, and optionally with additional details. 
+** specific version, and optionally with additional details.
 */
 void event_page(void){
   int rid = 0;             /* rid of the event artifact */
@@ -157,7 +157,7 @@ void event_page(void){
     style_submenu_element("Edit", 0, "%R/technoteedit?name=%!S", zId);
     if( g.perm.Attach ){
       style_submenu_element("Attach", "Add an attachment",
-           "%R/attachadd?technote=%!S&from=%R/technote/%!S", 
+           "%R/attachadd?technote=%!S&from=%R/technote/%!S",
            zId, zId);
     }
   }
@@ -237,7 +237,7 @@ void event_page(void){
 
 /*
 ** Add or update a new tech note to the repository.  rid is id of
-** the prior version of this technote, if any. 
+** the prior version of this technote, if any.
 **
 ** returns 1 if the tech note was added or updated, 0 if the
 ** update failed making an invalid artifact
@@ -268,7 +268,7 @@ int event_commit_common(
   zDate = date_in_standard_format("now");
   blob_appendf(&event, "D %s\n", zDate);
   free(zDate);
-  
+
   zETime[10] = 'T';
   blob_appendf(&event, "E %s %s\n", zETime, zId);
   zETime[10] = ' ';

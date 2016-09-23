@@ -311,7 +311,7 @@ void filezip_cmd(void){
 **
 ** If RID is for an object that is not a real manifest, then the
 ** resulting ZIP archive contains a single file which is the RID
-** object.
+** object.  The pInclude and pExclude parameters are ignored in this case.
 **
 ** If the RID object does not exist in the repository, then
 ** pZip is zeroed.
@@ -323,7 +323,13 @@ void filezip_cmd(void){
 ** with source files. For example, pass a UUID or "ProjectName".
 **
 */
-void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
+void zip_of_checkin(
+  int rid,            /* The RID of the checkin to construct the ZIP archive from */
+  Blob *pZip,         /* Write the ZIP archive content into this blob */
+  const char *zDir,   /* Top-level directory of the ZIP archive */
+  Glob *pInclude,     /* Only include files that match this pattern */
+  Glob *pExclude      /* Exclude files that match this pattern */
+){
   Blob mfile, hash, file;
   Manifest *pManifest;
   ManifestFile *pFile;
@@ -348,7 +354,10 @@ void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
   if( pManifest ){
     char *zName;
     zip_set_timedate(pManifest->rDate);
-    if( db_get_boolean("manifest", 0) ){
+    if( (pInclude==0 || glob_match(pInclude, "manifest"))
+     && !glob_match(pExclude, "manifest")
+     && db_get_boolean("manifest", 0)
+    ){
       blob_append(&filename, "manifest", -1);
       zName = blob_str(&filename);
       zip_add_folders(zName);
@@ -365,7 +374,10 @@ void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
     }
     manifest_file_rewind(pManifest);
     while( (pFile = manifest_file_next(pManifest,0))!=0 ){
-      int fid = uuid_to_rid(pFile->zUuid, 0);
+      int fid;
+      if( pInclude!=0 && !glob_match(pInclude, pFile->zName) ) continue;
+      if( glob_match(pExclude, pFile->zName) ) continue;
+      fid = uuid_to_rid(pFile->zUuid, 0);
       if( fid ){
         content_get(fid, &file);
         blob_resize(&filename, nPrefix);
@@ -387,19 +399,38 @@ void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
 /*
 ** COMMAND: zip*
 **
-** Usage: %fossil zip VERSION OUTPUTFILE [--name DIRECTORYNAME] [-R|--repository REPO]
+** Usage: %fossil zip VERSION OUTPUTFILE [OPTIONS]
 **
-** Generate a ZIP archive for a specified version.  If the --name option is
+** Generate a ZIP archive for a check-in.  If the --name option is
 ** used, its argument becomes the name of the top-level directory in the
 ** resulting ZIP archive.  If --name is omitted, the top-level directory
-** named is derived from the project name, the check-in date and time, and
+** name is derived from the project name, the check-in date and time, and
 ** the artifact ID of the check-in.
+**
+** The GLOBLIST argument to --exclude and --include can be a comma-separated
+** list of glob patterns, where each glob pattern may optionally be enclosed
+** in "..." or '...' so that it may contain commas.  If a file matches both
+** --include and --exclude then it is excluded.
+**
+** Options:
+**   -X|--exclude GLOBLIST   Comma-separated list of GLOBs of files to exclude
+**   --include GLOBLIST      Comma-separated list of GLOBs of files to include
+**   --name DIRECTORYNAME    The name of the top-level directory in the archive
+**   -R REPOSITORY           Specify a Fossil repository
 */
-void baseline_zip_cmd(void){
+void zip_cmd(void){
   int rid;
   Blob zip;
   const char *zName;
+  Glob *pInclude = 0;
+  Glob *pExclude = 0;
+  const char *zInclude;
+  const char *zExclude;
   zName = find_option("name", 0, 1);
+  zExclude = find_option("exclude", "X", 1);
+  if( zExclude ) pExclude = glob_create(zExclude);
+  zInclude = find_option("include", 0, 1);
+  if( zInclude ) pInclude = glob_create(zInclude);
   db_find_and_open_repository(0, 0);
 
   /* We should be done with options.. */
@@ -408,7 +439,12 @@ void baseline_zip_cmd(void){
   if( g.argc!=4 ){
     usage("VERSION OUTPUTFILE");
   }
-  rid = name_to_typed_rid(g.argv[2],"ci");
+  rid = name_to_typed_rid(g.argv[2], "ci");
+  if( rid==0 ){
+    fossil_fatal("Check-in not found: %s", g.argv[2]);
+    return;
+  }
+
   if( zName==0 ){
     zName = db_text("default-name",
        "SELECT replace(%Q,' ','_') "
@@ -420,34 +456,48 @@ void baseline_zip_cmd(void){
        db_get("project-name", "unnamed"), rid, rid
     );
   }
-  zip_of_baseline(rid, &zip, zName);
+  zip_of_checkin(rid, &zip, zName, pInclude, pExclude);
+  glob_free(pInclude);
+  glob_free(pExclude);
   blob_write_to_file(&zip, g.argv[3]);
+  blob_reset(&zip);
 }
 
 /*
 ** WEBPAGE: zip
-** URL: /zip/RID.zip
+** URL: /zip
 **
-** Generate a ZIP archive for the baseline.
-** Return that ZIP archive as the HTTP reply content.
+** Generate a ZIP archive for the check-in specified by the "uuid"
+** query parameter.  Return that ZIP archive as the HTTP reply content.
 **
-** Optional URL Parameters:
+** Query parameters:
 **
-** - name=NAME[.zip] is the name of the output file. Defaults to
-** something project/version-specific. The base part of the
-** name, up to the last dot, is used as the top-most directory
-** name in the output file.
+**   name=NAME[.zip]     The base name of the output file.  The default
+**                       value is a configuration parameter in the project
+**                       settings.  A prefix of the name, omitting the
+**                       extension, is used as the top-most directory name.
 **
-** - uuid=the version to zip (may be a tag/branch name).
-** Defaults to "trunk".
+**   uuid=TAG            The check-in that is turned into a ZIP archive.
+**                       Defaults to "trunk".
 **
+**   in=PATTERN          Only include files that match the comma-separate
+**                       list of GLOB patterns in PATTERN, as with ex=
+**
+**   ex=PATTERN          Omit any file that match PATTERN.  PATTERN is a
+**                       comma-separated list of GLOB patterns, where each
+**                       pattern can optionally be quoted using ".." or '..'.
+**                       Any file matching both ex= and in= is excluded.
 */
 void baseline_zip_page(void){
   int rid;
-  char *zName, *zRid;
+  char *zName, *zRid, *zKey;
   int nName, nRid;
-  Blob zip;
-  char *zKey;
+  const char *zInclude;         /* The in= query parameter */
+  const char *zExclude;         /* The ex= query parameter */
+  Blob cacheKey;                /* The key to cache */
+  Glob *pInclude = 0;           /* The compiled in= glob pattern */
+  Glob *pExclude = 0;           /* The compiled ex= glob pattern */
+  Blob zip;                     /* ZIP archive accumulated here */
 
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
@@ -456,6 +506,10 @@ void baseline_zip_page(void){
   nName = strlen(zName);
   zRid = mprintf("%s", PD("uuid","trunk"));
   nRid = strlen(zRid);
+  zInclude = P("in");
+  if( zInclude ) pInclude = glob_create(zInclude);
+  zExclude = P("ex");
+  if( zExclude ) pExclude = glob_create(zExclude);
   if( nName>4 && fossil_strcmp(&zName[nName-4], ".zip")==0 ){
     /* Special case:  Remove the ".zip" suffix.  */
     nName -= 4;
@@ -470,9 +524,33 @@ void baseline_zip_page(void){
       }
     }
   }
-  rid = name_to_typed_rid(nRid?zRid:zName,"ci");
+  rid = name_to_typed_rid(nRid?zRid:zName, "ci");
   if( rid==0 ){
     @ Not found
+    return;
+  }
+  if( nRid==0 && nName>10 ) zName[10] = 0;
+
+  /* Compute a unique key for the cache entry based on query parameters */
+  blob_init(&cacheKey, 0, 0);
+  blob_appendf(&cacheKey, "/zip/%z", rid_to_uuid(rid));
+  blob_appendf(&cacheKey, "/%q", zName);
+  if( zInclude ) blob_appendf(&cacheKey, ",in=%Q", zInclude);
+  if( zExclude ) blob_appendf(&cacheKey, ",ex=%Q", zExclude);
+  zKey = blob_str(&cacheKey);
+
+  if( P("debug")!=0 ){
+    style_header("ZIP Archive Generator Debug Screen");
+    @ zName = "%h(zName)"<br />
+    @ rid = %d(rid)<br />
+    if( zInclude ){
+      @ zInclude = "%h(zInclude)"<br />
+    }
+    if( zExclude ){
+      @ zExclude = "%h(zExclude)"<br />
+    }
+    @ zKey = "%h(zKey)"
+    style_footer();
     return;
   }
   if( referred_from_login() ){
@@ -486,16 +564,16 @@ void baseline_zip_page(void){
     style_footer();
     return;
   }
-  if( nRid==0 && nName>10 ) zName[10] = 0;
-  zKey = db_text(0, "SELECT '/zip/'||uuid||'/%q' FROM blob WHERE rid=%d",zName,rid);
   blob_zero(&zip);
   if( cache_read(&zip, zKey)==0 ){
-    zip_of_baseline(rid, &zip, zName);
+    zip_of_checkin(rid, &zip, zName, pInclude, pExclude);
     cache_write(&zip, zKey);
   }
-  fossil_free( zName );
-  fossil_free( zRid );
-  fossil_free( zKey );
+  glob_free(pInclude);
+  glob_free(pExclude);
+  fossil_free(zName);
+  fossil_free(zRid);
+  blob_reset(&cacheKey);
   cgi_set_content(&zip);
   cgi_set_content_type("application/zip");
 }

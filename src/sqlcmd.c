@@ -144,7 +144,6 @@ static int sqlcmd_autoinit(
   db_add_aux_functions(db);
   re_add_sql_func(db);
   search_sql_setup(db);
-  g.zMainDbType = "repository";
   foci_register(db);
   g.repositoryOpen = 1;
   g.db = db;
@@ -167,7 +166,7 @@ static int sqlcmd_autoinit(
 **
 ** WARNING:  Careless use of this command can corrupt a Fossil repository
 ** in ways that are unrecoverable.  Be sure you know what you are doing before
-** running any SQL commands that modifies the repository database.
+** running any SQL commands that modify the repository database.
 **
 ** The following extensions to the usual SQLite commands are provided:
 **
@@ -190,13 +189,9 @@ static int sqlcmd_autoinit(
 **    REGEXP                    The REGEXP operator works, unlike in
 **                              standard SQLite.
 **
-**    files_of_checkin          The "files_of_checkin" virtual table is
-**                              available for decoding manifests.
-**
-** Usage example for files_of_checkin:
-**
-**     CREATE VIRTUAL TABLE temp.foci USING files_of_checkin;
-**     SELECT * FROM foci WHERE checkinID=symbolic_name_to_rid('trunk');
+**    files_of_checkin(X)       A table-valued function that returns info on
+**                              all files contained in check-in X.  Example:
+**                                SELECT * FROM files_of_checkin('trunk');
 */
 void cmd_sqlite3(void){
   int noRepository;
@@ -229,7 +224,6 @@ void fossil_close(int bDb, int noRepository){
   if( bDb ) db_close(1);
   if( noRepository ) g.zRepositoryName = 0;
   g.db = 0;
-  g.zMainDbType = 0;
   g.repositoryOpen = 0;
   g.localOpen = 0;
 }

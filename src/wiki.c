@@ -139,7 +139,7 @@ static const char *const azStyles[] = {
 */
 const char *wiki_filter_mimetypes(const char *zMimetype){
   if( zMimetype!=0 ){
-    int i;    
+    int i;
     for(i=0; i<sizeof(azStyles)/sizeof(azStyles[0]); i+=3){
       if( fossil_strcmp(zMimetype,azStyles[i+2])==0 ){
         return azStyles[i];
@@ -684,7 +684,7 @@ static void appendRemark(Blob *p, const char *zMimetype){
   zUser = PD("u",g.zLogin);
   if( fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0 ){
     zId = db_text(0, "SELECT lower(hex(randomblob(8)))");
-    blob_appendf(p, "\n\n<hr><div id=\"%s\"><i>On %s UTC %h",
+    blob_appendf(p, "\n\n<hr /><div id=\"%s\"><i>On %s UTC %h",
       zId, zDate, login_name());
     if( zUser[0] && fossil_strcmp(zUser,login_name()) ){
       blob_appendf(p, " (claiming to be %h)", zUser);
@@ -805,9 +805,9 @@ void wikiappend_page(void){
     Blob preview;
     blob_zero(&preview);
     appendRemark(&preview, zMimetype);
-    @ Preview:<hr>
+    @ Preview:<hr />
     wiki_render_by_mimetype(&preview, zMimetype);
-    @ <hr>
+    @ <hr />
     blob_reset(&preview);
   }
   zUser = PD("u", g.zLogin);
@@ -1169,18 +1169,18 @@ int wiki_technote_to_rid(const char *zETime) {
 ** Run various subcommands to work with wiki entries or tech notes.
 **
 **    %fossil wiki export PAGENAME ?FILE?
-**    %fossil wiki export ?FILE? -t|--technote DATETIME|TECHNOTE-ID 
+**    %fossil wiki export ?FILE? -t|--technote DATETIME|TECHNOTE-ID
 **
 **       Sends the latest version of either a wiki page or of a tech note
-**       to the given file or standard output. 
+**       to the given file or standard output.
 **       If PAGENAME is provided, the wiki page will be output. For
-**       a tech note either DATETIME or TECHNOTE-ID must be specified. If 
+**       a tech note either DATETIME or TECHNOTE-ID must be specified. If
 **       DATETIME is used, the most recently modified tech note with that
 **       DATETIME will be sent.
 **
 **    %fossil wiki (create|commit) PAGENAME ?FILE? ?OPTIONS?
-**              
-**       Create a new or commit changes to an existing wiki page or 
+**
+**       Create a new or commit changes to an existing wiki page or
 **       technote from FILE or from standard input. PAGENAME is the
 **       name of the wiki entry or the timeline comment of the
 **       technote.
@@ -1210,7 +1210,7 @@ int wiki_technote_to_rid(const char *zETime) {
 **    %fossil wiki ls ?OPTIONS?
 **
 **       Lists all wiki entries, one per line, ordered
-**       case-insensitively by name. 
+**       case-insensitively by name.
 **
 **       Options:
 **         -t|--technote               Technotes will be listed instead of
@@ -1222,6 +1222,12 @@ int wiki_technote_to_rid(const char *zETime) {
 **                                     id will be the first word on each line.
 **                                     This option only applies if the
 **                                     --technote option is also specified.
+**
+** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
+** year-month-day form, it may be truncated, the "T" may be replaced by
+** a space, and it may also name a timezone offset from UTC as "-HH:MM"
+** (westward) or "+HH:MM" (eastward). Either no timezone suffix or "Z"
+** means UTC.
 **
 */
 void wiki_cmd(void){
@@ -1310,7 +1316,7 @@ void wiki_cmd(void){
     }
     if( !zMimeType || !*zMimeType ){
       /* Try to deduce the mime type based on the prior version. */
-      if ( !zETime ){ 
+      if ( !zETime ){
         rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
                      " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
                      " ORDER BY x.mtime DESC LIMIT 1",
@@ -1336,7 +1342,7 @@ void wiki_cmd(void){
       }else{
         /* Creating a tech note with same timestamp is permitted
            and should create a new tech note */
-        rid = 0; 
+        rid = 0;
       }
     }else if( g.argv[2][1]=='o' && rid == 0 ){
       if ( !zETime ){
@@ -1398,7 +1404,7 @@ void wiki_cmd(void){
         " ORDER BY e.mtime DESC /*sort*/"
       );
     }
-  
+
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       if( showIds ){
@@ -1415,4 +1421,23 @@ void wiki_cmd(void){
 
 wiki_cmd_usage:
   usage("export|create|commit|list ...");
+}
+
+/*
+** COMMAND: test-markdown-render
+**
+** Usage: %fossil test-markdown-render FILE
+**
+** Render markdown wiki from FILE to stdout.
+**
+*/
+void test_markdown_render(void){
+  Blob in, out;
+  db_find_and_open_repository(0,0);
+  verify_all_options();
+  if( g.argc!=3 ) usage("FILE");
+  blob_zero(&out);
+  blob_read_from_file(&in, g.argv[2]);
+  markdown_to_html(&in, 0, &out);
+  blob_write_to_file(&out, "-");
 }

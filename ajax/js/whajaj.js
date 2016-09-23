@@ -12,18 +12,18 @@
     Author: Stephan Beal (http://wanderinghorse.net/home/stephan/)
 
     License: Public Domain
-    
-    This framework is directly derived from code originally found in 
-    http://code.google.com/p/jsonmessage, and later in 
-    http://whiki.wanderinghorse.net, where it contained quite a bit 
-    of application-specific logic. It was eventually (the 3rd time i 
-    needed it) split off into its own library to simplify inclusion 
+
+    This framework is directly derived from code originally found in
+    http://code.google.com/p/jsonmessage, and later in
+    http://whiki.wanderinghorse.net, where it contained quite a bit
+    of application-specific logic. It was eventually (the 3rd time i
+    needed it) split off into its own library to simplify inclusion
     into my many mini-projects.
 */
 
 
 /**
-    The WhAjaj function is primarily a namespace, and not intended 
+    The WhAjaj function is primarily a namespace, and not intended
     to called or instantiated via the 'new' operator.
 */
 function WhAjaj()
@@ -38,7 +38,7 @@ WhAjaj.msTimestamp = function()
 
 /** Returns a Unix Epoch timestamp (in seconds) in integer format.
 
-    Reminder to self: (1.1 %1.2) evaluates to a floating-point value 
+    Reminder to self: (1.1 %1.2) evaluates to a floating-point value
     in JS, and thus this implementation is less than optimal.
 */
 WhAjaj.unixTimestamp = function()
@@ -90,18 +90,18 @@ WhAjaj.isFunction = function(obj)
 /**
     Parses window.location.search-style string into an object
     containing key/value pairs of URL arguments (already urldecoded).
-    
-    If the str argument is not passed (arguments.length==0) then 
-    window.location.search.substring(1) is used by default. If 
+
+    If the str argument is not passed (arguments.length==0) then
+    window.location.search.substring(1) is used by default. If
     neither str is passed in nor window exists then false is returned.
 
     On success it returns an Object containing the key/value pairs
     parsed from the string. Keys which have no value are treated
     has having the boolean true value.
-    
+
     FIXME: for keys in the form "name[]", build an array of results,
     like PHP does.
- 
+
 */
 WhAjaj.processUrlArgs = function(str) {
     if( 0 === arguments.length ) {
@@ -129,7 +129,7 @@ WhAjaj.processUrlArgs = function(str) {
     preferred values for the 2nd and 3rd parameters. To globally
     set its indentation level, assign WhAjaj.stringify.indent to
     an integer value (0 for no intendation).
-    
+
     This function is intended only for human-readable output, not
     generic over-the-wire JSON output (where JSON.stringify(val) will
     produce smaller results).
@@ -140,30 +140,30 @@ WhAjaj.stringify = function(val) {
 };
 
 /**
-    Each instance of this class holds state information for making 
-    AJAJ requests to a back-end system. While clients may use one 
+    Each instance of this class holds state information for making
+    AJAJ requests to a back-end system. While clients may use one
     "requester" object per connection attempt, for connections to the
-    same back-end, using an instance configured for that back-end 
-    can simplify usage. This class is designed so that the actual 
-    connection-related details (i.e. _how_ it connects to the 
-    back-end) may be re-implemented to use a client's preferred 
+    same back-end, using an instance configured for that back-end
+    can simplify usage. This class is designed so that the actual
+    connection-related details (i.e. _how_ it connects to the
+    back-end) may be re-implemented to use a client's preferred
     connection mechanism (e.g. jQuery).
-    
-    The optional opt paramater may be an object with any (or all) of 
-    the properties documented for WhAjaj.Connector.options.ajax. 
-    Properties set here (or later via modification of the "options" 
-    property of this object) will be used in calls to 
+
+    The optional opt paramater may be an object with any (or all) of
+    the properties documented for WhAjaj.Connector.options.ajax.
+    Properties set here (or later via modification of the "options"
+    property of this object) will be used in calls to
     WhAjaj.Connector.sendRequest(), and these override (normally) any
-    options set in WhAjaj.Connector.options.ajax. Note that 
-    WhAjaj.Connector.sendRequest() _also_ takes an options object, 
-    and ones passed there will override, for purposes of that one 
-    request, any options passed in here or defined in 
+    options set in WhAjaj.Connector.options.ajax. Note that
+    WhAjaj.Connector.sendRequest() _also_ takes an options object,
+    and ones passed there will override, for purposes of that one
+    request, any options passed in here or defined in
     WhAjaj.Connector.options.ajax. See WhAjaj.Connector.options.ajax
     and WhAjaj.Connector.prototype.sendRequest() for more details
     about the precedence of options.
-    
+
     Sample usage:
-    
+
     @code
     // Set up common connection-level options:
     var cgi = new WhAjaj.Connector({
@@ -187,7 +187,7 @@ WhAjaj.stringify = function(val) {
     For common request types, clients can add functions to this
     object which act as wrappers for backend-specific functionality. As
     a simple example:
-    
+
     @code
     cgi.login = function(name,pw,ajajOpt) {
         this.sendRequest(
@@ -197,11 +197,11 @@ WhAjaj.stringify = function(val) {
             }, ajajOpt );
     };
     @endcode
-    
+
     TODOs:
-    
+
     - Caching of page-load requests, with a configurable lifetime.
-    
+
     - Use-cases like the above login() function are a tiny bit
     problematic to implement when each request has a different URL
     path (i know this from the whiki and fossil implementations).
@@ -232,38 +232,38 @@ WhAjaj.Connector.options = {
     */
     requestIdPrefix:'WhAjaj.Connector-',
     /**
-        Default options for WhAjaj.Connector.sendRequest() connection 
-        parameters. This object holds only connection-related 
-        options and callbacks (all optional), and not options 
-        related to the required JSON structure of any given request. 
-        i.e. the page name used in a get-page request are not set 
+        Default options for WhAjaj.Connector.sendRequest() connection
+        parameters. This object holds only connection-related
+        options and callbacks (all optional), and not options
+        related to the required JSON structure of any given request.
+        i.e. the page name used in a get-page request are not set
         here but are specified as part of the request object.
 
-        These connection options are a "normalized form" of options 
-        often found in various AJAX libraries like jQuery, 
-        Prototype, dojo, etc. This approach allows us to swap out 
-        the real connection-related parts by writing a simple proxy 
-        which transforms our "normalized" form to the 
-        backend-specific form. For examples, see the various 
+        These connection options are a "normalized form" of options
+        often found in various AJAX libraries like jQuery,
+        Prototype, dojo, etc. This approach allows us to swap out
+        the real connection-related parts by writing a simple proxy
+        which transforms our "normalized" form to the
+        backend-specific form. For examples, see the various
         implementations stored in WhAjaj.Connector.sendImpls.
 
-        The following callback options are, in practice, almost 
+        The following callback options are, in practice, almost
         always set globally to some app-wide defaults:
 
         - onError() to report errors using a common mechanism.
         - beforeSend() to start a visual activity notification
         - afterSend() to disable the visual activity notification
 
-        However, be aware that if any given WhAjaj.Connector instance is 
-        given its own before/afterSend callback then those will 
+        However, be aware that if any given WhAjaj.Connector instance is
+        given its own before/afterSend callback then those will
         override these. Mixing shared/global and per-instance
         callbacks can potentially lead to confusing results if, e.g.,
         the beforeSend() and afterSend() functions have side-effects
         but are not used with their proper before/after partner.
-        
-        TODO: rename this to 'ajaj' (the name is historical). The 
-        problem with renaming it is is that the word 'ajax' is 
-        pretty prevelant in the source tree, so i can't globally 
+
+        TODO: rename this to 'ajaj' (the name is historical). The
+        problem with renaming it is is that the word 'ajax' is
+        pretty prevelant in the source tree, so i can't globally
         swap it out.
     */
     ajax: {
@@ -275,9 +275,9 @@ WhAjaj.Connector.options = {
         /**
             Connection method. Some connection-related functions might
             override any client-defined setting.
-            
-            Must be one of 'GET' or 'POST'. For custom connection 
-            implementation, it may optionally be some 
+
+            Must be one of 'GET' or 'POST'. For custom connection
+            implementation, it may optionally be some
             implementation-specified value.
 
             Normally the API can derive this value automatically - if the
@@ -286,33 +286,33 @@ WhAjaj.Connector.options = {
         method:'GET',
 
         /**
-            A hint whether to run the operation asynchronously or 
-            not. Not all concrete WhAjaj.Connector.sendImpl() 
-            implementations can support this. Interestingly, at 
-            least one popular AJAX toolkit does not document 
-            supporting _synchronous_ AJAX operations. All common 
-            browser-side implementations support async operation, but 
+            A hint whether to run the operation asynchronously or
+            not. Not all concrete WhAjaj.Connector.sendImpl()
+            implementations can support this. Interestingly, at
+            least one popular AJAX toolkit does not document
+            supporting _synchronous_ AJAX operations. All common
+            browser-side implementations support async operation, but
             non-browser implementations might not.
         */
         asynchronous:true,
 
         /**
-            A HTTP authentication login name for the AJAX 
-            connection. Not all concrete WhAjaj.Connector.sendImpl() 
+            A HTTP authentication login name for the AJAX
+            connection. Not all concrete WhAjaj.Connector.sendImpl()
             implementations can support this.
         */
         loginName:undefined,
 
         /**
-            An HTTP authentication login password for the AJAJ 
-            connection. Not all concrete WhAjaj.Connector.sendImpl() 
+            An HTTP authentication login password for the AJAJ
+            connection. Not all concrete WhAjaj.Connector.sendImpl()
             implementations can support this.
         */
         loginPassword:undefined,
 
         /**
-            A connection timeout, in milliseconds, for establishing 
-            an AJAJ connection. Not all concrete 
+            A connection timeout, in milliseconds, for establishing
+            an AJAJ connection. Not all concrete
             WhAjaj.Connector.sendImpl() implementations can support this.
         */
         timeout:10000,
@@ -330,7 +330,7 @@ WhAjaj.Connector.options = {
             callbacks (set in (WhAjaj.Connector instance).callbacks,
             require it in some cases (because their 'this' is
             different!).
-            
+
             Note that the response might contain error information
             which comes from the back-end. The difference between
             this error info and the info passed to the onError()
@@ -344,17 +344,17 @@ WhAjaj.Connector.options = {
         onResponse: function(response, request, opt){},
 
         /**
-            If an AJAX request fails to establish a connection or it 
-            receives non-JSON data from the back-end, this function 
-            is called (e.g. timeout error or host name not 
+            If an AJAX request fails to establish a connection or it
+            receives non-JSON data from the back-end, this function
+            is called (e.g. timeout error or host name not
             resolvable). It is passed the originating request and the
-            "normalized" connection parameters used for that 
-            request. The connectOpt object "should" (or "might") 
-            have an "errorMessage" property which describes the 
+            "normalized" connection parameters used for that
+            request. The connectOpt object "should" (or "might")
+            have an "errorMessage" property which describes the
             nature of the problem.
-            
-            Clients will almost always want to replace the default 
-            implementation with something which integrates into 
+
+            Clients will almost always want to replace the default
+            implementation with something which integrates into
             their application.
         */
         onError: function(request, connectOpt)
@@ -366,28 +366,28 @@ WhAjaj.Connector.options = {
         },
 
         /**
-            Called before each connection attempt is made. Clients 
+            Called before each connection attempt is made. Clients
             can use this to, e.g.,  enable a visual "network activity
-            notification" for the user. It is passed the original 
-            request object and the normalized connection parameters 
-            for the request. If this function changes opt, those 
-            changes _are_ applied to the subsequent request. If this 
-            function throws, neither the onError() nor afterSend() 
-            callbacks are triggered and WhAjaj.Connector.sendImpl() 
+            notification" for the user. It is passed the original
+            request object and the normalized connection parameters
+            for the request. If this function changes opt, those
+            changes _are_ applied to the subsequent request. If this
+            function throws, neither the onError() nor afterSend()
+            callbacks are triggered and WhAjaj.Connector.sendImpl()
             propagates the exception back to the caller.
         */
         beforeSend: function(request,opt){},
 
         /**
-            Called after an AJAJ connection attempt completes, 
-            regardless of success or failure. Passed the same 
-            parameters as beforeSend() (see that function for 
+            Called after an AJAJ connection attempt completes,
+            regardless of success or failure. Passed the same
+            parameters as beforeSend() (see that function for
             details).
-            
-            Here's an example of setting up a visual notification on 
-            ajax operations using jQuery (but it's also easy to do 
+
+            Here's an example of setting up a visual notification on
+            ajax operations using jQuery (but it's also easy to do
             without jQuery as well):
-            
+
             @code
             function startAjaxNotif(req,opt) {
                 var me = arguments.callee;
@@ -397,7 +397,7 @@ WhAjaj.Connector.options = {
             }
             startAjaxNotif.ajaxCount = 0.
             startAjaxNotif.element = jQuery('#whikiAjaxNotification');
-            
+
             function endAjaxNotif() {
                 var c = --startAjaxNotif.ajaxCount;
                 startAjaxNotif.element.text( c+" pending AJAX operation(s)..." );
@@ -405,8 +405,8 @@ WhAjaj.Connector.options = {
             }
             @endcode
 
-            Set the beforeSend/afterSend properties to those 
-            functions to enable the notifications by default.            
+            Set the beforeSend/afterSend properties to those
+            functions to enable the notifications by default.
         */
         afterSend: function(request,opt){},
 
@@ -415,7 +415,7 @@ WhAjaj.Connector.options = {
             handling code ASSUMES that the response contains a JSONP-style
             construct and eval()s it after afterSend() but before onResponse().
             In this case, onResponse() will get a string value for the response
-            instead of a response object parsed from JSON. 
+            instead of a response object parsed from JSON.
         */
         jsonp:undefined,
         /**
@@ -470,21 +470,21 @@ WhAjaj.Connector.prototype.derivedOption = function(key,opt) {
 };
 
 /**
-    Returns a unique string on each call containing a generic 
-    reandom request identifier string. This is not used by the core 
-    API but can be used by client code to generate unique IDs for 
+    Returns a unique string on each call containing a generic
+    reandom request identifier string. This is not used by the core
+    API but can be used by client code to generate unique IDs for
     each request (if needed).
 
     The exact format is unspecified and may change in the future.
 
-    Request IDs can be used by clients to "match up" responses to 
-    specific requests if needed. In practice, however, they are 
-    seldom, if ever, needed. When passing several concurrent 
-    requests through the same response callback, it might be useful 
-    for some clients to be able to distinguish, possibly re-routing 
+    Request IDs can be used by clients to "match up" responses to
+    specific requests if needed. In practice, however, they are
+    seldom, if ever, needed. When passing several concurrent
+    requests through the same response callback, it might be useful
+    for some clients to be able to distinguish, possibly re-routing
     them through other handlers based on the originating request type.
-    
-    If this.options.requestIdPrefix or 
+
+    If this.options.requestIdPrefix or
     WhAjaj.Connector.options.requestIdPrefix is set then that text
     is prefixed to the returned string.
 */
@@ -514,35 +514,35 @@ WhAjaj.Connector.prototype.addOptions = function(opt) {
 };
 
 /**
-    An internal helper object which holds several functions intended 
-    to simplify the creation of concrete communication channel 
+    An internal helper object which holds several functions intended
+    to simplify the creation of concrete communication channel
     implementations for WhAjaj.Connector.sendImpl(). These operations
     take care of some of the more error-prone parts of ensuring that
-    onResponse(), onError(), etc. callbacks are called consistently 
+    onResponse(), onError(), etc. callbacks are called consistently
     using the same rules.
 */
 WhAjaj.Connector.sendHelper = {
     /**
-        opt is assumed to be a normalized set of 
-        WhAjaj.Connector.sendRequest() options. This function 
-        creates a url by concatenating opt.url and some form of 
+        opt is assumed to be a normalized set of
+        WhAjaj.Connector.sendRequest() options. This function
+        creates a url by concatenating opt.url and some form of
         opt.urlParam.
-        
-        If opt.urlParam is an object or string then it is appended 
-        to the url. An object is assumed to be a one-dimensional set 
-        of simple (urlencodable) key/value pairs, and not larger 
-        data structures. A string value is assumed to be a 
-        well-formed, urlencoded set of key/value pairs separated by 
+
+        If opt.urlParam is an object or string then it is appended
+        to the url. An object is assumed to be a one-dimensional set
+        of simple (urlencodable) key/value pairs, and not larger
+        data structures. A string value is assumed to be a
+        well-formed, urlencoded set of key/value pairs separated by
         '&' characters.
-        
-        The new/normalized URL is returned (opt is not modified). If 
-        opt.urlParam is not set then opt.url is returned (or an 
+
+        The new/normalized URL is returned (opt is not modified). If
+        opt.urlParam is not set then opt.url is returned (or an
         empty string if opt.url is itself a false value).
-        
-        TODO: if opt is-a Object and any key points to an array, 
-        build up a list of keys in the form "keyname[]". We could 
-        arguably encode sub-objects like "keyname[subkey]=...", but 
-        i don't know if that's conventions-compatible with other 
+
+        TODO: if opt is-a Object and any key points to an array,
+        build up a list of keys in the form "keyname[]". We could
+        arguably encode sub-objects like "keyname[subkey]=...", but
+        i don't know if that's conventions-compatible with other
         frameworks.
     */
     normalizeURL: function(opt) {
@@ -566,33 +566,33 @@ WhAjaj.Connector.sendHelper = {
         return u;
     },
     /**
-        Should be called by WhAjaj.Connector.sendImpl() 
-        implementations after a response has come back. This 
-        function takes care of most of ensuring that framework-level 
-        conventions involving WhAjaj.Connector.options.ajax 
+        Should be called by WhAjaj.Connector.sendImpl()
+        implementations after a response has come back. This
+        function takes care of most of ensuring that framework-level
+        conventions involving WhAjaj.Connector.options.ajax
         properties are followed.
-        
-        The request argument must be the original request passed to 
+
+        The request argument must be the original request passed to
         the sendImpl() function. It may legally be null for GET requests.
-        
-        The opt object should be the normalized AJAX options used 
+
+        The opt object should be the normalized AJAX options used
         for the connection.
-        
-        The resp argument may be either a plain Object or a string 
+
+        The resp argument may be either a plain Object or a string
         (in which case it is assumed to be JSON).
 
         The 'this' object for this call MUST be a WhAjaj.Connector
         instance in order for callback processing to work properly.
-        
+
         This function takes care of the following:
-        
+
         - Calling opt.afterSend()
-        
+
         - If resp is a string, de-JSON-izing it to an object.
-        
+
         - Calling opt.onResponse()
-        
-        - Calling opt.onError() in several common (potential) error 
+
+        - Calling opt.onError() in several common (potential) error
         cases.
 
         - If resp is-a String and opt.jsonp then resp is assumed to be
@@ -601,11 +601,11 @@ WhAjaj.Connector.sendHelper = {
         integrates better with the non-jsonp handler.
 
         The sendImpl() should return immediately after calling this.
-        
-        The sendImpl() must call only one of onSendSuccess() or 
-        onSendError(). It must call one of them or it must implement 
-        its own response/error handling, which is not recommended 
-        because getting the documented semantics of the 
+
+        The sendImpl() must call only one of onSendSuccess() or
+        onSendError(). It must call one of them or it must implement
+        its own response/error handling, which is not recommended
+        because getting the documented semantics of the
         onError/onResponse/afterSend handling correct can be tedious.
     */
     onSendSuccess:function(request,resp,opt) {
@@ -668,19 +668,19 @@ WhAjaj.Connector.sendHelper = {
         reached). This function takes care of most of ensuring that
         framework-level conventions involving WhAjaj.Connector.options.ajax
         properties are followed.
-        
-        The request argument must be the original request passed to 
-        the sendImpl() function. It may legally be null for GET 
+
+        The request argument must be the original request passed to
+        the sendImpl() function. It may legally be null for GET
         requests.
 
         The 'this' object for this call MUST be a WhAjaj.Connector
         instance in order for callback processing to work properly.
-        
-        The opt object should be the normalized AJAX options used 
-        for the connection. By convention, the caller of this 
-        function "should" set opt.errorMessage to contain a 
+
+        The opt object should be the normalized AJAX options used
+        for the connection. By convention, the caller of this
+        function "should" set opt.errorMessage to contain a
         human-readable description of the error.
-        
+
         The sendImpl() should return immediately after calling this. The
         return value from this function is unspecified.
     */
@@ -706,60 +706,60 @@ WhAjaj.Connector.sendHelper = {
 };
 
 /**
-    WhAjaj.Connector.sendImpls holds several concrete 
-    implementations of WhAjaj.Connector.prototype.sendImpl(). To use 
-    a specific implementation by default assign 
+    WhAjaj.Connector.sendImpls holds several concrete
+    implementations of WhAjaj.Connector.prototype.sendImpl(). To use
+    a specific implementation by default assign
     WhAjaj.Connector.prototype.sendImpl to one of these functions.
-    
+
     The functions defined here require that the 'this' object be-a
     WhAjaj.Connector instance.
-    
+
     Historical notes:
 
-    a) We once had an implementation based on Prototype, but that 
-    library just pisses me off (they change base-most types' 
-    prototypes, introducing side-effects in client code which 
-    doesn't even use Prototype). The Prototype version at the time 
-    had a serious toJSON() bug which caused empty arrays to 
-    serialize as the string "[]", which broke a bunch of my code. 
-    (That has been fixed in the mean time, but i don't use 
+    a) We once had an implementation based on Prototype, but that
+    library just pisses me off (they change base-most types'
+    prototypes, introducing side-effects in client code which
+    doesn't even use Prototype). The Prototype version at the time
+    had a serious toJSON() bug which caused empty arrays to
+    serialize as the string "[]", which broke a bunch of my code.
+    (That has been fixed in the mean time, but i don't use
     Prototype.)
-    
-    b) We once had an implementation for the dojo library, 
-    
+
+    b) We once had an implementation for the dojo library,
+
     If/when the time comes to add Prototype/dojo support, we simply
     need to port:
-    
+
     http://code.google.com/p/jsonmessage/source/browse/trunk/lib/JSONMessage/JSONMessage.inc.js
-    
-    (search that file for "dojo" and "Prototype") to this tree. That 
-    code is this code's generic grandfather and they are still very 
-    similar, so a port is trivial.    
-    
+
+    (search that file for "dojo" and "Prototype") to this tree. That
+    code is this code's generic grandfather and they are still very
+    similar, so a port is trivial.
+
 */
 WhAjaj.Connector.sendImpls = {
     /**
-        This is a concrete implementation of 
-        WhAjaj.Connector.prototype.sendImpl() which uses the 
-        environment's native XMLHttpRequest class to send whiki 
+        This is a concrete implementation of
+        WhAjaj.Connector.prototype.sendImpl() which uses the
+        environment's native XMLHttpRequest class to send whiki
         requests and fetch the responses.
 
-        The only argument must be a connection properties object, as 
+        The only argument must be a connection properties object, as
         constructed by WhAjaj.Connector.normalizeAjaxParameters().
 
-        If window.firebug is set then window.firebug.watchXHR() is 
+        If window.firebug is set then window.firebug.watchXHR() is
         called to enable monitoring of the XMLHttpRequest object.
 
-        This implementation honors the loginName and loginPassword 
+        This implementation honors the loginName and loginPassword
         connection parameters.
 
         Returns the XMLHttpRequest object.
 
-        This implementation requires that the 'this' object be-a 
+        This implementation requires that the 'this' object be-a
         WhAjaj.Connector.
-        
-        This implementation uses setTimeout() to implement the 
-        timeout support, and thus the JS engine must provide that 
+
+        This implementation uses setTimeout() to implement the
+        timeout support, and thus the JS engine must provide that
         functionality.
     */
     XMLHttpRequest: function(request, args)
@@ -866,26 +866,26 @@ WhAjaj.Connector.sendImpls = {
         }
     }/*XMLHttpRequest()*/,
     /**
-        This is a concrete implementation of 
-        WhAjaj.Connector.prototype.sendImpl() which uses the jQuery 
+        This is a concrete implementation of
+        WhAjaj.Connector.prototype.sendImpl() which uses the jQuery
         AJAX API to send requests and fetch the responses.
 
-        The first argument may be either null/false, an Object 
+        The first argument may be either null/false, an Object
         containing toJSON-able data to post to the back-end, or such an
         object in JSON string form.
 
-        The second argument must be a connection properties object, as 
+        The second argument must be a connection properties object, as
         constructed by WhAjaj.Connector.normalizeAjaxParameters().
 
-        If window.firebug is set then window.firebug.watchXHR() is 
+        If window.firebug is set then window.firebug.watchXHR() is
         called to enable monitoring of the XMLHttpRequest object.
 
-        This implementation honors the loginName and loginPassword 
+        This implementation honors the loginName and loginPassword
         connection parameters.
 
         Returns the XMLHttpRequest object.
 
-        This implementation requires that the 'this' object be-a 
+        This implementation requires that the 'this' object be-a
         WhAjaj.Connector.
     */
     jQuery:function(request,args)
@@ -945,8 +945,8 @@ WhAjaj.Connector.sendImpls = {
         }
     }/*jQuery()*/,
     /**
-        This is a concrete implementation of 
-        WhAjaj.Connector.prototype.sendImpl() which uses the rhino 
+        This is a concrete implementation of
+        WhAjaj.Connector.prototype.sendImpl() which uses the rhino
         Java API to send requests and fetch the responses.
 
         Limitations vis-a-vis the interface:
@@ -1053,8 +1053,8 @@ WhAjaj.Connector.sendImpls = {
 };
 
 /**
-    An internal function which takes an object containing properties 
-    for a WhAjaj.Connector network request. This function creates a new 
+    An internal function which takes an object containing properties
+    for a WhAjaj.Connector network request. This function creates a new
     object containing a superset of the properties from:
 
     a) opt
@@ -1063,14 +1063,14 @@ WhAjaj.Connector.sendImpls = {
 
     in that order, using the first one it finds.
 
-    All non-function properties are _deeply_ copied via JSON cloning 
-    in order to prevent accidental "cross-request pollenation" (been 
-    there, done that). Functions cannot be cloned and are simply 
+    All non-function properties are _deeply_ copied via JSON cloning
+    in order to prevent accidental "cross-request pollenation" (been
+    there, done that). Functions cannot be cloned and are simply
     copied by reference.
-    
+
     This function throws if JSON-copying one of the options fails
     (e.g. due to cyclic data structures).
-    
+
     Reminder to self: this function does not "normalize" opt.urlParam
     by encoding it into opt.url, mainly for historical reasons, but
     also because that behaviour was specifically undesirable in this
@@ -1102,64 +1102,64 @@ WhAjaj.Connector.prototype.normalizeAjaxParameters = function (opt)
 };
 
 /**
-    This is the generic interface for making calls to a back-end 
-    JSON-producing request handler. It is a simple wrapper around 
-    WhAjaj.Connector.prototype.sendImpl(), which just normalizes the 
-    connection options for sendImpl() and makes sure that 
+    This is the generic interface for making calls to a back-end
+    JSON-producing request handler. It is a simple wrapper around
+    WhAjaj.Connector.prototype.sendImpl(), which just normalizes the
+    connection options for sendImpl() and makes sure that
     opt.beforeSend() is (possibly) called.
-    
-    The request parameter must either be false/null/empty or a 
-    fully-populated JSON-able request object (which will be sent as 
-    unencoded application/json text), depending on the type of 
-    request being made. It is never semantically legal (in this API) 
-    for request to be a string/number/true/array value. As a rule, 
-    only POST requests use the request data. GET requests should 
+
+    The request parameter must either be false/null/empty or a
+    fully-populated JSON-able request object (which will be sent as
+    unencoded application/json text), depending on the type of
+    request being made. It is never semantically legal (in this API)
+    for request to be a string/number/true/array value. As a rule,
+    only POST requests use the request data. GET requests should
     encode their data in opt.url or opt.urlParam (see below).
-    
-    opt must contain the network-related parameters for the request. 
-    Paramters _not_ set in opt are pulled from this.options or 
-    WhAjaj.Connector.options.ajax (in that order, using the first 
-    value it finds). Thus the set of connection-level options used 
+
+    opt must contain the network-related parameters for the request.
+    Paramters _not_ set in opt are pulled from this.options or
+    WhAjaj.Connector.options.ajax (in that order, using the first
+    value it finds). Thus the set of connection-level options used
     for the request are a superset of those various sources.
-    
-    The "normalized" (or "superimposed") opt object's URL may be 
+
+    The "normalized" (or "superimposed") opt object's URL may be
     modified before the request is sent, as follows:
 
-    if opt.urlParam is a string then it is assumed to be properly 
-    URL-encoded parameters and is appended to the opt.url. If it is 
-    an Object then it is assumed to be a one-dimensional set of 
-    key/value pairs with simple values (numbers, strings, booleans, 
-    null, and NOT objects/arrays). The keys/values are URL-encoded 
+    if opt.urlParam is a string then it is assumed to be properly
+    URL-encoded parameters and is appended to the opt.url. If it is
+    an Object then it is assumed to be a one-dimensional set of
+    key/value pairs with simple values (numbers, strings, booleans,
+    null, and NOT objects/arrays). The keys/values are URL-encoded
     and appended to the URL.
 
     The beforeSend() callback (see below) can modify the options
     object before the request attempt is made.
-   
+
     The callbacks in the normalized opt object will be triggered as
     follows (if they are set to Function values):
-    
-    - beforeSend(request,opt) will be called before any network 
-    processing starts. If beforeSend() throws then no other 
-    callbacks are triggered and this function propagates the 
+
+    - beforeSend(request,opt) will be called before any network
+    processing starts. If beforeSend() throws then no other
+    callbacks are triggered and this function propagates the
     exception. This function is passed normalized connection options
     as its second parameter, and changes this function makes to that
     object _will_ be used for the pending connection attempt.
-    
-    - onError(request,opt) will be called if a connection to the 
-    back-end cannot be established. It will be passed the original 
-    request object (which might be null, depending on the request 
-    type) and the normalized options object. In the error case, the 
-    opt object passed to onError() "should" have a property called 
+
+    - onError(request,opt) will be called if a connection to the
+    back-end cannot be established. It will be passed the original
+    request object (which might be null, depending on the request
+    type) and the normalized options object. In the error case, the
+    opt object passed to onError() "should" have a property called
     "errorMessage" which contains a description of the problem.
-    
-    - onError(request,opt) will also be called if connection 
+
+    - onError(request,opt) will also be called if connection
     succeeds but the response is not JSON data.
-    
-    - onResponse(response,request) will be called if the response 
-    returns JSON data. That data might hold an error response code - 
-    clients need to check for that. It is passed the response object 
+
+    - onResponse(response,request) will be called if the response
+    returns JSON data. That data might hold an error response code -
+    clients need to check for that. It is passed the response object
     (a plain object) and the original request object.
-    
+
     - afterSend(request,opt) will be called directly after the
     AJAX request is finished, before onError() or onResonse() are
     called. Possible TODO: we explicitly do NOT pass the response to
@@ -1181,10 +1181,10 @@ WhAjaj.Connector.prototype.sendRequest = function(request,opt)
     }
     var ex = false;
     var av = Array.prototype.slice.apply( arguments, [0] );
-    
+
     /**
-        FIXME: how to handle the error, vis-a-vis- the callbacks, if 
-        normalizeAjaxParameters() throws? It can throw if 
+        FIXME: how to handle the error, vis-a-vis- the callbacks, if
+        normalizeAjaxParameters() throws? It can throw if
         (de)JSON-izing fails.
     */
     var norm = this.normalizeAjaxParameters( WhAjaj.isObject(opt) ? opt : {} );

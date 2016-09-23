@@ -26,14 +26,6 @@
 #endif
 
 /*
-** The table of web pages supported by this application is generated
-** automatically by the "mkindex" program and written into a file
-** named "page_index.h".  We include that file here to get access
-** to the table.
-*/
-#include "page_index.h"
-
-/*
 ** Output a single entry for a menu generated using an HTML table.
 ** If zLink is not NULL or an empty string, then it is the page that
 ** the menu entry will hyperlink to.  If zLink is NULL or "", then
@@ -117,6 +109,8 @@ void setup_page(void){
     " changes and attachments.");
   setup_menu_entry("Ad-Unit", "setup_adunit",
     "Edit HTML text for an ad unit inserted after the menu bar");
+  setup_menu_entry("Web-Cache", "cachestat",
+    "View the status of the expensive-page cache");
   setup_menu_entry("Logo", "setup_logo",
     "Change the logo and background images for the server");
   setup_menu_entry("Shunned", "shun",
@@ -127,6 +121,8 @@ void setup_page(void){
     "A record of login attempts");
   setup_menu_entry("Administrative Log", "admin_log",
     "View the admin_log entries");
+  setup_menu_entry("Unversioned Files", "uvlist?byage=1",
+    "Show all unversioned files held");
   setup_menu_entry("Stats", "stat",
     "Repository Status Reports");
   setup_menu_entry("Sitemap", "sitemap",
@@ -160,7 +156,10 @@ void setup_ulist(void){
   style_submenu_element("Help", "Help", "setup_ulist_notes");
   style_header("User List");
   @ <table border=1 cellpadding=2 cellspacing=0 class='userTable'>
-  @ <thead><tr><th>UID <th>Category <th>Capabilities <th>Info <th>Last Change</tr></thead>
+  @ <thead><tr>
+  @   <th>UID <th>Category
+  @   <th>Capabilities (<a href='%R/setup_ucap_list'>key</a>)
+  @   <th>Info <th>Last Change</tr></thead>
   @ <tbody>
   db_prepare(&s,
      "SELECT uid, login, cap, date(mtime,'unixepoch')"
@@ -177,7 +176,7 @@ void setup_ulist(void){
     @ <td><a href='setup_uedit?id=%d(uid)'>%d(uid)</a>
     @ <td><a href='setup_uedit?id=%d(uid)'>%h(zLogin)</a>
     @ <td>%h(zCap)
-    
+
     if( fossil_strcmp(zLogin,"anonymous")==0 ){
       @ <td>All logged-in users
     }else if( fossil_strcmp(zLogin,"developer")==0 ){
@@ -236,17 +235,9 @@ void setup_ulist(void){
 }
 
 /*
-** WEBPAGE: setup_ulist_notes
-**
-** A documentation page showing notes about user configuration.  This information
-** used to be a side-bar on the user list page, but has been factored out for
-** improved presentation.
+** Render the user-capability table
 */
-void setup_ulist_notes(void){
-  style_header("User Configuration Notes");
-  @ <h1>User Configuration Notes:</h1>
-  @ <ol>
-  @ <li><p>The permission flags are as follows:</p>
+static void setup_usercap_table(void){
   @ <table>
      @ <tr><th valign="top">a</th>
      @   <td><i>Admin:</i> Create and delete users</td></tr>
@@ -299,11 +290,24 @@ void setup_ulist_notes(void){
      @   <td><i>Write-Tkt:</i> Edit tickets</td></tr>
      @ <tr><th valign="top">x</th>
      @   <td><i>Private:</i> Push and/or pull private branches</td></tr>
+     @ <tr><th valign="top">y</th>
+     @   <td><i>Write-Unver:</i> Push unversioned files</td></tr>
      @ <tr><th valign="top">z</th>
      @   <td><i>Zip download:</i> Download a ZIP archive or tarball</td></tr>
   @ </table>
-  @ </li>
-  @
+}
+
+/*
+** WEBPAGE: setup_ulist_notes
+**
+** A documentation page showing notes about user configuration.  This information
+** used to be a side-bar on the user list page, but has been factored out for
+** improved presentation.
+*/
+void setup_ulist_notes(void){
+  style_header("User Configuration Notes");
+  @ <h1>User Configuration Notes:</h1>
+  @ <ol>
   @ <li><p>
   @ Every user, logged in or not, inherits the privileges of
   @ <span class="usertype">nobody</span>.
@@ -319,16 +323,37 @@ void setup_ulist_notes(void){
   @ </p></li>
   @
   @ <li><p>
+  @ Users with privilege <span class="capability">u</span> inherit the combined
+  @ privileges of <span class="usertype">reader</span>,
+  @ <span class="usertype">anonymous</span>, and
+  @ <span class="usertype">nobody</span>.
+  @ </p></li>
+  @
+  @ <li><p>
   @ Users with privilege <span class="capability">v</span> inherit the combined
   @ privileges of <span class="usertype">developer</span>,
   @ <span class="usertype">anonymous</span>, and
   @ <span class="usertype">nobody</span>.
   @ </p></li>
   @
+  @ <li><p>The permission flags are as follows:</p>
+  setup_usercap_table();
+  @ </li>
   @ </ol>
   style_footer();
 }
 
+/*
+** WEBPAGE: setup_ucap_list
+**
+** A documentation page showing the meaning of the various user capabilities
+** code letters.
+*/
+void setup_ucap_list(void){
+  style_header("User Capability Codes");
+  setup_usercap_table();
+  style_footer();
+}
 
 /*
 ** Return true if zPw is a valid password string.  A valid
@@ -548,7 +573,7 @@ void user_edit(void){
     @ <input type="hidden" name="info" value="">
     @ <input type="hidden" name="pw" value="*">
   }
-  @ <script type='text/javascript'>
+  @ <script>
   @ function updateCapabilityString(){
   @   /*
   @   ** This function updates the "#usetupEditCapability" span content
@@ -687,6 +712,9 @@ void user_edit(void){
   @  <label><input type="checkbox" name="ax"%s(oa['x'])
   @                onchange="updateCapabilityString()" />
   @  Private%s(B('x'))</label><br />
+  @  <label><input type="checkbox" name="ay"%s(oa['y'])
+  @                onchange="updateCapabilityString()" />
+  @  Write Unversioned%s(B('y'))</label><br />
   @  <label><input type="checkbox" name="az"%s(oa['z'])
   @                onchange="updateCapabilityString()" />
   @  Download Zip%s(B('z'))</label>
@@ -732,7 +760,7 @@ void user_edit(void){
   @ </table>
   @ </div></form>
   @ </div>
-  @ <script type='text/javascript'>updateCapabilityString();</script>
+  @ <script>updateCapabilityString();</script>
   @ <h2>Privileges And Capabilities:</h2>
   @ <ul>
   if( higherUser ){
@@ -1138,7 +1166,7 @@ void setup_access(void){
   @ <p>Enable hyperlinks (the equivalent of the "h" permission) for all users
   @ including user "nobody", as long as (1) the User-Agent string in the
   @ HTTP header indicates that the request is coming from an actual human
-  @ being and not a a robot or spider and (2) the user agent is able to
+  @ being and not a robot or spider and (2) the user agent is able to
   @ run Javascript in order to set the href= attribute of hyperlinks.  Bots
   @ and spiders can forge a User-Agent string that makes them seem to be a
   @ normal browser and they can run javascript just like browsers.  But most
@@ -1156,10 +1184,10 @@ void setup_access(void){
   onoff_attribute("Enable hyperlinks for humans (as deduced from the UserAgent "
                   " HTTP header string)",
                   "auto-hyperlink-ishuman", "ahis", 0, 0);
-  @ <br>
+  @ <br />
   onoff_attribute("Require mouse movement before enabling hyperlinks",
                   "auto-hyperlink-mouseover", "ahmo", 0, 0);
-  @ <br>
+  @ <br />
   entry_attribute("Delay before enabling hyperlinks (milliseconds)", 5,
                   "auto-hyperlink-delay", "ah-delay", "10", 0);
   @ </blockquote>
@@ -1316,7 +1344,7 @@ void setup_login_group(void){
     @ To leave this login group press
     @ <input type="submit" value="Leave Login Group" name="leave">
     @ </form></p>
-    @ <hr><h2>Implementation Details</h2>
+    @ <hr /><h2>Implementation Details</h2>
     @ <p>The following are fields from the CONFIG table related to login-groups,
     @ provided here for instructional and debugging purposes:</p>
     @ <table border='1' id='configTab'>
@@ -1447,7 +1475,6 @@ void setup_settings(void){
     return;
   }
 
-  (void) aCmdHelp; /* NOTE: Silence compiler warning. */
   style_header("Settings");
   if(!g.repositoryOpen){
     /* Provide read-only access to versioned settings,
@@ -1512,9 +1539,8 @@ void setup_settings(void){
   @ in the check-out root.
   @ If such a file is present, the corresponding field above is not
   @ editable.</p><hr /><p>
-  @ These settings work in the same way, as the <kbd>set</kbd>
-  @ commandline:<br />
-  @ </p><pre>%s(zHelp_setting_cmd)</pre>
+  @ These settings work the same as the 
+  @ <a href='%R/help?cmd=settings'>fossil set</a> command.
   db_end_transaction(0);
   style_footer();
 }
@@ -1894,12 +1920,12 @@ void sql_page(void){
   @ <p>Only the first statement in the entry box will be run.
   @ Any subsequent statements will be silently ignored.</p>
   @
-  @ <p>Database names:<ul><li>repository &rarr; %s(db_name("repository"))
+  @ <p>Database names:<ul><li>repository
   if( g.zConfigDbName ){
-    @ <li>config &rarr; %s(db_name("configdb"))
+    @ <li>configdb
   }
   if( g.localOpen ){
-    @ <li>local-checkout &rarr; %s(db_name("localdb"))
+    @ <li>localdb
   }
   @ </ul></p>
   @
@@ -1913,14 +1939,12 @@ void sql_page(void){
   @ </form>
   if( P("schema") ){
     zQ = sqlite3_mprintf(
-            "SELECT sql FROM %s.sqlite_master WHERE sql IS NOT NULL",
-            db_name("repository"));
+            "SELECT sql FROM repository.sqlite_master WHERE sql IS NOT NULL");
     go = 1;
   }else if( P("tablelist") ){
     zQ = sqlite3_mprintf(
-            "SELECT name FROM %s.sqlite_master WHERE type='table'"
-            " ORDER BY name",
-            db_name("repository"));
+            "SELECT name FROM repository.sqlite_master WHERE type='table'"
+            " ORDER BY name");
     go = 1;
   }
   if( go ){
@@ -2155,17 +2179,17 @@ void page_srchsetup(){
   @ <p>When searching documents, use the versions of the files found at the
   @ type of the "Document Branch" branch.  Recommended value: "trunk".
   @ Document search is disabled if blank.
-  @ <hr/>
+  @ <hr />
   onoff_attribute("Search Check-in Comments", "search-ci", "sc", 0, 0);
-  @ <br>
+  @ <br />
   onoff_attribute("Search Documents", "search-doc", "sd", 0, 0);
-  @ <br>
+  @ <br />
   onoff_attribute("Search Tickets", "search-tkt", "st", 0, 0);
-  @ <br>
+  @ <br />
   onoff_attribute("Search Wiki","search-wiki", "sw", 0, 0);
-  @ <hr/>
+  @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
-  @ <hr/>
+  @ <hr />
   if( P("fts0") ){
     search_drop_index();
   }else if( P("fts1") ){
