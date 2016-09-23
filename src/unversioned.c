@@ -144,15 +144,16 @@ static void unversioned_write(
 
 
 /*
-** Check the status of unversioned file zName.  Return an integer status
-** code as follows:
+** Check the status of unversioned file zName.  "mtime" and "zHash" are the
+** time of last change and SHA1 hash of a copy of this file on a remote
+** server.  Return an integer status code as follows:
 **
 **    0:     zName does not exist in the unversioned table.
-**    1:     zName exists and should be replaced by mtime/zHash.
+**    1:     zName exists and should be replaced by the mtime/zHash remote.
 **    2:     zName exists and is the same as zHash but has a older mtime
 **    3:     zName exists and is identical to mtime/zHash in all respects.
 **    4:     zName exists and is the same as zHash but has a newer mtime.
-**    5:     zName exists and should override mtime/zHash.
+**    5:     zName exists and should override the mtime/zHash remote.
 */
 int unversioned_status(const char *zName, sqlite3_int64 mtime, const char *zHash){
   int iStatus = 0;
@@ -175,6 +176,19 @@ int unversioned_status(const char *zName, sqlite3_int64 mtime, const char *zHash
   }
   db_finalize(&q);
   return iStatus;
+}
+
+/*
+** Extract command-line options for the "revert" and "sync" subcommands
+*/
+static int unversioned_sync_flags(unsigned syncFlags){
+  if( find_option("verbose","v",0)!=0 ){
+    syncFlags |= SYNC_UV_TRACE | SYNC_VERBOSE;
+  }
+  if( find_option("dryrun","n",0)!=0 ){
+    syncFlags |= SYNC_UV_DRYRUN | SYNC_UV_TRACE | SYNC_VERBOSE;
+  }
+  return syncFlags;
 }
 
 /*
@@ -206,15 +220,21 @@ int unversioned_status(const char *zName, sqlite3_int64 mtime, const char *zHash
 **
 **    revert ?URL?         Restore the state of all unversioned files in the local
 **                         repository to match the remote repository URL.
+**                         Options:
+**                            -v|--verbose     Extra diagnostic output
+**                            -n|--dryrun      Show what would have happened
 **
 **    rm FILE ...          Remove an unversioned files from the local repository.
 **                         Changes are not pushed to other repositories until
-**                         the next sync.
+**                         the next sync. 
 **
 **    sync ?URL?           Synchronize the state of all unversioned files with
 **                         the remote repository URL.  The most recent version of
 **                         each file is propagate to all repositories and all
 **                         prior versions are permanently forgotten.
+**                         Options:
+**                            -v|--verbose     Extra diagnostic output
+**                            -n|--dryrun      Show what would have happened
 **
 **    touch FILE ...       Update the TIMESTAMP on all of the listed files
 **
@@ -367,9 +387,10 @@ void unversioned_cmd(void){
     }
     db_finalize(&q);
   }else if( memcmp(zCmd, "revert", nCmd)==0 ){
+    unsigned syncFlags = unversioned_sync_flags(SYNC_UNVERSIONED|SYNC_UV_REVERT);
     g.argv[1] = "sync";
     g.argv[2] = "--uv-noop";
-    sync_unversioned(SYNC_UNVERSIONED|SYNC_UV_REVERT);
+    sync_unversioned(syncFlags);
   }else if( memcmp(zCmd, "rm", nCmd)==0 ){
     int i;
     verify_all_options();
@@ -384,9 +405,10 @@ void unversioned_cmd(void){
     db_unset("uv-hash", 0);
     db_end_transaction(0);
   }else if( memcmp(zCmd,"sync",nCmd)==0 ){
+    unsigned syncFlags = unversioned_sync_flags(SYNC_UNVERSIONED);
     g.argv[1] = "sync";
     g.argv[2] = "--uv-noop";
-    sync_unversioned(SYNC_UNVERSIONED);
+    sync_unversioned(syncFlags);
   }else if( memcmp(zCmd, "touch", nCmd)==0 ){
     int i;
     verify_all_options();

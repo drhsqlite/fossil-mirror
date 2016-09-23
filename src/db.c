@@ -2599,6 +2599,7 @@ const Setting aSetting[] = {
 #endif
   { "th1-setup",        0,             40, 1, 1, ""                    },
   { "th1-uri-regexp",   0,             40, 1, 0, ""                    },
+  { "uv-sync",          0,              0, 0, 0, "off"                 },
   { "web-browser",      0,             32, 0, 0, ""                    },
   { 0,0,0,0,0,0 }
 };
@@ -2873,6 +2874,11 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **    th1-uri-regexp   Specify which URI's are allowed in HTTP requests from
 **     (versionable)   TH1 scripts.  If empty, no HTTP requests are allowed
 **                     whatsoever.  The default is an empty string.
+**
+**    uv-sync          If true, automatically send unversioned files as part
+**                     of a "fossil clone" or "fossil sync" command.  The
+**                     default is false, in which case the -u option is
+**                     needed to clone or sync unversioned files.
 **
 **    web-browser      A shell command used to launch your preferred
 **                     web browser when given a URL as an argument.

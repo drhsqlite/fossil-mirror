@@ -88,6 +88,11 @@ int autosync(int flags){
 int autosync_loop(int flags, int nTries, int doPrompt){
   int n = 0;
   int rc = 0;
+  if( (flags & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL)
+   && db_get_boolean("uv-sync",0)
+  ){
+    flags |= SYNC_UNVERSIONED;
+  }
   while( (n==0 || n<nTries) && (rc=autosync(flags)) ){
     if( rc ){
       if( ++n<nTries ){
@@ -157,6 +162,11 @@ static void process_sync_args(
     if( db_get_boolean("auto-shun",1) ) configSync = CONFIGSET_SHUN;
   }else if( g.argc==3 ){
     zUrl = g.argv[2];
+  }
+  if( ((*pSyncFlags) & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL)
+   && db_get_boolean("uv-sync",0)
+  ){
+    *pSyncFlags |= SYNC_UNVERSIONED;
   }
   if( urlFlags & URL_REMEMBER ){
     clone_ssh_db_set_options();

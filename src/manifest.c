@@ -2329,17 +2329,21 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       }else if( memcmp(zName, "-sym-",5)==0 ){
         if( !branchMove ){
           blob_appendf(&comment, " Cancel tag \"%h\"", &zName[5]);
+        }else{
+          continue;
         }
       }else if( memcmp(zName, "*sym-",5)==0 ){
         if( !branchMove ){
           blob_appendf(&comment, " Add propagating tag \"%h\"", &zName[5]);
+        }else{
+          continue;
         }
       }else if( memcmp(zName, "+sym-",5)==0 ){
         blob_appendf(&comment, " Add tag \"%h\"", &zName[5]);
       }else if( strcmp(zName, "+closed")==0 ){
-        blob_append(&comment, " Marked \"Closed\"", -1);
+        blob_append(&comment, " Mark \"Closed\"", -1);
       }else if( strcmp(zName, "-closed")==0 ){
-        blob_append(&comment, " Removed the \"Closed\" mark", -1);
+        blob_append(&comment, " Remove the \"Closed\" mark", -1);
       }else {
         if( zName[0]=='-' ){
           blob_appendf(&comment, " Cancel \"%h\"", &zName[1]);

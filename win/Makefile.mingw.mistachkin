@@ -449,6 +449,7 @@ SRC = \
   $(SRCDIR)/descendants.c \
   $(SRCDIR)/diff.c \
   $(SRCDIR)/diffcmd.c \
+  $(SRCDIR)/dispatch.c \
   $(SRCDIR)/doc.c \
   $(SRCDIR)/encode.c \
   $(SRCDIR)/event.c \
@@ -623,6 +624,7 @@ TRANS_SRC = \
   $(OBJDIR)/descendants_.c \
   $(OBJDIR)/diff_.c \
   $(OBJDIR)/diffcmd_.c \
+  $(OBJDIR)/dispatch_.c \
   $(OBJDIR)/doc_.c \
   $(OBJDIR)/encode_.c \
   $(OBJDIR)/event_.c \
@@ -746,6 +748,7 @@ OBJ = \
  $(OBJDIR)/descendants.o \
  $(OBJDIR)/diff.o \
  $(OBJDIR)/diffcmd.o \
+ $(OBJDIR)/dispatch.o \
  $(OBJDIR)/doc.o \
  $(OBJDIR)/encode.o \
  $(OBJDIR)/event.o \
@@ -1080,6 +1083,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(MAKEHEADERS
 		$(OBJDIR)/descendants_.c:$(OBJDIR)/descendants.h \
 		$(OBJDIR)/diff_.c:$(OBJDIR)/diff.h \
 		$(OBJDIR)/diffcmd_.c:$(OBJDIR)/diffcmd.h \
+		$(OBJDIR)/dispatch_.c:$(OBJDIR)/dispatch.h \
 		$(OBJDIR)/doc_.c:$(OBJDIR)/doc.h \
 		$(OBJDIR)/encode_.c:$(OBJDIR)/encode.h \
 		$(OBJDIR)/event_.c:$(OBJDIR)/event.h \
@@ -1391,6 +1395,14 @@ $(OBJDIR)/diffcmd.o:	$(OBJDIR)/diffcmd_.c $(OBJDIR)/diffcmd.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/diffcmd.o -c $(OBJDIR)/diffcmd_.c
 
 $(OBJDIR)/diffcmd.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/dispatch_.c:	$(SRCDIR)/dispatch.c $(TRANSLATE)
+	$(TRANSLATE) $(SRCDIR)/dispatch.c >$@
+
+$(OBJDIR)/dispatch.o:	$(OBJDIR)/dispatch_.c $(OBJDIR)/dispatch.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/dispatch.o -c $(OBJDIR)/dispatch_.c
+
+$(OBJDIR)/dispatch.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/doc_.c:	$(SRCDIR)/doc.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/doc.c >$@
@@ -2155,12 +2167,17 @@ $(OBJDIR)/zip.h:	$(OBJDIR)/headers
 MINGW_OPTIONS = -D_HAVE__MINGW_H
 
 SQLITE_OPTIONS = -DNDEBUG=1 \
-                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
-                 -DSQLITE_ENABLE_LOCKING_STYLE=0 \
-                 -DSQLITE_LIKE_DOESNT_MATCH_BLOBS=1 \
                  -DSQLITE_THREADSAFE=0 \
-                 -DSQLITE_DEFAULT_FILE_FORMAT=4 \
+                 -DSQLITE_DEFAULT_MEMSTATUS=0 \
+                 -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 \
+                 -DSQLITE_LIKE_DOESNT_MATCH_BLOBS \
+                 -DSQLITE_OMIT_DECLTYPE \
                  -DSQLITE_OMIT_DEPRECATED \
+                 -DSQLITE_OMIT_PROGRESS_CALLBACK \
+                 -DSQLITE_OMIT_SHARED_CACHE \
+                 -DSQLITE_OMIT_LOAD_EXTENSION \
+                 -DSQLITE_ENABLE_LOCKING_STYLE=0 \
+                 -DSQLITE_DEFAULT_FILE_FORMAT=4 \
                  -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                  -DSQLITE_ENABLE_FTS4 \
                  -DSQLITE_ENABLE_FTS3_PARENTHESIS \
