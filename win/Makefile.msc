@@ -100,12 +100,15 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.1.0
-SSLINCDIR = $(SSLDIR)\include
-SSLLIBDIR = $(SSLDIR)
-SSLNMAKE  = makefile all
+SSLDIR    = $(B)\compat\openssl-1.1.0a
+SSLINCDIR = $(SSLDIR)\inc32
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
+SSLLIBDIR = $(SSLDIR)\out32dll
+!else
+SSLLIBDIR = $(SSLDIR)\out32
+!endif
 SSLLFLAGS = /nologo /opt:ref /debug
-SSLLIB    = libssl.lib libcrypto.lib user32.lib gdi32.lib crypt32.lib
+SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib crypt32.lib
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 !message Using 'x64' platform for OpenSSL...
 # BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
@@ -115,6 +118,12 @@ SSLCONFIG = VC-WIN64A no-asm
 SSLCONFIG = $(SSLCONFIG) shared
 !else
 SSLCONFIG = $(SSLCONFIG) no-shared
+!endif
+SSLSETUP  = ms\do_win64a.bat
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
+SSLNMAKE  = ms\ntdll.mak all
+!else
+SSLNMAKE  = ms\nt.mak all
 !endif
 # BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
 !if $(FOSSIL_DYNAMIC_BUILD)==0
@@ -130,6 +139,12 @@ SSLCONFIG = $(SSLCONFIG) shared
 !else
 SSLCONFIG = $(SSLCONFIG) no-shared
 !endif
+SSLSETUP  = ms\do_win64i.bat
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
+SSLNMAKE  = ms\ntdll.mak all
+!else
+SSLNMAKE  = ms\nt.mak all
+!endif
 # BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
 !if $(FOSSIL_DYNAMIC_BUILD)==0
 SSLCFLAGS = -DOPENSSL_NO_SSL3
@@ -143,6 +158,12 @@ SSLCONFIG = VC-WIN32 no-asm
 SSLCONFIG = $(SSLCONFIG) shared
 !else
 SSLCONFIG = $(SSLCONFIG) no-shared
+!endif
+SSLSETUP  = ms\do_ms.bat
+!if $(FOSSIL_DYNAMIC_BUILD)!=0
+SSLNMAKE  = ms\ntdll.mak all
+!else
+SSLNMAKE  = ms\nt.mak all
 !endif
 # BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
 !if $(FOSSIL_DYNAMIC_BUILD)==0
@@ -654,6 +675,7 @@ openssl:
 	@set PATH=$(PERLDIR);$(PATH)
 !endif
 	@pushd "$(SSLDIR)" && $(PERL) Configure $(SSLCONFIG) && popd
+	@pushd "$(SSLDIR)" && call $(SSLSETUP) && popd
 !if $(FOSSIL_ENABLE_WINXP)!=0
 	@pushd "$(SSLDIR)" && $(MAKE) /f $(SSLNMAKE) "CC=cl $(SSLCFLAGS) $(XPCFLAGS)" "LFLAGS=$(SSLLFLAGS) $(XPLDFLAGS)" && popd
 !else

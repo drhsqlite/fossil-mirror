@@ -2223,7 +2223,7 @@ int Th_CommandNotify(
 */
 int Th_WebpageHook(
   const char *zName,
-  unsigned cmdFlags
+  unsigned int cmdFlags
 ){
   int rc = TH_OK;
   if( !Th_AreHooksEnabled() ) return rc;
@@ -2279,7 +2279,7 @@ int Th_WebpageHook(
 */
 int Th_WebpageNotify(
   const char *zName,
-  unsigned cmdFlags
+  unsigned int cmdFlags
 ){
   int rc = TH_OK;
   if( !Th_AreHooksEnabled() ) return rc;
