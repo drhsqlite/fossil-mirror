@@ -169,14 +169,17 @@ specified user.</p>
 login cards.  The session privileges are the bit-wise OR of the
 privileges of each individual login.</p>
 
-<h3>3.3 File and Compressed File Cards</h3>
+<h3>3.3 File Cards</h3>
 
-<p>Artifacts are transferred using either "file" cards, or "cfile" cards.
-(The name "file" card comes from the fact that most artifacts correspond to
-files, and "cfile" is just a compressed file.)
+<p>Artifacts are transferred using either "file" cards, or "cfile"
+or "uvfile" cards.
+The name "file" card comes from the fact that most artifacts correspond to
+files that are under version control.
+The "cfile" name is an abbreviation for "compressed file".
+The "uvfile" name is an abbreviation for "unversioned file".
 </p>
 
-<h4>3.3.1 File Cards</h4>
+<h4>3.3.1 Ordinary File Cards</h4>
 
 <p>For sync protocols, artifacts are transferred using "file"
 cards.  File cards come in two different formats depending
@@ -188,7 +191,7 @@ other artifact.</p>
 <b>file</b> <i>artifact-id delta-artifact-id size</i> <b>\n</b> <i>content</i>
 </blockquote>
 
-<p>File cards are different from all other cards in that they
+<p>File cards are different from most other cards in that they are
 followed by in-line "payload" data.  The content of the artifact
 or the artifact delta consists of the first <i>size</i> bytes of the
 x-fossil content that immediately follow the newline that
@@ -258,6 +261,40 @@ the [/help?cmd=sync|fossil sync] command includes the "--private" option.
 
 <p>The private card has no arguments and must directly precede a
 file card that contains the private content.</p>
+
+<h4>3.3.4 Unversioned File Cards</h4>
+
+<p>Unversioned content is sent in both directions (client to server and
+server to client) using "uvfile" cards in the following format:
+
+<blockquote>
+<b>uvfile</b> <i>name mtime hash size flags</i> <b>\n</b> <i>content</i>
+</blockquote>
+
+<p>The <i>name</i> field is the name of the unversioned file.  The
+<i>mtime</i> is the last modification time of the file in seconds
+since 1970.  The <i>hash</i> field is the SHA1 hash of the content
+for the unversioned file, or "<b>-</b>" for deleted content.
+The <i>size</i> field is the (uncompressed) size of the content
+in bytes.  The <i>flags</i> field is an integer which is interpreted
+as an array of bits.  The 0x0004 bit of <i>flags</i> indicates that
+the <i>content</i> is to be omitted.  The content might be omitted if
+it is too large to transmit, or if the send merely wants to update the
+modification time of the file without changing the files content.
+The <i>content</i> is the (uncompressed) content of the file.
+
+<p>The receiver should only accept the uvfile card if the hash and
+size match the content and if the mtime is newer than any existing
+instance of the same file held by the receiver.  The sender will not
+normally transmit a uvfile card unless all these constraints are true,
+but the receiver should double-check.
+
+<p>A server should only accept uvfile cards if the login user has
+the "y" write-unversioned permission.
+
+<p>Servers send uvfile cards in response to uvgimme cards received from
+the client.  Clients send uvfile cards when they determine that the server
+needs the content based on uvigot cards previously received from the server.
 
 <h3>3.4 Push and Pull Cards</h3>
 
@@ -361,6 +398,38 @@ using a gimme card in either the reply or in the next message.</p>
 identified by the first argument is private on the sender and should
 be ignored unless a "--private" [/help?cmd=sync|sync] is occurring.
 
+<h4>3.6.1 Unversioned Igot Cards</h4>
+
+<p>Zero or more "uvigot" cards are sent from client to server when
+synchronizing unversioned content.  The format of a uvigot card is
+as follows:
+
+<blockquote>
+<b>uvigot</b> <i>name mtime hash size</i>
+</blockquote>
+
+<p>The <i>name</i> argument is the name of an unversioned file.
+The <i>mtime</i> is the last modification time of the unversioned file
+in seconds since 1970.  
+The <i>hash</i> is the SHA1 hash of the unversioned file content, or
+"<b>-</b>" if the file has been deleted.
+The <i>size</i> is the uncompressed size of the file in bytes.
+
+<p>When the server sees a "pragma uv-hash" card for which the hash
+does not match, it sends uvigot cards for every unversioned file that it
+holds.  The client will use this information to figure out which
+unversioned files need to be synchronized.
+The server might also send a uvigot card when it receives a uvgimme card
+but its reply message size is already oversized and hence unable to hold
+the usual uvfile reply.
+
+<p>When a client receives a "uvigot" card, it checks to see if the
+file needs to be transfered from client to server or from server to client.
+If a client-to-server transmission is needed, the client schedules that
+transfer to occur on a subsequent HTTP request.  If a server-to-client
+transfer is needed, then the client sends a "uvgimme" card back to the
+server to request the file content.
+
 <h3>3.7 Gimme Cards</h3>
 
 <p>A gimme card is sent from either client to server or from server
@@ -375,6 +444,22 @@ artifact back to the sender.  The format of a gimme card is this:</p>
 the sender wants.  The receiver will typically respond to a
 gimme card by sending a file card in its reply or in the next
 message.</p>
+
+<h4>3.7.1 Unversioned Gimme Cards</h4>
+
+<p>Sync synchronizing unversioned content, the client may send "uvgimme"
+cards to the server.  A uvgimme card requests that the server send
+unversioned content to the client.  The format of a uvgimme card is
+as follows:
+
+<blockquote>
+<b>uvgimme</b> <i>name</i>
+</blockquote>
+
+<p>The <i>name</i> is the name of the unversioned file found on the
+server that the client would like to have.  When a server sees a
+uvgimme card, it normally responses with a uvfile card, though it might
+also send another uvigot card if the HTTP reply is already oversized.
 
 <h3>3.8 Cookie Cards</h3>
 
@@ -541,6 +626,45 @@ cards for every known artifact.  This can help the client and server
 to get back in synchronization after a prior protocol error.  The
 "--verily" option to the [/help?cmd=sync|fossil sync] command causes
 the send-catalog pragma to be transmitted.</p>
+
+<li><p><b>uv-hash</b> <i>HASH</i>
+<p>The uv-hash pragma is sent from client to server to provoke a
+synchronization of unversioned content.  The <i>HASH</i> is a SHA1
+hash of the names, modification times, and individual hashes of all
+unversioned files on the client.  If the unversioned content hash
+from the client does not match the unversioned content hash on the
+server, then the server will reply with either a "pragma uv-push-ok"
+or "pragma uv-pull-only" card followed by one "uvigot" card for
+each unversioned file currently held on the server.  The collection
+of "uvigot" cards sent in response to a "uv-hash" pragma is called
+the "unversioned catalog".  The client will used the unversioned
+catalog to figure out which files (if any) need to be synchronized
+between client and server and send appropriate "uvfile" or "uvgimme"
+cards on the next HTTP request.</p>
+
+<p>If a client sends a uv-hash pragma and does not receive back
+either a uv-pull-only or uv-push-ok pragma, that means that the
+content on the server exactly matches the content on the client and
+no further synchronization is required.
+
+<li><p><b>uv-pull-only</b></i>
+<p>A server sends the uv-pull-only pragma to the client in response
+to a uv-hash pragma with a mismatched content hash argument.  This
+pragma indicates that there are differences in unversioned content
+between the client and server but that content can only be transfered
+from server to client.  The server is unwilling to accept content from
+the client because the client login lacks the "write-unversioned"
+permission.</p>
+
+<li><p><b>uv-push-ok</b></i>
+<p>A server sends the uv-push-ok pragma to the client in response
+to a uv-hash pragma with a mismatched content hash argument.  This
+pragma indicates that there are differences in unversioned content
+between the client and server and that content can only be transfered
+in either direction.  The server is willing to accept content from
+the client because the client login has the "write-unversioned"
+permission.</p>
+
 </ol>
 
 <h3>3.12 Comment Cards</h3>
@@ -715,6 +839,48 @@ of a push.  Steps (4) through (7) of a pull are combined with steps
 (5) through (8) of a push.  And steps (8) through (10) of a pull
 are combined with step (9) of a push.</p>
 
+<h3>5.4 Unversioned File Sync</h3>
+
+<p>"Unversioned files" are files held in the repository
+where only the most recent version of the file is kept rather than
+the entire change history.  Unversioned files are intended to be
+used to store ephemeral content, such as compiled binaries of the
+most recent release.
+
+<p>Unversioned files are identified by name and timestamp (mtime).
+Only the most recent version of each file (the version with
+the largest mtime value) is retained.
+
+<p>Unversioned files are synchronized using the
+[/help?cmd=unversioned|fossil unversioned sync] command.
+
+<p>A schematic of an unversioned file synchronization is as follows:
+
+<ol>
+<li>The client sends a "pragma uv-hash" card to the server.  The argument
+    to the uv-hash pragma is a hash of all filesnames, mtimes, and
+    content hashes for the unversioned files held by the client.
+    <hr>
+<li>If the unversioned content hash from the client matches the unversioned
+    content hash on the server, then nothing needs to be done and the
+    server no-ops.  But if the hashes are different, then the server
+    replies with either a uv-pull-only or a uv-push-ok pragma followed by
+    uvigot cards for all unversioned files held on the server.
+    <hr>
+<li>The client examines the uvigot cards received from the server and
+    determines which unversioned files need to be exchanged in order
+    to bring the client and server into synchronization.  The client
+    then sends appropriate "uvgimme" or "uvfile" cards back to the
+    server.
+    <hr>
+<li>The server updates its unversioned file store with received "uvfile"
+    cards and answers "uvgimme" cards with "uvfile" cards in its reply.
+</ol>
+
+<p>The last two steps might be repeated multiple
+times if there is more unversioned content to be transferred than will
+fit comfortably in a single HTTP request.
+
 <h2>6.0 Summary</h2>
 
 <p>Here are the key points of the synchronization protocol:</p>
@@ -736,9 +902,12 @@ are combined with step (9) of a push.</p>
     <li> <b>file</b> <i>artifact-id delta-artifact-id size</i> <b>\n</b> <i>content</i>
     <li> <b>cfile</b> <i>artifact-id size</i> <b>\n</b> <i>content</i>
     <li> <b>cfile</b> <i>artifact-id delta-artifact-id size</i> <b>\n</b> <i>content</i>
+    <li> <b>uvfile</b> <i>name mtime hash size flags</i> <b>\n</b> <i>content</i>
     <li> <b>private</b>
     <li> <b>igot</b> <i>artifact-id</i> ?<i>flag</i>?
+    <li> <b>uvigot</b> <i>name mtime hash size</i>
     <li> <b>gimme</b> <i>artifact-id</i>
+    <li> <b>uvgimme</b> <i>name</i>
     <li> <b>cookie</b>  <i>cookie-text</i>
     <li> <b>reqconfig</b> <i>parameter-name</i>
     <li> <b>config</b> <i>parameter-name size</i> <b>\n</b> <i>content</i>

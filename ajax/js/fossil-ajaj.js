@@ -9,12 +9,12 @@
 /**
     Constructor for a new Fossil AJAJ client. ajajOpt may be an optional
     object suitable for passing to the WhAjaj.Connector() constructor.
-    
-    On returning, this.ajaj is-a WhAjaj.Connector instance which can 
-    be used to send requests to the back-end (though the convenience 
-    functions of this class are the preferred way to do it). Clients 
-    are encouraged to use FossilAjaj.sendCommand() (and friends) instead 
-    of the underlying WhAjaj.Connector API, since this class' API 
+
+    On returning, this.ajaj is-a WhAjaj.Connector instance which can
+    be used to send requests to the back-end (though the convenience
+    functions of this class are the preferred way to do it). Clients
+    are encouraged to use FossilAjaj.sendCommand() (and friends) instead
+    of the underlying WhAjaj.Connector API, since this class' API
     contains Fossil-specific request-calling handling (e.g. of authentication
     info) whereas WhAjaj is more generic.
 */
@@ -40,7 +40,7 @@ FossilAjaj.prototype.sendRequest = function(req,opt) {
     path part of the URL, e.g. /json/stat, payload is a request-specific
     value type (may often be null/undefined). ajajOpt is an optional object
     holding WhAjaj.sendRequest()-compatible options.
-    
+
     This function constructs a Fossil/JSON request envelope based
     on the given arguments and adds this.auth.authToken and a requestId
     to it.
@@ -65,12 +65,12 @@ FossilAjaj.prototype.sendCommand = function(command, payload, ajajOpt) {
 /**
     Sends a login request to the back-end.
 
-    ajajOpt is an optional configuration object suitable for passing 
+    ajajOpt is an optional configuration object suitable for passing
     to sendCommand().
 
     After the response returns, this.auth will be
     set to the response payload.
-    
+
     If name === 'anonymous' (the default if none is passed in) then this
     function ignores the pw argument and must make two requests - the first
     one gets the captcha code and the second one submits it.
@@ -78,7 +78,7 @@ FossilAjaj.prototype.sendCommand = function(command, payload, ajajOpt) {
     response (the 2nd one), as opposed to being called for both requests.
     However, this.ajaj.callbacks.onResponse() _is_ called for both (because
     it happens at a lower level).
-    
+
     If this object has an onLogin() function it is called (with
     no arguments) before the onResponse() handler of the login is called
     (that is the 2nd request for anonymous logins) and any exceptions
@@ -137,9 +137,9 @@ FossilAjaj.prototype.login = function(name,pw,ajajOpt) {
 /**
     Logs out of fossil, invaliding this login token.
 
-    ajajOpt is an optional configuration object suitable for passing 
+    ajajOpt is an optional configuration object suitable for passing
     to sendCommand().
-    
+
     If this object has an onLogout() function it is called (with
     no arguments) before the onResponse() handler is called.
     IFF the response succeeds then this.auth is unset.
@@ -165,7 +165,7 @@ FossilAjaj.prototype.logout = function(ajajOpt) {
 /**
     Sends a HAI request to the server. /json/HAI is an alias /json/version.
 
-    ajajOpt is an optional configuration object suitable for passing 
+    ajajOpt is an optional configuration object suitable for passing
     to sendCommand().
 */
 FossilAjaj.prototype.HAI = function(ajajOpt) {
@@ -228,7 +228,7 @@ FossilAjaj.prototype.whoami = function(ajajOpt) {
     FossilAjaj.sendCommand() front-end (it is, however, fossil-specific, and
     not back-end agnostic like the WhAjaj.sendImpl() interface intends).
 
-    
+
 */
 FossilAjaj.rhinoLocalBinarySendImpl = function(request,args){
     var self = this;
@@ -242,7 +242,7 @@ FossilAjaj.rhinoLocalBinarySendImpl = function(request,args){
         request.command = (url.shift(),url.shift(),url.shift(), url.join('/'));
     }
     delete args.url;
-    //print("rhinoLocalBinarySendImpl SENDING: "+WhAjaj.stringify(request));    
+    //print("rhinoLocalBinarySendImpl SENDING: "+WhAjaj.stringify(request));
     var json;
     try{
         var pargs = [args.fossilBinary, 'json', '--json-input', '-'];
@@ -250,7 +250,7 @@ FossilAjaj.rhinoLocalBinarySendImpl = function(request,args){
         var outs = p.getOutputStream();
         var osr = new java.io.OutputStreamWriter(outs);
         var osb = new java.io.BufferedWriter(osr);
-        
+
         json = JSON.stringify(request);
         osb.write(json,0, json.length);
         osb.close();

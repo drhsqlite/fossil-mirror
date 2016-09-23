@@ -144,7 +144,6 @@ static int sqlcmd_autoinit(
   db_add_aux_functions(db);
   re_add_sql_func(db);
   search_sql_setup(db);
-  g.zMainDbType = "repository";
   foci_register(db);
   g.repositoryOpen = 1;
   g.db = db;
@@ -225,7 +224,6 @@ void fossil_close(int bDb, int noRepository){
   if( bDb ) db_close(1);
   if( noRepository ) g.zRepositoryName = 0;
   g.db = 0;
-  g.zMainDbType = 0;
   g.repositoryOpen = 0;
   g.localOpen = 0;
 }

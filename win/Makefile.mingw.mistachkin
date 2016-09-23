@@ -172,7 +172,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2h
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2i
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -366,7 +366,7 @@ endif
 #### OpenSSL: Add the necessary libraries required, if enabled.
 #
 ifdef FOSSIL_ENABLE_SSL
-LIB += -lssl -lcrypto -lgdi32
+LIB += -lssl -lcrypto -lgdi32 -lcrypt32
 endif
 
 #### Tcl: Add the necessary libraries required, if enabled.
@@ -449,6 +449,7 @@ SRC = \
   $(SRCDIR)/descendants.c \
   $(SRCDIR)/diff.c \
   $(SRCDIR)/diffcmd.c \
+  $(SRCDIR)/dispatch.c \
   $(SRCDIR)/doc.c \
   $(SRCDIR)/encode.c \
   $(SRCDIR)/event.c \
@@ -456,6 +457,7 @@ SRC = \
   $(SRCDIR)/file.c \
   $(SRCDIR)/finfo.c \
   $(SRCDIR)/foci.c \
+  $(SRCDIR)/fshell.c \
   $(SRCDIR)/fusefs.c \
   $(SRCDIR)/glob.c \
   $(SRCDIR)/graph.c \
@@ -527,6 +529,7 @@ SRC = \
   $(SRCDIR)/tktsetup.c \
   $(SRCDIR)/undo.c \
   $(SRCDIR)/unicode.c \
+  $(SRCDIR)/unversioned.c \
   $(SRCDIR)/update.c \
   $(SRCDIR)/url.c \
   $(SRCDIR)/user.c \
@@ -621,6 +624,7 @@ TRANS_SRC = \
   $(OBJDIR)/descendants_.c \
   $(OBJDIR)/diff_.c \
   $(OBJDIR)/diffcmd_.c \
+  $(OBJDIR)/dispatch_.c \
   $(OBJDIR)/doc_.c \
   $(OBJDIR)/encode_.c \
   $(OBJDIR)/event_.c \
@@ -628,6 +632,7 @@ TRANS_SRC = \
   $(OBJDIR)/file_.c \
   $(OBJDIR)/finfo_.c \
   $(OBJDIR)/foci_.c \
+  $(OBJDIR)/fshell_.c \
   $(OBJDIR)/fusefs_.c \
   $(OBJDIR)/glob_.c \
   $(OBJDIR)/graph_.c \
@@ -699,6 +704,7 @@ TRANS_SRC = \
   $(OBJDIR)/tktsetup_.c \
   $(OBJDIR)/undo_.c \
   $(OBJDIR)/unicode_.c \
+  $(OBJDIR)/unversioned_.c \
   $(OBJDIR)/update_.c \
   $(OBJDIR)/url_.c \
   $(OBJDIR)/user_.c \
@@ -742,6 +748,7 @@ OBJ = \
  $(OBJDIR)/descendants.o \
  $(OBJDIR)/diff.o \
  $(OBJDIR)/diffcmd.o \
+ $(OBJDIR)/dispatch.o \
  $(OBJDIR)/doc.o \
  $(OBJDIR)/encode.o \
  $(OBJDIR)/event.o \
@@ -749,6 +756,7 @@ OBJ = \
  $(OBJDIR)/file.o \
  $(OBJDIR)/finfo.o \
  $(OBJDIR)/foci.o \
+ $(OBJDIR)/fshell.o \
  $(OBJDIR)/fusefs.o \
  $(OBJDIR)/glob.o \
  $(OBJDIR)/graph.o \
@@ -820,6 +828,7 @@ OBJ = \
  $(OBJDIR)/tktsetup.o \
  $(OBJDIR)/undo.o \
  $(OBJDIR)/unicode.o \
+ $(OBJDIR)/unversioned.o \
  $(OBJDIR)/update.o \
  $(OBJDIR)/url.o \
  $(OBJDIR)/user.o \
@@ -998,17 +1007,17 @@ endif
 
 openssl:	$(BLDTARGETS)
 	cd $(OPENSSLLIBDIR);./Configure --cross-compile-prefix=$(PREFIX) $(SSLCONFIG)
-	$(MAKE) -C $(OPENSSLLIBDIR) CC=$(TCCEXE) build_libs
+	$(MAKE) -C $(OPENSSLLIBDIR) PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) build_libs
 
 clean-openssl:
-	$(MAKE) -C $(OPENSSLLIBDIR) CC=$(TCCEXE) clean
+	$(MAKE) -C $(OPENSSLLIBDIR) PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) clean
 
 tcl:
 	cd $(TCLSRCDIR)/win;./configure
-	$(MAKE) -C $(TCLSRCDIR)/win CC=$(TCCEXE) $(TCLTARGET)
+	$(MAKE) -C $(TCLSRCDIR)/win PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) $(TCLTARGET)
 
 clean-tcl:
-	$(MAKE) -C $(TCLSRCDIR)/win CC=$(TCCEXE) distclean
+	$(MAKE) -C $(TCLSRCDIR)/win PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) distclean
 
 APPTARGETS += $(BLDTARGETS)
 
@@ -1074,6 +1083,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(MAKEHEADERS
 		$(OBJDIR)/descendants_.c:$(OBJDIR)/descendants.h \
 		$(OBJDIR)/diff_.c:$(OBJDIR)/diff.h \
 		$(OBJDIR)/diffcmd_.c:$(OBJDIR)/diffcmd.h \
+		$(OBJDIR)/dispatch_.c:$(OBJDIR)/dispatch.h \
 		$(OBJDIR)/doc_.c:$(OBJDIR)/doc.h \
 		$(OBJDIR)/encode_.c:$(OBJDIR)/encode.h \
 		$(OBJDIR)/event_.c:$(OBJDIR)/event.h \
@@ -1081,6 +1091,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(MAKEHEADERS
 		$(OBJDIR)/file_.c:$(OBJDIR)/file.h \
 		$(OBJDIR)/finfo_.c:$(OBJDIR)/finfo.h \
 		$(OBJDIR)/foci_.c:$(OBJDIR)/foci.h \
+		$(OBJDIR)/fshell_.c:$(OBJDIR)/fshell.h \
 		$(OBJDIR)/fusefs_.c:$(OBJDIR)/fusefs.h \
 		$(OBJDIR)/glob_.c:$(OBJDIR)/glob.h \
 		$(OBJDIR)/graph_.c:$(OBJDIR)/graph.h \
@@ -1152,6 +1163,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(MAKEHEADERS
 		$(OBJDIR)/tktsetup_.c:$(OBJDIR)/tktsetup.h \
 		$(OBJDIR)/undo_.c:$(OBJDIR)/undo.h \
 		$(OBJDIR)/unicode_.c:$(OBJDIR)/unicode.h \
+		$(OBJDIR)/unversioned_.c:$(OBJDIR)/unversioned.h \
 		$(OBJDIR)/update_.c:$(OBJDIR)/update.h \
 		$(OBJDIR)/url_.c:$(OBJDIR)/url.h \
 		$(OBJDIR)/user_.c:$(OBJDIR)/user.h \
@@ -1384,6 +1396,14 @@ $(OBJDIR)/diffcmd.o:	$(OBJDIR)/diffcmd_.c $(OBJDIR)/diffcmd.h $(SRCDIR)/config.h
 
 $(OBJDIR)/diffcmd.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/dispatch_.c:	$(SRCDIR)/dispatch.c $(TRANSLATE)
+	$(TRANSLATE) $(SRCDIR)/dispatch.c >$@
+
+$(OBJDIR)/dispatch.o:	$(OBJDIR)/dispatch_.c $(OBJDIR)/dispatch.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/dispatch.o -c $(OBJDIR)/dispatch_.c
+
+$(OBJDIR)/dispatch.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/doc_.c:	$(SRCDIR)/doc.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/doc.c >$@
 
@@ -1439,6 +1459,14 @@ $(OBJDIR)/foci.o:	$(OBJDIR)/foci_.c $(OBJDIR)/foci.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/foci.o -c $(OBJDIR)/foci_.c
 
 $(OBJDIR)/foci.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/fshell_.c:	$(SRCDIR)/fshell.c $(TRANSLATE)
+	$(TRANSLATE) $(SRCDIR)/fshell.c >$@
+
+$(OBJDIR)/fshell.o:	$(OBJDIR)/fshell_.c $(OBJDIR)/fshell.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/fshell.o -c $(OBJDIR)/fshell_.c
+
+$(OBJDIR)/fshell.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/fusefs_.c:	$(SRCDIR)/fusefs.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/fusefs.c >$@
@@ -2008,6 +2036,14 @@ $(OBJDIR)/unicode.o:	$(OBJDIR)/unicode_.c $(OBJDIR)/unicode.h $(SRCDIR)/config.h
 
 $(OBJDIR)/unicode.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/unversioned_.c:	$(SRCDIR)/unversioned.c $(TRANSLATE)
+	$(TRANSLATE) $(SRCDIR)/unversioned.c >$@
+
+$(OBJDIR)/unversioned.o:	$(OBJDIR)/unversioned_.c $(OBJDIR)/unversioned.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/unversioned.o -c $(OBJDIR)/unversioned_.c
+
+$(OBJDIR)/unversioned.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/update_.c:	$(SRCDIR)/update.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/update.c >$@
 
@@ -2131,12 +2167,17 @@ $(OBJDIR)/zip.h:	$(OBJDIR)/headers
 MINGW_OPTIONS = -D_HAVE__MINGW_H
 
 SQLITE_OPTIONS = -DNDEBUG=1 \
-                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
-                 -DSQLITE_ENABLE_LOCKING_STYLE=0 \
-                 -DSQLITE_LIKE_DOESNT_MATCH_BLOBS=1 \
                  -DSQLITE_THREADSAFE=0 \
-                 -DSQLITE_DEFAULT_FILE_FORMAT=4 \
+                 -DSQLITE_DEFAULT_MEMSTATUS=0 \
+                 -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 \
+                 -DSQLITE_LIKE_DOESNT_MATCH_BLOBS \
+                 -DSQLITE_OMIT_DECLTYPE \
                  -DSQLITE_OMIT_DEPRECATED \
+                 -DSQLITE_OMIT_PROGRESS_CALLBACK \
+                 -DSQLITE_OMIT_SHARED_CACHE \
+                 -DSQLITE_OMIT_LOAD_EXTENSION \
+                 -DSQLITE_ENABLE_LOCKING_STYLE=0 \
+                 -DSQLITE_DEFAULT_FILE_FORMAT=4 \
                  -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                  -DSQLITE_ENABLE_FTS4 \
                  -DSQLITE_ENABLE_FTS3_PARENTHESIS \

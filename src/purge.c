@@ -144,7 +144,7 @@ int purge_artifact_list(
   ** graveyard */
   if( purgeFlags & PURGE_MOVETO_GRAVEYARD ){
     db_multi_exec(zPurgeInit /*works-like:"%w%w"*/,
-                  db_name("repository"), db_name("repository"));
+                  "repository", "repository");
     db_multi_exec(
       "INSERT INTO purgeevent(ctime,pnotes) VALUES(now(),%Q)", zNote
     );
@@ -466,7 +466,7 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
 **
 **   fossil purge artifacts UUID... ?OPTIONS?
 **
-**      Move arbitrary artifacts identified by the UUID list into the 
+**      Move arbitrary artifacts identified by the UUID list into the
 **      graveyard.
 **
 **   fossil purge cat UUID...
@@ -476,7 +476,7 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
 **
 **   fossil purge checkins TAGS... ?OPTIONS?
 **
-**      Move the check-ins or branches identified by TAGS and all of 
+**      Move the check-ins or branches identified by TAGS and all of
 **      their descendants out of the repository and into the graveyard.
 **      If TAGS includes a branch name then it means all the check-ins
 **      on the most recent occurrence of that branch.

@@ -156,6 +156,17 @@ static void extraRepoInfo(void){
   db_finalize(&s);
 }
 
+/*
+** Show the parent project, if any
+*/
+static void showParentProject(void){
+  const char *zParentCode;
+  zParentCode = db_get("parent-project-code",0);
+  if( zParentCode ){
+    fossil_print("derived-from: %s %s\n", zParentCode, db_get("parent-project-name",""));
+  }
+}
+
 
 /*
 ** COMMAND: info
@@ -191,6 +202,7 @@ void info_cmd(void){
     db_record_repository_filename(g.argv[2]);
     fossil_print("project-name: %s\n", db_get("project-name", "<unnamed>"));
     fossil_print("project-code: %s\n", db_get("project-code", "<none>"));
+    showParentProject();
     extraRepoInfo();
     return;
   }
@@ -210,6 +222,7 @@ void info_cmd(void){
       fossil_print("config-db:    %s\n", g.zConfigDbName);
     }
     fossil_print("project-code: %s\n", db_get("project-code", ""));
+    showParentProject();
     vid = g.localOpen ? db_lget_int("checkout", 0) : 0;
     if( vid ){
       show_common_info(vid, "checkout:", 1, 1);
@@ -2827,7 +2840,7 @@ static void prepare_amend_comment(
 **    -m|--comment COMMENT    Make COMMENT the check-in comment
 **    -M|--message-file FILE  Read the amended comment from FILE
 **    -e|--edit-comment       Launch editor to revise comment
-**    --date DATE             Make DATE the check-in time
+**    --date DATETIME         Make DATETIME the check-in time
 **    --bgcolor COLOR         Apply COLOR to this check-in
 **    --branchcolor COLOR     Apply and propagate COLOR to the branch
 **    --tag TAG               Add new TAG to this check-in
@@ -2835,6 +2848,12 @@ static void prepare_amend_comment(
 **    --branch NAME           Make this check-in the start of branch NAME
 **    --hide                  Hide branch starting from this check-in
 **    --close                 Mark this "leaf" as closed
+**
+** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
+** year-month-day form, it may be truncated, the "T" may be replaced by
+** a space, and it may also name a timezone offset from UTC as "-HH:MM"
+** (westward) or "+HH:MM" (eastward). Either no timezone suffix or "Z"
+** means UTC.
 */
 void ci_amend_cmd(void){
   int rid;

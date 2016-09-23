@@ -369,7 +369,7 @@ char *encode64(const char *zData, int nData){
 
 /*
 ** COMMAND: test-encode64
-** 
+**
 ** Usage: %fossil test-encode64 STRING
 */
 void test_encode64_cmd(void){
@@ -435,7 +435,7 @@ char *decode64(const char *z64, int *pnByte){
 
 /*
 ** COMMAND: test-decode64
-** 
+**
 ** Usage: %fossil test-decode64 STRING
 */
 void test_decode64_cmd(void){

@@ -315,7 +315,7 @@ static void bundle_export_cmd(void){
   db_multi_exec(
     "INSERT INTO bconfig(bcname,bcvalue)"
     " SELECT name, value FROM config"
-    "  WHERE name IN ('project-code');"
+    "  WHERE name IN ('project-code','parent-project-code');"
   );
 
   /* Directly copy content from the repository into the bundle as long
@@ -763,7 +763,7 @@ static void bundle_purge_cmd(void){
 **
 **      Import all content from BUNDLE into the repository.  By default, the
 **      imported files are private and will not sync.  Use the --publish
-**      option makes the import public.
+**      option to make the import public.
 **
 **   fossil bundle ls BUNDLE
 **

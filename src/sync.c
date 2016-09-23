@@ -88,6 +88,11 @@ int autosync(int flags){
 int autosync_loop(int flags, int nTries, int doPrompt){
   int n = 0;
   int rc = 0;
+  if( (flags & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL)
+   && db_get_boolean("uv-sync",0)
+  ){
+    flags |= SYNC_UNVERSIONED;
+  }
   while( (n==0 || n<nTries) && (rc=autosync(flags)) ){
     if( rc ){
       if( ++n<nTries ){
@@ -115,7 +120,11 @@ int autosync_loop(int flags, int nTries, int doPrompt){
 ** of a server to sync against.  If no argument is given, use the
 ** most recently synced URL.  Remember the current URL for next time.
 */
-static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
+static void process_sync_args(
+  unsigned *pConfigFlags,      /* Write configuration flags here */
+  unsigned *pSyncFlags,        /* Write sync flags here */
+  int uvOnly                   /* Special handling flags for UV sync */
+){
   const char *zUrl = 0;
   const char *zHttpAuth = 0;
   unsigned configSync = 0;
@@ -127,26 +136,37 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
   }
   zHttpAuth = find_option("httpauth","B",1);
   if( find_option("once",0,0)!=0 ) urlFlags &= ~URL_REMEMBER;
+  if( (*pSyncFlags) & SYNC_FROMPARENT ) urlFlags &= ~URL_REMEMBER;
+  if( !uvOnly ){
+    if( find_option("private",0,0)!=0 ){
+      *pSyncFlags |= SYNC_PRIVATE;
+    }
+    /* The --verily option to sync, push, and pull forces extra igot cards
+    ** to be exchanged.  This can overcome malfunctions in the sync protocol.
+    */
+    if( find_option("verily",0,0)!=0 ){
+      *pSyncFlags |= SYNC_RESYNC;
+    }
+  }
   if( find_option("private",0,0)!=0 ){
     *pSyncFlags |= SYNC_PRIVATE;
   }
   if( find_option("verbose","v",0)!=0 ){
     *pSyncFlags |= SYNC_VERBOSE;
   }
-  /* The --verily option to sync, push, and pull forces extra igot cards
-  ** to be exchanged.  This can overcome malfunctions in the sync protocol.
-  */
-  if( find_option("verily",0,0)!=0 ){
-    *pSyncFlags |= SYNC_RESYNC;
-  }
   url_proxy_options();
   clone_ssh_find_options();
-  db_find_and_open_repository(0, 0);
+  if( !uvOnly ) db_find_and_open_repository(0, 0);
   db_open_config(0, 0);
   if( g.argc==2 ){
     if( db_get_boolean("auto-shun",1) ) configSync = CONFIGSET_SHUN;
   }else if( g.argc==3 ){
     zUrl = g.argv[2];
+  }
+  if( ((*pSyncFlags) & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL)
+   && db_get_boolean("uv-sync",0)
+  ){
+    *pSyncFlags |= SYNC_UNVERSIONED;
   }
   if( urlFlags & URL_REMEMBER ){
     clone_ssh_db_set_options();
@@ -179,7 +199,7 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
 **
 ** Pull all sharable changes from a remote repository into the local repository.
 ** Sharable changes include public check-ins, and wiki, ticket, and tech-note
-** edits.  Add the --private option to pull private branches.  Use the 
+** edits.  Add the --private option to pull private branches.  Use the
 ** "configuration pull" command to pull website configuration details.
 **
 ** If URL is not specified, then the URL from the most recent clone, push,
@@ -190,6 +210,7 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
 **
 **   -B|--httpauth USER:PASS    Credentials for the simple HTTP auth protocol,
 **                              if required by the remote website
+**   --from-parent-project      Pull content from the parent project
 **   --ipv4                     Use only IPv4, not IPv6
 **   --once                     Do not remember URL for subsequent syncs
 **   --proxy PROXY              Use the specified HTTP proxy
@@ -206,7 +227,10 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
 void pull_cmd(void){
   unsigned configFlags = 0;
   unsigned syncFlags = SYNC_PULL;
-  process_sync_args(&configFlags, &syncFlags);
+  if( find_option("from-parent-project",0,0)!=0 ){
+    syncFlags |= SYNC_FROMPARENT;
+  }
+  process_sync_args(&configFlags, &syncFlags, 0);
 
   /* We should be done with options.. */
   verify_all_options();
@@ -221,8 +245,8 @@ void pull_cmd(void){
 **
 ** Push all sharable changes from the local repository to a remote repository.
 ** Sharable changes include public check-ins, and wiki, ticket, and tech-note
-** edits.  Use --private to also push private branches.  Use the 
-** "configuration pull" command to push website configuration details.
+** edits.  Use --private to also push private branches.  Use the
+** "configuration push" command to push website configuration details.
 **
 ** If URL is not specified, then the URL from the most recent clone, push,
 ** pull, remote-url, or sync command is used.  See "fossil help clone" for
@@ -248,7 +272,7 @@ void pull_cmd(void){
 void push_cmd(void){
   unsigned configFlags = 0;
   unsigned syncFlags = SYNC_PUSH;
-  process_sync_args(&configFlags, &syncFlags);
+  process_sync_args(&configFlags, &syncFlags, 0);
 
   /* We should be done with options.. */
   verify_all_options();
@@ -265,7 +289,7 @@ void push_cmd(void){
 **
 ** Usage: %fossil sync ?URL? ?options?
 **
-** Synchronize all sharable changes between the local repository and a a
+** Synchronize all sharable changes between the local repository and a
 ** remote repository.  Sharable changes include public check-ins and
 ** edits to wiki pages, tickets, and technical notes.
 **
@@ -284,6 +308,7 @@ void push_cmd(void){
 **   -R|--repository REPO       Repository to pull into
 **   --ssl-identity FILE        Local SSL credentials, if requested by remote
 **   --ssh-command SSH          Use SSH as the "ssh" command
+**   -u|--unversioned           Also sync unversioned content
 **   -v|--verbose               Additional (debugging) output
 **   --verily                   Exchange extra information with the remote
 **                              to ensure no content is overlooked
@@ -293,7 +318,10 @@ void push_cmd(void){
 void sync_cmd(void){
   unsigned configFlags = 0;
   unsigned syncFlags = SYNC_PUSH|SYNC_PULL;
-  process_sync_args(&configFlags, &syncFlags);
+  if( find_option("unversioned","u",0)!=0 ){
+    syncFlags |= SYNC_UNVERSIONED;
+  }
+  process_sync_args(&configFlags, &syncFlags, 0);
 
   /* We should be done with options.. */
   verify_all_options();
@@ -303,6 +331,18 @@ void sync_cmd(void){
   if( (syncFlags & SYNC_PUSH)==0 ){
     fossil_warning("pull only: the 'dont-push' option is set");
   }
+}
+
+/*
+** Handle the "fossil unversioned sync" and "fossil unversioned revert"
+** commands.
+*/
+void sync_unversioned(unsigned syncFlags){
+  unsigned configFlags = 0;
+  (void)find_option("uv-noop",0,0);
+  process_sync_args(&configFlags, &syncFlags, 1);
+  verify_all_options();
+  client_sync(syncFlags, 0, 0);
 }
 
 /*

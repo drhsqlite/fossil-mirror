@@ -335,7 +335,7 @@ int name_to_uuid(Blob *pName, int iErrPriority, const char *zType){
 ** name_to_uuid(). zType is also as described for that function. If
 ** zName does not resolve, 0 is returned. If it is ambiguous, a
 ** negative value is returned. On success the rid is returned and
-** pUuid (if it is not NULL) is set to the a newly-allocated string,
+** pUuid (if it is not NULL) is set to a newly-allocated string,
 ** the full UUID, which must eventually be free()d by the caller.
 */
 int name_to_uuid2(const char *zName, const char *zType, char **pUuid){
@@ -667,7 +667,7 @@ void whatis_rid(int rid, int verboseFlag){
 
 /*
 ** COMMAND: whatis*
-** 
+**
 ** Usage: %fossil whatis NAME
 **
 ** Resolve the symbol NAME into its canonical 40-character SHA1-hash
@@ -723,7 +723,7 @@ void whatis_cmd(void){
 
 /*
 ** COMMAND: test-whatis-all
-** 
+**
 ** Usage: %fossil test-whatis-all
 **
 ** Show "whatis" information about every artifact in the repository
@@ -743,7 +743,7 @@ void test_whatis_all_cmd(void){
 
 /*
 ** COMMAND: test-ambiguous
-** 
+**
 ** Usage: %fossil test-ambiguous [--minsize N]
 **
 ** Show a list of ambiguous SHA1-hash abbreviations of N characters or

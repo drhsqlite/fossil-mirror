@@ -47,6 +47,7 @@ set src {
   descendants
   diff
   diffcmd
+  dispatch
   doc
   encode
   event
@@ -125,6 +126,7 @@ set src {
   tktsetup
   undo
   unicode
+  unversioned
   update
   url
   user
@@ -155,12 +157,17 @@ set extra_files {
 #
 set SQLITE_OPTIONS {
   -DNDEBUG=1
-  -DSQLITE_OMIT_LOAD_EXTENSION=1
-  -DSQLITE_ENABLE_LOCKING_STYLE=0
-  -DSQLITE_LIKE_DOESNT_MATCH_BLOBS=1
   -DSQLITE_THREADSAFE=0
-  -DSQLITE_DEFAULT_FILE_FORMAT=4
+  -DSQLITE_DEFAULT_MEMSTATUS=0
+  -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1
+  -DSQLITE_LIKE_DOESNT_MATCH_BLOBS
+  -DSQLITE_OMIT_DECLTYPE
   -DSQLITE_OMIT_DEPRECATED
+  -DSQLITE_OMIT_PROGRESS_CALLBACK
+  -DSQLITE_OMIT_SHARED_CACHE
+  -DSQLITE_OMIT_LOAD_EXTENSION
+  -DSQLITE_ENABLE_LOCKING_STYLE=0
+  -DSQLITE_DEFAULT_FILE_FORMAT=4
   -DSQLITE_ENABLE_EXPLAIN_COMMENTS
   -DSQLITE_ENABLE_FTS4
   -DSQLITE_ENABLE_FTS3_PARENTHESIS
@@ -662,7 +669,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2h
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2i
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -856,7 +863,7 @@ endif
 #### OpenSSL: Add the necessary libraries required, if enabled.
 #
 ifdef FOSSIL_ENABLE_SSL
-LIB += -lssl -lcrypto -lgdi32
+LIB += -lssl -lcrypto -lgdi32 -lcrypt32
 endif
 
 #### Tcl: Add the necessary libraries required, if enabled.
@@ -1097,17 +1104,17 @@ endif
 
 openssl:	$(BLDTARGETS)
 	cd $(OPENSSLLIBDIR);./Configure --cross-compile-prefix=$(PREFIX) $(SSLCONFIG)
-	$(MAKE) -C $(OPENSSLLIBDIR) CC=$(TCCEXE) build_libs
+	$(MAKE) -C $(OPENSSLLIBDIR) PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) build_libs
 
 clean-openssl:
-	$(MAKE) -C $(OPENSSLLIBDIR) CC=$(TCCEXE) clean
+	$(MAKE) -C $(OPENSSLLIBDIR) PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) clean
 
 tcl:
 	cd $(TCLSRCDIR)/win;./configure
-	$(MAKE) -C $(TCLSRCDIR)/win CC=$(TCCEXE) $(TCLTARGET)
+	$(MAKE) -C $(TCLSRCDIR)/win PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) $(TCLTARGET)
 
 clean-tcl:
-	$(MAKE) -C $(TCLSRCDIR)/win CC=$(TCCEXE) distclean
+	$(MAKE) -C $(TCLSRCDIR)/win PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) distclean
 
 APPTARGETS += $(BLDTARGETS)
 
@@ -1492,7 +1499,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.0.2h
+SSLDIR    = $(B)\compat\openssl-1.0.2i
 SSLINCDIR = $(SSLDIR)\inc32
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)\out32dll
@@ -1500,7 +1507,7 @@ SSLLIBDIR = $(SSLDIR)\out32dll
 SSLLIBDIR = $(SSLDIR)\out32
 !endif
 SSLLFLAGS = /nologo /opt:ref /debug
-SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
+SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib crypt32.lib
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 !message Using 'x64' platform for OpenSSL...
 # BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.

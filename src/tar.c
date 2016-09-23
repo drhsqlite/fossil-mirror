@@ -582,7 +582,7 @@ void tarball_of_checkin(
 /*
 ** COMMAND: tarball*
 **
-** Usage: %fossil tarball VERSION OUTPUTFILE
+** Usage: %fossil tarball VERSION OUTPUTFILE [OPTIONS]
 **
 ** Generate a compressed tarball for a specified version.  If the --name
 ** option is used, its argument becomes the name of the top-level directory
@@ -650,17 +650,18 @@ void tarball_cmd(void){
 ** WEBPAGE: tarball
 ** URL: /tarball
 **
-** Generate a compressed tarball for a check-in and return that
-** tarball as the HTTP reply content.
+** Generate a compressed tarball for the check-in specified by the "uuid"
+** query parameter.  Return that compressed tarball as the HTTP reply
+** content.
 **
 ** Query parameters:
 **
 **   name=NAME[.tar.gz]  The base name of the output file.  The default
 **                       value is a configuration parameter in the project
-**                       settings.  A prefix of the name, omitting the extension,
-**                       is used as the top-most directory name.
+**                       settings.  A prefix of the name, omitting the
+**                       extension, is used as the top-most directory name.
 **
-**   uuid=TAG            The check-in that is turned into a tarball.
+**   uuid=TAG            The check-in that is turned into a compressed tarball.
 **                       Defaults to "trunk".
 **
 **   in=PATTERN          Only include files that match the comma-separate
@@ -693,7 +694,6 @@ void tarball_page(void){
   if( zInclude ) pInclude = glob_create(zInclude);
   zExclude = P("ex");
   if( zExclude ) pExclude = glob_create(zExclude);
-
   if( nName>7 && fossil_strcmp(&zName[nName-7], ".tar.gz")==0 ){
     /* Special case:  Remove the ".tar.gz" suffix.  */
     nName -= 7;
@@ -718,9 +718,9 @@ void tarball_page(void){
   /* Compute a unique key for the cache entry based on query parameters */
   blob_init(&cacheKey, 0, 0);
   blob_appendf(&cacheKey, "/tarball/%z", rid_to_uuid(rid));
+  blob_appendf(&cacheKey, "/%q", zName);
   if( zInclude ) blob_appendf(&cacheKey, ",in=%Q", zInclude);
   if( zExclude ) blob_appendf(&cacheKey, ",ex=%Q", zExclude);
-  blob_appendf(&cacheKey, "/%q", zName);
   zKey = blob_str(&cacheKey);
 
   if( P("debug")!=0 ){
@@ -739,7 +739,7 @@ void tarball_page(void){
   }
   if( referred_from_login() ){
     style_header("Tarball Download");
-    @ <form action='%R/tarball'>
+    @ <form action='%R/tarball/%h(zName).tar.gz'>
     cgi_query_parameters_to_hidden();
     @ <p>Tarball named <b>%h(zName).tar.gz</b> holding the content
     @ of check-in <b>%h(zRid)</b>:

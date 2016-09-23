@@ -100,7 +100,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.0.2h
+SSLDIR    = $(B)\compat\openssl-1.0.2i
 SSLINCDIR = $(SSLDIR)\inc32
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)\out32dll
@@ -108,7 +108,7 @@ SSLLIBDIR = $(SSLDIR)\out32dll
 SSLLIBDIR = $(SSLDIR)\out32
 !endif
 SSLLFLAGS = /nologo /opt:ref /debug
-SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
+SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib crypt32.lib
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 !message Using 'x64' platform for OpenSSL...
 # BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
@@ -314,12 +314,17 @@ RCC       = $(RCC) /DUSE_SEE=1
 !endif
 
 SQLITE_OPTIONS = /DNDEBUG=1 \
-                 /DSQLITE_OMIT_LOAD_EXTENSION=1 \
-                 /DSQLITE_ENABLE_LOCKING_STYLE=0 \
-                 /DSQLITE_LIKE_DOESNT_MATCH_BLOBS=1 \
                  /DSQLITE_THREADSAFE=0 \
-                 /DSQLITE_DEFAULT_FILE_FORMAT=4 \
+                 /DSQLITE_DEFAULT_MEMSTATUS=0 \
+                 /DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 \
+                 /DSQLITE_LIKE_DOESNT_MATCH_BLOBS \
+                 /DSQLITE_OMIT_DECLTYPE \
                  /DSQLITE_OMIT_DEPRECATED \
+                 /DSQLITE_OMIT_PROGRESS_CALLBACK \
+                 /DSQLITE_OMIT_SHARED_CACHE \
+                 /DSQLITE_OMIT_LOAD_EXTENSION \
+                 /DSQLITE_ENABLE_LOCKING_STYLE=0 \
+                 /DSQLITE_DEFAULT_FILE_FORMAT=4 \
                  /DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                  /DSQLITE_ENABLE_FTS4 \
                  /DSQLITE_ENABLE_FTS3_PARENTHESIS \
@@ -368,6 +373,7 @@ SRC   = add_.c \
         descendants_.c \
         diff_.c \
         diffcmd_.c \
+        dispatch_.c \
         doc_.c \
         encode_.c \
         event_.c \
@@ -447,6 +453,7 @@ SRC   = add_.c \
         tktsetup_.c \
         undo_.c \
         unicode_.c \
+        unversioned_.c \
         update_.c \
         url_.c \
         user_.c \
@@ -540,6 +547,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\descendants$O \
         $(OX)\diff$O \
         $(OX)\diffcmd$O \
+        $(OX)\dispatch$O \
         $(OX)\doc$O \
         $(OX)\encode$O \
         $(OX)\event$O \
@@ -624,6 +632,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\tktsetup$O \
         $(OX)\undo$O \
         $(OX)\unicode$O \
+        $(OX)\unversioned$O \
         $(OX)\update$O \
         $(OX)\url$O \
         $(OX)\user$O \
@@ -721,6 +730,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\descendants.obj >> $@
 	echo $(OX)\diff.obj >> $@
 	echo $(OX)\diffcmd.obj >> $@
+	echo $(OX)\dispatch.obj >> $@
 	echo $(OX)\doc.obj >> $@
 	echo $(OX)\encode.obj >> $@
 	echo $(OX)\event.obj >> $@
@@ -805,6 +815,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\tktsetup.obj >> $@
 	echo $(OX)\undo.obj >> $@
 	echo $(OX)\unicode.obj >> $@
+	echo $(OX)\unversioned.obj >> $@
 	echo $(OX)\update.obj >> $@
 	echo $(OX)\url.obj >> $@
 	echo $(OX)\user.obj >> $@
@@ -1085,6 +1096,12 @@ $(OX)\diffcmd$O : diffcmd_.c diffcmd.h
 	$(TCC) /Fo$@ -c diffcmd_.c
 
 diffcmd_.c : $(SRCDIR)\diffcmd.c
+	translate$E $** > $@
+
+$(OX)\dispatch$O : dispatch_.c dispatch.h
+	$(TCC) /Fo$@ -c dispatch_.c
+
+dispatch_.c : $(SRCDIR)\dispatch.c
 	translate$E $** > $@
 
 $(OX)\doc$O : doc_.c doc.h
@@ -1561,6 +1578,12 @@ $(OX)\unicode$O : unicode_.c unicode.h
 unicode_.c : $(SRCDIR)\unicode.c
 	translate$E $** > $@
 
+$(OX)\unversioned$O : unversioned_.c unversioned.h
+	$(TCC) /Fo$@ -c unversioned_.c
+
+unversioned_.c : $(SRCDIR)\unversioned.c
+	translate$E $** > $@
+
 $(OX)\update$O : update_.c update.h
 	$(TCC) /Fo$@ -c update_.c
 
@@ -1681,6 +1704,7 @@ headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 			descendants_.c:descendants.h \
 			diff_.c:diff.h \
 			diffcmd_.c:diffcmd.h \
+			dispatch_.c:dispatch.h \
 			doc_.c:doc.h \
 			encode_.c:encode.h \
 			event_.c:event.h \
@@ -1760,6 +1784,7 @@ headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 			tktsetup_.c:tktsetup.h \
 			undo_.c:undo.h \
 			unicode_.c:unicode.h \
+			unversioned_.c:unversioned.h \
 			update_.c:update.h \
 			url_.c:url.h \
 			user_.c:user.h \
