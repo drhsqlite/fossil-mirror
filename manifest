@@ -1,5 +1,5 @@
-C Missed\sa\scouple\splaces\swith\sthe\sold\sOpenSSL\sversion\sreference.
-D 2016-09-23T02:06:15.424
+C Clarify\sthe\sexact\stype\sused\sfor\scmdFlags.
+D 2016-09-23T02:10:46.793
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -406,7 +406,7 @@ F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
 F src/diff.c 188128a31bb3761d950e9e4a07fa95dea0c98b06
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 3759afcedb06bb0d76844e0b724cd28b36ede262
-F src/dispatch.c 6adca854d08d8196e8d8e393e8bb97f8394ef0d3
+F src/dispatch.c 16b2448660577475ca1b3eaa427c5773479373bb
 F src/doc.c f46ada466f90f12ee7b5c6078808fdfc4dedb183
 F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
 F src/event.c 6909284d77a688d63cc67b7b0929b8dda5397742
@@ -498,7 +498,7 @@ F src/tar.c f6dbb51806fabf7d3105a614af119124da069eb3
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
-F src/th_main.c 032c2cb50a6d0a122a21d725ecdadd028928b059
+F src/th_main.c f8fb088200fb4cc98f5268dfe3cca7ed56ef90a9
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
 F src/timeline.c 1d4152fb09de242b6c77f61fdec5d882f8c3ddae
 F src/tkt.c 0d7059f823642ea6c26c07081ee94b6cbb663408
@@ -763,7 +763,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki 6c0f800bdec70724af09b6f9c6272c5efbe355b9
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 762ef68dfbe3116c8f28d914cbac6c46e4a152ad
-R 1821fcf2b0af5ffee6a779ddc5be1446
+P a29e05d1ef0456764ceb93b8e3639d1ace84774c
+R 3af2937599dcefa431f32dfb3452bfe5
 U mistachkin
-Z 310753cdddd307bd970f22d4070f11da
+Z 842693383f5a29c92efba61cbb06698e
