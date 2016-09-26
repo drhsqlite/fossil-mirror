@@ -1647,7 +1647,8 @@ void test_commit_warning(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFullname;
     const char *zName;
-    Blob content, reason;
+    Blob content;
+    Blob reason;
     int crnlOk, binOk, encodingOk;
     int fileRc;
 

@@ -1,5 +1,5 @@
-C Add\sthe\s'test-commit-warning'\scommand.
-D 2016-09-26T17:10:32.425
+C Minor\scoding\sstyle\stweak.
+D 2016-09-26T17:22:00.835
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -387,7 +387,7 @@ F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c 10310d276e72e3e34343e3385c0b39fac5cd826e
-F src/checkin.c 441f9669f918ff58232e5f703521d76a574ab909
+F src/checkin.c bcd0b8027169de6c611224d04058bf98de4db9af
 F src/checkout.c 4a679339a163dfd10df94b9eed5d90d0921925dd
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
@@ -763,7 +763,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki 6c0f800bdec70724af09b6f9c6272c5efbe355b9
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 508c67b0880536ef65a65d1347c8e0ee794fc670
-R 625a72e7772d774fa12db8ec3255be92
+P de78b73a7eeb27ca1cf329e20dc6d95587836611
+R 505b520c6491328eb80ddd19944c3723
 U mistachkin
-Z d7a78c5b6658cd99058fc6d6db5f2978
+Z 89260f1cb694603286fd6788e8b30785
