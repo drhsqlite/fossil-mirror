@@ -1,5 +1,5 @@
-C Add\s--html\soption\sto\sthe\s'test-all-help'\scommand.
-D 2016-09-23T17:10:56.080
+C Consistently\suse\sSSL\sfor\sthe\sapplicable\sskin\sfooter\slinks.
+D 2016-09-26T03:49:40.325
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -325,7 +325,7 @@ F skins/blitz/css.txt 888be7a1b8f078ebee3b4e35b39c98d00bf20109
 F skins/blitz/details.txt 1260bc474e730cd32e4e86f7a346e22a1268cc8f
 F skins/blitz/dir.png 4a210b2afb16584e6093478f77025da7e7b83a57
 F skins/blitz/file.png 0d20b3bee95152a6358e1878a9bb07cc6a0f975d
-F skins/blitz/footer.txt 8acde9076f4b5129b721d65990e7bb489ac1cfc1
+F skins/blitz/footer.txt 01dbe68ed144e0069da9c73b0583bad3fba499ca
 F skins/blitz/fossil_100.png fa1dca72090a10f4caac3e6bbb6fe5ca6f776fc7
 F skins/blitz/fossil_80_reversed_darkcyan.png c053b47fc8bd5e525ecefc69307ce66b6316fb7e
 F skins/blitz/fossil_80_reversed_darkcyan_text.png ea0c0176d0dd3d3e372befc160d0f081e1817a34
@@ -335,7 +335,7 @@ F skins/blitz/ticket.txt b35ac95d03bb2da2f10634bb16cb7bdc67062b2b
 F skins/blitz_no_logo/README.md 24829897e941d1cef4f8b8d6291c86d9cfe17cd7
 F skins/blitz_no_logo/css.txt 448d28510e35b9628e5a64fac981464a17bf0d9b
 F skins/blitz_no_logo/details.txt 1260bc474e730cd32e4e86f7a346e22a1268cc8f
-F skins/blitz_no_logo/footer.txt 8acde9076f4b5129b721d65990e7bb489ac1cfc1
+F skins/blitz_no_logo/footer.txt 01dbe68ed144e0069da9c73b0583bad3fba499ca
 F skins/blitz_no_logo/header.txt fdfffc2be91c2d45f410e953337fa2aa55c58b96
 F skins/blitz_no_logo/ticket.txt b35ac95d03bb2da2f10634bb16cb7bdc67062b2b
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
@@ -346,11 +346,11 @@ F skins/default/header.txt 382e13d2c8147320bb3598611f4625638f7694ad
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt b57649b60d60efa2697e07a3523ec9016df527a0
 F skins/eagle/details.txt 9515535a2768af2990a6a3aa0fbbcb628a36670b
-F skins/eagle/footer.txt 7f36cbf30a82ef3cec30c1917a96415fa7d76eeb
+F skins/eagle/footer.txt aa1df77925557f81892b672362cef0705dafef2f
 F skins/eagle/header.txt abb29288da0af34b3877b4b1e135e5db5cc77532
 F skins/enhanced1/css.txt 8ec40ceed5434186d4264607c2b4acca6a1a1249
 F skins/enhanced1/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
-F skins/enhanced1/footer.txt 7f36cbf30a82ef3cec30c1917a96415fa7d76eeb
+F skins/enhanced1/footer.txt aa1df77925557f81892b672362cef0705dafef2f
 F skins/enhanced1/header.txt 4f57da29b372156822ccd2dfbe1f7420c1c3b429
 F skins/khaki/css.txt 2a210e3703806e09e04a739eb9877a4b953528e7
 F skins/khaki/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
@@ -763,7 +763,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki 6c0f800bdec70724af09b6f9c6272c5efbe355b9
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7a69e5db64cd25d06eed411a127553c717839862
-R 3ebb936131046f1294b54f7f983b8eed
+P 1763f2879ca85cb412a34fa3d5e2dcae21ecfdb1
+R 527b522a10c3b092f723e1b0033b41f1
 U mistachkin
-Z d29b8a88583c2f61069f2f54e1dd5908
+Z 2708d7b516078dc6a4a7ff18e654c354
