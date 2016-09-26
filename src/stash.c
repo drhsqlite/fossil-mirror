@@ -493,10 +493,10 @@ void stash_cmd(void){
                  "   AND sql GLOB '* PRIMARY KEY(origname, stashid)*'");
   if( rc!=0 ){
     db_multi_exec(
-      "CREATE TABLE \"%w\".stashfile_tmp AS SELECT * FROM stashfile;"
-      "DROP TABLE stashfile;", zDb
+      "CREATE TABLE localdb.stashfile_tmp AS SELECT * FROM stashfile;"
+      "DROP TABLE stashfile;"
     );
-    db_multi_exec(zStashInit /*works-like:"%w,%w"*/, zDb, zDb);
+    db_multi_exec(zStashInit /*works-like:""*/);
     db_multi_exec(
       "INSERT INTO stashfile SELECT * FROM stashfile_tmp;"
       "DROP TABLE stashfile_tmp;"

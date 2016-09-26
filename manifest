@@ -1,5 +1,5 @@
-C Merge\supdates\sfrom\strunk.
-D 2016-09-26T21:12:45.916
+C Fix\ssome\scompilation\sissues,\srelated\sto\smerging.
+D 2016-09-26T21:16:01.077
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -488,7 +488,7 @@ F src/skins.c 524384aafbe9e7707d3b87f42ee72fa63fe91796
 F src/sqlcmd.c a7dce974ba7afde541ed58df98bebce335ed75a5
 F src/sqlite3.c 6129bad66161d7b97337b75e66cac1938602c876
 F src/sqlite3.h bd5acfef7e951393ded71f4d5bd1a61495b82b0b
-F src/stash.c f42baa6fdd6001ec43f9114b8549372ba5e5194c
+F src/stash.c d5773164ea2ba68b4df31460f52d80c168512625
 F src/stat.c 6a6e24276497f62d4574ac181ab15ba19471caa7
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
 F src/style.c 88afceaf6b3bcda35acaf15281cb44d353a822a5
@@ -764,7 +764,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki 6c0f800bdec70724af09b6f9c6272c5efbe355b9
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 63bcf60e4d24bc9f3bde88a1a40df5137662b625 a8b0c5f1135c701ea9e03d4cc327b011c8d4a02c
-R 86fd1845d3430c3f56deae1be237701f
+P 80aaef528d175d1db368ba70d591f5a361278bb9
+R 6dd76d1d5d0088736120b854855a0c1e
 U mistachkin
-Z f9c567ebed1143e541296795fdd3ab72
+Z 7c6ea9de2b46c1287778af0d90146f05
