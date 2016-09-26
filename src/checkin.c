@@ -1632,9 +1632,12 @@ static int commit_warning(
 */
 void test_commit_warning(void){
   int rc = 0;
-  int noSettings = find_option("no-settings", 0, 0)!=0;
-  int verboseFlag = find_option("verbose", 0, 0)!=0;
+  int noSettings;
+  int verboseFlag;
   Stmt q;
+  noSettings = find_option("no-settings",0,0)!=0;
+  verboseFlag = find_option("verbose","v",0)!=0;
+  verify_all_options();
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
   db_prepare(&q,
       "SELECT %Q || pathname, pathname, %s, %s, %s FROM vfile"
