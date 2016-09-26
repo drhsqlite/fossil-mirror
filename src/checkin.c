@@ -1638,7 +1638,7 @@ void test_commit_warning(void){
   noSettings = find_option("no-settings",0,0)!=0;
   verboseFlag = find_option("verbose","v",0)!=0;
   verify_all_options();
-  db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
+  db_must_be_within_tree();
   db_prepare(&q,
       "SELECT %Q || pathname, pathname, %s, %s, %s FROM vfile"
       " WHERE NOT deleted",
