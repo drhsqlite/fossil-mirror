@@ -1154,6 +1154,7 @@ void page_xfer(void){
   int nUuidList = 0;
   char **pzUuidList = 0;
   int *pnUuidList = 0;
+  int uvCatalogSent = 0;
 
   if( fossil_strcmp(PD("REQUEST_METHOD","POST"),"POST") ){
      fossil_redirect_home();
@@ -1364,6 +1365,11 @@ void page_xfer(void){
         nErr++;
         break;
       }
+      if( db_get_boolean("uv-sync",0) && !uvCatalogSent ){
+        @ pragma uv-pull-only
+        send_unversioned_catalog(&xfer);
+        uvCatalogSent = 1;
+      }
       if( xfer.nToken==3
        && blob_is_int(&xfer.aToken[1], &iVers)
        && iVers>=2
@@ -1540,13 +1546,16 @@ void page_xfer(void){
       if( blob_eq(&xfer.aToken[1], "uv-hash")
        && blob_is_uuid(&xfer.aToken[2])
       ){
-        if( g.perm.Read && g.perm.WrUnver ){
-          @ pragma uv-push-ok
-          send_unversioned_catalog(&xfer);
-        }else if( g.perm.Read ){
-          @ pragma uv-pull-only
-          send_unversioned_catalog(&xfer);
+        if( !uvCatalogSent ){
+          if( g.perm.Read && g.perm.WrUnver ){
+            @ pragma uv-push-ok
+            send_unversioned_catalog(&xfer);
+          }else if( g.perm.Read ){
+            @ pragma uv-pull-only
+            send_unversioned_catalog(&xfer);
+          }
         }
+        uvCatalogSent = 1;
       }
     }else
 
@@ -1658,6 +1667,8 @@ static const char zBriefFormat[] =
 #define SYNC_UNVERSIONED    0x0040    /* Sync unversioned content */
 #define SYNC_UV_REVERT      0x0080    /* Copy server unversioned to client */
 #define SYNC_FROMPARENT     0x0100    /* Pull from the parent project */
+#define SYNC_UV_TRACE       0x0200    /* Describe UV activities */
+#define SYNC_UV_DRYRUN      0x0400    /* Do not actually exchange files */
 #endif
 
 /*
@@ -1706,7 +1717,6 @@ int client_sync(
   const char *zOpType = 0;/* Push, Pull, Sync, Clone */
   double rSkew = 0.0;     /* Maximum time skew */
   int uvHashSent = 0;     /* The "pragma uv-hash" message has been sent */
-  int uvStatus = 0;       /* 0: no I/O.  1: pull-only  2: push-and-pull */
   int uvDoPush = 0;       /* Generate uvfile messages to send to server */
   int nUvGimmeSent = 0;   /* Number of uvgimme cards sent on this cycle */
   int nUvFileRcvd = 0;    /* Number of uvfile cards received on this cycle */
@@ -1753,14 +1763,19 @@ int client_sync(
   }
 
   /* When syncing unversioned files, create a TEMP table in which to store
-  ** the names of files that do not need to be sent from client to server.
+  ** the names of files that need to be sent from client to server.
+  **
+  ** The initial assumption is that all unversioned files need to be sent
+  ** to the other side.  But "uvigot" cards received back from the remote
+  ** side will normally cause many of these entries to be removed since they
+  ** do not really need to be sent.
   */
-  if( (syncFlags & SYNC_UNVERSIONED)!=0 ){
+  if( (syncFlags & (SYNC_UNVERSIONED|SYNC_CLONE))!=0 ){
     unversioned_schema();
     db_multi_exec(
        "CREATE TEMP TABLE uv_tosend("
-       "  name TEXT PRIMARY KEY,"
-       "  mtimeOnly BOOLEAN"
+       "  name TEXT PRIMARY KEY,"  /* Name of file to send client->server */
+       "  mtimeOnly BOOLEAN"       /* True to only send mtime, not content */
        ") WITHOUT ROWID;"
        "INSERT INTO uv_toSend(name,mtimeOnly)"
        "  SELECT name, 0 FROM unversioned WHERE hash IS NOT NULL;"
@@ -1887,11 +1902,16 @@ int client_sync(
     **
     ** Or, if the SYNC_UV_REVERT flag is set, delete the local unversioned
     ** files that do not exist on the server.
+    **
+    ** This happens on the second exchange, since we do not know what files
+    ** need to be sent until after the uvigot cards from the first exchange
+    ** have been processed.
     */
     if( uvDoPush ){
       assert( (syncFlags & SYNC_UNVERSIONED)!=0 );
-      assert( uvStatus==2 );
-      if( syncFlags & SYNC_UV_REVERT ){
+      if( syncFlags & SYNC_UV_DRYRUN ){
+        uvDoPush = 0;
+      }else if( syncFlags & SYNC_UV_REVERT ){
         db_multi_exec(
           "DELETE FROM unversioned"
           " WHERE name IN (SELECT name FROM uv_tosend);"
@@ -2113,14 +2133,31 @@ int client_sync(
         const char *zName = blob_str(&xfer.aToken[1]);
         const char *zHash = blob_str(&xfer.aToken[3]);
         int iStatus;
-        if( uvStatus==0 ) uvStatus = 2;
         iStatus = unversioned_status(zName, mtime, zHash);
-        if( (syncFlags & SYNC_UV_REVERT)!=0 && iStatus==4 ) iStatus = 2;
+        if( (syncFlags & SYNC_UV_REVERT)!=0 ){
+          if( iStatus==4 ) iStatus = 2;
+          if( iStatus==5 ) iStatus = 1;
+        }
+        if( syncFlags & (SYNC_UV_TRACE|SYNC_UV_DRYRUN) ){
+          const char *zMsg = 0;
+          switch( iStatus ){
+            case 0:
+            case 1: zMsg = "UV-PULL";             break; 
+            case 2: zMsg = "UV-PULL-MTIME-ONLY";  break;
+            case 4: zMsg = "UV-PUSH-MTIME-ONLY";  break;
+            case 5: zMsg = "UV-PUSH";             break;
+          }
+          if( zMsg ) fossil_print("\r%s: %s\n", zMsg, zName);
+          if( syncFlags & SYNC_UV_DRYRUN ){
+            iStatus = 99;  /* Prevent any changes or reply messages */
+          }
+        }
         if( iStatus<=1 ){
           if( zHash[0]!='-' ){
             blob_appendf(xfer.pOut, "uvgimme %s\n", zName);
             nCardSent++;
             nUvGimmeSent++;
+            db_multi_exec("DELETE FROM unversioned WHERE name=%Q", zName);
           }else if( iStatus==1 ){
             db_multi_exec(
                "UPDATE unversioned"
@@ -2255,10 +2292,8 @@ int client_sync(
         ** does accept new unversioned content, it sends "uv-push-ok".
         */
         if( blob_eq(&xfer.aToken[1], "uv-pull-only") ){
-          uvStatus = 1;
           if( syncFlags & SYNC_UV_REVERT ) uvDoPush = 1;
         }else if( blob_eq(&xfer.aToken[1], "uv-push-ok") ){
-          uvStatus = 2;
           uvDoPush = 1;
         }
       }else
@@ -2375,7 +2410,7 @@ int client_sync(
 
     /* Continue looping as long as new uvfile cards are being received
     ** and uvgimme cards are being sent. */
-    if( nUvGimmeSent>0 && nUvFileRcvd>0 ) go = 1;
+    if( nUvGimmeSent>0 && (nUvFileRcvd>0 || nCycle<3) ) go = 1;
 
     db_multi_exec("DROP TABLE onremote");
     if( go ){

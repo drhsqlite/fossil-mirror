@@ -1468,11 +1468,13 @@ static void create_manifest(
 ** and the original file will have been renamed to "<filename>-original".
 */
 static int commit_warning(
-  Blob *p,              /* The content of the file being committed. */
-  int crnlOk,           /* Non-zero if CR/NL warnings should be disabled. */
-  int binOk,            /* Non-zero if binary warnings should be disabled. */
-  int encodingOk,       /* Non-zero if encoding warnings should be disabled. */
-  const char *zFilename /* The full name of the file being committed. */
+  Blob *pContent,        /* The content of the file being committed. */
+  int crnlOk,            /* Non-zero if CR/NL warnings should be disabled. */
+  int binOk,             /* Non-zero if binary warnings should be disabled. */
+  int encodingOk,        /* Non-zero if encoding warnings should be disabled. */
+  int noPrompt,          /* 0 to always prompt, 1 for 'N', 2 for 'Y'. */
+  const char *zFilename, /* The full name of the file being committed. */
+  Blob *pReason          /* Reason for warning, if any (non-fatal only). */
 ){
   int bReverse;           /* UTF-16 byte order is reversed? */
   int fUnicode;           /* return value of could_be_utf16() */
@@ -1487,12 +1489,12 @@ static int commit_warning(
   static int allOk = 0;   /* Set to true to disable this routine */
 
   if( allOk ) return 0;
-  fUnicode = could_be_utf16(p, &bReverse);
+  fUnicode = could_be_utf16(pContent, &bReverse);
   if( fUnicode ){
-    lookFlags = looks_like_utf16(p, bReverse, LOOK_NUL);
+    lookFlags = looks_like_utf16(pContent, bReverse, LOOK_NUL);
   }else{
-    lookFlags = looks_like_utf8(p, LOOK_NUL);
-    if( !(lookFlags & LOOK_BINARY) && invalid_utf8(p) ){
+    lookFlags = looks_like_utf8(pContent, LOOK_NUL);
+    if( !(lookFlags & LOOK_BINARY) && invalid_utf8(pContent) ){
       fHasInvalidUtf8 = 1;
     }
   }
@@ -1500,7 +1502,7 @@ static int commit_warning(
   fBinary = (lookFlags & LOOK_BINARY);
   fHasLoneCrOnly = ((lookFlags & LOOK_EOL) == LOOK_LONE_CR);
   fHasCrLfOnly = ((lookFlags & LOOK_EOL) == LOOK_CRLF);
-  if( fUnicode || fHasAnyCr || fBinary || fHasInvalidUtf8){
+  if( fUnicode || fHasAnyCr || fBinary || fHasInvalidUtf8 ){
     const char *zWarning;
     const char *zDisable;
     const char *zConvert = "c=convert/";
@@ -1564,15 +1566,22 @@ static int commit_warning(
                  " disable this warning.\n"
          "Commit anyhow (a=all/%sy/N)? ",
          blob_str(&fname), zWarning, zDisable, zConvert);
-    prompt_user(zMsg, &ans);
+    if( noPrompt==0 ){
+      prompt_user(zMsg, &ans);
+      cReply = blob_str(&ans)[0];
+      blob_reset(&ans);
+    }else if( noPrompt==2 ){
+      cReply = 'Y';
+    }else{
+      cReply = 'N';
+    }
     fossil_free(zMsg);
-    cReply = blob_str(&ans)[0];
     if( cReply=='a' || cReply=='A' ){
       allOk = 1;
     }else if( *zConvert && (cReply=='c' || cReply=='C') ){
       char *zOrig = file_newname(zFilename, "original", 1);
       FILE *f;
-      blob_write_to_file(p, zOrig);
+      blob_write_to_file(pContent, zOrig);
       fossil_free(zOrig);
       f = fossil_fopen(zFilename, "wb");
       if( f==0 ){
@@ -1582,25 +1591,92 @@ static int commit_warning(
           int bomSize;
           const unsigned char *bom = get_utf8_bom(&bomSize);
           fwrite(bom, 1, bomSize, f);
-          blob_to_utf8_no_bom(p, 0);
+          blob_to_utf8_no_bom(pContent, 0);
         }else if( fHasInvalidUtf8 ){
-          blob_cp1252_to_utf8(p);
+          blob_cp1252_to_utf8(pContent);
         }
         if( fHasAnyCr ){
-          blob_to_lf_only(p);
+          blob_to_lf_only(pContent);
         }
-        fwrite(blob_buffer(p), 1, blob_size(p), f);
+        fwrite(blob_buffer(pContent), 1, blob_size(pContent), f);
         fclose(f);
       }
       return 1;
     }else if( cReply!='y' && cReply!='Y' ){
       fossil_fatal("Abandoning commit due to %s in %s",
                    zWarning, blob_str(&fname));
+    }else if( noPrompt==2 ){
+      if( pReason ){
+        blob_append(pReason, zWarning, -1);
+      }
+      return 1;
     }
-    blob_reset(&ans);
     blob_reset(&fname);
   }
   return 0;
+}
+
+/*
+** COMMAND: test-commit-warning
+**
+** Usage: %fossil test-commit-warning ?OPTIONS?
+**
+** Check each file in the checkout, including unmodified ones, using all
+** the pre-commit checks.
+**
+** Options:
+**    --no-settings     Do not consider any glob settings.
+**    -v|--verbose      Show per-file results for all pre-commit checks.
+**
+** See also: commit, extras
+*/
+void test_commit_warning(void){
+  int rc = 0;
+  int noSettings;
+  int verboseFlag;
+  Stmt q;
+  noSettings = find_option("no-settings",0,0)!=0;
+  verboseFlag = find_option("verbose","v",0)!=0;
+  verify_all_options();
+  db_must_be_within_tree();
+  db_prepare(&q,
+      "SELECT %Q || pathname, pathname, %s, %s, %s FROM vfile"
+      " WHERE NOT deleted",
+      g.zLocalRoot,
+      glob_expr("pathname", noSettings ? 0 : db_get("crnl-glob","")),
+      glob_expr("pathname", noSettings ? 0 : db_get("binary-glob","")),
+      glob_expr("pathname", noSettings ? 0 : db_get("encoding-glob",""))
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zFullname;
+    const char *zName;
+    Blob content;
+    Blob reason;
+    int crnlOk, binOk, encodingOk;
+    int fileRc;
+
+    zFullname = db_column_text(&q, 0);
+    zName = db_column_text(&q, 1);
+    crnlOk = db_column_int(&q, 2);
+    binOk = db_column_int(&q, 3);
+    encodingOk = db_column_int(&q, 4);
+    blob_zero(&content);
+    if( file_wd_islink(zFullname) ){
+      blob_read_link(&content, zFullname);
+    }else{
+      blob_read_from_file(&content, zFullname);
+    }
+    blob_zero(&reason);
+    fileRc = commit_warning(&content, crnlOk, binOk, encodingOk, 2,
+                            zFullname, &reason);
+    if( fileRc || verboseFlag ){
+      fossil_print("%d\t%s\t%s\n", fileRc, zName, blob_str(&reason));
+    }
+    blob_reset(&reason);
+    rc |= fileRc;
+  }
+  db_finalize(&q);
+  fossil_print("%d\n", rc);
 }
 
 /*
@@ -1685,6 +1761,9 @@ static int tagCmp(const void *a, const void *b){
 **    -M|--message-file FILE     read the commit comment from given file
 **    --mimetype MIMETYPE        mimetype of check-in comment
 **    -n|--dry-run               If given, display instead of run actions
+**    --no-prompt                This option disables prompting the user for
+**                               input and assumes an answer of 'No' for every
+**                               question.
 **    --no-warnings              omit all warnings about file contents
 **    --nosign                   do not attempt to sign this commit with gpg
 **    --private                  do not sync changes and their descendants
@@ -1715,6 +1794,7 @@ void commit_cmd(void){
   int noSign = 0;        /* True to omit signing the manifest using GPG */
   int isAMerge = 0;      /* True if checking in a merge */
   int noWarningFlag = 0; /* True if skipping all warnings */
+  int noPrompt = 0;      /* True if skipping all prompts */
   int forceFlag = 0;     /* Undocumented: Disables all checks */
   int forceDelta = 0;    /* Force a delta-manifest */
   int forceBaseline = 0; /* Force a baseline-manifest */
@@ -1762,6 +1842,7 @@ void commit_cmd(void){
   allowEmpty = find_option("allow-empty",0,0)!=0;
   allowFork = find_option("allow-fork",0,0)!=0;
   allowOlder = find_option("allow-older",0,0)!=0;
+  noPrompt = find_option("no-prompt", 0, 0)!=0;
   noWarningFlag = find_option("no-warnings", 0, 0)!=0;
   sCiInfo.zBranch = find_option("branch","b",1);
   sCiInfo.zColor = find_option("bgcolor",0,1);
@@ -1831,8 +1912,14 @@ void commit_cmd(void){
   ** clock skew
   */
   if( g.clockSkewSeen ){
-    prompt_user("continue in spite of time skew (y/N)? ", &ans);
-    cReply = blob_str(&ans)[0];
+    if( !noPrompt ){
+      prompt_user("continue in spite of time skew (y/N)? ", &ans);
+      cReply = blob_str(&ans)[0];
+      blob_reset(&ans);
+    }else{
+      fossil_print("Abandoning commit due to time skew\n");
+      cReply = 'N';
+    }
     if( cReply!='y' && cReply!='Y' ){
       fossil_exit(1);
     }
@@ -1849,9 +1936,16 @@ void commit_cmd(void){
   ** should be committed.
   */
   if( select_commit_files() ){
-    prompt_user("continue (y/N)? ", &ans);
-    cReply = blob_str(&ans)[0];
-    if( cReply!='y' && cReply!='Y' ) fossil_exit(1);
+    if( !noPrompt ){
+      prompt_user("continue (y/N)? ", &ans);
+      cReply = blob_str(&ans)[0];
+      blob_reset(&ans);
+    }else{
+      cReply = 'N';
+    }
+    if( cReply!='y' && cReply!='Y' ){
+      fossil_exit(1);
+    }
   }
   isAMerge = db_exists("SELECT 1 FROM vmerge WHERE id=0 OR id<-2");
   if( g.aCommitFile && isAMerge ){
@@ -1956,22 +2050,31 @@ void commit_cmd(void){
     blob_zero(&comment);
     blob_read_from_file(&comment, zComFile);
     blob_to_utf8_no_bom(&comment, 1);
-  }else if(dryRunFlag){
+  }else if( dryRunFlag ){
     blob_zero(&comment);
-  }else{
+  }else if( !noPrompt ){
     char *zInit = db_text(0, "SELECT value FROM vvar WHERE name='ci-comment'");
     prepare_commit_comment(&comment, zInit, &sCiInfo, vid);
     if( zInit && zInit[0] && fossil_strcmp(zInit, blob_str(&comment))==0 ){
       prompt_user("unchanged check-in comment.  continue (y/N)? ", &ans);
       cReply = blob_str(&ans)[0];
-      if( cReply!='y' && cReply!='Y' ) fossil_exit(1);
+      blob_reset(&ans);
+      if( cReply!='y' && cReply!='Y' ){
+        fossil_exit(1);
+      }
     }
     free(zInit);
   }
   if( blob_size(&comment)==0 ){
     if( !dryRunFlag ){
-      prompt_user("empty check-in comment.  continue (y/N)? ", &ans);
-      cReply = blob_str(&ans)[0];
+      if( !noPrompt ){
+        prompt_user("empty check-in comment.  continue (y/N)? ", &ans);
+        cReply = blob_str(&ans)[0];
+        blob_reset(&ans);
+      }else{
+        fossil_print("Abandoning commit due to empty check-in comment\n");
+        cReply = 'N';
+      }
       if( cReply!='y' && cReply!='Y' ){
         fossil_exit(1);
       }
@@ -2025,7 +2128,8 @@ void commit_cmd(void){
     /* Do not emit any warnings when they are disabled. */
     if( !noWarningFlag ){
       abortCommit |= commit_warning(&content, crnlOk, binOk,
-                                    encodingOk, zFullname);
+                                    encodingOk, noPrompt,
+                                    zFullname, 0);
     }
     if( contains_merge_marker(&content) ){
       Blob fname; /* Relative pathname of the file */
@@ -2109,8 +2213,14 @@ void commit_cmd(void){
     }
   }
   if( !noSign && !g.markPrivate && clearsign(&manifest, &manifest) ){
-    prompt_user("unable to sign manifest.  continue (y/N)? ", &ans);
-    cReply = blob_str(&ans)[0];
+    if( !noPrompt ){
+      prompt_user("unable to sign manifest.  continue (y/N)? ", &ans);
+      cReply = blob_str(&ans)[0];
+      blob_reset(&ans);
+    }else{
+      fossil_print("Abandoning commit due to manifest signing failure\n");
+      cReply = 'N';
+    }
     if( cReply!='y' && cReply!='Y' ){
       fossil_exit(1);
     }

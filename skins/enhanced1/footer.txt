@@ -2,7 +2,7 @@
   <th1>
   proc getTclVersion {} {
     if {[catch {tclEval info patchlevel} tclVersion] == 0} {
-      return "<a href=\"http://www.tcl.tk/\">Tcl</a> version $tclVersion"
+      return "<a href=\"https://www.tcl.tk/\">Tcl</a> version $tclVersion"
     }
     return ""
   }
