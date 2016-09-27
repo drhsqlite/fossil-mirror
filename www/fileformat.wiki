@@ -1,4 +1,4 @@
-<title>Fossil File Formats</title>
+﻿<title>Fossil File Formats</title>
 <h1 align="center">
 Fossil File Formats
 </h1>
@@ -168,11 +168,11 @@ is used.
 
 A manifest has zero or one P-cards.  Most manifests have one P-card.
 The P-card has a varying number of arguments that
-defines other manifests from which the current manifest
-is derived.  Each argument is an 40-character lowercase 
-hexadecimal SHA1 of the predecessor manifest.  All arguments
-to the P-card must be unique to that line.
-The first predecessor is the direct ancestor of the manifest.
+define other manifests from which the current manifest
+is derived.  Each argument is a 40-character lowercase 
+hexadecimal SHA1 of a predecessor manifest.  All arguments
+to the P-card must be unique within that card.
+The first argument is the SHA1 of the direct ancestor of the manifest.
 Other arguments define manifests with which the first was
 merged to yield the current manifest.  Most manifests have
 a P-card with a single argument.  The first manifest in the
@@ -201,7 +201,7 @@ Older versions of Fossil will reject manifests that contain Q-cards.
 A manifest may optionally have a single R-card.  The R-card has
 a single argument which is the MD5 checksum of all files in 
 the check-in except the manifest itself.  The checksum is expressed
-as 32-characters of lowercase hexadecimal.   The checksum is
+as 32 characters of lowercase hexadecimal.   The checksum is
 computed as follows:  For each file in the check-in (except for
 the manifest itself) in strict sorted lexicographical order, 
 take the pathname of the file relative to the root of the
@@ -270,8 +270,8 @@ Allowed cards in the cluster are as follows:
 </blockquote>
 
 A cluster contains one or more "M" cards followed by a single "Z"
-line.  Each M card has a single argument which is the artifact ID of 
-another artifact in the repository.  The Z card work exactly like
+card.  Each M card has a single argument which is the artifact ID of 
+another artifact in the repository.  The Z card works exactly like
 the Z card of a manifest.  The argument to the Z card is the
 lower-case hexadecimal representation of the MD5 checksum of all
 prior cards in the cluster.  The Z-card is required.
