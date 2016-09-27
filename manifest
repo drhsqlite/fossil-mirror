@@ -1,5 +1,5 @@
-C Fix\stypo\sin\scopyright\syear\son\sthe\snew\s'commit-warning.test'\sfile.
-D 2016-09-27T06:40:48.289
+C Fix\sregression\sto\stest\scase\samend-close-1.3\scaused\sby\scheckin\s[f4b5881b]\swhich\schanged\sthe\scommit\smessage\sstored\swhen\smarking\sa\sbranch\sclosed.\sThe\stest\scase\shas\sbeen\schanged\sso\sthat\sit\spasses.
+D 2016-09-27T07:14:03.905
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -524,7 +524,7 @@ F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c d463b5a9d1e46fed1a5e9e8e61a3cde8cec6003f
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
-F test/amend.test f89134d8bb0e36527248557c95c23f19fc687064
+F test/amend.test b298d36e7b996220c0bff697d6b229645dd43f8f
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
 F test/cmdline.test df50383ebf00e7a444e29f2f755867f843c37df7
 F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
@@ -764,7 +764,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki 6c0f800bdec70724af09b6f9c6272c5efbe355b9
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a8b0c5f1135c701ea9e03d4cc327b011c8d4a02c
-R 667123033d35094d23b7699b85e70d86
-U mistachkin
-Z c3cf4602dfb5b9131ca31f423c3754c9
+P edd288b7d075485b1e3c0492d64b6144d8f522ef
+R 9117e16f2f6122e8b68bba7644c8ab82
+U rberteig
+Z 008a8bb676a39f59a4ea84cadcd26705
