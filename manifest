@@ -1,5 +1,5 @@
-C Add\spre-commit\swarning\stests.
-D 2016-09-26T17:49:54.752
+C Fix\stypo\sin\scopyright\syear\son\sthe\snew\s'commit-warning.test'\sfile.
+D 2016-09-27T06:40:48.289
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -528,7 +528,7 @@ F test/amend.test f89134d8bb0e36527248557c95c23f19fc687064
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
 F test/cmdline.test df50383ebf00e7a444e29f2f755867f843c37df7
 F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
-F test/commit-warning.test 86fba1f7c8c58c0c0361d9b2a3e864adfe0de3c5
+F test/commit-warning.test 1b94adc5f490ade07cd9fc3ba35c94c77ac61819
 F test/contains-selector.test cf46a39b3c1ff72d2fc674f4ccbeecfb94add7d2
 F test/delta1.test d4bcfbeff42bd30d9b770e02b1dd301073bc6cd8
 F test/diff-test-1.wiki 597fbb13c9c3da02e09a53d128f3b5d4dd5cadda
@@ -764,7 +764,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki 6c0f800bdec70724af09b6f9c6272c5efbe355b9
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b4a1b2fab941f8b075a898e1562c0141583f1ff9
-R 09dbb25bfd7323c90a90f1afec6b5a7a
+P a8b0c5f1135c701ea9e03d4cc327b011c8d4a02c
+R 667123033d35094d23b7699b85e70d86
 U mistachkin
-Z 5bae3f10611d3c0e7c395653a1982efc
+Z c3cf4602dfb5b9131ca31f423c3754c9
