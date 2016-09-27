@@ -248,7 +248,7 @@ may be removed from a repository without loss or damage to the
 underlying project code.
 
 Clusters follow a syntax that is very similar to manifests.
-A Cluster is a line-oriented text file.  Newline characters
+A cluster is a line-oriented text file.  Newline characters
 (ASCII 0x0a) separate the artifact into cards.  Each card begins with a single
 character "card type".  Zero or more arguments may follow
 the card type.  All arguments are separated from each other

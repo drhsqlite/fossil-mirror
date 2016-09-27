@@ -1,5 +1,5 @@
-C Fix\sa\scouple\stiny\seditorial\sinconsistencies\sin\sfileformat.wiki
-D 2016-09-27T17:19:31.835
+C One\smore\stweak\sto\sfileformat.wiki
+D 2016-09-27T17:23:13.535
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -712,7 +712,7 @@ F www/env-opts.md fc94ac5398e20e7727ac27515be86270e61532f4
 F www/event.wiki 395b955e611769fd9aedf3ab489530b89ad5f224
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 7d1363cc33701f1df53cf0f5479546adcde6d781
-F www/fileformat.wiki 61ac00f0cde198c193987d38f17b81df34087ca6
+F www/fileformat.wiki 981373a49e621f163636c8abea1a17f8559613ea
 F www/fiveminutes.wiki 3172b324738523b163b19a8c836d3d9a3ceb9b94
 F www/foss-cklist.wiki 77fe5872d7077a68e1b01e8dd5e3a48f7ee2b0dd
 F www/fossil-from-msvc.wiki f2c229553ff6304fa0c6e82d169e959498af98a8
@@ -764,6 +764,6 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki 6c0f800bdec70724af09b6f9c6272c5efbe355b9
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 06fdea59987b9d2b92a5e041b38cf238cb626f1e
+P 9c2116a02b2cdce53bac5ec7ac28076730cf39c7
 U andygoth
-Z 016048c0c51bc22cd4a75accbd28534f
+Z bfa5961ec5b5fcd8eef49afd8b37c8a7
