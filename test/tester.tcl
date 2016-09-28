@@ -272,6 +272,7 @@ proc get_all_settings {} {
       ssl-identity \
       th1-setup \
       th1-uri-regexp \
+      uv-sync \
       web-browser]
 
   fossil test-th-eval "hasfeature legacyMvRm"

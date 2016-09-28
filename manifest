@@ -1,5 +1,5 @@
-C Performance\soptimization\sin\sthe\sbreak_into_lines()\sroutine\sof\sthe\sdiff\slogic.
-D 2016-09-28T18:19:58.985
+C Fix\stest\ssuite\sregression\scaused\sby\sthe\saddtion\sof\sthe\snew\suv-sync\ssetting\sin\scheck-in\s[b9fd5947ef]\swithout\supdating\sthe\slist\sof\sall\ssettings\sin\stester.tcl.
+D 2016-09-28T18:48:36.459
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -559,7 +559,7 @@ F test/stash.test 7308d81eca91aa889a41f947ce48025d07633ab9
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl d7347cce73e49ae408cda7f01b5e0e31f9290d9f
+F test/tester.tcl d1b16b916369614a1d134d92bcc53b514a2ae98d
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 3a95822e5006f404b51bb6dccacc340a452d3f4e
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -764,7 +764,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki 6c0f800bdec70724af09b6f9c6272c5efbe355b9
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 95768950b417f08fb9e599a01e6f83a32b68df23
-R 078b21c2cd281a3ca1986e307bcac69f
-U drh
-Z 5e917e0e0db6199cc5306d7370e8a7e6
+P 8d48885f811a6604ecabb93ac90ee07b96eda9ad
+R 1d5f3fae0ae9ff15f0a0ba902c30c79b
+U rberteig
+Z 910c72ed90affc0f4acea85d9f233d38
