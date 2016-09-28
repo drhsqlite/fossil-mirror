@@ -1,5 +1,5 @@
-C Improved\shash\sfunction\sfor\sthe\sdiff\salgorithm.
-D 2016-09-28T20:26:50.138
+C Simplification\sand\soptimization\sof\sthe\sbreak_into_lines()\shelper\sroutine\nin\sthe\sdiff\slogic.\s\sUse\sthe\sstrchr()\sroutine\sfrom\sthe\sstandard\slibrary\sto\nhelp\slocate\s\\n\scharacters.
+D 2016-09-28T21:24:44.628
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -403,7 +403,7 @@ F src/db.c 8a4c5b96e6a1ffbdb7078f37e3c119a5d83d5b89
 F src/delta.c f3002e96cc35f37b9bab7c88f82e978e67342904
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
-F src/diff.c e0facaac606fadcbe0fce54f54c5b74396d00f11
+F src/diff.c 3ee56e13e7ded10f282f0836dc71bd31d541ea84
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 3759afcedb06bb0d76844e0b724cd28b36ede262
 F src/dispatch.c 52878ab4a817bb0a58aebee1f71b8fdf301b458c
@@ -764,7 +764,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki 6c0f800bdec70724af09b6f9c6272c5efbe355b9
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 08d970d68fb6d6c13f47436d659bd0c110d0f6ab
-R f1fce191bf342b94f0e2167617207829
+P 173cca0d7d109857801f399dc7a0bd7c5bfdd2b9
+R 993bb4bcdc29b9f3e243759a3921ebf9
 U drh
-Z ab1f1474d4c3a1f92ef1b836894f14fe
+Z a703340ebbb12ecfe28e4724c89890c0

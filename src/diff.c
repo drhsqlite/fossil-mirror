@@ -139,40 +139,33 @@ static DLine *break_into_lines(
   int *pnLine,
   u64 diffFlags
 ){
-  int nLine, i, j, k, s, x;
+  int nLine, i, k, nn, s, x;
   unsigned int h, h2;
   DLine *a;
+  const char *zNL, *z2;
 
-  /* Count the number of lines.  Allocate space to hold
-  ** the returned array.
+  /* Early-out for the degenerate case */
+  if( n==0 ) return 0;
+
+  /* Count the number of lines in the input file.  Include the last line
+  ** in the count even if it lacks the \n terminator
   */
-  for(i=j=0, nLine=1; i<n; i++, j++){
-    if( z[i]<='\n' ){
-      if( z[i]==0 ) return 0;
-      if( z[i]=='\n' && z[i+1]!=0 ){
-        nLine++;
-        if( j>LENGTH_MASK ){
-          return 0;
-        }
-        j = 0;
-      }
-    }
-  }
-  if( j>LENGTH_MASK ){
-    return 0;
-  }
-  a = fossil_malloc( nLine*sizeof(a[0]) );
-  memset(a, 0, nLine*sizeof(a[0]) );
-  if( n==0 ){
-    *pnLine = 0;
-    return a;
-  }
+  for(nLine=0, z2=z; (zNL = strchr(z2,'\n'))!=0; z2=zNL+1, nLine++){}
+  if( z2[0]!=0 ) nLine++;
 
-  /* Fill in the array */
-  for(i=0; i<nLine; i++){
-    for(j=0; z[j]>'\n' || (z[j]!=0 && z[j]!='\n'); j++){}
+  a = fossil_malloc( sizeof(a[0])*nLine );
+  memset(a, 0, sizeof(a[0])*nLine);
+  i = 0;
+  do{
+    zNL = strchr(z,'\n');
+    if( zNL==0 ) zNL = z+strlen(z);
+    nn = (int)(zNL - z);
+    if( nn>LENGTH_MASK ){
+      fossil_free(a);
+      return 0;
+    }
     a[i].z = z;
-    k = j;
+    k = nn;
     if( diffFlags & DIFF_STRIP_EOLCR ){
       if( k>0 && z[k-1]=='\r' ){ k--; }
     }
@@ -204,8 +197,10 @@ static DLine *break_into_lines(
     h2 = h % nLine;
     a[i].iNext = a[h2].iHash;
     a[h2].iHash = i+1;
-    z += j+1;
-  }
+    z += nn+1;
+    i++;
+  }while( zNL[0] && zNL[1] );
+  assert( i==nLine );
 
   /* Return results */
   *pnLine = nLine;
