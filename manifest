@@ -1,5 +1,5 @@
-C Simplification\sand\soptimization\sof\sthe\sbreak_into_lines()\shelper\sroutine\nin\sthe\sdiff\slogic.\s\sUse\sthe\sstrchr()\sroutine\sfrom\sthe\sstandard\slibrary\sto\nhelp\slocate\s\\n\scharacters.
-D 2016-09-28T21:24:44.628
+C In\sthe\srandom\smerge\stest\s(merge2.test)\signore\scases\swhere\sthe\sparallel\nrandom\sedits\soverlap,\sresulting\sin\sa\smerge\sconflict.
+D 2016-09-28T23:47:40.662
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -541,7 +541,7 @@ F test/json.test 65f8333164e43173ad47634035ab6d2c8635ed86
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/merge1.test 0f11a55b5d71fa668b53ffc4cdeb23997e9cb042
-F test/merge2.test 4fcf75ee09305e6a783b5329376b7e2441e764b1
+F test/merge2.test 038091215ec2f2b53157599acae6f03dcf91dd12
 F test/merge3.test 70db9ae7c679efad5d5b371114a3cc609818e01a
 F test/merge4.test d563164c477885bcaecb6ea28e824b698bdd57bb
 F test/merge5.test aadadc4b34b77b94dc711ee0b0ae2f760abaecf9
@@ -764,7 +764,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki 6c0f800bdec70724af09b6f9c6272c5efbe355b9
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 173cca0d7d109857801f399dc7a0bd7c5bfdd2b9
-R 993bb4bcdc29b9f3e243759a3921ebf9
+P 233e9328ee639b3e9bdefd87c27e5d4a9fc86c79
+R 9c94286c8862c66793cf20738c284fde
 U drh
-Z a703340ebbb12ecfe28e4724c89890c0
+Z fb5e394ae469bb1ea09b0b5115ee6707
