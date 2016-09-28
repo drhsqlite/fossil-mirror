@@ -964,7 +964,7 @@ static int match_dline(DLine *pA, DLine *pB){
   avg = (nA+nB)/2;
   if( avg==0 ) return 0;
   if( nA==nB && memcmp(zA, zB, nA)==0 ) return 0;
-  memset(aFirst, 0, sizeof(aFirst));
+  memset(aFirst, 0xff, sizeof(aFirst));
   zA--; zB--;   /* Make both zA[] and zB[] 1-indexed */
   for(i=nB; i>0; i--){
     c = (unsigned char)zB[i];
@@ -974,9 +974,9 @@ static int match_dline(DLine *pA, DLine *pB){
   best = 0;
   for(i=1; i<=nA-best; i++){
     c = (unsigned char)zA[i];
-    for(j=aFirst[c]; j>0 && j<nB-best; j = aNext[j]){
+    for(j=aFirst[c]; j<nB-best && memcmp(&zA[i],&zB[j],best)==0; j = aNext[j]){
       int limit = minInt(nA-i, nB-j);
-      for(k=1; k<=limit && zA[k+i]==zB[k+j]; k++){}
+      for(k=best; k<=limit && zA[k+i]==zB[k+j]; k++){}
       if( k>best ) best = k;
     }
   }

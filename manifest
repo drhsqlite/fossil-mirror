@@ -1,5 +1,5 @@
-C Fix\stest\ssuite\sregression\scaused\sby\sthe\saddtion\sof\sthe\snew\suv-sync\ssetting\sin\scheck-in\s[b9fd5947ef]\swithout\supdating\sthe\slist\sof\sall\ssettings\sin\stester.tcl.
-D 2016-09-28T18:48:36.459
+C Performance\simprovement\sin\sLCS\slength\scomputation\sused\sfor\sside-by-side\ndiff\scoloring.
+D 2016-09-28T19:48:53.467
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -403,7 +403,7 @@ F src/db.c 8a4c5b96e6a1ffbdb7078f37e3c119a5d83d5b89
 F src/delta.c f3002e96cc35f37b9bab7c88f82e978e67342904
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
-F src/diff.c d903af43c78ec57aecba7f79007860adc743974b
+F src/diff.c a1e05153664327384991070d2fa8b3890f79f1af
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 3759afcedb06bb0d76844e0b724cd28b36ede262
 F src/dispatch.c 52878ab4a817bb0a58aebee1f71b8fdf301b458c
@@ -764,7 +764,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki 6c0f800bdec70724af09b6f9c6272c5efbe355b9
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8d48885f811a6604ecabb93ac90ee07b96eda9ad
-R 1d5f3fae0ae9ff15f0a0ba902c30c79b
-U rberteig
-Z 910c72ed90affc0f4acea85d9f233d38
+P 0661d65cbdea96cf0b196faf9472f93cb75384f4
+R 0a0f80de1acc659333a3412124fd9131
+U drh
+Z 388ad88b8f186b8b70acd28a2f606f65
