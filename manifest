@@ -1,5 +1,5 @@
-C Correct\s"From"\sURL\sin\scheck-in\sMLINK\stable
-D 2016-09-27T17:47:09.710
+C Use\sthe\sDBSTAT\svirtual\stable\sas\sa\stable-valued\sfunction\sinstead\sof\screating\na\sTEMP\sinstance\sof\sthe\stable,\swhile\sgenerating\sthe\s/repo-tabsize\spage.
+D 2016-09-28T16:15:00.655
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -489,7 +489,7 @@ F src/sqlcmd.c a7dce974ba7afde541ed58df98bebce335ed75a5
 F src/sqlite3.c 6129bad66161d7b97337b75e66cac1938602c876
 F src/sqlite3.h bd5acfef7e951393ded71f4d5bd1a61495b82b0b
 F src/stash.c ced32acae9b125f723c6473f30cdfdf8b530dc37
-F src/stat.c 6a6e24276497f62d4574ac181ab15ba19471caa7
+F src/stat.c 8e2c652ba1deb14c61a7286028dd03f342244734
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
 F src/style.c 88afceaf6b3bcda35acaf15281cb44d353a822a5
 F src/sync.c 9cc2947ef0f1ef73bd9fb1fa7291dd5df2c03ce9
@@ -764,6 +764,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki 6c0f800bdec70724af09b6f9c6272c5efbe355b9
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 731eb8978754825e841243bdf7a23da239e68f5f
-U andygoth
-Z a281fc8092ea2f93bc4da3413c4d3371
+P 24a0667e785c19bd3c9e7d8a069f7b42c52fcbe5
+R fcf16c1503e2df0f7c28c2806cb7b6b4
+U drh
+Z 0e9fb712ca6cc4175f10892c771776f2
