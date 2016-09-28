@@ -188,13 +188,15 @@ static DLine *break_into_lines(
         if( fossil_isspace(z[x]) ){
           ++numws;
         }else{
-          h = h ^ (h<<2) ^ z[x];
+          h += z[x];
+          h *= 0x9e3779b1;
         }
       }
       k -= numws;
     }else{
       for(h=0, x=s; x<k; x++){
-        h = h ^ (h<<2) ^ z[x];
+        h += z[x];
+        h *= 0x9e3779b1;
       }
     }
     a[i].indent = s;
