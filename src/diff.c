@@ -147,16 +147,15 @@ static DLine *break_into_lines(
   ** the returned array.
   */
   for(i=j=0, nLine=1; i<n; i++, j++){
-    int c = z[i];
-    if( c==0 ){
-      return 0;
-    }
-    if( c=='\n' && z[i+1]!=0 ){
-      nLine++;
-      if( j>LENGTH_MASK ){
-        return 0;
+    if( z[i]<='\n' ){
+      if( z[i]==0 ) return 0;
+      if( z[i]=='\n' && z[i+1]!=0 ){
+        nLine++;
+        if( j>LENGTH_MASK ){
+          return 0;
+        }
+        j = 0;
       }
-      j = 0;
     }
   }
   if( j>LENGTH_MASK ){
@@ -171,7 +170,7 @@ static DLine *break_into_lines(
 
   /* Fill in the array */
   for(i=0; i<nLine; i++){
-    for(j=0; z[j] && z[j]!='\n'; j++){}
+    for(j=0; z[j]>'\n' || (z[j]!=0 && z[j]!='\n'); j++){}
     a[i].z = z;
     k = j;
     if( diffFlags & DIFF_STRIP_EOLCR ){

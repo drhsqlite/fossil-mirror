@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.15.0\sbeta.
-D 2016-09-28T16:17:42.028
+C Performance\soptimization\sin\sthe\sbreak_into_lines()\sroutine\sof\sthe\sdiff\slogic.
+D 2016-09-28T18:19:58.985
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -403,7 +403,7 @@ F src/db.c 8a4c5b96e6a1ffbdb7078f37e3c119a5d83d5b89
 F src/delta.c f3002e96cc35f37b9bab7c88f82e978e67342904
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
-F src/diff.c 188128a31bb3761d950e9e4a07fa95dea0c98b06
+F src/diff.c d903af43c78ec57aecba7f79007860adc743974b
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 3759afcedb06bb0d76844e0b724cd28b36ede262
 F src/dispatch.c 52878ab4a817bb0a58aebee1f71b8fdf301b458c
@@ -764,7 +764,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki 6c0f800bdec70724af09b6f9c6272c5efbe355b9
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 14f83bc04992c48e225564f4b904e1b1acc00f8b
-R 4576caa05dce82bbe428a131a07e7a29
+P 95768950b417f08fb9e599a01e6f83a32b68df23
+R 078b21c2cd281a3ca1986e307bcac69f
 U drh
-Z cf0fb6f4e1abb13d610f8a415762c206
+Z 5e917e0e0db6199cc5306d7370e8a7e6
