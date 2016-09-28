@@ -665,6 +665,7 @@ void ci_page(void){
       if( zParent && !isLeaf ){
         @ | %z(href("%R/timeline?dp=%!S&unhide",zUuid))both</a>
       }
+      @ | %z(href("%R/timeline?c=%!S&unhide",zUuid))circa</a>
       db_prepare(&q2,"SELECT substr(tag.tagname,5) FROM tagxref, tag "
                      " WHERE rid=%d AND tagtype>0 "
                      "   AND tag.tagid=tagxref.tagid "

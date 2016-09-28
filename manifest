@@ -1,5 +1,5 @@
-C Correct\s"From"\sURL\sin\scheck-in\sMLINK\stable
-D 2016-09-27T17:47:09.710
+C Add\s"circa"\stimeline\slink\sto\sshow\schanges\smade\saround\sthe\stime\sof\sa\sgiven\scheck-in\seven\sif\sthey\sare\sneither\sancestors\snor\sdescendants.
+D 2016-09-28T21:11:04.053
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -424,7 +424,7 @@ F src/http_socket.c c38d7bff255b35cc7cfe13405b67c32878f9d838
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c 060b06a4066a6f3bbedad39ffdb275b4e2153723
-F src/info.c a120fe39440d7994528d400c0adbcdb040f7b5ee
+F src/info.c 903a1acde445df0d57e0174ca5ce159990b66a98
 F src/json.c dc2c7f146357683da2842cc84eb78a73221a80ba
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -764,6 +764,9 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki 6c0f800bdec70724af09b6f9c6272c5efbe355b9
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 731eb8978754825e841243bdf7a23da239e68f5f
+P 24a0667e785c19bd3c9e7d8a069f7b42c52fcbe5
+T *branch * andygoth-circa
+T *sym-andygoth-circa *
+T -sym-trunk *
 U andygoth
-Z a281fc8092ea2f93bc4da3413c4d3371
+Z 2332484c278696c333dba9d2a90e21f9
