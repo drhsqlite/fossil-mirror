@@ -1,5 +1,5 @@
-C In\sthe\srandom\smerge\stest\s(merge2.test)\signore\scases\swhere\sthe\sparallel\nrandom\sedits\soverlap,\sresulting\sin\sa\smerge\sconflict.
-D 2016-09-28T23:47:40.662
+C Distinguish\sbetween\sa\sdeleted\sfile\sand\sa\sbinary\sfile\sin\sthe\sside-by-side\ndiff\sgenerator.\s\sFix\sfor\sa\sbug\sintroduced\sby\scheck-in\s[233e9328ee639b].
+D 2016-09-29T11:59:05.703
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -403,7 +403,7 @@ F src/db.c 8a4c5b96e6a1ffbdb7078f37e3c119a5d83d5b89
 F src/delta.c f3002e96cc35f37b9bab7c88f82e978e67342904
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
-F src/diff.c 3ee56e13e7ded10f282f0836dc71bd31d541ea84
+F src/diff.c e401f9e41444a2ecedd17dacd93a85f6df99307e
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 3759afcedb06bb0d76844e0b724cd28b36ede262
 F src/dispatch.c 52878ab4a817bb0a58aebee1f71b8fdf301b458c
@@ -764,7 +764,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki 6c0f800bdec70724af09b6f9c6272c5efbe355b9
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 233e9328ee639b3e9bdefd87c27e5d4a9fc86c79
-R 9c94286c8862c66793cf20738c284fde
+P caea288c2df6f803019891ab6d67ed8be15b27a5
+R 7cee2ca63af31197bd0c0077b4c3be00
 U drh
-Z fb5e394ae469bb1ea09b0b5115ee6707
+Z 5fab674fe8274326de7259bdd345931f

@@ -144,9 +144,6 @@ static DLine *break_into_lines(
   DLine *a;
   const char *zNL, *z2;
 
-  /* Early-out for the degenerate case */
-  if( n==0 ) return 0;
-
   /* Count the number of lines in the input file.  Include the last line
   ** in the count even if it lacks the \n terminator
   */
@@ -155,6 +152,10 @@ static DLine *break_into_lines(
 
   a = fossil_malloc( sizeof(a[0])*nLine );
   memset(a, 0, sizeof(a[0])*nLine);
+  if( nLine==0 ){
+    *pnLine = 0;
+    return a;
+  }
   i = 0;
   do{
     zNL = strchr(z,'\n');
