@@ -50,14 +50,3 @@ format that Fossil will generate.  However,
 future versions of Fossil might add the ability to generate other
 VCS interchange formats, and so for compatibility, the use of the --git 
 option recommended.
-
-An anonymous user sends this comment:
-
-<blockquote>
-The main Fossil branch is called "trunk", while the main git branch is
-called "master". After you've exported your FOSSIL repo to git, you won't 
-see any files and gitk will complain about a missing "HEAD". You can 
-resolve this problem by merging "trunk" with "master"
-(first verify using git status that you are on the "master" branch): 
-<tt>git merge trunk</tt>
-</blockquote>

@@ -1,5 +1,5 @@
-C Coding\sstyle\stweaks.
-D 2016-09-23T02:46:48.648
+C Remove\scomment\sabout\shaving\sto\smerge\strunk\sinto\smaster\safter\simporting\sfrom\sGit\srepo.\n\nThis\sis\sno\slonger\strue.\s\sFossil\sautomatically\sconverts\sreferences\sto\smaster\sinto\strunk\nwhen\simporting,\sand\svice\sversa\swhen\sexporting.
+D 2016-09-29T17:35:51.330
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -729,7 +729,7 @@ F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki cb23ace3944512d8a033ccfc0efd035e5131aa26
-F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
+F www/inout.wiki 999127f1a30c5ef3f510f0b439947daa3ea6228d
 F www/makefile.wiki 30c7129ffb00c58699b87e84a2c0b696d7c10406
 F www/mkdownload.tcl 5ac61a3e13cecaa67f1e31741113c96cbd41463f
 F www/mkindex.tcl 61400abbaa7290cd30ef9a49242c9d0d7f1a327e
@@ -763,7 +763,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki 6c0f800bdec70724af09b6f9c6272c5efbe355b9
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 98f4ee8f71b67adf374fa1024b6e3b49d9f4f91f
-R e98e2a875f47b3916947cde08ff90942
-U mistachkin
-Z 5e8d6fa37f0fc1cb899d373e2b9e08c1
+P 32e418f85687d54d9cf3b2ee9fee534b38901ef2
+R 65b4eb1ec455f5df456729fe904ff689
+U nick.lloyd
+Z 93c607461699633bb8a5dc5b7d83586a
