@@ -50,3 +50,53 @@ format that Fossil will generate.  However,
 future versions of Fossil might add the ability to generate other
 VCS interchange formats, and so for compatibility, the use of the --git 
 option recommended.
+
+<h2>Bidirectional Synchronization</h2>
+Fossil also has the ability to synchronize with a Git repository via repeated
+imports and/or exports.  To do this, it uses marks files to store a record of
+artifacts which are known by both Git and Fossil to exist at a given point in
+time.
+
+To illustrate, consider the example of a remote Fossil repository that a
+user wants to import into a local Git repository.  First, the user would clone
+the remote repository and import it into a new Git repository:
+
+<blockquote><pre>
+fossil clone /path/to/remote/repo.fossil repo.fossil
+mkdir repo
+cd repo
+fossil open ../repo.fossil
+mkdir ../repo.git
+cd ../repo.git
+git init .
+fossil export --git --export-marks ../repo/fossil.marks  \
+       ../repo.fossil | git fast-import                  \
+       --export-marks=../repo/git.marks
+</pre></blockquote>
+
+Once the import has completed, the user would need to <tt>git checkout
+trunk</tt>.  At any point after this, new changes can be imported from the
+remote Fossil repository:
+
+<blockquote><pre>
+cd ../repo
+fossil pull
+cd ../repo.git
+fossil export --git --import-marks ../repo/fossil.marks  \
+       --export-marks ../repo/fossil.marks               \
+       ../repo.fossil | git fast-import                  \
+       --import-marks=../repo/git.marks                  \
+       --export-marks=../repo/git.marks
+</pre></blockquote>
+
+Changes in the Git repository can be exported to the Fossil repository and then
+pushed to the remote:
+
+<blockquote><pre>
+git fast-export --import-marks=../repo/git.marks            \
+    --export-marks=../repo/git.marks | fossil import --git  \
+    --incremental --import-marks ../repo/fossil.marks       \
+    --export-marks ../repo/fossil.marks
+cd ../repo
+fossil push
+</pre></blockquote>
