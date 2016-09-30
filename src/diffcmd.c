@@ -776,6 +776,9 @@ const char *diff_get_binary_glob(void){
 ** no "--to" option then the (possibly edited) files in the current check-out
 ** are used.
 **
+** If the "--changes VERSION" option appears, it shows the changes made by
+** check-in VERSION.
+**
 ** The "-i" command-line option forces the use of the internal diff logic
 ** rather than any external diff program that might be configured using
 ** the "setting" command.  If no external diff program is configured, then
@@ -805,6 +808,7 @@ const char *diff_get_binary_glob(void){
 **   --strip-trailing-cr        Strip trailing CR
 **   --tk                       Launch a Tcl/Tk GUI for display
 **   --to VERSION               Select VERSION as target for the diff
+**   --changes VERSION          Show diff of all changes in VERSION
 **   --undo                     Diff against the "undo" buffer
 **   --unified                  Unified diff
 **   -v|--verbose               Output complete text of added or deleted files
@@ -818,6 +822,7 @@ void diff_cmd(void){
   int verboseFlag;           /* True if -v or --verbose flag is used */
   const char *zFrom;         /* Source version number */
   const char *zTo;           /* Target version number */
+  const char *zChanges;      /* Check-in version number */
   const char *zBranch;       /* Branch to diff */
   const char *zDiffCmd = 0;  /* External diff command. NULL for internal diff */
   const char *zBinGlob = 0;  /* Treat file names matching this as binary */
@@ -834,6 +839,7 @@ void diff_cmd(void){
   isInternDiff = find_option("internal","i",0)!=0;
   zFrom = find_option("from", "r", 1);
   zTo = find_option("to", 0, 1);
+  zChanges = find_option("changes", 0, 1);
   zBranch = find_option("branch", 0, 1);
   againstUndo = find_option("undo",0,0)!=0;
   diffFlags = diff_options();
@@ -842,15 +848,19 @@ void diff_cmd(void){
     verboseFlag = find_option("new-file","N",0)!=0; /* deprecated */
   }
   if( verboseFlag ) diffFlags |= DIFF_VERBOSE;
-  if( againstUndo && (zFrom!=0 || zTo!=0 || zBranch!=0) ){
-    fossil_fatal("cannot use --undo together with --from or --to or --branch");
+  if( againstUndo && ( zFrom!=0 || zTo!=0 || zChanges!=0 || zBranch!=0) ){
+    fossil_fatal("cannot use --undo together with --from, --to, --changes,"
+                 " or --branch");
   }
   if( zBranch ){
-    if( zTo || zFrom ){
-      fossil_fatal("cannot use --from or --to with --branch");
+    if( zTo || zFrom || zChanges ){
+      fossil_fatal("cannot use --from, --to, or --changes with --branch");
     }
     zTo = zBranch;
     zFrom = mprintf("root:%s", zBranch);
+  }
+  if( zChanges!=0 && ( zFrom!=0 || zTo!=0 ) ){
+    fossil_fatal("cannot use --changes together with --from or --to");
   }
   if( zTo==0 || againstUndo ){
     db_must_be_within_tree();
@@ -882,6 +892,15 @@ void diff_cmd(void){
       pFileDir[i-2].nName = blob_size(&fname);
       pFileDir[i-2].nUsed = 0;
       blob_reset(&fname);
+    }
+  }
+  if ( zChanges!=0 ){
+    zTo = zChanges;
+    compute_direct_ancestors(name_to_rid(zChanges));
+    zFrom = db_text(0, "SELECT uuid FROM blob AS b JOIN ancestor AS a"
+                       "    ON b.rid=a.rid WHERE generation = 2");
+    if( zFrom==0 ) {
+      fossil_fatal("No immediate ancestor found for %s", zChanges);
     }
   }
   if( againstUndo ){

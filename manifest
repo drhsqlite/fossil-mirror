@@ -1,5 +1,5 @@
-C Distinguish\sbetween\sa\sdeleted\sfile\sand\sa\sbinary\sfile\sin\sthe\sside-by-side\ndiff\sgenerator.\s\sFix\sfor\sa\sbug\sintroduced\sby\scheck-in\s[233e9328ee639b].
-D 2016-09-29T11:59:05.703
+C Add\san\soption\sto\s"fossil\sdiff"\sto\sshow\sthe\schanges\smade\sby\sa\sspecific\scheckin\sUUID.
+D 2016-09-30T03:49:10.124
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -405,7 +405,7 @@ F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
 F src/diff.c e401f9e41444a2ecedd17dacd93a85f6df99307e
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
-F src/diffcmd.c 3759afcedb06bb0d76844e0b724cd28b36ede262
+F src/diffcmd.c 8cb2d1c5cc58c0bd36befaffbbf0bf3fb5982129
 F src/dispatch.c 52878ab4a817bb0a58aebee1f71b8fdf301b458c
 F src/doc.c f46ada466f90f12ee7b5c6078808fdfc4dedb183
 F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
@@ -764,7 +764,10 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki 6c0f800bdec70724af09b6f9c6272c5efbe355b9
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P caea288c2df6f803019891ab6d67ed8be15b27a5
-R 7cee2ca63af31197bd0c0077b4c3be00
-U drh
-Z 5fab674fe8274326de7259bdd345931f
+P 1438be02d02f27e78690560bca2d5985ad49bba6
+R bb8d8e53ef6698fef6d391d344edaa19
+T *branch * diff-show-changes
+T *sym-diff-show-changes *
+T -sym-trunk *
+U andybradford
+Z 651bf1117af31933e9bedfb28c17b0c7
