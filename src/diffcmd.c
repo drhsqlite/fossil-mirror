@@ -902,7 +902,7 @@ void diff_cmd(void){
       " WHERE plink.cid=%d AND plink.isprim AND plink.pid=blob.rid",
       ridTo);
     if( zFrom==0 ){
-      fossil_fatal("check-in %z has no parent", zTo);
+      fossil_fatal("check-in %s has no parent", zTo);
     }
   }
   if( againstUndo ){
