@@ -1,5 +1,5 @@
-C Add\s"circa"\stimeline\slink\sto\sshow\schanges\smade\saround\sthe\stime\sof\sa\sgiven\scheck-in\seven\sif\sthey\sare\sneither\sancestors\snor\sdescendants.
-D 2016-09-28T21:11:04.053
+C Merge\strunk
+D 2016-09-30T20:43:02.074
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -403,9 +403,9 @@ F src/db.c 8a4c5b96e6a1ffbdb7078f37e3c119a5d83d5b89
 F src/delta.c f3002e96cc35f37b9bab7c88f82e978e67342904
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
-F src/diff.c 188128a31bb3761d950e9e4a07fa95dea0c98b06
+F src/diff.c e401f9e41444a2ecedd17dacd93a85f6df99307e
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
-F src/diffcmd.c 3759afcedb06bb0d76844e0b724cd28b36ede262
+F src/diffcmd.c 2d1eeca32c61365acacbee50b0b5099e38f0d2dd
 F src/dispatch.c 52878ab4a817bb0a58aebee1f71b8fdf301b458c
 F src/doc.c f46ada466f90f12ee7b5c6078808fdfc4dedb183
 F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
@@ -486,10 +486,10 @@ F src/shun.c 7d0a7eeffdf515b2d78919408fe42e7142a9b532
 F src/sitemap.c b7c376b21d29322741c804e1f762b34aedb98ad1
 F src/skins.c 524384aafbe9e7707d3b87f42ee72fa63fe91796
 F src/sqlcmd.c a7dce974ba7afde541ed58df98bebce335ed75a5
-F src/sqlite3.c 6129bad66161d7b97337b75e66cac1938602c876
-F src/sqlite3.h bd5acfef7e951393ded71f4d5bd1a61495b82b0b
+F src/sqlite3.c 2bc40ac248d81272d2a400b31b3c3a0b57034609
+F src/sqlite3.h d0e94502f49b4b083d65df238532e86f001b0aff
 F src/stash.c ced32acae9b125f723c6473f30cdfdf8b530dc37
-F src/stat.c 6a6e24276497f62d4574ac181ab15ba19471caa7
+F src/stat.c 8e2c652ba1deb14c61a7286028dd03f342244734
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
 F src/style.c 88afceaf6b3bcda35acaf15281cb44d353a822a5
 F src/sync.c 9cc2947ef0f1ef73bd9fb1fa7291dd5df2c03ce9
@@ -541,7 +541,7 @@ F test/json.test 65f8333164e43173ad47634035ab6d2c8635ed86
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/merge1.test 0f11a55b5d71fa668b53ffc4cdeb23997e9cb042
-F test/merge2.test 4fcf75ee09305e6a783b5329376b7e2441e764b1
+F test/merge2.test 038091215ec2f2b53157599acae6f03dcf91dd12
 F test/merge3.test 70db9ae7c679efad5d5b371114a3cc609818e01a
 F test/merge4.test d563164c477885bcaecb6ea28e824b698bdd57bb
 F test/merge5.test aadadc4b34b77b94dc711ee0b0ae2f760abaecf9
@@ -559,7 +559,7 @@ F test/stash.test 7308d81eca91aa889a41f947ce48025d07633ab9
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl d7347cce73e49ae408cda7f01b5e0e31f9290d9f
+F test/tester.tcl d1b16b916369614a1d134d92bcc53b514a2ae98d
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 3a95822e5006f404b51bb6dccacc340a452d3f4e
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -681,7 +681,7 @@ F www/childprojects.wiki 26e08e37f9d96562486c7698697a356d77cdad8f
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
-F www/concepts.wiki 02f6b5cafe6f2dd9d4b591e402bfcff1905b3aa9
+F www/concepts.wiki f28e36dd50bf5c47145580618391ff4ee310498e
 F www/contribute.wiki 9f7136d12f9099e615c8d5a414934e0b15613393
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
@@ -746,7 +746,7 @@ F www/reviews.wiki 866e545f89fce7cff29c96a29ab10586692f3964
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki d1e2fc5baf9ade46815499c9758256a22efe8142
 F www/selfhost.wiki 03de31d67690fe47972589e4e1e395e11559c85c
-F www/server.wiki fbbb6ef0d6731884c0d33874dd5bb388140affe0
+F www/server.wiki 8df57c32619da8ac0178508a0300382e854c1687
 F www/settings.wiki 12b7e736432b0081a7e6a3d7b9e184d04f482ef7
 F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
@@ -761,12 +761,9 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/unvers.wiki a75ea510c408c0bb83c396afbe72948b8b2202cd
 F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
-F www/whyusefossil.wiki 6c0f800bdec70724af09b6f9c6272c5efbe355b9
+F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 24a0667e785c19bd3c9e7d8a069f7b42c52fcbe5
-T *branch * andygoth-circa
-T *sym-andygoth-circa *
-T -sym-trunk *
+P b6862a3700b7664f0c44e6ff2b9ce65561776710 e7c2454da9fc386b70403d59e3cacb65a5358e01
 U andygoth
-Z 2332484c278696c333dba9d2a90e21f9
+Z 4e6544f4032b4790cdbf792ec24c1450

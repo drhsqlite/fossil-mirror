@@ -424,15 +424,14 @@ void repo_tabsize_page(void){
     style_submenu_element("Schema", "Repository Schema", "repo_schema");
   }
   db_multi_exec(
-    "CREATE VIRTUAL TABLE temp.dbx USING dbstat(repository);"
     "CREATE TEMP TABLE trans(name TEXT PRIMARY KEY,tabname TEXT)WITHOUT ROWID;"
     "INSERT INTO trans(name,tabname)"
     "   SELECT name, tbl_name FROM repository.sqlite_master;"
     "CREATE TEMP TABLE piechart(amt REAL, label TEXT);"
     "INSERT INTO piechart(amt,label)"
     "  SELECT count(*), "
-    "    coalesce((SELECT tabname FROM trans WHERE trans.name=dbx.name),name)"
-    "    FROM dbx"
+    "  coalesce((SELECT tabname FROM trans WHERE trans.name=dbstat.name),name)"
+    "    FROM dbstat('repository')"
     "   GROUP BY 2 ORDER BY 2;"
   );
   nPageFree = db_int(0, "PRAGMA repository.freelist_count");
@@ -451,16 +450,14 @@ void repo_tabsize_page(void){
 
   if( g.localOpen ){
     db_multi_exec(
-      "DROP TABLE temp.dbx;"
-      "CREATE VIRTUAL TABLE temp.dbx USING dbstat(localdb);"
       "DELETE FROM trans;"
       "INSERT INTO trans(name,tabname)"
       "   SELECT name, tbl_name FROM localdb.sqlite_master;"
       "DELETE FROM piechart;"
       "INSERT INTO piechart(amt,label)"
       "  SELECT count(*), "
-      "    coalesce((SELECT tabname FROM trans WHERE trans.name=dbx.name),name)"
-      "    FROM dbx"
+      " coalesce((SELECT tabname FROM trans WHERE trans.name=dbstat.name),name)"
+      "    FROM dbstat('localdb')"
       "   GROUP BY 2 ORDER BY 2;"
     );
     nPageFree = db_int(0, "PRAGMA localdb.freelist_count");
