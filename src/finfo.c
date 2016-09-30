@@ -707,7 +707,7 @@ void mlink_page(void){
       @ <tr>
       @ <td><a href='%R/finfo?name=%t(zName)'>%h(zName)</a></td>
       if( zParent ){
-        @ <td><a href='%R/info/%!S(zPid)'>%S(zParent)</a></td>
+        @ <td><a href='%R/info/%!S(zParent)'>%S(zParent)</a></td>
       }else{
         @ <td><i>(New)</i></td>
       }
