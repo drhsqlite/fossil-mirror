@@ -1,5 +1,5 @@
-C Add\sthe\s--checkin\soption\sto\sthe\s"fossil\sdiff"\scommand.
-D 2016-09-30T15:24:07.629
+C Trunkify\ssupport\sfor\sgenerating\smanifest.tags\sfile.
+D 2016-09-30T22:01:18.254
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -374,7 +374,7 @@ F skins/xekri/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 3b1b44a8faa1a3d9406f76790becfb08408cda2d
+F src/add.c 094edd5877edc4d3a5e598301b54543291860a2b
 F src/allrepo.c a1dcd11e7630c15bb2634903eaeead5fd40a1fbd
 F src/attach.c c27c749e6a1334200565b076979b96e366a99bb5
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
@@ -387,8 +387,8 @@ F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c 10310d276e72e3e34343e3385c0b39fac5cd826e
-F src/checkin.c 19a533de90830491280028c7a58f870159481447
-F src/checkout.c 4a679339a163dfd10df94b9eed5d90d0921925dd
+F src/checkin.c e8f4ae3c5ae6475f084691a83385ca362f3422e3
+F src/checkout.c 083ec4f2ccd7d9df27dbb94d90008088eb8c4340
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
 F src/codecheck1.c 4f707cdaefe03f9b1d913a54326617113d941898
@@ -399,7 +399,7 @@ F src/content.c a6024f0400307f4c25d067d323a6cbdf38b78c81
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 8a4c5b96e6a1ffbdb7078f37e3c119a5d83d5b89
+F src/db.c 4f26fc803d5cc8eeda96d4718db614d5b96c8175
 F src/delta.c f3002e96cc35f37b9bab7c88f82e978e67342904
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
@@ -493,8 +493,8 @@ F src/stat.c 8e2c652ba1deb14c61a7286028dd03f342244734
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
 F src/style.c 88afceaf6b3bcda35acaf15281cb44d353a822a5
 F src/sync.c 9cc2947ef0f1ef73bd9fb1fa7291dd5df2c03ce9
-F src/tag.c 06dddb67703250f4a40f3a2f0138aadfb67c28e7
-F src/tar.c f6dbb51806fabf7d3105a614af119124da069eb3
+F src/tag.c 9ed843d120ac1a822fcb926d82c847aa0a0541d2
+F src/tar.c 684d2f84d0fc810959c31406f314e25cfcabf1ed
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
@@ -521,7 +521,7 @@ F src/winhttp.c 7e4c82fc91fe89b81ef4ae399944b8f035fe6789
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 7d011291275f5e5a82a06df1fcc5bde9554a75ea
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
-F src/zip.c d463b5a9d1e46fed1a5e9e8e61a3cde8cec6003f
+F src/zip.c 419b5bb18e6095dacc3c86861c19112b60dfb67f
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test b298d36e7b996220c0bff697d6b229645dd43f8f
@@ -553,6 +553,7 @@ F test/merge_warn.test d4a98c6ff14e4bb142d784f96c88d152d9599529
 F test/mv-rm.test a46185f0a8443bf422e222b47f360e5c341e9306
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
 F test/revert.test f7798e8eab21bcf5550af8ac4ee6cb8d5f33cc78
+F test/set-manifest.test f389e51ce371794d5871e70adf66f81d59a9d654
 F test/settings-repo.test cd46e963e1c983621373db38f57a0b936be347e6
 F test/settings.test 15a146c38e233e089ea1aebbf1ef7f9edfd23fd8
 F test/stash.test 7308d81eca91aa889a41f947ce48025d07633ab9
@@ -764,8 +765,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c468769dbca5199f57f432c6e517b330b591e986 38daa9aa75cf616688848035edb97c22110d964e
-R cf2b0f962fe75057224bf8f5d16d2faa
-T +closed 38daa9aa75cf616688848035edb97c22110d964e
-U drh
-Z cdd9de6eb490ac963ca4a7f72d088abc
+P e7c2454da9fc386b70403d59e3cacb65a5358e01 9beff66bdc1b8f52b67112b05d286f22518c0ade
+R 55a170a581cf6d07550d84e8a466a803
+U jan
+Z 5eeb290645dd0c3bde3906121dea983f
