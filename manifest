@@ -1,5 +1,5 @@
-C Coding\sstyle\stweaks.\s\sNo\schanges\sto\sfunctionality.
-D 2016-09-30T23:45:21.041
+C Start\sof\sexperimental\schanges\sto\ssupport\sdirectory\ssymlinks.
+D 2016-09-30T23:47:54.498
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -411,7 +411,7 @@ F src/doc.c f46ada466f90f12ee7b5c6078808fdfc4dedb183
 F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
 F src/event.c 6909284d77a688d63cc67b7b0929b8dda5397742
 F src/export.c ab705fb1bdb609c49cab3aa686fd74b5cd8e83d4
-F src/file.c c1b31491b3a5d3ee010ef3f41491bcdc500a4161
+F src/file.c 162fb1c54db5dd0d81ac07a11b943fcfea62d9aa
 F src/finfo.c 3fc6e9e4114477c9a7e29c1bbaa17a5930c2d1b3
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
 F src/fshell.c 00dbabd3e544bb99c21e41a6750187d3d4b416ed
@@ -765,7 +765,10 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 189bfc28e7a3a166417aabfb77bf898b3b26c4df
-R 2134f0d84c63418ad837d68ef52a9f55
+P 3bb04c90dc7209e7e4a8a02113985b470be91cc0
+R 8b690353bce9ae39dd0dbd8c12353064
+T *branch * dirSymlinks
+T *sym-dirSymlinks *
+T -sym-trunk *
 U mistachkin
-Z 8ff17eb9ee56311317a5d7659d8167f0
+Z a38d93a5e4b0946c171002fa0e69416c
