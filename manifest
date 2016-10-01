@@ -1,5 +1,5 @@
-C Minor\scorrection\sto\stext\sin\susage\shelp/comment\sin\snew\s--checkin\soption.
-D 2016-10-01T02:23:51.698
+C Fix\scasing\sof\sa\stemporary\stable\sname\sto\sbe\sconsistent.
+D 2016-10-01T03:36:14.332
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -375,7 +375,7 @@ F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 094edd5877edc4d3a5e598301b54543291860a2b
-F src/allrepo.c a1dcd11e7630c15bb2634903eaeead5fd40a1fbd
+F src/allrepo.c d430efa00c6ea892999b9d256c18627855da03c3
 F src/attach.c c27c749e6a1334200565b076979b96e366a99bb5
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c abd167c9f2c5398782ca6d48ea1ee612163a7685
@@ -765,7 +765,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3bb04c90dc7209e7e4a8a02113985b470be91cc0
-R c25e81478959557bf5f39ea7b09ddab8
-U andybradford
-Z 0afe342949737bfbe190b8379cf4b4fd
+P 5aacaba35fdd2bae6feacb2c110c01aebf1c8693
+R b093e29195b5ae346c1acf93c98f0601
+U mistachkin
+Z 13c17c1d17193d32b374ec8aa800226d
