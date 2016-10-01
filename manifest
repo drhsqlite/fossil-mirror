@@ -1,5 +1,5 @@
-C Fix\scasing\sof\sa\stemporary\stable\sname\sto\sbe\sconsistent.
-D 2016-10-01T03:36:14.332
+C Another\scoding\sstyle\s(whitespace)\sfix.
+D 2016-10-01T03:39:37.387
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -411,7 +411,7 @@ F src/doc.c f46ada466f90f12ee7b5c6078808fdfc4dedb183
 F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
 F src/event.c 6909284d77a688d63cc67b7b0929b8dda5397742
 F src/export.c ab705fb1bdb609c49cab3aa686fd74b5cd8e83d4
-F src/file.c c1b31491b3a5d3ee010ef3f41491bcdc500a4161
+F src/file.c 358fe9d49285556e7ce2e5fe62696f8f55b10f42
 F src/finfo.c 3fc6e9e4114477c9a7e29c1bbaa17a5930c2d1b3
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
 F src/fshell.c 00dbabd3e544bb99c21e41a6750187d3d4b416ed
@@ -765,7 +765,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5aacaba35fdd2bae6feacb2c110c01aebf1c8693
-R b093e29195b5ae346c1acf93c98f0601
+P efeb10c5b3affe38459c767701f7f795404817a0
+R 0a54a69a79024be04805621bcd122488
 U mistachkin
-Z 13c17c1d17193d32b374ec8aa800226d
+Z ed4ca0f059aeafecf5407994063c10a9

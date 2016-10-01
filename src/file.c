@@ -473,12 +473,12 @@ int file_wd_setexe(const char *zFilename, int onoff){
   if( fossil_stat(zFilename, &buf, 1)!=0 || S_ISLNK(buf.st_mode) ) return 0;
   if( onoff ){
     int targetMode = (buf.st_mode & 0444)>>2;
-    if( (buf.st_mode & 0100) == 0 ){
+    if( (buf.st_mode & 0100)==0 ){
       chmod(zFilename, buf.st_mode | targetMode);
       rc = 1;
     }
   }else{
-    if( (buf.st_mode & 0100) != 0 ){
+    if( (buf.st_mode & 0100)!=0 ){
       chmod(zFilename, buf.st_mode & ~0111);
       rc = 1;
     }
