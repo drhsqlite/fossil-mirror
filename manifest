@@ -1,5 +1,5 @@
-C Another\scoding\sstyle\s(whitespace)\sfix.
-D 2016-10-01T03:39:37.387
+C Use\s#define\sconstants\sinstead\sof\snumbers\sto\simprove\sreadability\sof\scode.
+D 2016-10-01T04:21:38.722
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -500,7 +500,7 @@ F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c f8fb088200fb4cc98f5268dfe3cca7ed56ef90a9
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
-F src/timeline.c 1d4152fb09de242b6c77f61fdec5d882f8c3ddae
+F src/timeline.c e7a2fe35332b5944c7a9b227f1ef2ac4f1a10f26
 F src/tkt.c 0d7059f823642ea6c26c07081ee94b6cbb663408
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
@@ -765,7 +765,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P efeb10c5b3affe38459c767701f7f795404817a0
-R 0a54a69a79024be04805621bcd122488
-U mistachkin
-Z ed4ca0f059aeafecf5407994063c10a9
+P 2ccd046de2dad793e31677b0a7a12983ea43a379
+R 87cacc2786cb87ecb76785149d76d11b
+U andybradford
+Z 8ff6ab0c1271768d040440fe8e08bb4a
