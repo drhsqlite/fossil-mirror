@@ -776,8 +776,8 @@ const char *diff_get_binary_glob(void){
 ** no "--to" option then the (possibly edited) files in the current check-out
 ** are used.
 **
-** If the "--checkin VERSION" option shows the changes made by
-** check-in VERSION relative to its primary parent
+** The "--checkin VERSION" option shows the changes made by
+** check-in VERSION relative to its primary parent.
 **
 ** The "-i" command-line option forces the use of the internal diff logic
 ** rather than any external diff program that might be configured using
