@@ -159,7 +159,7 @@ static DLine *break_into_lines(
   i = 0;
   do{
     zNL = strchr(z,'\n');
-    if( zNL==0 ) zNL = z+strlen(z);
+    if( zNL==0 ) zNL = z+n;
     nn = (int)(zNL - z);
     if( nn>LENGTH_MASK ){
       fossil_free(a);
@@ -179,6 +179,10 @@ static DLine *break_into_lines(
       int numws = 0;
       while( s<k && fossil_isspace(z[s]) ){ s++; }
       for(h=0, x=s; x<k; x++){
+        if( z[x]==0 ){
+          fossil_free(a);
+          return 0;
+        }
         if( fossil_isspace(z[x]) ){
           ++numws;
         }else{
@@ -189,6 +193,10 @@ static DLine *break_into_lines(
       k -= numws;
     }else{
       for(h=0, x=s; x<k; x++){
+        if( z[x]==0 ){
+          fossil_free(a);
+          return 0;
+        }
         h += z[x];
         h *= 0x9e3779b1;
       }
