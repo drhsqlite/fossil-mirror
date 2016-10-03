@@ -197,25 +197,27 @@ static DLine *break_into_lines(
       int numws = 0;
       while( s<k && fossil_isspace(z[s]) ){ s++; }
       for(h=0, x=s; x<k; x++){
-        if( z[x]=='\0' ){
+        char c = z[x];
+        if( c=='\0' ){
           fossil_free(a);
           return 0;
         }
-        if( fossil_isspace(z[x]) ){
+        if( fossil_isspace(c) ){
           ++numws;
         }else{
-          h += z[x];
+          h += c;
           h *= 0x9e3779b1;
         }
       }
       k -= numws;
     }else{
       for(h=0, x=s; x<k; x++){
-        if( z[x]=='\0' ){
+        char c = z[x];
+        if( c=='\0' ){
           fossil_free(a);
           return 0;
         }
-        h += z[x];
+        h += c;
         h *= 0x9e3779b1;
       }
     }
