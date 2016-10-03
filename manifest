@@ -1,5 +1,5 @@
-C Fix\sbinary\sblob\sdetection\sin\sthe\snew\sbreak_into_lines()\salgorithm.
-D 2016-10-03T19:22:25.051
+C Initial\stests\sfor\sthe\sdiff-binary-detection\sfixes.
+D 2016-10-03T21:59:25.071
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -532,6 +532,7 @@ F test/commit-warning.test 1b94adc5f490ade07cd9fc3ba35c94c77ac61819
 F test/contains-selector.test cf46a39b3c1ff72d2fc674f4ccbeecfb94add7d2
 F test/delta1.test d4bcfbeff42bd30d9b770e02b1dd301073bc6cd8
 F test/diff-test-1.wiki 597fbb13c9c3da02e09a53d128f3b5d4dd5cadda
+F test/diff.test d2c0c24c664b8f5cf4c23571ecbb6191966656c1
 F test/file1.test 9b2ac578521a7097017c64b8877f6fa6ca0904f7
 F test/fileStat.th1 e3e30f7b46488c26215a6d713be36ad4ed595132
 F test/fileage-test-1.wiki d249e897fdd41038c17f3b66d374e509830da1eb
@@ -765,10 +766,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 903af996f51b84d2bcbdd21e9acdc738caa96972
-R 1f5f79645392c094764e1398cd216c05
-T *branch * binDiffFix
-T *sym-binDiffFix *
-T -sym-trunk *
+P dacc2bad82d0073a133c77616f3f8f336ec7a4b9
+R e0200f9ecc6afcd2301e62d054c60ef6
 U mistachkin
-Z e20261b9c3bb78425a495657e25b6461
+Z c903cc74bb0c21056d08c48e7869d6de
