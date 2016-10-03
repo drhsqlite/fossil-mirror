@@ -1,5 +1,5 @@
-C Merge\supdates\sfrom\strunk.
-D 2016-10-01T03:39:57.052
+C Initial\sdraft\sof\snew\stests\sto\scover\sthe\sdirectory\ssymlink\sfixes.
+D 2016-10-03T20:43:56.133
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -559,6 +559,7 @@ F test/settings.test 15a146c38e233e089ea1aebbf1ef7f9edfd23fd8
 F test/stash.test 7308d81eca91aa889a41f947ce48025d07633ab9
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
+F test/symlinks.test 7b5cdf59c29b6d12bf8147e0d198b7cb677c1fa9
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
 F test/tester.tcl d1b16b916369614a1d134d92bcc53b514a2ae98d
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -765,7 +766,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9a9938968088ed169c907b56cd5806fd3f9e9d62 2ccd046de2dad793e31677b0a7a12983ea43a379
-R 5508d96ec88c446ee42705008e18fe59
+P 3e4eba78f0d579267505374aeed6a269195026d3
+R 5bc6262e129fe97727083e047c4e0e2c
 U mistachkin
-Z 1d2e31a1262989d26b820d76c0c1b941
+Z 3e29d2c92a2c6a3856bbdbca1232e3a7
