@@ -23,7 +23,7 @@ if {$tcl_platform(platform) eq "windows"} {
   test_cleanup_then_return
 }
 
-fossil test-th-eval "setting allow-symlinks"
+fossil test-th-eval --open-config "setting allow-symlinks"
 
 if {![string is true -strict [normalize_result]]} {
   puts "Symlinks are not enabled."
@@ -36,8 +36,13 @@ require_no_open_checkout
 
 test_setup; set rootDir [file normalize [pwd]]
 
-fossil test-th-eval {repository}
+fossil test-th-eval --open-config {repository}
 set repository [normalize_result]
+
+if {[string length $repository] == 0} {
+  puts "Detection of the open repository file failed."
+  test_cleanup_then_return
+}
 
 #######################################
 # Use symbolic link to a directory... #
@@ -67,7 +72,8 @@ test symlinks-dir-5 {[normalize_result] eq "symdirA/f1.txt"}
 ###############################################################################
 
 fossil extras
-test symlinks-dir-6 {[normalize_result] eq "symdirA/f2.txt"}
+test symlinks-dir-6 {[normalize_result] eq \
+"subdirA/f1.txt\nsubdirA/f2.txt\nsymdirA/f2.txt"}
 
 ###############################################################################
 
