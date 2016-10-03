@@ -82,14 +82,14 @@ test symlinks-dir-10 {[file exists [file join $rootDir symdirA f2.txt]] eq 1}
 ###############################################################################
 
 fossil open $repository
+set code [catch {file readlink [file join $rootDir symdirA]} result]
 
-test symlinks-dir-11 {[file readlink [file join $rootDir symdirA]] eq \
-[file join $rootDir subdirA]}
-
-test symlinks-dir-12 {[file exists [file join $rootDir subdirA f1.txt]] eq 1}
-test symlinks-dir-13 {[file exists [file join $rootDir symdirA f1.txt]] eq 1}
-test symlinks-dir-14 {[file exists [file join $rootDir subdirA f2.txt]] eq 1}
-test symlinks-dir-15 {[file exists [file join $rootDir symdirA f2.txt]] eq 1}
+test symlinks-dir-11 {$code == 0}
+test symlinks-dir-12 {$result eq [file join $rootDir subdirA]}
+test symlinks-dir-13 {[file exists [file join $rootDir subdirA f1.txt]] eq 1}
+test symlinks-dir-14 {[file exists [file join $rootDir symdirA f1.txt]] eq 1}
+test symlinks-dir-15 {[file exists [file join $rootDir subdirA f2.txt]] eq 1}
+test symlinks-dir-16 {[file exists [file join $rootDir symdirA f2.txt]] eq 1}
 
 ###############################################################################
 #
