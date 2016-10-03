@@ -121,7 +121,9 @@ struct DContext {
 /*
 ** Count the number of lines in the input string.  Include the last line
 ** in the count even if it lacks the \n terminator.  If an empty string
-** is specified, the number of lines is zero.
+** is specified, the number of lines is zero.  For the purposes of this
+** function, a string is considered empty if it contains no characters
+** -OR- it contains only NUL characters.
 */
 static int count_lines(
   const char *z,
@@ -130,7 +132,7 @@ static int count_lines(
   int nLine;
   const char *zNL, *z2;
   for(nLine=0, z2=z; (zNL = fossil_strchr(z2,-1,'\n'))!=0; z2=zNL+1, nLine++){}
-  if( z2[0]!=0 ) nLine++;
+  if( z2[0]!='\0' ) nLine++;
   return nLine;
 }
 
@@ -161,7 +163,7 @@ static DLine *break_into_lines(
   const char *zNL;
 
   nLine = count_lines(z, n);
-  assert( nLine>0 || z[0]==0 );
+  assert( nLine>0 || z[0]=='\0' );
   a = fossil_malloc( sizeof(a[0])*nLine );
   memset(a, 0, sizeof(a[0])*nLine);
   if( nLine==0 ){
@@ -195,7 +197,7 @@ static DLine *break_into_lines(
       int numws = 0;
       while( s<k && fossil_isspace(z[s]) ){ s++; }
       for(h=0, x=s; x<k; x++){
-        if( z[x]==0 ){
+        if( z[x]=='\0' ){
           fossil_free(a);
           return 0;
         }
@@ -209,7 +211,7 @@ static DLine *break_into_lines(
       k -= numws;
     }else{
       for(h=0, x=s; x<k; x++){
-        if( z[x]==0 ){
+        if( z[x]=='\0' ){
           fossil_free(a);
           return 0;
         }
@@ -224,7 +226,7 @@ static DLine *break_into_lines(
     a[h2].iHash = i+1;
     z += nn+1; n -= nn+1;
     i++;
-  }while( zNL[0] && zNL[1] );
+  }while( zNL[0]!='\0' && zNL[1]!='\0' );
   assert( i==nLine );
 
   /* Return results */

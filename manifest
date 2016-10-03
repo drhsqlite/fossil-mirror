@@ -1,5 +1,5 @@
-C Another\sadjustment\sto\shandle\ssome\scorner\scases.
-D 2016-10-03T23:10:23.219
+C Further\simprove\sclarity.
+D 2016-10-03T23:18:30.388
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -403,7 +403,7 @@ F src/db.c 4f26fc803d5cc8eeda96d4718db614d5b96c8175
 F src/delta.c f3002e96cc35f37b9bab7c88f82e978e67342904
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
-F src/diff.c 3f3e33ebe3540d36e9bb6a4798a895d1ef11335b
+F src/diff.c 70a1908b3706cc4c9b717ba58e073f2e4a85ff8c
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 9a7f1a6ef08efb70c3fd6c343d4baa7519a856f4
 F src/dispatch.c 52878ab4a817bb0a58aebee1f71b8fdf301b458c
@@ -766,7 +766,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5db0eb521995923d561db01965a599ef73eeac67
-R fec2776d4cb22dd88329525d05c453c2
+P 8017c358ba77159dcdb836c0fa305e94cf701c20
+R 6f1ca4e92ea3e05faea567f40e3bfe4e
 U mistachkin
-Z dc71b353d40c318c8babf91b62088258
+Z 3e1ddf65cea3c5ca9807e663c42a8806
