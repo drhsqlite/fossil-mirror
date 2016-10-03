@@ -26,7 +26,7 @@ test_setup; set rootDir [file normalize [pwd]]
 # Tests of binary file detection. #
 ###################################
 
-file mkdir [file join .fossil-settings]
+file mkdir .fossil-settings
 write_file [file join .fossil-settings binary-glob] "*"
 
 write_file file0.dat ""; # no content.

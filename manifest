@@ -1,5 +1,5 @@
-C Initial\stests\sfor\sthe\sdiff-binary-detection\sfixes.
-D 2016-10-03T21:59:25.071
+C Another\sadjustment\sto\shandle\ssome\scorner\scases.
+D 2016-10-03T23:10:23.219
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -379,7 +379,7 @@ F src/allrepo.c d430efa00c6ea892999b9d256c18627855da03c3
 F src/attach.c c27c749e6a1334200565b076979b96e366a99bb5
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c abd167c9f2c5398782ca6d48ea1ee612163a7685
-F src/blob.c c0683f0e9fd0fb2b66ca62e8f1a54bd9873d6a28
+F src/blob.c f0607f291c7bf3106035054ce75e2f7c67b70edc
 F src/branch.c f23d02fee6314c726d95a2a82954d81632636723
 F src/browse.c 8f0bb9b6e6e31df9875c081239745a33567c7c84
 F src/builtin.c b2dcfcade2054c083b03a18e3ab5026d51eb2dcb
@@ -403,7 +403,7 @@ F src/db.c 4f26fc803d5cc8eeda96d4718db614d5b96c8175
 F src/delta.c f3002e96cc35f37b9bab7c88f82e978e67342904
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
-F src/diff.c c75f13e7659f5a0c6f94a8b9208c5461e5d95633
+F src/diff.c 3f3e33ebe3540d36e9bb6a4798a895d1ef11335b
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 9a7f1a6ef08efb70c3fd6c343d4baa7519a856f4
 F src/dispatch.c 52878ab4a817bb0a58aebee1f71b8fdf301b458c
@@ -532,7 +532,7 @@ F test/commit-warning.test 1b94adc5f490ade07cd9fc3ba35c94c77ac61819
 F test/contains-selector.test cf46a39b3c1ff72d2fc674f4ccbeecfb94add7d2
 F test/delta1.test d4bcfbeff42bd30d9b770e02b1dd301073bc6cd8
 F test/diff-test-1.wiki 597fbb13c9c3da02e09a53d128f3b5d4dd5cadda
-F test/diff.test d2c0c24c664b8f5cf4c23571ecbb6191966656c1
+F test/diff.test bf9b349dd6f33022ef2aef2894d3057e2daaf507
 F test/file1.test 9b2ac578521a7097017c64b8877f6fa6ca0904f7
 F test/fileStat.th1 e3e30f7b46488c26215a6d713be36ad4ed595132
 F test/fileage-test-1.wiki d249e897fdd41038c17f3b66d374e509830da1eb
@@ -766,7 +766,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dacc2bad82d0073a133c77616f3f8f336ec7a4b9
-R e0200f9ecc6afcd2301e62d054c60ef6
+P 5db0eb521995923d561db01965a599ef73eeac67
+R fec2776d4cb22dd88329525d05c453c2
 U mistachkin
-Z c903cc74bb0c21056d08c48e7869d6de
+Z dc71b353d40c318c8babf91b62088258

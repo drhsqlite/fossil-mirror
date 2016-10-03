@@ -119,6 +119,22 @@ struct DContext {
 };
 
 /*
+** Count the number of lines in the input string.  Include the last line
+** in the count even if it lacks the \n terminator.  If an empty string
+** is specified, the number of lines is zero.
+*/
+static int count_lines(
+  const char *z,
+  int n
+){
+  int nLine;
+  const char *zNL, *z2;
+  for(nLine=0, z2=z; (zNL = fossil_strchr(z2,-1,'\n'))!=0; z2=zNL+1, nLine++){}
+  if( z2[0]!=0 ) nLine++;
+  return nLine;
+}
+
+/*
 ** Return an array of DLine objects containing a pointer to the
 ** start of each line and a hash of that line.  The lower
 ** bits of the hash store the length of each line.
@@ -142,23 +158,23 @@ static DLine *break_into_lines(
   int nLine, i, k, nn, s, x;
   unsigned int h, h2;
   DLine *a;
-  const char *zNL, *z2;
+  const char *zNL;
 
-  /* Count the number of lines in the input file.  Include the last line
-  ** in the count even if it lacks the \n terminator
-  */
-  for(nLine=0, z2=z; (zNL = strchr(z2,'\n'))!=0; z2=zNL+1, nLine++){}
-  if( z2[0]!=0 ) nLine++;
-
+  nLine = count_lines(z, n);
+  assert( nLine>0 || z[0]==0 );
   a = fossil_malloc( sizeof(a[0])*nLine );
   memset(a, 0, sizeof(a[0])*nLine);
   if( nLine==0 ){
+    if( fossil_strchr(z,n,'\0')!=0 ){
+      fossil_free(a);
+      return 0;
+    }
     *pnLine = 0;
     return a;
   }
   i = 0;
   do{
-    zNL = strchr(z,'\n');
+    zNL = fossil_strchr(z,n,'\n');
     if( zNL==0 ) zNL = z+n;
     nn = (int)(zNL - z);
     if( nn>LENGTH_MASK ){
@@ -206,7 +222,7 @@ static DLine *break_into_lines(
     h2 = h % nLine;
     a[i].iNext = a[h2].iHash;
     a[h2].iHash = i+1;
-    z += nn+1;
+    z += nn+1; n -= nn+1;
     i++;
   }while( zNL[0] && zNL[1] );
   assert( i==nLine );
