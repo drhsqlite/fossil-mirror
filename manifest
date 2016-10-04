@@ -1,5 +1,5 @@
-C Add\s'unversioned\sremove'\sas\san\salias\sfor\s'unversioned\srm'.\s\sUpdate\sand\simprove\shelp\stext.
-D 2016-10-04T23:44:15.093
+C Add\sa\sTcl\sscript\sto\sact\sas\sa\s(fake)\stext\seditor\sfor\sthe\stest\ssuite.
+D 2016-10-04T23:49:42.677
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -532,6 +532,7 @@ F test/commit-warning.test 1b94adc5f490ade07cd9fc3ba35c94c77ac61819
 F test/contains-selector.test cf46a39b3c1ff72d2fc674f4ccbeecfb94add7d2
 F test/delta1.test d4bcfbeff42bd30d9b770e02b1dd301073bc6cd8
 F test/diff-test-1.wiki 597fbb13c9c3da02e09a53d128f3b5d4dd5cadda
+F test/fake-editor.tcl 11b5ddc9629fefb4dbc32806f80211440600c744
 F test/file1.test 9b2ac578521a7097017c64b8877f6fa6ca0904f7
 F test/fileStat.th1 e3e30f7b46488c26215a6d713be36ad4ed595132
 F test/fileage-test-1.wiki d249e897fdd41038c17f3b66d374e509830da1eb
@@ -766,7 +767,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b045d0774ed489362f38d02c6e7afff4f330d460
-R c05f9f4029b4d70a03d3c7d1c5fa477f
+P 182adc0290305cc16f58f4d5b64deae34f4e89a3
+R a3e5e17ce576fe9c4e0c41809a102afa
 U mistachkin
-Z d0052ddef8c4c31039646d4d7f1932d6
+Z 1e0bfe52175ad9954314756c6cfcd574
