@@ -84,6 +84,7 @@ void *fossil_secure_alloc_page(size_t *pN){
 
   fossil_get_page_size(&pageSize);
   assert( pageSize>0 );
+  assert( pageSize%2==0 );
 #if defined(_WIN32)
   p = VirtualAlloc(NULL, pageSize, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
   if( p==NULL ){
