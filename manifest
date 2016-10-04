@@ -1,5 +1,5 @@
-C Make\ssure\sthat\ssymlinks\sto\sdirectories\sare\shonored\swhen\sdealing\swith\scheckout\sfiles.
-D 2016-10-04T04:49:21.540
+C Update\sthe\sbuilt-in\sSQLite\s3.15.0\sbeta.
+D 2016-10-04T14:55:41.192
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -486,8 +486,8 @@ F src/shun.c 7d0a7eeffdf515b2d78919408fe42e7142a9b532
 F src/sitemap.c b7c376b21d29322741c804e1f762b34aedb98ad1
 F src/skins.c 524384aafbe9e7707d3b87f42ee72fa63fe91796
 F src/sqlcmd.c a7dce974ba7afde541ed58df98bebce335ed75a5
-F src/sqlite3.c e0a581b2873060d86e3cfe18373442f52c01aebb
-F src/sqlite3.h cc43dcc20ad289fa08bdfa0c2ba69c79085d7ff6
+F src/sqlite3.c bcfc512923958a2f265817bf19907a08f4eba377
+F src/sqlite3.h 8b729f32cd180b8489cce2cc98e0eb403a5bbd66
 F src/stash.c ced32acae9b125f723c6473f30cdfdf8b530dc37
 F src/stat.c 8e2c652ba1deb14c61a7286028dd03f342244734
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
@@ -766,8 +766,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 274e537bb064db9d72ab85200b8bb31b032f07a0 be316701b9bfbf87943d5ca689c250c5153cc9ed
-R ba74e6edc269e4a2c0728a01d8a6699c
-T +closed be316701b9bfbf87943d5ca689c250c5153cc9ed
-U mistachkin
-Z 32896cbfac2b82a68ca5e55fad9051e5
+P 912a0d500884dff12593880b7f76b1283c2e14ee
+R f2942aded16d351d4d0020a047a9bbfe
+U drh
+Z bc8a6b416cc43f8ec80484e438349ce3
