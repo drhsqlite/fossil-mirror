@@ -151,8 +151,8 @@ static DLine *break_into_lines(
   if( z2[0]!=0 ){
     nLine++;
     do{ z2++; }while( z2[0] );
-    if( n!=(int)(z2-z) ) return 0;
   }
+  if( n!=(int)(z2-z) ) return 0;
 
   a = fossil_malloc( sizeof(a[0])*nLine );
   memset(a, 0, sizeof(a[0])*nLine);
