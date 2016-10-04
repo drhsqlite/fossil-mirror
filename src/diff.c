@@ -135,7 +135,7 @@ static int count_lines(
   for(nLine=0, z2=z; (zNL = strchr(z2,'\n'))!=0; z2=zNL+1, nLine++){}
   if( z2[0]!='\0' ){
     nLine++;
-    do{ z2++; }while( z2[0] );
+    do{ z2++; }while( z2[0]!='\0' );
   }
   if( n!=(int)(z2-z) ) return 0;
   if( pnLine ) *pnLine = nLine;
