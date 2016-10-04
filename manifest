@@ -1,5 +1,5 @@
-C Adopt\sthe\sdiff\salgorithm\schanges\sfrom\strunk.
-D 2016-10-04T02:43:17.963
+C Whitespace\stweak.
+D 2016-10-04T02:44:26.380
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -379,7 +379,7 @@ F src/allrepo.c d430efa00c6ea892999b9d256c18627855da03c3
 F src/attach.c c27c749e6a1334200565b076979b96e366a99bb5
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c abd167c9f2c5398782ca6d48ea1ee612163a7685
-F src/blob.c 89d7c7cf34beaa2b1c886b32ef93d0cce702cb60
+F src/blob.c c0683f0e9fd0fb2b66ca62e8f1a54bd9873d6a28
 F src/branch.c f23d02fee6314c726d95a2a82954d81632636723
 F src/browse.c 8f0bb9b6e6e31df9875c081239745a33567c7c84
 F src/builtin.c b2dcfcade2054c083b03a18e3ab5026d51eb2dcb
@@ -766,7 +766,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9903ce5a5bc0ebe3683c6a70e7aa97c1f3b36167 0e0e29aea0e11dd5546339ea59e954400196a136
-R 771d72e7f0b6f1da6e0c1c4b57b7750c
+P f9f2d7692698f5cc5ccc2715534744f35a701cbd
+R 1e6ab7abfc4b95510e89ffbc71013546
 U mistachkin
-Z 3417831c4401f3533df92b567067c3a2
+Z e5ded710546f54e5dab524687bed9bc5

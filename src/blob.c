@@ -89,6 +89,7 @@ struct Blob {
 #endif
 
 
+
 /*
 ** We find that the built-in isspace() function does not work for
 ** some international character sets.  So here is a substitute.
