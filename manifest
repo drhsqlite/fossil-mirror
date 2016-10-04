@@ -1,5 +1,5 @@
-C Update\scustom\sMinGW\smakefile.
-D 2016-10-02T01:26:43.865
+C If\sa\sfile\sto\sbe\sdiffed\scontains\san\s0x00\scharacter,\sconsider\sit\sto\sbe\sbinary\nand\sdo\snot\sattempt\sthe\sdiff.
+D 2016-10-04T01:53:58.509
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -403,7 +403,7 @@ F src/db.c 4f26fc803d5cc8eeda96d4718db614d5b96c8175
 F src/delta.c f3002e96cc35f37b9bab7c88f82e978e67342904
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
-F src/diff.c e401f9e41444a2ecedd17dacd93a85f6df99307e
+F src/diff.c 94a8d1275f47e7297e47b6650759f27aa04d00c7
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 9a7f1a6ef08efb70c3fd6c343d4baa7519a856f4
 F src/dispatch.c 52878ab4a817bb0a58aebee1f71b8fdf301b458c
@@ -765,7 +765,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dfe32f53acc2c1dfe5a07983d9308133d8c7c233
-R 225c75baf0d4f5fcdcb1b9c2cf807b3f
-U mistachkin
-Z 6855f92310bfe787d29f1e3a4b6ffa7c
+P 903af996f51b84d2bcbdd21e9acdc738caa96972
+R f24a738b14063fdfb60022bef2038400
+U drh
+Z 898ef7c155b06a1689b7a43195061c4a
