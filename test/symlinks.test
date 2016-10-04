@@ -18,6 +18,8 @@
 # Symbolic link tests.
 #
 
+set path [file dirname [info script]]
+
 if {$tcl_platform(platform) eq "windows"} {
   puts "Symlinks are not supported on Windows."
   test_cleanup_then_return

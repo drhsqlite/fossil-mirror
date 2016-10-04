@@ -21,6 +21,8 @@
 # TH1 tests that may modify the repository
 #
 
+set path [file dirname [info script]]
+
 require_no_open_checkout
 
 ########################################
@@ -52,8 +54,6 @@ set files_md [list subdirB/f5.md subdirB/f6.md subdirB/f8.md subdirC/f10.md]
 
 fossil add $rootDir
 fossil commit -m "c1"
-
-set dir [file dirname [info script]]
 
 ###############################################################################
 

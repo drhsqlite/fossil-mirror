@@ -1,5 +1,5 @@
-C Add\sentries\sabout\sdiff\scommand\senhancements\sto\sthe\schange\slog.
-D 2016-10-04T21:00:42.932
+C Do\snot\suse\sthe\sTcl\sglobal\svariable\sname\s'dir'.
+D 2016-10-04T23:27:52.388
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -550,24 +550,24 @@ F test/merge6.test 50b1c16adce0050bc946e3d64b14df9ab82f37e0
 F test/merge_exe.test f888647a3305bf2a4ddd77f947e486ae72fced09
 F test/merge_renames.test 73a5d0e41410d142003cb233d2f0f398d8421072
 F test/merge_warn.test d4a98c6ff14e4bb142d784f96c88d152d9599529
-F test/mv-rm.test a46185f0a8443bf422e222b47f360e5c341e9306
+F test/mv-rm.test 6a60863935f7a9e0223ccb9421729d7677fa1f9f
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
 F test/revert.test f7798e8eab21bcf5550af8ac4ee6cb8d5f33cc78
 F test/set-manifest.test f389e51ce371794d5871e70adf66f81d59a9d654
-F test/settings-repo.test cd46e963e1c983621373db38f57a0b936be347e6
-F test/settings.test 15a146c38e233e089ea1aebbf1ef7f9edfd23fd8
+F test/settings-repo.test 7c2617c7deea7d245d927df5688d26365e3bca9b
+F test/settings.test 1877083a0fecb044a698e8ca60d7f9ff2b4f4450
 F test/stash.test 7308d81eca91aa889a41f947ce48025d07633ab9
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
-F test/symlinks.test 4d3ad44c6bc763ae2718efa20fff53797b4f27f3
+F test/symlinks.test 9ead8cede3906559325b19560124bd30396f7c0e
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
 F test/tester.tcl d1b16b916369614a1d134d92bcc53b514a2ae98d
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 3a95822e5006f404b51bb6dccacc340a452d3f4e
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-hooks.test 303c3d5f4a7159bd6de3e0ec810d2d0e322294cb
-F test/th1-repo.test 3c89b1ab7105d87ec3d20f34fcb475600a4bfa80
-F test/th1-tcl.test dd99dd636a8862fa3619a94d7483d580c9890a1e
+F test/th1-repo.test 985c195a770c571b0d3bb30bf4390fcf13fa55d0
+F test/th1-tcl.test a08936b2bcb46386a0e5765186cbf5bbcb8e251a
 F test/th1-tcl1.txt c60e664b138a2189b637c254d55a05819db1521d
 F test/th1-tcl2.txt 9f7e7ea7cc6c75df78c5efb761d10a4e8e354401
 F test/th1-tcl3.txt 208d6e2a9a68969df9220f6f6c190402a62b4919
@@ -577,7 +577,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test 572a0ba79b99de2098869cc8bd647ad18e09e361
+F test/th1.test c140bb961dafa7031c9a088d175793c3235802d3
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test e2489218e27ea0c643185707e2a4fd33db59f13b
@@ -766,7 +766,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3e7c02c097e355ee214b98f08608cb23b15f146b
-R a722278e86e06e665cc0d9930ce71837
-U drh
-Z f36b85b25e029b8fe20326e1cab5348c
+P 06127da67026277ecfba5f541c7458686f9f45fb
+R e2b626b513da075cdf01786ca49cb42d
+U mistachkin
+Z 06221be1d3ce8f8fbe6b0983e0e1d1d7
