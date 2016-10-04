@@ -49,23 +49,26 @@ static void strip_string(Blob *pBlob, char *z){
 ** getpass() for Windows and Android.
 */
 static char *zPwdBuffer = 0;
-static size_t pwdBufferSize = 0;
+static size_t nPwdBuffer = 0;
 
 static char *getpass(const char *prompt){
   char *zPwd;
+  size_t nPwd;
   size_t i;
 
   if( zPwdBuffer==0 ){
-    zPwdBuffer = fossil_secure_alloc_page(&pwdBufferSize);
+    zPwdBuffer = fossil_secure_alloc_page(&nPwdBuffer);
     assert( zPwdBuffer );
   }else{
-    fossil_secure_zero(zPwdBuffer, pwdBufferSize);
+    fossil_secure_zero(zPwdBuffer, nPwdBuffer);
   }
   zPwd = zPwdBuffer;
+  nPwd = nPwdBuffer;
   fputs(prompt,stderr);
   fflush(stderr);
-  assert( pwdBufferSize>0 );
-  for(i=0; i<pwdBufferSize-1; ++i){
+  assert( zPwd!=0 );
+  assert( nPwd>0 );
+  for(i=0; i<nPwd-1; ++i){
 #if defined(_WIN32)
     zPwd[i] = _getch();
 #else
@@ -100,8 +103,8 @@ static char *getpass(const char *prompt){
 }
 void freepass(){
   if( !zPwdBuffer ) return;
-  assert( pwdBufferSize>0 );
-  fossil_secure_free_page(zPwdBuffer, pwdBufferSize);
+  assert( nPwdBuffer>0 );
+  fossil_secure_free_page(zPwdBuffer, nPwdBuffer);
 }
 #endif
 

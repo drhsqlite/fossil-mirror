@@ -1,5 +1,5 @@
-C Merge\supdates\sfrom\strunk.
-D 2016-10-04T19:07:13.653
+C Coding\sstyle\stweaks.
+D 2016-10-04T19:17:25.670
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -509,7 +509,7 @@ F src/unicode.c 8e02b4fd6af9e735bda68eb06e3be90b6b901a87
 F src/unversioned.c 521ffe1c7ffa4131c7e3337dba277d347692a449
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
-F src/user.c 7151e917406d1b0201cb5b32fa9df0b8ca5be194
+F src/user.c c3c6765036807d0255f5ccd6634b1fcc63433cb7
 F src/utf8.c 5c85c7e88b82b5fb48649c46f063ac94ab58eb20
 F src/util.c 9a3cc502aa6ae3bc19831e5f553cd346ec154b5c
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
@@ -766,7 +766,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e6a5634f24d86f16bad462ad7af25f6a6cf6271b 3f06618c9602871af84c7ecb9749c4047d85cdae
-R cd9b1cd0959c4bcf829fd0934a5cf26d
+P 04a8ee6ec25315c0c6a937d628ea907704a53a3d
+R 5943b040264977b09ee7a4677881474b
 U mistachkin
-Z 244756b78962cb46f12c09cc5c7c2921
+Z 32f7a2bd54454fd0ccbad0aad9d79e98
