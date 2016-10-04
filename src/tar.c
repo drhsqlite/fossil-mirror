@@ -477,7 +477,7 @@ void tarball_of_checkin(
   ManifestFile *pFile;
   Blob filename;
   int nPrefix;
-  char *zName;
+  char *zName = 0;
   unsigned int mTime;
 
   content_get(rid, &mfile);

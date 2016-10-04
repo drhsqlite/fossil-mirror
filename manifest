@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\s3.15.0\sbeta.
-D 2016-10-04T14:55:41.192
+C Fix\sharmless\scompiler\swarnings.
+D 2016-10-04T19:06:51.286
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -494,7 +494,7 @@ F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
 F src/style.c 88afceaf6b3bcda35acaf15281cb44d353a822a5
 F src/sync.c 9cc2947ef0f1ef73bd9fb1fa7291dd5df2c03ce9
 F src/tag.c 9ed843d120ac1a822fcb926d82c847aa0a0541d2
-F src/tar.c 684d2f84d0fc810959c31406f314e25cfcabf1ed
+F src/tar.c 8cfe3f2ef83784ed5644b3a9c4cd4d85f1096a38
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
@@ -521,7 +521,7 @@ F src/winhttp.c 7e4c82fc91fe89b81ef4ae399944b8f035fe6789
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 7d011291275f5e5a82a06df1fcc5bde9554a75ea
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
-F src/zip.c 419b5bb18e6095dacc3c86861c19112b60dfb67f
+F src/zip.c 7ad4b3ce5ab36dd3d931d32b23cc3b5cd9f4617f
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test b298d36e7b996220c0bff697d6b229645dd43f8f
@@ -766,7 +766,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 912a0d500884dff12593880b7f76b1283c2e14ee
-R f2942aded16d351d4d0020a047a9bbfe
-U drh
-Z bc8a6b416cc43f8ec80484e438349ce3
+P 3d8a41f12c8cc8ac562e072d07fdd0ca54772ebe
+R 0935acb9bc315380e3a8a2c89ea6db63
+U mistachkin
+Z 3764d985b4da56dcb662a33fd7bb2a78

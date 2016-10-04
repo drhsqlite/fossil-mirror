@@ -353,7 +353,7 @@ void zip_of_checkin(
   pManifest = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( pManifest ){
     int flg, eflg = 0;
-    char *zName;
+    char *zName = 0;
     zip_set_timedate(pManifest->rDate);
     flg = db_get_manifest_setting();
     if( flg ){
