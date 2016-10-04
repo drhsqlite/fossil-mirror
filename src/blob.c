@@ -90,31 +90,6 @@ struct Blob {
 
 
 /*
-** The built-in strchr() function cannot deal with NUL characters.
-** So here is a substitute.  If the character being sought after
-** is not NUL, this function will call the built-in strchr().  In
-** that case, the "n" argument is ignored.  If the value of "n"
-** is less than zero, the length of the "str" value will be used;
-** however, that is unlikely to produce a useful result.
-*/
-char *fossil_strchr(
-  const char *str, /* Null-terminated string being searched. */
-  int n,           /* Length of the string being searched. */
-  int c            /* Character being sought. */
-){
-  if( c=='\0' ){
-    int i = 0;
-    if( n<0 ) n = strlen(str); /* pedantic */
-    for(; i<n; i++){
-      if( str[i]==c ) return str+i;
-    }
-    return 0;
-  }else{
-    return strchr(str, c);
-  }
-}
-
-/*
 ** We find that the built-in isspace() function does not work for
 ** some international character sets.  So here is a substitute.
 */

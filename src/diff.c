@@ -127,13 +127,19 @@ struct DContext {
 */
 static int count_lines(
   const char *z,
-  int n
+  int n,
+  int *pnLine
 ){
   int nLine;
   const char *zNL, *z2;
-  for(nLine=0, z2=z; (zNL = fossil_strchr(z2,-1,'\n'))!=0; z2=zNL+1, nLine++){}
-  if( z2[0]!='\0' ) nLine++;
-  return nLine;
+  for(nLine=0, z2=z; (zNL = strchr(z2,'\n'))!=0; z2=zNL+1, nLine++){}
+  if( z2[0]!='\0' ){
+    nLine++;
+    do{ z2++; }while( z2[0] );
+  }
+  if( n!=(int)(z2-z) ) return 0;
+  if( pnLine ) *pnLine = nLine;
+  return 1;
 }
 
 /*
@@ -162,21 +168,19 @@ static DLine *break_into_lines(
   DLine *a;
   const char *zNL;
 
-  nLine = count_lines(z, n);
+  if( count_lines(z, n, &nLine)==0 ){
+    return 0;
+  }
   assert( nLine>0 || z[0]=='\0' );
   a = fossil_malloc( sizeof(a[0])*nLine );
   memset(a, 0, sizeof(a[0])*nLine);
   if( nLine==0 ){
-    if( fossil_strchr(z,n,'\0')!=0 ){
-      fossil_free(a);
-      return 0;
-    }
     *pnLine = 0;
     return a;
   }
   i = 0;
   do{
-    zNL = fossil_strchr(z,n,'\n');
+    zNL = strchr(z,'\n');
     if( zNL==0 ) zNL = z+n;
     nn = (int)(zNL - z);
     if( nn>LENGTH_MASK ){
@@ -198,10 +202,6 @@ static DLine *break_into_lines(
       while( s<k && fossil_isspace(z[s]) ){ s++; }
       for(h=0, x=s; x<k; x++){
         char c = z[x];
-        if( c=='\0' ){
-          fossil_free(a);
-          return 0;
-        }
         if( fossil_isspace(c) ){
           ++numws;
         }else{
@@ -212,12 +212,7 @@ static DLine *break_into_lines(
       k -= numws;
     }else{
       for(h=0, x=s; x<k; x++){
-        char c = z[x];
-        if( c=='\0' ){
-          fossil_free(a);
-          return 0;
-        }
-        h += c;
+        h += z[x];
         h *= 0x9e3779b1;
       }
     }
