@@ -229,22 +229,26 @@ static int contains_whitespace(const char *zName){
 **
 **    export FILE OUTPUT   Write the content of FILE into OUTPUT on disk
 **
-**    list | ls            Show all unversioned files held in the local repository.
+**    list | ls            Show all unversioned files held in the local
+**                         repository.
 **
-**    revert ?URL?         Restore the state of all unversioned files in the local
-**                         repository to match the remote repository URL.
+**    revert ?URL?         Restore the state of all unversioned files in the
+**                         local repository to match the remote repository
+**                         URL.
+**
 **                         Options:
 **                            -v|--verbose     Extra diagnostic output
 **                            -n|--dryrun      Show what would have happened
 **
-**    rm FILE ...          Remove an unversioned files from the local repository.
+**    remove | rm FILE ... Remove unversioned files from the local repository.
 **                         Changes are not pushed to other repositories until
-**                         the next sync. 
+**                         the next sync.
 **
 **    sync ?URL?           Synchronize the state of all unversioned files with
-**                         the remote repository URL.  The most recent version of
-**                         each file is propagate to all repositories and all
-**                         prior versions are permanently forgotten.
+**                         the remote repository URL.  The most recent version
+**                         of each file is propagate to all repositories and
+**                         all prior versions are permanently forgotten.
+**
 **                         Options:
 **                            -v|--verbose     Extra diagnostic output
 **                            -n|--dryrun      Show what would have happened
@@ -253,7 +257,8 @@ static int contains_whitespace(const char *zName){
 **
 ** Options:
 **
-**   --mtime TIMESTAMP     Use TIMESTAMP instead of "now" for "add" and "rm".
+**   --mtime TIMESTAMP     Use TIMESTAMP instead of "now" for the "add",
+**                         "edit", and "remove" subcommands.
 */
 void unversioned_cmd(void){
   const char *zCmd;
@@ -407,7 +412,7 @@ void unversioned_cmd(void){
     g.argv[1] = "sync";
     g.argv[2] = "--uv-noop";
     sync_unversioned(syncFlags);
-  }else if( memcmp(zCmd, "rm", nCmd)==0 ){
+  }else if( memcmp(zCmd, "remove", nCmd)==0 || memcmp(zCmd, "rm", nCmd)==0 ){
     int i;
     verify_all_options();
     db_begin_transaction();
@@ -438,7 +443,7 @@ void unversioned_cmd(void){
     db_unset("uv-hash", 0);
     db_end_transaction(0);
   }else{
-    usage("add|cat|edit|export|ls|revert|rm|sync|touch");
+    usage("add|cat|edit|export|list|revert|remove|sync|touch");
   }
 }
 
