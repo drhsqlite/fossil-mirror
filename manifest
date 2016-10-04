@@ -1,5 +1,5 @@
-C Fix\stypos\sin\sthe\ssync\sdocument.\s\sMake\s"uv"\san\salias\sfor\s"unversioned".\nProhibit\sunversioned\sfilename\sthat\scontain\swhitespace\ssince\sthe\ssync\sprotocol\ncannot\scurrently\shandle\ssuch\sfiles.
-D 2016-10-04T20:25:28.864
+C Fix\sa\stypo\son\sthe\saboutcgi.wiki\sdocumentation\spage.
+D 2016-10-04T20:54:46.462
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -656,7 +656,7 @@ F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
-F www/aboutcgi.wiki 6c7673267f102dac018ed655441dad2fe8ff24ff
+F www/aboutcgi.wiki 58fd111e2c029a61a5a0870dd2ab007f98f93edf
 F www/adding_code.wiki b769f1c0b4fd661ea7d3a22e6bbc10d9ebeed677
 F www/antibot.wiki 2cb08df5fdf129d683b1fa104c93c6785660432b
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
@@ -766,7 +766,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3f06618c9602871af84c7ecb9749c4047d85cdae
-R d843336ed83fb9bce71a4c6fffcba399
+P 85f957c3e57b99b1408d6135a3dc0f0adebd5099
+R bf0a3252a83ec16b591c31cc2558d041
 U drh
-Z 0ee2c4984ecedacb9937afd967b515a2
+Z b2463217d1efeef7e9466bd370e523cb
