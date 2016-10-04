@@ -2042,6 +2042,13 @@ static int isIsoDate(const char *z){
 }
 
 /*
+** Return true if the input string can be converted to a julianday.
+*/
+static int fossil_is_julianday(const char *zDate){
+  return db_int(0, "SELECT EXISTS (SELECT julianday(%Q) AS jd WHERE jd IS NOT NULL)", zDate);
+}
+
+/*
 ** COMMAND: timeline
 **
 ** Usage: %fossil timeline ?WHEN? ?CHECKIN|DATETIME? ?OPTIONS?
@@ -2181,7 +2188,7 @@ void timeline_cmd(void){
   }else if( name_to_uuid(&uuid, 0, "*")==0 ){
     objid = db_int(0, "SELECT rid FROM blob WHERE uuid=%B", &uuid);
     zDate = mprintf("(SELECT mtime FROM event WHERE objid=%d)", objid);
-  }else{
+  }else if( fossil_is_julianday(zOrigin) ){
     const char *zShift = "";
     if( mode==TIMELINE_MODE_CHILDREN || mode==TIMELINE_MODE_PARENTS ){
       fossil_fatal("cannot compute descendants or ancestors of a date");
@@ -2190,6 +2197,8 @@ void timeline_cmd(void){
       if( isIsoDate(zOrigin) ) zShift = ",'+1 day'";
     }
     zDate = mprintf("(SELECT julianday(%Q%s, fromLocal()))", zOrigin, zShift);
+  }else{
+    fossil_fatal("unknown check-in or invalid date: %s", zOrigin);
   }
 
   if( zFilePattern ){
