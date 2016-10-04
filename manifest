@@ -1,5 +1,5 @@
-C Coding\sstyle\sand\sconsistency\simprovements.
-D 2016-10-04T23:29:53.607
+C The\sfinal\snewline\smust\sbe\sretained\sfor\sall\stest\sresults.
+D 2016-10-04T23:32:55.392
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -561,7 +561,7 @@ F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 9ead8cede3906559325b19560124bd30396f7c0e
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl d1b16b916369614a1d134d92bcc53b514a2ae98d
+F test/tester.tcl e18b9ea9b3539377d27c779127ad827696113c8e
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 3a95822e5006f404b51bb6dccacc340a452d3f4e
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -766,7 +766,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 64b812bd4ef8d31cc44ae35c18a810aaa8ce6c74
-R 8d39ab83f0b2d4b054f6e91a81f261e3
+P 824bfe849bcce6e0e769b6a54ff9f402e9cac686
+R 6067357276c535333e1cf24cf88998f6
 U mistachkin
-Z cbab4d2f87ff564dcced3de972e09715
+Z fc806245cf466ac86e78fa20da64ca31

@@ -152,10 +152,10 @@ proc fossil_maybe_answer {answer args} {
     protOut $answer
     set prompt_file [file join $::tempPath fossil_prompt_answer]
     write_file $prompt_file $answer\n
-    set rc [catch {eval exec $cmd <$prompt_file} result]
+    set rc [catch {eval exec -keepnewline $cmd <$prompt_file} result]
     file delete $prompt_file
   } else {
-    set rc [catch {eval exec $cmd} result]
+    set rc [catch {eval exec -keepnewline $cmd} result]
   }
   global RESULT CODE
   set CODE $rc
