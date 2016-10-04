@@ -1,5 +1,5 @@
-C Add\sa\sTcl\sscript\sto\sact\sas\sa\s(fake)\stext\seditor\sfor\sthe\stest\ssuite.
-D 2016-10-04T23:49:42.677
+C Another\scorrection\sto\sthe\sunversioned\shelp\stext.
+D 2016-10-04T23:54:26.031
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -506,7 +506,7 @@ F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c d3cca342dd73eaec65e352d978e8f7a9e75a5ddd
 F src/unicode.c 8e02b4fd6af9e735bda68eb06e3be90b6b901a87
-F src/unversioned.c 9e66c9b41f61a408dc806192728d143ae198ad56
+F src/unversioned.c 95327eac5a73649447bb5ae5c938a05686429900
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c e2c08deb9a3ce011d3db10f70216a7988485e29a
@@ -767,7 +767,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 182adc0290305cc16f58f4d5b64deae34f4e89a3
-R a3e5e17ce576fe9c4e0c41809a102afa
+P b6a01114394d844190b0b1a2eb1282a86c905db6
+R c510f7f82f24dbc80dc5a01c94d90fc4
 U mistachkin
-Z 1e0bfe52175ad9954314756c6cfcd574
+Z 715fa5050cab21154bf842dfca8b23f6

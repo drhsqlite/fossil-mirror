@@ -258,7 +258,7 @@ static int contains_whitespace(const char *zName){
 ** Options:
 **
 **   --mtime TIMESTAMP     Use TIMESTAMP instead of "now" for the "add",
-**                         "edit", and "remove" subcommands.
+**                         "edit", "remove", and "touch" subcommands.
 */
 void unversioned_cmd(void){
   const char *zCmd;
