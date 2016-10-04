@@ -295,20 +295,32 @@ int file_isdir(const char *zFilename){
 }
 
 /*
-** Same as file_isdir(), but takes into account symlinks.
+** Same as file_isdir(), but takes into account symlinks.  Return 1 if
+** zFilename is a directory -OR- a symlink that points to a directory.
+** Return 0 if zFilename does not exist.  Return 2 if zFilename exists
+** but is something other than a directory.
 */
 int file_wd_isdir(const char *zFilename){
   int rc;
+  char *zFN;
 
-  if( zFilename ){
-    char *zFN = mprintf("%s", zFilename);
-    file_simplify_name(zFN, -1, 0);
-    rc = getStat(zFN, 1);
-    free(zFN);
+  zFN = mprintf("%s", zFilename);
+  file_simplify_name(zFN, -1, 0);
+  rc = getStat(zFN, 1);
+  if( rc ){
+    rc = 0; /* It does not exist at all. */
+  }else if( S_ISDIR(fileStat.st_mode) ){
+    rc = 1; /* It exists and is a real directory. */
+  }else if( S_ISLNK(fileStat.st_mode) ){
+    Blob content;
+    blob_read_link(&content, zFN); /* It exists and is a link. */
+    rc = file_wd_isdir(blob_str(&content)); /* Points to directory? */
+    blob_reset(&content);
   }else{
-    rc = getStat(0, 1);
+    rc = 2; /* It exists and is something else. */
   }
-  return rc ? 0 : (S_ISDIR(fileStat.st_mode) ? 1 : 2);
+  free(zFN);
+  return rc;
 }
 
 
@@ -602,7 +614,7 @@ int file_mkfolder(const char *zFilename, int forceFlag, int errorReturn){
       */
       if( !(i==2 && zName[1]==':') ){
 #endif
-        if( file_mkdir(zName, forceFlag) && file_isdir(zName)!=1 ){
+        if( file_mkdir(zName, forceFlag) && file_wd_isdir(zName)!=1 ){
           if (errorReturn <= 0) {
             fossil_fatal_recursive("unable to create directory %s", zName);
           }

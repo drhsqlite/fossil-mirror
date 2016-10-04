@@ -924,7 +924,7 @@ void diff_cmd(void){
     for(i=0; pFileDir[i].zName; i++){
       if( pFileDir[i].nUsed==0
        && strcmp(pFileDir[0].zName,".")!=0
-       && !file_isdir(g.argv[i+2])
+       && !file_wd_isdir(g.argv[i+2])
       ){
         fossil_fatal("not found: '%s'", g.argv[i+2]);
       }

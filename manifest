@@ -1,5 +1,5 @@
-C Return\san\serror\sinstead\sof\ssilently\signoring\sinvalid\sinput.
-D 2016-10-04T03:55:35.105
+C Make\ssure\sthat\ssymlinks\sto\sdirectories\sare\shonored\swhen\sdealing\swith\scheckout\sfiles.
+D 2016-10-04T04:49:21.540
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -405,13 +405,13 @@ F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
 F src/diff.c 92dfd18ed51cd16f04ed73e6768ad2e01c32e171
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
-F src/diffcmd.c 9a7f1a6ef08efb70c3fd6c343d4baa7519a856f4
+F src/diffcmd.c 701f6a25d4b1903d94856eed811276ff4a468bab
 F src/dispatch.c 52878ab4a817bb0a58aebee1f71b8fdf301b458c
 F src/doc.c f46ada466f90f12ee7b5c6078808fdfc4dedb183
 F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
 F src/event.c 6909284d77a688d63cc67b7b0929b8dda5397742
 F src/export.c ab705fb1bdb609c49cab3aa686fd74b5cd8e83d4
-F src/file.c 358fe9d49285556e7ce2e5fe62696f8f55b10f42
+F src/file.c 162fb1c54db5dd0d81ac07a11b943fcfea62d9aa
 F src/finfo.c 3fc6e9e4114477c9a7e29c1bbaa17a5930c2d1b3
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
 F src/fshell.c 00dbabd3e544bb99c21e41a6750187d3d4b416ed
@@ -559,6 +559,7 @@ F test/settings.test 15a146c38e233e089ea1aebbf1ef7f9edfd23fd8
 F test/stash.test 7308d81eca91aa889a41f947ce48025d07633ab9
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
+F test/symlinks.test 4d3ad44c6bc763ae2718efa20fff53797b4f27f3
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
 F test/tester.tcl d1b16b916369614a1d134d92bcc53b514a2ae98d
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -765,8 +766,8 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0e0e29aea0e11dd5546339ea59e954400196a136 34d0c570438fdd29cee9e97744894f5bb6d2d37f
-R 03d5670ba26cc07d8194b8a9e06a2231
-T +closed 34d0c570438fdd29cee9e97744894f5bb6d2d37f
-U andybradford
-Z 9c2081521f6cdc6ae67980746000a0b6
+P 274e537bb064db9d72ab85200b8bb31b032f07a0 be316701b9bfbf87943d5ca689c250c5153cc9ed
+R ba74e6edc269e4a2c0728a01d8a6699c
+T +closed be316701b9bfbf87943d5ca689c250c5153cc9ed
+U mistachkin
+Z 32896cbfac2b82a68ca5e55fad9051e5
