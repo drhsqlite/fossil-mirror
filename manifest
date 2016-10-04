@@ -1,5 +1,5 @@
-C Fix\sharmless\scompiler\swarnings.
-D 2016-10-04T19:06:51.286
+C Fix\stypos\sin\sthe\ssync\sdocument.\s\sMake\s"uv"\san\salias\sfor\s"unversioned".\nProhibit\sunversioned\sfilename\sthat\scontain\swhitespace\ssince\sthe\ssync\sprotocol\ncannot\scurrently\shandle\ssuch\sfiles.
+D 2016-10-04T20:25:28.864
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -506,7 +506,7 @@ F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c d3cca342dd73eaec65e352d978e8f7a9e75a5ddd
 F src/unicode.c 8e02b4fd6af9e735bda68eb06e3be90b6b901a87
-F src/unversioned.c 521ffe1c7ffa4131c7e3337dba277d347692a449
+F src/unversioned.c ef8fb634ba4a8eb537288fea85c81ab1e1447f96
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c e2c08deb9a3ce011d3db10f70216a7988485e29a
@@ -754,7 +754,7 @@ F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki e6c82bd6579f755896c47b22dbab18e27b1f5bc4
 F www/style.wiki da3a414d4c57c3da2636daf0baf6964ba72ce70b
-F www/sync.wiki 5fcae7f9cf739b6c24c7dabdf1e4f6ba2f110af2
+F www/sync.wiki 2dc71811c4c9d9d32b4cd533258328e4e733402b
 F www/tech_overview.wiki 4d74d28dfc2515d7864c4ecbf7324be9919e3efd
 F www/th1.md a66de6107f39467811162a4a466ac0008f10b228
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
@@ -766,7 +766,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3d8a41f12c8cc8ac562e072d07fdd0ca54772ebe
-R 0935acb9bc315380e3a8a2c89ea6db63
-U mistachkin
-Z 3764d985b4da56dcb662a33fd7bb2a78
+P 3f06618c9602871af84c7ecb9749c4047d85cdae
+R d843336ed83fb9bce71a4c6fffcba399
+U drh
+Z 0ee2c4984ecedacb9937afd967b515a2

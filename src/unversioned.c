@@ -192,9 +192,22 @@ static int unversioned_sync_flags(unsigned syncFlags){
 }
 
 /*
+** Return true if the zName contains any whitespace
+*/
+static int contains_whitespace(const char *zName){
+  while( zName[0] ){
+    if( fossil_isspace(zName[0]) ) return 1;
+    zName++;
+  }
+  return 0;
+}
+
+/*
+** COMMAND: uv*
 ** COMMAND: unversioned
 **
 ** Usage: %fossil unversioned SUBCOMMAND ARGS...
+**    or: %fossil uv SUBCOMMAND ARGS..
 **
 ** Unversioned files (UV-files) are artifacts that are synced and are available
 ** for download but which do not preserve history.  Only the most recent version
@@ -272,6 +285,9 @@ void unversioned_cmd(void){
       zIn = zAs ? zAs : g.argv[i];
       if( zIn[0]==0 || zIn[0]=='/' || !file_is_simple_pathname(zIn,1) ){
         fossil_fatal("'%Q' is not an acceptable filename", zIn);
+      }
+      if( contains_whitespace(zIn) ){
+        fossil_fatal("names of unversioned files may not contain whitespace");
       }
       blob_init(&file,0,0);
       blob_read_from_file(&file, g.argv[i]);
