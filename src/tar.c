@@ -477,7 +477,7 @@ void tarball_of_checkin(
   ManifestFile *pFile;
   Blob filename;
   int nPrefix;
-  char *zName;
+  char *zName = 0;
   unsigned int mTime;
 
   content_get(rid, &mfile);
@@ -495,24 +495,60 @@ void tarball_of_checkin(
 
   pManifest = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( pManifest ){
+    int flg, eflg = 0;
     mTime = (pManifest->rDate - 2440587.5)*86400.0;
     tar_begin(mTime);
-    if( (pInclude==0 || glob_match(pInclude, "manifest"))
-     && !glob_match(pExclude, "manifest")
-     && db_get_boolean("manifest", 0)
-    ){
-      blob_append(&filename, "manifest", -1);
-      zName = blob_str(&filename);
-      sha1sum_blob(&mfile, &hash);
-      sterilize_manifest(&mfile);
-      tar_add_file(zName, &mfile, 0, mTime);
+    flg = db_get_manifest_setting();
+    if( flg ){
+      /* eflg is the effective flags, taking include/exclude into account */
+      if( (pInclude==0 || glob_match(pInclude, "manifest"))
+       && !glob_match(pExclude, "manifest")
+       && (flg & MFESTFLG_RAW) ){
+        eflg |= MFESTFLG_RAW;
+      }
+      if( (pInclude==0 || glob_match(pInclude, "manifest.uuid"))
+       && !glob_match(pExclude, "manifest.uuid")
+       && (flg & MFESTFLG_UUID) ){
+        eflg |= MFESTFLG_UUID;
+      }
+      if( (pInclude==0 || glob_match(pInclude, "manifest.tags"))
+       && !glob_match(pExclude, "manifest.tags")
+       && (flg & MFESTFLG_TAGS) ){
+        eflg |= MFESTFLG_TAGS;
+      }
+
+      if( eflg & (MFESTFLG_RAW|MFESTFLG_UUID) ){
+        if( eflg & MFESTFLG_RAW ){
+          blob_append(&filename, "manifest", -1);
+          zName = blob_str(&filename);
+        }
+        if( eflg & MFESTFLG_UUID ){
+          sha1sum_blob(&mfile, &hash);
+        }
+        if( eflg & MFESTFLG_RAW ) {
+          sterilize_manifest(&mfile);
+          tar_add_file(zName, &mfile, 0, mTime);
+        }
+      }
       blob_reset(&mfile);
-      blob_append(&hash, "\n", 1);
-      blob_resize(&filename, nPrefix);
-      blob_append(&filename, "manifest.uuid", -1);
-      zName = blob_str(&filename);
-      tar_add_file(zName, &hash, 0, mTime);
-      blob_reset(&hash);
+      if( eflg & MFESTFLG_UUID ){
+        blob_append(&hash, "\n", 1);
+        blob_resize(&filename, nPrefix);
+        blob_append(&filename, "manifest.uuid", -1);
+        zName = blob_str(&filename);
+        tar_add_file(zName, &hash, 0, mTime);
+        blob_reset(&hash);
+      }
+      if( eflg & MFESTFLG_TAGS ){
+        Blob tagslist;
+        blob_zero(&tagslist);
+        get_checkin_taglist(rid, &tagslist);
+        blob_resize(&filename, nPrefix);
+        blob_append(&filename, "manifest.tags", -1);
+        zName = blob_str(&filename);
+        tar_add_file(zName, &tagslist, 0, mTime);
+        blob_reset(&tagslist);
+      }
     }
     manifest_file_rewind(pManifest);
     while( (pFile = manifest_file_next(pManifest,0))!=0 ){

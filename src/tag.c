@@ -361,6 +361,7 @@ void tag_add_artifact(
     manifest_crosslink(nrid, &ctrl, MC_PERMIT_HOOKS);
   }
   assert( blob_is_reset(&ctrl) );
+  manifest_to_disk(rid);
 }
 
 /*

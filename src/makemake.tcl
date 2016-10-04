@@ -166,6 +166,8 @@ set SQLITE_OPTIONS {
   -DSQLITE_OMIT_PROGRESS_CALLBACK
   -DSQLITE_OMIT_SHARED_CACHE
   -DSQLITE_OMIT_LOAD_EXTENSION
+  -DSQLITE_MAX_EXPR_DEPTH=0
+  -DSQLITE_USE_ALLOCA
   -DSQLITE_ENABLE_LOCKING_STYLE=0
   -DSQLITE_DEFAULT_FILE_FORMAT=4
   -DSQLITE_ENABLE_EXPLAIN_COMMENTS
@@ -669,7 +671,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2i
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2j
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -1499,7 +1501,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.0.2i
+SSLDIR    = $(B)\compat\openssl-1.0.2j
 SSLINCDIR = $(SSLDIR)\inc32
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)\out32dll

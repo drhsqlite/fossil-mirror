@@ -266,15 +266,15 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
     }
 #ifndef _WIN32
     if( chnged==0 || chnged==6 || chnged==7 || chnged==8 || chnged==9 ){
-      if( origPerm == currentPerm ){
+      if( origPerm==currentPerm ){
         chnged = 0;
-      }else if( currentPerm == PERM_EXE ){
+      }else if( currentPerm==PERM_EXE ){
         chnged = 6;
-      }else if( currentPerm == PERM_LNK ){
+      }else if( currentPerm==PERM_LNK ){
         chnged = 7;
-      }else if( origPerm == PERM_EXE ){
+      }else if( origPerm==PERM_EXE ){
         chnged = 8;
-      }else if( origPerm == PERM_LNK ){
+      }else if( origPerm==PERM_LNK ){
         chnged = 9;
       }
     }
@@ -350,7 +350,7 @@ void vfile_to_disk(
       }
     }
     if( verbose ) fossil_print("%s\n", &zName[nRepos]);
-    if( file_wd_isdir(zName) == 1 ){
+    if( file_wd_isdir(zName)==1 ){
       /*TODO(dchest): remove directories? */
       fossil_fatal("%s is directory, cannot overwrite\n", zName);
     }

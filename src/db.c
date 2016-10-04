@@ -2362,6 +2362,42 @@ void db_lset_int(const char *zName, int value){
   db_multi_exec("REPLACE INTO vvar(name,value) VALUES(%Q,%d)", zName, value);
 }
 
+#if INTERFACE
+/* Manifest generation flags */
+#define MFESTFLG_RAW  0x01
+#define MFESTFLG_UUID 0x02
+#define MFESTFLG_TAGS 0x04
+#endif /* INTERFACE */
+
+/*
+** Get the manifest setting.  For backwards compatibility first check if the
+** value is a boolean.  If it's not a boolean, treat each character as a flag
+** to enable a manifest type.  This system puts certain boundary conditions on
+** which letters can be used to represent flags (any permutation of flags must
+** not be able to fully form one of the boolean values).
+*/
+int db_get_manifest_setting(void){
+  int flg;
+  char *zNVVal = db_get("manifest", "off");
+  char *zVal = db_get_versioned("manifest", zNVVal);
+  if( is_false(zVal) ){
+    return 0;
+  }else if( is_truth(zVal) ) {
+    return MFESTFLG_RAW|MFESTFLG_UUID;
+  }
+  flg = 0;
+  while( *zVal ){
+   switch( *zVal ){
+     case 'r': flg |= MFESTFLG_RAW;  break;
+     case 'u': flg |= MFESTFLG_UUID; break;
+     case 't': flg |= MFESTFLG_TAGS; break;
+    }
+    zVal++;
+  }
+  return flg;
+}
+
+
 /*
 ** Record the name of a local repository in the global_config() database.
 ** The repository filename %s is recorded as an entry with a "name" field
@@ -2661,7 +2697,7 @@ const Setting aSetting[] = {
   { "keep-glob",        0,             40, 1, 0, ""                    },
   { "localauth",        0,              0, 0, 0, "off"                 },
   { "main-branch",      0,             40, 0, 0, "trunk"               },
-  { "manifest",         0,              0, 1, 0, "off"                 },
+  { "manifest",         0,              5, 0, 0, "off"                 },
   { "max-loadavg",      0,             25, 0, 0, "0.0"                 },
   { "max-upload",       0,             25, 0, 0, "250000"              },
   { "mtime-changes",    0,              0, 0, 0, "on"                  },
@@ -2866,9 +2902,12 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **
 **    main-branch      The primary branch for the project.  Default: trunk
 **
-**    manifest         If enabled, automatically create files "manifest" and
-**     (versionable)   "manifest.uuid" in every checkout.  The SQLite and
-**                     Fossil repositories both require this.  Default: off.
+**    manifest         If set to a true boolean value, automatically create
+**     (versionable)   files "manifest" and "manifest.uuid" in every checkout.
+**                     Optionally use combinations of characters 'r'
+**                     for "manifest", 'u' for "manifest.uuid" and 't' for
+**                     "manifest.tags".  The SQLite and Fossil repositories
+**                     both require manifests.  Default: off.
 **
 **    max-loadavg      Some CPU-intensive web pages (ex: /zip, /tarball, /blame)
 **                     are disallowed if the system load average goes above this

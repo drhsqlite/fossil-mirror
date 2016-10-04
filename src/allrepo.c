@@ -377,7 +377,7 @@ void all_cmd(void){
        " ORDER BY 1"
     );
   }
-  db_multi_exec("CREATE TEMP TABLE todel(x TEXT)");
+  db_multi_exec("CREATE TEMP TABLE toDel(x TEXT)");
   db_prepare(&q, "SELECT name, tag FROM repolist ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFilename = db_column_text(&q, 0);
@@ -388,7 +388,7 @@ void all_cmd(void){
      || !file_is_canonical(zFilename)
      || (useCheckouts && file_isdir(zFilename)!=1)
     ){
-      db_multi_exec("INSERT INTO todel VALUES(%Q)", db_column_text(&q, 1));
+      db_multi_exec("INSERT INTO toDel VALUES(%Q)", db_column_text(&q, 1));
       nToDel++;
       continue;
     }

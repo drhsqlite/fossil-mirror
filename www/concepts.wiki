@@ -15,6 +15,11 @@ to setup and operate.
 This document is intended as a quick introduction to the concepts
 behind Fossil.
 
+See also:
+
+  *  [./whyusefossil.wiki#definitions|Definitions]
+  *  [./quickstart.wiki|Quick start guide]
+
 <h2>2.0 Composition Of A Project</h2>
 <img src="concept1.gif" align="right" hspace="10">
 

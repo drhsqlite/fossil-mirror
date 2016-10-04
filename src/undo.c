@@ -479,10 +479,11 @@ void undo_cmd(void){
     }else{
       Stmt q;
       int nChng = 0;
+      const char *zArticle = undo_available==1 ? "An" : "A";
       zCmd = undo_available==1 ? "undo" : "redo";
-      fossil_print("A %s is available for the following command:\n\n"
+      fossil_print("%s %s is available for the following command:\n\n"
                    "   %s %s\n\n",
-                   zCmd, g.argv[0], db_lget("undo_cmdline", "???"));
+                   zArticle, zCmd, g.argv[0], db_lget("undo_cmdline", "???"));
       db_prepare(&q,
         "SELECT existsflag, pathname FROM undo ORDER BY pathname"
       );
