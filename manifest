@@ -1,5 +1,5 @@
-C Update\sdelta1\stest\scases\sto\snormalize\sthe\sresult\sso\sthey\spass\sagain.\nAdd\sadditional\stests\sto\scover\sassertion\sfailure\scaused\sby\sempty\sdelta\sinputs.
-D 2016-10-05T08:41:26.732
+C Ensure\sthat\sinputs\sto\sdelta_create()\sare\salways\smemory\saligned\sas\sif\sobtained\nfrom\smalloc().
+D 2016-10-05T12:59:37.345
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -401,7 +401,7 @@ F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c d1fbc4dbb43b8e3ed23164fd5e06649fe6813615
 F src/delta.c f3002e96cc35f37b9bab7c88f82e978e67342904
-F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
+F src/deltacmd.c 113edfe9d9c03a664dac78342fb30f8b18dd48b6
 F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
 F src/diff.c 92dfd18ed51cd16f04ed73e6768ad2e01c32e171
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
@@ -768,7 +768,8 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6c1359d36715fb0c17ba74e186154e98ce9f53a4
-R fa838db651153b498a3b25770a269ea4
-U andybradford
-Z e6cc73202dd9bd2b3468fbb6a9e571f0
+P 4ede0df9df8f49cbd6fe1f63f53e5e6b5b954985 75ddc3687acbdb3295438865bbe29afbfcd76b77
+R 866d951bf4a419b0eba4dde0871da833
+T +closed 75ddc3687acbdb3295438865bbe29afbfcd76b77
+U drh
+Z 4f8214103202c9d4c87af393c082c609
