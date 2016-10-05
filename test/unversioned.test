@@ -363,13 +363,19 @@ unset env(FAKE_EDITOR_SCRIPT)
 
 ###############################################################################
 
+fossil unversioned cat unversioned2.txt
+test unversioned-49 {[::sha1::sha1 $RESULT] eq \
+{e15d4b576fc04e3bb5e44a33d44d104dd5b19428}}
+
+###############################################################################
+
 fossil unversioned remove unversioned5.txt
-test unversioned-49 {[normalize_result] eq {}}
+test unversioned-50 {[normalize_result] eq {}}
 
 ###############################################################################
 
 fossil unversioned list --all
-test unversioned-50 {[regexp \
+test unversioned-51 {[regexp \
 {^[0-9a-f]{12} \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}       44       44\
 unversioned2\.txt
    \(deleted\) \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}        0        0\
@@ -378,7 +384,7 @@ unversioned5\.txt$} [normalize_result]]}
 ###############################################################################
 
 fossil_maybe_answer y unversioned revert $remote
-test unversioned-51 {[regexp \
+test unversioned-52 {[regexp \
 {Round-trips: 1   Artifacts sent: 0  received: 0
 Round-trips: 1   Artifacts sent: 0  received: 0
 Round-trips: 2   Artifacts sent: 0  received: 0
@@ -388,7 +394,7 @@ Round-trips: 2   Artifacts sent: 0  received: 2
 ###############################################################################
 
 fossil unversioned list
-test unversioned-52 {[regexp \
+test unversioned-53 {[regexp \
 {^[0-9a-f]{12} 2016-10-01 00:00:00       30       30\
 unversioned2\.txt
 [0-9a-f]{12} \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}       28       28\
@@ -397,7 +403,7 @@ unversioned5\.txt$} [normalize_result]]}
 ###############################################################################
 
 fossil close
-test unversioned-53 {[normalize_result] eq {}}
+test unversioned-54 {[normalize_result] eq {}}
 
 ###############################################################################
 

@@ -1,5 +1,5 @@
-C Ensure\sthat\sinputs\sto\sdelta_create()\sare\salways\smemory\saligned\sas\sif\sobtained\nfrom\smalloc().
-D 2016-10-05T12:59:37.345
+C Add\sanother\stest\sfor\sthe\sunversioned\scommand.
+D 2016-10-05T23:06:56.937
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -579,7 +579,7 @@ F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
 F test/th1.test c140bb961dafa7031c9a088d175793c3235802d3
-F test/unversioned.test 625678750ca55620250178dea57bafe7cd44a2b7
+F test/unversioned.test 107841c6cabec8e78ae2a67c63d8a41dbe92eee0
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test e2489218e27ea0c643185707e2a4fd33db59f13b
@@ -768,8 +768,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4ede0df9df8f49cbd6fe1f63f53e5e6b5b954985 75ddc3687acbdb3295438865bbe29afbfcd76b77
-R 866d951bf4a419b0eba4dde0871da833
-T +closed 75ddc3687acbdb3295438865bbe29afbfcd76b77
-U drh
-Z 4f8214103202c9d4c87af393c082c609
+P c91e48714012c62d33055bb0812bae6b8f99cad5
+R 1ac7b5cd5cf90cf97a8777d8fa889750
+U mistachkin
+Z 7a244744ec022549999ca1d3480eaa34
