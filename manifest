@@ -1,5 +1,5 @@
-C Modify\sexpected\sresults\sfor\sone\sof\sthe\sTH1\shooks\stests\sto\saccount\sfor\sthe\schanges\sin\s[274e537bb064db9d].
-D 2016-10-05T08:21:10.400
+C Update\sdelta1\stest\scases\sto\snormalize\sthe\sresult\sso\sthey\spass\sagain.\nAdd\sadditional\stests\sto\scover\sassertion\sfailure\scaused\sby\sempty\sdelta\sinputs.
+D 2016-10-05T08:41:26.732
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -530,7 +530,7 @@ F test/cmdline.test df50383ebf00e7a444e29f2f755867f843c37df7
 F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
 F test/commit-warning.test 1b94adc5f490ade07cd9fc3ba35c94c77ac61819
 F test/contains-selector.test cf46a39b3c1ff72d2fc674f4ccbeecfb94add7d2
-F test/delta1.test d4bcfbeff42bd30d9b770e02b1dd301073bc6cd8
+F test/delta1.test c3ea182ab06554a35203285774606ba37fdc620d
 F test/diff-test-1.wiki 597fbb13c9c3da02e09a53d128f3b5d4dd5cadda
 F test/fake-editor.tcl 11b5ddc9629fefb4dbc32806f80211440600c744
 F test/file1.test 9b2ac578521a7097017c64b8877f6fa6ca0904f7
@@ -768,7 +768,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 561402f2e08045d8e47cdd02ef5bb569dd41356b
-R f65859c5b811baff8d66df00b8dc40bf
-U mistachkin
-Z f72c5457f8b7dc0487e08018ddd7d0f8
+P 6c1359d36715fb0c17ba74e186154e98ce9f53a4
+R fa838db651153b498a3b25770a269ea4
+U andybradford
+Z e6cc73202dd9bd2b3468fbb6a9e571f0
