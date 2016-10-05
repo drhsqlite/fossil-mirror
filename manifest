@@ -1,5 +1,5 @@
-C Give\sa\sbetter\serror\smessage\swhen\sunable\sto\sopen\sa\sfile\sthat\suses\sone\sof\nthe\sWindows\sreserved\snames,\slike\s"AUX"\sor\s"LPT3".
-D 2016-10-05T00:13:25.995
+C Add\sinitial\stests\sfor\sthe\s'unversioned'\scommand.
+D 2016-10-05T00:25:57.749
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -579,6 +579,7 @@ F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
 F test/th1.test c140bb961dafa7031c9a088d175793c3235802d3
+F test/unversioned.test 0f524b22c2cfb191e4fd5199f2e0439a21c97c89
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test e2489218e27ea0c643185707e2a4fd33db59f13b
@@ -767,7 +768,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 800517e1776de15b10cad4e5fa924eb5297c2216
-R 5c6ce7dea8ebd2b6dacf8f7d0111f436
-U drh
-Z 5cdbf184bfb7a74e340c07e9df8ea02d
+P 12c665068d8f756b9a318b6dd7381bed230ce49b
+R 9062bf73318c5ae82b9e8d8a57e0b116
+U mistachkin
+Z be19e84092f0badecddbbad9319d18fb
