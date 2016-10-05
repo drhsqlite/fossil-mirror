@@ -139,41 +139,38 @@ static DLine *break_into_lines(
   int *pnLine,
   u64 diffFlags
 ){
-  int nLine, i, j, k, s, x;
+  int nLine, i, k, nn, s, x;
   unsigned int h, h2;
   DLine *a;
+  const char *zNL, *z2;
 
-  /* Count the number of lines.  Allocate space to hold
-  ** the returned array.
+  /* Count the number of lines in the input file.  Include the last line
+  ** in the count even if it lacks the \n terminator
   */
-  for(i=j=0, nLine=1; i<n; i++, j++){
-    int c = z[i];
-    if( c==0 ){
-      return 0;
-    }
-    if( c=='\n' && z[i+1]!=0 ){
-      nLine++;
-      if( j>LENGTH_MASK ){
-        return 0;
-      }
-      j = 0;
-    }
+  for(nLine=0, z2=z; (zNL = strchr(z2,'\n'))!=0; z2=zNL+1, nLine++){}
+  if( z2[0]!=0 ){
+    nLine++;
+    do{ z2++; }while( z2[0] );
   }
-  if( j>LENGTH_MASK ){
-    return 0;
-  }
-  a = fossil_malloc( nLine*sizeof(a[0]) );
-  memset(a, 0, nLine*sizeof(a[0]) );
-  if( n==0 ){
+  if( n!=(int)(z2-z) ) return 0;
+
+  a = fossil_malloc( sizeof(a[0])*nLine );
+  memset(a, 0, sizeof(a[0])*nLine);
+  if( nLine==0 ){
     *pnLine = 0;
     return a;
   }
-
-  /* Fill in the array */
-  for(i=0; i<nLine; i++){
-    for(j=0; z[j] && z[j]!='\n'; j++){}
+  i = 0;
+  do{
+    zNL = strchr(z,'\n');
+    if( zNL==0 ) zNL = z+strlen(z);
+    nn = (int)(zNL - z);
+    if( nn>LENGTH_MASK ){
+      fossil_free(a);
+      return 0;
+    }
     a[i].z = z;
-    k = j;
+    k = nn;
     if( diffFlags & DIFF_STRIP_EOLCR ){
       if( k>0 && z[k-1]=='\r' ){ k--; }
     }
@@ -189,13 +186,15 @@ static DLine *break_into_lines(
         if( fossil_isspace(z[x]) ){
           ++numws;
         }else{
-          h = h ^ (h<<2) ^ z[x];
+          h += z[x];
+          h *= 0x9e3779b1;
         }
       }
       k -= numws;
     }else{
       for(h=0, x=s; x<k; x++){
-        h = h ^ (h<<2) ^ z[x];
+        h += z[x];
+        h *= 0x9e3779b1;
       }
     }
     a[i].indent = s;
@@ -203,8 +202,10 @@ static DLine *break_into_lines(
     h2 = h % nLine;
     a[i].iNext = a[h2].iHash;
     a[h2].iHash = i+1;
-    z += j+1;
-  }
+    z += nn+1;
+    i++;
+  }while( zNL[0] && zNL[1] );
+  assert( i==nLine );
 
   /* Return results */
   *pnLine = nLine;
@@ -965,7 +966,7 @@ static int match_dline(DLine *pA, DLine *pB){
   avg = (nA+nB)/2;
   if( avg==0 ) return 0;
   if( nA==nB && memcmp(zA, zB, nA)==0 ) return 0;
-  memset(aFirst, 0, sizeof(aFirst));
+  memset(aFirst, 0xff, sizeof(aFirst));
   zA--; zB--;   /* Make both zA[] and zB[] 1-indexed */
   for(i=nB; i>0; i--){
     c = (unsigned char)zB[i];
@@ -975,9 +976,9 @@ static int match_dline(DLine *pA, DLine *pB){
   best = 0;
   for(i=1; i<=nA-best; i++){
     c = (unsigned char)zA[i];
-    for(j=aFirst[c]; j>0 && j<nB-best; j = aNext[j]){
+    for(j=aFirst[c]; j<nB-best && memcmp(&zA[i],&zB[j],best)==0; j = aNext[j]){
       int limit = minInt(nA-i, nB-j);
-      for(k=1; k<=limit && zA[k+i]==zB[k+j]; k++){}
+      for(k=best; k<=limit && zA[k+i]==zB[k+j]; k++){}
       if( k>best ) best = k;
     }
   }

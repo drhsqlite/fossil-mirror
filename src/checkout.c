@@ -129,40 +129,98 @@ void checkout_set_all_exe(int vid){
 ** If the "manifest" setting is true, then automatically generate
 ** files named "manifest" and "manifest.uuid" containing, respectively,
 ** the text of the manifest and the artifact ID of the manifest.
+** If the manifest setting is set, but is not a boolean value, then treat
+** each character as a flag to enable writing "manifest", "manifest.uuid" or
+** "manifest.tags".
 */
 void manifest_to_disk(int vid){
   char *zManFile;
   Blob manifest;
   Blob hash;
+  Blob taglist;
+  int flg;
 
-  if( db_get_boolean("manifest",0) ){
+  flg = db_get_manifest_setting();
+
+  if( flg & (MFESTFLG_RAW|MFESTFLG_UUID) ){
     blob_zero(&manifest);
     content_get(vid, &manifest);
-    zManFile = mprintf("%smanifest", g.zLocalRoot);
     blob_zero(&hash);
     sha1sum_blob(&manifest, &hash);
     sterilize_manifest(&manifest);
+  }
+  if( flg & MFESTFLG_RAW ){
+    zManFile = mprintf("%smanifest", g.zLocalRoot);
     blob_write_to_file(&manifest, zManFile);
     free(zManFile);
-    zManFile = mprintf("%smanifest.uuid", g.zLocalRoot);
-    blob_append(&hash, "\n", 1);
-    blob_write_to_file(&hash, zManFile);
-    free(zManFile);
-    blob_reset(&hash);
   }else{
     if( !db_exists("SELECT 1 FROM vfile WHERE pathname='manifest'") ){
       zManFile = mprintf("%smanifest", g.zLocalRoot);
       file_delete(zManFile);
       free(zManFile);
     }
+  }
+  if( flg & MFESTFLG_UUID ){
+    zManFile = mprintf("%smanifest.uuid", g.zLocalRoot);
+    blob_append(&hash, "\n", 1);
+    blob_write_to_file(&hash, zManFile);
+    free(zManFile);
+    blob_reset(&hash);
+  }else{
     if( !db_exists("SELECT 1 FROM vfile WHERE pathname='manifest.uuid'") ){
       zManFile = mprintf("%smanifest.uuid", g.zLocalRoot);
       file_delete(zManFile);
       free(zManFile);
     }
   }
-
+  if( flg & MFESTFLG_TAGS ){
+    blob_zero(&taglist);
+    zManFile = mprintf("%smanifest.tags", g.zLocalRoot);
+    get_checkin_taglist(vid, &taglist);
+    blob_write_to_file(&taglist, zManFile);
+    free(zManFile);
+    blob_reset(&taglist);
+  }else{
+    if( !db_exists("SELECT 1 FROM vfile WHERE pathname='manifest.tags'") ){
+      zManFile = mprintf("%smanifest.tags", g.zLocalRoot);
+      file_delete(zManFile);
+      free(zManFile);
+    }
+  }
 }
+
+/*
+** Find the branch name and all symbolic tags for a particular check-in
+** identified by "rid".
+**
+** The branch name is actually only extracted if this procedure is run
+** from within a local check-out.  And the branch name is not the branch
+** name for "rid" but rather the branch name for the current check-out.
+** It is unclear if the rid parameter is always the same as the current
+** check-out.
+*/
+void get_checkin_taglist(int rid, Blob *pOut){
+  Stmt stmt;
+  char *zCurrent;
+  blob_reset(pOut);
+  zCurrent = db_text(0, "SELECT value FROM tagxref"
+                        " WHERE rid=%d AND tagid=%d", rid, TAG_BRANCH);
+  blob_appendf(pOut, "branch %s\n", zCurrent);
+  db_prepare(&stmt, "SELECT substr(tagname, 5)"
+                    "  FROM tagxref, tag"
+                    " WHERE tagxref.rid=%d"
+                    "   AND tagxref.tagtype>0"
+                    "   AND tag.tagid=tagxref.tagid"
+                    "   AND tag.tagname GLOB 'sym-*'", rid);
+  while( db_step(&stmt)==SQLITE_ROW ){
+    const char *zName;
+    zName = db_column_text(&stmt, 0);
+    blob_appendf(pOut, "tag %s\n", zName);
+  }
+  db_reset(&stmt);
+  db_finalize(&stmt);
+}
+
 
 /*
 ** COMMAND: checkout*

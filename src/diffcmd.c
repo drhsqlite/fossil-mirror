@@ -776,6 +776,9 @@ const char *diff_get_binary_glob(void){
 ** no "--to" option then the (possibly edited) files in the current check-out
 ** are used.
 **
+** The "--checkin VERSION" option shows the changes made by
+** check-in VERSION relative to its primary parent.
+**
 ** The "-i" command-line option forces the use of the internal diff logic
 ** rather than any external diff program that might be configured using
 ** the "setting" command.  If no external diff program is configured, then
@@ -795,6 +798,7 @@ const char *diff_get_binary_glob(void){
 **   --binary PATTERN           Treat files that match the glob PATTERN as binary
 **   --branch BRANCH            Show diff of all changes on BRANCH
 **   --brief                    Show filenames only
+**   --checkin VERSION          Show diff of all changes in VERSION
 **   --context|-c N             Use N lines of context
 **   --diff-binary BOOL         Include binary files when using external commands
 **   --exec-abs-paths           Force absolute path names with external commands.
@@ -818,6 +822,7 @@ void diff_cmd(void){
   int verboseFlag;           /* True if -v or --verbose flag is used */
   const char *zFrom;         /* Source version number */
   const char *zTo;           /* Target version number */
+  const char *zCheckin;      /* Check-in version number */
   const char *zBranch;       /* Branch to diff */
   const char *zDiffCmd = 0;  /* External diff command. NULL for internal diff */
   const char *zBinGlob = 0;  /* Treat file names matching this as binary */
@@ -834,6 +839,7 @@ void diff_cmd(void){
   isInternDiff = find_option("internal","i",0)!=0;
   zFrom = find_option("from", "r", 1);
   zTo = find_option("to", 0, 1);
+  zCheckin = find_option("checkin", 0, 1);
   zBranch = find_option("branch", 0, 1);
   againstUndo = find_option("undo",0,0)!=0;
   diffFlags = diff_options();
@@ -842,15 +848,19 @@ void diff_cmd(void){
     verboseFlag = find_option("new-file","N",0)!=0; /* deprecated */
   }
   if( verboseFlag ) diffFlags |= DIFF_VERBOSE;
-  if( againstUndo && (zFrom!=0 || zTo!=0 || zBranch!=0) ){
-    fossil_fatal("cannot use --undo together with --from or --to or --branch");
+  if( againstUndo && ( zFrom!=0 || zTo!=0 || zCheckin!=0 || zBranch!=0) ){
+    fossil_fatal("cannot use --undo together with --from, --to, --checkin,"
+                 " or --branch");
   }
   if( zBranch ){
-    if( zTo || zFrom ){
-      fossil_fatal("cannot use --from or --to with --branch");
+    if( zTo || zFrom || zCheckin ){
+      fossil_fatal("cannot use --from, --to, or --checkin with --branch");
     }
     zTo = zBranch;
     zFrom = mprintf("root:%s", zBranch);
+  }
+  if( zCheckin!=0 && ( zFrom!=0 || zTo!=0 ) ){
+    fossil_fatal("cannot use --checkin together with --from or --to");
   }
   if( zTo==0 || againstUndo ){
     db_must_be_within_tree();
@@ -884,6 +894,17 @@ void diff_cmd(void){
       blob_reset(&fname);
     }
   }
+  if ( zCheckin!=0 ){
+    int ridTo = name_to_typed_rid(zCheckin, "ci");
+    zTo = zCheckin;
+    zFrom = db_text(0,
+      "SELECT uuid FROM blob, plink"
+      " WHERE plink.cid=%d AND plink.isprim AND plink.pid=blob.rid",
+      ridTo);
+    if( zFrom==0 ){
+      fossil_fatal("check-in %s has no parent", zTo);
+    }
+  }
   if( againstUndo ){
     if( db_lget_int("undo_available",0)==0 ){
       fossil_print("No undo or redo is available\n");
@@ -903,7 +924,7 @@ void diff_cmd(void){
     for(i=0; pFileDir[i].zName; i++){
       if( pFileDir[i].nUsed==0
        && strcmp(pFileDir[0].zName,".")!=0
-       && !file_isdir(g.argv[i+2])
+       && !file_wd_isdir(g.argv[i+2])
       ){
         fossil_fatal("not found: '%s'", g.argv[i+2]);
       }
