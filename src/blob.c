@@ -869,6 +869,13 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
     file_mkfolder(zFilename, 1, 0);
     out = fossil_fopen(zFilename, "wb");
     if( out==0 ){
+#if _WIN32
+      const char *zReserved = file_is_win_reserved(zFilename);
+      if( zReserved ){
+        fossil_fatal("cannot open \"%s\" because \"%s\" is "
+             "a reserved name on Windows", zFilename, zReserved);
+      }
+#endif
       fossil_fatal_recursive("unable to open file \"%s\" for writing",
                              zFilename);
       return 0;

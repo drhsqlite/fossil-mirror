@@ -1398,3 +1398,42 @@ FILE *fossil_fopen(const char *zName, const char *zMode){
 #endif
   return f;
 }
+
+/*
+** Return non-NULL if zFilename contains pathname elements that
+** are reserved on Windows.  The returned string is the disallowed
+** path element.
+*/
+const char *file_is_win_reserved(const char *zPath){
+  static const char *azRes[] = { "CON", "PRN", "AUX", "NUL", "COM", "LPT" };
+  static char zReturn[5];
+  int i;
+  while( zPath[0] ){
+    for(i=0; i<ArraySize(azRes); i++){
+      if( sqlite3_strnicmp(zPath, azRes[i], 3)==0
+       && ((i>=4 && fossil_isdigit(zPath[3])
+                 && (zPath[4]=='/' || zPath[4]=='.' || zPath[4]==0))
+          || (i<4 && (zPath[3]=='/' || zPath[3]=='.' || zPath[3]==0)))
+      ){
+        sqlite3_snprintf(5,zReturn,"%.*s", i>=4 ? 4 : 3, zPath);
+        return zReturn;
+      }
+    }
+    while( zPath[0] && zPath[0]!='/' ) zPath++;
+    while( zPath[0]=='/' ) zPath++;
+  }
+  return 0;
+}
+
+/*
+** COMMAND: test-valid-for-windows
+** Usage:  fossil test-valid-for-windows FILENAME ....
+**
+** Show which filenames are not valid for Windows
+*/
+void file_test_valid_for_windows(void){
+  int i;
+  for(i=2; i<g.argc; i++){
+    fossil_print("%s %s\n", file_is_win_reserved(g.argv[i]), g.argv[i]);
+  }
+}

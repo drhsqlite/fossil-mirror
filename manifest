@@ -1,5 +1,5 @@
-C Another\scorrection\sto\sthe\sunversioned\shelp\stext.
-D 2016-10-04T23:54:26.031
+C Give\sa\sbetter\serror\smessage\swhen\sunable\sto\sopen\sa\sfile\sthat\suses\sone\sof\nthe\sWindows\sreserved\snames,\slike\s"AUX"\sor\s"LPT3".
+D 2016-10-05T00:13:25.995
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -379,7 +379,7 @@ F src/allrepo.c d430efa00c6ea892999b9d256c18627855da03c3
 F src/attach.c c27c749e6a1334200565b076979b96e366a99bb5
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c abd167c9f2c5398782ca6d48ea1ee612163a7685
-F src/blob.c 038ee87d0ae60497e84720558bd4552927fc93d2
+F src/blob.c 831a63c8c61dbfdb5fe629a473cd7b01104478fc
 F src/branch.c f23d02fee6314c726d95a2a82954d81632636723
 F src/browse.c 8f0bb9b6e6e31df9875c081239745a33567c7c84
 F src/builtin.c b2dcfcade2054c083b03a18e3ab5026d51eb2dcb
@@ -411,7 +411,7 @@ F src/doc.c f46ada466f90f12ee7b5c6078808fdfc4dedb183
 F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
 F src/event.c 6909284d77a688d63cc67b7b0929b8dda5397742
 F src/export.c ab705fb1bdb609c49cab3aa686fd74b5cd8e83d4
-F src/file.c 162fb1c54db5dd0d81ac07a11b943fcfea62d9aa
+F src/file.c 5ef86daddcc6fe2e56b27faf814b6266bf6c317f
 F src/finfo.c 3fc6e9e4114477c9a7e29c1bbaa17a5930c2d1b3
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
 F src/fshell.c 00dbabd3e544bb99c21e41a6750187d3d4b416ed
@@ -767,7 +767,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b6a01114394d844190b0b1a2eb1282a86c905db6
-R c510f7f82f24dbc80dc5a01c94d90fc4
-U mistachkin
-Z 715fa5050cab21154bf842dfca8b23f6
+P 800517e1776de15b10cad4e5fa924eb5297c2216
+R 5c6ce7dea8ebd2b6dacf8f7d0111f436
+U drh
+Z 5cdbf184bfb7a74e340c07e9df8ea02d
