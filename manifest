@@ -1,5 +1,5 @@
-C The\schanges\sin\s[b045d0774ed48936]\sare\stoo\sfar\sreaching.\s\sInstead,\sadd\sa\s-keepNewline\soption\sand\suse\sit\swhere\sappropriate.
-D 2016-10-05T08:10:05.610
+C Modify\sexpected\sresults\sfor\sone\sof\sthe\sTH1\shooks\stests\sto\saccount\sfor\sthe\schanges\sin\s[274e537bb064db9d].
+D 2016-10-05T08:21:10.400
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -566,7 +566,7 @@ F test/tester.tcl e0b8b4257b07b4ad02db39b8da00c5396f12fbc1
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test cfb7fba72a60cfb5e3a8112d042b9c149d6bfa4b
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
-F test/th1-hooks.test 447675757762ee0474c92455cd5172c634d6ff02
+F test/th1-hooks.test bea19cf9ad83cd6f1cb829acbfe1dac89b28330c
 F test/th1-repo.test 985c195a770c571b0d3bb30bf4390fcf13fa55d0
 F test/th1-tcl.test 76e8c9e232702be54a41f425ec3fe373a6d8f9eb
 F test/th1-tcl1.txt c60e664b138a2189b637c254d55a05819db1521d
@@ -768,7 +768,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3604802d553e502968e0381be44f149b9d9d7409
-R 0f9c3ac11b95623c09c78c57d467fb76
+P 561402f2e08045d8e47cdd02ef5bb569dd41356b
+R f65859c5b811baff8d66df00b8dc40bf
 U mistachkin
-Z 7cc7bad81425f7702b827de70f5afddf
+Z f72c5457f8b7dc0487e08018ddd7d0f8

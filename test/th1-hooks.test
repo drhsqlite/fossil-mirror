@@ -77,8 +77,13 @@ set testTh1Setup {
       set length [llength $::cmd_args]
       set length [expr {$length - 1}]
       if {[lindex $::cmd_args $length] eq "custom"} {
+        append_hook_log "CUSTOM TIMELINE"
         emit_hook_log
         return "custom timeline"
+      } elseif {[lindex $::cmd_args $length] eq "custom2"} {
+        emit_hook_log
+        puts "+++ some stuff here +++"
+        continue "custom2 timeline"
       } elseif {[lindex $::cmd_args $length] eq "now"} {
         emit_hook_log
         return "now timeline"
@@ -124,11 +129,17 @@ saveTh1SetupFile; writeTh1SetupFile $testTh1Setup
 
 ###############################################################################
 
-fossil timeline custom; # NOTE: Bad "WHEN" argument.
+fossil timeline custom -expectError; # NOTE: Bad "WHEN" argument.
 test th1-cmd-hooks-1a {[normalize_result] eq \
-{<h1><b>command_hook timeline</b></h1>
-+++ no more data (0) +++
+{<h1><b>command_hook timeline CUSTOM TIMELINE</b></h1>
+unknown check-in or invalid date: custom}}
 
+###############################################################################
+
+fossil timeline custom2; # NOTE: Bad "WHEN" argument.
+test th1-cmd-hooks-1b {[normalize_result] eq \
+{<h1><b>command_hook timeline</b></h1>
++++ some stuff here +++
 <h1><b>command_hook timeline command_notify timeline</b></h1>}}
 
 ###############################################################################
