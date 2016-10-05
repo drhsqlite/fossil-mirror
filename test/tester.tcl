@@ -212,7 +212,7 @@ proc get_versionable_settings {} {
 
   fossil test-th-eval "hasfeature tcl"
 
-  if {$::RESULT eq "1"} {
+  if {[normalize_result] eq "1"} {
     lappend result tcl-setup
   }
 
@@ -277,25 +277,25 @@ proc get_all_settings {} {
 
   fossil test-th-eval "hasfeature legacyMvRm"
 
-  if {$::RESULT eq "1"} {
+  if {[normalize_result] eq "1"} {
     lappend result mv-rm-files
   }
 
   fossil test-th-eval "hasfeature tcl"
 
-  if {$::RESULT eq "1"} {
+  if {[normalize_result] eq "1"} {
     lappend result tcl tcl-setup
   }
 
   fossil test-th-eval "hasfeature th1Docs"
 
-  if {$::RESULT eq "1"} {
+  if {[normalize_result] eq "1"} {
     lappend result th1-docs
   }
 
   fossil test-th-eval "hasfeature th1Hooks"
 
-  if {$::RESULT eq "1"} {
+  if {[normalize_result] eq "1"} {
     lappend result th1-hooks
   }
 
@@ -442,11 +442,11 @@ please set TEMP variable in environment, error: $error"
 # enabled at compile-time and is now enabled at runtime.
 proc is_tcl_usable_by_fossil {} {
   fossil test-th-eval "hasfeature tcl"
-  if {$::RESULT ne "1"} {return 0}
+  if {[normalize_result] ne "1"} {return 0}
   fossil test-th-eval "setting tcl"
-  if {$::RESULT eq "1"} {return 1}
+  if {[normalize_result] eq "1"} {return 1}
   fossil test-th-eval --open-config "setting tcl"
-  if {$::RESULT eq "1"} {return 1}
+  if {[normalize_result] eq "1"} {return 1}
   return [info exists ::env(TH1_ENABLE_TCL)]
 }
 
@@ -454,11 +454,11 @@ proc is_tcl_usable_by_fossil {} {
 # at compile-time and is now enabled at runtime.
 proc are_th1_hooks_usable_by_fossil {} {
   fossil test-th-eval "hasfeature th1Hooks"
-  if {$::RESULT ne "1"} {return 0}
+  if {[normalize_result] ne "1"} {return 0}
   fossil test-th-eval "setting th1-hooks"
-  if {$::RESULT eq "1"} {return 1}
+  if {[normalize_result] eq "1"} {return 1}
   fossil test-th-eval --open-config "setting th1-hooks"
-  if {$::RESULT eq "1"} {return 1}
+  if {[normalize_result] eq "1"} {return 1}
   return [info exists ::env(TH1_ENABLE_HOOKS)]
 }
 
