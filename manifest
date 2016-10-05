@@ -1,5 +1,5 @@
-C Normalize\sTH1\sscript\sevaluation\sresults\sused\sinternally\sby\sthe\stest\ssuite.
-D 2016-10-05T06:39:54.107
+C The\s'manifest'\ssetting\sstill\sneeds\sto\sbe\smarked\sas\s'versionable'.
+D 2016-10-05T06:40:03.618
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -399,7 +399,7 @@ F src/content.c a6024f0400307f4c25d067d323a6cbdf38b78c81
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 4f26fc803d5cc8eeda96d4718db614d5b96c8175
+F src/db.c d1fbc4dbb43b8e3ed23164fd5e06649fe6813615
 F src/delta.c f3002e96cc35f37b9bab7c88f82e978e67342904
 F src/deltacmd.c d83d9c2abbb3b2624773521e94182f32a2337216
 F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
@@ -768,7 +768,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 019725ba55293829df4964d2f6f38d3a7a3c9b75
-R 255d138f2ca20200e19cc385b59c0fa2
+P 22c62dba300b262d0fc7d6cc3c49a10bd5252bc7
+R 9eec7fab09782b248308c11e03ae98d2
 U mistachkin
-Z 013ba76f504c8ed21da867d09a6bab0d
+Z 43acd756f30c83ed6aba8084b12630ec
