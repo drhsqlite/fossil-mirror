@@ -344,8 +344,7 @@ test unversioned-46 {[regexp \
 Round-trips: 1   Artifacts sent: 0  received: 0
 Round-trips: 2   Artifacts sent: 0  received: 0
 Round-trips: 2   Artifacts sent: 0  received: 2
-
- done, sent: \d+  received: \d+  ip: 127.0.0.1} [normalize_result]]}
+\n? done, sent: \d+  received: \d+  ip: 127.0.0.1} [normalize_result]]}
 
 ###############################################################################
 
@@ -384,8 +383,7 @@ test unversioned-51 {[regexp \
 Round-trips: 1   Artifacts sent: 0  received: 0
 Round-trips: 2   Artifacts sent: 0  received: 0
 Round-trips: 2   Artifacts sent: 0  received: 2
-
- done, sent: \d+  received: \d+  ip: 127.0.0.1} [normalize_result]]}
+\n? done, sent: \d+  received: \d+  ip: 127.0.0.1} [normalize_result]]}
 
 ###############################################################################
 
