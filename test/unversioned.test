@@ -180,7 +180,7 @@ test unversioned-23 {[::sha1::sha1 $RESULT] eq \
 
 ###############################################################################
 
-fossil unversioned cat unversioned3.txt
+fossil unversioned cat unversioned3.txt -keepNewline
 test unversioned-24 {[::sha1::sha1 $RESULT] eq \
 {c6b95509120d9703cc4fbe5cdfcb435b5912b3e4}}
 

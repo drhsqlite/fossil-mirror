@@ -1,5 +1,5 @@
-C The\s'manifest'\ssetting\sstill\sneeds\sto\sbe\smarked\sas\s'versionable'.
-D 2016-10-05T06:40:03.618
+C The\schanges\sin\s[b045d0774ed48936]\sare\stoo\sfar\sreaching.\s\sInstead,\sadd\sa\s-keepNewline\soption\sand\suse\sit\swhere\sappropriate.
+D 2016-10-05T08:10:05.610
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -538,7 +538,7 @@ F test/fileStat.th1 e3e30f7b46488c26215a6d713be36ad4ed595132
 F test/fileage-test-1.wiki d249e897fdd41038c17f3b66d374e509830da1eb
 F test/glob.test e135d6e1333452beece53619e9a67cd9224ab00c
 F test/graph-test-1.wiki 1bbf8bd05dfd5205c589569d911477c27aeb4d51
-F test/json.test 65f8333164e43173ad47634035ab6d2c8635ed86
+F test/json.test cbf45320d251af69528fa63c4266beba57a85f29
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/merge1.test 0f11a55b5d71fa668b53ffc4cdeb23997e9cb042
@@ -562,13 +562,13 @@ F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 9ead8cede3906559325b19560124bd30396f7c0e
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl bbdfc9a3111320d8110b0b91141a38396940ded8
+F test/tester.tcl e0b8b4257b07b4ad02db39b8da00c5396f12fbc1
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
-F test/th1-docs.test 3a95822e5006f404b51bb6dccacc340a452d3f4e
+F test/th1-docs.test cfb7fba72a60cfb5e3a8112d042b9c149d6bfa4b
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
-F test/th1-hooks.test 303c3d5f4a7159bd6de3e0ec810d2d0e322294cb
+F test/th1-hooks.test 447675757762ee0474c92455cd5172c634d6ff02
 F test/th1-repo.test 985c195a770c571b0d3bb30bf4390fcf13fa55d0
-F test/th1-tcl.test a08936b2bcb46386a0e5765186cbf5bbcb8e251a
+F test/th1-tcl.test 76e8c9e232702be54a41f425ec3fe373a6d8f9eb
 F test/th1-tcl1.txt c60e664b138a2189b637c254d55a05819db1521d
 F test/th1-tcl2.txt 9f7e7ea7cc6c75df78c5efb761d10a4e8e354401
 F test/th1-tcl3.txt 208d6e2a9a68969df9220f6f6c190402a62b4919
@@ -579,7 +579,7 @@ F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
 F test/th1.test c140bb961dafa7031c9a088d175793c3235802d3
-F test/unversioned.test 63365510d71bd51052989e19985722592774150b
+F test/unversioned.test 625678750ca55620250178dea57bafe7cd44a2b7
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test e2489218e27ea0c643185707e2a4fd33db59f13b
@@ -768,7 +768,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 22c62dba300b262d0fc7d6cc3c49a10bd5252bc7
-R 9eec7fab09782b248308c11e03ae98d2
+P 3604802d553e502968e0381be44f149b9d9d7409
+R 0f9c3ac11b95623c09c78c57d467fb76
 U mistachkin
-Z 43acd756f30c83ed6aba8084b12630ec
+Z 7cc7bad81425f7702b827de70f5afddf

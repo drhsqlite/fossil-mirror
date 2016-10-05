@@ -24,7 +24,7 @@ set path [file dirname [info script]]
 
 fossil test-th-eval "hasfeature tcl"
 
-if {$::RESULT ne "1"} {
+if {[normalize_result] ne "1"} {
   puts "Fossil was not compiled with Tcl support."
   test_cleanup_then_return
 }

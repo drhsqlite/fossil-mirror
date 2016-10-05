@@ -138,9 +138,16 @@ proc fossil_maybe_answer {answer args} {
   global fossilexe
   set cmd $fossilexe
   set expectError 0
-  if {[lindex $args end] eq "-expectError"} {
+  set index [lsearch -exact $args -expectError]
+  if {$index != -1} {
     set expectError 1
-    set args [lrange $args 0 end-1]
+    set args [lreplace $args $index $index]
+  }
+  set keepNewline 0
+  set index [lsearch -exact $args -keepNewline]
+  if {$index != -1} {
+    set keepNewline 1
+    set args [lreplace $args $index $index]
   }
   foreach a $args {
     lappend cmd $a
@@ -152,10 +159,18 @@ proc fossil_maybe_answer {answer args} {
     protOut $answer
     set prompt_file [file join $::tempPath fossil_prompt_answer]
     write_file $prompt_file $answer\n
-    set rc [catch {eval exec -keepnewline $cmd <$prompt_file} result]
+    if {$keepNewline} {
+      set rc [catch {eval exec -keepnewline $cmd <$prompt_file} result]
+    } else {
+      set rc [catch {eval exec $cmd <$prompt_file} result]
+    }
     file delete $prompt_file
   } else {
-    set rc [catch {eval exec -keepnewline $cmd} result]
+    if {$keepNewline} {
+      set rc [catch {eval exec -keepnewline $cmd} result]
+    } else {
+      set rc [catch {eval exec $cmd} result]
+    }
   }
   global RESULT CODE
   set CODE $rc
