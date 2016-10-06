@@ -325,6 +325,7 @@ set clientDir [file join $tempPath [appendArgs \
 set savedPwd [pwd]
 file mkdir $clientDir; cd $clientDir
 puts [appendArgs "Now in client directory \"" [pwd] \".]
+write_file unversioned-client1.txt "This is unversioned client file #1."
 
 ###############################################################################
 
@@ -402,8 +403,23 @@ unversioned5\.txt$} [normalize_result]]}
 
 ###############################################################################
 
-fossil close
+fossil unversioned add unversioned-client1.txt
 test unversioned-54 {[normalize_result] eq {}}
+
+###############################################################################
+
+fossil_maybe_answer y unversioned sync $remote
+test unversioned-55 {[regexp \
+{Round-trips: 1   Artifacts sent: 0  received: 0
+Round-trips: 1   Artifacts sent: 0  received: 0
+Round-trips: 2   Artifacts sent: 1  received: 0
+Round-trips: 2   Artifacts sent: 1  received: 0
+\n? done, sent: \d+  received: \d+  ip: 127.0.0.1} [normalize_result]]}
+
+###############################################################################
+
+fossil close
+test unversioned-56 {[normalize_result] eq {}}
 
 ###############################################################################
 
@@ -419,6 +435,22 @@ puts [appendArgs \
     [expr {$stopped ? "Stopped" : "Could not stop"}] \
     " Fossil server, pid \"" $pid "\", using argument \"" \
     $stopArg \".]
+
+###############################################################################
+
+fossil unversioned list
+test unversioned-57 {[regexp \
+{^[0-9a-f]{12} \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}       35       35\
+unversioned-client1\.txt
+[0-9a-f]{12} 2016-10-01 00:00:00       30       30 unversioned2\.txt
+[0-9a-f]{12} \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}       28       28\
+unversioned5\.txt$} [normalize_result]]}
+
+###############################################################################
+
+fossil unversioned cat unversioned-client1.txt
+test unversioned-58 {[::sha1::sha1 $RESULT] eq \
+{a34606f714afe309bb531fba6051eaf25201e8a2}}
 
 ###############################################################################
 
