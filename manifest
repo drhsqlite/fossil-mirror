@@ -1,5 +1,5 @@
-C Add\smissing\sarguments\sto\sGit->Fossil\simport\sexample.
-D 2016-10-08T13:42:25.683
+C Fix\sa\sregression\sintroduced\sin\s[69668f8c57]\sthat\sbroke\sexport\sof\stags.
+D 2016-10-08T14:06:23.444
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -410,7 +410,7 @@ F src/dispatch.c 16b2448660577475ca1b3eaa427c5773479373bb
 F src/doc.c f46ada466f90f12ee7b5c6078808fdfc4dedb183
 F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
 F src/event.c 6909284d77a688d63cc67b7b0929b8dda5397742
-F src/export.c 37884a109fba338a1bc7ea0a3debb88e484f3afd
+F src/export.c 5378fd4a750dc0269e6881efd0bc2f2cecf7726e
 F src/file.c c1b31491b3a5d3ee010ef3f41491bcdc500a4161
 F src/finfo.c ea4e48b5081bfae079c3b001fdd63f677d006767
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
@@ -763,7 +763,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki 6c0f800bdec70724af09b6f9c6272c5efbe355b9
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e8775afe1b080bf8de97f4be76ec44db2cd69c2d
-R f920c137bcbe124430d8737a50a2ebbc
+P 880e3fb51f299099d13398b10e787c8e633fdb95
+R e97017310c04212023b0405be653a530
 U nick.lloyd
-Z 206e0e57d061477048d73db926b092ac
+Z 75e91f40fa18693b6ef3cf05a09ee1d8

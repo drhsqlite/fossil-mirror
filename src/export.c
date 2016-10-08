@@ -590,6 +590,7 @@ void export_cmd(void){
     const char *zTagname = db_column_text(&q, 0);
     char *zEncoded = 0;
     int rid = db_column_int(&q, 1);
+    char *zMark = mark_name_from_rid(rid, &unused_mark);
     const char *zSecSince1970 = db_column_text(&q, 2);
     int i;
     if( rid==0 || !bag_find(&vers, rid) ) continue;
@@ -599,7 +600,8 @@ void export_cmd(void){
       if( !fossil_isalnum(zEncoded[i]) ) zEncoded[i] = '_';
     }
     printf("tag %s\n", zEncoded);
-    printf("from :%d\n", COMMITMARK(rid));
+    printf("from %s\n", zMark);
+    free(zMark);
     printf("tagger <tagger> %s +0000\n", zSecSince1970);
     printf("data 0\n");
     fossil_free(zEncoded);
