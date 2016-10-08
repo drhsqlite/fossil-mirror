@@ -1,5 +1,5 @@
-C Add\sinformation\sto\sinout.wiki\sabout\sbidirectional\ssynchronization\swith\sGit\srepos.
-D 2016-09-29T17:46:22.746
+C Add\smissing\sarguments\sto\sGit->Fossil\simport\sexample.
+D 2016-10-08T13:42:25.683
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -729,7 +729,7 @@ F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki cb23ace3944512d8a033ccfc0efd035e5131aa26
-F www/inout.wiki c79d278db1119360497f6fb4b2f62de94ed38135
+F www/inout.wiki 1e82974b59e2c97c082dfa6d4d5feda0c70d32ee
 F www/makefile.wiki 30c7129ffb00c58699b87e84a2c0b696d7c10406
 F www/mkdownload.tcl 5ac61a3e13cecaa67f1e31741113c96cbd41463f
 F www/mkindex.tcl 61400abbaa7290cd30ef9a49242c9d0d7f1a327e
@@ -763,7 +763,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki 6c0f800bdec70724af09b6f9c6272c5efbe355b9
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2cd0ee6388faaa02218b9530971dc6610297738a
-R cccbab3a1baec1baae831fb666b90110
+P e8775afe1b080bf8de97f4be76ec44db2cd69c2d
+R f920c137bcbe124430d8737a50a2ebbc
 U nick.lloyd
-Z ad38edac7d37e10f6bef53d902bed525
+Z 206e0e57d061477048d73db926b092ac

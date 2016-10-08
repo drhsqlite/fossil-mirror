@@ -93,10 +93,10 @@ Changes in the Git repository can be exported to the Fossil repository and then
 pushed to the remote:
 
 <blockquote><pre>
-git fast-export --import-marks=../repo/git.marks            \
-    --export-marks=../repo/git.marks | fossil import --git  \
-    --incremental --import-marks ../repo/fossil.marks       \
-    --export-marks ../repo/fossil.marks
+git fast-export --import-marks=../repo/git.marks                  \
+    --export-marks=../repo/git.marks --all | fossil import --git  \
+    --incremental --import-marks ../repo/fossil.marks             \
+    --export-marks ../repo/fossil.marks ../repo.fossil
 cd ../repo
 fossil push
 </pre></blockquote>
