@@ -166,6 +166,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  searchable
   *  setParameter
   *  setting
+  *  stime
   *  styleHeader
   *  styleFooter
   *  tclEval
@@ -177,7 +178,6 @@ features of Fossil.  The following is a summary of the extended commands:
   *  trace
   *  unversioned content
   *  unversioned list
-  *  stime
   *  utime
   *  verifyCsrf
   *  wiki
@@ -522,6 +522,14 @@ Sets the value of the specified query parameter.
 
 Gets and returns the value of the specified setting.
 
+<a name="stime"></a>TH1 stime Command
+-------------------------------------
+
+  *  stime
+
+Returns the number of microseconds of CPU time consumed by the current
+process in system space.
+
 <a name="styleHeader"></a>TH1 styleHeader Command
 -------------------------------------------------
 
@@ -623,14 +631,6 @@ cannot be found.
 
 Returns a list of the names of all unversioned files held in the local
 repository.
-
-<a name="stime"></a>TH1 stime Command
--------------------------------------
-
-  *  stime
-
-Returns the number of microseconds of CPU time consumed by the current
-process in system space.
 
 <a name="utime"></a>TH1 utime Command
 -------------------------------------

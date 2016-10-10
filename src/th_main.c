@@ -1338,10 +1338,8 @@ static int unversionedContentCmd(
     return Th_WrongNumArgs(interp, "unversioned content FILENAME");
   }
   if( Th_IsRepositoryOpen() ){
-    int rc;
     Blob content;
-    rc = unversioned_content(argv[2], &content);
-    if( rc==0 ){
+    if( unversioned_content(argv[2], &content)==0 ){
       Th_SetResult(interp, blob_str(&content), blob_size(&content));
       blob_reset(&content);
       return TH_OK;
