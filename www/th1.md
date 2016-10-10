@@ -251,7 +251,7 @@ Renders STRING as wiki content; however, only links are handled.  No
 other markup is processed.
 
 <a name="dir"></a>TH1 dir Command
--------------------------------------------
+---------------------------------
 
   * dir CHECKIN ?GLOB? ?DETAILS?
 
@@ -402,7 +402,7 @@ Returns one more than the number of \n characters in STRING.  But
 never returns less than MIN or more than MAX.
 
 <a name="markdown"></a>TH1 markdown Command
----------------------------------------------
+-------------------------------------------
 
   *  markdown STRING
 
@@ -587,7 +587,7 @@ Returns non-zero if the Tcl interpreter is "safe".  The Tcl interpreter
 will be created automatically if it has not been already.
 
 <a name="tclMakeSafe"></a>TH1 tclMakeSafe Command
----------------------------------------------
+-------------------------------------------------
 
 **This command requires the Tcl integration feature.**
 
