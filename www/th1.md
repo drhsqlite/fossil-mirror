@@ -166,6 +166,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  searchable
   *  setParameter
   *  setting
+  *  stime
   *  styleHeader
   *  styleFooter
   *  tclEval
@@ -175,7 +176,6 @@ features of Fossil.  The following is a summary of the extended commands:
   *  tclMakeSafe
   *  tclReady
   *  trace
-  *  stime
   *  utime
   *  verifyCsrf
   *  wiki
@@ -520,6 +520,14 @@ Sets the value of the specified query parameter.
 
 Gets and returns the value of the specified setting.
 
+<a name="stime"></a>TH1 stime Command
+-------------------------------------
+
+  *  stime
+
+Returns the number of microseconds of CPU time consumed by the current
+process in system space.
+
 <a name="styleHeader"></a>TH1 styleHeader Command
 -------------------------------------------------
 
@@ -604,14 +612,6 @@ is currently available for use by TH1 scripts.
   *  trace STRING
 
 Generates a TH1 trace message if TH1 tracing is enabled.
-
-<a name="stime"></a>TH1 stime Command
--------------------------------------
-
-  *  stime
-
-Returns the number of microseconds of CPU time consumed by the current
-process in system space.
 
 <a name="utime"></a>TH1 utime Command
 -------------------------------------
