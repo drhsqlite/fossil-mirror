@@ -616,7 +616,7 @@ is currently available for use by TH1 scripts.
 Generates a TH1 trace message if TH1 tracing is enabled.
 
 <a name="unversioned_content"></a>TH1 unversioned content Command
--------------------------------------------
+-----------------------------------------------------------------
 
   *  unversioned content FILENAME
 
@@ -625,7 +625,7 @@ An error is generated if the repository is not open or the unversioned file
 cannot be found.
 
 <a name="unversioned_list"></a>TH1 unversioned list Command
--------------------------------------------
+-----------------------------------------------------------
 
   *  unversioned list
 
