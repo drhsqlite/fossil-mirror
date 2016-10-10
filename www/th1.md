@@ -630,7 +630,7 @@ cannot be found.
   *  unversioned list
 
 Returns a list of the names of all unversioned files held in the local
-repository.
+repository.  An error is generated if the repository is not open.
 
 <a name="utime"></a>TH1 utime Command
 -------------------------------------

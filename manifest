@@ -1,5 +1,5 @@
-C Slightly\ssimplify\scode.\s\sAdd\sand\smodify\stests.\s\sMerge\schanges\sfrom\strunk.
-D 2016-10-10T07:07:40.643
+C Improve\s'unversioned\slist'\sTH1\scommand\scomment.
+D 2016-10-10T07:10:48.187
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -498,7 +498,7 @@ F src/tar.c 8cfe3f2ef83784ed5644b3a9c4cd4d85f1096a38
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
-F src/th_main.c 58ca5466bd4b5445b36808a1ed169505151db48a
+F src/th_main.c 0774c18153fa236cf3febb462ad212e362c6a923
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
 F src/timeline.c ec39eb94bacfdfe4b522b5b88fdc914b61316be7
 F src/tkt.c 0d7059f823642ea6c26c07081ee94b6cbb663408
@@ -758,7 +758,7 @@ F www/stats.wiki e6c82bd6579f755896c47b22dbab18e27b1f5bc4
 F www/style.wiki da3a414d4c57c3da2636daf0baf6964ba72ce70b
 F www/sync.wiki 2dc71811c4c9d9d32b4cd533258328e4e733402b
 F www/tech_overview.wiki 4d74d28dfc2515d7864c4ecbf7324be9919e3efd
-F www/th1.md 4dc524bc8651c9d42a8e6d88e42c82b205cde9e5
+F www/th1.md d91b3b9f0a7a4f19ee4bcc6210c50cc68b0730f8
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
@@ -768,7 +768,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e81fbfd0287d9101a82b60801d54c4236ab32e4c f36f95b35a2618f07b55bfd5598e2687a7350b26
-R 372e290247082dd822cea08b4323ecb8
+P a3f04386fe9de7eac665d4f7b04a348fec9fcb3c
+R 63a089cc5329c1c6f1e28d9bef70dcb7
 U mistachkin
-Z c4a69f2e1470a40b8baac3254072b93c
+Z dbcf8079790f92520286d6c6c2a825ab

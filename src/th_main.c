@@ -1356,7 +1356,7 @@ static int unversionedContentCmd(
 ** TH1 command: unversioned list
 **
 ** Returns a list of the names of all unversioned files held in the local
-** repository.
+** repository.  An error is generated if the repository is not open.
 */
 static int unversionedListCmd(
   Th_Interp *interp,
