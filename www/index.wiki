@@ -20,7 +20,7 @@
      <li> [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org | archives]
      </ul>
 </ul>
-<center><img src="fossil3.gif"></center>
+<img src="fossil3.gif" align="center">
 </div>
 
 <p>Fossil is a simple, high-reliability, distributed software configuration
@@ -37,15 +37,14 @@ management system with these advanced features:
       with a rich assortment of information pages
       ([./webpage-ex.md|examples]) designed to promote situational awareness.
 
-      This entire website&#185;
-      is just a running instance of Fossil.  The pages you see here
-      are all [./wikitheory.wiki | wiki] or
-      [./embeddeddoc.wiki | embedded documentation].
+      This entire website is just a running instance of Fossil.
+      The pages you see here are all [./wikitheory.wiki | wiki] or
+      [./embeddeddoc.wiki | embedded documentation] or (in the case of
+      the [/uv/download.html|download] page) 
+      [./unvers.wiki | unversioned files].
       When you clone Fossil from one of its
       [./selfhost.wiki | self-hosting repositories],
       you get more than just source code - you get this entire website.
-      <span style='font-size:75%;'>(&#185;except the
-      [http://www.fossil-scm.org/download.html | download] page)</span>
 
   3.  <b>Self-Contained</b> -
       Fossil is a single self-contained stand-alone executable.

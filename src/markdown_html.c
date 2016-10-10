@@ -359,7 +359,7 @@ static int html_link(
 ){
   char *zLink = blob_buffer(link);
   BLOB_APPEND_LITERAL(ob, "<a href=\"");
-  if( zLink[0]=='/' ){
+  if( zLink && zLink[0]=='/' && g.zTop ){
     /* For any hyperlink that begins with "/", make it refer to the root
     ** of the Fossil repository */
     blob_append(ob, g.zTop, -1);

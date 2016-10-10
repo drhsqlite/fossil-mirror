@@ -1,0 +1,128 @@
+#
+# Copyright (c) 2016 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+# The "settings" and "unset" commands.
+#
+
+set path [file dirname [info script]]; test_setup
+
+###############################################################################
+#
+# Complete syntax as tested:
+#
+#     fossil settings ?PROPERTY? ?VALUE? ?OPTIONS?
+#     fossil unset PROPERTY ?OPTIONS?
+#
+# Where the only supported options are "--global" and "--exact".
+#
+###############################################################################
+#
+# NOTE: The [extract_setting_names] procedure extracts the list of setting
+#       names from the line-ending normalized output of the "fossil settings"
+#       command.  It assumes that a setting name must begin with a lowercase
+#       letter.  It also assumes that any output lines that start with a
+#       lowercase letter contain a setting name starting at that same point.
+#
+proc extract_setting_names { data } {
+  set names [list]
+
+  foreach {dummy name} [regexp \
+      -all -line -inline -- {^([a-z][a-z0-9\-]*) } $data] {
+    lappend names $name
+  }
+
+  return $names
+}
+
+###############################################################################
+
+set all_settings [get_all_settings]
+
+fossil settings
+set local_settings [extract_setting_names [normalize_result_no_trim]]
+
+fossil settings --global
+set global_settings [extract_setting_names [normalize_result_no_trim]]
+
+foreach name $all_settings {
+  test settings-have-local-$name {
+    [lsearch -exact $local_settings $name] != -1
+  }
+
+  test settings-have-global-$name {
+    [lsearch -exact $global_settings $name] != -1
+  }
+}
+
+foreach name $local_settings {
+  test settings-valid-local-$name {
+    [lsearch -exact $all_settings $name] != -1
+  }
+}
+
+foreach name $global_settings {
+  test settings-valid-global-$name {
+    [lsearch -exact $all_settings $name] != -1
+  }
+}
+
+###############################################################################
+
+set pattern(1) {^%name%$}
+set pattern(2) {^%name%[ ]+\((?:local|global)\)[ ]+[^ ]+$}
+
+foreach name $all_settings {
+  fossil settings $name --exact
+  set data [normalize_result]
+
+  test settings-query-local-$name {
+    [regexp -- [string map [list %name% $name] $pattern(1)] $data] ||
+    [regexp -- [string map [list %name% $name] $pattern(2)] $data]
+  }
+
+  fossil settings $name --exact --global
+  set data [normalize_result]
+
+  if {$name eq "manifest"} {
+    test settings-query-global-$name {
+      $data eq "cannot set 'manifest' globally"
+    }
+  } else {
+    test settings-query-global-$name {
+      [regexp -- [string map [list %name% $name] $pattern(1)] $data] ||
+      [regexp -- [string map [list %name% $name] $pattern(2)] $data]
+    }
+  }
+}
+
+###############################################################################
+
+fossil settings bad-setting
+
+test settings-query-bad-local {
+  [normalize_result] eq "no such setting: bad-setting"
+}
+
+fossil settings bad-setting --global
+
+test settings-query-bad-global {
+  [normalize_result] eq "no such setting: bad-setting"
+}
+
+###############################################################################
+
+test_cleanup

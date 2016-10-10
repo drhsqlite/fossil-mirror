@@ -1585,7 +1585,7 @@ static const cson_string cson_string_empty = cson_string_empty_m;
 /**
    Assumes V is a pointer to memory which is allocated as part of a
    cson_value instance (the bytes immediately after that part).
-   Returns a pointer a a cson_value by subtracting sizeof(cson_value)
+   Returns a pointer a cson_value by subtracting sizeof(cson_value)
    from that address and casting it to a (cson_value*)
 */
 #define CSON_VCAST(V) ((cson_value *)(((unsigned char *)(V))-sizeof(cson_value)))
@@ -2879,7 +2879,7 @@ cson_value * cson_value_new_double( cson_double_t v )
         cson_value * c = cson_value_new(CSON_TYPE_DOUBLE,0);
         if( c )
         {
-            *CSON_DBL(c) = v;
+            memcpy(CSON_DBL(c), &v, sizeof(v));
         }
         return c;
     }

@@ -477,7 +477,7 @@ void tarball_of_checkin(
   ManifestFile *pFile;
   Blob filename;
   int nPrefix;
-  char *zName;
+  char *zName = 0;
   unsigned int mTime;
 
   content_get(rid, &mfile);
@@ -495,24 +495,60 @@ void tarball_of_checkin(
 
   pManifest = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( pManifest ){
+    int flg, eflg = 0;
     mTime = (pManifest->rDate - 2440587.5)*86400.0;
     tar_begin(mTime);
-    if( (pInclude==0 || glob_match(pInclude, "manifest"))
-     && !glob_match(pExclude, "manifest")
-     && db_get_boolean("manifest", 0)
-    ){
-      blob_append(&filename, "manifest", -1);
-      zName = blob_str(&filename);
-      sha1sum_blob(&mfile, &hash);
-      sterilize_manifest(&mfile);
-      tar_add_file(zName, &mfile, 0, mTime);
+    flg = db_get_manifest_setting();
+    if( flg ){
+      /* eflg is the effective flags, taking include/exclude into account */
+      if( (pInclude==0 || glob_match(pInclude, "manifest"))
+       && !glob_match(pExclude, "manifest")
+       && (flg & MFESTFLG_RAW) ){
+        eflg |= MFESTFLG_RAW;
+      }
+      if( (pInclude==0 || glob_match(pInclude, "manifest.uuid"))
+       && !glob_match(pExclude, "manifest.uuid")
+       && (flg & MFESTFLG_UUID) ){
+        eflg |= MFESTFLG_UUID;
+      }
+      if( (pInclude==0 || glob_match(pInclude, "manifest.tags"))
+       && !glob_match(pExclude, "manifest.tags")
+       && (flg & MFESTFLG_TAGS) ){
+        eflg |= MFESTFLG_TAGS;
+      }
+
+      if( eflg & (MFESTFLG_RAW|MFESTFLG_UUID) ){
+        if( eflg & MFESTFLG_RAW ){
+          blob_append(&filename, "manifest", -1);
+          zName = blob_str(&filename);
+        }
+        if( eflg & MFESTFLG_UUID ){
+          sha1sum_blob(&mfile, &hash);
+        }
+        if( eflg & MFESTFLG_RAW ) {
+          sterilize_manifest(&mfile);
+          tar_add_file(zName, &mfile, 0, mTime);
+        }
+      }
       blob_reset(&mfile);
-      blob_append(&hash, "\n", 1);
-      blob_resize(&filename, nPrefix);
-      blob_append(&filename, "manifest.uuid", -1);
-      zName = blob_str(&filename);
-      tar_add_file(zName, &hash, 0, mTime);
-      blob_reset(&hash);
+      if( eflg & MFESTFLG_UUID ){
+        blob_append(&hash, "\n", 1);
+        blob_resize(&filename, nPrefix);
+        blob_append(&filename, "manifest.uuid", -1);
+        zName = blob_str(&filename);
+        tar_add_file(zName, &hash, 0, mTime);
+        blob_reset(&hash);
+      }
+      if( eflg & MFESTFLG_TAGS ){
+        Blob tagslist;
+        blob_zero(&tagslist);
+        get_checkin_taglist(rid, &tagslist);
+        blob_resize(&filename, nPrefix);
+        blob_append(&filename, "manifest.tags", -1);
+        zName = blob_str(&filename);
+        tar_add_file(zName, &tagslist, 0, mTime);
+        blob_reset(&tagslist);
+      }
     }
     manifest_file_rewind(pManifest);
     while( (pFile = manifest_file_next(pManifest,0))!=0 ){
@@ -546,12 +582,12 @@ void tarball_of_checkin(
 /*
 ** COMMAND: tarball*
 **
-** Usage: %fossil tarball VERSION OUTPUTFILE
+** Usage: %fossil tarball VERSION OUTPUTFILE [OPTIONS]
 **
 ** Generate a compressed tarball for a specified version.  If the --name
 ** option is used, its argument becomes the name of the top-level directory
 ** in the resulting tarball.  If --name is omitted, the top-level directory
-** named is derived from the project name, the check-in date and time, and
+** name is derived from the project name, the check-in date and time, and
 ** the artifact ID of the check-in.
 **
 ** The GLOBLIST argument to --exclude and --include can be a comma-separated
@@ -614,17 +650,18 @@ void tarball_cmd(void){
 ** WEBPAGE: tarball
 ** URL: /tarball
 **
-** Generate a compressed tarball for a check-in and return that
-** tarball as the HTTP reply content.
+** Generate a compressed tarball for the check-in specified by the "uuid"
+** query parameter.  Return that compressed tarball as the HTTP reply
+** content.
 **
 ** Query parameters:
 **
 **   name=NAME[.tar.gz]  The base name of the output file.  The default
 **                       value is a configuration parameter in the project
-**                       settings.  A prefix of the name, omitting the extension,
-**                       is used as the top-most directory name.
+**                       settings.  A prefix of the name, omitting the
+**                       extension, is used as the top-most directory name.
 **
-**   uuid=TAG            The check-in that is turned into a tarball.
+**   uuid=TAG            The check-in that is turned into a compressed tarball.
 **                       Defaults to "trunk".
 **
 **   in=PATTERN          Only include files that match the comma-separate
@@ -657,7 +694,6 @@ void tarball_page(void){
   if( zInclude ) pInclude = glob_create(zInclude);
   zExclude = P("ex");
   if( zExclude ) pExclude = glob_create(zExclude);
-
   if( nName>7 && fossil_strcmp(&zName[nName-7], ".tar.gz")==0 ){
     /* Special case:  Remove the ".tar.gz" suffix.  */
     nName -= 7;
@@ -682,9 +718,9 @@ void tarball_page(void){
   /* Compute a unique key for the cache entry based on query parameters */
   blob_init(&cacheKey, 0, 0);
   blob_appendf(&cacheKey, "/tarball/%z", rid_to_uuid(rid));
+  blob_appendf(&cacheKey, "/%q", zName);
   if( zInclude ) blob_appendf(&cacheKey, ",in=%Q", zInclude);
   if( zExclude ) blob_appendf(&cacheKey, ",ex=%Q", zExclude);
-  blob_appendf(&cacheKey, "/%q", zName);
   zKey = blob_str(&cacheKey);
 
   if( P("debug")!=0 ){
@@ -703,7 +739,7 @@ void tarball_page(void){
   }
   if( referred_from_login() ){
     style_header("Tarball Download");
-    @ <form action='%R/tarball'>
+    @ <form action='%R/tarball/%h(zName).tar.gz'>
     cgi_query_parameters_to_hidden();
     @ <p>Tarball named <b>%h(zName).tar.gz</b> holding the content
     @ of check-in <b>%h(zRid)</b>:

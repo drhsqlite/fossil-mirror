@@ -36,7 +36,7 @@
 **       symname      TEXT HIDDEN -- Symbolic name of the check-in.
 **     );
 **
-** The hidden symname column is (optionally) used as a query parameter to 
+** The hidden symname column is (optionally) used as a query parameter to
 ** identify the particular check-in to parse.  The checkinID parameter
 ** (such is a unique numeric RID rather than symbolic name) can also be used
 ** to identify the check-in.  Example:

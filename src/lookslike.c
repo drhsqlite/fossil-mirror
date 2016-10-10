@@ -52,6 +52,37 @@
 #define LOOK_EOL     (LOOK_LONE_CR | LOOK_LONE_LF | LOOK_CRLF) /* Line seps. */
 #endif /* INTERFACE */
 
+/* definitions for various UTF-8 sequence lengths, encoded as start value
+ * and size of each valid range belonging to some lead byte*/
+#define US2A  0x80, 0x01 /* for lead byte 0xC0 */
+#define US2B  0x80, 0x40 /* for lead bytes 0xC2-0xDF */
+#define US3A  0xA0, 0x20 /* for lead byte 0xE0 */
+#define US3B  0x80, 0x40 /* for lead bytes 0xE1-0xEF */
+#define US4A  0x90, 0x30 /* for lead byte 0xF0 */
+#define US4B  0x80, 0x40 /* for lead bytes 0xF1-0xF3 */
+#define US4C  0x80, 0x10 /* for lead byte 0xF4 */
+#define US0A  0x00, 0x00 /* for any other lead byte */
+
+/* a table used for quick lookup of the definition that goes with a
+ * particular lead byte */
+static const unsigned char lb_tab[] = {
+  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
+  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
+  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
+  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
+  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
+  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
+  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
+  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
+  US2A, US0A, US2B, US2B, US2B, US2B, US2B, US2B,
+  US2B, US2B, US2B, US2B, US2B, US2B, US2B, US2B,
+  US2B, US2B, US2B, US2B, US2B, US2B, US2B, US2B,
+  US2B, US2B, US2B, US2B, US2B, US2B, US2B, US2B,
+  US3A, US3B, US3B, US3B, US3B, US3B, US3B, US3B,
+  US3B, US3B, US3B, US3B, US3B, US3B, US3B, US3B,
+  US4A, US4B, US4B, US4B, US4C, US0A, US0A, US0A,
+  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A
+};
 
 /*
 ** This function attempts to scan each logical line within the blob to
@@ -137,74 +168,42 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
 /*
 ** Checks for proper UTF-8. It uses the method described in:
 **   http://en.wikipedia.org/wiki/UTF-8#Invalid_byte_sequences
-** except for the "overlong form" of \u0000 which is not considered invalid
-** here: Some languages like Java and Tcl use it. This function also
-** considers valid the derivatives CESU-8 & WTF-8 (as described in the
-** same wikipedia article referenced previously). For UTF-8 characters
-** > 7f, the variable 'c2' not necessary means the previous character.
-** It's number of higher 1-bits indicate the number of continuation bytes
-** that are expected to be followed. E.g. when 'c2' has a value in the range
-** 0xc0..0xdf it means that 'c' is expected to contain the last continuation
-** byte of a UTF-8 character. A value 0xe0..0xef means that after 'c' one
-** more continuation byte is expected.
+** except for the "overlong form" of \u0000 which is not considered
+** invalid here: Some languages like Java and Tcl use it. This function
+** also considers valid the derivatives CESU-8 & WTF-8 (as described in
+** the same wikipedia article referenced previously). For UTF-8 characters
+** > 0x7f, the variable 'c' not necessary means the real lead byte.
+** It's number of higher 1-bits indicate the number of continuation
+** bytes that are expected to be followed. E.g. when 'c' has a value
+** in the range 0xc0..0xdf it means that after 'c' a single continuation
+** byte is expected. A value 0xe0..0xef means that after 'c' two more
+** continuation bytes are expected.
 */
-
-/* definitions for various UTF-8 sequence lengths */
-#define US2A  0x80, 0x80 /* for lead byte 0xC0 */
-#define US2B  0x80, 0xBF /* for lead bytes 0xC2-0xDF */
-#define US3A  0xA0, 0xBF /* for lead byte 0xE0 */
-#define US3B  0x80, 0xBF /* for lead bytes 0xE1-0xEF */
-#define US4A  0x90, 0xBF /* for lead byte 0xF0 */
-#define US4B  0x80, 0xBF /* for lead bytes 0xF1-0xF3 */
-#define US4C  0x80, 0x8F /* for lead byte 0xF4 */
-#define US0A  0xFF, 0x00 /* for any other lead byte */
-
-/* a table used for quick lookup of the definition that goes with a
- * particular lead byte */
-static const unsigned char lb_tab[] = {
-  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
-  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
-  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
-  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
-  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
-  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
-  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
-  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A,
-  US2A, US0A, US2B, US2B, US2B, US2B, US2B, US2B,
-  US2B, US2B, US2B, US2B, US2B, US2B, US2B, US2B,
-  US2B, US2B, US2B, US2B, US2B, US2B, US2B, US2B,
-  US2B, US2B, US2B, US2B, US2B, US2B, US2B, US2B,
-  US3A, US3B, US3B, US3B, US3B, US3B, US3B, US3B,
-  US3B, US3B, US3B, US3B, US3B, US3B, US3B, US3B,
-  US4A, US4B, US4B, US4B, US4C, US0A, US0A, US0A,
-  US0A, US0A, US0A, US0A, US0A, US0A, US0A, US0A
-};
 
 int invalid_utf8(
   const Blob *pContent
 ){
   const unsigned char *z = (unsigned char *) blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
-  unsigned char c, c2;
+  unsigned char c; /* lead byte to be handled. */
 
   if( n==0 ) return 0;  /* Empty file -> OK */
   c = *z;
   while( --n>0 ){
-    c2 = c;
-    c = *++z;
-    if( c2>=0x80 ){
-      const unsigned char *def = &lb_tab[(2*c2)-0x100];
-      if( (c<*def) || (c>*++def) ){
+    if( c>=0x80 ){
+      const unsigned char *def; /* pointer to range table*/
+
+      c <<= 1; /* multiply by 2 and get rid of highest bit */
+      def = &lb_tab[c]; /* search fb's valid range in table */
+      if( (unsigned int)(*++z-def[0])>=def[1] ){
         return LOOK_INVALID; /* Invalid UTF-8 */
       }
-      if( c2>=0xe0 ){
-        c = (c2<<1)|3;
-      }else{
-        c = ' ';
-      }
+      c = (c>=0xC0) ? (c|3) : ' '; /* determine next lead byte */
+    } else {
+      c = *++z;
     }
   }
-  return (c>=0x80) ? LOOK_INVALID : 0; /* Last byte must be ASCII. */
+  return (c>=0x80) ? LOOK_INVALID : 0; /* Final lead byte must be ASCII. */
 }
 
 /*

@@ -3,11 +3,15 @@
 <p>A server is not necessary to use Fossil, but a server does help in collaborating with
 peers.  A Fossil server also works well as a complete website for a project.
 For example, the complete [https://www.fossil-scm.org/] website, including the
-page you are now reading (but excepting the 
-[https://www.fossil-scm.org/download.html|download page]),
+page you are now reading,
 is just a Fossil server displaying the content of the 
 self-hosting repository for Fossil.</p>
-<p>This article is a guide for setting up your own Fossil server.</p></blockquote>
+<p>This article is a guide for setting up your own Fossil server.
+<p>See "[./aboutcgi.wiki|How CGI Works In Fossil]" for background
+information on the underlying CGI technology.
+See "[./sync.wiki|The Fossil Sync Protocol]" for information on the
+wire protocol used for client/server communication.</p>
+</blockquote>
 <h2>Overview</h2><blockquote>
 There are basically four ways to set up a Fossil server:
 <ol>
@@ -37,8 +41,8 @@ access these using URLs of the form <b>http://localhost:8080/</b>, or if
 <b>http://localhost:8080/</b><i>repo</i><b>/</b> where <i>repo</i> is the base
 name of the repository file without the ".fossil" suffix.
 The difference between "ui" and "server" is that "ui" will
-also start a web browser and points it
-to the URL mentioned above, and "ui" command binds to
+also start a web browser and point it
+to the URL mentioned above, and the "ui" command binds to
 the loopback IP address (127.0.0.1) only so that the "ui" command cannot be
 used to serve content to a different machine.
 </p>
@@ -348,11 +352,12 @@ file in the "proc" virtual filesystem.  If you are running a Fossil instance
 inside a chroot() jail on Linux, you will need to make the "/proc" file
 system available inside that jail in order for this feature to work.  On
 the self-hosting Fossil repository, this was accomplished by adding a line
-to the "/etc/mtab" or "/etc/fstab" file that looks like:
+to the "/etc/fstab" file that looks like:
 <blockquote><pre>
-chroot_jail_proc /home/www/proc proc r 0 0
+chroot_jail_proc /home/www/proc proc ro 0 0
 </pre></blockquote>
-Pathnames should be adjusted for individual systems, of course.
+The /home/www/proc pathname should be adjusted so that the "/proc" component is
+in the root of the chroot jail, of course.
 <p>
 To see if the load-average limiter is functional, visit the [/test_env] page
 of the server to view the current load average.  If the value for the load

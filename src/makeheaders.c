@@ -1108,7 +1108,7 @@ static void FindIdentifiersInMacro(Token *pToken, IdentTable *pTable){
 ** unterminated token.
 */
 static int GetBigToken(InStream *pIn, Token *pToken, IdentTable *pTable){
-  const char *z, *zStart;
+  const char *zStart;
   int iStart;
   int nBrace;
   int c;
@@ -1137,7 +1137,6 @@ static int GetBigToken(InStream *pIn, Token *pToken, IdentTable *pTable){
       return nErr;
   }
 
-  z = pIn->z;
   iStart = pIn->i;
   zStart = pToken->zText;
   nLine = pToken->nLine;
@@ -1683,14 +1682,12 @@ static Token *FindDeclName(Token *pFirst, Token *pLast){
 ** added to their class definitions.
 */
 static int ProcessMethodDef(Token *pFirst, Token *pLast, int flags){
-  Token *pCode;
   Token *pClass;
   char *zDecl;
   Decl *pDecl;
   String str;
   int type;
 
-  pCode = pLast;
   pLast = pLast->pPrev;
   while( pFirst->zText[0]=='P' ){
     int rc = 1;

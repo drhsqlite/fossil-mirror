@@ -1564,7 +1564,10 @@ void page_test_env(void){
     "REQUEST_URI", "SCRIPT_FILENAME", "SCRIPT_NAME", "SERVER_PROTOCOL",
     "HOME", "FOSSIL_HOME", "USERNAME", "USER", "FOSSIL_USER",
     "SQLITE_TMPDIR", "TMPDIR",
-    "TEMP", "TMP", "FOSSIL_VFS"
+    "TEMP", "TMP", "FOSSIL_VFS",
+    "FOSSIL_FORCE_TICKET_MODERATION", "FOSSIL_FORCE_WIKI_MODERATION",
+    "FOSSIL_TCL_PATH", "TH1_DELETE_INTERP", "TH1_ENABLE_DOCS",
+    "TH1_ENABLE_HOOKS", "TH1_ENABLE_TCL", "REMOTE_HOST"
   };
 
   login_check_credentials();
@@ -1607,11 +1610,11 @@ void page_test_env(void){
   }
   @ g.zRepositoryName = %h(g.zRepositoryName)<br />
   @ load_average() = %f(load_average())<br />
-  @ <hr>
+  @ <hr />
   P("HTTP_USER_AGENT");
   cgi_print_all(showAll);
   if( showAll && blob_size(&g.httpHeader)>0 ){
-    @ <hr>
+    @ <hr />
     @ <pre>
     @ %h(blob_str(&g.httpHeader))
     @ </pre>

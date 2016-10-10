@@ -29,6 +29,15 @@
 #define ONE_SECOND (1.0/86400.0)
 
 /*
+** timeline mode options
+*/
+#define TIMELINE_MODE_NONE      0
+#define TIMELINE_MODE_BEFORE    1
+#define TIMELINE_MODE_AFTER     2
+#define TIMELINE_MODE_CHILDREN  3
+#define TIMELINE_MODE_PARENTS   4
+
+/*
 ** Add an appropriate tag to the output if "rid" is unpublished (private)
 */
 #define UNPUB_TAG "<em>(unpublished)</em>"
@@ -1187,6 +1196,32 @@ static void timeline_y_submenu(int isDisabled){
 }
 
 /*
+** If the zChng string is not NULL, then it should be a comma-separated
+** list of glob patterns for filenames.  Add an term to the WHERE clause
+** for the SQL statement under construction that excludes any check-in that
+** does not modify one or more files matching the globs.
+*/
+static void addFileGlobExclusion(
+  const char *zChng,        /* The filename GLOB list */
+  Blob *pSql                /* The SELECT statement under construction */
+){
+  if( zChng==0 || zChng[0]==0 ) return;
+  blob_append_sql(pSql," AND event.objid IN ("
+      "SELECT mlink.mid FROM mlink, filename"
+      " WHERE mlink.fnid=filename.fnid AND %s)",
+      glob_expr("filename.name", zChng));
+}
+static void addFileGlobDescription(
+  const char *zChng,        /* The filename GLOB list */
+  Blob *pDescription        /* Result description */
+){
+  if( zChng==0 || zChng[0]==0 ) return;
+  blob_appendf(pDescription, " that include changes to files matching %Q",
+               zChng);
+}
+
+
+/*
 ** WEBPAGE: timeline
 **
 ** Query parameters:
@@ -1211,6 +1246,8 @@ static void timeline_y_submenu(int isDisabled){
 **    to=CHECKIN       ... to this
 **    shortest         ... show only the shortest path
 **    uf=FILE_SHA1   Show only check-ins that contain the given file version
+**    chng=GLOBLIST  Show only check-ins that involve changes to a file whose
+**                     name matches one of the comma-separate GLOBLIST.
 **    brbg           Background color from branch name
 **    ubg            Background color from user
 **    namechng       Show only check-ins that have filename changes
@@ -1247,6 +1284,7 @@ void page_timeline(void){
   const char *zYearMonth = P("ym");  /* Show check-ins for the given YYYY-MM */
   const char *zYearWeek = P("yw");   /* Check-ins for YYYY-WW (week-of-year) */
   const char *zDay = P("ymd");       /* Check-ins for the day YYYY-MM-DD */
+  const char *zChng = P("chng");     /* List of GLOBs for files that changed */
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
   int renameOnly = P("namechng")!=0; /* Show only check-ins that rename files */
   int forkOnly = PB("forks");        /* Show only forks and their children */
@@ -1439,13 +1477,17 @@ void page_timeline(void){
     }
     blob_append(&sql, ")", -1);
     path_reset();
+    addFileGlobExclusion(zChng, &sql);
     tmFlags |= TIMELINE_DISJOINT;
     db_multi_exec("%s", blob_sql_text(&sql));
+    style_submenu_binary("v","With Files","Without Files",
+                         zType[0]!='a' && zType[0]!='c');
     blob_appendf(&desc, "%d check-ins going from ",
                  db_int(0, "SELECT count(*) FROM timeline"));
     blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h", zFrom), zFrom);
     blob_append(&desc, " to ", -1);
     blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h",zTo), zTo);
+    addFileGlobDescription(zChng, &desc);
   }else if( (p_rid || d_rid) && g.perm.Read ){
     /* If p= or d= is present, ignore all other parameters other than n= */
     char *zUuid;
@@ -1522,6 +1564,7 @@ void page_timeline(void){
     char *zDate;
     Blob cond;
     blob_zero(&cond);
+    addFileGlobExclusion(zChng, &cond);
     if( zUses ){
       blob_append_sql(&cond, " AND event.objid IN usesfile ");
     }
@@ -1732,6 +1775,7 @@ void page_timeline(void){
       blob_appendf(&desc, " related to \"%h\"", zBrName);
       tmFlags |= TIMELINE_DISJOINT;
     }
+    addFileGlobDescription(zChng, &desc);
     if( rAfter>0.0 ){
       if( rBefore>0.0 ){
         blob_appendf(&desc, " occurring between %h and %h.<br />",
@@ -1998,6 +2042,13 @@ static int isIsoDate(const char *z){
 }
 
 /*
+** Return true if the input string can be converted to a julianday.
+*/
+static int fossil_is_julianday(const char *zDate){
+  return db_int(0, "SELECT EXISTS (SELECT julianday(%Q) AS jd WHERE jd IS NOT NULL)", zDate);
+}
+
+/*
 ** COMMAND: timeline
 **
 ** Usage: %fossil timeline ?WHEN? ?CHECKIN|DATETIME? ?OPTIONS?
@@ -2012,10 +2063,15 @@ static int isIsoDate(const char *z){
 **     descendants | children
 **     ancestors | parents
 **
-** The CHECKIN can be any unique prefix of 4 characters or more.
-** The DATETIME should be in the ISO8601 format.  For
-** example: "2007-08-18 07:21:21".  You can also say "current"
-** for the current version or "now" for the current time.
+** The CHECKIN can be any unique prefix of 4 characters or more. You
+** can also say "current" for the current version.
+**
+** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
+** year-month-day form, it may be truncated, the "T" may be replaced by
+** a space, and it may also name a timezone offset from UTC as "-HH:MM"
+** (westward) or "+HH:MM" (eastward). Either no timezone suffix or "Z"
+** means UTC.
+**
 **
 ** Options:
 **   -n|--limit N         Output the first N entries (default 20 lines).
@@ -2049,7 +2105,7 @@ void timeline_cmd(void){
   Blob sql;
   int objid = 0;
   Blob uuid;
-  int mode = 0 ;       /* 0:none  1: before  2:after  3:children  4:parents */
+  int mode = TIMELINE_MODE_NONE;
   int verboseFlag = 0 ;
   int iOffset;
   const char *zFilePattern = 0;
@@ -2090,17 +2146,17 @@ void timeline_cmd(void){
   if( g.argc>=4 ){
     k = strlen(g.argv[2]);
     if( strncmp(g.argv[2],"before",k)==0 ){
-      mode = 1;
+      mode = TIMELINE_MODE_BEFORE;
     }else if( strncmp(g.argv[2],"after",k)==0 && k>1 ){
-      mode = 2;
+      mode = TIMELINE_MODE_AFTER;
     }else if( strncmp(g.argv[2],"descendants",k)==0 ){
-      mode = 3;
+      mode = TIMELINE_MODE_CHILDREN;
     }else if( strncmp(g.argv[2],"children",k)==0 ){
-      mode = 3;
+      mode = TIMELINE_MODE_CHILDREN;
     }else if( strncmp(g.argv[2],"ancestors",k)==0 && k>1 ){
-      mode = 4;
+      mode = TIMELINE_MODE_PARENTS;
     }else if( strncmp(g.argv[2],"parents",k)==0 ){
-      mode = 4;
+      mode = TIMELINE_MODE_PARENTS;
     }else if(!zType && !zLimit){
       usage("?WHEN? ?CHECKIN|DATETIME? ?-n|--limit #? ?-t|--type TYPE? "
             "?-W|--width WIDTH? ?-p|--path PATH");
@@ -2119,7 +2175,7 @@ void timeline_cmd(void){
   blob_zero(&uuid);
   blob_append(&uuid, zOrigin, -1);
   if( fossil_strcmp(zOrigin, "now")==0 ){
-    if( mode==3 || mode==4 ){
+    if( mode==TIMELINE_MODE_CHILDREN || mode==TIMELINE_MODE_PARENTS ){
       fossil_fatal("cannot compute descendants or ancestors of a date");
     }
     zDate = mprintf("(SELECT datetime('now'))");
@@ -2131,16 +2187,18 @@ void timeline_cmd(void){
     zDate = mprintf("(SELECT mtime FROM plink WHERE cid=%d)", objid);
   }else if( name_to_uuid(&uuid, 0, "*")==0 ){
     objid = db_int(0, "SELECT rid FROM blob WHERE uuid=%B", &uuid);
-    zDate = mprintf("(SELECT mtime FROM plink WHERE cid=%d)", objid);
-  }else{
+    zDate = mprintf("(SELECT mtime FROM event WHERE objid=%d)", objid);
+  }else if( fossil_is_julianday(zOrigin) ){
     const char *zShift = "";
-    if( mode==3 || mode==4 ){
+    if( mode==TIMELINE_MODE_CHILDREN || mode==TIMELINE_MODE_PARENTS ){
       fossil_fatal("cannot compute descendants or ancestors of a date");
     }
-    if( mode==0 ){
+    if( mode==TIMELINE_MODE_NONE ){
       if( isIsoDate(zOrigin) ) zShift = ",'+1 day'";
     }
     zDate = mprintf("(SELECT julianday(%Q%s, fromLocal()))", zOrigin, zShift);
+  }else{
+    fossil_fatal("unknown check-in or invalid date: %s", zOrigin);
   }
 
   if( zFilePattern ){
@@ -2157,17 +2215,17 @@ void timeline_cmd(void){
     }
   }
 
-  if( mode==0 ) mode = 1;
+  if( mode==TIMELINE_MODE_NONE ) mode = TIMELINE_MODE_BEFORE;
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_tty(), -1);
   blob_append_sql(&sql, "\n  AND event.mtime %s %s",
-     (mode==1 || mode==4) ? "<=" : ">=",
-     zDate /*safe-for-%s*/
+     ( mode==TIMELINE_MODE_BEFORE ||
+       mode==TIMELINE_MODE_PARENTS ) ? "<=" : ">=", zDate /*safe-for-%s*/
   );
 
-  if( mode==3 || mode==4 ){
+  if( mode==TIMELINE_MODE_CHILDREN || mode==TIMELINE_MODE_PARENTS ){
     db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
-    if( mode==3 ){
+    if( mode==TIMELINE_MODE_CHILDREN ){
       compute_descendants(objid, n);
     }else{
       compute_ancestors(objid, n, 0);

@@ -328,7 +328,7 @@ void zip_of_checkin(
   Blob *pZip,         /* Write the ZIP archive content into this blob */
   const char *zDir,   /* Top-level directory of the ZIP archive */
   Glob *pInclude,     /* Only include files that match this pattern */
-  Glob *pExclude      /* Exclude files that match this pattern */ 
+  Glob *pExclude      /* Exclude files that match this pattern */
 ){
   Blob mfile, hash, file;
   Manifest *pManifest;
@@ -352,25 +352,63 @@ void zip_of_checkin(
 
   pManifest = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( pManifest ){
-    char *zName;
+    int flg, eflg = 0;
+    char *zName = 0;
     zip_set_timedate(pManifest->rDate);
-    if( (pInclude==0 || glob_match(pInclude, "manifest"))
-     && !glob_match(pExclude, "manifest")
-     && db_get_boolean("manifest", 0)
-    ){
-      blob_append(&filename, "manifest", -1);
-      zName = blob_str(&filename);
-      zip_add_folders(zName);
-      sha1sum_blob(&mfile, &hash);
-      sterilize_manifest(&mfile);
-      zip_add_file(zName, &mfile, 0);
+    flg = db_get_manifest_setting();
+    if( flg ){
+      /* eflg is the effective flags, taking include/exclude into account */
+      if( (pInclude==0 || glob_match(pInclude, "manifest"))
+       && !glob_match(pExclude, "manifest")
+       && (flg & MFESTFLG_RAW) ){
+        eflg |= MFESTFLG_RAW;
+      }
+      if( (pInclude==0 || glob_match(pInclude, "manifest.uuid"))
+       && !glob_match(pExclude, "manifest.uuid")
+       && (flg & MFESTFLG_UUID) ){
+        eflg |= MFESTFLG_UUID;
+      }
+      if( (pInclude==0 || glob_match(pInclude, "manifest.tags"))
+       && !glob_match(pExclude, "manifest.tags")
+       && (flg & MFESTFLG_TAGS) ){
+        eflg |= MFESTFLG_TAGS;
+      }
+
+      if( eflg & (MFESTFLG_RAW|MFESTFLG_UUID) ){
+        if( eflg & MFESTFLG_RAW ){
+          blob_append(&filename, "manifest", -1);
+          zName = blob_str(&filename);
+          zip_add_folders(zName);
+        }
+        if( eflg & MFESTFLG_UUID ){
+          sha1sum_blob(&mfile, &hash);
+        }
+        if( eflg & MFESTFLG_RAW ){
+          sterilize_manifest(&mfile);
+          zip_add_file(zName, &mfile, 0);
+        }
+      }
       blob_reset(&mfile);
-      blob_append(&hash, "\n", 1);
-      blob_resize(&filename, nPrefix);
-      blob_append(&filename, "manifest.uuid", -1);
-      zName = blob_str(&filename);
-      zip_add_file(zName, &hash, 0);
-      blob_reset(&hash);
+      if( eflg & MFESTFLG_UUID ){
+        blob_append(&hash, "\n", 1);
+        blob_resize(&filename, nPrefix);
+        blob_append(&filename, "manifest.uuid", -1);
+        zName = blob_str(&filename);
+        zip_add_folders(zName);
+        zip_add_file(zName, &hash, 0);
+        blob_reset(&hash);
+      }
+      if( eflg & MFESTFLG_TAGS ){
+        Blob tagslist;
+        blob_zero(&tagslist);
+        get_checkin_taglist(rid, &tagslist);
+        blob_resize(&filename, nPrefix);
+        blob_append(&filename, "manifest.tags", -1);
+        zName = blob_str(&filename);
+        zip_add_folders(zName);
+        zip_add_file(zName, &tagslist, 0);
+        blob_reset(&tagslist);
+      }
     }
     manifest_file_rewind(pManifest);
     while( (pFile = manifest_file_next(pManifest,0))!=0 ){
@@ -404,7 +442,7 @@ void zip_of_checkin(
 ** Generate a ZIP archive for a check-in.  If the --name option is
 ** used, its argument becomes the name of the top-level directory in the
 ** resulting ZIP archive.  If --name is omitted, the top-level directory
-** named is derived from the project name, the check-in date and time, and
+** name is derived from the project name, the check-in date and time, and
 ** the artifact ID of the check-in.
 **
 ** The GLOBLIST argument to --exclude and --include can be a comma-separated
@@ -439,7 +477,12 @@ void zip_cmd(void){
   if( g.argc!=4 ){
     usage("VERSION OUTPUTFILE");
   }
-  rid = name_to_typed_rid(g.argv[2],"ci");
+  rid = name_to_typed_rid(g.argv[2], "ci");
+  if( rid==0 ){
+    fossil_fatal("Check-in not found: %s", g.argv[2]);
+    return;
+  }
+
   if( zName==0 ){
     zName = db_text("default-name",
        "SELECT replace(%Q,' ','_') "
@@ -452,27 +495,27 @@ void zip_cmd(void){
     );
   }
   zip_of_checkin(rid, &zip, zName, pInclude, pExclude);
-  blob_write_to_file(&zip, g.argv[3]);
   glob_free(pInclude);
   glob_free(pExclude);
+  blob_write_to_file(&zip, g.argv[3]);
+  blob_reset(&zip);
 }
 
 /*
 ** WEBPAGE: zip
 ** URL: /zip
 **
-** Generate a ZIP archive for a checkin specified by the uuid= query parameter.
-** Return that ZIP archive as the HTTP reply content.
+** Generate a ZIP archive for the check-in specified by the "uuid"
+** query parameter.  Return that ZIP archive as the HTTP reply content.
 **
 ** Query parameters:
 **
-**   name=NAME[.tar.gz]  The base name of the output file.  The default
+**   name=NAME[.zip]     The base name of the output file.  The default
 **                       value is a configuration parameter in the project
-**                       settings.  A prefix of the name, omitting the extension,
-**                       is used as the top-most directory name.
-
+**                       settings.  A prefix of the name, omitting the
+**                       extension, is used as the top-most directory name.
 **
-**   uuid=TAG            The check-in that is turned into a tarball.
+**   uuid=TAG            The check-in that is turned into a ZIP archive.
 **                       Defaults to "trunk".
 **
 **   in=PATTERN          Only include files that match the comma-separate
@@ -485,15 +528,14 @@ void zip_cmd(void){
 */
 void baseline_zip_page(void){
   int rid;
-  char *zName, *zRid;
+  char *zName, *zRid, *zKey;
   int nName, nRid;
-  Blob zip;
-  char *zKey;
   const char *zInclude;         /* The in= query parameter */
   const char *zExclude;         /* The ex= query parameter */
   Blob cacheKey;                /* The key to cache */
   Glob *pInclude = 0;           /* The compiled in= glob pattern */
   Glob *pExclude = 0;           /* The compiled ex= glob pattern */
+  Blob zip;                     /* ZIP archive accumulated here */
 
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
@@ -520,9 +562,33 @@ void baseline_zip_page(void){
       }
     }
   }
-  rid = name_to_typed_rid(nRid?zRid:zName,"ci");
+  rid = name_to_typed_rid(nRid?zRid:zName, "ci");
   if( rid==0 ){
     @ Not found
+    return;
+  }
+  if( nRid==0 && nName>10 ) zName[10] = 0;
+
+  /* Compute a unique key for the cache entry based on query parameters */
+  blob_init(&cacheKey, 0, 0);
+  blob_appendf(&cacheKey, "/zip/%z", rid_to_uuid(rid));
+  blob_appendf(&cacheKey, "/%q", zName);
+  if( zInclude ) blob_appendf(&cacheKey, ",in=%Q", zInclude);
+  if( zExclude ) blob_appendf(&cacheKey, ",ex=%Q", zExclude);
+  zKey = blob_str(&cacheKey);
+
+  if( P("debug")!=0 ){
+    style_header("ZIP Archive Generator Debug Screen");
+    @ zName = "%h(zName)"<br />
+    @ rid = %d(rid)<br />
+    if( zInclude ){
+      @ zInclude = "%h(zInclude)"<br />
+    }
+    if( zExclude ){
+      @ zExclude = "%h(zExclude)"<br />
+    }
+    @ zKey = "%h(zKey)"
+    style_footer();
     return;
   }
   if( referred_from_login() ){
@@ -536,26 +602,16 @@ void baseline_zip_page(void){
     style_footer();
     return;
   }
-  if( nRid==0 && nName>10 ) zName[10] = 0;
-
-  /* Compute a unique key for the cache entry based on query parameters */
-  blob_init(&cacheKey, 0, 0);
-  blob_appendf(&cacheKey, "/zip/%z", rid_to_uuid(rid));
-  if( zInclude ) blob_appendf(&cacheKey, ",in=%Q", zInclude);
-  if( zExclude ) blob_appendf(&cacheKey, ",ex=%Q", zExclude);
-  blob_appendf(&cacheKey, "/%q", zName);
-  zKey = blob_str(&cacheKey);
-
   blob_zero(&zip);
   if( cache_read(&zip, zKey)==0 ){
     zip_of_checkin(rid, &zip, zName, pInclude, pExclude);
     cache_write(&zip, zKey);
   }
-  fossil_free( zName );
-  fossil_free( zRid );
-  blob_reset(&cacheKey);
   glob_free(pInclude);
   glob_free(pExclude);
+  fossil_free(zName);
+  fossil_free(zRid);
+  blob_reset(&cacheKey);
   cgi_set_content(&zip);
   cgi_set_content_type("application/zip");
 }

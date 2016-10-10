@@ -659,7 +659,7 @@ static int submitTicketCmd(
     @ <blockquote><pre>%h(blob_str(&tktchng))</pre></blockquote>
     @ <blockquote><pre>Moderation would be %h(zNeedMod).</pre></blockquote>
     @ </div>
-    @ <hr>
+    @ <hr />
     return TH_OK;
   }else{
     if( g.thTrace ){
@@ -1082,7 +1082,7 @@ void ticket_output_change_artifact(Manifest *pTkt, const char *zListType){
 **                 TICKETFILTER may be [#]='uuuuuuuuu'
 **       example:  Report only lists rows with status not open
 **                 TICKETFILTER: status != 'open'
-**                 
+**
 **     If --quote is used, the tickets are encoded by quoting special
 **     chars (space -> \\s, tab -> \\t, newline -> \\n, cr -> \\r,
 **     formfeed -> \\f, vtab -> \\v, nul -> \\0, \\ -> \\\\).
