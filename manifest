@@ -1,5 +1,5 @@
-C Cosmetic\sTH1\sdoc\stweaks.
-D 2016-10-10T18:54:59.173
+C Propose\san\senhanced\schanges\scommand.\s\sAt\sthis\spoint,\sthere\sis\sno\simplementation,\sonly\shelp\stext\sdescribing\sthe\snew\soptions\sand\sbehaviors.
+D 2016-10-11T21:07:28.866
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -387,7 +387,7 @@ F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c 10310d276e72e3e34343e3385c0b39fac5cd826e
-F src/checkin.c e8f4ae3c5ae6475f084691a83385ca362f3422e3
+F src/checkin.c 9fdad38a6703040d42ab2bee249b2b65335dc33a
 F src/checkout.c 083ec4f2ccd7d9df27dbb94d90008088eb8c4340
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
@@ -768,7 +768,9 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f36f95b35a2618f07b55bfd5598e2687a7350b26
-R c6f89832682bea2d357c38354dde6cb4
-U mistachkin
-Z fa004434efb0d64af0161b23777dd23d
+P 0b50909c5fd2fba088e325181e260a928774feb3
+T *branch * andygoth-changes
+T *sym-andygoth-changes *
+T -sym-trunk *
+U andygoth
+Z e6bd8a7681dee14aa87916e9784e18c9

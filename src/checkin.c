@@ -203,19 +203,47 @@ void print_changes(
 **
 ** Usage: %fossil changes ?OPTIONS?
 **
-** Report on the edit status of all files in the current checkout.
+** Report the change status of files in the current checkout.
 **
-** Pathnames are displayed according to the "relative-paths" setting,
-** unless overridden by the --abs-paths or --rel-paths options.
+** Each line of output is the name of a changed file, with paths shown
+** according to the "relative-paths" setting, unless overridden by the
+** --abs-paths or --rel-paths options.
+** 
+** By default, all changed files are selected for display.  This behavior
+** can be overridden by using one or more filter options (listed below),
+** in which case only files with the specified change type(s) are shown.
+**
+** If file change type classification is enabled, each output line starts
+** with a code describing the file's change type, e.g. EDITED or RENAMED.
+** This can be turned on or off using the --classify or --no-classify
+** options, respectively.  By default, it is enabled only when more than
+** one change type is enabled (i.e. zero or multiple filter options or
+** --all are used) and disabled when only one change type is enabled.
+**
+** The "fossil changes -extra" command is equivalent to "fossil extras".
 **
 ** Options:
 **    --abs-paths       Display absolute pathnames.
 **    --rel-paths       Display pathnames relative to the current working
 **                      directory.
-**    --sha1sum         Verify file status using SHA1 hashing rather
-**                      than relying on file mtimes.
-**    --header          Identify the repository if there are changes
-**    -v|--verbose      Say "(none)" if there are no changes
+**    --sha1sum         Verify file status using SHA1 hashing rather than
+**                      relying on file mtimes.
+**    --header          Identify the repository if any files are listed.
+**    -v|--verbose      Say "(none)" if no files are listed.
+**    --classify        Start each line with the file's change type.
+**    --no-classify     Do not print file change types.
+**
+** Filter options:
+**    --edited          Display edited files.
+**    --missing         Display missing files.
+**    --added           Display added files.
+**    --deleted         Display deleted files.
+**    --renamed         Display renamed files.
+**    --conflict        Display merge conflict files.
+**    --unmodified      Display unmodified files.
+**    --meta            Display files with metadata changes.
+**    --all             Display all managed files, i.e. all of the above.
+**    --extra           Display unmanaged files.
 **
 ** See also: extras, ls, status
 */
