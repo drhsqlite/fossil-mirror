@@ -241,7 +241,7 @@ void print_changes(
 ** Filter options:
 **    --edited          Display edited, merged, and conflicted files.
 **    --updated         Display files updated by merge/integrate.
-**    --modified        Combination of the above two options.
+**    --changed         Combination of the above two options.
 **    --missing         Display missing files.
 **    --added           Display added files.
 **    --deleted         Display deleted files.
