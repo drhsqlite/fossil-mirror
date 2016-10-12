@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\snext\s3.15.0\sbeta\sfor\stesting.
-D 2016-10-12T16:05:42.919
+C Update\sthe\sbuilt-in\sSQLite\sagain\sfor\sa\sbug\sfix.
+D 2016-10-12T22:51:39.300
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -486,8 +486,8 @@ F src/shun.c 7d0a7eeffdf515b2d78919408fe42e7142a9b532
 F src/sitemap.c b7c376b21d29322741c804e1f762b34aedb98ad1
 F src/skins.c 524384aafbe9e7707d3b87f42ee72fa63fe91796
 F src/sqlcmd.c a7dce974ba7afde541ed58df98bebce335ed75a5
-F src/sqlite3.c fd3647744589add4013192298f47588b68418aff
-F src/sqlite3.h 5650c9ddfe40c0fd3633b0f2a7a5baf80effe949
+F src/sqlite3.c 1e03ca67ea0997e8dc7eac21d286af470f345fae
+F src/sqlite3.h bb99350c5fec95e7de0af85569b5cc4cc5c9d4c6
 F src/stash.c eb408a325de80dd58d40903c12e2663f04158317
 F src/stat.c 8e2c652ba1deb14c61a7286028dd03f342244734
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
@@ -768,7 +768,7 @@ F www/webui.wiki cdb125adad3e8311a3badefa59b99dd9f417dc7c
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P de4e4e2a309e72b54eabf2e566e31645943e32db
-R 2be0b5fdef91012fa3d9ae0275ced4df
+P 6ef1500850dbd104995196fcd5adb11304d2d32d
+R 64f3e3bd1b1a1a0e79a6bffa8e392357
 U drh
-Z 2e47aa308b70fe9083ca35697125ef2b
+Z 4f906e323f5d81620ab7ec558e51eb27
