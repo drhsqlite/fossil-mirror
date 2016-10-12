@@ -27,7 +27,7 @@
 static const char zStashInit[] =
 @ CREATE TABLE IF NOT EXISTS localdb.stash(
 @   stashid INTEGER PRIMARY KEY,     -- Unique stash identifier
-@   vid INTEGER,                     -- The baseline check-out for this stash
+@   vid INTEGER,                     -- The baseline checkout for this stash
 @   comment TEXT,                    -- Comment for this stash.  Or NULL
 @   ctime TIMESTAMP                  -- When the stash was created
 @ );
@@ -198,7 +198,7 @@ static int stash_create(void){
 }
 
 /*
-** Apply a stash to the current check-out.
+** Apply a stash to the current checkout.
 */
 static void stash_apply(int stashid, int nConflict){
   int vid;
@@ -422,23 +422,22 @@ static int stash_get_id(const char *zStashId){
 **     are listed, then only stash and revert the named files.  The
 **     "save" verb can be omitted if and only if there are no other
 **     arguments.  The "snapshot" verb works the same as "save" but
-**     omits the revert, keeping the check-out unchanged.
+**     omits the revert, keeping the checkout unchanged.
 **
-**  fossil stash list ?-v|--verbose?
-**  fossil stash ls ?-v|--verbose?
+**  fossil stash list|ls ?-v|--verbose? ?-W|--width <num>?
 **
 **     List all changes sets currently stashed.  Show information about
 **     individual files in each changeset if -v or --verbose is used.
 **
 **  fossil stash show|cat ?STASHID? ?DIFF-FLAGS?
 **
-**     Show the content of a stash
+**     Show the contents of a stash.
 **
 **  fossil stash pop
 **  fossil stash apply ?STASHID?
 **
 **     Apply STASHID or the most recently create stash to the current
-**     working check-out.  The "pop" command deletes that changeset from
+**     working checkout.  The "pop" command deletes that changeset from
 **     the stash after applying it but the "apply" command retains the
 **     changeset.
 **
@@ -448,15 +447,14 @@ static int stash_get_id(const char *zStashId){
 **     changes of STASHID.  Keep STASHID so that it can be reused
 **     This command is undoable.
 **
-**  fossil stash drop ?STASHID? ?-a|--all?
-**  fossil stash rm   ?STASHID? ?-a|--all?
+**  fossil stash drop|rm ?STASHID? ?-a|--all?
 **
 **     Forget everything about STASHID.  Forget the whole stash if the
 **     -a|--all flag is used.  Individual drops are undoable but -a|--all
 **     is not.
 **
-**  fossil stash diff ?STASHID?
-**  fossil stash gdiff ?STASHID?
+**  fossil stash diff ?STASHID? ?DIFF-OPTIONS?
+**  fossil stash gdiff ?STASHID? ?DIFF-OPTIONS?
 **
 **     Show diffs of the current working directory and what that
 **     directory would be if STASHID were applied.
@@ -465,13 +463,13 @@ static int stash_get_id(const char *zStashId){
 **  fossil stash
 **  fossil stash save ?-m|--comment COMMENT? ?FILES...?
 **  fossil stash snapshot ?-m|--comment COMMENT? ?FILES...?
-**  fossil stash list|ls  ?-v|--verbose? ?-W|--width <num>?
+**  fossil stash list|ls ?-v|--verbose? ?-W|--width <num>?
 **  fossil stash show|cat ?STASHID? ?DIFF-OPTIONS?
 **  fossil stash pop
-**  fossil stash apply ?STASHID?
-**  fossil stash goto ?STASHID?
-**  fossil stash rm|drop ?STASHID? ?-a|--all?
-**  fossil stash [g]diff ?STASHID? ?DIFF-OPTIONS?
+**  fossil stash apply|goto ?STASHID?
+**  fossil stash drop|rm ?STASHID? ?-a|--all?
+**  fossil stash diff ?STASHID? ?DIFF-OPTIONS?
+**  fossil stash gdiff ?STASHID? ?DIFF-OPTIONS?
 */
 void stash_cmd(void){
   const char *zCmd;
