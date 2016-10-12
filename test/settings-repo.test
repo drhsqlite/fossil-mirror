@@ -18,8 +18,11 @@
 # The "settings" and "unset" commands that may modify the repository.
 #
 
+set path [file dirname [info script]]
+
 require_no_open_checkout
-set dir [file dirname [info script]]; test_setup
+
+test_setup
 
 ###############################################################################
 #

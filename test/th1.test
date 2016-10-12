@@ -18,7 +18,7 @@
 # TH1 Commands
 #
 
-set dir [file dirname [info script]]; test_setup
+set path [file dirname [info script]]; test_setup
 
 ###############################################################################
 
@@ -1470,7 +1470,7 @@ test th1-markdown-4 {[normalize_result] eq {Test1 {<div class="markdown">
 
 ###############################################################################
 
-set markdown [read_file [file join $dir markdown-test1.md]]
+set markdown [read_file [file join $path markdown-test1.md]]
 fossil test-th-eval [string map \
     [list %markdown% $markdown] {markdown {%markdown%}}]
 test th1-markdown-5 {[normalize_result] eq \

@@ -776,8 +776,8 @@ const char *diff_get_binary_glob(void){
 ** no "--to" option then the (possibly edited) files in the current check-out
 ** are used.
 **
-** If the "--checkin VERSION" option shows the changes made by
-** check-in VERSION relative to its primary parent
+** The "--checkin VERSION" option shows the changes made by
+** check-in VERSION relative to its primary parent.
 **
 ** The "-i" command-line option forces the use of the internal diff logic
 ** rather than any external diff program that might be configured using
@@ -924,7 +924,7 @@ void diff_cmd(void){
     for(i=0; pFileDir[i].zName; i++){
       if( pFileDir[i].nUsed==0
        && strcmp(pFileDir[0].zName,".")!=0
-       && !file_isdir(g.argv[i+2])
+       && !file_wd_isdir(g.argv[i+2])
       ){
         fossil_fatal("not found: '%s'", g.argv[i+2]);
       }

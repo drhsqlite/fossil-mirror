@@ -148,7 +148,11 @@ static DLine *break_into_lines(
   ** in the count even if it lacks the \n terminator
   */
   for(nLine=0, z2=z; (zNL = strchr(z2,'\n'))!=0; z2=zNL+1, nLine++){}
-  if( z2[0]!=0 ) nLine++;
+  if( z2[0]!=0 ){
+    nLine++;
+    do{ z2++; }while( z2[0] );
+  }
+  if( n!=(int)(z2-z) ) return 0;
 
   a = fossil_malloc( sizeof(a[0])*nLine );
   memset(a, 0, sizeof(a[0])*nLine);

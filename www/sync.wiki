@@ -222,7 +222,7 @@ compressed artifact directly from the server database to the client.</p>
 
 <p>Compressed File cards are similar to File cards, sharing the same
 in-line "payload" data characteristics and also the same treatment of
-direct content or delta content.  It comes in two different formats
+direct content or delta content.  Cfile cards come in two different formats
 depending on whether the artifact is sent directly or as a delta from
 some other artifact.</p>
 
@@ -279,7 +279,7 @@ The <i>size</i> field is the (uncompressed) size of the content
 in bytes.  The <i>flags</i> field is an integer which is interpreted
 as an array of bits.  The 0x0004 bit of <i>flags</i> indicates that
 the <i>content</i> is to be omitted.  The content might be omitted if
-it is too large to transmit, or if the send merely wants to update the
+it is too large to transmit, or if the sender merely wants to update the
 modification time of the file without changing the files content.
 The <i>content</i> is the (uncompressed) content of the file.
 
@@ -400,7 +400,7 @@ be ignored unless a "--private" [/help?cmd=sync|sync] is occurring.
 
 <h4>3.6.1 Unversioned Igot Cards</h4>
 
-<p>Zero or more "uvigot" cards are sent from client to server when
+<p>Zero or more "uvigot" cards are sent from server to client when
 synchronizing unversioned content.  The format of a uvigot card is
 as follows:
 

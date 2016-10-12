@@ -166,6 +166,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  searchable
   *  setParameter
   *  setting
+  *  stime
   *  styleHeader
   *  styleFooter
   *  tclEval
@@ -175,7 +176,6 @@ features of Fossil.  The following is a summary of the extended commands:
   *  tclMakeSafe
   *  tclReady
   *  trace
-  *  stime
   *  utime
   *  verifyCsrf
   *  wiki
@@ -251,7 +251,7 @@ Renders STRING as wiki content; however, only links are handled.  No
 other markup is processed.
 
 <a name="dir"></a>TH1 dir Command
--------------------------------------------
+---------------------------------
 
   * dir CHECKIN ?GLOB? ?DETAILS?
 
@@ -402,7 +402,7 @@ Returns one more than the number of \n characters in STRING.  But
 never returns less than MIN or more than MAX.
 
 <a name="markdown"></a>TH1 markdown Command
----------------------------------------------
+-------------------------------------------
 
   *  markdown STRING
 
@@ -520,6 +520,14 @@ Sets the value of the specified query parameter.
 
 Gets and returns the value of the specified setting.
 
+<a name="stime"></a>TH1 stime Command
+-------------------------------------
+
+  *  stime
+
+Returns the number of microseconds of CPU time consumed by the current
+process in system space.
+
 <a name="styleHeader"></a>TH1 styleHeader Command
 -------------------------------------------------
 
@@ -579,7 +587,7 @@ Returns non-zero if the Tcl interpreter is "safe".  The Tcl interpreter
 will be created automatically if it has not been already.
 
 <a name="tclMakeSafe"></a>TH1 tclMakeSafe Command
----------------------------------------------
+-------------------------------------------------
 
 **This command requires the Tcl integration feature.**
 
@@ -604,14 +612,6 @@ is currently available for use by TH1 scripts.
   *  trace STRING
 
 Generates a TH1 trace message if TH1 tracing is enabled.
-
-<a name="stime"></a>TH1 stime Command
--------------------------------------
-
-  *  stime
-
-Returns the number of microseconds of CPU time consumed by the current
-process in system space.
 
 <a name="utime"></a>TH1 utime Command
 -------------------------------------

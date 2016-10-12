@@ -133,7 +133,7 @@ exactly the same thing to Fossil:
 </ol>
 In both cases, the CGI script is called "/fossil".  For case (A),
 the PATH_INFO variable will be "info/c14ecc43" and so the 
-"[/help?cmd=/info]" webpage will be generated and the suffix of
+"[/help?cmd=/info|/info]" webpage will be generated and the suffix of
 PATH_INFO will be converted into the "name" query parameter, which
 identifies the artifact about which information is requested.
 In case (B), the PATH_INFO is just "info", but the same "name"

@@ -138,9 +138,16 @@ proc fossil_maybe_answer {answer args} {
   global fossilexe
   set cmd $fossilexe
   set expectError 0
-  if {[lindex $args end] eq "-expectError"} {
+  set index [lsearch -exact $args -expectError]
+  if {$index != -1} {
     set expectError 1
-    set args [lrange $args 0 end-1]
+    set args [lreplace $args $index $index]
+  }
+  set keepNewline 0
+  set index [lsearch -exact $args -keepNewline]
+  if {$index != -1} {
+    set keepNewline 1
+    set args [lreplace $args $index $index]
   }
   foreach a $args {
     lappend cmd $a
@@ -152,10 +159,18 @@ proc fossil_maybe_answer {answer args} {
     protOut $answer
     set prompt_file [file join $::tempPath fossil_prompt_answer]
     write_file $prompt_file $answer\n
-    set rc [catch {eval exec $cmd <$prompt_file} result]
+    if {$keepNewline} {
+      set rc [catch {eval exec -keepnewline $cmd <$prompt_file} result]
+    } else {
+      set rc [catch {eval exec $cmd <$prompt_file} result]
+    }
     file delete $prompt_file
   } else {
-    set rc [catch {eval exec $cmd} result]
+    if {$keepNewline} {
+      set rc [catch {eval exec -keepnewline $cmd} result]
+    } else {
+      set rc [catch {eval exec $cmd} result]
+    }
   }
   global RESULT CODE
   set CODE $rc
@@ -212,7 +227,7 @@ proc get_versionable_settings {} {
 
   fossil test-th-eval "hasfeature tcl"
 
-  if {$::RESULT eq "1"} {
+  if {[normalize_result] eq "1"} {
     lappend result tcl-setup
   }
 
@@ -277,25 +292,25 @@ proc get_all_settings {} {
 
   fossil test-th-eval "hasfeature legacyMvRm"
 
-  if {$::RESULT eq "1"} {
+  if {[normalize_result] eq "1"} {
     lappend result mv-rm-files
   }
 
   fossil test-th-eval "hasfeature tcl"
 
-  if {$::RESULT eq "1"} {
+  if {[normalize_result] eq "1"} {
     lappend result tcl tcl-setup
   }
 
   fossil test-th-eval "hasfeature th1Docs"
 
-  if {$::RESULT eq "1"} {
+  if {[normalize_result] eq "1"} {
     lappend result th1-docs
   }
 
   fossil test-th-eval "hasfeature th1Hooks"
 
-  if {$::RESULT eq "1"} {
+  if {[normalize_result] eq "1"} {
     lappend result th1-hooks
   }
 
@@ -442,11 +457,11 @@ please set TEMP variable in environment, error: $error"
 # enabled at compile-time and is now enabled at runtime.
 proc is_tcl_usable_by_fossil {} {
   fossil test-th-eval "hasfeature tcl"
-  if {$::RESULT ne "1"} {return 0}
+  if {[normalize_result] ne "1"} {return 0}
   fossil test-th-eval "setting tcl"
-  if {$::RESULT eq "1"} {return 1}
+  if {[normalize_result] eq "1"} {return 1}
   fossil test-th-eval --open-config "setting tcl"
-  if {$::RESULT eq "1"} {return 1}
+  if {[normalize_result] eq "1"} {return 1}
   return [info exists ::env(TH1_ENABLE_TCL)]
 }
 
@@ -454,11 +469,11 @@ proc is_tcl_usable_by_fossil {} {
 # at compile-time and is now enabled at runtime.
 proc are_th1_hooks_usable_by_fossil {} {
   fossil test-th-eval "hasfeature th1Hooks"
-  if {$::RESULT ne "1"} {return 0}
+  if {[normalize_result] ne "1"} {return 0}
   fossil test-th-eval "setting th1-hooks"
-  if {$::RESULT eq "1"} {return 1}
+  if {[normalize_result] eq "1"} {return 1}
   fossil test-th-eval --open-config "setting th1-hooks"
-  if {$::RESULT eq "1"} {return 1}
+  if {[normalize_result] eq "1"} {return 1}
   return [info exists ::env(TH1_ENABLE_HOOKS)]
 }
 
@@ -562,10 +577,10 @@ proc getTemporaryPath {} {
   foreach name $names {
     set value [getEnvironmentVariable $name]
 
-    if {[string length $value] > 0} then {
+    if {[string length $value] > 0} {
       set value [file normalize $value]
 
-      if {[file exists $value] && [file isdirectory $value]} then {
+      if {[file exists $value] && [file isdirectory $value]} {
         return $value
       }
     }
@@ -577,7 +592,7 @@ proc getTemporaryPath {} {
   if {$::tcl_platform(platform) ne "windows"} {
     set value /tmp
 
-    if {[file exists $value] && [file isdirectory $value]} then {
+    if {[file exists $value] && [file isdirectory $value]} {
       return $value
     }
   }
@@ -733,6 +748,80 @@ proc random_changes {body blocksize count index prob} {
     append out \n$line
   }
   return [string range $out 1 end]
+}
+
+# This procedure executes the "fossil server" command.  The return value
+# is the new process identifier.  The varName argument refers to a variable
+# where the "stop argument" is to be stored.  This value must eventually be
+# passed to the [test_stop_server] procedure.
+proc test_start_server { repository {varName ""} } {
+  global fossilexe
+  set command [list exec $fossilexe server]
+  if {[string length $varName] > 0} {
+    upvar 1 $varName stopArg
+  }
+  if {$::tcl_platform(platform) eq "windows"} {
+    set stopArg [file join [getTemporaryPath] [appendArgs \
+        [string trim [clock seconds] -] _ [getSeqNo] .stopper]]
+    lappend command --stopper $stopArg
+  }
+  lappend command $repository &
+  set pid [eval $command]
+  if {$::tcl_platform(platform) ne "windows"} {
+    set stopArg $pid
+  }
+  return $pid
+}
+
+# This procedure stops a Fossil server instance that was previously started
+# by the [test_start_server] procedure.  The value of the "stop argument"
+# will vary by platform as will the exact method used to stop the server.
+proc test_stop_server { stopArg pid } {
+  if {$::tcl_platform(platform) eq "windows"} {
+    #
+    # NOTE: On Windows, the "stop argument" must be the name of a file
+    #       that does NOT already exist.
+    #
+    if {![file exists $stopArg] && \
+        [catch {write_file $stopArg [clock seconds]}] == 0} then {
+      while {1} {
+        if {[catch {
+          #
+          # NOTE: Using the TaskList utility requires Windows XP or
+          #       later.
+          #
+          exec tasklist.exe /FI "PID eq $pid"
+        } result] != 0 || ![regexp -- " $pid " $result]} then {
+          break
+        }
+        after 1000; # wait a bit...
+      }
+      file delete $stopArg
+      return true
+    }
+  } else {
+    #
+    # NOTE: On Unix, the "stop argument" must be an integer identifier
+    #       that refers to an existing process.
+    #
+    if {[regexp {^(?:-)?\d+$} $stopArg] && \
+        [catch {exec kill -TERM $stopArg}] == 0} then {
+      while {1} {
+        if {[catch {
+          #
+          # TODO: Is this portable to all the supported variants of
+          #       Unix?  It should be, it's POSIX.
+          #
+          exec ps -p $pid
+        } result] != 0 || ![regexp -- "(?:^$pid| $pid) " $result]} then {
+          break
+        }
+        after 1000; # wait a bit...
+      }
+      return true
+    }
+  }
+  return false
 }
 
 # Executes the "fossil http" command.  The entire content of the HTTP request
