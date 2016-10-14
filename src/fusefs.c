@@ -209,7 +209,8 @@ static int fusefs_readdir(
   manifest_file_rewind(fusefs.pMan);
   if( n==2 ){
     while( (pFile = manifest_file_next(fusefs.pMan, 0))!=0 ){
-      if( nPrev>0 && strncmp(pFile->zName, zPrev, nPrev)==0 ) continue;
+      if( nPrev>0 && strncmp(pFile->zName, zPrev, nPrev)==0
+                  && pFile->zName[nPrev]=='/' ) continue;
       zPrev = pFile->zName;
       for(nPrev=0; zPrev[nPrev] && zPrev[nPrev]!='/'; nPrev++){}
       z = mprintf("%.*s", nPrev, zPrev);

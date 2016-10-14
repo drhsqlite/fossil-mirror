@@ -1,5 +1,5 @@
-C Change\swebui.wiki\sto\sremove\sthe\sexception\sabout\sthe\sdownload\spage,\swhich\sis\nno\slonger\sthe\scase.
-D 2016-10-13T14:52:16.587
+C Show\sall\sfiles\sin\sfusefs\sdirectory\slistings.\s\sPreviously,\sif\sone\sfile's\sname\sis\sa\sprefix\sof\sanother\sfile's\sname\sin\sthe\ssame\sdirectory,\sthe\sfile\swith\sthe\slonger\sname\swould\snot\sbe\sincluded\sin\sdirectory\slistings.
+D 2016-10-14T20:32:06.755
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -415,7 +415,7 @@ F src/file.c 5ef86daddcc6fe2e56b27faf814b6266bf6c317f
 F src/finfo.c 3fc6e9e4114477c9a7e29c1bbaa17a5930c2d1b3
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
 F src/fshell.c 00dbabd3e544bb99c21e41a6750187d3d4b416ed
-F src/fusefs.c 6369690cc543c1b3fe154776933f018f3c91518b
+F src/fusefs.c caad4dfe1b3b91e7a163996fe0953902762d9a8c
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 1e8070d743acae021523e423418c4c13d81b5a0f
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
@@ -768,7 +768,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 78fcfd46ad765ac8540e654bc1176080e905c36d
-R 106c8fab1a62238f9cb7fc1d1f3e71be
-U drh
-Z 9f1a3909928e99f76494fdf525f43116
+P 47beb495c4c15c2fb1e55627f1d693e26fd104d9
+U andygoth
+Z 89f57f90ee62c209072b9e0ecc8e0e61
