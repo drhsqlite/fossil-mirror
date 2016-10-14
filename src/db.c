@@ -2619,6 +2619,7 @@ const Setting aSetting[] = {
   { "relative-paths",   0,              0, 0, 0, "on"                  },
   { "repo-cksum",       0,              0, 0, 0, "on"                  },
   { "self-register",    0,              0, 0, 0, "off"                 },
+  { "register-group",   0,              0, 0, 0, "off"                 },
   { "ssh-command",      0,             40, 0, 0, ""                    },
   { "ssl-ca-location",  0,             40, 0, 0, ""                    },
   { "ssl-identity",     0,             40, 0, 0, ""                    },
@@ -2858,6 +2859,9 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **                     This is useful if you want to see other names than
 **                     "Anonymous" in e.g. ticketing system. On the other hand
 **                     users can not be deleted. Default: off.
+**
+**    register-group   Apply the self-registration also to the login group if
+**                     the repository is in a login group.
 **
 **    ssh-command      Command used to talk to a remote machine with
 **                     the "ssh://" protocol.

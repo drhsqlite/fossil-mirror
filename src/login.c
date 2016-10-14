@@ -1394,19 +1394,36 @@ void register_page(void){
         @ </span></p>
       }else{
         char *zPw = sha1_shared_secret(blob_str(&passwd), blob_str(&login), 0);
+        char *zErr = 0;
         int uid;
         db_multi_exec(
             "INSERT INTO user(login,pw,cap,info,mtime)"
             "VALUES(%B,%Q,%B,%B,strftime('%%s','now'))",
             &login, zPw, &caps, &contact
             );
+        admin_log( "Registered user [%q] with capabilities [%q].",
+                   blob_str(&login), blob_str(&caps) );
+        if( login_group_name() && db_get_boolean("register-group", 0) ){
+          login_group_apply(0, blob_str(&login), blob_str(&passwd), 
+                            blob_str(&contact), blob_str(&caps), &zErr);
+          admin_log( "Registered user [%q] in all login groups "
+                     "with capabilities [%q].",
+                     blob_str(&login), blob_str(&caps) );
+        }
         free(zPw);
 
+        if( zErr ){
+          style_header("User Register Error");
+          admin_log( "Error registering user '%q': %s'.", login, zErr );
+          @ <p><span class="loginError">%s(zErr)</span></p>
+          style_footer();
+          fossil_free(zErr);
+          return;
+        }
         /* The user is registered, now just log him in. */
         uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zUsername);
         login_set_user_cookie( zUsername, uid, NULL );
         redirect_to_g();
-
       }
     }
   }
@@ -1697,4 +1714,45 @@ void login_group_leave(char **pzErrMsg){
     " WHERE name GLOB 'peer-*'"
     "    OR name GLOB 'login-group-*';"
   );
+}
+
+/*
+** Apply user changes to the login group
+**
+** This routine will apply login information to repositories that are part
+** of a login group.  If there is an error, memory will be allocated and an
+** error string pointed to by pzErr which can be freed with fossil_free().
+**
+*/
+void login_group_apply(
+  const char *zOldLogin,     /* Old login name when changing login */
+  const char *zLogin,        /* Login name to create or change */
+  const char *zPw,           /* Password as shared secret */
+  const char *zInfo,         /* Contact information for login */
+  const char *zCap,          /* Capabilities to assign to login */
+  char **pzErr               /* Variable in which error will be returned */
+) {
+  Blob sql;
+  blob_zero(&sql);
+  if( zOldLogin==0 ){
+    blob_appendf(&sql,
+      "INSERT INTO user(login)"
+      "  SELECT %Q WHERE NOT EXISTS(SELECT 1 FROM user WHERE login=%Q);",
+      zLogin, zLogin
+    );
+    zOldLogin = zLogin;
+  }
+  blob_appendf(&sql,
+    "UPDATE user SET login=%Q,"
+    "  pw=coalesce(shared_secret(%Q,%Q,"
+            "(SELECT value FROM config WHERE name='project-code')),pw),"
+    "  info=%Q,"
+    "  cap=%Q,"
+    "  mtime=now()"
+    " WHERE login=%Q;",
+    zLogin, zPw, zLogin, zInfo, zCap,
+    zOldLogin
+  );
+  login_group_sql(blob_str(&sql), "<li> ", " </li>\n", pzErr);
+  blob_reset(&sql);
 }

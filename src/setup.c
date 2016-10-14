@@ -459,30 +459,8 @@ void user_edit(void){
     admin_log( "Updated user [%q] with capabilities [%q].",
                zLogin, zCap );
     if( atoi(PD("all","0"))>0 ){
-      Blob sql;
       char *zErr = 0;
-      blob_zero(&sql);
-      if( zOldLogin==0 ){
-        blob_appendf(&sql,
-          "INSERT INTO user(login)"
-          "  SELECT %Q WHERE NOT EXISTS(SELECT 1 FROM user WHERE login=%Q);",
-          zLogin, zLogin
-        );
-        zOldLogin = zLogin;
-      }
-      blob_appendf(&sql,
-        "UPDATE user SET login=%Q,"
-        "  pw=coalesce(shared_secret(%Q,%Q,"
-                "(SELECT value FROM config WHERE name='project-code')),pw),"
-        "  info=%Q,"
-        "  cap=%Q,"
-        "  mtime=now()"
-        " WHERE login=%Q;",
-        zLogin, P("pw"), zLogin, P("info"), zCap,
-        zOldLogin
-      );
-      login_group_sql(blob_str(&sql), "<li> ", " </li>\n", &zErr);
-      blob_reset(&sql);
+      login_group_apply(zOldLogin, zLogin, P("pw"), P("info"), zCap, &zErr);
       admin_log( "Updated user [%q] in all login groups "
                  "with capabilities [%q].",
                  zLogin, zCap );

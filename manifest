@@ -1,5 +1,5 @@
-C Change\swebui.wiki\sto\sremove\sthe\sexception\sabout\sthe\sdownload\spage,\swhich\sis\nno\slonger\sthe\scase.
-D 2016-10-13T14:52:16.587
+C Enhance\sthe\sfunctionality\sof\sthe\sLogin\sGroup\sfeature\sto\sallow\sadministrators\nto\senable\sLogin\sGroup\sself-registration.
+D 2016-10-14T06:15:57.737
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -399,7 +399,7 @@ F src/content.c a6024f0400307f4c25d067d323a6cbdf38b78c81
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c d1fbc4dbb43b8e3ed23164fd5e06649fe6813615
+F src/db.c 9aac5b33cd88c42254c8095eb9f3fc91c1833266
 F src/delta.c f3002e96cc35f37b9bab7c88f82e978e67342904
 F src/deltacmd.c 113edfe9d9c03a664dac78342fb30f8b18dd48b6
 F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
@@ -445,7 +445,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c 9c1a8a9a1d33f79191cb5a104067201a8cee6de1
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c 597ae479d42096c07d6e6f85f1d844ebb46089b3
+F src/login.c 5b386cb88b8acbd702e5b9b319e00d3bfa24a416
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
 F src/main.c 4882a728e162ae9a730418b380dbfb5167efdc13
 F src/main.mk 3e28c5a913d28200a0f31dbf89b4502476dd974e
@@ -479,7 +479,7 @@ F src/report.c 650149d0abc88d23c8571b64f3dfba23197bec2b
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c e5d6a82db484f0e004a51278744ed0092f503923
-F src/setup.c ea2dd3e6ea0d0fe41ae4f16d362c9f8812955f96
+F src/setup.c d74d7d9f70f37d298c7c186f1d50c7438a242922
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
 F src/shell.c b80396d2fadce4681397707e30078bf416e1dec2
 F src/shun.c 7d0a7eeffdf515b2d78919408fe42e7142a9b532
@@ -768,7 +768,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 78fcfd46ad765ac8540e654bc1176080e905c36d
-R 106c8fab1a62238f9cb7fc1d1f3e71be
-U drh
-Z 9f1a3909928e99f76494fdf525f43116
+P 47beb495c4c15c2fb1e55627f1d693e26fd104d9
+R 9168db5aacf3a3f2cb8b6513999ae710
+T *branch * login-group-enhancements
+T *sym-login-group-enhancements *
+T -sym-trunk *
+U andybradford
+Z 36366f7f1657df5ad8a50cdd0ab2a96f
