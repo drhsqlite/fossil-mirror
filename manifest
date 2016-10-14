@@ -1,5 +1,5 @@
-C Update\stest_start_server\sprocedure\sto\sreturn\sthe\sport\sas\swell\sbecause\sfossil\nserver\sdynamically\sallocates\sa\sport.
-D 2016-10-14T19:04:53.053
+C Adjustments\sto\sthe\s'test_start_server'\sFossil\stest\ssuite\sprocedure\sto\smake\sit\swork\sbetter\son\sWindows.
+D 2016-10-14T19:35:15.524
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -562,7 +562,7 @@ F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 9ead8cede3906559325b19560124bd30396f7c0e
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 49b466a52a83118e27478313912f2c0498b7fd1a
+F test/tester.tcl 3a065aec45a959fafcece89de3c42c83a9c44152
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test cfb7fba72a60cfb5e3a8112d042b9c149d6bfa4b
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -768,7 +768,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4a0c94838a1d532dfecf86df3534449da713df91
-R 1f5489637ae1f9ac6ed2c04b99950d40
-U andybradford
-Z cd3d4fb5ac89afb21afa49c23e4eab2b
+P b66d5bca70d9052c06c50607a49e81b7d2653f33
+R 82caffc5ab2bdae029e664abec0a5202
+U mistachkin
+Z 9a34ea60d13821ef3e3ea8f79c05c3a7

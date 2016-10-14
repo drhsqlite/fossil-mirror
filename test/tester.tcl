@@ -756,7 +756,7 @@ proc random_changes {body blocksize count index prob} {
 # where the "stop argument" is to be stored.  This value must eventually be
 # passed to the [test_stop_server] procedure.
 proc test_start_server { repository {varName ""} } {
-  global fossilexe tempHomePath
+  global fossilexe tempPath
   set command [list exec $fossilexe server]
   if {[string length $varName] > 0} {
     upvar 1 $varName stopArg
@@ -766,18 +766,21 @@ proc test_start_server { repository {varName ""} } {
         [string trim [clock seconds] -] _ [getSeqNo] .stopper]]
     lappend command --stopper $stopArg
   }
-  set tmpFile [file join $tempHomePath [appendArgs \
-      uvtest_ [string trim [clock seconds] -] _ [getSeqNo]]].out
-  lappend command $repository >&$tmpFile &
+  set outFileName [file join $tempPath [appendArgs \
+      fossil_server_ [string trim [clock seconds] -] _ \
+      [getSeqNo]]].out
+  lappend command $repository >&$outFileName &
   set pid [eval $command]
   if {$::tcl_platform(platform) ne "windows"} {
     set stopArg $pid
   }
   after 1000; # output might not be there yet
-  set output [read_file $tmpFile]
-  catch {file delete $tmpFile}
-  set port 8080; # return the default port just in case
-  regexp {Listening.*TCP port (\d+)} $output m port
+  set output [read_file $outFileName]
+  catch {file delete $outFileName}
+  if {![regexp {Listening.*TCP port (\d+)} $output dummy port]} {
+    puts stdout "Could not detect Fossil server port, using default..."
+    set port 8080; # return the default port just in case
+  }
   return [list $pid $port]
 }
 
