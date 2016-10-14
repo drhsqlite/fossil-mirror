@@ -751,11 +751,12 @@ proc random_changes {body blocksize count index prob} {
 }
 
 # This procedure executes the "fossil server" command.  The return value
-# is the new process identifier.  The varName argument refers to a variable
+# is a list comprised of the new process identifier and the port on which
+# the server started.  The varName argument refers to a variable
 # where the "stop argument" is to be stored.  This value must eventually be
 # passed to the [test_stop_server] procedure.
 proc test_start_server { repository {varName ""} } {
-  global fossilexe
+  global fossilexe tempPath
   set command [list exec $fossilexe server]
   if {[string length $varName] > 0} {
     upvar 1 $varName stopArg
@@ -765,12 +766,22 @@ proc test_start_server { repository {varName ""} } {
         [string trim [clock seconds] -] _ [getSeqNo] .stopper]]
     lappend command --stopper $stopArg
   }
-  lappend command $repository &
+  set outFileName [file join $tempPath [appendArgs \
+      fossil_server_ [string trim [clock seconds] -] _ \
+      [getSeqNo]]].out
+  lappend command $repository >&$outFileName &
   set pid [eval $command]
   if {$::tcl_platform(platform) ne "windows"} {
     set stopArg $pid
   }
-  return $pid
+  after 1000; # output might not be there yet
+  set output [read_file $outFileName]
+  catch {file delete $outFileName}
+  if {![regexp {Listening.*TCP port (\d+)} $output dummy port]} {
+    puts stdout "Could not detect Fossil server port, using default..."
+    set port 8080; # return the default port just in case
+  }
+  return [list $pid $port]
 }
 
 # This procedure stops a Fossil server instance that was previously started

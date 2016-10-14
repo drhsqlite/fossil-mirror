@@ -1,5 +1,5 @@
-C Show\sall\sfiles\sin\sfusefs\sdirectory\slistings.\s\sPreviously,\sif\sone\sfile's\sname\sis\sa\sprefix\sof\sanother\sfile's\sname\sin\sthe\ssame\sdirectory,\sthe\sfile\swith\sthe\slonger\sname\swould\snot\sbe\sincluded\sin\sdirectory\slistings.
-D 2016-10-14T20:32:06.755
+C Merge\sfork
+D 2016-10-14T20:34:07.450
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -486,8 +486,8 @@ F src/shun.c 7d0a7eeffdf515b2d78919408fe42e7142a9b532
 F src/sitemap.c b7c376b21d29322741c804e1f762b34aedb98ad1
 F src/skins.c 524384aafbe9e7707d3b87f42ee72fa63fe91796
 F src/sqlcmd.c a7dce974ba7afde541ed58df98bebce335ed75a5
-F src/sqlite3.c 1e03ca67ea0997e8dc7eac21d286af470f345fae
-F src/sqlite3.h bb99350c5fec95e7de0af85569b5cc4cc5c9d4c6
+F src/sqlite3.c fba106f8f6493c66eeed08a2dfff0907de54ae76
+F src/sqlite3.h 38a99d065c4e78a0eef545d92f2e5d495bb9be7a
 F src/stash.c eb408a325de80dd58d40903c12e2663f04158317
 F src/stat.c 8e2c652ba1deb14c61a7286028dd03f342244734
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
@@ -562,7 +562,7 @@ F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 9ead8cede3906559325b19560124bd30396f7c0e
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl e0b8b4257b07b4ad02db39b8da00c5396f12fbc1
+F test/tester.tcl 3a065aec45a959fafcece89de3c42c83a9c44152
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test cfb7fba72a60cfb5e3a8112d042b9c149d6bfa4b
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -579,7 +579,7 @@ F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
 F test/th1.test c140bb961dafa7031c9a088d175793c3235802d3
-F test/unversioned.test e65829d234c39bac432e963a2bdf4f276a169b28
+F test/unversioned.test 24c79ab577ee460df64ed96d0c07cafd2314f260
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test e2489218e27ea0c643185707e2a4fd33db59f13b
@@ -768,6 +768,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 47beb495c4c15c2fb1e55627f1d693e26fd104d9
+P f8f5a8159ee934f10a85c9629d5a102bd54f23f9 a88ca0d7dd4172265cf70abded82a6698b5e0e65
 U andygoth
-Z 89f57f90ee62c209072b9e0ecc8e0e61
+Z 32a56f2a19da870d56183576159cc181
