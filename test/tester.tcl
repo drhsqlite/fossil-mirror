@@ -757,7 +757,7 @@ proc random_changes {body blocksize count index prob} {
 # passed to the [test_stop_server] procedure.
 proc test_start_server { repository {varName ""} } {
   global fossilexe tempPath
-  set command [list exec $fossilexe server]
+  set command [list exec $fossilexe server --localhost]
   if {[string length $varName] > 0} {
     upvar 1 $varName stopArg
   }

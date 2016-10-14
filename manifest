@@ -1,5 +1,5 @@
-C Merge\sfork
-D 2016-10-14T20:34:07.450
+C Add\sthe\s--localhost\sargument\sto\sthe\sfossil\sserver\scommand\sinvoked\sby\stest_start_server\sin\stest/tester.tcl.\sThis\schange\scauses\sthe\sserver\sto\sonly\sbind\sto\slocalhost:8080,\swhich\sdoes\snot\strigger\sthe\sWindows\sFirewall\sto\spanic\sabout\sa\sprogram\sattempting\sto\scommunicate\swith\sthe\sworld.\sTested\son\sa\s64-bit\sbinary\sbuilt\sfrom\sVS2010,\sand\sa\s32-bit\sbinaray\sbuild\sfrom\sMinGW\sGCC\s4.2.7,\sboth\sunder\sWindows\s10\sPro.\sI\sexpect\sthe\sflag\sworks\sand\sis\sharmless\son\sother\splatforms.
+D 2016-10-14T22:49:03.353
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -562,7 +562,7 @@ F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 9ead8cede3906559325b19560124bd30396f7c0e
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 3a065aec45a959fafcece89de3c42c83a9c44152
+F test/tester.tcl 4f61582242ae26d2335ddef40f67c0c51f3f421c
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test cfb7fba72a60cfb5e3a8112d042b9c149d6bfa4b
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -768,6 +768,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f8f5a8159ee934f10a85c9629d5a102bd54f23f9 a88ca0d7dd4172265cf70abded82a6698b5e0e65
-U andygoth
-Z 32a56f2a19da870d56183576159cc181
+P 3a35ac58bbcd3f611e1b5740b99c6cbeae1713b3
+R 9a5612c735be80f0a161e7661ee31a72
+U rberteig
+Z 01ebd649edc97d95880ed9ee6be4ab38
