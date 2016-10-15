@@ -795,7 +795,7 @@ proc test_stop_server { stopArg pid fileName } {
     #
     if {[string length $stopArg] > 0 && \
         ![file exists $stopArg] && \
-        [catch {write_file $stopArg [clock seconds]}] == 0} then {
+        [catch {write_file $stopArg [clock seconds]}] == 0} {
       while {1} {
         if {[catch {
           #
@@ -803,13 +803,13 @@ proc test_stop_server { stopArg pid fileName } {
           #       later.
           #
           exec tasklist.exe /FI "PID eq $pid"
-        } result] != 0 || ![regexp -- " $pid " $result]} then {
+        } result] != 0 || ![regexp -- " $pid " $result]} {
           break
         }
         after 1000; # wait a bit...
       }
       file delete $stopArg
-      if {[string length $fileName] > 0} then {
+      if {[string length $fileName] > 0} {
         file delete $fileName
       }
       return true
@@ -820,7 +820,7 @@ proc test_stop_server { stopArg pid fileName } {
     #       that refers to an existing process.
     #
     if {[regexp {^(?:-)?\d+$} $stopArg] && \
-        [catch {exec kill -TERM $stopArg}] == 0} then {
+        [catch {exec kill -TERM $stopArg}] == 0} {
       while {1} {
         if {[catch {
           #
@@ -828,12 +828,12 @@ proc test_stop_server { stopArg pid fileName } {
           #       Unix?  It should be, it's POSIX.
           #
           exec ps -p $pid
-        } result] != 0 || ![regexp -- "(?:^$pid| $pid) " $result]} then {
+        } result] != 0 || ![regexp -- "(?:^$pid| $pid) " $result]} {
           break
         }
         after 1000; # wait a bit...
       }
-      if {[string length $fileName] > 0} then {
+      if {[string length $fileName] > 0} {
         file delete $fileName
       }
       return true
