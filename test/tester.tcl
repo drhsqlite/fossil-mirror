@@ -776,24 +776,25 @@ proc test_start_server { repository {varName ""} } {
   }
   after 1000; # output might not be there yet
   set output [read_file $outFileName]
-  catch {file delete $outFileName}
   if {![regexp {Listening.*TCP port (\d+)} $output dummy port]} {
     puts stdout "Could not detect Fossil server port, using default..."
     set port 8080; # return the default port just in case
   }
-  return [list $pid $port]
+  return [list $pid $port $outFileName]
 }
 
 # This procedure stops a Fossil server instance that was previously started
 # by the [test_start_server] procedure.  The value of the "stop argument"
 # will vary by platform as will the exact method used to stop the server.
-proc test_stop_server { stopArg pid } {
+# The fileName argument is the name of a temporary output file to delete.
+proc test_stop_server { stopArg pid fileName } {
   if {$::tcl_platform(platform) eq "windows"} {
     #
     # NOTE: On Windows, the "stop argument" must be the name of a file
     #       that does NOT already exist.
     #
-    if {![file exists $stopArg] && \
+    if {[string length $stopArg] > 0 && \
+        ![file exists $stopArg] && \
         [catch {write_file $stopArg [clock seconds]}] == 0} then {
       while {1} {
         if {[catch {
@@ -808,6 +809,9 @@ proc test_stop_server { stopArg pid } {
         after 1000; # wait a bit...
       }
       file delete $stopArg
+      if {[string length $fileName] > 0} then {
+        file delete $fileName
+      }
       return true
     }
   } else {
@@ -828,6 +832,9 @@ proc test_stop_server { stopArg pid } {
           break
         }
         after 1000; # wait a bit...
+      }
+      if {[string length $fileName] > 0} then {
+        file delete $fileName
       }
       return true
     }

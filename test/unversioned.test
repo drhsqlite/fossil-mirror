@@ -313,7 +313,7 @@ fossil user capabilities uvtester oy
 
 ###############################################################################
 
-foreach {pid port} [test_start_server $repository stopArg] {}
+foreach {pid port outTmpFile} [test_start_server $repository stopArg] {}
 puts [appendArgs "Started Fossil server, pid \"" $pid \" ", port \"" $port \".]
 set remote [appendArgs http://uvtester: $password @localhost: $port /]
 
@@ -429,7 +429,7 @@ puts [appendArgs "Now in server directory \"" [pwd] \".]
 
 ###############################################################################
 
-set stopped [test_stop_server $stopArg $pid]
+set stopped [test_stop_server $stopArg $pid $outTmpFile]
 
 puts [appendArgs \
     [expr {$stopped ? "Stopped" : "Could not stop"}] \
