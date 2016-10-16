@@ -29,11 +29,22 @@ require_no_open_checkout
 
 test_setup; set rootDir [file normalize [pwd]]
 
+fossil test-th-eval --open-config {repository}
+set repository [normalize_result]
+
+if {[string length $repository] == 0} {
+  puts "Detection of the open repository file failed."
+  test_cleanup_then_return
+}
+
 write_file unversioned1.txt "This is unversioned file #1."
 write_file unversioned2.txt " This is unversioned file #2. "
 write_file "unversioned space.txt" "\nThis is unversioned file #3.\n"
 write_file unversioned4.txt "This is unversioned file #4."
 write_file unversioned5.txt "This is unversioned file #5."
+
+set env(VISUAL) [appendArgs \
+    [info nameofexecutable] " " [file join $path fake-editor.tcl]]
 
 ###############################################################################
 
@@ -169,7 +180,7 @@ test unversioned-23 {[::sha1::sha1 $RESULT] eq \
 
 ###############################################################################
 
-fossil unversioned cat unversioned3.txt
+fossil unversioned cat unversioned3.txt -keepNewline
 test unversioned-24 {[::sha1::sha1 $RESULT] eq \
 {c6b95509120d9703cc4fbe5cdfcb435b5912b3e4}}
 
@@ -191,9 +202,6 @@ test unversioned-27 {$hash(before) eq \
 {b48ba8e2d0b498321dfd13de84867effda399af5}}
 
 ###############################################################################
-
-set env(VISUAL) [appendArgs \
-    [info nameofexecutable] " " [file join $path fake-editor.tcl]]
 
 fossil unversioned edit unversioned4.txt
 test unversioned-28 {[normalize_result] eq {}}
@@ -297,12 +305,153 @@ test unversioned-44 {[regexp \
 unversioned5\.txt$} [normalize_result]]}
 
 ###############################################################################
-#
-# TODO: Add tests for the unversioned "revert" and "sync" sub-commands.
-#
-#       revert --verbose --dryrun
-#       sync
-#
+
+set password [string trim [clock seconds] -]
+
+fossil user new uvtester "Unversioned Test User" $password
+fossil user capabilities uvtester oy
+
+###############################################################################
+
+foreach {pid port outTmpFile} [test_start_server $repository stopArg] {}
+puts [appendArgs "Started Fossil server, pid \"" $pid \" ", port \"" $port \".]
+set remote [appendArgs http://uvtester: $password @localhost: $port /]
+
+###############################################################################
+
+set clientDir [file join $tempPath [appendArgs \
+    uvtest_ [string trim [clock seconds] -] _ [getSeqNo]]]
+
+set savedPwd [pwd]
+file mkdir $clientDir; cd $clientDir
+puts [appendArgs "Now in client directory \"" [pwd] \".]
+write_file unversioned-client1.txt "This is unversioned client file #1."
+
+###############################################################################
+
+fossil_maybe_answer y clone $remote uvrepo.fossil
+fossil open uvrepo.fossil
+
+###############################################################################
+
+fossil unversioned list
+test unversioned-45 {[normalize_result] eq {}}
+
+###############################################################################
+
+fossil_maybe_answer y unversioned sync $remote
+test unversioned-46 {[regexp \
+{Round-trips: 1   Artifacts sent: 0  received: 0
+Round-trips: 1   Artifacts sent: 0  received: 0
+Round-trips: 2   Artifacts sent: 0  received: 0
+Round-trips: 2   Artifacts sent: 0  received: 2
+\n? done, sent: \d+  received: \d+  ip: 127.0.0.1} [normalize_result]]}
+
+###############################################################################
+
+fossil unversioned ls
+test unversioned-47 {[normalize_result] eq {unversioned2.txt
+unversioned5.txt}}
+
+###############################################################################
+
+set env(FAKE_EDITOR_SCRIPT) "append data this_is_a_test"; # deterministic
+
+fossil unversioned edit unversioned2.txt
+test unversioned-48 {[normalize_result] eq {}}
+
+unset env(FAKE_EDITOR_SCRIPT)
+
+###############################################################################
+
+fossil unversioned cat unversioned2.txt
+test unversioned-49 {[::sha1::sha1 $RESULT] eq \
+{e15d4b576fc04e3bb5e44a33d44d104dd5b19428}}
+
+###############################################################################
+
+fossil unversioned remove unversioned5.txt
+test unversioned-50 {[normalize_result] eq {}}
+
+###############################################################################
+
+fossil unversioned list --all
+test unversioned-51 {[regexp \
+{^[0-9a-f]{12} \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}       44       44\
+unversioned2\.txt
+   \(deleted\) \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}        0        0\
+unversioned5\.txt$} [normalize_result]]}
+
+###############################################################################
+
+fossil_maybe_answer y unversioned revert $remote
+test unversioned-52 {[regexp \
+{Round-trips: 1   Artifacts sent: 0  received: 0
+Round-trips: 1   Artifacts sent: 0  received: 0
+Round-trips: 2   Artifacts sent: 0  received: 0
+Round-trips: 2   Artifacts sent: 0  received: 2
+\n? done, sent: \d+  received: \d+  ip: 127.0.0.1} [normalize_result]]}
+
+###############################################################################
+
+fossil unversioned list
+test unversioned-53 {[regexp \
+{^[0-9a-f]{12} 2016-10-01 00:00:00       30       30\
+unversioned2\.txt
+[0-9a-f]{12} \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}       28       28\
+unversioned5\.txt$} [normalize_result]]}
+
+###############################################################################
+
+fossil unversioned add unversioned-client1.txt
+test unversioned-54 {[normalize_result] eq {}}
+
+###############################################################################
+
+fossil_maybe_answer y unversioned sync $remote
+test unversioned-55 {[regexp \
+{Round-trips: 1   Artifacts sent: 0  received: 0
+Round-trips: 1   Artifacts sent: 0  received: 0
+Round-trips: 2   Artifacts sent: 1  received: 0
+Round-trips: 2   Artifacts sent: 1  received: 0
+\n? done, sent: \d+  received: \d+  ip: 127.0.0.1} [normalize_result]]}
+
+###############################################################################
+
+fossil close
+test unversioned-56 {[normalize_result] eq {}}
+
+###############################################################################
+
+cd $savedPwd; unset savedPwd
+file delete -force $clientDir
+puts [appendArgs "Now in server directory \"" [pwd] \".]
+
+###############################################################################
+
+set stopped [test_stop_server $stopArg $pid $outTmpFile]
+
+puts [appendArgs \
+    [expr {$stopped ? "Stopped" : "Could not stop"}] \
+    " Fossil server, pid \"" $pid "\", using argument \"" \
+    $stopArg \".]
+
+###############################################################################
+
+fossil unversioned list
+test unversioned-57 {[regexp \
+{^[0-9a-f]{12} \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}       35       35\
+unversioned-client1\.txt
+[0-9a-f]{12} 2016-10-01 00:00:00       30       30 unversioned2\.txt
+[0-9a-f]{12} \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}       28       28\
+unversioned5\.txt$} [normalize_result]]}
+
+###############################################################################
+
+fossil unversioned cat unversioned-client1.txt
+test unversioned-58 {[::sha1::sha1 $RESULT] eq \
+{a34606f714afe309bb531fba6051eaf25201e8a2}}
+
 ###############################################################################
 
 test_cleanup

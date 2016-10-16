@@ -2289,19 +2289,18 @@ void db_lset_int(const char *zName, int value){
 */
 int db_get_manifest_setting(void){
   int flg;
-  char *zNVVal = db_get("manifest", "off");
-  char *zVal = db_get_versioned("manifest", zNVVal);
-  if( is_false(zVal) ){
+  char *zVal = db_get("manifest", 0);
+  if( zVal==0 || is_false(zVal) ){
     return 0;
-  }else if( is_truth(zVal) ) {
+  }else if( is_truth(zVal) ){
     return MFESTFLG_RAW|MFESTFLG_UUID;
   }
   flg = 0;
   while( *zVal ){
-   switch( *zVal ){
-     case 'r': flg |= MFESTFLG_RAW;  break;
-     case 'u': flg |= MFESTFLG_UUID; break;
-     case 't': flg |= MFESTFLG_TAGS; break;
+    switch( *zVal ){
+      case 'r': flg |= MFESTFLG_RAW;  break;
+      case 'u': flg |= MFESTFLG_UUID; break;
+      case 't': flg |= MFESTFLG_TAGS; break;
     }
     zVal++;
   }
@@ -2608,7 +2607,7 @@ const Setting aSetting[] = {
   { "keep-glob",        0,             40, 1, 0, ""                    },
   { "localauth",        0,              0, 0, 0, "off"                 },
   { "main-branch",      0,             40, 0, 0, "trunk"               },
-  { "manifest",         0,              5, 0, 0, "off"                 },
+  { "manifest",         0,              5, 1, 0, "off"                 },
   { "max-loadavg",      0,             25, 0, 0, "0.0"                 },
   { "max-upload",       0,             25, 0, 0, "250000"              },
   { "mtime-changes",    0,              0, 0, 0, "on"                  },
