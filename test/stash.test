@@ -311,7 +311,7 @@ stash-test 3-2-pop {pop} {
 } -changes {
   RENAMED    f2n
 } -addremove {
-} -exists {f1 f2n} -notexists {f2} -knownbugs {-changes}
+} -exists {f1 f2n} -notexists {f2}
 
 
 
