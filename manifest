@@ -1,5 +1,5 @@
-C Coding\sstyle,\sremoving\ssuperfluous\s'then'\sclauses\sfrom\stester.tcl.
-D 2016-10-15T05:02:10.738
+C Merge\sfixes\sin\sthis\sbranch\sto\strunk\sprior\sto\srelease.
+D 2016-10-16T01:21:34.391
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -488,7 +488,7 @@ F src/skins.c 524384aafbe9e7707d3b87f42ee72fa63fe91796
 F src/sqlcmd.c a7dce974ba7afde541ed58df98bebce335ed75a5
 F src/sqlite3.c fba106f8f6493c66eeed08a2dfff0907de54ae76
 F src/sqlite3.h 38a99d065c4e78a0eef545d92f2e5d495bb9be7a
-F src/stash.c eb408a325de80dd58d40903c12e2663f04158317
+F src/stash.c 69ef78c620ec39b8c51e3434787b30cc01f11118
 F src/stat.c 8e2c652ba1deb14c61a7286028dd03f342244734
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
 F src/style.c 88afceaf6b3bcda35acaf15281cb44d353a822a5
@@ -557,7 +557,7 @@ F test/revert.test f7798e8eab21bcf5550af8ac4ee6cb8d5f33cc78
 F test/set-manifest.test f389e51ce371794d5871e70adf66f81d59a9d654
 F test/settings-repo.test 7c2617c7deea7d245d927df5688d26365e3bca9b
 F test/settings.test 1877083a0fecb044a698e8ca60d7f9ff2b4f4450
-F test/stash.test 7308d81eca91aa889a41f947ce48025d07633ab9
+F test/stash.test 71d6f9149feb18e5c64639c4598991d79b8e165c
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 9ead8cede3906559325b19560124bd30396f7c0e
@@ -768,7 +768,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b0081d9786a665d4587a0ba5c01ef76d95c688ae
-R 925f162c9b8c0ae296419b576c8fec3c
-U mistachkin
-Z 37fd84b538dada360741c18e57384282
+P 4946b5b186cdd2f24a37bd5a8a273c7f9f8a7bbf 5634375d0bb84cd9bb98d8bde013601b970dde36
+R d1c5efd7f393ed69cd68bb80e7c21040
+T +closed 5634375d0bb84cd9bb98d8bde013601b970dde36
+U andybradford
+Z 75e447bda4974defa6fc73d816269700

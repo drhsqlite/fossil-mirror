@@ -187,11 +187,9 @@ stash-test 2 pop {
   ADDED      f0
   MISSING    f1
   EDITED     f2
-  MISSING    f3
+  RENAMED    f3n
 } -addremove {
-  ADDED  f3n
   DELETED  f1
-  DELETED  f3
 } -exists {f0 f2 f3n} -notexists {f1 f3}
 
 # Confirm there is no longer a stash saved
@@ -313,9 +311,7 @@ stash-test 3-2-pop {pop} {
 } -changes {
   RENAMED    f2n
 } -addremove {
-  ADDED  f2n
-  DELETED  f2
-} -exists {f1 f2n} -notexists {f2} -knownbugs {-changes}
+} -exists {f1 f2n} -notexists {f2}
 
 
 

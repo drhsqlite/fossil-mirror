@@ -41,7 +41,7 @@ static const char zStashInit[] =
 @   origname TEXT,                     -- Original filename
 @   newname TEXT,                      -- New name for file at next check-in
 @   delta BLOB,                        -- Delta from baseline. Content if rid=0
-@   PRIMARY KEY(origname, stashid)
+@   PRIMARY KEY(newname, stashid)
 @ );
 @ INSERT OR IGNORE INTO vvar(name, value) VALUES('stash-next', 1);
 ;
@@ -280,6 +280,11 @@ static void stash_apply(int stashid, int nConflict){
     if( fossil_strcmp(zOrig,zNew)!=0 ){
       undo_save(zOrig);
       file_delete(zOPath);
+      db_multi_exec(
+        "UPDATE vfile SET pathname='%q', origname='%q'"
+        " WHERE pathname='%q' %s AND vid=%d",
+        zNew, zOrig, zOrig, filename_collation(), vid
+      );
     }
   }
   stash_add_files_in_sfile(vid);
@@ -475,11 +480,26 @@ void stash_cmd(void){
   const char *zCmd;
   int nCmd;
   int stashid = 0;
+  int rc;
   undo_capture_command_line();
   db_must_be_within_tree();
   db_open_config(0, 0);
   db_begin_transaction();
   db_multi_exec(zStashInit /*works-like:""*/);
+  rc = db_exists("SELECT 1 FROM sqlite_master"
+                 " WHERE name='stashfile'"
+                 "   AND sql GLOB '* PRIMARY KEY(origname, stashid)*'");
+  if( rc!=0 ){
+    db_multi_exec(
+      "CREATE TABLE localdb.stashfile_tmp AS SELECT * FROM stashfile;"
+      "DROP TABLE stashfile;"
+    );
+    db_multi_exec(zStashInit /*works-like:""*/);
+    db_multi_exec(
+      "INSERT INTO stashfile SELECT * FROM stashfile_tmp;"
+      "DROP TABLE stashfile_tmp;"
+    );
+  }
   if( g.argc<=2 ){
     zCmd = "save";
   }else{
