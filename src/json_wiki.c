@@ -117,8 +117,25 @@ cson_value * json_get_wiki_page_by_rid(int rid, int contentFormat){
         Blob raw = empty_blob;
         zFormat = "html";
         if(zBody && *zBody){
+          const char *zMimetype;
           blob_append(&raw,zBody,-1);
-          wiki_convert(&raw,&content,0);
+          zMimetype = wiki_filter_mimetypes(pWiki->zMimetype);
+          if( fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0 ){
+            wiki_convert(&raw,&content,0);
+          }else if( fossil_strcmp(zMimetype, "text/x-markdown")==0 ){
+            markdown_to_html(&raw,0,&content);
+          }else if( fossil_strcmp(zMimetype, "text/plain")==0 ){
+            htmlize_to_blob(&content,blob_str(&raw),blob_size(&raw));
+          }else{
+            json_set_err( FSL_JSON_E_UNKNOWN,
+                          "Unsupported MIME type '%s' for wiki page '%s'.",
+                          zMimetype, pWiki->zWikiTitle );
+            blob_reset(&content);
+            blob_reset(&raw);
+            cson_free_object(pay);
+            manifest_destroy(pWiki);
+            return NULL;
+          }
           len = (unsigned int)blob_size(&content);
         }
         cson_object_set(pay,"size",json_new_int((cson_int_t)len));

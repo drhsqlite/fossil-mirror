@@ -1,5 +1,5 @@
-C Merge\sfixes\sin\sthis\sbranch\sto\strunk\sprior\sto\srelease.
-D 2016-10-16T01:21:34.391
+C Enhancements\sto\swiki\sMIME\stypes\ssupported\sfor\sthe\sJSON\sAPI.
+D 2016-10-18T08:22:52.338
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -440,7 +440,7 @@ F src/json_status.c 0a9f959d19f4b90c879ad50ef0cd376262d8247b
 F src/json_tag.c 2a9e6dac502055a795ef6ade37faa024d480015b
 F src/json_timeline.c 5a9ce59def16a55b7affbf834dd1e13d876efe76
 F src/json_user.c 66fc65a1647616819074eb8ae4534f0822b2fb55
-F src/json_wiki.c 6a3666cb1869fa3118b1cd23b354f94b5f726a8d
+F src/json_wiki.c 5928a25dc68772bcdb4a6fcaaa0862367a65e5b9
 F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c 9c1a8a9a1d33f79191cb5a104067201a8cee6de1
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
@@ -768,8 +768,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4946b5b186cdd2f24a37bd5a8a273c7f9f8a7bbf 5634375d0bb84cd9bb98d8bde013601b970dde36
-R d1c5efd7f393ed69cd68bb80e7c21040
-T +closed 5634375d0bb84cd9bb98d8bde013601b970dde36
-U andybradford
-Z 75e447bda4974defa6fc73d816269700
+P b2d51b1b226d2a5010877586cb2cde62eedec918
+R 0333bd4015d34caee6c7545797712163
+T *branch * jsonWikiMimeTypes
+T *sym-jsonWikiMimeTypes *
+T -sym-trunk *
+U mistachkin
+Z 5d22d214dc59264871cdda856d91aa4c
