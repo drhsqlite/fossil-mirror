@@ -1388,7 +1388,7 @@ void ticket_cmd(void){
       md5sum_blob(&tktchng, &cksum);
       blob_appendf(&tktchng, "Z %b\n", &cksum);
       if( ticket_put(&tktchng, zTktUuid, ticket_need_moderation(1)) ){
-        fossil_fatal("%s\n", g.zErrMsg);
+        fossil_fatal("%s", g.zErrMsg);
       }else{
         fossil_print("ticket %s succeeded for %s\n",
              (eCmd==set?"set":"add"),zTktUuid);

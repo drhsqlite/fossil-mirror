@@ -1770,10 +1770,10 @@ void import_cmd(void){
     if( markfile_in ){
       FILE *f = fossil_fopen(markfile_in, "r");
       if( !f ){
-        fossil_fatal("cannot open %s for reading\n", markfile_in);
+        fossil_fatal("cannot open %s for reading", markfile_in);
       }
       if(import_marks(f, &blobs, NULL)<0){
-        fossil_fatal("error importing marks from file: %s\n", markfile_in);
+        fossil_fatal("error importing marks from file: %s", markfile_in);
       }
       fclose(f);
     }
@@ -1807,7 +1807,7 @@ void import_cmd(void){
       db_finalize(&q_marks);
       f = fossil_fopen(markfile_out, "w");
       if( !f ){
-        fossil_fatal("cannot open %s for writing\n", markfile_out);
+        fossil_fatal("cannot open %s for writing", markfile_out);
       }
       export_marks(f, &blobs, &vers);
       fclose(f);

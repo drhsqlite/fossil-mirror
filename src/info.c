@@ -233,7 +233,7 @@ void info_cmd(void){
     int rid;
     rid = name_to_rid(g.argv[2]);
     if( rid==0 ){
-      fossil_fatal("no such object: %s\n", g.argv[2]);
+      fossil_fatal("no such object: %s", g.argv[2]);
     }
     show_common_info(rid, "uuid:", 1, 1);
   }

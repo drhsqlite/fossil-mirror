@@ -156,7 +156,7 @@ void branch_new(void){
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", brid);
   if( manifest_crosslink(brid, &branch, MC_PERMIT_HOOKS)==0 ){
-    fossil_fatal("%s\n", g.zErrMsg);
+    fossil_fatal("%s", g.zErrMsg);
   }
   assert( blob_is_reset(&branch) );
   content_deltify(rootid, brid, 0);

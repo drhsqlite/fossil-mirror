@@ -1,5 +1,5 @@
-C "stash\scat"\sworked\sthe\ssame\sas\s"stash\sdiff",\syet\s"stash\scat\s-tk"\sworked\sthe\ssame\sas\s"stash\sshow\s-tk".\s\sMake\s"stash\scat"\sbehave\slike\s"stash\sshow"\swhich\smatches\sthe\s-tk\scase\sand\salso\sthe\sdocumentation.\s\sAlso\sadd\smention\sof\sDIFF-OPTIONS\sto\sthe\sstash\sshow|cat|diff|gdiff\susage\stext.\s\sRemove\sunnecessary\svariable\sinitialization\sin\sstash_get_id(),\splus\sshow\sthe\sbad\sstash\sID\sstring\srather\sthan\s"0"\sif\sa\snon-numeric\swas\sused.
-D 2016-10-20T16:13:21.891
+C Remove\sextra\snewlines\sfrom\scalls\sto\sfossil_fatal()
+D 2016-10-20T16:48:05.063
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -380,14 +380,14 @@ F src/attach.c c27c749e6a1334200565b076979b96e366a99bb5
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c abd167c9f2c5398782ca6d48ea1ee612163a7685
 F src/blob.c 831a63c8c61dbfdb5fe629a473cd7b01104478fc
-F src/branch.c f23d02fee6314c726d95a2a82954d81632636723
+F src/branch.c fcbae077d4036130d9e713de6f8501190dd95d11
 F src/browse.c 8f0bb9b6e6e31df9875c081239745a33567c7c84
 F src/builtin.c b2dcfcade2054c083b03a18e3ab5026d51eb2dcb
 F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c 10310d276e72e3e34343e3385c0b39fac5cd826e
-F src/checkin.c e8f4ae3c5ae6475f084691a83385ca362f3422e3
+F src/checkin.c e6f34bebf337b4832c88051f1b50fb58fcf5e159
 F src/checkout.c 083ec4f2ccd7d9df27dbb94d90008088eb8c4340
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
@@ -401,7 +401,7 @@ F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c d1fbc4dbb43b8e3ed23164fd5e06649fe6813615
 F src/delta.c f3002e96cc35f37b9bab7c88f82e978e67342904
-F src/deltacmd.c 113edfe9d9c03a664dac78342fb30f8b18dd48b6
+F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
 F src/diff.c 92dfd18ed51cd16f04ed73e6768ad2e01c32e171
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
@@ -410,8 +410,8 @@ F src/dispatch.c 52878ab4a817bb0a58aebee1f71b8fdf301b458c
 F src/doc.c f46ada466f90f12ee7b5c6078808fdfc4dedb183
 F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
 F src/event.c 6909284d77a688d63cc67b7b0929b8dda5397742
-F src/export.c ab705fb1bdb609c49cab3aa686fd74b5cd8e83d4
-F src/file.c 5ef86daddcc6fe2e56b27faf814b6266bf6c317f
+F src/export.c 22d375733c9bb76ad90109fbab9ebed7cc06e0d2
+F src/file.c 71a65cc15cadaf2313dd2bb577d568ed7444ea2e
 F src/finfo.c 3fc6e9e4114477c9a7e29c1bbaa17a5930c2d1b3
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
 F src/fshell.c 00dbabd3e544bb99c21e41a6750187d3d4b416ed
@@ -423,11 +423,11 @@ F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c c38d7bff255b35cc7cfe13405b67c32878f9d838
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
-F src/import.c 060b06a4066a6f3bbedad39ffdb275b4e2153723
-F src/info.c a120fe39440d7994528d400c0adbcdb040f7b5ee
+F src/import.c cc5b8328ac8675fd59176508df2e56ffd40be6c1
+F src/info.c 7e61b79de46ef4ecce409b079434fa9ef942aac6
 F src/json.c dc2c7f146357683da2842cc84eb78a73221a80ba
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
-F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
+F src/json_branch.c efbde7b8364ef502a055d84b7b797f83e035f7c1
 F src/json_config.c 1bbf8fc1b98f951f94dedc1a191c138f110b7a5d
 F src/json_detail.h 76bc835feb671a5001d4a20bd3f0c8882f228382
 F src/json_diff.c 784180c67a6bb8547dcb9adc430678c8286ab3ff
@@ -458,7 +458,7 @@ F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
 F src/markdown_html.c b28c072314bc84e74b1147f7e465a20c77476ea9
 F src/md5.c dac99e954fb973805a127f36f9c51e0ab36ab39b
 F src/merge.c 3da95cdecb4812fbe7ee547b5fce430f3278a023
-F src/merge3.c 555743dac3e0365a3406c262cd27cf94bec351c3
+F src/merge3.c f72871c5bf1f420710fef15641c6dce42586d929
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
 F src/mkindex.c 29be5509c87df441a830bc94e166a2c58f340cd9
@@ -498,10 +498,10 @@ F src/tar.c 8cfe3f2ef83784ed5644b3a9c4cd4d85f1096a38
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
-F src/th_main.c f8fb088200fb4cc98f5268dfe3cca7ed56ef90a9
+F src/th_main.c d911ec294372e6efb2321dfbd04bccee93947057
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
 F src/timeline.c ec39eb94bacfdfe4b522b5b88fdc914b61316be7
-F src/tkt.c 0d7059f823642ea6c26c07081ee94b6cbb663408
+F src/tkt.c ec9811071d0f654ec6ea381d634af33ff165dc92
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c d3cca342dd73eaec65e352d978e8f7a9e75a5ddd
@@ -513,7 +513,7 @@ F src/user.c e2c08deb9a3ce011d3db10f70216a7988485e29a
 F src/utf8.c bdabea0d93a24eacd31f0f0600edda8af3ce2e19
 F src/util.c 08c5fc011a30bc2de134f0a405143a5f3a4e31a0
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
-F src/vfile.c 99f026d07410e1b70b2facb844e341632aa16be1
+F src/vfile.c c07d515af78f82e4d8d3f8c781111d1f504fe336
 F src/wiki.c 8d56403100ca58020feeb4a76d2b7f08e861049e
 F src/wikiformat.c 1d750982147d9c51fa40e89e40241a33408adaf6
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
@@ -768,6 +768,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ce8937facc63cdfe8e9f969398a6c61e19acef29
+P 48ecfe6645a86d154db78b787879a30ecd3ad1ed
 U andygoth
-Z 659e2cedf99071d050c6a83a07d62e6d
+Z aec4c200b80685df997920e20e053418

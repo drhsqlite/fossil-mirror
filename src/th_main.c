@@ -2595,7 +2595,7 @@ void test_th_hook(void){
   }else if( fossil_stricmp(g.argv[2], "webnotify")==0 ){
     rc = Th_WebpageNotify(g.argv[3], (unsigned int)atoi(g.argv[4]));
   }else{
-    fossil_fatal("Unknown TH1 hook %s\n", g.argv[2]);
+    fossil_fatal("Unknown TH1 hook %s", g.argv[2]);
   }
   if( g.interp ){
     zResult = (char*)Th_GetResult(g.interp, &nResult);

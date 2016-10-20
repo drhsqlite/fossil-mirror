@@ -865,7 +865,7 @@ void file_getcwd(char *zBuf, int nBuf){
 #else
   if( getcwd(zBuf, nBuf-1)==0 ){
     if( errno==ERANGE ){
-      fossil_fatal("pwd too big: max %d\n", nBuf-1);
+      fossil_fatal("pwd too big: max %d", nBuf-1);
     }else{
       fossil_fatal("cannot find current working directory; %s",
                    strerror(errno));

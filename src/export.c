@@ -365,7 +365,7 @@ void export_cmd(void){
       fossil_fatal("cannot open %s for reading", markfile_in);
     }
     if(import_marks(f, &blobs, &vers)<0){
-      fossil_fatal("error importing marks from file: %s\n", markfile_in);
+      fossil_fatal("error importing marks from file: %s", markfile_in);
     }
     db_prepare(&qb, "INSERT OR IGNORE INTO oldblob VALUES (:rid)");
     db_prepare(&qc, "INSERT OR IGNORE INTO oldcommit VALUES (:rid)");
