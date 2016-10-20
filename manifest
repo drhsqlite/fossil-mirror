@@ -1,5 +1,5 @@
-C Revert\sunintended\schange\sto\sstash\susage\ssummary
-D 2016-10-20T16:53:31.363
+C Add\stext\sfor\sthe\s'--ssl-identity'\sglobal\soption\sto\sthe\s'Environment\sVariables\sand\sGlobal\sOptions'\spage.
+D 2016-10-20T17:04:46.690
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -712,7 +712,7 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/encryptedrepos.wiki fef4315cc63e7b350678de7cc7d55a7f3a9de29a
-F www/env-opts.md fc94ac5398e20e7727ac27515be86270e61532f4
+F www/env-opts.md 1f4a230136c337741b1e481406755e6b3005f98a
 F www/event.wiki 395b955e611769fd9aedf3ab489530b89ad5f224
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 7d1363cc33701f1df53cf0f5479546adcde6d781
@@ -768,6 +768,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2c42b217e5c4f4044ed617562cb68ed1e0c4eb80
-U andygoth
-Z 4708ae1fc2cdaa93a136ed9af53a82b1
+P 63ac71e571ff05497259665996365e25258ea78f
+R fa5f7ea68f5f0d15883246f315d3baf9
+U mistachkin
+Z 168e63c98c15922d040ac0335e16ffd8
