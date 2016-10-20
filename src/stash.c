@@ -469,11 +469,11 @@ static int stash_get_id(const char *zStashId){
 **  fossil stash save ?-m|--comment COMMENT? ?FILES...?
 **  fossil stash snapshot ?-m|--comment COMMENT? ?FILES...?
 **  fossil stash list|ls ?-v|--verbose? ?-W|--width <num>?
-**  fossil stash show ?STASHID? ?DIFF-OPTIONS?
+**  fossil stash show|cat ?STASHID? ?DIFF-OPTIONS?
 **  fossil stash pop
 **  fossil stash apply|goto ?STASHID?
 **  fossil stash drop|rm ?STASHID? ?-a|--all?
-**  fossil stash diff|cat ?STASHID? ?DIFF-OPTIONS?
+**  fossil stash diff ?STASHID? ?DIFF-OPTIONS?
 **  fossil stash gdiff ?STASHID? ?DIFF-OPTIONS?
 */
 void stash_cmd(void){

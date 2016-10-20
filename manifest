@@ -1,5 +1,5 @@
-C Remove\sextra\snewlines\sfrom\scalls\sto\sfossil_fatal()
-D 2016-10-20T16:48:05.063
+C Revert\sunintended\schange\sto\sstash\susage\ssummary
+D 2016-10-20T16:53:31.363
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -488,7 +488,7 @@ F src/skins.c 524384aafbe9e7707d3b87f42ee72fa63fe91796
 F src/sqlcmd.c a7dce974ba7afde541ed58df98bebce335ed75a5
 F src/sqlite3.c fba106f8f6493c66eeed08a2dfff0907de54ae76
 F src/sqlite3.h 38a99d065c4e78a0eef545d92f2e5d495bb9be7a
-F src/stash.c 6b3a07e484c1fa54c9d05984b846a3a9dbf4289e
+F src/stash.c 99687142f3b88d25d5da94d29cd5dfa637a9e65d
 F src/stat.c 8e2c652ba1deb14c61a7286028dd03f342244734
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
 F src/style.c 88afceaf6b3bcda35acaf15281cb44d353a822a5
@@ -768,6 +768,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 48ecfe6645a86d154db78b787879a30ecd3ad1ed
+P 2c42b217e5c4f4044ed617562cb68ed1e0c4eb80
 U andygoth
-Z aec4c200b80685df997920e20e053418
+Z 4708ae1fc2cdaa93a136ed9af53a82b1
