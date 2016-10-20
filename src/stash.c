@@ -400,14 +400,14 @@ static void stash_drop(int stashid){
 ** throw an error if the stash is empty.
 */
 static int stash_get_id(const char *zStashId){
-  int stashid = 0;
+  int stashid;
   if( zStashId==0 ){
     stashid = db_int(0, "SELECT max(stashid) FROM stash");
     if( stashid==0 ) fossil_fatal("empty stash");
   }else{
     stashid = atoi(zStashId);
     if( !db_exists("SELECT 1 FROM stash WHERE stashid=%d", stashid) ){
-      fossil_fatal("no such stash: %d\n", stashid);
+      fossil_fatal("no such stash: %s", zStashId);
     }
   }
   return stashid;
@@ -434,7 +434,7 @@ static int stash_get_id(const char *zStashId){
 **     List all changes sets currently stashed.  Show information about
 **     individual files in each changeset if -v or --verbose is used.
 **
-**  fossil stash show|cat ?STASHID? ?DIFF-FLAGS?
+**  fossil stash show|cat ?STASHID? ?DIFF-OPTIONS?
 **
 **     Show the contents of a stash.
 **
@@ -469,11 +469,11 @@ static int stash_get_id(const char *zStashId){
 **  fossil stash save ?-m|--comment COMMENT? ?FILES...?
 **  fossil stash snapshot ?-m|--comment COMMENT? ?FILES...?
 **  fossil stash list|ls ?-v|--verbose? ?-W|--width <num>?
-**  fossil stash show|cat ?STASHID? ?DIFF-OPTIONS?
+**  fossil stash show ?STASHID? ?DIFF-OPTIONS?
 **  fossil stash pop
 **  fossil stash apply|goto ?STASHID?
 **  fossil stash drop|rm ?STASHID? ?-a|--all?
-**  fossil stash diff ?STASHID? ?DIFF-OPTIONS?
+**  fossil stash diff|cat ?STASHID? ?DIFF-OPTIONS?
 **  fossil stash gdiff ?STASHID? ?DIFF-OPTIONS?
 */
 void stash_cmd(void){
@@ -661,19 +661,12 @@ void stash_cmd(void){
     const char *zDiffCmd = 0;
     const char *zBinGlob = 0;
     int fIncludeBinary = 0;
+    int fBaseline = zCmd[0]=='s' || zCmd[0]=='c';
     u64 diffFlags;
 
     if( find_option("tk",0,0)!=0 ){
       db_close(0);
-        switch (zCmd[0]) {
-        case 's':
-        case 'c':
-          diff_tk("stash show", 3);
-          break;
-
-        default:
-          diff_tk("stash diff", 3);
-        }
+      diff_tk(fBaseline ? "stash show" : "stash diff", 3);
       return;
     }
     if( find_option("internal","i",0)==0 ){
@@ -681,13 +674,13 @@ void stash_cmd(void){
     }
     diffFlags = diff_options();
     if( find_option("verbose","v",0)!=0 ) diffFlags |= DIFF_VERBOSE;
-    if( g.argc>4 ) usage(mprintf("%s STASHID", zCmd));
+    if( g.argc>4 ) usage(mprintf("%s ?STASHID? ?DIFF-OPTIONS?", zCmd));
     if( zDiffCmd ){
       zBinGlob = diff_get_binary_glob();
       fIncludeBinary = diff_include_binary_files();
     }
     stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
-    stash_diff(stashid, zDiffCmd, zBinGlob, zCmd[0]=='s', fIncludeBinary,
+    stash_diff(stashid, zDiffCmd, zBinGlob, fBaseline, fIncludeBinary,
                diffFlags);
   }else
   if( memcmp(zCmd, "help", nCmd)==0 ){
