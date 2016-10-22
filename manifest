@@ -1,5 +1,5 @@
-C Add\sthe\s'test-prompt-user'\scommand.
-D 2016-10-22T08:26:41.319
+C Fix\stypo\son\sa\swiki\spage.
+D 2016-10-22T08:37:57.863
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -680,7 +680,7 @@ F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 0b9eb5c2d318425ca12b50bc3247aad2b4fc1088
 F www/changes.wiki e00d9e46c39863dc39ba5c1e4a49b6245aa8664d
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
-F www/checkin_names.wiki 115a0ecdac918232061bbc19124ea83e0a27d938
+F www/checkin_names.wiki 0e2b687be7fc8d4f4b2fcf590bfa290de479c43c
 F www/childprojects.wiki 26e08e37f9d96562486c7698697a356d77cdad8f
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
@@ -768,7 +768,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7c7597220a9f15b56f4cecb2dcbe63f28b583657
-R a0c8b1528b3433f0a0b9b5c7b109a97f
+P 8817b0ed6eb2a9583f79478dfdb7b3381e696cf4
+R de13be2ee999d41f7e07897aa8125ca1
 U mistachkin
-Z 59806745935fdf42b461c36229507ded
+Z 00002f90dd4b097f9a1d70ca4512aea3

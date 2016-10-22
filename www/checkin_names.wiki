@@ -160,7 +160,7 @@ In its default configuration, Fossil interprets and displays all dates
 in Universal Coordinated Time (UTC).  This tends to work the best for
 distributed projects where participants are scattered around the globe.
 But there is an option on the Admin/Timeline page of the web-interface to
-switch to local time.  The "<b>Z</b>" suffix on an timestamp check-in
+switch to local time.  The "<b>Z</b>" suffix on a timestamp check-in
 name is meaningless if Fossil is in the default mode of using UTC for
 everything, but if Fossil has been switched to local time mode, then the
 "<b>Z</b>" suffix means to interpret that particular timestamp using 
