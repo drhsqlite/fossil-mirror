@@ -557,6 +557,21 @@ void user_hash_passwords_cmd(void){
 }
 
 /*
+** COMMAND: test-prompt-user
+**
+** Usage: %fossil test-prompt-user PROMPT
+**
+** Prompts the user for input and then prints it verbatim (i.e. without
+** a trailing line terminator).
+*/
+void test_prompt_user_cmd(void){
+  Blob answer;
+  if( g.argc!=3 ) usage("PROMPT");
+  prompt_user(g.argv[2], &answer);
+  fossil_print("%s", blob_str(&answer));
+}
+
+/*
 ** WEBPAGE: access_log
 **
 ** Show login attempts, including timestamp and IP address.
