@@ -548,6 +548,7 @@ static int ticket_put(
   int needMod              /* True if moderation is needed */
 ){
   int result;
+  manifest_crosslink_begin();
   int rid = content_put_ex(pTicket, 0, 0, 0, needMod);
   if( rid==0 ){
     fossil_fatal("trouble committing ticket: %s", g.zErrMsg);
@@ -562,7 +563,6 @@ static int ticket_put(
     db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d);", rid);
     db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", rid);
   }
-  manifest_crosslink_begin();
   result = (manifest_crosslink(rid, pTicket, MC_NONE)==0);
   assert( blob_is_reset(pTicket) );
   if( !result ){
