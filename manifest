@@ -1,5 +1,5 @@
-C Minor\senhancement\sto\s'mkversion'.
-D 2016-10-23T01:28:14.839
+C Enhance\s'brlist'\spage\sto\smake\suse\sof\sbranch\scolors.
+D 2016-10-23T01:42:11.554
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -380,7 +380,7 @@ F src/attach.c c27c749e6a1334200565b076979b96e366a99bb5
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c abd167c9f2c5398782ca6d48ea1ee612163a7685
 F src/blob.c 831a63c8c61dbfdb5fe629a473cd7b01104478fc
-F src/branch.c fcbae077d4036130d9e713de6f8501190dd95d11
+F src/branch.c 3ecc567ae817d5aae14a1a37137aaf5e6ade1cb9
 F src/browse.c 8f0bb9b6e6e31df9875c081239745a33567c7c84
 F src/builtin.c b2dcfcade2054c083b03a18e3ab5026d51eb2dcb
 F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
@@ -768,7 +768,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1b6635a47fd8a1adbb9448f03b442f9bf5dc7faf
-R 624d7bf95309bed554b6576a6a698818
+P f59f4e1f6e9d1614d143fce07635d59edf0c0602 4bd2b54592a08fe023f35ba77e3cdcb81f2f2882
+R 281a75d5c256448ec46862468e13426c
+T *branch * experimental
+T *sym-experimental *
+T -sym-trunk *
 U mistachkin
-Z 0e3f14157d6268f614840e860f09c6d5
+Z bf32074b6c73dc40a8165c7101b056f9
