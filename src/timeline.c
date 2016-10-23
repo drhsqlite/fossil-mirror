@@ -1231,7 +1231,18 @@ typedef enum {
 } MatchStyle;
 
 /*
-** Construct the tag match expression.
+** Construct the tag match SQL expression.
+**
+** This function is adapted from glob_expr() to support the MS_EXACT, MS_LIKE,
+** MS_GLOB, and MS_REGEXP match styles.  For MS_EXACT, the returned expression
+** checks for integer match against the tag ID which is looked up directly by
+** this function.  For the other modes, the returned SQL expression performs
+** string comparisons against the tag names, so it is necessary to join against
+** the tag table to access the "tagname" column.
+** 
+** Each pattern is adjusted to to start with "sym-" and be anchored at end.
+** 
+** In MS_REGEXP mode, backslash can be used to protect delimiter characters.
 */
 static const char *tagMatchExpression(
   MatchStyle matchStyle,  /* Match style code */
@@ -1265,10 +1276,6 @@ static const char *tagMatchExpression(
     zPre = "REGEXP '^sym-";
     zSuf = "$'";
   }
-
-  /* The following code is glob_expr() modified to support LIKE and REGEXP, plus
-   * adjust each pattern to start with "sym-" and be anchored at end.  In REGEXP
-   * mode, it allows backslash to protect delimiter characters. */
 
   /* Convert the list of matches into an SQL expression. */
   *pCount = 0;

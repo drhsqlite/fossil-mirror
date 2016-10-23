@@ -1,5 +1,5 @@
-C Add\sms=EXACT|LIKE|GLOB|REGEXP\stimeline\squery\sparameter\swhich\schanges\sthe\sinterpretation\sof\sthe\st=\sand\sr=\squery\sparameters\sto\sexact\s(default),\sSQL\sLIKE,\sglob,\sor\sregular\sexpression\smatching.\s\sOther\sthan\sexact\smatching,\sthe\st=\sor\sr=\sparameter\svalue\sis\sinterpreted\sas\sa\swhitespace-\sor\scomma-delimited\slist\sof\smatch\spatterns,\swith\sthe\soption\sto\squote\sa\spattern\susing\ssingle\sor\sdouble\squotes\sin\scase\sit\scontains\scommas\sor\swhitespace.\s\sFor\sregular\sexpression\smatching\sonly,\sbackslash\scan\salso\sbe\sused\sto\sinhibit\sdelimiter\sinterpretation\sof\sthe\snext\scharacter.\s\sAt\sthis\spoint,\sthe\sonly\sway\sto\suse\sthis\sfeature\sis\sto\stype\sms=\sdirectly\sinto\sthe\sURL;\sthe\sUI\sstill\sneeds\sto\sbe\supdated.\s\sBe\saware\sfor\sLIKE\sinterpretation\sthat\s%\sneeds\sto\sbe\swritten\sas\s%25.
-D 2016-10-23T15:36:21.540
+C Improve\scomment
+D 2016-10-23T15:42:29.514
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -500,7 +500,7 @@ F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c d911ec294372e6efb2321dfbd04bccee93947057
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
-F src/timeline.c 5a02c529381f2b4d54660b71a09b2fc240bcc58f
+F src/timeline.c 738e785f8b37108f07299ea927c9e0ed54443f6f
 F src/tkt.c 182347f890c4437c653644dfcc4fbeeece879379
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
@@ -768,9 +768,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f59f4e1f6e9d1614d143fce07635d59edf0c0602
-T *branch * andygoth-timeline-ms
-T *sym-andygoth-timeline-ms *
-T -sym-trunk *
+P be58684514f8c7dd1f1f076814d179fef2c94805
 U andygoth
-Z bd9765f131d08ae38336b7cb18431854
+Z 036108f6a9a6681b283a512e0ca65751
