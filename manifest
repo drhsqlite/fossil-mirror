@@ -1,5 +1,5 @@
-C Minor\stweaks\sto\sthe\sbreak_into_lines()\salgorithm.\s\sAdd\stests.
-D 2016-10-23T02:14:57.770
+C Fixes\sfor\sincremental\sGit\simport/export.
+D 2016-10-23T02:16:44.830
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -410,7 +410,7 @@ F src/dispatch.c 52878ab4a817bb0a58aebee1f71b8fdf301b458c
 F src/doc.c f46ada466f90f12ee7b5c6078808fdfc4dedb183
 F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
 F src/event.c 6909284d77a688d63cc67b7b0929b8dda5397742
-F src/export.c 22d375733c9bb76ad90109fbab9ebed7cc06e0d2
+F src/export.c e3f73d427eee82c9e6c1cb87650f927b4ebcd82d
 F src/file.c 71a65cc15cadaf2313dd2bb577d568ed7444ea2e
 F src/finfo.c 3fc6e9e4114477c9a7e29c1bbaa17a5930c2d1b3
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
@@ -423,7 +423,7 @@ F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c c38d7bff255b35cc7cfe13405b67c32878f9d838
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
-F src/import.c cc5b8328ac8675fd59176508df2e56ffd40be6c1
+F src/import.c c291d51b1b51aaa11a61f043957be7cc0350900e
 F src/info.c 7e61b79de46ef4ecce409b079434fa9ef942aac6
 F src/json.c dc2c7f146357683da2842cc84eb78a73221a80ba
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
@@ -735,7 +735,7 @@ F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki cb23ace3944512d8a033ccfc0efd035e5131aa26
-F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
+F www/inout.wiki 1e82974b59e2c97c082dfa6d4d5feda0c70d32ee
 F www/makefile.wiki 30c7129ffb00c58699b87e84a2c0b696d7c10406
 F www/mkdownload.tcl 5ac61a3e13cecaa67f1e31741113c96cbd41463f
 F www/mkindex.tcl 61400abbaa7290cd30ef9a49242c9d0d7f1a327e
@@ -769,7 +769,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 69352027bbd403fdef6162675ac6bad0cff6cd65 b47e4cc40168d0701010e918052ea5098527e1a3
-R 76940db9142131895e4e45a0f9555910
+P d3cc6d1d09bc473cb98d63eb8c1dc7af06cfce95 b2e0fda9e1fd7776495deb615c1965e32af51fff
+R 214d2d70c0300a6933a0eecc3002e6c0
 U mistachkin
-Z e33cc783ca60b748faee144aa39f8598
+Z dcca755542ff0e6d3925cedef08c5c47
