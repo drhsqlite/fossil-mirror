@@ -872,27 +872,109 @@ void db_add_aux_functions(sqlite3 *db){
                           db_fromlocal_function, 0, 0);
 }
 
+#if USE_SEE
+/*
+** This is a pointer to the saved database encryption key string.
+*/
+static char *zSavedKey = 0;
+
+/*
+** This is the size of the saved database encryption key, in bytes.
+*/
+size_t savedKeySize = 0;
+
+/*
+** This function returns the saved database encryption key -OR- zero if
+** no database encryption key is saved.
+*/
+static char *db_get_saved_encryption_key(){
+  return zSavedKey;
+}
+
+/*
+** This function arranges for the database encryption key to be securely
+** saved in non-pagable memory (on platforms where this is possible).
+*/
+static void db_save_encryption_key(
+  Blob *pKey
+){
+  void *p = NULL;
+  size_t n = 0;
+  size_t pageSize = 0;
+  size_t blobSize = 0;
+
+  blobSize = blob_size(pKey);
+  if( blobSize==0 ) return;
+  fossil_get_page_size(&pageSize);
+  assert( pageSize>0 );
+  if( blobSize>pageSize ){
+    fossil_fatal("key blob too large: %u versus %u", blobSize, pageSize);
+  }
+  p = fossil_secure_alloc_page(&n);
+  assert( p!=NULL );
+  assert( n==pageSize );
+  assert( n>=blobSize );
+  memcpy(p, blob_str(pKey), blobSize);
+  zSavedKey = p;
+  savedKeySize = n;
+}
+
+/*
+** This function arranges for the saved database encryption key to be
+** securely zeroed, unlocked (if necessary), and freed.
+*/
+void db_unsave_encryption_key(){
+  fossil_secure_free_page(zSavedKey, savedKeySize);
+  zSavedKey = NULL;
+  savedKeySize = 0;
+}
+
+/*
+** This function sets the saved database encryption key to the specified
+** string value, allocating or freeing the underlying memory if needed.
+*/
+void db_set_saved_encryption_key(
+  Blob *pKey
+){
+  if( zSavedKey!=NULL ){
+    size_t blobSize = blob_size(pKey);
+    if( blobSize==0 ){
+      db_unsave_encryption_key();
+    }else{
+      if( blobSize>savedKeySize ){
+        fossil_fatal("key blob too large: %u versus %u",
+                     blobSize, savedKeySize);
+      }
+      fossil_secure_zero(zSavedKey, savedKeySize);
+      memcpy(zSavedKey, blob_str(pKey), blobSize);
+    }
+  }else{
+    db_save_encryption_key(pKey);
+  }
+}
+#endif /* USE_SEE */
+
 /*
 ** If the database file zDbFile has a name that suggests that it is
-** encrypted, then prompt for the encryption key and return it in the
-** blob *pKey.  Or, if the encryption key has previously been requested,
-** just return a copy of the previous result.
+** encrypted, then prompt for the database encryption key and return it
+** in the blob *pKey.  Or, if the encryption key has previously been
+** requested, just return a copy of the previous result.  The blob in
+** *pKey must be initialized.
 */
-static void db_encryption_key(
+static void db_maybe_obtain_encryption_key(
   const char *zDbFile,   /* Name of the database file */
   Blob *pKey             /* Put the encryption key here */
 ){
-  blob_init(pKey, 0, 0);
 #if USE_SEE
   if( sqlite3_strglob("*.efossil", zDbFile)==0 ){
-    static char *zSavedKey = 0;
-    if( zSavedKey ){
-      blob_set(pKey, zSavedKey);
+    char *zKey = db_get_saved_encryption_key();
+    if( zKey ){
+      blob_set(pKey, zKey);
     }else{
       char *zPrompt = mprintf("\rencryption key for '%s': ", zDbFile);
       prompt_for_password(zPrompt, pKey, 0);
       fossil_free(zPrompt);
-      zSavedKey = fossil_strdup(blob_str(pKey));
+      db_set_saved_encryption_key(pKey);
     }
   }
 #endif
@@ -917,10 +999,12 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   if( rc!=SQLITE_OK ){
     db_err("[%s]: %s", zDbName, sqlite3_errmsg(db));
   }
-  db_encryption_key(zDbName, &key);
+  blob_init(&key, 0, 0);
+  db_maybe_obtain_encryption_key(zDbName, &key);
   if( blob_size(&key)>0 ){
     char *zCmd = sqlite3_mprintf("PRAGMA key(%Q)", blob_str(&key));
     sqlite3_exec(db, zCmd, 0, 0, 0);
+    fossil_secure_zero(zCmd, strlen(zCmd));
     sqlite3_free(zCmd);
   }
   blob_reset(&key);
@@ -957,10 +1041,15 @@ void db_detach(const char *zLabel){
 ** the name zLabel.
 */
 void db_attach(const char *zDbName, const char *zLabel){
+  char *zCmd;
   Blob key;
-  db_encryption_key(zDbName, &key);
-  db_multi_exec("ATTACH DATABASE %Q AS %Q KEY %Q",
-                zDbName, zLabel, blob_str(&key));
+  blob_init(&key, 0, 0);
+  db_maybe_obtain_encryption_key(zDbName, &key);
+  zCmd = sqlite3_mprintf("ATTACH DATABASE %Q AS %Q KEY %Q",
+                         zDbName, zLabel, blob_str(&key));
+  db_multi_exec(zCmd /*works-like:""*/);
+  fossil_secure_zero(zCmd, strlen(zCmd));
+  sqlite3_free(zCmd);
   blob_reset(&key);
 }
 
