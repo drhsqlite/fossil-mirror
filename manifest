@@ -1,5 +1,5 @@
-C Begin\sthe\stransaction\sblock\sbefore\sinserting\sany\scontent.
-D 2016-10-22T19:52:29.418
+C Minor\senhancement\sto\s'mkversion'.
+D 2016-10-23T01:28:14.839
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -462,7 +462,7 @@ F src/merge3.c f72871c5bf1f420710fef15641c6dce42586d929
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
 F src/mkindex.c 29be5509c87df441a830bc94e166a2c58f340cd9
-F src/mkversion.c 40ed302872cc5795c76efb3ab089fc1aedba18f1
+F src/mkversion.c d76e0e3c04966bb61a23ff7140fa37867c06bd50
 F src/moderate.c dc445cce064560577fb47311c2e23925b92c35d8
 F src/name.c fbef706317c7f8ebc9d043713c0fb2b17e434bcb
 F src/path.c cce5fdfa571861a81e1a48e893e5a52dd2703a5f
@@ -768,7 +768,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f65fe580e7c4847e67311461a15f73b5ea3d7acd
-R 2c9e4a815c587b5b68158702bc0a48ff
-U andybradford
-Z 407289832b58cb27b6a1867d78fbbe88
+P 1b6635a47fd8a1adbb9448f03b442f9bf5dc7faf
+R 624d7bf95309bed554b6576a6a698818
+U mistachkin
+Z 0e3f14157d6268f614840e860f09c6d5
