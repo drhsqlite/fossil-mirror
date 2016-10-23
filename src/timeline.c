@@ -1250,31 +1250,37 @@ static const char *tagMatchExpression(
   int *pCount             /* Pointer to match pattern count variable */
 ){
   Blob blob = BLOB_INITIALIZER;
-  const char *zSep = "(", *zPre, *zSuf;
+  const char *zStart, *zDelimiter, *zEnd, *zPrefix, *zSuffix;
   char cDel;
-  int i, dummy;
+  int i;
 
-  /* Protect against NULL count pointer. */
-  if( !pCount ){
-    pCount = &dummy;
-  }
-
-  /* Decide pattern prefix and suffix strings according to match style. */
+  /* Optimize exact matches by looking up the ID in advance to create a simple
+   * numeric comparison.  Bypass the remainder of this function. */
   if( matchStyle==MS_EXACT ){
-    /* Optimize exact matches by looking up the numeric ID in advance.  Bypass
-     * the remainder of this function. */
     *pCount = 1;
     return mprintf("(tagid=%d)", db_int(-1,
         "SELECT tagid FROM tag WHERE tagname='sym-%q'", zTag));
-  }else if( matchStyle==MS_LIKE ){
-    zPre = "LIKE 'sym-";
-    zSuf = "'";
+  }
+  
+  /* Decide pattern prefix and suffix strings according to match style. */
+  if( matchStyle==MS_LIKE ){
+    zStart = "(";
+    zDelimiter = " OR ";
+    zEnd = ")";
+    zPrefix = "tagname LIKE 'sym-";
+    zSuffix = "'";
   }else if( matchStyle==MS_GLOB ){
-    zPre = "GLOB 'sym-";
-    zSuf = "'";
+    zStart = "(";
+    zDelimiter = " OR ";
+    zEnd = ")";
+    zPrefix = "tagname GLOB 'sym-";
+    zSuffix = "'";
   }else/* if( matchStyle==MS_REGEXP )*/{
-    zPre = "REGEXP '^sym-";
-    zSuf = "$'";
+    zStart = "(tagname REGEXP '^sym-(";
+    zDelimiter = "|";
+    zEnd = ")$')";
+    zPrefix = "";
+    zSuffix = "";
   }
 
   /* Convert the list of matches into an SQL expression. */
@@ -1310,23 +1316,24 @@ static const char *tagMatchExpression(
       }
     }
 
-    /* Incorporate the match word into the final expression. */
-    blob_appendf(&blob, "%stagname %s%#q%s", zSep, zPre, i, zTag, zSuf);
+    /* Incorporate the match word into the output expression.  The %q format is
+     * used to protect against SQL injection attacks by replacing ' with ''. */
+    blob_appendf(&blob, "%s%s%#q%s", *pCount ? zDelimiter : zStart,
+        zPrefix, i, zTag, zSuffix);
 
     /* Keep track of the number of match expressions. */
     ++*pCount;
 
-    /* Prepare for the next match word. */
+    /* Advance past all consumed input characters. */
     zTag += i;
     if( cDel!=',' && *zTag==cDel ){
       ++zTag;
     }
-    zSep = " OR ";
   }
 
   /* Finalize and extract the SQL expression. */
   if( *pCount ){
-    blob_append(&blob, ")", 1);
+    blob_append(&blob, zEnd, -1);
     return blob_str(&blob);
   }
 
