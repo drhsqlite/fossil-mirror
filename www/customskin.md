@@ -147,6 +147,10 @@ respository settings and the specific page being generated.
        name of the project as configured under the Admin/Configuration
        menu.
 
+   *   **project_description** - The project_description variable is
+       filled with the description of the project as configured under
+       the Admin/Configuration menu.
+
    *   **title** - The title variable holds the title of the page being
        generated.
 
