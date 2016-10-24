@@ -1,6 +1,11 @@
 ﻿<title>Change Log</title>
 
-<h2>Changes for Version 1.36 (2016-00-00)</h2>
+<h2>Changes for Version 1.37 (2016-00-00)</h2>
+
+  *  Added support for the ms=EXACT|LIKE|GLOB|REGEXP query parameter on the
+     [/help?cmd=/timeline|/timeline] webpage.
+
+<h2>Changes for Version 1.36 (2016-10-24)</h2>
 
   *  Add support for [./unvers.wiki|unversioned content],
      the [/help?cmd=unversioned|fossil unversioned] command and the
@@ -28,8 +33,6 @@
      able to pull from their parent but not push.
   *  Added the -nocomplain option to the TH1 "query" command.
   *  Added support for the chng=GLOBLIST query parameter on the
-     [/help?cmd=/timeline|/timeline] webpage.
-  *  Added support for the ms=EXACT|LIKE|GLOB|REGEXP query parameter on the
      [/help?cmd=/timeline|/timeline] webpage.
 
 <h2>Changes for Version 1.35 (2016-06-14)</h2>
