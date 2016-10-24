@@ -62,16 +62,13 @@ foreach vers [lsort -decr -real [array names avers]] {
 
   foreach {prefix img desc} {
     fossil-linux-x86 linux.gif {Linux 3.x x86}
-    fossil-macosx-x86 mac.gif {Mac 10.x x86}
+    fossil-macosx mac.gif {Mac 10.x x86}
     fossil-openbsd-x86 openbsd.gif {OpenBSD 5.x x86}
     fossil-w32 win32.gif {Windows}
     fossil-src src.gif {Source Tarball}
   } {
-    set basename download/$prefix-$vers
-    set filename $basename.tar.gz
-    if {![info exists filesize($basename.tar.gz)]} {
-      set filename $basename.zip
-    }
+    set glob download/$prefix*-$vers*
+    set filename [array names filesize $glob]
     if {[info exists filesize($filename)]} {
       set size [set filesize($filename)]
       set units bytes
