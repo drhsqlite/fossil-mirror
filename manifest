@@ -1,5 +1,5 @@
-C Add\scomments\sdescribing\seach\slocal\svariable\sin\stagMatchExpression()
-D 2016-10-24T15:52:35.698
+C Merge\schanges.wiki\sstyle\supdate
+D 2016-10-24T18:32:18.717
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -12,7 +12,7 @@ F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile e6126edc40fe1da6bd47c6c5f1beede3b9c3eaf7
 F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
 F Makefile.in e68d67b0141655f3f6934ad35df484e50e84ff32
-F VERSION ea3b32fdf753b0b9cc7b2dddfd8fe26be61d0960
+F VERSION b05b06b20073554259036e0bee80fb43986651d3
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -500,8 +500,8 @@ F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c d911ec294372e6efb2321dfbd04bccee93947057
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
-F src/timeline.c 61fce1fde942ab9044541d8f854ca74bbc25c048
-F src/tkt.c 182347f890c4437c653644dfcc4fbeeece879379
+F src/timeline.c b0ab45887fe61701d2f26a4b527c2fd14b466ba7
+F src/tkt.c c10fb85894a31b9f65f0f24b67a888b8a64c2045
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c d3cca342dd73eaec65e352d978e8f7a9e75a5ddd
@@ -678,7 +678,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 0b9eb5c2d318425ca12b50bc3247aad2b4fc1088
-F www/changes.wiki 834b22ca13f6177f5597290f8d269d3e8de1254e
+F www/changes.wiki a4270ac28d0130aad08798891807f62b1515bb40
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 0e2b687be7fc8d4f4b2fcf590bfa290de479c43c
 F www/childprojects.wiki 26e08e37f9d96562486c7698697a356d77cdad8f
@@ -736,7 +736,7 @@ F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki cb23ace3944512d8a033ccfc0efd035e5131aa26
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki 30c7129ffb00c58699b87e84a2c0b696d7c10406
-F www/mkdownload.tcl 5ac61a3e13cecaa67f1e31741113c96cbd41463f
+F www/mkdownload.tcl 7b4ab1be3bf099f2ae3cd4b89fdce36df9bd0006
 F www/mkindex.tcl 61400abbaa7290cd30ef9a49242c9d0d7f1a327e
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
@@ -768,6 +768,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9ffc50171058859f9b4dae5b9286fe72679dfe5b
+P 1219bffce072e7cb18ca8458b70f8bb01f45f22b a212bd18990db36f5a278a4e90196a64102138e6
 U andygoth
-Z db60ea92fd1f5fd411b6f5a6f041f49e
+Z 4f08e8a472d34e52de96ea4b95f2cd5f
