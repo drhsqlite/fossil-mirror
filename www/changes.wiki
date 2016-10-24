@@ -1,6 +1,12 @@
 <title>Change Log</title>
 
-<h2>Changes for Version 1.36 (2016-00-00)</h2>
+<a name='v1_37'></a>
+<h2>Changes for Version 1.37 (2017-XX-YY)</h2>
+
+  *  Fix a C99-ism that prevents the 1.36 release from building with MSVC.
+
+<a name='v1_36'></a>
+<h2>Changes for Version 1.36 (2016-10-24)</h2>
 
   *  Add support for [./unvers.wiki|unversioned content],
      the [/help?cmd=unversioned|fossil unversioned] command and the
@@ -30,6 +36,7 @@
   *  Added support for the chng=GLOBLIST query parameter on the
      [/help?cmd=/timeline|/timeline] webpage.
 
+<a name='v1_35'></a>
 <h2>Changes for Version 1.35 (2016-06-14)</h2>
 
   *  Enable symlinks by default on all non-Windows platforms.
@@ -73,6 +80,7 @@
   *  Numerious documentation improvements.
   *  Update the built-in SQLite to version 3.13.0.
 
+<a name='v1_34'></a>
 <h2>Changes for Version 1.34 (2015-11-02)</h2>
 
   *  Make the [/help?cmd=clean|fossil clean] command undoable for files less
@@ -108,6 +116,7 @@
   *  Updated the built-in SQLite to version 3.9.1 and activated JSON1 and FTS5
      support (both currently unused within Fossil).
 
+<a name='v1_33'></a>
 <h2>Changes for Version 1.33 (2015-05-23)</h2>
   *  Improved fork detection on [/help?cmd=update|fossil update],
      [/help?cmd=status|fossil status] and related commands.
@@ -157,6 +166,7 @@
      already exist.
   *  Inhibit timeline links to wiki pages that have been deleted.
 
+<a name='v1_33'></a>
 <h2>Changes for Version 1.32 (2015-03-14)</h2>
   *  When creating a new repository using [/help?cmd=init|fossil init], ensure
      that the new repository is fully compatible with historical versions of
@@ -173,6 +183,7 @@
   *  Added [/help?cmd=forget|fossil forget] as an alias for
      [/help?cmd=rm|fossil rm].
 
+<a name='v1_31'></a>
 <h2>Changes For Version 1.31 (2015-02-23)</h2>
   *  Change the auxiliary schema by adding columns MLINK.ISAUX and MLINK.PMID
      columns to the schema, to support better drawing of file change graphs.
@@ -224,6 +235,7 @@
   *  Break out the components (css, footer, and header) for the
      various built-in skins into separate files in the source tree.
 
+<a name='v1_30'></a>
 <h2>Changes For Version 1.30 (2015-01-19)</h2>
   *  Added the [/help?cmd=bundle|fossil bundle] command.
   *  Added the [/help?cmd=purge|fossil purge] command.
@@ -294,6 +306,7 @@
   *  Numerous documentation fixes and improvements.
   *  Other obscure and minor bug fixes - see the timeline for details.
 
+<a name='v1_29'></a>
 <h2>Changes For Version 1.29 (2014-06-12)</h2>
   *  Add the ability to display content, diffs and annotations for UTF16
      text files in the web interface.
