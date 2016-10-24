@@ -3,7 +3,7 @@
 <a name='v1_37'></a>
 <h2>Changes for Version 1.37 (2017-XX-YY)</h2>
 
-  *  Fix a C99-ism that previous the 1.36 release from building with MSVC.
+  *  Fix a C99-ism that prevents the 1.36 release from building with MSVC.
 
 <a name='v1_36'></a>
 <h2>Changes for Version 1.36 (2016-10-24)</h2>
