@@ -1,5 +1,5 @@
-C Merge\schanges.wiki\sstyle\supdate
-D 2016-10-24T18:32:18.717
+C Revert\sunintended,\sincomplete\schange\sto\stimeline.c
+D 2016-10-24T18:33:29.575
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -500,7 +500,7 @@ F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c d911ec294372e6efb2321dfbd04bccee93947057
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
-F src/timeline.c b0ab45887fe61701d2f26a4b527c2fd14b466ba7
+F src/timeline.c 61fce1fde942ab9044541d8f854ca74bbc25c048
 F src/tkt.c c10fb85894a31b9f65f0f24b67a888b8a64c2045
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
@@ -768,6 +768,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1219bffce072e7cb18ca8458b70f8bb01f45f22b a212bd18990db36f5a278a4e90196a64102138e6
+P 780c0150c2939ce2e490af80477bdaca6b3756a7
 U andygoth
-Z 4f08e8a472d34e52de96ea4b95f2cd5f
+Z 7c54769debb1335110d65d1b7487237b
