@@ -1249,10 +1249,14 @@ static const char *tagMatchExpression(
   const char *zTag,       /* Tag name, match pattern, or list of patterns */
   int *pCount             /* Pointer to match pattern count variable */
 ){
-  Blob blob = BLOB_INITIALIZER;
-  const char *zStart, *zDelimiter, *zEnd, *zPrefix, *zSuffix;
-  char cDel;
-  int i;
+  Blob blob = BLOB_INITIALIZER;  /* SQL expression string assembly buffer */
+  const char *zStart;            /* Text at start of expression */
+  const char *zDelimiter;        /* Text between expression terms */
+  const char *zEnd;              /* Text at end of expression */
+  const char *zPrefix;           /* Text before each match pattern */
+  const char *zSuffix;           /* Text after each match pattern */
+  char cDel;                     /* Input delimiter character */
+  int i;                         /* Input match pattern length counter */
 
   /* Optimize exact matches by looking up the ID in advance to create a simple
    * numeric comparison.  Bypass the remainder of this function. */
