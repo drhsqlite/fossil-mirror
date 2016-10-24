@@ -1,5 +1,5 @@
-C Set\sthe\s1.36\srelease\sdates\son\sthe\schange\slog.
-D 2016-10-24T14:58:22.642
+C Version\s1.36
+D 2016-10-24T14:59:33.199
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -768,7 +768,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f59f4e1f6e9d1614d143fce07635d59edf0c0602
+P fdebeba5a03343e3cdbc4727ce1ba1edd3e214a0
 R f301d4943999f1a4f351151363db10f8
+T +bgcolor * #d0c0ff
+T +sym-release *
+T +sym-version-1.36 *
 U drh
-Z 22a8fb6f29c6e9b93d715fd4781cd900
+Z 6dd31ef60a881626c2ab897860077d94
