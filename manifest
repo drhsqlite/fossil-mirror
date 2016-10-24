@@ -1,5 +1,5 @@
-C Minor\senhancement\sto\s'mkversion'.
-D 2016-10-23T01:28:14.839
+C Draft\sfix\sfor\sissue\swith\s'ticket\sset\s+icomment'\sreported\sby\sVenkat\sIyer\son\sthe\smailing\slist.
+D 2016-10-24T04:51:23.231
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -501,7 +501,7 @@ F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c d911ec294372e6efb2321dfbd04bccee93947057
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
 F src/timeline.c ec39eb94bacfdfe4b522b5b88fdc914b61316be7
-F src/tkt.c 182347f890c4437c653644dfcc4fbeeece879379
+F src/tkt.c 2fb1af9a1116b64950614a6c00b11dd113da82d1
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c d3cca342dd73eaec65e352d978e8f7a9e75a5ddd
@@ -768,7 +768,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1b6635a47fd8a1adbb9448f03b442f9bf5dc7faf
-R 624d7bf95309bed554b6576a6a698818
+P f59f4e1f6e9d1614d143fce07635d59edf0c0602
+R 1ec55dc1c2cfc7d913a41edabfe12514
+T *branch * tktSetFix
+T *sym-tktSetFix *
+T -sym-trunk *
 U mistachkin
-Z 0e3f14157d6268f614840e860f09c6d5
+Z 65b75c7d8dddac4940db7e6cec6614df
