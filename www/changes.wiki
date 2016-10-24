@@ -1,4 +1,4 @@
-﻿<title>Change Log</title>
+<title>Change Log</title>
 
 <a name='v1_37'></a>
 <h2>Changes for Version 1.37 (2017-XX-YY)</h2>
