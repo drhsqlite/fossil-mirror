@@ -283,7 +283,7 @@ void www_print_timeline(
     if( zDate==0 ){
       zDate = "YYYY-MM-DD HH:MM:SS";  /* Something wrong with the repo */
     }
-    modPending =  moderation_pending(rid);
+    modPending = moderation_pending(rid);
     if( tagid ){
       if( modPending ) tagid = -tagid;
       if( tagid==prevTagid ){
@@ -575,7 +575,7 @@ void www_print_timeline(
         }
         zA = href("%R/artifact/%!S",fid?zNew:zOld);
         if( content_is_private(fid) ){
-          zUnpub =  UNPUB_TAG;
+          zUnpub = UNPUB_TAG;
         }
         if( isNew ){
           @ <li> %s(zA)%h(zFilename)</a>%s(zId) %s(zUnpub)
@@ -1239,9 +1239,9 @@ typedef enum {
 ** this function.  For the other modes, the returned SQL expression performs
 ** string comparisons against the tag names, so it is necessary to join against
 ** the tag table to access the "tagname" column.
-** 
+**
 ** Each pattern is adjusted to to start with "sym-" and be anchored at end.
-** 
+**
 ** In MS_REGEXP mode, backslash can be used to protect delimiter characters.
 */
 static const char *tagMatchExpression(
@@ -1261,7 +1261,7 @@ static const char *tagMatchExpression(
     return mprintf("(tagid=%d)", db_int(-1,
         "SELECT tagid FROM tag WHERE tagname='sym-%q'", zTag));
   }
-  
+
   /* Decide pattern prefix and suffix strings according to match style. */
   if( matchStyle==MS_LIKE ){
     zStart = "(";
