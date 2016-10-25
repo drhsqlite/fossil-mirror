@@ -799,6 +799,7 @@ const char *diff_get_binary_glob(void){
 **   --branch BRANCH            Show diff of all changes on BRANCH
 **   --brief                    Show filenames only
 **   --checkin VERSION          Show diff of all changes in VERSION
+**   --command PROG             External diff program - overrides "diff-command"
 **   --context|-c N             Use N lines of context
 **   --diff-binary BOOL         Include binary files when using external commands
 **   --exec-abs-paths           Force absolute path names with external commands.
@@ -870,7 +871,8 @@ void diff_cmd(void){
     db_find_and_open_repository(0, 0);
   }
   if( !isInternDiff ){
-    zDiffCmd = diff_command_external(isGDiff);
+    zDiffCmd = find_option("command", 0, 1);
+    if( zDiffCmd==0 ) zDiffCmd = diff_command_external(isGDiff);
   }
   zBinGlob = diff_get_binary_glob();
   fIncludeBinary = diff_include_binary_files();

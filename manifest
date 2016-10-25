@@ -1,5 +1,5 @@
-C Remove\sthe\s'fusefs'\scommand\sfrom\sbuilds\sthat\sdo\snot\shave\sunderlying\ssupport\senabled.
-D 2016-10-25T22:05:35.524
+C Merge\supdates\sfrom\strunk.
+D 2016-10-25T22:06:17.628
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -405,7 +405,7 @@ F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
 F src/diff.c 010e9b187ca7821f71c2295912d177c86de0fc7f
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
-F src/diffcmd.c 701f6a25d4b1903d94856eed811276ff4a468bab
+F src/diffcmd.c 7a5ead4ed6c7319bda9e8f319300ab887d330bb0
 F src/dispatch.c 52878ab4a817bb0a58aebee1f71b8fdf301b458c
 F src/doc.c f46ada466f90f12ee7b5c6078808fdfc4dedb183
 F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
@@ -734,10 +734,10 @@ F www/fossil_prompt.sh db68e2cae431b9e9f5dd672e2f56e2bde5a57d2a
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
-F www/index.wiki cb23ace3944512d8a033ccfc0efd035e5131aa26
+F www/index.wiki c68230abbb270f22a4a1af5174c8369a3d3861ac
 F www/inout.wiki 1e82974b59e2c97c082dfa6d4d5feda0c70d32ee
 F www/makefile.wiki 30c7129ffb00c58699b87e84a2c0b696d7c10406
-F www/mkdownload.tcl 7b4ab1be3bf099f2ae3cd4b89fdce36df9bd0006
+F www/mkdownload.tcl 2bd511f2a9b97d63c75e44d547e9103a181f7ca3
 F www/mkindex.tcl 61400abbaa7290cd30ef9a49242c9d0d7f1a327e
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
@@ -769,7 +769,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1375911c530825c68c256a94e38bac66911469e7 06fd798bdcb9da50671a0ba732c36c76c2a8256f
-R cad4c2f4fa074adce14c52383150ddd6
+P 20b67ab3b08796bfb965177160904ea67bf6a7fb eb67f09c9ad28228cbf977d04ede2eaf4d6a3cc2
+R 8e1e11255020d955f2e4b361bb27c852
 U mistachkin
-Z d3f319776fcfeaf19d8b60afc52de9bd
+Z cf7e6189f217bd3310f6bb74e74d8a51
