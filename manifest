@@ -1,5 +1,5 @@
-C Fix\sthe\sdownload\shyperlink\son\sthe\shomepage.
-D 2016-10-25T20:12:39.566
+C Add\sthe\s--command\soption\sto\s"fossil\sdiff".
+D 2016-10-25T20:25:30.427
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -405,7 +405,7 @@ F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
 F src/diff.c 92dfd18ed51cd16f04ed73e6768ad2e01c32e171
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
-F src/diffcmd.c 701f6a25d4b1903d94856eed811276ff4a468bab
+F src/diffcmd.c 7a5ead4ed6c7319bda9e8f319300ab887d330bb0
 F src/dispatch.c 52878ab4a817bb0a58aebee1f71b8fdf301b458c
 F src/doc.c f46ada466f90f12ee7b5c6078808fdfc4dedb183
 F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
@@ -768,7 +768,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1d028af6c75fdf4031889f0f12d88f9c142f0c3c
-R 33d05a2d0663a2b960bff300924d7b51
+P be88817fad0264078ed066131855c0b61f68f5b1
+R 1af09c5d1bb0c398fda8d3c2af211e88
 U drh
-Z bbbc47a9d583a81cc550692b5788f190
+Z 54da2e1c7df6b6e08917bc9983d15c86
