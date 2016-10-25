@@ -1,5 +1,5 @@
-C Merge\supdates\sfrom\strunk.
-D 2016-10-24T21:54:24.381
+C Remove\sthe\s'fusefs'\scommand\sfrom\sbuilds\sthat\sdo\snot\shave\sunderlying\ssupport\senabled.
+D 2016-10-25T22:05:35.524
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -415,7 +415,7 @@ F src/file.c 71a65cc15cadaf2313dd2bb577d568ed7444ea2e
 F src/finfo.c 3fc6e9e4114477c9a7e29c1bbaa17a5930c2d1b3
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
 F src/fshell.c 00dbabd3e544bb99c21e41a6750187d3d4b416ed
-F src/fusefs.c caad4dfe1b3b91e7a163996fe0953902762d9a8c
+F src/fusefs.c 66a58355a9a3c04792ba28a8a1b55bd3e506af54
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 1e8070d743acae021523e423418c4c13d81b5a0f
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
@@ -769,7 +769,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9599705c692ba7f17b415446c6435aa3822ed515 a2f47102210e40f739af6e454f7e6af52a9369c8
-R e23413837cc3ae281ae485a64186f2ae
+P 1375911c530825c68c256a94e38bac66911469e7 06fd798bdcb9da50671a0ba732c36c76c2a8256f
+R cad4c2f4fa074adce14c52383150ddd6
 U mistachkin
-Z 403bba17c9ec34a5035bc6534e1ecc70
+Z d3f319776fcfeaf19d8b60afc52de9bd
