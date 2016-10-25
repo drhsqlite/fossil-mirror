@@ -1,5 +1,5 @@
-C Remove\sBOM\s(byte-order-mark)\sfrom\sthe\schange\slog.
-D 2016-10-24T21:53:46.813
+C Fix\sthe\smkdownload.tcl\sscript\sso\sthat\sit\sgenerates\sa\scorrectly-formatted\ndownload.html\spage.
+D 2016-10-25T01:21:30.150
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -736,7 +736,7 @@ F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki cb23ace3944512d8a033ccfc0efd035e5131aa26
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki 30c7129ffb00c58699b87e84a2c0b696d7c10406
-F www/mkdownload.tcl 7b4ab1be3bf099f2ae3cd4b89fdce36df9bd0006
+F www/mkdownload.tcl 2bd511f2a9b97d63c75e44d547e9103a181f7ca3
 F www/mkindex.tcl 61400abbaa7290cd30ef9a49242c9d0d7f1a327e
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
@@ -768,7 +768,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7f2af9d8eba643329b787834d2598808da57302c
-R b66be70e7fbbf44cd6486c22c002ba27
-U mistachkin
-Z 6889e5043c35294baf7adebb9268b3df
+P a2f47102210e40f739af6e454f7e6af52a9369c8
+R e32227b0622a5654f3812619ebd74009
+U drh
+Z baae71f8bea3e31a3a5a4ed7b8a8a355
