@@ -1,5 +1,5 @@
-C Add\sthe\s'project_description'\svariable\sto\sTH1.
-D 2016-10-26T21:26:28.934
+C Fixes\sfor\sincremental\sGit\simport/export.
+D 2016-10-26T21:28:07.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -410,7 +410,7 @@ F src/dispatch.c 52878ab4a817bb0a58aebee1f71b8fdf301b458c
 F src/doc.c f46ada466f90f12ee7b5c6078808fdfc4dedb183
 F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
 F src/event.c 6909284d77a688d63cc67b7b0929b8dda5397742
-F src/export.c 22d375733c9bb76ad90109fbab9ebed7cc06e0d2
+F src/export.c e3f73d427eee82c9e6c1cb87650f927b4ebcd82d
 F src/file.c 71a65cc15cadaf2313dd2bb577d568ed7444ea2e
 F src/finfo.c 3fc6e9e4114477c9a7e29c1bbaa17a5930c2d1b3
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
@@ -423,7 +423,7 @@ F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c c38d7bff255b35cc7cfe13405b67c32878f9d838
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
-F src/import.c cc5b8328ac8675fd59176508df2e56ffd40be6c1
+F src/import.c c291d51b1b51aaa11a61f043957be7cc0350900e
 F src/info.c 7e61b79de46ef4ecce409b079434fa9ef942aac6
 F src/json.c dc2c7f146357683da2842cc84eb78a73221a80ba
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
@@ -678,7 +678,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 0b9eb5c2d318425ca12b50bc3247aad2b4fc1088
-F www/changes.wiki 64d55bbef81cd9ee753af84e59f03ea241691eaf
+F www/changes.wiki c26cc2e0c1268f3fc805702c0f5bafdf253ce89f
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 0e2b687be7fc8d4f4b2fcf590bfa290de479c43c
 F www/childprojects.wiki 26e08e37f9d96562486c7698697a356d77cdad8f
@@ -734,7 +734,7 @@ F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki c68230abbb270f22a4a1af5174c8369a3d3861ac
-F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
+F www/inout.wiki 1e82974b59e2c97c082dfa6d4d5feda0c70d32ee
 F www/makefile.wiki 30c7129ffb00c58699b87e84a2c0b696d7c10406
 F www/mkdownload.tcl 2bd511f2a9b97d63c75e44d547e9103a181f7ca3
 F www/mkindex.tcl 61400abbaa7290cd30ef9a49242c9d0d7f1a327e
@@ -768,8 +768,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1b5b69f3cff213750c9d1813ac24ae0607de0ea7 82d77c23a66a8bba25c7582980efe0c0ffbcb52c
-R 336f87a289fd91ca8a264a304c7bef53
-T +closed 82d77c23a66a8bba25c7582980efe0c0ffbcb52c
+P cd219d31c16d887f7504169290bc5bba9f48e53c b2e0fda9e1fd7776495deb615c1965e32af51fff
+R a30fca1ae2d9fa5d368f8f0da4b5fb04
+T +closed b2e0fda9e1fd7776495deb615c1965e32af51fff
 U mistachkin
-Z 2257db0abdf4cc083aa5a09e29f05b21
+Z 7d7ba26d3592cc371e5b6f1ecfa3d0c7

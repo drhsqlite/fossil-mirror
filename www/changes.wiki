@@ -9,6 +9,7 @@
   *  Enhance the "brlist" page to make use of branch colors.
   *  Remove the "fusefs" command from builds that do not have the underlying
      support enabled.
+  *  Fixes for incremental git import/export.
   *  TH1 enhancements:
      <ul><li>Add <nowiki>[unversioned content]</nowiki> command.</li>
      <li>Add <nowiki>[unversioned list]</nowiki> command.</li>
