@@ -4,6 +4,10 @@
 <h2>Changes for Version 1.37 (2017-XX-YY)</h2>
 
   *  Fix a C99-ism that prevents the 1.36 release from building with MSVC.
+  *  Fix [/help?cmd=ticket|ticket set] when using the "+" prefix with fields
+     from the "ticketchng" table.
+  *  Remove "fusefs" command from builds that do not have the underlying
+     support enabled.
 
 <a name='v1_36'></a>
 <h2>Changes for Version 1.36 (2016-10-24)</h2>
