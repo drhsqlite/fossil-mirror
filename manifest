@@ -1,5 +1,5 @@
-C Revert\sunintended,\sincomplete\schange\sto\stimeline.c
-D 2016-10-24T18:33:29.575
+C Merge\strunk
+D 2016-10-26T02:07:30.728
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -405,7 +405,7 @@ F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
 F src/diff.c 92dfd18ed51cd16f04ed73e6768ad2e01c32e171
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
-F src/diffcmd.c 701f6a25d4b1903d94856eed811276ff4a468bab
+F src/diffcmd.c 7a5ead4ed6c7319bda9e8f319300ab887d330bb0
 F src/dispatch.c 52878ab4a817bb0a58aebee1f71b8fdf301b458c
 F src/doc.c f46ada466f90f12ee7b5c6078808fdfc4dedb183
 F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
@@ -678,7 +678,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 0b9eb5c2d318425ca12b50bc3247aad2b4fc1088
-F www/changes.wiki a4270ac28d0130aad08798891807f62b1515bb40
+F www/changes.wiki 3eb00a84027a58d1d3e69925d3b06d8b26608279
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 0e2b687be7fc8d4f4b2fcf590bfa290de479c43c
 F www/childprojects.wiki 26e08e37f9d96562486c7698697a356d77cdad8f
@@ -733,10 +733,10 @@ F www/fossil_prompt.sh db68e2cae431b9e9f5dd672e2f56e2bde5a57d2a
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
-F www/index.wiki cb23ace3944512d8a033ccfc0efd035e5131aa26
+F www/index.wiki c68230abbb270f22a4a1af5174c8369a3d3861ac
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki 30c7129ffb00c58699b87e84a2c0b696d7c10406
-F www/mkdownload.tcl 7b4ab1be3bf099f2ae3cd4b89fdce36df9bd0006
+F www/mkdownload.tcl 2bd511f2a9b97d63c75e44d547e9103a181f7ca3
 F www/mkindex.tcl 61400abbaa7290cd30ef9a49242c9d0d7f1a327e
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
@@ -768,6 +768,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 780c0150c2939ce2e490af80477bdaca6b3756a7
+P 5cb36bdd52932c1916e7e1b9a9f3ff480b8b4e5f eb67f09c9ad28228cbf977d04ede2eaf4d6a3cc2
 U andygoth
-Z 7c54769debb1335110d65d1b7487237b
+Z 165c6f9864d7f0566f6135f3bfa9a167

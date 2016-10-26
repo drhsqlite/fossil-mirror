@@ -9,8 +9,7 @@
 set out [open download.html w]
 fconfigure $out -encoding utf-8 -translation lf
 puts $out \
-{<!DOCTYPE html>
-<div class='fossil-doc' data-title='Download Page'>
+{<div class='fossil-doc' data-title='Download Page'>
 
 <center><font size=4>}
 puts $out \
