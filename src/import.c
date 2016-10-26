@@ -1763,6 +1763,7 @@ void import_cmd(void){
     */
     db_multi_exec(
        "CREATE TEMP TABLE xmark(tname TEXT UNIQUE, trid INT, tuuid TEXT);"
+       "CREATE INDEX temp.i_xmark ON xmark(trid);"
        "CREATE TEMP TABLE xbranch(tname TEXT UNIQUE, brnm TEXT);"
        "CREATE TEMP TABLE xtag(tname TEXT UNIQUE, tcontent TEXT);"
     );

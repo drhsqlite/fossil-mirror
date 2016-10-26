@@ -1,5 +1,5 @@
-C Minor\stweaks\sto\sthe\sbreak_into_lines()\salgorithm.\sAdd\stests.
-D 2016-10-26T21:32:50.177
+C Create\sa\stemporary\sindex\sto\sspeed\sup\sincremental\sGit\simport.
+D 2016-10-26T21:45:52.108
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -423,7 +423,7 @@ F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c c38d7bff255b35cc7cfe13405b67c32878f9d838
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
-F src/import.c c291d51b1b51aaa11a61f043957be7cc0350900e
+F src/import.c 67fd145dde2689722e7be384390d6c29b783f035
 F src/info.c 7e61b79de46ef4ecce409b079434fa9ef942aac6
 F src/json.c dc2c7f146357683da2842cc84eb78a73221a80ba
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
@@ -769,8 +769,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a8484dc32721016061f055d2edfcb71f140d82c8 b47e4cc40168d0701010e918052ea5098527e1a3
-R 4e13e4dc5f992fa78158503966635516
-T +closed b47e4cc40168d0701010e918052ea5098527e1a3
+P 057e4b0a62eff884d1b15e75d5f3b3ca7a532313
+R 66c91591e4fbb79dc9d1f85bae24e9d5
 U mistachkin
-Z 18b1f631cc934f4cd03b579b4bdf6084
+Z eae2e691fe2f0777a8dbe7a8f70cf11a
