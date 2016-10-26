@@ -1,5 +1,5 @@
-C Minor\ssecurity\senhancements\sto\sthe\soptional\sSEE\sintegration.
-D 2016-10-26T21:31:36.616
+C Minor\stweaks\sto\sthe\sbreak_into_lines()\salgorithm.\sAdd\stests.
+D 2016-10-26T21:32:50.177
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -403,7 +403,7 @@ F src/db.c 61b958731f2df4271fb71126e7ca28ba00708a54
 F src/delta.c f3002e96cc35f37b9bab7c88f82e978e67342904
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
-F src/diff.c 92dfd18ed51cd16f04ed73e6768ad2e01c32e171
+F src/diff.c 010e9b187ca7821f71c2295912d177c86de0fc7f
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 7a5ead4ed6c7319bda9e8f319300ab887d330bb0
 F src/dispatch.c 52878ab4a817bb0a58aebee1f71b8fdf301b458c
@@ -532,6 +532,7 @@ F test/commit-warning.test 1b94adc5f490ade07cd9fc3ba35c94c77ac61819
 F test/contains-selector.test cf46a39b3c1ff72d2fc674f4ccbeecfb94add7d2
 F test/delta1.test c3ea182ab06554a35203285774606ba37fdc620d
 F test/diff-test-1.wiki 597fbb13c9c3da02e09a53d128f3b5d4dd5cadda
+F test/diff.test bf9b349dd6f33022ef2aef2894d3057e2daaf507
 F test/fake-editor.tcl 11b5ddc9629fefb4dbc32806f80211440600c744
 F test/file1.test 9b2ac578521a7097017c64b8877f6fa6ca0904f7
 F test/fileStat.th1 e3e30f7b46488c26215a6d713be36ad4ed595132
@@ -768,8 +769,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 27c8985cc1b75cf56873723ca4e2ac1a6c265ded 34d988c2444c71aeada3675e5110d4bc2007dca4
-R 061d56ea5ef2f256283688c609e49fdd
-T +closed 34d988c2444c71aeada3675e5110d4bc2007dca4
+P a8484dc32721016061f055d2edfcb71f140d82c8 b47e4cc40168d0701010e918052ea5098527e1a3
+R 4e13e4dc5f992fa78158503966635516
+T +closed b47e4cc40168d0701010e918052ea5098527e1a3
 U mistachkin
-Z c42687f778addcc0107461563c67fe7c
+Z 18b1f631cc934f4cd03b579b4bdf6084

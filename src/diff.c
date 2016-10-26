@@ -119,6 +119,30 @@ struct DContext {
 };
 
 /*
+** Count the number of lines in the input string.  Include the last line
+** in the count even if it lacks the \n terminator.  If an empty string
+** is specified, the number of lines is zero.  For the purposes of this
+** function, a string is considered empty if it contains no characters
+** -OR- it contains only NUL characters.
+*/
+static int count_lines(
+  const char *z,
+  int n,
+  int *pnLine
+){
+  int nLine;
+  const char *zNL, *z2;
+  for(nLine=0, z2=z; (zNL = strchr(z2,'\n'))!=0; z2=zNL+1, nLine++){}
+  if( z2[0]!='\0' ){
+    nLine++;
+    do{ z2++; }while( z2[0]!='\0' );
+  }
+  if( n!=(int)(z2-z) ) return 0;
+  if( pnLine ) *pnLine = nLine;
+  return 1;
+}
+
+/*
 ** Return an array of DLine objects containing a pointer to the
 ** start of each line and a hash of that line.  The lower
 ** bits of the hash store the length of each line.
@@ -142,18 +166,12 @@ static DLine *break_into_lines(
   int nLine, i, k, nn, s, x;
   unsigned int h, h2;
   DLine *a;
-  const char *zNL, *z2;
+  const char *zNL;
 
-  /* Count the number of lines in the input file.  Include the last line
-  ** in the count even if it lacks the \n terminator
-  */
-  for(nLine=0, z2=z; (zNL = strchr(z2,'\n'))!=0; z2=zNL+1, nLine++){}
-  if( z2[0]!=0 ){
-    nLine++;
-    do{ z2++; }while( z2[0] );
+  if( count_lines(z, n, &nLine)==0 ){
+    return 0;
   }
-  if( n!=(int)(z2-z) ) return 0;
-
+  assert( nLine>0 || z[0]=='\0' );
   a = fossil_malloc( sizeof(a[0])*nLine );
   memset(a, 0, sizeof(a[0])*nLine);
   if( nLine==0 ){
@@ -163,7 +181,7 @@ static DLine *break_into_lines(
   i = 0;
   do{
     zNL = strchr(z,'\n');
-    if( zNL==0 ) zNL = z+strlen(z);
+    if( zNL==0 ) zNL = z+n;
     nn = (int)(zNL - z);
     if( nn>LENGTH_MASK ){
       fossil_free(a);
@@ -183,10 +201,11 @@ static DLine *break_into_lines(
       int numws = 0;
       while( s<k && fossil_isspace(z[s]) ){ s++; }
       for(h=0, x=s; x<k; x++){
-        if( fossil_isspace(z[x]) ){
+        char c = z[x];
+        if( fossil_isspace(c) ){
           ++numws;
         }else{
-          h += z[x];
+          h += c;
           h *= 0x9e3779b1;
         }
       }
@@ -202,9 +221,9 @@ static DLine *break_into_lines(
     h2 = h % nLine;
     a[i].iNext = a[h2].iHash;
     a[h2].iHash = i+1;
-    z += nn+1;
+    z += nn+1; n -= nn+1;
     i++;
-  }while( zNL[0] && zNL[1] );
+  }while( zNL[0]!='\0' && zNL[1]!='\0' );
   assert( i==nLine );
 
   /* Return results */
