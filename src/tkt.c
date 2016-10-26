@@ -218,16 +218,21 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
     if( j<0 ) continue;
     aUsed[j] = 1;
     if( aField[j].mUsed & USEDBY_TICKET ){
-      if( zName[0]=='+' ){
-        zName++;
+      const char *zUsedByName = zName;
+      if( zUsedByName[0]=='+' ){
+        zUsedByName++;
         blob_append_sql(&sql1,", \"%w\"=coalesce(\"%w\",'') || %Q",
-                     zName, zName, p->aField[i].zValue);
+                        zUsedByName, zUsedByName, p->aField[i].zValue);
       }else{
-        blob_append_sql(&sql1,", \"%w\"=%Q", zName, p->aField[i].zValue);
+        blob_append_sql(&sql1,", \"%w\"=%Q", zUsedByName, p->aField[i].zValue);
       }
     }
     if( aField[j].mUsed & USEDBY_TICKETCHNG ){
-      blob_append_sql(&sql2, ",\"%w\"", zName);
+      const char *zUsedByName = zName;
+      if( zUsedByName[0]=='+' ){
+        zUsedByName++;
+      }
+      blob_append_sql(&sql2, ",\"%w\"", zUsedByName);
       blob_append_sql(&sql3, ",%Q", p->aField[i].zValue);
     }
     if( rid>0 ){

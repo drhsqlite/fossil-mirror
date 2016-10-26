@@ -1,5 +1,5 @@
-C Update\sfedora\sversion,\sbeing\sused\sfor\sDocker\simage.\sMinor\sfix\sin\schangelog
-D 2016-10-26T19:58:36.361
+C Draft\sfix\sfor\sissue\swith\s'ticket\sset\s+icomment'\sreported\sby\sVenkat\sIyer\son\sthe\smailing\slist.
+D 2016-10-26T20:54:52.120
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -501,7 +501,7 @@ F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c d911ec294372e6efb2321dfbd04bccee93947057
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
 F src/timeline.c ec39eb94bacfdfe4b522b5b88fdc914b61316be7
-F src/tkt.c c10fb85894a31b9f65f0f24b67a888b8a64c2045
+F src/tkt.c cfc97ae7d6896a3a70c1a6f365843d5439715d33
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c d3cca342dd73eaec65e352d978e8f7a9e75a5ddd
@@ -768,7 +768,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eb67f09c9ad28228cbf977d04ede2eaf4d6a3cc2
-R 12d4302d9e0b6cb6a3ec3d141aea5c0e
-U jan.nijtmans
-Z bf5c2666bbd4d5bbc7bf2e346ecb2973
+P f014e83bc444116daedd7c6c1a963758173f96d6 0d247d57b4c412f4d270945202cdcfbaa0ed5422
+R a190f3dea68941b73df92dad049bea36
+T +closed 0d247d57b4c412f4d270945202cdcfbaa0ed5422
+U mistachkin
+Z d1b7128e172e833120c6b54477f7be89
