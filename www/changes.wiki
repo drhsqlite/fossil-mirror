@@ -9,6 +9,10 @@
   *  Enhance the "brlist" page to make use of branch colors.
   *  Remove the "fusefs" command from builds that do not have the underlying
      support enabled.
+  *  TH1 enhancements:
+     <ul><li>Add <nowiki>[unversioned content]</nowiki> command.</li>
+     <li>Add <nowiki>[unversioned list]</nowiki> command.</li>
+     </ul>
 
 <a name='v1_36'></a>
 <h2>Changes for Version 1.36 (2016-10-24)</h2>
