@@ -1,5 +1,5 @@
-C Create\sa\stemporary\sindex\sto\sspeed\sup\sincremental\sGit\simport.
-D 2016-10-26T21:45:52.108
+C Make\sthe\slabels\son\sthe\scolor\ssubmenu\sof\sthe\s/brlist\spage\smore\ssuccinct.
+D 2016-10-26T23:33:03.553
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -380,7 +380,7 @@ F src/attach.c c27c749e6a1334200565b076979b96e366a99bb5
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c abd167c9f2c5398782ca6d48ea1ee612163a7685
 F src/blob.c 831a63c8c61dbfdb5fe629a473cd7b01104478fc
-F src/branch.c f2290fba4380b145b1804e9a15fad29a3d8b2663
+F src/branch.c a53a01bc5e8b3be80684bad36c2c8d6858f7e372
 F src/browse.c 8f0bb9b6e6e31df9875c081239745a33567c7c84
 F src/builtin.c b2dcfcade2054c083b03a18e3ab5026d51eb2dcb
 F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
@@ -769,7 +769,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 057e4b0a62eff884d1b15e75d5f3b3ca7a532313
-R 66c91591e4fbb79dc9d1f85bae24e9d5
-U mistachkin
-Z eae2e691fe2f0777a8dbe7a8f70cf11a
+P 0fa60142eb3ae667fffb216f405611a31d6ee650
+R eab9380d48683977432af670bdec6419
+U drh
+Z f0ef12d1cadb63ddba0ff06c81de36a4
