@@ -301,6 +301,18 @@ Global g;
 ** used by fossil.
 */
 static void fossil_atexit(void) {
+#if USE_SEE
+  /*
+  ** Zero, unlock, and free the saved database encryption key now.
+  */
+  db_unsave_encryption_key();
+#endif
+#if defined(_WIN32) || defined(__BIONIC__)
+  /*
+  ** Free the secure getpass() buffer now.
+  */
+  freepass();
+#endif
 #if defined(_WIN32) && !defined(_WIN64) && defined(FOSSIL_ENABLE_TCL) && \
     defined(USE_TCL_STUBS)
   /*

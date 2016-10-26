@@ -58,6 +58,63 @@ void *fossil_realloc(void *p, size_t n){
   if( p==0 ) fossil_panic("out of memory");
   return p;
 }
+void fossil_secure_zero(void *p, size_t n){
+  volatile unsigned char *vp = (volatile unsigned char *)p;
+  size_t i;
+
+  if( p==0 ) return;
+  assert( n>0 );
+  if( n==0 ) return;
+  for(i=0; i<n; i++){ vp[i] ^= 0xFF; }
+  for(i=0; i<n; i++){ vp[i] ^= vp[i]; }
+}
+void fossil_get_page_size(size_t *piPageSize){
+#if defined(_WIN32)
+  SYSTEM_INFO sysInfo;
+  memset(&sysInfo, 0, sizeof(SYSTEM_INFO));
+  GetSystemInfo(&sysInfo);
+  *piPageSize = (size_t)sysInfo.dwPageSize;
+#else
+  *piPageSize = 4096; /* FIXME: What for POSIX? */
+#endif
+}
+void *fossil_secure_alloc_page(size_t *pN){
+  void *p;
+  size_t pageSize;
+
+  fossil_get_page_size(&pageSize);
+  assert( pageSize>0 );
+  assert( pageSize%2==0 );
+#if defined(_WIN32)
+  p = VirtualAlloc(NULL, pageSize, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+  if( p==NULL ){
+    fossil_fatal("VirtualAlloc failed: %lu\n", GetLastError());
+  }
+  if( !VirtualLock(p, pageSize) ){
+    fossil_fatal("VirtualLock failed: %lu\n", GetLastError());
+  }
+#else
+  p = fossil_malloc(pageSize);
+#endif
+  fossil_secure_zero(p, pageSize);
+  if( pN ) *pN = pageSize;
+  return p;
+}
+void fossil_secure_free_page(void *p, size_t n){
+  if( !p ) return;
+  assert( n>0 );
+  fossil_secure_zero(p, n);
+#if defined(_WIN32)
+  if( !VirtualUnlock(p, n) ){
+    fossil_fatal("VirtualUnlock failed: %lu\n", GetLastError());
+  }
+  if( !VirtualFree(p, 0, MEM_RELEASE) ){
+    fossil_fatal("VirtualFree failed: %lu\n", GetLastError());
+  }
+#else
+  fossil_free(p);
+#endif
+}
 
 /*
 ** This function implements a cross-platform "system()" interface.
