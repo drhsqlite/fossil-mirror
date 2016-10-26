@@ -1,5 +1,5 @@
-C Add\sthe\s--command\soption\sto\s"fossil\sdiff".
-D 2016-10-25T20:25:30.427
+C Update\sfedora\sversion,\sbeing\sused\sfor\sDocker\simage.\sMinor\sfix\sin\schangelog
+D 2016-10-26T19:58:36.361
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -9,7 +9,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile e6126edc40fe1da6bd47c6c5f1beede3b9c3eaf7
+F Dockerfile de98550db1d43a29a17bbd9284308733fb72615f
 F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
 F Makefile.in e68d67b0141655f3f6934ad35df484e50e84ff32
 F VERSION b05b06b20073554259036e0bee80fb43986651d3
@@ -678,7 +678,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 0b9eb5c2d318425ca12b50bc3247aad2b4fc1088
-F www/changes.wiki f06ce28e91db6e417b93b15d4b61bbc1107f5b66
+F www/changes.wiki 71036d84a8dd3595515238d3e56e835f16cb52e2
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 0e2b687be7fc8d4f4b2fcf590bfa290de479c43c
 F www/childprojects.wiki 26e08e37f9d96562486c7698697a356d77cdad8f
@@ -768,7 +768,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P be88817fad0264078ed066131855c0b61f68f5b1
-R 1af09c5d1bb0c398fda8d3c2af211e88
-U drh
-Z 54da2e1c7df6b6e08917bc9983d15c86
+P eb67f09c9ad28228cbf977d04ede2eaf4d6a3cc2
+R 12d4302d9e0b6cb6a3ec3d141aea5c0e
+U jan.nijtmans
+Z bf5c2666bbd4d5bbc7bf2e346ecb2973
