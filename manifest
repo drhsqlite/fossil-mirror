@@ -1,5 +1,5 @@
-C Add\sthe\s'unversioned'\scommand\sto\sTH1,\swith\sthe\s'content'\sand\s'list'\ssub-commands.
-D 2016-10-26T21:24:45.419
+C Add\sthe\s'project_description'\svariable\sto\sTH1.
+D 2016-10-26T21:26:28.934
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -491,7 +491,7 @@ F src/sqlite3.h 38a99d065c4e78a0eef545d92f2e5d495bb9be7a
 F src/stash.c 99687142f3b88d25d5da94d29cd5dfa637a9e65d
 F src/stat.c 8e2c652ba1deb14c61a7286028dd03f342244734
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
-F src/style.c 88afceaf6b3bcda35acaf15281cb44d353a822a5
+F src/style.c 29fe1c787ed7f6d16eaf9361b221652d4e54897b
 F src/sync.c 9cc2947ef0f1ef73bd9fb1fa7291dd5df2c03ce9
 F src/tag.c 9ed843d120ac1a822fcb926d82c847aa0a0541d2
 F src/tar.c 8cfe3f2ef83784ed5644b3a9c4cd4d85f1096a38
@@ -678,7 +678,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 0b9eb5c2d318425ca12b50bc3247aad2b4fc1088
-F www/changes.wiki d304711b40309bc7f6fbc76843f64b00c62a3285
+F www/changes.wiki 64d55bbef81cd9ee753af84e59f03ea241691eaf
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 0e2b687be7fc8d4f4b2fcf590bfa290de479c43c
 F www/childprojects.wiki 26e08e37f9d96562486c7698697a356d77cdad8f
@@ -691,7 +691,7 @@ F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/custom_ticket.wiki 4083c719eee18ea9dad81d335e45e9af8e29ec4e
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
-F www/customskin.md 827386e6fd0ca33d52f7a663c3c45edde4df1e9a
+F www/customskin.md b780e7be44eb68faade0fb647376e1815009d211
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -768,8 +768,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 796c9abacd626d0cb6c7d5c22a643299fefe4409 2a163d5cb62b8e79ac8423d3ff4c418916b0ad79
-R e73ae18bcc6f8db6c827d7cb389b2781
-T +closed 2a163d5cb62b8e79ac8423d3ff4c418916b0ad79
+P 1b5b69f3cff213750c9d1813ac24ae0607de0ea7 82d77c23a66a8bba25c7582980efe0c0ffbcb52c
+R 336f87a289fd91ca8a264a304c7bef53
+T +closed 82d77c23a66a8bba25c7582980efe0c0ffbcb52c
 U mistachkin
-Z df9028da9e8f6a3405a72ee0baad3a26
+Z 2257db0abdf4cc083aa5a09e29f05b21

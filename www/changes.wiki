@@ -12,6 +12,7 @@
   *  TH1 enhancements:
      <ul><li>Add <nowiki>[unversioned content]</nowiki> command.</li>
      <li>Add <nowiki>[unversioned list]</nowiki> command.</li>
+     <li>Add project_description variable.</li>
      </ul>
 
 <a name='v1_36'></a>
