@@ -1,5 +1,5 @@
-C Update\schange\slog.
-D 2016-10-26T21:14:33.088
+C Enhance\s'brlist'\spage\sto\smake\suse\sof\sbranch\scolors.
+D 2016-10-26T21:21:27.780
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -380,7 +380,7 @@ F src/attach.c c27c749e6a1334200565b076979b96e366a99bb5
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c abd167c9f2c5398782ca6d48ea1ee612163a7685
 F src/blob.c 831a63c8c61dbfdb5fe629a473cd7b01104478fc
-F src/branch.c fcbae077d4036130d9e713de6f8501190dd95d11
+F src/branch.c f2290fba4380b145b1804e9a15fad29a3d8b2663
 F src/browse.c 8f0bb9b6e6e31df9875c081239745a33567c7c84
 F src/builtin.c b2dcfcade2054c083b03a18e3ab5026d51eb2dcb
 F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
@@ -678,7 +678,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 0b9eb5c2d318425ca12b50bc3247aad2b4fc1088
-F www/changes.wiki 28643da201805aa7e1d566f1e32d66c066d1f0d6
+F www/changes.wiki c38e949311d5a6c5bb22547d11967d6e3de9691d
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 0e2b687be7fc8d4f4b2fcf590bfa290de479c43c
 F www/childprojects.wiki 26e08e37f9d96562486c7698697a356d77cdad8f
@@ -768,7 +768,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 75ef451128d289a837a988e34d9dc0f574740165
-R 1776cf86995411f96ada44729a8c93cc
+P 94f7de8b2d05a200c5392b1d93cc5f68aed40a64 4bd2b54592a08fe023f35ba77e3cdcb81f2f2882
+R d0116627f7d8fedaafc1006d9304c82e
+T +closed 4bd2b54592a08fe023f35ba77e3cdcb81f2f2882
 U mistachkin
-Z 3037f7a33270c60a944b838c13b3a866
+Z e18ed164a43cb114f8fe67a162b1af72
