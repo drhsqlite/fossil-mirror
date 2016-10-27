@@ -1,5 +1,5 @@
-C Merge\slines\sdescending\sto\sthe\sbottom\sof\sthe\stimeline\sthat\srefer\sto\sthe\ssame\scommit
-D 2016-10-27T14:57:05.375
+C Add\sanother\sentry\sto\sthe\sgraph-test-1.wiki\schecklist\sfor\sthis\scase.
+D 2016-10-27T15:34:06.373
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -538,7 +538,7 @@ F test/file1.test 9b2ac578521a7097017c64b8877f6fa6ca0904f7
 F test/fileStat.th1 e3e30f7b46488c26215a6d713be36ad4ed595132
 F test/fileage-test-1.wiki d249e897fdd41038c17f3b66d374e509830da1eb
 F test/glob.test e135d6e1333452beece53619e9a67cd9224ab00c
-F test/graph-test-1.wiki 1bbf8bd05dfd5205c589569d911477c27aeb4d51
+F test/graph-test-1.wiki 1d0d76a52b93273b979b21f5e36541a5e1def91f
 F test/json.test cbf45320d251af69528fa63c4266beba57a85f29
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
@@ -769,10 +769,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a4bb89ba081e29c5123121c449a68280f20750b9
-R 23d895f36dee22bb3399f21611b61e60
-T *branch * baruch-timeline-fix
-T *sym-baruch-timeline-fix *
-T -sym-trunk *
-U baruch
-Z 24ebedd2c0c2598171a0f12164444ef5
+P 8ae790623c14ac5cee1b3638b875f159f112b8f7
+R 10ee14945d91a61a39988a4450c7734f
+U drh
+Z 9996ef3a163b71389328b64bcd9d1fd8
