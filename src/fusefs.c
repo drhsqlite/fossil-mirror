@@ -22,8 +22,8 @@
 ** The FOSSIL_HAVE_FUSEFS should be omitted on systems that lack support for
 ** the Fuse Filesystem, of course.
 */
-#ifdef FOSSIL_HAVE_FUSEFS
 #include "config.h"
+#ifdef FOSSIL_HAVE_FUSEFS
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
