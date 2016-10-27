@@ -68,6 +68,9 @@ the correct operation of the graph drawing logic.
      This timeline has a hidden commit.</a> Click Unhide to reveal.
   *  <a href="../../../timeline?y=ci&n=15&b=2a4e4cf03e"
      target="testwindow">Isolated check-ins.</a>
+  *  <a href="../../../timeline?b=0fa60142&n=50"
+     target="testwindow">Single branch raiser from bottom of page
+     up to checkins 057e4b and d3cc6d</a>
 
 External:
 
