@@ -1,5 +1,5 @@
-C Now\sthat\sFuseFS\ssupport\sis\sconditional,\spermit\sconfig.h\sto\sbe\sincluded\sso\sFOSSIL_HAVE_FUSEFS\scan\sbe\scorrectly\sincluded\sfrom\sautoconfig.h\sto\savoid\slinker\sfailure\sto\sfind\sfusefs_cmd.
-D 2016-10-27T05:28:20.730
+C Merge\slines\sdescending\sto\sthe\sbottom\sof\sthe\stimeline\sthat\srefer\sto\sthe\ssame\scommit
+D 2016-10-27T14:57:05.375
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -417,7 +417,7 @@ F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
 F src/fshell.c 00dbabd3e544bb99c21e41a6750187d3d4b416ed
 F src/fusefs.c 2d02e392c3f4ba5feb4098852c97ffc47b07d10a
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
-F src/graph.c 1e8070d743acae021523e423418c4c13d81b5a0f
+F src/graph.c 0f7e7dbbef3745cf6ced9a6446885f193e56f6f6
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
 F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c c38d7bff255b35cc7cfe13405b67c32878f9d838
@@ -500,7 +500,7 @@ F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c 39474b4bcfc0a37c5ab16f707a556adce0072b9f
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
-F src/timeline.c ec39eb94bacfdfe4b522b5b88fdc914b61316be7
+F src/timeline.c 1310b6a9a924a12fc8438c5111785003d57d19da
 F src/tkt.c cfc97ae7d6896a3a70c1a6f365843d5439715d33
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
@@ -769,7 +769,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a1b0ec8e3953a248abdf2bac42bc8999ab48e4d2
-R 94137c49f1e6adbc3f6f5ac99f99fbea
-U andybradford
-Z 3646edeb769a0411a54d1bbec2ea61c4
+P a4bb89ba081e29c5123121c449a68280f20750b9
+R 23d895f36dee22bb3399f21611b61e60
+T *branch * baruch-timeline-fix
+T *sym-baruch-timeline-fix *
+T -sym-trunk *
+U baruch
+Z 24ebedd2c0c2598171a0f12164444ef5

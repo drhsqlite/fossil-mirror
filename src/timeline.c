@@ -739,7 +739,7 @@ void timeline_output_graph_javascript(
         pRow->aiRiser[pRow->iRail],     /* u */
         pRow->isLeaf ? 1 : 0            /* f */
       );
-      /* u */
+      /* au */
       cSep = '[';
       for(i=0; i<GR_MAX_RAIL; i++){
         if( i==pRow->iRail ) continue;
