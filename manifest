@@ -1,5 +1,5 @@
-C Alternative\sto\scheck-in\s[a4bb89ba08],\smake\sFuseFS\sact\sjust\slike\sthe\sJSON\sfeature\sin\s'auto.def'.
-D 2016-10-28T05:29:32.288
+C Fix\sa\sC99-ism\sintroduced\sby\scheck-in\s[27c8985cc1b75cf5].
+D 2016-10-28T22:45:27.729
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -410,7 +410,7 @@ F src/dispatch.c 52878ab4a817bb0a58aebee1f71b8fdf301b458c
 F src/doc.c f46ada466f90f12ee7b5c6078808fdfc4dedb183
 F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
 F src/event.c 6909284d77a688d63cc67b7b0929b8dda5397742
-F src/export.c e3f73d427eee82c9e6c1cb87650f927b4ebcd82d
+F src/export.c 7751f8df389e0a70c44df21841454467dceabf69
 F src/file.c 71a65cc15cadaf2313dd2bb577d568ed7444ea2e
 F src/finfo.c 3fc6e9e4114477c9a7e29c1bbaa17a5930c2d1b3
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
@@ -769,8 +769,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 95d6ddc3a0a63d21dd6500b34b1cf11dc3109865 6a80a2f2466dbd11df750437d26d08bde27dd78f
-R f1bab4afe868b155beee48ffd62f2d30
-T +closed 6a80a2f2466dbd11df750437d26d08bde27dd78f
+P feb202f5dc250a2131d96541e46a5943f9027423
+R a259fed1060f8cac8b0fd82c795bca84
 U mistachkin
-Z f3e2574e37bdea0292225cab1b42966b
+Z 62892ad07fa49807f3464011c70bb73c
