@@ -560,8 +560,8 @@ void export_cmd(void){
       if( zNew==0 ){
         printf("D %s\n", zName);
       }else if( bag_find(&blobs, zNew) ){
-        zMark = mark_name_from_rid(zNew, &unused_mark);
         const char *zPerm;
+        zMark = mark_name_from_rid(zNew, &unused_mark);
         switch( mPerm ){
           case PERM_LNK:  zPerm = "120000";   break;
           case PERM_EXE:  zPerm = "100755";   break;
