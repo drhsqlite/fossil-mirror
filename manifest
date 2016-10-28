@@ -1,5 +1,5 @@
-C Fix\sa\sC99-ism\sintroduced\sby\scheck-in\s[27c8985cc1b75cf5].
-D 2016-10-28T22:45:27.729
+C merge\sfork.
+D 2016-10-28T22:51:59.264
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -769,7 +769,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P feb202f5dc250a2131d96541e46a5943f9027423
+P 2bb3a8e10d61902a3f9a7007af32da27b338bf8b 61ec71249289d689f027f3c83d16748a34452bcb
 R a259fed1060f8cac8b0fd82c795bca84
-U mistachkin
-Z 62892ad07fa49807f3464011c70bb73c
+U mgagnon
+Z 2b8d8f82f4a578a8f46174119a1a93a3
