@@ -1,5 +1,5 @@
-C Combine\smultiple\smerge\slines\sto\sthe\sbottomn\sof\sthe\spage\swhen\sthey\sreference\sthe\nsame\ssource\scheck-in.
-D 2016-10-27T15:35:16.141
+C Alternative\sto\scheck-in\s[a4bb89ba08],\smake\sFuseFS\sact\sjust\slike\sthe\sJSON\sfeature\sin\s'auto.def'.
+D 2016-10-28T05:29:32.288
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -45,7 +45,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 3c615e3f8cc3f4dbdbb581570c3d6d27d6d842c3
+F auto.def 4772202024eceeac4e05e1584e8dae08e7f25b4c
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup c235af4ce86af9a9b8b331b5a67c822d52ca2c6e
 F autosetup/autosetup 61a83ed783db7e10fdfc602c090f88cf3fb13d3a x
@@ -415,7 +415,7 @@ F src/file.c 71a65cc15cadaf2313dd2bb577d568ed7444ea2e
 F src/finfo.c 3fc6e9e4114477c9a7e29c1bbaa17a5930c2d1b3
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
 F src/fshell.c 00dbabd3e544bb99c21e41a6750187d3d4b416ed
-F src/fusefs.c 2d02e392c3f4ba5feb4098852c97ffc47b07d10a
+F src/fusefs.c 66a58355a9a3c04792ba28a8a1b55bd3e506af54
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 0f7e7dbbef3745cf6ced9a6446885f193e56f6f6
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
@@ -769,8 +769,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a4bb89ba081e29c5123121c449a68280f20750b9 58d4f3c07665028b6866f9adf2606ed0a181e247
-R 10ee14945d91a61a39988a4450c7734f
-T +closed 58d4f3c07665028b6866f9adf2606ed0a181e247
-U drh
-Z bb7c2a95a59631f810e4e8213b4c38aa
+P 95d6ddc3a0a63d21dd6500b34b1cf11dc3109865 6a80a2f2466dbd11df750437d26d08bde27dd78f
+R f1bab4afe868b155beee48ffd62f2d30
+T +closed 6a80a2f2466dbd11df750437d26d08bde27dd78f
+U mistachkin
+Z f3e2574e37bdea0292225cab1b42966b
