@@ -1,5 +1,5 @@
-C merge\sfork.
-D 2016-10-28T22:51:59.264
+C Compiler\swarning\s(MSVC)\sin\stimeline.c,\sfound\sby\sKevin,\sreported\son\sfossil-users\slist
+D 2016-10-29T16:50:50.319
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -417,7 +417,7 @@ F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
 F src/fshell.c 00dbabd3e544bb99c21e41a6750187d3d4b416ed
 F src/fusefs.c 66a58355a9a3c04792ba28a8a1b55bd3e506af54
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
-F src/graph.c 0f7e7dbbef3745cf6ced9a6446885f193e56f6f6
+F src/graph.c 23ff3709c6677dff05f707f80e45ddd356333c6e
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
 F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c c38d7bff255b35cc7cfe13405b67c32878f9d838
@@ -461,7 +461,7 @@ F src/merge.c 3da95cdecb4812fbe7ee547b5fce430f3278a023
 F src/merge3.c f72871c5bf1f420710fef15641c6dce42586d929
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
-F src/mkindex.c 29be5509c87df441a830bc94e166a2c58f340cd9
+F src/mkindex.c de461460ec90577c1824c9a312da3d8157873bbb
 F src/mkversion.c d76e0e3c04966bb61a23ff7140fa37867c06bd50
 F src/moderate.c dc445cce064560577fb47311c2e23925b92c35d8
 F src/name.c fbef706317c7f8ebc9d043713c0fb2b17e434bcb
@@ -478,8 +478,8 @@ F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c 650149d0abc88d23c8571b64f3dfba23197bec2b
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
-F src/search.c e5d6a82db484f0e004a51278744ed0092f503923
-F src/setup.c ea2dd3e6ea0d0fe41ae4f16d362c9f8812955f96
+F src/search.c 8f9844875a3b1350b79642f7ede2bbb034a42492
+F src/setup.c 21d2bc1c3b5c57f6f57a842f73afb81299d5865c
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
 F src/shell.c b80396d2fadce4681397707e30078bf416e1dec2
 F src/shun.c 7d0a7eeffdf515b2d78919408fe42e7142a9b532
@@ -500,7 +500,7 @@ F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c 39474b4bcfc0a37c5ab16f707a556adce0072b9f
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
-F src/timeline.c 1310b6a9a924a12fc8438c5111785003d57d19da
+F src/timeline.c df373923fc0e4dcac877cd4bd3392de0dd1476ee
 F src/tkt.c cfc97ae7d6896a3a70c1a6f365843d5439715d33
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
@@ -519,7 +519,7 @@ F src/wikiformat.c 1d750982147d9c51fa40e89e40241a33408adaf6
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c 34ba5d2fef077fb4bcd692aa502e27bef899fc7f
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c 7d011291275f5e5a82a06df1fcc5bde9554a75ea
+F src/xfer.c 0d5ab26abbb866807a60592ff3a293aa4d899192
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 7ad4b3ce5ab36dd3d931d32b23cc3b5cd9f4617f
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -769,7 +769,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2bb3a8e10d61902a3f9a7007af32da27b338bf8b 61ec71249289d689f027f3c83d16748a34452bcb
-R a259fed1060f8cac8b0fd82c795bca84
-U mgagnon
-Z 2b8d8f82f4a578a8f46174119a1a93a3
+P cf2adc71e8e362bdf8b6d554f9c574ccbd83e209
+R a345cc3756eac88e0603418a9255addf
+U jan.nijtmans
+Z 6bf02ced54330ac939e6beeef2c12bc7

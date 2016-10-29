@@ -759,7 +759,7 @@ void timeline_output_graph_javascript(
       for(i=0; i<GR_MAX_RAIL; i++){
         if( pRow->mergeIn[i] ){
           int mi = i;
-          if( pRow->mergeDown & (1<<i) ) mi = -mi;
+          if( (pRow->mergeDown >> i) & 1 ) mi = -mi;
           cgi_printf("%c%d", cSep, mi);
           cSep = ',';
         }

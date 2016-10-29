@@ -349,7 +349,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
   u64 mask;
   int hasDup = 0;      /* True if one or more isDup entries */
   const char *zTrunk;
-  int railRid[GR_MAX_RAIL]; /* Maps rails to rids for lines 
+  int railRid[GR_MAX_RAIL]; /* Maps rails to rids for lines
                                that enter from bottom of screen */
 
   if( p==0 || p->pFirst==0 || p->nErr ) return;
