@@ -454,6 +454,7 @@ void unversioned_cmd(void){
 ** Query parameters:
 **
 **    byage=1          Order the initial display be decreasing age
+**    showdel=0        Show deleted files
 */
 void uvstat_page(void){
   Stmt q;
@@ -462,6 +463,7 @@ void uvstat_page(void){
   int cnt = 0;
   int n = 0;
   const char *zOrderBy = "name";
+  int showDel = 0;
   char zSzName[100];
 
   login_check_credentials();
@@ -473,6 +475,7 @@ void uvstat_page(void){
     return;
   }
   if( PB("byage") ) zOrderBy = "mtime DESC";
+  if( PB("showdel") ) showDel = 1;
   db_prepare(&q,
      "SELECT"
      "   name,"
@@ -482,7 +485,8 @@ void uvstat_page(void){
      "   (SELECT login FROM rcvfrom, user"
      "     WHERE user.uid=rcvfrom.uid AND rcvfrom.rcvid=unversioned.rcvid),"
      "   rcvid"
-     " FROM unversioned ORDER BY %s",
+     " FROM unversioned %s ORDER BY %s",
+     showDel ? "" : "WHERE hash IS NOT NULL" /*safe-for-%s*/,
      zOrderBy/*safe-for-%s*/
    );
    iNow = db_int64(0, "SELECT strftime('%%s','now');");

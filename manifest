@@ -1,5 +1,5 @@
-C Compiler\swarning\s(MSVC)\sin\stimeline.c,\sfound\sby\sKevin,\sreported\son\sfossil-users\slist
-D 2016-10-29T16:50:50.319
+C Omit\sdeleted\sunversioned\sfiles\sfrom\sthe\s/uvlist\spage\sunless\sthe\sshowdel=1\nquery\sparameter\sis\sused.
+D 2016-10-31T10:55:12.062
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -506,7 +506,7 @@ F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c d3cca342dd73eaec65e352d978e8f7a9e75a5ddd
 F src/unicode.c 8e02b4fd6af9e735bda68eb06e3be90b6b901a87
-F src/unversioned.c 95327eac5a73649447bb5ae5c938a05686429900
+F src/unversioned.c 0069fb1ab275c35747159ec8ab5ddbb537306399
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c f7cc4bdf7b803714af80fe640457820c25203c55
@@ -769,7 +769,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cf2adc71e8e362bdf8b6d554f9c574ccbd83e209
-R a345cc3756eac88e0603418a9255addf
-U jan.nijtmans
-Z 6bf02ced54330ac939e6beeef2c12bc7
+P fe3d30fc60e2eafcd9a21269df7fa932338da7ac
+R 2b71f49b21fe9b0b838c786b9bbdc1c3
+U drh
+Z 30ffc1f017c80943055c142c716d9906
