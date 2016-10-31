@@ -1,5 +1,5 @@
-C Fix\sto\sthe\sfusefs.c\sfile\sso\sthat\sit\sbuilds\seven\swithout\sFOSSIL_HAVE_FUSEFS.
-D 2016-10-31T16:02:47.319
+C Merge\sthe\saccidental\sfork.
+D 2016-10-31T16:03:47.970
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -375,7 +375,7 @@ F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 094edd5877edc4d3a5e598301b54543291860a2b
-F src/allrepo.c d430efa00c6ea892999b9d256c18627855da03c3
+F src/allrepo.c 5d5f86041a5327a4c0a40c5d5113633ccd76cc35
 F src/attach.c c27c749e6a1334200565b076979b96e366a99bb5
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c abd167c9f2c5398782ca6d48ea1ee612163a7685
@@ -769,7 +769,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 36babe0ce135122d4028dbb962ee28d2a21ae78e
-R 65477932a5714d05fc6c22886a332a4e
+P 9a4a5dec3d0a9a1ccb133518d6180e4e598eefad 0c3ae89dcbde135e95dc828e45ce69d698f5af2e
+R 8563ee4317247f8bd43779a1dd032c86
 U drh
-Z 5f413793bec632be521c8014967874a3
+Z b4fa3a6e9d3041818edaf4f03c704ded
