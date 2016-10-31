@@ -22,9 +22,8 @@
 ** The FOSSIL_HAVE_FUSEFS should be omitted on systems that lack support for
 ** the Fuse Filesystem, of course.
 */
-#include "config.h"
-#include "fusefs.h"
 #ifdef FOSSIL_HAVE_FUSEFS
+#include "config.h"
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
@@ -32,6 +31,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include "fusefs.h"
 
 #define FUSE_USE_VERSION 26
 #include <fuse.h>
@@ -285,7 +285,6 @@ static struct fuse_operations fusefs_methods = {
   .readdir = fusefs_readdir,
   .read    = fusefs_read,
 };
-#endif /* FOSSIL_HAVE_FUSEFS */
 
 /*
 ** COMMAND: fusefs
@@ -317,9 +316,6 @@ static struct fuse_operations fusefs_methods = {
 ** again.
 */
 void fusefs_cmd(void){
-#ifndef FOSSIL_HAVE_FUSEFS
-  fossil_fatal("fusefs not supported in this build");
-#else
   char *zMountPoint;
   char *azNewArgv[5];
   int doDebug = find_option("debug","d",0)!=0;
@@ -341,5 +337,5 @@ void fusefs_cmd(void){
   fuse_main(4, azNewArgv, &fusefs_methods, NULL);
   fusefs_reset();
   fusefs_clear_path();
-#endif
 }
+#endif /* FOSSIL_HAVE_FUSEFS */
