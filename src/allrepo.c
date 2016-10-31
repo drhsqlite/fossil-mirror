@@ -175,7 +175,6 @@ void all_cmd(void){
   int dryRunFlag = 0;
   int showFile = find_option("showfile",0,0)!=0;
   int stopOnError = find_option("dontstop",0,0)==0;
-  int rc;
   int nToDel = 0;
   int showLabel = 0;
 
@@ -380,6 +379,7 @@ void all_cmd(void){
   db_multi_exec("CREATE TEMP TABLE toDel(x TEXT)");
   db_prepare(&q, "SELECT name, tag FROM repolist ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
+    int rc;
     const char *zFilename = db_column_text(&q, 0);
 #if !USE_SEE
     if( sqlite3_strglob("*.efossil", zFilename)==0 ) continue;
