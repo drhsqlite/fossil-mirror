@@ -1283,6 +1283,7 @@ static int isValidLocalDb(const char *zDbName){
       db_multi_exec("ALTER TABLE undo_vfile ADD COLUMN islink BOOL DEFAULT 0");
     }
   }
+  fossil_free(zVFileDef);
   return 1;
 }
 

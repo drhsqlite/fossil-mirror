@@ -1,5 +1,5 @@
-C Omit\sdeleted\sunversioned\sfiles\sfrom\sthe\s/uvlist\spage\sunless\sthe\sshowdel=1\nquery\sparameter\sis\sused.
-D 2016-10-31T10:55:12.062
+C Fix\sharmless\smemory\sleaks.
+D 2016-10-31T12:41:24.197
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -399,13 +399,13 @@ F src/content.c a6024f0400307f4c25d067d323a6cbdf38b78c81
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 61b958731f2df4271fb71126e7ca28ba00708a54
+F src/db.c eedc0825e1ba25bdef1dcab3f2fb2ed88bf7be03
 F src/delta.c f3002e96cc35f37b9bab7c88f82e978e67342904
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
 F src/diff.c 010e9b187ca7821f71c2295912d177c86de0fc7f
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
-F src/diffcmd.c 7a5ead4ed6c7319bda9e8f319300ab887d330bb0
+F src/diffcmd.c 961503775818c035aede0b36bf751a843b4eab30
 F src/dispatch.c 52878ab4a817bb0a58aebee1f71b8fdf301b458c
 F src/doc.c f46ada466f90f12ee7b5c6078808fdfc4dedb183
 F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
@@ -769,7 +769,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fe3d30fc60e2eafcd9a21269df7fa932338da7ac
-R 2b71f49b21fe9b0b838c786b9bbdc1c3
+P a3608700adb54ba2562106cedef46c4304772c89
+R c8cc15a641cb5becdc94e86e1d91c489
 U drh
-Z 30ffc1f017c80943055c142c716d9906
+Z e32571923caf27af72065919c55a25e5
