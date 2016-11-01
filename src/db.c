@@ -29,7 +29,11 @@
 **
 */
 #include "config.h"
-#if ! defined(_WIN32)
+#if defined(_WIN32)
+#  if USE_SEE
+#    include <windows.h>
+#  endif
+#else
 #  include <pwd.h>
 #endif
 #include <sqlite3.h>
@@ -887,8 +891,16 @@ size_t savedKeySize = 0;
 ** This function returns the saved database encryption key -OR- zero if
 ** no database encryption key is saved.
 */
-static char *db_get_saved_encryption_key(){
+char *db_get_saved_encryption_key(){
   return zSavedKey;
+}
+
+/*
+** This function returns the size of the saved database encryption key
+** -OR- zero if no database encryption key is saved.
+*/
+size_t db_get_saved_encryption_key_size(){
+  return savedKeySize;
 }
 
 /*
@@ -952,6 +964,55 @@ void db_set_saved_encryption_key(
     db_save_encryption_key(pKey);
   }
 }
+
+#if defined(_WIN32)
+/*
+** This function sets the saved database encryption key to one that gets
+** read from the specified Fossil parent process.  This is only necessary
+** (or functional) on Windows.
+*/
+void db_read_saved_encryption_key_from_process(
+  DWORD processId, /* Identifier for Fossil parent process. */
+  LPVOID pAddress, /* Pointer to saved key buffer in the parent process. */
+  SIZE_T nSize     /* Size of saved key buffer in the parent process. */
+){
+  void *p = NULL;
+  size_t n = 0;
+  size_t pageSize = 0;
+  HANDLE hProcess = NULL;
+
+  fossil_get_page_size(&pageSize);
+  assert( pageSize>0 );
+  if( nSize>pageSize ){
+    fossil_fatal("key too large: %u versus %u", nSize, pageSize);
+  }
+  p = fossil_secure_alloc_page(&n);
+  assert( p!=NULL );
+  assert( n==pageSize );
+  assert( n>=nSize );
+  hProcess = OpenProcess(PROCESS_VM_READ, FALSE, processId);
+  if( hProcess!=NULL ){
+    SIZE_T nRead = 0;
+    if( ReadProcessMemory(hProcess, pAddress, p, nSize, &nRead) ){
+      CloseHandle(hProcess);
+      if( nRead==nSize ){
+        db_unsave_encryption_key();
+        zSavedKey = p;
+        savedKeySize = n;
+      }else{
+        fossil_fatal("bad size read, %u out of %u bytes at %p from pid %lu",
+                     nRead, nSize, pAddress, processId);
+      }
+    }else{
+      CloseHandle(hProcess);
+      fossil_fatal("failed read, %u bytes at %p from pid %lu: %lu", nSize,
+                   pAddress, processId, GetLastError());
+    }
+  }else{
+    fossil_fatal("failed to open pid %lu: %lu", processId, GetLastError());
+  }
+}
+#endif /* defined(_WIN32) */
 #endif /* USE_SEE */
 
 /*

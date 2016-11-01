@@ -1,5 +1,5 @@
-C Backout\sthe\sfusefs\schange.\s\sThe\scorrect\ssolution\sis\sto\srun\s"./configure"\s\nfollowed\sby\s"make\sclean\sfossil"\sin\sorder\sto\srebuild\swhen\supdating\sfrom\s\nhistorical\ssources.
-D 2016-10-31T18:57:27.001
+C Enhancements\sto\sSEE\sintegration\son\sWindows.
+D 2016-11-01T23:34:34.928
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -399,7 +399,7 @@ F src/content.c a6024f0400307f4c25d067d323a6cbdf38b78c81
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c eedc0825e1ba25bdef1dcab3f2fb2ed88bf7be03
+F src/db.c 08491c9e5c39aeceb6f57e876681cfb6e558658f
 F src/delta.c f3002e96cc35f37b9bab7c88f82e978e67342904
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
@@ -447,7 +447,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 597ae479d42096c07d6e6f85f1d844ebb46089b3
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
-F src/main.c e468df332a302594dabc394e3f08ed4ee3de90c4
+F src/main.c 45ff56cec7f2c87d7fa3793a933eab348499e72b
 F src/main.mk 3e28c5a913d28200a0f31dbf89b4502476dd974e
 F src/makeheaders.c e8444028f575e84075e46cf47f2080fa6d2c2115
 F src/makeheaders.html 06decb89c665feb897540613d7d12527eb65dfe5
@@ -517,7 +517,7 @@ F src/vfile.c c07d515af78f82e4d8d3f8c781111d1f504fe336
 F src/wiki.c 8d56403100ca58020feeb4a76d2b7f08e861049e
 F src/wikiformat.c 1d750982147d9c51fa40e89e40241a33408adaf6
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
-F src/winhttp.c 34ba5d2fef077fb4bcd692aa502e27bef899fc7f
+F src/winhttp.c 211b42ffaa538e434e1f929c338c270eec7ebf44
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 0d5ab26abbb866807a60592ff3a293aa4d899192
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
@@ -769,8 +769,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d13fc6a6b79e71bda3a82792a2fd7654a17a2087
-Q -9a4a5dec3d0a9a1ccb133518d6180e4e598eefad
-R e91837940c0a8601c0f6d69506beae8a
-U drh
-Z 06c99ccb87e24c58f55d0fd6f126ac42
+P 08f0ac0cb4f466444e96a62997817b6a09ed4fa9
+R 6c9331eccc9a6901f79fa9140393ad62
+U mistachkin
+Z 6cf988e3d8c539891833d77c24d46097
