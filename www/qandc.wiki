@@ -24,7 +24,7 @@ Why create your own DVCS when you could have reused mercurial?</b>
   <li> Immutable artifacts </li>
   <li> Self-contained, stand-alone executable that can be run in
        a <a href="http://en.wikipedia.org/wiki/Chroot">chroot jail</a> </li>
-  <li> Simple, well-defined, 
+  <li> Simple, well-defined,
        <a href="fileformat.wiki">enduring file format</a> </li>
   <li> Integrated <a href="webui.wiki">web interface</a> </li>
   </ol>
@@ -38,7 +38,7 @@ Why create your own DVCS when you could have reused mercurial?</b>
        code while off network, then sync your changes later.  With Trac, you
        can only view and edit tickets and wiki while you are connected to
        the server. </li>
-  <li> Fossil is lightweight and fully self-contained.  It is very easy 
+  <li> Fossil is lightweight and fully self-contained.  It is very easy
        to setup on a low-resource machine. Fossil does not require an
        administrator.</li>
   <li> Fossil integrates code versioning into the same repository with
@@ -50,13 +50,13 @@ Why create your own DVCS when you could have reused mercurial?</b>
 <b>Love the concept here. Anyone using this for real work yet?</b>
 
 <blockquote>
-Fossil is <a href="http://www.fossil-scm.org/">self-hosting</a>. 
+Fossil is <a href="http://www.fossil-scm.org/">self-hosting</a>.
 In fact, this page was probably delivered
 to your web-browser via a working fossil instance.  The same virtual
 machine that hosts http://www.fossil-scm.org/
 (a <a href="http://www.linode.com/">Linode 720</a>)
 also hosts 24 other fossil repositories for various small projects.
-The documentation files for 
+The documentation files for
 <a href="http://www.sqlite.org/">SQLite</a> are hosted in a
 fossil repository <a href="http://www.sqlite.org/docsrc/">here</a>,
 for example.
@@ -64,7 +64,7 @@ Other projects are also adopting fossil.  But fossil does not yet have
 the massive user base of git or mercurial.
 </blockquote>
 
-<b>Fossil looks like the bug tracker that would be in your 
+<b>Fossil looks like the bug tracker that would be in your
 Linksys Router's administration screen.</b>
 
 <blockquote>
@@ -85,7 +85,7 @@ then be pushed and pulled along with the rest repository.</b>
 
 <blockquote>
 <p>Fossil already <u>does</u> push and pull bugs along with the files
-in your repository.  
+in your repository.
 But fossil does <u>not</u> track bugs as files in the source tree.
 That approach to bug tracking was rejected for three reasons:</p>
 
@@ -110,7 +110,7 @@ That approach to bug tracking was rejected for three reasons:</p>
 the <a href="bugtheory.wiki">Bug-Tracking In Fossil</a> document.</p>
 </blockquote>
 
-<b>Fossil is already the name of a plan9 versioned 
+<b>Fossil is already the name of a plan9 versioned
 append-only filesystem.</b>
 
 <blockquote>
@@ -139,17 +139,17 @@ Subversion or Bazaar.</b>
 <blockquote>
 <p>I have no doubt that Trac has many features that fossil lacks.  But that
 is not the point.  Fossil has several key features that Trac lacks and that
-I need:  most notably the fact that 
+I need:  most notably the fact that
 fossil supports disconnected operation.</p>
 
 <p>As for bloat:  Fossil is a single self-contained executable.
-You do not need any other packages 
+You do not need any other packages
 (diff, patch, merge, cvs, svn, rcs, git, python, perl, tcl, apache,
 sqlite, and so forth)
 in order to run fossil.  Fossil runs just fine in a chroot jail all
 by itself.  And the self-contained fossil
 executable is much less than 1MB in size.  (Update 2015-01-12: Fossil has
-grown in the years since the previous sentence was written but is still 
+grown in the years since the previous sentence was written but is still
 much less than 2MB according to "size" when compiled using -Os on x64 Linux.)
 Fossil is the very opposite of bloat.</p>
 </blockquote>

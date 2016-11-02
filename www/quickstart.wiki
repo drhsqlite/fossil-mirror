@@ -7,12 +7,12 @@ and painlessly.</p>
 <h2>Installing</h2>
 
     <p>Fossil is a single self-contained C program.  You need to
-    either download a 
+    either download a
     <a href="http://www.fossil-scm.org/download.html">precompiled binary</a>
     or <a href="build.wiki">compile it yourself</a> from sources.
     Install fossil by putting the fossil binary
     someplace on your $PATH.</p>
-    
+
 <a name="fslclone"></a>
 <h2>General Work Flow</h2>
 
@@ -36,7 +36,7 @@ and painlessly.</p>
 
     <p>To start a new project with fossil, create a new empty repository
     this way: ([/help/init | more info]) </p>
-    
+
     <blockquote>
     <b>fossil init </b><i> repository-filename</i>
     </blockquote>
@@ -48,32 +48,32 @@ and painlessly.</p>
     a remote repository it is necessary to make a local copy of that
     repository.  Making a local copy of a remote repository is called
     "cloning".</p>
-    
+
     <p>Clone a remote repository as follows: ([/help/clone | more info])</p>
-    
+
     <blockquote>
     <b>fossil clone</b> <i>URL  repository-filename</i>
     </blockquote>
-    
+
     <p>The <i>URL</i> specifies the fossil repository
     you want to clone.  The <i>repository-filename</i> is the new local
     filename into which the cloned repository will be written.  For
     example:
-    
+
     <blockquote>
     <b>fossil clone http://www.fossil-scm.org/ myclone.fossil</b>
     </blockquote>
 
-    <p>If the remote repository requires a login, include a 
+    <p>If the remote repository requires a login, include a
     userid in the URL like this:
 
     <blockquote>
     <b>fossil clone http://</b><i>userid</i><b>@www.fossil-scm.org/ myclone.fossil</b>
     </blockquote>
- 
+
 
     <p>You will be prompted separately for the password.
-     Use "%HH" escapes for special characters in the userid. 
+     Use "%HH" escapes for special characters in the userid.
      Examples: "%40" in place of "@" and "%2F" in place of "/".
 
     <p>If you are behind a restrictive firewall, you might need
@@ -87,11 +87,11 @@ and painlessly.</p>
     want to share Fossil repositories directly, consider running the
     [/help/scrub|fossil scrub] command to remove sensitive information
     before transmitting the file.
-    
+
 <h2>Importing From Another Version Control System</h2>
 
     <p>Rather than start a new project, or clone an existing Fossil project,
-    you might prefer to 
+    you might prefer to
     <a href="./inout.wiki">import an existing Git project</a>
     into Fossil using the [/help/import | fossil import] command.
 
@@ -101,13 +101,13 @@ and painlessly.</p>
     copy of the source tree.  Create the directory you want to be
     the root of your tree and cd into that directory.  Then
     do this: ([/help/open | more info])</p>
-    
+
     <blockquote>
     <b>fossil open </b><i> repository-filename</i>
     </blockquote>
-    
+
     <p>This leaves you with the newest version of the tree
-    checked out.    
+    checked out.
     From anywhere underneath the root of your local tree, you
     can type commands like the following to find out the status of
     your local tree:</p>
@@ -124,7 +124,7 @@ and painlessly.</p>
 
     <p>Note that Fossil allows you to make multiple check-outs in
     separate directories from the same repository.  This enables you,
-    for example, to do builds from multiple branches or versions at 
+    for example, to do builds from multiple branches or versions at
     the same time without having to generate extra clones.</p>
 
     <p>To switch a checkout between different versions and branches,
@@ -142,13 +142,13 @@ and painlessly.</p>
     changes if told to do so.</p>
 
 <h2>Configuring Your Local Repository</h2>
-    
+
     <p>When you create a new repository, either by cloning an existing
     project or create a new project of your own, you usually want to do some
     local configuration.  This is easily accomplished using the web-server
     that is built into fossil.  Start the fossil webserver like this:
     ([/help/ui | more info])</p>
-    
+
     <blockquote>
     <b>fossil ui </b><i> repository-filename</i>
     </blockquote>
@@ -165,11 +165,11 @@ and painlessly.</p>
     <blockquote>
     <b>fossil setting web-browser </b><i>  path-to-web-browser</i>
     </blockquote>
-   
+
     <p>By default, fossil does not require a login for HTTP connections
     coming in from the IP loopback address 127.0.0.1.  You can, and perhaps
     should, change this after you create a few users.</p>
-    
+
     <p>When you are finished configuring, just press Control-C or use
     the <b>kill</b> command to shut down the mini-server.</p>
 
@@ -196,14 +196,14 @@ and painlessly.</p>
 
     In the default configuration, the [/help/commit|commit]
     command will also automatically [/help/push|push] your changes, but that
-    feature can be disabled.  (More information about 
+    feature can be disabled.  (More information about
     [./concepts.wiki#workflow|autosync] and how to disable it.)
-    Remember that your coworkers can not see your changes until you 
+    Remember that your coworkers can not see your changes until you
     commit and push them.</p>
 
 <h2>Sharing Changes</h2>
 
-    <p>When [./concepts.wiki#workflow|autosync] is turned off, 
+    <p>When [./concepts.wiki#workflow|autosync] is turned off,
     the changes you [/help/commit | commit] are only
     on your local repository.
     To share those changes with other repositories, do:</p>
@@ -243,7 +243,7 @@ and painlessly.</p>
 
     <p>The default behavior is for [./concepts.wiki#workflow|autosync] to
     be turned on.  That means that a [/help/pull|pull] automatically occurs
-    when you run [/help/update|update] and a [/help/push|push] happens 
+    when you run [/help/update|update] and a [/help/push|push] happens
     automatically after you [/help/commit|commit].  So in normal practice,
     the push, pull, and sync commands are rarely used.  But it is important
     to know about them, all the same.</p>
@@ -344,7 +344,7 @@ and painlessly.</p>
     </ul>
 
     <p>The [./selfhost.wiki | self-hosting fossil repositories] use
-    CGI.  
+    CGI.
 
 <a name="proxy"></a>
 <h2>HTTP Proxies</h2>
@@ -384,7 +384,7 @@ and painlessly.</p>
     command-line option overrides both.  If you have an persistent
     proxy setting that you want to override for a one-time sync, that
     is easily done on the command-line.  For example, to sync with
-    a co-workers repository on your LAN, you might type:</p>   
+    a co-workers repository on your LAN, you might type:</p>
 
     <blockquote>
     <b>fossil sync http://192.168.1.36:8080/ --proxy off</b>

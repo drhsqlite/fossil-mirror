@@ -1,5 +1,5 @@
-C Fix\scompilation\sissue\son\sUnix\sdue\sto\s'mkindex'\swrongly\sattempting\sto\sinclude\s'cmd_win32_service'\sdue\sto\sits\s#if\sprocessing.
-D 2016-11-02T06:41:10.374
+C Eliminate\sunnecessary\send-of-line\sspacing\sin\swiki.\sNo\stextual\schanges.
+D 2016-11-02T10:16:26.415
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -659,19 +659,19 @@ F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
-F www/aboutcgi.wiki 58fd111e2c029a61a5a0870dd2ab007f98f93edf
-F www/adding_code.wiki b769f1c0b4fd661ea7d3a22e6bbc10d9ebeed677
-F www/antibot.wiki 2cb08df5fdf129d683b1fa104c93c6785660432b
+F www/aboutcgi.wiki 202d01418f53b32d5f52f2822c8c2350e5e3c4c1
+F www/adding_code.wiki c03f60b9b4a897ca74405986aaa7dacc71675f09
+F www/antibot.wiki 1031d6f7b33f41f2ff8526a9a87efcd5672aec33
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
-F www/blame.wiki 490fbabfac629ffe706fcefedd582e509ba5d8c2
+F www/blame.wiki 59ddc91b415597b76217177835ecd2f46bad1e39
 F www/branch01.gif a288153196b8f3fc5fabe00c92101000717cb491
 F www/branch02.gif 55c3567748366595e1678a1c43448a9370ff105e
 F www/branch03.gif 3840bdbb5ed0f57104089c2888ee286d4c79a17b
 F www/branch04.gif 908b4fc1688810f78250e0a269741165ee31979a
 F www/branch05.gif 4808cbf6e0a4095580fca0f56a35f16ba975dbf9
 F www/branching.wiki f8a72263376e0997505bba9da690615c77fb157e
-F www/bugtheory.wiki 035fbfb8a543204891f27628e9190a97f8d1b3a5
+F www/bugtheory.wiki 786bcb265b8043c41f5985167d88b57866e5a652
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
 F www/build-icons/linux64.gif 522442bc41cc8399b8957ab3cb1af4f5fe46b11f
 F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
@@ -681,16 +681,16 @@ F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 0b9eb5c2d318425ca12b50bc3247aad2b4fc1088
 F www/changes.wiki 9f7490e9a5584b871b8b2bd5d646b9d87cd73ef7
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
-F www/checkin_names.wiki 0e2b687be7fc8d4f4b2fcf590bfa290de479c43c
-F www/childprojects.wiki 26e08e37f9d96562486c7698697a356d77cdad8f
+F www/checkin_names.wiki be27496a6d2f5f6c83b5a3a1441451beabec99e1
+F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
-F www/concepts.wiki f28e36dd50bf5c47145580618391ff4ee310498e
-F www/contribute.wiki 9f7136d12f9099e615c8d5a414934e0b15613393
+F www/concepts.wiki 01769da6d61e038c7e7811dbaf342664a8cddd5d
+F www/contribute.wiki 51d8338889e42b57668b1116bb3fc6ab9df52864
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
-F www/custom_ticket.wiki 4083c719eee18ea9dad81d335e45e9af8e29ec4e
+F www/custom_ticket.wiki 237e66bca7ae40c77285357967bfa6728e79a73d
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
 F www/customskin.md b780e7be44eb68faade0fb647376e1815009d211
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
@@ -699,9 +699,9 @@ F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
 F www/delta4.gif 235b08d75ca98d34ba8b5bcaf38aeaf975ec51b4
 F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
-F www/delta_encoder_algorithm.wiki 9686168c940fc6e88065a845918e9b7e77e881c8
-F www/delta_format.wiki df258b69a8be9a4e3f4ce6dbef3077cfb3dcb89c
-F www/embeddeddoc.wiki f946411b7f9fd30baa0a624fe7367efeaee2b9c6
+F www/delta_encoder_algorithm.wiki ac576e788f4a96212a59e81761e4d73a9cc8cfbd
+F www/delta_format.wiki 7ca5bd7bfd6bc8e3df067badc393129d30363562
+F www/embeddeddoc.wiki dedbeea97cd9d6c17e3ed97b2f229fa6e6e3ff32
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
@@ -712,15 +712,15 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/encryptedrepos.wiki fef4315cc63e7b350678de7cc7d55a7f3a9de29a
+F www/encryptedrepos.wiki 79a109d3a75e86fd99419de4b00f1937043db9a6
 F www/env-opts.md 1f4a230136c337741b1e481406755e6b3005f98a
-F www/event.wiki 395b955e611769fd9aedf3ab489530b89ad5f224
+F www/event.wiki f5a9cc34b11e8224e503e16137ba0f966f151551
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
-F www/faq.wiki 7d1363cc33701f1df53cf0f5479546adcde6d781
-F www/fileformat.wiki 981373a49e621f163636c8abea1a17f8559613ea
-F www/fiveminutes.wiki 3172b324738523b163b19a8c836d3d9a3ceb9b94
-F www/foss-cklist.wiki 77fe5872d7077a68e1b01e8dd5e3a48f7ee2b0dd
-F www/fossil-from-msvc.wiki f2c229553ff6304fa0c6e82d169e959498af98a8
+F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
+F www/fileformat.wiki 71931bb739ad3353dbe3c3f4565ef10af20fd23d
+F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
+F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
+F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-v-git.wiki 072cd93d7f8dd668d8d157c35b4f529a26de4bb7
 F www/fossil.eps 672ae6297081bd6a1c9565a9cae7c8299a1d61e3
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
@@ -734,42 +734,42 @@ F www/fossil_prompt.sh db68e2cae431b9e9f5dd672e2f56e2bde5a57d2a
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
-F www/index.wiki c68230abbb270f22a4a1af5174c8369a3d3861ac
-F www/inout.wiki 1e82974b59e2c97c082dfa6d4d5feda0c70d32ee
-F www/makefile.wiki 30c7129ffb00c58699b87e84a2c0b696d7c10406
+F www/index.wiki 37506c18202051284c6145efeb9a7579e5f9497c
+F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
+F www/makefile.wiki c66d24da0948da2025a79968522f78aa03055df5
 F www/mkdownload.tcl 2bd511f2a9b97d63c75e44d547e9103a181f7ca3
 F www/mkindex.tcl 61400abbaa7290cd30ef9a49242c9d0d7f1a327e
-F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
+F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
 F www/permutedindex.html 2190e7f8be7f6e1045f40c566431e61a4edfdfbd
-F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
-F www/private.wiki 72344489bbae6f7955369559b6ab22e01a64259b
-F www/qandc.wiki e07b21da221b05afeb1905f17af3765045952ba8
-F www/quickstart.wiki d4ead37f048c87a56497d475023d1678e22dfa61
-F www/quotes.wiki 09a040dcc9ae1c3a9121940e3a2255471f8d59cf
-F www/reviews.wiki 866e545f89fce7cff29c96a29ab10586692f3964
+F www/pop.wiki ff0cb27232ea75a378adfc643cfde2b284342a24
+F www/private.wiki 1c55c09563361db73b733386dc0fd6689156d5ab
+F www/qandc.wiki a36aa53c4aa1f7bd05348543fa0152406fc73919
+F www/quickstart.wiki c0829034683df6f985027c22ee313f6b50088bfb
+F www/quotes.wiki 6f77c1af17f05596d0f6a4cc88f149a61188ecfd
+F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
-F www/selfcheck.wiki d1e2fc5baf9ade46815499c9758256a22efe8142
-F www/selfhost.wiki 03de31d67690fe47972589e4e1e395e11559c85c
-F www/server.wiki 8df57c32619da8ac0178508a0300382e854c1687
-F www/settings.wiki 12b7e736432b0081a7e6a3d7b9e184d04f482ef7
-F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
+F www/selfcheck.wiki d10149135318ada36535d8ce21de327c45d12d34
+F www/selfhost.wiki 6090bea94139ec56a3cba671e75d0e78c54ee077
+F www/server.wiki a6b8ca94d0fa8b18e9f3604f9977ffcde756ff65
+F www/settings.wiki 21e45b59107e7309a0f660dee9a28ab5d0d922e4
+F www/shunning.wiki c216e0b9968d4916224bce549e65c651076ebe1f
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
-F www/stats.wiki e6c82bd6579f755896c47b22dbab18e27b1f5bc4
+F www/stats.wiki 6558a7e417d5e9d29271c26ebb3195dddec31855
 F www/style.wiki da3a414d4c57c3da2636daf0baf6964ba72ce70b
-F www/sync.wiki 2dc71811c4c9d9d32b4cd533258328e4e733402b
+F www/sync.wiki 0fc6d3e51459d7014310830655125acd61fb255e
 F www/tech_overview.wiki 4d74d28dfc2515d7864c4ecbf7324be9919e3efd
 F www/th1.md 6154ca86c2d54b49b84e01715103eb8f74e5c3aa
-F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
+F www/theory1.wiki 8047579bc30437bffe4dd0c06d8c2aa3ba3648ae
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/unvers.wiki a75ea510c408c0bb83c396afbe72948b8b2202cd
 F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
-F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
+F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7aeeb30286cc2f61891e4e24861d33435e765627
-R 53f01a2abb264f3e26dd66648466086a
-U mistachkin
-Z 14f1a1f4d856f454aa8f1800d12a6462
+P 69f64a8d64722e0e8ac7c9e673c03a49228ec1eb
+R ef6107ac5524745c96f74d23e0078403
+U jan.nijtmans
+Z f71cff1dae4c8cc67c9876a1f750fefb

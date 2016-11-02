@@ -55,7 +55,7 @@ we create a working directory and then <tt>cd</tt> to it:
 stephan@ludo:~/fossil$ mkdir demo
 stephan@ludo:~/fossil$ cd demo
 stephan@ludo:~/fossil/demo$ fossil open ../demo.fossil
-stephan@ludo:~/fossil/demo$  
+stephan@ludo:~/fossil/demo$
 </verbatim>
 
 That creates a file called <tt>_FOSSIL_</tt> in the current

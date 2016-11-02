@@ -1,8 +1,8 @@
 <title>Import And Export</title>
 
-Fossil has the ability to import and export repositories from and to 
+Fossil has the ability to import and export repositories from and to
 [http://git-scm.com/ | Git].  And since most other version control
-systems will also import/export from Git, that means that you can 
+systems will also import/export from Git, that means that you can
 import/export a Fossil repository to most version control systems using
 Git as an intermediary.
 
@@ -22,7 +22,7 @@ content.
 
 The --git option is not actually required.  The git-fast-export file format
 is currently the only VCS interchange format that Fossil understands.  But
-future versions of Fossil might be enhanced to understand other VCS 
+future versions of Fossil might be enhanced to understand other VCS
 interchange formats, and so for compatibility, use of the
 --git option is recommended.
 
@@ -45,10 +45,10 @@ Tickets and wiki and events are not exported, since Git does not understand
 those concepts.
 
 As with the "import" command, the --git option is not required
-since the git-fast-export file format is currently the only VCS interchange 
+since the git-fast-export file format is currently the only VCS interchange
 format that Fossil will generate.  However,
 future versions of Fossil might add the ability to generate other
-VCS interchange formats, and so for compatibility, the use of the --git 
+VCS interchange formats, and so for compatibility, the use of the --git
 option recommended.
 
 <h2>Bidirectional Synchronization</h2>
