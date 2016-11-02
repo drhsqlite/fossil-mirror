@@ -1,5 +1,5 @@
-C Eliminate\sunnecessary\send-of-line\sspacing\sin\swiki.\sNo\stextual\schanges.
-D 2016-11-02T10:16:26.415
+C Collapse\stwo\smemset's\sinto\sone.\sTypo\sin\smkdownload.tcl
+D 2016-11-02T10:22:36.441
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -400,7 +400,7 @@ F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 08491c9e5c39aeceb6f57e876681cfb6e558658f
-F src/delta.c f3002e96cc35f37b9bab7c88f82e978e67342904
+F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c 80496b89245c3c41a61b1e6a568d1bd8deec299c
 F src/diff.c 010e9b187ca7821f71c2295912d177c86de0fc7f
@@ -737,7 +737,7 @@ F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki 37506c18202051284c6145efeb9a7579e5f9497c
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki c66d24da0948da2025a79968522f78aa03055df5
-F www/mkdownload.tcl 2bd511f2a9b97d63c75e44d547e9103a181f7ca3
+F www/mkdownload.tcl 3d0050f9c20d49fb23bfc43500fe53d834bea297
 F www/mkindex.tcl 61400abbaa7290cd30ef9a49242c9d0d7f1a327e
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
@@ -769,7 +769,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 69f64a8d64722e0e8ac7c9e673c03a49228ec1eb
-R ef6107ac5524745c96f74d23e0078403
+P f47b7052c660f9566b8f08e83592300efcd80f39
+R 60b97e2f14187d74fad9e39adb9edc4c
 U jan.nijtmans
-Z f71cff1dae4c8cc67c9876a1f750fefb
+Z f2de61ee523fea26ee9553b4c2b8d2ec
