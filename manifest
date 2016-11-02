@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion\sthat\sincludes\sa\sfix\nto\sVACUUM\sto\sprevent\sit\sfrom\srunning\sout\sof\smemory\son\svery\slarge\sdatabases.
-D 2016-11-02T15:16:27.202
+C Fix\sthe\sbuild\son\sWindows.
+D 2016-11-02T17:47:46.645
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -517,7 +517,7 @@ F src/vfile.c c07d515af78f82e4d8d3f8c781111d1f504fe336
 F src/wiki.c 8d56403100ca58020feeb4a76d2b7f08e861049e
 F src/wikiformat.c 1d750982147d9c51fa40e89e40241a33408adaf6
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
-F src/winhttp.c 74631e97a8cb6c00af0d19209c6cdc392189bba3
+F src/winhttp.c 78eb2b496e7a2d0a7019996362032c4fa4a2baa5
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 0d5ab26abbb866807a60592ff3a293aa4d899192
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
@@ -769,7 +769,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5f88968404002b742c7012c18be84bf415645164
-R 779846c3bbd7defd5b6b36a06c87312e
+P 7fa9701b3d43f67dfe406b804ebb9c4a1b7c5e3e
+R e27cccf0830b632ec41af338b9ca27e9
 U drh
-Z cfafc3727a92fcfafa30412027fd70b0
+Z b541296d6189e729bc167bf0610e584e

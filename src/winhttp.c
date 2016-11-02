@@ -668,7 +668,8 @@ int win32_http_service(
   return 0;
 }
 
-#ifdef _WIN32 /* dupe needed for mkindex */
+/* Dupliate #ifdef needed for mkindex */
+#ifdef _WIN32
 /*
 ** COMMAND: winsrv*
 **
