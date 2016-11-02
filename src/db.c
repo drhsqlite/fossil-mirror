@@ -29,7 +29,11 @@
 **
 */
 #include "config.h"
-#if ! defined(_WIN32)
+#if defined(_WIN32)
+#  if USE_SEE
+#    include <windows.h>
+#  endif
+#else
 #  include <pwd.h>
 #endif
 #include <sqlite3.h>
@@ -872,27 +876,166 @@ void db_add_aux_functions(sqlite3 *db){
                           db_fromlocal_function, 0, 0);
 }
 
+#if USE_SEE
+/*
+** This is a pointer to the saved database encryption key string.
+*/
+static char *zSavedKey = 0;
+
+/*
+** This is the size of the saved database encryption key, in bytes.
+*/
+size_t savedKeySize = 0;
+
+/*
+** This function returns the saved database encryption key -OR- zero if
+** no database encryption key is saved.
+*/
+char *db_get_saved_encryption_key(){
+  return zSavedKey;
+}
+
+/*
+** This function returns the size of the saved database encryption key
+** -OR- zero if no database encryption key is saved.
+*/
+size_t db_get_saved_encryption_key_size(){
+  return savedKeySize;
+}
+
+/*
+** This function arranges for the database encryption key to be securely
+** saved in non-pagable memory (on platforms where this is possible).
+*/
+static void db_save_encryption_key(
+  Blob *pKey
+){
+  void *p = NULL;
+  size_t n = 0;
+  size_t pageSize = 0;
+  size_t blobSize = 0;
+
+  blobSize = blob_size(pKey);
+  if( blobSize==0 ) return;
+  fossil_get_page_size(&pageSize);
+  assert( pageSize>0 );
+  if( blobSize>pageSize ){
+    fossil_fatal("key blob too large: %u versus %u", blobSize, pageSize);
+  }
+  p = fossil_secure_alloc_page(&n);
+  assert( p!=NULL );
+  assert( n==pageSize );
+  assert( n>=blobSize );
+  memcpy(p, blob_str(pKey), blobSize);
+  zSavedKey = p;
+  savedKeySize = n;
+}
+
+/*
+** This function arranges for the saved database encryption key to be
+** securely zeroed, unlocked (if necessary), and freed.
+*/
+void db_unsave_encryption_key(){
+  fossil_secure_free_page(zSavedKey, savedKeySize);
+  zSavedKey = NULL;
+  savedKeySize = 0;
+}
+
+/*
+** This function sets the saved database encryption key to the specified
+** string value, allocating or freeing the underlying memory if needed.
+*/
+void db_set_saved_encryption_key(
+  Blob *pKey
+){
+  if( zSavedKey!=NULL ){
+    size_t blobSize = blob_size(pKey);
+    if( blobSize==0 ){
+      db_unsave_encryption_key();
+    }else{
+      if( blobSize>savedKeySize ){
+        fossil_fatal("key blob too large: %u versus %u",
+                     blobSize, savedKeySize);
+      }
+      fossil_secure_zero(zSavedKey, savedKeySize);
+      memcpy(zSavedKey, blob_str(pKey), blobSize);
+    }
+  }else{
+    db_save_encryption_key(pKey);
+  }
+}
+
+#if defined(_WIN32)
+/*
+** This function sets the saved database encryption key to one that gets
+** read from the specified Fossil parent process.  This is only necessary
+** (or functional) on Windows.
+*/
+void db_read_saved_encryption_key_from_process(
+  DWORD processId, /* Identifier for Fossil parent process. */
+  LPVOID pAddress, /* Pointer to saved key buffer in the parent process. */
+  SIZE_T nSize     /* Size of saved key buffer in the parent process. */
+){
+  void *p = NULL;
+  size_t n = 0;
+  size_t pageSize = 0;
+  HANDLE hProcess = NULL;
+
+  fossil_get_page_size(&pageSize);
+  assert( pageSize>0 );
+  if( nSize>pageSize ){
+    fossil_fatal("key too large: %u versus %u", nSize, pageSize);
+  }
+  p = fossil_secure_alloc_page(&n);
+  assert( p!=NULL );
+  assert( n==pageSize );
+  assert( n>=nSize );
+  hProcess = OpenProcess(PROCESS_VM_READ, FALSE, processId);
+  if( hProcess!=NULL ){
+    SIZE_T nRead = 0;
+    if( ReadProcessMemory(hProcess, pAddress, p, nSize, &nRead) ){
+      CloseHandle(hProcess);
+      if( nRead==nSize ){
+        db_unsave_encryption_key();
+        zSavedKey = p;
+        savedKeySize = n;
+      }else{
+        fossil_fatal("bad size read, %u out of %u bytes at %p from pid %lu",
+                     nRead, nSize, pAddress, processId);
+      }
+    }else{
+      CloseHandle(hProcess);
+      fossil_fatal("failed read, %u bytes at %p from pid %lu: %lu", nSize,
+                   pAddress, processId, GetLastError());
+    }
+  }else{
+    fossil_fatal("failed to open pid %lu: %lu", processId, GetLastError());
+  }
+}
+#endif /* defined(_WIN32) */
+#endif /* USE_SEE */
+
 /*
 ** If the database file zDbFile has a name that suggests that it is
-** encrypted, then prompt for the encryption key and return it in the
-** blob *pKey.  Or, if the encryption key has previously been requested,
-** just return a copy of the previous result.
+** encrypted, then prompt for the database encryption key and return it
+** in the blob *pKey.  Or, if the encryption key has previously been
+** requested, just return a copy of the previous result.  The blob in
+** *pKey must be initialized.
 */
-static void db_encryption_key(
+static void db_maybe_obtain_encryption_key(
   const char *zDbFile,   /* Name of the database file */
   Blob *pKey             /* Put the encryption key here */
 ){
-  blob_init(pKey, 0, 0);
 #if USE_SEE
   if( sqlite3_strglob("*.efossil", zDbFile)==0 ){
-    static char *zSavedKey = 0;
-    if( zSavedKey ){
-      blob_set(pKey, zSavedKey);
+    char *zKey = db_get_saved_encryption_key();
+    if( zKey ){
+      blob_set(pKey, zKey);
     }else{
       char *zPrompt = mprintf("\rencryption key for '%s': ", zDbFile);
       prompt_for_password(zPrompt, pKey, 0);
       fossil_free(zPrompt);
-      zSavedKey = fossil_strdup(blob_str(pKey));
+      db_set_saved_encryption_key(pKey);
     }
   }
 #endif
@@ -917,10 +1060,12 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   if( rc!=SQLITE_OK ){
     db_err("[%s]: %s", zDbName, sqlite3_errmsg(db));
   }
-  db_encryption_key(zDbName, &key);
+  blob_init(&key, 0, 0);
+  db_maybe_obtain_encryption_key(zDbName, &key);
   if( blob_size(&key)>0 ){
     char *zCmd = sqlite3_mprintf("PRAGMA key(%Q)", blob_str(&key));
     sqlite3_exec(db, zCmd, 0, 0, 0);
+    fossil_secure_zero(zCmd, strlen(zCmd));
     sqlite3_free(zCmd);
   }
   blob_reset(&key);
@@ -957,10 +1102,15 @@ void db_detach(const char *zLabel){
 ** the name zLabel.
 */
 void db_attach(const char *zDbName, const char *zLabel){
+  char *zCmd;
   Blob key;
-  db_encryption_key(zDbName, &key);
-  db_multi_exec("ATTACH DATABASE %Q AS %Q KEY %Q",
-                zDbName, zLabel, blob_str(&key));
+  blob_init(&key, 0, 0);
+  db_maybe_obtain_encryption_key(zDbName, &key);
+  zCmd = sqlite3_mprintf("ATTACH DATABASE %Q AS %Q KEY %Q",
+                         zDbName, zLabel, blob_str(&key));
+  db_multi_exec(zCmd /*works-like:""*/);
+  fossil_secure_zero(zCmd, strlen(zCmd));
+  sqlite3_free(zCmd);
   blob_reset(&key);
 }
 
@@ -1194,6 +1344,7 @@ static int isValidLocalDb(const char *zDbName){
       db_multi_exec("ALTER TABLE undo_vfile ADD COLUMN islink BOOL DEFAULT 0");
     }
   }
+  fossil_free(zVFileDef);
   return 1;
 }
 
@@ -2273,6 +2424,41 @@ void db_lset_int(const char *zName, int value){
   db_multi_exec("REPLACE INTO vvar(name,value) VALUES(%Q,%d)", zName, value);
 }
 
+#if INTERFACE
+/* Manifest generation flags */
+#define MFESTFLG_RAW  0x01
+#define MFESTFLG_UUID 0x02
+#define MFESTFLG_TAGS 0x04
+#endif /* INTERFACE */
+
+/*
+** Get the manifest setting.  For backwards compatibility first check if the
+** value is a boolean.  If it's not a boolean, treat each character as a flag
+** to enable a manifest type.  This system puts certain boundary conditions on
+** which letters can be used to represent flags (any permutation of flags must
+** not be able to fully form one of the boolean values).
+*/
+int db_get_manifest_setting(void){
+  int flg;
+  char *zVal = db_get("manifest", 0);
+  if( zVal==0 || is_false(zVal) ){
+    return 0;
+  }else if( is_truth(zVal) ){
+    return MFESTFLG_RAW|MFESTFLG_UUID;
+  }
+  flg = 0;
+  while( *zVal ){
+    switch( *zVal ){
+      case 'r': flg |= MFESTFLG_RAW;  break;
+      case 'u': flg |= MFESTFLG_UUID; break;
+      case 't': flg |= MFESTFLG_TAGS; break;
+    }
+    zVal++;
+  }
+  return flg;
+}
+
+
 /*
 ** Record the name of a local repository in the global_config() database.
 ** The repository filename %s is recorded as an entry with a "name" field
@@ -2572,7 +2758,7 @@ const Setting aSetting[] = {
   { "keep-glob",        0,             40, 1, 0, ""                    },
   { "localauth",        0,              0, 0, 0, "off"                 },
   { "main-branch",      0,             40, 0, 0, "trunk"               },
-  { "manifest",         0,              0, 1, 0, "off"                 },
+  { "manifest",         0,              5, 1, 0, "off"                 },
   { "max-loadavg",      0,             25, 0, 0, "0.0"                 },
   { "max-upload",       0,             25, 0, 0, "250000"              },
   { "mtime-changes",    0,              0, 0, 0, "on"                  },
@@ -2777,9 +2963,12 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **
 **    main-branch      The primary branch for the project.  Default: trunk
 **
-**    manifest         If enabled, automatically create files "manifest" and
-**     (versionable)   "manifest.uuid" in every checkout.  The SQLite and
-**                     Fossil repositories both require this.  Default: off.
+**    manifest         If set to a true boolean value, automatically create
+**     (versionable)   files "manifest" and "manifest.uuid" in every checkout.
+**                     Optionally use combinations of characters 'r'
+**                     for "manifest", 'u' for "manifest.uuid" and 't' for
+**                     "manifest.tags".  The SQLite and Fossil repositories
+**                     both require manifests.  Default: off.
 **
 **    max-loadavg      Some CPU-intensive web pages (ex: /zip, /tarball, /blame)
 **                     are disallowed if the system load average goes above this

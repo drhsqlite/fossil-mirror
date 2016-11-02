@@ -1,6 +1,6 @@
 <title>The Fossil Sync Protocol</title>
 
-<p>This document describes the wire protocol used to synchronize 
+<p>This document describes the wire protocol used to synchronize
 content between two Fossil repositories.</p>
 
 <h2>1.0 Overview</h2>
@@ -24,7 +24,7 @@ shared to a few hundred.</p>
 <p>Each repository also has local state.  The local state determines
 the web-page formatting preferences, authorized users, ticket formats,
 and similar information that varies from one repository to another.
-The local state is not using transferred during a sync.  Except,	
+The local state is not using transferred during a sync.  Except,
 some local state is transferred during a [/help?cmd=clone|clone]
 in order to initialize the local state of the new repository.  And
 the [/help?cmd=configuration|config push] and
@@ -42,11 +42,11 @@ request.</p>
 <p>The server might be running as an independent server
 using the <b>server</b> command, or it might be launched from
 inetd or xinetd using the <b>http</b> command.  Or the server might
-be launched from CGI.  
+be launched from CGI.
 (See "[./server.wiki|How To Configure A Fossil Server]" for details.)
 The specifics of how the server listens
 for incoming HTTP requests is immaterial to this protocol.
-The important point is that the server is listening for requests and 
+The important point is that the server is listening for requests and
 the client is the issuer of the requests.</p>
 
 <p>A single push, pull, or sync might involve multiple HTTP requests.
@@ -57,7 +57,7 @@ any information about the client from one request to the next.</p>
 <h4>2.0.1 Encrypted Transport</h4>
 
 <p>In the current implementation of Fossil, the server only
-understands HTTP requests.  The client can send either 
+understands HTTP requests.  The client can send either
 clear-text HTTP requests or encrypted HTTPS requests.  But when
 HTTPS requests are sent, they first must be decrypted by a webserver
 or proxy before being passed to the Fossil server.  This limitation
@@ -222,7 +222,7 @@ compressed artifact directly from the server database to the client.</p>
 
 <p>Compressed File cards are similar to File cards, sharing the same
 in-line "payload" data characteristics and also the same treatment of
-direct content or delta content.  It comes in two different formats
+direct content or delta content.  Cfile cards come in two different formats
 depending on whether the artifact is sent directly or as a delta from
 some other artifact.</p>
 
@@ -279,7 +279,7 @@ The <i>size</i> field is the (uncompressed) size of the content
 in bytes.  The <i>flags</i> field is an integer which is interpreted
 as an array of bits.  The 0x0004 bit of <i>flags</i> indicates that
 the <i>content</i> is to be omitted.  The content might be omitted if
-it is too large to transmit, or if the send merely wants to update the
+it is too large to transmit, or if the sender merely wants to update the
 modification time of the file without changing the files content.
 The <i>content</i> is the (uncompressed) content of the file.
 
@@ -400,7 +400,7 @@ be ignored unless a "--private" [/help?cmd=sync|sync] is occurring.
 
 <h4>3.6.1 Unversioned Igot Cards</h4>
 
-<p>Zero or more "uvigot" cards are sent from client to server when
+<p>Zero or more "uvigot" cards are sent from server to client when
 synchronizing unversioned content.  The format of a uvigot card is
 as follows:
 
@@ -410,7 +410,7 @@ as follows:
 
 <p>The <i>name</i> argument is the name of an unversioned file.
 The <i>mtime</i> is the last modification time of the unversioned file
-in seconds since 1970.  
+in seconds since 1970.
 The <i>hash</i> is the SHA1 hash of the unversioned file content, or
 "<b>-</b>" if the file has been deleted.
 The <i>size</i> is the uncompressed size of the file in bytes.

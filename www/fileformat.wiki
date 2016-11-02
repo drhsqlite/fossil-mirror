@@ -1,10 +1,10 @@
-<title>Fossil File Formats</title>
+﻿<title>Fossil File Formats</title>
 <h1 align="center">
 Fossil File Formats
 </h1>
 
 The global state of a fossil repository is kept simple so that it can
-endure in useful form for decades or centuries. 
+endure in useful form for decades or centuries.
 A fossil repository is intended to be readable,
 searchable, and extensible by people not yet born.
 
@@ -16,7 +16,7 @@ used to show the relationships between other artifacts within the
 project.  Each artifact is normally represented on disk as a separate
 file.  Artifacts can be text or binary.
 
-In addition to the global state, 
+In addition to the global state,
 each fossil repository also contains local state.
 The local state consists of web-page formatting
 preferences, authorized users, ticket display and reporting formats,
@@ -32,7 +32,7 @@ mentioned here in order to distinguish it from global state.
 Each artifact in the repository is named by its SHA1 hash.
 No prefixes or meta information is added to an artifact before
 its hash is computed.  The name of an artifact in the repository
-is exactly the same SHA1 hash that is computed by sha1sum 
+is exactly the same SHA1 hash that is computed by sha1sum
 on the file as it exists in your source tree.</p>
 
 Some artifacts have a particular format which gives them special
@@ -86,7 +86,7 @@ character "card type".  Zero or more arguments may follow
 the card type.  All arguments are separated from each other
 and from the card-type character by a single space
 character.  There is no surplus white space between arguments
-and no leading or trailing whitespace except for the newline 
+and no leading or trailing whitespace except for the newline
 character that acts as the card separator.
 
 All cards of the manifest occur in strict sorted lexicographical order.
@@ -116,14 +116,14 @@ manifest that has a B-card is called a delta-manifest and a manifest
 that omits the B-card is a baseline-manifest.  The other manifest
 identified by the argument of the B-card must be a baseline-manifest.
 A baseline-manifest records the complete contents of a check-in.
-A delta-manifest records only changes from its baseline.  
+A delta-manifest records only changes from its baseline.
 
 A manifest must have exactly one C-card.  The sole argument to
 the C-card is a check-in comment that describes the check-in that
 the manifest defines.  The check-in comment is text.  The following
 escape sequences are applied to the text:
 A space (ASCII 0x20) is represented as "\s" (ASCII 0x5C, 0x73).  A
-newline (ASCII 0x0a) is "\n" (ASCII 0x5C, x6E).  A backslash 
+newline (ASCII 0x0a) is "\n" (ASCII 0x5C, x6E).  A backslash
 (ASCII 0x5C) is represented as two backslashes "\\".  Apart from
 space and newline, no other whitespace characters are allowed in
 the check-in comment.  Nor are any unprintable characters allowed
@@ -168,11 +168,11 @@ is used.
 
 A manifest has zero or one P-cards.  Most manifests have one P-card.
 The P-card has a varying number of arguments that
-defines other manifests from which the current manifest
-is derived.  Each argument is an 40-character lowercase 
-hexadecimal SHA1 of the predecessor manifest.  All arguments
-to the P-card must be unique to that line.
-The first predecessor is the direct ancestor of the manifest.
+define other manifests from which the current manifest
+is derived.  Each argument is a 40-character lowercase
+hexadecimal SHA1 of a predecessor manifest.  All arguments
+to the P-card must be unique within that card.
+The first argument is the SHA1 of the direct ancestor of the manifest.
 Other arguments define manifests with which the first was
 merged to yield the current manifest.  Most manifests have
 a P-card with a single argument.  The first manifest in the
@@ -186,24 +186,24 @@ ancestor, the Q-card is used to identify a single check-in or a small
 range of check-ins which were cherry-picked for inclusion in or
 exclusion from the current manifest.  The first argument of
 the Q-card is the artifact ID of another manifest (the "target")
-which has had its changes included or excluded in the current manifest.  
+which has had its changes included or excluded in the current manifest.
 The target is preceded by "+" or "-" to show inclusion or
 exclusion, respectively.  The optional second argument to the
 Q-card is another manifest artifact ID which is the "baseline"
 for the cherry-pick.  If omitted, the baseline is the primary
 parent of the target.  The
 changes included or excluded consist of all changes moving from
-the baseline to the target.  
+the baseline to the target.
 
-The Q-card was added to the interface specification on 2011-02-26.  
+The Q-card was added to the interface specification on 2011-02-26.
 Older versions of Fossil will reject manifests that contain Q-cards.
 
 A manifest may optionally have a single R-card.  The R-card has
-a single argument which is the MD5 checksum of all files in 
+a single argument which is the MD5 checksum of all files in
 the check-in except the manifest itself.  The checksum is expressed
-as 32-characters of lowercase hexadecimal.   The checksum is
+as 32 characters of lowercase hexadecimal.   The checksum is
 computed as follows:  For each file in the check-in (except for
-the manifest itself) in strict sorted lexicographical order, 
+the manifest itself) in strict sorted lexicographical order,
 take the pathname of the file relative to the root of the
 repository, append a single space (ASCII 0x20), the
 size of the file in ASCII decimal, a single newline
@@ -230,8 +230,8 @@ check-in comment argument to the C-card.
 
 A manifest must have a single Z-card as its last line.  The argument
 to the Z-card is a 32-character lowercase hexadecimal MD5 hash
-of all prior lines of the manifest up to and including the newline 
-character that immediately precedes the "Z".  The Z-card is 
+of all prior lines of the manifest up to and including the newline
+character that immediately precedes the "Z".  The Z-card is
 a sanity check to prove that the manifest is well-formed and
 consistent.
 
@@ -242,23 +242,23 @@ A sample manifest from Fossil itself can be seen
 <h2>2.0 Clusters</h2>
 
 A cluster is an artifact that declares the existence of other artifacts.
-Clusters are used during repository synchronization to help 
+Clusters are used during repository synchronization to help
 reduce network traffic.  As such, clusters are an optimization and
 may be removed from a repository without loss or damage to the
 underlying project code.
 
 Clusters follow a syntax that is very similar to manifests.
-A Cluster is a line-oriented text file.  Newline characters
+A cluster is a line-oriented text file.  Newline characters
 (ASCII 0x0a) separate the artifact into cards.  Each card begins with a single
 character "card type".  Zero or more arguments may follow
 the card type.  All arguments are separated from each other
 and from the card-type character by a single space
 character.  There is no surplus white space between arguments
-and no leading or trailing whitespace except for the newline 
+and no leading or trailing whitespace except for the newline
 character that acts as the card separator.
 All cards of a cluster occur in strict sorted lexicographical order.
 No card may be duplicated.
-The cluster may not contain additional text or data beyond 
+The cluster may not contain additional text or data beyond
 what is described here.
 Unlike manifests, clusters are never PGP signed.
 
@@ -270,8 +270,8 @@ Allowed cards in the cluster are as follows:
 </blockquote>
 
 A cluster contains one or more "M" cards followed by a single "Z"
-line.  Each M card has a single argument which is the artifact ID of 
-another artifact in the repository.  The Z card work exactly like
+card.  Each M card has a single argument which is the artifact ID of
+another artifact in the repository.  The Z card works exactly like
 the Z card of a manifest.  The argument to the Z card is the
 lower-case hexadecimal representation of the MD5 checksum of all
 prior cards in the cluster.  The Z-card is required.
@@ -317,7 +317,7 @@ is either "+", "-", or "*".  The "+" means the tag should be added
 to the artifact.  The "-" means the tag should be removed.
 The "*" character means the tag should be added to the artifact
 and all direct descendants (but not descendants through a merge) down
-to but not including the first descendant that contains a 
+to but not including the first descendant that contains a
 more recent "-", "*", or "+" tag with the same name.
 The optional third argument is the value of the tag.  A tag
 without a value is a Boolean.
@@ -333,7 +333,7 @@ check-in user.  The "date" tag overrides the check-in date.
 The "branch" tag sets the name of the branch that at check-in
 belongs to.  Symbolic tags begin with the "sym-" prefix.
 
-The U card is the name of the user that created the control 
+The U card is the name of the user that created the control
 artifact.  The Z card is the usual required artifact checksum.
 
 An example control artifacts can be seen [/info/9d302ccda8 | here].
@@ -362,7 +362,7 @@ The D card is the date and time when the wiki page was edited.
 The P card specifies the parent wiki pages, if any.  The L card
 gives the name of the wiki page.  The optional N card specifies
 the mimetype of the wiki text.  If the N card is omitted, the
-mimetype is assumed to be text/x-fossil-wiki.  
+mimetype is assumed to be text/x-fossil-wiki.
 The U card specifies the login
 of the user who made this edit to the wiki page.  The Z card is
 the usual checksum over the entire artifact and is required.
@@ -407,7 +407,7 @@ field is set to an empty string.
 Each fossil server has a ticket configuration which specifies the fields its
 understands.  The ticket configuration is part of the local state for
 the repository and thus can vary from one repository to another.
-Hence a J card might specify a <i>field</i> that do not exist in the 
+Hence a J card might specify a <i>field</i> that do not exist in the
 local ticket configuration.  If a J card specifies a <i>field</i> that
 is not in the local configuration, then that J card
 is simply ignored.
@@ -426,7 +426,7 @@ An example ticket-change artifact can be seen
 <h2>6.0 Attachments</h2>
 
 An attachment artifact associates some other artifact that is the
-attachment (the source artifact) with a ticket or wiki page or 
+attachment (the source artifact) with a ticket or wiki page or
 technical note to which
 the attachment is connected (the target artifact).
 The following cards are allowed on an attachment artifact:
@@ -443,7 +443,7 @@ The following cards are allowed on an attachment artifact:
 The A card specifies a filename for the attachment in its first argument.
 The second argument to the A card is the name of the wiki page or
 ticket or technical note to which the attachment is connected.  The
-third argument is either missing or else it is the 40-character artifact 
+third argument is either missing or else it is the 40-character artifact
 ID of the attachment itself.  A missing third argument means that the
 attachment should be deleted.
 
@@ -489,7 +489,7 @@ The following cards are allowed on an technote artifact:
 The C card contains text that is displayed on the timeline for the
 technote.  The C card is optional, but there can only be one.
 
-A single D card is required to give the date and time when the 
+A single D card is required to give the date and time when the
 technote artifact was created.  This is different from the time at which
 the technote appears on the timeline.
 
@@ -527,7 +527,7 @@ display color for timelines.
 The optional U card gives name of the user who entered the technote.
 
 A single W card provides wiki text for the document associated with the
-technote.  The format of the W card is exactly the same as for a 
+technote.  The format of the W card is exactly the same as for a
 [#wikichng | wiki artifact].
 
 The Z card is the required checksum over the rest of the artifact.

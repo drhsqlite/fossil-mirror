@@ -155,7 +155,7 @@ byte forward. The "base" is left unchanged in that case.</p>
 <p>The processing loop stops at one of two conditions:
 <ol>
 <li>The encoder decided to move the window forward, but the end of the
-window reached the end of the "target". 
+window reached the end of the "target".
 </li>
 <li>After the emission of instructions the new "base" location is
 within NHASH bytes of end of the "target", i.e. there are no more than

@@ -91,7 +91,7 @@ script, or the equivalent, and does not require:
 
 <li><p>Release version numbers are in the traditional X.Y or X.Y.Z format.
 
-<li><p>Releases can be downloaded as tarball using 
+<li><p>Releases can be downloaded as tarball using
        gzip or bzip2 compression.
 
 <li><p>Releases unpack into a versioned top-level directory.
@@ -104,7 +104,7 @@ script, or the equivalent, and does not require:
 <li><p>There are no incompatible licenses in the code.
 
 <li><p>The project has not been blithely proclaimed "public domain" without
-having gone through the tedious and exacting legal steps to actually put it 
+having gone through the tedious and exacting legal steps to actually put it
 in the public domain.
 
 <li><p>There is an accurate change log in the code and on the website.

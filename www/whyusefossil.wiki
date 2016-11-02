@@ -39,6 +39,7 @@ version control<br>such as Git, Mercurial, or Subversion.</b></p>
      <li>Avoid human errors during manual backups
      </ol>
   </ol>
+<a name='definitions'></a>
 <li><p><b>Definitions</b></p>
   <ul>
   <li><p><b>Project</b> &rarr;
@@ -61,8 +62,8 @@ version control<br>such as Git, Mercurial, or Subversion.</b></p>
          where the files are laid out such that they can be archived
          into a ZIP file or tarball.
      </ul>
-  <li><p><b>Repository</b>
-      (also called "repo") &rarr; a single file that contains
+  <li><p><b>Repository</b> &rarr;
+      (also called "repo") a single file that contains
       all historical versions of all files in a project.  A repo is similar
       to a ZIP archive in that it is a single file that stores compressed
       versions of many other files.  Files can be extracted from the

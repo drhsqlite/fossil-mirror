@@ -18,7 +18,7 @@
 # The "settings" and "unset" commands.
 #
 
-set dir [file dirname [info script]]; test_setup
+set path [file dirname [info script]]; test_setup
 
 ###############################################################################
 #

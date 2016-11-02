@@ -218,16 +218,21 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
     if( j<0 ) continue;
     aUsed[j] = 1;
     if( aField[j].mUsed & USEDBY_TICKET ){
-      if( zName[0]=='+' ){
-        zName++;
+      const char *zUsedByName = zName;
+      if( zUsedByName[0]=='+' ){
+        zUsedByName++;
         blob_append_sql(&sql1,", \"%w\"=coalesce(\"%w\",'') || %Q",
-                     zName, zName, p->aField[i].zValue);
+                        zUsedByName, zUsedByName, p->aField[i].zValue);
       }else{
-        blob_append_sql(&sql1,", \"%w\"=%Q", zName, p->aField[i].zValue);
+        blob_append_sql(&sql1,", \"%w\"=%Q", zUsedByName, p->aField[i].zValue);
       }
     }
     if( aField[j].mUsed & USEDBY_TICKETCHNG ){
-      blob_append_sql(&sql2, ",\"%w\"", zName);
+      const char *zUsedByName = zName;
+      if( zUsedByName[0]=='+' ){
+        zUsedByName++;
+      }
+      blob_append_sql(&sql2, ",\"%w\"", zUsedByName);
       blob_append_sql(&sql3, ",%Q", p->aField[i].zValue);
     }
     if( rid>0 ){
@@ -548,7 +553,9 @@ static int ticket_put(
   int needMod              /* True if moderation is needed */
 ){
   int result;
-  int rid = content_put_ex(pTicket, 0, 0, 0, needMod);
+  int rid;
+  manifest_crosslink_begin();
+  rid = content_put_ex(pTicket, 0, 0, 0, needMod);
   if( rid==0 ){
     fossil_fatal("trouble committing ticket: %s", g.zErrMsg);
   }
@@ -562,7 +569,6 @@ static int ticket_put(
     db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d);", rid);
     db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", rid);
   }
-  manifest_crosslink_begin();
   result = (manifest_crosslink(rid, pTicket, MC_NONE)==0);
   assert( blob_is_reset(pTicket) );
   if( !result ){
@@ -1388,7 +1394,7 @@ void ticket_cmd(void){
       md5sum_blob(&tktchng, &cksum);
       blob_appendf(&tktchng, "Z %b\n", &cksum);
       if( ticket_put(&tktchng, zTktUuid, ticket_need_moderation(1)) ){
-        fossil_fatal("%s\n", g.zErrMsg);
+        fossil_fatal("%s", g.zErrMsg);
       }else{
         fossil_print("ticket %s succeeded for %s\n",
              (eCmd==set?"set":"add"),zTktUuid);

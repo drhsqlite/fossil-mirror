@@ -319,7 +319,7 @@ int fossil_utf8_to_console(
   Blob blob;
 
   static int istty[2] = { -1, -1 };
-  if( istty[toStdErr] == -1 ){
+  if( istty[toStdErr]==-1 ){
     istty[toStdErr] = _isatty(toStdErr + 1) != 0;
   }
   if( !istty[toStdErr] ){

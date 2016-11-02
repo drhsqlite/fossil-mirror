@@ -1871,7 +1871,7 @@ void commit_cmd(void){
   noSign = db_get_boolean("omitsign", 0)|noSign;
   if( db_get_boolean("clearsign", 0)==0 ){ noSign = 1; }
   useCksum = db_get_boolean("repo-cksum", 1);
-  outputManifest = db_get_boolean("manifest", 0);
+  outputManifest = db_get_manifest_setting();
   verify_all_options();
 
   /* Escape special characters in tags and put all tags in sorted order */
@@ -2232,7 +2232,7 @@ void commit_cmd(void){
   if( dryRunFlag ){
     blob_write_to_file(&manifest, "");
   }
-  if( outputManifest ){
+  if( outputManifest & MFESTFLG_RAW ){
     zManifestFile = mprintf("%smanifest", g.zLocalRoot);
     blob_write_to_file(&manifest, zManifestFile);
     blob_reset(&manifest);
@@ -2247,7 +2247,7 @@ void commit_cmd(void){
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nvid);
   if( manifest_crosslink(nvid, &manifest,
                          dryRunFlag ? MC_NONE : MC_PERMIT_HOOKS)==0 ){
-    fossil_fatal("%s\n", g.zErrMsg);
+    fossil_fatal("%s", g.zErrMsg);
   }
   assert( blob_is_reset(&manifest) );
   content_deltify(vid, nvid, 0);
@@ -2266,7 +2266,7 @@ void commit_cmd(void){
   db_finalize(&q);
 
   fossil_print("New_Version: %s\n", zUuid);
-  if( outputManifest ){
+  if( outputManifest & MFESTFLG_UUID ){
     zManifestFile = mprintf("%smanifest.uuid", g.zLocalRoot);
     blob_zero(&muuid);
     blob_appendf(&muuid, "%s\n", zUuid);
@@ -2348,6 +2348,16 @@ void commit_cmd(void){
     exit(1);
   }
   db_end_transaction(0);
+
+  if( outputManifest & MFESTFLG_TAGS ){
+    Blob tagslist;
+    zManifestFile = mprintf("%smanifest.tags", g.zLocalRoot);
+    blob_zero(&tagslist);
+    get_checkin_taglist(nvid, &tagslist);
+    blob_write_to_file(&tagslist, zManifestFile);
+    blob_reset(&tagslist);
+    free(zManifestFile);
+  }
 
   if( !g.markPrivate ){
     autosync_loop(SYNC_PUSH|SYNC_PULL, db_get_int("autosync-tries", 1), 0);

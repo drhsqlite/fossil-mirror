@@ -4,7 +4,7 @@
 
 <div style='width:200px;float:right;border:2px solid #446979;padding:10px;margin:0px 10px;'>
 <ul>
-<li> [http://www.fossil-scm.org/download.html | Download]
+<li> [/uv/download.html | Download]
 <li> [./quickstart.wiki | Quick Start]
 <li> [./build.wiki | Install]
 <li> [../COPYRIGHT-BSD2.txt | License]
@@ -40,7 +40,7 @@ management system with these advanced features:
       This entire website is just a running instance of Fossil.
       The pages you see here are all [./wikitheory.wiki | wiki] or
       [./embeddeddoc.wiki | embedded documentation] or (in the case of
-      the [/uv/download.html|download] page) 
+      the [/uv/download.html|download] page)
       [./unvers.wiki | unversioned files].
       When you clone Fossil from one of its
       [./selfhost.wiki | self-hosting repositories],

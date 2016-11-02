@@ -266,15 +266,15 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
     }
 #ifndef _WIN32
     if( chnged==0 || chnged==6 || chnged==7 || chnged==8 || chnged==9 ){
-      if( origPerm == currentPerm ){
+      if( origPerm==currentPerm ){
         chnged = 0;
-      }else if( currentPerm == PERM_EXE ){
+      }else if( currentPerm==PERM_EXE ){
         chnged = 6;
-      }else if( currentPerm == PERM_LNK ){
+      }else if( currentPerm==PERM_LNK ){
         chnged = 7;
-      }else if( origPerm == PERM_EXE ){
+      }else if( origPerm==PERM_EXE ){
         chnged = 8;
-      }else if( origPerm == PERM_LNK ){
+      }else if( origPerm==PERM_LNK ){
         chnged = 9;
       }
     }
@@ -350,9 +350,9 @@ void vfile_to_disk(
       }
     }
     if( verbose ) fossil_print("%s\n", &zName[nRepos]);
-    if( file_wd_isdir(zName) == 1 ){
+    if( file_wd_isdir(zName)==1 ){
       /*TODO(dchest): remove directories? */
-      fossil_fatal("%s is directory, cannot overwrite\n", zName);
+      fossil_fatal("%s is directory, cannot overwrite", zName);
     }
     if( file_wd_size(zName)>=0 && (isLink || file_wd_islink(0)) ){
       file_delete(zName);
@@ -920,7 +920,7 @@ void vfile_aggregate_checksum_manifest(int vid, Blob *pOut, Blob *pManOut){
   db_must_be_within_tree();
   pManifest = manifest_get(vid, CFTYPE_MANIFEST, &err);
   if( pManifest==0 ){
-    fossil_fatal("manifest file (%d) is malformed:\n%s\n",
+    fossil_fatal("manifest file (%d) is malformed:\n%s",
                  vid, blob_str(&err));
   }
   manifest_file_rewind(pManifest);

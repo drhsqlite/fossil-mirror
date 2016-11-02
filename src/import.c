@@ -1763,6 +1763,7 @@ void import_cmd(void){
     */
     db_multi_exec(
        "CREATE TEMP TABLE xmark(tname TEXT UNIQUE, trid INT, tuuid TEXT);"
+       "CREATE INDEX temp.i_xmark ON xmark(trid);"
        "CREATE TEMP TABLE xbranch(tname TEXT UNIQUE, brnm TEXT);"
        "CREATE TEMP TABLE xtag(tname TEXT UNIQUE, tcontent TEXT);"
     );
@@ -1770,10 +1771,10 @@ void import_cmd(void){
     if( markfile_in ){
       FILE *f = fossil_fopen(markfile_in, "r");
       if( !f ){
-        fossil_fatal("cannot open %s for reading\n", markfile_in);
+        fossil_fatal("cannot open %s for reading", markfile_in);
       }
-      if(import_marks(f, &blobs, NULL)<0){
-        fossil_fatal("error importing marks from file: %s\n", markfile_in);
+      if( import_marks(f, &blobs, NULL, NULL)<0 ){
+        fossil_fatal("error importing marks from file: %s", markfile_in);
       }
       fclose(f);
     }
@@ -1797,9 +1798,9 @@ void import_cmd(void){
         rid = db_column_int(&q_marks, 0);
         if( db_int(0, "SELECT count(objid) FROM event"
                       " WHERE objid=%d AND type='ci'", rid)==0 ){
-          if( bag_find(&blobs, rid)==0 ){
-            bag_insert(&blobs, rid);
-          }
+          /* Blob marks exported by git aren't saved between runs, so they need
+          ** to be left free for git to re-use in the future.
+          */
         }else{
           bag_insert(&vers, rid);
         }
@@ -1807,7 +1808,7 @@ void import_cmd(void){
       db_finalize(&q_marks);
       f = fossil_fopen(markfile_out, "w");
       if( !f ){
-        fossil_fatal("cannot open %s for writing\n", markfile_out);
+        fossil_fatal("cannot open %s for writing", markfile_out);
       }
       export_marks(f, &blobs, &vers);
       fclose(f);

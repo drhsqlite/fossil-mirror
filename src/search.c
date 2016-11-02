@@ -409,7 +409,7 @@ static void search_init_sqlfunc(
 **
 ** Using the full-scan search engine created by the most recent call
 ** to search_init(), match the input the TEXT arguments.
-** Remember the results global full-scan search object. 
+** Remember the results global full-scan search object.
 ** Return non-zero on a match and zero on a miss.
 */
 static void search_match_sqlfunc(

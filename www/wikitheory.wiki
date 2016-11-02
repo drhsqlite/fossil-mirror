@@ -36,22 +36,22 @@ was checked in last.  The other edit can be found in the history.  The
 file format will support merging the branches back together, but there
 is no mechanism in the user interface (yet) to perform the merge.
 
-Every change to a wiki page is a separate 
+Every change to a wiki page is a separate
 [./fileformat.wiki | control artifact]
 of type [./fileformat.wiki#wikichng | "Wiki Page"].
 
 <h2>Embedded Documentation</h2>
 
 Files in the source tree that use the ".wiki", ".md", or ".markdown" suffixes
-can be accessed and displayed using special URLs to the fossil server.  
+can be accessed and displayed using special URLs to the fossil server.
 This allows
-project documentation to be stored in the source tree and accessed 
+project documentation to be stored in the source tree and accessed
 online.  (Details are described [./embeddeddoc.wiki | separately].)
 
 Some projects prefer to store their documentation in wiki.  There is nothing
 wrong with that.  But other projects prefer to keep documentation as part
 of the source tree, so that it is versioned along with the source tree and
-so that only developers with check-in privileges can change it.  
+so that only developers with check-in privileges can change it.
 Embedded documentation serves this latter purpose.  Both forms of documentation
 use the exact same markup.  Some projects may choose to
 use both forms of documentation at the same time.  Because the same

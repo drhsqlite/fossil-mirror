@@ -12,7 +12,7 @@ In order to accept your contributions, we <u>must</u> have a
 this in order to maintain clear title to the Fossil code and prevent
 the introduction of code with incompatible licenses or other entanglements
 that might cause legal problems for Fossil users.  Many larger companies
-and other lawyer-rich organizations require this as a precondition to using 
+and other lawyer-rich organizations require this as a precondition to using
 Fossil.
 
 If you do not wish to submit a Contributor Agreement, we would still
@@ -23,10 +23,10 @@ might take longer.
 <h2>2.0 Submitting Patches</h2>
 
 Suggested changes or bug fixes can be submitted by creating a patch
-against the current source tree.  Email patches to 
-<a href="mailto:drh@sqlite.org">drh@sqlite.org</a>.  Be sure to 
+against the current source tree.  Email patches to
+<a href="mailto:drh@sqlite.org">drh@sqlite.org</a>.  Be sure to
 describe in detail what the patch does and which version of Fossil
-it is written against.  
+it is written against.
 
 A contributor agreement is not strictly necessary to submit a patch.
 However, without a contributor agreement on file, your patch will be
@@ -55,7 +55,7 @@ Fossil Architect (Richard Hipp) will merge changes onto the trunk.</p>
 Contributors are required to following the
 [./checkin.wiki | pre-checkin checklist] prior to every check-in to
 the Fossil self-hosting repository.  This checklist is short and succinct
-and should only require a few seconds to follow.  Contributors 
+and should only require a few seconds to follow.  Contributors
 should print out a copy of the pre-checkin checklist and keep
 it on a notecard beside their workstations, for quick reference.
 
@@ -63,11 +63,11 @@ Contributors should review the
 [./style.wiki | Coding Style Guidelines] and mimic the coding style
 used through the rest of the Fossil source code.  Your code should
 blend in.  A third-party reader should be unable to distinguish your
-code from any other code in the source corpus. 
+code from any other code in the source corpus.
 
 <h2>4.0 Testing</h2>
 
-Fossil has the beginnings of a 
+Fossil has the beginnings of a
 [../test/release-checklist.wiki | release checklist] but this is an
 area that needs further work.  (Your contributions here are welcomed!)
 Contributors with check-in privileges are expected to run the release

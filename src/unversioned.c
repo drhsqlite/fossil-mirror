@@ -192,9 +192,22 @@ static int unversioned_sync_flags(unsigned syncFlags){
 }
 
 /*
+** Return true if the zName contains any whitespace
+*/
+static int contains_whitespace(const char *zName){
+  while( zName[0] ){
+    if( fossil_isspace(zName[0]) ) return 1;
+    zName++;
+  }
+  return 0;
+}
+
+/*
+** COMMAND: uv*
 ** COMMAND: unversioned
 **
 ** Usage: %fossil unversioned SUBCOMMAND ARGS...
+**    or: %fossil uv SUBCOMMAND ARGS..
 **
 ** Unversioned files (UV-files) are artifacts that are synced and are available
 ** for download but which do not preserve history.  Only the most recent version
@@ -216,22 +229,26 @@ static int unversioned_sync_flags(unsigned syncFlags){
 **
 **    export FILE OUTPUT   Write the content of FILE into OUTPUT on disk
 **
-**    list | ls            Show all unversioned files held in the local repository.
+**    list | ls            Show all unversioned files held in the local
+**                         repository.
 **
-**    revert ?URL?         Restore the state of all unversioned files in the local
-**                         repository to match the remote repository URL.
+**    revert ?URL?         Restore the state of all unversioned files in the
+**                         local repository to match the remote repository
+**                         URL.
+**
 **                         Options:
 **                            -v|--verbose     Extra diagnostic output
 **                            -n|--dryrun      Show what would have happened
 **
-**    rm FILE ...          Remove an unversioned files from the local repository.
+**    remove | rm FILE ... Remove unversioned files from the local repository.
 **                         Changes are not pushed to other repositories until
-**                         the next sync. 
+**                         the next sync.
 **
 **    sync ?URL?           Synchronize the state of all unversioned files with
-**                         the remote repository URL.  The most recent version of
-**                         each file is propagate to all repositories and all
-**                         prior versions are permanently forgotten.
+**                         the remote repository URL.  The most recent version
+**                         of each file is propagate to all repositories and
+**                         all prior versions are permanently forgotten.
+**
 **                         Options:
 **                            -v|--verbose     Extra diagnostic output
 **                            -n|--dryrun      Show what would have happened
@@ -240,7 +257,8 @@ static int unversioned_sync_flags(unsigned syncFlags){
 **
 ** Options:
 **
-**   --mtime TIMESTAMP     Use TIMESTAMP instead of "now" for "add" and "rm".
+**   --mtime TIMESTAMP     Use TIMESTAMP instead of "now" for the "add",
+**                         "edit", "remove", and "touch" subcommands.
 */
 void unversioned_cmd(void){
   const char *zCmd;
@@ -272,6 +290,9 @@ void unversioned_cmd(void){
       zIn = zAs ? zAs : g.argv[i];
       if( zIn[0]==0 || zIn[0]=='/' || !file_is_simple_pathname(zIn,1) ){
         fossil_fatal("'%Q' is not an acceptable filename", zIn);
+      }
+      if( contains_whitespace(zIn) ){
+        fossil_fatal("names of unversioned files may not contain whitespace");
       }
       blob_init(&file,0,0);
       blob_read_from_file(&file, g.argv[i]);
@@ -391,7 +412,7 @@ void unversioned_cmd(void){
     g.argv[1] = "sync";
     g.argv[2] = "--uv-noop";
     sync_unversioned(syncFlags);
-  }else if( memcmp(zCmd, "rm", nCmd)==0 ){
+  }else if( memcmp(zCmd, "remove", nCmd)==0 || memcmp(zCmd, "rm", nCmd)==0 ){
     int i;
     verify_all_options();
     db_begin_transaction();
@@ -422,7 +443,7 @@ void unversioned_cmd(void){
     db_unset("uv-hash", 0);
     db_end_transaction(0);
   }else{
-    usage("add|cat|edit|export|ls|revert|rm|sync|touch");
+    usage("add|cat|edit|export|list|revert|remove|sync|touch");
   }
 }
 
@@ -433,6 +454,7 @@ void unversioned_cmd(void){
 ** Query parameters:
 **
 **    byage=1          Order the initial display be decreasing age
+**    showdel=0        Show deleted files
 */
 void uvstat_page(void){
   Stmt q;
@@ -441,6 +463,7 @@ void uvstat_page(void){
   int cnt = 0;
   int n = 0;
   const char *zOrderBy = "name";
+  int showDel = 0;
   char zSzName[100];
 
   login_check_credentials();
@@ -452,6 +475,7 @@ void uvstat_page(void){
     return;
   }
   if( PB("byage") ) zOrderBy = "mtime DESC";
+  if( PB("showdel") ) showDel = 1;
   db_prepare(&q,
      "SELECT"
      "   name,"
@@ -461,7 +485,8 @@ void uvstat_page(void){
      "   (SELECT login FROM rcvfrom, user"
      "     WHERE user.uid=rcvfrom.uid AND rcvfrom.rcvid=unversioned.rcvid),"
      "   rcvid"
-     " FROM unversioned ORDER BY %s",
+     " FROM unversioned %s ORDER BY %s",
+     showDel ? "" : "WHERE hash IS NOT NULL" /*safe-for-%s*/,
      zOrderBy/*safe-for-%s*/
    );
    iNow = db_int64(0, "SELECT strftime('%%s','now');");

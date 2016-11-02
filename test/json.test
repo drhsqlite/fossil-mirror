@@ -25,7 +25,7 @@
 # the rest of this file from running.
 fossil test-th-eval "hasfeature json"
 
-if {$::RESULT ne "1"} then {
+if {[normalize_result] ne "1"} then {
   puts "Fossil was not compiled with JSON support."
   test_cleanup_then_return
 }

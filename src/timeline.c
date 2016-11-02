@@ -29,6 +29,15 @@
 #define ONE_SECOND (1.0/86400.0)
 
 /*
+** timeline mode options
+*/
+#define TIMELINE_MODE_NONE      0
+#define TIMELINE_MODE_BEFORE    1
+#define TIMELINE_MODE_AFTER     2
+#define TIMELINE_MODE_CHILDREN  3
+#define TIMELINE_MODE_PARENTS   4
+
+/*
 ** Add an appropriate tag to the output if "rid" is unpublished (private)
 */
 #define UNPUB_TAG "<em>(unpublished)</em>"
@@ -730,7 +739,7 @@ void timeline_output_graph_javascript(
         pRow->aiRiser[pRow->iRail],     /* u */
         pRow->isLeaf ? 1 : 0            /* f */
       );
-      /* u */
+      /* au */
       cSep = '[';
       for(i=0; i<GR_MAX_RAIL; i++){
         if( i==pRow->iRail ) continue;
@@ -750,7 +759,7 @@ void timeline_output_graph_javascript(
       for(i=0; i<GR_MAX_RAIL; i++){
         if( pRow->mergeIn[i] ){
           int mi = i;
-          if( pRow->mergeDown & (1<<i) ) mi = -mi;
+          if( (pRow->mergeDown >> i) & 1 ) mi = -mi;
           cgi_printf("%c%d", cSep, mi);
           cSep = ',';
         }
@@ -2033,6 +2042,13 @@ static int isIsoDate(const char *z){
 }
 
 /*
+** Return true if the input string can be converted to a julianday.
+*/
+static int fossil_is_julianday(const char *zDate){
+  return db_int(0, "SELECT EXISTS (SELECT julianday(%Q) AS jd WHERE jd IS NOT NULL)", zDate);
+}
+
+/*
 ** COMMAND: timeline
 **
 ** Usage: %fossil timeline ?WHEN? ?CHECKIN|DATETIME? ?OPTIONS?
@@ -2089,7 +2105,7 @@ void timeline_cmd(void){
   Blob sql;
   int objid = 0;
   Blob uuid;
-  int mode = 0 ;       /* 0:none  1: before  2:after  3:children  4:parents */
+  int mode = TIMELINE_MODE_NONE;
   int verboseFlag = 0 ;
   int iOffset;
   const char *zFilePattern = 0;
@@ -2130,17 +2146,17 @@ void timeline_cmd(void){
   if( g.argc>=4 ){
     k = strlen(g.argv[2]);
     if( strncmp(g.argv[2],"before",k)==0 ){
-      mode = 1;
+      mode = TIMELINE_MODE_BEFORE;
     }else if( strncmp(g.argv[2],"after",k)==0 && k>1 ){
-      mode = 2;
+      mode = TIMELINE_MODE_AFTER;
     }else if( strncmp(g.argv[2],"descendants",k)==0 ){
-      mode = 3;
+      mode = TIMELINE_MODE_CHILDREN;
     }else if( strncmp(g.argv[2],"children",k)==0 ){
-      mode = 3;
+      mode = TIMELINE_MODE_CHILDREN;
     }else if( strncmp(g.argv[2],"ancestors",k)==0 && k>1 ){
-      mode = 4;
+      mode = TIMELINE_MODE_PARENTS;
     }else if( strncmp(g.argv[2],"parents",k)==0 ){
-      mode = 4;
+      mode = TIMELINE_MODE_PARENTS;
     }else if(!zType && !zLimit){
       usage("?WHEN? ?CHECKIN|DATETIME? ?-n|--limit #? ?-t|--type TYPE? "
             "?-W|--width WIDTH? ?-p|--path PATH");
@@ -2159,7 +2175,7 @@ void timeline_cmd(void){
   blob_zero(&uuid);
   blob_append(&uuid, zOrigin, -1);
   if( fossil_strcmp(zOrigin, "now")==0 ){
-    if( mode==3 || mode==4 ){
+    if( mode==TIMELINE_MODE_CHILDREN || mode==TIMELINE_MODE_PARENTS ){
       fossil_fatal("cannot compute descendants or ancestors of a date");
     }
     zDate = mprintf("(SELECT datetime('now'))");
@@ -2172,15 +2188,17 @@ void timeline_cmd(void){
   }else if( name_to_uuid(&uuid, 0, "*")==0 ){
     objid = db_int(0, "SELECT rid FROM blob WHERE uuid=%B", &uuid);
     zDate = mprintf("(SELECT mtime FROM event WHERE objid=%d)", objid);
-  }else{
+  }else if( fossil_is_julianday(zOrigin) ){
     const char *zShift = "";
-    if( mode==3 || mode==4 ){
+    if( mode==TIMELINE_MODE_CHILDREN || mode==TIMELINE_MODE_PARENTS ){
       fossil_fatal("cannot compute descendants or ancestors of a date");
     }
-    if( mode==0 ){
+    if( mode==TIMELINE_MODE_NONE ){
       if( isIsoDate(zOrigin) ) zShift = ",'+1 day'";
     }
     zDate = mprintf("(SELECT julianday(%Q%s, fromLocal()))", zOrigin, zShift);
+  }else{
+    fossil_fatal("unknown check-in or invalid date: %s", zOrigin);
   }
 
   if( zFilePattern ){
@@ -2197,17 +2215,17 @@ void timeline_cmd(void){
     }
   }
 
-  if( mode==0 ) mode = 1;
+  if( mode==TIMELINE_MODE_NONE ) mode = TIMELINE_MODE_BEFORE;
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_tty(), -1);
   blob_append_sql(&sql, "\n  AND event.mtime %s %s",
-     (mode==1 || mode==4) ? "<=" : ">=",
-     zDate /*safe-for-%s*/
+     ( mode==TIMELINE_MODE_BEFORE ||
+       mode==TIMELINE_MODE_PARENTS ) ? "<=" : ">=", zDate /*safe-for-%s*/
   );
 
-  if( mode==3 || mode==4 ){
+  if( mode==TIMELINE_MODE_CHILDREN || mode==TIMELINE_MODE_PARENTS ){
     db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
-    if( mode==3 ){
+    if( mode==TIMELINE_MODE_CHILDREN ){
       compute_descendants(objid, n);
     }else{
       compute_ancestors(objid, n, 0);

@@ -295,20 +295,32 @@ int file_isdir(const char *zFilename){
 }
 
 /*
-** Same as file_isdir(), but takes into account symlinks.
+** Same as file_isdir(), but takes into account symlinks.  Return 1 if
+** zFilename is a directory -OR- a symlink that points to a directory.
+** Return 0 if zFilename does not exist.  Return 2 if zFilename exists
+** but is something other than a directory.
 */
 int file_wd_isdir(const char *zFilename){
   int rc;
+  char *zFN;
 
-  if( zFilename ){
-    char *zFN = mprintf("%s", zFilename);
-    file_simplify_name(zFN, -1, 0);
-    rc = getStat(zFN, 1);
-    free(zFN);
+  zFN = mprintf("%s", zFilename);
+  file_simplify_name(zFN, -1, 0);
+  rc = getStat(zFN, 1);
+  if( rc ){
+    rc = 0; /* It does not exist at all. */
+  }else if( S_ISDIR(fileStat.st_mode) ){
+    rc = 1; /* It exists and is a real directory. */
+  }else if( S_ISLNK(fileStat.st_mode) ){
+    Blob content;
+    blob_read_link(&content, zFN); /* It exists and is a link. */
+    rc = file_wd_isdir(blob_str(&content)); /* Points to directory? */
+    blob_reset(&content);
   }else{
-    rc = getStat(0, 1);
+    rc = 2; /* It exists and is something else. */
   }
-  return rc ? 0 : (S_ISDIR(fileStat.st_mode) ? 1 : 2);
+  free(zFN);
+  return rc;
 }
 
 
@@ -473,12 +485,12 @@ int file_wd_setexe(const char *zFilename, int onoff){
   if( fossil_stat(zFilename, &buf, 1)!=0 || S_ISLNK(buf.st_mode) ) return 0;
   if( onoff ){
     int targetMode = (buf.st_mode & 0444)>>2;
-    if( (buf.st_mode & 0100) == 0 ){
+    if( (buf.st_mode & 0100)==0 ){
       chmod(zFilename, buf.st_mode | targetMode);
       rc = 1;
     }
   }else{
-    if( (buf.st_mode & 0100) != 0 ){
+    if( (buf.st_mode & 0100)!=0 ){
       chmod(zFilename, buf.st_mode & ~0111);
       rc = 1;
     }
@@ -602,7 +614,7 @@ int file_mkfolder(const char *zFilename, int forceFlag, int errorReturn){
       */
       if( !(i==2 && zName[1]==':') ){
 #endif
-        if( file_mkdir(zName, forceFlag) && file_isdir(zName)!=1 ){
+        if( file_mkdir(zName, forceFlag) && file_wd_isdir(zName)!=1 ){
           if (errorReturn <= 0) {
             fossil_fatal_recursive("unable to create directory %s", zName);
           }
@@ -853,7 +865,7 @@ void file_getcwd(char *zBuf, int nBuf){
 #else
   if( getcwd(zBuf, nBuf-1)==0 ){
     if( errno==ERANGE ){
-      fossil_fatal("pwd too big: max %d\n", nBuf-1);
+      fossil_fatal("pwd too big: max %d", nBuf-1);
     }else{
       fossil_fatal("cannot find current working directory; %s",
                    strerror(errno));
@@ -1385,4 +1397,43 @@ FILE *fossil_fopen(const char *zName, const char *zMode){
   FILE *f = fopen(zName, zMode);
 #endif
   return f;
+}
+
+/*
+** Return non-NULL if zFilename contains pathname elements that
+** are reserved on Windows.  The returned string is the disallowed
+** path element.
+*/
+const char *file_is_win_reserved(const char *zPath){
+  static const char *azRes[] = { "CON", "PRN", "AUX", "NUL", "COM", "LPT" };
+  static char zReturn[5];
+  int i;
+  while( zPath[0] ){
+    for(i=0; i<ArraySize(azRes); i++){
+      if( sqlite3_strnicmp(zPath, azRes[i], 3)==0
+       && ((i>=4 && fossil_isdigit(zPath[3])
+                 && (zPath[4]=='/' || zPath[4]=='.' || zPath[4]==0))
+          || (i<4 && (zPath[3]=='/' || zPath[3]=='.' || zPath[3]==0)))
+      ){
+        sqlite3_snprintf(5,zReturn,"%.*s", i>=4 ? 4 : 3, zPath);
+        return zReturn;
+      }
+    }
+    while( zPath[0] && zPath[0]!='/' ) zPath++;
+    while( zPath[0]=='/' ) zPath++;
+  }
+  return 0;
+}
+
+/*
+** COMMAND: test-valid-for-windows
+** Usage:  fossil test-valid-for-windows FILENAME ....
+**
+** Show which filenames are not valid for Windows
+*/
+void file_test_valid_for_windows(void){
+  int i;
+  for(i=2; i<g.argc; i++){
+    fossil_print("%s %s\n", file_is_win_reserved(g.argv[i]), g.argv[i]);
+  }
 }

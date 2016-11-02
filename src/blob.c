@@ -853,15 +853,14 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
   int nWrote;
 
   if( zFilename[0]==0 || (zFilename[0]=='-' && zFilename[1]==0) ){
-    nWrote = blob_size(pBlob);
+    blob_is_init(pBlob);
 #if defined(_WIN32)
-    if( fossil_utf8_to_console(blob_buffer(pBlob), nWrote, 0) >= 0 ){
-      return nWrote;
-    }
+    nWrote = fossil_utf8_to_console(blob_buffer(pBlob), blob_size(pBlob), 0);
+    if( nWrote>=0 ) return nWrote;
     fflush(stdout);
     _setmode(_fileno(stdout), _O_BINARY);
 #endif
-    fwrite(blob_buffer(pBlob), 1, nWrote, stdout);
+    nWrote = fwrite(blob_buffer(pBlob), 1, blob_size(pBlob), stdout);
 #if defined(_WIN32)
     fflush(stdout);
     _setmode(_fileno(stdout), _O_TEXT);
@@ -870,6 +869,13 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
     file_mkfolder(zFilename, 1, 0);
     out = fossil_fopen(zFilename, "wb");
     if( out==0 ){
+#if _WIN32
+      const char *zReserved = file_is_win_reserved(zFilename);
+      if( zReserved ){
+        fossil_fatal("cannot open \"%s\" because \"%s\" is "
+             "a reserved name on Windows", zFilename, zReserved);
+      }
+#endif
       fossil_fatal_recursive("unable to open file \"%s\" for writing",
                              zFilename);
       return 0;
