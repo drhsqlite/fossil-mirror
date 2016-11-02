@@ -217,7 +217,7 @@ void print_changes(
 ** If no filter options are used, or if the --merge option is used, the
 ** SHA1 hash of each merge contributor check-in version is displayed at
 ** the end of the report.  The --no-merge option is useful to display the
-** default set of changed files but not the merge contributors.
+** default set of changed files without the merge contributors.
 **
 ** If change type classification is enabled, each output line starts with
 ** a code describing the file's change type, e.g. EDITED or RENAMED.  It
@@ -225,7 +225,7 @@ void print_changes(
 ** --merge or --no-merge) is used.  The default can be overridden by the
 ** --classify or --no-classify options.
 **
-** The "fossil changes -extra" command is equivalent to "fossil extras".
+** The "fossil changes --extra" command is equivalent to "fossil extras".
 **
 ** General options:
 **    --abs-paths       Display absolute pathnames.
