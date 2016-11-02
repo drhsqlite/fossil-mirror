@@ -668,7 +668,8 @@ int win32_http_service(
   return 0;
 }
 
-/* dupe ifdef needed for mkindex
+#ifdef _WIN32 /* dupe needed for mkindex */
+/*
 ** COMMAND: winsrv*
 **
 ** Usage: %fossil winsrv METHOD ?SERVICE-NAME? ?OPTIONS?
@@ -1117,4 +1118,5 @@ void cmd_win32_service(void){
   }
   return;
 }
-#endif /* _WIN32  -- This code is for win32 only */
+#endif /* _WIN32 -- dupe needed for mkindex */
+#endif /* _WIN32 -- This code is for win32 only */

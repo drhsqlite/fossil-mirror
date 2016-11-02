@@ -1,5 +1,5 @@
-C Enhancements\sto\sSEE\sintegration\son\sWindows.
-D 2016-11-01T23:34:34.928
+C Fix\scompilation\sissue\son\sUnix\sdue\sto\s'mkindex'\swrongly\sattempting\sto\sinclude\s'cmd_win32_service'\sdue\sto\sits\s#if\sprocessing.
+D 2016-11-02T06:41:10.374
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -517,7 +517,7 @@ F src/vfile.c c07d515af78f82e4d8d3f8c781111d1f504fe336
 F src/wiki.c 8d56403100ca58020feeb4a76d2b7f08e861049e
 F src/wikiformat.c 1d750982147d9c51fa40e89e40241a33408adaf6
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
-F src/winhttp.c 211b42ffaa538e434e1f929c338c270eec7ebf44
+F src/winhttp.c 74631e97a8cb6c00af0d19209c6cdc392189bba3
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 0d5ab26abbb866807a60592ff3a293aa4d899192
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
@@ -769,7 +769,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 08f0ac0cb4f466444e96a62997817b6a09ed4fa9
-R 6c9331eccc9a6901f79fa9140393ad62
+P 7aeeb30286cc2f61891e4e24861d33435e765627
+R 53f01a2abb264f3e26dd66648466086a
 U mistachkin
-Z 6cf988e3d8c539891833d77c24d46097
+Z 14f1a1f4d856f454aa8f1800d12a6462
