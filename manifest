@@ -1,5 +1,5 @@
-C (cherry-pick):\sFix\sthe\sbuild\son\sMSVC.
-D 2016-11-03T09:33:32.253
+C Cherrypick\s3\sbug-fixes\sfrom\sSQLite\strunk,\sdiscovered\sjust\safter\sthe\sSQLite\s3.15\srelease,\samong\sthem\sa\sfix\sto\sVACUUM\sto\sprevent\sit\sfrom\srunning\sout\sof\smemory\son\svery\slarge\sdatabases\nSee\s[http://www.sqlite.org/src/info/34a579141b2c5ac|34a579141b2c5ac]\sand\s[http://www.sqlite.org/src/info/fef4bb4bd9185ec8f|fef4bb4bd9185ec8f]\n(most\slikely,\sthose\s3\swill\sbe\sin\sSQLite\s3.15.1,\sif\sever\sreleased)
+D 2016-11-03T09:52:07.801
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -9,7 +9,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile e6126edc40fe1da6bd47c6c5f1beede3b9c3eaf7
+F Dockerfile 7dc42bec698099fd2ea15a8b60ce40eb8c4a6f7a
 F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
 F Makefile.in e68d67b0141655f3f6934ad35df484e50e84ff32
 F VERSION b7c7a3b2ed081d0375791312354d631ae655f7f3
@@ -486,7 +486,7 @@ F src/shun.c 7d0a7eeffdf515b2d78919408fe42e7142a9b532
 F src/sitemap.c b7c376b21d29322741c804e1f762b34aedb98ad1
 F src/skins.c 524384aafbe9e7707d3b87f42ee72fa63fe91796
 F src/sqlcmd.c a7dce974ba7afde541ed58df98bebce335ed75a5
-F src/sqlite3.c fba106f8f6493c66eeed08a2dfff0907de54ae76
+F src/sqlite3.c 18e25e0f14de6a4f079c509a839ccd87c3f81434
 F src/sqlite3.h 38a99d065c4e78a0eef545d92f2e5d495bb9be7a
 F src/stash.c 99687142f3b88d25d5da94d29cd5dfa637a9e65d
 F src/stat.c 8e2c652ba1deb14c61a7286028dd03f342244734
@@ -768,11 +768,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c24373934dc19c0295cf0ad0ab32c79bf3f373b6
-Q +65e69b8dd8ef81310219b7b64f7d8fecc552daf3
-R a06122bd58fabe94d817a3dbb3d193d4
-T *branch * branch-1.36
-T *sym-branch-1.36 *
-T -sym-trunk *
+P 83a359ff397f8b5e411401d93572f75d916e46a4
+R 696acd26a8b90742e10ef59865fff7e7
 U jan.nijtmans
-Z d44f38127c06e890b23a6a39f00eaf95
+Z 6ec61a1086b06411c153748758b05e53

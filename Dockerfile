@@ -1,13 +1,13 @@
 ###
 #   Dockerfile for Fossil
 ###
-FROM fedora:23
+FROM fedora:24
 
 ### Now install some additional parts we will need for the build
 RUN dnf update -y && dnf install -y gcc make zlib-devel openssl-devel tar && dnf clean all && groupadd -r fossil -g 433 && useradd -u 431 -r -g fossil -d /opt/fossil -s /sbin/nologin -c "Fossil user" fossil
 
 ### If you want to build "trunk", change the next line accordingly.
-ENV FOSSIL_INSTALL_VERSION release
+ENV FOSSIL_INSTALL_VERSION branch-1.36
 
 RUN curl "http://core.tcl.tk/tcl/tarball/tcl-src.tar.gz?name=tcl-src&uuid=release" | tar zx
 RUN cd tcl-src/unix && ./configure --prefix=/usr --disable-load && make && make install
