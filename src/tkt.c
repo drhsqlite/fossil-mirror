@@ -548,8 +548,9 @@ static int ticket_put(
   int needMod              /* True if moderation is needed */
 ){
   int result;
+  int rid;
   manifest_crosslink_begin();
-  int rid = content_put_ex(pTicket, 0, 0, 0, needMod);
+  rid = content_put_ex(pTicket, 0, 0, 0, needMod);
   if( rid==0 ){
     fossil_fatal("trouble committing ticket: %s", g.zErrMsg);
   }

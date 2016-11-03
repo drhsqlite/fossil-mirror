@@ -1,5 +1,5 @@
-C Version\s1.36
-D 2016-10-24T14:59:33.199
+C (cherry-pick):\sFix\sthe\sbuild\son\sMSVC.
+D 2016-11-03T09:33:32.253
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -12,7 +12,7 @@ F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile e6126edc40fe1da6bd47c6c5f1beede3b9c3eaf7
 F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
 F Makefile.in e68d67b0141655f3f6934ad35df484e50e84ff32
-F VERSION ea3b32fdf753b0b9cc7b2dddfd8fe26be61d0960
+F VERSION b7c7a3b2ed081d0375791312354d631ae655f7f3
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -501,7 +501,7 @@ F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c d911ec294372e6efb2321dfbd04bccee93947057
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
 F src/timeline.c ec39eb94bacfdfe4b522b5b88fdc914b61316be7
-F src/tkt.c 182347f890c4437c653644dfcc4fbeeece879379
+F src/tkt.c c10fb85894a31b9f65f0f24b67a888b8a64c2045
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
 F src/undo.c d3cca342dd73eaec65e352d978e8f7a9e75a5ddd
@@ -768,10 +768,11 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fdebeba5a03343e3cdbc4727ce1ba1edd3e214a0
-R f301d4943999f1a4f351151363db10f8
-T +bgcolor * #d0c0ff
-T +sym-release *
-T +sym-version-1.36 *
-U drh
-Z 6dd31ef60a881626c2ab897860077d94
+P c24373934dc19c0295cf0ad0ab32c79bf3f373b6
+Q +65e69b8dd8ef81310219b7b64f7d8fecc552daf3
+R a06122bd58fabe94d817a3dbb3d193d4
+T *branch * branch-1.36
+T *sym-branch-1.36 *
+T -sym-trunk *
+U jan.nijtmans
+Z d44f38127c06e890b23a6a39f00eaf95
