@@ -1497,7 +1497,7 @@ void page_timeline(void){
     style_submenu_element("Related", "Related", "%s",
                           url_render(&url, "r", zTagName, "t", 0));
   }else if( zBrName && g.perm.Read ){
-    style_submenu_element("Omit Related", "only", "%s",
+    style_submenu_element("Branch Only", "only", "%s",
                           url_render(&url, "t", zBrName, "r", 0));
   }
   if( zMark && zMark[0]==0 ){
