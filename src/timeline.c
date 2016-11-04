@@ -1231,6 +1231,34 @@ typedef enum {
 } MatchStyle;
 
 /*
+** Quote a tag string by surrounding it with double quotes and preceding
+** internal double quotes and backslashes with backslashes.
+*/
+static const char *tagQuote(
+   int len,         /* Maximum length of zTag, or negative for unlimited */
+   const char *zTag /* Tag string */
+){
+  Blob blob = BLOB_INITIALIZER;
+  int i, j;
+  blob_zero(&blob);
+  blob_append(&blob, "\"", 1);
+  for( i=j=0; zTag[j] && (len<0 || j<len); ++j ){
+    if( zTag[j]=='\"' || zTag[j]=='\\' ){
+      if( j>i ){
+        blob_append(&blob, zTag+i, j-i);
+      }
+      blob_append(&blob, "\\", 1);
+      i = j;
+    }
+  }
+  if( j>i ){
+    blob_append(&blob, zTag+i, j-i);
+  }
+  blob_append(&blob, "\"", 1);
+  return blob_str(&blob);
+}
+
+/*
 ** Construct the tag match SQL expression.
 **
 ** This function is adapted from glob_expr() to support the MS_EXACT, MS_GLOB,
@@ -1243,25 +1271,34 @@ typedef enum {
 ** Each pattern is adjusted to to start with "sym-" and be anchored at end.
 **
 ** In MS_REGEXP mode, backslash can be used to protect delimiter characters.
+** The backslashes are not removed from the regular expression.
+**
+** In addition to assembling and returning an SQL expression, this function
+** makes an English-language description of the patterns being matched, suitable
+** for display in the web interface.
 */
 static const char *tagMatchExpression(
-  MatchStyle matchStyle,  /* Match style code */
-  const char *zTag,       /* Tag name, match pattern, or list of patterns */
-  int *pCount             /* Pointer to match pattern count variable */
+  MatchStyle matchStyle,        /* Match style code */
+  const char *zTag,             /* Tag name, match pattern, or pattern list */
+  const char **zDesc            /* Output expression description string */
 ){
-  Blob blob = BLOB_INITIALIZER;  /* SQL expression string assembly buffer */
-  const char *zStart;            /* Text at start of expression */
-  const char *zDelimiter;        /* Text between expression terms */
-  const char *zEnd;              /* Text at end of expression */
-  const char *zPrefix;           /* Text before each match pattern */
-  const char *zSuffix;           /* Text after each match pattern */
-  char cDel;                     /* Input delimiter character */
-  int i;                         /* Input match pattern length counter */
+  Blob expr = BLOB_INITIALIZER; /* SQL expression string assembly buffer */
+  Blob desc = BLOB_INITIALIZER; /* English description of match patterns */
+  const char *zStart;           /* Text at start of expression */
+  const char *zDelimiter;       /* Text between expression terms */
+  const char *zEnd;             /* Text at end of expression */
+  const char *zPrefix;          /* Text before each match pattern */
+  const char *zSuffix;          /* Text after each match pattern */
+  const char *zIntro;           /* Text introducing pattern description */
+  const char *zPattern = 0;     /* Previous quoted pattern */
+  const char *zOr = " or ";     /* Text before final quoted pattern */
+  char cDel;                    /* Input delimiter character */
+  int i;                        /* Input match pattern length counter */
 
   /* Optimize exact matches by looking up the ID in advance to create a simple
    * numeric comparison.  Bypass the remainder of this function. */
   if( matchStyle==MS_EXACT ){
-    *pCount = 1;
+    *zDesc = tagQuote(-1, zTag);
     return mprintf("(tagid=%d)", db_int(-1,
         "SELECT tagid FROM tag WHERE tagname='sym-%q'", zTag));
   }
@@ -1273,23 +1310,26 @@ static const char *tagMatchExpression(
     zEnd = ")";
     zPrefix = "tagname GLOB 'sym-";
     zSuffix = "'";
+    zIntro = "glob pattern ";
   }else if( matchStyle==MS_LIKE ){
     zStart = "(";
     zDelimiter = " OR ";
     zEnd = ")";
     zPrefix = "tagname LIKE 'sym-";
     zSuffix = "'";
+    zIntro = "SQL LIKE pattern ";
   }else/* if( matchStyle==MS_REGEXP )*/{
     zStart = "(tagname REGEXP '^sym-(";
     zDelimiter = "|";
     zEnd = ")$')";
     zPrefix = "";
     zSuffix = "";
+    zIntro = "regular expression ";
   }
 
-  /* Convert the list of matches into an SQL expression. */
-  *pCount = 0;
-  blob_zero(&blob);
+  /* Convert the list of matches into an SQL expression and text description. */
+  blob_zero(&expr);
+  blob_zero(&desc);
   while( 1 ){
     /* Skip leading delimiters. */
     for( ; fossil_isspace(*zTag) || *zTag==','; ++zTag );
@@ -1322,11 +1362,25 @@ static const char *tagMatchExpression(
 
     /* Incorporate the match word into the output expression.  The %q format is
      * used to protect against SQL injection attacks by replacing ' with ''. */
-    blob_appendf(&blob, "%s%s%#q%s", *pCount ? zDelimiter : zStart,
+    blob_appendf(&expr, "%s%s%#q%s", blob_size(&expr) ? zDelimiter : zStart,
         zPrefix, i, zTag, zSuffix);
 
-    /* Keep track of the number of match expressions. */
-    ++*pCount;
+    /* Build up the description string. */
+    if( !blob_size(&desc) ){
+      /* First tag: start with intro followed by first quoted tag. */
+      blob_append(&desc, zIntro, -1);
+      blob_append(&desc, tagQuote(i, zTag), -1);
+    }else{
+      if( zPattern ){
+        /* Third and subsequent tags: append comma then previous tag. */
+        blob_append(&desc, ", ", 2);
+        blob_append(&desc, zPattern, -1);
+        zOr = ", or ";
+      }
+
+      /* Second and subsequent tags: store quoted tag for next iteration. */
+      zPattern = tagQuote(i, zTag);
+    }
 
     /* Advance past all consumed input characters. */
     zTag += i;
@@ -1335,10 +1389,17 @@ static const char *tagMatchExpression(
     }
   }
 
+  /* Finalize and extract the pattern description. */
+  if( zPattern ){
+    blob_append(&desc, zOr, -1);
+    blob_append(&desc, zPattern, -1);
+  }
+  *zDesc = blob_str(&desc);
+
   /* Finalize and extract the SQL expression. */
-  if( *pCount ){
-    blob_append(&blob, zEnd, -1);
-    return blob_str(&blob);
+  if( blob_size(&expr) ){
+    blob_append(&expr, zEnd, -1);
+    return blob_str(&expr);
   }
 
   /* If execution reaches this point, the pattern was empty.  Return NULL. */
@@ -1406,8 +1467,8 @@ void page_timeline(void){
   const char *zBrName = P("r");      /* Show events related to this tag */
   const char *zMatchStyle = P("ms"); /* Tag/branch match style string */
   MatchStyle matchStyle = MS_EXACT;  /* Match style code */
+  const char *zMatchDesc = 0;        /* Tag match expression description text */
   const char *zTagSql = 0;           /* Tag/branch match SQL expression */
-  int tagMatchCount = 0;             /* Number of tag match patterns */
   const char *zSearch = P("s");      /* Search string */
   const char *zUses = P("uf");       /* Only show check-ins hold this file */
   const char *zYearMonth = P("ym");  /* Show check-ins for the given YYYY-MM */
@@ -1471,9 +1532,9 @@ void page_timeline(void){
   cgi_query_parameters_to_url(&url);
 
   /* Identify the tag or branch name or match pattern. */
-  if( zTagName ){
+  if( zTagName && *zTagName ){
     zThisTag = zTagName;
-  }else if( zBrName ){
+  }else if( zBrName && *zBrName ){
     zThisTag = zBrName;
   }
 
@@ -1490,7 +1551,7 @@ void page_timeline(void){
 
   /* Construct the tag match expression. */
   if( zThisTag ){
-    zTagSql = tagMatchExpression(matchStyle, zThisTag, &tagMatchCount);
+    zTagSql = tagMatchExpression(matchStyle, zThisTag, &zMatchDesc);
   }
 
   if( zTagName && g.perm.Read ){
@@ -1917,25 +1978,14 @@ void page_timeline(void){
     if( zThisTag ){
       if( matchStyle!=MS_EXACT ){
         if( zTagName ){
-          blob_append(&desc, " with tags matching ", -1);
+          blob_appendf(&desc, " with tags matching %h", zMatchDesc);
         }else{
-          blob_append(&desc, " related to tags matching ", -1);
+          blob_appendf(&desc, " related to tags matching %h", zMatchDesc);
         }
-        if( matchStyle==MS_GLOB ){
-          blob_append(&desc, " glob pattern", -1);
-        }else if( matchStyle==MS_LIKE ){
-          blob_append(&desc, " SQL LIKE pattern", -1);
-        }else/* if( matchStyle==MS_REGEXP )*/{
-          blob_append(&desc, " regular expression", -1);
-        }
-        if( tagMatchCount!=1 ){
-          blob_append(&desc, "s", 1);
-        }
-        blob_appendf(&desc, " (%h)", zThisTag);
       }else if( zTagName ){
-        blob_appendf(&desc, " tagged with \"%h\"", zTagName);
+        blob_appendf(&desc, " tagged with %h", zMatchDesc);
       }else{
-        blob_appendf(&desc, " related to \"%h\"", zBrName);
+        blob_appendf(&desc, " related to %h", zMatchDesc);
       }
       tmFlags |= TIMELINE_DISJOINT;
     }

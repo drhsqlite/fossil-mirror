@@ -1,5 +1,5 @@
-C Integrate\sandygoth-quote-apostrophe.\s\sNeeded\sbecause\ssingle\squotes\scan\sbe\sused\sin\sthe\stag\sfilter\sentry,\sand\sthese\ssingle\squotes\swould\sotherwise\sbe\spassed\sthrough\sunprotected\sto\sthe\soutput\sHTML.
-D 2016-11-04T20:49:23.143
+C Improve\squoting\sof\smatch\stags\sand\spatterns.\s\sIgnore\sempty\smatch\stags\sand\spatterns.
+D 2016-11-04T21:12:27.614
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -500,7 +500,7 @@ F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c 39474b4bcfc0a37c5ab16f707a556adce0072b9f
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
-F src/timeline.c 5a8c63ef1380cb9a8ddabf153afa517e74bcba69
+F src/timeline.c 2d7d73839a37486e04e83af1a7b9c6a666850872
 F src/tkt.c cfc97ae7d6896a3a70c1a6f365843d5439715d33
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
@@ -769,8 +769,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d4a6d3c1ec0ed8322c49fe0d180f2a2966c1df67 ca59c662d46f2144fe5142b76df5bde44eb2e935
-Q +780c0150c2939ce2e490af80477bdaca6b3756a7
-T +closed ca59c662d46f2144fe5142b76df5bde44eb2e935
+P 68bd2e7bedb8d05a893978af8da12d61faaa18da
 U andygoth
-Z 140dac9705d76357e38a6d53cced6a31
+Z 6eb44fef68191f9874110d5e8aef5262
