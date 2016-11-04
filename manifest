@@ -1,5 +1,5 @@
-C Cherrypick\s[9b960af129],\swas\ssupposed\sto\shave\sbeen\schecked\sinto\strunk\sin\sthe\sfirst\splace
-D 2016-11-04T23:18:01.178
+C Use\slinenoise\sfor\sfossil\sshell.\s\sDo\snot\sbother\swith\spersistent\shistory.
+D 2016-11-04T23:57:42.707
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -414,7 +414,7 @@ F src/export.c 7751f8df389e0a70c44df21841454467dceabf69
 F src/file.c 711bb3151f23340d46fcc3a86ebd62b0947b7da6
 F src/finfo.c 31e2ba75cc5f8ab0115e4430fc24f7a033be759b
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
-F src/fshell.c 00dbabd3e544bb99c21e41a6750187d3d4b416ed
+F src/fshell.c df8bee3ffa12e440259ebfc1dd2716cdffe214f7
 F src/fusefs.c 66a58355a9a3c04792ba28a8a1b55bd3e506af54
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 23ff3709c6677dff05f707f80e45ddd356333c6e
@@ -769,7 +769,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e5b62edb284c1e14b992ce384e2cb052374b20d6
-Q +9b960af1294ee942b9aa3530d2ffbd695f104136
+P bbafc013aa7348f836ccdbfd0c8935dafdc2b15f
 U andygoth
-Z 2b059cb99a25ebd4fadb64c0a13d9ac0
+Z 2803ff44470b3db5bee1d30997358091
