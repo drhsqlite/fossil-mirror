@@ -2007,7 +2007,7 @@ void page_timeline(void){
     }
     if( g.perm.Hyperlink ){
       static const char *const azMatchStyles[] = {
-        "exact","Exact", "glob","Glob", "like","Like", "regexp","Regexp"
+        "exact", "Exact", "glob", "Glob", "like", "Like", "regexp", "Regexp"
       };
       double rDate;
       zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
@@ -2051,9 +2051,7 @@ void page_timeline(void){
       style_submenu_binary("v","With Files","Without Files",
                            zType[0]!='a' && zType[0]!='c');
       style_submenu_entry("t", "Tag Filter:", -8, 0);
-      style_submenu_multichoice("ms",
-          sizeof(azMatchStyles) / sizeof(*azMatchStyles) / 2,
-          azMatchStyles, 0);
+      style_submenu_multichoice("ms", count(azMatchStyles)/2, azMatchStyles, 0);
     }
     blob_zero(&cond);
   }
