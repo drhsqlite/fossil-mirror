@@ -1,5 +1,5 @@
-C Fix\scrash\sintroduced\sby\smerge\sof\sandygoth-quote-apostrophe
-D 2016-11-04T22:12:14.197
+C Fix\svarious\stypos\sin\smakeheaders.html.\s\sUse\scurly\squotes\sinstead\sof\sclassic\s\sand\s''\squotes\s(ref:\shttp://www.dwheeler.com/essays/quotes-in-html.html).\s\sFormat\smost\ssuch\squoted\stext\sin\smonospace\sprint.
+D 2016-11-04T23:13:19.570
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -450,7 +450,7 @@ F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
 F src/main.c 45ff56cec7f2c87d7fa3793a933eab348499e72b
 F src/main.mk 3e28c5a913d28200a0f31dbf89b4502476dd974e
 F src/makeheaders.c e8444028f575e84075e46cf47f2080fa6d2c2115
-F src/makeheaders.html 06decb89c665feb897540613d7d12527eb65dfe5
+F src/makeheaders.html 633291203ab16d5cd8142f0e401ff294bbf3a203
 F src/makemake.tcl b31821f22953882f14e8e628df7552a17a1b9499
 F src/manifest.c e037d26b34ec3631288032bf06fd79f188e115da
 F src/markdown.c 887bb75edb1cfc94d9206aef38ad11dec2bc4266
@@ -769,6 +769,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 250c12c2f7aac52999dfacfeeb3831469b5a4c7c
+P 10b98c1e612bcca54bdc47ed3aa7abdce2adb842
 U andygoth
-Z a21c9c898fee4b3d074c867ae2995fa9
+Z 1123f44c822f805d8897870542ddc9ae
