@@ -40,7 +40,6 @@
 */
 static struct Submenu {
   const char *zLabel;        /* Button label */
-  const char *zTitle;
   const char *zLink;         /* Jump to this link when button is pressed */
 } aSubmenu[30];
 static int nSubmenu = 0;     /* Number of buttons */
@@ -232,14 +231,12 @@ void style_resolve_href(void){
 */
 void style_submenu_element(
   const char *zLabel,
-  const char *zTitle,
   const char *zLink,
   ...
 ){
   va_list ap;
   assert( nSubmenu < sizeof(aSubmenu)/sizeof(aSubmenu[0]) );
   aSubmenu[nSubmenu].zLabel = zLabel;
-  aSubmenu[nSubmenu].zTitle = zTitle ? zTitle : zLabel;
   va_start(ap, zLink);
   aSubmenu[nSubmenu].zLink = vmprintf(zLink, ap);
   va_end(ap);
@@ -1586,11 +1583,11 @@ void page_test_env(void){
   style_header("Environment Test");
   showAll = atoi(PD("showall","0"));
   if( !showAll ){
-    style_submenu_element("Show Cookies", 0, "%R/test_env?showall=1");
+    style_submenu_element("Show Cookies", "%R/test_env?showall=1");
   }else{
-    style_submenu_element("Hide Cookies", 0, "%R/test_env");
+    style_submenu_element("Hide Cookies", "%R/test_env");
   }
-  style_submenu_element("Stats", 0, "%R/stat");
+  style_submenu_element("Stats", "%R/stat");
 
 #if !defined(_WIN32)
   @ uid=%d(getuid()), gid=%d(getgid())<br />

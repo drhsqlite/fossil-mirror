@@ -1085,7 +1085,7 @@ static void timeline_submenu(
   const char *zValue,      /* Value of the new parameter */
   const char *zRemove      /* Parameter to omit */
 ){
-  style_submenu_element(zMenuName, zMenuName, "%s",
+  style_submenu_element(zMenuName, "%s",
                         url_render(pUrl, zParam, zValue, zRemove, 0));
 }
 
@@ -1555,11 +1555,9 @@ void page_timeline(void){
   }
 
   if( zTagName && g.perm.Read ){
-    style_submenu_element("Related", "Related", "%s",
-                          url_render(&url, "r", zTagName, "t", 0));
+    timeline_submenu(&url, "Related", "r", zTagName, "t");
   }else if( zBrName && g.perm.Read ){
-    style_submenu_element("Branch Only", "only", "%s",
-                          url_render(&url, "t", zBrName, "r", 0));
+    timeline_submenu(&url, "Branch Only", "t", zBrName, "r");
   }
   if( zMark && zMark[0]==0 ){
     if( zAfter ) zMark = zAfter;
@@ -2059,7 +2057,7 @@ void page_timeline(void){
     @ <pre>%h(blob_sql_text(&sql))</pre>
   }
   if( search_restrict(SRCH_CKIN)!=0 ){
-    style_submenu_element("Search", 0, "%R/search?y=c");
+    style_submenu_element("Search", "%R/search?y=c");
   }
   if( PB("showid") ) tmFlags |= TIMELINE_SHOWRID;
   if( useDividers && zMark && zMark[0] ){

@@ -949,7 +949,7 @@ static int isButtonHyperlink(
   j = (int)strlen(zTag);
   while( j>0 && fossil_isspace(zTag[j-1]) ){ j--; }
   if( j==0 ) return 0;
-  style_submenu_element(zTag, zTag, "%s", zHref);
+  style_submenu_element(zTag, "%s", zHref);
   *pN = i+4;
   return 1;
 }

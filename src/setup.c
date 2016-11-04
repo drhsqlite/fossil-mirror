@@ -151,9 +151,9 @@ void setup_ulist(void){
     return;
   }
 
-  style_submenu_element("Add", "Add User", "setup_uedit");
-  style_submenu_element("Log", "Access Log", "access_log");
-  style_submenu_element("Help", "Help", "setup_ulist_notes");
+  style_submenu_element("Add", "setup_uedit");
+  style_submenu_element("Log", "access_log");
+  style_submenu_element("Help", "setup_ulist_notes");
   style_header("User List");
   @ <table border=1 cellpadding=2 cellspacing=0 class='userTable'>
   @ <thead><tr>
@@ -559,7 +559,7 @@ void user_edit(void){
 
   /* Begin generating the page
   */
-  style_submenu_element("Cancel", "Cancel", "setup_ulist");
+  style_submenu_element("Cancel", "setup_ulist");
   if( uid ){
     style_header("Edit User %h", zLogin);
   }else{

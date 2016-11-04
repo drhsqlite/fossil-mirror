@@ -333,7 +333,7 @@ void finfo_page(void){
     return;
   }
   if( g.perm.Admin ){
-    style_submenu_element("MLink Table", "mtab", "%R/mlink?name=%t", zFilename);
+    style_submenu_element("MLink Table", "%R/mlink?name=%t", zFilename);
   }
   if( baseCheckin ){
     compute_direct_ancestors(baseCheckin);
