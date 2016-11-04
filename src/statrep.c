@@ -734,7 +734,7 @@ void stats_report_page(){
       );
     }
   }
-  style_submenu_element("Stats", "Stats", "%R/stat");
+  style_submenu_element("Stats", "%R/stat");
   style_header("Activity Reports");
   switch( eType ){
     case RPT_BYYEAR:

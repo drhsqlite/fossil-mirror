@@ -454,10 +454,10 @@ void ainfo_page(void){
   ** the object that is attached. */
   if( g.perm.Admin ){
     if( db_exists("SELECT 1 FROM shun WHERE uuid='%q'", zUuid) ){
-      style_submenu_element("Unshun","Unshun", "%s/shun?uuid=%s&sub=1",
+      style_submenu_element("Unshun", "%s/shun?uuid=%s&sub=1",
             g.zTop, zUuid);
     }else{
-      style_submenu_element("Shun","Shun", "%s/shun?shun=%s#addshun",
+      style_submenu_element("Shun", "%s/shun?shun=%s#addshun",
             g.zTop, zUuid);
     }
   }
@@ -477,19 +477,19 @@ void ainfo_page(void){
     zTktUuid = zTarget;
     if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
     if( g.perm.WrTkt ){
-      style_submenu_element("Delete","Delete","%R/ainfo/%s?del", zUuid);
+      style_submenu_element("Delete", "%R/ainfo/%s?del", zUuid);
     }
   }else if( db_exists("SELECT 1 FROM tag WHERE tagname='wiki-%q'",zTarget) ){
     zWikiName = zTarget;
     if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
     if( g.perm.WrWiki ){
-      style_submenu_element("Delete","Delete","%R/ainfo/%s?del", zUuid);
+      style_submenu_element("Delete", "%R/ainfo/%s?del", zUuid);
     }
   }else if( db_exists("SELECT 1 FROM tag WHERE tagname='event-%q'",zTarget) ){
     zTNUuid = zTarget;
     if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
     if( g.perm.Write && g.perm.WrWiki ){
-      style_submenu_element("Delete","Delete","%R/ainfo/%s?del", zUuid);
+      style_submenu_element("Delete", "%R/ainfo/%s?del", zUuid);
     }
   }
   zDate = db_text(0, "SELECT datetime(%.12f)", pAttach->rDate);
@@ -553,10 +553,9 @@ void ainfo_page(void){
     }
   }
   style_header("Attachment Details");
-  style_submenu_element("Raw", "Raw", "%R/artifact/%s", zUuid);
+  style_submenu_element("Raw", "%R/artifact/%s", zUuid);
   if(fShowContent){
-    style_submenu_element("Line Numbers", "Line Numbers",
-                          "%R/ainfo/%s%s",zUuid,
+    style_submenu_element("Line Numbers", "%R/ainfo/%s%s", zUuid,
                           ((zLn&&*zLn) ? "" : "?ln=0"));
   }
 
@@ -631,7 +630,7 @@ void ainfo_page(void){
     int sz = db_int(0, "SELECT size FROM blob WHERE rid=%d", ridSrc);
     @ <i>(file is %d(sz) bytes of image data)</i><br />
     @ <img src="%R/raw/%s(zSrc)?m=%s(zMime)"></img>
-    style_submenu_element("Image", "Image", "%R/raw/%s?m=%s", zSrc, zMime);
+    style_submenu_element("Image", "%R/raw/%s?m=%s", zSrc, zMime);
   }else{
     int sz = db_int(0, "SELECT size FROM blob WHERE rid=%d", ridSrc);
     @ <i>(file is %d(sz) bytes of binary data)</i>

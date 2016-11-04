@@ -240,7 +240,7 @@ void help_page(void){
     int rc;
     const CmdOrPage *pCmd = 0;
 
-    style_submenu_element("Command-List", "Command-List", "%s/help", g.zTop);
+    style_submenu_element("Command-List", "%s/help", g.zTop);
     if( *zCmd=='/' ){
       /* Some of the webpages require query parameters in order to work.
       ** @ <h1>The "<a href='%R%s(zCmd)'>%s(zCmd)</a>" page:</h1> */

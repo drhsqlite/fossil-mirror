@@ -458,31 +458,24 @@ void tktview_page(void){
   login_check_credentials();
   if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
   if( g.anon.WrTkt || g.anon.ApndTkt ){
-    style_submenu_element("Edit", "Edit The Ticket", "%s/tktedit?name=%T",
-        g.zTop, PD("name",""));
+    style_submenu_element("Edit", "%s/tktedit?name=%T", g.zTop, PD("name",""));
   }
   if( g.perm.Hyperlink ){
-    style_submenu_element("History", "History Of This Ticket",
-        "%s/tkthistory/%T", g.zTop, zUuid);
-    style_submenu_element("Timeline", "Timeline Of This Ticket",
-        "%s/tkttimeline/%T", g.zTop, zUuid);
-    style_submenu_element("Check-ins", "Check-ins Of This Ticket",
-        "%s/tkttimeline/%T?y=ci", g.zTop, zUuid);
+    style_submenu_element("History", "%s/tkthistory/%T", g.zTop, zUuid);
+    style_submenu_element("Timeline", "%s/tkttimeline/%T", g.zTop, zUuid);
+    style_submenu_element("Check-ins", "%s/tkttimeline/%T?y=ci", g.zTop, zUuid);
   }
   if( g.anon.NewTkt ){
-    style_submenu_element("New Ticket", "Create a new ticket",
-        "%s/tktnew", g.zTop);
+    style_submenu_element("New Ticket", "%s/tktnew", g.zTop);
   }
   if( g.anon.ApndTkt && g.anon.Attach ){
-    style_submenu_element("Attach", "Add An Attachment",
-        "%s/attachadd?tkt=%T&from=%s/tktview/%t",
+    style_submenu_element("Attach", "%s/attachadd?tkt=%T&from=%s/tktview/%t",
         g.zTop, zUuid, g.zTop, zUuid);
   }
   if( P("plaintext") ){
-    style_submenu_element("Formatted", "Formatted", "%R/tktview/%s", zUuid);
+    style_submenu_element("Formatted", "%R/tktview/%s", zUuid);
   }else{
-    style_submenu_element("Plaintext", "Plaintext",
-                          "%R/tktview/%s?plaintext", zUuid);
+    style_submenu_element("Plaintext", "%R/tktview/%s?plaintext", zUuid);
   }
   style_header("View Ticket");
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW<br />\n", -1);
@@ -858,16 +851,13 @@ void tkttimeline_page(void){
   zUuid = PD("name","");
   zType = PD("y","a");
   if( zType[0]!='c' ){
-    style_submenu_element("Check-ins", "Check-ins",
-       "%s/tkttimeline?name=%T&y=ci", g.zTop, zUuid);
+    style_submenu_element("Check-ins", "%s/tkttimeline?name=%T&y=ci",
+       g.zTop, zUuid);
   }else{
-    style_submenu_element("Timeline", "Timeline",
-       "%s/tkttimeline?name=%T", g.zTop, zUuid);
+    style_submenu_element("Timeline", "%s/tkttimeline?name=%T", g.zTop, zUuid);
   }
-  style_submenu_element("History", "History",
-    "%s/tkthistory/%s", g.zTop, zUuid);
-  style_submenu_element("Status", "Status",
-    "%s/info/%s", g.zTop, zUuid);
+  style_submenu_element("History", "%s/tkthistory/%s", g.zTop, zUuid);
+  style_submenu_element("Status", "%s/info/%s", g.zTop, zUuid);
   if( zType[0]=='c' ){
     zTitle = mprintf("Check-ins Associated With Ticket %h", zUuid);
   }else{
@@ -933,18 +923,14 @@ void tkthistory_page(void){
   }
   zUuid = PD("name","");
   zTitle = mprintf("History Of Ticket %h", zUuid);
-  style_submenu_element("Status", "Status",
-    "%s/info/%s", g.zTop, zUuid);
-  style_submenu_element("Check-ins", "Check-ins",
-    "%s/tkttimeline?name=%s&y=ci", g.zTop, zUuid);
-  style_submenu_element("Timeline", "Timeline",
-    "%s/tkttimeline?name=%s", g.zTop, zUuid);
+  style_submenu_element("Status", "%s/info/%s", g.zTop, zUuid);
+  style_submenu_element("Check-ins", "%s/tkttimeline?name=%s&y=ci",
+    g.zTop, zUuid);
+  style_submenu_element("Timeline", "%s/tkttimeline?name=%s", g.zTop, zUuid);
   if( P("plaintext")!=0 ){
-    style_submenu_element("Formatted", "Formatted",
-                          "%R/tkthistory/%s", zUuid);
+    style_submenu_element("Formatted", "%R/tkthistory/%s", zUuid);
   }else{
-    style_submenu_element("Plaintext", "Plaintext",
-                          "%R/tkthistory/%s?plaintext", zUuid);
+    style_submenu_element("Plaintext", "%R/tkthistory/%s?plaintext", zUuid);
   }
   style_header("%z", zTitle);
 
@@ -1418,13 +1404,13 @@ void ticket_cmd(void){
 */
 void ticket_standard_submenu(unsigned int ok){
   if( (ok & T_SRCH)!=0 && search_restrict(SRCH_TKT)!=0 ){
-    style_submenu_element("Search","Search","%R/tktsrch");
+    style_submenu_element("Search", "%R/tktsrch");
   }
   if( (ok & T_REPLIST)!=0 ){
-    style_submenu_element("Reports","Reports","%R/reportlist");
+    style_submenu_element("Reports", "%R/reportlist");
   }
   if( (ok & T_NEW)!=0 && g.anon.NewTkt ){
-    style_submenu_element("New","New","%R/tktnew");
+    style_submenu_element("New", "%R/tktnew");
   }
 }
 

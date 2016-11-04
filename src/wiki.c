@@ -185,9 +185,9 @@ void markdown_rules_page(void){
   int fTxt = P("txt")!=0;
   style_header("Markdown Formatting Rules");
   if( fTxt ){
-    style_submenu_element("Formatted", "Formatted", "%R/md_rules");
+    style_submenu_element("Formatted", "%R/md_rules");
   }else{
-    style_submenu_element("Plain-Text", "Plain-Text", "%R/md_rules?txt=1");
+    style_submenu_element("Plain-Text", "%R/md_rules?txt=1");
   }
   blob_init(&x, builtin_text("markdown.md"), -1);
   wiki_render_by_mimetype(&x, fTxt ? "text/plain" : "text/x-markdown");
@@ -233,22 +233,22 @@ int wiki_need_moderation(
 */
 static void wiki_standard_submenu(unsigned int ok){
   if( (ok & W_SRCH)!=0 && search_restrict(SRCH_WIKI)!=0 ){
-    style_submenu_element("Search","Search","%R/wikisrch");
+    style_submenu_element("Search", "%R/wikisrch");
   }
   if( (ok & W_LIST)!=0 ){
-    style_submenu_element("List","List","%R/wcontent");
+    style_submenu_element("List", "%R/wcontent");
   }
   if( (ok & W_HELP)!=0 ){
-    style_submenu_element("Help","Help","%R/wikihelp");
+    style_submenu_element("Help", "%R/wikihelp");
   }
   if( (ok & W_NEW)!=0 && g.anon.NewWiki ){
-    style_submenu_element("New","New","%R/wikinew");
+    style_submenu_element("New", "%R/wikinew");
   }
 #if 0
   if( (ok & W_BLOG)!=0
 #endif
   if( (ok & W_SANDBOX)!=0 ){
-    style_submenu_element("Sandbox", "Sandbox", "%R/wiki?name=Sandbox");
+    style_submenu_element("Sandbox", "%R/wiki?name=Sandbox");
   }
 }
 
@@ -368,35 +368,29 @@ void wiki_page(void){
   zMimetype = wiki_filter_mimetypes(zMimetype);
   if( !g.isHome ){
     if( rid ){
-      style_submenu_element("Diff", "Last change",
-                 "%R/wdiff?name=%T&a=%d", zPageName, rid);
+      style_submenu_element("Diff", "%R/wdiff?name=%T&a=%d", zPageName, rid);
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-      style_submenu_element("Details", "Details",
-                   "%R/info/%s", zUuid);
+      style_submenu_element("Details", "%R/info/%s", zUuid);
     }
     if( (rid && g.anon.WrWiki) || (!rid && g.anon.NewWiki) ){
       if( db_get_boolean("wysiwyg-wiki", 0) ){
-        style_submenu_element("Edit", "Edit Wiki Page",
-             "%s/wikiedit?name=%T&wysiwyg=1",
+        style_submenu_element("Edit", "%s/wikiedit?name=%T&wysiwyg=1",
              g.zTop, zPageName);
       }else{
-        style_submenu_element("Edit", "Edit Wiki Page",
-             "%s/wikiedit?name=%T",
-             g.zTop, zPageName);
+        style_submenu_element("Edit", "%s/wikiedit?name=%T", g.zTop, zPageName);
       }
     }
     if( rid && g.anon.ApndWiki && g.anon.Attach ){
-      style_submenu_element("Attach", "Add An Attachment",
+      style_submenu_element("Attach",
            "%s/attachadd?page=%T&from=%s/wiki%%3fname=%T",
            g.zTop, zPageName, g.zTop, zPageName);
     }
     if( rid && g.anon.ApndWiki ){
-      style_submenu_element("Append", "Add A Comment",
-           "%s/wikiappend?name=%T&mimetype=%s",
+      style_submenu_element("Append", "%s/wikiappend?name=%T&mimetype=%s",
            g.zTop, zPageName, zMimetype);
     }
     if( g.perm.Hyperlink ){
-      style_submenu_element("History", "History", "%s/whistory?name=%T",
+      style_submenu_element("History", "%s/whistory?name=%T",
            g.zTop, zPageName);
     }
   }
@@ -953,9 +947,9 @@ void wcontent_page(void){
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
   style_header("Available Wiki Pages");
   if( showAll ){
-    style_submenu_element("Active", "Only Active Pages", "%s/wcontent", g.zTop);
+    style_submenu_element("Active", "%s/wcontent", g.zTop);
   }else{
-    style_submenu_element("All", "All", "%s/wcontent?all=1", g.zTop);
+    style_submenu_element("All", "%s/wcontent?all=1", g.zTop);
   }
   wiki_standard_submenu(W_ALL_BUT(W_LIST));
   @ <ul>

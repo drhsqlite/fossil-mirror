@@ -610,10 +610,10 @@ void setup_skinedit(void){
   style_header("%s", aSkinAttr[ii].zTitle);
   for(j=0; j<ArraySize(aSkinAttr); j++){
     if( j==ii ) continue;
-    style_submenu_element(aSkinAttr[j].zSubmenu, 0,
+    style_submenu_element(aSkinAttr[j].zSubmenu,
           "%R/setup_skinedit?w=%d&basis=%h",j,zBasis);
   }
-  style_submenu_element("Skins", 0, "%R/setup_skin");
+  style_submenu_element("Skins", "%R/setup_skin");
   @ <form action="%s(g.zTop)/setup_skinedit" method="post"><div>
   login_insert_csrf_secret();
   @ <input type='hidden' name='w' value='%d(ii)'>

@@ -452,9 +452,9 @@ void view_edit(void){
     }
   }
   if( zOwner==0 ) zOwner = g.zLogin;
-  style_submenu_element("Cancel", "Cancel", "reportlist");
+  style_submenu_element("Cancel", "reportlist");
   if( rn>0 ){
-    style_submenu_element("Delete", "Delete", "rptedit?rn=%d&del1=1", rn);
+    style_submenu_element("Delete", "rptedit?rn=%d&del1=1", rn);
   }
   style_header("%s", rn>0 ? "Edit Report Format":"Create New Report Format");
   if( zErr ){
@@ -702,11 +702,10 @@ static int generate_html(
             pState->wikiFlags |= WIKI_LINKSONLY;
             pState->zWikiStart = "<pre class='verbatim'>";
             pState->zWikiEnd = "</pre>";
-            style_submenu_element("Formatted", "Formatted",
-                                  "%R/rptview?rn=%d", pState->rn);
+            style_submenu_element("Formatted", "%R/rptview?rn=%d", pState->rn);
           }else{
-            style_submenu_element("Plaintext", "Plaintext",
-                                  "%R/rptview?rn=%d&plaintext", pState->rn);
+            style_submenu_element("Plaintext", "%R/rptview?rn=%d&plaintext",
+                                  pState->rn);
           }
         }else{
           pState->nCol++;
@@ -1199,18 +1198,16 @@ void rptview_page(void){
     struct GenerateHTML sState = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
     db_multi_exec("PRAGMA empty_result_callbacks=ON");
-    style_submenu_element("Raw", "Raw",
-      "rptview?tablist=1&%h", PD("QUERY_STRING",""));
+    style_submenu_element("Raw", "rptview?tablist=1&%h", PD("QUERY_STRING",""));
     if( g.perm.Admin
        || (g.perm.TktFmt && g.zLogin && fossil_strcmp(g.zLogin,zOwner)==0) ){
-      style_submenu_element("Edit", "Edit", "rptedit?rn=%d", rn);
+      style_submenu_element("Edit", "rptedit?rn=%d", rn);
     }
     if( g.perm.TktFmt ){
-      style_submenu_element("SQL", "SQL", "rptsql?rn=%d",rn);
+      style_submenu_element("SQL", "rptsql?rn=%d",rn);
     }
     if( g.perm.NewTkt ){
-      style_submenu_element("New Ticket", "Create a new ticket",
-        "%s/tktnew", g.zTop);
+      style_submenu_element("New Ticket", "%s/tktnew", g.zTop);
     }
     style_header("%s", zTitle);
     output_color_key(zClrKey, 1,

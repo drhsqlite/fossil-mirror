@@ -444,21 +444,21 @@ void brlist_page(void){
 
   style_header("%s", showClosed ? "Closed Branches" :
                         showAll ? "All Branches" : "Open Branches");
-  style_submenu_element("Timeline", "Timeline", "brtimeline");
+  style_submenu_element("Timeline", "brtimeline");
   if( showClosed ){
-    style_submenu_element("All", "All", "brlist?all");
-    style_submenu_element("Open","Open","brlist?open");
+    style_submenu_element("All", "brlist?all");
+    style_submenu_element("Open", "brlist?open");
   }else if( showAll ){
-    style_submenu_element("Closed", "Closed", "brlist?closed");
-    style_submenu_element("Open","Open","brlist");
+    style_submenu_element("Closed", "brlist?closed");
+    style_submenu_element("Open", "brlist");
   }else{
-    style_submenu_element("All", "All", "brlist?all");
-    style_submenu_element("Closed","Closed","brlist?closed");
+    style_submenu_element("All", "brlist?all");
+    style_submenu_element("Closed", "brlist?closed");
   }
   if( !colorTest ){
-    style_submenu_element("Color-Test", "Color-Test", "brlist?colortest");
+    style_submenu_element("Color-Test", "brlist?colortest");
   }else{
-    style_submenu_element("All", "All", "brlist?all");
+    style_submenu_element("All", "brlist?all");
   }
   login_anonymous_available();
 #if 0
@@ -546,7 +546,7 @@ void brtimeline_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
 
   style_header("Branches");
-  style_submenu_element("List", "List", "brlist");
+  style_submenu_element("List", "brlist");
   login_anonymous_available();
   @ <h2>The initial check-in for each branch:</h2>
   db_prepare(&q,
