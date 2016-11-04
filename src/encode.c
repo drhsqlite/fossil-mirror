@@ -41,6 +41,7 @@ char *htmlize(const char *zIn, int n){
       case '>':   count += 4;       break;
       case '&':   count += 5;       break;
       case '"':   count += 6;       break;
+      case '\'':  count += 5;       break;
       default:    count++;          break;
     }
     i++;

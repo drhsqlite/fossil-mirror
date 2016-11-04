@@ -1,5 +1,5 @@
-C Merge\strunk
-D 2016-11-04T21:55:22.091
+C Fix\scrash\sintroduced\sby\smerge\sof\sandygoth-quote-apostrophe
+D 2016-11-04T22:12:14.197
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -408,7 +408,7 @@ F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 961503775818c035aede0b36bf751a843b4eab30
 F src/dispatch.c 3ef20e76194b588fc4b47e9ce0f04dd0a27de7c6
 F src/doc.c f46ada466f90f12ee7b5c6078808fdfc4dedb183
-F src/encode.c 9ec5778543a4dedc774168371494c66796ad2658
+F src/encode.c edb12a68c5831e5331eaad3796c492059edb10fb
 F src/event.c 021db025691a859a49751f255a0a065bca728444
 F src/export.c 7751f8df389e0a70c44df21841454467dceabf69
 F src/file.c 71a65cc15cadaf2313dd2bb577d568ed7444ea2e
@@ -769,6 +769,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cda8c14c164998c22f4964dd6093b5f8eca0d5b0 c1a77615cac26cb830beeca68125f3990eb38142
+P 250c12c2f7aac52999dfacfeeb3831469b5a4c7c
 U andygoth
-Z 6979fd05e52d89a2154c3421c3640546
+Z a21c9c898fee4b3d074c867ae2995fa9
