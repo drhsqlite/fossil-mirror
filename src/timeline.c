@@ -1344,13 +1344,11 @@ void page_timeline(void){
   if( zTagName && g.perm.Read ){
     tagid = db_int(-1,"SELECT tagid FROM tag WHERE tagname='sym-%q'",zTagName);
     zThisTag = zTagName;
-    style_submenu_element("Related", "%s",
-                          url_render(&url, "r", zTagName, "t", 0));
+    timeline_submenu(&url, "Related", "r", zTagName, "t");
   }else if( zBrName && g.perm.Read ){
     tagid = db_int(-1,"SELECT tagid FROM tag WHERE tagname='sym-%q'",zBrName);
     zThisTag = zBrName;
-    style_submenu_element("Branch Only", "%s",
-                          url_render(&url, "t", zBrName, "r", 0));
+    timeline_submenu(&url, "Branch Only", "t", zBrName, "r");
   }else{
     tagid = 0;
   }
