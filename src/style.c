@@ -235,7 +235,7 @@ void style_submenu_element(
   ...
 ){
   va_list ap;
-  assert( nSubmenu < sizeof(aSubmenu)/sizeof(aSubmenu[0]) );
+  assert( nSubmenu < count(aSubmenu) );
   aSubmenu[nSubmenu].zLabel = zLabel;
   va_start(ap, zLink);
   aSubmenu[nSubmenu].zLink = vmprintf(zLink, ap);
@@ -248,7 +248,7 @@ void style_submenu_entry(
   int iSize,               /* Size of the entry box */
   int isDisabled           /* True if disabled */
 ){
-  assert( nSubmenuCtrl < ArraySize(aSubmenuCtrl) );
+  assert( nSubmenuCtrl < count(aSubmenuCtrl) );
   aSubmenuCtrl[nSubmenuCtrl].zName = zName;
   aSubmenuCtrl[nSubmenuCtrl].zLabel = zLabel;
   aSubmenuCtrl[nSubmenuCtrl].iSize = iSize;
@@ -262,7 +262,7 @@ void style_submenu_binary(
   const char *zFalse,      /* Label to show when the parameter is false */
   int isDisabled           /* True if this control is disabled */
 ){
-  assert( nSubmenuCtrl < ArraySize(aSubmenuCtrl) );
+  assert( nSubmenuCtrl < count(aSubmenuCtrl) );
   aSubmenuCtrl[nSubmenuCtrl].zName = zName;
   aSubmenuCtrl[nSubmenuCtrl].zLabel = zTrue;
   aSubmenuCtrl[nSubmenuCtrl].zFalse = zFalse;
@@ -276,7 +276,7 @@ void style_submenu_multichoice(
   const char *const *azChoice,/* value/display pairs.  2*nChoice entries */
   int isDisabled           /* True if this control is disabled */
 ){
-  assert( nSubmenuCtrl < ArraySize(aSubmenuCtrl) );
+  assert( nSubmenuCtrl < count(aSubmenuCtrl) );
   aSubmenuCtrl[nSubmenuCtrl].zName = zName;
   aSubmenuCtrl[nSubmenuCtrl].iSize = nChoice;
   aSubmenuCtrl[nSubmenuCtrl].azChoice = azChoice;

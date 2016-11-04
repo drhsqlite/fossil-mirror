@@ -140,7 +140,7 @@ static const char *const azStyles[] = {
 const char *wiki_filter_mimetypes(const char *zMimetype){
   if( zMimetype!=0 ){
     int i;
-    for(i=0; i<sizeof(azStyles)/sizeof(azStyles[0]); i+=3){
+    for(i=0; i<count(azStyles); i+=3){
       if( fossil_strcmp(zMimetype,azStyles[i+2])==0 ){
         return azStyles[i];
       }
@@ -430,7 +430,7 @@ static void wiki_put(Blob *pWiki, int parent, int needMod){
 void mimetype_option_menu(const char *zMimetype){
   unsigned i;
   @ <select name="mimetype" size="1">
-  for(i=0; i<sizeof(azStyles)/sizeof(azStyles[0]); i+=3){
+  for(i=0; i<count(azStyles); i+=3){
     if( fossil_strcmp(zMimetype,azStyles[i])==0 ){
       @ <option value="%s(azStyles[i])" selected>%s(azStyles[i+1])</option>
     }else{

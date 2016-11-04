@@ -2007,7 +2007,7 @@ void Th_FossilInit(u32 flags){
       th_register_tcl(g.interp, &g.tcl);  /* Tcl integration commands. */
     }
 #endif
-    for(i=0; i<sizeof(aCommand)/sizeof(aCommand[0]); i++){
+    for(i=0; i<count(aCommand); i++){
       if ( !aCommand[i].zName || !aCommand[i].xProc ) continue;
       Th_CreateCommand(g.interp, aCommand[i].zName, aCommand[i].xProc,
                        aCommand[i].pContext, 0);

@@ -160,7 +160,7 @@ static const et_info fmtinfo[] = {
   {  'p', 16, 0, etPOINTER,    0,  1 },
   {  '/',  0, 0, etPATH,       0,  0 },
 };
-#define etNINFO  (sizeof(fmtinfo)/sizeof(fmtinfo[0]))
+#define etNINFO count(fmtinfo)
 
 /*
 ** "*val" is a double such that 0.1 <= *val < 10.0
@@ -972,7 +972,7 @@ static void fossil_errorlog(const char *zFormat, ...){
   vfprintf(out, zFormat, ap);
   fprintf(out, "\n");
   va_end(ap);
-  for(i=0; i<sizeof(azEnv)/sizeof(azEnv[0]); i++){
+  for(i=0; i<count(azEnv); i++){
     char *p;
     if( (p = fossil_getenv(azEnv[i]))!=0 ){
       fprintf(out, "%s=%s\n", azEnv[i], p);

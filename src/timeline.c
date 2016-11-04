@@ -392,7 +392,7 @@ void www_print_timeline(
         " ORDER BY isprim DESC /*sort*/"
       );
       db_bind_int(&qparent, ":rid", rid);
-      while( db_step(&qparent)==SQLITE_ROW && nParent<ArraySize(aParent) ){
+      while( db_step(&qparent)==SQLITE_ROW && nParent<count(aParent) ){
         aParent[nParent++] = db_column_int(&qparent, 0);
       }
       db_reset(&qparent);
@@ -1188,7 +1188,7 @@ static void timeline_y_submenu(int isDisabled){
       az[i++] = "w";
       az[i++] = "Wiki";
     }
-    assert( i<=ArraySize(az) );
+    assert( i<=count(az) );
   }
   if( i>2 ){
     style_submenu_multichoice("y", i/2, az, isDisabled);

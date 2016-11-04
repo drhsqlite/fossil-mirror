@@ -1206,7 +1206,7 @@ static void collision_report(const char *zSql){
       @ %z(href("%R/whatis/%s",zId))%h(zId)</a>
     }
   }
-  for(i=4; i<ArraySize(aCollide); i++){
+  for(i=4; i<count(aCollide); i++){
     for(j=0; j<aCollide[i].cnt && j<MAX_COLLIDE; j++){
       fossil_free(aCollide[i].azHit[j]);
     }

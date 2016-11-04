@@ -1292,7 +1292,7 @@ void file_tempname(int nBuf, char *zBuf){
 #endif
 
 
-  for(i=0; i<sizeof(azDirs)/sizeof(azDirs[0]); i++){
+  for(i=0; i<count(azDirs); i++){
     if( azDirs[i]==0 ) continue;
     if( !file_isdir(azDirs[i]) ) continue;
     zDir = azDirs[i];
@@ -1409,7 +1409,7 @@ const char *file_is_win_reserved(const char *zPath){
   static char zReturn[5];
   int i;
   while( zPath[0] ){
-    for(i=0; i<ArraySize(azRes); i++){
+    for(i=0; i<count(azRes); i++){
       if( sqlite3_strnicmp(zPath, azRes[i], 3)==0
        && ((i>=4 && fossil_isdigit(zPath[3])
                  && (zPath[4]=='/' || zPath[4]=='.' || zPath[4]==0))
