@@ -1,5 +1,5 @@
-C Change\sstyle_submenu_entry()\sto\sallow\szero\sand\snegative\siSize.\s\sZero\siSize\smeans\sdisplay\ssize\sand\slength\slimit\sare\snot\sspecified,\sand\snegative\siSize\smeans\sno\slength\slimit\sis\sspecified\sbut\sthe\sdisplay\ssize\sis\sset\sto\sthe\sabsolute\svalue\sof\siSize.
-D 2016-11-04T15:52:22.964
+C Add\stimeline\sweb\sUI\sto\sset\stag\sfilter\sand\smatch\sstyle.\s\sStill\snot\s100%.\s\s(1)\sNow\sthat\smore\sthan\sone\stext\sentry\sis\son\sthe\spage,\spressing\senter\sdoes\snot\strigger\sa\ssubmit\s[Firefox\sESR\s10.0.12],\s(2)\selecting\s"Related"\scauses\sTag\sFilter\sto\sblank,\s(3)\sentering\sa\stag\sfilter\swhile\s"Related"\sis\sselected\scauses\s"Related"\sto\sbe\sdeselected,\s(4)\spossibly\stoo\smuch\sclutter,\sand\s(5)\sdefinitely\stoo\smuch\sclutter\sif\scombined\swith\sany\sfuture\sexpansions.\s\s(1)\sis\sdue\sto\sthe\slack\sof\sa\ssubmit\sbutton.\s\s(2)\sand\s(3)\sare\sa\sbad\sinteraction\sbetween\sthe\st=/r=\sdichotomy\sand\sthe\sdesign\sof\sstyle_submenu_entry().\s\s(4)\smaybe\scould\sbe\saddressed\sby\schanging\s"Related"/"Branch\sOnly"\sand\s"Without\sFiles"/"With\sFiles"\sto\scheckbuttons,\sbut\sstyle_submenu_checkbox()\swas\snever\sactually\simplemented.\s\s(Probably\salso\swant\s"Unhide"\sto\sbe\sa\scheckbox.\s\sFor\s(5)\sI\shave\sin\smind\sletting\sthe\sadmin\sdefine\sa\sproject-specific\slist\sof\spreset\sfilters.
+D 2016-11-04T16:21:20.112
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -500,7 +500,7 @@ F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c 39474b4bcfc0a37c5ab16f707a556adce0072b9f
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
-F src/timeline.c af3227a062e25a3a722e6c1aa14d9da86f894e2a
+F src/timeline.c 5a8c63ef1380cb9a8ddabf153afa517e74bcba69
 F src/tkt.c cfc97ae7d6896a3a70c1a6f365843d5439715d33
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
@@ -769,6 +769,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fc25a1270e8e712d3c43c10520bf60401111aa10
+P 2e9ac33a9ad54a8abee2d1cc86967d07c43ca9f1
 U andygoth
-Z c2388700002e6faea80882dc682b3e3f
+Z 3f4f2405384f75300912c75fb7ec8d7f

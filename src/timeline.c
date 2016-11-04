@@ -1479,11 +1479,11 @@ void page_timeline(void){
 
   /* Interpet the tag style string. */
   if( zThisTag ){
-    if( fossil_stricmp(zMatchStyle, "GLOB")==0 ){
+    if( fossil_stricmp(zMatchStyle, "glob")==0 ){
       matchStyle = MS_GLOB;
-    }else if( fossil_stricmp(zMatchStyle, "LIKE")==0 ){
+    }else if( fossil_stricmp(zMatchStyle, "like")==0 ){
       matchStyle = MS_LIKE;
-    }else if( fossil_stricmp(zMatchStyle, "REGEXP")==0 ){
+    }else if( fossil_stricmp(zMatchStyle, "regexp")==0 ){
       matchStyle = MS_REGEXP;
     }
   }
@@ -1956,6 +1956,9 @@ void page_timeline(void){
       blob_appendf(&desc, " matching \"%h\"", zSearch);
     }
     if( g.perm.Hyperlink ){
+      static const char *const azMatchStyles[] = {
+        "exact","Exact", "glob","Glob", "like","Like", "regexp","Regexp"
+      };
       double rDate;
       zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
       if( (!zDate || !zDate[0]) && ( zAfter || zBefore ) ){
@@ -1997,6 +2000,10 @@ void page_timeline(void){
       timeline_y_submenu(disableY);
       style_submenu_binary("v","With Files","Without Files",
                            zType[0]!='a' && zType[0]!='c');
+      style_submenu_entry("t", "Tag Filter:", -8, 0);
+      style_submenu_multichoice("ms",
+          sizeof(azMatchStyles) / sizeof(*azMatchStyles) / 2,
+          azMatchStyles, 0);
     }
     blob_zero(&cond);
   }
