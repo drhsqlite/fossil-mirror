@@ -538,13 +538,20 @@ void style_footer(void){
           case FF_ENTRY: {
             cgi_printf(
                "<span class='submenuctrl'>"
-               "&nbsp;%h<input type='text' name='%s' size='%d' maxlength='%d'"
+               "&nbsp;%h<input type='text' name='%s'",
+               aSubmenuCtrl[i].zLabel, zQPN
+            );
+            if( aSubmenuCtrl[i].iSize<0 ){
+               cgi_printf(" size='%d'", -aSubmenuCtrl[i].iSize);
+            }else if( aSubmenuCtrl[i].iSize>0 ){
+               cgi_printf(
+                  " size='%d' maxlength='%d'",
+                  aSubmenuCtrl[i].iSize, aSubmenuCtrl[i].iSize
+               );
+            }
+            cgi_printf(
                " value='%h'%s></span>\n",
-               aSubmenuCtrl[i].zLabel,
-               zQPN,
-               aSubmenuCtrl[i].iSize, aSubmenuCtrl[i].iSize,
-               PD(zQPN,""),
-               zDisabled
+               PD(zQPN,""), zDisabled
             );
             break;
           }
