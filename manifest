@@ -1,5 +1,5 @@
-C Cherrypick\s3\sbug-fixes\sfrom\sSQLite\strunk,\sdiscovered\sjust\safter\sthe\sSQLite\s3.15\srelease,\samong\sthem\sa\sfix\sto\sVACUUM\sto\sprevent\sit\sfrom\srunning\sout\sof\smemory\son\svery\slarge\sdatabases\nSee\s[http://www.sqlite.org/src/info/34a579141b2c5ac|34a579141b2c5ac]\sand\s[http://www.sqlite.org/src/info/fef4bb4bd9185ec8f|fef4bb4bd9185ec8f]\n(most\slikely,\sthose\s3\swill\sbe\sin\sSQLite\s3.15.1,\sif\sever\sreleased)
-D 2016-11-03T09:52:07.801
+C Update\sto\sSQLite\s3.15.1
+D 2016-11-04T23:16:51.984
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -486,8 +486,8 @@ F src/shun.c 7d0a7eeffdf515b2d78919408fe42e7142a9b532
 F src/sitemap.c b7c376b21d29322741c804e1f762b34aedb98ad1
 F src/skins.c 524384aafbe9e7707d3b87f42ee72fa63fe91796
 F src/sqlcmd.c a7dce974ba7afde541ed58df98bebce335ed75a5
-F src/sqlite3.c 18e25e0f14de6a4f079c509a839ccd87c3f81434
-F src/sqlite3.h 38a99d065c4e78a0eef545d92f2e5d495bb9be7a
+F src/sqlite3.c e7c26a7be3e431dd06898f8d262c4ef240c07366
+F src/sqlite3.h 7318fd28b111ba9f6d59176939595220ff204ce3
 F src/stash.c 99687142f3b88d25d5da94d29cd5dfa637a9e65d
 F src/stat.c 8e2c652ba1deb14c61a7286028dd03f342244734
 F src/statrep.c 8e09b8fb6189ea785e06bc7fcd525b288320945f
@@ -768,7 +768,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki 16ff4640b1d9c9950f12a43cc1958687378204ac
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 83a359ff397f8b5e411401d93572f75d916e46a4
-R 696acd26a8b90742e10ef59865fff7e7
+P 360694a797718c4b2ab92def5714e98cab70ea95
+R b247982b8a852ad4f0464541fd68c590
 U jan.nijtmans
-Z 6ec61a1086b06411c153748758b05e53
+Z 405dbc7d8a9f5df684f795bcaac5b6c4
