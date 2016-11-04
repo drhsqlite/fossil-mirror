@@ -1,5 +1,5 @@
-C Modify\slinenoise.c\sso\sthat\sit\scan\sbuild\swith\s-std=c89.\s\sBaseline\slinenoise.c\srelied\son\ssnprintf(),\sstrdup(),\sand\sstrcasecmp()\swhich\sare\stechnically\snot\sin\sC89.\s\sSince\slinenoise.c's\sonly\spurpose\s(at\spresent)\sis\sto\simplement\sthe\sSQLite\sshell,\smake\suse\sof\sthe\sSQLite\scompatibility\sfunctions.\s\sFollowing\sthis\schange,\s"fossil\sclean\s-f\s&&\sCFLAGS='-std=c89\s-Wall'\s./configure\s&&\smake"\sbuilds\swithout\swarnings\sor\serrors\son\sgcc\s4.4.7\s20120313\s(Red\sHat\s4.4.7-3)\son\sCentOS\srelease\s6.4\s(Final).\s\sUnrelated\snote:\sdiscovered\sduring\stesting\sthat\s"CFLAGS=-Werror\s./configure"\sfails\sto\sadd\s-lm\sto\slink\sstep\sdue\sto\sconflicting\stypes\sfor\sbuilt-in\sfunction\s"sin"\sbeing\sregarded\sas\san\serror.
-D 2016-11-04T17:25:27.573
+C Further\smagic\s_WIN32_WINNT\schanges\sto\sfix\sthe\sbuild\sfor\smingw.
+D 2016-11-04T17:28:36.384
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -420,7 +420,7 @@ F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 23ff3709c6677dff05f707f80e45ddd356333c6e
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
 F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
-F src/http_socket.c c38d7bff255b35cc7cfe13405b67c32878f9d838
+F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c 67fd145dde2689722e7be384390d6c29b783f035
@@ -769,6 +769,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e826eadd9cf7d3a7475e1af12037b774edd44703
-U andygoth
-Z 0d160cc95673dc0d2a69700a57a1071e
+P 8133501ecbf7810ad5da386db3b1f2a642de9c66
+R e0b896d2b42432fbddac76bfba5fc071
+U drh
+Z 0f42b33856f929b8b01acc244cbce606

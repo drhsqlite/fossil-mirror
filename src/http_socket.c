@@ -25,16 +25,15 @@
 ** Low-level sockets are abstracted out into this module because they
 ** are handled different on Unix and windows.
 */
-
+#if defined(_WIN32)
+# define _WIN32_WINNT 0x501
+#endif
 #ifndef __EXTENSIONS__
 # define __EXTENSIONS__ 1  /* IPv6 won't compile on Solaris without this */
 #endif
 #include "config.h"
 #include "http_socket.h"
 #if defined(_WIN32)
-#  if !defined(_WIN32_WINNT)
-#    define _WIN32_WINNT 0x0501
-#  endif
 #  include <winsock2.h>
 #  include <ws2tcpip.h>
 #else
