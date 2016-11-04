@@ -204,7 +204,7 @@ static int linenoiseSnprintf(char *str, size_t size, const char *format, ...) {
     int result;
 
     va_start(ap,format);
-    result = strlen(sqlite3_vsnprintf((int)size,str,format,ap));
+    result = (int)strlen(sqlite3_vsnprintf((int)size,str,format,ap));
     va_end(ap);
 
     return result;
@@ -214,7 +214,7 @@ static int linenoiseSnprintf(char *str, size_t size, const char *format, ...) {
 
 /* strdup() is technically not standard C89 despite being in POSIX. */
 static char *linenoiseStrdup(const char *s) {
-    int size = strlen(s)+1;
+    size_t size = strlen(s)+1;
     char *result = malloc(size);
 
     if (result) memcpy(result,s,size);
