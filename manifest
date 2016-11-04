@@ -1,5 +1,5 @@
-C typo
-D 2016-11-04T12:03:06.390
+C Modify\slinenoise.c\sso\sthat\sit\scan\sbuild\swith\s-std=c89.\s\sBaseline\slinenoise.c\srelied\son\ssnprintf(),\sstrdup(),\sand\sstrcasecmp()\swhich\sare\stechnically\snot\sin\sC89.\s\sSince\slinenoise.c's\sonly\spurpose\s(at\spresent)\sis\sto\simplement\sthe\sSQLite\sshell,\smake\suse\sof\sthe\sSQLite\scompatibility\sfunctions.\s\sFollowing\sthis\schange,\s"fossil\sclean\s-f\s&&\sCFLAGS='-std=c89\s-Wall'\s./configure\s&&\smake"\sbuilds\swithout\swarnings\sor\serrors\son\sgcc\s4.4.7\s20120313\s(Red\sHat\s4.4.7-3)\son\sCentOS\srelease\s6.4\s(Final).\s\sUnrelated\snote:\sdiscovered\sduring\stesting\sthat\s"CFLAGS=-Werror\s./configure"\sfails\sto\sadd\s-lm\sto\slink\sstep\sdue\sto\sconflicting\stypes\sfor\sbuilt-in\sfunction\s"sin"\sbeing\sregarded\sas\san\serror.
+D 2016-11-04T17:25:27.573
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -442,7 +442,7 @@ F src/json_timeline.c 5a9ce59def16a55b7affbf834dd1e13d876efe76
 F src/json_user.c 66fc65a1647616819074eb8ae4534f0822b2fb55
 F src/json_wiki.c 492aa680b85f51dfc21ba17dde54d43ed246b956
 F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
-F src/linenoise.c 9c1a8a9a1d33f79191cb5a104067201a8cee6de1
+F src/linenoise.c 9e99978710063e45634c332480128e522b2c6833
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 597ae479d42096c07d6e6f85f1d844ebb46089b3
@@ -769,7 +769,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 26a88f1bbf98763fafda9e053a3b030fd9a638de
-R 2df9c5d72f49bacde223ff36cdb6e08d
-U jan.nijtmans
-Z f8d55aa5ac6b9237e840d3ce3b450c11
+P e826eadd9cf7d3a7475e1af12037b774edd44703
+U andygoth
+Z 0d160cc95673dc0d2a69700a57a1071e
