@@ -1225,16 +1225,16 @@ static void addFileGlobDescription(
 */
 typedef enum {
   MS_EXACT,   /* Matches a single tag by exact string comparison. */
-  MS_LIKE,    /* Matches tags against a list of LIKE patterns. */
   MS_GLOB,    /* Matches tags against a list of GLOB patterns. */
+  MS_LIKE,    /* Matches tags against a list of LIKE patterns. */
   MS_REGEXP   /* Matches tags against a list of regular expressions. */
 } MatchStyle;
 
 /*
 ** Construct the tag match SQL expression.
 **
-** This function is adapted from glob_expr() to support the MS_EXACT, MS_LIKE,
-** MS_GLOB, and MS_REGEXP match styles.  For MS_EXACT, the returned expression
+** This function is adapted from glob_expr() to support the MS_EXACT, MS_GLOB,
+** MS_LIKE, and MS_REGEXP match styles.  For MS_EXACT, the returned expression
 ** checks for integer match against the tag ID which is looked up directly by
 ** this function.  For the other modes, the returned SQL expression performs
 ** string comparisons against the tag names, so it is necessary to join against
@@ -1267,17 +1267,17 @@ static const char *tagMatchExpression(
   }
 
   /* Decide pattern prefix and suffix strings according to match style. */
-  if( matchStyle==MS_LIKE ){
-    zStart = "(";
-    zDelimiter = " OR ";
-    zEnd = ")";
-    zPrefix = "tagname LIKE 'sym-";
-    zSuffix = "'";
-  }else if( matchStyle==MS_GLOB ){
+  if( matchStyle==MS_GLOB ){
     zStart = "(";
     zDelimiter = " OR ";
     zEnd = ")";
     zPrefix = "tagname GLOB 'sym-";
+    zSuffix = "'";
+  }else if( matchStyle==MS_LIKE ){
+    zStart = "(";
+    zDelimiter = " OR ";
+    zEnd = ")";
+    zPrefix = "tagname LIKE 'sym-";
     zSuffix = "'";
   }else/* if( matchStyle==MS_REGEXP )*/{
     zStart = "(tagname REGEXP '^sym-(";
@@ -1360,7 +1360,7 @@ static const char *tagMatchExpression(
 **    dp=CHECKIN     The same as d=CHECKIN&p=CHECKIN
 **    t=TAG          show only check-ins with the given TAG
 **    r=TAG          show check-ins related to TAG
-**    ms=STYLE       sets tag match style to EXACT, LIKE, GLOB, REGEXP
+**    ms=STYLE       sets tag match style to EXACT, GLOB, LIKE, REGEXP
 **    u=USER         only show items associated with USER
 **    y=TYPE         'ci', 'w', 't', 'e', or (default) 'all'
 **    ng             No Graph.
@@ -1479,10 +1479,10 @@ void page_timeline(void){
 
   /* Interpet the tag style string. */
   if( zThisTag ){
-    if( fossil_stricmp(zMatchStyle, "LIKE")==0 ){
-      matchStyle = MS_LIKE;
-    }else if( fossil_stricmp(zMatchStyle, "GLOB")==0 ){
+    if( fossil_stricmp(zMatchStyle, "GLOB")==0 ){
       matchStyle = MS_GLOB;
+    }else if( fossil_stricmp(zMatchStyle, "LIKE")==0 ){
+      matchStyle = MS_LIKE;
     }else if( fossil_stricmp(zMatchStyle, "REGEXP")==0 ){
       matchStyle = MS_REGEXP;
     }
@@ -1921,10 +1921,10 @@ void page_timeline(void){
         }else{
           blob_append(&desc, " related to tags matching ", -1);
         }
-        if( matchStyle==MS_LIKE ){
-          blob_append(&desc, " SQL LIKE pattern", -1);
-        }else if( matchStyle==MS_GLOB ){
+        if( matchStyle==MS_GLOB ){
           blob_append(&desc, " glob pattern", -1);
+        }else if( matchStyle==MS_LIKE ){
+          blob_append(&desc, " SQL LIKE pattern", -1);
         }else/* if( matchStyle==MS_REGEXP )*/{
           blob_append(&desc, " regular expression", -1);
         }

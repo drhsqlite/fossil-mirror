@@ -1,5 +1,5 @@
-C Revert\sunintended\schange\sthat\ssnuck\sin\salongside\sprior\smerge
-D 2016-11-04T15:12:22.912
+C Move\sGLOB\sbefore\sLIKE\sin\slist\sof\spossible\smatch\sstyles
+D 2016-11-04T15:48:58.668
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -500,7 +500,7 @@ F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c 39474b4bcfc0a37c5ab16f707a556adce0072b9f
 F src/th_tcl.c c5c448fc76880aef32697def3200937ada15a79b
-F src/timeline.c 202cd8fe9cbf8cb2fe4bed6f2ab4bc764f2b2944
+F src/timeline.c af3227a062e25a3a722e6c1aa14d9da86f894e2a
 F src/tkt.c cfc97ae7d6896a3a70c1a6f365843d5439715d33
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
@@ -769,6 +769,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 490daed204be9cd1d6b986e1ef93193e5d230db8
+P f0b91665aba525ef3b294f68106334194e4aa772
 U andygoth
-Z dc7383a88c44784a419f76f8ca7bb45d
+Z 6d5812274524ca40676f3a2bbd1473fc
