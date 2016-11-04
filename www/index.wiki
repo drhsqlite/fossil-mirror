@@ -40,7 +40,7 @@ management system with these advanced features:
       This entire website is just a running instance of Fossil.
       The pages you see here are all [./wikitheory.wiki | wiki] or
       [./embeddeddoc.wiki | embedded documentation] or (in the case of
-      the [/uv/download.html|download] page) 
+      the [/uv/download.html|download] page)
       [./unvers.wiki | unversioned files].
       When you clone Fossil from one of its
       [./selfhost.wiki | self-hosting repositories],

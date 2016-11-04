@@ -21,10 +21,6 @@
 #include "config.h"
 #include "user.h"
 
-#if defined(_WIN32)
-#include <conio.h>
-#endif
-
 /*
 ** Strip leading and trailing space from a string and add the string
 ** onto the end of a blob.
@@ -45,39 +41,54 @@ static void strip_string(Blob *pBlob, char *z){
 }
 
 #if defined(_WIN32) || defined(__BIONIC__)
-#ifdef __MINGW32__
+#ifdef _WIN32
 #include <conio.h>
 #endif
+
 /*
-** getpass for Windows and Android
+** getpass() for Windows and Android.
 */
+static char *zPwdBuffer = 0;
+static size_t nPwdBuffer = 0;
+
 static char *getpass(const char *prompt){
-  static char pwd[64];
+  char *zPwd;
+  size_t nPwd;
   size_t i;
 
+  if( zPwdBuffer==0 ){
+    zPwdBuffer = fossil_secure_alloc_page(&nPwdBuffer);
+    assert( zPwdBuffer );
+  }else{
+    fossil_secure_zero(zPwdBuffer, nPwdBuffer);
+  }
+  zPwd = zPwdBuffer;
+  nPwd = nPwdBuffer;
   fputs(prompt,stderr);
   fflush(stderr);
-  for(i=0; i<sizeof(pwd)-1; ++i){
+  assert( zPwd!=0 );
+  assert( nPwd>0 );
+  for(i=0; i<nPwd-1; ++i){
 #if defined(_WIN32)
-    pwd[i] = _getch();
+    zPwd[i] = _getch();
 #else
-    pwd[i] = getc(stdin);
+    zPwd[i] = getc(stdin);
 #endif
-    if(pwd[i]=='\r' || pwd[i]=='\n'){
+    if(zPwd[i]=='\r' || zPwd[i]=='\n'){
       break;
     }
     /* BS or DEL */
-    else if(i>0 && (pwd[i]==8 || pwd[i]==127)){
+    else if(i>0 && (zPwd[i]==8 || zPwd[i]==127)){
       i -= 2;
       continue;
     }
     /* CTRL-C */
-    else if(pwd[i]==3) {
+    else if(zPwd[i]==3) {
       i=0;
       break;
     }
     /* ESC */
-    else if(pwd[i]==27){
+    else if(zPwd[i]==27){
       i=0;
       break;
     }
@@ -85,9 +96,15 @@ static char *getpass(const char *prompt){
       fputc('*',stderr);
     }
   }
-  pwd[i]='\0';
+  zPwd[i]='\0';
   fputs("\n", stderr);
-  return pwd;
+  assert( zPwd==zPwdBuffer );
+  return zPwd;
+}
+void freepass(){
+  if( !zPwdBuffer ) return;
+  assert( nPwdBuffer>0 );
+  fossil_secure_free_page(zPwdBuffer, nPwdBuffer);
 }
 #endif
 

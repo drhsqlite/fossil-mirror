@@ -414,6 +414,7 @@ static void diff_against_disk(
     );
   }
   db_prepare(&q, "%s", blob_sql_text(&sql));
+  blob_reset(&sql);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zPathname = db_column_text(&q,0);
     int isDeleted = db_column_int(&q, 1);

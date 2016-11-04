@@ -225,7 +225,7 @@ void scan_for_label(const char *zLabel, char *zLine, int eType){
       nErr++;
     }
   }
- 
+
   nUsed++;
 }
 

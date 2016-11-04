@@ -1,7 +1,7 @@
 #!/usr/bin/tclsh
 #
-# Run this script to build andn install the "download.html" page of
-# unversioned comment.  
+# Run this script to build and install the "download.html" page of
+# unversioned comment.
 #
 # Also generate the fossil_download_checksums.html page.
 #

@@ -57,7 +57,7 @@ fossil info e5a734a19a9826973e1d073b49dc2a16aa2308f9
 The full 40-character SHA1 hash is unwieldy to remember and type, though,
 so Fossil also accepts a unique prefix of the hash, using any combination
 of upper and lower case letters, as long as the prefix is at least 4
-characters long.  Hence the following commands all 
+characters long.  Hence the following commands all
 accomplish the same thing as the above:
 
 <blockquote><pre>
@@ -66,7 +66,7 @@ fossil info E5a734A
 fossil info e5a7
 </blockquote>
 
-Many web-interface screens identify check-ins by 10- or 16-character 
+Many web-interface screens identify check-ins by 10- or 16-character
 prefix of canonical name.
 
 <h2>Tags And Branch Names</h2>
@@ -114,7 +114,7 @@ For example:
 fossil info tag:deed2
 </tt></blockquote>
 
-The "tag:deed2" name will refer to the most recent check-in 
+The "tag:deed2" name will refer to the most recent check-in
 tagged with "deed2" not to the
 check-in whose canonical name begins with "deed2".
 
@@ -149,7 +149,7 @@ check-in that occurs no later than the timestamp given:
   *   <i>YYYY-MM-DD HH:MM:SS</i>
   *   <i>YYYY-MM-DD HH:MM:SS.SSS</i>
 
-The space between the day and the year can optionally be 
+The space between the day and the year can optionally be
 replaced by an uppercase <b>T</b> and the entire timestamp can
 optionally be followed by "<b>z</b>" or "<b>Z</b>".  In the fourth
 form with fractional seconds, any number of digits may follow the
@@ -163,10 +163,10 @@ But there is an option on the Admin/Timeline page of the web-interface to
 switch to local time.  The "<b>Z</b>" suffix on a timestamp check-in
 name is meaningless if Fossil is in the default mode of using UTC for
 everything, but if Fossil has been switched to local time mode, then the
-"<b>Z</b>" suffix means to interpret that particular timestamp using 
+"<b>Z</b>" suffix means to interpret that particular timestamp using
 UTC instead of local time.
 
-For an example of how timestamps are useful, 
+For an example of how timestamps are useful,
 consider the homepage for the Fossil website itself:
 
 <blockquote>
@@ -193,7 +193,7 @@ fossil update trunk:2010-07-01T14:30
 </blockquote>
 
 Would cause Fossil to update the working check-out to be the most recent
-check-in on the trunk that is not more recent that 14:30 (UTC) on 
+check-in on the trunk that is not more recent that 14:30 (UTC) on
 July 1, 2010.
 
 <h2>Root Of A Branch</h2>
@@ -222,7 +222,7 @@ current check-out.  And the "previous" or "prev" tag means the primary
 
 For embedded documentation, the tag "ckout" means the version as present in
 the local source tree on disk, provided that the web server is started using
-"fossil ui" or "fossil server" from within the source tree. This tag can be 
+"fossil ui" or "fossil server" from within the source tree. This tag can be
 used to preview local changes to documentation before committing them. It does
 not apply to CLI commands.
 

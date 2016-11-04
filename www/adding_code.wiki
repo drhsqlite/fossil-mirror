@@ -24,7 +24,7 @@ that run over the code first.
       automatically.  Fossil programmers write ".c" files only and let the
       makeheaders preprocessor create the ".h" files.
 
-  3.  The <b>translate</b> preprocessor converts source code lines that 
+  3.  The <b>translate</b> preprocessor converts source code lines that
       begin with "@" into string literals, or into print statements that
       generate web page output, depending on context.
 
@@ -41,9 +41,9 @@ write code.
 New source code files are added in the "src/" subdirectory of the Fossil
 source tree.  Suppose one wants to add a new source code file named
 "xyzzy.c".  The first step is to add this file to the various makefiles.
-Do so by editing the file src/makemake.tcl and adding "xyzzy" (without 
+Do so by editing the file src/makemake.tcl and adding "xyzzy" (without
 the final ".c") to the list of source modules at the top of that script.
-Save the result and then run the makemake.tcl script using a TCL 
+Save the result and then run the makemake.tcl script using a TCL
 interpreter.  The command to run the makemake.tcl script is:
 
     <b>tclsh makemake.tcl</b>
@@ -62,7 +62,7 @@ from the following template:
 /*
 ** Copyright boilerplate goes here.
 *****************************************************
-** High-level description of what this module goes 
+** High-level description of what this module goes
 ** here.
 */
 #include "config.h"
@@ -85,7 +85,7 @@ files you write will require this #include line.)
 
 The "#if INTERFACE ... #endif" section is optional and is only needed
 if there are structure definitions or typedefs or macros that need to
-be used by other source code files.  The makeheaders preprocessor 
+be used by other source code files.  The makeheaders preprocessor
 uses definitions in the INTERFACE section to help it generate header
 files.  See [../src/makeheaders.html | makeheaders.html] for additional
 information.

@@ -6,7 +6,7 @@ Settings control the behaviour of fossil. They are set with the
 <tt>fossil settings</tt> command, or through the web interface in
 the Settings page in the Admin section.
 
-For a list of all settings, view the Settings page, or type 
+For a list of all settings, view the Settings page, or type
 <tt>fossil help settings</tt> from the command line.
 
 
@@ -18,13 +18,13 @@ a subset of settings are copied to your local repository.
 If you make a change to a setting on your local repository, it is not
 synced back to the server when you <tt>push</tt> or <tt>sync</tt>. If
 you make a change on the server, you need to manually make the change on
-all repositories which are cloned from this repository. 
+all repositories which are cloned from this repository.
 
 You can also set a setting globally on your local machine. The value
 will be used for all repositories cloned to your machine, unless
 overridden explicitly in a particular repository. Global settings can be
 set by using the <tt>-global</tt> option on the <tt>fossil settings</tt>
-command. 
+command.
 
 <h3>"Versionable" settings</h3>
 

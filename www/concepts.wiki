@@ -133,7 +133,7 @@ a software project.
 Associated with every check-in is a special file called the
 [./fileformat.wiki#manifest| "manifest"].  The manifest is a
 listing of all other files in
-that source tree.  The manifest contains the (complete) artifact ID 
+that source tree.  The manifest contains the (complete) artifact ID
 of the file and the name of the file as it appears on disk,
 and thus serves as a mapping from artifact ID to disk name.  The artifact ID
 of the manifest is the identifier for the entire check-in.  When
@@ -149,7 +149,7 @@ itself, and SQLite cause the manifest file to be materialized to disk
 so that the makefiles for these project can read the manifest and
 embed version information in generated binaries.
 
-<p>Fossil automatically generates a manifest whenever you "commit" 
+<p>Fossil automatically generates a manifest whenever you "commit"
 a new check-in.  So this is not something that you, the developer,
 need to worry with.  The format of a manifest is intentionally
 designed to be simple to parse, so that if
@@ -202,7 +202,7 @@ for entering check-in comments.  Fossil will use whatever text editor
 is identified by your VISUAL environment variable.  Fossil will also
 use GPG to clearsign your manifests if you happen to have it installed,
 but Fossil will skip that step if GPG missing from your system.
-You can optionally set up Fossil to use external "diff" programs, 
+You can optionally set up Fossil to use external "diff" programs,
 though Fossil has an excellent built-in "diff" algorithm that works
 fine for most people.  If you happen to have Tcl/Tk installed on your
 system, Fossil will use it to generate a graphical "diff" display when
@@ -213,7 +213,7 @@ optional.
 To uninstall Fossil, simply delete the executable.
 
 To upgrade an older version of Fossil to a newer version, just
-replace the old executable with the new one.  You might need to 
+replace the old executable with the new one.  You might need to
 run "<b>fossil all rebuild</b>" to restructure your repositories after
 an upgrade.  Running "all rebuild" never hurts, so when upgrading it
 is a good policy to run it even if it is not strictly necessary.
@@ -268,7 +268,7 @@ should be reserved for disconnected operation.
 <li>
 Establish a local repository using either the <b>new</b> command
 to start a new project, or the <b>clone</b> command to make a clone
-of a repository for an existing project. 
+of a repository for an existing project.
 </li>
 
 <li>
@@ -281,7 +281,7 @@ argument.
 The <b>open</b> command in the previous step populates your local source
 tree with a copy of the latest check-in.  Usually this is what you want.
 In the rare cases where it is not, use the <b>update</b> command to
-switch to a different check-in.  
+switch to a different check-in.
 Use the <b>timeline</b> or <b>leaves</b> commands
 to identify alternative check-ins to switch to.
 </li>
@@ -304,13 +304,13 @@ you cloned from or whatever server you most recently synced with.
 
 <li>
 When your coworkers make their own changes, you can merge those changes
-into your local local source tree using the <b>update</b> command.  
+into your local local source tree using the <b>update</b> command.
 In autosync mode, <b>update</b> will first go back to the server you
 cloned from or with which you most recently synced, and pull down all
 recent changes into your local repository.  Then it will merge recent
 changes into your local source tree.  If you do an <b>update</b> and
 find that it messes something up in your source tree (perhaps a co-worker
-checked in incompatible changes) you can use the <b>undo</b> command 
+checked in incompatible changes) you can use the <b>undo</b> command
 to back out the changes.
 </li>
 

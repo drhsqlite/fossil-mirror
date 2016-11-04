@@ -739,7 +739,7 @@ void timeline_output_graph_javascript(
         pRow->aiRiser[pRow->iRail],     /* u */
         pRow->isLeaf ? 1 : 0            /* f */
       );
-      /* u */
+      /* au */
       cSep = '[';
       for(i=0; i<GR_MAX_RAIL; i++){
         if( i==pRow->iRail ) continue;
@@ -759,7 +759,7 @@ void timeline_output_graph_javascript(
       for(i=0; i<GR_MAX_RAIL; i++){
         if( pRow->mergeIn[i] ){
           int mi = i;
-          if( pRow->mergeDown & (1<<i) ) mi = -mi;
+          if( (pRow->mergeDown >> i) & 1 ) mi = -mi;
           cgi_printf("%c%d", cSep, mi);
           cSep = ',';
         }
@@ -1497,7 +1497,7 @@ void page_timeline(void){
     style_submenu_element("Related", "Related", "%s",
                           url_render(&url, "r", zTagName, "t", 0));
   }else if( zBrName && g.perm.Read ){
-    style_submenu_element("Branch Only", "only", "%s",
+    style_submenu_element("Omit Related", "only", "%s",
                           url_render(&url, "t", zBrName, "r", 0));
   }
   if( zMark && zMark[0]==0 ){
