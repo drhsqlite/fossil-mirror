@@ -25,7 +25,7 @@
 ** every ">" into "&gt;" and every "&" into "&amp;".  Return a pointer
 ** to a new string obtained from malloc().
 **
-** We also encode " as &quot; so that it can appear as an argument
+** We also encode " as &quot; and ' as &#39; so they can appear as an argument
 ** to markup.
 */
 char *htmlize(const char *zIn, int n){
@@ -76,6 +76,13 @@ char *htmlize(const char *zIn, int n){
         zOut[i++] = 't';
         zOut[i++] = ';';
         break;
+      case '\'':
+        zOut[i++] = '&';
+        zOut[i++] = '#';
+        zOut[i++] = '3';
+        zOut[i++] = '9';
+        zOut[i++] = ';';
+        break;
       default:
         zOut[i++] = c;
         break;
@@ -113,6 +120,11 @@ void htmlize_to_blob(Blob *p, const char *zIn, int n){
       case '"':
         if( j<i ) blob_append(p, zIn+j, i-j);
         blob_append(p, "&quot;", 6);
+        j = i+1;
+        break;
+      case '\'':
+        if( j<i ) blob_append(p, zIn+j, i-j);
+        blob_append(p, "&#39;", 5);
         j = i+1;
         break;
     }

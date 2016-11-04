@@ -1,5 +1,5 @@
-C Add\stimeline\sweb\sUI\sto\sset\stag\sfilter\sand\smatch\sstyle.\s\sStill\snot\s100%.\s\s(1)\sNow\sthat\smore\sthan\sone\stext\sentry\sis\son\sthe\spage,\spressing\senter\sdoes\snot\strigger\sa\ssubmit\s[Firefox\sESR\s10.0.12],\s(2)\selecting\s"Related"\scauses\sTag\sFilter\sto\sblank,\s(3)\sentering\sa\stag\sfilter\swhile\s"Related"\sis\sselected\scauses\s"Related"\sto\sbe\sdeselected,\s(4)\spossibly\stoo\smuch\sclutter,\sand\s(5)\sdefinitely\stoo\smuch\sclutter\sif\scombined\swith\sany\sfuture\sexpansions.\s\s(1)\sis\sdue\sto\sthe\slack\sof\sa\ssubmit\sbutton.\s\s(2)\sand\s(3)\sare\sa\sbad\sinteraction\sbetween\sthe\st=/r=\sdichotomy\sand\sthe\sdesign\sof\sstyle_submenu_entry().\s\s(4)\smaybe\scould\sbe\saddressed\sby\schanging\s"Related"/"Branch\sOnly"\sand\s"Without\sFiles"/"With\sFiles"\sto\scheckbuttons,\sbut\sstyle_submenu_checkbox()\swas\snever\sactually\simplemented.\s\s(Probably\salso\swant\s"Unhide"\sto\sbe\sa\scheckbox.\s\sFor\s(5)\sI\shave\sin\smind\sletting\sthe\sadmin\sdefine\sa\sproject-specific\slist\sof\spreset\sfilters.
-D 2016-11-04T16:21:20.112
+C Integrate\sandygoth-quote-apostrophe.\s\sNeeded\sbecause\ssingle\squotes\scan\sbe\sused\sin\sthe\stag\sfilter\sentry,\sand\sthese\ssingle\squotes\swould\sotherwise\sbe\spassed\sthrough\sunprotected\sto\sthe\soutput\sHTML.
+D 2016-11-04T20:49:23.143
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -408,7 +408,7 @@ F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 961503775818c035aede0b36bf751a843b4eab30
 F src/dispatch.c 52878ab4a817bb0a58aebee1f71b8fdf301b458c
 F src/doc.c f46ada466f90f12ee7b5c6078808fdfc4dedb183
-F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
+F src/encode.c 9ec5778543a4dedc774168371494c66796ad2658
 F src/event.c 6909284d77a688d63cc67b7b0929b8dda5397742
 F src/export.c 7751f8df389e0a70c44df21841454467dceabf69
 F src/file.c 71a65cc15cadaf2313dd2bb577d568ed7444ea2e
@@ -455,7 +455,7 @@ F src/makemake.tcl b31821f22953882f14e8e628df7552a17a1b9499
 F src/manifest.c e037d26b34ec3631288032bf06fd79f188e115da
 F src/markdown.c 887bb75edb1cfc94d9206aef38ad11dec2bc4266
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
-F src/markdown_html.c b28c072314bc84e74b1147f7e465a20c77476ea9
+F src/markdown_html.c 5c7c2d2356e03a4456932c5fdef9aef836a379a5
 F src/md5.c dac99e954fb973805a127f36f9c51e0ab36ab39b
 F src/merge.c 3da95cdecb4812fbe7ee547b5fce430f3278a023
 F src/merge3.c f72871c5bf1f420710fef15641c6dce42586d929
@@ -769,6 +769,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2e9ac33a9ad54a8abee2d1cc86967d07c43ca9f1
+P d4a6d3c1ec0ed8322c49fe0d180f2a2966c1df67 ca59c662d46f2144fe5142b76df5bde44eb2e935
+Q +780c0150c2939ce2e490af80477bdaca6b3756a7
+T +closed ca59c662d46f2144fe5142b76df5bde44eb2e935
 U andygoth
-Z 3f4f2405384f75300912c75fb7ec8d7f
+Z 140dac9705d76357e38a6d53cced6a31
