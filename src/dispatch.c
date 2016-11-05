@@ -407,7 +407,7 @@ void cmd_test_webpage_list(void){
   int i, nCmd;
   const char *aCmd[MX_COMMAND];
   for(i=nCmd=0; i<MX_COMMAND; i++){
-    if(0x08 & aCommand[i].eCmdFlags){
+    if(CMDFLAG_WEBPAGE & aCommand[i].eCmdFlags){
       aCmd[nCmd++] = aCommand[i].zName;
     }
   }

@@ -1,5 +1,5 @@
-C Ignore\sempty\scommand\sname\sin\shelp\spage\sso\sthat\s/help/\sis\streated\sthe\ssame\sas\s/help
-D 2016-11-05T14:17:06.435
+C Use\ssymbolic\sname\sCMDFLAG_WEBPAGE\sinstead\sof\sdirectly\ssaying\s0x08
+D 2016-11-05T14:22:42.731
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -406,7 +406,7 @@ F src/descendants.c 979ee1f63a5838cfc9b8d064a8fd05d804bf97aa
 F src/diff.c 4019cd9a2c6cc4c63f327a214f7bce10b55d95d9
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 961503775818c035aede0b36bf751a843b4eab30
-F src/dispatch.c 1e5cb478a878a77c0caac83197bb8d44fe7f411d
+F src/dispatch.c 2d21395af2fbfa04f7d86f94baa47ca3edd288a5
 F src/doc.c bae142c1df13fbaba1af814e0ee398670d366547
 F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
 F src/event.c 021db025691a859a49751f255a0a065bca728444
@@ -769,6 +769,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9b15ec0d6c4f4d329d997d4e90698625f8f7fcc9
+P e237cea4c28f51de99a4aa65c7bf66bb38a7396f
 U andygoth
-Z 777934c9f70e544374b46daad75b0e06
+Z c4e233bdfc0bf8257d40fe53a60df206
