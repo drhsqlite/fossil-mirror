@@ -32,7 +32,9 @@
 **      style_submenu_element()
 **      style_submenu_entry()
 **      style_submenu_checkbox()
+**      style_submenu_binary()
 **      style_submenu_multichoice()
+**      style_submenu_sql()
 **
 ** prior to calling style_footer().  The style_footer() routine
 ** will generate the appropriate HTML text just below the main
@@ -40,7 +42,6 @@
 */
 static struct Submenu {
   const char *zLabel;        /* Button label */
-  const char *zTitle;
   const char *zLink;         /* Jump to this link when button is pressed */
 } aSubmenu[30];
 static int nSubmenu = 0;     /* Number of buttons */
@@ -54,9 +55,10 @@ static struct SubmenuCtrl {
   const char *zFalse;        /* FF_BINARY label when false */
 } aSubmenuCtrl[20];
 static int nSubmenuCtrl = 0;
-#define FF_ENTRY  1
-#define FF_MULTI  2
-#define FF_BINARY 3
+#define FF_ENTRY    1
+#define FF_MULTI    2
+#define FF_BINARY   3
+#define FF_CHECKBOX 4
 
 /*
 ** Remember that the header has been generated.  The footer is omitted
@@ -232,14 +234,12 @@ void style_resolve_href(void){
 */
 void style_submenu_element(
   const char *zLabel,
-  const char *zTitle,
   const char *zLink,
   ...
 ){
   va_list ap;
-  assert( nSubmenu < sizeof(aSubmenu)/sizeof(aSubmenu[0]) );
+  assert( nSubmenu < count(aSubmenu) );
   aSubmenu[nSubmenu].zLabel = zLabel;
-  aSubmenu[nSubmenu].zTitle = zTitle ? zTitle : zLabel;
   va_start(ap, zLink);
   aSubmenu[nSubmenu].zLink = vmprintf(zLink, ap);
   va_end(ap);
@@ -251,12 +251,24 @@ void style_submenu_entry(
   int iSize,               /* Size of the entry box */
   int isDisabled           /* True if disabled */
 ){
-  assert( nSubmenuCtrl < ArraySize(aSubmenuCtrl) );
+  assert( nSubmenuCtrl < count(aSubmenuCtrl) );
   aSubmenuCtrl[nSubmenuCtrl].zName = zName;
   aSubmenuCtrl[nSubmenuCtrl].zLabel = zLabel;
   aSubmenuCtrl[nSubmenuCtrl].iSize = iSize;
   aSubmenuCtrl[nSubmenuCtrl].isDisabled = isDisabled;
   aSubmenuCtrl[nSubmenuCtrl].eType = FF_ENTRY;
+  nSubmenuCtrl++;
+}
+void style_submenu_checkbox(
+  const char *zName,       /* Query parameter name */
+  const char *zLabel,      /* Label to display after the checkbox */
+  int isDisabled           /* True if disabled */
+){
+  assert( nSubmenuCtrl < count(aSubmenuCtrl) );
+  aSubmenuCtrl[nSubmenuCtrl].zName = zName;
+  aSubmenuCtrl[nSubmenuCtrl].zLabel = zLabel;
+  aSubmenuCtrl[nSubmenuCtrl].isDisabled = isDisabled;
+  aSubmenuCtrl[nSubmenuCtrl].eType = FF_CHECKBOX;
   nSubmenuCtrl++;
 }
 void style_submenu_binary(
@@ -265,7 +277,7 @@ void style_submenu_binary(
   const char *zFalse,      /* Label to show when the parameter is false */
   int isDisabled           /* True if this control is disabled */
 ){
-  assert( nSubmenuCtrl < ArraySize(aSubmenuCtrl) );
+  assert( nSubmenuCtrl < count(aSubmenuCtrl) );
   aSubmenuCtrl[nSubmenuCtrl].zName = zName;
   aSubmenuCtrl[nSubmenuCtrl].zLabel = zTrue;
   aSubmenuCtrl[nSubmenuCtrl].zFalse = zFalse;
@@ -279,7 +291,7 @@ void style_submenu_multichoice(
   const char *const *azChoice,/* value/display pairs.  2*nChoice entries */
   int isDisabled           /* True if this control is disabled */
 ){
-  assert( nSubmenuCtrl < ArraySize(aSubmenuCtrl) );
+  assert( nSubmenuCtrl < count(aSubmenuCtrl) );
   aSubmenuCtrl[nSubmenuCtrl].zName = zName;
   aSubmenuCtrl[nSubmenuCtrl].iSize = nChoice;
   aSubmenuCtrl[nSubmenuCtrl].azChoice = azChoice;
@@ -402,6 +414,7 @@ void style_header(const char *zTitleFormat, ...){
 
   /* Generate the header up through the main menu */
   Th_Store("project_name", db_get("project-name","Unnamed Fossil Project"));
+  Th_Store("project_description", db_get("project-description",""));
   Th_Store("title", zTitle);
   Th_Store("baseurl", g.zBaseURL);
   Th_Store("secureurl", login_wants_https_redirect()? g.zHttpsURL: g.zBaseURL);
@@ -525,70 +538,71 @@ void style_footer(void){
         }
       }
     }
-    if( nSubmenuCtrl>0 ){
-      for(i=0; i<nSubmenuCtrl; i++){
-        const char *zQPN = aSubmenuCtrl[i].zName;
-        const char *zDisabled = " disabled";
-        if( !aSubmenuCtrl[i].isDisabled ){
-          zDisabled = "";
-          cgi_tag_query_parameter(zQPN);
-        }
-        switch( aSubmenuCtrl[i].eType ){
-          case FF_ENTRY: {
-            cgi_printf(
-               "<span class='submenuctrl'>"
-               "&nbsp;%h<input type='text' name='%s' size='%d' maxlength='%d'"
-               " value='%h'%s></span>\n",
-               aSubmenuCtrl[i].zLabel,
-               zQPN,
-               aSubmenuCtrl[i].iSize, aSubmenuCtrl[i].iSize,
-               PD(zQPN,""),
-               zDisabled
-            );
-            break;
+    for(i=0; i<nSubmenuCtrl; i++){
+      const char *zQPN = aSubmenuCtrl[i].zName;
+      const char *zDisabled = " disabled";
+      if( !aSubmenuCtrl[i].isDisabled ){
+        zDisabled = "";
+        cgi_tag_query_parameter(zQPN);
+      }
+      switch( aSubmenuCtrl[i].eType ){
+        case FF_ENTRY:
+          @ <span class='submenuctrl'>\
+          @ &nbsp;%h(aSubmenuCtrl[i].zLabel)\
+          @ <input type='text' name='%s(zQPN)' value='%h(PD(zQPN, ""))' \
+          if( aSubmenuCtrl[i].iSize<0 ){
+            @ size='%d(-aSubmenuCtrl[i].iSize)' \
+          }else if( aSubmenuCtrl[i].iSize>0 ){
+            @ size='%d(aSubmenuCtrl[i].iSize)' \
+            @ maxlength='%d(aSubmenuCtrl[i].iSize)' \
           }
-          case FF_MULTI: {
-            int j;
-            const char *zVal = P(zQPN);
-            if( aSubmenuCtrl[i].zLabel ){
-              cgi_printf("&nbsp;%h", aSubmenuCtrl[i].zLabel);
+          @ onchange='gebi("f01").submit();'%s(zDisabled)></span>
+          break;
+        case FF_MULTI: {
+          int j;
+          const char *zVal = P(zQPN);
+          if( aSubmenuCtrl[i].zLabel ){
+            @ &nbsp;%h(aSubmenuCtrl[i].zLabel)\
+          }
+          @ <select class='submenuctrl' size='1' name='%s(zQPN)' \
+          @ onchange='gebi("f01").submit();'%s(zDisabled)>
+          for(j=0; j<aSubmenuCtrl[i].iSize*2; j+=2){
+            const char *zQPV = aSubmenuCtrl[i].azChoice[j];
+            @ <option value='%h(zQPV)'\
+            if( fossil_strcmp(zVal, zQPV)==0 ){
+              @  selected\
             }
-            cgi_printf(
-               "<select class='submenuctrl' size='1' name='%s'%s "
-               "onchange='gebi(\"f01\").submit();'>\n",
-               zQPN, zDisabled
-            );
-            for(j=0; j<aSubmenuCtrl[i].iSize*2; j+=2){
-              const char *zQPV = aSubmenuCtrl[i].azChoice[j];
-              cgi_printf(
-                "<option value='%h'%s>%h</option>\n",
-                zQPV,
-                fossil_strcmp(zVal,zQPV)==0 ? " selected" : "",
-                aSubmenuCtrl[i].azChoice[j+1]
-              );
-            }
-            @ </select>
-            break;
+            @ >%h(aSubmenuCtrl[i].azChoice[j+1])</option>
           }
-          case FF_BINARY: {
-            int isTrue = PB(zQPN);
-            cgi_printf(
-               "<select class='submenuctrl' size='1' name='%s'%s "
-               "onchange='gebi(\"f01\").submit();'>\n",
-               zQPN, zDisabled
-            );
-            cgi_printf(
-              "<option value='1'%s>%h</option>\n",
-              isTrue ? " selected":"", aSubmenuCtrl[i].zLabel
-            );
-            cgi_printf(
-              "<option value='0'%s>%h</option>\n",
-              (!isTrue) ? " selected":"", aSubmenuCtrl[i].zFalse
-            );
-            @ </select>
-            break;
-          }
+          @ </select>
+          break;
         }
+        case FF_BINARY: {
+          int isTrue = PB(zQPN);
+          @ <select class='submenuctrl' size='1' name='%s(zQPN)' \
+          @ onchange='gebi("f01").submit();'%s(zDisabled)>
+          @ <option value='1'\
+          if( isTrue ){
+            @  selected\
+          }
+          @ >%h(aSubmenuCtrl[i].zLabel)</option>
+          @ <option value='0'\
+          if( !isTrue ){
+            @  selected\
+          }
+          @ >%h(aSubmenuCtrl[i].zFalse)</option>
+          @ </select>
+          break;
+        }
+        case FF_CHECKBOX:
+          @ <label class='submenuctrl'>\
+          @ <input type='checkbox' name='%s(zQPN)' value='1' \
+          if( PB(zQPN) ){
+            @ checked \
+          }
+          @ onchange='gebi("f01").submit();'%s(zDisabled)>\
+          @ %h(aSubmenuCtrl[i].zLabel)</label>
+          break;
       }
     }
     @ </div>
@@ -705,10 +719,11 @@ const struct strctCssDefaults {
     @   vertical-align: top;
     @   text-align: left;
   },
-  { "tr.timelineCurrent td.timelineTableCell",
+  { "tr.timelineCurrent",
     "the format for the timeline data cell of the current checkout",
     @   padding: .1em .2em;
     @   border: 1px dashed #446979;
+    @   box-shadow: 1px 1px 4px #888;
   },
   { "tr.timelineSelected",
     "The row in the timeline table that contains the entry of interest",
@@ -1576,13 +1591,9 @@ void page_test_env(void){
   }
   for(i=0; i<count(azCgiVars); i++) (void)P(azCgiVars[i]);
   style_header("Environment Test");
-  showAll = atoi(PD("showall","0"));
-  if( !showAll ){
-    style_submenu_element("Show Cookies", 0, "%R/test_env?showall=1");
-  }else{
-    style_submenu_element("Hide Cookies", 0, "%R/test_env");
-  }
-  style_submenu_element("Stats", 0, "%R/stat");
+  showAll = PB("showall");
+  style_submenu_checkbox("showall", "Cookies", 0);
+  style_submenu_element("Stats", "%R/stat");
 
 #if !defined(_WIN32)
   @ uid=%d(getuid()), gid=%d(getgid())<br />

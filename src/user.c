@@ -21,10 +21,6 @@
 #include "config.h"
 #include "user.h"
 
-#if defined(_WIN32)
-#include <conio.h>
-#endif
-
 /*
 ** Strip leading and trailing space from a string and add the string
 ** onto the end of a blob.
@@ -45,39 +41,54 @@ static void strip_string(Blob *pBlob, char *z){
 }
 
 #if defined(_WIN32) || defined(__BIONIC__)
-#ifdef __MINGW32__
+#ifdef _WIN32
 #include <conio.h>
 #endif
+
 /*
-** getpass for Windows and Android
+** getpass() for Windows and Android.
 */
+static char *zPwdBuffer = 0;
+static size_t nPwdBuffer = 0;
+
 static char *getpass(const char *prompt){
-  static char pwd[64];
+  char *zPwd;
+  size_t nPwd;
   size_t i;
 
+  if( zPwdBuffer==0 ){
+    zPwdBuffer = fossil_secure_alloc_page(&nPwdBuffer);
+    assert( zPwdBuffer );
+  }else{
+    fossil_secure_zero(zPwdBuffer, nPwdBuffer);
+  }
+  zPwd = zPwdBuffer;
+  nPwd = nPwdBuffer;
   fputs(prompt,stderr);
   fflush(stderr);
-  for(i=0; i<sizeof(pwd)-1; ++i){
+  assert( zPwd!=0 );
+  assert( nPwd>0 );
+  for(i=0; i<nPwd-1; ++i){
 #if defined(_WIN32)
-    pwd[i] = _getch();
+    zPwd[i] = _getch();
 #else
-    pwd[i] = getc(stdin);
+    zPwd[i] = getc(stdin);
 #endif
-    if(pwd[i]=='\r' || pwd[i]=='\n'){
+    if(zPwd[i]=='\r' || zPwd[i]=='\n'){
       break;
     }
     /* BS or DEL */
-    else if(i>0 && (pwd[i]==8 || pwd[i]==127)){
+    else if(i>0 && (zPwd[i]==8 || zPwd[i]==127)){
       i -= 2;
       continue;
     }
     /* CTRL-C */
-    else if(pwd[i]==3) {
+    else if(zPwd[i]==3) {
       i=0;
       break;
     }
     /* ESC */
-    else if(pwd[i]==27){
+    else if(zPwd[i]==27){
       i=0;
       break;
     }
@@ -85,9 +96,15 @@ static char *getpass(const char *prompt){
       fputc('*',stderr);
     }
   }
-  pwd[i]='\0';
+  zPwd[i]='\0';
   fputs("\n", stderr);
-  return pwd;
+  assert( zPwd==zPwdBuffer );
+  return zPwd;
+}
+void freepass(){
+  if( !zPwdBuffer ) return;
+  assert( nPwdBuffer>0 );
+  fossil_secure_free_page(zPwdBuffer, nPwdBuffer);
 }
 #endif
 
@@ -557,6 +574,21 @@ void user_hash_passwords_cmd(void){
 }
 
 /*
+** COMMAND: test-prompt-user
+**
+** Usage: %fossil test-prompt-user PROMPT
+**
+** Prompts the user for input and then prints it verbatim (i.e. without
+** a trailing line terminator).
+*/
+void test_prompt_user_cmd(void){
+  Blob answer;
+  if( g.argc!=3 ) usage("PROMPT");
+  prompt_user(g.argv[2], &answer);
+  fossil_print("%s", blob_str(&answer));
+}
+
+/*
 ** WEBPAGE: access_log
 **
 ** Show login attempts, including timestamp and IP address.
@@ -618,9 +650,8 @@ void access_log_page(void){
   }
   blob_append_sql(&sql,"  ORDER BY rowid DESC LIMIT %d OFFSET %d", n+1, skip);
   if( skip ){
-    style_submenu_element("Newer", "Newer entries",
-              "%s/access_log?o=%d&n=%d&y=%d", g.zTop, skip>=n ? skip-n : 0,
-              n, y);
+    style_submenu_element("Newer", "%s/access_log?o=%d&n=%d&y=%d",
+              g.zTop, skip>=n ? skip-n : 0, n, y);
   }
   rc = db_prepare_ignore_error(&q, "%s", blob_sql_text(&sql));
   fLogEnabled = db_get_boolean("access-log", 0);
@@ -636,8 +667,8 @@ void access_log_page(void){
     int bSuccess = db_column_int(&q, 3);
     cnt++;
     if( cnt>n ){
-      style_submenu_element("Older", "Older entries",
-                  "%s/access_log?o=%d&n=%d&y=%d", g.zTop, skip+n, n, y);
+      style_submenu_element("Older", "%s/access_log?o=%d&n=%d&y=%d",
+                  g.zTop, skip+n, n, y);
       break;
     }
     if( bSuccess ){
@@ -648,8 +679,7 @@ void access_log_page(void){
     @ <td>%s(zDate)</td><td>%h(zName)</td><td>%h(zIP)</td></tr>
   }
   if( skip>0 || cnt>n ){
-    style_submenu_element("All", "All entries",
-          "%s/access_log?n=10000000", g.zTop);
+    style_submenu_element("All", "%s/access_log?n=10000000", g.zTop);
   }
   @ </tbody></table>
   db_finalize(&q);

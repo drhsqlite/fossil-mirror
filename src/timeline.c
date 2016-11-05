@@ -392,7 +392,7 @@ void www_print_timeline(
         " ORDER BY isprim DESC /*sort*/"
       );
       db_bind_int(&qparent, ":rid", rid);
-      while( db_step(&qparent)==SQLITE_ROW && nParent<ArraySize(aParent) ){
+      while( db_step(&qparent)==SQLITE_ROW && nParent<count(aParent) ){
         aParent[nParent++] = db_column_int(&qparent, 0);
       }
       db_reset(&qparent);
@@ -739,7 +739,7 @@ void timeline_output_graph_javascript(
         pRow->aiRiser[pRow->iRail],     /* u */
         pRow->isLeaf ? 1 : 0            /* f */
       );
-      /* u */
+      /* au */
       cSep = '[';
       for(i=0; i<GR_MAX_RAIL; i++){
         if( i==pRow->iRail ) continue;
@@ -759,7 +759,7 @@ void timeline_output_graph_javascript(
       for(i=0; i<GR_MAX_RAIL; i++){
         if( pRow->mergeIn[i] ){
           int mi = i;
-          if( pRow->mergeDown & (1<<i) ) mi = -mi;
+          if( (pRow->mergeDown >> i) & 1 ) mi = -mi;
           cgi_printf("%c%d", cSep, mi);
           cSep = ',';
         }
@@ -1085,7 +1085,7 @@ static void timeline_submenu(
   const char *zValue,      /* Value of the new parameter */
   const char *zRemove      /* Parameter to omit */
 ){
-  style_submenu_element(zMenuName, zMenuName, "%s",
+  style_submenu_element(zMenuName, "%s",
                         url_render(pUrl, zParam, zValue, zRemove, 0));
 }
 
@@ -1188,7 +1188,7 @@ static void timeline_y_submenu(int isDisabled){
       az[i++] = "w";
       az[i++] = "Wiki";
     }
-    assert( i<=ArraySize(az) );
+    assert( i<=count(az) );
   }
   if( i>2 ){
     style_submenu_multichoice("y", i/2, az, isDisabled);
@@ -1226,17 +1226,18 @@ static void addFileGlobDescription(
 **
 ** Query parameters:
 **
-**    a=TIMEORTAG    after this event
-**    b=TIMEORTAG    before this event
-**    c=TIMEORTAG    "circa" this event
-**    m=TIMEORTAG    mark this event
-**    n=COUNT        suggested number of events in output
-**    p=CHECKIN      parents and ancestors of CHECKIN
-**    d=CHECKIN      descendants of CHECIN
+**    a=TIMEORTAG    After this event
+**    b=TIMEORTAG    Before this event
+**    c=TIMEORTAG    "Circa" this event
+**    m=TIMEORTAG    Mark this event
+**    n=COUNT        Suggested number of events in output
+**    p=CHECKIN      Parents and ancestors of CHECKIN
+**    d=CHECKIN      Descendants of CHECIN
 **    dp=CHECKIN     The same as d=CHECKIN&p=CHECKIN
-**    t=TAG          show only check-ins with the given TAG
-**    r=TAG          show check-ins related to TAG
-**    u=USER         only show items associated with USER
+**    t=TAG          Show only check-ins with the given TAG
+**    r=TAG          Show check-ins related to TAG
+**    mionly         Limit r=TAG to show ancestors but not descendants
+**    u=USER         Only show items associated with USER
 **    y=TYPE         'ci', 'w', 't', 'e', or (default) 'all'
 **    ng             No Graph.
 **    nd             Do not highlight the focus check-in
@@ -1247,16 +1248,18 @@ static void addFileGlobDescription(
 **    shortest         ... show only the shortest path
 **    uf=FILE_SHA1   Show only check-ins that contain the given file version
 **    chng=GLOBLIST  Show only check-ins that involve changes to a file whose
-**                     name matches one of the comma-separate GLOBLIST.
+**                     name matches one of the comma-separate GLOBLIST
 **    brbg           Background color from branch name
 **    ubg            Background color from user
 **    namechng       Show only check-ins that have filename changes
 **    forks          Show only forks and their children
-**    ym=YYYY-MM     Show only events for the given year/month.
+**    ym=YYYY-MM     Show only events for the given year/month
 **    yw=YYYY-WW     Show only events for the given week of the given year
 **    ymd=YYYY-MM-DD Show only events on the given day
 **    datefmt=N      Override the date format
 **    bisect         Show the check-ins that are in the current bisect
+**    showid         Show RIDs
+**    showsql        Show the SQL text
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
@@ -1344,13 +1347,11 @@ void page_timeline(void){
   if( zTagName && g.perm.Read ){
     tagid = db_int(-1,"SELECT tagid FROM tag WHERE tagname='sym-%q'",zTagName);
     zThisTag = zTagName;
-    style_submenu_element("Related", "Related", "%s",
-                          url_render(&url, "r", zTagName, "t", 0));
+    timeline_submenu(&url, "Related", "r", zTagName, "t");
   }else if( zBrName && g.perm.Read ){
     tagid = db_int(-1,"SELECT tagid FROM tag WHERE tagname='sym-%q'",zBrName);
     zThisTag = zBrName;
-    style_submenu_element("Branch Only", "only", "%s",
-                          url_render(&url, "t", zBrName, "r", 0));
+    timeline_submenu(&url, "Branch Only", "t", zBrName, "r");
   }else{
     tagid = 0;
   }
@@ -1480,8 +1481,7 @@ void page_timeline(void){
     addFileGlobExclusion(zChng, &sql);
     tmFlags |= TIMELINE_DISJOINT;
     db_multi_exec("%s", blob_sql_text(&sql));
-    style_submenu_binary("v","With Files","Without Files",
-                         zType[0]!='a' && zType[0]!='c');
+    style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c');
     blob_appendf(&desc, "%d check-ins going from ",
                  db_int(0, "SELECT count(*) FROM timeline"));
     blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h", zFrom), zFrom);
@@ -1531,10 +1531,9 @@ void page_timeline(void){
         zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", d_rid);
       }
     }
+    style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c');
     style_submenu_entry("n","Max:",4,0);
     timeline_y_submenu(1);
-    style_submenu_binary("v","With Files","Without Files",
-                         zType[0]!='a' && zType[0]!='c');
   }else if( f_rid && g.perm.Read ){
     /* If f= is present, ignore all other parameters other than n= */
     char *zUuid;
@@ -1552,11 +1551,8 @@ void page_timeline(void){
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
     blob_appendf(&desc, "%z[%S]</a>", href("%R/info/%!S", zUuid), zUuid);
     tmFlags |= TIMELINE_DISJOINT;
-    style_submenu_binary("v","With Files","Without Files",
-                         zType[0]!='a' && zType[0]!='c');
-    if( (tmFlags & TIMELINE_UNHIDE)==0 ){
-      timeline_submenu(&url, "Unhide", "unhide", "", 0);
-    }
+    style_submenu_checkbox("unhide", "Unhide", 0);
+    style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c');
   }else{
     /* Otherwise, a timeline based on a span of time */
     int n;
@@ -1825,14 +1821,11 @@ void page_timeline(void){
         free(zDate);
       }
       if( zType[0]=='a' || zType[0]=='c' ){
-        if( (tmFlags & TIMELINE_UNHIDE)==0 ){
-          timeline_submenu(&url, "Unhide", "unhide", "", 0);
-        }
+        style_submenu_checkbox("unhide", "Unhide", 0);
       }
+      style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c');
       style_submenu_entry("n","Max:",4,0);
       timeline_y_submenu(disableY);
-      style_submenu_binary("v","With Files","Without Files",
-                           zType[0]!='a' && zType[0]!='c');
     }
     blob_zero(&cond);
   }
@@ -1840,7 +1833,7 @@ void page_timeline(void){
     @ <pre>%h(blob_sql_text(&sql))</pre>
   }
   if( search_restrict(SRCH_CKIN)!=0 ){
-    style_submenu_element("Search", 0, "%R/search?y=c");
+    style_submenu_element("Search", "%R/search?y=c");
   }
   if( PB("showid") ) tmFlags |= TIMELINE_SHOWRID;
   if( useDividers && zMark && zMark[0] ){

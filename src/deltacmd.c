@@ -56,14 +56,14 @@ void delta_create_cmd(void){
     usage("ORIGIN TARGET DELTA");
   }
   if( blob_read_from_file(&orig, g.argv[2])<0 ){
-    fossil_fatal("cannot read %s\n", g.argv[2]);
+    fossil_fatal("cannot read %s", g.argv[2]);
   }
   if( blob_read_from_file(&target, g.argv[3])<0 ){
-    fossil_fatal("cannot read %s\n", g.argv[3]);
+    fossil_fatal("cannot read %s", g.argv[3]);
   }
   blob_delta_create(&orig, &target, &delta);
   if( blob_write_to_file(&delta, g.argv[4])<blob_size(&delta) ){
-    fossil_fatal("cannot write %s\n", g.argv[4]);
+    fossil_fatal("cannot write %s", g.argv[4]);
   }
   blob_reset(&orig);
   blob_reset(&target);
@@ -87,10 +87,10 @@ void delta_analyze_cmd(void){
     usage("ORIGIN TARGET");
   }
   if( blob_read_from_file(&orig, g.argv[2])<0 ){
-    fossil_fatal("cannot read %s\n", g.argv[2]);
+    fossil_fatal("cannot read %s", g.argv[2]);
   }
   if( blob_read_from_file(&target, g.argv[3])<0 ){
-    fossil_fatal("cannot read %s\n", g.argv[3]);
+    fossil_fatal("cannot read %s", g.argv[3]);
   }
   blob_delta_create(&orig, &target, &delta);
   delta_analyze(blob_buffer(&delta), blob_size(&delta), &nCopy, &nInsert);
@@ -155,14 +155,14 @@ void delta_apply_cmd(void){
     usage("ORIGIN DELTA TARGET");
   }
   if( blob_read_from_file(&orig, g.argv[2])<0 ){
-    fossil_fatal("cannot read %s\n", g.argv[2]);
+    fossil_fatal("cannot read %s", g.argv[2]);
   }
   if( blob_read_from_file(&delta, g.argv[3])<0 ){
-    fossil_fatal("cannot read %s\n", g.argv[3]);
+    fossil_fatal("cannot read %s", g.argv[3]);
   }
   blob_delta_apply(&orig, &delta, &target);
   if( blob_write_to_file(&target, g.argv[4])<blob_size(&target) ){
-    fossil_fatal("cannot write %s\n", g.argv[4]);
+    fossil_fatal("cannot write %s", g.argv[4]);
   }
   blob_reset(&orig);
   blob_reset(&target);

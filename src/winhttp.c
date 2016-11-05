@@ -308,6 +308,10 @@ void win32_http_server(
   int iPort = mnPort;
   Blob options;
   wchar_t zTmpPath[MAX_PATH];
+#if USE_SEE
+  const char *zSavedKey = 0;
+  size_t savedKeySize = 0;
+#endif
 
   blob_zero(&options);
   if( zBaseUrl ){
@@ -328,6 +332,14 @@ void win32_http_server(
   if( flags & HTTP_SERVER_REPOLIST ){
     blob_appendf(&options, " --repolist");
   }
+#if USE_SEE
+  zSavedKey = db_get_saved_encryption_key();
+  savedKeySize = db_get_saved_encryption_key_size();
+  if( zSavedKey!=0 && savedKeySize>0 ){
+    blob_appendf(&options, " --usepidkey %lu:%p:%u", GetCurrentProcessId(),
+                 zSavedKey, savedKeySize);
+  }
+#endif
   if( WSAStartup(MAKEWORD(1,1), &wd) ){
     fossil_fatal("unable to initialize winsock");
   }
@@ -656,7 +668,9 @@ int win32_http_service(
   return 0;
 }
 
-/* dupe ifdef needed for mkindex
+/* Duplicate #ifdef needed for mkindex */
+#ifdef _WIN32
+/*
 ** COMMAND: winsrv*
 **
 ** Usage: %fossil winsrv METHOD ?SERVICE-NAME? ?OPTIONS?
@@ -1105,4 +1119,5 @@ void cmd_win32_service(void){
   }
   return;
 }
-#endif /* _WIN32  -- This code is for win32 only */
+#endif /* _WIN32 -- dupe needed for mkindex */
+#endif /* _WIN32 -- This code is for win32 only */

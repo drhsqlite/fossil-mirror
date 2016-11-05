@@ -90,7 +90,11 @@ statistics about each SQLite database used when it is closed.
 
 `--sshtrace`: (Sets `g.fSshTrace`.)
 
-`--ssl-identity SSLIDENTITY`:
+`--ssl-identity`: The fully qualified name of the file containing the client
+certificate and private key to use, in PEM format.  It can be created by
+concatenating the client certificate and private key files.  This identity will
+be presented to SSL servers to authenticate the client, in addition to the
+normal password authentication.
 
 `--systemtrace`: (Sets `g.fSystemTrace`.) Trace all commands launched
 as sub processes.

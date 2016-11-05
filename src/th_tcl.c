@@ -835,7 +835,7 @@ static void Th1DeleteProc(
 
   if( !th1Interp ) return;
   /* Remove the Tcl integration commands. */
-  for(i=0; i<(sizeof(aCommand)/sizeof(aCommand[0])); i++){
+  for(i=0; i<count(aCommand); i++){
     Th_RenameCommand(th1Interp, aCommand[i].zName, -1, NULL, 0);
   }
 }
@@ -1263,7 +1263,7 @@ int th_register_tcl(
   int i;
 
   /* Add the Tcl integration commands to TH1. */
-  for(i=0; i<(sizeof(aCommand)/sizeof(aCommand[0])); i++){
+  for(i=0; i<count(aCommand); i++){
     void *ctx;
     if( !aCommand[i].zName || !aCommand[i].xProc ) continue;
     ctx = aCommand[i].pContext;

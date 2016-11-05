@@ -147,7 +147,7 @@ static const struct AllowedAttribute {
 static int findAttr(const char *z){
   int i, c, first, last;
   first = 1;
-  last = sizeof(aAttribute)/sizeof(aAttribute[0]) - 1;
+  last = count(aAttribute) - 1;
   while( first<=last ){
     i = (first+last)/2;
     c = fossil_strcmp(aAttribute[i].zName, z);
@@ -374,7 +374,7 @@ static const struct AllowedMarkup {
 
 void show_allowed_wiki_markup( void ){
   int i; /* loop over allowedAttr */
-  for( i=1 ; i<=sizeof(aMarkup)/sizeof(aMarkup[0]) - 1 ; i++ ){
+  for( i=1 ; i<=count(aMarkup) - 1 ; i++ ){
     @ &lt;%s(aMarkup[i].zName)&gt;
   }
 }
@@ -385,7 +385,7 @@ void show_allowed_wiki_markup( void ){
 static int findTag(const char *z){
   int i, c, first, last;
   first = 1;
-  last = sizeof(aMarkup)/sizeof(aMarkup[0]) - 1;
+  last = count(aMarkup) - 1;
   while( first<=last ){
     i = (first+last)/2;
     c = fossil_strcmp(aMarkup[i].zName, z);
@@ -949,7 +949,7 @@ static int isButtonHyperlink(
   j = (int)strlen(zTag);
   while( j>0 && fossil_isspace(zTag[j-1]) ){ j--; }
   if( j==0 ) return 0;
-  style_submenu_element(zTag, zTag, "%s", zHref);
+  style_submenu_element(zTag, "%s", zHref);
   *pN = i+4;
   return 1;
 }
@@ -2189,7 +2189,7 @@ void html_to_plaintext(const char *zIn, Blob *pOut){
            { 6, ' ', "&nbsp;"  },
         };
         int jj;
-        for(jj=0; jj<ArraySize(aEntity); jj++){
+        for(jj=0; jj<count(aEntity); jj++){
           if( aEntity[jj].n==n && strncmp(aEntity[jj].z,zIn,n)==0 ){
             c = aEntity[jj].c;
             break;

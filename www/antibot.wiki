@@ -2,13 +2,13 @@
 
 The website presented by a Fossil server has many hyperlinks.
 Even a modest project can have millions of pages in its
-tree, and many of those pages (for example diffs and annotations 
+tree, and many of those pages (for example diffs and annotations
 and ZIP archive of older check-ins) can be expensive to compute.
 If a spider or bot tries to walk a website implemented by
 Fossil, it can present a crippling bandwidth and CPU load.
 
 The website presented by a Fossil server is intended to be used
-interactively by humans, not walked by spiders.  This article 
+interactively by humans, not walked by spiders.  This article
 describes the techniques used by Fossil to try to welcome human
 users while keeping out spiders.
 
@@ -18,8 +18,8 @@ Every Fossil web session has a "user".  For random passers-by on the internet
 (and for spiders) that user is "nobody".  The "anonymous" user is also
 available for humans who do not wish to identify themselves.  The difference
 is that "anonymous" requires a login (using a password supplied via
-a CAPTCHA) whereas "nobody" does not require a login.  
-The site administrator can also create logins with 
+a CAPTCHA) whereas "nobody" does not require a login.
+The site administrator can also create logins with
 passwords for specific individuals.
 
 The "h" or "hyperlink" capability is a permission that can be granted
@@ -39,7 +39,7 @@ page inviting the user to log in as anonymous in order to activate hyperlinks.
 Removing the "h" capability from user "nobody" is an effective means
 of preventing spiders from walking a Fossil-generated website.  But
 it can also be annoying to humans, since it requires them to log in.
-Hence, Fossil provides other techniques for blocking spiders which 
+Hence, Fossil provides other techniques for blocking spiders which
 are less cumbersome to humans.
 
 <h2>Automatic hyperlinks based on UserAgent</h2>
@@ -96,13 +96,13 @@ normally for human users.
 
 <h2>Further defenses</h2>
 
-Recently (as of this writing, in the spring of 2013) the Fossil server 
+Recently (as of this writing, in the spring of 2013) the Fossil server
 on the SQLite website ([http://www.sqlite.org/src/]) has been hit repeatedly
-by Chinese spiders that use forged UserAgent strings to make them look 
+by Chinese spiders that use forged UserAgent strings to make them look
 like normal web browsers and which interpret javascript.  We do not
 believe these attacks to be nefarious since SQLite is public domain
 and the attackers could obtain all information they ever wanted to
-know about SQLite simply by cloning the repository.  Instead, we 
+know about SQLite simply by cloning the repository.  Instead, we
 believe these "attacks" are coming from "script kiddies".  But regardless
 of whether or not malice is involved, these attacks do present
 an unnecessary load on the server which reduces the responsiveness of
@@ -110,7 +110,7 @@ the SQLite website for well-behaved and socially responsible users.
 For this reason, additional defenses against
 spiders have been put in place.
 
-On the Admin/Access page of Fossil, just below the 
+On the Admin/Access page of Fossil, just below the
 "<b>Enable hyperlinks for "nobody" based on User-Agent and Javascript</b>"
 setting, there are now two additional subsettings that can be optionally
 enabled to control hyperlinks.
@@ -139,9 +139,9 @@ while keeping out troublesome robots and spiders.  However, spiders and
 bots continue to grow more sophisticated, requiring ever more advanced
 defenses.  This "arms race" is unlikely to ever end.  The developers of
 Fossil will continue to try improve the spider defenses of Fossil so
-check back from time to time for the latest releases and updates.  
+check back from time to time for the latest releases and updates.
 
 Readers of this page who have suggestions on how to improve the spider
 defenses in Fossil are invited to submit your ideas to the Fossil Users
-mailing list: 
+mailing list:
 [mailto:fossil-users@lists.fossil-scm.org | fossil-users@lists.fossil-scm.org].

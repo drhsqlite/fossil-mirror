@@ -154,36 +154,35 @@ void event_page(void){
   }
   style_header("%s", blob_str(&title));
   if( g.perm.WrWiki && g.perm.Write && nextRid==0 ){
-    style_submenu_element("Edit", 0, "%R/technoteedit?name=%!S", zId);
+    style_submenu_element("Edit", "%R/technoteedit?name=%!S", zId);
     if( g.perm.Attach ){
-      style_submenu_element("Attach", "Add an attachment",
-           "%R/attachadd?technote=%!S&from=%R/technote/%!S",
-           zId, zId);
+      style_submenu_element("Attach",
+           "%R/attachadd?technote=%!S&from=%R/technote/%!S", zId, zId);
     }
   }
   zETime = db_text(0, "SELECT datetime(%.17g)", pTNote->rEventDate);
-  style_submenu_element("Context", 0, "%R/timeline?c=%.20s", zId);
+  style_submenu_element("Context", "%R/timeline?c=%.20s", zId);
   if( g.perm.Hyperlink ){
     if( verboseFlag ){
-      style_submenu_element("Plain", 0,
+      style_submenu_element("Plain",
                             "%R/technote?name=%!S&aid=%s&mimetype=text/plain",
                             zId, zUuid);
       if( nextRid ){
         char *zNext;
         zNext = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nextRid);
-        style_submenu_element("Next", 0,"%R/technote?name=%!S&aid=%s&v",
+        style_submenu_element("Next", "%R/technote?name=%!S&aid=%s&v",
                               zId, zNext);
         free(zNext);
       }
       if( prevRid ){
         char *zPrev;
         zPrev = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", prevRid);
-        style_submenu_element("Prev", 0, "%R/technote?name=%!S&aid=%s&v",
+        style_submenu_element("Prev", "%R/technote?name=%!S&aid=%s&v",
                               zId, zPrev);
         free(zPrev);
       }
     }else{
-      style_submenu_element("Detail", 0, "%R/technote?name=%!S&aid=%s&v",
+      style_submenu_element("Detail", "%R/technote?name=%!S&aid=%s&v",
                             zId, zUuid);
     }
   }

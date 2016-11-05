@@ -2284,7 +2284,7 @@ void commit_cmd(void){
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nvid);
   if( manifest_crosslink(nvid, &manifest,
                          dryRunFlag ? MC_NONE : MC_PERMIT_HOOKS)==0 ){
-    fossil_fatal("%s\n", g.zErrMsg);
+    fossil_fatal("%s", g.zErrMsg);
   }
   assert( blob_is_reset(&manifest) );
   content_deltify(vid, nvid, 0);

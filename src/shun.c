@@ -319,10 +319,10 @@ void rcvfromlist_page(void){
   if( showAll ){
     ofst = 0;
   }else{
-    style_submenu_element("All", "All", "rcvfromlist?all=1");
+    style_submenu_element("All", "rcvfromlist?all=1");
   }
   if( ofst>0 ){
-    style_submenu_element("Newer", "Newer", "rcvfromlist?ofst=%d",
+    style_submenu_element("Newer", "rcvfromlist?ofst=%d",
                            ofst>30 ? ofst-30 : 0);
   }
   db_multi_exec(
@@ -365,8 +365,7 @@ void rcvfromlist_page(void){
     const char *zDate = db_column_text(&q, 2);
     const char *zIpAddr = db_column_text(&q, 3);
     if( cnt==30 && !showAll ){
-      style_submenu_element("Older", "Older",
-         "rcvfromlist?ofst=%d", ofst+30);
+      style_submenu_element("Older", "rcvfromlist?ofst=%d", ofst+30);
     }else{
       cnt++;
       @ <tr>
@@ -408,15 +407,13 @@ void rcvfrom_page(void){
     "SELECT 1 FROM blob WHERE rcvid=%d AND"
     " NOT EXISTS (SELECT 1 FROM shun WHERE shun.uuid=blob.uuid)", rcvid)
   ){
-    style_submenu_element("Shun All", "Shun All",
-                          "shun?shun&rcvid=%d#addshun", rcvid);
+    style_submenu_element("Shun All", "shun?shun&rcvid=%d#addshun", rcvid);
   }
   if( db_exists(
     "SELECT 1 FROM blob WHERE rcvid=%d AND"
     " EXISTS (SELECT 1 FROM shun WHERE shun.uuid=blob.uuid)", rcvid)
   ){
-    style_submenu_element("Unshun All", "Unshun All",
-                          "shun?accept&rcvid=%d#delshun", rcvid);
+    style_submenu_element("Unshun All", "shun?accept&rcvid=%d#delshun", rcvid);
   }
   db_prepare(&q,
     "SELECT login, datetime(rcvfrom.mtime), rcvfrom.ipaddr"

@@ -20,6 +20,9 @@
 */
 #include "VERSION.h"
 #include "config.h"
+#if defined(_WIN32)
+#  include <windows.h>
+#endif
 #include "main.h"
 #include <string.h>
 #include <time.h>
@@ -27,9 +30,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdlib.h> /* atexit() */
-#if defined(_WIN32)
-#  include <windows.h>
-#else
+#if !defined(_WIN32)
 #  include <errno.h> /* errno global */
 #endif
 #ifdef FOSSIL_ENABLE_SSL
@@ -301,6 +302,18 @@ Global g;
 ** used by fossil.
 */
 static void fossil_atexit(void) {
+#if USE_SEE
+  /*
+  ** Zero, unlock, and free the saved database encryption key now.
+  */
+  db_unsave_encryption_key();
+#endif
+#if defined(_WIN32) || defined(__BIONIC__)
+  /*
+  ** Free the secure getpass() buffer now.
+  */
+  freepass();
+#endif
 #if defined(_WIN32) && !defined(_WIN64) && defined(FOSSIL_ENABLE_TCL) && \
     defined(USE_TCL_STUBS)
   /*
@@ -1919,6 +1932,37 @@ static void find_server_repository(int arg, int fCreate){
   }
 }
 
+#if defined(_WIN32) && USE_SEE
+/*
+** This function attempts to parse a string value in the following
+** format:
+**
+**     "%lu:%p:%u"
+**
+** There are three parts, which must be delimited by colons.  The
+** first part is an unsigned long integer in base-10 (decimal) format.
+** The second part is a numerical representation of a native pointer,
+** in the appropriate implementation defined format.  The third part
+** is an unsigned integer in base-10 (decimal) format.
+**
+** If the specified value cannot be parsed, for any reason, a fatal
+** error will be raised and the process will be terminated.
+*/
+void parse_pid_key_value(
+  const char *zPidKey, /* The value to be parsed. */
+  DWORD *pProcessId,   /* The extracted process identifier. */
+  LPVOID *ppAddress,   /* The extracted pointer value. */
+  SIZE_T *pnSize       /* The extracted size value. */
+){
+  unsigned int nSize = 0;
+  if( sscanf(zPidKey, "%lu:%p:%u", pProcessId, ppAddress, &nSize)==3 ){
+    *pnSize = (SIZE_T)nSize;
+  }else{
+    fossil_fatal("failed to parse pid key");
+  }
+}
+#endif
+
 /*
 ** undocumented format:
 **
@@ -1970,6 +2014,8 @@ static void find_server_repository(int arg, int fCreate){
 **   --scgi           Interpret input as SCGI rather than HTTP
 **   --skin LABEL     Use override skin LABEL
 **   --th-trace       trace TH1 execution (for debugging purposes)
+**   --usepidkey      Use saved encryption key from parent process.  This is
+**                    only necessary when using SEE on Windows.
 **
 ** See also: cgi, server, winsrv
 */
@@ -1982,6 +2028,9 @@ void cmd_http(void){
   int useSCGI;
   int noJail;
   int allowRepoList;
+#if defined(_WIN32) && USE_SEE
+  const char *zPidKey;
+#endif
 
   Th_InitTraceLog();
 
@@ -2012,6 +2061,17 @@ void cmd_http(void){
   }
   zHost = find_option("host", 0, 1);
   if( zHost ) cgi_replace_parameter("HTTP_HOST",zHost);
+
+#if defined(_WIN32) && USE_SEE
+  zPidKey = find_option("usepidkey", 0, 1);
+  if( zPidKey ){
+    DWORD processId = 0;
+    LPVOID pAddress = NULL;
+    SIZE_T nSize = 0;
+    parse_pid_key_value(zPidKey, &processId, &pAddress, &nSize);
+    db_read_saved_encryption_key_from_process(processId, pAddress, nSize);
+  }
+#endif
 
   /* We should be done with options.. */
   verify_all_options();
@@ -2173,7 +2233,8 @@ static int binaryOnPath(const char *zBinary){
 **   --repolist          If REPOSITORY is dir, URL "/" lists repos.
 **   --scgi              Accept SCGI rather than HTTP
 **   --skin LABEL        Use override skin LABEL
-
+**   --usepidkey         Use saved encryption key from parent process.  This is
+**                       only necessary when using SEE on Windows.
 **
 ** See also: cgi, http, winsrv
 */
@@ -2194,6 +2255,9 @@ void cmd_webserver(void){
   char *zIpAddr = 0;         /* Bind to this IP address */
   int fCreate = 0;           /* The --create flag */
   const char *zInitPage = 0; /* Start on this page.  --page option */
+#if defined(_WIN32) && USE_SEE
+  const char *zPidKey;
+#endif
 
 #if defined(_WIN32)
   const char *zStopperFile;    /* Name of file used to terminate server */
@@ -2238,6 +2302,17 @@ void cmd_webserver(void){
     flags |= HTTP_SERVER_LOCALHOST;
   }
 
+#if defined(_WIN32) && USE_SEE
+  zPidKey = find_option("usepidkey", 0, 1);
+  if( zPidKey ){
+    DWORD processId = 0;
+    LPVOID pAddress = NULL;
+    SIZE_T nSize = 0;
+    parse_pid_key_value(zPidKey, &processId, &pAddress, &nSize);
+    db_read_saved_encryption_key_from_process(processId, pAddress, nSize);
+  }
+#endif
+
   /* We should be done with options.. */
   verify_all_options();
 
@@ -2277,7 +2352,7 @@ void cmd_webserver(void){
           { "xdg-open", "gnome-open", "firefox", "google-chrome" };
       int i;
       zBrowser = "echo";
-      for(i=0; i<sizeof(azBrowserProg)/sizeof(azBrowserProg[0]); i++){
+      for(i=0; i<count(azBrowserProg); i++){
         if( binaryOnPath(azBrowserProg[i]) ){
           zBrowser = azBrowserProg[i];
           break;

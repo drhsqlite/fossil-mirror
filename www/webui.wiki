@@ -27,8 +27,7 @@ Everything you need is already pre-configured and built into the
 self-contained, stand-alone Fossil executable.
 
 As an example of how useful this web interface can be,
-the entire [./index.wiki | Fossil website] (except for the
-[http://www.fossil-scm.org/download.html | download page]),
+the entire [./index.wiki | Fossil website],
 including the document you are now reading,
 is rendered using the Fossil web interface, with no enhancements,
 and little customization.

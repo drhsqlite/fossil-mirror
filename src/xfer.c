@@ -2142,7 +2142,7 @@ int client_sync(
           const char *zMsg = 0;
           switch( iStatus ){
             case 0:
-            case 1: zMsg = "UV-PULL";             break; 
+            case 1: zMsg = "UV-PULL";             break;
             case 2: zMsg = "UV-PULL-MTIME-ONLY";  break;
             case 4: zMsg = "UV-PUSH-MTIME-ONLY";  break;
             case 5: zMsg = "UV-PUSH";             break;

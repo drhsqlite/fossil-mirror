@@ -751,12 +751,13 @@ proc random_changes {body blocksize count index prob} {
 }
 
 # This procedure executes the "fossil server" command.  The return value
-# is the new process identifier.  The varName argument refers to a variable
+# is a list comprised of the new process identifier and the port on which
+# the server started.  The varName argument refers to a variable
 # where the "stop argument" is to be stored.  This value must eventually be
 # passed to the [test_stop_server] procedure.
 proc test_start_server { repository {varName ""} } {
-  global fossilexe
-  set command [list exec $fossilexe server]
+  global fossilexe tempPath
+  set command [list exec $fossilexe server --localhost]
   if {[string length $varName] > 0} {
     upvar 1 $varName stopArg
   }
@@ -765,25 +766,36 @@ proc test_start_server { repository {varName ""} } {
         [string trim [clock seconds] -] _ [getSeqNo] .stopper]]
     lappend command --stopper $stopArg
   }
-  lappend command $repository &
+  set outFileName [file join $tempPath [appendArgs \
+      fossil_server_ [string trim [clock seconds] -] _ \
+      [getSeqNo]]].out
+  lappend command $repository >&$outFileName &
   set pid [eval $command]
   if {$::tcl_platform(platform) ne "windows"} {
     set stopArg $pid
   }
-  return $pid
+  after 1000; # output might not be there yet
+  set output [read_file $outFileName]
+  if {![regexp {Listening.*TCP port (\d+)} $output dummy port]} {
+    puts stdout "Could not detect Fossil server port, using default..."
+    set port 8080; # return the default port just in case
+  }
+  return [list $pid $port $outFileName]
 }
 
 # This procedure stops a Fossil server instance that was previously started
 # by the [test_start_server] procedure.  The value of the "stop argument"
 # will vary by platform as will the exact method used to stop the server.
-proc test_stop_server { stopArg pid } {
+# The fileName argument is the name of a temporary output file to delete.
+proc test_stop_server { stopArg pid fileName } {
   if {$::tcl_platform(platform) eq "windows"} {
     #
     # NOTE: On Windows, the "stop argument" must be the name of a file
     #       that does NOT already exist.
     #
-    if {![file exists $stopArg] && \
-        [catch {write_file $stopArg [clock seconds]}] == 0} then {
+    if {[string length $stopArg] > 0 && \
+        ![file exists $stopArg] && \
+        [catch {write_file $stopArg [clock seconds]}] == 0} {
       while {1} {
         if {[catch {
           #
@@ -791,12 +803,15 @@ proc test_stop_server { stopArg pid } {
           #       later.
           #
           exec tasklist.exe /FI "PID eq $pid"
-        } result] != 0 || ![regexp -- " $pid " $result]} then {
+        } result] != 0 || ![regexp -- " $pid " $result]} {
           break
         }
         after 1000; # wait a bit...
       }
       file delete $stopArg
+      if {[string length $fileName] > 0} {
+        file delete $fileName
+      }
       return true
     }
   } else {
@@ -805,7 +820,7 @@ proc test_stop_server { stopArg pid } {
     #       that refers to an existing process.
     #
     if {[regexp {^(?:-)?\d+$} $stopArg] && \
-        [catch {exec kill -TERM $stopArg}] == 0} then {
+        [catch {exec kill -TERM $stopArg}] == 0} {
       while {1} {
         if {[catch {
           #
@@ -813,10 +828,13 @@ proc test_stop_server { stopArg pid } {
           #       Unix?  It should be, it's POSIX.
           #
           exec ps -p $pid
-        } result] != 0 || ![regexp -- "(?:^$pid| $pid) " $result]} then {
+        } result] != 0 || ![regexp -- "(?:^$pid| $pid) " $result]} {
           break
         }
         after 1000; # wait a bit...
+      }
+      if {[string length $fileName] > 0} {
+        file delete $fileName
       }
       return true
     }

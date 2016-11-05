@@ -333,7 +333,7 @@ void finfo_page(void){
     return;
   }
   if( g.perm.Admin ){
-    style_submenu_element("MLink Table", "mtab", "%R/mlink?name=%t", zFilename);
+    style_submenu_element("MLink Table", "%R/mlink?name=%t", zFilename);
   }
   if( baseCheckin ){
     compute_direct_ancestors(baseCheckin);
@@ -456,7 +456,7 @@ void finfo_page(void){
     db_bind_int(&qparent, ":fid", frid);
     db_bind_int(&qparent, ":mid", fmid);
     db_bind_int(&qparent, ":fnid", fnid);
-    while( db_step(&qparent)==SQLITE_ROW && nParent<ArraySize(aParent) ){
+    while( db_step(&qparent)==SQLITE_ROW && nParent<count(aParent) ){
       aParent[nParent] = db_column_int(&qparent, 0);
       nParent++;
     }

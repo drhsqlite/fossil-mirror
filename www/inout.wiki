@@ -1,8 +1,8 @@
 <title>Import And Export</title>
 
-Fossil has the ability to import and export repositories from and to 
+Fossil has the ability to import and export repositories from and to
 [http://git-scm.com/ | Git].  And since most other version control
-systems will also import/export from Git, that means that you can 
+systems will also import/export from Git, that means that you can
 import/export a Fossil repository to most version control systems using
 Git as an intermediary.
 
@@ -22,7 +22,7 @@ content.
 
 The --git option is not actually required.  The git-fast-export file format
 is currently the only VCS interchange format that Fossil understands.  But
-future versions of Fossil might be enhanced to understand other VCS 
+future versions of Fossil might be enhanced to understand other VCS
 interchange formats, and so for compatibility, use of the
 --git option is recommended.
 
@@ -45,19 +45,58 @@ Tickets and wiki and events are not exported, since Git does not understand
 those concepts.
 
 As with the "import" command, the --git option is not required
-since the git-fast-export file format is currently the only VCS interchange 
+since the git-fast-export file format is currently the only VCS interchange
 format that Fossil will generate.  However,
 future versions of Fossil might add the ability to generate other
-VCS interchange formats, and so for compatibility, the use of the --git 
+VCS interchange formats, and so for compatibility, the use of the --git
 option recommended.
 
-An anonymous user sends this comment:
+<h2>Bidirectional Synchronization</h2>
+Fossil also has the ability to synchronize with a Git repository via repeated
+imports and/or exports.  To do this, it uses marks files to store a record of
+artifacts which are known by both Git and Fossil to exist at a given point in
+time.
 
-<blockquote>
-The main Fossil branch is called "trunk", while the main git branch is
-called "master". After you've exported your FOSSIL repo to git, you won't 
-see any files and gitk will complain about a missing "HEAD". You can 
-resolve this problem by merging "trunk" with "master"
-(first verify using git status that you are on the "master" branch): 
-<tt>git merge trunk</tt>
-</blockquote>
+To illustrate, consider the example of a remote Fossil repository that a
+user wants to import into a local Git repository.  First, the user would clone
+the remote repository and import it into a new Git repository:
+
+<blockquote><pre>
+fossil clone /path/to/remote/repo.fossil repo.fossil
+mkdir repo
+cd repo
+fossil open ../repo.fossil
+mkdir ../repo.git
+cd ../repo.git
+git init .
+fossil export --git --export-marks ../repo/fossil.marks  \
+       ../repo.fossil | git fast-import                  \
+       --export-marks=../repo/git.marks
+</pre></blockquote>
+
+Once the import has completed, the user would need to <tt>git checkout
+trunk</tt>.  At any point after this, new changes can be imported from the
+remote Fossil repository:
+
+<blockquote><pre>
+cd ../repo
+fossil pull
+cd ../repo.git
+fossil export --git --import-marks ../repo/fossil.marks  \
+       --export-marks ../repo/fossil.marks               \
+       ../repo.fossil | git fast-import                  \
+       --import-marks=../repo/git.marks                  \
+       --export-marks=../repo/git.marks
+</pre></blockquote>
+
+Changes in the Git repository can be exported to the Fossil repository and then
+pushed to the remote:
+
+<blockquote><pre>
+git fast-export --import-marks=../repo/git.marks                  \
+    --export-marks=../repo/git.marks --all | fossil import --git  \
+    --incremental --import-marks ../repo/fossil.marks             \
+    --export-marks ../repo/fossil.marks ../repo.fossil
+cd ../repo
+fossil push
+</pre></blockquote>

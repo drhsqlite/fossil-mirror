@@ -457,13 +457,13 @@ void leaves_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
 
   if( !showAll ){
-    style_submenu_element("All", "All", "leaves?all");
+    style_submenu_element("All", "leaves?all");
   }
   if( !showClosed ){
-    style_submenu_element("Closed", "Closed", "leaves?closed");
+    style_submenu_element("Closed", "leaves?closed");
   }
   if( showClosed || showAll ){
-    style_submenu_element("Open", "Open", "leaves");
+    style_submenu_element("Open", "leaves");
   }
   style_header("Leaves");
   login_anonymous_available();

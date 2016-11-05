@@ -409,7 +409,7 @@ static void search_init_sqlfunc(
 **
 ** Using the full-scan search engine created by the most recent call
 ** to search_init(), match the input the TEXT arguments.
-** Remember the results global full-scan search object. 
+** Remember the results global full-scan search object.
 ** Return non-zero on a match and zero on a miss.
 */
 static void search_match_sqlfunc(
@@ -420,7 +420,7 @@ static void search_match_sqlfunc(
   const char *azDoc[5];
   int nDoc;
   int rc;
-  for(nDoc=0; nDoc<ArraySize(azDoc) && nDoc<argc; nDoc++){
+  for(nDoc=0; nDoc<count(azDoc) && nDoc<argc; nDoc++){
     azDoc[nDoc] = (const char*)sqlite3_value_text(argv[nDoc]);
     if( azDoc[nDoc]==0 ) azDoc[nDoc] = "";
   }
@@ -659,7 +659,7 @@ unsigned int search_restrict(unsigned int srchFlags){
   if( g.perm.Read==0 )   srchFlags &= ~(SRCH_CKIN|SRCH_DOC);
   if( g.perm.RdTkt==0 )  srchFlags &= ~(SRCH_TKT);
   if( g.perm.RdWiki==0 ) srchFlags &= ~(SRCH_WIKI);
-  for(i=0; i<ArraySize(aSetng); i++){
+  for(i=0; i<count(aSetng); i++){
     unsigned int m = aSetng[i].m;
     if( (srchFlags & m)==0 ) continue;
     if( ((knownGood|knownBad) & m)!=0 ) continue;
@@ -894,7 +894,7 @@ static void search_indexed(
        { SRCH_WIKI,  'w' },
     };
     int i;
-    for(i=0; i<ArraySize(aMask); i++){
+    for(i=0; i<count(aMask); i++){
       if( srchFlags & aMask[i].m ){
         blob_appendf(&sql, "%sftsdocs.type='%c'", zSep, aMask[i].c);
         zSep = " OR ";
@@ -1072,7 +1072,7 @@ void search_screen(unsigned srchFlags, int useYparam){
     unsigned newFlags = srchFlags;
     int i;
     @ <select size='1' name='y'>
-    for(i=0; i<ArraySize(aY); i++){
+    for(i=0; i<count(aY); i++){
       if( (aY[i].m & srchFlags)==0 ) continue;
       cgi_printf("<option value='%s'", aY[i].z);
       if( fossil_strcmp(zY,aY[i].z)==0 ){
@@ -1729,13 +1729,13 @@ void fts_config_cmd(void){
   if( g.argc>2 ){
     zSubCmd = g.argv[2];
     n = (int)strlen(zSubCmd);
-    for(i=0; i<ArraySize(aCmd); i++){
+    for(i=0; i<count(aCmd); i++){
       if( fossil_strncmp(aCmd[i].z, zSubCmd, n)==0 ) break;
     }
-    if( i>=ArraySize(aCmd) ){
+    if( i>=count(aCmd) ){
       Blob all;
       blob_init(&all,0,0);
-      for(i=0; i<ArraySize(aCmd); i++) blob_appendf(&all, " %s", aCmd[i].z);
+      for(i=0; i<count(aCmd); i++) blob_appendf(&all, " %s", aCmd[i].z);
       fossil_fatal("unknown \"%s\" - should be on of:%s",
                    zSubCmd, blob_str(&all));
       return;
@@ -1759,7 +1759,7 @@ void fts_config_cmd(void){
     const char *zCtrl;
     if( g.argc<4 ) usage(mprintf("%s STRING",zSubCmd));
     zCtrl = g.argv[3];
-    for(j=0; j<ArraySize(aSetng); j++){
+    for(j=0; j<count(aSetng); j++){
       if( strchr(zCtrl, aSetng[j].zSw[0])!=0 ){
         db_set_int(aSetng[j].zSetting, iCmd-3, 0);
       }
@@ -1780,7 +1780,7 @@ void fts_config_cmd(void){
   }
 
   /* Always show the status before ending */
-  for(i=0; i<ArraySize(aSetng); i++){
+  for(i=0; i<count(aSetng); i++){
     fossil_print("%-16s %s\n", aSetng[i].zName,
        db_get_boolean(aSetng[i].zSetting,0) ? "on" : "off");
   }

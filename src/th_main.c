@@ -1320,6 +1320,88 @@ static int artifactCmd(
   }
 }
 
+/*
+** TH1 command: unversioned content FILENAME
+**
+** Attempts to locate the specified unversioned file and return its contents.
+** An error is generated if the repository is not open or the unversioned file
+** cannot be found.
+*/
+static int unversionedContentCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=3 ){
+    return Th_WrongNumArgs(interp, "unversioned content FILENAME");
+  }
+  if( Th_IsRepositoryOpen() ){
+    Blob content;
+    if( unversioned_content(argv[2], &content)==0 ){
+      Th_SetResult(interp, blob_str(&content), blob_size(&content));
+      blob_reset(&content);
+      return TH_OK;
+    }else{
+      return TH_ERROR;
+    }
+  }else{
+    Th_SetResult(interp, "repository unavailable", -1);
+    return TH_ERROR;
+  }
+}
+
+/*
+** TH1 command: unversioned list
+**
+** Returns a list of the names of all unversioned files held in the local
+** repository.  An error is generated if the repository is not open.
+*/
+static int unversionedListCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "unversioned list");
+  }
+  if( Th_IsRepositoryOpen() ){
+    Stmt q;
+    char *zList = 0;
+    int nList = 0;
+    db_prepare(&q, "SELECT name FROM unversioned WHERE hash IS NOT NULL"
+                   " ORDER BY name");
+    while( db_step(&q)==SQLITE_ROW ){
+      Th_ListAppend(interp, &zList, &nList, db_column_text(&q,0), -1);
+    }
+    db_finalize(&q);
+    Th_SetResult(interp, zList, nList);
+    Th_Free(interp, zList);
+    return TH_OK;
+  }else{
+    Th_SetResult(interp, "repository unavailable", -1);
+    return TH_ERROR;
+  }
+}
+
+static int unversionedCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  static const Th_SubCommand aSub[] = {
+    { "content", unversionedContentCmd },
+    { "list",    unversionedListCmd    },
+    { 0, 0 }
+  };
+  return Th_CallSubCommand(interp, p, argc, argv, argl, aSub);
+}
+
 #ifdef _WIN32
 # include <windows.h>
 #else
@@ -1888,6 +1970,7 @@ void Th_FossilInit(u32 flags){
     {"tclReady",      tclReadyCmd,          0},
     {"trace",         traceCmd,             0},
     {"stime",         stimeCmd,             0},
+    {"unversioned",   unversionedCmd,       0},
     {"utime",         utimeCmd,             0},
     {"verifyCsrf",    verifyCsrfCmd,        0},
     {"wiki",          wikiCmd,              (void*)&aFlags[0]},
@@ -1924,7 +2007,7 @@ void Th_FossilInit(u32 flags){
       th_register_tcl(g.interp, &g.tcl);  /* Tcl integration commands. */
     }
 #endif
-    for(i=0; i<sizeof(aCommand)/sizeof(aCommand[0]); i++){
+    for(i=0; i<count(aCommand); i++){
       if ( !aCommand[i].zName || !aCommand[i].xProc ) continue;
       Th_CreateCommand(g.interp, aCommand[i].zName, aCommand[i].xProc,
                        aCommand[i].pContext, 0);
@@ -2595,7 +2678,7 @@ void test_th_hook(void){
   }else if( fossil_stricmp(g.argv[2], "webnotify")==0 ){
     rc = Th_WebpageNotify(g.argv[3], (unsigned int)atoi(g.argv[4]));
   }else{
-    fossil_fatal("Unknown TH1 hook %s\n", g.argv[2]);
+    fossil_fatal("Unknown TH1 hook %s", g.argv[2]);
   }
   if( g.interp ){
     zResult = (char*)Th_GetResult(g.interp, &nResult);

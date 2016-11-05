@@ -318,7 +318,7 @@ int contains_merge_marker(Blob *p){
   assert( len==(int)strlen(mergeMarker[1]) );
   assert( len==(int)strlen(mergeMarker[2]) );
   assert( len==(int)strlen(mergeMarker[3]) );
-  assert( sizeof(mergeMarker)/sizeof(mergeMarker[0])==4 );
+  assert( count(mergeMarker)==4 );
   for(i=0; i<n; ){
     for(j=0; j<4; j++){
       if( memcmp(&z[i], mergeMarker[j], len)==0 ) return 1;
@@ -378,17 +378,17 @@ void delta_3waymerge_cmd(void){
     usage("PIVOT V1 V2 MERGED");
   }
   if( blob_read_from_file(&pivot, g.argv[2])<0 ){
-    fossil_fatal("cannot read %s\n", g.argv[2]);
+    fossil_fatal("cannot read %s", g.argv[2]);
   }
   if( blob_read_from_file(&v1, g.argv[3])<0 ){
-    fossil_fatal("cannot read %s\n", g.argv[3]);
+    fossil_fatal("cannot read %s", g.argv[3]);
   }
   if( blob_read_from_file(&v2, g.argv[4])<0 ){
-    fossil_fatal("cannot read %s\n", g.argv[4]);
+    fossil_fatal("cannot read %s", g.argv[4]);
   }
   blob_merge(&pivot, &v1, &v2, &merged);
   if( blob_write_to_file(&merged, g.argv[5])<blob_size(&merged) ){
-    fossil_fatal("cannot write %s\n", g.argv[4]);
+    fossil_fatal("cannot write %s", g.argv[4]);
   }
   blob_reset(&pivot);
   blob_reset(&v1);

@@ -176,6 +176,8 @@ features of Fossil.  The following is a summary of the extended commands:
   *  tclMakeSafe
   *  tclReady
   *  trace
+  *  unversioned content
+  *  unversioned list
   *  utime
   *  verifyCsrf
   *  wiki
@@ -612,6 +614,23 @@ is currently available for use by TH1 scripts.
   *  trace STRING
 
 Generates a TH1 trace message if TH1 tracing is enabled.
+
+<a name="unversioned_content"></a>TH1 unversioned content Command
+-----------------------------------------------------------------
+
+  *  unversioned content FILENAME
+
+Attempts to locate the specified unversioned file and return its contents.
+An error is generated if the repository is not open or the unversioned file
+cannot be found.
+
+<a name="unversioned_list"></a>TH1 unversioned list Command
+-----------------------------------------------------------
+
+  *  unversioned list
+
+Returns a list of the names of all unversioned files held in the local
+repository.  An error is generated if the repository is not open.
 
 <a name="utime"></a>TH1 utime Command
 -------------------------------------

@@ -307,15 +307,15 @@ unversioned5\.txt$} [normalize_result]]}
 ###############################################################################
 
 set password [string trim [clock seconds] -]
-set remote [appendArgs http://uvtester: $password @localhost:8080/]
 
 fossil user new uvtester "Unversioned Test User" $password
 fossil user capabilities uvtester oy
 
 ###############################################################################
 
-set pid [test_start_server $repository stopArg]
-puts [appendArgs "Started Fossil server, pid \"" $pid \".]
+foreach {pid port outTmpFile} [test_start_server $repository stopArg] {}
+puts [appendArgs "Started Fossil server, pid \"" $pid \" ", port \"" $port \".]
+set remote [appendArgs http://uvtester: $password @localhost: $port /]
 
 ###############################################################################
 
@@ -429,7 +429,7 @@ puts [appendArgs "Now in server directory \"" [pwd] \".]
 
 ###############################################################################
 
-set stopped [test_stop_server $stopArg $pid]
+set stopped [test_stop_server $stopArg $pid $outTmpFile]
 
 puts [appendArgs \
     [expr {$stopped ? "Stopped" : "Could not stop"}] \

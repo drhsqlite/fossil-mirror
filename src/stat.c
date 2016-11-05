@@ -73,17 +73,17 @@ void stat_page(void){
   style_header("Repository Statistics");
   style_adunit_config(ADUNIT_RIGHT_OK);
   if( g.perm.Admin ){
-    style_submenu_element("URLs", "URLs and Checkouts", "urllist");
-    style_submenu_element("Schema", "Repository Schema", "repo_schema");
-    style_submenu_element("Web-Cache", "Web-Cache Stats", "cachestat");
+    style_submenu_element("URLs", "urllist");
+    style_submenu_element("Schema", "repo_schema");
+    style_submenu_element("Web-Cache", "cachestat");
   }
-  style_submenu_element("Activity Reports", 0, "reports");
-  style_submenu_element("SHA1 Collisions", 0, "hash-collisions");
+  style_submenu_element("Activity Reports", "reports");
+  style_submenu_element("SHA1 Collisions", "hash-collisions");
   if( sqlite3_compileoption_used("ENABLE_DBSTAT_VTAB") ){
-    style_submenu_element("Table Sizes", 0, "repo-tabsize");
+    style_submenu_element("Table Sizes", "repo-tabsize");
   }
   if( g.perm.Admin || g.perm.Setup || db_get_boolean("test_env_enable",0) ){
-    style_submenu_element("Environment", 0, "test_env");
+    style_submenu_element("Environment", "test_env");
   }
   @ <table class="label-value">
   @ <tr><th>Repository&nbsp;Size:</th><td>
@@ -342,8 +342,8 @@ void urllist_page(void){
 
   style_header("URLs and Checkouts");
   style_adunit_config(ADUNIT_RIGHT_OK);
-  style_submenu_element("Stat", "Repository Stats", "stat");
-  style_submenu_element("Schema", "Repository Schema", "repo_schema");
+  style_submenu_element("Stat", "stat");
+  style_submenu_element("Schema", "repo_schema");
   @ <div class="section">URLs</div>
   @ <table border="0" width='100%%'>
   db_prepare(&q, "SELECT substr(name,9), datetime(mtime,'unixepoch')"
@@ -389,10 +389,10 @@ void repo_schema_page(void){
 
   style_header("Repository Schema");
   style_adunit_config(ADUNIT_RIGHT_OK);
-  style_submenu_element("Stat", "Repository Stats", "stat");
-  style_submenu_element("URLs", "URLs and Checkouts", "urllist");
+  style_submenu_element("Stat", "stat");
+  style_submenu_element("URLs", "urllist");
   if( sqlite3_compileoption_used("ENABLE_DBSTAT_VTAB") ){
-    style_submenu_element("Table Sizes", 0, "repo-tabsize");
+    style_submenu_element("Table Sizes", "repo-tabsize");
   }
   db_prepare(&q,
       "SELECT sql FROM repository.sqlite_master WHERE sql IS NOT NULL");
@@ -419,9 +419,9 @@ void repo_tabsize_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("Repository Table Sizes");
   style_adunit_config(ADUNIT_RIGHT_OK);
-  style_submenu_element("Stat", "Repository Stats", "stat");
+  style_submenu_element("Stat", "stat");
   if( g.perm.Admin ){
-    style_submenu_element("Schema", "Repository Schema", "repo_schema");
+    style_submenu_element("Schema", "repo_schema");
   }
   db_multi_exec(
     "CREATE TEMP TABLE trans(name TEXT PRIMARY KEY,tabname TEXT)WITHOUT ROWID;"

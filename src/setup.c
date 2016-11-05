@@ -21,10 +21,6 @@
 #include <assert.h>
 #include "setup.h"
 
-#if INTERFACE
-#define ArraySize(x) (sizeof(x)/sizeof(x[0]))
-#endif
-
 /*
 ** Output a single entry for a menu generated using an HTML table.
 ** If zLink is not NULL or an empty string, then it is the page that
@@ -151,9 +147,9 @@ void setup_ulist(void){
     return;
   }
 
-  style_submenu_element("Add", "Add User", "setup_uedit");
-  style_submenu_element("Log", "Access Log", "access_log");
-  style_submenu_element("Help", "Help", "setup_ulist_notes");
+  style_submenu_element("Add", "setup_uedit");
+  style_submenu_element("Log", "access_log");
+  style_submenu_element("Help", "setup_ulist_notes");
   style_header("User List");
   @ <table border=1 cellpadding=2 cellspacing=0 class='userTable'>
   @ <thead><tr>
@@ -559,7 +555,7 @@ void user_edit(void){
 
   /* Begin generating the page
   */
-  style_submenu_element("Cancel", "Cancel", "setup_ulist");
+  style_submenu_element("Cancel", "setup_ulist");
   if( uid ){
     style_header("Edit User %h", zLogin);
   }else{
@@ -946,14 +942,14 @@ static void onoff_attribute(
       iVal = iQ;
     }
   }
-  @ <input type="checkbox" name="%s(zQParm)"
+  @ <label><input type="checkbox" name="%s(zQParm)"
   if( iVal ){
     @ checked="checked"
   }
   if( disabled ){
     @ disabled="disabled"
   }
-  @ /> <b>%s(zLabel)</b>
+  @ /> <b>%s(zLabel)</b></label>
 }
 
 /*
@@ -1433,7 +1429,7 @@ void setup_timeline(void){
 
   @ <hr />
   multiple_choice_attribute("Per-Item Time Format", "timeline-date-format",
-            "tdf", "0", ArraySize(azTimeFormats)/2, azTimeFormats);
+            "tdf", "0", count(azTimeFormats)/2, azTimeFormats);
   @ <p>If the "HH:MM" or "HH:MM:SS" format is selected, then the date is shown
   @ in a separate box (using CSS class "timelineDate") whenever the date changes.
   @ With the "YYYY-MM-DD&nbsp;HH:MM" and "YYMMDD ..." formats, the complete date
@@ -1539,7 +1535,7 @@ void setup_settings(void){
   @ in the check-out root.
   @ If such a file is present, the corresponding field above is not
   @ editable.</p><hr /><p>
-  @ These settings work the same as the 
+  @ These settings work the same as the
   @ <a href='%R/help?cmd=settings'>fossil set</a> command.
   db_end_transaction(0);
   style_footer();

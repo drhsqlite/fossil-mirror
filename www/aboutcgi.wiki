@@ -68,7 +68,7 @@ In addition to setting various CGI environment variables, if the HTTP
 request contains POST content, then the web server relays the POST content
 to standard input of the CGI script.
 <p>
-In summary, the task of the 
+In summary, the task of the
 CGI script is to read the various CGI environment variables and
 the POST content on standard input (if any), figure out an appropriate
 reply, then write that reply on standard output.
@@ -91,12 +91,12 @@ like the following:
 #!/usr/bin/fossil
 repository: /home/www/repos/project.fossil
 </pre></blockquote>
-The first line of the script is a 
+The first line of the script is a
 "[https://en.wikipedia.org/wiki/Shebang_%28Unix%29|shebang]"
 that tells the operating system what program to use as the interpreter
 for this script.  On unix, when you execute a script that starts with
 a shebang, the operating system runs the program identified by the
-shebang with a single argument that is the full pathname of the script 
+shebang with a single argument that is the full pathname of the script
 itself.
 In our example, the interpreter is Fossil, and the argument might
 be something like "/var/www/cgi-bin/one/two" (depending on how your
@@ -106,12 +106,12 @@ The Fossil program that is run as the script interpreter
 is the same Fossil that runs when
 you type ordinary Fossil commands like "fossil sync" or "fossil commit".
 But in this case, as soon as it launches, the Fossil program
-recognizes that the GATEWAY_INTERFACE environment variable is 
+recognizes that the GATEWAY_INTERFACE environment variable is
 set to "CGI/1.0" and it therefore knows that it is being used as
 CGI rather than as an ordinary command-line tool, and behaves accordingly.
 <p>
 When Fossil recognizes that it is being run as CGI, it opens and reads
-the file identified by its sole argument (the file named by 
+the file identified by its sole argument (the file named by
 <code>argv&#91;1&#93;</code>).  In our example, the second line of that file
 tells Fossil the location of the repository it will be serving.
 Fossil then starts looking at the CGI environment variables to figure
@@ -132,7 +132,7 @@ exactly the same thing to Fossil:
 <li> [https://www.fossil-scm.org/fossil/info?name=c14ecc43]
 </ol>
 In both cases, the CGI script is called "/fossil".  For case (A),
-the PATH_INFO variable will be "info/c14ecc43" and so the 
+the PATH_INFO variable will be "info/c14ecc43" and so the
 "[/help?cmd=/info|/info]" webpage will be generated and the suffix of
 PATH_INFO will be converted into the "name" query parameter, which
 identifies the artifact about which information is requested.
@@ -166,7 +166,7 @@ see the timeline for the "three.fossil" repository, the URL would be:
 </blockquote>
 Here is what happens:
 <ol>
-<li> The input URI on the HTTP request is 
+<li> The input URI on the HTTP request is
      <b>/cgis/example2/subdir/three/timeline</b>
 <li> The web server searches prefixes of the input URI until it finds
      the "cgis/example2" script.  The web server then sets
@@ -177,7 +177,7 @@ Here is what happens:
      front of the PATH_INFO looking for a repository.  It first looks
      at "/home/www/resps/subdir.fossil" but there is no such repository.
      So then it looks at "/home/www/repos/subdir/three.fossil" and finds
-     a repository.  The PATH_INFO is shortened by removing 
+     a repository.  The PATH_INFO is shortened by removing
      "subdir/three/" leaving it at just "timeline".
 <li> Fossil looks at the rest of PATH_INFO to see that the webpage
      requested is "timeline".
@@ -203,12 +203,12 @@ and has a value.
 The "[/help?cmd=ui|fossil ui]" and "[/help?cmd=server|fossil server]" commands
 are implemented using a simple built-in web server that accepts incoming HTTP
 requests, translates each request into a CGI invocation, then creates a
-separate child Fossil process to handle each request.  In other words, CGI 
+separate child Fossil process to handle each request.  In other words, CGI
 is used internally to implement "fossil ui/server".
 <p>
 SCGI is processed using the same built-in web server, just modified
 to parse SCGI requests instead of HTTP requests.  Each SCGI request is
-converted into CGI, then Fossil creates a separate child Fossil 
+converted into CGI, then Fossil creates a separate child Fossil
 process to handle each CGI request.
 </ol>
 </blockquote>

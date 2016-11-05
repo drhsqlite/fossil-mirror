@@ -352,7 +352,7 @@ void vfile_to_disk(
     if( verbose ) fossil_print("%s\n", &zName[nRepos]);
     if( file_wd_isdir(zName)==1 ){
       /*TODO(dchest): remove directories? */
-      fossil_fatal("%s is directory, cannot overwrite\n", zName);
+      fossil_fatal("%s is directory, cannot overwrite", zName);
     }
     if( file_wd_size(zName)>=0 && (isLink || file_wd_islink(0)) ){
       file_delete(zName);
@@ -437,7 +437,7 @@ static int is_temporary_file(const char *zName){
       return 1;
     }
     if( zName[0]!='-' ) continue;
-    for(i=0; i<sizeof(azTemp)/sizeof(azTemp[0]); i++){
+    for(i=0; i<count(azTemp); i++){
       n = (int)strlen(azTemp[i]);
       if( memcmp(azTemp[i], zName+1, n) ) continue;
       if( zName[n+1]==0 ) return 1;
@@ -920,7 +920,7 @@ void vfile_aggregate_checksum_manifest(int vid, Blob *pOut, Blob *pManOut){
   db_must_be_within_tree();
   pManifest = manifest_get(vid, CFTYPE_MANIFEST, &err);
   if( pManifest==0 ){
-    fossil_fatal("manifest file (%d) is malformed:\n%s\n",
+    fossil_fatal("manifest file (%d) is malformed:\n%s",
                  vid, blob_str(&err));
   }
   manifest_file_rewind(pManifest);

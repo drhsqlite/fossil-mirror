@@ -204,7 +204,7 @@ void scan_for_label(const char *zLabel, char *zLine, int eType){
     }
   }
 
-  /* Processing additional flags that might following the command name */
+  /* Process additional flags that might follow the command name */
   while( zLine[i+j]!=0 ){
     i += j;
     while( fossil_isspace(zLine[i]) ){ i++; }
@@ -225,7 +225,7 @@ void scan_for_label(const char *zLabel, char *zLine, int eType){
       nErr++;
     }
   }
- 
+
   nUsed++;
 }
 
