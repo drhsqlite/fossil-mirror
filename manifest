@@ -1,5 +1,5 @@
-C Fix\sminor\stypo\sin\scomment
-D 2016-11-05T14:55:30.708
+C Demote\sthe\srss\scommand\sto\ssecond-tier\sbecause\sit\sis\sinfrequently\sused\sand\sfalls\sin\sthe\ssaame\sgeneral\scategory\sas\sthe\sserver\sand\scgi\scommands\swhich\sare\salready\ssecond-tier
+D 2016-11-05T14:59:53.896
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -476,7 +476,7 @@ F src/purge.c ed44773c93e570dd0dd018e9829c1e3e5ec40cf1
 F src/rebuild.c 517bb76c3345dd611d83ec342c6b5ab3492e91a2
 F src/regexp.c 11ed4c905c2e471efe9c1e9c4650004ad91d6ebb
 F src/report.c 58deb9570018fd69d63fb797eb60e2f904a727ed
-F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
+F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c f8f9ec5bcd61107bdc929e75ad34b4f5f6577f0d
 F src/setup.c 2d807dd6722ea73a8be13afe66a194cdc1e4b5ee
@@ -769,6 +769,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2f61357426caf3b2f168c5902ea935cdf5a3b9d7
+P 6a6dae151d21848ad5564c0be9a6b9dbf258adef
 U andygoth
-Z ea7c619e79ac1dc2a25823f53190b605
+Z cb22d0836874361a81ad13329130f0be
