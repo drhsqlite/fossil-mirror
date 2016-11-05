@@ -29,50 +29,46 @@ enum {
   /* Zero-based bit indexes. */
   CB_EDITED , CB_UPDATED , CB_CHANGED, CB_MISSING   , CB_ADDED   , CB_DELETED,
   CB_RENAMED, CB_CONFLICT, CB_META   , CB_UNMODIFIED, CB_EXTRA   , CB_MERGE  ,
-  CB_RELPATH, CB_SHA1SUM , CB_HEADER , CB_VERBOSE   , CB_CLASSIFY,
+  CB_RELPATH, CB_SHA1SUM , CB_HEADER , CB_VERBOSE   , CB_CLASSIFY, CB_FATAL  ,
+  CB_COMMENT,
 
   /* Bitmask values. */
-  C_EDITED     = 1 << CB_EDITED,
-  C_UPDATED    = 1 << CB_UPDATED,
-  C_CHANGED    = 1 << CB_CHANGED, /* Becomes CB_EDITED|CB_UPDATED. */
-  C_MISSING    = 1 << CB_MISSING,
-  C_ADDED      = 1 << CB_ADDED,
-  C_DELETED    = 1 << CB_DELETED,
-  C_RENAMED    = 1 << CB_RENAMED,
-  C_CONFLICT   = 1 << CB_CONFLICT,
-  C_META       = 1 << CB_META,
-  C_UNMODIFIED = 1 << CB_UNMODIFIED,
-  C_EXTRA      = 1 << CB_EXTRA,
-  C_MERGE      = 1 << CB_MERGE,
+  C_EDITED     = 1 << CB_EDITED,    /* Edited, merged, and conflicted files. */
+  C_UPDATED    = 1 << CB_UPDATED,   /* Files updated by merge/integrate. */
+  C_CHANGED    = 1 << CB_CHANGED,   /* Becomes CB_EDITED|CB_UPDATED. */
+  C_MISSING    = 1 << CB_MISSING,   /* Missing and non- files. */
+  C_ADDED      = 1 << CB_ADDED,     /* Added files. */
+  C_DELETED    = 1 << CB_DELETED,   /* Deleted files. */
+  C_RENAMED    = 1 << CB_RENAMED,   /* Renamed files. */
+  C_CONFLICT   = 1 << CB_CONFLICT,  /* Files having merge conflicts. */
+  C_META       = 1 << CB_META,      /* Files with metadata changes. */
+  C_UNMODIFIED = 1 << CB_UNMODIFIED,/* Unmodified files. */
+  C_EXTRA      = 1 << CB_EXTRA,     /* Unmanaged files. */
+  C_MERGE      = 1 << CB_MERGE,     /* Merge contributors. */
   C_FILTER     = C_EDITED  | C_UPDATED | C_CHANGED  | C_MISSING | C_ADDED
                | C_DELETED | C_RENAMED | C_CONFLICT | C_META    | C_UNMODIFIED
                | C_EXTRA   | C_MERGE,
   C_ALL        = C_FILTER & ~(C_CHANGED | C_EXTRA | C_MERGE),
-  C_RELPATH    = 1 << CB_RELPATH,
-  C_SHA1SUM    = 1 << CB_SHA1SUM,
-  C_HEADER     = 1 << CB_HEADER,
-  C_VERBOSE    = 1 << CB_VERBOSE,
-  C_CLASSIFY   = 1 << CB_CLASSIFY,
+  C_RELPATH    = 1 << CB_RELPATH,   /* Show relative paths. */
+  C_SHA1SUM    = 1 << CB_SHA1SUM,   /* Use SHA1 checksums not mtimes. */
+  C_HEADER     = 1 << CB_HEADER,    /* Display repository name if non-empty. */
+  C_VERBOSE    = 1 << CB_VERBOSE,   /* Display "(none)" if empty. */
+  C_CLASSIFY   = 1 << CB_CLASSIFY,  /* Show file change types. */
   C_DEFAULT    = (C_ALL & ~C_UNMODIFIED) | C_MERGE | C_CLASSIFY,
+  C_FATAL      = (1 << CB_FATAL) | C_MISSING, /* Fail on MISSING/NOT_A_FILE. */
+  C_COMMENT    = 1 << CB_COMMENT,   /* Precede each line with "# ". */
 };
 
 /*
-** Generate text describing all changes.  Prepend zPrefix to each line
-** of output.
+** Generate text describing all changes.
 **
 ** We assume that vfile_check_signature has been run.
-**
-** If missingIsFatal is true, then any files that are missing or which
-** are not true files results in a fatal error.
 */
 static void status_report(
   Blob *report,          /* Append the status report here */
-  const char *zPrefix,   /* Prefix on each line of the report */
-  int missingIsFatal,    /* MISSING and NOT_A_FILE are fatal errors */
-  int cwdRelative        /* Report relative to the current working dir */
+  unsigned flags         /* Filter and other configuration flags */
 ){
   Stmt q;
-  int nPrefix = strlen(zPrefix);
   int nErr = 0;
   Blob rewrittenPathname;
   Blob where;
@@ -109,83 +105,124 @@ static void status_report(
   blob_zero(&rewrittenPathname);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zPathname = db_column_text(&q,0);
-    const char *zDisplayName = zPathname;
+    const char *zClass = 0;
     int isDeleted = db_column_int(&q, 1);
     int isChnged = db_column_int(&q,2);
     int isNew = db_column_int(&q,3)==0;
     int isRenamed = db_column_int(&q,4);
     int isLink = db_column_int(&q,5);
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
-    if( cwdRelative ){
-      file_relative_name(zFullName, &rewrittenPathname, 0);
-      zDisplayName = blob_str(&rewrittenPathname);
-      if( zDisplayName[0]=='.' && zDisplayName[1]=='/' ){
-        zDisplayName += 2;  /* no unnecessary ./ prefix */
-      }
-    }
-    blob_append(report, zPrefix, nPrefix);
-    if( isDeleted ){
-      blob_appendf(report, "DELETED    %s\n", zDisplayName);
-    }else if( !file_wd_isfile_or_link(zFullName) ){
+    int isMissing = !file_wd_isfile_or_link(zFullName);
+
+    /* Determine the file change classification, if any. */
+    if( (flags & C_DELETED) && isDeleted ){
+      zClass = "DELETED";
+    }else if( (flags & C_MISSING) && isMissing ){
       if( file_access(zFullName, F_OK)==0 ){
-        blob_appendf(report, "NOT_A_FILE %s\n", zDisplayName);
-        if( missingIsFatal ){
-          fossil_warning("not a file: %s", zDisplayName);
+        zClass = "NOT_A_FILE";
+        if( flags & C_FATAL ){
+          fossil_warning("not a file: %s", zFullName);
           nErr++;
         }
       }else{
-        blob_appendf(report, "MISSING    %s\n", zDisplayName);
-        if( missingIsFatal ){
-          fossil_warning("missing file: %s", zDisplayName);
+        zClass = "MISSING";
+        if( flags & C_FATAL ){
+          fossil_warning("missing file: %s", zFullName);
           nErr++;
         }
       }
-    }else if( isNew ){
-      blob_appendf(report, "ADDED      %s\n", zDisplayName);
-    }else if( isChnged ){
-      if( isChnged==2 ){
-        blob_appendf(report, "UPDATED_BY_MERGE %s\n", zDisplayName);
-      }else if( isChnged==3 ){
-        blob_appendf(report, "ADDED_BY_MERGE %s\n", zDisplayName);
-      }else if( isChnged==4 ){
-        blob_appendf(report, "UPDATED_BY_INTEGRATE %s\n", zDisplayName);
-      }else if( isChnged==5 ){
-        blob_appendf(report, "ADDED_BY_INTEGRATE %s\n", zDisplayName);
-      }else if( isChnged==6 ){
-        blob_appendf(report, "EXECUTABLE %s\n", zDisplayName);
-      }else if( isChnged==7 ){
-        blob_appendf(report, "SYMLINK    %s\n", zDisplayName);
-      }else if( isChnged==8 ){
-        blob_appendf(report, "UNEXEC     %s\n", zDisplayName);
-      }else if( isChnged==9 ){
-        blob_appendf(report, "UNLINK     %s\n", zDisplayName);
-      }else if( !isLink && file_contains_merge_marker(zFullName) ){
-        blob_appendf(report, "CONFLICT   %s\n", zDisplayName);
-      }else{
-        blob_appendf(report, "EDITED     %s\n", zDisplayName);
+    }else if( (flags & C_ADDED) && isNew ){
+      zClass = "ADDED";
+    }else if( (flags & C_UPDATED) && isChnged==2 ){
+      zClass = "UPDATED_BY_MERGE";
+    }else if( (flags & C_ADDED) && isChnged==3 ){
+      zClass = "ADDED_BY_MERGE";
+    }else if( (flags & C_UPDATED) && isChnged==4 ){
+      zClass = "UPDATED_BY_INTEGRATE";
+    }else if( (flags & C_ADDED) && isChnged==5 ){
+      zClass = "ADDED_BY_INTEGRATE";
+    }else if( (flags & C_META) && isChnged==6 ){
+      zClass = "EXECUTABLE";
+    }else if( (flags & C_META) && isChnged==7 ){
+      zClass = "SYMLINK";
+    }else if( (flags & C_META) && isChnged==8 ){
+      zClass = "UNEXEC";
+    }else if( (flags & C_META) && isChnged==9 ){
+      zClass = "UNLINK";
+    }else if( (flags & C_CONFLICT) && isChnged && !isLink
+           && file_contains_merge_marker(zFullName) ){
+      zClass = "CONFLICT";
+    }else if( (flags & C_EDITED) && isChnged ){
+      zClass = "EDITED";
+    }else if( (flags & C_RENAMED) && isRenamed ){
+      zClass = "RENAMED";
+    }else if( (flags & C_UNMODIFIED) && !isDeleted && !isMissing && !isNew
+                                     && !isChnged  && !isRenamed ){
+      /* TODO: never gets executed because query only yields modified files. */
+      zClass = "UNMODIFIED";
+    }
+    /* TODO: implement C_EXTRA. */
+
+    /* Only report files for which a change classification was determined. */
+    if( zClass ){
+      /* If C_COMMENT, precede each line with "# ". */
+      if( flags & C_COMMENT ){
+        blob_append(report, "# ", 2);
       }
-    }else if( isRenamed ){
-      blob_appendf(report, "RENAMED    %s\n", zDisplayName);
-    }else{
-      report->nUsed -= nPrefix;
+
+      /* If C_CLASSIFY, include the change classification. */
+      if( flags & C_CLASSIFY ){
+        blob_appendf(report, "%-10s ", zClass);
+      }
+
+      /* Finish with the filename followed by newline. */
+      if( flags & C_RELPATH ){
+        /* If C_RELPATH, display paths relative to current directory. */
+        const char *zDisplayName;
+        file_relative_name(zFullName, &rewrittenPathname, 0);
+        zDisplayName = blob_str(&rewrittenPathname);
+        if( zDisplayName[0]=='.' && zDisplayName[1]=='/' ){
+          zDisplayName += 2;  /* no unnecessary ./ prefix */
+        }
+        blob_append(report, zDisplayName, -1);
+      }else{
+        /* If not C_RELPATH, display paths relative to project root. */
+        blob_append(report, zPathname, -1);
+      }
+      blob_append(report, "\n", 1);
     }
     free(zFullName);
   }
   blob_reset(&rewrittenPathname);
   db_finalize(&q);
-  db_prepare(&q, "SELECT uuid, id FROM vmerge JOIN blob ON merge=rid"
-                 " WHERE id<=0");
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zLabel = "MERGED_WITH ";
-    switch( db_column_int(&q, 1) ){
-      case -1:  zLabel = "CHERRYPICK ";  break;
-      case -2:  zLabel = "BACKOUT    ";  break;
-      case -4:  zLabel = "INTEGRATE  ";  break;
+
+  /* If C_MERGE, put merge contributors at the end of the report. */
+  if( flags & C_MERGE ){
+    db_prepare(&q, "SELECT uuid, id FROM vmerge JOIN blob ON merge=rid"
+                   " WHERE id<=0");
+    while( db_step(&q)==SQLITE_ROW ){
+      /* If C_COMMENT, precede each line with "# ". */
+      if( flags & C_COMMENT ){
+        blob_append(report, "# ", 2);
+      }
+
+      /* If C_CLASSIFY, include the merge type. */
+      if( flags & C_CLASSIFY ){
+        const char *zClass = "MERGED_WITH";
+        switch( db_column_int(&q, 1) ){
+          case -1: zClass = "CHERRYPICK"; break;
+          case -2: zClass = "BACKOUT"   ; break;
+          case -4: zClass = "INTEGRATE" ; break;
+        }
+        blob_appendf(report, "%-10s ", zClass);
+      }
+
+      /* Finish the line with the full SHA1 of the merge contributor. */
+      blob_append(report, db_column_text(&q, 0), -1);
+      blob_append(report, "\n", 1);
     }
-    blob_append(report, zPrefix, nPrefix);
-    blob_appendf(report, "%s%s\n", zLabel, db_column_text(&q, 0));
+    db_finalize(&q);
   }
-  db_finalize(&q);
   if( nErr ){
     fossil_fatal("aborting due to prior errors");
   }
@@ -208,23 +245,19 @@ static int determine_cwd_relative_option()
 }
 
 void print_changes(
-  int useSha1sum,     /* Verify file status using SHA1 hashing rather
-                         than relying on file mtimes. */
-  int showHdr,        /* Identify the repository if there are changes */
-  int verboseFlag,    /* Say "(none)" if there are no changes */
-  int cwdRelative     /* Report relative to the current working dir */
+  unsigned flags      /* Configuration flags */
 ){
   Blob report;
   int vid;
   blob_zero(&report);
 
   vid = db_lget_int("checkout", 0);
-  vfile_check_signature(vid, useSha1sum ? CKSIG_SHA1 : 0);
-  status_report(&report, "", 0, cwdRelative);
-  if( verboseFlag && blob_size(&report)==0 ){
+  vfile_check_signature(vid, flags & C_SHA1SUM ? CKSIG_SHA1 : 0);
+  status_report(&report, flags);
+  if( (flags & C_VERBOSE) && blob_size(&report)==0 ){
     blob_append(&report, "  (none)\n", -1);
   }
-  if( showHdr && blob_size(&report)>0 ){
+  if( (flags & C_HEADER) && blob_size(&report)>0 ){
     fossil_print("Changes for %s at %s:\n", db_get("project-name","???"),
                  g.zLocalRoot);
   }
@@ -380,8 +413,7 @@ void changes_cmd(void){
   /* We should be done with options. */
   verify_all_options();
 
-  print_changes(flags & C_SHA1SUM, flags & C_HEADER,
-                flags & C_VERBOSE, flags & C_RELPATH);
+  print_changes(flags);
 }
 
 /*
@@ -406,15 +438,22 @@ void changes_cmd(void){
 */
 void status_cmd(void){
   int vid;
-  int useSha1sum = find_option("sha1sum", 0, 0)!=0;
-  int showHdr = find_option("header",0,0)!=0;
-  int verboseFlag = find_option("verbose","v",0)!=0;
-  int cwdRelative = 0;
-  db_must_be_within_tree();
-       /* 012345678901234 */
-  cwdRelative = determine_cwd_relative_option();
+  unsigned flags = C_DEFAULT;
 
-  /* We should be done with options.. */
+  /* Check options. */
+  db_must_be_within_tree();
+  if( find_option("sha1sum", 0, 0) ){
+    flags |= C_SHA1SUM;
+  }
+  if( find_option("header", 0, 0) ){
+    flags |= C_HEADER;
+  }
+  if( find_option("verbose", "v", 0) ){
+    flags |= C_VERBOSE;
+  }
+  if( determine_cwd_relative_option() ){
+    flags |= C_RELPATH;
+  }
   verify_all_options();
 
   fossil_print("repository:   %s\n", db_repository_filename());
@@ -427,7 +466,7 @@ void status_cmd(void){
     show_common_info(vid, "checkout:", 1, 1);
   }
   db_record_repository_filename(0);
-  print_changes(useSha1sum, showHdr, verboseFlag, cwdRelative);
+  print_changes(flags);
   leaf_ambiguity_warning(vid, vid);
 }
 
@@ -1221,7 +1260,7 @@ static void prepare_commit_comment(
       blob_appendf(&prompt, "\n#\n");
     }
   }
-  status_report(&prompt, "# ", 1, 0);
+  status_report(&prompt, C_DEFAULT | C_FATAL | C_COMMENT);
   if( g.markPrivate ){
     blob_append(&prompt,
       "# PRIVATE BRANCH: This check-in will be private and will not sync to\n"
