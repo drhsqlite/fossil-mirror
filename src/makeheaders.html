@@ -14,37 +14,37 @@ files for a C or C++ programming project.
 <h2>Table Of Contents</h2>
 
 <ul>
-<li><a href=makeheaders.html#H0002>1,0 Background</a>
+<li><a href="#H0002">1,0 Background</a>
 <ul>
-<li><a href=makeheaders.html#H0003>1.1 Problems With The Traditional Approach</a>
+<li><a href="#H0003">1.1 Problems With The Traditional Approach</a>
 
-<li><a href=makeheaders.html#H0004>1.2 The Makeheaders Solution</a>
+<li><a href="#H0004">1.2 The Makeheaders Solution</a>
 </ul>
-<li><a href=makeheaders.html#H0005>2.0 Running The Makeheaders Program</a>
+<li><a href="#H0005">2.0 Running The Makeheaders Program</a>
 
-<li><a href=makeheaders.html#H0006>3.0 Preparing Source Files For Use With Makeheaders</a>
+<li><a href="#H0006">3.0 Preparing Source Files For Use With Makeheaders</a>
 <ul>
-<li><a href=makeheaders.html#H0007>3.1 The Basic Setup</a>
+<li><a href="#H0007">3.1 The Basic Setup</a>
 
-<li><a href=makeheaders.html#H0008>3.2 What Declarations Get Copied</a>
+<li><a href="#H0008">3.2 What Declarations Get Copied</a>
 
-<li><a href=makeheaders.html#H0009>3.3 How To Avoid Having To Write Any Header Files</a>
+<li><a href="#H0009">3.3 How To Avoid Having To Write Any Header Files</a>
 
-<li><a href=makeheaders.html#H0010>3.4 Designating Declarations For Export</a>
+<li><a href="#H0010">3.4 Designating Declarations For Export</a>
 
-<li><a href=makeheaders.html#H0011>3.5 Local declarations processed by makeheaders</a>
+<li><a href="#H0011">3.5 Local declarations processed by makeheaders</a>
 
-<li><a href=makeheaders.html#H0012>3.6 Using Makeheaders With C++ Code</a>
+<li><a href="#H0012">3.6 Using Makeheaders With C++ Code</a>
 
-<li><a href=makeheaders.html#H0013>3.7 Conditional Compilation</a>
+<li><a href="#H0013">3.7 Conditional Compilation</a>
 
-<li><a href=makeheaders.html#H0014>3.8 Caveats</a>
+<li><a href="#H0014">3.8 Caveats</a>
 </ul>
-<li><a href=makeheaders.html#H0015>4.0 Using Makeheaders To Generate Documentation</a>
+<li><a href="#H0015">4.0 Using Makeheaders To Generate Documentation</a>
 
-<li><a href=makeheaders.html#H0016>5.0 Compiling The Makeheaders Program</a>
+<li><a href="#H0016">5.0 Compiling The Makeheaders Program</a>
 
-<li><a href=makeheaders.html#H0017>6.0 Summary And Conclusion</a>
+<li><a href="#H0017">6.0 Summary And Conclusion</a>
 </ul><a name="H0002"></a>
 <h2>1.0 Background</h2>
 
@@ -932,6 +932,26 @@ in your code.
 </p>
 
 <p>
+Makeheaders does not support defining an enumerated or aggregate type in
+the same statement as a variable declaration.  None of the following
+statements work completely:
+<pre>
+struct {int field;} a;
+struct Tag {int field;} b;
+struct Tag c;
+</pre>
+Instead, define types separately from variables:
+<pre>
+#if INTERFACE
+struct Tag {int field;};
+#endif
+Tag b, c;
+</pre>
+See <a href="#H0008">3.2 What Declarations Get Copied</a> for details,
+including on the automatic typedef.
+</p>
+
+<p>
 Makeheaders does not understand when you define more than one
 global variable with the same type separated by a comma.
 In other words, makeheaders does not understand this:
@@ -980,6 +1000,21 @@ handle are very rare.
 As long as you avoid excessive cleverness, makeheaders will
 probably be able to figure out what you want and will do the right
 thing.
+</p>
+
+<p>
+Makeheaders has limited understanding of enums.  In particular, it does
+not realize the significance of enumerated values, so the enum is not
+emitted in the header files when its enumerated values are used unless
+the name associated with the enum is also used.  Moreover, enums can be
+completely anonymous, e.g. &#8220;<code>enum {X, Y, Z};</code>&#8221;.
+Makeheaders ignores such enums so they can at least be used within a
+single source file.  Makeheaders expects you to use #define constants
+instead.  If you want enum features that #define lacks, and you need the
+enum in the interface, bypass makeheaders and write a header file by
+hand, or teach makeheaders to emit the enum definition when any of the
+enumerated values are used, rather than only when the top-level name (if
+any) is used.
 </p>
 
 <a name="H0015"></a>
@@ -1083,3 +1118,4 @@ of programs that would have otherwise been all but impossible
 due to their size and complexity.
 </p>
 </body>
+</html>

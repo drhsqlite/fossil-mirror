@@ -1,5 +1,5 @@
-C Add\smissing\s<title>\stags\sto\sdocuments
-D 2016-11-05T16:08:22.373
+C Have\smakeheaders\signore\scompletely\sanonymous\senums\sso\sthey\scan\sbe\sused\swithin\sa\ssingle\ssource\sfile,\suseful\sfor\svalue\sautoincrementing.\s\sUpdate\sdocumentation\saccordingly.\s\sWrite\smore\sabout\smakeheaders's\slimitations\sdiscovered\swhile\sresearching\sthis\sissue.\s\sRemove\sunnecessary\sexplicit\slinks\sto\smakeheaders.html\sin\ssaid\sfile\sso\sit\scan\sbe\srenamed\swithout\sconsequence.\s\sEnsure\shref\sattributes\sare\ssurrounded\sby\squotes.\s\sAdd\smissing\s</html>\sto\send\sof\smakeheaders.html.
+D 2016-11-05T19:24:26.606
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -449,8 +449,8 @@ F src/login.c 597ae479d42096c07d6e6f85f1d844ebb46089b3
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
 F src/main.c 09bb17bd751e5509b3b21343d33645aaedc22e3a
 F src/main.mk 3bfcbade731d65f075e20edfa6f1a384eda3f566
-F src/makeheaders.c e8444028f575e84075e46cf47f2080fa6d2c2115
-F src/makeheaders.html 633291203ab16d5cd8142f0e401ff294bbf3a203
+F src/makeheaders.c cbbebae48e377db66e648af76a7aeea63c9bc523
+F src/makeheaders.html 025e5fde5e6f75d5deccba7e7c99ec5ddd7aedb3
 F src/makemake.tcl 83744f2e78fb00e945b5eb50c64fbbc551a1ba1d
 F src/manifest.c e037d26b34ec3631288032bf06fd79f188e115da
 F src/markdown.c 20bb4755f258601e4e3e5274ea117fc7c8b1ccf7
@@ -768,6 +768,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 57896771f6db8637c317e0fd095048d402064c1d
+P 26abbe3b04707bf7aaf9be6d1a31fff6ac4ba5b9
 U andygoth
-Z 88980bb8cdc0df4754604b237c4becf7
+Z 35daefdcc6c81cfed8db59d38535d738
