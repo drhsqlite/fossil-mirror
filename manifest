@@ -1,5 +1,5 @@
-C Add\stimeline\srel\squery\sstring\sand\schange\sr=TAG\sto\sbe\san\salias\sfor\st=TAG&rel\sso\sthat\srelated\scan\sbe\sa\scheckbox\sand\sthe\stag\sfilter\stext\sentry\scan\swork\swhether\sor\snot\srelated\sis\schecked.\s\sThis\saddresses\sissues\s(2)\sand\s(3).
-D 2016-11-05T05:18:23.918
+C Add\sfossil_strndup()\sfunction\sto\sduplicate\sa\sstring\sthat\sis\snot\snecessarily\sNUL-terminated
+D 2016-11-05T05:45:31.850
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -423,7 +423,7 @@ F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
-F src/import.c 34fdde348dfe12827ebdb76a5b023a09b990345d
+F src/import.c 52e37698299310f2ef58aaba7dd732f1f62622a5
 F src/info.c 445ac6eca158f49fd3a89f91bf1c096516b9fa82
 F src/json.c dc2c7f146357683da2842cc84eb78a73221a80ba
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
@@ -769,6 +769,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1c511cd9e6362bf04041f1b4d4a6efe5d5b1f2dd
+P 90057326f4ea86ca4f9728f5469ae578fa502488
 U andygoth
-Z 7244945e252133f59ce58f4693e7e1ea
+Z c121cd5e1b5d83748e08fbfef8b01597

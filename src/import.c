@@ -78,14 +78,22 @@ static struct {
 /*
 ** Duplicate a string.
 */
-char *fossil_strdup(const char *zOrig){
+char *fossil_strndup(const char *zOrig, int len){
   char *z = 0;
   if( zOrig ){
-    int n = strlen(zOrig);
+    int n;
+    if( len<0 ){
+      n = strlen(zOrig);
+    }else{
+      for( n=0; zOrig[n] && n<len; ++n );
+    }
     z = fossil_malloc( n+1 );
     memcpy(z, zOrig, n+1);
   }
   return z;
+}
+char *fossil_strdup(const char *zOrig){
+  return fossil_strndup(zOrig, -1);
 }
 
 /*
