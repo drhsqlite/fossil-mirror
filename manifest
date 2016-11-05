@@ -1,5 +1,5 @@
-C Change\shelp\sindex\scommand\slist\sfrom\sseven\scolumns\sto\ssix\sto\sbetter\smatch\sthe\swidths\sof\sthe\sother\slists\spresented\son\sthe\spage
-D 2016-11-05T14:31:40.546
+C Fix\sminor\stypo\sin\scomment
+D 2016-11-05T14:55:30.708
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -461,7 +461,7 @@ F src/merge.c 3da95cdecb4812fbe7ee547b5fce430f3278a023
 F src/merge3.c be0896e3e4e51262349d0f09e35e70d140659572
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
-F src/mkindex.c de461460ec90577c1824c9a312da3d8157873bbb
+F src/mkindex.c 40d42dd8b2e5c29de3a769bd5ee7b22b778c4354
 F src/mkversion.c d76e0e3c04966bb61a23ff7140fa37867c06bd50
 F src/moderate.c 2540f90b20778a4d62156a3b4af962b401d4c89f
 F src/name.c 268277644abeb05a3dfa67faaaaeb3dade4c1a1f
@@ -769,6 +769,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 37e8c173a64601aa99dc3e933c3f0036c8fc1959
+P 2f61357426caf3b2f168c5902ea935cdf5a3b9d7
 U andygoth
-Z f814a8915b78d90b8fda7d0a7c6ef5e8
+Z ea7c619e79ac1dc2a25823f53190b605
