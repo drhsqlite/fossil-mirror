@@ -235,7 +235,7 @@ void help_page(void){
   const char *zCmd = P("cmd");
 
   if( zCmd==0 ) zCmd = P("name");
-  if( zCmd ){
+  if( zCmd && *zCmd ){
     int rc;
     const CmdOrPage *pCmd = 0;
 
