@@ -1517,7 +1517,7 @@ static int commit_warning(
       }
       if( !fHasNul && fHasLong ){
         zWarning = "long lines";
-        zConvert = ""; /* We cannot convert binary files. */
+        zConvert = ""; /* We cannot convert overlong lines. */
       }else{
         zWarning = "binary data";
         zConvert = ""; /* We cannot convert binary files. */
