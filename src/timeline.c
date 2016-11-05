@@ -1226,17 +1226,17 @@ static void addFileGlobDescription(
 **
 ** Query parameters:
 **
-**    a=TIMEORTAG    after this event
-**    b=TIMEORTAG    before this event
-**    c=TIMEORTAG    "circa" this event
-**    m=TIMEORTAG    mark this event
-**    n=COUNT        suggested number of events in output
-**    p=CHECKIN      parents and ancestors of CHECKIN
-**    d=CHECKIN      descendants of CHECIN
+**    a=TIMEORTAG    After this event
+**    b=TIMEORTAG    Before this event
+**    c=TIMEORTAG    "Circa" this event
+**    m=TIMEORTAG    Mark this event
+**    n=COUNT        Suggested number of events in output
+**    p=CHECKIN      Parents and ancestors of CHECKIN
+**    d=CHECKIN      Descendants of CHECIN
 **    dp=CHECKIN     The same as d=CHECKIN&p=CHECKIN
-**    t=TAG          show only check-ins with the given TAG
-**    r=TAG          show check-ins related to TAG
-**    u=USER         only show items associated with USER
+**    t=TAG          Show only check-ins with the given TAG
+**    r=TAG          Show check-ins related to TAG
+**    u=USER         Only show items associated with USER
 **    y=TYPE         'ci', 'w', 't', 'e', or (default) 'all'
 **    ng             No Graph.
 **    nd             Do not highlight the focus check-in
@@ -1247,16 +1247,18 @@ static void addFileGlobDescription(
 **    shortest         ... show only the shortest path
 **    uf=FILE_SHA1   Show only check-ins that contain the given file version
 **    chng=GLOBLIST  Show only check-ins that involve changes to a file whose
-**                     name matches one of the comma-separate GLOBLIST.
+**                     name matches one of the comma-separate GLOBLIST
 **    brbg           Background color from branch name
 **    ubg            Background color from user
 **    namechng       Show only check-ins that have filename changes
 **    forks          Show only forks and their children
-**    ym=YYYY-MM     Show only events for the given year/month.
+**    ym=YYYY-MM     Show only events for the given year/month
 **    yw=YYYY-WW     Show only events for the given week of the given year
 **    ymd=YYYY-MM-DD Show only events on the given day
 **    datefmt=N      Override the date format
 **    bisect         Show the check-ins that are in the current bisect
+**    showid         Show RIDs
+**    showsql        Show the SQL text
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
