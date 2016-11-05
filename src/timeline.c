@@ -1276,14 +1276,19 @@ static const char *tagQuote(
 ** In addition to assembling and returning an SQL expression, this function
 ** makes an English-language description of the patterns being matched, suitable
 ** for display in the web interface.
+**
+** If any errors arise during processing, *zError is set to an error message.
+** Otherwise it is set to NULL.
 */
 static const char *tagMatchExpression(
   MatchStyle matchStyle,        /* Match style code */
   const char *zTag,             /* Tag name, match pattern, or pattern list */
-  const char **zDesc            /* Output expression description string */
+  const char **zDesc,           /* Output expression description string */
+  const char **zError           /* Output error string */
 ){
   Blob expr = BLOB_INITIALIZER; /* SQL expression string assembly buffer */
   Blob desc = BLOB_INITIALIZER; /* English description of match patterns */
+  Blob err = BLOB_INITIALIZER;  /* Error text assembly buffer */
   const char *zStart;           /* Text at start of expression */
   const char *zDelimiter;       /* Text between expression terms */
   const char *zEnd;             /* Text at end of expression */
@@ -1291,6 +1296,7 @@ static const char *tagMatchExpression(
   const char *zSuffix;          /* Text after each match pattern */
   const char *zIntro;           /* Text introducing pattern description */
   const char *zPattern = 0;     /* Previous quoted pattern */
+  const char *zFail = 0;        /* Current failure message or NULL if okay */
   const char *zOr = " or ";     /* Text before final quoted pattern */
   char cDel;                    /* Input delimiter character */
   int i;                        /* Input match pattern length counter */
@@ -1330,6 +1336,7 @@ static const char *tagMatchExpression(
   /* Convert the list of matches into an SQL expression and text description. */
   blob_zero(&expr);
   blob_zero(&desc);
+  blob_zero(&err);
   while( 1 ){
     /* Skip leading delimiters. */
     for( ; fossil_isspace(*zTag) || *zTag==','; ++zTag );
@@ -1360,26 +1367,46 @@ static const char *tagMatchExpression(
       }
     }
 
-    /* Incorporate the match word into the output expression.  The %q format is
-     * used to protect against SQL injection attacks by replacing ' with ''. */
-    blob_appendf(&expr, "%s%s%#q%s", blob_size(&expr) ? zDelimiter : zStart,
-        zPrefix, i, zTag, zSuffix);
+    /* Check for regular expression syntax errors. */
+    if( matchStyle==MS_REGEXP ){
+      ReCompiled *regexp;
+      char *zTagDup = fossil_strndup(zTag, i);
+      zFail = re_compile(&regexp, zTagDup, 0);
+      re_free(regexp);
+      fossil_free(zTagDup);
+    }
 
-    /* Build up the description string. */
-    if( !blob_size(&desc) ){
-      /* First tag: start with intro followed by first quoted tag. */
-      blob_append(&desc, zIntro, -1);
-      blob_append(&desc, tagQuote(i, zTag), -1);
-    }else{
-      if( zPattern ){
-        /* Third and subsequent tags: append comma then previous tag. */
-        blob_append(&desc, ", ", 2);
-        blob_append(&desc, zPattern, -1);
-        zOr = ", or ";
+    /* Process success and error results. */
+    if( !zFail ){
+      /* Incorporate the match word into the output expression.  %q is used to
+       * protect against SQL injection attacks by replacing ' with ''. */
+      blob_appendf(&expr, "%s%s%#q%s", blob_size(&expr) ? zDelimiter : zStart,
+          zPrefix, i, zTag, zSuffix);
+
+      /* Build up the description string. */
+      if( !blob_size(&desc) ){
+        /* First tag: start with intro followed by first quoted tag. */
+        blob_append(&desc, zIntro, -1);
+        blob_append(&desc, tagQuote(i, zTag), -1);
+      }else{
+        if( zPattern ){
+          /* Third and subsequent tags: append comma then previous tag. */
+          blob_append(&desc, ", ", 2);
+          blob_append(&desc, zPattern, -1);
+          zOr = ", or ";
+        }
+
+        /* Second and subsequent tags: store quoted tag for next iteration. */
+        zPattern = tagQuote(i, zTag);
       }
-
-      /* Second and subsequent tags: store quoted tag for next iteration. */
-      zPattern = tagQuote(i, zTag);
+    }else{
+      /* On error, skip the match word and build up the error message buffer. */
+      if( !blob_size(&err) ){
+        blob_append(&err, "Error: ", 7);
+      }else{
+        blob_append(&err, ", ", 2);
+      }
+      blob_appendf(&err, "(%s%s: %s)", zIntro, tagQuote(i, zTag), zFail);
     }
 
     /* Advance past all consumed input characters. */
@@ -1395,6 +1422,9 @@ static const char *tagMatchExpression(
     blob_append(&desc, zPattern, -1);
   }
   *zDesc = blob_str(&desc);
+
+  /* Finalize and extract the error text. */
+  *zError = blob_size(&err) ? blob_str(&err) : 0;
 
   /* Finalize and extract the SQL expression. */
   if( blob_size(&expr) ){
@@ -1445,6 +1475,8 @@ static const char *tagMatchExpression(
 **    ymd=YYYY-MM-DD Show only events on the given day
 **    datefmt=N      Override the date format
 **    bisect         Show the check-ins that are in the current bisect
+**    showid         Show RIDs
+**    showsql        Show the SQL text
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
@@ -1471,6 +1503,7 @@ void page_timeline(void){
   const char *zMatchStyle = P("ms"); /* Tag/branch match style string */
   MatchStyle matchStyle = MS_EXACT;  /* Match style code */
   const char *zMatchDesc = 0;        /* Tag match expression description text */
+  const char *zError = 0;            /* Tag match error string */
   const char *zTagSql = 0;           /* Tag/branch match SQL expression */
   const char *zSearch = P("s");      /* Search string */
   const char *zUses = P("uf");       /* Only show check-ins hold this file */
@@ -1566,7 +1599,7 @@ void page_timeline(void){
     style_submenu_checkbox("rel", "Related", 0);
 
     /* Construct the tag match expression. */
-    zTagSql = tagMatchExpression(matchStyle, zTagName, &zMatchDesc);
+    zTagSql = tagMatchExpression(matchStyle, zTagName, &zMatchDesc, &zError);
   }
 
   if( zMark && zMark[0]==0 ){
@@ -1978,7 +2011,7 @@ void page_timeline(void){
       blob_appendf(&desc, " by user %h", zUser);
       tmFlags |= TIMELINE_DISJOINT;
     }
-    if( zTagName ){
+    if( zTagSql ){
       if( matchStyle==MS_EXACT ){
         if( related ){
           blob_appendf(&desc, " related to %h", zMatchDesc);
@@ -2072,6 +2105,12 @@ void page_timeline(void){
   db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby DESC /*scan*/");
   @ <h2>%b(&desc)</h2>
   blob_reset(&desc);
+
+  /* Report any errors. */
+  if( zError ){
+    @ <p class="generalError">%h(zError)</p>
+  }
+
   www_print_timeline(&q, tmFlags, zThisUser, zThisTag, selectedRid, 0);
   db_finalize(&q);
   if( zOlderButton ){
