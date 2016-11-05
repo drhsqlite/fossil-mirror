@@ -1,5 +1,5 @@
-C Check\sregular\sexpressions\sfor\serrors.\s\sAdd\serror\sreporting\smechanism.\s\sLeave\sbad\spatterns\sout\sof\sfilter.\s\sAdd\sshowid\sand\sshowsql\sto\stimeline\shelp\stext.
-D 2016-11-05T05:51:29.838
+C Merge\strunk
+D 2016-11-05T06:42:48.894
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -470,7 +470,7 @@ F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c 2f9b97dad4267f3b5a9e89e14b711f326cb3f3a0
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c 12190004957ae20b0573cfc59bbfa2ab944031e7
+F src/printf.c fc5ca1598de3cc7b866d46addc53fcaf25e289ae
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c ed44773c93e570dd0dd018e9829c1e3e5ec40cf1
 F src/rebuild.c 517bb76c3345dd611d83ec342c6b5ab3492e91a2
@@ -491,7 +491,7 @@ F src/sqlite3.h b611401d36917e3ea68281a59001f68c5e09488c
 F src/stash.c 99687142f3b88d25d5da94d29cd5dfa637a9e65d
 F src/stat.c 86a3c90545d6cc6bab30c4c428f90f15d1644721
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
-F src/style.c 4e44d56bd91025f537651f399bfcdb047314d0d1
+F src/style.c 0f0eb38236afff120443ce12209c328c4b3574ec
 F src/sync.c 9cc2947ef0f1ef73bd9fb1fa7291dd5df2c03ce9
 F src/tag.c 51ad45af7d7b43965072627c874ba10702356ddc
 F src/tar.c 8cfe3f2ef83784ed5644b3a9c4cd4d85f1096a38
@@ -503,14 +503,14 @@ F src/th_tcl.c 2b70a8da7d7d8009794d7a3565043c8933a6cbfe
 F src/timeline.c 19aa71fa6e3bea8e589932314da09db4c600bc3e
 F src/tkt.c b0fcc26bf2f1acc84b147e242170a1b8c8c68449
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
-F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
+F src/translate.c 33b65539a12abd079a57972b78e0d532831cefd9
 F src/undo.c d3cca342dd73eaec65e352d978e8f7a9e75a5ddd
 F src/unicode.c 49d229135beb3cba5a58013dfda577fa51ab96ee
 F src/unversioned.c 0069fb1ab275c35747159ec8ab5ddbb537306399
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c 1d31844a9e48e2ab515586bf54ecc4b30b47d5b5
-F src/utf8.c bdabea0d93a24eacd31f0f0600edda8af3ce2e19
+F src/utf8.c 9f458b9698fc928cc21e375538f268651d1d22a2
 F src/util.c 9a3cc502aa6ae3bc19831e5f553cd346ec154b5c
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
 F src/vfile.c ff3436988a5bd8aefc2180b7f04ea2d1ef8bfaa2
@@ -769,6 +769,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b98776679e613d1a85dd2150e4b991f4ab654c7d
+P 5703ccb2e078ff0695f541bae31bd50a57966819 9c211011190bde9aeaac04040d41ac8c637c2e49
 U andygoth
-Z ef65533eb11e742a37dbe6de00f5ddbc
+Z e423b2ce2baea132396fe61216adc33d
