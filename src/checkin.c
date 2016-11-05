@@ -34,7 +34,7 @@ enum {
   /* Bitmask values. */
   C_EDITED     = 1 << CB_EDITED,
   C_UPDATED    = 1 << CB_UPDATED,
-  C_CHANGED    = 1 << CB_CHANGED, /* Resembles CB_EDITED|CB_UPDATED. */
+  C_CHANGED    = 1 << CB_CHANGED, /* Becomes CB_EDITED|CB_UPDATED. */
   C_MISSING    = 1 << CB_MISSING,
   C_ADDED      = 1 << CB_ADDED,
   C_DELETED    = 1 << CB_DELETED,
