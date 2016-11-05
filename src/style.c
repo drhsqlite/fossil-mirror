@@ -547,68 +547,61 @@ void style_footer(void){
       }
       switch( aSubmenuCtrl[i].eType ){
         case FF_ENTRY:
-          cgi_printf(
-             "<span class='submenuctrl'>"
-             "&nbsp;%h<input type='text' name='%s' value='%h'%s",
-             aSubmenuCtrl[i].zLabel, zQPN, PD(zQPN, ""), zDisabled
-          );
+          @ <span class='submenuctrl'>\
+          @ &nbsp;%h(aSubmenuCtrl[i].zLabel)\
+          @ <input type='text' name='%s(zQPN)' value='%h(PD(zQPN, ""))' \
           if( aSubmenuCtrl[i].iSize<0 ){
-             cgi_printf(" size='%d'", -aSubmenuCtrl[i].iSize);
+            @ size='%d(-aSubmenuCtrl[i].iSize)' \
           }else if( aSubmenuCtrl[i].iSize>0 ){
-             cgi_printf(
-                " size='%d' maxlength='%d'",
-                aSubmenuCtrl[i].iSize, aSubmenuCtrl[i].iSize
-             );
+            @ size='%d(aSubmenuCtrl[i].iSize)' \
+            @ maxlength='%d(aSubmenuCtrl[i].iSize)' \
           }
-          @ onchange='gebi("f01").submit();'></span>
+          @ onchange='gebi("f01").submit();'%s(zDisabled)></span>
           break;
         case FF_MULTI: {
           int j;
           const char *zVal = P(zQPN);
           if( aSubmenuCtrl[i].zLabel ){
-            cgi_printf("&nbsp;%h", aSubmenuCtrl[i].zLabel);
+            @ &nbsp;%h(aSubmenuCtrl[i].zLabel)\
           }
-          cgi_printf(
-             "<select class='submenuctrl' size='1' name='%s'%s "
-             "onchange='gebi(\"f01\").submit();'>\n",
-             zQPN, zDisabled
-          );
+          @ <select class='submenuctrl' size='1' name='%s(zQPN)' \
+          @ onchange='gebi("f01").submit();'%s(zDisabled)>
           for(j=0; j<aSubmenuCtrl[i].iSize*2; j+=2){
             const char *zQPV = aSubmenuCtrl[i].azChoice[j];
-            cgi_printf(
-              "<option value='%h'%s>%h</option>\n",
-              zQPV,
-              fossil_strcmp(zVal,zQPV)==0 ? " selected" : "",
-              aSubmenuCtrl[i].azChoice[j+1]
-            );
+            @ <option value='%h(zQPV)'\
+            if( fossil_strcmp(zVal, zQPV)==0 ){
+              @  selected\
+            }
+            @ >%h(aSubmenuCtrl[i].azChoice[j+1])</option>
           }
           @ </select>
           break;
         }
         case FF_BINARY: {
           int isTrue = PB(zQPN);
-          cgi_printf(
-             "<select class='submenuctrl' size='1' name='%s'%s "
-             "onchange='gebi(\"f01\").submit();'>\n",
-             zQPN, zDisabled
-          );
-          cgi_printf(
-            "<option value='1'%s>%h</option>\n",
-            isTrue ? " selected":"", aSubmenuCtrl[i].zLabel
-          );
-          cgi_printf(
-            "<option value='0'%s>%h</option>\n",
-            (!isTrue) ? " selected":"", aSubmenuCtrl[i].zFalse
-          );
+          @ <select class='submenuctrl' size='1' name='%s(zQPN)' \
+          @ onchange='gebi("f01").submit();'%s(zDisabled)>
+          @ <option value='1'\
+          if( isTrue ){
+            @  selected\
+          }
+          @ >%h(aSubmenuCtrl[i].zLabel)</option>
+          @ <option value='0'\
+          if( !isTrue ){
+            @  selected\
+          }
+          @ >%h(aSubmenuCtrl[i].zFalse)</option>
           @ </select>
           break;
         }
         case FF_CHECKBOX:
-          cgi_printf(
-            "<label class='submenuctrl'><input type='checkbox' name='%s' "
-            "value='1'%s%s onchange='gebi(\"f01\").submit();'>%s</label>\n",
-            zQPN, PB(zQPN) ? " checked" : "", zDisabled, aSubmenuCtrl[i].zLabel
-          );
+          @ <label class='submenuctrl'>\
+          @ <input type='checkbox' name='%s(zQPN)' value='1' \
+          if( PB(zQPN) ){
+            @ checked \
+          }
+          @ onchange='gebi("f01").submit();'%s(zDisabled)>\
+          @ %h(aSubmenuCtrl[i].zLabel)</label>
           break;
       }
     }
