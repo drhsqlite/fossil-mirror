@@ -602,9 +602,8 @@ void style_footer(void){
         }
         case FF_CHECKBOX:
           cgi_printf(
-            "<label class='submenuctrl'><input type='checkbox' "
-            "class='submenuctrl' name='%s' value='1'%s%s "
-            "onchange='gebi(\"f01\").submit();'>%s</label>\n",
+            "<label class='submenuctrl'><input type='checkbox' name='%s' "
+            "value='1'%s%s onchange='gebi(\"f01\").submit();'>%s</label>\n",
             zQPN, PB(zQPN) ? " checked" : "", zDisabled, aSubmenuCtrl[i].zLabel
           );
           break;
