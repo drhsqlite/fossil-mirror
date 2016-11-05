@@ -10,6 +10,7 @@
 # This file is included by primary Makefile.
 #
 
+XBCC = $(BCC) $(BCCFLAGS) $(CFLAGS)
 XTCC = $(TCC) -I. -I$(SRCDIR) -I$(OBJDIR) $(TCCFLAGS) $(CFLAGS)
 
 
@@ -453,22 +454,22 @@ $(OBJDIR):
 	-mkdir $(OBJDIR)
 
 $(OBJDIR)/translate:	$(SRCDIR)/translate.c
-	$(BCC) -o $(OBJDIR)/translate $(SRCDIR)/translate.c
+	$(XBCC) -o $(OBJDIR)/translate $(SRCDIR)/translate.c
 
 $(OBJDIR)/makeheaders:	$(SRCDIR)/makeheaders.c
-	$(BCC) -o $(OBJDIR)/makeheaders $(SRCDIR)/makeheaders.c
+	$(XBCC) -o $(OBJDIR)/makeheaders $(SRCDIR)/makeheaders.c
 
 $(OBJDIR)/mkindex:	$(SRCDIR)/mkindex.c
-	$(BCC) -o $(OBJDIR)/mkindex $(SRCDIR)/mkindex.c
+	$(XBCC) -o $(OBJDIR)/mkindex $(SRCDIR)/mkindex.c
 
 $(OBJDIR)/mkbuiltin:	$(SRCDIR)/mkbuiltin.c
-	$(BCC) -o $(OBJDIR)/mkbuiltin $(SRCDIR)/mkbuiltin.c
+	$(XBCC) -o $(OBJDIR)/mkbuiltin $(SRCDIR)/mkbuiltin.c
 
 $(OBJDIR)/mkversion:	$(SRCDIR)/mkversion.c
-	$(BCC) -o $(OBJDIR)/mkversion $(SRCDIR)/mkversion.c
+	$(XBCC) -o $(OBJDIR)/mkversion $(SRCDIR)/mkversion.c
 
 $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
-	$(BCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
+	$(XBCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
 
 # Run the test suite.
 # Other flags that can be included in TESTFLAGS are:
