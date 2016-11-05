@@ -35,7 +35,7 @@
 const unsigned char *builtin_file(const char *zFilename, int *piSize){
   int lwr, upr, i, c;
   lwr = 0;
-  upr = count(aBuiltinFiles)/ - 1;
+  upr = count(aBuiltinFiles) - 1;
   while( upr>=lwr ){
     i = (upr+lwr)/2;
     c = strcmp(aBuiltinFiles[i].zName,zFilename);

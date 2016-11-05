@@ -1,5 +1,5 @@
-C Implement\sstyle_submenu_checkbox().\s\sChange\s"unhide"\sto\sa\scheckbox\sso\sit\scan\sbe\scancelled\swithout\sediting\sthe\sURL\sby\shand.\s\sUpdate\sskins\sto\ssupport\suse\sof\s<label>\stag.\s\sRemove\sredundant\s"if"\scheck\sin\sstyle.c.\s\sCheckbox\sstyling\scan\scertainly\sbe\simproved,\sbut\sthis\sis\sa\sstart.
-D 2016-11-05T02:29:55.440
+C Correct\sbuiltin\stext\scapability,\sbroken\sby\stypo\sin\s[e5b62edb28]
+D 2016-11-05T02:48:23.417
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -382,7 +382,7 @@ F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c 831a63c8c61dbfdb5fe629a473cd7b01104478fc
 F src/branch.c c83c24f35c20a6bf3cc4c45e0bcedf988a23a49c
 F src/browse.c 07842987fe54ee95b1c3df5c73788dc2dd16265c
-F src/builtin.c 5e4346edb264950d94b4a7112eebdfbe6bdd8d36
+F src/builtin.c d147d04305aa0db964ec84ef049e8e88d134de87
 F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
@@ -769,6 +769,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6327b026a866ace35f3f529b5e8f354c17c3f6db
+P 8d880f0bb43cfb3a2d07c6b9bfdee575e2d6e48d
 U andygoth
-Z 6f4494224ee81ca2dca80018563f9b47
+Z fdba7c95a7fafeba81154ff85c391abf
