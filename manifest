@@ -1,5 +1,5 @@
-C Add\sTODO:\sreimplement\sls\sand\sextras\sin\sterms\sof\sstatus_report()
-D 2016-11-05T22:41:55.041
+C Merge\sthe\sstatus\scommand\sinto\sthe\schanges\scommand.
+D 2016-11-05T23:11:36.709
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -387,7 +387,7 @@ F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c d19016a93cd959a9a45817057b911d9e4b333dfd
-F src/checkin.c 38f761ebb8e499a16549d87617bd8ce7fe1ce716
+F src/checkin.c 9815e1f1a8762507b71bae748c94ab69dbcf24ab
 F src/checkout.c 083ec4f2ccd7d9df27dbb94d90008088eb8c4340
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
@@ -768,6 +768,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2408fd1c2cb56cdf618bb3a5d8a534df611cf7ed
+P 442a3cd5e56bcc514c7bf8bd344910b5dfaa7914
 U andygoth
-Z dce7f59c092bb361b7ecc739b6ff4d67
+Z d7a9b6d860818469b888377d5a1cfea9

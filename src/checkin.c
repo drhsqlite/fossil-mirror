@@ -268,10 +268,17 @@ void print_changes(
 
 /*
 ** COMMAND: changes
+** COMMAND: status
 **
-** Usage: %fossil changes ?OPTIONS?
+** Usage: %fossil changes|status ?OPTIONS?
 **
 ** Report the change status of files in the current checkout.
+**
+** The status command is similar to the changes command, except it lacks
+** several of the options supported by changes and it has its own header
+** and footer information.  The header information is a subset of that
+** shown by the info command, and the footer shows if there are any forks.
+** Change type classification is always enabled for the status command.
 **
 ** Each line of output is the name of a changed file, with paths shown
 ** according to the "relative-paths" setting, unless overridden by the
@@ -313,6 +320,8 @@ void print_changes(
 **                      directory.
 **    --sha1sum         Verify file status using SHA1 hashing rather than
 **                      relying on file mtimes.
+**
+** Options specific to the changes command:
 **    --header          Identify the repository if report is non-empty.
 **    -v|--verbose      Say "(none)" if the change report is empty.
 **    --classify        Start each line with the file's change type.
@@ -334,25 +343,26 @@ void print_changes(
 **    --merge           Display merge contributors.
 **    --no-merge        Do not display merge contributors.
 **
-** See also: extras, ls, status
+** See also: extras, ls
 */
-void changes_cmd(void){
+void status_cmd(void){
   /* Affirmative and negative flag option tables. */
   static const struct {
     const char *option;
     unsigned mask;
+    int changesOnly;
   } flagDefs[] = {
-    {"edited"  , C_EDITED  }, {"updated"    , C_UPDATED   },
-    {"changed" , C_CHANGED }, {"missing"    , C_MISSING   },
-    {"added"   , C_ADDED   }, {"deleted"    , C_DELETED   },
-    {"renamed" , C_RENAMED }, {"conflict"   , C_CONFLICT  },
-    {"meta"    , C_META    }, {"unmodified" , C_UNMODIFIED},
-    {"all"     , C_ALL     }, {"extra"      , C_EXTRA     },
-    {"merge"   , C_MERGE   }, {"sha1sum"    , C_SHA1SUM   },
-    {"header"  , C_HEADER  }, {"v"          , C_VERBOSE   },
-    {"verbose" , C_VERBOSE }, {"classify"   , C_CLASSIFY  },
+    {"edited"  , C_EDITED , 0}, {"updated"    , C_UPDATED   , 0},
+    {"changed" , C_CHANGED, 0}, {"missing"    , C_MISSING   , 0},
+    {"added"   , C_ADDED  , 0}, {"deleted"    , C_DELETED   , 0},
+    {"renamed" , C_RENAMED, 0}, {"conflict"   , C_CONFLICT  , 0},
+    {"meta"    , C_META   , 0}, {"unmodified" , C_UNMODIFIED, 0},
+    {"all"     , C_ALL    , 0}, {"extra"      , C_EXTRA     , 0},
+    {"merge"   , C_MERGE  , 0}, {"sha1sum"    , C_SHA1SUM   , 0},
+    {"header"  , C_HEADER , 1}, {"v"          , C_VERBOSE   , 1},
+    {"verbose" , C_VERBOSE, 1}, {"classify"   , C_CLASSIFY  , 1},
   }, noFlagDefs[] = {
-    {"no-merge", C_MERGE   }, {"no-classify", C_CLASSIFY  },
+    {"no-merge", C_MERGE  , 0}, {"no-classify", C_CLASSIFY  , 1},
   };
 
 #ifdef FOSSIL_DEBUG
@@ -363,12 +373,14 @@ void changes_cmd(void){
   };
 #endif
 
+  int changes = g.argv[1][0]=='c';
   unsigned flags = 0;
-  int i;
+  int vid, i;
 
   /* Load affirmative flag options. */
   for( i=0; i<count(flagDefs); ++i ){
-    if( find_option(flagDefs[i].option, 0, 0) ){
+    if( (!flagDefs[i].changesOnly || changes)
+     && find_option(flagDefs[i].option, 0, 0) ){
       flags |= flagDefs[i].mask;
     }
   }
@@ -382,18 +394,21 @@ void changes_cmd(void){
    * Having one filter means flags masked by C_FILTER is a power of two.  If a
    * number masked by one less than itself is zero, it's either zero or a power
    * of two.  It's already known to not be zero because of the above defaults.
-   * Unlike --all, --changed is a single filter, i.e. it sets only one bit. */
-  if( flags & (flags-1) & C_FILTER ){
+   * Unlike --all, --changed is a single filter, i.e. it sets only one bit.
+   * Also force classification for the status command. */
+  if( !changes || (flags & (flags-1) & C_FILTER) ){
     flags |= C_CLASSIFY;
   }
 
   /* Negative flag options override defaults applied above. */
   for( i=0; i<count(noFlagDefs); ++i ){
-    if( find_option(noFlagDefs[i].option, 0, 0) ){
+    if( (!noFlagDefs[i].changesOnly || changes)
+     && find_option(noFlagDefs[i].option, 0, 0) ){
       flags &= ~noFlagDefs[i].mask;
     }
   }
 
+  /* Confirm current working directory is within checkout. */
   db_must_be_within_tree();
 
   /* Relative path flag determination is done by a shared function. */
@@ -413,61 +428,27 @@ void changes_cmd(void){
   /* We should be done with options. */
   verify_all_options();
 
+  /* The status command prints general information before the change list. */
+  if( !changes ){
+    vid = db_lget_int("checkout", 0);
+    fossil_print("repository:   %s\n", db_repository_filename());
+    fossil_print("local-root:   %s\n", g.zLocalRoot);
+    if( g.zConfigDbName ){
+      fossil_print("config-db:    %s\n", g.zConfigDbName);
+    }
+    if( vid ){
+      show_common_info(vid, "checkout:", 1, 1);
+    }
+    db_record_repository_filename(0);
+  }
+
+  /* Print all requested changes. */
   print_changes(flags);
-}
 
-/*
-** COMMAND: status
-**
-** Usage: %fossil status ?OPTIONS?
-**
-** Report on the status of the current checkout.
-**
-** Pathnames are displayed according to the "relative-paths" setting,
-** unless overridden by the --abs-paths or --rel-paths options.
-**
-** Options:
-**
-**    --abs-paths       Display absolute pathnames.
-**    --rel-paths       Display pathnames relative to the current working
-**                      directory.
-**    --sha1sum         Verify file status using SHA1 hashing rather
-**                      than relying on file mtimes.
-**
-** See also: changes, extras, ls
-*/
-void status_cmd(void){
-  int vid;
-  unsigned flags = C_DEFAULT;
-
-  /* Check options. */
-  db_must_be_within_tree();
-  if( find_option("sha1sum", 0, 0) ){
-    flags |= C_SHA1SUM;
+  /* The status command ends with warnings about ambiguous leaves (forks). */
+  if( !changes ){
+    leaf_ambiguity_warning(vid, vid);
   }
-  if( find_option("header", 0, 0) ){
-    flags |= C_HEADER;
-  }
-  if( find_option("verbose", "v", 0) ){
-    flags |= C_VERBOSE;
-  }
-  if( determine_cwd_relative_option() ){
-    flags |= C_RELPATH;
-  }
-  verify_all_options();
-
-  fossil_print("repository:   %s\n", db_repository_filename());
-  fossil_print("local-root:   %s\n", g.zLocalRoot);
-  if( g.zConfigDbName ){
-    fossil_print("config-db:    %s\n", g.zConfigDbName);
-  }
-  vid = db_lget_int("checkout", 0);
-  if( vid ){
-    show_common_info(vid, "checkout:", 1, 1);
-  }
-  db_record_repository_filename(0);
-  print_changes(flags);
-  leaf_ambiguity_warning(vid, vid);
 }
 
 /*
