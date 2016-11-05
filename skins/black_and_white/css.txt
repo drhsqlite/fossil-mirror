@@ -108,12 +108,12 @@ div.submenu, div.sectionmenu {
   color: #333;
 }
 div.submenu a, div.submenu a:visited, div.sectionmenu>a.button:link,
-div.sectionmenu>a.button:visited {
+div.sectionmenu>a.button:visited, div.submenu label {
   padding: 3px 10px 3px 10px;
   color: #333;
   text-decoration: none;
 }
-div.submenu a:hover, div.sectionmenu>a.button:hover {
+div.submenu a:hover, div.sectionmenu>a.button:hover, div.submenu label:hover {
   color: #eee;
   background-color: #333;
 }

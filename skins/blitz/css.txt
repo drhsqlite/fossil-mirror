@@ -896,7 +896,7 @@ td:last-child {
   margin: 0 0 0 5px;
 }
 
-.submenu a {
+.submenu a, .submenu label {
     color: #3b5c6b;
     padding: 5px 15px;
     text-decoration: none;
@@ -904,7 +904,7 @@ td:last-child {
     border-radius: 5px;
 }
 
-.submenu a:hover {
+.submenu a:hover, .submenu label:hover {
     border: 1px solid #ccc;
 }
 

@@ -1,5 +1,5 @@
-C Use\slinenoise\sfor\sfossil\sshell.\s\sDo\snot\sbother\swith\spersistent\shistory.
-D 2016-11-04T23:57:42.707
+C Implement\sstyle_submenu_checkbox().\s\sChange\s"unhide"\sto\sa\scheckbox\sso\sit\scan\sbe\scancelled\swithout\sediting\sthe\sURL\sby\shand.\s\sUpdate\sskins\sto\ssupport\suse\sof\s<label>\stag.\s\sRemove\sredundant\s"if"\scheck\sin\sstyle.c.\s\sCheckbox\sstyling\scan\scertainly\sbe\simproved,\sbut\sthis\sis\sa\sstart.
+D 2016-11-05T02:29:55.440
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -315,13 +315,13 @@ F setup/fossil.iss 57e01e1feb0198de025417c0a98f1d4b1c444f53
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
 F skins/README.md a32271fe6907cc4c0cabb9d24c1dab16b89dbc64
 F skins/aht/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
-F skins/black_and_white/css.txt 569f06d046846930594299a1e38714b50e0c74a7
+F skins/black_and_white/css.txt bb0fc1aa0f0c1a78d9ab79c3852d94e706728188
 F skins/black_and_white/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/black_and_white/footer.txt d20c3ed17ceccc1ad865c4fa50375d197e79f877
 F skins/black_and_white/header.txt c74f3b8cfefae2e763d8f117dbd20e90c6dba33d
 F skins/blitz/README.md 2b86027936aa1ed69d0ccc413868aa886cacb45f
 F skins/blitz/arrow_project.png 2b2958e36ec7fe54836ab50d6c194789461463d0
-F skins/blitz/css.txt 888be7a1b8f078ebee3b4e35b39c98d00bf20109
+F skins/blitz/css.txt d31d6a2f0d4610207c0102f7b45513fbe27bf331
 F skins/blitz/details.txt 1260bc474e730cd32e4e86f7a346e22a1268cc8f
 F skins/blitz/dir.png 4a210b2afb16584e6093478f77025da7e7b83a57
 F skins/blitz/file.png 0d20b3bee95152a6358e1878a9bb07cc6a0f975d
@@ -333,43 +333,43 @@ F skins/blitz/header.txt 14ad6c45e2eb7e4664f362663e699e52a6e26bce
 F skins/blitz/rss_20.png 7d659cf7e4378d16198ddd4e984b4073e1fac901
 F skins/blitz/ticket.txt b35ac95d03bb2da2f10634bb16cb7bdc67062b2b
 F skins/blitz_no_logo/README.md 24829897e941d1cef4f8b8d6291c86d9cfe17cd7
-F skins/blitz_no_logo/css.txt 448d28510e35b9628e5a64fac981464a17bf0d9b
+F skins/blitz_no_logo/css.txt eedf21c8df6594857c9b9669891993d12d5e8186
 F skins/blitz_no_logo/details.txt 1260bc474e730cd32e4e86f7a346e22a1268cc8f
 F skins/blitz_no_logo/footer.txt 01dbe68ed144e0069da9c73b0583bad3fba499ca
 F skins/blitz_no_logo/header.txt fdfffc2be91c2d45f410e953337fa2aa55c58b96
 F skins/blitz_no_logo/ticket.txt b35ac95d03bb2da2f10634bb16cb7bdc67062b2b
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
-F skins/default/css.txt 3644519916de6a497cbda2baac0bd4abdbdce038
+F skins/default/css.txt 99d5b76d532171529a0685039d21fc11d7ff8a21
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 08d0faa91486f46764a30312e86b2aa990880d43
 F skins/default/header.txt 382e13d2c8147320bb3598611f4625638f7694ad
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
-F skins/eagle/css.txt b57649b60d60efa2697e07a3523ec9016df527a0
+F skins/eagle/css.txt 118047e984cfa320cab4a0d485bb63777dbe642e
 F skins/eagle/details.txt 9515535a2768af2990a6a3aa0fbbcb628a36670b
 F skins/eagle/footer.txt aa1df77925557f81892b672362cef0705dafef2f
 F skins/eagle/header.txt abb29288da0af34b3877b4b1e135e5db5cc77532
-F skins/enhanced1/css.txt 8ec40ceed5434186d4264607c2b4acca6a1a1249
+F skins/enhanced1/css.txt e7c642d607fb6a1972e61b6c02e830f72af3c8b9
 F skins/enhanced1/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/enhanced1/footer.txt aa1df77925557f81892b672362cef0705dafef2f
 F skins/enhanced1/header.txt 4f57da29b372156822ccd2dfbe1f7420c1c3b429
-F skins/khaki/css.txt 2a210e3703806e09e04a739eb9877a4b953528e7
+F skins/khaki/css.txt 024309415d269c585b6dc6b84de07c72786e3525
 F skins/khaki/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/khaki/footer.txt d20c3ed17ceccc1ad865c4fa50375d197e79f877
 F skins/khaki/header.txt 609fe1dd9dd3afdfe2777ce207a2012cb36c3f64
-F skins/original/css.txt 8ec40ceed5434186d4264607c2b4acca6a1a1249
+F skins/original/css.txt e7c642d607fb6a1972e61b6c02e830f72af3c8b9
 F skins/original/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/original/footer.txt 08d0faa91486f46764a30312e86b2aa990880d43
 F skins/original/header.txt e1f837ff2d7bbe1cda8ca6847875491f6b5b269a
-F skins/plain_gray/css.txt 56cdc6074767d5b90116b2e39074a40ac535ba93
+F skins/plain_gray/css.txt a1a70c6c0fadd1ccd0f47c953c4ecb90ec66c355
 F skins/plain_gray/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/plain_gray/footer.txt d20c3ed17ceccc1ad865c4fa50375d197e79f877
 F skins/plain_gray/header.txt dc58123dc4ae1714dea231d69f3dcf25308fe83a
-F skins/rounded1/css.txt cf2b6d826f72710f06de8e4ba9c11954d545f884
+F skins/rounded1/css.txt e6bc2c73b02ce115eaaf525eff63e997af95233a
 F skins/rounded1/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/rounded1/footer.txt d20c3ed17ceccc1ad865c4fa50375d197e79f877
 F skins/rounded1/header.txt 90ea81c5b14e22a048e182c22769e9aa779d8752
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
-F skins/xekri/css.txt 58b9ac05ed286534ff2c65f42db230732ca5caae
+F skins/xekri/css.txt 50acf931233c8b882c57d6dbe104b5f53cc4883d
 F skins/xekri/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
@@ -491,7 +491,7 @@ F src/sqlite3.h b611401d36917e3ea68281a59001f68c5e09488c
 F src/stash.c 99687142f3b88d25d5da94d29cd5dfa637a9e65d
 F src/stat.c 86a3c90545d6cc6bab30c4c428f90f15d1644721
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
-F src/style.c e3e08b5f07e6a62da6c925986a89a88fb64ec611
+F src/style.c f8345ab469eb9d80666af55d95903eb88829cf67
 F src/sync.c 9cc2947ef0f1ef73bd9fb1fa7291dd5df2c03ce9
 F src/tag.c 51ad45af7d7b43965072627c874ba10702356ddc
 F src/tar.c 8cfe3f2ef83784ed5644b3a9c4cd4d85f1096a38
@@ -500,7 +500,7 @@ F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c d2c206646d3129f9c3ce8d432c73bfadd29b1bbb
 F src/th_tcl.c 2b70a8da7d7d8009794d7a3565043c8933a6cbfe
-F src/timeline.c 4e2264eaefc5e28743c624f4fbcf647bc512ef93
+F src/timeline.c 815b1896c9c59aadd2256ed6efe8ef448be4fd61
 F src/tkt.c b0fcc26bf2f1acc84b147e242170a1b8c8c68449
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
@@ -769,6 +769,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bbafc013aa7348f836ccdbfd0c8935dafdc2b15f
+P 6327b026a866ace35f3f529b5e8f354c17c3f6db
 U andygoth
-Z 2803ff44470b3db5bee1d30997358091
+Z 6f4494224ee81ca2dca80018563f9b47

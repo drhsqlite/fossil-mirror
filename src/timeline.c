@@ -1552,9 +1552,7 @@ void page_timeline(void){
     tmFlags |= TIMELINE_DISJOINT;
     style_submenu_binary("v","With Files","Without Files",
                          zType[0]!='a' && zType[0]!='c');
-    if( (tmFlags & TIMELINE_UNHIDE)==0 ){
-      timeline_submenu(&url, "Unhide", "unhide", "", 0);
-    }
+    style_submenu_checkbox("unhide", "Unhide", 0);
   }else{
     /* Otherwise, a timeline based on a span of time */
     int n;
@@ -1823,9 +1821,7 @@ void page_timeline(void){
         free(zDate);
       }
       if( zType[0]=='a' || zType[0]=='c' ){
-        if( (tmFlags & TIMELINE_UNHIDE)==0 ){
-          timeline_submenu(&url, "Unhide", "unhide", "", 0);
-        }
+        style_submenu_checkbox("unhide", "Unhide", 0);
       }
       style_submenu_entry("n","Max:",4,0);
       timeline_y_submenu(disableY);
