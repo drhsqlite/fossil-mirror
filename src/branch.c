@@ -352,7 +352,7 @@ static void new_brlist_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("Branches");
   style_adunit_config(ADUNIT_RIGHT_OK);
-  style_submenu_binary("colors", "Color", "B/W", 0);
+  style_submenu_checkbox("colors", "Use Branch Colors", 0);
   login_anonymous_available();
 
   db_prepare(&q, brlistQuery/*works-like:""*/);

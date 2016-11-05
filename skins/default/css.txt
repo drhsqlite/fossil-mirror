@@ -106,13 +106,13 @@ hr {
     border-bottom: 1px solid #ccc;
 }
 
-.submenu a {
+.submenu a, .submenu label {
     padding: 10px 11px;
     text-decoration:none;
     color: #777;
 }
 
-.submenu a:hover {
+.submenu a:hover, .submenu label:hover {
     padding: 6px 10px;
     border: 1px solid #ccc;
     border-radius: 5px;

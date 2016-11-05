@@ -1070,7 +1070,7 @@ static unsigned char *sbsAlignment(
     return aM;
   }
 
-  if( nRight < (sizeof(aBuf)/sizeof(aBuf[0]))-1 ){
+  if( nRight < count(aBuf)-1 ){
     pToFree = 0;
     a = aBuf;
   }else{

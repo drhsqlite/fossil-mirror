@@ -2250,7 +2250,7 @@ void render_color_chooser(
 
      { "custom",  "##" },
   };
-  int nColor = sizeof(aColor)/sizeof(aColor[0])-1;
+  int nColor = count(aColor)-1;
   int stdClrFound = 0;
   int i;
 

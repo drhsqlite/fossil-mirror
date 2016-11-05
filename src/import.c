@@ -1614,7 +1614,7 @@ void import_cmd(void){
     {"rename-rev"   , &gsvn.zRevPre, "svn-rev-", &gsvn.zRevSuf      , "", 2},
   }, *renOpt = renOpts;
   int i;
-  for( i = 0; i < sizeof(renOpts) / sizeof(*renOpts); ++i, ++renOpt ){
+  for( i = 0; i < count(renOpts); ++i, ++renOpt ){
     if( 1 << svnFlag & renOpt->format ){
       const char *zArgument = find_option(renOpt->zOpt, 0, 1);
       if( zArgument ){

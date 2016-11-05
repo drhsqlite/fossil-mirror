@@ -77,7 +77,7 @@ static const struct {
 int bisect_option(const char *zName){
   unsigned int i;
   int r = -1;
-  for(i=0; i<sizeof(aBisectOption)/sizeof(aBisectOption[0]); i++){
+  for(i=0; i<count(aBisectOption); i++){
     if( fossil_strcmp(zName, aBisectOption[i].zName)==0 ){
       char *zLabel = mprintf("bisect-%s", zName);
       char *z = db_lget(zLabel, (char*)aBisectOption[i].zDefault);
@@ -408,7 +408,7 @@ void bisect_cmd(void){
   }else if( strncmp(zCmd, "options", n)==0 ){
     if( g.argc==3 ){
       unsigned int i;
-      for(i=0; i<sizeof(aBisectOption)/sizeof(aBisectOption[0]); i++){
+      for(i=0; i<count(aBisectOption); i++){
         char *z = mprintf("bisect-%s", aBisectOption[i].zName);
         fossil_print("  %-15s  %-6s  ", aBisectOption[i].zName,
                db_lget(z, (char*)aBisectOption[i].zDefault));
@@ -418,7 +418,7 @@ void bisect_cmd(void){
     }else if( g.argc==4 || g.argc==5 ){
       unsigned int i;
       n = strlen(g.argv[3]);
-      for(i=0; i<sizeof(aBisectOption)/sizeof(aBisectOption[0]); i++){
+      for(i=0; i<count(aBisectOption); i++){
         if( strncmp(g.argv[3], aBisectOption[i].zName, n)==0 ){
           char *z = mprintf("bisect-%s", aBisectOption[i].zName);
           if( g.argc==5 ){
@@ -429,7 +429,7 @@ void bisect_cmd(void){
           break;
         }
       }
-      if( i>=sizeof(aBisectOption)/sizeof(aBisectOption[0]) ){
+      if( i>=count(aBisectOption) ){
         fossil_fatal("no such bisect option: %s", g.argv[3]);
       }
     }else{

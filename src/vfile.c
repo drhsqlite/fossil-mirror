@@ -437,7 +437,7 @@ static int is_temporary_file(const char *zName){
       return 1;
     }
     if( zName[0]!='-' ) continue;
-    for(i=0; i<sizeof(azTemp)/sizeof(azTemp[0]); i++){
+    for(i=0; i<count(azTemp); i++){
       n = (int)strlen(azTemp[i]);
       if( memcmp(azTemp[i], zName+1, n) ) continue;
       if( zName[n+1]==0 ) return 1;

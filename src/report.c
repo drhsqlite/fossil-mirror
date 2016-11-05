@@ -200,10 +200,10 @@ int report_query_authorizer(
       if( fossil_strncmp(zArg1, "fx_", 3)==0 ){
         break;
       }
-      for(i=0; i<sizeof(azAllowed)/sizeof(azAllowed[0]); i++){
+      for(i=0; i<count(azAllowed); i++){
         if( fossil_stricmp(zArg1, azAllowed[i])==0 ) break;
       }
-      if( i>=sizeof(azAllowed)/sizeof(azAllowed[0]) ){
+      if( i>=count(azAllowed) ){
         *(char**)pError = mprintf("access to table \"%s\" is restricted",zArg1);
         rc = SQLITE_DENY;
       }else if( !g.perm.RdAddr && strncmp(zArg2, "private_", 8)==0 ){
