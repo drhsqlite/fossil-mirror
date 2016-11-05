@@ -1,5 +1,5 @@
-C Remove\sextra\sclass='submenuctrl'\sfrom\scheckbox\sinput\sbecause\salready\spresent\sin\sthe\senclosing\s<label>
-D 2016-11-05T03:06:48.475
+C Cherrypick\s[2e9ac33a9a]
+D 2016-11-05T03:14:17.073
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -491,7 +491,7 @@ F src/sqlite3.h b611401d36917e3ea68281a59001f68c5e09488c
 F src/stash.c 99687142f3b88d25d5da94d29cd5dfa637a9e65d
 F src/stat.c 86a3c90545d6cc6bab30c4c428f90f15d1644721
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
-F src/style.c 607cb1443ac4c8e1b0f1c87420bffa64ae06d6d7
+F src/style.c a14b4637ca4acdb147a6771fd030d855c2ee35bc
 F src/sync.c 9cc2947ef0f1ef73bd9fb1fa7291dd5df2c03ce9
 F src/tag.c 51ad45af7d7b43965072627c874ba10702356ddc
 F src/tar.c 8cfe3f2ef83784ed5644b3a9c4cd4d85f1096a38
@@ -769,6 +769,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3a98c9b541cb567db914c6b1ae5e61514fc4f07d
+P bccaea605ccf82c7080f1980d84190a571bd4e70
+Q +2e9ac33a9ad54a8abee2d1cc86967d07c43ca9f1
 U andygoth
-Z 32b3b83d8d5fee2089129774519859e3
+Z dbf13a3e63556675e0d0556e8293cc97

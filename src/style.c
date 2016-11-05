@@ -546,19 +546,22 @@ void style_footer(void){
         cgi_tag_query_parameter(zQPN);
       }
       switch( aSubmenuCtrl[i].eType ){
-        case FF_ENTRY: {
+        case FF_ENTRY:
           cgi_printf(
              "<span class='submenuctrl'>"
-             "&nbsp;%h<input type='text' name='%s' size='%d' maxlength='%d'"
-             " value='%h'%s></span>\n",
-             aSubmenuCtrl[i].zLabel,
-             zQPN,
-             aSubmenuCtrl[i].iSize, aSubmenuCtrl[i].iSize,
-             PD(zQPN,""),
-             zDisabled
+             "&nbsp;%h<input type='text' name='%s' value='%h'%s",
+             aSubmenuCtrl[i].zLabel, zQPN, PD(zQPN, ""), zDisabled
           );
+          if( aSubmenuCtrl[i].iSize<0 ){
+             cgi_printf(" size='%d'", -aSubmenuCtrl[i].iSize);
+          }else if( aSubmenuCtrl[i].iSize>0 ){
+             cgi_printf(
+                " size='%d' maxlength='%d'",
+                aSubmenuCtrl[i].iSize, aSubmenuCtrl[i].iSize
+             );
+          }
+          @ </span>
           break;
-        }
         case FF_MULTI: {
           int j;
           const char *zVal = P(zQPN);
