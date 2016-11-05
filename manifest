@@ -1,5 +1,5 @@
-C Merge\sfork
-D 2016-11-05T05:46:31.235
+C Enhance\stranslate.c\sto\sinterpret\sbackslash\sat\sthe\send\sof\sa\scgi_printf()\s"@"\sline\sas\sa\sdirective\sto\somit\sthe\snewline
+D 2016-11-05T06:37:01.775
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -503,7 +503,7 @@ F src/th_tcl.c 2b70a8da7d7d8009794d7a3565043c8933a6cbfe
 F src/timeline.c 37db17d5b2397d23f47eda78cf4baa253f65c31b
 F src/tkt.c b0fcc26bf2f1acc84b147e242170a1b8c8c68449
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
-F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
+F src/translate.c 33b65539a12abd079a57972b78e0d532831cefd9
 F src/undo.c d3cca342dd73eaec65e352d978e8f7a9e75a5ddd
 F src/unicode.c 49d229135beb3cba5a58013dfda577fa51ab96ee
 F src/unversioned.c 0069fb1ab275c35747159ec8ab5ddbb537306399
@@ -769,6 +769,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 476fe9e932f0113314db87ed9c20d73c7f335d1f e5b53f15cb6c32d768d978e2700fbed580ee792f
+P 3cb9ba4de68923d05c850c714c093c8406e1d10d
 U andygoth
-Z 55dbbb7c140a8116f6cb2c98cb972f39
+Z bced1f2f449d23c57ec1375ea31119eb
