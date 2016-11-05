@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env tclsh
 #
 # Run this TCL script to generate a WIKI page that contains a
 # permuted index of the various documentation files.
@@ -84,13 +84,13 @@ set stopwords {fossil and a in of on the to are about used by for or}
 foreach {file title} $doclist {
   set n [llength $title]
   regsub -all {\s+} $title { } title
-  lappend permindex [list $title $file]
+  lappend permindex [list $title $file 1]
   for {set i 0} {$i<$n-1} {incr i} {
     set prefix [lrange $title 0 $i]
     set suffix [lrange $title [expr {$i+1}] end]
     set firstword [string tolower [lindex $suffix 0]]
     if {[lsearch $stopwords $firstword]<0} {
-      lappend permindex [list "$suffix &mdash; $prefix" $file]
+      lappend permindex [list "$suffix &mdash; $prefix" $file 0]
     }
   }
 }
@@ -120,7 +120,8 @@ book</a>
 <h2>Permuted Index:</h2>
 <ul>}
 foreach entry $permindex {
-  foreach {title file} $entry break
+  foreach {title file bold} $entry break
+  if {$bold} {set title <b>$title</b>}
   if {[string match /* $file]} {set file ../../..$file}
   puts $out "<li><a href=\"$file\">$title</a></li>"
 }
