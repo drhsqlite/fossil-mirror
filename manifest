@@ -1,5 +1,5 @@
-C Correct\sbuiltin\stext\scapability,\sbroken\sby\stypo\sin\s[e5b62edb28]
-D 2016-11-05T02:48:23.417
+C Change\s"v"\s(files)\soption\sfrom\sa\sbinary\ssubmenu\sto\sa\scheckbox,\smove\sto\sthe\sright\sof\sthe\sunhide\scheckbox\sso\sthe\scheckboxes\sare\sgrouped\stogether
+D 2016-11-05T03:00:40.836
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -500,7 +500,7 @@ F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c d2c206646d3129f9c3ce8d432c73bfadd29b1bbb
 F src/th_tcl.c 2b70a8da7d7d8009794d7a3565043c8933a6cbfe
-F src/timeline.c 815b1896c9c59aadd2256ed6efe8ef448be4fd61
+F src/timeline.c 37db17d5b2397d23f47eda78cf4baa253f65c31b
 F src/tkt.c b0fcc26bf2f1acc84b147e242170a1b8c8c68449
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
@@ -769,6 +769,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8d880f0bb43cfb3a2d07c6b9bfdee575e2d6e48d
+P 584546fe77c6d332a34d23839620dfd7eabd11b1
 U andygoth
-Z fdba7c95a7fafeba81154ff85c391abf
+Z 43c7ee0fe4e4840d29b9470ba3ad6a21

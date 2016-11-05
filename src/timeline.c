@@ -1478,8 +1478,7 @@ void page_timeline(void){
     addFileGlobExclusion(zChng, &sql);
     tmFlags |= TIMELINE_DISJOINT;
     db_multi_exec("%s", blob_sql_text(&sql));
-    style_submenu_binary("v","With Files","Without Files",
-                         zType[0]!='a' && zType[0]!='c');
+    style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c');
     blob_appendf(&desc, "%d check-ins going from ",
                  db_int(0, "SELECT count(*) FROM timeline"));
     blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h", zFrom), zFrom);
@@ -1529,10 +1528,9 @@ void page_timeline(void){
         zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", d_rid);
       }
     }
+    style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c');
     style_submenu_entry("n","Max:",4,0);
     timeline_y_submenu(1);
-    style_submenu_binary("v","With Files","Without Files",
-                         zType[0]!='a' && zType[0]!='c');
   }else if( f_rid && g.perm.Read ){
     /* If f= is present, ignore all other parameters other than n= */
     char *zUuid;
@@ -1550,9 +1548,8 @@ void page_timeline(void){
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
     blob_appendf(&desc, "%z[%S]</a>", href("%R/info/%!S", zUuid), zUuid);
     tmFlags |= TIMELINE_DISJOINT;
-    style_submenu_binary("v","With Files","Without Files",
-                         zType[0]!='a' && zType[0]!='c');
     style_submenu_checkbox("unhide", "Unhide", 0);
+    style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c');
   }else{
     /* Otherwise, a timeline based on a span of time */
     int n;
@@ -1823,10 +1820,9 @@ void page_timeline(void){
       if( zType[0]=='a' || zType[0]=='c' ){
         style_submenu_checkbox("unhide", "Unhide", 0);
       }
+      style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c');
       style_submenu_entry("n","Max:",4,0);
       timeline_y_submenu(disableY);
-      style_submenu_binary("v","With Files","Without Files",
-                           zType[0]!='a' && zType[0]!='c');
     }
     blob_zero(&cond);
   }
