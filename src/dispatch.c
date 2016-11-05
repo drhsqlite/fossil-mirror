@@ -278,11 +278,13 @@ void help_page(void){
     n = (j+6)/7;
     for(i=j=0; i<MX_COMMAND; i++){
       const char *z = aCommand[i].zName;
+      const char *zBoldOn  = aCommand[i].eCmdFlags&CMDFLAG_1ST_TIER?"<b>" :"";
+      const char *zBoldOff = aCommand[i].eCmdFlags&CMDFLAG_1ST_TIER?"</b>":"";
       if( '/'==*z || strncmp(z,"test",4)==0 ) continue;
       if( j==0 ){
         @ <td valign="top"><ul>
       }
-      @ <li><a href="%R/help?cmd=%s(z)">%s(z)</a></li>
+      @ <li><a href="%R/help?cmd=%s(z)">%s(zBoldOn)%s(z)%s(zBoldOff)</a></li>
       j++;
       if( j>=n ){
         @ </ul></td>
