@@ -942,14 +942,14 @@ static void onoff_attribute(
       iVal = iQ;
     }
   }
-  @ <input type="checkbox" name="%s(zQParm)"
+  @ <label><input type="checkbox" name="%s(zQParm)"
   if( iVal ){
     @ checked="checked"
   }
   if( disabled ){
     @ disabled="disabled"
   }
-  @ /> <b>%s(zLabel)</b>
+  @ /> <b>%s(zLabel)</b></label>
 }
 
 /*

@@ -1,5 +1,5 @@
-C Add\sexplicit\scall\sto\sform\ssubmit()\swhen\schanging\sa\stext\sentry\sso\sstyle_submenu_entry()\scan\sbe\sused\smultiple\stimes\sper\spage
-D 2016-11-05T03:19:55.918
+C Use\s<label>\sto\sconnect\ssetup\scheckboxes\swith\stheir\slabel\stext\sso\seither\sthe\scheckbox\sor\sthe\slabel\scan\sbe\sclicked\son,\salso\smakes\sthe\scheckbox\shighlight\swhen\sthe\smouse\shovers\son\sthe\slabel
+D 2016-11-05T03:24:44.913
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -479,7 +479,7 @@ F src/report.c 58deb9570018fd69d63fb797eb60e2f904a727ed
 F src/rss.c 09319f9b1c1b31cf4c6340f6ce36c0ba0d1f8fb0
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c f8f9ec5bcd61107bdc929e75ad34b4f5f6577f0d
-F src/setup.c 3496b62a0333583d5de296ecf04abdb1b48502e2
+F src/setup.c 2d807dd6722ea73a8be13afe66a194cdc1e4b5ee
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
 F src/shell.c f0e8b54c58a8a13cc046f5af6d72de7e0a118a2b
 F src/shun.c 1f8bcfcd826c3b574cd6e723f7afcbeff33ff443
@@ -769,6 +769,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2dd295344e346e520ae4384cebedac266c7c6a43
+P 2929d5fced0909b5183fa83f584e2560ee857baa
 U andygoth
-Z 50b875e74a882629b77d663e63236fa3
+Z ca8aefa73953e7a3c0ffb8dde83914bb
