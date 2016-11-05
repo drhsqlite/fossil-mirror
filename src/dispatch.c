@@ -362,7 +362,7 @@ void help_page(void){
 */
 void test_all_help_page(void){
   int i;
-  style_header("Testpage: All Help Text");
+  style_header("All Help Text");
   for(i=0; i<MX_COMMAND; i++){
     if( memcmp(aCommand[i].zName, "test", 4)==0 ) continue;
     @ <h2>%s(aCommand[i].zName):</h2>

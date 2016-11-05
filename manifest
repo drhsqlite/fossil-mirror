@@ -1,5 +1,5 @@
-C Replace\sShow/Hide\sCookies\sin\stest_env\spage\swith\sa\scheckbox
-D 2016-11-05T14:04:21.201
+C Remove\s"Testpage:"\sfrom\stitle\sof\sall-in-one\shelp\stext\spage
+D 2016-11-05T14:07:10.941
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -406,7 +406,7 @@ F src/descendants.c 979ee1f63a5838cfc9b8d064a8fd05d804bf97aa
 F src/diff.c 4019cd9a2c6cc4c63f327a214f7bce10b55d95d9
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 961503775818c035aede0b36bf751a843b4eab30
-F src/dispatch.c 2d6e1392c07595a60efaf0dae21bf69818711355
+F src/dispatch.c 584c81f87a56d5f319ee299853f03499dbdf7198
 F src/doc.c bae142c1df13fbaba1af814e0ee398670d366547
 F src/encode.c 80397c10bdc7351dce17013bfe5258ae15c3365f
 F src/event.c 021db025691a859a49751f255a0a065bca728444
@@ -769,6 +769,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b6a824eccbef579878c95f5b63d6034b79795e83
+P 7814e9b59ba289754f5dcbc9515315dd8c845c75
 U andygoth
-Z c942079d131f7103d60d52311d25547e
+Z 54acb80e7e341863f6425696ec37e0fa
