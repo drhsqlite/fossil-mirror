@@ -1,5 +1,5 @@
-C Make\smkindex.tcl\sdirectly\sexecutable
-D 2016-11-05T15:39:56.179
+C Update\spermuted\sindex\sto\sshow\snon-permuted\sitems\sin\sbold
+D 2016-11-05T15:40:38.399
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -738,10 +738,10 @@ F www/index.wiki 37506c18202051284c6145efeb9a7579e5f9497c
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki c66d24da0948da2025a79968522f78aa03055df5
 F www/mkdownload.tcl 3d0050f9c20d49fb23bfc43500fe53d834bea297
-F www/mkindex.tcl 5b7c52ed5359d0d7bf701b3973dc249236a7121a x
+F www/mkindex.tcl 88dace667f0edb24d02ff72ac2e9f984a203b31a x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
-F www/permutedindex.html 2190e7f8be7f6e1045f40c566431e61a4edfdfbd
+F www/permutedindex.html 6730a289b96de5a6610572c8df9d71a890cb83c1
 F www/pop.wiki ff0cb27232ea75a378adfc643cfde2b284342a24
 F www/private.wiki 1c55c09563361db73b733386dc0fd6689156d5ab
 F www/qandc.wiki a36aa53c4aa1f7bd05348543fa0152406fc73919
@@ -769,6 +769,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 839eca1842c2af687abbdfbc04ff356dbc8b4059
+P 419a3c3e48ad82e28b7a3649a4c3b575633a5b5d
 U andygoth
-Z cc38b8d6b16cfb9636f71af31f0dbb60
+Z 7974c4d13656a8591bc70808a7e05b07
