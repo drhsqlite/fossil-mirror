@@ -80,7 +80,10 @@ set doclist {
 }
 
 set permindex {}
-set stopwords {fossil and a in of on the to are about used by for or}
+set stopwords {
+   a about against and are as by for fossil from in of on or should the to use
+   used with
+}
 foreach {file title} $doclist {
   set n [llength $title]
   regsub -all {\s+} $title { } title
