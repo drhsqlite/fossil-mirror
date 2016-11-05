@@ -726,10 +726,11 @@ const struct strctCssDefaults {
     @   vertical-align: top;
     @   text-align: left;
   },
-  { "tr.timelineCurrent td.timelineTableCell",
+  { "tr.timelineCurrent",
     "the format for the timeline data cell of the current checkout",
     @   padding: .1em .2em;
     @   border: 1px dashed #446979;
+    @   box-shadow: 1px 1px 4px #888;
   },
   { "tr.timelineSelected",
     "The row in the timeline table that contains the entry of interest",
