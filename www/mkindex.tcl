@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env tclsh
 #
 # Run this TCL script to generate a WIKI page that contains a
 # permuted index of the various documentation files.
