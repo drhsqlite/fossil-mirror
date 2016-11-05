@@ -218,7 +218,7 @@ void page_timeline_rss(void){
 }
 
 /*
-** COMMAND: rss
+** COMMAND: rss*
 **
 ** Usage: %fossil rss ?OPTIONS?
 **

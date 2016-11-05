@@ -235,10 +235,11 @@ void help_page(void){
   const char *zCmd = P("cmd");
 
   if( zCmd==0 ) zCmd = P("name");
-  style_header("Command-line Help");
-  if( zCmd ){
+  if( zCmd && *zCmd ){
     int rc;
     const CmdOrPage *pCmd = 0;
+
+    style_header("Help: %s", zCmd);
 
     style_submenu_element("Command-List", "%s/help", g.zTop);
     if( *zCmd=='/' ){
@@ -265,6 +266,8 @@ void help_page(void){
   }else{
     int i, j, n;
 
+    style_header("Help");
+
     @ <h1>Available commands:</h1>
     @ <table border="0"><tr>
     for(i=j=0; i<MX_COMMAND; i++){
@@ -272,14 +275,16 @@ void help_page(void){
       if( '/'==*z || strncmp(z,"test",4)==0 ) continue;
       j++;
     }
-    n = (j+6)/7;
+    n = (j+5)/6;
     for(i=j=0; i<MX_COMMAND; i++){
       const char *z = aCommand[i].zName;
+      const char *zBoldOn  = aCommand[i].eCmdFlags&CMDFLAG_1ST_TIER?"<b>" :"";
+      const char *zBoldOff = aCommand[i].eCmdFlags&CMDFLAG_1ST_TIER?"</b>":"";
       if( '/'==*z || strncmp(z,"test",4)==0 ) continue;
       if( j==0 ){
         @ <td valign="top"><ul>
       }
-      @ <li><a href="%R/help?cmd=%s(z)">%s(z)</a></li>
+      @ <li><a href="%R/help?cmd=%s(z)">%s(zBoldOn)%s(z)%s(zBoldOff)</a></li>
       j++;
       if( j>=n ){
         @ </ul></td>
@@ -362,7 +367,7 @@ void help_page(void){
 */
 void test_all_help_page(void){
   int i;
-  style_header("Testpage: All Help Text");
+  style_header("All Help Text");
   for(i=0; i<MX_COMMAND; i++){
     if( memcmp(aCommand[i].zName, "test", 4)==0 ) continue;
     @ <h2>%s(aCommand[i].zName):</h2>
@@ -404,7 +409,7 @@ void cmd_test_webpage_list(void){
   int i, nCmd;
   const char *aCmd[MX_COMMAND];
   for(i=nCmd=0; i<MX_COMMAND; i++){
-    if(0x08 & aCommand[i].eCmdFlags){
+    if(CMDFLAG_WEBPAGE & aCommand[i].eCmdFlags){
       aCmd[nCmd++] = aCommand[i].zName;
     }
   }

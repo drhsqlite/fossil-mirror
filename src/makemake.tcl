@@ -257,6 +257,7 @@ writeln {#
 # This file is included by primary Makefile.
 #
 
+XBCC = $(BCC) $(BCCFLAGS) $(CFLAGS)
 XTCC = $(TCC) -I. -I$(SRCDIR) -I$(OBJDIR) $(TCCFLAGS) $(CFLAGS)
 
 }
@@ -300,22 +301,22 @@ $(OBJDIR):
 	-mkdir $(OBJDIR)
 
 $(OBJDIR)/translate:	$(SRCDIR)/translate.c
-	$(BCC) -o $(OBJDIR)/translate $(SRCDIR)/translate.c
+	$(XBCC) -o $(OBJDIR)/translate $(SRCDIR)/translate.c
 
 $(OBJDIR)/makeheaders:	$(SRCDIR)/makeheaders.c
-	$(BCC) -o $(OBJDIR)/makeheaders $(SRCDIR)/makeheaders.c
+	$(XBCC) -o $(OBJDIR)/makeheaders $(SRCDIR)/makeheaders.c
 
 $(OBJDIR)/mkindex:	$(SRCDIR)/mkindex.c
-	$(BCC) -o $(OBJDIR)/mkindex $(SRCDIR)/mkindex.c
+	$(XBCC) -o $(OBJDIR)/mkindex $(SRCDIR)/mkindex.c
 
 $(OBJDIR)/mkbuiltin:	$(SRCDIR)/mkbuiltin.c
-	$(BCC) -o $(OBJDIR)/mkbuiltin $(SRCDIR)/mkbuiltin.c
+	$(XBCC) -o $(OBJDIR)/mkbuiltin $(SRCDIR)/mkbuiltin.c
 
 $(OBJDIR)/mkversion:	$(SRCDIR)/mkversion.c
-	$(BCC) -o $(OBJDIR)/mkversion $(SRCDIR)/mkversion.c
+	$(XBCC) -o $(OBJDIR)/mkversion $(SRCDIR)/mkversion.c
 
 $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
-	$(BCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
+	$(XBCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
 
 # Run the test suite.
 # Other flags that can be included in TESTFLAGS are:
@@ -919,6 +920,7 @@ INNOSETUP = "$(PROGRAMFILES)\Inno Setup 5\ISCC.exe"
 # STOP HERE
 # You should not need to change anything below this line
 #--------------------------------------------------------
+XBCC = $(BCC) $(CFLAGS)
 XTCC = $(TCC) $(CFLAGS) -I. -I$(SRCDIR)
 }
 writeln -nonewline "SRC ="
@@ -1015,22 +1017,22 @@ else
 endif
 
 $(TRANSLATE):	$(SRCDIR)/translate.c
-	$(BCC) -o $@ $(SRCDIR)/translate.c
+	$(XBCC) -o $@ $(SRCDIR)/translate.c
 
 $(MAKEHEADERS):	$(SRCDIR)/makeheaders.c
-	$(BCC) -o $@ $(SRCDIR)/makeheaders.c
+	$(XBCC) -o $@ $(SRCDIR)/makeheaders.c
 
 $(MKINDEX):	$(SRCDIR)/mkindex.c
-	$(BCC) -o $@ $(SRCDIR)/mkindex.c
+	$(XBCC) -o $@ $(SRCDIR)/mkindex.c
 
 $(MKBUILTIN):	$(SRCDIR)/mkbuiltin.c
-	$(BCC) -o $@ $(SRCDIR)/mkbuiltin.c
+	$(XBCC) -o $@ $(SRCDIR)/mkbuiltin.c
 
 $(MKVERSION): $(SRCDIR)/mkversion.c
-	$(BCC) -o $@ $(SRCDIR)/mkversion.c
+	$(XBCC) -o $@ $(SRCDIR)/mkversion.c
 
 $(CODECHECK1):	$(SRCDIR)/codecheck1.c
-	$(BCC) -o $@ $(SRCDIR)/codecheck1.c
+	$(XBCC) -o $@ $(SRCDIR)/codecheck1.c
 
 # WARNING. DANGER. Running the test suite modifies the repository the
 # build is done from, i.e. the checkout belongs to. Do not sync/push
@@ -1307,22 +1309,22 @@ writeln "\t+echo fossil >> \$@"
 
 writeln {
 translate$E: $(SRCDIR)\translate.c
-	$(BCC) -o$@ $**
+	$(XBCC) -o$@ $**
 
 makeheaders$E: $(SRCDIR)\makeheaders.c
-	$(BCC) -o$@ $**
+	$(XBCC) -o$@ $**
 
 mkindex$E: $(SRCDIR)\mkindex.c
-	$(BCC) -o$@ $**
+	$(XBCC) -o$@ $**
 
 mkbuiltin$E: $(SRCDIR)\mkbuiltin.c
-	$(BCC) -o$@ $**
+	$(XBCC) -o$@ $**
 
 mkversion$E: $(SRCDIR)\mkversion.c
-	$(BCC) -o$@ $**
+	$(XBCC) -o$@ $**
 
 codecheck1$E: $(SRCDIR)\codecheck1.c
-	$(BCC) -o$@ $**
+	$(XBCC) -o$@ $**
 
 $(OBJDIR)\shell$O : $(SRCDIR)\shell.c
 	$(TCC) -o$@ -c $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) $**
@@ -1829,22 +1831,22 @@ $(OX):
 	@-mkdir $@
 
 translate$E: $(SRCDIR)\translate.c
-	$(BCC) $**
+	$(XBCC) $**
 
 makeheaders$E: $(SRCDIR)\makeheaders.c
-	$(BCC) $**
+	$(XBCC) $**
 
 mkindex$E: $(SRCDIR)\mkindex.c
-	$(BCC) $**
+	$(XBCC) $**
 
 mkbuiltin$E: $(SRCDIR)\mkbuiltin.c
-	$(BCC) $**
+	$(XBCC) $**
 
 mkversion$E: $(SRCDIR)\mkversion.c
-	$(BCC) $**
+	$(XBCC) $**
 
 codecheck1$E: $(SRCDIR)\codecheck1.c
-	$(BCC) $**
+	$(XBCC) $**
 
 !if $(USE_SEE)!=0
 SQLITE3_SHELL_SRC = $(SRCDIR)\shell-see.c

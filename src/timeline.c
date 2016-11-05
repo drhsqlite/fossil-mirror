@@ -1465,12 +1465,12 @@ static const char *tagMatchExpression(
 **    shortest         ... show only the shortest path
 **    uf=FILE_SHA1   Show only check-ins that contain the given file version
 **    chng=GLOBLIST  Show only check-ins that involve changes to a file whose
-**                     name matches one of the comma-separate GLOBLIST.
+**                     name matches one of the comma-separate GLOBLIST
 **    brbg           Background color from branch name
 **    ubg            Background color from user
 **    namechng       Show only check-ins that have filename changes
 **    forks          Show only forks and their children
-**    ym=YYYY-MM     Show only events for the given year/month.
+**    ym=YYYY-MM     Show only events for the given year/month
 **    yw=YYYY-WW     Show only events for the given week of the given year
 **    ymd=YYYY-MM-DD Show only events on the given day
 **    datefmt=N      Override the date format
