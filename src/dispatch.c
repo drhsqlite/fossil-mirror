@@ -235,10 +235,11 @@ void help_page(void){
   const char *zCmd = P("cmd");
 
   if( zCmd==0 ) zCmd = P("name");
-  style_header("Help");
   if( zCmd ){
     int rc;
     const CmdOrPage *pCmd = 0;
+
+    style_header("Help: %s", zCmd);
 
     style_submenu_element("Command-List", "%s/help", g.zTop);
     if( *zCmd=='/' ){
@@ -264,6 +265,8 @@ void help_page(void){
     }
   }else{
     int i, j, n;
+
+    style_header("Help");
 
     @ <h1>Available commands:</h1>
     @ <table border="0"><tr>
