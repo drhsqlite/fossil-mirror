@@ -275,7 +275,7 @@ void help_page(void){
       if( '/'==*z || strncmp(z,"test",4)==0 ) continue;
       j++;
     }
-    n = (j+6)/7;
+    n = (j+5)/6;
     for(i=j=0; i<MX_COMMAND; i++){
       const char *z = aCommand[i].zName;
       const char *zBoldOn  = aCommand[i].eCmdFlags&CMDFLAG_1ST_TIER?"<b>" :"";
