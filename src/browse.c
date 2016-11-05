@@ -691,11 +691,11 @@ void page_tree(void){
       if( p->pChild!=0 && p->nFullName>nD ) nFile++;
     }
     zObjType = "Folders";
-    style_submenu_element("Files", "%s", url_render(&sURI,"nofiles",0,0,0));
   }else{
     zObjType = "Files";
-    style_submenu_element("Folders", "%s", url_render(&sURI,"nofiles","1",0,0));
   }
+
+  style_submenu_checkbox("nofiles", "Folders Only", 0);
 
   if( zCI ){
     @ <h2>%s(zObjType) from

@@ -1,5 +1,5 @@
-C Rework\sstyle.c\sto\suse\snew\sline\scontinuation\sfeature\sof\stranslate.c
-D 2016-11-05T06:38:01.322
+C Change\sFiles/Folders\sselection\sto\sa\sFolders\sOnly\scheckbox
+D 2016-11-05T13:57:35.776
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -381,7 +381,7 @@ F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c 831a63c8c61dbfdb5fe629a473cd7b01104478fc
 F src/branch.c 7e79edb0e04f01250e5880860934f782fdc14d58
-F src/browse.c 07842987fe54ee95b1c3df5c73788dc2dd16265c
+F src/browse.c ee98248924f9121b89a5e32bdebc8e27bdf496ca
 F src/builtin.c d147d04305aa0db964ec84ef049e8e88d134de87
 F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
@@ -769,6 +769,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e193e21be335c5e36a1303615bd5ea7e06c9edd8
+P 9c211011190bde9aeaac04040d41ac8c637c2e49
 U andygoth
-Z 3b6c25236b394f78d79e0ae7b606d0ec
+Z 1b04d90a8ea3ab8efc6c5424cd752c87
