@@ -1,5 +1,5 @@
-C Expand\slist\sof\sstopwords\sin\spermuted\sindex
-D 2016-11-05T15:49:04.092
+C Remove\scmd_.wiki-template\swhich\sis\sa\srelic\s(avoiding\sthe\spun...)\sfrom\swhen\sthe\scommands\swere\sdocumented\sas\sindividual\s/doc/cmd_*.wiki\sfiles
+D 2016-11-05T15:58:07.138
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -683,7 +683,6 @@ F www/changes.wiki 9f7490e9a5584b871b8b2bd5d646b9d87cd73ef7
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki be27496a6d2f5f6c83b5a3a1441451beabec99e1
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
-F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
 F www/concepts.wiki 01769da6d61e038c7e7811dbaf342664a8cddd5d
@@ -769,6 +768,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6311ff76047ff26c6d8b7d98a26f6918bf0f5018
+P 95bb5a24e24becbd914f9fd92af809b38387e8b9
 U andygoth
-Z e73b0c3ed1492bcd6d12bf67995b0177
+Z dccc801f7bbe71698f0083e462c8eaa1
