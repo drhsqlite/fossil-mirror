@@ -560,7 +560,7 @@ void style_footer(void){
                 aSubmenuCtrl[i].iSize, aSubmenuCtrl[i].iSize
              );
           }
-          @ ></span>
+          @ onchange='gebi("f01").submit();'></span>
           break;
         case FF_MULTI: {
           int j;

@@ -1,5 +1,5 @@
-C Add\smissing\sclose\sangle\sbracket\somitted\sby\sprevious\scommit
-D 2016-11-05T03:17:11.401
+C Add\sexplicit\scall\sto\sform\ssubmit()\swhen\schanging\sa\stext\sentry\sso\sstyle_submenu_entry()\scan\sbe\sused\smultiple\stimes\sper\spage
+D 2016-11-05T03:19:55.918
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -491,7 +491,7 @@ F src/sqlite3.h b611401d36917e3ea68281a59001f68c5e09488c
 F src/stash.c 99687142f3b88d25d5da94d29cd5dfa637a9e65d
 F src/stat.c 86a3c90545d6cc6bab30c4c428f90f15d1644721
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
-F src/style.c daeb1a4e98d7ddd3b656fd2eedee8bd074a969cd
+F src/style.c 4e44d56bd91025f537651f399bfcdb047314d0d1
 F src/sync.c 9cc2947ef0f1ef73bd9fb1fa7291dd5df2c03ce9
 F src/tag.c 51ad45af7d7b43965072627c874ba10702356ddc
 F src/tar.c 8cfe3f2ef83784ed5644b3a9c4cd4d85f1096a38
@@ -769,6 +769,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e32803bbf64c5cf9ad20ecca050c262ecf47198d
+P 2dd295344e346e520ae4384cebedac266c7c6a43
 U andygoth
-Z aa7a0626f2fe4667753ae77caddf7267
+Z 50b875e74a882629b77d663e63236fa3
