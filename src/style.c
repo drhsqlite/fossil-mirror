@@ -560,7 +560,7 @@ void style_footer(void){
                 aSubmenuCtrl[i].iSize, aSubmenuCtrl[i].iSize
              );
           }
-          @ </span>
+          @ ></span>
           break;
         case FF_MULTI: {
           int j;
