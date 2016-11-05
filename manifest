@@ -1,5 +1,5 @@
-C Use\stimeline_submenu()\sinstead\sof\sstyle_submenu_element()
-D 2016-11-04T21:39:20.670
+C diff:\sextra\sempty\slines\sin\snon-console\soutput\son\sWindows
+D 2016-11-05T04:30:10.401
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -470,7 +470,7 @@ F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c 2f9b97dad4267f3b5a9e89e14b711f326cb3f3a0
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c 2de9ca8ea140e35da05eafeb6a447a2fd4069438
+F src/printf.c d1b1b05fde451e25fae1b31e80ea383f1c2bb809
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c ed44773c93e570dd0dd018e9829c1e3e5ec40cf1
 F src/rebuild.c 517bb76c3345dd611d83ec342c6b5ab3492e91a2
@@ -510,7 +510,7 @@ F src/unversioned.c 0069fb1ab275c35747159ec8ab5ddbb537306399
 F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c 1d31844a9e48e2ab515586bf54ecc4b30b47d5b5
-F src/utf8.c bdabea0d93a24eacd31f0f0600edda8af3ce2e19
+F src/utf8.c 9f458b9698fc928cc21e375538f268651d1d22a2
 F src/util.c 9a3cc502aa6ae3bc19831e5f553cd346ec154b5c
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
 F src/vfile.c c07d515af78f82e4d8d3f8c781111d1f504fe336
@@ -769,6 +769,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 187424e891b6ccb82c387e2d706eea598aaeab4e
-U andygoth
-Z 475363f8e70ea602951a92598902792b
+P c1a77615cac26cb830beeca68125f3990eb38142
+R 36f00f4c10aae69a930c08436af363b2
+U ashepilko
+Z 41a757a89038a4f1638efb2cf3a6671e
