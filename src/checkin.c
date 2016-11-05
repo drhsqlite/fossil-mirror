@@ -23,6 +23,40 @@
 #include <assert.h>
 
 /*
+** Change filter options.
+*/
+enum {
+  /* Zero-based bit indexes. */
+  CB_EDITED , CB_UPDATED , CB_CHANGED, CB_MISSING   , CB_ADDED   , CB_DELETED,
+  CB_RENAMED, CB_CONFLICT, CB_META   , CB_UNMODIFIED, CB_EXTRA   , CB_MERGE  ,
+  CB_RELPATH, CB_SHA1SUM , CB_HEADER , CB_VERBOSE   , CB_CLASSIFY,
+
+  /* Bitmask values. */
+  C_EDITED     = 1 << CB_EDITED,
+  C_UPDATED    = 1 << CB_UPDATED,
+  C_CHANGED    = 1 << CB_CHANGED, /* Resembles CB_EDITED|CB_UPDATED. */
+  C_MISSING    = 1 << CB_MISSING,
+  C_ADDED      = 1 << CB_ADDED,
+  C_DELETED    = 1 << CB_DELETED,
+  C_RENAMED    = 1 << CB_RENAMED,
+  C_CONFLICT   = 1 << CB_CONFLICT,
+  C_META       = 1 << CB_META,
+  C_UNMODIFIED = 1 << CB_UNMODIFIED,
+  C_EXTRA      = 1 << CB_EXTRA,
+  C_MERGE      = 1 << CB_MERGE,
+  C_FILTER     = C_EDITED  | C_UPDATED | C_CHANGED  | C_MISSING | C_ADDED
+               | C_DELETED | C_RENAMED | C_CONFLICT | C_META    | C_UNMODIFIED
+               | C_EXTRA   | C_MERGE,
+  C_ALL        = C_FILTER & ~(C_CHANGED | C_EXTRA | C_MERGE),
+  C_RELPATH    = 1 << CB_RELPATH,
+  C_SHA1SUM    = 1 << CB_SHA1SUM,
+  C_HEADER     = 1 << CB_HEADER,
+  C_VERBOSE    = 1 << CB_VERBOSE,
+  C_CLASSIFY   = 1 << CB_CLASSIFY,
+  C_DEFAULT    = (C_ALL & ~C_UNMODIFIED) | C_MERGE | C_CLASSIFY,
+};
+
+/*
 ** Generate text describing all changes.  Prepend zPrefix to each line
 ** of output.
 **
@@ -221,9 +255,13 @@ void print_changes(
 **
 ** If change type classification is enabled, each output line starts with
 ** a code describing the file's change type, e.g. EDITED or RENAMED.  It
-** is enabled by default except when exactly one filter option (besides
-** --merge or --no-merge) is used.  The default can be overridden by the
-** --classify or --no-classify options.
+** is enabled by default unless exactly one change type is selected.  For
+** the purposes of determining the default, --changed counts as selecting
+** one change type.  The default can be overridden by the --classify or
+** --no-classify options.
+**
+** If both --merge and --no-merge are used, --no-merge has priority.  The
+** same is true of --classify and --no-classify.
 **
 ** The "fossil changes --extra" command is equivalent to "fossil extras".
 **
@@ -257,17 +295,93 @@ void print_changes(
 ** See also: extras, ls, status
 */
 void changes_cmd(void){
-  int useSha1sum = find_option("sha1sum", 0, 0)!=0;
-  int showHdr = find_option("header",0,0)!=0;
-  int verboseFlag = find_option("verbose","v",0)!=0;
-  int cwdRelative = 0;
-  db_must_be_within_tree();
-  cwdRelative = determine_cwd_relative_option();
+  /* Affirmative and negative flag option tables. */
+  static const struct {
+    const char *option;
+    unsigned mask;
+  } flagDefs[] = {
+    {"edited"  , C_EDITED  }, {"updated"    , C_UPDATED   },
+    {"changed" , C_CHANGED }, {"missing"    , C_MISSING   },
+    {"added"   , C_ADDED   }, {"deleted"    , C_DELETED   },
+    {"renamed" , C_RENAMED }, {"conflict"   , C_CONFLICT  },
+    {"meta"    , C_META    }, {"unmodified" , C_UNMODIFIED},
+    {"all"     , C_ALL     }, {"extra"      , C_EXTRA     },
+    {"merge"   , C_MERGE   }, {"sha1sum"    , C_SHA1SUM   },
+    {"header"  , C_HEADER  }, {"v"          , C_VERBOSE   },
+    {"verbose" , C_VERBOSE }, {"classify"   , C_CLASSIFY  },
+  }, noFlagDefs[] = {
+    {"no-merge", C_MERGE   }, {"no-classify", C_CLASSIFY  },
+  };
 
-  /* We should be done with options.. */
+#ifdef FOSSIL_DEBUG
+  static const char *const bits[] = {
+    "EDITED", "UPDATED", "CHANGED", "MISSING", "ADDED", "DELETED", "RENAMED",
+    "CONFLICT", "META", "UNMODIFIED", "EXTRA", "MERGE", "RELPATH", "SHA1SUM",
+    "HEADER", "VERBOSE", "CLASSIFY",
+  };
+#endif
+
+  unsigned flags = 0;
+  int i;
+
+  /* Load affirmative flag options. */
+  for( i=0; i<count(flagDefs); ++i ){
+    if( find_option(flagDefs[i].option, 0, 0) ){
+      flags |= flagDefs[i].mask;
+    }
+  }
+
+  /* If no filter options are specified, enable defaults. */
+  if( !(flags & C_FILTER) ){
+    flags |= C_DEFAULT;
+  }
+
+  /* If more than one filter is enabled, enable classification.  This is tricky.
+   * Having one filter means flags masked by C_FILTER is a power of two.  If a
+   * number masked by one less than itself is zero, it's either zero or a power
+   * of two.  It's already known to not be zero because of the above defaults.
+   * Unlike --all, at this point in the code, --changed is treated as a single
+   * filter, i.e. it only sets one bit.  If masking flags against itself less
+   * one and C_FILTER yields nonzero, it has more than one C_FILTER bit set, so
+   * classification should be turned on. */
+  if( flags & (flags-1) & C_FILTER ){
+    flags |= C_CLASSIFY;
+  }
+
+  /* Now that the --classify default is decided, convert --changed to be
+   * --edited plus --updated. */
+  if( flags & C_CHANGED ){
+    flags = (flags | C_EDITED | C_UPDATED) & ~C_CHANGED;
+  }
+
+  /* Negative flag options override defaults applied above. */
+  for( i=0; i<count(noFlagDefs); ++i ){
+    if( find_option(noFlagDefs[i].option, 0, 0) ){
+      flags &= ~noFlagDefs[i].mask;
+    }
+  }
+
+  db_must_be_within_tree();
+
+  /* Relative path flag determination is done by a shared function. */
+  if( determine_cwd_relative_option() ){
+    flags |= C_RELPATH;
+  }
+
+#ifdef FOSSIL_DEBUG
+  for( i=0; i<count(bits); ++i ){
+    if( flags & (1 << i) ){
+      printf("%s ", bits[i]);
+    }
+  }
+  printf("\n");
+#endif
+
+  /* We should be done with options. */
   verify_all_options();
 
-  print_changes(useSha1sum, showHdr, verboseFlag, cwdRelative);
+  print_changes(flags & C_SHA1SUM, flags & C_HEADER,
+                flags & C_VERBOSE, flags & C_RELPATH);
 }
 
 /*
