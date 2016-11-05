@@ -1411,18 +1411,20 @@ static const char *tagMatchExpression(
 **
 ** Query parameters:
 **
-**    a=TIMEORTAG    after this event
-**    b=TIMEORTAG    before this event
-**    c=TIMEORTAG    "circa" this event
-**    m=TIMEORTAG    mark this event
-**    n=COUNT        suggested number of events in output
-**    p=CHECKIN      parents and ancestors of CHECKIN
-**    d=CHECKIN      descendants of CHECIN
+**    a=TIMEORTAG    After this event
+**    b=TIMEORTAG    Before this event
+**    c=TIMEORTAG    "Circa" this event
+**    m=TIMEORTAG    Mark this event
+**    n=COUNT        Suggested number of events in output
+**    p=CHECKIN      Parents and ancestors of CHECKIN
+**    d=CHECKIN      Descendants of CHECIN
 **    dp=CHECKIN     The same as d=CHECKIN&p=CHECKIN
-**    t=TAG          show only check-ins with the given TAG
-**    r=TAG          show check-ins related to TAG
-**    ms=STYLE       sets tag match style to EXACT, GLOB, LIKE, REGEXP
-**    u=USER         only show items associated with USER
+**    t=TAG          Show only check-ins with the given TAG
+**    r=TAG          Show check-ins related to TAG, equivalent to t=TAG&rel
+**    rel            Show related check-ins as well as those matching t=TAG
+**    mionly         Limit rel to show ancestors but not descendants
+**    ms=STYLE       Set tag match style to EXACT, GLOB, LIKE, REGEXP
+**    u=USER         Only show items associated with USER
 **    y=TYPE         'ci', 'w', 't', 'e', or (default) 'all'
 **    ng             No Graph.
 **    nd             Do not highlight the focus check-in
@@ -1464,7 +1466,8 @@ void page_timeline(void){
   const char *zCirca = P("c");       /* Events near this time */
   const char *zMark = P("m");        /* Mark this event or an event this time */
   const char *zTagName = P("t");     /* Show events with this tag */
-  const char *zBrName = P("r");      /* Show events related to this tag */
+  const char *zBrName = P("r");      /* Equivalent to t=TAG&rel */
+  int related = PB("rel");           /* Show events related to zTagName */
   const char *zMatchStyle = P("ms"); /* Tag/branch match style string */
   MatchStyle matchStyle = MS_EXACT;  /* Match style code */
   const char *zMatchDesc = 0;        /* Tag match expression description text */
@@ -1531,42 +1534,41 @@ void page_timeline(void){
   url_initialize(&url, "timeline");
   cgi_query_parameters_to_url(&url);
 
-  /* Ignore empty tag or branch name query strings. */
+  /* Convert r=TAG to t=TAG&rel. */
+  if( zBrName && !related ){
+    cgi_delete_query_parameter("r");
+    cgi_set_query_parameter("t", zBrName);
+    cgi_set_query_parameter("rel", "1");
+    zTagName = zBrName;
+    related = 1;
+  }
+
+  /* Ignore empty tag query strings. */
   if( zTagName && !*zTagName ){
-     zTagName = 0;
-  }
-  if( zBrName && !*zBrName ){
-     zBrName = 0;
+    zTagName = 0;
   }
 
-  /* Identify the tag or branch name or match pattern. */
+  /* Finish preliminary processing of tag match queries. */
   if( zTagName ){
-    zThisTag = zTagName;
-  }else if( zBrName ){
-    zThisTag = zBrName;
-  }
-
-  /* Interpet the tag style string. */
-  if( zThisTag ){
+    /* Interpet the tag style string. */
     if( fossil_stricmp(zMatchStyle, "glob")==0 ){
       matchStyle = MS_GLOB;
     }else if( fossil_stricmp(zMatchStyle, "like")==0 ){
       matchStyle = MS_LIKE;
     }else if( fossil_stricmp(zMatchStyle, "regexp")==0 ){
       matchStyle = MS_REGEXP;
+    }else{
+      /* For exact maching, inhibit links to the selected tag. */
+      zThisTag = zTagName;
     }
+
+    /* Display a checkbox to enable/disable display of related check-ins. */
+    style_submenu_checkbox("rel", "Related", 0);
+
+    /* Construct the tag match expression. */
+    zTagSql = tagMatchExpression(matchStyle, zTagName, &zMatchDesc);
   }
 
-  /* Construct the tag match expression. */
-  if( zThisTag ){
-    zTagSql = tagMatchExpression(matchStyle, zThisTag, &zMatchDesc);
-  }
-
-  if( zTagName && g.perm.Read ){
-    timeline_submenu(&url, "Related", "r", zTagName, "t");
-  }else if( zBrName && g.perm.Read ){
-    timeline_submenu(&url, "Branch Only", "t", zBrName, "r");
-  }
   if( zMark && zMark[0]==0 ){
     if( zAfter ) zMark = zAfter;
     if( zBefore ) zMark = zBefore;
@@ -1802,7 +1804,7 @@ void page_timeline(void){
         " AND (EXISTS(SELECT 1 FROM tagxref NATURAL JOIN tag"
         " WHERE %s AND tagtype>0 AND rid=blob.rid)\n", zTagSql/*safe-for-%s*/);
 
-      if( zBrName ){
+      if( related ){
         /* The next two blob_appendf() calls add SQL that causes check-ins that
         ** are not part of the branch which are parents or children of the
         ** branch to be included in the report.  This related check-ins are
@@ -1976,17 +1978,19 @@ void page_timeline(void){
       blob_appendf(&desc, " by user %h", zUser);
       tmFlags |= TIMELINE_DISJOINT;
     }
-    if( zThisTag ){
-      if( matchStyle!=MS_EXACT ){
-        if( zTagName ){
-          blob_appendf(&desc, " with tags matching %h", zMatchDesc);
+    if( zTagName ){
+      if( matchStyle==MS_EXACT ){
+        if( related ){
+          blob_appendf(&desc, " related to %h", zMatchDesc);
         }else{
-          blob_appendf(&desc, " related to tags matching %h", zMatchDesc);
+          blob_appendf(&desc, " tagged with %h", zMatchDesc);
         }
-      }else if( zTagName ){
-        blob_appendf(&desc, " tagged with %h", zMatchDesc);
       }else{
-        blob_appendf(&desc, " related to %h", zMatchDesc);
+        if( related ){
+          blob_appendf(&desc, " related to tags matching %h", zMatchDesc);
+        }else{
+          blob_appendf(&desc, " with tags matching %h", zMatchDesc);
+        }
       }
       tmFlags |= TIMELINE_DISJOINT;
     }

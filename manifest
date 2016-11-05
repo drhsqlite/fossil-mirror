@@ -1,5 +1,5 @@
-C Add\sfunctions\sto\smodify\sand\sdelete\squery\sparameters
-D 2016-11-05T05:15:07.969
+C Add\stimeline\srel\squery\sstring\sand\schange\sr=TAG\sto\sbe\san\salias\sfor\st=TAG&rel\sso\sthat\srelated\scan\sbe\sa\scheckbox\sand\sthe\stag\sfilter\stext\sentry\scan\swork\swhether\sor\snot\srelated\sis\schecked.\s\sThis\saddresses\sissues\s(2)\sand\s(3).
+D 2016-11-05T05:18:23.918
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -500,7 +500,7 @@ F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c d2c206646d3129f9c3ce8d432c73bfadd29b1bbb
 F src/th_tcl.c 2b70a8da7d7d8009794d7a3565043c8933a6cbfe
-F src/timeline.c c0b1c8bed2713abce1968128c53290201762f67d
+F src/timeline.c 5fa8304dfcfabc3f2981b51038d9a1829321b480
 F src/tkt.c b0fcc26bf2f1acc84b147e242170a1b8c8c68449
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
@@ -769,6 +769,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3bcdc0779382af51e9c8e3be74dcceda58924e34
+P 1c511cd9e6362bf04041f1b4d4a6efe5d5b1f2dd
 U andygoth
-Z ec1d6cdde0d6ba0d10496d6ce7b407f6
+Z 7244945e252133f59ce58f4693e7e1ea
