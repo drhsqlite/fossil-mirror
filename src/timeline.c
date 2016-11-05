@@ -1236,6 +1236,7 @@ static void addFileGlobDescription(
 **    dp=CHECKIN     The same as d=CHECKIN&p=CHECKIN
 **    t=TAG          Show only check-ins with the given TAG
 **    r=TAG          Show check-ins related to TAG
+**    mionly         Limit r=TAG to show ancestors but not descendants
 **    u=USER         Only show items associated with USER
 **    y=TYPE         'ci', 'w', 't', 'e', or (default) 'all'
 **    ng             No Graph.
