@@ -162,6 +162,7 @@ static void status_report(
       zClass = "UNMODIFIED";
     }
     /* TODO: implement C_EXTRA. */
+    /* TODO: reimplement ls and extras in terms of this function. */
 
     /* Only report files for which a change classification was determined. */
     if( zClass ){
