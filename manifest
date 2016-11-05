@@ -1,5 +1,5 @@
 C Merge\strunk
-D 2016-11-05T15:53:36.945
+D 2016-11-05T19:25:20.177
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -449,8 +449,8 @@ F src/login.c 597ae479d42096c07d6e6f85f1d844ebb46089b3
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
 F src/main.c 09bb17bd751e5509b3b21343d33645aaedc22e3a
 F src/main.mk 3bfcbade731d65f075e20edfa6f1a384eda3f566
-F src/makeheaders.c e8444028f575e84075e46cf47f2080fa6d2c2115
-F src/makeheaders.html 633291203ab16d5cd8142f0e401ff294bbf3a203
+F src/makeheaders.c cbbebae48e377db66e648af76a7aeea63c9bc523
+F src/makeheaders.html 025e5fde5e6f75d5deccba7e7c99ec5ddd7aedb3
 F src/makemake.tcl 83744f2e78fb00e945b5eb50c64fbbc551a1ba1d
 F src/manifest.c e037d26b34ec3631288032bf06fd79f188e115da
 F src/markdown.c 20bb4755f258601e4e3e5274ea117fc7c8b1ccf7
@@ -683,7 +683,6 @@ F www/changes.wiki 9f7490e9a5584b871b8b2bd5d646b9d87cd73ef7
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki be27496a6d2f5f6c83b5a3a1441451beabec99e1
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
-F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
 F www/concepts.wiki 01769da6d61e038c7e7811dbaf342664a8cddd5d
@@ -738,13 +737,13 @@ F www/index.wiki 37506c18202051284c6145efeb9a7579e5f9497c
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki c66d24da0948da2025a79968522f78aa03055df5
 F www/mkdownload.tcl 3d0050f9c20d49fb23bfc43500fe53d834bea297
-F www/mkindex.tcl 732fa30853636106777df1371963bc0f292d85a4 x
+F www/mkindex.tcl bbf182af20110241e858c24ef55fcbca268f13e5 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
-F www/permutedindex.html a89c641dc44119da4408f909f785f6389c805207
-F www/pop.wiki ff0cb27232ea75a378adfc643cfde2b284342a24
+F www/permutedindex.html e2f7a7752d2527674bfe905d1e2e91cffc3e4e38
+F www/pop.wiki 331208dedd584504374f603c40c4d3f9c9352071
 F www/private.wiki 1c55c09563361db73b733386dc0fd6689156d5ab
-F www/qandc.wiki a36aa53c4aa1f7bd05348543fa0152406fc73919
+F www/qandc.wiki 699c0f79256ed025cd305cd19c5ea8fefcce40e1
 F www/quickstart.wiki c0829034683df6f985027c22ee313f6b50088bfb
 F www/quotes.wiki 6f77c1af17f05596d0f6a4cc88f149a61188ecfd
 F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
@@ -769,6 +768,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b18735fc4aca79289b3b5779a4485b996faa2dc9 95bb5a24e24becbd914f9fd92af809b38387e8b9
+P a47d79e910a9c88ba76b31b121bbc38fb8b54743 4dcfbc1c8a82ed84ffaf632ee9e4c3976f36296d
 U andygoth
-Z a48a68a11fd7e6cc0b52159ba0ab0643
+Z 19fda9a1e31abeb53f30d2ce3b1093c3

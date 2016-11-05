@@ -46,7 +46,7 @@ set doclist {
   /md_rules {Markdown Formatting Rules}
   newrepo.wiki {How To Create A New Fossil Repository}
   password.wiki {Password Management And Authentication}
-  pop.wiki {Principles Of Operations}
+  pop.wiki {Principles Of Operation}
   private.wiki {Creating, Syncing, and Deleting Private Branches}
   qandc.wiki {Questions And Criticisms}
   quickstart.wiki {Fossil Quick Start Guide}
