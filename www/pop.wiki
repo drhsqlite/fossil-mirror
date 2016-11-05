@@ -1,4 +1,5 @@
-<h1>Principles Of Operation</h1>
+﻿<title>Principles Of Operation</title>
+<h1 align="center">Principles Of Operation</h1>
 
 <p>
 This page attempts to define the foundational principals upon

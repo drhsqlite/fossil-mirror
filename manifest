@@ -1,5 +1,5 @@
-C Correct\stitle\sof\sPrinciples\sOf\sOperation\spage.\s\sPerhaps\smkindex.tcl\sshould\sbe\staught\sto\sextract\stitles\sfrom\sthe\sdocuments\sthemselves
-D 2016-11-05T16:07:54.852
+C Add\smissing\s<title>\stags\sto\sdocuments
+D 2016-11-05T16:08:22.373
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -741,9 +741,9 @@ F www/mkindex.tcl bbf182af20110241e858c24ef55fcbca268f13e5 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
 F www/permutedindex.html e2f7a7752d2527674bfe905d1e2e91cffc3e4e38
-F www/pop.wiki ff0cb27232ea75a378adfc643cfde2b284342a24
+F www/pop.wiki 331208dedd584504374f603c40c4d3f9c9352071
 F www/private.wiki 1c55c09563361db73b733386dc0fd6689156d5ab
-F www/qandc.wiki a36aa53c4aa1f7bd05348543fa0152406fc73919
+F www/qandc.wiki 699c0f79256ed025cd305cd19c5ea8fefcce40e1
 F www/quickstart.wiki c0829034683df6f985027c22ee313f6b50088bfb
 F www/quotes.wiki 6f77c1af17f05596d0f6a4cc88f149a61188ecfd
 F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
@@ -768,6 +768,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dac02c3dcc477b6061ab45513e4bff6f66dc9538
+P 57896771f6db8637c317e0fd095048d402064c1d
 U andygoth
-Z 5f1d98baa6c555dfd922b6dc6ff455c5
+Z 88980bb8cdc0df4754604b237c4becf7
