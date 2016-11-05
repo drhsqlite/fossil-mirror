@@ -1,5 +1,5 @@
-C Implement\smost\sof\sthe\snew\schanges\scommand,\sstill\sneed\sto\sdo\s--all,\s--unmodified,\sand\s--extra
-D 2016-11-05T22:22:41.145
+C Adjust\sthe\sway\s--changed\sis\simplemented.\s\sImprove\sdocumentation.\s\sAvoid\ssaying\nEDITED\sfor\sfiles\swith\sother\stypes\sof\schanges\sif\sthose\schange\stypes\swere\snot\nselected\sfor\sdisplay.
+D 2016-11-05T22:40:00.354
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -387,7 +387,7 @@ F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c d19016a93cd959a9a45817057b911d9e4b333dfd
-F src/checkin.c 070fb5553806aeee2f321b5257bc81bc5c26d0c6
+F src/checkin.c c14a3fbf9ccbfecd139ae471d565b03747612bb6
 F src/checkout.c 083ec4f2ccd7d9df27dbb94d90008088eb8c4340
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
@@ -768,6 +768,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c3f7259326c1882375cdfaaa50fc3823a06d4dc5
+P 7595bdfbf099418b7b12780563ca1be3d24fc0e3
 U andygoth
-Z 32ff398c749928b492afdf5f2c2cf22f
+Z 49ad8b04ce22c4271c719cc92501b4d0

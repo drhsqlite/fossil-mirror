@@ -35,7 +35,7 @@ enum {
   /* Bitmask values. */
   C_EDITED     = 1 << CB_EDITED,    /* Edited, merged, and conflicted files. */
   C_UPDATED    = 1 << CB_UPDATED,   /* Files updated by merge/integrate. */
-  C_CHANGED    = 1 << CB_CHANGED,   /* Becomes CB_EDITED|CB_UPDATED. */
+  C_CHANGED    = 1 << CB_CHANGED,   /* Treated the same as the above two. */
   C_MISSING    = 1 << CB_MISSING,   /* Missing and non- files. */
   C_ADDED      = 1 << CB_ADDED,     /* Added files. */
   C_DELETED    = 1 << CB_DELETED,   /* Deleted files. */
@@ -48,7 +48,7 @@ enum {
   C_FILTER     = C_EDITED  | C_UPDATED | C_CHANGED  | C_MISSING | C_ADDED
                | C_DELETED | C_RENAMED | C_CONFLICT | C_META    | C_UNMODIFIED
                | C_EXTRA   | C_MERGE,
-  C_ALL        = C_FILTER & ~(C_CHANGED | C_EXTRA | C_MERGE),
+  C_ALL        = C_FILTER & ~(C_EXTRA | C_MERGE),
   C_RELPATH    = 1 << CB_RELPATH,   /* Show relative paths. */
   C_SHA1SUM    = 1 << CB_SHA1SUM,   /* Use SHA1 checksums not mtimes. */
   C_HEADER     = 1 << CB_HEADER,    /* Display repository name if non-empty. */
@@ -133,11 +133,11 @@ static void status_report(
       }
     }else if( (flags & C_ADDED) && isNew ){
       zClass = "ADDED";
-    }else if( (flags & C_UPDATED) && isChnged==2 ){
+    }else if( (flags & (C_UPDATED | C_CHANGED)) && isChnged==2 ){
       zClass = "UPDATED_BY_MERGE";
     }else if( (flags & C_ADDED) && isChnged==3 ){
       zClass = "ADDED_BY_MERGE";
-    }else if( (flags & C_UPDATED) && isChnged==4 ){
+    }else if( (flags & (C_UPDATED | C_CHANGED)) && isChnged==4 ){
       zClass = "UPDATED_BY_INTEGRATE";
     }else if( (flags & C_ADDED) && isChnged==5 ){
       zClass = "ADDED_BY_INTEGRATE";
@@ -152,7 +152,7 @@ static void status_report(
     }else if( (flags & C_CONFLICT) && isChnged && !isLink
            && file_contains_merge_marker(zFullName) ){
       zClass = "CONFLICT";
-    }else if( (flags & C_EDITED) && isChnged ){
+    }else if( (flags & (C_EDITED | C_CHANGED)) && (isChnged<2 || isChnged>9) ){
       zClass = "EDITED";
     }else if( (flags & C_RENAMED) && isRenamed ){
       zClass = "RENAMED";
@@ -298,6 +298,14 @@ void print_changes(
 **
 ** The "fossil changes --extra" command is equivalent to "fossil extras".
 **
+** --edited and --updated produce disjoint sets.  --updated shows a file
+** only when it is identical to that of its merge contributor, and the
+** change type classification is UPDATED_BY_MERGE or UPDATED_BY_INTEGRATE.
+** If the file had to be merged with any other changes, it is considered
+** to be merged or conflicted and therefore will be shown by --edited, not
+** --updated, with types EDITED or CONFLICT.  The --changed option can be
+** used to display the union of --edited and --updated.
+**
 ** General options:
 **    --abs-paths       Display absolute pathnames.
 **    --rel-paths       Display pathnames relative to the current working
@@ -373,18 +381,9 @@ void changes_cmd(void){
    * Having one filter means flags masked by C_FILTER is a power of two.  If a
    * number masked by one less than itself is zero, it's either zero or a power
    * of two.  It's already known to not be zero because of the above defaults.
-   * Unlike --all, at this point in the code, --changed is treated as a single
-   * filter, i.e. it only sets one bit.  If masking flags against itself less
-   * one and C_FILTER yields nonzero, it has more than one C_FILTER bit set, so
-   * classification should be turned on. */
+   * Unlike --all, --changed is a single filter, i.e. it sets only one bit. */
   if( flags & (flags-1) & C_FILTER ){
     flags |= C_CLASSIFY;
-  }
-
-  /* Now that the --classify default is decided, convert --changed to be
-   * --edited plus --updated. */
-  if( flags & C_CHANGED ){
-    flags = (flags | C_EDITED | C_UPDATED) & ~C_CHANGED;
   }
 
   /* Negative flag options override defaults applied above. */
