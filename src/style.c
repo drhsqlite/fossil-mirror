@@ -1591,12 +1591,8 @@ void page_test_env(void){
   }
   for(i=0; i<count(azCgiVars); i++) (void)P(azCgiVars[i]);
   style_header("Environment Test");
-  showAll = atoi(PD("showall","0"));
-  if( !showAll ){
-    style_submenu_element("Show Cookies", "%R/test_env?showall=1");
-  }else{
-    style_submenu_element("Hide Cookies", "%R/test_env");
-  }
+  showAll = PB("showall");
+  style_submenu_checkbox("showall", "Cookies", 0);
   style_submenu_element("Stats", "%R/stat");
 
 #if !defined(_WIN32)
