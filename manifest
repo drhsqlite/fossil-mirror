@@ -1,5 +1,5 @@
-C Add\sthe\s"History"\ssection\sto\sthe\smakeheaders\sdocumentation.
-D 2016-11-05T19:51:06.381
+C Update\smakeheaders.html\sSummary\sAnd\sConclusion\schapter\snumber
+D 2016-11-05T19:58:04.097
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -450,7 +450,7 @@ F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
 F src/main.c 09bb17bd751e5509b3b21343d33645aaedc22e3a
 F src/main.mk 3bfcbade731d65f075e20edfa6f1a384eda3f566
 F src/makeheaders.c cbbebae48e377db66e648af76a7aeea63c9bc523
-F src/makeheaders.html 9636265ea013efefb0bd7f424f0699c26c0092ea
+F src/makeheaders.html 00efb5b1ca5c9f7ff490a8a4f5581212c20453b9
 F src/makemake.tcl 83744f2e78fb00e945b5eb50c64fbbc551a1ba1d
 F src/manifest.c e037d26b34ec3631288032bf06fd79f188e115da
 F src/markdown.c 20bb4755f258601e4e3e5274ea117fc7c8b1ccf7
@@ -768,7 +768,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4dcfbc1c8a82ed84ffaf632ee9e4c3976f36296d
-R 7b7a90e5604df580aba57d8d60957306
-U drh
-Z b33f82860474304016011fe843032174
+P 280981368fe7c7234e657d93ce34ad7f012de251
+U andygoth
+Z 1024dc285f3935b39bbbc36dc669a7ca
