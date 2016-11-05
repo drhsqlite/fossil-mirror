@@ -1531,10 +1531,18 @@ void page_timeline(void){
   url_initialize(&url, "timeline");
   cgi_query_parameters_to_url(&url);
 
+  /* Ignore empty tag or branch name query strings. */
+  if( zTagName && !*zTagName ){
+     zTagName = 0;
+  }
+  if( zBrName && !*zBrName ){
+     zBrName = 0;
+  }
+
   /* Identify the tag or branch name or match pattern. */
-  if( zTagName && *zTagName ){
+  if( zTagName ){
     zThisTag = zTagName;
-  }else if( zBrName && *zBrName ){
+  }else if( zBrName ){
     zThisTag = zBrName;
   }
 

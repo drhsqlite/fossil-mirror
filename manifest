@@ -1,5 +1,5 @@
-C Merge\strunk.\s\sSome\sissues\sidentified\sby\s[d4a6d3c1ec]\sare\snow\simproved.\s\s(1)\sis\sfixed,\sthough\sclicking/tabbing\soutside\sthe\sentry\sfield\salso\striggers\sa\ssubmit\swhich\smay\sprove\sannoying.\s\s(2)\sand\s(3)\sare\sstill\sbroken.\s\s(4)\sis\sbetter\sbecause\s"With/Without\sFiles"\sis\snow\sa\scheckbox\ssimply\slabeled\s"Files".\s\s(5)\sis\scloser\sto\sbeing\sfeasible,\sperhaps\sif\s"Tag\sFilter:"\sis\schanged\sto\s"Filter:".
-D 2016-11-05T03:34:48.947
+C Rework\s[98cc8782e1]\sto\smore\sthoroughly\signore\sempty\smatch\stags\sand\spatterns\sso\sthat\sthe\s"Related"\ssubmenu\sitem\sdoes\snot\sappear\sdue\sto\san\sempty\stag\sfilter\stext\sentry\sadding\s"t="\sto\sthe\squery\sstring
+D 2016-11-05T03:42:02.034
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -500,7 +500,7 @@ F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c d2c206646d3129f9c3ce8d432c73bfadd29b1bbb
 F src/th_tcl.c 2b70a8da7d7d8009794d7a3565043c8933a6cbfe
-F src/timeline.c 072a3daca4c395545f9bf3c62d669668fb540839
+F src/timeline.c c0b1c8bed2713abce1968128c53290201762f67d
 F src/tkt.c b0fcc26bf2f1acc84b147e242170a1b8c8c68449
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 144427e4ae2bfa1966f138462181d224fb86c2de
@@ -769,6 +769,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9b960af1294ee942b9aa3530d2ffbd695f104136 9036122dcb7120d43ff4f7efb81c88e316efa0c8
+P 74fe9587f86ea2cb32cbffd87f8d6a2b21d3734c
 U andygoth
-Z c9b8eb44178fb01e08e8efa5676f4cce
+Z d7a5a7698ca49a69c8d4c64e50ecd6e2
