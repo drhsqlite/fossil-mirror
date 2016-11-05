@@ -160,13 +160,13 @@ div.submenu {
   display: block;
 }
 
-div.mainmenu a, div.submenu a {
+div.mainmenu a, div.submenu a, div.submenu label {
   color: #000;
   padding: 0 0.75rem;
   text-decoration: none;
 }
 
-div.mainmenu a:hover, div.submenu a:hover {
+div.mainmenu a:hover, div.submenu a:hover, div.submenu label:hover {
   color: #fff;
   text-shadow: 0px 0px 6px #0f0;
 }

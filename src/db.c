@@ -2801,7 +2801,7 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
   int lwr, mid, upr, c;
   int n = (int)strlen(zName) + !allowPrefix;
   lwr = 0;
-  upr = ArraySize(aSetting)-2;
+  upr = count(aSetting)-2;
   while( upr>=lwr ){
     mid = (upr+lwr)/2;
     c = fossil_strncmp(zName, aSetting[mid].name, n);

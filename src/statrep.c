@@ -708,7 +708,7 @@ void stats_report_page(){
     zView = "byuser";
     cgi_replace_query_parameter("view","byuser");
   }
-  for(i=0; i<ArraySize(aViewType); i++){
+  for(i=0; i<count(aViewType); i++){
     if( fossil_strcmp(zView, aViewType[i].zVal)==0 ){
       eType = aViewType[i].eType;
       break;
@@ -716,12 +716,12 @@ void stats_report_page(){
   }
   if( eType!=RPT_NONE ){
     int nView = 0;                     /* Slots used in azView[] */
-    for(i=0; i<ArraySize(aViewType); i++){
+    for(i=0; i<count(aViewType); i++){
       azView[nView++] = aViewType[i].zVal;
       azView[nView++] = aViewType[i].zName;
     }
     if( eType!=RPT_BYFILE ){
-      style_submenu_multichoice("type", ArraySize(azType)/2, azType, 0);
+      style_submenu_multichoice("type", count(azType)/2, azType, 0);
     }
     style_submenu_multichoice("view", nView/2, azView, 0);
     if( eType!=RPT_BYUSER ){

@@ -721,7 +721,7 @@ static void process_multipart_form_data(char *z, int len){
       zName = 0;
       showBytes = 0;
     }else{
-      nArg = tokenize_line(zLine, sizeof(azArg)/sizeof(azArg[0]), azArg);
+      nArg = tokenize_line(zLine, count(azArg), azArg);
       for(i=0; i<nArg; i++){
         int c = fossil_tolower(azArg[i][0]);
         int n = strlen(azArg[i]);

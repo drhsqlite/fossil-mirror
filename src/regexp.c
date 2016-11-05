@@ -207,7 +207,7 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
     if( in.i+pRe->nInit>in.mx ) return 0;
   }
 
-  if( pRe->nState<=(sizeof(aSpace)/(sizeof(aSpace[0])*2)) ){
+  if( pRe->nState<=count(aSpace)*2 ){
     pToFree = 0;
     aStateSet[0].aState = aSpace;
   }else{

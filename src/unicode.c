@@ -146,7 +146,7 @@ int unicode_isalnum(int c){
   }else if( (unsigned int)c<(1<<22) ){
     unsigned int key = (((unsigned int)c)<<10) | 0x000003FF;
     int iRes = 0;
-    int iHi = sizeof(aEntry)/sizeof(aEntry[0]) - 1;
+    int iHi = count(aEntry) - 1;
     int iLo = 0;
     while( iHi>=iLo ){
       int iTest = (iHi + iLo) / 2;
@@ -203,7 +203,7 @@ static int unicode_remove_diacritic(int c){
 
   unsigned int key = (((unsigned int)c)<<3) | 0x00000007;
   int iRes = 0;
-  int iHi = sizeof(aDia)/sizeof(aDia[0]) - 1;
+  int iHi = count(aDia) - 1;
   int iLo = 0;
   while( iHi>=iLo ){
     int iTest = (iHi + iLo) / 2;
@@ -350,7 +350,7 @@ int unicode_fold(int c, int bRemoveDiacritic){
     if( c>='A' && c<='Z' ) ret = c + ('a' - 'A');
   }else if( c<65536 ){
     const struct TableEntry *p;
-    int iHi = sizeof(aEntry)/sizeof(aEntry[0]) - 1;
+    int iHi = count(aEntry) - 1;
     int iLo = 0;
     int iRes = -1;
 

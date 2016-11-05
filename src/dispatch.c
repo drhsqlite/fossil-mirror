@@ -71,7 +71,7 @@ struct CmdOrPage {
 ** implement command and webpages.
 */
 #include "page_index.h"
-#define MX_COMMAND (sizeof(aCommand)/sizeof(aCommand[0]))
+#define MX_COMMAND count(aCommand)
 
 /*
 ** Given a command or webpage name in zName, find the corresponding CmdOrPage

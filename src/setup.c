@@ -21,10 +21,6 @@
 #include <assert.h>
 #include "setup.h"
 
-#if INTERFACE
-#define ArraySize(x) (sizeof(x)/sizeof(x[0]))
-#endif
-
 /*
 ** Output a single entry for a menu generated using an HTML table.
 ** If zLink is not NULL or an empty string, then it is the page that
@@ -946,14 +942,14 @@ static void onoff_attribute(
       iVal = iQ;
     }
   }
-  @ <input type="checkbox" name="%s(zQParm)"
+  @ <label><input type="checkbox" name="%s(zQParm)"
   if( iVal ){
     @ checked="checked"
   }
   if( disabled ){
     @ disabled="disabled"
   }
-  @ /> <b>%s(zLabel)</b>
+  @ /> <b>%s(zLabel)</b></label>
 }
 
 /*
@@ -1433,7 +1429,7 @@ void setup_timeline(void){
 
   @ <hr />
   multiple_choice_attribute("Per-Item Time Format", "timeline-date-format",
-            "tdf", "0", ArraySize(azTimeFormats)/2, azTimeFormats);
+            "tdf", "0", count(azTimeFormats)/2, azTimeFormats);
   @ <p>If the "HH:MM" or "HH:MM:SS" format is selected, then the date is shown
   @ in a separate box (using CSS class "timelineDate") whenever the date changes.
   @ With the "YYYY-MM-DD&nbsp;HH:MM" and "YYMMDD ..." formats, the complete date

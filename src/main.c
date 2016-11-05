@@ -2352,7 +2352,7 @@ void cmd_webserver(void){
           { "xdg-open", "gnome-open", "firefox", "google-chrome" };
       int i;
       zBrowser = "echo";
-      for(i=0; i<sizeof(azBrowserProg)/sizeof(azBrowserProg[0]); i++){
+      for(i=0; i<count(azBrowserProg); i++){
         if( binaryOnPath(azBrowserProg[i]) ){
           zBrowser = azBrowserProg[i];
           break;

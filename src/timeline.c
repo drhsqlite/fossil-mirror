@@ -392,7 +392,7 @@ void www_print_timeline(
         " ORDER BY isprim DESC /*sort*/"
       );
       db_bind_int(&qparent, ":rid", rid);
-      while( db_step(&qparent)==SQLITE_ROW && nParent<ArraySize(aParent) ){
+      while( db_step(&qparent)==SQLITE_ROW && nParent<count(aParent) ){
         aParent[nParent++] = db_column_int(&qparent, 0);
       }
       db_reset(&qparent);
@@ -1188,7 +1188,7 @@ static void timeline_y_submenu(int isDisabled){
       az[i++] = "w";
       az[i++] = "Wiki";
     }
-    assert( i<=ArraySize(az) );
+    assert( i<=count(az) );
   }
   if( i>2 ){
     style_submenu_multichoice("y", i/2, az, isDisabled);
@@ -1685,8 +1685,7 @@ void page_timeline(void){
     addFileGlobExclusion(zChng, &sql);
     tmFlags |= TIMELINE_DISJOINT;
     db_multi_exec("%s", blob_sql_text(&sql));
-    style_submenu_binary("v","With Files","Without Files",
-                         zType[0]!='a' && zType[0]!='c');
+    style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c');
     blob_appendf(&desc, "%d check-ins going from ",
                  db_int(0, "SELECT count(*) FROM timeline"));
     blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h", zFrom), zFrom);
@@ -1736,10 +1735,9 @@ void page_timeline(void){
         zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", d_rid);
       }
     }
+    style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c');
     style_submenu_entry("n","Max:",4,0);
     timeline_y_submenu(1);
-    style_submenu_binary("v","With Files","Without Files",
-                         zType[0]!='a' && zType[0]!='c');
   }else if( f_rid && g.perm.Read ){
     /* If f= is present, ignore all other parameters other than n= */
     char *zUuid;
@@ -1757,11 +1755,8 @@ void page_timeline(void){
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
     blob_appendf(&desc, "%z[%S]</a>", href("%R/info/%!S", zUuid), zUuid);
     tmFlags |= TIMELINE_DISJOINT;
-    style_submenu_binary("v","With Files","Without Files",
-                         zType[0]!='a' && zType[0]!='c');
-    if( (tmFlags & TIMELINE_UNHIDE)==0 ){
-      timeline_submenu(&url, "Unhide", "unhide", "", 0);
-    }
+    style_submenu_checkbox("unhide", "Unhide", 0);
+    style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c');
   }else{
     /* Otherwise, a timeline based on a span of time */
     int n;
@@ -2040,14 +2035,11 @@ void page_timeline(void){
         free(zDate);
       }
       if( zType[0]=='a' || zType[0]=='c' ){
-        if( (tmFlags & TIMELINE_UNHIDE)==0 ){
-          timeline_submenu(&url, "Unhide", "unhide", "", 0);
-        }
+        style_submenu_checkbox("unhide", "Unhide", 0);
       }
+      style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c');
       style_submenu_entry("n","Max:",4,0);
       timeline_y_submenu(disableY);
-      style_submenu_binary("v","With Files","Without Files",
-                           zType[0]!='a' && zType[0]!='c');
       style_submenu_entry("t", "Tag Filter:", -8, 0);
       style_submenu_multichoice("ms", count(azMatchStyles)/2, azMatchStyles, 0);
     }
