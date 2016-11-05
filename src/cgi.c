@@ -485,6 +485,9 @@ void cgi_set_parameter_nocopy(const char *zName, const char *zValue, int isQP){
 void cgi_set_parameter(const char *zName, const char *zValue){
   cgi_set_parameter_nocopy(mprintf("%s",zName), mprintf("%s",zValue), 0);
 }
+void cgi_set_query_parameter(const char *zName, const char *zValue){
+  cgi_set_parameter_nocopy(mprintf("%s",zName), mprintf("%s",zValue), 1);
+}
 
 /*
 ** Replace a parameter with a new value.
@@ -509,6 +512,35 @@ void cgi_replace_query_parameter(const char *zName, const char *zValue){
     }
   }
   cgi_set_parameter_nocopy(zName, zValue, 1);
+}
+
+/*
+** Delete a parameter.
+*/
+void cgi_delete_parameter(const char *zName){
+  int i;
+  for(i=0; i<nUsedQP; i++){
+    if( fossil_strcmp(aParamQP[i].zName,zName)==0 ){
+      --nUsedQP;
+      if( i<nUsedQP ){
+        memmove(aParamQP+i, aParamQP+i+1, sizeof(*aParamQP)*(nUsedQP-i));
+      }
+      return;
+    }
+  }
+}
+void cgi_delete_query_parameter(const char *zName){
+  int i;
+  for(i=0; i<nUsedQP; i++){
+    if( fossil_strcmp(aParamQP[i].zName,zName)==0 ){
+      assert( aParamQP[i].isQP );
+      --nUsedQP;
+      if( i<nUsedQP ){
+        memmove(aParamQP+i, aParamQP+i+1, sizeof(*aParamQP)*(nUsedQP-i));
+      }
+      return;
+    }
+  }
 }
 
 /*

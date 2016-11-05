@@ -1,5 +1,5 @@
-C Rework\s[98cc8782e1]\sto\smore\sthoroughly\signore\sempty\smatch\stags\sand\spatterns\sso\sthat\sthe\s"Related"\ssubmenu\sitem\sdoes\snot\sappear\sdue\sto\san\sempty\stag\sfilter\stext\sentry\sadding\s"t="\sto\sthe\squery\sstring
-D 2016-11-05T03:42:02.034
+C Add\sfunctions\sto\smodify\sand\sdelete\squery\sparameters
+D 2016-11-05T05:15:07.969
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -386,7 +386,7 @@ F src/builtin.c d147d04305aa0db964ec84ef049e8e88d134de87
 F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
-F src/cgi.c d19016a93cd959a9a45817057b911d9e4b333dfd
+F src/cgi.c 73b8c689a788e1ffcd571c51ced4475ee4110af5
 F src/checkin.c e6f34bebf337b4832c88051f1b50fb58fcf5e159
 F src/checkout.c 083ec4f2ccd7d9df27dbb94d90008088eb8c4340
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -769,6 +769,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 74fe9587f86ea2cb32cbffd87f8d6a2b21d3734c
+P 3bcdc0779382af51e9c8e3be74dcceda58924e34
 U andygoth
-Z d7a5a7698ca49a69c8d4c64e50ecd6e2
+Z ec1d6cdde0d6ba0d10496d6ce7b407f6
