@@ -1,5 +1,5 @@
-C Change\s"v"\s(files)\soption\sfrom\sa\sbinary\ssubmenu\sto\sa\scheckbox,\smove\sto\sthe\sright\sof\sthe\sunhide\scheckbox\sso\sthe\scheckboxes\sare\sgrouped\stogether
-D 2016-11-05T03:00:40.836
+C Change\sbranch\scolor\soption\sfrom\sa\sbinary\ssubmenu\sto\sa\scheckbox
+D 2016-11-05T03:04:30.746
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -380,7 +380,7 @@ F src/attach.c b2f9bbde2c64be08f3feeacfcef4b95377ec0b19
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c 831a63c8c61dbfdb5fe629a473cd7b01104478fc
-F src/branch.c c83c24f35c20a6bf3cc4c45e0bcedf988a23a49c
+F src/branch.c 7e79edb0e04f01250e5880860934f782fdc14d58
 F src/browse.c 07842987fe54ee95b1c3df5c73788dc2dd16265c
 F src/builtin.c d147d04305aa0db964ec84ef049e8e88d134de87
 F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
@@ -769,6 +769,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 584546fe77c6d332a34d23839620dfd7eabd11b1
+P a482549c45b09b83491f13a1c9349d78d3fcae10
 U andygoth
-Z 43c7ee0fe4e4840d29b9470ba3ad6a21
+Z f5aa4d3e664cb2955ace4303b2f75852
