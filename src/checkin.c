@@ -122,6 +122,11 @@ static void status_report(
   const char *zName;
   int i;
 
+  /* Skip the file report if no files are requested at all. */
+  if( !(flags & (C_ALL | C_EXTRA)) ){
+     goto skipFiles;
+  }
+
   /* Assemble the path-limiting WHERE clause, if any. */
   blob_zero(&where);
   for(i=2; i<g.argc; i++){
@@ -295,6 +300,7 @@ static void status_report(
   db_finalize(&q);
 
   /* If C_MERGE, put merge contributors at the end of the report. */
+skipFiles:
   if( flags & C_MERGE ){
     db_prepare(&q, "SELECT uuid, id FROM vmerge JOIN blob ON merge=rid"
                    " WHERE id<=0");
