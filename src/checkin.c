@@ -27,9 +27,9 @@
 */
 enum {
   /* Zero-based bit indexes. */
-  CB_EDITED , CB_UPDATED , CB_CHANGED, CB_MISSING   , CB_ADDED, CB_DELETED,
-  CB_RENAMED, CB_CONFLICT, CB_META   , CB_UNMODIFIED, CB_EXTRA, CB_MERGE  ,
-  CB_RELPATH, CB_CLASSIFY, CB_FATAL  , CB_COMMENT   ,
+  CB_EDITED , CB_UPDATED , CB_CHANGED, CB_MISSING  , CB_ADDED, CB_DELETED,
+  CB_RENAMED, CB_CONFLICT, CB_META   , CB_UNCHANGED, CB_EXTRA, CB_MERGE  ,
+  CB_RELPATH, CB_CLASSIFY, CB_FATAL  , CB_COMMENT  ,
 
   /* Bitmask values. */
   C_EDITED     = 1 << CB_EDITED,    /* Edited, merged, and conflicted files. */
@@ -41,16 +41,16 @@ enum {
   C_RENAMED    = 1 << CB_RENAMED,   /* Renamed files. */
   C_CONFLICT   = 1 << CB_CONFLICT,  /* Files having merge conflicts. */
   C_META       = 1 << CB_META,      /* Files with metadata changes. */
-  C_UNMODIFIED = 1 << CB_UNMODIFIED,/* Unmodified files. */
+  C_UNCHANGED  = 1 << CB_UNCHANGED, /* Unchanged files. */
   C_EXTRA      = 1 << CB_EXTRA,     /* Unmanaged files. */
   C_MERGE      = 1 << CB_MERGE,     /* Merge contributors. */
   C_FILTER     = C_EDITED  | C_UPDATED | C_CHANGED  | C_MISSING | C_ADDED
-               | C_DELETED | C_RENAMED | C_CONFLICT | C_META    | C_UNMODIFIED
+               | C_DELETED | C_RENAMED | C_CONFLICT | C_META    | C_UNCHANGED
                | C_EXTRA   | C_MERGE,
   C_ALL        = C_FILTER & ~(C_EXTRA | C_MERGE),
   C_RELPATH    = 1 << CB_RELPATH,   /* Show relative paths. */
   C_CLASSIFY   = 1 << CB_CLASSIFY,  /* Show file change types. */
-  C_DEFAULT    = (C_ALL & ~C_UNMODIFIED) | C_MERGE | C_CLASSIFY,
+  C_DEFAULT    = (C_ALL & ~C_UNCHANGED) | C_MERGE | C_CLASSIFY,
   C_FATAL      = (1 << CB_FATAL) | C_MISSING, /* Fail on MISSING/NOT_A_FILE. */
   C_COMMENT    = 1 << CB_COMMENT,   /* Precede each line with "# ". */
 };
@@ -148,8 +148,8 @@ static void status_report(
       "  FROM vfile"
       " WHERE is_selected(id)%s", blob_sql_text(&where));
 
-    /* Exclude unmodified files unless requested. */
-    if( !(flags & C_UNMODIFIED) ){
+    /* Exclude unchanged files unless requested. */
+    if( !(flags & C_UNCHANGED) ){
       blob_append_sql(&sql,
           " AND (chnged OR deleted OR rid=0 OR pathname!=origname)");
     }
@@ -228,9 +228,9 @@ static void status_report(
       zClass = "EDITED";
     }else if( (flags & C_RENAMED) && isRenamed ){
       zClass = "RENAMED";
-    }else if( (flags & C_UNMODIFIED) && isManaged && !isDeleted && !isMissing
-                                     && !isNew    && !isChnged  && !isRenamed ){
-      zClass = "UNMODIFIED";
+    }else if( (flags & C_UNCHANGED) && isManaged && !isDeleted && !isMissing
+                                    && !isNew    && !isChnged  && !isRenamed ){
+      zClass = "UNCHANGED";
     }else if( (flags & C_EXTRA) && !isManaged ){
       zClass = "EXTRA";
     }
@@ -393,7 +393,7 @@ static int determine_cwd_relative_option()
 **    --renamed         Display renamed files.
 **    --conflict        Display files having merge conflicts.
 **    --meta            Display files with metadata changes.
-**    --unmodified      Display unmodified files.
+**    --unchanged       Display unchanged files.
 **    --all             Display all managed files, i.e. all of the above.
 **    --extra           Display unmanaged files.
 **    --merge           Display merge contributors.
@@ -412,7 +412,7 @@ void status_cmd(void){
     {"changed" , C_CHANGED, 0}, {"missing"    , C_MISSING   , 0},
     {"added"   , C_ADDED  , 0}, {"deleted"    , C_DELETED   , 0},
     {"renamed" , C_RENAMED, 0}, {"conflict"   , C_CONFLICT  , 0},
-    {"meta"    , C_META   , 0}, {"unmodified" , C_UNMODIFIED, 0},
+    {"meta"    , C_META   , 0}, {"unchanged"  , C_UNCHANGED , 0},
     {"all"     , C_ALL    , 0}, {"extra"      , C_EXTRA     , 0},
     {"merge"   , C_MERGE  , 0}, {"classify"   , C_CLASSIFY  , 1},
   }, noFlagDefs[] = {
