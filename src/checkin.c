@@ -355,21 +355,35 @@ static void ls_cmd_rev(
 /*
 ** COMMAND: ls
 **
-** Usage: %fossil ls ?OPTIONS? ?FILENAMES?
+** Usage: %fossil ls ?OPTIONS? ?PATHS ...?
 **
-** Show the names of all files in the current checkout.  The -v provides
-** extra information about each file.  If FILENAMES are included, only
-** the files listed (or their children if they are directories) are shown.
+** List all files in the current checkout.  If PATHS is included, only the
+** named files (or their children if directories) are shown.
 **
-** If -r is given a specific check-in is listed. In this case -R can be
-** given to query another repository.
+** The ls command is essentially two related commands in one, depending on
+** whether or not the -r option is given.  -r selects a specific check-in
+** version to list, in which case -R can be used to select the repository.
+** The fine behavior of the --age, -v, and -t options is altered by the -r
+** option as well, as explained below.
+**
+** The --age option displays file commit times.  Unless -r is given, the
+** --age option changes -t's effect from sorting by modification time to
+** sorting by commit time.
+**
+** The -v option provides extra information about each file.  Without -r,
+** -v displays the change status, in the manner of the changes command.
+** With -r, -v shows the commit time and size of the checked-in files.
+**
+** The -t option changes the sort order.  Without -t, files are sorted by
+** path and name (case insensitive sort if -r).  If neither --age nor -r
+** are used, -t sorts by modification time, otherwise by commit time.
 **
 ** Options:
-**   --age                 Show when each file was committed
+**   --age                 Show when each file was committed.
 **   -v|--verbose          Provide extra information about each file.
 **   -t                    Sort output in time order.
-**   -r VERSION            The specific check-in to list
-**   -R|--repository FILE  Extract info from repository FILE
+**   -r VERSION            The specific check-in to list.
+**   -R|--repository FILE  Extract info from repository FILE.
 **
 ** See also: changes, extras, status
 */
