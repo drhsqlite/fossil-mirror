@@ -1,5 +1,5 @@
-C Add\sworkaround\scode
-D 2016-11-06T07:57:46.318
+C More\sreliably\swork\saround\sthe\sproblem\sexperienced\sby\sthe\sprevious\scommit.\s\sNot\ssure\sif\sthis\sis\sthe\sright\slong-term\ssolution\ssince\swe\sseem\sto\shave\san\sarchitectural\sproblem:\sat\sleast\sone\sof\sFossil's\scustom\sSQL\sfunctions\scan\schange\sthe\sschema\s(in\sthis\scase,\sby\screating\sa\stemporary\stable),\sthereby\sinvalidating\sa\sprepared\sstatement\swhile\sit\sis\srunning.\s\sSee\sthe\scomment\sin\scheckin.c\sfor\sa\sbit\smore\sinformation.\s\sOf\scourse,\sthere\sare\srearrangements\sthat\savoid\sthe\sissue,\sbut\sit\sis\scertainly\sa\strap\sfor\sthe\sunwary.
+D 2016-11-06T20:19:47.780
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -387,7 +387,7 @@ F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c d19016a93cd959a9a45817057b911d9e4b333dfd
-F src/checkin.c 9b54bac5585504ab65b8c8c85ef9cd0bdbf5b3c3
+F src/checkin.c fa6ef2a1620c879ad252b91feef4450b977ee067
 F src/checkout.c 083ec4f2ccd7d9df27dbb94d90008088eb8c4340
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
@@ -402,7 +402,7 @@ F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 22dffc9e38d72cfd21721e468f121c016baca543
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
-F src/descendants.c 979ee1f63a5838cfc9b8d064a8fd05d804bf97aa
+F src/descendants.c d3ed21be4cf24d21f61090418635e2ee61d48625
 F src/diff.c 4019cd9a2c6cc4c63f327a214f7bce10b55d95d9
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 961503775818c035aede0b36bf751a843b4eab30
@@ -768,6 +768,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ec9480fcba01677547bb84cd3b0b50f75cdf303d
+P 9d5de8d702e8b00c81ecdf76be308f803cdd70f5
 U andygoth
-Z cebd27a71f06d430e043bb91e5016a0a
+Z f9cbd5992248ebb7aa538b3fa4472242

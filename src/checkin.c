@@ -175,19 +175,12 @@ static void status_report(
       fossil_all_reserved_names(0), blob_sql_text(&where));
   }
 
-#if 1
-  /* SQLITE BUG WORKAROUND??? */
-  /* If I step the query sans the ORDER BY clause, then I can run the full query
-   * without incident.  But if I delete this workaround and run the query
-   * normally, I get SQLITE_ABORT due to ROLLBACK, which makes no sense. */
-  db_prepare(&q, "%s", blob_sql_text(&sql));
-  if( (flags & C_ALL) && (flags & C_MTIME) ){
-    db_bind_int(&q, ":vid", db_lget_int("checkout", 0));
-  }
-  db_step(&q);
-  db_finalize(&q);
-  /* SQLITE BUG WORKAROUND??? */
-#endif
+  /* Pre-create the "ok" temporary table so the checkin_mtime() SQL function
+   * does not lead to SQLITE_ABORT_ROLLBACK during execution of the OP_OpenRead
+   * SQLite opcode.  checkin_mtime() calls mtime_of_manifest_file() which
+   * creates a temporary table if it doesn't already exist, thus invalidating
+   * the prepared statement in the middle of its execution. */
+  db_multi_exec("CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY)");
 
   /* Append an ORDER BY clause then compile the query. */
   blob_append_sql(&sql, " ORDER BY pathname");
