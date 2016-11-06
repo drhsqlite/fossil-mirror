@@ -29,31 +29,33 @@ enum {
   /* Zero-based bit indexes. */
   CB_EDITED , CB_UPDATED , CB_CHANGED, CB_MISSING  , CB_ADDED, CB_DELETED,
   CB_RENAMED, CB_CONFLICT, CB_META   , CB_UNCHANGED, CB_EXTRA, CB_MERGE  ,
-  CB_RELPATH, CB_CLASSIFY, CB_FATAL  , CB_COMMENT  ,
+  CB_RELPATH, CB_CLASSIFY, CB_MTIME  , CB_SIZE     , CB_FATAL, CB_COMMENT, 
 
   /* Bitmask values. */
-  C_EDITED     = 1 << CB_EDITED,    /* Edited, merged, and conflicted files. */
-  C_UPDATED    = 1 << CB_UPDATED,   /* Files updated by merge/integrate. */
-  C_CHANGED    = 1 << CB_CHANGED,   /* Treated the same as the above two. */
-  C_MISSING    = 1 << CB_MISSING,   /* Missing and non- files. */
-  C_ADDED      = 1 << CB_ADDED,     /* Added files. */
-  C_DELETED    = 1 << CB_DELETED,   /* Deleted files. */
-  C_RENAMED    = 1 << CB_RENAMED,   /* Renamed files. */
-  C_CONFLICT   = 1 << CB_CONFLICT,  /* Files having merge conflicts. */
-  C_META       = 1 << CB_META,      /* Files with metadata changes. */
-  C_UNCHANGED  = 1 << CB_UNCHANGED, /* Unchanged files. */
-  C_EXTRA      = 1 << CB_EXTRA,     /* Unmanaged files. */
-  C_MERGE      = 1 << CB_MERGE,     /* Merge contributors. */
-  C_FILTER     = C_EDITED  | C_UPDATED | C_CHANGED  | C_MISSING | C_ADDED
-               | C_DELETED | C_RENAMED | C_CONFLICT | C_META    | C_UNCHANGED
-               | C_EXTRA   | C_MERGE,                 /* All filter bits. */
-  C_ALL        = C_FILTER & ~(C_EXTRA     | C_MERGE), /* All managed files. */
-  C_DIFFER     = C_FILTER & ~(C_UNCHANGED | C_MERGE), /* All differences. */
-  C_RELPATH    = 1 << CB_RELPATH,   /* Show relative paths. */
-  C_CLASSIFY   = 1 << CB_CLASSIFY,  /* Show file change types. */
-  C_DEFAULT    = (C_ALL & ~C_UNCHANGED) | C_MERGE | C_CLASSIFY,
-  C_FATAL      = (1 << CB_FATAL) | C_MISSING, /* Fail on MISSING/NOT_A_FILE. */
-  C_COMMENT    = 1 << CB_COMMENT,   /* Precede each line with "# ". */
+  C_EDITED    = 1 << CB_EDITED,     /* Edited, merged, and conflicted files. */
+  C_UPDATED   = 1 << CB_UPDATED,    /* Files updated by merge/integrate. */
+  C_CHANGED   = 1 << CB_CHANGED,    /* Treated the same as the above two. */
+  C_MISSING   = 1 << CB_MISSING,    /* Missing and non- files. */
+  C_ADDED     = 1 << CB_ADDED,      /* Added files. */
+  C_DELETED   = 1 << CB_DELETED,    /* Deleted files. */
+  C_RENAMED   = 1 << CB_RENAMED,    /* Renamed files. */
+  C_CONFLICT  = 1 << CB_CONFLICT,   /* Files having merge conflicts. */
+  C_META      = 1 << CB_META,       /* Files with metadata changes. */
+  C_UNCHANGED = 1 << CB_UNCHANGED,  /* Unchanged files. */
+  C_EXTRA     = 1 << CB_EXTRA,      /* Unmanaged files. */
+  C_MERGE     = 1 << CB_MERGE,      /* Merge contributors. */
+  C_FILTER    = C_EDITED  | C_UPDATED | C_CHANGED  | C_MISSING | C_ADDED
+              | C_DELETED | C_RENAMED | C_CONFLICT | C_META    | C_UNCHANGED
+              | C_EXTRA   | C_MERGE,                /* All filter bits. */
+  C_ALL       = C_FILTER & ~(C_EXTRA     | C_MERGE),/* All managed files. */
+  C_DIFFER    = C_FILTER & ~(C_UNCHANGED | C_MERGE),/* All differences. */
+  C_RELPATH   = 1 << CB_RELPATH,    /* Show relative paths. */
+  C_CLASSIFY  = 1 << CB_CLASSIFY,   /* Show file change types. */
+  C_DEFAULT   = (C_ALL & ~C_UNCHANGED) | C_MERGE | C_CLASSIFY,
+  C_MTIME     = 1 << CB_MTIME,      /* Show file modification time. */
+  C_SIZE      = 1 << CB_SIZE,       /* Show file size in bytes. */
+  C_FATAL     = (1 << CB_FATAL) | C_MISSING,  /* Fail on MISSING/NOT_A_FILE. */
+  C_COMMENT   = 1 << CB_COMMENT,    /* Precede each line with "# ". */
 };
 
 /*
@@ -75,8 +77,8 @@ static void locate_unmanaged_files(
   int i;       /* Loop counter */
   int nRoot;   /* length of g.zLocalRoot */
 
-  db_multi_exec("CREATE TEMP TABLE sfile(pathname TEXT PRIMARY KEY %s)",
-                filename_collation());
+  db_multi_exec("CREATE TEMP TABLE sfile(pathname TEXT PRIMARY KEY %s,"
+                " mtime INTEGER, size INTEGER)", filename_collation());
   nRoot = (int)strlen(g.zLocalRoot);
   if( argc==0 ){
     blob_init(&name, g.zLocalRoot, nRoot - 1);
@@ -144,10 +146,14 @@ static void status_report(
   if( flags & C_ALL ){
     /* Start with a list of all managed files. */
     blob_append_sql(&sql,
-      "SELECT pathname, deleted, chnged, rid,"
+      "SELECT pathname, %s as mtime, %s as size, deleted, chnged, rid,"
       "       coalesce(origname!=pathname,0) AS renamed, islink, 1 AS managed"
-      "  FROM vfile"
-      " WHERE is_selected(id)%s", blob_sql_text(&where));
+      "  FROM vfile, blob USING (rid)"
+      " WHERE is_selected(id)%s",
+      flags & C_MTIME ? "datetime(checkin_mtime(:vid, rid), "
+                        "'unixepoch', toLocal())" : "''" /*safe-for-%s*/,
+      flags & C_SIZE  ? "blob.size" : "0" /*safe-for-%s*/,
+      blob_sql_text(&where));
 
     /* Exclude unchanged files unless requested. */
     if( !(flags & C_UNCHANGED) ){
@@ -161,10 +167,27 @@ static void status_report(
     if( blob_size(&sql) ){
       blob_append_sql(&sql, " UNION ALL");
     }
-    blob_append_sql(&sql, " SELECT pathname, 0, 0, 0, 0, 0, 0"
-                          " FROM sfile WHERE pathname NOT IN (%s)%s",
-                          fossil_all_reserved_names(0), blob_sql_text(&where));
+    blob_append_sql(&sql,
+      " SELECT pathname, %s, %s, 0, 0, 0, 0, 0, 0"
+      " FROM sfile WHERE pathname NOT IN (%s)%s",
+      flags & C_MTIME ? "datetime(mtime, 'unixepoch', toLocal())" : "''",
+      flags & C_SIZE  ? "size" : "0",
+      fossil_all_reserved_names(0), blob_sql_text(&where));
   }
+
+#if 1
+  /* SQLITE BUG WORKAROUND??? */
+  /* If I step the query sans the ORDER BY clause, then I can run the full query
+   * without incident.  But if I delete this workaround and run the query
+   * normally, I get SQLITE_ABORT due to ROLLBACK, which makes no sense. */
+  db_prepare(&q, "%s", blob_sql_text(&sql));
+  if( (flags & C_ALL) && (flags & C_MTIME) ){
+    db_bind_int(&q, ":vid", db_lget_int("checkout", 0));
+  }
+  db_step(&q);
+  db_finalize(&q);
+  /* SQLITE BUG WORKAROUND??? */
+#endif
 
   /* Append an ORDER BY clause then compile the query. */
   blob_append_sql(&sql, " ORDER BY pathname");
@@ -172,17 +195,24 @@ static void status_report(
   blob_reset(&sql);
   blob_reset(&where);
 
+  /* Bind the checkout version ID to the query if needed. */
+  if( (flags & C_ALL) && (flags & C_MTIME) ){
+    db_bind_int(&q, ":vid", db_lget_int("checkout", 0));
+  }
+
   /* Execute the query and assemble the report. */
   blob_zero(&rewrittenPathname);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zPathname = db_column_text(&q, 0);
     const char *zClass = 0;
-    int isManaged = db_column_int(&q, 6);
-    int isDeleted = db_column_int(&q, 1);
-    int isChnged = db_column_int(&q, 2);
-    int isNew = isManaged && !db_column_int(&q, 3);
-    int isRenamed = db_column_int(&q, 4);
-    int isLink = db_column_int(&q, 5);
+    int isManaged = db_column_int(&q, 8);
+    const char *zMtime = db_column_text(&q, 1);
+    int size = db_column_int(&q, 2);
+    int isDeleted = db_column_int(&q, 3);
+    int isChnged = db_column_int(&q, 4);
+    int isNew = isManaged && !db_column_int(&q, 5);
+    int isRenamed = db_column_int(&q, 6);
+    int isLink = db_column_int(&q, 7);
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
     int isMissing = !file_wd_isfile_or_link(zFullName);
 
@@ -238,17 +268,19 @@ static void status_report(
 
     /* Only report files for which a change classification was determined. */
     if( zClass ){
-      /* If C_COMMENT, precede each line with "# ". */
       if( flags & C_COMMENT ){
         blob_append(report, "# ", 2);
       }
-
-      /* If C_CLASSIFY, include the change classification. */
       if( flags & C_CLASSIFY ){
         blob_appendf(report, "%-10s ", zClass);
       }
-
-      /* Finish with the filename followed by newline. */
+      if( flags & C_MTIME ){
+        blob_append(report, zMtime, -1);
+        blob_append(report, "  ", 2);
+      }
+      if( flags & C_SIZE ){
+        blob_appendf(report, "%7d ", size);
+      }
       if( flags & C_RELPATH ){
         /* If C_RELPATH, display paths relative to current directory. */
         const char *zDisplayName;
@@ -500,7 +532,7 @@ void status_cmd(void){
   /* Search for unmanaged files if requested. */
   if( flags & C_EXTRA ){
     Glob *pIgnore = glob_create(zIgnoreFlag);
-    locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, pIgnore);
+    locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags | SCAN_META, pIgnore);
     glob_free(pIgnore);
   }
 
@@ -519,7 +551,7 @@ void status_cmd(void){
 
   /* Find and print all requested changes. */
   blob_zero(&report);
-  status_report(&report, flags);
+  status_report(&report, flags | C_MTIME | C_SIZE);
   if( blob_size(&report) ){
     if( showHdr ){
       fossil_print("Changes for %s at %s:\n", db_get("project-name", "???"),

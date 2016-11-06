@@ -457,6 +457,7 @@ static int is_temporary_file(const char *zName){
 #define SCAN_ALL    0x001    /* Includes files that begin with "." */
 #define SCAN_TEMP   0x002    /* Only Fossil-generated files like *-baseline */
 #define SCAN_NESTED 0x004    /* Scan for empty dirs in nested checkouts */
+#define SCAN_META   0x008    /* Populate mtime and size columns */
 #endif /* INTERFACE */
 
 /*
@@ -500,9 +501,12 @@ void vfile_scan(
 
   if( depth==0 ){
     db_prepare(&ins,
-       "INSERT OR IGNORE INTO sfile(pathname) SELECT :file"
+       "INSERT OR IGNORE INTO sfile(pathname%s) SELECT :file%s"
        "  WHERE NOT EXISTS(SELECT 1 FROM vfile WHERE"
-       " pathname=:file %s)", filename_collation()
+       " pathname=:file %s)",
+       scanFlags & SCAN_META ? ", mtime, size" : "",
+       scanFlags & SCAN_META ? ", :mtime, :size" : "",
+       filename_collation()
     );
   }
   depth++;
@@ -541,6 +545,10 @@ void vfile_scan(
 #endif
         if( (scanFlags & SCAN_TEMP)==0 || is_temporary_file(zUtf8) ){
           db_bind_text(&ins, ":file", &zPath[nPrefix+1]);
+          if( scanFlags & SCAN_META ){
+             db_bind_int(&ins, ":mtime", file_mtime(zPath));
+             db_bind_int(&ins, ":size", file_size(zPath));
+          }
           db_step(&ins);
           db_reset(&ins);
         }

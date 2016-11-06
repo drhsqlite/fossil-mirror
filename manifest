@@ -1,5 +1,5 @@
-C Rename\ssfile\sx\scolumn\sto\spathname\sto\smatch\svfile\sand\sto\smake\sroom\sfor\snew\scolumns\sI\splan\sto\sadd
-D 2016-11-06T06:39:19.664
+C Add\sworkaround\scode
+D 2016-11-06T07:57:46.318
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -387,7 +387,7 @@ F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c d19016a93cd959a9a45817057b911d9e4b333dfd
-F src/checkin.c ca2d51813b0f7aa71ab1bf1e594b241c6d9728f6
+F src/checkin.c 9b54bac5585504ab65b8c8c85ef9cd0bdbf5b3c3
 F src/checkout.c 083ec4f2ccd7d9df27dbb94d90008088eb8c4340
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
@@ -513,7 +513,7 @@ F src/user.c 1d31844a9e48e2ab515586bf54ecc4b30b47d5b5
 F src/utf8.c 9f458b9698fc928cc21e375538f268651d1d22a2
 F src/util.c 9a3cc502aa6ae3bc19831e5f553cd346ec154b5c
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
-F src/vfile.c 8dd23891cb4ee2bb554566f5e819debc3551617f
+F src/vfile.c 431aa92819a03a277f4977442727a6f548b9ec8b
 F src/wiki.c 7e8ea06600305377a7da5a56b396491741b61a9c
 F src/wikiformat.c d96d5e2b2f4266b4e5064a07706f69a9190b2fad
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
@@ -768,6 +768,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4d33d95899d709a398c2b5af1b1c269c953ff619
+P ec9480fcba01677547bb84cd3b0b50f75cdf303d
 U andygoth
-Z 240a3c022758dbab5e902f3e9e060502
+Z cebd27a71f06d430e043bb91e5016a0a
