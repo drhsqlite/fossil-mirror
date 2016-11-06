@@ -46,8 +46,9 @@ enum {
   C_MERGE      = 1 << CB_MERGE,     /* Merge contributors. */
   C_FILTER     = C_EDITED  | C_UPDATED | C_CHANGED  | C_MISSING | C_ADDED
                | C_DELETED | C_RENAMED | C_CONFLICT | C_META    | C_UNCHANGED
-               | C_EXTRA   | C_MERGE,
-  C_ALL        = C_FILTER & ~(C_EXTRA | C_MERGE),
+               | C_EXTRA   | C_MERGE,                 /* All filter bits. */
+  C_ALL        = C_FILTER & ~(C_EXTRA     | C_MERGE), /* All managed files. */
+  C_DIFFER     = C_FILTER & ~(C_UNCHANGED | C_MERGE), /* All differences. */
   C_RELPATH    = 1 << CB_RELPATH,   /* Show relative paths. */
   C_CLASSIFY   = 1 << CB_CLASSIFY,  /* Show file change types. */
   C_DEFAULT    = (C_ALL & ~C_UNCHANGED) | C_MERGE | C_CLASSIFY,
@@ -340,6 +341,8 @@ static int determine_cwd_relative_option()
 ** can be overridden by using one or more filter options (listed below),
 ** in which case only files with the specified change type(s) are shown.
 ** As a special case, the --no-merge option does not inhibit this default.
+** This default shows exactly the set of changes that would be checked
+** in by the commit command.
 **
 ** If no filter options are used, or if the --merge option is used, the
 ** SHA1 hash of each merge contributor check-in version is displayed at
@@ -365,6 +368,13 @@ static int determine_cwd_relative_option()
 ** to be merged or conflicted and therefore will be shown by --edited, not
 ** --updated, with types EDITED or CONFLICT.  The --changed option can be
 ** used to display the union of --edited and --updated.
+**
+** --differ is so named because it lists all the differences between the
+** checked-out version and the checkout directory.  In addition to the
+** default changes (besides --merge), it lists extra files which (assuming
+** ignore-glob is set correctly) may be worth adding.  Prior to doing a
+** commit, it is good practice to check --differ to see not only which
+** changes would be committed but also if any files need to be added.
 **
 ** General options:
 **    --abs-paths       Display absolute pathnames.
@@ -395,6 +405,7 @@ static int determine_cwd_relative_option()
 **    --unchanged       Display unchanged files.
 **    --all             Display all managed files, i.e. all of the above.
 **    --extra           Display unmanaged files.
+**    --differ          Display modified and extra files.
 **    --merge           Display merge contributors.
 **    --no-merge        Do not display merge contributors.
 **
@@ -403,34 +414,34 @@ static int determine_cwd_relative_option()
 void status_cmd(void){
   /* Affirmative and negative flag option tables. */
   static const struct {
-    const char *option;
-    unsigned mask;
-    int changesOnly;
+    const char *option; /* Flag name. */
+    unsigned mask;      /* Flag bits. */
   } flagDefs[] = {
-    {"edited"  , C_EDITED , 0}, {"updated"    , C_UPDATED   , 0},
-    {"changed" , C_CHANGED, 0}, {"missing"    , C_MISSING   , 0},
-    {"added"   , C_ADDED  , 0}, {"deleted"    , C_DELETED   , 0},
-    {"renamed" , C_RENAMED, 0}, {"conflict"   , C_CONFLICT  , 0},
-    {"meta"    , C_META   , 0}, {"unchanged"  , C_UNCHANGED , 0},
-    {"all"     , C_ALL    , 0}, {"extra"      , C_EXTRA     , 0},
-    {"merge"   , C_MERGE  , 0}, {"classify"   , C_CLASSIFY  , 1},
+    {"edited"  , C_EDITED  }, {"updated"    , C_UPDATED  },
+    {"changed" , C_CHANGED }, {"missing"    , C_MISSING  },
+    {"added"   , C_ADDED   }, {"deleted"    , C_DELETED  },
+    {"renamed" , C_RENAMED }, {"conflict"   , C_CONFLICT },
+    {"meta"    , C_META    }, {"unchanged"  , C_UNCHANGED},
+    {"all"     , C_ALL     }, {"extra"      , C_EXTRA    },
+    {"differ"  , C_DIFFER  }, {"merge"      , C_MERGE    },
+    {"classify", C_CLASSIFY},
   }, noFlagDefs[] = {
-    {"no-merge", C_MERGE  , 0}, {"no-classify", C_CLASSIFY  , 1},
+    {"no-merge", C_MERGE   }, {"no-classify", C_CLASSIFY },
   };
 
   Blob report = BLOB_INITIALIZER;
+  int changes = g.argv[1][0]=='c';
   int useSha1sum = find_option("sha1sum", 0, 0)!=0;
-  int showHdr = find_option("header",0,0)!=0;
-  int verboseFlag = find_option("verbose","v",0)!=0;
+  int showHdr = changes && find_option("header", 0, 0);
+  int verboseFlag = changes && find_option("verbose", "v", 0);
   const char *zIgnoreFlag = find_option("ignore", 0, 1);
   unsigned scanFlags = 0;
-  int changes = g.argv[1][0]=='c';
   unsigned flags = 0;
   int vid, i;
 
   /* Load affirmative flag options. */
   for( i=0; i<count(flagDefs); ++i ){
-    if( (!flagDefs[i].changesOnly || changes)
+    if( (changes || !(flagDefs[i].mask & C_CLASSIFY))
      && find_option(flagDefs[i].option, 0, 0) ){
       flags |= flagDefs[i].mask;
     }
@@ -453,7 +464,7 @@ void status_cmd(void){
 
   /* Negative flag options override defaults applied above. */
   for( i=0; i<count(noFlagDefs); ++i ){
-    if( (!noFlagDefs[i].changesOnly || changes)
+    if( (changes || !(noFlagDefs[i].mask & C_CLASSIFY))
      && find_option(noFlagDefs[i].option, 0, 0) ){
       flags &= ~noFlagDefs[i].mask;
     }
