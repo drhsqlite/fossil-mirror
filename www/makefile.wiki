@@ -1,4 +1,4 @@
-<title>The Fossil Build Process</title>
+﻿<title>The Fossil Build Process</title>
 
 <h1>1.0 Introduction</h1>
 
@@ -37,7 +37,7 @@ These three files that implement SQLite are:
 
   4.  sqlite3.c
   5.  sqlite3.h
-  6.  shell.c
+  6.  shell.c (which optionally uses linenoise.c and linenoise.h)
 
 The sqlite3.c and sqlite3.h source files are byte-for-byte copies of a
 standard [http://www.sqlite.org/amalgamation.html | amalgamation].
@@ -262,6 +262,9 @@ the HTTPS option is enabled, then it will also need to link against
 the appropriate SSL implementation.  And, of course, Fossil needs to
 link against the standard C library.  No other libraries or external
 dependences are used.
+
+Fossil includes a copy of [https://github.com/richgel999/miniz | miniz]
+which can be used as an alternative to zlib.
 
 <h1>7.0 See Also</h1>
 
