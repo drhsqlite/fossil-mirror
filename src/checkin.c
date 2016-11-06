@@ -138,24 +138,31 @@ static void status_report(
     );
   }
 
-  /* Start building the SELECT statement. */
+  /* Obtain the list of managed files if appropriate. */
   blob_zero(&sql);
-  blob_append_sql(&sql,
-    "SELECT pathname, deleted, chnged, rid,"
-    "       coalesce(origname!=pathname,0) AS renamed, islink, 1 AS managed"
-    "  FROM vfile"
-    " WHERE is_selected(id)%s", blob_sql_text(&where));
-
-  /* Exclude unmodified files unless requested. */
-  if( !(flags & C_UNMODIFIED) ){
+  if( flags & C_ALL ){
+    /* Start with a list of all managed files. */
     blob_append_sql(&sql,
-        " AND (chnged OR deleted OR rid=0 OR pathname!=origname)");
+      "SELECT pathname, deleted, chnged, rid,"
+      "       coalesce(origname!=pathname,0) AS renamed, islink, 1 AS managed"
+      "  FROM vfile"
+      " WHERE is_selected(id)%s", blob_sql_text(&where));
+
+    /* Exclude unmodified files unless requested. */
+    if( !(flags & C_UNMODIFIED) ){
+      blob_append_sql(&sql,
+          " AND (chnged OR deleted OR rid=0 OR pathname!=origname)");
+    }
   }
 
   /* If C_EXTRA, add unmanaged files to the query result too. */
   if( flags & C_EXTRA ){
-    blob_append_sql(&sql, " UNION ALL SELECT x AS pathname, 0, 0, 0, 0, 0, 0"
-                          " FROM sfile WHERE 1%s", blob_sql_text(&where));
+    if( blob_size(&sql) ){
+      blob_append_sql(&sql, " UNION ALL");
+    }
+    blob_append_sql(&sql, " SELECT x AS pathname, 0, 0, 0, 0, 0, 0"
+                          " FROM sfile WHERE pathname NOT IN (%s)%s",
+                          fossil_all_reserved_names(0), blob_sql_text(&where));
   }
 
   /* Append an ORDER BY clause then compile the query. */
@@ -422,16 +429,6 @@ void status_cmd(void){
   unsigned flags = 0;
   int vid, i;
 
-  /* If --ignore is not specified, use the ignore-glob setting. */
-  if( !zIgnoreFlag ){
-    zIgnoreFlag = db_get("ignore-glob", 0);
-  }
-
-  /* Get the --dotfiles argument, or read it from the dotfiles setting. */
-  if( find_option("dotfiles", 0, 0) || db_get_boolean("dotfiles", 0) ){
-    scanFlags = SCAN_ALL;
-  }
-
   /* Load affirmative flag options. */
   for( i=0; i<count(flagDefs); ++i ){
     if( (!flagDefs[i].changesOnly || changes)
@@ -474,19 +471,27 @@ void status_cmd(void){
     flags |= C_RELPATH;
   }
 
+  /* If --ignore is not specified, use the ignore-glob setting. */
+  if( !zIgnoreFlag ){
+    zIgnoreFlag = db_get("ignore-glob", 0);
+  }
+
+  /* Get the --dotfiles argument, or read it from the dotfiles setting. */
+  if( find_option("dotfiles", 0, 0) || db_get_boolean("dotfiles", 0) ){
+    scanFlags = SCAN_ALL;
+  }
+
   /* We should be done with options. */
   verify_all_options();
 
   /* Check for changed files. */
   vfile_check_signature(vid, useSha1sum ? CKSIG_SHA1 : 0);
 
-  /* Search for unmanaged files if requested.  Exclude reserved files. */
+  /* Search for unmanaged files if requested. */
   if( flags & C_EXTRA ){
     Glob *pIgnore = glob_create(zIgnoreFlag);
     locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, pIgnore);
     glob_free(pIgnore);
-    db_multi_exec("DELETE FROM sfile WHERE x IN (%s)",
-        fossil_all_reserved_names(0));
   }
 
   /* The status command prints general information before the change list. */
@@ -770,18 +775,19 @@ void ls_cmd(void){
 ** See also: changes, clean, status
 */
 void extras_cmd(void){
-  Stmt q;
+  Blob report = BLOB_INITIALIZER;
   const char *zIgnoreFlag = find_option("ignore",0,1);
   unsigned scanFlags = find_option("dotfiles",0,0)!=0 ? SCAN_ALL : 0;
+  unsigned flags = C_EXTRA;
   int showHdr = find_option("header",0,0)!=0;
-  int cwdRelative = 0;
   Glob *pIgnore;
-  Blob rewrittenPathname;
-  const char *zPathname, *zDisplayName;
 
   if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
   db_must_be_within_tree();
-  cwdRelative = determine_cwd_relative_option();
+
+  if( determine_cwd_relative_option() ){
+    flags |= C_RELPATH;
+  }
 
   if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
 
@@ -794,35 +800,18 @@ void extras_cmd(void){
   pIgnore = glob_create(zIgnoreFlag);
   locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, pIgnore);
   glob_free(pIgnore);
-  db_prepare(&q,
-      "SELECT x FROM sfile"
-      " WHERE x NOT IN (%s)"
-      " ORDER BY 1",
-      fossil_all_reserved_names(0)
-  );
-  db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
-  blob_zero(&rewrittenPathname);
   g.allowSymlinks = 1;  /* Report on symbolic links */
-  while( db_step(&q)==SQLITE_ROW ){
-    zDisplayName = zPathname = db_column_text(&q, 0);
-    if( cwdRelative ){
-      char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
-      file_relative_name(zFullName, &rewrittenPathname, 0);
-      free(zFullName);
-      zDisplayName = blob_str(&rewrittenPathname);
-      if( zDisplayName[0]=='.' && zDisplayName[1]=='/' ){
-        zDisplayName += 2;  /* no unnecessary ./ prefix */
-      }
-    }
+
+  blob_zero(&report);
+  status_report(&report, flags);
+  if( blob_size(&report) ){
     if( showHdr ){
-      showHdr = 0;
       fossil_print("Extras for %s at %s:\n", db_get("project-name","???"),
                    g.zLocalRoot);
     }
-    fossil_print("%s\n", zDisplayName);
+    blob_write_to_file(&report, "-");
   }
-  blob_reset(&rewrittenPathname);
-  db_finalize(&q);
+  blob_reset(&report);
 }
 
 /*
