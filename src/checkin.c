@@ -430,10 +430,10 @@ void status_cmd(void){
   };
 
   Blob report = BLOB_INITIALIZER;
-  int changes = g.argv[1][0]=='c';
+  enum {CHANGES, STATUS} command = *g.argv[1]=='s' ? STATUS : CHANGES;
   int useSha1sum = find_option("sha1sum", 0, 0)!=0;
-  int showHdr = changes && find_option("header", 0, 0);
-  int verboseFlag = changes && find_option("verbose", "v", 0);
+  int showHdr = command==CHANGES && find_option("header", 0, 0);
+  int verboseFlag = command==CHANGES && find_option("verbose", "v", 0);
   const char *zIgnoreFlag = find_option("ignore", 0, 1);
   unsigned scanFlags = 0;
   unsigned flags = 0;
@@ -441,7 +441,7 @@ void status_cmd(void){
 
   /* Load affirmative flag options. */
   for( i=0; i<count(flagDefs); ++i ){
-    if( (changes || !(flagDefs[i].mask & C_CLASSIFY))
+    if( (command==CHANGES || !(flagDefs[i].mask & C_CLASSIFY))
      && find_option(flagDefs[i].option, 0, 0) ){
       flags |= flagDefs[i].mask;
     }
@@ -458,13 +458,13 @@ void status_cmd(void){
    * of two.  It's already known to not be zero because of the above defaults.
    * Unlike --all, --changed is a single filter, i.e. it sets only one bit.
    * Also force classification for the status command. */
-  if( !changes || (flags & (flags-1) & C_FILTER) ){
+  if( command==STATUS || (flags & (flags-1) & C_FILTER) ){
     flags |= C_CLASSIFY;
   }
 
   /* Negative flag options override defaults applied above. */
   for( i=0; i<count(noFlagDefs); ++i ){
-    if( (changes || !(noFlagDefs[i].mask & C_CLASSIFY))
+    if( (command==CHANGES || !(noFlagDefs[i].mask & C_CLASSIFY))
      && find_option(noFlagDefs[i].option, 0, 0) ){
       flags &= ~noFlagDefs[i].mask;
     }
@@ -505,7 +505,7 @@ void status_cmd(void){
   }
 
   /* The status command prints general information before the change list. */
-  if( !changes ){
+  if( command==STATUS ){
     fossil_print("repository:   %s\n", db_repository_filename());
     fossil_print("local-root:   %s\n", g.zLocalRoot);
     if( g.zConfigDbName ){
@@ -532,7 +532,7 @@ void status_cmd(void){
   blob_reset(&report);
 
   /* The status command ends with warnings about ambiguous leaves (forks). */
-  if( !changes ){
+  if( command==STATUS ){
     leaf_ambiguity_warning(vid, vid);
   }
 }
