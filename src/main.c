@@ -52,11 +52,6 @@
 #endif
 
 /*
-** Number of elements in an array
-*/
-#define count(X)  (sizeof(X)/sizeof(X[0]))
-
-/*
 ** Size of a UUID in characters
 */
 #define UUID_SIZE 40

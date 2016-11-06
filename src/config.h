@@ -229,4 +229,11 @@ typedef signed char i8;
 # define NORETURN
 #endif
 
+/*
+** Number of elements in an array
+*/
+#ifndef fossil_sizeof
+# define count(X) (sizeof(X)/sizeof(X[0]))
+#endif
+
 #endif /* _RC_COMPILE_ */

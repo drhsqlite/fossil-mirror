@@ -1,5 +1,5 @@
-C Fix\swiki\ssyntax\serror
-D 2016-11-06T03:02:20.170
+C Move\smacro\sdefinition\sto\sconfig.h\swhich\sis\sincluded\severywhere\sto\sfix\sbuild\nfailure\sreported\son\smailing\slist\swith\s"configure\s--json\s--with-tcl\s--with-th1-docs".
+D 2016-11-06T16:10:45.415
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -393,7 +393,7 @@ F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
 F src/codecheck1.c 4f707cdaefe03f9b1d913a54326617113d941898
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
-F src/config.h b91f4223f2653503759e1205343db9f94d134973
+F src/config.h 3e473fa4dfb6d8616a0f8937f0a7485172e841fa
 F src/configure.c ba6cd082894e2f08b71993a542990a617345007e
 F src/content.c a6024f0400307f4c25d067d323a6cbdf38b78c81
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
@@ -447,7 +447,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 597ae479d42096c07d6e6f85f1d844ebb46089b3
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
-F src/main.c 09bb17bd751e5509b3b21343d33645aaedc22e3a
+F src/main.c ac29e13b09054f79f15ad44885fc5ac92466835f
 F src/main.mk 3bfcbade731d65f075e20edfa6f1a384eda3f566
 F src/makeheaders.c cbbebae48e377db66e648af76a7aeea63c9bc523
 F src/makeheaders.html 00efb5b1ca5c9f7ff490a8a4f5581212c20453b9
@@ -768,6 +768,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8a310633a778fa978657fb042a8f58a1c2aa4efc
-U andygoth
-Z aeacf8e9303089f3a5db5edf0b21f6f2
+P 000f2193b0965a9cd7d78fe37220d62ac81ec2e2
+R be0314907eea2b42e3b1ee9ca5b874a2
+U andybradford
+Z 85ffb1ccd9b9d4d8bbd98786d7cc724f
