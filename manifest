@@ -1,5 +1,5 @@
-C Immediately\sbackout\s[7c8cc2adab].\s\sTurns\sout\sit\shas\sa\sproblem\swith\sshowing\sadded\sfiles.
-D 2016-11-06T23:47:12.397
+C Like\sI\ssaid,\sit\shas\sa\sproblem\swith\sshowing\sadded\sfiles.
+D 2016-11-06T23:48:23.374
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -310,7 +310,6 @@ F compat/zlib/zutil.c e1af709bff21ae0d4331119a7fc4c19f82932043
 F compat/zlib/zutil.h b909d27ef9ce51639f76b7ea6b62721e7d1b6bf7
 F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
-F file da39a3ee5e6b4b0d3255bfef95601890afd80709
 F fossil.1 5dafc0a0e37de8b6d38ca807a12e9e56619812d5
 F setup/fossil.iss 57e01e1feb0198de025417c0a98f1d4b1c444f53
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
@@ -769,6 +768,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7c8cc2adab8280674718bc056fa328c5856f9950
+P d87c85c1c7f34c8abb0bfb57d3af9f76354bdabe
 U andygoth
-Z 8ae84c74956ad0349104e624007aabbd
+Z 8884c03fba99824beaef9e3996b896d1
