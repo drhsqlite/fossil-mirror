@@ -1,5 +1,5 @@
-C Move\smacro\sdefinition\sto\sconfig.h\swhich\sis\sincluded\severywhere\sto\sfix\sbuild\nfailure\sreported\son\smailing\slist\swith\s"configure\s--json\s--with-tcl\s--with-th1-docs".
-D 2016-11-06T16:10:45.415
+C Correct\scommit\sthat\shad\smistake\sin\smacro\sdefinition\sin\s[36e7558a11598].
+D 2016-11-06T16:40:30.769
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -393,7 +393,7 @@ F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
 F src/codecheck1.c 4f707cdaefe03f9b1d913a54326617113d941898
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
-F src/config.h 3e473fa4dfb6d8616a0f8937f0a7485172e841fa
+F src/config.h e0a8d96a16c6c45bf064f5d665320993e78cb6f1
 F src/configure.c ba6cd082894e2f08b71993a542990a617345007e
 F src/content.c a6024f0400307f4c25d067d323a6cbdf38b78c81
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
@@ -768,7 +768,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 000f2193b0965a9cd7d78fe37220d62ac81ec2e2
-R be0314907eea2b42e3b1ee9ca5b874a2
+P 36e7558a11598f3e27751272415c938e70312121
+R eed363fd14774c5bf74a9daee272c29b
 U andybradford
-Z 85ffb1ccd9b9d4d8bbd98786d7cc724f
+Z 88c6c54643b36a43b01381267fd4be22

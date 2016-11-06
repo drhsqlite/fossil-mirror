@@ -232,8 +232,6 @@ typedef signed char i8;
 /*
 ** Number of elements in an array
 */
-#ifndef fossil_sizeof
-# define count(X) (sizeof(X)/sizeof(X[0]))
-#endif
+#define count(X) (sizeof(X)/sizeof(X[0]))
 
 #endif /* _RC_COMPILE_ */
