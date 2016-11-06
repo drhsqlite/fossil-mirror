@@ -1,5 +1,5 @@
-C Split\sSCAN_META\sto\sSCAN_MTIME\sand\sSCAN_SIZE.\s\sNone\sof\sthese\sare\sin\suse\sat\sthe\smoment.
-D 2016-11-06T22:55:59.455
+C Merge\strunk
+D 2016-11-06T23:35:58.139
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -387,13 +387,13 @@ F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c d19016a93cd959a9a45817057b911d9e4b333dfd
-F src/checkin.c c5bcecd03bb18f7eff3aad38330f0c0c9207cee9
+F src/checkin.c 6d5a55a44e8cf9616624c12f1a80219a213cfce7
 F src/checkout.c 083ec4f2ccd7d9df27dbb94d90008088eb8c4340
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
 F src/codecheck1.c 4f707cdaefe03f9b1d913a54326617113d941898
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
-F src/config.h b91f4223f2653503759e1205343db9f94d134973
+F src/config.h e0a8d96a16c6c45bf064f5d665320993e78cb6f1
 F src/configure.c ba6cd082894e2f08b71993a542990a617345007e
 F src/content.c a6024f0400307f4c25d067d323a6cbdf38b78c81
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
@@ -447,10 +447,10 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 597ae479d42096c07d6e6f85f1d844ebb46089b3
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
-F src/main.c 04ef98364ec24de589821f80e2e4675a2e9b6aad
+F src/main.c 091f5de79d8f3732cdcd6d77b57284f9757c6c8a
 F src/main.mk 3bfcbade731d65f075e20edfa6f1a384eda3f566
 F src/makeheaders.c cbbebae48e377db66e648af76a7aeea63c9bc523
-F src/makeheaders.html 025e5fde5e6f75d5deccba7e7c99ec5ddd7aedb3
+F src/makeheaders.html 00efb5b1ca5c9f7ff490a8a4f5581212c20453b9
 F src/makemake.tcl 83744f2e78fb00e945b5eb50c64fbbc551a1ba1d
 F src/manifest.c e037d26b34ec3631288032bf06fd79f188e115da
 F src/markdown.c 20bb4755f258601e4e3e5274ea117fc7c8b1ccf7
@@ -735,7 +735,7 @@ F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki 37506c18202051284c6145efeb9a7579e5f9497c
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
-F www/makefile.wiki c66d24da0948da2025a79968522f78aa03055df5
+F www/makefile.wiki 8a74840967cce0fbdc12ca29f202aaedd4388d18
 F www/mkdownload.tcl 3d0050f9c20d49fb23bfc43500fe53d834bea297
 F www/mkindex.tcl bbf182af20110241e858c24ef55fcbca268f13e5 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
@@ -768,6 +768,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8cd81143e767b7f1a6f64157b4756953bf2f8296
+P 2862f1c293af8912e42647582abbd4761611faf6 bc5a67d1ab2ef22cc56631518d8f5546f0bef211
 U andygoth
-Z 9cda1497e52ed4fba56e9bd12f1a242c
+Z 9172f762a83b9ea78d5b35beeaf4abd2

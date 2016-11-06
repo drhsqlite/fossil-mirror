@@ -44,7 +44,9 @@ files for a C or C++ programming project.
 
 <li><a href="#H0016">5.0 Compiling The Makeheaders Program</a>
 
-<li><a href="#H0017">6.0 Summary And Conclusion</a>
+<li><a href="#H0017">6.0 History</a>
+
+<li><a href="#H0018">7.0 Summary And Conclusion</a>
 </ul><a name="H0002"></a>
 <h2>1.0 Background</h2>
 
@@ -1096,7 +1098,32 @@ as well as Cygwin32 and MSVC 5.0 for Win32.
 </p>
 
 <a name="H0017"></a>
-<h2>6.0 Summary And Conclusion</h2>
+<h2>6.0 History</h2>
+
+<p>
+The makeheaders program was first written by D. Richard Hipp
+(also the original author of 
+<a href="https://sqlite.org/">SQLite</a> and
+<a href="https://www.fossil-scm.org/">Fossil</a>) in 1993.
+Hipp open-sourced the project immediately, but it never caught
+on with any other developers and it continued to be used mostly
+by Hipp himself for over a decade.  When Hipp was first writing
+the Fossil version control system in 2006 and 2007, he used
+makeheaders on that project to help simplify the source code.
+As the popularity of Fossil increased, the makeheaders
+that was incorporated into the Fossil source tree became the
+"official" makeheaders implementation.
+</p>
+
+<p>
+As this paragraph is being composed (2016-11-05), Fossil is the
+only project known to Hipp that is still using makeheaders.  On
+the other hand, makeheaders has served the Fossil project well and
+there are no plans remove it.
+</p>
+
+<a name="H0018"></a>
+<h2>7.0 Summary And Conclusion</h2>
 
 <p>
 The makeheaders program will automatically generate a minimal header file
