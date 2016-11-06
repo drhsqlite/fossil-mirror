@@ -1,5 +1,5 @@
-C Remove\shard-coded\sdemo\sof\smtime\sand\ssize\sfrom\schanges\sand\sstatus\scommands
-D 2016-11-06T22:53:24.794
+C Split\sSCAN_META\sto\sSCAN_MTIME\sand\sSCAN_SIZE.\s\sNone\sof\sthese\sare\sin\suse\sat\sthe\smoment.
+D 2016-11-06T22:55:59.455
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -513,7 +513,7 @@ F src/user.c 1d31844a9e48e2ab515586bf54ecc4b30b47d5b5
 F src/utf8.c 9f458b9698fc928cc21e375538f268651d1d22a2
 F src/util.c 9a3cc502aa6ae3bc19831e5f553cd346ec154b5c
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
-F src/vfile.c 431aa92819a03a277f4977442727a6f548b9ec8b
+F src/vfile.c 070342b08e61811e5e3da064cc4602871d4644d5
 F src/wiki.c 7e8ea06600305377a7da5a56b396491741b61a9c
 F src/wikiformat.c d96d5e2b2f4266b4e5064a07706f69a9190b2fad
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
@@ -768,6 +768,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8b8e7654232fda5ccf64e97c355dc5808f81e0fc
+P 8cd81143e767b7f1a6f64157b4756953bf2f8296
 U andygoth
-Z 8fdd9d92b511cf5eb15766489a77f962
+Z 9cda1497e52ed4fba56e9bd12f1a242c
