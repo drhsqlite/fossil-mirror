@@ -66,8 +66,7 @@ static void locate_unmanaged_files(
   int argc,           /* Number of command-line arguments to examine */
   char **argv,        /* values of command-line arguments */
   unsigned scanFlags, /* Zero or more SCAN_xxx flags */
-  Glob *pIgnore1,     /* Do not add files that match this GLOB */
-  Glob *pIgnore2      /* Omit files matching this GLOB too */
+  Glob *pIgnore       /* Do not add files that match this GLOB */
 ){
   Blob name;   /* Name of a candidate file or directory */
   char *zName; /* Name of a candidate file or directory */
@@ -80,7 +79,7 @@ static void locate_unmanaged_files(
   nRoot = (int)strlen(g.zLocalRoot);
   if( argc==0 ){
     blob_init(&name, g.zLocalRoot, nRoot - 1);
-    vfile_scan(&name, blob_size(&name), scanFlags, pIgnore1, pIgnore2);
+    vfile_scan(&name, blob_size(&name), scanFlags, pIgnore, 0);
     blob_reset(&name);
   }else{
     for(i=0; i<argc; i++){
@@ -88,7 +87,7 @@ static void locate_unmanaged_files(
       zName = blob_str(&name);
       isDir = file_wd_isdir(zName);
       if( isDir==1 ){
-        vfile_scan(&name, nRoot-1, scanFlags, pIgnore1, pIgnore2);
+        vfile_scan(&name, nRoot-1, scanFlags, pIgnore, 0);
       }else if( isDir==0 ){
         fossil_warning("not found: %s", &zName[nRoot]);
       }else if( file_access(zName, R_OK) ){
@@ -484,7 +483,7 @@ void status_cmd(void){
   /* Search for unmanaged files if requested.  Exclude reserved files. */
   if( flags & C_EXTRA ){
     Glob *pIgnore = glob_create(zIgnoreFlag);
-    locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, pIgnore, 0);
+    locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, pIgnore);
     glob_free(pIgnore);
     db_multi_exec("DELETE FROM sfile WHERE x IN (%s)",
         fossil_all_reserved_names(0));
@@ -793,7 +792,7 @@ void extras_cmd(void){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
   pIgnore = glob_create(zIgnoreFlag);
-  locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, pIgnore, 0);
+  locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, pIgnore);
   glob_free(pIgnore);
   db_prepare(&q,
       "SELECT x FROM sfile"
@@ -973,7 +972,7 @@ void clean_cmd(void){
     Stmt q;
     Blob repo;
     if( !dryRunFlag && !disableUndo ) undo_begin();
-    locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, pIgnore, 0);
+    locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, pIgnore);
     db_prepare(&q,
         "SELECT %Q || x FROM sfile"
         " WHERE x NOT IN (%s)"
