@@ -75,7 +75,7 @@ static void locate_unmanaged_files(
   int i;       /* Loop counter */
   int nRoot;   /* length of g.zLocalRoot */
 
-  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
+  db_multi_exec("CREATE TEMP TABLE sfile(pathname TEXT PRIMARY KEY %s)",
                 filename_collation());
   nRoot = (int)strlen(g.zLocalRoot);
   if( argc==0 ){
@@ -95,7 +95,7 @@ static void locate_unmanaged_files(
         fossil_fatal("cannot open %s", &zName[nRoot]);
       }else{
         db_multi_exec(
-           "INSERT OR IGNORE INTO sfile(x) VALUES(%Q)",
+           "INSERT OR IGNORE INTO sfile(pathname) VALUES(%Q)",
            &zName[nRoot]
         );
       }
@@ -161,7 +161,7 @@ static void status_report(
     if( blob_size(&sql) ){
       blob_append_sql(&sql, " UNION ALL");
     }
-    blob_append_sql(&sql, " SELECT x AS pathname, 0, 0, 0, 0, 0, 0"
+    blob_append_sql(&sql, " SELECT pathname, 0, 0, 0, 0, 0, 0"
                           " FROM sfile WHERE pathname NOT IN (%s)%s",
                           fossil_all_reserved_names(0), blob_sql_text(&where));
   }
@@ -973,15 +973,16 @@ void clean_cmd(void){
     if( !dryRunFlag && !disableUndo ) undo_begin();
     locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, pIgnore);
     db_prepare(&q,
-        "SELECT %Q || x FROM sfile"
-        " WHERE x NOT IN (%s)"
+        "SELECT %Q || pathname FROM sfile"
+        " WHERE pathname NOT IN (%s)"
         " ORDER BY 1",
         g.zLocalRoot, fossil_all_reserved_names(0)
     );
     if( file_tree_name(g.zRepositoryName, &repo, 0, 0) ){
-      db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
+      db_multi_exec("DELETE FROM sfile WHERE pathname=%B", &repo);
     }
-    db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
+    db_multi_exec("DELETE FROM sfile WHERE pathname IN"
+                  " (SELECT pathname FROM vfile)");
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       if( glob_match(pKeep, zName+nRoot) ){

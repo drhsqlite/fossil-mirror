@@ -209,7 +209,7 @@ static void stash_apply(int stashid, int nConflict){
      stashid
   );
   vid = db_lget_int("checkout",0);
-  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
+  db_multi_exec("CREATE TEMP TABLE sfile(pathname TEXT PRIMARY KEY %s)",
                 filename_collation());
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
@@ -224,7 +224,7 @@ static void stash_apply(int stashid, int nConflict){
     undo_save(zNew);
     blob_zero(&delta);
     if( rid==0 ){
-      db_multi_exec("INSERT OR IGNORE INTO sfile(x) VALUES(%Q)", zNew);
+      db_multi_exec("INSERT OR IGNORE INTO sfile(pathname) VALUES(%Q)", zNew);
       db_ephemeral_blob(&q, 6, &delta);
       blob_write_to_file(&delta, zNPath);
       file_wd_setexe(zNPath, isExec);

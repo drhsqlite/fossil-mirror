@@ -500,7 +500,7 @@ void vfile_scan(
 
   if( depth==0 ){
     db_prepare(&ins,
-       "INSERT OR IGNORE INTO sfile(x) SELECT :file"
+       "INSERT OR IGNORE INTO sfile(pathname) SELECT :file"
        "  WHERE NOT EXISTS(SELECT 1 FROM vfile WHERE"
        " pathname=:file %s)", filename_collation()
     );
