@@ -1,5 +1,5 @@
-C Clarify\slinenoise
-D 2016-11-06T03:01:36.955
+C Fix\swiki\ssyntax\serror
+D 2016-11-06T03:02:20.170
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -735,7 +735,7 @@ F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki 37506c18202051284c6145efeb9a7579e5f9497c
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
-F www/makefile.wiki 3be91dc07edb365740b1fc54484ec4dafd2b7033
+F www/makefile.wiki 8a74840967cce0fbdc12ca29f202aaedd4388d18
 F www/mkdownload.tcl 3d0050f9c20d49fb23bfc43500fe53d834bea297
 F www/mkindex.tcl bbf182af20110241e858c24ef55fcbca268f13e5 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
@@ -768,6 +768,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f6ab9e2867b92fbbf73622c83bd27ff303f58ca4
+P 8a310633a778fa978657fb042a8f58a1c2aa4efc
 U andygoth
-Z 859fa1e2a4423567beada3dd075d2088
+Z aeacf8e9303089f3a5db5edf0b21f6f2
