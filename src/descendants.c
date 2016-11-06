@@ -218,8 +218,8 @@ int mtime_of_manifest_file(
 
   if( prevVid!=vid ){
     prevVid = vid;
-    db_multi_exec("CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY);"
-                  "DELETE FROM ok;");
+    db_multi_exec("DROP TABLE IF EXISTS temp.ok;"
+                  "CREATE TEMP TABLE ok(x INTEGER PRIMARY KEY);");
     compute_ancestors(vid, 100000000, 1);
   }
   db_static_prepare(&q,

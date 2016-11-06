@@ -228,7 +228,7 @@ static int add_files_in_sfile(int vid){
   }else{
     xCmp = fossil_stricmp;
   }
-  db_prepare(&loop, "SELECT pathname FROM sfile ORDER BY pathname");
+  db_prepare(&loop, "SELECT x FROM sfile ORDER BY x");
   while( db_step(&loop)==SQLITE_ROW ){
     const char *zToAdd = db_column_text(&loop, 0);
     if( fossil_strcmp(zToAdd, zRepo)==0 ) continue;
@@ -309,7 +309,7 @@ void add_cmd(void){
   if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
   vid = db_lget_int("checkout",0);
   db_begin_transaction();
-  db_multi_exec("CREATE TEMP TABLE sfile(pathname TEXT PRIMARY KEY %s)",
+  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
                 filename_collation());
   pClean = glob_create(zCleanFlag);
   pIgnore = glob_create(zIgnoreFlag);
@@ -351,7 +351,7 @@ void add_cmd(void){
         }
       }
       db_multi_exec(
-         "INSERT OR IGNORE INTO sfile(pathname) VALUES(%Q)",
+         "INSERT OR IGNORE INTO sfile(x) VALUES(%Q)",
          zTreeName
       );
     }
@@ -476,7 +476,7 @@ void delete_cmd(void){
     removeFiles = FOSSIL_MV_RM_FILE;
 #endif
   }
-  db_multi_exec("CREATE TEMP TABLE sfile(pathname TEXT PRIMARY KEY %s)",
+  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
                 filename_collation());
   for(i=2; i<g.argc; i++){
     Blob treeName;
@@ -496,7 +496,7 @@ void delete_cmd(void){
     blob_reset(&treeName);
   }
 
-  db_prepare(&loop, "SELECT pathname FROM sfile");
+  db_prepare(&loop, "SELECT x FROM sfile");
   while( db_step(&loop)==SQLITE_ROW ){
     fossil_print("DELETED %s\n", db_column_text(&loop, 0));
     if( removeFiles ) add_file_to_remove(db_column_text(&loop, 0));
@@ -672,7 +672,7 @@ void addremove_cmd(void){
   ** --ignore or ignore-glob patterns and dot-files.  Then add all of
   ** the files in the sfile temp table to the set of managed files.
   */
-  db_multi_exec("CREATE TEMP TABLE sfile(pathname TEXT PRIMARY KEY %s)",
+  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
                 filename_collation());
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
