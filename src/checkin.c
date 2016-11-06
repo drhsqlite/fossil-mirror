@@ -413,13 +413,6 @@ void status_cmd(void){
     {"no-merge", C_MERGE  , 0}, {"no-classify", C_CLASSIFY  , 1},
   };
 
-#ifdef FOSSIL_DEBUG
-  static const char *const bits[] = {
-    "EDITED", "UPDATED", "CHANGED", "MISSING", "ADDED", "DELETED", "RENAMED",
-    "CONFLICT", "META", "UNMODIFIED", "EXTRA", "MERGE", "RELPATH", "CLASSIFY",
-  };
-#endif
-
   Blob report = BLOB_INITIALIZER;
   int useSha1sum = find_option("sha1sum", 0, 0)!=0;
   int showHdr = find_option("header",0,0)!=0;
@@ -481,15 +474,6 @@ void status_cmd(void){
   if( determine_cwd_relative_option() ){
     flags |= C_RELPATH;
   }
-
-#ifdef FOSSIL_DEBUG
-  for( i=0; i<count(bits); ++i ){
-    if( flags & (1 << i) ){
-      printf("%s ", bits[i]);
-    }
-  }
-  printf("\n");
-#endif
 
   /* We should be done with options. */
   verify_all_options();

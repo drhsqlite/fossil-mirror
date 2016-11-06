@@ -1,5 +1,5 @@
-C Fold\sprint_changes()\sinto\sstatus_cmd()\s(formerly\schanges_cmd()).\s\sRemove\sC_SHA1SUM,\sC_HEADER,\sand\sC_VERBOSE\sflags\swhich\sare\sno\slonger\sneeded\sfor\scommunicating\soptions\sto\sprint_changes().\s\sMove\slocate_unmanaged_files()\scloser\sto\sthe\stop\sof\sthe\sfile\sso\sstatus_cmd()\scan\scall\sit.\s\sImplement\sC_UNMODIFIED\sand\sC_EXTRA\sin\sstatus_report().\s\sDocument\sthe\sfact\sthat\sthe\schanges\sand\sstatus\scommands\stake\soptional\spath\sarguments.\s\sLet\schanges\sand\sstatus\scommands\saccept\s--case-sensitive\s(was\salready\sdone),\s--dotfiles,\sand\s--ignore\sfor\sthe\sbenefit\sof\s--extras.\s\sIncorporate\ssearch\sfor\sextra\sfiles\sinto\sstatus_cmd().
-D 2016-11-06T02:35:35.578
+C Remove\sflag\sdebug\sprints\sfrom\sstatus_cmd()\snow\sthat\sit\sseems\sto\sbe\sstable
+D 2016-11-06T02:39:06.162
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -387,7 +387,7 @@ F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c d19016a93cd959a9a45817057b911d9e4b333dfd
-F src/checkin.c d643a1198b7018992b2b0bf7aee036eabdbb33ec
+F src/checkin.c c20e4952fb21bf3c94d1022d68209922447e82e6
 F src/checkout.c 083ec4f2ccd7d9df27dbb94d90008088eb8c4340
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
@@ -768,6 +768,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2c3a108c72e7d596aa7ee3a653784d75aee437af
+P f15d20e39b55c7ac3e007a5df84293885c4404a1
 U andygoth
-Z 829df031dbe91dd406c998ae881ddcf1
+Z d09d739842e55849d4d7229f8589b4e4
