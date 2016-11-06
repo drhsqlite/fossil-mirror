@@ -27,10 +27,9 @@
 */
 enum {
   /* Zero-based bit indexes. */
-  CB_EDITED , CB_UPDATED , CB_CHANGED, CB_MISSING   , CB_ADDED   , CB_DELETED,
-  CB_RENAMED, CB_CONFLICT, CB_META   , CB_UNMODIFIED, CB_EXTRA   , CB_MERGE  ,
-  CB_RELPATH, CB_SHA1SUM , CB_HEADER , CB_VERBOSE   , CB_CLASSIFY, CB_FATAL  ,
-  CB_COMMENT,
+  CB_EDITED , CB_UPDATED , CB_CHANGED, CB_MISSING   , CB_ADDED, CB_DELETED,
+  CB_RENAMED, CB_CONFLICT, CB_META   , CB_UNMODIFIED, CB_EXTRA, CB_MERGE  ,
+  CB_RELPATH, CB_CLASSIFY, CB_FATAL  , CB_COMMENT   ,
 
   /* Bitmask values. */
   C_EDITED     = 1 << CB_EDITED,    /* Edited, merged, and conflicted files. */
@@ -50,14 +49,60 @@ enum {
                | C_EXTRA   | C_MERGE,
   C_ALL        = C_FILTER & ~(C_EXTRA | C_MERGE),
   C_RELPATH    = 1 << CB_RELPATH,   /* Show relative paths. */
-  C_SHA1SUM    = 1 << CB_SHA1SUM,   /* Use SHA1 checksums not mtimes. */
-  C_HEADER     = 1 << CB_HEADER,    /* Display repository name if non-empty. */
-  C_VERBOSE    = 1 << CB_VERBOSE,   /* Display "(none)" if empty. */
   C_CLASSIFY   = 1 << CB_CLASSIFY,  /* Show file change types. */
   C_DEFAULT    = (C_ALL & ~C_UNMODIFIED) | C_MERGE | C_CLASSIFY,
   C_FATAL      = (1 << CB_FATAL) | C_MISSING, /* Fail on MISSING/NOT_A_FILE. */
   C_COMMENT    = 1 << CB_COMMENT,   /* Precede each line with "# ". */
 };
+
+/*
+** Create a TEMP table named SFILE and add all unmanaged files named on
+** the command-line to that table.  If directories are named, then add
+** all unmanaged files contained underneath those directories.  If there
+** are no files or directories named on the command-line, then add all
+** unmanaged files anywhere in the checkout.
+*/
+static void locate_unmanaged_files(
+  int argc,           /* Number of command-line arguments to examine */
+  char **argv,        /* values of command-line arguments */
+  unsigned scanFlags, /* Zero or more SCAN_xxx flags */
+  Glob *pIgnore1,     /* Do not add files that match this GLOB */
+  Glob *pIgnore2      /* Omit files matching this GLOB too */
+){
+  Blob name;   /* Name of a candidate file or directory */
+  char *zName; /* Name of a candidate file or directory */
+  int isDir;   /* 1 for a directory, 0 if doesn't exist, 2 for anything else */
+  int i;       /* Loop counter */
+  int nRoot;   /* length of g.zLocalRoot */
+
+  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
+                filename_collation());
+  nRoot = (int)strlen(g.zLocalRoot);
+  if( argc==0 ){
+    blob_init(&name, g.zLocalRoot, nRoot - 1);
+    vfile_scan(&name, blob_size(&name), scanFlags, pIgnore1, pIgnore2);
+    blob_reset(&name);
+  }else{
+    for(i=0; i<argc; i++){
+      file_canonical_name(argv[i], &name, 0);
+      zName = blob_str(&name);
+      isDir = file_wd_isdir(zName);
+      if( isDir==1 ){
+        vfile_scan(&name, nRoot-1, scanFlags, pIgnore1, pIgnore2);
+      }else if( isDir==0 ){
+        fossil_warning("not found: %s", &zName[nRoot]);
+      }else if( file_access(zName, R_OK) ){
+        fossil_fatal("cannot open %s", &zName[nRoot]);
+      }else{
+        db_multi_exec(
+           "INSERT OR IGNORE INTO sfile(x) VALUES(%Q)",
+           &zName[nRoot]
+        );
+      }
+      blob_reset(&name);
+    }
+  }
+}
 
 /*
 ** Generate text describing all changes.
@@ -71,10 +116,11 @@ static void status_report(
   Stmt q;
   int nErr = 0;
   Blob rewrittenPathname;
-  Blob where;
+  Blob sql = BLOB_INITIALIZER, where = BLOB_INITIALIZER;
   const char *zName;
   int i;
 
+  /* Assemble the path-limiting WHERE clause, if any. */
   blob_zero(&where);
   for(i=2; i<g.argc; i++){
     Blob fname;
@@ -93,24 +139,43 @@ static void status_report(
     );
   }
 
-  db_prepare(&q,
-    "SELECT pathname, deleted, chnged,"
-    "       rid, coalesce(origname!=pathname,0), islink"
-    "  FROM vfile "
-    " WHERE is_selected(id) %s"
-    "   AND (chnged OR deleted OR rid=0 OR pathname!=origname)"
-    " ORDER BY 1 /*scan*/",
-    blob_sql_text(&where)
-  );
+  /* Start building the SELECT statement. */
+  blob_zero(&sql);
+  blob_append_sql(&sql,
+    "SELECT pathname, deleted, chnged, rid,"
+    "       coalesce(origname!=pathname,0) AS renamed, islink, 1 AS managed"
+    "  FROM vfile"
+    " WHERE is_selected(id)%s", blob_sql_text(&where));
+
+  /* Exclude unmodified files unless requested. */
+  if( !(flags & C_UNMODIFIED) ){
+    blob_append_sql(&sql,
+        " AND (chnged OR deleted OR rid=0 OR pathname!=origname)");
+  }
+
+  /* If C_EXTRA, add unmanaged files to the query result too. */
+  if( flags & C_EXTRA ){
+    blob_append_sql(&sql, " UNION ALL SELECT x AS pathname, 0, 0, 0, 0, 0, 0"
+                          " FROM sfile WHERE 1%s", blob_sql_text(&where));
+  }
+
+  /* Append an ORDER BY clause then compile the query. */
+  blob_append_sql(&sql, " ORDER BY pathname");
+  db_prepare(&q, "%s", blob_sql_text(&sql));
+  blob_reset(&sql);
+  blob_reset(&where);
+
+  /* Execute the query and assemble the report. */
   blob_zero(&rewrittenPathname);
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zPathname = db_column_text(&q,0);
+    const char *zPathname = db_column_text(&q, 0);
     const char *zClass = 0;
+    int isManaged = db_column_int(&q, 6);
     int isDeleted = db_column_int(&q, 1);
-    int isChnged = db_column_int(&q,2);
-    int isNew = db_column_int(&q,3)==0;
-    int isRenamed = db_column_int(&q,4);
-    int isLink = db_column_int(&q,5);
+    int isChnged = db_column_int(&q, 2);
+    int isNew = isManaged && !db_column_int(&q, 3);
+    int isRenamed = db_column_int(&q, 4);
+    int isLink = db_column_int(&q, 5);
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
     int isMissing = !file_wd_isfile_or_link(zFullName);
 
@@ -152,16 +217,17 @@ static void status_report(
     }else if( (flags & C_CONFLICT) && isChnged && !isLink
            && file_contains_merge_marker(zFullName) ){
       zClass = "CONFLICT";
-    }else if( (flags & (C_EDITED | C_CHANGED)) && (isChnged<2 || isChnged>9) ){
+    }else if( (flags & (C_EDITED | C_CHANGED)) && isChnged
+           && (isChnged<2 || isChnged>9) ){
       zClass = "EDITED";
     }else if( (flags & C_RENAMED) && isRenamed ){
       zClass = "RENAMED";
-    }else if( (flags & C_UNMODIFIED) && !isDeleted && !isMissing && !isNew
-                                     && !isChnged  && !isRenamed ){
-      /* TODO: never gets executed because query only yields modified files. */
+    }else if( (flags & C_UNMODIFIED) && isManaged && !isDeleted && !isMissing
+                                     && !isNew    && !isChnged  && !isRenamed ){
       zClass = "UNMODIFIED";
+    }else if( (flags & C_EXTRA) && !isManaged ){
+      zClass = "EXTRA";
     }
-    /* TODO: implement C_EXTRA. */
     /* TODO: reimplement ls and extras in terms of this function. */
 
     /* Only report files for which a change classification was determined. */
@@ -245,34 +311,15 @@ static int determine_cwd_relative_option()
   return relativePaths;
 }
 
-void print_changes(
-  unsigned flags      /* Configuration flags */
-){
-  Blob report;
-  int vid;
-  blob_zero(&report);
-
-  vid = db_lget_int("checkout", 0);
-  vfile_check_signature(vid, flags & C_SHA1SUM ? CKSIG_SHA1 : 0);
-  status_report(&report, flags);
-  if( (flags & C_VERBOSE) && blob_size(&report)==0 ){
-    blob_append(&report, "  (none)\n", -1);
-  }
-  if( (flags & C_HEADER) && blob_size(&report)>0 ){
-    fossil_print("Changes for %s at %s:\n", db_get("project-name","???"),
-                 g.zLocalRoot);
-  }
-  blob_write_to_file(&report, "-");
-  blob_reset(&report);
-}
-
 /*
 ** COMMAND: changes
 ** COMMAND: status
 **
-** Usage: %fossil changes|status ?OPTIONS?
+** Usage: %fossil changes|status ?OPTIONS? ?PATHS ...?
 **
-** Report the change status of files in the current checkout.
+** Report the change status of files in the current checkout.  If one or
+** more PATHS are specified, only changes among the named files and
+** directories are reported.  Directories are searched recursively.
 **
 ** The status command is similar to the changes command, except it lacks
 ** several of the options supported by changes and it has its own header
@@ -320,6 +367,9 @@ void print_changes(
 **                      directory.
 **    --sha1sum         Verify file status using SHA1 hashing rather than
 **                      relying on file mtimes.
+**    --case-sensitive <BOOL>  Override case-sensitive setting.
+**    --dotfiles        Include unmanaged files beginning with a dot.
+**    --ignore <CSG>    Ignore unmanaged files matching CSG glob patterns.
 **
 ** Options specific to the changes command:
 **    --header          Identify the repository if report is non-empty.
@@ -358,9 +408,7 @@ void status_cmd(void){
     {"renamed" , C_RENAMED, 0}, {"conflict"   , C_CONFLICT  , 0},
     {"meta"    , C_META   , 0}, {"unmodified" , C_UNMODIFIED, 0},
     {"all"     , C_ALL    , 0}, {"extra"      , C_EXTRA     , 0},
-    {"merge"   , C_MERGE  , 0}, {"sha1sum"    , C_SHA1SUM   , 0},
-    {"header"  , C_HEADER , 1}, {"v"          , C_VERBOSE   , 1},
-    {"verbose" , C_VERBOSE, 1}, {"classify"   , C_CLASSIFY  , 1},
+    {"merge"   , C_MERGE  , 0}, {"classify"   , C_CLASSIFY  , 1},
   }, noFlagDefs[] = {
     {"no-merge", C_MERGE  , 0}, {"no-classify", C_CLASSIFY  , 1},
   };
@@ -368,14 +416,29 @@ void status_cmd(void){
 #ifdef FOSSIL_DEBUG
   static const char *const bits[] = {
     "EDITED", "UPDATED", "CHANGED", "MISSING", "ADDED", "DELETED", "RENAMED",
-    "CONFLICT", "META", "UNMODIFIED", "EXTRA", "MERGE", "RELPATH", "SHA1SUM",
-    "HEADER", "VERBOSE", "CLASSIFY",
+    "CONFLICT", "META", "UNMODIFIED", "EXTRA", "MERGE", "RELPATH", "CLASSIFY",
   };
 #endif
 
+  Blob report = BLOB_INITIALIZER;
+  int useSha1sum = find_option("sha1sum", 0, 0)!=0;
+  int showHdr = find_option("header",0,0)!=0;
+  int verboseFlag = find_option("verbose","v",0)!=0;
+  const char *zIgnoreFlag = find_option("ignore", 0, 1);
+  unsigned scanFlags = 0;
   int changes = g.argv[1][0]=='c';
   unsigned flags = 0;
   int vid, i;
+
+  /* If --ignore is not specified, use the ignore-glob setting. */
+  if( !zIgnoreFlag ){
+    zIgnoreFlag = db_get("ignore-glob", 0);
+  }
+
+  /* Get the --dotfiles argument, or read it from the dotfiles setting. */
+  if( find_option("dotfiles", 0, 0) || db_get_boolean("dotfiles", 0) ){
+    scanFlags = SCAN_ALL;
+  }
 
   /* Load affirmative flag options. */
   for( i=0; i<count(flagDefs); ++i ){
@@ -411,6 +474,9 @@ void status_cmd(void){
   /* Confirm current working directory is within checkout. */
   db_must_be_within_tree();
 
+  /* Get checkout version. l*/
+  vid = db_lget_int("checkout", 0);
+
   /* Relative path flag determination is done by a shared function. */
   if( determine_cwd_relative_option() ){
     flags |= C_RELPATH;
@@ -428,9 +494,20 @@ void status_cmd(void){
   /* We should be done with options. */
   verify_all_options();
 
+  /* Check for changed files. */
+  vfile_check_signature(vid, useSha1sum ? CKSIG_SHA1 : 0);
+
+  /* Search for unmanaged files if requested.  Exclude reserved files. */
+  if( flags & C_EXTRA ){
+    Glob *pIgnore = glob_create(zIgnoreFlag);
+    locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, pIgnore, 0);
+    glob_free(pIgnore);
+    db_multi_exec("DELETE FROM sfile WHERE x IN (%s)",
+        fossil_all_reserved_names(0));
+  }
+
   /* The status command prints general information before the change list. */
   if( !changes ){
-    vid = db_lget_int("checkout", 0);
     fossil_print("repository:   %s\n", db_repository_filename());
     fossil_print("local-root:   %s\n", g.zLocalRoot);
     if( g.zConfigDbName ){
@@ -442,8 +519,19 @@ void status_cmd(void){
     db_record_repository_filename(0);
   }
 
-  /* Print all requested changes. */
-  print_changes(flags);
+  /* Find and print all requested changes. */
+  blob_zero(&report);
+  status_report(&report, flags);
+  if( blob_size(&report) ){
+    if( showHdr ){
+      fossil_print("Changes for %s at %s:\n", db_get("project-name", "???"),
+                   g.zLocalRoot);
+    }
+    blob_write_to_file(&report, "-");
+  }else if( verboseFlag ){
+    fossil_print("  (none)\n");
+  }
+  blob_reset(&report);
 
   /* The status command ends with warnings about ambiguous leaves (forks). */
   if( !changes ){
@@ -666,55 +754,6 @@ void ls_cmd(void){
     free(zFullName);
   }
   db_finalize(&q);
-}
-
-/*
-** Create a TEMP table named SFILE and add all unmanaged files named on
-** the command-line to that table.  If directories are named, then add
-** all unmanaged files contained underneath those directories.  If there
-** are no files or directories named on the command-line, then add all
-** unmanaged files anywhere in the checkout.
-*/
-static void locate_unmanaged_files(
-  int argc,           /* Number of command-line arguments to examine */
-  char **argv,        /* values of command-line arguments */
-  unsigned scanFlags, /* Zero or more SCAN_xxx flags */
-  Glob *pIgnore1,     /* Do not add files that match this GLOB */
-  Glob *pIgnore2      /* Omit files matching this GLOB too */
-){
-  Blob name;   /* Name of a candidate file or directory */
-  char *zName; /* Name of a candidate file or directory */
-  int isDir;   /* 1 for a directory, 0 if doesn't exist, 2 for anything else */
-  int i;       /* Loop counter */
-  int nRoot;   /* length of g.zLocalRoot */
-
-  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
-                filename_collation());
-  nRoot = (int)strlen(g.zLocalRoot);
-  if( argc==0 ){
-    blob_init(&name, g.zLocalRoot, nRoot - 1);
-    vfile_scan(&name, blob_size(&name), scanFlags, pIgnore1, pIgnore2);
-    blob_reset(&name);
-  }else{
-    for(i=0; i<argc; i++){
-      file_canonical_name(argv[i], &name, 0);
-      zName = blob_str(&name);
-      isDir = file_wd_isdir(zName);
-      if( isDir==1 ){
-        vfile_scan(&name, nRoot-1, scanFlags, pIgnore1, pIgnore2);
-      }else if( isDir==0 ){
-        fossil_warning("not found: %s", &zName[nRoot]);
-      }else if( file_access(zName, R_OK) ){
-        fossil_fatal("cannot open %s", &zName[nRoot]);
-      }else{
-        db_multi_exec(
-           "INSERT OR IGNORE INTO sfile(x) VALUES(%Q)",
-           &zName[nRoot]
-        );
-      }
-      blob_reset(&name);
-    }
-  }
 }
 
 /*
