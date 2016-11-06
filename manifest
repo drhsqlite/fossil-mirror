@@ -1,5 +1,5 @@
-C More\sreliably\swork\saround\sthe\sproblem\sexperienced\sby\sthe\sprevious\scommit.\s\sNot\ssure\sif\sthis\sis\sthe\sright\slong-term\ssolution\ssince\swe\sseem\sto\shave\san\sarchitectural\sproblem:\sat\sleast\sone\sof\sFossil's\scustom\sSQL\sfunctions\scan\schange\sthe\sschema\s(in\sthis\scase,\sby\screating\sa\stemporary\stable),\sthereby\sinvalidating\sa\sprepared\sstatement\swhile\sit\sis\srunning.\s\sSee\sthe\scomment\sin\scheckin.c\sfor\sa\sbit\smore\sinformation.\s\sOf\scourse,\sthere\sare\srearrangements\sthat\savoid\sthe\sissue,\sbut\sit\sis\scertainly\sa\strap\sfor\sthe\sunwary.
-D 2016-11-06T20:19:47.780
+C Remove\ssome\sexcess\scomments,\sminor\srearrangement
+D 2016-11-06T21:28:22.392
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -387,7 +387,7 @@ F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c d19016a93cd959a9a45817057b911d9e4b333dfd
-F src/checkin.c fa6ef2a1620c879ad252b91feef4450b977ee067
+F src/checkin.c dc3410fb3ca375ce116ff6088f2fab9ad978e827
 F src/checkout.c 083ec4f2ccd7d9df27dbb94d90008088eb8c4340
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
@@ -768,6 +768,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9d5de8d702e8b00c81ecdf76be308f803cdd70f5
+P 5258a43d78fd433daa4ed36cae21b1d7e46c4efd
 U andygoth
-Z f9cbd5992248ebb7aa538b3fa4472242
+Z 0b3c9fd4f6fd047ef96cdb15f5279250

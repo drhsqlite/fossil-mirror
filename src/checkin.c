@@ -152,7 +152,7 @@ static void status_report(
       " WHERE is_selected(id)%s",
       flags & C_MTIME ? "datetime(checkin_mtime(:vid, rid), "
                         "'unixepoch', toLocal())" : "''" /*safe-for-%s*/,
-      flags & C_SIZE  ? "blob.size" : "0" /*safe-for-%s*/,
+      flags & C_SIZE ? "blob.size" : "0" /*safe-for-%s*/,
       blob_sql_text(&where));
 
     /* Exclude unchanged files unless requested. */
@@ -171,9 +171,10 @@ static void status_report(
       " SELECT pathname, %s, %s, 0, 0, 0, 0, 0, 0"
       " FROM sfile WHERE pathname NOT IN (%s)%s",
       flags & C_MTIME ? "datetime(mtime, 'unixepoch', toLocal())" : "''",
-      flags & C_SIZE  ? "size" : "0",
+      flags & C_SIZE ? "size" : "0",
       fossil_all_reserved_names(0), blob_sql_text(&where));
   }
+  blob_reset(&where);
 
   /* Pre-create the "ok" temporary table so the checkin_mtime() SQL function
    * does not lead to SQLITE_ABORT_ROLLBACK during execution of the OP_OpenRead
@@ -186,7 +187,6 @@ static void status_report(
   blob_append_sql(&sql, " ORDER BY pathname");
   db_prepare(&q, "%s", blob_sql_text(&sql));
   blob_reset(&sql);
-  blob_reset(&where);
 
   /* Bind the checkout version ID to the query if needed. */
   if( (flags & C_ALL) && (flags & C_MTIME) ){
@@ -299,23 +299,19 @@ static void status_report(
     db_prepare(&q, "SELECT uuid, id FROM vmerge JOIN blob ON merge=rid"
                    " WHERE id<=0");
     while( db_step(&q)==SQLITE_ROW ){
-      /* If C_COMMENT, precede each line with "# ". */
       if( flags & C_COMMENT ){
         blob_append(report, "# ", 2);
       }
-
-      /* If C_CLASSIFY, include the merge type. */
       if( flags & C_CLASSIFY ){
-        const char *zClass = "MERGED_WITH";
+        const char *zClass;
         switch( db_column_int(&q, 1) ){
-          case -1: zClass = "CHERRYPICK"; break;
-          case -2: zClass = "BACKOUT"   ; break;
-          case -4: zClass = "INTEGRATE" ; break;
+          case -1: zClass = "CHERRYPICK" ; break;
+          case -2: zClass = "BACKOUT"    ; break;
+          case -4: zClass = "INTEGRATE"  ; break;
+          default: zClass = "MERGED_WITH"; break;
         }
         blob_appendf(report, "%-10s ", zClass);
       }
-
-      /* Finish the line with the full SHA1 of the merge contributor. */
       blob_append(report, db_column_text(&q, 0), -1);
       blob_append(report, "\n", 1);
     }
