@@ -366,9 +366,8 @@ static void ls_cmd_rev(
 ** The fine behavior of the --age, -v, and -t options is altered by the -r
 ** option as well, as explained below.
 **
-** The --age option displays file commit times.  Unless -r is given, the
-** --age option changes -t's effect from sorting by modification time to
-** sorting by commit time.
+** The --age option displays file commit times.  Like -r, --age has the
+** side effect of making -t sort by commit time, not modification time.
 **
 ** The -v option provides extra information about each file.  Without -r,
 ** -v displays the change status, in the manner of the changes command.
