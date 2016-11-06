@@ -29,7 +29,7 @@ enum {
   /* Zero-based bit indexes. */
   CB_EDITED , CB_UPDATED , CB_CHANGED, CB_MISSING  , CB_ADDED, CB_DELETED,
   CB_RENAMED, CB_CONFLICT, CB_META   , CB_UNCHANGED, CB_EXTRA, CB_MERGE  ,
-  CB_RELPATH, CB_CLASSIFY, CB_MTIME  , CB_SIZE     , CB_FATAL, CB_COMMENT, 
+  CB_RELPATH, CB_CLASSIFY, CB_MTIME  , CB_SIZE     , CB_FATAL, CB_COMMENT,
 
   /* Bitmask values. */
   C_EDITED    = 1 << CB_EDITED,     /* Edited, merged, and conflicted files. */
@@ -521,7 +521,7 @@ void status_cmd(void){
   /* Search for unmanaged files if requested. */
   if( flags & C_EXTRA ){
     Glob *pIgnore = glob_create(zIgnoreFlag);
-    locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags | SCAN_META, pIgnore);
+    locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, pIgnore);
     glob_free(pIgnore);
   }
 
@@ -540,7 +540,7 @@ void status_cmd(void){
 
   /* Find and print all requested changes. */
   blob_zero(&report);
-  status_report(&report, flags | C_MTIME | C_SIZE);
+  status_report(&report, flags);
   if( blob_size(&report) ){
     if( showHdr ){
       fossil_print("Changes for %s at %s:\n", db_get("project-name", "???"),
