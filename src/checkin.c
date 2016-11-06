@@ -234,7 +234,6 @@ static void status_report(
     }else if( (flags & C_EXTRA) && !isManaged ){
       zClass = "EXTRA";
     }
-    /* TODO: reimplement ls and extras in terms of this function. */
 
     /* Only report files for which a change classification was determined. */
     if( zClass ){
