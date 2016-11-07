@@ -723,14 +723,14 @@ const struct strctCssDefaults {
     "the format for the timeline data cell of the current checkout",
     @   padding: .1em .2em;
     @   border: 1px dashed #446979;
-    @   box-shadow: 1px 1px 4px #888;
+    @   box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
   },
   { "tr.timelineSelected",
     "The row in the timeline table that contains the entry of interest",
     @   padding: .1em .2em;
     @   border: 2px solid lightgray;
     @   background-color: #ffc;
-    @   box-shadow: 4px 4px 2px #888;
+    @   box-shadow: 4px 4px 2px rgba(0, 0, 0, 0.5);
   },
   { "tr.timelineSpacer",
     "An extra row inserted to give vertical space between two rows",
