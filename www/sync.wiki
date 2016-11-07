@@ -191,11 +191,11 @@ other artifact.</p>
 <b>file</b> <i>artifact-id delta-artifact-id size</i> <b>\n</b> <i>content</i>
 </blockquote>
 
-<p>File cards are different from most other cards in that they are
-followed by in-line "payload" data.  The content of the artifact
-or the artifact delta consists of the first <i>size</i> bytes of the
+<p>File cards are followed by in-line "payload" data.  
+The content of the artifact
+or the artifact delta is the first <i>size</i> bytes of the
 x-fossil content that immediately follow the newline that
-terminates the file card.  Only file and cfile cards have this characteristic.
+terminates the file card.
 </p>
 
 <p>The first argument of a file card is the ID of the artifact that

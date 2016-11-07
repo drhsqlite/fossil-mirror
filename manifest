@@ -1,5 +1,5 @@
-C Add\soption\sto\stest-find-pivot\sto\sassist\sin\sdiscovering\s"name\spivots"\swhen\ndiagnosing\smerge\sfailures.
-D 2016-11-07T08:24:17.656
+C Fix\sthe\ssync.wiki\sdocumentation\sto\saccount\sfor\srecent\schanges\sto\sthe\nsync\sprotocol.
+D 2016-11-07T11:26:26.712
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -756,7 +756,7 @@ F www/shunning.wiki c216e0b9968d4916224bce549e65c651076ebe1f
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki 6558a7e417d5e9d29271c26ebb3195dddec31855
 F www/style.wiki da3a414d4c57c3da2636daf0baf6964ba72ce70b
-F www/sync.wiki 5c4b4970977c642f092c7c882e3299959e8d2b23
+F www/sync.wiki 3fbc46a06229b64cae6a79da2f62ab1bb5c3f3ab
 F www/tech_overview.wiki 4d74d28dfc2515d7864c4ecbf7324be9919e3efd
 F www/th1.md 6154ca86c2d54b49b84e01715103eb8f74e5c3aa
 F www/theory1.wiki 8047579bc30437bffe4dd0c06d8c2aa3ba3648ae
@@ -768,7 +768,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 22a9fba42862d3b9ce6fc5e29878e6bb7bf5e346
-R f50ee2922bf370b29064c7dca0a91593
-U andybradford
-Z e32627ada20d20d940674795b41f47d0
+P 3dc006c9dec71bb4ef5e392c89c7e4f78d90f26b
+R 27477886c4b0d7c099c6e59c5ef8d488
+U drh
+Z ff427595b23bdefab580753aac97461b
