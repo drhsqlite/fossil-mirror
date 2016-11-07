@@ -1,5 +1,5 @@
-C Minor\scorrection\sto\sexample\scomment\sin\sFossil\scoding\sintroduction.
-D 2016-11-07T05:43:44.665
+C Add\soption\sto\stest-find-pivot\sto\sassist\sin\sdiscovering\s"name\spivots"\swhen\ndiagnosing\smerge\sfailures.
+D 2016-11-07T08:24:17.656
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -467,7 +467,7 @@ F src/moderate.c 2540f90b20778a4d62156a3b4af962b401d4c89f
 F src/name.c 268277644abeb05a3dfa67faaaaeb3dade4c1a1f
 F src/path.c cce5fdfa571861a81e1a48e893e5a52dd2703a5f
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
-F src/pivot.c 2f9b97dad4267f3b5a9e89e14b711f326cb3f3a0
+F src/pivot.c e4a8ed414bbc311a3f427cad8da023d33bd39f46
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 26a2f0024b1e59f3e6b3f4fa40f72f458e517f18
@@ -768,7 +768,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ba5ab70e96ca7e25d6c4fb3c164f221f347508cf
-R d755fb63041408424aabb9b5a5cbc908
+P 22a9fba42862d3b9ce6fc5e29878e6bb7bf5e346
+R f50ee2922bf370b29064c7dca0a91593
 U andybradford
-Z 4d0998cf706d088fa8f14aa3d585c7d3
+Z e32627ada20d20d940674795b41f47d0

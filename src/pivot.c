@@ -155,19 +155,25 @@ int pivot_find(int ignoreMerges){
 /*
 ** COMMAND: test-find-pivot
 **
+** Usage: %fossil test-find-pivot ?options? PRIMARY SECONDARY ...
+**
 ** Test the pivot_find() procedure.
+**
+** Options:
+**    --ignore-merges       Ignore merges for discovering name pivots
 */
 void test_find_pivot(void){
   int i, rid;
+  int ignoreMerges = find_option("ignore-merges",0,0)!=0;
   if( g.argc<4 ){
-    usage("PRIMARY SECONDARY ...");
+    usage("?options? PRIMARY SECONDARY ...");
   }
   db_must_be_within_tree();
   pivot_set_primary(name_to_rid(g.argv[2]));
   for(i=3; i<g.argc; i++){
     pivot_set_secondary(name_to_rid(g.argv[i]));
   }
-  rid = pivot_find(0);
+  rid = pivot_find(ignoreMerges);
   printf("pivot=%s\n",
          db_text("?","SELECT uuid FROM blob WHERE rid=%d",rid)
   );
