@@ -3,6 +3,8 @@
 <a name='v1_37'></a>
 <h2>Changes for Version 1.37 (2017-XX-YY)</h2>
 
+  *  Added support for the ms=EXACT|LIKE|GLOB|REGEXP query parameter on the
+     [/help?cmd=/timeline|/timeline] webpage.
   *  Fix a C99-ism that prevents the 1.36 release from building with MSVC.
   *  Fix [/help?cmd=ticket|ticket set] when using the "+" prefix with fields
      from the "ticketchng" table.

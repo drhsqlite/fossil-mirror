@@ -283,7 +283,7 @@ void www_print_timeline(
     if( zDate==0 ){
       zDate = "YYYY-MM-DD HH:MM:SS";  /* Something wrong with the repo */
     }
-    modPending =  moderation_pending(rid);
+    modPending = moderation_pending(rid);
     if( tagid ){
       if( modPending ) tagid = -tagid;
       if( tagid==prevTagid ){
@@ -575,7 +575,7 @@ void www_print_timeline(
         }
         zA = href("%R/artifact/%!S",fid?zNew:zOld);
         if( content_is_private(fid) ){
-          zUnpub =  UNPUB_TAG;
+          zUnpub = UNPUB_TAG;
         }
         if( isNew ){
           @ <li> %s(zA)%h(zFilename)</a>%s(zId) %s(zUnpub)
@@ -1220,6 +1220,221 @@ static void addFileGlobDescription(
                zChng);
 }
 
+/*
+** Tag match expression type code.
+*/
+typedef enum {
+  MS_EXACT,   /* Matches a single tag by exact string comparison. */
+  MS_GLOB,    /* Matches tags against a list of GLOB patterns. */
+  MS_LIKE,    /* Matches tags against a list of LIKE patterns. */
+  MS_REGEXP   /* Matches tags against a list of regular expressions. */
+} MatchStyle;
+
+/*
+** Quote a tag string by surrounding it with double quotes and preceding
+** internal double quotes and backslashes with backslashes.
+*/
+static const char *tagQuote(
+   int len,         /* Maximum length of zTag, or negative for unlimited */
+   const char *zTag /* Tag string */
+){
+  Blob blob = BLOB_INITIALIZER;
+  int i, j;
+  blob_zero(&blob);
+  blob_append(&blob, "\"", 1);
+  for( i=j=0; zTag[j] && (len<0 || j<len); ++j ){
+    if( zTag[j]=='\"' || zTag[j]=='\\' ){
+      if( j>i ){
+        blob_append(&blob, zTag+i, j-i);
+      }
+      blob_append(&blob, "\\", 1);
+      i = j;
+    }
+  }
+  if( j>i ){
+    blob_append(&blob, zTag+i, j-i);
+  }
+  blob_append(&blob, "\"", 1);
+  return blob_str(&blob);
+}
+
+/*
+** Construct the tag match SQL expression.
+**
+** This function is adapted from glob_expr() to support the MS_EXACT, MS_GLOB,
+** MS_LIKE, and MS_REGEXP match styles.  For MS_EXACT, the returned expression
+** checks for integer match against the tag ID which is looked up directly by
+** this function.  For the other modes, the returned SQL expression performs
+** string comparisons against the tag names, so it is necessary to join against
+** the tag table to access the "tagname" column.
+**
+** Each pattern is adjusted to to start with "sym-" and be anchored at end.
+**
+** In MS_REGEXP mode, backslash can be used to protect delimiter characters.
+** The backslashes are not removed from the regular expression.
+**
+** In addition to assembling and returning an SQL expression, this function
+** makes an English-language description of the patterns being matched, suitable
+** for display in the web interface.
+**
+** If any errors arise during processing, *zError is set to an error message.
+** Otherwise it is set to NULL.
+*/
+static const char *tagMatchExpression(
+  MatchStyle matchStyle,        /* Match style code */
+  const char *zTag,             /* Tag name, match pattern, or pattern list */
+  const char **zDesc,           /* Output expression description string */
+  const char **zError           /* Output error string */
+){
+  Blob expr = BLOB_INITIALIZER; /* SQL expression string assembly buffer */
+  Blob desc = BLOB_INITIALIZER; /* English description of match patterns */
+  Blob err = BLOB_INITIALIZER;  /* Error text assembly buffer */
+  const char *zStart;           /* Text at start of expression */
+  const char *zDelimiter;       /* Text between expression terms */
+  const char *zEnd;             /* Text at end of expression */
+  const char *zPrefix;          /* Text before each match pattern */
+  const char *zSuffix;          /* Text after each match pattern */
+  const char *zIntro;           /* Text introducing pattern description */
+  const char *zPattern = 0;     /* Previous quoted pattern */
+  const char *zFail = 0;        /* Current failure message or NULL if okay */
+  const char *zOr = " or ";     /* Text before final quoted pattern */
+  char cDel;                    /* Input delimiter character */
+  int i;                        /* Input match pattern length counter */
+
+  /* Optimize exact matches by looking up the ID in advance to create a simple
+   * numeric comparison.  Bypass the remainder of this function. */
+  if( matchStyle==MS_EXACT ){
+    *zDesc = tagQuote(-1, zTag);
+    return mprintf("(tagid=%d)", db_int(-1,
+        "SELECT tagid FROM tag WHERE tagname='sym-%q'", zTag));
+  }
+
+  /* Decide pattern prefix and suffix strings according to match style. */
+  if( matchStyle==MS_GLOB ){
+    zStart = "(";
+    zDelimiter = " OR ";
+    zEnd = ")";
+    zPrefix = "tagname GLOB 'sym-";
+    zSuffix = "'";
+    zIntro = "glob pattern ";
+  }else if( matchStyle==MS_LIKE ){
+    zStart = "(";
+    zDelimiter = " OR ";
+    zEnd = ")";
+    zPrefix = "tagname LIKE 'sym-";
+    zSuffix = "'";
+    zIntro = "SQL LIKE pattern ";
+  }else/* if( matchStyle==MS_REGEXP )*/{
+    zStart = "(tagname REGEXP '^sym-(";
+    zDelimiter = "|";
+    zEnd = ")$')";
+    zPrefix = "";
+    zSuffix = "";
+    zIntro = "regular expression ";
+  }
+
+  /* Convert the list of matches into an SQL expression and text description. */
+  blob_zero(&expr);
+  blob_zero(&desc);
+  blob_zero(&err);
+  while( 1 ){
+    /* Skip leading delimiters. */
+    for( ; fossil_isspace(*zTag) || *zTag==','; ++zTag );
+
+    /* Next non-delimiter character determines quoting. */
+    if( !*zTag ){
+      /* Terminate loop at end of string. */
+      break;
+    }else if( *zTag=='\'' || *zTag=='"' ){
+      /* If word is quoted, prepare to stop at end quote. */
+      cDel = *zTag;
+      ++zTag;
+    }else{
+      /* If word is not quoted, prepare to stop at delimiter. */
+      cDel = ',';
+    }
+
+    /* Find the next delimiter character or end of string. */
+    for( i=0; zTag[i] && zTag[i]!=cDel; ++i ){
+      /* If delimiter is comma, also recognize spaces as delimiters. */
+      if( cDel==',' && fossil_isspace(zTag[i]) ){
+        break;
+      }
+
+      /* In regexp mode, ignore delimiters following backslashes. */
+      if( matchStyle==MS_REGEXP && zTag[i]=='\\' && zTag[i+1] ){
+        ++i;
+      }
+    }
+
+    /* Check for regular expression syntax errors. */
+    if( matchStyle==MS_REGEXP ){
+      ReCompiled *regexp;
+      char *zTagDup = fossil_strndup(zTag, i);
+      zFail = re_compile(&regexp, zTagDup, 0);
+      re_free(regexp);
+      fossil_free(zTagDup);
+    }
+
+    /* Process success and error results. */
+    if( !zFail ){
+      /* Incorporate the match word into the output expression.  %q is used to
+       * protect against SQL injection attacks by replacing ' with ''. */
+      blob_appendf(&expr, "%s%s%#q%s", blob_size(&expr) ? zDelimiter : zStart,
+          zPrefix, i, zTag, zSuffix);
+
+      /* Build up the description string. */
+      if( !blob_size(&desc) ){
+        /* First tag: start with intro followed by first quoted tag. */
+        blob_append(&desc, zIntro, -1);
+        blob_append(&desc, tagQuote(i, zTag), -1);
+      }else{
+        if( zPattern ){
+          /* Third and subsequent tags: append comma then previous tag. */
+          blob_append(&desc, ", ", 2);
+          blob_append(&desc, zPattern, -1);
+          zOr = ", or ";
+        }
+
+        /* Second and subsequent tags: store quoted tag for next iteration. */
+        zPattern = tagQuote(i, zTag);
+      }
+    }else{
+      /* On error, skip the match word and build up the error message buffer. */
+      if( !blob_size(&err) ){
+        blob_append(&err, "Error: ", 7);
+      }else{
+        blob_append(&err, ", ", 2);
+      }
+      blob_appendf(&err, "(%s%s: %s)", zIntro, tagQuote(i, zTag), zFail);
+    }
+
+    /* Advance past all consumed input characters. */
+    zTag += i;
+    if( cDel!=',' && *zTag==cDel ){
+      ++zTag;
+    }
+  }
+
+  /* Finalize and extract the pattern description. */
+  if( zPattern ){
+    blob_append(&desc, zOr, -1);
+    blob_append(&desc, zPattern, -1);
+  }
+  *zDesc = blob_str(&desc);
+
+  /* Finalize and extract the error text. */
+  *zError = blob_size(&err) ? blob_str(&err) : 0;
+
+  /* Finalize and extract the SQL expression. */
+  if( blob_size(&expr) ){
+    blob_append(&expr, zEnd, -1);
+    return blob_str(&expr);
+  }
+
+  /* If execution reaches this point, the pattern was empty.  Return NULL. */
+  return 0;
+}
 
 /*
 ** WEBPAGE: timeline
@@ -1235,8 +1450,10 @@ static void addFileGlobDescription(
 **    d=CHECKIN      Descendants of CHECIN
 **    dp=CHECKIN     The same as d=CHECKIN&p=CHECKIN
 **    t=TAG          Show only check-ins with the given TAG
-**    r=TAG          Show check-ins related to TAG
-**    mionly         Limit r=TAG to show ancestors but not descendants
+**    r=TAG          Show check-ins related to TAG, equivalent to t=TAG&rel
+**    rel            Show related check-ins as well as those matching t=TAG
+**    mionly         Limit rel to show ancestors but not descendants
+**    ms=STYLE       Set tag match style to EXACT, GLOB, LIKE, REGEXP
 **    u=USER         Only show items associated with USER
 **    y=TYPE         'ci', 'w', 't', 'e', or (default) 'all'
 **    ng             No Graph.
@@ -1281,7 +1498,13 @@ void page_timeline(void){
   const char *zCirca = P("c");       /* Events near this time */
   const char *zMark = P("m");        /* Mark this event or an event this time */
   const char *zTagName = P("t");     /* Show events with this tag */
-  const char *zBrName = P("r");      /* Show events related to this tag */
+  const char *zBrName = P("r");      /* Equivalent to t=TAG&rel */
+  int related = PB("rel");           /* Show events related to zTagName */
+  const char *zMatchStyle = P("ms"); /* Tag/branch match style string */
+  MatchStyle matchStyle = MS_EXACT;  /* Match style code */
+  const char *zMatchDesc = 0;        /* Tag match expression description text */
+  const char *zError = 0;            /* Tag match error string */
+  const char *zTagSql = 0;           /* Tag/branch match SQL expression */
   const char *zSearch = P("s");      /* Search string */
   const char *zUses = P("uf");       /* Only show check-ins hold this file */
   const char *zYearMonth = P("ym");  /* Show check-ins for the given YYYY-MM */
@@ -1292,7 +1515,6 @@ void page_timeline(void){
   int renameOnly = P("namechng")!=0; /* Show only check-ins that rename files */
   int forkOnly = PB("forks");        /* Show only forks and their children */
   int bisectOnly = PB("bisect");     /* Show the check-ins of the bisect */
-  int tagid;                         /* Tag ID */
   int tmFlags = 0;                   /* Timeline flags */
   const char *zThisTag = 0;          /* Suppress links to this tag */
   const char *zThisUser = 0;         /* Suppress links to this user */
@@ -1344,24 +1566,49 @@ void page_timeline(void){
   }
   url_initialize(&url, "timeline");
   cgi_query_parameters_to_url(&url);
-  if( zTagName && g.perm.Read ){
-    tagid = db_int(-1,"SELECT tagid FROM tag WHERE tagname='sym-%q'",zTagName);
-    zThisTag = zTagName;
-    timeline_submenu(&url, "Related", "r", zTagName, "t");
-  }else if( zBrName && g.perm.Read ){
-    tagid = db_int(-1,"SELECT tagid FROM tag WHERE tagname='sym-%q'",zBrName);
-    zThisTag = zBrName;
-    timeline_submenu(&url, "Branch Only", "t", zBrName, "r");
-  }else{
-    tagid = 0;
+
+  /* Convert r=TAG to t=TAG&rel. */
+  if( zBrName && !related ){
+    cgi_delete_query_parameter("r");
+    cgi_set_query_parameter("t", zBrName);
+    cgi_set_query_parameter("rel", "1");
+    zTagName = zBrName;
+    related = 1;
   }
+
+  /* Ignore empty tag query strings. */
+  if( zTagName && !*zTagName ){
+    zTagName = 0;
+  }
+
+  /* Finish preliminary processing of tag match queries. */
+  if( zTagName ){
+    /* Interpet the tag style string. */
+    if( fossil_stricmp(zMatchStyle, "glob")==0 ){
+      matchStyle = MS_GLOB;
+    }else if( fossil_stricmp(zMatchStyle, "like")==0 ){
+      matchStyle = MS_LIKE;
+    }else if( fossil_stricmp(zMatchStyle, "regexp")==0 ){
+      matchStyle = MS_REGEXP;
+    }else{
+      /* For exact maching, inhibit links to the selected tag. */
+      zThisTag = zTagName;
+    }
+
+    /* Display a checkbox to enable/disable display of related check-ins. */
+    style_submenu_checkbox("rel", "Related", 0);
+
+    /* Construct the tag match expression. */
+    zTagSql = tagMatchExpression(matchStyle, zTagName, &zMatchDesc, &zError);
+  }
+
   if( zMark && zMark[0]==0 ){
     if( zAfter ) zMark = zAfter;
     if( zBefore ) zMark = zBefore;
     if( zCirca ) zMark = zCirca;
   }
-  if( tagid
-   && db_int(0,"SELECT count(*) FROM tagxref WHERE tagid=%d",tagid)<=nEntry
+  if( (zTagSql && db_int(0,"SELECT count(*) "
+      "FROM tagxref NATURAL JOIN tag WHERE %s",zTagSql/*safe-for-%s*/)<=nEntry)
   ){
     nEntry = -1;
     zCirca = 0;
@@ -1585,12 +1832,12 @@ void page_timeline(void){
       blob_append_sql(&cond, " AND %Q=strftime('%%Y-%%m-%%d',event.mtime) ",
                    zDay);
     }
-    if( tagid ){
+    if( zTagSql ){
       blob_append_sql(&cond,
-        " AND (EXISTS(SELECT 1 FROM tagxref"
-            " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)\n", tagid);
+        " AND (EXISTS(SELECT 1 FROM tagxref NATURAL JOIN tag"
+        " WHERE %s AND tagtype>0 AND rid=blob.rid)\n", zTagSql/*safe-for-%s*/);
 
-      if( zBrName ){
+      if( related ){
         /* The next two blob_appendf() calls add SQL that causes check-ins that
         ** are not part of the branch which are parents or children of the
         ** branch to be included in the report.  This related check-ins are
@@ -1599,8 +1846,8 @@ void page_timeline(void){
         */
         blob_append_sql(&cond,
           " OR EXISTS(SELECT 1 FROM plink CROSS JOIN tagxref ON rid=cid"
-                     " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)\n",
-           tagid
+          " NATURAL JOIN tag WHERE %s AND tagtype>0 AND pid=blob.rid)\n",
+           zTagSql/*safe-for-%s*/
         );
         if( (tmFlags & TIMELINE_UNHIDE)==0 ){
           blob_append_sql(&cond,
@@ -1612,8 +1859,8 @@ void page_timeline(void){
         if( P("mionly")==0 ){
           blob_append_sql(&cond,
             " OR EXISTS(SELECT 1 FROM plink CROSS JOIN tagxref ON rid=pid"
-                       " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)\n",
-            tagid
+            " NATURAL JOIN tag WHERE %s AND tagtype>0 AND cid=blob.rid)\n",
+            zTagSql/*safe-for-%s*/
           );
           if( (tmFlags & TIMELINE_UNHIDE)==0 ){
             blob_append_sql(&cond,
@@ -1764,11 +2011,20 @@ void page_timeline(void){
       blob_appendf(&desc, " by user %h", zUser);
       tmFlags |= TIMELINE_DISJOINT;
     }
-    if( zTagName ){
-      blob_appendf(&desc, " tagged with \"%h\"", zTagName);
-      tmFlags |= TIMELINE_DISJOINT;
-    }else if( zBrName ){
-      blob_appendf(&desc, " related to \"%h\"", zBrName);
+    if( zTagSql ){
+      if( matchStyle==MS_EXACT ){
+        if( related ){
+          blob_appendf(&desc, " related to %h", zMatchDesc);
+        }else{
+          blob_appendf(&desc, " tagged with %h", zMatchDesc);
+        }
+      }else{
+        if( related ){
+          blob_appendf(&desc, " related to tags matching %h", zMatchDesc);
+        }else{
+          blob_appendf(&desc, " with tags matching %h", zMatchDesc);
+        }
+      }
       tmFlags |= TIMELINE_DISJOINT;
     }
     addFileGlobDescription(zChng, &desc);
@@ -1788,6 +2044,9 @@ void page_timeline(void){
       blob_appendf(&desc, " matching \"%h\"", zSearch);
     }
     if( g.perm.Hyperlink ){
+      static const char *const azMatchStyles[] = {
+        "exact", "Exact", "glob", "Glob", "like", "Like", "regexp", "Regexp"
+      };
       double rDate;
       zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
       if( (!zDate || !zDate[0]) && ( zAfter || zBefore ) ){
@@ -1826,6 +2085,8 @@ void page_timeline(void){
       style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c');
       style_submenu_entry("n","Max:",4,0);
       timeline_y_submenu(disableY);
+      style_submenu_entry("t", "Tag Filter:", -8, 0);
+      style_submenu_multichoice("ms", count(azMatchStyles)/2, azMatchStyles, 0);
     }
     blob_zero(&cond);
   }
@@ -1844,6 +2105,12 @@ void page_timeline(void){
   db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby DESC /*scan*/");
   @ <h2>%b(&desc)</h2>
   blob_reset(&desc);
+
+  /* Report any errors. */
+  if( zError ){
+    @ <p class="generalError">%h(zError)</p>
+  }
+
   www_print_timeline(&q, tmFlags, zThisUser, zThisTag, selectedRid, 0);
   db_finalize(&q);
   if( zOlderButton ){
