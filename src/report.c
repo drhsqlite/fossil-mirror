@@ -175,7 +175,7 @@ int report_query_authorizer(
   int rc = SQLITE_OK;
   if( *(char**)pError ){
     /* We've already seen an error.  No need to continue. */
-    return SQLITE_OK;
+    return SQLITE_DENY;
   }
   switch( code ){
     case SQLITE_SELECT:
@@ -194,15 +194,16 @@ int report_query_authorizer(
          "event",
          "tag",
          "tagxref",
+         "unversioned",
       };
       int i;
       if( fossil_strncmp(zArg1, "fx_", 3)==0 ){
         break;
       }
-      for(i=0; i<sizeof(azAllowed)/sizeof(azAllowed[0]); i++){
+      for(i=0; i<count(azAllowed); i++){
         if( fossil_stricmp(zArg1, azAllowed[i])==0 ) break;
       }
-      if( i>=sizeof(azAllowed)/sizeof(azAllowed[0]) ){
+      if( i>=count(azAllowed) ){
         *(char**)pError = mprintf("access to table \"%s\" is restricted",zArg1);
         rc = SQLITE_DENY;
       }else if( !g.perm.RdAddr && strncmp(zArg2, "private_", 8)==0 ){
@@ -451,9 +452,9 @@ void view_edit(void){
     }
   }
   if( zOwner==0 ) zOwner = g.zLogin;
-  style_submenu_element("Cancel", "Cancel", "reportlist");
+  style_submenu_element("Cancel", "reportlist");
   if( rn>0 ){
-    style_submenu_element("Delete", "Delete", "rptedit?rn=%d&del1=1", rn);
+    style_submenu_element("Delete", "rptedit?rn=%d&del1=1", rn);
   }
   style_header("%s", rn>0 ? "Edit Report Format":"Create New Report Format");
   if( zErr ){
@@ -701,11 +702,10 @@ static int generate_html(
             pState->wikiFlags |= WIKI_LINKSONLY;
             pState->zWikiStart = "<pre class='verbatim'>";
             pState->zWikiEnd = "</pre>";
-            style_submenu_element("Formatted", "Formatted",
-                                  "%R/rptview?rn=%d", pState->rn);
+            style_submenu_element("Formatted", "%R/rptview?rn=%d", pState->rn);
           }else{
-            style_submenu_element("Plaintext", "Plaintext",
-                                  "%R/rptview?rn=%d&plaintext", pState->rn);
+            style_submenu_element("Plaintext", "%R/rptview?rn=%d&plaintext",
+                                  pState->rn);
           }
         }else{
           pState->nCol++;
@@ -897,6 +897,7 @@ static int db_exec_readonly(
   int nCol;                   /* Number of columns of output */
   const char **azVals = 0;    /* Text of all output columns */
   int i;                      /* Loop counter */
+  int nVar;                   /* Number of parameters */
 
   pStmt = 0;
   rc = sqlite3_prepare_v2(db, zSql, -1, &pStmt, &zLeftover);
@@ -913,9 +914,18 @@ static int db_exec_readonly(
     return SQLITE_ERROR;
   }
 
-  i = sqlite3_bind_parameter_index(pStmt, "$login");
-  if( i ) sqlite3_bind_text(pStmt, i, g.zLogin, -1, SQLITE_TRANSIENT);
-
+  nVar = sqlite3_bind_parameter_count(pStmt);
+  for(i=1; i<=nVar; i++){
+    const char *zVar = sqlite3_bind_parameter_name(pStmt, i);
+    if( zVar==0 ) continue;
+    if( zVar[0]!='$' && zVar[0]!='$' && zVar[0]!=':' ) continue;
+    if( !fossil_islower(zVar[1]) ) continue;
+    if( strcmp(zVar, "$login")==0 ){
+      sqlite3_bind_text(pStmt, i, g.zLogin, -1, SQLITE_TRANSIENT);
+    }else{
+      sqlite3_bind_text(pStmt, i, P(zVar+1), -1, SQLITE_TRANSIENT);
+    }
+  }
   nCol = sqlite3_column_count(pStmt);
   azVals = fossil_malloc(2*nCol*sizeof(const char*) + 1);
   while( (rc = sqlite3_step(pStmt))==SQLITE_ROW ){
@@ -1185,21 +1195,19 @@ void rptview_page(void){
 
   count = 0;
   if( !tabs ){
-    struct GenerateHTML sState;
+    struct GenerateHTML sState = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
     db_multi_exec("PRAGMA empty_result_callbacks=ON");
-    style_submenu_element("Raw", "Raw",
-      "rptview?tablist=1&%h", PD("QUERY_STRING",""));
+    style_submenu_element("Raw", "rptview?tablist=1&%h", PD("QUERY_STRING",""));
     if( g.perm.Admin
        || (g.perm.TktFmt && g.zLogin && fossil_strcmp(g.zLogin,zOwner)==0) ){
-      style_submenu_element("Edit", "Edit", "rptedit?rn=%d", rn);
+      style_submenu_element("Edit", "rptedit?rn=%d", rn);
     }
     if( g.perm.TktFmt ){
-      style_submenu_element("SQL", "SQL", "rptsql?rn=%d",rn);
+      style_submenu_element("SQL", "rptsql?rn=%d",rn);
     }
     if( g.perm.NewTkt ){
-      style_submenu_element("New Ticket", "Create a new ticket",
-        "%s/tktnew", g.zTop);
+      style_submenu_element("New Ticket", "%s/tktnew", g.zTop);
     }
     style_header("%s", zTitle);
     output_color_key(zClrKey, 1,

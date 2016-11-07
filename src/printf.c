@@ -160,7 +160,7 @@ static const et_info fmtinfo[] = {
   {  'p', 16, 0, etPOINTER,    0,  1 },
   {  '/',  0, 0, etPATH,       0,  0 },
 };
-#define etNINFO  (sizeof(fmtinfo)/sizeof(fmtinfo[0]))
+#define etNINFO count(fmtinfo)
 
 /*
 ** "*val" is a double such that 0.1 <= *val < 10.0
@@ -877,20 +877,29 @@ static int stdoutAtBOL = 1;
 **
 ** On windows, transform the output into the current terminal encoding
 ** if the output is going to the screen.  If output is redirected into
-** a file, no translation occurs.  No translation ever occurs on unix.
+** a file, no translation occurs. Switch output mode to binary to
+** properly process line-endings, make sure to switch the mode back to
+** text when done.
+** No translation ever occurs on unix.
 */
 void fossil_puts(const char *z, int toStdErr){
+  FILE* out = (toStdErr ? stderr : stdout);
   int n = (int)strlen(z);
   if( n==0 ) return;
+  assert( toStdErr==0 || toStdErr==1 );
   if( toStdErr==0 ) stdoutAtBOL = (z[n-1]=='\n');
 #if defined(_WIN32)
   if( fossil_utf8_to_console(z, n, toStdErr) >= 0 ){
     return;
   }
+  fflush(out);
+  _setmode(_fileno(out), _O_BINARY);
 #endif
-  assert( toStdErr==0 || toStdErr==1 );
-  fwrite(z, 1, n, toStdErr ? stderr : stdout);
-  fflush(toStdErr ? stderr : stdout);
+  fwrite(z, 1, n, out);
+#if defined(_WIN32)
+  fflush(out);
+  _setmode(_fileno(out), _O_TEXT);
+#endif
 }
 
 /*
@@ -972,7 +981,7 @@ static void fossil_errorlog(const char *zFormat, ...){
   vfprintf(out, zFormat, ap);
   fprintf(out, "\n");
   va_end(ap);
-  for(i=0; i<sizeof(azEnv)/sizeof(azEnv[0]); i++){
+  for(i=0; i<count(azEnv); i++){
     char *p;
     if( (p = fossil_getenv(azEnv[i]))!=0 ){
       fprintf(out, "%s=%s\n", azEnv[i], p);

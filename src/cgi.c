@@ -23,6 +23,9 @@
 */
 #include "config.h"
 #ifdef _WIN32
+# if !defined(_WIN32_WINNT)
+#  define _WIN32_WINNT 0x0501
+# endif
 # include <winsock2.h>
 # include <ws2tcpip.h>
 #else
@@ -482,6 +485,9 @@ void cgi_set_parameter_nocopy(const char *zName, const char *zValue, int isQP){
 void cgi_set_parameter(const char *zName, const char *zValue){
   cgi_set_parameter_nocopy(mprintf("%s",zName), mprintf("%s",zValue), 0);
 }
+void cgi_set_query_parameter(const char *zName, const char *zValue){
+  cgi_set_parameter_nocopy(mprintf("%s",zName), mprintf("%s",zValue), 1);
+}
 
 /*
 ** Replace a parameter with a new value.
@@ -506,6 +512,35 @@ void cgi_replace_query_parameter(const char *zName, const char *zValue){
     }
   }
   cgi_set_parameter_nocopy(zName, zValue, 1);
+}
+
+/*
+** Delete a parameter.
+*/
+void cgi_delete_parameter(const char *zName){
+  int i;
+  for(i=0; i<nUsedQP; i++){
+    if( fossil_strcmp(aParamQP[i].zName,zName)==0 ){
+      --nUsedQP;
+      if( i<nUsedQP ){
+        memmove(aParamQP+i, aParamQP+i+1, sizeof(*aParamQP)*(nUsedQP-i));
+      }
+      return;
+    }
+  }
+}
+void cgi_delete_query_parameter(const char *zName){
+  int i;
+  for(i=0; i<nUsedQP; i++){
+    if( fossil_strcmp(aParamQP[i].zName,zName)==0 ){
+      assert( aParamQP[i].isQP );
+      --nUsedQP;
+      if( i<nUsedQP ){
+        memmove(aParamQP+i, aParamQP+i+1, sizeof(*aParamQP)*(nUsedQP-i));
+      }
+      return;
+    }
+  }
 }
 
 /*
@@ -718,7 +753,7 @@ static void process_multipart_form_data(char *z, int len){
       zName = 0;
       showBytes = 0;
     }else{
-      nArg = tokenize_line(zLine, sizeof(azArg)/sizeof(azArg[0]), azArg);
+      nArg = tokenize_line(zLine, count(azArg), azArg);
       for(i=0; i<nArg; i++){
         int c = fossil_tolower(azArg[i][0]);
         int n = strlen(azArg[i]);

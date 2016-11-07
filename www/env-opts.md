@@ -90,7 +90,11 @@ statistics about each SQLite database used when it is closed.
 
 `--sshtrace`: (Sets `g.fSshTrace`.)
 
-`--ssl-identity SSLIDENTITY`:
+`--ssl-identity`: The fully qualified name of the file containing the client
+certificate and private key to use, in PEM format.  It can be created by
+concatenating the client certificate and private key files.  This identity will
+be presented to SSL servers to authenticate the client, in addition to the
+normal password authentication.
 
 `--systemtrace`: (Sets `g.fSystemTrace`.) Trace all commands launched
 as sub processes.
@@ -260,6 +264,14 @@ to enable TH1 hooks in fossil.
 
 `TH1_ENABLE_TCL`: Override the local or global setting `tcl` to enable
 Tcl in fossil.
+
+`TH1_TEST_ANON_CAPS`: Override the default anonymous permissions used
+when processing the `--set-anon-caps` option for the `test-th-eval`,
+`test-th-render`, and `test-th-source` test commands.
+
+`TH1_TEST_USER_CAPS`: Override the default user permissions used when
+processing the `--set-user-caps` option for the `test-th-eval`,
+`test-th-render`, and `test-th-source` test commands.
 
 `TMP`: On Windows, the location of temporary files. The first
 environment variable found in the environment that names an existing

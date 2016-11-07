@@ -9,19 +9,19 @@ there are three publicly accessible repositories for the Fossil source code:
 
 
 The canonical repository is (1).  Repositories (2) and (3) automatically
-stay in synchronization with (1) via a 
+stay in synchronization with (1) via a
 <a href="http://en.wikipedia.org/wiki/Cron">cron job</a> that invokes
 "fossil sync" at regular intervals.
 
 Note that the two secondary repositories are more than just read-only mirrors.
 All three servers support full read/write capabilities.
-Changes (such as new tickets or wiki or check-ins) can be implemented 
+Changes (such as new tickets or wiki or check-ins) can be implemented
 on any of the three servers and those changes automatically propagate to the
 other two servers.
 
 Server (1) runs as a CGI script on a
 <a href="http://www.linode.com/">Linode 1024</a> located in Dallas, TX
-- on the same virtual machine that 
+- on the same virtual machine that
 hosts <a href="http://www.sqlite.org/">SQLite</a> and over a
 dozen other smaller projects.  This demonstrates that Fossil can run on
 a low-power host processor.
@@ -36,13 +36,13 @@ repository: /fossil/fossil.fossil
 </pre></blockquote>
 
 Server (3) runs as a CGI script on a shared hosting account at
-<a href="http://www.he.net/">Hurricane Electric</a> in Fremont, CA.  
+<a href="http://www.he.net/">Hurricane Electric</a> in Fremont, CA.
 This server demonstrates the ability of
 Fossil to run on an economical shared-host web account with no
 privileges beyond port 80 HTTP access and CGI.  It is not necessary
 to have a dedicated computer with administrator privileges to run Fossil.
-As far as we are aware, 
-Fossil is the only full-featured configuration management system 
+As far as we are aware,
+Fossil is the only full-featured configuration management system
 that can run in
 such a restricted environment.  The CGI script that runs on the
 Hurricane Electric server is the same as the CGI script shown above,

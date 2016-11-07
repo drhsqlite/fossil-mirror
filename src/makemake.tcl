@@ -47,6 +47,7 @@ set src {
   descendants
   diff
   diffcmd
+  dispatch
   doc
   encode
   event
@@ -54,6 +55,7 @@ set src {
   file
   finfo
   foci
+  fshell
   fusefs
   glob
   graph
@@ -124,6 +126,7 @@ set src {
   tktsetup
   undo
   unicode
+  unversioned
   update
   url
   user
@@ -154,11 +157,19 @@ set extra_files {
 #
 set SQLITE_OPTIONS {
   -DNDEBUG=1
-  -DSQLITE_OMIT_LOAD_EXTENSION=1
-  -DSQLITE_ENABLE_LOCKING_STYLE=0
   -DSQLITE_THREADSAFE=0
-  -DSQLITE_DEFAULT_FILE_FORMAT=4
+  -DSQLITE_DEFAULT_MEMSTATUS=0
+  -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1
+  -DSQLITE_LIKE_DOESNT_MATCH_BLOBS
+  -DSQLITE_OMIT_DECLTYPE
   -DSQLITE_OMIT_DEPRECATED
+  -DSQLITE_OMIT_PROGRESS_CALLBACK
+  -DSQLITE_OMIT_SHARED_CACHE
+  -DSQLITE_OMIT_LOAD_EXTENSION
+  -DSQLITE_MAX_EXPR_DEPTH=0
+  -DSQLITE_USE_ALLOCA
+  -DSQLITE_ENABLE_LOCKING_STYLE=0
+  -DSQLITE_DEFAULT_FILE_FORMAT=4
   -DSQLITE_ENABLE_EXPLAIN_COMMENTS
   -DSQLITE_ENABLE_FTS4
   -DSQLITE_ENABLE_FTS3_PARENTHESIS
@@ -246,6 +257,7 @@ writeln {#
 # This file is included by primary Makefile.
 #
 
+XBCC = $(BCC) $(BCCFLAGS) $(CFLAGS)
 XTCC = $(TCC) -I. -I$(SRCDIR) -I$(OBJDIR) $(TCCFLAGS) $(CFLAGS)
 
 }
@@ -289,22 +301,22 @@ $(OBJDIR):
 	-mkdir $(OBJDIR)
 
 $(OBJDIR)/translate:	$(SRCDIR)/translate.c
-	$(BCC) -o $(OBJDIR)/translate $(SRCDIR)/translate.c
+	$(XBCC) -o $(OBJDIR)/translate $(SRCDIR)/translate.c
 
 $(OBJDIR)/makeheaders:	$(SRCDIR)/makeheaders.c
-	$(BCC) -o $(OBJDIR)/makeheaders $(SRCDIR)/makeheaders.c
+	$(XBCC) -o $(OBJDIR)/makeheaders $(SRCDIR)/makeheaders.c
 
 $(OBJDIR)/mkindex:	$(SRCDIR)/mkindex.c
-	$(BCC) -o $(OBJDIR)/mkindex $(SRCDIR)/mkindex.c
+	$(XBCC) -o $(OBJDIR)/mkindex $(SRCDIR)/mkindex.c
 
 $(OBJDIR)/mkbuiltin:	$(SRCDIR)/mkbuiltin.c
-	$(BCC) -o $(OBJDIR)/mkbuiltin $(SRCDIR)/mkbuiltin.c
+	$(XBCC) -o $(OBJDIR)/mkbuiltin $(SRCDIR)/mkbuiltin.c
 
 $(OBJDIR)/mkversion:	$(SRCDIR)/mkversion.c
-	$(BCC) -o $(OBJDIR)/mkversion $(SRCDIR)/mkversion.c
+	$(XBCC) -o $(OBJDIR)/mkversion $(SRCDIR)/mkversion.c
 
 $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
-	$(BCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
+	$(XBCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
 
 # Run the test suite.
 # Other flags that can be included in TESTFLAGS are:
@@ -340,8 +352,8 @@ MINIZ_OPTIONS = <<<MINIZ_OPTIONS>>>
 # to 1. If it is set to 1, then there is no need to build or link
 # the sqlite3.o object. Instead, the system SQLite will be linked
 # using -lsqlite3.
-SQLITE3_OBJ.1 =
 SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
+SQLITE3_OBJ.1 =
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 
 # The FOSSIL_ENABLE_MINIZ variable may be undefined, set to 0, or
@@ -369,6 +381,10 @@ SQLITE3_SRC.0 = sqlite3.c
 SQLITE3_SRC.1 = sqlite3-see.c
 SQLITE3_SRC. = sqlite3.c
 SQLITE3_SRC = $(SRCDIR)/$(SQLITE3_SRC.$(USE_SEE))
+SQLITE3_SHELL_SRC.0 = shell.c
+SQLITE3_SHELL_SRC.1 = shell-see.c
+SQLITE3_SHELL_SRC. = shell.c
+SQLITE3_SHELL_SRC = $(SRCDIR)/$(SQLITE3_SHELL_SRC.$(USE_SEE))
 SEE_FLAGS.0 =
 SEE_FLAGS.1 = -DSQLITE_HAS_CODEC
 SEE_FLAGS. =
@@ -440,8 +456,8 @@ writeln "\$(OBJDIR)/sqlite3.o:\t\$(SQLITE3_SRC)"
 writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) \$(SEE_FLAGS) \\"
 writeln "\t\t-c \$(SQLITE3_SRC) -o \$@"
 
-writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
-writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) \$(LINENOISE_DEF.\$(USE_LINENOISE)) -c \$(SRCDIR)/shell.c -o \$@\n"
+writeln "\$(OBJDIR)/shell.o:\t\$(SQLITE3_SHELL_SRC) \$(SRCDIR)/sqlite3.h"
+writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) \$(LINENOISE_DEF.\$(USE_LINENOISE)) -c \$(SQLITE3_SHELL_SRC) -o \$@\n"
 
 writeln "\$(OBJDIR)/linenoise.o:\t\$(SRCDIR)/linenoise.c \$(SRCDIR)/linenoise.h"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/linenoise.c -o \$@\n"
@@ -519,12 +535,20 @@ SRCDIR = src
 #
 OBJDIR = wbld
 
+#### C compiler for use in building executables that will run on
+#    the platform that is doing the build.  This is used to compile
+#    code-generator programs as part of the build process.  See TCC
+#    and TCCEXE below for the C compiler for building the finished
+#    binary.
+#
+BCCEXE = gcc
+
 #### C Compiler and options for use in building executables that
 #    will run on the platform that is doing the build.  This is used
 #    to compile code-generator programs as part of the build process.
 #    See TCC below for the C compiler for building the finished binary.
 #
-BCC = gcc
+BCC = $(BCCEXE)
 
 #### Enable compiling with debug symbols (much larger binary)
 #
@@ -620,15 +644,15 @@ ifndef X64
 SSLCONFIG = mingw
 ifndef FOSSIL_ENABLE_MINIZ
 ZLIBCONFIG = LOC="-DASMV -DASMINF" OBJA="inffas86.o match.o"
-LIBTARGETS = $(ZLIBDIR)/inffas86.o $(ZLIBDIR)/match.o
+ZLIBTARGETS = $(ZLIBDIR)/inffas86.o $(ZLIBDIR)/match.o
 else
 ZLIBCONFIG =
-LIBTARGETS =
+ZLIBTARGETS =
 endif
 else
 SSLCONFIG = mingw64
 ZLIBCONFIG =
-LIBTARGETS =
+ZLIBTARGETS =
 endif
 
 #### Disable creation of the OpenSSL shared libraries.  Also, disable support
@@ -648,7 +672,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2h
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2j
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -689,13 +713,21 @@ LIBTCL = -ltcl86
 TCLTARGET = binaries
 endif
 
-#### C Compile and options for use in building executables that
-#    will run on the target platform.  This is usually the same
+#### C compiler for use in building executables that will run on the
+#    target platform.  This is usually the same as BCCEXE, unless you
+#    are cross-compiling.  This C compiler builds the finished binary
+#    for fossil.  See BCC and BCCEXE above for the C compiler for
+#    building intermediate code-generator tools.
+#
+TCCEXE = gcc
+
+#### C compiler and options for use in building executables that will
+#    run on the target platform.  This is usually the almost the same
 #    as BCC, unless you are cross-compiling.  This C compiler builds
 #    the finished binary for fossil.  The BCC compiler above is used
 #    for building intermediate code-generator tools.
 #
-TCC = $(PREFIX)gcc -Wall
+TCC = $(PREFIX)$(TCCEXE) -Wall
 
 #### Add the necessary command line options to build with debugging
 #    symbols, if enabled.
@@ -834,7 +866,7 @@ endif
 #### OpenSSL: Add the necessary libraries required, if enabled.
 #
 ifdef FOSSIL_ENABLE_SSL
-LIB += -lssl -lcrypto -lgdi32
+LIB += -lssl -lcrypto -lgdi32 -lcrypt32
 endif
 
 #### Tcl: Add the necessary libraries required, if enabled.
@@ -888,6 +920,7 @@ INNOSETUP = "$(PROGRAMFILES)\Inno Setup 5\ISCC.exe"
 # STOP HERE
 # You should not need to change anything below this line
 #--------------------------------------------------------
+XBCC = $(BCC) $(CFLAGS)
 XTCC = $(TCC) $(CFLAGS) -I. -I$(SRCDIR)
 }
 writeln -nonewline "SRC ="
@@ -984,22 +1017,22 @@ else
 endif
 
 $(TRANSLATE):	$(SRCDIR)/translate.c
-	$(BCC) -o $@ $(SRCDIR)/translate.c
+	$(XBCC) -o $@ $(SRCDIR)/translate.c
 
 $(MAKEHEADERS):	$(SRCDIR)/makeheaders.c
-	$(BCC) -o $@ $(SRCDIR)/makeheaders.c
+	$(XBCC) -o $@ $(SRCDIR)/makeheaders.c
 
 $(MKINDEX):	$(SRCDIR)/mkindex.c
-	$(BCC) -o $@ $(SRCDIR)/mkindex.c
+	$(XBCC) -o $@ $(SRCDIR)/mkindex.c
 
 $(MKBUILTIN):	$(SRCDIR)/mkbuiltin.c
-	$(BCC) -o $@ $(SRCDIR)/mkbuiltin.c
+	$(XBCC) -o $@ $(SRCDIR)/mkbuiltin.c
 
 $(MKVERSION): $(SRCDIR)/mkversion.c
-	$(BCC) -o $@ $(SRCDIR)/mkversion.c
+	$(XBCC) -o $@ $(SRCDIR)/mkversion.c
 
 $(CODECHECK1):	$(SRCDIR)/codecheck1.c
-	$(BCC) -o $@ $(SRCDIR)/codecheck1.c
+	$(XBCC) -o $@ $(SRCDIR)/codecheck1.c
 
 # WARNING. DANGER. Running the test suite modifies the repository the
 # build is done from, i.e. the checkout belongs to. Do not sync/push
@@ -1014,8 +1047,8 @@ $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(MKVERSIO
 # to 1. If it is set to 1, then there is no need to build or link
 # the sqlite3.o object. Instead, the system SQLite will be linked
 # using -lsqlite3.
-SQLITE3_OBJ.1 =
 SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
+SQLITE3_OBJ.1 =
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 
 # The FOSSIL_ENABLE_MINIZ variable may be undefined, set to 0, or
@@ -1033,6 +1066,10 @@ SQLITE3_SRC.0 = sqlite3.c
 SQLITE3_SRC.1 = sqlite3-see.c
 SQLITE3_SRC. = sqlite3.c
 SQLITE3_SRC = $(SRCDIR)/$(SQLITE3_SRC.$(USE_SEE))
+SQLITE3_SHELL_SRC.0 = shell.c
+SQLITE3_SHELL_SRC.1 = shell-see.c
+SQLITE3_SHELL_SRC. = shell.c
+SQLITE3_SHELL_SRC = $(SRCDIR)/$(SQLITE3_SHELL_SRC.$(USE_SEE))
 SEE_FLAGS.0 =
 SEE_FLAGS.1 = -DSQLITE_HAS_CODEC
 SEE_FLAGS. =
@@ -1051,38 +1088,39 @@ EXTRAOBJ = <<<NEXT_LINE>>>
 }]
 
 writeln {
-zlib:
-	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) $(ZLIBCONFIG) -f win32/Makefile.gcc libz.a
-
-clean-zlib:
-	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc clean
-
 $(ZLIBDIR)/inffas86.o:
 	$(TCC) -c -o $@ -DASMINF -I$(ZLIBDIR) -O3 $(ZLIBDIR)/contrib/inflate86/inffas86.c
 
 $(ZLIBDIR)/match.o:
 	$(TCC) -c -o $@ -DASMV $(ZLIBDIR)/contrib/asm686/match.S
 
+zlib:	$(ZLIBTARGETS)
+	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) $(ZLIBCONFIG) -f win32/Makefile.gcc libz.a
 
-ifndef FOSSIL_ENABLE_MINIZ
-LIBTARGETS += zlib
+clean-zlib:
+	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) -f win32/Makefile.gcc clean
+
+ifdef FOSSIL_ENABLE_MINIZ
+BLDTARGETS =
+else
+BLDTARGETS = zlib
 endif
 
-openssl:	$(LIBTARGETS)
+openssl:	$(BLDTARGETS)
 	cd $(OPENSSLLIBDIR);./Configure --cross-compile-prefix=$(PREFIX) $(SSLCONFIG)
-	$(MAKE) -C $(OPENSSLLIBDIR) build_libs
+	$(MAKE) -C $(OPENSSLLIBDIR) PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) build_libs
 
 clean-openssl:
-	$(MAKE) -C $(OPENSSLLIBDIR) clean
+	$(MAKE) -C $(OPENSSLLIBDIR) PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) clean
 
 tcl:
 	cd $(TCLSRCDIR)/win;./configure
-	$(MAKE) -C $(TCLSRCDIR)/win $(TCLTARGET)
+	$(MAKE) -C $(TCLSRCDIR)/win PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) $(TCLTARGET)
 
 clean-tcl:
-	$(MAKE) -C $(TCLSRCDIR)/win distclean
+	$(MAKE) -C $(TCLSRCDIR)/win PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) distclean
 
-APPTARGETS += $(LIBTARGETS)
+APPTARGETS += $(BLDTARGETS)
 
 ifdef FOSSIL_BUILD_SSL
 APPTARGETS += openssl
@@ -1145,11 +1183,14 @@ foreach s [lsort $src] {
   writeln "\$(OBJDIR)/${s}.h:\t\$(OBJDIR)/headers\n"
 }
 
+writeln {MINGW_OPTIONS = -D_HAVE__MINGW_H
+}
+
 set SQLITE_WIN32_OPTIONS $SQLITE_OPTIONS
 lappend SQLITE_WIN32_OPTIONS -DSQLITE_WIN32_NO_ANSI
 
 set MINGW_SQLITE_OPTIONS $SQLITE_WIN32_OPTIONS
-lappend MINGW_SQLITE_OPTIONS -D_HAVE__MINGW_H
+lappend MINGW_SQLITE_OPTIONS {$(MINGW_OPTIONS)}
 lappend MINGW_SQLITE_OPTIONS -DSQLITE_USE_MALLOC_H
 lappend MINGW_SQLITE_OPTIONS -DSQLITE_USE_MSIZE
 
@@ -1170,8 +1211,8 @@ writeln "\$(OBJDIR)/cson_amalgamation.o:\t\$(SRCDIR)/cson_amalgamation.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/cson_amalgamation.c -o \$@\n"
 writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_config.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_dir.o \$(OBJDIR)/jsos_finfo.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_query.o \$(OBJDIR)/json_report.o \$(OBJDIR)/json_status.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_user.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h\n"
 
-writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h \$(SRCDIR)/../win/Makefile.mingw"
-writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) -c \$(SRCDIR)/shell.c -o \$@\n"
+writeln "\$(OBJDIR)/shell.o:\t\$(SQLITE3_SHELL_SRC) \$(SRCDIR)/sqlite3.h \$(SRCDIR)/../win/Makefile.mingw"
+writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) -c \$(SQLITE3_SHELL_SRC) -o \$@\n"
 
 writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th.c -o \$@\n"
@@ -1268,22 +1309,22 @@ writeln "\t+echo fossil >> \$@"
 
 writeln {
 translate$E: $(SRCDIR)\translate.c
-	$(BCC) -o$@ $**
+	$(XBCC) -o$@ $**
 
 makeheaders$E: $(SRCDIR)\makeheaders.c
-	$(BCC) -o$@ $**
+	$(XBCC) -o$@ $**
 
 mkindex$E: $(SRCDIR)\mkindex.c
-	$(BCC) -o$@ $**
+	$(XBCC) -o$@ $**
 
 mkbuiltin$E: $(SRCDIR)\mkbuiltin.c
-	$(BCC) -o$@ $**
+	$(XBCC) -o$@ $**
 
 mkversion$E: $(SRCDIR)\mkversion.c
-	$(BCC) -o$@ $**
+	$(XBCC) -o$@ $**
 
 codecheck1$E: $(SRCDIR)\codecheck1.c
-	$(BCC) -o$@ $**
+	$(XBCC) -o$@ $**
 
 $(OBJDIR)\shell$O : $(SRCDIR)\shell.c
 	$(TCC) -o$@ -c $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) $**
@@ -1462,7 +1503,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.0.2h
+SSLDIR    = $(B)\compat\openssl-1.0.2j
 SSLINCDIR = $(SSLDIR)\inc32
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)\out32dll
@@ -1470,7 +1511,7 @@ SSLLIBDIR = $(SSLDIR)\out32dll
 SSLLIBDIR = $(SSLDIR)\out32
 !endif
 SSLLFLAGS = /nologo /opt:ref /debug
-SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
+SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib crypt32.lib
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 !message Using 'x64' platform for OpenSSL...
 # BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
@@ -1790,25 +1831,31 @@ $(OX):
 	@-mkdir $@
 
 translate$E: $(SRCDIR)\translate.c
-	$(BCC) $**
+	$(XBCC) $**
 
 makeheaders$E: $(SRCDIR)\makeheaders.c
-	$(BCC) $**
+	$(XBCC) $**
 
 mkindex$E: $(SRCDIR)\mkindex.c
-	$(BCC) $**
+	$(XBCC) $**
 
 mkbuiltin$E: $(SRCDIR)\mkbuiltin.c
-	$(BCC) $**
+	$(XBCC) $**
 
 mkversion$E: $(SRCDIR)\mkversion.c
-	$(BCC) $**
+	$(XBCC) $**
 
 codecheck1$E: $(SRCDIR)\codecheck1.c
-	$(BCC) $**
+	$(XBCC) $**
 
-$(OX)\shell$O : $(SRCDIR)\shell.c $B\win\Makefile.msc
-	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) -c $(SRCDIR)\shell.c
+!if $(USE_SEE)!=0
+SQLITE3_SHELL_SRC = $(SRCDIR)\shell-see.c
+!else
+SQLITE3_SHELL_SRC = $(SRCDIR)\shell.c
+!endif
+
+$(OX)\shell$O : $(SQLITE3_SHELL_SRC) $B\win\Makefile.msc
+	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) -c $(SQLITE3_SHELL_SRC)
 
 !if $(USE_SEE)!=0
 SQLITE3_SRC = $(SRCDIR)\sqlite3-see.c

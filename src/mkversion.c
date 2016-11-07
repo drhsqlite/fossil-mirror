@@ -66,6 +66,10 @@ int main(int argc, char *argv[]){
     strcpy(vx,b);
     d = 0;
     for(z=vx; z[0]; z++){
+      if( z[0]=='-' ){
+        z[0] = 0;
+        break;
+      }
       if( z[0]!='.' ) continue;
       if ( d<3 ){
         z[0] = ',';

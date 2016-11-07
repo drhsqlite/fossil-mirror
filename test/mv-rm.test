@@ -18,6 +18,8 @@
 # MV / RM Commands
 #
 
+set path [file dirname [info script]]
+
 require_no_open_checkout
 
 ########################################

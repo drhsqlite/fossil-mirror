@@ -1261,7 +1261,6 @@ cson_value * json_g_to_json(){
   VAL(capabilities, json_cap_value());
   INT(g, argc);
   INT(g, isConst);
-  INT(g, useAttach);
   CSTR(g, zConfigDbName);
   INT(g, repositoryOpen);
   INT(g, localOpen);
@@ -1298,8 +1297,6 @@ cson_value * json_g_to_json(){
   INT(g, nAux);
   INT(g, allowSymlinks);
 
-  CSTR(g, zMainDbType);
-  CSTR(g, zConfigDbType);
   CSTR(g, zOpenRevision);
   CSTR(g, zLocalRoot);
   CSTR(g, zPath);
@@ -1907,7 +1904,6 @@ cson_value * json_page_stat(){
   i64 t, fsize;
   int n, m;
   int full;
-  const char *zDb;
   enum { BufLen = 1000 };
   char zBuf[BufLen];
   cson_value * jv = NULL;
@@ -1991,13 +1987,12 @@ cson_value * json_page_stat(){
   sqlite3_snprintf(BufLen, zBuf, "%.19s [%.10s] (%s)",
                    sqlite3_sourceid(), &sqlite3_sourceid()[20], sqlite3_libversion());
   SETBUF(jo2, "version");
-  zDb = db_name("repository");
-  cson_object_set(jo2, "pageCount", cson_value_new_integer((cson_int_t)db_int(0, "PRAGMA \"%w\".page_count", zDb)));
-  cson_object_set(jo2, "pageSize", cson_value_new_integer((cson_int_t)db_int(0, "PRAGMA \"%w\".page_size", zDb)));
-  cson_object_set(jo2, "freeList", cson_value_new_integer((cson_int_t)db_int(0, "PRAGMA \"%w\".freelist_count", zDb)));
-  sqlite3_snprintf(BufLen, zBuf, "%s", db_text(0, "PRAGMA \"%w\".encoding", zDb));
+  cson_object_set(jo2, "pageCount", cson_value_new_integer((cson_int_t)db_int(0, "PRAGMA repository.page_count")));
+  cson_object_set(jo2, "pageSize", cson_value_new_integer((cson_int_t)db_int(0, "PRAGMA repository.page_size")));
+  cson_object_set(jo2, "freeList", cson_value_new_integer((cson_int_t)db_int(0, "PRAGMA repository.freelist_count")));
+  sqlite3_snprintf(BufLen, zBuf, "%s", db_text(0, "PRAGMA repository.encoding"));
   SETBUF(jo2, "encoding");
-  sqlite3_snprintf(BufLen, zBuf, "%s", db_text(0, "PRAGMA \"%w\".journal_mode", zDb));
+  sqlite3_snprintf(BufLen, zBuf, "%s", db_text(0, "PRAGMA repository.journal_mode"));
   cson_object_set(jo2, "journalMode", *zBuf ? cson_value_new_string(zBuf, strlen(zBuf)) : cson_value_null());
   return jv;
 #undef SETBUF

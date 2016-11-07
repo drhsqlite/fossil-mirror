@@ -28,7 +28,7 @@
 **    tkt=TICKETUUID
 **    page=WIKIPAGE
 **
-** At most one of technote=, tkt= or page= are supplied. 
+** At most one of technote=, tkt= or page= are supplied.
 ** If none is given, all attachments are listed.  If one is given,
 ** only attachments for the designated technote, ticket or wiki page
 ** are shown. TECHNOTEUUID and TICKETUUID may be just a prefix of the
@@ -88,7 +88,7 @@ void attachlist_page(void){
     const char *zUser = db_column_text(&q, 5);
     const char *zUuid = db_column_text(&q, 6);
     int attachid = db_column_int(&q, 7);
-    // type 0 is a wiki page, 1 is a ticket, 2 is a tech note
+    /* type 0 is a wiki page, 1 is a ticket, 2 is a tech note */
     int type = db_column_int(&q, 8);
     const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
     int i;
@@ -111,7 +111,7 @@ void attachlist_page(void){
     if( moderation_pending(attachid) ){
       @ <span class="modpending">*** Awaiting Moderator Approval ***</span>
     }
-    @ <br><a href="%R/attachview?%s(zUrlTail)">%h(zFilename)</a>
+    @ <br /><a href="%R/attachview?%s(zUrlTail)">%h(zFilename)</a>
     @ [<a href="%R/attachdownload/%t(zFilename)?%s(zUrlTail)">download</a>]<br />
     if( zComment ) while( fossil_isspace(zComment[0]) ) zComment++;
     if( zComment && zComment[0] ){
@@ -360,7 +360,7 @@ void attachadd_page(void){
     zTarget = zTechNote;
     zTargetType = mprintf("Tech Note <a href=\"%R/technote/%s\">%S</a>",
                            zTechNote, zTechNote);
-  
+
   }else{
     if( g.perm.ApndTkt==0 || g.perm.Attach==0 ){
       login_needed(g.anon.ApndTkt && g.anon.Attach);
@@ -454,10 +454,10 @@ void ainfo_page(void){
   ** the object that is attached. */
   if( g.perm.Admin ){
     if( db_exists("SELECT 1 FROM shun WHERE uuid='%q'", zUuid) ){
-      style_submenu_element("Unshun","Unshun", "%s/shun?uuid=%s&sub=1",
+      style_submenu_element("Unshun", "%s/shun?uuid=%s&sub=1",
             g.zTop, zUuid);
     }else{
-      style_submenu_element("Shun","Shun", "%s/shun?shun=%s#addshun",
+      style_submenu_element("Shun", "%s/shun?shun=%s#addshun",
             g.zTop, zUuid);
     }
   }
@@ -477,25 +477,25 @@ void ainfo_page(void){
     zTktUuid = zTarget;
     if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
     if( g.perm.WrTkt ){
-      style_submenu_element("Delete","Delete","%R/ainfo/%s?del", zUuid);
+      style_submenu_element("Delete", "%R/ainfo/%s?del", zUuid);
     }
   }else if( db_exists("SELECT 1 FROM tag WHERE tagname='wiki-%q'",zTarget) ){
     zWikiName = zTarget;
     if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
     if( g.perm.WrWiki ){
-      style_submenu_element("Delete","Delete","%R/ainfo/%s?del", zUuid);
+      style_submenu_element("Delete", "%R/ainfo/%s?del", zUuid);
     }
   }else if( db_exists("SELECT 1 FROM tag WHERE tagname='event-%q'",zTarget) ){
     zTNUuid = zTarget;
     if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
     if( g.perm.Write && g.perm.WrWiki ){
-      style_submenu_element("Delete","Delete","%R/ainfo/%s?del", zUuid);
+      style_submenu_element("Delete", "%R/ainfo/%s?del", zUuid);
     }
   }
   zDate = db_text(0, "SELECT datetime(%.12f)", pAttach->rDate);
 
   if( P("confirm")
-   && ((zTktUuid && g.perm.WrTkt) || 
+   && ((zTktUuid && g.perm.WrTkt) ||
        (zWikiName && g.perm.WrWiki) ||
        (zTNUuid && g.perm.Write && g.perm.WrWiki))
   ){
@@ -553,10 +553,9 @@ void ainfo_page(void){
     }
   }
   style_header("Attachment Details");
-  style_submenu_element("Raw", "Raw", "%R/artifact/%s", zUuid);
+  style_submenu_element("Raw", "%R/artifact/%s", zUuid);
   if(fShowContent){
-    style_submenu_element("Line Numbers", "Line Numbers",
-                          "%R/ainfo/%s%s",zUuid,
+    style_submenu_element("Line Numbers", "%R/ainfo/%s%s", zUuid,
                           ((zLn&&*zLn) ? "" : "?ln=0"));
   }
 
@@ -629,9 +628,9 @@ void ainfo_page(void){
     }
   }else if( strncmp(zMime, "image/", 6)==0 ){
     int sz = db_int(0, "SELECT size FROM blob WHERE rid=%d", ridSrc);
-    @ <i>(file is %d(sz) bytes of image data)</i><br>
+    @ <i>(file is %d(sz) bytes of image data)</i><br />
     @ <img src="%R/raw/%s(zSrc)?m=%s(zMime)"></img>
-    style_submenu_element("Image", "Image", "%R/raw/%s?m=%s", zSrc, zMime);
+    style_submenu_element("Image", "%R/raw/%s?m=%s", zSrc, zMime);
   }else{
     int sz = db_int(0, "SELECT size FROM blob WHERE rid=%d", ridSrc);
     @ <i>(file is %d(sz) bytes of binary data)</i>
@@ -701,6 +700,12 @@ void attachment_list(
 **                                     updated by its technote id.
 **
 **       One of PAGENAME, DATETIME or TECHNOTE-ID must be specified.
+**
+** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
+** year-month-day form, it may be truncated, the "T" may be replaced by
+** a space, and it may also name a timezone offset from UTC as "-HH:MM"
+** (westward) or "+HH:MM" (eastward). Either no timezone suffix or "Z"
+** means UTC.
 */
 void attachment_cmd(void){
   int n;
@@ -714,7 +719,7 @@ void attachment_cmd(void){
   }
 
   if( strncmp(g.argv[2],"add",n)==0 ){
-    const char *zPageName;        /* Name of the wiki page to attach to */
+    const char *zPageName = 0;    /* Name of the wiki page to attach to */
     const char *zFile;            /* Name of the file to be attached */
     const char *zETime;           /* The name of the technote to attach to */
     Manifest *pWiki = 0;          /* Parsed wiki page content */
@@ -732,7 +737,7 @@ void attachment_cmd(void){
         " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
         " ORDER BY x.mtime DESC LIMIT 1",
         zPageName
-      );        
+      );
       if( (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))!=0 ){
         zBody = pWiki->zWiki;
       }

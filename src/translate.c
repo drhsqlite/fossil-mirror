@@ -48,6 +48,11 @@
 ** or "//" (for C++ code).  Lines of subsequent @-blocks that begin with
 ** CC are omitted from the output.
 **
+** Enhancement #3:
+**
+** If a non-enhancement #1 line ends in backslash, the backslash and the
+** newline (\n) are not included in the argument to cgi_printf().  This
+** is used to split one long output line across multiple source lines.
 */
 #include <stdio.h>
 #include <ctype.h>
@@ -143,6 +148,7 @@ static void trans(FILE *in, FILE *out){
       ** characters other than \000 and '(') will put "%C" in the
       ** format and add the "(...)" as an argument to the cgi_printf call.
       */
+      const char *zNewline = "\\n";
       int indent;
       int nC;
       char c;
@@ -150,6 +156,11 @@ static void trans(FILE *in, FILE *out){
       if( isspace(zLine[i]) ){ i++; }
       indent = i;
       for(j=0; zLine[i] && zLine[i]!='\r' && zLine[i]!='\n'; i++){
+        if( zLine[i]=='\\' && (!zLine[i+1] || zLine[i+1]=='\r'
+                                           || zLine[i+1]=='\n') ){
+          zNewline = "";
+          break;
+        }
         if( zLine[i]=='"' || zLine[i]=='\\' ){ zOut[j++] = '\\'; }
         zOut[j++] = zLine[i];
         if( zLine[i]!='%' || zLine[i+1]=='%' || zLine[i+1]==0 ) continue;
@@ -171,10 +182,10 @@ static void trans(FILE *in, FILE *out){
       }
       zOut[j] = 0;
       if( !inPrint ){
-        fprintf(out,"%*scgi_printf(\"%s\\n\"",indent-2,"", zOut);
+        fprintf(out,"%*scgi_printf(\"%s%s\"",indent-2,"", zOut, zNewline);
         inPrint = 1;
       }else{
-        fprintf(out,"\n%*s\"%s\\n\"",indent+5, "", zOut);
+        fprintf(out,"\n%*s\"%s%s\"",indent+5, "", zOut, zNewline);
       }
     }
   }

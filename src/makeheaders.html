@@ -6,7 +6,7 @@
 
 <p>
 This document describes <em>makeheaders</em>,
-a tool that automatically generates ``<code>.h</code>''
+a tool that automatically generates &#8220;<code>.h</code>&#8221;
 files for a C or C++ programming project.
 </p>
 
@@ -14,37 +14,39 @@ files for a C or C++ programming project.
 <h2>Table Of Contents</h2>
 
 <ul>
-<li><a href=makeheaders.html#H0002>1,0 Background</a>
+<li><a href="#H0002">1,0 Background</a>
 <ul>
-<li><a href=makeheaders.html#H0003>1.1 Problems With The Traditional Approach</a>
+<li><a href="#H0003">1.1 Problems With The Traditional Approach</a>
 
-<li><a href=makeheaders.html#H0004>1.2 The Makeheaders Solution</a>
+<li><a href="#H0004">1.2 The Makeheaders Solution</a>
 </ul>
-<li><a href=makeheaders.html#H0005>2.0 Running The Makeheaders Program</a>
+<li><a href="#H0005">2.0 Running The Makeheaders Program</a>
 
-<li><a href=makeheaders.html#H0006>3.0 Preparing Source Files For Use With Makeheaders</a>
+<li><a href="#H0006">3.0 Preparing Source Files For Use With Makeheaders</a>
 <ul>
-<li><a href=makeheaders.html#H0007>3.1 The Basic Setup</a>
+<li><a href="#H0007">3.1 The Basic Setup</a>
 
-<li><a href=makeheaders.html#H0008>3.2 What Declarations Get Copied</a>
+<li><a href="#H0008">3.2 What Declarations Get Copied</a>
 
-<li><a href=makeheaders.html#H0009>3.3 How To Avoid Having To Write Any Header Files</a>
+<li><a href="#H0009">3.3 How To Avoid Having To Write Any Header Files</a>
 
-<li><a href=makeheaders.html#H0010>3.4 Designating Declarations For Export</a>
+<li><a href="#H0010">3.4 Designating Declarations For Export</a>
 
-<li><a href=makeheaders.html#H0011>3.5 Local declarations processed by makeheaders</a>
+<li><a href="#H0011">3.5 Local declarations processed by makeheaders</a>
 
-<li><a href=makeheaders.html#H0012>3.6 Using Makeheaders With C++ Code</a>
+<li><a href="#H0012">3.6 Using Makeheaders With C++ Code</a>
 
-<li><a href=makeheaders.html#H0013>3.7 Conditional Compilation</a>
+<li><a href="#H0013">3.7 Conditional Compilation</a>
 
-<li><a href=makeheaders.html#H0014>3.8 Caveats</a>
+<li><a href="#H0014">3.8 Caveats</a>
 </ul>
-<li><a href=makeheaders.html#H0015>4.0 Using Makeheaders To Generate Documentation</a>
+<li><a href="#H0015">4.0 Using Makeheaders To Generate Documentation</a>
 
-<li><a href=makeheaders.html#H0016>5.0 Compiling The Makeheaders Program</a>
+<li><a href="#H0016">5.0 Compiling The Makeheaders Program</a>
 
-<li><a href=makeheaders.html#H0017>6.0 Summary And Conclusion</a>
+<li><a href="#H0017">6.0 History</a>
+
+<li><a href="#H0018">7.0 Summary And Conclusion</a>
 </ul><a name="H0002"></a>
 <h2>1.0 Background</h2>
 
@@ -69,7 +71,7 @@ Declarations in C include things such as the following:
 <li> Structure, union and enumeration declarations.
 <li> Function and procedure prototypes.
 <li> Preprocessor macros and #defines.
-<li> ``extern'' variable declarations.
+<li> &#8220;<code>extern</code>&#8221; variable declarations.
 </ul>
 </p>
 
@@ -91,9 +93,9 @@ is the <em>interface</em> and the definition is the <em>implementation</em>.
 
 <p>
 In C programs, it has always been the tradition that declarations are
-put in files with the ``<code>.h</code>'' suffix and definitions are
-placed in ``<code>.c</code>'' files.
-The .c files contain ``<code>#include</code>'' preprocessor statements
+put in files with the &#8220;<code>.h</code>&#8221; suffix and definitions are
+placed in &#8220;<code>.c</code>&#8221; files.
+The .c files contain &#8220;<code>#include</code>&#8221; preprocessor statements
 that cause the contents of .h files to be included as part of the
 source code when the .c file is compiled.
 In this way, the .h files define the interface to a subsystem and
@@ -145,10 +147,10 @@ This means that the entire program must be recompiled frequently,
 leading to a lengthy modify-compile-test cycle and a corresponding
 decrease in programmer productivity.
 <p><li>
-The C programming language requires that declarations depending upon 
+The C programming language requires that declarations depending upon
 each other must occur in a particular order.
 In a program with complex, interwoven data structures, the correct
-declaration order can become very difficult to determine manually, 
+declaration order can become very difficult to determine manually,
 especially when the declarations involved are spread out over several
 files.
 </ol>
@@ -160,7 +162,7 @@ files.
 <p>
 The makeheaders program is designed to ameliorate the problems associated
 with the traditional C programming model by automatically generating
-the interface information in the .h files from 
+the interface information in the .h files from
 interface information contained in other .h files and
 from implementation information in the .c files.
 When the makeheaders program is run, it scans the source
@@ -197,7 +199,7 @@ The generated .h file contains the minimal set of declarations needed
 by the .c file.
 This means that when something changes, a minimal amount of recompilation
 is required to produce an updated executable.
-Experience has shown that this gives a dramatic improvement 
+Experience has shown that this gives a dramatic improvement
 in programmer productivity by facilitating a rapid modify-compile-test
 cycle during development.
 <p><li>
@@ -239,7 +241,7 @@ appropriate.
 But if makeheaders sees that the .h file that it has generated is no
 different from the .h file it generated last time, it doesn't update
 the file.
-This prevents the corresponding .c files from having to 
+This prevents the corresponding .c files from having to
 be needlessly recompiled.
 </p>
 
@@ -264,7 +266,7 @@ into the file of your choice.
 A similar option is -H.  Like the lower-case -h option, big -H
 generates a single include file on standard output.  But unlike
 small -h, the big -H only emits prototypes and declarations that
-have been designated as ``exportable''.
+have been designated as &#8220;exportable&#8221;.
 The idea is that -H will generate an include file that defines
 the interface to a library.
 More will be said about this in section 3.4.
@@ -295,13 +297,13 @@ then you can supply an empty header filename, like this:
    makeheaders alpha.c beta.c gamma.c:
 </pre>
 In this example, makeheaders will scan the three files named
-``alpha.c'',
-``beta.c'' and
-``gamma.c''
+&#8220;<code>alpha.c</code>&#8221;,
+&#8220;<code>beta.c</code>&#8221; and
+&#8220;<code>gamma.c</code>&#8221;
 but because of the colon on the end of third filename
 it will only generate headers for the first two files.
 Unfortunately,
-it is not possible to get makeheaders to process any file whose 
+it is not possible to get makeheaders to process any file whose
 name contains a colon.
 </p>
 
@@ -311,10 +313,10 @@ can become very long.
 If the operating system doesn't support long command lines
 (example: DOS and Win32) you may not be able to list all of the
 input files in the space available.
-In that case, you can use the ``-f'' option followed
+In that case, you can use the &#8220;<code>-f</code>&#8221; option followed
 by the name of a file to cause makeheaders to read command line
 options and filename from the file instead of from the command line.
-For example, you might prepare a file named ``mkhdr.dat''
+For example, you might prepare a file named &#8220;<code>mkhdr.dat</code>&#8221;
 that contains text like this:
 <pre>
   src/alpha.c:hdr/alpha.h
@@ -329,17 +331,17 @@ Then invoke makeheaders as follows:
 </p>
 
 <p>
-The ``-local'' option causes makeheaders to
-generate of prototypes for ``static'' functions and
+The &#8220;<code>-local</code>&#8221; option causes makeheaders to
+generate of prototypes for &#8220;<code>static</code>&#8221; functions and
 procedures.
 Such prototypes are normally omitted.
 </p>
 
 <p>
-Finally, makeheaders also includes a ``-doc'' option.
+Finally, makeheaders also includes a &#8220;<code>-doc</code>&#8221; option.
 This command line option prevents makeheaders from generating any
 headers at all.
-Instead, makeheaders will write to standard output 
+Instead, makeheaders will write to standard output
 information about every definition and declaration that it encounters
 in its scan of source files.
 The information output includes the type of the definition or
@@ -354,15 +356,17 @@ We'll talk more about this feature later.
 <p>
 If you forget what command line options are available, or forget
 their exact name, you can invoke makeheaders using an unknown
-command line option (like ``--help'' or ``-?'')
+command line option (like &#8220;<code>--help</code>&#8221; or
+&#8220;<code>-?</code>&#8221;)
 and it will print a summary of the available options on standard
 error.
-If you need to process a file whose name begins with ``-'',
-you can prepend a ``./'' to its name in order to get it
+If you need to process a file whose name begins with
+&#8220;<code>-</code>&#8221;,
+you can prepend a &#8220;<code>./</code>&#8221; to its name in order to get it
 accepted by the command line parser.
-Or, you can insert the special option ``--'' on the command
-line to cause all subsequent command line arguments to be treated as
-filenames even if their names beginn with ``-''.
+Or, you can insert the special option &#8220;<code>--</code>&#8221; on the
+command line to cause all subsequent command line arguments to be treated as
+filenames even if their names begin with &#8220;<code>-</code>&#8221;.
 </p>
 
 <a name="H0006"></a>
@@ -381,15 +385,16 @@ This section will describe several typical uses of makeheaders.
 <h3>3.1 The Basic Setup</h3>
 
 <p>
-The simpliest way to use makeheaders is to put all definitions in
+The simplest way to use makeheaders is to put all definitions in
 one or more .c files and all structure and type declarations in
 separate .h files.
-The only restriction is that you should take care to chose basenames 
-for your .h files that are different from the basenames for you
+The only restriction is that you should take care to chose basenames
+for your .h files that are different from the basenames for your
 .c files.
-Recall that if your .c file is named (for example) ``alpha.c''
+Recall that if your .c file is named (for example)
+&#8220;<code>alpha.c</code>&#8221;
 makeheaders will attempt to generate a corresponding header file
-named ``alpha.h''.
+named &#8220;<code>alpha.h</code>&#8221;.
 For that reason, you don't want to use that name for
 any of the .h files you write since that will prevent makeheaders
 from generating the .h file automatically.
@@ -398,9 +403,9 @@ from generating the .h file automatically.
 <p>
 The structure of a .c file intented for use with makeheaders is very
 simple.
-All you have to do is add a single ``#include'' to the top
-of the file that sources the header file that makeheaders will generate.
-Hence, the beginning of a source file named ``alpha.c''
+All you have to do is add a single &#8220;<code>#include</code>&#8221; to the
+top of the file that sources the header file that makeheaders will generate.
+Hence, the beginning of a source file named &#8220;<code>alpha.c</code>&#8221;
 might look something like this:
 </p>
 
@@ -417,10 +422,10 @@ might look something like this:
 Your manually generated header files require no special attention at all.
 Code them as you normally would.
 However, makeheaders will work better if you omit the
-``#if'' statements people often put around the outside of
+&#8220;<code>#if</code>&#8221; statements people often put around the outside of
 header files that prevent the files from being included more than once.
-For example, to create a header file named ``beta.h'', many
-people will habitually write the following:
+For example, to create a header file named &#8220;<code>beta.h</code>&#8221;,
+many people will habitually write the following:
 
 <pre>
    #ifndef BETA_H
@@ -437,7 +442,7 @@ included by any C code.
 Instead, makeheaders will scan your header files to extract only
 those declarations that are needed by individual .c files and then
 copy those declarations to the .h files corresponding to the .c files.
-Hence, the ``#if'' wrapper serves no useful purpose.
+Hence, the &#8220;<code>#if</code>&#8221; wrapper serves no useful purpose.
 But it does make makeheaders work harder, forcing it to put
 the statements
 
@@ -461,18 +466,18 @@ command:
 
 The makeheaders program will scan all of the .c files and all of the
 manually written .h files and then automatically generate .h files
-corresponding to all .c files.  
+corresponding to all .c files.
 </p>
 
 <p>
 Note that
-the wildcard expression used in the above example, 
-``<code>*.[ch]</code>'',
+the wildcard expression used in the above example,
+&#8220;<code>*.[ch]</code>&#8221;,
 will expand to include all .h files in the current directory, both
 those entered manually be the programmer and others generated automatically
 by a prior run of makeheaders.
 But that is not a problem.
-The makeheaders program will recognize and ignore any files it 
+The makeheaders program will recognize and ignore any files it
 has previously generated that show up on its input list.
 </p>
 
@@ -491,10 +496,10 @@ When a function is defined in any .c file, a prototype of that function
 is placed in the generated .h file of every .c file that
 calls the function.</p>
 
-<P>If the ``static'' keyword of C appears at the beginning
-of the function definition, the prototype is suppressed.
-If you use the ``LOCAL'' keyword where you would normally
-say ``static'', then a prototype is generated, but it
+<P>If the &#8220;<code>static</code>&#8221; keyword of C appears at the
+beginning of the function definition, the prototype is suppressed.
+If you use the &#8220;<code>LOCAL</code>&#8221; keyword where you would normally
+say &#8220;<code>static</code>&#8221;, then a prototype is generated, but it
 will only appear in the single header file that corresponds to the
 source file containing the function.  For example, if the file
 <code>alpha.c</code> contains the following:
@@ -511,20 +516,22 @@ Then the header file <code>alpha.h</code> will contain
 However, no other generated header files will contain a prototype for
 <code>testFunc()</code> since the function has only file scope.</p>
 
-<p>When the ``LOCAL'' keyword is used, makeheaders will also
-generate a #define for LOCAL, like this:
+<p>When the &#8220;<code>LOCAL</code>&#8221; keyword is used, makeheaders will
+also generate a #define for LOCAL, like this:
 <pre>
    #define LOCAL static
 </pre>
 so that the C compiler will know what it means.</p>
 
-<p>If you invoke makeheaders with a ``-local'' command-line
-option, then it treats the ``static'' keyword like
-``LOCAL'' and generates prototypes in the header file
-that corresponds to the source file containing the function defintiion.</p>
+<p>If you invoke makeheaders with a &#8220;<code>-local</code>&#8221;
+command-line option, then it treats the &#8220;<code>static</code>&#8221;
+keyword like &#8220;<code>LOCAL</code>&#8221; and generates prototypes in the
+header file that corresponds to the source file containing the function
+definition.</p>
 
 <p><li>
-When a global variable is defined in a .c file, an ``extern''
+When a global variable is defined in a .c file, an
+&#8220;<code>extern</code>&#8221;
 declaration of that variable is placed in the header of every
 .c file that uses the variable.
 </p>
@@ -532,7 +539,7 @@ declaration of that variable is placed in the header of every
 <p><li>
 When a structure, union or enumeration declaration or a
 function prototype or a C++ class declaration appears in a
-manually produced .h file, that declaration is copied into the 
+manually produced .h file, that declaration is copied into the
 automatically generated
 .h files of all .c files that use the structure, union, enumeration,
 function or class.
@@ -552,8 +559,8 @@ those files and are not copied.
 When a structure, union or enumeration declaration appears in a .h
 file, makeheaders will automatically
 generate a typedef that allows the declaration to be referenced without
-the ``struct'', ``union'' or ``enum''
-qualifier.
+the &#8220;<code>struct</code>&#8221;, &#8220;<code>union</code>&#8221; or
+&#8220;<code>enum</code>&#8221; qualifier.
 In other words, if makeheaders sees the code:
 <pre>
   struct Examp { /* ... */ };
@@ -574,9 +581,9 @@ C compilers will not enforce this convention, but makeheaders does.
 <p>
 As a final note, we observe that automatically generated declarations
 are ordered as required by the ANSI-C programming language.
-If the declaration of some structure ``X'' requires a prior
-declaration of another structure ``Y'', then Y will appear
-first in the generated headers.
+If the declaration of some structure &#8220;<code>X</code>&#8221; requires a
+prior declaration of another structure &#8220;<code>Y</code>&#8221;, then Y will
+appear first in the generated headers.
 </p>
 
 <a name="H0009"></a>
@@ -612,15 +619,15 @@ it were a .h file by enclosing that part of the .c file within:
    #if INTERFACE
    #endif
 </pre>
-Thus any structure definitions that appear after the 
-``#if INTERFACE'' but before the corresponding 
-``#endif'' are eligable to be copied into the 
+Thus any structure definitions that appear after the
+&#8220;<code>#if INTERFACE</code>&#8221; but before the corresponding
+&#8220;<code>#endif</code>&#8221; are eligable to be copied into the
 automatically generated
 .h files of other .c files.
 </p>
 
 <p>
-If you use the ``#if INTERFACE'' mechanism in a .c file,
+If you use the &#8220;<code>#if INTERFACE</code>&#8221; mechanism in a .c file,
 then the generated header for that .c file will contain a line
 like this:
 <pre>
@@ -639,11 +646,11 @@ will do that for you automatically.
 <p>
 Note that you don't have to use this approach exclusively.
 You can put some declarations in .h files and others within the
-``#if INTERFACE'' regions of .c files.
+&#8220;<code>#if INTERFACE</code>&#8221; regions of .c files.
 Makeheaders treats all declarations alike, no matter where they
 come from.
 You should also note that a single .c file can contain as many
-``#if INTERFACE'' regions as desired.
+&#8220;<code>#if INTERFACE</code>&#8221; regions as desired.
 </p>
 
 <a name="H0010"></a>
@@ -666,7 +673,7 @@ like this, but makeheaders does.
 
 <p>
 Using makeheaders, it is possible to designate routines and data
-structures as being for ``export''.
+structures as being for &#8220;<code>export</code>&#8221;.
 Exported objects are visible not only to other files within the
 same library or subassembly but also to other
 libraries and subassemblies in the larger program.
@@ -692,10 +699,10 @@ This is not a perfect solution, but it works well in practice.
 But trouble quickly arises when we attempt to devise a mechanism for
 telling makeheaders which prototypes it should export and which it should
 keep local.
-The built-in ``static'' keyword of C works well for prohibiting
-prototypes from leaving a single source file, but because C doesn't
+The built-in &#8220;<code>static</code>&#8221; keyword of C works well for
+prohibiting prototypes from leaving a single source file, but because C doesn't
 support a linkage hierarchy, there is nothing in the C language to help us.
-We'll have to invite our own keyword: ``EXPORT''
+We'll have to invite our own keyword: &#8220;<code>EXPORT</code>&#8221;
 </p>
 
 <p>
@@ -728,11 +735,11 @@ or definitions within
    #endif
 </pre>
 will become part of the exported interface.
-The ``#if EXPORT_INTERFACE'' mechanism can be used in either
-.c or .h files.
-(The ``#if INTERFACE'' can also be used in both .h and .c files, 
-but since it's use in a .h file would be redundant, we haven't mentioned
-it before.)
+The &#8220;<code>#if EXPORT_INTERFACE</code>&#8221; mechanism can be used in
+either .c or .h files.
+(The &#8220;<code>#if INTERFACE</code>&#8221; can also be used in both .h and
+.c files, but since it's use in a .h file would be redundant, we haven't
+mentioned it before.)
 </p>
 
 <a name="H0011"></a>
@@ -744,7 +751,7 @@ ignored by makeheaders.
 Such declarations are only intended for use by the source file in which
 they appear and so makeheaders doesn't need to copy them into any
 generated header files.
-We call such declarations ``private''.
+We call such declarations &#8220;<code>private</code>&#8221;.
 </p>
 
 <p>
@@ -753,7 +760,7 @@ of private declarations into the correct order for us automatically.
 Or, we could have static functions and procedures for which we would like
 makeheaders to generate prototypes, but the arguments to these
 functions and procedures uses private declarations.
-In both of these cases, we want makeheaders to be aware of the 
+In both of these cases, we want makeheaders to be aware of the
 private declarations and copy them into the local header file,
 but we don't want makeheaders to propagate the
 declarations outside of the file in which they are declared.
@@ -766,8 +773,9 @@ within
   #if LOCAL_INTERFACE
   #endif
 </pre>
-A ``LOCAL_INTERFACE'' block works very much like the
-``INTERFACE'' and ``EXPORT_INTERFACE''
+A &#8220;<code>LOCAL_INTERFACE</code>&#8221; block works very much like the
+&#8220;<code>INTERFACE</code>&#8221; and
+&#8220;<code>EXPORT_INTERFACE</code>&#8221;
 blocks described above, except that makeheaders insures that the
 objects declared in a LOCAL_INTERFACE are only visible to the
 file containing the LOCAL_INTERFACE.
@@ -779,7 +787,8 @@ file containing the LOCAL_INTERFACE.
 <p>
 You can use makeheaders to generate header files for C++ code, in
 addition to C.
-Makeheaders will recognize and copy both ``class'' declarations
+Makeheaders will recognize and copy both &#8220;<code>class</code>&#8221;
+declarations
 and inline function definitions, and it knows not to try to generate
 prototypes for methods.
 </p>
@@ -807,17 +816,17 @@ by the suffix on the source code filename.  Simple ".c" or ".h" suffixes
 are assumed to be ANSI-C.  Anything else, including ".cc", ".C" and
 ".cpp" is assumed to be C++.
 The name of the header file generated by makeheaders is derived from
-by the name of the source file by converting every "c" to "h" and
+the name of the source file by converting every "c" to "h" and
 every "C" to "H" in the suffix of the filename.
 Thus the C++ source
-file ``alpha.cpp'' will induce makeheaders to
-generate a header file named ``alpha.hpp''.
+file &#8220;<code>alpha.cpp</code>&#8221; will induce makeheaders to
+generate a header file named &#8220;<code>alpha.hpp</code>&#8221;.
 </p>
 
 <p>
 Makeheaders augments class definitions by inserting prototypes to
-methods were appropriate.  If a method definition begins with one
-of the special keywords <b>PUBLIC</b>, <b>PROTECTED</b>, or 
+methods where appropriate.  If a method definition begins with one
+of the special keywords <b>PUBLIC</b>, <b>PROTECTED</b>, or
 <b>PRIVATE</b> (in upper-case to distinguish them from the regular
 C++ keywords with the same meaning) then a prototype for that
 method will be inserted into the class definition.  If none of
@@ -869,21 +878,21 @@ one in the class definition and one on the defintion of the constructor.
 <p>
 Makeheaders does not understand more recent
 C++ syntax such as templates and namespaces.
-Perhaps these issued will be addressed in future revisions.
+Perhaps these issues will be addressed in future revisions.
 </p>
 
 <a name="H0013"></a>
 <h3>3.7 Conditional Compilation</h3>
 
 <p>
-The makeheaders program understands and tracks the conditional 
+The makeheaders program understands and tracks the conditional
 compilation constructs in the source code files it scans.
 Hence, if the following code appears in a source file
 <pre>
   #ifdef UNIX
-  #  define WORKS_WELL  1
+  #  define WORKS_WELL 1
   #else
-  #  define WORKS_WELL  0
+  #  define WORKS_WELL 0
   #endif
 </pre>
 then the next patch of code will appear in the generated header for
@@ -920,8 +929,28 @@ Makeheaders does not understand the old K&amp;R style of function
 and procedure definitions.
 It only understands the modern ANSI-C style, and will probably
 become very confused if it encounters an old K&amp;R function.
-You should take care to avoid putting K&amp;R function defintions
-in your code, therefore.
+Therefore you should take care to avoid putting K&amp;R function definitions
+in your code.
+</p>
+
+<p>
+Makeheaders does not support defining an enumerated or aggregate type in
+the same statement as a variable declaration.  None of the following
+statements work completely:
+<pre>
+struct {int field;} a;
+struct Tag {int field;} b;
+struct Tag c;
+</pre>
+Instead, define types separately from variables:
+<pre>
+#if INTERFACE
+struct Tag {int field;};
+#endif
+Tag b, c;
+</pre>
+See <a href="#H0008">3.2 What Declarations Get Copied</a> for details,
+including on the automatic typedef.
 </p>
 
 <p>
@@ -975,6 +1004,21 @@ probably be able to figure out what you want and will do the right
 thing.
 </p>
 
+<p>
+Makeheaders has limited understanding of enums.  In particular, it does
+not realize the significance of enumerated values, so the enum is not
+emitted in the header files when its enumerated values are used unless
+the name associated with the enum is also used.  Moreover, enums can be
+completely anonymous, e.g. &#8220;<code>enum {X, Y, Z};</code>&#8221;.
+Makeheaders ignores such enums so they can at least be used within a
+single source file.  Makeheaders expects you to use #define constants
+instead.  If you want enum features that #define lacks, and you need the
+enum in the interface, bypass makeheaders and write a header file by
+hand, or teach makeheaders to emit the enum definition when any of the
+enumerated values are used, rather than only when the top-level name (if
+any) is used.
+</p>
+
 <a name="H0015"></a>
 <h2>4.0 Using Makeheaders To Generate Documentation</h2>
 
@@ -995,31 +1039,31 @@ documentation directly from the source code:
 </ul>
 The makeheaders program does not generate program documentation itself.
 But you can use makeheaders to parse the program source code, extract
-the information that is relavant to the documentation and to pass this
+the information that is relevant to the documentation and to pass this
 information to another tool to do the actual documentation preparation.
 </p>
 
 <p>
-When makeheaders is run with the ``-doc'' option, it emits
-no header files at all.
+When makeheaders is run with the &#8220;<code>-doc</code>&#8221; option, it
+emits no header files at all.
 Instead, it does a complete dump of its internal tables to standard
-outputs in a form that is easily parsed.
+output in a form that is easily parsed.
 This output can then be used by another program (the implementation
 of which is left as an exercise to the reader) that will use the
 information to prepare suitable documentation.
 </p>
 
 <p>
-The ``-doc'' option causes makeheaders to print information
-to standard output about all of the following objects:
+The &#8220;<code>-doc</code>&#8221; option causes makeheaders to print
+information to standard output about all of the following objects:
 <ul>
-<li> C++ Class declarations
+<li> C++ class declarations
 <li> Structure and union declarations
 <li> Enumerations
 <li> Typedefs
 <li> Procedure and function definitions
 <li> Global variables
-<li> Preprocessor macros (ex: ``#define'')
+<li> Preprocessor macros (ex: &#8220;<code>#define</code>&#8221;)
 </ul>
 For each of these objects, the following information is output:
 <ul>
@@ -1031,7 +1075,8 @@ For each of these objects, the following information is output:
 <li> The name of the file in which the object was declared.
 <li> The complete text of any block comment that preceeds the declarations.
 <li> If the declaration occurred inside a preprocessor conditional
-     (``#if'') then the text of that conditional is provided.
+     (&#8220;<code>#if</code>&#8221;) then the text of that conditional is
+     provided.
 <li> The complete text of a declaration for the object.
 </ul>
 The exact output format will not be described here.
@@ -1044,7 +1089,7 @@ anyone who inspects some sample output.
 
 <p>
 The source code for makeheaders is a single file of ANSI-C code,
-less than 3000 lines in length.
+approximately 3000 lines in length.
 The program makes only modest demands of the system and C library
 and should compile without alteration on most ANSI C compilers
 and on most operating systems.
@@ -1053,10 +1098,35 @@ as well as Cygwin32 and MSVC 5.0 for Win32.
 </p>
 
 <a name="H0017"></a>
-<h2>6.0 Summary And Conclusion</h2>
+<h2>6.0 History</h2>
 
 <p>
-The makeheaders program will automatically generate a minimal header file 
+The makeheaders program was first written by D. Richard Hipp
+(also the original author of 
+<a href="https://sqlite.org/">SQLite</a> and
+<a href="https://www.fossil-scm.org/">Fossil</a>) in 1993.
+Hipp open-sourced the project immediately, but it never caught
+on with any other developers and it continued to be used mostly
+by Hipp himself for over a decade.  When Hipp was first writing
+the Fossil version control system in 2006 and 2007, he used
+makeheaders on that project to help simplify the source code.
+As the popularity of Fossil increased, the makeheaders
+that was incorporated into the Fossil source tree became the
+"official" makeheaders implementation.
+</p>
+
+<p>
+As this paragraph is being composed (2016-11-05), Fossil is the
+only project known to Hipp that is still using makeheaders.  On
+the other hand, makeheaders has served the Fossil project well and
+there are no plans remove it.
+</p>
+
+<a name="H0018"></a>
+<h2>7.0 Summary And Conclusion</h2>
+
+<p>
+The makeheaders program will automatically generate a minimal header file
 for each of a set of C source and header files, and will
 generate a composite header file for the entire source file suite,
 for either internal or external use.
@@ -1075,3 +1145,4 @@ of programs that would have otherwise been all but impossible
 due to their size and complexity.
 </p>
 </body>
+</html>

@@ -156,7 +156,7 @@ void branch_new(void){
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", brid);
   if( manifest_crosslink(brid, &branch, MC_PERMIT_HOOKS)==0 ){
-    fossil_fatal("%s\n", g.zErrMsg);
+    fossil_fatal("%s", g.zErrMsg);
   }
   assert( blob_is_reset(&branch) );
   content_deltify(rootid, brid, 0);
@@ -178,7 +178,7 @@ void branch_new(void){
   db_end_transaction(0);
 
   /* Do an autosync push, if requested */
-  if( !isPrivate ) autosync_loop(SYNC_PUSH, db_get_int("autosync-tries", 1));
+  if( !isPrivate ) autosync_loop(SYNC_PUSH, db_get_int("autosync-tries",1),0);
 }
 
 #if INTERFACE
@@ -190,7 +190,7 @@ void branch_new(void){
 #define BRL_BOTH             0x003 /* Show both open and closed branches */
 #define BRL_OPEN_CLOSED_MASK 0x003
 #define BRL_MTIME            0x004 /* Include lastest check-in time */
-#dfeine BRL_ORDERBY_MTIME    0x008 /* Sort by MTIME. (otherwise sort by name)*/
+#define BRL_ORDERBY_MTIME    0x008 /* Sort by MTIME. (otherwise sort by name)*/
 
 #endif /* INTERFACE */
 
@@ -260,6 +260,12 @@ void branch_prepare_list_query(Stmt *pQuery, int brFlags){
 **        --date-override DATE  DATE to use instead of 'now'
 **        --user-override USER  USER to use instead of the current default
 **
+**        DATE may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
+**        year-month-day form, it may be truncated, the "T" may be
+**        replaced by a space, and it may also name a timezone offset
+**        from UTC as "-HH:MM" (westward) or "+HH:MM" (eastward).
+**        Either no timezone suffix or "Z" means UTC.
+**
 **    %fossil branch list ?-a|--all|-c|--closed?
 **    %fossil branch ls ?-a|--all|-c|--closed?
 **
@@ -319,7 +325,8 @@ static const char brlistQuery[] =
 @      AND tagxref.tagid=(SELECT tagid FROM tag WHERE tagname='branch')
 @      AND tagtype>0),
 @   count(*),
-@   (SELECT uuid FROM blob WHERE rid=tagxref.rid)
+@   (SELECT uuid FROM blob WHERE rid=tagxref.rid),
+@   event.bgcolor
 @  FROM tagxref, tag, event
 @ WHERE tagxref.tagid=tag.tagid
 @   AND tagxref.tagtype>0
@@ -340,10 +347,12 @@ static const char brlistQuery[] =
 static void new_brlist_page(void){
   Stmt q;
   double rNow;
+  int show_colors = PB("colors");
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("Branches");
   style_adunit_config(ADUNIT_RIGHT_OK);
+  style_submenu_checkbox("colors", "Use Branch Colors", 0);
   login_anonymous_available();
 
   db_prepare(&q, brlistQuery/*works-like:""*/);
@@ -363,10 +372,22 @@ static void new_brlist_page(void){
     const char *zMergeTo = db_column_text(&q, 3);
     int nCkin = db_column_int(&q, 4);
     const char *zLastCkin = db_column_text(&q, 5);
+    const char *zBgClr = db_column_text(&q, 6);
     char *zAge = human_readable_age(rNow - rMtime);
     sqlite3_int64 iMtime = (sqlite3_int64)(rMtime*86400.0);
     if( zMergeTo && zMergeTo[0]==0 ) zMergeTo = 0;
-    @ <tr>
+    if( zBgClr == 0 ){
+      if( zBranch==0 || strcmp(zBranch,"trunk")==0 ){
+        zBgClr = 0;
+      }else{
+        zBgClr = hash_color(zBranch);
+      }
+    }
+    if( zBgClr && zBgClr[0] && show_colors ){
+      @ <tr style="background-color:%s(zBgClr)">
+    }else{
+      @ <tr>
+    }
     @ <td>%z(href("%R/timeline?n=100&r=%T",zBranch))%h(zBranch)</a></td>
     @ <td data-sortkey="%016llx(-iMtime)">%s(zAge)</td>
     @ <td>%d(nCkin)</td>
@@ -423,21 +444,21 @@ void brlist_page(void){
 
   style_header("%s", showClosed ? "Closed Branches" :
                         showAll ? "All Branches" : "Open Branches");
-  style_submenu_element("Timeline", "Timeline", "brtimeline");
+  style_submenu_element("Timeline", "brtimeline");
   if( showClosed ){
-    style_submenu_element("All", "All", "brlist?all");
-    style_submenu_element("Open","Open","brlist?open");
+    style_submenu_element("All", "brlist?all");
+    style_submenu_element("Open", "brlist?open");
   }else if( showAll ){
-    style_submenu_element("Closed", "Closed", "brlist?closed");
-    style_submenu_element("Open","Open","brlist");
+    style_submenu_element("Closed", "brlist?closed");
+    style_submenu_element("Open", "brlist");
   }else{
-    style_submenu_element("All", "All", "brlist?all");
-    style_submenu_element("Closed","Closed","brlist?closed");
+    style_submenu_element("All", "brlist?all");
+    style_submenu_element("Closed", "brlist?closed");
   }
   if( !colorTest ){
-    style_submenu_element("Color-Test", "Color-Test", "brlist?colortest");
+    style_submenu_element("Color-Test", "brlist?colortest");
   }else{
-    style_submenu_element("All", "All", "brlist?all");
+    style_submenu_element("All", "brlist?all");
   }
   login_anonymous_available();
 #if 0
@@ -525,7 +546,7 @@ void brtimeline_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
 
   style_header("Branches");
-  style_submenu_element("List", "List", "brlist");
+  style_submenu_element("List", "brlist");
   login_anonymous_available();
   @ <h2>The initial check-in for each branch:</h2>
   db_prepare(&q,

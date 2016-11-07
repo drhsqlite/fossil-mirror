@@ -198,7 +198,7 @@ void compute_direct_ancestors(int rid){
     "  UNION ALL"
     "  SELECT plink.pid, g.i+1 FROM plink, g"
     "   WHERE plink.cid=g.x AND plink.isprim)"
-    "INSERT INTO ancestor(rid,generation) SELECT x,i FROM g;", 
+    "INSERT INTO ancestor(rid,generation) SELECT x,i FROM g;",
     rid
   );
 }
@@ -218,8 +218,8 @@ int mtime_of_manifest_file(
 
   if( prevVid!=vid ){
     prevVid = vid;
-    db_multi_exec("DROP TABLE IF EXISTS temp.ok;"
-                  "CREATE TEMP TABLE ok(x INTEGER PRIMARY KEY);");
+    db_multi_exec("CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY);"
+                  "DELETE FROM ok;");
     compute_ancestors(vid, 100000000, 1);
   }
   db_static_prepare(&q,
@@ -457,13 +457,13 @@ void leaves_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
 
   if( !showAll ){
-    style_submenu_element("All", "All", "leaves?all");
+    style_submenu_element("All", "leaves?all");
   }
   if( !showClosed ){
-    style_submenu_element("Closed", "Closed", "leaves?closed");
+    style_submenu_element("Closed", "leaves?closed");
   }
   if( showClosed || showAll ){
-    style_submenu_element("Open", "Open", "leaves");
+    style_submenu_element("Open", "leaves");
   }
   style_header("Leaves");
   login_anonymous_available();

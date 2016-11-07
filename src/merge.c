@@ -215,7 +215,7 @@ static void add_renames(
 void merge_cmd(void){
   int vid;              /* Current version "V" */
   int mid;              /* Version we are merging from "M" */
-  int pid;              /* The pivot version - most recent common ancestor P */
+  int pid = 0;          /* The pivot version - most recent common ancestor P */
   int nid = 0;          /* The name pivot version "N" */
   int verboseFlag;      /* True if the -v|--verbose option is present */
   int integrateFlag;    /* True if the --integrate option is present */
@@ -267,8 +267,8 @@ void merge_cmd(void){
   }
   if( !dryRunFlag ){
     if( autosync_loop(SYNC_PULL + SYNC_VERBOSE*verboseFlag,
-                      db_get_int("autosync-tries", 1)) ){
-      fossil_fatal("Cannot proceed with merge");
+                      db_get_int("autosync-tries", 1), 1) ){
+      fossil_fatal("merge abandoned due to sync failure");
     }
   }
 
@@ -397,7 +397,7 @@ void merge_cmd(void){
     vAncestor = db_exists(
       "WITH RECURSIVE ancestor(id) AS ("
       "  VALUES(%d)"
-      "  UNION ALL"
+      "  UNION"
       "  SELECT pid FROM plink, ancestor"
       "   WHERE cid=ancestor.id AND pid!=%d AND cid!=%d)"
       "SELECT 1 FROM ancestor WHERE id=%d LIMIT 1",

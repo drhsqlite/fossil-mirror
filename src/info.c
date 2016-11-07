@@ -156,6 +156,17 @@ static void extraRepoInfo(void){
   db_finalize(&s);
 }
 
+/*
+** Show the parent project, if any
+*/
+static void showParentProject(void){
+  const char *zParentCode;
+  zParentCode = db_get("parent-project-code",0);
+  if( zParentCode ){
+    fossil_print("derived-from: %s %s\n", zParentCode, db_get("parent-project-name",""));
+  }
+}
+
 
 /*
 ** COMMAND: info
@@ -191,6 +202,7 @@ void info_cmd(void){
     db_record_repository_filename(g.argv[2]);
     fossil_print("project-name: %s\n", db_get("project-name", "<unnamed>"));
     fossil_print("project-code: %s\n", db_get("project-code", "<none>"));
+    showParentProject();
     extraRepoInfo();
     return;
   }
@@ -210,6 +222,7 @@ void info_cmd(void){
       fossil_print("config-db:    %s\n", g.zConfigDbName);
     }
     fossil_print("project-code: %s\n", db_get("project-code", ""));
+    showParentProject();
     vid = g.localOpen ? db_lget_int("checkout", 0) : 0;
     if( vid ){
       show_common_info(vid, "checkout:", 1, 1);
@@ -220,7 +233,7 @@ void info_cmd(void){
     int rid;
     rid = name_to_rid(g.argv[2]);
     if( rid==0 ){
-      fossil_fatal("no such object: %s\n", g.argv[2]);
+      fossil_fatal("no such object: %s", g.argv[2]);
     }
     show_common_info(rid, "uuid:", 1, 1);
   }
@@ -815,11 +828,9 @@ void winfo_page(void){
   style_header("Update of \"%h\"", pWiki->zWikiTitle);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   zDate = db_text(0, "SELECT datetime(%.17g)", pWiki->rDate);
-  style_submenu_element("Raw", "Raw", "artifact/%s", zUuid);
-  style_submenu_element("History", "History", "whistory?name=%t",
-                        pWiki->zWikiTitle);
-  style_submenu_element("Page", "Page", "wiki?name=%t",
-                        pWiki->zWikiTitle);
+  style_submenu_element("Raw", "artifact/%s", zUuid);
+  style_submenu_element("History", "whistory?name=%t", pWiki->zWikiTitle);
+  style_submenu_element("Page", "wiki?name=%t", pWiki->zWikiTitle);
   login_anonymous_available();
   @ <div class="section">Overview</div>
   @ <p><table class="label-value">
@@ -1042,46 +1053,43 @@ void vdiff_page(void){
   }
   diffFlags = construct_diff_flags(verboseFlag, sideBySide);
   zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
-  style_submenu_element("Path","path",
-                        "%R/timeline?me=%T&you=%T", zFrom, zTo);
+  style_submenu_element("Path", "%R/timeline?me=%T&you=%T", zFrom, zTo);
   if( sideBySide || verboseFlag ){
-    style_submenu_element("Hide Diff", "hidediff",
-                          "%R/vdiff?from=%T&to=%T&sbs=0%s%T%s",
+    style_submenu_element("Hide Diff", "%R/vdiff?from=%T&to=%T&sbs=0%s%T%s",
                           zFrom, zTo,
                           zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   }
   if( !sideBySide ){
-    style_submenu_element("Side-by-Side Diff", "sbsdiff",
+    style_submenu_element("Side-by-Side Diff",
                           "%R/vdiff?from=%T&to=%T&sbs=1%s%T%s",
                           zFrom, zTo,
                           zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   }
   if( sideBySide || !verboseFlag ) {
-    style_submenu_element("Unified Diff", "udiff",
+    style_submenu_element("Unified Diff",
                           "%R/vdiff?from=%T&to=%T&sbs=0&v%s%T%s",
                           zFrom, zTo,
                           zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   }
-  style_submenu_element("Invert", "invert",
+  style_submenu_element("Invert",
                         "%R/vdiff?from=%T&to=%T&sbs=%d%s%s%T%s", zTo, zFrom,
                         sideBySide, (verboseFlag && !sideBySide)?"&v":"",
                         zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   if( zGlob ){
-    style_submenu_element("Clear glob", "clearglob",
+    style_submenu_element("Clear glob",
                           "%R/vdiff?from=%T&to=%T&sbs=%d%s%s", zFrom, zTo,
                           sideBySide, (verboseFlag && !sideBySide)?"&v":"", zW);
   }else{
-    style_submenu_element("Patch", "patch",
-                          "%R/vpatch?from=%T&to=%T%s", zFrom, zTo, zW);
+    style_submenu_element("Patch", "%R/vpatch?from=%T&to=%T%s", zFrom, zTo, zW);
   }
   if( sideBySide || verboseFlag ){
     if( *zW ){
-      style_submenu_element("Show Whitespace Differences", "whitespace",
+      style_submenu_element("Show Whitespace Differences",
                             "%R/vdiff?from=%T&to=%T&sbs=%d%s%s%T", zFrom, zTo,
                             sideBySide, (verboseFlag && !sideBySide)?"&v":"",
                             zGlob ? "&glob=" : "", zGlob ? zGlob : "");
     }else{
-      style_submenu_element("Ignore Whitespace", "ignorews",
+      style_submenu_element("Ignore Whitespace",
                             "%R/vdiff?from=%T&to=%T&sbs=%d%s%s%T&w", zFrom, zTo,
                             sideBySide, (verboseFlag && !sideBySide)?"&v":"",
                             zGlob ? "&glob=" : "", zGlob ? zGlob : "");
@@ -1351,7 +1359,7 @@ int object_description(
           objType |= OBJTYPE_EVENT;
           hyperlink_to_event_tagid(db_column_int(&q, 5));
         }else{
-          @ Attachment to technote 
+          @ Attachment to technote
         }
       }else{
         @ Tag referencing
@@ -1503,22 +1511,22 @@ void diff_page(void){
   style_header("Diff");
   zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
   if( *zW ){
-    style_submenu_element("Show Whitespace Changes", "Show Whitespace Changes",
+    style_submenu_element("Show Whitespace Changes",
                           "%s/fdiff?v1=%T&v2=%T&sbs=%d",
                           g.zTop, P("v1"), P("v2"), sideBySide);
   }else{
-    style_submenu_element("Ignore Whitespace", "Ignore Whitespace",
+    style_submenu_element("Ignore Whitespace",
                           "%s/fdiff?v1=%T&v2=%T&sbs=%d&w",
                           g.zTop, P("v1"), P("v2"), sideBySide);
   }
-  style_submenu_element("Patch", "Patch", "%s/fdiff?v1=%T&v2=%T&patch",
+  style_submenu_element("Patch", "%s/fdiff?v1=%T&v2=%T&patch",
                         g.zTop, P("v1"), P("v2"));
   if( !sideBySide ){
-    style_submenu_element("Side-by-Side Diff", "sbsdiff",
+    style_submenu_element("Side-by-Side Diff",
                           "%s/fdiff?v1=%T&v2=%T&sbs=1%s",
                           g.zTop, P("v1"), P("v2"), zW);
   }else{
-    style_submenu_element("Unified Diff", "udiff",
+    style_submenu_element("Unified Diff",
                           "%s/fdiff?v1=%T&v2=%T&sbs=0%s",
                           g.zTop, P("v1"), P("v2"), zW);
   }
@@ -1661,11 +1669,10 @@ void hexdump_page(void){
   if( g.perm.Admin ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
-      style_submenu_element("Unshun","Unshun","%s/shun?accept=%s&sub=1#delshun",
+      style_submenu_element("Unshun", "%s/shun?accept=%s&sub=1#delshun",
             g.zTop, zUuid);
     }else{
-      style_submenu_element("Shun","Shun", "%s/shun?shun=%s#addshun",
-            g.zTop, zUuid);
+      style_submenu_element("Shun", "%s/shun?shun=%s#addshun", g.zTop, zUuid);
     }
   }
   style_header("Hex Artifact Content");
@@ -1678,8 +1685,8 @@ void hexdump_page(void){
   blob_zero(&downloadName);
   if( P("verbose")!=0 ) objdescFlags |= OBJDESC_DETAIL;
   object_description(rid, objdescFlags, &downloadName);
-  style_submenu_element("Download", "Download",
-        "%s/raw/%T?name=%s", g.zTop, blob_str(&downloadName), zUuid);
+  style_submenu_element("Download", "%s/raw/%T?name=%s",
+        g.zTop, blob_str(&downloadName), zUuid);
   @ <hr />
   content_get(rid, &content);
   @ <blockquote><pre>
@@ -1884,11 +1891,10 @@ void artifact_page(void){
   if( g.perm.Admin ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
-      style_submenu_element("Unshun","Unshun","%s/shun?accept=%s&sub=1#accshun",
+      style_submenu_element("Unshun", "%s/shun?accept=%s&sub=1#accshun",
             g.zTop, zUuid);
     }else{
-      style_submenu_element("Shun","Shun", "%s/shun?shun=%s#addshun",
-            g.zTop, zUuid);
+      style_submenu_element("Shun", "%s/shun?shun=%s#addshun", g.zTop, zUuid);
     }
   }
   style_header("%s", descOnly ? "Artifact Description" : "Artifact Content");
@@ -1914,44 +1920,38 @@ void artifact_page(void){
     }
     db_finalize(&q);
   }
-  style_submenu_element("Download", "Download",
-          "%R/raw/%T?name=%s", blob_str(&downloadName), zUuid);
+  style_submenu_element("Download", "%R/raw/%T?name=%s",
+          blob_str(&downloadName), zUuid);
   if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
-    style_submenu_element("Check-ins Using", "Check-ins Using",
-          "%R/timeline?n=200&uf=%s",zUuid);
+    style_submenu_element("Check-ins Using", "%R/timeline?n=200&uf=%s", zUuid);
   }
   asText = P("txt")!=0;
   zMime = mimetype_from_name(blob_str(&downloadName));
   if( zMime ){
     if( fossil_strcmp(zMime, "text/html")==0 ){
       if( asText ){
-        style_submenu_element("Html", "Html",
-                              "%s/artifact/%s", g.zTop, zUuid);
+        style_submenu_element("Html", "%s/artifact/%s", g.zTop, zUuid);
       }else{
         renderAsHtml = 1;
-        style_submenu_element("Text", "Text",
-                              "%s/artifact/%s?txt=1", g.zTop, zUuid);
+        style_submenu_element("Text", "%s/artifact/%s?txt=1", g.zTop, zUuid);
       }
     }else if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0
            || fossil_strcmp(zMime, "text/x-markdown")==0 ){
       if( asText ){
-        style_submenu_element("Wiki", "Wiki",
-                              "%s/artifact/%s", g.zTop, zUuid);
+        style_submenu_element("Wiki", "%s/artifact/%s", g.zTop, zUuid);
       }else{
         renderAsWiki = 1;
-        style_submenu_element("Text", "Text",
-                              "%s/artifact/%s?txt=1", g.zTop, zUuid);
+        style_submenu_element("Text", "%s/artifact/%s?txt=1", g.zTop, zUuid);
       }
     }
   }
   if( (objType & (OBJTYPE_WIKI|OBJTYPE_TICKET))!=0 ){
-    style_submenu_element("Parsed", "Parsed", "%R/info/%s", zUuid);
+    style_submenu_element("Parsed", "%R/info/%s", zUuid);
   }
   if( descOnly ){
-    style_submenu_element("Content", "Content", "%R/artifact/%s", zUuid);
+    style_submenu_element("Content", "%R/artifact/%s", zUuid);
   }else{
-    style_submenu_element("Line Numbers", "Line Numbers",
-                          "%R/artifact/%s%s",zUuid,
+    style_submenu_element("Line Numbers", "%R/artifact/%s%s", zUuid,
                           ((zLn&&*zLn) ? "" : "?txt=1&ln=0"));
     @ <hr />
     content_get(rid, &content);
@@ -1964,7 +1964,7 @@ void artifact_page(void){
       @   onload="this.height=this.contentDocument.documentElement.scrollHeight;">
       @ </iframe>
     }else{
-      style_submenu_element("Hex","Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
+      style_submenu_element("Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
       blob_to_utf8_no_bom(&content, 0);
       zMime = mimetype_from_content(&content);
       @ <blockquote>
@@ -1979,10 +1979,9 @@ void artifact_page(void){
           @ </pre>
         }
       }else if( strncmp(zMime, "image/", 6)==0 ){
-        @ <i>(file is %d(blob_size(&content)) bytes of image data)</i><br>
+        @ <i>(file is %d(blob_size(&content)) bytes of image data)</i><br />
         @ <img src="%R/raw/%s(zUuid)?m=%s(zMime)" />
-        style_submenu_element("Image", "Image",
-                              "%R/raw/%s?m=%s", zUuid, zMime);
+        style_submenu_element("Image", "%R/raw/%s?m=%s", zUuid, zMime);
       }else{
         @ <i>(file is %d(blob_size(&content)) bytes of binary data)</i>
       }
@@ -2014,11 +2013,10 @@ void tinfo_page(void){
   zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( g.perm.Admin ){
     if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
-      style_submenu_element("Unshun","Unshun", "%s/shun?accept=%s&sub=1#accshun",
+      style_submenu_element("Unshun", "%s/shun?accept=%s&sub=1#accshun",
             g.zTop, zUuid);
     }else{
-      style_submenu_element("Shun","Shun", "%s/shun?shun=%s#addshun",
-            g.zTop, zUuid);
+      style_submenu_element("Shun", "%s/shun?shun=%s#addshun", g.zTop, zUuid);
     }
   }
   pTktChng = manifest_get(rid, CFTYPE_TICKET, 0);
@@ -2049,15 +2047,14 @@ void tinfo_page(void){
       ? db_text("(No title)", "SELECT title FROM ticket WHERE tkt_uuid=%Q", zTktName)
       : 0;
   style_header("Ticket Change Details");
-  style_submenu_element("Raw", "Raw", "%R/artifact/%s", zUuid);
-  style_submenu_element("History", "History", "%R/tkthistory/%s", zTktName);
-  style_submenu_element("Page", "Page", "%R/tktview/%t", zTktName);
-  style_submenu_element("Timeline", "Timeline", "%R/tkttimeline/%t", zTktName);
+  style_submenu_element("Raw", "%R/artifact/%s", zUuid);
+  style_submenu_element("History", "%R/tkthistory/%s", zTktName);
+  style_submenu_element("Page", "%R/tktview/%t", zTktName);
+  style_submenu_element("Timeline", "%R/tkttimeline/%t", zTktName);
   if( P("plaintext") ){
-    style_submenu_element("Formatted", "Formatted", "%R/info/%s", zUuid);
+    style_submenu_element("Formatted", "%R/info/%s", zUuid);
   }else{
-    style_submenu_element("Plaintext", "Plaintext",
-                          "%R/info/%s?plaintext", zUuid);
+    style_submenu_element("Plaintext", "%R/info/%s?plaintext", zUuid);
   }
 
   @ <div class="section">Overview</div>
@@ -2074,7 +2071,7 @@ void tinfo_page(void){
   @ <tr><th>Ticket:</th>
   @ <td>%z(href("%R/tktview/%s",zTktName))%s(zTktName)</a>
   if( zTktTitle ){
-        @<br>%h(zTktTitle)
+        @<br />%h(zTktTitle)
   }
   @</td></tr>
   @ <tr><th>Date:</th><td>
@@ -2253,7 +2250,7 @@ void render_color_chooser(
 
      { "custom",  "##" },
   };
-  int nColor = sizeof(aColor)/sizeof(aColor[0])-1;
+  int nColor = count(aColor)-1;
   int stdClrFound = 0;
   int i;
 
@@ -2827,7 +2824,7 @@ static void prepare_amend_comment(
 **    -m|--comment COMMENT    Make COMMENT the check-in comment
 **    -M|--message-file FILE  Read the amended comment from FILE
 **    -e|--edit-comment       Launch editor to revise comment
-**    --date DATE             Make DATE the check-in time
+**    --date DATETIME         Make DATETIME the check-in time
 **    --bgcolor COLOR         Apply COLOR to this check-in
 **    --branchcolor COLOR     Apply and propagate COLOR to the branch
 **    --tag TAG               Add new TAG to this check-in
@@ -2835,6 +2832,12 @@ static void prepare_amend_comment(
 **    --branch NAME           Make this check-in the start of branch NAME
 **    --hide                  Hide branch starting from this check-in
 **    --close                 Mark this "leaf" as closed
+**
+** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
+** year-month-day form, it may be truncated, the "T" may be replaced by
+** a space, and it may also name a timezone offset from UTC as "-HH:MM"
+** (westward) or "+HH:MM" (eastward). Either no timezone suffix or "Z"
+** means UTC.
 */
 void ci_amend_cmd(void){
   int rid;

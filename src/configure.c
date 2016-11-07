@@ -129,6 +129,8 @@ static struct {
   { "empty-dirs",             CONFIGSET_PROJ },
   { "allow-symlinks",         CONFIGSET_PROJ },
   { "dotfiles",               CONFIGSET_PROJ },
+  { "parent-project-code",    CONFIGSET_PROJ },
+  { "parent-project-name",    CONFIGSET_PROJ },
 
 #ifdef FOSSIL_ENABLE_LEGACY_MV_RM
   { "mv-rm-files",            CONFIGSET_PROJ },

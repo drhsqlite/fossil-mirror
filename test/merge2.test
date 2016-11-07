@@ -37,6 +37,7 @@ foreach f $filelist {
     expr {srand($i*2)}
     write_file t32 [random_changes $f3 2 4 0 0.1]
     fossil 3-way-merge t1 t2 t3 a23
+    if {[regexp {<<<<< BEGIN MERGE CONFLICT:} [read_file a23]]} continue
     test merge-$base-$i-23 {[same_file a23 t23]}
     fossil 3-way-merge t1 t3 t2 a32
     test merge-$base-$i-32 {[same_file a32 t32]}

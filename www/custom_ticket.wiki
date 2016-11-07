@@ -67,7 +67,7 @@ questions.&lt;/td>
 </pre>
 This bit of code will get rid of the "email" field entry for logged-in users.
 Since we know the user's information, we don't have to ask for it. NOTE: it
-might be good to automatically scoop up the user's email and put it here. 
+might be good to automatically scoop up the user's email and put it here.
 </p>
 </blockquote>
 
@@ -85,7 +85,7 @@ after the closing tr tag and before the "enable_output" line:
   &lt;/td>
 </pre>
 This will add a row which displays these two fields, in the event the user has
-"edit" capability.  
+"edit" capability.
 </p>
 </blockquote>
 

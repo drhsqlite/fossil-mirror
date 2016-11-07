@@ -27,7 +27,10 @@ Just run:
 
 And your default web browser should pop up and automatically point to
 the fossil interface.  (Hint:  You can omit the <i>REPOSITORY-FILENAME</i>
-if you are within an open check-out.)</blockquote></li>
+if you are within an open check-out.)
+
+See also: [http://fuelscm.org/]
+</blockquote></li>
 
 <a name="q2"></a>
 <p><b>(2) What is the difference between a "branch" and a "fork"?</b></p>
@@ -61,8 +64,8 @@ that fork to a branch, you can do this from the web interface.
 First locate the check-in that you want to be
 the initial check-in of your branch on the timeline and click on its
 link so that you are on the <b>ci</b> page.  Then find the "<b>edit</b>"
-link (near the "Commands:" label) and click on that.  On the 
-"Edit Check-in" page, check the box beside "Branching:" and fill in 
+link (near the "Commands:" label) and click on that.  On the
+"Edit Check-in" page, check the box beside "Branching:" and fill in
 the name of your new branch to the right and press the "Apply Changes"
 button.</blockquote></li>
 
@@ -88,7 +91,7 @@ The CHECK-IN in the previous line can be any
 [./checkin_names.wiki | valid check-in name format].
 
 You can also add (and remove) tags from a check-in using the
-[./webui.wiki | web interface].  First locate the check-in that you 
+[./webui.wiki | web interface].  First locate the check-in that you
 what to tag on the timeline, then click on the link to go the detailed
 information page for that check-in.  Then find the "<b>edit</b>"
 link (near the "Commands:" label) and click on that.  There are
@@ -99,9 +102,9 @@ tags to be removed.</blockquote></li>
 <p><b>(5) How do I create a private branch that won't get pushed back to the
   main repository.</b></p>
 
-<blockquote>Use the <b>--private</b> command-line option on the 
+<blockquote>Use the <b>--private</b> command-line option on the
 <b>commit</b> command.  The result will be a check-in which exists on
-your local repository only and is never pushed to other repositories.  
+your local repository only and is never pushed to other repositories.
 All descendants of a private check-in are also private.
 
 Unless you specify something different using the <b>--branch</b> and/or
