@@ -17,7 +17,7 @@
 #
 #
 # Tests for 'fossil stash'
-# 
+#
 #
 
 proc knownBug {t tests} {
@@ -45,7 +45,7 @@ proc knownBug {t tests} {
 proc test_result_state {testid cmdArgs expectedOutput args} {
   global RESULT
   set passed 1
-  
+
   set args [dict merge {
     -changes {} -addremove {} -exists {} -notexists {} -knownbugs {}
   } $args]
@@ -65,14 +65,14 @@ proc test_result_state {testid cmdArgs expectedOutput args} {
     }
   }
   test_status_list $testid $result $expectedOutput [knownBug "-result" $knownbugs]
-  
+
   set statusListTests [list -changes changes -addremove {addremove -n}]
   foreach {key fossilArgs} $statusListTests {
     set expected [dict get $args $key]
-    set result [fossil {*}$fossilArgs] 
+    set result [fossil {*}$fossilArgs]
     test_status_list $testid$key $result $expected [knownBug $key $knownbugs]
   }
-  
+
   set fileExistsTests [list -exists 1 does -notexists 0 should]
   foreach {key expected verb} $fileExistsTests {
     foreach path [dict get $args $key] {
@@ -83,13 +83,13 @@ proc test_result_state {testid cmdArgs expectedOutput args} {
     }
     test $testid$key $passed [knownBug $key $knownbugs]
   }
-  
+
   #fossil undo
 }
 
 proc stash-test {testid stashArgs expectedStashOutput args} {
   fossil stash {*}$stashArgs
-  return [test_result_state stash-$testid "stash $stashArgs" $expectedStashOutput {*}$args] 
+  return [test_result_state stash-$testid "stash $stashArgs" $expectedStashOutput {*}$args]
 }
 
 require_no_open_checkout
@@ -187,11 +187,9 @@ stash-test 2 pop {
   ADDED      f0
   MISSING    f1
   EDITED     f2
-  MISSING    f3
+  RENAMED    f3n
 } -addremove {
-  ADDED  f3n
   DELETED  f1
-  DELETED  f3
 } -exists {f0 f2 f3n} -notexists {f1 f3}
 
 # Confirm there is no longer a stash saved
@@ -245,11 +243,11 @@ stash-test 2-1 {save -m "f1b"} {
 # TODO: add tests that verify the saved stash is sensible. Possibly
 # by applying it and checking results. But until the MISSING file
 # error is fixed, there is nothing stashed to test.
- 
+
 
 # Test stashing a newly added (but never committed) file. As with
-# fossil revert, fossil stash save unmanages the new file, but 
-# leaves the copy present on disk. This is undocumented, but 
+# fossil revert, fossil stash save unmanages the new file, but
+# leaves the copy present on disk. This is undocumented, but
 # probably sensible.
 test_setup
 write_file f1 "f1"
@@ -284,7 +282,7 @@ fossil status
 
 # Test stashing a rename of one file with at least one file
 # unchanged. This should stash (and revert) just the rename
-# operation. Instead it also stores and touches the unchanged file. 
+# operation. Instead it also stores and touches the unchanged file.
 test_setup
 write_file f1 "f1"
 write_file f2 "f2"
@@ -313,9 +311,7 @@ stash-test 3-2-pop {pop} {
 } -changes {
   RENAMED    f2n
 } -addremove {
-  ADDED  f2n
-  DELETED  f2
-} -exists {f1 f2n} -notexists {f2} -knownbugs {-changes}
+} -exists {f1 f2n} -notexists {f2}
 
 
 

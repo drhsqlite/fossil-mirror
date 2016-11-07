@@ -25,13 +25,13 @@
 ** SQL code to implement the tables needed by the stash.
 */
 static const char zStashInit[] =
-@ CREATE TABLE IF NOT EXISTS "%w".stash(
+@ CREATE TABLE IF NOT EXISTS localdb.stash(
 @   stashid INTEGER PRIMARY KEY,     -- Unique stash identifier
-@   vid INTEGER,                     -- The baseline check-out for this stash
+@   vid INTEGER,                     -- The baseline checkout for this stash
 @   comment TEXT,                    -- Comment for this stash.  Or NULL
 @   ctime TIMESTAMP                  -- When the stash was created
 @ );
-@ CREATE TABLE IF NOT EXISTS "%w".stashfile(
+@ CREATE TABLE IF NOT EXISTS localdb.stashfile(
 @   stashid INTEGER REFERENCES stash,  -- Stash that contains this file
 @   rid INTEGER,                       -- Baseline content in BLOB table or 0.
 @   isAdded BOOLEAN,                   -- True if this is an added file
@@ -41,7 +41,7 @@ static const char zStashInit[] =
 @   origname TEXT,                     -- Original filename
 @   newname TEXT,                      -- New name for file at next check-in
 @   delta BLOB,                        -- Delta from baseline. Content if rid=0
-@   PRIMARY KEY(origname, stashid)
+@   PRIMARY KEY(newname, stashid)
 @ );
 @ INSERT OR IGNORE INTO vvar(name, value) VALUES('stash-next', 1);
 ;
@@ -198,7 +198,7 @@ static int stash_create(void){
 }
 
 /*
-** Apply a stash to the current check-out.
+** Apply a stash to the current checkout.
 */
 static void stash_apply(int stashid, int nConflict){
   int vid;
@@ -209,7 +209,7 @@ static void stash_apply(int stashid, int nConflict){
      stashid
   );
   vid = db_lget_int("checkout",0);
-  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
+  db_multi_exec("CREATE TEMP TABLE sfile(pathname TEXT PRIMARY KEY %s)",
                 filename_collation());
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
@@ -224,7 +224,7 @@ static void stash_apply(int stashid, int nConflict){
     undo_save(zNew);
     blob_zero(&delta);
     if( rid==0 ){
-      db_multi_exec("INSERT OR IGNORE INTO sfile(x) VALUES(%Q)", zNew);
+      db_multi_exec("INSERT OR IGNORE INTO sfile(pathname) VALUES(%Q)", zNew);
       db_ephemeral_blob(&q, 6, &delta);
       blob_write_to_file(&delta, zNPath);
       file_wd_setexe(zNPath, isExec);
@@ -280,6 +280,11 @@ static void stash_apply(int stashid, int nConflict){
     if( fossil_strcmp(zOrig,zNew)!=0 ){
       undo_save(zOrig);
       file_delete(zOPath);
+      db_multi_exec(
+        "UPDATE vfile SET pathname='%q', origname='%q'"
+        " WHERE pathname='%q' %s AND vid=%d",
+        zNew, zOrig, zOrig, filename_collation(), vid
+      );
     }
   }
   stash_add_files_in_sfile(vid);
@@ -395,14 +400,14 @@ static void stash_drop(int stashid){
 ** throw an error if the stash is empty.
 */
 static int stash_get_id(const char *zStashId){
-  int stashid = 0;
+  int stashid;
   if( zStashId==0 ){
     stashid = db_int(0, "SELECT max(stashid) FROM stash");
     if( stashid==0 ) fossil_fatal("empty stash");
   }else{
     stashid = atoi(zStashId);
     if( !db_exists("SELECT 1 FROM stash WHERE stashid=%d", stashid) ){
-      fossil_fatal("no such stash: %d\n", stashid);
+      fossil_fatal("no such stash: %s", zStashId);
     }
   }
   return stashid;
@@ -422,23 +427,22 @@ static int stash_get_id(const char *zStashId){
 **     are listed, then only stash and revert the named files.  The
 **     "save" verb can be omitted if and only if there are no other
 **     arguments.  The "snapshot" verb works the same as "save" but
-**     omits the revert, keeping the check-out unchanged.
+**     omits the revert, keeping the checkout unchanged.
 **
-**  fossil stash list ?-v|--verbose?
-**  fossil stash ls ?-v|--verbose?
+**  fossil stash list|ls ?-v|--verbose? ?-W|--width <num>?
 **
 **     List all changes sets currently stashed.  Show information about
 **     individual files in each changeset if -v or --verbose is used.
 **
-**  fossil stash show|cat ?STASHID? ?DIFF-FLAGS?
+**  fossil stash show|cat ?STASHID? ?DIFF-OPTIONS?
 **
-**     Show the content of a stash
+**     Show the contents of a stash.
 **
 **  fossil stash pop
 **  fossil stash apply ?STASHID?
 **
 **     Apply STASHID or the most recently create stash to the current
-**     working check-out.  The "pop" command deletes that changeset from
+**     working checkout.  The "pop" command deletes that changeset from
 **     the stash after applying it but the "apply" command retains the
 **     changeset.
 **
@@ -448,15 +452,14 @@ static int stash_get_id(const char *zStashId){
 **     changes of STASHID.  Keep STASHID so that it can be reused
 **     This command is undoable.
 **
-**  fossil stash drop ?STASHID? ?-a|--all?
-**  fossil stash rm   ?STASHID? ?-a|--all?
+**  fossil stash drop|rm ?STASHID? ?-a|--all?
 **
 **     Forget everything about STASHID.  Forget the whole stash if the
 **     -a|--all flag is used.  Individual drops are undoable but -a|--all
 **     is not.
 **
-**  fossil stash diff ?STASHID?
-**  fossil stash gdiff ?STASHID?
+**  fossil stash diff ?STASHID? ?DIFF-OPTIONS?
+**  fossil stash gdiff ?STASHID? ?DIFF-OPTIONS?
 **
 **     Show diffs of the current working directory and what that
 **     directory would be if STASHID were applied.
@@ -465,25 +468,38 @@ static int stash_get_id(const char *zStashId){
 **  fossil stash
 **  fossil stash save ?-m|--comment COMMENT? ?FILES...?
 **  fossil stash snapshot ?-m|--comment COMMENT? ?FILES...?
-**  fossil stash list|ls  ?-v|--verbose? ?-W|--width <num>?
+**  fossil stash list|ls ?-v|--verbose? ?-W|--width <num>?
 **  fossil stash show|cat ?STASHID? ?DIFF-OPTIONS?
 **  fossil stash pop
-**  fossil stash apply ?STASHID?
-**  fossil stash goto ?STASHID?
-**  fossil stash rm|drop ?STASHID? ?-a|--all?
-**  fossil stash [g]diff ?STASHID? ?DIFF-OPTIONS?
+**  fossil stash apply|goto ?STASHID?
+**  fossil stash drop|rm ?STASHID? ?-a|--all?
+**  fossil stash diff ?STASHID? ?DIFF-OPTIONS?
+**  fossil stash gdiff ?STASHID? ?DIFF-OPTIONS?
 */
 void stash_cmd(void){
-  const char *zDb;
   const char *zCmd;
   int nCmd;
   int stashid = 0;
+  int rc;
   undo_capture_command_line();
   db_must_be_within_tree();
   db_open_config(0, 0);
   db_begin_transaction();
-  zDb = db_name("localdb");
-  db_multi_exec(zStashInit /*works-like:"%w,%w"*/, zDb, zDb);
+  db_multi_exec(zStashInit /*works-like:""*/);
+  rc = db_exists("SELECT 1 FROM sqlite_master"
+                 " WHERE name='stashfile'"
+                 "   AND sql GLOB '* PRIMARY KEY(origname, stashid)*'");
+  if( rc!=0 ){
+    db_multi_exec(
+      "CREATE TABLE localdb.stashfile_tmp AS SELECT * FROM stashfile;"
+      "DROP TABLE stashfile;"
+    );
+    db_multi_exec(zStashInit /*works-like:""*/);
+    db_multi_exec(
+      "INSERT INTO stashfile SELECT * FROM stashfile_tmp;"
+      "DROP TABLE stashfile_tmp;"
+    );
+  }
   if( g.argc<=2 ){
     zCmd = "save";
   }else{
@@ -645,19 +661,12 @@ void stash_cmd(void){
     const char *zDiffCmd = 0;
     const char *zBinGlob = 0;
     int fIncludeBinary = 0;
+    int fBaseline = zCmd[0]=='s' || zCmd[0]=='c';
     u64 diffFlags;
 
     if( find_option("tk",0,0)!=0 ){
       db_close(0);
-        switch (zCmd[0]) {
-        case 's':
-        case 'c':
-          diff_tk("stash show", 3);
-          break;
-
-        default:
-          diff_tk("stash diff", 3);
-        }
+      diff_tk(fBaseline ? "stash show" : "stash diff", 3);
       return;
     }
     if( find_option("internal","i",0)==0 ){
@@ -665,13 +674,13 @@ void stash_cmd(void){
     }
     diffFlags = diff_options();
     if( find_option("verbose","v",0)!=0 ) diffFlags |= DIFF_VERBOSE;
-    if( g.argc>4 ) usage(mprintf("%s STASHID", zCmd));
+    if( g.argc>4 ) usage(mprintf("%s ?STASHID? ?DIFF-OPTIONS?", zCmd));
     if( zDiffCmd ){
       zBinGlob = diff_get_binary_glob();
       fIncludeBinary = diff_include_binary_files();
     }
     stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
-    stash_diff(stashid, zDiffCmd, zBinGlob, zCmd[0]=='s', fIncludeBinary,
+    stash_diff(stashid, zDiffCmd, zBinGlob, fBaseline, fIncludeBinary,
                diffFlags);
   }else
   if( memcmp(zCmd, "help", nCmd)==0 ){

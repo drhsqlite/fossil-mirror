@@ -163,21 +163,21 @@ The base-64 coding is described in
 <p>The unified diff behind the above delta is</p>
 
 <table border=1><tr><td><pre>
-bluepeak:(761) ~/Projects/Tcl/Fossil/Devel/devel > diff -u ../DELTA/old ../DELTA/new 
+bluepeak:(761) ~/Projects/Tcl/Fossil/Devel/devel > diff -u ../DELTA/old ../DELTA/new
 --- ../DELTA/old        2007-08-23 21:14:40.000000000 -0700
 +++ ../DELTA/new        2007-08-23 21:14:33.000000000 -0700
 @@ -5,7 +5,7 @@
- 
+
   *  If the server does not have write permission on the database
-     file, or on the directory containing the database file (and 
+     file, or on the directory containing the database file (and
 -    it is thus unable to update database because it cannot create
 +    it is thus unable to update the database because it cannot create
      a rollback journal) then it currently fails silently on a push.
      It needs to return a helpful error.
- 
+
 @@ -27,8 +27,8 @@
   *  Additional information displayed for the "vinfo" page:
- 
+
       +  All leaves of this version that are not included in the
 -        descendant list.  With date, user, comment, and hyperlink.
 -        Leaves in the descendant table should be marked as such.
@@ -187,21 +187,21 @@ bluepeak:(761) ~/Projects/Tcl/Fossil/Devel/devel > diff -u ../DELTA/old ../DELTA
          leaves.
       +  Add file diff links to the file change list.
 @@ -37,7 +37,7 @@
- 
+
   *  The /xfer handler (for push, pull, and clone) does not do
      delta compression.  This results in excess bandwidth usage.
 -    There are some code in xfer.c that are sketches of ideas on
 +    There are some pieces in xfer.c that are sketches of ideas on
      how to do delta compression, but nothing has been implemented.
- 
+
   *  Enhancements to the diff and tkdiff commands in the cli.
 @@ -45,7 +45,7 @@
      single file.  Allow diffs against any two arbitrary versions,
-     not just diffs against the current check-out.  Allow 
+     not just diffs against the current check-out.  Allow
      configuration options to replace tkdiff with some other
 -    visual differ of the users choice.
 +    visual differ of the users choice. Example: eskil.
- 
+
   *  Ticketing interface (expand this bullet)
 
 </pre></td></tr></table>

@@ -1,0 +1,109 @@
+#
+# Copyright (c) 2016 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+# Symbolic link tests.
+#
+
+set path [file dirname [info script]]
+
+if {$tcl_platform(platform) eq "windows"} {
+  puts "Symlinks are not supported on Windows."
+  test_cleanup_then_return
+}
+
+fossil test-th-eval --open-config "setting allow-symlinks"
+
+if {![string is true -strict [normalize_result]]} {
+  puts "Symlinks are not enabled."
+  test_cleanup_then_return
+}
+
+require_no_open_checkout
+
+###############################################################################
+
+test_setup; set rootDir [file normalize [pwd]]
+
+fossil test-th-eval --open-config {repository}
+set repository [normalize_result]
+
+if {[string length $repository] == 0} {
+  puts "Detection of the open repository file failed."
+  test_cleanup_then_return
+}
+
+#######################################
+# Use symbolic link to a directory... #
+#######################################
+
+file mkdir [file join $rootDir subdirA]
+exec ln -s [file join $rootDir subdirA] symdirA
+
+###############################################################################
+
+write_file [file join $rootDir subdirA f1.txt] "f1"
+write_file [file join $rootDir subdirA f2.txt] "f2"
+
+test symlinks-dir-1 {[file exists [file join $rootDir subdirA f1.txt]] eq 1}
+test symlinks-dir-2 {[file exists [file join $rootDir symdirA f1.txt]] eq 1}
+test symlinks-dir-3 {[file exists [file join $rootDir subdirA f2.txt]] eq 1}
+test symlinks-dir-4 {[file exists [file join $rootDir symdirA f2.txt]] eq 1}
+
+fossil add [file join $rootDir symdirA f1.txt]
+fossil commit -m "c1"
+
+###############################################################################
+
+fossil ls
+test symlinks-dir-5 {[normalize_result] eq "symdirA/f1.txt"}
+
+###############################################################################
+
+fossil extras
+test symlinks-dir-6 {[normalize_result] eq \
+"subdirA/f1.txt\nsubdirA/f2.txt\nsymdirA/f2.txt"}
+
+###############################################################################
+
+fossil close
+file delete [file join $rootDir subdirA f1.txt]
+
+test symlinks-dir-7 {[file exists [file join $rootDir subdirA f1.txt]] eq 0}
+test symlinks-dir-8 {[file exists [file join $rootDir symdirA f1.txt]] eq 0}
+test symlinks-dir-9 {[file exists [file join $rootDir subdirA f2.txt]] eq 1}
+test symlinks-dir-10 {[file exists [file join $rootDir symdirA f2.txt]] eq 1}
+
+###############################################################################
+
+fossil open $repository
+set code [catch {file readlink [file join $rootDir symdirA]} result]
+
+test symlinks-dir-11 {$code == 0}
+test symlinks-dir-12 {$result eq [file join $rootDir subdirA]}
+test symlinks-dir-13 {[file exists [file join $rootDir subdirA f1.txt]] eq 1}
+test symlinks-dir-14 {[file exists [file join $rootDir symdirA f1.txt]] eq 1}
+test symlinks-dir-15 {[file exists [file join $rootDir subdirA f2.txt]] eq 1}
+test symlinks-dir-16 {[file exists [file join $rootDir symdirA f2.txt]] eq 1}
+
+###############################################################################
+#
+# TODO: Add tests for symbolic links as files here, including tests with the
+#       "allow-symlinks" setting on and off.
+#
+###############################################################################
+
+test_cleanup

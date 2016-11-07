@@ -284,7 +284,7 @@ static int enableOutputCmd(
   }
   rc = Th_ToInt(interp, argv[argc-1], argl[argc-1], &enableOutput);
   if( g.thTrace ){
-    Th_Trace("enable_output {%.*s} -> %d<br>\n", argl[1],argv[1],enableOutput);
+    Th_Trace("enable_output {%.*s} -> %d<br />\n", argl[1],argv[1],enableOutput);
   }
   return rc;
 }
@@ -334,7 +334,7 @@ static void sendError(const char *z, int n, int forceCgi){
   int savedEnable = enableOutput;
   enableOutput = 1;
   if( forceCgi || g.cgiOutput ){
-    sendText("<hr><p class=\"thmainError\">", -1, 0);
+    sendText("<hr /><p class=\"thmainError\">", -1, 0);
   }
   sendText("ERROR: ", -1, 0);
   sendText((char*)z, n, 1);
@@ -638,15 +638,21 @@ static int hascapCmd(
   const char **argv,
   int *argl
 ){
-  int rc = 0, i;
+  int rc = 1, i;
+  char *zCapList = 0;
+  int nCapList = 0;
   if( argc<2 ){
     return Th_WrongNumArgs(interp, "hascap STRING ...");
   }
-  for(i=1; i<argc && rc==0; i++){
+  for(i=1; rc==1 && i<argc; i++){
+    if( g.thTrace ){
+      Th_ListAppend(interp, &zCapList, &nCapList, argv[i], argl[i]);
+    }
     rc = login_has_capability((char*)argv[i],argl[i],*(int*)p);
   }
   if( g.thTrace ){
-    Th_Trace("[hascap %#h] => %d<br />\n", argl[1], argv[1], rc);
+    Th_Trace("[%s %#h] => %d<br />\n", argv[0], nCapList, zCapList, rc);
+    Th_Free(interp, zCapList);
   }
   Th_SetResultInt(interp, rc);
   return TH_OK;
@@ -880,7 +886,7 @@ static int anycapCmd(
     rc = login_has_capability((char*)&argv[1][i],1,0);
   }
   if( g.thTrace ){
-    Th_Trace("[hascap %#h] => %d<br />\n", argl[1], argv[1], rc);
+    Th_Trace("[anycap %#h] => %d<br />\n", argl[1], argv[1], rc);
   }
   Th_SetResultInt(interp, rc);
   return TH_OK;
@@ -1314,6 +1320,88 @@ static int artifactCmd(
   }
 }
 
+/*
+** TH1 command: unversioned content FILENAME
+**
+** Attempts to locate the specified unversioned file and return its contents.
+** An error is generated if the repository is not open or the unversioned file
+** cannot be found.
+*/
+static int unversionedContentCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=3 ){
+    return Th_WrongNumArgs(interp, "unversioned content FILENAME");
+  }
+  if( Th_IsRepositoryOpen() ){
+    Blob content;
+    if( unversioned_content(argv[2], &content)==0 ){
+      Th_SetResult(interp, blob_str(&content), blob_size(&content));
+      blob_reset(&content);
+      return TH_OK;
+    }else{
+      return TH_ERROR;
+    }
+  }else{
+    Th_SetResult(interp, "repository unavailable", -1);
+    return TH_ERROR;
+  }
+}
+
+/*
+** TH1 command: unversioned list
+**
+** Returns a list of the names of all unversioned files held in the local
+** repository.  An error is generated if the repository is not open.
+*/
+static int unversionedListCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "unversioned list");
+  }
+  if( Th_IsRepositoryOpen() ){
+    Stmt q;
+    char *zList = 0;
+    int nList = 0;
+    db_prepare(&q, "SELECT name FROM unversioned WHERE hash IS NOT NULL"
+                   " ORDER BY name");
+    while( db_step(&q)==SQLITE_ROW ){
+      Th_ListAppend(interp, &zList, &nList, db_column_text(&q,0), -1);
+    }
+    db_finalize(&q);
+    Th_SetResult(interp, zList, nList);
+    Th_Free(interp, zList);
+    return TH_OK;
+  }else{
+    Th_SetResult(interp, "repository unavailable", -1);
+    return TH_ERROR;
+  }
+}
+
+static int unversionedCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  static const Th_SubCommand aSub[] = {
+    { "content", unversionedContentCmd },
+    { "list",    unversionedListCmd    },
+    { 0, 0 }
+  };
+  return Th_CallSubCommand(interp, p, argc, argv, argl, aSub);
+}
+
 #ifdef _WIN32
 # include <windows.h>
 #else
@@ -1430,7 +1518,19 @@ static int randhexCmd(
 }
 
 /*
-** TH1 command: query SQL CODE
+** Run sqlite3_step() while suppressing error messages sent to the
+** rendered webpage or to the console.
+*/
+static int ignore_errors_step(sqlite3_stmt *pStmt){
+  int rc;
+  g.dbIgnoreErrors++;
+  rc = sqlite3_step(pStmt);
+  g.dbIgnoreErrors--;
+  return rc;
+}
+
+/*
+** TH1 command: query [-nocomplain] SQL CODE
 **
 ** Run the SQL query given by the SQL argument.  For each row in the result
 ** set, run CODE.
@@ -1455,11 +1555,19 @@ static int queryCmd(
   int res = TH_OK;
   int nVar;
   char *zErr = 0;
+  int noComplain = 0;
 
+  if( argc>3 && argl[1]==11 && strncmp(argv[1], "-nocomplain", 11)==0 ){
+    argc--;
+    argv++;
+    argl++;
+    noComplain = 1;
+  }
   if( argc!=3 ){
     return Th_WrongNumArgs(interp, "query SQL CODE");
   }
   if( g.db==0 ){
+    if( noComplain ) return TH_OK;
     Th_ErrorMessage(interp, "database is not open", 0, 0);
     return TH_ERROR;
   }
@@ -1468,9 +1576,12 @@ static int queryCmd(
   while( res==TH_OK && nSql>0 ){
     zErr = 0;
     sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)&zErr);
+    g.dbIgnoreErrors++;
     rc = sqlite3_prepare_v2(g.db, argv[1], argl[1], &pStmt, &zTail);
+    g.dbIgnoreErrors--;
     sqlite3_set_authorizer(g.db, 0, 0);
     if( rc!=0 || zErr!=0 ){
+      if( noComplain ) return TH_OK;
       Th_ErrorMessage(interp, "SQL error: ",
                       zErr ? zErr : sqlite3_errmsg(g.db), -1);
       return TH_ERROR;
@@ -1490,7 +1601,7 @@ static int queryCmd(
         sqlite3_bind_text(pStmt, i, zVal, nVal, SQLITE_TRANSIENT);
       }
     }
-    while( res==TH_OK && sqlite3_step(pStmt)==SQLITE_ROW ){
+    while( res==TH_OK && ignore_errors_step(pStmt)==SQLITE_ROW ){
       int nCol = sqlite3_column_count(pStmt);
       for(i=0; i<nCol; i++){
         const char *zCol = sqlite3_column_name(pStmt, i);
@@ -1504,6 +1615,7 @@ static int queryCmd(
     }
     rc = sqlite3_finalize(pStmt);
     if( rc!=SQLITE_OK ){
+      if( noComplain ) return TH_OK;
       Th_ErrorMessage(interp, "SQL error: ", sqlite3_errmsg(g.db), -1);
       return TH_ERROR;
     }
@@ -1858,6 +1970,7 @@ void Th_FossilInit(u32 flags){
     {"tclReady",      tclReadyCmd,          0},
     {"trace",         traceCmd,             0},
     {"stime",         stimeCmd,             0},
+    {"unversioned",   unversionedCmd,       0},
     {"utime",         utimeCmd,             0},
     {"verifyCsrf",    verifyCsrfCmd,        0},
     {"wiki",          wikiCmd,              (void*)&aFlags[0]},
@@ -1894,7 +2007,7 @@ void Th_FossilInit(u32 flags){
       th_register_tcl(g.interp, &g.tcl);  /* Tcl integration commands. */
     }
 #endif
-    for(i=0; i<sizeof(aCommand)/sizeof(aCommand[0]); i++){
+    for(i=0; i<count(aCommand); i++){
       if ( !aCommand[i].zName || !aCommand[i].xProc ) continue;
       Th_CreateCommand(g.interp, aCommand[i].zName, aCommand[i].xProc,
                        aCommand[i].pContext, 0);
@@ -2106,7 +2219,7 @@ int Th_AreHooksEnabled(void){
 */
 int Th_CommandHook(
   const char *zName,
-  char cmdFlags
+  unsigned int cmdFlags
 ){
   int rc = TH_OK;
   if( !Th_AreHooksEnabled() ) return rc;
@@ -2162,7 +2275,7 @@ int Th_CommandHook(
 */
 int Th_CommandNotify(
   const char *zName,
-  char cmdFlags
+  unsigned int cmdFlags
 ){
   int rc = TH_OK;
   if( !Th_AreHooksEnabled() ) return rc;
@@ -2193,7 +2306,7 @@ int Th_CommandNotify(
 */
 int Th_WebpageHook(
   const char *zName,
-  char cmdFlags
+  unsigned int cmdFlags
 ){
   int rc = TH_OK;
   if( !Th_AreHooksEnabled() ) return rc;
@@ -2249,7 +2362,7 @@ int Th_WebpageHook(
 */
 int Th_WebpageNotify(
   const char *zName,
-  char cmdFlags
+  unsigned int cmdFlags
 ){
   int rc = TH_OK;
   if( !Th_AreHooksEnabled() ) return rc;
@@ -2329,7 +2442,7 @@ int Th_Render(const char *z){
       z += i+5;
       for(i=0; z[i] && (z[i]!='<' || !isEndScriptTag(&z[i])); i++){}
       if( g.thTrace ){
-        Th_Trace("eval {<pre>%#h</pre>}<br>", i, z);
+        Th_Trace("eval {<pre>%#h</pre>}<br />", i, z);
       }
       rc = Th_Eval(g.interp, 0, (const char*)z, i);
       if( rc!=TH_OK ) break;
@@ -2363,6 +2476,8 @@ int Th_Render(const char *z){
 **     --cgi                Include a CGI response header in the output
 **     --http               Include an HTTP response header in the output
 **     --open-config        Open the configuration database
+**     --set-anon-caps      Set anonymous login capabilities
+**     --set-user-caps      Set user login capabilities
 **     --th-trace           Trace TH1 execution (for debugging purposes)
 */
 void test_th_render(void){
@@ -2375,6 +2490,16 @@ void test_th_render(void){
   if( forceCgi ) Th_ForceCgi(fullHttpReply);
   if( find_option("open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
+  }
+  if( find_option("set-anon-caps", 0, 0)!=0 ){
+    const char *zCap = fossil_getenv("TH1_TEST_ANON_CAPS");
+    login_set_capabilities(zCap ? zCap : "sx", LOGIN_ANON);
+    g.useLocalauth = 1;
+  }
+  if( find_option("set-user-caps", 0, 0)!=0 ){
+    const char *zCap = fossil_getenv("TH1_TEST_USER_CAPS");
+    login_set_capabilities(zCap ? zCap : "sx", 0);
+    g.useLocalauth = 1;
   }
   verify_all_options();
   if( g.argc<3 ){
@@ -2400,6 +2525,8 @@ void test_th_render(void){
 **     --cgi                Include a CGI response header in the output
 **     --http               Include an HTTP response header in the output
 **     --open-config        Open the configuration database
+**     --set-anon-caps      Set anonymous login capabilities
+**     --set-user-caps      Set user login capabilities
 **     --th-trace           Trace TH1 execution (for debugging purposes)
 */
 void test_th_eval(void){
@@ -2413,6 +2540,16 @@ void test_th_eval(void){
   if( forceCgi ) Th_ForceCgi(fullHttpReply);
   if( find_option("open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
+  }
+  if( find_option("set-anon-caps", 0, 0)!=0 ){
+    const char *zCap = fossil_getenv("TH1_TEST_ANON_CAPS");
+    login_set_capabilities(zCap ? zCap : "sx", LOGIN_ANON);
+    g.useLocalauth = 1;
+  }
+  if( find_option("set-user-caps", 0, 0)!=0 ){
+    const char *zCap = fossil_getenv("TH1_TEST_USER_CAPS");
+    login_set_capabilities(zCap ? zCap : "sx", 0);
+    g.useLocalauth = 1;
   }
   verify_all_options();
   if( g.argc!=3 ){
@@ -2440,6 +2577,8 @@ void test_th_eval(void){
 **     --cgi                Include a CGI response header in the output
 **     --http               Include an HTTP response header in the output
 **     --open-config        Open the configuration database
+**     --set-anon-caps      Set anonymous login capabilities
+**     --set-user-caps      Set user login capabilities
 **     --th-trace           Trace TH1 execution (for debugging purposes)
 */
 void test_th_source(void){
@@ -2454,6 +2593,16 @@ void test_th_source(void){
   if( forceCgi ) Th_ForceCgi(fullHttpReply);
   if( find_option("open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
+  }
+  if( find_option("set-anon-caps", 0, 0)!=0 ){
+    const char *zCap = fossil_getenv("TH1_TEST_ANON_CAPS");
+    login_set_capabilities(zCap ? zCap : "sx", LOGIN_ANON);
+    g.useLocalauth = 1;
+  }
+  if( find_option("set-user-caps", 0, 0)!=0 ){
+    const char *zCap = fossil_getenv("TH1_TEST_USER_CAPS");
+    login_set_capabilities(zCap ? zCap : "sx", 0);
+    g.useLocalauth = 1;
   }
   verify_all_options();
   if( g.argc!=3 ){
@@ -2521,15 +2670,15 @@ void test_th_hook(void){
     usage("TYPE NAME FLAGS");
   }
   if( fossil_stricmp(g.argv[2], "cmdhook")==0 ){
-    rc = Th_CommandHook(g.argv[3], (char)atoi(g.argv[4]));
+    rc = Th_CommandHook(g.argv[3], (unsigned int)atoi(g.argv[4]));
   }else if( fossil_stricmp(g.argv[2], "cmdnotify")==0 ){
-    rc = Th_CommandNotify(g.argv[3], (char)atoi(g.argv[4]));
+    rc = Th_CommandNotify(g.argv[3], (unsigned int)atoi(g.argv[4]));
   }else if( fossil_stricmp(g.argv[2], "webhook")==0 ){
-    rc = Th_WebpageHook(g.argv[3], (char)atoi(g.argv[4]));
+    rc = Th_WebpageHook(g.argv[3], (unsigned int)atoi(g.argv[4]));
   }else if( fossil_stricmp(g.argv[2], "webnotify")==0 ){
-    rc = Th_WebpageNotify(g.argv[3], (char)atoi(g.argv[4]));
+    rc = Th_WebpageNotify(g.argv[3], (unsigned int)atoi(g.argv[4]));
   }else{
-    fossil_fatal("Unknown TH1 hook %s\n", g.argv[2]);
+    fossil_fatal("Unknown TH1 hook %s", g.argv[2]);
   }
   if( g.interp ){
     zResult = (char*)Th_GetResult(g.interp, &nResult);

@@ -1,4 +1,5 @@
-<h1>Principles Of Operation</h1>
+<title>Principles Of Operation</title>
+<h1 align="center">Principles Of Operation</h1>
 
 <p>
 This page attempts to define the foundational principals upon
@@ -6,14 +7,14 @@ which Fossil is built.
 </p>
 
 <ul>
-<li><p>A project consists of source files, wiki pages, and 
+<li><p>A project consists of source files, wiki pages, and
 trouble tickets, and control files (collectively "artifacts").
 All historical copies of all artifacts
 are saved.  The project maintains an audit
 trail.</p></li>
 
 <li><p>A project resides in one or more repositories.  Each
-repository is administered and operates independently 
+repository is administered and operates independently
 of the others.</p></li>
 
 <li><p>Each repository has both global and local state.  The
@@ -26,14 +27,14 @@ The local state identifies the authorized users and
 access policies for a particular repository.</p></li>
 
 <li><p>The global state of a repository is an unordered
-collection of artifacts.  Each artifact is named by 
+collection of artifacts.  Each artifact is named by
 its SHA1 hash encoded in lowercase hexadecimal.
 In many contexts, the name can be
 abbreviated to a unique prefix.  A five- or six-character
 prefix usually suffices to uniquely identify a file.</p></li>
 
 <li><p>Because artifacts are named by their SHA1 hash, all artifacts
-are immutable.  Any change to the content of an artifact also 
+are immutable.  Any change to the content of an artifact also
 changes the hash that forms the artifacts name, thus
 creating a new artifact.  Both the old original version of the
 artifact and the new change are preserved under different names.</p></li>
@@ -43,7 +44,7 @@ content to share the same hash.  But finding two such
 artifacts is so incredibly difficult and unlikely that we
 consider it to be an impossibility.</p></li>
 
-<li><p>The signature of an artifact is the SHA1 hash of the 
+<li><p>The signature of an artifact is the SHA1 hash of the
 artifact itself, exactly as it would appear in a disk file.  No prefix
 or meta-information about the artifact is added before computing
 the hash.  So you can

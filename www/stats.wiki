@@ -1,7 +1,7 @@
 <title>Fossil Performance</title>
 <h1 align="center">Performance Statistics</h1>
 
-The questions will inevitably arise:  How does Fossil perform? 
+The questions will inevitably arise:  How does Fossil perform?
 Does it use a lot of disk space or bandwidth?  Is it scalable?
 
 In an attempt to answers these questions, this report looks at several
@@ -98,7 +98,7 @@ think of a Fossil project is as a bag of artifacts.  Of course, there is
 a lot more than this going on in Fossil.  Many of the artifacts have meaning
 and are related to other artifacts.  But at a low level (for example when
 synchronizing two instances of the same project) the only thing that matters
-is the unordered collection of artifacts.  In fact, one of the key 
+is the unordered collection of artifacts.  In fact, one of the key
 characteristics of Fossil is that the entire project history can be
 reconstructed simply by scanning the artifacts in an arbitrary order.
 
@@ -108,7 +108,7 @@ change dozens or hundreds of files.  Regardless of the number of files
 changed, it still only counts as one check-in.
 
 The "Uncompressed Size" is the total size of all the artifacts within
-the repository assuming they were all uncompressed and stored 
+the repository assuming they were all uncompressed and stored
 separately on the disk.  Fossil makes use of delta compression between related
 versions of the same file, and then uses zlib compression on the resulting
 deltas.  The total resulting repository size is shown after the uncompressed

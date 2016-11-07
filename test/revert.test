@@ -27,21 +27,21 @@
 proc revert-test {testid revertArgs expectedRevertOutput args} {
   global RESULT
   set passed 1
-  
+
   set args [dict merge {
     -changes {} -addremove {} -exists {} -notexists {}
   } $args]
-  
+
   set result [fossil revert {*}$revertArgs]
   test_status_list revert-$testid $result $expectedRevertOutput
-  
+
   set statusListTests [list -changes changes -addremove {addremove -n}]
   foreach {key fossilArgs} $statusListTests {
     set expected [dict get $args $key]
-    set result [fossil {*}$fossilArgs] 
+    set result [fossil {*}$fossilArgs]
     test_status_list revert-$testid$key $result $expected
   }
-  
+
   set fileExistsTests [list -exists 1 does -notexists 0 should]
   foreach {key expected verb} $fileExistsTests {
     foreach path [dict get $args $key] {
@@ -52,7 +52,7 @@ proc revert-test {testid revertArgs expectedRevertOutput args} {
     }
     test revert-$testid$key $passed
   }
-  
+
   fossil undo
 }
 

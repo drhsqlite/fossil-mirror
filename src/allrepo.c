@@ -53,8 +53,9 @@ static char *quoteFilename(const char *zFilename){
 ** it takes an argument.  Without the "+" it does not.
 */
 static void collect_argument(Blob *pExtra, const char *zArg, const char *zShort){
-  if( find_option(zArg, zShort, 0)!=0 ){
-    blob_appendf(pExtra, " --%s", zArg);
+  const char *z = find_option(zArg, zShort, 0);
+  if( z!=0 ){
+    blob_appendf(pExtra, " %s", z);
   }
 }
 static void collect_argument_value(Blob *pExtra, const char *zArg){
@@ -140,7 +141,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 **
 **    add         Add all the repositories named to the set of repositories
 **                tracked by Fossil.  Normally Fossil is able to keep up with
-**                this list by itself, but sometime it can benefit from this
+**                this list by itself, but sometimes it can benefit from this
 **                hint if you rename repositories.
 **
 **    ignore      Arguments are repositories that should be ignored by
@@ -174,7 +175,6 @@ void all_cmd(void){
   int dryRunFlag = 0;
   int showFile = find_option("showfile",0,0)!=0;
   int stopOnError = find_option("dontstop",0,0)==0;
-  int rc;
   int nToDel = 0;
   int showLabel = 0;
 
@@ -273,6 +273,7 @@ void all_cmd(void){
   }else if( strncmp(zCmd, "sync", n)==0 ){
     zCmd = "sync -autourl -R";
     collect_argument(&extra, "verbose","v");
+    collect_argument(&extra, "unversioned","u");
   }else if( strncmp(zCmd, "test-integrity", n)==0 ){
     collect_argument(&extra, "parse", 0);
     zCmd = "test-integrity";
@@ -375,9 +376,10 @@ void all_cmd(void){
        " ORDER BY 1"
     );
   }
-  db_multi_exec("CREATE TEMP TABLE todel(x TEXT)");
+  db_multi_exec("CREATE TEMP TABLE toDel(x TEXT)");
   db_prepare(&q, "SELECT name, tag FROM repolist ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
+    int rc;
     const char *zFilename = db_column_text(&q, 0);
 #if !USE_SEE
     if( sqlite3_strglob("*.efossil", zFilename)==0 ) continue;
@@ -386,7 +388,7 @@ void all_cmd(void){
      || !file_is_canonical(zFilename)
      || (useCheckouts && file_isdir(zFilename)!=1)
     ){
-      db_multi_exec("INSERT INTO todel VALUES(%Q)", db_column_text(&q, 1));
+      db_multi_exec("INSERT INTO toDel VALUES(%Q)", db_column_text(&q, 1));
       nToDel++;
       continue;
     }

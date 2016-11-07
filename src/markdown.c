@@ -37,8 +37,8 @@
 /* mkd_autolink -- type of autolink */
 enum mkd_autolink {
   MKDA_NOT_AUTOLINK,    /* used internally when it is not an autolink*/
-  MKDA_NORMAL,          /* normal http/http/ftp/etc link */
-  MKDA_EXPLICIT_EMAIL,  /* e-mail link with explit mailto: */
+  MKDA_NORMAL,          /* normal http/http/ftp link */
+  MKDA_EXPLICIT_EMAIL,  /* e-mail link with explicit mailto: */
   MKDA_IMPLICIT_EMAIL   /* e-mail link without mailto: */
 };
 
@@ -297,7 +297,7 @@ static const struct html_tag *find_block_tag(const char *data, size_t size){
   key.size = i;
   return bsearch(&key,
                  block_tags,
-                 (sizeof block_tags)/(sizeof block_tags[0]),
+                 count(block_tags),
                  sizeof block_tags[0],
                  cmp_html_tag);
 }
@@ -350,7 +350,7 @@ static size_t is_mail_autolink(char *data, size_t size){
 }
 
 
-/* tag_length -- returns the length of the given tag, or 0 is it's not valid */
+/* tag_length -- returns the length of the given tag, or 0 if it's not valid */
 static size_t tag_length(char *data, size_t size, enum mkd_autolink *autolink){
   size_t i, j;
 
@@ -405,7 +405,7 @@ static size_t tag_length(char *data, size_t size, enum mkd_autolink *autolink){
     return i+j;
   }
 
-  /* looking for sometinhg looking like a tag end */
+  /* looking for something looking like a tag end */
   while( i<size && data[i]!='>' ){ i++; }
   if( i>=size ) return 0;
   return i+1;
@@ -522,7 +522,7 @@ static size_t find_emph_char(char *data, size_t size, char c){
 }
 
 
-/* parse_emph1 -- parsing single emphase */
+/* parse_emph1 -- parsing single emphasis */
 /* closed by a symbol not preceded by whitespace and not followed by symbol */
 static size_t parse_emph1(
   struct Blob *ob,
@@ -567,7 +567,7 @@ static size_t parse_emph1(
 }
 
 
-/* parse_emph2 -- parsing single emphase */
+/* parse_emph2 -- parsing single emphasis */
 static size_t parse_emph2(
   struct Blob *ob,
   struct render *rndr,
@@ -606,7 +606,7 @@ static size_t parse_emph2(
 }
 
 
-/* parse_emph3 -- parsing single emphase */
+/* parse_emph3 -- parsing single emphasis */
 /* finds the first closing tag, and delegates to the other emph */
 static size_t parse_emph3(
   struct Blob *ob,
@@ -779,7 +779,7 @@ static size_t char_escape(
 
 
 /* char_entity -- '&' escaped when it doesn't belong to an entity */
-/* valid entities are assumed to be anything mathing &#?[A-Za-z0-9]+; */
+/* valid entities are assumed to be anything matching &#?[A-Za-z0-9]+; */
 static size_t char_entity(
   struct Blob *ob,
   struct render *rndr,
@@ -1024,7 +1024,7 @@ static size_t char_link(
       id_data = data+1;
       id_size = txt_e-1;
     }else{
-      /* explici id - between brackets */
+      /* explicit id - between brackets */
       id_data = data+i+1;
       id_size = id_end-(i+1);
     }
@@ -1140,7 +1140,7 @@ static int is_headerline(char *data, size_t size){
 }
 
 
-/* is_table_sep -- returns wether there is a table separator at the given pos */
+/* is_table_sep -- returns whether there is a table separator at pos */
 static int is_table_sep(char *data, size_t pos){
   return data[pos]=='|' && (pos==0 || data[pos-1]!='\\');
 }
@@ -1189,7 +1189,7 @@ static size_t prefix_quote(char *data, size_t size){
 }
 
 
-/* prefix_code -- returns prefix length for block code*/
+/* prefix_code -- returns prefix length for block code */
 static size_t prefix_code(char *data, size_t size){
   if( size>0 && data[0]=='\t' ) return 1;
   if( size>3 && data[0]==' ' && data[1]==' ' && data[2]==' ' && data[3]==' ' ){
@@ -1246,7 +1246,7 @@ static void parse_block(
   size_t size);
 
 
-/* parse_blockquote -- hanldes parsing of a blockquote fragment */
+/* parse_blockquote -- handles parsing of a blockquote fragment */
 static size_t parse_blockquote(
   struct Blob *ob,
   struct render *rndr,
@@ -1296,7 +1296,7 @@ static size_t parse_blockquote(
 }
 
 
-/* parse_blockquote -- hanldes parsing of a regular paragraph */
+/* parse_paragraph -- handles parsing of a regular paragraph */
 static size_t parse_paragraph(
   struct Blob *ob,
   struct render *rndr,
@@ -1379,7 +1379,7 @@ static size_t parse_paragraph(
 }
 
 
-/* parse_blockquote -- hanldes parsing of a block-level code fragment */
+/* parse_blockcode -- handles parsing of a block-level code fragment */
 static size_t parse_blockcode(
   struct Blob *ob,
   struct render *rndr,
@@ -1815,7 +1815,7 @@ static size_t parse_table_row(
   struct Blob *cells = new_work_buffer(rndr);
   int align;
 
-  /* skip leading blanks and sperator */
+  /* skip leading blanks and separator */
   while( i<size && (data[i]==' ' || data[i]=='\t') ){ i++; }
   if( i<size && data[i]=='|' ) i++;
 
@@ -2032,7 +2032,7 @@ static int is_ref(
   size_t beg,         /* offset of the beginning of the line */
   size_t end,         /* offset of the end of the text */
   size_t *last,       /* last character of the link */
-  struct Blob *refs   /* arry of link references */
+  struct Blob *refs   /* array of link references */
 ){
   size_t i = 0;
   size_t id_offset, id_end;

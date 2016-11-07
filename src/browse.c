@@ -173,36 +173,33 @@ void page_dir(void){
     blob_append(&dirname, "in directory ", -1);
     hyperlinked_path(zD, &dirname, zCI, "dir", "");
     zPrefix = mprintf("%s/", zD);
-    style_submenu_element("Top-Level", "Top-Level", "%s",
+    style_submenu_element("Top-Level", "%s",
                           url_render(&sURI, "name", 0, 0, 0));
   }else{
     blob_append(&dirname, "in the top-level directory", -1);
     zPrefix = "";
   }
   if( linkTrunk ){
-    style_submenu_element("Trunk", "Trunk", "%s",
+    style_submenu_element("Trunk", "%s",
                           url_render(&sURI, "ci", "trunk", 0, 0));
   }
   if( linkTip ){
-    style_submenu_element("Tip", "Tip", "%s",
-                          url_render(&sURI, "ci", "tip", 0, 0));
+    style_submenu_element("Tip", "%s", url_render(&sURI, "ci", "tip", 0, 0));
   }
   if( zCI ){
     @ <h2>Files of check-in [%z(href("vinfo?name=%!S",zUuid))%S(zUuid)</a>]
     @ %s(blob_str(&dirname))</h2>
     zSubdirLink = mprintf("%R/dir?ci=%!S&name=%T", zUuid, zPrefix);
     if( nD==0 ){
-      style_submenu_element("File Ages", "File Ages", "%R/fileage?name=%!S",
-                            zUuid);
+      style_submenu_element("File Ages", "%R/fileage?name=%!S", zUuid);
     }
   }else{
     @ <h2>The union of all files from all check-ins
     @ %s(blob_str(&dirname))</h2>
     zSubdirLink = mprintf("%R/dir?name=%T", zPrefix);
   }
-  style_submenu_element("All", "All", "%s",
-                        url_render(&sURI, "ci", 0, 0, 0));
-  style_submenu_element("Tree-View", "Tree-View", "%s",
+  style_submenu_element("All", "%s", url_render(&sURI, "ci", 0, 0, 0));
+  style_submenu_element("Tree-View", "%s",
                         url_render(&sURI, "type", "tree", 0, 0));
 
   /* Compute the temporary table "localfiles" containing the names
@@ -618,7 +615,7 @@ void page_tree(void){
     blob_append(&dirname, "within directory ", -1);
     hyperlinked_path(zD, &dirname, zCI, "tree", zREx);
     if( zRE ) blob_appendf(&dirname, " matching \"%s\"", zRE);
-    style_submenu_element("Top-Level", "Top-Level", "%s",
+    style_submenu_element("Top-Level", "%s",
                           url_render(&sURI, "name", 0, 0, 0));
   }else{
     if( zRE ){
@@ -627,22 +624,19 @@ void page_tree(void){
   }
   style_submenu_binary("mtime","Sort By Time","Sort By Filename", 0);
   if( zCI ){
-    style_submenu_element("All", "All", "%s",
-                          url_render(&sURI, "ci", 0, 0, 0));
+    style_submenu_element("All", "%s", url_render(&sURI, "ci", 0, 0, 0));
     if( nD==0 && !showDirOnly ){
-      style_submenu_element("File Ages", "File Ages", "%R/fileage?name=%s",
-                            zUuid);
+      style_submenu_element("File Ages", "%R/fileage?name=%s", zUuid);
     }
   }
   if( linkTrunk ){
-    style_submenu_element("Trunk", "Trunk", "%s",
+    style_submenu_element("Trunk", "%s",
                           url_render(&sURI, "ci", "trunk", 0, 0));
   }
   if( linkTip ){
-    style_submenu_element("Tip", "Tip", "%s",
-                          url_render(&sURI, "ci", "tip", 0, 0));
+    style_submenu_element("Tip", "%s", url_render(&sURI, "ci", "tip", 0, 0));
   }
-  style_submenu_element("Flat-View", "Flat-View", "%s",
+  style_submenu_element("Flat-View", "%s",
                         url_render(&sURI, "type", "flat", 0, 0));
 
   /* Compute the file hierarchy.
@@ -697,13 +691,11 @@ void page_tree(void){
       if( p->pChild!=0 && p->nFullName>nD ) nFile++;
     }
     zObjType = "Folders";
-    style_submenu_element("Files","Files","%s",
-                          url_render(&sURI,"nofiles",0,0,0));
   }else{
     zObjType = "Files";
-    style_submenu_element("Folders","Folders","%s",
-                          url_render(&sURI,"nofiles","1",0,0));
   }
+
+  style_submenu_checkbox("nofiles", "Folders Only", 0);
 
   if( zCI ){
     @ <h2>%s(zObjType) from
@@ -1023,6 +1015,7 @@ void fileage_page(void){
   double baseTime;
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  if( exclude_spiders() ) return;
   zName = P("name");
   if( zName==0 ) zName = "tip";
   rid = symbolic_name_to_rid(zName, "ci");
@@ -1033,9 +1026,7 @@ void fileage_page(void){
   baseTime = db_double(0.0,"SELECT mtime FROM event WHERE objid=%d", rid);
   zNow = db_text("", "SELECT datetime(mtime,toLocal()) FROM event"
                      " WHERE objid=%d", rid);
-  style_submenu_element("Tree-View", "Tree-View",
-                        "%R/tree?ci=%T&mtime=1&type=tree",
-                        zName);
+  style_submenu_element("Tree-View", "%R/tree?ci=%T&mtime=1&type=tree", zName);
   style_header("File Ages");
   zGlob = P("glob");
   compute_fileage(rid,zGlob);
@@ -1089,9 +1080,9 @@ void fileage_page(void){
       const char *zFile = db_column_text(&q2,1);
       int fid = db_column_int(&q2,2);
       if( showId ){
-        @ %z(href("%R/artifact/%!S",zFUuid))%h(zFile)</a> (%d(fid))<br>
+        @ %z(href("%R/artifact/%!S",zFUuid))%h(zFile)</a> (%d(fid))<br />
       }else{
-        @ %z(href("%R/artifact/%!S",zFUuid))%h(zFile)</a><br>
+        @ %z(href("%R/artifact/%!S",zFUuid))%h(zFile)</a><br />
       }
     }
     db_reset(&q2);

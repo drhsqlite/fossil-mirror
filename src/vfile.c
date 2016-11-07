@@ -266,15 +266,15 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
     }
 #ifndef _WIN32
     if( chnged==0 || chnged==6 || chnged==7 || chnged==8 || chnged==9 ){
-      if( origPerm == currentPerm ){
+      if( origPerm==currentPerm ){
         chnged = 0;
-      }else if( currentPerm == PERM_EXE ){
+      }else if( currentPerm==PERM_EXE ){
         chnged = 6;
-      }else if( currentPerm == PERM_LNK ){
+      }else if( currentPerm==PERM_LNK ){
         chnged = 7;
-      }else if( origPerm == PERM_EXE ){
+      }else if( origPerm==PERM_EXE ){
         chnged = 8;
-      }else if( origPerm == PERM_LNK ){
+      }else if( origPerm==PERM_LNK ){
         chnged = 9;
       }
     }
@@ -350,9 +350,9 @@ void vfile_to_disk(
       }
     }
     if( verbose ) fossil_print("%s\n", &zName[nRepos]);
-    if( file_wd_isdir(zName) == 1 ){
+    if( file_wd_isdir(zName)==1 ){
       /*TODO(dchest): remove directories? */
-      fossil_fatal("%s is directory, cannot overwrite\n", zName);
+      fossil_fatal("%s is directory, cannot overwrite", zName);
     }
     if( file_wd_size(zName)>=0 && (isLink || file_wd_islink(0)) ){
       file_delete(zName);
@@ -437,7 +437,7 @@ static int is_temporary_file(const char *zName){
       return 1;
     }
     if( zName[0]!='-' ) continue;
-    for(i=0; i<sizeof(azTemp)/sizeof(azTemp[0]); i++){
+    for(i=0; i<count(azTemp); i++){
       n = (int)strlen(azTemp[i]);
       if( memcmp(azTemp[i], zName+1, n) ) continue;
       if( zName[n+1]==0 ) return 1;
@@ -457,6 +457,8 @@ static int is_temporary_file(const char *zName){
 #define SCAN_ALL    0x001    /* Includes files that begin with "." */
 #define SCAN_TEMP   0x002    /* Only Fossil-generated files like *-baseline */
 #define SCAN_NESTED 0x004    /* Scan for empty dirs in nested checkouts */
+#define SCAN_MTIME  0x008    /* Populate mtime column */
+#define SCAN_SIZE   0x010    /* Populate size column */
 #endif /* INTERFACE */
 
 /*
@@ -500,9 +502,14 @@ void vfile_scan(
 
   if( depth==0 ){
     db_prepare(&ins,
-       "INSERT OR IGNORE INTO sfile(x) SELECT :file"
-       "  WHERE NOT EXISTS(SELECT 1 FROM vfile WHERE"
-       " pathname=:file %s)", filename_collation()
+      "INSERT OR IGNORE INTO sfile(pathname%s%s) SELECT :file%s%s"
+      "  WHERE NOT EXISTS(SELECT 1 FROM vfile WHERE"
+      " pathname=:file %s)",
+      scanFlags & SCAN_MTIME ? ", mtime"  : "",
+      scanFlags & SCAN_SIZE  ? ", size"   : "",
+      scanFlags & SCAN_MTIME ? ", :mtime" : "",
+      scanFlags & SCAN_SIZE  ? ", :size"  : "",
+      filename_collation()
     );
   }
   depth++;
@@ -541,6 +548,12 @@ void vfile_scan(
 #endif
         if( (scanFlags & SCAN_TEMP)==0 || is_temporary_file(zUtf8) ){
           db_bind_text(&ins, ":file", &zPath[nPrefix+1]);
+          if( scanFlags & SCAN_MTIME ){
+            db_bind_int(&ins, ":mtime", file_mtime(zPath));
+          }
+          if( scanFlags & SCAN_SIZE ){
+            db_bind_int(&ins, ":size", file_size(zPath));
+          }
           db_step(&ins);
           db_reset(&ins);
         }
@@ -920,7 +933,7 @@ void vfile_aggregate_checksum_manifest(int vid, Blob *pOut, Blob *pManOut){
   db_must_be_within_tree();
   pManifest = manifest_get(vid, CFTYPE_MANIFEST, &err);
   if( pManifest==0 ){
-    fossil_fatal("manifest file (%d) is malformed:\n%s\n",
+    fossil_fatal("manifest file (%d) is malformed:\n%s",
                  vid, blob_str(&err));
   }
   manifest_file_rewind(pManifest);

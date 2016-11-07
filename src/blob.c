@@ -655,8 +655,12 @@ int blob_is_uuid(Blob *pBlob){
   return blob_size(pBlob)==UUID_SIZE
          && validate16(blob_buffer(pBlob), UUID_SIZE);
 }
-int blob_is_uuid_n(Blob *pBlob, int n){
-  return blob_size(pBlob)==n && validate16(blob_buffer(pBlob), n);
+
+/*
+** Return true if the blob contains a valid filename
+*/
+int blob_is_filename(Blob *pBlob){
+  return file_is_simple_pathname(blob_str(pBlob), 1);
 }
 
 /*
@@ -666,6 +670,27 @@ int blob_is_uuid_n(Blob *pBlob, int n){
 int blob_is_int(Blob *pBlob, int *pValue){
   const char *z = blob_buffer(pBlob);
   int i, n, c, v;
+  n = blob_size(pBlob);
+  v = 0;
+  for(i=0; i<n && (c = z[i])!=0 && c>='0' && c<='9'; i++){
+    v = v*10 + c - '0';
+  }
+  if( i==n ){
+    *pValue = v;
+    return 1;
+  }else{
+    return 0;
+  }
+}
+
+/*
+** Return true if the blob contains a valid 64-bit integer.  Store
+** the integer value in *pValue.
+*/
+int blob_is_int64(Blob *pBlob, sqlite3_int64 *pValue){
+  const char *z = blob_buffer(pBlob);
+  int i, n, c;
+  sqlite3_int64 v;
   n = blob_size(pBlob);
   v = 0;
   for(i=0; i<n && (c = z[i])!=0 && c>='0' && c<='9'; i++){
@@ -828,15 +853,14 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
   int nWrote;
 
   if( zFilename[0]==0 || (zFilename[0]=='-' && zFilename[1]==0) ){
-    nWrote = blob_size(pBlob);
+    blob_is_init(pBlob);
 #if defined(_WIN32)
-    if( fossil_utf8_to_console(blob_buffer(pBlob), nWrote, 0) >= 0 ){
-      return nWrote;
-    }
+    nWrote = fossil_utf8_to_console(blob_buffer(pBlob), blob_size(pBlob), 0);
+    if( nWrote>=0 ) return nWrote;
     fflush(stdout);
     _setmode(_fileno(stdout), _O_BINARY);
 #endif
-    fwrite(blob_buffer(pBlob), 1, nWrote, stdout);
+    nWrote = fwrite(blob_buffer(pBlob), 1, blob_size(pBlob), stdout);
 #if defined(_WIN32)
     fflush(stdout);
     _setmode(_fileno(stdout), _O_TEXT);
@@ -845,6 +869,13 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
     file_mkfolder(zFilename, 1, 0);
     out = fossil_fopen(zFilename, "wb");
     if( out==0 ){
+#if _WIN32
+      const char *zReserved = file_is_win_reserved(zFilename);
+      if( zReserved ){
+        fossil_fatal("cannot open \"%s\" because \"%s\" is "
+             "a reserved name on Windows", zFilename, zReserved);
+      }
+#endif
       fossil_fatal_recursive("unable to open file \"%s\" for writing",
                              zFilename);
       return 0;
@@ -1005,7 +1036,7 @@ int blob_uncompress(Blob *pIn, Blob *pOut){
 ** Usage: %fossil test-uncompress IN OUT
 **
 ** Read the content of file IN, uncompress that content, and write the
-** result into OUT.  This command is intended for testing of the the
+** result into OUT.  This command is intended for testing of the
 ** blob_compress() function.
 */
 void uncompress_cmd(void){

@@ -1,39 +1,15 @@
 #!/usr/bin/tclsh
 #
-# Run this script to build the "download.html" page.  Also generate
-# the fossil_download_checksums.html page.
+# Run this script to build and install the "download.html" page of
+# unversioned comment.
+#
+# Also generate the fossil_download_checksums.html page.
 #
 #
 set out [open download.html w]
 fconfigure $out -encoding utf-8 -translation lf
 puts $out \
-{<!DOCTYPE html>
-<html>
-  <head>
-    <base href="https://www.fossil-scm.org/download.html" />
-    <title>Fossil: Download</title>
-      <link rel="alternate" type="application/rss+xml" title="RSS Feed"
-            href="/fossil/timeline.rss" />
-      <link rel="stylesheet" href="/fossil/style.css?default" type="text/css"
-            media="screen" />
-  </head>
-
-  <body>
-    <div class="header">
-      <div class="title"><h1>Fossil</h1>Download</div>
-    </div>
-    <div class="mainmenu">
-<a href='/fossil/doc/trunk/www/index.wiki'>Home</a>
-<a href='/fossil/timeline?y=ci'>Timeline</a>
-<a href='/fossil/dir?ci=tip'>Code</a>
-<a href='/fossil/doc/trunk/www/permutedindex.html'>Docs</a>
-<a href='/fossil/brlist'>Branches</a>
-<a href='/fossil/ticket'>Tickets</a>
-<a href='/fossil/wiki'>Wiki</a>
-<a href='/download.html' class='active'>Download</a>
-</div>
-<div class="content">
-<p>
+{<div class='fossil-doc' data-title='Download Page'>
 
 <center><font size=4>}
 puts $out \
@@ -47,42 +23,53 @@ here.</a>
 Cryptographic checksums for download files are
 <a href="http://www.hwaci.com/fossil_download_checksums.html">here</a>.
 </small></p>
-</center>
-
 <table cellpadding="10">
 }
 
-# Find all all unique timestamps.
+# Find all unique timestamps.
 #
-foreach file [glob -nocomplain download/fossil-*.zip] {
-  if {[regexp -- {-(\d\.\d+).zip$} $file all version]} {
+set in [open {|fossil uv list} rb]
+while {[gets $in line]>0} {
+  set fn [lindex $line 5]
+  set filesize($fn) [lindex $line 3]
+  if {[regexp -- {-(\d\.\d+)\.(tar\.gz|zip)$} $fn all version]} {
+    set filehash($fn) [lindex $line 1]
     set avers($version) 1
   }
 }
+close $in
+
+set vdate(1.36) 2016-10-24
+set vdate(1.35) 2016-06-14
+set vdate(1.34) 2016-11-02
 
 # Do all versions from newest to oldest
 #
 foreach vers [lsort -decr -real [array names avers]] {
-  set hr "/fossil/timeline?c=version-$vers;y=ci"
+  #  set hr "../timeline?c=version-$vers;y=ci"
+  set v2 v[string map {. _} $vers]
+  set hr "../doc/trunk/www/changes.wiki#$v2"
   puts $out "<tr><td colspan=6 align=left><hr>"
-  puts $out "<center><b><a href=\"$hr\">Version $vers</a></b></center>"
+  puts $out "<center><b><a href=\"$hr\">Version $vers</a>"
+  if {[info exists vdate($vers)]} {
+    set hr2 "../timeline?c=version-$vers&amp;y=ci"
+    puts $out " (<a href='$hr2'>$vdate($vers)</a>)"
+  }
+  puts $out "</b></center>"
   puts $out "</td></tr>"
   puts $out "<tr>"
 
   foreach {prefix img desc} {
     fossil-linux-x86 linux.gif {Linux 3.x x86}
-    fossil-macosx-x86 mac.gif {Mac 10.x x86}
+    fossil-macosx mac.gif {Mac 10.x x86}
     fossil-openbsd-x86 openbsd.gif {OpenBSD 5.x x86}
     fossil-w32 win32.gif {Windows}
     fossil-src src.gif {Source Tarball}
   } {
-    set basename download/$prefix-$vers
-    set filename $basename.tar.gz
-    if {![file exists $basename.tar.gz]} {
-      set filename $basename.zip
-    }
-    if {[file exists $filename]} {
-      set size [file size $filename]
+    set glob download/$prefix*-$vers*
+    set filename [array names filesize $glob]
+    if {[info exists filesize($filename)]} {
+      set size [set filesize($filename)]
       set units bytes
       if {$size>1024*1024} {
         set size [format %.2f [expr {$size/(1024.0*1024.0)}]]
@@ -99,22 +86,19 @@ foreach vers [lsort -decr -real [array names avers]] {
     }
   }
   puts $out "</tr>"
-  if {[file exists download/releasenotes-$vers.html]} {
-    puts $out "<tr><td colspan=6 align=left>"
-    set rn [open download/releasenotes-$vers.html]
-    fconfigure $rn -encoding utf-8
-    puts $out "[read $rn]"
-    close $rn
-    puts $out "</td></tr>"
-  }
+#
+#  if {[info exists filesize(download/releasenotes-$vers.html)]} {
+#    puts $out "<tr><td colspan=6 align=left>"
+#    set rn [|open uv cat download/releasenotes-$vers.html]
+#    fconfigure $rn -encoding utf-8
+#    puts $out "[read $rn]"
+#    close $rn
+#    puts $out "</td></tr>"
+#  }
 }
 puts $out "<tr><td colspan=5><hr></td></tr>"
 
-puts $out {</table></div>
-</body>
-</html>
-}
-
+puts $out {</table></center></div>}
 close $out
 
 # Generate the checksum page
@@ -130,9 +114,13 @@ binaries available on the
 <a href="/download.html">Fossil website</a>.</p>
 <pre>}
 
-foreach file [lsort [glob -nocomplain download/fossil-*.zip]] {
-  set sha1sum [lindex [exec sha1sum $file] 0]
-  puts $out "$sha1sum   [file tail $file]"
+foreach {line} [split [exec fossil sql "SELECT hash, name FROM unversioned\
+                                     WHERE name GLOB '*.tar.gz' OR\
+                                           name GLOB '*.zip'"] \n] {
+  set x [split $line |]
+  set hash [lindex $x 0]
+  set nm [file tail [lindex $x 1]]
+  puts $out "$hash   $nm"
 }
 puts $out {</pre></body></html>}
 close $out

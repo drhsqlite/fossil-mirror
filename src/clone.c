@@ -101,7 +101,7 @@ void delete_private_content(void){
 ** Note 1: For ssh and filesystem, path must have an extra leading
 **         '/' to use an absolute path.
 **
-** Note 2: Use %HH escapes for special characters in the userid and 
+** Note 2: Use %HH escapes for special characters in the userid and
 **         password.  For example "%40" in place of "@", "%2f" in place
 **         of "/", and "%3a" in place of ":".
 **
@@ -116,7 +116,8 @@ void delete_private_content(void){
 **    --ssl-identity FILENAME    Use the SSL identity if requested by the server
 **    --ssh-command|-c SSH       Use SSH as the "ssh" command
 **    --httpauth|-B USER:PASS    Add HTTP Basic Authorization to requests
-**    --verbose                  Show more statistics in output
+**    -u|--unversioned           Also sync unversioned content
+**    -v|--verbose               Show more statistics in output
 **
 ** See also: init
 */
@@ -131,7 +132,8 @@ void clone_cmd(void){
   /* Also clone private branches */
   if( find_option("private",0,0)!=0 ) syncFlags |= SYNC_PRIVATE;
   if( find_option("once",0,0)!=0) urlFlags &= ~URL_REMEMBER;
-  if( find_option("verbose",0,0)!=0) syncFlags |= SYNC_VERBOSE;
+  if( find_option("verbose","v",0)!=0) syncFlags |= SYNC_VERBOSE;
+  if( find_option("unversioned","u",0)!=0 ) syncFlags |= SYNC_UNVERSIONED;
   zHttpAuth = find_option("httpauth","B",1);
   zDefaultUser = find_option("admin-user","A",1);
   clone_ssh_find_options();
