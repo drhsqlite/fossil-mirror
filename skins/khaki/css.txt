@@ -77,7 +77,7 @@ div.submenu label {
   color: white;
   text-decoration: none;
 }
-div.mainmenu a:hover, div.submenu a:hover, div.sectionmenu>a.button:hover
+div.mainmenu a:hover, div.submenu a:hover, div.sectionmenu>a.button:hover,
 div.submenu label:hover {
   color: #a09048;
   background-color: white;

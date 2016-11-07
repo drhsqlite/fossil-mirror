@@ -897,6 +897,8 @@ td:last-child {
 }
 
 .submenu a, .submenu label {
+    display: inline;
+    font-weight: normal;
     color: #3b5c6b;
     padding: 5px 15px;
     text-decoration: none;
