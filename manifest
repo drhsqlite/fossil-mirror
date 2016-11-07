@@ -1,5 +1,5 @@
-C Correct\sSQL\ssyntax\serror\son\s"fossil\schanges\s-merge"\swhich\sis\snot\ssupposed\sto\sdisplay\sany\sfiles\syet\sstill\stries\sto\srun\sthe\sfile\squery\seven\sthough\sit\ssays\sonly\s"ORDER\sBY\spathname"\swith\sno\sSELECT
-D 2016-11-06T23:40:37.913
+C Correct\sSELECT\sto\snot\sexclude\sadded\sfiles,\si.e.\sfiles\snot\spresent\sin\sthe\sblob\stable
+D 2016-11-07T00:20:29.733
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -387,7 +387,7 @@ F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c d19016a93cd959a9a45817057b911d9e4b333dfd
-F src/checkin.c 019412562887e15c21d2b74d7745fb2f5fd04cd4
+F src/checkin.c 33e37bffc9a631692d0ba1d0ae82f711ccb2b4c7
 F src/checkout.c 083ec4f2ccd7d9df27dbb94d90008088eb8c4340
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
@@ -768,6 +768,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 74a5873cca56f617b2444a8737a3a069f3152fbf
+P 61da77525f0a1e3cc2e99d0eb0730b414cad3cca
 U andygoth
-Z 0ca4709d3e8d1c8f4a20e1a93973c196
+Z 511c69a2b64a97143e7b2fb6715905e4

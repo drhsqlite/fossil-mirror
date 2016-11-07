@@ -153,11 +153,11 @@ static void status_report(
     blob_append_sql(&sql,
       "SELECT pathname, %s as mtime, %s as size, deleted, chnged, rid,"
       "       coalesce(origname!=pathname,0) AS renamed, islink, 1 AS managed"
-      "  FROM vfile, blob USING (rid)"
+      "  FROM vfile LEFT JOIN blob USING (rid)"
       " WHERE is_selected(id)%s",
       flags & C_MTIME ? "datetime(checkin_mtime(:vid, rid), "
                         "'unixepoch', toLocal())" : "''" /*safe-for-%s*/,
-      flags & C_SIZE ? "blob.size" : "0" /*safe-for-%s*/,
+      flags & C_SIZE ? "coalesce(blob.size, 0)" : "0" /*safe-for-%s*/,
       blob_sql_text(&where));
 
     /* Exclude unchanged files unless requested. */
