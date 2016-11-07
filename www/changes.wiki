@@ -3,11 +3,6 @@
 <a name='v1_37'></a>
 <h2>Changes for Version 1.37 (2017-XX-YY)</h2>
 
-  *  Added support for the ms=EXACT|LIKE|GLOB|REGEXP query parameter on the
-     [/help?cmd=/timeline|/timeline] webpage.
-  *  Enhanced the [/help/changes|changes] and [/help/status|status] commands
-     with many new filter options so that specific kinds of changes can be
-     found without having to pipe through grep or sed.
   *  Fix a C99-ism that prevents the 1.36 release from building with MSVC.
   *  Fix [/help?cmd=ticket|ticket set] when using the "+" prefix with fields
      from the "ticketchng" table.
@@ -22,6 +17,11 @@
      <li>Add <nowiki>[unversioned list]</nowiki> command.</li>
      <li>Add project_description variable.</li>
      </ul>
+  *  Add support for the ms=EXACT|LIKE|GLOB|REGEXP query parameter on the
+     [/help?cmd=/timeline|/timeline] webpage.
+  *  Enhance the [/help/changes|changes] and [/help/status|status] commands
+     with many new filter options so that specific kinds of changes can be
+     found without having to pipe through grep or sed.
 
 <a name='v1_36'></a>
 <h2>Changes for Version 1.36 (2016-10-24)</h2>
