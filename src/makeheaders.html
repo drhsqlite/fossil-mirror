@@ -934,26 +934,6 @@ in your code.
 </p>
 
 <p>
-Makeheaders does not support defining an enumerated or aggregate type in
-the same statement as a variable declaration.  None of the following
-statements work completely:
-<pre>
-struct {int field;} a;
-struct Tag {int field;} b;
-struct Tag c;
-</pre>
-Instead, define types separately from variables:
-<pre>
-#if INTERFACE
-struct Tag {int field;};
-#endif
-Tag b, c;
-</pre>
-See <a href="#H0008">3.2 What Declarations Get Copied</a> for details,
-including on the automatic typedef.
-</p>
-
-<p>
 Makeheaders does not understand when you define more than one
 global variable with the same type separated by a comma.
 In other words, makeheaders does not understand this:
@@ -971,6 +951,28 @@ you declare inside your functions.
 Since global variables ought to be exceedingly rare, and since it is
 good style to declare them separately anyhow, this restriction is
 not seen as a terrible hardship.
+</p>
+
+<p>
+Makeheaders does not support defining an enumerated or aggregate type in
+the same statement as a variable declaration.  None of the following
+statements work completely:
+<pre>
+struct {int field;} a;
+struct Tag {int field;} b;
+struct Tag c;
+</pre>
+Instead, define types separately from variables:
+<pre>
+#if INTERFACE
+struct Tag {int field;};
+#endif
+Tag a;
+Tag b; /* No more than one variable per declaration. */
+Tag c; /* So must put each on its own line. */
+</pre>
+See <a href="#H0008">3.2 What Declarations Get Copied</a> for details,
+including on the automatic typedef.
 </p>
 
 <p>
