@@ -54,7 +54,7 @@ enum {
   C_DEFAULT   = (C_ALL & ~C_UNCHANGED) | C_MERGE | C_CLASSIFY,
   C_MTIME     = 1 << CB_MTIME,      /* Show file modification time. */
   C_SIZE      = 1 << CB_SIZE,       /* Show file size in bytes. */
-  C_FATAL     = (1 << CB_FATAL) | C_MISSING,  /* Fail on MISSING/NOT_A_FILE. */
+  C_FATAL     = 1 << CB_FATAL,      /* Fail on MISSING/NOT_A_FILE. */
   C_COMMENT   = 1 << CB_COMMENT,    /* Precede each line with "# ". */
 };
 
@@ -215,17 +215,23 @@ static void status_report(
     int isMissing = !file_wd_isfile_or_link(zFullName);
 
     /* Determine the file change classification, if any. */
-    if( (flags & C_DELETED) && isDeleted ){
-      zClass = "DELETED";
-    }else if( (flags & C_MISSING) && isMissing ){
+    if( isDeleted ){
+      if( flags & C_DELETED ){
+        zClass = "DELETED";
+      }
+    }else if( isMissing ){
       if( file_access(zFullName, F_OK)==0 ){
-        zClass = "NOT_A_FILE";
+        if( flags & C_MISSING ){
+          zClass = "NOT_A_FILE";
+        }
         if( flags & C_FATAL ){
           fossil_warning("not a file: %s", zFullName);
           nErr++;
         }
       }else{
-        zClass = "MISSING";
+        if( flags & C_MISSING ){
+          zClass = "MISSING";
+        }
         if( flags & C_FATAL ){
           fossil_warning("missing file: %s", zFullName);
           nErr++;
@@ -257,8 +263,8 @@ static void status_report(
       zClass = "EDITED";
     }else if( (flags & C_RENAMED) && isRenamed ){
       zClass = "RENAMED";
-    }else if( (flags & C_UNCHANGED) && isManaged && !isDeleted && !isMissing
-                                    && !isNew    && !isChnged  && !isRenamed ){
+    }else if( (flags & C_UNCHANGED) && isManaged && !isNew
+                                    && !isChnged && !isRenamed ){
       zClass = "UNCHANGED";
     }else if( (flags & C_EXTRA) && !isManaged ){
       zClass = "EXTRA";
