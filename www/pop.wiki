@@ -1,4 +1,4 @@
-﻿<title>Principles Of Operation</title>
+<title>Principles Of Operation</title>
 <h1 align="center">Principles Of Operation</h1>
 
 <p>

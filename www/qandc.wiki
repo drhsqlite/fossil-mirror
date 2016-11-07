@@ -1,4 +1,4 @@
-﻿<title>Questions And Criticisms</title>
+<title>Questions And Criticisms</title>
 <nowiki>
 <h1 align="center">Questions And Criticisms</h1>
 

@@ -1194,10 +1194,10 @@ static int repo_list_page(void){
   assert( g.db==0 );
   blob_init(&base, g.zRepositoryName, -1);
   sqlite3_open(":memory:", &g.db);
-  db_multi_exec("CREATE TABLE sfile(x TEXT);");
+  db_multi_exec("CREATE TABLE sfile(pathname TEXT);");
   db_multi_exec("CREATE TABLE vfile(pathname);");
   vfile_scan(&base, blob_size(&base), 0, 0, 0);
-  db_multi_exec("DELETE FROM sfile WHERE x NOT GLOB '*[^/].fossil'");
+  db_multi_exec("DELETE FROM sfile WHERE pathname NOT GLOB '*[^/].fossil'");
   n = db_int(0, "SELECT count(*) FROM sfile");
   if( n>0 ){
     Stmt q;
@@ -1209,8 +1209,8 @@ static int repo_list_page(void){
     @ <body>
     @ <h1>Available Repositories:</h1>
     @ <ol>
-    db_prepare(&q, "SELECT x, substr(x,-7,-100000)||'/home'"
-                   " FROM sfile ORDER BY x COLLATE nocase;");
+    db_prepare(&q, "SELECT pathname, substr(pathname,-7,-100000)||'/home'"
+                   " FROM sfile ORDER BY pathname COLLATE nocase;");
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       const char *zUrl = db_column_text(&q, 1);

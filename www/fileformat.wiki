@@ -1,4 +1,4 @@
-﻿<title>Fossil File Formats</title>
+<title>Fossil File Formats</title>
 <h1 align="center">
 Fossil File Formats
 </h1>
