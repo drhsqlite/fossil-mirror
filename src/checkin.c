@@ -1882,7 +1882,8 @@ void test_commit_warning(void){
       "SELECT %Q || pathname, pathname, %s, %s, %s FROM vfile"
       " WHERE NOT deleted",
       g.zLocalRoot,
-      glob_expr("pathname", noSettings ? 0 : db_get("crnl-glob","")),
+      glob_expr("pathname", noSettings ? 0 : db_get("crlf-glob",
+                                             db_get("crnl-glob",""))),
       glob_expr("pathname", noSettings ? 0 : db_get("binary-glob","")),
       glob_expr("pathname", noSettings ? 0 : db_get("encoding-glob",""))
   );
@@ -1891,12 +1892,12 @@ void test_commit_warning(void){
     const char *zName;
     Blob content;
     Blob reason;
-    int crnlOk, binOk, encodingOk;
+    int crlfOk, binOk, encodingOk;
     int fileRc;
 
     zFullname = db_column_text(&q, 0);
     zName = db_column_text(&q, 1);
-    crnlOk = db_column_int(&q, 2);
+    crlfOk = db_column_int(&q, 2);
     binOk = db_column_int(&q, 3);
     encodingOk = db_column_int(&q, 4);
     blob_zero(&content);
@@ -1906,7 +1907,7 @@ void test_commit_warning(void){
       blob_read_from_file(&content, zFullname);
     }
     blob_zero(&reason);
-    fileRc = commit_warning(&content, crnlOk, binOk, encodingOk, 2,
+    fileRc = commit_warning(&content, crlfOk, binOk, encodingOk, 2,
                             zFullname, &reason);
     if( fileRc || verboseFlag ){
       fossil_print("%d\t%s\t%s\n", fileRc, zName, blob_str(&reason));
