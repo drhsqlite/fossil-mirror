@@ -339,7 +339,7 @@ write_file_indented t2 {
   abcd
   efgh 2
   ijkl 2
-  mnop
+  mnop 
   qrst
   uvwx
   yzAB 2
@@ -370,7 +370,7 @@ write_file_indented t23 {
   <<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<<<<<
   efgh 2
   ijkl 2
-  mnop
+  mnop 
   qrst
   uvwx
   yzAB 2

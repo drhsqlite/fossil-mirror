@@ -1,5 +1,5 @@
-C Remove\ssome\stabs\sand\send-of-line\swhitespace
-D 2016-11-07T01:29:36.929
+C Partially\sbackout\s[bf9669f5].\s\sLeave\swhitespace\salone\sin\stest\sfiles
+D 2016-11-07T01:32:36.046
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -531,7 +531,7 @@ F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
 F test/commit-warning.test 1b94adc5f490ade07cd9fc3ba35c94c77ac61819
 F test/contains-selector.test cf46a39b3c1ff72d2fc674f4ccbeecfb94add7d2
 F test/delta1.test c3ea182ab06554a35203285774606ba37fdc620d
-F test/diff-test-1.wiki 06f6188f3ea42562292b789c8eb589e28c2694e9
+F test/diff-test-1.wiki 597fbb13c9c3da02e09a53d128f3b5d4dd5cadda
 F test/diff.test bf9b349dd6f33022ef2aef2894d3057e2daaf507
 F test/fake-editor.tcl 11b5ddc9629fefb4dbc32806f80211440600c744
 F test/file1.test 9b2ac578521a7097017c64b8877f6fa6ca0904f7
@@ -542,11 +542,11 @@ F test/graph-test-1.wiki 1d0d76a52b93273b979b21f5e36541a5e1def91f
 F test/json.test cbf45320d251af69528fa63c4266beba57a85f29
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
-F test/merge1.test cfdfe5368ecb8f7a3dfd060457791a68c7270810
+F test/merge1.test 0f11a55b5d71fa668b53ffc4cdeb23997e9cb042
 F test/merge2.test 038091215ec2f2b53157599acae6f03dcf91dd12
-F test/merge3.test d65569d68fb7ec4df91ef06596b918f23b1f93c8
+F test/merge3.test 70db9ae7c679efad5d5b371114a3cc609818e01a
 F test/merge4.test d563164c477885bcaecb6ea28e824b698bdd57bb
-F test/merge5.test 1ec9dcc682daef0fecf4ee6830ec362a818a1a5e
+F test/merge5.test aadadc4b34b77b94dc711ee0b0ae2f760abaecf9
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test 50b1c16adce0050bc946e3d64b14df9ab82f37e0
 F test/merge_exe.test f888647a3305bf2a4ddd77f947e486ae72fced09
@@ -554,7 +554,7 @@ F test/merge_renames.test 73a5d0e41410d142003cb233d2f0f398d8421072
 F test/merge_warn.test d4a98c6ff14e4bb142d784f96c88d152d9599529
 F test/mv-rm.test 6a60863935f7a9e0223ccb9421729d7677fa1f9f
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
-F test/revert.test 303d90ca6a8f221d671daa90b3f9a07a874e7ff0
+F test/revert.test f7798e8eab21bcf5550af8ac4ee6cb8d5f33cc78
 F test/set-manifest.test f389e51ce371794d5871e70adf66f81d59a9d654
 F test/settings-repo.test 7c2617c7deea7d245d927df5688d26365e3bca9b
 F test/settings.test 1877083a0fecb044a698e8ca60d7f9ff2b4f4450
@@ -768,6 +768,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 63ed4b00f3d1561b2f055d3e2cc5f8970e432221
+P bf9669f55e5fee98d8425e9dc5d090c5c481fddc
 U andygoth
-Z 456787ca5bf933dd0c18109610c0ce2c
+Z d0fe546bd99c81af2ce6ecc1d5a8ecca

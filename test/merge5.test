@@ -35,7 +35,7 @@ proc checkout-test {testid expected_content} {
     test merge5-$testid 0
   } else {
     test merge5-$testid 1
-  }
+  }    
 }
 
 require_no_open_checkout; test_setup ""
