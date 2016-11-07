@@ -1,5 +1,5 @@
-C Partially\sbackout\s[bf9669f5].\s\sLeave\swhitespace\salone\sin\stest\sfiles
-D 2016-11-07T01:32:36.046
+C Add\scrlf-glob\sto\stester.tcl
+D 2016-11-07T01:48:02.682
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -563,7 +563,7 @@ F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 9ead8cede3906559325b19560124bd30396f7c0e
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 42010b5150fffff70998f0d8d1f8cf8962bf03bc
+F test/tester.tcl b074cfa325b952995cf0f26af851b80fc84687ad
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test cfb7fba72a60cfb5e3a8112d042b9c149d6bfa4b
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -768,6 +768,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bf9669f55e5fee98d8425e9dc5d090c5c481fddc
+P 6a3e2ed87eff4090e8759bf662ec4c5fc2a3f5a3
 U andygoth
-Z d0fe546bd99c81af2ce6ecc1d5a8ecca
+Z 3ff058b65129cc25597b13446f89dbff

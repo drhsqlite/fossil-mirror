@@ -215,6 +215,7 @@ proc get_versionable_settings {} {
       allow-symlinks \
       binary-glob \
       clean-glob \
+      crlf-glob \
       crnl-glob \
       dotfiles \
       empty-dirs \
@@ -254,6 +255,7 @@ proc get_all_settings {} {
       case-sensitive \
       clean-glob \
       clearsign \
+      crlf-glob \
       crnl-glob \
       default-perms \
       diff-binary \
