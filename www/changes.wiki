@@ -18,10 +18,15 @@
      <li>Add project_description variable.</li>
      </ul>
   *  Add support for the ms=EXACT|LIKE|GLOB|REGEXP query parameter on the
-     [/help?cmd=/timeline|/timeline] webpage.
+     [/help?cmd=/timeline|/timeline] webpage, with associated form widgets.
   *  Enhance the [/help/changes|changes] and [/help/status|status] commands
      with many new filter options so that specific kinds of changes can be
      found without having to pipe through grep or sed.
+  *  Rename crnl-glob [/help/settings|setting] to crlf-glob, but keep
+     crnl-glob as a compatibility alias.
+  *  Add checkbox widgets to various web pages.  See [/technote/8d18bf27e9|
+     this technote] for more information.  To get the checkboxes to look as
+	 intended, you must update the CSS in your repository and all clones.
 
 <a name='v1_36'></a>
 <h2>Changes for Version 1.36 (2016-10-24)</h2>
