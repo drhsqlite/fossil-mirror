@@ -71,7 +71,7 @@ from the following template:
 #if INTERFACE
 /* Exported object (structure) definitions or #defines
 ** go here */
-#endif /* INTEFACE */
+#endif /* INTERFACE */
 
 /* New code goes here */
 </verbatim></blockquote>
