@@ -284,7 +284,7 @@ int import_marks(FILE* f, Bag *blobs, Bag *vers, unsigned int *unused_mark){
     if( unused_mark!=NULL ){
       unsigned int mid = atoi(mark.name + 1);
       if( mid>=*unused_mark ){
-	*unused_mark = mid + 1;
+        *unused_mark = mid + 1;
       }
     }
     free(mark.name);

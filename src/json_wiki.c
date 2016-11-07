@@ -157,7 +157,7 @@ cson_value * json_get_wiki_page_by_rid(int rid, int contentFormat){
     /*TODO: add the 'A' card (file attachment) entries?*/
     manifest_destroy(pWiki);
     return cson_object_value(pay);
-  }  
+  }
 }
 
 /*
@@ -172,7 +172,7 @@ cson_value * json_get_wiki_page_by_name(char const * zPageName, int contentForma
                " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q' "
                " AND b.rid=x.rid"
                " ORDER BY x.mtime DESC LIMIT 1",
-               zPageName 
+               zPageName
              );
   if( 0==rid ){
     json_set_err( FSL_JSON_E_RESOURCE_NOT_FOUND, "Wiki page not found: %s",
@@ -258,7 +258,7 @@ static cson_value * json_wiki_get(){
   zPageName = json_find_option_cstr2("name",NULL,"n",g.json.dispatchDepth+1);
 
   zSymName = json_find_option_cstr("uuid",NULL,"u");
-  
+
   if((!zPageName||!*zPageName) && (!zSymName || !*zSymName)){
     json_set_err(FSL_JSON_E_MISSING_ARGS,
                  "At least one of the 'name' or 'uuid' arguments must be provided.");
@@ -268,7 +268,7 @@ static cson_value * json_wiki_get(){
   /* TODO: see if we have a page named zPageName. If not, try to resolve
      zPageName as a UUID.
   */
-  
+
   contentFormat = json_wiki_get_content_format_flag(contentFormat);
   return json_wiki_get_by_name_or_symname( zPageName, zSymName, contentFormat );
 }
@@ -526,7 +526,7 @@ static cson_value * json_wiki_diff(){
     return NULL;
   }
 
-  
+
   zV1 = json_find_option_cstr2( "v1",NULL, NULL, ++argPos );
   zV2 = json_find_option_cstr2( "v2",NULL, NULL, ++argPos );
   if(!zV1 || !*zV1 || !zV2 || !*zV2) {
@@ -534,7 +534,7 @@ static cson_value * json_wiki_diff(){
                  "Requires both 'v1' and 'v2' arguments.");
     return NULL;
   }
-  
+
   r1 = symbolic_name_to_rid( zV1, "w" );
   zErrTag = zV1;
   if(r1<0){
@@ -572,7 +572,7 @@ static cson_value * json_wiki_diff(){
   blob_reset(&w2);
 
   pay = cson_new_object();
-  
+
   zUuid = json_wiki_get_uuid_for_rid( pW1->rid );
   cson_object_set(pay, "v1", json_new_string(zUuid) );
   free(zUuid);
@@ -587,7 +587,7 @@ static cson_value * json_wiki_diff(){
   cson_object_set(pay, "diff",
                   cson_value_new_string( blob_str(&d),
                                          (unsigned int)blob_size(&d)));
-  
+
   return cson_object_value(pay);
 
   manifest:

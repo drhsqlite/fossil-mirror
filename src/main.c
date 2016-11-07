@@ -1618,7 +1618,7 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
       }
       db_open_repository(azRedirect[i*2]);
       if( db_exists("SELECT 1 FROM blob WHERE uuid GLOB '%q*'", zName) ||
-	  db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%q*'", zName) ){
+          db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%q*'", zName) ){
         cgi_redirectf(azRedirect[i*2+1] /*works-like:"%s"*/, zName);
         return;
       }

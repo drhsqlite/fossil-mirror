@@ -400,7 +400,7 @@ void finfo_page(void){
   blob_zero(&title);
   if( baseCheckin ){
     char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", baseCheckin);
-    char *zLink = 	href("%R/info/%!S", zUuid);
+    char *zLink = href("%R/info/%!S", zUuid);
     if( n>0 ){
       blob_appendf(&title, "First %d ancestors of file ", n);
     }else{
