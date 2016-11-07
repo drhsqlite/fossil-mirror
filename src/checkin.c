@@ -1703,12 +1703,12 @@ static void create_manifest(
 ** is seen in a text file.
 **
 ** Return 1 if the user pressed 'c'. In that case, the file will have
-** been converted to UTF-8 (if it was UTF-16) with NL line-endings,
+** been converted to UTF-8 (if it was UTF-16) with LF line-endings,
 ** and the original file will have been renamed to "<filename>-original".
 */
 static int commit_warning(
   Blob *pContent,        /* The content of the file being committed. */
-  int crnlOk,            /* Non-zero if CR/NL warnings should be disabled. */
+  int crlfOk,            /* Non-zero if CR/LF warnings should be disabled. */
   int binOk,             /* Non-zero if binary warnings should be disabled. */
   int encodingOk,        /* Non-zero if encoding warnings should be disabled. */
   int noPrompt,          /* 0 to always prompt, 1 for 'N', 2 for 'Y'. */
@@ -1763,17 +1763,17 @@ static int commit_warning(
       }
       zDisable = "\"binary-glob\" setting";
     }else if( fUnicode && fHasAnyCr ){
-      if( crnlOk && encodingOk ){
-        return 0; /* We don't want CR/NL and Unicode warnings for this file. */
+      if( crlfOk && encodingOk ){
+        return 0; /* We don't want CR/LF and Unicode warnings for this file. */
       }
       if( fHasLoneCrOnly ){
         zWarning = "CR line endings and Unicode";
       }else if( fHasCrLfOnly ){
-        zWarning = "CR/NL line endings and Unicode";
+        zWarning = "CR/LF line endings and Unicode";
       }else{
         zWarning = "mixed line endings and Unicode";
       }
-      zDisable = "\"crnl-glob\" and \"encoding-glob\" settings";
+      zDisable = "\"crlf-glob\" and \"encoding-glob\" settings";
     }else if( fHasInvalidUtf8 ){
       if( encodingOk ){
         return 0; /* We don't want encoding warnings for this file. */
@@ -1781,17 +1781,17 @@ static int commit_warning(
       zWarning = "invalid UTF-8";
       zDisable = "\"encoding-glob\" setting";
     }else if( fHasAnyCr ){
-      if( crnlOk ){
-        return 0; /* We don't want CR/NL warnings for this file. */
+      if( crlfOk ){
+        return 0; /* We don't want CR/LF warnings for this file. */
       }
       if( fHasLoneCrOnly ){
         zWarning = "CR line endings";
       }else if( fHasCrLfOnly ){
-        zWarning = "CR/NL line endings";
+        zWarning = "CR/LF line endings";
       }else{
         zWarning = "mixed line endings";
       }
-      zDisable = "\"crnl-glob\" setting";
+      zDisable = "\"crlf-glob\" setting";
     }else{
       if( encodingOk ){
         return 0; /* We don't want encoding warnings for this file. */
@@ -1882,7 +1882,8 @@ void test_commit_warning(void){
       "SELECT %Q || pathname, pathname, %s, %s, %s FROM vfile"
       " WHERE NOT deleted",
       g.zLocalRoot,
-      glob_expr("pathname", noSettings ? 0 : db_get("crnl-glob","")),
+      glob_expr("pathname", noSettings ? 0 : db_get("crlf-glob",
+                                             db_get("crnl-glob",""))),
       glob_expr("pathname", noSettings ? 0 : db_get("binary-glob","")),
       glob_expr("pathname", noSettings ? 0 : db_get("encoding-glob",""))
   );
@@ -1891,12 +1892,12 @@ void test_commit_warning(void){
     const char *zName;
     Blob content;
     Blob reason;
-    int crnlOk, binOk, encodingOk;
+    int crlfOk, binOk, encodingOk;
     int fileRc;
 
     zFullname = db_column_text(&q, 0);
     zName = db_column_text(&q, 1);
-    crnlOk = db_column_int(&q, 2);
+    crlfOk = db_column_int(&q, 2);
     binOk = db_column_int(&q, 3);
     encodingOk = db_column_int(&q, 4);
     blob_zero(&content);
@@ -1906,7 +1907,7 @@ void test_commit_warning(void){
       blob_read_from_file(&content, zFullname);
     }
     blob_zero(&reason);
-    fileRc = commit_warning(&content, crnlOk, binOk, encodingOk, 2,
+    fileRc = commit_warning(&content, crlfOk, binOk, encodingOk, 2,
                             zFullname, &reason);
     if( fileRc || verboseFlag ){
       fossil_print("%d\t%s\t%s\n", fileRc, zName, blob_str(&reason));
@@ -1966,7 +1967,7 @@ static int tagCmp(const void *a, const void *b){
 ** conflicts, the check-in will not be allowed unless the
 ** --allow-conflict option is present.  In addition, the entire
 ** check-in process may be aborted if a file contains content that
-** appears to be binary, Unicode text, or text with CR/NL line endings
+** appears to be binary, Unicode text, or text with CR/LF line endings
 ** unless the interactive user chooses to proceed.  If there is no
 ** interactive user or these warnings should be skipped for some other
 ** reason, the --no-warnings option may be used.  A check-in is not
@@ -2340,7 +2341,7 @@ void commit_cmd(void){
     "SELECT id, %Q || pathname, mrid, %s, %s, %s FROM vfile "
     "WHERE chnged==1 AND NOT deleted AND is_selected(id)",
     g.zLocalRoot,
-    glob_expr("pathname", db_get("crnl-glob","")),
+    glob_expr("pathname", db_get("crlf-glob",db_get("crnl-glob",""))),
     glob_expr("pathname", db_get("binary-glob","")),
     glob_expr("pathname", db_get("encoding-glob",""))
   );
@@ -2348,12 +2349,12 @@ void commit_cmd(void){
     int id, rid;
     const char *zFullname;
     Blob content;
-    int crnlOk, binOk, encodingOk;
+    int crlfOk, binOk, encodingOk;
 
     id = db_column_int(&q, 0);
     zFullname = db_column_text(&q, 1);
     rid = db_column_int(&q, 2);
-    crnlOk = db_column_int(&q, 3);
+    crlfOk = db_column_int(&q, 3);
     binOk = db_column_int(&q, 4);
     encodingOk = db_column_int(&q, 5);
 
@@ -2366,7 +2367,7 @@ void commit_cmd(void){
     }
     /* Do not emit any warnings when they are disabled. */
     if( !noWarningFlag ){
-      abortCommit |= commit_warning(&content, crnlOk, binOk,
+      abortCommit |= commit_warning(&content, crlfOk, binOk,
                                     encodingOk, noPrompt,
                                     zFullname, 0);
     }

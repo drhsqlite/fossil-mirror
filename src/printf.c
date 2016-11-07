@@ -1141,7 +1141,7 @@ void fossil_warning(const char *zFormat, ...){
 }
 
 /*
-** Turn off any NL to CRNL translation on the stream given as an
+** Turn off any LF to CRLF translation on the stream given as an
 ** argument.  This is a no-op on unix but is necessary on windows.
 */
 void fossil_binary_mode(FILE *p){

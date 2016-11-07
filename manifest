@@ -1,5 +1,5 @@
-C Ensure\sdeleted/missing\sfiles\sare\snot\sprocessed\sas\sother\stypes\sof\sfiles\seven\sif\sC_DELETED\sand\sC_MISSING\sare\snot\sspecified
-D 2016-11-07T00:48:06.056
+C Integrate\sandygoth-crlf.\s\sThis\srenames\sCRNL\sto\sCRLF\sthroughout\sFossil.\s\scrnl-glob\sis\srenamed\sto\scrlf-glob,\sbut\scrnl-glob\sis\sretained\sas\sa\scompatibility\salias.
+D 2016-11-07T01:10:23.166
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -387,19 +387,19 @@ F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c 73b8c689a788e1ffcd571c51ced4475ee4110af5
-F src/checkin.c d994883f70c4c63c6ea590d15d1279a872de86cd
+F src/checkin.c 7eb94ee9724e27f787742124a1acbe88c04b1c67
 F src/checkout.c 083ec4f2ccd7d9df27dbb94d90008088eb8c4340
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
 F src/codecheck1.c 4f707cdaefe03f9b1d913a54326617113d941898
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
 F src/config.h e0a8d96a16c6c45bf064f5d665320993e78cb6f1
-F src/configure.c ba6cd082894e2f08b71993a542990a617345007e
+F src/configure.c aad25b170f047ec549f4da6afc61f81b90610d0d
 F src/content.c a6024f0400307f4c25d067d323a6cbdf38b78c81
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 22dffc9e38d72cfd21721e468f121c016baca543
+F src/db.c a36e1b4ec814584bd5ef626230fe1166aeb4e3a4
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c d3ed21be4cf24d21f61090418635e2ee61d48625
@@ -428,7 +428,7 @@ F src/info.c 445ac6eca158f49fd3a89f91bf1c096516b9fa82
 F src/json.c dc2c7f146357683da2842cc84eb78a73221a80ba
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c efbde7b8364ef502a055d84b7b797f83e035f7c1
-F src/json_config.c 1bbf8fc1b98f951f94dedc1a191c138f110b7a5d
+F src/json_config.c f53fa14ab92730d30be35311b52a17848eeabe44
 F src/json_detail.h 76bc835feb671a5001d4a20bd3f0c8882f228382
 F src/json_diff.c 784180c67a6bb8547dcb9adc430678c8286ab3ff
 F src/json_dir.c bd7be6f09d9c4d951e68b9562ad13d15aa76fb70
@@ -470,12 +470,12 @@ F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c 2f9b97dad4267f3b5a9e89e14b711f326cb3f3a0
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c fc5ca1598de3cc7b866d46addc53fcaf25e289ae
+F src/printf.c dd829a12914d0341bb8bc5ccb8bb0bb6bf5c3605
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c ed44773c93e570dd0dd018e9829c1e3e5ec40cf1
 F src/rebuild.c 517bb76c3345dd611d83ec342c6b5ab3492e91a2
 F src/regexp.c 11ed4c905c2e471efe9c1e9c4650004ad91d6ebb
-F src/report.c 58deb9570018fd69d63fb797eb60e2f904a727ed
+F src/report.c 25ce5d1f89690ab357c8fec4a8d1c2a5513a05df
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c f8f9ec5bcd61107bdc929e75ad34b4f5f6577f0d
@@ -751,12 +751,12 @@ F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki d10149135318ada36535d8ce21de327c45d12d34
 F www/selfhost.wiki 6090bea94139ec56a3cba671e75d0e78c54ee077
 F www/server.wiki a6b8ca94d0fa8b18e9f3604f9977ffcde756ff65
-F www/settings.wiki 21e45b59107e7309a0f660dee9a28ab5d0d922e4
+F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki c216e0b9968d4916224bce549e65c651076ebe1f
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki 6558a7e417d5e9d29271c26ebb3195dddec31855
 F www/style.wiki da3a414d4c57c3da2636daf0baf6964ba72ce70b
-F www/sync.wiki 0fc6d3e51459d7014310830655125acd61fb255e
+F www/sync.wiki 5c4b4970977c642f092c7c882e3299959e8d2b23
 F www/tech_overview.wiki 4d74d28dfc2515d7864c4ecbf7324be9919e3efd
 F www/th1.md 6154ca86c2d54b49b84e01715103eb8f74e5c3aa
 F www/theory1.wiki 8047579bc30437bffe4dd0c06d8c2aa3ba3648ae
@@ -768,6 +768,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5e1736971142349745b909abb741d919a08951b6
+P e9a43ae0ef5ac20b31041f22e84d090d0258ccfa 46fd89ea9b72e47b97e5aee47d24bba9cc9dc4e2
+T +closed 46fd89ea9b72e47b97e5aee47d24bba9cc9dc4e2
 U andygoth
-Z 28d9512046a5f643fcfa524aa444ac4f
+Z ee7a5ed7333ae0c0355f00f800142129
