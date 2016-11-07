@@ -1807,7 +1807,10 @@ void page_timeline(void){
     char *zDate;
     Blob cond;
     blob_zero(&cond);
-    addFileGlobExclusion(zChng, &cond);
+    if( zChng && *zChng ){
+      addFileGlobExclusion(zChng, &cond);
+      tmFlags |= TIMELINE_DISJOINT;
+    }
     if( zUses ){
       blob_append_sql(&cond, " AND event.objid IN usesfile ");
     }
