@@ -1,9 +1,9 @@
-C Tweak\schanges's\shelp\stext
-D 2016-11-08T00:38:47.282
+C Make\s"fossil\sextra"\swork\sas\sexpected\sin\sfossil\srepository:\snot\smentioning\sbuild-artifacts\sany\smore.\sThis\smakes\ssure\sthat\sfiles\sresulting\sfrom\sa\sbuild\scannot\sbe\saccidently\s"fossil\sadd"-ed\sany\smore.
+D 2016-11-08T14:21:43.658
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
-F .fossil-settings/ignore-glob 026da23219df1dd81be87fee8252eecd9188ef73
+F .fossil-settings/ignore-glob ab554727257e703e6466a1bfc7aa2e8fab93c0f9
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -768,6 +768,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P df1205bb3a6a2ce23e22b12c4551dc127ac7feda
-U andygoth
-Z 39d088cdaa3b7e99eba351b4b86abda4
+P 9686570ab5c2f52a253bb149888cda62c7b7240e
+R ae9ae730d4db2efa29382f9826f33fc2
+U jan.nijtmans
+Z 9261e422920fdbe1af5ee1d12011eba7
