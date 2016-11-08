@@ -1,5 +1,5 @@
-C Regenerate\sthe\sMinGW\smakefile,\ssince\sit\sapparently\sdoes\suse\sXBCC.\s\sAlso,\ssync\sup\sthe\scustom\sMinGW\smakefile\swith\sit.
-D 2016-11-08T18:13:26.993
+C Since\sthe\s'manifest'\ssetting\sis\sno\slonger\sa\sstrictly\sbinary\soption,\sprevent\sit\sfrom\sbeing\sdisplayed\sas\ssuch\son\sthe\ssettings\spage.
+D 2016-11-08T18:18:43.904
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -400,7 +400,7 @@ F src/content.c a6024f0400307f4c25d067d323a6cbdf38b78c81
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c a36e1b4ec814584bd5ef626230fe1166aeb4e3a4
+F src/db.c bde1573e58fb5c82412dfe327b82a092e51f4933
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c d3ed21be4cf24d21f61090418635e2ee61d48625
@@ -769,7 +769,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f366e52f63f4fb74f60c180c72a869c0dbf0aee0
-R 9d59cc3efb849443ca585679952867b9
+P ce6980481e4cb06a2e9eb4d34313523825b2d0f9
+R ffa8c5f173ea5d9b2434bf639be8aa74
 U mistachkin
-Z b75f5f7263b27823f1f375042e1a8506
+Z 8edefed6263141198062d22a30dc69a7

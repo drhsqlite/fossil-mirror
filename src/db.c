@@ -2759,7 +2759,7 @@ const Setting aSetting[] = {
   { "keep-glob",        0,             40, 1, 0, ""                    },
   { "localauth",        0,              0, 0, 0, "off"                 },
   { "main-branch",      0,             40, 0, 0, "trunk"               },
-  { "manifest",         0,              5, 1, 0, "off"                 },
+  { "manifest",         0,              5, 1, 0, ""                    },
   { "max-loadavg",      0,             25, 0, 0, "0.0"                 },
   { "max-upload",       0,             25, 0, 0, "250000"              },
   { "mtime-changes",    0,              0, 0, 0, "on"                  },
