@@ -1,5 +1,5 @@
-C Add\s"crnl-glob"\s(as\sdemonstration\sfor\sthis\sfeature).\sAlso\sremove\ssome\sunnecessary\sspacing.
-D 2016-11-08T14:22:34.716
+C Prevent\sthe\sDMC\sand\sMSVC\smakefile\sfrom\susing\sXBCC,\swhich\swas\snot\sdefined\sthere.
+D 2016-11-08T18:12:42.435
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -452,7 +452,7 @@ F src/main.c 7424d528c714a1df77f8b7f3f5df5c56f1a93cf6
 F src/main.mk 3bfcbade731d65f075e20edfa6f1a384eda3f566
 F src/makeheaders.c cbbebae48e377db66e648af76a7aeea63c9bc523
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl 83744f2e78fb00e945b5eb50c64fbbc551a1ba1d
+F src/makemake.tcl e3b479b378d7a678691d71194ba3b9877b37fe38
 F src/manifest.c e037d26b34ec3631288032bf06fd79f188e115da
 F src/markdown.c 20bb4755f258601e4e3e5274ea117fc7c8b1ccf7
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
@@ -769,7 +769,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6ef3a2a42ce6c786f06a67893319cf51f042c571
-R aaa5fa4c38e9d79228c7d7b56642a87d
-U jan.nijtmans
-Z b33c8b5d5fcfa2a4a2bdd07213e70c61
+P 7cd98039c4c9061e2e5f97969464f9cd187d8d47
+R 4f287a26e3b2e4d1c965e9c56f9edbdd
+U mistachkin
+Z e2d5a23f92e482090157be1c987810c2

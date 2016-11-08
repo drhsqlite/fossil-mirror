@@ -1309,22 +1309,22 @@ writeln "\t+echo fossil >> \$@"
 
 writeln {
 translate$E: $(SRCDIR)\translate.c
-	$(XBCC) -o$@ $**
+	$(BCC) -o$@ $**
 
 makeheaders$E: $(SRCDIR)\makeheaders.c
-	$(XBCC) -o$@ $**
+	$(BCC) -o$@ $**
 
 mkindex$E: $(SRCDIR)\mkindex.c
-	$(XBCC) -o$@ $**
+	$(BCC) -o$@ $**
 
 mkbuiltin$E: $(SRCDIR)\mkbuiltin.c
-	$(XBCC) -o$@ $**
+	$(BCC) -o$@ $**
 
 mkversion$E: $(SRCDIR)\mkversion.c
-	$(XBCC) -o$@ $**
+	$(BCC) -o$@ $**
 
 codecheck1$E: $(SRCDIR)\codecheck1.c
-	$(XBCC) -o$@ $**
+	$(BCC) -o$@ $**
 
 $(OBJDIR)\shell$O : $(SRCDIR)\shell.c
 	$(TCC) -o$@ -c $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) $**
@@ -1831,22 +1831,22 @@ $(OX):
 	@-mkdir $@
 
 translate$E: $(SRCDIR)\translate.c
-	$(XBCC) $**
+	$(BCC) $**
 
 makeheaders$E: $(SRCDIR)\makeheaders.c
-	$(XBCC) $**
+	$(BCC) $**
 
 mkindex$E: $(SRCDIR)\mkindex.c
-	$(XBCC) $**
+	$(BCC) $**
 
 mkbuiltin$E: $(SRCDIR)\mkbuiltin.c
-	$(XBCC) $**
+	$(BCC) $**
 
 mkversion$E: $(SRCDIR)\mkversion.c
-	$(XBCC) $**
+	$(BCC) $**
 
 codecheck1$E: $(SRCDIR)\codecheck1.c
-	$(XBCC) $**
+	$(BCC) $**
 
 !if $(USE_SEE)!=0
 SQLITE3_SHELL_SRC = $(SRCDIR)\shell-see.c
