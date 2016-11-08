@@ -404,10 +404,10 @@ static int determine_cwd_relative_option()
 **
 ** --differ is so named because it lists all the differences between the
 ** checked-out version and the checkout directory.  In addition to the
-** default changes (besides --merge), it lists extra files which (assuming
+** default changes (excluding --merge), it lists extra files which (if
 ** ignore-glob is set correctly) may be worth adding.  Prior to doing a
 ** commit, it is good practice to check --differ to see not only which
-** changes would be committed but also if any files need to be added.
+** changes would be committed but also if any files should be added.
 **
 ** General options:
 **    --abs-paths       Display absolute pathnames.

@@ -1,5 +1,5 @@
-C Fix\sthe\ssync.wiki\sdocumentation\sto\saccount\sfor\srecent\schanges\sto\sthe\nsync\sprotocol.
-D 2016-11-07T11:26:26.712
+C Tweak\schanges's\shelp\stext
+D 2016-11-08T00:38:47.282
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -387,7 +387,7 @@ F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c 73b8c689a788e1ffcd571c51ced4475ee4110af5
-F src/checkin.c 7eb94ee9724e27f787742124a1acbe88c04b1c67
+F src/checkin.c b4c535c9c62a81e2b4a62375238ffd165e0e83f8
 F src/checkout.c 083ec4f2ccd7d9df27dbb94d90008088eb8c4340
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
@@ -768,7 +768,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3dc006c9dec71bb4ef5e392c89c7e4f78d90f26b
-R 27477886c4b0d7c099c6e59c5ef8d488
-U drh
-Z ff427595b23bdefab580753aac97461b
+P df1205bb3a6a2ce23e22b12c4551dc127ac7feda
+U andygoth
+Z 39d088cdaa3b7e99eba351b4b86abda4
