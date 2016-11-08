@@ -1,10 +1,10 @@
-C Since\sthe\s'manifest'\ssetting\sis\sno\slonger\sa\sstrictly\sbinary\soption,\sprevent\sit\sfrom\sbeing\sdisplayed\sas\ssuch\son\sthe\ssettings\spage.
-D 2016-11-08T18:18:43.904
+C The\s'ignore-glob'\ssetting\sshould\snot\sbe\sused\sfor\sbuild\soutput\sfiles;\sotherwise,\s'extras'\scommand\sis\sunable\sto\ssee\sthem\sand\s'clean'\scommand\sis\sunable\sto\sremove\sthen.\s\sAlso,\sthe\s'add'\scommand\sshould\salready\signore\sfiles\smatching\sthe\s'clean-glob',\sthere\sis\sno\sneed\sto\sduplicate\sits\scontents\sin\s'ignore-glob'.
+D 2016-11-08T18:41:59.885
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
-F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
+F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
-F .fossil-settings/ignore-glob ab554727257e703e6466a1bfc7aa2e8fab93c0f9
+F .fossil-settings/ignore-glob 026da23219df1dd81be87fee8252eecd9188ef73
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -769,7 +769,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ce6980481e4cb06a2e9eb4d34313523825b2d0f9
-R ffa8c5f173ea5d9b2434bf639be8aa74
+P b73dee981a332f37d697da9218d0bedf115b63cd
+R 94b43e011078fd97aa4bb9722df2ee1b
 U mistachkin
-Z 8edefed6263141198062d22a30dc69a7
+Z 47cc99bb20ff9151d6b40abe83791136
