@@ -1,7 +1,8 @@
-C Make\s"fossil\sextra"\swork\sas\sexpected\sin\sfossil\srepository:\snot\smentioning\sbuild-artifacts\sany\smore.\sThis\smakes\ssure\sthat\sfiles\sresulting\sfrom\sa\sbuild\scannot\sbe\saccidently\s"fossil\sadd"-ed\sany\smore.
-D 2016-11-08T14:21:43.658
+C Add\s"crnl-glob"\s(as\sdemonstration\sfor\sthis\sfeature).\sAlso\sremove\ssome\sunnecessary\sspacing.
+D 2016-11-08T14:22:34.716
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
+F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob ab554727257e703e6466a1bfc7aa2e8fab93c0f9
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
@@ -24,8 +25,8 @@ F ajax/js/whajaj.js ade739c26ef1798a47452cecca663ade34593636
 F ajax/wiki-editor.html 1f630ecf988838dcfe5abd2548b9e5461da77c38
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
-F art/CollRev3.dia d14a7b35e0af533998e705e771b504f8aaaead96
-F art/CollRev4.dia be6e84c213b52cad03e3192fe8ba941709564fd4
+F art/CollRev3.dia c9e4b2f61b68592539ec5ff17f6dba0aef45b4d2
+F art/CollRev4.dia 59a4919923d1d695cb4e9fb9f29114ea25e35d18
 F art/branching.odp 2b21dbbc284413ed7e9a915c6c716e42f6831b1a
 F art/concept1.dia 84f4b61b5f22eb62752c4aa04a955d424f9d2a00
 F art/concept2.dia 45f46122096e5d29536c7670ec214e9ac478ef43
@@ -397,7 +398,7 @@ F src/config.h e0a8d96a16c6c45bf064f5d665320993e78cb6f1
 F src/configure.c aad25b170f047ec549f4da6afc61f81b90610d0d
 F src/content.c a6024f0400307f4c25d067d323a6cbdf38b78c81
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
-F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
+F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c a36e1b4ec814584bd5ef626230fe1166aeb4e3a4
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
@@ -461,7 +462,7 @@ F src/merge.c 3da95cdecb4812fbe7ee547b5fce430f3278a023
 F src/merge3.c be0896e3e4e51262349d0f09e35e70d140659572
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
-F src/mkindex.c 40d42dd8b2e5c29de3a769bd5ee7b22b778c4354
+F src/mkindex.c f4183ca13461544fe06f34af0a3501ea96d3637f
 F src/mkversion.c d76e0e3c04966bb61a23ff7140fa37867c06bd50
 F src/moderate.c 2540f90b20778a4d62156a3b4af962b401d4c89f
 F src/name.c 268277644abeb05a3dfa67faaaaeb3dade4c1a1f
@@ -721,9 +722,9 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-v-git.wiki 072cd93d7f8dd668d8d157c35b4f529a26de4bb7
-F www/fossil.eps 672ae6297081bd6a1c9565a9cae7c8299a1d61e3
+F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
-F www/fossil2.eps d8e0aba6acbeb3cba071ed894783ca9b8de9a310
+F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
 F www/fossil2.gif f64284050bf93f1b74fd05ed00de9984b79193b3
 F www/fossil3.gif 0fa38d60655faf3da20c019583981cf6f71ae6fb
 F www/fossil_logo_small.gif 02f9b89eb0726d67bbbb6a6532a3a427ad8e1e83
@@ -756,7 +757,7 @@ F www/shunning.wiki c216e0b9968d4916224bce549e65c651076ebe1f
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki 6558a7e417d5e9d29271c26ebb3195dddec31855
 F www/style.wiki da3a414d4c57c3da2636daf0baf6964ba72ce70b
-F www/sync.wiki 3fbc46a06229b64cae6a79da2f62ab1bb5c3f3ab
+F www/sync.wiki c14259113e0548e41911b177499170269ac0cb2b
 F www/tech_overview.wiki 4d74d28dfc2515d7864c4ecbf7324be9919e3efd
 F www/th1.md 6154ca86c2d54b49b84e01715103eb8f74e5c3aa
 F www/theory1.wiki 8047579bc30437bffe4dd0c06d8c2aa3ba3648ae
@@ -768,7 +769,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9686570ab5c2f52a253bb149888cda62c7b7240e
-R ae9ae730d4db2efa29382f9826f33fc2
+P 6ef3a2a42ce6c786f06a67893319cf51f042c571
+R aaa5fa4c38e9d79228c7d7b56642a87d
 U jan.nijtmans
-Z 9261e422920fdbe1af5ee1d12011eba7
+Z b33c8b5d5fcfa2a4a2bdd07213e70c61

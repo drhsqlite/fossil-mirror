@@ -353,8 +353,7 @@ void build_table(void){
     char *z = aEntry[i].zHelp;
     if( z==0 ) continue;
     if( aEntry[i].zIf ) printf("%s", aEntry[i].zIf);
-    printf("static const char zHelp%03d[] = \n", aEntry[i].iHelp);
-    printf("  \"");
+    printf("static const char zHelp%03d[] =\n  \"", aEntry[i].iHelp);
     while( *z ){
       if( *z=='\n' ){
         printf("\\n\"\n  \"");

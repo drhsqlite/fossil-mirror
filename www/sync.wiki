@@ -191,7 +191,7 @@ other artifact.</p>
 <b>file</b> <i>artifact-id delta-artifact-id size</i> <b>\n</b> <i>content</i>
 </blockquote>
 
-<p>File cards are followed by in-line "payload" data.  
+<p>File cards are followed by in-line "payload" data.
 The content of the artifact
 or the artifact delta is the first <i>size</i> bytes of the
 x-fossil content that immediately follow the newline that
