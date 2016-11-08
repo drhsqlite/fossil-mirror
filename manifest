@@ -1,5 +1,5 @@
-C Prevent\sthe\sDMC\sand\sMSVC\smakefile\sfrom\susing\sXBCC,\swhich\swas\snot\sdefined\sthere.
-D 2016-11-08T18:12:42.435
+C Regenerate\sthe\sMinGW\smakefile,\ssince\sit\sapparently\sdoes\suse\sXBCC.\s\sAlso,\ssync\sup\sthe\scustom\sMinGW\smakefile\swith\sit.
+D 2016-11-08T18:13:26.993
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -647,8 +647,8 @@ F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F win/Makefile.PellesCGMake e9d1636731fe8a581e1f2a9a155b1310a9356178
 F win/Makefile.dmc 6fb9724c30aecff5e5eace3cb06816205e2883b9
-F win/Makefile.mingw 228f6945880a0a7b09bca5c14e1e3f1f33e34946
-F win/Makefile.mingw.mistachkin 02bdd80fb6da6e05b7693cfb390da0667ece1b97
+F win/Makefile.mingw 43d0a27f70e7eeaf4b4a1ed327678468f57fdb9a
+F win/Makefile.mingw.mistachkin 454634243c30db001a84300d158fa670118101a2
 F win/Makefile.msc 8734f4a784fc25ef73c882eef02fc058d70b0831
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -769,7 +769,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7cd98039c4c9061e2e5f97969464f9cd187d8d47
-R 4f287a26e3b2e4d1c965e9c56f9edbdd
+P f366e52f63f4fb74f60c180c72a869c0dbf0aee0
+R 9d59cc3efb849443ca585679952867b9
 U mistachkin
-Z e2d5a23f92e482090157be1c987810c2
+Z b75f5f7263b27823f1f375042e1a8506

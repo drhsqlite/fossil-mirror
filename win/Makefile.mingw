@@ -420,6 +420,7 @@ INNOSETUP = "$(PROGRAMFILES)\Inno Setup 5\ISCC.exe"
 # STOP HERE
 # You should not need to change anything below this line
 #--------------------------------------------------------
+XBCC = $(BCC) $(CFLAGS)
 XTCC = $(TCC) $(CFLAGS) -I. -I$(SRCDIR)
 
 SRC = \
@@ -918,22 +919,22 @@ else
 endif
 
 $(TRANSLATE):	$(SRCDIR)/translate.c
-	$(BCC) -o $@ $(SRCDIR)/translate.c
+	$(XBCC) -o $@ $(SRCDIR)/translate.c
 
 $(MAKEHEADERS):	$(SRCDIR)/makeheaders.c
-	$(BCC) -o $@ $(SRCDIR)/makeheaders.c
+	$(XBCC) -o $@ $(SRCDIR)/makeheaders.c
 
 $(MKINDEX):	$(SRCDIR)/mkindex.c
-	$(BCC) -o $@ $(SRCDIR)/mkindex.c
+	$(XBCC) -o $@ $(SRCDIR)/mkindex.c
 
 $(MKBUILTIN):	$(SRCDIR)/mkbuiltin.c
-	$(BCC) -o $@ $(SRCDIR)/mkbuiltin.c
+	$(XBCC) -o $@ $(SRCDIR)/mkbuiltin.c
 
 $(MKVERSION): $(SRCDIR)/mkversion.c
-	$(BCC) -o $@ $(SRCDIR)/mkversion.c
+	$(XBCC) -o $@ $(SRCDIR)/mkversion.c
 
 $(CODECHECK1):	$(SRCDIR)/codecheck1.c
-	$(BCC) -o $@ $(SRCDIR)/codecheck1.c
+	$(XBCC) -o $@ $(SRCDIR)/codecheck1.c
 
 # WARNING. DANGER. Running the test suite modifies the repository the
 # build is done from, i.e. the checkout belongs to. Do not sync/push
