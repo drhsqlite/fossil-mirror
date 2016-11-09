@@ -1,5 +1,5 @@
-C The\s'ignore-glob'\ssetting\sshould\snot\sbe\sused\sfor\sbuild\soutput\sfiles;\sotherwise,\s'extras'\scommand\sis\sunable\sto\ssee\sthem\sand\s'clean'\scommand\sis\sunable\sto\sremove\sthen.\s\sAlso,\sthe\s'add'\scommand\sshould\salready\signore\sfiles\smatching\sthe\s'clean-glob',\sthere\sis\sno\sneed\sto\sduplicate\sits\scontents\sin\s'ignore-glob'.
-D 2016-11-08T18:41:59.885
+C Minor\stweak\sto\sbranch\shelp\stext
+D 2016-11-09T01:44:56.724
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -381,7 +381,7 @@ F src/attach.c b2f9bbde2c64be08f3feeacfcef4b95377ec0b19
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c 831a63c8c61dbfdb5fe629a473cd7b01104478fc
-F src/branch.c 7e79edb0e04f01250e5880860934f782fdc14d58
+F src/branch.c 3325eb2da843262b57bfebdcedeb5ba6983b4801
 F src/browse.c ee98248924f9121b89a5e32bdebc8e27bdf496ca
 F src/builtin.c d147d04305aa0db964ec84ef049e8e88d134de87
 F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
@@ -769,7 +769,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b73dee981a332f37d697da9218d0bedf115b63cd
-R 94b43e011078fd97aa4bb9722df2ee1b
-U mistachkin
-Z 47cc99bb20ff9151d6b40abe83791136
+P dc9ac1d7cb57cd188f75ff8f69b4c26b6f3523fd
+U andygoth
+Z 5423a1b82b0924ec5ec3b9e8d3b42e99

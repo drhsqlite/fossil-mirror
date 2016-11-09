@@ -266,8 +266,7 @@ void branch_prepare_list_query(Stmt *pQuery, int brFlags){
 **        from UTC as "-HH:MM" (westward) or "+HH:MM" (eastward).
 **        Either no timezone suffix or "Z" means UTC.
 **
-**    %fossil branch list ?-a|--all|-c|--closed?
-**    %fossil branch ls ?-a|--all|-c|--closed?
+**    %fossil branch list|ls ?-a|--all|-c|--closed?
 **
 **        List all branches.  Use -a or --all to list all branches and
 **        -c or --closed to list all closed branches.  The default is to
