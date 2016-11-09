@@ -1,5 +1,5 @@
-C Minor\stweak\sto\sbranch\shelp\stext
-D 2016-11-09T01:44:56.724
+C Minor\stweak\sto\schanges\shelp\stext:\smove\ssome\strivia\sto\sthe\send\sso\sthe\smore\simportant\smaterial\sis\sread\sfirst
+D 2016-11-09T03:02:22.433
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -388,7 +388,7 @@ F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c 73b8c689a788e1ffcd571c51ced4475ee4110af5
-F src/checkin.c b4c535c9c62a81e2b4a62375238ffd165e0e83f8
+F src/checkin.c 8eb63c33bafb95a8a2ef40672930fd17d50f446a
 F src/checkout.c 083ec4f2ccd7d9df27dbb94d90008088eb8c4340
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
@@ -769,6 +769,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dc9ac1d7cb57cd188f75ff8f69b4c26b6f3523fd
+P 596f29fa1befc578a12b5948bdbee23bb68654e1
 U andygoth
-Z 5423a1b82b0924ec5ec3b9e8d3b42e99
+Z 119da05dd759eaf9ed2d04166b7e0bd0

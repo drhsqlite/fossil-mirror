@@ -389,11 +389,6 @@ static int determine_cwd_relative_option()
 ** one change type.  The default can be overridden by the --classify or
 ** --no-classify options.
 **
-** If both --merge and --no-merge are used, --no-merge has priority.  The
-** same is true of --classify and --no-classify.
-**
-** The "fossil changes --extra" command is equivalent to "fossil extras".
-**
 ** --edited and --updated produce disjoint sets.  --updated shows a file
 ** only when it is identical to that of its merge contributor, and the
 ** change type classification is UPDATED_BY_MERGE or UPDATED_BY_INTEGRATE.
@@ -408,6 +403,11 @@ static int determine_cwd_relative_option()
 ** ignore-glob is set correctly) may be worth adding.  Prior to doing a
 ** commit, it is good practice to check --differ to see not only which
 ** changes would be committed but also if any files should be added.
+**
+** If both --merge and --no-merge are used, --no-merge has priority.  The
+** same is true of --classify and --no-classify.
+**
+** The "fossil changes --extra" command is equivalent to "fossil extras".
 **
 ** General options:
 **    --abs-paths       Display absolute pathnames.
