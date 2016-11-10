@@ -383,7 +383,7 @@ void tag_add_artifact(
 **           --propagate                 Propagating tag.
 **           --date-override DATETIME    Set date and time added.
 **           --user-override USER        Name USER when adding the tag.
-**           --dryrun|-n                 Display the tag text, but to not
+**           --dryrun|-n                 Display the tag text, but do not
 **                                       actually insert it into the database.
 **
 **         The --date-override and --user-override options support

@@ -1,5 +1,5 @@
-C Minor\stweak\sto\schanges\shelp\stext:\smove\ssome\strivia\sto\sthe\send\sso\sthe\smore\simportant\smaterial\sis\sread\sfirst
-D 2016-11-09T03:02:22.433
+C Fix\stypo\sin\shelp\stext\sfor\sfossil\stag
+D 2016-11-10T19:44:41.014
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -494,7 +494,7 @@ F src/stat.c 86a3c90545d6cc6bab30c4c428f90f15d1644721
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
 F src/style.c 293717fab18b8b2170f4d6377ce83584efdf7a19
 F src/sync.c 9cc2947ef0f1ef73bd9fb1fa7291dd5df2c03ce9
-F src/tag.c 51ad45af7d7b43965072627c874ba10702356ddc
+F src/tag.c ac52cf03d437d8f569d2a73c8a30dcf6cf40d8fd
 F src/tar.c 8cfe3f2ef83784ed5644b3a9c4cd4d85f1096a38
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
@@ -769,6 +769,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 596f29fa1befc578a12b5948bdbee23bb68654e1
+P 5c8bdd00c2d88d9bac077536dc4d22f284804bae
 U andygoth
-Z 119da05dd759eaf9ed2d04166b7e0bd0
+Z c6f76feae54fcfcddc4ae801402af51e
