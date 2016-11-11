@@ -1555,6 +1555,7 @@ void diff_page(void){
 /*
 ** WEBPAGE: raw
 ** URL: /raw?name=ARTIFACTID&m=TYPE
+** URL: /raw?ci=BRANCH&filename=NAME
 **
 ** Return the uninterpreted content of an artifact.  Used primarily
 ** to view artifacts that are images.
@@ -1565,7 +1566,12 @@ void rawartifact_page(void){
   const char *zMime;
   Blob content;
 
-  rid = name_to_rid_www("name");
+  if( P("ci") && P("filename") ){
+    rid = artifact_from_ci_and_filename_www();
+  }
+  if( rid==0 ){
+    rid = name_to_rid_www("name");
+  }
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( rid==0 ) fossil_redirect_home();
