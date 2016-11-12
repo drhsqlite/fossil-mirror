@@ -1561,7 +1561,7 @@ void diff_page(void){
 ** to view artifacts that are images.
 */
 void rawartifact_page(void){
-  int rid;
+  int rid = 0;
   char *zUuid;
   const char *zMime;
   Blob content;

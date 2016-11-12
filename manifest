@@ -1,5 +1,5 @@
-C Add\sthe\sci=BRANCH\sand\sfilename=NAME\squery\sparameters\sto\sthe\s/raw\spage.
-D 2016-11-11T16:47:01.287
+C Fix\suninitialized\svariable\sthat\swas\scausing\sartifact\sdownload\sissues.
+D 2016-11-12T00:01:45.776
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -425,7 +425,7 @@ F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c 52e37698299310f2ef58aaba7dd732f1f62622a5
-F src/info.c e67bf5547175fa5124070b60c0b967387c9caa87
+F src/info.c 0cb5171bf2f0c2125b5770added506bea7614ffd
 F src/json.c dc2c7f146357683da2842cc84eb78a73221a80ba
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c 7c7e2c63fd1cac2ca85aa657a7ae04d91a1bdc08
@@ -769,7 +769,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 405a93e4dcc211cee7ace742723a3be66425790e
-R cbd872994089755b6166042686db0cd3
-U drh
-Z b447d842448eef441c6db06738944ad0
+P fc29b081257f192d2914bc1709f88a23119deb92
+R f9a3cec922082ab87899d5a739f8c55d
+U mistachkin
+Z ab75533cf919c6d0c0ab744f2c5864db
