@@ -453,6 +453,7 @@ please set TEMP variable in environment, error: $error"
     exec $::fossilexe open $filename
     exec $::fossilexe set mtime-changes off
   }
+  return $repoPath
 }
 
 # This procedure only returns non-zero if the Tcl integration feature was

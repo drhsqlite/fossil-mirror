@@ -1,5 +1,5 @@
-C Make\sartifact|whatis\spage\suse\slocal\stime\sto\smatch\sthe\stimeline.\s\sOtherwise\sclicking\son\sdate/time\slinks\sfinds\sthe\swrong\scheck-in\sin\sthe\stimeline
-D 2016-11-12T04:21:29.968
+C Add\stest\scase\sto\shandle\sfile\sadd\sand\srename\sbefore\smerging\sto\strunk.\nMake\stest_setup\sreturn\sthe\srepository\spath\sso\sit\scan\sbe\sused\sin\sthe\stest.
+D 2016-11-12T22:19:17.013
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -551,7 +551,7 @@ F test/merge5.test aadadc4b34b77b94dc711ee0b0ae2f760abaecf9
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test 50b1c16adce0050bc946e3d64b14df9ab82f37e0
 F test/merge_exe.test f888647a3305bf2a4ddd77f947e486ae72fced09
-F test/merge_renames.test 73a5d0e41410d142003cb233d2f0f398d8421072
+F test/merge_renames.test ad186192f8d1c9201de5ad4bbd34e59b35a0817b
 F test/merge_warn.test d4a98c6ff14e4bb142d784f96c88d152d9599529
 F test/mv-rm.test 6a60863935f7a9e0223ccb9421729d7677fa1f9f
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
@@ -564,7 +564,7 @@ F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 9ead8cede3906559325b19560124bd30396f7c0e
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl b074cfa325b952995cf0f26af851b80fc84687ad
+F test/tester.tcl fff62460346068d80160545f0dfbedbeb2c9699c
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test cfb7fba72a60cfb5e3a8112d042b9c149d6bfa4b
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -769,6 +769,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3af5165a9024bd179fd410d5eabcdf0bd1dedfbe
-U andygoth
-Z 1f37979d64830e00ffc26491a1c02735
+P e7192bb975d00e3b99d070c7ff688b8f1beda32f
+R fcc9e703d1c1506fd9452fc712864e11
+U andybradford
+Z d26c314f4af8992841fc3684284c1319

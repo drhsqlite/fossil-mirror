@@ -468,6 +468,69 @@ test_status_list merge_renames-12-5 $RESULT {MERGE f1v}
 test_file_contents merge_renames-12-6 f1v "f1v\nm"
 fossil commit -m "merge m"
 
+#################################################################
+#  Test 13                                                      #
+#  Merge in add+rename that happened on a branch, then merged   # 
+#  back to branch, and again to trunk, then merge in branch.    #
+#################################################################
+
+set repoDir [test_setup]
+write_file f1 "line1"
+fossil add f1
+fossil commit -m "add f1" --tag c1
+
+write_file f2 "line1"
+fossil add f2
+fossil commit -m "add f2 on branch" -b b --tag c2
+fossil update trunk
+test_status_list merge_renames_13-1 $RESULT {REMOVE f2}
+write_file f1 "line1\nline2\n"
+fossil commit -m "edit f1 on trunk" --tag c3
+
+fossil update b
+test_status_list merge_renames_13-2 $RESULT {
+  UPDATE f1
+  ADD f2
+}
+fossil merge trunk
+fossil commit -m "merge trunk" --tag c4
+fossil mv --hard f2 f2n
+test_status_list merge_renames-13-3 $RESULT "
+  RENAME f2 f2n
+  MOVED_FILE $repoDir/f2
+"
+fossil commit -m "renamed f2->f2n" --tag c5
+
+fossil update trunk
+fossil merge b
+test_status_list merge_renames-13-4 $RESULT {ADDED f2n}
+fossil commit -m "merge f2n" --tag m1 --tag c6
+
+fossil update b
+write_file f1 "line1\nline3\nline2"
+fossil commit -m "edit f1 on b" --tag c7
+
+fossil update trunk
+write_file f1 "line1\nline3\nline2\nline4"
+fossil commit -m "edit f1 on trunk" --tag c8
+
+fossil update b
+fossil merge trunk
+fossil commit -m "merge trunk" --tag c9
+write_file f1 "line1\nline3\nline4"
+fossil commit -m "edit f1 on b" --tag c10
+
+fossil revert
+fossil update m1
+fossil merge b
+test_status_list merge_renames-13-7 $RESULT {UPDATE f1}
+test_file_contents merge_renames-13-8 f2n "line1"
+
+fossil update trunk
+fossil merge --integrate b
+test_status_list merge_renames-13-5 $RESULT {UPDATE f1}
+test_file_contents merge_renames-13-6 f2n "line1"
+
 ######################################
 #
 # Tests for troubles not specifically linked with renames but that I'd like to
