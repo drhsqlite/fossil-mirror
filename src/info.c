@@ -1209,7 +1209,7 @@ int object_description(
   char *prevName = 0;
 
   db_prepare(&q,
-    "SELECT filename.name, datetime(event.mtime),"
+    "SELECT filename.name, datetime(event.mtime,toLocal()),"
     "       coalesce(event.ecomment,event.comment),"
     "       coalesce(event.euser,event.user),"
     "       b.uuid, mlink.mperm,"
@@ -1297,7 +1297,7 @@ int object_description(
   free(prevName);
   db_finalize(&q);
   db_prepare(&q,
-    "SELECT substr(tagname, 6, 10000), datetime(event.mtime),"
+    "SELECT substr(tagname, 6, 10000), datetime(event.mtime, toLocal()),"
     "       coalesce(event.euser, event.user)"
     "  FROM tagxref, tag, event"
     " WHERE tagxref.rid=%d"
@@ -1328,7 +1328,7 @@ int object_description(
   db_finalize(&q);
   if( nWiki==0 ){
     db_prepare(&q,
-      "SELECT datetime(mtime), user, comment, type, uuid, tagid"
+      "SELECT datetime(mtime, toLocal()), user, comment, type, uuid, tagid"
       "  FROM event, blob"
       " WHERE event.objid=%d"
       "   AND blob.rid=%d",
@@ -1379,7 +1379,7 @@ int object_description(
     db_finalize(&q);
   }
   db_prepare(&q,
-    "SELECT target, filename, datetime(mtime), user, src"
+    "SELECT target, filename, datetime(mtime, toLocal()), user, src"
     "  FROM attachment"
     " WHERE src=(SELECT uuid FROM blob WHERE rid=%d)"
     " ORDER BY mtime DESC /*sort*/",
@@ -1914,7 +1914,7 @@ void artifact_page(void){
     Stmt q;
     db_prepare(&q,
       "SELECT coalesce(user.login,rcvfrom.uid),"
-      "       datetime(rcvfrom.mtime), rcvfrom.ipaddr"
+      "       datetime(rcvfrom.mtime,toLocal()), rcvfrom.ipaddr"
       "  FROM blob, rcvfrom LEFT JOIN user ON user.uid=rcvfrom.uid"
       " WHERE blob.rid=%d"
       "   AND rcvfrom.rcvid=blob.rcvid;", rid);
