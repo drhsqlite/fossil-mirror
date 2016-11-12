@@ -520,12 +520,12 @@ fossil commit -m "merge trunk" --tag c9
 write_file f1 "line1\nline3\nline4"
 fossil commit -m "edit f1 on b" --tag c10
 
-fossil revert
 fossil update m1
 fossil merge b
 test_status_list merge_renames-13-7 $RESULT {UPDATE f1}
 test_file_contents merge_renames-13-8 f2n "line1"
 
+fossil revert
 fossil update trunk
 fossil merge --integrate b
 test_status_list merge_renames-13-5 $RESULT {UPDATE f1}
