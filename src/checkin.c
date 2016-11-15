@@ -152,7 +152,7 @@ static void status_report(
     /* Start with a list of all managed files. */
     blob_append_sql(&sql,
       "SELECT pathname, %s as mtime, %s as size, deleted, chnged, rid,"
-      "       coalesce(origname!=pathname,0) AS renamed, islink, 1 AS managed"
+      "       coalesce(origname!=pathname,0) AS renamed, 1 AS managed"
       "  FROM vfile LEFT JOIN blob USING (rid)"
       " WHERE is_selected(id)%s",
       flags & C_MTIME ? "datetime(checkin_mtime(:vid, rid), "
@@ -203,14 +203,13 @@ static void status_report(
   while( db_step(&q)==SQLITE_ROW ){
     const char *zPathname = db_column_text(&q, 0);
     const char *zClass = 0;
-    int isManaged = db_column_int(&q, 8);
+    int isManaged = db_column_int(&q, 7);
     const char *zMtime = db_column_text(&q, 1);
     int size = db_column_int(&q, 2);
     int isDeleted = db_column_int(&q, 3);
     int isChnged = db_column_int(&q, 4);
     int isNew = isManaged && !db_column_int(&q, 5);
     int isRenamed = db_column_int(&q, 6);
-    int isLink = db_column_int(&q, 7);
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
     int isMissing = !file_wd_isfile_or_link(zFullName);
 
@@ -257,7 +256,7 @@ static void status_report(
       zClass = "UNEXEC";
     }else if( (flags & C_META) && isChnged==9 ){
       zClass = "UNLINK";
-    }else if( (flags & C_CONFLICT) && isChnged && !isLink
+    }else if( (flags & C_CONFLICT) && isChnged && !file_wd_islink(zFullName)
            && file_contains_merge_marker(zFullName) ){
       zClass = "CONFLICT";
     }else if( (flags & (C_EDITED | C_CHANGED)) && isChnged
