@@ -1,5 +1,5 @@
-C Fix\stimeline\s-n\s0\sto\sdisplay\san\sunlimited\snumber\sof\slines\s(rather\sthan\szero)\sto\smatch\sdocumentation.\s\sCorrect\stimeline\s-n\sfor\snegative\sN\sdocumentation\sto\smatch\sactual\sbehavior.\s\sLimit\scompute_ancestors()\sand\scompute_descendants()\son\sthe\sassumption\sthat\sthere\sis\sno\smore\sthan\sone\sentry\sper\sline.
-D 2016-11-15T00:30:46.512
+C Add\sscript\sto\sautomate\supdating\scommon\scommand\slist\sin\sman\spage,\sand\suse\sit\sto\supdate\sthe\sman\spage
+D 2016-11-15T02:50:08.950
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -311,7 +311,7 @@ F compat/zlib/zutil.c e1af709bff21ae0d4331119a7fc4c19f82932043
 F compat/zlib/zutil.h b909d27ef9ce51639f76b7ea6b62721e7d1b6bf7
 F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
-F fossil.1 5dafc0a0e37de8b6d38ca807a12e9e56619812d5
+F fossil.1 740ad69dfd64430b1e31d22ac799a6086c622ef8
 F setup/fossil.iss 57e01e1feb0198de025417c0a98f1d4b1c444f53
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
 F skins/README.md a32271fe6907cc4c0cabb9d24c1dab16b89dbc64
@@ -645,6 +645,7 @@ F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil-autocomplete.bash 1135105ee18b95823944e2fa425806d3bc0f4252
 F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
+F tools/man_page_command_list.tcl bcf4aa82a2a2f6f5194f1e67915613b82a0957f4 x
 F win/Makefile.PellesCGMake e9d1636731fe8a581e1f2a9a155b1310a9356178
 F win/Makefile.dmc 6fb9724c30aecff5e5eace3cb06816205e2883b9
 F win/Makefile.mingw 43d0a27f70e7eeaf4b4a1ed327678468f57fdb9a
@@ -769,6 +770,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3eeab4a58954f28374503af81a8cff43ff468d20
+P def9af43a3921234fe6d1a5dce0d31a201698c0d
 U andygoth
-Z 5ffc016e700eb81ce8b80b435b1d603a
+Z 64ab621ec8a4052c5a46483716deffb6
