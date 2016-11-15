@@ -1,5 +1,5 @@
-C Don't\srely\son\svfile.islink\sto\stell\swhether\sor\snot\sa\sfile\sis\scurrently\sa\ssymlink\sfor\sthe\spurpose\sof\savoiding\scalling\sfile_contains_merge_marker().\s\sIt\sis\spossible\sfor\sa\sfile\sto\shave\sbecome\sa\ssymlink\ssince\sthe\slast\scommit.\s\sIf\sthe\slink\starget's\sstring\slength\sis\snot\sequal\sto\sthe\sformer\sfile\ssize,\svfile_check_signature()\swill\streat\sit\sas\sa\snormal\schange\sand\snot\smark\sit\sas\schnged==8\s(SYMLINK),\sso\sexecution\scan\sfall\sthrough\sto\sthe\sundesirable\scall\sto\sfile_contains_merge_marker().
-D 2016-11-15T23:11:26.903
+C Make\schanging\sto\sa\ssymlink\stake\spriority\sover\sall\sother\schange\stypes.\s\sThis\smight\salso\sbe\sa\ssolution\sto\sthe\sproblem\sfixed\sby\sthe\sprevious\scommit,\sbut\sit\salso\savoids\shaving\sa\sfile\sthat\sbecomes\sa\ssymlink\s(with\starget\sstring\slength\snot\sequal\sto\sformer\sfile\ssize)\sbeing\smarked\sas\san\sordinary\sedit.
+D 2016-11-15T23:23:11.656
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -514,7 +514,7 @@ F src/user.c 1d31844a9e48e2ab515586bf54ecc4b30b47d5b5
 F src/utf8.c 9f458b9698fc928cc21e375538f268651d1d22a2
 F src/util.c 9a3cc502aa6ae3bc19831e5f553cd346ec154b5c
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
-F src/vfile.c 070342b08e61811e5e3da064cc4602871d4644d5
+F src/vfile.c f2ac27cd86e8ff0ca9606ce51f8be4d83696a75d
 F src/wiki.c 7e8ea06600305377a7da5a56b396491741b61a9c
 F src/wikiformat.c d96d5e2b2f4266b4e5064a07706f69a9190b2fad
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
@@ -770,6 +770,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0dea016de15dc56af34558d392fe926338b1e2ce
+P 43140feb1d059e97ac71d65ec2ea06bb9eb382cd
 U andygoth
-Z 4985f51ce352a099f7869296d20b587c
+Z 5b7acb07198c47853c8918d8972d6408

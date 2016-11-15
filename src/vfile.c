@@ -265,13 +265,15 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
       }
     }
 #ifndef _WIN32
-    if( chnged==0 || chnged==6 || chnged==7 || chnged==8 || chnged==9 ){
+    if( origPerm!=PERM_LNK && currentPerm==PERM_LNK ){
+       /* Changing to a symlink takes priority over all other change types. */
+       chnged = 7;
+    }else if( chnged==0 || chnged==6 || chnged==7 || chnged==8 || chnged==9 ){
+       /* Confirm metadata change types. */
       if( origPerm==currentPerm ){
         chnged = 0;
       }else if( currentPerm==PERM_EXE ){
         chnged = 6;
-      }else if( currentPerm==PERM_LNK ){
-        chnged = 7;
       }else if( origPerm==PERM_EXE ){
         chnged = 8;
       }else if( origPerm==PERM_LNK ){
