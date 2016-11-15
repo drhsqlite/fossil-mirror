@@ -1,5 +1,5 @@
-C Fix\srevert\s-r\soption\sto\smark\sa\sreverted\sfile\sas\sedited\sif\sthe\sreverted-to\sversion\sdoes\snot\sexactly\smatch\sthe\scheckout\sversion,\seven\sif\sthe\sfile\ssize\sis\sequal
-D 2016-11-15T23:29:47.894
+C Allow\suv\sdelete\s(or\sdel)\sas\san\salias\sfor\suv\sremove\sor\suv\srm
+D 2016-11-15T23:41:04.746
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -507,7 +507,7 @@ F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 33b65539a12abd079a57972b78e0d532831cefd9
 F src/undo.c d3cca342dd73eaec65e352d978e8f7a9e75a5ddd
 F src/unicode.c 49d229135beb3cba5a58013dfda577fa51ab96ee
-F src/unversioned.c 0069fb1ab275c35747159ec8ab5ddbb537306399
+F src/unversioned.c 9f0dd26237080a811d9a7517bf4c742a6947e152
 F src/update.c 6520d390b5e37ce8cdd51abc7044778dd33a14de
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c 1d31844a9e48e2ab515586bf54ecc4b30b47d5b5
@@ -770,6 +770,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f10a284abb6eb1b42592aa6a02f24c79d377ce8d
+P f9080683f04371609df7a92597f5a1e86689f61d
 U andygoth
-Z 66445bc74d987f6924a41f34f33abd72
+Z 8d3a30f0766b96690d39aea46d43f082

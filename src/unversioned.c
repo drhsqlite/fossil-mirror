@@ -240,7 +240,8 @@ static int contains_whitespace(const char *zName){
 **                            -v|--verbose     Extra diagnostic output
 **                            -n|--dryrun      Show what would have happened
 **
-**    remove | rm FILE ... Remove unversioned files from the local repository.
+**    remove|rm|delete FILE ...
+**                         Remove unversioned files from the local repository.
 **                         Changes are not pushed to other repositories until
 **                         the next sync.
 **
@@ -412,7 +413,8 @@ void unversioned_cmd(void){
     g.argv[1] = "sync";
     g.argv[2] = "--uv-noop";
     sync_unversioned(syncFlags);
-  }else if( memcmp(zCmd, "remove", nCmd)==0 || memcmp(zCmd, "rm", nCmd)==0 ){
+  }else if( memcmp(zCmd, "remove", nCmd)==0 || memcmp(zCmd, "rm", nCmd)==0 
+         || memcmp(zCmd, "delete", nCmd)==0 ){
     int i;
     verify_all_options();
     db_begin_transaction();
