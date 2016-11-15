@@ -2337,8 +2337,9 @@ static int fossil_is_julianday(const char *zDate){
 **
 **
 ** Options:
-**   -n|--limit N         Output the first N entries (default 20 lines).
-**                        N=0 means no limit.
+**   -n|--limit N         If N is positive, output the first N entries.  If
+**                        N is negative, output the first -N lines.  If N is
+**                        zero, no limit.  Default is -20 meaning 20 lines.
 **   -p|--path PATH       Output items affecting PATH only.
 **                        PATH can be a file or a sub directory.
 **   --offset P           skip P changes
