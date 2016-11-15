@@ -2217,17 +2217,15 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
       /* Repository is in the process of being opened, but files have not been
        * written to disk. Load from the database. */
       Blob noWarnFile;
-      if( historical_version_of_file(g.zOpenRevision,
-                                     blob_str(&versionedPathname),
-                                     &setting, 0, 0, 0, 2)!=2 ){
+      if( historical_blob(g.zOpenRevision, blob_str(&versionedPathname),
+          &setting, 0) ){
         found = 1;
       }
       /* See if there's a no-warn flag */
       blob_append(&versionedPathname, ".no-warn", -1);
       blob_zero(&noWarnFile);
-      if( historical_version_of_file(g.zOpenRevision,
-                                     blob_str(&versionedPathname),
-                                     &noWarnFile, 0, 0, 0, 2)!=2 ){
+      if( historical_blob(g.zOpenRevision, blob_str(&versionedPathname),
+          &noWarnFile, 0) ){
         noWarn = 1;
       }
       blob_reset(&noWarnFile);

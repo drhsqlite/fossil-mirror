@@ -1,5 +1,5 @@
-C Make\schanging\sto\sa\ssymlink\stake\spriority\sover\sall\sother\schange\stypes.\s\sThis\smight\salso\sbe\sa\ssolution\sto\sthe\sproblem\sfixed\sby\sthe\sprevious\scommit,\sbut\sit\salso\savoids\shaving\sa\sfile\sthat\sbecomes\sa\ssymlink\s(with\starget\sstring\slength\snot\sequal\sto\sformer\sfile\ssize)\sbeing\smarked\sas\san\sordinary\sedit.
-D 2016-11-15T23:23:11.656
+C Fix\srevert\s-r\soption\sto\smark\sa\sreverted\sfile\sas\sedited\sif\sthe\sreverted-to\sversion\sdoes\snot\sexactly\smatch\sthe\scheckout\sversion,\seven\sif\sthe\sfile\ssize\sis\sequal
+D 2016-11-15T23:29:47.894
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -400,7 +400,7 @@ F src/content.c a6024f0400307f4c25d067d323a6cbdf38b78c81
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c bde1573e58fb5c82412dfe327b82a092e51f4933
+F src/db.c cee859e1c187ac8c2a15d61b154e3bdf4c88a380
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
@@ -413,7 +413,7 @@ F src/encode.c edb12a68c5831e5331eaad3796c492059edb10fb
 F src/event.c 021db025691a859a49751f255a0a065bca728444
 F src/export.c 26d0f574610af812dc96c2a05c0762ad39053696
 F src/file.c 711bb3151f23340d46fcc3a86ebd62b0947b7da6
-F src/finfo.c b53aace7bfdbb61c47d24570aa8327bd80d0646a
+F src/finfo.c 19de17236a019469513689e02dedc9a314973225
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
 F src/fshell.c df8bee3ffa12e440259ebfc1dd2716cdffe214f7
 F src/fusefs.c 66a58355a9a3c04792ba28a8a1b55bd3e506af54
@@ -508,7 +508,7 @@ F src/translate.c 33b65539a12abd079a57972b78e0d532831cefd9
 F src/undo.c d3cca342dd73eaec65e352d978e8f7a9e75a5ddd
 F src/unicode.c 49d229135beb3cba5a58013dfda577fa51ab96ee
 F src/unversioned.c 0069fb1ab275c35747159ec8ab5ddbb537306399
-F src/update.c 8a39e2408a6a6d274d805dd9baab7ccaaa8bf7a9
+F src/update.c 6520d390b5e37ce8cdd51abc7044778dd33a14de
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c 1d31844a9e48e2ab515586bf54ecc4b30b47d5b5
 F src/utf8.c 9f458b9698fc928cc21e375538f268651d1d22a2
@@ -770,6 +770,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 43140feb1d059e97ac71d65ec2ea06bb9eb382cd
+P f10a284abb6eb1b42592aa6a02f24c79d377ce8d
 U andygoth
-Z 5b7acb07198c47853c8918d8972d6408
+Z 66445bc74d987f6924a41f34f33abd72

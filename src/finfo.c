@@ -126,7 +126,7 @@ void finfo_cmd(void){
 
     file_tree_name(g.argv[2], &fname, 0, 1);
     if( zRevision ){
-      historical_version_of_file(zRevision, blob_str(&fname), &record, 0,0,0,0);
+      historical_blob(zRevision, blob_str(&fname), &record, 1);
     }else{
       int rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%B %s",
                        &fname, filename_collation());
@@ -251,7 +251,6 @@ void finfo_cmd(void){
 */
 void cat_cmd(void){
   int i;
-  int rc;
   Blob content, fname;
   const char *zRev;
   db_find_and_open_repository(0, 0);
@@ -263,10 +262,7 @@ void cat_cmd(void){
   for(i=2; i<g.argc; i++){
     file_tree_name(g.argv[i], &fname, 0, 1);
     blob_zero(&content);
-    rc = historical_version_of_file(zRev, blob_str(&fname), &content, 0,0,0,2);
-    if( rc==2 ){
-      fossil_fatal("no such file: %s", g.argv[i]);
-    }
+    historical_blob(zRev, blob_str(&fname), &content, 1);
     blob_write_to_file(&content, "-");
     blob_reset(&fname);
     blob_reset(&content);
