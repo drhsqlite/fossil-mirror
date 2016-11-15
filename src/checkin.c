@@ -237,8 +237,10 @@ static void status_report(
           nErr++;
         }
       }
-    }else if( (flags & C_ADDED) && isNew ){
-      zClass = "ADDED";
+    }else if( isNew ){
+      if( flags & C_ADDED ){
+        zClass = "ADDED";
+      }
     }else if( (flags & (C_UPDATED | C_CHANGED)) && isChnged==2 ){
       zClass = "UPDATED_BY_MERGE";
     }else if( (flags & C_ADDED) && isChnged==3 ){
