@@ -1,5 +1,5 @@
-C Allow\suv\sdelete\s(or\sdel)\sas\san\salias\sfor\suv\sremove\sor\suv\srm
-D 2016-11-15T23:41:04.746
+C Fix\sa\stypo\sin\sthe\sdate\sof\sthe\s1.34\srelease\son\sthe\sdownload\spage.
+D 2016-11-16T14:37:57.261
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -738,7 +738,7 @@ F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki 37506c18202051284c6145efeb9a7579e5f9497c
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki 65f96515648c212e6385128e0d9c60fccf91e83c
-F www/mkdownload.tcl 3d0050f9c20d49fb23bfc43500fe53d834bea297
+F www/mkdownload.tcl 9955fc58270543b81cdc6d707149a93fd7a06cf1
 F www/mkindex.tcl bbf182af20110241e858c24ef55fcbca268f13e5 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
@@ -770,6 +770,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f9080683f04371609df7a92597f5a1e86689f61d
-U andygoth
-Z 8d3a30f0766b96690d39aea46d43f082
+P b59fa7d0e731502fe917fd4606b30fc6d81a08d8
+R 6bb11417f9b5fb87b5c0217032d4f558
+U drh
+Z b9a51598a3e7d0c6e1900ec01597d3b8
