@@ -189,58 +189,59 @@ void branch_new(void){
 #define BRL_OPEN_ONLY        0x002 /* Show only open branches */
 #define BRL_BOTH             0x003 /* Show both open and closed branches */
 #define BRL_OPEN_CLOSED_MASK 0x003
-#define BRL_MTIME            0x004 /* Include lastest check-in time */
-#define BRL_ORDERBY_MTIME    0x008 /* Sort by MTIME. (otherwise sort by name)*/
+#define BRL_ORDERBY_MTIME    0x004 /* Sort by MTIME. (otherwise sort by name)*/
 
 #endif /* INTERFACE */
 
 /*
 ** Prepare a query that will list branches.
-**
-** If (which<0) then the query pulls only closed branches. If
-** (which>0) then the query pulls all (closed and opened)
-** branches. Else the query pulls currently-opened branches.
 */
 void branch_prepare_list_query(Stmt *pQuery, int brFlags){
-  switch( brFlags & BRL_OPEN_CLOSED_MASK ){
-    case BRL_CLOSED_ONLY: {
-      db_prepare(pQuery,
-        "SELECT value FROM tagxref"
-        " WHERE tagid=%d AND value NOT NULL "
-        "EXCEPT "
-        "SELECT value FROM tagxref"
-        " WHERE tagid=%d"
-        "   AND rid IN leaf"
-        "   AND NOT %z"
-        " ORDER BY value COLLATE nocase /*sort*/",
-        TAG_BRANCH, TAG_BRANCH, leaf_is_closed_sql("tagxref.rid")
-      );
-      break;
-    }
-    case BRL_BOTH: {
-      db_prepare(pQuery,
-        "SELECT DISTINCT value FROM tagxref"
-        " WHERE tagid=%d AND value NOT NULL"
-        "   AND rid IN leaf"
-        " ORDER BY value COLLATE nocase /*sort*/",
-        TAG_BRANCH
-      );
-      break;
-    }
-    case BRL_OPEN_ONLY: {
-      db_prepare(pQuery,
-        "SELECT DISTINCT value FROM tagxref"
-        " WHERE tagid=%d AND value NOT NULL"
-        "   AND rid IN leaf"
-        "   AND NOT %z"
-        " ORDER BY value COLLATE nocase /*sort*/",
-        TAG_BRANCH, leaf_is_closed_sql("tagxref.rid")
-      );
-      break;
-    }
-  }
-}
+  Blob sql = BLOB_INITIALIZER;
+  blob_zero(&sql);
 
+  /* Begin the query. */
+  blob_append_sql(&sql,
+    "SELECT tagxref.value AS name"
+         ", max(event.mtime) AS mtime"
+         ", %z AS closed"
+         ", (SELECT tagxref.value"
+             " FROM plink CROSS JOIN tagxref"
+            " WHERE plink.pid=event.objid"
+              " AND tagxref.rid=plink.cid"
+              " AND tagxref.tagid=%d"
+              " AND tagtype>0) AS mergeto"
+         ", count(*) AS cicount"
+         ", (SELECT uuid FROM blob WHERE rid=tagxref.rid) AS latest"
+         ", event.bgcolor AS bgcolor"
+     " FROM tagxref, tag, event"
+    " WHERE tagxref.tagid=tag.tagid"
+      " AND tagxref.tagtype>0"
+      " AND tag.tagname='branch'"
+      " AND event.objid=tagxref.rid",
+    leaf_is_closed_sql("tagxref.rid"), TAG_BRANCH);
+
+  /* Group by name to implement the cicount column. */
+  blob_append_sql(&sql, " GROUP BY name");
+
+  /* Apply open/closed filtering if requested. */
+  if( (brFlags & BRL_OPEN_CLOSED_MASK)==BRL_CLOSED_ONLY ){
+    blob_append_sql(&sql, " HAVING min(closed)");
+  }else if( (brFlags & BRL_OPEN_CLOSED_MASK)==BRL_OPEN_ONLY ){
+    blob_append_sql(&sql, " HAVING NOT min(closed)");
+  }
+
+  /* Apply the requested sort order. */
+  if( brFlags & BRL_ORDERBY_MTIME ){
+    blob_append_sql(&sql, " ORDER BY mtime DESC");
+  }else{
+    blob_append_sql(&sql, " ORDER BY name COLLATE nocase");
+  }
+
+  /* Prepare the query. */
+  db_prepare(pQuery, "%s", blob_sql_text(&sql));
+  blob_reset(&sql);
+}
 
 /*
 ** COMMAND: branch
@@ -309,59 +310,75 @@ void branch_cmd(void){
   }
 }
 
-static const char brlistQuery[] =
-@ SELECT
-@   tagxref.value,
-@   max(event.mtime),
-@   EXISTS(SELECT 1 FROM tagxref AS tx
-@           WHERE tx.rid=tagxref.rid
-@             AND tx.tagid=(SELECT tagid FROM tag WHERE tagname='closed')
-@             AND tx.tagtype>0),
-@   (SELECT tagxref.value
-@      FROM plink CROSS JOIN tagxref
-@    WHERE plink.pid=event.objid
-@       AND tagxref.rid=plink.cid
-@      AND tagxref.tagid=(SELECT tagid FROM tag WHERE tagname='branch')
-@      AND tagtype>0),
-@   count(*),
-@   (SELECT uuid FROM blob WHERE rid=tagxref.rid),
-@   event.bgcolor
-@  FROM tagxref, tag, event
-@ WHERE tagxref.tagid=tag.tagid
-@   AND tagxref.tagtype>0
-@   AND tag.tagname='branch'
-@   AND event.objid=tagxref.rid
-@ GROUP BY 1
-@ ORDER BY 2 DESC;
-;
-
 /*
-** This is the new-style branch-list page that shows the branch names
-** together with their ages (time of last check-in) and whether or not
-** they are closed or merged to another branch.
+** WEBPAGE: brlist
+** Show a sortable list of branches.
 **
-** Control jumps to this routine from brlist_page() (the /brlist handler)
-** if there are no query parameters.
+** Query parameters:
+**
+**     all         Same as open&closed
+**     open        Show open branches
+**     closed      Show closed branches
+**     colors      Show assigned branch colors (alias: colortest)
 */
-static void new_brlist_page(void){
+void brlist_page(void){
   Stmt q;
   double rNow;
-  int show_colors = PB("colors");
+  int colors, flags = BRL_ORDERBY_MTIME;
+
+  /* Intepret colortest as colors=1. */
+  if( PB("colortest") ){
+    cgi_replace_query_parameter("colors", "1");
+  }
+  cgi_delete_query_parameter("colortest");
+
+  /* Interpret all as open=1&closed=1&normal=1&hidden=1. */
+  if( PB("all") ){
+    cgi_replace_query_parameter("open", "1");
+    cgi_replace_query_parameter("closed", "1");
+/*  cgi_replace_query_parameter("normal", "1");
+    cgi_replace_query_parameter("hidden", "1");*/
+  }
+  cgi_delete_query_parameter("all");
+
+  /* Interpret open=0&closed=0 (or omitted) as open=1&closed=1. */
+  if( !PB("open") && !PB("closed") ){
+    cgi_replace_query_parameter("open", "1");
+    cgi_replace_query_parameter("closed", "1");
+  }
+
+  /* Interpret normal=0&hidden=0 (or omitted) as normal=1&hidden=1. */
+/*if( !PB("normal") && !PB("hidden") ){
+    cgi_replace_query_parameter("normal", "1");
+    cgi_replace_query_parameter("hidden", "1");
+  }*/
+
+  /* Process query parameters. */
+  colors = PB("colors");
+  if( PB("open"  ) ){flags |= BRL_OPEN_ONLY  ;}
+  if( PB("closed") ){flags |= BRL_CLOSED_ONLY;}
+
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("Branches");
   style_adunit_config(ADUNIT_RIGHT_OK);
-  style_submenu_checkbox("colors", "Use Branch Colors", 0);
+  style_submenu_checkbox("colors", "Colors", 0);
+  style_submenu_checkbox("open", "Open", 0);
+  style_submenu_checkbox("closed", "Closed", 0);
+/*style_submenu_checkbox("normal", "Normal", 0);
+  style_submenu_checkbox("hidden", "Hidden", 0);*/
   login_anonymous_available();
 
-  db_prepare(&q, brlistQuery/*works-like:""*/);
+  branch_prepare_list_query(&q, flags);
   rNow = db_double(0.0, "SELECT julianday('now')");
   @ <div class="brlist"><table id="branchlisttable">
   @ <thead><tr>
   @ <th>Branch Name</th>
   @ <th>Age</th>
   @ <th>Check-ins</th>
+  if( (flags & BRL_OPEN_CLOSED_MASK) == BRL_BOTH ){
   @ <th>Status</th>
+  }
   @ <th>Resolution</th>
   @ </tr></thead><tbody>
   while( db_step(&q)==SQLITE_ROW ){
@@ -382,7 +399,7 @@ static void new_brlist_page(void){
         zBgClr = hash_color(zBranch);
       }
     }
-    if( zBgClr && zBgClr[0] && show_colors ){
+    if( zBgClr && zBgClr[0] && colors ){
       @ <tr style="background-color:%s(zBgClr)">
     }else{
       @ <tr>
@@ -391,7 +408,9 @@ static void new_brlist_page(void){
     @ <td data-sortkey="%016llx(-iMtime)">%s(zAge)</td>
     @ <td>%d(nCkin)</td>
     fossil_free(zAge);
-    @ <td>%s(isClosed?"closed":"")</td>
+    if( (flags & BRL_OPEN_CLOSED_MASK) == BRL_BOTH ){
+      @ <td>%s(isClosed?"closed":"")</td>
+    }
     if( zMergeTo ){
       @ <td>merged into
       @ %z(href("%R/timeline?f=%!S",zLastCkin))%h(zMergeTo)</a></td>
@@ -403,110 +422,6 @@ static void new_brlist_page(void){
   @ </tbody></table></div>
   db_finalize(&q);
   output_table_sorting_javascript("branchlisttable","tkNtt",2);
-  style_footer();
-}
-
-/*
-** WEBPAGE: brlist
-** Show a list of branches.  With no query parameters, a sortable table
-** is used to show all branches.  If query parameters are present a
-** fixed bullet list is shown.
-**
-** Query parameters:
-**
-**     all         Show all branches
-**     closed      Show only closed branches
-**     open        Show only open branches (default behavior)
-**     colortest   Show all branches with automatic color
-*/
-void brlist_page(void){
-  Stmt q;
-  int cnt;
-  int showClosed = P("closed")!=0;
-  int showAll = P("all")!=0;
-  int showOpen = P("open")!=0;
-  int colorTest = P("colortest")!=0;
-  int brFlags = BRL_OPEN_ONLY;
-
-  if( showClosed==0 && showAll==0 && showOpen==0 && colorTest==0 ){
-    new_brlist_page();
-    return;
-  }
-  login_check_credentials();
-  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  if( colorTest ){
-    showClosed = 0;
-    showAll = 1;
-  }
-  if( showAll ) brFlags = BRL_BOTH;
-  if( showClosed ) brFlags = BRL_CLOSED_ONLY;
-
-  style_header("%s", showClosed ? "Closed Branches" :
-                        showAll ? "All Branches" : "Open Branches");
-  style_submenu_element("Timeline", "brtimeline");
-  if( showClosed ){
-    style_submenu_element("All", "brlist?all");
-    style_submenu_element("Open", "brlist?open");
-  }else if( showAll ){
-    style_submenu_element("Closed", "brlist?closed");
-    style_submenu_element("Open", "brlist");
-  }else{
-    style_submenu_element("All", "brlist?all");
-    style_submenu_element("Closed", "brlist?closed");
-  }
-  if( !colorTest ){
-    style_submenu_element("Color-Test", "brlist?colortest");
-  }else{
-    style_submenu_element("All", "brlist?all");
-  }
-  login_anonymous_available();
-#if 0
-  style_sidebox_begin("Nomenclature:", "33%");
-  @ <ol>
-  @ <li> An <div class="sideboxDescribed">%z(href("brlist"))
-  @ open branch</a></div> is a branch that has one or more
-  @ <div class="sideboxDescribed">%z(href("leaves"))open leaves.</a></div>
-  @ The presence of open leaves presumably means
-  @ that the branch is still being extended with new check-ins.</li>
-  @ <li> A <div class="sideboxDescribed">%z(href("brlist?closed"))
-  @ closed branch</a></div> is a branch with only
-  @ <div class="sideboxDescribed">%z(href("leaves?closed"))
-  @ closed leaves</a></div>.
-  @ Closed branches are fixed and do not change (unless they are first
-  @ reopened).</li>
-  @ </ol>
-  style_sidebox_end();
-#endif
-
-  branch_prepare_list_query(&q, brFlags);
-  cnt = 0;
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zBr = db_column_text(&q, 0);
-    if( cnt==0 ){
-      if( colorTest ){
-        @ <h2>Default background colors for all branches:</h2>
-      }else if( showClosed ){
-        @ <h2>Closed Branches:</h2>
-      }else if( showAll ){
-        @ <h2>All Branches:</h2>
-      }else{
-        @ <h2>Open Branches:</h2>
-      }
-      @ <ul>
-      cnt++;
-    }
-    if( colorTest ){
-      const char *zColor = hash_color(zBr);
-      @ <li><span style="background-color: %s(zColor)">
-      @ %h(zBr) &rarr; %s(zColor)</span></li>
-    }else{
-      @ <li>%z(href("%R/timeline?r=%T&n=200",zBr))%h(zBr)</a></li>
-    }
-  }
-  if( cnt ){
-    @ </ul>
-  }
-  db_finalize(&q);
   style_footer();
 }
 
