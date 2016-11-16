@@ -29,6 +29,10 @@
 #  include <zlib.h>
 #endif
 
+#ifndef _WIN32
+#  include "linenoise.h"
+#endif
+
 /*
 ** Implementation of the "content(X)" SQL function.  Return the complete
 ** content of artifact identified by X as a blob.
@@ -202,6 +206,9 @@ void cmd_sqlite3(void){
   }
   fossil_close(1, noRepository);
   sqlite3_shutdown();
+#ifndef _WIN32
+  linenoiseSetMultiLine(1);
+#endif
   sqlite3_shell(g.argc-1, g.argv+1);
   sqlite3_cancel_auto_extension((void(*)(void))sqlcmd_autoinit);
   fossil_close(0, noRepository);
