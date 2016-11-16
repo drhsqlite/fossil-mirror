@@ -1013,7 +1013,7 @@ void version_cmd(void){
 
 
 /*
-** WEBPAGE: test-version
+** WEBPAGE: version
 **
 ** Show the version information for Fossil.
 **
@@ -1029,6 +1029,7 @@ void test_version_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   verboseFlag = P("verbose")!=0;
   style_header("Version Information");
+  style_submenu_element("Stat", "stat");
   get_version_blob(&versionInfo, verboseFlag);
   @ <blockquote><pre>
   @ %h(blob_str(&versionInfo))
