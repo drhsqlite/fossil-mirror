@@ -1,5 +1,5 @@
-C Change\sthe\s/test-version\swebpage\sinto\s/version.\sLink\sit\sto\s/stat.
-D 2016-11-16T14:47:20.552
+C Only\s#include\s"linenoise.h"\sin\sfshell.c\son\snon-Windows\splatforms
+D 2016-11-16T19:25:34.376
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -415,7 +415,7 @@ F src/export.c 26d0f574610af812dc96c2a05c0762ad39053696
 F src/file.c 711bb3151f23340d46fcc3a86ebd62b0947b7da6
 F src/finfo.c 19de17236a019469513689e02dedc9a314973225
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
-F src/fshell.c df8bee3ffa12e440259ebfc1dd2716cdffe214f7
+F src/fshell.c fdb58df6ce86120679201a993584f9fdb80493e8
 F src/fusefs.c 66a58355a9a3c04792ba28a8a1b55bd3e506af54
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 23ff3709c6677dff05f707f80e45ddd356333c6e
@@ -770,8 +770,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 01d1f519cd299eb2888eb02469ae01be22fb730f 57fea3151ed8ede350b4e8174634b0a4fa1c1010
-R 0470bd1aea6838160e3b126f6f1ce74e
-T +closed 57fea3151ed8ede350b4e8174634b0a4fa1c1010
-U drh
-Z 1765c517cc35613bd9e0d0347d99380e
+P 286effd5e9fef7545f5944180b10761283386e37
+U andygoth
+Z b5a2c6d0b4c1c7cf4406a07d736f0f13

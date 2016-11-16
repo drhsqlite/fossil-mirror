@@ -27,12 +27,12 @@
 */
 #include "config.h"
 #include "fshell.h"
-#include "linenoise.h"
 #include <ctype.h>
 
 #ifndef _WIN32
-#include <sys/types.h>
-#include <sys/wait.h>
+# include "linenoise.h"
+# include <sys/types.h>
+# include <sys/wait.h>
 #endif
 
 
