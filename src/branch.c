@@ -226,9 +226,9 @@ void branch_prepare_list_query(Stmt *pQuery, int brFlags){
 
   /* Apply open/closed filtering if requested. */
   if( (brFlags & BRL_OPEN_CLOSED_MASK)==BRL_CLOSED_ONLY ){
-    blob_append_sql(&sql, " HAVING min(closed)");
+    blob_append_sql(&sql, " HAVING closed");
   }else if( (brFlags & BRL_OPEN_CLOSED_MASK)==BRL_OPEN_ONLY ){
-    blob_append_sql(&sql, " HAVING NOT min(closed)");
+    blob_append_sql(&sql, " HAVING NOT closed");
   }
 
   /* Apply the requested sort order. */

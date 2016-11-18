@@ -1,5 +1,5 @@
-C Begin\swork\smerging\snew_brlist_page()\sinto\sbrlist_page().\n\nAnnoyance:\sThe\snew\sopen/closed\scheckboxes\sdon't\squite\swork\sthe\sway\sI\swant\nthem\sto\swork.\s\sDeselecting\sboth\shas\sthe\seffect\sof\sselecting\sboth.\s\sThis\smakes\nsense\sin\sthat\sif\sneither\sthe\sopen\snor\sclosed\squery\sparameters\sare\sgiven,\neverything\sshould\sbe\sdisplayed,\srather\sthan\snothing.\s\sYet,\sthe\suser\sinterface\nwould\sbe\snicer\sif\sdeselecting\sthe\sonly\sselected\scheckbox\scauses\sthe\sother\ncheckbox\sto\sbe\sselected.\s\sThis\scan't\sbe\sdone\swith\sstraight\sHTML\sbecause\ndeselecting\sthe\scheckbox\sremoves\sit\sfrom\sthe\squery\sstring,\sand\sthe\sserver\sdoes\nnot\sknow\swhich\scheckbox\swas\sdeselected\sso\sit\scannot\sforce\sthe\sother\sone\sto\nbecome\sselected.\s\sAs\sfar\sas\sI\sknow,\sJavaScript\sis\srequired.\n\nBug:\sNon-aggregate\sHAVING\sclause\sexpressions\sare\sevaluated\son\san\sarbitrarily\nchosen\srow\swithin\seach\sgroup.\s\sThis\sbreaks\sclosed\sand\sopen\sfiltering\sfor\sthe\ncommand-line\sbranch\scommand\sand\sthe\snew\scheckboxes.\s\sBut\sshouldn't\sthis\salso\nbreak\snon-aggregate\sresult\sexpressions?\n\nWish:\sFilter\son\snormal/hidden\sbranches\stoo.\n\nWish:\sIf\sa\smerged-to\sbranch\sis\shidden,\sdon't\sshow\sit\sin\sthe\sresolution\scolumn,\ninstead\sshow\ssomething\selse.\s\sThe\slatest\smerged-to?\s\sThe\searliest\smerged-to?
-D 2016-11-16T21:59:09.232
+C Remove\smin()\sfrom\sclosed\sexpression.\s\sIt\sdoesn't\ssolve\sthe\sproblem,\sand\sit\sconfuses\sanalysis\sof\sthe\sissue.
+D 2016-11-18T21:45:40.825
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -381,7 +381,7 @@ F src/attach.c b2f9bbde2c64be08f3feeacfcef4b95377ec0b19
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c 831a63c8c61dbfdb5fe629a473cd7b01104478fc
-F src/branch.c 2b46550163fcd2e50754838a8c858320d5c23822
+F src/branch.c 59bb4fd401781febd08005b3480a3b8c4a8170e5
 F src/browse.c ee98248924f9121b89a5e32bdebc8e27bdf496ca
 F src/builtin.c d147d04305aa0db964ec84ef049e8e88d134de87
 F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
@@ -770,9 +770,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 03b6869856814edbff3cbec3792797a999e33e59
-T *branch * andygoth-branch-list
-T *sym-andygoth-branch-list *
-T -sym-trunk *
+P a6a4482056851df4b3d194d1b524d6e252e92df0
 U andygoth
-Z 8d5f7790a3f1198c6c252943d705fa29
+Z 1026c1a7c818984f1172a518c531947e
