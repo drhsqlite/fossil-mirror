@@ -1268,16 +1268,16 @@ LIBS   = $(DMDIR)\extra\lib\ zlib wsock32 advapi32
 }
 writeln "SQLITE_OPTIONS = [join $SQLITE_OPTIONS { }]\n"
 writeln "SHELL_OPTIONS = [join $SHELL_WIN32_OPTIONS { }]\n"
-writeln -nonewline "SRC   = "
+writeln -nonewline "SRC   ="
 foreach s [lsort $src] {
-  writeln -nonewline "${s}_.c "
+  writeln -nonewline " ${s}_.c"
 }
 writeln "\n"
 writeln -nonewline "OBJ   = "
 foreach s [lsort $src] {
   writeln -nonewline "\$(OBJDIR)\\$s\$O "
 }
-writeln "\$(OBJDIR)\\shell\$O \$(OBJDIR)\\sqlite3\$O \$(OBJDIR)\\th\$O \$(OBJDIR)\\th_lang\$O "
+writeln "\$(OBJDIR)\\shell\$O \$(OBJDIR)\\sqlite3\$O \$(OBJDIR)\\th\$O \$(OBJDIR)\\th_lang\$O"
 writeln {
 
 RC=$(DMDIR)\bin\rcc

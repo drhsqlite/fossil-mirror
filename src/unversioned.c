@@ -413,7 +413,7 @@ void unversioned_cmd(void){
     g.argv[1] = "sync";
     g.argv[2] = "--uv-noop";
     sync_unversioned(syncFlags);
-  }else if( memcmp(zCmd, "remove", nCmd)==0 || memcmp(zCmd, "rm", nCmd)==0 
+  }else if( memcmp(zCmd, "remove", nCmd)==0 || memcmp(zCmd, "rm", nCmd)==0
          || memcmp(zCmd, "delete", nCmd)==0 ){
     int i;
     verify_all_options();
