@@ -200,11 +200,21 @@ void branch_prepare_list_query(Stmt *pQuery, int brFlags){
   Blob sql = BLOB_INITIALIZER;
   blob_zero(&sql);
 
-  /* Begin the query. */
+  /* Begin the query.
+   *
+   * A branch is closed if it has no open leaves, where an open leaf is one not
+   * referenced by a closed tag.  The design of the "closed" expression reflects
+   * this double negative logical structure. */
   blob_append_sql(&sql,
     "SELECT tagxref.value AS name"
          ", max(event.mtime) AS mtime"
-         ", %z AS closed"
+         ", NOT EXISTS"
+          " (SELECT 1"
+             " FROM tagxref AS tx1"
+            " WHERE value=tagxref.value"
+              " AND tagid=%d"
+              " AND rid IN leaf"
+              " AND NOT %z) AS closed"
          ", (SELECT tagxref.value"
              " FROM plink CROSS JOIN tagxref"
             " WHERE plink.pid=event.objid"
@@ -219,7 +229,7 @@ void branch_prepare_list_query(Stmt *pQuery, int brFlags){
       " AND tagxref.tagtype>0"
       " AND tag.tagname='branch'"
       " AND event.objid=tagxref.rid",
-    leaf_is_closed_sql("tagxref.rid"), TAG_BRANCH);
+    TAG_BRANCH, leaf_is_closed_sql("tx1.rid"), TAG_BRANCH);
 
   /* Group by name to implement the cicount column. */
   blob_append_sql(&sql, " GROUP BY name");
@@ -377,7 +387,7 @@ void brlist_page(void){
   @ <th>Age</th>
   @ <th>Check-ins</th>
   if( (flags & BRL_OPEN_CLOSED_MASK) == BRL_BOTH ){
-  @ <th>Status</th>
+    @ <th>Status</th>
   }
   @ <th>Resolution</th>
   @ </tr></thead><tbody>
