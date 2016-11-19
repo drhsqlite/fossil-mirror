@@ -71,7 +71,6 @@ void show_common_info(
     );
          /* 01234567890123 */
     fossil_print("%-13s %s %s\n", zUuidName, zUuid, zDate ? zDate : "");
-    free(zUuid);
     free(zDate);
   }
   if( zUuid && showComment ){
@@ -82,6 +81,7 @@ void show_common_info(
       rid
     );
   }
+  free(zUuid);
   if( showFamily ){
     db_prepare(&q, "SELECT uuid, pid, isprim FROM plink JOIN blob ON pid=rid "
                    " WHERE cid=%d"
