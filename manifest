@@ -1,5 +1,5 @@
-C Avoid\scomparing\sa\svariable\sto\sNULL\safter\sthe\smemory\sit\sis\spointing\sto\shas\sbeen\nfreed.\s\sThis\sis\sharmless,\sas\simplemented,\sbut\sit\sis\stechnically\sundefined\nbehavior\sin\sC.\s\s(This\sis\sa\sbug\sin\sthe\sspecification\sof\sthe\sC\slanguage,\simho.)
-D 2016-11-19T17:50:20.644
+C minor\ssimplification,\sand\sdon't\sfree\szUuid\sif\sit\swas\sNULL
+D 2016-11-19T20:11:30.250
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -425,7 +425,7 @@ F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c 52e37698299310f2ef58aaba7dd732f1f62622a5
-F src/info.c 5df74df4a8dbe3bfdfd1eca42fe3b61175aea457
+F src/info.c 5c6fcc39fec4faef75f9e5aa8efea79df311b30a
 F src/json.c dc2c7f146357683da2842cc84eb78a73221a80ba
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c 7c7e2c63fd1cac2ca85aa657a7ae04d91a1bdc08
@@ -770,7 +770,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 467c4269b0cfd477f0fa67d7030b6d3c051d0f81
-R 3f8028ad456fe277688b072913c991ee
-U drh
-Z 574cb3e6ec4a6a56d44f2431f0e46e2b
+P 4e126233caf6ef3d439955af866254758802a0d0
+R 5c428f6a4bb8e6f85051dc5b18c1c2d1
+U jan.nijtmans
+Z 77470d5bf7f81cbee11f987daa0e01cd

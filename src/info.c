@@ -72,16 +72,16 @@ void show_common_info(
          /* 01234567890123 */
     fossil_print("%-13s %s %s\n", zUuidName, zUuid, zDate ? zDate : "");
     free(zDate);
+    if( showComment ){
+      zComment = db_text(0,
+        "SELECT coalesce(ecomment,comment) || "
+        "       ' (user: ' || coalesce(euser,user,'?') || ')' "
+        "  FROM event WHERE objid=%d",
+        rid
+      );
+    }
+    free(zUuid);
   }
-  if( zUuid && showComment ){
-    zComment = db_text(0,
-      "SELECT coalesce(ecomment,comment) || "
-      "       ' (user: ' || coalesce(euser,user,'?') || ')' "
-      "  FROM event WHERE objid=%d",
-      rid
-    );
-  }
-  free(zUuid);
   if( showFamily ){
     db_prepare(&q, "SELECT uuid, pid, isprim FROM plink JOIN blob ON pid=rid "
                    " WHERE cid=%d"
