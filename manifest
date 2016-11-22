@@ -1,5 +1,5 @@
-C Restore\sthe\s-R\soption\sto\sthe\s"fossil\ssetting"\scommand.
-D 2016-11-22T22:23:04.510
+C Update\sthe\sbuilt-in\sSQLite\sto\s3.16.0\salpha\sfor\stesting.
+D 2016-11-22T22:26:00.076
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -482,13 +482,13 @@ F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c f8f9ec5bcd61107bdc929e75ad34b4f5f6577f0d
 F src/setup.c 2d807dd6722ea73a8be13afe66a194cdc1e4b5ee
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
-F src/shell.c f0e8b54c58a8a13cc046f5af6d72de7e0a118a2b
+F src/shell.c b6ba45f741cc0e56ec7a3504855fe1373def2e16
 F src/shun.c 1f8bcfcd826c3b574cd6e723f7afcbeff33ff443
 F src/sitemap.c b7c376b21d29322741c804e1f762b34aedb98ad1
 F src/skins.c 0b6ae35015f48cbe9cef2f97d65105a796fc366b
 F src/sqlcmd.c fa59f2944d8e77db25d63483e24742c3bb100d6b
-F src/sqlite3.c 6372de39650e98988245a976c44615226922745c
-F src/sqlite3.h b611401d36917e3ea68281a59001f68c5e09488c
+F src/sqlite3.c 947bbfb816a24cd79fa4d3d99ea810aec785bb30
+F src/sqlite3.h f412f372da331d92755b174f135d60cf04f7e36f
 F src/stash.c ac247e5b718cd29c6c1fc543f7b984be9b9f53e6
 F src/stat.c 05ede8a4087ae74c842e89a76d926265e064e83a
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
@@ -770,7 +770,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d6cb724e653611f69b673de4346883c3ec54d73e
-R 4c64b7cec0fba13827eb210aeb6c6b11
+P 5347e2632694fccce969c27e9f64d06e87d1c9ff
+R eae0fe5ddf46b170b903a12fbb595156
 U drh
-Z d35ad5230ace62f4cfeac8f8d6cb2599
+Z 27c7b86a3f4176abd842c9599f69246b
