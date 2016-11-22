@@ -3087,6 +3087,7 @@ void setting_cmd(void){
   int globalFlag = find_option("global","g",0)!=0;
   int exactFlag = find_option("exact",0,0)!=0;
   int unsetFlag = g.argv[1][0]=='u';
+  find_repository_option();
   verify_all_options();
   db_open_config(1, 0);
   if( !globalFlag ){
