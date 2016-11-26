@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\s3.16.0\salpha\sfor\stesting.
-D 2016-11-22T22:26:00.076
+C Fix\sthe\s"fossil\sall\sadd"\scommand\sso\sthat\sit\sworks\seven\sif\srepos\sthat\sare\nalready\sknown\sare\sadded.
+D 2016-11-26T01:26:41.242
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -376,7 +376,7 @@ F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e5243a0a2742f4778287bf098ee4043d0a5ff1c4
-F src/allrepo.c 5d5f86041a5327a4c0a40c5d5113633ccd76cc35
+F src/allrepo.c 548021c51801ebcc7879a9b677c396a0c78abec4
 F src/attach.c b2f9bbde2c64be08f3feeacfcef4b95377ec0b19
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
@@ -770,7 +770,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5347e2632694fccce969c27e9f64d06e87d1c9ff
-R eae0fe5ddf46b170b903a12fbb595156
+P 31ae6022aaa98410f41cedef8e9dbffe50aa1f54
+R b950e9b8477dd08b808d9d622da576bb
 U drh
-Z 27c7b86a3f4176abd842c9599f69246b
+Z abd388091bb00d5711ca566a04665c59

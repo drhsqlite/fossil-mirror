@@ -324,13 +324,16 @@ void all_cmd(void){
       file_canonical_name(g.argv[j], &fn, 0);
       z = blob_str(&fn);
       if( !file_isfile(z) ) continue;
+      g.dbIgnoreErrors++;
       rc = sqlite3_open(z, &db);
-      if( rc!=SQLITE_OK ){ sqlite3_close(db); continue; }
+      if( rc!=SQLITE_OK ){ sqlite3_close(db); g.dbIgnoreErrors--; continue; }
       rc = sqlite3_exec(db, "SELECT rcvid FROM blob, delta LIMIT 1", 0, 0, 0);
       sqlite3_close(db);
+      g.dbIgnoreErrors--;
       if( rc!=SQLITE_OK ) continue;
       blob_append_sql(&sql,
-         "INSERT INTO global_config(name,value)VALUES('repo:%q',1)", z
+         "INSERT OR IGNORE INTO global_config(name,value)"
+         "VALUES('repo:%q',1)", z
       );
       if( dryRunFlag ){
         fossil_print("%s\n", blob_sql_text(&sql));
