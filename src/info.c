@@ -1731,6 +1731,10 @@ int artifact_from_ci_and_filename(
 /*
 ** Look for "ci" and "filename" query parameters.  If found, try to
 ** use them to extract the record ID of an artifact for the file.
+**
+** Also look for "fn" as an alias for "filename".  If either "filename"
+** or "fn" is present but "ci" is missing, use "tip" as a default value
+** for "ci".
 */
 int artifact_from_ci_and_filename_www(void){
   const char *zFilename;
@@ -1739,11 +1743,14 @@ int artifact_from_ci_and_filename_www(void){
   Manifest *pManifest;
   ManifestFile *pFile;
 
-  zCI = P("ci");
-  if( zCI==0 ) return 0;
   zFilename = P("filename");
-  if( zFilename==0 ) return 0;
-  cirid = name_to_rid_www("ci");
+  if( zFilename==0 ){
+    zFilename = P("fn");
+    if( zFilename==0 ) return 0;
+  }
+  zCI = PD("ci", "tip");
+  cirid = name_to_typed_rid(zCI, "ci");
+  if( cirid<=0 ) return 0;
   pManifest = manifest_get(cirid, CFTYPE_MANIFEST, 0);
   if( pManifest==0 ) return 0;
   manifest_file_rewind(pManifest);
@@ -1842,12 +1849,15 @@ void output_text_with_line_numbers(
 
 
 /*
-** WEBPAGE: whatis
 ** WEBPAGE: artifact
+** WEBPAGE: file
+** WEBPAGE: whatis
 **
-** URL: /artifact/SHA1HASH
-** URL: /artifact?ci=CHECKIN&filename=PATH
-** URL: /whatis/SHA1HASH
+** Typical usage:
+**
+**    /artifact/SHA1HASH
+**    /whatis/SHA1HASH
+**    /file/NAME
 **
 ** Additional query parameters:
 **
@@ -1857,10 +1867,15 @@ void output_text_with_line_numbers(
 **   ln=M-N+Y-Z      - highlight lines M through N and Y through Z (inclusive)
 **   verbose         - show more detail in the description
 **   download        - redirect to the download (artifact page only)
+**   name=SHA1HASH   - Provide the SHA1HASH as a query parameter
+**   filename=NAME   - Show information for content file NAME
+**   fn=NAME         - "fn" is shorthand for "filename"
+**   ci=VERSION      - The specific check-in to use for "filename=".
 **
 ** The /artifact page show the complete content of a file
 ** identified by SHA1HASH as preformatted text.  The
-** /whatis page shows only a description of the file.
+** /whatis page shows only a description of the file.  The /file
+** page shows the most recent version of the named file.
 */
 void artifact_page(void){
   int rid = 0;
@@ -1874,19 +1889,35 @@ void artifact_page(void){
   const char *zUuid;
   u32 objdescFlags = 0;
   int descOnly = fossil_strcmp(g.zPath,"whatis")==0;
+  int isFile = fossil_strcmp(g.zPath,"file")==0;
   const char *zLn = P("ln");
 
-  if( P("ci") && P("filename") ){
-    rid = artifact_from_ci_and_filename_www();
-  }
+  rid = artifact_from_ci_and_filename_www();
   if( rid==0 ){
-    rid = name_to_rid_www("name");
+    if( fossil_strcmp(g.zPath,"file")==0 ){
+      rid = db_int(0, 
+         "SELECT fid FROM filename, mlink, event"
+         " WHERE name=%Q"
+         "   AND mlink.fnid=filename.fnid"
+         "   AND event.objid=mlink.mid"
+         " ORDER BY event.mtime DESC LIMIT 1",
+         PD("name","")
+      );
+    }else{
+      rid = name_to_rid_www("name");
+    }
   }
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( rid==0 ) fossil_redirect_home();
   if( descOnly || P("verbose")!=0 ) objdescFlags |= OBJDESC_DETAIL;
+  zUuid = db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid);
+  if( g.perm.Setup ){
+    @ <h2>Artifact %s(zUuid) (%d(rid)):</h2>
+  }else{
+    @ <h2>Artifact %s(zUuid):</h2>
+  }
   blob_zero(&downloadName);
   objType = object_description(rid, objdescFlags, &downloadName);
   if( !descOnly && P("download")!=0 ){
@@ -1904,12 +1935,6 @@ void artifact_page(void){
     }
   }
   style_header("%s", descOnly ? "Artifact Description" : "Artifact Content");
-  zUuid = db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid);
-  if( g.perm.Setup ){
-    @ <h2>Artifact %s(zUuid) (%d(rid)):</h2>
-  }else{
-    @ <h2>Artifact %s(zUuid):</h2>
-  }
   if( g.perm.Admin ){
     Stmt q;
     db_prepare(&q,
@@ -1927,7 +1952,7 @@ void artifact_page(void){
     db_finalize(&q);
   }
   style_submenu_element("Download", "%R/raw/%T?name=%s",
-          blob_str(&downloadName), zUuid);
+                         blob_str(&downloadName), zUuid);
   if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
     style_submenu_element("Check-ins Using", "%R/timeline?n=200&uf=%s", zUuid);
   }
