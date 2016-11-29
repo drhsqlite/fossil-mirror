@@ -1,5 +1,5 @@
-C New\s/file\spage\sthat\sworks\slike\s/artifact\sexcept\stakes\sa\sfilename\sas\san\nargument\sinstead\sof\sa\sSHA1\shash\sof\san\sartifact,\sand\sresolves\sto\sthe\smost\nrecent\sversion\sof\sany\sfile\swith\sthat\sname.
-D 2016-11-28T16:44:17.494
+C Further\senhancements\sto\sthe\snew\s/file\swebpage.
+D 2016-11-29T14:32:24.056
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -425,7 +425,7 @@ F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c 52e37698299310f2ef58aaba7dd732f1f62622a5
-F src/info.c 430fdfd2f2d24eb9512c55b4833b0e78bfef9827
+F src/info.c 5a0913991640b69815df05549470cafcb5e428c3
 F src/json.c dc2c7f146357683da2842cc84eb78a73221a80ba
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c 7c7e2c63fd1cac2ca85aa657a7ae04d91a1bdc08
@@ -770,7 +770,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b9da89a44ed8e0326a4e35eead1ad9737072fa3d
-R 51ba21db79c1bb059e251ce2a7095a9e
+P d95f712f2caba1e268cfd33abfcdfe7b8122e32d
+R 03b920a5ddf2cd702ea08fda142f1d84
 U drh
-Z 11f8981b31bbe73e376f91e434de1c86
+Z 7d8822fac7306abe7a4ee85ce4c0def4
