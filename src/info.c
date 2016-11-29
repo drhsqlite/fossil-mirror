@@ -1983,12 +1983,8 @@ void artifact_page(void){
   if( descOnly ){
     style_submenu_element("Content", "%R/artifact/%s", zUuid);
   }else{
-    if( zLn==0 ){
-      style_submenu_element("Line Numbers", "%s",
-                            url_render(&url, "ln", "", 0, 0));
-    }else{
-      style_submenu_element("Line Numbers", "%s",
-                            url_render(&url, "ln", 0, 0, 0));
+    if( zLn==0 || atoi(zLn)==0 ){
+      style_submenu_checkbox("ln", "Line Numbers", 0);
     }
     @ <hr />
     content_get(rid, &content);

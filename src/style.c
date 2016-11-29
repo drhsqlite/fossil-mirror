@@ -595,8 +595,8 @@ void style_footer(void){
           break;
         }
         case FF_CHECKBOX:
-          @ <label class='submenuctrl'>\
-          @ <input type='checkbox' name='%s(zQPN)' value='1' \
+          @ <label class='submenuctrl submenuckbox'>\
+          @ <input type='checkbox' name='%s(zQPN)' \
           if( PB(zQPN) ){
             @ checked \
           }
