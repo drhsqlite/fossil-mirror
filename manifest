@@ -1,5 +1,5 @@
-C Make\sthe\s"Line\sNumbers"\ssubmenu\selement\son\sthe\s/artifact\sand\s/file\spages\na\scheck-box.
-D 2016-11-29T16:57:35.722
+C Minor\scorrection\sto\sdocumentation\sof\snew\s/file\swebpage\sregarding\smultiple\shighlighted\sline\sblocks.
+D 2016-11-30T04:08:25.052
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -425,7 +425,7 @@ F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c 52e37698299310f2ef58aaba7dd732f1f62622a5
-F src/info.c bfb9bb4e551c5f0a5ee65e25c2c4e68dfef1d473
+F src/info.c f4a3f2c79e612e9fea6ea5c4851cde146b628568
 F src/json.c dc2c7f146357683da2842cc84eb78a73221a80ba
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c 7c7e2c63fd1cac2ca85aa657a7ae04d91a1bdc08
@@ -770,7 +770,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3cca4c254f885b0d2cd2af0127562d85971cfdf7
-R 7042ba774f58886c84e2311def816e62
-U drh
-Z 17e28fc884a36108a2445f2939f81e4c
+P 4946efef65c2e808686d8c9a80544ba266f3b3c4
+R 33fe4866bec378e0c5d4533ca63f567e
+U andybradford
+Z c51d4e404fd7f2e031b7f87786c5c45d

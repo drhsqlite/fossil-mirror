@@ -1842,7 +1842,7 @@ void output_text_with_line_numbers(
 **   ln              - show line numbers
 **   ln=N            - highlight line number N
 **   ln=M-N          - highlight lines M through N inclusive
-**   ln=M-N,Y-Z      - highlight lines M through N and Y through Z (inclusive)
+**   ln=M-N+Y-Z      - highlight lines M through N and Y through Z (inclusive)
 **   verbose         - show more detail in the description
 **   download        - redirect to the download (artifact page only)
 **   name=SHA1HASH   - Provide the SHA1HASH as a query parameter
