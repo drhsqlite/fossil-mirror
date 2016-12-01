@@ -1290,7 +1290,6 @@ static void process_one_web_page(
   int allowRepoList           /* Send repo list for "/" URL */
 ){
   const char *zPathInfo = PD("PATH_INFO", "");
-  /* const char *zDirPathInfo; **** refactor needed */
   char *zPath = NULL;
   int i;
   const CmdOrPage *pCmd = 0;
@@ -1302,19 +1301,6 @@ static void process_one_web_page(
   }else if( PB("localtime") ){
     g.fTimeFormat = 2;
   }
-
-#if 0 /* Refactor needed */
-  /* For the PATH_INFO that will be used to help build the final
-  ** g.zBaseURL and g.zTop (only), skip over the initial directory
-  ** portion of PATH_INFO; otherwise, it may be duplicated.
-  */
-  if( g.zTop ){
-    int nTop = strlen(g.zTop);
-    if ( strncmp(zDirPathInfo, g.zTop, nTop)==0 ){
-      zDirPathInfo += nTop;
-    }
-  }
-#endif
 
   /* If the repository has not been opened already, then find the
   ** repository based on the first element of PATH_INFO and open it.
@@ -1395,18 +1381,6 @@ static void process_one_web_page(
           @ <!-- file_size(%h(zCleanRepo)) is %lld(szFile) -->
           fprintf(stderr, "# file_size(%s) = %lld\n", zCleanRepo, szFile);
         }
-
-#if 0
-        /* This logic for handling --baseurl is confused and needs to be
-        ** completely rethought. */
-        if( g.zBaseURL && g.zBaseURL[0]!=0 && g.zTop && g.zTop[0]!=0 &&
-            file_isdir(g.zRepositoryName)==1 ){
-          if( zPathInfo==zDirPathInfo ){
-            g.zBaseURL = mprintf("%s%.*s", g.zBaseURL, i, zPathInfo);
-            g.zTop = mprintf("%s%.*s", g.zTop, i, zPathInfo);
-          }
-        }
-#endif
       }
 
       /* If no file named by zRepo exists, remove the added ".fossil" suffix
@@ -1484,23 +1458,33 @@ static void process_one_web_page(
     }
 
     /* Add the repository name (without the ".fossil" suffix) to the end
-    ** of SCRIPT_NAME and remove the repository name from the beginning
-    ** of PATH_INFO.
+    ** of SCRIPT_NAME and g.zTop and g.zBaseURL and remove the repository
+    ** name from the beginning of PATH_INFO.
     */
     zNewScript = mprintf("%s%.*s", zOldScript, i, zPathInfo);
+    if( g.zTop ) g.zTop = mprintf("%s%.*s", g.zTop, i, zPathInfo);
+    if( g.zBaseURL ) g.zBaseURL = mprintf("%s%.*s", g.zBaseURL, i, zPathInfo);
     cgi_replace_parameter("PATH_INFO", &zPathInfo[i+1]);
     zPathInfo += i;
     cgi_replace_parameter("SCRIPT_NAME", zNewScript);
     db_open_repository(file_cleanup_fullpath(zRepo));
     if( g.fHttpTrace ){
       @ <!-- repository: "%h(zRepo)" -->
-      @ <!-- new PATH_INFO: "%h(zPathInfo)" -->
-      @ <!-- new SCRIPT_NAME: "%h(zNewScript)" -->
+      @ <!-- translated PATH_INFO: "%h(zPathInfo)" -->
+      @ <!-- translated SCRIPT_NAME: "%h(zNewScript)" -->
       fprintf(stderr,
           "# repository: [%s]\n"
-          "# new PATH_INFO = [%s]\n"
-          "# new SCRIPT_NAME = [%s]\n",
+          "# translated PATH_INFO = [%s]\n"
+          "# translated SCRIPT_NAME = [%s]\n",
           zRepo, zPathInfo, zNewScript);
+      if( g.zTop ){
+        @ <!-- translated g.zTop: "%h(g.zTop)" -->
+        fprintf(stderr, "# translated g.zTop = [%s]\n", g.zTop);
+      }
+      if( g.zBaseURL ){
+        @ <!-- translated g.zBaseURL: "%h(g.zBaseURL)" -->
+        fprintf(stderr, "# translated g.zBaseURL = [%s]\n", g.zBaseURL);
+      }
     }
   }
 
