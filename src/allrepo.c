@@ -137,6 +137,10 @@ static void collect_argv(Blob *pExtra, int iStart){
 **    unset       conjunction with the "max-loadavg" setting which cannot
 **                otherwise be set globally.
 **
+**    server      Run the "ui" or "server" commands on all repositories.
+**    ui          The root URI gives a listing of all repos.
+**
+**
 ** In addition, the following maintenance operations are supported:
 **
 **    add         Add all the repositories named to the set of repositories
@@ -191,6 +195,12 @@ void all_cmd(void){
   blob_zero(&extra);
   zCmd = g.argv[2];
   if( !login_is_nobody() ) blob_appendf(&extra, " -U %s", g.zLogin);
+  if( strncmp(zCmd, "ui", n)==0 || strncmp(zCmd, "server", n)==0 ){
+    g.argv[1] = g.argv[2];
+    g.argv[2] = "/";
+    cmd_webserver();
+    return;
+  }
   if( strncmp(zCmd, "list", n)==0 || strncmp(zCmd,"ls",n)==0 ){
     zCmd = "list";
     useCheckouts = find_option("ckout","c",0)!=0;
@@ -357,7 +367,7 @@ void all_cmd(void){
   }else{
     fossil_fatal("\"all\" subcommand should be one of: "
                  "add cache changes clean dbstat extras fts-config ignore "
-                 "info list ls pull push rebuild setting sync unset");
+                 "info list ls pull push rebuild server setting sync ui unset");
   }
   verify_all_options();
   zFossil = quoteFilename(g.nameOfExe);

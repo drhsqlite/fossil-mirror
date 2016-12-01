@@ -1185,6 +1185,11 @@ static char *enter_chroot_jail(char *zRepo, int noJail){
 ** Generate a web-page that lists all repositories located under the
 ** g.zRepositoryName directory and return non-zero.
 **
+** For the special case of g.zRepositoryName equal to "/",
+** compose the list using the "repo:" entries in the global_config
+** table of the configuration database.  These entries comprise all
+** of the repositories known to the "all" command.
+**
 ** Or, if no repositories can be located beneath g.zRepositoryName,
 ** return 0.
 */
@@ -1193,21 +1198,36 @@ static int repo_list_page(void){
   int n = 0;
 
   assert( g.db==0 );
-  blob_init(&base, g.zRepositoryName, -1);
-  sqlite3_open(":memory:", &g.db);
-  db_multi_exec("CREATE TABLE sfile(pathname TEXT);");
-  db_multi_exec("CREATE TABLE vfile(pathname);");
-  vfile_scan(&base, blob_size(&base), 0, 0, 0);
-  db_multi_exec("DELETE FROM sfile WHERE pathname NOT GLOB '*[^/].fossil'");
+  if( fossil_strcmp(g.zRepositoryName,"/")==0 ){
+    /* For the special case of the "repository directory" being "/",
+    ** show all of the repositories named in the ~/.fossil database.
+    */
+    db_open_config(1, 0);
+    db_multi_exec(
+       "CREATE TEMP VIEW sfile AS"
+       "  SELECT substr(name,7) AS 'pathname' FROM global_config"
+       "   WHERE name GLOB 'repo:*'"
+    );
+  }else{
+    /* The default case:  All repositories under the g.zRepositoryName
+    ** directory.
+    */
+    blob_init(&base, g.zRepositoryName, -1);
+    sqlite3_open(":memory:", &g.db);
+    db_multi_exec("CREATE TABLE sfile(pathname TEXT);");
+    db_multi_exec("CREATE TABLE vfile(pathname);");
+    vfile_scan(&base, blob_size(&base), 0, 0, 0);
+    db_multi_exec("DELETE FROM sfile WHERE pathname NOT GLOB '*[^/].fossil'");
+  }
+  @ <html>
+  @ <head>
+  @ <base href="%s(g.zBaseURL)/" />
+  @ <title>Repository List</title>
+  @ </head>
+  @ <body>
   n = db_int(0, "SELECT count(*) FROM sfile");
   if( n>0 ){
     Stmt q;
-    @ <html>
-    @ <head>
-    @ <base href="%s(g.zBaseURL)/" />
-    @ <title>Repository List</title>
-    @ </head>
-    @ <body>
     @ <h1>Available Repositories:</h1>
     @ <ol>
     db_prepare(&q, "SELECT pathname, substr(pathname,-7,-100000)||'/home'"
@@ -1218,10 +1238,12 @@ static int repo_list_page(void){
       @ <li><a href="%R/%h(zUrl)" target="_blank">%h(zName)</a></li>
     }
     @ </ol>
-    @ </body>
-    @ </html>
-    cgi_reply();
+  }else{
+    @ <h1>No Repositories Found</h1>
   }
+  @ </body>
+  @ </html>
+  cgi_reply();
   sqlite3_close(g.db);
   g.db = 0;
   return n;
@@ -2206,6 +2228,10 @@ static int binaryOnPath(const char *zBinary){
 ** the REPOSITORY can only be a directory if the --notfound option is
 ** also present.
 **
+** For the special case REPOSITORY name of "/", the list global configuration
+** database is consulted for a list of all known repositories.  The --repolist
+** option is implied by this special case.
+**
 ** By default, the "ui" command provides full administrative access without
 ** having to log in.  This can be disabled by turning off the "localauth"
 ** setting.  Automatic login for the "server" command is available if the
@@ -2379,7 +2405,11 @@ void cmd_webserver(void){
   }
   g.cgiOutput = 1;
   find_server_repository(2, 0);
-  g.zRepositoryName = enter_chroot_jail(g.zRepositoryName, noJail);
+  if( fossil_strcmp(g.zRepositoryName,"/")==0 ){
+    allowRepoList = 1;
+  }else{
+    g.zRepositoryName = enter_chroot_jail(g.zRepositoryName, noJail);
+  }
   if( flags & HTTP_SERVER_SCGI ){
     cgi_handle_scgi_request();
   }else{
