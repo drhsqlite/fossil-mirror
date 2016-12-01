@@ -1201,13 +1201,26 @@ static int repo_list_page(void){
   if( fossil_strcmp(g.zRepositoryName,"/")==0 ){
     /* For the special case of the "repository directory" being "/",
     ** show all of the repositories named in the ~/.fossil database.
+    **
+    ** On unix systems, then entries are of the form "repo:/home/..."
+    ** and on Windows systems they are like "repo:C:/Users/...".  We want
+    ** to skip the first 6 characters on unix and the first 5 characters
+    ** on Windows.
     */
     db_open_config(1, 0);
+#ifdef _WIN32
+    db_multi_exec(
+       "CREATE TEMP VIEW sfile AS"
+       "  SELECT substr(name,6) AS 'pathname' FROM global_config"
+       "   WHERE name GLOB 'repo:*'"
+    );
+#else
     db_multi_exec(
        "CREATE TEMP VIEW sfile AS"
        "  SELECT substr(name,7) AS 'pathname' FROM global_config"
        "   WHERE name GLOB 'repo:*'"
     );
+#endif
   }else{
     /* The default case:  All repositories under the g.zRepositoryName
     ** directory.
@@ -1235,7 +1248,7 @@ static int repo_list_page(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       const char *zUrl = db_column_text(&q, 1);
-      @ <li><a href="%R/%h(zUrl)" target="_blank">%h(zName)</a></li>
+      @ <li><a href="%R/%T(zUrl)" target="_blank">%h(zName)</a></li>
     }
     @ </ol>
   }else{
@@ -1276,11 +1289,12 @@ static void process_one_web_page(
   Glob *pFileGlob,            /* Deliver static files matching */
   int allowRepoList           /* Send repo list for "/" URL */
 ){
-  const char *zPathInfo;
-  const char *zDirPathInfo;
+  const char *zPathInfo = PD("PATH_INFO", "");
+  /* const char *zDirPathInfo; **** refactor needed */
   char *zPath = NULL;
   int i;
   const CmdOrPage *pCmd = 0;
+  const char *zBase = g.zRepositoryName;
 
   /* Handle universal query parameters */
   if( PB("utc") ){
@@ -1289,10 +1303,7 @@ static void process_one_web_page(
     g.fTimeFormat = 2;
   }
 
-  /* If the repository has not been opened already, then find the
-  ** repository based on the first element of PATH_INFO and open it.
-  */
-  zDirPathInfo = zPathInfo = PD("PATH_INFO","");
+#if 0 /* Refactor needed */
   /* For the PATH_INFO that will be used to help build the final
   ** g.zBaseURL and g.zTop (only), skip over the initial directory
   ** portion of PATH_INFO; otherwise, it may be duplicated.
@@ -1303,41 +1314,91 @@ static void process_one_web_page(
       zDirPathInfo += nTop;
     }
   }
+#endif
+
+  /* If the repository has not been opened already, then find the
+  ** repository based on the first element of PATH_INFO and open it.
+  */
   if( !g.repositoryOpen ){
-    char *zRepo, *zToFree;
-    const char *zOldScript = PD("SCRIPT_NAME", "");
-    char *zNewScript;
-    int j, k;
-    i64 szFile;
+    char *zRepo;               /* Candidate repository name */
+    char *zToFree = 0;         /* Malloced memory that needs to be freed */
+    const char *zCleanRepo;    /* zRepo with surplus leading "/" removed */
+    const char *zOldScript = PD("SCRIPT_NAME", "");  /* Original SCRIPT_NAME */
+    char *zNewScript;          /* Revised SCRIPT_NAME after processing */
+    int j, k;                  /* Loop variables */
+    i64 szFile;                /* File size of the candidate repository */
 
     i = zPathInfo[0]!=0;
+    if( fossil_strcmp(g.zRepositoryName, "/")==0 ){
+      zBase++;
+#ifdef _WIN32
+      if( sqlite3_strglob("/[a-zA-Z]:/*", zPathInfo)==0 ) i = 4;
+#endif
+    }
     while( 1 ){
       while( zPathInfo[i] && zPathInfo[i]!='/' ){ i++; }
-      zRepo = zToFree = mprintf("%s%.*s.fossil",g.zRepositoryName,i,zPathInfo);
 
-      /* To avoid mischief, make sure the repository basename contains no
+      /* The candidate repository name is some prefix of the PATH_INFO
+      ** with ".fossil" appended */
+      zRepo = zToFree = mprintf("%s%.*s.fossil",zBase,i,zPathInfo);
+      if( g.fHttpTrace ){
+        @ <!-- Looking for repository named "%h(zRepo)" -->
+        fprintf(stderr, "# looking for repository named \"%s\"\n", zRepo);
+      }
+
+
+      /* For safety -- to prevent an attacker from accessing arbitrary disk
+      ** files by sending a maliciously crafted request URI to a public
+      ** server -- make sure the repository basename contains no
       ** characters other than alphanumerics, "/", "_", "-", and ".", and
       ** that "-" never occurs immediately after a "/" and that "." is always
       ** surrounded by two alphanumerics.  Any character that does not
       ** satisfy these constraints is converted into "_".
       */
       szFile = 0;
-      for(j=strlen(g.zRepositoryName)+1, k=0; zRepo[j] && k<i-1; j++, k++){
+      for(j=strlen(zBase)+1, k=0; zRepo[j] && k<i-1; j++, k++){
         char c = zRepo[j];
         if( fossil_isalnum(c) ) continue;
+#ifdef _WIN32
+        /* Allow names to begin with "/X:/" on windows */
+        if( c==':' && j==2 && sqlite3_strglob("/[a-zA-Z]:/*", zRepo)==0 ){
+          continue;
+        }
+#endif
         if( c=='/' ) continue;
         if( c=='_' ) continue;
         if( c=='-' && zRepo[j-1]!='/' ) continue;
         if( c=='.' && fossil_isalnum(zRepo[j-1]) && fossil_isalnum(zRepo[j+1])){
           continue;
         }
+        /* If we reach this point, it means that the request URI contains
+        ** an illegal character or character combination.  Provoke a
+        ** "Not Found" error. */
         szFile = 1;
+        if( g.fHttpTrace ){
+          @ <!-- Unsafe pathname rejected: "%h(zRepo)" -->
+          fprintf(stderr, "# unsafe pathname rejected: %s\n", zRepo);
+        }
         break;
       }
+
+      /* Check to see if a file name zRepo exists.  If a file named zRepo
+      ** does not exist, szFile will become -1.  If the file does exist,
+      ** then szFile will become zero (for an empty file) or positive.
+      ** Special case:  Assume any file with a basename of ".fossil" does
+      ** not exist.
+      */
+      zCleanRepo = file_cleanup_fullpath(zRepo);
       if( szFile==0 && sqlite3_strglob("*/.fossil",zRepo)!=0 ){
-        if( zRepo[0]=='/' && zRepo[1]=='/' ){ zRepo++; j--; }
-        szFile = file_size(zRepo);
-        /* this should only be set from the --baseurl option, not CGI  */
+        szFile = file_size(zCleanRepo);
+        if( g.fHttpTrace ){
+          @ <!-- file_size(%h(zCleanRepo)) is %lld(szFile) -->
+          fprintf(stderr, "# file_size(%s) = %lld\n", zCleanRepo, szFile);
+        }
+
+#if 0
+        /* This logic for handling --baseurl is confused and needs to be
+        ** completely rethought. */
         if( g.zBaseURL && g.zBaseURL[0]!=0 && g.zTop && g.zTop[0]!=0 &&
             file_isdir(g.zRepositoryName)==1 ){
           if( zPathInfo==zDirPathInfo ){
@@ -1345,25 +1406,46 @@ static void process_one_web_page(
             g.zTop = mprintf("%s%.*s", g.zTop, i, zPathInfo);
           }
         }
+#endif
       }
+
+      /* If no file named by zRepo exists, remove the added ".fossil" suffix
+      ** and check to see if there is a file or directory with the same
+      ** name as the raw PATH_INFO text.
+      */
       if( szFile<0 && i>0 ){
         const char *zMimetype;
-        assert( fossil_strcmp(&zRepo[j], ".fossil")==0 );
-        zRepo[j] = 0;
-        if( zPathInfo[i]=='/' && file_isdir(zRepo)==1 ){
+        assert( fossil_strcmp(&zRepo[j], ".fossil")==0 ); 
+        zRepo[j] = 0;  /* Remove the ".fossil" suffix */
+
+        /* The PATH_INFO prefix seen so far is a valid directory.
+        ** Continue the loop with the next element of the PATH_INFO */
+        if( zPathInfo[i]=='/' && file_isdir(zCleanRepo)==1 ){
           fossil_free(zToFree);
           i++;
           continue;
         }
+
+        /* If zRepo is the name of an ordinary file that matches the
+        ** "--file GLOB" pattern, then the CGI reply is the text of
+        ** of the file.
+        **
+        ** For safety, do not allow any file whose name contains ".fossil"
+        ** to be returned this way, to prevent complete repositories from
+        ** being delivered accidently.  This is not intended to be a
+        ** general-purpose web server.  The "--file GLOB" mechanism is
+        ** designed to allow the delivery of a few static images or HTML
+        ** pages.
+        */
         if( pFileGlob!=0
-         && file_isfile(zRepo)
-         && glob_match(pFileGlob, zRepo)
+         && file_isfile(zCleanRepo)
+         && glob_match(pFileGlob, file_cleanup_fullpath(zRepo))
          && sqlite3_strglob("*.fossil*",zRepo)!=0
          && (zMimetype = mimetype_from_name(zRepo))!=0
          && strcmp(zMimetype, "application/x-fossil-artifact")!=0
         ){
           Blob content;
-          blob_read_from_file(&content, zRepo);
+          blob_read_from_file(&content, file_cleanup_fullpath(zRepo));
           cgi_set_content_type(zMimetype);
           cgi_set_content(&content);
           cgi_reply();
@@ -1372,6 +1454,11 @@ static void process_one_web_page(
         zRepo[j] = '.';
       }
 
+      /* If we reach this point, it means that the search of the PATH_INFO
+      ** string is finished.  Either zRepo contains the name of the
+      ** repository to be used, or else no repository could be found an
+      ** some kind of error response is required.
+      */
       if( szFile<1024 ){
         set_base_url(0);
         if( strcmp(zPathInfo,"/")==0
@@ -1395,12 +1482,20 @@ static void process_one_web_page(
       }
       break;
     }
+
+    /* Add the repository name (without the ".fossil" suffix) to the end
+    ** of SCRIPT_NAME and remove the repository name from the beginning
+    ** of PATH_INFO.
+    */
     zNewScript = mprintf("%s%.*s", zOldScript, i, zPathInfo);
     cgi_replace_parameter("PATH_INFO", &zPathInfo[i+1]);
     zPathInfo += i;
     cgi_replace_parameter("SCRIPT_NAME", zNewScript);
-    db_open_repository(zRepo);
+    db_open_repository(file_cleanup_fullpath(zRepo));
     if( g.fHttpTrace ){
+      @ <!-- repository: "%h(zRepo)" -->
+      @ <!-- new PATH_INFO: "%h(zPathInfo)" -->
+      @ <!-- new SCRIPT_NAME: "%h(zNewScript)" -->
       fprintf(stderr,
           "# repository: [%s]\n"
           "# new PATH_INFO = [%s]\n"
@@ -1409,16 +1504,23 @@ static void process_one_web_page(
     }
   }
 
-  /* Find the page that the user has requested, construct and deliver that
-  ** page.
+  /* At this point, the appropriate repository database file will have
+  ** been opened.  Use the first element of PATH_INFO as the page name
+  ** and deliver the appropriate page back to the user.
   */
   if( g.zContentType &&
       strncmp(g.zContentType, "application/x-fossil", 20)==0 ){
+    /* Special case:  If the content mimetype shows that it is "fossil sync"
+    ** payload, then pretend that the PATH_INFO is /xfer so that we always
+    ** invoke the sync page. */
     zPathInfo = "/xfer";
   }
   set_base_url(0);
   if( zPathInfo==0 || zPathInfo[0]==0
       || (zPathInfo[0]=='/' && zPathInfo[1]==0) ){
+    /* Second special case: If the PATH_INFO is blank, issue a redirect to
+    ** the home page identified by the "index-page" setting in the repository
+    ** CONFIG table, to "/index" if there no "index-page" setting. */
 #ifdef FOSSIL_ENABLE_JSON
     if(g.json.isJsonMode){
       json_err(FSL_JSON_E_RESOURCE_NOT_FOUND,NULL,1);
@@ -1439,52 +1541,6 @@ static void process_one_web_page(
     if( zPath[i]=='/' ){
       zPath[i] = 0;
       g.zExtra = &zPath[i+1];
-
-#ifdef FOSSIL_ENABLE_SUBREPOSITORY
-      char *zAltRepo = 0;
-      /* 2016-09-21: Subrepos are undocumented and apparently no longer work.
-      ** So they are now removed unless the -DFOSSIL_ENABLE_SUBREPOSITORY
-      ** compile-time option is used.  If there are no complaints after
-      ** a while, we can delete the code entirely.
-      */
-      /* Look for sub-repositories.  A sub-repository is another repository
-      ** that accepts the login credentials of the current repository.  A
-      ** subrepository is identified by a CONFIG table entry "subrepo:NAME"
-      ** where NAME is the first component of the path.  The value of the
-      ** the CONFIG entries is the string "USER:FILENAME" where USER is the
-      ** USER name to log in as in the subrepository and FILENAME is the
-      ** repository filename.
-      */
-      zAltRepo = db_text(0, "SELECT value FROM config WHERE name='subrepo:%q'",
-                         g.zPath);
-      if( zAltRepo ){
-        int nHost;
-        int jj;
-        char *zUser = zAltRepo;
-        login_check_credentials();
-        for(jj=0; zAltRepo[jj] && zAltRepo[jj]!=':'; jj++){}
-        if( zAltRepo[jj]==':' ){
-          zAltRepo[jj] = 0;
-          zAltRepo += jj+1;
-        }else{
-          zUser = "nobody";
-        }
-        if( g.zLogin==0 || g.zLogin[0]==0 ) zUser = "nobody";
-        if( zAltRepo[0]!='/' ){
-          zAltRepo = mprintf("%s/../%s", g.zRepositoryName, zAltRepo);
-          file_simplify_name(zAltRepo, -1, 0);
-        }
-        db_close(1);
-        db_open_repository(zAltRepo);
-        login_as_user(zUser);
-        g.perm.Password = 0;
-        zPath += i;
-        nHost = g.zTop - g.zBaseURL;
-        g.zBaseURL = mprintf("%z/%s", g.zBaseURL, g.zPath);
-        g.zTop = g.zBaseURL + nHost;
-        continue;
-      }
-#endif /* FOSSIL_ENABLE_SUBREPOSITORY */
     }else{
       g.zExtra = 0;
     }
@@ -2230,7 +2286,8 @@ static int binaryOnPath(const char *zBinary){
 **
 ** For the special case REPOSITORY name of "/", the list global configuration
 ** database is consulted for a list of all known repositories.  The --repolist
-** option is implied by this special case.
+** option is implied by this special case.  See also the "fossil all ui"
+** command.
 **
 ** By default, the "ui" command provides full administrative access without
 ** having to log in.  This can be disabled by turning off the "localauth"
