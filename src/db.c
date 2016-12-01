@@ -3318,3 +3318,18 @@ void admin_log(const char *zFormat, ...){
                 g.zPath, g.zLogin, &what);
   blob_reset(&what);
 }
+
+/*
+** COMMAND: test-database-names
+**
+** Print the names of the various database files:
+** (1) The main repository database
+** (2) The local checkout database
+** (3) The global configuration database
+*/
+void test_database_name_cmd(void){
+  db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
+  fossil_print("Repository database: %s\n", g.zRepositoryName);
+  fossil_print("Local database:      %s\n", g.zLocalDbName);
+  fossil_print("Config database:     %s\n", g.zConfigDbName);
+}
