@@ -1203,6 +1203,7 @@ static char *enter_chroot_jail(char *zRepo, int noJail){
 static int repo_list_page(void){
   Blob base;
   int n = 0;
+  int allRepo;
 
   assert( g.db==0 );
   if( fossil_strcmp(g.zRepositoryName,"/")==0 && !g.fJail ){
@@ -1210,24 +1211,17 @@ static int repo_list_page(void){
     ** show all of the repositories named in the ~/.fossil database.
     **
     ** On unix systems, then entries are of the form "repo:/home/..."
-    ** and on Windows systems they are like "repo:C:/Users/...".  We want
-    ** to skip the first 6 characters on unix and the first 5 characters
-    ** on Windows.
+    ** and on Windows systems they are like on unix, starting with a "/"
+    ** or they can begin with a drive letter: "repo:C:/Users/...".  In either
+    ** case, we want returned path to omit any initial "/".
     */
     db_open_config(1, 0);
-#ifdef _WIN32
     db_multi_exec(
        "CREATE TEMP VIEW sfile AS"
-       "  SELECT substr(name,6) AS 'pathname' FROM global_config"
+       "  SELECT ltrim(substr(name,6),'/') AS 'pathname' FROM global_config"
        "   WHERE name GLOB 'repo:*'"
     );
-#else
-    db_multi_exec(
-       "CREATE TEMP VIEW sfile AS"
-       "  SELECT substr(name,7) AS 'pathname' FROM global_config"
-       "   WHERE name GLOB 'repo:*'"
-    );
-#endif
+    allRepo = 1;
   }else{
     /* The default case:  All repositories under the g.zRepositoryName
     ** directory.
@@ -1238,6 +1232,7 @@ static int repo_list_page(void){
     db_multi_exec("CREATE TABLE vfile(pathname);");
     vfile_scan(&base, blob_size(&base), 0, 0, 0);
     db_multi_exec("DELETE FROM sfile WHERE pathname NOT GLOB '*[^/].fossil'");
+    allRepo = 0;
   }
   @ <html>
   @ <head>
@@ -1255,7 +1250,11 @@ static int repo_list_page(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       const char *zUrl = db_column_text(&q, 1);
-      @ <li><a href="%R/%T(zUrl)" target="_blank">%h(zName)</a></li>
+      if( allRepo && sqlite3_strglob("[a-zA-Z]:/?*", zName)!=0 ){
+        @ <li><a href="%R/%T(zUrl)" target="_blank">/%h(zName)</a></li>
+      }else{
+        @ <li><a href="%R/%T(zUrl)" target="_blank">%h(zName)</a></li>
+      }
     }
     @ </ol>
   }else{

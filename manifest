@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\sthe\s"fossil\sall\sui"\sand\s"fossil\sall\sserver"\scommands.
-D 2016-12-01T16:41:42.759
+C Get\sthe\s"fossil\sall\sui"\scommand\sworking\son\swindows\ssystems\swhere\sthe\nglobal_config\stable\shas\s"repo:"\sentries\sthat\somit\sthe\sdrive\sletter.
+D 2016-12-01T21:56:36.282
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -448,7 +448,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 597ae479d42096c07d6e6f85f1d844ebb46089b3
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
-F src/main.c 3c48d9f8f4bfcfa3aeb28317ab93062ebc922837
+F src/main.c f2b7f9d4808f2a0689ad789b0db12eda63d4a708
 F src/main.mk 3bfcbade731d65f075e20edfa6f1a384eda3f566
 F src/makeheaders.c cbbebae48e377db66e648af76a7aeea63c9bc523
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -770,8 +770,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4636b4b370dcf72fbc5d99a8dd86c349c37a3e2f 226a0990d3aacb85f13d5bec23c85b4d05a29476
-R 28ea81ad7ba6cf2fd80f3e3ee40494dc
-T +closed 226a0990d3aacb85f13d5bec23c85b4d05a29476
+P 239b4c1362c76dbd9c62743f00e661c761fb8d6c
+R b9b535f9a890f9c04b39416f121a4a5c
 U drh
-Z 39d8de6c7b5d9e88edb027d86ddfcf9e
+Z 0fabb58b5be90f732d11b024c6b7e023
