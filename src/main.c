@@ -141,6 +141,7 @@ struct Global {
   int fSqlStats;          /* True if --sqltrace or --sqlstats are present */
   int fSqlPrint;          /* True if -sqlprint flag is present */
   int fQuiet;             /* True if -quiet flag is present */
+  int fJail;              /* True if running with a chroot jail */
   int fHttpTrace;         /* Trace outbound HTTP requests */
   int fAnyTrace;          /* Any kind of tracing */
   char *zHttpAuth;        /* HTTP Authorization user:pass information */
@@ -1151,6 +1152,7 @@ static char *enter_chroot_jail(char *zRepo, int noJail){
         if( file_chdir(zDir, 1) ){
           fossil_fatal("unable to chroot into %s", zDir);
         }
+        g.fJail = 1;
         zRepo = "/";
       }else{
         for(i=strlen(zDir)-1; i>0 && zDir[i]!='/'; i--){}
@@ -1185,10 +1187,15 @@ static char *enter_chroot_jail(char *zRepo, int noJail){
 ** Generate a web-page that lists all repositories located under the
 ** g.zRepositoryName directory and return non-zero.
 **
-** For the special case of g.zRepositoryName equal to "/",
+** For the special case when g.zRepositoryName a non-chroot-jail "/",
 ** compose the list using the "repo:" entries in the global_config
 ** table of the configuration database.  These entries comprise all
-** of the repositories known to the "all" command.
+** of the repositories known to the "all" command.  The special case
+** processing is disallowed for chroot jails because g.zRepositoryName
+** is always "/" inside a chroot jail and so it cannot be used as a flag
+** to signal the special processing in that case.  The special case
+** processing is intended for the "fossil all ui" command which never
+** runs in a chroot jail anyhow.
 **
 ** Or, if no repositories can be located beneath g.zRepositoryName,
 ** return 0.
@@ -1198,7 +1205,7 @@ static int repo_list_page(void){
   int n = 0;
 
   assert( g.db==0 );
-  if( fossil_strcmp(g.zRepositoryName,"/")==0 ){
+  if( fossil_strcmp(g.zRepositoryName,"/")==0 && !g.fJail ){
     /* For the special case of the "repository directory" being "/",
     ** show all of the repositories named in the ~/.fossil database.
     **

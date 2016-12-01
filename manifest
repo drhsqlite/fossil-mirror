@@ -1,5 +1,5 @@
-C A\scleaner\sway\sof\sdealing\swith\sthe\s--baseurl\sproblem.
-D 2016-12-01T15:40:11.827
+C Fix\sthe\s"fossil\sall\sui"\slogic\sso\sthat\sit\sstill\sworks\sfor\sdirectory\slistings\ninside\sof\schroot\sjails.
+D 2016-12-01T16:27:15.632
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -448,7 +448,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 597ae479d42096c07d6e6f85f1d844ebb46089b3
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
-F src/main.c de150330213af46b59780d00d7e214c5a52dc8cd
+F src/main.c 3c48d9f8f4bfcfa3aeb28317ab93062ebc922837
 F src/main.mk 3bfcbade731d65f075e20edfa6f1a384eda3f566
 F src/makeheaders.c cbbebae48e377db66e648af76a7aeea63c9bc523
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -770,7 +770,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P da1c769cd236de86ccbc93cf5b5a8bd46ff043cc
-R 698f5a4d21498acdcbabe10c5e43f95c
+P 8e4b8ba0e40416d54df024226c608f14c8d5929e
+R 28ea81ad7ba6cf2fd80f3e3ee40494dc
 U drh
-Z 8114429bbd6f58976c15f75fa53f40ab
+Z 87b455b54560c99a81b7d9039e57a6ba
