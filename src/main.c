@@ -1323,7 +1323,7 @@ static void process_one_web_page(
     i = zPathInfo[0]!=0;
     if( fossil_strcmp(g.zRepositoryName, "/")==0 ){
       zBase++;
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
       if( sqlite3_strglob("/[a-zA-Z]:/*", zPathInfo)==0 ) i = 4;
 #endif
     }
@@ -1351,7 +1351,7 @@ static void process_one_web_page(
       for(j=strlen(zBase)+1, k=0; zRepo[j] && k<i-1; j++, k++){
         char c = zRepo[j];
         if( fossil_isalnum(c) ) continue;
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
         /* Allow names to begin with "/X:/" on windows */
         if( c==':' && j==2 && sqlite3_strglob("/[a-zA-Z]:/*", zRepo)==0 ){
           continue;

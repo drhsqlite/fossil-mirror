@@ -1442,10 +1442,10 @@ void file_test_valid_for_windows(void){
 ** Remove surplus "/" characters from the beginning of a full pathname.
 ** Extra leading "/" characters are benign on unix.  But on Windows
 ** machines, they must be removed.  Example:  Convert "/C:/fossil/xyx.fossil"
-** into "c:/fossil/xyz.fossil".
+** into "C:/fossil/xyz.fossil". Cygwin should behave as Windows here.
 */
 const char *file_cleanup_fullpath(const char *z){
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
   if( z[0]=='/' && fossil_isalpha(z[1]) && z[2]==':' && z[3]=='/' ) z++;
 #else
   while( z[0]=='/' && z[1]=='/' ) z++;
