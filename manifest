@@ -1,5 +1,5 @@
-C Get\sthe\s"fossil\sall\sui"\scommand\sworking\son\sCygwin\swhere\sthe\sglobal_config\stable\shas\s"repo:"\sentries\scontaining\sthe\swindows\sdrive\sletter
-D 2016-12-02T10:49:25.035
+C Fix\sexecutable\sflags,\sunintentionally\schanged\sin\sprevious\scommit.
+D 2016-12-02T10:51:33.425
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -15,7 +15,7 @@ F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
 F Makefile.in ca04b4081ad0dc54256f7d609168750c2247882e
 F VERSION b05b06b20073554259036e0bee80fb43986651d3
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
-F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
+F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
 F ajax/i-test/rhino-test.js c0e2d874caa424a8cb1628c8d85a4a6b197b8d32
 F ajax/index.html f4f8d1b79b51a12dd167f5e16a1e3e6e38f8903e
@@ -62,7 +62,7 @@ F autosetup/jimsh0.c e2e67757a06d0cab4d5db04220492e68714f5852
 F autosetup/local.tcl 3a6a7704f546f0863f86f69df7af1858de9c41c9
 F autosetup/pkg-config.tcl 232a81fd534755653144cea9558656908189e97f
 F autosetup/system.tcl 82f4b642c6c605dc1fa8cb728bf251e501350572
-F autosetup/test-tclsh f197a4c7bfa8bde7672864fc36dcbc7f85bdda6c
+F autosetup/test-tclsh f197a4c7bfa8bde7672864fc36dcbc7f85bdda6c x
 F autosetup/tmake.auto 76789a7eb47bb057c1d230f549dd6cf1cf3ac376
 F autosetup/tmake.tcl 585cf569bb5b94a98876615d6b6dd6d6d84c93a9
 F compat/tcl-8.6/generic/tcl.h 3e49f8e5404fd60181c69b6d0ad075e12c4fbd4d
@@ -770,7 +770,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 25758c7b1c8319a91a520e9afe3849e0cee18ca8
+P eb9b2317d57191959cc436399228f92b369cb9ae
 R 621703574b6d118e344302b6e9a6c5ce
 U jan.nijtmans
-Z 5a099a07c1d50b4a2d936917e9ea60a4
+Z 0b3487c2b5649074b3139d2b94c59641
