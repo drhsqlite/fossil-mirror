@@ -1,5 +1,5 @@
-C Fix\sa\slink\sto\sthe\sdownload\spage\son\sthe\shomepage.\s\sFix\sa\stypo\sin\sthe\nconcepts.wiki\sdocumentation\spage.
-D 2016-12-03T13:19:34.037
+C Still\smore\sdocumentation\stweaks.
+D 2016-12-03T14:30:54.569
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -735,7 +735,7 @@ F www/fossil_prompt.sh db68e2cae431b9e9f5dd672e2f56e2bde5a57d2a
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
-F www/index.wiki 07538692514d8b66fd947ba3a0a78e53fc39c81f
+F www/index.wiki 99f5eb298bb9c0c274c663b1dafe2818dbf3b694
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki 65f96515648c212e6385128e0d9c60fccf91e83c
 F www/mkdownload.tcl 9955fc58270543b81cdc6d707149a93fd7a06cf1
@@ -746,7 +746,7 @@ F www/permutedindex.html e2f7a7752d2527674bfe905d1e2e91cffc3e4e38
 F www/pop.wiki a9bd731ae3e8b431328d8c3f017cf12d180f377b
 F www/private.wiki 1c55c09563361db73b733386dc0fd6689156d5ab
 F www/qandc.wiki b8b6f9668796bde63440e64dfd40a176766dd78e
-F www/quickstart.wiki c0829034683df6f985027c22ee313f6b50088bfb
+F www/quickstart.wiki 7bdbc39f34b89b66b714a44aafe33ad0a181dd49
 F www/quotes.wiki 6f77c1af17f05596d0f6a4cc88f149a61188ecfd
 F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
@@ -767,10 +767,10 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/unvers.wiki a75ea510c408c0bb83c396afbe72948b8b2202cd
 F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
 F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
-F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
+F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2d9cba2a46bbd3e01131dbc94e6f257d2f9f7691
-R f870e6487b7230782545190a5f4e1618
+P 2b087b7dc318bf2d0b288c50525b6d328662221a
+R d9458a45ab3c54c458353ee0a292a20b
 U drh
-Z 10154cbe290a2066bf2e6129f7edf589
+Z d9127a007d602b179f0ddd09c3844b50

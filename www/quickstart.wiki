@@ -19,6 +19,7 @@ and painlessly.</p>
     <p>Fossil works with repository files (a database with the project's
     complete history) and with checked-out local trees (the working directory
     you use to do your work).
+    (See [./whyusefossil.wiki#definitions | definitions] for more background.)
     The workflow looks like this:</p>
 
     <ul>

@@ -34,8 +34,8 @@ management system with these advanced features:
 
   2.  <b>Built-in Web Interface</b> -
       Fossil has a built-in and intuitive [./webui.wiki | web interface]
-      with a rich assortment of information pages
-      ([./webpage-ex.md|examples]) that promote situational awareness.
+      with a rich variety of information pages
+      ([./webpage-ex.md|examples]) promoting situational awareness.
 
       This entire website is just a running instance of Fossil.
       The pages you see here are all [./wikitheory.wiki | wiki] or
@@ -90,6 +90,7 @@ management system with these advanced features:
      [./quotes.wiki | Quotes] about Fossil and other DVCSes.
   *  [./faq.wiki | Frequently Asked Questions]
   *  The [./concepts.wiki | concepts] behind Fossil.
+     [./whyusefossil.wiki#definitions | Another viewpoint].
   *  [./quickstart.wiki | Quick Start] guide to using Fossil.
   *  [./qandc.wiki | Questions &amp; Criticisms] directed at Fossil.
   *  [./build.wiki | Compiling and Installing]
