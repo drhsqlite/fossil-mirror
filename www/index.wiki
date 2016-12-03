@@ -35,7 +35,7 @@ management system with these advanced features:
   2.  <b>Built-in Web Interface</b> -
       Fossil has a built-in and intuitive [./webui.wiki | web interface]
       with a rich assortment of information pages
-      ([./webpage-ex.md|examples]) designed to promote situational awareness.
+      ([./webpage-ex.md|examples]) that promote situational awareness.
 
       This entire website is just a running instance of Fossil.
       The pages you see here are all [./wikitheory.wiki | wiki] or
@@ -49,7 +49,7 @@ management system with these advanced features:
   3.  <b>Self-Contained</b> -
       Fossil is a single self-contained stand-alone executable.
       To install, simply download a
-      <a href="http://www.fossil-scm.org/download.html">precompiled binary</a>
+      <a href="http://www.fossil-scm.org/uv/download.html">precompiled binary</a>
       for Linux, Mac, OpenBSD, or Windows and put it on your $PATH.
       [./build.wiki | Easy-to-compile source code] is also available.
 

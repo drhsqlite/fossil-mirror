@@ -257,7 +257,7 @@ fossil setting autosync off<br>
 
 By default, Fossil runs with autosync mode turned on.  The
 authors finds that projects run more smoothly in autosync mode since
-autosync helps to prevent pointless forking and merge and helps keeps
+autosync helps to prevent pointless forking and merging and helps keeps
 all collaborators working on exactly the same code rather than on their
 own personal forks of the code.  In the author's view, manual-merge mode
 should be reserved for disconnected operation.

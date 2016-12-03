@@ -1,5 +1,5 @@
-C Fix\sexecutable\sflags,\sunintentionally\schanged\sin\sprevious\scommit.
-D 2016-12-02T10:51:33.425
+C Fix\sa\slink\sto\sthe\sdownload\spage\son\sthe\shomepage.\s\sFix\sa\stypo\sin\sthe\nconcepts.wiki\sdocumentation\spage.
+D 2016-12-03T13:19:34.037
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -687,7 +687,7 @@ F www/checkin_names.wiki be27496a6d2f5f6c83b5a3a1441451beabec99e1
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
-F www/concepts.wiki 01769da6d61e038c7e7811dbaf342664a8cddd5d
+F www/concepts.wiki 37c1f44076f8a623d31762ee1b72506f85768c37
 F www/contribute.wiki 51d8338889e42b57668b1116bb3fc6ab9df52864
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
@@ -735,7 +735,7 @@ F www/fossil_prompt.sh db68e2cae431b9e9f5dd672e2f56e2bde5a57d2a
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
-F www/index.wiki 37506c18202051284c6145efeb9a7579e5f9497c
+F www/index.wiki 07538692514d8b66fd947ba3a0a78e53fc39c81f
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki 65f96515648c212e6385128e0d9c60fccf91e83c
 F www/mkdownload.tcl 9955fc58270543b81cdc6d707149a93fd7a06cf1
@@ -770,7 +770,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fa8a5e30aac0090380f65a1d3fb8482f56054327
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eb9b2317d57191959cc436399228f92b369cb9ae
-R 621703574b6d118e344302b6e9a6c5ce
-U jan.nijtmans
-Z 0b3487c2b5649074b3139d2b94c59641
+P 2d9cba2a46bbd3e01131dbc94e6f257d2f9f7691
+R f870e6487b7230782545190a5f4e1618
+U drh
+Z 10154cbe290a2066bf2e6129f7edf589
