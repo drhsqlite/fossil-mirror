@@ -123,7 +123,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.16.0"
 #define SQLITE_VERSION_NUMBER 3016000
-#define SQLITE_SOURCE_ID      "2016-11-22 20:29:05 bee2859b953c935c413de2917588159d03c672d9"
+#define SQLITE_SOURCE_ID      "2016-12-08 19:04:36 b26df26e184ec6da4b5537526c10f42a293d09b5"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -3610,6 +3610,10 @@ SQLITE_API char *sqlite3_expanded_sql(sqlite3_stmt *pStmt);
 ** sqlite3_stmt_readonly() to return true since, while those statements
 ** change the configuration of a database connection, they do not make 
 ** changes to the content of the database files on disk.
+** ^The sqlite3_stmt_readonly() interface returns true for [BEGIN] since
+** [BEGIN] merely sets internal flags, but the [BEGIN|BEGIN IMMEDIATE] and
+** [BEGIN|BEGIN EXCLUSIVE] commands do touch the database and so
+** sqlite3_stmt_readonly() returns false for those commands.
 */
 SQLITE_API int sqlite3_stmt_readonly(sqlite3_stmt *pStmt);
 
@@ -8259,7 +8263,7 @@ SQLITE_API int sqlite3_system_errno(sqlite3*);
 
 /*
 ** CAPI3REF: Database Snapshot
-** KEYWORDS: {snapshot}
+** KEYWORDS: {snapshot} {sqlite3_snapshot}
 ** EXPERIMENTAL
 **
 ** An instance of the snapshot object records the state of a [WAL mode]
@@ -8283,7 +8287,9 @@ SQLITE_API int sqlite3_system_errno(sqlite3*);
 ** to an historical snapshot (if possible).  The destructor for 
 ** sqlite3_snapshot objects is [sqlite3_snapshot_free()].
 */
-typedef struct sqlite3_snapshot sqlite3_snapshot;
+typedef struct sqlite3_snapshot {
+  unsigned char hidden[48];
+} sqlite3_snapshot;
 
 /*
 ** CAPI3REF: Record A Database Snapshot
@@ -8294,9 +8300,32 @@ typedef struct sqlite3_snapshot sqlite3_snapshot;
 ** schema S in database connection D.  ^On success, the
 ** [sqlite3_snapshot_get(D,S,P)] interface writes a pointer to the newly
 ** created [sqlite3_snapshot] object into *P and returns SQLITE_OK.
-** ^If schema S of [database connection] D is not a [WAL mode] database
-** that is in a read transaction, then [sqlite3_snapshot_get(D,S,P)]
-** leaves the *P value unchanged and returns an appropriate [error code].
+** If there is not already a read-transaction open on schema S when
+** this function is called, one is opened automatically. 
+**
+** The following must be true for this function to succeed. If any of
+** the following statements are false when sqlite3_snapshot_get() is
+** called, SQLITE_ERROR is returned. The final value of *P is undefined
+** in this case. 
+**
+** <ul>
+**   <li> The database handle must be in [autocommit mode].
+**
+**   <li> Schema S of [database connection] D must be a [WAL mode] database.
+**
+**   <li> There must not be a write transaction open on schema S of database
+**        connection D.
+**
+**   <li> One or more transactions must have been written to the current wal
+**        file since it was created on disk (by any connection). This means
+**        that a snapshot cannot be taken on a wal mode database with no wal 
+**        file immediately after it is first opened. At least one transaction
+**        must be written to it first.
+** </ul>
+**
+** This function may also return SQLITE_NOMEM.  If it is called with the
+** database handle in autocommit mode but fails for some other reason, 
+** whether or not a read transaction is opened on schema S is undefined.
 **
 ** The [sqlite3_snapshot] object returned from a successful call to
 ** [sqlite3_snapshot_get()] must be freed using [sqlite3_snapshot_free()]
@@ -8388,6 +8417,28 @@ SQLITE_API SQLITE_EXPERIMENTAL int sqlite3_snapshot_cmp(
   sqlite3_snapshot *p1,
   sqlite3_snapshot *p2
 );
+
+/*
+** CAPI3REF: Recover snapshots from a wal file
+** EXPERIMENTAL
+**
+** If all connections disconnect from a database file but do not perform
+** a checkpoint, the existing wal file is opened along with the database
+** file the next time the database is opened. At this point it is only
+** possible to successfully call sqlite3_snapshot_open() to open the most
+** recent snapshot of the database (the one at the head of the wal file),
+** even though the wal file may contain other valid snapshots for which
+** clients have sqlite3_snapshot handles.
+**
+** This function attempts to scan the wal file associated with database zDb
+** of database handle db and make all valid snapshots available to
+** sqlite3_snapshot_open(). It is an error if there is already a read
+** transaction open on the database, or if the database is not a wal mode
+** database.
+**
+** SQLITE_OK is returned if successful, or an SQLite error code otherwise.
+*/
+SQLITE_API SQLITE_EXPERIMENTAL int sqlite3_snapshot_recover(sqlite3 *db, const char *zDb);
 
 /*
 ** Undo the hack that converts floating point types to integer for

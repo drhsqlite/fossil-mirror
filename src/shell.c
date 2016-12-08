@@ -2583,7 +2583,7 @@ static FILE *output_file_open(const char *zFile){
   return f;
 }
 
-#if !defined(SQLITE_OMIT_BUILTIN_TEST)
+#if !defined(SQLITE_UNTESTABLE)
 #if !defined(SQLITE_OMIT_TRACE) && !defined(SQLITE_OMIT_FLOATING_POINT)
 /*
 ** A routine for handling output from sqlite3_trace().
@@ -3859,7 +3859,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     }
   }else
 
-#ifndef SQLITE_OMIT_BUILTIN_TEST
+#ifndef SQLITE_UNTESTABLE
   if( c=='i' && strncmp(azArg[0], "imposter", n)==0 ){
     char *zSql;
     char *zCollist = 0;
@@ -4079,7 +4079,7 @@ static int do_meta_command(char *zLine, ShellState *p){
       sqlite3_snprintf(sizeof(p->rowSeparator), p->rowSeparator, SEP_Record);
     }else {
       raw_printf(stderr, "Error: mode should be one of: "
-         "ascii column csv html insert line list tabs tcl\n");
+         "ascii column csv html insert line list quote tabs tcl\n");
       rc = 1;
     }
     p->cMode = p->mode;
@@ -4795,7 +4795,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     }
   }else
 
-#ifndef SQLITE_OMIT_BUILTIN_TEST
+#ifndef SQLITE_UNTESTABLE
   if( c=='t' && n>=8 && strncmp(azArg[0], "testctrl", n)==0 && nArg>=2 ){
     static const struct {
        const char *zCtrlName;   /* Name of a test-control option */
@@ -4971,7 +4971,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     }
 #endif
   }else
-#endif /* !defined(SQLITE_OMIT_BUILTIN_TEST) */
+#endif /* !defined(SQLITE_UNTESTABLE) */
 
 #if SQLITE_USER_AUTHENTICATION
   if( c=='u' && strncmp(azArg[0], "user", n)==0 ){
