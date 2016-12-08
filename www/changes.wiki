@@ -3,30 +3,32 @@
 <a name='v1_37'></a>
 <h2>Changes for Version 1.37 (2017-XX-YY)</h2>
 
-  *  Fix a C99-ism that prevents the 1.36 release from building with MSVC.
-  *  Fix [/help?cmd=ticket|ticket set] when using the "+" prefix with fields
-     from the "ticketchng" table.
-  *  Enhance the "brlist" page to make use of branch colors.
-  *  Remove the "fusefs" command from builds that do not have the underlying
-     support enabled.
-  *  Fixes for incremental git import/export.
-  *  Minor security enhancements to
-     [./encryptedrepos.wiki|encrypted repositories].
-  *  TH1 enhancements:
-     <ul><li>Add <nowiki>[unversioned content]</nowiki> command.</li>
-     <li>Add <nowiki>[unversioned list]</nowiki> command.</li>
-     <li>Add project_description variable.</li>
-     </ul>
+  *  Add checkbox widgets to various web pages.  See [/technote/8d18bf27e9|
+     this technote] for more information.  To get the checkboxes to look as
+	 intended, you must update the CSS in your repository and all clones.
+  *  Add the [/help/all|fossil all ui] command
+  *  Add the [/help?cmd=/file|/file] webpage
+  *  Enhance the [/help?cmd=/brlist|/brlist] webpage to make use of branch colors.
   *  Add support for the ms=EXACT|LIKE|GLOB|REGEXP query parameter on the
      [/help?cmd=/timeline|/timeline] webpage, with associated form widgets.
   *  Enhance the [/help/changes|changes] and [/help/status|status] commands
      with many new filter options so that specific kinds of changes can be
      found without having to pipe through grep or sed.
+  *  TH1 enhancements:
+     <ul><li>Add <nowiki>[unversioned content]</nowiki> command.</li>
+     <li>Add <nowiki>[unversioned list]</nowiki> command.</li>
+     <li>Add project_description variable.</li>
+     </ul>
   *  Rename crnl-glob [/help/settings|setting] to crlf-glob, but keep
      crnl-glob as a compatibility alias.
-  *  Add checkbox widgets to various web pages.  See [/technote/8d18bf27e9|
-     this technote] for more information.  To get the checkboxes to look as
-	 intended, you must update the CSS in your repository and all clones.
+  *  Fix a C99-ism that prevents the 1.36 release from building with MSVC.
+  *  Fix [/help?cmd=ticket|ticket set] when using the "+" prefix with fields
+     from the "ticketchng" table.
+  *  Remove the "fusefs" command from builds that do not have the underlying
+     support enabled.
+  *  Fixes for incremental git import/export.
+  *  Minor security enhancements to
+     [./encryptedrepos.wiki|encrypted repositories].
 
 <a name='v1_36'></a>
 <h2>Changes for Version 1.36 (2016-10-24)</h2>

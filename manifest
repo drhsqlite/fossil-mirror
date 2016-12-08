@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.16.0\salpha\sfor\stesting.
-D 2016-12-08T20:03:09.937
+C Bring\sthe\schange\slog\sup-to-date\swith\sthe\slatest\senhancements.
+D 2016-12-08T20:10:58.751
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -681,7 +681,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 0b9eb5c2d318425ca12b50bc3247aad2b4fc1088
-F www/changes.wiki 407c4849e61a51845c28775252c79d45b6ce711a
+F www/changes.wiki 05194b6f8310f43df3c3bf911a841e7d86c1509b
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki be27496a6d2f5f6c83b5a3a1441451beabec99e1
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -770,7 +770,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 68288686e06b1b3e95066a875e8d2dcc0ec8c182
-R cc997839ccc41eb1cf83a2f03ce61957
+P 814dfd5a9cb4caa6b8c7b62dbecf4039c7f0bb52
+R ed7abd44d6bf2f99bcfb3e38542d9766
 U drh
-Z fbdb32f7b5b54ba1581a553f642aafb7
+Z 254ad7ac652c97866664d26410292760
