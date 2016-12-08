@@ -1384,8 +1384,10 @@ static void process_one_web_page(
       if( szFile==0 && sqlite3_strglob("*/.fossil",zRepo)!=0 ){
         szFile = file_size(zCleanRepo);
         if( g.fHttpTrace ){
-          @ <!-- file_size(%h(zCleanRepo)) is %lld(szFile) -->
-          fprintf(stderr, "# file_size(%s) = %lld\n", zCleanRepo, szFile);
+          char zBuf[24];
+          sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", szFile);
+          @ <!-- file_size(%h(zCleanRepo)) is %s(zBuf) -->
+          fprintf(stderr, "# file_size(%s) = %s\n", zCleanRepo, zBuf);
         }
       }
 
