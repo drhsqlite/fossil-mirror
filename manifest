@@ -1,5 +1,5 @@
-C Bring\sthe\schange\slog\sup-to-date\swith\sthe\slatest\senhancements.
-D 2016-12-08T20:10:58.751
+C Fix\sthe\slogic\sthat\scombines\smerge\srisers\s(originally\sadded\sto\strunk\sby\ncheck-in\s[95d6ddc3]).\s\sAdd\stest\scases\sfor\sthis\sfix\sto\sgraph-test-1.wiki.
+D 2016-12-14T01:09:46.394
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -418,7 +418,7 @@ F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 66a58355a9a3c04792ba28a8a1b55bd3e506af54
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
-F src/graph.c 23ff3709c6677dff05f707f80e45ddd356333c6e
+F src/graph.c 51a4ef3f3f5ad77fa47cc2aa8f0aec02f259c1bc
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
 F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
@@ -539,7 +539,7 @@ F test/file1.test 9b2ac578521a7097017c64b8877f6fa6ca0904f7
 F test/fileStat.th1 e3e30f7b46488c26215a6d713be36ad4ed595132
 F test/fileage-test-1.wiki d249e897fdd41038c17f3b66d374e509830da1eb
 F test/glob.test e135d6e1333452beece53619e9a67cd9224ab00c
-F test/graph-test-1.wiki 1d0d76a52b93273b979b21f5e36541a5e1def91f
+F test/graph-test-1.wiki b723f0e694974edb84ff0744fccbad0dd93181dd
 F test/json.test cbf45320d251af69528fa63c4266beba57a85f29
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
@@ -770,7 +770,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 814dfd5a9cb4caa6b8c7b62dbecf4039c7f0bb52
-R ed7abd44d6bf2f99bcfb3e38542d9766
+P d1a6222ecde17b7d7fc84eacc752c95adbbd99f2
+R b2986f71bc759ae7296f3e80bf0f8fd6
 U drh
-Z 254ad7ac652c97866664d26410292760
+Z e1a5b1e6026461922aaee73837e17538
