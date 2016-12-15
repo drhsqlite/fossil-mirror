@@ -133,6 +133,11 @@ int nLine;
 int nErr = 0;
 
 /*
+** File name for completion bash script
+*/
+char *zComp;
+
+/*
 ** Duplicate N characters of a string.
 */
 char *string_dup(const char *zSrc, int n){
@@ -317,10 +322,21 @@ page_skip:
 /*
 ** Compare two entries
 */
-int e_compare(const void *a, const void *b){
+int e_compare_path(const void *a, const void *b){
   const Entry *pA = (const Entry*)a;
   const Entry *pB = (const Entry*)b;
   return strcmp(pA->zPath, pB->zPath);
+}
+
+/*
+** Compare two entries by type
+*/
+int e_compare_type(const void *a, const void *b){
+  const Entry *pA = (const Entry*)a;
+  const Entry *pB = (const Entry*)b;
+  if( pA->eType < pB->eType ) return -1;
+  if( pA->eType > pB->eType ) return 1;
+  return 0;
 }
 
 /*
@@ -329,8 +345,9 @@ int e_compare(const void *a, const void *b){
 void build_table(void){
   int i;
   int nWeb = 0;
+  FILE *comp;
 
-  qsort(aEntry, nFixed, sizeof(aEntry[0]), e_compare);
+  qsort(aEntry, nFixed, sizeof(aEntry[0]), e_compare_path);
 
   printf(
     "/* Automatically generated code\n"
@@ -390,6 +407,47 @@ void build_table(void){
   }
   printf("};\n");
   printf("#define FOSSIL_FIRST_CMD %d\n", nWeb);
+  
+  /* Generate bash completion script */
+  comp = fopen(zComp, "w");
+  if( comp==0 ){
+    fprintf(stderr,"%s: cannot open completion script file\n", zComp);
+  }else{
+    qsort(aEntry, nFixed, sizeof(aEntry[0]), e_compare_type);
+    
+    fprintf(comp,
+      "_fossil_comp(){\n"
+        "local cur opts1 opts2\n"
+        "COMPREPLY=()\n"
+        "cur=\"${COMP_WORDS[COMP_CWORD]}\"\n"
+    );
+    fprintf(comp, "opts1=\"");
+    for(i=nWeb+1;
+        i<nFixed && aEntry[i].eType==(CMDFLAG_COMMAND|CMDFLAG_1ST_TIER);
+        i++)
+    {
+      fprintf(comp, "%s ", aEntry[i].zPath);
+    }
+    fprintf(comp, "\"\n");
+    fprintf(comp, "opts2=\"");
+    for( ;
+        i<nFixed && aEntry[i].eType==(CMDFLAG_COMMAND|CMDFLAG_2ND_TIER);
+        i++)
+    {
+      fprintf(comp, "%s ", aEntry[i].zPath);
+    }
+    fprintf(comp, "\"\n");
+    fprintf(comp,
+        "COMPREPLY=($(compgen -W \"${opts1}\" -- ${cur}))\n"
+        "if [ ${#COMPREPLY[@]} -eq 0 ]; then\n"
+          "COMPREPLY=($(compgen -W \"${opts2}\" -- ${cur}))\n"
+        "fi\n"
+        "return 0\n"
+      "}\n"
+      "complete -F _fossil_comp fossil"
+    );
+    fclose(comp);
+  }
 }
 
 /*
@@ -417,6 +475,13 @@ void process_file(void){
 int main(int argc, char **argv){
   int i;
   for(i=1; i<argc; i++){
+    if( argv[i][0]=='-' && strcmp(argv[i], "--compfile")==0 ){
+      if( ++i < argc ){
+        zComp = argv[i];
+      }else{
+        fprintf(stderr,"no file name supplied to --compfile\n");
+      }
+    }
     zFile = argv[i];
     process_file();
   }

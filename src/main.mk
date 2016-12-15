@@ -440,8 +440,11 @@ OBJ = \
 APPNAME = fossil$(E)
 
 
+COMPNAME = completion.sh
 
-all:	$(OBJDIR) $(APPNAME)
+
+
+all:	$(OBJDIR) $(APPNAME) $(COMPNAME)
 
 install:	$(APPNAME)
 	mkdir -p $(INSTALLDIR)
@@ -589,11 +592,11 @@ $(SRCDIR)/../manifest:
 	# noop
 
 clean:
-	rm -rf $(OBJDIR)/* $(APPNAME)
+	rm -rf $(OBJDIR)/* $(APPNAME) $(COMPNAME)
 
 
-$(OBJDIR)/page_index.h: $(TRANS_SRC) $(OBJDIR)/mkindex
-	$(OBJDIR)/mkindex $(TRANS_SRC) >$@
+$(OBJDIR)/page_index.h $(COMPNAME): $(TRANS_SRC) $(OBJDIR)/mkindex
+	$(OBJDIR)/mkindex --compfile $(COMPNAME) $(TRANS_SRC) >$(OBJDIR)/page_index.h
 
 $(OBJDIR)/builtin_data.h: $(OBJDIR)/mkbuiltin $(EXTRA_FILES)
 	$(OBJDIR)/mkbuiltin --prefix $(SRCDIR)/ $(EXTRA_FILES) >$@

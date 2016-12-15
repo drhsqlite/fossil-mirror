@@ -283,12 +283,14 @@ foreach s [lsort $src] {
 writeln "\n"
 writeln "APPNAME = $name\$(E)"
 writeln "\n"
+writeln "COMPNAME = completion.sh"
+writeln "\n"
 
 writeln [string map [list \
     <<<SQLITE_OPTIONS>>> [join $SQLITE_OPTIONS " \\\n                 "] \
     <<<SHELL_OPTIONS>>> [join $SHELL_OPTIONS " \\\n                "] \
     <<<MINIZ_OPTIONS>>> [join $MINIZ_OPTIONS " \\\n                "]] {
-all:	$(OBJDIR) $(APPNAME)
+all:	$(OBJDIR) $(APPNAME) $(COMPNAME)
 
 install:	$(APPNAME)
 	mkdir -p $(INSTALLDIR)
@@ -415,7 +417,7 @@ $(SRCDIR)/../manifest:
 	# noop
 
 clean:
-	rm -rf $(OBJDIR)/* $(APPNAME)
+	rm -rf $(OBJDIR)/* $(APPNAME) $(COMPNAME)
 
 }
 
@@ -429,8 +431,8 @@ append mhargs "\$(SRCDIR)/th.h <<<NEXT_LINE>>>"
 #append mhargs "\$(SRCDIR)/cson_amalgamation.h <<<NEXT_LINE>>>"
 append mhargs "\$(OBJDIR)/VERSION.h"
 set mhargs [string map [list <<<NEXT_LINE>>> \\\n\t] $mhargs]
-writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(OBJDIR)/mkindex"
-writeln "\t\$(OBJDIR)/mkindex \$(TRANS_SRC) >\$@\n"
+writeln "\$(OBJDIR)/page_index.h \$(COMPNAME): \$(TRANS_SRC) \$(OBJDIR)/mkindex"
+writeln "\t\$(OBJDIR)/mkindex --compfile \$(COMPNAME) \$(TRANS_SRC) >\$(OBJDIR)/page_index.h\n"
 
 writeln "\$(OBJDIR)/builtin_data.h: \$(OBJDIR)/mkbuiltin \$(EXTRA_FILES)"
 writeln "\t\$(OBJDIR)/mkbuiltin --prefix \$(SRCDIR)/ \$(EXTRA_FILES) >\$@\n"

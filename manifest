@@ -1,5 +1,5 @@
-C Fix\sthe\slogic\sthat\scombines\smerge\srisers\s(originally\sadded\sto\strunk\sby\ncheck-in\s[95d6ddc3]).\s\sAdd\stest\scases\sfor\sthis\sfix\sto\sgraph-test-1.wiki.
-D 2016-12-14T01:09:46.394
+C First\sjab\sat\screating\sa\sbash\sscript\sfor\scommand\scompletion
+D 2016-12-15T22:46:37.300
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -449,10 +449,10 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 597ae479d42096c07d6e6f85f1d844ebb46089b3
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
 F src/main.c d1f1133c103419c0ce0f6d06ff7cc195f9a1c8c7
-F src/main.mk 3bfcbade731d65f075e20edfa6f1a384eda3f566
+F src/main.mk b0bfac4998f171c4899a88b31504f5c2394e606e
 F src/makeheaders.c cbbebae48e377db66e648af76a7aeea63c9bc523
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl ef7175bf4306369eb73387f439b13d4f0433e6f0
+F src/makemake.tcl 10370a79537ed70615637b9d4a820e696beb5a2e
 F src/manifest.c e037d26b34ec3631288032bf06fd79f188e115da
 F src/markdown.c 20bb4755f258601e4e3e5274ea117fc7c8b1ccf7
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
@@ -462,7 +462,7 @@ F src/merge.c 3da95cdecb4812fbe7ee547b5fce430f3278a023
 F src/merge3.c be0896e3e4e51262349d0f09e35e70d140659572
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
-F src/mkindex.c f4183ca13461544fe06f34af0a3501ea96d3637f
+F src/mkindex.c 1018442a67f4a5d87fd4510b190def72e88d46e9
 F src/mkversion.c d76e0e3c04966bb61a23ff7140fa37867c06bd50
 F src/moderate.c 2540f90b20778a4d62156a3b4af962b401d4c89f
 F src/name.c 268277644abeb05a3dfa67faaaaeb3dade4c1a1f
@@ -770,7 +770,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d1a6222ecde17b7d7fc84eacc752c95adbbd99f2
-R b2986f71bc759ae7296f3e80bf0f8fd6
-U drh
-Z e1a5b1e6026461922aaee73837e17538
+P 9ed134360bf9b46c46691494b0dec2aecb15ef66
+R c3072e69babafafa3e2e04c1fadcc9b6
+T *branch * bash-completion
+T *sym-bash-completion *
+T -sym-trunk *
+U baruch
+Z e06e7f01709e319276870b037f39ff9d
