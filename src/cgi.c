@@ -402,7 +402,11 @@ void cgi_reply(void){
 **
 ** The URL must be relative to the base of the fossil server.
 */
-NORETURN void cgi_redirect(const char *zURL){
+NORETURN static void cgi_redirect_with_status(
+  const char *zURL,
+  int iStat,
+  const char *zStat
+){
   char *zLocation;
   CGIDEBUG(("redirect to %s\n", zURL));
   if( strncmp(zURL,"http:",5)==0 || strncmp(zURL,"https:",6)==0 ){
@@ -418,10 +422,16 @@ NORETURN void cgi_redirect(const char *zURL){
   cgi_append_header(zLocation);
   cgi_reset_content();
   cgi_printf("<html>\n<p>Redirect to %h</p>\n</html>\n", zLocation);
-  cgi_set_status(302, "Moved Temporarily");
+  cgi_set_status(iStat, zStat);
   free(zLocation);
   cgi_reply();
   fossil_exit(0);
+}
+NORETURN void cgi_redirect(const char *zURL){
+  cgi_redirect_with_status(zURL, 302, "Moved Temporarily");
+}
+NORETURN void cgi_redirect_with_method(const char *zURL){
+  cgi_redirect_with_status(zURL, 307, "Temporary Redirect");
 }
 NORETURN void cgi_redirectf(const char *zFormat, ...){
   va_list ap;

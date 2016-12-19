@@ -1,5 +1,5 @@
-C Fix\sthe\slogic\sthat\scombines\smerge\srisers\s(originally\sadded\sto\strunk\sby\ncheck-in\s[95d6ddc3]).\s\sAdd\stest\scases\sfor\sthis\sfix\sto\sgraph-test-1.wiki.
-D 2016-12-14T01:09:46.394
+C Enhance\sTH1\s'redirect'\scommand\sto\ssupport\sfor\sHTTP\sredirects\swith\sa\sstatus\scode\sof\s307.
+D 2016-12-19T07:04:50.939
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -387,7 +387,7 @@ F src/builtin.c d147d04305aa0db964ec84ef049e8e88d134de87
 F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
-F src/cgi.c 73b8c689a788e1ffcd571c51ced4475ee4110af5
+F src/cgi.c 0fe6520c4eeedee87cab271f32943a96382828c1
 F src/checkin.c 1913859177ca90129603a8bf38bc388fb430f27e
 F src/checkout.c 083ec4f2ccd7d9df27dbb94d90008088eb8c4340
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -499,7 +499,7 @@ F src/tar.c 8cfe3f2ef83784ed5644b3a9c4cd4d85f1096a38
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
-F src/th_main.c d2c206646d3129f9c3ce8d432c73bfadd29b1bbb
+F src/th_main.c 335b0744b9997eb1001c058740437860aeaba05b
 F src/th_tcl.c 2b70a8da7d7d8009794d7a3565043c8933a6cbfe
 F src/timeline.c 02dae717b392ad26a44bfb202e62ffe548702f0f
 F src/tkt.c b0fcc26bf2f1acc84b147e242170a1b8c8c68449
@@ -760,7 +760,7 @@ F www/stats.wiki 6558a7e417d5e9d29271c26ebb3195dddec31855
 F www/style.wiki da3a414d4c57c3da2636daf0baf6964ba72ce70b
 F www/sync.wiki c14259113e0548e41911b177499170269ac0cb2b
 F www/tech_overview.wiki 4d74d28dfc2515d7864c4ecbf7324be9919e3efd
-F www/th1.md 6154ca86c2d54b49b84e01715103eb8f74e5c3aa
+F www/th1.md 19fd3af8400d8dbeb0d7c94370db06c73114f5f1
 F www/theory1.wiki 8047579bc30437bffe4dd0c06d8c2aa3ba3648ae
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
@@ -770,7 +770,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d1a6222ecde17b7d7fc84eacc752c95adbbd99f2
-R b2986f71bc759ae7296f3e80bf0f8fd6
-U drh
-Z e1a5b1e6026461922aaee73837e17538
+P 9ed134360bf9b46c46691494b0dec2aecb15ef66
+R 1c05b5f1a51806d26fa6aeddc1986d19
+U mistachkin
+Z a9f3e8644161b2ab3d86ece574927ed5
