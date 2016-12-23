@@ -1253,9 +1253,9 @@ void file_parse_uri(
 }
 
 /*
-** Construct a random temporary filename into zBuf[].
+** Construct a random temporary filename into pBuf starting with zPrefix.
 */
-void file_tempname(int nBuf, char *zBuf){
+void file_tempname(Blob *pBuf, const char *zPrefix){
 #if defined(_WIN32)
   const char *azDirs[] = {
      0, /* GetTempPath */
@@ -1276,9 +1276,10 @@ void file_tempname(int nBuf, char *zBuf){
     "abcdefghijklmnopqrstuvwxyz"
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "0123456789";
-  unsigned int i, j;
+  unsigned int i;
   const char *zDir = ".";
   int cnt = 0;
+  char zRand[16];
 
 #if defined(_WIN32)
   wchar_t zTmpPath[MAX_PATH];
@@ -1299,23 +1300,16 @@ void file_tempname(int nBuf, char *zBuf){
     break;
   }
 
-  /* Check that the output buffer is large enough for the temporary file
-  ** name. If it is not, return SQLITE_ERROR.
-  */
-  if( (strlen(zDir) + 17) >= (size_t)nBuf ){
-    fossil_fatal("insufficient space for temporary filename");
-  }
-
   do{
+    blob_zero(pBuf);
     if( cnt++>20 ) fossil_panic("cannot generate a temporary filename");
-    sqlite3_snprintf(nBuf-17, zBuf, "%s/", zDir);
-    j = (int)strlen(zBuf);
-    sqlite3_randomness(15, &zBuf[j]);
-    for(i=0; i<15; i++, j++){
-      zBuf[j] = (char)zChars[ ((unsigned char)zBuf[j])%(sizeof(zChars)-1) ];
+    sqlite3_randomness(15, zRand);
+    for(i=0; i<15; i++){
+      zRand[i] = (char)zChars[ ((unsigned char)zRand[i])%(sizeof(zChars)-1) ];
     }
-    zBuf[j] = 0;
-  }while( file_size(zBuf)>=0 );
+    zRand[15] = 0;
+    blob_appendf(pBuf, "%s/%s.%s", zDir, zPrefix ? zPrefix : "", zRand);
+  }while( file_size(blob_str(pBuf))>=0 );
 
 #if defined(_WIN32)
   fossil_path_free((char *)azDirs[0]);

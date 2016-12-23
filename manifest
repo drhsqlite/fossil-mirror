@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.16.0\salpha\sfor\stesting.
-D 2016-12-23T23:25:59.271
+C When\sdoing\sa\sgdiff\sbetween\stwo\sversions,\suse\sthe\sfiles\sbeing\sdiffed\sas\sa\s\nbasis\sfor\sthe\stemporary\sfilenames\sthat\sare\sconstructed.
+D 2016-12-23T23:42:45.279
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -406,13 +406,13 @@ F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
 F src/diff.c 4019cd9a2c6cc4c63f327a214f7bce10b55d95d9
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
-F src/diffcmd.c 961503775818c035aede0b36bf751a843b4eab30
+F src/diffcmd.c 6ac75f308c2875632062170867004896f3bc6e16
 F src/dispatch.c 4e634c0cf22b7dd63501a4dc0aa6375cf4151343
 F src/doc.c bae142c1df13fbaba1af814e0ee398670d366547
 F src/encode.c edb12a68c5831e5331eaad3796c492059edb10fb
 F src/event.c 021db025691a859a49751f255a0a065bca728444
 F src/export.c 26d0f574610af812dc96c2a05c0762ad39053696
-F src/file.c 0cd782064e70a54304bb5d4389250b253b35b98e
+F src/file.c c8b27a46c041a6e34c470f40fcee69244a6baec7
 F src/finfo.c 19de17236a019469513689e02dedc9a314973225
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
@@ -458,7 +458,7 @@ F src/markdown.c 20bb4755f258601e4e3e5274ea117fc7c8b1ccf7
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
 F src/markdown_html.c 5c7c2d2356e03a4456932c5fdef9aef836a379a5
 F src/md5.c dac99e954fb973805a127f36f9c51e0ab36ab39b
-F src/merge.c 3da95cdecb4812fbe7ee547b5fce430f3278a023
+F src/merge.c 81e9e2ca58f07745642d68fe609f39b5ed9dda53
 F src/merge3.c be0896e3e4e51262349d0f09e35e70d140659572
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
@@ -770,7 +770,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bee6dbde5498e07d7876abe206792b2b461d03dc
-R 1fbd0976103535b82053e4c731cad840
+P 20cffa1f89a1cc29b5fc2de2e980b53370630e66 856ca01b1309db47e688173291d10563fa95cbf5
+R ac654c4ff71fd863d7105dee9f5ace56
 U drh
-Z 8f6ca0fe2e2c6458c99944c8386407e2
+Z 0130b6df260b3e8921e7e6d38806fd0a
