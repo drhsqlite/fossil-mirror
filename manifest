@@ -1,5 +1,5 @@
-C When\sdoing\sa\sgdiff\sbetween\stwo\sversions,\suse\sthe\sfiles\sbeing\sdiffed\sas\sa\s\nbasis\sfor\sthe\stemporary\sfilenames\sthat\sare\sconstructed.
-D 2016-12-23T23:42:45.279
+C When\sa\sfile\shas\sbeen\sdeleted\son\sthe\scurrent\sbranch\sand\sedited\son\sa\nseparate\sbranch,\sbring\sin\sthe\sedited\sversion\sof\sthe\sfile\swhen\smerging\nfrom\sthe\sseparate\sbranch.
+D 2016-12-24T00:30:41.824
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -458,7 +458,7 @@ F src/markdown.c 20bb4755f258601e4e3e5274ea117fc7c8b1ccf7
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
 F src/markdown_html.c 5c7c2d2356e03a4456932c5fdef9aef836a379a5
 F src/md5.c dac99e954fb973805a127f36f9c51e0ab36ab39b
-F src/merge.c 81e9e2ca58f07745642d68fe609f39b5ed9dda53
+F src/merge.c 0d0cf4b86fd4f51cf4731313833b215997360314
 F src/merge3.c be0896e3e4e51262349d0f09e35e70d140659572
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
@@ -770,7 +770,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 20cffa1f89a1cc29b5fc2de2e980b53370630e66 856ca01b1309db47e688173291d10563fa95cbf5
-R ac654c4ff71fd863d7105dee9f5ace56
+P 051d0abaacc8b5e71fc135950903ed98a37b210e
+R 0350adc61d576d9272f33b878a04fe9c
 U drh
-Z 0130b6df260b3e8921e7e6d38806fd0a
+Z 987d393b27f5015c376859dfe6e7e36a

@@ -785,7 +785,7 @@ void merge_cmd(void){
     const char *zName;
     char *zFullName;
     db_multi_exec(
-      "INSERT INTO vfile(vid,chnged,deleted,rid,mrid,isexe,islink,pathname)"
+      "REPLACE INTO vfile(vid,chnged,deleted,rid,mrid,isexe,islink,pathname)"
       "  SELECT %d,%d,0,rid,mrid,isexe,islink,pathname FROM vfile WHERE id=%d",
       vid, integrateFlag?5:3, idm
     );
