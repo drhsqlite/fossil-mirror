@@ -168,16 +168,18 @@ static int sqlcmd_autoinit(
 /*
 ** COMMAND: sqlite3
 **
-** Usage: %fossil sqlite3 ?FOSSIL_OPTS? ?DATABASE? ?SHELL_OPTS?
+** Usage: %fossil sql ?OPTIONS?
 **
 ** Run the standalone sqlite3 command-line shell on DATABASE with SHELL_OPTS.
 ** If DATABASE is omitted, then the repository that serves the working
 ** directory is opened.  See https://www.sqlite.org/cli.html for additional
 ** information.
 **
-** Fossil Options:
+** Options:
 **
 **    --no-repository           Skip opening the repository database.
+**
+**    -R REPOSITORY             Use REPOSITORY as the repository database
 **
 ** WARNING:  Careless use of this command can corrupt a Fossil repository
 ** in ways that are unrecoverable.  Be sure you know what you are doing before

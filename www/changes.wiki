@@ -14,6 +14,10 @@
   *  Enhance the [/help/changes|changes] and [/help/status|status] commands
      with many new filter options so that specific kinds of changes can be
      found without having to pipe through grep or sed.
+  *  Enhanced the [/help/sqlite3|fossil sql] command so that it opens the
+     [./tech_overview.wiki#localdb|checkout database] and the
+     [./tech_overview.wiki#configdb|configuration database] in addition to the
+     respository database.
   *  TH1 enhancements:
      <ul><li>Add <nowiki>[unversioned content]</nowiki> command.</li>
      <li>Add <nowiki>[unversioned list]</nowiki> command.</li>
