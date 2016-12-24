@@ -212,7 +212,7 @@ static int sqlcmd_autoinit(
 */
 void cmd_sqlite3(void){
   int noRepository;
-  char *zConfigDb;
+  const char *zConfigDb;
   extern int sqlite3_shell(int, char**);
   noRepository = find_option("no-repository", 0, 0)!=0;
   if( !noRepository ){
