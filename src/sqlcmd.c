@@ -151,6 +151,17 @@ static int sqlcmd_autoinit(
   foci_register(db);
   g.repositoryOpen = 1;
   g.db = db;
+  sqlite3_db_config(db, SQLITE_DBCONFIG_MAINDBNAME, "repository");
+  if( g.zLocalDbName ){
+    char *zSql = sqlite3_mprintf("ATTACH %Q AS 'localdb'", g.zLocalDbName);
+    sqlite3_exec(db, zSql, 0, 0, 0);
+    sqlite3_free(zSql);
+  }
+  if( g.zConfigDbName ){
+    char *zSql = sqlite3_mprintf("ATTACH %Q AS 'configdb'", g.zConfigDbName);
+    sqlite3_exec(db, zSql, 0, 0, 0);
+    sqlite3_free(zSql);
+  }
   return SQLITE_OK;
 }
 
@@ -199,16 +210,20 @@ static int sqlcmd_autoinit(
 */
 void cmd_sqlite3(void){
   int noRepository;
+  char *zConfigDb;
   extern int sqlite3_shell(int, char**);
   noRepository = find_option("no-repository", 0, 0)!=0;
   if( !noRepository ){
     db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
   }
+  db_open_config(1,0);
+  zConfigDb = g.zConfigDbName;
   fossil_close(1, noRepository);
   sqlite3_shutdown();
 #ifndef _WIN32
   linenoiseSetMultiLine(1);
 #endif
+  g.zConfigDbName = zConfigDb;
   sqlite3_shell(g.argc-1, g.argv+1);
   sqlite3_cancel_auto_extension((void(*)(void))sqlcmd_autoinit);
   fossil_close(0, noRepository);

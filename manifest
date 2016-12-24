@@ -1,5 +1,5 @@
-C When\sa\sfile\shas\sbeen\sdeleted\son\sthe\scurrent\sbranch\sand\sedited\son\sa\nseparate\sbranch,\sbring\sin\sthe\sedited\sversion\sof\sthe\sfile\swhen\smerging\nfrom\sthe\sseparate\sbranch.
-D 2016-12-24T00:30:41.824
+C Improve\sthe\s"fossil\ssql"\scommand\sso\sthat\sit\sopens\sall\sdatabase\s-\srepository,\nlocaldb,\sand\sconfigdb.\s\sUse\sthe\slatest\scommand-line\sshell\scode\sfrom\sthe\nSQLite\sproject\sso\sthat\sthe\s".tables"\scommand\scorrectly\sshows\sall\stables.
+D 2016-12-24T18:07:27.735
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -482,11 +482,11 @@ F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c f8f9ec5bcd61107bdc929e75ad34b4f5f6577f0d
 F src/setup.c 2d807dd6722ea73a8be13afe66a194cdc1e4b5ee
 F src/sha1.c 67e15d131209fb33e9b147db8eeb4f16944529b5
-F src/shell.c bf79a69d1f9b53de958498752b78e9906c5d0aff
+F src/shell.c e99c2d27b263166a1eb58d7db200f481308a2066
 F src/shun.c 1f8bcfcd826c3b574cd6e723f7afcbeff33ff443
 F src/sitemap.c b7c376b21d29322741c804e1f762b34aedb98ad1
 F src/skins.c 0b6ae35015f48cbe9cef2f97d65105a796fc366b
-F src/sqlcmd.c fa59f2944d8e77db25d63483e24742c3bb100d6b
+F src/sqlcmd.c b983079f6df636934c7ae9cb8f3e859abf943cf1
 F src/sqlite3.c 546a0114d54b7e37dded5978c64fdfca0c339a2c
 F src/sqlite3.h 23b91bdcb30b33d24a7c75d63a5f3592296f422d
 F src/stash.c ac247e5b718cd29c6c1fc543f7b984be9b9f53e6
@@ -770,7 +770,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 051d0abaacc8b5e71fc135950903ed98a37b210e
-R 0350adc61d576d9272f33b878a04fe9c
+P 0df5249d51b9c49ae323602a04c11590dff5dea4
+R e0cf507744cc7b2963d545c82c203b05
 U drh
-Z 987d393b27f5015c376859dfe6e7e36a
+Z 5808ee5afb33883e25a30c3fbf4f7bae
