@@ -516,20 +516,39 @@ fossil commit -m "edit f1 on trunk" --tag c8
 
 fossil update b
 fossil merge trunk
+test_status_list merge_renames-13-5 $RESULT {MERGE f1}
 fossil commit -m "merge trunk" --tag c9
 write_file f1 "line1\nline3\nline4"
 fossil commit -m "edit f1 on b" --tag c10
 
 fossil update m1
 fossil merge b
-test_status_list merge_renames-13-7 $RESULT {UPDATE f1}
-test_file_contents merge_renames-13-8 f2n "line1"
+test_status_list merge_renames-13-6 $RESULT {
+  UPDATE f1
+  DELETE f2n
+  ADDED f2n
+}
+test_file_contents merge_renames-13-7 f2n "line1"
 
 fossil revert
+test_status_list merge_renames-13-8 $RESULT {
+  REVERT f1
+  REVERT f2n
+}
 fossil update trunk
 fossil merge --integrate b
-test_status_list merge_renames-13-5 $RESULT {UPDATE f1}
-test_file_contents merge_renames-13-6 f2n "line1"
+test_status_list merge_renames-13-9 $RESULT {
+  UPDATE f1
+  DELETE f2n
+  ADDED f2n
+}
+test_file_contents merge_renames-13-10 f2n "line1"
+
+fossil revert
+test_status_list merge_renames-13-11 $RESULT {
+  REVERT f1
+  REVERT f2n
+}
 
 ######################################
 #
