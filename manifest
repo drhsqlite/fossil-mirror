@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\swith\sminor\sfixes\sdiscovered\sduring\srelease\stesting.
-D 2016-12-30T18:26:20.687
+C Fix\sa\sbroken\shyperlink\son\sthe\shomepage.
+D 2016-12-31T17:07:46.646
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -735,7 +735,7 @@ F www/fossil_prompt.sh db68e2cae431b9e9f5dd672e2f56e2bde5a57d2a
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
-F www/index.wiki 99f5eb298bb9c0c274c663b1dafe2818dbf3b694
+F www/index.wiki 38c24247e3e5ccea5135f4d5fddf82244815d8fd
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki 65f96515648c212e6385128e0d9c60fccf91e83c
 F www/mkdownload.tcl 9955fc58270543b81cdc6d707149a93fd7a06cf1
@@ -770,7 +770,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 53430370a5ab295040309216ff763bb9f2defcfd
-R cb589cd899418f63c6cb72899af4f70f
+P 506dff5f7c7f781878597d5c086aed2dc5d7c0a6
+R f0d6422a654920abfc2bf452f4b9a027
 U drh
-Z f80e73fd604f8ffdfdae6c5d85e6202e
+Z dac18645a8bcdf54bc57d9ff005e6b0d
