@@ -1,5 +1,5 @@
-C Upgrade\szlib\sto\sversion\s1.2.9
-D 2017-01-01T18:50:10.917
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.16.0\srelease.
+D 2017-01-02T19:11:25.334
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
@@ -505,8 +505,8 @@ F src/shun.c 1f8bcfcd826c3b574cd6e723f7afcbeff33ff443
 F src/sitemap.c b7c376b21d29322741c804e1f762b34aedb98ad1
 F src/skins.c 0b6ae35015f48cbe9cef2f97d65105a796fc366b
 F src/sqlcmd.c 9f904c862aa0c5f83306cbee0140a54c4d1e3a54
-F src/sqlite3.c 0279a712dff24e780e9121c922dd5542a3497941
-F src/sqlite3.h 4ccb5fd9fc8a0302e955880b38590ee221c3d696
+F src/sqlite3.c e2920fb885569d14197c9b7958e6f1db573ee669
+F src/sqlite3.h 880fe3b22a227f8396b9f300a4cae725c17b5773
 F src/stash.c ac247e5b718cd29c6c1fc543f7b984be9b9f53e6
 F src/stat.c 05ede8a4087ae74c842e89a76d926265e064e83a
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
@@ -788,7 +788,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0dc84fa2241d8952536084b1590e082c00e3d5ba
-R 52bdbdf289ef4ad9037300da3a991a4f
-U jan.nijtmans
-Z 8841e61026f126556e746b2dde65ccd9
+P e38d5e1cbda33bcba32dd973f9abd00d6983bc4d
+R 6720b7ed7d6f4e94b3441da8decd05e0
+U drh
+Z 7a7230ea4484e150a0ed807dbc1d927c
