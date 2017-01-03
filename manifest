@@ -1,8 +1,9 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.16.0\srelease.
-D 2017-01-02T19:11:25.334
+C Update\sthe\sbuilt-in\sZlib\sto\sthe\s1.2.10\srelease.
+D 2017-01-03T10:53:12.868
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
+F .fossil-settings/binary-glob 9bb91e555ab4fabcef9c97de22159e287933f76c
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
-F .fossil-settings/crnl-glob 5a946113ffd4e3752d739f72dbd76c04aedcf90b
+F .fossil-settings/crnl-glob e6be7cf6f0ecaf974951a52cc20da577ae7b219a
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 026da23219df1dd81be87fee8252eecd9188ef73
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
@@ -68,13 +69,13 @@ F autosetup/tmake.tcl 585cf569bb5b94a98876615d6b6dd6d6d84c93a9
 F compat/tcl-8.6/generic/tcl.h 3e49f8e5404fd60181c69b6d0ad075e12c4fbd4d
 F compat/tcl-8.6/generic/tclDecls.h 9f431aa5c9a819efa078fadecf3fb1214137455d
 F compat/tcl-8.6/generic/tclPlatDecls.h 05f8965cb99af1c9bb78ff437e991f49a598f7b7
-F compat/zlib/CMakeLists.txt 69313466df50b411fbb065950cb9082c55a0d5b3
-F compat/zlib/ChangeLog bce5461586cf76cf07154ed3bcf9b4f3c804a4ce
+F compat/zlib/CMakeLists.txt 5723e2a910717f7edc869df29c88a9c9e4e2c7f1
+F compat/zlib/ChangeLog 9fd9beffcc202972a0942f55701aecb39f0e4aac
 F compat/zlib/FAQ 832bb73adff252fa426a141ee4756daa9b8a4db4
 F compat/zlib/INDEX 74611a0f2bcc004caa1fa07bdeb4c44b01f0a5d6
 F compat/zlib/Makefile b04f62dd1002b9ca07068c90651432dec60029f3
-F compat/zlib/Makefile.in bce37802d1ffdf31014e3dee0727470130d628f2
-F compat/zlib/README 741dd7eac82bca172765741f84c10d2b712d5231
+F compat/zlib/Makefile.in 13dcf63c70745630f5cbb7f3a7ad69eab256e646
+F compat/zlib/README 212d71323eb53a39a68f7f6936d1239b41d06046
 F compat/zlib/adler32.c 6c1114794db137af50f9b060aaade1a1a35ed784
 F compat/zlib/amiga/Makefile.pup 79461cdcf8eda434edca3c32781982d2082af5fe
 F compat/zlib/amiga/Makefile.sas 64787face2d527df6c78ba8754eb54c53dda6ac2
@@ -102,7 +103,7 @@ F compat/zlib/contrib/blast/blast.c 809a3404b6e9e1bc120ff0313c31c4bd2b776823
 F compat/zlib/contrib/blast/blast.h b20eb7c03966462cafbf896c97263632004bd867
 F compat/zlib/contrib/blast/test.pk 00d07b4c71bad842d7e04210f966e55977efd9c3
 F compat/zlib/contrib/blast/test.txt aed9b9fc86b2b47a4c46053df53feb544ecf31ce
-F compat/zlib/contrib/delphi/ZLib.pas a4e31bedc12be256f7cd569adcbaff15564f7485
+F compat/zlib/contrib/delphi/ZLib.pas 1f53cb8edd7c041d4244d62b7286ffeaa2ffd13c
 F compat/zlib/contrib/delphi/ZLibConst.pas e0ff4d3c14a4dcdbf170692ce0fec86939b500d0
 F compat/zlib/contrib/delphi/readme.txt 366e08eaa227cd3d09810c45639aedf4879b7ecf
 F compat/zlib/contrib/delphi/zlibd32.mak ddf83b34d4c7d41ace39f96b5cb13fb390c8d2eb
@@ -118,7 +119,7 @@ F compat/zlib/contrib/dotzlib/DotZLib/DotZLib.cs e9c7c49791d38b49a39aab76f593b2e
 F compat/zlib/contrib/dotzlib/DotZLib/DotZLib.csproj 99238c2ad633a641687d722e8c80aaa0a8c8bdd2
 F compat/zlib/contrib/dotzlib/DotZLib/GZipStream.cs 731206b5721b9a7be5a1cbc98e3cc969bd176b4b
 F compat/zlib/contrib/dotzlib/DotZLib/Inflater.cs 25f788ff0015c08fcd74d6e4552e01792c559350
-F compat/zlib/contrib/dotzlib/DotZLib/UnitTests.cs 25471be796454886ab978605fd9719067af0f581
+F compat/zlib/contrib/dotzlib/DotZLib/UnitTests.cs ec6bced3748c07cf5cdf91a83fb59b1026849378
 F compat/zlib/contrib/dotzlib/LICENSE_1_0.txt 892b34f7865d90a6f949f50d95e49625a10bc7f0
 F compat/zlib/contrib/dotzlib/readme.txt b1229b826f0096808628474538cea8fec2922a9b
 F compat/zlib/contrib/gcc_gvmat64/gvmat64.S 742603cba1af98a1432cc02efb019b1a5760adf2
@@ -127,7 +128,7 @@ F compat/zlib/contrib/infback9/infback9.c 17fb362c03755b12f2dda5b12a68cf38162674
 F compat/zlib/contrib/infback9/infback9.h d0486a32b558dcaceded5f0746fad62e680a4734
 F compat/zlib/contrib/infback9/inffix9.h 7a57a5901d920d1d3fcf4f8d6bedf8c9c68b41a7
 F compat/zlib/contrib/infback9/inflate9.h c7541490d97f70268010ae1baeb98a10302f3df8
-F compat/zlib/contrib/infback9/inftree9.c 220d906458aad09e20310f2abe3e200791551103
+F compat/zlib/contrib/infback9/inftree9.c 9f86c4eb0c44a001fcb75418f3b980702053fe70
 F compat/zlib/contrib/infback9/inftree9.h cfb5d10e9b79029c758cf0428875f9cffa9d6cdf
 F compat/zlib/contrib/inflate86/inffas86.c d9dfc1538fb2bf1daef2fec42e68472ede564abc
 F compat/zlib/contrib/inflate86/inffast.S e5c30f2fc07023d7024571c9882383236d2a1cb0
@@ -154,7 +155,7 @@ F compat/zlib/contrib/minizip/Makefile b1b85a0f99bf296c58326a80bc0bf220080778cd
 F compat/zlib/contrib/minizip/Makefile.am f978d26b0069ef66a560bcba8fd204ed70026f2a
 F compat/zlib/contrib/minizip/MiniZip64_Changes.txt cb10d2af06d59532c6d462ab0dbd2b79c55a5834
 F compat/zlib/contrib/minizip/MiniZip64_info.txt e1f5511bbdf9715bb2f18e4d24924cca3275fb24
-F compat/zlib/contrib/minizip/configure.ac ac85b677027072befc1e20569c4220f487fca074
+F compat/zlib/contrib/minizip/configure.ac 30e13dd105114797cb375b4ea4d6a9e1958c42ad
 F compat/zlib/contrib/minizip/crypt.h 94f289e1b0403b01289b10c6b32ed7d1471fa0ca
 F compat/zlib/contrib/minizip/ioapi.c 2846a21ba725da90aa3a67024d8107daa793f5f7
 F compat/zlib/contrib/minizip/ioapi.h e71518ae9f172eab44a2d8f52b3f80b0552070d5
@@ -175,7 +176,7 @@ F compat/zlib/contrib/minizip/zip.h 8cef828db4766401b91bec9b47ca56a3118705fc
 F compat/zlib/contrib/pascal/example.pas 51c42c32667ef6fc0b4b51867afac971fe11c15c
 F compat/zlib/contrib/pascal/readme.txt c47cc3ccdb450bd0d3d1d0e6f52746a2c0ca8541
 F compat/zlib/contrib/pascal/zlibd32.mak ddf83b34d4c7d41ace39f96b5cb13fb390c8d2eb
-F compat/zlib/contrib/pascal/zlibpas.pas fac62881eb3b0d7898cf309b3c2ca28b4c6e814d
+F compat/zlib/contrib/pascal/zlibpas.pas 7b0d5b5aaeedb25c23c268d9f69666ce4227c7e1
 F compat/zlib/contrib/puff/Makefile 6c9c12d0e19be923abf86e2584a23a781d81cb06
 F compat/zlib/contrib/puff/README 8f68ce02019463af0813a0db20c98bfc8e3c2ef7
 F compat/zlib/contrib/puff/puff.c 3c31e70c07929fabd5b3454ad8da39e8492633f6
@@ -187,7 +188,7 @@ F compat/zlib/contrib/testzlib/testzlib.txt 89f8964acc535861273f1f156a24ed2ac4cf
 F compat/zlib/contrib/untgz/Makefile b31cf680ad6e873da3c897c6b123a5fde4cd5151
 F compat/zlib/contrib/untgz/Makefile.msc 3d3a312c38dd7e3316ddb553e894734f42d28205
 F compat/zlib/contrib/untgz/untgz.c 260f16a4110f43071b376af97c4119f5ecf902af
-F compat/zlib/contrib/vstudio/readme.txt ca81f4095f903a3f1211aff930c4100d04596294
+F compat/zlib/contrib/vstudio/readme.txt 5e1c64336bea57ce6dc4282503b5d027b4c641ee
 F compat/zlib/contrib/vstudio/vc10/miniunz.vcxproj 70048ae1ef9a404d49ae943878fd30ddee54c121
 F compat/zlib/contrib/vstudio/vc10/miniunz.vcxproj.filters 320d0a38475bbfe13314956d0ac7927cb7d1f975
 F compat/zlib/contrib/vstudio/vc10/minizip.vcxproj 530a1f4869bfa4cedf0f878fff4480535bd5b1bf
@@ -196,7 +197,7 @@ F compat/zlib/contrib/vstudio/vc10/testzlib.vcxproj da5c9e1922fa655c534811676563
 F compat/zlib/contrib/vstudio/vc10/testzlib.vcxproj.filters 76e2f85e212116be3a0142703c2d68b09b9b79d3
 F compat/zlib/contrib/vstudio/vc10/testzlibdll.vcxproj d3a849fce0bca235516932604c5c9bcbd2fce125
 F compat/zlib/contrib/vstudio/vc10/testzlibdll.vcxproj.filters d14872425639811364dc265fce04045bcdb11ead
-F compat/zlib/contrib/vstudio/vc10/zlib.rc 1cc0083c03a3d80ba9a8cbfd0e56a5a68db6ebdb
+F compat/zlib/contrib/vstudio/vc10/zlib.rc cea47e4820d1d296442d592c321c2bb8498f7b76
 F compat/zlib/contrib/vstudio/vc10/zlibstat.vcxproj 2dfa4c3f4422c58c7e8d142c7fc9c4c11191f705
 F compat/zlib/contrib/vstudio/vc10/zlibstat.vcxproj.filters e9fa98820edf15ae1eedc2101f30c3cef2d935e8
 F compat/zlib/contrib/vstudio/vc10/zlibvc.def e869e83b39cc26f7323352081f777b3e72a53c93
@@ -207,7 +208,7 @@ F compat/zlib/contrib/vstudio/vc11/miniunz.vcxproj 1b465b8db5b2651282cc0da57a27f
 F compat/zlib/contrib/vstudio/vc11/minizip.vcxproj eafb9f2fa4f89d876f3819e756799b69cb9b2e1a
 F compat/zlib/contrib/vstudio/vc11/testzlib.vcxproj 24acf8bef08c985c250f0eb555ad94f7e2f04846
 F compat/zlib/contrib/vstudio/vc11/testzlibdll.vcxproj 9c4618693842092678ae885ff0a44139c1f6a4ac
-F compat/zlib/contrib/vstudio/vc11/zlib.rc 1cc0083c03a3d80ba9a8cbfd0e56a5a68db6ebdb
+F compat/zlib/contrib/vstudio/vc11/zlib.rc cea47e4820d1d296442d592c321c2bb8498f7b76
 F compat/zlib/contrib/vstudio/vc11/zlibstat.vcxproj 223df1a7f2b79131c10230eb98d2112c93b9f977
 F compat/zlib/contrib/vstudio/vc11/zlibvc.def e869e83b39cc26f7323352081f777b3e72a53c93
 F compat/zlib/contrib/vstudio/vc11/zlibvc.sln 7fface057a73d5ad706203d3f6f1e37b59bce3b4
@@ -216,7 +217,7 @@ F compat/zlib/contrib/vstudio/vc12/miniunz.vcxproj 78d7b8fa17322e2be5d6e36a6b095
 F compat/zlib/contrib/vstudio/vc12/minizip.vcxproj 701b614bbab070519b0837758c69aa0443804eb7
 F compat/zlib/contrib/vstudio/vc12/testzlib.vcxproj fec99dd6b063416ef0a48662adad3a421c1a049a
 F compat/zlib/contrib/vstudio/vc12/testzlibdll.vcxproj 0e1bb13edb71d4e1857aa02e1075742fa726490a
-F compat/zlib/contrib/vstudio/vc12/zlib.rc 22bba2d439ab935d3e2a44e8eefe16450fb5c9e5
+F compat/zlib/contrib/vstudio/vc12/zlib.rc b46d1616b0d84101a6baf251d047d0540467c76b
 F compat/zlib/contrib/vstudio/vc12/zlibstat.vcxproj 38e7d39967856e2a95661f9b5758d93085178d3d
 F compat/zlib/contrib/vstudio/vc12/zlibvc.def e869e83b39cc26f7323352081f777b3e72a53c93
 F compat/zlib/contrib/vstudio/vc12/zlibvc.sln 17e1c07bb0a9d02fc3b1a1ec9c4b1d6c5f2ac0a4
@@ -229,7 +230,7 @@ F compat/zlib/contrib/vstudio/vc14/testzlib.vcxproj 3c61f30ff4ef922fd1c14484bb31
 F compat/zlib/contrib/vstudio/vc14/testzlib.vcxproj.user bc737785f173dc6b0f5e4fe2afa1164f9dbe2377
 F compat/zlib/contrib/vstudio/vc14/testzlibdll.vcxproj 63b622b44827ded02a631bec50e4d1f772f4b799
 F compat/zlib/contrib/vstudio/vc14/testzlibdll.vcxproj.user bc737785f173dc6b0f5e4fe2afa1164f9dbe2377
-F compat/zlib/contrib/vstudio/vc14/zlib.rc 22bba2d439ab935d3e2a44e8eefe16450fb5c9e5
+F compat/zlib/contrib/vstudio/vc14/zlib.rc b46d1616b0d84101a6baf251d047d0540467c76b
 F compat/zlib/contrib/vstudio/vc14/zlibstat.vcxproj 20ee6f367909b5b555c0d76476049b21ec46c2f5
 F compat/zlib/contrib/vstudio/vc14/zlibstat.vcxproj.user bc737785f173dc6b0f5e4fe2afa1164f9dbe2377
 F compat/zlib/contrib/vstudio/vc14/zlibvc.def e869e83b39cc26f7323352081f777b3e72a53c93
@@ -240,14 +241,14 @@ F compat/zlib/contrib/vstudio/vc9/miniunz.vcproj 40de34c1a26fe1fa14efb992d217c84
 F compat/zlib/contrib/vstudio/vc9/minizip.vcproj 88d892514b4afba218dec574ea241904d263e29e
 F compat/zlib/contrib/vstudio/vc9/testzlib.vcproj 42b4b89271adf184abb594d092bf4ae4c2431ac9
 F compat/zlib/contrib/vstudio/vc9/testzlibdll.vcproj 086ea8214cfcb33f3512a847f3dfde6154a7137d
-F compat/zlib/contrib/vstudio/vc9/zlib.rc 1cc0083c03a3d80ba9a8cbfd0e56a5a68db6ebdb
+F compat/zlib/contrib/vstudio/vc9/zlib.rc cea47e4820d1d296442d592c321c2bb8498f7b76
 F compat/zlib/contrib/vstudio/vc9/zlibstat.vcproj 235725a6f6285f12aa3ecc248b0afbcaeaa3367c
 F compat/zlib/contrib/vstudio/vc9/zlibvc.def e869e83b39cc26f7323352081f777b3e72a53c93
 F compat/zlib/contrib/vstudio/vc9/zlibvc.sln 8b46b3778372dbb718fd0f00ff1ee55266b18892
 F compat/zlib/contrib/vstudio/vc9/zlibvc.vcproj 82379594550bf43deb4a5114d938ad8ca06fd763
 F compat/zlib/crc32.c 88ea76a1b42bfc247680dd50b450923858f945fe
 F compat/zlib/crc32.h db9e88b8332953972c9120c73389fa2ce03dd8f8
-F compat/zlib/deflate.c dd5da3ce28c8d0f95975433a904fa4fe27564c44
+F compat/zlib/deflate.c 98358147b924a92b001aed26a151f2f517e3c7e1
 F compat/zlib/deflate.h d54ac3369732bc45463c254851809a0062382b3d
 F compat/zlib/doc/algorithm.txt 8f58cd212772b622c71345ca5d7dd93648b8ab94
 F compat/zlib/doc/rfc1950.txt 58f11c3e7778ca30e9c9330ab248107371429dd8
@@ -267,16 +268,16 @@ F compat/zlib/examples/zpipe.c b59f2d5676cc135ac0af040d90c3e7b366fcce93
 F compat/zlib/examples/zran.c db2e8f8daa77cf6536bf516f194c422f5db8310d
 F compat/zlib/gzclose.c 4698124c166f59728db9ae229f8467459b458ef3
 F compat/zlib/gzguts.h 637240f7e6ac7249e161083b450fb9f4e1f2b088
-F compat/zlib/gzlib.c 68a97c12fdf0e69eef3b8a8e8f5ea69a03de186e
+F compat/zlib/gzlib.c e44ca83ec508838758441df05b0c9845448a8877
 F compat/zlib/gzread.c dfbd4eef919b6eded7e59ae420642ddf8bc848b8
-F compat/zlib/gzwrite.c dcb47f85c7ef872fb6dff6d7444ac47d2be7bccf
+F compat/zlib/gzwrite.c ba78c3361ef669e61f9c7545014846c66142a1dc
 F compat/zlib/infback.c 6b7d6a93d4429068f1af3c10a11de42ece950edd
-F compat/zlib/inffast.c 70a1be2360d3b5c1daea485efaaec26368ff8ad5
+F compat/zlib/inffast.c 7f91a61b7d5466eaeba46be47cbffd61a1948f6e
 F compat/zlib/inffast.h 4fc803c43a562b2b92a97e22300754ddfe44c603
 F compat/zlib/inffixed.h 8770ab43c9050b824c646f6e6cee8b3c0628cbda
 F compat/zlib/inflate.c d5cfffd5a037697867a78566d583e73f6d0f91b9
 F compat/zlib/inflate.h 628d8395fc7f67e6d7a9a6cecba64f6594d64eb9
-F compat/zlib/inftrees.c cbd39a78b66f804a920c07f88df04d5ceebcbe10
+F compat/zlib/inftrees.c e2dea9707a78ac7caed874dac39a0deb3cf17126
 F compat/zlib/inftrees.h 3c63a7707d83991f3e074391c047b3136ff3e558
 F compat/zlib/make_vms.com dc817ba3a5335de14bde5b81b1a3365734757625
 F compat/zlib/msdos/Makefile.bor 85d42a140e556d3b659f7e26c834b5574ea51754
@@ -293,15 +294,15 @@ F compat/zlib/old/descrip.mms 940475beeeb76576feb22c2d8b7b97d493ab3d79
 F compat/zlib/old/os2/Makefile.os2 4127401d329a7e421112ae14ec4e7dd995ea6e30
 F compat/zlib/old/os2/zlib.def 108527bad780aecce1c75efa9210f4b1173f4139
 F compat/zlib/old/visual-basic.txt 1cf5886f7fcee4019ef529f8f19dd8000be01229
-F compat/zlib/os400/README400 4d6b296b0c401964204f5e773c819de55efe07c0
+F compat/zlib/os400/README400 b390c912da459d0498b795fee96c4376be0ece44
 F compat/zlib/os400/bndsrc 8b47a80813ee6c9afcad0defe645efa3b5998aa0
 F compat/zlib/os400/make.sh 15574a0ceb43bed480b068505b9f5480d6bb1a88
-F compat/zlib/os400/zlib.inc a640c7eba86bec5763a66bcdd1ee5a0e4317b107
-F compat/zlib/qnx/package.qpg 182af070b83256b3acf77744dd1fcfcbb40459e2
+F compat/zlib/os400/zlib.inc 52e0646e45c6f047e89dd2b71e624d7dc4e7b64a
+F compat/zlib/qnx/package.qpg 2574f6fb1080468a97f38ccf1e321b0625659e22
 F compat/zlib/test/example.c bde9391a495a7b962cc63aaf8288b02159a5f68a
 F compat/zlib/test/infcover.c e9ced1a5ecc8badd5bc14cd96ef859cc346ec3dd
 F compat/zlib/test/minigzip.c 2ff91a2d1d191233dea5741a1aee5095f577a93e
-F compat/zlib/treebuild.xml 06e8496ad54529d45bbf899849bd720081336f18
+F compat/zlib/treebuild.xml f95f1b1bed6c5e4d25c6ffeb34c1a3bbf7875d9c
 F compat/zlib/trees.c 1a554d4edfaecfd377c71b345adb647d15ff7221
 F compat/zlib/trees.h 5d8a9c42f902d2418a7e63b539c0f319373e9400
 F compat/zlib/uncompr.c 90f92698d7de79341e85bd3ca411a6b165c58848
@@ -311,21 +312,21 @@ F compat/zlib/win32/DLL_FAQ.txt 743c9da800bb73a7a30e7c5ce76b5bafd1256ba8
 F compat/zlib/win32/Makefile.bor 23262888e43719d398dea043e2bd09c23a9ba5da
 F compat/zlib/win32/Makefile.gcc ea8204bc36bb1d25c28e0176eb777d1174965fc6
 F compat/zlib/win32/Makefile.msc d70638599d2ef5c0e9ae37c063cf65e9b3692242
-F compat/zlib/win32/README-WIN32.txt 061402f393aebe3562379a84cf8c81a7c2bfdba3
+F compat/zlib/win32/README-WIN32.txt c41ae54eecd45198ddde0a0a76ead7fc027d96bc
 F compat/zlib/win32/VisualC.txt e5df2e74c999dce787d725694968d9ce63662d82
 F compat/zlib/win32/zlib.def 756d27ffaa18b488fca960ff0797bcbc2ffc811f
 F compat/zlib/win32/zlib1.rc eeaf2d2d1bd45bd401038c406606c1fabec2e97d
 F compat/zlib/zconf.h 0ef05b0d12bf2cfbbf1aa84cff0e8dcf4fc5b731
 F compat/zlib/zconf.h.cmakein cbd5ddffb39904669e115e270b23138106bb0ac2
 F compat/zlib/zconf.h.in 0ef05b0d12bf2cfbbf1aa84cff0e8dcf4fc5b731
-F compat/zlib/zlib.3 6cedfa150f87d866289540c1a1157372104dabd0
-F compat/zlib/zlib.3.pdf 52a461eb8c2985e1259f348a6b779b45c23521c1
-F compat/zlib/zlib.h b05981908b9b9db13c07cb87297c16a2f65260cf
+F compat/zlib/zlib.3 835f0f83730061e9db9c2c91107122bc1a968964
+F compat/zlib/zlib.3.pdf f5f10000f8ee7db14af1ada125e11d447336299d
+F compat/zlib/zlib.h e160840a3d330c913b4a99d8f4751c12a3a02087
 F compat/zlib/zlib.map 513816d1574deea0e966ad82ed0d304959a5ad17
 F compat/zlib/zlib.pc.cmakein c80d6efe2a2991a1836ee797f75b12c9d60b6783
 F compat/zlib/zlib.pc.in 3ebc107b34d82b134e9f5933c2a569eb6e952ce4
 F compat/zlib/zlib2ansi e9859eecf47ae66280573d73969c061989615134 x
-F compat/zlib/zutil.c 7733596bc4740737c4d4c43654d3667f5d7b41c6
+F compat/zlib/zutil.c da1c9102b2d2abc12b50ccaf3b9d5d9b6fa86463
 F compat/zlib/zutil.h f32dab3880d47eca1b71c308cf6542b32941b23c
 F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
@@ -699,7 +700,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 0b9eb5c2d318425ca12b50bc3247aad2b4fc1088
-F www/changes.wiki 8eeff216ac5118aa2c3b11e71083c88d8b37334e
+F www/changes.wiki 15dcc0fa16b5bd3f4ef96e4c7775cdcda9405e89
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki be27496a6d2f5f6c83b5a3a1441451beabec99e1
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -788,7 +789,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e38d5e1cbda33bcba32dd973f9abd00d6983bc4d
-R 6720b7ed7d6f4e94b3441da8decd05e0
-U drh
-Z 7a7230ea4484e150a0ed807dbc1d927c
+P 8b12786a1eff02abf11f0c3f8755227468ad627b
+R 72ab0b14f3831ebcdfc999582183f561
+U jan.nijtmans
+Z 737bded2f0b34a8f196d086489f0cd91
