@@ -1,11 +1,11 @@
-C Update\sthe\sbuilt-in\sZlib\sto\sthe\s1.2.10\srelease.
-D 2017-01-03T10:53:12.868
+C Simplify\sand\scleanup\svarious\sFossil\sversioned\ssetting\sfiles.
+D 2017-01-03T22:39:02.106
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
-F .fossil-settings/binary-glob 9bb91e555ab4fabcef9c97de22159e287933f76c
+F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
-F .fossil-settings/crnl-glob e6be7cf6f0ecaf974951a52cc20da577ae7b219a
-F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
-F .fossil-settings/ignore-glob 026da23219df1dd81be87fee8252eecd9188ef73
+F .fossil-settings/crnl-glob 2da052c2bd7a53c5e083152cd3ea3cefd6228b17
+F .fossil-settings/encoding-glob fe9e7e2a183ce22d107976173b58d2a1255aeb0a
+F .fossil-settings/ignore-glob b7b945d48cfceef7fd1000d6a6c6232b7163d5e8
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -789,7 +789,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8b12786a1eff02abf11f0c3f8755227468ad627b
-R 72ab0b14f3831ebcdfc999582183f561
-U jan.nijtmans
-Z 737bded2f0b34a8f196d086489f0cd91
+P ad8ad49de3b1c7ad4a93fb5ee9eaef15cd5ec043
+R d697a622247f57d75e1d931fcdacac17
+U mistachkin
+Z a2cbe2aca95f4cbfbf9d77019ecb8c08
