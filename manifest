@@ -1,5 +1,5 @@
-C Simplify\sand\scleanup\svarious\sFossil\sversioned\ssetting\sfiles.
-D 2017-01-03T22:39:02.106
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.16.1\srelease
+D 2017-01-04T09:34:55.300
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -506,8 +506,8 @@ F src/shun.c 1f8bcfcd826c3b574cd6e723f7afcbeff33ff443
 F src/sitemap.c b7c376b21d29322741c804e1f762b34aedb98ad1
 F src/skins.c 0b6ae35015f48cbe9cef2f97d65105a796fc366b
 F src/sqlcmd.c 9f904c862aa0c5f83306cbee0140a54c4d1e3a54
-F src/sqlite3.c e2920fb885569d14197c9b7958e6f1db573ee669
-F src/sqlite3.h 880fe3b22a227f8396b9f300a4cae725c17b5773
+F src/sqlite3.c 354f6223490b30fd5320b4066b1535e4ce33988d
+F src/sqlite3.h 4d6fc185a88f7eff41f5a797d7ab996cb48e8a89
 F src/stash.c ac247e5b718cd29c6c1fc543f7b984be9b9f53e6
 F src/stat.c 05ede8a4087ae74c842e89a76d926265e064e83a
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
@@ -700,7 +700,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 0b9eb5c2d318425ca12b50bc3247aad2b4fc1088
-F www/changes.wiki 15dcc0fa16b5bd3f4ef96e4c7775cdcda9405e89
+F www/changes.wiki 1081c1164c17c0a2c5bc9e83c7654dffe030d3ce
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki be27496a6d2f5f6c83b5a3a1441451beabec99e1
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -789,7 +789,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ad8ad49de3b1c7ad4a93fb5ee9eaef15cd5ec043
-R d697a622247f57d75e1d931fcdacac17
-U mistachkin
-Z a2cbe2aca95f4cbfbf9d77019ecb8c08
+P 724b1536a8220a631388f47bbcaf5572c98976ce
+R f118f74cbd767eef292ca6a6e24540c8
+U jan.nijtmans
+Z 1eac60b55525f13701d069b8d96172f5

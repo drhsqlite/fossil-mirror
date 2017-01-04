@@ -33,7 +33,7 @@
   *  Fixes for incremental git import/export.
   *  Minor security enhancements to
      [./encryptedrepos.wiki|encrypted repositories].
-  *  Update the built-in SQLite to version 3.16.
+  *  Update the built-in SQLite to version 3.16.1.
   *  Update the built-in Zlib to version 1.2.10.
 
 <a name='v1_36'></a>
