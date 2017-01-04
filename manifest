@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.16.1\srelease
-D 2017-01-04T09:34:55.300
+C Add\sa\sweb-page,\swhere\swe\scan\ssee\sthe\sdetails\son\show\sSQLite\swas\scompiled\s(pragma\scompile_options),\sas\ssub-page\sfor\s"stat".
+D 2017-01-04T10:40:02.547
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -16,7 +16,7 @@ F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
 F Makefile.in ca04b4081ad0dc54256f7d609168750c2247882e
 F VERSION b05b06b20073554259036e0bee80fb43986651d3
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
-F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
+F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
 F ajax/i-test/rhino-test.js c0e2d874caa424a8cb1628c8d85a4a6b197b8d32
 F ajax/index.html f4f8d1b79b51a12dd167f5e16a1e3e6e38f8903e
@@ -63,7 +63,7 @@ F autosetup/jimsh0.c e2e67757a06d0cab4d5db04220492e68714f5852
 F autosetup/local.tcl 3a6a7704f546f0863f86f69df7af1858de9c41c9
 F autosetup/pkg-config.tcl 232a81fd534755653144cea9558656908189e97f
 F autosetup/system.tcl 82f4b642c6c605dc1fa8cb728bf251e501350572
-F autosetup/test-tclsh f197a4c7bfa8bde7672864fc36dcbc7f85bdda6c x
+F autosetup/test-tclsh f197a4c7bfa8bde7672864fc36dcbc7f85bdda6c
 F autosetup/tmake.auto 76789a7eb47bb057c1d230f549dd6cf1cf3ac376
 F autosetup/tmake.tcl 585cf569bb5b94a98876615d6b6dd6d6d84c93a9
 F compat/tcl-8.6/generic/tcl.h 3e49f8e5404fd60181c69b6d0ad075e12c4fbd4d
@@ -467,7 +467,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 597ae479d42096c07d6e6f85f1d844ebb46089b3
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
-F src/main.c d1f1133c103419c0ce0f6d06ff7cc195f9a1c8c7
+F src/main.c bd36cac4537024efe239d454dd53809f8bf1e35a
 F src/main.mk 3bfcbade731d65f075e20edfa6f1a384eda3f566
 F src/makeheaders.c cbbebae48e377db66e648af76a7aeea63c9bc523
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -509,7 +509,7 @@ F src/sqlcmd.c 9f904c862aa0c5f83306cbee0140a54c4d1e3a54
 F src/sqlite3.c 354f6223490b30fd5320b4066b1535e4ce33988d
 F src/sqlite3.h 4d6fc185a88f7eff41f5a797d7ab996cb48e8a89
 F src/stash.c ac247e5b718cd29c6c1fc543f7b984be9b9f53e6
-F src/stat.c 05ede8a4087ae74c842e89a76d926265e064e83a
+F src/stat.c 2f81053ee64a9a9705fdbeac60e7397798145aaf
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
 F src/style.c cf9edbf403e1df8e094e8a1d44d5dd9516046678
 F src/sync.c 9cc2947ef0f1ef73bd9fb1fa7291dd5df2c03ce9
@@ -789,7 +789,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 724b1536a8220a631388f47bbcaf5572c98976ce
-R f118f74cbd767eef292ca6a6e24540c8
+P a8cd1e542787addc12d9cc393ab2252548cf0fbb
+R da281b96e4664d8158a4552ce678279b
 U jan.nijtmans
-Z 1eac60b55525f13701d069b8d96172f5
+Z a0085945124c38db1dc68d779b12b2c8

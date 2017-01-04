@@ -183,7 +183,8 @@ void stat_page(void){
   @ (%h(RELEASE_VERSION)) <a href='version?verbose=1'>(details)</a>
   @ </td></tr>
   @ <tr><th>SQLite&nbsp;Version:</th><td>%.19s(sqlite3_sourceid())
-  @ [%.10s(&sqlite3_sourceid()[20])] (%s(sqlite3_libversion()))</td></tr>
+  @ [%.10s(&sqlite3_sourceid()[20])] (%s(sqlite3_libversion()))
+  @ <a href='version?verbose=2'>(details)</a></td></tr>
   @ <tr><th>Schema&nbsp;Version:</th><td>%h(g.zAuxSchema)</td></tr>
   @ <tr><th>Repository Rebuilt:</th><td>
   @ %h(db_get_mtime("rebuilt","%Y-%m-%d %H:%M:%S","Never"))

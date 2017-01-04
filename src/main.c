@@ -1024,17 +1024,32 @@ void version_cmd(void){
 */
 void test_version_page(void){
   Blob versionInfo;
-  int verboseFlag;
+  const char *verboseFlag;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  verboseFlag = P("verbose")!=0;
+  verboseFlag = P("verbose");
   style_header("Version Information");
   style_submenu_element("Stat", "stat");
-  get_version_blob(&versionInfo, verboseFlag);
-  @ <blockquote><pre>
-  @ %h(blob_str(&versionInfo))
-  @ </pre></blockquote>
+  if( verboseFlag != 0 && !strcmp(verboseFlag, "2") ){
+    Stmt loop;
+    style_submenu_element("Fossil version", "version?verbose=1");
+    blob_zero(&versionInfo);
+    blob_appendf(&versionInfo, "SQLite %s %.30s\n",
+                 sqlite3_libversion(), sqlite3_sourceid());
+    db_prepare(&loop, "pragma compile_options;");
+    while( db_step(&loop)==SQLITE_ROW ){
+      blob_appendf(&versionInfo, "%s\n", db_column_text(&loop, 0));
+    }
+    db_finalize(&loop);
+
+  }else{
+    style_submenu_element("SQLite version", "version?verbose=2");
+    get_version_blob(&versionInfo, verboseFlag != 0);
+  }
+  cgi_printf("<blockquote><pre>\n"
+         "%h\n"
+         "</pre></blockquote>\n",(blob_str(&versionInfo)));
   style_footer();
 }
 
