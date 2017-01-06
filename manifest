@@ -1,5 +1,5 @@
-C The\s"fossil\sall\sui"\scommand\sstill\sdoes\snot\swork\sfor\srepos\sthat\sdo\snot\send\nin\s".fossil",\sbut\sit\sat\sleast\sdoes\snot\shyperlink\sthem\sany\smore.
-D 2017-01-06T13:09:18.609
+C Upgrade\sdirent.h\sto\sversion\s1.22.\sMinor\sspacing\schanges.
+D 2017-01-06T15:28:12.374
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -425,12 +425,12 @@ F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
 F src/diff.c 4019cd9a2c6cc4c63f327a214f7bce10b55d95d9
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
-F src/diffcmd.c 6ac75f308c2875632062170867004896f3bc6e16
+F src/diffcmd.c 0725db4249cddaa2da5dedea66c985adc47b05b2
 F src/dispatch.c 4e634c0cf22b7dd63501a4dc0aa6375cf4151343
 F src/doc.c bae142c1df13fbaba1af814e0ee398670d366547
 F src/encode.c edb12a68c5831e5331eaad3796c492059edb10fb
 F src/event.c 021db025691a859a49751f255a0a065bca728444
-F src/export.c 0917784be9005d41c3797e3c5a711956766b3cb0
+F src/export.c d506a4f7e033a10ec1771593c468c199b68a88b8
 F src/file.c c8b27a46c041a6e34c470f40fcee69244a6baec7
 F src/finfo.c 19de17236a019469513689e02dedc9a314973225
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
@@ -444,7 +444,7 @@ F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c 52e37698299310f2ef58aaba7dd732f1f62622a5
-F src/info.c f4a3f2c79e612e9fea6ea5c4851cde146b628568
+F src/info.c 7b09909864e296c4d7404fc17ca644f960071b55
 F src/json.c dc2c7f146357683da2842cc84eb78a73221a80ba
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c 7c7e2c63fd1cac2ca85aa657a7ae04d91a1bdc08
@@ -467,7 +467,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 597ae479d42096c07d6e6f85f1d844ebb46089b3
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
-F src/main.c aac1bd0eb6aa21ea8aed6a8a669837de86c530d7
+F src/main.c ef8114555a951141f7a9f4cb7aa1305f5d899486
 F src/main.mk 3bfcbade731d65f075e20edfa6f1a384eda3f566
 F src/makeheaders.c cbbebae48e377db66e648af76a7aeea63c9bc523
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -674,7 +674,7 @@ F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc a7b668035e5d07ac82d9ea1871ecd42ea12e245b
-F win/include/dirent.h 6ee52548d06862a6d8a387d8dd580833f802c6c3
+F win/include/dirent.h f7f8de3119619066ec04e921a7d31bc130961042
 F win/include/unistd.h 44f9195ff0279791af08c504f58939ba0ca01c4b
 F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
@@ -789,7 +789,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 76d9a4555b56405d7d98b2e34fc12389dfe30899
-R ff56b4da44c8cd5d7851b8d8bd8da542
-U drh
-Z 522756b6caa78b1d821cb8f48bf280f3
+P 805122df65c582a04bb880fe6131831c144da34c
+R 62628c72006b0fdafa37a84e6e8418c8
+U jan.nijtmans
+Z fc70c9db251bd735856828545a5944fa

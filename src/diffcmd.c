@@ -325,7 +325,7 @@ void diff_file_mem(
         glob_free(pBinary);
       }
     }
-    
+
     /* Construct a prefix for the temporary file names */
     blob_zero(&prefix1);
     blob_zero(&prefix2);

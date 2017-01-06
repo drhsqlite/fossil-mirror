@@ -157,7 +157,7 @@ static void print_person(const char *zUser){
      }
   }
   zName[j] = 0;
-    
+
   printf(" %s <%s>", zName, zEmail);
   free(zName);
   free(zEmail);

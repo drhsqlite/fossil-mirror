@@ -1878,7 +1878,7 @@ void artifact_page(void){
     url_add_parameter(&url, "name", zName);
     if( isFile ){
       if( zName==0 ) zName = "";
-      rid = db_int(0, 
+      rid = db_int(0,
          "SELECT fid FROM filename, mlink, event"
          " WHERE name=%Q"
          "   AND mlink.fnid=filename.fnid"
@@ -1934,7 +1934,7 @@ void artifact_page(void){
       style_submenu_element("Shun", "%s/shun?shun=%s#addshun", g.zTop, zUuid);
     }
   }
-  style_header("%s", isFile ? "File Content" : 
+  style_header("%s", isFile ? "File Content" :
                      descOnly ? "Artifact Description" : "Artifact Content");
   if( g.perm.Admin ){
     Stmt q;

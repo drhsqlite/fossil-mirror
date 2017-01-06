@@ -1421,7 +1421,7 @@ static void process_one_web_page(
       */
       if( szFile<0 && i>0 ){
         const char *zMimetype;
-        assert( fossil_strcmp(&zRepo[j], ".fossil")==0 ); 
+        assert( fossil_strcmp(&zRepo[j], ".fossil")==0 );
         zRepo[j] = 0;  /* Remove the ".fossil" suffix */
 
         /* The PATH_INFO prefix seen so far is a valid directory.
