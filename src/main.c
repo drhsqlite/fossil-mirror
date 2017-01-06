@@ -1260,16 +1260,25 @@ static int repo_list_page(void){
     Stmt q;
     @ <h1>Available Repositories:</h1>
     @ <ol>
-    db_prepare(&q, "SELECT pathname, substr(pathname,-7,-100000)||'/home'"
+    db_prepare(&q, "SELECT pathname"
                    " FROM sfile ORDER BY pathname COLLATE nocase;");
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
-      const char *zUrl = db_column_text(&q, 1);
-      if( allRepo && sqlite3_strglob("[a-zA-Z]:/?*", zName)!=0 ){
-        @ <li><a href="%R/%T(zUrl)" target="_blank">/%h(zName)</a></li>
+      int nName = (int)strlen(zName);
+      char *zUrl;
+      if( nName<7 ) continue;
+      zUrl = sqlite3_mprintf("%.*s", nName-7, zName);
+      if( sqlite3_strglob("*.fossil", zName)!=0 ){
+        /* The "fossil server DIRECTORY" and "fossil ui DIRECTORY" commands
+        ** do not work for repositories whose names do not end in ".fossil".
+        ** So do not hyperlink those cases. */
+        @ <li>%h(zName)</li>
+      } else if( allRepo && sqlite3_strglob("[a-zA-Z]:/?*", zName)!=0 ){
+        @ <li><a href="%R/%T(zUrl)/home" target="_blank">/%h(zName)</a></li>
       }else{
-        @ <li><a href="%R/%T(zUrl)" target="_blank">%h(zName)</a></li>
+        @ <li><a href="%R/%T(zUrl)/home" target="_blank">%h(zName)</a></li>
       }
+      sqlite3_free(zUrl);
     }
     @ </ol>
   }else{
