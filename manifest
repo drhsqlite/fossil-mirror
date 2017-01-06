@@ -1,5 +1,5 @@
-C Restore\sexecutable\sflags,\saccidently\schanged\sin\sprevious\scommit
-D 2017-01-04T10:42:57.927
+C Fix\suser's\semail\sbeing\sswapped\swith\sname\sin\sgit\sexport\scommitter\srecord.
+D 2017-01-06T04:09:22.293
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -430,7 +430,7 @@ F src/dispatch.c 4e634c0cf22b7dd63501a4dc0aa6375cf4151343
 F src/doc.c bae142c1df13fbaba1af814e0ee398670d366547
 F src/encode.c edb12a68c5831e5331eaad3796c492059edb10fb
 F src/event.c 021db025691a859a49751f255a0a065bca728444
-F src/export.c 26d0f574610af812dc96c2a05c0762ad39053696
+F src/export.c 0917784be9005d41c3797e3c5a711956766b3cb0
 F src/file.c c8b27a46c041a6e34c470f40fcee69244a6baec7
 F src/finfo.c 19de17236a019469513689e02dedc9a314973225
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
@@ -789,7 +789,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eac405d7d6557fee8371dede5da148ff9468c671
-R da281b96e4664d8158a4552ce678279b
-U jan.nijtmans
-Z 4d12b5bd57612838254e6e6ce03882fe
+P 5972c3310f0b27776f23db51a19d00d9c8b2513b
+R 07a68e0cbf25ad96667ed2a9453dcd1a
+U ashepilko
+Z 52f8c47f1b52c26ec2984408fa24927b
