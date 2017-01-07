@@ -670,7 +670,8 @@ void rebuild_database(void){
        { CFTYPE_WIKI,      "Wikis:" },
        { CFTYPE_TICKET,    "Tickets:" },
        { CFTYPE_ATTACHMENT,"Attachments:" },
-       { CFTYPE_EVENT,     "Events:" },
+       { CFTYPE_TECHNOTE,  "Technotes:" },
+       { CFTYPE_REMARK,    "Remarks:" },
     };
     int i;
     int subtotal = 0;

@@ -130,7 +130,7 @@ void event_page(void){
 
   /* Extract the event content.
   */
-  pTNote = manifest_get(rid, CFTYPE_EVENT, 0);
+  pTNote = manifest_get(rid, CFTYPE_TECHNOTE, 0);
   if( pTNote==0 ){
     fossil_fatal("Object #%d is not a tech-note", rid);
   }
@@ -420,8 +420,8 @@ void eventedit_page(void){
    && (zBody==0 || zETime==0 || zComment==0 || zTags==0 || zMimetype==0)
   ){
     Manifest *pTNote;
-    pTNote = manifest_get(rid, CFTYPE_EVENT, 0);
-    if( pTNote && pTNote->type==CFTYPE_EVENT ){
+    pTNote = manifest_get(rid, CFTYPE_TECHNOTE, 0);
+    if( pTNote && pTNote->type==CFTYPE_TECHNOTE ){
       if( zBody==0 ) zBody = pTNote->zWiki;
       if( zETime==0 ){
         zETime = db_text(0, "SELECT datetime(%.17g)", pTNote->rEventDate);

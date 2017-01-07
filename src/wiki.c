@@ -1271,7 +1271,7 @@ void wiki_cmd(void){
       if ( rid==-1 ){
         fossil_fatal("ambiguous tech note id: %s", zETime);
       }
-      if( (pWiki = manifest_get(rid, CFTYPE_EVENT, 0))!=0 ){
+      if( (pWiki = manifest_get(rid, CFTYPE_TECHNOTE, 0))!=0 ){
         zBody = pWiki->zWiki;
       }
       if( zBody==0 ){
@@ -1322,7 +1322,7 @@ void wiki_cmd(void){
         }
       }else{
         rid = wiki_technote_to_rid(zETime);
-        if( rid>0 && (pWiki = manifest_get(rid, CFTYPE_EVENT, 0))!=0
+        if( rid>0 && (pWiki = manifest_get(rid, CFTYPE_TECHNOTE, 0))!=0
            && (pWiki->zMimetype && *pWiki->zMimetype) ){
           zMimeType = pWiki->zMimetype;
         }

@@ -754,7 +754,7 @@ void attachment_cmd(void){
       if( rid<0 ){
         fossil_fatal("ambiguous tech note id: %s", zETime);
       }
-      if( (pWiki = manifest_get(rid, CFTYPE_EVENT, 0))!=0 ){
+      if( (pWiki = manifest_get(rid, CFTYPE_TECHNOTE, 0))!=0 ){
         zBody = pWiki->zWiki;
       }
       if( zBody==0 ){

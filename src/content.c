@@ -1051,7 +1051,8 @@ static int check_exists(
       case CFTYPE_WIKI:       zCFType = "wiki";        break;
       case CFTYPE_TICKET:     zCFType = "ticket";      break;
       case CFTYPE_ATTACHMENT: zCFType = "attachment";  break;
-      case CFTYPE_EVENT:      zCFType = "event";       break;
+      case CFTYPE_TECHNOTE:   zCFType = "technote";    break;
+      case CFTYPE_REMARK:     zCFType = "remark";      break;
     }
     zSrc = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", p->rid);
     if( p->rDate>0.0 ){

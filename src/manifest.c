@@ -35,7 +35,8 @@
 #define CFTYPE_WIKI       4
 #define CFTYPE_TICKET     5
 #define CFTYPE_ATTACHMENT 6
-#define CFTYPE_EVENT      7
+#define CFTYPE_TECHNOTE      7
+#define CFTYPE_REMARK     8
 
 /*
 ** File permissions used by Fossil internally.
@@ -79,6 +80,7 @@ struct Manifest {
   char *zWikiTitle;     /* Name of the wiki page. L card. */
   char *zMimetype;      /* Mime type of wiki or comment text.  N card.  */
   double rEventDate;    /* Date of an event.  E card. */
+  char *zRemCkin;       /* UUID of checkin to which remark attached. G card */
   char *zEventId;       /* UUID for an event.  E card. */
   char *zTicketUuid;    /* UUID for a ticket. K card. */
   char *zAttachName;    /* Filename of an attachment. A card. */
@@ -575,6 +577,21 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       }
 
       /*
+      **     G <uuid>
+      **
+      ** The G card records the UUID of a check-in to which a remark is
+      ** attached.
+      */
+      case 'G': {
+        if( p->zRemCkin ) SYNTAX("more than one G-card");
+        p->zRemCkin = next_token(&x, &sz);
+        if( sz!=UUID_SIZE || !validate16(p->zRemCkin, UUID_SIZE) ){
+          SYNTAX("malformed UUID on G-card");
+        }
+        break;
+      }
+
+      /*
       **     J <name> ?<value>?
       **
       ** Specifies a name value pair for ticket.  If the first character
@@ -767,12 +784,12 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         if( zValue ) defossilize(zValue);
         if( sz==UUID_SIZE && validate16(zUuid, UUID_SIZE) ){
           /* A valid uuid */
-          if( p->zEventId ) SYNTAX("non-self-referential T-card in event");
+          if( p->zEventId ) SYNTAX("non-self-referential T-card in technote");
         }else if( sz==1 && zUuid[0]=='*' ){
           zUuid = 0;
           hasSelfRefTag = 1;
           if( p->zEventId && zName[0]!='+' ){
-            SYNTAX("propagating T-card in event");
+            SYNTAX("propagating T-card in technote");
           }
         }else{
           SYNTAX("malformed UUID on T-card");
@@ -882,6 +899,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
      || p->zComment
      || p->rDate>0.0
      || p->zEventId
+     || p->zRemCkin
      || p->nFile>0
      || p->nField>0
      || p->zTicketUuid
@@ -898,18 +916,31 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     }
     if( !seenZ ) SYNTAX("missing Z-card on cluster");
     p->type = CFTYPE_CLUSTER;
+  }else if( p->zRemCkin ){
+    if( p->zAttachName ) SYNTAX("A-card in remark");
+    if( p->zBaseline ) SYNTAX("B-card in remark");
+    if( p->rDate<=0.0 ) SYNTAX("missing date on remark");
+    if( p->zEventId ) SYNTAX("E-card in remark");
+    if( p->nFile>0 ) SYNTAX("F-card in remark");
+    if( p->nField>0 ) SYNTAX("J-card in remark");
+    if( p->zTicketUuid ) SYNTAX("K-card in remark");
+    if( p->zWikiTitle!=0 ) SYNTAX("L-card in remark");
+    if( p->zRepoCksum ) SYNTAX("R-card in remark");
+    if( p->zWiki==0 ) SYNTAX("missing W-card on remark");
+    if( !seenZ ) SYNTAX("missing Z-card on event");
+    p->type = CFTYPE_REMARK;
   }else if( p->zEventId ){
-    if( p->zAttachName ) SYNTAX("A-card in event");
-    if( p->zBaseline ) SYNTAX("B-card in event");
+    if( p->zAttachName ) SYNTAX("A-card in technote");
+    if( p->zBaseline ) SYNTAX("B-card in technote");
     if( p->rDate<=0.0 ) SYNTAX("missing date on event");
-    if( p->nFile>0 ) SYNTAX("F-card in event");
-    if( p->nField>0 ) SYNTAX("J-card in event");
-    if( p->zTicketUuid ) SYNTAX("K-card in event");
-    if( p->zWikiTitle!=0 ) SYNTAX("L-card in event");
-    if( p->zRepoCksum ) SYNTAX("R-card in event");
+    if( p->nFile>0 ) SYNTAX("F-card in technote");
+    if( p->nField>0 ) SYNTAX("J-card in technote");
+    if( p->zTicketUuid ) SYNTAX("K-card in technote");
+    if( p->zWikiTitle!=0 ) SYNTAX("L-card in technote");
+    if( p->zRepoCksum ) SYNTAX("R-card in technote");
     if( p->zWiki==0 ) SYNTAX("missing W-card on event");
     if( !seenZ ) SYNTAX("missing Z-card on event");
-    p->type = CFTYPE_EVENT;
+    p->type = CFTYPE_TECHNOTE;
   }else if( p->zWiki!=0 || p->zWikiTitle!=0 ){
     if( p->zAttachName ) SYNTAX("A-card in wiki");
     if( p->zBaseline ) SYNTAX("B-card in wiki");
@@ -2015,7 +2046,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   }
   if( p->type==CFTYPE_CONTROL
    || p->type==CFTYPE_MANIFEST
-   || p->type==CFTYPE_EVENT
+   || p->type==CFTYPE_TECHNOTE
   ){
     for(i=0; i<p->nTag; i++){
       int tid;
@@ -2083,7 +2114,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     );
     fossil_free(zComment);
   }
-  if( p->type==CFTYPE_EVENT ){
+  if( p->type==CFTYPE_TECHNOTE ){
     char *zTag = mprintf("event-%s", p->zEventId);
     int tagid = tag_findid(zTag, 1);
     int prior, subsequent;
