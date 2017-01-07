@@ -718,7 +718,7 @@ or more such cards are required.
 <td align=center><b>0-1</b></td>
 </tr>
 <tr>
-<td><b>W</b> <i>size</i></td>
+<td><b>W</b> <i>size</i> <b>\n</b> <i>text</i> <b>\n</b></td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
