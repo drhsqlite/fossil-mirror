@@ -542,7 +542,7 @@ code-reviews, information about problems discovered in the check-in,
 or other auxiliary textual information about the check-in.
 The remark artifact is a new artifact added to this specification in
 early 2017.
-The following cards are allowed on an technote artifact:
+The following cards are allowed on a remark artifact:
 
 <blockquote>
 <b>D</b> <i>time-and-date-stamp</i><br />

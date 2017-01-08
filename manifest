@@ -1,5 +1,5 @@
-C Update\sthe\smanifest\sparser\sso\sthat\sit\saccepts\sremark\sartifacts.
-D 2017-01-07T19:29:50.517
+C Fix\sa\stypo\sin\sthe\sfile\sformat\sdocument.
+D 2017-01-08T02:03:30.128
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -737,7 +737,7 @@ F www/env-opts.md 1f4a230136c337741b1e481406755e6b3005f98a
 F www/event.wiki f5a9cc34b11e8224e503e16137ba0f966f151551
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
-F www/fileformat.wiki 88c0acfa4b67397b4369cf9f0e1a7eadfb442710
+F www/fileformat.wiki 0dfbff9fa63e26341a8215dab38c10cac3d01cd2
 F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
@@ -789,7 +789,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0e9021f800d718c9496d5effb26e723ad9f8281f
-R 5a0b6b4e236018654a9211ec12ceb351
-U drh
-Z 24002f14a5dc346748d382c0c1a09520
+P e40143aaffd6df688c922e582c1ee93e392ae0b9
+R f50764c897fd814b6738206005bdee4a
+U mistachkin
+Z d77e5e482e8dbdba76a7210ebe17906c
