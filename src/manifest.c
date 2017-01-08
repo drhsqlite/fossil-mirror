@@ -35,7 +35,7 @@
 #define CFTYPE_WIKI       4
 #define CFTYPE_TICKET     5
 #define CFTYPE_ATTACHMENT 6
-#define CFTYPE_TECHNOTE      7
+#define CFTYPE_TECHNOTE   7
 #define CFTYPE_REMARK     8
 
 /*
