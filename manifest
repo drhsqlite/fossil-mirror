@@ -1,5 +1,5 @@
-C Small\swhitespace\sfix.
-D 2017-01-08T02:03:40.759
+C A\scouple\smore\stypo\sfixes\sin\sthe\sfile\sformat\sdocument.
+D 2017-01-08T21:04:21.503
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -737,7 +737,7 @@ F www/env-opts.md 1f4a230136c337741b1e481406755e6b3005f98a
 F www/event.wiki f5a9cc34b11e8224e503e16137ba0f966f151551
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
-F www/fileformat.wiki 0dfbff9fa63e26341a8215dab38c10cac3d01cd2
+F www/fileformat.wiki 671e7a8eca1c4a7e11d6c3a98386375cdadb324d
 F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
@@ -789,7 +789,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1c7438d478476707315df11cf4d1c77357959834
-R 4dcb547532d1fedf1a5b02c157309a7e
+P 7353be6873e40665cdde1a261928b76655fb9d00
+R 868d8e897043aea566794e3b1ed41652
 U mistachkin
-Z f4263bb1e3d4259f1b33e9784f6393d2
+Z 0000a88746b64dd6b368a7704f84b9c0

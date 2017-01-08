@@ -559,16 +559,16 @@ remark artifact was created.
 A single G card specifies the check-in to which the remark is
 attached.
 
-The optional N card specifies the mimetype of the text of the technote
+The optional N card specifies the mimetype of the text of the remark
 that is contained in the W card.  If the N card is omitted, then the
 W card text mimetype is assumed to be text/x-fossil, which is the
 Fossil wiki format.
 
 A single W card provides wiki text for the document associated with the
-technote.  The format of the W card is exactly the same as for a
+remark.  The format of the W card is exactly the same as for a
 [#wikichng | wiki artifact].
 
-The optional U card gives name of the user who entered the technote.
+The optional U card gives name of the user who entered the remark.
 
 The Z card is the required checksum over the rest of the artifact.
 
