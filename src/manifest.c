@@ -578,9 +578,10 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
 
       /*
       **     G <uuid>
+      **     G <branchname>
       **
-      ** The G card records the UUID of a check-in to which a remark is
-      ** attached.
+      ** The G card records the UUID of a check-in or the name of a branch
+      ** to which a remark is attached.  The branchname is fossil-encoded.
       */
       case 'G': {
         if( p->zRemTarget ) SYNTAX("more than one G-card");

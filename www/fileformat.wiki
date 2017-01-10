@@ -538,11 +538,11 @@ The Z card is the required checksum over the rest of the artifact.
 
 A remark artifact holds textual remarks that are added to a check-in
 or branch.
-Remarks can hold expanded commentary about the check-in, a description
+Remarks can hold expanded commentary about a check-in, a description
 about the purpose of a branch, notes from
-code-reviews, information about problems discovered in the check-in
-or branch, or other auxiliary textual information about the check-ins
-and branches.
+code-reviews, information about problems discovered in a check-in
+or branch, or other auxiliary textual information associated with a
+check-in or branch.
 The remark artifact is a new artifact added to this specification in
 early 2017.
 The following cards are allowed on a remark artifact:
