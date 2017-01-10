@@ -2404,6 +2404,11 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     );
     blob_reset(&comment);
   }
+  if( p->type==CFTYPE_REMARK ){
+    db_multi_exec(
+      "INSERT OR IGNORE INTO remark(rid,target,ctime,uid)"
+      "VALUES(%d,%Q,%.17g,%Q)", p->rid, p->zRemTarget, p->rDate, p->zUser);
+  }
   db_end_transaction(0);
   if( permitHooks ){
     rc = xfer_run_common_script();

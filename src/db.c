@@ -1500,6 +1500,20 @@ void db_open_repository(const char *zDbName){
     );
     db_end_transaction(0);
   }
+
+  /* Verify that the REMARK table exists.  It was added on 2017-01-10.
+  */
+  if( !db_table_exists("repository","remark") ){
+    db_multi_exec(
+      "CREATE TABLE repository.remark(\n"
+      "  rid INTEGER PRIMARY KEY,\n" /* The Remark artifact in BLOB table */
+      "  ctime TIMESTAMP,\n"         /* Creation date.  Julian day. */
+      "  target TEXT,\n"             /* UUID for check-in or name of branch */
+      "  uid TEXT\n"                 /* Name of user who entered remark */
+      ");\n"
+      "CREATE INDEX repository.remarkidx1 ON remark(target,ctime);"
+    );
+  }
 }
 
 /*

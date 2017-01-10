@@ -47,7 +47,7 @@ const char zConfigSchema[] =
 */
 #define CONTENT_SCHEMA  "2"
 #define AUX_SCHEMA_MIN  "2011-04-25 19:50"
-#define AUX_SCHEMA_MAX  "2015-01-24"
+#define AUX_SCHEMA_MAX  "2017-01-10"
 /* NB:  Some features require the latest schema.  Warning or error messages
 ** will appear if an older schema is used.  However, the older schemas are
 ** adequate for many common functions. */
@@ -455,7 +455,17 @@ const char zRepositorySchema2[] =
 @   icomment TEXT
 @ );
 @ CREATE INDEX ticketchng_idx1 ON ticketchng(tkt_id, tkt_mtime);
+@
+@ -- Each remark artifact makes a single entry in the Remark table.
+@ CREATE TABLE remark(
+@   rid INTEGER PRIMARY KEY, -- The Remark artifact in the BLOB table
+@   ctime TIMESTAMP,         -- Creation date.  Julian day.
+@   target TEXT,             -- UUID for check-in or name of branch
+@   uid TEXT                 -- Name of user who entered this remark
+@ );
+@ CREATE INDEX remarkidx1 ON remark(target,ctime);
 ;
+
 
 /*
 ** Predefined tagid values
