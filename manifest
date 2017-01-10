@@ -1,5 +1,5 @@
-C Fix\sdirent.h\srelated\scompile\serrors\swhen\sbuilding\sfor\sWINXP\splatform.
-D 2017-01-10T04:49:16.241
+C Add\sthe\schanges\sfrom\scheck-in\s[3dddf7674b]\sto\sthe\s'makemake.tcl'\stool,\swhich\sis\sused\sto\sgenerate\sthe\sMakefiles.
+D 2017-01-10T05:30:32.620
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -471,7 +471,7 @@ F src/main.c ef8114555a951141f7a9f4cb7aa1305f5d899486
 F src/main.mk 3bfcbade731d65f075e20edfa6f1a384eda3f566
 F src/makeheaders.c cbbebae48e377db66e648af76a7aeea63c9bc523
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl ef7175bf4306369eb73387f439b13d4f0433e6f0
+F src/makemake.tcl 73cf664ce88acd02c2d17d97947735cd36cdfc75
 F src/manifest.c e037d26b34ec3631288032bf06fd79f188e115da
 F src/markdown.c 20bb4755f258601e4e3e5274ea117fc7c8b1ccf7
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
@@ -789,7 +789,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 02fa325a59dc50e78ed1c81f8a800734baa86fac
-R 0b9e3375f06996c85188083af99e65c0
-U ashepilko
-Z 5fa36f965e2470ecb6f47aa3e8481b54
+P 3dddf7674b2a84e91903ccc5df74f71f6376715a
+R 9a6869fb736093c7120ba70170b04a19
+U mistachkin
+Z 08639a5ba9d511cdbbaa810cc1d9e304
