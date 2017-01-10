@@ -1,5 +1,5 @@
-C Since\sthe\sdb_database_slot()\sfunction\sis\scalled\sduring\sdatabase\serror\sprocessing,\sit\smust\suse\sdb_prepare_ignore_error()\sand\sthen\scheck\sthe\sreturn\scode.
-D 2017-01-09T23:37:49.051
+C Fix\sdirent.h\srelated\scompile\serrors\swhen\sbuilding\sfor\sWINXP\splatform.
+D 2017-01-10T04:49:16.241
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -669,7 +669,7 @@ F win/Makefile.PellesCGMake e9d1636731fe8a581e1f2a9a155b1310a9356178
 F win/Makefile.dmc 85ead2164d58e92664bfe0994da07a2d8fc55c12
 F win/Makefile.mingw 43d0a27f70e7eeaf4b4a1ed327678468f57fdb9a
 F win/Makefile.mingw.mistachkin 454634243c30db001a84300d158fa670118101a2
-F win/Makefile.msc 8734f4a784fc25ef73c882eef02fc058d70b0831
+F win/Makefile.msc b97268123a45e413d20cf8cff9d50f9cc04dc043
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -789,7 +789,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5e9e76733a68c15f8316670f563e5457f98d6bcf
-R 1b66dd9fd5418ad61d5ea5ad552c4e72
-U mistachkin
-Z 95101b953e329a0135f3a82185587d1c
+P 02fa325a59dc50e78ed1c81f8a800734baa86fac
+R 0b9e3375f06996c85188083af99e65c0
+U ashepilko
+Z 5fa36f965e2470ecb6f47aa3e8481b54
