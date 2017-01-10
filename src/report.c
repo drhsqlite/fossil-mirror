@@ -918,7 +918,7 @@ static int db_exec_readonly(
   for(i=1; i<=nVar; i++){
     const char *zVar = sqlite3_bind_parameter_name(pStmt, i);
     if( zVar==0 ) continue;
-    if( zVar[0]!='$' && zVar[0]!='$' && zVar[0]!=':' ) continue;
+    if( zVar[0]!='$' && zVar[0]!='@' && zVar[0]!=':' ) continue;
     if( !fossil_islower(zVar[1]) ) continue;
     if( strcmp(zVar, "$login")==0 ){
       sqlite3_bind_text(pStmt, i, g.zLogin, -1, SQLITE_TRANSIENT);
