@@ -1,5 +1,5 @@
-C A\scouple\smore\stypo\sfixes\sin\sthe\sfile\sformat\sdocument.
-D 2017-01-08T21:04:21.503
+C Expand\sthe\sscope\sof\sthe\snew\sRemark\sartifact\sso\sthat\sit\smay\sbe\sattached\sto\neither\sa\scheck-in\sor\sa\sbranch.
+D 2017-01-10T19:08:09.251
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -472,7 +472,7 @@ F src/main.mk 3bfcbade731d65f075e20edfa6f1a384eda3f566
 F src/makeheaders.c cbbebae48e377db66e648af76a7aeea63c9bc523
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl ef7175bf4306369eb73387f439b13d4f0433e6f0
-F src/manifest.c b0eabd23c19489436cad5f9cea933151444d4bcb
+F src/manifest.c c8f358053db9c68e393b567bb5846ba6f38e6bef
 F src/markdown.c 20bb4755f258601e4e3e5274ea117fc7c8b1ccf7
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
 F src/markdown_html.c 5c7c2d2356e03a4456932c5fdef9aef836a379a5
@@ -737,7 +737,7 @@ F www/env-opts.md 1f4a230136c337741b1e481406755e6b3005f98a
 F www/event.wiki f5a9cc34b11e8224e503e16137ba0f966f151551
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
-F www/fileformat.wiki 671e7a8eca1c4a7e11d6c3a98386375cdadb324d
+F www/fileformat.wiki a7f3a7e4bf29a40a2ebb956c45f90dc0134255df
 F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
@@ -789,7 +789,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7353be6873e40665cdde1a261928b76655fb9d00
-R 868d8e897043aea566794e3b1ed41652
-U mistachkin
-Z 0000a88746b64dd6b368a7704f84b9c0
+P 290404ec37322aacdc26f3448ede402c516c2acd
+R 7424343d51535e404ccdf7ab1401a11f
+U drh
+Z f01fd722db40571c87a617ae45522c4f

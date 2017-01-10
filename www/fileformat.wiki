@@ -536,17 +536,20 @@ The Z card is the required checksum over the rest of the artifact.
 <a name="remark"></a>
 <h2>8.0 Remarks</h2>
 
-A remark artifact holds textual remarks that are added to a check-in.
-Remarks can hold expanded commentary about the check-in, notes from
-code-reviews, information about problems discovered in the check-in,
-or other auxiliary textual information about the check-in.
+A remark artifact holds textual remarks that are added to a check-in
+or branch.
+Remarks can hold expanded commentary about the check-in, a description
+about the purpose of a branch, notes from
+code-reviews, information about problems discovered in the check-in
+or branch, or other auxiliary textual information about the check-ins
+and branches.
 The remark artifact is a new artifact added to this specification in
 early 2017.
 The following cards are allowed on a remark artifact:
 
 <blockquote>
 <b>D</b> <i>time-and-date-stamp</i><br />
-<b>G</b> <i>checkin-uuid</i><br />
+<b>G</b> <i>checkin-or-branch</i><br />
 <b>N</b> <i>mimetype</i><br />
 <b>U</b> <i>user-name</i><br />
 <b>W</b> <i>size</i> <b>\n</b> <i>text</i> <b>\n</b><br />
@@ -556,8 +559,11 @@ The following cards are allowed on a remark artifact:
 A single D card is required to give the date and time when the
 remark artifact was created.
 
-A single G card specifies the check-in to which the remark is
-attached.
+A single G card specifies the object to which the remark is attached.
+If the argment is a 40-character SHA1 hash, then it identifies a
+check-in.  Otherwise, the argument is the name of a branch.  Since
+branch names may whitespace, the argument to the G card is encoded
+in the same way as a C-card.
 
 The optional N card specifies the mimetype of the text of the remark
 that is contained in the W card.  If the N card is omitted, then the
@@ -665,7 +671,7 @@ or more such cards are required.
 <td>&nbsp;</td>
 </tr>
 <tr>
-<td><b>G</b> <i>checkin-uuid</i></td>
+<td><b>G</b> <i>checkin-or-branch</i></td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>

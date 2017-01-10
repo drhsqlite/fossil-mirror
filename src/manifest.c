@@ -80,7 +80,7 @@ struct Manifest {
   char *zWikiTitle;     /* Name of the wiki page. L card. */
   char *zMimetype;      /* Mime type of wiki or comment text.  N card.  */
   double rEventDate;    /* Date of an event.  E card. */
-  char *zRemCkin;       /* UUID of checkin to which remark attached. G card */
+  char *zRemTarget;     /* Checkin or branch to which remark attached. G card */
   char *zEventId;       /* UUID for an event.  E card. */
   char *zTicketUuid;    /* UUID for a ticket. K card. */
   char *zAttachName;    /* Filename of an attachment. A card. */
@@ -583,11 +583,9 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       ** attached.
       */
       case 'G': {
-        if( p->zRemCkin ) SYNTAX("more than one G-card");
-        p->zRemCkin = next_token(&x, &sz);
-        if( sz!=UUID_SIZE || !validate16(p->zRemCkin, UUID_SIZE) ){
-          SYNTAX("malformed UUID on G-card");
-        }
+        if( p->zRemTarget ) SYNTAX("more than one G-card");
+        p->zRemTarget = next_token(&x, &sz);
+        defossilize(p->zRemTarget);
         break;
       }
 
@@ -899,7 +897,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
      || p->zComment
      || p->rDate>0.0
      || p->zEventId
-     || p->zRemCkin
+     || p->zRemTarget
      || p->nFile>0
      || p->nField>0
      || p->zTicketUuid
@@ -916,7 +914,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     }
     if( !seenZ ) SYNTAX("missing Z-card on cluster");
     p->type = CFTYPE_CLUSTER;
-  }else if( p->zRemCkin ){
+  }else if( p->zRemTarget ){
     if( p->zAttachName ) SYNTAX("A-card in remark");
     if( p->zBaseline ) SYNTAX("B-card in remark");
     if( p->rDate<=0.0 ) SYNTAX("missing date on remark");
