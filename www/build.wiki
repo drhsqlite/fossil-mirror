@@ -3,10 +3,10 @@
 <h2>0.0 Using A Pre-compiled Binary</h2>
 
 <p>Released versions of fossil come with
-<a href="http://www.fossil-scm.org/download.html">pre-compiled binaries and
+<a href="/uv/download.html">pre-compiled binaries and
 a source archive</a> for that release. You can thus skip the following if you
 want to run or build a release version of fossil. Just download
-the appropriate package from the <a href="http://www.fossil-scm.org/download.html">downloads page</a>
+the appropriate package from the <a href="/uv/download.html">downloads page</a>
 and put it on your $PATH.
 To uninstall, simply delete the binary.
 To upgrade from an older release, just overwrite the older binary with
@@ -31,7 +31,7 @@ your $PATH.
 containing a snapshot of the <em>latest</em> version directly from
 Fossil's own fossil repository. Additionally, source archives of
 <em>released</em> versions of
-fossil are available from the <a href="http://www.fossil-scm.org/download.html">downloads page</a>.
+fossil are available from the <a href="/uv/download.html">downloads page</a>.
 To obtain a development version of fossil, follow these steps:</p>
 
 <ol>

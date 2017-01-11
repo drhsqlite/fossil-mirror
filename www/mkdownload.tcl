@@ -111,7 +111,7 @@ puts $out {<html>
 <h1 align="center">Checksums For Fossil Downloads</h1>
 <p>The following table shows the SHA1 checksums for the precompiled
 binaries available on the
-<a href="/download.html">Fossil website</a>.</p>
+<a href="/uv/download.html">Fossil website</a>.</p>
 <pre>}
 
 foreach {line} [split [exec fossil sql "SELECT hash, name FROM unversioned\
