@@ -918,13 +918,12 @@ static void get_version_blob(
   int rc;
   const char *zRc;
 #endif
+  Stmt q;
   blob_zero(pOut);
   blob_appendf(pOut, "This is fossil version %s\n", get_version());
   if( !bVerbose ) return;
   blob_appendf(pOut, "Compiled on %s %s using %s (%d-bit)\n",
                __DATE__, __TIME__, COMPILER_NAME, sizeof(void*)*8);
-  blob_appendf(pOut, "SQLite %s %.30s\n", sqlite3_libversion(),
-               sqlite3_sourceid());
   blob_appendf(pOut, "Schema version %s\n", AUX_SCHEMA_MAX);
 #if defined(FOSSIL_ENABLE_MINIZ)
   blob_appendf(pOut, "miniz %s, loaded %s\n", MZ_VERSION, mz_version());
@@ -979,6 +978,16 @@ static void get_version_blob(
 #if defined(USE_SEE)
   blob_append(pOut, "USE_SEE\n", -1);
 #endif
+  blob_appendf(pOut, "SQLite %s %.30s\n", sqlite3_libversion(),
+               sqlite3_sourceid());
+  if( g.db==0 ) sqlite3_open(":memory:", &g.db);
+  db_prepare(&q,
+     "SELECT compile_options FROM pragma_compile_options"
+     " WHERE compile_options NOT LIKE 'COMPILER=%%'");
+  while( db_step(&q)==SQLITE_ROW ){
+    blob_appendf(pOut, "SQLITE_%s\n", db_column_text(&q, 0));
+  }
+  db_finalize(&q);
 }
 
 /*
@@ -1020,36 +1029,21 @@ void version_cmd(void){
 **
 ** Query parameters:
 **
-**    verbose       Show all available details.
+**    verbose       Show details
 */
 void test_version_page(void){
   Blob versionInfo;
-  const char *verboseFlag;
+  int verboseFlag;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  verboseFlag = P("verbose");
+  verboseFlag = atoi(PD("verbose","0"));
   style_header("Version Information");
   style_submenu_element("Stat", "stat");
-  if( verboseFlag != 0 && !strcmp(verboseFlag, "2") ){
-    Stmt loop;
-    style_submenu_element("Fossil version", "version?verbose=1");
-    blob_zero(&versionInfo);
-    blob_appendf(&versionInfo, "SQLite %s %.30s\n",
-                 sqlite3_libversion(), sqlite3_sourceid());
-    db_prepare(&loop, "pragma compile_options;");
-    while( db_step(&loop)==SQLITE_ROW ){
-      blob_appendf(&versionInfo, "%s\n", db_column_text(&loop, 0));
-    }
-    db_finalize(&loop);
-
-  }else{
-    style_submenu_element("SQLite version", "version?verbose=2");
-    get_version_blob(&versionInfo, verboseFlag != 0);
-  }
-  cgi_printf("<blockquote><pre>\n"
-         "%h\n"
-         "</pre></blockquote>\n",(blob_str(&versionInfo)));
+  get_version_blob(&versionInfo, verboseFlag);
+  @ <pre>
+  @ %h(blob_str(&versionInfo))
+  @ </pre>
   style_footer();
 }
 

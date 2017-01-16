@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sZlib\sto\sthe\s1.2.11\srelease
-D 2017-01-16T09:05:12.796
+C The\s"fossil\sversion\s-v"\scommand\sand\sthe\s/version?verbose\swebpage\sshow\sthe\nsame\soutput.\s\sUpdate\sthe\schange\slog\sfor\sthe\s1.37\srelease.
+D 2017-01-16T20:35:58.562
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -461,7 +461,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 597ae479d42096c07d6e6f85f1d844ebb46089b3
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
-F src/main.c ef8114555a951141f7a9f4cb7aa1305f5d899486
+F src/main.c a1105f6ba2bc30fecb682c670d42ad07ad30396e
 F src/main.mk 3bfcbade731d65f075e20edfa6f1a384eda3f566
 F src/makeheaders.c cbbebae48e377db66e648af76a7aeea63c9bc523
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -694,7 +694,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 1e646606b9d0bed80d3339736281ee395128534f
-F www/changes.wiki da6d15a28fd43fea1900d0adccba0da7eacb38a0
+F www/changes.wiki f622319dc0289c74fd8a5635005f8c0509090b08
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki be27496a6d2f5f6c83b5a3a1441451beabec99e1
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -783,7 +783,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a1d7539214066147a032435999cc996053020806
-R 121e1796fd35283f38cef48e1eb870a5
-U jan.nijtmans
-Z 7c48f6d112987d754cb98740b4f9e302
+P df91c2277f680ba5b97730a98208da265abf9b2d
+R f4d5fb78f5a8d3b7d6f87a6596f7f4ef
+U drh
+Z fe042c701ba8e598675f555c9a2c4e19

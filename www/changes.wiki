@@ -1,7 +1,7 @@
 <title>Change Log</title>
 
 <a name='v1_37'></a>
-<h2>Changes for Version 1.37 (2017-XX-YY)</h2>
+<h2>Changes for Version 1.37 (2017-01-16)</h2>
 
   *  Add checkbox widgets to various web pages.  See [/technote/8d18bf27e9|
      this technote] for more information.  To get the checkboxes to look as
@@ -25,6 +25,7 @@
      </ul>
   *  Rename crnl-glob [/help/settings|setting] to crlf-glob, but keep
      crnl-glob as a compatibility alias.
+  *  Added the --command option to the [/help/diff|diff] command.
   *  Fix a C99-ism that prevents the 1.36 release from building with MSVC.
   *  Fix [/help?cmd=ticket|ticket set] when using the "+" prefix with fields
      from the "ticketchng" table.
@@ -35,6 +36,7 @@
      [./encryptedrepos.wiki|encrypted repositories].
   *  Update the built-in SQLite to version 3.16.2.
   *  Update the built-in Zlib to version 1.2.11.
+
 
 <a name='v1_36'></a>
 <h2>Changes for Version 1.36 (2016-10-24)</h2>
