@@ -1,5 +1,5 @@
-C Version\s1.37
-D 2017-01-16T20:58:54.194
+C Update\sthe\swww/mkdownload.tcl\sscript\sso\sthat\sit\sgenerates\sa\sdownload\spage\nappropriate\sfor\sversion\s1.37.
+D 2017-01-16T23:16:49.502
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -751,7 +751,7 @@ F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki 38c24247e3e5ccea5135f4d5fddf82244815d8fd
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki 7805bf0a04dc009df152d683771f8e3f74b194a4
-F www/mkdownload.tcl 38c2dcfb1a4dabd5fcb4969db80965001206466f
+F www/mkdownload.tcl 33ee2d9263f7b346d4de40b5cf6571abe3b9764b
 F www/mkindex.tcl bbf182af20110241e858c24ef55fcbca268f13e5 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
@@ -783,10 +783,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9c97d23d36d05705e51dd181f0602474671d6cce
-R f4d5fb78f5a8d3b7d6f87a6596f7f4ef
-T +bgcolor * #d0c0ff
-T +sym-release *
-T +sym-version-1.37 *
+P 1669115ab9d05c18a185e3ea85e3b33d817f61a5
+R aa8bd7be3308a4f7ec30bd644dde24f4
 U drh
-Z a1c193dd2fd0045ace71fa285bc0e131
+Z f3d88a80f105fd57257d4cb71f07f077
