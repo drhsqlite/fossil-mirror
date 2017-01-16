@@ -339,3 +339,16 @@ void fusefs_cmd(void){
   fusefs_clear_path();
 }
 #endif /* FOSSIL_HAVE_FUSEFS */
+
+/*
+** Return the version number of the fuse library.
+*/
+const char *fusefs_lib_version(void){
+#ifdef FOSSIL_HAVE_FUSEFS
+# define STRINGIFY_(X)  #X
+# define STRINGIFY(X) STRINGIFY_(X) 
+  return STRINGIFY(FUSE_MAJOR_VERSION) "." STRINGIFY(FUSE_MINOR_VERSION);
+#else
+  return 0;
+#endif
+}
