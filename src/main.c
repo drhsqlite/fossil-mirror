@@ -934,7 +934,8 @@ static void get_version_blob(
   blob_appendf(pOut, "SSL (%s)\n", SSLeay_version(SSLEAY_VERSION));
 #endif
 #if defined(FOSSIL_HAVE_FUSEFS)
-  blob_appendf(pOut, "libfuse version %s\n", fusefs_lib_version());
+  blob_appendf(pOut, "libfuse %s, loaded %s\n", fusefs_inc_version(),
+               fusefs_lib_version());
 #endif
 #if defined(FOSSIL_DEBUG)
   blob_append(pOut, "FOSSIL_DEBUG\n", -1);
@@ -980,9 +981,9 @@ static void get_version_blob(
   blob_append(pOut, "UNICODE_COMMAND_LINE\n", -1);
 #endif
 #if defined(FOSSIL_DYNAMIC_BUILD)
-  blob_append(pOut, "DYNAMIC_BUILD\n", -1);
+  blob_append(pOut, "FOSSIL_DYNAMIC_BUILD\n", -1);
 #else
-  blob_append(pOut, "STATIC_BUILD\n", -1);
+  blob_append(pOut, "FOSSIL_STATIC_BUILD\n", -1);
 #endif
 #if defined(USE_SEE)
   blob_append(pOut, "USE_SEE\n", -1);

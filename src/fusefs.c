@@ -341,14 +341,22 @@ void fusefs_cmd(void){
 #endif /* FOSSIL_HAVE_FUSEFS */
 
 /*
-** Return the version number of the fuse library.
+** Return version numbers for the FUSE header that was used at compile-time
+** and/or the FUSE library that was loaded at runtime.
 */
 const char *fusefs_lib_version(void){
-#ifdef FOSSIL_HAVE_FUSEFS
-# define STRINGIFY_(X)  #X
-# define STRINGIFY(X) STRINGIFY_(X) 
-  return STRINGIFY(FUSE_MAJOR_VERSION) "." STRINGIFY(FUSE_MINOR_VERSION);
+#if defined(FOSSIL_HAVE_FUSEFS) && FUSE_MAJOR_VERSION>=3
+  return fuse_pkgversion();
 #else
-  return 0;
+  return "unknown";
+#endif
+}
+
+const char *fusefs_inc_version(void){
+#ifdef FOSSIL_HAVE_FUSEFS
+  return COMPILER_STRINGIFY(FUSE_MAJOR_VERSION) "."
+         COMPILER_STRINGIFY(FUSE_MINOR_VERSION);
+#else
+  return "unknown";
 #endif
 }

@@ -1,5 +1,5 @@
-C Provide\smore\sinformation\sabout\scompile-time\soptions\sto\sthe\n"fossil\sversion\s-v"\scommand.
-D 2017-01-16T23:34:39.463
+C More\srevisions\sto\sverbose\sversion\sinformation\sreporting,\sespecially\sfor\sFUSE.
+D 2017-01-17T02:16:09.300
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -429,7 +429,7 @@ F src/file.c c8b27a46c041a6e34c470f40fcee69244a6baec7
 F src/finfo.c 19de17236a019469513689e02dedc9a314973225
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
-F src/fusefs.c ed3fe2d03e5691c9effc0cbbef62cd79463db346
+F src/fusefs.c 3b88dca535a2932a7d95e165b4ab13d44dd2477a
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 51a4ef3f3f5ad77fa47cc2aa8f0aec02f259c1bc
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
@@ -461,7 +461,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 597ae479d42096c07d6e6f85f1d844ebb46089b3
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
-F src/main.c 545a36c1995345dea8f6b1ab3a7e2b78c7a867bf
+F src/main.c 2b8f5042baffa68be432459b65a5fdc6e33bb3b0
 F src/main.mk 3bfcbade731d65f075e20edfa6f1a384eda3f566
 F src/makeheaders.c cbbebae48e377db66e648af76a7aeea63c9bc523
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -783,7 +783,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 66a6377ed205c60b05211d3cdb5102f9c33a1120
-R fbb7746880054c28b77a076e89caf857
-U drh
-Z 75e1cb061dacf09fd244f58d893082b5
+P 3192b13d200d3b3cebf0b64d80fc92ee1afbf70c
+R a99d9e8c975e9da3d7bd312ff4cd1cf3
+T *branch * versionReform
+T *sym-versionReform *
+T -sym-trunk *
+U mistachkin
+Z d411c38f79a27d1ad9bf15c78af964ed
