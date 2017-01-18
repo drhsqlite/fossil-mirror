@@ -632,64 +632,96 @@ void ensure_empty_dirs_created(void){
   }
 }
 
-
 /*
-** Get the contents of a file within the check-in "revision".  If
-** revision==NULL then get the file content for the current checkout.
+** Get the manifest record for a given revision, or the current checkout if
+** zRevision is NULL.
 */
-int historical_version_of_file(
-  const char *revision,    /* The check-in containing the file */
-  const char *file,        /* Full treename of the file */
-  Blob *content,           /* Put the content here */
-  int *pIsLink,            /* Set to true if file is link. */
-  int *pIsExe,             /* Set to true if file is executable */
-  int *pIsBin,             /* Set to true if file is binary */
-  int errCode              /* Error code if file not found.  Panic if <= 0. */
+Manifest *historical_manifest(
+  const char *zRevision    /* The check-in to query, or NULL for current */
 ){
+  int vid;
   Manifest *pManifest;
-  ManifestFile *pFile;
-  int rid=0;
 
-  if( revision ){
-    rid = name_to_typed_rid(revision,"ci");
+  /* Determine the check-in manifest artifact ID.  Panic on failure. */
+  if( zRevision ){
+    vid = name_to_typed_rid(zRevision, "ci");
   }else if( !g.localOpen ){
-    rid = name_to_typed_rid(db_get("main-branch","trunk"),"ci");
+    vid = name_to_typed_rid(db_get("main-branch", "trunk"), "ci");
   }else{
-    rid = db_lget_int("checkout", 0);
-  }
-  if( !is_a_version(rid) ){
-    if( errCode>0 ) return errCode;
-    fossil_fatal("no such check-in: %s", revision);
-  }
-  pManifest = manifest_get(rid, CFTYPE_MANIFEST, 0);
-
-  if( pManifest ){
-    pFile = manifest_file_find(pManifest, file);
-    if( pFile ){
-      int rc;
-      rid = uuid_to_rid(pFile->zUuid, 0);
-      if( pIsExe ) *pIsExe = ( manifest_file_mperm(pFile)==PERM_EXE );
-      if( pIsLink ) *pIsLink = ( manifest_file_mperm(pFile)==PERM_LNK );
-      manifest_destroy(pManifest);
-      rc = content_get(rid, content);
-      if( rc && pIsBin ){
-        *pIsBin = looks_like_binary(content);
+    vid = db_lget_int("checkout", 0);
+    if( !is_a_version(vid) ){
+      zRevision = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
+      if( zRevision ){
+        fossil_fatal("checkout artifact is not a check-in: %s", zRevision);
+      }else{
+        fossil_fatal("invalid checkout artifact ID: %d", vid);
       }
-      return rc;
     }
-    manifest_destroy(pManifest);
-    if( errCode<=0 ){
-      fossil_fatal("file %s does not exist in check-in: %s", file, revision);
-    }
-  }else if( errCode<=0 ){
-    if( revision==0 ){
-      revision = db_text("current", "SELECT uuid FROM blob WHERE rid=%d", rid);
-    }
-    fossil_fatal("could not parse manifest for check-in: %s", revision);
   }
-  return errCode;
+
+  /* Parse the manifest, given its artifact ID.  Panic on failure. */
+  if( !(pManifest = manifest_get(vid, CFTYPE_MANIFEST, 0)) ){
+    if( zRevision ){
+      fossil_fatal("could not parse manifest for check-in: %s", zRevision);
+    }else{
+      fossil_fatal("could not parse manifest for current checkout");
+    }
+  }
+
+  /* Return the manifest pointer.  The caller must use manifest_destroy() to
+   * clean up when finished using the manifest. */
+  return pManifest;
 }
 
+/*
+** Get the contents of a file within the check-in "zRevision".  If
+** zRevision==NULL then get the file content for the current checkout.
+*/
+int historical_blob(
+  const char *zRevision,   /* The check-in containing the file */
+  const char *zFile,       /* Full treename of the file */
+  Blob *pBlob,             /* Put the content here */
+  int fatal                /* If nonzero, panic if file/artifact not found */
+){
+  int result = 0;
+
+  /* Get the manifest for the requested check-in version.  This call unavoidably
+   * panics on failure even if fatal is not set. */
+  Manifest *pManifest = historical_manifest(zRevision);
+
+  /* Try to find the file record within the manifest. */
+  ManifestFile *pFile = manifest_file_find(pManifest, zFile);
+
+  if( !pFile ){
+    /* Process file-not-found errors. */
+    if( fatal ){
+      if( zRevision ){
+        fossil_fatal("file %s does not exist in check-in %s", zFile, zRevision);
+      }else{
+        fossil_fatal("no such file: %s", zFile);
+      }
+    }
+  }else{
+    /* Get the file's contents. */
+    result = content_get(fast_uuid_to_rid(pFile->zUuid), pBlob);
+
+    /* Process artifact-not-found errors. */
+    if( !result && fatal ){
+      if( zRevision ){
+        fossil_fatal("missing artifact %s for file %s in check-in %s",
+            pFile->zUuid, zFile, zRevision);
+      }else{
+        fossil_fatal("missing artifact %s for file %s", pFile->zUuid, zFile);
+      }
+    }
+  }
+
+  /* Deallocate the parsed manifest structure. */
+  manifest_destroy(pManifest);
+
+  /* Return 1 on success and (assuming fatal is not set) 0 if not found. */
+  return result;
+}
 
 /*
 ** COMMAND: revert
@@ -714,11 +746,14 @@ int historical_version_of_file(
 ** See also: redo, undo, update
 */
 void revert_cmd(void){
-  const char *zFile;
-  const char *zRevision;
-  Blob record;
+  Manifest *pCoManifest;          /* Manifest of current checkout */
+  Manifest *pRvManifest;          /* Manifest of selected revert version */
+  ManifestFile *pCoFile;          /* File within current checkout manifest */
+  ManifestFile *pRvFile;          /* File within revert version manifest */
+  const char *zFile;              /* Filename relative to checkout root */
+  const char *zRevision;          /* Selected revert version, NULL if current */
+  Blob record = BLOB_INITIALIZER; /* Contents of each reverted file */
   int i;
-  int errCode;
   Stmt q;
 
   undo_capture_command_line();
@@ -732,6 +767,11 @@ void revert_cmd(void){
     fossil_fatal("the --revision option does not work for the entire tree");
   }
   db_must_be_within_tree();
+
+  /* Get manifests of revert version and (if different) current checkout. */
+  pRvManifest = historical_manifest(zRevision);
+  pCoManifest = zRevision ? historical_manifest(0) : 0;
+
   db_begin_transaction();
   undo_begin();
   db_multi_exec("CREATE TEMP TABLE torevert(name UNIQUE);");
@@ -777,14 +817,11 @@ void revert_cmd(void){
     zRevision = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
   }
   while( db_step(&q)==SQLITE_ROW ){
-    int isExe = 0;
-    int isLink = 0;
     char *zFull;
     zFile = db_column_text(&q, 0);
     zFull = mprintf("%/%/", g.zLocalRoot, zFile);
-    errCode = historical_version_of_file(zRevision, zFile, &record,
-                                         &isLink, &isExe, 0, 2);
-    if( errCode==2 ){
+    pRvFile = manifest_file_find(pRvManifest, zFile);
+    if( !pRvFile ){
       if( db_int(0, "SELECT rid FROM vfile WHERE pathname=%Q OR origname=%Q",
                  zFile, zFile)==0 ){
         fossil_print("UNMANAGE %s\n", zFile);
@@ -802,23 +839,35 @@ void revert_cmd(void){
       );
     }else{
       sqlite3_int64 mtime;
+      int rvChnged = 0;
+      int rvPerm = manifest_file_mperm(pRvFile);
+
+      /* Determine if reverted-to file is different than checked out file. */
+      if( pCoManifest && (pCoFile = manifest_file_find(pCoManifest, zFile)) ){
+        rvChnged = manifest_file_mperm(pRvFile)!=rvPerm
+                || fossil_strcmp(pRvFile->zUuid, pCoFile->zUuid)!=0;
+      }
+
+      /* Get contents of reverted-to file. */
+      content_get(fast_uuid_to_rid(pRvFile->zUuid), &record);
+
       undo_save(zFile);
-      if( file_wd_size(zFull)>=0 && (isLink || file_wd_islink(0)) ){
+      if( file_wd_size(zFull)>=0 && (rvPerm==PERM_LNK || file_wd_islink(0)) ){
         file_delete(zFull);
       }
-      if( isLink ){
+      if( rvPerm==PERM_LNK ){
         symlink_create(blob_str(&record), zFull);
       }else{
         blob_write_to_file(&record, zFull);
       }
-      file_wd_setexe(zFull, isExe);
+      file_wd_setexe(zFull, rvPerm==PERM_EXE);
       fossil_print("REVERT   %s\n", zFile);
       mtime = file_wd_mtime(zFull);
       db_multi_exec(
          "UPDATE vfile"
-         "   SET mtime=%lld, chnged=0, deleted=0, isexe=%d, islink=%d,mrid=rid"
+         "   SET mtime=%lld, chnged=%d, deleted=0, isexe=%d, islink=%d,mrid=rid"
          " WHERE pathname=%Q OR origname=%Q",
-         mtime, isExe, isLink, zFile, zFile
+         mtime, rvChnged, rvPerm==PERM_EXE, rvPerm==PERM_LNK, zFile, zFile
       );
     }
     blob_reset(&record);
@@ -827,4 +876,8 @@ void revert_cmd(void){
   db_finalize(&q);
   undo_finish();
   db_end_transaction(0);
+
+  /* Deallocate parsed manifest structures. */
+  manifest_destroy(pRvManifest);
+  manifest_destroy(pCoManifest);
 }

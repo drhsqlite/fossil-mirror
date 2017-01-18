@@ -56,7 +56,7 @@ const char *mimetype_from_content(Blob *pBlob){
   }
   x = (const unsigned char*)blob_buffer(pBlob);
   n = blob_size(pBlob);
-  for(i=0; i<ArraySize(aMime); i++){
+  for(i=0; i<count(aMime); i++){
     if( n>=aMime[i].size && memcmp(x, aMime[i].zPrefix, aMime[i].size)==0 ){
       return aMime[i].zMimetype;
     }
@@ -295,7 +295,7 @@ static const struct {
 */
 static void mimetype_verify(void){
   int i;
-  for(i=1; i<ArraySize(aMime); i++){
+  for(i=1; i<count(aMime); i++){
     if( fossil_strcmp(aMime[i-1].zSuffix,aMime[i].zSuffix)>=0 ){
       fossil_fatal("mimetypes out of sequence: %s before %s",
                    aMime[i-1].zSuffix, aMime[i].zSuffix);
@@ -333,7 +333,7 @@ const char *mimetype_from_name(const char *zName){
     sqlite3_snprintf(sizeof(zSuffix), zSuffix, "%s", z);
     for(i=0; zSuffix[i]; i++) zSuffix[i] = fossil_tolower(zSuffix[i]);
     first = 0;
-    last = ArraySize(aMime) - 1;
+    last = count(aMime) - 1;
     while( first<=last ){
       int c;
       i = (first+last)/2;
@@ -386,7 +386,7 @@ void mimetype_list_page(void){
   @ <tr><th>Suffix<th>Mimetype
   @ </thead>
   @ <tbody>
-  for(i=0; i<ArraySize(aMime); i++){
+  for(i=0; i<count(aMime); i++){
     @ <tr><td>%h(aMime[i].zSuffix)<td>%h(aMime[i].zMimetype)</tr>
   }
   @ </tbody></table>
@@ -595,7 +595,7 @@ void doc_page(void){
   blob_init(&title, 0, 0);
   zDfltTitle = isUV ? "" : "Documentation";
   db_begin_transaction();
-  while( rid==0 && (++nMiss)<=ArraySize(azSuffix) ){
+  while( rid==0 && (++nMiss)<=count(azSuffix) ){
     zName = P("name");
     if( isUV ){
       if( zName==0 ) zName = "index.wiki";
@@ -608,10 +608,10 @@ void doc_page(void){
         zCheckin = "tip";
       }
     }
-    if( nMiss==ArraySize(azSuffix) ){
+    if( nMiss==count(azSuffix) ){
       zName = "404.md";
     }else if( zName[i]==0 ){
-      assert( nMiss>=0 && nMiss<ArraySize(azSuffix) );
+      assert( nMiss>=0 && nMiss<count(azSuffix) );
       zName = azSuffix[nMiss];
     }else if( !isUV ){
       zName += i;
@@ -625,7 +625,7 @@ void doc_page(void){
     if( nMiss==0 ) zOrigName = zName;
     if( !file_is_simple_pathname(zName, 1) ){
       if( sqlite3_strglob("*/", zName)==0 ){
-        assert( nMiss>=0 && nMiss<ArraySize(azSuffix) );
+        assert( nMiss>=0 && nMiss<count(azSuffix) );
         zName = mprintf("%s%s", zName, azSuffix[nMiss]);
         if( !file_is_simple_pathname(zName, 1) ){
           goto doc_not_found;
@@ -688,7 +688,7 @@ void doc_page(void){
     if( blob_size(&title)>0 ){
       style_header("%s", blob_str(&title));
     }else{
-      style_header("%s", nMiss>=ArraySize(azSuffix)?
+      style_header("%s", nMiss>=count(azSuffix)?
                         "Not Found" : zDfltTitle);
     }
     convert_href_and_output(&tail);
@@ -721,7 +721,7 @@ void doc_page(void){
     cgi_set_content_type(zMime);
     cgi_set_content(&filebody);
   }
-  if( nMiss>=ArraySize(azSuffix) ) cgi_set_status(404, "Not Found");
+  if( nMiss>=count(azSuffix) ) cgi_set_status(404, "Not Found");
   db_end_transaction(0);
   return;
 

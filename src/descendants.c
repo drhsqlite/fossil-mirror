@@ -160,10 +160,15 @@ void compute_leaves(int iBase, int closeMode){
 }
 
 /*
-** Load the record ID rid and up to N-1 closest ancestors into
-** the "ok" table.
+** Load the record ID rid and up to |N|-1 closest ancestors into
+** the "ok" table.  If N is zero, no limit.
 */
 void compute_ancestors(int rid, int N, int directOnly){
+  if( !N ){
+     N = -1;
+  }else if( N<0 ){
+     N = -N;
+  }
   db_multi_exec(
     "WITH RECURSIVE "
     "  ancestor(rid, mtime) AS ("
@@ -218,8 +223,8 @@ int mtime_of_manifest_file(
 
   if( prevVid!=vid ){
     prevVid = vid;
-    db_multi_exec("DROP TABLE IF EXISTS temp.ok;"
-                  "CREATE TEMP TABLE ok(x INTEGER PRIMARY KEY);");
+    db_multi_exec("CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY);"
+                  "DELETE FROM ok;");
     compute_ancestors(vid, 100000000, 1);
   }
   db_static_prepare(&q,
@@ -238,10 +243,15 @@ int mtime_of_manifest_file(
 }
 
 /*
-** Load the record ID rid and up to N-1 closest descendants into
-** the "ok" table.
+** Load the record ID rid and up to |N|-1 closest descendants into
+** the "ok" table.  If N is zero, no limit.
 */
 void compute_descendants(int rid, int N){
+  if( !N ){
+     N = -1;
+  }else if( N<0 ){
+     N = -N;
+  }
   db_multi_exec(
     "WITH RECURSIVE"
     "  dx(rid,mtime) AS ("
@@ -457,13 +467,13 @@ void leaves_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
 
   if( !showAll ){
-    style_submenu_element("All", "All", "leaves?all");
+    style_submenu_element("All", "leaves?all");
   }
   if( !showClosed ){
-    style_submenu_element("Closed", "Closed", "leaves?closed");
+    style_submenu_element("Closed", "leaves?closed");
   }
   if( showClosed || showAll ){
-    style_submenu_element("Open", "Open", "leaves");
+    style_submenu_element("Open", "leaves");
   }
   style_header("Leaves");
   login_anonymous_available();

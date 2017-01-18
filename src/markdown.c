@@ -297,7 +297,7 @@ static const struct html_tag *find_block_tag(const char *data, size_t size){
   key.size = i;
   return bsearch(&key,
                  block_tags,
-                 (sizeof block_tags)/(sizeof block_tags[0]),
+                 count(block_tags),
                  sizeof block_tags[0],
                  cmp_html_tag);
 }

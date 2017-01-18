@@ -739,15 +739,16 @@ void merge_cmd(void){
       }
       zFullNewPath = mprintf("%s%s", g.zLocalRoot, zNewName);
       if( file_wd_size(zFullNewPath)>=0 ){
-        char zTmpPath[300];
-        file_tempname(sizeof(zTmpPath), zTmpPath);
+        Blob tmpPath;
+        file_tempname(&tmpPath, "");
         db_multi_exec("INSERT INTO tmprn(fn,tmpfn) VALUES(%Q,%Q)",
-                      zNewName, zTmpPath);
+                      zNewName, blob_str(&tmpPath));
         if( file_wd_islink(zFullNewPath) ){
-          symlink_copy(zFullNewPath, zTmpPath);
+          symlink_copy(zFullNewPath, blob_str(&tmpPath));
         }else{
-          file_copy(zFullNewPath, zTmpPath);
+          file_copy(zFullNewPath, blob_str(&tmpPath));
         }
+        blob_reset(&tmpPath);
       }
       if( file_wd_islink(zFullOldPath) ){
         symlink_copy(zFullOldPath, zFullNewPath);
@@ -784,7 +785,7 @@ void merge_cmd(void){
     const char *zName;
     char *zFullName;
     db_multi_exec(
-      "INSERT INTO vfile(vid,chnged,deleted,rid,mrid,isexe,islink,pathname)"
+      "REPLACE INTO vfile(vid,chnged,deleted,rid,mrid,isexe,islink,pathname)"
       "  SELECT %d,%d,0,rid,mrid,isexe,islink,pathname FROM vfile WHERE id=%d",
       vid, integrateFlag?5:3, idm
     );

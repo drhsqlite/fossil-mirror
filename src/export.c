@@ -41,6 +41,7 @@ struct mark_t{
 
 /*
 ** Output a "committer" record for the given user.
+** NOTE: the given user name may be an email itself.
 */
 static void print_person(const char *zUser){
   static Stmt q;
@@ -48,6 +49,7 @@ static void print_person(const char *zUser){
   char *zName;
   char *zEmail;
   int i, j;
+  int isBracketed, atEmailFirst, atEmailLast;
 
   if( zUser==0 ){
     printf(" <unknown>");
@@ -57,58 +59,106 @@ static void print_person(const char *zUser){
   db_bind_text(&q, ":user", zUser);
   if( db_step(&q)!=SQLITE_ROW ){
     db_reset(&q);
-    for(i=0; zUser[i] && zUser[i]!='>' && zUser[i]!='<'; i++){}
-    if( zUser[i]==0 ){
-      printf(" %s <%s>", zUser, zUser);
-      return;
-    }
     zName = mprintf("%s", zUser);
     for(i=j=0; zName[i]; i++){
-      if( zName[i]!='<' && zName[i]!='>' ){
+      if( zName[i]!='<' && zName[i]!='>' && zName[i]!='"' ){
         zName[j++] = zName[i];
       }
     }
     zName[j] = 0;
-    printf(" %s <%s>", zName, zUser);
+    printf(" %s <%s>", zName, zName);
     free(zName);
     return;
   }
+
   /*
   ** We have contact information.
   ** It may or may not contain an email address.
+  **
+  ** ASSUME:
+  ** - General case:"Name Unicoded" <email@address.com> other info
+  ** - If contact information contains more than an email address,
+  **   then the email address is enclosed between <>
+  ** - When only email address is specified, then it's stored verbatim
+  ** - When name part is absent or all-blanks, use zUser instead
    */
+  zName = NULL;
+  zEmail = NULL;
   zContact = db_column_text(&q, 0);
-  for(i=0; zContact[i] && zContact[i]!='>' && zContact[i]!='<'; i++){}
+  atEmailFirst = -1;
+  atEmailLast = -1;
+  isBracketed = 0;
+  for(i=0; zContact[i] && zContact[i]!='@'; i++){
+     if( zContact[i]=='<' ){
+        isBracketed = 1;
+        atEmailFirst = i+1;
+     }
+     else if( zContact[i]=='>' ){
+        isBracketed = 0;
+        atEmailFirst = i+1;
+     }
+     else if( zContact[i]==' ' && !isBracketed ){
+        atEmailFirst = i+1;
+     }
+  }
   if( zContact[i]==0 ){
     /* No email address found. Take as user info if not empty */
-    printf(" %s <%s>", zContact[0] ? zContact : zUser, zUser);
+    zName = mprintf("%s", zContact[0] ? zContact : zUser);
+    for(i=j=0; zName[i]; i++){
+      if( zName[i]!='<' && zName[i]!='>' && zName[i]!='"' ){
+        zName[j++] = zName[i];
+      }
+    }
+    zName[j] = 0;
+
+    printf(" %s <%s>",  zName, zName);
+    free(zName);
     db_reset(&q);
     return;
   }
-  if( zContact[i]=='<' ){
-    /*
-    ** Found beginning of email address. Look for the end and extract
-    ** the part.
-     */
-    zEmail = mprintf("%s", &zContact[i]);
-    for(j=0; zEmail[j] && zEmail[j]!='>'; j++){}
-    if( zEmail[j]=='>' ) zEmail[j+1] = 0;
-  }else{
-    /*
-    ** Found an end marker for email, but nothing else.
-     */
-    zEmail = mprintf("<%s>", zUser);
+  for(j=i+1; zContact[j] && zContact[j]!=' '; j++){
+     if( zContact[j]=='>' )
+        atEmailLast = j-1;
   }
+  if ( atEmailLast==-1 ) atEmailLast = j-1;
+  if ( atEmailFirst==-1 ) atEmailFirst = 0; /* Found only email */
+
   /*
-  ** Here zContact[i] either '<' or '>'. Extract the string _before_
-  ** either as user name.
+  ** Found beginning and end of email address.
+  ** Extract the address (trimmed and sanitized).
   */
-  zName = mprintf("%.*s", i-1, zContact);
+  for(j=atEmailFirst; zContact[j] && zContact[j]==' '; j++){}
+  zEmail = mprintf("%.*s", atEmailLast-j+1, &zContact[j]);
+
+  for(i=j=0; zEmail[i]; i++){
+     if( zEmail[i]!='<' && zEmail[i]!='>' ){
+         zEmail[j++] = zEmail[i];
+     }
+  }
+  zEmail[j] = 0;
+
+  /*
+  ** When bracketed email, extract the string _before_
+  ** email as user name (may be enquoted).
+  ** If missing or all-blank name, use zUser.
+  */
+  if( isBracketed && (atEmailFirst-1) > 0){
+     for(i=atEmailFirst-2; i>=0 && zContact[i] && zContact[i]==' '; i--){}
+     if( i>=0 ){
+         for(j=0; j<i && zContact[j] && zContact[j]==' '; j++){}
+         zName = mprintf("%.*s", i-j+1, &zContact[j]);
+     }
+  }
+
+  if( zName==NULL ) zName = mprintf("%s", zUser);
   for(i=j=0; zName[i]; i++){
-    if( zName[i]!='"' ) zName[j++] = zName[i];
+     if( zName[i]!='<' && zName[i]!='>' && zName[i]!='"' ){
+         zName[j++] = zName[i];
+     }
   }
   zName[j] = 0;
-  printf(" %s %s", zName, zEmail);
+
+  printf(" %s <%s>", zName, zEmail);
   free(zName);
   free(zEmail);
   db_reset(&q);
@@ -284,7 +334,7 @@ int import_marks(FILE* f, Bag *blobs, Bag *vers, unsigned int *unused_mark){
     if( unused_mark!=NULL ){
       unsigned int mid = atoi(mark.name + 1);
       if( mid>=*unused_mark ){
-	*unused_mark = mid + 1;
+        *unused_mark = mid + 1;
       }
     }
     free(mark.name);

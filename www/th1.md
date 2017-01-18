@@ -442,10 +442,14 @@ omitted, use a value of 10.
 <a name="redirect"></a>TH1 redirect Command
 -------------------------------------------
 
-  *  redirect URL
+  *  redirect URL ?withMethod?
 
-Issues an HTTP redirect (302) to the specified URL and then exits the
-process.
+Issues an HTTP redirect to the specified URL and then exits the process.
+By default, an HTTP status code of 302 is used.  If the optional withMethod
+argument is present and non-zero, an HTTP status code of 307 is used, which
+should force the user agent to preserve the original method for the request
+(e.g. GET, POST) instead of (possibly) forcing the user agent to change the
+method to GET.
 
 <a name="regexp"></a>TH1 regexp Command
 ---------------------------------------

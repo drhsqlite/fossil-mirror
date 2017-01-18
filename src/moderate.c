@@ -69,7 +69,7 @@ static int object_used(int rid){
      "tagxref",    "rid",
   };
   int i;
-  for(i=0; i<sizeof(aTabField)/sizeof(aTabField[0]); i+=2){
+  for(i=0; i<count(aTabField); i+=2){
     if( db_exists("SELECT 1 FROM \"%w\" WHERE \"%w\"=%d",
                   aTabField[i], aTabField[i+1], rid) ) return 1;
   }

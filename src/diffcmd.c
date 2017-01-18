@@ -305,8 +305,10 @@ void diff_file_mem(
     blob_reset(&out);
   }else{
     Blob cmd;
-    char zTemp1[300];
-    char zTemp2[300];
+    Blob temp1;
+    Blob temp2;
+    Blob prefix1;
+    Blob prefix2;
 
     if( !fIncludeBinary ){
       if( isBin1 || isBin2 ){
@@ -324,25 +326,36 @@ void diff_file_mem(
       }
     }
 
+    /* Construct a prefix for the temporary file names */
+    blob_zero(&prefix1);
+    blob_zero(&prefix2);
+    blob_appendf(&prefix1, "%s-v1", zName);
+    blob_appendf(&prefix2, "%s-v2", zName);
+
     /* Construct a temporary file names */
-    file_tempname(sizeof(zTemp1), zTemp1);
-    file_tempname(sizeof(zTemp2), zTemp2);
-    blob_write_to_file(pFile1, zTemp1);
-    blob_write_to_file(pFile2, zTemp2);
+    file_tempname(&temp1, blob_str(&prefix1));
+    file_tempname(&temp2, blob_str(&prefix2));
+    blob_write_to_file(pFile1, blob_str(&temp1));
+    blob_write_to_file(pFile2, blob_str(&temp2));
 
     /* Construct the external diff command */
     blob_zero(&cmd);
     blob_appendf(&cmd, "%s ", zDiffCmd);
-    shell_escape(&cmd, zTemp1);
+    shell_escape(&cmd, blob_str(&temp1));
     blob_append(&cmd, " ", 1);
-    shell_escape(&cmd, zTemp2);
+    shell_escape(&cmd, blob_str(&temp2));
 
     /* Run the external diff command */
     fossil_system(blob_str(&cmd));
 
     /* Delete the temporary file and clean up memory used */
-    file_delete(zTemp1);
-    file_delete(zTemp2);
+    file_delete(blob_str(&temp1));
+    file_delete(blob_str(&temp2));
+
+    blob_reset(&prefix1);
+    blob_reset(&prefix2);
+    blob_reset(&temp1);
+    blob_reset(&temp2);
     blob_reset(&cmd);
   }
 }

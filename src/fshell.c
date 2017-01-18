@@ -30,8 +30,9 @@
 #include <ctype.h>
 
 #ifndef _WIN32
-#include <sys/types.h>
-#include <sys/wait.h>
+# include "linenoise.h"
+# include <sys/types.h>
+# include <sys/wait.h>
 #endif
 
 
@@ -57,12 +58,16 @@ void shell_cmd(void){
   char **azArg = 0;
   int fDebug;
   pid_t childPid;
-  char zLine[10000];
+  char *zLine = 0;
   fDebug = find_option("debug", 0, 0)!=0;
   db_find_and_open_repository(OPEN_ANY_SCHEMA|OPEN_OK_NOT_FOUND, 0);
   db_close(0);
   sqlite3_shutdown();
-  while( printf("fossil> "),fflush(stdout),fgets(zLine, sizeof(zLine), stdin) ){
+  linenoiseSetMultiLine(1);
+  while( (free(zLine), zLine = linenoise("fossil> ")) ){
+    /* Remember shell history within the current session */
+    linenoiseHistoryAdd(zLine);
+
     /* Parse the line of input */
     n = (int)strlen(zLine);
     for(i=0, nArg=1; i<n; i++){

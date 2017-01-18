@@ -1138,9 +1138,11 @@ void db_set_main_schemaname(sqlite3 *db, const char *zLabel){
 */
 int db_database_slot(const char *zLabel){
   int iSlot = -1;
+  int rc;
   Stmt q;
   if( g.db==0 ) return iSlot;
-  db_prepare(&q, "PRAGMA database_list");
+  rc = db_prepare_ignore_error(&q, "PRAGMA database_list");
+  if( rc!=SQLITE_OK ) return iSlot;
   while( db_step(&q)==SQLITE_ROW ){
     if( fossil_strcmp(db_column_text(&q,1),zLabel)==0 ){
       iSlot = db_column_int(&q, 0);
@@ -2217,17 +2219,15 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
       /* Repository is in the process of being opened, but files have not been
        * written to disk. Load from the database. */
       Blob noWarnFile;
-      if( historical_version_of_file(g.zOpenRevision,
-                                     blob_str(&versionedPathname),
-                                     &setting, 0, 0, 0, 2)!=2 ){
+      if( historical_blob(g.zOpenRevision, blob_str(&versionedPathname),
+          &setting, 0) ){
         found = 1;
       }
       /* See if there's a no-warn flag */
       blob_append(&versionedPathname, ".no-warn", -1);
       blob_zero(&noWarnFile);
-      if( historical_version_of_file(g.zOpenRevision,
-                                     blob_str(&versionedPathname),
-                                     &noWarnFile, 0, 0, 0, 2)!=2 ){
+      if( historical_blob(g.zOpenRevision, blob_str(&versionedPathname),
+          &noWarnFile, 0) ){
         noWarn = 1;
       }
       blob_reset(&noWarnFile);
@@ -2735,6 +2735,7 @@ const Setting aSetting[] = {
 #endif
   { "clean-glob",       0,             40, 1, 0, ""                    },
   { "clearsign",        0,              0, 0, 0, "off"                 },
+  { "crlf-glob",        0,             40, 1, 0, ""                    },
   { "crnl-glob",        0,             40, 1, 0, ""                    },
   { "default-perms",    0,             16, 0, 0, "u"                   },
   { "diff-binary",      0,              0, 0, 0, "on"                  },
@@ -2758,7 +2759,7 @@ const Setting aSetting[] = {
   { "keep-glob",        0,             40, 1, 0, ""                    },
   { "localauth",        0,              0, 0, 0, "off"                 },
   { "main-branch",      0,             40, 0, 0, "trunk"               },
-  { "manifest",         0,              5, 1, 0, "off"                 },
+  { "manifest",         0,              5, 1, 0, ""                    },
   { "max-loadavg",      0,             25, 0, 0, "0.0"                 },
   { "max-upload",       0,             25, 0, 0, "250000"              },
   { "mtime-changes",    0,              0, 0, 0, "on"                  },
@@ -2801,7 +2802,7 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
   int lwr, mid, upr, c;
   int n = (int)strlen(zName) + !allowPrefix;
   lwr = 0;
-  upr = ArraySize(aSetting)-2;
+  upr = count(aSetting)-2;
   while( upr>=lwr ){
     mid = (upr+lwr)/2;
     c = fossil_strncmp(zName, aSetting[mid].name, n);
@@ -2892,9 +2893,10 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **                     with gpg.  When disabled (the default), commits will
 **                     be unsigned.  Default: off
 **
-**    crnl-glob        A comma or newline-separated list of GLOB patterns for
-**     (versionable)   text files in which it is ok to have CR, CR+NL or mixed
-**                     line endings. Set to "*" to disable CR+NL checking.
+**    crlf-glob        A comma or newline-separated list of GLOB patterns for
+**     (versionable)   text files in which it is ok to have CR, CR+LF or mixed
+**                     line endings. Set to "*" to disable CR+LF checking.
+**                     The crnl-glob setting is a compatibility alias.
 **
 **    default-perms    Permissions given automatically to new users.  For more
 **                     information on permissions see Users page in Server
@@ -3087,6 +3089,7 @@ void setting_cmd(void){
   int globalFlag = find_option("global","g",0)!=0;
   int exactFlag = find_option("exact",0,0)!=0;
   int unsetFlag = g.argv[1][0]=='u';
+  find_repository_option();
   verify_all_options();
   db_open_config(1, 0);
   if( !globalFlag ){
@@ -3316,4 +3319,19 @@ void admin_log(const char *zFormat, ...){
                 " VALUES(now(), %Q, %Q, %B)",
                 g.zPath, g.zLogin, &what);
   blob_reset(&what);
+}
+
+/*
+** COMMAND: test-database-names
+**
+** Print the names of the various database files:
+** (1) The main repository database
+** (2) The local checkout database
+** (3) The global configuration database
+*/
+void test_database_name_cmd(void){
+  db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
+  fossil_print("Repository database: %s\n", g.zRepositoryName);
+  fossil_print("Local database:      %s\n", g.zLocalDbName);
+  fossil_print("Config database:     %s\n", g.zConfigDbName);
 }

@@ -204,7 +204,7 @@ void scan_for_label(const char *zLabel, char *zLine, int eType){
     }
   }
 
-  /* Processing additional flags that might following the command name */
+  /* Process additional flags that might follow the command name */
   while( zLine[i+j]!=0 ){
     i += j;
     while( fossil_isspace(zLine[i]) ){ i++; }
@@ -353,8 +353,7 @@ void build_table(void){
     char *z = aEntry[i].zHelp;
     if( z==0 ) continue;
     if( aEntry[i].zIf ) printf("%s", aEntry[i].zIf);
-    printf("static const char zHelp%03d[] = \n", aEntry[i].iHelp);
-    printf("  \"");
+    printf("static const char zHelp%03d[] =\n  \"", aEntry[i].iHelp);
     while( *z ){
       if( *z=='\n' ){
         printf("\\n\"\n  \"");

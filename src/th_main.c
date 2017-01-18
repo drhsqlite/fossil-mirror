@@ -434,10 +434,14 @@ static int putsCmd(
 }
 
 /*
-** TH1 command: redirect URL
+** TH1 command: redirect URL ?withMethod?
 **
-** Issues an HTTP redirect (302) to the specified URL and then exits the
-** process.
+** Issues an HTTP redirect to the specified URL and then exits the process.
+** By default, an HTTP status code of 302 is used.  If the optional withMethod
+** argument is present and non-zero, an HTTP status code of 307 is used, which
+** should force the user agent to preserve the original method for the request
+** (e.g. GET, POST) instead of (possibly) forcing the user agent to change the
+** method to GET.
 */
 static int redirectCmd(
   Th_Interp *interp,
@@ -446,10 +450,20 @@ static int redirectCmd(
   const char **argv,
   int *argl
 ){
-  if( argc!=2 ){
-    return Th_WrongNumArgs(interp, "redirect URL");
+  int withMethod = 0;
+  if( argc!=2 && argc!=3 ){
+    return Th_WrongNumArgs(interp, "redirect URL ?withMethod?");
   }
-  cgi_redirect(argv[1]);
+  if( argc==3 ){
+    if( Th_ToInt(interp, argv[2], argl[2], &withMethod) ){
+      return TH_ERROR;
+    }
+  }
+  if( withMethod ){
+    cgi_redirect_with_method(argv[1]);
+  }else{
+    cgi_redirect(argv[1]);
+  }
   Th_SetResult(interp, argv[1], argl[1]); /* NOT REACHED */
   return TH_OK;
 }
@@ -2007,7 +2021,7 @@ void Th_FossilInit(u32 flags){
       th_register_tcl(g.interp, &g.tcl);  /* Tcl integration commands. */
     }
 #endif
-    for(i=0; i<sizeof(aCommand)/sizeof(aCommand[0]); i++){
+    for(i=0; i<count(aCommand); i++){
       if ( !aCommand[i].zName || !aCommand[i].xProc ) continue;
       Th_CreateCommand(g.interp, aCommand[i].zName, aCommand[i].xProc,
                        aCommand[i].pContext, 0);

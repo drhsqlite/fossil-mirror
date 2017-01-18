@@ -383,7 +383,7 @@ void tag_add_artifact(
 **           --propagate                 Propagating tag.
 **           --date-override DATETIME    Set date and time added.
 **           --user-override USER        Name USER when adding the tag.
-**           --dryrun|-n                 Display the tag text, but to not
+**           --dryrun|-n                 Display the tag text, but do not
 **                                       actually insert it into the database.
 **
 **         The --date-override and --user-override options support
@@ -656,7 +656,7 @@ void taglist_page(void){
   login_anonymous_available();
   style_header("Tags");
   style_adunit_config(ADUNIT_RIGHT_OK);
-  style_submenu_element("Timeline", "Timeline", "tagtimeline");
+  style_submenu_element("Timeline", "tagtimeline");
   @ <h2>Non-propagating tags:</h2>
   db_prepare(&q,
     "SELECT substr(tagname,5)"
@@ -695,7 +695,7 @@ void tagtimeline_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
 
   style_header("Tagged Check-ins");
-  style_submenu_element("List", "List", "taglist");
+  style_submenu_element("List", "taglist");
   login_anonymous_available();
   @ <h2>Check-ins with non-propagating tags:</h2>
   db_prepare(&q,

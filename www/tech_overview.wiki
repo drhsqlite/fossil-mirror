@@ -106,6 +106,7 @@ database files are used by Fossil, with detailed discussion following.
 </tr>
 </table>
 
+<a name='configdb'></a>
 <h3>2.1 The Configuration Database</h3>
 
 The configuration database holds cross-repository preferences and a list of all
@@ -286,15 +287,14 @@ The shun table can be pushed or pulled using
 the [/help/config | fossil config] command with the "shun" AREA argument.
 The shun table is also copied during a [/help/clone | clone].
 
+<a name='localdb'></a>
 <h3>2.3 Checkout Databases</h3>
 
-Unlike several other popular DVCSes, Fossil allows a single repository
+Fossil allows a single repository
 to have multiple working checkouts.  Each working checkout has a single
 database in its root directory that records the state of that checkout.
-The checkout database is named "_FOSSIL_" by default, but can be renamed
-to ".fslckout" if desired.  (Future versions of Fossil might make
-".fslckout" the default name.)  The checkout database records information
-such as the following:
+The checkout database is named "_FOSSIL_" or ".fslckout".
+The checkout database records information such as the following:
 
   *  The name of the repository database file.
   *  The version that is currently checked out.

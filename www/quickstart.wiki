@@ -8,7 +8,8 @@ and painlessly.</p>
 
     <p>Fossil is a single self-contained C program.  You need to
     either download a
-    <a href="http://www.fossil-scm.org/download.html">precompiled binary</a>
+    <a href="https://www.fossil-scm.org/fossil/uv/download.html">precompiled 
+    binary</a>
     or <a href="build.wiki">compile it yourself</a> from sources.
     Install fossil by putting the fossil binary
     someplace on your $PATH.</p>
@@ -19,6 +20,7 @@ and painlessly.</p>
     <p>Fossil works with repository files (a database with the project's
     complete history) and with checked-out local trees (the working directory
     you use to do your work).
+    (See [./whyusefossil.wiki#definitions | definitions] for more background.)
     The workflow looks like this:</p>
 
     <ul>

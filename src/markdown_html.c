@@ -74,6 +74,8 @@ static void html_escape(struct Blob *ob, const char *data, size_t size){
         BLOB_APPEND_LITERAL(ob, "&amp;");
       }else if( data[i]=='"' ){
         BLOB_APPEND_LITERAL(ob, "&quot;");
+      }else if( data[i]=='\'' ){
+        BLOB_APPEND_LITERAL(ob, "&#39;");
       }else{
         break;
       }

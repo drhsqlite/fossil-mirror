@@ -1253,9 +1253,9 @@ void file_parse_uri(
 }
 
 /*
-** Construct a random temporary filename into zBuf[].
+** Construct a random temporary filename into pBuf starting with zPrefix.
 */
-void file_tempname(int nBuf, char *zBuf){
+void file_tempname(Blob *pBuf, const char *zPrefix){
 #if defined(_WIN32)
   const char *azDirs[] = {
      0, /* GetTempPath */
@@ -1276,9 +1276,10 @@ void file_tempname(int nBuf, char *zBuf){
     "abcdefghijklmnopqrstuvwxyz"
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "0123456789";
-  unsigned int i, j;
+  unsigned int i;
   const char *zDir = ".";
   int cnt = 0;
+  char zRand[16];
 
 #if defined(_WIN32)
   wchar_t zTmpPath[MAX_PATH];
@@ -1292,30 +1293,23 @@ void file_tempname(int nBuf, char *zBuf){
 #endif
 
 
-  for(i=0; i<sizeof(azDirs)/sizeof(azDirs[0]); i++){
+  for(i=0; i<count(azDirs); i++){
     if( azDirs[i]==0 ) continue;
     if( !file_isdir(azDirs[i]) ) continue;
     zDir = azDirs[i];
     break;
   }
 
-  /* Check that the output buffer is large enough for the temporary file
-  ** name. If it is not, return SQLITE_ERROR.
-  */
-  if( (strlen(zDir) + 17) >= (size_t)nBuf ){
-    fossil_fatal("insufficient space for temporary filename");
-  }
-
   do{
+    blob_zero(pBuf);
     if( cnt++>20 ) fossil_panic("cannot generate a temporary filename");
-    sqlite3_snprintf(nBuf-17, zBuf, "%s/", zDir);
-    j = (int)strlen(zBuf);
-    sqlite3_randomness(15, &zBuf[j]);
-    for(i=0; i<15; i++, j++){
-      zBuf[j] = (char)zChars[ ((unsigned char)zBuf[j])%(sizeof(zChars)-1) ];
+    sqlite3_randomness(15, zRand);
+    for(i=0; i<15; i++){
+      zRand[i] = (char)zChars[ ((unsigned char)zRand[i])%(sizeof(zChars)-1) ];
     }
-    zBuf[j] = 0;
-  }while( file_size(zBuf)>=0 );
+    zRand[15] = 0;
+    blob_appendf(pBuf, "%s/%s.%s", zDir, zPrefix ? zPrefix : "", zRand);
+  }while( file_size(blob_str(pBuf))>=0 );
 
 #if defined(_WIN32)
   fossil_path_free((char *)azDirs[0]);
@@ -1409,7 +1403,7 @@ const char *file_is_win_reserved(const char *zPath){
   static char zReturn[5];
   int i;
   while( zPath[0] ){
-    for(i=0; i<ArraySize(azRes); i++){
+    for(i=0; i<count(azRes); i++){
       if( sqlite3_strnicmp(zPath, azRes[i], 3)==0
        && ((i>=4 && fossil_isdigit(zPath[3])
                  && (zPath[4]=='/' || zPath[4]=='.' || zPath[4]==0))
@@ -1436,4 +1430,19 @@ void file_test_valid_for_windows(void){
   for(i=2; i<g.argc; i++){
     fossil_print("%s %s\n", file_is_win_reserved(g.argv[i]), g.argv[i]);
   }
+}
+
+/*
+** Remove surplus "/" characters from the beginning of a full pathname.
+** Extra leading "/" characters are benign on unix.  But on Windows
+** machines, they must be removed.  Example:  Convert "/C:/fossil/xyx.fossil"
+** into "C:/fossil/xyz.fossil". Cygwin should behave as Windows here.
+*/
+const char *file_cleanup_fullpath(const char *z){
+#if defined(_WIN32) || defined(__CYGWIN__)
+  if( z[0]=='/' && fossil_isalpha(z[1]) && z[2]==':' && z[3]=='/' ) z++;
+#else
+  while( z[0]=='/' && z[1]=='/' ) z++;
+#endif
+  return z;
 }

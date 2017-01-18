@@ -1,0 +1,5 @@
+compat/zlib/*
+setup/fossil.iss
+test/th1-docs-input.txt
+test/th1-hooks-input.txt
+win/buildmsvc.bat

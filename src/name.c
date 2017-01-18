@@ -1008,7 +1008,7 @@ void bloblist_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("List Of Artifacts");
-  style_submenu_element("250 Largest", 0, "bigbloblist");
+  style_submenu_element("250 Largest", "bigbloblist");
   if( !unpubOnly && mx>n && P("s")==0 ){
     int i;
     @ <p>Select a range of artifacts to view:</p>
@@ -1022,7 +1022,7 @@ void bloblist_page(void){
     return;
   }
   if( !unpubOnly && mx>n ){
-    style_submenu_element("Index", "Index", "bloblist");
+    style_submenu_element("Index", "bloblist");
   }
   if( unpubOnly ){
     zRange = mprintf("IN private");
@@ -1206,7 +1206,7 @@ static void collision_report(const char *zSql){
       @ %z(href("%R/whatis/%s",zId))%h(zId)</a>
     }
   }
-  for(i=4; i<ArraySize(aCollide); i++){
+  for(i=4; i<count(aCollide); i++){
     for(j=0; j<aCollide[i].cnt && j<MAX_COLLIDE; j++){
       fossil_free(aCollide[i].azHit[j]);
     }
@@ -1222,8 +1222,8 @@ void hash_collisions_webpage(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("SHA1 Prefix Collisions");
-  style_submenu_element("Activity Reports", 0, "reports");
-  style_submenu_element("Stats", 0, "stat");
+  style_submenu_element("Activity Reports", "reports");
+  style_submenu_element("Stats", "stat");
   @ <h1>Hash Prefix Collisions on Check-ins</h1>
   collision_report("SELECT (SELECT uuid FROM blob WHERE rid=objid)"
                    "  FROM event WHERE event.type='ci'"

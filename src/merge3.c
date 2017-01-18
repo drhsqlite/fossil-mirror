@@ -318,7 +318,7 @@ int contains_merge_marker(Blob *p){
   assert( len==(int)strlen(mergeMarker[1]) );
   assert( len==(int)strlen(mergeMarker[2]) );
   assert( len==(int)strlen(mergeMarker[3]) );
-  assert( sizeof(mergeMarker)/sizeof(mergeMarker[0])==4 );
+  assert( count(mergeMarker)==4 );
   for(i=0; i<n; ){
     for(j=0; j<4; j++){
       if( memcmp(&z[i], mergeMarker[j], len)==0 ) return 1;

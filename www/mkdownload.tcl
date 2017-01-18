@@ -41,7 +41,7 @@ close $in
 
 set vdate(1.36) 2016-10-24
 set vdate(1.35) 2016-06-14
-set vdate(1.34) 2016-11-02
+set vdate(1.34) 2015-11-02
 
 # Do all versions from newest to oldest
 #
@@ -111,7 +111,7 @@ puts $out {<html>
 <h1 align="center">Checksums For Fossil Downloads</h1>
 <p>The following table shows the SHA1 checksums for the precompiled
 binaries available on the
-<a href="/download.html">Fossil website</a>.</p>
+<a href="/uv/download.html">Fossil website</a>.</p>
 <pre>}
 
 foreach {line} [split [exec fossil sql "SELECT hash, name FROM unversioned\

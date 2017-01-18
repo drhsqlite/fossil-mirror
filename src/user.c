@@ -650,9 +650,8 @@ void access_log_page(void){
   }
   blob_append_sql(&sql,"  ORDER BY rowid DESC LIMIT %d OFFSET %d", n+1, skip);
   if( skip ){
-    style_submenu_element("Newer", "Newer entries",
-              "%s/access_log?o=%d&n=%d&y=%d", g.zTop, skip>=n ? skip-n : 0,
-              n, y);
+    style_submenu_element("Newer", "%s/access_log?o=%d&n=%d&y=%d",
+              g.zTop, skip>=n ? skip-n : 0, n, y);
   }
   rc = db_prepare_ignore_error(&q, "%s", blob_sql_text(&sql));
   fLogEnabled = db_get_boolean("access-log", 0);
@@ -668,8 +667,8 @@ void access_log_page(void){
     int bSuccess = db_column_int(&q, 3);
     cnt++;
     if( cnt>n ){
-      style_submenu_element("Older", "Older entries",
-                  "%s/access_log?o=%d&n=%d&y=%d", g.zTop, skip+n, n, y);
+      style_submenu_element("Older", "%s/access_log?o=%d&n=%d&y=%d",
+                  g.zTop, skip+n, n, y);
       break;
     }
     if( bSuccess ){
@@ -680,8 +679,7 @@ void access_log_page(void){
     @ <td>%s(zDate)</td><td>%h(zName)</td><td>%h(zIP)</td></tr>
   }
   if( skip>0 || cnt>n ){
-    style_submenu_element("All", "All entries",
-          "%s/access_log?n=10000000", g.zTop);
+    style_submenu_element("All", "%s/access_log?n=10000000", g.zTop);
   }
   @ </tbody></table>
   db_finalize(&q);

@@ -257,6 +257,7 @@ writeln {#
 # This file is included by primary Makefile.
 #
 
+XBCC = $(BCC) $(BCCFLAGS) $(CFLAGS)
 XTCC = $(TCC) -I. -I$(SRCDIR) -I$(OBJDIR) $(TCCFLAGS) $(CFLAGS)
 
 }
@@ -300,22 +301,22 @@ $(OBJDIR):
 	-mkdir $(OBJDIR)
 
 $(OBJDIR)/translate:	$(SRCDIR)/translate.c
-	$(BCC) -o $(OBJDIR)/translate $(SRCDIR)/translate.c
+	$(XBCC) -o $(OBJDIR)/translate $(SRCDIR)/translate.c
 
 $(OBJDIR)/makeheaders:	$(SRCDIR)/makeheaders.c
-	$(BCC) -o $(OBJDIR)/makeheaders $(SRCDIR)/makeheaders.c
+	$(XBCC) -o $(OBJDIR)/makeheaders $(SRCDIR)/makeheaders.c
 
 $(OBJDIR)/mkindex:	$(SRCDIR)/mkindex.c
-	$(BCC) -o $(OBJDIR)/mkindex $(SRCDIR)/mkindex.c
+	$(XBCC) -o $(OBJDIR)/mkindex $(SRCDIR)/mkindex.c
 
 $(OBJDIR)/mkbuiltin:	$(SRCDIR)/mkbuiltin.c
-	$(BCC) -o $(OBJDIR)/mkbuiltin $(SRCDIR)/mkbuiltin.c
+	$(XBCC) -o $(OBJDIR)/mkbuiltin $(SRCDIR)/mkbuiltin.c
 
 $(OBJDIR)/mkversion:	$(SRCDIR)/mkversion.c
-	$(BCC) -o $(OBJDIR)/mkversion $(SRCDIR)/mkversion.c
+	$(XBCC) -o $(OBJDIR)/mkversion $(SRCDIR)/mkversion.c
 
 $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
-	$(BCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
+	$(XBCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
 
 # Run the test suite.
 # Other flags that can be included in TESTFLAGS are:
@@ -671,7 +672,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.1.0b
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.1.0c
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -919,6 +920,7 @@ INNOSETUP = "$(PROGRAMFILES)\Inno Setup 5\ISCC.exe"
 # STOP HERE
 # You should not need to change anything below this line
 #--------------------------------------------------------
+XBCC = $(BCC) $(CFLAGS)
 XTCC = $(TCC) $(CFLAGS) -I. -I$(SRCDIR)
 }
 writeln -nonewline "SRC ="
@@ -1015,22 +1017,22 @@ else
 endif
 
 $(TRANSLATE):	$(SRCDIR)/translate.c
-	$(BCC) -o $@ $(SRCDIR)/translate.c
+	$(XBCC) -o $@ $(SRCDIR)/translate.c
 
 $(MAKEHEADERS):	$(SRCDIR)/makeheaders.c
-	$(BCC) -o $@ $(SRCDIR)/makeheaders.c
+	$(XBCC) -o $@ $(SRCDIR)/makeheaders.c
 
 $(MKINDEX):	$(SRCDIR)/mkindex.c
-	$(BCC) -o $@ $(SRCDIR)/mkindex.c
+	$(XBCC) -o $@ $(SRCDIR)/mkindex.c
 
 $(MKBUILTIN):	$(SRCDIR)/mkbuiltin.c
-	$(BCC) -o $@ $(SRCDIR)/mkbuiltin.c
+	$(XBCC) -o $@ $(SRCDIR)/mkbuiltin.c
 
 $(MKVERSION): $(SRCDIR)/mkversion.c
-	$(BCC) -o $@ $(SRCDIR)/mkversion.c
+	$(XBCC) -o $@ $(SRCDIR)/mkversion.c
 
 $(CODECHECK1):	$(SRCDIR)/codecheck1.c
-	$(BCC) -o $@ $(SRCDIR)/codecheck1.c
+	$(XBCC) -o $@ $(SRCDIR)/codecheck1.c
 
 # WARNING. DANGER. Running the test suite modifies the repository the
 # build is done from, i.e. the checkout belongs to. Do not sync/push
@@ -1266,16 +1268,16 @@ LIBS   = $(DMDIR)\extra\lib\ zlib wsock32 advapi32
 }
 writeln "SQLITE_OPTIONS = [join $SQLITE_OPTIONS { }]\n"
 writeln "SHELL_OPTIONS = [join $SHELL_WIN32_OPTIONS { }]\n"
-writeln -nonewline "SRC   = "
+writeln -nonewline "SRC   ="
 foreach s [lsort $src] {
-  writeln -nonewline "${s}_.c "
+  writeln -nonewline " ${s}_.c"
 }
 writeln "\n"
 writeln -nonewline "OBJ   = "
 foreach s [lsort $src] {
   writeln -nonewline "\$(OBJDIR)\\$s\$O "
 }
-writeln "\$(OBJDIR)\\shell\$O \$(OBJDIR)\\sqlite3\$O \$(OBJDIR)\\th\$O \$(OBJDIR)\\th_lang\$O "
+writeln "\$(OBJDIR)\\shell\$O \$(OBJDIR)\\sqlite3\$O \$(OBJDIR)\\th\$O \$(OBJDIR)\\th_lang\$O"
 writeln {
 
 RC=$(DMDIR)\bin\rcc
@@ -1501,7 +1503,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.1.0b
+SSLDIR    = $(B)\compat\openssl-1.1.0c
 SSLINCDIR = $(SSLDIR)\inc32
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)\out32dll
@@ -1613,7 +1615,7 @@ LDFLAGS   = $(LDFLAGS) /NODEFAULTLIB:msvcrt /MANIFEST:NO
 !endif
 
 !if $(FOSSIL_ENABLE_WINXP)!=0
-XPCFLAGS  = $(XPCFLAGS) /D_USING_V110_SDK71_=1
+XPCFLAGS  = $(XPCFLAGS) /D_WIN32_WINNT=0x0501 /D_USING_V110_SDK71_=1
 CFLAGS    = $(CFLAGS) $(XPCFLAGS)
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 XPLDFLAGS = $(XPLDFLAGS) /SUBSYSTEM:CONSOLE,5.02
