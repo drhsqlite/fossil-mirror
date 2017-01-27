@@ -995,10 +995,12 @@ static void get_version_blob(
                sqlite3_sourceid());
   if( g.db==0 ) sqlite3_open(":memory:", &g.db);
   db_prepare(&q,
-     "SELECT compile_options FROM pragma_compile_options"
-     " WHERE compile_options NOT LIKE 'COMPILER=%%'");
+     "pragma compile_options");
   while( db_step(&q)==SQLITE_ROW ){
-    blob_appendf(pOut, "SQLITE_%s\n", db_column_text(&q, 0));
+    const char *text = db_column_text(&q, 0);
+    if( strncmp(text, "COMPILER", 8) ){
+      blob_appendf(pOut, "SQLITE_%s\n", text);
+    }
   }
   db_finalize(&q);
 }
