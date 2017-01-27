@@ -8,7 +8,7 @@ and painlessly.</p>
 
     <p>Fossil is a single self-contained C program.  You need to
     either download a
-    <a href="https://www.fossil-scm.org/fossil/uv/download.html">precompiled 
+    <a href="https://www.fossil-scm.org/fossil/uv/download.html">precompiled
     binary</a>
     or <a href="build.wiki">compile it yourself</a> from sources.
     Install fossil by putting the fossil binary

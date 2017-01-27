@@ -1,5 +1,5 @@
-C The\sdefault\sMIME\stype\sfor\sJSON\swiki\stext\sshould\sbe\s'text/x-fossil-wiki',\snot\s'text/plain'.
-D 2017-01-25T01:00:52.787
+C Openssl\s1.0.2j\s->\s1.0.2k.\sWhitespace.
+D 2017-01-27T08:57:09.192
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -465,7 +465,7 @@ F src/main.c 2b8f5042baffa68be432459b65a5fdc6e33bb3b0
 F src/main.mk 3bfcbade731d65f075e20edfa6f1a384eda3f566
 F src/makeheaders.c cbbebae48e377db66e648af76a7aeea63c9bc523
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl 73cf664ce88acd02c2d17d97947735cd36cdfc75
+F src/makemake.tcl c8ac3361ceb05c63e23ed5de0fd1efa76ef73240
 F src/manifest.c e037d26b34ec3631288032bf06fd79f188e115da
 F src/markdown.c 20bb4755f258601e4e3e5274ea117fc7c8b1ccf7
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
@@ -545,7 +545,7 @@ F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
 F test/commit-warning.test 1b94adc5f490ade07cd9fc3ba35c94c77ac61819
 F test/contains-selector.test cf46a39b3c1ff72d2fc674f4ccbeecfb94add7d2
 F test/delta1.test c3ea182ab06554a35203285774606ba37fdc620d
-F test/diff-test-1.wiki 597fbb13c9c3da02e09a53d128f3b5d4dd5cadda
+F test/diff-test-1.wiki c25f312aa20a97b7127e8047f60fe67cc35319e5
 F test/diff.test bf9b349dd6f33022ef2aef2894d3057e2daaf507
 F test/fake-editor.tcl 11b5ddc9629fefb4dbc32806f80211440600c744
 F test/file1.test 9b2ac578521a7097017c64b8877f6fa6ca0904f7
@@ -560,15 +560,15 @@ F test/merge1.test 0f11a55b5d71fa668b53ffc4cdeb23997e9cb042
 F test/merge2.test 038091215ec2f2b53157599acae6f03dcf91dd12
 F test/merge3.test 70db9ae7c679efad5d5b371114a3cc609818e01a
 F test/merge4.test d563164c477885bcaecb6ea28e824b698bdd57bb
-F test/merge5.test aadadc4b34b77b94dc711ee0b0ae2f760abaecf9
+F test/merge5.test 1ec9dcc682daef0fecf4ee6830ec362a818a1a5e
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test 50b1c16adce0050bc946e3d64b14df9ab82f37e0
 F test/merge_exe.test f888647a3305bf2a4ddd77f947e486ae72fced09
-F test/merge_renames.test cdeca008801f821550c05c913a67819de6f4154b
+F test/merge_renames.test 2ecb429af3732900352738bbd4e5b532a2d331bb
 F test/merge_warn.test d4a98c6ff14e4bb142d784f96c88d152d9599529
 F test/mv-rm.test 6a60863935f7a9e0223ccb9421729d7677fa1f9f
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
-F test/revert.test f7798e8eab21bcf5550af8ac4ee6cb8d5f33cc78
+F test/revert.test 303d90ca6a8f221d671daa90b3f9a07a874e7ff0
 F test/set-manifest.test f389e51ce371794d5871e70adf66f81d59a9d654
 F test/settings-repo.test 7c2617c7deea7d245d927df5688d26365e3bca9b
 F test/settings.test 1877083a0fecb044a698e8ca60d7f9ff2b4f4450
@@ -661,9 +661,9 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/man_page_command_list.tcl bcf4aa82a2a2f6f5194f1e67915613b82a0957f4 x
 F win/Makefile.PellesCGMake e9d1636731fe8a581e1f2a9a155b1310a9356178
 F win/Makefile.dmc 85ead2164d58e92664bfe0994da07a2d8fc55c12
-F win/Makefile.mingw 43d0a27f70e7eeaf4b4a1ed327678468f57fdb9a
-F win/Makefile.mingw.mistachkin 454634243c30db001a84300d158fa670118101a2
-F win/Makefile.msc b97268123a45e413d20cf8cff9d50f9cc04dc043
+F win/Makefile.mingw a8dff8eba9e22d645aa886d7fe8bc7a65f877d55
+F win/Makefile.mingw.mistachkin 4635e4429322aaa8d1c1f1b70aadb13836871825
+F win/Makefile.msc 39d12259b44d72193d000535258d01193554d46f
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -693,7 +693,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 1e646606b9d0bed80d3339736281ee395128534f
+F www/build.wiki 6e6c9445543461ae0a75057a42ec2012559be02a
 F www/changes.wiki f622319dc0289c74fd8a5635005f8c0509090b08
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki be27496a6d2f5f6c83b5a3a1441451beabec99e1
@@ -759,7 +759,7 @@ F www/permutedindex.html e2f7a7752d2527674bfe905d1e2e91cffc3e4e38
 F www/pop.wiki a9bd731ae3e8b431328d8c3f017cf12d180f377b
 F www/private.wiki 1c55c09563361db73b733386dc0fd6689156d5ab
 F www/qandc.wiki b8b6f9668796bde63440e64dfd40a176766dd78e
-F www/quickstart.wiki a35d326e15624f52702b9b7a7e777c89b0b37f81
+F www/quickstart.wiki 0080ce9a7b0a911abfd2724f201542e633bc0c93
 F www/quotes.wiki 6f77c1af17f05596d0f6a4cc88f149a61188ecfd
 F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
@@ -783,7 +783,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 377fbf2ca7b630d603caf83a85c3786715a91249
-R 3c4ea59c1e85c7673efa1264e80b4c16
-U mistachkin
-Z 9aafc2a01f6ef416eb38b3603b62c4da
+P 58dd5383553a7bc21a71a8751deeb19dcee1c147
+R b69ef215d0d6f5cf37fd4e63cfac165a
+U jan.nijtmans
+Z 5cfd95b9374805d400a3787f86fdd23e
