@@ -470,7 +470,7 @@ fossil commit -m "merge m"
 
 #################################################################
 #  Test 13                                                      #
-#  Merge in add+rename that happened on a branch, then merged   # 
+#  Merge in add+rename that happened on a branch, then merged   #
 #  back to branch, and again to trunk, then merge in branch.    #
 #################################################################
 

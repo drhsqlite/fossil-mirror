@@ -933,17 +933,27 @@ static void get_version_blob(
 #if defined(FOSSIL_ENABLE_SSL)
   blob_appendf(pOut, "SSL (%s)\n", SSLeay_version(SSLEAY_VERSION));
 #endif
+#if defined(FOSSIL_HAVE_FUSEFS)
+  blob_appendf(pOut, "libfuse %s, loaded %s\n", fusefs_inc_version(),
+               fusefs_lib_version());
+#endif
+#if defined(FOSSIL_DEBUG)
+  blob_append(pOut, "FOSSIL_DEBUG\n", -1);
+#endif
+#if defined(FOSSIL_OMIT_DELTA_CKSUM_TEST)
+  blob_append(pOut, "FOSSIL_OMIT_DELTA_CKSUM_TEST\n", -1);
+#endif
 #if defined(FOSSIL_ENABLE_LEGACY_MV_RM)
-  blob_append(pOut, "LEGACY_MV_RM\n", -1);
+  blob_append(pOut, "FOSSIL_ENABLE_LEGACY_MV_RM\n", -1);
 #endif
 #if defined(FOSSIL_ENABLE_EXEC_REL_PATHS)
-  blob_append(pOut, "EXEC_REL_PATHS\n", -1);
+  blob_append(pOut, "FOSSIL_ENABLE_EXEC_REL_PATHS\n", -1);
 #endif
 #if defined(FOSSIL_ENABLE_TH1_DOCS)
-  blob_append(pOut, "TH1_DOCS\n", -1);
+  blob_append(pOut, "FOSSIL_ENABLE_TH1_DOCS\n", -1);
 #endif
 #if defined(FOSSIL_ENABLE_TH1_HOOKS)
-  blob_append(pOut, "TH1_HOOKS\n", -1);
+  blob_append(pOut, "FOSSIL_ENABLE_TH1_HOOKS\n", -1);
 #endif
 #if defined(FOSSIL_ENABLE_TCL)
   Th_FossilInit(TH_INIT_DEFAULT | TH_INIT_FORCE_TCL);
@@ -957,10 +967,10 @@ static void get_version_blob(
   blob_append(pOut, "USE_TCL_STUBS\n", -1);
 #endif
 #if defined(FOSSIL_ENABLE_TCL_STUBS)
-  blob_append(pOut, "TCL_STUBS\n", -1);
+  blob_append(pOut, "FOSSIL_TCL_STUBS\n", -1);
 #endif
 #if defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS)
-  blob_append(pOut, "TCL_PRIVATE_STUBS\n", -1);
+  blob_append(pOut, "FOSSIL_ENABLE_TCL_PRIVATE_STUBS\n", -1);
 #endif
 #if defined(FOSSIL_ENABLE_JSON)
   blob_appendf(pOut, "JSON (API %s)\n", FOSSIL_JSON_API_VERSION);
@@ -971,12 +981,15 @@ static void get_version_blob(
   blob_append(pOut, "UNICODE_COMMAND_LINE\n", -1);
 #endif
 #if defined(FOSSIL_DYNAMIC_BUILD)
-  blob_append(pOut, "DYNAMIC_BUILD\n", -1);
+  blob_append(pOut, "FOSSIL_DYNAMIC_BUILD\n", -1);
 #else
-  blob_append(pOut, "STATIC_BUILD\n", -1);
+  blob_append(pOut, "FOSSIL_STATIC_BUILD\n", -1);
 #endif
 #if defined(USE_SEE)
   blob_append(pOut, "USE_SEE\n", -1);
+#endif
+#if defined(FOSSIL_ALLOW_OUT_OF_ORDER_DATES)
+  blob_append(pOut, "FOSSIL_ALLOW_OUT_OF_ORDER_DATES\n");
 #endif
   blob_appendf(pOut, "SQLite %s %.30s\n", sqlite3_libversion(),
                sqlite3_sourceid());

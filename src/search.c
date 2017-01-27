@@ -598,7 +598,7 @@ void search_cmd(void){
     width = -1;
   }
 
-  db_must_be_within_tree();
+  db_find_and_open_repository(0, 0);
   if( g.argc<2 ) return;
   blob_init(&pattern, g.argv[2], -1);
   for(i=3; i<g.argc; i++){
