@@ -1,5 +1,5 @@
-C (cherry-pick):\sUpdate\sthe\s"search"\scommand\sto\shonor\sthe\s-R\soption.
-D 2017-01-27T12:27:47.193
+C (cherry-pick):\sThe\sdefault\sMIME\stype\sfor\sJSON\swiki\stext\sshould\sbe\s'text/x-fossil-wiki',\snot\s'text/plain'.
+D 2017-01-27T12:28:27.017
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -454,7 +454,7 @@ F src/json_status.c 0a9f959d19f4b90c879ad50ef0cd376262d8247b
 F src/json_tag.c e2b68b9735e706e9e47fb07f063abf7c94da2d76
 F src/json_timeline.c 5a9ce59def16a55b7affbf834dd1e13d876efe76
 F src/json_user.c 779af89a12af7c0c228d0194fa564379ec77ac76
-F src/json_wiki.c d82b77953b86b8391f21e0f2ed3e066b58279a0d
+F src/json_wiki.c 67ce76b80f4571bb928c4f0e1beec3231404b9c3
 F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c 29ba1458d561d2b3238cbc717976eab87a098a16
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
@@ -783,8 +783,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 86db914551d5839380c530c7b7dafa3a3e3ed8de
-Q +377fbf2ca7b630d603caf83a85c3786715a91249
-R 716158de2367df01a0b06290a9021909
+P eab6be7b02d4bbf72551e7a056df960a7de548fa
+Q +58dd5383553a7bc21a71a8751deeb19dcee1c147
+R 1e42ff69fd1594cb2cbbb43783b5a14a
 U jan.nijtmans
-Z fd01dd522b85416a983e7acf59a2af16
+Z 92be6ed7fd74ac53f5a48f6c6665ba03

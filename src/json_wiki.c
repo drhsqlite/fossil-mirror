@@ -118,7 +118,7 @@ cson_value * json_get_wiki_page_by_rid(int rid, int contentFormat){
         zFormat = "html";
         if(zBody && *zBody){
           const char *zMimetype = pWiki->zMimetype;
-          if( zMimetype==0 ) zMimetype = "text/plain";
+          if( zMimetype==0 ) zMimetype = "text/x-fossil-wiki";
           zMimetype = wiki_filter_mimetypes(zMimetype);
           blob_append(&raw,zBody,-1);
           if( fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0 ){
