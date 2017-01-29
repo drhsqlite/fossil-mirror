@@ -1,5 +1,5 @@
-C (cherry-pick):\sMake\s"fossil\sversion\s-v"\swork\sagain\swith\sSQLite\s3.15.x,\ssince\sno-where\sis\sdocumented\sthat\s"fossil\snow\srequires\sSQLite\s3.16"\nChange\sVERSION\sto\s1.37.1\s(if\sever\sreleased,\sthis\sshould\sat\sleast\sbe\sin\sit)
-D 2017-01-27T12:30:26.651
+C (cherry-pick):\sChanging\sthe\spassword\srequires\sa\s'real'\slogin.
+D 2017-01-29T12:44:47.772
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -459,7 +459,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c 29ba1458d561d2b3238cbc717976eab87a098a16
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c 597ae479d42096c07d6e6f85f1d844ebb46089b3
+F src/login.c d2ef19fedab12da54fb4718e7d690be483f84d92
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
 F src/main.c cc427d6f5114c910c1c1b28558b929c5df7257f8
 F src/main.mk 3bfcbade731d65f075e20edfa6f1a384eda3f566
@@ -783,8 +783,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 80d5408de17888f1aaf59f97a6d62997a015e30b
-Q +042d6a7b98170df13b20d1c7136e7635acce5fb4
-R 4db2e09a89049fab107e29d3ae97a51c
+P e79e45444685946ddc7c399162e82fddb56961f2
+Q +8b562b90c05a0c337be2283fc4e9fb3cb5da60d4
+R 12009a5b8ff1dc3072e652201a5d9c84
 U jan.nijtmans
-Z 00b9c032b7c4849169cbb82dc0cd6f84
+Z 13da69895464f679b26c7b2272c943d7
