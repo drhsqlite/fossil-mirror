@@ -91,7 +91,7 @@ static int fossil_stat(const char *zFilename, struct fossilStat *buf, int isWd){
   int rc;
   void *zMbcs = fossil_utf8_to_path(zFilename, 0);
 #if !defined(_WIN32)
-  if( isWd && g.allowSymlinks ){
+  if( isWd && db_allow_symlinks() ){
     rc = lstat(zMbcs, buf);
   }else{
     rc = stat(zMbcs, buf);
@@ -193,7 +193,7 @@ int file_wd_isfile(const char *zFilename){
 **/
 void symlink_create(const char *zTargetFile, const char *zLinkFile){
 #if !defined(_WIN32)
-  if( g.allowSymlinks ){
+  if( db_allow_symlinks() ){
     int i, nName;
     char *zName, zBuf[1000];
 
@@ -250,7 +250,7 @@ int file_wd_perm(const char *zFilename){
   if( !getStat(zFilename, 1) ){
      if( S_ISREG(fileStat.st_mode) && ((S_IXUSR)&fileStat.st_mode)!=0 )
       return PERM_EXE;
-    else if( g.allowSymlinks && S_ISLNK(fileStat.st_mode) )
+    else if( db_allow_symlinks() && S_ISLNK(fileStat.st_mode) )
       return PERM_LNK;
   }
 #endif

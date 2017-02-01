@@ -1,5 +1,5 @@
-C Add\sthe\s--no-symlinks\sglobal\scommand\sline\soption.
-D 2017-02-01T02:16:14.995
+C Attempt\sto\salways\senforce\sthe\s--no-symlinks\soption.
+D 2017-02-01T02:32:54.269
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -413,7 +413,7 @@ F src/content.c a6024f0400307f4c25d067d323a6cbdf38b78c81
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c af3050a6a96a8abfd38396d4027e3ddd92a5eefc
+F src/db.c b0aa9450e3b956c60948ebe19585b833b5b4981d
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
@@ -425,7 +425,7 @@ F src/doc.c bae142c1df13fbaba1af814e0ee398670d366547
 F src/encode.c edb12a68c5831e5331eaad3796c492059edb10fb
 F src/event.c 021db025691a859a49751f255a0a065bca728444
 F src/export.c d506a4f7e033a10ec1771593c468c199b68a88b8
-F src/file.c acda6dd5cb6374de3c3113410dd8a8bc965adb39
+F src/file.c 5e48a8b66a3244dd35a3a34b687db53e069bdb38
 F src/finfo.c 72fda64db234625f12f85db2ab699da10b1f53f8
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
@@ -783,10 +783,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8b562b90c05a0c337be2283fc4e9fb3cb5da60d4
-R 845e31626852b356e52e88c308e8dfde
-T *branch * noSymlinks
-T *sym-noSymlinks *
-T -sym-trunk *
+P 85277aa3b3239d416dc54448d69c082bf0319836
+R a108c69c8dd4e95dbd9384f057a47fd8
 U mistachkin
-Z 2e81dccfc1278ecb1a980afbfbd9e6b6
+Z d7e32938677c6ad75dc8b1902e258c5d

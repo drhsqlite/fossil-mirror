@@ -1437,6 +1437,14 @@ int db_allow_symlinks_by_default(void){
 }
 
 /*
+** Returns non-zero if support for symlinks is currently enabled.
+*/
+int db_allow_symlinks(void){
+  if( g.fNoSymlinks ) return 0;
+  return g.allowSymlinks;
+}
+
+/*
 ** Open the repository database given by zDbName.  If zDbName==NULL then
 ** get the name from the already open local database.
 */
