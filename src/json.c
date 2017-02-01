@@ -1296,6 +1296,7 @@ cson_value * json_g_to_json(){
   INT(g, isHome);
   INT(g, nAux);
   INT(g, allowSymlinks);
+  INT(g, fNoSymlinks);
 
   CSTR(g, zOpenRevision);
   CSTR(g, zLocalRoot);

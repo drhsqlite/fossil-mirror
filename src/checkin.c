@@ -419,6 +419,8 @@ static int determine_cwd_relative_option()
 **    --case-sensitive <BOOL>  Override case-sensitive setting.
 **    --dotfiles        Include unmanaged files beginning with a dot.
 **    --ignore <CSG>    Ignore unmanaged files matching CSG glob patterns.
+**    --no-symlinks     Disables support for symlinks, overriding
+**                      the "allow-symlinks" option.
 **
 ** Options specific to the changes command:
 **    --header          Identify the repository if report is non-empty.
@@ -826,6 +828,8 @@ void ls_cmd(void){
 **    --dotfiles       include files beginning with a dot (".")
 **    --header         Identify the repository if there are extras
 **    --ignore <CSG>   ignore files matching patterns from the argument
+**    --no-symlinks    Disables support for symlinks, overriding
+**                     the "allow-symlinks" option.
 **    --rel-paths      Display pathnames relative to the current working
 **                     directory.
 **
@@ -855,9 +859,15 @@ void extras_cmd(void){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
   pIgnore = glob_create(zIgnoreFlag);
+
+  /*
+  ** Always consider symlinks, unless we are explicitly forbidden from
+  ** doing so (i.e. via the command line).
+  */
+  g.allowSymlinks = db_allow_symlinks_by_default();
+
   locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, pIgnore);
   glob_free(pIgnore);
-  g.allowSymlinks = 1;  /* Report on symbolic links */
 
   blob_zero(&report);
   status_report(&report, flags);
@@ -949,6 +959,8 @@ void extras_cmd(void){
 **                     deleted.
 **    --no-prompt      This option disables prompting the user for input
 **                     and assumes an answer of 'No' for every question.
+**    --no-symlinks    Disables support for symlinks, overriding
+**                     the "allow-symlinks" option.
 **    --temp           Remove only Fossil-generated temporary files.
 **    -v|--verbose     Show all files as they are removed.
 **
@@ -1013,7 +1025,13 @@ void clean_cmd(void){
   pKeep = glob_create(zKeepFlag);
   pClean = glob_create(zCleanFlag);
   nRoot = (int)strlen(g.zLocalRoot);
-  g.allowSymlinks = 1;  /* Find symlinks too */
+
+  /*
+  ** Always consider symlinks, unless we are explicitly forbidden from
+  ** doing so (i.e. via the command line).
+  */
+  g.allowSymlinks = db_allow_symlinks_by_default();
+
   if( !dirsOnlyFlag ){
     Stmt q;
     Blob repo;

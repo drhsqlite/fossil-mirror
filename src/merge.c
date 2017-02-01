@@ -208,6 +208,9 @@ static void add_renames(
 **
 **   --integrate             Merged branch will be closed when committing.
 **
+**   --no-symlinks           Disables support for symlinks, overriding
+**                           the "allow-symlinks" option.
+**
 **   -n|--dry-run            If given, display instead of run actions
 **
 **   -v|--verbose            Show additional details of the merge

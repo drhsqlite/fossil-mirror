@@ -97,6 +97,8 @@ int update_to(int vid){
 **   --debug          print debug information on stdout
 **   --latest         acceptable in place of VERSION, update to latest version
 **   --force-missing  force update if missing content after sync
+**   --no-symlinks    Disables support for symlinks, overriding
+**                    the "allow-symlinks" option.
 **   -n|--dry-run     If given, display instead of run actions
 **   -v|--verbose     print status information about all files
 **   -W|--width <num> Width of lines (default is to auto-detect). Must be >20

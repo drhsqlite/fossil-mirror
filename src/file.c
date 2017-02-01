@@ -1196,6 +1196,8 @@ int file_tree_name(
 **   --absolute           Return an absolute path instead of a relative one.
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is
 **                        a boolean: "yes", "no", "true", "false", etc.
+**   --no-symlinks        Disables support for symlinks, overriding
+**                        the "allow-symlinks" option.
 */
 void cmd_test_tree_name(void){
   int i;

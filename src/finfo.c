@@ -47,6 +47,8 @@
 **   -l|--log             select log mode (the default)
 **   -n|--limit N         Display the first N changes (default unlimited).
 **                        N<=0 means no limit.
+**   --no-symlinks        Disables support for symlinks, overriding
+**                        the "allow-symlinks" option.
 **   --offset P           skip P changes
 **   -p|--print           select print mode
 **   -r|--revision R      print the given revision (or ckout, if none is given)
