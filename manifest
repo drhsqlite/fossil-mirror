@@ -1,5 +1,5 @@
-C Rename\sand\srepurpose\s'--no-symlinks'\sinto\s'--no-dir-symlinks',\sto\sprevent\straversing\sinto\ssymlinked\sdirectories.\s\sMake\sthe\s'--verily'\soption\sto\s'clean'\simply\s'--no-dir-symlinks'.
-D 2017-02-01T04:40:22.793
+C Reverse\saccidental\swhitespace\schanges.
+D 2017-02-01T04:49:55.492
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -521,7 +521,7 @@ F src/translate.c 33b65539a12abd079a57972b78e0d532831cefd9
 F src/undo.c d3cca342dd73eaec65e352d978e8f7a9e75a5ddd
 F src/unicode.c 49d229135beb3cba5a58013dfda577fa51ab96ee
 F src/unversioned.c 8e5f76b5847295f84f0772937617cc945721a72f
-F src/update.c fa62875d80e95a910f7dcdb65f8b08e77b3e9c02
+F src/update.c 28ed8885896195a3f35e92e214563c0e5dc57f7d
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c 1d31844a9e48e2ab515586bf54ecc4b30b47d5b5
 F src/utf8.c 9f458b9698fc928cc21e375538f268651d1d22a2
@@ -783,7 +783,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P de053c778cb822713e06be897adabab13cf75dd5
-R 5a820ec9104d8d5329a33b25dac06cce
+P 66406ae9420bc0b378a87c8a0aea5b6618a46faa
+R 0eecbc3c5762a9e0f2d0fc1828db3276
 U mistachkin
-Z e786b6c4fadde5d92b4b99d5087dcf49
+Z 96b1796df995ed9acf8b36b436a3bace
