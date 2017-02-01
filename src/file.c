@@ -311,7 +311,7 @@ int file_wd_isdir(const char *zFilename){
     rc = 0; /* It does not exist at all. */
   }else if( S_ISDIR(fileStat.st_mode) ){
     rc = 1; /* It exists and is a real directory. */
-  }else if( S_ISLNK(fileStat.st_mode) ){
+  }else if( db_allow_symlinks() && S_ISLNK(fileStat.st_mode) ){
     Blob content;
     blob_read_link(&content, zFN); /* It exists and is a link. */
     rc = file_wd_isdir(blob_str(&content)); /* Points to directory? */
