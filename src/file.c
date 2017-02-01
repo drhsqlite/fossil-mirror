@@ -311,7 +311,7 @@ int file_wd_isdir(const char *zFilename){
     rc = 0; /* It does not exist at all. */
   }else if( S_ISDIR(fileStat.st_mode) ){
     rc = 1; /* It exists and is a real directory. */
-  }else if( db_allow_symlinks() && S_ISLNK(fileStat.st_mode) ){
+  }else if( !g.fNoDirSymlinks && S_ISLNK(fileStat.st_mode) ){
     Blob content;
     blob_read_link(&content, zFN); /* It exists and is a link. */
     rc = file_wd_isdir(blob_str(&content)); /* Points to directory? */
@@ -1196,8 +1196,7 @@ int file_tree_name(
 **   --absolute           Return an absolute path instead of a relative one.
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is
 **                        a boolean: "yes", "no", "true", "false", etc.
-**   --no-symlinks        Disables support for symlinks, overriding
-**                        the "allow-symlinks" option.
+**   --no-dir-symlinks    Disables support for directory symlinks.
 */
 void cmd_test_tree_name(void){
   int i;

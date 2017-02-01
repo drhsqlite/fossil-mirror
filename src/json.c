@@ -1265,6 +1265,7 @@ cson_value * json_g_to_json(){
   INT(g, repositoryOpen);
   INT(g, localOpen);
   INT(g, minPrefix);
+  INT(g, fNoDirSymlinks);
   INT(g, fSqlTrace);
   INT(g, fSqlStats);
   INT(g, fSqlPrint);
@@ -1296,7 +1297,6 @@ cson_value * json_g_to_json(){
   INT(g, isHome);
   INT(g, nAux);
   INT(g, allowSymlinks);
-  INT(g, fNoSymlinks);
 
   CSTR(g, zOpenRevision);
   CSTR(g, zLocalRoot);
