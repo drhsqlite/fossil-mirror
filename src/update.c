@@ -94,7 +94,7 @@ int update_to(int vid){
 **
 ** Options:
 **   --case-sensitive <BOOL> override case-sensitive setting
-**   --debug          Print debug information on stdout.
+**   --debug          print debug information on stdout
 **   --latest         acceptable in place of VERSION, update to latest version
 **   --force-missing  force update if missing content after sync
 **   --no-dir-symlinks Disables support for directory symlinks.
