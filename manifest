@@ -1,5 +1,5 @@
-C Changing\sthe\spassword\srequires\sa\s'real'\slogin.
-D 2017-01-28T19:48:13.686
+C On\sdiff/gdiff\scommand,\soverride\s"diff-binary"\ssetting\swhen\sargument\n"--diff-binary\soff"\scommand\sline\soption\sis\sspecified,\snot\sonly\swith\n"--diff-binary\son".
+D 2017-02-03T15:13:41.574
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -419,7 +419,7 @@ F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
 F src/diff.c 4019cd9a2c6cc4c63f327a214f7bce10b55d95d9
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
-F src/diffcmd.c 0725db4249cddaa2da5dedea66c985adc47b05b2
+F src/diffcmd.c 1d392a936c21ae03aa8e69cf7fcf473a2e6cbc81
 F src/dispatch.c 4e634c0cf22b7dd63501a4dc0aa6375cf4151343
 F src/doc.c bae142c1df13fbaba1af814e0ee398670d366547
 F src/encode.c edb12a68c5831e5331eaad3796c492059edb10fb
@@ -783,7 +783,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 042d6a7b98170df13b20d1c7136e7635acce5fb4
-R 5a40d568803b711044da46a86afbd8a2
-U mistachkin
-Z 1300c6f89ae3ecd39bc6f82d84494fed
+P 8b562b90c05a0c337be2283fc4e9fb3cb5da60d4
+R 3821cf1fec25814ea260b4c07688f835
+U mgagnon
+Z 71b0b19cb8d55650400dcb6fd0cc90c4
