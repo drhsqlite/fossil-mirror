@@ -1425,7 +1425,7 @@ const char *db_repository_filename(void){
 
 /*
 ** Returns non-zero if the default value for the "allow-symlinks" setting
-** is "on".
+** is "on".  When on Windows, this always returns false.
 */
 int db_allow_symlinks_by_default(void){
 #if defined(_WIN32)
@@ -1433,6 +1433,13 @@ int db_allow_symlinks_by_default(void){
 #else
   return 1;
 #endif
+}
+
+/*
+** Returns non-zero if support for symlinks is currently enabled.
+*/
+int db_allow_symlinks(void){
+  return g.allowSymlinks;
 }
 
 /*

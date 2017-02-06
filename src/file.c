@@ -91,7 +91,7 @@ static int fossil_stat(const char *zFilename, struct fossilStat *buf, int isWd){
   int rc;
   void *zMbcs = fossil_utf8_to_path(zFilename, 0);
 #if !defined(_WIN32)
-  if( isWd && g.allowSymlinks ){
+  if( isWd && db_allow_symlinks() ){
     rc = lstat(zMbcs, buf);
   }else{
     rc = stat(zMbcs, buf);
@@ -193,7 +193,7 @@ int file_wd_isfile(const char *zFilename){
 **/
 void symlink_create(const char *zTargetFile, const char *zLinkFile){
 #if !defined(_WIN32)
-  if( g.allowSymlinks ){
+  if( db_allow_symlinks() ){
     int i, nName;
     char *zName, zBuf[1000];
 
@@ -250,7 +250,7 @@ int file_wd_perm(const char *zFilename){
   if( !getStat(zFilename, 1) ){
      if( S_ISREG(fileStat.st_mode) && ((S_IXUSR)&fileStat.st_mode)!=0 )
       return PERM_EXE;
-    else if( g.allowSymlinks && S_ISLNK(fileStat.st_mode) )
+    else if( db_allow_symlinks() && S_ISLNK(fileStat.st_mode) )
       return PERM_LNK;
   }
 #endif
@@ -311,7 +311,7 @@ int file_wd_isdir(const char *zFilename){
     rc = 0; /* It does not exist at all. */
   }else if( S_ISDIR(fileStat.st_mode) ){
     rc = 1; /* It exists and is a real directory. */
-  }else if( S_ISLNK(fileStat.st_mode) ){
+  }else if( !g.fNoDirSymlinks && S_ISLNK(fileStat.st_mode) ){
     Blob content;
     blob_read_link(&content, zFN); /* It exists and is a link. */
     rc = file_wd_isdir(blob_str(&content)); /* Points to directory? */
@@ -1196,6 +1196,7 @@ int file_tree_name(
 **   --absolute           Return an absolute path instead of a relative one.
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is
 **                        a boolean: "yes", "no", "true", "false", etc.
+**   --no-dir-symlinks    Disables support for directory symlinks.
 */
 void cmd_test_tree_name(void){
   int i;

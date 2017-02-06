@@ -137,6 +137,7 @@ struct Global {
   int localOpen;          /* True if the local database is open */
   char *zLocalRoot;       /* The directory holding the  local database */
   int minPrefix;          /* Number of digits needed for a distinct UUID */
+  int fNoDirSymlinks;     /* True if --no-dir-symlinks flag is present */
   int fSqlTrace;          /* True if --sqltrace flag is present */
   int fSqlStats;          /* True if --sqltrace or --sqlstats are present */
   int fSqlPrint;          /* True if -sqlprint flag is present */
@@ -615,6 +616,7 @@ int main(int argc, char **argv)
     const char *zChdir = find_option("chdir",0,1);
     g.isHTTP = 0;
     g.rcvid = 0;
+    g.fNoDirSymlinks = find_option("no-dir-symlinks", 0, 0)!=0;
     g.fQuiet = find_option("quiet", 0, 0)!=0;
     g.fSqlTrace = find_option("sqltrace", 0, 0)!=0;
     g.fSqlStats = find_option("sqlstats", 0, 0)!=0;
