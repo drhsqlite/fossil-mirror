@@ -137,10 +137,12 @@ struct Global {
   int localOpen;          /* True if the local database is open */
   char *zLocalRoot;       /* The directory holding the  local database */
   int minPrefix;          /* Number of digits needed for a distinct UUID */
+  int fNoDirSymlinks;     /* True if --no-dir-symlinks flag is present */
   int fSqlTrace;          /* True if --sqltrace flag is present */
   int fSqlStats;          /* True if --sqltrace or --sqlstats are present */
   int fSqlPrint;          /* True if -sqlprint flag is present */
   int fQuiet;             /* True if -quiet flag is present */
+  int fJail;              /* True if running with a chroot jail */
   int fHttpTrace;         /* Trace outbound HTTP requests */
   int fAnyTrace;          /* Any kind of tracing */
   char *zHttpAuth;        /* HTTP Authorization user:pass information */
@@ -614,6 +616,7 @@ int main(int argc, char **argv)
     const char *zChdir = find_option("chdir",0,1);
     g.isHTTP = 0;
     g.rcvid = 0;
+    g.fNoDirSymlinks = find_option("no-dir-symlinks", 0, 0)!=0;
     g.fQuiet = find_option("quiet", 0, 0)!=0;
     g.fSqlTrace = find_option("sqltrace", 0, 0)!=0;
     g.fSqlStats = find_option("sqlstats", 0, 0)!=0;
@@ -917,13 +920,12 @@ static void get_version_blob(
   int rc;
   const char *zRc;
 #endif
+  Stmt q;
   blob_zero(pOut);
   blob_appendf(pOut, "This is fossil version %s\n", get_version());
   if( !bVerbose ) return;
   blob_appendf(pOut, "Compiled on %s %s using %s (%d-bit)\n",
                __DATE__, __TIME__, COMPILER_NAME, sizeof(void*)*8);
-  blob_appendf(pOut, "SQLite %s %.30s\n", sqlite3_libversion(),
-               sqlite3_sourceid());
   blob_appendf(pOut, "Schema version %s\n", AUX_SCHEMA_MAX);
 #if defined(FOSSIL_ENABLE_MINIZ)
   blob_appendf(pOut, "miniz %s, loaded %s\n", MZ_VERSION, mz_version());
@@ -933,17 +935,27 @@ static void get_version_blob(
 #if defined(FOSSIL_ENABLE_SSL)
   blob_appendf(pOut, "SSL (%s)\n", SSLeay_version(SSLEAY_VERSION));
 #endif
+#if defined(FOSSIL_HAVE_FUSEFS)
+  blob_appendf(pOut, "libfuse %s, loaded %s\n", fusefs_inc_version(),
+               fusefs_lib_version());
+#endif
+#if defined(FOSSIL_DEBUG)
+  blob_append(pOut, "FOSSIL_DEBUG\n", -1);
+#endif
+#if defined(FOSSIL_OMIT_DELTA_CKSUM_TEST)
+  blob_append(pOut, "FOSSIL_OMIT_DELTA_CKSUM_TEST\n", -1);
+#endif
 #if defined(FOSSIL_ENABLE_LEGACY_MV_RM)
-  blob_append(pOut, "LEGACY_MV_RM\n", -1);
+  blob_append(pOut, "FOSSIL_ENABLE_LEGACY_MV_RM\n", -1);
 #endif
 #if defined(FOSSIL_ENABLE_EXEC_REL_PATHS)
-  blob_append(pOut, "EXEC_REL_PATHS\n", -1);
+  blob_append(pOut, "FOSSIL_ENABLE_EXEC_REL_PATHS\n", -1);
 #endif
 #if defined(FOSSIL_ENABLE_TH1_DOCS)
-  blob_append(pOut, "TH1_DOCS\n", -1);
+  blob_append(pOut, "FOSSIL_ENABLE_TH1_DOCS\n", -1);
 #endif
 #if defined(FOSSIL_ENABLE_TH1_HOOKS)
-  blob_append(pOut, "TH1_HOOKS\n", -1);
+  blob_append(pOut, "FOSSIL_ENABLE_TH1_HOOKS\n", -1);
 #endif
 #if defined(FOSSIL_ENABLE_TCL)
   Th_FossilInit(TH_INIT_DEFAULT | TH_INIT_FORCE_TCL);
@@ -957,10 +969,10 @@ static void get_version_blob(
   blob_append(pOut, "USE_TCL_STUBS\n", -1);
 #endif
 #if defined(FOSSIL_ENABLE_TCL_STUBS)
-  blob_append(pOut, "TCL_STUBS\n", -1);
+  blob_append(pOut, "FOSSIL_TCL_STUBS\n", -1);
 #endif
 #if defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS)
-  blob_append(pOut, "TCL_PRIVATE_STUBS\n", -1);
+  blob_append(pOut, "FOSSIL_ENABLE_TCL_PRIVATE_STUBS\n", -1);
 #endif
 #if defined(FOSSIL_ENABLE_JSON)
   blob_appendf(pOut, "JSON (API %s)\n", FOSSIL_JSON_API_VERSION);
@@ -971,13 +983,28 @@ static void get_version_blob(
   blob_append(pOut, "UNICODE_COMMAND_LINE\n", -1);
 #endif
 #if defined(FOSSIL_DYNAMIC_BUILD)
-  blob_append(pOut, "DYNAMIC_BUILD\n", -1);
+  blob_append(pOut, "FOSSIL_DYNAMIC_BUILD\n", -1);
 #else
-  blob_append(pOut, "STATIC_BUILD\n", -1);
+  blob_append(pOut, "FOSSIL_STATIC_BUILD\n", -1);
 #endif
 #if defined(USE_SEE)
   blob_append(pOut, "USE_SEE\n", -1);
 #endif
+#if defined(FOSSIL_ALLOW_OUT_OF_ORDER_DATES)
+  blob_append(pOut, "FOSSIL_ALLOW_OUT_OF_ORDER_DATES\n");
+#endif
+  blob_appendf(pOut, "SQLite %s %.30s\n", sqlite3_libversion(),
+               sqlite3_sourceid());
+  if( g.db==0 ) sqlite3_open(":memory:", &g.db);
+  db_prepare(&q,
+     "pragma compile_options");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *text = db_column_text(&q, 0);
+    if( strncmp(text, "COMPILER", 8) ){
+      blob_appendf(pOut, "SQLITE_%s\n", text);
+    }
+  }
+  db_finalize(&q);
 }
 
 /*
@@ -1013,13 +1040,13 @@ void version_cmd(void){
 
 
 /*
-** WEBPAGE: test-version
+** WEBPAGE: version
 **
 ** Show the version information for Fossil.
 **
 ** Query parameters:
 **
-**    verbose       Show all available details.
+**    verbose       Show details
 */
 void test_version_page(void){
   Blob versionInfo;
@@ -1027,12 +1054,13 @@ void test_version_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  verboseFlag = P("verbose")!=0;
+  verboseFlag = atoi(PD("verbose","0"));
   style_header("Version Information");
+  style_submenu_element("Stat", "stat");
   get_version_blob(&versionInfo, verboseFlag);
-  @ <blockquote><pre>
+  @ <pre>
   @ %h(blob_str(&versionInfo))
-  @ </pre></blockquote>
+  @ </pre>
   style_footer();
 }
 
@@ -1150,6 +1178,7 @@ static char *enter_chroot_jail(char *zRepo, int noJail){
         if( file_chdir(zDir, 1) ){
           fossil_fatal("unable to chroot into %s", zDir);
         }
+        g.fJail = 1;
         zRepo = "/";
       }else{
         for(i=strlen(zDir)-1; i>0 && zDir[i]!='/'; i--){}
@@ -1184,43 +1213,91 @@ static char *enter_chroot_jail(char *zRepo, int noJail){
 ** Generate a web-page that lists all repositories located under the
 ** g.zRepositoryName directory and return non-zero.
 **
+** For the special case when g.zRepositoryName a non-chroot-jail "/",
+** compose the list using the "repo:" entries in the global_config
+** table of the configuration database.  These entries comprise all
+** of the repositories known to the "all" command.  The special case
+** processing is disallowed for chroot jails because g.zRepositoryName
+** is always "/" inside a chroot jail and so it cannot be used as a flag
+** to signal the special processing in that case.  The special case
+** processing is intended for the "fossil all ui" command which never
+** runs in a chroot jail anyhow.
+**
 ** Or, if no repositories can be located beneath g.zRepositoryName,
 ** return 0.
 */
 static int repo_list_page(void){
   Blob base;
   int n = 0;
+  int allRepo;
 
   assert( g.db==0 );
-  blob_init(&base, g.zRepositoryName, -1);
-  sqlite3_open(":memory:", &g.db);
-  db_multi_exec("CREATE TABLE sfile(pathname TEXT);");
-  db_multi_exec("CREATE TABLE vfile(pathname);");
-  vfile_scan(&base, blob_size(&base), 0, 0, 0);
-  db_multi_exec("DELETE FROM sfile WHERE pathname NOT GLOB '*[^/].fossil'");
+  if( fossil_strcmp(g.zRepositoryName,"/")==0 && !g.fJail ){
+    /* For the special case of the "repository directory" being "/",
+    ** show all of the repositories named in the ~/.fossil database.
+    **
+    ** On unix systems, then entries are of the form "repo:/home/..."
+    ** and on Windows systems they are like on unix, starting with a "/"
+    ** or they can begin with a drive letter: "repo:C:/Users/...".  In either
+    ** case, we want returned path to omit any initial "/".
+    */
+    db_open_config(1, 0);
+    db_multi_exec(
+       "CREATE TEMP VIEW sfile AS"
+       "  SELECT ltrim(substr(name,6),'/') AS 'pathname' FROM global_config"
+       "   WHERE name GLOB 'repo:*'"
+    );
+    allRepo = 1;
+  }else{
+    /* The default case:  All repositories under the g.zRepositoryName
+    ** directory.
+    */
+    blob_init(&base, g.zRepositoryName, -1);
+    sqlite3_open(":memory:", &g.db);
+    db_multi_exec("CREATE TABLE sfile(pathname TEXT);");
+    db_multi_exec("CREATE TABLE vfile(pathname);");
+    vfile_scan(&base, blob_size(&base), 0, 0, 0);
+    db_multi_exec("DELETE FROM sfile WHERE pathname NOT GLOB '*[^/].fossil'");
+    allRepo = 0;
+  }
+  @ <html>
+  @ <head>
+  @ <base href="%s(g.zBaseURL)/" />
+  @ <title>Repository List</title>
+  @ </head>
+  @ <body>
   n = db_int(0, "SELECT count(*) FROM sfile");
   if( n>0 ){
     Stmt q;
-    @ <html>
-    @ <head>
-    @ <base href="%s(g.zBaseURL)/" />
-    @ <title>Repository List</title>
-    @ </head>
-    @ <body>
     @ <h1>Available Repositories:</h1>
     @ <ol>
-    db_prepare(&q, "SELECT pathname, substr(pathname,-7,-100000)||'/home'"
+    db_prepare(&q, "SELECT pathname"
                    " FROM sfile ORDER BY pathname COLLATE nocase;");
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
-      const char *zUrl = db_column_text(&q, 1);
-      @ <li><a href="%R/%h(zUrl)" target="_blank">%h(zName)</a></li>
+      int nName = (int)strlen(zName);
+      char *zUrl;
+      if( nName<7 ) continue;
+      zUrl = sqlite3_mprintf("%.*s", nName-7, zName);
+      if( sqlite3_strglob("*.fossil", zName)!=0 ){
+        /* The "fossil server DIRECTORY" and "fossil ui DIRECTORY" commands
+        ** do not work for repositories whose names do not end in ".fossil".
+        ** So do not hyperlink those cases. */
+        @ <li>%h(zName)</li>
+      } else if( allRepo && sqlite3_strglob("[a-zA-Z]:/?*", zName)!=0 ){
+        @ <li><a href="%R/%T(zUrl)/home" target="_blank">/%h(zName)</a></li>
+      }else{
+        @ <li><a href="%R/%T(zUrl)/home" target="_blank">%h(zName)</a></li>
+      }
+      sqlite3_free(zUrl);
     }
     @ </ol>
-    @ </body>
-    @ </html>
-    cgi_reply();
+  }else{
+    @ <h1>No Repositories Found</h1>
   }
+  @ </body>
+  @ </html>
+  cgi_reply();
   sqlite3_close(g.db);
   g.db = 0;
   return n;
@@ -1253,11 +1330,11 @@ static void process_one_web_page(
   Glob *pFileGlob,            /* Deliver static files matching */
   int allowRepoList           /* Send repo list for "/" URL */
 ){
-  const char *zPathInfo;
-  const char *zDirPathInfo;
+  const char *zPathInfo = PD("PATH_INFO", "");
   char *zPath = NULL;
   int i;
   const CmdOrPage *pCmd = 0;
+  const char *zBase = g.zRepositoryName;
 
   /* Handle universal query parameters */
   if( PB("utc") ){
@@ -1269,78 +1346,123 @@ static void process_one_web_page(
   /* If the repository has not been opened already, then find the
   ** repository based on the first element of PATH_INFO and open it.
   */
-  zDirPathInfo = zPathInfo = PD("PATH_INFO","");
-  /* For the PATH_INFO that will be used to help build the final
-  ** g.zBaseURL and g.zTop (only), skip over the initial directory
-  ** portion of PATH_INFO; otherwise, it may be duplicated.
-  */
-  if( g.zTop ){
-    int nTop = strlen(g.zTop);
-    if ( strncmp(zDirPathInfo, g.zTop, nTop)==0 ){
-      zDirPathInfo += nTop;
-    }
-  }
   if( !g.repositoryOpen ){
-    char *zRepo, *zToFree;
-    const char *zOldScript = PD("SCRIPT_NAME", "");
-    char *zNewScript;
-    int j, k;
-    i64 szFile;
+    char *zRepo;               /* Candidate repository name */
+    char *zToFree = 0;         /* Malloced memory that needs to be freed */
+    const char *zCleanRepo;    /* zRepo with surplus leading "/" removed */
+    const char *zOldScript = PD("SCRIPT_NAME", "");  /* Original SCRIPT_NAME */
+    char *zNewScript;          /* Revised SCRIPT_NAME after processing */
+    int j, k;                  /* Loop variables */
+    i64 szFile;                /* File size of the candidate repository */
 
     i = zPathInfo[0]!=0;
+    if( fossil_strcmp(g.zRepositoryName, "/")==0 ){
+      zBase++;
+#if defined(_WIN32) || defined(__CYGWIN__)
+      if( sqlite3_strglob("/[a-zA-Z]:/*", zPathInfo)==0 ) i = 4;
+#endif
+    }
     while( 1 ){
       while( zPathInfo[i] && zPathInfo[i]!='/' ){ i++; }
-      zRepo = zToFree = mprintf("%s%.*s.fossil",g.zRepositoryName,i,zPathInfo);
 
-      /* To avoid mischief, make sure the repository basename contains no
+      /* The candidate repository name is some prefix of the PATH_INFO
+      ** with ".fossil" appended */
+      zRepo = zToFree = mprintf("%s%.*s.fossil",zBase,i,zPathInfo);
+      if( g.fHttpTrace ){
+        @ <!-- Looking for repository named "%h(zRepo)" -->
+        fprintf(stderr, "# looking for repository named \"%s\"\n", zRepo);
+      }
+
+
+      /* For safety -- to prevent an attacker from accessing arbitrary disk
+      ** files by sending a maliciously crafted request URI to a public
+      ** server -- make sure the repository basename contains no
       ** characters other than alphanumerics, "/", "_", "-", and ".", and
       ** that "-" never occurs immediately after a "/" and that "." is always
       ** surrounded by two alphanumerics.  Any character that does not
       ** satisfy these constraints is converted into "_".
       */
       szFile = 0;
-      for(j=strlen(g.zRepositoryName)+1, k=0; zRepo[j] && k<i-1; j++, k++){
+      for(j=strlen(zBase)+1, k=0; zRepo[j] && k<i-1; j++, k++){
         char c = zRepo[j];
         if( fossil_isalnum(c) ) continue;
+#if defined(_WIN32) || defined(__CYGWIN__)
+        /* Allow names to begin with "/X:/" on windows */
+        if( c==':' && j==2 && sqlite3_strglob("/[a-zA-Z]:/*", zRepo)==0 ){
+          continue;
+        }
+#endif
         if( c=='/' ) continue;
         if( c=='_' ) continue;
         if( c=='-' && zRepo[j-1]!='/' ) continue;
         if( c=='.' && fossil_isalnum(zRepo[j-1]) && fossil_isalnum(zRepo[j+1])){
           continue;
         }
+        /* If we reach this point, it means that the request URI contains
+        ** an illegal character or character combination.  Provoke a
+        ** "Not Found" error. */
         szFile = 1;
+        if( g.fHttpTrace ){
+          @ <!-- Unsafe pathname rejected: "%h(zRepo)" -->
+          fprintf(stderr, "# unsafe pathname rejected: %s\n", zRepo);
+        }
         break;
       }
+
+      /* Check to see if a file name zRepo exists.  If a file named zRepo
+      ** does not exist, szFile will become -1.  If the file does exist,
+      ** then szFile will become zero (for an empty file) or positive.
+      ** Special case:  Assume any file with a basename of ".fossil" does
+      ** not exist.
+      */
+      zCleanRepo = file_cleanup_fullpath(zRepo);
       if( szFile==0 && sqlite3_strglob("*/.fossil",zRepo)!=0 ){
-        if( zRepo[0]=='/' && zRepo[1]=='/' ){ zRepo++; j--; }
-        szFile = file_size(zRepo);
-        /* this should only be set from the --baseurl option, not CGI  */
-        if( g.zBaseURL && g.zBaseURL[0]!=0 && g.zTop && g.zTop[0]!=0 &&
-            file_isdir(g.zRepositoryName)==1 ){
-          if( zPathInfo==zDirPathInfo ){
-            g.zBaseURL = mprintf("%s%.*s", g.zBaseURL, i, zPathInfo);
-            g.zTop = mprintf("%s%.*s", g.zTop, i, zPathInfo);
-          }
+        szFile = file_size(zCleanRepo);
+        if( g.fHttpTrace ){
+          char zBuf[24];
+          sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", szFile);
+          @ <!-- file_size(%h(zCleanRepo)) is %s(zBuf) -->
+          fprintf(stderr, "# file_size(%s) = %s\n", zCleanRepo, zBuf);
         }
       }
+
+      /* If no file named by zRepo exists, remove the added ".fossil" suffix
+      ** and check to see if there is a file or directory with the same
+      ** name as the raw PATH_INFO text.
+      */
       if( szFile<0 && i>0 ){
         const char *zMimetype;
         assert( fossil_strcmp(&zRepo[j], ".fossil")==0 );
-        zRepo[j] = 0;
-        if( zPathInfo[i]=='/' && file_isdir(zRepo)==1 ){
+        zRepo[j] = 0;  /* Remove the ".fossil" suffix */
+
+        /* The PATH_INFO prefix seen so far is a valid directory.
+        ** Continue the loop with the next element of the PATH_INFO */
+        if( zPathInfo[i]=='/' && file_isdir(zCleanRepo)==1 ){
           fossil_free(zToFree);
           i++;
           continue;
         }
+
+        /* If zRepo is the name of an ordinary file that matches the
+        ** "--file GLOB" pattern, then the CGI reply is the text of
+        ** of the file.
+        **
+        ** For safety, do not allow any file whose name contains ".fossil"
+        ** to be returned this way, to prevent complete repositories from
+        ** being delivered accidently.  This is not intended to be a
+        ** general-purpose web server.  The "--file GLOB" mechanism is
+        ** designed to allow the delivery of a few static images or HTML
+        ** pages.
+        */
         if( pFileGlob!=0
-         && file_isfile(zRepo)
-         && glob_match(pFileGlob, zRepo)
+         && file_isfile(zCleanRepo)
+         && glob_match(pFileGlob, file_cleanup_fullpath(zRepo))
          && sqlite3_strglob("*.fossil*",zRepo)!=0
          && (zMimetype = mimetype_from_name(zRepo))!=0
          && strcmp(zMimetype, "application/x-fossil-artifact")!=0
         ){
           Blob content;
-          blob_read_from_file(&content, zRepo);
+          blob_read_from_file(&content, file_cleanup_fullpath(zRepo));
           cgi_set_content_type(zMimetype);
           cgi_set_content(&content);
           cgi_reply();
@@ -1349,6 +1471,11 @@ static void process_one_web_page(
         zRepo[j] = '.';
       }
 
+      /* If we reach this point, it means that the search of the PATH_INFO
+      ** string is finished.  Either zRepo contains the name of the
+      ** repository to be used, or else no repository could be found an
+      ** some kind of error response is required.
+      */
       if( szFile<1024 ){
         set_base_url(0);
         if( strcmp(zPathInfo,"/")==0
@@ -1372,30 +1499,55 @@ static void process_one_web_page(
       }
       break;
     }
+
+    /* Add the repository name (without the ".fossil" suffix) to the end
+    ** of SCRIPT_NAME and g.zTop and g.zBaseURL and remove the repository
+    ** name from the beginning of PATH_INFO.
+    */
     zNewScript = mprintf("%s%.*s", zOldScript, i, zPathInfo);
+    if( g.zTop ) g.zTop = mprintf("%s%.*s", g.zTop, i, zPathInfo);
+    if( g.zBaseURL ) g.zBaseURL = mprintf("%s%.*s", g.zBaseURL, i, zPathInfo);
     cgi_replace_parameter("PATH_INFO", &zPathInfo[i+1]);
     zPathInfo += i;
     cgi_replace_parameter("SCRIPT_NAME", zNewScript);
-    db_open_repository(zRepo);
+    db_open_repository(file_cleanup_fullpath(zRepo));
     if( g.fHttpTrace ){
+      @ <!-- repository: "%h(zRepo)" -->
+      @ <!-- translated PATH_INFO: "%h(zPathInfo)" -->
+      @ <!-- translated SCRIPT_NAME: "%h(zNewScript)" -->
       fprintf(stderr,
           "# repository: [%s]\n"
-          "# new PATH_INFO = [%s]\n"
-          "# new SCRIPT_NAME = [%s]\n",
+          "# translated PATH_INFO = [%s]\n"
+          "# translated SCRIPT_NAME = [%s]\n",
           zRepo, zPathInfo, zNewScript);
+      if( g.zTop ){
+        @ <!-- translated g.zTop: "%h(g.zTop)" -->
+        fprintf(stderr, "# translated g.zTop = [%s]\n", g.zTop);
+      }
+      if( g.zBaseURL ){
+        @ <!-- translated g.zBaseURL: "%h(g.zBaseURL)" -->
+        fprintf(stderr, "# translated g.zBaseURL = [%s]\n", g.zBaseURL);
+      }
     }
   }
 
-  /* Find the page that the user has requested, construct and deliver that
-  ** page.
+  /* At this point, the appropriate repository database file will have
+  ** been opened.  Use the first element of PATH_INFO as the page name
+  ** and deliver the appropriate page back to the user.
   */
   if( g.zContentType &&
       strncmp(g.zContentType, "application/x-fossil", 20)==0 ){
+    /* Special case:  If the content mimetype shows that it is "fossil sync"
+    ** payload, then pretend that the PATH_INFO is /xfer so that we always
+    ** invoke the sync page. */
     zPathInfo = "/xfer";
   }
   set_base_url(0);
   if( zPathInfo==0 || zPathInfo[0]==0
       || (zPathInfo[0]=='/' && zPathInfo[1]==0) ){
+    /* Second special case: If the PATH_INFO is blank, issue a redirect to
+    ** the home page identified by the "index-page" setting in the repository
+    ** CONFIG table, to "/index" if there no "index-page" setting. */
 #ifdef FOSSIL_ENABLE_JSON
     if(g.json.isJsonMode){
       json_err(FSL_JSON_E_RESOURCE_NOT_FOUND,NULL,1);
@@ -1416,52 +1568,6 @@ static void process_one_web_page(
     if( zPath[i]=='/' ){
       zPath[i] = 0;
       g.zExtra = &zPath[i+1];
-
-#ifdef FOSSIL_ENABLE_SUBREPOSITORY
-      char *zAltRepo = 0;
-      /* 2016-09-21: Subrepos are undocumented and apparently no longer work.
-      ** So they are now removed unless the -DFOSSIL_ENABLE_SUBREPOSITORY
-      ** compile-time option is used.  If there are no complaints after
-      ** a while, we can delete the code entirely.
-      */
-      /* Look for sub-repositories.  A sub-repository is another repository
-      ** that accepts the login credentials of the current repository.  A
-      ** subrepository is identified by a CONFIG table entry "subrepo:NAME"
-      ** where NAME is the first component of the path.  The value of the
-      ** the CONFIG entries is the string "USER:FILENAME" where USER is the
-      ** USER name to log in as in the subrepository and FILENAME is the
-      ** repository filename.
-      */
-      zAltRepo = db_text(0, "SELECT value FROM config WHERE name='subrepo:%q'",
-                         g.zPath);
-      if( zAltRepo ){
-        int nHost;
-        int jj;
-        char *zUser = zAltRepo;
-        login_check_credentials();
-        for(jj=0; zAltRepo[jj] && zAltRepo[jj]!=':'; jj++){}
-        if( zAltRepo[jj]==':' ){
-          zAltRepo[jj] = 0;
-          zAltRepo += jj+1;
-        }else{
-          zUser = "nobody";
-        }
-        if( g.zLogin==0 || g.zLogin[0]==0 ) zUser = "nobody";
-        if( zAltRepo[0]!='/' ){
-          zAltRepo = mprintf("%s/../%s", g.zRepositoryName, zAltRepo);
-          file_simplify_name(zAltRepo, -1, 0);
-        }
-        db_close(1);
-        db_open_repository(zAltRepo);
-        login_as_user(zUser);
-        g.perm.Password = 0;
-        zPath += i;
-        nHost = g.zTop - g.zBaseURL;
-        g.zBaseURL = mprintf("%z/%s", g.zBaseURL, g.zPath);
-        g.zTop = g.zBaseURL + nHost;
-        continue;
-      }
-#endif /* FOSSIL_ENABLE_SUBREPOSITORY */
     }else{
       g.zExtra = 0;
     }
@@ -1618,7 +1724,7 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
       }
       db_open_repository(azRedirect[i*2]);
       if( db_exists("SELECT 1 FROM blob WHERE uuid GLOB '%q*'", zName) ||
-	  db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%q*'", zName) ){
+          db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%q*'", zName) ){
         cgi_redirectf(azRedirect[i*2+1] /*works-like:"%s"*/, zName);
         return;
       }
@@ -2205,6 +2311,11 @@ static int binaryOnPath(const char *zBinary){
 ** the REPOSITORY can only be a directory if the --notfound option is
 ** also present.
 **
+** For the special case REPOSITORY name of "/", the list global configuration
+** database is consulted for a list of all known repositories.  The --repolist
+** option is implied by this special case.  See also the "fossil all ui"
+** command.
+**
 ** By default, the "ui" command provides full administrative access without
 ** having to log in.  This can be disabled by turning off the "localauth"
 ** setting.  Automatic login for the "server" command is available if the
@@ -2378,7 +2489,11 @@ void cmd_webserver(void){
   }
   g.cgiOutput = 1;
   find_server_repository(2, 0);
-  g.zRepositoryName = enter_chroot_jail(g.zRepositoryName, noJail);
+  if( fossil_strcmp(g.zRepositoryName,"/")==0 ){
+    allowRepoList = 1;
+  }else{
+    g.zRepositoryName = enter_chroot_jail(g.zRepositoryName, noJail);
+  }
   if( flags & HTTP_SERVER_SCGI ){
     cgi_handle_scgi_request();
   }else{

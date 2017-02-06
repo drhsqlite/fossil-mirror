@@ -131,8 +131,8 @@ char *extract_integer(const char *zOrig){
 
 /*
 ** Remove blank lines from the beginning of a string and
-** all whitespace from the end. Removes whitespace preceding a NL,
-** which also converts any CRNL sequence into a single NL.
+** all whitespace from the end. Removes whitespace preceding a LF,
+** which also converts any CRLF sequence into a single LF.
 */
 char *remove_blank_lines(const char *zOrig){
   int i, j, n;
@@ -918,7 +918,7 @@ static int db_exec_readonly(
   for(i=1; i<=nVar; i++){
     const char *zVar = sqlite3_bind_parameter_name(pStmt, i);
     if( zVar==0 ) continue;
-    if( zVar[0]!='$' && zVar[0]!='$' && zVar[0]!=':' ) continue;
+    if( zVar[0]!='$' && zVar[0]!='@' && zVar[0]!=':' ) continue;
     if( !fossil_islower(zVar[1]) ) continue;
     if( strcmp(zVar, "$login")==0 ){
       sqlite3_bind_text(pStmt, i, g.zLogin, -1, SQLITE_TRANSIENT);

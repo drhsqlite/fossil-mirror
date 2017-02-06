@@ -214,6 +214,9 @@ version control<br>such as Git, Mercurial, or Subversion.</b></p>
           have X as their primary parent.
       <li><p>A check-in node with no direct children is sometimes called
           a "leaf".
+      <li><p>The "merge" command changes only the check-out.
+          The "commit" command must be run subsequently to make the merge
+          a permanent part of project.
       </ul>
   <li><p>Definition: <b>branch</b> &rarr;
       a sequence of check-ins that are all linked

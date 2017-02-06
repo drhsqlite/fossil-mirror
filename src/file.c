@@ -91,7 +91,7 @@ static int fossil_stat(const char *zFilename, struct fossilStat *buf, int isWd){
   int rc;
   void *zMbcs = fossil_utf8_to_path(zFilename, 0);
 #if !defined(_WIN32)
-  if( isWd && g.allowSymlinks ){
+  if( isWd && db_allow_symlinks() ){
     rc = lstat(zMbcs, buf);
   }else{
     rc = stat(zMbcs, buf);
@@ -193,7 +193,7 @@ int file_wd_isfile(const char *zFilename){
 **/
 void symlink_create(const char *zTargetFile, const char *zLinkFile){
 #if !defined(_WIN32)
-  if( g.allowSymlinks ){
+  if( db_allow_symlinks() ){
     int i, nName;
     char *zName, zBuf[1000];
 
@@ -250,7 +250,7 @@ int file_wd_perm(const char *zFilename){
   if( !getStat(zFilename, 1) ){
      if( S_ISREG(fileStat.st_mode) && ((S_IXUSR)&fileStat.st_mode)!=0 )
       return PERM_EXE;
-    else if( g.allowSymlinks && S_ISLNK(fileStat.st_mode) )
+    else if( db_allow_symlinks() && S_ISLNK(fileStat.st_mode) )
       return PERM_LNK;
   }
 #endif
@@ -311,7 +311,7 @@ int file_wd_isdir(const char *zFilename){
     rc = 0; /* It does not exist at all. */
   }else if( S_ISDIR(fileStat.st_mode) ){
     rc = 1; /* It exists and is a real directory. */
-  }else if( S_ISLNK(fileStat.st_mode) ){
+  }else if( !g.fNoDirSymlinks && S_ISLNK(fileStat.st_mode) ){
     Blob content;
     blob_read_link(&content, zFN); /* It exists and is a link. */
     rc = file_wd_isdir(blob_str(&content)); /* Points to directory? */
@@ -1196,6 +1196,7 @@ int file_tree_name(
 **   --absolute           Return an absolute path instead of a relative one.
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is
 **                        a boolean: "yes", "no", "true", "false", etc.
+**   --no-dir-symlinks    Disables support for directory symlinks.
 */
 void cmd_test_tree_name(void){
   int i;
@@ -1253,9 +1254,9 @@ void file_parse_uri(
 }
 
 /*
-** Construct a random temporary filename into zBuf[].
+** Construct a random temporary filename into pBuf starting with zPrefix.
 */
-void file_tempname(int nBuf, char *zBuf){
+void file_tempname(Blob *pBuf, const char *zPrefix){
 #if defined(_WIN32)
   const char *azDirs[] = {
      0, /* GetTempPath */
@@ -1276,9 +1277,10 @@ void file_tempname(int nBuf, char *zBuf){
     "abcdefghijklmnopqrstuvwxyz"
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "0123456789";
-  unsigned int i, j;
+  unsigned int i;
   const char *zDir = ".";
   int cnt = 0;
+  char zRand[16];
 
 #if defined(_WIN32)
   wchar_t zTmpPath[MAX_PATH];
@@ -1299,23 +1301,16 @@ void file_tempname(int nBuf, char *zBuf){
     break;
   }
 
-  /* Check that the output buffer is large enough for the temporary file
-  ** name. If it is not, return SQLITE_ERROR.
-  */
-  if( (strlen(zDir) + 17) >= (size_t)nBuf ){
-    fossil_fatal("insufficient space for temporary filename");
-  }
-
   do{
+    blob_zero(pBuf);
     if( cnt++>20 ) fossil_panic("cannot generate a temporary filename");
-    sqlite3_snprintf(nBuf-17, zBuf, "%s/", zDir);
-    j = (int)strlen(zBuf);
-    sqlite3_randomness(15, &zBuf[j]);
-    for(i=0; i<15; i++, j++){
-      zBuf[j] = (char)zChars[ ((unsigned char)zBuf[j])%(sizeof(zChars)-1) ];
+    sqlite3_randomness(15, zRand);
+    for(i=0; i<15; i++){
+      zRand[i] = (char)zChars[ ((unsigned char)zRand[i])%(sizeof(zChars)-1) ];
     }
-    zBuf[j] = 0;
-  }while( file_size(zBuf)>=0 );
+    zRand[15] = 0;
+    blob_appendf(pBuf, "%s/%s.%s", zDir, zPrefix ? zPrefix : "", zRand);
+  }while( file_size(blob_str(pBuf))>=0 );
 
 #if defined(_WIN32)
   fossil_path_free((char *)azDirs[0]);
@@ -1436,4 +1431,19 @@ void file_test_valid_for_windows(void){
   for(i=2; i<g.argc; i++){
     fossil_print("%s %s\n", file_is_win_reserved(g.argv[i]), g.argv[i]);
   }
+}
+
+/*
+** Remove surplus "/" characters from the beginning of a full pathname.
+** Extra leading "/" characters are benign on unix.  But on Windows
+** machines, they must be removed.  Example:  Convert "/C:/fossil/xyx.fossil"
+** into "C:/fossil/xyz.fossil". Cygwin should behave as Windows here.
+*/
+const char *file_cleanup_fullpath(const char *z){
+#if defined(_WIN32) || defined(__CYGWIN__)
+  if( z[0]=='/' && fossil_isalpha(z[1]) && z[2]==':' && z[3]=='/' ) z++;
+#else
+  while( z[0]=='/' && z[1]=='/' ) z++;
+#endif
+  return z;
 }

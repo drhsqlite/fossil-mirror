@@ -86,7 +86,7 @@ div.mainmenu a, div.mainmenu a:visited {
   color: white;
   text-decoration: none;
 }
-div.submenu a, div.submenu a:visited, a.button, div.submenu label
+div.submenu a, div.submenu a:visited, a.button, div.submenu label,
 div.sectionmenu>a.button:link, div.sectionmenu>a.button:visited {
   padding: 2px 8px;
   color: #000;

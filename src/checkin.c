@@ -54,7 +54,7 @@ enum {
   C_DEFAULT   = (C_ALL & ~C_UNCHANGED) | C_MERGE | C_CLASSIFY,
   C_MTIME     = 1 << CB_MTIME,      /* Show file modification time. */
   C_SIZE      = 1 << CB_SIZE,       /* Show file size in bytes. */
-  C_FATAL     = (1 << CB_FATAL) | C_MISSING,  /* Fail on MISSING/NOT_A_FILE. */
+  C_FATAL     = 1 << CB_FATAL,      /* Fail on MISSING/NOT_A_FILE. */
   C_COMMENT   = 1 << CB_COMMENT,    /* Precede each line with "# ". */
 };
 
@@ -152,7 +152,7 @@ static void status_report(
     /* Start with a list of all managed files. */
     blob_append_sql(&sql,
       "SELECT pathname, %s as mtime, %s as size, deleted, chnged, rid,"
-      "       coalesce(origname!=pathname,0) AS renamed, islink, 1 AS managed"
+      "       coalesce(origname!=pathname,0) AS renamed, 1 AS managed"
       "  FROM vfile LEFT JOIN blob USING (rid)"
       " WHERE is_selected(id)%s",
       flags & C_MTIME ? "datetime(checkin_mtime(:vid, rid), "
@@ -173,7 +173,7 @@ static void status_report(
       blob_append_sql(&sql, " UNION ALL");
     }
     blob_append_sql(&sql,
-      " SELECT pathname, %s, %s, 0, 0, 0, 0, 0, 0"
+      " SELECT pathname, %s, %s, 0, 0, 0, 0, 0"
       " FROM sfile WHERE pathname NOT IN (%s)%s",
       flags & C_MTIME ? "datetime(mtime, 'unixepoch', toLocal())" : "''",
       flags & C_SIZE ? "size" : "0",
@@ -203,36 +203,43 @@ static void status_report(
   while( db_step(&q)==SQLITE_ROW ){
     const char *zPathname = db_column_text(&q, 0);
     const char *zClass = 0;
-    int isManaged = db_column_int(&q, 8);
+    int isManaged = db_column_int(&q, 7);
     const char *zMtime = db_column_text(&q, 1);
     int size = db_column_int(&q, 2);
     int isDeleted = db_column_int(&q, 3);
     int isChnged = db_column_int(&q, 4);
     int isNew = isManaged && !db_column_int(&q, 5);
     int isRenamed = db_column_int(&q, 6);
-    int isLink = db_column_int(&q, 7);
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
     int isMissing = !file_wd_isfile_or_link(zFullName);
 
     /* Determine the file change classification, if any. */
-    if( (flags & C_DELETED) && isDeleted ){
-      zClass = "DELETED";
-    }else if( (flags & C_MISSING) && isMissing ){
+    if( isDeleted ){
+      if( flags & C_DELETED ){
+        zClass = "DELETED";
+      }
+    }else if( isMissing ){
       if( file_access(zFullName, F_OK)==0 ){
-        zClass = "NOT_A_FILE";
+        if( flags & C_MISSING ){
+          zClass = "NOT_A_FILE";
+        }
         if( flags & C_FATAL ){
           fossil_warning("not a file: %s", zFullName);
           nErr++;
         }
       }else{
-        zClass = "MISSING";
+        if( flags & C_MISSING ){
+          zClass = "MISSING";
+        }
         if( flags & C_FATAL ){
           fossil_warning("missing file: %s", zFullName);
           nErr++;
         }
       }
-    }else if( (flags & C_ADDED) && isNew ){
-      zClass = "ADDED";
+    }else if( isNew ){
+      if( flags & C_ADDED ){
+        zClass = "ADDED";
+      }
     }else if( (flags & (C_UPDATED | C_CHANGED)) && isChnged==2 ){
       zClass = "UPDATED_BY_MERGE";
     }else if( (flags & C_ADDED) && isChnged==3 ){
@@ -249,7 +256,7 @@ static void status_report(
       zClass = "UNEXEC";
     }else if( (flags & C_META) && isChnged==9 ){
       zClass = "UNLINK";
-    }else if( (flags & C_CONFLICT) && isChnged && !isLink
+    }else if( (flags & C_CONFLICT) && isChnged && !file_wd_islink(zFullName)
            && file_contains_merge_marker(zFullName) ){
       zClass = "CONFLICT";
     }else if( (flags & (C_EDITED | C_CHANGED)) && isChnged
@@ -257,8 +264,8 @@ static void status_report(
       zClass = "EDITED";
     }else if( (flags & C_RENAMED) && isRenamed ){
       zClass = "RENAMED";
-    }else if( (flags & C_UNCHANGED) && isManaged && !isDeleted && !isMissing
-                                    && !isNew    && !isChnged  && !isRenamed ){
+    }else if( (flags & C_UNCHANGED) && isManaged && !isNew
+                                    && !isChnged && !isRenamed ){
       zClass = "UNCHANGED";
     }else if( (flags & C_EXTRA) && !isManaged ){
       zClass = "EXTRA";
@@ -383,11 +390,6 @@ static int determine_cwd_relative_option()
 ** one change type.  The default can be overridden by the --classify or
 ** --no-classify options.
 **
-** If both --merge and --no-merge are used, --no-merge has priority.  The
-** same is true of --classify and --no-classify.
-**
-** The "fossil changes --extra" command is equivalent to "fossil extras".
-**
 ** --edited and --updated produce disjoint sets.  --updated shows a file
 ** only when it is identical to that of its merge contributor, and the
 ** change type classification is UPDATED_BY_MERGE or UPDATED_BY_INTEGRATE.
@@ -398,10 +400,15 @@ static int determine_cwd_relative_option()
 **
 ** --differ is so named because it lists all the differences between the
 ** checked-out version and the checkout directory.  In addition to the
-** default changes (besides --merge), it lists extra files which (assuming
+** default changes (excluding --merge), it lists extra files which (if
 ** ignore-glob is set correctly) may be worth adding.  Prior to doing a
 ** commit, it is good practice to check --differ to see not only which
-** changes would be committed but also if any files need to be added.
+** changes would be committed but also if any files should be added.
+**
+** If both --merge and --no-merge are used, --no-merge has priority.  The
+** same is true of --classify and --no-classify.
+**
+** The "fossil changes --extra" command is equivalent to "fossil extras".
 **
 ** General options:
 **    --abs-paths       Display absolute pathnames.
@@ -412,6 +419,7 @@ static int determine_cwd_relative_option()
 **    --case-sensitive <BOOL>  Override case-sensitive setting.
 **    --dotfiles        Include unmanaged files beginning with a dot.
 **    --ignore <CSG>    Ignore unmanaged files matching CSG glob patterns.
+**    --no-dir-symlinks Disables support for directory symlinks.
 **
 ** Options specific to the changes command:
 **    --header          Identify the repository if report is non-empty.
@@ -819,6 +827,7 @@ void ls_cmd(void){
 **    --dotfiles       include files beginning with a dot (".")
 **    --header         Identify the repository if there are extras
 **    --ignore <CSG>   ignore files matching patterns from the argument
+**    --no-dir-symlinks Disables support for directory symlinks.
 **    --rel-paths      Display pathnames relative to the current working
 **                     directory.
 **
@@ -848,9 +857,10 @@ void extras_cmd(void){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
   pIgnore = glob_create(zIgnoreFlag);
+  /* Always consider symlinks. */
+  g.allowSymlinks = db_allow_symlinks_by_default();
   locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, pIgnore);
   glob_free(pIgnore);
-  g.allowSymlinks = 1;  /* Report on symbolic links */
 
   blob_zero(&report);
   status_report(&report, flags);
@@ -925,10 +935,10 @@ void extras_cmd(void){
 **                     implies the --disable-undo option.
 **    -x|--verily      WARNING: Removes everything that is not a managed
 **                     file or the repository itself.  This option
-**                     implies the --emptydirs and --dotfiles options.
-**                     Furthermore, it completely disregards the keep-glob
-**                     and ignore-glob settings.  However, it does honor
-**                     the --ignore and --keep options.
+**                     implies the --dotfiles, --emptydirs  and
+**                     --no-dir-symlinks options. Furthermore, it completely
+**                     disregards the keep-glob and ignore-glob settings.
+**                     However, it does honor the --ignore and --keep options.
 **    --clean <CSG>    WARNING: Never prompt to delete any files matching
 **                     this comma separated list of glob patterns.  Also,
 **                     deletions of any files matching this pattern list
@@ -941,6 +951,7 @@ void extras_cmd(void){
 **                     deleted.
 **    --no-prompt      This option disables prompting the user for input
 **                     and assumes an answer of 'No' for every question.
+**    --no-dir-symlinks Disables support for directory symlinks.
 **    --temp           Remove only Fossil-generated temporary files.
 **    -v|--verbose     Show all files as they are removed.
 **
@@ -989,6 +1000,7 @@ void clean_cmd(void){
     scanFlags |= SCAN_ALL;
     zCleanFlag = 0;
     noPrompt = 1;
+    g.fNoDirSymlinks = 1;
   }
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
@@ -1005,7 +1017,8 @@ void clean_cmd(void){
   pKeep = glob_create(zKeepFlag);
   pClean = glob_create(zCleanFlag);
   nRoot = (int)strlen(g.zLocalRoot);
-  g.allowSymlinks = 1;  /* Find symlinks too */
+  /* Always consider symlinks. */
+  g.allowSymlinks = db_allow_symlinks_by_default();
   if( !dirsOnlyFlag ){
     Stmt q;
     Blob repo;
@@ -1699,12 +1712,12 @@ static void create_manifest(
 ** is seen in a text file.
 **
 ** Return 1 if the user pressed 'c'. In that case, the file will have
-** been converted to UTF-8 (if it was UTF-16) with NL line-endings,
+** been converted to UTF-8 (if it was UTF-16) with LF line-endings,
 ** and the original file will have been renamed to "<filename>-original".
 */
 static int commit_warning(
   Blob *pContent,        /* The content of the file being committed. */
-  int crnlOk,            /* Non-zero if CR/NL warnings should be disabled. */
+  int crlfOk,            /* Non-zero if CR/LF warnings should be disabled. */
   int binOk,             /* Non-zero if binary warnings should be disabled. */
   int encodingOk,        /* Non-zero if encoding warnings should be disabled. */
   int noPrompt,          /* 0 to always prompt, 1 for 'N', 2 for 'Y'. */
@@ -1759,17 +1772,17 @@ static int commit_warning(
       }
       zDisable = "\"binary-glob\" setting";
     }else if( fUnicode && fHasAnyCr ){
-      if( crnlOk && encodingOk ){
-        return 0; /* We don't want CR/NL and Unicode warnings for this file. */
+      if( crlfOk && encodingOk ){
+        return 0; /* We don't want CR/LF and Unicode warnings for this file. */
       }
       if( fHasLoneCrOnly ){
         zWarning = "CR line endings and Unicode";
       }else if( fHasCrLfOnly ){
-        zWarning = "CR/NL line endings and Unicode";
+        zWarning = "CR/LF line endings and Unicode";
       }else{
         zWarning = "mixed line endings and Unicode";
       }
-      zDisable = "\"crnl-glob\" and \"encoding-glob\" settings";
+      zDisable = "\"crlf-glob\" and \"encoding-glob\" settings";
     }else if( fHasInvalidUtf8 ){
       if( encodingOk ){
         return 0; /* We don't want encoding warnings for this file. */
@@ -1777,17 +1790,17 @@ static int commit_warning(
       zWarning = "invalid UTF-8";
       zDisable = "\"encoding-glob\" setting";
     }else if( fHasAnyCr ){
-      if( crnlOk ){
-        return 0; /* We don't want CR/NL warnings for this file. */
+      if( crlfOk ){
+        return 0; /* We don't want CR/LF warnings for this file. */
       }
       if( fHasLoneCrOnly ){
         zWarning = "CR line endings";
       }else if( fHasCrLfOnly ){
-        zWarning = "CR/NL line endings";
+        zWarning = "CR/LF line endings";
       }else{
         zWarning = "mixed line endings";
       }
-      zDisable = "\"crnl-glob\" setting";
+      zDisable = "\"crlf-glob\" setting";
     }else{
       if( encodingOk ){
         return 0; /* We don't want encoding warnings for this file. */
@@ -1878,7 +1891,8 @@ void test_commit_warning(void){
       "SELECT %Q || pathname, pathname, %s, %s, %s FROM vfile"
       " WHERE NOT deleted",
       g.zLocalRoot,
-      glob_expr("pathname", noSettings ? 0 : db_get("crnl-glob","")),
+      glob_expr("pathname", noSettings ? 0 : db_get("crlf-glob",
+                                             db_get("crnl-glob",""))),
       glob_expr("pathname", noSettings ? 0 : db_get("binary-glob","")),
       glob_expr("pathname", noSettings ? 0 : db_get("encoding-glob",""))
   );
@@ -1887,12 +1901,12 @@ void test_commit_warning(void){
     const char *zName;
     Blob content;
     Blob reason;
-    int crnlOk, binOk, encodingOk;
+    int crlfOk, binOk, encodingOk;
     int fileRc;
 
     zFullname = db_column_text(&q, 0);
     zName = db_column_text(&q, 1);
-    crnlOk = db_column_int(&q, 2);
+    crlfOk = db_column_int(&q, 2);
     binOk = db_column_int(&q, 3);
     encodingOk = db_column_int(&q, 4);
     blob_zero(&content);
@@ -1902,7 +1916,7 @@ void test_commit_warning(void){
       blob_read_from_file(&content, zFullname);
     }
     blob_zero(&reason);
-    fileRc = commit_warning(&content, crnlOk, binOk, encodingOk, 2,
+    fileRc = commit_warning(&content, crlfOk, binOk, encodingOk, 2,
                             zFullname, &reason);
     if( fileRc || verboseFlag ){
       fossil_print("%d\t%s\t%s\n", fileRc, zName, blob_str(&reason));
@@ -1962,7 +1976,7 @@ static int tagCmp(const void *a, const void *b){
 ** conflicts, the check-in will not be allowed unless the
 ** --allow-conflict option is present.  In addition, the entire
 ** check-in process may be aborted if a file contains content that
-** appears to be binary, Unicode text, or text with CR/NL line endings
+** appears to be binary, Unicode text, or text with CR/LF line endings
 ** unless the interactive user chooses to proceed.  If there is no
 ** interactive user or these warnings should be skipped for some other
 ** reason, the --no-warnings option may be used.  A check-in is not
@@ -2108,6 +2122,13 @@ void commit_cmd(void){
   useCksum = db_get_boolean("repo-cksum", 1);
   outputManifest = db_get_manifest_setting();
   verify_all_options();
+
+  /* Do not allow the creation of a new branch using an existing open
+  ** branch name unless the --force flag is used */
+  if( sCiInfo.zBranch!=0 && !forceFlag && branch_is_open(sCiInfo.zBranch) ){
+    fossil_fatal("an open branch named \"%s\" already exists - use --force"
+                 " to override", sCiInfo.zBranch);
+  }
 
   /* Escape special characters in tags and put all tags in sorted order */
   if( nTag ){
@@ -2336,7 +2357,7 @@ void commit_cmd(void){
     "SELECT id, %Q || pathname, mrid, %s, %s, %s FROM vfile "
     "WHERE chnged==1 AND NOT deleted AND is_selected(id)",
     g.zLocalRoot,
-    glob_expr("pathname", db_get("crnl-glob","")),
+    glob_expr("pathname", db_get("crlf-glob",db_get("crnl-glob",""))),
     glob_expr("pathname", db_get("binary-glob","")),
     glob_expr("pathname", db_get("encoding-glob",""))
   );
@@ -2344,12 +2365,12 @@ void commit_cmd(void){
     int id, rid;
     const char *zFullname;
     Blob content;
-    int crnlOk, binOk, encodingOk;
+    int crlfOk, binOk, encodingOk;
 
     id = db_column_int(&q, 0);
     zFullname = db_column_text(&q, 1);
     rid = db_column_int(&q, 2);
-    crnlOk = db_column_int(&q, 3);
+    crlfOk = db_column_int(&q, 3);
     binOk = db_column_int(&q, 4);
     encodingOk = db_column_int(&q, 5);
 
@@ -2362,7 +2383,7 @@ void commit_cmd(void){
     }
     /* Do not emit any warnings when they are disabled. */
     if( !noWarningFlag ){
-      abortCommit |= commit_warning(&content, crnlOk, binOk,
+      abortCommit |= commit_warning(&content, crlfOk, binOk,
                                     encodingOk, noPrompt,
                                     zFullname, 0);
     }

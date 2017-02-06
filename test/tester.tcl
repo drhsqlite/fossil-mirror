@@ -215,6 +215,7 @@ proc get_versionable_settings {} {
       allow-symlinks \
       binary-glob \
       clean-glob \
+      crlf-glob \
       crnl-glob \
       dotfiles \
       empty-dirs \
@@ -254,6 +255,7 @@ proc get_all_settings {} {
       case-sensitive \
       clean-glob \
       clearsign \
+      crlf-glob \
       crnl-glob \
       default-perms \
       diff-binary \
@@ -451,6 +453,7 @@ please set TEMP variable in environment, error: $error"
     exec $::fossilexe open $filename
     exec $::fossilexe set mtime-changes off
   }
+  return $repoPath
 }
 
 # This procedure only returns non-zero if the Tcl integration feature was

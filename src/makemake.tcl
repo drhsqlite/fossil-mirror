@@ -672,7 +672,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2j
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2k
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -1268,16 +1268,16 @@ LIBS   = $(DMDIR)\extra\lib\ zlib wsock32 advapi32
 }
 writeln "SQLITE_OPTIONS = [join $SQLITE_OPTIONS { }]\n"
 writeln "SHELL_OPTIONS = [join $SHELL_WIN32_OPTIONS { }]\n"
-writeln -nonewline "SRC   = "
+writeln -nonewline "SRC   ="
 foreach s [lsort $src] {
-  writeln -nonewline "${s}_.c "
+  writeln -nonewline " ${s}_.c"
 }
 writeln "\n"
 writeln -nonewline "OBJ   = "
 foreach s [lsort $src] {
   writeln -nonewline "\$(OBJDIR)\\$s\$O "
 }
-writeln "\$(OBJDIR)\\shell\$O \$(OBJDIR)\\sqlite3\$O \$(OBJDIR)\\th\$O \$(OBJDIR)\\th_lang\$O "
+writeln "\$(OBJDIR)\\shell\$O \$(OBJDIR)\\sqlite3\$O \$(OBJDIR)\\th\$O \$(OBJDIR)\\th_lang\$O"
 writeln {
 
 RC=$(DMDIR)\bin\rcc
@@ -1309,22 +1309,22 @@ writeln "\t+echo fossil >> \$@"
 
 writeln {
 translate$E: $(SRCDIR)\translate.c
-	$(XBCC) -o$@ $**
+	$(BCC) -o$@ $**
 
 makeheaders$E: $(SRCDIR)\makeheaders.c
-	$(XBCC) -o$@ $**
+	$(BCC) -o$@ $**
 
 mkindex$E: $(SRCDIR)\mkindex.c
-	$(XBCC) -o$@ $**
+	$(BCC) -o$@ $**
 
 mkbuiltin$E: $(SRCDIR)\mkbuiltin.c
-	$(XBCC) -o$@ $**
+	$(BCC) -o$@ $**
 
 mkversion$E: $(SRCDIR)\mkversion.c
-	$(XBCC) -o$@ $**
+	$(BCC) -o$@ $**
 
 codecheck1$E: $(SRCDIR)\codecheck1.c
-	$(XBCC) -o$@ $**
+	$(BCC) -o$@ $**
 
 $(OBJDIR)\shell$O : $(SRCDIR)\shell.c
 	$(TCC) -o$@ -c $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) $**
@@ -1503,7 +1503,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.0.2j
+SSLDIR    = $(B)\compat\openssl-1.0.2k
 SSLINCDIR = $(SSLDIR)\inc32
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)\out32dll
@@ -1615,7 +1615,7 @@ LDFLAGS   = $(LDFLAGS) /NODEFAULTLIB:msvcrt /MANIFEST:NO
 !endif
 
 !if $(FOSSIL_ENABLE_WINXP)!=0
-XPCFLAGS  = $(XPCFLAGS) /D_USING_V110_SDK71_=1
+XPCFLAGS  = $(XPCFLAGS) /D_WIN32_WINNT=0x0501 /D_USING_V110_SDK71_=1
 CFLAGS    = $(CFLAGS) $(XPCFLAGS)
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 XPLDFLAGS = $(XPLDFLAGS) /SUBSYSTEM:CONSOLE,5.02
@@ -1831,22 +1831,22 @@ $(OX):
 	@-mkdir $@
 
 translate$E: $(SRCDIR)\translate.c
-	$(XBCC) $**
+	$(BCC) $**
 
 makeheaders$E: $(SRCDIR)\makeheaders.c
-	$(XBCC) $**
+	$(BCC) $**
 
 mkindex$E: $(SRCDIR)\mkindex.c
-	$(XBCC) $**
+	$(BCC) $**
 
 mkbuiltin$E: $(SRCDIR)\mkbuiltin.c
-	$(XBCC) $**
+	$(BCC) $**
 
 mkversion$E: $(SRCDIR)\mkversion.c
-	$(XBCC) $**
+	$(BCC) $**
 
 codecheck1$E: $(SRCDIR)\codecheck1.c
-	$(XBCC) $**
+	$(BCC) $**
 
 !if $(USE_SEE)!=0
 SQLITE3_SHELL_SRC = $(SRCDIR)\shell-see.c

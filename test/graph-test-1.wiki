@@ -71,6 +71,15 @@ the correct operation of the graph drawing logic.
   *  <a href="../../../timeline?b=0fa60142&n=50"
      target="testwindow">Single branch raiser from bottom of page
      up to checkins 057e4b and d3cc6d</a>
+  *  <a href="../../../timeline?a=68194175&n=2"
+     target="testwindow">Branch riser comes from the bottom of the screen</a>
+  *  <a href="../../../timeline?a=2bc3cfeb&n=5"
+     target="testwindow">Branch risers comes from the bottom of the
+     screen, not from the andygoth-crlf branch.</a>
+  *  <a href="../../../timeline?a=b8c7af5b&n=12"
+     target="testwindow">Check-in 2de15c8e has merge arrows from two
+     different trunk check-ins.  One of the merge risers also branches
+     to check-in ea7f3297</a>
 
 External:
 

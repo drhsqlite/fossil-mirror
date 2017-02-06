@@ -17,7 +17,7 @@
 #
 #
 # Tests for 'fossil revert'
-# 
+#
 #
 
 # Test 'fossil revert' against expected results from 'fossil changes' and

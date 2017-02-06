@@ -528,49 +528,59 @@ void login_page(void){
   if( g.perm.Password && zPasswd
    && (zNew1 = P("n1"))!=0 && (zNew2 = P("n2"))!=0
   ){
-    /* The user requests a password change */
-    zSha1Pw = sha1_shared_secret(zPasswd, g.zLogin, 0);
-    if( db_int(1, "SELECT 0 FROM user"
-                  " WHERE uid=%d"
-                  " AND (constant_time_cmp(pw,%Q)=0"
-                  "      OR constant_time_cmp(pw,%Q)=0)",
-                  g.userUid, zSha1Pw, zPasswd) ){
-      sleep(1);
-      zErrMsg =
-         @ <p><span class="loginError">
-         @ You entered an incorrect old password while attempting to change
-         @ your password.  Your password is unchanged.
-         @ </span></p>
-      ;
-    }else if( fossil_strcmp(zNew1,zNew2)!=0 ){
-      zErrMsg =
-         @ <p><span class="loginError">
-         @ The two copies of your new passwords do not match.
-         @ Your password is unchanged.
-         @ </span></p>
-      ;
-    }else{
-      char *zNewPw = sha1_shared_secret(zNew1, g.zLogin, 0);
-      char *zChngPw;
-      char *zErr;
-      db_multi_exec(
-         "UPDATE user SET pw=%Q WHERE uid=%d", zNewPw, g.userUid
-      );
-      fossil_free(zNewPw);
-      zChngPw = mprintf(
-         "UPDATE user"
-         "   SET pw=shared_secret(%Q,%Q,"
-         "        (SELECT value FROM config WHERE name='project-code'))"
-         " WHERE login=%Q",
-         zNew1, g.zLogin, g.zLogin
-      );
-      if( login_group_sql(zChngPw, "<p>", "</p>\n", &zErr) ){
-        zErrMsg = mprintf("<span class=\"loginError\">%s</span>", zErr);
-        fossil_free(zErr);
+    /* If there is not a "real" login, we cannot change any password. */
+    if( g.zLogin ){
+      /* The user requests a password change */
+      zSha1Pw = sha1_shared_secret(zPasswd, g.zLogin, 0);
+      if( db_int(1, "SELECT 0 FROM user"
+                    " WHERE uid=%d"
+                    " AND (constant_time_cmp(pw,%Q)=0"
+                    "      OR constant_time_cmp(pw,%Q)=0)",
+                    g.userUid, zSha1Pw, zPasswd) ){
+        sleep(1);
+        zErrMsg =
+           @ <p><span class="loginError">
+           @ You entered an incorrect old password while attempting to change
+           @ your password.  Your password is unchanged.
+           @ </span></p>
+        ;
+      }else if( fossil_strcmp(zNew1,zNew2)!=0 ){
+        zErrMsg =
+           @ <p><span class="loginError">
+           @ The two copies of your new passwords do not match.
+           @ Your password is unchanged.
+           @ </span></p>
+        ;
       }else{
-        redirect_to_g();
-        return;
+        char *zNewPw = sha1_shared_secret(zNew1, g.zLogin, 0);
+        char *zChngPw;
+        char *zErr;
+        db_multi_exec(
+           "UPDATE user SET pw=%Q WHERE uid=%d", zNewPw, g.userUid
+        );
+        fossil_free(zNewPw);
+        zChngPw = mprintf(
+           "UPDATE user"
+           "   SET pw=shared_secret(%Q,%Q,"
+           "        (SELECT value FROM config WHERE name='project-code'))"
+           " WHERE login=%Q",
+           zNew1, g.zLogin, g.zLogin
+        );
+        if( login_group_sql(zChngPw, "<p>", "</p>\n", &zErr) ){
+          zErrMsg = mprintf("<span class=\"loginError\">%s</span>", zErr);
+          fossil_free(zErr);
+        }else{
+          redirect_to_g();
+          return;
+        }
       }
+    }else{
+      zErrMsg =
+         @ <p><span class="loginError">
+         @ The password cannot be changed for this type of login.
+         @ The password is unchanged.
+         @ </span></p>
+      ;
     }
   }
   zIpAddr = PD("REMOTE_ADDR","nil");   /* Complete IP address for logging */
@@ -701,7 +711,7 @@ void login_page(void){
     free(zCaptcha);
   }
   @ </form>
-  if( g.perm.Password ){
+  if( g.zLogin && g.perm.Password ){
     @ <hr />
     @ <p>Change Password for user <b>%h(g.zLogin)</b>:</p>
     form_begin(0, "%R/login");

@@ -1,0 +1,11 @@
+*.gif
+*.ico
+*.jpg
+*.odp
+*.dia
+*.pdf
+*.png
+compat/zlib/contrib/blast/test.pk
+compat/zlib/contrib/dotzlib/DotZLib.chm
+compat/zlib/contrib/puff/zeros.raw
+compat/zlib/zlib.3.pdf

@@ -27,12 +27,12 @@
 */
 #include "config.h"
 #include "fshell.h"
-#include "linenoise.h"
 #include <ctype.h>
 
 #ifndef _WIN32
-#include <sys/types.h>
-#include <sys/wait.h>
+# include "linenoise.h"
+# include <sys/types.h>
+# include <sys/wait.h>
 #endif
 
 
@@ -63,6 +63,7 @@ void shell_cmd(void){
   db_find_and_open_repository(OPEN_ANY_SCHEMA|OPEN_OK_NOT_FOUND, 0);
   db_close(0);
   sqlite3_shutdown();
+  linenoiseSetMultiLine(1);
   while( (free(zLine), zLine = linenoise("fossil> ")) ){
     /* Remember shell history within the current session */
     linenoiseHistoryAdd(zLine);

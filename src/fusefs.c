@@ -339,3 +339,24 @@ void fusefs_cmd(void){
   fusefs_clear_path();
 }
 #endif /* FOSSIL_HAVE_FUSEFS */
+
+/*
+** Return version numbers for the FUSE header that was used at compile-time
+** and/or the FUSE library that was loaded at runtime.
+*/
+const char *fusefs_lib_version(void){
+#if defined(FOSSIL_HAVE_FUSEFS) && FUSE_MAJOR_VERSION>=3
+  return fuse_pkgversion();
+#else
+  return "unknown";
+#endif
+}
+
+const char *fusefs_inc_version(void){
+#ifdef FOSSIL_HAVE_FUSEFS
+  return COMPILER_STRINGIFY(FUSE_MAJOR_VERSION) "."
+         COMPILER_STRINGIFY(FUSE_MINOR_VERSION);
+#else
+  return "unknown";
+#endif
+}

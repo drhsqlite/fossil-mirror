@@ -159,7 +159,7 @@ cson_value * json_page_login(){
     cson_object_set(po, "name", json_new_string(name));
     cap = db_text(NULL, "SELECT cap FROM user WHERE login=%Q", name);
     cson_object_set(po, "capabilities", cap ? json_new_string(cap) : cson_value_null() );
-    free(cap);        
+    free(cap);
     cson_object_set(po, "loginCookieName", json_new_string( login_cookie_name() ) );
     /* TODO: add loginExpiryTime to the payload. To do this properly
        we "should" add an ([unsigned] int *) to
