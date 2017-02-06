@@ -1,5 +1,5 @@
-C Improve\shelp\stext\sfor\sthe\spull/push/sync\scommands.
-D 2017-02-04T19:58:53.645
+C Fail\sa\s"fossil\scommit"\sthat\scontains\sa\s--branch\soption\sfor\san\sopen\sbranch\nunless\sthere\sis\salso\sa\s--force\soption.
+D 2017-02-06T18:30:31.457
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -394,14 +394,14 @@ F src/attach.c b2f9bbde2c64be08f3feeacfcef4b95377ec0b19
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c 831a63c8c61dbfdb5fe629a473cd7b01104478fc
-F src/branch.c 3325eb2da843262b57bfebdcedeb5ba6983b4801
+F src/branch.c d68826ae16d6a89ea3126ab583577fb5f09de23b
 F src/browse.c ee98248924f9121b89a5e32bdebc8e27bdf496ca
 F src/builtin.c d147d04305aa0db964ec84ef049e8e88d134de87
 F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c 0fe6520c4eeedee87cab271f32943a96382828c1
-F src/checkin.c 353964c0c37561367b9d2cb7008d841dfaf4e514
+F src/checkin.c e6f4b4de702cae3c1df8c513d710b34aefaef871
 F src/checkout.c 083ec4f2ccd7d9df27dbb94d90008088eb8c4340
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
@@ -783,7 +783,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f62c2470834c421d5f29714c6879ea67c56c9d0b
-R c2ad372907c28aef12d02fe73b3d0e14
-U mistachkin
-Z 524d34f54722e0791d6f27d1e7c8d922
+P 04c6e7ee827c46a9a85cf6fb3a7ae7a0e6e421d2
+R a6d96ee9178a1d86751fcdb4d6c0652e
+U drh
+Z 2a725d89c083b80d261850ce5af0a9ea

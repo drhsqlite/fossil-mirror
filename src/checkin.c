@@ -2115,6 +2115,13 @@ void commit_cmd(void){
   outputManifest = db_get_manifest_setting();
   verify_all_options();
 
+  /* Do not allow the creation of a new branch using an existing open
+  ** branch name unless the --force flag is used */
+  if( sCiInfo.zBranch!=0 && !forceFlag && branch_is_open(sCiInfo.zBranch) ){
+    fossil_fatal("an open branch named \"%s\" already exists - use --force"
+                 " to override", sCiInfo.zBranch);
+  }
+
   /* Escape special characters in tags and put all tags in sorted order */
   if( nTag ){
     int i;
