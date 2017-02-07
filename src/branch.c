@@ -179,6 +179,7 @@ void branch_new(void){
 
   /* Do an autosync push, if requested */
   if( !isPrivate ) autosync_loop(SYNC_PUSH, db_get_int("autosync-tries",1),0);
+  show_common_info(rootid, "uuid:", 1, 1);
 }
 
 #if INTERFACE
