@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.17.0\sbeta1
-D 2017-02-07T13:54:44.429
+C On\s/dir\spage,\sadd\sa\slink\snamed\s"[history]"\sthat\spoint\sto\sthe\stimeline\naffecting\sonly\sthe\sfiles\sinside\sthe\scurrent\sdirectory.\sUse\sthe\n"chng=dirname/*"\squery\sparameter\sof\sthe\s/timeline\spage)\n\n\s\sTODO:\sImplement\sthe\ssame\sin\sTree-View\smode\s(could\sadd\sthe\slink\sbeside\seach\n\s\s\s\s\s\s\s\sdirectory)
+D 2017-02-08T18:28:59.241
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -395,7 +395,7 @@ F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c 831a63c8c61dbfdb5fe629a473cd7b01104478fc
 F src/branch.c d68826ae16d6a89ea3126ab583577fb5f09de23b
-F src/browse.c ee98248924f9121b89a5e32bdebc8e27bdf496ca
+F src/browse.c f9f0ece0b60a3d381066cea4bcca586280b14f5c
 F src/builtin.c d147d04305aa0db964ec84ef049e8e88d134de87
 F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
@@ -783,7 +783,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8e659df6965e8176a985b8c5b9b133f2837c07d4
-R c7456e109227ba95b0e4007cc6af5a4a
-U drh
-Z 2bcf316d1288b7ca8ffa6370046c2f33
+P 8fe0fefb24e30b6f51836b4b6cf55e0ad441f368
+R dc537fc1fc7da0b5b1ab5eac997db284
+T *branch * dir_history_link
+T *sym-dir_history_link *
+T -sym-trunk *
+U mgagnon
+Z e49211ba9f926a63f96c37029012a2d9

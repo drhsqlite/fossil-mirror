@@ -188,7 +188,11 @@ void page_dir(void){
   }
   if( zCI ){
     @ <h2>Files of check-in [%z(href("vinfo?name=%!S",zUuid))%S(zUuid)</a>]
-    @ %s(blob_str(&dirname))</h2>
+    @ %s(blob_str(&dirname))
+    if( zD ){
+      @ %z(href("%R/timeline?chng=%T/*", zD))&nbsp;&nbsp;[history]</a>
+    }
+    @ </h2>
     zSubdirLink = mprintf("%R/dir?ci=%!S&name=%T", zUuid, zPrefix);
     if( nD==0 ){
       style_submenu_element("File Ages", "%R/fileage?name=%!S", zUuid);
