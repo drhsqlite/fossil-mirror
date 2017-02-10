@@ -613,7 +613,8 @@ void export_cmd(void){
     db_bind_int(&q2, ":rid", ckinId);
     db_step(&q2);
     db_reset(&q2);
-    if( zBranch==0 ) zBranch = "trunk";
+    /* fossil trunk is git master. */
+    if( zBranch==0 || fossil_strcmp(zBranch, "trunk") == 0 ) zBranch = "master";
     zMark = mark_name_from_rid(ckinId, &unused_mark);
     printf("commit refs/heads/");
     print_ref(zBranch);
