@@ -1,5 +1,5 @@
-C Add\s--rename-trunk\soption\sto\sexport\sinstead\sof\sforcing\sa\snaming\sconvention.
-D 2017-02-10T20:28:21.141
+C Add\s--rename-master\soption\sto\simport\s--git\sinstead\sof\sforcing\sa\snaming\sconvention.
+D 2017-02-10T22:04:06.282
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -437,7 +437,7 @@ F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
-F src/import.c 52e37698299310f2ef58aaba7dd732f1f62622a5
+F src/import.c d127ea2bc2d1494d3cf1d9e720e695fa63534c62
 F src/info.c 7b09909864e296c4d7404fc17ca644f960071b55
 F src/json.c f5b7fdcda3a1896153974769be00bae833bc476b
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
@@ -783,7 +783,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8e7079731eea4ba4fba971bcda3682163b342c07
-R afb047fb4b94743684d81cca2b71a420
+P bc443729a0ae46aaaf03b1a92a379237d8dca44e
+R 2c29e388a080117947f39667dd974540
 U roy.marples
-Z 72b0feff0a8ef87844ee090b4bdce3f8
+Z ef0fc5865f85d263c4334e3070d9faab

@@ -515,6 +515,10 @@ static void dequote_git_filename(char *zName){
 }
 
 
+static struct{
+  const char *zMasterName;    /* Name of master branch */
+} ggit;
+
 /*
 ** Read the git-fast-import format from pIn and insert the corresponding
 ** content into the database.
@@ -538,10 +542,11 @@ static void git_fast_import(FILE *pIn){
       gg.xFinish = finish_blob;
     }else
     if( strncmp(zLine, "commit ", 7)==0 ){
+      const char *zRefName;
       gg.xFinish();
       gg.xFinish = finish_commit;
       trim_newline(&zLine[7]);
-      z = &zLine[7];
+      zRefName = &zLine[7];
 
       /* The argument to the "commit" line might match either of these
       ** patterns:
@@ -561,11 +566,11 @@ static void git_fast_import(FILE *pIn){
       ** None of the above is explained in the git-fast-export
       ** documentation.  We had to figure it out via trial and error.
       */
-      for(i=5; i<strlen(z) && z[i]!='/'; i++){}
-      gg.tagCommit = strncmp(&z[5], "tags", 4)==0;  /* True for pattern B */
-      if( z[i+1]!=0 ) z += i+1;
-      if( fossil_strcmp(z, "master")==0 ) z = "trunk";
-      gg.zBranch = fossil_strdup(z);
+      for(i=5; i<strlen(zRefName) && zRefName[i]!='/'; i++){}
+      gg.tagCommit = strncmp(&zRefName[5], "tags", 4)==0;  /* True for pattern B */
+      if( zRefName[i+1]!=0 ) zRefName += i+1;
+      if( fossil_strcmp(zRefName, "master")==0 ) zRefName = ggit.zMasterName;
+      gg.zBranch = fossil_strdup(zRefName);
       gg.fromLoaded = 0;
     }else
     if( strncmp(zLine, "tag ", 4)==0 ){
@@ -1547,8 +1552,9 @@ static void svn_dump_import(FILE *pIn){
 **
 **   --git        Import from the git-fast-export file format (default)
 **                Options:
-**                  --import-marks FILE Restore marks table from FILE
-**                  --export-marks FILE Save marks table to FILE
+**                  --import-marks  FILE Restore marks table from FILE
+**                  --export-marks  FILE Save marks table to FILE
+**                  --rename-master NAME Renames the master branch to NAME
 **
 **   --svn        Import from the svnadmin-dump file format.  The default
 **                behaviour (unless overridden by --flat) is to treat 3
@@ -1670,6 +1676,9 @@ void import_cmd(void){
   }else if( gitFlag ){
     markfile_in = find_option("import-marks", 0, 1);
     markfile_out = find_option("export-marks", 0, 1);
+    if( !(ggit.zMasterName = find_option("rename-master", 0, 1)) ){
+      ggit.zMasterName = "master";
+    }
   }
   verify_all_options();
 
