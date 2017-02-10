@@ -1,5 +1,5 @@
-C Export\sthe\scommitter\sof\sthe\stag\srather\sthan\sjust\s<tagger>.
-D 2017-02-10T01:08:01.779
+C Add\sfunction\sprint_ref\sto\ssanitize\sbranch\sand\stag\snames\sin\saccordance\swith\nhttps://git-scm.com/docs/git-check-ref-format\n\nUse\sthis\srather\sthan\ssimply\sreplacing\snon\salpha\sor\snumeric\schars\sfor\sbranch\nand\stag\snames\swhen\sexporting.
+D 2017-02-10T01:25:23.077
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -424,7 +424,7 @@ F src/dispatch.c 4e634c0cf22b7dd63501a4dc0aa6375cf4151343
 F src/doc.c bae142c1df13fbaba1af814e0ee398670d366547
 F src/encode.c edb12a68c5831e5331eaad3796c492059edb10fb
 F src/event.c 021db025691a859a49751f255a0a065bca728444
-F src/export.c 383e5b8cafb9bb4e3a9f808e8017cd10a7a717ff
+F src/export.c 6f2d75f3400cb0224504f0fabe3ea605965694a5
 F src/file.c 0fae72c98c6abf5cbe61e714b547b2210d0cbf29
 F src/finfo.c 1ed28f25c99d30270690b3b45c36c3320baecddc
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
@@ -783,7 +783,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 27de3fc8beb09475de9b8688df8b81957d3b2071
-R 317dd9614486e33145b9b8828783d6e1
+P 4a51461e96e0a4bb054e5a1d47844d833fffd412
+R 154b20e0b08f01fafe88a35cd2315351
 U roy.marples
-Z a3839ec3fd94dfb6df6d79e645ff62c7
+Z 20020aa629dd713d98a270a33b6ad64f
