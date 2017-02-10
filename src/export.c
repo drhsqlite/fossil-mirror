@@ -632,7 +632,8 @@ void export_cmd(void){
 
   /* Output tags */
   db_prepare(&q,
-     "SELECT tagname, rid, strftime('%%s',mtime)"
+     "SELECT tagname, rid, strftime('%%s',mtime),"
+     "       (SELECT coalesce(euser, user) FROM event WHERE objid=rid)"
      "  FROM tagxref JOIN tag USING(tagid)"
      " WHERE tagtype=1 AND tagname GLOB 'sym-*'"
   );
@@ -642,6 +643,7 @@ void export_cmd(void){
     int rid = db_column_int(&q, 1);
     char *zMark = mark_name_from_rid(rid, &unused_mark);
     const char *zSecSince1970 = db_column_text(&q, 2);
+    const char *zUser = db_column_text(&q, 3);
     int i;
     if( rid==0 || !bag_find(&vers, rid) ) continue;
     zTagname += 4;
@@ -652,7 +654,9 @@ void export_cmd(void){
     printf("tag %s\n", zEncoded);
     printf("from %s\n", zMark);
     free(zMark);
-    printf("tagger <tagger> %s +0000\n", zSecSince1970);
+    printf("tagger");
+    print_person(zUser);
+    printf(" %s +0000\n", zSecSince1970);
     printf("data 0\n");
     fossil_free(zEncoded);
   }
