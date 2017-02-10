@@ -1699,7 +1699,10 @@ void import_cmd(void){
   db_open_config(0, 0);
 
   db_begin_transaction();
-  if( !incrFlag ) db_initial_setup(0, 0, 0);
+  if( !incrFlag ){
+    db_initial_setup(0, 0, 0);
+    db_set("main-branch", gimport.zTrunkName, 0);
+  }
 
   if( svnFlag ){
     db_multi_exec(
