@@ -21,6 +21,13 @@
 #include "export.h"
 #include <assert.h>
 
+/*
+** State information common to all export types.
+*/
+static struct {
+  const char *zTrunkName;     /* Name of trunk branch */
+} gexport;
+
 #if INTERFACE
 /*
 ** struct mark_t
@@ -473,6 +480,7 @@ void export_marks(FILE* f, Bag *blobs, Bag *vers){
 ** Options:
 **   --export-marks FILE          export rids of exported data to FILE
 **   --import-marks FILE          read rids of data to ignore from FILE
+**   --rename-trunk NAME          use NAME as name of exported trunk branch
 **   --repository|-R REPOSITORY   export the given REPOSITORY
 **
 ** See also: import
@@ -491,6 +499,10 @@ void export_cmd(void){
   find_option("git", 0, 0);   /* Ignore the --git option for now */
   markfile_in = find_option("import-marks", 0, 1);
   markfile_out = find_option("export-marks", 0, 1);
+
+  if( !(gexport.zTrunkName = find_option("rename-trunk", 0, 1)) ){
+    gexport.zTrunkName = "trunk";
+  }
 
   db_find_and_open_repository(0, 2);
   verify_all_options();
@@ -613,8 +625,7 @@ void export_cmd(void){
     db_bind_int(&q2, ":rid", ckinId);
     db_step(&q2);
     db_reset(&q2);
-    /* fossil trunk is git master. */
-    if( zBranch==0 || fossil_strcmp(zBranch, "trunk")==0 ) zBranch = "master";
+    if( zBranch==0 || fossil_strcmp(zBranch, "trunk")==0 ) zBranch = gexport.zTrunkName;
     zMark = mark_name_from_rid(ckinId, &unused_mark);
     printf("commit refs/heads/");
     print_ref(zBranch);
