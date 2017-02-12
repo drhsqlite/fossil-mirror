@@ -625,17 +625,24 @@ static void git_fast_import(FILE *pIn){
     }else
     if( strncmp(zLine, "tagger ", 7)==0 || strncmp(zLine, "committer ",10)==0 ){
       sqlite3_int64 secSince1970;
-      for(i=0; zLine[i] && zLine[i]!='<'; i++){}
-      if( zLine[i]==0 ) goto malformed_line;
-      z = &zLine[i+1];
-      for(i=i+1; zLine[i] && zLine[i]!='>'; i++){}
-      if( zLine[i]==0 ) goto malformed_line;
-      zLine[i] = 0;
+      z = strchr(zLine, ' ');
+      while( fossil_isspace(*z) ) z++;
+      if( (zTo=strchr(z, '>'))==NULL ) goto malformed_line;
+      *(++zTo) = '\0';
+      /* Lookup user by contact info. */
       fossil_free(gg.zUser);
-      gg.zUser = fossil_strdup(z);
+      gg.zUser = db_text(0, "SELECT login FROM user WHERE info=%Q", z);
+      if( gg.zUser==NULL ){
+        /* If there is no user with this contact info,
+	 * then use the email address as the username. */
+        if ( (z=strchr(z, '<'))==NULL ) goto malformed_line;
+        z++;
+        *(zTo-1) = '\0';
+        gg.zUser = fossil_strdup(z);
+      }
       secSince1970 = 0;
-      for(i=i+2; fossil_isdigit(zLine[i]); i++){
-        secSince1970 = secSince1970*10 + zLine[i] - '0';
+      for(zTo++; fossil_isdigit(*zTo); zTo++){
+        secSince1970 = secSince1970*10 + *zTo - '0';
       }
       fossil_free(gg.zDate);
       gg.zDate = db_text(0, "SELECT datetime(%lld, 'unixepoch')", secSince1970);
