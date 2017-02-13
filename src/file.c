@@ -96,7 +96,7 @@ static int fossil_stat(
   int rc;
   void *zMbcs = fossil_utf8_to_path(zFilename, 0);
 #if !defined(_WIN32)
-  if( isWd && db_allow_symlinks(0) ){
+  if( isWd && (forceWd || db_allow_symlinks(0)) ){
     rc = lstat(zMbcs, buf);
   }else{
     rc = stat(zMbcs, buf);
