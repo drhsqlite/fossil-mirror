@@ -1,5 +1,5 @@
-C If\sthe\s'allow-symlinks'\soption\sis\senabled\s(or\sthe\s'--no-dir-symlinks'\sflag\sis\sspecified),\sdo\snot\straverse\sinto\ssymlinked\sdirectories.
-D 2017-02-13T20:10:40.730
+C Remove\sforced\ssetting\sof\sthe\s'allow-symlinks'\scached\ssetting\sfrom\sthe\s'clean'\sand\s'extras'\scommands.
+D 2017-02-13T20:31:33.889
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -401,7 +401,7 @@ F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c 0fe6520c4eeedee87cab271f32943a96382828c1
-F src/checkin.c 5bc478a127dde08bfa6f23fd1a4e0c1276b04899
+F src/checkin.c 33e8341c27b356336cc2c82bb9977dc454c3976e
 F src/checkout.c 083ec4f2ccd7d9df27dbb94d90008088eb8c4340
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
@@ -783,10 +783,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ffd261abfb84855c0843d720d9e04ba8a3aa4306
-R 4ac3ccd02275086406d4bb688cc95070
-T *branch * symlinks
-T *sym-symlinks *
-T -sym-trunk *
+P 3e949e17614a79e72a51e40af130ef0ec711d166
+R 2c7f1a3412f53693772a4e52ae90135d
 U mistachkin
-Z 422a1b35eab930070adf4400b0b9dd04
+Z 7b7437b869aeaf69ccdbbe3260473964
