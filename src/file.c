@@ -87,7 +87,12 @@ static struct fossilStat fileStat;
 ** lstat() is called on Unix if isWd is TRUE and allow-symlinks setting is on.
 **
 */
-static int fossil_stat(const char *zFilename, struct fossilStat *buf, int isWd){
+static int fossil_stat(
+  const char *zFilename,  /* name of file or directory to inspect. */
+  struct fossilStat *buf, /* pointer to buffer where info should go. */
+  int isWd,               /* non-zero to consider look at symlink itself. */
+  int forceWd             /* non-zero to force look at symlink itself. */
+){
   int rc;
   void *zMbcs = fossil_utf8_to_path(zFilename, 0);
 #if !defined(_WIN32)
@@ -117,7 +122,7 @@ static int getStat(const char *zFilename, int isWd){
   if( zFilename==0 ){
     if( fileStatValid==0 ) rc = 1;
   }else{
-    if( fossil_stat(zFilename, &fileStat, isWd)!=0 ){
+    if( fossil_stat(zFilename, &fileStat, isWd, 0)!=0 ){
       fileStatValid = 0;
       rc = 1;
     }else{
@@ -303,15 +308,17 @@ int file_isdir(const char *zFilename){
 int file_wd_isdir(const char *zFilename){
   int rc;
   char *zFN;
+  struct fossilStat dirFileStat;
 
   zFN = mprintf("%s", zFilename);
   file_simplify_name(zFN, -1, 0);
-  rc = getStat(zFN, 1);
+  memset(&dirFileStat, 0, sizeof(struct fossilStat));
+  rc = fossil_stat(zFN, &dirFileStat, 1, 1);
   if( rc ){
     rc = 0; /* It does not exist at all. */
-  }else if( S_ISDIR(fileStat.st_mode) ){
+  }else if( S_ISDIR(dirFileStat.st_mode) ){
     rc = 1; /* It exists and is a real directory. */
-  }else if( !db_allow_symlinks(1) && S_ISLNK(fileStat.st_mode) ){
+  }else if( !db_allow_symlinks(1) && S_ISLNK(dirFileStat.st_mode) ){
     Blob content;
     blob_read_link(&content, zFN); /* It exists and is a link. */
     rc = file_wd_isdir(blob_str(&content)); /* Points to directory? */
@@ -482,7 +489,7 @@ int file_wd_setexe(const char *zFilename, int onoff){
   int rc = 0;
 #if !defined(_WIN32)
   struct stat buf;
-  if( fossil_stat(zFilename, &buf, 1)!=0 || S_ISLNK(buf.st_mode) ) return 0;
+  if( fossil_stat(zFilename, &buf, 1, 0)!=0 || S_ISLNK(buf.st_mode) ) return 0;
   if( onoff ){
     int targetMode = (buf.st_mode & 0444)>>2;
     if( (buf.st_mode & 0100)==0 ){
