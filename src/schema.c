@@ -386,6 +386,7 @@ const char zRepositorySchema2[] =
 @   value TEXT,                     -- Value of the tag.  Might be NULL.
 @   mtime TIMESTAMP,                -- Time of addition or removal. Julian day
 @   rid INTEGER REFERENCE blob,     -- Artifact tag is applied to
+@   tagcomment TEXT,                -- Comment of the tag
 @   UNIQUE(rid, tagid)
 @ );
 @ CREATE INDEX tagxref_i1 ON tagxref(tagid, mtime);

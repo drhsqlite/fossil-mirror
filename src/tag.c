@@ -160,7 +160,8 @@ int tag_insert(
   const char *zValue,      /* Value if the tag is really a property */
   int srcId,               /* Artifact that contains this tag */
   double mtime,            /* Timestamp.  Use default if <=0.0 */
-  int rid                  /* Artifact to which the tag is to attached */
+  int rid,                 /* Artifact to which the tag is to attached */
+  const char *zComment     /* Comment for the tag */
 ){
   Stmt s;
   const char *zCol;
@@ -185,9 +186,9 @@ int tag_insert(
     return tagid;
   }
   db_prepare(&s,
-    "REPLACE INTO tagxref(tagid,tagtype,srcId,origid,value,mtime,rid)"
-    " VALUES(%d,%d,%d,%d,%Q,:mtime,%d)",
-    tagid, tagtype, srcId, rid, zValue, rid
+    "REPLACE INTO tagxref(tagid,tagtype,srcId,origid,value,mtime,rid,tagcomment)"
+    " VALUES(%d,%d,%d,%d,%Q,:mtime,%d,%Q)",
+    tagid, tagtype, srcId, rid, zValue, rid, zComment
   );
   db_bind_double(&s, ":mtime", mtime);
   db_step(&s);
@@ -277,7 +278,7 @@ void testtag_cmd(void){
   g.markPrivate = content_is_private(rid);
   zValue = g.argc==5 ? g.argv[4] : 0;
   db_begin_transaction();
-  tag_insert(zTag, tagtype, zValue, -1, 0.0, rid);
+  tag_insert(zTag, tagtype, zValue, -1, 0.0, rid, NULL);
   db_end_transaction(0);
 }
 
@@ -633,7 +634,7 @@ void reparent_cmd(void){
     fossil_free(zUuid);
   }
   if( bTest && !dryRun ){
-    tag_insert("parent", 1, blob_str(&value), -1, 0.0, rid);
+    tag_insert("parent", 1, blob_str(&value), -1, 0.0, rid, NULL);
   }else{
     zUuid = rid_to_uuid(rid);
     tag_add_artifact("","parent",zUuid,blob_str(&value),1|dryRun,0,0);
