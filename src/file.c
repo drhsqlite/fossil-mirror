@@ -943,6 +943,44 @@ void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
 }
 
 /*
+** COMMAND: test-file-environment
+**
+** Usage: %fossil test-file-environment FILENAME...
+**
+** Display the effective file handling subsystem "settings" and then
+** display file system information about the files specified, if any.
+*/
+void cmd_test_file_environment(void){
+  int i;
+  Blob x;
+  int slashFlag = find_option("slash",0,0)!=0;
+  blob_zero(&x);
+  fossil_print("filenames_are_case_sensitive() = %d\n",
+               filenames_are_case_sensitive());
+  fossil_print("db_allow_symlinks_by_default() = %d\n",
+               db_allow_symlinks_by_default());
+  fossil_print("db_allow_symlinks(0) = %d\n", db_allow_symlinks(0));
+  fossil_print("db_allow_symlinks(1) = %d\n", db_allow_symlinks(1));
+  for(i=2; i<g.argc; i++){
+    int rc;
+    char zBuf[100];
+    const char *zName = g.argv[i];
+    struct fossilStat testFileStat;
+    file_canonical_name(zName, &x, slashFlag);
+    fossil_print("[%s] -> [%s]\n", zName, blob_buffer(&x));
+    blob_reset(&x);
+    memset(&testFileStat, 0, sizeof(struct fossilStat));
+    rc = fossil_stat(zName, &testFileStat, 1, 1);
+    fossil_print("  stat_rc     = %d\n", rc);
+    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_size);
+    fossil_print("  file_size   = %s\n", zBuf);
+    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_mtime);
+    fossil_print("  file_mtime  = %s\n", zBuf);
+    fossil_print("  file_mode   = %d\n", testFileStat.st_mode);
+  }
+}
+
+/*
 ** COMMAND: test-canonical-name
 **
 ** Usage: %fossil test-canonical-name FILENAME...
