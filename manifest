@@ -1,5 +1,5 @@
-C Add\scomment\scards\sto\stags,\swhich\sare\saccepted\sby\sgit\simport\sand\sexported\sto\ngit\sexport.\n\nThey\sare\svisible\svia\sthe\stimeline,\sbut\scurrently\slack\san\seditable\smeans\svia\sthe\sUI.
-D 2017-02-13T03:34:12.211
+C Add\sa\s--comment\soption\sto\sthe\stag\sadd\ssubcommand.
+D 2017-02-13T10:53:41.003
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -487,7 +487,7 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 26a2f0024b1e59f3e6b3f4fa40f72f458e517f18
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c ed44773c93e570dd0dd018e9829c1e3e5ec40cf1
-F src/rebuild.c 517bb76c3345dd611d83ec342c6b5ab3492e91a2
+F src/rebuild.c 194a6fcc5cd576fb36b912a002b0a3bb1f55378e
 F src/regexp.c 11ed4c905c2e471efe9c1e9c4650004ad91d6ebb
 F src/report.c 3b627c4ba95b5260ded1cee2adc5ce6e28d791d2
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
@@ -507,7 +507,7 @@ F src/stat.c 2f81053ee64a9a9705fdbeac60e7397798145aaf
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
 F src/style.c cf9edbf403e1df8e094e8a1d44d5dd9516046678
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
-F src/tag.c 664898fe0de5078aa6355509ab84374175bce784
+F src/tag.c 8d91bd4322597d9f667cc41a04a36b0a34a2016f
 F src/tar.c 8cfe3f2ef83784ed5644b3a9c4cd4d85f1096a38
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
@@ -783,7 +783,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d90460dbf428e74b63262a25cf2b55939493ce23
-R c3adec7b51939a571ff1f4aae6207bad
+P 752bdd38c73da128a15ec37a800bd5c7c1d59e3e
+R c4fe9b1929ed8504449f3f42b32d53aa
 U roy.marples
-Z 0bba6729b2e10aea33c5b94096da2765
+Z 303175e7f786568eae520d09507ad21e

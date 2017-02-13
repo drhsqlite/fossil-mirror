@@ -305,6 +305,7 @@ void tag_add_artifact(
   const char *zObjName,       /* Name of object attached to */
   const char *zValue,         /* Value for the tag.  Might be NULL */
   int tagtype,                /* 0:cancel 1:singleton 2:propagated */
+  const char *zComment,       /* Comment for the tag */
   const char *zDateOvrd,      /* Override date string */
   const char *zUserOvrd       /* Override user name */
 ){
@@ -342,6 +343,7 @@ void tag_add_artifact(
     );
   }
 #endif
+  if( zComment ) blob_appendf(&ctrl, "C %F\n", zComment);
   zDate = date_in_standard_format(zDateOvrd ? zDateOvrd : "now");
   blob_appendf(&ctrl, "D %s\n", zDate);
   blob_appendf(&ctrl, "T %c%s%F %b",
@@ -382,6 +384,7 @@ void tag_add_artifact(
 **         Options:
 **           --raw                       Raw tag name.
 **           --propagate                 Propagating tag.
+**           --comment                   Set a comment for the tag.
 **           --date-override DATETIME    Set date and time added.
 **           --user-override USER        Name USER when adding the tag.
 **           --dryrun|-n                 Display the tag text, but do not
@@ -453,6 +456,7 @@ void tag_cmd(void){
   if( strncmp(g.argv[2],"add",n)==0 ){
     char *zValue;
     int dryRun = 0;
+    const char *zComment = find_option("comment",0,1);
     const char *zDateOvrd = find_option("date-override",0,1);
     const char *zUserOvrd = find_option("user-override",0,1);
     if( find_option("dryrun","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
@@ -462,7 +466,7 @@ void tag_cmd(void){
     zValue = g.argc==6 ? g.argv[5] : 0;
     db_begin_transaction();
     tag_add_artifact(zPrefix, g.argv[3], g.argv[4], zValue,
-                     1+fPropagate+dryRun,zDateOvrd,zUserOvrd);
+                     1+fPropagate+dryRun,zComment,zDateOvrd,zUserOvrd);
     db_end_transaction(0);
   }else
 
@@ -478,7 +482,7 @@ void tag_cmd(void){
       usage("cancel ?options? TAGNAME CHECK-IN");
     }
     db_begin_transaction();
-    tag_add_artifact(zPrefix, g.argv[3], g.argv[4], 0, dryRun, 0, 0);
+    tag_add_artifact(zPrefix, g.argv[3], g.argv[4], 0, dryRun, 0, 0, 0);
     db_end_transaction(0);
   }else
 
@@ -637,7 +641,7 @@ void reparent_cmd(void){
     tag_insert("parent", 1, blob_str(&value), -1, 0.0, rid, NULL);
   }else{
     zUuid = rid_to_uuid(rid);
-    tag_add_artifact("","parent",zUuid,blob_str(&value),1|dryRun,0,0);
+    tag_add_artifact("","parent",zUuid,blob_str(&value),1|dryRun,0,0,0);
   }
 }
 
