@@ -91,7 +91,7 @@ static int fossil_stat(const char *zFilename, struct fossilStat *buf, int isWd){
   int rc;
   void *zMbcs = fossil_utf8_to_path(zFilename, 0);
 #if !defined(_WIN32)
-  if( isWd && db_allow_symlinks() ){
+  if( isWd && db_allow_symlinks(0) ){
     rc = lstat(zMbcs, buf);
   }else{
     rc = stat(zMbcs, buf);
@@ -193,7 +193,7 @@ int file_wd_isfile(const char *zFilename){
 **/
 void symlink_create(const char *zTargetFile, const char *zLinkFile){
 #if !defined(_WIN32)
-  if( db_allow_symlinks() ){
+  if( db_allow_symlinks(0) ){
     int i, nName;
     char *zName, zBuf[1000];
 
@@ -250,7 +250,7 @@ int file_wd_perm(const char *zFilename){
   if( !getStat(zFilename, 1) ){
      if( S_ISREG(fileStat.st_mode) && ((S_IXUSR)&fileStat.st_mode)!=0 )
       return PERM_EXE;
-    else if( db_allow_symlinks() && S_ISLNK(fileStat.st_mode) )
+    else if( db_allow_symlinks(0) && S_ISLNK(fileStat.st_mode) )
       return PERM_LNK;
   }
 #endif
@@ -311,7 +311,7 @@ int file_wd_isdir(const char *zFilename){
     rc = 0; /* It does not exist at all. */
   }else if( S_ISDIR(fileStat.st_mode) ){
     rc = 1; /* It exists and is a real directory. */
-  }else if( !g.fNoDirSymlinks && S_ISLNK(fileStat.st_mode) ){
+  }else if( !db_allow_symlinks(1) && S_ISLNK(fileStat.st_mode) ){
     Blob content;
     blob_read_link(&content, zFN); /* It exists and is a link. */
     rc = file_wd_isdir(blob_str(&content)); /* Points to directory? */

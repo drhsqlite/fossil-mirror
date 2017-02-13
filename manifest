@@ -1,5 +1,5 @@
-C Fix\stimeline\slimit\soption\swith\spath-specific\srequest.
-D 2017-02-10T23:26:11.470
+C If\sthe\s'allow-symlinks'\soption\sis\senabled\s(or\sthe\s'--no-dir-symlinks'\sflag\sis\sspecified),\sdo\snot\straverse\sinto\ssymlinked\sdirectories.
+D 2017-02-13T20:10:40.730
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -413,7 +413,7 @@ F src/content.c a6024f0400307f4c25d067d323a6cbdf38b78c81
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c e44f4f79aca7aae97119d09997d2264e3f83feda
+F src/db.c c2c7c8e30b285ce6774c73433de3877982d8271b
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
@@ -425,7 +425,7 @@ F src/doc.c bae142c1df13fbaba1af814e0ee398670d366547
 F src/encode.c edb12a68c5831e5331eaad3796c492059edb10fb
 F src/event.c 021db025691a859a49751f255a0a065bca728444
 F src/export.c d506a4f7e033a10ec1771593c468c199b68a88b8
-F src/file.c 0fae72c98c6abf5cbe61e714b547b2210d0cbf29
+F src/file.c 034660bb2570dfc48dfa1ac1bb1d72347a696e23
 F src/finfo.c 1ed28f25c99d30270690b3b45c36c3320baecddc
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
@@ -783,7 +783,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8e428c14c278a38340a8479bcf6708b83148c3f8
-R 69e478479e58fa39df90ff4f547e2258
-U ashepilko
-Z 197514aa0f7f6e4af20ecf2d84bc5cdb
+P ffd261abfb84855c0843d720d9e04ba8a3aa4306
+R 4ac3ccd02275086406d4bb688cc95070
+T *branch * symlinks
+T *sym-symlinks *
+T -sym-trunk *
+U mistachkin
+Z 422a1b35eab930070adf4400b0b9dd04
