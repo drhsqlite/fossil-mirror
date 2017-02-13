@@ -1,5 +1,5 @@
-C Tags\sshould\sbe\simported\swith\sa\ssym-\sprefix.
-D 2017-02-13T00:20:09.110
+C Same\sas\s"roy-export",\sbut\suse\stag\svalue\sin\sstead\sof\scomment\sfor\sstoring\scomment\srelated\sto\stags.\s(Not\sactually\stested\swith\sGIT\syet!)
+D 2017-02-13T10:37:57.587
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -424,7 +424,7 @@ F src/dispatch.c 4e634c0cf22b7dd63501a4dc0aa6375cf4151343
 F src/doc.c bae142c1df13fbaba1af814e0ee398670d366547
 F src/encode.c edb12a68c5831e5331eaad3796c492059edb10fb
 F src/event.c 021db025691a859a49751f255a0a065bca728444
-F src/export.c e77398c54b8595c4fcf6ca40c7c21aa17ec31e58
+F src/export.c 2bbe24ede51d3642b76f1438fa2ea6ddbbb66b77
 F src/file.c 0fae72c98c6abf5cbe61e714b547b2210d0cbf29
 F src/finfo.c 1ed28f25c99d30270690b3b45c36c3320baecddc
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
@@ -437,7 +437,7 @@ F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
-F src/import.c 425a0435c0eedabbf0f9b29092d50c86e624fbca
+F src/import.c e0528aaefee0d1b43a51fa1c1e651680f8428f4e
 F src/info.c 7b09909864e296c4d7404fc17ca644f960071b55
 F src/json.c f5b7fdcda3a1896153974769be00bae833bc476b
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
@@ -783,7 +783,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8f901ff570953cc68b22273c0743e3632a1f547d
-R ee268f9b8f765c162f5a85026e6926fc
-U roy.marples
-Z ab8759a61dee636c00795880d79a12d0
+P d90460dbf428e74b63262a25cf2b55939493ce23
+R a4c0894ec4c2f7a7f71a205930de59eb
+T *branch * jn-export
+T *sym-jn-export *
+T -sym-roy-export *
+U jan.nijtmans
+Z c98e2fc20985ab1c791b3a3b5116a5c5

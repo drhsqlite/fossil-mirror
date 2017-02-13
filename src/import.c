@@ -218,8 +218,11 @@ static void finish_tag(void){
   if( gg.zDate && gg.zTag && gg.zFrom && gg.zUser ){
     blob_zero(&record);
     blob_appendf(&record, "D %s\n", gg.zDate);
-    blob_appendf(&record, "T +sym-%F%F%F %s\n", gimport.zTagPre, gg.zTag,
+    blob_appendf(&record, "T +sym-%F%F%F %s", gimport.zTagPre, gg.zTag,
         gimport.zTagSuf, gg.zFrom);
+    if( gg.zComment ){
+      blob_appendf(&record, " %F", gg.zComment);
+    }
     blob_appendf(&record, "U %F\n", gg.zUser);
     md5sum_blob(&record, &cksum);
     blob_appendf(&record, "Z %b\n", &cksum);
@@ -607,8 +610,13 @@ static void git_fast_import(FILE *pIn){
         if( got!=gg.nData ){
           fossil_fatal("short read: got %d of %d bytes", got, gg.nData);
         }
-        gg.aData[got] = 0;
-        if( gg.zComment==0 && gg.xFinish==finish_commit ){
+	/* Strip trailing newline, it's appended to the comment. */
+	if( gg.aData[got-1] == '\n' )
+	  gg.aData[got-1] = '\0';
+        else
+          gg.aData[got] = '\0';
+        if( gg.zComment==0 &&
+            (gg.xFinish==finish_commit || gg.xFinish==finish_tag) ){
           gg.zComment = gg.aData;
           gg.aData = 0;
           gg.nData = 0;
