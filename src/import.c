@@ -218,7 +218,7 @@ static void finish_tag(void){
   if( gg.zDate && gg.zTag && gg.zFrom && gg.zUser ){
     blob_zero(&record);
     blob_appendf(&record, "D %s\n", gg.zDate);
-    blob_appendf(&record, "T +%F%F%F %s\n", gimport.zTagPre, gg.zTag,
+    blob_appendf(&record, "T +sym-%F%F%F %s\n", gimport.zTagPre, gg.zTag,
         gimport.zTagSuf, gg.zFrom);
     blob_appendf(&record, "U %F\n", gg.zUser);
     md5sum_blob(&record, &cksum);

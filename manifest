@@ -1,5 +1,5 @@
-C Match\scommitter\s/\stag\sname\s<email>\swith\sa\suser's\scontact\sinfo\srecord.\nIf\snot\sfound,\sthen\suse\sthe\semail\saddress\sas\sthe\suser\sname.
-D 2017-02-12T15:17:52.100
+C Tags\sshould\sbe\simported\swith\sa\ssym-\sprefix.
+D 2017-02-13T00:20:09.110
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -437,7 +437,7 @@ F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
-F src/import.c 0a960a6952d2f1436aa96741f54c68d08cbcc397
+F src/import.c 425a0435c0eedabbf0f9b29092d50c86e624fbca
 F src/info.c 7b09909864e296c4d7404fc17ca644f960071b55
 F src/json.c f5b7fdcda3a1896153974769be00bae833bc476b
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
@@ -783,7 +783,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9501d941d5c16462f045858d842630622acfe27d
-R a5b5600c6ae6ca7a9b19548f4fcb7889
+P 8f901ff570953cc68b22273c0743e3632a1f547d
+R ee268f9b8f765c162f5a85026e6926fc
 U roy.marples
-Z 14acf11a4c5ddeba233424dc61c7f541
+Z ab8759a61dee636c00795880d79a12d0
