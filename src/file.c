@@ -166,6 +166,22 @@ i64 file_wd_mtime(const char *zFilename){
 }
 
 /*
+** Return the mode bits for a file.  Return -1 if the file does not
+** exist.  If zFilename is NULL return the size of the most recently
+** stat-ed file.
+*/
+int file_mode(const char *zFilename){
+  return getStat(zFilename, 0) ? -1 : fileStat.st_mode;
+}
+
+/*
+** Same as file_mode(), but takes into account symlinks.
+*/
+int file_wd_mode(const char *zFilename){
+  return getStat(zFilename, 1) ? -1 : fileStat.st_mode;
+}
+
+/*
 ** Return TRUE if the named file is an ordinary file or symlink
 ** and symlinks are allowed.
 ** Return false for directories, devices, fifos, etc.
@@ -978,8 +994,9 @@ static void emitFileStat(const char *zPath, int raw, int slash){
     fossil_print("  file_size           = %s\n", zBuf);
     sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_wd_mtime(zPath));
     fossil_print("  file_mtime          = %s\n", zBuf);
+    fossil_print("  file_mode           = %d\n", file_wd_mode(zPath));
     fossil_print("  file_isfile         = %d\n", file_wd_isfile(zPath));
-    fossil_print("  file_isfile_or_link = %d\n",file_wd_isfile_or_link(zPath));
+    fossil_print("  file_isfile_or_link = %d\n", file_wd_isfile_or_link(zPath));
     fossil_print("  file_islink         = %d\n", file_wd_islink(zPath));
     fossil_print("  file_isexe          = %d\n", file_wd_isexe(zPath));
     fossil_print("  file_isdir          = %d\n", file_wd_isdir(zPath));
