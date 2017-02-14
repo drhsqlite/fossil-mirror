@@ -943,6 +943,50 @@ void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
 }
 
 /*
+** Emits the effective or raw stat() information for the specified
+** file or directory.
+*/
+static void emitFileStat(const char *zPath, int raw, int slash){
+  char zBuf[100];
+  Blob x;
+  memset(zBuf, 0, sizeof(zBuf));
+  blob_zero(&x);
+  file_canonical_name(zPath, &x, slash);
+  fossil_print("%s[%s] -> [%s]\n", raw ? "RAW " : "", zPath, blob_buffer(&x));
+  blob_reset(&x);
+  if( raw ){
+    int rc;
+    struct fossilStat testFileStat;
+    memset(&testFileStat, 0, sizeof(struct fossilStat));
+    rc = fossil_stat(zPath, &testFileStat, 0, 0);
+    fossil_print("  stat_rc      = %d\n", rc);
+    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_size);
+    fossil_print("  stat_size    = %s\n", zBuf);
+    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_mtime);
+    fossil_print("  stat_mtime   = %s\n", zBuf);
+    fossil_print("  stat_mode    = %d\n", testFileStat.st_mode);
+    memset(&testFileStat, 0, sizeof(struct fossilStat));
+    rc = fossil_stat(zPath, &testFileStat, 1, 1);
+    fossil_print("  l_stat_rc    = %d\n", rc);
+    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_size);
+    fossil_print("  l_stat_size  = %s\n", zBuf);
+    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_mtime);
+    fossil_print("  l_stat_mtime = %s\n", zBuf);
+    fossil_print("  l_stat_mode  = %d\n", testFileStat.st_mode);
+  }else{
+    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_wd_size(zPath));
+    fossil_print("  file_size           = %s\n", zBuf);
+    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_wd_mtime(zPath));
+    fossil_print("  file_mtime          = %s\n", zBuf);
+    fossil_print("  file_isfile         = %d\n", file_wd_isfile(zPath));
+    fossil_print("  file_isfile_or_link = %d\n",file_wd_isfile_or_link(zPath));
+    fossil_print("  file_islink         = %d\n", file_wd_islink(zPath));
+    fossil_print("  file_isexe          = %d\n", file_wd_isexe(zPath));
+    fossil_print("  file_isdir          = %d\n", file_wd_isdir(zPath));
+  }
+}
+
+/*
 ** COMMAND: test-file-environment
 **
 ** Usage: %fossil test-file-environment FILENAME...
@@ -957,12 +1001,10 @@ void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
 */
 void cmd_test_file_environment(void){
   int i;
-  Blob x;
   int slashFlag = find_option("slash",0,0)!=0;
   if( find_option("open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
   }
-  blob_zero(&x);
   fossil_print("Th_IsRepositoryOpen() = %d\n", Th_IsRepositoryOpen());
   fossil_print("Th_IsConfigOpen() = %d\n", Th_IsConfigOpen());
   fossil_print("filenames_are_case_sensitive() = %d\n",
@@ -972,29 +1014,8 @@ void cmd_test_file_environment(void){
   fossil_print("db_allow_symlinks(0) = %d\n", db_allow_symlinks(0));
   fossil_print("db_allow_symlinks(1) = %d\n", db_allow_symlinks(1));
   for(i=2; i<g.argc; i++){
-    int rc;
-    char zBuf[100];
-    const char *zName = g.argv[i];
-    struct fossilStat testFileStat;
-    file_canonical_name(zName, &x, slashFlag);
-    fossil_print("[%s] -> [%s]\n", zName, blob_buffer(&x));
-    blob_reset(&x);
-    memset(&testFileStat, 0, sizeof(struct fossilStat));
-    rc = fossil_stat(zName, &testFileStat, 0, 0);
-    fossil_print("  stat_rc      = %d\n", rc);
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_size);
-    fossil_print("  file_size    = %s\n", zBuf);
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_mtime);
-    fossil_print("  file_mtime   = %s\n", zBuf);
-    fossil_print("  file_mode    = %d\n", testFileStat.st_mode);
-    memset(&testFileStat, 0, sizeof(struct fossilStat));
-    rc = fossil_stat(zName, &testFileStat, 1, 1);
-    fossil_print("  l_stat_rc    = %d\n", rc);
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_size);
-    fossil_print("  l_file_size  = %s\n", zBuf);
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_mtime);
-    fossil_print("  l_file_mtime = %s\n", zBuf);
-    fossil_print("  l_file_mode  = %d\n", testFileStat.st_mode);
+    emitFileStat(g.argv[i], 1, slashFlag);
+    emitFileStat(g.argv[i], 0, slashFlag);
   }
 }
 
@@ -1008,28 +1029,17 @@ void cmd_test_file_environment(void){
 **
 ** Options:
 **
+**     --open-config        Open the configuration database first.
 **     --slash              Trailing slashes, if any, are retained.
 */
 void cmd_test_canonical_name(void){
   int i;
-  Blob x;
   int slashFlag = find_option("slash",0,0)!=0;
-  blob_zero(&x);
+  if( find_option("open-config", 0, 0)!=0 ){
+    Th_OpenConfig(1);
+  }
   for(i=2; i<g.argc; i++){
-    char zBuf[100];
-    const char *zName = g.argv[i];
-    file_canonical_name(zName, &x, slashFlag);
-    fossil_print("[%s] -> [%s]\n", zName, blob_buffer(&x));
-    blob_reset(&x);
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_wd_size(zName));
-    fossil_print("  file_size   = %s\n", zBuf);
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_wd_mtime(zName));
-    fossil_print("  file_mtime  = %s\n", zBuf);
-    fossil_print("  file_isfile = %d\n", file_wd_isfile(zName));
-    fossil_print("  file_isfile_or_link = %d\n",file_wd_isfile_or_link(zName));
-    fossil_print("  file_islink = %d\n", file_wd_islink(zName));
-    fossil_print("  file_isexe  = %d\n", file_wd_isexe(zName));
-    fossil_print("  file_isdir  = %d\n", file_wd_isdir(zName));
+    emitFileStat(g.argv[i], 0, slashFlag);
   }
 }
 
