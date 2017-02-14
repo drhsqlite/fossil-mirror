@@ -109,6 +109,14 @@ static int fossil_stat(
 }
 
 /*
+** Clears the fileStat variable and its associated validity flag.
+*/
+static void resetStat(){
+  fileStatValid = 0;
+  memset(&fileStat, 0, sizeof(struct fossilStat));
+}
+
+/*
 ** Fill in the fileStat variable for the file named zFilename.
 ** If zFilename==0, then use the previous value of fileStat if
 ** there is a previous value.
@@ -960,9 +968,15 @@ void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
 
 /*
 ** Emits the effective or raw stat() information for the specified
-** file or directory.
+** file or directory, optionally preserving the trailing slash and
+** resetting the cached stat() information.
 */
-static void emitFileStat(const char *zPath, int raw, int slash){
+static void emitFileStat(
+  const char *zPath,
+  int raw,
+  int slash,
+  int reset
+){
   char zBuf[100];
   Blob x;
   memset(zBuf, 0, sizeof(zBuf));
@@ -990,6 +1004,7 @@ static void emitFileStat(const char *zPath, int raw, int slash){
     fossil_print("  l_stat_mtime = %s\n", zBuf);
     fossil_print("  l_stat_mode  = %d\n", testFileStat.st_mode);
   }else{
+    if( reset ) resetStat();
     sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_wd_size(zPath));
     fossil_print("  file_size           = %s\n", zBuf);
     sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_wd_mtime(zPath));
@@ -1015,13 +1030,16 @@ static void emitFileStat(const char *zPath, int raw, int slash){
 **
 **     --open-config        Open the configuration database first.
 **     --slash              Trailing slashes, if any, are retained.
+**     --reset              Reset cached stat() info for each file.
 */
 void cmd_test_file_environment(void){
   int i;
   int slashFlag = find_option("slash",0,0)!=0;
+  int resetFlag = find_option("reset",0,0)!=0;
   if( find_option("open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
   }
+  fossil_print("Th_IsLocalOpen() = %d\n", Th_IsLocalOpen());
   fossil_print("Th_IsRepositoryOpen() = %d\n", Th_IsRepositoryOpen());
   fossil_print("Th_IsConfigOpen() = %d\n", Th_IsConfigOpen());
   fossil_print("filenames_are_case_sensitive() = %d\n",
@@ -1031,8 +1049,8 @@ void cmd_test_file_environment(void){
   fossil_print("db_allow_symlinks(0) = %d\n", db_allow_symlinks(0));
   fossil_print("db_allow_symlinks(1) = %d\n", db_allow_symlinks(1));
   for(i=2; i<g.argc; i++){
-    emitFileStat(g.argv[i], 1, slashFlag);
-    emitFileStat(g.argv[i], 0, slashFlag);
+    emitFileStat(g.argv[i], 1, slashFlag, resetFlag);
+    emitFileStat(g.argv[i], 0, slashFlag, resetFlag);
   }
 }
 
@@ -1048,15 +1066,17 @@ void cmd_test_file_environment(void){
 **
 **     --open-config        Open the configuration database first.
 **     --slash              Trailing slashes, if any, are retained.
+**     --reset              Reset cached stat() info for each file.
 */
 void cmd_test_canonical_name(void){
   int i;
   int slashFlag = find_option("slash",0,0)!=0;
+  int resetFlag = find_option("reset",0,0)!=0;
   if( find_option("open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
   }
   for(i=2; i<g.argc; i++){
-    emitFileStat(g.argv[i], 0, slashFlag);
+    emitFileStat(g.argv[i], 0, slashFlag, resetFlag);
   }
 }
 

@@ -27,6 +27,7 @@
 ** These macros are used within this file to detect if the repository and
 ** configuration ("user") database are currently open.
 */
+#define Th_IsLocalOpen()          (g.localOpen)
 #define Th_IsRepositoryOpen()     (g.repositoryOpen)
 #define Th_IsConfigOpen()         (g.zConfigDbName!=0)
 
