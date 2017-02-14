@@ -2487,12 +2487,14 @@ void timeline_cmd(void){
        mode==TIMELINE_MODE_PARENTS ) ? "<=" : ">=", zDate /*safe-for-%s*/
   );
 
+  /* When zFilePattern is specified, compute complete ancestry;
+   * limit later at print_timeline() */
   if( mode==TIMELINE_MODE_CHILDREN || mode==TIMELINE_MODE_PARENTS ){
     db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
     if( mode==TIMELINE_MODE_CHILDREN ){
-      compute_descendants(objid, n);
+      compute_descendants(objid, (zFilePattern ? 0 : n));
     }else{
-      compute_ancestors(objid, n, 0);
+      compute_ancestors(objid, (zFilePattern ? 0 : n), 0);
     }
     blob_append_sql(&sql, "\n  AND blob.rid IN ok");
   }
