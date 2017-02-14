@@ -1,5 +1,5 @@
-C Enhance\sverbosity\sof\sthe\snew\s'test-file-environment'\scommand.
-D 2017-02-14T00:03:52.832
+C Further\senhancements.
+D 2017-02-14T00:13:23.292
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -425,7 +425,7 @@ F src/doc.c bae142c1df13fbaba1af814e0ee398670d366547
 F src/encode.c edb12a68c5831e5331eaad3796c492059edb10fb
 F src/event.c 021db025691a859a49751f255a0a065bca728444
 F src/export.c d506a4f7e033a10ec1771593c468c199b68a88b8
-F src/file.c 7c1f0850bb335285592b70776db97d7daf1372f0
+F src/file.c f561ef9c85aca85b974978a95e3a8fcea51b2cbf
 F src/finfo.c 1ed28f25c99d30270690b3b45c36c3320baecddc
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
@@ -512,7 +512,7 @@ F src/tar.c 8cfe3f2ef83784ed5644b3a9c4cd4d85f1096a38
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
-F src/th_main.c 335b0744b9997eb1001c058740437860aeaba05b
+F src/th_main.c e9be5cbafe2f68d4295bfda7e9ae131658dd134f
 F src/th_tcl.c 2b70a8da7d7d8009794d7a3565043c8933a6cbfe
 F src/timeline.c da1310900ca1b188eda6ac6f997f547d7311b2f0
 F src/tkt.c b0fcc26bf2f1acc84b147e242170a1b8c8c68449
@@ -783,7 +783,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c891d86c6c06ba2631d5281465f5d55c2d1309eb
-R 7bd97cfe656e30e64d02c7729759dca6
+P 804bb55f0756bf2e452722ad12a5cf0581484792
+R 6c0237907ba26fdd14b8647e85669165
 U mistachkin
-Z f71a69c725e76716ba549b0bf1f40dda
+Z a524b21ce413db6c4a8f9ed6d53dbac8

@@ -949,12 +949,22 @@ void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
 **
 ** Display the effective file handling subsystem "settings" and then
 ** display file system information about the files specified, if any.
+**
+** Options:
+**
+**     --open-config        Open the configuration database first.
+**     --slash              Trailing slashes, if any, are retained.
 */
 void cmd_test_file_environment(void){
   int i;
   Blob x;
   int slashFlag = find_option("slash",0,0)!=0;
+  if( find_option("open-config", 0, 0)!=0 ){
+    Th_OpenConfig(1);
+  }
   blob_zero(&x);
+  fossil_print("Th_IsRepositoryOpen() = %d\n", Th_IsRepositoryOpen());
+  fossil_print("Th_IsConfigOpen() = %d\n", Th_IsConfigOpen());
   fossil_print("filenames_are_case_sensitive() = %d\n",
                filenames_are_case_sensitive());
   fossil_print("db_allow_symlinks_by_default() = %d\n",
@@ -995,6 +1005,10 @@ void cmd_test_file_environment(void){
 **
 ** Test the operation of the canonical name generator.
 ** Also test Fossil's ability to measure attributes of a file.
+**
+** Options:
+**
+**     --slash              Trailing slashes, if any, are retained.
 */
 void cmd_test_canonical_name(void){
   int i;
@@ -1130,6 +1144,10 @@ void file_relative_name(const char *zOrigName, Blob *pOut, int slash){
 ** COMMAND: test-relative-name
 **
 ** Test the operation of the relative name generator.
+**
+** Options:
+**
+**     --slash              Trailing slashes, if any, are retained.
 */
 void cmd_test_relative_name(void){
   int i;
