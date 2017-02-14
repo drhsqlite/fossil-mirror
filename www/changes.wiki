@@ -1,5 +1,10 @@
 <title>Change Log</title>
 
+<a name='v1_38'></a>
+<h2>Changes for Version 1.38 (2017-??-??)</h2>
+
+  *  Update the built-in SQLite to version 3.17.0.
+
 <a name='v1_37'></a>
 <h2>Changes for Version 1.37 (2017-01-16)</h2>
 
