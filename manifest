@@ -1,5 +1,5 @@
-C Add\s'--reset'\soption\sto\sthe\sfile\stest\scommands.\s\sOther\sminor\simprovements.
-D 2017-02-14T00:59:17.284
+C When\sthe\s--reset\soption\sis\sused,\sreset\sthe\scached\sstat()\sinformation\sbefore\sand\safter\sdealing\swith\sit.
+D 2017-02-14T01:03:48.442
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -425,7 +425,7 @@ F src/doc.c bae142c1df13fbaba1af814e0ee398670d366547
 F src/encode.c edb12a68c5831e5331eaad3796c492059edb10fb
 F src/event.c 021db025691a859a49751f255a0a065bca728444
 F src/export.c d506a4f7e033a10ec1771593c468c199b68a88b8
-F src/file.c 1053ee9618b233e3631958fb364673fb45651563
+F src/file.c 7570da01a8d1ce7e0d6dd91ca7eeced9b5f4c75b
 F src/finfo.c 1ed28f25c99d30270690b3b45c36c3320baecddc
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
@@ -783,7 +783,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7972e19f77094b66381a83dd14995ce1e60c4da6
-R 24b2cac538106d59427622d391b1b41d
+P 996ebab71bd93ef9eca356283303b1017f8afec9
+R b413188aeddf2e3aad1259e11c065a17
 U mistachkin
-Z 1ead268953acc50f0c2767d27dc026d2
+Z 0185c6983f63eb9609e0853a5346dd8d

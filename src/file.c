@@ -1015,6 +1015,7 @@ static void emitFileStat(
     fossil_print("  file_islink         = %d\n", file_wd_islink(zPath));
     fossil_print("  file_isexe          = %d\n", file_wd_isexe(zPath));
     fossil_print("  file_isdir          = %d\n", file_wd_isdir(zPath));
+    if( reset ) resetStat();
   }
 }
 
