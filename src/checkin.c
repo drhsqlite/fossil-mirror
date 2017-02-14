@@ -902,9 +902,10 @@ void extras_cmd(void){
 ** the (versionable) clean-glob, ignore-glob, and keep-glob settings.
 **
 ** The --verily option ignores the keep-glob and ignore-glob settings and
-** turns on --force, --emptydirs, --dotfiles, and --disable-undo.  Use the
-** --verily option when you really want to clean up everything.  Extreme
-** care should be exercised when using the --verily option.
+** turns on the options --force, --emptydirs, --dotfiles, --disable-undo,
+** and --no-dir-symlinks.  Use the --verily option when you really want
+** to clean up everything.  Extreme care should be exercised when using
+** the --verily option.
 **
 ** Options:
 **    --allckouts      Check for empty directories within any checkouts
@@ -999,7 +1000,8 @@ void clean_cmd(void){
     disableUndo = 1;
     scanFlags |= SCAN_ALL;
     zCleanFlag = 0;
-    g.fNoDirSymlinks = 1;
+    g.fNoDirSymlinks = 1; /* Forbid symlink directory traversal. */
+    g.allowSymlinks = 1;  /* Treat symlink files as content. */
   }
   if( zIgnoreFlag==0 && !verilyFlag ){
     zIgnoreFlag = db_get("ignore-glob", 0);

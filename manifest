@@ -1,5 +1,5 @@
-C When\sthe\s--reset\soption\sis\sused,\sreset\sthe\scached\sstat()\sinformation\sbefore\sand\safter\sdealing\swith\sit.
-D 2017-02-14T01:03:48.442
+C For\ssafety,\sthe\s--verily\soption\sto\sclean\sshould\sforce\sall\ssymlinks\sto\sbe\streated\sas\snormal\scontent\sfiles.
+D 2017-02-14T03:04:54.944
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -401,7 +401,7 @@ F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c 0fe6520c4eeedee87cab271f32943a96382828c1
-F src/checkin.c 33e8341c27b356336cc2c82bb9977dc454c3976e
+F src/checkin.c fe3714c6c26f87650582b7285c6340e6e4b35184
 F src/checkout.c 083ec4f2ccd7d9df27dbb94d90008088eb8c4340
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
@@ -783,7 +783,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 996ebab71bd93ef9eca356283303b1017f8afec9
-R b413188aeddf2e3aad1259e11c065a17
+P 39ea7a2f6134c3c4a5f4f8b02bbd549382f0152f
+R a7ccd00451b9eb21932356129ee51bb2
 U mistachkin
-Z 0185c6983f63eb9609e0853a5346dd8d
+Z ec3ea7ad45b912382802b7b2ed5b9c08
