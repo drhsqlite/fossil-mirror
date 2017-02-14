@@ -970,13 +970,21 @@ void cmd_test_file_environment(void){
     fossil_print("[%s] -> [%s]\n", zName, blob_buffer(&x));
     blob_reset(&x);
     memset(&testFileStat, 0, sizeof(struct fossilStat));
-    rc = fossil_stat(zName, &testFileStat, 1, 1);
-    fossil_print("  stat_rc     = %d\n", rc);
+    rc = fossil_stat(zName, &testFileStat, 0, 0);
+    fossil_print("  stat_rc      = %d\n", rc);
     sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_size);
-    fossil_print("  file_size   = %s\n", zBuf);
+    fossil_print("  file_size    = %s\n", zBuf);
     sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_mtime);
-    fossil_print("  file_mtime  = %s\n", zBuf);
-    fossil_print("  file_mode   = %d\n", testFileStat.st_mode);
+    fossil_print("  file_mtime   = %s\n", zBuf);
+    fossil_print("  file_mode    = %d\n", testFileStat.st_mode);
+    memset(&testFileStat, 0, sizeof(struct fossilStat));
+    rc = fossil_stat(zName, &testFileStat, 1, 1);
+    fossil_print("  l_stat_rc    = %d\n", rc);
+    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_size);
+    fossil_print("  l_file_size  = %s\n", zBuf);
+    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_mtime);
+    fossil_print("  l_file_mtime = %s\n", zBuf);
+    fossil_print("  l_file_mode  = %d\n", testFileStat.st_mode);
   }
 }
 

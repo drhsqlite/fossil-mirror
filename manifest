@@ -1,5 +1,5 @@
-C Add\sthe\s'test-file-environment'\stest\scommand.
-D 2017-02-13T23:56:10.736
+C Enhance\sverbosity\sof\sthe\snew\s'test-file-environment'\scommand.
+D 2017-02-14T00:03:52.832
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -425,7 +425,7 @@ F src/doc.c bae142c1df13fbaba1af814e0ee398670d366547
 F src/encode.c edb12a68c5831e5331eaad3796c492059edb10fb
 F src/event.c 021db025691a859a49751f255a0a065bca728444
 F src/export.c d506a4f7e033a10ec1771593c468c199b68a88b8
-F src/file.c 47964da1d6318a2f8ca6ce3808fc8cffdd441f9a
+F src/file.c 7c1f0850bb335285592b70776db97d7daf1372f0
 F src/finfo.c 1ed28f25c99d30270690b3b45c36c3320baecddc
 F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
@@ -783,7 +783,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b3fc0a133c50cf710b56a9556e00187d0058edd6
-R 048565fbc877645ccb87920c7e9e6f67
+P c891d86c6c06ba2631d5281465f5d55c2d1309eb
+R 7bd97cfe656e30e64d02c7729759dca6
 U mistachkin
-Z 95252ed5ff643143523750955bf8d9c1
+Z f71a69c725e76716ba549b0bf1f40dda
