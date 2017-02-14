@@ -2767,6 +2767,7 @@ const Setting aSetting[] = {
   { "http-port",        0,             16, 0, 0, "8080"                },
   { "https-login",      0,              0, 0, 0, "off"                 },
   { "ignore-glob",      0,             40, 1, 0, ""                    },
+  { "keep-glob",        0,             40, 1, 0, ""                    },
   { "localauth",        0,              0, 0, 0, "off"                 },
   { "main-branch",      0,             40, 0, 0, "trunk"               },
   { "manifest",         0,              5, 1, 0, ""                    },
@@ -2957,7 +2958,11 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **    ignore-glob      The VALUE is a comma or newline-separated list of GLOB
 **     (versionable)   patterns specifying files that the "add", "addremove",
 **                     "clean", and "extra" commands will ignore.
-**                     Example:  *.log *.a *.lib *.o
+**                     Example:  *.log customCode.c notes.txt
+**
+**    keep-glob        The VALUE is a comma or newline-separated list of GLOB
+**     (versionable)   patterns specifying files that the "clean" command will
+**                     keep.
 **
 **    localauth        If enabled, require that HTTP connections from
 **                     127.0.0.1 be authenticated by password.  If

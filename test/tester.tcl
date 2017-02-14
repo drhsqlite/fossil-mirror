@@ -214,7 +214,6 @@ proc get_versionable_settings {} {
   set result [list \
       allow-symlinks \
       binary-glob \
-      clean-glob \
       crlf-glob \
       crnl-glob \
       dotfiles \
@@ -253,7 +252,6 @@ proc get_all_settings {} {
       autosync-tries \
       binary-glob \
       case-sensitive \
-      clean-glob \
       clearsign \
       crlf-glob \
       crnl-glob \

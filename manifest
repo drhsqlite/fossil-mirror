@@ -1,5 +1,5 @@
-C Merge\scleanX
-D 2017-02-14T19:23:00.000
+C Add\sback\ssome\susage\sof\s"keep-glob"
+D 2017-02-14T19:27:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/crnl-glob 2da052c2bd7a53c5e083152cd3ea3cefd6228b17
@@ -407,12 +407,12 @@ F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
 F src/codecheck1.c 0e2c3cd4068f6de1df56fc19ec224c296f3c8eb4
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
 F src/config.h e0a8d96a16c6c45bf064f5d665320993e78cb6f1
-F src/configure.c 12f39d440bb50e3fec1f08aca4cf7524ffe390e9
+F src/configure.c 858e5d025c0c537441da04ee7c69b4b65043ebbf
 F src/content.c a6024f0400307f4c25d067d323a6cbdf38b78c81
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c d7871c5339bc9e5cf732dcd5f47dccf77ff30e44
+F src/db.c 22bd27ba551294769f8939d05bd69ba348b97ba3
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
@@ -441,7 +441,7 @@ F src/info.c 7b09909864e296c4d7404fc17ca644f960071b55
 F src/json.c f5b7fdcda3a1896153974769be00bae833bc476b
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c 7c7e2c63fd1cac2ca85aa657a7ae04d91a1bdc08
-F src/json_config.c 7ab4104f4731989239e1b1234b6f881dcddc7ddd
+F src/json_config.c d2e2725a44b483411da12ac74226f4f8e0a37569
 F src/json_detail.h 76bc835feb671a5001d4a20bd3f0c8882f228382
 F src/json_diff.c ece93153083c388397620c7c7c8b56ce986b85c6
 F src/json_dir.c bd7be6f09d9c4d951e68b9562ad13d15aa76fb70
@@ -576,7 +576,7 @@ F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 9ead8cede3906559325b19560124bd30396f7c0e
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl fff62460346068d80160545f0dfbedbeb2c9699c
+F test/tester.tcl 8b3a2800afdf7ab0a448c71111a4319715cc2d96
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test cfb7fba72a60cfb5e3a8112d042b9c149d6bfa4b
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -782,7 +782,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 70f77a1b6909c7141607d3896973b64d1128b7b5 5957bf3cda2039cc2a6c854b367eab4c0ffbdfbb
-R e66230022bf0c8efa928bfad7f385aae
+P d73dcdd0a204d337be60e72280d348434e833d9a
+R a896b7d6fa8569766a743b3f83ddc7a8
 U jan.nijtmans
-Z 6ebf42458141a8d2e4eec11fbf4af362
+Z fefb6ca5766442624971c9d86ab0be34
