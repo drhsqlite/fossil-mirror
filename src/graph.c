@@ -260,7 +260,6 @@ static void assignChildrenToRail(GraphRow *pBottom){
   GraphRow *pPrior;
   u64 mask = ((u64)1)<<iRail;
 
-  pBottom->iRail = iRail;
   pBottom->railInUse |= mask;
   pPrior = pBottom;
   for(pCurrent=pBottom->pChild; pCurrent; pCurrent=pCurrent->pChild){
@@ -343,13 +342,24 @@ static void riser_to_top(GraphRow *pRow){
 
 /*
 ** Compute the complete graph
+**
+** When primary or merge parents are off-screen, normally a line is drawn
+** from the node down to the bottom of the graph.  This line is called a
+** "descender".  But if the omitDescenders flag is true, then lines down
+** to the bottom of the screen are omitted.
 */
 void graph_finish(GraphContext *p, int omitDescenders){
   GraphRow *pRow, *pDesc, *pDup, *pLoop, *pParent;
-  int i;
+  int i, j;
   u64 mask;
   int hasDup = 0;      /* True if one or more isDup entries */
   const char *zTrunk;
+
+  /* If mergeRiserFrom[X]==Y that means rail X holds a merge riser
+  ** coming up from the bottom of the graph from off-screen check-in Y
+  ** where Y is the RID.  There is no riser on rail X if mergeRiserFrom[X]==0.
+  */
+  int mergeRiserFrom[GR_MAX_RAIL];
 
   if( p==0 || p->pFirst==0 || p->nErr ) return;
   p->nErr = 1;   /* Assume an error until proven otherwise */
@@ -368,6 +378,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
     hashInsert(p, pRow, 1);
   }
   p->mxRail = -1;
+  memset(mergeRiserFrom, 0, sizeof(mergeRiserFrom));
 
   /* Purge merge-parents that are out-of-graph if descenders are not
   ** drawn.
@@ -476,9 +487,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
 
     if( pRow->iRail>=0 ){
       if( pRow->pChild==0 && !pRow->timeWarp ){
-        if( omitDescenders || pRow->isLeaf ){
-          /* no-op */
-        }else{
+        if( !omitDescenders && count_nonbranch_children(pRow->rid)!=0 ){
           riser_to_top(pRow);
         }
       }
@@ -521,7 +530,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
     pRow->railInUse |= mask;
     if( pRow->pChild ){
       assignChildrenToRail(pRow);
-    }else if( !pRow->isLeaf && !omitDescenders ){
+    }else if( !omitDescenders && count_nonbranch_children(pRow->rid)!=0 ){
       riser_to_top(pRow);
     }
     if( pParent ){
@@ -540,8 +549,18 @@ void graph_finish(GraphContext *p, int omitDescenders){
       pDesc = hashFind(p, parentRid);
       if( pDesc==0 ){
         /* Merge from a node that is off-screen */
-        int iMrail = findFreeRail(p, pRow->idx, p->nRow, 0);
-        if( p->mxRail>=GR_MAX_RAIL ) return;
+        int iMrail = -1;
+        for(j=0; j<GR_MAX_RAIL; j++){
+          if( mergeRiserFrom[j]==parentRid ){
+            iMrail = j;
+            break;
+          }
+        }
+        if( iMrail==-1 ){
+          iMrail = findFreeRail(p, pRow->idx, p->nRow, 0);
+          if( p->mxRail>=GR_MAX_RAIL ) return;
+          mergeRiserFrom[iMrail] = parentRid;
+        }
         mask = BIT(iMrail);
         pRow->mergeIn[iMrail] = 1;
         pRow->mergeDown |= mask;

@@ -115,8 +115,32 @@ struct DContext {
   int nFrom;         /* Number of lines in aFrom[] */
   DLine *aTo;        /* File on right side of the diff */
   int nTo;           /* Number of lines in aTo[] */
-  int (*same_fn)(const DLine *, const DLine *); /* Function to be used for comparing */
+  int (*same_fn)(const DLine*,const DLine*); /* comparison function */
 };
+
+/*
+** Count the number of lines in the input string.  Include the last line
+** in the count even if it lacks the \n terminator.  If an empty string
+** is specified, the number of lines is zero.  For the purposes of this
+** function, a string is considered empty if it contains no characters
+** -OR- it contains only NUL characters.
+*/
+static int count_lines(
+  const char *z,
+  int n,
+  int *pnLine
+){
+  int nLine;
+  const char *zNL, *z2;
+  for(nLine=0, z2=z; (zNL = strchr(z2,'\n'))!=0; z2=zNL+1, nLine++){}
+  if( z2[0]!='\0' ){
+    nLine++;
+    do{ z2++; }while( z2[0]!='\0' );
+  }
+  if( n!=(int)(z2-z) ) return 0;
+  if( pnLine ) *pnLine = nLine;
+  return 1;
+}
 
 /*
 ** Return an array of DLine objects containing a pointer to the
@@ -133,42 +157,38 @@ struct DContext {
 ** Profiling show that in most cases this routine consumes the bulk of
 ** the CPU time on a diff.
 */
-static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags){
-  int nLine, i, j, k, s, x;
+static DLine *break_into_lines(
+  const char *z,
+  int n,
+  int *pnLine,
+  u64 diffFlags
+){
+  int nLine, i, k, nn, s, x;
   unsigned int h, h2;
   DLine *a;
+  const char *zNL;
 
-  /* Count the number of lines.  Allocate space to hold
-  ** the returned array.
-  */
-  for(i=j=0, nLine=1; i<n; i++, j++){
-    int c = z[i];
-    if( c==0 ){
-      return 0;
-    }
-    if( c=='\n' && z[i+1]!=0 ){
-      nLine++;
-      if( j>LENGTH_MASK ){
-        return 0;
-      }
-      j = 0;
-    }
-  }
-  if( j>LENGTH_MASK ){
+  if( count_lines(z, n, &nLine)==0 ){
     return 0;
   }
-  a = fossil_malloc( nLine*sizeof(a[0]) );
-  memset(a, 0, nLine*sizeof(a[0]) );
-  if( n==0 ){
+  assert( nLine>0 || z[0]=='\0' );
+  a = fossil_malloc( sizeof(a[0])*nLine );
+  memset(a, 0, sizeof(a[0])*nLine);
+  if( nLine==0 ){
     *pnLine = 0;
     return a;
   }
-
-  /* Fill in the array */
-  for(i=0; i<nLine; i++){
-    for(j=0; z[j] && z[j]!='\n'; j++){}
+  i = 0;
+  do{
+    zNL = strchr(z,'\n');
+    if( zNL==0 ) zNL = z+n;
+    nn = (int)(zNL - z);
+    if( nn>LENGTH_MASK ){
+      fossil_free(a);
+      return 0;
+    }
     a[i].z = z;
-    k = j;
+    k = nn;
     if( diffFlags & DIFF_STRIP_EOLCR ){
       if( k>0 && z[k-1]=='\r' ){ k--; }
     }
@@ -181,16 +201,19 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags)
       int numws = 0;
       while( s<k && fossil_isspace(z[s]) ){ s++; }
       for(h=0, x=s; x<k; x++){
-        if( fossil_isspace(z[x]) ){
+        char c = z[x];
+        if( fossil_isspace(c) ){
           ++numws;
         }else{
-          h = h ^ (h<<2) ^ z[x];
+          h += c;
+          h *= 0x9e3779b1;
         }
       }
       k -= numws;
     }else{
       for(h=0, x=s; x<k; x++){
-        h = h ^ (h<<2) ^ z[x];
+        h += z[x];
+        h *= 0x9e3779b1;
       }
     }
     a[i].indent = s;
@@ -198,8 +221,10 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags)
     h2 = h % nLine;
     a[i].iNext = a[h2].iHash;
     a[h2].iHash = i+1;
-    z += j+1;
-  }
+    z += nn+1; n -= nn+1;
+    i++;
+  }while( zNL[0]!='\0' && zNL[1]!='\0' );
+  assert( i==nLine );
 
   /* Return results */
   *pnLine = nLine;
@@ -960,7 +985,7 @@ static int match_dline(DLine *pA, DLine *pB){
   avg = (nA+nB)/2;
   if( avg==0 ) return 0;
   if( nA==nB && memcmp(zA, zB, nA)==0 ) return 0;
-  memset(aFirst, 0, sizeof(aFirst));
+  memset(aFirst, 0xff, sizeof(aFirst));
   zA--; zB--;   /* Make both zA[] and zB[] 1-indexed */
   for(i=nB; i>0; i--){
     c = (unsigned char)zB[i];
@@ -970,9 +995,9 @@ static int match_dline(DLine *pA, DLine *pB){
   best = 0;
   for(i=1; i<=nA-best; i++){
     c = (unsigned char)zA[i];
-    for(j=aFirst[c]; j>0 && j<nB-best; j = aNext[j]){
+    for(j=aFirst[c]; j<nB-best && memcmp(&zA[i],&zB[j],best)==0; j = aNext[j]){
       int limit = minInt(nA-i, nB-j);
-      for(k=1; k<=limit && zA[k+i]==zB[k+j]; k++){}
+      for(k=best; k<=limit && zA[k+i]==zB[k+j]; k++){}
       if( k>best ) best = k;
     }
   }
@@ -1045,7 +1070,7 @@ static unsigned char *sbsAlignment(
     return aM;
   }
 
-  if( nRight < (sizeof(aBuf)/sizeof(aBuf[0]))-1 ){
+  if( nRight < count(aBuf)-1 ){
     pToFree = 0;
     a = aBuf;
   }else{
@@ -2092,7 +2117,12 @@ static int annotation_start(Annotator *p, Blob *pInput, u64 diffFlags){
 ** being annotated.  Do another step of the annotation.  Return true
 ** if additional annotation is required.
 */
-static int annotation_step(Annotator *p, Blob *pParent, int iVers, u64 diffFlags){
+static int annotation_step(
+  Annotator *p,
+  Blob *pParent,
+  int iVers,
+  u64 diffFlags
+){
   int i, j;
   int lnTo;
 
@@ -2136,8 +2166,8 @@ static int annotation_step(Annotator *p, Blob *pParent, int iVers, u64 diffFlags
 
 
 /* Annotation flags (any DIFF flag can be used as Annotation flag as well) */
-#define ANN_FILE_VERS   (((u64)0x20)<<32) /* Show file vers rather than commit vers */
-#define ANN_FILE_ANCEST (((u64)0x40)<<32) /* Prefer check-ins in the ANCESTOR table */
+#define ANN_FILE_VERS   (((u64)0x20)<<32) /* File vers not commit vers */
+#define ANN_FILE_ANCEST (((u64)0x40)<<32) /* Prefer checkins in the ANCESTOR */
 
 /*
 ** Compute a complete annotation on a file.  The file is identified
@@ -2283,7 +2313,7 @@ void annotation_page(void){
   showLog = atoi(PD("log","1"));
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  if( exclude_spiders("annotate") ) return;
+  if( exclude_spiders() ) return;
   load_control();
   mid = name_to_typed_rid(PD("checkin","0"),"ci");
   zFilename = P("filename");
@@ -2317,30 +2347,28 @@ void annotation_page(void){
   url_add_parameter(&url, "log", showLog ? "1" : "0");
   if( ignoreWs ){
     url_add_parameter(&url, "w", "");
-    style_submenu_element("Show Whitespace Changes", "Show Whitespace Changes",
-        "%s", url_render(&url, "w", 0, 0, 0));
+    style_submenu_element("Show Whitespace Changes", "%s",
+        url_render(&url, "w", 0, 0, 0));
   }else{
-    style_submenu_element("Ignore Whitespace", "Ignore Whitespace",
-        "%s", url_render(&url, "w", "", 0, 0));
+    style_submenu_element("Ignore Whitespace", "%s",
+        url_render(&url, "w", "", 0, 0));
   }
   if( showLog ){
-    style_submenu_element("Hide Log", "Hide Log",
-       "%s", url_render(&url, "log", "0", 0, 0));
+    style_submenu_element("Hide Log", "%s", url_render(&url, "log", "0", 0, 0));
   }else{
-    style_submenu_element("Show Log", "Show Log",
-       "%s", url_render(&url, "log", "1", 0, 0));
+    style_submenu_element("Show Log", "%s", url_render(&url, "log", "1", 0, 0));
   }
   if( ann.bLimit ){
     char *z1, *z2;
-    style_submenu_element("All Ancestors", "All Ancestors",
-       "%s", url_render(&url, "limit", "-1", 0, 0));
+    style_submenu_element("All Ancestors", "%s",
+       url_render(&url, "limit", "-1", 0, 0));
     z1 = sqlite3_mprintf("%d Ancestors", iLimit+20);
     z2 = sqlite3_mprintf("%d", iLimit+20);
-    style_submenu_element(z1, z1, "%s", url_render(&url, "limit", z2, 0, 0));
+    style_submenu_element(z1, "%s", url_render(&url, "limit", z2, 0, 0));
   }
   if( iLimit>20 ){
-    style_submenu_element("20 Ancestors", "20 Ancestors",
-       "%s", url_render(&url, "limit", "20", 0, 0));
+    style_submenu_element("20 Ancestors", "%s",
+       url_render(&url, "limit", "20", 0, 0));
   }
   if( skin_detail_boolean("white-foreground") ){
     clr1 = 0xa04040;
@@ -2379,7 +2407,7 @@ void annotation_page(void){
 #endif
     }
     @ </ol>
-    @ <hr>
+    @ <hr />
   }
   if( !ann.bLimit ){
     @ <h2>Origin for each line in
@@ -2445,11 +2473,12 @@ void annotation_page(void){
 ** who made each check-in and omits the line number.
 **
 ** Options:
-**   --filevers                 Show file version numbers rather than check-in versions
-**   -l|--log                   List all versions analyzed
-**   -n|--limit N               Only look backwards in time by N versions
-**   -w|--ignore-all-space      Ignore white space when comparing lines
-**   -Z|--ignore-trailing-space Ignore whitespace at line end
+**   --filevers                  Show file version numbers rather than
+**                               check-in versions
+**   -l|--log                    List all versions analyzed
+**   -n|--limit N                Only look backwards in time by N versions
+**   -w|--ignore-all-space       Ignore white space when comparing lines
+**   -Z|--ignore-trailing-space  Ignore whitespace at line end
 **
 ** See also: info, finfo, timeline
 */

@@ -103,6 +103,9 @@ void sitemap_page(void){
     @   </ul>
     @ </li>
   }
+  if( g.perm.Read ){
+    @ <li>%z(href("%R/uvlist"))Unversioned Files</a>
+  }
   if( srchFlags ){
     @ <li>%z(href("%R/search"))Full-Text Search</a></li>
   }

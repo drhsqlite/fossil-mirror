@@ -16,7 +16,7 @@ lost.  The integrity checks are doing their job well.</p>
 <h2>Atomic Check-ins With Rollback</h2>
 
 The fossil repository is stored in an
-<a href="http://www.sqlite.org/">SQLite</a> database file.  
+<a href="http://www.sqlite.org/">SQLite</a> database file.
 ([./tech_overview.wiki | Addition information] about the repository
 file format.)
 SQLite is very mature and stable and has been in wide-spread use for many
@@ -63,7 +63,7 @@ message is printed and the transaction rolls back.
 So, in other words, fossil always checks to make sure it can
 re-extract a file before it commits a change to that file.
 Hence bugs in fossil are unlikely to corrupt the repository in
-a way that prevents us from extracting historical versions of 
+a way that prevents us from extracting historical versions of
 files.
 
 <h2>Checksum Over All Files In A Check-in</h2>
@@ -104,5 +104,5 @@ reliability is more important than raw speed.  The developers of
 fossil see no merit in getting the wrong answer quickly.
 
 Fossil may not be the fastest versioning system, but it is "fast enough".
-Fossil runs quickly enough to stay out of the developers way.  
+Fossil runs quickly enough to stay out of the developers way.
 Most operations complete in under a second.

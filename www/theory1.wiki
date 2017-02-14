@@ -18,14 +18,14 @@ a modern high-level language for its implementation, namely SQL.
 
 We begin with the first question:  Fossil is not based on a distributed
 NoSQL database because Fossil <u><i>is</i></u> a distributed NoSQL database.
-Fossil is <u>not</u> based on SQLite. 
+Fossil is <u>not</u> based on SQLite.
 The current implementation of Fossil uses
 SQLite as a local store for the content of the distributed database and as
 a cache for meta-information about the distributed database that is precomputed
 for quick and easy presentation.  But the use of SQLite in this role is an
 implementation detail and is not fundamental to the design.  Some future
 version of Fossil might do away with SQLite and substitute a pile-of-files or
-a key/value database in place of SQLite.  
+a key/value database in place of SQLite.
 (Actually, that is very unlikely
 to happen since SQLite works amazingly well in its current role, but the point
 is that omitting SQLite from Fossil is a theoretical possibility.)
@@ -66,7 +66,7 @@ bag-of-artifacts database has a fixed format and is what defines a Fossil
 repository.  Fossil will never modify the file format of the bag-of-artifacts
 database in an incompatible way because to do so would be to make something
 that is no longer "Fossil".  The local relational database, on the other hand,
-is a cache that contains information derived from the bag-of-artifacts.  
+is a cache that contains information derived from the bag-of-artifacts.
 The schema of the local relational database changes from time to time as
 the Fossil implementation is enhanced, and the content is recomputed from
 the unchanging bag of artifacts.  The local relational database is an
@@ -91,7 +91,7 @@ the first question.
 <h2>SQL Is A High-Level Scripting Language</h2>
 
 The second concern states that Fossil does not use a high-level scripting
-language.  But that is not true.  Fossil uses SQL (as implemented by SQLite) 
+language.  But that is not true.  Fossil uses SQL (as implemented by SQLite)
 as its scripting language.
 
 This misunderstanding likely arises because people fail
@@ -127,7 +127,7 @@ together with C code, but it turns out that C works surprisingly well in
 that role.  Several early prototypes of Fossil were written in a scripting
 language (TCL).  We normally find that TCL programs are shorter than the
 equivalent C code by a factor of 10 or more.  But in the case of Fossil,
-the use of TCL was actually making the code longer and more difficult to 
+the use of TCL was actually making the code longer and more difficult to
 understand.
 And so in the final design, we switched from TCL to C in order to make
 the code easier to implement and debug.

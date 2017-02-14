@@ -23,7 +23,22 @@
 #ifdef _WIN32
 /* This code is for win32 only */
 #include <windows.h>
+#include <process.h>
 #include "winhttp.h"
+
+/*
+** The HttpServer structure holds information about an instance of
+** the HTTP server itself.
+*/
+typedef struct HttpServer HttpServer;
+struct HttpServer {
+  HANDLE hStoppedEvent; /* Event to signal when server is stopped,
+                        ** must be closed by callee. */
+  char *zStopper;       /* The stopper file name, must be freed by
+                        ** callee. */
+  SOCKET listener;      /* Socket on which the server is listening,
+                        ** may be closed by callee. */
+};
 
 /*
 ** The HttpRequest structure holds information about each incoming
@@ -35,7 +50,7 @@ struct HttpRequest {
   SOCKET s;              /* Socket on which to receive data */
   SOCKADDR_IN addr;      /* Address from which data is coming */
   int flags;             /* Flags passed to win32_http_server() */
-  const char *zOptions;  /* --baseurl, --notfound and/or --localauth options */
+  const char *zOptions;  /* --baseurl, --notfound, --localauth, --th-trace */
 };
 
 /*
@@ -70,6 +85,47 @@ static NORETURN void winhttp_fatal(
   const char *zErr
 ){
   fossil_fatal("unable to %s service '%s': %s", zOp, zService, zErr);
+}
+
+/*
+** Make sure the server stops as soon as possible after the stopper file
+** is found.  If there is no stopper file name, do nothing.
+*/
+static void win32_server_stopper(void *pAppData){
+  HttpServer *p = (HttpServer*)pAppData;
+  if( p!=0 ){
+    HANDLE hStoppedEvent = p->hStoppedEvent;
+    const char *zStopper = p->zStopper;
+    SOCKET listener = p->listener;
+    if( hStoppedEvent!=NULL && zStopper!=0 && listener!=INVALID_SOCKET ){
+      while( 1 ){
+        DWORD dwResult = WaitForMultipleObjectsEx(1, &hStoppedEvent, FALSE,
+                                                  1000, TRUE);
+        if( dwResult!=WAIT_IO_COMPLETION && dwResult!=WAIT_TIMEOUT ){
+          /* The event is either invalid, signaled, or abandoned.  Bail
+          ** out now because those conditions should indicate the parent
+          ** thread is dead or dying. */
+          break;
+        }
+        if( file_size(zStopper)>=0 ){
+          /* The stopper file has been found.  Attempt to close the server
+          ** listener socket now and then exit. */
+          closesocket(listener);
+          p->listener = INVALID_SOCKET;
+          break;
+        }
+      }
+    }
+    if( hStoppedEvent!=NULL ){
+      CloseHandle(hStoppedEvent);
+      p->hStoppedEvent = NULL;
+    }
+    if( zStopper!=0 ){
+      fossil_free(p->zStopper);
+      p->zStopper = 0;
+    }
+    fossil_free(p);
+  }
 }
 
 /*
@@ -164,7 +220,7 @@ end_request:
   file_delete(zRequestFName);
   file_delete(zReplyFName);
   file_delete(zCmdFName);
-  free(p);
+  fossil_free(p);
 }
 
 /*
@@ -226,7 +282,7 @@ end_request:
   closesocket(p->s);
   file_delete(zRequestFName);
   file_delete(zReplyFName);
-  free(p);
+  fossil_free(p);
 }
 
 
@@ -244,6 +300,7 @@ void win32_http_server(
   const char *zIpAddr,      /* Bind to this IP address, if not NULL */
   int flags                 /* One or more HTTP_SERVER_ flags */
 ){
+  HANDLE hStoppedEvent;
   WSADATA wd;
   SOCKET s = INVALID_SOCKET;
   SOCKADDR_IN addr;
@@ -251,8 +308,11 @@ void win32_http_server(
   int iPort = mnPort;
   Blob options;
   wchar_t zTmpPath[MAX_PATH];
+#if USE_SEE
+  const char *zSavedKey = 0;
+  size_t savedKeySize = 0;
+#endif
 
-  if( zStopper ) file_delete(zStopper);
   blob_zero(&options);
   if( zBaseUrl ){
     blob_appendf(&options, " --baseurl %s", zBaseUrl);
@@ -266,9 +326,20 @@ void win32_http_server(
   if( g.useLocalauth ){
     blob_appendf(&options, " --localauth");
   }
+  if( g.thTrace ){
+    blob_appendf(&options, " --th-trace");
+  }
   if( flags & HTTP_SERVER_REPOLIST ){
     blob_appendf(&options, " --repolist");
   }
+#if USE_SEE
+  zSavedKey = db_get_saved_encryption_key();
+  savedKeySize = db_get_saved_encryption_key_size();
+  if( zSavedKey!=0 && savedKeySize>0 ){
+    blob_appendf(&options, " --usepidkey %lu:%p:%u", GetCurrentProcessId(),
+                 zSavedKey, savedKeySize);
+  }
+#endif
   if( WSAStartup(MAKEWORD(1,1), &wd) ){
     fossil_fatal("unable to initialize winsock");
   }
@@ -322,13 +393,31 @@ void win32_http_server(
     fossil_system(zBrowser);
   }
   fossil_print("Type Ctrl-C to stop the HTTP server\n");
+  /* Create an event used to signal when this server is exiting. */
+  hStoppedEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+  assert( hStoppedEvent!=NULL );
+  /* If there is a stopper file name, start the dedicated thread now.
+  ** It will attempt to close the listener socket within 1 second of
+  ** the stopper file being created. */
+  if( zStopper ){
+    HttpServer *pServer = fossil_malloc(sizeof(HttpServer));
+    memset(pServer, 0, sizeof(HttpServer));
+    DuplicateHandle(GetCurrentProcess(), hStoppedEvent,
+                    GetCurrentProcess(), &pServer->hStoppedEvent,
+                    0, FALSE, DUPLICATE_SAME_ACCESS);
+    assert( pServer->hStoppedEvent!=NULL );
+    pServer->zStopper = fossil_strdup(zStopper);
+    pServer->listener = s;
+    file_delete(zStopper);
+    _beginthread(win32_server_stopper, 0, (void*)pServer);
+  }
   /* Set the service status to running and pass the listener socket to the
   ** service handling procedures. */
   win32_http_service_running(s);
   for(;;){
     SOCKET client;
     SOCKADDR_IN client_addr;
-    HttpRequest *p;
+    HttpRequest *pRequest;
     int len = sizeof(client_addr);
     int wsaError;
 
@@ -345,23 +434,23 @@ void win32_http_server(
         WSACleanup();
         fossil_fatal("error from accept()");
       }
-    }else if( zStopper && file_size(zStopper)>=0 ){
-      break;
     }
-    p = fossil_malloc( sizeof(*p) );
-    p->id = ++idCnt;
-    p->s = client;
-    p->addr = client_addr;
-    p->flags = flags;
-    p->zOptions = blob_str(&options);
+    pRequest = fossil_malloc(sizeof(HttpRequest));
+    pRequest->id = ++idCnt;
+    pRequest->s = client;
+    pRequest->addr = client_addr;
+    pRequest->flags = flags;
+    pRequest->zOptions = blob_str(&options);
     if( flags & HTTP_SERVER_SCGI ){
-      _beginthread(win32_scgi_request, 0, (void*)p);
+      _beginthread(win32_scgi_request, 0, (void*)pRequest);
     }else{
-      _beginthread(win32_http_request, 0, (void*)p);
+      _beginthread(win32_http_request, 0, (void*)pRequest);
     }
   }
   closesocket(s);
   WSACleanup();
+  SetEvent(hStoppedEvent);
+  CloseHandle(hStoppedEvent);
 }
 
 /*
@@ -579,7 +668,9 @@ int win32_http_service(
   return 0;
 }
 
-/* dupe ifdef needed for mkindex
+/* Duplicate #ifdef needed for mkindex */
+#ifdef _WIN32
+/*
 ** COMMAND: winsrv*
 **
 ** Usage: %fossil winsrv METHOD ?SERVICE-NAME? ?OPTIONS?
@@ -1028,4 +1119,5 @@ void cmd_win32_service(void){
   }
   return;
 }
-#endif /* _WIN32  -- This code is for win32 only */
+#endif /* _WIN32 -- dupe needed for mkindex */
+#endif /* _WIN32 -- This code is for win32 only */

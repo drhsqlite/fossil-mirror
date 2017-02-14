@@ -20,12 +20,12 @@ for a file in Fossil.
 <li>Find all direct ancestors of C0.  A direct ancestor is the closure
     of the primary parent of C0.  Merged in branches are not part of
     the direct ancestors of C0.
-<li>Prune the list of ancestors of C0 so that it contains only 
+<li>Prune the list of ancestors of C0 so that it contains only
     check-in in which the file to be annotated was modified.
 <li>Load the complete text of the file to be annotated from check-in C0.
     Call this version of the file F0.
 <li>Parse F0 into lines.  Mark each line as "unchanged".
-<li>For each ancestor of C0 on the pruned list (call the ancestor CX), 
+<li>For each ancestor of C0 on the pruned list (call the ancestor CX),
     beginning with the most
     recent ancestor and moving toward the oldest ancestor, do the
     following steps:
@@ -46,14 +46,14 @@ for a file in Fossil.
 The time-consuming part of this algorithm is step 6b - computing the
 diff from all historical versions of the file to the version of the file
 under analysis.  For a large file that has many historical changes, this
-can take several seconds.  For this reason, the default 
+can take several seconds.  For this reason, the default
 [/help?cmd=/annotate|/annotate] webpage only shows those lines that where
 changed by the 20 most recent modifications to the file.  This allows
 the loop on step 6 to terminate after only 19 diffs instead of the hundreds
 or thousands of diffs that might be required for a frequently modified file.
 
 As currently implemented (as of 2015-12-12) the annotate algorithm does not
-follow files across name changes.  File name change information is 
+follow files across name changes.  File name change information is
 available in the database, and so the algorithm could be enhanced to follow
 files across name changes by modifications to step 3.
 

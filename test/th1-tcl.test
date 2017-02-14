@@ -18,13 +18,13 @@
 # TH1/Tcl integration
 #
 
-set dir [file dirname [info script]]
+set path [file dirname [info script]]
 
 ###############################################################################
 
 fossil test-th-eval "hasfeature tcl"
 
-if {$::RESULT ne "1"} {
+if {[normalize_result] ne "1"} {
   puts "Fossil was not compiled with Tcl support."
   test_cleanup_then_return
 }
@@ -40,7 +40,7 @@ set env(TH1_ENABLE_TCL) 1; # Tcl integration must be enabled for this test.
 ###############################################################################
 
 fossil test-th-render --open-config \
-    [file nativename [file join $dir th1-tcl1.txt]]
+    [file nativename [file join $path th1-tcl1.txt]]
 
 test th1-tcl-1 {[regexp -- {^tclReady\(before\) = 0
 tclReady\(after\) = 1
@@ -67,7 +67,7 @@ three words now$} [normalize_result]]}
 
 if {[catch {package require sqlite3}] == 0} {
   fossil test-th-render --open-config \
-      [file nativename [file join $dir th1-tcl2.txt]]
+      [file nativename [file join $path th1-tcl2.txt]]
 
   test th1-tcl-2 {[regexp -- {^\d+$} [normalize_result]]}
 } else {
@@ -77,62 +77,62 @@ if {[catch {package require sqlite3}] == 0} {
 ###############################################################################
 
 fossil test-th-render --open-config \
-    [file nativename [file join $dir th1-tcl3.txt]]
+    [file nativename [file join $path th1-tcl3.txt]]
 
-test th1-tcl-3 {$RESULT eq {<hr><p class="thmainError">ERROR:\
+test th1-tcl-3 {$RESULT eq {<hr /><p class="thmainError">ERROR:\
 invalid command name &quot;bad_command&quot;</p>}}
 
 ###############################################################################
 
 fossil test-th-render --open-config \
-    [file nativename [file join $dir th1-tcl4.txt]]
+    [file nativename [file join $path th1-tcl4.txt]]
 
-test th1-tcl-4 {$RESULT eq {<hr><p class="thmainError">ERROR:\
+test th1-tcl-4 {$RESULT eq {<hr /><p class="thmainError">ERROR:\
 divide by zero</p>}}
 
 ###############################################################################
 
 fossil test-th-render --open-config \
-    [file nativename [file join $dir th1-tcl5.txt]]
+    [file nativename [file join $path th1-tcl5.txt]]
 
-test th1-tcl-5 {$RESULT eq {<hr><p class="thmainError">ERROR:\
-Tcl command not found: bad_command</p>} || $RESULT eq {<hr><p\
+test th1-tcl-5 {$RESULT eq {<hr /><p class="thmainError">ERROR:\
+Tcl command not found: bad_command</p>} || $RESULT eq {<hr /><p\
 class="thmainError">ERROR: invalid command name &quot;bad_command&quot;</p>}}
 
 ###############################################################################
 
 fossil test-th-render --open-config \
-    [file nativename [file join $dir th1-tcl6.txt]]
+    [file nativename [file join $path th1-tcl6.txt]]
 
-test th1-tcl-6 {$RESULT eq {<hr><p class="thmainError">ERROR:\
+test th1-tcl-6 {$RESULT eq {<hr /><p class="thmainError">ERROR:\
 no such command:  bad_command</p>}}
 
 ###############################################################################
 
 fossil test-th-render --open-config \
-    [file nativename [file join $dir th1-tcl7.txt]]
+    [file nativename [file join $path th1-tcl7.txt]]
 
-test th1-tcl-7 {$RESULT eq {<hr><p class="thmainError">ERROR:\
+test th1-tcl-7 {$RESULT eq {<hr /><p class="thmainError">ERROR:\
 syntax error in expression: &quot;2**0&quot;</p>}}
 
 ###############################################################################
 
 fossil test-th-render --open-config \
-    [file nativename [file join $dir th1-tcl8.txt]]
+    [file nativename [file join $path th1-tcl8.txt]]
 
-test th1-tcl-8 {$RESULT eq {<hr><p class="thmainError">ERROR:\
-cannot invoke Tcl command: tailcall</p>} || $RESULT eq {<hr><p\
+test th1-tcl-8 {$RESULT eq {<hr /><p class="thmainError">ERROR:\
+cannot invoke Tcl command: tailcall</p>} || $RESULT eq {<hr /><p\
 class="thmainError">ERROR: tailcall can only be called from a proc or\
-lambda</p>} || $RESULT eq {<hr><p class="thmainError">ERROR: This test\
+lambda</p>} || $RESULT eq {<hr /><p class="thmainError">ERROR: This test\
 requires Tcl 8.6 or higher.</p>}}
 
 ###############################################################################
 
 fossil test-th-render --open-config \
-    [file nativename [file join $dir th1-tcl9.txt]]
+    [file nativename [file join $path th1-tcl9.txt]]
 
 test th1-tcl-9 {[string trim $RESULT] eq [list [file tail $fossilexe] 3 \
-[list test-th-render --open-config [file nativename [file join $dir \
+[list test-th-render --open-config [file nativename [file join $path \
 th1-tcl9.txt]]]]}
 
 ###############################################################################

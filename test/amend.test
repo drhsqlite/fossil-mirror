@@ -261,7 +261,7 @@ test amend-close-1.1.b {
 fossil tag ls --raw $UUIDC
 test amend-close-1.2 {[string first "closed" $RESULT] != -1}
 fossil timeline -n 1
-test amend-close-1.3 {[string match {*Marked*"Closed".*} $RESULT]}
+test amend-close-1.3 {[string match {*Mark*"Closed".*} $RESULT]}
 write_file datafile "cllf"
 fossil commit -m "should fail" -expectError
 test amend-close-2 {[string first "closed leaf" $RESULT] != -1}
@@ -306,7 +306,7 @@ foreach {tagt result} $tagtests {
   set t2exp "*"
   set t3exp "*"
   set t5exp "*"
-  foreach tag $tagt { 
+  foreach tag $tagt {
     lappend tags -tag $tag
     lappend cancels -cancel $tag
   }

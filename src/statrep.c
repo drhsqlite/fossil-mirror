@@ -313,8 +313,8 @@ static void stats_report_by_month_year(char includeMonth,
   if(nEventTotal){
     const char *zAvgLabel = includeMonth ? "month" : "year";
     int nAvg = iterations ? (nEventTotal/iterations) : 0;
-    @ <br><div>Total events: %d(nEventTotal)
-    @ <br>Average per active %s(zAvgLabel): %d(nAvg)
+    @ <br /><div>Total events: %d(nEventTotal)
+    @ <br />Average per active %s(zAvgLabel): %d(nAvg)
     @ </div>
   }
   if( !includeMonth ){
@@ -344,7 +344,7 @@ static void stats_report_by_user(){
   if( db_int(0, "SELECT count(*) FROM piechart")>=2 ){
     @ <center><svg width=700 height=400>
     piechart_render(700, 400, PIE_OTHER|PIE_PERCENT);
-    @ </svg></centre><hr/>
+    @ </svg></centre><hr />
   }
   @ <table class='statistics-report-table-events' border='0'
   @ cellpadding='2' cellspacing='0' id='statsTable'>
@@ -505,7 +505,7 @@ static void stats_report_day_of_week(const char *zUserName){
   if( db_int(0, "SELECT count(*) FROM piechart")>=2 ){
     @ <center><svg width=700 height=400>
     piechart_render(700, 400, PIE_OTHER|PIE_PERCENT);
-    @ </svg></centre><hr/>
+    @ </svg></centre><hr />
   }
   @ <table class='statistics-report-table-events' border='0'
   @ cellpadding='2' cellspacing='0' id='statsTable'>
@@ -573,7 +573,7 @@ static void stats_report_year_weeks(const char *zUserName){
   if( zYear==0 || strlen(zYear)!=4 ){
     zYear = db_text("1970","SELECT substr(date('now'),1,4);");
   }
-  cgi_printf("<br/>");
+  cgi_printf("<br />");
   db_prepare(&q,
              "SELECT DISTINCT strftime('%%W',mtime) AS wk, "
              "       count(*) AS n "
@@ -635,7 +635,7 @@ static void stats_report_year_weeks(const char *zUserName){
   cgi_printf("</tbody></table>");
   if(total){
     int nAvg = iterations ? (total/iterations) : 0;
-    cgi_printf("<br><div>Total events: %d<br>"
+    cgi_printf("<br /><div>Total events: %d<br />"
                "Average per active week: %d</div>",
                total, nAvg);
   }
@@ -708,7 +708,7 @@ void stats_report_page(){
     zView = "byuser";
     cgi_replace_query_parameter("view","byuser");
   }
-  for(i=0; i<ArraySize(aViewType); i++){
+  for(i=0; i<count(aViewType); i++){
     if( fossil_strcmp(zView, aViewType[i].zVal)==0 ){
       eType = aViewType[i].eType;
       break;
@@ -716,12 +716,12 @@ void stats_report_page(){
   }
   if( eType!=RPT_NONE ){
     int nView = 0;                     /* Slots used in azView[] */
-    for(i=0; i<ArraySize(aViewType); i++){
+    for(i=0; i<count(aViewType); i++){
       azView[nView++] = aViewType[i].zVal;
       azView[nView++] = aViewType[i].zName;
     }
     if( eType!=RPT_BYFILE ){
-      style_submenu_multichoice("type", ArraySize(azType)/2, azType, 0);
+      style_submenu_multichoice("type", count(azType)/2, azType, 0);
     }
     style_submenu_multichoice("view", nView/2, azView, 0);
     if( eType!=RPT_BYUSER ){
@@ -734,7 +734,7 @@ void stats_report_page(){
       );
     }
   }
-  style_submenu_element("Stats", "Stats", "%R/stat");
+  style_submenu_element("Stats", "%R/stat");
   style_header("Activity Reports");
   switch( eType ){
     case RPT_BYYEAR:

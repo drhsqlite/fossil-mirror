@@ -77,6 +77,7 @@ static const struct JsonConfigProperty {
 { "manifest",               CONFIGSET_PROJ },
 { "binary-glob",            CONFIGSET_PROJ },
 { "ignore-glob",            CONFIGSET_PROJ },
+{ "crlf-glob",              CONFIGSET_PROJ },
 { "crnl-glob",              CONFIGSET_PROJ },
 { "encoding-glob",          CONFIGSET_PROJ },
 { "empty-dirs",             CONFIGSET_PROJ },

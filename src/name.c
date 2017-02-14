@@ -335,7 +335,7 @@ int name_to_uuid(Blob *pName, int iErrPriority, const char *zType){
 ** name_to_uuid(). zType is also as described for that function. If
 ** zName does not resolve, 0 is returned. If it is ambiguous, a
 ** negative value is returned. On success the rid is returned and
-** pUuid (if it is not NULL) is set to the a newly-allocated string,
+** pUuid (if it is not NULL) is set to a newly-allocated string,
 ** the full UUID, which must eventually be free()d by the caller.
 */
 int name_to_uuid2(const char *zName, const char *zType, char **pUuid){
@@ -667,7 +667,7 @@ void whatis_rid(int rid, int verboseFlag){
 
 /*
 ** COMMAND: whatis*
-** 
+**
 ** Usage: %fossil whatis NAME
 **
 ** Resolve the symbol NAME into its canonical 40-character SHA1-hash
@@ -723,7 +723,7 @@ void whatis_cmd(void){
 
 /*
 ** COMMAND: test-whatis-all
-** 
+**
 ** Usage: %fossil test-whatis-all
 **
 ** Show "whatis" information about every artifact in the repository
@@ -743,7 +743,7 @@ void test_whatis_all_cmd(void){
 
 /*
 ** COMMAND: test-ambiguous
-** 
+**
 ** Usage: %fossil test-ambiguous [--minsize N]
 **
 ** Show a list of ambiguous SHA1-hash abbreviations of N characters or
@@ -936,12 +936,17 @@ void describe_artifacts(const char *zWhere){
 }
 
 /*
-** Print the content of the description table on stdout
+** Print the content of the description table on stdout.
+**
+** The description table is computed using the WHERE clause zWhere if
+** the zWhere parameter is not NULL.  If zWhere is NULL, then this
+** routine assumes that the description table already exists and is
+** populated and merely prints the contents.
 */
 int describe_artifacts_to_stdout(const char *zWhere, const char *zLabel){
   Stmt q;
   int cnt = 0;
-  describe_artifacts(zWhere);
+  if( zWhere!=0 ) describe_artifacts(zWhere);
   db_prepare(&q,
     "SELECT uuid, summary, isPrivate\n"
     "  FROM description\n"
@@ -958,7 +963,7 @@ int describe_artifacts_to_stdout(const char *zWhere, const char *zLabel){
     cnt++;
   }
   db_finalize(&q);
-  db_multi_exec("DELETE FROM description;");
+  if( zWhere!=0 ) db_multi_exec("DELETE FROM description;");
   return cnt;
 }
 
@@ -1003,7 +1008,7 @@ void bloblist_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("List Of Artifacts");
-  style_submenu_element("250 Largest", 0, "bigbloblist");
+  style_submenu_element("250 Largest", "bigbloblist");
   if( !unpubOnly && mx>n && P("s")==0 ){
     int i;
     @ <p>Select a range of artifacts to view:</p>
@@ -1017,7 +1022,7 @@ void bloblist_page(void){
     return;
   }
   if( !unpubOnly && mx>n ){
-    style_submenu_element("Index", "Index", "bloblist");
+    style_submenu_element("Index", "bloblist");
   }
   if( unpubOnly ){
     zRange = mprintf("IN private");
@@ -1201,7 +1206,7 @@ static void collision_report(const char *zSql){
       @ %z(href("%R/whatis/%s",zId))%h(zId)</a>
     }
   }
-  for(i=4; i<ArraySize(aCollide); i++){
+  for(i=4; i<count(aCollide); i++){
     for(j=0; j<aCollide[i].cnt && j<MAX_COLLIDE; j++){
       fossil_free(aCollide[i].azHit[j]);
     }
@@ -1217,8 +1222,8 @@ void hash_collisions_webpage(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("SHA1 Prefix Collisions");
-  style_submenu_element("Activity Reports", 0, "reports");
-  style_submenu_element("Stats", 0, "stat");
+  style_submenu_element("Activity Reports", "reports");
+  style_submenu_element("Stats", "stat");
   @ <h1>Hash Prefix Collisions on Check-ins</h1>
   collision_report("SELECT (SELECT uuid FROM blob WHERE rid=objid)"
                    "  FROM event WHERE event.type='ci'"

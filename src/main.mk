@@ -10,6 +10,7 @@
 # This file is included by primary Makefile.
 #
 
+XBCC = $(BCC) $(BCCFLAGS) $(CFLAGS)
 XTCC = $(TCC) -I. -I$(SRCDIR) -I$(OBJDIR) $(TCCFLAGS) $(CFLAGS)
 
 
@@ -40,6 +41,7 @@ SRC = \
   $(SRCDIR)/descendants.c \
   $(SRCDIR)/diff.c \
   $(SRCDIR)/diffcmd.c \
+  $(SRCDIR)/dispatch.c \
   $(SRCDIR)/doc.c \
   $(SRCDIR)/encode.c \
   $(SRCDIR)/event.c \
@@ -47,6 +49,7 @@ SRC = \
   $(SRCDIR)/file.c \
   $(SRCDIR)/finfo.c \
   $(SRCDIR)/foci.c \
+  $(SRCDIR)/fshell.c \
   $(SRCDIR)/fusefs.c \
   $(SRCDIR)/glob.c \
   $(SRCDIR)/graph.c \
@@ -118,6 +121,7 @@ SRC = \
   $(SRCDIR)/tktsetup.c \
   $(SRCDIR)/undo.c \
   $(SRCDIR)/unicode.c \
+  $(SRCDIR)/unversioned.c \
   $(SRCDIR)/update.c \
   $(SRCDIR)/url.c \
   $(SRCDIR)/user.c \
@@ -212,6 +216,7 @@ TRANS_SRC = \
   $(OBJDIR)/descendants_.c \
   $(OBJDIR)/diff_.c \
   $(OBJDIR)/diffcmd_.c \
+  $(OBJDIR)/dispatch_.c \
   $(OBJDIR)/doc_.c \
   $(OBJDIR)/encode_.c \
   $(OBJDIR)/event_.c \
@@ -219,6 +224,7 @@ TRANS_SRC = \
   $(OBJDIR)/file_.c \
   $(OBJDIR)/finfo_.c \
   $(OBJDIR)/foci_.c \
+  $(OBJDIR)/fshell_.c \
   $(OBJDIR)/fusefs_.c \
   $(OBJDIR)/glob_.c \
   $(OBJDIR)/graph_.c \
@@ -290,6 +296,7 @@ TRANS_SRC = \
   $(OBJDIR)/tktsetup_.c \
   $(OBJDIR)/undo_.c \
   $(OBJDIR)/unicode_.c \
+  $(OBJDIR)/unversioned_.c \
   $(OBJDIR)/update_.c \
   $(OBJDIR)/url_.c \
   $(OBJDIR)/user_.c \
@@ -333,6 +340,7 @@ OBJ = \
  $(OBJDIR)/descendants.o \
  $(OBJDIR)/diff.o \
  $(OBJDIR)/diffcmd.o \
+ $(OBJDIR)/dispatch.o \
  $(OBJDIR)/doc.o \
  $(OBJDIR)/encode.o \
  $(OBJDIR)/event.o \
@@ -340,6 +348,7 @@ OBJ = \
  $(OBJDIR)/file.o \
  $(OBJDIR)/finfo.o \
  $(OBJDIR)/foci.o \
+ $(OBJDIR)/fshell.o \
  $(OBJDIR)/fusefs.o \
  $(OBJDIR)/glob.o \
  $(OBJDIR)/graph.o \
@@ -411,6 +420,7 @@ OBJ = \
  $(OBJDIR)/tktsetup.o \
  $(OBJDIR)/undo.o \
  $(OBJDIR)/unicode.o \
+ $(OBJDIR)/unversioned.o \
  $(OBJDIR)/update.o \
  $(OBJDIR)/url.o \
  $(OBJDIR)/user.o \
@@ -444,22 +454,22 @@ $(OBJDIR):
 	-mkdir $(OBJDIR)
 
 $(OBJDIR)/translate:	$(SRCDIR)/translate.c
-	$(BCC) -o $(OBJDIR)/translate $(SRCDIR)/translate.c
+	$(XBCC) -o $(OBJDIR)/translate $(SRCDIR)/translate.c
 
 $(OBJDIR)/makeheaders:	$(SRCDIR)/makeheaders.c
-	$(BCC) -o $(OBJDIR)/makeheaders $(SRCDIR)/makeheaders.c
+	$(XBCC) -o $(OBJDIR)/makeheaders $(SRCDIR)/makeheaders.c
 
 $(OBJDIR)/mkindex:	$(SRCDIR)/mkindex.c
-	$(BCC) -o $(OBJDIR)/mkindex $(SRCDIR)/mkindex.c
+	$(XBCC) -o $(OBJDIR)/mkindex $(SRCDIR)/mkindex.c
 
 $(OBJDIR)/mkbuiltin:	$(SRCDIR)/mkbuiltin.c
-	$(BCC) -o $(OBJDIR)/mkbuiltin $(SRCDIR)/mkbuiltin.c
+	$(XBCC) -o $(OBJDIR)/mkbuiltin $(SRCDIR)/mkbuiltin.c
 
 $(OBJDIR)/mkversion:	$(SRCDIR)/mkversion.c
-	$(BCC) -o $(OBJDIR)/mkversion $(SRCDIR)/mkversion.c
+	$(XBCC) -o $(OBJDIR)/mkversion $(SRCDIR)/mkversion.c
 
 $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
-	$(BCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
+	$(XBCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
 
 # Run the test suite.
 # Other flags that can be included in TESTFLAGS are:
@@ -482,11 +492,19 @@ $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/
 
 # Setup the options used to compile the included SQLite library.
 SQLITE_OPTIONS = -DNDEBUG=1 \
-                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
-                 -DSQLITE_ENABLE_LOCKING_STYLE=0 \
                  -DSQLITE_THREADSAFE=0 \
-                 -DSQLITE_DEFAULT_FILE_FORMAT=4 \
+                 -DSQLITE_DEFAULT_MEMSTATUS=0 \
+                 -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 \
+                 -DSQLITE_LIKE_DOESNT_MATCH_BLOBS \
+                 -DSQLITE_OMIT_DECLTYPE \
                  -DSQLITE_OMIT_DEPRECATED \
+                 -DSQLITE_OMIT_PROGRESS_CALLBACK \
+                 -DSQLITE_OMIT_SHARED_CACHE \
+                 -DSQLITE_OMIT_LOAD_EXTENSION \
+                 -DSQLITE_MAX_EXPR_DEPTH=0 \
+                 -DSQLITE_USE_ALLOCA \
+                 -DSQLITE_ENABLE_LOCKING_STYLE=0 \
+                 -DSQLITE_DEFAULT_FILE_FORMAT=4 \
                  -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                  -DSQLITE_ENABLE_FTS4 \
                  -DSQLITE_ENABLE_FTS3_PARENTHESIS \
@@ -539,6 +557,10 @@ SQLITE3_SRC.0 = sqlite3.c
 SQLITE3_SRC.1 = sqlite3-see.c
 SQLITE3_SRC. = sqlite3.c
 SQLITE3_SRC = $(SRCDIR)/$(SQLITE3_SRC.$(USE_SEE))
+SQLITE3_SHELL_SRC.0 = shell.c
+SQLITE3_SHELL_SRC.1 = shell-see.c
+SQLITE3_SHELL_SRC. = shell.c
+SQLITE3_SHELL_SRC = $(SRCDIR)/$(SQLITE3_SHELL_SRC.$(USE_SEE))
 SEE_FLAGS.0 =
 SEE_FLAGS.1 = -DSQLITE_HAS_CODEC
 SEE_FLAGS. =
@@ -603,6 +625,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/descendants_.c:$(OBJDIR)/descendants.h \
 	$(OBJDIR)/diff_.c:$(OBJDIR)/diff.h \
 	$(OBJDIR)/diffcmd_.c:$(OBJDIR)/diffcmd.h \
+	$(OBJDIR)/dispatch_.c:$(OBJDIR)/dispatch.h \
 	$(OBJDIR)/doc_.c:$(OBJDIR)/doc.h \
 	$(OBJDIR)/encode_.c:$(OBJDIR)/encode.h \
 	$(OBJDIR)/event_.c:$(OBJDIR)/event.h \
@@ -610,6 +633,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/file_.c:$(OBJDIR)/file.h \
 	$(OBJDIR)/finfo_.c:$(OBJDIR)/finfo.h \
 	$(OBJDIR)/foci_.c:$(OBJDIR)/foci.h \
+	$(OBJDIR)/fshell_.c:$(OBJDIR)/fshell.h \
 	$(OBJDIR)/fusefs_.c:$(OBJDIR)/fusefs.h \
 	$(OBJDIR)/glob_.c:$(OBJDIR)/glob.h \
 	$(OBJDIR)/graph_.c:$(OBJDIR)/graph.h \
@@ -681,6 +705,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/tktsetup_.c:$(OBJDIR)/tktsetup.h \
 	$(OBJDIR)/undo_.c:$(OBJDIR)/undo.h \
 	$(OBJDIR)/unicode_.c:$(OBJDIR)/unicode.h \
+	$(OBJDIR)/unversioned_.c:$(OBJDIR)/unversioned.h \
 	$(OBJDIR)/update_.c:$(OBJDIR)/update.h \
 	$(OBJDIR)/url_.c:$(OBJDIR)/url.h \
 	$(OBJDIR)/user_.c:$(OBJDIR)/user.h \
@@ -911,6 +936,14 @@ $(OBJDIR)/diffcmd.o:	$(OBJDIR)/diffcmd_.c $(OBJDIR)/diffcmd.h $(SRCDIR)/config.h
 
 $(OBJDIR)/diffcmd.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/dispatch_.c:	$(SRCDIR)/dispatch.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/dispatch.c >$@
+
+$(OBJDIR)/dispatch.o:	$(OBJDIR)/dispatch_.c $(OBJDIR)/dispatch.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/dispatch.o -c $(OBJDIR)/dispatch_.c
+
+$(OBJDIR)/dispatch.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/doc_.c:	$(SRCDIR)/doc.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/doc.c >$@
 
@@ -966,6 +999,14 @@ $(OBJDIR)/foci.o:	$(OBJDIR)/foci_.c $(OBJDIR)/foci.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/foci.o -c $(OBJDIR)/foci_.c
 
 $(OBJDIR)/foci.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/fshell_.c:	$(SRCDIR)/fshell.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/fshell.c >$@
+
+$(OBJDIR)/fshell.o:	$(OBJDIR)/fshell_.c $(OBJDIR)/fshell.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/fshell.o -c $(OBJDIR)/fshell_.c
+
+$(OBJDIR)/fshell.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/fusefs_.c:	$(SRCDIR)/fusefs.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/fusefs.c >$@
@@ -1535,6 +1576,14 @@ $(OBJDIR)/unicode.o:	$(OBJDIR)/unicode_.c $(OBJDIR)/unicode.h $(SRCDIR)/config.h
 
 $(OBJDIR)/unicode.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/unversioned_.c:	$(SRCDIR)/unversioned.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/unversioned.c >$@
+
+$(OBJDIR)/unversioned.o:	$(OBJDIR)/unversioned_.c $(OBJDIR)/unversioned.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/unversioned.o -c $(OBJDIR)/unversioned_.c
+
+$(OBJDIR)/unversioned.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/update_.c:	$(SRCDIR)/update.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/update.c >$@
 
@@ -1658,8 +1707,8 @@ $(OBJDIR)/zip.h:	$(OBJDIR)/headers
 $(OBJDIR)/sqlite3.o:	$(SQLITE3_SRC)
 	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SEE_FLAGS) \
 		-c $(SQLITE3_SRC) -o $@
-$(OBJDIR)/shell.o:	$(SRCDIR)/shell.c $(SRCDIR)/sqlite3.h
-	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) $(LINENOISE_DEF.$(USE_LINENOISE)) -c $(SRCDIR)/shell.c -o $@
+$(OBJDIR)/shell.o:	$(SQLITE3_SHELL_SRC) $(SRCDIR)/sqlite3.h
+	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) $(LINENOISE_DEF.$(USE_LINENOISE)) -c $(SQLITE3_SHELL_SRC) -o $@
 
 $(OBJDIR)/linenoise.o:	$(SRCDIR)/linenoise.c $(SRCDIR)/linenoise.h
 	$(XTCC) -c $(SRCDIR)/linenoise.c -o $@

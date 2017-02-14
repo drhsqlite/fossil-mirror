@@ -1,7 +1,7 @@
 ###
 #   Dockerfile for Fossil
 ###
-FROM fedora:23
+FROM fedora:24
 
 ### Now install some additional parts we will need for the build
 RUN dnf update -y && dnf install -y gcc make zlib-devel openssl-devel tar && dnf clean all && groupadd -r fossil -g 433 && useradd -u 431 -r -g fossil -d /opt/fossil -s /sbin/nologin -c "Fossil user" fossil

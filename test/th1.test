@@ -18,7 +18,7 @@
 # TH1 Commands
 #
 
-set dir [file dirname [info script]]; test_setup
+set path [file dirname [info script]]; test_setup
 
 ###############################################################################
 
@@ -556,6 +556,117 @@ test th1-expr-49 {$RESULT eq {TH_ERROR: expected integer, got: "-0x"}}
 
 ###############################################################################
 
+foreach perm [list a b c d e f g h i j k l m n o p q r s t u v w x y z] {
+  if {$perm eq "u"} continue; # NOTE: Skip "reader" meta-permission.
+  if {$perm eq "v"} continue; # NOTE: Skip "developer" meta-permission.
+
+  fossil test-th-eval "anycap $perm"
+  test th1-anycap-no-$perm-1 {$RESULT eq {0}}
+
+  fossil test-th-eval "hascap $perm"
+  test th1-hascap-no-$perm-1 {$RESULT eq {0}}
+
+  fossil test-th-eval "anoncap $perm"
+  test th1-anoncap-no-$perm-1 {$RESULT eq {0}}
+
+  run_in_checkout {
+    fossil test-th-eval --set-user-caps "anycap $perm"
+    test th1-anycap-yes-$perm-1 {$RESULT eq {1}}
+
+    set ::env(TH1_TEST_USER_CAPS) 1; # NOTE: Bad permission.
+    fossil test-th-eval --set-user-caps "anycap $perm"
+    test th1-anycap-no-$perm-1 {$RESULT eq {0}}
+    unset ::env(TH1_TEST_USER_CAPS)
+
+    fossil test-th-eval --set-user-caps "hascap $perm"
+    test th1-hascap-yes-$perm-1 {$RESULT eq {1}}
+
+    set ::env(TH1_TEST_USER_CAPS) 1; # NOTE: Bad permission.
+    fossil test-th-eval --set-user-caps "hascap $perm"
+    test th1-hascap-no-$perm-1 {$RESULT eq {0}}
+    unset ::env(TH1_TEST_USER_CAPS)
+
+    fossil test-th-eval --set-anon-caps "anoncap $perm"
+    test th1-anoncap-yes-$perm-1 {$RESULT eq {1}}
+
+    set ::env(TH1_TEST_ANON_CAPS) 1; # NOTE: Bad permission.
+    fossil test-th-eval --set-anon-caps "anoncap $perm"
+    test th1-anoncap-no-$perm-1 {$RESULT eq {0}}
+    unset ::env(TH1_TEST_ANON_CAPS)
+  }
+}
+
+###############################################################################
+
+fossil test-th-eval "anycap oh"
+test th1-anycap-no-multiple-1 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "hascap oh"
+test th1-hascap-no-multiple-1 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "hascap o h"
+test th1-hascap-no-multiple-2 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "anoncap oh"
+test th1-anoncap-no-multiple-1 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "anoncap o h"
+test th1-anoncap-no-multiple-2 {$RESULT eq {0}}
+
+###############################################################################
+
+run_in_checkout {
+  fossil test-th-eval --set-user-caps "anycap oh"
+  test th1-anycap-yes-multiple-1 {$RESULT eq {1}}
+
+  set ::env(TH1_TEST_USER_CAPS) o
+  fossil test-th-eval --set-user-caps "anycap oh"
+  test th1-anycap-yes-multiple-2 {$RESULT eq {1}}
+  unset ::env(TH1_TEST_USER_CAPS)
+
+  fossil test-th-eval --set-user-caps "hascap oh"
+  test th1-hascap-yes-multiple-1 {$RESULT eq {1}}
+
+  set ::env(TH1_TEST_USER_CAPS) o
+  fossil test-th-eval --set-user-caps "hascap oh"
+  test th1-hascap-no-multiple-3 {$RESULT eq {0}}
+  unset ::env(TH1_TEST_USER_CAPS)
+
+  fossil test-th-eval --set-user-caps "hascap o h"
+  test th1-hascap-yes-multiple-2 {$RESULT eq {1}}
+
+  set ::env(TH1_TEST_USER_CAPS) o
+  fossil test-th-eval --set-user-caps "hascap o h"
+  test th1-hascap-no-multiple-4 {$RESULT eq {0}}
+  unset ::env(TH1_TEST_USER_CAPS)
+
+  fossil test-th-eval --set-anon-caps "anoncap oh"
+  test th1-anoncap-yes-multiple-1 {$RESULT eq {1}}
+
+  set ::env(TH1_TEST_ANON_CAPS) o
+  fossil test-th-eval --set-anon-caps "anoncap oh"
+  test th1-anoncap-no-multiple-3 {$RESULT eq {0}}
+  unset ::env(TH1_TEST_ANON_CAPS)
+
+  fossil test-th-eval --set-anon-caps "anoncap o h"
+  test th1-anoncap-yes-multiple-2 {$RESULT eq {1}}
+
+  set ::env(TH1_TEST_ANON_CAPS) o
+  fossil test-th-eval --set-anon-caps "anoncap o h"
+  test th1-anoncap-no-multiple-4 {$RESULT eq {0}}
+  unset ::env(TH1_TEST_ANON_CAPS)
+}
+
+###############################################################################
+
 run_in_checkout {
   # NOTE: The "1" here forces the checkout to be opened.
   fossil test-th-eval "checkout 1"
@@ -916,7 +1027,7 @@ test th1-reinitialize-2 {$RESULT ne ""}
 
 #
 # NOTE: This test will fail if the command names are added to TH1, or
-#       moved from Tcl builds to plain or the reverse. Sorting the 
+#       moved from Tcl builds to plain or the reverse. Sorting the
 #       command lists eliminates a dependence on order.
 #
 fossil test-th-eval "info commands"
@@ -929,7 +1040,7 @@ set base_commands {anoncap anycap array artifact break breakpoint catch\
       llength lsearch markdown proc puts query randhex redirect regexp\
       reinitialize rename render repository return searchable set\
       setParameter setting stime string styleFooter styleHeader tclReady\
-      trace unset uplevel upvar utime verifyCsrf wiki}
+      trace unset unversioned uplevel upvar utime verifyCsrf wiki}
 set tcl_commands {tclEval tclExpr tclInvoke tclIsSafe tclMakeSafe}
 if {$th1Tcl} {
   test th1-info-commands-1 {$sorted_result eq [lsort "$base_commands $tcl_commands"]}
@@ -1359,7 +1470,7 @@ test th1-markdown-4 {[normalize_result] eq {Test1 {<div class="markdown">
 
 ###############################################################################
 
-set markdown [read_file [file join $dir markdown-test1.md]]
+set markdown [read_file [file join $path markdown-test1.md]]
 fossil test-th-eval [string map \
     [list %markdown% $markdown] {markdown {%markdown%}}]
 test th1-markdown-5 {[normalize_result] eq \
@@ -1453,6 +1564,42 @@ write_file $th1FileName {
 fossil test-th-source $th1FileName
 test th1-source-1 {$RESULT eq {TH_RETURN: 0 1 2 3 4 5 6 7 8 9}}
 file delete $th1FileName
+
+###############################################################################
+
+#
+# TODO: Modify the result of this test if the list of unversioned files
+#       changes.
+#
+run_in_checkout {
+  fossil test-th-eval --open-config "unversioned list"
+}
+
+test th1-unversioned-1 {[normalize_result] eq \
+{build-icons/linux.gif build-icons/linux64.gif build-icons/mac.gif\
+build-icons/openbsd.gif build-icons/src.gif build-icons/win32.gif\
+download.html download/fossil-linux-x86-1.32.zip\
+download/fossil-linux-x86-1.33.zip download/fossil-linux-x86-1.34.zip\
+download/fossil-linux-x86-1.35.zip download/fossil-macosx-x86-1.32.zip\
+download/fossil-macosx-x86-1.33.zip download/fossil-macosx-x86-1.34.zip\
+download/fossil-macosx-x86-1.35.zip download/fossil-openbsd-x86-1.32.zip\
+download/fossil-openbsd-x86-1.33.zip download/fossil-openbsd-x86-1.34.tar.gz\
+download/fossil-openbsd-x86-1.35.tar.gz download/fossil-src-1.32.tar.gz\
+download/fossil-src-1.33.tar.gz download/fossil-src-1.34.tar.gz\
+download/fossil-src-1.35.tar.gz download/fossil-w32-1.32.zip\
+download/fossil-w32-1.33.zip download/fossil-w32-1.34.zip\
+download/fossil-w32-1.35.zip download/releasenotes-1.32.html\
+download/releasenotes-1.33.html download/releasenotes-1.34.html\
+download/releasenotes-1.35.html index.wiki}}
+
+###############################################################################
+
+run_in_checkout {
+  fossil test-th-eval --open-config \
+      {string length [unversioned content build-icons/src.gif]}
+}
+
+test th1-unversioned-2 {$RESULT eq {4592}}
 
 ###############################################################################
 

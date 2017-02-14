@@ -208,6 +208,8 @@ static void add_renames(
 **
 **   --integrate             Merged branch will be closed when committing.
 **
+**   --no-dir-symlinks       Disables support for directory symlinks.
+**
 **   -n|--dry-run            If given, display instead of run actions
 **
 **   -v|--verbose            Show additional details of the merge
@@ -215,7 +217,7 @@ static void add_renames(
 void merge_cmd(void){
   int vid;              /* Current version "V" */
   int mid;              /* Version we are merging from "M" */
-  int pid;              /* The pivot version - most recent common ancestor P */
+  int pid = 0;          /* The pivot version - most recent common ancestor P */
   int nid = 0;          /* The name pivot version "N" */
   int verboseFlag;      /* True if the -v|--verbose option is present */
   int integrateFlag;    /* True if the --integrate option is present */
@@ -267,8 +269,8 @@ void merge_cmd(void){
   }
   if( !dryRunFlag ){
     if( autosync_loop(SYNC_PULL + SYNC_VERBOSE*verboseFlag,
-                      db_get_int("autosync-tries", 1)) ){
-      fossil_fatal("Cannot proceed with merge");
+                      db_get_int("autosync-tries", 1), 1) ){
+      fossil_fatal("merge abandoned due to sync failure");
     }
   }
 
@@ -397,7 +399,7 @@ void merge_cmd(void){
     vAncestor = db_exists(
       "WITH RECURSIVE ancestor(id) AS ("
       "  VALUES(%d)"
-      "  UNION ALL"
+      "  UNION"
       "  SELECT pid FROM plink, ancestor"
       "   WHERE cid=ancestor.id AND pid!=%d AND cid!=%d)"
       "SELECT 1 FROM ancestor WHERE id=%d LIMIT 1",
@@ -739,15 +741,16 @@ void merge_cmd(void){
       }
       zFullNewPath = mprintf("%s%s", g.zLocalRoot, zNewName);
       if( file_wd_size(zFullNewPath)>=0 ){
-        char zTmpPath[300];
-        file_tempname(sizeof(zTmpPath), zTmpPath);
+        Blob tmpPath;
+        file_tempname(&tmpPath, "");
         db_multi_exec("INSERT INTO tmprn(fn,tmpfn) VALUES(%Q,%Q)",
-                      zNewName, zTmpPath);
+                      zNewName, blob_str(&tmpPath));
         if( file_wd_islink(zFullNewPath) ){
-          symlink_copy(zFullNewPath, zTmpPath);
+          symlink_copy(zFullNewPath, blob_str(&tmpPath));
         }else{
-          file_copy(zFullNewPath, zTmpPath);
+          file_copy(zFullNewPath, blob_str(&tmpPath));
         }
+        blob_reset(&tmpPath);
       }
       if( file_wd_islink(zFullOldPath) ){
         symlink_copy(zFullOldPath, zFullNewPath);
@@ -784,7 +787,7 @@ void merge_cmd(void){
     const char *zName;
     char *zFullName;
     db_multi_exec(
-      "INSERT INTO vfile(vid,chnged,deleted,rid,mrid,isexe,islink,pathname)"
+      "REPLACE INTO vfile(vid,chnged,deleted,rid,mrid,isexe,islink,pathname)"
       "  SELECT %d,%d,0,rid,mrid,isexe,islink,pathname FROM vfile WHERE id=%d",
       vid, integrateFlag?5:3, idm
     );

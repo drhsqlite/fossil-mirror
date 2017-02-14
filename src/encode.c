@@ -25,7 +25,7 @@
 ** every ">" into "&gt;" and every "&" into "&amp;".  Return a pointer
 ** to a new string obtained from malloc().
 **
-** We also encode " as &quot; so that it can appear as an argument
+** We also encode " as &quot; and ' as &#39; so they can appear as an argument
 ** to markup.
 */
 char *htmlize(const char *zIn, int n){
@@ -41,6 +41,7 @@ char *htmlize(const char *zIn, int n){
       case '>':   count += 4;       break;
       case '&':   count += 5;       break;
       case '"':   count += 6;       break;
+      case '\'':  count += 5;       break;
       default:    count++;          break;
     }
     i++;
@@ -74,6 +75,13 @@ char *htmlize(const char *zIn, int n){
         zOut[i++] = 'u';
         zOut[i++] = 'o';
         zOut[i++] = 't';
+        zOut[i++] = ';';
+        break;
+      case '\'':
+        zOut[i++] = '&';
+        zOut[i++] = '#';
+        zOut[i++] = '3';
+        zOut[i++] = '9';
         zOut[i++] = ';';
         break;
       default:
@@ -113,6 +121,11 @@ void htmlize_to_blob(Blob *p, const char *zIn, int n){
       case '"':
         if( j<i ) blob_append(p, zIn+j, i-j);
         blob_append(p, "&quot;", 6);
+        j = i+1;
+        break;
+      case '\'':
+        if( j<i ) blob_append(p, zIn+j, i-j);
+        blob_append(p, "&#39;", 5);
         j = i+1;
         break;
     }
@@ -369,7 +382,7 @@ char *encode64(const char *zData, int nData){
 
 /*
 ** COMMAND: test-encode64
-** 
+**
 ** Usage: %fossil test-encode64 STRING
 */
 void test_encode64_cmd(void){
@@ -435,7 +448,7 @@ char *decode64(const char *z64, int *pnByte){
 
 /*
 ** COMMAND: test-decode64
-** 
+**
 ** Usage: %fossil test-decode64 STRING
 */
 void test_decode64_cmd(void){

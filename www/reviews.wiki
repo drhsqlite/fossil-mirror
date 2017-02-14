@@ -1,6 +1,6 @@
 <title>Reviews</title>
 <b>External links:</b>
- 
+
   *  [http://nixtu.blogspot.com/2010/03/fossil-dvcs-on-go-first-impressions.html |
      Fossil DVCS on the Go - First Impressions]
   *  [http://blog.mired.org/2011/02/fossil-sweet-spot-in-vcs-space.html |
@@ -24,23 +24,23 @@ single .exe applications!
 <b>Joshua Paine on 2010-10-22:</b>
 
 <blockquote>
-With one of my several hats on, I'm in a small team using git. Another 
-team member just checked some stuff into trunk that should have been on 
-a branch. Nothing else had happened since, so in fossil I would have 
-just edited that commit and put it on a new branch. In git that can't 
-actually be done without danger once other people have pulled, so I had 
-to create a new commit rolling back the changes, then branch and cherry 
-pick the earlier changes, then figure out how to make my new branch 
-shared instead of private. Just want to say thanks for fossil making my 
-life easier on most of my projects, and being able to move commits to 
-another branch after the fact and shared-by-default branches are good 
+With one of my several hats on, I'm in a small team using git. Another
+team member just checked some stuff into trunk that should have been on
+a branch. Nothing else had happened since, so in fossil I would have
+just edited that commit and put it on a new branch. In git that can't
+actually be done without danger once other people have pulled, so I had
+to create a new commit rolling back the changes, then branch and cherry
+pick the earlier changes, then figure out how to make my new branch
+shared instead of private. Just want to say thanks for fossil making my
+life easier on most of my projects, and being able to move commits to
+another branch after the fact and shared-by-default branches are good
 features. Also not having a misanthropic command line interface.
 </blockquote>
 
 <b>Stephan Beal writes on 2009-01-11:</b>
 
 <blockquote>
-Sometime in late 2007 I came across a link to fossil on 
+Sometime in late 2007 I came across a link to fossil on
 <a href="http://www.sqlite.org/">sqlite.org</a>. It
 was a good thing I bookmarked it, because I was never able to find the
 link again (it might have been in a bug report or something). The

@@ -101,6 +101,17 @@
 #        define COMPILER_NAME "pellesc32"
 #      endif
 #    endif
+#  elif defined(__clang__)
+#    if !defined(COMPILER_VERSION)
+#      if defined(__clang_version__)
+#        define COMPILER_VERSION __clang_version__
+#      endif
+#    endif
+#    if defined(COMPILER_VERSION) && !defined(NO_COMPILER_VERSION)
+#      define COMPILER_NAME "clang-" COMPILER_VERSION
+#    else
+#      define COMPILER_NAME "clang"
+#    endif
 #  elif defined(_MSC_VER)
 #    if !defined(COMPILER_VERSION)
 #      define COMPILER_VERSION COMPILER_STRINGIFY(_MSC_VER)
@@ -139,8 +150,6 @@
 #    else
 #      define COMPILER_NAME "mingw32"
 #    endif
-#  elif defined(_WIN32)
-#    define COMPILER_NAME "win32"
 #  elif defined(__GNUC__)
 #    if !defined(COMPILER_VERSION)
 #      if defined(__VERSION__)
@@ -152,6 +161,8 @@
 #    else
 #      define COMPILER_NAME "gcc"
 #    endif
+#  elif defined(_WIN32)
+#    define COMPILER_NAME "win32"
 #  else
 #    define COMPILER_NAME "unknown"
 #  endif
@@ -217,5 +228,10 @@ typedef signed char i8;
 #else
 # define NORETURN
 #endif
+
+/*
+** Number of elements in an array
+*/
+#define count(X) (sizeof(X)/sizeof(X[0]))
 
 #endif /* _RC_COMPILE_ */

@@ -4,7 +4,7 @@
 # @synopsis:
 #
 # This module supports common system interrogation and options
-# such as --host, --build, --prefix, and setting srcdir, builddir, and EXEXT.
+# such as --host, --build, --prefix, and setting srcdir, builddir, and EXEEXT
 #
 # It also support the 'feature' naming convention, where searching
 # for a feature such as sys/type.h defines HAVE_SYS_TYPES_H
@@ -106,9 +106,9 @@ proc write-if-changed {file buf {script {}}} {
 # If $outfile is blank/omitted, $template should end with ".in" which
 # is removed to create the output file name.
 #
-# Each pattern of the form @define@ is replaced the the corresponding
+# Each pattern of the form @define@ is replaced with the corresponding
 # define, if it exists, or left unchanged if not.
-# 
+#
 # The special value @srcdir@ is substituted with the relative
 # path to the source directory from the directory where the output
 # file is created, while the special value @top_srcdir@ is substituted

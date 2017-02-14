@@ -247,7 +247,7 @@ static unsigned int checksum(const char *zIn, size_t N){
       sum += _byteswap_ulong(*(unsigned*)z);
       z += 4;
     }
-#else    
+#else
     unsigned sum0 = 0;
     unsigned sum1 = 0;
     unsigned sum2 = 0;
@@ -379,9 +379,8 @@ int delta_create(
   */
   nHash = lenSrc/NHASH;
   collide = fossil_malloc( nHash*2*sizeof(int) );
+  memset(collide, -1, nHash*2*sizeof(int));
   landmark = &collide[nHash];
-  memset(landmark, -1, nHash*sizeof(int));
-  memset(collide, -1, nHash*sizeof(int));
   for(i=0; i<lenSrc-NHASH; i+=NHASH){
     int hv = hash_once(&zSrc[i]) % nHash;
     collide[i/NHASH] = landmark[hv];

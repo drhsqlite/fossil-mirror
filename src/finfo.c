@@ -47,6 +47,7 @@
 **   -l|--log             select log mode (the default)
 **   -n|--limit N         Display the first N changes (default unlimited).
 **                        N<=0 means no limit.
+**   --no-dir-symlinks    Disables support for directory symlinks.
 **   --offset P           skip P changes
 **   -p|--print           select print mode
 **   -r|--revision R      print the given revision (or ckout, if none is given)
@@ -126,7 +127,7 @@ void finfo_cmd(void){
 
     file_tree_name(g.argv[2], &fname, 0, 1);
     if( zRevision ){
-      historical_version_of_file(zRevision, blob_str(&fname), &record, 0,0,0,0);
+      historical_blob(zRevision, blob_str(&fname), &record, 1);
     }else{
       int rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%B %s",
                        &fname, filename_collation());
@@ -251,7 +252,6 @@ void finfo_cmd(void){
 */
 void cat_cmd(void){
   int i;
-  int rc;
   Blob content, fname;
   const char *zRev;
   db_find_and_open_repository(0, 0);
@@ -263,10 +263,7 @@ void cat_cmd(void){
   for(i=2; i<g.argc; i++){
     file_tree_name(g.argv[i], &fname, 0, 1);
     blob_zero(&content);
-    rc = historical_version_of_file(zRev, blob_str(&fname), &content, 0,0,0,2);
-    if( rc==2 ){
-      fossil_fatal("no such file: %s", g.argv[i]);
-    }
+    historical_blob(zRev, blob_str(&fname), &content, 1);
     blob_write_to_file(&content, "-");
     blob_reset(&fname);
     blob_reset(&content);
@@ -284,13 +281,18 @@ void cat_cmd(void){
 **
 ** Additional query parameters:
 **
-**    a=DATE     Only show changes after DATE
-**    b=DATE     Only show changes before DATE
+**    a=DATETIME Only show changes after DATETIME
+**    b=DATETIME Only show changes before DATETIME
 **    n=NUM      Show the first NUM changes only
 **    brbg       Background color by branch name
 **    ubg        Background color by user name
 **    ci=UUID    Ancestors of a particular check-in
 **    showid     Show RID values for debugging
+**
+** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
+** year-month-day form, it may be truncated, and it may also name a
+** timezone offset from UTC as "-HH:MM" (westward) or "+HH:MM"
+** (eastward). Either no timezone suffix or "Z" means UTC.
 */
 void finfo_page(void){
   Stmt q;
@@ -328,7 +330,7 @@ void finfo_page(void){
     return;
   }
   if( g.perm.Admin ){
-    style_submenu_element("MLink Table", "mtab", "%R/mlink?name=%t", zFilename);
+    style_submenu_element("MLink Table", "%R/mlink?name=%t", zFilename);
   }
   if( baseCheckin ){
     compute_direct_ancestors(baseCheckin);
@@ -395,7 +397,7 @@ void finfo_page(void){
   blob_zero(&title);
   if( baseCheckin ){
     char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", baseCheckin);
-    char *zLink = 	href("%R/info/%!S", zUuid);
+    char *zLink = href("%R/info/%!S", zUuid);
     if( n>0 ){
       blob_appendf(&title, "First %d ancestors of file ", n);
     }else{
@@ -408,7 +410,7 @@ void finfo_page(void){
     if( fShowId ) blob_appendf(&title, " (%d)", baseCheckin);
     fossil_free(zUuid);
   }else{
-    blob_appendf(&title, "History of files named ");
+    blob_appendf(&title, "History of ");
     hyperlinked_path(zFilename, &title, 0, "tree", "");
     if( fShowId ) blob_appendf(&title, " (%d)", fnid);
   }
@@ -451,7 +453,7 @@ void finfo_page(void){
     db_bind_int(&qparent, ":fid", frid);
     db_bind_int(&qparent, ":mid", fmid);
     db_bind_int(&qparent, ":fnid", fnid);
-    while( db_step(&qparent)==SQLITE_ROW && nParent<ArraySize(aParent) ){
+    while( db_step(&qparent)==SQLITE_ROW && nParent<count(aParent) ){
       aParent[nParent] = db_column_int(&qparent, 0);
       nParent++;
     }
@@ -533,7 +535,7 @@ void finfo_page(void){
     if( fDebug & FINFO_DEBUG_MLINK ){
       int ii;
       char *zAncLink;
-      @ <br>fid=%d(frid) pid=%d(fpid) mid=%d(fmid)
+      @ <br />fid=%d(frid) pid=%d(fpid) mid=%d(fmid)
       if( nParent>0 ){
         @ parents=%d(aParent[0])
         for(ii=1; ii<nParent; ii++){
@@ -575,7 +577,7 @@ void mlink_page(void){
   const char *zFName = P("name");
   const char *zCI = P("ci");
   Stmt q;
-  
+
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(g.anon.Admin); return; }
   style_header("MLINK Table");
@@ -678,7 +680,7 @@ void mlink_page(void){
     );
     @ <h1>MLINK table for check-in %h(zCI)</h1>
     render_checkin_context(mid, 1);
-    @ <hr>
+    @ <hr />
     @ <div class='brlist'>
     @ <table id='mlinktable'>
     @ <thead><tr>
@@ -702,7 +704,7 @@ void mlink_page(void){
       @ <tr>
       @ <td><a href='%R/finfo?name=%t(zName)'>%h(zName)</a></td>
       if( zParent ){
-        @ <td><a href='%R/info/%!S(zPid)'>%S(zParent)</a></td>
+        @ <td><a href='%R/info/%!S(zParent)'>%S(zParent)</a></td>
       }else{
         @ <td><i>(New)</i></td>
       }

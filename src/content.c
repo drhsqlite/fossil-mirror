@@ -456,6 +456,26 @@ void content_enable_dephantomize(int onoff){
 }
 
 /*
+** Make sure the g.rcvid global variable has been initialized.
+**
+** If the g.zIpAddr variable has not been set when this routine is
+** called, use zSrc as the source of content for the rcvfrom
+** table entry.
+*/
+void content_rcvid_init(const char *zSrc){
+  if( g.rcvid==0 ){
+    user_select();
+    if( g.zIpAddr ) zSrc = g.zIpAddr;
+    db_multi_exec(
+       "INSERT INTO rcvfrom(uid, mtime, nonce, ipaddr)"
+       "VALUES(%d, julianday('now'), %Q, %Q)",
+       g.userUid, g.zNonce, zSrc
+    );
+    g.rcvid = db_last_insert_rowid();
+  }
+}
+
+/*
 ** Write content into the database.  Return the record ID.  If the
 ** content is already in the database, just return the record ID.
 **
@@ -532,14 +552,7 @@ int content_put_ex(
   db_finalize(&s1);
 
   /* Construct a received-from ID if we do not already have one */
-  if( g.rcvid==0 ){
-    db_multi_exec(
-       "INSERT INTO rcvfrom(uid, mtime, nonce, ipaddr)"
-       "VALUES(%d, julianday('now'), %Q, %Q)",
-       g.userUid, g.zNonce, g.zIpAddr
-    );
-    g.rcvid = db_last_insert_rowid();
-  }
+  content_rcvid_init(0);
 
   if( nBlob ){
     cmpr = pBlob[0];
@@ -843,7 +856,7 @@ static int looks_like_control_artifact(Blob *p){
 }
 
 /*
-** COMMAND: test-integrity ?OPTIONS?
+** COMMAND: test-integrity
 **
 ** Verify that all content can be extracted from the BLOB table correctly.
 ** If the BLOB table is correct, then the repository can always be
@@ -1165,7 +1178,7 @@ void test_content_erase(void){
   db_prepare(&q, "SELECT rid FROM delta WHERE srcid=:rid");
   for(i=2; i<g.argc; i++){
     int rid = atoi(g.argv[i]);
-    fossil_print("Erasing artifact %d (%s)\n", 
+    fossil_print("Erasing artifact %d (%s)\n",
                  rid, db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid));
     db_bind_int(&q, ":rid", rid);
     while( db_step(&q)==SQLITE_ROW ){

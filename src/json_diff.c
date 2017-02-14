@@ -131,7 +131,7 @@ cson_value * json_page_diff(){
   cson_object_set(pay, "to", json_new_string(zTo));
   cson_object_set(pay, "diff", v);
   v = 0;
-  
+
   return pay ? cson_object_value(pay) : NULL;
 }
 
