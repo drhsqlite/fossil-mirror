@@ -24,6 +24,14 @@
 
 #if INTERFACE
 /*
+** These macros are used within this file to detect if the repository and
+** configuration ("user") database are currently open.
+*/
+#define Th_IsLocalOpen()          (g.localOpen)
+#define Th_IsRepositoryOpen()     (g.repositoryOpen)
+#define Th_IsConfigOpen()         (g.zConfigDbName!=0)
+
+/*
 ** Flag parameters to the Th_FossilInit() routine used to control the
 ** interpreter creation and initialization process.
 */
@@ -60,13 +68,6 @@
 #define NO_COMMAND_HOOK_ERROR "no such command:  command_hook"
 #define NO_WEBPAGE_HOOK_ERROR "no such command:  webpage_hook"
 #endif
-
-/*
-** These macros are used within this file to detect if the repository and
-** configuration ("user") database are currently open.
-*/
-#define Th_IsRepositoryOpen()     (g.repositoryOpen)
-#define Th_IsConfigOpen()         (g.zConfigDbName!=0)
 
 /*
 ** Global variable counting the number of outstanding calls to malloc()
