@@ -1,5 +1,5 @@
-C If\sthe\s'allow-symlinks'\soption\sis\senabled\s(or\sthe\s'--no-dir-symlinks'\sflag\sis\sspecified),\sdo\snot\straverse\sinto\ssymlinked\sdirectories.
-D 2017-02-14T18:19:41.333
+C Improve\sthe\swarning\smessage\sabout\sversioned/non-versioned\ssettings\sso\sthat\sit\sincludes\sthe\sfull\spath\sto\sthe\sversioned\ssettings\sfile,\sfor\sbetter\suse\swith\sthings\slike\s'fossil\sall'.
+D 2017-02-15T06:23:44.336
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -413,7 +413,7 @@ F src/content.c a6024f0400307f4c25d067d323a6cbdf38b78c81
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c c2c7c8e30b285ce6774c73433de3877982d8271b
+F src/db.c f7573f66448731f965dbf4983cd0419db1608cbf
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
@@ -783,8 +783,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 616d2873f0c56cd302b44b79d8fc167835356e2e 8fdf8cbe9cb5c72346b2f91d1379b355b6d3a8e0
-R 0c9be8ef2b28b9f8bbb2c9e01ba7cbeb
-T +closed 8fdf8cbe9cb5c72346b2f91d1379b355b6d3a8e0
+P 2375d6cbce933267059d1194fb8818404b89fec6
+R 109f62d72129eed70c2b1f20a6ed024a
 U mistachkin
-Z b2ed98310520311553b06e9368193b05
+Z 7954e42adb8cde7322620ee5b11e5cc6

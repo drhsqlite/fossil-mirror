@@ -2277,11 +2277,11 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
     ** the user about the conflict */
     fossil_warning(
         "setting %s has both versioned and non-versioned values: using "
-        "versioned value from file .fossil-settings/%s (to silence this "
-        "warning, either create an empty file named "
-        ".fossil-settings/%s.no-warn in the check-out root, "
-        "or delete the non-versioned setting "
-        "with \"fossil unset %s\")", zName, zName, zName, zName
+        "versioned value from file \"%/.fossil-settings/%s\" (to silence "
+        "this warning, either create an empty file named "
+        "\"%/.fossil-settings/%s.no-warn\" in the check-out root, or delete "
+        "the non-versioned setting with \"fossil unset %s\")", zName,
+        g.zLocalRoot, zName, g.zLocalRoot, zName, zName
     );
   }
   /* Prefer the versioned setting */
