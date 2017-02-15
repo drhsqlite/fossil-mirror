@@ -270,7 +270,7 @@ and painlessly.</p>
 
     To merge two branches back together, first
     [/help/update | update] to the branch you want to merge into.
-    Then do a [/help/merge|merge] another branch that you want to incorporate
+    Then do a [/help/merge|merge] of the other branch that you want to incorporate
     the changes from.  For example, to merge "featureX" changes into "trunk"
     do this:</p>
 

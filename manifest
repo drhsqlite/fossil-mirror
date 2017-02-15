@@ -1,5 +1,5 @@
-C Improve\sthe\swarning\smessage\sabout\sversioned/non-versioned\ssettings\sso\sthat\sit\sincludes\sthe\sfull\spath\sto\sthe\sversioned\ssettings\sfile,\sfor\sbetter\suse\swith\sthings\slike\s'fossil\sall'.
-D 2017-02-15T06:23:44.336
+C Clarification\sof\stext\sin\sthe\squickstart.wiki\sdocumentation.
+D 2017-02-15T17:41:02.952
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -759,7 +759,7 @@ F www/permutedindex.html e2f7a7752d2527674bfe905d1e2e91cffc3e4e38
 F www/pop.wiki a9bd731ae3e8b431328d8c3f017cf12d180f377b
 F www/private.wiki 1c55c09563361db73b733386dc0fd6689156d5ab
 F www/qandc.wiki b8b6f9668796bde63440e64dfd40a176766dd78e
-F www/quickstart.wiki 0080ce9a7b0a911abfd2724f201542e633bc0c93
+F www/quickstart.wiki afc5e41e06cc2d54364016e3d0d7dff1209b082d
 F www/quotes.wiki 6f77c1af17f05596d0f6a4cc88f149a61188ecfd
 F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
@@ -783,7 +783,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2375d6cbce933267059d1194fb8818404b89fec6
-R 109f62d72129eed70c2b1f20a6ed024a
-U mistachkin
-Z 7954e42adb8cde7322620ee5b11e5cc6
+P 83fd73849043380da5b7cb757958674f4e4983d4
+R 20b59aa91c4b24451f3306f3db13d48a
+U drh
+Z 35916e7635406890796d353e29d35cc9
