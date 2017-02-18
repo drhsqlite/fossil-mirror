@@ -420,6 +420,7 @@ void all_cmd(void){
       int nStar = 80 - (len + 15);
       if( nStar<2 ) nStar = 1;
       fossil_print("%.13c %s %.*c\n", '*', zFilename, nStar, '*');
+      fflush(stdout);
     }
     if( !quiet || dryRunFlag ){
       fossil_print("%s\n", zSyscmd);

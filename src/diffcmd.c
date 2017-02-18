@@ -751,13 +751,14 @@ void diff_tk(const char *zSubCmd, int firstArg){
 ** diff programs.
 */
 int diff_include_binary_files(void){
-  if( is_truth(find_option("diff-binary", 0, 1)) ){
-    return 1;
+  const char* zArgIncludeBinary = find_option("diff-binary", 0, 1);
+  
+  /* Command line argument have priority on settings */
+  if( zArgIncludeBinary ){
+    return is_truth(zArgIncludeBinary);
+  }else{
+    return db_get_boolean("diff-binary", 1);
   }
-  if( db_get_boolean("diff-binary", 1) ){
-    return 1;
-  }
-  return 0;
 }
 
 /*

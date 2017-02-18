@@ -215,7 +215,7 @@ static void process_sync_args(
 **   --once                     Do not remember URL for subsequent syncs
 **   --proxy PROXY              Use the specified HTTP proxy
 **   --private                  Pull private branches too
-**   -R|--repository REPO       Repository to pull into
+**   -R|--repository REPO       Local repository to pull into
 **   --ssl-identity FILE        Local SSL credentials, if requested by remote
 **   --ssh-command SSH          Use SSH as the "ssh" command
 **   -v|--verbose               Additional (debugging) output
@@ -260,7 +260,7 @@ void pull_cmd(void){
 **   --once                     Do not remember URL for subsequent syncs
 **   --proxy PROXY              Use the specified HTTP proxy
 **   --private                  Push private branches too
-**   -R|--repository REPO       Repository to pull into
+**   -R|--repository REPO       Local repository to push from
 **   --ssl-identity FILE        Local SSL credentials, if requested by remote
 **   --ssh-command SSH          Use SSH as the "ssh" command
 **   -v|--verbose               Additional (debugging) output
@@ -305,7 +305,7 @@ void push_cmd(void){
 **   --once                     Do not remember URL for subsequent syncs
 **   --proxy PROXY              Use the specified HTTP proxy
 **   --private                  Sync private branches too
-**   -R|--repository REPO       Repository to pull into
+**   -R|--repository REPO       Local repository to sync with
 **   --ssl-identity FILE        Local SSL credentials, if requested by remote
 **   --ssh-command SSH          Use SSH as the "ssh" command
 **   -u|--unversioned           Also sync unversioned content

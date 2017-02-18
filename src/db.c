@@ -1425,7 +1425,7 @@ const char *db_repository_filename(void){
 
 /*
 ** Returns non-zero if the default value for the "allow-symlinks" setting
-** is "on".
+** is "on".  When on Windows, this always returns false.
 */
 int db_allow_symlinks_by_default(void){
 #if defined(_WIN32)
@@ -1433,6 +1433,18 @@ int db_allow_symlinks_by_default(void){
 #else
   return 1;
 #endif
+}
+
+/*
+** Returns non-zero if support for symlinks is currently enabled.
+*/
+int db_allow_symlinks(int traversal){
+  if( traversal ){
+    if( g.allowSymlinks ) return 1;
+    return g.fNoDirSymlinks;
+  }else{
+    return g.allowSymlinks;
+  }
 }
 
 /*
@@ -2265,11 +2277,11 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
     ** the user about the conflict */
     fossil_warning(
         "setting %s has both versioned and non-versioned values: using "
-        "versioned value from file .fossil-settings/%s (to silence this "
-        "warning, either create an empty file named "
-        ".fossil-settings/%s.no-warn in the check-out root, "
-        "or delete the non-versioned setting "
-        "with \"fossil unset %s\")", zName, zName, zName, zName
+        "versioned value from file \"%/.fossil-settings/%s\" (to silence "
+        "this warning, either create an empty file named "
+        "\"%/.fossil-settings/%s.no-warn\" in the check-out root, or delete "
+        "the non-versioned setting with \"fossil unset %s\")", zName,
+        g.zLocalRoot, zName, g.zLocalRoot, zName, zName
     );
   }
   /* Prefer the versioned setting */

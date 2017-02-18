@@ -137,6 +137,7 @@ struct Global {
   int localOpen;          /* True if the local database is open */
   char *zLocalRoot;       /* The directory holding the  local database */
   int minPrefix;          /* Number of digits needed for a distinct UUID */
+  int fNoDirSymlinks;     /* True if --no-dir-symlinks flag is present */
   int fSqlTrace;          /* True if --sqltrace flag is present */
   int fSqlStats;          /* True if --sqltrace or --sqlstats are present */
   int fSqlPrint;          /* True if -sqlprint flag is present */
@@ -615,6 +616,7 @@ int main(int argc, char **argv)
     const char *zChdir = find_option("chdir",0,1);
     g.isHTTP = 0;
     g.rcvid = 0;
+    g.fNoDirSymlinks = find_option("no-dir-symlinks", 0, 0)!=0;
     g.fQuiet = find_option("quiet", 0, 0)!=0;
     g.fSqlTrace = find_option("sqltrace", 0, 0)!=0;
     g.fSqlStats = find_option("sqlstats", 0, 0)!=0;
@@ -995,10 +997,12 @@ static void get_version_blob(
                sqlite3_sourceid());
   if( g.db==0 ) sqlite3_open(":memory:", &g.db);
   db_prepare(&q,
-     "SELECT compile_options FROM pragma_compile_options"
-     " WHERE compile_options NOT LIKE 'COMPILER=%%'");
+     "pragma compile_options");
   while( db_step(&q)==SQLITE_ROW ){
-    blob_appendf(pOut, "SQLITE_%s\n", db_column_text(&q, 0));
+    const char *text = db_column_text(&q, 0);
+    if( strncmp(text, "COMPILER", 8) ){
+      blob_appendf(pOut, "SQLITE_%s\n", text);
+    }
   }
   db_finalize(&q);
 }
