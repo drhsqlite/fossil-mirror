@@ -608,13 +608,12 @@ static void git_fast_import(FILE *pIn){
         if( got!=gg.nData ){
           fossil_fatal("short read: got %d of %d bytes", got, gg.nData);
         }
-	/* Strip trailing newline, it's appended to the comment. */
-	if( gg.aData[got-1] == '\n' )
-	  gg.aData[got-1] = '\0';
-        else
-          gg.aData[got] = '\0';
+        gg.aData[got] = '\0';
         if( gg.zComment==0 &&
             (gg.xFinish==finish_commit || gg.xFinish==finish_tag) ){
+	  /* Strip trailing newline, it's appended to the comment. */
+	  if( gg.aData[got-1] == '\n' )
+	    gg.aData[got-1] = '\0';
           gg.zComment = gg.aData;
           gg.aData = 0;
           gg.nData = 0;
