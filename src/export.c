@@ -720,7 +720,7 @@ void export_cmd(void){
     printf("tagger");
     print_person(zUser);
     printf(" %s +0000\n", zSecSince1970);
-    printf("data %d\n", zComment==NULL?0:strlen(zComment)+1);
+    printf("data %d\n", zComment==NULL?0:(int)strlen(zComment)+1);
     if( zComment!=NULL ) printf("%s\n",zComment);
   }
   db_finalize(&q);
