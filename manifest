@@ -1,5 +1,5 @@
-C Same\sas\s"roy-export",\sbut\suse\stag\svalue\sin\sstead\sof\scomment\sfor\sstoring\scomment\srelated\sto\stags.\s(Not\sactually\stested\swith\sGIT\syet!)
-D 2017-02-13T10:37:57.587
+C Merge\sstripping\send-of-line\schange\sfrom\s"roy-export"\sbranch
+D 2017-02-22T09:49:06.995
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -437,7 +437,7 @@ F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
-F src/import.c e0528aaefee0d1b43a51fa1c1e651680f8428f4e
+F src/import.c e4a36affece058ea9b1057522f4fd7dec244a99d
 F src/info.c 7b09909864e296c4d7404fc17ca644f960071b55
 F src/json.c f5b7fdcda3a1896153974769be00bae833bc476b
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
@@ -783,10 +783,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d90460dbf428e74b63262a25cf2b55939493ce23
-R a4c0894ec4c2f7a7f71a205930de59eb
-T *branch * jn-export
-T *sym-jn-export *
-T -sym-roy-export *
+P cb1fb96f0d9dfe9eaa36d9a54f6b48722496aaff 7a93cd883bda736f1160bd3c9d31036b20755bd8
+R 630b2cf2d187573eb6dbc5cb317340f6
 U jan.nijtmans
-Z c98e2fc20985ab1c791b3a3b5116a5c5
+Z 088156b12ba0cdb02985bbc023ae7371

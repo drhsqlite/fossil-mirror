@@ -223,7 +223,7 @@ static void finish_tag(void){
     if( gg.zComment ){
       blob_appendf(&record, " %F", gg.zComment);
     }
-    blob_appendf(&record, "U %F\n", gg.zUser);
+    blob_appendf(&record, "\nU %F\n", gg.zUser);
     md5sum_blob(&record, &cksum);
     blob_appendf(&record, "Z %b\n", &cksum);
     fast_insert_content(&record, 0, 0, 1);
@@ -610,13 +610,12 @@ static void git_fast_import(FILE *pIn){
         if( got!=gg.nData ){
           fossil_fatal("short read: got %d of %d bytes", got, gg.nData);
         }
-	/* Strip trailing newline, it's appended to the comment. */
-	if( gg.aData[got-1] == '\n' )
-	  gg.aData[got-1] = '\0';
-        else
-          gg.aData[got] = '\0';
+        gg.aData[got] = '\0';
         if( gg.zComment==0 &&
             (gg.xFinish==finish_commit || gg.xFinish==finish_tag) ){
+	  /* Strip trailing newline, it's appended to the comment. */
+	  if( gg.aData[got-1] == '\n' )
+	    gg.aData[got-1] = '\0';
           gg.zComment = gg.aData;
           gg.aData = 0;
           gg.nData = 0;
