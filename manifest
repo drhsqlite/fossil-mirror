@@ -1,5 +1,5 @@
-C Run\sthe\s"PRAGMA\soptimize"\scommand\sas\sthe\sdatabase\sis\sclosing.\s\sThis\schange\sis\sintended\sas\sa\stest\sof\s"PRAGMA\soptimize".
-D 2017-02-23T13:42:30.705
+C Add\sthe\s/repo_stat1\swebpage\s(accessible\sonly\sto\sadministrators).\s\sEnhance\nthe\s/repo_schema\spage\sso\sthat\sit\scan\soptionally\sshow\sthe\sschema\sfor\sa\ssingle\ntable.\s\sInclude\ssqlite_stat1\sinformation\son\sthe\s/repo_schema\spage.
+D 2017-02-23T14:55:02.501
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -503,7 +503,7 @@ F src/sqlcmd.c 9f904c862aa0c5f83306cbee0140a54c4d1e3a54
 F src/sqlite3.c aaacd686f506f5fbb8c42aec93c3ec341c122c16
 F src/sqlite3.h b208ba96815c44509d63fc1f3f2f80b1d9055df2
 F src/stash.c ac247e5b718cd29c6c1fc543f7b984be9b9f53e6
-F src/stat.c 2f81053ee64a9a9705fdbeac60e7397798145aaf
+F src/stat.c d29a5c736c32d5d09741e564eb6eb735f96d5797
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
 F src/style.c cf9edbf403e1df8e094e8a1d44d5dd9516046678
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
@@ -783,10 +783,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 35698c9c43478f8f7c7621a53a08c85f9b028c01
-R a5487fcae06041c6eac66c42a3fe1920
-T *branch * optimize-pragma
-T *sym-optimize-pragma *
-T -sym-trunk *
+P 90555227ea0362810b569fff3d4f863aae84cf1b
+R 21330ebd121504ccdb7c41d6dd4cd5cd
 U drh
-Z 27fe3a8f1fc86e73b7a38a7a94f6b38e
+Z 7ae258e73dd3dedb56670f1fe598ba74
