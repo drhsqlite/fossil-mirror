@@ -1,5 +1,5 @@
-C Fix\sharmless\scompiler\swarning\sseen\swith\sMSVC.
-D 2017-02-23T07:51:00.688
+C Add\ssupport\sfor\sdocument\stitles\sto\sthe\sTH1\sdocs\sfeature.
+D 2017-02-23T07:52:02.121
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -421,7 +421,7 @@ F src/diff.c 4019cd9a2c6cc4c63f327a214f7bce10b55d95d9
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 1d392a936c21ae03aa8e69cf7fcf473a2e6cbc81
 F src/dispatch.c 4e634c0cf22b7dd63501a4dc0aa6375cf4151343
-F src/doc.c bae142c1df13fbaba1af814e0ee398670d366547
+F src/doc.c 7d289a1b9554bc108f2b11c0aeaa05f4e0c6b008
 F src/encode.c edb12a68c5831e5331eaad3796c492059edb10fb
 F src/event.c 021db025691a859a49751f255a0a065bca728444
 F src/export.c d506a4f7e033a10ec1771593c468c199b68a88b8
@@ -783,7 +783,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ad2dd95dbf283ddef1a0c53e8d74dfa6ca5a72a2
-R 695242ac69b33bd32e0a463d6c2557da
+P afcff4999e4d2652b4c6edae68b430e2934ce05a
+R 800e5ce996a3afae03f0effe09e5be43
 U mistachkin
-Z 00d917ebbf1ba2bf5d8d447b3118df95
+Z 14e3e6bb8494758eef08845856f86321
