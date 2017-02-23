@@ -1654,7 +1654,7 @@ void import_cmd(void){
     unsigned nIgnTree = 0;
     while( (zIgnTree = find_option("ignore-tree", 0, 1)) ){
       if ( *zIgnTree ){
-        gsvn.azIgnTree = fossil_realloc(gsvn.azIgnTree,
+        gsvn.azIgnTree = fossil_realloc((void *)gsvn.azIgnTree,
             sizeof(*gsvn.azIgnTree) * (nIgnTree + 2));
         gsvn.azIgnTree[nIgnTree++] = zIgnTree;
         gsvn.azIgnTree[nIgnTree] = 0;
