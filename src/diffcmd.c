@@ -752,7 +752,7 @@ void diff_tk(const char *zSubCmd, int firstArg){
 */
 int diff_include_binary_files(void){
   const char* zArgIncludeBinary = find_option("diff-binary", 0, 1);
-  
+
   /* Command line argument have priority on settings */
   if( zArgIncludeBinary ){
     return is_truth(zArgIncludeBinary);

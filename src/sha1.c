@@ -11,7 +11,7 @@
 # define SHA1Context SHA_CTX
 # define SHA1Init SHA1_Init
 # define SHA1Update SHA1_Update
-# define SHA1Final(a,b) SHA1_Final(b,a)
+# define SHA1Final SHA1_Final
 
 #else
 
@@ -190,7 +190,7 @@ static void SHA1Update(
 /*
  * Add padding and return the message digest.
  */
-static void SHA1Final(SHA1Context *context, unsigned char digest[20]){
+static void SHA1Final(unsigned char *digest, SHA1Context *context){
     unsigned int i;
     unsigned char finalcount[8];
 
@@ -270,7 +270,7 @@ char *sha1sum_finish(Blob *pOut){
   unsigned char zResult[20];
   static char zOut[41];
   sha1sum_step_text(0,0);
-  SHA1Final(&incrCtx, zResult);
+  SHA1Final(zResult, &incrCtx);
   incrInit = 0;
   DigestToBase16(zResult, zOut);
   if( pOut ){
@@ -318,7 +318,7 @@ int sha1sum_file(const char *zFilename, Blob *pCksum){
   fclose(in);
   blob_zero(pCksum);
   blob_resize(pCksum, 40);
-  SHA1Final(&ctx, zResult);
+  SHA1Final(zResult, &ctx);
   DigestToBase16(zResult, blob_buffer(pCksum));
   return 0;
 }
@@ -342,7 +342,7 @@ int sha1sum_blob(const Blob *pIn, Blob *pCksum){
     blob_zero(pCksum);
   }
   blob_resize(pCksum, 40);
-  SHA1Final(&ctx, zResult);
+  SHA1Final(zResult, &ctx);
   DigestToBase16(zResult, blob_buffer(pCksum));
   return 0;
 }
@@ -358,7 +358,7 @@ char *sha1sum(const char *zIn){
 
   SHA1Init(&ctx);
   SHA1Update(&ctx, (unsigned const char*)zIn, strlen(zIn));
-  SHA1Final(&ctx, zResult);
+  SHA1Final(zResult, &ctx);
   DigestToBase16(zResult, zDigest);
   return mprintf("%s", zDigest);
 }
@@ -409,7 +409,7 @@ char *sha1_shared_secret(
   SHA1Update(&ctx, (unsigned char*)zLogin, strlen(zLogin));
   SHA1Update(&ctx, (unsigned char*)"/", 1);
   SHA1Update(&ctx, (unsigned const char*)zPw, strlen(zPw));
-  SHA1Final(&ctx, zResult);
+  SHA1Final(zResult, &ctx);
   DigestToBase16(zResult, zDigest);
   return mprintf("%s", zDigest);
 }
