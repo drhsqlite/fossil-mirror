@@ -5,6 +5,29 @@
 #include "sha3.h"
 
 /*
+** Macros to determine whether the machine is big or little endian,
+** and whether or not that determination is run-time or compile-time.
+**
+** For best performance, an attempt is made to guess at the byte-order
+** using C-preprocessor macros.  If that is unsuccessful, or if
+** -DSHA3_BYTEORDER=0 is set, then byte-order is determined
+** at run-time.
+*/
+#ifndef SHA3_BYTEORDER
+# if defined(i386)     || defined(__i386__)   || defined(_M_IX86) ||    \
+     defined(__x86_64) || defined(__x86_64__) || defined(_M_X64)  ||    \
+     defined(_M_AMD64) || defined(_M_ARM)     || defined(__x86)   ||    \
+     defined(__arm__)
+#   define SHA3_BYTEORDER    1234
+# elif defined(sparc)    || defined(__ppc__)
+#   define SHA3_BYTEORDER    4321
+# else
+#   define SHA3_BYTEORDER 0
+# endif
+#endif
+
+
+/*
 ** State structure for a SHA3 hash in progress
 */ 
 typedef struct SHA3Context SHA3Context;
@@ -344,20 +367,28 @@ static void KeccakF1600Step(SHA3Context *p){
 ** can be zero to use the default hash size of 224 bits.
 */
 static void SHA3Init(SHA3Context *p, int iSize){
-  static unsigned int one = 1;
   memset(p, 0, sizeof(*p));
   if( iSize>=256 && iSize<=512 ){
     p->nRate = (1600 - ((iSize + 31)&~31)*2)/8;
   }else{
     p->nRate = 144;
   }
-  if( 1==*(unsigned char*)&one ){
-    /* Little endian.  No byte swapping. */
-    p->ixMask = 0;
-  }else{
-    /* Big endian.  Byte swap. */
-    p->ixMask = 7;
+#if SHA3_BYTEORDER==1234
+  /* Known to be little-endian at compile-time. No-op */
+#elif SHA3_BYTEORDER==4321
+  p->ixMask = 7;  /* Big-endian */
+#else
+  {
+    static unsigned int one = 1;
+    if( 1==*(unsigned char*)&one ){
+      /* Little endian.  No byte swapping. */
+      p->ixMask = 0;
+    }else{
+      /* Big endian.  Byte swap. */
+      p->ixMask = 7;
+    }
   }
+#endif
 }
 
 /*
@@ -369,9 +400,27 @@ static void SHA3Update(
   const unsigned char *aData,
   unsigned int nData
 ){
-  unsigned int i;
-  for(i=0; i<nData; i++){
+  unsigned int i = 0;
+#if SHA3_BYTEORDER==1234
+  if( (p->nLoaded % 8)==0 && ((aData - (const unsigned char*)0)&7)==0 ){
+    for(; i<nData-7; i+=8){
+      p->u.s[p->nLoaded/8] ^= *(u64*)&aData[i];
+      p->nLoaded += 8;
+      if( p->nLoaded>=p->nRate ){
+        KeccakF1600Step(p);
+        p->nLoaded = 0;
+      }
+    }
+  }
+#endif
+  for(; i<nData; i++){
+#if SHA1_BYTEORDER==1234
+    p->u.x[p->nLoaded] ^= aData[i];
+#elif SHA3_BYTEORDER==4321
+    p->u.x[p->nLoaded^0x07] ^= aData[i];
+#else
     p->u.x[p->nLoaded^p->ixMask] ^= aData[i];
+#endif
     p->nLoaded++;
     if( p->nLoaded==p->nRate ){
       KeccakF1600Step(p);
