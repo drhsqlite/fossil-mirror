@@ -1,5 +1,5 @@
-C Add\sa\sSHA3\shash\salgorithm.\s\sSo\sfar\sthe\sonly\sintegration\sis\sthe\s\n"fossil\ssha3sum"\scommand.
-D 2017-02-25T20:07:57.726
+C Updates\sto\sthe\s"sha3sum"\shelp\stext.
+D 2017-02-25T20:14:13.806
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -495,7 +495,7 @@ F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c 82d3900b27d457fd1051d46acc5f4dcc74947960
 F src/setup.c 2d807dd6722ea73a8be13afe66a194cdc1e4b5ee
 F src/sha1.c 4c9b75097379a97c14ba366cfa71baff3378b066
-F src/sha3.c 6453e1aad798e21f749d0388139a4e447e50ba7c
+F src/sha3.c 47625a567e74de596f751e7870fe87ce5629f3db
 F src/shell.c a84e453c213f3e0d6935a582024da4e242f85a19
 F src/shun.c 1f8bcfcd826c3b574cd6e723f7afcbeff33ff443
 F src/sitemap.c b7c376b21d29322741c804e1f762b34aedb98ad1
@@ -784,8 +784,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b88ef030a6aacd9e667404f87247be6b64c65e78
-Q +17ea282226a68c79acf3a0fe656d0f87f639aac3
-R 03bdd918b1c05bdfe12cdb8c00931ceb
+P dcb1a827d54b56f3956c66cc5d1365e92b60a7f3
+R 4ce98bbc9b7f32eabfa09f8f432f2d0b
 U drh
-Z f4e5d4477497261a4e33555b27c36948
+Z f953f60e761c12c4edf1a5164475faa4

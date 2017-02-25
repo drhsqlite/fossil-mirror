@@ -558,6 +558,13 @@ char *sha3sum(const char *zIn, int iSize){
 **
 ** Compute an SHA3 checksum of all files named on the command-line.
 ** If a file is named "-" then take its content from standard input.
+**
+** Options:
+**
+**    --228        Compute a SHA3-228 hash (the default)
+**    --256        Compute a SHA3-256 hash
+**    --384        Compute a SHA3-384 hash
+**    --512        Compute a SHA3-512 hash
 */
 void sha3sum_test(void){
   int i;
