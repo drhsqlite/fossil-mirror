@@ -438,6 +438,7 @@ SRC   = add_.c \
         search_.c \
         setup_.c \
         sha1_.c \
+        sha3_.c \
         shun_.c \
         sitemap_.c \
         skins_.c \
@@ -612,6 +613,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\search$O \
         $(OX)\setup$O \
         $(OX)\sha1$O \
+        $(OX)\sha3$O \
         $(OX)\shell$O \
         $(OX)\shun$O \
         $(OX)\sitemap$O \
@@ -795,6 +797,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\search.obj >> $@
 	echo $(OX)\setup.obj >> $@
 	echo $(OX)\sha1.obj >> $@
+	echo $(OX)\sha3.obj >> $@
 	echo $(OX)\shell.obj >> $@
 	echo $(OX)\shun.obj >> $@
 	echo $(OX)\sitemap.obj >> $@
@@ -1478,6 +1481,12 @@ $(OX)\sha1$O : sha1_.c sha1.h
 sha1_.c : $(SRCDIR)\sha1.c
 	translate$E $** > $@
 
+$(OX)\sha3$O : sha3_.c sha3.h
+	$(TCC) /Fo$@ -c sha3_.c
+
+sha3_.c : $(SRCDIR)\sha3.c
+	translate$E $** > $@
+
 $(OX)\shun$O : shun_.c shun.h
 	$(TCC) /Fo$@ -c shun_.c
 
@@ -1769,6 +1778,7 @@ headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 			search_.c:search.h \
 			setup_.c:setup.h \
 			sha1_.c:sha1.h \
+			sha3_.c:sha3.h \
 			shun_.c:shun.h \
 			sitemap_.c:sitemap.h \
 			skins_.c:skins.h \

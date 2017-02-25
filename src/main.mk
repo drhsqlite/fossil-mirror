@@ -104,6 +104,7 @@ SRC = \
   $(SRCDIR)/search.c \
   $(SRCDIR)/setup.c \
   $(SRCDIR)/sha1.c \
+  $(SRCDIR)/sha3.c \
   $(SRCDIR)/shun.c \
   $(SRCDIR)/sitemap.c \
   $(SRCDIR)/skins.c \
@@ -279,6 +280,7 @@ TRANS_SRC = \
   $(OBJDIR)/search_.c \
   $(OBJDIR)/setup_.c \
   $(OBJDIR)/sha1_.c \
+  $(OBJDIR)/sha3_.c \
   $(OBJDIR)/shun_.c \
   $(OBJDIR)/sitemap_.c \
   $(OBJDIR)/skins_.c \
@@ -403,6 +405,7 @@ OBJ = \
  $(OBJDIR)/search.o \
  $(OBJDIR)/setup.o \
  $(OBJDIR)/sha1.o \
+ $(OBJDIR)/sha3.o \
  $(OBJDIR)/shun.o \
  $(OBJDIR)/sitemap.o \
  $(OBJDIR)/skins.o \
@@ -688,6 +691,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/search_.c:$(OBJDIR)/search.h \
 	$(OBJDIR)/setup_.c:$(OBJDIR)/setup.h \
 	$(OBJDIR)/sha1_.c:$(OBJDIR)/sha1.h \
+	$(OBJDIR)/sha3_.c:$(OBJDIR)/sha3.h \
 	$(OBJDIR)/shun_.c:$(OBJDIR)/shun.h \
 	$(OBJDIR)/sitemap_.c:$(OBJDIR)/sitemap.h \
 	$(OBJDIR)/skins_.c:$(OBJDIR)/skins.h \
@@ -1439,6 +1443,14 @@ $(OBJDIR)/sha1.o:	$(OBJDIR)/sha1_.c $(OBJDIR)/sha1.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/sha1.o -c $(OBJDIR)/sha1_.c
 
 $(OBJDIR)/sha1.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/sha3_.c:	$(SRCDIR)/sha3.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/sha3.c >$@
+
+$(OBJDIR)/sha3.o:	$(OBJDIR)/sha3_.c $(OBJDIR)/sha3.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/sha3.o -c $(OBJDIR)/sha3_.c
+
+$(OBJDIR)/sha3.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/shun_.c:	$(SRCDIR)/shun.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/shun.c >$@

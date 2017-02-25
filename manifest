@@ -1,5 +1,5 @@
-C Fix\sMD5\sfunction\s(actually:\sbyteReverse)\sfor\sARM\sprocessors.\sIf\sOpenSSL\sis\savailable,\suse\stheir\sMD5\simpl.\sExchange\sSHA1Final()\smethod\sparameters,\sbeing\scompatible\swith\sOpenSSL.
-D 2017-02-24T14:52:46.295
+C Add\sa\sSHA3\shash\salgorithm.\s\sSo\sfar\sthe\sonly\sintegration\sis\sthe\s\n"fossil\ssha3sum"\scommand.
+D 2017-02-25T20:07:57.726
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -462,10 +462,10 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c d2ef19fedab12da54fb4718e7d690be483f84d92
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
 F src/main.c 76a84632e77b057e9518c7e494fc90f322e0bb72
-F src/main.mk 3bfcbade731d65f075e20edfa6f1a384eda3f566
+F src/main.mk d2c5de7a2057847c9b410eea07405b9cb0d4a448
 F src/makeheaders.c cbbebae48e377db66e648af76a7aeea63c9bc523
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl c8ac3361ceb05c63e23ed5de0fd1efa76ef73240
+F src/makemake.tcl e61a22b9606edd55798be503d10be9c7b9bd7998
 F src/manifest.c e037d26b34ec3631288032bf06fd79f188e115da
 F src/markdown.c 20bb4755f258601e4e3e5274ea117fc7c8b1ccf7
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
@@ -495,6 +495,7 @@ F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c 82d3900b27d457fd1051d46acc5f4dcc74947960
 F src/setup.c 2d807dd6722ea73a8be13afe66a194cdc1e4b5ee
 F src/sha1.c 4c9b75097379a97c14ba366cfa71baff3378b066
+F src/sha3.c 6453e1aad798e21f749d0388139a4e447e50ba7c
 F src/shell.c a84e453c213f3e0d6935a582024da4e242f85a19
 F src/shun.c 1f8bcfcd826c3b574cd6e723f7afcbeff33ff443
 F src/sitemap.c b7c376b21d29322741c804e1f762b34aedb98ad1
@@ -660,10 +661,10 @@ F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/man_page_command_list.tcl bcf4aa82a2a2f6f5194f1e67915613b82a0957f4 x
 F win/Makefile.PellesCGMake e9d1636731fe8a581e1f2a9a155b1310a9356178
-F win/Makefile.dmc 85ead2164d58e92664bfe0994da07a2d8fc55c12
-F win/Makefile.mingw a8dff8eba9e22d645aa886d7fe8bc7a65f877d55
+F win/Makefile.dmc 1578f8a278c64cd3b67e93126320ea824f30d3a9
+F win/Makefile.mingw 6820029ea2c0841f3d6a0c46d5ad1259e0368bee
 F win/Makefile.mingw.mistachkin 4635e4429322aaa8d1c1f1b70aadb13836871825
-F win/Makefile.msc 39d12259b44d72193d000535258d01193554d46f
+F win/Makefile.msc 7560155231acc29fadc3b495deea14783fd43320
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -783,7 +784,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 35698c9c43478f8f7c7621a53a08c85f9b028c01
-R b6c40494443c71da271b06ca303a52d6
-U jan.nijtmans
-Z b61677b776b30eae03094e68a562470c
+P b88ef030a6aacd9e667404f87247be6b64c65e78
+Q +17ea282226a68c79acf3a0fe656d0f87f639aac3
+R 03bdd918b1c05bdfe12cdb8c00931ceb
+U drh
+Z f4e5d4477497261a4e33555b27c36948

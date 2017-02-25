@@ -109,6 +109,7 @@ set src {
   search
   setup
   sha1
+  sha3
   shun
   sitemap
   skins
