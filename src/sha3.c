@@ -368,7 +368,7 @@ static void KeccakF1600Step(SHA3Context *p){
 */
 static void SHA3Init(SHA3Context *p, int iSize){
   memset(p, 0, sizeof(*p));
-  if( iSize>=256 && iSize<=512 ){
+  if( iSize>=128 && iSize<=512 ){
     p->nRate = (1600 - ((iSize + 31)&~31)*2)/8;
   }else{
     p->nRate = 144;
@@ -502,7 +502,7 @@ void sha3sum_step_text(const char *zText, int nBytes){
 */
 void sha3sum_step_blob(Blob *p){
   assert( incrInit );
-  SHA3Update(&incrCtx, blob_buffer(p), blob_size(p));
+  SHA3Update(&incrCtx, (unsigned char*)blob_buffer(p), blob_size(p));
 }
 
 /*
@@ -614,6 +614,8 @@ char *sha3sum(const char *zIn, int iSize){
 **    --256        Compute a SHA3-256 hash
 **    --384        Compute a SHA3-384 hash
 **    --512        Compute a SHA3-512 hash
+**    --size N     An N-bit hash.  N must be a multiple of 32 between 128
+**                 and 512.
 */
 void sha3sum_test(void){
   int i;
@@ -625,6 +627,16 @@ void sha3sum_test(void){
   else if( find_option("256",0,0)!=0 ) iSize = 256;
   else if( find_option("384",0,0)!=0 ) iSize = 384;
   else if( find_option("512",0,0)!=0 ) iSize = 512;
+  else{
+    const char *zN = find_option("size",0,1);
+    if( zN!=0 ){
+      int n = atoi(zN);
+      if( n%32!=0 || n<128 || n>512 ){
+        fossil_fatal("--size must be a multiple of 64 between 128 and 512");
+      }
+      iSize = n;
+    }
+  }
   verify_all_options();
 
   for(i=2; i<g.argc; i++){

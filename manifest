@@ -1,5 +1,5 @@
-C Optimizations\sto\sthe\sSHA3\salgorithm.
-D 2017-02-25T20:33:50.831
+C Add\sthe\s--size\sargument\sto\sthe\ssha3sum\scommand.
+D 2017-02-26T16:30:44.139
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -495,7 +495,7 @@ F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
 F src/search.c 82d3900b27d457fd1051d46acc5f4dcc74947960
 F src/setup.c 2d807dd6722ea73a8be13afe66a194cdc1e4b5ee
 F src/sha1.c 4c9b75097379a97c14ba366cfa71baff3378b066
-F src/sha3.c a4d8926431d2933eff96236c02a8e2e22e191f31
+F src/sha3.c 38caf30aa5b9a731ecf02b3446cd3a1b1e410e06
 F src/shell.c a84e453c213f3e0d6935a582024da4e242f85a19
 F src/shun.c 1f8bcfcd826c3b574cd6e723f7afcbeff33ff443
 F src/sitemap.c b7c376b21d29322741c804e1f762b34aedb98ad1
@@ -784,7 +784,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b015ad715d8a14d145638d22eda5b169f366bc61
-R 690ea0781c342b75aa997a12d889120e
+P 493321d44f314d33d44cd779ce430e4d80c5b582
+R eb7f346f99bd20fd5f551fc38352d662
 U drh
-Z 26b7c5070b15292a42868ac2e7d79074
+Z defe03b9b9419435aca980b538027890
