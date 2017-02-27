@@ -109,6 +109,20 @@ const char zRepositorySchema1[] =
 @   ipaddr TEXT                     -- Remote IP address.  NULL for direct.
 @ );
 @
+@ -- The hname table maps hash values (hval) into artifact IDs (rid).
+@ -- Prior to Fossil 2.0 (early 2017) there was only a single SHA1 hash
+@ -- value, and so the one-to-one mapping was accomplished using the
+@ -- BLOB.UUID column.  Beginning with 2.0, the mapping is many-to-one
+@ -- and so a separate table became necessary.
+@ --
+@ CREATE TABLE hname(
+@   hval TEXT,                      -- Hex-encoded hash value
+@   htype ANY,                      -- Type of hash.  Preferred hash: 0
+@   rid INTEGER REFERENCES blob,    -- Blob that this hash names
+@   PRIMARY KEY(hval,htype)
+@ ) WITHOUT ROWID;
+@ CREATE INDEX hname_rid ON hname(rid,htype)
+@
 @ -- Information about users
 @ --
 @ -- The user.pw field can be either cleartext of the password, or

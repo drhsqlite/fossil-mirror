@@ -80,15 +80,35 @@ static const char zSchemaUpdates2[] =
 @    sqlcode TEXT             -- An SQL SELECT statement for this report
 @ );
 ;
+static const char zCreateHnameTable[] =
+@ -- The hname table provides mappings from artifact hashes (hval) to the
+@ -- artifact id (rid).  This table was added in Fossil-2.0.  Prior to
+@ -- Fossil-2.0, there was only a single SHA1 hash value for each artifact
+@ -- which was stored in the BLOB.UUID field.  With the introduction of
+@ -- multiple hash algorithms, the hval to rid mapping went from one-to-one to
+@ -- many-to-one and a new table became necessary.
+@ --
+@ CREATE TABLE hname(
+@   hval TEXT,                      -- Hex-encoded hash value
+@   htype ANY,                      -- Type of hash.  Preferred hash: 0
+@   rid INTEGER REFERENCES blob,    -- Blob that this hash names
+@   PRIMARY KEY(hval,htype)
+@ ) WITHOUT ROWID;
+@ INSERT INTO hname(hval,htype,rid) SELECT uuid,0,rid FROM blob;
+@ CREATE INDEX hname_rid ON hname(rid,htype);
+;
 
+/*
+** Update the schema as necessary
+*/
 static void rebuild_update_schema(void){
   int rc;
   db_multi_exec("%s", zSchemaUpdates1 /*safe-for-%s*/);
   db_multi_exec("%s", zSchemaUpdates2 /*safe-for-%s*/);
 
-  rc = db_exists("SELECT 1 FROM sqlite_master"
-                 " WHERE name='user' AND sql GLOB '* mtime *'");
-  if( rc==0 ){
+  /* Add the user.mtime column if it is missing.
+  */
+  if( !db_table_has_column("repository", "user", "mtime") ){
     db_multi_exec(
       "CREATE TEMP TABLE temp_user AS SELECT * FROM user;"
       "DROP TABLE user;"
@@ -111,18 +131,18 @@ static void rebuild_update_schema(void){
     );
   }
 
-  rc = db_exists("SELECT 1 FROM sqlite_master"
-                 " WHERE name='config' AND sql GLOB '* mtime *'");
-  if( rc==0 ){
+  /* Add the config.mtime column if it is missing.
+  */
+  if( !db_table_has_column("repository", "config", "mtime") ){
     db_multi_exec(
       "ALTER TABLE config ADD COLUMN mtime INTEGER;"
       "UPDATE config SET mtime=now();"
     );
   }
 
-  rc = db_exists("SELECT 1 FROM sqlite_master"
-                 " WHERE name='shun' AND sql GLOB '* mtime *'");
-  if( rc==0 ){
+  /* Add the shun.mtime and shun.scom columns if they are missing.
+  */
+  if( !db_table_has_column("repository", "shun", "mtime") ){
     db_multi_exec(
       "ALTER TABLE shun ADD COLUMN mtime INTEGER;"
       "ALTER TABLE shun ADD COLUMN scom TEXT;"
@@ -130,9 +150,9 @@ static void rebuild_update_schema(void){
     );
   }
 
-  rc = db_exists("SELECT 1 FROM sqlite_master"
-                 " WHERE name='reportfmt' AND sql GLOB '* mtime *'");
-  if( rc==0 ){
+  /* Add the reportfmt.mtime column if it is missing.
+  */
+  if( !db_table_has_column("repository", "reportfmt", "mtime") ){
     db_multi_exec(
       "CREATE TEMP TABLE old_fmt AS SELECT * FROM reportfmt;"
       "DROP TABLE reportfmt;"
@@ -147,13 +167,25 @@ static void rebuild_update_schema(void){
     );
   }
 
-  rc = db_exists("SELECT 1 FROM sqlite_master"
-                 " WHERE name='concealed' AND sql GLOB '* mtime *'");
-  if( rc==0 ){
+  /* Add the concealed.mtime column if it is missing.
+  */
+  if( !db_table_has_column("repository", "concealed", "mtime") ){
     db_multi_exec(
       "ALTER TABLE concealed ADD COLUMN mtime INTEGER;"
       "UPDATE concealed SET mtime=now();"
     );
+  }
+
+  /* If the hname table is missing, that means we are dealing with an
+  ** older Fossil 1.x database.  Create the hname table an populate it
+  ** with the SHA1 hash values in the blob.uuid field.
+  **
+  ** TODO:  After all the rest of the code is updated to use the hname
+  ** table instead of the blob.uuid column, also delete the blob.uuid
+  ** column.
+  */
+  if( !db_table_exists("repository", "hname") ){
+    db_multi_exec("%s", zCreateHnameTable/*safe-for-%s*/);
   }
 }
 

@@ -1,5 +1,5 @@
-C Improvement\sto\sthe\sway\sauxiliary\stables\sare\sinitially\sdropped\son\sa\srebuild.
-D 2017-02-27T13:07:48.660
+C Create\sthe\sinitial\sHNAME\stable\son\sa\srebuild.\s\sAlso\sfix\sa\shash\ssize\serror\nin\ssha3.c.
+D 2017-02-27T14:44:09.163
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -487,15 +487,15 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 26a2f0024b1e59f3e6b3f4fa40f72f458e517f18
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c ed44773c93e570dd0dd018e9829c1e3e5ec40cf1
-F src/rebuild.c acd09ab865b49026a8a56020dccc733a471b252a
+F src/rebuild.c 448dfe31abd672a03228d0c155997d155dcb8647
 F src/regexp.c 11ed4c905c2e471efe9c1e9c4650004ad91d6ebb
 F src/report.c 3b627c4ba95b5260ded1cee2adc5ce6e28d791d2
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
-F src/schema.c cae75601dd0b3940bc192ff5a8b142d099bbc4e3
+F src/schema.c 1359a0ba8ea3e42050f2758511fa3d597ba95eb3
 F src/search.c 82d3900b27d457fd1051d46acc5f4dcc74947960
 F src/setup.c 2d807dd6722ea73a8be13afe66a194cdc1e4b5ee
 F src/sha1.c 4c9b75097379a97c14ba366cfa71baff3378b066
-F src/sha3.c 38caf30aa5b9a731ecf02b3446cd3a1b1e410e06
+F src/sha3.c be550a29d85ac7df368c794c7706028fa09727e9
 F src/shell.c a84e453c213f3e0d6935a582024da4e242f85a19
 F src/shun.c 1f8bcfcd826c3b574cd6e723f7afcbeff33ff443
 F src/sitemap.c b7c376b21d29322741c804e1f762b34aedb98ad1
@@ -784,10 +784,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ccdafa2a93e7bcefa1b4d0ea7474f9ce84c690f2
-R 5c158dec4a25ba4a7bd1d17a932308ec
-T *branch * fossil-2.0
-T *sym-fossil-2.0 *
-T -sym-trunk *
+P a31944e628d0f5365dd1a0b014ee3be8ac03b949
+R e59dfec65fbdc0a1503a7d8c8561b2f9
 U drh
-Z eb8cefaaddcfc5ccc08eea9501f3a2d8
+Z 58346cc7f91055f0619ad45ead6ec980
