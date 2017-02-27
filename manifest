@@ -1,5 +1,5 @@
-C Add\sthe\s--size\sargument\sto\sthe\ssha3sum\scommand.
-D 2017-02-26T16:30:44.139
+C Improvement\sto\sthe\sway\sauxiliary\stables\sare\sinitially\sdropped\son\sa\srebuild.
+D 2017-02-27T13:07:48.660
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -487,7 +487,7 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 26a2f0024b1e59f3e6b3f4fa40f72f458e517f18
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c ed44773c93e570dd0dd018e9829c1e3e5ec40cf1
-F src/rebuild.c 517bb76c3345dd611d83ec342c6b5ab3492e91a2
+F src/rebuild.c acd09ab865b49026a8a56020dccc733a471b252a
 F src/regexp.c 11ed4c905c2e471efe9c1e9c4650004ad91d6ebb
 F src/report.c 3b627c4ba95b5260ded1cee2adc5ce6e28d791d2
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
@@ -784,7 +784,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 493321d44f314d33d44cd779ce430e4d80c5b582
-R eb7f346f99bd20fd5f551fc38352d662
+P ccdafa2a93e7bcefa1b4d0ea7474f9ce84c690f2
+R 5c158dec4a25ba4a7bd1d17a932308ec
+T *branch * fossil-2.0
+T *sym-fossil-2.0 *
+T -sym-trunk *
 U drh
-Z defe03b9b9419435aca980b538027890
+Z eb8cefaaddcfc5ccc08eea9501f3a2d8

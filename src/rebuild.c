@@ -332,10 +332,11 @@ static void rebuild_tag_trunk(void){
 ** construct a sane repository.
 */
 int rebuild_db(int randomize, int doOut, int doClustering){
-  Stmt s;
+  Stmt s, q;
   int errCnt = 0;
   char *zTable;
   int incrSize;
+  Blob sql;
 
   bag_init(&bagDone);
   ttyOutput = doOut;
@@ -344,21 +345,23 @@ int rebuild_db(int randomize, int doOut, int doClustering){
     percent_complete(0);
   }
   rebuild_update_schema();
-  for(;;){
-    zTable = db_text(0,
-       "SELECT name FROM sqlite_master /*scan*/"
-       " WHERE type='table'"
-       " AND name NOT IN ('admin_log', 'blob','delta','rcvfrom','user',"
-                         "'config','shun','private','reportfmt',"
-                         "'concealed','accesslog','modreq',"
-                         "'purgeevent','purgeitem','unversioned')"
-       " AND name NOT GLOB 'sqlite_*'"
-       " AND name NOT GLOB 'fx_*'"
-    );
-    if( zTable==0 ) break;
-    db_multi_exec("DROP TABLE %Q", zTable);
-    free(zTable);
+  blob_init(&sql, 0, 0);
+  db_prepare(&q,
+     "SELECT name FROM sqlite_master /*scan*/"
+     " WHERE type='table'"
+     " AND name NOT IN ('admin_log', 'blob','delta','rcvfrom','user','hname',"
+                       "'config','shun','private','reportfmt',"
+                       "'concealed','accesslog','modreq',"
+                       "'purgeevent','purgeitem','unversioned')"
+     " AND name NOT GLOB 'sqlite_*'"
+     " AND name NOT GLOB 'fx_*'"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    blob_appendf(&sql, "DROP TABLE \"%w\";\n", db_column_text(&q,0));
   }
+  db_finalize(&q);
+  db_multi_exec("%s", blob_str(&sql)/*safe-for-%s*/);
+  blob_reset(&sql);
   db_multi_exec("%s", zRepositorySchema2/*safe-for-%s*/);
   ticket_create_table(0);
   shun_artifacts();
