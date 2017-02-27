@@ -54,6 +54,7 @@ SRC = \
   $(SRCDIR)/glob.c \
   $(SRCDIR)/graph.c \
   $(SRCDIR)/gzip.c \
+  $(SRCDIR)/hname.c \
   $(SRCDIR)/http.c \
   $(SRCDIR)/http_socket.c \
   $(SRCDIR)/http_ssl.c \
@@ -230,6 +231,7 @@ TRANS_SRC = \
   $(OBJDIR)/glob_.c \
   $(OBJDIR)/graph_.c \
   $(OBJDIR)/gzip_.c \
+  $(OBJDIR)/hname_.c \
   $(OBJDIR)/http_.c \
   $(OBJDIR)/http_socket_.c \
   $(OBJDIR)/http_ssl_.c \
@@ -355,6 +357,7 @@ OBJ = \
  $(OBJDIR)/glob.o \
  $(OBJDIR)/graph.o \
  $(OBJDIR)/gzip.o \
+ $(OBJDIR)/hname.o \
  $(OBJDIR)/http.o \
  $(OBJDIR)/http_socket.o \
  $(OBJDIR)/http_ssl.o \
@@ -641,6 +644,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/glob_.c:$(OBJDIR)/glob.h \
 	$(OBJDIR)/graph_.c:$(OBJDIR)/graph.h \
 	$(OBJDIR)/gzip_.c:$(OBJDIR)/gzip.h \
+	$(OBJDIR)/hname_.c:$(OBJDIR)/hname.h \
 	$(OBJDIR)/http_.c:$(OBJDIR)/http.h \
 	$(OBJDIR)/http_socket_.c:$(OBJDIR)/http_socket.h \
 	$(OBJDIR)/http_ssl_.c:$(OBJDIR)/http_ssl.h \
@@ -1043,6 +1047,14 @@ $(OBJDIR)/gzip.o:	$(OBJDIR)/gzip_.c $(OBJDIR)/gzip.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/gzip.o -c $(OBJDIR)/gzip_.c
 
 $(OBJDIR)/gzip.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/hname_.c:	$(SRCDIR)/hname.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/hname.c >$@
+
+$(OBJDIR)/hname.o:	$(OBJDIR)/hname_.c $(OBJDIR)/hname.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/hname.o -c $(OBJDIR)/hname_.c
+
+$(OBJDIR)/hname.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/http_.c:	$(SRCDIR)/http.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/http.c >$@

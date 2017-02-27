@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -15,11 +15,7 @@
 **
 *******************************************************************************
 **
-** This file contains code used to convert user-supplied object names into
-** canonical UUIDs.
-**
-** A user-supplied object name is any unique prefix of a valid UUID but
-** not necessarily in canonical form.
+** This file contains code used to resolved user-supplied object names.
 */
 #include "config.h"
 #include "name.h"
@@ -82,8 +78,8 @@ int start_of_branch(int rid, int inBranch){
 /*
 ** Convert a symbolic name into a RID.  Acceptable forms:
 **
-**   *  SHA1 hash
-**   *  SHA1 hash prefix of at least 4 characters
+**   *  artifact hash
+**   *  4-character or larger prefix of a artifact
 **   *  Symbolic Name
 **   *  "tag:" + symbolic name
 **   *  Date or date-time
@@ -234,10 +230,10 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     return rid;
   }
 
-  /* SHA1 hash or prefix */
-  if( nTag>=4 && nTag<=UUID_SIZE && validate16(zTag, nTag) ){
+  /* artifact hash or prefix */
+  if( nTag>=4 && nTag<=HNAME_LEN_MAX && validate16(zTag, nTag) ){
     Stmt q;
-    char zUuid[UUID_SIZE+1];
+    char zUuid[HNAME_LEN_MAX+1];
     memcpy(zUuid, zTag, nTag+1);
     canonical16(zUuid, nTag);
     rid = 0;
@@ -356,7 +352,7 @@ int name_collisions(const char *zName){
   int c = 0;         /* count of collisions for zName */
   int nLen;          /* length of zName */
   nLen = strlen(zName);
-  if( nLen>=4 && nLen<=UUID_SIZE && validate16(zName, nLen) ){
+  if( nLen>=4 && nLen<=HNAME_LEN_MAX && validate16(zName, nLen) ){
     c = db_int(0,
       "SELECT"
       " (SELECT count(*) FROM ticket"
@@ -398,7 +394,7 @@ void test_name_to_id(void){
 ** Convert a name to a rid.  If the name can be any of the various forms
 ** accepted:
 **
-**   * SHA1 hash or prefix thereof
+**   * artifact hash or prefix thereof
 **   * symbolic name
 **   * date
 **   * label:date
@@ -427,9 +423,9 @@ int name_to_rid(const char *zName){
 
 /*
 ** WEBPAGE: ambiguous
-** URL: /ambiguous?name=UUID&src=WEBPAGE
+** URL: /ambiguous?name=NAME&src=WEBPAGE
 **
-** The UUID given by the name parameter is ambiguous.  Display a page
+** The NAME given by the name parameter is ambiguous.  Display a page
 ** that shows all possible choices and let the user select between them.
 */
 void ambiguous_page(void){
@@ -1156,12 +1152,12 @@ static void collision_report(const char *zSql){
   int i, j, kk;
   int nHash = 0;
   Stmt q;
-  char zPrev[UUID_SIZE+1];
+  char zPrev[HNAME_LEN_MAX+1];
   struct {
     int cnt;
     char *azHit[MAX_COLLIDE];
-    char z[UUID_SIZE+1];
-  } aCollide[UUID_SIZE+1];
+    char z[HNAME_LEN_MAX+1];
+  } aCollide[HNAME_LEN_MAX+1];
   memset(aCollide, 0, sizeof(aCollide));
   memset(zPrev, 0, sizeof(zPrev));
   db_prepare(&q,"%s",zSql/*safe-for-%s*/);
@@ -1171,7 +1167,7 @@ static void collision_report(const char *zSql){
     int i;
     nHash++;
     for(i=0; zPrev[i] && zPrev[i]==zUuid[i]; i++){}
-    if( i>0 && i<=UUID_SIZE ){
+    if( i>0 && i<=HNAME_LEN_MAX ){
       if( i>=4 && aCollide[i].cnt<MAX_COLLIDE ){
         aCollide[i].azHit[aCollide[i].cnt] = mprintf("%.*s", i, zPrev);
       }
@@ -1184,14 +1180,14 @@ static void collision_report(const char *zSql){
   @ <table border=1><thead>
   @ <tr><th>Length<th>Instances<th>First Instance</tr>
   @ </thead><tbody>
-  for(i=1; i<=UUID_SIZE; i++){
+  for(i=1; i<=HNAME_LEN_MAX; i++){
     if( aCollide[i].cnt==0 ) continue;
     @ <tr><td>%d(i)<td>%d(aCollide[i].cnt)<td>%h(aCollide[i].z)</tr>
   }
   @ </tbody></table>
   @ <p>Total number of hashes: %d(nHash)</p>
   kk = 0;
-  for(i=UUID_SIZE; i>=4; i--){
+  for(i=HNAME_LEN_MAX; i>=4; i--){
     if( aCollide[i].cnt==0 ) continue;
     if( aCollide[i].cnt>200 ) break;
     kk += aCollide[i].cnt;

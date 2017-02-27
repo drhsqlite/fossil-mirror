@@ -1387,6 +1387,7 @@ int object_description(
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTarget = db_column_text(&q, 0);
+    int nTarget = db_column_bytes(&q, 0);
     const char *zFilename = db_column_text(&q, 1);
     const char *zDate = db_column_text(&q, 2);
     const char *zUser = db_column_text(&q, 3);
@@ -1397,7 +1398,7 @@ int object_description(
       @ Attachment "%h(zFilename)" to
     }
     objType |= OBJTYPE_ATTACHMENT;
-    if( strlen(zTarget)==UUID_SIZE && validate16(zTarget,UUID_SIZE) ){
+    if( nTarget==UUID_SIZE && validate16(zTarget,UUID_SIZE) ){
       if ( db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'",
             zTarget)
       ){

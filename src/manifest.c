@@ -56,7 +56,7 @@
 */
 struct ManifestFile {
   char *zName;           /* Name of a file */
-  char *zUuid;           /* UUID of the file */
+  char *zUuid;           /* Artifact hash for the file */
   char *zPerm;           /* File permissions */
   char *zPrior;          /* Prior name if the name was changed */
 };
@@ -79,10 +79,10 @@ struct Manifest {
   char *zWikiTitle;     /* Name of the wiki page. L card. */
   char *zMimetype;      /* Mime type of wiki or comment text.  N card.  */
   double rEventDate;    /* Date of an event.  E card. */
-  char *zEventId;       /* UUID for an event.  E card. */
+  char *zEventId;       /* Artifact hash for an event.  E card. */
   char *zTicketUuid;    /* UUID for a ticket. K card. */
   char *zAttachName;    /* Filename of an attachment. A card. */
-  char *zAttachSrc;     /* UUID of document being attached. A card. */
+  char *zAttachSrc;     /* Artifact hash for document being attached. A card. */
   char *zAttachTarget;  /* Ticket or wiki that attachment applies to.  A card */
   int nFile;            /* Number of F cards */
   int nFileAlloc;       /* Slots allocated in aFile[] */
@@ -90,20 +90,20 @@ struct Manifest {
   ManifestFile *aFile;  /* One entry for each F-card */
   int nParent;          /* Number of parents. */
   int nParentAlloc;     /* Slots allocated in azParent[] */
-  char **azParent;      /* UUIDs of parents.  One for each P card argument */
+  char **azParent;      /* Hashes of parents.  One for each P card argument */
   int nCherrypick;      /* Number of entries in aCherrypick[] */
   struct {
-    char *zCPTarget;    /* UUID of cherry-picked version w/ +|- prefix */
-    char *zCPBase;      /* UUID of cherry-pick baseline. NULL for singletons */
+    char *zCPTarget;    /* Hash for cherry-picked version w/ +|- prefix */
+    char *zCPBase;      /* Hash for cherry-pick baseline. NULL for singletons */
   } *aCherrypick;
   int nCChild;          /* Number of cluster children */
   int nCChildAlloc;     /* Number of closts allocated in azCChild[] */
-  char **azCChild;      /* UUIDs of referenced objects in a cluster. M cards */
+  char **azCChild;      /* Hashes of referenced objects in a cluster. M cards */
   int nTag;             /* Number of T Cards */
   int nTagAlloc;        /* Slots allocated in aTag[] */
   struct TagType {
     char *zName;           /* Name of the tag */
-    char *zUuid;           /* UUID that the tag is applied to */
+    char *zUuid;           /* Hash of artifact that the tag is applied to */
     char *zValue;          /* Value if the tag is really a property */
   } *aTag;              /* One for each T card */
   int nField;           /* Number of J cards */
@@ -363,7 +363,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   char *zUuid;
   int sz = 0;
   int isRepeat, hasSelfRefTag = 0;
-  Blob bUuid = BLOB_INITIALIZER;
+  Blob bHname = BLOB_INITIALIZER;
   static Bag seen;
   const char *zErr = 0;
 
@@ -408,10 +408,10 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     return 0;
   }
 
-  /* Store the UUID (before modifying the blob) only for error
+  /* Store the artifact hash (before modifying the blob) only for error
   ** reporting purposes.
   */
-  sha1sum_blob(pContent, &bUuid);
+  sha1sum_blob(pContent, &bHname);
 
   /* Allocate a Manifest object to hold the parsed control artifact.
   */
@@ -451,11 +451,11 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
           SYNTAX("invalid filename on A-card");
         }
         defossilize(zTarget);
-        if( (nTarget!=UUID_SIZE || !validate16(zTarget, UUID_SIZE))
+        if( hname_validate(zTarget,nTarget)==HNAME_NONE
            && !wiki_name_is_wellformed((const unsigned char *)zTarget) ){
           SYNTAX("invalid target on A-card");
         }
-        if( zSrc && (nSrc!=UUID_SIZE || !validate16(zSrc, UUID_SIZE)) ){
+        if( zSrc && hname_validate(zSrc,nSrc)==HNAME_NONE ){
           SYNTAX("invalid source on A-card");
         }
         p->zAttachName = (char*)file_tail(zName);
@@ -467,14 +467,14 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       /*
       **    B <uuid>
       **
-      ** A B-line gives the UUID for the baseline of a delta-manifest.
+      ** A B-line gives the artifact hash for the baseline of a delta-manifest.
       */
       case 'B': {
         if( p->zBaseline ) SYNTAX("more than one B-card");
         p->zBaseline = next_token(&x, &sz);
-        if( p->zBaseline==0 ) SYNTAX("missing UUID on B-card");
-        if( sz!=UUID_SIZE || !validate16(p->zBaseline, UUID_SIZE) ){
-          SYNTAX("invalid UUID on B-card");
+        if( p->zBaseline==0 ) SYNTAX("missing hash on B-card");
+        if( hname_validate(p->zBaseline,sz)==HNAME_NONE ){
+          SYNTAX("invalid hash on B-card");
         }
         break;
       }
@@ -524,8 +524,8 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         p->rEventDate = db_double(0.0,"SELECT julianday(%Q)", next_token(&x,0));
         if( p->rEventDate<=0.0 ) SYNTAX("malformed date on E-card");
         p->zEventId = next_token(&x, &sz);
-        if( sz!=UUID_SIZE || !validate16(p->zEventId, UUID_SIZE) ){
-          SYNTAX("malformed UUID on E-card");
+        if( hname_validate(p->zEventId, sz)==HNAME_NONE ){
+          SYNTAX("malformed hash on E-card");
         }
         break;
       }
@@ -547,8 +547,9 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         }
         zUuid = next_token(&x, &sz);
         if( p->zBaseline==0 || zUuid!=0 ){
-          if( sz!=UUID_SIZE ) SYNTAX("F-card UUID is the wrong size");
-          if( !validate16(zUuid, UUID_SIZE) ) SYNTAX("F-card UUID invalid");
+          if( hname_validate(zUuid,sz)==HNAME_NONE ){
+            SYNTAX("F-card hash invalid");
+          }
         }
         zPerm = next_token(&x,0);
         zPriorName = next_token(&x,0);
@@ -638,16 +639,17 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       }
 
       /*
-      **    M <uuid>
+      **    M <hash>
       **
-      ** An M-line identifies another artifact by its UUID.  M-lines
+      ** An M-line identifies another artifact by its hash.  M-lines
       ** occur in clusters only.
       */
       case 'M': {
         zUuid = next_token(&x, &sz);
-        if( zUuid==0 ) SYNTAX("missing UUID on M-card");
-        if( sz!=UUID_SIZE ) SYNTAX("wrong size for UUID on M-card");
-        if( !validate16(zUuid, UUID_SIZE) ) SYNTAX("UUID invalid on M-card");
+        if( zUuid==0 ) SYNTAX("missing hash on M-card");
+        if( hname_validate(zUuid,sz)==HNAME_NONE ){
+          SYNTAX("Invalid hash on M-card");
+        }
         if( p->nCChild>=p->nCChildAlloc ){
           p->nCChildAlloc = p->nCChildAlloc*2 + 10;
           p->azCChild = fossil_realloc(p->azCChild
@@ -685,8 +687,9 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       */
       case 'P': {
         while( (zUuid = next_token(&x, &sz))!=0 ){
-          if( sz!=UUID_SIZE ) SYNTAX("wrong size UUID on P-card");
-          if( !validate16(zUuid, UUID_SIZE) )SYNTAX("invalid UUID on P-card");
+          if( hname_validate(zUuid, sz)==HNAME_NONE ){
+             SYNTAX("invalid hash on P-card");
+          }
           if( p->nParent>=p->nParentAlloc ){
             p->nParentAlloc = p->nParentAlloc*2 + 5;
             p->azParent = fossil_realloc(p->azParent,
@@ -705,13 +708,12 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       ** this check-in ("+") or backed out of this check-in ("-").
       */
       case 'Q': {
-        if( (zUuid=next_token(&x, &sz))==0 ) SYNTAX("missing UUID on Q-card");
-        if( sz!=UUID_SIZE+1 ) SYNTAX("wrong size UUID on Q-card");
+        if( (zUuid=next_token(&x, &sz))==0 ) SYNTAX("missing hash on Q-card");
         if( zUuid[0]!='+' && zUuid[0]!='-' ){
           SYNTAX("Q-card does not begin with '+' or '-'");
         }
-        if( !validate16(&zUuid[1], UUID_SIZE) ){
-          SYNTAX("invalid UUID on Q-card");
+        if( hname_validate(&zUuid[1], sz-1)==HNAME_NONE ){
+          SYNTAX("invalid hash on Q-card");
         }
         n = p->nCherrypick;
         p->nCherrypick++;
@@ -719,11 +721,8 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
                                  p->nCherrypick*sizeof(p->aCherrypick[0]));
         p->aCherrypick[n].zCPTarget = zUuid;
         p->aCherrypick[n].zCPBase = zUuid = next_token(&x, &sz);
-        if( zUuid ){
-          if( sz!=UUID_SIZE ) SYNTAX("wrong size second UUID in Q-card");
-          if( !validate16(zUuid, UUID_SIZE) ){
-            SYNTAX("invalid second UUID on Q-card");
-          }
+        if( zUuid && hname_validate(zUuid,sz)==HNAME_NONE ){
+          SYNTAX("invalid second hash on Q-card");
         }
         break;
       }
@@ -762,11 +761,11 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         zName = next_token(&x, 0);
         if( zName==0 ) SYNTAX("missing name on T-card");
         zUuid = next_token(&x, &sz);
-        if( zUuid==0 ) SYNTAX("missing UUID on T-card");
+        if( zUuid==0 ) SYNTAX("missing artifact hash on T-card");
         zValue = next_token(&x, 0);
         if( zValue ) defossilize(zValue);
-        if( sz==UUID_SIZE && validate16(zUuid, UUID_SIZE) ){
-          /* A valid uuid */
+        if( hname_validate(zUuid, sz)!=HNAME_NONE ){
+          /* A valid artifact hash */
           if( p->zEventId ) SYNTAX("non-self-referential T-card in event");
         }else if( sz==1 && zUuid[0]=='*' ){
           zUuid = 0;
@@ -775,15 +774,15 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
             SYNTAX("propagating T-card in event");
           }
         }else{
-          SYNTAX("malformed UUID on T-card");
+          SYNTAX("malformed artifact hash on T-card");
         }
         defossilize(zName);
         if( zName[0]!='-' && zName[0]!='+' && zName[0]!='*' ){
           SYNTAX("T-card name does not begin with '-', '+', or '*'");
         }
         if( validate16(&zName[1], strlen(&zName[1])) ){
-          /* Do not allow tags whose names look like UUIDs */
-          SYNTAX("T-card name looks like a UUID");
+          /* Do not allow tags whose names look like a hash */
+          SYNTAX("T-card name looks like a hexadecimal hash");
         }
         if( p->nTag>=p->nTagAlloc ){
           p->nTagAlloc = p->nTagAlloc*2 + 10;
@@ -953,13 +952,13 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   }
   md5sum_init();
   if( !isRepeat ) g.parseCnt[p->type]++;
-  blob_reset(&bUuid);
+  blob_reset(&bHname);
   return p;
 
 manifest_syntax_error:
-  if(bUuid.nUsed){
-    blob_appendf(pErr, "manifest [%.40s] ", blob_str(&bUuid));
-    blob_reset(&bUuid);
+  if(bHname.nUsed){
+    blob_appendf(pErr, "manifest [%s] ", blob_str(&bHname));
+    blob_reset(&bHname);
   }
   if( zErr ){
     blob_appendf(pErr, "line %d: %s", lineNo, zErr);
@@ -1195,9 +1194,9 @@ int manifest_file_mperm(ManifestFile *pFile){
 */
 static void add_one_mlink(
   int pmid,                 /* The parent manifest */
-  const char *zFromUuid,    /* UUID for content in parent */
+  const char *zFromUuid,    /* Artifact hash for content in parent */
   int mid,                  /* The record ID of the manifest */
-  const char *zToUuid,      /* UUID for content in child */
+  const char *zToUuid,      /* artifact hash for content in child */
   const char *zFilename,    /* Filename */
   const char *zPrior,       /* Previous filename. NULL if unchanged */
   int isPublic,             /* True if mid is not a private manifest */
@@ -1547,10 +1546,10 @@ static void add_mlink(
 
 /*
 ** For a check-in with RID "rid" that has nParent parent check-ins given
-** by the UUIDs in azParent[], create all appropriate plink and mlink table
+** by the hashes in azParent[], create all appropriate plink and mlink table
 ** entries.
 **
-** The primary parent is the first UUID on the azParent[] list.
+** The primary parent is the first hash on the azParent[] list.
 **
 ** Return the RID of the primary parent.
 */
@@ -1558,7 +1557,7 @@ static int manifest_add_checkin_linkages(
   int rid,                   /* The RID of the check-in */
   Manifest *p,               /* Manifest for this check-in */
   int nParent,               /* Number of parents for this check-in */
-  char **azParent            /* UUIDs for each parent */
+  char **azParent            /* hashes for each parent */
 ){
   int i;
   int parentid = 0;
@@ -1613,29 +1612,32 @@ static int manifest_add_checkin_linkages(
 
 /*
 ** There exists a "parent" tag against checkin rid that has value zValue.
-** If value is well-formed (meaning that it is a list of UUIDs), then use
+** If value is well-formed (meaning that it is a list of hashes), then use
 ** zValue to reparent check-in rid.
 */
 void manifest_reparent_checkin(int rid, const char *zValue){
-  int nParent;
+  int nParent = 0;
   char *zCopy = 0;
   char **azParent = 0;
   Manifest *p = 0;
-  int i;
+  int i, j;
   int n = (int)strlen(zValue);
-  nParent = (n+1)/(UUID_SIZE+1);
-  if( nParent*(UUID_SIZE+1) - 1 !=n ) return;
-  if( nParent<1 ) return;
+  int mxParent = (n+1)/(HNAME_LEN_MIN+1);
+
+  if( mxParent<1 ) return;
   zCopy = fossil_strdup(zValue);
-  azParent = fossil_malloc( sizeof(azParent[0])*nParent );
-  for(i=0; i<nParent; i++){
-    azParent[i] = &zCopy[i*(UUID_SIZE+1)];
-    if( i<nParent-1 && azParent[i][UUID_SIZE]!=' ' ) break;
-    azParent[i][UUID_SIZE] = 0;
-    if( !validate16(azParent[i],UUID_SIZE) ) break;
+  azParent = fossil_malloc( sizeof(azParent[0])*mxParent );
+  for(nParent=0, i=0; zCopy[i]; i++){
+    char *z = &zCopy[i];
+    azParent[nParent++] = z;
+    if( nParent>mxParent ) goto reparent_abort;
+    for(j=HNAME_LEN_MIN; z[j]>' '; j++){}
+    if( hname_validate(z, j)==HNAME_NONE ) goto reparent_abort;
+    if( z[j]==0 ) break;
+    z[j] = 0;
+    i += j;
   }
-  if( i==nParent
-   && !db_exists("SELECT 1 FROM plink WHERE cid=%d AND pid=%d",
+  if( !db_exists("SELECT 1 FROM plink WHERE cid=%d AND pid=%d",
                  rid, uuid_to_rid(azParent[0],0))
   ){
     p = manifest_get(rid, CFTYPE_MANIFEST, 0);
@@ -1649,6 +1651,7 @@ void manifest_reparent_checkin(int rid, const char *zValue){
     manifest_add_checkin_linkages(rid,p,nParent,azParent);
   }
   manifest_destroy(p);
+reparent_abort:
   fossil_free(azParent);
   fossil_free(zCopy);
 }
@@ -2282,7 +2285,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     if( p->zComment ){
       blob_appendf(&comment, " %s.", p->zComment);
     }
-    /* Next loop expects tags to be sorted on UUID, so sort it. */
+    /* Next loop expects tags to be sorted on hash, so sort it. */
     qsort(p->aTag, p->nTag, sizeof(p->aTag[0]), tag_compare);
     for(i=0; i<p->nTag; i++){
       zTagUuid = p->aTag[i].zUuid;

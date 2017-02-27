@@ -60,6 +60,7 @@ set src {
   glob
   graph
   gzip
+  hname
   http
   http_socket
   http_transport

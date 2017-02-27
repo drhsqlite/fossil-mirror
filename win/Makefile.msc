@@ -388,6 +388,7 @@ SRC   = add_.c \
         glob_.c \
         graph_.c \
         gzip_.c \
+        hname_.c \
         http_.c \
         http_socket_.c \
         http_ssl_.c \
@@ -563,6 +564,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\glob$O \
         $(OX)\graph$O \
         $(OX)\gzip$O \
+        $(OX)\hname$O \
         $(OX)\http$O \
         $(OX)\http_socket$O \
         $(OX)\http_ssl$O \
@@ -747,6 +749,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\glob.obj >> $@
 	echo $(OX)\graph.obj >> $@
 	echo $(OX)\gzip.obj >> $@
+	echo $(OX)\hname.obj >> $@
 	echo $(OX)\http.obj >> $@
 	echo $(OX)\http_socket.obj >> $@
 	echo $(OX)\http_ssl.obj >> $@
@@ -1179,6 +1182,12 @@ $(OX)\gzip$O : gzip_.c gzip.h
 	$(TCC) /Fo$@ -c gzip_.c
 
 gzip_.c : $(SRCDIR)\gzip.c
+	translate$E $** > $@
+
+$(OX)\hname$O : hname_.c hname.h
+	$(TCC) /Fo$@ -c hname_.c
+
+hname_.c : $(SRCDIR)\hname.c
 	translate$E $** > $@
 
 $(OX)\http$O : http_.c http.h
@@ -1728,6 +1737,7 @@ headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 			glob_.c:glob.h \
 			graph_.c:graph.h \
 			gzip_.c:gzip.h \
+			hname_.c:hname.h \
 			http_.c:http.h \
 			http_socket_.c:http_socket.h \
 			http_ssl_.c:http_ssl.h \

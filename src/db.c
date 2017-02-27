@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -2084,14 +2084,14 @@ LOCAL void file_is_selected(
 }
 
 /*
-** Convert the input string into an SHA1.  Make a notation in the
+** Convert the input string into a artifact hash.  Make a notation in the
 ** CONCEALED table so that the hash can be undo using the db_reveal()
 ** function at some later time.
 **
 ** The value returned is stored in static space and will be overwritten
 ** on subsequent calls.
 **
-** If zContent is already a well-formed SHA1 hash, then return a copy
+** If zContent is already a well-formed artifact hash, then return a copy
 ** of that hash, not a hash of the hash.
 **
 ** The CONCEALED table is meant to obscure email addresses.  Every valid
@@ -2100,9 +2100,9 @@ LOCAL void file_is_selected(
 ** unconcealed.
 */
 char *db_conceal(const char *zContent, int n){
-  static char zHash[42];
+  static char zHash[HNAME_LEN_MAX+1];
   Blob out;
-  if( n==40 && validate16(zContent, n) ){
+  if( hname_validate(zContent, n)!=HNAME_NONE ){
     memcpy(zHash, zContent, n);
     zHash[n] = 0;
   }else{

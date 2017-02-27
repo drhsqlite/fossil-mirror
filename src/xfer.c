@@ -131,10 +131,10 @@ static void xfer_accept_file(
   pXfer->nextIsPrivate = 0;
   if( pXfer->nToken<3
    || pXfer->nToken>4
-   || !blob_is_uuid(&pXfer->aToken[1])
+   || !blob_is_hname(&pXfer->aToken[1])
    || !blob_is_int(&pXfer->aToken[pXfer->nToken-1], &n)
    || n<0
-   || (pXfer->nToken==4 && !blob_is_uuid(&pXfer->aToken[2]))
+   || (pXfer->nToken==4 && !blob_is_hname(&pXfer->aToken[2]))
   ){
     blob_appendf(&pXfer->err, "malformed file line");
     return;
@@ -250,11 +250,11 @@ static void xfer_accept_compressed_file(
   pXfer->nextIsPrivate = 0;
   if( pXfer->nToken<4
    || pXfer->nToken>5
-   || !blob_is_uuid(&pXfer->aToken[1])
+   || !blob_is_hname(&pXfer->aToken[1])
    || !blob_is_int(&pXfer->aToken[pXfer->nToken-2], &szU)
    || !blob_is_int(&pXfer->aToken[pXfer->nToken-1], &szC)
    || szC<0 || szU<0
-   || (pXfer->nToken==5 && !blob_is_uuid(&pXfer->aToken[2]))
+   || (pXfer->nToken==5 && !blob_is_hname(&pXfer->aToken[2]))
   ){
     blob_appendf(&pXfer->err, "malformed cfile line");
     return;
@@ -323,7 +323,7 @@ static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
   if( pXfer->nToken==5
    || !blob_is_filename(&pXfer->aToken[1])
    || !blob_is_int64(&pXfer->aToken[2], &mtime)
-   || (!blob_eq(pHash,"-") && !blob_is_uuid(pHash))
+   || (!blob_eq(pHash,"-") && !blob_is_hname(pHash))
    || !blob_is_int(&pXfer->aToken[4], &sz)
    || !blob_is_int(&pXfer->aToken[5], &flags)
   ){
@@ -1262,7 +1262,7 @@ void page_xfer(void){
     */
     if( blob_eq(&xfer.aToken[0], "gimme")
      && xfer.nToken==2
-     && blob_is_uuid(&xfer.aToken[1])
+     && blob_is_hname(&xfer.aToken[1])
     ){
       nGimme++;
       if( isPull ){
@@ -1291,7 +1291,7 @@ void page_xfer(void){
     */
     if( xfer.nToken>=2
      && blob_eq(&xfer.aToken[0], "igot")
-     && blob_is_uuid(&xfer.aToken[1])
+     && blob_is_hname(&xfer.aToken[1])
     ){
       if( isPush ){
         if( xfer.nToken==2 || blob_eq(&xfer.aToken[2],"1")==0 ){
@@ -1313,8 +1313,8 @@ void page_xfer(void){
     */
     if( xfer.nToken==3
      && (blob_eq(&xfer.aToken[0], "pull") || blob_eq(&xfer.aToken[0], "push"))
-     && blob_is_uuid(&xfer.aToken[1])
-     && blob_is_uuid(&xfer.aToken[2])
+     && blob_is_hname(&xfer.aToken[1])
+     && blob_is_hname(&xfer.aToken[2])
     ){
       const char *zPCode;
       zPCode = db_get("project-code", 0);
@@ -1544,7 +1544,7 @@ void page_xfer(void){
       ** "uvigot" cards.
       */
       if( blob_eq(&xfer.aToken[1], "uv-hash")
-       && blob_is_uuid(&xfer.aToken[2])
+       && blob_is_hname(&xfer.aToken[2])
       ){
         if( !uvCatalogSent ){
           if( g.perm.Read && g.perm.WrUnver ){
@@ -2072,7 +2072,7 @@ int client_sync(
       */
       if( blob_eq(&xfer.aToken[0], "gimme")
        && xfer.nToken==2
-       && blob_is_uuid(&xfer.aToken[1])
+       && blob_is_hname(&xfer.aToken[1])
       ){
         if( syncFlags & SYNC_PUSH ){
           int rid = rid_from_uuid(&xfer.aToken[1], 0, 0);
@@ -2094,7 +2094,7 @@ int client_sync(
       */
       if( xfer.nToken>=2
        && blob_eq(&xfer.aToken[0], "igot")
-       && blob_is_uuid(&xfer.aToken[1])
+       && blob_is_hname(&xfer.aToken[1])
       ){
         int rid;
         int isPriv = xfer.nToken>=3 && blob_eq(&xfer.aToken[2],"1");
@@ -2128,7 +2128,7 @@ int client_sync(
        && blob_is_filename(&xfer.aToken[1])
        && blob_is_int64(&xfer.aToken[2], &mtime)
        && blob_is_int(&xfer.aToken[4], &size)
-       && (blob_eq(&xfer.aToken[3],"-") || blob_is_uuid(&xfer.aToken[3]))
+       && (blob_eq(&xfer.aToken[3],"-") || blob_is_hname(&xfer.aToken[3]))
       ){
         const char *zName = blob_str(&xfer.aToken[1]);
         const char *zHash = blob_str(&xfer.aToken[3]);
@@ -2190,7 +2190,7 @@ int client_sync(
       if( blob_eq(&xfer.aToken[0],"push")
        && xfer.nToken==3
        && (syncFlags & SYNC_CLONE)!=0
-       && blob_is_uuid(&xfer.aToken[2])
+       && blob_is_hname(&xfer.aToken[2])
       ){
         if( zPCode==0 ){
           zPCode = mprintf("%b", &xfer.aToken[2]);

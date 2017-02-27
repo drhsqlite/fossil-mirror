@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -649,11 +649,10 @@ void blob_copy_lines(Blob *pTo, Blob *pFrom, int N){
 }
 
 /*
-** Return true if the blob contains a valid UUID_SIZE-digit base16 identifier.
+** Return true if the blob contains a valid base16 identifier artifact hash.
 */
-int blob_is_uuid(Blob *pBlob){
-  return blob_size(pBlob)==UUID_SIZE
-         && validate16(blob_buffer(pBlob), UUID_SIZE);
+int blob_is_hname(Blob *pBlob){
+  return hname_validate(blob_buffer(pBlob), blob_size(pBlob))!=HNAME_NONE;
 }
 
 /*

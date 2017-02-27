@@ -52,7 +52,12 @@
 #endif
 
 /*
-** Size of a UUID in characters
+** Size of a UUID in characters.   A UUID is a randomly generated
+** lower-case hexadecimal number used to identify tickets.
+**
+** In Fossil 1.x, UUID also referred to a SHA1 artifact hash.  But that
+** usage is now obsolete.  The term UUID should now mean only a very large
+** random number used as a unique identifier for tickets or other objects.
 */
 #define UUID_SIZE 40
 
