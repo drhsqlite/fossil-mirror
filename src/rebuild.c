@@ -789,7 +789,7 @@ void test_clusters_cmd(void){
       fossil_fatal("bad cluster: rid=%d", rid);
     }
     for(i=0; i<p->nCChild; i++){
-      const char *zUuid = p->aCChild[i].zUuid;
+      const char *zUuid = p->azCChild[i];
       int crid = name_to_rid(zUuid);
       if( crid==0 ){
          fossil_warning("cluster (rid=%d) references unknown artifact %s",

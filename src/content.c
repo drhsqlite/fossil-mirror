@@ -1130,7 +1130,7 @@ void test_missing(void){
                               "cherry-pick baseline of", 0);
       }
       for(i=0; i<p->nCChild; i++){
-        nErr += check_exists(p->aCChild[i].zUuid, flags, p, "in", 0);
+        nErr += check_exists(p->azCChild[i], flags, p, "in", 0);
       }
       for(i=0; i<p->nTag; i++){
         nErr += check_exists(p->aTag[i].zUuid, flags, p, "target of", 0);

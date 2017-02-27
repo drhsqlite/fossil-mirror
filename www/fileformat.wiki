@@ -253,9 +253,9 @@ A sample manifest from Fossil itself can be seen
 
 A cluster is an artifact that declares the existence of other artifacts.
 Clusters are used during repository synchronization to help
-reduce network traffic.  Clusters are also used to record aliases
-for artifact names, so that if the artifact hash algorithm changes,
-artifacts can still be looked up using the older hash algorithm.
+reduce network traffic.  As such, clusters are an optimization and
+may be removed from a repository without loss or damage to the
+underlying project code.
 
 Clusters follow a syntax that is very similar to manifests.
 A cluster is a line-oriented text file.  Newline characters
@@ -275,15 +275,13 @@ Unlike manifests, clusters are never PGP signed.
 Allowed cards in the cluster are as follows:
 
 <blockquote>
-<b>M</b> <i>artifact-id</i> ?<i>alias</i><br />
+<b>M</b> <i>artifact-id</i><br />
 <b>Z</b> <i>checksum</i>
 </blockquote>
 
 A cluster contains one or more "M" cards followed by a single "Z"
-card.  Each M card has at least on argument which is the artifact ID of
-another artifact in the repository.  If the M card has a second argument,
-the second argument is an alias for the artifact name.  
-The Z card works exactly like
+card.  Each M card has a single argument which is the artifact ID of
+another artifact in the repository.  The Z card works exactly like
 the Z card of a manifest.  The argument to the Z card is the
 lower-case hexadecimal representation of the MD5 checksum of all
 prior cards in the cluster.  The Z-card is required.
@@ -661,7 +659,7 @@ or more such cards are required.
 <td>&nbsp;</td>
 </tr>
 <tr>
-<td><b>M</b> <i>uuid</i> ?<i>alias</i>?</td>
+<td><b>M</b> <i>uuid</i></td>
 <td>&nbsp;</td>
 <td align=center><b>1+</b></td>
 <td>&nbsp;</td>
