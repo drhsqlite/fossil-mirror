@@ -97,8 +97,11 @@ struct Manifest {
     char *zCPBase;      /* Hash for cherry-pick baseline. NULL for singletons */
   } *aCherrypick;
   int nCChild;          /* Number of cluster children */
-  int nCChildAlloc;     /* Number of closts allocated in azCChild[] */
-  char **azCChild;      /* Hashes of referenced objects in a cluster. M cards */
+  int nCChildAlloc;     /* Number of cluster allocated in aCChild[] */
+  struct {
+    char *zUuid;        /* Hashes of referenced objects in cluster. M cards */
+    char *zAlias;       /* Alias arguments on a cluster */
+  } *aCChild;  
   int nTag;             /* Number of T Cards */
   int nTagAlloc;        /* Slots allocated in aTag[] */
   struct TagType {
@@ -140,7 +143,7 @@ void manifest_destroy(Manifest *p){
     blob_reset(&p->content);
     fossil_free(p->aFile);
     fossil_free(p->azParent);
-    fossil_free(p->azCChild);
+    fossil_free(p->aCChild);
     fossil_free(p->aTag);
     fossil_free(p->aField);
     fossil_free(p->aCherrypick);
@@ -645,19 +648,25 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       ** occur in clusters only.
       */
       case 'M': {
+        char *zAlias;
         zUuid = next_token(&x, &sz);
         if( zUuid==0 ) SYNTAX("missing hash on M-card");
         if( hname_validate(zUuid,sz)==HNAME_NONE ){
           SYNTAX("Invalid hash on M-card");
         }
+        zAlias = next_token(&x, &sz);
+        if( zAlias && hname_validate(zAlias,sz)==HNAME_NONE ){
+          SYNTAX("Invalid alias hash on M-card");
+        }
         if( p->nCChild>=p->nCChildAlloc ){
           p->nCChildAlloc = p->nCChildAlloc*2 + 10;
-          p->azCChild = fossil_realloc(p->azCChild
-                                 , p->nCChildAlloc*sizeof(p->azCChild[0]) );
+          p->aCChild = fossil_realloc(p->aCChild
+                                 , p->nCChildAlloc*sizeof(p->aCChild[0]) );
         }
         i = p->nCChild++;
-        p->azCChild[i] = zUuid;
-        if( i>0 && fossil_strcmp(p->azCChild[i-1], zUuid)>=0 ){
+        p->aCChild[i].zUuid = zUuid;
+        p->aCChild[i].zAlias = zAlias;
+        if( i>0 && fossil_strcmp(p->aCChild[i-1].zUuid, zUuid)>=0 ){
           SYNTAX("M-card in the wrong order");
         }
         break;
@@ -2008,7 +2017,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     db_static_prepare(&del1, "DELETE FROM unclustered WHERE rid=:rid");
     for(i=0; i<p->nCChild; i++){
       int mid;
-      mid = uuid_to_rid(p->azCChild[i], 1);
+      mid = uuid_to_rid(p->aCChild[i].zUuid, 1);
       if( mid>0 ){
         db_bind_int(&del1, ":rid", mid);
         db_step(&del1);

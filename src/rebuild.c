@@ -80,22 +80,16 @@ static const char zSchemaUpdates2[] =
 @    sqlcode TEXT             -- An SQL SELECT statement for this report
 @ );
 ;
-static const char zCreateHnameTable[] =
-@ -- The hname table provides mappings from artifact hashes (hval) to the
-@ -- artifact id (rid).  This table was added in Fossil-2.0.  Prior to
-@ -- Fossil-2.0, there was only a single SHA1 hash value for each artifact
-@ -- which was stored in the BLOB.UUID field.  With the introduction of
-@ -- multiple hash algorithms, the hval to rid mapping went from one-to-one to
-@ -- many-to-one and a new table became necessary.
+static const char zSchemaUpdate3[] =
+@ -- Make sure the alias table exists.
 @ --
-@ CREATE TABLE hname(
+@ CREATE TABLE alias(
 @   hval TEXT,                      -- Hex-encoded hash value
-@   htype ANY,                      -- Type of hash.  Preferred hash: 0
+@   htype ANY,                      -- Type of hash.
 @   rid INTEGER REFERENCES blob,    -- Blob that this hash names
 @   PRIMARY KEY(hval,htype)
 @ ) WITHOUT ROWID;
-@ INSERT INTO hname(hval,htype,rid) SELECT uuid,0,rid FROM blob;
-@ CREATE INDEX hname_rid ON hname(rid,htype);
+@ CREATE INDEX alias_rid ON alias(rid,htype)
 ;
 
 /*
@@ -176,16 +170,9 @@ static void rebuild_update_schema(void){
     );
   }
 
-  /* If the hname table is missing, that means we are dealing with an
-  ** older Fossil 1.x database.  Create the hname table an populate it
-  ** with the SHA1 hash values in the blob.uuid field.
-  **
-  ** TODO:  After all the rest of the code is updated to use the hname
-  ** table instead of the blob.uuid column, also delete the blob.uuid
-  ** column.
-  */
-  if( !db_table_exists("repository", "hname") ){
-    db_multi_exec("%s", zCreateHnameTable/*safe-for-%s*/);
+  /* If the alias table is missing, create it. */
+  if( !db_table_exists("repository", "alias") ){
+    db_multi_exec("%s", zSchemaUpdate3/*safe-for-%s*/);
   }
 }
 
@@ -802,7 +789,7 @@ void test_clusters_cmd(void){
       fossil_fatal("bad cluster: rid=%d", rid);
     }
     for(i=0; i<p->nCChild; i++){
-      const char *zUuid = p->azCChild[i];
+      const char *zUuid = p->aCChild[i].zUuid;
       int crid = name_to_rid(zUuid);
       if( crid==0 ){
          fossil_warning("cluster (rid=%d) references unknown artifact %s",

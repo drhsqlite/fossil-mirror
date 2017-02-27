@@ -1,5 +1,5 @@
-C Manifest\sparser\ssupports\svarious\shash\ssizes.
-D 2017-02-27T18:26:08.182
+C Abandon\sthe\sHNAME\stable\sidea.\s\sInstead,\scontinue\sto\suse\sthe\sBLOB.UUID\sas\sthe\nprimary\sartifact\sname\sand\sadd\sthe\sALIAS\stable\sfor\saliased\sartifact\snames\safter\na\shash\salgorithm\schange.\s\sAdd\sthe\soptional\salias\sargument\sto\sthe\sM-card.
+D 2017-02-27T22:20:49.733
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -409,7 +409,7 @@ F src/codecheck1.c 0e2c3cd4068f6de1df56fc19ec224c296f3c8eb4
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
 F src/config.h e0a8d96a16c6c45bf064f5d665320993e78cb6f1
 F src/configure.c aad25b170f047ec549f4da6afc61f81b90610d0d
-F src/content.c a6024f0400307f4c25d067d323a6cbdf38b78c81
+F src/content.c cd6950e5ad7adbd56be337a6976ac73dc74a9ef4
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
@@ -467,7 +467,7 @@ F src/main.mk a983bacfa472f84ecc47111afc7573cc5341fd67
 F src/makeheaders.c cbbebae48e377db66e648af76a7aeea63c9bc523
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl 89f0b5c71ea4384d3fdbea75d337edae0ce5ffb2
-F src/manifest.c eec24d4d788ddb0d15808aa2ccfb39a884d51623
+F src/manifest.c aac4a446130ed90143e9b803a47d288672a3fa7f
 F src/markdown.c 20bb4755f258601e4e3e5274ea117fc7c8b1ccf7
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
 F src/markdown_html.c 5c7c2d2356e03a4456932c5fdef9aef836a379a5
@@ -488,11 +488,11 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 26a2f0024b1e59f3e6b3f4fa40f72f458e517f18
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c ed44773c93e570dd0dd018e9829c1e3e5ec40cf1
-F src/rebuild.c 448dfe31abd672a03228d0c155997d155dcb8647
+F src/rebuild.c 0c5a310e8d0dd8de7a3af40c3d9b3b96139d24e4
 F src/regexp.c 11ed4c905c2e471efe9c1e9c4650004ad91d6ebb
 F src/report.c 3b627c4ba95b5260ded1cee2adc5ce6e28d791d2
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
-F src/schema.c 1359a0ba8ea3e42050f2758511fa3d597ba95eb3
+F src/schema.c 67a4c1b730205217401a3d8759e8dbcf6d67ff4c
 F src/search.c 82d3900b27d457fd1051d46acc5f4dcc74947960
 F src/setup.c 2d807dd6722ea73a8be13afe66a194cdc1e4b5ee
 F src/sha1.c 2d54962bf5fbf43e58087ddf843ebc42061b4046
@@ -733,7 +733,7 @@ F www/env-opts.md bfca7cac80d516493621fb9b32b65afce6526e16
 F www/event.wiki f5a9cc34b11e8224e503e16137ba0f966f151551
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
-F www/fileformat.wiki 4e1f782911cdd3b0baeab2a24bd49bc4fd099de8
+F www/fileformat.wiki b03f51768f3ccb09ae0ff4f74d787dd7cdf23cbe
 F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 82487bece305bd6b28a97a535fd0292c3cff1c8a
-R b2070efa726300fa2250a2de40b02af3
+P 80f9b68e6f0547b6d7300af49f37c589f22feb33
+R 4115cb2a64806c15ea25e297dbfe1ce5
 U drh
-Z dc8f196fc1d8b788eac229635b7d45e4
+Z 96717123b604e1997ae0e2152f48a89b

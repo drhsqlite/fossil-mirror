@@ -29,14 +29,24 @@ The local state is not composed of artifacts and is not intended to be enduring.
 This document is concerned with global state only.  Local state is only
 mentioned here in order to distinguish it from global state.
 
-Each artifact in the repository is named by its SHA1 hash.
+Each artifact in the repository is named by a hash of the artifact
+content.
 No prefixes or meta information is added to an artifact before
-its hash is computed.  The name of an artifact in the repository
-is exactly the same SHA1 hash that is computed by sha1sum
-on the file as it exists in your source tree.</p>
+its hash is computed.
+
+Each repository uses a single hash algorithm to compute artifact names.
+The default algorithm is currently SHA3-256, though this might change
+in future releases of Fossil.  Historical versions of Fossil used
+SHA1.  The hash algorithm for a repository can be changed.  When a hash
+algorithm change occurs, a set of aliases are set up (using the
+two-argument version of the M-card on cluster artifacts) so that the
+older hash values can be mapped into the new hash values for artifacts
+that were added to the repository before the hash algorithm change.
 
 Some artifacts have a particular format which gives them special
-meaning to fossil.  Fossil recognizes:
+meaning to Fossil.  The special artifacts are calls "structural
+artifacts".  Fossil recognizes the following kinds of structural
+artifacts:
 
 <ul>
 <li> [#manifest | Manifests] </li>
@@ -48,9 +58,9 @@ meaning to fossil.  Fossil recognizes:
 <li> [#event | TechNotes] </li>
 </ul>
 
-These seven artifact types are described in the following sections.
+These seven structural artifact types are described in the following sections.
 
-In the current implementation (as of 2009-01-25) the artifacts that
+In the current implementation (as of 2017-02-27) the artifacts that
 make up a fossil repository are stored as delta- and zlib-compressed
 blobs in an <a href="http://www.sqlite.org/">SQLite</a> database.  This
 is an implementation detail and might change in a future release.  For
@@ -100,10 +110,10 @@ Allowed cards in the manifest are as follows:
 <b>B</b> <i>baseline-manifest</i><br>
 <b>C</b> <i>checkin-comment</i><br>
 <b>D</b> <i>time-and-date-stamp</i><br>
-<b>F</b> <i>filename</i> ?<i>SHA1-hash</i>? ?<i>permissions</i>? ?<i>old-name</i>?<br>
+<b>F</b> <i>filename</i> ?<i>hash</i>? ?<i>permissions</i>? ?<i>old-name</i>?<br>
 <b>N</b> <i>mimetype</i><br>
-<b>P</b> <i>SHA1-hash</i>+<br>
-<b>Q</b> (<b>+</b>|<b>-</b>)<i>SHA1-hash</i> ?<i>SHA1-hash</i>?<br>
+<b>P</b> <i>artifact-hash</i>+<br>
+<b>Q</b> (<b>+</b>|<b>-</b>)<i>artifact-hash</i> ?<i>artifact-hash</i>?<br>
 <b>R</b> <i>repository-checksum</i><br>
 <b>T</b> (<b>+</b>|<b>-</b>|<b>*</b>)<i>tag-name</i> <b>*</b> ?<i>value</i>?<br>
 <b>U</b> <i>user-login</i><br>
@@ -147,7 +157,7 @@ or "." directories are allowed within the filename.  Space characters
 are escaped as in C-card comment text.  Backslash characters and
 newlines are not allowed within filenames.  The directory separator
 character is a forward slash (ASCII 0x2F).  The second argument to the
-F-card is the full 40-character lower-case hexadecimal SHA1 hash of
+F-card is the lower-case hexadecimal artifact hash of
 the content artifact.  The second argument is required for baseline
 manifests but is optional for delta manifests.  When the second
 argument to the F-card is omitted, it means that the file has been
@@ -169,10 +179,10 @@ is used.
 A manifest has zero or one P-cards.  Most manifests have one P-card.
 The P-card has a varying number of arguments that
 define other manifests from which the current manifest
-is derived.  Each argument is a 40-character lowercase
-hexadecimal SHA1 of a predecessor manifest.  All arguments
+is derived.  Each argument is a lowercase
+hexadecimal artifact hash of a predecessor manifest.  All arguments
 to the P-card must be unique within that card.
-The first argument is the SHA1 of the direct ancestor of the manifest.
+The first argument is the artifact hash of the direct ancestor of the manifest.
 Other arguments define manifests with which the first was
 merged to yield the current manifest.  Most manifests have
 a P-card with a single argument.  The first manifest in the
@@ -243,9 +253,9 @@ A sample manifest from Fossil itself can be seen
 
 A cluster is an artifact that declares the existence of other artifacts.
 Clusters are used during repository synchronization to help
-reduce network traffic.  As such, clusters are an optimization and
-may be removed from a repository without loss or damage to the
-underlying project code.
+reduce network traffic.  Clusters are also used to record aliases
+for artifact names, so that if the artifact hash algorithm changes,
+artifacts can still be looked up using the older hash algorithm.
 
 Clusters follow a syntax that is very similar to manifests.
 A cluster is a line-oriented text file.  Newline characters
@@ -265,13 +275,15 @@ Unlike manifests, clusters are never PGP signed.
 Allowed cards in the cluster are as follows:
 
 <blockquote>
-<b>M</b> <i>artifact-id</i><br />
+<b>M</b> <i>artifact-id</i> ?<i>alias</i><br />
 <b>Z</b> <i>checksum</i>
 </blockquote>
 
 A cluster contains one or more "M" cards followed by a single "Z"
-card.  Each M card has a single argument which is the artifact ID of
-another artifact in the repository.  The Z card works exactly like
+card.  Each M card has at least on argument which is the artifact ID of
+another artifact in the repository.  If the M card has a second argument,
+the second argument is an alias for the artifact name.  
+The Z card works exactly like
 the Z card of a manifest.  The argument to the Z card is the
 lower-case hexadecimal representation of the MD5 checksum of all
 prior cards in the cluster.  The Z-card is required.
@@ -649,7 +661,7 @@ or more such cards are required.
 <td>&nbsp;</td>
 </tr>
 <tr>
-<td><b>M</b> <i>uuid</i></td>
+<td><b>M</b> <i>uuid</i> ?<i>alias</i>?</td>
 <td>&nbsp;</td>
 <td align=center><b>1+</b></td>
 <td>&nbsp;</td>

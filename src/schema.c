@@ -81,7 +81,7 @@ const char zRepositorySchema1[] =
 @   rid INTEGER PRIMARY KEY,        -- Record ID
 @   rcvid INTEGER,                  -- Origin of this record
 @   size INTEGER,                   -- Size of content. -1 for a phantom.
-@   uuid TEXT UNIQUE NOT NULL,      -- SHA1 hash of the content
+@   uuid TEXT UNIQUE NOT NULL,      -- hash of the content
 @   content BLOB,                   -- Compressed content of this record
 @   CHECK( length(uuid)==40 AND rid>0 )
 @ );
@@ -109,19 +109,21 @@ const char zRepositorySchema1[] =
 @   ipaddr TEXT                     -- Remote IP address.  NULL for direct.
 @ );
 @
-@ -- The hname table maps hash values (hval) into artifact IDs (rid).
-@ -- Prior to Fossil 2.0 (early 2017) there was only a single SHA1 hash
-@ -- value, and so the one-to-one mapping was accomplished using the
-@ -- BLOB.UUID column.  Beginning with 2.0, the mapping is many-to-one
-@ -- and so a separate table became necessary.
+@ -- The canonical name of each artifact is given by the BLOB.UUID field.
+@ -- But artifacts can also have aliases.  Aliases arise, for example, when
+@ -- the naming hash algorithm changes, or as a result of trying to provide
+@ -- compatibility with a different VCS.
 @ --
-@ CREATE TABLE hname(
+@ -- Each entry in the ALIAS table provides an alternative name by which an
+@ -- artifact can be called.
+@ --
+@ CREATE TABLE alias(
 @   hval TEXT,                      -- Hex-encoded hash value
-@   htype ANY,                      -- Type of hash.  Preferred hash: 0
+@   htype ANY,                      -- Type of hash.
 @   rid INTEGER REFERENCES blob,    -- Blob that this hash names
 @   PRIMARY KEY(hval,htype)
 @ ) WITHOUT ROWID;
-@ CREATE INDEX hname_rid ON hname(rid,htype)
+@ CREATE INDEX alias_rid ON alias(rid,htype)
 @
 @ -- Information about users
 @ --
