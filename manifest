@@ -1,5 +1,5 @@
-C Back\sout\sthe\schange\sto\sthe\scluster\sartifact\sM-card\sthat\sadded\san\salias\sname.\nThe\splan\sis\sto\stransmit\salias\sinformation\sby\snew\scards\sin\sthe\ssync\sprotocol.
-D 2017-02-27T22:33:40.828
+C Changes\sto\sthe\sdesign\sof\sthe\salias\stable.
+D 2017-02-27T23:17:46.412
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -488,11 +488,11 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 26a2f0024b1e59f3e6b3f4fa40f72f458e517f18
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c ed44773c93e570dd0dd018e9829c1e3e5ec40cf1
-F src/rebuild.c f3009053590e12e82539adf9af80c8287f40ff23
+F src/rebuild.c feae04cd5f90d07e68cd54a0fbfe45b900687022
 F src/regexp.c 11ed4c905c2e471efe9c1e9c4650004ad91d6ebb
 F src/report.c 3b627c4ba95b5260ded1cee2adc5ce6e28d791d2
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
-F src/schema.c 67a4c1b730205217401a3d8759e8dbcf6d67ff4c
+F src/schema.c 3d8c68fa6e459204f0fb030309cf80de5d479ace
 F src/search.c 82d3900b27d457fd1051d46acc5f4dcc74947960
 F src/setup.c 2d807dd6722ea73a8be13afe66a194cdc1e4b5ee
 F src/sha1.c 2d54962bf5fbf43e58087ddf843ebc42061b4046
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2e42c9cb89ac25e6ee503705070e9022a7e49c7d
-R c60e518e95bbf622c676231ea2890f49
+P a6ee563c70655245c0b164a5f8607b7f64fa4140
+R 6525dbe3d6510ed9f46b8220d6b96620
 U drh
-Z 28614a693416d0f0d21a72848ce3942c
+Z 2a22dbd867bdf2de36f1f9a9e1e305d0

@@ -83,13 +83,13 @@ static const char zSchemaUpdates2[] =
 static const char zSchemaUpdate3[] =
 @ -- Make sure the alias table exists.
 @ --
-@ CREATE TABLE alias(
+@ CREATE TABLE repository.alias(
 @   hval TEXT,                      -- Hex-encoded hash value
 @   htype ANY,                      -- Type of hash.
 @   rid INTEGER REFERENCES blob,    -- Blob that this hash names
-@   PRIMARY KEY(hval,htype)
+@   PRIMARY KEY(hval,htype,rid)
 @ ) WITHOUT ROWID;
-@ CREATE INDEX alias_rid ON alias(rid,htype)
+@ CREATE INDEX alias_rid ON alias(rid);
 ;
 
 /*
@@ -368,7 +368,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
   db_prepare(&q,
      "SELECT name FROM sqlite_master /*scan*/"
      " WHERE type='table'"
-     " AND name NOT IN ('admin_log', 'blob','delta','rcvfrom','user','hname',"
+     " AND name NOT IN ('admin_log', 'blob','delta','rcvfrom','user','alias',"
                        "'config','shun','private','reportfmt',"
                        "'concealed','accesslog','modreq',"
                        "'purgeevent','purgeitem','unversioned')"

@@ -121,9 +121,9 @@ const char zRepositorySchema1[] =
 @   hval TEXT,                      -- Hex-encoded hash value
 @   htype ANY,                      -- Type of hash.
 @   rid INTEGER REFERENCES blob,    -- Blob that this hash names
-@   PRIMARY KEY(hval,htype)
+@   PRIMARY KEY(hval,htype,id)
 @ ) WITHOUT ROWID;
-@ CREATE INDEX alias_rid ON alias(rid,htype)
+@ CREATE INDEX alias_rid ON alias(rid);
 @
 @ -- Information about users
 @ --
