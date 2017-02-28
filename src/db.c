@@ -1488,29 +1488,11 @@ void db_open_repository(const char *zDbName){
                                    db_allow_symlinks_by_default());
   g.zAuxSchema = db_get("aux-schema","");
 
-  /* Verify that the PLINK table has a new column added by the
-  ** 2014-11-28 schema change.  Create it if necessary.  This code
-  ** can be removed in the future, once all users have upgraded to the
-  ** 2014-11-28 or later schema.
+  /* If the ALIAS table is not present, then some on-the-fly schema
+  ** updates might be required.
   */
-  if( !db_table_has_column("repository","plink","baseid") ){
-    db_multi_exec(
-      "ALTER TABLE repository.plink ADD COLUMN baseid;"
-    );
-  }
-
-  /* Verify that the MLINK table has the newer columns added by the
-  ** 2015-01-24 schema change.  Create them if necessary.  This code
-  ** can be removed in the future, once all users have upgraded to the
-  ** 2015-01-24 or later schema.
-  */
-  if( !db_table_has_column("repository","mlink","isaux") ){
-    db_begin_transaction();
-    db_multi_exec(
-      "ALTER TABLE repository.mlink ADD COLUMN pmid INTEGER DEFAULT 0;"
-      "ALTER TABLE repository.mlink ADD COLUMN isaux BOOLEAN DEFAULT 0;"
-    );
-    db_end_transaction(0);
+  if( !db_table_exists("repository","alias") ){
+    rebuild_schema_update_2_0();   /* Do the Fossil-2.0 schema updates */
   }
 }
 
