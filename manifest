@@ -1,5 +1,5 @@
-C Change\sthe\sversion\snumber\sto\s2.0.
-D 2017-02-28T09:16:17.415
+C Updates\sto\sto\sthe\sfileformat.wiki\sdocument.
+D 2017-02-28T10:06:12.331
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -733,7 +733,7 @@ F www/env-opts.md bfca7cac80d516493621fb9b32b65afce6526e16
 F www/event.wiki f5a9cc34b11e8224e503e16137ba0f966f151551
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
-F www/fileformat.wiki 7b54b9c50b7cd7749cb12882a0c92d1b701bf62c
+F www/fileformat.wiki 0ebcd0afe355226668221a4327b2426f72f561f5
 F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2cce7d19d69378ef5c42cc576ffed5428f002a24
-R decf4d16a9588a5cdaf3acc99ed1df1f
+P 81a73593d3cf152c8cf74f4233b7631244ba2e70
+R c32e54132d9c0e04ae330aad405a0ad9
 U drh
-Z 015ceacaf313c8d11f2878f7de36ae4b
+Z 338d9fb67a322f7a8bfde5d3b7829f8a
