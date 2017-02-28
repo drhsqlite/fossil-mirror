@@ -23,8 +23,8 @@
 #include <sys/types.h>
 
 /*
-** The input is guaranteed to be a 40-character well-formed UUID.
-** Find its rid.
+** The input is guaranteed to be a 40- or 64-character well-formed 
+** artifact hash.  Find its rid.
 */
 int fast_uuid_to_rid(const char *zUuid){
   static Stmt q;
@@ -53,11 +53,11 @@ int fast_uuid_to_rid(const char *zUuid){
 */
 int uuid_to_rid(const char *zUuid, int phantomize){
   int rid, sz;
-  char z[HNAME_LEN_MAX+1];
+  char z[HNAME_MAX+1];
 
   sz = strlen(zUuid);
-  if( hname_validate(zUuid, sz)!=HNAME_NONE ){
-    return 0;
+  if( !hname_validate(zUuid, sz) ){
+    return 0;  /* Not a valid hash */
   }
   memcpy(z, zUuid, sz+1);
   canonical16(z, sz);

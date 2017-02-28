@@ -1,5 +1,5 @@
-C On-the-fly\sschema\supdates.\s\sNo\s"fossil\srebuild"\sneeded\swhen\smoving\sto\nFossil\s2.0.
-D 2017-02-28T14:14:32.438
+C Refactoring\sand\scleanup\sof\ssome\sof\sthe\shash\sname\sinterfaces.
+D 2017-02-28T16:25:26.489
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -393,11 +393,11 @@ F src/allrepo.c 7296e9bfbbd4897b522ec2e2c26aa88890ffdae1
 F src/attach.c 702f70714f6ed49b8d3d669cfbe4f87ac78946b8
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
-F src/blob.c 494482cae6f296e4f6c4d64370bd7a6bd97bb701
+F src/blob.c 141d4f5494ed6d1a9ef9e5c6927dd2c2b42e00f1
 F src/branch.c d68826ae16d6a89ea3126ab583577fb5f09de23b
-F src/browse.c 4a35a97393d83c59bc78a8ebfbe3658beee1a30a
+F src/browse.c 57124078bf8211f0c1ab6e62fa1e2b9d1f98d3c2
 F src/builtin.c d147d04305aa0db964ec84ef049e8e88d134de87
-F src/bundle.c d82faac3828e9d14c737281de592e6877eb08899
+F src/bundle.c 37ae68844002400284b56490789e4584cfe532f7
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c 0fe6520c4eeedee87cab271f32943a96382828c1
@@ -413,7 +413,7 @@ F src/content.c a6024f0400307f4c25d067d323a6cbdf38b78c81
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c afd2c31bad51f2c8e06c0e77c863b58861561650
+F src/db.c 34ec126360dced896c4657963cad64d73323bbc4
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
@@ -423,7 +423,7 @@ F src/diffcmd.c 819b07b59f71aa9ec7be722411e2484fd2935082
 F src/dispatch.c 4e634c0cf22b7dd63501a4dc0aa6375cf4151343
 F src/doc.c 7d289a1b9554bc108f2b11c0aeaa05f4e0c6b008
 F src/encode.c edb12a68c5831e5331eaad3796c492059edb10fb
-F src/event.c 021db025691a859a49751f255a0a065bca728444
+F src/event.c 5dcf3c6ff00c39c25a3909deec1d1154cf0b85a5
 F src/export.c d506a4f7e033a10ec1771593c468c199b68a88b8
 F src/file.c 7570da01a8d1ce7e0d6dd91ca7eeced9b5f4c75b
 F src/finfo.c 1ed28f25c99d30270690b3b45c36c3320baecddc
@@ -433,7 +433,7 @@ F src/fusefs.c 3b88dca535a2932a7d95e165b4ab13d44dd2477a
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 51a4ef3f3f5ad77fa47cc2aa8f0aec02f259c1bc
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
-F src/hname.c 2150ba890c995c3e9e836671170e089393e43e9d
+F src/hname.c e4cbf1f67f94f201ce4f95aaf0b1fb4ad7b43e1c
 F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
@@ -467,7 +467,7 @@ F src/main.mk a983bacfa472f84ecc47111afc7573cc5341fd67
 F src/makeheaders.c cbbebae48e377db66e648af76a7aeea63c9bc523
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl 89f0b5c71ea4384d3fdbea75d337edae0ce5ffb2
-F src/manifest.c eec24d4d788ddb0d15808aa2ccfb39a884d51623
+F src/manifest.c 7d3436348bb87d190a0b0c2bff738adb6c050aeb
 F src/markdown.c 20bb4755f258601e4e3e5274ea117fc7c8b1ccf7
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
 F src/markdown_html.c 5c7c2d2356e03a4456932c5fdef9aef836a379a5
@@ -479,7 +479,7 @@ F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
 F src/mkindex.c f4183ca13461544fe06f34af0a3501ea96d3637f
 F src/mkversion.c d76e0e3c04966bb61a23ff7140fa37867c06bd50
 F src/moderate.c 2540f90b20778a4d62156a3b4af962b401d4c89f
-F src/name.c 384321dca9cd75c3dc6cb3dec7953796bc39d171
+F src/name.c 7dd0e12f0c36c6f895ecb0170e9019ab20498650
 F src/path.c cce5fdfa571861a81e1a48e893e5a52dd2703a5f
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c e4a8ed414bbc311a3f427cad8da023d33bd39f46
@@ -488,7 +488,7 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 26a2f0024b1e59f3e6b3f4fa40f72f458e517f18
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c ed44773c93e570dd0dd018e9829c1e3e5ec40cf1
-F src/rebuild.c 55fcb63e66ca8026d414a980e47081a17d7bb173
+F src/rebuild.c fc5b206115b0816a5a9b628a730b120855ea6c08
 F src/regexp.c 11ed4c905c2e471efe9c1e9c4650004ad91d6ebb
 F src/report.c 3b627c4ba95b5260ded1cee2adc5ce6e28d791d2
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
@@ -498,7 +498,7 @@ F src/setup.c 2d807dd6722ea73a8be13afe66a194cdc1e4b5ee
 F src/sha1.c 2d54962bf5fbf43e58087ddf843ebc42061b4046
 F src/sha3.c 85aac87fb2676f76eaa6e3cc227182b0b81fdaab
 F src/shell.c a84e453c213f3e0d6935a582024da4e242f85a19
-F src/shun.c f87fd55b4792bd2da4f33400e0fdce6068aa6a24
+F src/shun.c c7a69759ea1b7ee18ddaae44364699d2128c53f6
 F src/sitemap.c b7c376b21d29322741c804e1f762b34aedb98ad1
 F src/skins.c 0b6ae35015f48cbe9cef2f97d65105a796fc366b
 F src/sqlcmd.c 9f904c862aa0c5f83306cbee0140a54c4d1e3a54
@@ -528,10 +528,10 @@ F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c 1d31844a9e48e2ab515586bf54ecc4b30b47d5b5
 F src/utf8.c 9f458b9698fc928cc21e375538f268651d1d22a2
 F src/util.c 9a3cc502aa6ae3bc19831e5f553cd346ec154b5c
-F src/verify.c e87c7da87439bbeff5bdeb5692f1551c4d863d5b
-F src/vfile.c bb26a2128ee5a0b70099c1ca8fd211002579990b
-F src/wiki.c 5d8abf9269a420d26f002034e5e5a518454048a2
-F src/wikiformat.c 2241e7938bc9a262ebcf6059788d816298ca2764
+F src/verify.c b2c3fb3ac0ff8c7d13a70e499b91905d53f94a21
+F src/vfile.c e813c4db508f33a1d5ba7df38653a684b4d81916
+F src/wiki.c 9482a4ef96942921b5173a44fda320f8596c9cc5
+F src/wikiformat.c 1616c95201d38f46c67722a86c880e508b042aad
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c a3970bdc0b05426cadadb1a62cd378e10f124062
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 89077b05bf0a906aa495a5627fc4bdfa5c122faf
-R faead6c870ff13da3602195719088e85
+P 94f4c0aab5678f83f82e5ee44876acd606a48d7c
+R f0210885683cc70772dc034130f224f4
 U drh
-Z f6eeed9d49fe6eeba7b015383517d39a
+Z 7f20c8ca5399da51a3adbeef5d4a0f34

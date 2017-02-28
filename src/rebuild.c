@@ -1031,7 +1031,7 @@ void reconstruct_cmd(void) {
 ** This command exports all artifacts of a given repository and
 ** writes all artifacts to the file system. The DESTINATION directory
 ** will be populated with subdirectories AA and files AA/BBBBBBBBB.., where
-** AABBBBBBBBB.. is the 40 character artifact ID, AA the first 2 characters.
+** AABBBBBBBBB.. is the 40+ character artifact ID, AA the first 2 characters.
 ** If -L|--prefixlength is given, the length (default 2) of the directory
 ** prefix can be set to 0,1,..,9 characters.
 **

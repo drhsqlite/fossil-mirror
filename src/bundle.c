@@ -449,7 +449,7 @@ static void bundle_import_elements(int iSrc, Blob *pBasis, int isPriv){
     db_column_blob(&q, 1, &c1);
     blob_uncompress(&c1, &c1);
     blob_zero(&c2);
-    if( db_column_type(&q,2)==SQLITE_TEXT && db_column_bytes(&q,2)==40 ){
+    if( db_column_type(&q,2)==SQLITE_TEXT && db_column_bytes(&q,2)>=HNAME_MIN ){
       Blob basis;
       rid = db_int(0,"SELECT rid FROM blob WHERE uuid=%Q",
                    db_column_text(&q,2));
@@ -599,8 +599,9 @@ static void bundle_import_cmd(void){
   zMissingDeltas = db_text(0,
       "SELECT group_concat(substr(delta,1,10),' ')"
       "  FROM bblob"
-      " WHERE typeof(delta)='text' AND length(delta)=40"
-      "   AND NOT EXISTS(SELECT 1 FROM blob WHERE uuid=bblob.delta)");
+      " WHERE typeof(delta)='text' AND length(delta)>=%d"
+      "   AND NOT EXISTS(SELECT 1 FROM blob WHERE uuid=bblob.delta)",
+      HNAME_MIN);
   if( zMissingDeltas && zMissingDeltas[0] ){
     fossil_fatal("delta basis artifacts not found in repository: %s",
                  zMissingDeltas);

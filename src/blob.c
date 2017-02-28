@@ -650,9 +650,14 @@ void blob_copy_lines(Blob *pTo, Blob *pFrom, int N){
 
 /*
 ** Return true if the blob contains a valid base16 identifier artifact hash.
+**
+** The value returned is actually one of HNAME_SHA1 OR HNAME_K256 if the
+** hash is valid.  Both of these are non-zero and therefore "true".
+** If the hash is not valid, then HNAME_ERROR is returned, which is zero or
+** false.
 */
 int blob_is_hname(Blob *pBlob){
-  return hname_validate(blob_buffer(pBlob), blob_size(pBlob))!=HNAME_NONE;
+  return hname_validate(blob_buffer(pBlob), blob_size(pBlob));
 }
 
 /*

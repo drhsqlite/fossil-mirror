@@ -231,9 +231,9 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   }
 
   /* artifact hash or prefix */
-  if( nTag>=4 && nTag<=HNAME_LEN_MAX && validate16(zTag, nTag) ){
+  if( nTag>=4 && nTag<=HNAME_MAX && validate16(zTag, nTag) ){
     Stmt q;
-    char zUuid[HNAME_LEN_MAX+1];
+    char zUuid[HNAME_MAX+1];
     memcpy(zUuid, zTag, nTag+1);
     canonical16(zUuid, nTag);
     rid = 0;
@@ -352,7 +352,7 @@ int name_collisions(const char *zName){
   int c = 0;         /* count of collisions for zName */
   int nLen;          /* length of zName */
   nLen = strlen(zName);
-  if( nLen>=4 && nLen<=HNAME_LEN_MAX && validate16(zName, nLen) ){
+  if( nLen>=4 && nLen<=HNAME_MAX && validate16(zName, nLen) ){
     c = db_int(0,
       "SELECT"
       " (SELECT count(*) FROM ticket"
@@ -666,7 +666,7 @@ void whatis_rid(int rid, int verboseFlag){
 **
 ** Usage: %fossil whatis NAME
 **
-** Resolve the symbol NAME into its canonical 40-character SHA1-hash
+** Resolve the symbol NAME into its canonical artifact hash
 ** artifact name and provide a description of what role that artifact
 ** plays.
 **
@@ -1152,12 +1152,12 @@ static void collision_report(const char *zSql){
   int i, j, kk;
   int nHash = 0;
   Stmt q;
-  char zPrev[HNAME_LEN_MAX+1];
+  char zPrev[HNAME_MAX+1];
   struct {
     int cnt;
     char *azHit[MAX_COLLIDE];
-    char z[HNAME_LEN_MAX+1];
-  } aCollide[HNAME_LEN_MAX+1];
+    char z[HNAME_MAX+1];
+  } aCollide[HNAME_MAX+1];
   memset(aCollide, 0, sizeof(aCollide));
   memset(zPrev, 0, sizeof(zPrev));
   db_prepare(&q,"%s",zSql/*safe-for-%s*/);
@@ -1167,7 +1167,7 @@ static void collision_report(const char *zSql){
     int i;
     nHash++;
     for(i=0; zPrev[i] && zPrev[i]==zUuid[i]; i++){}
-    if( i>0 && i<=HNAME_LEN_MAX ){
+    if( i>0 && i<=HNAME_MAX ){
       if( i>=4 && aCollide[i].cnt<MAX_COLLIDE ){
         aCollide[i].azHit[aCollide[i].cnt] = mprintf("%.*s", i, zPrev);
       }
@@ -1180,14 +1180,14 @@ static void collision_report(const char *zSql){
   @ <table border=1><thead>
   @ <tr><th>Length<th>Instances<th>First Instance</tr>
   @ </thead><tbody>
-  for(i=1; i<=HNAME_LEN_MAX; i++){
+  for(i=1; i<=HNAME_MAX; i++){
     if( aCollide[i].cnt==0 ) continue;
     @ <tr><td>%d(i)<td>%d(aCollide[i].cnt)<td>%h(aCollide[i].z)</tr>
   }
   @ </tbody></table>
   @ <p>Total number of hashes: %d(nHash)</p>
   kk = 0;
-  for(i=HNAME_LEN_MAX; i>=4; i--){
+  for(i=HNAME_MAX; i>=4; i--){
     if( aCollide[i].cnt==0 ) continue;
     if( aCollide[i].cnt>200 ) break;
     kk += aCollide[i].cnt;

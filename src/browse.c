@@ -370,7 +370,7 @@ static void tree_add_node(
     int nByte;
     while( zPath[i] && zPath[i]!='/' ){ i++; }
     nByte = sizeof(*pNew) + i + 1;
-    if( zUuid!=0 && zPath[i]==0 ) nByte += HNAME_LEN_MAX+1;
+    if( zUuid!=0 && zPath[i]==0 ) nByte += HNAME_MAX+1;
     pNew = fossil_malloc( nByte );
     memset(pNew, 0, sizeof(*pNew));
     pNew->zFullName = (char*)&pNew[1];

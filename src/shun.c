@@ -86,7 +86,7 @@ void shun_page(void){
     p = zCanonical;
     while( *p ){
       int nUuid = strlen(p);
-      if( hname_validate(p, nUuid)==HNAME_NONE ){
+      if( !hname_validate(p, nUuid) ){
         @ <p class="generalError">Error: Bad artifact IDs.</p>
         fossil_free(zCanonical);
         zCanonical = 0;
@@ -169,14 +169,14 @@ void shun_page(void){
   @ bottom of this page.</p>
   @
   @ <a name="addshun"></a>
-  @ <p>To shun artifacts, enter their artifact IDs (the 40-character SHA1
-  @ hash of the artifacts) in the
+  @ <p>To shun artifacts, enter their artifact hashes (the 40- or
+  @ 64-character lowercase hexadecimal hash of the artifact content) in the
   @ following box and press the "Shun" button.  This will cause the artifacts
   @ to be removed from the repository and will prevent the artifacts from being
   @ readded to the repository by subsequent sync operation.</p>
   @
-  @ <p>Note that you must enter the full 40-character artifact IDs, not
-  @ an abbreviation or a symbolic tag.</p>
+  @ <p>Note that you must enter the full 40- or 64-character artifact hashes, 
+  @ not an abbreviation or a symbolic tag.</p>
   @
   @ <p>Warning:  Shunning should only be used to remove inappropriate content
   @ from the repository.  Inappropriate content includes such things as

@@ -28,16 +28,16 @@
 /*
 ** Code numbers for the allowed hash algorithms.
 */
-#define HNAME_NONE   (-1)   /* Not a valid hash */
-#define HNAME_SHA1   0      /* SHA1 */
-#define HNAME_K224   1      /* SHA3-224 */
-#define HNAME_K256   2      /* SHA3-256 */
+#define HNAME_ERROR  0      /* Not a valid hash */
+#define HNAME_SHA1   1      /* SHA1 */
+#define HNAME_K224   2      /* SHA3-224 */
+#define HNAME_K256   3      /* SHA3-256 */
 
 /*
 ** Minimum and maximum lengths for a hash value when hex encoded.
 */
-#define HNAME_LEN_MIN  40     /* Length for SHA1 */
-#define HNAME_LEN_MAX  64     /* Length for SHA3-256 */
+#define HNAME_MIN  40     /* Length for SHA1 */
+#define HNAME_MAX  64     /* Length for SHA3-256 */
 
 /*
 ** Hash lengths for the various algorithms
@@ -54,24 +54,23 @@
 */
 const char *hname_algname(int aid){
   if( aid==HNAME_K224 ) return "SHA3-224";
-  if( aid==HNAME_K256 ) return "SHA3-256";
   return "SHA1";
 }
 
 /*
-** Given a hash algorithm name, return its appropriate number.  Return -1
-** if the name is unknown.
+** Given a hash algorithm name, return its appropriate number.  Return 
+** HNAME_ERROR if the name is unknown.
 */
 int hname_algid(const char *zName){
   if( fossil_stricmp(zName,"sha1")==0 ) return HNAME_SHA1;
   if( fossil_stricmp(zName,"sha3-224")==0 ) return HNAME_K224;
   if( fossil_stricmp(zName,"sha3-256")==0 ) return HNAME_K256;
-  return -1;
+  return HNAME_ERROR;
 }
 
 /*
 ** Return the integer hash algorithm code number (ex: HNAME_K224) for
-** the hash string provided.  Or return HNAME_NONE if the input string
+** the hash string provided.  Or return HNAME_ERROR (0) if the input string
 ** is not a valid artifact hash string.
 */
 int hname_validate(const char *zHash, int nHash){
@@ -80,8 +79,8 @@ int hname_validate(const char *zHash, int nHash){
     case HNAME_LEN_SHA1:   id = HNAME_SHA1;  break;
     case HNAME_LEN_K224:   id = HNAME_K224;  break;
     case HNAME_LEN_K256:   id = HNAME_K256;  break;
-    default:               return HNAME_NONE;
+    default:               return HNAME_ERROR;
   }
-  if( !validate16(zHash, nHash) ) return HNAME_NONE;
+  if( !validate16(zHash, nHash) ) return HNAME_ERROR;
   return id;
 }

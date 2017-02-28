@@ -1069,7 +1069,7 @@ static void endAutoParagraph(Renderer *p){
 */
 static int is_valid_uuid(const char *z){
   int n = strlen(z);
-  if( n<4 || n>HNAME_LEN_MAX ) return 0;
+  if( n<4 || n>HNAME_MAX ) return 0;
   if( !validate16(z, n) ) return 0;
   return 1;
 }

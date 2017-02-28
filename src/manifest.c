@@ -451,11 +451,11 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
           SYNTAX("invalid filename on A-card");
         }
         defossilize(zTarget);
-        if( hname_validate(zTarget,nTarget)==HNAME_NONE
+        if( !hname_validate(zTarget,nTarget)
            && !wiki_name_is_wellformed((const unsigned char *)zTarget) ){
           SYNTAX("invalid target on A-card");
         }
-        if( zSrc && hname_validate(zSrc,nSrc)==HNAME_NONE ){
+        if( zSrc && !hname_validate(zSrc,nSrc) ){
           SYNTAX("invalid source on A-card");
         }
         p->zAttachName = (char*)file_tail(zName);
@@ -473,7 +473,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         if( p->zBaseline ) SYNTAX("more than one B-card");
         p->zBaseline = next_token(&x, &sz);
         if( p->zBaseline==0 ) SYNTAX("missing hash on B-card");
-        if( hname_validate(p->zBaseline,sz)==HNAME_NONE ){
+        if( !hname_validate(p->zBaseline,sz) ){
           SYNTAX("invalid hash on B-card");
         }
         break;
@@ -524,7 +524,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         p->rEventDate = db_double(0.0,"SELECT julianday(%Q)", next_token(&x,0));
         if( p->rEventDate<=0.0 ) SYNTAX("malformed date on E-card");
         p->zEventId = next_token(&x, &sz);
-        if( hname_validate(p->zEventId, sz)==HNAME_NONE ){
+        if( !hname_validate(p->zEventId, sz) ){
           SYNTAX("malformed hash on E-card");
         }
         break;
@@ -547,7 +547,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         }
         zUuid = next_token(&x, &sz);
         if( p->zBaseline==0 || zUuid!=0 ){
-          if( hname_validate(zUuid,sz)==HNAME_NONE ){
+          if( !hname_validate(zUuid,sz) ){
             SYNTAX("F-card hash invalid");
           }
         }
@@ -647,7 +647,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       case 'M': {
         zUuid = next_token(&x, &sz);
         if( zUuid==0 ) SYNTAX("missing hash on M-card");
-        if( hname_validate(zUuid,sz)==HNAME_NONE ){
+        if( !hname_validate(zUuid,sz) ){
           SYNTAX("Invalid hash on M-card");
         }
         if( p->nCChild>=p->nCChildAlloc ){
@@ -687,7 +687,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       */
       case 'P': {
         while( (zUuid = next_token(&x, &sz))!=0 ){
-          if( hname_validate(zUuid, sz)==HNAME_NONE ){
+          if( !hname_validate(zUuid, sz) ){
              SYNTAX("invalid hash on P-card");
           }
           if( p->nParent>=p->nParentAlloc ){
@@ -712,7 +712,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         if( zUuid[0]!='+' && zUuid[0]!='-' ){
           SYNTAX("Q-card does not begin with '+' or '-'");
         }
-        if( hname_validate(&zUuid[1], sz-1)==HNAME_NONE ){
+        if( !hname_validate(&zUuid[1], sz-1) ){
           SYNTAX("invalid hash on Q-card");
         }
         n = p->nCherrypick;
@@ -721,7 +721,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
                                  p->nCherrypick*sizeof(p->aCherrypick[0]));
         p->aCherrypick[n].zCPTarget = zUuid;
         p->aCherrypick[n].zCPBase = zUuid = next_token(&x, &sz);
-        if( zUuid && hname_validate(zUuid,sz)==HNAME_NONE ){
+        if( zUuid && !hname_validate(zUuid,sz) ){
           SYNTAX("invalid second hash on Q-card");
         }
         break;
@@ -764,7 +764,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         if( zUuid==0 ) SYNTAX("missing artifact hash on T-card");
         zValue = next_token(&x, 0);
         if( zValue ) defossilize(zValue);
-        if( hname_validate(zUuid, sz)!=HNAME_NONE ){
+        if( hname_validate(zUuid, sz) ){
           /* A valid artifact hash */
           if( p->zEventId ) SYNTAX("non-self-referential T-card in event");
         }else if( sz==1 && zUuid[0]=='*' ){
@@ -1622,7 +1622,7 @@ void manifest_reparent_checkin(int rid, const char *zValue){
   Manifest *p = 0;
   int i, j;
   int n = (int)strlen(zValue);
-  int mxParent = (n+1)/(HNAME_LEN_MIN+1);
+  int mxParent = (n+1)/(HNAME_MIN+1);
 
   if( mxParent<1 ) return;
   zCopy = fossil_strdup(zValue);
@@ -1631,8 +1631,8 @@ void manifest_reparent_checkin(int rid, const char *zValue){
     char *z = &zCopy[i];
     azParent[nParent++] = z;
     if( nParent>mxParent ) goto reparent_abort;
-    for(j=HNAME_LEN_MIN; z[j]>' '; j++){}
-    if( hname_validate(z, j)==HNAME_NONE ) goto reparent_abort;
+    for(j=HNAME_MIN; z[j]>' '; j++){}
+    if( !hname_validate(z, j) ) goto reparent_abort;
     if( z[j]==0 ) break;
     z[j] = 0;
     i += j;

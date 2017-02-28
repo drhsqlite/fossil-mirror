@@ -2082,9 +2082,9 @@ LOCAL void file_is_selected(
 ** unconcealed.
 */
 char *db_conceal(const char *zContent, int n){
-  static char zHash[HNAME_LEN_MAX+1];
+  static char zHash[HNAME_MAX+1];
   Blob out;
-  if( hname_validate(zContent, n)!=HNAME_NONE ){
+  if( hname_validate(zContent, n) ){
     memcpy(zHash, zContent, n);
     zHash[n] = 0;
   }else{
