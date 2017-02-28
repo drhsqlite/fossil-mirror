@@ -34,7 +34,7 @@ The local state is not composed of artifacts and is not intended to be enduring.
 This document is concerned with global state only.  Local state is only
 mentioned here in order to distinguish it from global state.
 
-<a name='#names'></a>
+<a name="names"></a>
 <h2>1.0 Artifact Names</h2>
 
 Each artifact in the repository is named by a hash of its content.
