@@ -132,7 +132,7 @@ int load_vfile_from_rid(int vid){
 ** combination of the following bits:
 */
 #define CKSIG_ENOTFILE  0x001   /* non-file FS objects throw an error */
-#define CKSIG_SHA1      0x002   /* Verify file content using sha1sum */
+#define CKSIG_HASH      0x002   /* Verify file content using hashing */
 #define CKSIG_SETMTIME  0x004   /* Set mtime to last check-out time */
 
 #endif /* INTERFACE */
@@ -174,7 +174,7 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
   int nErr = 0;
   Stmt q;
   Blob fileCksum, origCksum;
-  int useMtime = (cksigFlags & CKSIG_SHA1)==0
+  int useMtime = (cksigFlags & CKSIG_HASH)==0
                     && db_get_boolean("mtime-changes", 1);
 
   db_begin_transaction();

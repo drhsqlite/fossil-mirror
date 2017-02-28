@@ -1,5 +1,5 @@
-C Refactoring\sand\scleanup\sof\ssome\sof\sthe\shash\sname\sinterfaces.
-D 2017-02-28T16:25:26.489
+C Change\sthe\s--sha1sum\soptions\son\s"fossil\scommit"\sand\s"fossil\sstatus"\sto\nbe\s--hash,\ssince\sit\sis\sno\slonger\srestricted\sto\sa\ssingle\shash\salgorithm.
+D 2017-02-28T16:36:53.709
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -401,7 +401,7 @@ F src/bundle.c 37ae68844002400284b56490789e4584cfe532f7
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c 0fe6520c4eeedee87cab271f32943a96382828c1
-F src/checkin.c fe3714c6c26f87650582b7285c6340e6e4b35184
+F src/checkin.c 0fefe73dbd3929daca69cadbbafdc1e6945ebc44
 F src/checkout.c 083ec4f2ccd7d9df27dbb94d90008088eb8c4340
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
@@ -529,7 +529,7 @@ F src/user.c 1d31844a9e48e2ab515586bf54ecc4b30b47d5b5
 F src/utf8.c 9f458b9698fc928cc21e375538f268651d1d22a2
 F src/util.c 9a3cc502aa6ae3bc19831e5f553cd346ec154b5c
 F src/verify.c b2c3fb3ac0ff8c7d13a70e499b91905d53f94a21
-F src/vfile.c e813c4db508f33a1d5ba7df38653a684b4d81916
+F src/vfile.c 8486f9b91916267dc59cdbca0c0690ab9a3d1322
 F src/wiki.c 9482a4ef96942921b5173a44fda320f8596c9cc5
 F src/wikiformat.c 1616c95201d38f46c67722a86c880e508b042aad
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 94f4c0aab5678f83f82e5ee44876acd606a48d7c
-R f0210885683cc70772dc034130f224f4
+P 1c8768b0deed45e9afc9de3e42a8ce1d220a03ff
+R 22032d4c85680420efe29f61f2c85ab2
 U drh
-Z 7f20c8ca5399da51a3adbeef5d4a0f34
+Z 60df6a582ff1689d61c0f330113407fe

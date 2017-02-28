@@ -414,7 +414,7 @@ static int determine_cwd_relative_option()
 **    --abs-paths       Display absolute pathnames.
 **    --rel-paths       Display pathnames relative to the current working
 **                      directory.
-**    --sha1sum         Verify file status using SHA1 hashing rather than
+**    --hash            Verify file status using hashing rather than
 **                      relying on file mtimes.
 **    --case-sensitive <BOOL>  Override case-sensitive setting.
 **    --dotfiles        Include unmanaged files beginning with a dot.
@@ -466,7 +466,7 @@ void status_cmd(void){
 
   Blob report = BLOB_INITIALIZER;
   enum {CHANGES, STATUS} command = *g.argv[1]=='s' ? STATUS : CHANGES;
-  int useSha1sum = find_option("sha1sum", 0, 0)!=0;
+  int useHash = find_option("hash", 0, 0)!=0;
   int showHdr = command==CHANGES && find_option("header", 0, 0);
   int verboseFlag = command==CHANGES && find_option("verbose", "v", 0);
   const char *zIgnoreFlag = find_option("ignore", 0, 1);
@@ -530,7 +530,7 @@ void status_cmd(void){
   verify_all_options();
 
   /* Check for changed files. */
-  vfile_check_signature(vid, useSha1sum ? CKSIG_SHA1 : 0);
+  vfile_check_signature(vid, useHash ? CKSIG_HASH : 0);
 
   /* Search for unmanaged files if requested. */
   if( flags & C_EXTRA ){
@@ -1987,8 +1987,8 @@ static int tagCmp(const void *a, const void *b){
 **
 ** The --tag option applies the symbolic tag name to the check-in.
 **
-** The --sha1sum option detects edited files by computing each file's
-** SHA1 hash rather than just checking for changes to its size or mtime.
+** The --hash option detects edited files by computing each file's
+** artifact hash rather than just checking for changes to its size or mtime.
 **
 ** Options:
 **    --allow-conflict           allow unresolved merge conflicts
@@ -2012,7 +2012,7 @@ static int tagCmp(const void *a, const void *b){
 **    --no-warnings              omit all warnings about file contents
 **    --nosign                   do not attempt to sign this commit with gpg
 **    --private                  do not sync changes and their descendants
-**    --sha1sum                  verify file status using SHA1 hashing rather
+**    --hash                     verify file status using hashing rather
 **                               than relying on file mtimes
 **    --tag TAG-NAME             assign given tag TAG-NAME to the check-in
 **    --date-override DATETIME   DATE to use instead of 'now'
@@ -2035,7 +2035,7 @@ void commit_cmd(void){
   const char *zComment;  /* Check-in comment */
   Stmt q;                /* Various queries */
   char *zUuid;           /* UUID of the new check-in */
-  int useSha1sum = 0;    /* True to verify file status using SHA1 hashing */
+  int useHash = 0;       /* True to verify file status using SHA1 hashing */
   int noSign = 0;        /* True to omit signing the manifest using GPG */
   int isAMerge = 0;      /* True if checking in a merge */
   int noWarningFlag = 0; /* True if skipping all warnings */
@@ -2070,7 +2070,7 @@ void commit_cmd(void){
 
   memset(&sCiInfo, 0, sizeof(sCiInfo));
   url_proxy_options();
-  useSha1sum = find_option("sha1sum", 0, 0)!=0;
+  useHash = find_option("hash", 0, 0)!=0;
   noSign = find_option("nosign",0,0)!=0;
   forceDelta = find_option("delta",0,0)!=0;
   forceBaseline = find_option("baseline",0,0)!=0;
@@ -2234,7 +2234,7 @@ void commit_cmd(void){
     fossil_fatal("no such user: %s", g.zLogin);
   }
 
-  hasChanges = unsaved_changes(useSha1sum ? CKSIG_SHA1 : 0);
+  hasChanges = unsaved_changes(useHash ? CKSIG_HASH : 0);
   db_begin_transaction();
   db_record_repository_filename(0);
   if( hasChanges==0 && !isAMerge && !allowEmpty && !forceFlag ){
