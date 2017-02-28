@@ -84,3 +84,36 @@ int hname_validate(const char *zHash, int nHash){
   if( !validate16(zHash, nHash) ) return HNAME_ERROR;
   return id;
 }
+
+/*
+** Verify that zHash is a valid hash for the content in pContent.
+** Return true if the hash is correct.  Return false if the content
+** does not match the hash.
+**
+** Actually, the returned value is one of the hash algorithm constants
+** corresponding to the hash that matched if the hash is correct.
+** (Examples: HNAME_SHA1 or HNAME_K224).  And the return is HNAME_ERROR
+** if the hash does not match.
+*/
+int hname_verify_hash(Blob *pContent, const char *zHash, int nHash){
+  int id = HNAME_ERROR;
+  switch( nHash ){
+    case HNAME_LEN_SHA1: {
+      Blob hash;
+      sha1sum_blob(pContent, &hash);
+      if( memcmp(blob_buffer(&hash),zHash,HNAME_LEN_SHA1)==0 ) id = HNAME_SHA1;
+      blob_reset(&hash);
+      break;
+    }
+    case HNAME_LEN_K224:
+    case HNAME_LEN_K256: {
+      sha3sum_init(nHash*4);
+      sha3sum_step_blob(pContent);
+      if( memcmp(sha3sum_finish(0),zHash,nHash)==0 ){
+        id = nHash==HNAME_LEN_K224 ? HNAME_K224 : HNAME_K256;
+      }
+      break;
+    }
+  }
+  return id;
+}

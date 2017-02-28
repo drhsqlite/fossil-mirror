@@ -499,7 +499,7 @@ void content_rcvid_init(const char *zSrc){
 */
 int content_put_ex(
   Blob *pBlob,              /* Content to add to the repository */
-  const char *zUuid,        /* SHA1 hash of reconstructed pBlob */
+  const char *zUuid,        /* artifact hash of reconstructed pBlob */
   int srcId,                /* pBlob is a delta from this entry */
   int nBlob,                /* pBlob is compressed. Original size is this */
   int isPrivate             /* The content should be marked private */
@@ -870,7 +870,6 @@ static int looks_like_control_artifact(Blob *p){
 void test_integrity(void){
   Stmt q;
   Blob content;
-  Blob cksum;
   int n1 = 0;
   int n2 = 0;
   int nErr = 0;
@@ -907,6 +906,7 @@ void test_integrity(void){
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
+    int nUuid = db_column_bytes(&q, 1);
     int size = db_column_int(&q, 2);
     n1++;
     fossil_print("  %d/%d\r", n1, total);
@@ -921,10 +921,8 @@ void test_integrity(void){
                      rid, size, blob_size(&content));
       nErr++;
     }
-    sha1sum_blob(&content, &cksum);
-    if( fossil_strcmp(blob_str(&cksum), zUuid)!=0 ){
-      fossil_print("wrong hash on artifact %d: wanted %s but got %s\n",
-                   rid, zUuid, blob_str(&cksum));
+    if( !hname_verify_hash(&content, zUuid, nUuid) ){
+      fossil_print("wrong hash on artifact %d\n",rid);
       nErr++;
     }
     if( bParse && looks_like_control_artifact(&content) ){
@@ -943,7 +941,7 @@ void test_integrity(void){
       p = manifest_parse(&content, 0, &err);
       if( p==0 ){
         fossil_print("manifest_parse failed for %s:\n%s\n",
-               blob_str(&cksum), blob_str(&err));
+               zUuid, blob_str(&err));
         if( strncmp(blob_str(&err), "line 1:", 7)==0 ){
           fossil_print("\"%s\"\n", zFirstLine);
         }
@@ -956,7 +954,6 @@ void test_integrity(void){
     }else{
       blob_reset(&content);
     }
-    blob_reset(&cksum);
     n2++;
   }
   db_finalize(&q);
