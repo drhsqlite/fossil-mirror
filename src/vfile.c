@@ -53,13 +53,13 @@ int fast_uuid_to_rid(const char *zUuid){
 */
 int uuid_to_rid(const char *zUuid, int phantomize){
   int rid, sz;
-  char z[UUID_SIZE+1];
+  char z[HNAME_LEN_MAX+1];
 
   sz = strlen(zUuid);
-  if( sz!=UUID_SIZE || !validate16(zUuid, sz) ){
+  if( hname_validate(zUuid, sz)!=HNAME_NONE ){
     return 0;
   }
-  memcpy(z, zUuid, UUID_SIZE+1);
+  memcpy(z, zUuid, sz+1);
   canonical16(z, sz);
   rid = fast_uuid_to_rid(z);
   if( rid==0 && phantomize ){

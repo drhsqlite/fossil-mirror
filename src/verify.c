@@ -42,7 +42,7 @@ static void verify_rid(int rid){
   }
   blob_zero(&uuid);
   db_blob(&uuid, "SELECT uuid FROM blob WHERE rid=%d", rid);
-  if( blob_size(&uuid)!=UUID_SIZE ){
+  if( hname_validate(blob_buffer(&uuid), blob_size(&uuid))!=HNAME_NONE ){
     fossil_fatal("not a valid rid: %d", rid);
   }
   if( content_get(rid, &content) ){

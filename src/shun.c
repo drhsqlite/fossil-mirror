@@ -86,14 +86,14 @@ void shun_page(void){
     p = zCanonical;
     while( *p ){
       int nUuid = strlen(p);
-      if( nUuid!=UUID_SIZE || !validate16(p, nUuid) ){
+      if( hname_validate(p, nUuid)==HNAME_NONE ){
         @ <p class="generalError">Error: Bad artifact IDs.</p>
         fossil_free(zCanonical);
         zCanonical = 0;
         break;
       }else{
-        canonical16(p, UUID_SIZE);
-        p += UUID_SIZE+1;
+        canonical16(p, nUuid);
+        p += nUuid+1;
       }
     }
     zUuid = zCanonical;
@@ -109,17 +109,17 @@ void shun_page(void){
         allExist = 0;
       }
       admin_log("Unshunned %Q", p);
-      p += UUID_SIZE+1;
+      p += strlen(p)+1;
     }
     if( allExist ){
       @ <p class="noMoreShun">Artifact(s)<br />
-      for( p = zUuid ; *p ; p += UUID_SIZE+1 ){
+      for( p = zUuid ; *p ; p += strlen(p)+1 ){
         @ <a href="%R/artifact/%s(p)">%s(p)</a><br />
       }
       @ are no longer being shunned.</p>
     }else{
       @ <p class="noMoreShun">Artifact(s)<br />
-      for( p = zUuid ; *p ; p += UUID_SIZE+1 ){
+      for( p = zUuid ; *p ; p += strlen(p)+1 ){
         @ %s(p)<br />
       }
       @ will no longer be shunned.  But they may not exist in the repository.
@@ -148,10 +148,10 @@ void shun_page(void){
         db_multi_exec("DELETE FROM tagxref WHERE tagid=%d", tagid);
       }
       admin_log("Shunned %Q", p);
-      p += UUID_SIZE+1;
+      p += strlen(p)+1;
     }
     @ <p class="shunned">Artifact(s)<br />
-    for( p = zUuid ; *p ; p += UUID_SIZE+1 ){
+    for( p = zUuid ; *p ; p += strlen(p)+1 ){
       @ <a href="%R/artifact/%s(p)">%s(p)</a><br />
     }
     @ have been shunned.  They will no longer be pushed.

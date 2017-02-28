@@ -56,7 +56,7 @@ struct Xfer {
 
 
 /*
-** The input blob contains a UUID.  Convert it into a record ID.
+** The input blob contains an artifact.  Convert it into a record ID.
 ** Create a phantom record if no prior record exists and
 ** phantomize is true.
 **
@@ -102,8 +102,8 @@ static void remote_has(int rid){
 **
 ** The file line is in one of the following two forms:
 **
-**      file UUID SIZE \n CONTENT
-**      file UUID DELTASRC SIZE \n CONTENT
+**      file HASH SIZE \n CONTENT
+**      file HASH DELTASRC SIZE \n CONTENT
 **
 ** The content is SIZE bytes immediately following the newline.
 ** If DELTASRC exists, then the CONTENT is a delta against the
@@ -219,14 +219,14 @@ static void xfer_accept_file(
 **
 ** The file line is in one of the following two forms:
 **
-**      cfile UUID USIZE CSIZE \n CONTENT
-**      cfile UUID DELTASRC USIZE CSIZE \n CONTENT
+**      cfile HASH USIZE CSIZE \n CONTENT
+**      cfile HASH DELTASRC USIZE CSIZE \n CONTENT
 **
 ** The content is CSIZE bytes immediately following the newline.
 ** If DELTASRC exists, then the CONTENT is a delta against the
 ** content of DELTASRC.
 **
-** The original size of the UUID artifact is USIZE.
+** The original size of the HASH artifact is USIZE.
 **
 ** If any error occurs, write a message into pErr which has already
 ** be initialized to an empty string.
@@ -417,7 +417,7 @@ static int send_delta_parent(
   int rid,                /* record id of the file to send */
   int isPrivate,          /* True if rid is a private artifact */
   Blob *pContent,         /* The content of the file to send */
-  Blob *pUuid             /* The UUID of the file to send */
+  Blob *pUuid             /* The HASH of the file to send */
 ){
   static const char *const azQuery[] = {
     "SELECT pid FROM plink x"
@@ -471,7 +471,7 @@ static int send_delta_native(
   Xfer *pXfer,            /* The transfer context */
   int rid,                /* record id of the file to send */
   int isPrivate,          /* True if rid is a private artifact */
-  Blob *pUuid             /* The UUID of the file to send */
+  Blob *pUuid             /* The HASH of the file to send */
 ){
   Blob src, delta;
   int size = 0;
@@ -506,7 +506,7 @@ static int send_delta_native(
 /*
 ** Send the file identified by rid.
 **
-** The pUuid can be NULL in which case the correct UUID is computed
+** The pUuid can be NULL in which case the correct hash is computed
 ** from the rid.
 **
 ** Try to send the file as a native delta if nativeDelta is true, or
@@ -1200,8 +1200,8 @@ void page_xfer(void){
     if( blob_size(&xfer.line)==0 ) continue;
     xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken, count(xfer.aToken));
 
-    /*   file UUID SIZE \n CONTENT
-    **   file UUID DELTASRC SIZE \n CONTENT
+    /*   file HASH SIZE \n CONTENT
+    **   file HASH DELTASRC SIZE \n CONTENT
     **
     ** Accept a file from the client.
     */
@@ -1221,8 +1221,8 @@ void page_xfer(void){
       }
     }else
 
-    /*   cfile UUID USIZE CSIZE \n CONTENT
-    **   cfile UUID DELTASRC USIZE CSIZE \n CONTENT
+    /*   cfile HASH USIZE CSIZE \n CONTENT
+    **   cfile HASH DELTASRC USIZE CSIZE \n CONTENT
     **
     ** Accept a file from the client.
     */
@@ -1256,7 +1256,7 @@ void page_xfer(void){
       }
     }else
 
-    /*   gimme UUID
+    /*   gimme HASH
     **
     ** Client is requesting a file.  Send it.
     */
@@ -1284,7 +1284,7 @@ void page_xfer(void){
       send_unversioned_file(&xfer, blob_str(&xfer.aToken[1]), 0);
     }else
 
-    /*   igot UUID ?ISPRIVATE?
+    /*   igot HASH ?ISPRIVATE?
     **
     ** Client announces that it has a particular file.  If the ISPRIVATE
     ** argument exists and is non-zero, then the file is a private file.
@@ -2030,8 +2030,8 @@ int client_sync(
         }
       }
 
-      /*   file UUID SIZE \n CONTENT
-      **   file UUID DELTASRC SIZE \n CONTENT
+      /*   file HASH SIZE \n CONTENT
+      **   file HASH DELTASRC SIZE \n CONTENT
       **
       ** Receive a file transmitted from the server.
       */
@@ -2040,8 +2040,8 @@ int client_sync(
         nArtifactRcvd++;
       }else
 
-      /*   cfile UUID USIZE CSIZE \n CONTENT
-      **   cfile UUID DELTASRC USIZE CSIZE \n CONTENT
+      /*   cfile HASH USIZE CSIZE \n CONTENT
+      **   cfile HASH DELTASRC USIZE CSIZE \n CONTENT
       **
       ** Receive a compressed file transmitted from the server.
       */
@@ -2064,7 +2064,7 @@ int client_sync(
         }
       }else
 
-      /*   gimme UUID
+      /*   gimme HASH
       **
       ** Server is requesting a file.  If the file is a manifest, assume
       ** that the server will also want to know all of the content files
@@ -2080,7 +2080,7 @@ int client_sync(
         }
       }else
 
-      /*   igot UUID  ?PRIVATEFLAG?
+      /*   igot HASH  ?PRIVATEFLAG?
       **
       ** Server announces that it has a particular file.  If this is
       ** not a file that we have and we are pulling, then create a
