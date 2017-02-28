@@ -1,5 +1,5 @@
-C Add\sthe\shname_verify_hash()\sroutine\sand\suse\sit\sto\sfix\s"fossil\stest-integrity"\nsuch\sthat\sit\sverifies\sthe\sdisplay\shash\sregardless\sof\sthe\salgorithm\sused.
-D 2017-02-28T19:15:25.454
+C Fix\sthe\starball\sand\sZIP\sarchive\sgenerators\sso\sthat\sthe\suse\sthe\sdisplay\shash\nto\spopulate\sthe\smanifest.uuid\sfile.
+D 2017-02-28T19:47:48.905
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -510,7 +510,7 @@ F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
 F src/style.c cf9edbf403e1df8e094e8a1d44d5dd9516046678
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 46fdc5d0e7c8d60bedae8ef4227692587813bc7f
-F src/tar.c 8cfe3f2ef83784ed5644b3a9c4cd4d85f1096a38
+F src/tar.c ccd159559df6305cf484a8889ab6d6f35d788350
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
@@ -537,7 +537,7 @@ F src/winhttp.c a3970bdc0b05426cadadb1a62cd378e10f124062
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c fa7f209f918166499c96bc8467075e38b89a5678
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
-F src/zip.c 7ad4b3ce5ab36dd3d931d32b23cc3b5cd9f4617f
+F src/zip.c 34f51a1acd869bfa063fafab28decfab34cb2a1a
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test b298d36e7b996220c0bff697d6b229645dd43f8f
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1f61b2dc88ebca720f26ab116b1d3248ce6c7075
-R 6d11f73d8c05b3704a9a5808945468ba
+P 08badee3a415cf0788adc1d50eeb03a19fac9b5b
+R 6dd1db8a8f011880a8928086be0633d2
 U drh
-Z cfaffbd604c5d0cbe9d17f579edd1f38
+Z 93b343cad15dc569bec93b183e43d768

@@ -341,7 +341,7 @@ void zip_of_checkin(
     blob_zero(pZip);
     return;
   }
-  blob_zero(&hash);
+  blob_set_dynamic(&hash, rid_to_uuid(rid));
   blob_zero(&filename);
   zip_open();
 
@@ -380,9 +380,6 @@ void zip_of_checkin(
           zName = blob_str(&filename);
           zip_add_folders(zName);
         }
-        if( eflg & MFESTFLG_UUID ){
-          sha1sum_blob(&mfile, &hash);
-        }
         if( eflg & MFESTFLG_RAW ){
           sterilize_manifest(&mfile);
           zip_add_file(zName, &mfile, 0);
@@ -396,7 +393,6 @@ void zip_of_checkin(
         zName = blob_str(&filename);
         zip_add_folders(zName);
         zip_add_file(zName, &hash, 0);
-        blob_reset(&hash);
       }
       if( eflg & MFESTFLG_TAGS ){
         Blob tagslist;
@@ -431,6 +427,7 @@ void zip_of_checkin(
   }
   manifest_destroy(pManifest);
   blob_reset(&filename);
+  blob_reset(&hash);
   zip_close(pZip);
 }
 
