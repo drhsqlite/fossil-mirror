@@ -97,6 +97,7 @@ static const char zSchemaUpdate3[] =
 */
 static void rebuild_update_schema(void){
   int rc;
+  char *z;
   db_multi_exec("%s", zSchemaUpdates1 /*safe-for-%s*/);
   db_multi_exec("%s", zSchemaUpdates2 /*safe-for-%s*/);
 
@@ -174,6 +175,30 @@ static void rebuild_update_schema(void){
   if( !db_table_exists("repository", "alias") ){
     db_multi_exec("%s", zSchemaUpdate3/*safe-for-%s*/);
   }
+
+  /* Make sure the CHECK constraint on the BLOB table says "length(uuid)>=40"
+  ** instead of "length(uuid)==40". */
+  z = db_text(0, "SELECT sql FROM repository.sqlite_master WHERE"
+                 " name LIKE 'blob' AND sql LIKE '%%length(uuid)==40%%'");
+  if( z ){
+    /* Search for:  length(uuid)==40
+    **              0123456789 12345   */
+    int i;
+    for(i=10; z[i]; i++){
+      if( z[i]=='=' && strncmp(&z[i-6],"(uuid)==40",10)==0 ){
+        z[i] = '>';
+        db_multi_exec(
+           "PRAGMA writable_schema=ON;"
+           "UPDATE repository.sqlite_master SET sql=%Q WHERE name LIKE 'blob';"
+           "PRAGMA writable_schema=OFF;",
+           z
+        );
+        break;
+      }
+    }
+    fossil_free(z);
+  }
+      
 }
 
 /*

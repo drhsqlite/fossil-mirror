@@ -1,5 +1,5 @@
-C Relax\ssize\sconstraints\son\sartifact\shash\sparsing.
-D 2017-02-28T00:56:46.414
+C Update\s"fossil\srebuild"\sso\sthat\sit\schanges\sthe\sCHECK\sconstraint\son\sthe\sBLOB\ntable\sto\sbe\s"length(uuid)>=40"\sinstead\sof\s"==40".
+D 2017-02-28T02:10:13.074
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -488,11 +488,11 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 26a2f0024b1e59f3e6b3f4fa40f72f458e517f18
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c ed44773c93e570dd0dd018e9829c1e3e5ec40cf1
-F src/rebuild.c feae04cd5f90d07e68cd54a0fbfe45b900687022
+F src/rebuild.c ed5bcdd3e6ed81e30ff1661eb57b88a0b2c608c9
 F src/regexp.c 11ed4c905c2e471efe9c1e9c4650004ad91d6ebb
 F src/report.c 3b627c4ba95b5260ded1cee2adc5ce6e28d791d2
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
-F src/schema.c 3d8c68fa6e459204f0fb030309cf80de5d479ace
+F src/schema.c e618e130166cb2881613cdf6ad305bea39c80969
 F src/search.c 82d3900b27d457fd1051d46acc5f4dcc74947960
 F src/setup.c 2d807dd6722ea73a8be13afe66a194cdc1e4b5ee
 F src/sha1.c 2d54962bf5fbf43e58087ddf843ebc42061b4046
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0a8fad6a5d7bdeb97e75d8ca76690402a53ddba8
-R 6b35858edab5b14fc7a193d2b12f0d4f
+P 65c597119c22519ac23fa4c8a59bd90d40c730f8
+R 1b1d393a2f881b7c6c6793fa61bc2dbd
 U drh
-Z 51a1dbf450e223296ad1c2715b1db394
+Z 4c02a885669984156a2916a879b6da53
