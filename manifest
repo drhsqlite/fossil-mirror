@@ -1,5 +1,5 @@
-C Remove\sunnecessary\sreferences\sto\ssha1sum\sfrom\sxfer.c.
-D 2017-02-28T22:15:28.787
+C Fix\sthe\sFOSSIL_VERSION_NUMBER\smacro\sso\sthat\sit\sis\salways\sof\sthe\sform\sXYYZZ\nX\sis\sthe\smajor\sversion\snumber\s(ex:\s2)\sand\sYY\sis\sthe\sminor\sversion\snumber\sand\nZZ\sis\sthe\spatch\snumber,\sor\s0.
+D 2017-02-28T22:34:47.987
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -477,7 +477,7 @@ F src/merge3.c be0896e3e4e51262349d0f09e35e70d140659572
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
 F src/mkindex.c f4183ca13461544fe06f34af0a3501ea96d3637f
-F src/mkversion.c d76e0e3c04966bb61a23ff7140fa37867c06bd50
+F src/mkversion.c 5827238100f179af2462a0194421c8b027198ef1
 F src/moderate.c 2540f90b20778a4d62156a3b4af962b401d4c89f
 F src/name.c 7dd0e12f0c36c6f895ecb0170e9019ab20498650
 F src/path.c cce5fdfa571861a81e1a48e893e5a52dd2703a5f
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fc246fc4d1e9e98528b6af2f15f504cb585dd235
-R 75755a0ad1a3775bbafff540aaa8eb2f
+P 7ec259c3acff7fcad95740c2b7e1028488e4f107
+R 90e1affcc91097910c124ee437042250
 U drh
-Z 42b3c7dad3c594d356786d392bbd79fb
+Z 539635fbe021b584395ae77eced504f3
