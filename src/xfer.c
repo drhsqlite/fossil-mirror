@@ -124,8 +124,9 @@ static void xfer_accept_file(
   int n;
   int rid;
   int srcid = 0;
-  Blob content, hash;
+  Blob content;
   int isPriv;
+  Blob *pUuid;
 
   isPriv = pXfer->nextIsPrivate;
   pXfer->nextIsPrivate = 0;
@@ -140,9 +141,9 @@ static void xfer_accept_file(
     return;
   }
   blob_zero(&content);
-  blob_zero(&hash);
   blob_extract(pXfer->pIn, n, &content);
-  if( !cloneFlag && uuid_is_shunned(blob_str(&pXfer->aToken[1])) ){
+  pUuid = &pXfer->aToken[1];
+  if( !cloneFlag && uuid_is_shunned(blob_str(pUuid)) ){
     /* Ignore files that have been shunned */
     blob_reset(&content);
     return;
@@ -160,10 +161,10 @@ static void xfer_accept_file(
       srcid = 0;
       pXfer->nFileRcvd++;
     }
-    rid = content_put_ex(&content, blob_str(&pXfer->aToken[1]), srcid,
+    rid = content_put_ex(&content, blob_str(pUuid), srcid,
                          0, isPriv);
-    Th_AppendToList(pzUuidList, pnUuidList, blob_str(&pXfer->aToken[1]),
-                    blob_size(&pXfer->aToken[1]));
+    Th_AppendToList(pzUuidList, pnUuidList, blob_str(pUuid),
+                    blob_size(pUuid));
     remote_has(rid);
     blob_reset(&content);
     return;
@@ -172,10 +173,10 @@ static void xfer_accept_file(
     Blob src, next;
     srcid = rid_from_uuid(&pXfer->aToken[2], 1, isPriv);
     if( content_get(srcid, &src)==0 ){
-      rid = content_put_ex(&content, blob_str(&pXfer->aToken[1]), srcid,
+      rid = content_put_ex(&content, blob_str(pUuid), srcid,
                            0, isPriv);
-      Th_AppendToList(pzUuidList, pnUuidList, blob_str(&pXfer->aToken[1]),
-                      blob_size(&pXfer->aToken[1]));
+      Th_AppendToList(pzUuidList, pnUuidList, blob_str(pUuid),
+                      blob_size(pUuid));
       pXfer->nDanglingFile++;
       db_multi_exec("DELETE FROM phantom WHERE rid=%d", rid);
       if( !isPriv ) content_make_public(rid);
@@ -191,15 +192,11 @@ static void xfer_accept_file(
   }else{
     pXfer->nFileRcvd++;
   }
-  sha1sum_blob(&content, &hash);
-  if( !blob_eq_str(&pXfer->aToken[1], blob_str(&hash), -1) ){
-    blob_appendf(&pXfer->err,
-        "wrong hash on received artifact: expected %s but got %s",
-        blob_str(&pXfer->aToken[1]), blob_str(&hash));
+  if( hname_verify_hash(&content, blob_buffer(pUuid), blob_size(pUuid))==0 ){
+    blob_appendf(&pXfer->err, "wrong hash on received artifact: %b", pUuid);
   }
-  rid = content_put_ex(&content, blob_str(&hash), 0, 0, isPriv);
-  Th_AppendToList(pzUuidList, pnUuidList, blob_str(&hash), blob_size(&hash));
-  blob_reset(&hash);
+  rid = content_put_ex(&content, blob_str(pUuid), 0, 0, isPriv);
+  Th_AppendToList(pzUuidList, pnUuidList, blob_str(pUuid), blob_size(pUuid));
   if( rid==0 ){
     blob_appendf(&pXfer->err, "%s", g.zErrMsg);
     blob_reset(&content);
@@ -299,7 +296,7 @@ static void xfer_accept_compressed_file(
 ** deleted, SIZE is zero, the HASH is "-", and the "\n CONTENT" is omitted.
 **
 ** SIZE is the number of bytes of CONTENT.  The CONTENT is uncompressed.
-** HASH is the SHA1 hash of CONTENT.
+** HASH is the artifact hash of CONTENT.
 **
 ** If the 0x0004 bit of FLAGS is set, that means the CONTENT is omitted.
 ** The sender might have omitted the content because it is too big to
@@ -312,7 +309,6 @@ static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
   int sz;                 /* The SIZE */
   int flags;              /* The FLAGS */
   Blob content;           /* The CONTENT */
-  Blob hash;              /* Hash computed from CONTENT to compare with HASH */
   Blob x;                 /* Compressed content */
   Stmt q;                 /* SQL statements for comparison and insert */
   int isDelete;           /* HASH is "-" indicating this is a delete */
@@ -331,13 +327,11 @@ static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
     return;
   }
   blob_init(&content, 0, 0);
-  blob_init(&hash, 0, 0);
   blob_init(&x, 0, 0);
   if( sz>0 && (flags & 0x0005)==0 ){
     blob_extract(pXfer->pIn, sz, &content);
     nullContent = 0;
-    sha1sum_blob(&content, &hash);
-    if( blob_compare(&hash, pHash)!=0 ){
+    if( hname_verify_hash(&content, blob_buffer(pHash), blob_size(pHash))==0 ){
       blob_appendf(&pXfer->err, "in uvfile line, HASH does not match CONTENT");
       goto end_accept_unversioned_file;
     }
@@ -401,7 +395,6 @@ static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
 end_accept_unversioned_file:
   blob_reset(&x);
   blob_reset(&content);
-  blob_reset(&hash);
 }
 
 /*

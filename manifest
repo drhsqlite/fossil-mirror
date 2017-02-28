@@ -1,5 +1,5 @@
-C Remove\sa\sreference\sto\ssha1sum\sfrom\sthe\spre-commit\sverification\slogic.
-D 2017-02-28T20:43:45.257
+C Remove\sunnecessary\sreferences\sto\ssha1sum\sfrom\sxfer.c.
+D 2017-02-28T22:15:28.787
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -535,7 +535,7 @@ F src/wikiformat.c 1616c95201d38f46c67722a86c880e508b042aad
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c a3970bdc0b05426cadadb1a62cd378e10f124062
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c fa7f209f918166499c96bc8467075e38b89a5678
+F src/xfer.c a40f8553c1bf60a7bc7e3b9877e873612908130b
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 34f51a1acd869bfa063fafab28decfab34cb2a1a
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9f17d77ada4dc66b16b1a3512c0868dc3bb3e536
-R 0792ffb004fbb45e45cff388e59cd7c3
+P fc246fc4d1e9e98528b6af2f15f504cb585dd235
+R 75755a0ad1a3775bbafff540aaa8eb2f
 U drh
-Z 13ce1c1175afad2547d05a45727a32cc
+Z 42b3c7dad3c594d356786d392bbd79fb
