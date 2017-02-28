@@ -117,3 +117,39 @@ int hname_verify_hash(Blob *pContent, const char *zHash, int nHash){
   }
   return id;
 }
+
+/*
+** Verify that zHash is a valid hash for the content of a file on
+** disk named zFile.
+**
+** Return true if the hash is correct.  Return false if the content
+** does not match the hash.
+**
+** Actually, the returned value is one of the hash algorithm constants
+** corresponding to the hash that matched if the hash is correct.
+** (Examples: HNAME_SHA1 or HNAME_K224).  And the return is HNAME_ERROR
+** if the hash does not match.
+*/
+int hname_verify_file_hash(const char *zFile, const char *zHash, int nHash){
+  int id = HNAME_ERROR;
+  switch( nHash ){
+    case HNAME_LEN_SHA1: {
+      Blob hash;
+      sha1sum_file(zFile, &hash);
+      if( memcmp(blob_buffer(&hash),zHash,HNAME_LEN_SHA1)==0 ) id = HNAME_SHA1;
+      blob_reset(&hash);
+      break;
+    }
+    case HNAME_LEN_K224:
+    case HNAME_LEN_K256: {
+      Blob hash;
+      sha3sum_file(zFile, nHash*4, &hash);
+      if( memcmp(blob_buffer(&hash),zHash,nHash)==0 ){
+        id = nHash==HNAME_LEN_K224 ? HNAME_K224 : HNAME_K256;
+      }
+      blob_reset(&hash);
+      break;
+    }
+  }
+  return id;
+}

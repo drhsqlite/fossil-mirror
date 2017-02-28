@@ -1,5 +1,5 @@
-C Fix\sthe\starball\sand\sZIP\sarchive\sgenerators\sso\sthat\sthe\suse\sthe\sdisplay\shash\nto\spopulate\sthe\smanifest.uuid\sfile.
-D 2017-02-28T19:47:48.905
+C The\svfile.c\smodules\suses\sthe\sdisplay\shash\sto\sverify\swhether\sor\snot\sfiles\nhave\schanged\son\sdisk.
+D 2017-02-28T20:16:59.995
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -433,7 +433,7 @@ F src/fusefs.c 3b88dca535a2932a7d95e165b4ab13d44dd2477a
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 51a4ef3f3f5ad77fa47cc2aa8f0aec02f259c1bc
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
-F src/hname.c 13db42061fcc0d5f394845ab47c85e0074d81238
+F src/hname.c b2934086503e4b689f9a6eff7435c0f9fe6153ac
 F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
@@ -529,7 +529,7 @@ F src/user.c 1d31844a9e48e2ab515586bf54ecc4b30b47d5b5
 F src/utf8.c 9f458b9698fc928cc21e375538f268651d1d22a2
 F src/util.c 9a3cc502aa6ae3bc19831e5f553cd346ec154b5c
 F src/verify.c b2c3fb3ac0ff8c7d13a70e499b91905d53f94a21
-F src/vfile.c 8486f9b91916267dc59cdbca0c0690ab9a3d1322
+F src/vfile.c 64d624534dd5ad2d19ad73e3b8deed24e929a6e0
 F src/wiki.c 9482a4ef96942921b5173a44fda320f8596c9cc5
 F src/wikiformat.c 1616c95201d38f46c67722a86c880e508b042aad
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 08badee3a415cf0788adc1d50eeb03a19fac9b5b
-R 6dd1db8a8f011880a8928086be0633d2
+P 9a8986b791ca171edc1fb3275857700c31448247
+R 3f448855c7117d9d20019cb833741a4d
 U drh
-Z 93b343cad15dc569bec93b183e43d768
+Z c7bbd2ffb127479913695951f611322c

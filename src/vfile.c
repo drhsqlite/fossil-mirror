@@ -161,8 +161,8 @@ int load_vfile_from_rid(int vid){
 ** changed without having to look at the mtime or on-disk content.
 **
 ** The mtime of the file is only a factor if the mtime-changes setting
-** is false and the useSha1sum flag is false.  If the mtime-changes
-** setting is true (or undefined - it defaults to true) or if useSha1sum
+** is false and the CKSIG_HASH flag is false.  If the mtime-changes
+** setting is true (or undefined - it defaults to true) or if CKSIG_HASH
 ** is true, then we do not trust the mtime and will examine the on-disk
 ** content to determine if a file really is the same.
 **
@@ -224,36 +224,26 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
     if( origSize!=currentSize ){
       if( chnged!=1 ){
         /* A file size change is definitive - the file has changed.  No
-        ** need to check the mtime or sha1sum */
+        ** need to check the mtime or hash */
         chnged = 1;
       }
     }else if( chnged==1 && rid!=0 && !isDeleted ){
       /* File is believed to have changed but it is the same size.
       ** Double check that it really has changed by looking at content. */
+      const char *zUuid = db_column_text(&q, 5);
+      int nUuid = db_column_bytes(&q, 5);
       assert( origSize==currentSize );
-      db_ephemeral_blob(&q, 5, &origCksum);
-      if( sha1sum_file(zName, &fileCksum) ){
-        blob_zero(&fileCksum);
-      }
-      if( blob_compare(&fileCksum, &origCksum)==0 ) chnged = 0;
-      blob_reset(&origCksum);
-      blob_reset(&fileCksum);
+      if( hname_verify_file_hash(zName, zUuid, nUuid) ) chnged = 0;
     }else if( (chnged==0 || chnged==2 || chnged==4)
            && (useMtime==0 || currentMtime!=oldMtime) ){
       /* For files that were formerly believed to be unchanged or that were
       ** changed by merging, if their mtime changes, or unconditionally
-      ** if --sha1sum is used, check to see if they have been edited by
-      ** looking at their SHA1 sum */
+      ** if --hash is used, check to see if they have been edited by
+      ** looking at their artifact hashes */
+      const char *zUuid = db_column_text(&q, 5);
+      int nUuid = db_column_bytes(&q, 5);
       assert( origSize==currentSize );
-      db_ephemeral_blob(&q, 5, &origCksum);
-      if( sha1sum_file(zName, &fileCksum) ){
-        blob_zero(&fileCksum);
-      }
-      if( blob_compare(&fileCksum, &origCksum) ){
-        chnged = 1;
-      }
-      blob_reset(&origCksum);
-      blob_reset(&fileCksum);
+      if( !hname_verify_file_hash(zName, zUuid, nUuid) ) chnged = 1;
     }
     if( (cksigFlags & CKSIG_SETMTIME) && (chnged==0 || chnged==2 || chnged==4) ){
       i64 desiredMtime;
