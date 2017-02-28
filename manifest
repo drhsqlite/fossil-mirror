@@ -1,5 +1,5 @@
-C Remove\sreferences\sto\sSHA1\shashing\sfrom\sthe\sstructural\sartifact\sparser.
-D 2017-02-28T20:28:47.603
+C Remove\sa\sreference\sto\ssha1sum\sfrom\sthe\spre-commit\sverification\slogic.
+D 2017-02-28T20:43:45.257
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -528,7 +528,7 @@ F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c 1d31844a9e48e2ab515586bf54ecc4b30b47d5b5
 F src/utf8.c 9f458b9698fc928cc21e375538f268651d1d22a2
 F src/util.c 9a3cc502aa6ae3bc19831e5f553cd346ec154b5c
-F src/verify.c b2c3fb3ac0ff8c7d13a70e499b91905d53f94a21
+F src/verify.c 4f377d99d08ff5e1c7618ac74ec0f8491d04bb39
 F src/vfile.c 64d624534dd5ad2d19ad73e3b8deed24e929a6e0
 F src/wiki.c 9482a4ef96942921b5173a44fda320f8596c9cc5
 F src/wikiformat.c 1616c95201d38f46c67722a86c880e508b042aad
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ac279fa0190cd912905d17b8c7b749904ae0b8cf
-R 6c932c76ede8876a234fa4484c89aa81
+P 9f17d77ada4dc66b16b1a3512c0868dc3bb3e536
+R 0792ffb004fbb45e45cff388e59cd7c3
 U drh
-Z b0b90eab3c90e13ef86c073d0d04351d
+Z 13ce1c1175afad2547d05a45727a32cc
