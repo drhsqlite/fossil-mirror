@@ -329,22 +329,23 @@ static char next_card(ManifestText *p){
 ** as string terminators so that blob should not be used again.
 **
 ** Return a pointer to an allocated Manifest object if the content
-** really is a control file of some kind.  This object needs to be
-** freed by a subsequent call to manifest_destroy().  Return NULL
-** if there are syntax errors.
+** really is a structural artifact of some kind.  The returned Manifest 
+** object needs to be freed by a subsequent call to manifest_destroy().
+** Return NULL if there are syntax errors or if the input blob does
+** not describe a valid structural artifact.
 **
-** This routine is strict about the format of a control file.
+** This routine is strict about the format of a structural artifacts.
 ** The format must match exactly or else it is rejected.  This
-** rule minimizes the risk that a content file will be mistaken
-** for a control file simply because they look the same.
+** rule minimizes the risk that a content artifact will be mistaken
+** for a structural artifact simply because they look the same.
 **
 ** The pContent is reset.  If a pointer is returned, then pContent will
 ** be reset when the Manifest object is cleared.  If NULL is
 ** returned then the Manifest object is cleared automatically
 ** and pContent is reset before the return.
 **
-** The entire file can be PGP clear-signed.  The signature is ignored.
-** The file consists of zero or more cards, one card per line.
+** The entire input blob can be PGP clear-signed.  The signature is ignored.
+** The artifact consists of zero or more cards, one card per line.
 ** (Except: the content of the W card can extend of multiple lines.)
 ** Each card is divided into tokens by a single space character.
 ** The first token is a single upper-case letter which is the card type.
@@ -363,7 +364,6 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   char *zUuid;
   int sz = 0;
   int isRepeat, hasSelfRefTag = 0;
-  Blob bHname = BLOB_INITIALIZER;
   static Bag seen;
   const char *zErr = 0;
 
@@ -376,7 +376,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     bag_insert(&seen, rid);
   }
 
-  /* Every control artifact ends with a '\n' character.  Exit early
+  /* Every structural artifact ends with a '\n' character.  Exit early
   ** if that is not the case for this artifact.
   */
   if( !isRepeat ) g.parseCnt[0]++;
@@ -407,11 +407,6 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     blob_appendf(pErr, "incorrect Z-card cksum");
     return 0;
   }
-
-  /* Store the artifact hash (before modifying the blob) only for error
-  ** reporting purposes.
-  */
-  sha1sum_blob(pContent, &bHname);
 
   /* Allocate a Manifest object to hold the parsed control artifact.
   */
@@ -952,13 +947,15 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   }
   md5sum_init();
   if( !isRepeat ) g.parseCnt[p->type]++;
-  blob_reset(&bHname);
   return p;
 
 manifest_syntax_error:
-  if(bHname.nUsed){
-    blob_appendf(pErr, "manifest [%s] ", blob_str(&bHname));
-    blob_reset(&bHname);
+  {
+    char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+    if( zUuid ){
+      blob_appendf(pErr, "manifest [%s] ", zUuid);
+      fossil_free(zUuid);
+    }
   }
   if( zErr ){
     blob_appendf(pErr, "line %d: %s", lineNo, zErr);

@@ -1,5 +1,5 @@
-C The\svfile.c\smodules\suses\sthe\sdisplay\shash\sto\sverify\swhether\sor\snot\sfiles\nhave\schanged\son\sdisk.
-D 2017-02-28T20:16:59.995
+C Remove\sreferences\sto\sSHA1\shashing\sfrom\sthe\sstructural\sartifact\sparser.
+D 2017-02-28T20:28:47.603
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -467,7 +467,7 @@ F src/main.mk a983bacfa472f84ecc47111afc7573cc5341fd67
 F src/makeheaders.c cbbebae48e377db66e648af76a7aeea63c9bc523
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl 89f0b5c71ea4384d3fdbea75d337edae0ce5ffb2
-F src/manifest.c 7d3436348bb87d190a0b0c2bff738adb6c050aeb
+F src/manifest.c bf625f198ff0b473b368139dcf3a4ed4bf91c25c
 F src/markdown.c 20bb4755f258601e4e3e5274ea117fc7c8b1ccf7
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
 F src/markdown_html.c 5c7c2d2356e03a4456932c5fdef9aef836a379a5
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9a8986b791ca171edc1fb3275857700c31448247
-R 3f448855c7117d9d20019cb833741a4d
+P ac279fa0190cd912905d17b8c7b749904ae0b8cf
+R 6c932c76ede8876a234fa4484c89aa81
 U drh
-Z c7bbd2ffb127479913695951f611322c
+Z b0b90eab3c90e13ef86c073d0d04351d
