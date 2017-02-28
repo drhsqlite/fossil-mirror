@@ -723,19 +723,20 @@ static void request_phantoms(Xfer *pXfer, int maxReq){
 }
 
 /*
-** Compute an SHA1 hash on the tail of pMsg.  Verify that it matches the
+** Compute an hash on the tail of pMsg.  Verify that it matches the
 ** the hash given in pHash.  Return non-zero for an error and 0 on success.
+**
+** The type of hash computed (SHA1, SHA3-224, SHA3-256) is determined by
+** the length of the input hash in pHash.
 */
 static int check_tail_hash(Blob *pHash, Blob *pMsg){
   Blob tail;
   Blob h2;
   int rc;
   blob_tail(pMsg, &tail);
-  sha1sum_blob(&tail, &h2);
-  rc = blob_compare(pHash, &h2);
-  blob_reset(&h2);
+  rc = hname_verify_hash(&tail, blob_buffer(pHash), blob_size(pHash));
   blob_reset(&tail);
-  return rc;
+  return rc==HNAME_ERROR;
 }
 
 /*

@@ -1,5 +1,5 @@
-C Fix\sthe\sFOSSIL_VERSION_NUMBER\smacro\sso\sthat\sit\sis\salways\sof\sthe\sform\sXYYZZ\nX\sis\sthe\smajor\sversion\snumber\s(ex:\s2)\sand\sYY\sis\sthe\sminor\sversion\snumber\sand\nZZ\sis\sthe\spatch\snumber,\sor\s0.
-D 2017-02-28T22:34:47.987
+C Fix\sa\sbug\sin\sthe\sschema\sdefinition\sthat\sprevented\snew\srepositories\sfrom\nbeing\screated.\s\sOn\sthe\sserver\sside,\scheck\sthe\sauthentication\shash\susing\s\nthe\sappropriate\shash\salgorithm.
+D 2017-02-28T22:55:19.390
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -492,7 +492,7 @@ F src/rebuild.c fc5b206115b0816a5a9b628a730b120855ea6c08
 F src/regexp.c 11ed4c905c2e471efe9c1e9c4650004ad91d6ebb
 F src/report.c 3b627c4ba95b5260ded1cee2adc5ce6e28d791d2
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
-F src/schema.c e618e130166cb2881613cdf6ad305bea39c80969
+F src/schema.c 75e74678843f885f234018351c1c3a59ef980a59
 F src/search.c 82d3900b27d457fd1051d46acc5f4dcc74947960
 F src/setup.c 2d807dd6722ea73a8be13afe66a194cdc1e4b5ee
 F src/sha1.c 2d54962bf5fbf43e58087ddf843ebc42061b4046
@@ -535,7 +535,7 @@ F src/wikiformat.c 1616c95201d38f46c67722a86c880e508b042aad
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c a3970bdc0b05426cadadb1a62cd378e10f124062
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c a40f8553c1bf60a7bc7e3b9877e873612908130b
+F src/xfer.c 597a186752a7fc89f0f573db81012c4c7885b0f8
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 34f51a1acd869bfa063fafab28decfab34cb2a1a
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7ec259c3acff7fcad95740c2b7e1028488e4f107
-R 90e1affcc91097910c124ee437042250
+P 2dce6a921198736cd75a25edc1f3e4fa6233423e
+R dfa7c083a5b0c49044e1fbb7418773c5
 U drh
-Z 539635fbe021b584395ae77eced504f3
+Z 31a6fbd97fa8b0a41d9ee8018d0b5ff7
