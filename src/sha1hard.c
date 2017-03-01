@@ -59,7 +59,6 @@
 ** SOFTWARE.
 */
 
-#include "config.h"
 #include <string.h>
 #include <memory.h>
 #include <stdio.h>

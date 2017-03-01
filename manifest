@@ -1,5 +1,5 @@
-C Update\sthe\schange\slog.
-D 2017-03-01T21:53:44.502
+C Fix\sa\sredundant\s#include\sin\ssha1hard.c.
+D 2017-03-01T22:26:50.531
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -496,7 +496,7 @@ F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/search.c 82d3900b27d457fd1051d46acc5f4dcc74947960
 F src/setup.c 2d807dd6722ea73a8be13afe66a194cdc1e4b5ee
 F src/sha1.c 0014690a726b78e5354f3960cb8e30f61fe58961
-F src/sha1hard.c f3bf604ce0501784263ff7c7aea3cb57d6c4496f
+F src/sha1hard.c 9e0b735100613d7dbcd28600e425e5dd0cf0b67b
 F src/sha3.c 27842367fb9310b3bc6be590dc04f93132b3d3ff
 F src/shell.c a84e453c213f3e0d6935a582024da4e242f85a19
 F src/shun.c ef7af348255a4230350b65e941836577e4b0123a
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7c29bffcadc44f0ddbfb90b559921f34f3ec108d
-R d74d0d3eee192e9af288dfed30876fc3
+P c682faab38a79bd94033d6bd70000abe0b889e5b
+R b85cb2876db26fbe01ceacdafa13ddf3
 U drh
-Z a55d00cc911b67c136cf06a73e7c5339
+Z 5308bebc9717f9bd20662710264e9e63
