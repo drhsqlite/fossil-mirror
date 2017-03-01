@@ -1,5 +1,5 @@
-C Check\sfor\sname\saliases\swhen\scommitting.\s\sUse\sSHA3\shashes\sif\sthe\sversion\nnumber\sis\s2.1\sor\shigher.
-D 2017-03-01T14:10:56.003
+C Improvements\sto\sthe\sway\sthat\shash\sname\saliases\sare\sdetected\sin\nthe\scontent_put_ex()\sroutine.
+D 2017-03-01T14:55:35.447
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -409,7 +409,7 @@ F src/codecheck1.c 0e2c3cd4068f6de1df56fc19ec224c296f3c8eb4
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
 F src/config.h e0a8d96a16c6c45bf064f5d665320993e78cb6f1
 F src/configure.c aad25b170f047ec549f4da6afc61f81b90610d0d
-F src/content.c ccfa83a27e5a650e8e66b78a77185a77d39c1a0c
+F src/content.c 1b914339266b922051e424e32d02950be944cedc
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a5f4579d4db4485e76640cae83d74b678d156be9
-R 9ebded54b89d4495302992fd4f7a2b30
+P 104c8d3409b11eb37ec693e640ec74164811fd4b
+R 250662c07a846f3069b2a9b3abbcd733
 U drh
-Z a67a8fa1f8c6bcb3e1d6498ad56e3e93
+Z 6e009c796e52eda38fd69c9d9fda4576

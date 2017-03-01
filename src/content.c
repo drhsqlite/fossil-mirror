@@ -518,14 +518,16 @@ int content_put_ex(
   db_begin_transaction();
   if( zUuid==0 ){
     assert( nBlob==0 );
+    /* First check the auxiliary hash to see if there is already an artifact
+    ** that uses the auxiliary hash name */
     hname_hash(pBlob, 1, &hash);
     rid = fast_uuid_to_rid(blob_str(&hash));
-    blob_reset(&hash);
-    if( rid ){
-      db_end_transaction(0);
-      return rid;
+    if( rid==0 ){
+      /* No existing artifact with the auxiliary hash name.  Therefore, use
+      ** the primary hash name. */
+      blob_reset(&hash);
+      hname_hash(pBlob, 0, &hash);
     }
-    hname_hash(pBlob, 0, &hash);
   }else{
     blob_init(&hash, zUuid, -1);
   }
