@@ -757,7 +757,6 @@ static void request_phantoms(Xfer *pXfer, int maxReq){
 */
 static int check_tail_hash(Blob *pHash, Blob *pMsg){
   Blob tail;
-  Blob h2;
   int rc;
   blob_tail(pMsg, &tail);
   rc = hname_verify_hash(&tail, blob_buffer(pHash), blob_size(pHash));

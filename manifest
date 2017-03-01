@@ -1,5 +1,5 @@
-C The\sserver\sissues\san\serror\sasking\sthe\sclient\sto\supgrade\sif\sthe\sclient\sis\sless\nthan\sFossil\s2.0\sand\sSHA3\scontent\sis\sencountered.
-D 2017-03-01T17:48:07.062
+C Remove\sunused\slocal\svariables.
+D 2017-03-01T18:21:06.217
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -488,7 +488,7 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 1cf52da2f0f43868d026ff790a4eadbd984fd040
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f698cae20e3740796f6ffa65f69324f27f19d96c
-F src/rebuild.c 8a3171e38495a94b5bfa0e010824829d9740fd67
+F src/rebuild.c cfa98254edab99a917af8ca541d9988c5b169304
 F src/regexp.c 11ed4c905c2e471efe9c1e9c4650004ad91d6ebb
 F src/report.c 3b627c4ba95b5260ded1cee2adc5ce6e28d791d2
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
@@ -510,7 +510,7 @@ F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
 F src/style.c cf9edbf403e1df8e094e8a1d44d5dd9516046678
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 46fdc5d0e7c8d60bedae8ef4227692587813bc7f
-F src/tar.c ccd159559df6305cf484a8889ab6d6f35d788350
+F src/tar.c 7d2471e3ae0f6234ed1d5bb59f6e79151d9fa565
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
@@ -528,14 +528,14 @@ F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c 1d31844a9e48e2ab515586bf54ecc4b30b47d5b5
 F src/utf8.c 9f458b9698fc928cc21e375538f268651d1d22a2
 F src/util.c 9a3cc502aa6ae3bc19831e5f553cd346ec154b5c
-F src/verify.c 4f377d99d08ff5e1c7618ac74ec0f8491d04bb39
-F src/vfile.c 64d624534dd5ad2d19ad73e3b8deed24e929a6e0
+F src/verify.c 5799825d086464bb9e19e69ffeec84a710d1681b
+F src/vfile.c b7e3d918b22d9ff7dde55f0a2f01e6c6474066eb
 F src/wiki.c 9482a4ef96942921b5173a44fda320f8596c9cc5
 F src/wikiformat.c 1616c95201d38f46c67722a86c880e508b042aad
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c a3970bdc0b05426cadadb1a62cd378e10f124062
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c e3b22dc54ea42e3b489e200d67ffd4b900ad4b23
+F src/xfer.c 0a5f4e054b019d313e2e52225e70da025b13eee5
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 34f51a1acd869bfa063fafab28decfab34cb2a1a
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 26dac28eec3dddb11833daf202715c95827a3bc0
-R 351d74061363924f6b6bd1015a5de368
+P a13738764b3599e89d75c382ce07a4fac9df52f3
+R 6353311094a73abc0f5fbd7ac0af7b82
 U drh
-Z 58168d172fd0a3f79a622a90beca9c18
+Z 5ffb9d36a7bb9bbb57858ae2145c4673

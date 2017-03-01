@@ -173,7 +173,6 @@ int load_vfile_from_rid(int vid){
 void vfile_check_signature(int vid, unsigned int cksigFlags){
   int nErr = 0;
   Stmt q;
-  Blob fileCksum, origCksum;
   int useMtime = (cksigFlags & CKSIG_HASH)==0
                     && db_get_boolean("mtime-changes", 1);
 
