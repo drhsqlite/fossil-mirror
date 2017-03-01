@@ -1,5 +1,5 @@
-C Show\son\sthe\sthe\sfirst\s40\scharacters\sof\sSHA3\shashes\sin\sthe\s"fossil\sstatus"\ncommand,\sand\ssimilar,\sto\savoid\soverflowing\sthe\s80-character\swidth\sof\sa\nstandard\sTTY\swindow.
-D 2017-03-01T17:11:54.011
+C Show\sthe\scorrect\shash\salgorithm\sname\sin\sthe\sOverview\ssection\sof\sthe\s/info\nwebpage.\s\s(Originally\scommitted\sto\sthe\swrong\sbranch.)
+D 2017-03-01T17:14:48.657
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -433,13 +433,13 @@ F src/fusefs.c c774c78b274375f42653c71d0b6c1062695bb4da
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 066169948d671628a648bd0e622ec9487e258195
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
-F src/hname.c a1136cbb853013fe37d37b6c923e7c43dca9bc83
+F src/hname.c 786ed0aaf8ba2f8abc64e43b2ae8c4a1edead2ef
 F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c 1c8c9a6f994826b2a129847aa7b652a55a771c99
-F src/info.c edde6eaaafc6cad2078cfd646194efaedd92e390
+F src/info.c 41b0b0c411516623b09a22a5252b7914786bd7f7
 F src/json.c f5b7fdcda3a1896153974769be00bae833bc476b
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c 7c7e2c63fd1cac2ca85aa657a7ae04d91a1bdc08
@@ -785,7 +785,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fd9b7bd982f10b63fdd7f5bb536299a976d2099a
-R 169cedacc570e3187df0445cfe437e65
+P 5c87495e424da2c6b10abc5694a7c6c9b973ee35
+Q +92fb97609a0788badbe4a66d165e05c177322dfb
+R 2be5f5265c928d58a92147c2bd8fdc2b
 U drh
-Z 8f989daf575b3c7f42ef312302757ee5
+Z a921418dd3b25e93af3c3c4f90820432
