@@ -515,9 +515,17 @@ int content_put_ex(
   assert( g.repositoryOpen );
   assert( pBlob!=0 );
   assert( srcId==0 || zUuid!=0 );
+  db_begin_transaction();
   if( zUuid==0 ){
     assert( nBlob==0 );
-    sha1sum_blob(pBlob, &hash);
+    hname_hash(pBlob, 1, &hash);
+    rid = fast_uuid_to_rid(blob_str(&hash));
+    blob_reset(&hash);
+    if( rid ){
+      db_end_transaction(0);
+      return rid;
+    }
+    hname_hash(pBlob, 0, &hash);
   }else{
     blob_init(&hash, zUuid, -1);
   }
@@ -529,7 +537,6 @@ int content_put_ex(
       size = delta_output_size(blob_buffer(pBlob), size);
     }
   }
-  db_begin_transaction();
 
   /* Check to see if the entry already exists and if it does whether
   ** or not the entry is a phantom

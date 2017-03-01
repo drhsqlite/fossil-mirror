@@ -44,6 +44,11 @@
 #define HNAME_LEN_SHA1   40
 #define HNAME_LEN_K256   64
 
+/*
+** The number of distinct hash algorithms:
+*/
+#define HNAME_COUNT 2     /* Just SHA1 and SHA3-256. Let's keep it that way! */
+
 #endif /* INTERFACE */
 
 /*
@@ -123,4 +128,30 @@ int hname_verify_file_hash(const char *zFile, const char *zHash, int nHash){
     }
   }
   return id;
+}
+
+/*
+** Compute a hash on blob pContent.  Write the hash into blob pHashOut.
+** This routine assumes that pHashOut is uninitialized.
+**
+** The preferred hash is used for iHType==0, and various alternative hashes
+** are used for iHType>0 && iHType<NHAME_COUNT.
+*/
+void hname_hash(const Blob *pContent, unsigned int iHType, Blob *pHashOut){
+#if RELEASE_VERSION_NUMBER>=20100
+  /* For Fossil 2.1 and later, the preferred hash algorithm is SHA3-256 and
+  ** SHA1 is the secondary hash algorithm. */
+  switch( iHType ){
+    case 0:  sha3sum_blob(pContent, 256, pHashOut); break;
+    case 1:  sha1sum_blob(pContent, pHashOut);      break;
+  }
+#else
+  /* Prior to Fossil 2.1, the preferred hash algorithm is SHA1 (for backwards
+  ** compatibility with Fossil 1.x) and SHA3-256 is the only auxiliary
+  ** algorithm */
+  switch( iHType ){
+    case 0:  sha1sum_blob(pContent, pHashOut);      break;
+    case 1:  sha3sum_blob(pContent, 256, pHashOut); break;
+  }
+#endif
 }

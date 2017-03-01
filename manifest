@@ -1,5 +1,5 @@
-C Send\sthe\s"pragma\sclient-version"\scommand\sfrom\sthe\sclient\sand\sparse\sit\son\sthe\nserver.
-D 2017-03-01T12:38:46.219
+C Check\sfor\sname\saliases\swhen\scommitting.\s\sUse\sSHA3\shashes\sif\sthe\sversion\nnumber\sis\s2.1\sor\shigher.
+D 2017-03-01T14:10:56.003
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -409,7 +409,7 @@ F src/codecheck1.c 0e2c3cd4068f6de1df56fc19ec224c296f3c8eb4
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
 F src/config.h e0a8d96a16c6c45bf064f5d665320993e78cb6f1
 F src/configure.c aad25b170f047ec549f4da6afc61f81b90610d0d
-F src/content.c 54d00b5f0e8700e1f05e8eb3878c7505f52f2fd2
+F src/content.c ccfa83a27e5a650e8e66b78a77185a77d39c1a0c
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
@@ -433,7 +433,7 @@ F src/fusefs.c 3b88dca535a2932a7d95e165b4ab13d44dd2477a
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 51a4ef3f3f5ad77fa47cc2aa8f0aec02f259c1bc
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
-F src/hname.c f290a9dd4a3475a2b75b2def2833c13c1030000a
+F src/hname.c a1136cbb853013fe37d37b6c923e7c43dca9bc83
 F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
@@ -496,7 +496,7 @@ F src/schema.c 75e74678843f885f234018351c1c3a59ef980a59
 F src/search.c 82d3900b27d457fd1051d46acc5f4dcc74947960
 F src/setup.c 2d807dd6722ea73a8be13afe66a194cdc1e4b5ee
 F src/sha1.c 2d54962bf5fbf43e58087ddf843ebc42061b4046
-F src/sha3.c 91bce9e473ba501c327cdca9e9397a2a632bbded
+F src/sha3.c 27842367fb9310b3bc6be590dc04f93132b3d3ff
 F src/shell.c a84e453c213f3e0d6935a582024da4e242f85a19
 F src/shun.c c7a69759ea1b7ee18ddaae44364699d2128c53f6
 F src/sitemap.c b7c376b21d29322741c804e1f762b34aedb98ad1
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c88662873f2a3a5e7b8ce61611e5cd12144e4a7e
-R 0e3bfe826a4d48d2fe14a2ad4172409e
+P a5f4579d4db4485e76640cae83d74b678d156be9
+R 9ebded54b89d4495302992fd4f7a2b30
 U drh
-Z 1cdcbcf6fe4646e968e9995763711845
+Z a67a8fa1f8c6bcb3e1d6498ad56e3e93
