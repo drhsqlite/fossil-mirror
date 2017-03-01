@@ -349,7 +349,7 @@ static int purge_extract_item(
 ){
   Stmt q;
   int srcid;
-  Blob h1, h2, x;
+  Blob h1, x;
   static Bag busy;
 
   db_prepare(&q, "SELECT uuid, srcid, data FROM purgeitem"
@@ -378,13 +378,10 @@ static int purge_extract_item(
   bag_remove(&busy, piid);
   blob_zero(&h1);
   db_column_blob(&q, 0, &h1);
-  sha1sum_blob(pOut, &h2);
-  if( blob_compare(&h1, &h2)!=0 ){
-    fossil_fatal("SHA1 hash mismatch - wanted %s, got %s",
-                 blob_str(&h1), blob_str(&h2));
+  if( hname_verify_hash(pOut, blob_buffer(&h1), blob_size(&h1))==0 ){
+    fossil_fatal("incorrect artifact hash on %b", &h1);
   }
   blob_reset(&h1);
-  blob_reset(&h2);
   db_finalize(&q);
   return 0;
 }
@@ -413,7 +410,7 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
      iSrc
   );
   while( db_step(&q)==SQLITE_ROW ){
-    Blob h1, h2, c1, c2;
+    Blob h1, c1, c2;
     int isPriv, rid;
     blob_zero(&h1);
     db_column_blob(&q, 0, &h1);
@@ -427,12 +424,9 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
     }else{
       c2 = c1;
     }
-    sha1sum_blob(&c2, &h2);
-    if( blob_compare(&h1, &h2)!=0 ){
-      fossil_fatal("SHA1 hash mismatch - wanted %s, got %s",
-                   blob_str(&h1), blob_str(&h2));
+    if( hname_verify_hash(&c2, blob_buffer(&h1), blob_size(&h1))==0 ){
+      fossil_fatal("incorrect hash on %b", &h1);
     }
-    blob_reset(&h2);
     isPriv = db_column_int(&q, 2);
     rid = content_put_ex(&c2, blob_str(&h1), 0, 0, isPriv);
     if( rid==0 ){
