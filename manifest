@@ -1,5 +1,5 @@
-C The\ssmallest\sSHA3\shash\ssize\sis\s224\sbits,\snot\s228\sbits.
-D 2017-02-27T14:46:01.696
+C On\sa\scheck-out\sthe\smanifest.uuid\sfile\sis\sdetermined\sby\sthe\sdisplay\sname,\snot\nthe\sSHA1\shash\sof\sthe\smanifest.
+D 2017-03-01T00:25:20.095
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -402,7 +402,7 @@ F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c 0fe6520c4eeedee87cab271f32943a96382828c1
 F src/checkin.c fe3714c6c26f87650582b7285c6340e6e4b35184
-F src/checkout.c 083ec4f2ccd7d9df27dbb94d90008088eb8c4340
+F src/checkout.c ad202f9c6585a8e6d5418ff733f7349f652e9b05
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
 F src/codecheck1.c 0e2c3cd4068f6de1df56fc19ec224c296f3c8eb4
@@ -784,7 +784,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ccdafa2a93e7bcefa1b4d0ea7474f9ce84c690f2
-R 0d29900f4460354986d265360bd63fc3
+P 5ed8477b6c65b3286a14b92abb9c925d7a63ccf2
+R 73c21fbbed81f61b6db49325257641d8
 U drh
-Z 27474749a32185a2ea7899aaf10a5763
+Z c05dba838455c080033dfb4781b15ab9
