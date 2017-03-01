@@ -78,7 +78,7 @@ void stat_page(void){
     style_submenu_element("Web-Cache", "cachestat");
   }
   style_submenu_element("Activity Reports", "reports");
-  style_submenu_element("SHA1 Collisions", "hash-collisions");
+  style_submenu_element("Hash Collisions", "hash-collisions");
   if( sqlite3_compileoption_used("ENABLE_DBSTAT_VTAB") ){
     style_submenu_element("Table Sizes", "repo-tabsize");
   }

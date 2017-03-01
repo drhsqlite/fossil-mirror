@@ -1,8 +1,11 @@
 <title>Change Log</title>
 
-<a name='v1_38'></a>
-<h2>Changes for Version 1.38 (2017-??-??)</h2>
+<a name='v2_0'></a>
+<h2>Changes for Version 2.0 (2017-03-??)</h2>
 
+  *  Added support for SHA3 hashes used as 
+     [./fileformat.wiki#names|artifact names].
+  *  Added support for the [/help?cmd=sha3sum|sha3sum] command.
   *  Update the built-in SQLite to version 3.17.0.
 
 <a name='v1_37'></a>

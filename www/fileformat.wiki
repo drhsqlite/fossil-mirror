@@ -11,10 +11,15 @@ searchable, and extensible by people not yet born.
 The global state of a fossil repository is an unordered
 set of <i>artifacts</i>.
 An artifact might be a source code file, the text of a wiki page,
-part of a trouble ticket, or one of several special control artifacts
-used to show the relationships between other artifacts within the
-project.  Each artifact is normally represented on disk as a separate
-file.  Artifacts can be text or binary.
+part of a trouble ticket, a description of a check-in including all
+the files in that check-in with the check-in comment and so forth.
+Artifacts are broadly grouped into two types: content artifacts and
+structural artifacts.  Content artifacts are the raw project source-code
+files that are checked into the repository.  Structural artifacts have
+special formatting rules and are used to show the relationships between
+other artifacts in the repository.  It is possible for an artifact to
+be both a structure artifact and a content artifact, though this is
+rare. Artifacts can be text or binary.
 
 In addition to the global state,
 each fossil repository also contains local state.
@@ -29,14 +34,41 @@ The local state is not composed of artifacts and is not intended to be enduring.
 This document is concerned with global state only.  Local state is only
 mentioned here in order to distinguish it from global state.
 
-Each artifact in the repository is named by its SHA1 hash.
-No prefixes or meta information is added to an artifact before
-its hash is computed.  The name of an artifact in the repository
-is exactly the same SHA1 hash that is computed by sha1sum
-on the file as it exists in your source tree.</p>
+<a name="names"></a>
+<h2>1.0 Artifact Names</h2>
 
-Some artifacts have a particular format which gives them special
-meaning to fossil.  Fossil recognizes:
+Each artifact in the repository is named by a hash of its content.
+No prefixes, suffixes, or other information is added to an artifact before
+the hash is computed.  The artifact name is just the (lower-case
+hexadecimal) hash of the raw artifact.
+
+Fossil supports multiple hash algorithms including SHA1 and various
+lengths of SHA3.  Because an artifact can be hashed using multiple algorithms,
+a single artifact can have multiple names.  Usually, Fossil knows
+each artifact by just a single name called the "display name".  But it is
+possible for Fossil to know an artifact by multiple names from different
+hashes.  In that case, Fossil uses the display name for output, but continues
+to accept the alternative names as command-line arguments or as parameters to
+webpage URLs.
+
+When referring to artifacts in using tty commands or webpage URLs, it is 
+sufficient to specify a unique prefix for the artifact name.  If the input
+prefix is not unique, Fossil will show an error.  Within a structural
+artifact, however, all references to other artifacts must be the complete
+hash.
+
+Prior to Fossil version 2.0, all names were formed from the SHA1 hash of
+the artifact.  The key innovation in Fossil 2.0 was adding support for
+alternative hash algorithms.
+
+<a name="structural"></a>
+<h2>2.0 Structural Artifacts</h2>
+
+A structural artifact is an artifact that has a particular format and
+that is used to define the relationships between other artifacts in the
+repository.
+Fossil recognizes the following kinds of structural
+artifacts:
 
 <ul>
 <li> [#manifest | Manifests] </li>
@@ -48,9 +80,21 @@ meaning to fossil.  Fossil recognizes:
 <li> [#event | TechNotes] </li>
 </ul>
 
-These seven artifact types are described in the following sections.
+These seven structural artifact types are described in subsections below.
 
-In the current implementation (as of 2009-01-25) the artifacts that
+Structural artifacts are ASCII text.  The artifact may be PGP clearsigned.
+After removal of the PGP clearsign header and suffix (if any) a structural
+artifact consists of one or more "cards" separated by a single newline
+(ASCII: 0x0a) character. Each card begins with a single
+character "card type".  Zero or more arguments may follow
+the card type.  All arguments are separated from each other
+and from the card-type character by a single space
+character.  There is no surplus white space between arguments
+and no leading or trailing whitespace except for the newline
+character that acts as the card separator.  All cards must be in strict
+lexicographical order.  There may not be any duplicate cards.
+
+In the current implementation (as of 2017-02-27) the artifacts that
 make up a fossil repository are stored as delta- and zlib-compressed
 blobs in an <a href="http://www.sqlite.org/">SQLite</a> database.  This
 is an implementation detail and might change in a future release.  For
@@ -60,39 +104,16 @@ is intended to be enduring.  The specifics of how artifacts are stored on
 disk, though stable, is not intended to live as long as the
 artifact format.
 
-All of the artifacts can be extracted from a Fossil repository using
-the "fossil deconstruct" command.
-
 <a name="manifest"></a>
-<h2>1.0 The Manifest</h2>
+<h3>2.1 The Manifest</h3>
 
-A manifest defines a check-in or version of the project
-source tree.  The manifest contains a list of artifacts for
+A manifest defines a check-in.
+A manifest contains a list of artifacts for
 each file in the project and the corresponding filenames, as
-well as information such as parent check-ins, the name of the
+well as information such as parent check-ins, the username of the
 programmer who created the check-in, the date and time when
 the check-in was created, and any check-in comments associated
 with the check-in.
-
-Any artifact in the repository that follows the syntactic rules
-of a manifest is a manifest.  Note that a manifest can
-be both a real manifest and also a content file, though this
-is rare.
-
-A manifest is a text file.  Newline characters
-(ASCII 0x0a) separate the file into "cards".
-Each card begins with a single
-character "card type".  Zero or more arguments may follow
-the card type.  All arguments are separated from each other
-and from the card-type character by a single space
-character.  There is no surplus white space between arguments
-and no leading or trailing whitespace except for the newline
-character that acts as the card separator.
-
-All cards of the manifest occur in strict sorted lexicographical order.
-No card may be duplicated.
-The entire manifest may be PGP clear-signed, but otherwise it
-may contain no additional text or data beyond what is described here.
 
 Allowed cards in the manifest are as follows:
 
@@ -100,10 +121,10 @@ Allowed cards in the manifest are as follows:
 <b>B</b> <i>baseline-manifest</i><br>
 <b>C</b> <i>checkin-comment</i><br>
 <b>D</b> <i>time-and-date-stamp</i><br>
-<b>F</b> <i>filename</i> ?<i>SHA1-hash</i>? ?<i>permissions</i>? ?<i>old-name</i>?<br>
+<b>F</b> <i>filename</i> ?<i>hash</i>? ?<i>permissions</i>? ?<i>old-name</i>?<br>
 <b>N</b> <i>mimetype</i><br>
-<b>P</b> <i>SHA1-hash</i>+<br>
-<b>Q</b> (<b>+</b>|<b>-</b>)<i>SHA1-hash</i> ?<i>SHA1-hash</i>?<br>
+<b>P</b> <i>artifact-hash</i>+<br>
+<b>Q</b> (<b>+</b>|<b>-</b>)<i>artifact-hash</i> ?<i>artifact-hash</i>?<br>
 <b>R</b> <i>repository-checksum</i><br>
 <b>T</b> (<b>+</b>|<b>-</b>|<b>*</b>)<i>tag-name</i> <b>*</b> ?<i>value</i>?<br>
 <b>U</b> <i>user-login</i><br>
@@ -147,7 +168,7 @@ or "." directories are allowed within the filename.  Space characters
 are escaped as in C-card comment text.  Backslash characters and
 newlines are not allowed within filenames.  The directory separator
 character is a forward slash (ASCII 0x2F).  The second argument to the
-F-card is the full 40-character lower-case hexadecimal SHA1 hash of
+F-card is the lower-case hexadecimal artifact hash of
 the content artifact.  The second argument is required for baseline
 manifests but is optional for delta manifests.  When the second
 argument to the F-card is omitted, it means that the file has been
@@ -169,10 +190,10 @@ is used.
 A manifest has zero or one P-cards.  Most manifests have one P-card.
 The P-card has a varying number of arguments that
 define other manifests from which the current manifest
-is derived.  Each argument is a 40-character lowercase
-hexadecimal SHA1 of a predecessor manifest.  All arguments
+is derived.  Each argument is a lowercase
+hexadecimal artifact hash of a predecessor manifest.  All arguments
 to the P-card must be unique within that card.
-The first argument is the SHA1 of the direct ancestor of the manifest.
+The first argument is the artifact hash of the direct ancestor of the manifest.
 Other arguments define manifests with which the first was
 merged to yield the current manifest.  Most manifests have
 a P-card with a single argument.  The first manifest in the
@@ -231,7 +252,8 @@ check-in comment argument to the C-card.
 A manifest must have a single Z-card as its last line.  The argument
 to the Z-card is a 32-character lowercase hexadecimal MD5 hash
 of all prior lines of the manifest up to and including the newline
-character that immediately precedes the "Z".  The Z-card is
+character that immediately precedes the "Z", excluding any PGP
+clear-signing prefix.  The Z-card is
 a sanity check to prove that the manifest is well-formed and
 consistent.
 
@@ -239,28 +261,13 @@ A sample manifest from Fossil itself can be seen
 [/artifact/28987096ac | here].
 
 <a name="cluster"></a>
-<h2>2.0 Clusters</h2>
+<h3>2.2 Clusters</h3>
 
 A cluster is an artifact that declares the existence of other artifacts.
 Clusters are used during repository synchronization to help
 reduce network traffic.  As such, clusters are an optimization and
 may be removed from a repository without loss or damage to the
 underlying project code.
-
-Clusters follow a syntax that is very similar to manifests.
-A cluster is a line-oriented text file.  Newline characters
-(ASCII 0x0a) separate the artifact into cards.  Each card begins with a single
-character "card type".  Zero or more arguments may follow
-the card type.  All arguments are separated from each other
-and from the card-type character by a single space
-character.  There is no surplus white space between arguments
-and no leading or trailing whitespace except for the newline
-character that acts as the card separator.
-All cards of a cluster occur in strict sorted lexicographical order.
-No card may be duplicated.
-The cluster may not contain additional text or data beyond
-what is described here.
-Unlike manifests, clusters are never PGP signed.
 
 Allowed cards in the cluster are as follows:
 
@@ -280,16 +287,10 @@ An example cluster from Fossil can be seen
 [/artifact/d03dbdd73a2a8 | here].
 
 <a name="ctrl"></a>
-<h2>3.0 Control Artifacts</h2>
+<h3>2.3 Control Artifacts</h3>
 
 Control artifacts are used to assign properties to other artifacts
-within the repository.  The basic format of a control artifact is
-the same as a manifest or cluster.  A control artifact is a text
-file divided into cards by newline characters.  Each card has a
-single-character card type followed by arguments.  Spaces separate
-the card type and the arguments.  No surplus whitespace is allowed.
-All cards must occur in strict lexicographical order.
-
+within the repository.
 Allowed cards in a control artifact are as follows:
 
 <blockquote>
@@ -340,12 +341,11 @@ An example control artifacts can be seen [/info/9d302ccda8 | here].
 
 
 <a name="wikichng"></a>
-<h2>4.0 Wiki Pages</h2>
+<h3>2.4 Wiki Pages</h3>
 
-A wiki page is an artifact with a format similar to manifests,
-clusters, and control artifacts.  The artifact is divided into
-cards by newline characters.  The format of each card is as in
-manifests, clusters, and control artifacts.  Wiki artifacts accept
+A wiki artifact defines a single version of a
+single wiki page.
+Wiki artifacts accept
 the following card types:
 
 <blockquote>
@@ -377,7 +377,7 @@ An example wiki artifact can be seen
 [/artifact?name=7b2f5fd0e0&txt=1 | here].
 
 <a name="tktchng"></a>
-<h2>5.0 Ticket Changes</h2>
+<h3>2.5 Ticket Changes</h3>
 
 A ticket-change artifact represents a change to a trouble ticket.
 The following cards are allowed on a ticket change artifact:
@@ -423,7 +423,7 @@ An example ticket-change artifact can be seen
 [/artifact/91f1ec6af053 | here].
 
 <a name="attachment"></a>
-<h2>6.0 Attachments</h2>
+<h3>2.6 Attachments</h3>
 
 An attachment artifact associates some other artifact that is the
 attachment (the source artifact) with a ticket or wiki page or
@@ -465,7 +465,7 @@ The Z card is required.
 
 
 <a name="event"></a>
-<h2>7.0 Technical Notes</h2>
+<h3>2.7 Technical Notes</h3>
 
 A technical note or "technote" artifact (formerly known as an "event" artifact)
 associates a timeline comment and a page of text
@@ -534,7 +534,7 @@ The Z card is the required checksum over the rest of the artifact.
 
 
 <a name="summary"></a>
-<h2>8.0 Card Summary</h2>
+<h2>3.0 Card Summary</h2>
 
 The following table summarizes the various kinds of cards that appear
 on Fossil artifacts. A blank entry means that combination of card and
@@ -741,12 +741,12 @@ or more such cards are required.
 
 
 <a name="addenda"></a>
-<h2>9.0 Addenda</h2>
+<h2>4.0 Addenda</h2>
 
 This section contains additional information which may be useful when
 implementing algorithms described above.
 
-<h3>R Card Hash Calculation</h3>
+<h3>4.1 R-Card Hash Calculation</h3>
 
 Given a manifest file named <tt>MF</tt>, the following Bash shell code
 demonstrates how to compute the value of the R card in that manifest.

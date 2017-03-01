@@ -23,72 +23,37 @@
 #include <errno.h>
 
 /*
-** Make changes to the stable part of the schema (the part that is not
-** simply deleted and reconstructed on a rebuild) to bring the schema
-** up to the latest.
+** Update the schema as necessary
 */
-static const char zSchemaUpdates1[] =
-@ -- Index on the delta table
-@ --
-@ CREATE INDEX IF NOT EXISTS delta_i1 ON delta(srcid);
-@
-@ -- Artifacts that should not be processed are identified in the
-@ -- "shun" table.  Artifacts that are control-file forgeries or
-@ -- spam or artifacts whose contents violate administrative policy
-@ -- can be shunned in order to prevent them from contaminating
-@ -- the repository.
-@ --
-@ -- Shunned artifacts do not exist in the blob table.  Hence they
-@ -- have not artifact ID (rid) and we thus must store their full
-@ -- UUID.
-@ --
-@ CREATE TABLE IF NOT EXISTS shun(
-@   uuid UNIQUE,          -- UUID of artifact to be shunned. Canonical form
-@   mtime INTEGER,        -- When added.  Seconds since 1970
-@   scom TEXT             -- Optional text explaining why the shun occurred
-@ );
-@
-@ -- Artifacts that should not be pushed are stored in the "private"
-@ -- table.
-@ --
-@ CREATE TABLE IF NOT EXISTS private(rid INTEGER PRIMARY KEY);
-@
-@ -- Some ticket content (such as the originators email address or contact
-@ -- information) needs to be obscured to protect privacy.  This is achieved
-@ -- by storing an SHA1 hash of the content.  For display, the hash is
-@ -- mapped back into the original text using this table.
-@ --
-@ -- This table contains sensitive information and should not be shared
-@ -- with unauthorized users.
-@ --
-@ CREATE TABLE IF NOT EXISTS concealed(
-@   hash TEXT PRIMARY KEY,    -- The SHA1 hash of content
-@   mtime INTEGER,            -- Time created.  Seconds since 1970
-@   content TEXT              -- Content intended to be concealed
-@ );
-;
-static const char zSchemaUpdates2[] =
-@ -- An entry in this table describes a database query that generates a
-@ -- table of tickets.
-@ --
-@ CREATE TABLE IF NOT EXISTS reportfmt(
-@    rn INTEGER PRIMARY KEY,  -- Report number
-@    owner TEXT,              -- Owner of this report format (not used)
-@    title TEXT UNIQUE,       -- Title of this report
-@    mtime INTEGER,           -- Time last modified.  Seconds since 1970
-@    cols TEXT,               -- A color-key specification
-@    sqlcode TEXT             -- An SQL SELECT statement for this report
-@ );
-;
-
 static void rebuild_update_schema(void){
-  int rc;
-  db_multi_exec("%s", zSchemaUpdates1 /*safe-for-%s*/);
-  db_multi_exec("%s", zSchemaUpdates2 /*safe-for-%s*/);
+  /* Verify that the PLINK table has a new column added by the
+  ** 2014-11-28 schema change.  Create it if necessary.  This code
+  ** can be removed in the future, once all users have upgraded to the
+  ** 2014-11-28 or later schema.
+  */
+  if( !db_table_has_column("repository","plink","baseid") ){
+    db_multi_exec(
+      "ALTER TABLE repository.plink ADD COLUMN baseid;"
+    );
+  }
 
-  rc = db_exists("SELECT 1 FROM sqlite_master"
-                 " WHERE name='user' AND sql GLOB '* mtime *'");
-  if( rc==0 ){
+  /* Verify that the MLINK table has the newer columns added by the
+  ** 2015-01-24 schema change.  Create them if necessary.  This code
+  ** can be removed in the future, once all users have upgraded to the
+  ** 2015-01-24 or later schema.
+  */
+  if( !db_table_has_column("repository","mlink","isaux") ){
+    db_begin_transaction();
+    db_multi_exec(
+      "ALTER TABLE repository.mlink ADD COLUMN pmid INTEGER DEFAULT 0;"
+      "ALTER TABLE repository.mlink ADD COLUMN isaux BOOLEAN DEFAULT 0;"
+    );
+    db_end_transaction(0);
+  }
+
+  /* Add the user.mtime column if it is missing. (2011-04-27)
+  */
+  if( !db_table_has_column("repository", "user", "mtime") ){
     db_multi_exec(
       "CREATE TEMP TABLE temp_user AS SELECT * FROM user;"
       "DROP TABLE user;"
@@ -111,18 +76,19 @@ static void rebuild_update_schema(void){
     );
   }
 
-  rc = db_exists("SELECT 1 FROM sqlite_master"
-                 " WHERE name='config' AND sql GLOB '* mtime *'");
-  if( rc==0 ){
+  /* Add the config.mtime column if it is missing.  (2011-04-27)
+  */
+  if( !db_table_has_column("repository", "config", "mtime") ){
     db_multi_exec(
       "ALTER TABLE config ADD COLUMN mtime INTEGER;"
       "UPDATE config SET mtime=now();"
     );
   }
 
-  rc = db_exists("SELECT 1 FROM sqlite_master"
-                 " WHERE name='shun' AND sql GLOB '* mtime *'");
-  if( rc==0 ){
+  /* Add the shun.mtime and shun.scom columns if they are missing.
+  ** (2011-04-27)
+  */
+  if( !db_table_has_column("repository", "shun", "mtime") ){
     db_multi_exec(
       "ALTER TABLE shun ADD COLUMN mtime INTEGER;"
       "ALTER TABLE shun ADD COLUMN scom TEXT;"
@@ -130,14 +96,27 @@ static void rebuild_update_schema(void){
     );
   }
 
-  rc = db_exists("SELECT 1 FROM sqlite_master"
-                 " WHERE name='reportfmt' AND sql GLOB '* mtime *'");
-  if( rc==0 ){
+  /* Add the reportfmt.mtime column if it is missing. (2011-04-27)
+  */
+  if( !db_table_has_column("repository", "reportfmt", "mtime") ){
+    static const char zCreateReportFmtTable[] =
+    @ -- An entry in this table describes a database query that generates a
+    @ -- table of tickets.
+    @ --
+    @ CREATE TABLE IF NOT EXISTS reportfmt(
+    @    rn INTEGER PRIMARY KEY,  -- Report number
+    @    owner TEXT,              -- Owner of this report format (not used)
+    @    title TEXT UNIQUE,       -- Title of this report
+    @    mtime INTEGER,           -- Time last modified.  Seconds since 1970
+    @    cols TEXT,               -- A color-key specification
+    @    sqlcode TEXT             -- An SQL SELECT statement for this report
+    @ );
+    ;
     db_multi_exec(
       "CREATE TEMP TABLE old_fmt AS SELECT * FROM reportfmt;"
       "DROP TABLE reportfmt;"
     );
-    db_multi_exec("%s", zSchemaUpdates2/*safe-for-%s*/);
+    db_multi_exec("%s", zCreateReportFmtTable/*safe-for-%s*/);
     db_multi_exec(
       "INSERT OR IGNORE INTO reportfmt(rn,owner,title,cols,sqlcode,mtime)"
         " SELECT rn, owner, title, cols, sqlcode, now() FROM old_fmt;"
@@ -147,13 +126,44 @@ static void rebuild_update_schema(void){
     );
   }
 
-  rc = db_exists("SELECT 1 FROM sqlite_master"
-                 " WHERE name='concealed' AND sql GLOB '* mtime *'");
-  if( rc==0 ){
+  /* Add the concealed.mtime column if it is missing. (2011-04-27)
+  */
+  if( !db_table_has_column("repository", "concealed", "mtime") ){
     db_multi_exec(
       "ALTER TABLE concealed ADD COLUMN mtime INTEGER;"
       "UPDATE concealed SET mtime=now();"
     );
+  }
+
+  /* Do the fossil-2.0 updates to the schema.  (2017-02-28)
+  */
+  rebuild_schema_update_2_0();
+}
+
+/*
+** Update the repository schema for Fossil version 2.0.  (2017-02-28)
+**   (1) Change the CHECK constraint on BLOB.UUID so that the length
+**       is greater than or equal to 40, not exactly equal to 40.
+*/
+void rebuild_schema_update_2_0(void){
+  char *z = db_text(0, "SELECT sql FROM repository.sqlite_master WHERE name='blob'");
+  if( z ){
+    /* Search for:  length(uuid)==40
+    **              0123456789 12345   */
+    int i;
+    for(i=10; z[i]; i++){
+      if( z[i]=='=' && strncmp(&z[i-6],"(uuid)==40",10)==0 ){
+        z[i] = '>';
+        db_multi_exec(
+           "PRAGMA writable_schema=ON;"
+           "UPDATE repository.sqlite_master SET sql=%Q WHERE name LIKE 'blob';"
+           "PRAGMA writable_schema=OFF;",
+           z
+        );
+        break;
+      }
+    }
+    fossil_free(z);
   }
 }
 
@@ -332,10 +342,11 @@ static void rebuild_tag_trunk(void){
 ** construct a sane repository.
 */
 int rebuild_db(int randomize, int doOut, int doClustering){
-  Stmt s;
+  Stmt s, q;
   int errCnt = 0;
   char *zTable;
   int incrSize;
+  Blob sql;
 
   bag_init(&bagDone);
   ttyOutput = doOut;
@@ -344,21 +355,23 @@ int rebuild_db(int randomize, int doOut, int doClustering){
     percent_complete(0);
   }
   rebuild_update_schema();
-  for(;;){
-    zTable = db_text(0,
-       "SELECT name FROM sqlite_master /*scan*/"
-       " WHERE type='table'"
-       " AND name NOT IN ('admin_log', 'blob','delta','rcvfrom','user',"
-                         "'config','shun','private','reportfmt',"
-                         "'concealed','accesslog','modreq',"
-                         "'purgeevent','purgeitem','unversioned')"
-       " AND name NOT GLOB 'sqlite_*'"
-       " AND name NOT GLOB 'fx_*'"
-    );
-    if( zTable==0 ) break;
-    db_multi_exec("DROP TABLE %Q", zTable);
-    free(zTable);
+  blob_init(&sql, 0, 0);
+  db_prepare(&q,
+     "SELECT name FROM sqlite_master /*scan*/"
+     " WHERE type='table'"
+     " AND name NOT IN ('admin_log', 'blob','delta','rcvfrom','user','alias',"
+                       "'config','shun','private','reportfmt',"
+                       "'concealed','accesslog','modreq',"
+                       "'purgeevent','purgeitem','unversioned')"
+     " AND name NOT GLOB 'sqlite_*'"
+     " AND name NOT GLOB 'fx_*'"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    blob_appendf(&sql, "DROP TABLE \"%w\";\n", db_column_text(&q,0));
   }
+  db_finalize(&q);
+  db_multi_exec("%s", blob_str(&sql)/*safe-for-%s*/);
+  blob_reset(&sql);
   db_multi_exec("%s", zRepositorySchema2/*safe-for-%s*/);
   ticket_create_table(0);
   shun_artifacts();
@@ -996,7 +1009,7 @@ void reconstruct_cmd(void) {
 ** This command exports all artifacts of a given repository and
 ** writes all artifacts to the file system. The DESTINATION directory
 ** will be populated with subdirectories AA and files AA/BBBBBBBBB.., where
-** AABBBBBBBBB.. is the 40 character artifact ID, AA the first 2 characters.
+** AABBBBBBBBB.. is the 40+ character artifact ID, AA the first 2 characters.
 ** If -L|--prefixlength is given, the length (default 2) of the directory
 ** prefix can be set to 0,1,..,9 characters.
 **

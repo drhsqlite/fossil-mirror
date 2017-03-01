@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -1488,30 +1488,10 @@ void db_open_repository(const char *zDbName){
                                    db_allow_symlinks_by_default());
   g.zAuxSchema = db_get("aux-schema","");
 
-  /* Verify that the PLINK table has a new column added by the
-  ** 2014-11-28 schema change.  Create it if necessary.  This code
-  ** can be removed in the future, once all users have upgraded to the
-  ** 2014-11-28 or later schema.
+  /* If the ALIAS table is not present, then some on-the-fly schema
+  ** updates might be required.
   */
-  if( !db_table_has_column("repository","plink","baseid") ){
-    db_multi_exec(
-      "ALTER TABLE repository.plink ADD COLUMN baseid;"
-    );
-  }
-
-  /* Verify that the MLINK table has the newer columns added by the
-  ** 2015-01-24 schema change.  Create them if necessary.  This code
-  ** can be removed in the future, once all users have upgraded to the
-  ** 2015-01-24 or later schema.
-  */
-  if( !db_table_has_column("repository","mlink","isaux") ){
-    db_begin_transaction();
-    db_multi_exec(
-      "ALTER TABLE repository.mlink ADD COLUMN pmid INTEGER DEFAULT 0;"
-      "ALTER TABLE repository.mlink ADD COLUMN isaux BOOLEAN DEFAULT 0;"
-    );
-    db_end_transaction(0);
-  }
+  rebuild_schema_update_2_0();   /* Do the Fossil-2.0 schema updates */
 }
 
 /*
@@ -2084,25 +2064,25 @@ LOCAL void file_is_selected(
 }
 
 /*
-** Convert the input string into an SHA1.  Make a notation in the
+** Convert the input string into a artifact hash.  Make a notation in the
 ** CONCEALED table so that the hash can be undo using the db_reveal()
 ** function at some later time.
 **
 ** The value returned is stored in static space and will be overwritten
 ** on subsequent calls.
 **
-** If zContent is already a well-formed SHA1 hash, then return a copy
+** If zContent is already a well-formed artifact hash, then return a copy
 ** of that hash, not a hash of the hash.
 **
 ** The CONCEALED table is meant to obscure email addresses.  Every valid
 ** email address will contain a "@" character and "@" is not valid within
-** an SHA1 hash so there is no chance that a valid email address will go
+** a SHA1 hash so there is no chance that a valid email address will go
 ** unconcealed.
 */
 char *db_conceal(const char *zContent, int n){
-  static char zHash[42];
+  static char zHash[HNAME_MAX+1];
   Blob out;
-  if( n==40 && validate16(zContent, n) ){
+  if( hname_validate(zContent, n) ){
     memcpy(zHash, zContent, n);
     zHash[n] = 0;
   }else{

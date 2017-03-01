@@ -1,4 +1,20 @@
 /*
+** Copyright (c) 2017 D. Richard Hipp
+**
+** This program is free software; you can redistribute it and/or
+** modify it under the terms of the Simplified BSD License (also
+** known as the "2-Clause License" or "FreeBSD License".)
+**
+** This program is distributed in the hope that it will be useful,
+** but without any warranty; without even the implied warranty of
+** merchantability or fitness for a particular purpose.
+**
+** Author contact information:
+**   drh@hwaci.com
+**   http://www.hwaci.com/drh/
+**
+*******************************************************************************
+**
 ** This file contains an implementation of SHA3 (Keccak) hashing.
 */
 #include "config.h"
@@ -403,7 +419,7 @@ static void SHA3Update(
   unsigned int i = 0;
 #if SHA3_BYTEORDER==1234
   if( (p->nLoaded % 8)==0 && ((aData - (const unsigned char*)0)&7)==0 ){
-    for(; i<nData-7; i+=8){
+    for(; i+7<nData; i+=8){
       p->u.s[p->nLoaded/8] ^= *(u64*)&aData[i];
       p->nLoaded += 8;
       if( p->nLoaded>=p->nRate ){
@@ -610,8 +626,8 @@ char *sha3sum(const char *zIn, int iSize){
 **
 ** Options:
 **
-**    --224        Compute a SHA3-224 hash (the default)
-**    --256        Compute a SHA3-256 hash
+**    --224        Compute a SHA3-224 hash
+**    --256        Compute a SHA3-256 hash (the default)
 **    --384        Compute a SHA3-384 hash
 **    --512        Compute a SHA3-512 hash
 **    --size N     An N-bit hash.  N must be a multiple of 32 between 128
@@ -621,7 +637,7 @@ void sha3sum_test(void){
   int i;
   Blob in;
   Blob cksum;
-  int iSize = 224;
+  int iSize = 256;
 
   if( find_option("224",0,0)!=0 ) iSize = 224;
   else if( find_option("256",0,0)!=0 ) iSize = 256;

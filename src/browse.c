@@ -317,7 +317,7 @@ struct FileTreeNode {
   FileTreeNode *pLastChild; /* Last child on the pChild list */
   char *zName;              /* Name of this entry.  The "tail" */
   char *zFullName;          /* Full pathname of this entry */
-  char *zUuid;              /* SHA1 hash of this file.  May be NULL. */
+  char *zUuid;              /* Artifact hash of this file.  May be NULL. */
   double mtime;             /* Modification time for this entry */
   unsigned nFullName;       /* Length of zFullName */
   unsigned iLevel;          /* Levels of parent directories */
@@ -347,7 +347,7 @@ struct FileTree {
 static void tree_add_node(
   FileTree *pTree,         /* Tree into which nodes are added */
   const char *zPath,       /* The full pathname of file to add */
-  const char *zUuid,       /* UUID of the file.  Might be NULL. */
+  const char *zUuid,       /* Hash of the file.  Might be NULL. */
   double mtime             /* Modification time for this entry */
 ){
   int i;
@@ -370,7 +370,7 @@ static void tree_add_node(
     int nByte;
     while( zPath[i] && zPath[i]!='/' ){ i++; }
     nByte = sizeof(*pNew) + i + 1;
-    if( zUuid!=0 && zPath[i]==0 ) nByte += UUID_SIZE+1;
+    if( zUuid!=0 && zPath[i]==0 ) nByte += HNAME_MAX+1;
     pNew = fossil_malloc( nByte );
     memset(pNew, 0, sizeof(*pNew));
     pNew->zFullName = (char*)&pNew[1];
@@ -379,7 +379,7 @@ static void tree_add_node(
     pNew->nFullName = i;
     if( zUuid!=0 && zPath[i]==0 ){
       pNew->zUuid = pNew->zFullName + i + 1;
-      memcpy(pNew->zUuid, zUuid, UUID_SIZE+1);
+      memcpy(pNew->zUuid, zUuid, strlen(zUuid)+1);
     }
     pNew->zName = pNew->zFullName + iStart;
     if( pTree->pLast ){

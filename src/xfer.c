@@ -56,7 +56,7 @@ struct Xfer {
 
 
 /*
-** The input blob contains a UUID.  Convert it into a record ID.
+** The input blob contains an artifact.  Convert it into a record ID.
 ** Create a phantom record if no prior record exists and
 ** phantomize is true.
 **
@@ -102,8 +102,8 @@ static void remote_has(int rid){
 **
 ** The file line is in one of the following two forms:
 **
-**      file UUID SIZE \n CONTENT
-**      file UUID DELTASRC SIZE \n CONTENT
+**      file HASH SIZE \n CONTENT
+**      file HASH DELTASRC SIZE \n CONTENT
 **
 ** The content is SIZE bytes immediately following the newline.
 ** If DELTASRC exists, then the CONTENT is a delta against the
@@ -124,25 +124,26 @@ static void xfer_accept_file(
   int n;
   int rid;
   int srcid = 0;
-  Blob content, hash;
+  Blob content;
   int isPriv;
+  Blob *pUuid;
 
   isPriv = pXfer->nextIsPrivate;
   pXfer->nextIsPrivate = 0;
   if( pXfer->nToken<3
    || pXfer->nToken>4
-   || !blob_is_uuid(&pXfer->aToken[1])
+   || !blob_is_hname(&pXfer->aToken[1])
    || !blob_is_int(&pXfer->aToken[pXfer->nToken-1], &n)
    || n<0
-   || (pXfer->nToken==4 && !blob_is_uuid(&pXfer->aToken[2]))
+   || (pXfer->nToken==4 && !blob_is_hname(&pXfer->aToken[2]))
   ){
     blob_appendf(&pXfer->err, "malformed file line");
     return;
   }
   blob_zero(&content);
-  blob_zero(&hash);
   blob_extract(pXfer->pIn, n, &content);
-  if( !cloneFlag && uuid_is_shunned(blob_str(&pXfer->aToken[1])) ){
+  pUuid = &pXfer->aToken[1];
+  if( !cloneFlag && uuid_is_shunned(blob_str(pUuid)) ){
     /* Ignore files that have been shunned */
     blob_reset(&content);
     return;
@@ -160,10 +161,10 @@ static void xfer_accept_file(
       srcid = 0;
       pXfer->nFileRcvd++;
     }
-    rid = content_put_ex(&content, blob_str(&pXfer->aToken[1]), srcid,
+    rid = content_put_ex(&content, blob_str(pUuid), srcid,
                          0, isPriv);
-    Th_AppendToList(pzUuidList, pnUuidList, blob_str(&pXfer->aToken[1]),
-                    blob_size(&pXfer->aToken[1]));
+    Th_AppendToList(pzUuidList, pnUuidList, blob_str(pUuid),
+                    blob_size(pUuid));
     remote_has(rid);
     blob_reset(&content);
     return;
@@ -172,10 +173,10 @@ static void xfer_accept_file(
     Blob src, next;
     srcid = rid_from_uuid(&pXfer->aToken[2], 1, isPriv);
     if( content_get(srcid, &src)==0 ){
-      rid = content_put_ex(&content, blob_str(&pXfer->aToken[1]), srcid,
+      rid = content_put_ex(&content, blob_str(pUuid), srcid,
                            0, isPriv);
-      Th_AppendToList(pzUuidList, pnUuidList, blob_str(&pXfer->aToken[1]),
-                      blob_size(&pXfer->aToken[1]));
+      Th_AppendToList(pzUuidList, pnUuidList, blob_str(pUuid),
+                      blob_size(pUuid));
       pXfer->nDanglingFile++;
       db_multi_exec("DELETE FROM phantom WHERE rid=%d", rid);
       if( !isPriv ) content_make_public(rid);
@@ -191,15 +192,11 @@ static void xfer_accept_file(
   }else{
     pXfer->nFileRcvd++;
   }
-  sha1sum_blob(&content, &hash);
-  if( !blob_eq_str(&pXfer->aToken[1], blob_str(&hash), -1) ){
-    blob_appendf(&pXfer->err,
-        "wrong hash on received artifact: expected %s but got %s",
-        blob_str(&pXfer->aToken[1]), blob_str(&hash));
+  if( hname_verify_hash(&content, blob_buffer(pUuid), blob_size(pUuid))==0 ){
+    blob_appendf(&pXfer->err, "wrong hash on received artifact: %b", pUuid);
   }
-  rid = content_put_ex(&content, blob_str(&hash), 0, 0, isPriv);
-  Th_AppendToList(pzUuidList, pnUuidList, blob_str(&hash), blob_size(&hash));
-  blob_reset(&hash);
+  rid = content_put_ex(&content, blob_str(pUuid), 0, 0, isPriv);
+  Th_AppendToList(pzUuidList, pnUuidList, blob_str(pUuid), blob_size(pUuid));
   if( rid==0 ){
     blob_appendf(&pXfer->err, "%s", g.zErrMsg);
     blob_reset(&content);
@@ -219,14 +216,14 @@ static void xfer_accept_file(
 **
 ** The file line is in one of the following two forms:
 **
-**      cfile UUID USIZE CSIZE \n CONTENT
-**      cfile UUID DELTASRC USIZE CSIZE \n CONTENT
+**      cfile HASH USIZE CSIZE \n CONTENT
+**      cfile HASH DELTASRC USIZE CSIZE \n CONTENT
 **
 ** The content is CSIZE bytes immediately following the newline.
 ** If DELTASRC exists, then the CONTENT is a delta against the
 ** content of DELTASRC.
 **
-** The original size of the UUID artifact is USIZE.
+** The original size of the HASH artifact is USIZE.
 **
 ** If any error occurs, write a message into pErr which has already
 ** be initialized to an empty string.
@@ -250,11 +247,11 @@ static void xfer_accept_compressed_file(
   pXfer->nextIsPrivate = 0;
   if( pXfer->nToken<4
    || pXfer->nToken>5
-   || !blob_is_uuid(&pXfer->aToken[1])
+   || !blob_is_hname(&pXfer->aToken[1])
    || !blob_is_int(&pXfer->aToken[pXfer->nToken-2], &szU)
    || !blob_is_int(&pXfer->aToken[pXfer->nToken-1], &szC)
    || szC<0 || szU<0
-   || (pXfer->nToken==5 && !blob_is_uuid(&pXfer->aToken[2]))
+   || (pXfer->nToken==5 && !blob_is_hname(&pXfer->aToken[2]))
   ){
     blob_appendf(&pXfer->err, "malformed cfile line");
     return;
@@ -299,7 +296,7 @@ static void xfer_accept_compressed_file(
 ** deleted, SIZE is zero, the HASH is "-", and the "\n CONTENT" is omitted.
 **
 ** SIZE is the number of bytes of CONTENT.  The CONTENT is uncompressed.
-** HASH is the SHA1 hash of CONTENT.
+** HASH is the artifact hash of CONTENT.
 **
 ** If the 0x0004 bit of FLAGS is set, that means the CONTENT is omitted.
 ** The sender might have omitted the content because it is too big to
@@ -312,7 +309,6 @@ static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
   int sz;                 /* The SIZE */
   int flags;              /* The FLAGS */
   Blob content;           /* The CONTENT */
-  Blob hash;              /* Hash computed from CONTENT to compare with HASH */
   Blob x;                 /* Compressed content */
   Stmt q;                 /* SQL statements for comparison and insert */
   int isDelete;           /* HASH is "-" indicating this is a delete */
@@ -323,7 +319,7 @@ static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
   if( pXfer->nToken==5
    || !blob_is_filename(&pXfer->aToken[1])
    || !blob_is_int64(&pXfer->aToken[2], &mtime)
-   || (!blob_eq(pHash,"-") && !blob_is_uuid(pHash))
+   || (!blob_eq(pHash,"-") && !blob_is_hname(pHash))
    || !blob_is_int(&pXfer->aToken[4], &sz)
    || !blob_is_int(&pXfer->aToken[5], &flags)
   ){
@@ -331,13 +327,11 @@ static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
     return;
   }
   blob_init(&content, 0, 0);
-  blob_init(&hash, 0, 0);
   blob_init(&x, 0, 0);
   if( sz>0 && (flags & 0x0005)==0 ){
     blob_extract(pXfer->pIn, sz, &content);
     nullContent = 0;
-    sha1sum_blob(&content, &hash);
-    if( blob_compare(&hash, pHash)!=0 ){
+    if( hname_verify_hash(&content, blob_buffer(pHash), blob_size(pHash))==0 ){
       blob_appendf(&pXfer->err, "in uvfile line, HASH does not match CONTENT");
       goto end_accept_unversioned_file;
     }
@@ -401,7 +395,6 @@ static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
 end_accept_unversioned_file:
   blob_reset(&x);
   blob_reset(&content);
-  blob_reset(&hash);
 }
 
 /*
@@ -417,7 +410,7 @@ static int send_delta_parent(
   int rid,                /* record id of the file to send */
   int isPrivate,          /* True if rid is a private artifact */
   Blob *pContent,         /* The content of the file to send */
-  Blob *pUuid             /* The UUID of the file to send */
+  Blob *pUuid             /* The HASH of the file to send */
 ){
   static const char *const azQuery[] = {
     "SELECT pid FROM plink x"
@@ -471,7 +464,7 @@ static int send_delta_native(
   Xfer *pXfer,            /* The transfer context */
   int rid,                /* record id of the file to send */
   int isPrivate,          /* True if rid is a private artifact */
-  Blob *pUuid             /* The UUID of the file to send */
+  Blob *pUuid             /* The HASH of the file to send */
 ){
   Blob src, delta;
   int size = 0;
@@ -506,7 +499,7 @@ static int send_delta_native(
 /*
 ** Send the file identified by rid.
 **
-** The pUuid can be NULL in which case the correct UUID is computed
+** The pUuid can be NULL in which case the correct hash is computed
 ** from the rid.
 **
 ** Try to send the file as a native delta if nativeDelta is true, or
@@ -730,19 +723,20 @@ static void request_phantoms(Xfer *pXfer, int maxReq){
 }
 
 /*
-** Compute an SHA1 hash on the tail of pMsg.  Verify that it matches the
+** Compute an hash on the tail of pMsg.  Verify that it matches the
 ** the hash given in pHash.  Return non-zero for an error and 0 on success.
+**
+** The type of hash computed (SHA1, SHA3-224, SHA3-256) is determined by
+** the length of the input hash in pHash.
 */
 static int check_tail_hash(Blob *pHash, Blob *pMsg){
   Blob tail;
   Blob h2;
   int rc;
   blob_tail(pMsg, &tail);
-  sha1sum_blob(&tail, &h2);
-  rc = blob_compare(pHash, &h2);
-  blob_reset(&h2);
+  rc = hname_verify_hash(&tail, blob_buffer(pHash), blob_size(pHash));
   blob_reset(&tail);
-  return rc;
+  return rc==HNAME_ERROR;
 }
 
 /*
@@ -1155,6 +1149,7 @@ void page_xfer(void){
   char **pzUuidList = 0;
   int *pnUuidList = 0;
   int uvCatalogSent = 0;
+  int clientVersion = 0;     /* Version number of the client */
 
   if( fossil_strcmp(PD("REQUEST_METHOD","POST"),"POST") ){
      fossil_redirect_home();
@@ -1200,8 +1195,8 @@ void page_xfer(void){
     if( blob_size(&xfer.line)==0 ) continue;
     xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken, count(xfer.aToken));
 
-    /*   file UUID SIZE \n CONTENT
-    **   file UUID DELTASRC SIZE \n CONTENT
+    /*   file HASH SIZE \n CONTENT
+    **   file HASH DELTASRC SIZE \n CONTENT
     **
     ** Accept a file from the client.
     */
@@ -1221,8 +1216,8 @@ void page_xfer(void){
       }
     }else
 
-    /*   cfile UUID USIZE CSIZE \n CONTENT
-    **   cfile UUID DELTASRC USIZE CSIZE \n CONTENT
+    /*   cfile HASH USIZE CSIZE \n CONTENT
+    **   cfile HASH DELTASRC USIZE CSIZE \n CONTENT
     **
     ** Accept a file from the client.
     */
@@ -1256,13 +1251,13 @@ void page_xfer(void){
       }
     }else
 
-    /*   gimme UUID
+    /*   gimme HASH
     **
     ** Client is requesting a file.  Send it.
     */
     if( blob_eq(&xfer.aToken[0], "gimme")
      && xfer.nToken==2
-     && blob_is_uuid(&xfer.aToken[1])
+     && blob_is_hname(&xfer.aToken[1])
     ){
       nGimme++;
       if( isPull ){
@@ -1284,14 +1279,14 @@ void page_xfer(void){
       send_unversioned_file(&xfer, blob_str(&xfer.aToken[1]), 0);
     }else
 
-    /*   igot UUID ?ISPRIVATE?
+    /*   igot HASH ?ISPRIVATE?
     **
     ** Client announces that it has a particular file.  If the ISPRIVATE
     ** argument exists and is non-zero, then the file is a private file.
     */
     if( xfer.nToken>=2
      && blob_eq(&xfer.aToken[0], "igot")
-     && blob_is_uuid(&xfer.aToken[1])
+     && blob_is_hname(&xfer.aToken[1])
     ){
       if( isPush ){
         if( xfer.nToken==2 || blob_eq(&xfer.aToken[2],"1")==0 ){
@@ -1309,12 +1304,11 @@ void page_xfer(void){
     **    push  SERVERCODE  PROJECTCODE
     **
     ** The client wants either send or receive.  The server should
-    ** verify that the project code matches.
+    ** verify that the project code matches.  The server code is ignored.
     */
     if( xfer.nToken==3
      && (blob_eq(&xfer.aToken[0], "pull") || blob_eq(&xfer.aToken[0], "push"))
-     && blob_is_uuid(&xfer.aToken[1])
-     && blob_is_uuid(&xfer.aToken[2])
+     && blob_is_hname(&xfer.aToken[2])
     ){
       const char *zPCode;
       zPCode = db_get("project-code", 0);
@@ -1537,6 +1531,14 @@ void page_xfer(void){
         xfer.resync = 0x7fffffff;
       }
 
+      /*   pragma client-version VERSION
+      **
+      ** Let the server know what version of Fossil is running on the client.
+      */
+      if( xfer.nToken>=3 && blob_eq(&xfer.aToken[1], "client-version") ){
+        clientVersion = atoi(blob_str(&xfer.aToken[2]));
+      }
+
       /*   pragma uv-hash HASH
       **
       ** The client wants to make sure that unversioned files are all synced.
@@ -1544,7 +1546,7 @@ void page_xfer(void){
       ** "uvigot" cards.
       */
       if( blob_eq(&xfer.aToken[1], "uv-hash")
-       && blob_is_uuid(&xfer.aToken[2])
+       && blob_is_hname(&xfer.aToken[2])
       ){
         if( !uvCatalogSent ){
           if( g.perm.Read && g.perm.WrUnver ){
@@ -1785,6 +1787,7 @@ int client_sync(
   /*
   ** Always begin with a clone, pull, or push message
   */
+  blob_appendf(&send, "pragma client-version %d\n", RELEASE_VERSION_NUMBER);
   if( syncFlags & SYNC_CLONE ){
     blob_appendf(&send, "clone 3 %d\n", cloneSeqno);
     syncFlags &= ~(SYNC_PUSH|SYNC_PULL);
@@ -1821,6 +1824,7 @@ int client_sync(
       "CREATE TEMP TABLE onremote(rid INTEGER PRIMARY KEY);"
     );
     manifest_crosslink_begin();
+
 
     /* Send back the most recently received cookie.  Let the server
     ** figure out if this is a cookie that it cares about.
@@ -2030,8 +2034,8 @@ int client_sync(
         }
       }
 
-      /*   file UUID SIZE \n CONTENT
-      **   file UUID DELTASRC SIZE \n CONTENT
+      /*   file HASH SIZE \n CONTENT
+      **   file HASH DELTASRC SIZE \n CONTENT
       **
       ** Receive a file transmitted from the server.
       */
@@ -2040,8 +2044,8 @@ int client_sync(
         nArtifactRcvd++;
       }else
 
-      /*   cfile UUID USIZE CSIZE \n CONTENT
-      **   cfile UUID DELTASRC USIZE CSIZE \n CONTENT
+      /*   cfile HASH USIZE CSIZE \n CONTENT
+      **   cfile HASH DELTASRC USIZE CSIZE \n CONTENT
       **
       ** Receive a compressed file transmitted from the server.
       */
@@ -2064,7 +2068,7 @@ int client_sync(
         }
       }else
 
-      /*   gimme UUID
+      /*   gimme HASH
       **
       ** Server is requesting a file.  If the file is a manifest, assume
       ** that the server will also want to know all of the content files
@@ -2072,7 +2076,7 @@ int client_sync(
       */
       if( blob_eq(&xfer.aToken[0], "gimme")
        && xfer.nToken==2
-       && blob_is_uuid(&xfer.aToken[1])
+       && blob_is_hname(&xfer.aToken[1])
       ){
         if( syncFlags & SYNC_PUSH ){
           int rid = rid_from_uuid(&xfer.aToken[1], 0, 0);
@@ -2080,7 +2084,7 @@ int client_sync(
         }
       }else
 
-      /*   igot UUID  ?PRIVATEFLAG?
+      /*   igot HASH  ?PRIVATEFLAG?
       **
       ** Server announces that it has a particular file.  If this is
       ** not a file that we have and we are pulling, then create a
@@ -2094,7 +2098,7 @@ int client_sync(
       */
       if( xfer.nToken>=2
        && blob_eq(&xfer.aToken[0], "igot")
-       && blob_is_uuid(&xfer.aToken[1])
+       && blob_is_hname(&xfer.aToken[1])
       ){
         int rid;
         int isPriv = xfer.nToken>=3 && blob_eq(&xfer.aToken[2],"1");
@@ -2128,7 +2132,7 @@ int client_sync(
        && blob_is_filename(&xfer.aToken[1])
        && blob_is_int64(&xfer.aToken[2], &mtime)
        && blob_is_int(&xfer.aToken[4], &size)
-       && (blob_eq(&xfer.aToken[3],"-") || blob_is_uuid(&xfer.aToken[3]))
+       && (blob_eq(&xfer.aToken[3],"-") || blob_is_hname(&xfer.aToken[3]))
       ){
         const char *zName = blob_str(&xfer.aToken[1]);
         const char *zHash = blob_str(&xfer.aToken[3]);
@@ -2190,7 +2194,7 @@ int client_sync(
       if( blob_eq(&xfer.aToken[0],"push")
        && xfer.nToken==3
        && (syncFlags & SYNC_CLONE)!=0
-       && blob_is_uuid(&xfer.aToken[2])
+       && blob_is_hname(&xfer.aToken[2])
       ){
         if( zPCode==0 ){
           zPCode = mprintf("%b", &xfer.aToken[2]);
