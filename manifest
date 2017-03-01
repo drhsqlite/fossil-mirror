@@ -1,5 +1,5 @@
-C Use\sthe\shardened\sSHA1\simplemenation\sby\sMarc\sStevens\sand\sDan\sShumow.
-D 2017-03-01T21:42:47.594
+C Update\sthe\schange\slog.
+D 2017-03-01T21:53:44.502
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -697,7 +697,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 6e6c9445543461ae0a75057a42ec2012559be02a
-F www/changes.wiki 9ae7df86481c854283cb306d1d41d5754311ebc4
+F www/changes.wiki b08ac90afbed5953138d06f8265bbab70d2e5e48
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki be27496a6d2f5f6c83b5a3a1441451beabec99e1
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -786,8 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 537ab8868e5e32ab6bc42c58a5b11ac38c0ce1ae e81f4d4ec7380048d019a431e8f3023609b04232
-R ef0e13b91a2b53ee0b8655754c7b97ca
-T +closed e81f4d4ec7380048d019a431e8f3023609b04232
+P 7c29bffcadc44f0ddbfb90b559921f34f3ec108d
+R d74d0d3eee192e9af288dfed30876fc3
 U drh
-Z b6ab4c6ef31c22c9210337f74a4ebf1e
+Z a55d00cc911b67c136cf06a73e7c5339
