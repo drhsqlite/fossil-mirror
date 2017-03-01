@@ -19,9 +19,55 @@
 */
 #include "config.h"
 #include <sys/types.h>
+#include <stdint.h>
 #include "sha1.h"
 
-#ifdef FOSSIL_ENABLE_SSL
+
+/*
+** SHA1 Implementation #1 is the hardened SHA1 implementation by
+** Marc Stevens.  Code obtained from GitHub
+**
+**     https://github.com/cr-marcstevens/sha1collisiondetection
+**
+** Downloaded on 2017-03-01 then repackaged to work with Fossil
+** and makeheaders.
+*/
+#if FOSSIL_HARDENED_SHA1
+
+#if INTERFACE
+typedef void(*collision_block_callback)(uint64_t, const uint32_t*, const uint32_t*, const uint32_t*, const uint32_t*);
+struct SHA1_CTX {
+  uint64_t total;
+  uint32_t ihv[5];
+  unsigned char buffer[64];
+  int bigendian;
+  int found_collision;
+  int safe_hash;
+  int detect_coll;
+  int ubc_check;
+  int reduced_round_coll;
+  collision_block_callback callback;
+
+  uint32_t ihv1[5];
+  uint32_t ihv2[5];
+  uint32_t m1[80];
+  uint32_t m2[80];
+  uint32_t states[80][5];
+};
+#endif
+void SHA1DCInit(SHA1_CTX*);
+void SHA1DCUpdate(SHA1_CTX*, const char*, unsigned);
+int SHA1DCFinal(unsigned char[20], SHA1_CTX*);
+
+#define SHA1Context SHA1_CTX
+#define SHA1Init SHA1DCInit
+#define SHA1Update SHA1DCUpdate
+#define SHA1Final SHA1DCFinal
+
+/*
+** SHA1 Implemenatation #2: use the SHA1 algorithm built into SSL
+*/
+#elif  defined(FOSSIL_ENABLE_SSL)
 
 # include <openssl/sha.h>
 # define SHA1Context SHA_CTX
@@ -29,8 +75,12 @@
 # define SHA1Update SHA1_Update
 # define SHA1Final SHA1_Final
 
+/*
+** SHA1 Implemenatation #3:  If none of the previous two SHA1 
+** algorithms work, there is this built-in.  This built-in was the
+** original implementation used by Fossil.
+*/
 #else
-
 /*
 ** The SHA1 implementation below is adapted from:
 **
@@ -71,6 +121,9 @@ struct SHA1Context {
 #define rol(x,k) SHA_ROT(x,k,32-(k))
 #define ror(x,k) SHA_ROT(x,32-(k),k)
 #endif
+
+
+
 
 
 #define blk0le(i) (block[i] = (ror(block[i],8)&0xFF00FF00) \
@@ -225,8 +278,7 @@ static void SHA1Final(unsigned char *digest, SHA1Context *context){
                 ((context->state[i>>2] >> ((3-(i & 3)) * 8) ) & 255);
     }
 }
-#endif
-
+#endif /* Built-in SHA1 implemenation */
 
 /*
 ** Convert a digest into base-16.  digest should be declared as
