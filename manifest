@@ -1,5 +1,5 @@
-C Merge\supdates\sfrom\strunk.
-D 2017-03-01T17:15:27.371
+C Merge\senhancements\sfrom\strunk.
+D 2017-03-01T17:49:09.855
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -535,7 +535,7 @@ F src/wikiformat.c 1616c95201d38f46c67722a86c880e508b042aad
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c a3970bdc0b05426cadadb1a62cd378e10f124062
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c 9cc7a11d314d51e82dedda601c3c3a55bf1a576d
+F src/xfer.c e3b22dc54ea42e3b489e200d67ffd4b900ad4b23
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 34f51a1acd869bfa063fafab28decfab34cb2a1a
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 92fb97609a0788badbe4a66d165e05c177322dfb 26dac28eec3dddb11833daf202715c95827a3bc0
-R cdb2bc38c91bc3dc537ba9518fd74722
+P c3fbab2edb6123f80eeaae6adb4c49f307b55e9a a13738764b3599e89d75c382ce07a4fac9df52f3
+R 067a426cd0a53785802f24bf0fe007b5
 U drh
-Z 0ba65824a2d8e9270e3bc93f77db7021
+Z e5023679568553ac043bd6c234f8ee71
