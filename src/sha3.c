@@ -626,8 +626,8 @@ char *sha3sum(const char *zIn, int iSize){
 **
 ** Options:
 **
-**    --224        Compute a SHA3-224 hash (the default)
-**    --256        Compute a SHA3-256 hash
+**    --224        Compute a SHA3-224 hash
+**    --256        Compute a SHA3-256 hash (the default)
 **    --384        Compute a SHA3-384 hash
 **    --512        Compute a SHA3-512 hash
 **    --size N     An N-bit hash.  N must be a multiple of 32 between 128
@@ -637,7 +637,7 @@ void sha3sum_test(void){
   int i;
   Blob in;
   Blob cksum;
-  int iSize = 224;
+  int iSize = 256;
 
   if( find_option("224",0,0)!=0 ) iSize = 224;
   else if( find_option("256",0,0)!=0 ) iSize = 256;
