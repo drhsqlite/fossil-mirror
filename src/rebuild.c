@@ -142,33 +142,11 @@ static void rebuild_update_schema(void){
 
 /*
 ** Update the repository schema for Fossil version 2.0.  (2017-02-28)
-**   (1) Create the ALIAS table
-**   (2) Change the CHECK constraint on BLOB.UUID so that the length
+**   (1) Change the CHECK constraint on BLOB.UUID so that the length
 **       is greater than or equal to 40, not exactly equal to 40.
 */
 void rebuild_schema_update_2_0(void){
-  static const char zCreateAliasTable[] =
-  @ -- Make sure the alias table exists.
-  @ --
-  @ CREATE TABLE repository.alias(
-  @   hval TEXT,                      -- Hex-encoded hash value
-  @   htype ANY,                      -- Type of hash.
-  @   rid INTEGER REFERENCES blob,    -- Blob that this hash names
-  @   PRIMARY KEY(hval,htype,rid)
-  @ ) WITHOUT ROWID;
-  @ CREATE INDEX repository.alias_rid ON alias(rid);
-  ;
-  char *z;
-   
-  /* If the alias table is missing, create it. */
-  if( !db_table_exists("repository", "alias") ){
-    db_multi_exec("%s", zCreateAliasTable/*safe-for-%s*/);
-  }
-
-  /* Make sure the CHECK constraint on the BLOB table says "length(uuid)>=40"
-  ** instead of "length(uuid)==40". */
-  z = db_text(0, "SELECT sql FROM repository.sqlite_master WHERE"
-                 " name LIKE 'blob' AND sql LIKE '%%length(uuid)==40%%'");
+  char *z = db_text(0, "SELECT sql FROM repository.sqlite_master WHERE name='blob'");
   if( z ){
     /* Search for:  length(uuid)==40
     **              0123456789 12345   */

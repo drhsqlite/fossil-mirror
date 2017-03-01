@@ -1491,9 +1491,7 @@ void db_open_repository(const char *zDbName){
   /* If the ALIAS table is not present, then some on-the-fly schema
   ** updates might be required.
   */
-  if( !db_table_exists("repository","alias") ){
-    rebuild_schema_update_2_0();   /* Do the Fossil-2.0 schema updates */
-  }
+  rebuild_schema_update_2_0();   /* Do the Fossil-2.0 schema updates */
 }
 
 /*

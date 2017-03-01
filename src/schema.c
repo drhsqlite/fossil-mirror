@@ -109,22 +109,6 @@ const char zRepositorySchema1[] =
 @   ipaddr TEXT                     -- Remote IP address.  NULL for direct.
 @ );
 @
-@ -- The canonical name of each artifact is given by the BLOB.UUID field.
-@ -- But artifacts can also have aliases.  Aliases arise, for example, when
-@ -- the naming hash algorithm changes, or as a result of trying to provide
-@ -- compatibility with a different VCS.
-@ --
-@ -- Each entry in the ALIAS table provides an alternative name by which an
-@ -- artifact can be called.
-@ --
-@ CREATE TABLE alias(
-@   hval TEXT,                      -- Hex-encoded hash value
-@   htype ANY,                      -- Type of hash.
-@   rid INTEGER REFERENCES blob,    -- Blob that this hash names
-@   PRIMARY KEY(hval,htype,rid)
-@ ) WITHOUT ROWID;
-@ CREATE INDEX alias_rid ON alias(rid);
-@
 @ -- Information about users
 @ --
 @ -- The user.pw field can be either cleartext of the password, or
