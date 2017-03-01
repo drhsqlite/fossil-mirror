@@ -1,5 +1,5 @@
-C Fix\sa\sbug\sin\sthe\sschema\sdefinition\sthat\sprevented\snew\srepositories\sfrom\nbeing\screated.\s\sOn\sthe\sserver\sside,\scheck\sthe\sauthentication\shash\susing\s\nthe\sappropriate\shash\salgorithm.
-D 2017-02-28T22:55:19.390
+C Avoid\sunnecessary\sSHA1\scalls\sin\sthe\sbundle.c\smodule.
+D 2017-03-01T00:34:45.890
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -397,7 +397,7 @@ F src/blob.c 141d4f5494ed6d1a9ef9e5c6927dd2c2b42e00f1
 F src/branch.c d68826ae16d6a89ea3126ab583577fb5f09de23b
 F src/browse.c 57124078bf8211f0c1ab6e62fa1e2b9d1f98d3c2
 F src/builtin.c d147d04305aa0db964ec84ef049e8e88d134de87
-F src/bundle.c 37ae68844002400284b56490789e4584cfe532f7
+F src/bundle.c c4b92c14df3e1aeebdeaf02d23a0ecaea462f8b5
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c 0fe6520c4eeedee87cab271f32943a96382828c1
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2dce6a921198736cd75a25edc1f3e4fa6233423e
-R dfa7c083a5b0c49044e1fbb7418773c5
+P f7861887d36f0e2c005ba377cd8b31d01990f9bf
+R 563ab6962fa6052a216d0a0eb5a7a578
 U drh
-Z 31a6fbd97fa8b0a41d9ee8018d0b5ff7
+Z 8d3ac40c2e0e75b0523cbb5acbbff2b4
