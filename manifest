@@ -1,5 +1,5 @@
-C Add\sthe\sability\sto\sread\sand\sunderstand\sSHA3\sname\shashes.
-D 2017-03-01T16:00:11.264
+C This\sis\sthe\sbranch\sfor\sFossil\s2.1.\s\sThe\sonly\sdifference\sfrom\s2.0\swill\sbe\sthat\nin\sthis\sbranch\sSHA3\shash\snames\sare\sused\sby\sdefault,\sinstead\sof\sSHA1.
+D 2017-03-01T16:04:42.098
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -14,7 +14,7 @@ F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile de98550db1d43a29a17bbd9284308733fb72615f
 F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
 F Makefile.in ca04b4081ad0dc54256f7d609168750c2247882e
-F VERSION 7959c969e092f2a5a8604e2287807ac5b1b384ad
+F VERSION da51fa3f73e561cf695cbcf67e9d92d801038cd8
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -785,8 +785,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 41af304e0050a51d6b885e5145340b8081bd41a2 b9a1a3b9d80b034c1c92b5e1a68829c2bfe62ad2
-R e9b44077d4785c18974a1eafddd57dff
-T +closed b9a1a3b9d80b034c1c92b5e1a68829c2bfe62ad2
+P fd9b7bd982f10b63fdd7f5bb536299a976d2099a
+R 281f4d570a9f28ad5cc53456add9535f
+T *branch * fossil-2.1
+T *sym-fossil-2.1 *
+T -sym-trunk *
 U drh
-Z 8d858f27a0bf57c6830e73419d21eb1d
+Z 8e11a1b9b872f353d0d024bf094a4ac1
