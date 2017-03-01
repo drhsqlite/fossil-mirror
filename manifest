@@ -1,5 +1,5 @@
-C Use\sthe\shardened\sSHA1\shash\sfunction\sfrom\n[https://github.com/cr-marcstevens/sha1collisiondetection].
-D 2017-03-01T21:03:52.060
+C Make\sit\spossible\sto\sturn\soff\sSHA1\shardening,\sfalling\sback\sto\sthe\slegacy\nimplementations.
+D 2017-03-01T21:24:01.093
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -407,7 +407,7 @@ F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
 F src/codecheck1.c 0e2c3cd4068f6de1df56fc19ec224c296f3c8eb4
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
-F src/config.h 69334994b91a236ceb9ed9d9a18786b8402ab61c
+F src/config.h 9edbe6bfa88b32682e7028fdf5d30adba5dd1939
 F src/configure.c aad25b170f047ec549f4da6afc61f81b90610d0d
 F src/content.c 719bbea189a2111d9c42f648e1ff6426892aa614
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
@@ -495,8 +495,8 @@ F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/search.c 82d3900b27d457fd1051d46acc5f4dcc74947960
 F src/setup.c 2d807dd6722ea73a8be13afe66a194cdc1e4b5ee
-F src/sha1.c 6d35b9ed485a473edffc7cf7c5d7beadc97ba01b
-F src/sha1hard.c 4a51845c2d1407c3155f8047ee02ce2539c905ec
+F src/sha1.c 57cd8acb2aff0d7c80da46972a0de087f73eac3d
+F src/sha1hard.c 368e32794e3412c94d9a27404f14de5181d43b6f
 F src/sha3.c 27842367fb9310b3bc6be590dc04f93132b3d3ff
 F src/shell.c a84e453c213f3e0d6935a582024da4e242f85a19
 F src/shun.c ef7af348255a4230350b65e941836577e4b0123a
@@ -786,10 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 537ab8868e5e32ab6bc42c58a5b11ac38c0ce1ae
-R 6d6a615a5ae0d5502cca67113aa4ccf6
-T *branch * hardened-sha1
-T *sym-hardened-sha1 *
-T -sym-trunk *
+P ba9d10807e938305e3132a6028650ed8ea8f3bd1
+R 5996e4bc2e8532ddf0267ff5cadd25e1
 U drh
-Z 99bddc4edfbfcd548d21e5f839d71a14
+Z 7422d8bf878f5d472acab8a245d5ea22

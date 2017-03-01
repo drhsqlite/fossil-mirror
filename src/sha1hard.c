@@ -7,6 +7,8 @@
 ** original copyright claims are preserved.
 */
 /*MAKEHEADERS-STOP*/
+#include "config.h"
+#if FOSSIL_HARDENED_SHA1  /* Only do this code if requested */
 /*************** File:  lib/sha1.c ****************/
 /***
 * Copyright 2017 Marc Stevens <marc@marc-stevens.nl>, Dan Shumow (danshu@microsoft.com)
@@ -1583,3 +1585,4 @@ int SHA1DCFinal(unsigned char output[20], SHA1_CTX *ctx)
   output[19] = (unsigned char)(ctx->ihv[4]);
   return ctx->found_collision;
 }
+#endif /* FOSSIL_HARDENED_SHA1 */
