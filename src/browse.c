@@ -317,7 +317,7 @@ struct FileTreeNode {
   FileTreeNode *pLastChild; /* Last child on the pChild list */
   char *zName;              /* Name of this entry.  The "tail" */
   char *zFullName;          /* Full pathname of this entry */
-  char *zUuid;              /* SHA1 hash of this file.  May be NULL. */
+  char *zUuid;              /* Artifact hash of this file.  May be NULL. */
   double mtime;             /* Modification time for this entry */
   unsigned nFullName;       /* Length of zFullName */
   unsigned iLevel;          /* Levels of parent directories */

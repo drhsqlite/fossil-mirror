@@ -314,7 +314,7 @@ int content_get(int rid, Blob *pBlob){
 **
 ** Usage: %fossil artifact ARTIFACT-ID ?OUTPUT-FILENAME? ?OPTIONS?
 **
-** Extract an artifact by its SHA1 hash and write the results on
+** Extract an artifact by its artifact hash and write the results on
 ** standard output, or if the optional 4th argument is given, in
 ** the named output file.
 **
@@ -1165,7 +1165,7 @@ void test_missing(void){
 ** the metadata.
 **
 ** Note that the arguments are the integer raw RID values from the BLOB table,
-** not SHA1 hashs or labels.
+** not artifact hashs or labels.
 */
 void test_content_erase(void){
   int i;

@@ -529,7 +529,7 @@ static void convert_href_and_output(Blob *pIn){
 ** URL: /uv/FILE
 ** URL: /doc/CHECKIN/FILE
 **
-** CHECKIN can be either tag or SHA1 hash or timestamp identifying a
+** CHECKIN can be either tag or hash prefix or timestamp identifying a
 ** particular check, or the name of a branch (meaning the most recent
 ** check-in on that branch) or one of various magic words:
 **

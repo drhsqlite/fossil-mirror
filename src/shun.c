@@ -38,7 +38,7 @@ int uuid_is_shunned(const char *zUuid){
 /*
 ** WEBPAGE: shun
 **
-** View the SHA1 hashes of all shunned artifacts.  Add new hashes
+** View the hashes of all shunned artifacts.  Add new hashes
 ** to the shun set.  Requires Admin privilege.
 */
 void shun_page(void){

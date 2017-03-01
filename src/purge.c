@@ -45,7 +45,7 @@ static const char zPurgeInit[] =
 @   piid INTEGER PRIMARY KEY,  -- ID for the purge item
 @   peid INTEGER REFERENCES purgeevent ON DELETE CASCADE, -- Purge event
 @   orid INTEGER,              -- Original RID before purged
-@   uuid TEXT NOT NULL,        -- SHA1 hash of the purged artifact
+@   uuid TEXT NOT NULL,        -- hash of the purged artifact
 @   srcid INTEGER,             -- Basis purgeitem for delta compression
 @   isPrivate BOOLEAN,         -- True if artifact was originally private
 @   sz INT NOT NULL,           -- Uncompressed size of the purged artifact

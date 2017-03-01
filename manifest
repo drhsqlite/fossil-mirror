@@ -1,5 +1,5 @@
-C Do\snot\screate\sthe\sALIAS\stable\sas\sit\sturns\sout\snot\sto\sbe\sneeded.
-D 2017-03-01T15:09:48.094
+C Change\sreferences\sto\s"SHA1\shash"\sin\scomments\sand\sUI\slabels\sto\sbe\n"artifact\shash"\sor\ssimilar.
+D 2017-03-01T15:35:43.409
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -395,13 +395,13 @@ F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c 141d4f5494ed6d1a9ef9e5c6927dd2c2b42e00f1
 F src/branch.c d68826ae16d6a89ea3126ab583577fb5f09de23b
-F src/browse.c 57124078bf8211f0c1ab6e62fa1e2b9d1f98d3c2
+F src/browse.c 66fcfac15ba6bd948bf8018da73bf8ea423681e8
 F src/builtin.c d147d04305aa0db964ec84ef049e8e88d134de87
 F src/bundle.c c4b92c14df3e1aeebdeaf02d23a0ecaea462f8b5
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c 0fe6520c4eeedee87cab271f32943a96382828c1
-F src/checkin.c 0fefe73dbd3929daca69cadbbafdc1e6945ebc44
+F src/checkin.c a9ec02c41a578b4e5a86ba0f57774c03cae75068
 F src/checkout.c ad202f9c6585a8e6d5418ff733f7349f652e9b05
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
@@ -409,36 +409,36 @@ F src/codecheck1.c 0e2c3cd4068f6de1df56fc19ec224c296f3c8eb4
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
 F src/config.h e0a8d96a16c6c45bf064f5d665320993e78cb6f1
 F src/configure.c aad25b170f047ec549f4da6afc61f81b90610d0d
-F src/content.c 1b914339266b922051e424e32d02950be944cedc
+F src/content.c 719bbea189a2111d9c42f648e1ff6426892aa614
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 25fd3c0ac900653bfbde82a682e8cbf9b6e89025
+F src/db.c 52eeb6f38bba96c44ce82f6b9a13f519339b1872
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
-F src/diff.c 4019cd9a2c6cc4c63f327a214f7bce10b55d95d9
+F src/diff.c 09884b53c51f9a1700dc94ecae0f9071e24191ad
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 819b07b59f71aa9ec7be722411e2484fd2935082
 F src/dispatch.c 4e634c0cf22b7dd63501a4dc0aa6375cf4151343
-F src/doc.c 7d289a1b9554bc108f2b11c0aeaa05f4e0c6b008
+F src/doc.c ae84da677c3653f7e20af9dd3a08428ab2e5da7e
 F src/encode.c edb12a68c5831e5331eaad3796c492059edb10fb
 F src/event.c 5dcf3c6ff00c39c25a3909deec1d1154cf0b85a5
-F src/export.c d506a4f7e033a10ec1771593c468c199b68a88b8
+F src/export.c ff3740ec039c8a06df8a1a95ceae62ddd35babb3
 F src/file.c 7570da01a8d1ce7e0d6dd91ca7eeced9b5f4c75b
 F src/finfo.c 1ed28f25c99d30270690b3b45c36c3320baecddc
-F src/foci.c bfd79fbd7410c4c1ccdc32b8b183ccf5130329a0
+F src/foci.c bb1344335db231bacb8062fbf1d9357d9e7dc1c8
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
-F src/fusefs.c 3b88dca535a2932a7d95e165b4ab13d44dd2477a
+F src/fusefs.c c774c78b274375f42653c71d0b6c1062695bb4da
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
-F src/graph.c 51a4ef3f3f5ad77fa47cc2aa8f0aec02f259c1bc
+F src/graph.c 066169948d671628a648bd0e622ec9487e258195
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
 F src/hname.c a1136cbb853013fe37d37b6c923e7c43dca9bc83
 F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
-F src/import.c bd322d67307666de7b21a04fbf44c7bff1ee2d39
+F src/import.c 1c8c9a6f994826b2a129847aa7b652a55a771c99
 F src/info.c d70e4b19110ade9cce9bacba9be4fa68af10ab1c
 F src/json.c f5b7fdcda3a1896153974769be00bae833bc476b
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
@@ -479,15 +479,15 @@ F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
 F src/mkindex.c f4183ca13461544fe06f34af0a3501ea96d3637f
 F src/mkversion.c 5827238100f179af2462a0194421c8b027198ef1
 F src/moderate.c 2540f90b20778a4d62156a3b4af962b401d4c89f
-F src/name.c 7dd0e12f0c36c6f895ecb0170e9019ab20498650
+F src/name.c 93545358d48f0a563ecfa10ffdaf861ad60c949b
 F src/path.c cce5fdfa571861a81e1a48e893e5a52dd2703a5f
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c e4a8ed414bbc311a3f427cad8da023d33bd39f46
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c 26a2f0024b1e59f3e6b3f4fa40f72f458e517f18
+F src/printf.c 1cf52da2f0f43868d026ff790a4eadbd984fd040
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
-F src/purge.c 56e70b7061be4eee12102def5c63185702a17020
+F src/purge.c f698cae20e3740796f6ffa65f69324f27f19d96c
 F src/rebuild.c 8a3171e38495a94b5bfa0e010824829d9740fd67
 F src/regexp.c 11ed4c905c2e471efe9c1e9c4650004ad91d6ebb
 F src/report.c 3b627c4ba95b5260ded1cee2adc5ce6e28d791d2
@@ -498,14 +498,14 @@ F src/setup.c 2d807dd6722ea73a8be13afe66a194cdc1e4b5ee
 F src/sha1.c 2d54962bf5fbf43e58087ddf843ebc42061b4046
 F src/sha3.c 27842367fb9310b3bc6be590dc04f93132b3d3ff
 F src/shell.c a84e453c213f3e0d6935a582024da4e242f85a19
-F src/shun.c c7a69759ea1b7ee18ddaae44364699d2128c53f6
-F src/sitemap.c b7c376b21d29322741c804e1f762b34aedb98ad1
+F src/shun.c ef7af348255a4230350b65e941836577e4b0123a
+F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c 0b6ae35015f48cbe9cef2f97d65105a796fc366b
-F src/sqlcmd.c 9f904c862aa0c5f83306cbee0140a54c4d1e3a54
+F src/sqlcmd.c c9d03589cc39ae6bb5242ed9186645fbb5b67dea
 F src/sqlite3.c 882d49dd40ebb58e25b3fb9b790ecb2fd7d9cc7e
 F src/sqlite3.h b590133adb2907b8b635c5df4c88393ea94761bd
 F src/stash.c ac247e5b718cd29c6c1fc543f7b984be9b9f53e6
-F src/stat.c 2f81053ee64a9a9705fdbeac60e7397798145aaf
+F src/stat.c 6eeba5211c329f742b6a9dfe65519955a8d9ce00
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
 F src/style.c cf9edbf403e1df8e094e8a1d44d5dd9516046678
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
@@ -516,7 +516,7 @@ F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c 2561df121db51d142fe8878f909c9cf018f8662a
 F src/th_tcl.c 2b70a8da7d7d8009794d7a3565043c8933a6cbfe
-F src/timeline.c da1310900ca1b188eda6ac6f997f547d7311b2f0
+F src/timeline.c 280733bda16ab11a5c516de21692964dbe6b4409
 F src/tkt.c b0fcc26bf2f1acc84b147e242170a1b8c8c68449
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 33b65539a12abd079a57972b78e0d532831cefd9
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 53a2824ec031547afe8e43174762f0d25b6ee67d
-R c28a6ddab6264c55c6b8eb991300bd44
+P 3259aa5421f85fc87c248dacd1adce13adf19318
+R e9b44077d4785c18974a1eafddd57dff
 U drh
-Z 9416b2c8543c300036641331f0480358
+Z a071671561ca376df67b833b51c42b3d

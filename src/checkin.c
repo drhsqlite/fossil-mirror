@@ -379,7 +379,7 @@ static int determine_cwd_relative_option()
 ** in by the commit command.
 **
 ** If no filter options are used, or if the --merge option is used, the
-** SHA1 hash of each merge contributor check-in version is displayed at
+** artifact hash of each merge contributor check-in version is displayed at
 ** the end of the report.  The --no-merge option is useful to display the
 ** default set of changed files without the merge contributors.
 **
@@ -2035,7 +2035,7 @@ void commit_cmd(void){
   const char *zComment;  /* Check-in comment */
   Stmt q;                /* Various queries */
   char *zUuid;           /* UUID of the new check-in */
-  int useHash = 0;       /* True to verify file status using SHA1 hashing */
+  int useHash = 0;       /* True to verify file status using hashing */
   int noSign = 0;        /* True to omit signing the manifest using GPG */
   int isAMerge = 0;      /* True if checking in a merge */
   int noWarningFlag = 0; /* True if skipping all warnings */

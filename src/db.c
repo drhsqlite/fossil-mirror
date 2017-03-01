@@ -2076,7 +2076,7 @@ LOCAL void file_is_selected(
 **
 ** The CONCEALED table is meant to obscure email addresses.  Every valid
 ** email address will contain a "@" character and "@" is not valid within
-** an SHA1 hash so there is no chance that a valid email address will go
+** a SHA1 hash so there is no chance that a valid email address will go
 ** unconcealed.
 */
 char *db_conceal(const char *zContent, int n){
