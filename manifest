@@ -1,5 +1,5 @@
-C Avoid\sunnecessary\sSHA1\scalls\sin\sthe\sbundle.c\smodule.
-D 2017-03-01T00:34:45.890
+C Merge\supdates\sfrom\strunk.
+D 2017-03-01T00:35:32.486
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -402,7 +402,7 @@ F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c 0fe6520c4eeedee87cab271f32943a96382828c1
 F src/checkin.c 0fefe73dbd3929daca69cadbbafdc1e6945ebc44
-F src/checkout.c 083ec4f2ccd7d9df27dbb94d90008088eb8c4340
+F src/checkout.c ad202f9c6585a8e6d5418ff733f7349f652e9b05
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
 F src/codecheck1.c 0e2c3cd4068f6de1df56fc19ec224c296f3c8eb4
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f7861887d36f0e2c005ba377cd8b31d01990f9bf
-R 563ab6962fa6052a216d0a0eb5a7a578
+P 527d4eddc7f3be9fa3bfba58009128908db40df1 41af304e0050a51d6b885e5145340b8081bd41a2
+R 37a01ec67c0db697c1a35842e9838cb3
 U drh
-Z 8d3ac40c2e0e75b0523cbb5acbbff2b4
+Z 5e81c74541b7530e67271ee1ff73c209
