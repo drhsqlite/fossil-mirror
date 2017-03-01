@@ -52,6 +52,16 @@
 #endif /* INTERFACE */
 
 /*
+** Return a human-readable name for the hash algorithm given a hash with
+** a length of nHash hexadecimal digits.
+*/
+const char *hname_alg(int nHash){
+  if( nHash==HNAME_LEN_SHA1 ) return "SHA1";
+  if( nHash==HNAME_LEN_K256 ) return "SHA3-256";
+  return "?";
+}
+
+/*
 ** Return the integer hash algorithm code number (ex: HNAME_K224) for
 ** the hash string provided.  Or return HNAME_ERROR (0) if the input string
 ** is not a valid artifact hash string.

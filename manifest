@@ -1,5 +1,5 @@
-C This\sis\sthe\sbranch\sfor\sFossil\s2.1.\s\sThe\sonly\sdifference\sfrom\s2.0\swill\sbe\sthat\nin\sthis\sbranch\sSHA3\shash\snames\sare\sused\sby\sdefault,\sinstead\sof\sSHA1.
-D 2017-03-01T16:04:42.098
+C Show\sthe\scorrect\shash\salgorithm\sname\sin\sthe\sOverview\ssection\sof\sthe\s/info\nwebpage.
+D 2017-03-01T16:44:23.228
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -433,13 +433,13 @@ F src/fusefs.c c774c78b274375f42653c71d0b6c1062695bb4da
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 066169948d671628a648bd0e622ec9487e258195
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
-F src/hname.c a1136cbb853013fe37d37b6c923e7c43dca9bc83
+F src/hname.c 786ed0aaf8ba2f8abc64e43b2ae8c4a1edead2ef
 F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c 1c8c9a6f994826b2a129847aa7b652a55a771c99
-F src/info.c d70e4b19110ade9cce9bacba9be4fa68af10ab1c
+F src/info.c ba331a94c259afad3077351242646bfaafcecb07
 F src/json.c f5b7fdcda3a1896153974769be00bae833bc476b
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c 7c7e2c63fd1cac2ca85aa657a7ae04d91a1bdc08
@@ -785,10 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fd9b7bd982f10b63fdd7f5bb536299a976d2099a
-R 281f4d570a9f28ad5cc53456add9535f
-T *branch * fossil-2.1
-T *sym-fossil-2.1 *
-T -sym-trunk *
+P fc3995a01bdf10886e3c2626bf2e27e0e03ae869
+R dbfa7ca4e708d8938e142b6030cf20d6
 U drh
-Z 8e11a1b9b872f353d0d024bf094a4ac1
+Z 15160457bbe26f1cdcc77ed171112865
