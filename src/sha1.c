@@ -24,7 +24,7 @@
 
 
 /*
-** Implementation #1 is the hardened SHA1 implementation by
+** SHA1 Implementation #1 is the hardened SHA1 implementation by
 ** Marc Stevens.  Code obtained from GitHub
 **
 **     https://github.com/cr-marcstevens/sha1collisiondetection
@@ -65,7 +65,7 @@ int SHA1DCFinal(unsigned char[20], SHA1_CTX*);
 #define SHA1Final SHA1DCFinal
 
 /*
-** The second case: use the SHA1 algorithm built into SSL
+** SHA1 Implemenatation #2: use the SHA1 algorithm built into SSL
 */
 #elif  defined(FOSSIL_ENABLE_SSL)
 
@@ -76,8 +76,9 @@ int SHA1DCFinal(unsigned char[20], SHA1_CTX*);
 # define SHA1Final SHA1_Final
 
 /*
-** If none of the previous two SHA1 algorithms work, there
-** is this built-in.  The built-in below is the original.
+** SHA1 Implemenatation #3:  If none of the previous two SHA1 
+** algorithms work, there is this built-in.  This built-in was the
+** original implementation used by Fossil.
 */
 #else
 /*

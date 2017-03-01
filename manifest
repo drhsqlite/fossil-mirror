@@ -1,5 +1,5 @@
-C Make\sit\spossible\sto\sturn\soff\sSHA1\shardening,\sfalling\sback\sto\sthe\slegacy\nimplementations.
-D 2017-03-01T21:24:01.093
+C Indicate\sthe\suse\sof\shardened-SHA1\sin\sthe\s"fossil\sversion\s-v"\soutput.
+D 2017-03-01T21:39:53.636
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -462,7 +462,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c d2ef19fedab12da54fb4718e7d690be483f84d92
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
-F src/main.c f202c021d423f36a776f38e4fc8cfaf1ade9688b
+F src/main.c 45ec4e8285fe079a31ddda0028cc4604e1ce8fed
 F src/main.mk adb39465c0b57737cc735f324b9e2bc296a79f16
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -495,8 +495,8 @@ F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/search.c 82d3900b27d457fd1051d46acc5f4dcc74947960
 F src/setup.c 2d807dd6722ea73a8be13afe66a194cdc1e4b5ee
-F src/sha1.c 57cd8acb2aff0d7c80da46972a0de087f73eac3d
-F src/sha1hard.c 368e32794e3412c94d9a27404f14de5181d43b6f
+F src/sha1.c 0014690a726b78e5354f3960cb8e30f61fe58961
+F src/sha1hard.c f3bf604ce0501784263ff7c7aea3cb57d6c4496f
 F src/sha3.c 27842367fb9310b3bc6be590dc04f93132b3d3ff
 F src/shell.c a84e453c213f3e0d6935a582024da4e242f85a19
 F src/shun.c ef7af348255a4230350b65e941836577e4b0123a
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ba9d10807e938305e3132a6028650ed8ea8f3bd1
-R 5996e4bc2e8532ddf0267ff5cadd25e1
+P 2f87dcf5dfc42d8e846e94fb9cd9571f424d3bbc
+R ef0e13b91a2b53ee0b8655754c7b97ca
 U drh
-Z 7422d8bf878f5d472acab8a245d5ea22
+Z d2b574e6e99ed5aa6a9739f02c8ec91f

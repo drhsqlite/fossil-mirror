@@ -1,10 +1,19 @@
 /*
-** The code in this file was copied out of 
+** The code in this file is the concatination of several files
+** copied out of 
 **
 **     https://github.com/cr-marcstevens/sha1collisiondetection
 **
-** On 2017-03-01, with minor changings in formatting.  All
+** The copy was made on 2017-03-01.  Some minor formatting changes
+** were made but otherwise the code is unchanged.  All
 ** original copyright claims are preserved.
+**
+** The code here implements a version of the SHA1 hash function that
+** is not vulnerable to crypto-analysis based attacks.  If an input
+** is detected that looks like it might have been the result of a
+** crypto-analysis attack, then the hash is perturbed to generate a
+** completely different hash.  The authors claim that the chance of
+** a false-positive is vanishingly small.
 */
 /*MAKEHEADERS-STOP*/
 #include "config.h"
