@@ -1149,6 +1149,7 @@ void page_xfer(void){
   char **pzUuidList = 0;
   int *pnUuidList = 0;
   int uvCatalogSent = 0;
+  int clientVersion = 0;     /* Version number of the client */
 
   if( fossil_strcmp(PD("REQUEST_METHOD","POST"),"POST") ){
      fossil_redirect_home();
@@ -1303,11 +1304,10 @@ void page_xfer(void){
     **    push  SERVERCODE  PROJECTCODE
     **
     ** The client wants either send or receive.  The server should
-    ** verify that the project code matches.
+    ** verify that the project code matches.  The server code is ignored.
     */
     if( xfer.nToken==3
      && (blob_eq(&xfer.aToken[0], "pull") || blob_eq(&xfer.aToken[0], "push"))
-     && blob_is_hname(&xfer.aToken[1])
      && blob_is_hname(&xfer.aToken[2])
     ){
       const char *zPCode;
@@ -1529,6 +1529,14 @@ void page_xfer(void){
       */
       if( blob_eq(&xfer.aToken[1], "send-catalog") ){
         xfer.resync = 0x7fffffff;
+      }
+
+      /*   pragma client-version VERSION
+      **
+      ** Let the server know what version of Fossil is running on the client.
+      */
+      if( xfer.nToken>=3 && blob_eq(&xfer.aToken[1], "client-version") ){
+        clientVersion = atoi(blob_str(&xfer.aToken[2]));
       }
 
       /*   pragma uv-hash HASH
@@ -1779,6 +1787,7 @@ int client_sync(
   /*
   ** Always begin with a clone, pull, or push message
   */
+  blob_appendf(&send, "pragma client-version %d\n", RELEASE_VERSION_NUMBER);
   if( syncFlags & SYNC_CLONE ){
     blob_appendf(&send, "clone 3 %d\n", cloneSeqno);
     syncFlags &= ~(SYNC_PUSH|SYNC_PULL);
@@ -1815,6 +1824,7 @@ int client_sync(
       "CREATE TEMP TABLE onremote(rid INTEGER PRIMARY KEY);"
     );
     manifest_crosslink_begin();
+
 
     /* Send back the most recently received cookie.  Let the server
     ** figure out if this is a cookie that it cares about.

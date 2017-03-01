@@ -1,5 +1,5 @@
-C Omit\sSHA3-224\sas\san\soption.\s\sThe\sonly\stwo\sartifact\snaming\shash\soptions\sare\nSHA1\sand\sSHA3-256.
-D 2017-03-01T11:29:31.448
+C Send\sthe\s"pragma\sclient-version"\scommand\sfrom\sthe\sclient\sand\sparse\sit\son\sthe\nserver.
+D 2017-03-01T12:38:46.219
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -535,7 +535,7 @@ F src/wikiformat.c 1616c95201d38f46c67722a86c880e508b042aad
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c a3970bdc0b05426cadadb1a62cd378e10f124062
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c 597a186752a7fc89f0f573db81012c4c7885b0f8
+F src/xfer.c 9cc7a11d314d51e82dedda601c3c3a55bf1a576d
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 34f51a1acd869bfa063fafab28decfab34cb2a1a
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7bd36bc52dca8d524fd235302e3e701f6d939292
-R 1ccb6c8f96ca1d52b55f0f5f3a7dcbfd
+P c88662873f2a3a5e7b8ce61611e5cd12144e4a7e
+R 0e3bfe826a4d48d2fe14a2ad4172409e
 U drh
-Z 74073977a07c6faca923cf821c741dcb
+Z 1cdcbcf6fe4646e968e9995763711845
