@@ -110,6 +110,7 @@ set src {
   search
   setup
   sha1
+  sha1hard
   sha3
   shun
   sitemap

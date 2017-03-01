@@ -170,6 +170,7 @@
 
 #if !defined(_RC_COMPILE_) && !defined(SQLITE_AMALGAMATION)
 
+#include <stdint.h>
 #include "sqlite3.h"
 
 /*

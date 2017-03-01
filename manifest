@@ -1,5 +1,5 @@
-C Updates\sto\sthe\schange\slog.
-D 2017-03-01T19:53:26.507
+C Use\sthe\shardened\sSHA1\shash\sfunction\sfrom\n[https://github.com/cr-marcstevens/sha1collisiondetection].
+D 2017-03-01T21:03:52.060
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -407,7 +407,7 @@ F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
 F src/codecheck1.c 0e2c3cd4068f6de1df56fc19ec224c296f3c8eb4
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
-F src/config.h e0a8d96a16c6c45bf064f5d665320993e78cb6f1
+F src/config.h 69334994b91a236ceb9ed9d9a18786b8402ab61c
 F src/configure.c aad25b170f047ec549f4da6afc61f81b90610d0d
 F src/content.c 719bbea189a2111d9c42f648e1ff6426892aa614
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
@@ -463,10 +463,10 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c d2ef19fedab12da54fb4718e7d690be483f84d92
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
 F src/main.c f202c021d423f36a776f38e4fc8cfaf1ade9688b
-F src/main.mk a983bacfa472f84ecc47111afc7573cc5341fd67
-F src/makeheaders.c cbbebae48e377db66e648af76a7aeea63c9bc523
+F src/main.mk adb39465c0b57737cc735f324b9e2bc296a79f16
+F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl 89f0b5c71ea4384d3fdbea75d337edae0ce5ffb2
+F src/makemake.tcl 580b8c186cee0309f1dc96ff1620f066a6782757
 F src/manifest.c bf625f198ff0b473b368139dcf3a4ed4bf91c25c
 F src/markdown.c 20bb4755f258601e4e3e5274ea117fc7c8b1ccf7
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
@@ -495,7 +495,8 @@ F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/search.c 82d3900b27d457fd1051d46acc5f4dcc74947960
 F src/setup.c 2d807dd6722ea73a8be13afe66a194cdc1e4b5ee
-F src/sha1.c 2d54962bf5fbf43e58087ddf843ebc42061b4046
+F src/sha1.c 6d35b9ed485a473edffc7cf7c5d7beadc97ba01b
+F src/sha1hard.c 4a51845c2d1407c3155f8047ee02ce2539c905ec
 F src/sha3.c 27842367fb9310b3bc6be590dc04f93132b3d3ff
 F src/shell.c a84e453c213f3e0d6935a582024da4e242f85a19
 F src/shun.c ef7af348255a4230350b65e941836577e4b0123a
@@ -662,10 +663,10 @@ F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/man_page_command_list.tcl bcf4aa82a2a2f6f5194f1e67915613b82a0957f4 x
 F win/Makefile.PellesCGMake e9d1636731fe8a581e1f2a9a155b1310a9356178
-F win/Makefile.dmc 43343888f7d5ce2684a9145727eeeadf588e0c1b
-F win/Makefile.mingw d4799e2402684caa220e93b6bc46507e0d5cfbaf
+F win/Makefile.dmc c25967ec834821a70b903969ba1d325f121287ee
+F win/Makefile.mingw 299506ef6b91297c226c2b190873db1b00cf60f9
 F win/Makefile.mingw.mistachkin 4635e4429322aaa8d1c1f1b70aadb13836871825
-F win/Makefile.msc 17bad3f0a0a0b427ded395ad3e8c0e0fd71f22e0
+F win/Makefile.msc 1b5be2dc160e6a95cfe54e09cfd85318a9b6c6dd
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -785,7 +786,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cb92c69c2a169970d6d8e2b30089ced982d516e9
-R 88ae6673313adc9a7145eb88da0bf3a1
+P 537ab8868e5e32ab6bc42c58a5b11ac38c0ce1ae
+R 6d6a615a5ae0d5502cca67113aa4ccf6
+T *branch * hardened-sha1
+T *sym-hardened-sha1 *
+T -sym-trunk *
 U drh
-Z 4dd234ae1580c7944b5c3d42a895555f
+Z 99bddc4edfbfcd548d21e5f839d71a14
