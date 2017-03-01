@@ -937,6 +937,9 @@ static void get_version_blob(
 #else
   blob_appendf(pOut, "zlib %s, loaded %s\n", ZLIB_VERSION, zlibVersion());
 #endif
+#if FOSSIL_HARDENED_SHA1
+  blob_appendf(pOut, "hardened-SHA1 by Marc Stevens and Dan Shumow\n");
+#endif
 #if defined(FOSSIL_ENABLE_SSL)
   blob_appendf(pOut, "SSL (%s)\n", SSLeay_version(SSLEAY_VERSION));
 #endif

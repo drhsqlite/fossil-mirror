@@ -41,6 +41,11 @@
 #include "autoconfig.h"
 #endif
 
+/* Enable the hardened SHA1 implemenation by default */
+#ifndef FOSSIL_HARDENED_SHA1
+# define FOSSIL_HARDENED_SHA1 1
+#endif
+
 #ifndef _RC_COMPILE_
 
 /*
@@ -170,6 +175,7 @@
 
 #if !defined(_RC_COMPILE_) && !defined(SQLITE_AMALGAMATION)
 
+#include <stdint.h>
 #include "sqlite3.h"
 
 /*

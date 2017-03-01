@@ -1,11 +1,15 @@
 <title>Change Log</title>
 
 <a name='v2_0'></a>
-<h2>Changes for Version 2.0 (2017-03-??)</h2>
+<h2>Changes for Version 2.0 (2017-03-03)</h2>
 
-  *  Added support for SHA3 hashes used as 
-     [./fileformat.wiki#names|artifact names].
-  *  Added support for the [/help?cmd=sha3sum|sha3sum] command.
+  *  Use the
+     [https://github.com/cr-marcstevens/sha1collisiondetection|hardened SHA1]
+     implemenation by Marc Stevens and Dan Shumow.
+  *  Add the ability to read and understand
+     [./fileformat.wiki#names|artifact names] that are based on SHA3-256
+     rather than SHA1, but do not actually generate any such names.
+  *  Added the [/help?cmd=sha3sum|sha3sum] command.
   *  Update the built-in SQLite to version 3.17.0.
 
 <a name='v1_37'></a>

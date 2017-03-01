@@ -478,7 +478,6 @@ void tarball_of_checkin(
   Blob filename;
   int nPrefix;
   char *zName = 0;
-  char *zUuid;
   unsigned int mTime;
 
   content_get(rid, &mfile);

@@ -1,5 +1,5 @@
-C Merge\senhancements\sfrom\strunk.
-D 2017-03-01T17:49:09.855
+C Merge\srecent\senhancements\sfrom\strunk.
+D 2017-03-01T21:57:37.592
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -407,7 +407,7 @@ F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
 F src/codecheck1.c 0e2c3cd4068f6de1df56fc19ec224c296f3c8eb4
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
-F src/config.h e0a8d96a16c6c45bf064f5d665320993e78cb6f1
+F src/config.h 9edbe6bfa88b32682e7028fdf5d30adba5dd1939
 F src/configure.c aad25b170f047ec549f4da6afc61f81b90610d0d
 F src/content.c 719bbea189a2111d9c42f648e1ff6426892aa614
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
@@ -462,11 +462,11 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c d2ef19fedab12da54fb4718e7d690be483f84d92
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
-F src/main.c f202c021d423f36a776f38e4fc8cfaf1ade9688b
-F src/main.mk a983bacfa472f84ecc47111afc7573cc5341fd67
-F src/makeheaders.c cbbebae48e377db66e648af76a7aeea63c9bc523
+F src/main.c 45ec4e8285fe079a31ddda0028cc4604e1ce8fed
+F src/main.mk adb39465c0b57737cc735f324b9e2bc296a79f16
+F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl 89f0b5c71ea4384d3fdbea75d337edae0ce5ffb2
+F src/makemake.tcl 580b8c186cee0309f1dc96ff1620f066a6782757
 F src/manifest.c bf625f198ff0b473b368139dcf3a4ed4bf91c25c
 F src/markdown.c 20bb4755f258601e4e3e5274ea117fc7c8b1ccf7
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
@@ -488,14 +488,15 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 1cf52da2f0f43868d026ff790a4eadbd984fd040
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f698cae20e3740796f6ffa65f69324f27f19d96c
-F src/rebuild.c 8a3171e38495a94b5bfa0e010824829d9740fd67
+F src/rebuild.c cfa98254edab99a917af8ca541d9988c5b169304
 F src/regexp.c 11ed4c905c2e471efe9c1e9c4650004ad91d6ebb
 F src/report.c 3b627c4ba95b5260ded1cee2adc5ce6e28d791d2
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/search.c 82d3900b27d457fd1051d46acc5f4dcc74947960
 F src/setup.c 2d807dd6722ea73a8be13afe66a194cdc1e4b5ee
-F src/sha1.c 2d54962bf5fbf43e58087ddf843ebc42061b4046
+F src/sha1.c 0014690a726b78e5354f3960cb8e30f61fe58961
+F src/sha1hard.c f3bf604ce0501784263ff7c7aea3cb57d6c4496f
 F src/sha3.c 27842367fb9310b3bc6be590dc04f93132b3d3ff
 F src/shell.c a84e453c213f3e0d6935a582024da4e242f85a19
 F src/shun.c ef7af348255a4230350b65e941836577e4b0123a
@@ -510,7 +511,7 @@ F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
 F src/style.c cf9edbf403e1df8e094e8a1d44d5dd9516046678
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 46fdc5d0e7c8d60bedae8ef4227692587813bc7f
-F src/tar.c ccd159559df6305cf484a8889ab6d6f35d788350
+F src/tar.c 7d2471e3ae0f6234ed1d5bb59f6e79151d9fa565
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
@@ -528,14 +529,14 @@ F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c 1d31844a9e48e2ab515586bf54ecc4b30b47d5b5
 F src/utf8.c 9f458b9698fc928cc21e375538f268651d1d22a2
 F src/util.c 9a3cc502aa6ae3bc19831e5f553cd346ec154b5c
-F src/verify.c 4f377d99d08ff5e1c7618ac74ec0f8491d04bb39
-F src/vfile.c 64d624534dd5ad2d19ad73e3b8deed24e929a6e0
+F src/verify.c 5799825d086464bb9e19e69ffeec84a710d1681b
+F src/vfile.c b7e3d918b22d9ff7dde55f0a2f01e6c6474066eb
 F src/wiki.c 9482a4ef96942921b5173a44fda320f8596c9cc5
 F src/wikiformat.c 1616c95201d38f46c67722a86c880e508b042aad
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c a3970bdc0b05426cadadb1a62cd378e10f124062
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c e3b22dc54ea42e3b489e200d67ffd4b900ad4b23
+F src/xfer.c 0a5f4e054b019d313e2e52225e70da025b13eee5
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 34f51a1acd869bfa063fafab28decfab34cb2a1a
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -662,10 +663,10 @@ F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/man_page_command_list.tcl bcf4aa82a2a2f6f5194f1e67915613b82a0957f4 x
 F win/Makefile.PellesCGMake e9d1636731fe8a581e1f2a9a155b1310a9356178
-F win/Makefile.dmc 43343888f7d5ce2684a9145727eeeadf588e0c1b
-F win/Makefile.mingw d4799e2402684caa220e93b6bc46507e0d5cfbaf
+F win/Makefile.dmc c25967ec834821a70b903969ba1d325f121287ee
+F win/Makefile.mingw 299506ef6b91297c226c2b190873db1b00cf60f9
 F win/Makefile.mingw.mistachkin 4635e4429322aaa8d1c1f1b70aadb13836871825
-F win/Makefile.msc 17bad3f0a0a0b427ded395ad3e8c0e0fd71f22e0
+F win/Makefile.msc 1b5be2dc160e6a95cfe54e09cfd85318a9b6c6dd
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -696,7 +697,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 6e6c9445543461ae0a75057a42ec2012559be02a
-F www/changes.wiki 2c41e9a7ccc7ad67310307bd2d504b860dcb001b
+F www/changes.wiki b08ac90afbed5953138d06f8265bbab70d2e5e48
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki be27496a6d2f5f6c83b5a3a1441451beabec99e1
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -785,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c3fbab2edb6123f80eeaae6adb4c49f307b55e9a a13738764b3599e89d75c382ce07a4fac9df52f3
-R 067a426cd0a53785802f24bf0fe007b5
+P 1e3779959dd097d29535b33584eb022991d42895 c682faab38a79bd94033d6bd70000abe0b889e5b
+R fbd3ded00aa0b8ea1e06568c81d8a87c
 U drh
-Z e5023679568553ac043bd6c234f8ee71
+Z df3cf07f9e09d59e8de7bc466d7ac0a2

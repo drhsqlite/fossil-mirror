@@ -36,7 +36,7 @@
 ** that everything is OK.
 */
 static void verify_rid(int rid){
-  Blob uuid, hash, content;
+  Blob uuid, content;
   if( content_size(rid, 0)<0 ){
     return;  /* No way to verify phantoms */
   }

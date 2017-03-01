@@ -344,7 +344,6 @@ static void rebuild_tag_trunk(void){
 int rebuild_db(int randomize, int doOut, int doClustering){
   Stmt s, q;
   int errCnt = 0;
-  char *zTable;
   int incrSize;
   Blob sql;
 
