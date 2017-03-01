@@ -51,6 +51,7 @@ struct Xfer {
   int resync;         /* Send igot cards for all holdings */
   u8 syncPrivate;     /* True to enable syncing private content */
   u8 nextIsPrivate;   /* If true, next "file" received is a private */
+  u32 clientVersion;  /* Version of the client software */
   time_t maxTime;     /* Time when this transfer should be finished */
 };
 
@@ -497,6 +498,17 @@ static int send_delta_native(
 }
 
 /*
+** Push an error message to alert the older client that the repository 
+** has SHA3 content and cannot be synced or cloned.
+*/
+static void xfer_cannot_send_sha3_error(Xfer *pXfer){
+  blob_appendf(pXfer->pOut, 
+    "error Fossil\\sversion\\s2.0\\sor\\slater\\srequired.\n"
+  );
+}
+
+
+/*
 ** Send the file identified by rid.
 **
 ** The pUuid can be NULL in which case the correct hash is computed
@@ -521,6 +533,10 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
   blob_zero(&uuid);
   db_blob(&uuid, "SELECT uuid FROM blob WHERE rid=%d AND size>=0", rid);
   if( blob_size(&uuid)==0 ){
+    return;
+  }
+  if( blob_size(&uuid)>HNAME_LEN_SHA1 && pXfer->clientVersion<20000 ){
+    xfer_cannot_send_sha3_error(pXfer);
     return;
   }
   if( pUuid ){
@@ -612,6 +628,11 @@ static void send_compressed_file(Xfer *pXfer, int rid){
     srcIsPrivate = db_column_int(&q1, 3);
     zDelta = db_column_text(&q1, 4);
     if( isPrivate ) blob_append(pXfer->pOut, "private\n", -1);
+    if( pXfer->clientVersion<20000 && db_column_bytes(&q1,0)!=HNAME_LEN_SHA1 ){
+      xfer_cannot_send_sha3_error(pXfer);
+      db_reset(&q1);
+      return;
+    }
     blob_appendf(pXfer->pOut, "cfile %s ", zUuid);
     if( !isPrivate && srcIsPrivate ){
       content_get(rid, &fullContent);
@@ -671,6 +692,11 @@ static void send_unversioned_file(
   if( db_step(&q1)==SQLITE_ROW ){
     sqlite3_int64 mtime = db_column_int64(&q1, 0);
     const char *zHash = db_column_text(&q1, 1);
+    if( pXfer->clientVersion<20000 && db_column_bytes(&q1,1)>HNAME_LEN_SHA1 ){
+      xfer_cannot_send_sha3_error(pXfer);
+      db_reset(&q1);
+      return;
+    }
     if( blob_size(pXfer->pOut)>=pXfer->mxSend ){
       /* If we have already reached the send size limit, send a (short)
       ** uvigot card rather than a uvfile card.  This only happens on the
@@ -1149,7 +1175,6 @@ void page_xfer(void){
   char **pzUuidList = 0;
   int *pnUuidList = 0;
   int uvCatalogSent = 0;
-  int clientVersion = 0;     /* Version number of the client */
 
   if( fossil_strcmp(PD("REQUEST_METHOD","POST"),"POST") ){
      fossil_redirect_home();
@@ -1536,7 +1561,7 @@ void page_xfer(void){
       ** Let the server know what version of Fossil is running on the client.
       */
       if( xfer.nToken>=3 && blob_eq(&xfer.aToken[1], "client-version") ){
-        clientVersion = atoi(blob_str(&xfer.aToken[2]));
+        xfer.clientVersion = atoi(blob_str(&xfer.aToken[2]));
       }
 
       /*   pragma uv-hash HASH
@@ -1982,6 +2007,7 @@ int client_sync(
 
     lastPctDone = -1;
     blob_reset(&send);
+    blob_appendf(&send, "pragma client-version %d\n", RELEASE_VERSION_NUMBER);
     rArrivalTime = db_double(0.0, "SELECT julianday('now')");
 
     /* Send the send-private pragma if we are trying to sync private data */
