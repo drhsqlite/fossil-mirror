@@ -70,7 +70,7 @@ void show_common_info(
       rid
     );
          /* 01234567890123 */
-    fossil_print("%-13s %s %s\n", zUuidName, zUuid, zDate ? zDate : "");
+    fossil_print("%-13s %.40s %s\n", zUuidName, zUuid, zDate ? zDate : "");
     free(zDate);
     if( showComment ){
       zComment = db_text(0,
@@ -93,7 +93,7 @@ void show_common_info(
         "SELECT datetime(mtime) || ' UTC' FROM event WHERE objid=%d",
         db_column_int(&q, 1)
       );
-      fossil_print("%-13s %s %s\n", zType, zUuid, zDate);
+      fossil_print("%-13s %.40s %s\n", zType, zUuid, zDate);
       free(zDate);
     }
     db_finalize(&q);
@@ -107,7 +107,7 @@ void show_common_info(
         "SELECT datetime(mtime) || ' UTC' FROM event WHERE objid=%d",
         db_column_int(&q, 1)
       );
-      fossil_print("%-13s %s %s\n", zType, zUuid, zDate);
+      fossil_print("%-13s %.40s %s\n", zType, zUuid, zDate);
       free(zDate);
     }
     db_finalize(&q);
