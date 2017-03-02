@@ -56,7 +56,7 @@ struct SHA1_CTX {
 };
 #endif
 void SHA1DCInit(SHA1_CTX*);
-void SHA1DCUpdate(SHA1_CTX*, const char*, unsigned);
+void SHA1DCUpdate(SHA1_CTX*, const unsigned char*, unsigned);
 int SHA1DCFinal(unsigned char[20], SHA1_CTX*);
 
 #define SHA1Context SHA1_CTX

@@ -1502,7 +1502,7 @@ void SHA1DCSetCallback(SHA1_CTX* ctx, collision_block_callback callback)
   ctx->callback = callback;
 }
 
-void SHA1DCUpdate(SHA1_CTX* ctx, const char* buf, unsigned len)
+void SHA1DCUpdate(SHA1_CTX* ctx, const unsigned char* buf, unsigned len)
 {
   unsigned left, fill;
   if (len == 0)
@@ -1556,7 +1556,7 @@ int SHA1DCFinal(unsigned char output[20], SHA1_CTX *ctx)
   uint32_t last = ctx->total & 63;
   uint32_t padn = (last < 56) ? (56 - last) : (120 - last);
   uint64_t total;
-  SHA1DCUpdate(ctx, (const char*)(sha1_padding), padn);
+  SHA1DCUpdate(ctx, sha1_padding, padn);
 
   total = ctx->total - padn;
   total <<= 3;
