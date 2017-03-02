@@ -1,5 +1,5 @@
-C Few\scomment\sglitches
-D 2017-03-02T12:37:58.716
+C Cherry-pick\s[http://www.sqlite.org/src/info/ac760db0727209db|ac760db072]\sfrom\sSQLite:\sFix\sa\suse-after-free\sproblem\sin\sthe\sshell\stool\scode\sthat\scould\soccur\sif\san\sSQL\sstatement\swere\sexecuted\safter\san\s".open"\scommand\swith\sinvalid\soptions.
+D 2017-03-02T16:20:09.005
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -498,7 +498,7 @@ F src/setup.c 2d807dd6722ea73a8be13afe66a194cdc1e4b5ee
 F src/sha1.c f8052a974b626854519fdd78563d5c0c827fcf7a
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c d76316bb49e387bd67342f592125e24b48e17270
-F src/shell.c a84e453c213f3e0d6935a582024da4e242f85a19
+F src/shell.c 27d2b31099fd2cd749e44d025ef9b54ca26692cb
 F src/shun.c bcbc874407f9dd9b98a620339481127dbc6a70f2
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c 0b6ae35015f48cbe9cef2f97d65105a796fc366b
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b098c9398aacca4085a6117196f2d5a2a9cbf47f
-R 5053054dc098b243ac6a8e063e9cf16b
+P 8a76861556c3ee11bc419ac944e932af1e848c0c
+R b14b318ebcd302d700096463b7de65d4
 U jan.nijtmans
-Z 857d652b319a5711268902ada3b31df1
+Z 8f265861d58451fa44be546c3a812c2d
