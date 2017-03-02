@@ -752,7 +752,7 @@ static void request_phantoms(Xfer *pXfer, int maxReq){
 ** Compute an hash on the tail of pMsg.  Verify that it matches the
 ** the hash given in pHash.  Return non-zero for an error and 0 on success.
 **
-** The type of hash computed (SHA1, SHA3-224, SHA3-256) is determined by
+** The type of hash computed (SHA1, SHA3-256) is determined by
 ** the length of the input hash in pHash.
 */
 static int check_tail_hash(Blob *pHash, Blob *pMsg){

@@ -62,7 +62,7 @@ const char *hname_alg(int nHash){
 }
 
 /*
-** Return the integer hash algorithm code number (ex: HNAME_K224) for
+** Return the integer hash algorithm code number (ex: HNAME_K256) for
 ** the hash string provided.  Or return HNAME_ERROR (0) if the input string
 ** is not a valid artifact hash string.
 */
@@ -84,7 +84,7 @@ int hname_validate(const char *zHash, int nHash){
 **
 ** Actually, the returned value is one of the hash algorithm constants
 ** corresponding to the hash that matched if the hash is correct.
-** (Examples: HNAME_SHA1 or HNAME_K224).  And the return is HNAME_ERROR
+** (Examples: HNAME_SHA1 or HNAME_K256).  And the return is HNAME_ERROR
 ** if the hash does not match.
 */
 int hname_verify_hash(Blob *pContent, const char *zHash, int nHash){
@@ -116,7 +116,7 @@ int hname_verify_hash(Blob *pContent, const char *zHash, int nHash){
 **
 ** Actually, the returned value is one of the hash algorithm constants
 ** corresponding to the hash that matched if the hash is correct.
-** (Examples: HNAME_SHA1 or HNAME_K224).  And the return is HNAME_ERROR
+** (Examples: HNAME_SHA1 or HNAME_K256).  And the return is HNAME_ERROR
 ** if the hash does not match.
 */
 int hname_verify_file_hash(const char *zFile, const char *zHash, int nHash){

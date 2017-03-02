@@ -1,5 +1,5 @@
-C Few\s(textual)\stypos.\sEliminate\sunneccary\sspacing.
-D 2017-03-02T12:08:24.942
+C Few\scomment\sglitches
+D 2017-03-02T12:37:58.716
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -433,7 +433,7 @@ F src/fusefs.c c774c78b274375f42653c71d0b6c1062695bb4da
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 066169948d671628a648bd0e622ec9487e258195
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
-F src/hname.c 786ed0aaf8ba2f8abc64e43b2ae8c4a1edead2ef
+F src/hname.c f0054f0dca9db094c53d16390f92b129d367ad55
 F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
@@ -536,7 +536,7 @@ F src/wikiformat.c 1616c95201d38f46c67722a86c880e508b042aad
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c a3970bdc0b05426cadadb1a62cd378e10f124062
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c 86eb14c0258849f37f24833bdf1120ee1238a88a
+F src/xfer.c f8daf9f814bcfdfe32c104d58c68e92ccaaf05f9
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 34f51a1acd869bfa063fafab28decfab34cb2a1a
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ed30b3d6685e93b0a63167e01af9265b96bde07a
-R 721d79200ee6507f2a2fa1bc3ee0a579
+P b098c9398aacca4085a6117196f2d5a2a9cbf47f
+R 5053054dc098b243ac6a8e063e9cf16b
 U jan.nijtmans
-Z 66dcf1f14e01b1c2dd70d769a9fba83a
+Z 857d652b319a5711268902ada3b31df1
