@@ -53,10 +53,10 @@ operation) many different files
 in the repository might be modified.  Some files are simply
 compressed.  Other files are delta encoded and then compressed.
 While all this is going on, fossil makes a record of every file
-that is encoded and the SHA1 hash of the original content of that
+and the SHA1 or SHA3-256 hash of the original content of that
 file.  Then just before transaction commit, fossil re-extracts
-the original content of all files that were written, computes
-the SHA1 checksum again, and verifies that the checksums match.
+the original content of all files that were written, recomputes
+the hash, and verifies that the recomputed hash still matches.
 If anything does not match up, an error
 message is printed and the transaction rolls back.
 
@@ -75,8 +75,8 @@ commit, these checksums are verified to ensure that the check-in
 agrees exactly with what is on disk.  Similarly,
 the repository checksum is verified after a checkout to make
 sure that the entire repository was checked out correctly.
-Note that these added checks use a different hash (MD5 instead
-of SHA1) in order to avoid common-mode failures in the hash
+Note that these added checks use a different hash algorithm (MD5)
+in order to avoid common-mode failures in the hash
 algorithm implementation.
 
 

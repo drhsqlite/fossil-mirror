@@ -42,14 +42,9 @@ No prefixes, suffixes, or other information is added to an artifact before
 the hash is computed.  The artifact name is just the (lower-case
 hexadecimal) hash of the raw artifact.
 
-Fossil supports multiple hash algorithms including SHA1 and various
-lengths of SHA3.  Because an artifact can be hashed using multiple algorithms,
-a single artifact can have multiple names.  Usually, Fossil knows
-each artifact by just a single name called the "display name".  But it is
-possible for Fossil to know an artifact by multiple names from different
-hashes.  In that case, Fossil uses the display name for output, but continues
-to accept the alternative names as command-line arguments or as parameters to
-webpage URLs.
+Fossil currently computes artifact names using either SHA1 or SHA3-256.  It
+is relatively easy to add new algorithms in the future, but there are no
+plans to do so at this time.  
 
 When referring to artifacts in using tty commands or webpage URLs, it is 
 sufficient to specify a unique prefix for the artifact name.  If the input
@@ -64,7 +59,7 @@ alternative hash algorithms.
 <a name="structural"></a>
 <h2>2.0 Structural Artifacts</h2>
 
-A structural artifact is an artifact that has a particular format and
+A structural artifact is an artifact with a particular format
 that is used to define the relationships between other artifacts in the
 repository.
 Fossil recognizes the following kinds of structural

@@ -1,5 +1,5 @@
-C Fix\sa\sredundant\s#include\sin\ssha1hard.c.
-D 2017-03-01T22:26:50.531
+C Documentation\supdates\s-\sremove\sreferences\sto\sSHA1\sas\sthe\sonly\savailable\nhash\salgorithm.
+D 2017-03-02T00:10:41.672
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -688,7 +688,7 @@ F www/branch02.gif 55c3567748366595e1678a1c43448a9370ff105e
 F www/branch03.gif 3840bdbb5ed0f57104089c2888ee286d4c79a17b
 F www/branch04.gif 908b4fc1688810f78250e0a269741165ee31979a
 F www/branch05.gif 4808cbf6e0a4095580fca0f56a35f16ba975dbf9
-F www/branching.wiki f8a72263376e0997505bba9da690615c77fb157e
+F www/branching.wiki 6e80e4eafd508ab0bfe76b353936618de457f6da
 F www/bugtheory.wiki 786bcb265b8043c41f5985167d88b57866e5a652
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
 F www/build-icons/linux64.gif 522442bc41cc8399b8957ab3cb1af4f5fe46b11f
@@ -699,7 +699,7 @@ F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 6e6c9445543461ae0a75057a42ec2012559be02a
 F www/changes.wiki b08ac90afbed5953138d06f8265bbab70d2e5e48
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
-F www/checkin_names.wiki be27496a6d2f5f6c83b5a3a1441451beabec99e1
+F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
@@ -709,7 +709,7 @@ F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/custom_ticket.wiki 237e66bca7ae40c77285357967bfa6728e79a73d
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
-F www/customskin.md b780e7be44eb68faade0fb647376e1815009d211
+F www/customskin.md a6788c63961d104e57126e5cdf7ada0be703f687
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -734,11 +734,11 @@ F www/env-opts.md bfca7cac80d516493621fb9b32b65afce6526e16
 F www/event.wiki f5a9cc34b11e8224e503e16137ba0f966f151551
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
-F www/fileformat.wiki 8877469cd3042d803445bac19ea1637ddf875db2
+F www/fileformat.wiki c9c36b1fd70378cb6305635e08a8a568d25ae7ce
 F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 072cd93d7f8dd668d8d157c35b4f529a26de4bb7
+F www/fossil-v-git.wiki b04effcdba0c2262eb9ad8d5044a5b8b73c6331b
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -759,34 +759,34 @@ F www/mkindex.tcl bbf182af20110241e858c24ef55fcbca268f13e5 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
 F www/permutedindex.html e2f7a7752d2527674bfe905d1e2e91cffc3e4e38
-F www/pop.wiki a9bd731ae3e8b431328d8c3f017cf12d180f377b
+F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 1c55c09563361db73b733386dc0fd6689156d5ab
 F www/qandc.wiki b8b6f9668796bde63440e64dfd40a176766dd78e
 F www/quickstart.wiki afc5e41e06cc2d54364016e3d0d7dff1209b082d
 F www/quotes.wiki 6f77c1af17f05596d0f6a4cc88f149a61188ecfd
 F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
-F www/selfcheck.wiki d10149135318ada36535d8ce21de327c45d12d34
+F www/selfcheck.wiki 4ca2c1cf4d379cfcba8e676f40fc6c4a4c7538cd
 F www/selfhost.wiki 6090bea94139ec56a3cba671e75d0e78c54ee077
 F www/server.wiki a6b8ca94d0fa8b18e9f3604f9977ffcde756ff65
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
-F www/shunning.wiki c216e0b9968d4916224bce549e65c651076ebe1f
+F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki 6558a7e417d5e9d29271c26ebb3195dddec31855
 F www/style.wiki da3a414d4c57c3da2636daf0baf6964ba72ce70b
-F www/sync.wiki c14259113e0548e41911b177499170269ac0cb2b
-F www/tech_overview.wiki a96e1f0c384b3e3ad301f2f64ffb531a2c151aed
+F www/sync.wiki f42c8d9ed92fed5dbae298fadaf9219262718bcc
+F www/tech_overview.wiki 40fa2c33db02cf457f1b3bd1663404c428b6dda7
 F www/th1.md 19fd3af8400d8dbeb0d7c94370db06c73114f5f1
-F www/theory1.wiki 8047579bc30437bffe4dd0c06d8c2aa3ba3648ae
+F www/theory1.wiki f3b67ce69fc710a54a9ec89f6d12f90da0632ea4
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/unvers.wiki a75ea510c408c0bb83c396afbe72948b8b2202cd
-F www/webpage-ex.md 5b2f16a827413955c24d1e9fc27bcaf30ff643b9
+F www/webpage-ex.md a77371e2e4e14255f647e2c257232a5b4a528553
 F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
-F www/whyusefossil.wiki fab03dc861eb75931673f2bc9dc3432b102df0fc
+F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c682faab38a79bd94033d6bd70000abe0b889e5b
-R b85cb2876db26fbe01ceacdafa13ddf3
+P 0f5dc21e337eb447b53a036a395eb6a035a688ca
+R 95a9a69471144c3653a29898afb0290f
 U drh
-Z 5308bebc9717f9bd20662710264e9e63
+Z 73f5392886c2dc974d7524e5c1e43579

@@ -40,7 +40,8 @@ Other artifacts, known as
 "control artifacts", contain ASCII text in a particular format that
 defines relationships between other artifacts, such as which
 content artifacts that go together to form a particular version of the
-project.  Each artifact is named by its SHA1 hash and is thus immutable.
+project.  Each artifact is named by its SHA1 or SHA3-256 hash and is
+thus immutable.
 Artifacts can be added to the database but not removed (if we ignore
 the exceptional case of [./shunning.wiki | shunning].)  Repositories
 synchronize by computing the union of their artifact sets.  SQL and
