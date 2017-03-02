@@ -44,9 +44,9 @@ hexadecimal) hash of the raw artifact.
 
 Fossil currently computes artifact names using either SHA1 or SHA3-256.  It
 is relatively easy to add new algorithms in the future, but there are no
-plans to do so at this time.  
+plans to do so at this time.
 
-When referring to artifacts in using tty commands or webpage URLs, it is 
+When referring to artifacts in using tty commands or webpage URLs, it is
 sufficient to specify a unique prefix for the artifact name.  If the input
 prefix is not unique, Fossil will show an error.  Within a structural
 artifact, however, all references to other artifacts must be the complete

@@ -45,7 +45,7 @@
 
 /*
 ** State structure for a SHA3 hash in progress
-*/ 
+*/
 typedef struct SHA3Context SHA3Context;
 struct SHA3Context {
   union {

@@ -498,11 +498,11 @@ static int send_delta_native(
 }
 
 /*
-** Push an error message to alert the older client that the repository 
+** Push an error message to alert the older client that the repository
 ** has SHA3 content and cannot be synced or cloned.
 */
 static void xfer_cannot_send_sha3_error(Xfer *pXfer){
-  blob_appendf(pXfer->pOut, 
+  blob_appendf(pXfer->pOut,
     "error Fossil\\sversion\\s2.0\\sor\\slater\\srequired.\n"
   );
 }

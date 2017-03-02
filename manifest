@@ -1,5 +1,5 @@
-C Fix\sharmless\scompiler\swarnings\sin\sthe\snew\shardened\sSHA1\simplementation.
-D 2017-03-02T01:28:54.957
+C Few\s(textual)\stypos.\sEliminate\sunneccary\sspacing.
+D 2017-03-02T12:08:24.942
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -467,7 +467,7 @@ F src/main.mk adb39465c0b57737cc735f324b9e2bc296a79f16
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl 580b8c186cee0309f1dc96ff1620f066a6782757
-F src/manifest.c bf625f198ff0b473b368139dcf3a4ed4bf91c25c
+F src/manifest.c 34ddf7c6b3d86a746ce11c0eef7e2ac9245c2100
 F src/markdown.c 20bb4755f258601e4e3e5274ea117fc7c8b1ccf7
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
 F src/markdown_html.c 5c7c2d2356e03a4456932c5fdef9aef836a379a5
@@ -495,11 +495,11 @@ F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/search.c 82d3900b27d457fd1051d46acc5f4dcc74947960
 F src/setup.c 2d807dd6722ea73a8be13afe66a194cdc1e4b5ee
-F src/sha1.c eb6ff0e6caa2ccfc467a42252530efc0dc7201d3
-F src/sha1hard.c b4b2cfe0828b0cabf77d7a6f8be8d29410eb4c89
-F src/sha3.c 27842367fb9310b3bc6be590dc04f93132b3d3ff
+F src/sha1.c f8052a974b626854519fdd78563d5c0c827fcf7a
+F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
+F src/sha3.c d76316bb49e387bd67342f592125e24b48e17270
 F src/shell.c a84e453c213f3e0d6935a582024da4e242f85a19
-F src/shun.c ef7af348255a4230350b65e941836577e4b0123a
+F src/shun.c bcbc874407f9dd9b98a620339481127dbc6a70f2
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c 0b6ae35015f48cbe9cef2f97d65105a796fc366b
 F src/sqlcmd.c c9d03589cc39ae6bb5242ed9186645fbb5b67dea
@@ -530,13 +530,13 @@ F src/user.c 1d31844a9e48e2ab515586bf54ecc4b30b47d5b5
 F src/utf8.c 9f458b9698fc928cc21e375538f268651d1d22a2
 F src/util.c 9a3cc502aa6ae3bc19831e5f553cd346ec154b5c
 F src/verify.c 5799825d086464bb9e19e69ffeec84a710d1681b
-F src/vfile.c b7e3d918b22d9ff7dde55f0a2f01e6c6474066eb
+F src/vfile.c ed1123e80689e8c160e9af0d99227d2bc252b486
 F src/wiki.c 9482a4ef96942921b5173a44fda320f8596c9cc5
 F src/wikiformat.c 1616c95201d38f46c67722a86c880e508b042aad
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c a3970bdc0b05426cadadb1a62cd378e10f124062
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c 0a5f4e054b019d313e2e52225e70da025b13eee5
+F src/xfer.c 86eb14c0258849f37f24833bdf1120ee1238a88a
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 34f51a1acd869bfa063fafab28decfab34cb2a1a
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -734,7 +734,7 @@ F www/env-opts.md bfca7cac80d516493621fb9b32b65afce6526e16
 F www/event.wiki f5a9cc34b11e8224e503e16137ba0f966f151551
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
-F www/fileformat.wiki c9c36b1fd70378cb6305635e08a8a568d25ae7ce
+F www/fileformat.wiki c5e5f4a278c4babc29f071a07d177b1dddbfbac3
 F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
@@ -774,7 +774,7 @@ F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki 6558a7e417d5e9d29271c26ebb3195dddec31855
 F www/style.wiki da3a414d4c57c3da2636daf0baf6964ba72ce70b
-F www/sync.wiki f42c8d9ed92fed5dbae298fadaf9219262718bcc
+F www/sync.wiki f2d19da3016d11203eed108df2215ae1425236f7
 F www/tech_overview.wiki 40fa2c33db02cf457f1b3bd1663404c428b6dda7
 F www/th1.md 19fd3af8400d8dbeb0d7c94370db06c73114f5f1
 F www/theory1.wiki f3b67ce69fc710a54a9ec89f6d12f90da0632ea4
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 796db898c7c5b2ccedf5bf3c36912ac56608baa1
-R c848ec08f02b27accaa2dbed27c8591b
-U drh
-Z 0638c35bee950bdc1676c43c9b56bd0d
+P ed30b3d6685e93b0a63167e01af9265b96bde07a
+R 721d79200ee6507f2a2fa1bc3ee0a579
+U jan.nijtmans
+Z 66dcf1f14e01b1c2dd70d769a9fba83a

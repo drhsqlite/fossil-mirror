@@ -15,7 +15,7 @@ at a server is inconsequential.  It is assumed that the hash names
 of artifacts are unique - that every artifact has a different hash.
 To a first approximation, synchronization proceeds by sharing lists
 hash values for available artifacts, then sharing the content of artifacts
-whose names are missing from one side or the other of the connection.  
+whose names are missing from one side or the other of the connection.
 In practice, a repository might contain millions of artifacts.  The list of
 hash names for this many artifacts can be large.  So optimizations are
 employed that usually reduce the number of hashes that need to be
@@ -411,7 +411,7 @@ as follows:
 <p>The <i>name</i> argument is the name of an unversioned file.
 The <i>mtime</i> is the last modification time of the unversioned file
 in seconds since 1970.
-The <i>hash</i> is the SHA1 or SHA3-256 hash of the unversioned file 
+The <i>hash</i> is the SHA1 or SHA3-256 hash of the unversioned file
 content, or "<b>-</b>" if the file has been deleted.
 The <i>size</i> is the uncompressed size of the file in bytes.
 
