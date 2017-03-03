@@ -1,5 +1,5 @@
-C Update\scustom\smakefile
-D 2017-03-03T13:49:25.292
+C Add\sgshow\sand\sgcat\scommand\sto\sallow\sto\suse\sgdiff-command\swhen\sdiffing\sthe\nstash\sagainst\sbaseline.\sWhen\susing\sgdiff,\scall\sexternal\stool\sdirectly\swith\sthe\nfile\sfrom\sthe\scheckout,\sit's\susefull\swhen\smerging\schange\smanually\susing\sthe\nexternal\stool.
+D 2017-03-03T14:31:53.114
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -419,7 +419,7 @@ F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
 F src/diff.c 09884b53c51f9a1700dc94ecae0f9071e24191ad
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
-F src/diffcmd.c 819b07b59f71aa9ec7be722411e2484fd2935082
+F src/diffcmd.c cc4771920b91eccb0c0a732bf1440df37f0d0d54
 F src/dispatch.c 4e634c0cf22b7dd63501a4dc0aa6375cf4151343
 F src/doc.c ae84da677c3653f7e20af9dd3a08428ab2e5da7e
 F src/encode.c edb12a68c5831e5331eaad3796c492059edb10fb
@@ -505,7 +505,7 @@ F src/skins.c 0b6ae35015f48cbe9cef2f97d65105a796fc366b
 F src/sqlcmd.c c9d03589cc39ae6bb5242ed9186645fbb5b67dea
 F src/sqlite3.c 882d49dd40ebb58e25b3fb9b790ecb2fd7d9cc7e
 F src/sqlite3.h b590133adb2907b8b635c5df4c88393ea94761bd
-F src/stash.c ac247e5b718cd29c6c1fc543f7b984be9b9f53e6
+F src/stash.c f79f603f69d35e892fd8544910475b48a2f40225
 F src/stat.c 6eeba5211c329f742b6a9dfe65519955a8d9ce00
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
 F src/style.c cf9edbf403e1df8e094e8a1d44d5dd9516046678
@@ -786,7 +786,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a717856f25612d623a2a1f0ca7cf429d8a39128a
-R 1cbd6b602fe2bd5426208fc3062db5fd
-U jan.nijtmans
-Z 3c448eeeb3bf9ae6b58dbbaa188a1ea7
+P 6fc3bf94c7e04a8883c4d108b5cbc210512badfc
+R 2a8804a6a001eced898efc613c8b86c5
+T *branch * stash-gdiff-improvement
+T *sym-stash-gdiff-improvement *
+T -sym-trunk *
+U mgagnon
+Z 2cd7d09c4e3276e50056607723d6fa94
