@@ -1,5 +1,5 @@
-C Updates\sto\sthe\s"mkdownload.tcl"\sscript\sfor\sversion\s2.0.
-D 2017-03-03T13:15:40.437
+C Update\scustom\smakefile
+D 2017-03-03T13:49:25.292
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -665,7 +665,7 @@ F tools/man_page_command_list.tcl bcf4aa82a2a2f6f5194f1e67915613b82a0957f4 x
 F win/Makefile.PellesCGMake e9d1636731fe8a581e1f2a9a155b1310a9356178
 F win/Makefile.dmc c25967ec834821a70b903969ba1d325f121287ee
 F win/Makefile.mingw 299506ef6b91297c226c2b190873db1b00cf60f9
-F win/Makefile.mingw.mistachkin 4635e4429322aaa8d1c1f1b70aadb13836871825
+F win/Makefile.mingw.mistachkin d40fe2737602e0033e819388413a6015ca638076
 F win/Makefile.msc 1b5be2dc160e6a95cfe54e09cfd85318a9b6c6dd
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -754,7 +754,7 @@ F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki 38c24247e3e5ccea5135f4d5fddf82244815d8fd
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki 7805bf0a04dc009df152d683771f8e3f74b194a4
-F www/mkdownload.tcl bb442144ee6a5ddbcd9d974a01e70c6e9f3c3ef0
+F www/mkdownload.tcl 86e774d93eb5c92cac5e7328920987feedf9356d
 F www/mkindex.tcl bbf182af20110241e858c24ef55fcbca268f13e5 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1d407cff32978b6ed57138da36787d547ce6887d
-R 93b1efab198ca75f4e604585226c4ad5
-U drh
-Z ad475cc65946943d7d817e7775a766a2
+P a717856f25612d623a2a1f0ca7cf429d8a39128a
+R 1cbd6b602fe2bd5426208fc3062db5fd
+U jan.nijtmans
+Z 3c448eeeb3bf9ae6b58dbbaa188a1ea7
