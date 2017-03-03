@@ -1,5 +1,5 @@
-C Cherry-pick\s[http://www.sqlite.org/src/info/ac760db0727209db|ac760db072]\sfrom\sSQLite:\sFix\sa\suse-after-free\sproblem\sin\sthe\sshell\stool\scode\sthat\scould\soccur\sif\san\sSQL\sstatement\swere\sexecuted\safter\san\s".open"\scommand\swith\sinvalid\soptions.
-D 2017-03-02T16:20:09.005
+C Version\s2.0
+D 2017-03-03T12:00:30.977
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -786,7 +786,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8a76861556c3ee11bc419ac944e932af1e848c0c
+P 69b9b9563fd471936d8591fd2f7e79b3e4abe497
 R b14b318ebcd302d700096463b7de65d4
-U jan.nijtmans
-Z 8f265861d58451fa44be546c3a812c2d
+T +bgcolor * #d0c0ff
+T +sym-release *
+T +sym-version-2.0 *
+U drh
+Z dd9b6c6458a6b4370d68a3c57a9f1bd8
