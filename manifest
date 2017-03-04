@@ -1,5 +1,5 @@
-C Improve\sstash\sdiff\scommands\swhen\susing\sexternal\sdiff\stool\sto\smake\sit\sbehave\sa\nlittle\sbit\smore\slike\sthe\s"fossil\sgdiff"\scommand.
-D 2017-03-03T19:33:22.112
+C Add\sthe\s/juvlist\swebpage\sthat\sreturns\sa\slist\sof\sall\sunversioned\sfiles\nas\sJSON.
+D 2017-03-04T14:29:36.872
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -421,8 +421,8 @@ F src/diff.c 09884b53c51f9a1700dc94ecae0f9071e24191ad
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c cc4771920b91eccb0c0a732bf1440df37f0d0d54
 F src/dispatch.c 4e634c0cf22b7dd63501a4dc0aa6375cf4151343
-F src/doc.c ae84da677c3653f7e20af9dd3a08428ab2e5da7e
-F src/encode.c edb12a68c5831e5331eaad3796c492059edb10fb
+F src/doc.c a18db75a080ca2225e76a05a6e8957ea740ffc84
+F src/encode.c 0ce3f423a35eee45b63eb418bb288b4dd0794db1
 F src/event.c 5dcf3c6ff00c39c25a3909deec1d1154cf0b85a5
 F src/export.c ff3740ec039c8a06df8a1a95ceae62ddd35babb3
 F src/file.c 7570da01a8d1ce7e0d6dd91ca7eeced9b5f4c75b
@@ -523,7 +523,7 @@ F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 33b65539a12abd079a57972b78e0d532831cefd9
 F src/undo.c d3cca342dd73eaec65e352d978e8f7a9e75a5ddd
 F src/unicode.c 49d229135beb3cba5a58013dfda577fa51ab96ee
-F src/unversioned.c 8e5f76b5847295f84f0772937617cc945721a72f
+F src/unversioned.c d5d59c5f94d1a1d06f2d7a0d55f0e3d59c8cab10
 F src/update.c a66c55724db6a355c28d542fcfc4320b9de0eb36
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c 1d31844a9e48e2ab515586bf54ecc4b30b47d5b5
@@ -786,8 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9413c77358c094c54475f279cad07e6654590e22 5e19d731760685a4e4a1591d6275137d79b98943
-R c8615df8b275e5ceba36736a75a1cf9f
-T +closed 5e19d731760685a4e4a1591d6275137d79b98943
-U mgagnon
-Z 62eabb892bc3586c717af6a3c8eb3594
+P 2a47673a9e00952f647ad64fa3f1c75ca6a892f2
+R dfdd296d45c019ab4a734bf6492bb62f
+U drh
+Z 58baa0eae09123b95bffa4bd5fe1c3bc
