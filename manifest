@@ -1,5 +1,5 @@
-C New\srepositories\sdefault\sto\shash\spolicy\s"shun-sha1"\swith\sa\sSHA3\sinitial\ncheck-in.\s\sBut\sthis\scan\sbe\soverridden\susing\sthe\s--template\soption\swith\sa\ntemplate\srepository\sthat\sis\salready\sset\sto\sa\sdifferent\shash\spolicy.
-D 2017-03-04T20:38:30.501
+C Preserve\sthe\shash\spolicy\son\sa\sclone.
+D 2017-03-04T21:03:17.192
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -404,7 +404,7 @@ F src/cgi.c 0fe6520c4eeedee87cab271f32943a96382828c1
 F src/checkin.c a9ec02c41a578b4e5a86ba0f57774c03cae75068
 F src/checkout.c ad202f9c6585a8e6d5418ff733f7349f652e9b05
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
-F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
+F src/clone.c c8b17c6084570fef0afc5b52d5caffcc83ff4548
 F src/codecheck1.c 0e2c3cd4068f6de1df56fc19ec224c296f3c8eb4
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
 F src/config.h 9edbe6bfa88b32682e7028fdf5d30adba5dd1939
@@ -433,7 +433,7 @@ F src/fusefs.c c774c78b274375f42653c71d0b6c1062695bb4da
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 066169948d671628a648bd0e622ec9487e258195
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
-F src/hname.c 66c9615161ccd1fe441de0c880d7b3140e6bf6b5
+F src/hname.c b1291b7407d19faf71b363b22e8c2cf2424d0a55
 F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a616c04b6a010baee0cc55a385505ea922b69737
-R 9d95326a9435178bb6dba9079a238697
+P 95543ce45b6fbc981c831a7508495de8769f10a8
+R 8902682ac6eb838dccd9c72915cac370
 U drh
-Z 2b08e7d58904d11820afe4c2a62c97d9
+Z db2b2f974530450a43ffaf2abc27c9f7

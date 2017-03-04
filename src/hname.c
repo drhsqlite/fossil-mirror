@@ -200,18 +200,17 @@ int hname_hash(const Blob *pContent, unsigned int iHType, Blob *pHashOut){
 ** Return the default hash policy for repositories that do not currently
 ** have an assigned hash policy.
 **
-** Make the default HPOLICY_AUTO if there are SHA1 artficats but no SHA3
+** Make the default HPOLICY_AUTO if there are SHA1 artficates but no SHA3
 ** artifacts in the repository.  Make the default HPOLICY_SHA3 if there 
-** are one or more SHA3 artifacts.  Make the default policy HPOLICY_SHUN_SHA1
-** if the repository contains no artifact at all.
+** are one or more SHA3 artifacts or if the repository is initially empty.
 */
 int hname_default_policy(void){
-  if( db_exists("SELECT 1 FROM blob WHERE length(uuid)>40") ){
+  if( db_exists("SELECT 1 FROM blob WHERE length(uuid)>40") 
+   || !db_exists("SELECT 1 FROM blob WHERE length(uuid)==40")
+  ){
     return HPOLICY_SHA3;
-  }else if( db_exists("SELECT 1 FROM blob WHERE length(uuid)==40") ){
-    return HPOLICY_AUTO;
   }else{
-    return HPOLICY_SHUN_SHA1;
+    return HPOLICY_AUTO;
   }
 }
 
