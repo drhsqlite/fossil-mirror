@@ -200,15 +200,18 @@ int hname_hash(const Blob *pContent, unsigned int iHType, Blob *pHashOut){
 ** Return the default hash policy for repositories that do not currently
 ** have an assigned hash policy.
 **
-** Make the default HPOLICY_AUTO if there are no SHA3 artifacts in the
-** repository, and make the default HPOLICY_SHA3 if there are one or more
-** SHA3 artifacts.
+** Make the default HPOLICY_AUTO if there are SHA1 artficats but no SHA3
+** artifacts in the repository.  Make the default HPOLICY_SHA3 if there 
+** are one or more SHA3 artifacts.  Make the default policy HPOLICY_SHUN_SHA1
+** if the repository contains no artifact at all.
 */
 int hname_default_policy(void){
   if( db_exists("SELECT 1 FROM blob WHERE length(uuid)>40") ){
     return HPOLICY_SHA3;
-  }else{
+  }else if( db_exists("SELECT 1 FROM blob WHERE length(uuid)==40") ){
     return HPOLICY_AUTO;
+  }else{
+    return HPOLICY_SHUN_SHA1;
   }
 }
 
@@ -254,8 +257,14 @@ void hash_policy_command(void){
   }
   for(i=HPOLICY_SHA1; i<=HPOLICY_SHUN_SHA1; i++){
     if( fossil_strcmp(g.argv[2],azPolicy[i])==0 ){
+      if( i==HPOLICY_AUTO
+       && db_exists("SELECT 1 FROM blob WHERE length(uuid)>40") 
+      ){
+        i = HPOLICY_SHA3;
+      }   
       g.eHashPolicy = i;
       db_set_int("hash-policy", i, 0);
+      fossil_print("%s\n", azPolicy[i]);
       return;
     }
   }
