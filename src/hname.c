@@ -18,7 +18,9 @@
 ** This file contains generic code for dealing with hashes used for
 ** naming artifacts.  Specific hash algorithms are implemented separately
 ** (for example in sha1.c and sha3.c).  This file contains the generic
-** interface code.
+** interface logic.
+**
+** "hname" is intended to be an abbreviation of "hash name".
 */
 #include "config.h"
 #include "hname.h"
@@ -48,6 +50,15 @@
 ** The number of distinct hash algorithms:
 */
 #define HNAME_COUNT 2     /* Just SHA1 and SHA3-256. Let's keep it that way! */
+
+/*
+** Hash naming policies
+*/
+#define HPOLICY_SHA1           0      /* Use SHA1 hashes */
+#define HPOLICY_AUTO           1      /* SHA1 but auto-promote to SHA3 */
+#define HPOLICY_SHA3           2      /* Use SHA3 hashes */
+#define HPOLICY_SHA3_ONLY      3      /* Use SHA3 hashes exclusively */
+#define HPOLICY_SHUN_SHA1      4      /* Shun all SHA1 objects */
 
 #endif /* INTERFACE */
 
@@ -144,24 +155,110 @@ int hname_verify_file_hash(const char *zFile, const char *zHash, int nHash){
 ** Compute a hash on blob pContent.  Write the hash into blob pHashOut.
 ** This routine assumes that pHashOut is uninitialized.
 **
-** The preferred hash is used for iHType==0, and various alternative hashes
-** are used for iHType>0 && iHType<NHAME_COUNT.
+** The preferred hash is used for iHType==0 and the alternative hash is
+** used if iHType==1.  (The interface is designed to accommodate more than
+** just two hashes, but HNAME_COUNT is currently fixed at 2.)
+**
+** Depending on the hash policy, the alternative hash may be disallowed.
+** If the alterative hash is disallowed, the routine returns 0.  This
+** routine returns 1 if iHType>0 and the alternative hash is allowed,
+** and it always returns 1 when iHType==0.
+**
+** Alternative hash is disallowed for all hash policies except sha1
+** and sha3.  
 */
-void hname_hash(const Blob *pContent, unsigned int iHType, Blob *pHashOut){
-#if RELEASE_VERSION_NUMBER>=20100
-  /* For Fossil 2.1 and later, the preferred hash algorithm is SHA3-256 and
-  ** SHA1 is the secondary hash algorithm. */
-  switch( iHType ){
-    case 0:  sha3sum_blob(pContent, 256, pHashOut); break;
-    case 1:  sha1sum_blob(pContent, pHashOut);      break;
+int hname_hash(const Blob *pContent, unsigned int iHType, Blob *pHashOut){
+  assert( iHType==0 || iHType==1 );
+  if( iHType==1 ){
+    switch( g.eHashPolicy ){
+      case HPOLICY_SHA1:
+        sha3sum_blob(pContent, 256, pHashOut);
+        return 1;
+      case HPOLICY_SHA3:
+        sha1sum_blob(pContent, pHashOut);
+        return 1;
+    }
   }
-#else
-  /* Prior to Fossil 2.1, the preferred hash algorithm is SHA1 (for backwards
-  ** compatibility with Fossil 1.x) and SHA3-256 is the only auxiliary
-  ** algorithm */
-  switch( iHType ){
-    case 0:  sha1sum_blob(pContent, pHashOut);      break;
-    case 1:  sha3sum_blob(pContent, 256, pHashOut); break;
+  if( iHType==0 ){
+    switch( g.eHashPolicy ){
+      case HPOLICY_SHA1:
+      case HPOLICY_AUTO:
+        sha1sum_blob(pContent, pHashOut);
+        return 1;
+      case HPOLICY_SHA3:
+      case HPOLICY_SHA3_ONLY:
+      case HPOLICY_SHUN_SHA1:
+        sha3sum_blob(pContent, 256, pHashOut);
+        return 1;
+    }
   }
-#endif
+  blob_init(pHashOut, 0, 0);
+  return 0;
+}
+
+/*
+** Return the default hash policy for repositories that do not currently
+** have an assigned hash policy.
+**
+** Make the default HPOLICY_AUTO if there are no SHA3 artifacts in the
+** repository, and make the default HPOLICY_SHA3 if there are one or more
+** SHA3 artifacts.
+*/
+int hname_default_policy(void){
+  if( db_exists("SELECT 1 FROM blob WHERE length(uuid)>40") ){
+    return HPOLICY_SHA3;
+  }else{
+    return HPOLICY_AUTO;
+  }
+}
+
+/*
+** COMMAND: hash-policy*
+**
+** Usage: fossil hash-policy ?NEW-POLICY?
+**
+** Query or set the hash policy for the current repository.  Available hash
+** policies are as follows:
+**
+**   sha1              New artifact names are created using SHA1
+**
+**   auto              New artifact names are created using SHA1, but
+**                     automatically change the policy to "sha3" when
+**                     any SHA3 artifact enters the repository.
+**
+**   sha3              New artifact names are created using SHA3, but
+**                     older artifacts with SHA1 names may be reused.
+**
+**   sha3-only         Use only SHA3 artifact names.  Do not reuse legacy
+**                     SHA1 names.
+**
+**   shun-sha1         Shun any SHA1 artifacts received by sync operations
+**                     other than clones.  Older legacy SHA1 artifacts are
+**                     are allowed during a clone.
+**
+** The default hash policy for existing repositories is "auto", which will
+** immediately promote to "sha3" if the repository contains one or more
+** artifacts with SHA3 names.  The default hash policy for new repositories
+** is "shun-sha1".
+*/
+void hash_policy_command(void){
+  static const char *azPolicy[] = {
+    "sha1", "auto", "sha3", "sha3-only", "shun-sha1"
+  };
+  int i;
+  db_find_and_open_repository(0, 0);
+  if( g.argc!=2 && g.argc!=3 ) usage("?NEW-POLICY?");
+  if( g.argc==2 ){
+    fossil_print("%s\n", azPolicy[g.eHashPolicy]);
+    return;
+  }
+  for(i=HPOLICY_SHA1; i<=HPOLICY_SHUN_SHA1; i++){
+    if( fossil_strcmp(g.argv[2],azPolicy[i])==0 ){
+      g.eHashPolicy = i;
+      db_set_int("hash-policy", i, 0);
+      return;
+    }
+  }
+  fossil_fatal("unknown hash policy \"%s\" - should be one of: sha1 auto"
+               " sha3 sha3-only shun-sha1", g.argv[2]);
 }

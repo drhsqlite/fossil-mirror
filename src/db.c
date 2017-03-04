@@ -1487,6 +1487,11 @@ void db_open_repository(const char *zDbName){
   g.allowSymlinks = db_get_boolean("allow-symlinks",
                                    db_allow_symlinks_by_default());
   g.zAuxSchema = db_get("aux-schema","");
+  g.eHashPolicy = db_get_int("hash-policy",-1);
+  if( g.eHashPolicy<0 ){
+    g.eHashPolicy = hname_default_policy();
+    db_set_int("hash-policy", g.eHashPolicy, 0);
+  }
 
   /* If the ALIAS table is not present, then some on-the-fly schema
   ** updates might be required.
@@ -1919,10 +1924,13 @@ void create_repository_cmd(void){
   const char *zTemplate;      /* Repository from which to copy settings */
   const char *zDate;          /* Date of the initial check-in */
   const char *zDefaultUser;   /* Optional name of the default user */
+  
 
   zTemplate = find_option("template",0,1);
   zDate = find_option("date-override",0,1);
   zDefaultUser = find_option("admin-user","A",1);
+  g.eHashPolicy = HPOLICY_SHUN_SHA1;
+  if( find_option("sha1",0,0)!=0 ) g.eHashPolicy = HPOLICY_SHA1;
   /* We should be done with options.. */
   verify_all_options();
 
@@ -1939,6 +1947,8 @@ void create_repository_cmd(void){
   db_open_config(0, 0);
   if( zTemplate ) db_attach(zTemplate, "settingSrc");
   db_begin_transaction();
+  g.eHashPolicy = db_get_int("hash-policy", g.eHashPolicy);
+  db_set_int("hash-policy", g.eHashPolicy, 0);
   if( zDate==0 ) zDate = "now";
   db_initial_setup(zTemplate, zDate, zDefaultUser);
   db_end_transaction(0);
