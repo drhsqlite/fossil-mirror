@@ -69,7 +69,8 @@ Git requires hours or days.
 
 The baseline data structures for Fossil and Git are the same (modulo
 formatting details).  Both systems store check-ins as immutable
-objects referencing their immediate ancestors and named by their SHA1 hash.
+objects referencing their immediate ancestors and named by a
+cryptographic hash of the check-in content.
 
 The difference is that Git stores its objects as individual files
 in the ".git" folder or compressed into

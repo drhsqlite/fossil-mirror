@@ -179,7 +179,7 @@ respository settings and the specific page being generated.
 
    *   **release_version** - The release version of Fossil.  Ex: "1.31"
 
-   *   **manifest_version** - A prefix on the SHA1 check-in hash of the
+   *   **manifest_version** - A prefix on the check-in hash of the
        specific version of fossil that is running.  Ex: "\[47bb6432a1\]"
 
    *   **manifest_date** - The date of the source-code check-in for the

@@ -56,7 +56,7 @@ struct SHA1_CTX {
 };
 #endif
 void SHA1DCInit(SHA1_CTX*);
-void SHA1DCUpdate(SHA1_CTX*, const char*, unsigned);
+void SHA1DCUpdate(SHA1_CTX*, const unsigned char*, unsigned);
 int SHA1DCFinal(unsigned char[20], SHA1_CTX*);
 
 #define SHA1Context SHA1_CTX
@@ -65,7 +65,7 @@ int SHA1DCFinal(unsigned char[20], SHA1_CTX*);
 #define SHA1Final SHA1DCFinal
 
 /*
-** SHA1 Implemenatation #2: use the SHA1 algorithm built into SSL
+** SHA1 Implementation #2: use the SHA1 algorithm built into SSL
 */
 #elif  defined(FOSSIL_ENABLE_SSL)
 
@@ -76,7 +76,7 @@ int SHA1DCFinal(unsigned char[20], SHA1_CTX*);
 # define SHA1Final SHA1_Final
 
 /*
-** SHA1 Implemenatation #3:  If none of the previous two SHA1 
+** SHA1 Implementation #3:  If none of the previous two SHA1
 ** algorithms work, there is this built-in.  This built-in was the
 ** original implementation used by Fossil.
 */

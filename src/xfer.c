@@ -498,11 +498,11 @@ static int send_delta_native(
 }
 
 /*
-** Push an error message to alert the older client that the repository 
+** Push an error message to alert the older client that the repository
 ** has SHA3 content and cannot be synced or cloned.
 */
 static void xfer_cannot_send_sha3_error(Xfer *pXfer){
-  blob_appendf(pXfer->pOut, 
+  blob_appendf(pXfer->pOut,
     "error Fossil\\sversion\\s2.0\\sor\\slater\\srequired.\n"
   );
 }
@@ -752,7 +752,7 @@ static void request_phantoms(Xfer *pXfer, int maxReq){
 ** Compute an hash on the tail of pMsg.  Verify that it matches the
 ** the hash given in pHash.  Return non-zero for an error and 0 on success.
 **
-** The type of hash computed (SHA1, SHA3-224, SHA3-256) is determined by
+** The type of hash computed (SHA1, SHA3-256) is determined by
 ** the length of the input hash in pHash.
 */
 static int check_tail_hash(Blob *pHash, Blob *pMsg){
@@ -1770,6 +1770,7 @@ int client_sync(
   xfer.pOut = &send;
   xfer.mxSend = db_get_int("max-upload", 250000);
   xfer.maxTime = -1;
+  xfer.clientVersion = RELEASE_VERSION_NUMBER;
   if( syncFlags & SYNC_PRIVATE ){
     g.perm.Private = 1;
     xfer.syncPrivate = 1;

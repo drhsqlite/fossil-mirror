@@ -329,7 +329,7 @@ static char next_card(ManifestText *p){
 ** as string terminators so that blob should not be used again.
 **
 ** Return a pointer to an allocated Manifest object if the content
-** really is a structural artifact of some kind.  The returned Manifest 
+** really is a structural artifact of some kind.  The returned Manifest
 ** object needs to be freed by a subsequent call to manifest_destroy().
 ** Return NULL if there are syntax errors or if the input blob does
 ** not describe a valid structural artifact.

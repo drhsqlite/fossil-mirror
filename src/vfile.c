@@ -23,7 +23,7 @@
 #include <sys/types.h>
 
 /*
-** The input is guaranteed to be a 40- or 64-character well-formed 
+** The input is guaranteed to be a 40- or 64-character well-formed
 ** artifact hash.  Find its rid.
 */
 int fast_uuid_to_rid(const char *zUuid){

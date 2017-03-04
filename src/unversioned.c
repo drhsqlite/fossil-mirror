@@ -458,7 +458,7 @@ void unversioned_cmd(void){
 **    byage=1          Order the initial display be decreasing age
 **    showdel=0        Show deleted files
 */
-void uvstat_page(void){
+void uvlist_page(void){
   Stmt q;
   sqlite3_int64 iNow;
   sqlite3_int64 iTotalSz = 0;
@@ -555,4 +555,61 @@ void uvstat_page(void){
      @ No unversioned files on this server.
    }
    style_footer();
+}
+
+/*
+** WEBPAGE: juvlist
+**
+** Return a complete list of unversioned files as JSON.  The JSON
+** looks like this:
+**
+** [{"name":NAME,
+**   "mtime":MTIME,
+**   "hash":HASH,
+**   "size":SIZE,
+*    "user":USER}]
+*/
+void uvlist_json_page(void){
+  Stmt q;
+  char *zSep = "[";
+  Blob json;
+
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  cgi_set_content_type("text/json");
+  if( !db_table_exists("repository","unversioned") ){
+    blob_init(&json, "[]", -1);
+    cgi_set_content(&json);
+    return;
+  }
+  blob_init(&json, 0, 0);
+  db_prepare(&q,
+     "SELECT"
+     "   name,"
+     "   mtime,"
+     "   hash,"
+     "   sz,"
+     "   (SELECT login FROM rcvfrom, user"
+     "     WHERE user.uid=rcvfrom.uid AND rcvfrom.rcvid=unversioned.rcvid)"
+     " FROM unversioned WHERE hash IS NOT NULL"
+   );
+   while( db_step(&q)==SQLITE_ROW ){
+     const char *zName = db_column_text(&q, 0);
+     sqlite3_int64 mtime = db_column_int(&q, 1);
+     const char *zHash = db_column_text(&q, 2);
+     int fullSize = db_column_int(&q, 3);
+     const char *zLogin = db_column_text(&q, 4);
+     if( zLogin==0 ) zLogin = "";
+     blob_appendf(&json, "%s{\"name\":\"", zSep);
+     zSep = ",\n ";
+     blob_append_json_string(&json, zName);
+     blob_appendf(&json, "\",\n  \"mtime\":%lld,\n  \"hash\":\"", mtime);
+     blob_append_json_string(&json, zHash);
+     blob_appendf(&json, "\",\n  \"size\":%d,\n  \"user\":\"", fullSize);
+     blob_append_json_string(&json, zLogin);
+     blob_appendf(&json, "\"}");
+   }
+   db_finalize(&q);
+   blob_appendf(&json,"]\n");
+   cgi_set_content(&json);
 }
