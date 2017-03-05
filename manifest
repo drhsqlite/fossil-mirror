@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\svariable\s"hash\spolicies".\s\sIncrease\sthe\sversion\snumber\nto\s2.1.
-D 2017-03-05T19:51:38.579
+C Update\sthe\schange\slog\sfor\sversion\s2.1.
+D 2017-03-05T22:28:37.636
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -523,7 +523,7 @@ F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 33b65539a12abd079a57972b78e0d532831cefd9
 F src/undo.c d3cca342dd73eaec65e352d978e8f7a9e75a5ddd
 F src/unicode.c 49d229135beb3cba5a58013dfda577fa51ab96ee
-F src/unversioned.c d5d59c5f94d1a1d06f2d7a0d55f0e3d59c8cab10
+F src/unversioned.c af5f3c4e852989bdcb3c13b5725e90d3dd02585a
 F src/update.c a66c55724db6a355c28d542fcfc4320b9de0eb36
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
 F src/user.c 1d31844a9e48e2ab515586bf54ecc4b30b47d5b5
@@ -697,7 +697,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 6e6c9445543461ae0a75057a42ec2012559be02a
-F www/changes.wiki b08ac90afbed5953138d06f8265bbab70d2e5e48
+F www/changes.wiki a174db37d96bd78cf06f14b615b238d410e0b73a
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -787,8 +787,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7d12ba544f7ecc192ed1b4a7fb81b671b4939c9f f55db74d972912d9ea827b40db5726e68b6f0bcc
-R dc3a91d3ae2e50a313ec2154ade8778d
-T +closed f55db74d972912d9ea827b40db5726e68b6f0bcc
+P e92133a548351082f4d1c015c4e2cb198b340da4
+R 9661501a44c0736fc59626bb2c747c85
 U drh
-Z 0225b1cf404f42b44d621ea28101136b
+Z 72586477d5b1c6491cea21af5276528f

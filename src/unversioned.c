@@ -567,7 +567,7 @@ void uvlist_page(void){
 **   "mtime":MTIME,
 **   "hash":HASH,
 **   "size":SIZE,
-*    "user":USER}]
+**   "user":USER}]
 */
 void uvlist_json_page(void){
   Stmt q;
