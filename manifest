@@ -1,5 +1,5 @@
-C Add\sa\sfirst\sdraft\sof\sthe\s"Hash\sPolicy"\sdocument.
-D 2017-03-05T01:57:32.139
+C Tweaks\sto\sthe\shash\spolicy\sdocument.
+D 2017-03-05T19:13:49.101
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -750,7 +750,7 @@ F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh db68e2cae431b9e9f5dd672e2f56e2bde5a57d2a
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
-F www/hashpolicy.wiki 8b197631bb911c7b7fb751068eef6190df8b8034
+F www/hashpolicy.wiki 2185be67d3846639cbdd9aebf7a44092b9ae94a1
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki 38c24247e3e5ccea5135f4d5fddf82244815d8fd
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
@@ -787,7 +787,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c8870643b7bd1934cf47a5826820da97639b5107
-R 4daec0b9e29b94bbb5d747245ecda717
+P 6429054f8ef073b688f9842d1a097a9d444ec51a
+R 81c9cedf43998c9a82e553aa93e78d9e
 U drh
-Z ae0a4ce62d41c12f66b34134f7d6164d
+Z 6903038236032e59580cacc8f273afd4

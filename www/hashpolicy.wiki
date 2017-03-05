@@ -15,7 +15,7 @@ going on, read on...
 
 <h2> Introduction </h2>
 
-The first distributed version control system (as far as this author knows)
+The first snapshot-based distributed version control system 
 was [http://www.monotone.ca|Monotone].  Many of the ideas behind the design
 of Fossil were copied from Monotone, including the use of a SHA1 hash to
 assign names to artifacts.  Git and Mercurial did the same thing.
@@ -29,7 +29,7 @@ use SHA1 and they therefore conclude that "Fossil is broken".  This is
 not true, but it is a public relations problem.  So the decision
 was made to migrate Fossil away from SHA1.
 
-This article describes how that is occurring.
+This article describes how that migration is occurring.
 
 <h2>Use Of Hardened SHA1</h2>
 
@@ -82,6 +82,8 @@ a repository does contain artifacts named using SHA3, Fossil 1.37 will
 not know how to interpret those artifacts and will generate various warnings
 and errors.
 
+<h2>Picking Which Hash Algorithm To Use</h2>
+
 If newer versions of Fossil are able to use either SHA1 or SHA3 to
 name artifacts, which hash algorithm is actually used?  That question
 is answered by the "hash policy".  These are the supported hash policies:
@@ -116,7 +118,7 @@ prevent that from causing repository size problems.</td>
 <td valign='top'>shun-sha1</td>
 <td>Like "sha3-only" but at this level do not accept a push of SHA1-named
 artifacts.  If another Fossil instance tries to push a SHA1-named artifact,
-discard and ignore it.
+that artifact is discarded and ignored.
 </tr>
 </table>
 
