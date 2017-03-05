@@ -142,6 +142,7 @@ struct Global {
   int localOpen;          /* True if the local database is open */
   char *zLocalRoot;       /* The directory holding the  local database */
   int minPrefix;          /* Number of digits needed for a distinct UUID */
+  int eHashPolicy;        /* Current hash policy.  On of HPOLICY_* */
   int fNoDirSymlinks;     /* True if --no-dir-symlinks flag is present */
   int fSqlTrace;          /* True if --sqltrace flag is present */
   int fSqlStats;          /* True if --sqltrace or --sqlstats are present */

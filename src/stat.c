@@ -185,7 +185,12 @@ void stat_page(void){
   @ <tr><th>SQLite&nbsp;Version:</th><td>%.19s(sqlite3_sourceid())
   @ [%.10s(&sqlite3_sourceid()[20])] (%s(sqlite3_libversion()))
   @ <a href='version?verbose=2'>(details)</a></td></tr>
-  @ <tr><th>Schema&nbsp;Version:</th><td>%h(g.zAuxSchema)</td></tr>
+  if( g.eHashPolicy!=HPOLICY_AUTO ){
+    @ <tr><th>Schema&nbsp;Version:</th><td>%h(g.zAuxSchema),
+    @ %s(hpolicy_name())</td></tr>
+  }else{
+    @ <tr><th>Schema&nbsp;Version:</th><td>%h(g.zAuxSchema)</td></tr>
+  }
   @ <tr><th>Repository Rebuilt:</th><td>
   @ %h(db_get_mtime("rebuilt","%Y-%m-%d %H:%M:%S","Never"))
   @ By Fossil %h(db_get("rebuilt","Unknown"))</td></tr>

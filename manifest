@@ -1,5 +1,5 @@
-C Add\sthe\s/juvlist\swebpage\sthat\sreturns\sa\slist\sof\sall\sunversioned\sfiles\nas\sJSON.
-D 2017-03-04T14:29:36.872
+C Add\ssupport\sfor\svariable\s"hash\spolicies".\s\sIncrease\sthe\sversion\snumber\nto\s2.1.
+D 2017-03-05T19:51:38.579
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -14,7 +14,7 @@ F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile de98550db1d43a29a17bbd9284308733fb72615f
 F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
 F Makefile.in ca04b4081ad0dc54256f7d609168750c2247882e
-F VERSION 7959c969e092f2a5a8604e2287807ac5b1b384ad
+F VERSION da51fa3f73e561cf695cbcf67e9d92d801038cd8
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -404,16 +404,16 @@ F src/cgi.c 0fe6520c4eeedee87cab271f32943a96382828c1
 F src/checkin.c a9ec02c41a578b4e5a86ba0f57774c03cae75068
 F src/checkout.c ad202f9c6585a8e6d5418ff733f7349f652e9b05
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
-F src/clone.c 7504e38af7e30b19bc2a32fde529d77ee9da0bbb
+F src/clone.c c8b17c6084570fef0afc5b52d5caffcc83ff4548
 F src/codecheck1.c 0e2c3cd4068f6de1df56fc19ec224c296f3c8eb4
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
 F src/config.h 9edbe6bfa88b32682e7028fdf5d30adba5dd1939
-F src/configure.c aad25b170f047ec549f4da6afc61f81b90610d0d
-F src/content.c 719bbea189a2111d9c42f648e1ff6426892aa614
+F src/configure.c df8e12f3f73c558b58e84e2b7b47cf6542068d0e
+F src/content.c b5eac283f4fec06093976b86ec95565c2a8b968c
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 52eeb6f38bba96c44ce82f6b9a13f519339b1872
+F src/db.c 0e4f81cdb29ee655573b1e8e96d8606ee93e591c
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
@@ -433,7 +433,7 @@ F src/fusefs.c c774c78b274375f42653c71d0b6c1062695bb4da
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 066169948d671628a648bd0e622ec9487e258195
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
-F src/hname.c f0054f0dca9db094c53d16390f92b129d367ad55
+F src/hname.c fe8383c7a57c168ceea2245797db67bcbb40ffb8
 F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
@@ -462,7 +462,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c d2ef19fedab12da54fb4718e7d690be483f84d92
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
-F src/main.c 45ec4e8285fe079a31ddda0028cc4604e1ce8fed
+F src/main.c b84feeff949f490cd269b3b657f795407840f642
 F src/main.mk adb39465c0b57737cc735f324b9e2bc296a79f16
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -499,14 +499,14 @@ F src/sha1.c f8052a974b626854519fdd78563d5c0c827fcf7a
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c d76316bb49e387bd67342f592125e24b48e17270
 F src/shell.c 27d2b31099fd2cd749e44d025ef9b54ca26692cb
-F src/shun.c bcbc874407f9dd9b98a620339481127dbc6a70f2
+F src/shun.c 2f32dff8bb8a3f9aa1eeb10a82be946c68d9573a
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c 0b6ae35015f48cbe9cef2f97d65105a796fc366b
 F src/sqlcmd.c c9d03589cc39ae6bb5242ed9186645fbb5b67dea
 F src/sqlite3.c 882d49dd40ebb58e25b3fb9b790ecb2fd7d9cc7e
 F src/sqlite3.h b590133adb2907b8b635c5df4c88393ea94761bd
 F src/stash.c f79f603f69d35e892fd8544910475b48a2f40225
-F src/stat.c 6eeba5211c329f742b6a9dfe65519955a8d9ce00
+F src/stat.c 4513646648af008b7ef0ccd996dce1453f69f3b0
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
 F src/style.c cf9edbf403e1df8e094e8a1d44d5dd9516046678
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
@@ -750,15 +750,16 @@ F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh db68e2cae431b9e9f5dd672e2f56e2bde5a57d2a
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
+F www/hashpolicy.wiki aa3b953d239080babdcc19a08b4d74c662df3e78
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki 38c24247e3e5ccea5135f4d5fddf82244815d8fd
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki 7805bf0a04dc009df152d683771f8e3f74b194a4
 F www/mkdownload.tcl 86e774d93eb5c92cac5e7328920987feedf9356d
-F www/mkindex.tcl bbf182af20110241e858c24ef55fcbca268f13e5 x
+F www/mkindex.tcl 1c31b452335807cde5377a9c227b2a24591491a1 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
-F www/permutedindex.html e2f7a7752d2527674bfe905d1e2e91cffc3e4e38
+F www/permutedindex.html 05c2d776ed93137b593221a5552cad080965dabf
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 1c55c09563361db73b733386dc0fd6689156d5ab
 F www/qandc.wiki b8b6f9668796bde63440e64dfd40a176766dd78e
@@ -786,7 +787,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2a47673a9e00952f647ad64fa3f1c75ca6a892f2
-R dfdd296d45c019ab4a734bf6492bb62f
+P 7d12ba544f7ecc192ed1b4a7fb81b671b4939c9f f55db74d972912d9ea827b40db5726e68b6f0bcc
+R dc3a91d3ae2e50a313ec2154ade8778d
+T +closed f55db74d972912d9ea827b40db5726e68b6f0bcc
 U drh
-Z 58baa0eae09123b95bffa4bd5fe1c3bc
+Z 0225b1cf404f42b44d621ea28101136b

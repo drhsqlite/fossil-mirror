@@ -28,6 +28,7 @@ int uuid_is_shunned(const char *zUuid){
   static Stmt q;
   int rc;
   if( zUuid==0 || zUuid[0]==0 ) return 0;
+  if( g.eHashPolicy==HPOLICY_SHUN_SHA1 && zUuid[HNAME_LEN_SHA1]==0 ) return 1;
   db_static_prepare(&q, "SELECT 1 FROM shun WHERE uuid=:uuid");
   db_bind_text(&q, ":uuid", zUuid);
   rc = db_step(&q);
