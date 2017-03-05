@@ -1,5 +1,5 @@
-C Tweaks\sto\sthe\shash\spolicy\sdocument.
-D 2017-03-05T19:13:49.101
+C More\stweaks\sto\sthe\s"Hash\sPolicy"\sdocument.\nAdd\sthe\sHash\sPolicy\sdocument\sto\sthe\spermuted\sindex.
+D 2017-03-05T19:49:59.921
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -750,16 +750,16 @@ F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh db68e2cae431b9e9f5dd672e2f56e2bde5a57d2a
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
-F www/hashpolicy.wiki 2185be67d3846639cbdd9aebf7a44092b9ae94a1
+F www/hashpolicy.wiki aa3b953d239080babdcc19a08b4d74c662df3e78
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki 38c24247e3e5ccea5135f4d5fddf82244815d8fd
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki 7805bf0a04dc009df152d683771f8e3f74b194a4
 F www/mkdownload.tcl 86e774d93eb5c92cac5e7328920987feedf9356d
-F www/mkindex.tcl bbf182af20110241e858c24ef55fcbca268f13e5 x
+F www/mkindex.tcl 1c31b452335807cde5377a9c227b2a24591491a1 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
-F www/permutedindex.html e2f7a7752d2527674bfe905d1e2e91cffc3e4e38
+F www/permutedindex.html 05c2d776ed93137b593221a5552cad080965dabf
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 1c55c09563361db73b733386dc0fd6689156d5ab
 F www/qandc.wiki b8b6f9668796bde63440e64dfd40a176766dd78e
@@ -787,7 +787,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6429054f8ef073b688f9842d1a097a9d444ec51a
-R 81c9cedf43998c9a82e553aa93e78d9e
+P b0d3e9cc311bcca58ef35277d862322abd6c787b
+R dc3a91d3ae2e50a313ec2154ade8778d
 U drh
-Z 6903038236032e59580cacc8f273afd4
+Z ff36cc14bebd9e45f7a18a6483d874bd

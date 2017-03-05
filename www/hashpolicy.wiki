@@ -61,7 +61,7 @@ broken", you can rebut the argument by pointing out that Fossil uses
 <em>Hardened SHA1</em> not generic SHA1 and Hardened SHA1 is <em>not</em>
 broken.
 
-<h2>Introduction Of SHA3-256</h2>
+<h2>Support For SHA3-256</h2>
 
 Prior to Fossil version 2.0 ([/timeline?c=version-2.0|2017-03-03]), 
 all artifacts in all Fossil repositories were named
@@ -82,7 +82,7 @@ a repository does contain artifacts named using SHA3, Fossil 1.37 will
 not know how to interpret those artifacts and will generate various warnings
 and errors.
 
-<h2>Picking Which Hash Algorithm To Use</h2>
+<h2>How Fossil Decides Which Hash Algorithm To Use</h2>
 
 If newer versions of Fossil are able to use either SHA1 or SHA3 to
 name artifacts, which hash algorithm is actually used?  That question
