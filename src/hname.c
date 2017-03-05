@@ -215,6 +215,20 @@ int hname_default_policy(void){
 }
 
 /*
+** Names of the hash policies.  
+*/
+static const char *azPolicy[] = {
+  "sha1", "auto", "sha3", "sha3-only", "shun-sha1"
+};
+
+/* Return the name of the current hash policy.
+*/
+const char *hpolicy_name(void){
+  return azPolicy[g.eHashPolicy];
+}
+
+
+/*
 ** COMMAND: hash-policy*
 **
 ** Usage: fossil hash-policy ?NEW-POLICY?
@@ -244,9 +258,6 @@ int hname_default_policy(void){
 ** is "shun-sha1".
 */
 void hash_policy_command(void){
-  static const char *azPolicy[] = {
-    "sha1", "auto", "sha3", "sha3-only", "shun-sha1"
-  };
   int i;
   db_find_and_open_repository(0, 0);
   if( g.argc!=2 && g.argc!=3 ) usage("?NEW-POLICY?");

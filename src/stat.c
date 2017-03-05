@@ -194,7 +194,8 @@ void stat_page(void){
   @ %d(db_int(0, "PRAGMA repository.page_size")) bytes/page,
   @ %d(db_int(0, "PRAGMA repository.freelist_count")) free pages,
   @ %s(db_text(0, "PRAGMA repository.encoding")),
-  @ %s(db_text(0, "PRAGMA repository.journal_mode")) mode
+  @ %s(db_text(0, "PRAGMA repository.journal_mode")) mode,
+  @ hash %s(hpolicy_name())
   @ </td></tr>
 
   @ </table>
