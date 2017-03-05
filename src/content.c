@@ -531,6 +531,10 @@ int content_put_ex(
   }else{
     blob_init(&hash, zUuid, -1);
   }
+  if( g.eHashPolicy==HPOLICY_AUTO && blob_size(&hash)>HNAME_LEN_SHA1 ){
+    g.eHashPolicy = HPOLICY_SHA3;
+    db_set_int("hash-policy", HPOLICY_SHA3, 0);
+  }
   if( nBlob ){
     size = nBlob;
   }else{
