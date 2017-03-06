@@ -1,5 +1,5 @@
-C For\snew\sDocker-generated\srepositories,\suse\s"auto"\shash-policy\sas\sdefault:\sThey\smight\sbe\ssynced\swith\s"sha1"-type\srepositories,\sthis\swould\srender\sthose\srepositories\suseless.
-D 2017-03-06T12:48:02.254
+C Use\s"auto"\shash-policy\sfor\snew\sDocker\srepositories
+D 2017-03-06T12:52:58.073
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -462,7 +462,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c d2ef19fedab12da54fb4718e7d690be483f84d92
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
-F src/main.c b84feeff949f490cd269b3b657f795407840f642
+F src/main.c 5105d4bc1b86b24638764606c399321a82726b89
 F src/main.mk adb39465c0b57737cc735f324b9e2bc296a79f16
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -787,7 +787,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 907021af5104be66a60d26913f4fa27e32f4c221
-R a3073387969057e90c7aeb354033b8af
+P 9a6256cf0850e9c5a3a94da1cb6b464c0b4123ab
+R fe4d01dcfa1db69b93c30fbd088b5187
 U jan.nijtmans
-Z 1e7c824d3dff8833d0a6ae96b41c4867
+Z e13c15352c7815904585a6550669ffe0
