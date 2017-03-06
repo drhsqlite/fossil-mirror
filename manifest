@@ -1,5 +1,5 @@
-C Version\s2.0
-D 2017-03-03T12:00:30.977
+C (cherry-pick):\sFix\sa\sbug\sthat\sprevented\sclients\sfrom\spushing\sSHA3\scontent\sup\sto\sservers.
+D 2017-03-06T08:57:08.320
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -11,10 +11,10 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile de98550db1d43a29a17bbd9284308733fb72615f
+F Dockerfile 34de76ee5e42978f4b870e0d64c6d3ef6cc73d73
 F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
 F Makefile.in ca04b4081ad0dc54256f7d609168750c2247882e
-F VERSION 7959c969e092f2a5a8604e2287807ac5b1b384ad
+F VERSION 1fb7be12efaa1608dc63e784e33082ae0ac7919b
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -536,7 +536,7 @@ F src/wikiformat.c 1616c95201d38f46c67722a86c880e508b042aad
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c a3970bdc0b05426cadadb1a62cd378e10f124062
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c f8daf9f814bcfdfe32c104d58c68e92ccaaf05f9
+F src/xfer.c 2aa129b0237419bcde414e449472150bdecfb8be
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 34f51a1acd869bfa063fafab28decfab34cb2a1a
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -665,7 +665,7 @@ F tools/man_page_command_list.tcl bcf4aa82a2a2f6f5194f1e67915613b82a0957f4 x
 F win/Makefile.PellesCGMake e9d1636731fe8a581e1f2a9a155b1310a9356178
 F win/Makefile.dmc c25967ec834821a70b903969ba1d325f121287ee
 F win/Makefile.mingw 299506ef6b91297c226c2b190873db1b00cf60f9
-F win/Makefile.mingw.mistachkin 4635e4429322aaa8d1c1f1b70aadb13836871825
+F win/Makefile.mingw.mistachkin d40fe2737602e0033e819388413a6015ca638076
 F win/Makefile.msc 1b5be2dc160e6a95cfe54e09cfd85318a9b6c6dd
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -754,7 +754,7 @@ F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki 38c24247e3e5ccea5135f4d5fddf82244815d8fd
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki 7805bf0a04dc009df152d683771f8e3f74b194a4
-F www/mkdownload.tcl 33ee2d9263f7b346d4de40b5cf6571abe3b9764b
+F www/mkdownload.tcl 86e774d93eb5c92cac5e7328920987feedf9356d
 F www/mkindex.tcl bbf182af20110241e858c24ef55fcbca268f13e5 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
@@ -786,10 +786,11 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 69b9b9563fd471936d8591fd2f7e79b3e4abe497
-R b14b318ebcd302d700096463b7de65d4
-T +bgcolor * #d0c0ff
-T +sym-release *
-T +sym-version-2.0 *
-U drh
-Z dd9b6c6458a6b4370d68a3c57a9f1bd8
+P 1d407cff32978b6ed57138da36787d547ce6887d
+Q +9413c77358c094c54475f279cad07e6654590e22
+R c5df77b31f0642404f328d81f34fc15b
+T *branch * branch-2.0
+T *sym-branch-2.0 *
+T -sym-trunk *
+U jan.nijtmans
+Z 32124d1369353c8ab2bec77403162308
