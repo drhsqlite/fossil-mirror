@@ -66,8 +66,8 @@ broken.
 Prior to Fossil version 2.0 ([/timeline?c=version-2.0|2017-03-03]), 
 all artifacts in all Fossil repositories were named
 by only a SHA1 hash.
-Version 2.0 expanded the Fossil file format to allow artifacts to
-be named by either SHA1 or SHA3-256 hashes.
+Version 2.0 extended the [./fileformat.wiki|Fossil file format]
+to allow artifacts to be named by either SHA1 or SHA3-256 hashes.
 (SHA3-256 is the only variant of SHA3 that
 Fossil uses for artifact naming, so for the remainder of this article
 it will be called simply "SHA3".  Similarly, "Hardened SHA1" will
