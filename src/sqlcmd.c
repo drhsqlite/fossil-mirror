@@ -187,8 +187,8 @@ static int sqlcmd_autoinit(
 **
 ** The following extensions to the usual SQLite commands are provided:
 **
-**    content(X)                Return the content of artifact X.  X can be a
-**                              SHA1 hash or prefix or a tag.
+**    content(X)                Return the content of artifact X.  X can be an
+**                              artifact hash or prefix or a tag.
 **
 **    compress(X)               Compress text X.
 **

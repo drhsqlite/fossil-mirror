@@ -131,6 +131,7 @@ static struct {
   { "dotfiles",               CONFIGSET_PROJ },
   { "parent-project-code",    CONFIGSET_PROJ },
   { "parent-project-name",    CONFIGSET_PROJ },
+  { "hash-policy",            CONFIGSET_PROJ },
 
 #ifdef FOSSIL_ENABLE_LEGACY_MV_RM
   { "mv-rm-files",            CONFIGSET_PROJ },

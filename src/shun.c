@@ -28,6 +28,7 @@ int uuid_is_shunned(const char *zUuid){
   static Stmt q;
   int rc;
   if( zUuid==0 || zUuid[0]==0 ) return 0;
+  if( g.eHashPolicy==HPOLICY_SHUN_SHA1 && zUuid[HNAME_LEN_SHA1]==0 ) return 1;
   db_static_prepare(&q, "SELECT 1 FROM shun WHERE uuid=:uuid");
   db_bind_text(&q, ":uuid", zUuid);
   rc = db_step(&q);
@@ -38,7 +39,7 @@ int uuid_is_shunned(const char *zUuid){
 /*
 ** WEBPAGE: shun
 **
-** View the SHA1 hashes of all shunned artifacts.  Add new hashes
+** View the hashes of all shunned artifacts.  Add new hashes
 ** to the shun set.  Requires Admin privilege.
 */
 void shun_page(void){
@@ -86,14 +87,14 @@ void shun_page(void){
     p = zCanonical;
     while( *p ){
       int nUuid = strlen(p);
-      if( nUuid!=UUID_SIZE || !validate16(p, nUuid) ){
+      if( !hname_validate(p, nUuid) ){
         @ <p class="generalError">Error: Bad artifact IDs.</p>
         fossil_free(zCanonical);
         zCanonical = 0;
         break;
       }else{
-        canonical16(p, UUID_SIZE);
-        p += UUID_SIZE+1;
+        canonical16(p, nUuid);
+        p += nUuid+1;
       }
     }
     zUuid = zCanonical;
@@ -109,17 +110,17 @@ void shun_page(void){
         allExist = 0;
       }
       admin_log("Unshunned %Q", p);
-      p += UUID_SIZE+1;
+      p += strlen(p)+1;
     }
     if( allExist ){
       @ <p class="noMoreShun">Artifact(s)<br />
-      for( p = zUuid ; *p ; p += UUID_SIZE+1 ){
+      for( p = zUuid ; *p ; p += strlen(p)+1 ){
         @ <a href="%R/artifact/%s(p)">%s(p)</a><br />
       }
       @ are no longer being shunned.</p>
     }else{
       @ <p class="noMoreShun">Artifact(s)<br />
-      for( p = zUuid ; *p ; p += UUID_SIZE+1 ){
+      for( p = zUuid ; *p ; p += strlen(p)+1 ){
         @ %s(p)<br />
       }
       @ will no longer be shunned.  But they may not exist in the repository.
@@ -148,10 +149,10 @@ void shun_page(void){
         db_multi_exec("DELETE FROM tagxref WHERE tagid=%d", tagid);
       }
       admin_log("Shunned %Q", p);
-      p += UUID_SIZE+1;
+      p += strlen(p)+1;
     }
     @ <p class="shunned">Artifact(s)<br />
-    for( p = zUuid ; *p ; p += UUID_SIZE+1 ){
+    for( p = zUuid ; *p ; p += strlen(p)+1 ){
       @ <a href="%R/artifact/%s(p)">%s(p)</a><br />
     }
     @ have been shunned.  They will no longer be pushed.
@@ -169,14 +170,14 @@ void shun_page(void){
   @ bottom of this page.</p>
   @
   @ <a name="addshun"></a>
-  @ <p>To shun artifacts, enter their artifact IDs (the 40-character SHA1
-  @ hash of the artifacts) in the
+  @ <p>To shun artifacts, enter their artifact hashes (the 40- or
+  @ 64-character lowercase hexadecimal hash of the artifact content) in the
   @ following box and press the "Shun" button.  This will cause the artifacts
   @ to be removed from the repository and will prevent the artifacts from being
   @ readded to the repository by subsequent sync operation.</p>
   @
-  @ <p>Note that you must enter the full 40-character artifact IDs, not
-  @ an abbreviation or a symbolic tag.</p>
+  @ <p>Note that you must enter the full 40- or 64-character artifact hashes,
+  @ not an abbreviation or a symbolic tag.</p>
   @
   @ <p>Warning:  Shunning should only be used to remove inappropriate content
   @ from the repository.  Inappropriate content includes such things as

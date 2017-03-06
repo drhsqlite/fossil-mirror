@@ -725,7 +725,7 @@ void timeline_output_graph_javascript(
     **        negative, then the rail position is the absolute value of mi[]
     **        and a thin merge-arrow descender is drawn to the bottom of
     **        the screen.
-    **    h:  The SHA1 hash of the object being graphed
+    **    h:  The artifact hash of the object being graphed
     */
     cgi_printf("var rowinfo = [\n");
     for(pRow=pGraph->pFirst; pRow; pRow=pRow->pNext){
@@ -1463,7 +1463,7 @@ static const char *tagMatchExpression(
 **    from=CHECKIN   Path from...
 **    to=CHECKIN       ... to this
 **    shortest         ... show only the shortest path
-**    uf=FILE_SHA1   Show only check-ins that contain the given file version
+**    uf=FILE_HASH   Show only check-ins that contain the given file version
 **    chng=GLOBLIST  Show only check-ins that involve changes to a file whose
 **                     name matches one of the comma-separate GLOBLIST
 **    brbg           Background color from branch name
