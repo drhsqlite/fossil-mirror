@@ -154,7 +154,7 @@ void diff_print_filenames(const char *zLeft, const char *zRight, u64 diffFlags){
 ** The difference is the set of edits needed to transform pFile1 into
 ** zFile2.  The content of pFile1 is in memory.  zFile2 exists on disk.
 **
-** If fSwapDiff is 1, show the set of edits to transform zFile2 into pFile1 
+** If fSwapDiff is 1, show the set of edits to transform zFile2 into pFile1
 ** instead of the opposite.
 **
 ** Use the internal diff logic if zDiffCmd is NULL.  Otherwise call the

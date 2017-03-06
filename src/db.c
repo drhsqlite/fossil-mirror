@@ -1927,7 +1927,7 @@ void create_repository_cmd(void){
   const char *zDate;          /* Date of the initial check-in */
   const char *zDefaultUser;   /* Optional name of the default user */
   int bUseSha1 = 0;           /* True to set the hash-policy to sha1 */
-  
+
 
   zTemplate = find_option("template",0,1);
   zDate = find_option("date-override",0,1);
@@ -1952,7 +1952,7 @@ void create_repository_cmd(void){
   if( bUseSha1 ){
     g.eHashPolicy = HPOLICY_SHA1;
     db_set_int("hash-policy", HPOLICY_SHA1, 0);
-  }      
+  }
   if( zDate==0 ) zDate = "now";
   db_initial_setup(zTemplate, zDate, zDefaultUser);
   db_end_transaction(0);

@@ -431,7 +431,7 @@ static int stash_get_id(const char *zStashId){
 **  fossil stash gshow|gcat ?STASHID? ?DIFF-OPTIONS?
 **
 **     Show the contents of a stash as a diff against it's baseline.
-**     With gshow and gcat, gdiff-command is used instead of internal 
+**     With gshow and gcat, gdiff-command is used instead of internal
 **     diff logic.
 **
 **  fossil stash pop
@@ -458,7 +458,7 @@ static int stash_get_id(const char *zStashId){
 **  fossil stash gdiff ?STASHID? ?DIFF-OPTIONS?
 **
 **     Show diffs of the current working directory and what that
-**     directory would be if STASHID were applied. With gdiff, 
+**     directory would be if STASHID were applied. With gdiff,
 **     gdiff-command is used instead of internal diff logic.
 **
 ** SUMMARY:
@@ -661,7 +661,7 @@ void stash_cmd(void){
     const char *zDiffCmd = 0;
     const char *zBinGlob = 0;
     int fIncludeBinary = 0;
-    int fBaseline = 0; 
+    int fBaseline = 0;
     u64 diffFlags;
 
     if( strstr(zCmd,"show")!=0 || strstr(zCmd,"cat")!=0 ){

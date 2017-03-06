@@ -5,8 +5,8 @@
 There is much angst over the [http://www.shattered.io|Shattered attack]
 against SHA1.  If you are concerned about this and its implications for
 Fossil, simply upgrade to Fossil 2.0 or later and the problem will go away.
-Everything will continue to work as before.  All of your legacy repositories 
-will continue to work and all of your old check-ins will still have the 
+Everything will continue to work as before.  All of your legacy repositories
+will continue to work and all of your old check-ins will still have the
 same name.  Your workflow will be unchanged.
 
 But if you are curious and want a deeper understanding of what is
@@ -15,7 +15,7 @@ going on, read on...
 
 <h2> Introduction </h2>
 
-The first snapshot-based distributed version control system 
+The first snapshot-based distributed version control system
 was [http://www.monotone.ca|Monotone].  Many of the ideas behind the design
 of Fossil were copied from Monotone, including the use of a SHA1 hash to
 assign names to artifacts.  Git and Mercurial did the same thing.
@@ -33,7 +33,7 @@ This article describes how that migration is occurring.
 
 <h2>Use Of Hardened SHA1</h2>
 
-In Fossil version 2.0 ([/timeline?c=version-2.0|2017-03-03]), 
+In Fossil version 2.0 ([/timeline?c=version-2.0|2017-03-03]),
 the internal SHA1 implementation was changed from a generic
 FIPS PUB 180-4 SHA1 implementation to a "Hardened SHA1"
 &#91;[https://github.com/cr-marcstevens/sha1collisiondetection|1]&#93;
@@ -63,7 +63,7 @@ broken.
 
 <h2>Support For SHA3-256</h2>
 
-Prior to Fossil version 2.0 ([/timeline?c=version-2.0|2017-03-03]), 
+Prior to Fossil version 2.0 ([/timeline?c=version-2.0|2017-03-03]),
 all artifacts in all Fossil repositories were named
 by only a SHA1 hash.
 Version 2.0 extended the [./fileformat.wiki|Fossil file format]
@@ -139,15 +139,15 @@ When a new repository is created by cloning, the hash policy is copied
 from the parent.
 
 For new repositories created using the
-[/help?cmd=new|fossil new] command the default hash policy is "sha3".  
+[/help?cmd=new|fossil new] command the default hash policy is "sha3".
 That means new repositories
 will normally hold nothing except SHA3 hashes.  The hash policy for new
 repositories can be overridden using the "--sha1" option to the
 "fossil new" command.
 
 Even after upgrading to Fossil 2.1, Fossil will continue to use nothing
-but SHA1 hashes on legacy repositories, thus preserving complete 
-compatibility with Fossil 1.37 and before.  If you want Fossil to go 
+but SHA1 hashes on legacy repositories, thus preserving complete
+compatibility with Fossil 1.37 and before.  If you want Fossil to go
 ahead and start using SHA3 hashes, change the hash policy to
 "sha3" using a command like this:
 

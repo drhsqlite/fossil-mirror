@@ -164,13 +164,14 @@ int hname_verify_file_hash(const char *zFile, const char *zHash, int nHash){
 ** routine returns 1 if iHType>0 and the alternative hash is allowed,
 ** and it always returns 1 when iHType==0.
 **
-** Alternative hash is disallowed for all hash policies except sha1
-** and sha3.  
+** Alternative hash is disallowed for all hash policies except auto,
+** sha1 and sha3.
 */
 int hname_hash(const Blob *pContent, unsigned int iHType, Blob *pHashOut){
   assert( iHType==0 || iHType==1 );
   if( iHType==1 ){
     switch( g.eHashPolicy ){
+      case HPOLICY_AUTO:
       case HPOLICY_SHA1:
         sha3sum_blob(pContent, 256, pHashOut);
         return 1;
@@ -201,11 +202,11 @@ int hname_hash(const Blob *pContent, unsigned int iHType, Blob *pHashOut){
 ** have an assigned hash policy.
 **
 ** Make the default HPOLICY_AUTO if there are SHA1 artficates but no SHA3
-** artifacts in the repository.  Make the default HPOLICY_SHA3 if there 
+** artifacts in the repository.  Make the default HPOLICY_SHA3 if there
 ** are one or more SHA3 artifacts or if the repository is initially empty.
 */
 int hname_default_policy(void){
-  if( db_exists("SELECT 1 FROM blob WHERE length(uuid)>40") 
+  if( db_exists("SELECT 1 FROM blob WHERE length(uuid)>40")
    || !db_exists("SELECT 1 FROM blob WHERE length(uuid)==40")
   ){
     return HPOLICY_SHA3;
@@ -215,7 +216,7 @@ int hname_default_policy(void){
 }
 
 /*
-** Names of the hash policies.  
+** Names of the hash policies.
 */
 static const char *azPolicy[] = {
   "sha1", "auto", "sha3", "sha3-only", "shun-sha1"
@@ -268,10 +269,10 @@ void hash_policy_command(void){
   for(i=HPOLICY_SHA1; i<=HPOLICY_SHUN_SHA1; i++){
     if( fossil_strcmp(g.argv[2],azPolicy[i])==0 ){
       if( i==HPOLICY_AUTO
-       && db_exists("SELECT 1 FROM blob WHERE length(uuid)>40") 
+       && db_exists("SELECT 1 FROM blob WHERE length(uuid)>40")
       ){
         i = HPOLICY_SHA3;
-      }   
+      }
       g.eHashPolicy = i;
       db_set_int("hash-policy", i, 0);
       fossil_print("%s\n", azPolicy[i]);
