@@ -1,5 +1,5 @@
-C Merge\sin\sthe\sFossil\s2.0\sand\s2.1\senhancements.
-D 2017-03-06T19:51:20.401
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.18.0\sprerelease\sversion\sthat\nsupports\sPRAGMA\soptimize.
+D 2017-03-06T19:53:04.541
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -503,8 +503,8 @@ F src/shun.c 2f32dff8bb8a3f9aa1eeb10a82be946c68d9573a
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c 0b6ae35015f48cbe9cef2f97d65105a796fc366b
 F src/sqlcmd.c c9d03589cc39ae6bb5242ed9186645fbb5b67dea
-F src/sqlite3.c aaacd686f506f5fbb8c42aec93c3ec341c122c16
-F src/sqlite3.h b208ba96815c44509d63fc1f3f2f80b1d9055df2
+F src/sqlite3.c e8ae9bd185869d478164f47cab7163a4f77669dd
+F src/sqlite3.h fab3791d79c52c1d4437e8ea1bb9d5f784ee2b21
 F src/stash.c dc0263e11eeb30689418e4def6174af973ad66bf
 F src/stat.c ad15218f805f72c4c84bcebe8e9b4f9874ee08e5
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
@@ -787,7 +787,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f9f5702d7aaac0c2b3605ceecbb32888ea730bbf 3c9dc14831ec9544770f29a6e3b9f61ed69fd2cc
-R fdacb312d5af768a4ed446711c233784
+P 0dc479305f187140fcd79efa9e2a78201eadf6cd
+R e281d1e9b290810c71f281bf5f3766e4
 U drh
-Z d67151bc54ac9f99bd0e0fcadde03caf
+Z b5e270e905d90a8fe4a10b5bf5184f6a
