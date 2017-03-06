@@ -251,7 +251,6 @@ static int is_string_expr(const char *z){
 */
 static const char *azSafeFunc[] = {
   "filename_collation",
-  "db_name",
   "leaf_is_closed_sql",
   "timeline_query_for_www",
   "timeline_query_for_tty",
@@ -440,7 +439,7 @@ static int checkFormatFunc(
   int nErr = 0;
   char *acType;
 
-  szFName = 	token_length(zFCall, &eToken, &ln);
+  szFName = token_length(zFCall, &eToken, &ln);
   zStart = next_non_whitespace(zFCall+szFName, &len, &eToken);
   assert( zStart[0]=='(' && len==1 );
   len = distance_to(zStart+1, ')');

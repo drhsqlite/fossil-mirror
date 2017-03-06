@@ -1,0 +1,57 @@
+<title>Child Projects</title>
+
+<h2>Background</h2>
+
+The default behavior of Fossil is to share everything (all check-ins,
+tickets, wiki, etc) between all clients and all servers.  Such a policy
+helps to promote a cohesive design for a cathedral-style project run
+by a small cliche of developers - the sort of project for which Fossil
+was designed.
+
+But sometimes it is desirable to branch off a side project that does not
+sync back to the master but does continue to track changes in the master.
+For example, the master project might be an open-source project like
+[https://www.sqlite.org/|SQLite] and a team might want to do a proprietary
+closed-source enhancement to that master project in a separate repository.
+All changes in the master project should flow forward into the derived
+project, but care must be taken to prevent proprietary content from the
+derived project from leaking back into the master.
+
+<h2>Child Projects</h2>
+
+A scenario such as the above can be accomplished in Fossil by creating
+a child project.  The child project is able to freely pull from the parent,
+but the parent cannot push or pull from the child nor is the child able to
+push to the parent.  Content flows from parent to child only, and then only
+at the request of the child.
+
+<h2>Creating a Child Project</h2>
+
+To create a new child project, first clone the parent.  Then make manual
+SQL changes to the child repository as follows:
+
+<blockquote><verbatim>
+UPDATE config SET name='parent-project-code' WHERE name='project-code';
+UPDATE config SET name='parent-project-name' WHERE name='project-name';
+INSERT INTO config(name,value)
+   VALUES('project-code',lower(hex(randomblob(20))));
+INSERT INTO config(name,value)
+   VALUES('project-name','CHILD-PROJECT-NAME');
+</verbatim></blockquote>
+
+Modify the CHILD-PROJECT-NAME in the last statement to be the name of
+the child project, of course.
+
+The repository is now a separate project, independent from its parent.
+Clone the new project to the developers as needed.
+
+The child project and the parent project will not normally be able to sync
+with one another, since they are now separate projects with distinct
+project codes.  However, if the
+"--from-parent-project" command-line option is provided to the
+"[/help?cmd=pull|fossil pull]" command in the child, and the URL of
+parent repository is also provided on the command-line, then updates to
+the parent project that occurred after the child was created will be added
+to the child repository.  Thus, by periodically doing a
+pull --from-parent-project, the child project is able to stay up to date
+with all the latest changes in the parent.

@@ -1,0 +1,282 @@
+<title>Why Use Fossil</title>
+<h1 align='center'>Why You Should Use Fossil</h1>
+<p align='center'><b>Or, if not Fossil, at least some kind of modern
+version control<br>such as Git, Mercurial, or Subversion.</b></p>
+<p align='center'>(Presented in outline form, for people in a hurry)</p>
+
+<ol>
+<li><p><b>Benefits of Version Control</b>
+  <ol type='A'>
+  <li><p><b>Immutable file and version identification</b>
+     <ol type='i'>
+     <li>Simplified and unambiguous communication between developers
+     <li>Detect accidental or surreptitious changes
+     <li>Locate the origin of discovered files
+     </ol>
+  <li><p><b>Parallel development</b>
+     <ol type='i'>
+     <li>Multiple developers on the same project
+     <li>Single developer with multiple subprojects
+     <li>Experimental features do not contaminate the main line
+     <li>Development/Testing/Release branches
+     <li>Incorporate external changes into the baseline
+     </ol>
+  <li><p><b>Historical record</b>
+     <ol type='i'>
+     <li>Exactly reconstruct historical builds
+     <li>Locate when and by whom faults were injected
+     <li>Find when and why content was added or removed
+     <li>Team members see the big picture
+     <li>Research the history of project features or subsystems
+     <li>Copyright and patent documentation
+     <li>Regulatory compliance
+     </ol>
+   <li><p><b>Automatic replication and backup</b>
+     <ol type='i'>
+     <li>Everyone always has the latest code
+     <li>Failed disk-drives cause no loss of work
+     <li>Avoid wasting time doing manual file copying
+     <li>Avoid human errors during manual backups
+     </ol>
+  </ol>
+<a name='definitions'></a>
+<li><p><b>Definitions</b></p>
+  <ul>
+  <li><p><b>Project</b> &rarr;
+       a collection of computer files that serve some common
+      purpose.  Often the project is a software application and the
+      individual files are source code together with makefiles, scripts, and
+      "README.txt" files.  Other examples of projects include books or
+      manuals in which each chapter or section is held in a separate file.
+     <ul>
+     <li><p>Projects change and evolve.  The whole purpose of version
+         control is to track and manage that evolution.
+     <li><p>Most projects contain many files, but it is possible
+         to have a project consisting of just a single file.
+     <li><p>Fossil requires that
+         all the files for a project must be collected into a single
+         directory hierarchy - a single folder possibly with layers
+         of subfolders.  Fossil is not a good choice for managing a
+         project that has files scattered hither and yon all over
+         the disk.  In other words, Fossil only works for projects
+         where the files are laid out such that they can be archived
+         into a ZIP file or tarball.
+     </ul>
+  <li><p><b>Repository</b> &rarr;
+      (also called "repo") a single file that contains
+      all historical versions of all files in a project.  A repo is similar
+      to a ZIP archive in that it is a single file that stores compressed
+      versions of many other files.  Files can be extracted from the
+      repo and new files can be added to the repo, just as with a ZIP
+      archive.  But a repo has other capabilities above and beyond
+      what a ZIP archive can do.
+      <ul>
+      <li><p>Fossil does not care what you name your repository files,
+          though names ending with ".fossil" are recommended.
+      <li><p>A single project typically has multiple, redundant repositories on
+      separate machines.
+      <li><p>All repositories stay synchronized with one another by exchanging
+          information via HTTP or SSH.
+      <li><p>All repos for a single project redundantly store all information
+          about that project.  So if any one repo is lost due to a disk
+          crash, all content is preserved in the surviving repos.
+      <li><p>The usual arrangement is one repository per user.  And since
+          most users these days have their own computer, that means one
+          repository per computer.  But this is not a requirement.  It is
+          ok to have multiple copies of the same repository on the same
+          computer.
+      <li><p>Fossil works fine with just a single copy of the repository.
+          But in that case there is no redundancy.  If that one repository
+          file is lost due to a hardware malfunction, then there is no way
+          to recover the project.
+      <li><p>Best practice is to keep all repositories for a user in a single
+          folder.  Folders such as "~/Fossils" or "%USERPROFILE%\Fossils"
+          are recommended.  Fossil itself does not care where the repositories
+          are stored.  Nor does Fossil require repositories to be
+          kept in the same folder.  But it is easier to organize your work
+          if all repositories are kept in the same place.
+      </ul>
+  <li><p><b>Check-out</b> &rarr;
+      a set of files that have been extracted from a
+      repository and that represent a particular version or snapshot of
+      the project.
+      <ul>
+      <li><p>Check-outs must be on the same computer as the repository from
+          which they are extracted.  This is just like with a ZIP archive:
+          one must have the ZIP archive file on the local machine before
+          extracting files from ZIP archive.
+      <li><p>There can be multiple check-outs (in different folders) from
+          the same repository.
+      <li><p>The repository must be on the same computer as the check-out, but
+          the relative locations of the repo and the check-out are arbitrary.
+          The repository may be located inside the folder holding the
+          check-out, but it certainly does not have to be and usually is
+          not.
+      <li><p>A special file exists in every check-out that tells Fossil from
+      which repository the check-out was extracted, and which version of
+      the project the check-out represents.  This is the ".fslckout" file
+      on unix systems or the "_FOSSIL_" file on Windows.
+      </ul>
+  <li><p><b>Check-in</b> &rarr;
+      another name for a particular version of the project.
+      A check-in is a collection of files inside of a repository that
+      represent a snapshot of the project for an instant in time.
+      Check-ins exist only inside of the repository.  This contrasts with
+      a check-out which is a collection of files outside of the repository.
+      <ul>
+      <li><p>Every check-out knows the check-in from which it was derived.
+          But check-outs might have been edited and so might not exactly
+          match their associated check-in.
+      <li><p>Check-ins are immutable.  They can never be changed.  But
+          check-outs are collections of ordinary files on disk.  The
+          files of a check-out can be edited just like any other file.
+      <li><p>A check-in can be thought of as an historical snapshot of a
+          check-out.
+      <li><p>"Check-in", "version", "snapshot", and "revision" are synonyms.
+      <li><p> When used as a noun, the word "commit" is another synonym
+          for "check-in".  When used as a verb, the word "commit"
+          means to create a new check-in.
+      </ul>
+  </ul>
+<li><p><b>Basic Fossil commands</b>
+  <ul>
+  <li><p><b>clone</b> &rarr;
+      Make a copy of a repository.  The original repository
+      is usually (but not always) on a remote machine and the copy is on
+      the local machine.  The copy remembers the network location from
+      which it was copied and (by default) tries to keep itself synchronized
+      with the original.
+  <li><p><b>open</b> &rarr;
+      Create a new check-out from a repository on the local machine.
+  <li><p><b>update</b> &rarr;
+      Modify an existing check-out so that it is derived from a
+      different version of the same project.
+  <li><p><b>commit</b> &rarr;
+      Create a new version (a new check-in) of the project that
+      is a snapshot of the current check-out.
+  <li><p><b>revert</b> &rarr;
+      Undo all local edits on a check-out.  Make the check-out
+      be an exact copy of its associated check-in.
+  <li><p><b>push</b> &rarr;
+      Copy content found in a local repository over to a remote
+      repository.  (Fossil usually does this automatically in response to
+      a "commit" and so this command is seldom used, but it is important
+      to understand it.)
+  <li><p><b>pull</b> &rarr;
+      Copy new content found in a remote repository into a local
+      repository.  A "pull" by itself does not modify any check-out.  The
+      "pull" command only moves content between repositories.  However,
+      the "update" command will (often) automatically do a "pull" before
+      attempting to update the local check-out.
+  <li><p><b>sync</b> &rarr;
+      Do both a "push" and a "pull" at the same time.
+  <li><p><b>add</b> &rarr;
+      Add a new file to the local check-out.  The file must already be
+      on disk.  This command tells Fossil to start tracking and managing
+      the file.  This command affects only the local check-out and does
+      not modify any repository.  The new file is inserted into the
+      repository at the next "commit" command.
+  <li><p><b>rm/mv</b> &rarr;
+      Short for 'remove' and 'move', these commands are like "add"
+      in that they specify pending changes to the structure of the check-out.
+      As with "add", no changes are made to the repository until the next
+      "commit".
+  </ul>
+<li><p><b>The history of a project is a Directed Acyclic Graph (DAG)</b>
+  <ul>
+  <li><p>Fossil (and other distributed VCSes like Git and Mercurial, but
+      not Subversion) represent
+      the history of a project as a directed acyclic graph (DAG).
+      <ul>
+      <li><p>Each check-in is a node in the graph
+      <li><p>If check-in X is derived from check-in Y then there is
+          an arc in the graph from node X to node Y.
+      <li><p>The older check-in (X) is call the "parent" and the newer
+          check-in (Y) is the "child".  The child is derived from
+          the parent.
+      </ul>
+  <li><p>Two users (or the same user working in different check-outs)
+      might commit different changes against the same check-in.  This
+      results in one parent node having two or more children.
+  <li><p>Command: <b>merge</b> &rarr;
+      combines the work of multiple check-ins into
+      a single check-out.  That check-out can then be committed to create
+      a new that has two (or more) parents.
+      <ul>
+      <li><p>Most check-ins have just one parent, and either zero or
+          one child.
+      <li><p>When a check-in has two or more parents, one of those parents
+          is the "primary parent". All the other parent nodes are "secondary".
+          Conceptually, the primary parent shows the main line of
+          development.  Content from the secondary parents is added
+          into the main line.
+      <li><p>The "direct children" of a check-in X are all children that
+          have X as their primary parent.
+      <li><p>A check-in node with no direct children is sometimes called
+          a "leaf".
+      <li><p>The "merge" command changes only the check-out.
+          The "commit" command must be run subsequently to make the merge
+          a permanent part of project.
+      </ul>
+  <li><p>Definition: <b>branch</b> &rarr;
+      a sequence of check-ins that are all linked
+      together in the DAG through the primary parent.
+       <ul>
+       <li><p>Branches are often given names which propagate to direct children.
+       <li><p>It is possible to have multiple branches with the same name.
+          Fossil has no problem with this, but it can be confusing to
+          humans, so best practice is to give each branch a unique name.
+       <li><p>The name of a branch can be changed by adding special tags
+          to the first check-in of a branch.  The name assigned by this
+          special tag automatically propagates to all direct children.
+       </ul>
+  </ul>
+<li><p><b>Why version control is important (reprise)</b>
+  <ol type="A">
+  <li><p>Every check-in and every individual file has a unique name - its
+      SHA1 or SHA3-256 hash.  Team members can unambiguously identify
+      any specific
+      version of the overall project or any specific version of an
+      individual file.
+  <li><p>Any historical version of the whole project or of any individual
+      file can be easily recreated at any time and by any team member.
+  <li><p>Accidental changes to files can be detected by recomputing their
+      cryptographic hash.
+  <li><p>Files of unknown origin can be identified using their hash.
+  <li><p>Developers are able to work in parallel, review each others work,
+      and easily merge their changes together.  External revisions to
+      the baseline can be easily incorporated into the latest changes.
+  <li><p>Developers can follow experimental lines of development,  then
+      revert back to an earlier stable version if the experiment does
+      not work out.  Creativity is enhanced by allowing crazy ideas to
+      be investigated without destabilizing the project.
+  <li><p>Developers can work on several independent subprojects, flipping
+      back and forth from one subproject to another at will, and merge
+      patches together or back into the main line of development as they
+      mature.
+  <li><p>Older changes can be easily backed out of recent revisions, for
+      example if bugs are found long after the code was committed.
+  <li><p>Enhancements in a branch can be easily copied into other branches,
+      or into the trunk.
+  <li><p>The complete history of all changes is plainly visible to
+      all team members.  Project leaders can easily keep track of what
+      all team members are doing.  Check-in comments help everyone to
+      understand and/or remember the reason for each change.
+  <li><p>New team members can be brought up-to-date with all of the historical
+      code, quickly and easily.
+  <li><p>New developers, interns, or inexperienced staff members who still
+      do not understand all the details of the project or who are otherwise
+      prone to making mistakes can be assigned significant subprojects to
+      be carried out in branches without risking main line stability.
+  <li><p>Code is automatically synchronized across all machines.  No human
+      effort is wasted copying files from machine to machine.  The risk
+      of human errors during file transfer and backup is eliminated.
+  <li><p>A hardware failure results in minimal lost work because
+      all previously committed changes will have been automatically
+      replicated on other machines.
+  <li><p>The complete work history of the project is conveniently archived
+      in a single file, simplifying long-term record keeping.
+  <li><p>A precise historical record is maintained which can be used to
+      support copyright and patent claims or regulatory compliance.
+  </ol>
+</ol>

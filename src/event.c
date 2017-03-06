@@ -61,7 +61,7 @@ void hyperlink_to_event_tagid(int tagid){
 **  v=BOOLEAN         Show details if TRUE.  Default is FALSE.  Optional.
 **
 ** Display an existing tech-note identified by its ID, optionally at a
-** specific version, and optionally with additional details. 
+** specific version, and optionally with additional details.
 */
 void event_page(void){
   int rid = 0;             /* rid of the event artifact */
@@ -154,36 +154,35 @@ void event_page(void){
   }
   style_header("%s", blob_str(&title));
   if( g.perm.WrWiki && g.perm.Write && nextRid==0 ){
-    style_submenu_element("Edit", 0, "%R/technoteedit?name=%!S", zId);
+    style_submenu_element("Edit", "%R/technoteedit?name=%!S", zId);
     if( g.perm.Attach ){
-      style_submenu_element("Attach", "Add an attachment",
-           "%R/attachadd?technote=%!S&from=%R/technote/%!S", 
-           zId, zId);
+      style_submenu_element("Attach",
+           "%R/attachadd?technote=%!S&from=%R/technote/%!S", zId, zId);
     }
   }
   zETime = db_text(0, "SELECT datetime(%.17g)", pTNote->rEventDate);
-  style_submenu_element("Context", 0, "%R/timeline?c=%.20s", zId);
+  style_submenu_element("Context", "%R/timeline?c=%.20s", zId);
   if( g.perm.Hyperlink ){
     if( verboseFlag ){
-      style_submenu_element("Plain", 0,
+      style_submenu_element("Plain",
                             "%R/technote?name=%!S&aid=%s&mimetype=text/plain",
                             zId, zUuid);
       if( nextRid ){
         char *zNext;
         zNext = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nextRid);
-        style_submenu_element("Next", 0,"%R/technote?name=%!S&aid=%s&v",
+        style_submenu_element("Next", "%R/technote?name=%!S&aid=%s&v",
                               zId, zNext);
         free(zNext);
       }
       if( prevRid ){
         char *zPrev;
         zPrev = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", prevRid);
-        style_submenu_element("Prev", 0, "%R/technote?name=%!S&aid=%s&v",
+        style_submenu_element("Prev", "%R/technote?name=%!S&aid=%s&v",
                               zId, zPrev);
         free(zPrev);
       }
     }else{
-      style_submenu_element("Detail", 0, "%R/technote?name=%!S&aid=%s&v",
+      style_submenu_element("Detail", "%R/technote?name=%!S&aid=%s&v",
                             zId, zUuid);
     }
   }
@@ -237,7 +236,7 @@ void event_page(void){
 
 /*
 ** Add or update a new tech note to the repository.  rid is id of
-** the prior version of this technote, if any. 
+** the prior version of this technote, if any.
 **
 ** returns 1 if the tech note was added or updated, 0 if the
 ** update failed making an invalid artifact
@@ -268,7 +267,7 @@ int event_commit_common(
   zDate = date_in_standard_format("now");
   blob_appendf(&event, "D %s\n", zDate);
   free(zDate);
-  
+
   zETime[10] = 'T';
   blob_appendf(&event, "E %s %s\n", zETime, zId);
   zETime[10] = ' ';
@@ -387,7 +386,7 @@ void eventedit_page(void){
     " WHERE tagid=(SELECT tagid FROM tag WHERE tagname GLOB '%q*')"
     " ORDER BY mtime DESC", zTag
   );
-  if( rid && strlen(zId)<40 ){
+  if( rid && strlen(zId)<HNAME_MIN ){
     zId = db_text(0,
       "SELECT substr(tagname,7) FROM tag WHERE tagname GLOB '%q*'",
       zTag
@@ -542,40 +541,22 @@ void eventedit_page(void){
 
 /*
 ** Add a new tech note to the repository.  The timestamp is
-** given by the zETime parameter.  isNew must be true to create
+** given by the zETime parameter.  rid must be zero to create
 ** a new page.  If no previous page with the name zPageName exists
 ** and isNew is false, then this routine throws an error.
 */
 void event_cmd_commit(
   char *zETime,             /* timestamp */
-  int isNew,                /* true to create a new page */
+  int   rid,                /* Artifact id of the tech note */
   Blob *pContent,           /* content of the new page */
   const char *zMimeType,    /* mimetype of the content */
   const char *zComment,     /* comment to go on the timeline */
   const char *zTags,        /* tags */
   const char *zClr          /* background color */
 ){
-  int rid;                /* Artifact id of the tech note */
   const char *zId;        /* id of the tech note */
-  rid = db_int(0, "SELECT objid FROM event"
-        " WHERE datetime(mtime)=datetime('%q') AND type = 'e'"
-        " LIMIT 1",
-        zETime
-  );
-  if( rid==0 && !isNew ){
-#ifdef FOSSIL_ENABLE_JSON
-    g.json.resultCode = FSL_JSON_E_RESOURCE_NOT_FOUND;
-#endif
-    fossil_fatal("no such tech note: %s", zETime);
-  }
-  if( rid!=0 && isNew ){
-#ifdef FOSSIL_ENABLE_JSON
-    g.json.resultCode = FSL_JSON_E_RESOURCE_ALREADY_EXISTS;
-#endif
-    fossil_fatal("tech note %s already exists", zETime);
-  }
 
-  if ( isNew ){
+  if ( rid==0 ){
     zId = db_text(0, "SELECT lower(hex(randomblob(20)))");
   }else{
     zId = db_text(0,

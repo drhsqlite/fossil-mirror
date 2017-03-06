@@ -4,7 +4,7 @@
 
 <div style='width:200px;float:right;border:2px solid #446979;padding:10px;margin:0px 10px;'>
 <ul>
-<li> [http://www.fossil-scm.org/download.html | Download]
+<li> [/uv/download.html | Download]
 <li> [./quickstart.wiki | Quick Start]
 <li> [./build.wiki | Install]
 <li> [../COPYRIGHT-BSD2.txt | License]
@@ -20,7 +20,7 @@
      <li> [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org | archives]
      </ul>
 </ul>
-<center><img src="fossil3.gif"></center>
+<img src="fossil3.gif" align="center">
 </div>
 
 <p>Fossil is a simple, high-reliability, distributed software configuration
@@ -34,23 +34,22 @@ management system with these advanced features:
 
   2.  <b>Built-in Web Interface</b> -
       Fossil has a built-in and intuitive [./webui.wiki | web interface]
-      with a rich assortment of information pages
-      ([./webpage-ex.md|examples]) designed to promote situational awareness.
+      with a rich variety of information pages
+      ([./webpage-ex.md|examples]) promoting situational awareness.
 
-      This entire website&#185;
-      is just a running instance of Fossil.  The pages you see here
-      are all [./wikitheory.wiki | wiki] or
-      [./embeddeddoc.wiki | embedded documentation].
+      This entire website is just a running instance of Fossil.
+      The pages you see here are all [./wikitheory.wiki | wiki] or
+      [./embeddeddoc.wiki | embedded documentation] or (in the case of
+      the [/uv/download.html|download] page)
+      [./unvers.wiki | unversioned files].
       When you clone Fossil from one of its
       [./selfhost.wiki | self-hosting repositories],
       you get more than just source code - you get this entire website.
-      <span style='font-size:75%;'>(&#185;except the
-      [http://www.fossil-scm.org/download.html | download] page)</span>
 
   3.  <b>Self-Contained</b> -
       Fossil is a single self-contained stand-alone executable.
       To install, simply download a
-      <a href="http://www.fossil-scm.org/download.html">precompiled binary</a>
+      <a href="http://www.fossil-scm.org/fossil/uv/download.html">precompiled binary</a>
       for Linux, Mac, OpenBSD, or Windows and put it on your $PATH.
       [./build.wiki | Easy-to-compile source code] is also available.
 
@@ -86,17 +85,19 @@ management system with these advanced features:
 <hr>
 <h3>Links For Fossil Users:</h3>
 
+  *  [./permutedindex.html | Documentation index] with [/search?c=d | full text search].
+  *  [./reviews.wiki | Testimonials] from satisfied Fossil users and
+     [./quotes.wiki | Quotes] about Fossil and other DVCSes.
+  *  [./faq.wiki | Frequently Asked Questions]
+  *  The [./concepts.wiki | concepts] behind Fossil.
+     [./whyusefossil.wiki#definitions | Another viewpoint].
+  *  [./quickstart.wiki | Quick Start] guide to using Fossil.
+  *  [./qandc.wiki | Questions &amp; Criticisms] directed at Fossil.
+  *  [./build.wiki | Compiling and Installing]
   *  "Fuel" is cross-platform GUI front-end for Fossil
      written in Qt.  [http://fuelscm.org/].
      Fuel is an independent project run by a different group of
      developers.
-  *  [./reviews.wiki | Testimonials] from satisfied Fossil users and
-     [./quotes.wiki | Quotes] about Fossil and other DVCSes.
-  *  [./faq.wiki | FAQ]
-  *  The [./concepts.wiki | concepts] behind Fossil.
-  *  [./quickstart.wiki | Quick Start] guide to using Fossil.
-  *  [./qandc.wiki | Questions &amp; Criticisms] directed at Fossil.
-  *  [./build.wiki | Compiling and Installing]
   *  Fossil supports [./embeddeddoc.wiki | embedded documentation]
      that is versioned along with project source code.
   *  Fossil uses an [./fileformat.wiki | enduring file format] that is

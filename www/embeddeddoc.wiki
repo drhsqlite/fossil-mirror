@@ -44,9 +44,9 @@ If you launch the web server using the "<b>fossil server</b>" command line,
 then the <i>&lt;baseurl&gt;</i> is usually
 <b>http://localhost:8080/</b>.
 
-The <i>&lt;version&gt;</i> is any unique prefix of the check-in ID for 
+The <i>&lt;version&gt;</i> is any unique prefix of the check-in ID for
 the check-in containing the documentation you want to access.
-Or <i>&lt;version&gt;</i> can be the name of a 
+Or <i>&lt;version&gt;</i> can be the name of a
 [./branching.wiki | branch] in order to show
 the documentation for the latest version of that branch.
 Or <i>&lt;version&gt;</i> can be one of the keywords "<b>tip</b>" or
@@ -64,16 +64,16 @@ Finally, the <i>&lt;filename&gt;</i> element of the URL is the
 pathname of the documentation file relative to the root of the source
 tree.
 
-The mimetype (and thus the rendering) of documentation files is 
-determined by the file suffix.  Fossil currently understands 
+The mimetype (and thus the rendering) of documentation files is
+determined by the file suffix.  Fossil currently understands
 [/mimetype_list|many different file suffixes],
 including all the popular ones such as ".css", ".gif", ".htm",
 ".html", ".jpg", ".jpeg", ".png", and ".txt".
 
-Documentation files whose names end in ".wiki" use the 
-[/wiki_rules | same markup as wiki pages] -
+Documentation files whose names end in ".wiki" use the
+[/wiki_rules | fossil wiki markup] -
 a safe subset of HTML together with some wiki rules for paragraph
-breaks, lists, and hyperlinks. 
+breaks, lists, and hyperlinks.
 Documentation files ending in ".md" or ".markdown" use the
 [/md_rules  | Markdown markup langauge].
 Documentation files ending in ".txt" are plain text.
@@ -83,7 +83,7 @@ Most other mimetypes are delivered directly to the requesting
 web browser without interpretation, additions, or changes.
 
 Files with the mimetype "text/html" (the .html or .htm suffix) are
-usually rendered directly to the browser without interpretation. 
+usually rendered directly to the browser without interpretation.
 However, if the file begins with a &lt;div&gt; element like this:
 
     <b>&lt;div class='fossil-doc' data-title='<i>Title Text</i>'&gt;</b>
@@ -119,7 +119,7 @@ CGI mode.  The "index.html" CGI script looks like this:
 repository: /fossil/fossil.fossil
 </pre></blockquote>
 
-This is one of four ways to set up a 
+This is one of four ways to set up a
 <a href="./server.wiki">fossil web server</a>.
 
 The "<b>/trunk/</b>" part of the URL tells fossil to use
@@ -140,7 +140,7 @@ can also be a date and time string in any of the following formats:</p>
 <li> <i>YYYY-MM-DD</i><b>T</b><i>HH:MM:SS</i>
 </ul>
 
-When the symbolic name is a date and time, fossil shows the version 
+When the symbolic name is a date and time, fossil shows the version
 of the document that was most recently checked in as of the date
 and time specified.  So, for example, to see what the fossil website
 looked like at the beginning of 2010, enter:

@@ -28,6 +28,7 @@ int uuid_is_shunned(const char *zUuid){
   static Stmt q;
   int rc;
   if( zUuid==0 || zUuid[0]==0 ) return 0;
+  if( g.eHashPolicy==HPOLICY_SHUN_SHA1 && zUuid[HNAME_LEN_SHA1]==0 ) return 1;
   db_static_prepare(&q, "SELECT 1 FROM shun WHERE uuid=:uuid");
   db_bind_text(&q, ":uuid", zUuid);
   rc = db_step(&q);
@@ -38,7 +39,7 @@ int uuid_is_shunned(const char *zUuid){
 /*
 ** WEBPAGE: shun
 **
-** View the SHA1 hashes of all shunned artifacts.  Add new hashes
+** View the hashes of all shunned artifacts.  Add new hashes
 ** to the shun set.  Requires Admin privilege.
 */
 void shun_page(void){
@@ -86,14 +87,14 @@ void shun_page(void){
     p = zCanonical;
     while( *p ){
       int nUuid = strlen(p);
-      if( nUuid!=UUID_SIZE || !validate16(p, nUuid) ){
+      if( !hname_validate(p, nUuid) ){
         @ <p class="generalError">Error: Bad artifact IDs.</p>
         fossil_free(zCanonical);
         zCanonical = 0;
         break;
       }else{
-        canonical16(p, UUID_SIZE);
-        p += UUID_SIZE+1;
+        canonical16(p, nUuid);
+        p += nUuid+1;
       }
     }
     zUuid = zCanonical;
@@ -109,17 +110,17 @@ void shun_page(void){
         allExist = 0;
       }
       admin_log("Unshunned %Q", p);
-      p += UUID_SIZE+1;
+      p += strlen(p)+1;
     }
     if( allExist ){
       @ <p class="noMoreShun">Artifact(s)<br />
-      for( p = zUuid ; *p ; p += UUID_SIZE+1 ){
+      for( p = zUuid ; *p ; p += strlen(p)+1 ){
         @ <a href="%R/artifact/%s(p)">%s(p)</a><br />
       }
       @ are no longer being shunned.</p>
     }else{
       @ <p class="noMoreShun">Artifact(s)<br />
-      for( p = zUuid ; *p ; p += UUID_SIZE+1 ){
+      for( p = zUuid ; *p ; p += strlen(p)+1 ){
         @ %s(p)<br />
       }
       @ will no longer be shunned.  But they may not exist in the repository.
@@ -148,10 +149,10 @@ void shun_page(void){
         db_multi_exec("DELETE FROM tagxref WHERE tagid=%d", tagid);
       }
       admin_log("Shunned %Q", p);
-      p += UUID_SIZE+1;
+      p += strlen(p)+1;
     }
     @ <p class="shunned">Artifact(s)<br />
-    for( p = zUuid ; *p ; p += UUID_SIZE+1 ){
+    for( p = zUuid ; *p ; p += strlen(p)+1 ){
       @ <a href="%R/artifact/%s(p)">%s(p)</a><br />
     }
     @ have been shunned.  They will no longer be pushed.
@@ -169,14 +170,14 @@ void shun_page(void){
   @ bottom of this page.</p>
   @
   @ <a name="addshun"></a>
-  @ <p>To shun artifacts, enter their artifact IDs (the 40-character SHA1
-  @ hash of the artifacts) in the
+  @ <p>To shun artifacts, enter their artifact hashes (the 40- or
+  @ 64-character lowercase hexadecimal hash of the artifact content) in the
   @ following box and press the "Shun" button.  This will cause the artifacts
   @ to be removed from the repository and will prevent the artifacts from being
   @ readded to the repository by subsequent sync operation.</p>
   @
-  @ <p>Note that you must enter the full 40-character artifact IDs, not
-  @ an abbreviation or a symbolic tag.</p>
+  @ <p>Note that you must enter the full 40- or 64-character artifact hashes,
+  @ not an abbreviation or a symbolic tag.</p>
   @
   @ <p>Warning:  Shunning should only be used to remove inappropriate content
   @ from the repository.  Inappropriate content includes such things as
@@ -319,16 +320,21 @@ void rcvfromlist_page(void){
   if( showAll ){
     ofst = 0;
   }else{
-    style_submenu_element("All", "All", "rcvfromlist?all=1");
+    style_submenu_element("All", "rcvfromlist?all=1");
   }
   if( ofst>0 ){
-    style_submenu_element("Newer", "Newer", "rcvfromlist?ofst=%d",
+    style_submenu_element("Newer", "rcvfromlist?ofst=%d",
                            ofst>30 ? ofst-30 : 0);
   }
   db_multi_exec(
     "CREATE TEMP TABLE rcvidUsed(x INTEGER PRIMARY KEY);"
     "INSERT OR IGNORE INTO rcvidUsed(x) SELECT rcvid FROM blob;"
   );
+  if( db_table_exists("repository","unversioned") ){
+    db_multi_exec(
+      "INSERT OR IGNORE INTO rcvidUsed(x) SELECT rcvid FROM unversioned;"
+    );
+  }
   db_prepare(&q,
     "SELECT rcvid, login, datetime(rcvfrom.mtime), rcvfrom.ipaddr,"
     "       EXISTS(SELECT 1 FROM rcvidUsed WHERE x=rcvfrom.rcvid)"
@@ -360,8 +366,7 @@ void rcvfromlist_page(void){
     const char *zDate = db_column_text(&q, 2);
     const char *zIpAddr = db_column_text(&q, 3);
     if( cnt==30 && !showAll ){
-      style_submenu_element("Older", "Older",
-         "rcvfromlist?ofst=%d", ofst+30);
+      style_submenu_element("Older", "rcvfromlist?ofst=%d", ofst+30);
     }else{
       cnt++;
       @ <tr>
@@ -391,6 +396,7 @@ void rcvfromlist_page(void){
 void rcvfrom_page(void){
   int rcvid = atoi(PD("rcvid","0"));
   Stmt q;
+  int cnt;
 
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -402,15 +408,13 @@ void rcvfrom_page(void){
     "SELECT 1 FROM blob WHERE rcvid=%d AND"
     " NOT EXISTS (SELECT 1 FROM shun WHERE shun.uuid=blob.uuid)", rcvid)
   ){
-    style_submenu_element("Shun All", "Shun All",
-                          "shun?shun&rcvid=%d#addshun", rcvid);
+    style_submenu_element("Shun All", "shun?shun&rcvid=%d#addshun", rcvid);
   }
   if( db_exists(
     "SELECT 1 FROM blob WHERE rcvid=%d AND"
     " EXISTS (SELECT 1 FROM shun WHERE shun.uuid=blob.uuid)", rcvid)
   ){
-    style_submenu_element("Unshun All", "Unshun All",
-                          "shun?accept&rcvid=%d#delshun", rcvid);
+    style_submenu_element("Unshun All", "shun?accept&rcvid=%d#delshun", rcvid);
   }
   db_prepare(&q,
     "SELECT login, datetime(rcvfrom.mtime), rcvfrom.ipaddr"
@@ -443,17 +447,87 @@ void rcvfrom_page(void){
     "  FROM blob LEFT JOIN description ON (blob.rid=description.rid)"
     " WHERE blob.rcvid=%d", rcvid
   );
-  @ <tr><th valign="top" align="right">Artifacts:</th>
-  @ <td valign="top">
+  cnt = 0;
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 1);
     int size = db_column_int(&q, 2);
     const char *zDesc = db_column_text(&q, 3);
     if( zDesc==0 ) zDesc = "";
+    if( cnt==0 ){
+      @ <tr><th valign="top" align="right">Artifacts:</th>
+      @ <td valign="top">
+    }
+    cnt++;
     @ <a href="%R/info/%s(zUuid)">%s(zUuid)</a>
     @ %h(zDesc) (size: %d(size))<br />
   }
-  @ </td></tr>
+  if( cnt>0 ){
+    @ <p>
+    if( db_exists(
+      "SELECT 1 FROM blob WHERE rcvid=%d AND"
+      " NOT EXISTS (SELECT 1 FROM shun WHERE shun.uuid=blob.uuid)", rcvid)
+    ){
+      @ <form action='%R/shun'>
+      @ <input type="hidden" name="shun">
+      @ <input type="hidden" name="rcvid" value='%d(rcvid)'>
+      @ <input type="submit" value="Shun All These Artifacts">
+      @ </form>
+    }
+    if( db_exists(
+      "SELECT 1 FROM blob WHERE rcvid=%d AND"
+      " EXISTS (SELECT 1 FROM shun WHERE shun.uuid=blob.uuid)", rcvid)
+    ){
+      @ <form action='%R/shun'>
+      @ <input type="hidden" name="unshun">
+      @ <input type="hidden" name="rcvid" value='%d(rcvid)'>
+      @ <input type="submit" value="Unshun All These Artifacts">
+      @ </form>
+    }
+    @ </td></tr>
+  }
+  if( db_table_exists("repository","unversioned") ){
+    cnt = 0;
+    if( PB("uvdelete") && PB("confirmdelete") ){
+      db_multi_exec(
+        "DELETE FROM unversioned WHERE rcvid=%d", rcvid
+      );
+    }
+    db_finalize(&q);
+    db_prepare(&q,
+      "SELECT name, hash, sz\n"
+      "  FROM unversioned "
+      " WHERE rcvid=%d", rcvid
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zName = db_column_text(&q,0);
+      const char *zHash = db_column_text(&q,1);
+      int size = db_column_int(&q,2);
+      int isDeleted = zHash==0;
+      if( cnt==0 ){
+        @ <tr><th valign="top" align="right">Unversioned&nbsp;Files:</th>
+        @ <td valign="top">
+      }
+      cnt++;
+      if( isDeleted ){
+        @ %h(zName) (deleted)<br />
+      }else{
+        @ <a href="%R/uv/%h(zName)">%h(zName)</a> (size: %d(size))<br />
+      }
+    }
+    if( cnt>0 ){
+      @ <p><form action='%R/rcvfrom'>
+      @ <input type="hidden" name="rcvid" value='%d(rcvid)'>
+      @ <input type="hidden" name="uvdelete" value="1">
+      if( PB("uvdelete") ){
+        @ <input type="hidden" name="confirmdelete" value="1">
+        @ <input type="submit" value="Confirm Deletion of These Files">
+      }else{
+        @ <input type="submit" value="Delete These Unversioned Files">
+      }
+      @ </form>
+      @ </td></tr>
+    }
+  }
   @ </table>
   db_finalize(&q);
   style_footer();

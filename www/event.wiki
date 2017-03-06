@@ -25,7 +25,7 @@ Possible uses for technotes include:
       can contain release notes, for example.
 
   *  <b>Blog Entries</b>.  Blog entries from developers describing the current
-     state of a project, or rational for various design decisions, or 
+     state of a project, or rational for various design decisions, or
      roadmaps for future development, can be entered as technotes.
 
   *  <b>Process Checkpoints</b>.  For projects that have a formal process,
@@ -51,7 +51,7 @@ development progress.
 
 <h2>Viewing Technotes</h2>
 
-Because technotes are considered a special kind of wiki, 
+Because technotes are considered a special kind of wiki,
 users must have permission to read wiki in order read technotes.
 Enable the "j" permission under the /Setup/Users menu in order
 to give specific users or user classes the ability to view wiki
@@ -66,7 +66,7 @@ There is a hyperlink under the /wikihelp menu that can be used to create
 new technotes.  And there is a submenu hyperlink on technote displays for
 editing existing technotes.
 
-Users must have check-in privileges (permission "i") in order to 
+Users must have check-in privileges (permission "i") in order to
 create or edit technotes.  In addition, users must have create-wiki
 privilege (permission "f") to create new technotes and edit-wiki
 privilege (permission "k") in order to edit existing technotes.

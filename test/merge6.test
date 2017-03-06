@@ -64,7 +64,7 @@ fossil ls
 test merge_multi-4 {[normalize_result] eq {f1
 f2
 f3
-f4}} knownBug
+f4}}
 
 ###############################################################################
 

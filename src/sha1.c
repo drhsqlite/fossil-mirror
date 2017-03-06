@@ -1,20 +1,86 @@
 /*
+** Copyright (c) 2006 D. Richard Hipp
+**
+** This program is free software; you can redistribute it and/or
+** modify it under the terms of the Simplified BSD License (also
+** known as the "2-Clause License" or "FreeBSD License".)
+**
+** This program is distributed in the hope that it will be useful,
+** but without any warranty; without even the implied warranty of
+** merchantability or fitness for a particular purpose.
+**
+** Author contact information:
+**   drh@hwaci.com
+**   http://www.hwaci.com/drh/
+**
+*******************************************************************************
+**
 ** This implementation of SHA1.
 */
 #include "config.h"
 #include <sys/types.h>
+#include <stdint.h>
 #include "sha1.h"
 
-#ifdef FOSSIL_ENABLE_SSL
+
+/*
+** SHA1 Implementation #1 is the hardened SHA1 implementation by
+** Marc Stevens.  Code obtained from GitHub
+**
+**     https://github.com/cr-marcstevens/sha1collisiondetection
+**
+** Downloaded on 2017-03-01 then repackaged to work with Fossil
+** and makeheaders.
+*/
+#if FOSSIL_HARDENED_SHA1
+
+#if INTERFACE
+typedef void(*collision_block_callback)(uint64_t, const uint32_t*, const uint32_t*, const uint32_t*, const uint32_t*);
+struct SHA1_CTX {
+  uint64_t total;
+  uint32_t ihv[5];
+  unsigned char buffer[64];
+  int bigendian;
+  int found_collision;
+  int safe_hash;
+  int detect_coll;
+  int ubc_check;
+  int reduced_round_coll;
+  collision_block_callback callback;
+
+  uint32_t ihv1[5];
+  uint32_t ihv2[5];
+  uint32_t m1[80];
+  uint32_t m2[80];
+  uint32_t states[80][5];
+};
+#endif
+void SHA1DCInit(SHA1_CTX*);
+void SHA1DCUpdate(SHA1_CTX*, const unsigned char*, unsigned);
+int SHA1DCFinal(unsigned char[20], SHA1_CTX*);
+
+#define SHA1Context SHA1_CTX
+#define SHA1Init SHA1DCInit
+#define SHA1Update SHA1DCUpdate
+#define SHA1Final SHA1DCFinal
+
+/*
+** SHA1 Implementation #2: use the SHA1 algorithm built into SSL
+*/
+#elif  defined(FOSSIL_ENABLE_SSL)
 
 # include <openssl/sha.h>
 # define SHA1Context SHA_CTX
 # define SHA1Init SHA1_Init
 # define SHA1Update SHA1_Update
-# define SHA1Final(a,b) SHA1_Final(b,a)
+# define SHA1Final SHA1_Final
 
+/*
+** SHA1 Implementation #3:  If none of the previous two SHA1
+** algorithms work, there is this built-in.  This built-in was the
+** original implementation used by Fossil.
+*/
 #else
-
 /*
 ** The SHA1 implementation below is adapted from:
 **
@@ -55,6 +121,9 @@ struct SHA1Context {
 #define rol(x,k) SHA_ROT(x,k,32-(k))
 #define ror(x,k) SHA_ROT(x,32-(k),k)
 #endif
+
+
+
 
 
 #define blk0le(i) (block[i] = (ror(block[i],8)&0xFF00FF00) \
@@ -190,7 +259,7 @@ static void SHA1Update(
 /*
  * Add padding and return the message digest.
  */
-static void SHA1Final(SHA1Context *context, unsigned char digest[20]){
+static void SHA1Final(unsigned char *digest, SHA1Context *context){
     unsigned int i;
     unsigned char finalcount[8];
 
@@ -209,8 +278,7 @@ static void SHA1Final(SHA1Context *context, unsigned char digest[20]){
                 ((context->state[i>>2] >> ((3-(i & 3)) * 8) ) & 255);
     }
 }
-#endif
-
+#endif /* Built-in SHA1 implemenation */
 
 /*
 ** Convert a digest into base-16.  digest should be declared as
@@ -270,7 +338,7 @@ char *sha1sum_finish(Blob *pOut){
   unsigned char zResult[20];
   static char zOut[41];
   sha1sum_step_text(0,0);
-  SHA1Final(&incrCtx, zResult);
+  SHA1Final(zResult, &incrCtx);
   incrInit = 0;
   DigestToBase16(zResult, zOut);
   if( pOut ){
@@ -318,7 +386,7 @@ int sha1sum_file(const char *zFilename, Blob *pCksum){
   fclose(in);
   blob_zero(pCksum);
   blob_resize(pCksum, 40);
-  SHA1Final(&ctx, zResult);
+  SHA1Final(zResult, &ctx);
   DigestToBase16(zResult, blob_buffer(pCksum));
   return 0;
 }
@@ -342,7 +410,7 @@ int sha1sum_blob(const Blob *pIn, Blob *pCksum){
     blob_zero(pCksum);
   }
   blob_resize(pCksum, 40);
-  SHA1Final(&ctx, zResult);
+  SHA1Final(zResult, &ctx);
   DigestToBase16(zResult, blob_buffer(pCksum));
   return 0;
 }
@@ -358,7 +426,7 @@ char *sha1sum(const char *zIn){
 
   SHA1Init(&ctx);
   SHA1Update(&ctx, (unsigned const char*)zIn, strlen(zIn));
-  SHA1Final(&ctx, zResult);
+  SHA1Final(zResult, &ctx);
   DigestToBase16(zResult, zDigest);
   return mprintf("%s", zDigest);
 }
@@ -409,7 +477,7 @@ char *sha1_shared_secret(
   SHA1Update(&ctx, (unsigned char*)zLogin, strlen(zLogin));
   SHA1Update(&ctx, (unsigned char*)"/", 1);
   SHA1Update(&ctx, (unsigned const char*)zPw, strlen(zPw));
-  SHA1Final(&ctx, zResult);
+  SHA1Final(zResult, &ctx);
   DigestToBase16(zResult, zDigest);
   return mprintf("%s", zDigest);
 }

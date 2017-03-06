@@ -102,14 +102,14 @@ char *skin_use_alternative(const char *zName){
     zAltSkinDir = fossil_strdup(zName);
     return 0;
   }
-  for(i=0; i<ArraySize(aBuiltinSkin); i++){
+  for(i=0; i<count(aBuiltinSkin); i++){
     if( fossil_strcmp(aBuiltinSkin[i].zLabel, zName)==0 ){
       pAltSkin = &aBuiltinSkin[i];
       return 0;
     }
   }
   blob_appendf(&err, "available skins: %s", aBuiltinSkin[0].zLabel);
-  for(i=1; i<ArraySize(aBuiltinSkin); i++){
+  for(i=1; i<count(aBuiltinSkin); i++){
     blob_append(&err, " ", 1);
     blob_append(&err, aBuiltinSkin[i].zLabel, -1);
   }
@@ -165,7 +165,7 @@ const char *skin_get(const char *zWhat){
 */
 static struct SkinDetail *skin_detail_find(const char *zName){
   int lwr = 0;
-  int upr = ArraySize(aSkinDetail);
+  int upr = count(aSkinDetail);
   while( upr>=lwr ){
     int mid = (upr+lwr)/2;
     int c = fossil_strcmp(aSkinDetail[mid].zName, zName);
@@ -285,7 +285,7 @@ static char *skinVarName(const char *zSkinName, int ifExists){
 static int skinExists(const char *zSkinName){
   int i;
   if( zSkinName==0 ) return 0;
-  for(i=0; i<sizeof(aBuiltinSkin)/sizeof(aBuiltinSkin[0]); i++){
+  for(i=0; i<count(aBuiltinSkin); i++){
     if( fossil_strcmp(zSkinName, aBuiltinSkin[i].zDesc)==0 ) return 1;
   }
   return db_exists("SELECT 1 FROM config WHERE name='skin:%q'", zSkinName);
@@ -306,7 +306,7 @@ static char *getSkin(const char *zName){
   int i;
   Blob val;
   blob_zero(&val);
-  for(i=0; i<sizeof(azType)/sizeof(azType[0]); i++){
+  for(i=0; i<count(azType); i++){
     if( zName ){
       zLabel = mprintf("skins/%s/%s.txt", zName, azType[i]);
       z = builtin_text(zLabel);
@@ -429,7 +429,7 @@ void setup_skin(void){
   }
   db_begin_transaction();
   zCurrent = getSkin(0);
-  for(i=0; i<sizeof(aBuiltinSkin)/sizeof(aBuiltinSkin[0]); i++){
+  for(i=0; i<count(aBuiltinSkin); i++){
     aBuiltinSkin[i].zSQL = getSkin(aBuiltinSkin[i].zLabel);
   }
 
@@ -460,7 +460,7 @@ void setup_skin(void){
     /* Check to see if the current skin is already saved.  If it is, there
     ** is no need to create a backup */
     zCurrent = getSkin(0);
-    for(i=0; i<sizeof(aBuiltinSkin)/sizeof(aBuiltinSkin[0]); i++){
+    for(i=0; i<count(aBuiltinSkin); i++){
       if( fossil_strcmp(aBuiltinSkin[i].zSQL, zCurrent)==0 ){
         seen = 1;
         break;
@@ -478,7 +478,7 @@ void setup_skin(void){
       }
     }
     seen = 0;
-    for(i=0; i<sizeof(aBuiltinSkin)/sizeof(aBuiltinSkin[0]); i++){
+    for(i=0; i<count(aBuiltinSkin); i++){
       if( fossil_strcmp(aBuiltinSkin[i].zDesc, z)==0 ){
         seen = 1;
         zCurrent = aBuiltinSkin[i].zSQL;
@@ -495,7 +495,7 @@ void setup_skin(void){
 
   style_header("Skins");
   if( zErr ){
-    @ <p><font color="red">%h(zErr)</font></p>
+    @ <p style="color:red">%h(zErr)</p>
   }
   @ <p>A "skin" is a combination of
   @ <a href="setup_skinedit?w=0">CSS</a>,
@@ -515,7 +515,7 @@ void setup_skin(void){
   }
   @ <h2>Available Skins:</h2>
   @ <table border="0">
-  for(i=0; i<sizeof(aBuiltinSkin)/sizeof(aBuiltinSkin[0]); i++){
+  for(i=0; i<count(aBuiltinSkin); i++){
     z = aBuiltinSkin[i].zDesc;
     @ <tr><td>%d(i+1).<td>%h(z)<td>&nbsp;&nbsp;<td>
     if( fossil_strcmp(aBuiltinSkin[i].zSQL, zCurrent)==0 ){
@@ -599,7 +599,7 @@ void setup_skinedit(void){
     return;
   }
   ii = atoi(PD("w","0"));
-  if( ii<0 || ii>ArraySize(aSkinAttr) ) ii = 0;
+  if( ii<0 || ii>count(aSkinAttr) ) ii = 0;
   zBasis = PD("basis","default");
   zDflt = mprintf("skins/%s/%s.txt", zBasis, aSkinAttr[ii].zFile);
   db_begin_transaction();
@@ -608,12 +608,12 @@ void setup_skinedit(void){
     cgi_replace_parameter(aSkinAttr[ii].zFile, builtin_text(zDflt));
   }
   style_header("%s", aSkinAttr[ii].zTitle);
-  for(j=0; j<ArraySize(aSkinAttr); j++){
+  for(j=0; j<count(aSkinAttr); j++){
     if( j==ii ) continue;
-    style_submenu_element(aSkinAttr[j].zSubmenu, 0,
+    style_submenu_element(aSkinAttr[j].zSubmenu,
           "%R/setup_skinedit?w=%d&basis=%h",j,zBasis);
   }
-  style_submenu_element("Skins", 0, "%R/setup_skin");
+  style_submenu_element("Skins", "%R/setup_skin");
   @ <form action="%s(g.zTop)/setup_skinedit" method="post"><div>
   login_insert_csrf_secret();
   @ <input type='hidden' name='w' value='%d(ii)'>
@@ -624,7 +624,7 @@ void setup_skinedit(void){
   @ <input type="submit" name="submit" value="Apply Changes" />
   @ <hr />
   @ Baseline: <select size='1' name='basis'>
-  for(j=0; j<ArraySize(aBuiltinSkin); j++){
+  for(j=0; j<count(aBuiltinSkin); j++){
     cgi_printf("<option value='%h'%s>%h</option>\n",
        aBuiltinSkin[j].zLabel,
        fossil_strcmp(zBasis,aBuiltinSkin[j].zLabel)==0 ? " selected" : "",

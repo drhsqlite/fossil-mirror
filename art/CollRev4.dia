@@ -476,7 +476,7 @@
         <dia:attribute name="text">
           <dia:composite type="text">
             <dia:attribute name="string">
-              <dia:string># 
+              <dia:string>#
 child#</dia:string>
             </dia:attribute>
             <dia:attribute name="font">
@@ -510,7 +510,7 @@ child#</dia:string>
         <dia:attribute name="text">
           <dia:composite type="text">
             <dia:attribute name="string">
-              <dia:string># 
+              <dia:string>#
 child#</dia:string>
             </dia:attribute>
             <dia:attribute name="font">
@@ -611,7 +611,7 @@ child#</dia:string>
         <dia:attribute name="text">
           <dia:composite type="text">
             <dia:attribute name="string">
-              <dia:string>#   
+              <dia:string>#
   parent#</dia:string>
             </dia:attribute>
             <dia:attribute name="font">
