@@ -1,5 +1,5 @@
-C Use\s"auto"\shash-policy\sfor\snew\sDocker\srepositories
-D 2017-03-06T12:52:58.073
+C Remove\sRFC\sdocumentation\sfrom\szlib\sredistribution.\sMotivation:\s[http://core.tcl.tk/tcl/info/e14d152114efee10394a7e0b4b1c0478efff52c5|bundled\szlib\sdocumentation\sis\sunder\sa\spotentially\snon-free\slicense]
+D 2017-03-07T11:11:38.033
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -244,11 +244,6 @@ F compat/zlib/crc32.c 88ea76a1b42bfc247680dd50b450923858f945fe
 F compat/zlib/crc32.h db9e88b8332953972c9120c73389fa2ce03dd8f8
 F compat/zlib/deflate.c 436dc72ccb798bf1ac3e30cd9b580799f8bbb441
 F compat/zlib/deflate.h d54ac3369732bc45463c254851809a0062382b3d
-F compat/zlib/doc/algorithm.txt 8f58cd212772b622c71345ca5d7dd93648b8ab94
-F compat/zlib/doc/rfc1950.txt 58f11c3e7778ca30e9c9330ab248107371429dd8
-F compat/zlib/doc/rfc1951.txt b13d37ad6b3855f3a2eaf6c325eddaa7815355b0
-F compat/zlib/doc/rfc1952.txt b2346a9c1e9cd011370595a292154ca83eff4ddb
-F compat/zlib/doc/txtvsbin.txt 0b5f765b6151da46d356493278fd873e4c99ce80
 F compat/zlib/examples/README.examples f793f7b378233d7e644754e603695966487576b5
 F compat/zlib/examples/enough.c 1bcc3f9743bcfdfb77fb6736ece06c666dd1787e
 F compat/zlib/examples/fitblk.c b69d9b6eeadd680fe37ab8ba54d781f46fe80420
@@ -787,7 +782,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9a6256cf0850e9c5a3a94da1cb6b464c0b4123ab
-R fe4d01dcfa1db69b93c30fbd088b5187
+P 3c9dc14831ec9544770f29a6e3b9f61ed69fd2cc
+R 06dbdaccf7be1033e7a3cadba23a34ad
 U jan.nijtmans
-Z e13c15352c7815904585a6550669ffe0
+Z 3a164a8dbbc8fb0bec617421115e180d
