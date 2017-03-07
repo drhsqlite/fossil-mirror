@@ -1,5 +1,5 @@
-C Do\snot\srun\sTH1\shooks\son\sthe\s"fossil\ssql"\scommand.
-D 2017-03-07T20:38:56.236
+C Fix\sthe\sprevious\sfix\sso\sthat\sit\sworks\seven\sif\sTH1\shooks\sare\sdisabled\sat\ncompile-time.
+D 2017-03-07T21:43:56.388
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -497,7 +497,7 @@ F src/shell.c 27d2b31099fd2cd749e44d025ef9b54ca26692cb
 F src/shun.c 2f32dff8bb8a3f9aa1eeb10a82be946c68d9573a
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c 0b6ae35015f48cbe9cef2f97d65105a796fc366b
-F src/sqlcmd.c f7e463dfe1bd7930de0de21145e3db3498245e14
+F src/sqlcmd.c fba609f0f5a91435d0dff8719ba9c5d25f8cfa15
 F src/sqlite3.c 882d49dd40ebb58e25b3fb9b790ecb2fd7d9cc7e
 F src/sqlite3.h b590133adb2907b8b635c5df4c88393ea94761bd
 F src/stash.c dc0263e11eeb30689418e4def6174af973ad66bf
@@ -782,7 +782,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eea86cee3aa49fa362a07decc35887fde6a99db3
-R fe2e70bea7ac6deaf1f6ae133b9acec0
+P d493544369a6901038e8304528ac5e95c1f19629
+R 19fd610bcc2299a2a85861935a84ccb2
 U drh
-Z 7d5694c3c847eb4dcb4923ce1384c566
+Z cb0851e8920b1508a36cf0eb13d86ac0
