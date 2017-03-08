@@ -430,7 +430,7 @@ static void SHA3Update(
   }
 #endif
   for(; i<nData; i++){
-#if SHA1_BYTEORDER==1234
+#if SHA3_BYTEORDER==1234
     p->u.x[p->nLoaded] ^= aData[i];
 #elif SHA3_BYTEORDER==4321
     p->u.x[p->nLoaded^0x07] ^= aData[i];
