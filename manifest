@@ -1,5 +1,5 @@
-C Version\s2.0
-D 2017-03-03T12:00:30.977
+C Fixed\sisses\sin\sthe\sJSON\sand\swiki\stest\scases\sexposed\sby\sregressions\sin\sfossil-2.0.
+D 2017-03-08T20:05:13.390
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -556,7 +556,7 @@ F test/fileStat.th1 e3e30f7b46488c26215a6d713be36ad4ed595132
 F test/fileage-test-1.wiki d249e897fdd41038c17f3b66d374e509830da1eb
 F test/glob.test e135d6e1333452beece53619e9a67cd9224ab00c
 F test/graph-test-1.wiki b723f0e694974edb84ff0744fccbad0dd93181dd
-F test/json.test cbf45320d251af69528fa63c4266beba57a85f29
+F test/json.test e75cac26fb36d985c83a3ff81ce511d0d10414b8
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/merge1.test 0f11a55b5d71fa668b53ffc4cdeb23997e9cb042
@@ -604,7 +604,7 @@ F test/utf.test e2489218e27ea0c643185707e2a4fd33db59f13b
 F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03
-F test/wiki.test 001e9e3b99798346f161710f16719b75e0fb3f2b
+F test/wiki.test b56d0e136bff056946b98cbff333036fb5c68778
 F tools/cvs2fossil/changeset 1c99ad8ca9b2f049266d63e0bcc5f26196c72627
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -786,10 +786,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 69b9b9563fd471936d8591fd2f7e79b3e4abe497
-R b14b318ebcd302d700096463b7de65d4
-T +bgcolor * #d0c0ff
-T +sym-release *
-T +sym-version-2.0 *
-U drh
-Z dd9b6c6458a6b4370d68a3c57a9f1bd8
+P 1d407cff32978b6ed57138da36787d547ce6887d
+R 3ba63930cbf5b7fd1ddebe87e8cb85c5
+T *branch * rkb-2.0-tests
+T *sym-rkb-2.0-tests *
+T -sym-trunk *
+U rberteig
+Z f3b49a356f398c7a87767c497e818a3c
