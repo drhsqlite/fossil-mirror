@@ -1,5 +1,5 @@
-C Fix\san\s#ifdef\serror\sin\sthe\ssha3\simplementation\sthat\scaused\ssuboptimal\scode\nfor\slittle-endian\smachines.
-D 2017-03-08T15:01:27.754
+C Fix\sthe\s"fossil\swiki\sexport\s--technote"\scommand\sso\sthat\sit\sallows\shash\nabbreviations\sagain,\sas\sit\sshould.
+D 2017-03-08T20:35:04.683
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -526,7 +526,7 @@ F src/utf8.c 9f458b9698fc928cc21e375538f268651d1d22a2
 F src/util.c 9a3cc502aa6ae3bc19831e5f553cd346ec154b5c
 F src/verify.c 5799825d086464bb9e19e69ffeec84a710d1681b
 F src/vfile.c ed1123e80689e8c160e9af0d99227d2bc252b486
-F src/wiki.c 9482a4ef96942921b5173a44fda320f8596c9cc5
+F src/wiki.c b5fa823e659eb664f475e1d2c4cace7a858410e5
 F src/wikiformat.c 1616c95201d38f46c67722a86c880e508b042aad
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c a3970bdc0b05426cadadb1a62cd378e10f124062
@@ -782,7 +782,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4a31a093a3058acd8003793d4b0b5eab16892fe1
-R 80b438a7d86dae6328cd589040082687
+P e8b433321bbe4e2157358749cf0f52155f2755e0
+R 99d0d6bb1ef0807df2d00cfb1237f121
 U drh
-Z 6ae520355bae05afc0d4e3fed2ecdfaf
+Z 4fe04f45a7cbe1025eb03c3663108df4
