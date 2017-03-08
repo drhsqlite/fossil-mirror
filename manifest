@@ -1,5 +1,5 @@
-C Fix\sthe\s"fossil\swiki\sexport\s--technote"\scommand\sso\sthat\sit\sallows\shash\nabbreviations\sagain,\sas\sit\sshould.
-D 2017-03-08T20:35:04.683
+C Remove\sa\srepeated\s"are"\sin\shash-policy\scommand\shelp\stext.
+D 2017-03-08T22:56:17.338
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -428,7 +428,7 @@ F src/fusefs.c c774c78b274375f42653c71d0b6c1062695bb4da
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 066169948d671628a648bd0e622ec9487e258195
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
-F src/hname.c 47eb83d97fa72fa66b3e97808a74205ebe7026c4
+F src/hname.c 1f0ea670e2648deb2e547175523843bb5a9b84fc
 F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
@@ -782,7 +782,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e8b433321bbe4e2157358749cf0f52155f2755e0
-R 99d0d6bb1ef0807df2d00cfb1237f121
-U drh
-Z 4fe04f45a7cbe1025eb03c3663108df4
+P 623528470de097ceec11763d4b26efede31c93d2
+R 8af664b4eba3aba8ea34f11d8d7c6e03
+U mgagnon
+Z 006773f8fcc6dd406afbde87625d52f2
