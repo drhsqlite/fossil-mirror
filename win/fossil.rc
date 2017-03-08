@@ -114,6 +114,13 @@ BEGIN
 #else
       VALUE "ZlibVersion", "zlib " ZLIB_VERSION "\0"
 #endif /* defined(FOSSIL_ENABLE_MINIZ) */
+#if FOSSIL_HARDENED_SHA1
+      VALUE "Sha1", "Hardened-SHA1 by Marc Stevens and Dan Shumow\0"
+#elif defined(FOSSIL_ENABLE_SSL)
+      VALUE "Sha1", "OpenSSL-SHA1\0"
+#else
+      VALUE "Sha1", "Legacy-SHA1\0"
+#endif /* FOSSIL_HARDENED_SHA1 */
 #if defined(BROKEN_MINGW_CMDLINE)
       VALUE "CommandLineIsUnicode", "No\0"
 #else

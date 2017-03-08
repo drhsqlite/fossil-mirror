@@ -1603,4 +1603,57 @@ test th1-unversioned-2 {$RESULT eq {4592}}
 
 ###############################################################################
 
+fossil test-th-eval {hash foo}
+test th1-hash-1 {$RESULT eq \
+"76d3bc41c9f588f7fcd0d5bf4718f8f84b1c41b20882703100b9eb9413807c01"}
+
+###############################################################################
+
+fossil test-th-eval {hash foo bad}
+test th1-hash-2 {$RESULT eq "TH_ERROR: unknown hash algorithm"}
+
+###############################################################################
+
+fossil test-th-eval {hash foo md5}
+test th1-hash-3 {$RESULT eq "acbd18db4cc2f85cedef654fccc4a4d8"}
+
+###############################################################################
+
+fossil test-th-eval {hash foo md5 bad}
+test th1-hash-4 {$RESULT eq \
+"TH_ERROR: wrong # args: should be \"hash STRING ?ALGORITHM?\""}
+
+###############################################################################
+
+fossil test-th-eval {hash foo sha1}
+test th1-hash-5 {$RESULT eq "0beec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33"}
+
+###############################################################################
+
+fossil test-th-eval {hash foo sha3-224}
+test th1-hash-6 {$RESULT eq \
+"f4f6779e153c391bbd29c95e72b0708e39d9166c7cea51d1f10ef58a"}
+
+###############################################################################
+
+fossil test-th-eval {hash foo sha3-256}
+test th1-hash-7 {$RESULT eq \
+"76d3bc41c9f588f7fcd0d5bf4718f8f84b1c41b20882703100b9eb9413807c01"}
+
+###############################################################################
+
+fossil test-th-eval {hash foo sha3-384}
+test th1-hash-8 {$RESULT eq [appendArgs \
+665551928d13b7d84ee02734502b018d896a0fb87eed5adb4c87ba91bbd6489410e11b0fbcc06 \
+ed7d0ebad559e5d3bb5]}
+
+###############################################################################
+
+fossil test-th-eval {hash foo sha3-512}
+test th1-hash-9 {$RESULT eq [appendArgs \
+4bca2b137edc580fe50a88983ef860ebaca36c857b1f492839d6d7392452a63c82cbebc68e3b7 \
+0a2a1480b4bb5d437a7cba6ecf9d89f9ff3ccd14cd6146ea7e7]}
+
+###############################################################################
+
 test_cleanup

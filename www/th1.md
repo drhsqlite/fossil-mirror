@@ -148,6 +148,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  globalState
   *  hascap
   *  hasfeature
+  *  hash
   *  html
   *  htmlize
   *  http
@@ -347,9 +348,28 @@ The possible features are:
   1. **unicodeCmdLine** -- _The command line arguments are Unicode._
   1. **dynamicBuild** -- _Dynamically linked to libraries._
   1. **see** -- _Uses the SQLite Encryption Extension._
+  1. **hardenedSha1** -- _Uses the <a href="https://github.com/cr-marcstevens/sha1collisiondetection">Hardened-SHA1</a> implementation._
 
 Specifying an unknown feature will return a value of false, it will not
 raise a script error.
+
+<a name="hash"></a>TH1 hash Command
+-----------------------------------
+
+  *  hash STRING ?ALGORITHM?
+
+Returns the cryptographic hash of the specified string.  Possible values
+for the ALGORITHM argument are:
+
+  1. **md5**
+  1. **sha1**
+  1. **sha3-224**
+  1. **sha3-256**
+  1. **sha3-384**
+  1. **sha3-512**
+
+The default algorithm is "sha3-256".  Specifying an unknown algorithm
+will raise a script error.
 
 <a name="html"></a>TH1 html Command
 -----------------------------------

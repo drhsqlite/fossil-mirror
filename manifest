@@ -1,5 +1,5 @@
-C Fix\sthe\sprevious\sfix\sso\sthat\sit\sworks\seven\sif\sTH1\shooks\sare\sdisabled\sat\ncompile-time.
-D 2017-03-07T21:43:56.388
+C Enhancements\sto\sTH1\srelated\sto\shashing.\s\sAdd\sthe\s'hash'\sTH1\scommand.
+D 2017-03-08T03:22:37.397
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -510,7 +510,7 @@ F src/tar.c 7d2471e3ae0f6234ed1d5bb59f6e79151d9fa565
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
-F src/th_main.c 2561df121db51d142fe8878f909c9cf018f8662a
+F src/th_main.c 4006fa44bf7b52cdbc08d43b9799f508ed94ff79
 F src/th_tcl.c 2b70a8da7d7d8009794d7a3565043c8933a6cbfe
 F src/timeline.c 280733bda16ab11a5c516de21692964dbe6b4409
 F src/tkt.c b0fcc26bf2f1acc84b147e242170a1b8c8c68449
@@ -591,7 +591,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test 11f0ded1647adeddd539708a1b057e165d4dfe19
+F test/th1.test 1ae68bfad08d2fc33a7fbc70433e97e1f7a5f8e2
 F test/unversioned.test e0088968e0e18dd378ce02569cc3ddd2819992d7
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
@@ -665,7 +665,7 @@ F win/Makefile.msc 1b5be2dc160e6a95cfe54e09cfd85318a9b6c6dd
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
-F win/fossil.rc a38a9b922cb35c4b2f91c7026d3dc1556999fd32
+F win/fossil.rc dbe3f10051c66a4a129460f55e28b6e26b143958
 F win/include/dirent.h f7f8de3119619066ec04e921a7d31bc130961042
 F win/include/unistd.h 44f9195ff0279791af08c504f58939ba0ca01c4b
 F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
@@ -772,7 +772,7 @@ F www/stats.wiki 6558a7e417d5e9d29271c26ebb3195dddec31855
 F www/style.wiki da3a414d4c57c3da2636daf0baf6964ba72ce70b
 F www/sync.wiki f2d19da3016d11203eed108df2215ae1425236f7
 F www/tech_overview.wiki 40fa2c33db02cf457f1b3bd1663404c428b6dda7
-F www/th1.md 19fd3af8400d8dbeb0d7c94370db06c73114f5f1
+F www/th1.md 49e465c48a79a24523b418c0257125e5d41d2746
 F www/theory1.wiki f3b67ce69fc710a54a9ec89f6d12f90da0632ea4
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
@@ -782,7 +782,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d493544369a6901038e8304528ac5e95c1f19629
-R 19fd610bcc2299a2a85861935a84ccb2
-U drh
-Z cb0851e8920b1508a36cf0eb13d86ac0
+P 691a64923448492cf7d711c742b2de1d748d5466
+R 0dc329b37beecd70e7fc75efe6080be9
+T *branch * th1Hash
+T *sym-th1Hash *
+T -sym-trunk *
+U mistachkin
+Z 4127df325ca5d523f78b3ef5f2c98919

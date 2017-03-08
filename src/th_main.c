@@ -752,6 +752,7 @@ static int searchableCmd(
 ** "unicodeCmdLine"  = !BROKEN_MINGW_CMDLINE
 ** "dynamicBuild"    = FOSSIL_DYNAMIC_BUILD
 ** "see"             = USE_SEE
+** "hardenedSha1"    = FOSSIL_HARDENED_SHA1
 **
 ** Specifying an unknown feature will return a value of false, it will not
 ** raise a script error.
@@ -768,7 +769,7 @@ static int hasfeatureCmd(
   if( argc!=2 ){
     return Th_WrongNumArgs(interp, "hasfeature STRING");
   }
-  zArg = (const char *)argv[1];
+  zArg = argv[1];
   if(NULL==zArg){
     /* placeholder for following ifdefs... */
   }
@@ -837,6 +838,11 @@ static int hasfeatureCmd(
     rc = 1;
   }
 #endif
+#if FOSSIL_HARDENED_SHA1
+  else if( 0 == fossil_strnicmp( zArg, "hardenedSha1\0", 13 ) ){
+    rc = 1;
+  }
+#endif
   else if( 0 == fossil_strnicmp( zArg, "markdown\0", 9 ) ){
     rc = 1;
   }
@@ -844,6 +850,60 @@ static int hasfeatureCmd(
     Th_Trace("[hasfeature %#h] => %d<br />\n", argl[1], zArg, rc);
   }
   Th_SetResultInt(interp, rc);
+  return TH_OK;
+}
+
+/*
+** TH1 command: hash STRING ?ALGORITHM?
+**
+** Returns the cryptographic hash of the specified string.  Possible values
+** for the ALGORITHM argument are:
+**
+** "md5"
+** "sha1"
+** "sha3-224"
+** "sha3-256"
+** "sha3-384"
+** "sha3-512"
+**
+** The default algorithm is "sha3-256".  Specifying an unknown algorithm
+** will raise a script error.
+*/
+static int hashCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  Blob content;
+  Blob cksum;
+  const char *zAlgorithm = "sha3-256";
+  if( argc<2 || argc>3 ){
+    return Th_WrongNumArgs(interp, "hash STRING ?ALGORITHM?");
+  }
+  blob_init(&content, argv[1], argl[1]);
+  blob_zero(&cksum);
+  if( argc>=3 ){
+    zAlgorithm = argv[2];
+  }
+  if( 0 == fossil_strnicmp( zAlgorithm, "md5\0", 4 ) ){
+    md5sum_blob(&content, &cksum);
+  }else if( 0 == fossil_strnicmp( zAlgorithm, "sha1\0", 5 ) ){
+    sha1sum_blob(&content, &cksum);
+  }else if( 0 == fossil_strnicmp( zAlgorithm, "sha3-224\0", 9 ) ){
+    sha3sum_blob(&content, 224, &cksum);
+  }else if( 0 == fossil_strnicmp( zAlgorithm, "sha3-256\0", 9 ) ){
+    sha3sum_blob(&content, 256, &cksum);
+  }else if( 0 == fossil_strnicmp( zAlgorithm, "sha3-384\0", 9 ) ){
+    sha3sum_blob(&content, 384, &cksum);
+  }else if( 0 == fossil_strnicmp( zAlgorithm, "sha3-512\0", 9 ) ){
+    sha3sum_blob(&content, 512, &cksum);
+  }else{
+    Th_SetResult(interp, "unknown hash algorithm", -1);
+    return TH_ERROR;
+  }
+  Th_SetResult(interp, blob_str(&cksum), -1);
   return TH_OK;
 }
 
@@ -1963,6 +2023,7 @@ void Th_FossilInit(u32 flags){
     {"httpize",       httpizeCmd,           0},
     {"hascap",        hascapCmd,            (void*)&zeroInt},
     {"hasfeature",    hasfeatureCmd,        0},
+    {"hash",          hashCmd,              0},
     {"html",          putsCmd,              (void*)&aFlags[0]},
     {"htmlize",       htmlizeCmd,           0},
     {"http",          httpCmd,              0},
