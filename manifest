@@ -1,5 +1,5 @@
-C Remove\sa\srepeated\s"are"\sin\shash-policy\scommand\shelp\stext.
-D 2017-03-08T22:56:17.338
+C For\scommands\swhere\sthe\s--sha1sum\soption\shas\schanged\sto\s--hash,\scontinue\nto\saccept\s--sha1sum\sfor\shistorical\scompatibility,\sthough\sleave\sthis\nundocumented.
+D 2017-03-09T15:52:08.033
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -396,7 +396,7 @@ F src/bundle.c c4b92c14df3e1aeebdeaf02d23a0ecaea462f8b5
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c 0fe6520c4eeedee87cab271f32943a96382828c1
-F src/checkin.c a9ec02c41a578b4e5a86ba0f57774c03cae75068
+F src/checkin.c 028bf54fd7409f62f069b58d15fec53626516cce
 F src/checkout.c ad202f9c6585a8e6d5418ff733f7349f652e9b05
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c c8b17c6084570fef0afc5b52d5caffcc83ff4548
@@ -782,7 +782,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 623528470de097ceec11763d4b26efede31c93d2
-R 8af664b4eba3aba8ea34f11d8d7c6e03
-U mgagnon
-Z 006773f8fcc6dd406afbde87625d52f2
+P 5776542195af2925f8c73a985e952ca2e02393b4
+R 6e3593f29c42307c7bd5c43571c2d4be
+U drh
+Z 2e4b8619a974f6ce988c9c6645ad9f85
