@@ -214,6 +214,9 @@ void cmd_sqlite3(void){
   int noRepository;
   const char *zConfigDb;
   extern int sqlite3_shell(int, char**);
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+  g.fNoThHook = 1;
+#endif
   noRepository = find_option("no-repository", 0, 0)!=0;
   if( !noRepository ){
     db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);

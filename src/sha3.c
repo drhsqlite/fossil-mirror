@@ -380,14 +380,14 @@ static void KeccakF1600Step(SHA3Context *p){
 /*
 ** Initialize a new hash.  iSize determines the size of the hash
 ** in bits and should be one of 224, 256, 384, or 512.  Or iSize
-** can be zero to use the default hash size of 224 bits.
+** can be zero to use the default hash size of 256 bits.
 */
 static void SHA3Init(SHA3Context *p, int iSize){
   memset(p, 0, sizeof(*p));
   if( iSize>=128 && iSize<=512 ){
     p->nRate = (1600 - ((iSize + 31)&~31)*2)/8;
   }else{
-    p->nRate = 144;
+    p->nRate = (1600 - 2*256)/8;
   }
 #if SHA3_BYTEORDER==1234
   /* Known to be little-endian at compile-time. No-op */
@@ -430,7 +430,7 @@ static void SHA3Update(
   }
 #endif
   for(; i<nData; i++){
-#if SHA1_BYTEORDER==1234
+#if SHA3_BYTEORDER==1234
     p->u.x[p->nLoaded] ^= aData[i];
 #elif SHA3_BYTEORDER==4321
     p->u.x[p->nLoaded^0x07] ^= aData[i];

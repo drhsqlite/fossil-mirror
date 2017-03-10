@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.18.0\sprerelease\sversion\sthat\nsupports\sPRAGMA\soptimize.
-D 2017-03-06T19:53:04.541
+C Merge\srecent\senhancements\sfrom\strunk
+D 2017-03-10T01:44:48.614
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -244,11 +244,6 @@ F compat/zlib/crc32.c 88ea76a1b42bfc247680dd50b450923858f945fe
 F compat/zlib/crc32.h db9e88b8332953972c9120c73389fa2ce03dd8f8
 F compat/zlib/deflate.c 436dc72ccb798bf1ac3e30cd9b580799f8bbb441
 F compat/zlib/deflate.h d54ac3369732bc45463c254851809a0062382b3d
-F compat/zlib/doc/algorithm.txt 8f58cd212772b622c71345ca5d7dd93648b8ab94
-F compat/zlib/doc/rfc1950.txt 58f11c3e7778ca30e9c9330ab248107371429dd8
-F compat/zlib/doc/rfc1951.txt b13d37ad6b3855f3a2eaf6c325eddaa7815355b0
-F compat/zlib/doc/rfc1952.txt b2346a9c1e9cd011370595a292154ca83eff4ddb
-F compat/zlib/doc/txtvsbin.txt 0b5f765b6151da46d356493278fd873e4c99ce80
 F compat/zlib/examples/README.examples f793f7b378233d7e644754e603695966487576b5
 F compat/zlib/examples/enough.c 1bcc3f9743bcfdfb77fb6736ece06c666dd1787e
 F compat/zlib/examples/fitblk.c b69d9b6eeadd680fe37ab8ba54d781f46fe80420
@@ -401,7 +396,7 @@ F src/bundle.c c4b92c14df3e1aeebdeaf02d23a0ecaea462f8b5
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c 0fe6520c4eeedee87cab271f32943a96382828c1
-F src/checkin.c a9ec02c41a578b4e5a86ba0f57774c03cae75068
+F src/checkin.c 028bf54fd7409f62f069b58d15fec53626516cce
 F src/checkout.c ad202f9c6585a8e6d5418ff733f7349f652e9b05
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c c8b17c6084570fef0afc5b52d5caffcc83ff4548
@@ -433,7 +428,7 @@ F src/fusefs.c c774c78b274375f42653c71d0b6c1062695bb4da
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 066169948d671628a648bd0e622ec9487e258195
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
-F src/hname.c 47eb83d97fa72fa66b3e97808a74205ebe7026c4
+F src/hname.c 1f0ea670e2648deb2e547175523843bb5a9b84fc
 F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
@@ -497,12 +492,12 @@ F src/search.c 82d3900b27d457fd1051d46acc5f4dcc74947960
 F src/setup.c 2d807dd6722ea73a8be13afe66a194cdc1e4b5ee
 F src/sha1.c f8052a974b626854519fdd78563d5c0c827fcf7a
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
-F src/sha3.c d76316bb49e387bd67342f592125e24b48e17270
+F src/sha3.c bd83dc4631af22905b3cf314a8069d3dc8c101c6
 F src/shell.c 27d2b31099fd2cd749e44d025ef9b54ca26692cb
 F src/shun.c 2f32dff8bb8a3f9aa1eeb10a82be946c68d9573a
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c 0b6ae35015f48cbe9cef2f97d65105a796fc366b
-F src/sqlcmd.c c9d03589cc39ae6bb5242ed9186645fbb5b67dea
+F src/sqlcmd.c fba609f0f5a91435d0dff8719ba9c5d25f8cfa15
 F src/sqlite3.c e8ae9bd185869d478164f47cab7163a4f77669dd
 F src/sqlite3.h fab3791d79c52c1d4437e8ea1bb9d5f784ee2b21
 F src/stash.c dc0263e11eeb30689418e4def6174af973ad66bf
@@ -531,7 +526,7 @@ F src/utf8.c 9f458b9698fc928cc21e375538f268651d1d22a2
 F src/util.c 9a3cc502aa6ae3bc19831e5f553cd346ec154b5c
 F src/verify.c 5799825d086464bb9e19e69ffeec84a710d1681b
 F src/vfile.c ed1123e80689e8c160e9af0d99227d2bc252b486
-F src/wiki.c 9482a4ef96942921b5173a44fda320f8596c9cc5
+F src/wiki.c b5fa823e659eb664f475e1d2c4cace7a858410e5
 F src/wikiformat.c 1616c95201d38f46c67722a86c880e508b042aad
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c a3970bdc0b05426cadadb1a62cd378e10f124062
@@ -787,7 +782,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0dc479305f187140fcd79efa9e2a78201eadf6cd
-R e281d1e9b290810c71f281bf5f3766e4
+P f32c36e58aaf53f809e4ee7d99d0f0288ce4ed83 d90e56f4697f12e30cbe7da47067b66ad83863ae
+R f112f14b337f5bb1bfc800146d39d7f2
 U drh
-Z b5e270e905d90a8fe4a10b5bf5184f6a
+Z 5f4a19e5241a20ad022e273a625bf613
