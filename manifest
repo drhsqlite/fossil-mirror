@@ -1,5 +1,5 @@
-C Have\sFossil\suse\sthe\snew\s"PRAGMA\soptimize"\sfeature\sof\sSQLite\s3.18.0\salpha.
-D 2017-03-10T17:30:31.028
+C Update\sto\sthe\slatest\sSQLite\s3.18.0\sprerelease\scode,\sand\sespecially\sthe\nnewest\sCLI\scode.
+D 2017-03-10T17:32:25.908
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -493,13 +493,13 @@ F src/setup.c 2d807dd6722ea73a8be13afe66a194cdc1e4b5ee
 F src/sha1.c f8052a974b626854519fdd78563d5c0c827fcf7a
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c bd83dc4631af22905b3cf314a8069d3dc8c101c6
-F src/shell.c 27d2b31099fd2cd749e44d025ef9b54ca26692cb
+F src/shell.c eef00a26ec40d70bded967a887c4dda546677b21aa968ea98322abf295c9620e
 F src/shun.c 2f32dff8bb8a3f9aa1eeb10a82be946c68d9573a
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c 0b6ae35015f48cbe9cef2f97d65105a796fc366b
 F src/sqlcmd.c fba609f0f5a91435d0dff8719ba9c5d25f8cfa15
-F src/sqlite3.c e8ae9bd185869d478164f47cab7163a4f77669dd
-F src/sqlite3.h fab3791d79c52c1d4437e8ea1bb9d5f784ee2b21
+F src/sqlite3.c 8f0c4e5a5d89f7ade082b4b7af5ff4949c5f04e323f2f23f96c9ae9debaac3e1
+F src/sqlite3.h 4b7a57f9b7bb914a3add98a9328a32a4b4c758be8e3dee2cb26ffffaed8dc242
 F src/stash.c dc0263e11eeb30689418e4def6174af973ad66bf
 F src/stat.c ad15218f805f72c4c84bcebe8e9b4f9874ee08e5
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
@@ -782,8 +782,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f89e0d4a91cd5dcbbc85c3a9ced94474b72b7312 41d43ec6b93fcf3879fa427d6c6ca6b570a3544d
-R dcd906e8b373f3eb0659fedd35f4fdf3
-T +closed 41d43ec6b93fcf3879fa427d6c6ca6b570a3544d
+P 7815d015f3b5a663cdbfd140b0573f94c3aed1ea79a3344413c0986067b30b45
+R c97e83da765ab9214af5c857161f8076
 U drh
-Z 649d8b4fe5dd1b3214714a06974a45a8
+Z 0073521848746e2d89a1138c7982fed4
