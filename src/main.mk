@@ -584,6 +584,7 @@ EXTRAOBJ = \
  $(OBJDIR)/th.o \
  $(OBJDIR)/th_lang.o \
  $(OBJDIR)/th_tcl.o \
+ $(OBJDIR)/cmark_amalgamation.o \
  $(OBJDIR)/cson_amalgamation.o
 
 
@@ -1765,6 +1766,8 @@ $(OBJDIR)/miniz.o:	$(SRCDIR)/miniz.c
 $(OBJDIR)/cson_amalgamation.o: $(SRCDIR)/cson_amalgamation.c
 	$(XTCC) -c $(SRCDIR)/cson_amalgamation.c -o $@
 
+$(OBJDIR)/cmark_amalgamation.o: $(SRCDIR)/cmark_amalgamation.c
+	$(XTCC) -c $(SRCDIR)/cmark_amalgamation.c -o $@
 #
 # The list of all the targets that do not correspond to real files. This stops
 # 'make' from getting confused when someone makes an error in a rule.

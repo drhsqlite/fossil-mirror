@@ -1,5 +1,5 @@
-C Create\snew\sbranch\snamed\s"commonmark-markdown"
-D 2017-03-11T13:48:07.030
+C Add\scommonmark\samalgamations
+D 2017-03-11T13:52:40.606
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -395,11 +395,14 @@ F src/builtin.c d147d04305aa0db964ec84ef049e8e88d134de87
 F src/bundle.c c4b92c14df3e1aeebdeaf02d23a0ecaea462f8b5
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
+F src/case_fold_switch.inc 483a4bcc49618d435ea7b527eaa1d6461109dbb976f41c68ba0ab68036ffaf2e
 F src/cgi.c 0fe6520c4eeedee87cab271f32943a96382828c1
 F src/checkin.c 028bf54fd7409f62f069b58d15fec53626516cce
 F src/checkout.c ad202f9c6585a8e6d5418ff733f7349f652e9b05
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c c8b17c6084570fef0afc5b52d5caffcc83ff4548
+F src/cmark_amalgamation.c eca61fa4bd27d540452e8057c63b12f27ec6cdead2017e2976fe3413acb923bb
+F src/cmark_amalgamation.h 86a6c95b66b31dae986ad358de294e30d653c583cd36a6206e7722e29b0f1175
 F src/codecheck1.c 0e2c3cd4068f6de1df56fc19ec224c296f3c8eb4
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
 F src/config.h 9edbe6bfa88b32682e7028fdf5d30adba5dd1939
@@ -418,6 +421,7 @@ F src/diffcmd.c 9a88f3a3511b19fd17d11bb01d3d95a5f8378070
 F src/dispatch.c 4e634c0cf22b7dd63501a4dc0aa6375cf4151343
 F src/doc.c a18db75a080ca2225e76a05a6e8957ea740ffc84
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
+F src/entities.inc 2f0623f3e97b5dbd3ee8c8f79510145bd06763c84850b13a2b7533ca2d51708c
 F src/event.c 5dcf3c6ff00c39c25a3909deec1d1154cf0b85a5
 F src/export.c ff3740ec039c8a06df8a1a95ceae62ddd35babb3
 F src/file.c 7570da01a8d1ce7e0d6dd91ca7eeced9b5f4c75b
@@ -458,7 +462,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c d2ef19fedab12da54fb4718e7d690be483f84d92
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
 F src/main.c 5105d4bc1b86b24638764606c399321a82726b89
-F src/main.mk adb39465c0b57737cc735f324b9e2bc296a79f16
+F src/main.mk a37b8c6bb012947a41b0f28b3a1a3ad63034a6a8c989427af59eb1715acbfdfc
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl 580b8c186cee0309f1dc96ff1620f066a6782757
@@ -782,10 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d93679a1d75f2aea40067795b126d3dbae85161d8f2f9439f3debf62af7719a3
-R c97e83da765ab9214af5c857161f8076
-T *branch * commonmark-markdown
-T *sym-commonmark-markdown *
-T -sym-trunk *
+P 525e3b75eac81843a6d21f19a9918c803fedca0f83aa66c3eb8e3a59385ae8be
+R d5960db32cee6957ac5140d1664ab025
 U mjanssen
-Z 9c2ee170042509d273f7ccab26ebc7f3
+Z 4c7d6d23366ca84a80572399e68b286c
