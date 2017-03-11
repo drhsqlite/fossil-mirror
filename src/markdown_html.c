@@ -21,6 +21,7 @@
 
 #include "config.h"
 #include "markdown_html.h"
+#include "cmark_amalgamation.h"
 
 #if INTERFACE
 
@@ -405,46 +406,11 @@ void markdown_to_html(
   struct Blob *output_title,     /* Put title here.  May be NULL */
   struct Blob *output_body       /* Put document body here. */
 ){
-  struct mkd_renderer html_renderer = {
-    /* prolog and epilog */
-    html_prolog,
-    html_epilog,
-
-    /* block level elements */
-    html_blockcode,
-    html_blockquote,
-    html_raw_block,
-    html_header,
-    html_hrule,
-    html_list,
-    html_list_item,
-    html_paragraph,
-    html_table,
-    html_table_cell,
-    html_table_row,
-
-    /* span level elements */
-    html_autolink,
-    html_code_span,
-    html_double_emphasis,
-    html_emphasis,
-    html_image,
-    html_line_break,
-    html_link,
-    html_raw_span,
-    html_triple_emphasis,
-
-    /* low level elements */
-    0,  /* entities are copied verbatim */
-    html_normal_text,
-
-    /* misc. parameters */
-    64, /* maximum stack */
-    "*_", /* emphasis characters */
-    0 /* opaque data */
-  };
-  html_renderer.opaque = output_title;
-  if( output_title ) blob_reset(output_title);
+ if( output_title ) blob_reset(output_title);
   blob_reset(output_body);
-  markdown(output_body, input_markdown, &html_renderer);
+  char *cmark_result = cmark_markdown_to_html(blob_str(input_markdown), blob_size(input_markdown), 0 );
+  html_prolog(output_body,0);
+  blob_append(output_body, cmark_result, strlen(cmark_result));
+  html_epilog(output_body,0);
+  free(cmark_result);
 }

@@ -1,5 +1,5 @@
-C Add\scommonmark\samalgamations
-D 2017-03-11T13:52:40.606
+C Switch\sto\scommonmark\srenderer
+D 2017-03-11T13:56:36.003
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -469,7 +469,7 @@ F src/makemake.tcl 580b8c186cee0309f1dc96ff1620f066a6782757
 F src/manifest.c 34ddf7c6b3d86a746ce11c0eef7e2ac9245c2100
 F src/markdown.c 20bb4755f258601e4e3e5274ea117fc7c8b1ccf7
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
-F src/markdown_html.c 5c7c2d2356e03a4456932c5fdef9aef836a379a5
+F src/markdown_html.c deadde9792612bcad10a7c015784369803a05b9bff2fc3e535c2d7491704f0fd
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/merge.c 29e4ffff430dccc0cbbd3d633684d60b3bfb0ab8
 F src/merge3.c be0896e3e4e51262349d0f09e35e70d140659572
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 525e3b75eac81843a6d21f19a9918c803fedca0f83aa66c3eb8e3a59385ae8be
-R d5960db32cee6957ac5140d1664ab025
+P 116e744bbe771079565a7366ebf06457cc8ce3197697a6c505525a7d880ad209
+R 3b2652f3a9b9e56d3615e894bd937a04
 U mjanssen
-Z 4c7d6d23366ca84a80572399e68b286c
+Z 96c31e7dd880ce24d142748a8b82ed57
