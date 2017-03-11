@@ -1,5 +1,5 @@
-C Update\sto\sthe\slatest\sSQLite\s3.18.0\sprerelease\scode,\sand\sespecially\sthe\nnewest\sCLI\scode.
-D 2017-03-10T17:32:25.908
+C Create\snew\sbranch\snamed\s"commonmark-markdown"
+D 2017-03-11T13:48:07.030
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -782,7 +782,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7815d015f3b5a663cdbfd140b0573f94c3aed1ea79a3344413c0986067b30b45
+P d93679a1d75f2aea40067795b126d3dbae85161d8f2f9439f3debf62af7719a3
 R c97e83da765ab9214af5c857161f8076
-U drh
-Z 0073521848746e2d89a1138c7982fed4
+T *branch * commonmark-markdown
+T *sym-commonmark-markdown *
+T -sym-trunk *
+U mjanssen
+Z 9c2ee170042509d273f7ccab26ebc7f3
