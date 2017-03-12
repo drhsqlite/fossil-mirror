@@ -1,5 +1,5 @@
-C More\shyperlink\sfixes\son\sthe\ssame\spage.
-D 2017-03-12T17:01:13.268
+C Use\sthe\sterm\s"structural\sartifacts"\sin\splace\sof\sthe\solder\s"control\sartifact"\nnotation.
+D 2017-03-12T18:59:09.090
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -771,7 +771,7 @@ F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki 6558a7e417d5e9d29271c26ebb3195dddec31855
 F www/style.wiki da3a414d4c57c3da2636daf0baf6964ba72ce70b
 F www/sync.wiki f2d19da3016d11203eed108df2215ae1425236f7
-F www/tech_overview.wiki 40fa2c33db02cf457f1b3bd1663404c428b6dda7
+F www/tech_overview.wiki 326f0e0facdf2171dd1265ab20bdff7767e90085477a891fbbc0b2e776ba5a01
 F www/th1.md 19fd3af8400d8dbeb0d7c94370db06c73114f5f1
 F www/theory1.wiki f3b67ce69fc710a54a9ec89f6d12f90da0632ea4
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
@@ -782,7 +782,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a0f5be9a9dc49302894c728b1ae65c423f5a5ee8e85597440c7d05d4b710e904
-R 61cb8be3b944ff02ab518c44e6281df8
+P f5240a1cb824f77a6bae9bf3b1bf2f6619365e43741b6ff6d63d9ca660c42607
+R ff063033b0bc11ed91f053ebb034118e
 U drh
-Z f1c45e210d6ce2eb1c909a2ac1f390f5
+Z 713651305952c226bbb563f822fb0daf
