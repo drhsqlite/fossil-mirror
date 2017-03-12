@@ -1,5 +1,5 @@
-C Use\sthe\sterm\s"structural\sartifacts"\sin\splace\sof\sthe\solder\s"control\sartifact"\nnotation.
-D 2017-03-12T18:59:09.090
+C More\srefactoring\sof\s"control\sartifact"\sto\s"structural\sartifact".\s\sAlso\simprove\nthe\swording.\s\sAll\sin\sthe\sselfcheck\sdocument.
+D 2017-03-12T23:32:49.849
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -762,7 +762,7 @@ F www/quickstart.wiki afc5e41e06cc2d54364016e3d0d7dff1209b082d
 F www/quotes.wiki 6f77c1af17f05596d0f6a4cc88f149a61188ecfd
 F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
-F www/selfcheck.wiki 4ca2c1cf4d379cfcba8e676f40fc6c4a4c7538cd
+F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
 F www/selfhost.wiki 6090bea94139ec56a3cba671e75d0e78c54ee077
 F www/server.wiki a6b8ca94d0fa8b18e9f3604f9977ffcde756ff65
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
@@ -782,7 +782,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f5240a1cb824f77a6bae9bf3b1bf2f6619365e43741b6ff6d63d9ca660c42607
-R ff063033b0bc11ed91f053ebb034118e
+P 1dda1b6df58b8f71df0eb394812800a5e3ab318c2d27b7cdba63412eda332e7e
+R fdf14a550434112145699b407366db55
 U drh
-Z 713651305952c226bbb563f822fb0daf
+Z a123211c9ffae3f3f70960b019c78d9d
