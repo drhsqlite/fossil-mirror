@@ -2,13 +2,11 @@
 
 <h2>0.0 Using A Pre-compiled Binary</h2>
 
-<p>Released versions of fossil come with
-<a href="/uv/download.html">pre-compiled binaries and
-a source archive</a> for that release. You can thus skip the following if you
-want to run or build a release version of fossil. Just download
-the appropriate package from the <a href="/uv/download.html">downloads page</a>
+<p>[/uv/download.html|Pre-compiled binaries] are available for recent
+releases. Just download
+the appropriate executable for your platform
 and put it on your $PATH.
-To uninstall, simply delete the binary.
+To uninstall, simply delete the executable.
 To upgrade from an older release, just overwrite the older binary with
 the newer one.</p>
 
