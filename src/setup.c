@@ -1112,6 +1112,14 @@ void setup_access(void){
   @ </p>
   @
   @ <hr />
+  onoff_attribute("Allow HTTP_AUTHENTICATION authentication",
+     "http_authentication_ok", "http_authentication_ok", 0, 0);
+  @ <p>When enabled, allow the use of the HTTP_AUTHENTICATION environment
+  @ variable or the "Authentication:" HTTP header to find the username and
+  @ password. This is another way of supporting Basic Authenitication.
+  @ </p>
+  @
+  @ <hr />
   entry_attribute("IP address terms used in login cookie", 3,
                   "ip-prefix-terms", "ipt", "2", 0);
   @ <p>The number of octets of of the IP address used in the login cookie.

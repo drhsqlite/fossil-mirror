@@ -969,6 +969,65 @@ void login_check_credentials(void){
     }
   }
 
+  /* If the request didn't provide a login cookie or the login cookie didn't
+  ** match a known valid user, check the HTTP "Authorization" header and
+  ** see if those credentials are valid for a known user.
+  */
+  if( uid==0 ){
+    const char *zHTTPAuth = PD("HTTP_AUTHORIZATION", 0);
+
+    /* Check to see if the HTTP "Authorization" header is present
+    */
+    if( zHTTPAuth!=0 && zHTTPAuth[0]!=0
+     && db_get_boolean("http_authentication_ok",0)
+    ){
+      char *zBuf = fossil_strdup(zHTTPAuth);
+
+      if( zBuf!=0 ){
+        char *zPos;
+        char *zTok = strtok_r(zBuf, " ", &zPos);
+
+        if( zTok != 0 ){
+          /* Check to see if the authorization scheme is HTTP
+          ** basic auth.
+          */
+          if (strncmp(zTok, "Basic", zTok - zBuf) == 0) {
+            zTok = strtok_r(NULL, " ", &zPos);
+            int zBytesDecoded = 0;
+            char *zDecodedAuth = decode64(zTok, &zBytesDecoded);
+
+            char *zUsername = strtok_r(zDecodedAuth, ":", &zPos);
+            char *zPasswd = strtok_r(NULL, ":", &zPos);
+
+            if( zUsername!=0 && zPasswd!=0 && zPasswd[0]!=0 ){
+              /* Attempting to log in as the user provided by HTTP
+              ** basic auth
+              */
+              uid = login_search_uid(zUsername, zPasswd);
+              if( uid>0 ){
+                record_login_attempt(zUsername, zIpAddr, 1);
+              }else{
+                record_login_attempt(zUsername, zIpAddr, 0);
+
+                /* The user attempted to login specifically with HTTP basic
+                ** auth, but provided invalid credentials. Inform them of
+                ** the failed login attempt via 401.
+                */
+                cgi_set_status(401, "Unauthorized");
+                cgi_reply();
+                fossil_exit(0);
+              }
+            }
+
+            fossil_free(zDecodedAuth);
+          }
+        }
+
+        fossil_free(zBuf);
+      }
+    }
+  }
+
   /* If no user found yet, try to log in as "nobody" */
   if( uid==0 ){
     uid = db_int(0, "SELECT uid FROM user WHERE login='nobody'");

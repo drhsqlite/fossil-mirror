@@ -1446,6 +1446,8 @@ void cgi_handle_http_request(const char *zIpAddr){
       cgi_setenv("HTTP_REFERER", zVal);
     }else if( fossil_strcmp(zFieldName,"user-agent:")==0 ){
       cgi_setenv("HTTP_USER_AGENT", zVal);
+    }else if( fossil_strcmp(zFieldName,"authorization:")==0 ){
+      cgi_setenv("HTTP_AUTHORIZATION", zVal);
     }else if( fossil_strcmp(zFieldName,"x-forwarded-for:")==0 ){
       const char *zIpAddr = cgi_accept_forwarded_for(zVal);
       if( zIpAddr!=0 ){

@@ -1,5 +1,5 @@
-C Correct\sfilename\stitle\sin\scomment\sfor\sman_page_command_list.tcl
-D 2017-03-13T23:28:53.111
+C Add\sthe\scapability\sfor\sFossil\sto\sdirectly\sinterpret\sthe\sAuthentication:\s\nHTTP\sheader\sfor\sBasic\sAuthentication,\sif\senabled\son\sthe\s/setup_access\spage.\nDisabled\sby\sdefault.
+D 2017-03-13T23:47:46.951
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -395,7 +395,7 @@ F src/builtin.c d147d04305aa0db964ec84ef049e8e88d134de87
 F src/bundle.c c4b92c14df3e1aeebdeaf02d23a0ecaea462f8b5
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
-F src/cgi.c 0fe6520c4eeedee87cab271f32943a96382828c1
+F src/cgi.c b459fc18975074cf8a921ded8a754d50fe971b2c3951c7a94ad1eafdee79e61a
 F src/checkin.c 028bf54fd7409f62f069b58d15fec53626516cce
 F src/checkout.c ad202f9c6585a8e6d5418ff733f7349f652e9b05
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -455,7 +455,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c 29ba1458d561d2b3238cbc717976eab87a098a16
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c d2ef19fedab12da54fb4718e7d690be483f84d92
+F src/login.c 554b91c1952d5dd1a3371eb64c7d2c15e0db32220eee9876588c393a2c722208
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
 F src/main.c 5105d4bc1b86b24638764606c399321a82726b89
 F src/main.mk adb39465c0b57737cc735f324b9e2bc296a79f16
@@ -489,7 +489,7 @@ F src/report.c 3b627c4ba95b5260ded1cee2adc5ce6e28d791d2
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/search.c 82d3900b27d457fd1051d46acc5f4dcc74947960
-F src/setup.c 2d807dd6722ea73a8be13afe66a194cdc1e4b5ee
+F src/setup.c a1b42702fccd0df8f42c2ae8fe3b9bef4073bbd3def4699e5dce52dba98cf06f
 F src/sha1.c f8052a974b626854519fdd78563d5c0c827fcf7a
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c bd83dc4631af22905b3cf314a8069d3dc8c101c6
@@ -782,6 +782,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 66807d30296ebb52d34c38f48c6a00a935e808db529a66e263273b425a296f6a
-U andygoth
-Z 1c7c9de4c2bb628a529fd90ac31da039
+P 260e3c750d1c3d5ad2657e14996ef0d015724cf2e3adf9ac0875c0f2533f1d05 4fa4c0218f8c2a0f22beef1d866172981522dec13174bd00d9749410b4d1759c
+R 54873e17efb8576686b0f6f1e17b8758
+T +closed 4fa4c0218f8c2a0f22beef1d866172981522dec13174bd00d9749410b4d1759c
+U drh
+Z cc62bde7e7ec7d38f6208f8fdc9773a7
