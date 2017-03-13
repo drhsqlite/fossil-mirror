@@ -1124,7 +1124,7 @@ int wiki_technote_to_rid(const char *zETime) {
   int rid=0;                    /* Artifact ID of the tech note */
   int nETime = strlen(zETime);
   Stmt q;
-  if( nETime>=4 && hname_validate(zETime, nETime) ){
+  if( nETime>=4 && nETime<=HNAME_MAX && validate16(zETime, nETime) ){
     char zUuid[HNAME_MAX+1];
     memcpy(zUuid, zETime, nETime+1);
     canonical16(zUuid, nETime);

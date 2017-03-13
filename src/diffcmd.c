@@ -154,6 +154,9 @@ void diff_print_filenames(const char *zLeft, const char *zRight, u64 diffFlags){
 ** The difference is the set of edits needed to transform pFile1 into
 ** zFile2.  The content of pFile1 is in memory.  zFile2 exists on disk.
 **
+** If fSwapDiff is 1, show the set of edits to transform zFile2 into pFile1
+** instead of the opposite.
+**
 ** Use the internal diff logic if zDiffCmd is NULL.  Otherwise call the
 ** command zDiffCmd to do the diffing.
 **
@@ -169,7 +172,8 @@ void diff_file(
   const char *zDiffCmd,     /* Command for comparison */
   const char *zBinGlob,     /* Treat file names matching this as binary */
   int fIncludeBinary,       /* Include binary files for external diff */
-  u64 diffFlags             /* Flags to control the diff */
+  u64 diffFlags,            /* Flags to control the diff */
+  int fSwapDiff             /* Diff from Zfile2 to Pfile1 */
 ){
   if( zDiffCmd==0 ){
     Blob out;                 /* Diff output text */
@@ -196,7 +200,11 @@ void diff_file(
       }
     }else{
       blob_zero(&out);
-      text_diff(pFile1, &file2, &out, 0, diffFlags);
+      if( fSwapDiff ){
+        text_diff(&file2, pFile1, &out, 0, diffFlags);
+      }else{
+        text_diff(pFile1, &file2, &out, 0, diffFlags);
+      }
       if( blob_size(&out) ){
         diff_print_filenames(zName, zName2, diffFlags);
         fossil_print("%s\n", blob_str(&out));
@@ -254,9 +262,15 @@ void diff_file(
     /* Construct the external diff command */
     blob_zero(&cmd);
     blob_appendf(&cmd, "%s ", zDiffCmd);
-    shell_escape(&cmd, blob_str(&nameFile1));
-    blob_append(&cmd, " ", 1);
-    shell_escape(&cmd, zFile2);
+    if( fSwapDiff ){
+      shell_escape(&cmd, zFile2);
+      blob_append(&cmd, " ", 1);
+      shell_escape(&cmd, blob_str(&nameFile1));
+    }else{
+      shell_escape(&cmd, blob_str(&nameFile1));
+      blob_append(&cmd, " ", 1);
+      shell_escape(&cmd, zFile2);
+    }
 
     /* Run the external diff command */
     fossil_system(blob_str(&cmd));
@@ -484,7 +498,7 @@ static void diff_against_disk(
       isBin = fIncludeBinary ? 0 : looks_like_binary(&content);
       diff_print_index(zPathname, diffFlags);
       diff_file(&content, isBin, zFullName, zPathname, zDiffCmd,
-                zBinGlob, fIncludeBinary, diffFlags);
+                zBinGlob, fIncludeBinary, diffFlags, 0);
       blob_reset(&content);
     }
     blob_reset(&fname);
@@ -521,7 +535,7 @@ static void diff_against_undo(
     zFullName = mprintf("%s%s", g.zLocalRoot, zFile);
     db_column_blob(&q, 1, &content);
     diff_file(&content, 0, zFullName, zFile,
-              zDiffCmd, zBinGlob, fIncludeBinary, diffFlags);
+              zDiffCmd, zBinGlob, fIncludeBinary, diffFlags, 0);
     fossil_free(zFullName);
     blob_reset(&content);
   }

@@ -737,7 +737,7 @@ void doc_page(void){
 doc_not_found:
   db_end_transaction(0);
   if( isUV && P("name")==0 ){
-    uvstat_page();
+    uvlist_page();
     return;
   }
   cgi_set_status(404, "Not Found");

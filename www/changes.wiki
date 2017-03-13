@@ -1,5 +1,16 @@
 <title>Change Log</title>
 
+<a name='v2_1'></a>
+<h2>Changes for Version 2.1 (2017-03-??)</h2>
+
+  *  Add support for [./hashpolicy.wiki|hash policies] that control which
+     of the Hardened-SHA1 or SHA3-256 algorithms is used to name new
+     artifacts.
+  *  Add the "gshow" and "gcat" subcommands to [/help?cmd=stash|fossil stash].
+  *  Add the [/help?cmd=/juvlist|/juvlist] web page and use it to construct
+     the [/uv/download.html|Download Page] of the Fossil self-hosting website
+     using Ajax.
+
 <a name='v2_0'></a>
 <h2>Changes for Version 2.0 (2017-03-03)</h2>
 

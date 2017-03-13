@@ -1487,6 +1487,11 @@ void db_open_repository(const char *zDbName){
   g.allowSymlinks = db_get_boolean("allow-symlinks",
                                    db_allow_symlinks_by_default());
   g.zAuxSchema = db_get("aux-schema","");
+  g.eHashPolicy = db_get_int("hash-policy",-1);
+  if( g.eHashPolicy<0 ){
+    g.eHashPolicy = hname_default_policy();
+    db_set_int("hash-policy", g.eHashPolicy, 0);
+  }
 
   /* If the ALIAS table is not present, then some on-the-fly schema
   ** updates might be required.
@@ -1830,6 +1835,7 @@ void db_initial_setup(
       configure_inop_rhs(CONFIGSET_ALL),
       db_setting_inop_rhs()
     );
+    g.eHashPolicy = db_get_int("hash-policy", g.eHashPolicy);
     db_multi_exec(
       "REPLACE INTO reportfmt SELECT * FROM settingSrc.reportfmt;"
     );
@@ -1902,9 +1908,10 @@ void db_initial_setup(
 ** associated permissions will be copied.
 **
 ** Options:
-**    --template      FILE      copy settings from repository file
-**    --admin-user|-A USERNAME  select given USERNAME as admin user
-**    --date-override DATETIME  use DATETIME as time of the initial check-in
+**    --template      FILE         Copy settings from repository file
+**    --admin-user|-A USERNAME     Select given USERNAME as admin user
+**    --date-override DATETIME     Use DATETIME as time of the initial check-in
+**    --sha1                       Use a initial hash policy of "sha1"
 **
 ** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
 ** year-month-day form, it may be truncated, the "T" may be replaced by
@@ -1919,10 +1926,13 @@ void create_repository_cmd(void){
   const char *zTemplate;      /* Repository from which to copy settings */
   const char *zDate;          /* Date of the initial check-in */
   const char *zDefaultUser;   /* Optional name of the default user */
+  int bUseSha1 = 0;           /* True to set the hash-policy to sha1 */
+
 
   zTemplate = find_option("template",0,1);
   zDate = find_option("date-override",0,1);
   zDefaultUser = find_option("admin-user","A",1);
+  bUseSha1 = find_option("sha1",0,0)!=0;
   /* We should be done with options.. */
   verify_all_options();
 
@@ -1939,6 +1949,10 @@ void create_repository_cmd(void){
   db_open_config(0, 0);
   if( zTemplate ) db_attach(zTemplate, "settingSrc");
   db_begin_transaction();
+  if( bUseSha1 ){
+    g.eHashPolicy = HPOLICY_SHA1;
+    db_set_int("hash-policy", HPOLICY_SHA1, 0);
+  }
   if( zDate==0 ) zDate = "now";
   db_initial_setup(zTemplate, zDate, zDefaultUser);
   db_end_transaction(0);
