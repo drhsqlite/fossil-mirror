@@ -251,7 +251,7 @@ const char *hpolicy_name(void){
 **
 **   shun-sha1         Shun any SHA1 artifacts received by sync operations
 **                     other than clones.  Older legacy SHA1 artifacts are
-**                     are allowed during a clone.
+**                     allowed during a clone.
 **
 ** The default hash policy for existing repositories is "auto", which will
 ** immediately promote to "sha3" if the repository contains one or more

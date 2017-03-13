@@ -80,11 +80,11 @@ in order to avoid common-mode failures in the hash
 algorithm implementation.
 
 
-<h2>Checksums On Control Artifacts And Deltas</h2>
+<h2>Checksums On Structural Artifacts And Deltas</h2>
 
-Every [./fileformat.wiki | control artifact] in a fossil repository
+Every [./fileformat.wiki | structural artifact] in a fossil repository
 contains a "Z-card" bearing an MD5 checksum over the rest of the
-artifact.  Any mismatch causes the control artifact to be ignored.
+artifact.  Any mismatch causes the structural artifact to be ignored.
 
 The [./delta_format.wiki | file delta format] includes a 32-bit
 checksum of the target file.  Whenever a file is reconstructed from
@@ -105,4 +105,5 @@ fossil see no merit in getting the wrong answer quickly.
 
 Fossil may not be the fastest versioning system, but it is "fast enough".
 Fossil runs quickly enough to stay out of the developers way.
-Most operations complete in under a second.
+Most operations complete in milliseconds, faster that you can press
+the "Enter" key.
