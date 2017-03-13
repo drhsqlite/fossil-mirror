@@ -1,5 +1,5 @@
-C More\srefactoring\sof\s"control\sartifact"\sto\s"structural\sartifact".\s\sAlso\simprove\nthe\swording.\s\sAll\sin\sthe\sselfcheck\sdocument.
-D 2017-03-12T23:32:49.849
+C Fix\sa\sobsolete\scomment\srelated\sto\supdating\sthe\sCHECK\sconstraint\son\sthe\sBLOB\ntable\swhen\smoving\sup\sto\sversion\s2.0\sor\slater.
+D 2017-03-13T20:47:59.403
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -408,7 +408,7 @@ F src/content.c b5eac283f4fec06093976b86ec95565c2a8b968c
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c a03491697b7d2cf0ff2ece25311bff5106dcdfa2
+F src/db.c b51c9320c6f2afa4be933738e80ffbfa2bae3a2fae2254fed77eeccee774a81d
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
@@ -782,7 +782,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1dda1b6df58b8f71df0eb394812800a5e3ab318c2d27b7cdba63412eda332e7e
-R fdf14a550434112145699b407366db55
+P 43c3d95a31c486ae18e46013db1287aeb5401786997585386a4fa77681ead3f5
+R 79a755f7d117b9ae352b7f6ba4928312
 U drh
-Z a123211c9ffae3f3f70960b019c78d9d
+Z 583013da54f6ab0af5dd452ec0b2bb19

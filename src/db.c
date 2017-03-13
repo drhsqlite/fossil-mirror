@@ -1493,8 +1493,8 @@ void db_open_repository(const char *zDbName){
     db_set_int("hash-policy", g.eHashPolicy, 0);
   }
 
-  /* If the ALIAS table is not present, then some on-the-fly schema
-  ** updates might be required.
+  /* Make a change to the CHECK constraint on the BLOB table for
+  ** version 2.0 and later.
   */
   rebuild_schema_update_2_0();   /* Do the Fossil-2.0 schema updates */
 }
