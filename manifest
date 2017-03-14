@@ -1,5 +1,5 @@
-C Merge\sin\ssmall\sfixes\sto\sthe\stest\ssuite\sand\splan\sto\scontinue\simproving\sthe\ssuite\sin\sthe\strunk.\sAlso\skludge\slogin.c\son\sMinGW\swhich\shas\sno\sstrtok_r()\savailable\sin\sits\slibc\sby\ssupplying\sa\spublic\sdomain\sone.\sThere\scertainly\sis\sa\sbetter\sway\sto\sdeal\swith\sthis,\sbut\sthis\sunbreaks\sthe\sbuild\son\sWindows\sbroken\sby\s[315cf2436].
-D 2017-03-14T01:55:39.992
+C Fix\s[https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=847556#10|Debian\sbug\s847556]:\sCannot\sclone/sync\sover\sHTTPS
+D 2017-03-14T12:11:48.647
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -431,7 +431,7 @@ F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
 F src/hname.c 1f0ea670e2648deb2e547175523843bb5a9b84fc
 F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
-F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
+F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d98
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c 1c8c9a6f994826b2a129847aa7b652a55a771c99
 F src/info.c 41b0b0c411516623b09a22a5252b7914786bd7f7
@@ -782,8 +782,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 315cf243685004578a3924f93631222f7dd39b6b82caa7aaef86d6c86f8a2bdc f955c632c427c2115d725ea9a3e4a4a25abdf65f754779ae435b4a98e7eed342
-R 410ca913040de2f4f65dc4f7f65f6e48
-T +closed f955c632c427c2115d725ea9a3e4a4a25abdf65f754779ae435b4a98e7eed342
-U rberteig
-Z 77b738c8dc61a86cda72155703409f17
+P 93d52a010f07a08ceea61aed4eadd53632ebd4338c024678f581e2835a612ff8
+R 328da5d16240245381843d18d734fcec
+U jan.nijtmans
+Z 6ef203bcd3b72b1696d4f05d25328497
