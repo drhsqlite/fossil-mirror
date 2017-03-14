@@ -1,5 +1,5 @@
-C New\stest\scase\sfor\sthe\sMarkdown\sbug,\sfixed\sissues\swith\shash\smatching,\sfixed\stests\sfor\sthe\sTH1\sunversioned\scommand\sso\sthey\sno\slonger\sdepend\son\sunversioned\sfiles\sfrom\sa\spast\srelease\sin\sthe\sreal\srepository.
-D 2017-03-14T20:21:10.800
+C Update\shash\sregexp\sto\sdefend\sagainst\sfull\slength\sSHA3\shashes.
+D 2017-03-14T21:15:51.341
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -577,7 +577,7 @@ F test/symlinks.test 9ead8cede3906559325b19560124bd30396f7c0e
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
 F test/tester.tcl fff62460346068d80160545f0dfbedbeb2c9699c
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
-F test/th1-docs.test cfb7fba72a60cfb5e3a8112d042b9c149d6bfa4b
+F test/th1-docs.test 3d2c5998f4b499ffd762e836425309e3ba7ed554ba3493534b6d82f68b33557d
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-hooks.test bea19cf9ad83cd6f1cb829acbfe1dac89b28330c
 F test/th1-repo.test 985c195a770c571b0d3bb30bf4390fcf13fa55d0
@@ -782,7 +782,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dd41f85acf57290aba64c1f42ddeafcdf80432df80a07cea699bbb7456ff1386
-R 9ae42016a6703e7ff3022c6af46131ea
+P f92672bda33bf86752053272ef1f7aa9de088e823b9a864877042c2b8802800b
+R 7343c4206bfa83c14003a8184d47ef4a
 U rberteig
-Z 7b9add8008eae4a37e33523f58c5f8a1
+Z 4a60110e7e980d936aa9a5579c527236
