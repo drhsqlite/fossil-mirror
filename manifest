@@ -1,5 +1,5 @@
-C Fix\sby\sMatacha\sPorté\sfor\sdelimiter\sescape\sbug\sdiscovered\sby\sMark\sJanssen.\s(fossil-users\slist)
-D 2017-03-14T16:02:57.839
+C New\stest\scase\sfor\sthe\sMarkdown\sbug,\sfixed\sissues\swith\shash\smatching,\sfixed\stests\sfor\sthe\sTH1\sunversioned\scommand\sso\sthey\sno\slonger\sdepend\son\sunversioned\sfiles\sfrom\sa\spast\srelease\sin\sthe\sreal\srepository.
+D 2017-03-14T20:21:10.800
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -591,7 +591,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test 11f0ded1647adeddd539708a1b057e165d4dfe19
+F test/th1.test 79cfc5d01ea3d3ce664f2ce36041ab583d1fbb2d7623c826d6f6f14be0faeb82
 F test/unversioned.test e0088968e0e18dd378ce02569cc3ddd2819992d7
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
@@ -782,7 +782,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6f52316955f4ba148b241a58e3f82dc3112145f899fbe5ddefe87691c89fb8e3
-R 1dee115a0105161e2bf3e80743e4a609
-U jan.nijtmans
-Z 52743b48571b48445f333163ee225dec
+P dd41f85acf57290aba64c1f42ddeafcdf80432df80a07cea699bbb7456ff1386
+R 9ae42016a6703e7ff3022c6af46131ea
+U rberteig
+Z 7b9add8008eae4a37e33523f58c5f8a1

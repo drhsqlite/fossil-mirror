@@ -854,7 +854,7 @@ run_in_checkout {
   fossil test-th-eval --open-config "artifact tip"
 }
 
-test th1-artifact-3 {[regexp -- {F test/th1\.test [0-9a-f]{40}} $RESULT]}
+test th1-artifact-3 {[regexp -- {F test/th1\.test [0-9a-f]{40,64}} $RESULT]}
 
 ###############################################################################
 
@@ -1506,6 +1506,19 @@ test th1-markdown-5 {[normalize_result] eq \
 
 ###############################################################################
 
+# Verify that quoted delimiters like * and _ don't terminate their
+# span. This was fixed by checkin [dd41f85acf].
+fossil test-th-eval {markdown "*This is\\*a test.*\n_second\\_test_"}
+test th1-markdown-6 {[normalize_result] eq {{} {<div class="markdown">
+
+<p><em>This is*a test.</em>
+<em>second_test</em></p>
+
+</div>
+}}}
+
+###############################################################################
+
 fossil test-th-eval {encode64 test}
 test th1-encode64-1 {$RESULT eq "dGVzdA=="}
 
@@ -1567,39 +1580,29 @@ file delete $th1FileName
 
 ###############################################################################
 
-#
-# TODO: Modify the result of this test if the list of unversioned files
-#       changes.
-#
-run_in_checkout {
-  fossil test-th-eval --open-config "unversioned list"
-}
+# Tests for the TH1 unversioned command require at least one
+# unversioned file in the repository. All tests run in a freshly 
+# created checkout of a freshly created repo, so we can just
+# create a file or two for the purpose.
+write_file ten.txt "0123456789"
+fossil unversioned add ten.txt
+fossil unversioned list
 
-test th1-unversioned-1 {[normalize_result] eq \
-{build-icons/linux.gif build-icons/linux64.gif build-icons/mac.gif\
-build-icons/openbsd.gif build-icons/src.gif build-icons/win32.gif\
-download.html download/fossil-linux-x86-1.32.zip\
-download/fossil-linux-x86-1.33.zip download/fossil-linux-x86-1.34.zip\
-download/fossil-linux-x86-1.35.zip download/fossil-macosx-x86-1.32.zip\
-download/fossil-macosx-x86-1.33.zip download/fossil-macosx-x86-1.34.zip\
-download/fossil-macosx-x86-1.35.zip download/fossil-openbsd-x86-1.32.zip\
-download/fossil-openbsd-x86-1.33.zip download/fossil-openbsd-x86-1.34.tar.gz\
-download/fossil-openbsd-x86-1.35.tar.gz download/fossil-src-1.32.tar.gz\
-download/fossil-src-1.33.tar.gz download/fossil-src-1.34.tar.gz\
-download/fossil-src-1.35.tar.gz download/fossil-w32-1.32.zip\
-download/fossil-w32-1.33.zip download/fossil-w32-1.34.zip\
-download/fossil-w32-1.35.zip download/releasenotes-1.32.html\
-download/releasenotes-1.33.html download/releasenotes-1.34.html\
-download/releasenotes-1.35.html index.wiki}}
+fossil test-th-eval --open-config "unversioned list"
+test th1-unversioned-1 {[normalize_result] eq {ten.txt}}
+fossil test-th-eval --open-config \
+      {string length [unversioned content ten.txt]}
+test th1-unversioned-2 {$RESULT eq {10}}
+
 
 ###############################################################################
 
-run_in_checkout {
-  fossil test-th-eval --open-config \
-      {string length [unversioned content build-icons/src.gif]}
-}
-
-test th1-unversioned-2 {$RESULT eq {4592}}
+#run_in_checkout {
+#  fossil test-th-eval --open-config \
+#      {string length [unversioned content build-icons/src.gif]}
+#}
+#
+#test th1-unversioned-2 {$RESULT eq {4592}}
 
 ###############################################################################
 
