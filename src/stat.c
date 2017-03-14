@@ -402,7 +402,7 @@ void repo_schema_page(void){
   if( sqlite3_compileoption_used("ENABLE_DBSTAT_VTAB") ){
     style_submenu_element("Table Sizes", "repo-tabsize");
   }
-  blob_init(&sql, 
+  blob_init(&sql,
     "SELECT sql FROM repository.sqlite_master WHERE sql IS NOT NULL", -1);
   if( zArg ){
     style_submenu_element("All", "repo_schema");

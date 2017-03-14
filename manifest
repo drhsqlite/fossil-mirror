@@ -1,5 +1,5 @@
-C Fix\s[https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=847556#10|Debian\sbug\s847556]:\sCannot\sclone/sync\sover\sHTTPS
-D 2017-03-14T12:11:48.647
+C Fix\sbuild\son\smingw-w64\s(which\sDOES\shave\sstrtok_r)
+D 2017-03-14T14:38:23.835
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -455,7 +455,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c 29ba1458d561d2b3238cbc717976eab87a098a16
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c b274c3e703ba2a0fdde06758edc3eefafc720803144503af3b94b53ab8838cb7
+F src/login.c bf175ba3f9e680791b6e97512c10ad3c8132146c75b020a1ba7d31bdd83727db
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
 F src/main.c 5105d4bc1b86b24638764606c399321a82726b89
 F src/main.mk adb39465c0b57737cc735f324b9e2bc296a79f16
@@ -501,7 +501,7 @@ F src/sqlcmd.c fba609f0f5a91435d0dff8719ba9c5d25f8cfa15
 F src/sqlite3.c 8f0c4e5a5d89f7ade082b4b7af5ff4949c5f04e323f2f23f96c9ae9debaac3e1
 F src/sqlite3.h 4b7a57f9b7bb914a3add98a9328a32a4b4c758be8e3dee2cb26ffffaed8dc242
 F src/stash.c dc0263e11eeb30689418e4def6174af973ad66bf
-F src/stat.c ad15218f805f72c4c84bcebe8e9b4f9874ee08e5
+F src/stat.c 5e2fa9e1b7b6d283d308cfaedc47fe59b57e1ab83f128250f081b28d8c23fd60
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
 F src/style.c cf9edbf403e1df8e094e8a1d44d5dd9516046678
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
@@ -782,7 +782,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 93d52a010f07a08ceea61aed4eadd53632ebd4338c024678f581e2835a612ff8
-R 328da5d16240245381843d18d734fcec
+P 04168f51704ed023060ac039d3cab7eebc62884e8a1b59db89830b0da2e6cfb1
+R 40239a952929f66e9f0b9ea5d3fcd26d
 U jan.nijtmans
-Z 6ef203bcd3b72b1696d4f05d25328497
+Z 8f22bab9390f048f6fd9073bb445e1e2
