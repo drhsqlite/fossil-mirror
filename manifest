@@ -1,5 +1,5 @@
-C Version\s2.1
-D 2017-03-10T17:07:08.559
+C (cherry-pick):\sFix\s[https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=847556#10|Debian\sbug\s847556]:\sCannot\sclone/sync\sover\sHTTPS
+D 2017-03-14T12:15:01.711
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -11,7 +11,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile de98550db1d43a29a17bbd9284308733fb72615f
+F Dockerfile 61f55c1d8e1198158cdfc99356bb10408c68e0d43099f3f6c1b6ecfa89522167
 F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
 F Makefile.in ca04b4081ad0dc54256f7d609168750c2247882e
 F VERSION da51fa3f73e561cf695cbcf67e9d92d801038cd8
@@ -431,7 +431,7 @@ F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
 F src/hname.c 1f0ea670e2648deb2e547175523843bb5a9b84fc
 F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
-F src/http_ssl.c 0d21a4842ad8c8902309a93cbc5ec2b4768a5710
+F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d98
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c 1c8c9a6f994826b2a129847aa7b652a55a771c99
 F src/info.c 41b0b0c411516623b09a22a5252b7914786bd7f7
@@ -782,10 +782,11 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d90e56f4697f12e30cbe7da47067b66ad83863ae
-R 6e3593f29c42307c7bd5c43571c2d4be
-T +bgcolor * #d0c0ff
-T +sym-release *
-T +sym-version-2.1 *
-U drh
-Z 45608ef98daa25b94ccb37cea51f15c6
+P 83e3445f672b02c33a1240d69383bfe21d2be16d
+Q +04168f51704ed023060ac039d3cab7eebc62884e8a1b59db89830b0da2e6cfb1
+R e662a987a7e69d9b714b22c320a70205
+T *branch * branch-2.1
+T *sym-branch-2.1 *
+T -sym-trunk *
+U jan.nijtmans
+Z 1c0b1f51f8eb41de5ed27a3974ac92b7
