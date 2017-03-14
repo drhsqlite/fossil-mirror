@@ -751,10 +751,10 @@ test json-env-RC-1102-code {[dict get $JR resultCode] eq "FOSSIL-1102"}
 # FOSSIL-1103 FSL_JSON_E_UNKNOWN
 #     Unknown error
 
-write_file bad.sql  {
-CREATE TABLE spam(a integer, b text);
-}
-exec $::fossilexe sqlite3 --no-repository bad.fossil <bad.sql
+#write_file bad.sql  {
+#CREATE TABLE spam(a integer, b text);
+#}
+#exec $::fossilexe sqlite3 --no-repository bad.fossil <bad.sql
 #fossil_json HAI -R bad.fossil -expectError
 
 # FOSSIL-1104 FSL_JSON_E_TIMEOUT

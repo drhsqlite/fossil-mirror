@@ -51,6 +51,44 @@
 #endif
 #include <time.h>
 
+#if defined(__MINGW32__) || defined(_MSC_VER)
+/*
+** MinGW doesn't have strtok_r in its libc. Here's a public domain one
+** found at StackOverflow as a work-around, with formatting adjusted to
+** make it more like the usual style here. This is certainly the wrong
+** place for it, which is emphasized by making the function static.
+** 
+** See http://stackoverflow.com/a/12979321/68204
+** 
+** public domain strtok_r() by Charlie Gordon
+**   from comp.lang.c  9/14/2007
+**   http://groups.google.com/group/comp.lang.c/msg/2ab1ecbb86646684
+** (Declaration that it's public domain):
+**   http://groups.google.com/group/comp.lang.c/msg/7c7b39328fefab9c
+*/
+static char* strtok_r(
+  char *str, 
+  const char *delim, 
+  char **nextp
+){
+  char *ret;
+  if( str == NULL ){
+    str = *nextp;
+  }
+  str += strspn(str, delim);
+  if( *str == '\0' ){
+    return NULL;
+  }
+  ret = str;
+  str += strcspn(str, delim);
+  if( *str ){
+    *str++ = '\0';
+  }
+  *nextp = str;
+  return ret;
+}
+#endif
+
 /*
 ** Return the login-group name.  Or return 0 if this repository is
 ** not a member of a login-group.
