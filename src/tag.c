@@ -629,7 +629,7 @@ void reparent_cmd(void){
     int pid = name_to_typed_rid(g.argv[i], "ci");
     if( i>3 ) blob_append(&value, " ", 1);
     zUuid = rid_to_uuid(pid);
-    blob_append(&value, zUuid, UUID_SIZE);
+    blob_append(&value, zUuid, strlen(zUuid));
     fossil_free(zUuid);
   }
   if( bTest && !dryRun ){

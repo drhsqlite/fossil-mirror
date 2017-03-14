@@ -70,7 +70,7 @@ void show_common_info(
       rid
     );
          /* 01234567890123 */
-    fossil_print("%-13s %s %s\n", zUuidName, zUuid, zDate ? zDate : "");
+    fossil_print("%-13s %.40s %s\n", zUuidName, zUuid, zDate ? zDate : "");
     free(zDate);
     if( showComment ){
       zComment = db_text(0,
@@ -93,7 +93,7 @@ void show_common_info(
         "SELECT datetime(mtime) || ' UTC' FROM event WHERE objid=%d",
         db_column_int(&q, 1)
       );
-      fossil_print("%-13s %s %s\n", zType, zUuid, zDate);
+      fossil_print("%-13s %.40s %s\n", zType, zUuid, zDate);
       free(zDate);
     }
     db_finalize(&q);
@@ -107,7 +107,7 @@ void show_common_info(
         "SELECT datetime(mtime) || ' UTC' FROM event WHERE objid=%d",
         db_column_int(&q, 1)
       );
-      fossil_print("%-13s %s %s\n", zType, zUuid, zDate);
+      fossil_print("%-13s %.40s %s\n", zType, zUuid, zDate);
       free(zDate);
     }
     db_finalize(&q);
@@ -574,6 +574,7 @@ void ci_page(void){
   sideBySide = !is_false(PD("sbs","1"));
   if( db_step(&q1)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q1, 0);
+    int nUuid = db_column_bytes(&q1, 0);
     char *zEUser, *zEComment;
     const char *zUser;
     const char *zComment;
@@ -595,7 +596,7 @@ void ci_page(void){
     zOrigDate = db_column_text(&q1, 4);
     @ <div class="section">Overview</div>
     @ <table class="label-value">
-    @ <tr><th>SHA1&nbsp;Hash:</th><td>%s(zUuid)
+    @ <tr><th>%s(hname_alg(nUuid)):</th><td>%s(zUuid)
     if( g.perm.Setup ){
       @ (Record ID: %d(rid))
     }
@@ -1387,6 +1388,7 @@ int object_description(
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTarget = db_column_text(&q, 0);
+    int nTarget = db_column_bytes(&q, 0);
     const char *zFilename = db_column_text(&q, 1);
     const char *zDate = db_column_text(&q, 2);
     const char *zUser = db_column_text(&q, 3);
@@ -1397,7 +1399,7 @@ int object_description(
       @ Attachment "%h(zFilename)" to
     }
     objType |= OBJTYPE_ATTACHMENT;
-    if( strlen(zTarget)==UUID_SIZE && validate16(zTarget,UUID_SIZE) ){
+    if( nTarget==UUID_SIZE && validate16(zTarget,UUID_SIZE) ){
       if ( db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'",
             zTarget)
       ){

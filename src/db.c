@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -1487,31 +1487,16 @@ void db_open_repository(const char *zDbName){
   g.allowSymlinks = db_get_boolean("allow-symlinks",
                                    db_allow_symlinks_by_default());
   g.zAuxSchema = db_get("aux-schema","");
-
-  /* Verify that the PLINK table has a new column added by the
-  ** 2014-11-28 schema change.  Create it if necessary.  This code
-  ** can be removed in the future, once all users have upgraded to the
-  ** 2014-11-28 or later schema.
-  */
-  if( !db_table_has_column("repository","plink","baseid") ){
-    db_multi_exec(
-      "ALTER TABLE repository.plink ADD COLUMN baseid;"
-    );
+  g.eHashPolicy = db_get_int("hash-policy",-1);
+  if( g.eHashPolicy<0 ){
+    g.eHashPolicy = hname_default_policy();
+    db_set_int("hash-policy", g.eHashPolicy, 0);
   }
 
-  /* Verify that the MLINK table has the newer columns added by the
-  ** 2015-01-24 schema change.  Create them if necessary.  This code
-  ** can be removed in the future, once all users have upgraded to the
-  ** 2015-01-24 or later schema.
+  /* Make a change to the CHECK constraint on the BLOB table for
+  ** version 2.0 and later.
   */
-  if( !db_table_has_column("repository","mlink","isaux") ){
-    db_begin_transaction();
-    db_multi_exec(
-      "ALTER TABLE repository.mlink ADD COLUMN pmid INTEGER DEFAULT 0;"
-      "ALTER TABLE repository.mlink ADD COLUMN isaux BOOLEAN DEFAULT 0;"
-    );
-    db_end_transaction(0);
-  }
+  rebuild_schema_update_2_0();   /* Do the Fossil-2.0 schema updates */
 }
 
 /*
@@ -1679,6 +1664,7 @@ void db_close(int reportErrors){
   }
   db_end_transaction(1);
   pStmt = 0;
+  sqlite3_exec(g.db, "PRAGMA optimize", 0, 0, 0);
   db_close_config();
 
   /* If the localdb has a lot of unused free space,
@@ -1850,6 +1836,7 @@ void db_initial_setup(
       configure_inop_rhs(CONFIGSET_ALL),
       db_setting_inop_rhs()
     );
+    g.eHashPolicy = db_get_int("hash-policy", g.eHashPolicy);
     db_multi_exec(
       "REPLACE INTO reportfmt SELECT * FROM settingSrc.reportfmt;"
     );
@@ -1922,9 +1909,10 @@ void db_initial_setup(
 ** associated permissions will be copied.
 **
 ** Options:
-**    --template      FILE      copy settings from repository file
-**    --admin-user|-A USERNAME  select given USERNAME as admin user
-**    --date-override DATETIME  use DATETIME as time of the initial check-in
+**    --template      FILE         Copy settings from repository file
+**    --admin-user|-A USERNAME     Select given USERNAME as admin user
+**    --date-override DATETIME     Use DATETIME as time of the initial check-in
+**    --sha1                       Use a initial hash policy of "sha1"
 **
 ** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
 ** year-month-day form, it may be truncated, the "T" may be replaced by
@@ -1939,10 +1927,13 @@ void create_repository_cmd(void){
   const char *zTemplate;      /* Repository from which to copy settings */
   const char *zDate;          /* Date of the initial check-in */
   const char *zDefaultUser;   /* Optional name of the default user */
+  int bUseSha1 = 0;           /* True to set the hash-policy to sha1 */
+
 
   zTemplate = find_option("template",0,1);
   zDate = find_option("date-override",0,1);
   zDefaultUser = find_option("admin-user","A",1);
+  bUseSha1 = find_option("sha1",0,0)!=0;
   /* We should be done with options.. */
   verify_all_options();
 
@@ -1959,6 +1950,10 @@ void create_repository_cmd(void){
   db_open_config(0, 0);
   if( zTemplate ) db_attach(zTemplate, "settingSrc");
   db_begin_transaction();
+  if( bUseSha1 ){
+    g.eHashPolicy = HPOLICY_SHA1;
+    db_set_int("hash-policy", HPOLICY_SHA1, 0);
+  }
   if( zDate==0 ) zDate = "now";
   db_initial_setup(zTemplate, zDate, zDefaultUser);
   db_end_transaction(0);
@@ -2084,25 +2079,25 @@ LOCAL void file_is_selected(
 }
 
 /*
-** Convert the input string into an SHA1.  Make a notation in the
+** Convert the input string into a artifact hash.  Make a notation in the
 ** CONCEALED table so that the hash can be undo using the db_reveal()
 ** function at some later time.
 **
 ** The value returned is stored in static space and will be overwritten
 ** on subsequent calls.
 **
-** If zContent is already a well-formed SHA1 hash, then return a copy
+** If zContent is already a well-formed artifact hash, then return a copy
 ** of that hash, not a hash of the hash.
 **
 ** The CONCEALED table is meant to obscure email addresses.  Every valid
 ** email address will contain a "@" character and "@" is not valid within
-** an SHA1 hash so there is no chance that a valid email address will go
+** a SHA1 hash so there is no chance that a valid email address will go
 ** unconcealed.
 */
 char *db_conceal(const char *zContent, int n){
-  static char zHash[42];
+  static char zHash[HNAME_MAX+1];
   Blob out;
-  if( n==40 && validate16(zContent, n) ){
+  if( hname_validate(zContent, n) ){
     memcpy(zHash, zContent, n);
     zHash[n] = 0;
   }else{

@@ -51,6 +51,44 @@
 #endif
 #include <time.h>
 
+#if defined(__MINGW32__) || defined(_MSC_VER)
+/*
+** MinGW doesn't have strtok_r in its libc. Here's a public domain one
+** found at StackOverflow as a work-around, with formatting adjusted to
+** make it more like the usual style here. This is certainly the wrong
+** place for it, which is emphasized by making the function static.
+** 
+** See http://stackoverflow.com/a/12979321/68204
+** 
+** public domain strtok_r() by Charlie Gordon
+**   from comp.lang.c  9/14/2007
+**   http://groups.google.com/group/comp.lang.c/msg/2ab1ecbb86646684
+** (Declaration that it's public domain):
+**   http://groups.google.com/group/comp.lang.c/msg/7c7b39328fefab9c
+*/
+static char* strtok_r(
+  char *str, 
+  const char *delim, 
+  char **nextp
+){
+  char *ret;
+  if( str == NULL ){
+    str = *nextp;
+  }
+  str += strspn(str, delim);
+  if( *str == '\0' ){
+    return NULL;
+  }
+  ret = str;
+  str += strcspn(str, delim);
+  if( *str ){
+    *str++ = '\0';
+  }
+  *nextp = str;
+  return ret;
+}
+#endif
+
 /*
 ** Return the login-group name.  Or return 0 if this repository is
 ** not a member of a login-group.
@@ -966,6 +1004,65 @@ void login_check_credentials(void){
     if( zRemoteUser && db_get_boolean("remote_user_ok",0) ){
       uid = db_int(0, "SELECT uid FROM user WHERE login=%Q"
                       " AND length(cap)>0 AND length(pw)>0", zRemoteUser);
+    }
+  }
+
+  /* If the request didn't provide a login cookie or the login cookie didn't
+  ** match a known valid user, check the HTTP "Authorization" header and
+  ** see if those credentials are valid for a known user.
+  */
+  if( uid==0 ){
+    const char *zHTTPAuth = PD("HTTP_AUTHORIZATION", 0);
+
+    /* Check to see if the HTTP "Authorization" header is present
+    */
+    if( zHTTPAuth!=0 && zHTTPAuth[0]!=0
+     && db_get_boolean("http_authentication_ok",0)
+    ){
+      char *zBuf = fossil_strdup(zHTTPAuth);
+
+      if( zBuf!=0 ){
+        char *zPos;
+        char *zTok = strtok_r(zBuf, " ", &zPos);
+
+        if( zTok != 0 ){
+          /* Check to see if the authorization scheme is HTTP
+          ** basic auth.
+          */
+          if (strncmp(zTok, "Basic", zTok - zBuf) == 0) {
+            zTok = strtok_r(NULL, " ", &zPos);
+            int zBytesDecoded = 0;
+            char *zDecodedAuth = decode64(zTok, &zBytesDecoded);
+
+            char *zUsername = strtok_r(zDecodedAuth, ":", &zPos);
+            char *zPasswd = strtok_r(NULL, ":", &zPos);
+
+            if( zUsername!=0 && zPasswd!=0 && zPasswd[0]!=0 ){
+              /* Attempting to log in as the user provided by HTTP
+              ** basic auth
+              */
+              uid = login_search_uid(zUsername, zPasswd);
+              if( uid>0 ){
+                record_login_attempt(zUsername, zIpAddr, 1);
+              }else{
+                record_login_attempt(zUsername, zIpAddr, 0);
+
+                /* The user attempted to login specifically with HTTP basic
+                ** auth, but provided invalid credentials. Inform them of
+                ** the failed login attempt via 401.
+                */
+                cgi_set_status(401, "Unauthorized");
+                cgi_reply();
+                fossil_exit(0);
+              }
+            }
+
+            fossil_free(zDecodedAuth);
+          }
+        }
+
+        fossil_free(zBuf);
+      }
     }
   }
 

@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -15,11 +15,7 @@
 **
 *******************************************************************************
 **
-** This file contains code used to convert user-supplied object names into
-** canonical UUIDs.
-**
-** A user-supplied object name is any unique prefix of a valid UUID but
-** not necessarily in canonical form.
+** This file contains code used to resolved user-supplied object names.
 */
 #include "config.h"
 #include "name.h"
@@ -82,8 +78,8 @@ int start_of_branch(int rid, int inBranch){
 /*
 ** Convert a symbolic name into a RID.  Acceptable forms:
 **
-**   *  SHA1 hash
-**   *  SHA1 hash prefix of at least 4 characters
+**   *  artifact hash
+**   *  4-character or larger prefix of a artifact
 **   *  Symbolic Name
 **   *  "tag:" + symbolic name
 **   *  Date or date-time
@@ -107,7 +103,7 @@ int start_of_branch(int rid, int inBranch){
 ** zType is "ci" in most use cases since we are usually searching for
 ** a check-in.
 **
-** Note that the input zTag for types "t" and "e" is the SHA1 hash of
+** Note that the input zTag for types "t" and "e" is the artifact hash of
 ** the ticket-change or event-change artifact, not the randomly generated
 ** hexadecimal identifier assigned to tickets and events.  Those identifiers
 ** live in a separate namespace.
@@ -234,10 +230,10 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     return rid;
   }
 
-  /* SHA1 hash or prefix */
-  if( nTag>=4 && nTag<=UUID_SIZE && validate16(zTag, nTag) ){
+  /* artifact hash or prefix */
+  if( nTag>=4 && nTag<=HNAME_MAX && validate16(zTag, nTag) ){
     Stmt q;
-    char zUuid[UUID_SIZE+1];
+    char zUuid[HNAME_MAX+1];
     memcpy(zUuid, zTag, nTag+1);
     canonical16(zUuid, nTag);
     rid = 0;
@@ -356,7 +352,7 @@ int name_collisions(const char *zName){
   int c = 0;         /* count of collisions for zName */
   int nLen;          /* length of zName */
   nLen = strlen(zName);
-  if( nLen>=4 && nLen<=UUID_SIZE && validate16(zName, nLen) ){
+  if( nLen>=4 && nLen<=HNAME_MAX && validate16(zName, nLen) ){
     c = db_int(0,
       "SELECT"
       " (SELECT count(*) FROM ticket"
@@ -398,7 +394,7 @@ void test_name_to_id(void){
 ** Convert a name to a rid.  If the name can be any of the various forms
 ** accepted:
 **
-**   * SHA1 hash or prefix thereof
+**   * artifact hash or prefix thereof
 **   * symbolic name
 **   * date
 **   * label:date
@@ -427,9 +423,9 @@ int name_to_rid(const char *zName){
 
 /*
 ** WEBPAGE: ambiguous
-** URL: /ambiguous?name=UUID&src=WEBPAGE
+** URL: /ambiguous?name=NAME&src=WEBPAGE
 **
-** The UUID given by the name parameter is ambiguous.  Display a page
+** The NAME given by the name parameter is ambiguous.  Display a page
 ** that shows all possible choices and let the user select between them.
 */
 void ambiguous_page(void){
@@ -670,7 +666,7 @@ void whatis_rid(int rid, int verboseFlag){
 **
 ** Usage: %fossil whatis NAME
 **
-** Resolve the symbol NAME into its canonical 40-character SHA1-hash
+** Resolve the symbol NAME into its canonical artifact hash
 ** artifact name and provide a description of what role that artifact
 ** plays.
 **
@@ -746,7 +742,7 @@ void test_whatis_all_cmd(void){
 **
 ** Usage: %fossil test-ambiguous [--minsize N]
 **
-** Show a list of ambiguous SHA1-hash abbreviations of N characters or
+** Show a list of ambiguous artifact hash abbreviations of N characters or
 ** more where N defaults to 4.  Change N to a different value using
 ** the "--minsize N" command-line option.
 */
@@ -796,7 +792,7 @@ void test_ambiguous_cmd(void){
 static const char zDescTab[] =
 @ CREATE TEMP TABLE IF NOT EXISTS description(
 @   rid INTEGER PRIMARY KEY,       -- RID of the object
-@   uuid TEXT,                     -- SHA1 hash of the object
+@   uuid TEXT,                     -- hash of the object
 @   ctime DATETIME,                -- Time of creation
 @   isPrivate BOOLEAN DEFAULT 0,   -- True for unpublished artifacts
 @   type TEXT,                     -- file, checkin, wiki, ticket, etc.
@@ -1086,7 +1082,7 @@ void bigbloblist_page(void){
   );
   @ <table cellpadding="2" cellspacing="0" border="1" id="bigblobtab">
   @ <thead><tr><th align="right">Size<th align="right">RID
-  @ <th align="right">Delta From<th>SHA1<th>Description<th>Date</tr></thead>
+  @ <th align="right">Delta From<th>Hash<th>Description<th>Date</tr></thead>
   @ <tbody>
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q,0);
@@ -1149,19 +1145,19 @@ void test_phatoms_cmd(void){
 #define MAX_COLLIDE 25
 
 /*
-** Generate a report on the number of collisions in SHA1 hashes
+** Generate a report on the number of collisions in artifact hashes
 ** generated by the SQL given in the argument.
 */
 static void collision_report(const char *zSql){
   int i, j, kk;
   int nHash = 0;
   Stmt q;
-  char zPrev[UUID_SIZE+1];
+  char zPrev[HNAME_MAX+1];
   struct {
     int cnt;
     char *azHit[MAX_COLLIDE];
-    char z[UUID_SIZE+1];
-  } aCollide[UUID_SIZE+1];
+    char z[HNAME_MAX+1];
+  } aCollide[HNAME_MAX+1];
   memset(aCollide, 0, sizeof(aCollide));
   memset(zPrev, 0, sizeof(zPrev));
   db_prepare(&q,"%s",zSql/*safe-for-%s*/);
@@ -1171,7 +1167,7 @@ static void collision_report(const char *zSql){
     int i;
     nHash++;
     for(i=0; zPrev[i] && zPrev[i]==zUuid[i]; i++){}
-    if( i>0 && i<=UUID_SIZE ){
+    if( i>0 && i<=HNAME_MAX ){
       if( i>=4 && aCollide[i].cnt<MAX_COLLIDE ){
         aCollide[i].azHit[aCollide[i].cnt] = mprintf("%.*s", i, zPrev);
       }
@@ -1184,14 +1180,14 @@ static void collision_report(const char *zSql){
   @ <table border=1><thead>
   @ <tr><th>Length<th>Instances<th>First Instance</tr>
   @ </thead><tbody>
-  for(i=1; i<=UUID_SIZE; i++){
+  for(i=1; i<=HNAME_MAX; i++){
     if( aCollide[i].cnt==0 ) continue;
     @ <tr><td>%d(i)<td>%d(aCollide[i].cnt)<td>%h(aCollide[i].z)</tr>
   }
   @ </tbody></table>
   @ <p>Total number of hashes: %d(nHash)</p>
   kk = 0;
-  for(i=UUID_SIZE; i>=4; i--){
+  for(i=HNAME_MAX; i>=4; i--){
     if( aCollide[i].cnt==0 ) continue;
     if( aCollide[i].cnt>200 ) break;
     kk += aCollide[i].cnt;
@@ -1221,7 +1217,7 @@ static void collision_report(const char *zSql){
 void hash_collisions_webpage(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  style_header("SHA1 Prefix Collisions");
+  style_header("Hash Prefix Collisions");
   style_submenu_element("Activity Reports", "reports");
   style_submenu_element("Stats", "stat");
   @ <h1>Hash Prefix Collisions on Check-ins</h1>

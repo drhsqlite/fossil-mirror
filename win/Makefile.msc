@@ -388,6 +388,7 @@ SRC   = add_.c \
         glob_.c \
         graph_.c \
         gzip_.c \
+        hname_.c \
         http_.c \
         http_socket_.c \
         http_ssl_.c \
@@ -438,6 +439,8 @@ SRC   = add_.c \
         search_.c \
         setup_.c \
         sha1_.c \
+        sha1hard_.c \
+        sha3_.c \
         shun_.c \
         sitemap_.c \
         skins_.c \
@@ -562,6 +565,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\glob$O \
         $(OX)\graph$O \
         $(OX)\gzip$O \
+        $(OX)\hname$O \
         $(OX)\http$O \
         $(OX)\http_socket$O \
         $(OX)\http_ssl$O \
@@ -612,6 +616,8 @@ OBJ   = $(OX)\add$O \
         $(OX)\search$O \
         $(OX)\setup$O \
         $(OX)\sha1$O \
+        $(OX)\sha1hard$O \
+        $(OX)\sha3$O \
         $(OX)\shell$O \
         $(OX)\shun$O \
         $(OX)\sitemap$O \
@@ -745,6 +751,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\glob.obj >> $@
 	echo $(OX)\graph.obj >> $@
 	echo $(OX)\gzip.obj >> $@
+	echo $(OX)\hname.obj >> $@
 	echo $(OX)\http.obj >> $@
 	echo $(OX)\http_socket.obj >> $@
 	echo $(OX)\http_ssl.obj >> $@
@@ -795,6 +802,8 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\search.obj >> $@
 	echo $(OX)\setup.obj >> $@
 	echo $(OX)\sha1.obj >> $@
+	echo $(OX)\sha1hard.obj >> $@
+	echo $(OX)\sha3.obj >> $@
 	echo $(OX)\shell.obj >> $@
 	echo $(OX)\shun.obj >> $@
 	echo $(OX)\sitemap.obj >> $@
@@ -1178,6 +1187,12 @@ $(OX)\gzip$O : gzip_.c gzip.h
 gzip_.c : $(SRCDIR)\gzip.c
 	translate$E $** > $@
 
+$(OX)\hname$O : hname_.c hname.h
+	$(TCC) /Fo$@ -c hname_.c
+
+hname_.c : $(SRCDIR)\hname.c
+	translate$E $** > $@
+
 $(OX)\http$O : http_.c http.h
 	$(TCC) /Fo$@ -c http_.c
 
@@ -1478,6 +1493,18 @@ $(OX)\sha1$O : sha1_.c sha1.h
 sha1_.c : $(SRCDIR)\sha1.c
 	translate$E $** > $@
 
+$(OX)\sha1hard$O : sha1hard_.c sha1hard.h
+	$(TCC) /Fo$@ -c sha1hard_.c
+
+sha1hard_.c : $(SRCDIR)\sha1hard.c
+	translate$E $** > $@
+
+$(OX)\sha3$O : sha3_.c sha3.h
+	$(TCC) /Fo$@ -c sha3_.c
+
+sha3_.c : $(SRCDIR)\sha3.c
+	translate$E $** > $@
+
 $(OX)\shun$O : shun_.c shun.h
 	$(TCC) /Fo$@ -c shun_.c
 
@@ -1719,6 +1746,7 @@ headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 			glob_.c:glob.h \
 			graph_.c:graph.h \
 			gzip_.c:gzip.h \
+			hname_.c:hname.h \
 			http_.c:http.h \
 			http_socket_.c:http_socket.h \
 			http_ssl_.c:http_ssl.h \
@@ -1769,6 +1797,8 @@ headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 			search_.c:search.h \
 			setup_.c:setup.h \
 			sha1_.c:sha1.h \
+			sha1hard_.c:sha1hard.h \
+			sha3_.c:sha3.h \
 			shun_.c:shun.h \
 			sitemap_.c:sitemap.h \
 			skins_.c:skins.h \

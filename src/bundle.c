@@ -37,7 +37,7 @@ static const char zBundleInit[] =
 @ );
 @ CREATE TABLE IF NOT EXISTS "%w".bblob(
 @   blobid INTEGER PRIMARY KEY,      -- Blob ID
-@   uuid TEXT NOT NULL,              -- SHA1 hash of expanded blob
+@   uuid TEXT NOT NULL,              -- hash of expanded blob
 @   sz INT NOT NULL,                 -- Size of blob after expansion
 @   delta ANY,                       -- Delta compression basis, or NULL
 @   notes TEXT,                      -- Description of content
@@ -441,7 +441,7 @@ static void bundle_import_elements(int iSrc, Blob *pBasis, int isPriv){
      iSrc
   );
   while( db_step(&q)==SQLITE_ROW ){
-    Blob h1, h2, c1, c2;
+    Blob h1, c1, c2;
     int rid;
     blob_zero(&h1);
     db_column_blob(&q, 0, &h1);
@@ -449,7 +449,7 @@ static void bundle_import_elements(int iSrc, Blob *pBasis, int isPriv){
     db_column_blob(&q, 1, &c1);
     blob_uncompress(&c1, &c1);
     blob_zero(&c2);
-    if( db_column_type(&q,2)==SQLITE_TEXT && db_column_bytes(&q,2)==40 ){
+    if( db_column_type(&q,2)==SQLITE_TEXT && db_column_bytes(&q,2)>=HNAME_MIN ){
       Blob basis;
       rid = db_int(0,"SELECT rid FROM blob WHERE uuid=%Q",
                    db_column_text(&q,2));
@@ -463,12 +463,9 @@ static void bundle_import_elements(int iSrc, Blob *pBasis, int isPriv){
     }else{
       c2 = c1;
     }
-    sha1sum_blob(&c2, &h2);
-    if( blob_compare(&h1, &h2)!=0 ){
-      fossil_fatal("SHA1 hash mismatch - wanted %s, got %s",
-                   blob_str(&h1), blob_str(&h2));
+    if( hname_verify_hash(&c2, blob_buffer(&h1), blob_size(&h1))==0 ){
+      fossil_fatal("artifact hash error on %b", &h1);
     }
-    blob_reset(&h2);
     rid = content_put_ex(&c2, blob_str(&h1), 0, 0, isPriv);
     if( rid==0 ){
       fossil_fatal("%s", g.zErrMsg);
@@ -493,7 +490,7 @@ static void bundle_extract_item(
   Blob *pOut           /* Write the content into this blob */
 ){
   Stmt q;
-  Blob x, basis, h1, h2;
+  Blob x, basis, h1;
   static Bag busy;
 
   db_prepare(&q, "SELECT uuid, delta, data FROM bblob"
@@ -527,13 +524,10 @@ static void bundle_extract_item(
   }
   blob_zero(&h1);
   db_column_blob(&q, 0, &h1);
-  sha1sum_blob(pOut, &h2);
-  if( blob_compare(&h1, &h2)!=0 ){
-    fossil_fatal("SHA1 hash mismatch - wanted %s, got %s",
-                 blob_str(&h1), blob_str(&h2));
+  if( hname_verify_hash(pOut, blob_buffer(&h1), blob_size(&h1))==0 ){
+    fossil_fatal("incorrect hash for artifact %b", &h1);
   }
   blob_reset(&h1);
-  blob_reset(&h2);
   bag_remove(&busy, blobid);
   db_finalize(&q);
 }
@@ -599,8 +593,9 @@ static void bundle_import_cmd(void){
   zMissingDeltas = db_text(0,
       "SELECT group_concat(substr(delta,1,10),' ')"
       "  FROM bblob"
-      " WHERE typeof(delta)='text' AND length(delta)=40"
-      "   AND NOT EXISTS(SELECT 1 FROM blob WHERE uuid=bblob.delta)");
+      " WHERE typeof(delta)='text' AND length(delta)>=%d"
+      "   AND NOT EXISTS(SELECT 1 FROM blob WHERE uuid=bblob.delta)",
+      HNAME_MIN);
   if( zMissingDeltas && zMissingDeltas[0] ){
     fossil_fatal("delta basis artifacts not found in repository: %s",
                  zMissingDeltas);

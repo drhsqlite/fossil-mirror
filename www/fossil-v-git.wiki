@@ -69,7 +69,8 @@ Git requires hours or days.
 
 The baseline data structures for Fossil and Git are the same (modulo
 formatting details).  Both systems store check-ins as immutable
-objects referencing their immediate ancestors and named by their SHA1 hash.
+objects referencing their immediate ancestors and named by a
+cryptographic hash of the check-in content.
 
 The difference is that Git stores its objects as individual files
 in the ".git" folder or compressed into
@@ -119,7 +120,7 @@ a clique of developers.
 
 Nota Bene:  This is not to say that Git cannot be used for cathedral-style
 development or that Fossil cannot be used for bazaar-style development.
-They can be.  But those modes are not their design intent nor the their
+They can be.  But those modes are not their design intent nor their
 low-friction path.
 
 Git encourages a style in which individual developers work in relative
@@ -146,7 +147,7 @@ Fossil was specifically designed to support the development of SQLite.
 Both SQLite and Linux are important pieces of software.
 SQLite is found on far more systems than Linux.  (Almost every Linux
 system uses SQLite, but there are many non-Linux systems such as
-iPhones, PlayStations, and Windows PC that use SQLite.)  On the other
+iPhones, PlayStations, and Windows PCs that use SQLite.)  On the other
 hand, for those systems that do use Linux, Linux is a far more important
 component.
 

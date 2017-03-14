@@ -529,7 +529,7 @@ static void convert_href_and_output(Blob *pIn){
 ** URL: /uv/FILE
 ** URL: /doc/CHECKIN/FILE
 **
-** CHECKIN can be either tag or SHA1 hash or timestamp identifying a
+** CHECKIN can be either tag or hash prefix or timestamp identifying a
 ** particular check, or the name of a branch (meaning the most recent
 ** check-in on that branch) or one of various magic words:
 **
@@ -710,9 +710,17 @@ void doc_page(void){
             fossil_strcmp(zMime, "application/x-th1")==0 ){
     int raw = P("raw")!=0;
     if( !raw ){
-      style_header("%h", zName);
+      Blob tail;
+      blob_zero(&tail);
+      if( wiki_find_title(&filebody, &title, &tail) ){
+        style_header("%s", blob_str(&title));
+        Th_Render(blob_str(&tail));
+        blob_reset(&tail);
+      }else{
+        style_header("%h", zName);
+        Th_Render(blob_str(&filebody));
+      }
     }
-    Th_Render(blob_str(&filebody));
     if( !raw ){
       style_footer();
     }
@@ -729,7 +737,7 @@ void doc_page(void){
 doc_not_found:
   db_end_transaction(0);
   if( isUV && P("name")==0 ){
-    uvstat_page();
+    uvlist_page();
     return;
   }
   cgi_set_status(404, "Not Found");

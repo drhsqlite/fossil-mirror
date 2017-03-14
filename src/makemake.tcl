@@ -60,6 +60,7 @@ set src {
   glob
   graph
   gzip
+  hname
   http
   http_socket
   http_transport
@@ -109,6 +110,8 @@ set src {
   search
   setup
   sha1
+  sha1hard
+  sha3
   shun
   sitemap
   skins

@@ -1,8 +1,26 @@
 <title>Change Log</title>
 
-<a name='v1_38'></a>
-<h2>Changes for Version 1.38 (2017-??-??)</h2>
+<a name='v2_1'></a>
+<h2>Changes for Version 2.1 (2017-03-10)</h2>
 
+  *  Add support for [./hashpolicy.wiki|hash policies] that control which
+     of the Hardened-SHA1 or SHA3-256 algorithms is used to name new
+     artifacts.
+  *  Add the "gshow" and "gcat" subcommands to [/help?cmd=stash|fossil stash].
+  *  Add the [/help?cmd=/juvlist|/juvlist] web page and use it to construct
+     the [/uv/download.html|Download Page] of the Fossil self-hosting website
+     using Ajax.
+
+<a name='v2_0'></a>
+<h2>Changes for Version 2.0 (2017-03-03)</h2>
+
+  *  Use the
+     [https://github.com/cr-marcstevens/sha1collisiondetection|hardened SHA1]
+     implemenation by Marc Stevens and Dan Shumow.
+  *  Add the ability to read and understand
+     [./fileformat.wiki#names|artifact names] that are based on SHA3-256
+     rather than SHA1, but do not actually generate any such names.
+  *  Added the [/help?cmd=sha3sum|sha3sum] command.
   *  Update the built-in SQLite to version 3.17.0.
 
 <a name='v1_37'></a>

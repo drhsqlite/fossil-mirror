@@ -485,7 +485,7 @@ void tarball_of_checkin(
     blob_zero(pTar);
     return;
   }
-  blob_zero(&hash);
+  blob_set_dynamic(&hash, rid_to_uuid(rid));
   blob_zero(&filename);
 
   if( zDir && zDir[0] ){
@@ -522,9 +522,6 @@ void tarball_of_checkin(
           blob_append(&filename, "manifest", -1);
           zName = blob_str(&filename);
         }
-        if( eflg & MFESTFLG_UUID ){
-          sha1sum_blob(&mfile, &hash);
-        }
         if( eflg & MFESTFLG_RAW ) {
           sterilize_manifest(&mfile);
           tar_add_file(zName, &mfile, 0, mTime);
@@ -537,7 +534,6 @@ void tarball_of_checkin(
         blob_append(&filename, "manifest.uuid", -1);
         zName = blob_str(&filename);
         tar_add_file(zName, &hash, 0, mTime);
-        blob_reset(&hash);
       }
       if( eflg & MFESTFLG_TAGS ){
         Blob tagslist;
@@ -566,7 +562,6 @@ void tarball_of_checkin(
       }
     }
   }else{
-    sha1sum_blob(&mfile, &hash);
     blob_append(&filename, blob_str(&hash), 16);
     zName = blob_str(&filename);
     mTime = db_int64(0, "SELECT (julianday('now') -  2440587.5)*86400.0;");
@@ -575,6 +570,7 @@ void tarball_of_checkin(
   }
   manifest_destroy(pManifest);
   blob_reset(&mfile);
+  blob_reset(&hash);
   blob_reset(&filename);
   tar_finish(pTar);
 }
