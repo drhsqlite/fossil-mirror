@@ -1,5 +1,5 @@
-C Update\shash\sregexp\sto\sdefend\sagainst\sfull\slength\sSHA3\shashes.
-D 2017-03-14T21:15:51.341
+C Changed\sremaining\sregexps\sin\stest\scases\sthat\smatch\shashes\sto\sallow\shashes\sto\srange\sfrom\s40\sto\s64\shex\sdigits.\sAdded\sthe\ssame_uuid\sproc\sto\sthe\stest\sharness\sto\sregularize\scomparing\suuids.\sIt\sis\strue\sif\sone\sis\sa\sprefix\sof\sthe\sother.\sThere\sare\sstill\sregressions\sin\sthe\stest\ssuite,\sespecially\sin\samend.test,\sbut\sthis\sis\sprogress.
+D 2017-03-14T23:30:02.495
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -536,7 +536,7 @@ F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 34f51a1acd869bfa063fafab28decfab34cb2a1a
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
-F test/amend.test b298d36e7b996220c0bff697d6b229645dd43f8f
+F test/amend.test 8b4d19eee86dbae0e41090e582fe202a70a5503b9082dc305753b01875f67867
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
 F test/cmdline.test df50383ebf00e7a444e29f2f755867f843c37df7
 F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
@@ -567,7 +567,7 @@ F test/merge_warn.test d4a98c6ff14e4bb142d784f96c88d152d9599529
 F test/mv-rm.test 6a60863935f7a9e0223ccb9421729d7677fa1f9f
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
 F test/revert.test 303d90ca6a8f221d671daa90b3f9a07a874e7ff0
-F test/set-manifest.test f389e51ce371794d5871e70adf66f81d59a9d654
+F test/set-manifest.test a4caa5745c0af2dc9bb1a2f0902e7991818f725bb168355cae5da8724e2b3b75
 F test/settings-repo.test 7c2617c7deea7d245d927df5688d26365e3bca9b
 F test/settings.test 1877083a0fecb044a698e8ca60d7f9ff2b4f4450
 F test/stash.test 71d6f9149feb18e5c64639c4598991d79b8e165c
@@ -575,7 +575,7 @@ F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 9ead8cede3906559325b19560124bd30396f7c0e
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl fff62460346068d80160545f0dfbedbeb2c9699c
+F test/tester.tcl ba503f050b9926b7770afece093e6531a15d27a7e072c1f07c024dcd6ae658d7
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 3d2c5998f4b499ffd762e836425309e3ba7ed554ba3493534b6d82f68b33557d
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -591,8 +591,8 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test 79cfc5d01ea3d3ce664f2ce36041ab583d1fbb2d7623c826d6f6f14be0faeb82
-F test/unversioned.test e0088968e0e18dd378ce02569cc3ddd2819992d7
+F test/th1.test f7a82076374abf6067326eee2c430a72d75bd9c3d6b50df7633478a7397c9510
+F test/unversioned.test 454f7010d05252a07c6b196545c55dc05e14e8287ba87dbb3a80a82f7773040c
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test e2489218e27ea0c643185707e2a4fd33db59f13b
@@ -782,7 +782,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f92672bda33bf86752053272ef1f7aa9de088e823b9a864877042c2b8802800b
-R 7343c4206bfa83c14003a8184d47ef4a
+P 38115a0bd96c3788e36506b965f938bd31f0d0b65cf26dd7866abefb80a9a15d
+R 53e3ed5db50cc50b530ff6db3dc67990
 U rberteig
-Z 4a60110e7e980d936aa9a5579c527236
+Z 7bfda34f99e9bce2afd0f56fce57be99

@@ -329,6 +329,29 @@ proc same_file {a b} {
   return [expr {$x==$y}]
 }
 
+# Return true if two strings refer to the 
+# same uuid. That is, the shorter is a prefix
+# of the longer.
+#
+proc same_uuid {a b} {
+  set na [string length $a]
+  set nb [string length $b]
+  if {$na == $nb} {
+    return [expr {$a eq $b}]
+  }
+  if {$na < $nb} then {
+    return [string match "$a*" $b]
+  }
+  return [string match "$b*" $a]
+}
+
+# Return a prefix of a uuid, defaulting to 10 chars.
+#
+proc short_uuid {uuid {len 10}} {
+  string range $uuid 0 $len-1
+}
+
+
 proc require_no_open_checkout {} {
   if {[info exists ::env(FOSSIL_TEST_DANGEROUS_IGNORE_OPEN_CHECKOUT)] && \
       $::env(FOSSIL_TEST_DANGEROUS_IGNORE_OPEN_CHECKOUT) eq "YES_DO_IT"} {

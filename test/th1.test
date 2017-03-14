@@ -1588,21 +1588,15 @@ write_file ten.txt "0123456789"
 fossil unversioned add ten.txt
 fossil unversioned list
 
+# unversioned list
 fossil test-th-eval --open-config "unversioned list"
 test th1-unversioned-1 {[normalize_result] eq {ten.txt}}
+
+# unversioned content
 fossil test-th-eval --open-config \
       {string length [unversioned content ten.txt]}
 test th1-unversioned-2 {$RESULT eq {10}}
 
-
-###############################################################################
-
-#run_in_checkout {
-#  fossil test-th-eval --open-config \
-#      {string length [unversioned content build-icons/src.gif]}
-#}
-#
-#test th1-unversioned-2 {$RESULT eq {4592}}
 
 ###############################################################################
 
