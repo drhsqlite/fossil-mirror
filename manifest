@@ -1,5 +1,5 @@
-C On\sthe\s/tarball\sand\s/zip\spages,\suse\sr=\sas\sthe\squery\sparameter\sto\sselect\swhich\ncheck-in\sto\sdownload.\s\sThe\suuid=\squery\sparameter\sis\sstill\saccepted\sas\san\salias\nfor\sbackwards\scompatibility.
-D 2017-03-15T18:34:23.369
+C Add\sthe\s"[history]"\slink\son\sthe\s/dir\spage\sfor\ssubdirectories.
+D 2017-03-15T19:06:34.443
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -390,7 +390,7 @@ F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c 141d4f5494ed6d1a9ef9e5c6927dd2c2b42e00f1
 F src/branch.c d68826ae16d6a89ea3126ab583577fb5f09de23b
-F src/browse.c 1f72df0e1a7a7dffa2e7e7dc9b0b5270252132dfb07dc30bfaf3f16c265ec9ad
+F src/browse.c 2206c61a608165653fd4b2bd0b3ba4ae1cad4d6ebdd4346e28c96439239199ef
 F src/builtin.c d147d04305aa0db964ec84ef049e8e88d134de87
 F src/bundle.c c4b92c14df3e1aeebdeaf02d23a0ecaea462f8b5
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
@@ -782,7 +782,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a6993f9bd485cc1f0c8747d827bafecc091a8f443a1bc8de99c37f43637f26d3
-R d996fa3962816ab2743b2b1a37f9c9ae
+P ece33ee1b6dd14e1cbb79815fee52addc4964a6f7b8d1aed73095f1a6448abbb ad9d418cbb1dd7b8245bfe9330f1df096a8efbf839e95c6f444b4a455ae202c3
+R 5201c0a0b9736b57b7627a2ecc4620bf
+T +closed ad9d418cbb1dd7b8245bfe9330f1df096a8efbf839e95c6f444b4a455ae202c3
 U drh
-Z fc7ce199bd36196290660fa8cf8c7745
+Z efbc600e69de1bb40c6915213db1196e
