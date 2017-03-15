@@ -502,7 +502,7 @@ void zip_cmd(void){
 ** WEBPAGE: zip
 ** URL: /zip
 **
-** Generate a ZIP archive for the check-in specified by the "uuid"
+** Generate a ZIP archive for the check-in specified by the "r"
 ** query parameter.  Return that ZIP archive as the HTTP reply content.
 **
 ** Query parameters:
@@ -512,8 +512,12 @@ void zip_cmd(void){
 **                       settings.  A prefix of the name, omitting the
 **                       extension, is used as the top-most directory name.
 **
-**   uuid=TAG            The check-in that is turned into a ZIP archive.
-**                       Defaults to "trunk".
+**   r=TAG               The check-in that is turned into a ZIP archive.
+**                       Defaults to "trunk".  This query parameter used to
+**                       be called "uuid" and the older "uuid" name is still
+**                       accepted for backwards compatibility.  If this
+**                       query paramater is omitted, the latest "trunk"
+**                       check-in is used.
 **
 **   in=PATTERN          Only include files that match the comma-separate
 **                       list of GLOB patterns in PATTERN, as with ex=
@@ -525,6 +529,7 @@ void zip_cmd(void){
 */
 void baseline_zip_page(void){
   int rid;
+  const char *z;
   char *zName, *zRid, *zKey;
   int nName, nRid;
   const char *zInclude;         /* The in= query parameter */
@@ -539,7 +544,10 @@ void baseline_zip_page(void){
   load_control();
   zName = mprintf("%s", PD("name",""));
   nName = strlen(zName);
-  zRid = mprintf("%s", PD("uuid","trunk"));
+  z = P("r");
+  if( z==0 ) z = P("uuid");
+  if( z==0 ) z = "trunk";
+  zRid = fossil_strdup(z);
   nRid = strlen(zRid);
   zInclude = P("in");
   if( zInclude ) pInclude = glob_create(zInclude);
