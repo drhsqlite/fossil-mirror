@@ -1,5 +1,5 @@
-C Changed\sremaining\sregexps\sin\stest\scases\sthat\smatch\shashes\sto\sallow\shashes\sto\srange\sfrom\s40\sto\s64\shex\sdigits.\sAdded\sthe\ssame_uuid\sproc\sto\sthe\stest\sharness\sto\sregularize\scomparing\suuids.\sIt\sis\strue\sif\sone\sis\sa\sprefix\sof\sthe\sother.\sThere\sare\sstill\sregressions\sin\sthe\stest\ssuite,\sespecially\sin\samend.test,\sbut\sthis\sis\sprogress.
-D 2017-03-14T23:30:02.495
+C Simplify\sthe\sBasic\sAuthentication\simplementation,\sremoving\sthe\sneed\sfor\nthe\sstrtok_r()\slibrary\sfunction.
+D 2017-03-15T00:19:41.866
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -455,7 +455,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c 29ba1458d561d2b3238cbc717976eab87a098a16
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c bf175ba3f9e680791b6e97512c10ad3c8132146c75b020a1ba7d31bdd83727db
+F src/login.c efc4f56cf6b14c9c386487c626465422a86d0614581c4d8b8c69da56d0048666
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
 F src/main.c 5105d4bc1b86b24638764606c399321a82726b89
 F src/main.mk adb39465c0b57737cc735f324b9e2bc296a79f16
@@ -782,7 +782,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 38115a0bd96c3788e36506b965f938bd31f0d0b65cf26dd7866abefb80a9a15d
-R 53e3ed5db50cc50b530ff6db3dc67990
-U rberteig
-Z 7bfda34f99e9bce2afd0f56fce57be99
+P 0541af5f8c7ef54f7917bc28c91b0a02d463cebc34f9b9a939dec9d2044812eb
+R 01a6a9cb5cee4b3f6433f955c13f3754
+U drh
+Z 96629200763dfe78932e635e8e71db6d
