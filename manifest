@@ -1,5 +1,5 @@
-C added\smissing\sreturn\stype\sin\slogin_basic_authentication()\sdefinition.
-D 2017-03-15T00:31:56.532
+C Added\smissing\sreference\sto\sthe\s-json-input\sflag\sfor\sthe\sjson\scommand.
+D 2017-03-15T00:41:38.308
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -435,7 +435,7 @@ F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d9
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c 1c8c9a6f994826b2a129847aa7b652a55a771c99
 F src/info.c 41b0b0c411516623b09a22a5252b7914786bd7f7
-F src/json.c f5b7fdcda3a1896153974769be00bae833bc476b
+F src/json.c cc8d06a2d208ad0092d6d68ef5b7ac9a7e05708b3271c5cfd1da890f97322642
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c 7c7e2c63fd1cac2ca85aa657a7ae04d91a1bdc08
 F src/json_config.c f53fa14ab92730d30be35311b52a17848eeabe44
@@ -782,7 +782,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2e76b99f5ce5301c4cf82f06d069ec608da888cce543cf8d736d51b110eff6d2
-R d49245f873f32e3a38e6ae3071802dd1
+P fd928b6ef9a3f9686ae403c1131005c1f04790e8bc83c75a912528185fe70e26
+R 806df96c5360b3c0d449e44d31ca4396
 U stephan
-Z 9e67605e7d850017882c1d1a31a49ca0
+Z 3f5f7a3d4c154be741d6678c1514cf40
