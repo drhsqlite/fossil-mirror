@@ -1835,8 +1835,8 @@ void output_text_with_line_numbers(
 **
 ** Typical usage:
 **
-**    /artifact/SHA1HASH
-**    /whatis/SHA1HASH
+**    /artifact/HASH
+**    /whatis/HASH
 **    /file/NAME
 **
 ** Additional query parameters:
@@ -1853,9 +1853,11 @@ void output_text_with_line_numbers(
 **   ci=VERSION      - The specific check-in to use for "filename=".
 **
 ** The /artifact page show the complete content of a file
-** identified by SHA1HASH as preformatted text.  The
+** identified by HASH as preformatted text.  The
 ** /whatis page shows only a description of the file.  The /file
-** page shows the most recent version of the named file.
+** page shows the most recent version of the file or directory
+** called NAME, or a list of the top-level directory if NAME is
+** omitted.
 */
 void artifact_page(void){
   int rid = 0;
@@ -1879,7 +1881,14 @@ void artifact_page(void){
   if( rid==0 ){
     url_add_parameter(&url, "name", zName);
     if( isFile ){
-      if( zName==0 ) zName = "";
+      /* Do a top-level directory listing in /file mode if no argument
+      ** specified */
+      if( zName==0 || zName[0]==0 ){
+        if( P("ci")==0 ) cgi_set_query_parameter("ci","tip");
+        page_tree();
+        return;
+      }
+      /* Look for a single file with the given name */
       rid = db_int(0,
          "SELECT fid FROM filename, mlink, event"
          " WHERE name=%Q"
@@ -1888,6 +1897,18 @@ void artifact_page(void){
          " ORDER BY event.mtime DESC LIMIT 1",
          zName
       );
+      /* If no file called NAME exists, instead look for a directory
+      ** with that name, and do a directory listing */
+      if( rid==0 && db_exists(
+         "SELECT 1 FROM filename"
+         " WHERE name GLOB '%q/*' AND substr(name,1,length(%Q)+1)=='%q/';",
+         zName, zName, zName
+      ) ){
+        if( P("ci")==0 ) cgi_set_query_parameter("ci","tip");
+        page_tree();
+        return;
+      }
+      /* If no file or directory called NAME: issue an error */
       if( rid==0 ){
         style_header("No such file");
         @ File '%h(zName)' does not exist in this repository.

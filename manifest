@@ -1,5 +1,5 @@
-C Fixed\samend.test\sto\sonly\scare\sabout\sthe\sfirst\s40\schars\sof\suuid\svalues.
-D 2017-03-15T06:25:28.432
+C Enhance\sthe\s/file/NAME\spage\sso\sthat\sit\sshows\sdirectory\slistings\sif\sthe\sNAME\nargument\sis\sa\sdirectory\sinstead\sof\sa\sfile.\s\sIf\sNAME\sis\somitted,\sit\sshows\nall\sthe\sfiles\sat\sthe\stop-level.
+D 2017-03-15T15:43:14.881
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -434,7 +434,7 @@ F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d98
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c 1c8c9a6f994826b2a129847aa7b652a55a771c99
-F src/info.c 41b0b0c411516623b09a22a5252b7914786bd7f7
+F src/info.c f76de2b40662916b7b557e40da1ccaaeb2b1c3097e34e7dac491e62f574f6bb7
 F src/json.c cc8d06a2d208ad0092d6d68ef5b7ac9a7e05708b3271c5cfd1da890f97322642
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c 7c7e2c63fd1cac2ca85aa657a7ae04d91a1bdc08
@@ -782,7 +782,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2accaaeeadd34cb600ce0a0dbed1a6beb105de89909e126cc008becc6a03bdbf
-R ced437d140dedb62641a4d863d298fd3
-U rberteig
-Z 4b853f7b5a25bd1e061d4d21d93bc796
+P 3537c75cc3c9bdc018a9209dcd2a1c98c8baea3b93438c9f6d9ebb5d6b9c7c1e
+R f4251cbcf957fbdfe287e1e3b06d959a
+U drh
+Z f917915d2113d3c986e1f65c1285efd3
