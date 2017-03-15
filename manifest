@@ -1,5 +1,5 @@
-C Enhance\sthe\s/file/NAME\spage\sso\sthat\sit\sshows\sdirectory\slistings\sif\sthe\sNAME\nargument\sis\sa\sdirectory\sinstead\sof\sa\sfile.\s\sIf\sNAME\sis\somitted,\sit\sshows\nall\sthe\sfiles\sat\sthe\stop-level.
-D 2017-03-15T15:43:14.881
+C If\sa\sdirectory\slisting\s(from\s/file\sor\s/dir\sor\s/tree)\scontains\sa\sREADME\sfile,\nthen\srender\sthe\scontent\sof\sthat\sREADME\sbeneath\sthe\sdirectory\slisting.\nExample:\s[/file/skins]
+D 2017-03-15T17:27:42.499
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -390,7 +390,7 @@ F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c 141d4f5494ed6d1a9ef9e5c6927dd2c2b42e00f1
 F src/branch.c d68826ae16d6a89ea3126ab583577fb5f09de23b
-F src/browse.c 66fcfac15ba6bd948bf8018da73bf8ea423681e8
+F src/browse.c 1f72df0e1a7a7dffa2e7e7dc9b0b5270252132dfb07dc30bfaf3f16c265ec9ad
 F src/builtin.c d147d04305aa0db964ec84ef049e8e88d134de87
 F src/bundle.c c4b92c14df3e1aeebdeaf02d23a0ecaea462f8b5
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
@@ -782,7 +782,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3537c75cc3c9bdc018a9209dcd2a1c98c8baea3b93438c9f6d9ebb5d6b9c7c1e
-R f4251cbcf957fbdfe287e1e3b06d959a
+P 9f3bad83de7eca0bb64f8629655709cbd04a8d1a0065e4d8f948f27c5b6c6862
+R 97eb993363552b3cb21ec2a607ac6381
 U drh
-Z f917915d2113d3c986e1f65c1285efd3
+Z 2ff6bd2484bc5da7f218321eebc026b8
