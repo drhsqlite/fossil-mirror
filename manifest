@@ -1,5 +1,5 @@
-C Added\smissing\sreference\sto\sthe\s-json-input\sflag\sfor\sthe\sjson\scommand.
-D 2017-03-15T00:41:38.308
+C Fixed\samend.test\sto\sonly\scare\sabout\sthe\sfirst\s40\schars\sof\suuid\svalues.
+D 2017-03-15T06:25:28.432
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -536,7 +536,7 @@ F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 34f51a1acd869bfa063fafab28decfab34cb2a1a
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
-F test/amend.test 8b4d19eee86dbae0e41090e582fe202a70a5503b9082dc305753b01875f67867
+F test/amend.test 83966725550e04f80c40a52012074f91ef6d22cbd57f51e17e931eccee6663e0
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
 F test/cmdline.test df50383ebf00e7a444e29f2f755867f843c37df7
 F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
@@ -782,7 +782,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fd928b6ef9a3f9686ae403c1131005c1f04790e8bc83c75a912528185fe70e26
-R 806df96c5360b3c0d449e44d31ca4396
-U stephan
-Z 3f5f7a3d4c154be741d6678c1514cf40
+P 2accaaeeadd34cb600ce0a0dbed1a6beb105de89909e126cc008becc6a03bdbf
+R ced437d140dedb62641a4d863d298fd3
+U rberteig
+Z 4b853f7b5a25bd1e061d4d21d93bc796
