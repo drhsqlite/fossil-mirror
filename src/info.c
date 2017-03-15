@@ -1899,14 +1899,18 @@ void artifact_page(void){
       );
       /* If no file called NAME exists, instead look for a directory
       ** with that name, and do a directory listing */
-      if( rid==0 && db_exists(
-         "SELECT 1 FROM filename"
-         " WHERE name GLOB '%q/*' AND substr(name,1,length(%Q)+1)=='%q/';",
-         zName, zName, zName
-      ) ){
-        if( P("ci")==0 ) cgi_set_query_parameter("ci","tip");
-        page_tree();
-        return;
+      if( rid==0 ){
+        int nName = (int)strlen(zName);
+        if( nName && zName[nName-1]=='/' ) nName--;
+        if( db_exists(
+           "SELECT 1 FROM filename"
+           " WHERE name GLOB '%.*q/*' AND substr(name,1,%d)=='%.*q/';",
+           nName, zName, nName+1, nName, zName
+        ) ){
+          if( P("ci")==0 ) cgi_set_query_parameter("ci","tip");
+          page_tree();
+          return;
+        }
       }
       /* If no file or directory called NAME: issue an error */
       if( rid==0 ){

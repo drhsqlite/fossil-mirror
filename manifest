@@ -1,5 +1,5 @@
-C Add\sthe\s"[history]"\slink\son\sthe\s/dir\spage\sfor\ssubdirectories.
-D 2017-03-15T19:06:34.443
+C Ignore\sa\strailing\s"/"\son\sthe\sname=\squery\sparameter\sfor\s/file\swhen\sshowing\na\sdirectory\slisting.
+D 2017-03-15T19:50:24.806
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -434,7 +434,7 @@ F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d98
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c 1c8c9a6f994826b2a129847aa7b652a55a771c99
-F src/info.c f76de2b40662916b7b557e40da1ccaaeb2b1c3097e34e7dac491e62f574f6bb7
+F src/info.c 9bea9b309e265ac126d26acbbe17735af02c9c62a1f06efa173c55f2c607c645
 F src/json.c cc8d06a2d208ad0092d6d68ef5b7ac9a7e05708b3271c5cfd1da890f97322642
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c 7c7e2c63fd1cac2ca85aa657a7ae04d91a1bdc08
@@ -782,8 +782,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ece33ee1b6dd14e1cbb79815fee52addc4964a6f7b8d1aed73095f1a6448abbb ad9d418cbb1dd7b8245bfe9330f1df096a8efbf839e95c6f444b4a455ae202c3
-R 5201c0a0b9736b57b7627a2ecc4620bf
-T +closed ad9d418cbb1dd7b8245bfe9330f1df096a8efbf839e95c6f444b4a455ae202c3
+P 6a01228fe1eb0a2895866ef00806058a51c1e5c26b806c935bc1480fc6bbc150
+R 7ee6e2c4d256edb11347ac13547e23e0
 U drh
-Z efbc600e69de1bb40c6915213db1196e
+Z 59ada9e5244279afd919923df476efda
