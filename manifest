@@ -1,5 +1,5 @@
-C Remove\san\sunused\svariable\sfrom\sthe\s/dir\swebpage\simplementation.
-D 2017-03-15T23:53:20.574
+C Mark\sthe\sfailing\stest\spre-commit-warnings-1\sas\sa\sknownBug.\sTODO:\sWrite\sa\smore\sstable\stest\scase.
+D 2017-03-15T23:54:50.862
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -540,7 +540,7 @@ F test/amend.test 83966725550e04f80c40a52012074f91ef6d22cbd57f51e17e931eccee6663
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
 F test/cmdline.test df50383ebf00e7a444e29f2f755867f843c37df7
 F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
-F test/commit-warning.test 1b94adc5f490ade07cd9fc3ba35c94c77ac61819
+F test/commit-warning.test db2c8a64d3796e1e8d01455aafcca3d3bcb7d57a5f30c18b602f2c1cd75e98c4
 F test/contains-selector.test cf46a39b3c1ff72d2fc674f4ccbeecfb94add7d2
 F test/delta1.test c3ea182ab06554a35203285774606ba37fdc620d
 F test/diff-test-1.wiki c25f312aa20a97b7127e8047f60fe67cc35319e5
@@ -784,7 +784,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 34d9bddf8d93f5f2fdf9ff2eaf1ce397eedd925db273ed75eb24ceb3a018c8eb
-R 6d12753a203f86941e86015d89b8d62a
-U drh
-Z edff699eb63719da3b3c92b3ffd7228e
+P d1f9f4c84ddcadc5aec4c72f718d33f6d0493de262f04abea35a0d4e512c4eab
+R da4cd3854c89fe0ebb6f8b8c5e1f8ff5
+U rberteig
+Z 790703bfcd28c72d01b3cf23f3a4b3c3
