@@ -1,5 +1,5 @@
-C (cherry-pick):\sHave\sFossil\suse\sthe\snew\s"PRAGMA\soptimize"\sfeature\sof\sSQLite\s3.18.0\salpha.\sUse\slatest\sSQLite\sCLI\senhancements.
-D 2017-03-15T14:30:00.000
+C (cherry-pick):\sOn\sthe\s/tarball\sand\s/zip\spages,\suse\sr=\sas\sthe\squery\sparameter\sto\sselect\swhich\scheck-in\sto\sdownload.\s\sThe\suuid=\squery\sparameter\sis\sstill\saccepted\sas\san\salias\sfor\sbackwards\scompatibility.
+D 2017-03-15T19:04:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -435,7 +435,7 @@ F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d9
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c 1c8c9a6f994826b2a129847aa7b652a55a771c99
 F src/info.c 41b0b0c411516623b09a22a5252b7914786bd7f7
-F src/json.c f5b7fdcda3a1896153974769be00bae833bc476b
+F src/json.c cc8d06a2d208ad0092d6d68ef5b7ac9a7e05708b3271c5cfd1da890f97322642
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c 7c7e2c63fd1cac2ca85aa657a7ae04d91a1bdc08
 F src/json_config.c f53fa14ab92730d30be35311b52a17848eeabe44
@@ -506,7 +506,7 @@ F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
 F src/style.c cf9edbf403e1df8e094e8a1d44d5dd9516046678
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 46fdc5d0e7c8d60bedae8ef4227692587813bc7f
-F src/tar.c 7d2471e3ae0f6234ed1d5bb59f6e79151d9fa565
+F src/tar.c 17b09ed44d15326d5f19413b5e1c2b985d5b77f21c3bdd898bb263229c46c14b
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
@@ -533,7 +533,7 @@ F src/winhttp.c a3970bdc0b05426cadadb1a62cd378e10f124062
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 2aa129b0237419bcde414e449472150bdecfb8be
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
-F src/zip.c 34f51a1acd869bfa063fafab28decfab34cb2a1a
+F src/zip.c 12c010669a95d634a2047b28e3e969add361ed2cbca7672232f8b05813fcff79
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test b298d36e7b996220c0bff697d6b229645dd43f8f
@@ -782,8 +782,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1c23cca8c9c0acefdcb0ab5ccceda0294296d012a36b8b2e12a1d5dbbcea927b
-Q +7815d015f3b5a663cdbfd140b0573f94c3aed1ea79a3344413c0986067b30b45
-R 151931337fb1a35900d6773568bcad85
+P d123620ee3e23aa0bf83016b2bf210413d492792764da794472ae53b9bf01aa8
+Q +ece33ee1b6dd14e1cbb79815fee52addc4964a6f7b8d1aed73095f1a6448abbb
+R 6f9b135dfc36b9147a6f54f5d2983169
 U jan.nijtmans
-Z 52fef52cfa3f686e3b333d817d2d2963
+Z cc54598864142a194de3d1eaedad9fa8
