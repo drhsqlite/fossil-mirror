@@ -854,7 +854,7 @@ int login_wants_https_redirect(void){
 ** Attempt to use Basic Authentication to establish the user.  Return the
 ** (non-zero) uid if successful.  Return 0 if it does not work.
 */
-static logic_basic_authentication(const char *zIpAddr){
+static int logic_basic_authentication(const char *zIpAddr){
   const char *zAuth = PD("HTTP_AUTHORIZATION", 0);
   int i;
   int uid = 0;
