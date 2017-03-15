@@ -135,7 +135,6 @@ void page_dir(void){
   const char *zSubdirLink;
   int linkTrunk = 1;
   int linkTip = 1;
-  char *zReadme;
   HQuery sURI;
 
   if( strcmp(PD("type","flat"),"tree")==0 ){ page_tree(); return; }

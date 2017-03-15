@@ -1,5 +1,5 @@
-C Create\stwo\snew\sREADME\sfiles\sunder\stest/subdir/\sfor\stesting\spurposes.
-D 2017-03-15T23:31:01.080
+C Remove\san\sunused\svariable\sfrom\sthe\s/dir\swebpage\simplementation.
+D 2017-03-15T23:53:20.574
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -390,7 +390,7 @@ F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c 141d4f5494ed6d1a9ef9e5c6927dd2c2b42e00f1
 F src/branch.c d68826ae16d6a89ea3126ab583577fb5f09de23b
-F src/browse.c 2206c61a608165653fd4b2bd0b3ba4ae1cad4d6ebdd4346e28c96439239199ef
+F src/browse.c aef7b06df1ef1c19340cf88d477281d797586dd34bc851238b20b1201e5bd763
 F src/builtin.c d147d04305aa0db964ec84ef049e8e88d134de87
 F src/bundle.c c4b92c14df3e1aeebdeaf02d23a0ecaea462f8b5
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
@@ -784,7 +784,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a9c4b3c4b441e4e8c52e695372ab7406692e0198bd58b822ea60a56b9b36dcda
-R 8b2f96fcdbbd1fda1152f8c70e80ee61
+P 34d9bddf8d93f5f2fdf9ff2eaf1ce397eedd925db273ed75eb24ceb3a018c8eb
+R 6d12753a203f86941e86015d89b8d62a
 U drh
-Z 5dedd1c1e139ea915541310fa06e1cf4
+Z edff699eb63719da3b3c92b3ffd7228e
