@@ -54,6 +54,7 @@ SRC = \
   $(SRCDIR)/glob.c \
   $(SRCDIR)/graph.c \
   $(SRCDIR)/gzip.c \
+  $(SRCDIR)/hname.c \
   $(SRCDIR)/http.c \
   $(SRCDIR)/http_socket.c \
   $(SRCDIR)/http_ssl.c \
@@ -104,6 +105,8 @@ SRC = \
   $(SRCDIR)/search.c \
   $(SRCDIR)/setup.c \
   $(SRCDIR)/sha1.c \
+  $(SRCDIR)/sha1hard.c \
+  $(SRCDIR)/sha3.c \
   $(SRCDIR)/shun.c \
   $(SRCDIR)/sitemap.c \
   $(SRCDIR)/skins.c \
@@ -229,6 +232,7 @@ TRANS_SRC = \
   $(OBJDIR)/glob_.c \
   $(OBJDIR)/graph_.c \
   $(OBJDIR)/gzip_.c \
+  $(OBJDIR)/hname_.c \
   $(OBJDIR)/http_.c \
   $(OBJDIR)/http_socket_.c \
   $(OBJDIR)/http_ssl_.c \
@@ -279,6 +283,8 @@ TRANS_SRC = \
   $(OBJDIR)/search_.c \
   $(OBJDIR)/setup_.c \
   $(OBJDIR)/sha1_.c \
+  $(OBJDIR)/sha1hard_.c \
+  $(OBJDIR)/sha3_.c \
   $(OBJDIR)/shun_.c \
   $(OBJDIR)/sitemap_.c \
   $(OBJDIR)/skins_.c \
@@ -353,6 +359,7 @@ OBJ = \
  $(OBJDIR)/glob.o \
  $(OBJDIR)/graph.o \
  $(OBJDIR)/gzip.o \
+ $(OBJDIR)/hname.o \
  $(OBJDIR)/http.o \
  $(OBJDIR)/http_socket.o \
  $(OBJDIR)/http_ssl.o \
@@ -403,6 +410,8 @@ OBJ = \
  $(OBJDIR)/search.o \
  $(OBJDIR)/setup.o \
  $(OBJDIR)/sha1.o \
+ $(OBJDIR)/sha1hard.o \
+ $(OBJDIR)/sha3.o \
  $(OBJDIR)/shun.o \
  $(OBJDIR)/sitemap.o \
  $(OBJDIR)/skins.o \
@@ -638,6 +647,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/glob_.c:$(OBJDIR)/glob.h \
 	$(OBJDIR)/graph_.c:$(OBJDIR)/graph.h \
 	$(OBJDIR)/gzip_.c:$(OBJDIR)/gzip.h \
+	$(OBJDIR)/hname_.c:$(OBJDIR)/hname.h \
 	$(OBJDIR)/http_.c:$(OBJDIR)/http.h \
 	$(OBJDIR)/http_socket_.c:$(OBJDIR)/http_socket.h \
 	$(OBJDIR)/http_ssl_.c:$(OBJDIR)/http_ssl.h \
@@ -688,6 +698,8 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/search_.c:$(OBJDIR)/search.h \
 	$(OBJDIR)/setup_.c:$(OBJDIR)/setup.h \
 	$(OBJDIR)/sha1_.c:$(OBJDIR)/sha1.h \
+	$(OBJDIR)/sha1hard_.c:$(OBJDIR)/sha1hard.h \
+	$(OBJDIR)/sha3_.c:$(OBJDIR)/sha3.h \
 	$(OBJDIR)/shun_.c:$(OBJDIR)/shun.h \
 	$(OBJDIR)/sitemap_.c:$(OBJDIR)/sitemap.h \
 	$(OBJDIR)/skins_.c:$(OBJDIR)/skins.h \
@@ -1039,6 +1051,14 @@ $(OBJDIR)/gzip.o:	$(OBJDIR)/gzip_.c $(OBJDIR)/gzip.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/gzip.o -c $(OBJDIR)/gzip_.c
 
 $(OBJDIR)/gzip.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/hname_.c:	$(SRCDIR)/hname.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/hname.c >$@
+
+$(OBJDIR)/hname.o:	$(OBJDIR)/hname_.c $(OBJDIR)/hname.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/hname.o -c $(OBJDIR)/hname_.c
+
+$(OBJDIR)/hname.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/http_.c:	$(SRCDIR)/http.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/http.c >$@
@@ -1439,6 +1459,22 @@ $(OBJDIR)/sha1.o:	$(OBJDIR)/sha1_.c $(OBJDIR)/sha1.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/sha1.o -c $(OBJDIR)/sha1_.c
 
 $(OBJDIR)/sha1.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/sha1hard_.c:	$(SRCDIR)/sha1hard.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/sha1hard.c >$@
+
+$(OBJDIR)/sha1hard.o:	$(OBJDIR)/sha1hard_.c $(OBJDIR)/sha1hard.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/sha1hard.o -c $(OBJDIR)/sha1hard_.c
+
+$(OBJDIR)/sha1hard.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/sha3_.c:	$(SRCDIR)/sha3.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/sha3.c >$@
+
+$(OBJDIR)/sha3.o:	$(OBJDIR)/sha3_.c $(OBJDIR)/sha3.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/sha3.o -c $(OBJDIR)/sha3_.c
+
+$(OBJDIR)/sha3.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/shun_.c:	$(SRCDIR)/shun.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/shun.c >$@

@@ -234,14 +234,15 @@ version control<br>such as Git, Mercurial, or Subversion.</b></p>
 <li><p><b>Why version control is important (reprise)</b>
   <ol type="A">
   <li><p>Every check-in and every individual file has a unique name - its
-      SHA1 hash.   Team members can unambiguously identify any specific
+      SHA1 or SHA3-256 hash.  Team members can unambiguously identify
+      any specific
       version of the overall project or any specific version of an
       individual file.
   <li><p>Any historical version of the whole project or of any individual
       file can be easily recreated at any time and by any team member.
   <li><p>Accidental changes to files can be detected by recomputing their
-      SHA1 hash.
-  <li><p>Files of unknown origin can be identified using their SHA1 hash.
+      cryptographic hash.
+  <li><p>Files of unknown origin can be identified using their hash.
   <li><p>Developers are able to work in parallel, review each others work,
       and easily merge their changes together.  External revisions to
       the baseline can be easily incorporated into the latest changes.

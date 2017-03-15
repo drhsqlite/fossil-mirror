@@ -12,10 +12,10 @@ Figure 1
 
 Each circle represents a check-in.  For the sake of clarity, the check-ins
 are given small consecutive numbers.  In a real system, of course, the
-check-in numbers would be 40-character SHA1 hashes since it is not possible
+check-in numbers would be long hexadecimal hashes since it is not possible
 to allocate collision-free sequential numbers in a distributed system.
 But as sequential numbers are easier to read, we will substitute them for
-the 40-character SHA1 hashes in this document.
+the long hashes in this document.
 
 The arrows in figure 1 show the evolution of a project.  The initial
 check-in is 1.  Check-in 2 is derived from 1.  In other words, check-in 2
@@ -195,7 +195,7 @@ tells (by its value)  what branch the check-in is a member of.
 The default branch is called "trunk."  All tags that begin with "<b>sym-</b>"
 are symbolic name tags.  When a symbolic name tag is attached to a
 check-in, that allows you to refer to that check-in by its symbolic
-name rather than by its 40-character SHA1 hash name.  When a symbolic name
+name rather than by its hexadecimal hash name.  When a symbolic name
 tag propagates (as does the <b>sym-trunk</b> tag) then referring to that
 name is the same as referring to the most recent check-in with that name.
 Thus the two tags on check-in 1 cause all descendants to be in the

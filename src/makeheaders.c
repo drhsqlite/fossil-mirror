@@ -1019,7 +1019,10 @@ static int GetNonspaceToken(InStream *pIn, Token *pToken){
        pToken->eType!=TT_Space ? pToken->zText : "<space>"); */
     pToken->pComment = blockComment;
     switch( pToken->eType ){
-      case TT_Comment:
+      case TT_Comment:          /*0123456789 12345678 */
+       if( strncmp(pToken->zText, "/*MAKEHEADERS-STOP", 18)==0 ) return nErr;
+       break;
+
       case TT_Space:
         break;
 
@@ -2183,6 +2186,8 @@ static int ParsePreprocessor(Token *pToken, int flags, int *pPresetFlags){
     }else if( nArg==16 && strncmp(zArg,"EXPORT_INTERFACE",16)==0 ){
       PushIfMacro(0,0,0,pToken->nLine,PS_Export);
     }else if( nArg==15 && strncmp(zArg,"LOCAL_INTERFACE",15)==0 ){
+      PushIfMacro(0,0,0,pToken->nLine,PS_Local);
+    }else if( nArg==15 && strncmp(zArg,"MAKEHEADERS_STOPLOCAL_INTERFACE",15)==0 ){
       PushIfMacro(0,0,0,pToken->nLine,PS_Local);
     }else{
       PushIfMacro(0,zArg,nArg,pToken->nLine,0);

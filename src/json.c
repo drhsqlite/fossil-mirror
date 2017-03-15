@@ -2252,6 +2252,11 @@ void json_page_top(void){
 ** in the argument dispatching code, any -FLAGS must come after the final
 ** sub- (or subsub-) command.
 **
+** The -json-input FILE option can be used to read JSON data and process
+** it like the HTTP interface would. For example:
+**
+**   %fossil json -json-input my.json
+**
 ** The commands include:
 **
 **   anonymousPassword

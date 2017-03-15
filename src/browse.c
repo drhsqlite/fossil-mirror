@@ -135,6 +135,7 @@ void page_dir(void){
   const char *zSubdirLink;
   int linkTrunk = 1;
   int linkTip = 1;
+  char *zReadme;
   HQuery sURI;
 
   if( strcmp(PD("type","flat"),"tree")==0 ){ page_tree(); return; }
@@ -301,6 +302,62 @@ void page_dir(void){
   db_finalize(&q);
   manifest_destroy(pM);
   @ </ul></td></tr></table>
+
+  /* If the directory contains a readme file, then display its content below
+  ** the list of files
+  */
+  db_prepare(&q,
+    "SELECT x, u FROM localfiles"
+    " WHERE x COLLATE nocase IN"
+    " ('readme','readme.txt','readme.md','readme.wiki','readme.markdown',"
+    " 'readme.html') ORDER BY x LIMIT 1;"
+  );
+  if( db_step(&q)==SQLITE_ROW ){
+    const char *zName = db_column_text(&q,0);
+    const char *zUuid = db_column_text(&q,1);
+    if( zUuid ){
+      rid = fast_uuid_to_rid(zUuid);
+    }else{
+      if( zD ){
+        rid = db_int(0,
+           "SELECT fid FROM filename, mlink, event"
+           " WHERE name='%q/%q'"
+           "   AND mlink.fnid=filename.fnid"
+           "   AND event.objid=mlink.mid"
+           " ORDER BY event.mtime DESC LIMIT 1",
+           zD, zName
+        );
+      }else{
+        rid = db_int(0,
+           "SELECT fid FROM filename, mlink, event"
+           " WHERE name='%q'"
+           "   AND mlink.fnid=filename.fnid"
+           "   AND event.objid=mlink.mid"
+           " ORDER BY event.mtime DESC LIMIT 1",
+           zName
+        );
+      }
+    }
+    if( rid ){
+      @ <hr>
+      if( sqlite3_strlike("readme.html", zName, 0)==0 ){
+        if( zUuid==0 ){
+          zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+        }
+        @ <iframe src="%R/raw/%s(zUuid)"
+        @ width="100%%" frameborder="0" marginwidth="0" marginheight="0"
+        @ sandbox="allow-same-origin"
+        @ onload="this.height=this.contentDocument.documentElement.scrollHeight;">
+        @ </iframe>
+      }else{
+        Blob content;
+        const char *zMime = mimetype_from_name(zName);
+        content_get(rid, &content);
+        wiki_render_by_mimetype(&content, zMime);
+      }
+    }
+  }
+  db_finalize(&q);
   style_footer();
 }
 
@@ -321,7 +378,7 @@ struct FileTreeNode {
   FileTreeNode *pLastChild; /* Last child on the pChild list */
   char *zName;              /* Name of this entry.  The "tail" */
   char *zFullName;          /* Full pathname of this entry */
-  char *zUuid;              /* SHA1 hash of this file.  May be NULL. */
+  char *zUuid;              /* Artifact hash of this file.  May be NULL. */
   double mtime;             /* Modification time for this entry */
   unsigned nFullName;       /* Length of zFullName */
   unsigned iLevel;          /* Levels of parent directories */
@@ -351,7 +408,7 @@ struct FileTree {
 static void tree_add_node(
   FileTree *pTree,         /* Tree into which nodes are added */
   const char *zPath,       /* The full pathname of file to add */
-  const char *zUuid,       /* UUID of the file.  Might be NULL. */
+  const char *zUuid,       /* Hash of the file.  Might be NULL. */
   double mtime             /* Modification time for this entry */
 ){
   int i;
@@ -374,7 +431,7 @@ static void tree_add_node(
     int nByte;
     while( zPath[i] && zPath[i]!='/' ){ i++; }
     nByte = sizeof(*pNew) + i + 1;
-    if( zUuid!=0 && zPath[i]==0 ) nByte += UUID_SIZE+1;
+    if( zUuid!=0 && zPath[i]==0 ) nByte += HNAME_MAX+1;
     pNew = fossil_malloc( nByte );
     memset(pNew, 0, sizeof(*pNew));
     pNew->zFullName = (char*)&pNew[1];
@@ -383,7 +440,7 @@ static void tree_add_node(
     pNew->nFullName = i;
     if( zUuid!=0 && zPath[i]==0 ){
       pNew->zUuid = pNew->zFullName + i + 1;
-      memcpy(pNew->zUuid, zUuid, UUID_SIZE+1);
+      memcpy(pNew->zUuid, zUuid, strlen(zUuid)+1);
     }
     pNew->zName = pNew->zFullName + iStart;
     if( pTree->pLast ){

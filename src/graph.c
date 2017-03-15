@@ -181,7 +181,7 @@ int graph_add_row(
   int *aParent,        /* Array of parents */
   const char *zBranch, /* Branch for this check-in */
   const char *zBgClr,  /* Background color. NULL or "" for white. */
-  const char *zUuid,   /* SHA1 hash of the object being graphed */
+  const char *zUuid,   /* hash name of the object being graphed */
   int isLeaf           /* True if this row is a leaf */
 ){
   GraphRow *pRow;

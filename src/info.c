@@ -70,7 +70,7 @@ void show_common_info(
       rid
     );
          /* 01234567890123 */
-    fossil_print("%-13s %s %s\n", zUuidName, zUuid, zDate ? zDate : "");
+    fossil_print("%-13s %.40s %s\n", zUuidName, zUuid, zDate ? zDate : "");
     free(zDate);
     if( showComment ){
       zComment = db_text(0,
@@ -93,7 +93,7 @@ void show_common_info(
         "SELECT datetime(mtime) || ' UTC' FROM event WHERE objid=%d",
         db_column_int(&q, 1)
       );
-      fossil_print("%-13s %s %s\n", zType, zUuid, zDate);
+      fossil_print("%-13s %.40s %s\n", zType, zUuid, zDate);
       free(zDate);
     }
     db_finalize(&q);
@@ -107,7 +107,7 @@ void show_common_info(
         "SELECT datetime(mtime) || ' UTC' FROM event WHERE objid=%d",
         db_column_int(&q, 1)
       );
-      fossil_print("%-13s %s %s\n", zType, zUuid, zDate);
+      fossil_print("%-13s %.40s %s\n", zType, zUuid, zDate);
       free(zDate);
     }
     db_finalize(&q);
@@ -574,6 +574,7 @@ void ci_page(void){
   sideBySide = !is_false(PD("sbs","1"));
   if( db_step(&q1)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q1, 0);
+    int nUuid = db_column_bytes(&q1, 0);
     char *zEUser, *zEComment;
     const char *zUser;
     const char *zComment;
@@ -595,7 +596,7 @@ void ci_page(void){
     zOrigDate = db_column_text(&q1, 4);
     @ <div class="section">Overview</div>
     @ <table class="label-value">
-    @ <tr><th>SHA1&nbsp;Hash:</th><td>%s(zUuid)
+    @ <tr><th>%s(hname_alg(nUuid)):</th><td>%s(zUuid)
     if( g.perm.Setup ){
       @ (Record ID: %d(rid))
     }
@@ -1387,6 +1388,7 @@ int object_description(
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTarget = db_column_text(&q, 0);
+    int nTarget = db_column_bytes(&q, 0);
     const char *zFilename = db_column_text(&q, 1);
     const char *zDate = db_column_text(&q, 2);
     const char *zUser = db_column_text(&q, 3);
@@ -1397,7 +1399,7 @@ int object_description(
       @ Attachment "%h(zFilename)" to
     }
     objType |= OBJTYPE_ATTACHMENT;
-    if( strlen(zTarget)==UUID_SIZE && validate16(zTarget,UUID_SIZE) ){
+    if( nTarget==UUID_SIZE && validate16(zTarget,UUID_SIZE) ){
       if ( db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'",
             zTarget)
       ){
@@ -1833,8 +1835,8 @@ void output_text_with_line_numbers(
 **
 ** Typical usage:
 **
-**    /artifact/SHA1HASH
-**    /whatis/SHA1HASH
+**    /artifact/HASH
+**    /whatis/HASH
 **    /file/NAME
 **
 ** Additional query parameters:
@@ -1851,9 +1853,11 @@ void output_text_with_line_numbers(
 **   ci=VERSION      - The specific check-in to use for "filename=".
 **
 ** The /artifact page show the complete content of a file
-** identified by SHA1HASH as preformatted text.  The
+** identified by HASH as preformatted text.  The
 ** /whatis page shows only a description of the file.  The /file
-** page shows the most recent version of the named file.
+** page shows the most recent version of the file or directory
+** called NAME, or a list of the top-level directory if NAME is
+** omitted.
 */
 void artifact_page(void){
   int rid = 0;
@@ -1877,7 +1881,14 @@ void artifact_page(void){
   if( rid==0 ){
     url_add_parameter(&url, "name", zName);
     if( isFile ){
-      if( zName==0 ) zName = "";
+      /* Do a top-level directory listing in /file mode if no argument
+      ** specified */
+      if( zName==0 || zName[0]==0 ){
+        if( P("ci")==0 ) cgi_set_query_parameter("ci","tip");
+        page_tree();
+        return;
+      }
+      /* Look for a single file with the given name */
       rid = db_int(0,
          "SELECT fid FROM filename, mlink, event"
          " WHERE name=%Q"
@@ -1886,6 +1897,18 @@ void artifact_page(void){
          " ORDER BY event.mtime DESC LIMIT 1",
          zName
       );
+      /* If no file called NAME exists, instead look for a directory
+      ** with that name, and do a directory listing */
+      if( rid==0 && db_exists(
+         "SELECT 1 FROM filename"
+         " WHERE name GLOB '%q/*' AND substr(name,1,length(%Q)+1)=='%q/';",
+         zName, zName, zName
+      ) ){
+        if( P("ci")==0 ) cgi_set_query_parameter("ci","tip");
+        page_tree();
+        return;
+      }
+      /* If no file or directory called NAME: issue an error */
       if( rid==0 ){
         style_header("No such file");
         @ File '%h(zName)' does not exist in this repository.

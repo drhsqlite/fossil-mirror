@@ -151,14 +151,14 @@ static void import_reset(int freeAll){
 static int fast_insert_content(
   Blob *pContent,          /* Content to insert */
   const char *zMark,       /* Label using this mark, if not NULL */
-  int saveUuid,            /* Save SHA1 hash in gg.zPrevCheckin */
+  int saveUuid,            /* Save artifact hash in gg.zPrevCheckin */
   int doParse              /* Invoke manifest_crosslink() */
 ){
   Blob hash;
   Blob cmpr;
   int rid;
 
-  sha1sum_blob(pContent, &hash);
+  hname_hash(pContent, 0, &hash);
   rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%B", &hash);
   if( rid==0 ){
     static Stmt ins;
@@ -1654,7 +1654,7 @@ void import_cmd(void){
     unsigned nIgnTree = 0;
     while( (zIgnTree = find_option("ignore-tree", 0, 1)) ){
       if ( *zIgnTree ){
-        gsvn.azIgnTree = fossil_realloc(gsvn.azIgnTree,
+        gsvn.azIgnTree = fossil_realloc((void *)gsvn.azIgnTree,
             sizeof(*gsvn.azIgnTree) * (nIgnTree + 2));
         gsvn.azIgnTree[nIgnTree++] = zIgnTree;
         gsvn.azIgnTree[nIgnTree] = 0;

@@ -8,8 +8,8 @@ A Technical Overview<br>Of The Design And Implementation<br>Of Fossil
 At its lowest level, a Fossil repository consists of an unordered set
 of immutable "artifacts".  You might think of these artifacts as "files",
 since in many cases the artifacts are exactly that.
-But other "control artifacts"
-are also included in the mix.  These control artifacts define the relationships
+But other "structural artifacts" are also included in the mix.
+These structural artifacts define the relationships
 between artifacts - which files go together to form a particular
 version of the project, who checked in that version and when, what was
 the check-in comment, what wiki pages are included with the project, what
@@ -175,7 +175,8 @@ command. Individual artifacts can be extracted using the
 [/help/artifact | fossil artifact] command.
 When accessing the repository database using raw SQL and the
 [/help/sqlite3 | fossil sql] command, the extension function
-"<tt>content()</tt>" with a single argument which is the SHA1 hash
+"<tt>content()</tt>" with a single argument which is the SHA1 or
+SHA3-256 hash
 of an artifact will return the complete undeleted and uncompressed
 content of that artifact.
 
@@ -280,7 +281,7 @@ new artifacts can be added but artifacts can never be removed.  But
 it sometimes happens that inappropriate content is mistakenly or
 maliciously added to a repository.  The only way to get rid of
 the undesired content is to [./shunning.wiki | "shun"] it.
-The "shun" table in the repository database records the SHA1 hash of
+The "shun" table in the repository database records the hash values for
 all shunned artifacts.
 
 The shun table can be pushed or pulled using

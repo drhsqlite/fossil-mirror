@@ -78,7 +78,7 @@ void stat_page(void){
     style_submenu_element("Web-Cache", "cachestat");
   }
   style_submenu_element("Activity Reports", "reports");
-  style_submenu_element("SHA1 Collisions", "hash-collisions");
+  style_submenu_element("Hash Collisions", "hash-collisions");
   if( sqlite3_compileoption_used("ENABLE_DBSTAT_VTAB") ){
     style_submenu_element("Table Sizes", "repo-tabsize");
   }
@@ -185,7 +185,12 @@ void stat_page(void){
   @ <tr><th>SQLite&nbsp;Version:</th><td>%.19s(sqlite3_sourceid())
   @ [%.10s(&sqlite3_sourceid()[20])] (%s(sqlite3_libversion()))
   @ <a href='version?verbose=2'>(details)</a></td></tr>
-  @ <tr><th>Schema&nbsp;Version:</th><td>%h(g.zAuxSchema)</td></tr>
+  if( g.eHashPolicy!=HPOLICY_AUTO ){
+    @ <tr><th>Schema&nbsp;Version:</th><td>%h(g.zAuxSchema),
+    @ %s(hpolicy_name())</td></tr>
+  }else{
+    @ <tr><th>Schema&nbsp;Version:</th><td>%h(g.zAuxSchema)</td></tr>
+  }
   @ <tr><th>Repository Rebuilt:</th><td>
   @ %h(db_get_mtime("rebuilt","%Y-%m-%d %H:%M:%S","Never"))
   @ By Fossil %h(db_get("rebuilt","Unknown"))</td></tr>
@@ -385,6 +390,8 @@ void urllist_page(void){
 */
 void repo_schema_page(void){
   Stmt q;
+  Blob sql;
+  const char *zArg = P("n");
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(0); return; }
 
@@ -395,14 +402,74 @@ void repo_schema_page(void){
   if( sqlite3_compileoption_used("ENABLE_DBSTAT_VTAB") ){
     style_submenu_element("Table Sizes", "repo-tabsize");
   }
-  db_prepare(&q,
-      "SELECT sql FROM repository.sqlite_master WHERE sql IS NOT NULL");
+  blob_init(&sql,
+    "SELECT sql FROM repository.sqlite_master WHERE sql IS NOT NULL", -1);
+  if( zArg ){
+    style_submenu_element("All", "repo_schema");
+    blob_appendf(&sql, " AND (tbl_name=%Q OR name=%Q)", zArg, zArg);
+  }
+  blob_appendf(&sql, " ORDER BY tbl_name, type<>'table', name");
+  db_prepare(&q, "%s", blob_str(&sql)/*safe-for-%s*/);
+  blob_reset(&sql);
   @ <pre>
   while( db_step(&q)==SQLITE_ROW ){
     @ %h(db_column_text(&q, 0));
   }
   @ </pre>
   db_finalize(&q);
+  if( db_table_exists("repository","sqlite_stat1") ){
+    if( zArg ){
+      db_prepare(&q,
+        "SELECT tbl, idx, stat FROM repository.sqlite_stat1"
+        " WHERE tbl LIKE %Q OR idx LIKE %Q"
+        " ORDER BY tbl, idx", zArg, zArg);
+
+      @ <hr>
+      @ <pre>
+      while( db_step(&q)==SQLITE_ROW ){
+        const char *zTab = db_column_text(&q,0);
+        const char *zIdx = db_column_text(&q,1);
+        const char *zStat = db_column_text(&q,2);
+        @ INSERT INTO sqlite_stat1 VALUES('%h(zTab)','%h(zIdx)','%h(zStat)');
+      }
+      @ </pre>
+      db_finalize(&q);
+    }else{
+      style_submenu_element("Stat1","repo_stat1");
+    }
+  }
+  style_footer();
+}
+
+/*
+** WEBPAGE: repo_stat1
+**
+** Show the sqlite_stat1 table for the repository schema
+*/
+void repo_stat1_page(void){
+  login_check_credentials();
+  if( !g.perm.Admin ){ login_needed(0); return; }
+
+  style_header("Repository STAT1 Table");
+  style_adunit_config(ADUNIT_RIGHT_OK);
+  style_submenu_element("Stat", "stat");
+  style_submenu_element("Schema", "repo_schema");
+  if( db_table_exists("repository","sqlite_stat1") ){
+    Stmt q;
+    db_prepare(&q,
+      "SELECT tbl, idx, stat FROM repository.sqlite_stat1"
+      " ORDER BY tbl, idx");
+    @ <pre>
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zTab = db_column_text(&q,0);
+      const char *zIdx = db_column_text(&q,1);
+      const char *zStat = db_column_text(&q,2);
+      char *zUrl = href("%R/repo_schema?n=%t",zTab);
+      @ INSERT INTO sqlite_stat1 VALUES('%z(zUrl)%h(zTab)</a>','%h(zIdx)','%h(zStat)');
+    }
+    @ </pre>
+    db_finalize(&q);
+  }
   style_footer();
 }
 

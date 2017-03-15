@@ -725,7 +725,7 @@ void timeline_output_graph_javascript(
     **        negative, then the rail position is the absolute value of mi[]
     **        and a thin merge-arrow descender is drawn to the bottom of
     **        the screen.
-    **    h:  The SHA1 hash of the object being graphed
+    **    h:  The artifact hash of the object being graphed
     */
     cgi_printf("var rowinfo = [\n");
     for(pRow=pGraph->pFirst; pRow; pRow=pRow->pNext){
@@ -1463,7 +1463,7 @@ static const char *tagMatchExpression(
 **    from=CHECKIN   Path from...
 **    to=CHECKIN       ... to this
 **    shortest         ... show only the shortest path
-**    uf=FILE_SHA1   Show only check-ins that contain the given file version
+**    uf=FILE_HASH   Show only check-ins that contain the given file version
 **    chng=GLOBLIST  Show only check-ins that involve changes to a file whose
 **                     name matches one of the comma-separate GLOBLIST
 **    brbg           Background color from branch name
@@ -2487,12 +2487,14 @@ void timeline_cmd(void){
        mode==TIMELINE_MODE_PARENTS ) ? "<=" : ">=", zDate /*safe-for-%s*/
   );
 
+  /* When zFilePattern is specified, compute complete ancestry;
+   * limit later at print_timeline() */
   if( mode==TIMELINE_MODE_CHILDREN || mode==TIMELINE_MODE_PARENTS ){
     db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
     if( mode==TIMELINE_MODE_CHILDREN ){
-      compute_descendants(objid, n);
+      compute_descendants(objid, (zFilePattern ? 0 : n));
     }else{
-      compute_ancestors(objid, n, 0);
+      compute_ancestors(objid, (zFilePattern ? 0 : n), 0);
     }
     blob_append_sql(&sql, "\n  AND blob.rid IN ok");
   }

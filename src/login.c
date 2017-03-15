@@ -51,6 +51,7 @@
 #endif
 #include <time.h>
 
+
 /*
 ** Return the login-group name.  Or return 0 if this repository is
 ** not a member of a login-group.
@@ -848,6 +849,58 @@ int login_wants_https_redirect(void){
   return 1;
 }
 
+
+/*
+** Attempt to use Basic Authentication to establish the user.  Return the
+** (non-zero) uid if successful.  Return 0 if it does not work.
+*/
+static int logic_basic_authentication(const char *zIpAddr){
+  const char *zAuth = PD("HTTP_AUTHORIZATION", 0);
+  int i;
+  int uid = 0;
+  int nDecode = 0;
+  char *zDecode = 0;
+  const char *zUsername = 0;
+  const char *zPasswd = 0;
+  
+
+  if( zAuth==0 ) return 0;                    /* Fail: No Authentication: header */
+  while( fossil_isspace(zAuth[0]) ) zAuth++;  /* Skip leading whitespace */
+  if( strncmp(zAuth, "Basic ", 6)!=0 ) return 0;  /* Fail: Not Basic Authentication */
+
+  /* Parse out the username and password, separated by a ":" */
+  zAuth += 6;
+  while( fossil_isspace(zAuth[0]) ) zAuth++;
+  zDecode = decode64(zAuth, &nDecode);
+
+  for(i=0; zDecode[i] && zDecode[i]!=':'; i++){}
+  if( zDecode[i] ){
+    zDecode[i] = 0;
+    zUsername = zDecode;
+    zPasswd = &zDecode[i+1];
+
+    /* Attempting to log in as the user provided by HTTP
+    ** basic auth
+    */
+    uid = login_search_uid(zUsername, zPasswd);
+    if( uid>0 ){
+      record_login_attempt(zUsername, zIpAddr, 1);
+    }else{
+      record_login_attempt(zUsername, zIpAddr, 0);
+
+      /* The user attempted to login specifically with HTTP basic
+      ** auth, but provided invalid credentials. Inform them of
+      ** the failed login attempt via 401.
+      */
+      cgi_set_status(401, "Unauthorized");
+      cgi_reply();
+      fossil_exit(0);
+    }
+  }
+  fossil_free(zDecode);
+  return uid;
+}
+
 /*
 ** This routine examines the login cookie to see if it exists and
 ** is valid.  If the login cookie checks out, it then sets global
@@ -967,6 +1020,14 @@ void login_check_credentials(void){
       uid = db_int(0, "SELECT uid FROM user WHERE login=%Q"
                       " AND length(cap)>0 AND length(pw)>0", zRemoteUser);
     }
+  }
+
+  /* If the request didn't provide a login cookie or the login cookie didn't
+  ** match a known valid user, check the HTTP "Authorization" header and
+  ** see if those credentials are valid for a known user.
+  */
+  if( uid==0 && db_get_boolean("http_authentication_ok",0) ){
+    uid = logic_basic_authentication(zIpAddr);
   }
 
   /* If no user found yet, try to log in as "nobody" */

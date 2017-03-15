@@ -2280,7 +2280,7 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 ** URL: /praise?checkin=ID&filename=FILENAME
 **
 ** Show the most recent change to each line of a text file.  /annotate shows
-** the date of the changes and the check-in SHA1 hash (with a link to the
+** the date of the changes and the check-in hash (with a link to the
 ** check-in).  /blame and /praise also show the user who made the check-in.
 **
 ** Query parameters:

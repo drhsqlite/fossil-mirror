@@ -6,19 +6,19 @@ content between two Fossil repositories.</p>
 <h2>1.0 Overview</h2>
 
 <p>The global state of a fossil repository consists of an unordered
-collection of artifacts.  Each artifact is identified by its SHA1 hash
-expressed as a 40-character lower-case hexadecimal string.
+collection of artifacts.  Each artifact is identified by a cryptographic
+hash of its content, expressed as a lower-case hexadecimal string.
 Synchronization is the process of sharing artifacts between
 servers so that all servers have copies of all artifacts.  Because
 artifacts are unordered, the order in which artifacts are received
-at a server is inconsequential.  It is assumed that the SHA1 hashes
-of artifacts are unique - that every artifact has a different SHA1 hash.
+at a server is inconsequential.  It is assumed that the hash names
+of artifacts are unique - that every artifact has a different hash.
 To a first approximation, synchronization proceeds by sharing lists
-SHA1 hashes of available artifacts, then sharing those artifacts that
-are not found on one side or the other of the connection.  In practice,
-a repository might contain millions of artifacts.  The list of
-SHA1 hashes for this many artifacts can be large.  So optimizations are
-employed that usually reduce the number of SHA1 hashes that need to be
+hash values for available artifacts, then sharing the content of artifacts
+whose names are missing from one side or the other of the connection.
+In practice, a repository might contain millions of artifacts.  The list of
+hash names for this many artifacts can be large.  So optimizations are
+employed that usually reduce the number of hashes that need to be
 shared to a few hundred.</p>
 
 <p>Each repository also has local state.  The local state determines
@@ -200,7 +200,7 @@ terminates the file card.
 
 <p>The first argument of a file card is the ID of the artifact that
 is being transferred.  The artifact ID is the lower-case hexadecimal
-representation of the SHA1 hash of the artifact.
+representation of the name hash for the artifact.
 The last argument of the file card is the number of bytes of
 payload that immediately follow the file card.  If the file
 card has only two arguments, that means the payload is the
@@ -233,7 +233,7 @@ some other artifact.</p>
 
 <p>The first argument of the cfile card is the ID of the artifact that
 is being transferred.  The artifact ID is the lower-case hexadecimal
-representation of the SHA1 hash of the artifact.  The second argument of
+representation of the name hash for the artifact.  The second argument of
 the cfile card is the original size in bytes of the artifact.  The last
 argument of the cfile card is the number of compressed bytes of payload
 that immediately follow the cfile card.  If the cfile card has only
@@ -273,7 +273,7 @@ server to client) using "uvfile" cards in the following format:
 
 <p>The <i>name</i> field is the name of the unversioned file.  The
 <i>mtime</i> is the last modification time of the file in seconds
-since 1970.  The <i>hash</i> field is the SHA1 hash of the content
+since 1970.  The <i>hash</i> field is the hash of the content
 for the unversioned file, or "<b>-</b>" for deleted content.
 The <i>size</i> field is the (uncompressed) size of the content
 in bytes.  The <i>flags</i> field is an integer which is interpreted
@@ -411,8 +411,8 @@ as follows:
 <p>The <i>name</i> argument is the name of an unversioned file.
 The <i>mtime</i> is the last modification time of the unversioned file
 in seconds since 1970.
-The <i>hash</i> is the SHA1 hash of the unversioned file content, or
-"<b>-</b>" if the file has been deleted.
+The <i>hash</i> is the SHA1 or SHA3-256 hash of the unversioned file
+content, or "<b>-</b>" if the file has been deleted.
 The <i>size</i> is the uncompressed size of the file in bytes.
 
 <p>When the server sees a "pragma uv-hash" card for which the hash

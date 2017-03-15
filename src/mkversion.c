@@ -14,7 +14,8 @@
 int main(int argc, char *argv[]){
     FILE *m,*u,*v;
     char *z;
-    int i, x, d;
+    int i, j, x, d;
+    int vn[3];
     char b[1000];
     char vx[1000];
     memset(b,0,sizeof(b));
@@ -47,21 +48,21 @@ int main(int argc, char *argv[]){
     *z = 0;
     printf("#define RELEASE_VERSION \"%s\"\n", b);
     x=0;
-    i=0;
+    i=j=0;
     z=b;
+    vn[0] = vn[1] = vn[2] = 0;
     while(1){
       if( z[0]>='0' && z[0]<='9' ){
         x = x*10 + z[0] - '0';
       }else{
-        sprintf(&vx[i],"%02d",x);
-        i += 2;
+        if( j<3 ) vn[j++] = x;
         x = 0;
         if( z[0]==0 ) break;
       }
       z++;
     }
     for(z=vx; z[0]=='0'; z++){}
-    printf("#define RELEASE_VERSION_NUMBER %s\n", z);
+    printf("#define RELEASE_VERSION_NUMBER %d%02d%02d\n", vn[0], vn[1], vn[2]);
     memset(vx,0,sizeof(vx));
     strcpy(vx,b);
     d = 0;
