@@ -1,5 +1,5 @@
-C (cherry-pick):\sFix\s[https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=847556#10|Debian\sbug\s847556]:\sCannot\sclone/sync\sover\sHTTPS
-D 2017-03-14T12:15:01.711
+C (cherry-pick):\sFix\sby\sNatacha\sPorté\sfor\sdelimiter\sescape\sbug\sdiscovered\sby\sMark\sJanssen.\s(fossil-users\slist)
+D 2017-03-15T10:40:48.864
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -463,7 +463,7 @@ F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl 580b8c186cee0309f1dc96ff1620f066a6782757
 F src/manifest.c 34ddf7c6b3d86a746ce11c0eef7e2ac9245c2100
-F src/markdown.c 20bb4755f258601e4e3e5274ea117fc7c8b1ccf7
+F src/markdown.c 2cb7007279db7ad8e16f8c822d5ba27f59b4af2dcc0cd4ba87cce3e4303d5969
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
 F src/markdown_html.c 5c7c2d2356e03a4456932c5fdef9aef836a379a5
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
@@ -782,11 +782,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 83e3445f672b02c33a1240d69383bfe21d2be16d
-Q +04168f51704ed023060ac039d3cab7eebc62884e8a1b59db89830b0da2e6cfb1
-R e662a987a7e69d9b714b22c320a70205
-T *branch * branch-2.1
-T *sym-branch-2.1 *
-T -sym-trunk *
+P 7be745f306cb63d2408620c9fb2642431e7cb160f69cfe003e75bdd76f61914c
+Q +dd41f85acf57290aba64c1f42ddeafcdf80432df80a07cea699bbb7456ff1386
+R da656f5b94ffb9434a2291ca7f1472a7
 U jan.nijtmans
-Z 1c0b1f51f8eb41de5ed27a3974ac92b7
+Z d1f3ba82600ff27c97097b9ce04f834f
