@@ -1490,32 +1490,52 @@ static void output_hex_blob(FILE *out, const void *pBlob, int nBlob){
 
 /*
 ** Output the given string as a quoted string using SQL quoting conventions.
+**
+** The "\n" and "\r" characters are converted to char(10) and char(13)
+** to prevent them from being transformed by end-of-line translators.
 */
 static void output_quoted_string(FILE *out, const char *z){
   int i;
-  int nSingle = 0;
+  char c;
   setBinaryMode(out, 1);
-  for(i=0; z[i]; i++){
-    if( z[i]=='\'' ) nSingle++;
-  }
-  if( nSingle==0 ){
+  for(i=0; (c = z[i])!=0 && c!='\'' && c!='\n' && c!='\r'; i++){}
+  if( c==0 ){
     utf8_printf(out,"'%s'",z);
   }else{
-    raw_printf(out,"'");
+    int inQuote = 0;
+    int bStarted = 0;
     while( *z ){
-      for(i=0; z[i] && z[i]!='\''; i++){}
-      if( i==0 ){
-        raw_printf(out,"''");
-        z++;
-      }else if( z[i]=='\'' ){
-        utf8_printf(out,"%.*s''",i,z);
-        z += i+1;
-      }else{
-        utf8_printf(out,"%s",z);
+      for(i=0; (c = z[i])!=0 && c!='\n' && c!='\r' && c!='\''; i++){}
+      if( c=='\'' ) i++;
+      if( i ){
+        if( !inQuote ){
+          if( bStarted ) raw_printf(out, "||");
+          raw_printf(out, "'");
+          inQuote = 1;
+        }
+        utf8_printf(out, "%.*s", i, z);
+        z += i;
+        bStarted = 1;
+      }
+      if( c=='\'' ){
+        raw_printf(out, "'");
+        continue;
+      }
+      if( inQuote ){
+        raw_printf(out, "'");
+        inQuote = 0;
+      }
+      if( c==0 ){
         break;
       }
+      for(i=0; (c = z[i])=='\r' || c=='\n'; i++){
+        if( bStarted ) raw_printf(out, "||");
+        raw_printf(out, "char(%d)", c);
+        bStarted = 1;
+      }
+      z += i;
     }
-    raw_printf(out,"'");
+    if( inQuote ) raw_printf(out, "'");
   }
   setTextMode(out, 1);
 }
@@ -2007,9 +2027,13 @@ static int shell_callback(
         }else if( aiType && aiType[i]==SQLITE_TEXT ){
           if( zSep[0] ) utf8_printf(p->out,"%s",zSep);
           output_quoted_string(p->out, azArg[i]);
-        }else if( aiType && (aiType[i]==SQLITE_INTEGER
-                             || aiType[i]==SQLITE_FLOAT) ){
+        }else if( aiType && aiType[i]==SQLITE_INTEGER ){
           utf8_printf(p->out,"%s%s",zSep, azArg[i]);
+        }else if( aiType && aiType[i]==SQLITE_FLOAT ){
+          char z[50];
+          double r = sqlite3_column_double(p->pStmt, i);
+          sqlite3_snprintf(50,z,"%!.20g", r);
+          raw_printf(p->out, "%s%s", zSep, z);
         }else if( aiType && aiType[i]==SQLITE_BLOB && p->pStmt ){
           const void *pBlob = sqlite3_column_blob(p->pStmt, i);
           int nBlob = sqlite3_column_bytes(p->pStmt, i);
@@ -3145,6 +3169,7 @@ static char zHelp[] =
   ".scanstats on|off      Turn sqlite3_stmt_scanstatus() metrics on or off\n"
   ".schema ?PATTERN?      Show the CREATE statements matching PATTERN\n"
   "                          Add --indent for pretty-printing\n"
+  ".selftest ?--init?     Run tests defined in the SELFTEST table\n"
   ".separator COL ?ROW?   Change the column separator and optionally the row\n"
   "                         separator for both the output mode and .import\n"
 #if defined(SQLITE_ENABLE_SESSION)
