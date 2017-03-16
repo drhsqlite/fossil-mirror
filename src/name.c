@@ -992,6 +992,7 @@ void test_describe_artifacts_cmd(void){
 **   n=N         Show N artifacts
 **   s=S         Start with artifact number S
 **   unpub       Show only unpublished artifacts
+**   hclr        Color code hash types (SHA1 vs SHA3)
 */
 void bloblist_page(void){
   Stmt q;
@@ -999,12 +1000,18 @@ void bloblist_page(void){
   int n = atoi(PD("n","5000"));
   int mx = db_int(0, "SELECT max(rid) FROM blob");
   int unpubOnly = PB("unpub");
+  int hashClr = PB("hclr");
   char *zRange;
+  char *zSha1Bg;
+  char *zSha3Bg;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("List Of Artifacts");
   style_submenu_element("250 Largest", "bigbloblist");
+  if( !hashClr ){
+    style_submenu_element("Color by Hash", "bloblist?hclr");
+  }
   if( !unpubOnly && mx>n && P("s")==0 ){
     int i;
     @ <p>Select a range of artifacts to view:</p>
@@ -1030,13 +1037,25 @@ void bloblist_page(void){
   db_prepare(&q,
     "SELECT rid, uuid, summary, isPrivate FROM description ORDER BY rid"
   );
+  if( skin_detail_boolean("white-foreground") ){
+    zSha1Bg = "#714417";
+    zSha3Bg = "#177117";
+  }else{
+    zSha1Bg = "#ebffb0";
+    zSha3Bg = "#b0ffb0";
+  }
   @ <table cellpadding="0" cellspacing="0">
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q,0);
     const char *zUuid = db_column_text(&q, 1);
     const char *zDesc = db_column_text(&q, 2);
     int isPriv = db_column_int(&q,3);
-    @ <tr><td align="right">%d(rid)</td>
+    if( hashClr ){
+      const char *zClr = db_column_bytes(&q,1)>40 ? zSha3Bg : zSha1Bg;
+      @ <tr style='background-color:%s(zClr);'><td align="right">%d(rid)</td>
+    }else{
+      @ <tr><td align="right">%d(rid)</td>
+    }
     @ <td>&nbsp;%z(href("%R/info/%!S",zUuid))%S(zUuid)</a>&nbsp;</td>
     @ <td align="left">%h(zDesc)</td>
     if( isPriv ){

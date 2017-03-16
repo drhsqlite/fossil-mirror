@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.18.0\spre-release.
-D 2017-03-16T14:47:34.520
+C The\shclr\squery\sparameter\sto\s/bloblist\scolor-codes\sthe\sdisplay\sto\sshow\nwhether\seach\sartifact\sis\sSHA1\sor\sSHA3.\s\sThere\sare\sno\slinks\sor\sbuttons\sto\nactivate\sthis\squery\sparameter.\s\sIt\sis\sdesigned\sfor\sexpert\susers\sonly,\sto\s\nbe\styped\sin\smanually\sinto\sthe\sURL.
+D 2017-03-16T15:03:00.652
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -474,7 +474,7 @@ F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
 F src/mkindex.c f4183ca13461544fe06f34af0a3501ea96d3637f
 F src/mkversion.c 5827238100f179af2462a0194421c8b027198ef1
 F src/moderate.c 2540f90b20778a4d62156a3b4af962b401d4c89f
-F src/name.c 93545358d48f0a563ecfa10ffdaf861ad60c949b
+F src/name.c 033315471d228c3e3558816345c8e0cf6a4e75deaf79690f70788a7e80d44806
 F src/path.c cce5fdfa571861a81e1a48e893e5a52dd2703a5f
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c e4a8ed414bbc311a3f427cad8da023d33bd39f46
@@ -784,7 +784,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5ad7038fa33a741610c807074f6c0ec48c0c90948bbaf4b215187a52969c7674
-R 95c83fd7aec138b5d7bd8d607d02efa6
+P 303a2084a35beec193bbd5367ea2ab376c0513edd029e08e953b064d1659853f
+R a927ded123159606f59ec50d1c9bdf0d
 U drh
-Z 08e897040cb044d7e6ba2d19d65387fe
+Z e3f8605f71d35bd64af49af7fa771512
