@@ -1009,9 +1009,6 @@ void bloblist_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("List Of Artifacts");
   style_submenu_element("250 Largest", "bigbloblist");
-  if( !hashClr ){
-    style_submenu_element("Color by Hash", "bloblist?hclr");
-  }
   if( !unpubOnly && mx>n && P("s")==0 ){
     int i;
     @ <p>Select a range of artifacts to view:</p>

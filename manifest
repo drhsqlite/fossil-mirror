@@ -1,5 +1,5 @@
-C On\sthe\s/rcvfromlist\spage,\sshow\sthe\shash\salgorithms\sused\sfor\seach\sbatch\sof\nartifacts\sreceived.
-D 2017-03-16T15:29:01.494
+C Remove\sthe\s(broken)\s"Color\sby\sHash"\ssubmenu\slink\sfrom\sthe\s/bloblist\spage.
+D 2017-03-16T16:16:32.111
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -474,7 +474,7 @@ F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
 F src/mkindex.c f4183ca13461544fe06f34af0a3501ea96d3637f
 F src/mkversion.c 5827238100f179af2462a0194421c8b027198ef1
 F src/moderate.c 2540f90b20778a4d62156a3b4af962b401d4c89f
-F src/name.c 033315471d228c3e3558816345c8e0cf6a4e75deaf79690f70788a7e80d44806
+F src/name.c 474572bdcb464c8f25ab5547f31eaa09eebf6abd8bb3afd638e327f23e4452f2
 F src/path.c cce5fdfa571861a81e1a48e893e5a52dd2703a5f
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c e4a8ed414bbc311a3f427cad8da023d33bd39f46
@@ -784,7 +784,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c5e4f7dff876ddf6345a552c2344f9fba5d5b041cb3be1f95bb396fb5be31d8d
-R b605c96cd1a343f8e8042b59119645fd
+P 386191d37967aaba59ed7af527874ce572b83c06efbe0d02418618290370d0cf
+R cb5c4215883efd69bc9ce59fc3f4cacc
 U drh
-Z e482ad5f66b19b97367c0b2676710053
+Z 3b4c994e7501ac046a298fe3bc127d1a
