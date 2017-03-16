@@ -115,6 +115,14 @@ proc protOut {msg {noQuiet 0}} {
   }
 }
 
+proc protOutDict {dict {pattern *}} {
+   set longest [tcl::mathfunc::max 0 {*}[lmap key [dict keys $dict $pattern] {string length $key}]]
+   dict for {key value} $dict {
+      protOut [format "%-${longest}s = %s" $key $value]
+   }
+}
+
+
 # Run the Fossil program with the specified arguments.
 #
 # Consults the VERBOSE global variable to determine if
@@ -962,11 +970,15 @@ if {[catch {
 please set TEMP variable in environment, error: $error"
 }
 
+
 protInit $fossilexe
 set ::tempKeepHome 1
 foreach testfile $argv {
   protOut "***** $testfile ******"
-  source $testdir/$testfile.test
+  if { [catch {source $testdir/$testfile.test} testerror testopts] } {
+    protOut "!!!!! $testfile: $testerror"
+    protOutDict $testopts"
+  }
   protOut "***** End of $testfile: [llength $bad_test] errors so far ******"
 }
 unset ::tempKeepHome; delete_temporary_home

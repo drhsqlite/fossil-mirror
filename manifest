@@ -1,5 +1,5 @@
-C Skip\sentire\smerge5.test\suntil\sfossil\ssqlite3\s--no-repository\sworks\sright.
-D 2017-03-16T00:04:17.309
+C Wrap\seach\s.test\sfile\sin\sa\scatch\scommand,\swith\soutput\sof\sthe\serror\smessages\sto\sthe\slog\sfor\ssanity.\sThis\sshould\sreduce\sthe\sways\sthat\sa\sfailing\stest\scase\scan\sunexpectedly\swedge\sthe\sentire\stest\ssuite.
+D 2017-03-16T00:35:23.431
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -577,7 +577,7 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 9ead8cede3906559325b19560124bd30396f7c0e
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl ba503f050b9926b7770afece093e6531a15d27a7e072c1f07c024dcd6ae658d7
+F test/tester.tcl 71d4f0591a41db6e9e7a9ecaf475dfefff7eae2e2db16e94568f937949baa45a
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 3d2c5998f4b499ffd762e836425309e3ba7ed554ba3493534b6d82f68b33557d
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -784,7 +784,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 876b436cf5ba1857acd3cbbe32a9c78bbaf9d423918778dcc175bcfbb331a776
-R 17f320f828d73ffef75dd8dea3967464
+P 6167f69a218804bd8f45d76cb60c48e14adfb81743efca72997b2f5f508e9d3c
+R 5d5d629ac88c1d3013fef57dfa71f43a
 U rberteig
-Z d050f003f41b5928a3c026a07061a2c8
+Z af3760fcba3c17aa4141077c2576142c
