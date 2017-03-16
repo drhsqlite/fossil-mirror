@@ -203,6 +203,8 @@ test json-version-api {[dict get $JR payload jsonApiVersion] >= 20120713}
 
 # sha1 of 0 bytes and a file to match in a commit
 set UUID_empty da39a3ee5e6b4b0d3255bfef95601890afd80709
+# sha3 of 0 bytes and a file to match in a commit
+set UUID_empty_64 a7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a
 write_file empty ""
 fossil add empty
 fossil ci -m "empty file"
@@ -215,7 +217,7 @@ test_json_payload json-artifact \
 [concat type uuid isLeaf timestamp user comment parents tags files] {}
 
 # json artifact (file)
-fossil_json [concat artifact $UUID_empty]
+fossil_json [concat artifact $UUID_empty_64]
 test_json_envelope_ok json-artifact-file-env
 test json-artifact-file {[dict get $JR payload type] eq "file"}
 test_json_payload json-artifact [concat type uuid size checkins] {}

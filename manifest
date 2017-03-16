@@ -1,5 +1,5 @@
-C Wrap\seach\s.test\sfile\sin\sa\scatch\scommand,\swith\soutput\sof\sthe\serror\smessages\sto\sthe\slog\sfor\ssanity.\sThis\sshould\sreduce\sthe\sways\sthat\sa\sfailing\stest\scase\scan\sunexpectedly\swedge\sthe\sentire\stest\ssuite.
-D 2017-03-16T00:35:23.431
+C In\sjson.test,\slook\sfor\sthe\sempty\sfile\sartifact\susing\sits\snew\sSHA3\shash\sexplicitly.\sThis\sallows\sjson-artifact-file\sand\srelated\stests\sto\spass,\sand\seliminates\sa\scascade\sof\sfalse\sfailures\sthat\shad\scrashed\sthe\stest\sharness.
+D 2017-03-16T00:38:12.643
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -551,7 +551,7 @@ F test/fileStat.th1 e3e30f7b46488c26215a6d713be36ad4ed595132
 F test/fileage-test-1.wiki d249e897fdd41038c17f3b66d374e509830da1eb
 F test/glob.test e135d6e1333452beece53619e9a67cd9224ab00c
 F test/graph-test-1.wiki b723f0e694974edb84ff0744fccbad0dd93181dd
-F test/json.test e75cac26fb36d985c83a3ff81ce511d0d10414b8
+F test/json.test b0347ec874c0868ecd3b99e43842833e0454ebf9e7a61c2c0dae7b9ee6dbfafb
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/merge1.test 0f11a55b5d71fa668b53ffc4cdeb23997e9cb042
@@ -784,7 +784,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6167f69a218804bd8f45d76cb60c48e14adfb81743efca72997b2f5f508e9d3c
-R 5d5d629ac88c1d3013fef57dfa71f43a
+P cdf1700ade96d36686cb488ed45e9e053de90fdc2ea51d50ddf83e13f638c693
+R 106227df950a1e7297af2549dabda85d
 U rberteig
-Z af3760fcba3c17aa4141077c2576142c
+Z ea4dc843667172f8676abd5dd17b4ca5
