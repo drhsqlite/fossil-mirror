@@ -1,9 +1,9 @@
-C Rename\scrnl-glob\sversioned\ssetting\sto\scrlf-glob
-D 2017-03-16T15:14:18.536
+C On\sthe\s/rcvfromlist\spage,\sshow\sthe\shash\salgorithms\sused\sfor\seach\sbatch\sof\nartifacts\sreceived.
+D 2017-03-16T15:29:01.494
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
-F .fossil-settings/crlf-glob 2da052c2bd7a53c5e083152cd3ea3cefd6228b17 w .fossil-settings/crnl-glob
+F .fossil-settings/crlf-glob 2da052c2bd7a53c5e083152cd3ea3cefd6228b17
 F .fossil-settings/encoding-glob fe9e7e2a183ce22d107976173b58d2a1255aeb0a
 F .fossil-settings/ignore-glob b7b945d48cfceef7fd1000d6a6c6232b7163d5e8
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
@@ -494,7 +494,7 @@ F src/sha1.c f8052a974b626854519fdd78563d5c0c827fcf7a
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c bd83dc4631af22905b3cf314a8069d3dc8c101c6
 F src/shell.c 77054c021069ec0b65d3d620aab031f97c59b4e42ac7c31544ea68933b581104
-F src/shun.c 2f32dff8bb8a3f9aa1eeb10a82be946c68d9573a
+F src/shun.c e6e544a8b9200a704121c280604ed42e6aefc3f19f5107d0bdf9b51d9a912a4e
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c 0b6ae35015f48cbe9cef2f97d65105a796fc366b
 F src/sqlcmd.c fba609f0f5a91435d0dff8719ba9c5d25f8cfa15
@@ -784,7 +784,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 59a8438a85182e5cb6c4cd1cdfc9a442c80b70cdf37ee061cf865bfbe07d8a52
-R d5ab6e29cd8096e7fe88367f17732a6b
-U jan.nijtmans
-Z a4a9c9015f8bcf7d1ee6ab4ef98279fc
+P c5e4f7dff876ddf6345a552c2344f9fba5d5b041cb3be1f95bb396fb5be31d8d
+R b605c96cd1a343f8e8042b59119645fd
+U drh
+Z e482ad5f66b19b97367c0b2676710053
