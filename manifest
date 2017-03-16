@@ -1,5 +1,5 @@
-C Remove\sthe\s(broken)\s"Color\sby\sHash"\ssubmenu\slink\sfrom\sthe\s/bloblist\spage.
-D 2017-03-16T16:16:32.111
+C Update\sthe\schange\slog\sfor\sversion\s2.2.\s\sChange\sthe\sversion\snumber\sto\s2.2.
+D 2017-03-16T17:55:07.166
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -14,7 +14,7 @@ F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile de98550db1d43a29a17bbd9284308733fb72615f
 F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
 F Makefile.in ca04b4081ad0dc54256f7d609168750c2247882e
-F VERSION da51fa3f73e561cf695cbcf67e9d92d801038cd8
+F VERSION 10670be41ce220db42289f5b16a18218969f32e1a0a6a2d4703764c5800265fd
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -694,7 +694,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 506dba1eba4643b3d47d8210e4d87c424916f5340a48814202f9ef828f8cfbcd
-F www/changes.wiki 54bf932c0c430c7c4791c827bab389b76f69c779f36c0ce98b0b25a483eb5f7c
+F www/changes.wiki 86740f530f10138c980528a2de5562282db8675ad612512af8347f452146b5f7
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -784,7 +784,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 386191d37967aaba59ed7af527874ce572b83c06efbe0d02418618290370d0cf
-R cb5c4215883efd69bc9ce59fc3f4cacc
+P dd687c7c90e81334eea3f71d613b58a17fff5be37d97c491ee4e7d5a171a29a3
+R 677263d3d3f017b19cc4ed25b49ff622
 U drh
-Z 3b4c994e7501ac046a298fe3bc127d1a
+Z 2e9f07492c5962583389ee7f5a1cde8a
