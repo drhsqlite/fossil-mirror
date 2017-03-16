@@ -1,9 +1,9 @@
-C The\shclr\squery\sparameter\sto\s/bloblist\scolor-codes\sthe\sdisplay\sto\sshow\nwhether\seach\sartifact\sis\sSHA1\sor\sSHA3.\s\sThere\sare\sno\slinks\sor\sbuttons\sto\nactivate\sthis\squery\sparameter.\s\sIt\sis\sdesigned\sfor\sexpert\susers\sonly,\sto\s\nbe\styped\sin\smanually\sinto\sthe\sURL.
-D 2017-03-16T15:03:00.652
+C Rename\scrnl-glob\sversioned\ssetting\sto\scrlf-glob
+D 2017-03-16T15:14:18.536
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
-F .fossil-settings/crnl-glob 2da052c2bd7a53c5e083152cd3ea3cefd6228b17
+F .fossil-settings/crlf-glob 2da052c2bd7a53c5e083152cd3ea3cefd6228b17 w .fossil-settings/crnl-glob
 F .fossil-settings/encoding-glob fe9e7e2a183ce22d107976173b58d2a1255aeb0a
 F .fossil-settings/ignore-glob b7b945d48cfceef7fd1000d6a6c6232b7163d5e8
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
@@ -694,7 +694,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 506dba1eba4643b3d47d8210e4d87c424916f5340a48814202f9ef828f8cfbcd
-F www/changes.wiki b313bcbf7bd513e6a984eaa7b7a053fbf7859d32
+F www/changes.wiki 54bf932c0c430c7c4791c827bab389b76f69c779f36c0ce98b0b25a483eb5f7c
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -784,7 +784,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 303a2084a35beec193bbd5367ea2ab376c0513edd029e08e953b064d1659853f
-R a927ded123159606f59ec50d1c9bdf0d
-U drh
-Z e3f8605f71d35bd64af49af7fa771512
+P 59a8438a85182e5cb6c4cd1cdfc9a442c80b70cdf37ee061cf865bfbe07d8a52
+R d5ab6e29cd8096e7fe88367f17732a6b
+U jan.nijtmans
+Z a4a9c9015f8bcf7d1ee6ab4ef98279fc
