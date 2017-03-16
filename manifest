@@ -1,5 +1,5 @@
-C Mark\sthe\sfailing\stest\spre-commit-warnings-1\sas\sa\sknownBug.\sTODO:\sWrite\sa\smore\sstable\stest\scase.
-D 2017-03-15T23:54:50.862
+C Skip\sentire\smerge5.test\suntil\sfossil\ssqlite3\s--no-repository\sworks\sright.
+D 2017-03-16T00:04:17.309
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -558,7 +558,7 @@ F test/merge1.test 0f11a55b5d71fa668b53ffc4cdeb23997e9cb042
 F test/merge2.test 038091215ec2f2b53157599acae6f03dcf91dd12
 F test/merge3.test 70db9ae7c679efad5d5b371114a3cc609818e01a
 F test/merge4.test d563164c477885bcaecb6ea28e824b698bdd57bb
-F test/merge5.test 1ec9dcc682daef0fecf4ee6830ec362a818a1a5e
+F test/merge5.test 80e033b4a0c79fbe226a6ddb74c0061a0588d49adfa413cd3adf19b09bb28029
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test 50b1c16adce0050bc946e3d64b14df9ab82f37e0
 F test/merge_exe.test f888647a3305bf2a4ddd77f947e486ae72fced09
@@ -784,7 +784,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d1f9f4c84ddcadc5aec4c72f718d33f6d0493de262f04abea35a0d4e512c4eab
-R da4cd3854c89fe0ebb6f8b8c5e1f8ff5
+P 876b436cf5ba1857acd3cbbe32a9c78bbaf9d423918778dcc175bcfbb331a776
+R 17f320f828d73ffef75dd8dea3967464
 U rberteig
-Z 790703bfcd28c72d01b3cf23f3a4b3c3
+Z d050f003f41b5928a3c026a07061a2c8
