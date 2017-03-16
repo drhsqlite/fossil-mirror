@@ -115,6 +115,9 @@ proc protOut {msg {noQuiet 0}} {
   }
 }
 
+# write a dict with just enough formatting
+# to make it human readable
+#
 proc protOutDict {dict {pattern *}} {
    set longest [tcl::mathfunc::max 0 {*}[lmap key [dict keys $dict $pattern] {string length $key}]]
    dict for {key value} $dict {
@@ -976,8 +979,11 @@ set ::tempKeepHome 1
 foreach testfile $argv {
   protOut "***** $testfile ******"
   if { [catch {source $testdir/$testfile.test} testerror testopts] } {
+    test test-framework-$testfile 0
     protOut "!!!!! $testfile: $testerror"
     protOutDict $testopts"
+  } else {
+    test test-framework-$testfile 1
   }
   protOut "***** End of $testfile: [llength $bad_test] errors so far ******"
 }

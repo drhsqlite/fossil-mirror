@@ -135,6 +135,10 @@ Cookie: $cookie\r
 
 # Inspect a dict for keys it must have and keys it must not have
 proc test_dict_keys {testname D okfields badfields} {
+  if {$D eq ""} {
+    test $testname-validJSON 0
+    return
+  }
   set i 1
   foreach f $okfields {
     test "$testname-$i" {[dict exists $D $f]}
@@ -744,20 +748,30 @@ write_file e1102.json {
   }
 }
 fossil_json --json-input e1102.json -expectError
-test json-env-RC-1102-CLI-exit {$CODE != 0}
-test_json_envelope json-env-RC-1102-env {fossil timestamp command procTimeUs \
+test json-env-RC-1102a-CLI-exit {$CODE != 0}
+test_json_envelope json-env-RC-1102a-env {fossil timestamp command procTimeUs \
 procTimeMs resultCode resultText} {payload}
-test json-env-RC-1102-code {[dict get $JR resultCode] eq "FOSSIL-1102"}
+test json-env-RC-1102a-code {[dict get $JR resultCode] eq "FOSSIL-1102"}
 
 
 # FOSSIL-1103 FSL_JSON_E_UNKNOWN
 #     Unknown error
 
-#write_file bad.sql  {
-#CREATE TABLE spam(a integer, b text);
-#}
-#exec $::fossilexe sqlite3 --no-repository bad.fossil <bad.sql
-#fossil_json HAI -R bad.fossil -expectError
+write_file bad.sql  {
+CREATE TABLE spam(a integer, b text);
+}
+exec $::fossilexe sqlite3 --no-repository bad.fossil <bad.sql
+fossil_json HAI -R bad.fossil -expectError
+test json-env-RC-1103-CLI-exit {$CODE != 0}
+if { $JR ne "" } {
+  test_json_envelope json-env-RC-1103-env {fossil timestamp command procTimeUs \
+    procTimeMs resultCode resultText} {payload}
+  test json-env-RC-1103-code {[dict exists $JR resultCode]\
+                           && [dict get $JR resultCode] eq "FOSSIL-1103"} knownBug
+} else {
+  protOut "Want test case for FOSSIL-1103"
+  test json-RC-1103 0 knownBug
+}
 
 # FOSSIL-1104 FSL_JSON_E_TIMEOUT
 #     Timeout reached
@@ -840,9 +854,9 @@ test json-RC-3002-strange-code {[dict get $JR resultCode] eq "FOSSIL-3002"}
 fossil close
 fossil_json HAI -expectError
 test json-RC-4102-CLI-exit {$CODE != 0}
-test_json_envelope json-RC-1102-env {fossil timestamp command procTimeUs \
+test_json_envelope json-RC-4102-CLI-exit {fossil timestamp command procTimeUs \
 procTimeMs resultCode resultText} {payload}
-test json-1 {[dict get $JR resultCode] eq "FOSSIL-4102"}
+test json-RC-4102 {[dict get $JR resultCode] eq "FOSSIL-4102"}
 fossil open .rep.fossil
 
 # FOSSIL-4103 FSL_JSON_E_DB_NOT_VALID
@@ -850,6 +864,15 @@ fossil open .rep.fossil
 write_file nope.fossil {
 This is not a fossil repo. It ought to be a SQLite db with a well-known schema,
 but it is actually just a block of text.
+}
+fossil_json HAI -R nope.fossil -expectError
+test json-RC-4103-CLI-exit {$CODE != 0}
+if { $JR ne "" } {
+  test_json_envelope json-RC-4103-CLI {fossil timestamp command procTimeUs \
+    procTimeMs resultCode resultText} {payload}
+  test json-RC-4103 {[dict get $JR resultCode] eq "FOSSIL-4103"}
+} else {
+  test json-RC-4103 0 knownBug
 }
 
 ###############################################################################
