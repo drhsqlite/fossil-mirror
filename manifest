@@ -1,5 +1,5 @@
-C The\s"amend"\scommand\sonly\sworks\sfrom\swithin\san\sopen\scheck-out.
-D 2017-03-18T12:44:23.934
+C Update\sto\sthe\slatest\spre-release\sof\sSQLite\s3.18.0\sthat\sincludes\sa\sfix\sfor\nthe\sharmless\scompiler\swarning\son\sMacs.
+D 2017-03-18T14:10:13.099
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -498,8 +498,8 @@ F src/shun.c e6e544a8b9200a704121c280604ed42e6aefc3f19f5107d0bdf9b51d9a912a4e
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c 0b6ae35015f48cbe9cef2f97d65105a796fc366b
 F src/sqlcmd.c fba609f0f5a91435d0dff8719ba9c5d25f8cfa15
-F src/sqlite3.c ff949625dfbcdb477e0bc0c77880a6ee978fb5600ef389fbaac12bc280666f78
-F src/sqlite3.h 88705294483133e2d9755d9901d001cdc891a4b26ac46268d112ff99141f026c
+F src/sqlite3.c 41e84d79cb82ec65267e9237e7542569d25fc1e70a4322452d941ebc84b0b7d8
+F src/sqlite3.h 37b9ab2ca7727f354c1379ea29196329cb2b7bf5e5cc297e8ab9ff9ac53e47ce
 F src/stash.c dc0263e11eeb30689418e4def6174af973ad66bf
 F src/stat.c 5e2fa9e1b7b6d283d308cfaedc47fe59b57e1ab83f128250f081b28d8c23fd60
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
@@ -784,7 +784,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9e5f06deae5af2145a10a3343340818c11ab29aee7ef6306b11bd169624fb5b4
-R c09304869715432a192470f7dc4ca104
+P 8c22e1bbcd8ec048b8062e87cd8a54a9d930f6bb16f7ec745ccbce5ac3d24f5f
+R 77d401b158002d5316e7760813dfb2eb
 U drh
-Z d84fca806078a4f75e34a7d9e88034f1
+Z 01cc5b56191039eaaad24d633a3d82e0
