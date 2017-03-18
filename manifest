@@ -1,5 +1,5 @@
-C Clean\sup\sJSON\stests\sand\stweak\suse\sof\scatch\sin\sthe\stest\sframework.
-D 2017-03-16T23:20:50.745
+C The\s"amend"\scommand\sonly\sworks\sfrom\swithin\san\sopen\scheck-out.
+D 2017-03-18T12:44:23.934
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -396,7 +396,7 @@ F src/bundle.c c4b92c14df3e1aeebdeaf02d23a0ecaea462f8b5
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c b459fc18975074cf8a921ded8a754d50fe971b2c3951c7a94ad1eafdee79e61a
-F src/checkin.c 028bf54fd7409f62f069b58d15fec53626516cce
+F src/checkin.c ddb0405c6ec61bf57b065d847b4cf268d161d920add4f77301713f0773b00151
 F src/checkout.c ad202f9c6585a8e6d5418ff733f7349f652e9b05
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c c8b17c6084570fef0afc5b52d5caffcc83ff4548
@@ -408,7 +408,7 @@ F src/content.c b5eac283f4fec06093976b86ec95565c2a8b968c
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c b51c9320c6f2afa4be933738e80ffbfa2bae3a2fae2254fed77eeccee774a81d
+F src/db.c 5bcd5f6138d480faf28029bdb111cc4a9a3deda093dcf438e4d8abff5ebe5764
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
@@ -434,7 +434,7 @@ F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d98
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c 1c8c9a6f994826b2a129847aa7b652a55a771c99
-F src/info.c 9bea9b309e265ac126d26acbbe17735af02c9c62a1f06efa173c55f2c607c645
+F src/info.c 24d7626c2144c46d527c9d7c824ef9039ffe835fa97f749669cb2db76d197846
 F src/json.c cc8d06a2d208ad0092d6d68ef5b7ac9a7e05708b3271c5cfd1da890f97322642
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c 7c7e2c63fd1cac2ca85aa657a7ae04d91a1bdc08
@@ -784,7 +784,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b477fe57999e1972c21622cb20fb3c1c0dc7d76d52fe2ba24ae4648f473ff525
-R 2065be2976891ab8449a25bc20ce0cd4
-U rberteig
-Z c94af431f3a766d5923535cd8511b039
+P 9e5f06deae5af2145a10a3343340818c11ab29aee7ef6306b11bd169624fb5b4
+R c09304869715432a192470f7dc4ca104
+U drh
+Z d84fca806078a4f75e34a7d9e88034f1

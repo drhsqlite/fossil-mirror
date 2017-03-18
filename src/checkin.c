@@ -1204,8 +1204,9 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
   }else{
     Blob fname;
     blob_zero(&fname);
+    assert( g.zLocalRoot!=0 );
     file_relative_name(g.zLocalRoot, &fname, 1);
-    zFile = db_text(0, "SELECT '%qci-comment-' || hex(randomblob(6)) || '.txt'",
+    zFile = db_text(0, "SELECT '%qci-comment-'||hex(randomblob(6))||'.txt'",
                     blob_str(&fname));
     blob_reset(&fname);
   }
