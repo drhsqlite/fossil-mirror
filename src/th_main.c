@@ -1590,11 +1590,11 @@ static int queryCmd(
   nSql = argl[1];
   while( res==TH_OK && nSql>0 ){
     zErr = 0;
-    sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)&zErr);
+    report_restrict_sql(&zErr);
     g.dbIgnoreErrors++;
     rc = sqlite3_prepare_v2(g.db, argv[1], argl[1], &pStmt, &zTail);
     g.dbIgnoreErrors--;
-    sqlite3_set_authorizer(g.db, 0, 0);
+    report_unrestrict_sql();
     if( rc!=0 || zErr!=0 ){
       if( noComplain ) return TH_OK;
       Th_ErrorMessage(interp, "SQL error: ",

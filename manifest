@@ -1,5 +1,5 @@
-C Update\sto\sthe\slatest\spre-release\sof\sSQLite\s3.18.0\sthat\sincludes\sa\sfix\sfor\nthe\sharmless\scompiler\swarning\son\sMacs.
-D 2017-03-18T14:10:13.099
+C Limit\sthe\svirtual-machine\ssize\sfor\sSQL\sstatements\srun\sfor\sreport\sgenerators.
+D 2017-03-20T13:56:54.127
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -485,7 +485,7 @@ F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f698cae20e3740796f6ffa65f69324f27f19d96c
 F src/rebuild.c cfa98254edab99a917af8ca541d9988c5b169304
 F src/regexp.c 11ed4c905c2e471efe9c1e9c4650004ad91d6ebb
-F src/report.c 3b627c4ba95b5260ded1cee2adc5ce6e28d791d2
+F src/report.c ee53ffbf76230126e2f91511b70d9f72a97d0a650e4c91e6d43018ab3069927a
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/search.c 82d3900b27d457fd1051d46acc5f4dcc74947960
@@ -510,7 +510,7 @@ F src/tar.c 17b09ed44d15326d5f19413b5e1c2b985d5b77f21c3bdd898bb263229c46c14b
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
-F src/th_main.c 2561df121db51d142fe8878f909c9cf018f8662a
+F src/th_main.c fcf07b5f99768f552a4d31e4efa5fe4be98f86139ab7e8d556ca2dcacb733e0c
 F src/th_tcl.c 2b70a8da7d7d8009794d7a3565043c8933a6cbfe
 F src/timeline.c 280733bda16ab11a5c516de21692964dbe6b4409
 F src/tkt.c b0fcc26bf2f1acc84b147e242170a1b8c8c68449
@@ -784,7 +784,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8c22e1bbcd8ec048b8062e87cd8a54a9d930f6bb16f7ec745ccbce5ac3d24f5f
-R 77d401b158002d5316e7760813dfb2eb
+P 9612d43f930926c42b352a7c5990a2d7fb8976fe2292083542da38f3d23fe758
+R 31becfcd6024788c706702df29141238
 U drh
-Z 01cc5b56191039eaaad24d633a3d82e0
+Z 95945683c64c765deee1706632b16bbc
