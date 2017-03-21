@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sfirst\s3.18.0\sbeta.
-D 2017-03-20T13:57:34.834
+C Improve\scommit-warning\stests\sby\sconstructing\stest\sfiles\sfor\sinteresting\scases\saiming\sfor\scoverage\sof\sall\sthe\ssituations\sthat\sshould\sproduce\swarnings\sindependent\sof\sthe\sother\sfiles\sin\sthe\sfossil\srepository.
+D 2017-03-21T10:52:38.156
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -540,7 +540,7 @@ F test/amend.test 83966725550e04f80c40a52012074f91ef6d22cbd57f51e17e931eccee6663
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
 F test/cmdline.test df50383ebf00e7a444e29f2f755867f843c37df7
 F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
-F test/commit-warning.test db2c8a64d3796e1e8d01455aafcca3d3bcb7d57a5f30c18b602f2c1cd75e98c4
+F test/commit-warning.test ad8a3ab5449f5c8528562d6dcaf6541e0af7d78f26bc3a86aae2af934757d170
 F test/contains-selector.test cf46a39b3c1ff72d2fc674f4ccbeecfb94add7d2
 F test/delta1.test c3ea182ab06554a35203285774606ba37fdc620d
 F test/diff-test-1.wiki c25f312aa20a97b7127e8047f60fe67cc35319e5
@@ -570,7 +570,7 @@ F test/revert.test 303d90ca6a8f221d671daa90b3f9a07a874e7ff0
 F test/set-manifest.test a4caa5745c0af2dc9bb1a2f0902e7991818f725bb168355cae5da8724e2b3b75
 F test/settings-repo.test 7c2617c7deea7d245d927df5688d26365e3bca9b
 F test/settings.test 1877083a0fecb044a698e8ca60d7f9ff2b4f4450
-F test/stash.test 71d6f9149feb18e5c64639c4598991d79b8e165c
+F test/stash.test 4ac356770b8ad5a013f1927d678bec077cbb387616e67133a4050a177aae0373
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/README.html b73b2bbc042aa2d246733582ac74e96ae57f38360e1f9bf96121eca09ab71b55
 F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec641e374496bcb0
@@ -784,7 +784,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 307147510ca5b898ca4812435fefe206180134ede57eec81c0852b49f369a275
-R e41a3957fd58b5b38857e31fc761d531
-U drh
-Z 2ef380c9fa64fa017f523fe41c8ecbf3
+P affb6b5e76fc82ef336418168d9c99fe0d725418ed8458ae240c254752aac8dd
+R 4f94c2303e25dbdc6451087e5315a1cd
+U rberteig
+Z 72f729d3b57982c9666af1bb9e648de4
