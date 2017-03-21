@@ -1032,13 +1032,19 @@ static void emitFileStat(
 **     --open-config        Open the configuration database first.
 **     --slash              Trailing slashes, if any, are retained.
 **     --reset              Reset cached stat() info for each file.
+**     --symlinks BOOLEAN   Force allow-symlinks on or off
 */
 void cmd_test_file_environment(void){
   int i;
   int slashFlag = find_option("slash",0,0)!=0;
   int resetFlag = find_option("reset",0,0)!=0;
+  const char *forceSymlinks = find_option("symlinks",0,1);
   if( find_option("open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
+  }
+  if( forceSymlinks ){
+    if( is_truth(forceSymlinks) ) g.allowSymlinks = 1;
+    if( is_false(forceSymlinks) ) g.allowSymlinks = 0;
   }
   fossil_print("Th_IsLocalOpen() = %d\n", Th_IsLocalOpen());
   fossil_print("Th_IsRepositoryOpen() = %d\n", Th_IsRepositoryOpen());
