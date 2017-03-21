@@ -1,5 +1,5 @@
-C Add\sthe\s--symlink\soption\sto\stest-file-environment.
-D 2017-03-21T13:21:25.193
+C Added\ssome\sUTF-16\scases,\sand\sa\sBOM\scase\sfor\sUTF-8\sto\scommit-warning.test
+D 2017-03-21T23:45:00.219
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -540,7 +540,7 @@ F test/amend.test 83966725550e04f80c40a52012074f91ef6d22cbd57f51e17e931eccee6663
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
 F test/cmdline.test df50383ebf00e7a444e29f2f755867f843c37df7
 F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
-F test/commit-warning.test ad8a3ab5449f5c8528562d6dcaf6541e0af7d78f26bc3a86aae2af934757d170
+F test/commit-warning.test de03a8d66fa900e841f8b671c648701a9d3b2eaae0350e015ca67d6a3045e2df
 F test/contains-selector.test cf46a39b3c1ff72d2fc674f4ccbeecfb94add7d2
 F test/delta1.test c3ea182ab06554a35203285774606ba37fdc620d
 F test/diff-test-1.wiki c25f312aa20a97b7127e8047f60fe67cc35319e5
@@ -784,7 +784,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 02bfb9b6294cc4e19e9e2e88088be09085eb6bbc46b48ee936d4888d7445329d
-R ce06d82e689e313bccfd5ebea5b4aa4b
-U drh
-Z 37495ca892bda111889ca00d92ec07f4
+P e583068713164db0ffcdb8436004125eae3cb38b0f26a9fc64bd41cdb8640444
+R c5d2844a4a9fdfbf50a6baa868651c37
+U rberteig
+Z 6348a41e3c6850cfad326793a206d985
