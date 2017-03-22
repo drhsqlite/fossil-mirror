@@ -1379,11 +1379,12 @@ static void svn_dump_import(FILE *pIn){
       char *zAction = svn_find_header(rec, "Node-action");
       char *zKind = svn_find_header(rec, "Node-kind");
       char *zPerm = svn_find_prop(rec, "svn:executable") ? "x" : 0;
+      int deltaFlag = 0;
+      int srcRev = 0;
+
       if ( zPerm==0 ){
         zPerm = svn_find_prop(rec, "svn:special") ? "l" : 0;
       }
-      int deltaFlag = 0;
-      int srcRev = 0;
       if( branchId==0 ){
         svn_free_rec(&rec);
         continue;

@@ -1,5 +1,5 @@
-C Fixes\sto\sSVN\simport\sreceived\sfrom\sChristophe\sGouiran\s(bechris13250\sat\sgmail)
-D 2017-03-22T12:39:52.814
+C Fix\s(older)\sMSVC\scompile
+D 2017-03-22T14:52:34.912
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -433,7 +433,7 @@ F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d98
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
-F src/import.c 2603a10a17babe3e85fb5ae6540a5aff91efe48669392f251842a66b32598682
+F src/import.c 36d6cd4f155d954cbed12b4c875b60a07723dec57d1ff94f824fc111cc472341
 F src/info.c 24d7626c2144c46d527c9d7c824ef9039ffe835fa97f749669cb2db76d197846
 F src/json.c cc8d06a2d208ad0092d6d68ef5b7ac9a7e05708b3271c5cfd1da890f97322642
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
@@ -784,7 +784,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8705a525358dd9be086960dbf83a6c6ab5ab8cce913e3a8477e1ef861cbe23eb
-R dd45f3f8e3e6556faa8233d2c3ec0551
-U drh
-Z 3415a68a30f43f1ecc55d34f7adaab14
+P 035bd4f65cb13106f5c31d390713508ea630a4d9bb69a88e1a623a1375ad6347
+R 4d749e23d5b71a9cda0b2e9799cb45a2
+U jan.nijtmans
+Z 5bcb2583caab5943adb831b7935ab5bd
