@@ -730,7 +730,7 @@ TCCEXE = gcc
 #    the finished binary for fossil.  The BCC compiler above is used
 #    for building intermediate code-generator tools.
 #
-TCC = $(PREFIX)$(TCCEXE) -Wall
+TCC = $(PREFIX)$(TCCEXE) -Wall -Wdeclaration-after-statement
 
 #### Add the necessary command line options to build with debugging
 #    symbols, if enabled.

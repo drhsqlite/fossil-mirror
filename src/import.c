@@ -71,7 +71,6 @@ static struct {
   int nFileAlloc;             /* Number of slots in aFile[] */
   ImportFile *aFile;          /* Information about files in a commit */
   int fromLoaded;             /* True zFrom content loaded into aFile[] */
-  int hasLinks;               /* True if git repository contains symlinks */
   int tagCommit;              /* True if the commit adds a tag */
 } gg;
 
@@ -275,7 +274,6 @@ static void finish_commit(void){
       blob_append(&record, " x\n", 3);
     }else if( gg.aFile[i].isLink ){
       blob_append(&record, " l\n", 3);
-      gg.hasLinks = 1;
     }else{
       blob_append(&record, "\n", 1);
     }
@@ -750,9 +748,6 @@ static void git_fast_import(FILE *pIn){
     }
   }
   gg.xFinish();
-  if( gg.hasLinks ){
-    db_set_int("allow-symlinks", 1, 0);
-  }
   import_reset(1);
   return;
 
@@ -1256,6 +1251,30 @@ static int svn_parse_path(char *zPath, char **zFile, int *type){
 }
 
 /*
+** Insert content of corresponding content blob into the database.
+** If content is identified as a symbolic link then:
+** 1)Trailing "link " characters are removed from content.
+**
+** content is considered to be a symlink if zPerm contains at least
+** one "l" character.
+*/
+static int svn_handle_symlinks(const char *perms, Blob *content){
+  Blob link_blob;
+  if( perms && strstr(perms, "l")!=0 ){
+    if( blob_size(content)>5 ){
+      /* Skip trailing 'link ' characters */
+      blob_seek(content, 5, BLOB_SEEK_SET);
+      blob_tail(content, &link_blob);
+      return content_put(&link_blob);
+    }else{
+      fossil_fatal("Too short symbolic link path");
+    }
+  }else{
+    return content_put(content);
+  }
+}
+
+/*
 ** Read the svn-dump format from pIn and insert the corresponding
 ** content into the database.
 */
@@ -1353,6 +1372,9 @@ static void svn_dump_import(FILE *pIn){
       char *zAction = svn_find_header(rec, "Node-action");
       char *zKind = svn_find_header(rec, "Node-kind");
       char *zPerm = svn_find_prop(rec, "svn:executable") ? "x" : 0;
+      if ( zPerm==0 ){
+        zPerm = svn_find_prop(rec, "svn:special") ? "l" : 0;
+      }
       int deltaFlag = 0;
       int srcRev = 0;
       if( branchId==0 ){
@@ -1466,9 +1488,15 @@ static void svn_dump_import(FILE *pIn){
               blob_zero(&deltaSrc);
             }
             svn_apply_svndiff(&rec.content, &deltaSrc, &target);
-            rid = content_put(&target);
+            rid = svn_handle_symlinks(zPerm, &target);
           }else if( rec.contentFlag ){
-            rid = content_put(&rec.content);
+            rid = svn_handle_symlinks(zPerm, &rec.content);
+          }else if( zSrcPath ){
+            if ( zPerm==0 ){
+              zPerm = db_text(0, "SELECT tperm FROM xfiles"
+                                 " WHERE tpath=%Q AND tbranch=%d"
+                                 "", zSrcPath, branchId);
+            }
           }
           db_bind_text(&addFile, ":path", zFile);
           db_bind_int(&addFile, ":branch", branchId);
@@ -1487,6 +1515,12 @@ static void svn_dump_import(FILE *pIn){
           fossil_fatal("Missing Node-kind");
         }
         if( rec.contentFlag && strncmp(zKind, "dir", 3)!=0 ){
+          if ( zPerm==0 ){
+            zPerm = db_text(0, "SELECT tperm FROM xfiles"
+                               " WHERE tpath=%Q AND tbranch=%d"
+                               "", zFile, branchId);
+          }
+
           if( deltaFlag ){
             Blob deltaSrc;
             Blob target;
@@ -1496,9 +1530,9 @@ static void svn_dump_import(FILE *pIn){
                             ")", zFile, branchId);
             content_get(rid, &deltaSrc);
             svn_apply_svndiff(&rec.content, &deltaSrc, &target);
-            rid = content_put(&target);
+            rid = svn_handle_symlinks(zPerm, &target);
           }else{
-            rid = content_put(&rec.content);
+            rid = svn_handle_symlinks(zPerm, &rec.content);
           }
           db_bind_text(&addFile, ":path", zFile);
           db_bind_int(&addFile, ":branch", branchId);
