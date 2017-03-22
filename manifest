@@ -1,5 +1,5 @@
-C Fix\s(older)\sMSVC\scompile
-D 2017-03-22T14:52:34.912
+C When\scompiling\swith\sMingw(-w64),\scheck\sfor\s(older)\sMSVC\scompatibility.
+D 2017-03-22T15:56:18.415
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -461,7 +461,7 @@ F src/main.c 5105d4bc1b86b24638764606c399321a82726b89
 F src/main.mk adb39465c0b57737cc735f324b9e2bc296a79f16
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl 580b8c186cee0309f1dc96ff1620f066a6782757
+F src/makemake.tcl cca2d0e790e83b667f060010c7ae3949b181dcacc3a2bd3e80ec29d8d5bd119d
 F src/manifest.c 34ddf7c6b3d86a746ce11c0eef7e2ac9245c2100
 F src/markdown.c 2cb7007279db7ad8e16f8c822d5ba27f59b4af2dcc0cd4ba87cce3e4303d5969
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
@@ -661,8 +661,8 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F win/Makefile.PellesCGMake e9d1636731fe8a581e1f2a9a155b1310a9356178
 F win/Makefile.dmc c25967ec834821a70b903969ba1d325f121287ee
-F win/Makefile.mingw 299506ef6b91297c226c2b190873db1b00cf60f9
-F win/Makefile.mingw.mistachkin d40fe2737602e0033e819388413a6015ca638076
+F win/Makefile.mingw a58151a45237cf793f5f232955eea03667e938ddcb30bd904d0061fcdc6dd515
+F win/Makefile.mingw.mistachkin 9bbf029861b298369c87f752d5c00bc3239ecae9bc1684b688b428ca4c4365db
 F win/Makefile.msc 1b5be2dc160e6a95cfe54e09cfd85318a9b6c6dd
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -784,7 +784,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 035bd4f65cb13106f5c31d390713508ea630a4d9bb69a88e1a623a1375ad6347
-R 4d749e23d5b71a9cda0b2e9799cb45a2
+P 80c94b768982a017804c2b137f5c83947bb6f1022ed5849c1e3b40b197884c2f
+R 6c2e9d3cb0f3e1459412b872fa230180
 U jan.nijtmans
-Z 5bcb2583caab5943adb831b7935ab5bd
+Z 57402c235c214e886a8f804b61d97013
