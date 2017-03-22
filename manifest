@@ -1,5 +1,5 @@
-C When\scompiling\swith\sMingw(-w64),\scheck\sfor\s(older)\sMSVC\scompatibility.
-D 2017-03-22T15:56:18.415
+C Fix\sharmless\scompiler\swarnings\sin\sthe\sshell
+D 2017-03-22T16:15:45.761
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -455,7 +455,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c 29ba1458d561d2b3238cbc717976eab87a098a16
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c 3e9df0060ebd52f8207423d78f7739e479711292bf14ad68be1584e5c51f48e0
+F src/login.c c09327660159d4fb0eb4e31ed4cf2a766ad12324329434bedb8c0eaf4d326dd5
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
 F src/main.c 5105d4bc1b86b24638764606c399321a82726b89
 F src/main.mk adb39465c0b57737cc735f324b9e2bc296a79f16
@@ -493,7 +493,7 @@ F src/setup.c a1b42702fccd0df8f42c2ae8fe3b9bef4073bbd3def4699e5dce52dba98cf06f
 F src/sha1.c f8052a974b626854519fdd78563d5c0c827fcf7a
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c bd83dc4631af22905b3cf314a8069d3dc8c101c6
-F src/shell.c 77054c021069ec0b65d3d620aab031f97c59b4e42ac7c31544ea68933b581104
+F src/shell.c ce39c4bbbaa02484cb45141034fd363c3bac80a6aa22b0bb3cecea1c6a4c0979
 F src/shun.c e6e544a8b9200a704121c280604ed42e6aefc3f19f5107d0bdf9b51d9a912a4e
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c 0b6ae35015f48cbe9cef2f97d65105a796fc366b
@@ -694,7 +694,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 506dba1eba4643b3d47d8210e4d87c424916f5340a48814202f9ef828f8cfbcd
-F www/changes.wiki 86740f530f10138c980528a2de5562282db8675ad612512af8347f452146b5f7
+F www/changes.wiki ee8ee56337af59460bf49f34cfc6e1b14d10d253c67a5e747f8d3a8e96907145
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -784,7 +784,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 80c94b768982a017804c2b137f5c83947bb6f1022ed5849c1e3b40b197884c2f
-R 6c2e9d3cb0f3e1459412b872fa230180
+P 4080860da51ef7849416af44682fdeb2b219869a79178a706d83bf6f9ca1c56e
+R 9970fdfb7abdb4d0dda502dd60bbfa0d
 U jan.nijtmans
-Z 57402c235c214e886a8f804b61d97013
+Z 3389fb0f200611599ae6f154549d313d

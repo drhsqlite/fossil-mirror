@@ -862,7 +862,6 @@ static int logic_basic_authentication(const char *zIpAddr){
   char *zDecode = 0;
   const char *zUsername = 0;
   const char *zPasswd = 0;
-  
 
   if( zAuth==0 ) return 0;                    /* Fail: No Authentication: header */
   while( fossil_isspace(zAuth[0]) ) zAuth++;  /* Skip leading whitespace */

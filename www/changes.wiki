@@ -6,7 +6,7 @@
   *  Show the content of README files on directory listings.
      ([/file/skins|example])
   *  Support for Basic Authentication if enabled (default off).
-  *  Show the hash algorithms used on the 
+  *  Show the hash algorithms used on the
      [/help?cmd=/rcvfromlist|/rcvfromlist] page.
   *  The [/help?cmd=/tarball|/tarball] and [/help?cmd=/zip|/zip] pages
      now use the the r= query parameter
@@ -44,7 +44,7 @@
 
   *  Add checkbox widgets to various web pages.  See [/technote/8d18bf27e9|
      this technote] for more information.  To get the checkboxes to look as
-	 intended, you must update the CSS in your repository and all clones.
+     intended, you must update the CSS in your repository and all clones.
   *  Add the [/help/all|fossil all ui] command
   *  Add the [/help?cmd=/file|/file] webpage
   *  Enhance the [/help?cmd=/brlist|/brlist] webpage to make use of branch colors.
