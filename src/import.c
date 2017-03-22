@@ -71,7 +71,6 @@ static struct {
   int nFileAlloc;             /* Number of slots in aFile[] */
   ImportFile *aFile;          /* Information about files in a commit */
   int fromLoaded;             /* True zFrom content loaded into aFile[] */
-  int hasLinks;               /* True if git repository contains symlinks */
   int tagCommit;              /* True if the commit adds a tag */
 } gg;
 
@@ -275,7 +274,6 @@ static void finish_commit(void){
       blob_append(&record, " x\n", 3);
     }else if( gg.aFile[i].isLink ){
       blob_append(&record, " l\n", 3);
-      gg.hasLinks = 1;
     }else{
       blob_append(&record, "\n", 1);
     }
@@ -750,9 +748,6 @@ static void git_fast_import(FILE *pIn){
     }
   }
   gg.xFinish();
-  if( gg.hasLinks ){
-    db_set_int("allow-symlinks", 1, 0);
-  }
   import_reset(1);
   return;
 
@@ -1257,9 +1252,8 @@ static int svn_parse_path(char *zPath, char **zFile, int *type){
 
 /*
 ** Insert content of corresponding content blob into the database.
-** If content is identified as a symbolic link then:
-** 1)Trailing "link " characters are removed from content.
-** 2)Repository "allow-symlinks" setting is activated.
+** If content is identified as a symbolic link, then trailing
+** "link " characters are removed from content.
 **
 ** content is considered to be a symlink if zPerm contains at least
 ** one "l" character.
@@ -1271,7 +1265,6 @@ static int svn_handle_symlinks(const char *perms, Blob *content){
       /* Skip trailing 'link ' characters */
       blob_seek(content, 5, BLOB_SEEK_SET);
       blob_tail(content, &link_blob);
-      db_set_int("allow-symlinks", 1, 0);
       return content_put(&link_blob);
     }else{
       fossil_fatal("Too short symbolic link path");

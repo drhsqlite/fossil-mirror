@@ -1,5 +1,5 @@
-C Fix\sharmless\scompiler\swarnings\sin\sthe\sshell
-D 2017-03-22T16:15:45.761
+C Since\s"allow-symlinks"\sis\salready\sON\sby\sdefault\son\snon-unix\splatforms\s(since\sfossil\s1.35\salready),\sno\sneed\sto\sdo\sanything\sspecial\sduring\sGIT/SVN\simport.
+D 2017-03-22T16:42:03.204
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -408,7 +408,7 @@ F src/content.c b5eac283f4fec06093976b86ec95565c2a8b968c
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 5bcd5f6138d480faf28029bdb111cc4a9a3deda093dcf438e4d8abff5ebe5764
+F src/db.c 81931556881dca3cb7393ba285c7f6c686fd11d9cc9df4976eb92fe8691f1839
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
@@ -433,7 +433,7 @@ F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d98
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
-F src/import.c 36d6cd4f155d954cbed12b4c875b60a07723dec57d1ff94f824fc111cc472341
+F src/import.c 7093c8ebb67e725f8dcbfcc2f3ef10375cf0838f7a05d4f7de9dccae1e281f85
 F src/info.c 24d7626c2144c46d527c9d7c824ef9039ffe835fa97f749669cb2db76d197846
 F src/json.c cc8d06a2d208ad0092d6d68ef5b7ac9a7e05708b3271c5cfd1da890f97322642
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
@@ -784,7 +784,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4080860da51ef7849416af44682fdeb2b219869a79178a706d83bf6f9ca1c56e
-R 9970fdfb7abdb4d0dda502dd60bbfa0d
+P cc65959b0fd62b4173d66088266f3360b3f2cbae5eea09fa5821147f349488ed
+R 9bdaa4a78c2a8584674d717038147f49
 U jan.nijtmans
-Z 3389fb0f200611599ae6f154549d313d
+Z 5e32bcd49717b1007f3bb6a7fbd3a154

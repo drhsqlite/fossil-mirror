@@ -2861,7 +2861,7 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **     (versionable)   them as symlinks on Unix. Has no effect on Windows
 **                     (existing links in repository created on Unix become
 **                     plain-text files with link destination path inside).
-**                     Default: off
+**                     Default: on (Unix), off (Windows)
 **
 **    auto-captcha     If enabled, the Login page provides a button to
 **                     fill in the captcha password.  Default: on
