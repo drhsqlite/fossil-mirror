@@ -1,5 +1,5 @@
-C Since\s"allow-symlinks"\sis\salready\sON\sby\sdefault\son\snon-unix\splatforms\s(since\sfossil\s1.35\salready),\sno\sneed\sto\sdo\sanything\sspecial\sduring\sGIT/SVN\simport.
-D 2017-03-22T16:42:03.204
+C Define\sthe\sNORETURN\smacro\sfor\sMSVC
+D 2017-03-23T22:09:51.151
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -402,7 +402,7 @@ F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c c8b17c6084570fef0afc5b52d5caffcc83ff4548
 F src/codecheck1.c 0e2c3cd4068f6de1df56fc19ec224c296f3c8eb4
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
-F src/config.h 9edbe6bfa88b32682e7028fdf5d30adba5dd1939
+F src/config.h 8c82d54ff3a372713c75e3dbeb4581f7b774371b55fbec3a9d6be2df00db353b
 F src/configure.c df8e12f3f73c558b58e84e2b7b47cf6542068d0e
 F src/content.c b5eac283f4fec06093976b86ec95565c2a8b968c
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
@@ -784,7 +784,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cc65959b0fd62b4173d66088266f3360b3f2cbae5eea09fa5821147f349488ed
-R 9bdaa4a78c2a8584674d717038147f49
-U jan.nijtmans
-Z 5e32bcd49717b1007f3bb6a7fbd3a154
+P f21820f4abbeada7af373a6dd02f3fa3f6c5d88b6ea93858d825d5b3d8964b58
+R 67edb9daa3f2aaac4f0cd27f49581faf
+U drh
+Z d2e3b5356b91aa52e547f62b048dc630
