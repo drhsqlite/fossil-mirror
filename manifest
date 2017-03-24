@@ -1,5 +1,5 @@
-C Not\sall\sMSVC\sversions\sunderstand\s__declspec(noreturn)
-D 2017-03-24T08:55:27.786
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sthird\s3.18.0\sbeta.
+D 2017-03-24T20:43:51.472
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -498,8 +498,8 @@ F src/shun.c e6e544a8b9200a704121c280604ed42e6aefc3f19f5107d0bdf9b51d9a912a4e
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c 0b6ae35015f48cbe9cef2f97d65105a796fc366b
 F src/sqlcmd.c fba609f0f5a91435d0dff8719ba9c5d25f8cfa15
-F src/sqlite3.c 056ff6322f12d14f00cc294f6339227e853be8eb1e58276159456ed01bae832d
-F src/sqlite3.h df813c661a04a96523367e9a32e465dddad9048913a7354898414c215475f9eb
+F src/sqlite3.c 58bc48cca9ccfbe998e5c4e663a43029aba69f08a9a2f8bc220516720e5f9cb0
+F src/sqlite3.h e36fb4054ba95f421d5266d78565cb1c542d6715a4a2ee11c4bcc8ea3e14b352
 F src/stash.c dc0263e11eeb30689418e4def6174af973ad66bf
 F src/stat.c 5e2fa9e1b7b6d283d308cfaedc47fe59b57e1ab83f128250f081b28d8c23fd60
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
@@ -784,7 +784,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c8a4300267fdf1b70d7817a1588db5589774f0fcdde074b59ff01bfde0a13d16
-R 6be431a571f7b7b8eb54cd4d498b4c06
-U jan.nijtmans
-Z 3d6a92ec99e427ad1045c8097b9af722
+P 131bef423401fb10d0289e927f2854bd0d5b84add79196be19e72af73642511c
+R e7bab97cc3ec0e8ff8c020661fbec8d7
+U drh
+Z 3cfbc1d9a563a837f58218f5551ed60a
