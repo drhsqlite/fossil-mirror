@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\ssecond\s3.18.0\sbeta.
-D 2017-03-24T02:54:39.499
+C Not\sall\sMSVC\sversions\sunderstand\s__declspec(noreturn)
+D 2017-03-24T08:55:27.786
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -402,7 +402,7 @@ F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c c8b17c6084570fef0afc5b52d5caffcc83ff4548
 F src/codecheck1.c 0e2c3cd4068f6de1df56fc19ec224c296f3c8eb4
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
-F src/config.h 8c82d54ff3a372713c75e3dbeb4581f7b774371b55fbec3a9d6be2df00db353b
+F src/config.h 226abfa7e943d6bb1384fa2e489985184fdb968d42c68e03cdf563db64585860
 F src/configure.c df8e12f3f73c558b58e84e2b7b47cf6542068d0e
 F src/content.c b5eac283f4fec06093976b86ec95565c2a8b968c
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
@@ -784,7 +784,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a99c9ffec2cf627d2534e472238b700a084e8a2f2163d84a33440fc3bd20cf67
-R c4815d67e1138ce4b1c9f655270225b0
-U drh
-Z b6053ef922261432250f23966e3773be
+P c8a4300267fdf1b70d7817a1588db5589774f0fcdde074b59ff01bfde0a13d16
+R 6be431a571f7b7b8eb54cd4d498b4c06
+U jan.nijtmans
+Z 3d6a92ec99e427ad1045c8097b9af722

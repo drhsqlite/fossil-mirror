@@ -231,7 +231,7 @@ typedef signed char i8;
 */
 #if defined(__GNUC__) || defined(__clang__)
 # define NORETURN __attribute__((__noreturn__))
-#elif defined(_MSC_VER)
+#elif defined(_MSC_VER) && (_MSC_VER >= 1310)
 # define NORETURN __declspec(noreturn)
 #else
 # define NORETURN
