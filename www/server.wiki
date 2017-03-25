@@ -351,8 +351,8 @@ Note also that Linux implements "getloadavg()" by accessing the "/proc/loadavg"
 file in the "proc" virtual filesystem.  If you are running a Fossil instance
 inside a chroot() jail on Linux, you will need to make the "/proc" file
 system available inside that jail in order for this feature to work.  On
-the self-hosting Fossil repository, this was accomplished by adding a line
-to the "/etc/fstab" file that looks like:
+the [./selfhost.wiki|self-hosting Fossil repositories], this was accomplished
+by adding a line to the "/etc/fstab" file that looks like:
 <blockquote><pre>
 chroot_jail_proc /home/www/proc proc ro 0 0
 </pre></blockquote>
