@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sthird\s3.18.0\sbeta.
-D 2017-03-24T20:43:51.472
+C Add\sthe\s"How\sThe\sDownload\sPage\sWorks"\sdocumentation\sfile.
+D 2017-03-25T00:44:00.181
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -675,6 +675,7 @@ F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/aboutcgi.wiki 202d01418f53b32d5f52f2822c8c2350e5e3c4c1
+F www/aboutdownload.wiki d83646919e7ae7a3cd756af3ad4ded1d14a348d861f06a030907cdc79ce3297e
 F www/adding_code.wiki 5254f0811146471cf1cc5dde727822745e554a9c
 F www/antibot.wiki 1031d6f7b33f41f2ff8526a9a87efcd5672aec33
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
@@ -753,10 +754,10 @@ F www/index.wiki 38c24247e3e5ccea5135f4d5fddf82244815d8fd
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki 7805bf0a04dc009df152d683771f8e3f74b194a4
 F www/mkdownload.tcl 86e774d93eb5c92cac5e7328920987feedf9356d
-F www/mkindex.tcl 1c31b452335807cde5377a9c227b2a24591491a1 x
+F www/mkindex.tcl 2334d7822cd575436ac12e0d6b5dc72adcd2a4238c2cbad009b37d945f8ffeae x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
-F www/permutedindex.html 05c2d776ed93137b593221a5552cad080965dabf
+F www/permutedindex.html 179e4b409f94ee0ebe5ac23e7f0b53f1951c3cd805d6bb7bc04a4e05ea97cbfe
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 1c55c09563361db73b733386dc0fd6689156d5ab
 F www/qandc.wiki b8b6f9668796bde63440e64dfd40a176766dd78e
@@ -784,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 131bef423401fb10d0289e927f2854bd0d5b84add79196be19e72af73642511c
-R e7bab97cc3ec0e8ff8c020661fbec8d7
+P af225fea67f141901695aac15d0857514a7613476c3b1b5b9207f5ff1ff79572
+R a09c24352940286b0085e3b2f8a31536
 U drh
-Z 3cfbc1d9a563a837f58218f5551ed60a
+Z 2fe0a850856120f2a66c23ad3f995a05

@@ -8,6 +8,7 @@
 
 set doclist {
   aboutcgi.wiki {How CGI Works In Fossil}
+  aboutdownload.wiki {How The Download Page Works}
   adding_code.wiki {Adding New Features To Fossil}
   adding_code.wiki {Hacking Fossil}
   antibot.wiki {Defense against Spiders and Bots}
