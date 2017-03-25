@@ -1,5 +1,5 @@
-C Add\sthe\s"Security"\ssection\sto\sthe\s"How\sThe\sDownload\sPage\sWorks"\sdocument.
-D 2017-03-25T01:12:27.440
+C Further\schanges\sto\sthe\ssecurity\ssection\sof\sthe\sHow\sThe\sDownload\sPage\nWorks\sdocument.
+D 2017-03-25T01:14:22.991
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -675,7 +675,7 @@ F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/aboutcgi.wiki 202d01418f53b32d5f52f2822c8c2350e5e3c4c1
-F www/aboutdownload.wiki 03d7835731c2f2ca3d99b4af29e813ce8bd81144484261f0960aa02510cbcf53
+F www/aboutdownload.wiki cc20af92cce7c48241c3a2570158f9cff0e3ee8642c6e304d4f6409be3e3fd37
 F www/adding_code.wiki 5254f0811146471cf1cc5dde727822745e554a9c
 F www/antibot.wiki 1031d6f7b33f41f2ff8526a9a87efcd5672aec33
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fb38d312c8503bd84561f85d6558de5e33aa28824b245c27d9958c887eb1e11a
-R 01d9f973bccee18055978b692aa5aeb3
+P 914d5328b630a8a9c089db30b15c687ce2c9f22fddcc8be3acd1f819992b3aee
+R 3c69b98fc1bb194173ff3feb1c56aad5
 U drh
-Z 45923ed5a3346dd2f34481bef861a8e5
+Z 7973871b0e2df8346e1e2c301c007aac
