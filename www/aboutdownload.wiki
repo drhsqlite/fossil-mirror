@@ -76,3 +76,17 @@ another [/help?cmd=uv|fossil uv sync].  It is important to purge
 obsolete build products since they take up a lot of space.
 At [/repo-tabsize] you can see that the unversioned table takes up
 a substantial fraction of the repository.
+
+<h2>3.0 Security</h2>
+
+Only users with the [/setup_ulist_notes|"y" permission] are allowed
+to push unversioned content up to the servers.  Having the ability
+to push check-ins (the [/setup_ulist_notes|"i" permission]) is not
+sufficient.
+
+On the Fossil project there are 67 people (as of 2017-03-24) who have 
+check-in privileges.  But only 3 people (Richard Hipp, Dan Kennedy,
+and Joe Mishtachkin) have the ability push unversioned content and thus
+change the build products on the download page.  Minimizing the number
+of people who can change the build products helps to ensure that
+rogue binaries do not slip onto the download page unnoticed.
