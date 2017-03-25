@@ -1,5 +1,5 @@
-C (cherry-pick):\sFixes\sto\sSVN\simport\sreceived\sfrom\sChristophe\sGouiran\s(bechris13250\sat\sgmail)
-D 2017-03-22T16:26:52.775
+C (cherry-pick):\sDefine\sthe\sNORETURN\smacro\sfor\sMSVC
+D 2017-03-25T19:15:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -402,7 +402,7 @@ F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c c8b17c6084570fef0afc5b52d5caffcc83ff4548
 F src/codecheck1.c 0e2c3cd4068f6de1df56fc19ec224c296f3c8eb4
 F src/comformat.c f570981a7bb58eb3ecdfc52b4ac5be428dc32acb
-F src/config.h 9edbe6bfa88b32682e7028fdf5d30adba5dd1939
+F src/config.h 226abfa7e943d6bb1384fa2e489985184fdb968d42c68e03cdf563db64585860
 F src/configure.c df8e12f3f73c558b58e84e2b7b47cf6542068d0e
 F src/content.c b5eac283f4fec06093976b86ec95565c2a8b968c
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
@@ -493,7 +493,7 @@ F src/setup.c 2d807dd6722ea73a8be13afe66a194cdc1e4b5ee
 F src/sha1.c f8052a974b626854519fdd78563d5c0c827fcf7a
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c bd83dc4631af22905b3cf314a8069d3dc8c101c6
-F src/shell.c ce39c4bbbaa02484cb45141034fd363c3bac80a6aa22b0bb3cecea1c6a4c0979
+F src/shell.c ceb2b2f1f958ea2c47a7f37972d0f715fbf9dcf6a34a5e98c886b85e3ce6a238
 F src/shun.c 2f32dff8bb8a3f9aa1eeb10a82be946c68d9573a
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c 0b6ae35015f48cbe9cef2f97d65105a796fc366b
@@ -782,8 +782,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c6a20403c64255416d985f4e6ad5a48a04484a18acc7f2ccd1a772cab12bbbbb
-Q +035bd4f65cb13106f5c31d390713508ea630a4d9bb69a88e1a623a1375ad6347
-R 0df3c58cd30025dcfff6099f84e69c72
+P dec3383ed428203f28f1740bd6592962158ddbf68d28805d0c6ab468520a8336
+Q +a99c9ffec2cf627d2534e472238b700a084e8a2f2163d84a33440fc3bd20cf67
+R f98dc944a8e3c54a97959e964b8f5cd5
 U jan.nijtmans
-Z 6e41d76721b163d569c34a7adf12bc52
+Z 20430a4da8ee6e06446b1dc28b659db6
