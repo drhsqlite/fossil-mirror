@@ -1,5 +1,5 @@
-C Fix\sminor\stypos\sand\sadd\shelpful\shyperlinks\sin\ssome\sof\sthe\sdocumentation.
-D 2017-03-25T02:20:28.608
+C Remove\ssuperflouous\spart\sof\sautosetup/local.tcl,\ssuggested\sby\s[http://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg24976.html|Steve\sBennett]
+D 2017-03-28T11:10:08.366
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -60,7 +60,7 @@ F autosetup/config.sub 1ed99f2fce4975f55e82b3833baf74fbcd8bdda0 x
 F autosetup/default.auto f78163e478676728918cbb7360abddb9c830e882
 F autosetup/find-tclsh f973558ad74bd8e4d55b677d9c166cbb35f34186 x
 F autosetup/jimsh0.c e2e67757a06d0cab4d5db04220492e68714f5852
-F autosetup/local.tcl 3a6a7704f546f0863f86f69df7af1858de9c41c9
+F autosetup/local.tcl 79b8c81822e992ec573689e57b042b348dc6923c
 F autosetup/pkg-config.tcl 232a81fd534755653144cea9558656908189e97f
 F autosetup/system.tcl 82f4b642c6c605dc1fa8cb728bf251e501350572
 F autosetup/test-tclsh f197a4c7bfa8bde7672864fc36dcbc7f85bdda6c x
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 39d6fc72a58f998194b55398e3c99fe296fed30b25eb140eab50e8cee3ac2e51
-R c68d6a01940574bff2c2cd3009983b15
-U drh
-Z 6be5dfbd34bb938574ebabf4381dbec7
+P a0ce33c90b7194ada52072d3b8047651c5977aa48c9e8b8341c454f09109d72b
+R af9951b36c9667f1b6559dfa46f87fc9
+U jan.nijtmans
+Z 6bd618eab91e17c7fa49f1de66303be5
