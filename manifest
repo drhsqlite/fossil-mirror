@@ -1,5 +1,5 @@
-C Add\sa\shyperlink\sto\sPRAGMA\soptimize\sin\sthe\schange\slog\sfor\s2.2.
-D 2017-03-30T18:01:25.110
+C Cherry-pick\sSolaris\sbuild\sfix\sfrom\sSQLite\strunk\s[http://www.sqlite.org/src/info/c8000e94cca59dab]
+D 2017-03-30T18:58:43.471
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -498,7 +498,7 @@ F src/shun.c e6e544a8b9200a704121c280604ed42e6aefc3f19f5107d0bdf9b51d9a912a4e
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c 0b6ae35015f48cbe9cef2f97d65105a796fc366b
 F src/sqlcmd.c fba609f0f5a91435d0dff8719ba9c5d25f8cfa15
-F src/sqlite3.c 0a2c773b2f4ee1d625c827ce31872315c0f6c30cf001ef6140d851e26b72e310
+F src/sqlite3.c 4154f644e847900a6dea3c4effe9963098ca2cce90b3465b7c83fb8ccb5a46a6
 F src/sqlite3.h afcf6e4ea64863b349e4cfe699404572afdb1b83fd0489238cbef451c1f28f94
 F src/stash.c dc0263e11eeb30689418e4def6174af973ad66bf
 F src/stat.c 5e2fa9e1b7b6d283d308cfaedc47fe59b57e1ab83f128250f081b28d8c23fd60
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 32b0065c58b5f3c3d9429aece0e5a074d5f65ac983257d53d7987cfa3a7a2f44
-R 2cd9948fec1b31659e2475955a1e60b2
-U drh
-Z 7cad825385cf8155751e6fad24080fed
+P 84c2682f4f470387180cdb3bebeee8ac70a25e5e535894aa21e55dfec41e4dfe
+R 387fc4b76885647832f266481987f162
+U jan.nijtmans
+Z 4eb25246a141694ccfa9e25f04b7575d
