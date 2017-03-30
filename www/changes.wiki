@@ -1,7 +1,7 @@
 <title>Change Log</title>
 
 <a name='v2_2'></a>
-<h2>Changes for Version 2.2 (2017-??-??)</h2>
+<h2>Changes for Version 2.2 (2017-04-??)</h2>
 
   *  Show the content of README files on directory listings.
      ([/file/skins|example])
@@ -13,8 +13,8 @@
      to select which check-in to deliver.  The uuid= query parameter
      is still accepted for backwards compatibility.
   *  Update the built-in SQLite to version 3.18.0.
-  *  Run "PRAGMA optimize" on the database connection as it is
-     closing.
+  *  Run "[https://www.sqlite.org/pragma.html#pragma_optimize|PRAGMA optimize]" 
+     on the database connection as it is closing.
 
 <a name='v2_1'></a>
 <h2>Changes for Version 2.1 (2017-03-10)</h2>
