@@ -1,5 +1,5 @@
-C Update\sautosetup\sto\sv0.6.6\n\nIncludes\sminor\supdate\sto\slocal.tcl\sfor\snew\soption\shandling,\nand\salso\sremove\ssome\sunused\scode\sfrom\slocal.tcl
-D 2017-03-29T23:07:22.936
+C merge-mark\s(no\schange,\sbecause\sthe\sremoval\sof\sunused\scode\sfrom\slocal.tcl\swas\salready\sdone\sin\strunk)
+D 2017-03-30T07:23:20.798
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -785,10 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a0ce33c90b7194ada52072d3b8047651c5977aa48c9e8b8341c454f09109d72b
+P 2af33c977172eb234b92128d56fdd850661403e5660c483f054285cd5b4699ce 7198a7dc16d0be9f01b6daae990386afd18f8c10f9c53139d7b1c45e3569d120
 R 589c856a8366ad5a03cf4d1f69ddb156
-T *branch * autosetup
-T *sym-autosetup *
-T -sym-trunk *
-U steveb
-Z e29ee87e27bb647f335e43389f52c2c2
+U jan.nijtmans
+Z 7298e25e5608dcf1caa10f71f7c641d7
