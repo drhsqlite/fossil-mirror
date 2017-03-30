@@ -1,5 +1,5 @@
-C Remove\ssuperflouous\spart\sof\sautosetup/local.tcl,\ssuggested\sby\s[http://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg24976.html|Steve\sBennett]
-D 2017-03-28T11:10:08.366
+C Update\sthe\sbuilt-in\sSQLite\sto\s3.18.0
+D 2017-03-30T15:25:38.438
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -493,13 +493,13 @@ F src/setup.c a1b42702fccd0df8f42c2ae8fe3b9bef4073bbd3def4699e5dce52dba98cf06f
 F src/sha1.c f8052a974b626854519fdd78563d5c0c827fcf7a
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c bd83dc4631af22905b3cf314a8069d3dc8c101c6
-F src/shell.c ce39c4bbbaa02484cb45141034fd363c3bac80a6aa22b0bb3cecea1c6a4c0979
+F src/shell.c ceb2b2f1f958ea2c47a7f37972d0f715fbf9dcf6a34a5e98c886b85e3ce6a238
 F src/shun.c e6e544a8b9200a704121c280604ed42e6aefc3f19f5107d0bdf9b51d9a912a4e
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c 0b6ae35015f48cbe9cef2f97d65105a796fc366b
 F src/sqlcmd.c fba609f0f5a91435d0dff8719ba9c5d25f8cfa15
-F src/sqlite3.c 58bc48cca9ccfbe998e5c4e663a43029aba69f08a9a2f8bc220516720e5f9cb0
-F src/sqlite3.h e36fb4054ba95f421d5266d78565cb1c542d6715a4a2ee11c4bcc8ea3e14b352
+F src/sqlite3.c 0a2c773b2f4ee1d625c827ce31872315c0f6c30cf001ef6140d851e26b72e310
+F src/sqlite3.h afcf6e4ea64863b349e4cfe699404572afdb1b83fd0489238cbef451c1f28f94
 F src/stash.c dc0263e11eeb30689418e4def6174af973ad66bf
 F src/stat.c 5e2fa9e1b7b6d283d308cfaedc47fe59b57e1ab83f128250f081b28d8c23fd60
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a0ce33c90b7194ada52072d3b8047651c5977aa48c9e8b8341c454f09109d72b
-R af9951b36c9667f1b6559dfa46f87fc9
+P 7198a7dc16d0be9f01b6daae990386afd18f8c10f9c53139d7b1c45e3569d120
+R 2a3b6fdfe13d2c4fe2618e7f954749e4
 U jan.nijtmans
-Z 6bd618eab91e17c7fa49f1de66303be5
+Z f74718867dd59dc073073a1b06f31c93
