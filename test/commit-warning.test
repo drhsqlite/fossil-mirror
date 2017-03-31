@@ -89,14 +89,16 @@ write_file utf-8-bom-emoji "\xef\xbb\xbf$emoji"
 # UTF-16 uses 16-bit values to cover all valid unicode code points
 # from U+0 to U+10FFFF, using surrogate pairs to escape the BMP.
 # Interchange require knowing (and preserving) byte order.
-write_file utf-16le-hello "h\x00e\x00l\x00l\x00o\x00\n\x00"
-write_file utf-16be-hello "\x00h\x00e\x00l\x00l\x00o\x00\n"
-set bomLE "\xff\xfeh"
-set bomBE "\xfe\xffh"
-write_file utf-16le-bomle-hello "$bomLE\x00e\x00l\x00l\x00o\x00\n\x00"
-write_file utf-16be-bombe-hello "$bomBE\x00h\x00e\x00l\x00l\x00o\x00\n"
-write_file utf-16le-bombe-hello "$bomBE\x00e\x00l\x00l\x00o\x00\n\x00"
-write_file utf-16be-bomle-hello "$bomLE\x00h\x00e\x00l\x00l\x00o\x00\n"
+set hello16LE "h\x00e\x00l\x00l\x00o\x00\n\x00"
+set hello16BE "\x00h\x00e\x00l\x00l\x00o\x00\n"
+write_file utf-16le-hello $hello16LE
+write_file utf-16be-hello $hello16BE
+set bomLE "\xff\xfe"
+set bomBE "\xfe\xff"
+write_file utf-16le-bomle-hello "$bomLE$hello16LE"
+write_file utf-16be-bombe-hello "$bomBE$hello16BE"
+write_file utf-16le-bombe-hello "$bomBE$hello16LE"
+write_file utf-16be-bomle-hello "$bomLE$hello16BE"
 set le16 [read_file [file join $testdir utf16le.txt]]
 set be16 [read_file [file join $testdir utf16be.txt]]
 write_file utf-16le.txt $le16 
@@ -122,8 +124,8 @@ test pre-commit-warnings-1 {[normalize_result] eq \
 1\tline-64K\tlong lines
 1\tline-8192\tlong lines
 0\tplain.txt\t
-1\tutf-16be-bombe-hello\tbinary data
-1\tutf-16be-bomle-hello\tbinary data
+1\tutf-16be-bombe-hello\tUnicode
+1\tutf-16be-bomle-hello\tUnicode
 1\tutf-16be-hello\tbinary data
 1\tutf-16be.txt\tUnicode
 1\tutf-16le-bombe-hello\tUnicode
