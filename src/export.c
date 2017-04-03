@@ -21,6 +21,13 @@
 #include "export.h"
 #include <assert.h>
 
+/*
+** State information common to all export types.
+*/
+static struct {
+  const char *zTrunkName;     /* Name of trunk branch */
+} gexport;
+
 #if INTERFACE
 /*
 ** struct mark_t
@@ -162,6 +169,64 @@ static void print_person(const char *zUser){
   free(zName);
   free(zEmail);
   db_reset(&q);
+}
+
+#define REFREPLACEMENT	'_'
+
+/*
+** Output a sanitized git named reference.
+** https://git-scm.com/docs/git-check-ref-format
+** This implementation assumes we are only printing
+** the branch or tag part of the reference.
+*/
+static void print_ref(const char *zRef){
+  char *zEncoded = mprintf("%s", zRef);
+  int i, w;
+  if (zEncoded[0]=='@' && zEncoded[1]=='\0'){
+    putchar(REFREPLACEMENT);
+    return;
+  }
+  for(i=0, w=0; zEncoded[i]; i++, w++){
+    if( i!=0 ){ /* Two letter tests */
+      if( (zEncoded[i-1]=='.' && zEncoded[i]=='.') ||
+          (zEncoded[i-1]=='@' && zEncoded[i]=='{') ){
+        zEncoded[w]=zEncoded[w-1]=REFREPLACEMENT;
+        continue;
+      }
+      if( zEncoded[i-1]=='/' && zEncoded[i]=='/' ){
+        w--; /* Normalise to a single / by rolling back w */
+        continue;
+      }
+    }
+    /* No control characters */
+    if( (unsigned)zEncoded[i]<0x20 || zEncoded[i]==0x7f ){
+      zEncoded[w]=REFREPLACEMENT;
+      continue;
+    }
+    switch( zEncoded[i] ){
+      case ' ':
+      case '^':
+      case ':':
+      case '?':
+      case '*':
+      case '[':
+      case '\\':
+        zEncoded[w]=REFREPLACEMENT;
+	break;
+    }
+  }
+  /* Cannot begin with a . or / */
+  if( zEncoded[0]=='.' || zEncoded[0] == '/' ) zEncoded[0]=REFREPLACEMENT;
+  if( i>0 ){
+    i--; w--;
+    /* Or end with a . or / */
+    if( zEncoded[i]=='.' || zEncoded[i] == '/' ) zEncoded[w]=REFREPLACEMENT;
+    /* Cannot end with .lock */
+    if ( i>4 && strcmp((zEncoded+i)-5, ".lock")==0 )
+      memset((zEncoded+w)-5, REFREPLACEMENT, 5);
+  }
+  printf("%s", zEncoded);
+  free(zEncoded);
 }
 
 #define BLOBMARK(rid)   ((rid) * 2)
@@ -415,6 +480,7 @@ void export_marks(FILE* f, Bag *blobs, Bag *vers){
 ** Options:
 **   --export-marks FILE          export rids of exported data to FILE
 **   --import-marks FILE          read rids of data to ignore from FILE
+**   --rename-trunk NAME          use NAME as name of exported trunk branch
 **   --repository|-R REPOSITORY   export the given REPOSITORY
 **
 ** See also: import
@@ -433,6 +499,10 @@ void export_cmd(void){
   find_option("git", 0, 0);   /* Ignore the --git option for now */
   markfile_in = find_option("import-marks", 0, 1);
   markfile_out = find_option("export-marks", 0, 1);
+
+  if( !(gexport.zTrunkName = find_option("rename-trunk", 0, 1)) ){
+    gexport.zTrunkName = "trunk";
+  }
 
   db_find_and_open_repository(0, 2);
   verify_all_options();
@@ -549,22 +619,18 @@ void export_cmd(void){
     const char *zComment = db_column_text(&q, 2);
     const char *zUser = db_column_text(&q, 3);
     const char *zBranch = db_column_text(&q, 4);
-    char *zBr;
     char *zMark;
 
     bag_insert(&vers, ckinId);
     db_bind_int(&q2, ":rid", ckinId);
     db_step(&q2);
     db_reset(&q2);
-    if( zBranch==0 ) zBranch = "trunk";
-    zBr = mprintf("%s", zBranch);
-    for(i=0; zBr[i]; i++){
-      if( !fossil_isalnum(zBr[i]) ) zBr[i] = '_';
-    }
+    if( zBranch==0 || fossil_strcmp(zBranch, "trunk")==0 ) zBranch = gexport.zTrunkName;
     zMark = mark_name_from_rid(ckinId, &unused_mark);
-    printf("commit refs/heads/%s\nmark %s\n", zBr, zMark);
+    printf("commit refs/heads/");
+    print_ref(zBranch);
+    printf("\nmark %s\n", zMark);
     free(zMark);
-    free(zBr);
     printf("committer");
     print_person(zUser);
     printf(" %s +0000\n", zSecondsSince1970);
@@ -632,29 +698,30 @@ void export_cmd(void){
 
   /* Output tags */
   db_prepare(&q,
-     "SELECT tagname, rid, strftime('%%s',mtime)"
+     "SELECT tagname, rid, strftime('%%s',mtime),"
+     "       (SELECT coalesce(euser, user) FROM event WHERE objid=rid),"
+     "       value"
      "  FROM tagxref JOIN tag USING(tagid)"
      " WHERE tagtype=1 AND tagname GLOB 'sym-*'"
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagname = db_column_text(&q, 0);
-    char *zEncoded = 0;
     int rid = db_column_int(&q, 1);
     char *zMark = mark_name_from_rid(rid, &unused_mark);
     const char *zSecSince1970 = db_column_text(&q, 2);
-    int i;
+    const char *zUser = db_column_text(&q, 3);
+    const char *zValue = db_column_text(&q, 4);
     if( rid==0 || !bag_find(&vers, rid) ) continue;
     zTagname += 4;
-    zEncoded = mprintf("%s", zTagname);
-    for(i=0; zEncoded[i]; i++){
-      if( !fossil_isalnum(zEncoded[i]) ) zEncoded[i] = '_';
-    }
-    printf("tag %s\n", zEncoded);
-    printf("from %s\n", zMark);
+    printf("tag ");
+    print_ref(zTagname);
+    printf("\nfrom %s\n", zMark);
     free(zMark);
-    printf("tagger <tagger> %s +0000\n", zSecSince1970);
-    printf("data 0\n");
-    fossil_free(zEncoded);
+    printf("tagger");
+    print_person(zUser);
+    printf(" %s +0000\n", zSecSince1970);
+    printf("data %d\n", zValue==NULL?0:strlen(zValue)+1);
+    if( zValue!=NULL ) printf("%s\n",zValue);
   }
   db_finalize(&q);
 

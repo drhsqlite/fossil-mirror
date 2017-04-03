@@ -13,7 +13,7 @@
      to select which check-in to deliver.  The uuid= query parameter
      is still accepted for backwards compatibility.
   *  Update the built-in SQLite to version 3.18.0.
-  *  Run "[https://www.sqlite.org/pragma.html#pragma_optimize|PRAGMA optimize]" 
+  *  Run "[https://www.sqlite.org/pragma.html#pragma_optimize|PRAGMA optimize]"
      on the database connection as it is closing.
 
 <a name='v2_1'></a>

@@ -1,5 +1,5 @@
-C Fixed\sbug\sin\stest\sfiles\sgenerated\sin\scommit-warning\stests\sthat\scaused\ssome\sUCS-2\s(aka\sUTF-16)\sfiles\sto\shave\san\sodd\sbyte\slength\sand\sbe\sseen\sas\sbinary\sinstead\sof\sUnicode.
-D 2017-03-31T00:11:45.701
+C Add\ssupport\sfor\sGIT\scomment\stags,\sas\ssuggested\s[https://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg24595.html|here].\sImplementation\sby\sRoy\sMarples,\sbut\smodified\sto\suse\sthe\s(existing)\s'T'\scard\sin\sstead\sof\sthe\s'C'\scard.
+D 2017-04-03T11:40:23.728
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -419,7 +419,7 @@ F src/dispatch.c 4e634c0cf22b7dd63501a4dc0aa6375cf4151343
 F src/doc.c a18db75a080ca2225e76a05a6e8957ea740ffc84
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c 5dcf3c6ff00c39c25a3909deec1d1154cf0b85a5
-F src/export.c ff3740ec039c8a06df8a1a95ceae62ddd35babb3
+F src/export.c dac5a772f70597a27d1fa4c33a2dcf1d7bd9f72cd5ebac7891a5e7943283e8ef
 F src/file.c c77e7c7383f414c6016021a0a3550faecd6d4111921fd07b7747b4917a353b2f
 F src/finfo.c 1ed28f25c99d30270690b3b45c36c3320baecddc
 F src/foci.c bb1344335db231bacb8062fbf1d9357d9e7dc1c8
@@ -433,7 +433,7 @@ F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d98
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
-F src/import.c 7093c8ebb67e725f8dcbfcc2f3ef10375cf0838f7a05d4f7de9dccae1e281f85
+F src/import.c 14ebf8376b92b9446a886bd22721554e57080dff459a64a35825b403a763a217
 F src/info.c 24d7626c2144c46d527c9d7c824ef9039ffe835fa97f749669cb2db76d197846
 F src/json.c cc8d06a2d208ad0092d6d68ef5b7ac9a7e05708b3271c5cfd1da890f97322642
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
@@ -695,7 +695,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 506dba1eba4643b3d47d8210e4d87c424916f5340a48814202f9ef828f8cfbcd
-F www/changes.wiki c17d7beabc11bb825070e3bd3c2e776f02c4847fff10274758338cae5d390f19
+F www/changes.wiki 265d1b848631ec685ce278a41f42100947acda6c513c630247113c259697e1c7
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 54cf4397f499fa5100fbd165a2c37ae51215d3b2c47875982e417c7b601237e5
-R c17fa7653d22fdb86ad097a85ae1ad4b
-U rberteig
-Z 5fe5c8c4019de881499cd74586c36703
+P 4bbd5c3e47544f5f06ed52475ee2b4cd49eb24fe23f35f6a50087b85ea2fe22f f2e075b9d5e7015e7760cf7f05baa3f9520ad59c486fb01b33519925aa746b8b
+R 473960ca2f870f04e4a8fc681b5fdc3c
+U jan.nijtmans
+Z d80c4a86afb9b2bd47dada0fc94afb20
