@@ -2001,7 +2001,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   }
   if( p->type==CFTYPE_CLUSTER ){
     static Stmt del1;
-    tag_insert("cluster", 1, 0, rid, p->rDate, rid, NULL);
+    tag_insert("cluster", 1, 0, rid, p->rDate, rid);
     db_static_prepare(&del1, "DELETE FROM unclustered WHERE rid=:rid");
     for(i=0; i<p->nCChild; i++){
       int mid;
@@ -2035,7 +2035,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
             return 0;
         }
         tag_insert(&p->aTag[i].zName[1], type, p->aTag[i].zValue,
-                   rid, p->rDate, tid, p->zComment);
+                   rid, p->rDate, tid);
       }
     }
     if( parentid ){
@@ -2052,7 +2052,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     while( fossil_isspace(p->zWiki[0]) ) p->zWiki++;
     nWiki = strlen(p->zWiki);
     sqlite3_snprintf(sizeof(zLength), zLength, "%d", nWiki);
-    tag_insert(zTag, 1, zLength, rid, p->rDate, rid, p->zComment);
+    tag_insert(zTag, 1, zLength, rid, p->rDate, rid);
     fossil_free(zTag);
     prior = db_int(0,
       "SELECT rid FROM tagxref"
@@ -2093,7 +2093,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     while( fossil_isspace(p->zWiki[0]) ) p->zWiki++;
     nWiki = strlen(p->zWiki);
     sqlite3_snprintf(sizeof(zLength), zLength, "%d", nWiki);
-    tag_insert(zTag, 1, zLength, rid, p->rDate, rid, p->zComment);
+    tag_insert(zTag, 1, zLength, rid, p->rDate, rid);
     fossil_free(zTag);
     prior = db_int(0,
       "SELECT rid FROM tagxref"
@@ -2167,7 +2167,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     Stmt qatt;
     assert( manifest_crosslink_busy==1 );
     zTag = mprintf("tkt-%s", p->zTicketUuid);
-    tag_insert(zTag, 1, 0, rid, p->rDate, rid, p->zComment);
+    tag_insert(zTag, 1, 0, rid, p->rDate, rid);
     fossil_free(zTag);
     db_multi_exec("INSERT OR IGNORE INTO pending_tkt VALUES(%Q)",
                   p->zTicketUuid);

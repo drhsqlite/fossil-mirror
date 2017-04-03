@@ -700,7 +700,7 @@ void export_cmd(void){
   db_prepare(&q,
      "SELECT tagname, rid, strftime('%%s',mtime),"
      "       (SELECT coalesce(euser, user) FROM event WHERE objid=rid),"
-     "       tagcomment"
+     "       value"
      "  FROM tagxref JOIN tag USING(tagid)"
      " WHERE tagtype=1 AND tagname GLOB 'sym-*'"
   );
@@ -710,7 +710,7 @@ void export_cmd(void){
     char *zMark = mark_name_from_rid(rid, &unused_mark);
     const char *zSecSince1970 = db_column_text(&q, 2);
     const char *zUser = db_column_text(&q, 3);
-    const char *zComment = db_column_text(&q, 4);
+    const char *zValue = db_column_text(&q, 4);
     if( rid==0 || !bag_find(&vers, rid) ) continue;
     zTagname += 4;
     printf("tag ");
@@ -720,8 +720,8 @@ void export_cmd(void){
     printf("tagger");
     print_person(zUser);
     printf(" %s +0000\n", zSecSince1970);
-    printf("data %d\n", zComment==NULL?0:(int)strlen(zComment)+1);
-    if( zComment!=NULL ) printf("%s\n",zComment);
+    printf("data %d\n", zValue==NULL?0:strlen(zValue)+1);
+    if( zValue!=NULL ) printf("%s\n",zValue);
   }
   db_finalize(&q);
 

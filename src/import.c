@@ -217,11 +217,13 @@ static void finish_tag(void){
   Blob record, cksum;
   if( gg.zDate && gg.zTag && gg.zFrom && gg.zUser ){
     blob_zero(&record);
-    if( gg.zComment ) blob_appendf(&record, "C %F\n", gg.zComment);
     blob_appendf(&record, "D %s\n", gg.zDate);
-    blob_appendf(&record, "T +sym-%F%F%F %s\n", gimport.zTagPre, gg.zTag,
+    blob_appendf(&record, "T +sym-%F%F%F %s", gimport.zTagPre, gg.zTag,
         gimport.zTagSuf, gg.zFrom);
-    blob_appendf(&record, "U %F\n", gg.zUser);
+    if( gg.zComment ){
+      blob_appendf(&record, " %F", gg.zComment);
+    }
+    blob_appendf(&record, "\nU %F\n", gg.zUser);
     md5sum_blob(&record, &cksum);
     blob_appendf(&record, "Z %b\n", &cksum);
     fast_insert_content(&record, 0, 0, 1);
