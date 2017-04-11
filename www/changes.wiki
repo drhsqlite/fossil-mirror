@@ -3,6 +3,7 @@
 <a name='v2_2'></a>
 <h2>Changes for Version 2.2 (2017-04-??)</h2>
 
+  *  GIT comment tags are now handled by Fossil during import/export.
   *  Show the content of README files on directory listings.
      ([/file/skins|example])
   *  Support for Basic Authentication if enabled (default off).
