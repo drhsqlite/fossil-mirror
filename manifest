@@ -1,5 +1,5 @@
-C Version\s2.2
-D 2017-04-11T20:54:55.831
+C Added\sverbiage\sto\s--ignore\soptions\sof\sadd\sand\saddremove\sto\sstate\sthat\sthey\sapply\sto\sunmanaged\sfiles\sonly.
+D 2017-04-11T21:37:15.957
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -383,7 +383,7 @@ F skins/xekri/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c f23144d54a286503a6d276af39b94aea4fff937f
+F src/add.c a9a6f333cf0130993ded66cc77b857bc741dacdcf0c6bd4c87569e80788c8b01
 F src/allrepo.c 7296e9bfbbd4897b522ec2e2c26aa88890ffdae1
 F src/attach.c 702f70714f6ed49b8d3d669cfbe4f87ac78946b8
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
@@ -785,10 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 909f2ef4c6e3fb072ef27922deaad5d9e9e79b4dd906077fe5205616a434f58f
-R c87e79b6b7a6ae98165f4140ae03c83b
-T +bgcolor * #d0c0ff
-T +sym-release *
-T +sym-version-2.2 *
-U drh
-Z fde581f02bac4cdf483c862e0a7d6ef8
+P 81d7d3f43ebd4e77095cfbacee7ebc9ae043a014760cde56d437dbd8b6a37c92
+R b9bb64f85cd5bd7cdc78224404542461
+U sdr
+Z 5885397a1904bce0dd4333787aace29c
