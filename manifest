@@ -1,5 +1,5 @@
-C Added\sverbiage\sto\s--ignore\soptions\sof\sadd\sand\saddremove\sto\sstate\sthat\sthey\sapply\sto\sunmanaged\sfiles\sonly.
-D 2017-04-11T21:37:15.957
+C Suppress\s"database\slocked"\swarnings\son\sthe\s"PRAGMA\soptimize"\sthat\soccurs\sas\nthe\sprocess\sis\sshutting\sdown.
+D 2017-04-12T11:26:02.231
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -408,7 +408,7 @@ F src/content.c b5eac283f4fec06093976b86ec95565c2a8b968c
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 81931556881dca3cb7393ba285c7f6c686fd11d9cc9df4976eb92fe8691f1839
+F src/db.c 0d2ae0cb675231e884dce96271eb3b5b591753b16d1035acba17ce1c4426584a
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 81d7d3f43ebd4e77095cfbacee7ebc9ae043a014760cde56d437dbd8b6a37c92
-R b9bb64f85cd5bd7cdc78224404542461
-U sdr
-Z 5885397a1904bce0dd4333787aace29c
+P 4d2c34b0d70fb86bc80da9173fc5890b8c305cfeb7deb60ff6538890a4454bd2
+R 68251e1d24fbbcf944573d9066a1ef42
+U drh
+Z 5875d6fb05d3080dc78cdb64b43e1b20
