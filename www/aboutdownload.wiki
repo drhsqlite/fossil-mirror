@@ -13,7 +13,7 @@ download.html page then figures out which unversioned files are
 build products and paints appropriate icons on the displayed
 download page.
 
-When a new version is generated, the developers us the
+When a new version is generated, the developers use the
 [/help?cmd=uv|fossil uv edit] command to make minor changes
 to the "[/uv/download.html?mimetype=text/plain|download.html]"
 file so that it knows about the

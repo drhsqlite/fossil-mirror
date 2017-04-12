@@ -1,5 +1,5 @@
-C Minor\sgcc\scompiler\swarnings
-D 2017-04-12T11:39:23.012
+C Fix\sa\stypo\son\sthe\saboutdownload.wiki\sdocumentation\spage.
+D 2017-04-12T18:40:53.521
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -675,7 +675,7 @@ F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/aboutcgi.wiki 202d01418f53b32d5f52f2822c8c2350e5e3c4c1
-F www/aboutdownload.wiki cc20af92cce7c48241c3a2570158f9cff0e3ee8642c6e304d4f6409be3e3fd37
+F www/aboutdownload.wiki b68922bd627ea4e7660b7a9279c209d3f312806256e2e1449e9a99d4796769be
 F www/adding_code.wiki 5254f0811146471cf1cc5dde727822745e554a9c
 F www/antibot.wiki 1d8222c3769a8cd4402989d72db1ca2cf8bf34c64c7be7b2a4032e72297ec084
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 41956e7000813c3c3d26292401471b266b63b2218a41bf79461ae8f76fb2dc52
-R 66ece60dc204d328d3ed220fc15c6694
-U jan.nijtmans
-Z c659a5859679fc2e7406878842ed136d
+P a9d1d46f659937412cc37196a64ed52c5bd3a1cdb1d5f0b8ba723a6dc07d48db
+R f9390cdb852f7485b1b93f73e995ee44
+U drh
+Z 1cb8fab7e561883244a13461d496698d
