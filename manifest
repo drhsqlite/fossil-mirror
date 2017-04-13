@@ -1,5 +1,5 @@
-C Fix\sa\stypo\son\sthe\saboutdownload.wiki\sdocumentation\spage.
-D 2017-04-12T18:40:53.521
+C Correct\sreparent\susage\sinformation
+D 2017-04-13T20:42:06.737
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -505,7 +505,7 @@ F src/stat.c 5e2fa9e1b7b6d283d308cfaedc47fe59b57e1ab83f128250f081b28d8c23fd60
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
 F src/style.c cf9edbf403e1df8e094e8a1d44d5dd9516046678
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
-F src/tag.c 46fdc5d0e7c8d60bedae8ef4227692587813bc7f
+F src/tag.c 7eec9152da56e30bedad9b9c62195012de13f0db656f9b6395c2bcebfee7f4a8
 F src/tar.c 17b09ed44d15326d5f19413b5e1c2b985d5b77f21c3bdd898bb263229c46c14b
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a9d1d46f659937412cc37196a64ed52c5bd3a1cdb1d5f0b8ba723a6dc07d48db
-R f9390cdb852f7485b1b93f73e995ee44
-U drh
-Z 1cb8fab7e561883244a13461d496698d
+P f2e9eeb1c05a692f78181d0c0e441f78da52ffcde391551fbff25baf2126832c
+R 1367439e2a8f36aaa8526496bc12e80f
+U andy
+Z 39405a8751e76212cfe3f9088e084dbe
