@@ -41,17 +41,17 @@ Lists of characters have some additional features.
 
 Some examples:
 
-    [a-d]   Matches any one of 'a', 'b', 'c', or 'd'
-    [a-]    Matches either 'a' or '-'
-    [][]    Matches either ']' or '['
-    [^]]    Matches exactly one character other than ']'
-    []^]    Matches either ']' or '^'
+    [a-d]   Matches any one of `a`, `b`, `c`, or `d`
+    [a-]    Matches either `a` or `-`
+    [][]    Matches either `]` or `[`
+    [^]]    Matches exactly one character other than `]`
+    []^]    Matches either `]` or `^`
 
 The glob is compared to the canonical name of the file in the checkout
 tree, and must match the entire name to be considered a match.
 
 Unlike typical Unix shell globs, wildcard sequences are allowed to
-match '/' directory separators as well as the initial '.' in the name
+match `/` directory separators as well as the initial `.` in the name
 of a hidden file or directory.
 
 A list of GLOBs is simply one or more GLOBs separated by whitespace or
@@ -77,7 +77,7 @@ usual assortment of allowed file name characters. Such a pattern
 matches that one file: the GLOB `README` matches only a file named
 `README` in the root of the tree. The GLOB `*/README` would match a
 file named `README` anywhere except the root, since the glob requires
-that at least one '/' be in the name. (Recall that `/` matches the
+that at least one `/` be in the name. (Recall that `/` matches the
 directory separator regardless of whether it is `/` or `\` on your
 system.)
 
