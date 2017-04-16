@@ -43,8 +43,9 @@ Some examples:
 
     [a-d]   Matches any one of 'a', 'b', 'c', or 'd'
     [a-]    Matches either 'a' or '-'
-    []]     Matches exactly one ']' character
+    [][]    Matches either '[' or ']'
     [^]]    Matches exactly one character other than ']'
+    []^]    Matches either ']' or '^'
 
 The glob is compared to the canonical name of the file in the checkout
 tree, and must match the entire name to be considered a match.
