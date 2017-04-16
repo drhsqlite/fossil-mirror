@@ -43,12 +43,16 @@ Some examples:
 
     [a-d]   Matches any one of 'a', 'b', 'c', or 'd'
     [a-]    Matches either 'a' or '-'
-    [][]    Matches either '[' or ']'
+    [][]    Matches either ']' or '['
     [^]]    Matches exactly one character other than ']'
     []^]    Matches either ']' or '^'
 
 The glob is compared to the canonical name of the file in the checkout
 tree, and must match the entire name to be considered a match.
+
+Unlike typical Unix shell globs, wildcard sequences are allowed to
+match '/' directory separators as well as the initial '.' in the name
+of a hidden file or directory.
 
 A list of GLOBs is simply one or more GLOBs separated by whitespace or
 commas. If a GLOB must contain a space or comma, it can be quoted with
