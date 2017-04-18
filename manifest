@@ -1,5 +1,5 @@
-C Correct\sreparent\susage\sinformation
-D 2017-04-13T20:42:06.737
+C Index\sxmark(trid),\sotherwise\swriting\sthe\smark\sfile\scan\stake\shours.
+D 2017-04-18T18:40:46.566
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -419,7 +419,7 @@ F src/dispatch.c 4e634c0cf22b7dd63501a4dc0aa6375cf4151343
 F src/doc.c a18db75a080ca2225e76a05a6e8957ea740ffc84
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c 5dcf3c6ff00c39c25a3909deec1d1154cf0b85a5
-F src/export.c b957f9d1ed1f41862666b1c18af2abfdce3a1d4cbaf1354ca34144a4859d3200
+F src/export.c 3e09dfda9d07b44c463d656dbc09f6adfe686d6d80ad55282a1f06b9216934f2
 F src/file.c c77e7c7383f414c6016021a0a3550faecd6d4111921fd07b7747b4917a353b2f
 F src/finfo.c 1ed28f25c99d30270690b3b45c36c3320baecddc
 F src/foci.c bb1344335db231bacb8062fbf1d9357d9e7dc1c8
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f2e9eeb1c05a692f78181d0c0e441f78da52ffcde391551fbff25baf2126832c
-R 1367439e2a8f36aaa8526496bc12e80f
-U andy
-Z 39405a8751e76212cfe3f9088e084dbe
+P 07783301bdf772156d4dfb070f8427c4cbd065c10167022d1b6e0a2870eb5455
+R 3b09f9028ca1e3bae4d60de784948229
+U joerg
+Z 519ad4b5f95f092e15b84c870c965f0c
