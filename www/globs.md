@@ -241,8 +241,8 @@ match or a couple of other comparison styles.
 
 The pages [`/tarball`][] and [`/zip`][] generate compressed archives
 of a specific checkin. They may be further restricted by query
-parameters that specify GLOBs that name files to include or exclude
-rather than taking the entire checkin.
+parameters that specify glob patterns that name files to include or
+exclude rather than taking the entire checkin.
 
 [`/timeline`]: /help?cmd=/timeline
 [`/tarball`]: /help?cmd=/tarball
@@ -312,21 +312,31 @@ is mentioned in the pattern, but do no harm. The GLOB still matches
 all the files.
 
 
-## Implementation
+## Implementation and References
 
 Most of the implementation of glob pattern handling in fossil is found
-in [`src/glob.c`][glob.c]. The canonical name of a file is implemented
-in [`src/file.c`][file.c]. Each command that references a glob
-constructs the target text from information specific to that command.
+`glob.c`, `file.c`, and each individual command and web page that uses
+a glob pattern. Find commands and pages in the fossil sources by
+looking for comments like `COMMAND: add` or `WEBPAGE: timeline` in
+front of the function that implements the command or page in files
+`src/*.c`. (Fossil's build system creates the tables used to dispatch
+commands at build time by searching the sources for those comments.) A
+few starting points:
+
+ *  [`src/glob.c`][glob.c] implements glob pattern list loading,
+    parsing, and matching.
+ *  [`src/file.c`][file.c] implements various kinds of canonical
+    names of a file.
 
 
 [glob.c]: https://www.fossil-scm.org/index.html/file/src/glob.c
 [file.c]: https://www.fossil-scm.org/index.html/file/src/file.c
 
-The actual matching is implemented in SQL, so the documentation for
-`GLOB` and the other string matching operators in [SQLite]
-(https://sqlite.org/lang_expr.html#like) is useful. Of course, the
-SQLite source code and test harnesses also make entertaining reading:
+The actual pattern matching is implemented in SQL, so the
+documentation for `GLOB` and the other string matching operators in
+[SQLite] (https://sqlite.org/lang_expr.html#like) is useful. Of
+course, the SQLite source code and test harnesses also make
+entertaining reading:
 
  *  `src/func.c` [lines 570-768]
     (https://www.sqlite.org/src/artifact?name=9d52522cc8ae7f5c&ln=570-768) 
