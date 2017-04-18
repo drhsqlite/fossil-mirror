@@ -1,26 +1,27 @@
-File Name GLOB Patterns
-=======================
+# File Name Glob Patterns
+
 
 A [glob pattern][glob] is a text expression that matches one or more
 file names using wild cards familiar to most users of a command line.
 For example, `*` is a glob that matches any name at all and
-`Readme.txt` is a glob that matches exactly one file. Note that
-although they are related, glob patterns are not the same thing as a
-[regular expression or regexp][regexp].
+`Readme.txt` is a glob that matches exactly one file. 
+
+Note that although both are notations for describing patterns in text,
+glob patterns are not the same thing as a [regular expression or
+regexp][regexp].
 
 [glob]: https://en.wikipedia.org/wiki/Glob_(programming) (Wikipedia)
 [regexp]: https://en.wikipedia.org/wiki/Regular_expression
 
 
 A number of fossil setting values hold one or more file glob patterns
-that will match files either on the disk or in the active checkout.
-Glob patterns are also accepted in options to certain commands as well
-as query parameters to certain pages.
+that will identify files needing special treatment.  Glob patterns are
+also accepted in options to certain commands as well as query
+parameters to certain pages.
 
 In many cases more than one glob may be specified in a setting,
 option, or query parameter by listing multiple globs separated by a
-comma or white space. If a glob must contain commas or spaces,
-surround it with single or double quotation marks.
+comma or white space.
 
 Of course, many fossil commands also accept lists of files to act on,
 and those also may be specified with globs. Although those glob
@@ -59,11 +60,15 @@ Special character sequences have some additional features:
  *  A range of characters may be specified with `-`, so `[a-d]` matches
     exactly the same characters as `[abcd]`. Ranges reflect Unicode
     code points without any locale-specific collation sequence.
+
  *  Include `-` in a list by placing it last, just before the `]`.
+
  *  Include `]` in a list by making the first character after the `[` or
     `[^`. At any other place, `]` ends the list. 
+
  *  Include `^` in a list by placing anywhere except first after the
     `[`.
+
  *  Some examples of character lists: 
     `[a-d]` Matches any one of `a`, `b`, `c`, or `d` but not `ä`;
     `[^a-d]` Matches exactly one character other than `a`, `b`, `c`,
@@ -74,13 +79,16 @@ Special character sequences have some additional features:
     `[^]]` Matches exactly one character other than `]`;
     `[]^]` Matches either `]` or `^`; and
     `[^-]` Matches exactly one character other than `-`.
- *  Beware that ranges in lists may include more than you expect: 
+
+    Beware that ranges in lists may include more than you expect: 
     `[A-z]` Matches `A` and `Z`, but also matches `a` and some less
     obvious characters such as `[`, `\`, and `]` with code point
     values between `Z` and `a`.
- *  Beware that a range must be specified from low value to high
+
+    Beware that a range must be specified from low value to high
     value: `[z-a]` does not match any character at all, preventing the
     entire glob from matching.
+
  *  Note that unlike typical Unix shell globs, wildcards (`*`, `?`,
     and character lists) are allowed to match `/` directory
     separators as well as the initial `.` in the name of a hidden
@@ -183,38 +191,62 @@ options to override some or all of the settings. These options are
 usually named to correspond to the setting they override, such as
 `--ignore` to override the `ignore-glob` setting. These commands are:
 
- * `add`
- * `addremove`
- * `changes`
- * `clean`
- * `extras`
- * `merge`
- * `settings` 
- * `status`
- * `unset`
+ * [`add`][]
+ * [`addremove`][]
+ * [`changes`][]
+ * [`clean`][]
+ * [`extras`][]
+ * [`merge`][]
+ * [`settings`][] 
+ * [`status`][]
+ * [`unset`][]
 
-The commands `tarball` and `zip` produce compressed archives of a
+The commands [`tarball`][] and [`zip`][] produce compressed archives of a
 specific checkin. They may be further restricted by options that
 specify glob patterns that name files to include or exclude rather
 than archiving the entire checkin.
 
-The commands `http`, `cgi`, `server`, and `ui` that implement or
-support with web servers provide a mechanism to name some files to
-serve with static content where a list of GLOBs specifies what content
-may be served.
+The commands [`http`][], [`cgi`][], [`server`][], and [`ui`][] that
+implement or support with web servers provide a mechanism to name some
+files to serve with static content where a list of glob patterns
+specifies what content may be served.
+
+[`add`]: /help?cmd=add
+[`addremove`]: /help?cmd=addremove
+[`changes`]: /help?cmd=changes
+[`clean`]: /help?cmd=clean
+[`extras`]: /help?cmd=extras
+[`merge`]: /help?cmd=merge
+[`settings`]: /help?cmd=settings
+[`status`]: /help?cmd=status
+[`unset`]: /help?cmd=unset
+
+[`tarball`]: /help?cmd=tarball
+[`zip`]: /help?cmd=zip
+
+[`http`]: /help?cmd=http
+[`cgi`]: /help?cmd=cgi
+[`server`]: /help?cmd=server
+[`ui`]: /help?cmd=ui
 
 
-### Web pages that refer to GLOBs
+### Web Pages that Refer to Globs
 
-The `/timeline` page supports a query parameter that names a GLOB of
-files to focus the timeline on. It also can use `GLOB`, `LIKE`, or
-`REGEXP` matching on tag names, where each is implemented by the
-corresponding operator in [SQLite][].
+The [`/timeline`][] page supports the query parameter `chng=GLOBLIST` that
+names a list of glob patterns defining which files to focus the
+timeline on. It also has the query parameters `t=TAG` and `r=TAG` that
+names a tag to focus on, which can be configured with `ms=STYLE` to
+use a glob pattern to match tag names instead of the default exact
+match or a couple of other comparison styles.
 
-The pages `/tarball` and `/zip` generate compressed archives of a
-specific checkin. They may be further restricted by query parameters
-that specify GLOBs that name files to include or exclude rather than
-taking the entire checkin.
+The pages [`/tarball`][] and [`/zip`][] generate compressed archives
+of a specific checkin. They may be further restricted by query
+parameters that specify GLOBs that name files to include or exclude
+rather than taking the entire checkin.
+
+[`/timeline`]: /help?cmd=/timeline
+[`/tarball`]: /help?cmd=/tarball
+[`/zip`]: /help?cmd=/zip
 
 
 ## Platform quirks
