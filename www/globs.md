@@ -1,97 +1,152 @@
 File Name GLOB Patterns
 =======================
 
-A number of settings (and options to certain commands as well as query
-parameters to certain pages) are documented as one or more GLOB
-patterns that will match files either on the disk or in the active
-checkout.
+A [glob pattern][glob] is a text expression that matches one or more
+file names using wild cards familiar to most users of a command line.
+For example, `*` is a glob that matches any name at all and
+`Readme.txt` is a glob that matches exactly one file. Note that
+although they are related, glob patterns are not the same thing as a
+[regular expression or regexp][regexp].
 
-A GLOB pattern is described as a pattern that matches file names, and
-some of the individual commands show examples of simple GLOBs. The
-examples show use of `*` as a wild card, and hint that more is
-possible.
+[glob]: https://en.wikipedia.org/wiki/Glob_(programming) (Wikipedia)
+[regexp]: https://en.wikipedia.org/wiki/Regular_expression
 
-In many cases more than one GLOB may be specified as a comma or
-white space separated list of GLOB patterns. Several spots in the
-command help mention that GLOB patterns may be quoted with single or
-double quotes so that spaces and commas may be included in the pattern
-if needed.
 
-Outside of this document, only the source code contains the exact
-specification of the complete syntax of a GLOB pattern.
+A number of fossil setting values hold one or more file glob patterns
+that will match files either on the disk or in the active checkout.
+Glob patterns are also accepted in options to certain commands as well
+as query parameters to certain pages.
+
+In many cases more than one glob may be specified in a setting,
+option, or query parameter by listing multiple globs separated by a
+comma or white space. If a glob must contain commas or spaces,
+surround it with single or double quotation marks.
+
+Of course, many fossil commands also accept lists of files to act on,
+and those also may be specified with globs. Although those glob
+patterns are similar to what is described here, they are not defined
+by fossil, but rather by the conventions of the operating system in
+use.
+
 
 ## Syntax
 
-    any     Any character not mentioned matches exactly that character
+A list of glob patterns is simply one or more glob patterns separated
+by white space or commas. If a glob must contain white spaces or
+commas, it can be quoted with either single or double quotation marks.
+A list is said to match if any one (or more) globs in the list
+matches.
+
+A glob pattern is a collection of characters compared to a target
+text, usually a file name. The whole glob is said to match if it
+successfully consumes and matches the entire target text. Glob
+patterns are made up of ordinary characters and special characters. 
+
+Ordinary characters consume a single character of the target and must
+match it exactly. 
+
+Special characters (and special character sequences) consume zero or
+more characters from the target and describe what matches. The special
+characters (and sequences) are:
+
     *       Matches any sequence of zero or more characters.
     ?       Matches exactly one character.
     [...]   Matches one character from the enclosed list of characters.
     [^...]  Matches one character not in the enclosed list.
 
-Lists of characters have some additional features. 
+Special character sequences have some additional features: 
 
- * A range of characters may be specified with `-`, so `[a-d]` matches
-   exactly the same characters as `[abcd]`.
- * Include `-` in a list by placing it last, just before the `]`.
- * Include `]` in a list by making the first character after the `[` or
-   `[^`. At any other place, `]` ends the list. 
- * Include `^` in a list by placing anywhere except first after the
-   `[`.
-
-
-Some examples:
-
-    [a-d]   Matches any one of `a`, `b`, `c`, or `d`
-    [a-]    Matches either `a` or `-`
-    [][]    Matches either `]` or `[`
-    [^]]    Matches exactly one character other than `]`
-    []^]    Matches either `]` or `^`
-
-The glob is compared to the canonical name of the file in the checkout
-tree, and must match the entire name to be considered a match.
-
-Unlike typical Unix shell globs, wildcard sequences are allowed to
-match `/` directory separators as well as the initial `.` in the name
-of a hidden file or directory.
-
-A list of GLOBs is simply one or more GLOBs separated by whitespace or
-commas. If a GLOB must contain a space or comma, it can be quoted with
-either single or double quotation marks.
-
-Since a newline is considered to be whitespace, a list of GLOBs in a
-file (as for a versioned setting) may have one GLOB per line.
-
-
-## File names to match
-
-Before comparing to a GLOB pattern, each file name is transformed to a
-canonical form. Although the real process is more complicated, the
-canonical name of a file has all directory separators changed to `/`,
-and all `/./` and `/../` sequences removed. The goal is a name that is
-the simplest possible while still specific to each particular file.
-
-This has some consequences. 
-
-The simplest GLOB pattern is just a bare name of a file named with the
-usual assortment of allowed file name characters. Such a pattern
-matches that one file: the GLOB `README` matches only a file named
-`README` in the root of the tree. The GLOB `*/README` would match a
-file named `README` anywhere except the root, since the glob requires
-that at least one `/` be in the name. (Recall that `/` matches the
-directory separator regardless of whether it is `/` or `\` on your
-system.)
+ *  A range of characters may be specified with `-`, so `[a-d]` matches
+    exactly the same characters as `[abcd]`. Ranges reflect Unicode
+    code points without any locale-specific collation sequence.
+ *  Include `-` in a list by placing it last, just before the `]`.
+ *  Include `]` in a list by making the first character after the `[` or
+    `[^`. At any other place, `]` ends the list. 
+ *  Include `^` in a list by placing anywhere except first after the
+    `[`.
+ *  Some examples of character lists: 
+    `[a-d]` Matches any one of `a`, `b`, `c`, or `d` but not `ä`;
+    `[^a-d]` Matches exactly one character other than `a`, `b`, `c`,
+    or `d`; 
+    `[0-9a-fA-F]` Matches exactly one hexadecimal digit;
+    `[a-]` Matches either `a` or `-`;
+    `[][]` Matches either `]` or `[`;
+    `[^]]` Matches exactly one character other than `]`;
+    `[]^]` Matches either `]` or `^`; and
+    `[^-]` Matches exactly one character other than `-`.
+ *  Beware that ranges in lists may include more than you expect: 
+    `[A-z]` Matches `A` and `Z`, but also matches `a` and some less
+    obvious characters such as `[`, `\`, and `]` with code point
+    values between `Z` and `a`.
+ *  Beware that a range must be specified from low value to high
+    value: `[z-a]` does not match any character at all, preventing the
+    entire glob from matching.
+ *  Note that unlike typical Unix shell globs, wildcards (`*`, `?`,
+    and character lists) are allowed to match `/` directory
+    separators as well as the initial `.` in the name of a hidden
+    file or directory.
 
 
+White space means the ASCII characters TAB, LF, VT, FF, CR, and SPACE.
+Note that this does not include any of the many additional spacing
+characters available in Unicode, and specifically does not include
+U+00A0 NO-BREAK SPACE. 
+
+Because both LF and CR are white space and leading and trailing spaces
+are stripped from each glob in a list, a list of globs may be broken
+into lines between globs when the list is stored in a file (as for a
+versioned setting).
+
+Similarly 'single quotes' and "double quotes" are the ASCII straight
+quote characters, not any of the other quotation marks provided in
+Unicode and specifically not the "curly" quotes preferred by
+typesetters and word processors.
 
 
-## Where are they used
+## File Names to Match
 
-### Settings that use GLOBs
+Before it is compared to a glob pattern, each file name is transformed
+to a canonical form. The glob must match the entire canonical file
+name to be considered a match.
 
-These settings are all lists of GLOBs. All may be global, local, or
-versioned. Use `fossil settings` to manage global and local settings,
-or file in the repository's `.fossil-settings/` folder named for each
-for versioned setting.
+The canonical name of a file has all directory separators changed to
+`/`, redundant slashes are removed, all `.` path components are
+removed, and all `..` path components are resolved. (There are
+additional details we won’t go into here.)
+
+The goal is a name that is the simplest possible for each particular
+file, and will be the same on Windows, Unix, and any other platform
+where fossil is run.
+
+Beware, however, that all glob matching is case sensitive. This will
+not be a surprise on Unix where all file names are also case
+sensitive. However, most Windows file systems are case preserving and
+case insensitive. On Windows, the names `ReadMe` and `README` are
+names of the same file; on Unix they are different files.
+
+Some example cases:
+ 
+ *  The glob `README` matches only a file named `README` in the root of
+    the tree. It does not match a file named `src/README` because it
+    does not include any characters that consumed the `src/` part. 
+ *  The glob `*/README` does match `src/README`. Unlike Unix file
+    globs, it also matches `src/library/README`. However it does not
+    match the file `README` in the root of the tree.
+ *  The glob `src/README` does match the file named `src\README` on
+    Windows because all directory separators are rewritten as `/` in
+    the canonical name before the glob is matched. This makes it much
+    easier to write globs that work on both Unix and Windows.
+ *  The glob `*.[ch]` matches every C source or header file in the
+    tree at the root or at any depth. Again, this is (deliberately)
+    different from Unix file globs and Windows wild cards.
+
+
+
+## Where Globs are Used
+
+### Settings that are Globs
+
+These settings are all lists of glob patterns:
 
  * `binary-glob`
  * `clean-glob`
@@ -101,11 +156,32 @@ for versioned setting.
  * `ignore-glob`
  * `keep-glob`
 
+All may be [versioned, local, or global][settings]. Use `fossil
+settings` to manage local and global settings, or a file in the
+repository's `.fossil-settings/` folder at the root of the tree named
+for each for versioned setting.
 
-### Commands that refer to GLOBs
+  [settings]: /doc/trunk/www/settings.wiki
 
-Many of the commands that respect the settings containing GLOBs have
-options to override some or all of the settings.
+Using versioned settings for these not only has the advantage that
+they are tracked in the repository just like the rest of your project,
+but you can more easily keep longer lists of more complicated glob
+patterns than would be practical in either local or global settings.
+
+The `ignore-glob` is an example of one setting that frequently grows
+to be an elaborate list of files that should be ignored by most
+commands. This is especially true when one (or more) IDEs are used in
+a project because each IDE has its own ideas of how and where to cache
+information that speeds up its browsing and building tasks but which
+need not be preserved in your project's history.
+
+
+### Commands that Refer to Globs
+
+Many of the commands that respect the settings containing globs have
+options to override some or all of the settings. These options are
+usually named to correspond to the setting they override, such as
+`--ignore` to override the `ignore-glob` setting. These commands are:
 
  * `add`
  * `addremove`
@@ -117,19 +193,20 @@ options to override some or all of the settings.
  * `status`
  * `unset`
 
-The commands `tarball` and `zip` produce compressed archives of a specific
-checkin. They may be further restricted by options that specify GLOBs
-that name files to include or exclude rather than taking the entire
-checkin.
+The commands `tarball` and `zip` produce compressed archives of a
+specific checkin. They may be further restricted by options that
+specify glob patterns that name files to include or exclude rather
+than archiving the entire checkin.
 
-The commands `http`, `cgi`, `server`, and `ui` that implement or support with web servers
-provide a mechanism to name some files to serve with static content
-where a list of GLOBs specifies what content may be served.
+The commands `http`, `cgi`, `server`, and `ui` that implement or
+support with web servers provide a mechanism to name some files to
+serve with static content where a list of GLOBs specifies what content
+may be served.
 
 
 ### Web pages that refer to GLOBs
 
-The /timeline page supports a query parameter that names a GLOB of
+The `/timeline` page supports a query parameter that names a GLOB of
 files to focus the timeline on. It also can use `GLOB`, `LIKE`, or
 `REGEXP` matching on tag names, where each is implemented by the
 corresponding operator in [SQLite][].
@@ -205,13 +282,21 @@ all the files.
 
 ## Implementation
 
-Most of the implementation of GLOB handling is found in
-[`src/glob.c`][glob.c].
+Most of the implementation of glob pattern handling in fossil is found
+in [`src/glob.c`][glob.c]. The canonical name of a file is implemented
+in [`src/file.c`][file.c]. Each command that references a glob
+constructs the target text from information specific to that command.
 
-The actual matching is implemented in SQL, so the documentation for
-`GLOB` and the other string matching operators in [SQLite][] is
-useful. 
 
 [glob.c]: https://www.fossil-scm.org/index.html/file/src/glob.c
-[SQLite]: https://sqlite.org/lang_expr.html#like
+[file.c]: https://www.fossil-scm.org/index.html/file/src/file.c
 
+The actual matching is implemented in SQL, so the documentation for
+`GLOB` and the other string matching operators in [SQLite]
+(https://sqlite.org/lang_expr.html#like) is useful. Of course, the
+SQLite source code and test harnesses also make entertaining reading:
+
+ *  `src/func.c` [lines 570-768]
+    (https://www.sqlite.org/src/artifact?name=9d52522cc8ae7f5c&ln=570-768) 
+ *  `test/expr.test` [lines 586-673]
+    (https://www.sqlite.org/src/artifact?name=66a2c9ac34f74f03&ln=586-673) 
