@@ -1581,7 +1581,7 @@ file delete $th1FileName
 ###############################################################################
 
 # Tests for the TH1 unversioned command require at least one
-# unversioned file in the repository. All tests run in a freshly 
+# unversioned file in the repository. All tests run in a freshly
 # created checkout of a freshly created repo, so we can just
 # create a file or two for the purpose.
 write_file ten.txt "0123456789"

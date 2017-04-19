@@ -340,7 +340,7 @@ proc same_file {a b} {
   return [expr {$x==$y}]
 }
 
-# Return true if two strings refer to the 
+# Return true if two strings refer to the
 # same uuid. That is, the shorter is a prefix
 # of the longer.
 #

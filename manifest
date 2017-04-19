@@ -1,5 +1,5 @@
-C Index\sxmark(trid),\sotherwise\swriting\sthe\smark\sfile\scan\stake\shours.
-D 2017-04-18T18:40:46.566
+C some\send-of-line\sspacing
+D 2017-04-19T06:58:28.390
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -540,7 +540,7 @@ F test/amend.test 83966725550e04f80c40a52012074f91ef6d22cbd57f51e17e931eccee6663
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
 F test/cmdline.test df50383ebf00e7a444e29f2f755867f843c37df7
 F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
-F test/commit-warning.test 86cd220d8e8f29b81d84b1c904dc752d28d0d9567db373948fb0cede05b8a067
+F test/commit-warning.test 465c7b56da65c3c996d9a19621f31e4307dc55300ea85f554792669d72bbabb7
 F test/contains-selector.test cf46a39b3c1ff72d2fc674f4ccbeecfb94add7d2
 F test/delta1.test c3ea182ab06554a35203285774606ba37fdc620d
 F test/diff-test-1.wiki c25f312aa20a97b7127e8047f60fe67cc35319e5
@@ -558,7 +558,7 @@ F test/merge1.test 0f11a55b5d71fa668b53ffc4cdeb23997e9cb042
 F test/merge2.test 038091215ec2f2b53157599acae6f03dcf91dd12
 F test/merge3.test 70db9ae7c679efad5d5b371114a3cc609818e01a
 F test/merge4.test d563164c477885bcaecb6ea28e824b698bdd57bb
-F test/merge5.test 80e033b4a0c79fbe226a6ddb74c0061a0588d49adfa413cd3adf19b09bb28029
+F test/merge5.test 00a16dbff1c3ffb981b7bb7ede93dcf03e77a42c8fddff1fd632a49119d2dc65
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test 50b1c16adce0050bc946e3d64b14df9ab82f37e0
 F test/merge_exe.test f888647a3305bf2a4ddd77f947e486ae72fced09
@@ -577,7 +577,7 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 9ead8cede3906559325b19560124bd30396f7c0e
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 4f054010d6da4ca9b1f0604f70a000e756e84f349499615eead0a7d05d2445c3
+F test/tester.tcl df32381d274820e8d9350196d6294a473e4a56dfe149dfd74763e2e537b614f4
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 3d2c5998f4b499ffd762e836425309e3ba7ed554ba3493534b6d82f68b33557d
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -593,7 +593,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test f7a82076374abf6067326eee2c430a72d75bd9c3d6b50df7633478a7397c9510
+F test/th1.test 09371f1a9b493d7f5ea71b3f0f12e669fb364288d77cc8d36c7e2ebdd6d26d1b
 F test/unversioned.test 454f7010d05252a07c6b196545c55dc05e14e8287ba87dbb3a80a82f7773040c
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
@@ -675,7 +675,7 @@ F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/aboutcgi.wiki 202d01418f53b32d5f52f2822c8c2350e5e3c4c1
-F www/aboutdownload.wiki b68922bd627ea4e7660b7a9279c209d3f312806256e2e1449e9a99d4796769be
+F www/aboutdownload.wiki 8279d144deb25560bfcb664d34c7bac33565c0b1657bb80db71cb2cb7fd7c6e8
 F www/adding_code.wiki 5254f0811146471cf1cc5dde727822745e554a9c
 F www/antibot.wiki 1d8222c3769a8cd4402989d72db1ca2cf8bf34c64c7be7b2a4032e72297ec084
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 07783301bdf772156d4dfb070f8427c4cbd065c10167022d1b6e0a2870eb5455
-R 3b09f9028ca1e3bae4d60de784948229
-U joerg
-Z 519ad4b5f95f092e15b84c870c965f0c
+P 48d466ab73882c57bf50de59f05228ac7d7a2f41ccd6dbf00736918060849a67
+R cac5052ac5d4866870b4a39b35817116
+U jan.nijtmans
+Z 5340e06c90e9964d9c7b2788e5173053
