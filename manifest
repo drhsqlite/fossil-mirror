@@ -1,5 +1,5 @@
-C In\sglobs.md,\sfixed\sone\smore\sall-caps\sGLOB\sand\sreworded\ssome\sthings.
-D 2017-04-18T22:25:05.997
+C Add\ssome\shints\sabout\stranslating\sfrom\s.gitignore\sto\signore-glob.\sI\sonly\sscratched\sthe\ssurface:\sthis\scould\seasily\sbecome\sthe\ssubject\sof\sa\sbook.
+D 2017-04-19T22:07:33.969
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -747,7 +747,7 @@ F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh db68e2cae431b9e9f5dd672e2f56e2bde5a57d2a
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
-F www/globs.md 6da737732fbdfd1dce1f5fccad545ce9db51a9516085ce34cc5bdd06706c3703
+F www/globs.md a63d675135741183b6a40344b901ed6d54b60cb5a99ca31d5ef9e21f90f461f4
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hashpolicy.wiki 901e234166e31d8cb6634577b3fe266f41453ca1
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1adc47e0ef0c3c46fac88eb824204b362cb9135b14e5a710c814293f3b7cb261
-R 9d70181222101f4e9cc8362d7ec0bc64
+P daf2ada2bff0fc3e4cf66645877b9e9d8dd36d902b8a309c0159a647764b749b
+R c3585fa7e23c712854960112ad82cf03
 U rberteig
-Z 81b512a7c73a1493247fc80fb322763a
+Z 7259d0fc87966a061583223771c1ea93

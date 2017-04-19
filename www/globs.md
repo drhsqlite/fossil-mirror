@@ -312,6 +312,79 @@ is mentioned in the pattern, but do no harm. The GLOB still matches
 all the files.
 
 
+## Converting `.gitignore` to `ignore-glob`
+
+Many other version control systems handle the specific case of
+ignoring certain files differently from fossil: they have you create
+individual "ignore" files in each folder, which specify things ignored
+in that folder and below. Usually some form of glob patterns are used
+in those files, but the details differ from fossil.
+
+In many simple cases, you can just store a top level "ignore" file in
+`.fossil-settings/ignore-glob`. But as usual, there will be lots of
+edge cases.
+
+[Git has a rich collection of ignore files][gitignore] which
+accumulate rules that affect the current command. There are global
+files, per-user files, per workspace unmanaged files, and fully
+version controlled files. Some of the files used have no set name, but
+are called out in configuration files.
+
+[gitignore]: https://git-scm.com/docs/gitignore
+
+In contrast, fossil has a global setting and a local setting, but the local setting
+overrides the global rather than extending it. Similarly, a fossil
+command's `--ignore` option replaces the `ignore-glob` setting rather
+than extending it.
+
+With that in mind, translating a `.gitignore` file into
+`.fossil-settings/ignore-glob` may be possible in many cases. Here are
+some of features of `.gitignore` and comments on how they relate to
+fossil:
+
+ *  "A blank line matches no files..." is the same in fossil.
+ *  "A line starting with # serves as a comment...." not in fossil. 
+ *  "Trailing spaces are ignored unless they are quoted..." is similar
+    in fossil. All whitespace before and after a glob is trimmed in
+    fossil unless quoted with single or double quotes. Git uses
+    backslash quoting instead, which fossil does not.
+ *  "An optional prefix "!" which negates the pattern..." not in
+    fossil.
+ *  Git's globs are relative to the location of the `.gitignore` file;
+    fossil's globs are relative to the root of the workspace.
+ *  Git's globs and fossil's globs treat directory separators
+    differently. Git includes a notation for zero or more directories
+    that is not needed in fossil.
+
+### Example
+
+In a project with source and documentation:
+
+    work
+      +-- doc
+      +-- src
+
+The file `doc/.gitignore` might contain:
+
+    # Finished documents by pandoc via LaTeX
+    *.pdf
+    # Intermediate files
+    *.tex
+    *.toc
+    *.log
+    *.out
+    *.tmp
+
+Entries in `.fossil-settings/ignore-glob` with similar effect, also
+limited to the `doc` folder:
+
+    doc/*.pdf
+    doc/*.tex, doc/*.toc, doc/*.log, doc/*.out, doc/*.tmp
+
+
+
+
+
 ## Implementation and References
 
 Most of the implementation of glob pattern handling in fossil is found
