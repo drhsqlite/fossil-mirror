@@ -69,23 +69,12 @@ Special character sequences have some additional features:
  *  Include `^` in a list by placing anywhere except first after the
     `[`.
 
- *  Some examples of character lists: 
-    `[a-d]` Matches any one of `a`, `b`, `c`, or `d` but not `ä`;
-    `[^a-d]` Matches exactly one character other than `a`, `b`, `c`,
-    or `d`; 
-    `[0-9a-fA-F]` Matches exactly one hexadecimal digit;
-    `[a-]` Matches either `a` or `-`;
-    `[][]` Matches either `]` or `[`;
-    `[^]]` Matches exactly one character other than `]`;
-    `[]^]` Matches either `]` or `^`; and
-    `[^-]` Matches exactly one character other than `-`.
-
-    Beware that ranges in lists may include more than you expect: 
+ *  Beware that ranges in lists may include more than you expect: 
     `[A-z]` Matches `A` and `Z`, but also matches `a` and some less
     obvious characters such as `[`, `\`, and `]` with code point
     values between `Z` and `a`.
 
-    Beware that a range must be specified from low value to high
+ *  Beware that a range must be specified from low value to high
     value: `[z-a]` does not match any character at all, preventing the
     entire glob from matching.
 
@@ -94,6 +83,25 @@ Special character sequences have some additional features:
     separators as well as the initial `.` in the name of a hidden
     file or directory.
 
+
+Some examples of character lists: 
+
+ *  `[a-d]` Matches any one of `a`, `b`, `c`, or `d` but not `ä`;
+
+ *  `[^a-d]` Matches exactly one character other than `a`, `b`, `c`,
+    or `d`; 
+
+ *  `[0-9a-fA-F]` Matches exactly one hexadecimal digit;
+
+ *  `[a-]` Matches either `a` or `-`;
+
+ *  `[][]` Matches either `]` or `[`;
+
+ *  `[^]]` Matches exactly one character other than `]`;
+
+ *  `[]^]` Matches either `]` or `^`; and
+
+ *  `[^-]` Matches exactly one character other than `-`.
 
 White space means the ASCII characters TAB, LF, VT, FF, CR, and SPACE.
 Note that this does not include any of the many additional spacing
