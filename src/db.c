@@ -1668,7 +1668,9 @@ void db_close(int reportErrors){
   }
   db_end_transaction(1);
   pStmt = 0;
+  g.dbIgnoreErrors++;  /* Stop "database locked" warnings from PRAGMA optimize */
   sqlite3_exec(g.db, "PRAGMA optimize", 0, 0, 0);
+  g.dbIgnoreErrors--;
   db_close_config();
 
   /* If the localdb has a lot of unused free space,

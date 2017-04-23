@@ -487,7 +487,6 @@ void export_marks(FILE* f, Bag *blobs, Bag *vers){
 */
 void export_cmd(void){
   Stmt q, q2, q3;
-  int i;
   Bag blobs, vers;
   unsigned int unused_mark = 1;
   const char *markfile_in;
@@ -511,6 +510,7 @@ void export_cmd(void){
   db_multi_exec("CREATE TEMPORARY TABLE oldblob(rid INTEGER PRIMARY KEY)");
   db_multi_exec("CREATE TEMPORARY TABLE oldcommit(rid INTEGER PRIMARY KEY)");
   db_multi_exec("CREATE TEMP TABLE xmark(tname TEXT UNIQUE, trid INT, tuuid TEXT)");
+  db_multi_exec("CREATE INDEX xmark_trid ON xmark(trid)");
   if( markfile_in!=0 ){
     Stmt qb,qc;
     FILE *f;
@@ -720,7 +720,7 @@ void export_cmd(void){
     printf("tagger");
     print_person(zUser);
     printf(" %s +0000\n", zSecSince1970);
-    printf("data %d\n", zValue==NULL?0:strlen(zValue)+1);
+    printf("data %d\n", zValue==NULL?0:(int)strlen(zValue)+1);
     if( zValue!=NULL ) printf("%s\n",zValue);
   }
   db_finalize(&q);

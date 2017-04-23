@@ -1,5 +1,5 @@
-C Version\s2.2
-D 2017-04-11T20:54:55.831
+C Suppress\s"database\slocked"\swarnings\son\sthe\s"PRAGMA\soptimize"\sthat\soccurs\sas\sthe\sprocess\sis\sshutting\sdown.
+D 2017-04-23T14:50:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -11,10 +11,10 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile de98550db1d43a29a17bbd9284308733fb72615f
+F Dockerfile 501889c6e0a4efe9229c83ee032868745738c6995d6277d750d945fc9a7e8cb8
 F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
 F Makefile.in ca04b4081ad0dc54256f7d609168750c2247882e
-F VERSION 10670be41ce220db42289f5b16a18218969f32e1a0a6a2d4703764c5800265fd
+F VERSION 6170ea9e61224a7d06f5e49aab7ba94a89af1d11aeeb6ea3858ca3dbca77aa5c
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -408,7 +408,7 @@ F src/content.c b5eac283f4fec06093976b86ec95565c2a8b968c
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 81931556881dca3cb7393ba285c7f6c686fd11d9cc9df4976eb92fe8691f1839
+F src/db.c 0d2ae0cb675231e884dce96271eb3b5b591753b16d1035acba17ce1c4426584a
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
@@ -419,7 +419,7 @@ F src/dispatch.c 4e634c0cf22b7dd63501a4dc0aa6375cf4151343
 F src/doc.c a18db75a080ca2225e76a05a6e8957ea740ffc84
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c 5dcf3c6ff00c39c25a3909deec1d1154cf0b85a5
-F src/export.c dac5a772f70597a27d1fa4c33a2dcf1d7bd9f72cd5ebac7891a5e7943283e8ef
+F src/export.c 3e09dfda9d07b44c463d656dbc09f6adfe686d6d80ad55282a1f06b9216934f2
 F src/file.c c77e7c7383f414c6016021a0a3550faecd6d4111921fd07b7747b4917a353b2f
 F src/finfo.c 1ed28f25c99d30270690b3b45c36c3320baecddc
 F src/foci.c bb1344335db231bacb8062fbf1d9357d9e7dc1c8
@@ -427,7 +427,7 @@ F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c c774c78b274375f42653c71d0b6c1062695bb4da
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 066169948d671628a648bd0e622ec9487e258195
-F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
+F src/gzip.c 1713ec55dfdea8958a0ca4fd7e4e61a0bcc2465dba2330f3f6ff402787bb1cda
 F src/hname.c 1f0ea670e2648deb2e547175523843bb5a9b84fc
 F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
@@ -785,10 +785,11 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 909f2ef4c6e3fb072ef27922deaad5d9e9e79b4dd906077fe5205616a434f58f
-R c87e79b6b7a6ae98165f4140ae03c83b
-T +bgcolor * #d0c0ff
-T +sym-release *
-T +sym-version-2.2 *
-U drh
-Z fde581f02bac4cdf483c862e0a7d6ef8
+P 81d7d3f43ebd4e77095cfbacee7ebc9ae043a014760cde56d437dbd8b6a37c92
+Q +41956e7000813c3c3d26292401471b266b63b2218a41bf79461ae8f76fb2dc52
+R da4ceb9dd5dc2bbf6411e51a7cd34baa
+T *branch * branch-2.2
+T *sym-branch-2.2 *
+T -sym-trunk *
+U jan.nijtmans
+Z e9110feec1c30e081943948bbb455630
