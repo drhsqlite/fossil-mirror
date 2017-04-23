@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -15,11 +15,7 @@
 **
 *******************************************************************************
 **
-** This file contains code used to convert user-supplied object names into
-** canonical UUIDs.
-**
-** A user-supplied object name is any unique prefix of a valid UUID but
-** not necessarily in canonical form.
+** This file contains code used to resolved user-supplied object names.
 */
 #include "config.h"
 #include "name.h"
@@ -82,8 +78,8 @@ int start_of_branch(int rid, int inBranch){
 /*
 ** Convert a symbolic name into a RID.  Acceptable forms:
 **
-**   *  SHA1 hash
-**   *  SHA1 hash prefix of at least 4 characters
+**   *  artifact hash
+**   *  4-character or larger prefix of a artifact
 **   *  Symbolic Name
 **   *  "tag:" + symbolic name
 **   *  Date or date-time
@@ -107,7 +103,7 @@ int start_of_branch(int rid, int inBranch){
 ** zType is "ci" in most use cases since we are usually searching for
 ** a check-in.
 **
-** Note that the input zTag for types "t" and "e" is the SHA1 hash of
+** Note that the input zTag for types "t" and "e" is the artifact hash of
 ** the ticket-change or event-change artifact, not the randomly generated
 ** hexadecimal identifier assigned to tickets and events.  Those identifiers
 ** live in a separate namespace.
@@ -234,10 +230,10 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     return rid;
   }
 
-  /* SHA1 hash or prefix */
-  if( nTag>=4 && nTag<=UUID_SIZE && validate16(zTag, nTag) ){
+  /* artifact hash or prefix */
+  if( nTag>=4 && nTag<=HNAME_MAX && validate16(zTag, nTag) ){
     Stmt q;
-    char zUuid[UUID_SIZE+1];
+    char zUuid[HNAME_MAX+1];
     memcpy(zUuid, zTag, nTag+1);
     canonical16(zUuid, nTag);
     rid = 0;
@@ -335,7 +331,7 @@ int name_to_uuid(Blob *pName, int iErrPriority, const char *zType){
 ** name_to_uuid(). zType is also as described for that function. If
 ** zName does not resolve, 0 is returned. If it is ambiguous, a
 ** negative value is returned. On success the rid is returned and
-** pUuid (if it is not NULL) is set to the a newly-allocated string,
+** pUuid (if it is not NULL) is set to a newly-allocated string,
 ** the full UUID, which must eventually be free()d by the caller.
 */
 int name_to_uuid2(const char *zName, const char *zType, char **pUuid){
@@ -356,7 +352,7 @@ int name_collisions(const char *zName){
   int c = 0;         /* count of collisions for zName */
   int nLen;          /* length of zName */
   nLen = strlen(zName);
-  if( nLen>=4 && nLen<=UUID_SIZE && validate16(zName, nLen) ){
+  if( nLen>=4 && nLen<=HNAME_MAX && validate16(zName, nLen) ){
     c = db_int(0,
       "SELECT"
       " (SELECT count(*) FROM ticket"
@@ -398,7 +394,7 @@ void test_name_to_id(void){
 ** Convert a name to a rid.  If the name can be any of the various forms
 ** accepted:
 **
-**   * SHA1 hash or prefix thereof
+**   * artifact hash or prefix thereof
 **   * symbolic name
 **   * date
 **   * label:date
@@ -427,9 +423,9 @@ int name_to_rid(const char *zName){
 
 /*
 ** WEBPAGE: ambiguous
-** URL: /ambiguous?name=UUID&src=WEBPAGE
+** URL: /ambiguous?name=NAME&src=WEBPAGE
 **
-** The UUID given by the name parameter is ambiguous.  Display a page
+** The NAME given by the name parameter is ambiguous.  Display a page
 ** that shows all possible choices and let the user select between them.
 */
 void ambiguous_page(void){
@@ -667,10 +663,10 @@ void whatis_rid(int rid, int verboseFlag){
 
 /*
 ** COMMAND: whatis*
-** 
+**
 ** Usage: %fossil whatis NAME
 **
-** Resolve the symbol NAME into its canonical 40-character SHA1-hash
+** Resolve the symbol NAME into its canonical artifact hash
 ** artifact name and provide a description of what role that artifact
 ** plays.
 **
@@ -723,7 +719,7 @@ void whatis_cmd(void){
 
 /*
 ** COMMAND: test-whatis-all
-** 
+**
 ** Usage: %fossil test-whatis-all
 **
 ** Show "whatis" information about every artifact in the repository
@@ -743,10 +739,10 @@ void test_whatis_all_cmd(void){
 
 /*
 ** COMMAND: test-ambiguous
-** 
+**
 ** Usage: %fossil test-ambiguous [--minsize N]
 **
-** Show a list of ambiguous SHA1-hash abbreviations of N characters or
+** Show a list of ambiguous artifact hash abbreviations of N characters or
 ** more where N defaults to 4.  Change N to a different value using
 ** the "--minsize N" command-line option.
 */
@@ -796,7 +792,7 @@ void test_ambiguous_cmd(void){
 static const char zDescTab[] =
 @ CREATE TEMP TABLE IF NOT EXISTS description(
 @   rid INTEGER PRIMARY KEY,       -- RID of the object
-@   uuid TEXT,                     -- SHA1 hash of the object
+@   uuid TEXT,                     -- hash of the object
 @   ctime DATETIME,                -- Time of creation
 @   isPrivate BOOLEAN DEFAULT 0,   -- True for unpublished artifacts
 @   type TEXT,                     -- file, checkin, wiki, ticket, etc.
@@ -936,12 +932,17 @@ void describe_artifacts(const char *zWhere){
 }
 
 /*
-** Print the content of the description table on stdout
+** Print the content of the description table on stdout.
+**
+** The description table is computed using the WHERE clause zWhere if
+** the zWhere parameter is not NULL.  If zWhere is NULL, then this
+** routine assumes that the description table already exists and is
+** populated and merely prints the contents.
 */
 int describe_artifacts_to_stdout(const char *zWhere, const char *zLabel){
   Stmt q;
   int cnt = 0;
-  describe_artifacts(zWhere);
+  if( zWhere!=0 ) describe_artifacts(zWhere);
   db_prepare(&q,
     "SELECT uuid, summary, isPrivate\n"
     "  FROM description\n"
@@ -958,7 +959,7 @@ int describe_artifacts_to_stdout(const char *zWhere, const char *zLabel){
     cnt++;
   }
   db_finalize(&q);
-  db_multi_exec("DELETE FROM description;");
+  if( zWhere!=0 ) db_multi_exec("DELETE FROM description;");
   return cnt;
 }
 
@@ -991,6 +992,7 @@ void test_describe_artifacts_cmd(void){
 **   n=N         Show N artifacts
 **   s=S         Start with artifact number S
 **   unpub       Show only unpublished artifacts
+**   hclr        Color code hash types (SHA1 vs SHA3)
 */
 void bloblist_page(void){
   Stmt q;
@@ -998,12 +1000,15 @@ void bloblist_page(void){
   int n = atoi(PD("n","5000"));
   int mx = db_int(0, "SELECT max(rid) FROM blob");
   int unpubOnly = PB("unpub");
+  int hashClr = PB("hclr");
   char *zRange;
+  char *zSha1Bg;
+  char *zSha3Bg;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("List Of Artifacts");
-  style_submenu_element("250 Largest", 0, "bigbloblist");
+  style_submenu_element("250 Largest", "bigbloblist");
   if( !unpubOnly && mx>n && P("s")==0 ){
     int i;
     @ <p>Select a range of artifacts to view:</p>
@@ -1017,7 +1022,7 @@ void bloblist_page(void){
     return;
   }
   if( !unpubOnly && mx>n ){
-    style_submenu_element("Index", "Index", "bloblist");
+    style_submenu_element("Index", "bloblist");
   }
   if( unpubOnly ){
     zRange = mprintf("IN private");
@@ -1029,13 +1034,25 @@ void bloblist_page(void){
   db_prepare(&q,
     "SELECT rid, uuid, summary, isPrivate FROM description ORDER BY rid"
   );
+  if( skin_detail_boolean("white-foreground") ){
+    zSha1Bg = "#714417";
+    zSha3Bg = "#177117";
+  }else{
+    zSha1Bg = "#ebffb0";
+    zSha3Bg = "#b0ffb0";
+  }
   @ <table cellpadding="0" cellspacing="0">
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q,0);
     const char *zUuid = db_column_text(&q, 1);
     const char *zDesc = db_column_text(&q, 2);
     int isPriv = db_column_int(&q,3);
-    @ <tr><td align="right">%d(rid)</td>
+    if( hashClr ){
+      const char *zClr = db_column_bytes(&q,1)>40 ? zSha3Bg : zSha1Bg;
+      @ <tr style='background-color:%s(zClr);'><td align="right">%d(rid)</td>
+    }else{
+      @ <tr><td align="right">%d(rid)</td>
+    }
     @ <td>&nbsp;%z(href("%R/info/%!S",zUuid))%S(zUuid)</a>&nbsp;</td>
     @ <td align="left">%h(zDesc)</td>
     if( isPriv ){
@@ -1081,7 +1098,7 @@ void bigbloblist_page(void){
   );
   @ <table cellpadding="2" cellspacing="0" border="1" id="bigblobtab">
   @ <thead><tr><th align="right">Size<th align="right">RID
-  @ <th align="right">Delta From<th>SHA1<th>Description<th>Date</tr></thead>
+  @ <th align="right">Delta From<th>Hash<th>Description<th>Date</tr></thead>
   @ <tbody>
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q,0);
@@ -1144,19 +1161,19 @@ void test_phatoms_cmd(void){
 #define MAX_COLLIDE 25
 
 /*
-** Generate a report on the number of collisions in SHA1 hashes
+** Generate a report on the number of collisions in artifact hashes
 ** generated by the SQL given in the argument.
 */
 static void collision_report(const char *zSql){
   int i, j, kk;
   int nHash = 0;
   Stmt q;
-  char zPrev[UUID_SIZE+1];
+  char zPrev[HNAME_MAX+1];
   struct {
     int cnt;
     char *azHit[MAX_COLLIDE];
-    char z[UUID_SIZE+1];
-  } aCollide[UUID_SIZE+1];
+    char z[HNAME_MAX+1];
+  } aCollide[HNAME_MAX+1];
   memset(aCollide, 0, sizeof(aCollide));
   memset(zPrev, 0, sizeof(zPrev));
   db_prepare(&q,"%s",zSql/*safe-for-%s*/);
@@ -1166,7 +1183,7 @@ static void collision_report(const char *zSql){
     int i;
     nHash++;
     for(i=0; zPrev[i] && zPrev[i]==zUuid[i]; i++){}
-    if( i>0 && i<=UUID_SIZE ){
+    if( i>0 && i<=HNAME_MAX ){
       if( i>=4 && aCollide[i].cnt<MAX_COLLIDE ){
         aCollide[i].azHit[aCollide[i].cnt] = mprintf("%.*s", i, zPrev);
       }
@@ -1179,14 +1196,14 @@ static void collision_report(const char *zSql){
   @ <table border=1><thead>
   @ <tr><th>Length<th>Instances<th>First Instance</tr>
   @ </thead><tbody>
-  for(i=1; i<=UUID_SIZE; i++){
+  for(i=1; i<=HNAME_MAX; i++){
     if( aCollide[i].cnt==0 ) continue;
     @ <tr><td>%d(i)<td>%d(aCollide[i].cnt)<td>%h(aCollide[i].z)</tr>
   }
   @ </tbody></table>
   @ <p>Total number of hashes: %d(nHash)</p>
   kk = 0;
-  for(i=UUID_SIZE; i>=4; i--){
+  for(i=HNAME_MAX; i>=4; i--){
     if( aCollide[i].cnt==0 ) continue;
     if( aCollide[i].cnt>200 ) break;
     kk += aCollide[i].cnt;
@@ -1201,7 +1218,7 @@ static void collision_report(const char *zSql){
       @ %z(href("%R/whatis/%s",zId))%h(zId)</a>
     }
   }
-  for(i=4; i<ArraySize(aCollide); i++){
+  for(i=4; i<count(aCollide); i++){
     for(j=0; j<aCollide[i].cnt && j<MAX_COLLIDE; j++){
       fossil_free(aCollide[i].azHit[j]);
     }
@@ -1216,9 +1233,9 @@ static void collision_report(const char *zSql){
 void hash_collisions_webpage(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  style_header("SHA1 Prefix Collisions");
-  style_submenu_element("Activity Reports", 0, "reports");
-  style_submenu_element("Stats", 0, "stat");
+  style_header("Hash Prefix Collisions");
+  style_submenu_element("Activity Reports", "reports");
+  style_submenu_element("Stats", "stat");
   @ <h1>Hash Prefix Collisions on Check-ins</h1>
   collision_report("SELECT (SELECT uuid FROM blob WHERE rid=objid)"
                    "  FROM event WHERE event.type='ci'"

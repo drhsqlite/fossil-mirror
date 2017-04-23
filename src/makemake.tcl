@@ -47,6 +47,7 @@ set src {
   descendants
   diff
   diffcmd
+  dispatch
   doc
   encode
   event
@@ -54,10 +55,12 @@ set src {
   file
   finfo
   foci
+  fshell
   fusefs
   glob
   graph
   gzip
+  hname
   http
   http_socket
   http_transport
@@ -107,6 +110,8 @@ set src {
   search
   setup
   sha1
+  sha1hard
+  sha3
   shun
   sitemap
   skins
@@ -124,6 +129,7 @@ set src {
   tktsetup
   undo
   unicode
+  unversioned
   update
   url
   user
@@ -154,11 +160,19 @@ set extra_files {
 #
 set SQLITE_OPTIONS {
   -DNDEBUG=1
-  -DSQLITE_OMIT_LOAD_EXTENSION=1
-  -DSQLITE_ENABLE_LOCKING_STYLE=0
   -DSQLITE_THREADSAFE=0
-  -DSQLITE_DEFAULT_FILE_FORMAT=4
+  -DSQLITE_DEFAULT_MEMSTATUS=0
+  -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1
+  -DSQLITE_LIKE_DOESNT_MATCH_BLOBS
+  -DSQLITE_OMIT_DECLTYPE
   -DSQLITE_OMIT_DEPRECATED
+  -DSQLITE_OMIT_PROGRESS_CALLBACK
+  -DSQLITE_OMIT_SHARED_CACHE
+  -DSQLITE_OMIT_LOAD_EXTENSION
+  -DSQLITE_MAX_EXPR_DEPTH=0
+  -DSQLITE_USE_ALLOCA
+  -DSQLITE_ENABLE_LOCKING_STYLE=0
+  -DSQLITE_DEFAULT_FILE_FORMAT=4
   -DSQLITE_ENABLE_EXPLAIN_COMMENTS
   -DSQLITE_ENABLE_FTS4
   -DSQLITE_ENABLE_FTS3_PARENTHESIS
@@ -246,6 +260,7 @@ writeln {#
 # This file is included by primary Makefile.
 #
 
+XBCC = $(BCC) $(BCCFLAGS) $(CFLAGS)
 XTCC = $(TCC) -I. -I$(SRCDIR) -I$(OBJDIR) $(TCCFLAGS) $(CFLAGS)
 
 }
@@ -289,22 +304,22 @@ $(OBJDIR):
 	-mkdir $(OBJDIR)
 
 $(OBJDIR)/translate:	$(SRCDIR)/translate.c
-	$(BCC) -o $(OBJDIR)/translate $(SRCDIR)/translate.c
+	$(XBCC) -o $(OBJDIR)/translate $(SRCDIR)/translate.c
 
 $(OBJDIR)/makeheaders:	$(SRCDIR)/makeheaders.c
-	$(BCC) -o $(OBJDIR)/makeheaders $(SRCDIR)/makeheaders.c
+	$(XBCC) -o $(OBJDIR)/makeheaders $(SRCDIR)/makeheaders.c
 
 $(OBJDIR)/mkindex:	$(SRCDIR)/mkindex.c
-	$(BCC) -o $(OBJDIR)/mkindex $(SRCDIR)/mkindex.c
+	$(XBCC) -o $(OBJDIR)/mkindex $(SRCDIR)/mkindex.c
 
 $(OBJDIR)/mkbuiltin:	$(SRCDIR)/mkbuiltin.c
-	$(BCC) -o $(OBJDIR)/mkbuiltin $(SRCDIR)/mkbuiltin.c
+	$(XBCC) -o $(OBJDIR)/mkbuiltin $(SRCDIR)/mkbuiltin.c
 
 $(OBJDIR)/mkversion:	$(SRCDIR)/mkversion.c
-	$(BCC) -o $(OBJDIR)/mkversion $(SRCDIR)/mkversion.c
+	$(XBCC) -o $(OBJDIR)/mkversion $(SRCDIR)/mkversion.c
 
 $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
-	$(BCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
+	$(XBCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
 
 # Run the test suite.
 # Other flags that can be included in TESTFLAGS are:
@@ -660,7 +675,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2h
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2k
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -715,7 +730,7 @@ TCCEXE = gcc
 #    the finished binary for fossil.  The BCC compiler above is used
 #    for building intermediate code-generator tools.
 #
-TCC = $(PREFIX)$(TCCEXE) -Wall
+TCC = $(PREFIX)$(TCCEXE) -Wall -Wdeclaration-after-statement
 
 #### Add the necessary command line options to build with debugging
 #    symbols, if enabled.
@@ -854,7 +869,7 @@ endif
 #### OpenSSL: Add the necessary libraries required, if enabled.
 #
 ifdef FOSSIL_ENABLE_SSL
-LIB += -lssl -lcrypto -lgdi32
+LIB += -lssl -lcrypto -lgdi32 -lcrypt32
 endif
 
 #### Tcl: Add the necessary libraries required, if enabled.
@@ -908,6 +923,7 @@ INNOSETUP = "$(PROGRAMFILES)\Inno Setup 5\ISCC.exe"
 # STOP HERE
 # You should not need to change anything below this line
 #--------------------------------------------------------
+XBCC = $(BCC) $(CFLAGS)
 XTCC = $(TCC) $(CFLAGS) -I. -I$(SRCDIR)
 }
 writeln -nonewline "SRC ="
@@ -1004,22 +1020,22 @@ else
 endif
 
 $(TRANSLATE):	$(SRCDIR)/translate.c
-	$(BCC) -o $@ $(SRCDIR)/translate.c
+	$(XBCC) -o $@ $(SRCDIR)/translate.c
 
 $(MAKEHEADERS):	$(SRCDIR)/makeheaders.c
-	$(BCC) -o $@ $(SRCDIR)/makeheaders.c
+	$(XBCC) -o $@ $(SRCDIR)/makeheaders.c
 
 $(MKINDEX):	$(SRCDIR)/mkindex.c
-	$(BCC) -o $@ $(SRCDIR)/mkindex.c
+	$(XBCC) -o $@ $(SRCDIR)/mkindex.c
 
 $(MKBUILTIN):	$(SRCDIR)/mkbuiltin.c
-	$(BCC) -o $@ $(SRCDIR)/mkbuiltin.c
+	$(XBCC) -o $@ $(SRCDIR)/mkbuiltin.c
 
 $(MKVERSION): $(SRCDIR)/mkversion.c
-	$(BCC) -o $@ $(SRCDIR)/mkversion.c
+	$(XBCC) -o $@ $(SRCDIR)/mkversion.c
 
 $(CODECHECK1):	$(SRCDIR)/codecheck1.c
-	$(BCC) -o $@ $(SRCDIR)/codecheck1.c
+	$(XBCC) -o $@ $(SRCDIR)/codecheck1.c
 
 # WARNING. DANGER. Running the test suite modifies the repository the
 # build is done from, i.e. the checkout belongs to. Do not sync/push
@@ -1095,17 +1111,17 @@ endif
 
 openssl:	$(BLDTARGETS)
 	cd $(OPENSSLLIBDIR);./Configure --cross-compile-prefix=$(PREFIX) $(SSLCONFIG)
-	$(MAKE) -C $(OPENSSLLIBDIR) CC=$(TCCEXE) build_libs
+	$(MAKE) -C $(OPENSSLLIBDIR) PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) build_libs
 
 clean-openssl:
-	$(MAKE) -C $(OPENSSLLIBDIR) CC=$(TCCEXE) clean
+	$(MAKE) -C $(OPENSSLLIBDIR) PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) clean
 
 tcl:
 	cd $(TCLSRCDIR)/win;./configure
-	$(MAKE) -C $(TCLSRCDIR)/win CC=$(TCCEXE) $(TCLTARGET)
+	$(MAKE) -C $(TCLSRCDIR)/win PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) $(TCLTARGET)
 
 clean-tcl:
-	$(MAKE) -C $(TCLSRCDIR)/win CC=$(TCCEXE) distclean
+	$(MAKE) -C $(TCLSRCDIR)/win PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) distclean
 
 APPTARGETS += $(BLDTARGETS)
 
@@ -1255,16 +1271,16 @@ LIBS   = $(DMDIR)\extra\lib\ zlib wsock32 advapi32
 }
 writeln "SQLITE_OPTIONS = [join $SQLITE_OPTIONS { }]\n"
 writeln "SHELL_OPTIONS = [join $SHELL_WIN32_OPTIONS { }]\n"
-writeln -nonewline "SRC   = "
+writeln -nonewline "SRC   ="
 foreach s [lsort $src] {
-  writeln -nonewline "${s}_.c "
+  writeln -nonewline " ${s}_.c"
 }
 writeln "\n"
 writeln -nonewline "OBJ   = "
 foreach s [lsort $src] {
   writeln -nonewline "\$(OBJDIR)\\$s\$O "
 }
-writeln "\$(OBJDIR)\\shell\$O \$(OBJDIR)\\sqlite3\$O \$(OBJDIR)\\th\$O \$(OBJDIR)\\th_lang\$O "
+writeln "\$(OBJDIR)\\shell\$O \$(OBJDIR)\\sqlite3\$O \$(OBJDIR)\\th\$O \$(OBJDIR)\\th_lang\$O"
 writeln {
 
 RC=$(DMDIR)\bin\rcc
@@ -1490,7 +1506,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.0.2h
+SSLDIR    = $(B)\compat\openssl-1.0.2k
 SSLINCDIR = $(SSLDIR)\inc32
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)\out32dll
@@ -1498,7 +1514,7 @@ SSLLIBDIR = $(SSLDIR)\out32dll
 SSLLIBDIR = $(SSLDIR)\out32
 !endif
 SSLLFLAGS = /nologo /opt:ref /debug
-SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
+SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib crypt32.lib
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 !message Using 'x64' platform for OpenSSL...
 # BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
@@ -1602,7 +1618,7 @@ LDFLAGS   = $(LDFLAGS) /NODEFAULTLIB:msvcrt /MANIFEST:NO
 !endif
 
 !if $(FOSSIL_ENABLE_WINXP)!=0
-XPCFLAGS  = $(XPCFLAGS) /D_USING_V110_SDK71_=1
+XPCFLAGS  = $(XPCFLAGS) /D_WIN32_WINNT=0x0501 /D_USING_V110_SDK71_=1
 CFLAGS    = $(CFLAGS) $(XPCFLAGS)
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 XPLDFLAGS = $(XPLDFLAGS) /SUBSYSTEM:CONSOLE,5.02

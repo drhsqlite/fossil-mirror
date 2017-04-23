@@ -25,7 +25,7 @@
 ** every ">" into "&gt;" and every "&" into "&amp;".  Return a pointer
 ** to a new string obtained from malloc().
 **
-** We also encode " as &quot; so that it can appear as an argument
+** We also encode " as &quot; and ' as &#39; so they can appear as an argument
 ** to markup.
 */
 char *htmlize(const char *zIn, int n){
@@ -41,6 +41,7 @@ char *htmlize(const char *zIn, int n){
       case '>':   count += 4;       break;
       case '&':   count += 5;       break;
       case '"':   count += 6;       break;
+      case '\'':  count += 5;       break;
       default:    count++;          break;
     }
     i++;
@@ -74,6 +75,13 @@ char *htmlize(const char *zIn, int n){
         zOut[i++] = 'u';
         zOut[i++] = 'o';
         zOut[i++] = 't';
+        zOut[i++] = ';';
+        break;
+      case '\'':
+        zOut[i++] = '&';
+        zOut[i++] = '#';
+        zOut[i++] = '3';
+        zOut[i++] = '9';
         zOut[i++] = ';';
         break;
       default:
@@ -113,6 +121,11 @@ void htmlize_to_blob(Blob *p, const char *zIn, int n){
       case '"':
         if( j<i ) blob_append(p, zIn+j, i-j);
         blob_append(p, "&quot;", 6);
+        j = i+1;
+        break;
+      case '\'':
+        if( j<i ) blob_append(p, zIn+j, i-j);
+        blob_append(p, "&#39;", 5);
         j = i+1;
         break;
     }
@@ -327,6 +340,96 @@ void defossilize(char *z){
 
 
 /*
+** The *pz variable points to a UTF8 string.  Read the next character
+** off of that string and return its codepoint value.  Advance *pz to the
+** next character
+*/
+u32 fossil_utf8_read(
+  const unsigned char **pz    /* Pointer to string from which to read char */
+){
+  unsigned int c;
+
+  /*
+  ** This lookup table is used to help decode the first byte of
+  ** a multi-byte UTF8 character.
+  */
+  static const unsigned char utf8Trans1[] = {
+    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+    0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+    0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+    0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
+    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+    0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+    0x00, 0x01, 0x02, 0x03, 0x00, 0x01, 0x00, 0x00,
+  };
+
+  c = *((*pz)++);
+  if( c>=0xc0 ){
+    c = utf8Trans1[c-0xc0];
+    while( (*(*pz) & 0xc0)==0x80 ){
+      c = (c<<6) + (0x3f & *((*pz)++));
+    }
+    if( c<0x80
+        || (c&0xFFFFF800)==0xD800
+        || (c&0xFFFFFFFE)==0xFFFE ){  c = 0xFFFD; }
+  }
+  return c;
+}
+
+/*
+** Encode a UTF8 string for JSON.  All special characters are escaped.
+*/
+void blob_append_json_string(Blob *pBlob, const char *zStr){
+  const unsigned char *z;
+  char *zOut;
+  u32 c;
+  int n, i, j;
+  z = (const unsigned char*)zStr;
+  n = 0;
+  while( (c = fossil_utf8_read(&z))!=0 ){
+    if( c=='\\' || c=='"' ){
+      n += 2;
+    }else if( c<' ' || c>=0x7f ){
+      if( c=='\n' || c=='\r' ){
+        n += 2;
+      }else{
+        n += 6;
+      }
+    }else{
+      n++;
+    }
+  }
+  i = blob_size(pBlob);
+  blob_resize(pBlob, i+n);
+  zOut = blob_buffer(pBlob);
+  z = (const unsigned char*)zStr;
+  while( (c = fossil_utf8_read(&z))!=0 ){
+    if( c=='\\' ){
+      zOut[i++] = '\\';
+      zOut[i++] = c;
+    }else if( c<' ' || c>=0x7f ){
+      zOut[i++] = '\\';
+      if( c=='\n' ){
+        zOut[i++] = 'n';
+      }else if( c=='\r' ){
+        zOut[i++] = 'r';
+      }else{
+        zOut[i++] = 'u';
+        for(j=3; j>=0; j--){
+          zOut[i+j] = "0123456789abcdef"[c&0xf];
+          c >>= 4;
+        }
+        i += 4;
+      }
+    }else{
+      zOut[i++] = c;
+    }
+  }
+  zOut[i] = 0;
+}
+
+/*
 ** The characters used for HTTP base64 encoding.
 */
 static unsigned char zBase[] =
@@ -369,7 +472,7 @@ char *encode64(const char *zData, int nData){
 
 /*
 ** COMMAND: test-encode64
-** 
+**
 ** Usage: %fossil test-encode64 STRING
 */
 void test_encode64_cmd(void){
@@ -435,7 +538,7 @@ char *decode64(const char *z64, int *pnByte){
 
 /*
 ** COMMAND: test-decode64
-** 
+**
 ** Usage: %fossil test-decode64 STRING
 */
 void test_decode64_cmd(void){

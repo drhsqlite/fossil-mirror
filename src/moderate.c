@@ -28,11 +28,11 @@
 */
 void moderation_table_create(void){
   db_multi_exec(
-     "CREATE TABLE IF NOT EXISTS %s.modreq(\n"
+     "CREATE TABLE IF NOT EXISTS repository.modreq(\n"
      "  objid INTEGER PRIMARY KEY,\n"        /* Record pending approval */
      "  attachRid INT,\n"                    /* Object attached */
      "  tktid TEXT\n"                        /* Associated ticket id */
-     ");\n", db_name("repository")
+     ");\n"
   );
 }
 
@@ -69,7 +69,7 @@ static int object_used(int rid){
      "tagxref",    "rid",
   };
   int i;
-  for(i=0; i<sizeof(aTabField)/sizeof(aTabField[0]); i+=2){
+  for(i=0; i<count(aTabField); i+=2){
     if( db_exists("SELECT 1 FROM \"%w\" WHERE \"%w\"=%d",
                   aTabField[i], aTabField[i+1], rid) ) return 1;
   }

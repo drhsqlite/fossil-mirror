@@ -62,7 +62,7 @@ cson_value * json_page_report(){
 **
 ** If one is not found and argPos is >0 then json_command_arg()
 ** is checked.
-** 
+**
 ** Returns >0 (the report number) on success .
 */
 static int json_report_get_number(int argPos){
@@ -201,7 +201,7 @@ static cson_value * json_report_run(){
 
   limit = json_find_option_int("limit",NULL,"n",-1);
 
-  
+
   /* Copy over report's SQL...*/
   blob_append(&sql, db_column_text(&q,0), -1);
   zTitle = mprintf("%s", db_column_text(&q,1));

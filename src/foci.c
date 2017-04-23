@@ -30,13 +30,13 @@
 **     CREATE TABLE files_of_checkin(
 **       checkinID    INTEGER,    -- RID for the check-in manifest
 **       filename     TEXT,       -- Name of a file
-**       uuid         TEXT,       -- SHA1 hash of the file
+**       uuid         TEXT,       -- hash of the file
 **       previousName TEXT,       -- Name of the file in previous check-in
 **       perm         TEXT,       -- Permissions on the file
 **       symname      TEXT HIDDEN -- Symbolic name of the check-in.
 **     );
 **
-** The hidden symname column is (optionally) used as a query parameter to 
+** The hidden symname column is (optionally) used as a query parameter to
 ** identify the particular check-in to parse.  The checkinID parameter
 ** (such is a unique numeric RID rather than symbolic name) can also be used
 ** to identify the check-in.  Example:
@@ -56,7 +56,7 @@ static const char zFociSchema[] =
 @ CREATE TABLE files_of_checkin(
 @  checkinID    INTEGER,    -- RID for the check-in manifest
 @  filename     TEXT,       -- Name of a file
-@  uuid         TEXT,       -- SHA1 hash of the file
+@  uuid         TEXT,       -- hash of the file
 @  previousName TEXT,       -- Name of the file in previous check-in
 @  perm         TEXT,       -- Permissions on the file
 @  symname      TEXT HIDDEN -- Symbolic name of the check-in
@@ -192,7 +192,7 @@ static int fociFilter(
     if( idxNum==1 ){
       rid = sqlite3_value_int(argv[0]);
     }else{
-      rid = symbolic_name_to_rid(sqlite3_value_text(argv[0]), "ci");
+      rid = symbolic_name_to_rid((const char*)sqlite3_value_text(argv[0]),"ci");
     }
     pCur->pMan = manifest_get(rid, CFTYPE_MANIFEST, 0);
     if( pCur->pMan ){

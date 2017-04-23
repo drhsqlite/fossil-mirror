@@ -51,6 +51,7 @@
 #endif
 #include <time.h>
 
+
 /*
 ** Return the login-group name.  Or return 0 if this repository is
 ** not a member of a login-group.
@@ -176,12 +177,12 @@ int login_is_valid_anonymous(
 */
 void create_accesslog_table(void){
   db_multi_exec(
-    "CREATE TABLE IF NOT EXISTS %s.accesslog("
+    "CREATE TABLE IF NOT EXISTS repository.accesslog("
     "  uname TEXT,"
     "  ipaddr TEXT,"
     "  success BOOLEAN,"
     "  mtime TIMESTAMP"
-    ");", db_name("repository")
+    ");"
   );
 }
 
@@ -528,49 +529,59 @@ void login_page(void){
   if( g.perm.Password && zPasswd
    && (zNew1 = P("n1"))!=0 && (zNew2 = P("n2"))!=0
   ){
-    /* The user requests a password change */
-    zSha1Pw = sha1_shared_secret(zPasswd, g.zLogin, 0);
-    if( db_int(1, "SELECT 0 FROM user"
-                  " WHERE uid=%d"
-                  " AND (constant_time_cmp(pw,%Q)=0"
-                  "      OR constant_time_cmp(pw,%Q)=0)",
-                  g.userUid, zSha1Pw, zPasswd) ){
-      sleep(1);
-      zErrMsg =
-         @ <p><span class="loginError">
-         @ You entered an incorrect old password while attempting to change
-         @ your password.  Your password is unchanged.
-         @ </span></p>
-      ;
-    }else if( fossil_strcmp(zNew1,zNew2)!=0 ){
-      zErrMsg =
-         @ <p><span class="loginError">
-         @ The two copies of your new passwords do not match.
-         @ Your password is unchanged.
-         @ </span></p>
-      ;
-    }else{
-      char *zNewPw = sha1_shared_secret(zNew1, g.zLogin, 0);
-      char *zChngPw;
-      char *zErr;
-      db_multi_exec(
-         "UPDATE user SET pw=%Q WHERE uid=%d", zNewPw, g.userUid
-      );
-      fossil_free(zNewPw);
-      zChngPw = mprintf(
-         "UPDATE user"
-         "   SET pw=shared_secret(%Q,%Q,"
-         "        (SELECT value FROM config WHERE name='project-code'))"
-         " WHERE login=%Q",
-         zNew1, g.zLogin, g.zLogin
-      );
-      if( login_group_sql(zChngPw, "<p>", "</p>\n", &zErr) ){
-        zErrMsg = mprintf("<span class=\"loginError\">%s</span>", zErr);
-        fossil_free(zErr);
+    /* If there is not a "real" login, we cannot change any password. */
+    if( g.zLogin ){
+      /* The user requests a password change */
+      zSha1Pw = sha1_shared_secret(zPasswd, g.zLogin, 0);
+      if( db_int(1, "SELECT 0 FROM user"
+                    " WHERE uid=%d"
+                    " AND (constant_time_cmp(pw,%Q)=0"
+                    "      OR constant_time_cmp(pw,%Q)=0)",
+                    g.userUid, zSha1Pw, zPasswd) ){
+        sleep(1);
+        zErrMsg =
+           @ <p><span class="loginError">
+           @ You entered an incorrect old password while attempting to change
+           @ your password.  Your password is unchanged.
+           @ </span></p>
+        ;
+      }else if( fossil_strcmp(zNew1,zNew2)!=0 ){
+        zErrMsg =
+           @ <p><span class="loginError">
+           @ The two copies of your new passwords do not match.
+           @ Your password is unchanged.
+           @ </span></p>
+        ;
       }else{
-        redirect_to_g();
-        return;
+        char *zNewPw = sha1_shared_secret(zNew1, g.zLogin, 0);
+        char *zChngPw;
+        char *zErr;
+        db_multi_exec(
+           "UPDATE user SET pw=%Q WHERE uid=%d", zNewPw, g.userUid
+        );
+        fossil_free(zNewPw);
+        zChngPw = mprintf(
+           "UPDATE user"
+           "   SET pw=shared_secret(%Q,%Q,"
+           "        (SELECT value FROM config WHERE name='project-code'))"
+           " WHERE login=%Q",
+           zNew1, g.zLogin, g.zLogin
+        );
+        if( login_group_sql(zChngPw, "<p>", "</p>\n", &zErr) ){
+          zErrMsg = mprintf("<span class=\"loginError\">%s</span>", zErr);
+          fossil_free(zErr);
+        }else{
+          redirect_to_g();
+          return;
+        }
       }
+    }else{
+      zErrMsg =
+         @ <p><span class="loginError">
+         @ The password cannot be changed for this type of login.
+         @ The password is unchanged.
+         @ </span></p>
+      ;
     }
   }
   zIpAddr = PD("REMOTE_ADDR","nil");   /* Complete IP address for logging */
@@ -701,7 +712,7 @@ void login_page(void){
     free(zCaptcha);
   }
   @ </form>
-  if( g.perm.Password ){
+  if( g.zLogin && g.perm.Password ){
     @ <hr />
     @ <p>Change Password for user <b>%h(g.zLogin)</b>:</p>
     form_begin(0, "%R/login");
@@ -838,6 +849,57 @@ int login_wants_https_redirect(void){
   return 1;
 }
 
+
+/*
+** Attempt to use Basic Authentication to establish the user.  Return the
+** (non-zero) uid if successful.  Return 0 if it does not work.
+*/
+static int logic_basic_authentication(const char *zIpAddr){
+  const char *zAuth = PD("HTTP_AUTHORIZATION", 0);
+  int i;
+  int uid = 0;
+  int nDecode = 0;
+  char *zDecode = 0;
+  const char *zUsername = 0;
+  const char *zPasswd = 0;
+
+  if( zAuth==0 ) return 0;                    /* Fail: No Authentication: header */
+  while( fossil_isspace(zAuth[0]) ) zAuth++;  /* Skip leading whitespace */
+  if( strncmp(zAuth, "Basic ", 6)!=0 ) return 0;  /* Fail: Not Basic Authentication */
+
+  /* Parse out the username and password, separated by a ":" */
+  zAuth += 6;
+  while( fossil_isspace(zAuth[0]) ) zAuth++;
+  zDecode = decode64(zAuth, &nDecode);
+
+  for(i=0; zDecode[i] && zDecode[i]!=':'; i++){}
+  if( zDecode[i] ){
+    zDecode[i] = 0;
+    zUsername = zDecode;
+    zPasswd = &zDecode[i+1];
+
+    /* Attempting to log in as the user provided by HTTP
+    ** basic auth
+    */
+    uid = login_search_uid(zUsername, zPasswd);
+    if( uid>0 ){
+      record_login_attempt(zUsername, zIpAddr, 1);
+    }else{
+      record_login_attempt(zUsername, zIpAddr, 0);
+
+      /* The user attempted to login specifically with HTTP basic
+      ** auth, but provided invalid credentials. Inform them of
+      ** the failed login attempt via 401.
+      */
+      cgi_set_status(401, "Unauthorized");
+      cgi_reply();
+      fossil_exit(0);
+    }
+  }
+  fossil_free(zDecode);
+  return uid;
+}
+
 /*
 ** This routine examines the login cookie to see if it exists and
 ** is valid.  If the login cookie checks out, it then sets global
@@ -959,6 +1021,14 @@ void login_check_credentials(void){
     }
   }
 
+  /* If the request didn't provide a login cookie or the login cookie didn't
+  ** match a known valid user, check the HTTP "Authorization" header and
+  ** see if those credentials are valid for a known user.
+  */
+  if( uid==0 && db_get_boolean("http_authentication_ok",0) ){
+    uid = logic_basic_authentication(zIpAddr);
+  }
+
   /* If no user found yet, try to log in as "nobody" */
   if( uid==0 ){
     uid = db_int(0, "SELECT uid FROM user WHERE login='nobody'");
@@ -1007,13 +1077,14 @@ void login_check_credentials(void){
 
   /* Set the capabilities */
   login_replace_capabilities(zCap, 0);
-  login_set_anon_nobody_capabilities();
 
   /* The auto-hyperlink setting allows hyperlinks to be displayed for users
   ** who do not have the "h" permission as long as their UserAgent string
   ** makes it appear that they are human.  Check to see if auto-hyperlink is
   ** enabled for this repository and make appropriate adjustments to the
-  ** permission flags if it is.
+  ** permission flags if it is.  This should be done before the permissions
+  ** are (potentially) copied to the anonymous permission set; otherwise,
+  ** those will be out-of-sync.
   */
   if( zCap[0]
    && !g.perm.Hyperlink
@@ -1023,6 +1094,16 @@ void login_check_credentials(void){
     g.perm.Hyperlink = 1;
     g.javascriptHyperlink = 1;
   }
+
+  /*
+  ** At this point, the capabilities for the logged in user are not going
+  ** to be modified anymore; therefore, we can copy them over to the ones
+  ** for the anonymous user.
+  **
+  ** WARNING: In the future, please do not add code after this point that
+  **          modifies the capabilities for the logged in user.
+  */
+  login_set_anon_nobody_capabilities();
 
   /* If the public-pages glob pattern is defined and REQUEST_URI matches
   ** one of the globs in public-pages, then also add in all default-perms
@@ -1097,7 +1178,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
                              p->NewTkt = p->Password = p->RdAddr =
                              p->TktFmt = p->Attach = p->ApndTkt =
                              p->ModWiki = p->ModTkt = p->Delete =
-                             p->Private = 1;
+                             p->WrUnver = p->Private = 1;
                              /* Fall thru into Read/Write */
       case 'i':   p->Read = p->Write = 1;                      break;
       case 'o':   p->Read = 1;                                 break;
@@ -1124,6 +1205,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
       case 't':   p->TktFmt = 1;                               break;
       case 'b':   p->Attach = 1;                               break;
       case 'x':   p->Private = 1;                              break;
+      case 'y':   p->WrUnver = 1;                              break;
 
       /* The "u" privileges is a little different.  It recursively
       ** inherits all privileges of the user named "reader" */
@@ -1195,7 +1277,7 @@ int login_has_capability(const char *zCap, int nCap, u32 flgs){
       /* case 'v': DEVELOPER */
       case 'w':  rc = p->WrTkt;     break;
       case 'x':  rc = p->Private;   break;
-      /* case 'y': */
+      case 'y':  rc = p->WrUnver;   break;
       case 'z':  rc = p->Zip;       break;
       default:   rc = 0;            break;
     }
@@ -1556,7 +1638,7 @@ void login_group_join(
   const char *zSelf;         /* The ATTACH name of our repository */
 
   *pzErrMsg = 0;   /* Default to no errors */
-  zSelf = db_name("repository");
+  zSelf = "repository";
 
   /* Get the full pathname of the other repository */
   file_canonical_name(zRepo, &fullName, 0);

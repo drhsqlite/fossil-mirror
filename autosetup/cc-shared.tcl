@@ -16,7 +16,7 @@
 ## SHOBJ_LDFLAGS_R   - as above, but all symbols must be resolved
 ## SH_LINKFLAGS      Flags to use linking an executable which will load shared objects
 ## LD_LIBRARY_PATH   Environment variable which specifies path to shared libraries
-## STRIPLIBFLAGS     Arguments to strip to strip a dynamic library
+## STRIPLIBFLAGS     Arguments to strip a dynamic library
 
 module-options {}
 
@@ -64,7 +64,7 @@ switch -glob -- [get-define host] {
 		if {[msg-quiet cc-check-decls __SUNPRO_C]} {
 			msg-result "Found sun stdio compiler"
 			# sun stdio compiler
-			# XXX: These haven't been fully tested. 
+			# XXX: These haven't been fully tested.
 			define SHOBJ_CFLAGS -KPIC
 			define SHOBJ_LDFLAGS "-G"
 			define SH_CFLAGS -KPIC
@@ -80,7 +80,7 @@ switch -glob -- [get-define host] {
 		if {[msg-quiet cc-check-decls __SUNPRO_C]} {
 			msg-result "Found sun stdio compiler"
 			# sun stdio compiler
-			# XXX: These haven't been fully tested. 
+			# XXX: These haven't been fully tested.
 			define SHOBJ_CFLAGS -KPIC
 			define SHOBJ_LDFLAGS "-G"
 			define SH_CFLAGS -KPIC

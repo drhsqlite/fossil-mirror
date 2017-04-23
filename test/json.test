@@ -25,7 +25,7 @@
 # the rest of this file from running.
 fossil test-th-eval "hasfeature json"
 
-if {$::RESULT ne "1"} then {
+if {[normalize_result] ne "1"} then {
   puts "Fossil was not compiled with JSON support."
   test_cleanup_then_return
 }
@@ -135,6 +135,10 @@ Cookie: $cookie\r
 
 # Inspect a dict for keys it must have and keys it must not have
 proc test_dict_keys {testname D okfields badfields} {
+  if {$D eq ""} {
+    test $testname-validJSON 0
+    return
+  }
   set i 1
   foreach f $okfields {
     test "$testname-$i" {[dict exists $D $f]}
@@ -203,6 +207,8 @@ test json-version-api {[dict get $JR payload jsonApiVersion] >= 20120713}
 
 # sha1 of 0 bytes and a file to match in a commit
 set UUID_empty da39a3ee5e6b4b0d3255bfef95601890afd80709
+# sha3 of 0 bytes and a file to match in a commit
+set UUID_empty_64 a7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a
 write_file empty ""
 fossil add empty
 fossil ci -m "empty file"
@@ -215,7 +221,7 @@ test_json_payload json-artifact \
 [concat type uuid isLeaf timestamp user comment parents tags files] {}
 
 # json artifact (file)
-fossil_json [concat artifact $UUID_empty]
+fossil_json [concat artifact $UUID_empty_64]
 test_json_envelope_ok json-artifact-file-env
 test json-artifact-file {[dict get $JR payload type] eq "file"}
 test_json_payload json-artifact [concat type uuid size checkins] {}
@@ -742,10 +748,10 @@ write_file e1102.json {
   }
 }
 fossil_json --json-input e1102.json -expectError
-test json-env-RC-1102-CLI-exit {$CODE != 0}
-test_json_envelope json-env-RC-1102-env {fossil timestamp command procTimeUs \
+test json-env-RC-1102a-CLI-exit {$CODE != 0}
+test_json_envelope json-env-RC-1102a-env {fossil timestamp command procTimeUs \
 procTimeMs resultCode resultText} {payload}
-test json-env-RC-1102-code {[dict get $JR resultCode] eq "FOSSIL-1102"}
+test json-env-RC-1102a-code {[dict get $JR resultCode] eq "FOSSIL-1102"}
 
 
 # FOSSIL-1103 FSL_JSON_E_UNKNOWN
@@ -755,7 +761,17 @@ write_file bad.sql  {
 CREATE TABLE spam(a integer, b text);
 }
 exec $::fossilexe sqlite3 --no-repository bad.fossil <bad.sql
-#fossil_json HAI -R bad.fossil -expectError
+fossil_json HAI -R bad.fossil -expectError
+test json-env-RC-1103-CLI-exit {$CODE != 0}
+if { $JR ne "" } {
+  test_json_envelope json-env-RC-1103-env {fossil timestamp command procTimeUs \
+    procTimeMs resultCode resultText} {payload}
+  test json-env-RC-1103-code {[dict exists $JR resultCode]\
+                           && [dict get $JR resultCode] eq "FOSSIL-1103"} knownBug
+} else {
+  protOut "Want test case for FOSSIL-1103"
+  test json-RC-1103 0 knownBug
+}
 
 # FOSSIL-1104 FSL_JSON_E_TIMEOUT
 #     Timeout reached
@@ -838,9 +854,9 @@ test json-RC-3002-strange-code {[dict get $JR resultCode] eq "FOSSIL-3002"}
 fossil close
 fossil_json HAI -expectError
 test json-RC-4102-CLI-exit {$CODE != 0}
-test_json_envelope json-RC-1102-env {fossil timestamp command procTimeUs \
+test_json_envelope json-RC-4102-CLI-exit {fossil timestamp command procTimeUs \
 procTimeMs resultCode resultText} {payload}
-test json-1 {[dict get $JR resultCode] eq "FOSSIL-4102"}
+test json-RC-4102 {[dict get $JR resultCode] eq "FOSSIL-4102"}
 fossil open .rep.fossil
 
 # FOSSIL-4103 FSL_JSON_E_DB_NOT_VALID
@@ -848,6 +864,15 @@ fossil open .rep.fossil
 write_file nope.fossil {
 This is not a fossil repo. It ought to be a SQLite db with a well-known schema,
 but it is actually just a block of text.
+}
+fossil_json HAI -R nope.fossil -expectError
+test json-RC-4103-CLI-exit {$CODE != 0}
+if { $JR ne "" } {
+  test_json_envelope json-RC-4103-CLI {fossil timestamp command procTimeUs \
+    procTimeMs resultCode resultText} {payload}
+  test json-RC-4103 {[dict get $JR resultCode] eq "FOSSIL-4103"}
+} else {
+  test json-RC-4103 0 knownBug
 }
 
 ###############################################################################

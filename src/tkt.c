@@ -218,16 +218,21 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
     if( j<0 ) continue;
     aUsed[j] = 1;
     if( aField[j].mUsed & USEDBY_TICKET ){
-      if( zName[0]=='+' ){
-        zName++;
+      const char *zUsedByName = zName;
+      if( zUsedByName[0]=='+' ){
+        zUsedByName++;
         blob_append_sql(&sql1,", \"%w\"=coalesce(\"%w\",'') || %Q",
-                     zName, zName, p->aField[i].zValue);
+                        zUsedByName, zUsedByName, p->aField[i].zValue);
       }else{
-        blob_append_sql(&sql1,", \"%w\"=%Q", zName, p->aField[i].zValue);
+        blob_append_sql(&sql1,", \"%w\"=%Q", zUsedByName, p->aField[i].zValue);
       }
     }
     if( aField[j].mUsed & USEDBY_TICKETCHNG ){
-      blob_append_sql(&sql2, ",\"%w\"", zName);
+      const char *zUsedByName = zName;
+      if( zUsedByName[0]=='+' ){
+        zUsedByName++;
+      }
+      blob_append_sql(&sql2, ",\"%w\"", zUsedByName);
       blob_append_sql(&sql3, ",%Q", p->aField[i].zValue);
     }
     if( rid>0 ){
@@ -425,7 +430,7 @@ void test_ticket_rebuild(void){
 */
 static void showAllFields(void){
   int i;
-  @ <font color="blue">
+  @ <div style="color:blue">
   @ <p>Database fields:</p><ul>
   for(i=0; i<nField; i++){
     @ <li>aField[%d(i)].zName = "%h(aField[i].zName)";
@@ -436,7 +441,7 @@ static void showAllFields(void){
     }
     @ mUsed = %d(aField[i].mUsed);
   }
-  @ </ul></font>
+  @ </ul></div>
 }
 
 /*
@@ -453,31 +458,24 @@ void tktview_page(void){
   login_check_credentials();
   if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
   if( g.anon.WrTkt || g.anon.ApndTkt ){
-    style_submenu_element("Edit", "Edit The Ticket", "%s/tktedit?name=%T",
-        g.zTop, PD("name",""));
+    style_submenu_element("Edit", "%s/tktedit?name=%T", g.zTop, PD("name",""));
   }
   if( g.perm.Hyperlink ){
-    style_submenu_element("History", "History Of This Ticket",
-        "%s/tkthistory/%T", g.zTop, zUuid);
-    style_submenu_element("Timeline", "Timeline Of This Ticket",
-        "%s/tkttimeline/%T", g.zTop, zUuid);
-    style_submenu_element("Check-ins", "Check-ins Of This Ticket",
-        "%s/tkttimeline/%T?y=ci", g.zTop, zUuid);
+    style_submenu_element("History", "%s/tkthistory/%T", g.zTop, zUuid);
+    style_submenu_element("Timeline", "%s/tkttimeline/%T", g.zTop, zUuid);
+    style_submenu_element("Check-ins", "%s/tkttimeline/%T?y=ci", g.zTop, zUuid);
   }
   if( g.anon.NewTkt ){
-    style_submenu_element("New Ticket", "Create a new ticket",
-        "%s/tktnew", g.zTop);
+    style_submenu_element("New Ticket", "%s/tktnew", g.zTop);
   }
   if( g.anon.ApndTkt && g.anon.Attach ){
-    style_submenu_element("Attach", "Add An Attachment",
-        "%s/attachadd?tkt=%T&from=%s/tktview/%t",
+    style_submenu_element("Attach", "%s/attachadd?tkt=%T&from=%s/tktview/%t",
         g.zTop, zUuid, g.zTop, zUuid);
   }
   if( P("plaintext") ){
-    style_submenu_element("Formatted", "Formatted", "%R/tktview/%s", zUuid);
+    style_submenu_element("Formatted", "%R/tktview/%s", zUuid);
   }else{
-    style_submenu_element("Plaintext", "Plaintext",
-                          "%R/tktview/%s?plaintext", zUuid);
+    style_submenu_element("Plaintext", "%R/tktview/%s?plaintext", zUuid);
   }
   style_header("View Ticket");
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW<br />\n", -1);
@@ -548,7 +546,9 @@ static int ticket_put(
   int needMod              /* True if moderation is needed */
 ){
   int result;
-  int rid = content_put_ex(pTicket, 0, 0, 0, needMod);
+  int rid;
+  manifest_crosslink_begin();
+  rid = content_put_ex(pTicket, 0, 0, 0, needMod);
   if( rid==0 ){
     fossil_fatal("trouble committing ticket: %s", g.zErrMsg);
   }
@@ -562,7 +562,6 @@ static int ticket_put(
     db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d);", rid);
     db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", rid);
   }
-  manifest_crosslink_begin();
   result = (manifest_crosslink(rid, pTicket, MC_NONE)==0);
   assert( blob_is_reset(pTicket) );
   if( !result ){
@@ -654,11 +653,12 @@ static int submitTicketCmd(
   if( g.zPath[0]=='d' ){
     const char *zNeedMod = needMod ? "required" : "skipped";
     /* If called from /debug_tktnew or /debug_tktedit... */
-    @ <font color="blue">
+    @ <div style="color:blue">
     @ <p>Ticket artifact that would have been submitted:</p>
     @ <blockquote><pre>%h(blob_str(&tktchng))</pre></blockquote>
     @ <blockquote><pre>Moderation would be %h(zNeedMod).</pre></blockquote>
-    @ <hr /></font>
+    @ </div>
+    @ <hr />
     return TH_OK;
   }else{
     if( g.thTrace ){
@@ -851,16 +851,13 @@ void tkttimeline_page(void){
   zUuid = PD("name","");
   zType = PD("y","a");
   if( zType[0]!='c' ){
-    style_submenu_element("Check-ins", "Check-ins",
-       "%s/tkttimeline?name=%T&y=ci", g.zTop, zUuid);
+    style_submenu_element("Check-ins", "%s/tkttimeline?name=%T&y=ci",
+       g.zTop, zUuid);
   }else{
-    style_submenu_element("Timeline", "Timeline",
-       "%s/tkttimeline?name=%T", g.zTop, zUuid);
+    style_submenu_element("Timeline", "%s/tkttimeline?name=%T", g.zTop, zUuid);
   }
-  style_submenu_element("History", "History",
-    "%s/tkthistory/%s", g.zTop, zUuid);
-  style_submenu_element("Status", "Status",
-    "%s/info/%s", g.zTop, zUuid);
+  style_submenu_element("History", "%s/tkthistory/%s", g.zTop, zUuid);
+  style_submenu_element("Status", "%s/info/%s", g.zTop, zUuid);
   if( zType[0]=='c' ){
     zTitle = mprintf("Check-ins Associated With Ticket %h", zUuid);
   }else{
@@ -926,18 +923,14 @@ void tkthistory_page(void){
   }
   zUuid = PD("name","");
   zTitle = mprintf("History Of Ticket %h", zUuid);
-  style_submenu_element("Status", "Status",
-    "%s/info/%s", g.zTop, zUuid);
-  style_submenu_element("Check-ins", "Check-ins",
-    "%s/tkttimeline?name=%s&y=ci", g.zTop, zUuid);
-  style_submenu_element("Timeline", "Timeline",
-    "%s/tkttimeline?name=%s", g.zTop, zUuid);
+  style_submenu_element("Status", "%s/info/%s", g.zTop, zUuid);
+  style_submenu_element("Check-ins", "%s/tkttimeline?name=%s&y=ci",
+    g.zTop, zUuid);
+  style_submenu_element("Timeline", "%s/tkttimeline?name=%s", g.zTop, zUuid);
   if( P("plaintext")!=0 ){
-    style_submenu_element("Formatted", "Formatted",
-                          "%R/tkthistory/%s", zUuid);
+    style_submenu_element("Formatted", "%R/tkthistory/%s", zUuid);
   }else{
-    style_submenu_element("Plaintext", "Plaintext",
-                          "%R/tkthistory/%s?plaintext", zUuid);
+    style_submenu_element("Plaintext", "%R/tkthistory/%s?plaintext", zUuid);
   }
   style_header("%z", zTitle);
 
@@ -1081,7 +1074,7 @@ void ticket_output_change_artifact(Manifest *pTkt, const char *zListType){
 **                 TICKETFILTER may be [#]='uuuuuuuuu'
 **       example:  Report only lists rows with status not open
 **                 TICKETFILTER: status != 'open'
-**                 
+**
 **     If --quote is used, the tickets are encoded by quoting special
 **     chars (space -> \\s, tab -> \\t, newline -> \\n, cr -> \\r,
 **     formfeed -> \\f, vtab -> \\v, nul -> \\0, \\ -> \\\\).
@@ -1387,7 +1380,7 @@ void ticket_cmd(void){
       md5sum_blob(&tktchng, &cksum);
       blob_appendf(&tktchng, "Z %b\n", &cksum);
       if( ticket_put(&tktchng, zTktUuid, ticket_need_moderation(1)) ){
-        fossil_fatal("%s\n", g.zErrMsg);
+        fossil_fatal("%s", g.zErrMsg);
       }else{
         fossil_print("ticket %s succeeded for %s\n",
              (eCmd==set?"set":"add"),zTktUuid);
@@ -1411,13 +1404,13 @@ void ticket_cmd(void){
 */
 void ticket_standard_submenu(unsigned int ok){
   if( (ok & T_SRCH)!=0 && search_restrict(SRCH_TKT)!=0 ){
-    style_submenu_element("Search","Search","%R/tktsrch");
+    style_submenu_element("Search", "%R/tktsrch");
   }
   if( (ok & T_REPLIST)!=0 ){
-    style_submenu_element("Reports","Reports","%R/reportlist");
+    style_submenu_element("Reports", "%R/reportlist");
   }
   if( (ok & T_NEW)!=0 && g.anon.NewTkt ){
-    style_submenu_element("New","New","%R/tktnew");
+    style_submenu_element("New", "%R/tktnew");
   }
 }
 

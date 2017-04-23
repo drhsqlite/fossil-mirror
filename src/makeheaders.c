@@ -1019,7 +1019,10 @@ static int GetNonspaceToken(InStream *pIn, Token *pToken){
        pToken->eType!=TT_Space ? pToken->zText : "<space>"); */
     pToken->pComment = blockComment;
     switch( pToken->eType ){
-      case TT_Comment:
+      case TT_Comment:          /*0123456789 12345678 */
+       if( strncmp(pToken->zText, "/*MAKEHEADERS-STOP", 18)==0 ) return nErr;
+       break;
+
       case TT_Space:
         break;
 
@@ -1108,7 +1111,7 @@ static void FindIdentifiersInMacro(Token *pToken, IdentTable *pTable){
 ** unterminated token.
 */
 static int GetBigToken(InStream *pIn, Token *pToken, IdentTable *pTable){
-  const char *z, *zStart;
+  const char *zStart;
   int iStart;
   int nBrace;
   int c;
@@ -1137,7 +1140,6 @@ static int GetBigToken(InStream *pIn, Token *pToken, IdentTable *pTable){
       return nErr;
   }
 
-  z = pIn->z;
   iStart = pIn->i;
   zStart = pToken->zText;
   nLine = pToken->nLine;
@@ -1683,14 +1685,12 @@ static Token *FindDeclName(Token *pFirst, Token *pLast){
 ** added to their class definitions.
 */
 static int ProcessMethodDef(Token *pFirst, Token *pLast, int flags){
-  Token *pCode;
   Token *pClass;
   char *zDecl;
   Decl *pDecl;
   String str;
   int type;
 
-  pCode = pLast;
   pLast = pLast->pPrev;
   while( pFirst->zText[0]=='P' ){
     int rc = 1;
@@ -1972,9 +1972,14 @@ static int ProcessDecl(Token *pFirst, Token *pEnd, int flags){
   }
   pName = FindDeclName(pFirst,pEnd->pPrev);
   if( pName==0 ){
-    fprintf(stderr,"%s:%d: Can't find a name for the object declared here.\n",
-      zFilename, pFirst->nLine);
-    return nErr+1;
+    if( pFirst->nText==4 && strncmp(pFirst->zText,"enum",4)==0 ){
+      /* Ignore completely anonymous enums.  See documentation section 3.8.1. */
+      return nErr;
+    }else{
+      fprintf(stderr,"%s:%d: Can't find a name for the object declared here.\n",
+        zFilename, pFirst->nLine);
+      return nErr+1;
+    }
   }
 
 #ifdef DEBUG
@@ -2181,6 +2186,8 @@ static int ParsePreprocessor(Token *pToken, int flags, int *pPresetFlags){
     }else if( nArg==16 && strncmp(zArg,"EXPORT_INTERFACE",16)==0 ){
       PushIfMacro(0,0,0,pToken->nLine,PS_Export);
     }else if( nArg==15 && strncmp(zArg,"LOCAL_INTERFACE",15)==0 ){
+      PushIfMacro(0,0,0,pToken->nLine,PS_Local);
+    }else if( nArg==15 && strncmp(zArg,"MAKEHEADERS_STOPLOCAL_INTERFACE",15)==0 ){
       PushIfMacro(0,0,0,pToken->nLine,PS_Local);
     }else{
       PushIfMacro(0,zArg,nArg,pToken->nLine,0);

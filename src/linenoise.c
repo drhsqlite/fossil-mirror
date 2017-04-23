@@ -107,6 +107,7 @@
 
 #include <termios.h>
 #include <unistd.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
@@ -117,6 +118,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include "linenoise.h"
+#include "sqlite3.h"
 
 #define LINENOISE_DEFAULT_HISTORY_MAX_LEN 100
 #define LINENOISE_MAX_LINE 4096
@@ -193,6 +195,38 @@ FILE *lndebug_fp = NULL;
 #else
 #define lndebug(fmt, arg1)
 #endif
+
+/* =========================== C89 compatibility ============================ */
+
+/* snprintf() is not C89, but sqlite3_vsnprintf() can be adapted. */
+static int linenoiseSnprintf(char *str, size_t size, const char *format, ...) {
+    va_list ap;
+    int result;
+
+    va_start(ap,format);
+    result = (int)strlen(sqlite3_vsnprintf((int)size,str,format,ap));
+    va_end(ap);
+
+    return result;
+}
+#undef snprintf
+#define snprintf linenoiseSnprintf
+
+/* strdup() is technically not standard C89 despite being in POSIX. */
+static char *linenoiseStrdup(const char *s) {
+    size_t size = strlen(s)+1;
+    char *result = malloc(size);
+
+    if (result) memcpy(result,s,size);
+
+    return result;
+}
+#undef strdup
+#define strdup linenoiseStrdup
+
+/* strcasecmp() is not standard C89.  SQLite offers a direct replacement. */
+#undef strcasecmp
+#define strcasecmp sqlite3_stricmp
 
 /* ======================= Low level terminal handling ====================== */
 

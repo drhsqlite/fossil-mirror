@@ -786,7 +786,7 @@ Development#</dia:string>
         <dia:attribute name="text">
           <dia:composite type="text">
             <dia:attribute name="string">
-              <dia:string># 
+              <dia:string>#
  belongs to#</dia:string>
             </dia:attribute>
             <dia:attribute name="font">

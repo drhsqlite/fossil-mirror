@@ -61,3 +61,11 @@
 >     using backslash (ex: "\\\[", "\\\(", "\\\*").
 > *   See [daringfireball.net](http://daringfireball.net/projects/markdown/syntax)
 >     for additional information.
+
+## Special Features For Fossil ##
+
+> *  In hyperlinks, if the URL begins with "/" then the root of the Fossil
+>    repository is prepended.  This allows for repository-relative hyperlinks.
+> *  For documents that begin with top-level heading (ex: "# heading #"), the
+>    heading is omitted from the body of the document and becomes the document
+>    title displayed at the top of the Fossil page.

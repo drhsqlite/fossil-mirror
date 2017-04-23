@@ -41,6 +41,11 @@
 #include "autoconfig.h"
 #endif
 
+/* Enable the hardened SHA1 implemenation by default */
+#ifndef FOSSIL_HARDENED_SHA1
+# define FOSSIL_HARDENED_SHA1 1
+#endif
+
 #ifndef _RC_COMPILE_
 
 /*
@@ -170,6 +175,7 @@
 
 #if !defined(_RC_COMPILE_) && !defined(SQLITE_AMALGAMATION)
 
+#include <stdint.h>
 #include "sqlite3.h"
 
 /*
@@ -225,8 +231,15 @@ typedef signed char i8;
 */
 #if defined(__GNUC__) || defined(__clang__)
 # define NORETURN __attribute__((__noreturn__))
+#elif defined(_MSC_VER) && (_MSC_VER >= 1310)
+# define NORETURN __declspec(noreturn)
 #else
 # define NORETURN
 #endif
+
+/*
+** Number of elements in an array
+*/
+#define count(X) (sizeof(X)/sizeof(X[0]))
 
 #endif /* _RC_COMPILE_ */

@@ -53,8 +53,9 @@ static char *quoteFilename(const char *zFilename){
 ** it takes an argument.  Without the "+" it does not.
 */
 static void collect_argument(Blob *pExtra, const char *zArg, const char *zShort){
-  if( find_option(zArg, zShort, 0)!=0 ){
-    blob_appendf(pExtra, " --%s", zArg);
+  const char *z = find_option(zArg, zShort, 0);
+  if( z!=0 ){
+    blob_appendf(pExtra, " %s", z);
   }
 }
 static void collect_argument_value(Blob *pExtra, const char *zArg){
@@ -136,11 +137,15 @@ static void collect_argv(Blob *pExtra, int iStart){
 **    unset       conjunction with the "max-loadavg" setting which cannot
 **                otherwise be set globally.
 **
+**    server      Run the "ui" or "server" commands on all repositories.
+**    ui          The root URI gives a listing of all repos.
+**
+**
 ** In addition, the following maintenance operations are supported:
 **
 **    add         Add all the repositories named to the set of repositories
 **                tracked by Fossil.  Normally Fossil is able to keep up with
-**                this list by itself, but sometime it can benefit from this
+**                this list by itself, but sometimes it can benefit from this
 **                hint if you rename repositories.
 **
 **    ignore      Arguments are repositories that should be ignored by
@@ -174,7 +179,6 @@ void all_cmd(void){
   int dryRunFlag = 0;
   int showFile = find_option("showfile",0,0)!=0;
   int stopOnError = find_option("dontstop",0,0)==0;
-  int rc;
   int nToDel = 0;
   int showLabel = 0;
 
@@ -191,6 +195,12 @@ void all_cmd(void){
   blob_zero(&extra);
   zCmd = g.argv[2];
   if( !login_is_nobody() ) blob_appendf(&extra, " -U %s", g.zLogin);
+  if( strncmp(zCmd, "ui", n)==0 || strncmp(zCmd, "server", n)==0 ){
+    g.argv[1] = g.argv[2];
+    g.argv[2] = "/";
+    cmd_webserver();
+    return;
+  }
   if( strncmp(zCmd, "list", n)==0 || strncmp(zCmd,"ls",n)==0 ){
     zCmd = "list";
     useCheckouts = find_option("ckout","c",0)!=0;
@@ -273,6 +283,7 @@ void all_cmd(void){
   }else if( strncmp(zCmd, "sync", n)==0 ){
     zCmd = "sync -autourl -R";
     collect_argument(&extra, "verbose","v");
+    collect_argument(&extra, "unversioned","u");
   }else if( strncmp(zCmd, "test-integrity", n)==0 ){
     collect_argument(&extra, "parse", 0);
     zCmd = "test-integrity";
@@ -323,13 +334,16 @@ void all_cmd(void){
       file_canonical_name(g.argv[j], &fn, 0);
       z = blob_str(&fn);
       if( !file_isfile(z) ) continue;
+      g.dbIgnoreErrors++;
       rc = sqlite3_open(z, &db);
-      if( rc!=SQLITE_OK ){ sqlite3_close(db); continue; }
+      if( rc!=SQLITE_OK ){ sqlite3_close(db); g.dbIgnoreErrors--; continue; }
       rc = sqlite3_exec(db, "SELECT rcvid FROM blob, delta LIMIT 1", 0, 0, 0);
       sqlite3_close(db);
+      g.dbIgnoreErrors--;
       if( rc!=SQLITE_OK ) continue;
       blob_append_sql(&sql,
-         "INSERT INTO global_config(name,value)VALUES('repo:%q',1)", z
+         "INSERT OR IGNORE INTO global_config(name,value)"
+         "VALUES('repo:%q',1)", z
       );
       if( dryRunFlag ){
         fossil_print("%s\n", blob_sql_text(&sql));
@@ -353,7 +367,7 @@ void all_cmd(void){
   }else{
     fossil_fatal("\"all\" subcommand should be one of: "
                  "add cache changes clean dbstat extras fts-config ignore "
-                 "info list ls pull push rebuild setting sync unset");
+                 "info list ls pull push rebuild server setting sync ui unset");
   }
   verify_all_options();
   zFossil = quoteFilename(g.nameOfExe);
@@ -375,9 +389,10 @@ void all_cmd(void){
        " ORDER BY 1"
     );
   }
-  db_multi_exec("CREATE TEMP TABLE todel(x TEXT)");
+  db_multi_exec("CREATE TEMP TABLE toDel(x TEXT)");
   db_prepare(&q, "SELECT name, tag FROM repolist ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
+    int rc;
     const char *zFilename = db_column_text(&q, 0);
 #if !USE_SEE
     if( sqlite3_strglob("*.efossil", zFilename)==0 ) continue;
@@ -386,7 +401,7 @@ void all_cmd(void){
      || !file_is_canonical(zFilename)
      || (useCheckouts && file_isdir(zFilename)!=1)
     ){
-      db_multi_exec("INSERT INTO todel VALUES(%Q)", db_column_text(&q, 1));
+      db_multi_exec("INSERT INTO toDel VALUES(%Q)", db_column_text(&q, 1));
       nToDel++;
       continue;
     }
@@ -405,6 +420,7 @@ void all_cmd(void){
       int nStar = 80 - (len + 15);
       if( nStar<2 ) nStar = 1;
       fossil_print("%.13c %s %.*c\n", '*', zFilename, nStar, '*');
+      fflush(stdout);
     }
     if( !quiet || dryRunFlag ){
       fossil_print("%s\n", zSyscmd);

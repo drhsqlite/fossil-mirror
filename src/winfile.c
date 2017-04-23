@@ -281,14 +281,14 @@ int win32_unlink_rmdir(const wchar_t *zFilename){
 int win32_symlink(const char *oldpath, const char *newpath){
   fossilStat stat;
   int created = 0;
-  DWORD flags = 0;
+  DWORD flags = 0x2; /*SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE*/
   wchar_t *zMbcs, *zMbcsOld;
 
   /* does oldpath exist? is it a dir or a file? */
   zMbcsOld = fossil_utf8_to_path(oldpath, 0);
   if( win32_stat(zMbcsOld, &stat) == 0 ){
     if( stat.st_mode == S_IFDIR ){
-      flags = SYMBOLIC_LINK_FLAG_DIRECTORY;
+      flags |= SYMBOLIC_LINK_FLAG_DIRECTORY;
     }
   }
 

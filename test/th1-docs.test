@@ -20,14 +20,14 @@
 
 fossil test-th-eval "hasfeature th1Docs"
 
-if {$::RESULT ne "1"} {
+if {[normalize_result] ne "1"} {
   puts "Fossil was not compiled with TH1 docs support."
   test_cleanup_then_return
 }
 
 fossil test-th-eval "hasfeature tcl"
 
-if {$::RESULT ne "1"} {
+if {[normalize_result] ne "1"} {
   puts "Fossil was not compiled with Tcl support."
   test_cleanup_then_return
 }
@@ -63,7 +63,7 @@ run_in_checkout {
 }
 
 test th1-docs-1a {[regexp {<title>Fossil: test/fileStat.th1</title>} $RESULT]}
-test th1-docs-1b {[regexp {>\[[0-9a-f]{40}\]<} $RESULT]}
+test th1-docs-1b {[regexp {>\[[0-9a-f]{40,64}\]<} $RESULT]}
 test th1-docs-1c {[regexp { contains \d+ files\.} $RESULT]}
 
 ###############################################################################

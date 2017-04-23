@@ -526,7 +526,7 @@ static const char zDefaultView[] =
 @          FROM ticketchng
 @         WHERE tkt_id=$tkt_id AND length(icomment)>0} {
 @   if {$seenRow} {
-@     html "<hr>\n"
+@     html "<hr />\n"
 @   } else {
 @     html "<tr><td class='tktDspLabel'>User Comments:</td></tr>\n"
 @     html "<tr><td colspan='5' class='tktDspValue'>\n"
@@ -653,7 +653,7 @@ static const char zDefaultEdit[] =
 @
 @ <th1>enable_output [info exists preview]</th1>
 @ <tr><td colspan="2">
-@ Description Preview:<br><hr>
+@ Description Preview:<br /><hr />
 @ <th1>
 @ if {$mutype eq "Wiki"} {
 @   wiki $icomment
@@ -667,7 +667,7 @@ static const char zDefaultEdit[] =
 @   wiki "<nowiki>\n[string trimright $icomment]\n</nowiki>"
 @ }
 @ </th1>
-@ <hr>
+@ <hr />
 @ </td></tr>
 @ <th1>enable_output 1</th1>
 @

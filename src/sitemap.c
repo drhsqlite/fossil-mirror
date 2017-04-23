@@ -103,6 +103,9 @@ void sitemap_page(void){
     @   </ul>
     @ </li>
   }
+  if( g.perm.Read ){
+    @ <li>%z(href("%R/uvlist"))Unversioned Files</a>
+  }
   if( srchFlags ){
     @ <li>%z(href("%R/search"))Full-Text Search</a></li>
   }
@@ -110,8 +113,7 @@ void sitemap_page(void){
   if( g.perm.Read ){
     @ <li>%z(href("%R/stat"))Repository Status</a>
     @   <ul>
-    @   <li>%z(href("%R/hash-collisions"))Collisions on SHA1 hash
-    @       prefixes</a></li>
+    @   <li>%z(href("%R/hash-collisions"))Collisions on hash prefixes</a></li>
     if( g.perm.Admin ){
       @   <li>%z(href("%R/urllist"))List of URLs used to access
       @       this repository</a></li>
