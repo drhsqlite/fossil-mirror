@@ -1,5 +1,5 @@
-C gzip.c:70:13:\swarning:\simplicit\sconversion\sfrom\s'int'\sto\s'char'\schanges\n\s\s\s\s\s\svalue\sfrom\s255\sto\s-1\s[-Wconstant-conversion]\n\s\saHdr[9]\s=\s255;\n\s\s\s\s\s\s\s\s\s\s~\s^~~
-D 2017-04-23T13:50:30.478
+C No\sneed\sfor\sthe\s/version\spage\sto\sdistinguish\sbetween\sverbose=2\sand\sverbose=1,\sjust\spresence\s(or\snot)\sof\s"verbose"\sis\senough.
+D 2017-04-26T15:27:30.718
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -457,7 +457,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c c09327660159d4fb0eb4e31ed4cf2a766ad12324329434bedb8c0eaf4d326dd5
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
-F src/main.c 5105d4bc1b86b24638764606c399321a82726b89
+F src/main.c 09f5e4f378fa531f470fb359e91c7bb088350cf5cd3fcc3e688a1ee349cf5c59
 F src/main.mk adb39465c0b57737cc735f324b9e2bc296a79f16
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -501,7 +501,7 @@ F src/sqlcmd.c fba609f0f5a91435d0dff8719ba9c5d25f8cfa15
 F src/sqlite3.c 4154f644e847900a6dea3c4effe9963098ca2cce90b3465b7c83fb8ccb5a46a6
 F src/sqlite3.h afcf6e4ea64863b349e4cfe699404572afdb1b83fd0489238cbef451c1f28f94
 F src/stash.c dc0263e11eeb30689418e4def6174af973ad66bf
-F src/stat.c 5e2fa9e1b7b6d283d308cfaedc47fe59b57e1ab83f128250f081b28d8c23fd60
+F src/stat.c 8431e8f37724b5bd0c449f683e75bc71b80b107893a947084a9aae6241288b5e
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
 F src/style.c cf9edbf403e1df8e094e8a1d44d5dd9516046678
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 613fe1b1fb4afc035b4eccc1f582596c85f4c168d36f85c3b6bfd39cda0268fb
-R 3a41c74921ccf57ff1f5c0618707c5da
+P fe1332ca2c751d72fe3901c0ee74ff3f13871eaeb478abf10aa87989f60c1f33
+R 2cdef7708d0ad07d3a3f018f32fb81e6
 U jan.nijtmans
-Z 30db3db660b562e3d740998ca7b06bfc
+Z aa59e8e2cb236ef0dbd89439dac80f82

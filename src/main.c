@@ -1063,7 +1063,7 @@ void test_version_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  verboseFlag = atoi(PD("verbose","0"));
+  verboseFlag = PD("verbose", 0) != 0;
   style_header("Version Information");
   style_submenu_element("Stat", "stat");
   get_version_blob(&versionInfo, verboseFlag);
