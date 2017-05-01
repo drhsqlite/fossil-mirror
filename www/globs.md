@@ -115,7 +115,7 @@ name to be considered a match.
 The canonical name of a file has all directory separators changed to
 `/`, redundant slashes are removed, all `.` path components are
 removed, and all `..` path components are resolved. (There are
-additional details we won’t go into here.)
+additional details we won't go into here.)
 
 The goal is a name that is the simplest possible for each particular
 file, and will be the same on Windows, Unix, and any other platform
@@ -244,67 +244,189 @@ exclude rather than taking the entire checkin.
 [`/zip`]: /help?cmd=/zip
 
 
-## Platform quirks
+## Platform Quirks
 
-The versioned settings files have no platform-specific quirks. Any
-GLOBs that matter to your workflow belong there where they can be
-safely edited.
+Fossil glob patterns are based on the glob pattern feature of POSIX
+shells. Fossil glob patterns also have a quoting mechanism, discussed
+above. Because other parts of your operating system may interpret glob
+patterns and quotes separately from Fossil, it is often difficult to
+give glob patterns correctly to Fossil on the command line. Quotes and
+special characters in glob patterns are likely to interpreted when given
+as part of a `fossil` command, causing unexpected behavior.
 
-Similarly, settings made through the Web UI are platform independent.
+These problems do not affect [versioned settings
+files](/doc/trunk/www/settings.wiki) or Admin &rarr; Settings in Fossil
+UI. Consequently, it is better to set long-term `*-glob` settings via
+these methods than to use `fossil settings` commands.
 
-GLOBs at the command prompt, however, may need to be protected from
-the quirks of the particular shell program you use to type the
-command.
+That advice doesn't help you when you are giving one-off glob patterns
+in `fossil` commands. The remainder of this section gives remedies and
+workarounds for these problems.
 
-The GLOB language is based on common features of Unix (and Linux)
-shells. In some cases, this will cause confusion if the shell expands
-the GLOB in a way that is similar to what fossil would have done.
 
-When in doubt, the `fossil test-glob` command can be used to see what
-fossil saw and what it chose to do. The `fossil test-echo` command is
-also handy: it shows exactly what arguments fossil received.
+## POSIX Systems
 
-### Windows
+If you are using Fossil on a system with a POSIX-compatible shell
+&mdash; Linux, macOS, the BSDs, Unix, Cygwin, WSL etc. &mdash; the shell
+may expand the glob patterns before passing the result to the `fossil`
+executable.
 
-Various versions of Windows (a phrase that covers more than just
-Window 7 vs Windows 10 because the actual content of `MSVCRT.DLL`, other
-DLLs, and even the specific compiler used to build `fossil.exe` can
-change the behavior) have subtle differences in how quoting works.
+Sometimes this is exactly what you want.  Consider this command for
+example:
 
-Even without subtle version changes, there are also differences
-between the interactive command prompt and `.BAT` or `.CMD` files.
+    $ fossil add RE*
 
-The typical problem is figuring out how to get a GLOB passed on the
-command line into `fossil.exe` without it being expanded by either the
-shell (CMD never expands globs so that part is trivial) or by the C
-runtime startup (which tries hard to expand globs to act like Unix). A
-typical example is figuring out how to set `crlf-glob` to `*`.
+If you give that command in a directory containing `README.txt` and
+`RELEASE-NOTES.txt`, the shell will expand the command to:
 
-One approach is
- 
-    echo * | fossil setting crlf-glob --args -
+    $ fossil add README.txt RELEASE-NOTES.txt
 
-which works because the built-in command `echo` does not expand its
-arguments, and the global option [--args][] reads from `-` which is
-replaced by standard input pipe from the `echo` command.
+…which is compatible with the `fossil add` command's argument list,
+which allows multiple files.
 
-[--args]: https://www.fossil-scm.org/index.html/doc/trunk/www/env-opts.md
+Now consider what happens instead if you say:
 
-Another approach is 
+    $ fossil add --ignore RE* src/*.c
 
-    fossil setting crlf-glob *,
+This *doesn't* do what you want because the shell will expand both `RE*`
+and `src/*.c`, causing one of the two files matching the `RE*` glob
+pattern to be ignored and the other to be added to the repository. You
+need to say this in that case:
 
-which, despite including the extra comma in the stored setting value,
-has the desired effect. The empty GLOB after the comma matches no
-files at all, which has no effect since the `*` matches them all.
+    $ fossil add --ignore 'RE*' src/*.c
 
-Similarly, 
+The single quotes force a POSIX shell to pass the `RE*` glob pattern
+through to Fossil untouched, which will do its own glob pattern
+matching. There are other methods of quoting a glob pattern or escaping
+its special characters; see your shell's manual.
 
-    fossil setting crlf-glob '*'
+Beware that Fossil's `--ignore` option doesn't override explicit file
+mentions:
 
-also works. Here the single quotes are unneeded since no white space
-is mentioned in the pattern, but do no harm. The GLOB still matches
-all the files.
+    $ fossil add --ignore 'REALLY SECRET STUFF.txt' RE*
+
+You might think that would add everything beginning with `RE` *except*
+for `REALLY SECRET STUFF.txt`, but Fossil when a file is given
+explicitly and found in the ignore list, Fossil asks what you want to do
+with it in the default case, and doesn't even ask if gave `-f` or
+`--force` along with `--ignore`.
+
+The spaces in the ignored file name above bring us to another point:
+file names must be quoted in Fossil glob patterns, but the shell
+interprets quotation marks itself. There are a couple of ways to fix
+both this and the previous problem:
+
+    $ fossil add --ignore "'REALLY SECRET STUFF.txt'" READ*
+
+The nested quotation marks cause the inner set to be passed through to
+Fossil, and the more specific glob pattern expanded by the shell (that
+is, `READ*` vs `RE*`) avoids a conflict between explicitly-listed files
+and `--ignore` rules in the `fossil add` command.
+
+Another solution would be to use shell escaping instead of nested
+quoting:
+
+    $ fossil add --ignore "\"REALLY SECRET STUFF.txt\"" READ*
+
+It bears repeating that the two glob patterns here are not interpreted
+the same way when running this command from a *subdirectory* of the top
+checkout directory as when running it at the top of the checkout tree.
+If these files were in a subdirectory of the checkout tree called `doc`
+and that was your current working directory, the command would have to
+be:
+
+    $ fossil add --ignore "'doc/REALLY SECRET STUFF.txt'" READ*
+
+instead. The Fossil glob pattern still needs the `doc/` prefix because
+Fossil always interprets glob patterns from the base of the checkout
+directory, not from the current working directory as POSIX shells do.
+
+When in doubt, use `fossil status` after running commands like the above
+to make sure the right set of files were scheduled for insertion into
+the repository before checking the changes in. You wouldn't want to
+accidentally check something like a password, an API key, or the private
+half of a public crypto key into Fossil repository that can be read by
+people who should not have such secrets.
+
+
+## Windows
+
+Neither standard Windows command shell &mdash; `cmd.exe` or PowerShell
+&mdash; expands glob patterns the way POSIX shells do. Windows command
+shells rely on the command itself to do the glob pattern expansion. The
+way this works depends on several factors:
+
+*   the version of Windows you're using
+*   which OS upgrades have been applied to it
+*   the compiler that built your Fossil executable
+*   whether you're running the command interactively
+*   whether the command is built against a runtime system that does this
+    at all
+*   whether the Fossil command is being run from a file named `*.BAT` vs
+    being named `*.CMD`
+
+These factors also affect how a program like `fossil.exe` interprets
+quotation marks on its command line.
+
+The fifth item above doesn't apply to `fossil.exe` when built with
+typical tool chains, but we'll see an example below where the exception
+applies in a way that affects how Fossil interprets the glob pattern.
+
+The most common problem is figuring out how to get a glob pattern passed
+on the command line into `fossil.exe` without it being expanded by the C
+runtime library that your particular Fossil executable is linked to,
+which tries to act like the POSIX systems described above. Windows is
+not strongly governed by POSIX, so it has not historically hewed closely
+to its strictures.
+
+(This section does not cover the [Microsoft POSIX
+subsystem](https://en.wikipedia.org/wiki/Microsoft_POSIX_subsystem),
+Windows' obsolete [Services for Unix
+3.*x*](https://en.wikipedia.org/wiki/Windows_Services_for_UNIX) feature,
+or the [Windows Subsystem for
+Linux](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux). (The
+latter is sometimes incorrectly called "Bash on Windows" or "Ubuntu on
+Windows.") See the POSIX Systems section above for those cases.)
+
+For example, consider how you would set `crlf-glob` to `*`. The
+na&iuml;ve approach will not work:
+
+    C:\...> fossil setting crlf-glob *
+
+The C runtime library will expand that to the list of all files in the
+current directory, which will probably cause a Fossil error because
+Fossil expects either nothing or option flags after the setting's new
+value.
+
+Let's try again:
+
+    C:\...> fossil setting crlf-glob '*'
+
+That may or may not work. Either `'*'` or `*` needs to be passed through
+to Fossil untouched for this to do what you expect, which may or may not
+happen, depending on the factors listed above.
+
+An approach that *will* work reliably is:
+
+    C:\...> echo * | fossil setting crlf-glob --args -
+
+This works because the built-in command `echo` does not expand its
+arguments, and the `--args -` option makes it read further command
+arguments from Fossil's standard input, which is connected to the output
+of `echo` by the pipe. (`-` is a common Unix convention meaning
+"standard input.")
+
+Another correct approach is:
+
+    C:\...> fossil setting crlf-glob *,
+
+This works because the trailing comma prevents the command shell from
+matching any files, unless you happen to have files named with a
+trailing comma in the current directory. If the pattern matches no
+files, it is passed into Fossil's `main()` function as-is by the C
+runtime system. Since Fossil uses commas to separate multiple glob
+patterns, this means "all files at the root of the Fossil checkout
+directory and nothing else."
 
 
 ## Converting `.gitignore` to `ignore-glob`
