@@ -251,8 +251,8 @@ shells. Fossil glob patterns also have a quoting mechanism, discussed
 above. Because other parts of your operating system may interpret glob
 patterns and quotes separately from Fossil, it is often difficult to
 give glob patterns correctly to Fossil on the command line. Quotes and
-special characters in glob patterns are likely to interpreted when given
-as part of a `fossil` command, causing unexpected behavior.
+special characters in glob patterns are likely to be interpreted when
+given as part of a `fossil` command, causing unexpected behavior.
 
 These problems do not affect [versioned settings
 files](/doc/trunk/www/settings.wiki) or Admin &rarr; Settings in Fossil
@@ -306,22 +306,24 @@ mentions:
     $ fossil add --ignore 'REALLY SECRET STUFF.txt' RE*
 
 You might think that would add everything beginning with `RE` *except*
-for `REALLY SECRET STUFF.txt`, but Fossil when a file is given
-explicitly and found in the ignore list, Fossil asks what you want to do
-with it in the default case, and doesn't even ask if gave `-f` or
-`--force` along with `--ignore`.
+for `REALLY SECRET STUFF.txt`, but when a file is both given explicitly
+to Fossil and also matches an ignore rule, Fossil asks what you want to
+do with it in the default case; it doesn't even ask if you gave the `-f`
+or `--force` option along with `--ignore`.
 
 The spaces in the ignored file name above bring us to another point:
-file names must be quoted in Fossil glob patterns, but the shell
-interprets quotation marks itself. There are a couple of ways to fix
-both this and the previous problem:
+such file names must be quoted in Fossil glob patterns, lest Fossil
+interpret it as multiple glob patterns, but the shell interprets
+quotation marks itself.
+
+One way to fix both this and the previous problem is:
 
     $ fossil add --ignore "'REALLY SECRET STUFF.txt'" READ*
 
 The nested quotation marks cause the inner set to be passed through to
-Fossil, and the more specific glob pattern expanded by the shell (that
-is, `READ*` vs `RE*`) avoids a conflict between explicitly-listed files
-and `--ignore` rules in the `fossil add` command.
+Fossil, and the more specific glob pattern at the end &mdash; that is,
+`READ*` vs `RE*` &mdash; avoids a conflict between explicitly-listed
+files and `--ignore` rules in the `fossil add` command.
 
 Another solution would be to use shell escaping instead of nested
 quoting:
@@ -388,8 +390,9 @@ Linux](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux). (The
 latter is sometimes incorrectly called "Bash on Windows" or "Ubuntu on
 Windows.") See the POSIX Systems section above for those cases.)
 
-For example, consider how you would set `crlf-glob` to `*`. The
-na&iuml;ve approach will not work:
+For example, consider how you would set `crlf-glob` to `*` in order to
+disable Fossil's "looks like a binary file" checks. The na&iuml;ve
+approach will not work:
 
     C:\...> fossil setting crlf-glob *
 
