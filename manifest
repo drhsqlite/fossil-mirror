@@ -1,5 +1,5 @@
-C Enhancements\sto\sthe\spassword\sprompt\slogic\sfor\sWindows\sso\sthat\sit\sworks\sbetter\nin\snon-standard\sshells.
-D 2017-05-02T19:13:02.574
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.19.0\salpha\sfor\stesting.
+D 2017-05-02T19:18:18.952
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -493,13 +493,13 @@ F src/setup.c a1b42702fccd0df8f42c2ae8fe3b9bef4073bbd3def4699e5dce52dba98cf06f
 F src/sha1.c f8052a974b626854519fdd78563d5c0c827fcf7a
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c bd83dc4631af22905b3cf314a8069d3dc8c101c6
-F src/shell.c ceb2b2f1f958ea2c47a7f37972d0f715fbf9dcf6a34a5e98c886b85e3ce6a238
+F src/shell.c 21b79c0e1b93f8e35fd7b4087d6ba438326c3d7e285d0dd51dfd741475f858a1
 F src/shun.c e6e544a8b9200a704121c280604ed42e6aefc3f19f5107d0bdf9b51d9a912a4e
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c 0b6ae35015f48cbe9cef2f97d65105a796fc366b
 F src/sqlcmd.c fba609f0f5a91435d0dff8719ba9c5d25f8cfa15
-F src/sqlite3.c 4154f644e847900a6dea3c4effe9963098ca2cce90b3465b7c83fb8ccb5a46a6
-F src/sqlite3.h afcf6e4ea64863b349e4cfe699404572afdb1b83fd0489238cbef451c1f28f94
+F src/sqlite3.c 1acd648a02c22d95a3d46b18bbaf50fe338d076f2b91fd3beff11d9e43c91ed1
+F src/sqlite3.h 2db133e0335c45c21ecbf12e5bd304c52a91881eb93cf7ea98da47f4696d563d
 F src/stash.c dc0263e11eeb30689418e4def6174af973ad66bf
 F src/stat.c 8431e8f37724b5bd0c449f683e75bc71b80b107893a947084a9aae6241288b5e
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
@@ -785,7 +785,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0ec71205708f73da0ae66379a373e50664042b86661e6b3aa191816a81ee4455
-R d051b1197ea1f6d55cc92cb9fbcfb12f
+P 513dd003a55d0134b0f34d79db4b5f6793f2a85125dd4d0c966ec44041e865ef
+R 1b1cba751dd523ce6c6a93192a8541b6
 U drh
-Z 2ad18d2666bcfdc2027300b0c6be992d
+Z 589d3956c8f2153c285678b9b2b99959
