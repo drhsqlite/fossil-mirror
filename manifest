@@ -1,5 +1,5 @@
-C Suppress\s"database\slocked"\swarnings\son\sthe\s"PRAGMA\soptimize"\sthat\soccurs\sas\sthe\sprocess\sis\sshutting\sdown.
-D 2017-04-23T14:50:00.000
+C (cherry-pick):\sEnhancements\sto\sthe\spassword\sprompt\slogic\sfor\sWindows\sso\sthat\sit\sworks\sbetter\sin\snon-standard\sshells.
+D 2017-05-02T20:18:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -521,7 +521,7 @@ F src/unicode.c 49d229135beb3cba5a58013dfda577fa51ab96ee
 F src/unversioned.c af5f3c4e852989bdcb3c13b5725e90d3dd02585a
 F src/update.c a66c55724db6a355c28d542fcfc4320b9de0eb36
 F src/url.c be48911fa1624051538157f2dfc815ec082e7206
-F src/user.c 1d31844a9e48e2ab515586bf54ecc4b30b47d5b5
+F src/user.c c595beaa8d6fee6bf1f5b53b77cf6a498dab9252cf22b2ec7852a70844cbe7ec
 F src/utf8.c 9f458b9698fc928cc21e375538f268651d1d22a2
 F src/util.c 9a3cc502aa6ae3bc19831e5f553cd346ec154b5c
 F src/verify.c 5799825d086464bb9e19e69ffeec84a710d1681b
@@ -785,11 +785,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 81d7d3f43ebd4e77095cfbacee7ebc9ae043a014760cde56d437dbd8b6a37c92
-Q +41956e7000813c3c3d26292401471b266b63b2218a41bf79461ae8f76fb2dc52
-R da4ceb9dd5dc2bbf6411e51a7cd34baa
-T *branch * branch-2.2
-T *sym-branch-2.2 *
-T -sym-trunk *
+P c7d85ffb2ac857b25ce95e640b44ecae73c5df05c2a72cc7cb87078e2ced4611
+Q +513dd003a55d0134b0f34d79db4b5f6793f2a85125dd4d0c966ec44041e865ef
+R 90a493808a82fc6f4c7d7ae1e4a83848
 U jan.nijtmans
-Z e9110feec1c30e081943948bbb455630
+Z 5a2e032700fe17a7c85b0381d40b8d7c
