@@ -50,10 +50,10 @@ Special characters (and special character sequences) consume zero or
 more characters from the target and describe what matches. The special
 characters (and sequences) are:
 
-    *       Matches any sequence of zero or more characters.
-    ?       Matches exactly one character.
-    [...]   Matches one character from the enclosed list of characters.
-    [^...]  Matches one character not in the enclosed list.
+ *  `*` Matches any sequence of zero or more characters;
+ *  `?` Matches exactly one character;
+ *  `[...]` Matches one character from the enclosed list of characters; and
+ *  `[^...]` Matches one character not in the enclosed list.
 
 Special character sequences have some additional features: 
 
@@ -76,7 +76,6 @@ Special character sequences have some additional features:
     and character lists) are allowed to match `/` directory
     separators as well as the initial `.` in the name of a hidden
     file or directory.
-
 
 Some examples of character lists: 
 
