@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.19.0\salpha\sfor\stesting.
-D 2017-05-02T19:18:18.952
+C Added\snew\sdocumentation\sfor\sFile\sName\sGlob\sPatterns,\ssuitable\sfor\sexplaining\show\sthe\spatterns\sfound\sin\sthe\svarious\sxxx-glob\ssettings\swork\sin\sdetail.
+D 2017-05-08T23:04:00.145
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -747,6 +747,7 @@ F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh db68e2cae431b9e9f5dd672e2f56e2bde5a57d2a
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
+F www/globs.md 9498881004a9db204363e6a2bf265ba88495447b5f6a5f1f70759a9b1ec9818d
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hashpolicy.wiki 901e234166e31d8cb6634577b3fe266f41453ca1
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
@@ -754,10 +755,10 @@ F www/index.wiki 38c24247e3e5ccea5135f4d5fddf82244815d8fd
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki 7805bf0a04dc009df152d683771f8e3f74b194a4
 F www/mkdownload.tcl 86e774d93eb5c92cac5e7328920987feedf9356d
-F www/mkindex.tcl 358a16d3c8e9247d436d3c8dde12cd6993895455bae03b2d8807cfaf1f9c4757 x
+F www/mkindex.tcl 37ecaef89cc4f82503665dfc4dbd838f430c1fde9563e39220ef328d31d342cd x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
-F www/permutedindex.html c5063c1da5999206fe3e0321cb365044f4eac683f21d4738615200bccb4a02d6
+F www/permutedindex.html cb1e1b3811c56b9fab752681475e29e6cd11aad1d4a773b75ca23234e9c0ea58
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 1c55c09563361db73b733386dc0fd6689156d5ab
 F www/qandc.wiki b8b6f9668796bde63440e64dfd40a176766dd78e
@@ -785,7 +786,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 513dd003a55d0134b0f34d79db4b5f6793f2a85125dd4d0c966ec44041e865ef
-R 1b1cba751dd523ce6c6a93192a8541b6
-U drh
-Z 589d3956c8f2153c285678b9b2b99959
+P b8f3b549aae64d46fdbdc66939a605168fdb20c7b9acba539b14b7220b08aaa6 ea1fd25378cc7165995d5a9100ed293488f81ca58753ac070d3c18b86336be0e
+R 23066ceee99493fd6ceeb5d333e9998a
+T +closed ea1fd25378cc7165995d5a9100ed293488f81ca58753ac070d3c18b86336be0e
+U rberteig
+Z cafce3b0eb12e51cb4fceb6183542261
