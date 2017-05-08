@@ -89,10 +89,10 @@ Some examples of character lists:
  *  `[]^]` Matches either `]` or `^`; and
  *  `[^-]` Matches exactly one character other than `-`.
 
-White space means the ASCII characters TAB, LF, VT, FF, CR, and SPACE.
-Note that this does not include any of the many additional spacing
-characters available in Unicode, and specifically does not include
-U+00A0 NO-BREAK SPACE. 
+White space means the specific ASCII characters TAB, LF, VT, FF, CR,
+and SPACE.  Note that this does not include any of the many additional
+spacing characters available in Unicode, and specifically does not
+include U+00A0 NO-BREAK SPACE. 
 
 Because both LF and CR are white space and leading and trailing spaces
 are stripped from each glob in a list, a list of globs may be broken
@@ -114,26 +114,33 @@ name to be considered a match.
 The canonical name of a file has all directory separators changed to
 `/`, redundant slashes are removed, all `.` path components are
 removed, and all `..` path components are resolved. (There are
-additional details we won't go into here.)
+additional details we are ignoring here, but they cover rare edge
+cases and also follow the principle of least surprise.)
 
-The goal is a name that is the simplest possible for each particular
-file, and will be the same on Windows, Unix, and any other platform
-where fossil is run.
+The goal is to have a name that is the simplest possible for each
+particular file, and that will be the same on Windows, Unix, and any
+other platform where fossil is run.
 
 Beware, however, that all glob matching is case sensitive. This will
 not be a surprise on Unix where all file names are also case
 sensitive. However, most Windows file systems are case preserving and
-case insensitive. On Windows, the names `ReadMe` and `README` are
-names of the same file; on Unix they are different files.
+case insensitive. That is, on Windows, the names `ReadMe` and `README`
+are names of the same file; on Unix they are different files.
 
 Some example cases:
  
  *  The glob `README` matches only a file named `README` in the root of
     the tree. It does not match a file named `src/README` because it
-    does not include any characters that consumed the `src/` part. 
+    does not include any characters that consume (and match) the
+    `src/` part. 
  *  The glob `*/README` does match `src/README`. Unlike Unix file
     globs, it also matches `src/library/README`. However it does not
     match the file `README` in the root of the tree.
+ *  The glob `*README` does match `src/README` as well as the file
+    `README` in the root of the tree as well as `foo/bar/README` or
+    any other file named `README` in the tree. However, it also
+    matches `A-DIFFERENT-README` and `src/DO-NOT-README`, or any other
+    file whose name ends with `README`.
  *  The glob `src/README` does match the file named `src\README` on
     Windows because all directory separators are rewritten as `/` in
     the canonical name before the glob is matched. This makes it much
@@ -143,27 +150,24 @@ Some example cases:
     different from Unix file globs and Windows wild cards.
 
 
-
 ## Where Globs are Used
 
 ### Settings that are Globs
 
 These settings are all lists of glob patterns:
 
- * `binary-glob`
- * `clean-glob`
- * `crlf-glob`
- * `crnl-glob`
- * `encoding-glob`
- * `ignore-glob`
- * `keep-glob`
+ *  `binary-glob`
+ *  `clean-glob`
+ *  `crlf-glob`
+ *  `crnl-glob`
+ *  `encoding-glob`
+ *  `ignore-glob`
+ *  `keep-glob`
 
-All may be [versioned, local, or global][settings]. Use `fossil
+All may be [versioned, local, or global](settings.wiki). Use `fossil
 settings` to manage local and global settings, or a file in the
 repository's `.fossil-settings/` folder at the root of the tree named
 for each for versioned setting.
-
-  [settings]: /doc/trunk/www/settings.wiki
 
 Using versioned settings for these not only has the advantage that
 they are tracked in the repository just like the rest of your project,
@@ -185,15 +189,15 @@ options to override some or all of the settings. These options are
 usually named to correspond to the setting they override, such as
 `--ignore` to override the `ignore-glob` setting. These commands are:
 
- * [`add`][]
- * [`addremove`][]
- * [`changes`][]
- * [`clean`][]
- * [`extras`][]
- * [`merge`][]
- * [`settings`][] 
- * [`status`][]
- * [`unset`][]
+ *  [`add`][]
+ *  [`addremove`][]
+ *  [`changes`][]
+ *  [`clean`][]
+ *  [`extras`][]
+ *  [`merge`][]
+ *  [`settings`][] 
+ *  [`status`][]
+ *  [`unset`][]
 
 The commands [`tarball`][] and [`zip`][] produce compressed archives of a
 specific checkin. They may be further restricted by options that
@@ -253,12 +257,12 @@ give glob patterns correctly to Fossil on the command line. Quotes and
 special characters in glob patterns are likely to be interpreted when
 given as part of a `fossil` command, causing unexpected behavior.
 
-These problems do not affect [versioned settings
-files](/doc/trunk/www/settings.wiki) or Admin &rarr; Settings in Fossil
-UI. Consequently, it is better to set long-term `*-glob` settings via
-these methods than to use `fossil settings` commands.
+These problems do not affect [versioned settings files](settings.wiki)
+or Admin &rarr; Settings in Fossil UI. Consequently, it is better to
+set long-term `*-glob` settings via these methods than to use `fossil
+settings` commands.
 
-That advice doesn't help you when you are giving one-off glob patterns
+That advice does not help you when you are giving one-off glob patterns
 in `fossil` commands. The remainder of this section gives remedies and
 workarounds for these problems.
 
@@ -287,7 +291,7 @@ Now consider what happens instead if you say:
 
     $ fossil add --ignore RE* src/*.c
 
-This *doesn't* do what you want because the shell will expand both `RE*`
+This *does not* do what you want because the shell will expand both `RE*`
 and `src/*.c`, causing one of the two files matching the `RE*` glob
 pattern to be ignored and the other to be added to the repository. You
 need to say this in that case:
@@ -299,16 +303,16 @@ through to Fossil untouched, which will do its own glob pattern
 matching. There are other methods of quoting a glob pattern or escaping
 its special characters; see your shell's manual.
 
-Beware that Fossil's `--ignore` option doesn't override explicit file
+Beware that Fossil's `--ignore` option does not override explicit file
 mentions:
 
     $ fossil add --ignore 'REALLY SECRET STUFF.txt' RE*
 
 You might think that would add everything beginning with `RE` *except*
-for `REALLY SECRET STUFF.txt`, but when a file is both given explicitly
-to Fossil and also matches an ignore rule, Fossil asks what you want to
-do with it in the default case; it doesn't even ask if you gave the `-f`
-or `--force` option along with `--ignore`.
+for `REALLY SECRET STUFF.txt`, but when a file is both given
+explicitly to Fossil and also matches an ignore rule, Fossil asks what
+you want to do with it in the default case; and it does not even ask
+if you gave the `-f` or `--force` option along with `--ignore`.
 
 The spaces in the ignored file name above bring us to another point:
 such file names must be quoted in Fossil glob patterns, lest Fossil
@@ -342,12 +346,12 @@ instead. The Fossil glob pattern still needs the `doc/` prefix because
 Fossil always interprets glob patterns from the base of the checkout
 directory, not from the current working directory as POSIX shells do.
 
-When in doubt, use `fossil status` after running commands like the above
-to make sure the right set of files were scheduled for insertion into
-the repository before checking the changes in. You wouldn't want to
-accidentally check something like a password, an API key, or the private
-half of a public crypto key into Fossil repository that can be read by
-people who should not have such secrets.
+When in doubt, use `fossil status` after running commands like the
+above to make sure the right set of files were scheduled for insertion
+into the repository before checking the changes in. You never want to
+accidentally check something like a password, an API key, or the
+private half of a public cryptographic key into Fossil repository that
+can be read by people who should not have such secrets.
 
 
 ## Windows
@@ -357,20 +361,20 @@ Neither standard Windows command shell &mdash; `cmd.exe` or PowerShell
 shells rely on the command itself to do the glob pattern expansion. The
 way this works depends on several factors:
 
-*   the version of Windows you're using
-*   which OS upgrades have been applied to it
-*   the compiler that built your Fossil executable
-*   whether you're running the command interactively
-*   whether the command is built against a runtime system that does this
+ *  the version of Windows you are using
+ *  which OS upgrades have been applied to it
+ *  the compiler that built your Fossil executable
+ *  whether you are running the command interactively
+ *  whether the command is built against a runtime system that does this
     at all
-*   whether the Fossil command is being run from a file named `*.BAT` vs
+ *  whether the Fossil command is being run from a file named `*.BAT` vs
     being named `*.CMD`
 
 These factors also affect how a program like `fossil.exe` interprets
 quotation marks on its command line.
 
-The fifth item above doesn't apply to `fossil.exe` when built with
-typical tool chains, but we'll see an example below where the exception
+The fifth item above does not apply to `fossil.exe` when built with
+typical tool chains, but we will see an example below where the exception
 applies in a way that affects how Fossil interprets the glob pattern.
 
 The most common problem is figuring out how to get a glob pattern passed
@@ -418,7 +422,7 @@ arguments from Fossil's standard input, which is connected to the output
 of `echo` by the pipe. (`-` is a common Unix convention meaning
 "standard input.")
 
-Another correct approach is:
+Another (usually) correct approach is:
 
     C:\...> fossil setting crlf-glob *,
 
