@@ -1,5 +1,5 @@
-C Added\snew\sdocumentation\sfor\sFile\sName\sGlob\sPatterns,\ssuitable\sfor\sexplaining\show\sthe\spatterns\sfound\sin\sthe\svarious\sxxx-glob\ssettings\swork\sin\sdetail.
-D 2017-05-08T23:04:00.145
+C Update\sautosetup\sto\sv0.6.6
+D 2017-05-10T09:22:44.234
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -50,19 +50,19 @@ F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
 F auto.def 4772202024eceeac4e05e1584e8dae08e7f25b4c
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup c235af4ce86af9a9b8b331b5a67c822d52ca2c6e
-F autosetup/autosetup 61a83ed783db7e10fdfc602c090f88cf3fb13d3a x
+F autosetup/autosetup c5df1c77d0768789ebf4a84f99e70a5c138f32bfda8f43eeed415ffa5cb50ede x
 F autosetup/cc-db.tcl 08642fcb65fb68ee8c523bfae45e67c68c08005d
-F autosetup/cc-lib.tcl 9077df054f432b4d8706d90133194d5a50ce1cba
-F autosetup/cc-shared.tcl b9b4c56987c03a99dda45d79d1b9eb9a5204898a
-F autosetup/cc.tcl 627b5dd9995428281bd71a71c6c0aa818c2d74d5
+F autosetup/cc-lib.tcl 75bdc7b1e72b8751bf75dee05dfb4763a9fae40e70bfc25f3d5c7e280a1698a0
+F autosetup/cc-shared.tcl 928361fc90669758e5e757e5399cd8258439e911c062bd7590e5363ff265c472
+F autosetup/cc.tcl 1ea33bf7c02fd9ec1b3abe2754ccf94a8e2b8bdc9852f93a735f17cfd6764f44
 F autosetup/config.guess 947c8873202b420cdd698aa562cd05ee128197f6 x
 F autosetup/config.sub 1ed99f2fce4975f55e82b3833baf74fbcd8bdda0 x
 F autosetup/default.auto f78163e478676728918cbb7360abddb9c830e882
 F autosetup/find-tclsh f973558ad74bd8e4d55b677d9c166cbb35f34186 x
-F autosetup/jimsh0.c e2e67757a06d0cab4d5db04220492e68714f5852
-F autosetup/local.tcl 79b8c81822e992ec573689e57b042b348dc6923c
-F autosetup/pkg-config.tcl 232a81fd534755653144cea9558656908189e97f
-F autosetup/system.tcl 82f4b642c6c605dc1fa8cb728bf251e501350572
+F autosetup/jimsh0.c c31f25b294314ea582cb2acf8fe4aa04de1065060b72f58fa58c5dd5644863cd
+F autosetup/local.tcl 60b0633b484a89c87aed299e4c22ac5287803f921ba9b653a04b0c518f699cda
+F autosetup/pkg-config.tcl 1d3eb0476a271d7c506aa253a4a189a68344950d726381d2d0417bb31af21b4d
+F autosetup/system.tcl e824e3fc2f85cee68c54adad526369e3818575c2a142e4cc09c3c3a35956ae7b
 F autosetup/test-tclsh f197a4c7bfa8bde7672864fc36dcbc7f85bdda6c x
 F autosetup/tmake.auto 76789a7eb47bb057c1d230f549dd6cf1cf3ac376
 F autosetup/tmake.tcl 585cf569bb5b94a98876615d6b6dd6d6d84c93a9
@@ -786,8 +786,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b8f3b549aae64d46fdbdc66939a605168fdb20c7b9acba539b14b7220b08aaa6 ea1fd25378cc7165995d5a9100ed293488f81ca58753ac070d3c18b86336be0e
-R 23066ceee99493fd6ceeb5d333e9998a
-T +closed ea1fd25378cc7165995d5a9100ed293488f81ca58753ac070d3c18b86336be0e
-U rberteig
-Z cafce3b0eb12e51cb4fceb6183542261
+P b892f2d547f9771ffd3d84dfbfe7fbd31d8a361e20324634791fd1fd80b7b945 327dc56377fbf5070e76fdcb39417a4f8741fe232f8eb1ce6ed309dbb3f83300
+R 9dd1e3c6dce898f2521b96e4ea771a9d
+T +closed 327dc56377fbf5070e76fdcb39417a4f8741fe232f8eb1ce6ed309dbb3f83300
+U jan.nijtmans
+Z 67a7219ad4e7ed975ab3fc417e1fa1bb

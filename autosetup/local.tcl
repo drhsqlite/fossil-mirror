@@ -1,5 +1,6 @@
-# For this project, disable the pager for --help
-set useropts(nopager) 1
+# For this project, disable the pager for --help and --ref
+# The user can still enable by using --nopager=0 or --disable-nopager
+dict set autosetup(optdefault) nopager 1
 
 # Searches for a usable Tcl (prefer 8.6, 8.5, 8.4) in the given paths
 # Returns a dictionary of the contents of the tclConfig.sh file, or

@@ -9,13 +9,26 @@
 # It also support the 'feature' naming convention, where searching
 # for a feature such as sys/type.h defines HAVE_SYS_TYPES_H
 #
-module-options {
+# It defines the following variables, based on --prefix unless overridden by the user:
+#
+## datadir
+## sysconfdir
+## sharedstatedir
+## localstatedir
+## infodir
+## mandir
+## includedir
+
+# Do "define defaultprefix myvalue" to set the default prefix *before* the first "use"
+set defaultprefix [get-define defaultprefix /usr/local]
+
+module-options [subst -noc -nob {
 	host:host-alias =>		{a complete or partial cpu-vendor-opsys for the system where
 							the application will run (defaults to the same value as --build)}
 	build:build-alias =>	{a complete or partial cpu-vendor-opsys for the system
 							where the application will be built (defaults to the
 							result of running config.guess)}
-	prefix:dir =>			{the target directory for the build (defaults to /usr/local)}
+	prefix:dir =>			{the target directory for the build (defaults to '$defaultprefix')}
 
 	# These (hidden) options are supported for autoconf/automake compatibility
 	exec-prefix:
@@ -32,7 +45,7 @@ module-options {
 	localstatedir:
 	maintainer-mode=0
 	dependency-tracking=0
-}
+}]
 
 # Returns 1 if exists, or 0 if  not
 #
@@ -108,7 +121,7 @@ proc write-if-changed {file buf {script {}}} {
 #
 # Each pattern of the form @define@ is replaced with the corresponding
 # define, if it exists, or left unchanged if not.
-#
+# 
 # The special value @srcdir@ is substituted with the relative
 # path to the source directory from the directory where the output
 # file is created, while the special value @top_srcdir@ is substituted
@@ -219,8 +232,7 @@ if {$host eq ""} {
 }
 define cross [get-env CROSS $cross]
 
-# Do "define defaultprefix myvalue" to set the default prefix *before* the first "use"
-set prefix [opt-val prefix [get-define defaultprefix /usr/local]]
+set prefix [opt-val prefix $defaultprefix]
 
 # These are for compatibility with autoconf
 define target [get-define host]
