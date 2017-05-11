@@ -1,5 +1,5 @@
-C Don't\saccess\sg.argv[2],\swhen\sg.argc\sindicates\sthere's\sno\ssuch\selement.\sReported\sby\sTony\sPapadimitriou.
-D 2017-05-11T09:06:13.585
+C Add\sthe\sURL\s&amp;\sCheckouts\sentry\sto\sthe\ssetup\smenu.
+D 2017-05-11T21:00:51.654
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -489,7 +489,7 @@ F src/report.c ee53ffbf76230126e2f91511b70d9f72a97d0a650e4c91e6d43018ab3069927a
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/search.c 0de35ed3d058b62f9f09a5bde235d0cc1e8f0ee1d4bec9ebc2cd9b5bb9d858bb
-F src/setup.c a1b42702fccd0df8f42c2ae8fe3b9bef4073bbd3def4699e5dce52dba98cf06f
+F src/setup.c c5d62ea94b667e6ef5a48b69fb02042c3cf11fe5ef4d90f1fe4fda5d8073c7be
 F src/sha1.c f8052a974b626854519fdd78563d5c0c827fcf7a
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c bd83dc4631af22905b3cf314a8069d3dc8c101c6
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 094a498d9915689b6e9cb2a0ead3f8fbd3bad0cad5ec687f3d89718b94de27c4
-R edd54d16bb82957f6d0a89649df28eb9
-U jan.nijtmans
-Z 666f80822231e695927617f8d25e118e
+P 2d69772e49f3122e3c6c77d3da24ae7c251ea10040736e52c66d539ea29b21aa
+R dec64c2473885552b5fffb725a93e0aa
+U drh
+Z 25795fb9ba773ce730ee250b02c0c2ee

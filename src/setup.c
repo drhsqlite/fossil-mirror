@@ -105,6 +105,8 @@ void setup_page(void){
     " changes and attachments.");
   setup_menu_entry("Ad-Unit", "setup_adunit",
     "Edit HTML text for an ad unit inserted after the menu bar");
+  setup_menu_entry("URLs & Checkouts", "urllist",
+    "Show URLs used to access this repo and known check-outs");
   setup_menu_entry("Web-Cache", "cachestat",
     "View the status of the expensive-page cache");
   setup_menu_entry("Logo", "setup_logo",
