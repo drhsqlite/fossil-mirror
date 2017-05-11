@@ -1,5 +1,5 @@
-C Add\sthe\sURL\s&amp;\sCheckouts\sentry\sto\sthe\ssetup\smenu.
-D 2017-05-11T21:00:51.654
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sfirst\s3.19.0\sbeta.
+D 2017-05-11T21:09:29.242
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -498,8 +498,8 @@ F src/shun.c e6e544a8b9200a704121c280604ed42e6aefc3f19f5107d0bdf9b51d9a912a4e
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c 0b6ae35015f48cbe9cef2f97d65105a796fc366b
 F src/sqlcmd.c fba609f0f5a91435d0dff8719ba9c5d25f8cfa15
-F src/sqlite3.c 6b8255962558f09b31b7059f0e0bfcaa1d79d28b68e4687bf470daaa0a79dab6
-F src/sqlite3.h 52955196de65724d3a26ffa451e71ba910d8c9c9e868d8b1eed528e4548ef26f
+F src/sqlite3.c 1fc40cd4e4d1605f19cda1d238cbe0569a43392f402e99d19f8bf83cec6c25a6
+F src/sqlite3.h db6da5bc0e323f53e9ab9083951a3c676bbd905996b0b9f4b3f0cfa4414bf051
 F src/stash.c dc0263e11eeb30689418e4def6174af973ad66bf
 F src/stat.c 8431e8f37724b5bd0c449f683e75bc71b80b107893a947084a9aae6241288b5e
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2d69772e49f3122e3c6c77d3da24ae7c251ea10040736e52c66d539ea29b21aa
-R dec64c2473885552b5fffb725a93e0aa
+P a53beaabdf080545a66919b26397bdb20a50378594a9d5ae199ac9cf95dfff57
+R 3555c12d797d1fba43d32c9c38ae2723
 U drh
-Z 25795fb9ba773ce730ee250b02c0c2ee
+Z 9bd2e2d149ab717fe17a0f21d12e109d
