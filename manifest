@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sfirst\s3.19.0\sbeta.
-D 2017-05-11T21:09:29.242
+C Fix\sa\stypo\son\sthe\saboutdownload.wiki\sdocumentation\spage.
+D 2017-05-11T22:49:56.804
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -675,7 +675,7 @@ F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/aboutcgi.wiki 202d01418f53b32d5f52f2822c8c2350e5e3c4c1
-F www/aboutdownload.wiki 8279d144deb25560bfcb664d34c7bac33565c0b1657bb80db71cb2cb7fd7c6e8
+F www/aboutdownload.wiki 99aa5e1f5bb489c7e981e002a054d90121dd6463587a5d45f28df6b9e3e7ab09
 F www/adding_code.wiki 5254f0811146471cf1cc5dde727822745e554a9c
 F www/antibot.wiki 1d8222c3769a8cd4402989d72db1ca2cf8bf34c64c7be7b2a4032e72297ec084
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a53beaabdf080545a66919b26397bdb20a50378594a9d5ae199ac9cf95dfff57
-R 3555c12d797d1fba43d32c9c38ae2723
+P d6a0debd8c986dc25a71357f1e7b940179a41e38153097788b10cdeba3fd43d1
+R a54d4e8e1bd52f8102556816a5e09ad1
 U drh
-Z 9bd2e2d149ab717fe17a0f21d12e109d
+Z d8b3b8dab1d282e48ae29ee67e8692d5
