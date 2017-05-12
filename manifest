@@ -1,5 +1,5 @@
-C Patch\sfor\sautosetup\sto\srestore\sprevious\sbehavior\sof\sthe\s--with\soptions\sto\sconfigure,\sby\sSteve\sBennett.
-D 2017-05-12T13:49:43.582
+C Add\sthe\s"Last\sSync\sURL"\sdivision\sto\sthe\s/urllist\spage.
+D 2017-05-12T13:57:31.394
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -501,7 +501,7 @@ F src/sqlcmd.c fba609f0f5a91435d0dff8719ba9c5d25f8cfa15
 F src/sqlite3.c 1fc40cd4e4d1605f19cda1d238cbe0569a43392f402e99d19f8bf83cec6c25a6
 F src/sqlite3.h db6da5bc0e323f53e9ab9083951a3c676bbd905996b0b9f4b3f0cfa4414bf051
 F src/stash.c dc0263e11eeb30689418e4def6174af973ad66bf
-F src/stat.c 8431e8f37724b5bd0c449f683e75bc71b80b107893a947084a9aae6241288b5e
+F src/stat.c e508b5ff333830b36882ab6a8e8b499e3a62a0c6a27f744b27ce81a4cee07ea0
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
 F src/style.c cf9edbf403e1df8e094e8a1d44d5dd9516046678
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 82aaedd991284402396761a6c5f7b685ef9882e5dcf7d5c8eb60f3ca01d5e636
-R 36d8b376f7a7b3747c1e7f879bac25ef
-U mistachkin
-Z 5a3c2b00bb34d9fbad3e4e589f7d3456
+P 4e1450ae3cd5e4db9f112bd418ff9f16891c040655610fcae9cfc0f0504ff52f
+R 62dc845bc6bd41d00c38a2aa4d3f2b96
+U drh
+Z d82d86b028f784cb33378017415e4e53

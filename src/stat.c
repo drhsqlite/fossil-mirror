@@ -343,6 +343,7 @@ void dbstat_cmd(void){
 void urllist_page(void){
   Stmt q;
   int cnt;
+  char *zRemote;
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(0); return; }
 
@@ -380,6 +381,16 @@ void urllist_page(void){
     @ <tr><td>(none)</td>
   }
   @ </table>
+  zRemote = db_text(0, "SELECT value FROM config WHERE name='last-sync-url'");
+  if( zRemote ){
+    @ <div class="section">Last Sync URL</div>
+    if( sqlite3_strlike("http%", zRemote, 0)==0 ){
+      @ <p><a href='%h(zRemote)'>%h(zRemote)</a>
+    }else{
+      @ <p>%h(zRemote)</p>
+    }
+    @ </div>
+  }
   style_footer();
 }
 
