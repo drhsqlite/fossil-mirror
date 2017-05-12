@@ -385,7 +385,9 @@ void urllist_page(void){
   if( zRemote ){
     @ <div class="section">Last Sync URL</div>
     if( sqlite3_strlike("http%", zRemote, 0)==0 ){
-      @ <p><a href='%h(zRemote)'>%h(zRemote)</a>
+      UrlData x;
+      url_parse_local(zRemote, URL_OMIT_USER, &x);
+      @ <p><a href='%h(x.canonical)'>%h(zRemote)</a>
     }else{
       @ <p>%h(zRemote)</p>
     }

@@ -40,6 +40,7 @@
 #define URL_ASK_REMEMBER_PW  0x004  /* Ask whether to remember prompted pw */
 #define URL_REMEMBER_PW      0x008  /* Should remember pw */
 #define URL_PROMPTED         0x010  /* Prompted for PW already */
+#define URL_OMIT_USER        0x020  /* Omit the user name from URL */
 
 /*
 ** The URL related data used with this subsystem.
@@ -155,7 +156,11 @@ void url_parse_local(
       if( pUrlData->isSsh ){
         urlFlags &= ~URL_ASK_REMEMBER_PW;
       }
-      zLogin = mprintf("%t@", pUrlData->user);
+      if( urlFlags & URL_OMIT_USER ){
+        zLogin = mprintf("");
+      }else{
+        zLogin = mprintf("%t@", pUrlData->user);
+      }
       for(j=i+1; (c=zUrl[j])!=0 && c!='/' && c!=':'; j++){}
       pUrlData->name = mprintf("%.*s", j-i-1, &zUrl[i+1]);
       i = j;
