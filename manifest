@@ -1,5 +1,5 @@
-C (cherry-pick):\sEnhancements\sto\sthe\spassword\sprompt\slogic\sfor\sWindows\sso\sthat\sit\sworks\sbetter\sin\snon-standard\sshells.
-D 2017-05-02T20:18:00.000
+C (cherry-pick):\sFix\san\sXSS\sissue\swith\sthe\s/help\swebpage.\sChange\sa\sfew\s%s\sformat\sletters\sinto\s%h
+D 2017-05-12T18:22:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -415,7 +415,7 @@ F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
 F src/diff.c 09884b53c51f9a1700dc94ecae0f9071e24191ad
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 9a88f3a3511b19fd17d11bb01d3d95a5f8378070
-F src/dispatch.c 4e634c0cf22b7dd63501a4dc0aa6375cf4151343
+F src/dispatch.c c4135c158e049ba88648d1a0ccea4a24169099b752e1dffced17a77e4fb8218c
 F src/doc.c a18db75a080ca2225e76a05a6e8957ea740ffc84
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c 5dcf3c6ff00c39c25a3909deec1d1154cf0b85a5
@@ -455,7 +455,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c 29ba1458d561d2b3238cbc717976eab87a098a16
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c c09327660159d4fb0eb4e31ed4cf2a766ad12324329434bedb8c0eaf4d326dd5
+F src/login.c e79e6492901382bc825079f86b3d77e2b564d8d2e70454d40ab7967695c817c2
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
 F src/main.c 5105d4bc1b86b24638764606c399321a82726b89
 F src/main.mk adb39465c0b57737cc735f324b9e2bc296a79f16
@@ -474,7 +474,7 @@ F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
 F src/mkindex.c f4183ca13461544fe06f34af0a3501ea96d3637f
 F src/mkversion.c 5827238100f179af2462a0194421c8b027198ef1
 F src/moderate.c 2540f90b20778a4d62156a3b4af962b401d4c89f
-F src/name.c 474572bdcb464c8f25ab5547f31eaa09eebf6abd8bb3afd638e327f23e4452f2
+F src/name.c 7672b98171a8e90e9dfdb387cbf92e17efc2ff8bff93f46314b1d74de04f2958
 F src/path.c cce5fdfa571861a81e1a48e893e5a52dd2703a5f
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c e4a8ed414bbc311a3f427cad8da023d33bd39f46
@@ -488,7 +488,7 @@ F src/regexp.c 11ed4c905c2e471efe9c1e9c4650004ad91d6ebb
 F src/report.c ee53ffbf76230126e2f91511b70d9f72a97d0a650e4c91e6d43018ab3069927a
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
-F src/search.c 82d3900b27d457fd1051d46acc5f4dcc74947960
+F src/search.c 0de35ed3d058b62f9f09a5bde235d0cc1e8f0ee1d4bec9ebc2cd9b5bb9d858bb
 F src/setup.c a1b42702fccd0df8f42c2ae8fe3b9bef4073bbd3def4699e5dce52dba98cf06f
 F src/sha1.c f8052a974b626854519fdd78563d5c0c827fcf7a
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -785,8 +785,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c7d85ffb2ac857b25ce95e640b44ecae73c5df05c2a72cc7cb87078e2ced4611
-Q +513dd003a55d0134b0f34d79db4b5f6793f2a85125dd4d0c966ec44041e865ef
-R 90a493808a82fc6f4c7d7ae1e4a83848
+P cd24cf19dc618e932bc769f2a2d0f598e64570f6c591ae64b6b29dbd946f19bf
+Q +db482f1675d5d084ab7f637582256ab7eda3d625e77f3a3ff8080c19142e208d
+R d5d939de8d8367fdb56e8c65aa2e4f18
 U jan.nijtmans
-Z 5a2e032700fe17a7c85b0381d40b8d7c
+Z bb1c0cdf08179a35257aec9dbc0fd5a8

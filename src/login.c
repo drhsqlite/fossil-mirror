@@ -1460,7 +1460,7 @@ void register_page(void){
         /* Here lies the reason I don't use zErrMsg - it would not substitute
          * this %s(zUsername), or at least I don't know how to force it to.*/
         @ <p><span class="loginError">
-        @ %s(zUsername) already exists.
+        @ %h(zUsername) already exists.
         @ </span></p>
       }else{
         char *zPw = sha1_shared_secret(blob_str(&passwd), blob_str(&login), 0);
