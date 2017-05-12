@@ -1,5 +1,5 @@
-C Fix\san\sXSS\sissue\swith\sthe\s/help\swebpage.
-D 2017-05-12T16:22:54.560
+C Change\sa\sfew\s%s\sformat\sletters\sinto\s%h.
+D 2017-05-12T17:22:24.451
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -455,7 +455,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c 29ba1458d561d2b3238cbc717976eab87a098a16
 F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c c09327660159d4fb0eb4e31ed4cf2a766ad12324329434bedb8c0eaf4d326dd5
+F src/login.c e79e6492901382bc825079f86b3d77e2b564d8d2e70454d40ab7967695c817c2
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
 F src/main.c 09f5e4f378fa531f470fb359e91c7bb088350cf5cd3fcc3e688a1ee349cf5c59
 F src/main.mk adb39465c0b57737cc735f324b9e2bc296a79f16
@@ -474,7 +474,7 @@ F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
 F src/mkindex.c f4183ca13461544fe06f34af0a3501ea96d3637f
 F src/mkversion.c 5827238100f179af2462a0194421c8b027198ef1
 F src/moderate.c 2540f90b20778a4d62156a3b4af962b401d4c89f
-F src/name.c 474572bdcb464c8f25ab5547f31eaa09eebf6abd8bb3afd638e327f23e4452f2
+F src/name.c 7672b98171a8e90e9dfdb387cbf92e17efc2ff8bff93f46314b1d74de04f2958
 F src/path.c cce5fdfa571861a81e1a48e893e5a52dd2703a5f
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c e4a8ed414bbc311a3f427cad8da023d33bd39f46
@@ -489,7 +489,7 @@ F src/report.c ee53ffbf76230126e2f91511b70d9f72a97d0a650e4c91e6d43018ab3069927a
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/search.c 0de35ed3d058b62f9f09a5bde235d0cc1e8f0ee1d4bec9ebc2cd9b5bb9d858bb
-F src/setup.c c5d62ea94b667e6ef5a48b69fb02042c3cf11fe5ef4d90f1fe4fda5d8073c7be
+F src/setup.c d8eba80358de42ddd33670570df44fe3c1642a5a9db432fd9ac518eba3a5eaf2
 F src/sha1.c f8052a974b626854519fdd78563d5c0c827fcf7a
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c bd83dc4631af22905b3cf314a8069d3dc8c101c6
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 12ab581fdac0c7d81b53f5c293e69c064d9b37ad48a95b745dcf586629c3321f
-R 5d48dcada1a45fb9b4e86e47858c5fd8
+P db482f1675d5d084ab7f637582256ab7eda3d625e77f3a3ff8080c19142e208d
+R e337a1fd5e2dec9cbd3eaf9addb8e9b4
 U drh
-Z 4986723fc3658482b9e53d9ac3f39e7a
+Z f733f0304eef306e274324cdf22bfa94

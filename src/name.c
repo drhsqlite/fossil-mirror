@@ -469,7 +469,7 @@ void ambiguous_page(void){
     @ <ul></ul>
     @ Ticket
     hyperlink_to_uuid(zUuid);
-    @ - %s(zTitle).
+    @ - %h(zTitle).
     @ <ul><li>
     object_description(rid, 0, 0);
     @ </li></ul>

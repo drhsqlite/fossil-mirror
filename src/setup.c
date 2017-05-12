@@ -487,7 +487,7 @@ void user_edit(void){
       if( zErr ){
         style_header("User Change Error");
         admin_log( "Error updating user '%q': %s'.", zLogin, zErr );
-        @ <span class="loginError">%s(zErr)</span>
+        @ <span class="loginError">%h(zErr)</span>
         @
         @ <p><a href="setup_uedit?id=%d(uid)">[Bummer]</a></p>
         style_footer();
