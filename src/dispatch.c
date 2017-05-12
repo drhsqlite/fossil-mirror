@@ -245,18 +245,18 @@ void help_page(void){
     if( *zCmd=='/' ){
       /* Some of the webpages require query parameters in order to work.
       ** @ <h1>The "<a href='%R%s(zCmd)'>%s(zCmd)</a>" page:</h1> */
-      @ <h1>The "%s(zCmd)" page:</h1>
+      @ <h1>The "%h(zCmd)" page:</h1>
     }else{
-      @ <h1>The "%s(zCmd)" command:</h1>
+      @ <h1>The "%h(zCmd)" command:</h1>
     }
     rc = dispatch_name_search(zCmd, CMDFLAG_ANY, &pCmd);
     if( rc==1 ){
-      @ unknown command: %s(zCmd)
+      @ unknown command: %h(zCmd)
     }else if( rc==2 ){
-      @ ambiguous command prefix: %s(zCmd)
+      @ ambiguous command prefix: %h(zCmd)
     }else{
       if( pCmd->zHelp[0]==0 ){
-        @ no help available for the %s(pCmd->zName) command
+        @ no help available for the %h(pCmd->zName) command
       }else{
         @ <blockquote>
         help_to_html(pCmd->zHelp, cgi_output_blob());
