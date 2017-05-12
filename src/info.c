@@ -132,7 +132,7 @@ static void extraRepoInfo(void){
   Stmt s;
   db_prepare(&s, "SELECT substr(name,7), date(mtime,'unixepoch')"
                  "  FROM config"
-                 " WHERE name GLOB 'ckout:*' ORDER BY name");
+                 " WHERE name GLOB 'ckout:*' ORDER BY mtime DESC");
   while( db_step(&s)==SQLITE_ROW ){
     const char *zName;
     const char *zCkout = db_column_text(&s, 0);
@@ -148,7 +148,7 @@ static void extraRepoInfo(void){
   db_finalize(&s);
   db_prepare(&s, "SELECT substr(name,9), date(mtime,'unixepoch')"
                  "  FROM config"
-                 " WHERE name GLOB 'baseurl:*' ORDER BY name");
+                 " WHERE name GLOB 'baseurl:*' ORDER BY mtime DESC");
   while( db_step(&s)==SQLITE_ROW ){
     fossil_print("access-url:   %-54s %s\n", db_column_text(&s, 0),
                  db_column_text(&s, 1));

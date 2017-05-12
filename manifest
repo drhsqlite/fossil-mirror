@@ -1,5 +1,5 @@
-C In\sthe\shyperlink\son\sthe\s"Last\sSync\sURL",\somit\sthe\susername\sto\sprevent\swarnings\nfrom\sFirefox.
-D 2017-05-12T14:11:32.640
+C In\sthe\s"fossil\sinfo\s-v"\scommand,\ssort\sthe\saccess-url\sand\scheck-out\sfields\nby\sdate,\snot\sby\sname.
+D 2017-05-12T15:11:46.081
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -434,7 +434,7 @@ F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d98
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c 14ebf8376b92b9446a886bd22721554e57080dff459a64a35825b403a763a217
-F src/info.c 24d7626c2144c46d527c9d7c824ef9039ffe835fa97f749669cb2db76d197846
+F src/info.c 8e1d7a3b4d071832a96151c52886daedf31e86ed3229799a94e59f662e48364e
 F src/json.c cc8d06a2d208ad0092d6d68ef5b7ac9a7e05708b3271c5cfd1da890f97322642
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c 7c7e2c63fd1cac2ca85aa657a7ae04d91a1bdc08
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d4fc9120e1b718e1e4e9396190b3028f7ecfcc5369029609fe848d6841063651
-R 19ffde3df2dfaae7948bdab4e9c583ed
+P 172c2235a46e173e29266677b606f7ff6d96cbf54e921a9223ade14cb5788d48
+R dffad5cf6580945c2f4f47597a63313b
 U drh
-Z 72b0ca3e7ea374cabf07aca4a006765f
+Z bc37da319e5fbf9eb7f10397b97d5a7a
