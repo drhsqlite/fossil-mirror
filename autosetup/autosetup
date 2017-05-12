@@ -1171,8 +1171,8 @@ set modsource(getopt) {
 
 # Parse everything out of the argv list which looks like an option
 # Everything which doesn't look like an option, or is after --, is left unchanged
-# Understands --enable-xxx and --with-xxx as synonyms for --xxx to enable the boolean option xxx.
-# Understands --disable-xxx and --without-xxx to disable the boolean option xxx.
+# Understands --enable-xxx as a synonym for --xxx to enable the boolean option xxx.
+# Understands --disable-xxx to disable the boolean option xxx.
 #
 # The returned value is a dictionary keyed by option name
 # Each value is a list of {type value} ... where type is "bool" or "str".
@@ -1198,7 +1198,7 @@ proc getopt {argvname} {
 		if {[regexp {^--([^=][^=]+)=(.*)$} $arg -> name value]} {
 			# --name=value
 			dict lappend opts $name [list str $value]
-		} elseif {[regexp {^--(enable-|disable-|with-|without-)?([^=]*)$} $arg -> prefix name]} {
+		} elseif {[regexp {^--(enable-|disable-)?([^=]*)$} $arg -> prefix name]} {
 			if {$prefix in {enable- with- ""}} {
 				set value 1
 			} else {

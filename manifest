@@ -1,5 +1,5 @@
-C Fix\sa\stypo\son\sthe\saboutdownload.wiki\sdocumentation\spage.
-D 2017-05-11T22:49:56.804
+C Patch\sfor\sautosetup\sto\srestore\sprevious\sbehavior\sof\sthe\s--with\soptions\sto\sconfigure,\sby\sSteve\sBennett.
+D 2017-05-12T13:49:43.582
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -50,7 +50,7 @@ F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
 F auto.def 4772202024eceeac4e05e1584e8dae08e7f25b4c
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup c235af4ce86af9a9b8b331b5a67c822d52ca2c6e
-F autosetup/autosetup c5df1c77d0768789ebf4a84f99e70a5c138f32bfda8f43eeed415ffa5cb50ede x
+F autosetup/autosetup 564c6ab11d5ab75d1aebc8d90ebc22df8babb01d2f9ada06d7964e5cfb7c38aa x
 F autosetup/cc-db.tcl 08642fcb65fb68ee8c523bfae45e67c68c08005d
 F autosetup/cc-lib.tcl 75bdc7b1e72b8751bf75dee05dfb4763a9fae40e70bfc25f3d5c7e280a1698a0
 F autosetup/cc-shared.tcl 928361fc90669758e5e757e5399cd8258439e911c062bd7590e5363ff265c472
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d6a0debd8c986dc25a71357f1e7b940179a41e38153097788b10cdeba3fd43d1
-R a54d4e8e1bd52f8102556816a5e09ad1
-U drh
-Z d8b3b8dab1d282e48ae29ee67e8692d5
+P 82aaedd991284402396761a6c5f7b685ef9882e5dcf7d5c8eb60f3ca01d5e636
+R 36d8b376f7a7b3747c1e7f879bac25ef
+U mistachkin
+Z 5a3c2b00bb34d9fbad3e4e589f7d3456
