@@ -1,5 +1,5 @@
-C Change\sa\sfew\s%s\sformat\sletters\sinto\s%h.
-D 2017-05-12T17:22:24.451
+C Enhance\sthe\s"fossil\s3-way-merge"\scommand\sto\soutput\sa\swarning\sin\sthe\sevent\sof\nmerge\sconflicts.
+D 2017-05-13T18:00:11.192
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -468,7 +468,7 @@ F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
 F src/markdown_html.c 5c7c2d2356e03a4456932c5fdef9aef836a379a5
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/merge.c 29e4ffff430dccc0cbbd3d633684d60b3bfb0ab8
-F src/merge3.c be0896e3e4e51262349d0f09e35e70d140659572
+F src/merge3.c 04153e0e1a0c15c6e7e1815949b11084da2285416d76c257767b54652aaf1b78
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
 F src/mkindex.c f4183ca13461544fe06f34af0a3501ea96d3637f
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P db482f1675d5d084ab7f637582256ab7eda3d625e77f3a3ff8080c19142e208d
-R e337a1fd5e2dec9cbd3eaf9addb8e9b4
+P 8e27a5a084a55f1831ec4e17b2de48b5ec99e7a04dc6dc3037c44fe9773569b1
+R 2b2661039a1b8365c33b4312edea0b36
 U drh
-Z f733f0304eef306e274324cdf22bfa94
+Z 10908bb3f05b2051f61e82e5e97ec571
