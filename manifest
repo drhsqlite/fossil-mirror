@@ -1,5 +1,5 @@
-C Restore\sprevious\sbehavior\sof\sthe\s--with-tcl\soption\sto\sconfigure,\swhere\sthe\svalue\sportion\sis\soptional.
-D 2017-05-13T23:08:28.829
+C Update\sthe\sbuilt-in\sSQLite\sto\s3.19.0
+D 2017-05-22T14:29:54.952
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -498,8 +498,8 @@ F src/shun.c e6e544a8b9200a704121c280604ed42e6aefc3f19f5107d0bdf9b51d9a912a4e
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c 0b6ae35015f48cbe9cef2f97d65105a796fc366b
 F src/sqlcmd.c fba609f0f5a91435d0dff8719ba9c5d25f8cfa15
-F src/sqlite3.c 1fc40cd4e4d1605f19cda1d238cbe0569a43392f402e99d19f8bf83cec6c25a6
-F src/sqlite3.h db6da5bc0e323f53e9ab9083951a3c676bbd905996b0b9f4b3f0cfa4414bf051
+F src/sqlite3.c c30326aa1a9cc342061b755725eac9270109acf878bc59200dd4b1cea6bc2908
+F src/sqlite3.h 117e24dca514250ac3927ba0aaed6f57b2b6c31b6aaee2e3eadc503bdf03019d
 F src/stash.c dc0263e11eeb30689418e4def6174af973ad66bf
 F src/stat.c b9a03ea3d656551fee2b5a25be8d4d796f3e7d0f3dc5db6a1844be2922b538b0
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
@@ -695,7 +695,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 506dba1eba4643b3d47d8210e4d87c424916f5340a48814202f9ef828f8cfbcd
-F www/changes.wiki 9a68a076bf0287d112bc5d38333709a07bde415cdb3099834a86d0dd87606592
+F www/changes.wiki 512b86c73a6099608ee2f94a488cc36969fd3c1e56141e2ad46869b1ced0fc18
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9e17c686f57e82e784d065c3a13bdd60987791f479d28816f451bb9ba7a4caca
-R 88263824296c483e7dc78f4dce018e81
-U mistachkin
-Z 9220489bfe69e0038f2aa7a9511b24e4
+P 27e65b0730314d0b4ebe9d6dffc88c39c40415a3ec41fca83818fd6c0bb3588c
+R c9bc4c659ae7d50f3de58f7d7eac525e
+U jan.nijtmans
+Z 6e15cd27ef7025bc0b27ec658c28fcf5
