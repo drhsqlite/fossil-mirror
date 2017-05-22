@@ -1,5 +1,5 @@
-C (cherry-pick):\sFix\san\sXSS\sissue\swith\sthe\s/help\swebpage.\sChange\sa\sfew\s%s\sformat\sletters\sinto\s%h
-D 2017-05-12T18:22:00.000
+C (cherry-pick):\sUpdate\sthe\sbuilt-in\sSQLite\sto\s3.19.0
+D 2017-05-22T15:10:17.296
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -493,13 +493,13 @@ F src/setup.c a1b42702fccd0df8f42c2ae8fe3b9bef4073bbd3def4699e5dce52dba98cf06f
 F src/sha1.c f8052a974b626854519fdd78563d5c0c827fcf7a
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c bd83dc4631af22905b3cf314a8069d3dc8c101c6
-F src/shell.c ceb2b2f1f958ea2c47a7f37972d0f715fbf9dcf6a34a5e98c886b85e3ce6a238
+F src/shell.c a37d96b20b3644d0eb905df5aa7a0fcf9f6e73c15898337230c760a24a8df794
 F src/shun.c e6e544a8b9200a704121c280604ed42e6aefc3f19f5107d0bdf9b51d9a912a4e
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c 0b6ae35015f48cbe9cef2f97d65105a796fc366b
 F src/sqlcmd.c fba609f0f5a91435d0dff8719ba9c5d25f8cfa15
-F src/sqlite3.c 4154f644e847900a6dea3c4effe9963098ca2cce90b3465b7c83fb8ccb5a46a6
-F src/sqlite3.h afcf6e4ea64863b349e4cfe699404572afdb1b83fd0489238cbef451c1f28f94
+F src/sqlite3.c c30326aa1a9cc342061b755725eac9270109acf878bc59200dd4b1cea6bc2908
+F src/sqlite3.h 117e24dca514250ac3927ba0aaed6f57b2b6c31b6aaee2e3eadc503bdf03019d
 F src/stash.c dc0263e11eeb30689418e4def6174af973ad66bf
 F src/stat.c 5e2fa9e1b7b6d283d308cfaedc47fe59b57e1ab83f128250f081b28d8c23fd60
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
@@ -695,7 +695,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 506dba1eba4643b3d47d8210e4d87c424916f5340a48814202f9ef828f8cfbcd
-F www/changes.wiki 9a68a076bf0287d112bc5d38333709a07bde415cdb3099834a86d0dd87606592
+F www/changes.wiki 512b86c73a6099608ee2f94a488cc36969fd3c1e56141e2ad46869b1ced0fc18
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -785,8 +785,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cd24cf19dc618e932bc769f2a2d0f598e64570f6c591ae64b6b29dbd946f19bf
-Q +db482f1675d5d084ab7f637582256ab7eda3d625e77f3a3ff8080c19142e208d
-R d5d939de8d8367fdb56e8c65aa2e4f18
+P f1a7360e621c3014faff530f914ed02f721adaca869a3a0d1a88bac119d12156
+Q +e1da46fed4e2c57093f31d2f37d42eddbe17b3fe3d23f37904822f308773a7e8
+R 2edc131d1cd93fe4734f18bc0275d416
 U jan.nijtmans
-Z bb1c0cdf08179a35257aec9dbc0fd5a8
+Z 62cc87fced3ba29e3bb431b44a223ac1
