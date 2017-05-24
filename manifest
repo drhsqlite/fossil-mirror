@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\s3.19.0
-D 2017-05-22T14:29:54.952
+C Update\sinternal\sUnicode\scharacter\stables,\sused\sin\sregular\sexpression\shandling,\sfrom\sversion\s9.0\sto\s10.0.
+D 2017-05-24T09:51:34.281
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -517,7 +517,7 @@ F src/tkt.c b0fcc26bf2f1acc84b147e242170a1b8c8c68449
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 33b65539a12abd079a57972b78e0d532831cefd9
 F src/undo.c d3cca342dd73eaec65e352d978e8f7a9e75a5ddd
-F src/unicode.c 49d229135beb3cba5a58013dfda577fa51ab96ee
+F src/unicode.c 1a3686d1851ac88eeeef3428c9ace3c471b8286fb785606ad63b800c8e688926
 F src/unversioned.c af5f3c4e852989bdcb3c13b5725e90d3dd02585a
 F src/update.c a66c55724db6a355c28d542fcfc4320b9de0eb36
 F src/url.c b5d45bf6ccbbb928ab2fcd34e2b27556d43d37441d8db7450fb4f2e843e7410f
@@ -695,7 +695,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 506dba1eba4643b3d47d8210e4d87c424916f5340a48814202f9ef828f8cfbcd
-F www/changes.wiki 512b86c73a6099608ee2f94a488cc36969fd3c1e56141e2ad46869b1ced0fc18
+F www/changes.wiki 35591a72067c0b137b799db73bc1a796d0ec9816713e28ed4fd7cda610c41281
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 27e65b0730314d0b4ebe9d6dffc88c39c40415a3ec41fca83818fd6c0bb3588c
-R c9bc4c659ae7d50f3de58f7d7eac525e
+P e1da46fed4e2c57093f31d2f37d42eddbe17b3fe3d23f37904822f308773a7e8
+R 891ca1f1efa91714194a883363a7882f
 U jan.nijtmans
-Z 6e15cd27ef7025bc0b27ec658c28fcf5
+Z 2289ae419f8fc9764371765c469cc0a8
