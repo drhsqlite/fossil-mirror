@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.19.1\spatch\srelease.
-D 2017-05-24T13:19:07.921
+C Increase\sthe\sversion\snumber\sto\s2.3\sin\spreparation\sfor\sthe\snext\srelease.\nUpdates\sto\sthe\schange\slog.
+D 2017-05-24T13:48:09.644
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -14,7 +14,7 @@ F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile de98550db1d43a29a17bbd9284308733fb72615f
 F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
 F Makefile.in ca04b4081ad0dc54256f7d609168750c2247882e
-F VERSION 10670be41ce220db42289f5b16a18218969f32e1a0a6a2d4703764c5800265fd
+F VERSION 8e87e2a6508bd0b41e01c8620fd6803092131be15f06b641fcf27e604b6c76e7
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -695,7 +695,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 506dba1eba4643b3d47d8210e4d87c424916f5340a48814202f9ef828f8cfbcd
-F www/changes.wiki 35591a72067c0b137b799db73bc1a796d0ec9816713e28ed4fd7cda610c41281
+F www/changes.wiki 721afc93b330598b36a2828714d4cadaf1c5c4db70f6eea52180895dfa3771e6
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 09bcc322f7bcf52fa001211a08d06a2f5802dbaca1dc7cfbc3d56206d2755fee
-R db77c2774c3cb637c9f1155b64793323
+P 4465be15d2b006aac948480a00f5e45d85c386781675ebc31c1f23acadaa78bb
+R e591994b49d9399f0d9ef14586710a67
 U drh
-Z 793bcfef5c1a3ed95ed193174c2a04c1
+Z d2774da9712473ede6d353ba93a97340

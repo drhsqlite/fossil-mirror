@@ -1,11 +1,16 @@
 <title>Change Log</title>
 
 <a name='v2_3'></a>
-<h2>Changes for Version 2.3 (2017-??-??)</h2>
+<h2>Changes for Version 2.3 (2017-05-??)</h2>
 
-  *  Update the built-in SQLite to version 3.19.0.
+  *  Update the built-in SQLite to version 3.19.1.
   *  Update internal Unicode character tables, used in regular expression
      handling, from version 9.0 to 10.0.
+  *  Show the last-sync-URL on the [/help?cmd=/urllist|/urllist] page.
+  *  Fix "database locked" warnings caused by "PRAGMA optimize".
+  *  Fix a potential XSS vulnerability on the
+     [/help?cmd=/help|/help] webpage.
+  *  Documentation updates
 
 <a name='v2_2'></a>
 <h2>Changes for Version 2.2 (2017-04-11)</h2>
