@@ -3,7 +3,7 @@
 <a name='v2_3'></a>
 <h2>Changes for Version 2.3 (2017-05-??)</h2>
 
-  *  Update the built-in SQLite to version 3.19.1.
+  *  Update the built-in SQLite to version 3.19.2.
   *  Update internal Unicode character tables, used in regular expression
      handling, from version 9.0 to 10.0.
   *  Show the last-sync-URL on the [/help?cmd=/urllist|/urllist] page.
