@@ -1618,7 +1618,7 @@ void move_repo_cmd(void){
 */
 void db_must_be_within_tree(void){
   if( find_repository_option() ){
-    fossil_fatal("the \"%s\" command only work from within an open check-out",
+    fossil_fatal("the \"%s\" command only works from within an open check-out",
                  g.argv[1]);
   }
   if( db_open_local(0)==0 ){
