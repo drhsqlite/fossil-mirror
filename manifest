@@ -1,5 +1,5 @@
-C Fix\sminor\sgrammar\sbug\sin\sopen\scheck-out\srequired\serror\smessage.
-D 2017-05-26T02:27:46.740
+C Requesting\sFossil\s2.3\srelease\sjust\safter\sthe\sUnicode\s10.0\srelease\s(expected\saround\sjune\s20,\s2017).\sIf\searlier,\splease\srevert\scommit\s[09bcc322f7bcf52f|09bcc322f7]\sfirst.
+D 2017-05-26T08:44:50.017
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -695,7 +695,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 506dba1eba4643b3d47d8210e4d87c424916f5340a48814202f9ef828f8cfbcd
-F www/changes.wiki 71aa981f4d2cbcb37d183065d2b964d58904659033288bf3242b4313883a6222
+F www/changes.wiki 7f3c023246d2bfc0f4e2bc61998ea0f373778c020c7466f1c14e76488784b2ed
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -747,7 +747,7 @@ F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh db68e2cae431b9e9f5dd672e2f56e2bde5a57d2a
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
-F www/globs.md 9498881004a9db204363e6a2bf265ba88495447b5f6a5f1f70759a9b1ec9818d
+F www/globs.md 912865720067b8491d0f7a8bba6970509a9b9d34101963938eae429a6a0ea1b6
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hashpolicy.wiki 901e234166e31d8cb6634577b3fe266f41453ca1
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ad44efaff30436f6c4a9be7a8ccb2fe8cc8b38c1b0fd7e411498f11446917324
-R f5c229203315066429e0b763b71682de
-U andybradford
-Z ba58517da175cc46a004e4cc1fb7c442
+P 55e2487585d96d679e29f0d2211421a2586bbbc3a6b7146fa9943f8453e881ef
+R b8021e6e53434f00fc7f82c0f4e34c5a
+U jan.nijtmans
+Z 3861f9431a9f2c1dba687f1a41cea30c

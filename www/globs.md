@@ -4,7 +4,7 @@
 A [glob pattern][glob] is a text expression that matches one or more
 file names using wild cards familiar to most users of a command line.
 For example, `*` is a glob that matches any name at all and
-`Readme.txt` is a glob that matches exactly one file. 
+`Readme.txt` is a glob that matches exactly one file.
 
 Note that although both are notations for describing patterns in text,
 glob patterns are not the same thing as a [regular expression or
@@ -41,10 +41,10 @@ matches.
 A glob pattern is a collection of characters compared to a target
 text, usually a file name. The whole glob is said to match if it
 successfully consumes and matches the entire target text. Glob
-patterns are made up of ordinary characters and special characters. 
+patterns are made up of ordinary characters and special characters.
 
 Ordinary characters consume a single character of the target and must
-match it exactly. 
+match it exactly.
 
 Special characters (and special character sequences) consume zero or
 more characters from the target and describe what matches. The special
@@ -55,17 +55,17 @@ characters (and sequences) are:
  *  `[...]` Matches one character from the enclosed list of characters; and
  *  `[^...]` Matches one character not in the enclosed list.
 
-Special character sequences have some additional features: 
+Special character sequences have some additional features:
 
  *  A range of characters may be specified with `-`, so `[a-d]` matches
     exactly the same characters as `[abcd]`. Ranges reflect Unicode
     code points without any locale-specific collation sequence.
  *  Include `-` in a list by placing it last, just before the `]`.
  *  Include `]` in a list by making the first character after the `[` or
-    `[^`. At any other place, `]` ends the list. 
+    `[^`. At any other place, `]` ends the list.
  *  Include `^` in a list by placing anywhere except first after the
     `[`.
- *  Beware that ranges in lists may include more than you expect: 
+ *  Beware that ranges in lists may include more than you expect:
     `[A-z]` Matches `A` and `Z`, but also matches `a` and some less
     obvious characters such as `[`, `\`, and `]` with code point
     values between `Z` and `a`.
@@ -77,11 +77,11 @@ Special character sequences have some additional features:
     separators as well as the initial `.` in the name of a hidden
     file or directory.
 
-Some examples of character lists: 
+Some examples of character lists:
 
  *  `[a-d]` Matches any one of `a`, `b`, `c`, or `d` but not `ä`;
  *  `[^a-d]` Matches exactly one character other than `a`, `b`, `c`,
-    or `d`; 
+    or `d`;
  *  `[0-9a-fA-F]` Matches exactly one hexadecimal digit;
  *  `[a-]` Matches either `a` or `-`;
  *  `[][]` Matches either `]` or `[`;
@@ -92,7 +92,7 @@ Some examples of character lists:
 White space means the specific ASCII characters TAB, LF, VT, FF, CR,
 and SPACE.  Note that this does not include any of the many additional
 spacing characters available in Unicode, and specifically does not
-include U+00A0 NO-BREAK SPACE. 
+include U+00A0 NO-BREAK SPACE.
 
 Because both LF and CR are white space and leading and trailing spaces
 are stripped from each glob in a list, a list of globs may be broken
@@ -128,11 +128,11 @@ case insensitive. That is, on Windows, the names `ReadMe` and `README`
 are names of the same file; on Unix they are different files.
 
 Some example cases:
- 
+
  *  The glob `README` matches only a file named `README` in the root of
     the tree. It does not match a file named `src/README` because it
     does not include any characters that consume (and match) the
-    `src/` part. 
+    `src/` part.
  *  The glob `*/README` does match `src/README`. Unlike Unix file
     globs, it also matches `src/library/README`. However it does not
     match the file `README` in the root of the tree.
@@ -195,7 +195,7 @@ usually named to correspond to the setting they override, such as
  *  [`clean`][]
  *  [`extras`][]
  *  [`merge`][]
- *  [`settings`][] 
+ *  [`settings`][]
  *  [`status`][]
  *  [`unset`][]
 
@@ -466,7 +466,7 @@ some of features of `.gitignore` and comments on how they relate to
 fossil:
 
  *  "A blank line matches no files..." is the same in fossil.
- *  "A line starting with # serves as a comment...." not in fossil. 
+ *  "A line starting with # serves as a comment...." not in fossil.
  *  "Trailing spaces are ignored unless they are quoted..." is similar
     in fossil. All whitespace before and after a glob is trimmed in
     fossil unless quoted with single or double quotes. Git uses
@@ -535,6 +535,6 @@ course, the SQLite source code and test harnesses also make
 entertaining reading:
 
  *  `src/func.c` [lines 570-768]
-    (https://www.sqlite.org/src/artifact?name=9d52522cc8ae7f5c&ln=570-768) 
+    (https://www.sqlite.org/src/artifact?name=9d52522cc8ae7f5c&ln=570-768)
  *  `test/expr.test` [lines 586-673]
-    (https://www.sqlite.org/src/artifact?name=66a2c9ac34f74f03&ln=586-673) 
+    (https://www.sqlite.org/src/artifact?name=66a2c9ac34f74f03&ln=586-673)

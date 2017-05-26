@@ -1,7 +1,7 @@
 <title>Change Log</title>
 
 <a name='v2_3'></a>
-<h2>Changes for Version 2.3 (2017-05-??)</h2>
+<h2>Changes for Version 2.3 (2017-06-??, preferably just after the Unicode 10 release)</h2>
 
   *  Update the built-in SQLite to version 3.19.2.
   *  Update internal Unicode character tables, used in regular expression
