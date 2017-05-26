@@ -801,6 +801,7 @@ static int backup_dir(const char *z, int *pJ){
 */
 int file_simplify_name(char *z, int n, int slash){
   int i = 1, j;
+  assert( z!=0 );
   if( n<0 ) n = strlen(z);
 
   /* On windows and cygwin convert all \ characters to /
@@ -1390,7 +1391,8 @@ void file_tempname(Blob *pBuf, const char *zPrefix){
      ".",
   };
 #else
-  static const char *const azDirs[] = {
+  static const char *azDirs[] = {
+     0, /* TMPDIR */
      "/var/tmp",
      "/usr/tmp",
      "/tmp",
@@ -1416,8 +1418,9 @@ void file_tempname(Blob *pBuf, const char *zPrefix){
 
   azDirs[1] = fossil_getenv("TEMP");
   azDirs[2] = fossil_getenv("TMP");
+#else
+  azDirs[0] = fossil_getenv("TMPDIR");
 #endif
-
 
   for(i=0; i<count(azDirs); i++){
     if( azDirs[i]==0 ) continue;
@@ -1441,6 +1444,8 @@ void file_tempname(Blob *pBuf, const char *zPrefix){
   fossil_path_free((char *)azDirs[0]);
   fossil_path_free((char *)azDirs[1]);
   fossil_path_free((char *)azDirs[2]);
+#else
+  fossil_path_free((char *)azDirs[0]);
 #endif
 }
 

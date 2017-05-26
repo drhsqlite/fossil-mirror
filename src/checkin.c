@@ -1204,12 +1204,14 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
   }else{
     Blob fname;
     blob_zero(&fname);
-    if ( g.zRepositoryOption )
-      fossil_fatal("interactive edits must be done within an open check-out");
-    assert( g.zLocalRoot!=0 );
-    file_relative_name(g.zLocalRoot, &fname, 1);
-    zFile = db_text(0, "SELECT '%qci-comment-'||hex(randomblob(6))||'.txt'",
-                    blob_str(&fname));
+    if( g.zLocalRoot!=0 ){
+      file_relative_name(g.zLocalRoot, &fname, 1);
+      zFile = db_text(0, "SELECT '%qci-comment-'||hex(randomblob(6))||'.txt'",
+                      blob_str(&fname));
+    }else{
+      file_tempname(&fname, "ci-comment");
+      zFile = db_text(0, "SELECT '%q'||'.txt'", blob_str(&fname));
+    }
     blob_reset(&fname);
   }
 #if defined(_WIN32)
