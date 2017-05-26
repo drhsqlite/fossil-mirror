@@ -1204,6 +1204,8 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
   }else{
     Blob fname;
     blob_zero(&fname);
+    if ( g.zRepositoryOption )
+      fossil_fatal("interactive edits must be done within an open check-out");
     assert( g.zLocalRoot!=0 );
     file_relative_name(g.zLocalRoot, &fname, 1);
     zFile = db_text(0, "SELECT '%qci-comment-'||hex(randomblob(6))||'.txt'",

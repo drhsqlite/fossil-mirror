@@ -1,5 +1,5 @@
-C Fix\sminor\sgrammar\sbug\sin\sopen\scheck-out\srequired\serror\smessage.
-D 2017-05-26T02:27:46.740
+C Restore\sthe\sability\sto\suse\samend\soutside\san\sopen\scheck-out\sdisabled\sby\n[8c22e1bbcd8ec048].\s\sOnly\sallow\sinteractive\sedits\swithin\san\sopen\ncheck-out.\s\sPerhaps\sunixTempFileDir()\scould\sbe\sused\sto\slocate\sa\ssuitable\nTMP\slocation\sfor\sthe\sedit\sin\sthe\sevent\sthat\sthere\sis\snot\san\sopen-checkout.
+D 2017-05-26T03:46:44.833
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -396,7 +396,7 @@ F src/bundle.c c4b92c14df3e1aeebdeaf02d23a0ecaea462f8b5
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c b459fc18975074cf8a921ded8a754d50fe971b2c3951c7a94ad1eafdee79e61a
-F src/checkin.c ddb0405c6ec61bf57b065d847b4cf268d161d920add4f77301713f0773b00151
+F src/checkin.c 237694d101bab9bc7fb43a5cc0b235d45a664dc7f10603bcc0a6e40c321b92e2
 F src/checkout.c ad202f9c6585a8e6d5418ff733f7349f652e9b05
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c c8b17c6084570fef0afc5b52d5caffcc83ff4548
@@ -434,7 +434,7 @@ F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d98
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c 14ebf8376b92b9446a886bd22721554e57080dff459a64a35825b403a763a217
-F src/info.c 8e1d7a3b4d071832a96151c52886daedf31e86ed3229799a94e59f662e48364e
+F src/info.c 8bf1972f7c12f589a7439a23525e8886cb6869bff527f172244e7c8685033fb3
 F src/json.c cc8d06a2d208ad0092d6d68ef5b7ac9a7e05708b3271c5cfd1da890f97322642
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c 7c7e2c63fd1cac2ca85aa657a7ae04d91a1bdc08
@@ -786,7 +786,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ad44efaff30436f6c4a9be7a8ccb2fe8cc8b38c1b0fd7e411498f11446917324
-R f5c229203315066429e0b763b71682de
+P 55e2487585d96d679e29f0d2211421a2586bbbc3a6b7146fa9943f8453e881ef
+R d440e566299fef4c9505ea4f4e8d1853
+T *branch * amend-regress
+T *sym-amend-regress *
+T -sym-trunk *
 U andybradford
-Z ba58517da175cc46a004e4cc1fb7c442
+Z a95d8ff486dc707990786925a6cd6bba

@@ -2948,7 +2948,7 @@ void ci_amend_cmd(void){
   fClose = find_option("close",0,0)!=0;
   fHide = find_option("hide",0,0)!=0;
   zChngTime = find_option("chngtime",0,1);
-  db_must_be_within_tree();
+  db_find_and_open_repository(0,0);
   user_select();
   verify_all_options();
   if( g.argc<3 || g.argc>=4 ) usage(AMEND_USAGE_STMT);
