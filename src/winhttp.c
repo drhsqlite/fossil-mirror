@@ -308,6 +308,7 @@ void win32_http_server(
   int iPort = mnPort;
   Blob options;
   wchar_t zTmpPath[MAX_PATH];
+  const char *zSkin;
 #if USE_SEE
   const char *zSavedKey = 0;
   size_t savedKeySize = 0;
@@ -331,6 +332,10 @@ void win32_http_server(
   }
   if( flags & HTTP_SERVER_REPOLIST ){
     blob_appendf(&options, " --repolist");
+  }
+  zSkin = skin_in_use();
+  if( zSkin ){
+    blob_appendf(&options, " --skin %s", zSkin);
   }
 #if USE_SEE
   zSavedKey = db_get_saved_encryption_key();

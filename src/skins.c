@@ -161,6 +161,16 @@ const char *skin_get(const char *zWhat){
 }
 
 /*
+** Return the command-line option used to set the skin, or return NULL
+** if the default skin is being used.
+*/
+const char *skin_in_use(void){
+  if( zAltSkinDir ) return zAltSkinDir;
+  if( pAltSkin ) return pAltSkin->zLabel;
+  return 0;
+}
+
+/*
 ** Return a pointer to a SkinDetail element.  Return 0 if not found.
 */
 static struct SkinDetail *skin_detail_find(const char *zName){
