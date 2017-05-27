@@ -460,7 +460,7 @@ writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) \$(SEE_FLAGS) \\"
 writeln "\t\t-c \$(SQLITE3_SRC) -o \$@"
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SQLITE3_SHELL_SRC) \$(SRCDIR)/sqlite3.h"
-writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) \$(LINENOISE_DEF.\$(USE_LINENOISE)) -c \$(SQLITE3_SHELL_SRC) -o \$@\n"
+writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) \$(SEE_FLAGS) \$(LINENOISE_DEF.\$(USE_LINENOISE)) -c \$(SQLITE3_SHELL_SRC) -o \$@\n"
 
 writeln "\$(OBJDIR)/linenoise.o:\t\$(SRCDIR)/linenoise.c \$(SRCDIR)/linenoise.h"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/linenoise.c -o \$@\n"
@@ -1215,7 +1215,7 @@ writeln "\t\$(XTCC) -c \$(SRCDIR)/cson_amalgamation.c -o \$@\n"
 writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_config.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_dir.o \$(OBJDIR)/jsos_finfo.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_query.o \$(OBJDIR)/json_report.o \$(OBJDIR)/json_status.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_user.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h\n"
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SQLITE3_SHELL_SRC) \$(SRCDIR)/sqlite3.h \$(SRCDIR)/../win/Makefile.mingw"
-writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) -c \$(SQLITE3_SHELL_SRC) -o \$@\n"
+writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) \$(SEE_FLAGS) -c \$(SQLITE3_SHELL_SRC) -o \$@\n"
 
 writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th.c -o \$@\n"
@@ -1858,7 +1858,7 @@ SQLITE3_SHELL_SRC = $(SRCDIR)\shell.c
 !endif
 
 $(OX)\shell$O : $(SQLITE3_SHELL_SRC) $B\win\Makefile.msc
-	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) -c $(SQLITE3_SHELL_SRC)
+	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) $(SEE_FLAGS) -c $(SQLITE3_SHELL_SRC)
 
 !if $(USE_SEE)!=0
 SQLITE3_SRC = $(SRCDIR)\sqlite3-see.c

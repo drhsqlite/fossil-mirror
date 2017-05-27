@@ -2252,7 +2252,7 @@ $(OBJDIR)/cson_amalgamation.o:	$(SRCDIR)/cson_amalgamation.c
 $(OBJDIR)/json.o $(OBJDIR)/json_artifact.o $(OBJDIR)/json_branch.o $(OBJDIR)/json_config.o $(OBJDIR)/json_diff.o $(OBJDIR)/json_dir.o $(OBJDIR)/jsos_finfo.o $(OBJDIR)/json_login.o $(OBJDIR)/json_query.o $(OBJDIR)/json_report.o $(OBJDIR)/json_status.o $(OBJDIR)/json_tag.o $(OBJDIR)/json_timeline.o $(OBJDIR)/json_user.o $(OBJDIR)/json_wiki.o : $(SRCDIR)/json_detail.h
 
 $(OBJDIR)/shell.o:	$(SQLITE3_SHELL_SRC) $(SRCDIR)/sqlite3.h $(SRCDIR)/../win/Makefile.mingw.mistachkin
-	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) -c $(SQLITE3_SHELL_SRC) -o $@
+	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) $(SEE_FLAGS) -c $(SQLITE3_SHELL_SRC) -o $@
 
 $(OBJDIR)/th.o:	$(SRCDIR)/th.c
 	$(XTCC) -c $(SRCDIR)/th.c -o $@

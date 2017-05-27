@@ -1744,7 +1744,7 @@ $(OBJDIR)/sqlite3.o:	$(SQLITE3_SRC)
 	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SEE_FLAGS) \
 		-c $(SQLITE3_SRC) -o $@
 $(OBJDIR)/shell.o:	$(SQLITE3_SHELL_SRC) $(SRCDIR)/sqlite3.h
-	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) $(LINENOISE_DEF.$(USE_LINENOISE)) -c $(SQLITE3_SHELL_SRC) -o $@
+	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) $(SEE_FLAGS) $(LINENOISE_DEF.$(USE_LINENOISE)) -c $(SQLITE3_SHELL_SRC) -o $@
 
 $(OBJDIR)/linenoise.o:	$(SRCDIR)/linenoise.c $(SRCDIR)/linenoise.h
 	$(XTCC) -c $(SRCDIR)/linenoise.c -o $@
