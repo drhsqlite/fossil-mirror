@@ -1,5 +1,5 @@
-C Fix\sthe\s--skin\soption\sso\sthat\sit\sworks\son\sWindows.
-D 2017-05-26T13:15:41.809
+C Fix\ssupport\sfor\s'raw'\smode\sfor\sembedded\sTH1\sdocs\sbroken\sby\scheck-in\s[35698c9c43478f8f].
+D 2017-05-27T03:21:01.684
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -416,7 +416,7 @@ F src/diff.c 09884b53c51f9a1700dc94ecae0f9071e24191ad
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 9a88f3a3511b19fd17d11bb01d3d95a5f8378070
 F src/dispatch.c c4135c158e049ba88648d1a0ccea4a24169099b752e1dffced17a77e4fb8218c
-F src/doc.c 91068a1fbb4526c63d1b2d89f56e01c2850dc895e63652a9caf1869f8c6032a3
+F src/doc.c e21c027580de8bf35fda0a688620ad9ae29f71cfc54f26a2f841b6bc0f0fd55a
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c 5dcf3c6ff00c39c25a3909deec1d1154cf0b85a5
 F src/export.c 3e09dfda9d07b44c463d656dbc09f6adfe686d6d80ad55282a1f06b9216934f2
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6fe0d689141df56fc2374934a9dc6b8948ad1f511895e8613374c442f6082cf3
-R 1524fd28ddbb3ce5109afe358a7778ea
-U drh
-Z eaaa474ee535cf8bdd7994f5b7ea4460
+P 685617773e63bc55902e9b06c5e068fc2a9585dce82a160a9df267468dd790cf
+R 056c3869d8ab620acf784b99d86950bf
+U mistachkin
+Z 898f8f27e2c1d24c1d48075d1a8bb1e6

@@ -723,6 +723,8 @@ void doc_page(void){
         style_header("%h", zName);
         Th_Render(blob_str(&filebody));
       }
+    }else{
+      Th_Render(blob_str(&filebody));
     }
     if( !raw ){
       style_footer();
