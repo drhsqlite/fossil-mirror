@@ -1852,19 +1852,17 @@ codecheck1$E: $(SRCDIR)\codecheck1.c
 	$(BCC) $**
 
 !if $(USE_SEE)!=0
+SEE_FLAGS = /DSQLITE_HAS_CODEC=1
 SQLITE3_SHELL_SRC = $(SRCDIR)\shell-see.c
+SQLITE3_SRC = $(SRCDIR)\sqlite3-see.c
 !else
+SEE_FLAGS =
 SQLITE3_SHELL_SRC = $(SRCDIR)\shell.c
+SQLITE3_SRC = $(SRCDIR)\sqlite3.c
 !endif
 
 $(OX)\shell$O : $(SQLITE3_SHELL_SRC) $B\win\Makefile.msc
 	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) $(SEE_FLAGS) -c $(SQLITE3_SHELL_SRC)
-
-!if $(USE_SEE)!=0
-SQLITE3_SRC = $(SRCDIR)\sqlite3-see.c
-!else
-SQLITE3_SRC = $(SRCDIR)\sqlite3.c
-!endif
 
 $(OX)\sqlite3$O : $(SQLITE3_SRC) $B\win\Makefile.msc
 	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SEE_FLAGS) $(SQLITE3_SRC)

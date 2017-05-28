@@ -1,5 +1,5 @@
-C Fix\scompilation\susing\sMSVC\s2005\sand\s2008.
-D 2017-05-28T19:35:30.424
+C When\sbuilding\san\sSEE-enabled\sbuild\swith\sMSVC,\sbe\ssure\sto\sdefine\sSQLITE_HAS_CODEC.
+D 2017-05-28T19:44:31.828
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -461,7 +461,7 @@ F src/main.c 09f5e4f378fa531f470fb359e91c7bb088350cf5cd3fcc3e688a1ee349cf5c59
 F src/main.mk dd3d634e7a97c256308492da493ff7fe16995f8f8ee3ad528b57fc374642a5c1
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl 3ebe666f1324d31728ae14630e083f834800c3e837a56470da94d0e7cacc4fae
+F src/makemake.tcl 84e211589b23cf866ad0bcc37ce83eb8dca77aa1d87ded2b523f54865d810085
 F src/manifest.c 34ddf7c6b3d86a746ce11c0eef7e2ac9245c2100
 F src/markdown.c 2cb7007279db7ad8e16f8c822d5ba27f59b4af2dcc0cd4ba87cce3e4303d5969
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
@@ -663,7 +663,7 @@ F win/Makefile.PellesCGMake e9d1636731fe8a581e1f2a9a155b1310a9356178
 F win/Makefile.dmc c25967ec834821a70b903969ba1d325f121287ee
 F win/Makefile.mingw 22357af34e913151ecb0bc148d0de5429d998d6f1ad0c5637baead838f939b56
 F win/Makefile.mingw.mistachkin c6110904a7f6179116776584a55f0404ee2e4237e4410ae781054f24e7db1eb4
-F win/Makefile.msc 68f9f2c6ec829ea9d16f1f55dd00c0fdef2b06a91fee895fc1447c5d81397250
+F win/Makefile.msc 00d7e7adcaee49a7ee77fde4593c92be9637513311795f61a62a02f9b63b1dc1
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6d4aa3445735b81e6cbfd61c43d5e4e4dd74c89da03a05214a026f42bf3e8adf
-R 2385e4406268d3862344a177c2fd5e36
+P 9766cfd5a330c7d4076ae1b3f682745c661240f18c5dca8f54d45da782db60b7
+R 5731c23dbc2bc84a3aac8d569173ebb7
 U mistachkin
-Z d08a74a6ad53632b46af9946398c48c4
+Z e74b307c0666ae2ea37b9b42d9911a01
