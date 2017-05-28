@@ -1,5 +1,5 @@
-C When\sbuilding\san\sSEE-enabled\sbuild\swith\sMSVC,\sbe\ssure\sto\sdefine\sSQLITE_HAS_CODEC.
-D 2017-05-28T19:44:31.828
+C Make\ssure\sconfig\sdatabase\sstate\sis\sconsistent\swhen\sreturning\sfrom\s'sqlite'\scommand.
+D 2017-05-28T20:33:41.724
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -497,7 +497,7 @@ F src/shell.c a37d96b20b3644d0eb905df5aa7a0fcf9f6e73c15898337230c760a24a8df794
 F src/shun.c e6e544a8b9200a704121c280604ed42e6aefc3f19f5107d0bdf9b51d9a912a4e
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c 572603eab4c03e61d65b2b9b64d1fa7a3921b8092864a7ae8d858504824a5a31
-F src/sqlcmd.c fba609f0f5a91435d0dff8719ba9c5d25f8cfa15
+F src/sqlcmd.c ee8149ac7b974e9720c446c94d4cfe0bf6e4856a96c68f9d585977bf0d35b18c
 F src/sqlite3.c 1be0c457869c1f7eba58c3b5097b9ec307a15be338308bee8e5be8570bcf5d1e
 F src/sqlite3.h a9ab385157d4a0f6b09dfe1352301a0138a268fa42218b8d6e2e2f35f900e140
 F src/stash.c dc0263e11eeb30689418e4def6174af973ad66bf
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9766cfd5a330c7d4076ae1b3f682745c661240f18c5dca8f54d45da782db60b7
-R 5731c23dbc2bc84a3aac8d569173ebb7
+P fa6b22c674c71122e6ec1a6f2d276ebdb1657769cce222fae3fd8fefd2a2b84f
+R 1207dc542320139732dd0998e6ecbb1f
 U mistachkin
-Z e74b307c0666ae2ea37b9b42d9911a01
+Z 8e32e4866eb808a67f764f605790692e

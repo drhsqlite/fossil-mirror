@@ -22,6 +22,7 @@
 */
 #include "config.h"
 #include "sqlcmd.h"
+#include <stdlib.h> /* atexit() */
 #if defined(FOSSIL_ENABLE_MINIZ)
 #  define MINIZ_HEADER_FILE_ONLY
 #  include "miniz.c"
@@ -166,6 +167,13 @@ static int sqlcmd_autoinit(
 }
 
 /*
+** atexit() handler that cleans up global state modified by this module.
+*/
+static void sqlcmd_atexit(void) {
+  g.zConfigDbName = 0; /* prevent panic */
+}
+
+/*
 ** COMMAND: sqlite3
 **
 ** Usage: %fossil sql ?OPTIONS?
@@ -228,6 +236,7 @@ void cmd_sqlite3(void){
 #ifndef _WIN32
   linenoiseSetMultiLine(1);
 #endif
+  atexit(sqlcmd_atexit);
   g.zConfigDbName = zConfigDb;
   sqlite3_shell(g.argc-1, g.argv+1);
   sqlite3_cancel_auto_extension((void(*)(void))sqlcmd_autoinit);
