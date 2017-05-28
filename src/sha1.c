@@ -19,7 +19,6 @@
 */
 #include "config.h"
 #include <sys/types.h>
-#include <stdint.h>
 #include "sha1.h"
 
 
