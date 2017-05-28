@@ -174,6 +174,27 @@ static void sqlcmd_atexit(void) {
 }
 
 /*
+** This routine is called by the patched sqlite3 command-line shell in order
+** to load the name and database connection for the open Fossil database.
+*/
+void fossil_open(const char **pzRepoName){
+  sqlite3_auto_extension((void(*)(void))sqlcmd_autoinit);
+  *pzRepoName = g.zRepositoryName;
+}
+
+/*
+** This routine closes the Fossil databases and/or invalidates the global
+** state variables that keep track of them.
+*/
+static void fossil_close(int bDb, int noRepository){
+  if( bDb ) db_close(1);
+  if( noRepository ) g.zRepositoryName = 0;
+  g.db = 0;
+  g.repositoryOpen = 0;
+  g.localOpen = 0;
+}
+
+/*
 ** COMMAND: sqlite3
 **
 ** Usage: %fossil sql ?OPTIONS?
@@ -241,25 +262,4 @@ void cmd_sqlite3(void){
   sqlite3_shell(g.argc-1, g.argv+1);
   sqlite3_cancel_auto_extension((void(*)(void))sqlcmd_autoinit);
   fossil_close(0, noRepository);
-}
-
-/*
-** This routine is called by the patched sqlite3 command-line shell in order
-** to load the name and database connection for the open Fossil database.
-*/
-void fossil_open(const char **pzRepoName){
-  sqlite3_auto_extension((void(*)(void))sqlcmd_autoinit);
-  *pzRepoName = g.zRepositoryName;
-}
-
-/*
-** This routine closes the Fossil databases and/or invalidates the global
-** state variables that keep track of them.
-*/
-void fossil_close(int bDb, int noRepository){
-  if( bDb ) db_close(1);
-  if( noRepository ) g.zRepositoryName = 0;
-  g.db = 0;
-  g.repositoryOpen = 0;
-  g.localOpen = 0;
 }
