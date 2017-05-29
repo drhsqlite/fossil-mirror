@@ -153,13 +153,16 @@ static int sqlcmd_autoinit(
   g.repositoryOpen = 1;
   g.db = db;
   sqlite3_db_config(db, SQLITE_DBCONFIG_MAINDBNAME, "repository");
+  db_set_key(db, g.zRepositoryName);
   if( g.zLocalDbName ){
-    char *zSql = sqlite3_mprintf("ATTACH %Q AS 'localdb'", g.zLocalDbName);
+    char *zSql = sqlite3_mprintf("ATTACH %Q AS 'localdb' KEY ''",
+                                 g.zLocalDbName);
     sqlite3_exec(db, zSql, 0, 0, 0);
     sqlite3_free(zSql);
   }
   if( g.zConfigDbName ){
-    char *zSql = sqlite3_mprintf("ATTACH %Q AS 'configdb'", g.zConfigDbName);
+    char *zSql = sqlite3_mprintf("ATTACH %Q AS 'configdb' KEY ''",
+                                 g.zConfigDbName);
     sqlite3_exec(db, zSql, 0, 0, 0);
     sqlite3_free(zSql);
   }
@@ -181,6 +184,31 @@ void fossil_open(const char **pzRepoName){
   sqlite3_auto_extension((void(*)(void))sqlcmd_autoinit);
   *pzRepoName = g.zRepositoryName;
 }
+
+#if USE_SEE
+/*
+** This routine is called by the patched sqlite3 command-line shell in order
+** to load the encryption key for the open Fossil database.  The memory that
+** is pointed to by the value placed in pzKey must be obtained from SQLite.
+*/
+void fossil_key(const char **pzKey, int *pnKey){
+  char *zSavedKey = db_get_saved_encryption_key();
+  char *zKey;
+  size_t savedKeySize = db_get_saved_encryption_key_size();
+  size_t nByte;
+
+  if( zSavedKey==0 || savedKeySize==0 ) return;
+  nByte = savedKeySize * sizeof(char);
+  zKey = sqlite3_malloc( (int)nByte );
+  if( zKey ){
+    memcpy(zKey, zSavedKey, nByte);
+    *pzKey = zKey;
+    *pnKey = (int)strlen(zKey);
+  }else{
+    fossil_fatal("failed to allocate %u bytes for key", nByte);
+  }
+}
+#endif
 
 /*
 ** This routine closes the Fossil databases and/or invalidates the global
