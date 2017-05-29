@@ -1043,13 +1043,28 @@ static void db_maybe_obtain_encryption_key(
 
 
 /*
+** Sets the encryption key for the database, if necessary.
+*/
+void db_set_key(sqlite3 *db, const char *zDbName){
+  Blob key;
+  blob_init(&key, 0, 0);
+  db_maybe_obtain_encryption_key(zDbName, &key);
+  if( blob_size(&key)>0 ){
+    char *zCmd = sqlite3_mprintf("PRAGMA key(%Q)", blob_str(&key));
+    sqlite3_exec(db, zCmd, 0, 0, 0);
+    fossil_secure_zero(zCmd, strlen(zCmd));
+    sqlite3_free(zCmd);
+  }
+  blob_reset(&key);
+}
+
+/*
 ** Open a database file.  Return a pointer to the new database
 ** connection.  An error results in process abort.
 */
 LOCAL sqlite3 *db_open(const char *zDbName){
   int rc;
   sqlite3 *db;
-  Blob key;
 
   if( g.fSqlTrace ) fossil_trace("-- sqlite3_open: [%s]\n", zDbName);
   rc = sqlite3_open_v2(
@@ -1060,15 +1075,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   if( rc!=SQLITE_OK ){
     db_err("[%s]: %s", zDbName, sqlite3_errmsg(db));
   }
-  blob_init(&key, 0, 0);
-  db_maybe_obtain_encryption_key(zDbName, &key);
-  if( blob_size(&key)>0 ){
-    char *zCmd = sqlite3_mprintf("PRAGMA key(%Q)", blob_str(&key));
-    sqlite3_exec(db, zCmd, 0, 0, 0);
-    fossil_secure_zero(zCmd, strlen(zCmd));
-    sqlite3_free(zCmd);
-  }
-  blob_reset(&key);
+  db_set_key(db, zDbName);
   sqlite3_busy_timeout(db, 5000);
   sqlite3_wal_autocheckpoint(db, 1);  /* Set to checkpoint frequently */
   sqlite3_create_function(db, "user", 0, SQLITE_UTF8, 0, db_sql_user, 0, 0);
