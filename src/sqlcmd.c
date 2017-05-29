@@ -153,7 +153,7 @@ static int sqlcmd_autoinit(
   g.repositoryOpen = 1;
   g.db = db;
   sqlite3_db_config(db, SQLITE_DBCONFIG_MAINDBNAME, "repository");
-  db_set_key(db, g.zRepositoryName);
+  db_maybe_set_encryption_key(db, g.zRepositoryName);
   if( g.zLocalDbName ){
     char *zSql = sqlite3_mprintf("ATTACH %Q AS 'localdb' KEY ''",
                                  g.zLocalDbName);

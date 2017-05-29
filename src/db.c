@@ -1045,7 +1045,7 @@ static void db_maybe_obtain_encryption_key(
 /*
 ** Sets the encryption key for the database, if necessary.
 */
-void db_set_key(sqlite3 *db, const char *zDbName){
+void db_maybe_set_encryption_key(sqlite3 *db, const char *zDbName){
   Blob key;
   blob_init(&key, 0, 0);
   db_maybe_obtain_encryption_key(zDbName, &key);
@@ -1075,7 +1075,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   if( rc!=SQLITE_OK ){
     db_err("[%s]: %s", zDbName, sqlite3_errmsg(db));
   }
-  db_set_key(db, zDbName);
+  db_maybe_set_encryption_key(db, zDbName);
   sqlite3_busy_timeout(db, 5000);
   sqlite3_wal_autocheckpoint(db, 1);  /* Set to checkpoint frequently */
   sqlite3_create_function(db, "user", 0, SQLITE_UTF8, 0, db_sql_user, 0, 0);
