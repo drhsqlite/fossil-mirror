@@ -1210,7 +1210,7 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
                       blob_str(&fname));
     }else{
       file_tempname(&fname, "ci-comment");
-      zFile = db_text(0, "SELECT '%q'||'.txt'", blob_str(&fname));
+      zFile = mprintf("%s", blob_str(&fname));
     }
     blob_reset(&fname);
   }

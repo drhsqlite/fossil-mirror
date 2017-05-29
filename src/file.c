@@ -1437,7 +1437,7 @@ void file_tempname(Blob *pBuf, const char *zPrefix){
       zRand[i] = (char)zChars[ ((unsigned char)zRand[i])%(sizeof(zChars)-1) ];
     }
     zRand[15] = 0;
-    blob_appendf(pBuf, "%s/%s.%s", zDir, zPrefix ? zPrefix : "", zRand);
+    blob_appendf(pBuf, "%s/%s-%s.txt", zDir, zPrefix ? zPrefix : "", zRand);
   }while( file_size(blob_str(pBuf))>=0 );
 
 #if defined(_WIN32)
