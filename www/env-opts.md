@@ -144,6 +144,12 @@ variable found in the environment from the list `FOSSIL_HOME`,
 `HOMEPATH` (Windows, used together), and `HOME` is used as the
 location of the `~/.fossil` file.
 
+
+`FOSSIL_USE_SEE_TEXTKEY`: If set, treat the encryption key string for
+SEE as text to be hashed into the actaul encryption key.  This has no
+effect if Fossil was not compiled with SEE support enabled.
+
+
 `FOSSIL_USER`: Name of the default user account if the checkout, local
 or global `default-user` setting is not present. The first environment
 variable found in the environment from the list `FOSSIL_USER`, `USER`,

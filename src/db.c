@@ -36,6 +36,9 @@
 #else
 #  include <pwd.h>
 #endif
+#if USE_SEE && !defined(SQLITE_HAS_CODEC)
+#  define SQLITE_HAS_CODEC
+#endif
 #include <sqlite3.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -1050,10 +1053,16 @@ void db_maybe_set_encryption_key(sqlite3 *db, const char *zDbName){
   blob_init(&key, 0, 0);
   db_maybe_obtain_encryption_key(zDbName, &key);
   if( blob_size(&key)>0 ){
-    char *zCmd = sqlite3_mprintf("PRAGMA key(%Q)", blob_str(&key));
-    sqlite3_exec(db, zCmd, 0, 0, 0);
-    fossil_secure_zero(zCmd, strlen(zCmd));
-    sqlite3_free(zCmd);
+    if( fossil_getenv("FOSSIL_USE_SEE_TEXTKEY")==0 ){
+      char *zCmd = sqlite3_mprintf("PRAGMA key(%Q)", blob_str(&key));
+      sqlite3_exec(db, zCmd, 0, 0, 0);
+      fossil_secure_zero(zCmd, strlen(zCmd));
+      sqlite3_free(zCmd);
+#if USE_SEE
+    }else{
+      sqlite3_key(db, blob_str(&key), -1);
+#endif
+    }
   }
   blob_reset(&key);
 }
@@ -1109,15 +1118,26 @@ void db_detach(const char *zLabel){
 ** the name zLabel.
 */
 void db_attach(const char *zDbName, const char *zLabel){
-  char *zCmd;
   Blob key;
   blob_init(&key, 0, 0);
   db_maybe_obtain_encryption_key(zDbName, &key);
-  zCmd = sqlite3_mprintf("ATTACH DATABASE %Q AS %Q KEY %Q",
-                         zDbName, zLabel, blob_str(&key));
-  db_multi_exec(zCmd /*works-like:""*/);
-  fossil_secure_zero(zCmd, strlen(zCmd));
-  sqlite3_free(zCmd);
+  if( fossil_getenv("FOSSIL_USE_SEE_TEXTKEY")==0 ){
+    char *zCmd = sqlite3_mprintf("ATTACH DATABASE %Q AS %Q KEY %Q",
+                                 zDbName, zLabel, blob_str(&key));
+    db_multi_exec(zCmd /*works-like:""*/);
+    fossil_secure_zero(zCmd, strlen(zCmd));
+    sqlite3_free(zCmd);
+  }else{
+    char *zCmd = sqlite3_mprintf("ATTACH DATABASE %Q AS %Q KEY ''",
+                                 zDbName, zLabel);
+    db_multi_exec(zCmd /*works-like:""*/);
+    sqlite3_free(zCmd);
+#if USE_SEE
+    if( blob_size(&key)>0 ){
+      sqlite3_key_v2(g.db, zLabel, blob_str(&key), -1);
+    }
+#endif
+  }
   blob_reset(&key);
 }
 

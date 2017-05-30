@@ -187,6 +187,9 @@
 #  include <stdint.h>
 #endif
 
+#if USE_SEE && !defined(SQLITE_HAS_CODEC)
+#  define SQLITE_HAS_CODEC
+#endif
 #include "sqlite3.h"
 
 /*

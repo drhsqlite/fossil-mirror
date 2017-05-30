@@ -203,7 +203,11 @@ void fossil_key(const char **pzKey, int *pnKey){
   if( zKey ){
     memcpy(zKey, zSavedKey, nByte);
     *pzKey = zKey;
-    *pnKey = (int)strlen(zKey);
+    if( fossil_getenv("FOSSIL_USE_SEE_TEXTKEY")==0 ){
+      *pnKey = (int)strlen(zKey);
+    }else{
+      *pnKey = -1;
+    }
   }else{
     fossil_fatal("failed to allocate %u bytes for key", nByte);
   }
