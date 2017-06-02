@@ -1,5 +1,5 @@
-C Enhancements\sto\sSEE\sintegration.
-D 2017-05-30T19:23:34.725
+C Restore\sthe\sability\sto\samend\sa\scomment\sboth\swith\sand\swithout\san\sinteractive\neditor.\s\sIf\sthe\sedit\shappens\soutside\sa\sworking\scheck-out\sthen\suse\sa\ssuitable\nTMP\sdirectory.
+D 2017-06-02T02:23:56.297
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -396,7 +396,7 @@ F src/bundle.c c4b92c14df3e1aeebdeaf02d23a0ecaea462f8b5
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c b459fc18975074cf8a921ded8a754d50fe971b2c3951c7a94ad1eafdee79e61a
-F src/checkin.c ddb0405c6ec61bf57b065d847b4cf268d161d920add4f77301713f0773b00151
+F src/checkin.c 8bf330e93a269b49898bdb235a8f468b2696c1e12f1fc54f615bafe75cd4e694
 F src/checkout.c ad202f9c6585a8e6d5418ff733f7349f652e9b05
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c c8b17c6084570fef0afc5b52d5caffcc83ff4548
@@ -420,7 +420,7 @@ F src/doc.c e21c027580de8bf35fda0a688620ad9ae29f71cfc54f26a2f841b6bc0f0fd55a
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c 5dcf3c6ff00c39c25a3909deec1d1154cf0b85a5
 F src/export.c 3e09dfda9d07b44c463d656dbc09f6adfe686d6d80ad55282a1f06b9216934f2
-F src/file.c c77e7c7383f414c6016021a0a3550faecd6d4111921fd07b7747b4917a353b2f
+F src/file.c a8c25562e300c282852e16b517cacb43b882c475f7d4a17e3fcdc520676f8288
 F src/finfo.c 1ed28f25c99d30270690b3b45c36c3320baecddc
 F src/foci.c bb1344335db231bacb8062fbf1d9357d9e7dc1c8
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
@@ -434,7 +434,7 @@ F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d98
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c 14ebf8376b92b9446a886bd22721554e57080dff459a64a35825b403a763a217
-F src/info.c 8e1d7a3b4d071832a96151c52886daedf31e86ed3229799a94e59f662e48364e
+F src/info.c 8bf1972f7c12f589a7439a23525e8886cb6869bff527f172244e7c8685033fb3
 F src/json.c cc8d06a2d208ad0092d6d68ef5b7ac9a7e05708b3271c5cfd1da890f97322642
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c 7c7e2c63fd1cac2ca85aa657a7ae04d91a1bdc08
@@ -786,8 +786,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d6422ab0f0a31a2a23ab5b4e72b68e408ce63729544ad3ca37bd75c6a655bd12 53048387fbca12313348a6ecd984a79cfdab28a0545978fdc9caef7491961fae
-R 3c0b10997e6adcb25401dddd1630ff4f
-T +closed 53048387fbca12313348a6ecd984a79cfdab28a0545978fdc9caef7491961fae
-U mistachkin
-Z cd97a5cc8051aa52e773bfd7c4898a1f
+P 00dfbdbf7edc5a04e898e956bb007add45f850c9dd78372e562bb68f47c61831 51058ce141f083060dc2ae373ff62bfcff7ddbc93977c1fbf4c1a345d5732148
+R 3383d3d787dca25001c0d897b29518a5
+T +closed 51058ce141f083060dc2ae373ff62bfcff7ddbc93977c1fbf4c1a345d5732148
+U andybradford
+Z 56166646bc1eaa1fd43f668e8d8ae33d
