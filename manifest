@@ -1,5 +1,5 @@
-C Restore\sthe\sability\sto\samend\sa\scomment\sboth\swith\sand\swithout\san\sinteractive\neditor.\s\sIf\sthe\sedit\shappens\soutside\sa\sworking\scheck-out\sthen\suse\sa\ssuitable\nTMP\sdirectory.
-D 2017-06-02T02:23:56.297
+C Do\snot\sdouble-prompt\sfor\sHttpAuth\spasswords.
+D 2017-06-06T17:49:23.826
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -429,7 +429,7 @@ F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 066169948d671628a648bd0e622ec9487e258195
 F src/gzip.c 1713ec55dfdea8958a0ca4fd7e4e61a0bcc2465dba2330f3f6ff402787bb1cda
 F src/hname.c 1f0ea670e2648deb2e547175523843bb5a9b84fc
-F src/http.c 5d5c19958bad3b0de0be4f47ad022c689be0d543
+F src/http.c 7de3f16908f0f49cbcfad625513c130c0aef8bb889a5902e0fe9cccfaf893a85
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d98
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
@@ -786,8 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 00dfbdbf7edc5a04e898e956bb007add45f850c9dd78372e562bb68f47c61831 51058ce141f083060dc2ae373ff62bfcff7ddbc93977c1fbf4c1a345d5732148
-R 3383d3d787dca25001c0d897b29518a5
-T +closed 51058ce141f083060dc2ae373ff62bfcff7ddbc93977c1fbf4c1a345d5732148
-U andybradford
-Z 56166646bc1eaa1fd43f668e8d8ae33d
+P 1fff403a686adaef44302cea6f27bca1aaadb2d989f8d97bc32178f48d6c974c
+R ddfd6689906feb4628bf97d538f06d79
+U drh
+Z 5dbd7948205817477fc1dd4e9f86f05c
