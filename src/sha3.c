@@ -602,6 +602,7 @@ int sha3sum_blob(const Blob *pIn, int iSize, Blob *pCksum){
   return 0;
 }
 
+#if 0 /* NOT USED */
 /*
 ** Compute the SHA3 checksum of a zero-terminated string.  The
 ** result is held in memory obtained from mprintf().
@@ -612,9 +613,10 @@ char *sha3sum(const char *zIn, int iSize){
 
   SHA3Init(&ctx, iSize);
   SHA3Update(&ctx, (unsigned const char*)zIn, strlen(zIn));
-  DigestToBase16(SHA3Final(&ctx), zDigest, iSize/4);
+  DigestToBase16(SHA3Final(&ctx), zDigest, iSize/8);
   return mprintf("%s", zDigest);
 }
+#endif
 
 /*
 ** COMMAND: sha3sum*
