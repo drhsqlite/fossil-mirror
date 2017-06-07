@@ -626,6 +626,9 @@ char *sha3sum(const char *zIn, int iSize){
 ** Compute an SHA3 checksum of all files named on the command-line.
 ** If a file is named "-" then take its content from standard input.
 **
+** To be clear:  The official NIST FIPS-202 implementation of SHA3
+** with the added 01 padding is used, not the original Keccak submission.
+**
 ** Options:
 **
 **    --224        Compute a SHA3-224 hash

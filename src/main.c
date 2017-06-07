@@ -891,7 +891,7 @@ const char *find_repository_option(){
 void verify_all_options(void){
   int i;
   for(i=1; i<g.argc; i++){
-    if( g.argv[i][0]=='-' ){
+    if( g.argv[i][0]=='-' && g.argv[i][1]!=0 ){
       fossil_fatal(
         "unrecognized command-line option, or missing argument: %s",
         g.argv[i]);
