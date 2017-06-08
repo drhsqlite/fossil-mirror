@@ -1,5 +1,5 @@
-C Fix\sthe\s"fossil\ssha3sum"\scommand\sso\sthat\sit\saccepts\s"-"\sto\smean\sstdin.\nClarify\sthe\salgorithm\sused.
-D 2017-06-07T15:55:47.351
+C Make\ssure\sfossil_strndup()\salways\sadds\sa\szero\sterminator.
+D 2017-06-08T12:50:34.235
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -433,7 +433,7 @@ F src/http.c 7de3f16908f0f49cbcfad625513c130c0aef8bb889a5902e0fe9cccfaf893a85
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d98
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
-F src/import.c 14ebf8376b92b9446a886bd22721554e57080dff459a64a35825b403a763a217
+F src/import.c ec3911e2adec00c75cbdf55c4b1af03c6eb017b8c445c1f0f30e39f803425ca5
 F src/info.c 8bf1972f7c12f589a7439a23525e8886cb6869bff527f172244e7c8685033fb3
 F src/json.c cc8d06a2d208ad0092d6d68ef5b7ac9a7e05708b3271c5cfd1da890f97322642
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6419592d659a2194d63df5f7cfec0e8c511ed1c99ad9b039ff10704f6172a0aa
-R 0cb8621f33a828d833097747b25a9c3a
+P 86fa03adb1119b7eb187c57ba30e54c6bf3a52f2223cb095578882d34245b407
+R 7aa41a92a163df9a0b1defa7932fa66f
 U drh
-Z debe5faa97aa920ae8fa15b97bd1c0bc
+Z 05c1ee38be7dd94fb9da356a01fd381a

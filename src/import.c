@@ -87,7 +87,8 @@ char *fossil_strndup(const char *zOrig, int len){
       for( n=0; zOrig[n] && n<len; ++n );
     }
     z = fossil_malloc( n+1 );
-    memcpy(z, zOrig, n+1);
+    memcpy(z, zOrig, n);
+    z[n] = 0;
   }
   return z;
 }
