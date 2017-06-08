@@ -751,14 +751,14 @@ void tktedit_page(void){
   style_header("Edit Ticket");
   if( zName==0 || (nName = strlen(zName))<4 || nName>UUID_SIZE
           || !validate16(zName,nName) ){
-    @ <span class="tktError">Not a valid ticket id: \"%h(zName)\"</span>
+    @ <span class="tktError">Not a valid ticket id: "%h(zName)"</span>
     style_footer();
     return;
   }
   nRec = db_int(0, "SELECT count(*) FROM ticket WHERE tkt_uuid GLOB '%q*'",
                 zName);
   if( nRec==0 ){
-    @ <span class="tktError">No such ticket: \"%h(zName)\"</span>
+    @ <span class="tktError">No such ticket: "%h(zName)"</span>
     style_footer();
     return;
   }
