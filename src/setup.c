@@ -1725,7 +1725,7 @@ void setup_adunit(void){
   @ <blockquote><pre>
   @ div.adunit_banner {
   @   margin: auto;
-  @   width: 100%;
+  @   width: 100%%;
   @ }
   @ div.adunit_right {
   @   float: right;

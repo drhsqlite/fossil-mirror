@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.19.3.
-D 2017-06-08T15:03:39.462
+C Fix\sa\sformatting\sbug\sin\sthe\sad-unit\ssetup\spage.
+D 2017-06-08T17:10:01.168
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -489,7 +489,7 @@ F src/report.c ee53ffbf76230126e2f91511b70d9f72a97d0a650e4c91e6d43018ab3069927a
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/search.c 0de35ed3d058b62f9f09a5bde235d0cc1e8f0ee1d4bec9ebc2cd9b5bb9d858bb
-F src/setup.c d8eba80358de42ddd33670570df44fe3c1642a5a9db432fd9ac518eba3a5eaf2
+F src/setup.c 961c380bf509765914a93243c04c8f8192d79ed7c153e52cfc5c205ef0d6fc31
 F src/sha1.c 04efd231424be45a281bdb50def7fce94625bd45b53d3c96b89e8de31f0305be
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c 7d862ff2c83826fd251909f5af2c8dd642417a8c389685e169f3c00434f784fa
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8707e869496705cd4d1ed7f23d23441b59b2949999f49cf3034c4cb007ba28d1
-R 582dea3a059b6c8d541108fc0e39d6a1
+P 5a6f946723bad14eb4f6279d1ab1c80c01341f8b9f2c36e2277027535fee2b80
+R f85df693541afac0f53f9f5c744806d0
 U drh
-Z eb08f3604db7affc4006fef6d103cb8b
+Z 104a65aab44e3c394029beb8698490a0
