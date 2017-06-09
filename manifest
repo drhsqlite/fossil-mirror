@@ -1,5 +1,5 @@
-C Remove\sextraneous\sbackslashes\sin\serror\smessages\sin\sthe\sticket\sediting\nwebpage.
-D 2017-06-08T19:10:01.558
+C Update\sthe\s/tarball\sand\s/zip\spages\sto\sreturn\sstatus\scode\s404\sif\sgiven\nan\sunknown\scheckin\sto\sdownload.
+D 2017-06-09T13:09:32.759
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -506,7 +506,7 @@ F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
 F src/style.c cf9edbf403e1df8e094e8a1d44d5dd9516046678
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 7eec9152da56e30bedad9b9c62195012de13f0db656f9b6395c2bcebfee7f4a8
-F src/tar.c 17b09ed44d15326d5f19413b5e1c2b985d5b77f21c3bdd898bb263229c46c14b
+F src/tar.c 5022464271954b88dea69c23d4767f3051bf47fb51f19dd77b088d2e94093496
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
@@ -533,7 +533,7 @@ F src/winhttp.c b8020da569aa214b67cfcd0b2efb770390798e8d829f0d18899d496e92eb5e04
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 2aa129b0237419bcde414e449472150bdecfb8be
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
-F src/zip.c 12c010669a95d634a2047b28e3e969add361ed2cbca7672232f8b05813fcff79
+F src/zip.c 13040fcd3a5cf52c6b2d35689f1dc52385d3d2be6ed2309da8dc7fd902cbad5b
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test 83966725550e04f80c40a52012074f91ef6d22cbd57f51e17e931eccee6663e0
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bc6355e9cfbc1478b828922d974cb7e056d9394b1f6fc4f02e76d7502b3c507a
-R 0a93565384936329fe24acc2d9503de3
+P b772b36d95d2929428bead39106d152d8140efceeeed670b2e3c63758d86231a
+R 5cf803db3a74c07a83593dde22d838d9
 U drh
-Z 7a3fda80fcab8cebfc42f3ce707fc060
+Z cb9144fa576e40b2eab472b61f1a67da

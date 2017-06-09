@@ -711,8 +711,9 @@ void tarball_page(void){
       }
     }
   }
-  rid = name_to_typed_rid(nRid?zRid:zName, "ci");
+  rid = symbolic_name_to_rid(nRid?zRid:zName, "ci");
   if( rid==0 ){
+    cgi_set_status(404, "Not Found");
     @ Not found
     return;
   }
