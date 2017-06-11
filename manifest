@@ -1,5 +1,5 @@
-C Fix\ssome\scases\sin\swikiformat.c\swhere\sit\swas\sassuming\sthat\sa\shash\sname\nwould\sbe\sUUID_SIZE\sor\sfewer\scharacters,\swhen\sin\sfact\sthe\ssize\scould\sbe\nas\smany\sas\sHNAME_MAX\scharacters.\s\sThis\sis\sa\schange\sthat\swe\smissed\sin\sthe\nSHA3\scut-over.
-D 2017-06-11T04:37:13.151
+C Experimental\sand\sundocument\s--yy\soption\sto\sthe\svarious\sdiff\soperations\sdoes\na\sslow\sO(N*N)\salgorithm\swhich\scan\ssometimes\scompute\sa\sbetter\sside-by-side\sdiff.\nBut\sit\scan\salso\stake\sa\slot\slonger\sand\sso\sis\snot\srecommended\sunless\sreally\nneeded.
+D 2017-06-11T16:25:56.299
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -412,7 +412,7 @@ F src/db.c f3e39b5ffe371b1cee5d4c93fcf4a14e0dff70df2cc1281f792695fda994c746
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
-F src/diff.c 09884b53c51f9a1700dc94ecae0f9071e24191ad
+F src/diff.c 69409628efabdef742c52998981c9008e5bc25265c630529f21c5337d073a45d
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 9a88f3a3511b19fd17d11bb01d3d95a5f8378070
 F src/dispatch.c c4135c158e049ba88648d1a0ccea4a24169099b752e1dffced17a77e4fb8218c
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a10fc448ed3fce5113c2a44d18df0172c64a55624c4e21572566144106791b04
-R c54c96df961b865919cdfff07a9154eb
+P e0757d270c3c10d46a8aabe1865ec384d878af089d0c917764838452ed2f7b56
+R de435819ac4de1ed42f503d781c77154
 U drh
-Z ddd2e09c89e920b0da88e7da271708db
+Z 769c3aa8102f89e2823aa4bc54f7b5f4

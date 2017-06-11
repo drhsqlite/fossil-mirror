@@ -42,6 +42,7 @@
 #define DIFF_CONTEXT_EX   (((u64)0x04)<<32) /* Use context even if zero */
 #define DIFF_NOTTOOBIG    (((u64)0x08)<<32) /* Only display if not too big */
 #define DIFF_STRIP_EOLCR  (((u64)0x10)<<32) /* Strip trailing CR */
+#define DIFF_SLOW_SBS     (((u64)0x20)<<32) /* Better, but slower side-by-side */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -1039,7 +1040,8 @@ static int match_dline(DLine *pA, DLine *pB){
 */
 static unsigned char *sbsAlignment(
    DLine *aLeft, int nLeft,       /* Text on the left */
-   DLine *aRight, int nRight      /* Text on the right */
+   DLine *aRight, int nRight,     /* Text on the right */
+   u64 diffFlags                  /* Flags passed into the original diff */
 ){
   int i, j, k;                 /* Loop counters */
   int *a;                      /* One row of the Wagner matrix */
@@ -1063,7 +1065,7 @@ static unsigned char *sbsAlignment(
   /* This algorithm is O(N**2).  So if N is too big, bail out with a
   ** simple (but stupid and ugly) result that doesn't take too long. */
   mnLen = nLeft<nRight ? nLeft : nRight;
-  if( nLeft*nRight>100000 ){
+  if( nLeft*nRight>100000 && (diffFlags & DIFF_SLOW_SBS)==0 ){
     memset(aM, 4, mnLen);
     if( nLeft>mnLen )  memset(aM+mnLen, 1, nLeft-mnLen);
     if( nRight>mnLen ) memset(aM+mnLen, 2, nRight-mnLen);
@@ -1327,7 +1329,7 @@ static void sbsDiff(
         mb += R[r+i*3+2] + m;
       }
 
-      alignment = sbsAlignment(&A[a], ma, &B[b], mb);
+      alignment = sbsAlignment(&A[a], ma, &B[b], mb, diffFlags);
       for(j=0; ma+mb>0; j++){
         if( alignment[j]==1 ){
           /* Delete one line from the left */
@@ -1969,6 +1971,9 @@ u64 diff_options(void){
     diffFlags |= DIFF_STRIP_EOLCR;
   }
   if( find_option("side-by-side","y",0)!=0 ) diffFlags |= DIFF_SIDEBYSIDE;
+  if( find_option("yy",0,0)!=0 ){
+    diffFlags |= DIFF_SIDEBYSIDE | DIFF_SLOW_SBS;
+  }
   if( find_option("unified",0,0)!=0 ) diffFlags &= ~DIFF_SIDEBYSIDE;
   if( (z = find_option("context","c",1))!=0 && (f = atoi(z))>=0 ){
     if( f > DIFF_CONTEXT_MASK ) f = DIFF_CONTEXT_MASK;
