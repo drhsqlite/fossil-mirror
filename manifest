@@ -1,5 +1,5 @@
-C Experimental\sand\sundocument\s--yy\soption\sto\sthe\svarious\sdiff\soperations\sdoes\na\sslow\sO(N*N)\salgorithm\swhich\scan\ssometimes\scompute\sa\sbetter\sside-by-side\sdiff.\nBut\sit\scan\salso\stake\sa\slot\slonger\sand\sso\sis\snot\srecommended\sunless\sreally\nneeded.
-D 2017-06-11T16:25:56.299
+C Remove\sanother\sset\sof\sextraneous\sbackslash\sfrom\san\serror\smessage\sin\sthe\sticket\sediting\swebpage.
+D 2017-06-12T01:23:28.691
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -513,7 +513,7 @@ F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c fcf07b5f99768f552a4d31e4efa5fe4be98f86139ab7e8d556ca2dcacb733e0c
 F src/th_tcl.c 2b70a8da7d7d8009794d7a3565043c8933a6cbfe
 F src/timeline.c 280733bda16ab11a5c516de21692964dbe6b4409
-F src/tkt.c f8b05cbbe61abd4e1be06b7055d47b828594e2b2887aeffb0c9ffb35f3214426
+F src/tkt.c e5815264d68d48a28983230026ceaa45b5190c34b092a8fc920ce832a6d2bf6e
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 33b65539a12abd079a57972b78e0d532831cefd9
 F src/undo.c d3cca342dd73eaec65e352d978e8f7a9e75a5ddd
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e0757d270c3c10d46a8aabe1865ec384d878af089d0c917764838452ed2f7b56
-R de435819ac4de1ed42f503d781c77154
-U drh
-Z 769c3aa8102f89e2823aa4bc54f7b5f4
+P 1b3fa2610a494166b7ab61c6fd6bfab8b1752be47c1faf1866613f4a8a55c849
+R 525af1f3c095c86d0054e4438a3835b6
+U mistachkin
+Z 037f56f8fa27dfc3328b118b273e09f5

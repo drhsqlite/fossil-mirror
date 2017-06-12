@@ -764,7 +764,7 @@ void tktedit_page(void){
   }
   if( nRec>1 ){
     @ <span class="tktError">%d(nRec) tickets begin with:
-    @ \"%h(zName)\"</span>
+    @ "%h(zName)"</span>
     style_footer();
     return;
   }
