@@ -791,8 +791,8 @@ int blob_read_from_channel(Blob *pBlob, FILE *in, int nToRead){
 ** Return the number of bytes read. Calls fossil_fatal() on error (i.e.
 ** it exit()s and does not return).
 */
-int blob_read_from_file(Blob *pBlob, const char *zFilename){
-  int size, got;
+sqlite3_int64 blob_read_from_file(Blob *pBlob, const char *zFilename){
+  sqlite3_int64 size, got;
   FILE *in;
   if( zFilename==0 || zFilename[0]==0
         || (zFilename[0]=='-' && zFilename[1]==0) ){

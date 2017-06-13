@@ -798,7 +798,7 @@ char *write_blob_to_temp_file(Blob *pBlob){
 ** the working check-out on disk.  Report any errors.
 */
 void vfile_compare_repository_to_disk(int vid){
-  int rc;
+  sqlite3_int64 rc;
   Stmt q;
   Blob disk, repo;
   char *zOut;
