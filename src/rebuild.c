@@ -366,7 +366,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
      " AND name NOT GLOB 'fx_*'"
   );
   while( db_step(&q)==SQLITE_ROW ){
-    blob_appendf(&sql, "DROP TABLE \"%w\";\n", db_column_text(&q,0));
+    blob_appendf(&sql, "DROP TABLE IF EXISTS \"%w\";\n", db_column_text(&q,0));
   }
   db_finalize(&q);
   db_multi_exec("%s", blob_str(&sql)/*safe-for-%s*/);

@@ -1,5 +1,5 @@
-C Fix\sthe\sblob_read_from_file()\sfunction\sso\sthat\sit\sworks\swith\sfiles\nlarger\sthan\s2GiB.
-D 2017-06-13T04:45:58.330
+C When\sdropping\ssurplus\stables\sduring\s"fossil\srebuild",\smake\ssure\sto\suse\nIF\sEXISTS\sso\sthat\sshadow\stables\sfrom\spreviously\sdropped\svirtual\stables\ndo\snot\scause\san\sSQL\serror.
+D 2017-06-13T05:12:55.404
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -483,7 +483,7 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 1cf52da2f0f43868d026ff790a4eadbd984fd040
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f698cae20e3740796f6ffa65f69324f27f19d96c
-F src/rebuild.c cfa98254edab99a917af8ca541d9988c5b169304
+F src/rebuild.c 6c399de73882b44aa8b1b1451caf9aa38285b1439d292b74ec8b12286c38613d
 F src/regexp.c 11ed4c905c2e471efe9c1e9c4650004ad91d6ebb
 F src/report.c ee53ffbf76230126e2f91511b70d9f72a97d0a650e4c91e6d43018ab3069927a
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 699fca172dbd5820bce79a76d0eeddddb0d5fc52e8bee20f820d7db9805f1183
-R 529acd2776120bb44191111c93a286d6
+P 837333fc8c605b0c7a5a64e6f0381c6372dbb857f78ebd625efceedd47e47fba
+R 27d1d6218c97a3c0e65e372a310f6491
 U drh
-Z 4816df68195bb5bd8e5f69186b7ae973
+Z dd6b97c50db0ebe809330852cf9d7c27
