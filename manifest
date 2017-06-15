@@ -1,5 +1,5 @@
-C When\sdropping\ssurplus\stables\sduring\s"fossil\srebuild",\smake\ssure\sto\suse\nIF\sEXISTS\sso\sthat\sshadow\stables\sfrom\spreviously\sdropped\svirtual\stables\ndo\snot\scause\san\sSQL\serror.
-D 2017-06-13T05:12:55.404
+C Use\s-O0\sinstead\sof\s-O2\sfor\scompiling\swhen\sthe\s--fossil-debug\soption\nof\s./configure\sis\sused.
+D 2017-06-15T03:13:15.477
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -47,7 +47,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def e04b05f23ff87d072cc530ab2431cb59d996bc019f56dd2c6df0add624134035
+F auto.def dacb93bf626962b982772dd1ed1bbe67a2924c83392ff33ed02b06c76b4d143e
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup c235af4ce86af9a9b8b331b5a67c822d52ca2c6e
 F autosetup/autosetup 564c6ab11d5ab75d1aebc8d90ebc22df8babb01d2f9ada06d7964e5cfb7c38aa x
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 837333fc8c605b0c7a5a64e6f0381c6372dbb857f78ebd625efceedd47e47fba
-R 27d1d6218c97a3c0e65e372a310f6491
+P 3200a7c72e41e783a16f0d61d86464c50a7777da708375ecfc59cb471e6fa9e1
+R 8c5a301a4c1aa49e128cea275f6eeeaf
 U drh
-Z dd6b97c50db0ebe809330852cf9d7c27
+Z 9d206fec0c850996a1ede78b90ec0f9a

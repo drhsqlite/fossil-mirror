@@ -134,6 +134,7 @@ if {[string match *-solaris* [get-define host]]} {
 
 if {[opt-bool fossil-debug]} {
     define-append EXTRA_CFLAGS -DFOSSIL_DEBUG
+    define CFLAGS {-g -O0}
     msg-result "Debugging support enabled"
 }
 
