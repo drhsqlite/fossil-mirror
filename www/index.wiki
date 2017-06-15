@@ -60,7 +60,8 @@ management system with these advanced features:
       restrictive firewalls, including [./quickstart.wiki#proxy|proxies].
       The protocol is
       [./stats.wiki | bandwidth efficient] to the point that Fossil can be
-      used comfortably over dial-up.
+      used comfortably over dial-up or over the exceedingly slow Wifi on
+      airliners.
 
   5.  <b>CGI/SCGI Enabled</b> -  No server is required, but if you want to
       set one up, Fossil supports four easy

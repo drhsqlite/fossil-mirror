@@ -1,5 +1,5 @@
-C Fix\scompiler\swarnings\sin\sthe\sshell.c\sfrom\sthe\sprevious\scheck-in.\s\sAlso\sbring\nin\sthe\slatest\strunk\sversion\sof\sSQLite\sfor\stesting.
-D 2017-06-15T13:12:34.095
+C Update\sthe\shomepage\sto\sinclude\s"airliner\swifi"\sin\sthe\ssame\nperformance\scategory\s"dial-up".
+D 2017-06-15T13:44:35.391
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -751,7 +751,7 @@ F www/globs.md 912865720067b8491d0f7a8bba6970509a9b9d34101963938eae429a6a0ea1b6
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hashpolicy.wiki 901e234166e31d8cb6634577b3fe266f41453ca1
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
-F www/index.wiki 38c24247e3e5ccea5135f4d5fddf82244815d8fd
+F www/index.wiki 7e69fe76e1698975065aad0a913383cbe88596b57dd5eb28fd36fd252849488c
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki 7805bf0a04dc009df152d683771f8e3f74b194a4
 F www/mkdownload.tcl 86e774d93eb5c92cac5e7328920987feedf9356d
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d9e555194ac7709eb4eb6c3d3d2cdeac0cad5800a77bf99001390a31648fd015
-R 30aaddf7c2c45391f4f1dbe67300f105
+P 2ada39bab8a6194ff21b469963e18af6cb95fe95338766cdda564eb73ccd2cdf
+R 72c15ec8a5c65aee63fcf1ce512eee70
 U drh
-Z 21468d335316a6524fb7f653122820bd
+Z 081a633580fd70f485ac3cad404efc4e
