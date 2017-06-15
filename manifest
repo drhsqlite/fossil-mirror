@@ -1,5 +1,5 @@
-C Update\sthe\shomepage\sto\sinclude\s"airliner\swifi"\sin\sthe\ssame\nperformance\scategory\s"dial-up".
-D 2017-06-15T13:44:35.391
+C Fix\sfallback\sdefinitions\sof\sR_OK/W_OK,\smake\sthem\sthe\ssame\sas\sMicrosoft's\sdefenitions.
+D 2017-06-15T13:47:40.592
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -669,7 +669,7 @@ F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc a38a9b922cb35c4b2f91c7026d3dc1556999fd32
 F win/include/dirent.h f7f8de3119619066ec04e921a7d31bc130961042
-F win/include/unistd.h 44f9195ff0279791af08c504f58939ba0ca01c4b
+F win/include/unistd.h de304af8b95751f25cf1e45ed25a4a500089b191eab9e51c2eba9fb8d6bf0709
 F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2ada39bab8a6194ff21b469963e18af6cb95fe95338766cdda564eb73ccd2cdf
-R 72c15ec8a5c65aee63fcf1ce512eee70
-U drh
-Z 081a633580fd70f485ac3cad404efc4e
+P 222e9ea810b61b644db95d04d2af579cdab2ddc4b35f6a647b9ee4117012e1b8
+R ac7226d2e7f2e5b2aaa040d668c3556c
+U jan.nijtmans
+Z 21fd89c44f85afe4df431fd2558d61a8
