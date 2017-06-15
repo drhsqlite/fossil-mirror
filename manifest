@@ -1,5 +1,5 @@
-C Bring\sin\sthe\senhanced\s"shell.c"\swith\sthe\simproved\s".schema"\sand\s".tables"\ncommands\sfrom\supstream\sSQLite.
-D 2017-06-15T12:52:12.112
+C Fix\scompiler\swarnings\sin\sthe\sshell.c\sfrom\sthe\sprevious\scheck-in.\s\sAlso\sbring\nin\sthe\slatest\strunk\sversion\sof\sSQLite\sfor\stesting.
+D 2017-06-15T13:12:34.095
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -493,13 +493,13 @@ F src/setup.c 961c380bf509765914a93243c04c8f8192d79ed7c153e52cfc5c205ef0d6fc31
 F src/sha1.c 04efd231424be45a281bdb50def7fce94625bd45b53d3c96b89e8de31f0305be
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c 7d862ff2c83826fd251909f5af2c8dd642417a8c389685e169f3c00434f784fa
-F src/shell.c 9be3234b47eede8451b791c08f40dfe188b43704733ab47ef882102eb3a8a8ca
+F src/shell.c c45ae9a95faf5a495280bfa2d6b7956c707f347e56eb8b1985c852d152e46894
 F src/shun.c e6e544a8b9200a704121c280604ed42e6aefc3f19f5107d0bdf9b51d9a912a4e
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c 572603eab4c03e61d65b2b9b64d1fa7a3921b8092864a7ae8d858504824a5a31
 F src/sqlcmd.c b150ead4134db3739733abb077bf764bf998bfede7d1d8ea457455adf3684c31
-F src/sqlite3.c 368f1d31272b1739f804bcfa5485e5de62678015c4adbe575003ded85c164bb8
-F src/sqlite3.h a00f42558e92827c704a739330dd39ad2f04eb67c26e204b599a98c1eed9dcbf
+F src/sqlite3.c 2e6233491994903f444a5327bbe47b6ecf04fca22ca434097968eb8dd84abaee
+F src/sqlite3.h 348c3999034cf8c614752baed52fc52e359f5ab56756c985b99ae54bc6aff16c
 F src/stash.c dc0263e11eeb30689418e4def6174af973ad66bf
 F src/stat.c b9a03ea3d656551fee2b5a25be8d4d796f3e7d0f3dc5db6a1844be2922b538b0
 F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e62161976ef88735ce0aa0a6c85d2daf5d8f4647a3a1427a12ca6626cf69cd81
-R 8e3e1c9aa0856f40bce2a496e8e8fa8b
+P d9e555194ac7709eb4eb6c3d3d2cdeac0cad5800a77bf99001390a31648fd015
+R 30aaddf7c2c45391f4f1dbe67300f105
 U drh
-Z ee991e53d655d835d8cdf183c67133a7
+Z 21468d335316a6524fb7f653122820bd
