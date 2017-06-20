@@ -555,6 +555,16 @@ int main(int argc, char **argv)
   const char *zCmdName = "unknown";
   const CmdOrPage *pCmd = 0;
   int rc;
+
+  /* Limit the total amount of heap and stack space available to 
+  ** Fossil as a defense against "stack clash" attacks.  64-bit systems
+  ** have much larger limits than 32-bit systems. */
+  if( sizeof(pCmd)==4 ){
+    fossil_limit_memory( 1000000000, 2000000); /* 32-bit systems */
+  }else{
+    fossil_limit_memory(10000000000, 2000000); /* 64-bit systems */
+  }
+
   if( sqlite3_libversion_number()<3014000 ){
     fossil_fatal("Unsuitable SQLite version %s, must be at least 3.14.0",
                  sqlite3_libversion());

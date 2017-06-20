@@ -449,3 +449,29 @@ char *fossil_temp_filename(void){
   if( g.db==0 ) sqlite3_close(db);
   return zTFile;
 }
+
+/*
+** Limit the total amount of memory available to Fossil
+*/
+void fossil_limit_memory(sqlite3_int64 nHeap, sqlite3_int64 nStack){
+#if defined(__unix__)
+  struct rlimit x;
+
+#if defined(RLIMIT_DATA)
+  getrlimit(RLIMIT_DATA, &x);
+  if( sizeof(x.rlim_cur)<8 && nHeap>0x7fffffff ){
+    nHeap = 0x7fffffff;
+  }
+  x.rlim_cur = (rlim_t)nHeap;
+  setrlimit(RLIMIT_DATA, &x);
+#endif /* defined(RLIMIT_DATA) */
+#if defined(RLIMIT_STACK)
+  getrlimit(RLIMIT_STACK, &x);
+  if( sizeof(x.rlim_cur)<8 && nStack>0x7fffffff ){
+    nStack = 0x7fffffff;
+  }
+  x.rlim_cur = (rlim_t)nStack;
+  setrlimit(RLIMIT_STACK, &x);
+#endif /* defined(RLIMIT_STACK) */
+#endif /* defined(__unix__) */
+}

@@ -1,5 +1,5 @@
-C Make\ssure\sthe\s/uv\swebpage\sreturns\sa\ssensible\serror\sif\sthe\sunversioned\stable\ndoes\snot\sexist.
-D 2017-06-19T01:55:48.102
+C On\sunix,\suse\ssetrlimit()\sto\slimit\stotal\sheap\sspace\susage\sto\s1GB\son\s32-bit\nsystems\sand\s10GB\son\s64-bit\ssystems,\sand\stotal\sstack\sspace\sto\s2MB,\sas\sa\nproactive\sdefense\sagain\sthe\s"stack\sclash"\svulnerability\sfound\son\smany\nunix-like\sOSes.\s\sI\sdo\snot\syet\sknow\sif\sthese\slimits\sare\sreasonable.
+D 2017-06-20T13:35:25.805
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -457,7 +457,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c e79e6492901382bc825079f86b3d77e2b564d8d2e70454d40ab7967695c817c2
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
-F src/main.c 4ec829dacd4ccd28e0ad04f243cf982023fa1a00e212dbdc17c39995259d9949
+F src/main.c f07fee1fea142a26a86faf44ed9ddcc225650f1301c3886ec06d0ac4b48f9822
 F src/main.mk f2664f4c3f1d5b28d988fd890bcc59e6abbae3d1228244d00d4b5920dd39e77d
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -523,7 +523,7 @@ F src/update.c a66c55724db6a355c28d542fcfc4320b9de0eb36
 F src/url.c b5d45bf6ccbbb928ab2fcd34e2b27556d43d37441d8db7450fb4f2e843e7410f
 F src/user.c c595beaa8d6fee6bf1f5b53b77cf6a498dab9252cf22b2ec7852a70844cbe7ec
 F src/utf8.c 9f458b9698fc928cc21e375538f268651d1d22a2
-F src/util.c 9a3cc502aa6ae3bc19831e5f553cd346ec154b5c
+F src/util.c ae9317b0993059014c5060644912a88de7b512766f71b8b7a4124c49169cbead
 F src/verify.c 5799825d086464bb9e19e69ffeec84a710d1681b
 F src/vfile.c 1ef8d4ac2d24482a58fcc5e4cc2ddd48f8c4282de2b0be94e8a24dec25731080
 F src/wiki.c b5fa823e659eb664f475e1d2c4cace7a858410e5
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 33a13b80e784d2e9ef7999078ff1929ecfb941d8d20c252d9ee5e3c509182be6
-R 17d34e8fce90e8435d5035b926da6b2b
+P a49ef3786563a0c90aa498a364f1811bc676eae4eb26f01cf1b16904df13d310
+R ad625f22552d8a61732afcc865a514da
 U drh
-Z 6c745d00e88a78b9a76a7349813b90f3
+Z 013f2daab2208c3f9110d276628d84ad
