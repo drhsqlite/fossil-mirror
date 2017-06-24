@@ -1,5 +1,5 @@
-C Increase\sthe\sstack\ssize\slimit\sto\s8MB.\s\sDisable\sstack\sand\sheap\ssize\slimits\nprior\sto\sinvoking\ssubprocesses.
-D 2017-06-24T13:59:34.650
+C Fixed\s"integer\sconstant\sis\stoo\slarge\sfor\slong\stype"\swarning\son\s32-bit\sLinux
+D 2017-06-24T16:28:34.956
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -523,7 +523,7 @@ F src/update.c a66c55724db6a355c28d542fcfc4320b9de0eb36
 F src/url.c b5d45bf6ccbbb928ab2fcd34e2b27556d43d37441d8db7450fb4f2e843e7410f
 F src/user.c c595beaa8d6fee6bf1f5b53b77cf6a498dab9252cf22b2ec7852a70844cbe7ec
 F src/utf8.c 9f458b9698fc928cc21e375538f268651d1d22a2
-F src/util.c 2634b301829f00ad40771a3a4b1a701306c3fa72f0a62c515c666ae972d25ccc
+F src/util.c 5882876217d058c254e3f25d0637b5fcff063149fee4429c23bb5e08cf317386
 F src/verify.c 5799825d086464bb9e19e69ffeec84a710d1681b
 F src/vfile.c 1ef8d4ac2d24482a58fcc5e4cc2ddd48f8c4282de2b0be94e8a24dec25731080
 F src/wiki.c b5fa823e659eb664f475e1d2c4cace7a858410e5
@@ -786,7 +786,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 42d151cc64f1a2f8ce5d022b4d3796dafe33b59225cf282a8da082ada79de36b
-R 33ff34723ba4397044c65e44b177f930
-U drh
-Z 79bb83a0ddbb5690c5dc5cd74a623a91
+P 3f193ba61011737fecfa67b038579a24870ef5b8031853ebf992709082c90a20
+U andygoth
+Z 022c955797ad56dbdf6ac58a8879ffcf

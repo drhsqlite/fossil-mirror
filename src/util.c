@@ -461,8 +461,8 @@ char *fossil_temp_filename(void){
 */
 void fossil_limit_memory(int onOff){
 #if defined(__unix__)
-  static sqlite3_int64 origHeap = 10000000000;  /* 10GB */
-  static sqlite3_int64 origStack =    8000000;  /*  8MB */
+  static sqlite3_int64 origHeap = 10000000000LL;  /* 10GB */
+  static sqlite3_int64 origStack =    8000000  ;  /*  8MB */
   struct rlimit x;
 
 #if defined(RLIMIT_DATA)
@@ -470,9 +470,9 @@ void fossil_limit_memory(int onOff){
   if( onOff ){
     origHeap = x.rlim_cur;
     if( sizeof(void*)<8 || sizeof(x.rlim_cur)<8 ){
-      x.rlim_cur =  1000000000;  /* 1GB on 32-bit systems */
+      x.rlim_cur =  1000000000  ;  /* 1GB on 32-bit systems */
     }else{
-      x.rlim_cur = 10000000000;  /* 10GB on 64-bit systems */
+      x.rlim_cur = 10000000000LL;  /* 10GB on 64-bit systems */
     }
   }else{
     x.rlim_cur = origHeap;
