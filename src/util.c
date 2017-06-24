@@ -146,7 +146,9 @@ int fossil_system(const char *zOrigCmd){
   assert( g.cgiOutput==0 );
 
   /* The regular system() call works to get a shell on unix */
+  fossil_limit_memory(0);
   rc = system(zOrigCmd);
+  fossil_limit_memory(1);
 #endif
   return rc;
 }
@@ -451,26 +453,40 @@ char *fossil_temp_filename(void){
 }
 
 /*
-** Limit the total amount of memory available to Fossil
+** Turn memory limits for stack and heap on and off.  The argument
+** is true to turn memory limits on and false to turn them off.
+**
+** Memory limits should be enabled at startup, but then turned off
+** before starting subprocesses.
 */
-void fossil_limit_memory(sqlite3_int64 nHeap, sqlite3_int64 nStack){
+void fossil_limit_memory(int onOff){
 #if defined(__unix__)
+  static sqlite3_int64 origHeap = 10000000000;  /* 10GB */
+  static sqlite3_int64 origStack =    8000000;  /*  8MB */
   struct rlimit x;
 
 #if defined(RLIMIT_DATA)
   getrlimit(RLIMIT_DATA, &x);
-  if( sizeof(x.rlim_cur)<8 && nHeap>0x7fffffff ){
-    nHeap = 0x7fffffff;
+  if( onOff ){
+    origHeap = x.rlim_cur;
+    if( sizeof(void*)<8 || sizeof(x.rlim_cur)<8 ){
+      x.rlim_cur =  1000000000;  /* 1GB on 32-bit systems */
+    }else{
+      x.rlim_cur = 10000000000;  /* 10GB on 64-bit systems */
+    }
+  }else{
+    x.rlim_cur = origHeap;
   }
-  x.rlim_cur = (rlim_t)nHeap;
   setrlimit(RLIMIT_DATA, &x);
 #endif /* defined(RLIMIT_DATA) */
 #if defined(RLIMIT_STACK)
   getrlimit(RLIMIT_STACK, &x);
-  if( sizeof(x.rlim_cur)<8 && nStack>0x7fffffff ){
-    nStack = 0x7fffffff;
+  if( onOff ){
+    origStack = x.rlim_cur;
+    x.rlim_cur =  8000000;  /* 8MB */
+  }else{
+    x.rlim_cur = origStack;
   }
-  x.rlim_cur = (rlim_t)nStack;
   setrlimit(RLIMIT_STACK, &x);
 #endif /* defined(RLIMIT_STACK) */
 #endif /* defined(__unix__) */
