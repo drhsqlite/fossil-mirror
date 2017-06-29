@@ -2449,9 +2449,6 @@ void timeline_cmd(void){
     }
     objid = db_lget_int("checkout",0);
     zDate = mprintf("(SELECT mtime FROM plink WHERE cid=%d)", objid);
-  }else if( name_to_uuid(&uuid, 0, "*")==0 ){
-    objid = db_int(0, "SELECT rid FROM blob WHERE uuid=%B", &uuid);
-    zDate = mprintf("(SELECT mtime FROM event WHERE objid=%d)", objid);
   }else if( fossil_is_julianday(zOrigin) ){
     const char *zShift = "";
     if( mode==TIMELINE_MODE_CHILDREN || mode==TIMELINE_MODE_PARENTS ){
@@ -2461,6 +2458,9 @@ void timeline_cmd(void){
       if( isIsoDate(zOrigin) ) zShift = ",'+1 day'";
     }
     zDate = mprintf("(SELECT julianday(%Q%s, fromLocal()))", zOrigin, zShift);
+  }else if( name_to_uuid(&uuid, 0, "*")==0 ){
+    objid = db_int(0, "SELECT rid FROM blob WHERE uuid=%B", &uuid);
+    zDate = mprintf("(SELECT mtime FROM event WHERE objid=%d)", objid);
   }else{
     fossil_fatal("unknown check-in or invalid date: %s", zOrigin);
   }
