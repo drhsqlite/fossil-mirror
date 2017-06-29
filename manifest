@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\sfrom\supstream.
-D 2017-06-29T18:54:55.962
+C Make\suse\sof\sthe\snew\ssqlite3_prepare_v3()\sinterface\sand\sthe\nSQLITE_PREPARE_PERSISTENT\sflag\sin\sSQLite.
+D 2017-06-29T19:05:45.430
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -408,7 +408,7 @@ F src/content.c b5eac283f4fec06093976b86ec95565c2a8b968c
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c f3e39b5ffe371b1cee5d4c93fcf4a14e0dff70df2cc1281f792695fda994c746
+F src/db.c 7f06de720da893afd88f3f08991652f909fdcd000885de9fd8d8d3e2a50a5b15
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
@@ -786,7 +786,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 048738b282881f068e7f770d8e83e48d05392c4331cd75932fa542e4ba91e479
-R f2a5e24f985e6ee6357463411c985166
+P ee71f347eece2522c83c474edc591543df75a8e9ae85ddce5797955890fc42b3
+R 098fb454c3cfbf27bc372c29ed6c8a57
 U drh
-Z 411013fd036613cf8f65de3d4c07c929
+Z 9f25840bc81bfdbe1a091790116af78f

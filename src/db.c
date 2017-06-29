@@ -244,21 +244,33 @@ void db_commit_hook(int (*x)(void), int sequence){
   db.nCommitHook++;
 }
 
+#if INTERFACE
+/*
+** Possible flags to db_vprepare
+*/
+#define DB_PREPARE_IGNORE_ERROR  0x001  /* Suppress errors */
+#define DB_PREPARE_PERSISTENT    0x002  /* Stmt will stick around for a while */
+#endif
+
 /*
 ** Prepare a Stmt.  Assume that the Stmt is previously uninitialized.
 ** If the input string contains multiple SQL statements, only the first
 ** one is processed.  All statements beyond the first are silently ignored.
 */
-int db_vprepare(Stmt *pStmt, int errOk, const char *zFormat, va_list ap){
+int db_vprepare(Stmt *pStmt, int flags, const char *zFormat, va_list ap){
   int rc;
+  int prepFlags = 0;
   char *zSql;
   blob_zero(&pStmt->sql);
   blob_vappendf(&pStmt->sql, zFormat, ap);
   va_end(ap);
   zSql = blob_str(&pStmt->sql);
   db.nPrepare++;
-  rc = sqlite3_prepare_v2(g.db, zSql, -1, &pStmt->pStmt, 0);
-  if( rc!=0 && !errOk ){
+  if( flags & DB_PREPARE_PERSISTENT ){
+    prepFlags = SQLITE_PREPARE_PERSISTENT;
+  }
+  rc = sqlite3_prepare_v3(g.db, zSql, -1, prepFlags, &pStmt->pStmt, 0);
+  if( rc!=0 && (flags & DB_PREPARE_IGNORE_ERROR)!=0 ){
     db_err("%s\n%s", sqlite3_errmsg(g.db), zSql);
   }
   pStmt->pNext = pStmt->pPrev = 0;
@@ -277,7 +289,7 @@ int db_prepare_ignore_error(Stmt *pStmt, const char *zFormat, ...){
   int rc;
   va_list ap;
   va_start(ap, zFormat);
-  rc = db_vprepare(pStmt, 1, zFormat, ap);
+  rc = db_vprepare(pStmt, DB_PREPARE_IGNORE_ERROR, zFormat, ap);
   va_end(ap);
   return rc;
 }
@@ -286,7 +298,7 @@ int db_static_prepare(Stmt *pStmt, const char *zFormat, ...){
   if( blob_size(&pStmt->sql)==0 ){
     va_list ap;
     va_start(ap, zFormat);
-    rc = db_vprepare(pStmt, 0, zFormat, ap);
+    rc = db_vprepare(pStmt, DB_PREPARE_PERSISTENT, zFormat, ap);
     pStmt->pNext = db.pAllStmt;
     pStmt->pPrev = 0;
     if( db.pAllStmt ) db.pAllStmt->pPrev = pStmt;
