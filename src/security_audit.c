@@ -70,8 +70,8 @@ void secaudit0_page(void){
     @ <a href="setup_ulist">User Configuration</a> page.
   }else if( hasAnyCap(zAnonCap,"y") ){
     @ <li><p>This repository is <big><b>INSECURE</b></big> because
-    @ it allows anonymous users to push unversioned files.  You can
-    @ fix this by <a href="takeitprivate">taking the repository private</a>
+    @ it allows anonymous users to push unversioned files.
+    @ <p>Fix this by <a href="takeitprivate">taking the repository private</a>
     @ or by removing the "y" permission from users "anonymous" and
     @ "nobody" on the <a href="setup_ulist">User Configuration</a> page.
   }else if( hasAnyCap(zAnonCap,"goz") ){
@@ -86,20 +86,107 @@ void secaudit0_page(void){
     @ A valid login and password is usually required, however some
     @ content can be accessed anonymously:
     @ <ul>
-    if( zPubPages && zPubPages[0] ){
-      @ <li> URLs that matches one of these GLOB patterns:
-      @ "%h(zPubPages)" (Change this using the "Public pages" setting
-      @ on the <a href="setup_access">Access Settings</a> page.)
-    }
     if( hasAnyCap(zAnonCap,"j") ){
       @ <li> Wiki pages
     }
     if( hasAnyCap(zAnonCap,"r") ){
       @ <li> Tickets
     }
+    if( zPubPages && zPubPages[0] ){
+      Glob *pGlob = glob_create(zPubPages);
+      int i;
+      @ <li> URLs that matches any of these GLOB patterns:
+      @ <ul>
+      for(i=0; i<pGlob->nPattern; i++){
+        @ <li> %h(pGlob->azPattern[i])
+      }
+      @ </ul>
+    }
     @ </ul>
+    if( zPubPages && zPubPages[0] ){
+      @ <p>Change GLOB patterns exceptions using the "Public pages" setting
+      @ on the <a href="setup_access">Access Settings</a> page.</p>
+    }
   }
-  
+
+  /* Make sure the HTTPS is required for login, so that the password
+  ** does not go across the internet in the clear.
+  */
+  if( db_get_boolean("redirect-to-https",0)==0 ){
+    @ <li><p><b>WARNING:</b>
+    @ Login passwords can be sent over an unencrypted connection.
+    @ <p>Fix this by activating the "Redirect to HTTPS on the Login page"
+    @ setting on the <a href="setup_access">Access Control</a> page.
+  }
+
+  /* Anonymous users should not be able to harvest email addresses 
+  ** from tickets.
+  */
+  if( hasAnyCap(zAnonCap, "e") ){
+    @ <li><p><b>WARNING:</b>
+    @ Anonymous users can view email addresses and other personally
+    @ identifiable information on tickets.
+    @ <p>Fix this by removing the "Email" privilege from users
+    @ "anonymous" and "nobody" on the 
+    @ <a href="setup_ulist">User Configuration</a> page.
+  }
+
+  /* Anonymous users probably should not be allowed to push content
+  ** to the repository.
+  */
+  if( hasAnyCap(zAnonCap, "i") ){
+    @ <li><p><b>WARNING:</b>
+    @ Anonymous users can push new check-ins into the repository.
+    @ <p>Fix this by removing the "Check-in" privilege from users
+    @ "anonymous" and "nobody" on the 
+    @ <a href="setup_ulist">User Configuration</a> page.
+  }
+
+  /* Anonymous users probably should not be allowed act as moderators
+  ** for wiki or tickets.
+  */
+  if( hasAnyCap(zAnonCap, "lq") ){
+    @ <li><p><b>WARNING:</b>
+    @ Anonymous users can act as moderators for wiki and/or tickets.
+    @ This defeats the whole purpose of moderation.
+    @ <p>Fix this by removing the "Mod-Wiki" and "Mod-Tkt"
+    @ privilege from users "anonymous" and "nobody" on the 
+    @ <a href="setup_ulist">User Configuration</a> page.
+  }
+
+  /* Anonymous users probably should not be allowed to delete
+  ** wiki or tickets.
+  */
+  if( hasAnyCap(zAnonCap, "d") ){
+    @ <li><p><b>WARNING:</b>
+    @ Anonymous users can delete wiki and tickets.
+    @ <p>Fix this by removing the "Delete"
+    @ privilege from users "anonymous" and "nobody" on the 
+    @ <a href="setup_ulist">User Configuration</a> page.
+  }
+
+  /* If anonymous users are allowed to create new Wiki, then
+  ** wiki moderation should be activated to pervent spam.
+  */
+  if( hasAnyCap(zAnonCap, "fk") ){
+    if( db_get_boolean("modreq-wiki",0)==0 ){
+      @ <li><p><b>WARNING:</b>
+      @ Anonymous users can create or edit wiki without moderation.
+      @ This can result in robots inserting lots of wiki spam into
+      @ repository.
+      @ <p>Fix this by removing the "New-Wiki" and "Write-Wiki"
+      @ privileges from users "anonymous" and "nobody" on the 
+      @ <a href="setup_ulist">User Configuration</a> page or
+      @ by enabling wiki moderation on the
+      @ <a href="setup_modreq">Moderation Setup</a> page.
+    }else{
+      @ <li><p>
+      @ Anonymous users can create or edit wiki, but moderator
+      @ approval is required before the edits become permanent.
+    }
+  }
+
+  @ </ol>  
   style_footer();
 }
 
