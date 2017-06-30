@@ -1,5 +1,5 @@
-C Report\san\serror\sif\sthe\sinput\sfile\sto\s"fossil\simport"\scannot\sbe\sopened.
-D 2017-06-30T19:00:41.488
+C Add\sthe\s--numstat\soption\sto\sthe\sdiff\scommand.
+D 2017-06-30T19:59:38.964
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -412,9 +412,9 @@ F src/db.c 7f06de720da893afd88f3f08991652f909fdcd000885de9fd8d8d3e2a50a5b15
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
-F src/diff.c 69409628efabdef742c52998981c9008e5bc25265c630529f21c5337d073a45d
+F src/diff.c d7dd6b9c57ceff7a7102e979c4e5a1959571c0804d04534716121744e81563f9
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
-F src/diffcmd.c 9a88f3a3511b19fd17d11bb01d3d95a5f8378070
+F src/diffcmd.c 032e6da78aa48c38639345cbb83f2e92295a1c742d050a497387746bfa068f72
 F src/dispatch.c c4135c158e049ba88648d1a0ccea4a24169099b752e1dffced17a77e4fb8218c
 F src/doc.c 5e1c9f2d115bc868121cf1387242167dce4f4996e4fc52ff203bda10b920be7c
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
@@ -787,7 +787,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0f8bae079ef92cacd7516f46af662803eed32de5cfa2aa63a37b248fe026c930
-R 1d6531cc9cd4aceae685dacccb454674
+P 038dcc00e5ead3af8416cb5d16f6535ac9671bf030db963300089b851dc068da
+R 0bcf84664ee22afeb2ecf3bc68503b77
 U drh
-Z a0f6be9ae968c2a0cfc37e4f936afc88
+Z 4540d2d6fd0eae141c3f5c5b2acf1af5

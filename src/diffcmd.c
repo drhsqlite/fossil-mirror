@@ -109,7 +109,7 @@ static int file_dir_match(FileDirList *p, const char *zFile){
 ** Print the "Index:" message that patches wants to see at the top of a diff.
 */
 void diff_print_index(const char *zFile, u64 diffFlags){
-  if( (diffFlags & (DIFF_SIDEBYSIDE|DIFF_BRIEF))==0 ){
+  if( (diffFlags & (DIFF_SIDEBYSIDE|DIFF_BRIEF|DIFF_NUMSTAT))==0 ){
     char *z = mprintf("Index: %s\n%.66c\n", zFile, '=');
     fossil_print("%s", z);
     fossil_free(z);
@@ -206,8 +206,12 @@ void diff_file(
         text_diff(pFile1, &file2, &out, 0, diffFlags);
       }
       if( blob_size(&out) ){
-        diff_print_filenames(zName, zName2, diffFlags);
-        fossil_print("%s\n", blob_str(&out));
+        if( diffFlags & DIFF_NUMSTAT ){
+          fossil_print("%s %s\n", blob_str(&out), zName);
+        }else{
+          diff_print_filenames(zName, zName2, diffFlags);
+          fossil_print("%s\n", blob_str(&out));
+        }
       }
       blob_reset(&out);
     }
@@ -312,9 +316,13 @@ void diff_file_mem(
 
     blob_zero(&out);
     text_diff(pFile1, pFile2, &out, 0, diffFlags);
-    diff_print_filenames(zName, zName, diffFlags);
-    fossil_print("%s\n", blob_str(&out));
-
+    if( diffFlags & DIFF_NUMSTAT ){
+      fossil_print("%s %s\n", blob_str(&out), zName);
+    }else{
+      diff_print_filenames(zName, zName, diffFlags);
+      fossil_print("%s\n", blob_str(&out));
+    }
+    
     /* Release memory resources */
     blob_reset(&out);
   }else{
@@ -398,8 +406,10 @@ static void diff_against_disk(
   Blob sql;
   Stmt q;
   int asNewFile;            /* Treat non-existant files as empty files */
+  int isNumStat;            /* True for --numstat */
 
-  asNewFile = (diffFlags & DIFF_VERBOSE)!=0;
+  asNewFile = (diffFlags & (DIFF_VERBOSE|DIFF_NUMSTAT))!=0;
+  isNumStat = (diffFlags & DIFF_NUMSTAT)!=0;
   vid = db_lget_int("checkout", 0);
   vfile_check_signature(vid, CKSIG_ENOTFILE);
   blob_zero(&sql);
@@ -463,21 +473,21 @@ static void diff_against_disk(
     }
     zFullName = blob_str(&fname);
     if( isDeleted ){
-      fossil_print("DELETED  %s\n", zPathname);
+      if( !isNumStat ){ fossil_print("DELETED  %s\n", zPathname); }
       if( !asNewFile ){ showDiff = 0; zFullName = NULL_DEVICE; }
     }else if( file_access(zFullName, F_OK) ){
-      fossil_print("MISSING  %s\n", zPathname);
+      if( !isNumStat ){ fossil_print("MISSING  %s\n", zPathname); }
       if( !asNewFile ){ showDiff = 0; }
     }else if( isNew ){
-      fossil_print("ADDED    %s\n", zPathname);
+      if( !isNumStat ){ fossil_print("ADDED    %s\n", zPathname); }
       srcid = 0;
       if( !asNewFile ){ showDiff = 0; }
     }else if( isChnged==3 ){
-      fossil_print("ADDED_BY_MERGE %s\n", zPathname);
+      if( !isNumStat ){ fossil_print("ADDED_BY_MERGE %s\n", zPathname); }
       srcid = 0;
       if( !asNewFile ){ showDiff = 0; }
     }else if( isChnged==5 ){
-      fossil_print("ADDED_BY_INTEGRATE %s\n", zPathname);
+      if( !isNumStat ){ fossil_print("ADDED_BY_INTEGRATE %s\n", zPathname); }
       srcid = 0;
       if( !asNewFile ){ showDiff = 0; }
     }
@@ -615,7 +625,7 @@ static void diff_two_versions(
 ){
   Manifest *pFrom, *pTo;
   ManifestFile *pFromFile, *pToFile;
-  int asNewFlag = (diffFlags & DIFF_VERBOSE)!=0 ? 1 : 0;
+  int asNewFlag = (diffFlags & (DIFF_VERBOSE|DIFF_NUMSTAT))!=0 ? 1 : 0;
 
   pFrom = manifest_get_by_name(zFrom, 0);
   manifest_file_rewind(pFrom);
@@ -635,7 +645,9 @@ static void diff_two_versions(
     }
     if( cmp<0 ){
       if( file_dir_match(pFileDir, pFromFile->zName) ){
-        fossil_print("DELETED %s\n", pFromFile->zName);
+        if( (diffFlags & DIFF_NUMSTAT)==0 ){
+          fossil_print("DELETED %s\n", pFromFile->zName);
+        }
         if( asNewFlag ){
           diff_manifest_entry(pFromFile, 0, zDiffCmd, zBinGlob,
                               fIncludeBinary, diffFlags);
@@ -644,7 +656,9 @@ static void diff_two_versions(
       pFromFile = manifest_file_next(pFrom,0);
     }else if( cmp>0 ){
       if( file_dir_match(pFileDir, pToFile->zName) ){
-        fossil_print("ADDED   %s\n", pToFile->zName);
+        if( (diffFlags & DIFF_NUMSTAT)==0 ){
+          fossil_print("ADDED   %s\n", pToFile->zName);
+        }
         if( asNewFlag ){
           diff_manifest_entry(0, pToFile, zDiffCmd, zBinGlob,
                               fIncludeBinary, diffFlags);
@@ -835,6 +849,7 @@ const char *diff_get_binary_glob(void){
 **   --exec-rel-paths           Force relative path names with external commands.
 **   --from|-r VERSION          Select VERSION as source for the diff
 **   --internal|-i              Use internal diff logic
+**   --numstat                  Show only the number of lines delete and added
 **   --side-by-side|-y          Side-by-side diff
 **   --strip-trailing-cr        Strip trailing CR
 **   --tk                       Launch a Tcl/Tk GUI for display

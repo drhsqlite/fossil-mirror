@@ -37,6 +37,7 @@
 #define DIFF_BRIEF        ((u64)0x10000000) /* Show filenames only */
 #define DIFF_HTML         ((u64)0x20000000) /* Render for HTML */
 #define DIFF_LINENO       ((u64)0x40000000) /* Show line numbers */
+#define DIFF_NUMSTAT      ((u64)0x80000000) /* Show line count of changes */
 #define DIFF_NOOPT        (((u64)0x01)<<32) /* Suppress optimizations (debug) */
 #define DIFF_INVERT       (((u64)0x02)<<32) /* Invert the diff (debug) */
 #define DIFF_CONTEXT_EX   (((u64)0x04)<<32) /* Use context even if zero */
@@ -1920,8 +1921,14 @@ int *text_diff(
   }
 
   if( pOut ){
-    /* Compute a context or side-by-side diff into pOut */
-    if( diffFlags & DIFF_SIDEBYSIDE ){
+    if( diffFlags & DIFF_NUMSTAT ){
+      int nDel = 0, nIns = 0, i;
+      for(i=0; c.aEdit[i] || c.aEdit[i+1] || c.aEdit[i+2]; i+=3){
+        nDel += c.aEdit[i+1];
+        nIns += c.aEdit[i+2];
+      }
+      blob_appendf(pOut, "%10d %10d", nIns, nDel);
+    }else if( diffFlags & DIFF_SIDEBYSIDE ){
       sbsDiff(&c, pOut, pRe, diffFlags);
     }else{
       contextDiff(&c, pOut, pRe, diffFlags);
@@ -1950,6 +1957,7 @@ int *text_diff(
 **   --invert                   Invert the diff        DIFF_INVERT
 **   -n|--linenum               Show line numbers      DIFF_LINENO
 **   --noopt                    Disable optimization   DIFF_NOOPT
+**   --numstat                  Show change counts     DIFF_NUMSTAT
 **   --strip-trailing-cr        Strip trailing CR      DIFF_STRIP_EOLCR
 **   --unified                  Unified diff.          ~DIFF_SIDEBYSIDE
 **   -w|--ignore-all-space      Ignore all whitespaces DIFF_IGNORE_ALLWS
@@ -1987,6 +1995,7 @@ u64 diff_options(void){
   if( find_option("html",0,0)!=0 ) diffFlags |= DIFF_HTML;
   if( find_option("linenum","n",0)!=0 ) diffFlags |= DIFF_LINENO;
   if( find_option("noopt",0,0)!=0 ) diffFlags |= DIFF_NOOPT;
+  if( find_option("numstat",0,0)!=0 ) diffFlags |= DIFF_NUMSTAT;
   if( find_option("invert",0,0)!=0 ) diffFlags |= DIFF_INVERT;
   if( find_option("brief",0,0)!=0 ) diffFlags |= DIFF_BRIEF;
   return diffFlags;
