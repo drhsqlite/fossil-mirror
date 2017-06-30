@@ -1,5 +1,5 @@
-C Fix\sthe\szlib\sMakefile\sfor\sMSVC\sto\suse\s/MT\sto\savoid\sa\scompiler\swarning.
-D 2017-06-30T18:56:33.628
+C Report\san\serror\sif\sthe\sinput\sfile\sto\s"fossil\simport"\scannot\sbe\sopened.
+D 2017-06-30T19:00:41.488
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -433,7 +433,7 @@ F src/http.c 7de3f16908f0f49cbcfad625513c130c0aef8bb889a5902e0fe9cccfaf893a85
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d98
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
-F src/import.c ec3911e2adec00c75cbdf55c4b1af03c6eb017b8c445c1f0f30e39f803425ca5
+F src/import.c e48f2f2e0095795aeabe7220514c8694393693b853150c47f6d6792921def3f1
 F src/info.c 8bf1972f7c12f589a7439a23525e8886cb6869bff527f172244e7c8685033fb3
 F src/json.c cc8d06a2d208ad0092d6d68ef5b7ac9a7e05708b3271c5cfd1da890f97322642
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
@@ -787,7 +787,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4c17ab60b9665e56de47f87d452501b194acc3c1f684b027da1dcc8d9c59b82a
-R ae69ef31c7581266c4ee58941df216b2
+P 0f8bae079ef92cacd7516f46af662803eed32de5cfa2aa63a37b248fe026c930
+R 1d6531cc9cd4aceae685dacccb454674
 U drh
-Z 77f204bf86f3e60d1bc9e0f7e48814a4
+Z a0f6be9ae968c2a0cfc37e4f936afc88

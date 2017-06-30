@@ -1737,6 +1737,7 @@ void import_cmd(void){
   }
   if( g.argc==4 ){
     pIn = fossil_fopen(g.argv[3], "rb");
+    if( pIn==0 ) fossil_fatal("cannot open input file \"%s\"", g.argv[3]);
   }else{
     pIn = stdin;
     fossil_binary_mode(pIn);
