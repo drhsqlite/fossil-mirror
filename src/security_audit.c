@@ -44,6 +44,8 @@ static int hasAnyCap(const char *zCap, const char *zTest){
 void secaudit0_page(void){
   const char *zAnonCap;      /* Capabilities of user "anonymous" and "nobody" */
   const char *zPubPages;     /* GLOB pattern for public pages */
+  char *z;
+  int n;
 
   login_check_credentials();
   if( !g.perm.Setup && !g.perm.Admin ){
@@ -185,6 +187,65 @@ void secaudit0_page(void){
       @ approval is required before the edits become permanent.
     }
   }
+
+  /* The push-unversioned privilege should only be provided to 
+  ** specific individuals, not to entire classes of people.
+  */
+  z = db_text(0, "SELECT group_concat(login,' AND ') FROM user"
+                 " WHERE cap GLOB '*y*'"
+                 "   AND login in ('anonymous','nobody','reader','developer')");
+  if( z && z[0] ){
+    @ <li><p>
+    @ The "Write-Unver" privilege is granted to an entire of users
+    @ (%h(z)).  Ideally, the Write-Unver privilege should only be
+    @ granted to specific individuals, each of whom are highly trusted.
+  }
+
+  /* Check to see if push-unversioned is granted to many people.
+  */
+  n = db_int(0,"SELECT count(*) FROM user WHERE cap GLOB '*y*'");
+  if( n>3 ){
+    @ <li><p>
+    @ The "Write-Unver" privilege is granted to a large number of
+    @ users (%d(n)).  Ideally, the Write-Unver privilege should only
+    @ be granted to one or two specific individuals.
+  }
+
+  /* Notify if REMOTE_USER or HTTP_AUTHENTICATION is used for login.
+  */
+  if( db_get_boolean("remote_user_ok", 0) ){
+    @ <li><p>
+    @ This repository trusts that the REMOTE_USER environment variable set
+    @ up by the webserver contains the name of an authenticated user.
+    @ Fossil's built-in authentication mechanism is bypassed.
+    @ <p>Fix this by deactivating the "Allow REMOTE_USER authentication"
+    @ checkbox on the <a href="setup_access">Access Control</a> page.
+  }
+  if( db_get_boolean("http_authentication_ok", 0) ){
+    @ <li><p>
+    @ This repository trusts that the HTTP_AUTHENITICATION environment
+    @ variable set up by the webserver contains the name of an
+    @ authenticated user.
+    @ Fossil's built-in authentication mechanism is bypassed.
+    @ <p>Fix this by deactivating the "Allow HTTP_AUTHENTICATION authentication"
+    @ checkbox on the <a href="setup_access">Access Control</a> page.
+  }
+
+  /* Logging should be turned on
+  */
+  if( db_get_boolean("access-log",0)==0 ){
+    @ <li><p>
+    @ The <a href="access_log">User Log</a> is disabled.  The user log
+    @ keeps a record of successful and unsucessful login attempts and is
+    @ useful for security monitoring.
+  }
+  if( db_get_boolean("admin-log",0)==0 ){
+    @ <li><p>
+    @ The <a href="admin_log">Administrative Log</a> is disabled. 
+    @ The administrative log provides a record of configuration changes
+    @ and is useful for security monitoring.
+  }
+
 
   @ </ol>  
   style_footer();
