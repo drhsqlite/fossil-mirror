@@ -439,6 +439,7 @@ SRC   = add_.c \
         rss_.c \
         schema_.c \
         search_.c \
+        security_audit_.c \
         setup_.c \
         sha1_.c \
         sha1hard_.c \
@@ -616,6 +617,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\rss$O \
         $(OX)\schema$O \
         $(OX)\search$O \
+        $(OX)\security_audit$O \
         $(OX)\setup$O \
         $(OX)\sha1$O \
         $(OX)\sha1hard$O \
@@ -802,6 +804,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\rss.obj >> $@
 	echo $(OX)\schema.obj >> $@
 	echo $(OX)\search.obj >> $@
+	echo $(OX)\security_audit.obj >> $@
 	echo $(OX)\setup.obj >> $@
 	echo $(OX)\sha1.obj >> $@
 	echo $(OX)\sha1hard.obj >> $@
@@ -1481,6 +1484,12 @@ $(OX)\search$O : search_.c search.h
 search_.c : $(SRCDIR)\search.c
 	translate$E $** > $@
 
+$(OX)\security_audit$O : security_audit_.c security_audit.h
+	$(TCC) /Fo$@ -c security_audit_.c
+
+security_audit_.c : $(SRCDIR)\security_audit.c
+	translate$E $** > $@
+
 $(OX)\setup$O : setup_.c setup.h
 	$(TCC) /Fo$@ -c setup_.c
 
@@ -1795,6 +1804,7 @@ headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 			rss_.c:rss.h \
 			schema_.c:schema.h \
 			search_.c:search.h \
+			security_audit_.c:security_audit.h \
 			setup_.c:setup.h \
 			sha1_.c:sha1.h \
 			sha1hard_.c:sha1hard.h \

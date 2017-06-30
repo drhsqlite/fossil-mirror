@@ -1,5 +1,5 @@
-C Enable\sthe\sSTMT\svirtual\stable\sso\sthat\sit\savailable\sin\sthe\s"fossil\ssql"\scommand.
-D 2017-06-29T19:59:01.794
+C Add\sa\sstub\sfor\sthe\sSecurity\sAudit\spage.
+D 2017-06-30T13:36:17.303
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -458,10 +458,10 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c e79e6492901382bc825079f86b3d77e2b564d8d2e70454d40ab7967695c817c2
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
 F src/main.c 9a52a07b5277f5cf39e8b300281027f9f07d079bee8eb7f0bb00079a939984b6
-F src/main.mk 249f292b2c96ced0e4e5024836a1366993195832d9299039dc9fc7ea03adec57
+F src/main.mk 2d70333c7b8f89dbc97ec66bfc21683944a77e78a082de3eae883695b40ed019
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl 9e9ae78dedca7bf822eb406748417986285c11edf0a3e83248420ad49ace94e3
+F src/makemake.tcl 42d4dc6e720c41a644a8eed7a20d55123a35c4bd82ae7f86c2486a0f4ecf407c
 F src/manifest.c 34ddf7c6b3d86a746ce11c0eef7e2ac9245c2100
 F src/markdown.c 2cb7007279db7ad8e16f8c822d5ba27f59b4af2dcc0cd4ba87cce3e4303d5969
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
@@ -489,7 +489,8 @@ F src/report.c ee53ffbf76230126e2f91511b70d9f72a97d0a650e4c91e6d43018ab3069927a
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/search.c 0de35ed3d058b62f9f09a5bde235d0cc1e8f0ee1d4bec9ebc2cd9b5bb9d858bb
-F src/setup.c 961c380bf509765914a93243c04c8f8192d79ed7c153e52cfc5c205ef0d6fc31
+F src/security_audit.c 75463054313007b6a05469b9e4e10eaac939097a3c208d93aa9c6564d9b7a0f1
+F src/setup.c 294cc266cde84ec68ca4214bae8146a337da5ab6085c6e38685b3a2c3b5a275b
 F src/sha1.c 04efd231424be45a281bdb50def7fce94625bd45b53d3c96b89e8de31f0305be
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c 7d862ff2c83826fd251909f5af2c8dd642417a8c389685e169f3c00434f784fa
@@ -660,10 +661,10 @@ F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F win/Makefile.PellesCGMake 26ad3513db82de574bd9d392443d1e717795409a55fedf37f227198778eeaf0c
-F win/Makefile.dmc 910753ebff5234d964a230f0bde925cc57cd8ab7b2be4098448a3e77866723c0
-F win/Makefile.mingw 901d3db20b3ef30b2bda7385d085172544072bfb67e028063041eb4628407695
+F win/Makefile.dmc 32b2b3e529f84c3e79c1615e3406ff3ca341e16c8c9a6f3a2c78f266f4594683
+F win/Makefile.mingw 6bdd34ee75e481fcdbb2abaa4e0e5315d6ccbc6ac3f6d3e7df1eeaebcb3bc282
 F win/Makefile.mingw.mistachkin 1404924c0802957d096f58414130176e8b96efd4ec9b7f8bd968ba38abc434e2
-F win/Makefile.msc df64c735e0fd518010da459efb5c109d70b30bd8d3d06bf0206cb5af168b7234
+F win/Makefile.msc 994b2ba456419fdba8ed9b54334b88b945f166b844858f2db27ec3f74bb48f8d
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -786,7 +787,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 11c46fd6aa605aa6c2a058433c3501717ee321e3ae05baffc632d0289031f68d
-R 2695f0d9a1cf2f9348a7388544979067
+P 960b9dc0d45e55f312b2a89f120078cc1997d1138f5cb12404f1593ae4b80c1b
+R 2a4bd2ba7000536d8cad87e3f0fb57f0
+T *branch * security-audit
+T *sym-security-audit *
+T -sym-trunk *
 U drh
-Z 8b9f8624546c55382ac3921a6aa78cfa
+Z a3c409f1f8b3c7317eab2ea0e8029bd3

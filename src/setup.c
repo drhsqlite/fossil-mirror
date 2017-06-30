@@ -85,6 +85,8 @@ void setup_page(void){
     "Control access settings.");
   setup_menu_entry("Configuration", "setup_config",
     "Configure the WWW components of the repository");
+  setup_menu_entry("Security-Audit", "secaudit0",
+    "Analyze the current configuration for security problems");
   setup_menu_entry("Settings", "setup_settings",
     "Web interface to the \"fossil settings\" command");
   setup_menu_entry("Timeline", "setup_timeline",

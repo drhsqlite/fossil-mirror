@@ -108,6 +108,7 @@ set src {
   rss
   schema
   search
+  security_audit
   setup
   sha1
   sha1hard
