@@ -1,5 +1,5 @@
-C Add\sa\sstub\sfor\sthe\sSecurity\sAudit\spage.
-D 2017-06-30T13:36:17.303
+C Start\sthe\ssecurity\saudit\sby\schecking\sto\ssee\sif\sthe\srepos\sit\spublic\sor\nprivate.
+D 2017-06-30T15:17:56.989
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -489,7 +489,7 @@ F src/report.c ee53ffbf76230126e2f91511b70d9f72a97d0a650e4c91e6d43018ab3069927a
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/search.c 0de35ed3d058b62f9f09a5bde235d0cc1e8f0ee1d4bec9ebc2cd9b5bb9d858bb
-F src/security_audit.c 75463054313007b6a05469b9e4e10eaac939097a3c208d93aa9c6564d9b7a0f1
+F src/security_audit.c 3944762cdda00e575c1d21a71799d8aa7852e0bfd2167fff2c3c4ba1aece619e
 F src/setup.c 294cc266cde84ec68ca4214bae8146a337da5ab6085c6e38685b3a2c3b5a275b
 F src/sha1.c 04efd231424be45a281bdb50def7fce94625bd45b53d3c96b89e8de31f0305be
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -787,10 +787,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 960b9dc0d45e55f312b2a89f120078cc1997d1138f5cb12404f1593ae4b80c1b
-R 2a4bd2ba7000536d8cad87e3f0fb57f0
-T *branch * security-audit
-T *sym-security-audit *
-T -sym-trunk *
+P c550402982cc9755d6668cff124d7643c747ee1bc424871d58d91342291ec923
+R 9b0867e378e819d51d223099dcd72e4c
 U drh
-Z a3c409f1f8b3c7317eab2ea0e8029bd3
+Z 528257c7bce5300b3b41fcaed94c8207
