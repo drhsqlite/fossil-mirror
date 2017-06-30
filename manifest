@@ -1,5 +1,5 @@
-C Fix\sthe\sunix\smakefile\sso\sthat\sthe\sdependency\son\spage_index.h\sis\sagainst\ndispatch.c\snot\smain.c.
-D 2017-06-30T18:42:47.472
+C Fix\sthe\szlib\sMakefile\sfor\sMSVC\sto\suse\s/MT\sto\savoid\sa\scompiler\swarning.
+D 2017-06-30T18:56:33.628
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -300,7 +300,7 @@ F compat/zlib/watcom/watcom_l.mak e1deb6874b6162d2607dff14c2fccb7a37ce97b0
 F compat/zlib/win32/DLL_FAQ.txt 743c9da800bb73a7a30e7c5ce76b5bafd1256ba8
 F compat/zlib/win32/Makefile.bor 23262888e43719d398dea043e2bd09c23a9ba5da
 F compat/zlib/win32/Makefile.gcc ea8204bc36bb1d25c28e0176eb777d1174965fc6
-F compat/zlib/win32/Makefile.msc 03ac9a052f553e99d5c122a9adb9cf61c1059cda
+F compat/zlib/win32/Makefile.msc cecd3f76cf42bdd53d35578484c3901a49e0fda0f8ec308deaaebf6de14a9256
 F compat/zlib/win32/README-WIN32.txt 7fec4ff7048956a2c556c199ac4989b9372250b7
 F compat/zlib/win32/VisualC.txt ba666fb015a257ab0182f10bc20409a2ec61169f
 F compat/zlib/win32/zlib.def 756d27ffaa18b488fca960ff0797bcbc2ffc811f
@@ -787,7 +787,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6c543c030846ea8e29a85b8414e476e101c7b9f948771b543f9a2d457953d6d3
-R be0bb1fa545a1defeda7ca17b7f9c7e4
+P 4c17ab60b9665e56de47f87d452501b194acc3c1f684b027da1dcc8d9c59b82a
+R ae69ef31c7581266c4ee58941df216b2
 U drh
-Z 65d76c514d922c379bd7bb0775458406
+Z 77f204bf86f3e60d1bc9e0f7e48814a4
