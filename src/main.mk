@@ -957,7 +957,7 @@ $(OBJDIR)/diffcmd.h:	$(OBJDIR)/headers
 $(OBJDIR)/dispatch_.c:	$(SRCDIR)/dispatch.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/dispatch.c >$@
 
-$(OBJDIR)/dispatch.o:	$(OBJDIR)/dispatch_.c $(OBJDIR)/dispatch.h $(SRCDIR)/config.h
+$(OBJDIR)/dispatch.o:	$(OBJDIR)/dispatch_.c $(OBJDIR)/dispatch.h $(OBJDIR)/page_index.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/dispatch.o -c $(OBJDIR)/dispatch_.c
 
 $(OBJDIR)/dispatch.h:	$(OBJDIR)/headers
@@ -1269,7 +1269,7 @@ $(OBJDIR)/lookslike.h:	$(OBJDIR)/headers
 $(OBJDIR)/main_.c:	$(SRCDIR)/main.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/main.c >$@
 
-$(OBJDIR)/main.o:	$(OBJDIR)/main_.c $(OBJDIR)/main.h $(OBJDIR)/page_index.h $(SRCDIR)/config.h
+$(OBJDIR)/main.o:	$(OBJDIR)/main_.c $(OBJDIR)/main.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/main.o -c $(OBJDIR)/main_.c
 
 $(OBJDIR)/main.h:	$(OBJDIR)/headers

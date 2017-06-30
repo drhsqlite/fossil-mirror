@@ -1,5 +1,5 @@
-C New\ssecurity\saudit\schecks.
-D 2017-06-30T18:28:17.607
+C Fix\sthe\sunix\smakefile\sso\sthat\sthe\sdependency\son\spage_index.h\sis\sagainst\ndispatch.c\snot\smain.c.
+D 2017-06-30T18:42:47.472
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -458,10 +458,10 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c e79e6492901382bc825079f86b3d77e2b564d8d2e70454d40ab7967695c817c2
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
 F src/main.c 9a52a07b5277f5cf39e8b300281027f9f07d079bee8eb7f0bb00079a939984b6
-F src/main.mk 2d70333c7b8f89dbc97ec66bfc21683944a77e78a082de3eae883695b40ed019
+F src/main.mk ac0c6b096c4e0bcc14fc58fa2f84247d759ce20816c1fed8fd0d808b2a384f7d
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl 42d4dc6e720c41a644a8eed7a20d55123a35c4bd82ae7f86c2486a0f4ecf407c
+F src/makemake.tcl 6c20a3bebde8ec26bf8dabd4c5802caaef8686c269de76a4919472fad431313c
 F src/manifest.c 34ddf7c6b3d86a746ce11c0eef7e2ac9245c2100
 F src/markdown.c 2cb7007279db7ad8e16f8c822d5ba27f59b4af2dcc0cd4ba87cce3e4303d5969
 F src/markdown.md 11268f1e44d13fcf8e28ceb19e2c7094fb626f7e
@@ -787,7 +787,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 02683077f4a9a83a1aa2a2d3e1a552b78a121bba430769404a1f84672fb55fa1
-R 40c038f15f2c24db67ebeb82969f0b4a
+P 6c543c030846ea8e29a85b8414e476e101c7b9f948771b543f9a2d457953d6d3
+R be0bb1fa545a1defeda7ca17b7f9c7e4
 U drh
-Z 2b375dab61c26bcb5d8ed4b555d9bd9b
+Z 65d76c514d922c379bd7bb0775458406
