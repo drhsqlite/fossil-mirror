@@ -7,6 +7,15 @@
   *  Update internal Unicode character tables, used in regular expression
      handling, from version 9.0 to 10.0.
   *  Show the last-sync-URL on the [/help?cmd=/urllist|/urllist] page.
+  *  Added the "Event Summary" activity report.
+     [/reports?type=ci&view=lastchng|example]
+  *  Added the "Security Audit" page, available to administrators only
+  *  Added the Last Login time to the user list page, for administrators only
+  *  Added the --numstat option to the [/help?cmd=diff|fossil diff] command
+  *  Limit the size of the heap and stack on unix systems, as a proactive
+     defense against the
+     [https://www.qualys.com/2017/06/19/stack-clash/stack-clash.txt|Stack Clash]
+     attack.
   *  Fix "database locked" warnings caused by "PRAGMA optimize".
   *  Fix a potential XSS vulnerability on the
      [/help?cmd=/help|/help] webpage.
