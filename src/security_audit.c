@@ -197,9 +197,9 @@ void secaudit0_page(void){
                  "   AND login in ('anonymous','nobody','reader','developer')");
   if( z && z[0] ){
     @ <li><p>
-    @ The "Write-Unver" privilege is granted to an entire of users
+    @ The "Write-Unver" privilege is granted to an entire class of users
     @ (%h(z)).  Ideally, the Write-Unver privilege should only be
-    @ granted to specific individuals, each of whom are highly trusted.
+    @ granted to specific individuals.
   }
 
   /* Check to see if push-unversioned is granted to many people.
@@ -207,9 +207,9 @@ void secaudit0_page(void){
   n = db_int(0,"SELECT count(*) FROM user WHERE cap GLOB '*y*'");
   if( n>3 ){
     @ <li><p>
-    @ The "Write-Unver" privilege is granted to a large number of
-    @ users (%d(n)).  Ideally, the Write-Unver privilege should only
-    @ be granted to one or two specific individuals.
+    @ The "Write-Unver" privilege is granted to %d(n) users.
+    @ Ideally, the Write-Unver privilege should only
+    @ be granted to one or two users.
   }
 
   /* Notify if REMOTE_USER or HTTP_AUTHENTICATION is used for login.
