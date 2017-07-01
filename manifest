@@ -1,5 +1,5 @@
-C When\scomputing\sthe\s"Last\sLogin"\son\sthe\suser\slist\spage,\stake\sthe\sRCVFROM\nsync\slog\sinto\saccount.
-D 2017-07-01T17:23:04.016
+C Add\sthe\s"Last\sChange"\sactivity\sreport.
+D 2017-07-01T17:54:12.238
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -490,7 +490,7 @@ F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/search.c 0de35ed3d058b62f9f09a5bde235d0cc1e8f0ee1d4bec9ebc2cd9b5bb9d858bb
 F src/security_audit.c bbdd877147db1d96bf834d108696f89b5f979eedbdb555a92d0fbe3ee7992073
-F src/setup.c 60d0d19228308fda8a51342582f8efe527f8dc5f7ed9a819619ca7b1f59476a4
+F src/setup.c 8dad045b88b3171f7473fcac5b014654ea608de8a345a9d4b42b314e1ba28a5e
 F src/sha1.c 04efd231424be45a281bdb50def7fce94625bd45b53d3c96b89e8de31f0305be
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c 7d862ff2c83826fd251909f5af2c8dd642417a8c389685e169f3c00434f784fa
@@ -503,7 +503,7 @@ F src/sqlite3.c 4b453d67a0e1e818fd2f6ccbf28da60f40b072ca8c91cf209b1a46575ae277cd
 F src/sqlite3.h bf6106806ba51bb7c797f8375987d37fd780c7d1fb075f0211085affd81c78a2
 F src/stash.c dc0263e11eeb30689418e4def6174af973ad66bf
 F src/stat.c b9a03ea3d656551fee2b5a25be8d4d796f3e7d0f3dc5db6a1844be2922b538b0
-F src/statrep.c 0845172bf1b5c8f724b4176557f34895a8dcc4ae
+F src/statrep.c 8c0188a5f9cc6803580e35a9d4c51b17a2db767939bc3e09952060b4a06b91ad
 F src/style.c cf9edbf403e1df8e094e8a1d44d5dd9516046678
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 7eec9152da56e30bedad9b9c62195012de13f0db656f9b6395c2bcebfee7f4a8
@@ -787,7 +787,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2fe385e4c32d28c478eb87b902730641ff72975e05a4f1506ec990ebb31c6ba2
-R 47de6ee43e06e7269f3351a8f5f9239f
+P 46d5d638b110ea93dbb97d3402af3199e5bd5e77f10945462be55ec3b9dded6b
+R 0d5b734ac7b4cdb20c1ff2acd6e6f140
 U drh
-Z 1dac927e86dad48e3ea2df26ce295224
+Z b9b60b4e8d6fdf95b3aa4e2e961e8c5f

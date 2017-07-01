@@ -642,6 +642,47 @@ static void stats_report_year_weeks(const char *zUserName){
   output_table_sorting_javascript("statsTable","tnx",-1);
 }
 
+
+/*
+** Generate a report that shows the most recent change for each user.
+*/
+static void stats_report_last_change(void){
+  Stmt s;
+  double rNow;
+
+  stats_report_init_view();
+  @ <table border=1 cellpadding=2 cellspacing=0
+  @ class='lastchngTable' id='lastchng'>
+  @ <thead><tr>
+  @ <th>Username<th>Total Changes<th>Last Change</tr></thead>
+  @ <tbody>
+  db_prepare(&s,
+    "SELECT coalesce(euser,user),"
+    "       count(*),"
+    "       max(mtime)"
+    "  FROM v_reports"
+    " GROUP BY 1"
+    " ORDER BY 3 DESC"
+  );
+  rNow = db_double(0.0, "SELECT julianday('now');");
+  while( db_step(&s)==SQLITE_ROW ){
+    const char *zUser = db_column_text(&s, 0);
+    int cnt = db_column_int(&s, 1);
+    double rMTime = db_column_double(&s,2);
+    char *zAge = human_readable_age(rNow - rMTime);
+    @ <tr>
+    @ <td>%h(zUser)</a>
+    @ <td>%d(cnt)
+    @ <td data-sortkey='%f(rMTime)' style='white-space:nowrap'>%s(zAge?zAge:"")
+    @ </tr>
+    fossil_free(zAge);
+  }
+  @ </tbody></table>
+  db_finalize(&s);
+  output_table_sorting_javascript("userlist","tTK",3);
+}
+
+
 /* Report types
 */
 #define RPT_BYFILE    1
@@ -650,6 +691,7 @@ static void stats_report_year_weeks(const char *zUserName){
 #define RPT_BYWEEK    4
 #define RPT_BYWEEKDAY 5
 #define RPT_BYYEAR    6
+#define RPT_LASTCHNG  7  /* Last change made for each user */
 #define RPT_NONE      0  /* None of the above */
 
 /*
@@ -684,11 +726,12 @@ void stats_report_page(){
     int eType;          /* Corresponding RPT_* define */
   } aViewType[] = {
      {  "File Changes","byfile",    RPT_BYFILE    },
+     {  "Last Change", "lastchng",  RPT_LASTCHNG  },
      {  "By Month",    "bymonth",   RPT_BYMONTH   },
      {  "By User",     "byuser",    RPT_BYUSER    },
      {  "By Week",     "byweek",    RPT_BYWEEK    },
      {  "By Weekday",  "byweekday", RPT_BYWEEKDAY },
-     {  "By Year",     "byyear",    RPT_BYYEAR   },
+     {  "By Year",     "byyear",    RPT_BYYEAR    },
   };
   static const char *const azType[] = {
      "a",  "All Changes",
@@ -724,7 +767,7 @@ void stats_report_page(){
       style_submenu_multichoice("type", count(azType)/2, azType, 0);
     }
     style_submenu_multichoice("view", nView/2, azView, 0);
-    if( eType!=RPT_BYUSER ){
+    if( eType!=RPT_BYUSER && eType!=RPT_LASTCHNG ){
       style_submenu_sql("user","User:",
          "SELECT '', 'All Users' UNION ALL "
          "SELECT x, x FROM ("
@@ -755,6 +798,9 @@ void stats_report_page(){
       break;
     case RPT_BYFILE:
       stats_report_by_file(zUserName);
+      break;
+    case RPT_LASTCHNG:
+      stats_report_last_change();
       break;
   }
   style_footer();

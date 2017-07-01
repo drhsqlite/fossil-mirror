@@ -249,6 +249,7 @@ void setup_ulist(void){
     @ <td>%h(zExp?zExp:"")
     @ <td data-sortkey='%f(rATime)' style='white-space:nowrap'>%s(zAge?zAge:"")
     @ </tr>
+    fossil_free(zAge);
   }
   @ </tbody></table>
   db_finalize(&s);
