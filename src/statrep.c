@@ -649,13 +649,17 @@ static void stats_report_year_weeks(const char *zUserName){
 static void stats_report_last_change(void){
   Stmt s;
   double rNow;
+  char *zBaseUrl;
 
   stats_report_init_view();
-  @ <table border=1 cellpadding=2 cellspacing=0
-  @ class='lastchngTable' id='lastchng'>
+  @ <h1>Event Summary
+  @ (%s(stats_report_label_for_type())) by User</h1>
+  @ <table border=1  class='statistics-report-table-events'
+  @ cellpadding=2 cellspacing=0 id='lastchng'>
   @ <thead><tr>
-  @ <th>Username<th>Total Changes<th>Last Change</tr></thead>
+  @ <th>User<th>Total Changes<th>Last Change</tr></thead>
   @ <tbody>
+  zBaseUrl = mprintf("%R/timeline?y=%t&u=", PD("type","ci"));
   db_prepare(&s,
     "SELECT coalesce(euser,user),"
     "       count(*),"
@@ -671,7 +675,7 @@ static void stats_report_last_change(void){
     double rMTime = db_column_double(&s,2);
     char *zAge = human_readable_age(rNow - rMTime);
     @ <tr>
-    @ <td>%h(zUser)</a>
+    @ <td><a href='%s(zBaseUrl)%t(zUser)'>%h(zUser)</a>
     @ <td>%d(cnt)
     @ <td data-sortkey='%f(rMTime)' style='white-space:nowrap'>%s(zAge?zAge:"")
     @ </tr>
@@ -679,7 +683,7 @@ static void stats_report_last_change(void){
   }
   @ </tbody></table>
   db_finalize(&s);
-  output_table_sorting_javascript("userlist","tTK",3);
+  output_table_sorting_javascript("lastchng","tNK",3);
 }
 
 
