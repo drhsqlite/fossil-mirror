@@ -141,10 +141,15 @@ void setup_page(void){
 **
 ** Show a list of users.  Clicking on any user jumps to the edit
 ** screen for that user.  Requires Admin privileges.
+**
+** Query parameters:
+**
+**   with=CAP         Only show users that have one or more capabilities in CAP.
 */
 void setup_ulist(void){
   Stmt s;
   double rNow;
+  const char *zWith = P("with");
 
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -152,51 +157,55 @@ void setup_ulist(void){
     return;
   }
 
-  style_submenu_element("Add", "setup_uedit");
-  style_submenu_element("Log", "access_log");
-  style_submenu_element("Help", "setup_ulist_notes");
-  style_header("User List");
-  @ <table border=1 cellpadding=2 cellspacing=0 class='userTable'>
-  @ <thead><tr>
-  @   <th>UID <th>Category
-  @   <th>Capabilities (<a href='%R/setup_ucap_list'>key</a>)
-  @   <th>Info <th>Last Change</tr></thead>
-  @ <tbody>
-  db_prepare(&s,
-     "SELECT uid, login, cap, date(mtime,'unixepoch')"
-     "  FROM user"
-     " WHERE login IN ('anonymous','nobody','developer','reader')"
-     " ORDER BY login"
-  );
-  while( db_step(&s)==SQLITE_ROW ){
-    int uid = db_column_int(&s, 0);
-    const char *zLogin = db_column_text(&s, 1);
-    const char *zCap = db_column_text(&s, 2);
-    const char *zDate = db_column_text(&s, 4);
-    @ <tr>
-    @ <td><a href='setup_uedit?id=%d(uid)'>%d(uid)</a>
-    @ <td><a href='setup_uedit?id=%d(uid)'>%h(zLogin)</a>
-    @ <td>%h(zCap)
-
-    if( fossil_strcmp(zLogin,"anonymous")==0 ){
-      @ <td>All logged-in users
-    }else if( fossil_strcmp(zLogin,"developer")==0 ){
-      @ <td>Users with '<b>v</b>' capability
-    }else if( fossil_strcmp(zLogin,"nobody")==0 ){
-      @ <td>All users without login
-    }else if( fossil_strcmp(zLogin,"reader")==0 ){
-      @ <td>Users with '<b>u</b>' capability
-    }else{
-      @ <td>
+  if( zWith==0 || zWith[0]==0 ){
+    style_submenu_element("Add", "setup_uedit");
+    style_submenu_element("Log", "access_log");
+    style_submenu_element("Help", "setup_ulist_notes");
+    style_header("User List");
+    @ <table border=1 cellpadding=2 cellspacing=0 class='userTable'>
+    @ <thead><tr>
+    @   <th>UID <th>Category
+    @   <th>Capabilities (<a href='%R/setup_ucap_list'>key</a>)
+    @   <th>Info <th>Last Change</tr></thead>
+    @ <tbody>
+    db_prepare(&s,
+       "SELECT uid, login, cap, date(mtime,'unixepoch')"
+       "  FROM user"
+       " WHERE login IN ('anonymous','nobody','developer','reader')"
+       " ORDER BY login"
+    );
+    while( db_step(&s)==SQLITE_ROW ){
+      int uid = db_column_int(&s, 0);
+      const char *zLogin = db_column_text(&s, 1);
+      const char *zCap = db_column_text(&s, 2);
+      const char *zDate = db_column_text(&s, 4);
+      @ <tr>
+      @ <td><a href='setup_uedit?id=%d(uid)'>%d(uid)</a>
+      @ <td><a href='setup_uedit?id=%d(uid)'>%h(zLogin)</a>
+      @ <td>%h(zCap)
+  
+      if( fossil_strcmp(zLogin,"anonymous")==0 ){
+        @ <td>All logged-in users
+      }else if( fossil_strcmp(zLogin,"developer")==0 ){
+        @ <td>Users with '<b>v</b>' capability
+      }else if( fossil_strcmp(zLogin,"nobody")==0 ){
+        @ <td>All users without login
+      }else if( fossil_strcmp(zLogin,"reader")==0 ){
+        @ <td>Users with '<b>u</b>' capability
+      }else{
+        @ <td>
+      }
+      if( zDate && zDate[0] ){
+        @ <td>%h(zDate)
+      }else{
+        @ <td>
+      }
+      @ </tr>
     }
-    if( zDate && zDate[0] ){
-      @ <td>%h(zDate)
-    }else{
-      @ <td>
-    }
-    @ </tr>
+    db_finalize(&s);
+  }else{
+    style_header("Users With Capabilities \"%h\"", zWith);
   }
-  db_finalize(&s);
   @ </tbody></table>
   @ <div class='section'>Users</div>
   @ <table border=1 cellpadding=2 cellspacing=0 class='userTable' id='userlist'>
@@ -216,6 +225,11 @@ void setup_ulist(void){
       " GROUP BY 1;"
     );
   }
+  if( zWith && zWith[0] ){
+    zWith = mprintf(" AND cap GLOB '*[%q]*'", zWith);
+  }else{
+    zWith = "";
+  }
   db_prepare(&s,
      "SELECT uid, login, cap, info, date(mtime,'unixepoch'), lower(login) AS sortkey, "
      "       CASE WHEN info LIKE '%%expires 20%%'"
@@ -223,8 +237,8 @@ void setup_ulist(void){
              "    END AS exp,"
              "atime"
      "  FROM user LEFT JOIN lastAccess ON login=uname"
-     " WHERE login NOT IN ('anonymous','nobody','developer','reader')"
-     " ORDER BY sortkey"
+     " WHERE login NOT IN ('anonymous','nobody','developer','reader') %s"
+     " ORDER BY sortkey", zWith/*safe-for-%s*/
   );
   rNow = db_double(0.0, "SELECT julianday('now');");
   while( db_step(&s)==SQLITE_ROW ){
@@ -427,7 +441,8 @@ void user_edit(void){
   }
 
   if( P("can") ){
-    cgi_redirect("setup_ulist");  /* User pressed the Cancel button */
+    /* User pressed the cancel button */
+    cgi_redirect("setup_ulist");
     return;
   }
 

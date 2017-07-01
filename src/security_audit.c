@@ -189,27 +189,81 @@ void secaudit0_page(void){
     }
   }
 
-  /* The push-unversioned privilege should only be provided to 
+  /* Administrative privilege should only be provided to 
   ** specific individuals, not to entire classes of people.
+  ** And not too many people should have administrator privilege.
   */
   z = db_text(0, "SELECT group_concat(login,' AND ') FROM user"
-                 " WHERE cap GLOB '*y*'"
+                 " WHERE cap GLOB '*[as]*'"
                  "   AND login in ('anonymous','nobody','reader','developer')");
   if( z && z[0] ){
     @ <li><p>
-    @ The "Write-Unver" privilege is granted to an entire class of users
+    @ Adminstrative privilege is granted to an entire class of users
     @ (%h(z)).  Ideally, the Write-Unver privilege should only be
     @ granted to specific individuals.
   }
+  n = db_int(0,"SELECT count(*) FROM user WHERE cap GLOB '*[as]*'");
+  if( n==0 ){
+    @ <li><p>
+    @ No users have administrator privilege.
+  }else{
+    z = db_text(0,
+      "SELECT group_concat("
+                 "printf('<a href=''setup_uedit?id=%%d''>%%s</a>',uid,login),"
+             "', ')"
+      " FROM user"
+      " WHERE cap GLOB '*[as]*'"
+    );
+    @ <li><p>
+    @ Users with administrator privilege are: %s(z)
+    fossil_free(z);
+    if( n>3 ){
+      @ <p><b>Caution</b>:
+      @ Administrator privilege is granted to
+      @ <a href='setup_ulist?with=as'>%d(n) users</a>.
+      @ Ideally, administator privilege ('s' or 'a') should only
+      @ be granted to one or two users.
+    }
+  }
 
-  /* Check to see if push-unversioned is granted to many people.
+  /* The push-unversioned privilege should only be provided to 
+  ** specific individuals, not to entire classes of people.
+  ** And no too many people should have this privilege.
   */
+  z = db_text(0, 
+    "SELECT group_concat("
+                 "printf('<a href=''setup_uedit?id=%%d''>%%s</a>',uid,login),"
+             "' and ')"
+    " FROM user"
+    " WHERE cap GLOB '*y*'"
+    "   AND login in ('anonymous','nobody','reader','developer')"
+  );
+  if( z && z[0] ){
+    @ <li><p>
+    @ The "Write-Unver" privilege is granted to an entire class of users
+    @ (%s(z)).  Ideally, the Write-Unver privilege should only be
+    @ granted to specific individuals.
+    fossil_free(z);
+  }
   n = db_int(0,"SELECT count(*) FROM user WHERE cap GLOB '*y*'");
   if( n>3 ){
     @ <li><p>
-    @ The "Write-Unver" privilege is granted to %d(n) users.
-    @ Ideally, the Write-Unver privilege should only
-    @ be granted to one or two users.
+  }else if( n>0 ){
+    z = db_text(0,
+       "SELECT group_concat("
+          "printf('<a href=''setup_uedit?id=%%d''>%%s</a>',uid,login),', ')"
+       " FROM user WHERE cap GLOB '*y*'"
+    );
+    @ <li><p>
+    @ Users with "Write-Unver" privilege: %s(z)
+    fossil_free(z);
+    if( n>3 ){
+      @ <p><b>Caution:</b>
+      @ The "Write-Unver" privilege ('y') is granted to an excessive
+      @ number of users (%d(n)).
+      @ Ideally, the Write-Unver privilege should only
+      @ be granted to one or two users.
+    }
   }
 
   /* Notify if REMOTE_USER or HTTP_AUTHENTICATION is used for login.
