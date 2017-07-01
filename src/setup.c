@@ -442,7 +442,7 @@ void user_edit(void){
 
   if( P("can") ){
     /* User pressed the cancel button */
-    cgi_redirect("setup_ulist");
+    cgi_redirect(cgi_referer("setup_ulist"));
     return;
   }
 
@@ -469,7 +469,8 @@ void user_edit(void){
       style_header("User Creation Error");
       @ <span class="loginError">Empty login not allowed.</span>
       @
-      @ <p><a href="setup_uedit?id=%d(uid)">[Bummer]</a></p>
+      @ <p><a href="setup_uedit?id=%d(uid)&referer=%T(cgi_referer("setup_ulist"))">
+      @ [Bummer]</a></p>
       style_footer();
       return;
     }
@@ -484,7 +485,8 @@ void user_edit(void){
       @ <span class="loginError">Login "%h(zLogin)" is already used by
       @ a different user.</span>
       @
-      @ <p><a href="setup_uedit?id=%d(uid)">[Bummer]</a></p>
+      @ <p><a href="setup_uedit?id=%d(uid)&referer=%T(cgi_referer("setup_ulist"))">
+      @ [Bummer]</a></p>
       style_footer();
       return;
     }
@@ -529,12 +531,13 @@ void user_edit(void){
         admin_log( "Error updating user '%q': %s'.", zLogin, zErr );
         @ <span class="loginError">%h(zErr)</span>
         @
-        @ <p><a href="setup_uedit?id=%d(uid)">[Bummer]</a></p>
+        @ <p><a href="setup_uedit?id=%d(uid)&referer=%T(cgi_referer("setup_ulist"))">
+        @ [Bummer]</a></p>
         style_footer();
         return;
       }
     }
-    cgi_redirect("setup_ulist");
+    cgi_redirect(cgi_referer("setup_ulist"));
     return;
   }
 
@@ -597,7 +600,7 @@ void user_edit(void){
 
   /* Begin generating the page
   */
-  style_submenu_element("Cancel", "setup_ulist");
+  style_submenu_element("Cancel", cgi_referer("setup_ulist"));
   if( uid ){
     style_header("Edit User %h", zLogin);
   }else{
@@ -611,6 +614,7 @@ void user_edit(void){
     @ <input type="hidden" name="info" value="">
     @ <input type="hidden" name="pw" value="*">
   }
+  @ <input type="hidden" name="referer" value="%h(cgi_referer("setup_ulist"))">
   @ <script>
   @ function updateCapabilityString(){
   @   /*

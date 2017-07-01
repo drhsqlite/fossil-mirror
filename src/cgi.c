@@ -441,6 +441,20 @@ NORETURN void cgi_redirectf(const char *zFormat, ...){
 }
 
 /*
+** Return the URL for the caller.  This is obtained from either the
+** referer CGI parameter, if it exists, or the HTTP_REFERER HTTP parameter.
+** If neither exist, return zDefault.
+*/
+const char *cgi_referer(const char *zDefault){
+  const char *zRef = P("referer");
+  if( zRef==0 ){
+    zRef = P("HTTP_REFERER");
+    if( zRef==0 ) zRef = zDefault;
+  }
+  return zRef;
+}
+
+/*
 ** Information about all query parameters and cookies are stored
 ** in these variables.
 */

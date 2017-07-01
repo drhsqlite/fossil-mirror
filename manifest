@@ -1,5 +1,5 @@
-C More\schecking\sof\suser\spermissions\son\sthe\sSecurity\sAudit\spage.
-D 2017-07-01T22:17:46.843
+C Add\sthe\scgi_referer()\sutility\sfunction.\s\sUse\sit\sto\scause\sthe\ssetup_uedit\npage\sto\salways\sgo\sback\sto\sthe\spage\sit\scame\sfrom.
+D 2017-07-01T22:38:10.914
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -395,7 +395,7 @@ F src/builtin.c d147d04305aa0db964ec84ef049e8e88d134de87
 F src/bundle.c c4b92c14df3e1aeebdeaf02d23a0ecaea462f8b5
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
-F src/cgi.c b459fc18975074cf8a921ded8a754d50fe971b2c3951c7a94ad1eafdee79e61a
+F src/cgi.c 0c979cad2069c2fb9f5cced5890718732d4380417787b97633260c3b542aafac
 F src/checkin.c 8bf330e93a269b49898bdb235a8f468b2696c1e12f1fc54f615bafe75cd4e694
 F src/checkout.c ad202f9c6585a8e6d5418ff733f7349f652e9b05
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -490,7 +490,7 @@ F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/search.c 0de35ed3d058b62f9f09a5bde235d0cc1e8f0ee1d4bec9ebc2cd9b5bb9d858bb
 F src/security_audit.c 84b96ba754bc6700862bbcbe148e8564b833dfcc3982a6aff031d26519208e5b
-F src/setup.c 1f3f8b8e65eef1c8de342c7c639faf27665f084574f73fe8716dbe0835230474
+F src/setup.c a2ac11c3d1053125c583b0f993569426168dd6929469b00440929aa6d36b584c
 F src/sha1.c 04efd231424be45a281bdb50def7fce94625bd45b53d3c96b89e8de31f0305be
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c 7d862ff2c83826fd251909f5af2c8dd642417a8c389685e169f3c00434f784fa
@@ -787,7 +787,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8fe2f97ea1bda4d5bcd58dddb80791161eddebcddc5cbc2d581a15f14ece648b
-R 08eb15758f0024af71b0d2189520607c
+P 564e42dfe577d60983345042dea1d358f080151e31afa2edf366e51d96d10017
+R 0f3be036236e2a6c4ed2cc010cde16ee
 U drh
-Z 48e904b554b67a5c4388e03e565c6a1f
+Z b34c82e55318f9396661e631cec62270
