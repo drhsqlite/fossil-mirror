@@ -1,5 +1,5 @@
-C Typo\sfix\sin\sdocumentation.
-D 2017-07-01T03:08:01.682
+C Add\sthe\s"Last\sLogin"\scolumn\sto\sthe\ssetup_ulist\spage.
+D 2017-07-01T16:34:17.766
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -490,7 +490,7 @@ F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/search.c 0de35ed3d058b62f9f09a5bde235d0cc1e8f0ee1d4bec9ebc2cd9b5bb9d858bb
 F src/security_audit.c bbdd877147db1d96bf834d108696f89b5f979eedbdb555a92d0fbe3ee7992073
-F src/setup.c 294cc266cde84ec68ca4214bae8146a337da5ab6085c6e38685b3a2c3b5a275b
+F src/setup.c 7c0cd06c451fb5d30f9d190837c8922b781ed644b75068f240d1ec88e1fe7ffb
 F src/sha1.c 04efd231424be45a281bdb50def7fce94625bd45b53d3c96b89e8de31f0305be
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c 7d862ff2c83826fd251909f5af2c8dd642417a8c389685e169f3c00434f784fa
@@ -787,7 +787,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 752365e71f515638f3f9509941683734a84c489f141bd24841248061ab01eb5c
-R 98885ee83ceca1f5f79016ca30a4f6c4
+P 38f37679d39d0202b403a742229197b2807c62f4082beb5998d6fdc1f49cdbba
+R ac9dbb33395b108c9cd4ee6e039545b9
 U drh
-Z 36ad792c2fc21a6ae293242941998106
+Z c5c3cbb9eae301ec229e7b0e6181a2a7

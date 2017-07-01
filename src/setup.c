@@ -144,6 +144,7 @@ void setup_page(void){
 */
 void setup_ulist(void){
   Stmt s;
+  double rNow;
 
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -200,17 +201,28 @@ void setup_ulist(void){
   @ <div class='section'>Users</div>
   @ <table border=1 cellpadding=2 cellspacing=0 class='userTable' id='userlist'>
   @ <thead><tr>
-  @ <th>ID<th>Login<th>Caps<th>Info<th>Date<th>Expire</tr></thead>
+  @ <th>ID<th>Login Name<th>Caps<th>Info<th>Date<th>Expire<th>Last Login</tr></thead>
   @ <tbody>
+  db_multi_exec(
+     "CREATE TEMP TABLE lastAccess(uname TEXT PRIMARY KEY, atime REAL) WITHOUT ROWID;"
+  );
+  if( db_table_exists("repository","accesslog") ){
+    db_multi_exec(
+      "INSERT INTO lastAccess(uname, atime)"
+      " SELECT uname, max(mtime) FROM accesslog WHERE success GROUP BY uname;"
+    );
+  }
   db_prepare(&s,
      "SELECT uid, login, cap, info, date(mtime,'unixepoch'), lower(login) AS sortkey, "
      "       CASE WHEN info LIKE '%%expires 20%%'"
              "    THEN substr(info,instr(lower(info),'expires')+8,10)"
-             "    END AS exp"
-     "  FROM user"
+             "    END AS exp,"
+             "atime"
+     "  FROM user LEFT JOIN lastAccess ON login=uname"
      " WHERE login NOT IN ('anonymous','nobody','developer','reader')"
      " ORDER BY sortkey"
   );
+  rNow = db_double(0.0, "SELECT julianday('now');");
   while( db_step(&s)==SQLITE_ROW ){
     int uid = db_column_int(&s, 0);
     const char *zLogin = db_column_text(&s, 1);
@@ -219,6 +231,11 @@ void setup_ulist(void){
     const char *zDate = db_column_text(&s, 4);
     const char *zSortKey = db_column_text(&s,5);
     const char *zExp = db_column_text(&s,6);
+    double rATime = db_column_double(&s,7);
+    char *zAge = 0;
+    if( rATime>0.0 ){
+      zAge = human_readable_age(rNow - rATime);
+    }
     @ <tr>
     @ <td><a href='setup_uedit?id=%d(uid)'>%d(uid)</a>
     @ <td data-sortkey='%h(zSortKey)'><a href='setup_uedit?id=%d(uid)'>%h(zLogin)</a>
@@ -226,11 +243,12 @@ void setup_ulist(void){
     @ <td>%h(zInfo)
     @ <td>%h(zDate?zDate:"")
     @ <td>%h(zExp?zExp:"")
+    @ <td data-sortkey='%f(rATime)'>%s(zAge?zAge:"")
     @ </tr>
   }
   @ </tbody></table>
   db_finalize(&s);
-  output_table_sorting_javascript("userlist","nktxTT",2);
+  output_table_sorting_javascript("userlist","nktxTTK",2);
   style_footer();
 }
 
