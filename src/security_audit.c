@@ -46,6 +46,7 @@ void secaudit0_page(void){
   const char *zPubPages;     /* GLOB pattern for public pages */
   char *z;
   int n;
+  double r;
 
   login_check_credentials();
   if( !g.perm.Setup && !g.perm.Admin ){
@@ -78,8 +79,8 @@ void secaudit0_page(void){
     @ "nobody" on the <a href="setup_ulist">User Configuration</a> page.
   }else if( hasAnyCap(zAnonCap,"goz") ){
     @ <li><p>This repository is <big><b>PUBLIC</b></big>. All
-    @ checked-in content can be accessed by anonymous passers-by on the
-    @ internet.  <a href="takeitprivate">Take it private</a>.<p>
+    @ checked-in content can be accessed by anonymous users.
+    @ <a href="takeitprivate">Take it private</a>.<p>
   }else if( !hasAnyCap(zAnonCap, "jry") && (zPubPages==0 || zPubPages[0]==0) ){
     @ <li><p>This repository is <big><b>Completely PRIVATE</b></big>.
     @ A valid login and password is required to access any content.
@@ -245,6 +246,35 @@ void secaudit0_page(void){
     @ The administrative log provides a record of configuration changes
     @ and is useful for security monitoring.
   }
+
+#if !defined(_WIN32) && !defined(FOSSIL_OMIT_LOAD_AVERAGE)
+  /* Make sure that the load-average limiter is armed and working */
+  if( load_average()==0.0 ){
+    @ <li><p>
+    @ Unable to get the system load average.  This can prevent Fossil
+    @ from throttling expensive operations during peak demand.
+    @ <p>If running in a chroot jail on Linux, verify that the /proc 
+    @ filesystem is mounted within the jail, so that the load average
+    @ can be obtained from the /proc/loadavg file.
+  }else {
+    double r = atof(db_get("max-loadavg", "0"));
+    if( r<=0.0 ){
+      @ <li><p>
+      @ Load average limiting is turned off.  This can cause the server
+      @ to bog down if many requests for expensive services (such as
+      @ large diffs or tarballs) arrive at about the same time.
+      @ <p>To fix this, set the "Server Load Average Limit" on the
+      @ <a href="setup_access">Access Control</a> page to approximately
+      @ the number of available cores on your server, or maybe just a little
+      @ less.
+    }else if( r>=8.0 ){
+      @ <li><p>
+      @ The "Server Load Average Limit" on the 
+      @ <a href="setup_access">Access Control</a> page is set to %g(r),
+      @ which seems high.  Is this server really a %d((int)r)-core machine?
+    }
+  }
+#endif
 
 
   @ </ol>  
