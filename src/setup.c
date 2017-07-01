@@ -209,7 +209,11 @@ void setup_ulist(void){
   if( db_table_exists("repository","accesslog") ){
     db_multi_exec(
       "INSERT INTO lastAccess(uname, atime)"
-      " SELECT uname, max(mtime) FROM accesslog WHERE success GROUP BY uname;"
+      " SELECT uname, max(mtime) FROM ("
+      "    SELECT uname, mtime FROM accesslog WHERE success"
+      "    UNION ALL"
+      "    SELECT login AS uname, rcvfrom.mtime AS mtime FROM rcvfrom JOIN user USING(uid))"
+      " GROUP BY 1;"
     );
   }
   db_prepare(&s,
