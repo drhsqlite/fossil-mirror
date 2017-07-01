@@ -246,9 +246,7 @@ void secaudit0_page(void){
     fossil_free(z);
   }
   n = db_int(0,"SELECT count(*) FROM user WHERE cap GLOB '*y*'");
-  if( n>3 ){
-    @ <li><p>
-  }else if( n>0 ){
+  if( n>0 ){
     z = db_text(0,
        "SELECT group_concat("
           "printf('<a href=''setup_uedit?id=%%d''>%%s</a>',uid,login),', ')"
