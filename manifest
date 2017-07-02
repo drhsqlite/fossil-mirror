@@ -1,5 +1,5 @@
-C Fix\sa\sminor\sproblem\swith\sWrite-Unver\sreporting\son\sthe\ssecurity\saudit\sreport.
-D 2017-07-01T22:43:06.432
+C On\sthe\s/test_env\spage,\sreport\sthe\svalues\sof\sthe\sREMOTE_USER\sand\nHTTP_AUTHENTICATION\senvironment\svariables,\sif\sthey\sexist.
+D 2017-07-02T18:22:02.827
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -504,7 +504,7 @@ F src/sqlite3.h bf6106806ba51bb7c797f8375987d37fd780c7d1fb075f0211085affd81c78a2
 F src/stash.c dc0263e11eeb30689418e4def6174af973ad66bf
 F src/stat.c b9a03ea3d656551fee2b5a25be8d4d796f3e7d0f3dc5db6a1844be2922b538b0
 F src/statrep.c 9ee2695e45d0a0de17ce79d0b027f79bd246b4f305c95649044c3709a44372cd
-F src/style.c cf9edbf403e1df8e094e8a1d44d5dd9516046678
+F src/style.c 2c96edb8b7de76824225d521800409295ecda3eebf7e7b3ed3f6b35c3d96b956
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 7eec9152da56e30bedad9b9c62195012de13f0db656f9b6395c2bcebfee7f4a8
 F src/tar.c 5022464271954b88dea69c23d4767f3051bf47fb51f19dd77b088d2e94093496
@@ -787,7 +787,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 59a51b8267da45846820295f3148b6faa1692e331910706c481dc68fc5925c6e
-R 6a7349893647847d1a90ae7b7a30fa17
+P 5c999558ffb220a19ffc58a6c028ee2de760deb9c9a26dcfe3a32f69b5064427
+R 9de22773bf880e3e13f794d18d8de9fe
 U drh
-Z a05136b8b9873972c5dd4aa0f97a47c5
+Z f78a796c44a8f1ccb4328090a388f181
