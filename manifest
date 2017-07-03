@@ -1,5 +1,5 @@
-C On\sthe\sserver.wiki\spage,\spoint\sto\sthe\ssource\scode\scomments\sthat\sdescribe\nthe\svarious\sCGI\soptions.
-D 2017-07-03T13:54:21.252
+C On\sthe\stext\sdescriptions\sof\sthe\svarious\sadministrator\ssettings,\sidentify\nthe\sproperty\sin\sthe\sCONFIG\stable\sthat\sis\sbeing\smodified.
+D 2017-07-03T19:07:40.649
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -490,7 +490,7 @@ F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/search.c 0de35ed3d058b62f9f09a5bde235d0cc1e8f0ee1d4bec9ebc2cd9b5bb9d858bb
 F src/security_audit.c 4990fcdc069b2c64db1c5cba173ea124d6dccd2082c8659dcbb6bd883b219127
-F src/setup.c e2ffb5fed0f8a5fee8e9262cc9119e7c7f679f24e671b428b83d886b5bd2fbfc
+F src/setup.c 93b1485d13d3c6cfb99cfa0770963662b6a26cbf739826eb494740a6d828ad4a
 F src/sha1.c 04efd231424be45a281bdb50def7fce94625bd45b53d3c96b89e8de31f0305be
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c 7d862ff2c83826fd251909f5af2c8dd642417a8c389685e169f3c00434f784fa
@@ -787,8 +787,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 86d4754a7ad48f291d9dc1699f2dd8f62771007584b0d0e07272942b8e10d557
-Q +d407e22fed3d5bebfd0cc34357e293a65a8b14569c4daf8161e0d26e333712e3
-R 12cff56d1b23575b4c5f1e2ee6dcbcef
+P a8910101c3a5e1cba7fc48d0024d43bbee814487f5717fea048d46961be7f393
+R 632016fe6c573bbe44a76242d05d23da
 U drh
-Z 57af3096774d52d92de1cc0e84d0ed01
+Z 2d29d88f53cfccbfb47ec888b47d6fa7
