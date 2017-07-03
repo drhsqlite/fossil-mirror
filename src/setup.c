@@ -1997,6 +1997,7 @@ void sql_page(void){
   @ run by this page.  You can do serious and irrepairable damage to the
   @ repository.  Proceed with extreme caution.</p>
   @
+#if 0
   @ <p>Only the first statement in the entry box will be run.
   @ Any subsequent statements will be silently ignored.</p>
   @
@@ -2008,18 +2009,33 @@ void sql_page(void){
     @ <li>localdb
   }
   @ </ul></p>
+#endif
+
+  if( P("configtab") ){
+    /* If the user presses the "CONFIG Table Query" button, populate the
+    ** query text with a pre-packaged query against the CONFIG table */
+    zQ = "SELECT\n"
+         " CASE WHEN length(name)<50 THEN name ELSE printf('%.50s...',name) END AS name,\n"
+         " CASE WHEN typeof(value)<>'blob' AND length(value)<80 THEN value\n"
+         "           ELSE '...' END AS value,\n"
+         " datetime(mtime, 'unixepoch') AS mtime\n"
+         "FROM config\n"
+         "-- ORDER BY mtime DESC; -- optional";
+     go = 1;
+  }
   @
   @ <form method="post" action="%s(g.zTop)/admin_sql">
   login_insert_csrf_secret();
   @ SQL:<br />
-  @ <textarea name="q" rows="5" cols="80">%h(zQ)</textarea><br />
+  @ <textarea name="q" rows="8" cols="80">%h(zQ)</textarea><br />
   @ <input type="submit" name="go" value="Run SQL">
   @ <input type="submit" name="schema" value="Show Schema">
   @ <input type="submit" name="tablelist" value="List Tables">
+  @ <input type="submit" name="configtab" value="CONFIG Table Query">
   @ </form>
   if( P("schema") ){
     zQ = sqlite3_mprintf(
-            "SELECT sql FROM repository.sqlite_master WHERE sql IS NOT NULL");
+            "SELECT sql FROM repository.sqlite_master WHERE sql IS NOT NULL ORDER BY name");
     go = 1;
   }else if( P("tablelist") ){
     zQ = sqlite3_mprintf(
