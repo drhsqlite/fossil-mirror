@@ -1624,6 +1624,10 @@ void page_test_env(void){
   @ load_average() = %f(load_average())<br />
   @ <hr />
   P("HTTP_USER_AGENT");
+  if( showAll ){
+    P("AUTH_CONTENT");
+    P("AUTH_TYPE");
+  }
   cgi_print_all(showAll);
   if( showAll && blob_size(&g.httpHeader)>0 ){
     @ <hr />

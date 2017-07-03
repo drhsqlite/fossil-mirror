@@ -1,5 +1,5 @@
-C Update\schanges.wiki.\sSome\seol-spacing
-D 2017-07-03T09:31:43.204
+C On\sthe\s/test_env\spage,\sshow\sthe\sAUTH_CONTENT\sand\sAUTH_TYPE\senvironment\nvariables\sin\s"cookie"\smode.
+D 2017-07-03T11:26:11.543
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -504,7 +504,7 @@ F src/sqlite3.h bf6106806ba51bb7c797f8375987d37fd780c7d1fb075f0211085affd81c78a2
 F src/stash.c dc0263e11eeb30689418e4def6174af973ad66bf
 F src/stat.c b9a03ea3d656551fee2b5a25be8d4d796f3e7d0f3dc5db6a1844be2922b538b0
 F src/statrep.c 9ee2695e45d0a0de17ce79d0b027f79bd246b4f305c95649044c3709a44372cd
-F src/style.c 2c96edb8b7de76824225d521800409295ecda3eebf7e7b3ed3f6b35c3d96b956
+F src/style.c f04258db49034203eae193a5a23a44e7d238897b583ed103739c7f59b9e19b9e
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 7eec9152da56e30bedad9b9c62195012de13f0db656f9b6395c2bcebfee7f4a8
 F src/tar.c 5022464271954b88dea69c23d4767f3051bf47fb51f19dd77b088d2e94093496
@@ -787,7 +787,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4207a04072914929fbf2cbd15ab8ccb298540f8fddbd14c03ad7bb47960ab5c3
-R ab972598ae55a9e8e118d098e5c30ba0
-U jan.nijtmans
-Z a3eb9f62d6885e9a433588e1431294cc
+P 86d4754a7ad48f291d9dc1699f2dd8f62771007584b0d0e07272942b8e10d557
+R ef9872f8fdfbd22b9d02ce8e0d804caa
+U drh
+Z e0c555f3c06c5079233ff20173000513
