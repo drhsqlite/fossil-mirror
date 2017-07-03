@@ -178,7 +178,8 @@ for your particular web server. In particular, the following permissions are
 configuration):
 
 <ul>
-<li>The Fossil binary must be readable/executable, and ALL directories leading up to it
+<li>The Fossil binary (/usr/bin/fossil in the example above)
+must be readable/executable, and ALL directories leading up to it
 must be readable by the process which executes the CGI.</li>
 <li>ALL directories leading to the CGI script must also be readable and the CGI
 script itself must be executable for the user under which it will run (which often differs
@@ -214,6 +215,11 @@ notfound: http://url-to-go-to-if-repo-not-found/
 <p>
 Once deployed, a URL like: <b>http://mydomain.org/cgi-bin/repo/XYZ</b>
 will serve up the repository "/home/fossil/repos/XYZ.fossil" (if it exists).
+</p>
+<p>
+Additional options available to the CGI script are documented in the
+source code.  As of 2017-07-02, the available options are described at
+[/artifact/9a52a07b?ln=1777-1824|main.c lines 1777 through 1824].
 </p>
 </blockquote>
 
