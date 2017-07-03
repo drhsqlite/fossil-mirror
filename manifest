@@ -1,5 +1,5 @@
-C Update\schanges.wiki.\sSome\seol-spacing
-D 2017-07-03T09:31:43.204
+C Suggestion\sfor\s2.3\srelease:\sEliminate\sthe\sneed\sfor\sSQLITE_PREPARE_PERSISTENT,\swhich\smakes\sfossil\swork\swith\sSQLite\s3.19.3.
+D 2017-07-03T10:36:05.590
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -47,7 +47,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def c67fec6f5c633019a08342d63f4141d7aeec280390979ad1ea9432685c8d3c69
+F auto.def 9f94fa0549dc6673d40f8083e7053fc094daeca0ccd28d1aae1c30122883bf8e
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup c235af4ce86af9a9b8b331b5a67c822d52ca2c6e
 F autosetup/autosetup 564c6ab11d5ab75d1aebc8d90ebc22df8babb01d2f9ada06d7964e5cfb7c38aa x
@@ -408,7 +408,7 @@ F src/content.c b5eac283f4fec06093976b86ec95565c2a8b968c
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 7f06de720da893afd88f3f08991652f909fdcd000885de9fd8d8d3e2a50a5b15
+F src/db.c f3e39b5ffe371b1cee5d4c93fcf4a14e0dff70df2cc1281f792695fda994c746
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
@@ -499,8 +499,8 @@ F src/shun.c e6e544a8b9200a704121c280604ed42e6aefc3f19f5107d0bdf9b51d9a912a4e
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c 572603eab4c03e61d65b2b9b64d1fa7a3921b8092864a7ae8d858504824a5a31
 F src/sqlcmd.c b150ead4134db3739733abb077bf764bf998bfede7d1d8ea457455adf3684c31
-F src/sqlite3.c 4b453d67a0e1e818fd2f6ccbf28da60f40b072ca8c91cf209b1a46575ae277cd
-F src/sqlite3.h bf6106806ba51bb7c797f8375987d37fd780c7d1fb075f0211085affd81c78a2
+F src/sqlite3.c 368f1d31272b1739f804bcfa5485e5de62678015c4adbe575003ded85c164bb8
+F src/sqlite3.h a00f42558e92827c704a739330dd39ad2f04eb67c26e204b599a98c1eed9dcbf
 F src/stash.c dc0263e11eeb30689418e4def6174af973ad66bf
 F src/stat.c b9a03ea3d656551fee2b5a25be8d4d796f3e7d0f3dc5db6a1844be2922b538b0
 F src/statrep.c 9ee2695e45d0a0de17ce79d0b027f79bd246b4f305c95649044c3709a44372cd
@@ -696,7 +696,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 506dba1eba4643b3d47d8210e4d87c424916f5340a48814202f9ef828f8cfbcd
-F www/changes.wiki 42313da030c97500c7697996ef78613c357deca9a2231d5d1a38f940d8ca794c
+F www/changes.wiki 40258a0bfe950c03bb358b7c2936a41866c0b17d76edceac1bcf8e73f9331885
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -787,7 +787,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4207a04072914929fbf2cbd15ab8ccb298540f8fddbd14c03ad7bb47960ab5c3
-R ab972598ae55a9e8e118d098e5c30ba0
+P 86d4754a7ad48f291d9dc1699f2dd8f62771007584b0d0e07272942b8e10d557
+R 61330f9d69c5375f5a83b15e3f29652c
+T *branch * branch-2.3
+T *sym-branch-2.3 *
+T -sym-trunk *
 U jan.nijtmans
-Z a3eb9f62d6885e9a433588e1431294cc
+Z 4f6dbc747a9219aad341e3687ab635bc
