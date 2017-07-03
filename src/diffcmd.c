@@ -322,7 +322,7 @@ void diff_file_mem(
       diff_print_filenames(zName, zName, diffFlags);
       fossil_print("%s\n", blob_str(&out));
     }
-    
+
     /* Release memory resources */
     blob_reset(&out);
   }else{

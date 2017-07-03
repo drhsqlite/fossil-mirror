@@ -183,7 +183,7 @@ void setup_ulist(void){
       @ <td><a href='setup_uedit?id=%d(uid)'>%d(uid)</a>
       @ <td><a href='setup_uedit?id=%d(uid)'>%h(zLogin)</a>
       @ <td>%h(zCap)
-  
+
       if( fossil_strcmp(zLogin,"anonymous")==0 ){
         @ <td>All logged-in users
       }else if( fossil_strcmp(zLogin,"developer")==0 ){

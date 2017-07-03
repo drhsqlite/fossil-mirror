@@ -639,7 +639,7 @@ void doc_page(void){
     }
     if( isUV ){
       if( db_table_exists("repository","unversioned")
-       && unversioned_content(zName, &filebody)==0 
+       && unversioned_content(zName, &filebody)==0
       ){
         rid = 1;
         zDfltTitle = zName;

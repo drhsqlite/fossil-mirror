@@ -122,7 +122,7 @@ void secaudit0_page(void){
     @ setting on the <a href="setup_access">Access Control</a> page.
   }
 
-  /* Anonymous users should not be able to harvest email addresses 
+  /* Anonymous users should not be able to harvest email addresses
   ** from tickets.
   */
   if( hasAnyCap(zAnonCap, "e") ){
@@ -130,7 +130,7 @@ void secaudit0_page(void){
     @ Anonymous users can view email addresses and other personally
     @ identifiable information on tickets.
     @ <p>Fix this by removing the "Email" privilege from users
-    @ "anonymous" and "nobody" on the 
+    @ "anonymous" and "nobody" on the
     @ <a href="setup_ulist">User Configuration</a> page.
   }
 
@@ -141,7 +141,7 @@ void secaudit0_page(void){
     @ <li><p><b>WARNING:</b>
     @ Anonymous users can push new check-ins into the repository.
     @ <p>Fix this by removing the "Check-in" privilege from users
-    @ "anonymous" and "nobody" on the 
+    @ "anonymous" and "nobody" on the
     @ <a href="setup_ulist">User Configuration</a> page.
   }
 
@@ -153,7 +153,7 @@ void secaudit0_page(void){
     @ Anonymous users can act as moderators for wiki and/or tickets.
     @ This defeats the whole purpose of moderation.
     @ <p>Fix this by removing the "Mod-Wiki" and "Mod-Tkt"
-    @ privilege from users "anonymous" and "nobody" on the 
+    @ privilege from users "anonymous" and "nobody" on the
     @ <a href="setup_ulist">User Configuration</a> page.
   }
 
@@ -164,7 +164,7 @@ void secaudit0_page(void){
     @ <li><p><b>WARNING:</b>
     @ Anonymous users can delete wiki and tickets.
     @ <p>Fix this by removing the "Delete"
-    @ privilege from users "anonymous" and "nobody" on the 
+    @ privilege from users "anonymous" and "nobody" on the
     @ <a href="setup_ulist">User Configuration</a> page.
   }
 
@@ -178,7 +178,7 @@ void secaudit0_page(void){
       @ This can result in robots inserting lots of wiki spam into
       @ repository.
       @ <p>Fix this by removing the "New-Wiki" and "Write-Wiki"
-      @ privileges from users "anonymous" and "nobody" on the 
+      @ privileges from users "anonymous" and "nobody" on the
       @ <a href="setup_ulist">User Configuration</a> page or
       @ by enabling wiki moderation on the
       @ <a href="setup_modreq">Moderation Setup</a> page.
@@ -189,7 +189,7 @@ void secaudit0_page(void){
     }
   }
 
-  /* Administrative privilege should only be provided to 
+  /* Administrative privilege should only be provided to
   ** specific individuals, not to entire classes of people.
   ** And not too many people should have administrator privilege.
   */
@@ -226,11 +226,11 @@ void secaudit0_page(void){
     }
   }
 
-  /* The push-unversioned privilege should only be provided to 
+  /* The push-unversioned privilege should only be provided to
   ** specific individuals, not to entire classes of people.
   ** And no too many people should have this privilege.
   */
-  z = db_text(0, 
+  z = db_text(0,
     "SELECT group_concat("
                  "printf('<a href=''setup_uedit?id=%%d''>%%s</a>',uid,login),"
              "' and ')"
@@ -294,7 +294,7 @@ void secaudit0_page(void){
   }
   if( db_get_boolean("admin-log",0)==0 ){
     @ <li><p>
-    @ The <a href="admin_log">Administrative Log</a> is disabled. 
+    @ The <a href="admin_log">Administrative Log</a> is disabled.
     @ The administrative log provides a record of configuration changes
     @ and is useful for security monitoring.
   }
@@ -305,7 +305,7 @@ void secaudit0_page(void){
     @ <li><p>
     @ Unable to get the system load average.  This can prevent Fossil
     @ from throttling expensive operations during peak demand.
-    @ <p>If running in a chroot jail on Linux, verify that the /proc 
+    @ <p>If running in a chroot jail on Linux, verify that the /proc
     @ filesystem is mounted within the jail, so that the load average
     @ can be obtained from the /proc/loadavg file.
   }else {
@@ -321,7 +321,7 @@ void secaudit0_page(void){
       @ less.
     }else if( r>=8.0 ){
       @ <li><p>
-      @ The "Server Load Average Limit" on the 
+      @ The "Server Load Average Limit" on the
       @ <a href="setup_access">Access Control</a> page is set to %g(r),
       @ which seems high.  Is this server really a %d((int)r)-core machine?
     }
@@ -329,7 +329,7 @@ void secaudit0_page(void){
 #endif
 
 
-  @ </ol>  
+  @ </ol>
   style_footer();
 }
 

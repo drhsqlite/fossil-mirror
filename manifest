@@ -1,5 +1,5 @@
-C On\sthe\s/test_env\spage,\sreport\sthe\svalues\sof\sthe\sREMOTE_USER\sand\nHTTP_AUTHENTICATION\senvironment\svariables,\sif\sthey\sexist.
-D 2017-07-02T18:22:02.827
+C Update\schanges.wiki.\sSome\seol-spacing
+D 2017-07-03T09:31:43.204
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -414,9 +414,9 @@ F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
 F src/diff.c d7dd6b9c57ceff7a7102e979c4e5a1959571c0804d04534716121744e81563f9
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
-F src/diffcmd.c 032e6da78aa48c38639345cbb83f2e92295a1c742d050a497387746bfa068f72
+F src/diffcmd.c 36f42230cdcb661c671255b41a4c8a666c58c1173511d512fba2800e8cf0d106
 F src/dispatch.c c4135c158e049ba88648d1a0ccea4a24169099b752e1dffced17a77e4fb8218c
-F src/doc.c 5e1c9f2d115bc868121cf1387242167dce4f4996e4fc52ff203bda10b920be7c
+F src/doc.c dd1e537ff3a313ead3b45c5729d6fe31689eb8be50f449aade5dad686ccbfdb2
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c 5dcf3c6ff00c39c25a3909deec1d1154cf0b85a5
 F src/export.c 3e09dfda9d07b44c463d656dbc09f6adfe686d6d80ad55282a1f06b9216934f2
@@ -489,8 +489,8 @@ F src/report.c ee53ffbf76230126e2f91511b70d9f72a97d0a650e4c91e6d43018ab3069927a
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/search.c 0de35ed3d058b62f9f09a5bde235d0cc1e8f0ee1d4bec9ebc2cd9b5bb9d858bb
-F src/security_audit.c 284d2e62beeace574a35042eda5a93ac90dfcde22503ede914204bb9e4c042b4
-F src/setup.c a2ac11c3d1053125c583b0f993569426168dd6929469b00440929aa6d36b584c
+F src/security_audit.c 4990fcdc069b2c64db1c5cba173ea124d6dccd2082c8659dcbb6bd883b219127
+F src/setup.c e2ffb5fed0f8a5fee8e9262cc9119e7c7f679f24e671b428b83d886b5bd2fbfc
 F src/sha1.c 04efd231424be45a281bdb50def7fce94625bd45b53d3c96b89e8de31f0305be
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c 7d862ff2c83826fd251909f5af2c8dd642417a8c389685e169f3c00434f784fa
@@ -696,7 +696,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 506dba1eba4643b3d47d8210e4d87c424916f5340a48814202f9ef828f8cfbcd
-F www/changes.wiki 32384c6554882e3047a36855739a9439881c1ca9250fe95320e3cad9bdb21acf
+F www/changes.wiki 42313da030c97500c7697996ef78613c357deca9a2231d5d1a38f940d8ca794c
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -787,7 +787,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5c999558ffb220a19ffc58a6c028ee2de760deb9c9a26dcfe3a32f69b5064427
-R 9de22773bf880e3e13f794d18d8de9fe
-U drh
-Z f78a796c44a8f1ccb4328090a388f181
+P 4207a04072914929fbf2cbd15ab8ccb298540f8fddbd14c03ad7bb47960ab5c3
+R ab972598ae55a9e8e118d098e5c30ba0
+U jan.nijtmans
+Z a3eb9f62d6885e9a433588e1431294cc
