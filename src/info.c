@@ -136,6 +136,7 @@ static void extraRepoInfo(void){
   while( db_step(&s)==SQLITE_ROW ){
     const char *zName;
     const char *zCkout = db_column_text(&s, 0);
+    if( !vfile_top_of_checkout(zCkout) ) continue;
     if( g.localOpen ){
       if( fossil_strcmp(zCkout, g.zLocalRoot)==0 ) continue;
       zName = "alt-root:";

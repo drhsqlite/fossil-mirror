@@ -372,7 +372,9 @@ void urllist_page(void){
                  "  FROM config WHERE name GLOB 'ckout:*' ORDER BY 2 DESC");
   cnt = 0;
   while( db_step(&q)==SQLITE_ROW ){
-    @ <tr><td width='100%%'>%h(db_column_text(&q,0))</td>
+    const char *zPath = db_column_text(&q,0);
+    if( !vfile_top_of_checkout(zPath) ) continue;
+    @ <tr><td width='100%%'>%h(zPath)</td>
     @ <td><nobr>%h(db_column_text(&q,1))</nobr></td></tr>
     cnt++;
   }

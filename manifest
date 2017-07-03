@@ -1,5 +1,5 @@
-C Add\sa\spre-packaged\sCONFIG\stable\squery\sto\sthe\sadministrator\sSQL\sinterface.
-D 2017-07-03T20:04:27.646
+C Do\snot\sshow\scheckouts\swith\sthe\s"info\s-v"\scommand\sor\sin\sthe\s/urllist\swebpage\nif\sthe\scheckout\sdoes\snot\sappear\sto\sexist\sany\smore.
+D 2017-07-03T23:18:15.851
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -434,7 +434,7 @@ F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d98
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c e48f2f2e0095795aeabe7220514c8694393693b853150c47f6d6792921def3f1
-F src/info.c 8bf1972f7c12f589a7439a23525e8886cb6869bff527f172244e7c8685033fb3
+F src/info.c e43eeaf82361fc5fd862405d6404b94ef217914ada73c0ed5d748504e0b412cc
 F src/json.c cc8d06a2d208ad0092d6d68ef5b7ac9a7e05708b3271c5cfd1da890f97322642
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c 7c7e2c63fd1cac2ca85aa657a7ae04d91a1bdc08
@@ -502,7 +502,7 @@ F src/sqlcmd.c b150ead4134db3739733abb077bf764bf998bfede7d1d8ea457455adf3684c31
 F src/sqlite3.c 4b453d67a0e1e818fd2f6ccbf28da60f40b072ca8c91cf209b1a46575ae277cd
 F src/sqlite3.h bf6106806ba51bb7c797f8375987d37fd780c7d1fb075f0211085affd81c78a2
 F src/stash.c dc0263e11eeb30689418e4def6174af973ad66bf
-F src/stat.c b9a03ea3d656551fee2b5a25be8d4d796f3e7d0f3dc5db6a1844be2922b538b0
+F src/stat.c 766535774ff3f5b411f4a94fc6535e8ccc33961010608cc58ccbc326d5031985
 F src/statrep.c 9ee2695e45d0a0de17ce79d0b027f79bd246b4f305c95649044c3709a44372cd
 F src/style.c 2c96edb8b7de76824225d521800409295ecda3eebf7e7b3ed3f6b35c3d96b956
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
@@ -787,7 +787,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3ca935ef556ef2da9659c70da75bccd13a880379dfb5b65135f10656d6e7ab25
-R 050e1f934eee319bf686cc8ba6075ea4
+P 6a679311bba2a26e01b1500ac5f4f6735838376889ff26fde5bb3d36f873a5ba
+R b2f8204a251721ec5a698a08c33e0d05
 U drh
-Z 8c3925b8e678f68789ae1d5b991736e3
+Z 3cc6997ca4b29845fa0d85bfd387547a
