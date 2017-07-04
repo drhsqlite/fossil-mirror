@@ -1,5 +1,5 @@
-C Add\sthe\s"bootstrap"\sskin.
-D 2017-07-04T04:36:28.809
+C Do\snot\ssend\sthe\smessage\sbody\son\san\sHTTP\sreply\sto\sa\sHEAD\srequest.
+D 2017-07-04T13:11:26.015
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -399,7 +399,7 @@ F src/builtin.c d147d04305aa0db964ec84ef049e8e88d134de87
 F src/bundle.c c4b92c14df3e1aeebdeaf02d23a0ecaea462f8b5
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
-F src/cgi.c 0c979cad2069c2fb9f5cced5890718732d4380417787b97633260c3b542aafac
+F src/cgi.c f7d88d23102129bc8e798598168d51a545edecb870fdd13f31b1831f7d249284
 F src/checkin.c 8bf330e93a269b49898bdb235a8f468b2696c1e12f1fc54f615bafe75cd4e694
 F src/checkout.c ad202f9c6585a8e6d5418ff733f7349f652e9b05
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c666579cf5381ce264c2644d7a7697cd145f260579bdd6bd531bddf805c1d115
-R a43ae7b464e9dfa5a657820f013cec5b
+P f57f5f99b92670eb5b1410235536cc7e2234cafe86685cc2fedd908bc850956c
+R 4d0ab62d2355857c80d13bdf288bb650
 U drh
-Z 2fcff9336ff3602a389aeae1e012f5a1
+Z 671d020ddc8be67beeeb03812406b5e8
