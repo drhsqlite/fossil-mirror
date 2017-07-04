@@ -1,0 +1,39 @@
+<th1>
+  if {! $is_index && ! $is_home} {
+    html "</div>"
+  }
+</th1>
+</div>
+<div id="push"></div>
+</div>
+<footer id="footer">
+  <p>&#169; Copyright $<project_name>. All right reserved. Fossil $release_version &#183; <a href="$home/timeline.rss">RSS</a></p>
+</footer>
+<script>
+var tables = document.querySelectorAll('table');
+for (var i = 0; i < tables.length; i++) {
+  if (tables[i].id !== "timelineTable")
+  tables[i].classList.add('table');
+};
+var submenus = document.querySelectorAll('.submenu');
+for (var i = 0; i < submenus.length; i++) {
+  submenus[i].classList.add('btn-group');
+  var labels = submenus[i].querySelectorAll('.label');
+  for (var j = 0; j < labels.length; j++) {
+    labels[j].classList.remove('label');
+    labels[j].classList.add('btn');
+    labels[j].classList.add('btn-default');
+    labels[j].classList.add('btn-sm');
+  }
+};
+//Handle the collapsible navbar
+var collapse = document.querySelector('[data-toggle="collapse"]');
+collapse.onclick = function(){
+  var target = document.querySelector(
+    collapse.getAttribute('data-target')
+  );
+  target.classList.toggle('collapse');
+  target.classList.toggle('collapsed');
+};
+</script>
+</body></html>

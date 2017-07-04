@@ -1,0 +1,115 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <base href="$baseurl/$current_page" />
+  <title>$<project_name>: $<title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="$home/timeline.rss" />
+    <link rel="stylesheet" href="$home/style.css?default" type="text/css" media="screen" />
+    <script>
+    function gebi(x){
+      if(/^#/.test(x)) x = x.substr(1);
+      var e = document.getElementById(x);
+      if(!e) throw new Error("Expecting element with ID "+x);
+      else return e;
+    }
+    </script>
+  </head>
+  <body data-spy="scroll" data-target=".sidebar">
+    <div id="wrap">
+      <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <th1>html "<a class='navbar-brand' href='$home$index_page'>$project_name</a>"</th1>
+          </div>
+          <div class="collapse navbar-collapse">
+            <p class="navbar-text pull-right"><th1>
+              if {[info exists login]} {
+                puts "Logged in as $login"
+                html " &middot; <a href='$home/login'>Logout</a>"
+              } else {
+                puts "Not logged in"
+                html " &middot; <a href='$home/login'>Login</a>"
+              }
+            </th1></p>
+            <ul class="nav navbar-nav">
+              <th1>
+                set is_index [expr [string compare [string range $current_page 0 4] "index"]==0]
+                set is_home [expr [string compare [string range $current_page 0 [expr [string length $index_page]-1] ] $index_page]==0]
+                if {$is_index || $is_home} {
+                  html "<li class='active'><a href='$home$index_page'>Home</a></li>\n"
+                } else {
+                  html "<li><a href='$home$index_page'>Home</a></li>\n"
+                }
+                if {[hascap j]} {
+                  if {[string compare [string range $current_page 0 3] "wiki"] == 0} {
+                    html "<li class='active'><a href='$home/wiki'>Wiki</a></li>\n"
+                  } else {
+                    html "<li><a href='$home/wiki'>Wiki</a></li>\n"
+                  }
+                }
+                if {[anycap jor]} {
+                  if {[string compare $current_page "timeline"] == 0} {
+                    html "<li class='active'><a href='$home/timeline'>Timeline</a></li>\n"
+                  } else {
+                    html "<li><a href='$home/timeline'>Timeline</a></li>\n"
+                  }
+                }
+                if {[hascap oh]} {
+                  if {[string compare [string range $current_page 0 2] "dir"] == 0} {
+                    html "<li class='active'><a href='$home/dir?ci=tip'>Files</a></li>\n"
+                  } else {
+                    html "<li><a href='$home/dir?ci=tip'>Files</a></li>\n"
+                  }
+                }
+                if {[hascap o]} {
+                  if {[string compare $current_page "brlist"] == 0} {
+                    html "<li class='active'><a href='$home/brlist'>Branches</a></li>\n"
+                  } else {
+                    html "<li><a href='$home/brlist'>Branches</a></li>\n"
+                  }
+                  if {[string compare $current_page "taglist"] == 0} {
+                    html "<li class='active'><a href='$home/taglist'>Tags</a></li>\n"
+                  } else {
+                    html "<li><a href='$home/taglist'>Tags</a></li>\n"
+                  }
+                }
+                if {[hascap r]} {
+                  if {[string compare $current_page "reportlist"] == 0} {
+                    html "<li class='active'><a href='$home/reportlist'>Tickets</a></li>\n"
+                  } else {
+                    html "<li><a href='$home/reportlist'>Tickets</a></li>\n"
+                  }
+                }
+                if {[hascap s]} {
+                  if {[string compare [string range $current_page 0 4] "setup"] == 0} {
+                    html "<li class='active'><a href='$home/setup'>Admin</a></li>\n"
+                  } else {
+                    html "<li><a href='$home/setup'>Admin</a></li>\n"
+                  }
+                } elseif {[hascap a]} {
+                  if {[string compare [string range $current_page 0 4] "setup"] == 0} {
+                    html "<li class='active'><a href='$home/setup_ulist'>Users</a></li>\n"
+                  } else {
+                    html "<li><a href='$home/setup_ulist'>Users</a></li>\n"
+                  }
+                }
+              </th1>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+      <div class="content">
+        <th1>
+          html "<div class='container'>"
+            html "<ul class='breadcrumb'>"
+              html "<li><a href='$index_page'>Home</a></li>"
+              html "<li><a href='$home/$current_page'>$title</a></li>"
+              html "</ul>"
+            </th1>

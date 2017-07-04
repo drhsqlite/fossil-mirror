@@ -44,6 +44,7 @@ static struct BuiltinSkin {
   { "Default",                           "default",           0 },
   { "Blitz",                             "blitz",             0 },
   { "Blitz, No Logo",                    "blitz_no_logo",     0 },
+  { "Bootstrap",                         "bootstrap",         0 },
   { "Xekri",                             "xekri",             0 },
   { "Original",                          "original",          0 },
   { "Enhanced Original",                 "enhanced1",         0 },
