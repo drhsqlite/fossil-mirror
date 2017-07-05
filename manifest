@@ -1,5 +1,5 @@
-C Fix\stimeline\srendering\sso\sthat\smultiple\stimelines\scan\sbe\sdrawn\son\seach\npage\swithout\sinterferring\swith\sone\sanother.\s\sMove\sthe\s"Referenced\sBy"\nsection\sof\sthe\s/info\spage\supward\sand\srename\sit\sas\s"References".\s\sAdded\nthe\s/test-backlink\spage\sfor\sshowing\sall\spages\sthat\scontain\sreferences.
-D 2017-07-05T12:33:33.919
+C In\sthe\stimeline\sgraph\srendering\scode,\shard-code\sthe\stopRow\svalue\sin\sthe\ngenerated\sjavascript.
+D 2017-07-05T13:00:55.138
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -517,7 +517,7 @@ F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c fcf07b5f99768f552a4d31e4efa5fe4be98f86139ab7e8d556ca2dcacb733e0c
 F src/th_tcl.c 2b70a8da7d7d8009794d7a3565043c8933a6cbfe
-F src/timeline.c e207d758854e0a4580cb359b3eef757168f12273f2d92b66fdf32738e874f45c
+F src/timeline.c 3264fd7901093a61609e5630e3c2a4acbb37bdeb96a2dabb3fb90f7d0721133c
 F src/tkt.c e5815264d68d48a28983230026ceaa45b5190c34b092a8fc920ce832a6d2bf6e
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 33b65539a12abd079a57972b78e0d532831cefd9
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fae745cf0fb5188e131c8c745e5a74f988ff78cdca21e5612b8683863510fe33
-R 26f44862aab98bd738ecf22028b83521
+P ba3444327f36442c00d01e1873be12041e1025c8ee10e0d2185e27d172965cdd
+R d201b40b26dd46b6a1228af19674b7be
 U drh
-Z 28ca137713c5ddb0342ba07fc898782f
+Z 44435181f18f6fd197957da6f2aa9bfb

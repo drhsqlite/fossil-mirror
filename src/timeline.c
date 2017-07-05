@@ -686,6 +686,7 @@ void timeline_output_graph_javascript(
     int showArrowheads;  /* True to draw arrowheads.  False to omit. */
     int circleNodes;     /* True for circle nodes.  False for square nodes */
     int colorGraph;      /* Use colors for graph lines */
+    int iTopRow;         /* Index of the top row of the graph */
 
     iRailPitch = atoi(PD("railpitch","0"));
     showArrowheads = skin_detail_boolean("timeline-arrowheads");
@@ -711,7 +712,7 @@ void timeline_output_graph_javascript(
     **
     **   id:  The id of the <div> element for the row. This is an integer.
     **        to get an actual id, prepend "m" to the integer.  The top node
-    **        is topRow and numbers increase moving down the timeline.
+    **        is iTopRow and numbers increase moving down the timeline.
     **   bg:  The background color for this row
     **    r:  The "rail" that the node for this row sits on.  The left-most
     **        rail is 0 and the number increases to the right.
@@ -737,7 +738,7 @@ void timeline_output_graph_javascript(
     **        the screen.
     **    h:  The artifact hash of the object being graphed
     */
-    if( pGraph->pFirst ) cgi_printf("var topRow = %d\n", pGraph->pFirst->idx);
+    iTopRow = pGraph->pFirst ? pGraph->pFirst->idx : 0;
     cgi_printf("var rowinfo = [\n");
     for(pRow=pGraph->pFirst; pRow; pRow=pRow->pNext){
       cgi_printf("{id:%d,bg:\"%s\",r:%d,d:%d,mo:%d,mu:%d,u:%d,f:%d,au:",
@@ -914,7 +915,7 @@ void timeline_output_graph_javascript(
     @   drawBox(cls,null,x,y+(mLine.w-mArrow.h)/2);
     @ }
     @ function drawNode(p, btm){
-    @   if( p.u>0 ) drawUpArrow(p,rowinfo[p.u-topRow],p.fg);
+    @   if( p.u>0 ) drawUpArrow(p,rowinfo[p.u-%d(iTopRow)],p.fg);
     @   var cls = node.cls;
     @   if( p.mi.length ) cls += " merge";
     @   if( p.f&1 ) cls += " leaf";
@@ -929,7 +930,7 @@ void timeline_output_graph_javascript(
     @   if( p.mo>=0 ){
     @     var x0 = p.x + node.w/2;
     @     var x1 = p.mo*railPitch + node.w/2;
-    @     var u = rowinfo[p.mu-topRow];
+    @     var u = rowinfo[p.mu-%d(iTopRow)];
     @     var y1 = miLineY(u);
     @     if( p.u<0 || p.mo!=p.r ){
     @       x1 += mergeLines[p.mo] = -mLine.w/2;
@@ -953,7 +954,7 @@ void timeline_output_graph_javascript(
     @       x1 += line.w;
     @     }
     @     var y0 = p.y + (node.h-line.w)/2;
-    @     var u = rowinfo[p.au[i+1]-topRow];
+    @     var u = rowinfo[p.au[i+1]-%d(iTopRow)];
     @     if( u.id<p.id ){
     @       drawLine(line,u.fg,x0,y0,x1,null);
     @       drawUpArrow(p,u,u.fg);
@@ -999,7 +1000,7 @@ void timeline_output_graph_javascript(
     @ }
     @ var selRow;
     @ function clickOnNode(){
-    @   var p = rowinfo[parseInt(this.id.match(/\d+$/)[0], 10)-topRow];
+    @   var p = rowinfo[parseInt(this.id.match(/\d+$/)[0], 10)-%d(iTopRow)];
     @   if( !selRow ){
     @     selRow = p;
     @     this.className += " sel";
