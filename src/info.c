@@ -318,6 +318,7 @@ void render_checkin_context(int rid, int parentsOnly){
   blob_append(&sql, timeline_query_for_www(), -1);
   db_multi_exec(
      "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY);"
+     "DELETE FROM ok;"
      "INSERT INTO ok VALUES(%d);"
      "INSERT OR IGNORE INTO ok SELECT pid FROM plink WHERE cid=%d;",
      rid, rid
@@ -330,6 +331,33 @@ void render_checkin_context(int rid, int parentsOnly){
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_sql_text(&sql));
   www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH, 0, 0, rid, 0);
+  db_finalize(&q);
+}
+
+/*
+** Show a graph all wiki, tickets, and check-ins that refer to object zUuid.
+*/
+void render_backlink_graph(const char *zUuid){
+  Blob sql;
+  Stmt q;
+  char *zGlob;
+  zGlob = mprintf("%.5s*", zUuid);
+  db_multi_exec(
+     "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY);"
+     "DELETE FROM ok;"
+     "INSERT OR IGNORE INTO ok"
+     " SELECT srcid FROM backlink"
+     "  WHERE target GLOB %Q"
+     "    AND %Q GLOB (target || '*');",
+     zGlob, zUuid
+  );
+  if( !db_exists("SELECT 1 FROM ok") ) return;
+  @ <div class="section">Referenced By</div>
+  blob_zero(&sql);
+  blob_append(&sql, timeline_query_for_www(), -1);
+  blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
+  db_prepare(&q, "%s", blob_sql_text(&sql));
+  www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH, 0, 0, 0, 0);
   db_finalize(&q);
 }
 
@@ -712,6 +740,7 @@ void ci_page(void){
   showTags(rid);
   @ <div class="section">Context</div>
   render_checkin_context(rid, 0);
+  render_backlink_graph(zUuid);
   @ <div class="section">Changes</div>
   @ <div class="sectionmenu">
   verboseFlag = g.zPath[0]!='c';

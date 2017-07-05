@@ -1,5 +1,5 @@
-C On\sthe\s/urllist\spage,\sstop\sthe\sdisplay\sof\saccess\sURLs\safter\sat\sleast\s8\shave\nbeen\sshown\sand\sthe\slast\saccess\sis\smore\sthan\s30\sdays\sago.\s\sExcept,\sshow\sthem\nall\sif\sthe\s"all"\squery\sparameter\sis\sused.
-D 2017-07-04T16:02:21.826
+C Add\sthe\s"Referenced\sBy"\ssection\sto\sthe\s/info\spage.
+D 2017-07-05T11:12:07.655
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -438,7 +438,7 @@ F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d98
 F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
 F src/import.c e48f2f2e0095795aeabe7220514c8694393693b853150c47f6d6792921def3f1
-F src/info.c e43eeaf82361fc5fd862405d6404b94ef217914ada73c0ed5d748504e0b412cc
+F src/info.c de35a0e282d3e524b0f5d470e0bb5e8219686bb83841d9f8cab206a1e7d35eaa
 F src/json.c cc8d06a2d208ad0092d6d68ef5b7ac9a7e05708b3271c5cfd1da890f97322642
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c 7c7e2c63fd1cac2ca85aa657a7ae04d91a1bdc08
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5826ba37acff82bba06df835ad8b21b2e66aa6985abad79875235f075c004b1b
-R cdd727cc649da1532572a41437c1e4bc
+P 9d7ef44fb6a373c38b60a4e1a6daef819c090ebdd866145e65b8b87ee2c827ad
+R 9a73596479870902e655343078fa5fe9
 U drh
-Z c1d36408195b827aea24585c5c09c013
+Z 81101c9d0e0f4e0286384766836cab11
