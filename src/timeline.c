@@ -205,6 +205,14 @@ void test_hash_color_page(void){
 }
 
 /*
+** Return a new timelineTable id.
+*/
+int timeline_tableid(void){
+  static int id = 0;
+  return id++;
+}
+
+/*
 ** Output a timeline in the web format given a query.  The query
 ** should return these columns:
 **
@@ -243,6 +251,7 @@ void www_print_timeline(
   int dateFormat = 0;         /* 0: HH:MM (default) */
   int bCommentGitStyle = 0;   /* Only show comments through first blank line */
   const char *zDateFmt;
+  int iTableId = timeline_tableid();
 
   if( fossil_strcmp(g.zIpAddr, "127.0.0.1")==0 && db_open_local(0) ){
     vid = db_lget_int("checkout", 0);
@@ -261,7 +270,7 @@ void www_print_timeline(
     TAG_BRANCH
   );
 
-  @ <table id="timelineTable" class="timelineTable">
+  @ <table id="timelineTable%d(iTableId)" class="timelineTable">
   blob_zero(&comment);
   while( db_step(pQuery)==SQLITE_ROW ){
     int rid = db_column_int(pQuery, 0);
@@ -625,7 +634,7 @@ void www_print_timeline(
   }
   @ </table>
   if( fchngQueryInit ) db_finalize(&fchngQuery);
-  timeline_output_graph_javascript(pGraph, (tmFlags & TIMELINE_DISJOINT)!=0, 0);
+  timeline_output_graph_javascript(pGraph, (tmFlags & TIMELINE_DISJOINT)!=0, iTableId, 0);
 }
 
 /*
@@ -666,6 +675,7 @@ static const char *bg_to_fg(const char *zIn){
 void timeline_output_graph_javascript(
   GraphContext *pGraph,     /* The graph to be displayed */
   int omitDescenders,       /* True to omit descenders */
+  int iTableId,             /* Identifier for the timelineTable */
   int fileDiff              /* True for file diff.  False for check-in diff */
 ){
   if( pGraph && pGraph->nErr==0 && pGraph->nRow>0 ){
@@ -701,7 +711,7 @@ void timeline_output_graph_javascript(
     **
     **   id:  The id of the <div> element for the row. This is an integer.
     **        to get an actual id, prepend "m" to the integer.  The top node
-    **        is 1 and numbers increase moving down the timeline.
+    **        is topRow and numbers increase moving down the timeline.
     **   bg:  The background color for this row
     **    r:  The "rail" that the node for this row sits on.  The left-most
     **        rail is 0 and the number increases to the right.
@@ -727,6 +737,7 @@ void timeline_output_graph_javascript(
     **        the screen.
     **    h:  The artifact hash of the object being graphed
     */
+    if( pGraph->pFirst ) cgi_printf("var topRow = %d\n", pGraph->pFirst->idx);
     cgi_printf("var rowinfo = [\n");
     for(pRow=pGraph->pFirst; pRow; pRow=pRow->pNext){
       cgi_printf("{id:%d,bg:\"%s\",r:%d,d:%d,mo:%d,mu:%d,u:%d,f:%d,au:",
@@ -774,7 +785,7 @@ void timeline_output_graph_javascript(
     @ var mergeOffset;
     @ var node, arrow, arrowSmall, line, mArrow, mLine, wArrow, wLine;
     @ function initGraph(){
-    @   var parent = gebi("timelineTable").rows[0].cells[1];
+    @   var parent = gebi("timelineTable%d(iTableId)").rows[0].cells[1];
     @   parent.style.verticalAlign = "top";
     @   canvasDiv = document.createElement("div");
     @   canvasDiv.className = "tl-canvas";
@@ -903,7 +914,7 @@ void timeline_output_graph_javascript(
     @   drawBox(cls,null,x,y+(mLine.w-mArrow.h)/2);
     @ }
     @ function drawNode(p, btm){
-    @   if( p.u>0 ) drawUpArrow(p,rowinfo[p.u-1],p.fg);
+    @   if( p.u>0 ) drawUpArrow(p,rowinfo[p.u-topRow],p.fg);
     @   var cls = node.cls;
     @   if( p.mi.length ) cls += " merge";
     @   if( p.f&1 ) cls += " leaf";
@@ -918,7 +929,7 @@ void timeline_output_graph_javascript(
     @   if( p.mo>=0 ){
     @     var x0 = p.x + node.w/2;
     @     var x1 = p.mo*railPitch + node.w/2;
-    @     var u = rowinfo[p.mu-1];
+    @     var u = rowinfo[p.mu-topRow];
     @     var y1 = miLineY(u);
     @     if( p.u<0 || p.mo!=p.r ){
     @       x1 += mergeLines[p.mo] = -mLine.w/2;
@@ -942,7 +953,7 @@ void timeline_output_graph_javascript(
     @       x1 += line.w;
     @     }
     @     var y0 = p.y + (node.h-line.w)/2;
-    @     var u = rowinfo[p.au[i+1]-1];
+    @     var u = rowinfo[p.au[i+1]-topRow];
     @     if( u.id<p.id ){
     @       drawLine(line,u.fg,x0,y0,x1,null);
     @       drawUpArrow(p,u,u.fg);
@@ -988,7 +999,7 @@ void timeline_output_graph_javascript(
     @ }
     @ var selRow;
     @ function clickOnNode(){
-    @   var p = rowinfo[parseInt(this.id.match(/\d+$/)[0], 10)-1];
+    @   var p = rowinfo[parseInt(this.id.match(/\d+$/)[0], 10)-topRow];
     @   if( !selRow ){
     @     selRow = p;
     @     this.className += " sel";
