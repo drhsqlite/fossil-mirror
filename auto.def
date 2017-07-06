@@ -95,7 +95,7 @@ if {![opt-bool internal-sqlite]} {
       # fossil.
       #
       if {[check-function-in-lib sqlite3_open sqlite3 $extralibs]} {
-        if {![check-function-in-lib sqlite3_trace_v3 sqlite3 $extralibs]} {
+        if {![check-function-in-lib sqlite3_trace_v2 sqlite3 $extralibs]} {
           user-error "system sqlite3 too old (require >= 3.14.0)"
         }
 

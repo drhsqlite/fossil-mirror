@@ -384,7 +384,9 @@ void cgi_reply(void){
     total_size = 0;
   }
   fprintf(g.httpOut, "\r\n");
-  if( total_size>0 && iReplyStatus != 304 ){
+  if( total_size>0 && iReplyStatus != 304
+   && fossil_strcmp(P("REQUEST_METHOD"),"HEAD")!=0
+  ){
     int i, size;
     for(i=0; i<2; i++){
       size = blob_size(&cgiContent[i]);
