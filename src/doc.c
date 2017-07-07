@@ -578,6 +578,7 @@ void doc_page(void){
   const char *zOrigName = "?";      /* Original document name */
   const char *zMime;                /* Document MIME type */
   char *zCheckin = "tip";           /* The check-in holding the document */
+  char *zPathSuffix = "";           /* Text to append to g.zPath */
   int vid = 0;                      /* Artifact of check-in */
   int rid = 0;                      /* Artifact of file */
   int i;                            /* Loop counter */
@@ -621,9 +622,9 @@ void doc_page(void){
     }
     while( zName[0]=='/' ){ zName++; }
     if( isUV ){
-      g.zPath = mprintf("%s/%s", g.zPath, zName);
+      zPathSuffix = fossil_strdup(zName);
     }else{
-      g.zPath = mprintf("%s/%s/%s", g.zPath, zCheckin, zName);
+      zPathSuffix = mprintf("%s/%s", zCheckin, zName);
     }
     if( nMiss==0 ) zOrigName = zName;
     if( !file_is_simple_pathname(zName, 1) ){
@@ -659,6 +660,7 @@ void doc_page(void){
       rid = doc_load_content(vid, zName, &filebody);
     }
   }
+  g.zPath = mprintf("%s/%s", g.zPath, zPathSuffix);
   if( rid==0 ) goto doc_not_found;
   blob_to_utf8_no_bom(&filebody, 0);
 

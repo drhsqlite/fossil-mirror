@@ -1,5 +1,5 @@
-C In\sthe\stimeline\sgraph\srendering\scode,\shard-code\sthe\stopRow\svalue\sin\sthe\ngenerated\sjavascript.
-D 2017-07-05T13:00:55.138
+C Avoid\sappending\sto\sg.zPath\sinside\sdoc_page()\sloop.\s\sInstead,\swait\suntil\sthe\sloop\sis\sdone\sto\smodify\sg.zPath.\s\sWhen\sdoing\sa\sdirectory\slookup,\sthe\scheck-in\sand\sdirectory\sname\swere\sbeing\srepeatedly\sappended\sto\sg.zPath\seach\sstep\sthrough\sthe\slist\sof\spossible\sfilename\ssuffixes.\s\sThis\scorrupted\s<base\shref>\sshould\sindex.html\snot\sexist,\swhich\sin\sturn\sbroke\srelative\sURLs.
+D 2017-07-07T19:18:23.622
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -420,7 +420,7 @@ F src/diff.c d7dd6b9c57ceff7a7102e979c4e5a1959571c0804d04534716121744e81563f9
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 36f42230cdcb661c671255b41a4c8a666c58c1173511d512fba2800e8cf0d106
 F src/dispatch.c c4135c158e049ba88648d1a0ccea4a24169099b752e1dffced17a77e4fb8218c
-F src/doc.c dd1e537ff3a313ead3b45c5729d6fe31689eb8be50f449aade5dad686ccbfdb2
+F src/doc.c 1c006182a35266196dd85f8ac0d029969ae6089b18302a960d26291ba1b05883
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c 5dcf3c6ff00c39c25a3909deec1d1154cf0b85a5
 F src/export.c 3e09dfda9d07b44c463d656dbc09f6adfe686d6d80ad55282a1f06b9216934f2
@@ -791,7 +791,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ba3444327f36442c00d01e1873be12041e1025c8ee10e0d2185e27d172965cdd
-R d201b40b26dd46b6a1228af19674b7be
-U drh
-Z 44435181f18f6fd197957da6f2aa9bfb
+P e76f3bbe45dcefd941a5649fbcadcf0303da455c66b8fa68445e92e5d04d4d14
+U andygoth
+Z b2777fbd8b35a2ae58f99d8a86345437
