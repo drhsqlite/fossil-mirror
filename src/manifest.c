@@ -806,7 +806,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       case 'U': {
         if( p->zUser!=0 ) SYNTAX("more than one U-card");
         p->zUser = next_token(&x, 0);
-        if( p->zUser==0 ){
+        if( p->zUser==0 || p->zUser[0]==0 ){
           p->zUser = "anonymous";
         }else{
           defossilize(p->zUser);
