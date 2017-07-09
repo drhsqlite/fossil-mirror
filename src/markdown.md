@@ -40,6 +40,8 @@
 > *   *\_italic\_*
 > *   __\*\*bold\*\*__
 > *   **\_\_bold\_\_**
+> *   ___\*\*\*italic+bold\*\*\*___
+> *   ***\_\_\_italic+bold\_\_\_***
 > *   \``code`\`
 
 > The **\`code\`** construct disables HTML markup, so one can write, for
