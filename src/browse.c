@@ -1092,19 +1092,19 @@ void fileage_page(void){
   compute_fileage(rid,zGlob);
   db_multi_exec("CREATE INDEX fileage_ix1 ON fileage(mid,pathname);");
 
-  @ <h2>Files in
+  @ <h1>Files in
   @ %z(href("%R/info/%!S",zUuid))[%S(zUuid)]</a>
   if( zGlob && zGlob[0] ){
-    @ that match "%h(zGlob)" and
+    @ that match "%h(zGlob)"
   }
-  @ ordered by check-in time</h2>
+  @ ordered by age</h1>
   @
-  @ <p>Times are relative to the check-in time for
-  @ %z(href("%R/ci/%!S",zUuid))[%S(zUuid)]</a> which is
+  @ <p>File ages are expressed relative to the
+  @ %z(href("%R/ci/%!S",zUuid))[%S(zUuid)]</a> check-in time of
   @ %z(href("%R/timeline?c=%t",zNow))%s(zNow)</a>.</p>
   @
   @ <div class='fileage'><table>
-  @ <tr><th>Time</th><th>Files</th><th>Check-in</th></tr>
+  @ <tr><th>Age</th><th>Files</th><th>Check-in</th></tr>
   db_prepare(&q1,
     "SELECT event.mtime, event.objid, blob.uuid,\n"
     "       coalesce(event.ecomment,event.comment),\n"
