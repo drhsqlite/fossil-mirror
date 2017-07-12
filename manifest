@@ -1,5 +1,5 @@
-C Fix\sa\stypo\son\sthe\ssecurity\saudit\swebpage.
-D 2017-07-12T03:02:20.150
+C Be\scareful\snot\sto\sreturn\sa\spointer\sto\sa\swebpage\sgenerator\sas\sa\scommand-line\ncommand\smethod.
+D 2017-07-12T16:57:58.846
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -419,7 +419,7 @@ F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
 F src/diff.c d7dd6b9c57ceff7a7102e979c4e5a1959571c0804d04534716121744e81563f9
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c 36f42230cdcb661c671255b41a4c8a666c58c1173511d512fba2800e8cf0d106
-F src/dispatch.c c4135c158e049ba88648d1a0ccea4a24169099b752e1dffced17a77e4fb8218c
+F src/dispatch.c 63d8b8268be2fcae4540b9f22a2dd2fc5828629463db42dbc5430e48fa18fe2d
 F src/doc.c 1c006182a35266196dd85f8ac0d029969ae6089b18302a960d26291ba1b05883
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c 5dcf3c6ff00c39c25a3909deec1d1154cf0b85a5
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9167b2d64a848ab1214ca83b1afebb33964d835cbbd86f0e2be7e1f56c9f69e1
-R 0db9ffe41f3b7c8fa6fe79a832a92284
+P 35f712d4d843d2dd6aa278a072898a29825d4714705d5fbb99d724a79451b93d
+R 2144b5dfd93bb7ff959d4f0cb1f89dbf
 U drh
-Z b1773cad6d3fee422ff353db3f28c1c7
+Z 835ae2b20a9ce74e053d372eac04ca85
