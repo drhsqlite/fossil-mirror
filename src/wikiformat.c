@@ -1740,7 +1740,6 @@ void test_wiki_render(void){
   if( find_option("nobadlinks",0,0)!=0 ) flags |= WIKI_NOBADLINKS;
   if( find_option("inline",0,0)!=0 ) flags |= WIKI_INLINE;
   if( find_option("noblock",0,0)!=0 ) flags |= WIKI_NOBLOCK;
-  db_find_and_open_repository(0,0);
   verify_all_options();
   if( g.argc!=3 ) usage("FILE");
   blob_zero(&out);

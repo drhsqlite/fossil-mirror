@@ -164,7 +164,8 @@ static void showParentProject(void){
   const char *zParentCode;
   zParentCode = db_get("parent-project-code",0);
   if( zParentCode ){
-    fossil_print("derived-from: %s %s\n", zParentCode, db_get("parent-project-name",""));
+    fossil_print("derived-from: %s %s\n", zParentCode,
+                 db_get("parent-project-name",""));
   }
 }
 
@@ -180,13 +181,18 @@ static void showParentProject(void){
 ** to.  Or if the argument is the name of a repository, show
 ** information about that repository.
 **
+** If the argument is a repository name, then the --verbose option shows
+** known the check-out locations for that repository and all URLs used
+** to access the repository.  The --verbose is (currently) a no-op if
+** the argument is the name of a object within the repository.
+**
 ** Use the "finfo" command to get information about a specific
 ** file in a checkout.
 **
 ** Options:
 **
 **    -R|--repository FILE       Extract info from repository FILE
-**    -v|--verbose               Show extra information
+**    -v|--verbose               Show extra information about repositories
 **
 ** See also: annotate, artifact, finfo, timeline
 */

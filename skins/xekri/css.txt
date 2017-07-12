@@ -378,7 +378,7 @@ ul.browser li.dir {
  * File List : Age
  */
 
-.fileage tr:hover td {
+.fileage tr:hover {
   background-color: #225;
 }
 

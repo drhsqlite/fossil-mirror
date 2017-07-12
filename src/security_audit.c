@@ -98,7 +98,7 @@ void secaudit0_page(void){
     if( zPubPages && zPubPages[0] ){
       Glob *pGlob = glob_create(zPubPages);
       int i;
-      @ <li> URLs that matches any of these GLOB patterns:
+      @ <li> URLs that match any of these GLOB patterns:
       @ <ul>
       for(i=0; i<pGlob->nPattern; i++){
         @ <li> %h(pGlob->azPattern[i])
