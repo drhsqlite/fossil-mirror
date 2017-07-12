@@ -46,7 +46,6 @@ void secaudit0_page(void){
   const char *zPubPages;     /* GLOB pattern for public pages */
   char *z;
   int n;
-  double r;
 
   login_check_credentials();
   if( !g.perm.Setup && !g.perm.Admin ){
