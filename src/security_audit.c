@@ -46,7 +46,6 @@ void secaudit0_page(void){
   const char *zPubPages;     /* GLOB pattern for public pages */
   char *z;
   int n;
-  double r;
 
   login_check_credentials();
   if( !g.perm.Setup && !g.perm.Admin ){
@@ -98,7 +97,7 @@ void secaudit0_page(void){
     if( zPubPages && zPubPages[0] ){
       Glob *pGlob = glob_create(zPubPages);
       int i;
-      @ <li> URLs that matches any of these GLOB patterns:
+      @ <li> URLs that match any of these GLOB patterns:
       @ <ul>
       for(i=0; i<pGlob->nPattern; i++){
         @ <li> %h(pGlob->azPattern[i])

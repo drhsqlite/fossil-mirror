@@ -100,6 +100,7 @@ int dispatch_name_search(
     mid = (upr+lwr)/2;
     c = strcmp(zName, aCommand[mid].zName);
     if( c==0 ){
+      if( (aCommand[mid].eCmdFlags & eType)==0 ) return 1;
       *ppCmd = &aCommand[mid];
       return 0;  /* An exact match */
     }else if( c<0 ){

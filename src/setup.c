@@ -1254,7 +1254,7 @@ void setup_access(void){
   @ finishes loading.  But the first check-box below can be set to require mouse
   @ movement before enabling the links. One can also set a delay prior to enabling
   @ links by enter a positive number of milliseconds in the entry box above.</p>
-  @ (Properties: "auto-hyperlink", "auto-hyperlink-ishuman", 
+  @ (Properties: "auto-hyperlink", "auto-hyperlink-ishuman",
   @ "auto-hyperlink-mouseover", and "auto-hyperlink-delay")</p>
 
   @ <hr />
@@ -1791,7 +1791,7 @@ void setup_adunit(void){
   @ <li>The "Banner Ad-Unit" is used for wide pages.
   @ <li>The "Right-Column Ad-Unit" is used on pages with tall, narrow content.
   @ <li>If the "Right-Column Ad-Unit" is blank, the "Banner Ad-Unit" is used on all pages.
-  @ <li>Properties: "adunit", "adunit-right", "adunit-omit-if-admin", and 
+  @ <li>Properties: "adunit", "adunit-right", "adunit-omit-if-admin", and
   @     "adunit-omit-if-user".
   @ <li>Suggested <a href="setup_skinedit?w=0">CSS</a> changes:
   @ <blockquote><pre>

@@ -14,7 +14,10 @@
 int main(int argc, char *argv[]){
     FILE *m,*u,*v;
     char *z;
-    int i, j, x, d;
+#if defined(__DMC__)            /* e.g. 0x857 */
+    int i = 0;
+#endif
+    int j = 0, x = 0, d = 0;
     int vn[3];
     char b[1000];
     char vx[1000];
@@ -47,8 +50,6 @@ int main(int argc, char *argv[]){
     for(z=b; z[0] && z[0]!='\r' && z[0]!='\n'; z++){}
     *z = 0;
     printf("#define RELEASE_VERSION \"%s\"\n", b);
-    x=0;
-    i=j=0;
     z=b;
     vn[0] = vn[1] = vn[2] = 0;
     while(1){
@@ -65,7 +66,6 @@ int main(int argc, char *argv[]){
     printf("#define RELEASE_VERSION_NUMBER %d%02d%02d\n", vn[0], vn[1], vn[2]);
     memset(vx,0,sizeof(vx));
     strcpy(vx,b);
-    d = 0;
     for(z=vx; z[0]; z++){
       if( z[0]=='-' ){
         z[0] = 0;
