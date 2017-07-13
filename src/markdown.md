@@ -2,7 +2,7 @@
 
 ## Paragraphs ##
 
-> Paragraphs are divided by blank lines.  
+> Paragraphs are divided by blank lines.
 > End a line with two or more spaces to force a mid-paragraph line break.
 
 ## Headings ##

@@ -512,10 +512,10 @@ static int scan_file(const char *zName, const char *zContent){
   int ln = 0;
   int szToken;
   int eToken;
-  const char *zPrev;
-  int ePrev;
-  int szPrev;
-  int lnPrev;
+  const char *zPrev = 0;
+  int ePrev = 0;
+  int szPrev = 0;
+  int lnPrev = 0;
   int nCurly = 0;
   int x;
   unsigned fmtFlags = 0;
