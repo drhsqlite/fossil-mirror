@@ -77,13 +77,14 @@
 ## Miscellaneous ##
 
 > *   In-line images are made using **\!\[alt-text\]\(image-URL\)**.
-> *   Use HTML for complex formatting such as tables and forms.
+> *   Use HTML for advanced formatting such as tables and forms.
+> *   **\<!--** HTML-style comments **-->** are supported.
 > *   Escape special characters (ex: "\[", "\(", "\*")
 >     using backslash (ex: "\\\[", "\\\(", "\\\*").
 > *   A line consisting of **---**, **\*\*\***, or **\_\_\_** is a horizontal
 >     rule.  Spaces and extra **-**/**\***/**_** are allowed.
 > *   See [daringfireball.net][] for additional information.
-> *   See this page's [Markdown source](/md_rules?txt=1) for more examples.
+> *   See this page's [Markdown source](/md_rules?txt=1) for complex examples.
 
 ## Special Features For Fossil ##
 

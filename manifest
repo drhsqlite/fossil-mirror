@@ -1,5 +1,5 @@
-C Update\stop\sOpenSSL\s1.0.2l.\nMinor\s(harmless)\scompiler\swarnings\sin\smkversion\sand\scodecheck1\s(-Wall)
-D 2017-07-13T10:22:03.033
+C Mention\ssupport\sfor\sHTML-style\scomments\sin\sMarkdown\sreference
+D 2017-07-14T20:47:04.569
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -468,7 +468,7 @@ F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl 7ffa5b66d2e1bd8b4834ed628a71665196455930f85886b8de1946ea6ba1304f
 F src/manifest.c f4a3bbebab4f68f76606254e87d1a49b441aa3ebb59f74041d3c23a35aae4a03
 F src/markdown.c 2cb7007279db7ad8e16f8c822d5ba27f59b4af2dcc0cd4ba87cce3e4303d5969
-F src/markdown.md ea6f4c64d00e5d7b7527315e85aaf3686aa79bbf3bd546f69ff7f1df0d6f5b5f
+F src/markdown.md 2abafdbf36117ab49b80acc5787429a71d054476d6d23a0dfbcd5c068ba34e99
 F src/markdown_html.c 5c7c2d2356e03a4456932c5fdef9aef836a379a5
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/merge.c 29e4ffff430dccc0cbbd3d633684d60b3bfb0ab8
@@ -791,7 +791,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7c0b971437fdbc7755bc96b68c4e4ff4278cc9c738e0adae1ee869d719b1355c
-R d2dbbb35d8b2de45ab49e50605cc7e1f
-U jan.nijtmans
-Z 2e0efc383566b3c58675cde4a2465aae
+P 23895c7b99d91794a480f0000ec93358385510ef7677d6c129bdf03b62116d43
+U andygoth
+Z 16815d3271858c753c5c2cc21dce15be
