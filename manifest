@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sfirst\s3.20.0\srelease\scandidate.
-D 2017-07-15T13:55:33.574
+C Fixed\scommit-warning.test\sbroken\sby\saddition\sof\sthe\sbootstrap\sskin\swhich\sincludes\sa\sfile\swith\slong\slines\sthat\sgenerated\sa\snew\swarning.
+D 2017-07-20T18:25:59.843
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -545,7 +545,7 @@ F test/amend.test 83966725550e04f80c40a52012074f91ef6d22cbd57f51e17e931eccee6663
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
 F test/cmdline.test df50383ebf00e7a444e29f2f755867f843c37df7
 F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
-F test/commit-warning.test 465c7b56da65c3c996d9a19621f31e4307dc55300ea85f554792669d72bbabb7
+F test/commit-warning.test a850532cb74a091a13aa24a9b59f232e6566c3d7722dd29041f17578665930c4
 F test/contains-selector.test cf46a39b3c1ff72d2fc674f4ccbeecfb94add7d2
 F test/delta1.test c3ea182ab06554a35203285774606ba37fdc620d
 F test/diff-test-1.wiki c25f312aa20a97b7127e8047f60fe67cc35319e5
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bfc29fb372da4104a21bb691b7351fa4dad4b39e3999fac889c63535d0a638c8
-R 1b7402e518f1a3b6a935ac23f7b53505
-U drh
-Z c10f9ca87fca0db224bcbdf75d4a8bdb
+P 4872a58be2b6090383e014996df7a71f74b166073d789e11e984eb07441b4494
+R 3a07d630062d6a7ecf50885981048753
+U rberteig
+Z af44fe6f389e6f51d726d61f48799efa
