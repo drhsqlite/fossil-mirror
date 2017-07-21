@@ -1,5 +1,5 @@
-C Version\s2.3\s-\sthe\s10th\sanniversary\srelease
-D 2017-07-21T03:19:30.788
+C Improve\sUI\sbased\stest\sdocumentation\swith\sminor\scorrections\sto\srequirements\nand\sURLs.
+D 2017-07-21T04:22:57.344
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -548,14 +548,14 @@ F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
 F test/commit-warning.test a850532cb74a091a13aa24a9b59f232e6566c3d7722dd29041f17578665930c4
 F test/contains-selector.test cf46a39b3c1ff72d2fc674f4ccbeecfb94add7d2
 F test/delta1.test c3ea182ab06554a35203285774606ba37fdc620d
-F test/diff-test-1.wiki c25f312aa20a97b7127e8047f60fe67cc35319e5
+F test/diff-test-1.wiki 1ca941eded0cbf5aa81212d86551512d62717515e0553ddf8a11f15b4603973d
 F test/diff.test bf9b349dd6f33022ef2aef2894d3057e2daaf507
 F test/fake-editor.tcl 11b5ddc9629fefb4dbc32806f80211440600c744
 F test/file1.test 9b2ac578521a7097017c64b8877f6fa6ca0904f7
 F test/fileStat.th1 e3e30f7b46488c26215a6d713be36ad4ed595132
-F test/fileage-test-1.wiki d249e897fdd41038c17f3b66d374e509830da1eb
+F test/fileage-test-1.wiki 50661a791a5037d949534b42cfb1c8245687803fa46894f84a1ad458264d8501
 F test/glob.test e135d6e1333452beece53619e9a67cd9224ab00c
-F test/graph-test-1.wiki b723f0e694974edb84ff0744fccbad0dd93181dd
+F test/graph-test-1.wiki 3dd1bdc5866649041dd619badea330eee20fb12c542b3e97fd35943c0bcd7abe
 F test/json.test 6f77d48c30c6f4f0b9f4d5a985814d5780641857e715374b301dd41ebcd0e75c
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
@@ -791,10 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ae83b2137f7b44818f88b761248b289a4d9d544b7505cf0da8ca8b2efd5bc013
-R 3a07d630062d6a7ecf50885981048753
-T +bgcolor * #d0c0ff
-T +sym-release *
-T +sym-version-2.3 *
-U drh
-Z afb8f8ee4f31314d2fa161596b8d4bfd
+P f7914bfdfacad19a8bb7a5fe9152234f8f20de1270f60cfa65880adf3bb31850
+R d624f27a8e2c769cacec639980355958
+U andybradford
+Z 39db0be5c8fd5488ab2ad8fdef56cc9f
