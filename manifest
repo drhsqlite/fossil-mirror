@@ -1,5 +1,5 @@
-C Fixed\scommit-warning.test\sbroken\sby\saddition\sof\sthe\sbootstrap\sskin\swhich\sincludes\sa\sfile\swith\slong\slines\sthat\sgenerated\sa\snew\swarning.
-D 2017-07-20T18:25:59.843
+C Version\s2.3\s-\sthe\s10th\sanniversary\srelease
+D 2017-07-21T03:19:30.788
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -791,7 +791,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4872a58be2b6090383e014996df7a71f74b166073d789e11e984eb07441b4494
+P ae83b2137f7b44818f88b761248b289a4d9d544b7505cf0da8ca8b2efd5bc013
 R 3a07d630062d6a7ecf50885981048753
-U rberteig
-Z af44fe6f389e6f51d726d61f48799efa
+T +bgcolor * #d0c0ff
+T +sym-release *
+T +sym-version-2.3 *
+U drh
+Z afb8f8ee4f31314d2fa161596b8d4bfd
