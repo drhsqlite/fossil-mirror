@@ -1,5 +1,5 @@
-C Improve\sUI\sbased\stest\sdocumentation\swith\sminor\scorrections\sto\srequirements\nand\sURLs.
-D 2017-07-21T04:22:57.344
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\ssecond\s3.20.0\srelease\scandidate.
+D 2017-07-24T14:26:21.139
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -498,13 +498,13 @@ F src/setup.c d94de4b3d8ac61510620f8a3fc21760ac5dbd2db2bacc115451fd574e97f4fda
 F src/sha1.c 04efd231424be45a281bdb50def7fce94625bd45b53d3c96b89e8de31f0305be
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c 7d862ff2c83826fd251909f5af2c8dd642417a8c389685e169f3c00434f784fa
-F src/shell.c e89ad1135cb47c95896a1aec4bd0113af90a057d80f20003f354fa56fc10a616
+F src/shell.c bd6a37cbe8bf64ef6a6a74fdc50f067d3148149b4ce2b4d03154663e66ded55f
 F src/shun.c e6e544a8b9200a704121c280604ed42e6aefc3f19f5107d0bdf9b51d9a912a4e
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c bfbf18354d0e19798923bf0db33da49327493907f9f0e398cd4ea46b519a9c33
 F src/sqlcmd.c b150ead4134db3739733abb077bf764bf998bfede7d1d8ea457455adf3684c31
-F src/sqlite3.c 4bb622c39e22957c7cf4eacdd6cd67ec67fdc25f483c5817c39a42a8c814c967
-F src/sqlite3.h ecedba9492b773a7d15fc1d274122868d58f8ad3b9121f7e35787f209e19be9b
+F src/sqlite3.c 5ac0c7c1edf7a73da5e265fb31d8af2270a2b15d59a71b651b78d5001996449d
+F src/sqlite3.h 388e3a95514113953cee268af2e01fe5f0011e00eb7314d82e14f68412322cbf
 F src/stash.c dc0263e11eeb30689418e4def6174af973ad66bf
 F src/stat.c c7c6e7182a2594038ed16aeba3117e5d44401f18ca1a967f872cae879f1ed7ca
 F src/statrep.c 9ee2695e45d0a0de17ce79d0b027f79bd246b4f305c95649044c3709a44372cd
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f7914bfdfacad19a8bb7a5fe9152234f8f20de1270f60cfa65880adf3bb31850
-R d624f27a8e2c769cacec639980355958
-U andybradford
-Z 39db0be5c8fd5488ab2ad8fdef56cc9f
+P 0a2be0648be6ccf184c9ff2aea51268f8ab17bd3a46a370c107560d2e4c17b40
+R 2cce0b4b716ec54a605d1778e5d25b12
+U drh
+Z 8c4aece2402a2762ffea482279159dfd
