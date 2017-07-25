@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\ssecond\s3.20.0\srelease\scandidate.
-D 2017-07-24T14:26:21.139
+C Update\sthe\sselfhosting\sinformation\sto\stalk\sabout\sthe\snew\swww3.fossil-scm.org.
+D 2017-07-25T14:38:59.017
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -772,7 +772,7 @@ F www/quotes.wiki 6f77c1af17f05596d0f6a4cc88f149a61188ecfd
 F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
-F www/selfhost.wiki 6090bea94139ec56a3cba671e75d0e78c54ee077
+F www/selfhost.wiki 96c4709c92a734914ccc3a81d66d211dd8640078108b6a7f5a8f6b23d1f2dd3f
 F www/server.wiki aeef4081f8bdd4ae729e2a5dc9aa841e0156a0aa6cb76eb72f3c2f85eb646fe0
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0a2be0648be6ccf184c9ff2aea51268f8ab17bd3a46a370c107560d2e4c17b40
-R 2cce0b4b716ec54a605d1778e5d25b12
+P c45b8f4534682a21e89715e72b20f08e0327b6f3f2d8e8bcbd367c21a2441941
+R bef1f2260ad998bd171e6004a73b4dd7
 U drh
-Z 8c4aece2402a2762ffea482279159dfd
+Z 410e650fa5c5e170a699623fc2af2d4e
