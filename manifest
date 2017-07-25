@@ -1,5 +1,5 @@
-C Update\sthe\sselfhosting\sinformation\sto\stalk\sabout\sthe\snew\swww3.fossil-scm.org.
-D 2017-07-25T14:38:59.017
+C Better\serror\schecking\sin\sthe\smkversion\sutility\sprogram\sused\sduring\sthe\nbuild\sprocess.
+D 2017-07-25T15:38:33.400
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -476,7 +476,7 @@ F src/merge3.c 04153e0e1a0c15c6e7e1815949b11084da2285416d76c257767b54652aaf1b78
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
 F src/mkindex.c f4183ca13461544fe06f34af0a3501ea96d3637f
-F src/mkversion.c 54a7ddc448a10728c434c78f396eedc88fc98d9c9372d056c0fbf12f0bd7f671
+F src/mkversion.c 6e606c3a895f71b35a878e817104b5e5eb056ce47925e341fde567f2448e9aa7
 F src/moderate.c 2540f90b20778a4d62156a3b4af962b401d4c89f
 F src/name.c 7672b98171a8e90e9dfdb387cbf92e17efc2ff8bff93f46314b1d74de04f2958
 F src/path.c cce5fdfa571861a81e1a48e893e5a52dd2703a5f
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c45b8f4534682a21e89715e72b20f08e0327b6f3f2d8e8bcbd367c21a2441941
-R bef1f2260ad998bd171e6004a73b4dd7
+P 5698492fbb379b7d9aa8f0099b2d5098978336d27d4ce3efa58c8743425982d3
+R 91b30e12c3a36c2c1e819d14be56b824
 U drh
-Z 410e650fa5c5e170a699623fc2af2d4e
+Z e1f1762851cbb85b33098175ade2ac3c
