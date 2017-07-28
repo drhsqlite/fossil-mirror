@@ -1,5 +1,5 @@
-C Version\s2.3\s-\sthe\s10th\sanniversary\srelease
-D 2017-07-21T03:19:30.788
+C (cherry-pick):\sFix\sa\sproblem\swith\smarkdown\srendering\sfor\s"code".
+D 2017-07-28T19:41:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -11,10 +11,10 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile de98550db1d43a29a17bbd9284308733fb72615f
+F Dockerfile 4389eba36d99fb04d3aae4907152eca7e05a4aa7d7cd227dad8396ead6b9c853
 F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
 F Makefile.in ca04b4081ad0dc54256f7d609168750c2247882e
-F VERSION 8e87e2a6508bd0b41e01c8620fd6803092131be15f06b641fcf27e604b6c76e7
+F VERSION 5d28806b7eb7e47bc827c4512e9d6785afb2ed2f8bf345740877700c908d1147
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -469,7 +469,7 @@ F src/makemake.tcl 7ffa5b66d2e1bd8b4834ed628a71665196455930f85886b8de1946ea6ba13
 F src/manifest.c f4a3bbebab4f68f76606254e87d1a49b441aa3ebb59f74041d3c23a35aae4a03
 F src/markdown.c 2cb7007279db7ad8e16f8c822d5ba27f59b4af2dcc0cd4ba87cce3e4303d5969
 F src/markdown.md 2abafdbf36117ab49b80acc5787429a71d054476d6d23a0dfbcd5c068ba34e99
-F src/markdown_html.c 5c7c2d2356e03a4456932c5fdef9aef836a379a5
+F src/markdown_html.c 9bf56751d43414003cbf08b5a162d50a53df2c4f48951ccf9152119f39629789
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/merge.c 29e4ffff430dccc0cbbd3d633684d60b3bfb0ab8
 F src/merge3.c 04153e0e1a0c15c6e7e1815949b11084da2285416d76c257767b54652aaf1b78
@@ -791,10 +791,11 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ae83b2137f7b44818f88b761248b289a4d9d544b7505cf0da8ca8b2efd5bc013
-R 3a07d630062d6a7ecf50885981048753
-T +bgcolor * #d0c0ff
-T +sym-release *
-T +sym-version-2.3 *
-U drh
-Z afb8f8ee4f31314d2fa161596b8d4bfd
+P f7914bfdfacad19a8bb7a5fe9152234f8f20de1270f60cfa65880adf3bb31850
+Q +04de083ec842c3f22f64bb05c9472d7432482dcaf92591415492c1e21ce6d65f
+R 299896f534a566f44b433dd59c830977
+T *branch * branch-2.3
+T *sym-branch-2.3 *
+T -sym-trunk *
+U jan.nijtmans
+Z a1926dcb5ace1670a2be6ee95ef4cc5d
