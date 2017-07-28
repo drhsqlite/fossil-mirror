@@ -1,5 +1,5 @@
-C Better\serror\schecking\sin\sthe\smkversion\sutility\sprogram\sused\sduring\sthe\nbuild\sprocess.
-D 2017-07-25T15:38:33.400
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3rd\s3.20.0\srelease\scandidate.
+D 2017-07-28T00:49:46.151
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -503,8 +503,8 @@ F src/shun.c e6e544a8b9200a704121c280604ed42e6aefc3f19f5107d0bdf9b51d9a912a4e
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c bfbf18354d0e19798923bf0db33da49327493907f9f0e398cd4ea46b519a9c33
 F src/sqlcmd.c b150ead4134db3739733abb077bf764bf998bfede7d1d8ea457455adf3684c31
-F src/sqlite3.c 5ac0c7c1edf7a73da5e265fb31d8af2270a2b15d59a71b651b78d5001996449d
-F src/sqlite3.h 388e3a95514113953cee268af2e01fe5f0011e00eb7314d82e14f68412322cbf
+F src/sqlite3.c de3a5ffc3b3f00c541f88359ebe2658ab94cc8f889aacd46a73f43dec1cf87e6
+F src/sqlite3.h f863dc176fd89c2c49be4c8d898c6d0012747edb0d8dd252192ac88e1f519d67
 F src/stash.c dc0263e11eeb30689418e4def6174af973ad66bf
 F src/stat.c c7c6e7182a2594038ed16aeba3117e5d44401f18ca1a967f872cae879f1ed7ca
 F src/statrep.c 9ee2695e45d0a0de17ce79d0b027f79bd246b4f305c95649044c3709a44372cd
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5698492fbb379b7d9aa8f0099b2d5098978336d27d4ce3efa58c8743425982d3
-R 91b30e12c3a36c2c1e819d14be56b824
+P 8b9ce19e38d5b7dab3fe3d15a327e4c4f9ba91f36a3b9de56b6542de1a46c218
+R 24bfd7fbb1ed50103084fa4b45be0b4c
 U drh
-Z e1f1762851cbb85b33098175ade2ac3c
+Z 2bfb5cea6360b413c890884b14fe364e
