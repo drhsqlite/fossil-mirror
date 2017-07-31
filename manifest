@@ -1,5 +1,5 @@
-C Fix\sa\sproblem\swith\smarkdown\srendering\sfor\s"code".
-D 2017-07-28T18:41:13.340
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s4th\srelease\scandidate\sfor\s3.20.0.
+D 2017-07-31T17:42:57.700
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -503,8 +503,8 @@ F src/shun.c e6e544a8b9200a704121c280604ed42e6aefc3f19f5107d0bdf9b51d9a912a4e
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c bfbf18354d0e19798923bf0db33da49327493907f9f0e398cd4ea46b519a9c33
 F src/sqlcmd.c b150ead4134db3739733abb077bf764bf998bfede7d1d8ea457455adf3684c31
-F src/sqlite3.c de3a5ffc3b3f00c541f88359ebe2658ab94cc8f889aacd46a73f43dec1cf87e6
-F src/sqlite3.h f863dc176fd89c2c49be4c8d898c6d0012747edb0d8dd252192ac88e1f519d67
+F src/sqlite3.c 9c29120c9427226f0b423f1680ce2e233465e31b7c4ab70a49290a6aac051e56
+F src/sqlite3.h 2d7ea20dd5ee7a41388d4dd2220ef214efb33399b3a99ac404430031b785483f
 F src/stash.c dc0263e11eeb30689418e4def6174af973ad66bf
 F src/stat.c c7c6e7182a2594038ed16aeba3117e5d44401f18ca1a967f872cae879f1ed7ca
 F src/statrep.c 9ee2695e45d0a0de17ce79d0b027f79bd246b4f305c95649044c3709a44372cd
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8ffba76b7342556ee76774af3d98209729ca034a93f6c00fd168a60fabeafb95
-R 625be8960c46cd4f26c21ee64631f6de
+P 04de083ec842c3f22f64bb05c9472d7432482dcaf92591415492c1e21ce6d65f
+R 150b2403c997988aa8a830887df491c2
 U drh
-Z c712a6594d4185a3fcb7a928f34614b0
+Z 41299174de515acd1ef710b0906b6e29
