@@ -374,18 +374,13 @@ void zip_of_checkin(
         eflg |= MFESTFLG_TAGS;
       }
 
-      if( eflg & (MFESTFLG_RAW|MFESTFLG_UUID) ){
-        if( eflg & MFESTFLG_RAW ){
-          blob_append(&filename, "manifest", -1);
-          zName = blob_str(&filename);
-          zip_add_folders(zName);
-        }
-        if( eflg & MFESTFLG_RAW ){
-          sterilize_manifest(&mfile);
-          zip_add_file(zName, &mfile, 0);
-        }
+      if( eflg & MFESTFLG_RAW ){
+        blob_append(&filename, "manifest", -1);
+        zName = blob_str(&filename);
+        zip_add_folders(zName);
+        sterilize_manifest(&mfile);
+        zip_add_file(zName, &mfile, 0);
       }
-      blob_reset(&mfile);
       if( eflg & MFESTFLG_UUID ){
         blob_append(&hash, "\n", 1);
         blob_resize(&filename, nPrefix);
@@ -422,9 +417,8 @@ void zip_of_checkin(
         blob_reset(&file);
       }
     }
-  }else{
-    blob_reset(&mfile);
   }
+  blob_reset(&mfile);
   manifest_destroy(pManifest);
   blob_reset(&filename);
   blob_reset(&hash);
