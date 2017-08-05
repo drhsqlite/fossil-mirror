@@ -1,5 +1,10 @@
 <title>Change Log</title>
 
+<a name='v2_4'></a>
+<h2>Changes for Version 2.4 (TBD)</h2>
+
+  *  Correct the [/help?cmd=/doc|/doc] page to support read-only repositories.
+
 <a name='v2_3'></a>
 <h2>Changes for Version 2.3 (2017-07-21)</h2>
 
