@@ -468,6 +468,7 @@ void zip_cmd(void){
   if( g.argc!=4 ){
     usage("VERSION OUTPUTFILE");
   }
+  g.zOpenRevision = g.argv[2];
   rid = name_to_typed_rid(g.argv[2], "ci");
   if( rid==0 ){
     fossil_fatal("Check-in not found: %s", g.argv[2]);
@@ -541,7 +542,7 @@ void baseline_zip_page(void){
   z = P("r");
   if( z==0 ) z = P("uuid");
   if( z==0 ) z = "trunk";
-  zRid = fossil_strdup(z);
+  g.zOpenRevision = zRid = fossil_strdup(z);
   nRid = strlen(zRid);
   zInclude = P("in");
   if( zInclude ) pInclude = glob_create(zInclude);

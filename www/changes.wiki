@@ -4,6 +4,10 @@
 <h2>Changes for Version 2.4 (TBD)</h2>
 
   *  Correct the [/help?cmd=/doc|/doc] page to support read-only repositories.
+  *  Correct [/help?cmd=/zip|/zip], [/help?cmd=/tarball|/tarball],
+     [/help?cmd=zip|zip], and [/help?cmd=tarball|tarball] pages and commands to
+     honor the versioned manifest setting when outside of an open checkout
+     directory.
 
 <a name='v2_3'></a>
 <h2>Changes for Version 2.3 (2017-07-21)</h2>
