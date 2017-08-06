@@ -74,13 +74,30 @@
 > Begin each line with at least four spaces or one tab to produce a verbatim
 > code block.
 
+## Tables ##
+
+>
+    | Header 1     | Header 2  | Header 3      |
+    --------------------------------------------
+    |:Left-aligned |:Centered :| Right-aligned:|
+    |              | ← Blank → |               |
+
+> The first row is a header if followed by a horizontal rule or a blank line.
+
+> Placing **:** at the left, both, or right sides of a cell gives left-aligned,
+> centered, or right-aligned text, respectively.  By default, header cells are
+> centered, and body cells are left-aligned.
+
+> The leftmost **\|** is required if the first column contains at least one
+> blank cell.  The rightmost **\|** is optional.
+
 ## Miscellaneous ##
 
 > *   In-line images are made using **\!\[alt-text\]\(image-URL\)**.
-> *   Use HTML for advanced formatting such as tables and forms.
+> *   Use HTML for advanced formatting such as forms.
 > *   **\<!--** HTML-style comments **-->** are supported.
-> *   Escape special characters (ex: "\[", "\(", "\*")
->     using backslash (ex: "\\\[", "\\\(", "\\\*").
+> *   Escape special characters (ex: **\[** **\(** **\|** **\***)
+>     using backslash (ex: **\\\[** **\\\(** **\\\|** **\\\***).
 > *   A line consisting of **---**, **\*\*\***, or **\_\_\_** is a horizontal
 >     rule.  Spaces and extra **-**/**\***/**_** are allowed.
 > *   See [daringfireball.net][] for additional information.
@@ -88,10 +105,10 @@
 
 ## Special Features For Fossil ##
 
-> *  In hyperlinks, if the URL begins with "/" then the root of the Fossil
+> *  In hyperlinks, if the URL begins with **/** then the root of the Fossil
 >    repository is prepended.  This allows for repository-relative hyperlinks.
-> *  For documents that begin with a top-level heading (ex: "# heading #"), the
->    heading is omitted from the body of the document and becomes the document
->    title displayed at the top of the Fossil page.
+> *  For documents that begin with a top-level heading (ex: **# heading #**),
+>    the heading is omitted from the body of the document and becomes the
+>    document title displayed at the top of the Fossil page.
 
 [daringfireball.net]: http://daringfireball.net/projects/markdown/syntax
