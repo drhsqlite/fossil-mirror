@@ -49,7 +49,7 @@ management system with these advanced features:
   3.  <b>Self-Contained</b> -
       Fossil is a single self-contained stand-alone executable.
       To install, simply download a
-      <a href="http://www.fossil-scm.org/fossil/uv/download.html">precompiled binary</a>
+      [/uv/download.html | precompiled binary]
       for Linux, Mac, OpenBSD, or Windows and put it on your $PATH.
       [./build.wiki | Easy-to-compile source code] is also available.
 

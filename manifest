@@ -1,5 +1,5 @@
-C Restore\send-of-line\sspaces\sused\sto\sdemonstrate\smid-paragraph\sline\sbreak\sin\smarkdown.md.\s\sLine\sspaces\swere\sremoved\sby\s[23895c7b99]\swhich\sappeared\sto\sclean\shouse\son\send-of-line\swhitespace\sin\saddition\sto\sits\sdocumented\spurpose.
-D 2017-08-06T23:48:05.114
+C Hyperlinks\sto\sthe\sSSL\sversions\sof\sthe\swebsite.\s\sRedirect\sto\sthe\slocal\nunversioned\ssource\sfor\sthe\s"precompiled\sbinaries"\slink\son\sthe\shomepage.
+D 2017-08-07T20:22:38.625
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -756,7 +756,7 @@ F www/globs.md 912865720067b8491d0f7a8bba6970509a9b9d34101963938eae429a6a0ea1b6
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hashpolicy.wiki 901e234166e31d8cb6634577b3fe266f41453ca1
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
-F www/index.wiki 7e69fe76e1698975065aad0a913383cbe88596b57dd5eb28fd36fd252849488c
+F www/index.wiki 93f443d39d68c8f8608b3bd99b0a5bf296e9518997ed7b735a5c92f5a718312f
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki 7805bf0a04dc009df152d683771f8e3f74b194a4
 F www/mkdownload.tcl 86e774d93eb5c92cac5e7328920987feedf9356d
@@ -772,7 +772,7 @@ F www/quotes.wiki 6f77c1af17f05596d0f6a4cc88f149a61188ecfd
 F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
-F www/selfhost.wiki 96c4709c92a734914ccc3a81d66d211dd8640078108b6a7f5a8f6b23d1f2dd3f
+F www/selfhost.wiki aa4fe1f210e20474a4c5e0f0ab47be9860b060fcb0f1bd1a3a327e05f3a7a6c0
 F www/server.wiki aeef4081f8bdd4ae729e2a5dc9aa841e0156a0aa6cb76eb72f3c2f85eb646fe0
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
@@ -791,6 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6f69ccdc698319588bf99f7282ba7cb6a5526075d9e8228fd01e5450dd819182
-U andygoth
-Z 35cb7857b2b260a2a2a2655c9309184f
+P 1e491f6cc5b2c32b0ed49a56954ae170864cdc9f14a87dc237458f8b50ce0096
+R 4fd726d50c2f6443eef916f734c887bc
+U drh
+Z 3882b529e282eb0843d381491f20a489
