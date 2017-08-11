@@ -1,5 +1,5 @@
-C Hyperlinks\sto\sthe\sSSL\sversions\sof\sthe\swebsite.\s\sRedirect\sto\sthe\slocal\nunversioned\ssource\sfor\sthe\s"precompiled\sbinaries"\slink\son\sthe\shomepage.
-D 2017-08-07T20:22:38.625
+C Fix\sthe\sSSH\ssync\sprotocol\sto\savoid\s"ssh"\scommand-line\soption\sinjection\nattacks\ssuch\sas\sthose\sfixed\sin\sGit\s2.14.1\sand\sMercurial\s4.2.3.
+D 2017-08-11T15:29:56.985
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -436,7 +436,7 @@ F src/hname.c 1f0ea670e2648deb2e547175523843bb5a9b84fc
 F src/http.c 7de3f16908f0f49cbcfad625513c130c0aef8bb889a5902e0fe9cccfaf893a85
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d98
-F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
+F src/http_transport.c 11d00aed493ea5d82375845042b32ee378b1bd621ed30a6e6525537180520b37
 F src/import.c e48f2f2e0095795aeabe7220514c8694393693b853150c47f6d6792921def3f1
 F src/info.c ba148f2ccc26b287c216c5db6af311ba488efc23ea1a70e69295a03eed3e9cc1
 F src/json.c cc8d06a2d208ad0092d6d68ef5b7ac9a7e05708b3271c5cfd1da890f97322642
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1e491f6cc5b2c32b0ed49a56954ae170864cdc9f14a87dc237458f8b50ce0096
-R 4fd726d50c2f6443eef916f734c887bc
+P b130b64cb47003c99f6309d2a5d478ce8a89803d8408cc9b7885f515b95e700a
+R 3851279680a2dc019ea51ac6bcd24ce1
 U drh
-Z 3882b529e282eb0843d381491f20a489
+Z 14cdcfd3b291037977d99b1ed3e4706d

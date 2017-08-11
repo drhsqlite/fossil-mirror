@@ -77,6 +77,19 @@ void transport_stats(i64 *pnSent, i64 *pnRcvd, int resetFlag){
 }
 
 /*
+** Remove leading "-" characters from the input string.
+**
+** This prevents attacks that try to trick a victim into using
+** a ssh:// URI with a carefully crafted hostname of other
+** parameter that ends up being interpreted as a command-line
+** option by "ssh".
+*/
+static const char *stripLeadingMinus(const char *z){
+  while( z[0]=='-' ) z++;
+  return z;
+}
+
+/*
 ** Default SSH command
 */
 #ifdef _WIN32
@@ -118,13 +131,13 @@ int transport_ssh_open(UrlData *pUrlData){
   }
   n = blob_size(&zCmd);
   blob_append(&zCmd, " ", 1);
-  shell_escape(&zCmd, zHost);
+  shell_escape(&zCmd, stripLeadingMinus(zHost));
   blob_append(&zCmd, " ", 1);
   shell_escape(&zCmd, mprintf("%s", pUrlData->fossil));
   blob_append(&zCmd, " test-http", 10);
   if( pUrlData->path && pUrlData->path[0] ){
     blob_append(&zCmd, " ", 1);
-    shell_escape(&zCmd, mprintf("%s", pUrlData->path));
+    shell_escape(&zCmd, mprintf("%s", stripLeadingMinus(pUrlData->path)));
   }
   if( g.fSshTrace ){
     fossil_print("%s\n", blob_str(&zCmd)+n);  /* Show tail of SSH command */
