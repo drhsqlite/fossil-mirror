@@ -105,49 +105,51 @@ int transport_ssh_open(UrlData *pUrlData){
   /* For SSH we need to create and run SSH fossil http
   ** to talk to the remote machine.
   */
-  char *zSsh;        /* The base SSH command */
-  Blob zCmd;         /* The SSH command */
+  Blob sshBase;      /* The base SSH command */
+  Blob aArgv[50];    /* The SSH arguments array */
   char *zHost;       /* The host name to contact */
   int n;             /* Size of prefix string */
+  int nToken, i;
 
   socket_ssh_resolve_addr(pUrlData);
-  zSsh = db_get("ssh-command", zDefaultSshCmd);
-  blob_init(&zCmd, zSsh, -1);
+  blob_init(&sshBase, db_get("ssh-command", zDefaultSshCmd), -1);
+  blobarray_zero(aArgv, count(aArgv));
+  n = nToken = blob_tokenize(&sshBase, aArgv, count(aArgv));
   if( pUrlData->port!=pUrlData->dfltPort && pUrlData->port ){
 #ifdef _WIN32
-    blob_appendf(&zCmd, " -P %d", pUrlData->port);
+    blob_append(&aArgv[nToken++], "-P", 2);
 #else
-    blob_appendf(&zCmd, " -p %d", pUrlData->port);
+    blob_append(&aArgv[nToken++], "-p", 2);
 #endif
-  }
-  if( g.fSshTrace ){
-    fossil_force_newline();
-    fossil_print("%s", blob_str(&zCmd));  /* Show the base of the SSH command */
+    blob_appendf(&aArgv[nToken++], "%d", pUrlData->port);
   }
   if( pUrlData->user && pUrlData->user[0] ){
     zHost = mprintf("%s@%s", pUrlData->user, pUrlData->name);
   }else{
     zHost = mprintf("%s", pUrlData->name);
   }
-  n = blob_size(&zCmd);
-  blob_append(&zCmd, " ", 1);
-  shell_escape(&zCmd, stripLeadingMinus(zHost));
-  blob_append(&zCmd, " ", 1);
-  shell_escape(&zCmd, mprintf("%s", pUrlData->fossil));
-  blob_append(&zCmd, " test-http", 10);
+  shell_escape(&aArgv[nToken++], stripLeadingMinus(zHost));
+  shell_escape(&aArgv[nToken++], mprintf("%s", pUrlData->fossil));
+  blob_append(&aArgv[nToken++], "test-http", 9);
   if( pUrlData->path && pUrlData->path[0] ){
-    blob_append(&zCmd, " ", 1);
-    shell_escape(&zCmd, mprintf("%s", stripLeadingMinus(pUrlData->path)));
+    shell_escape(&aArgv[nToken++], 
+                 mprintf("%s", stripLeadingMinus(pUrlData->path)));
   }
   if( g.fSshTrace ){
-    fossil_print("%s\n", blob_str(&zCmd)+n);  /* Show tail of SSH command */
+    for(i=0; i<nToken; i++){
+      fossil_print("%s ", blob_str(&aArgv[i]));
+    }
+    fossil_force_newline();
   }
   free(zHost);
-  popen2(blob_str(&zCmd), &sshIn, &sshOut, &sshPid);
+  popen2(&aArgv[0], nToken, &sshIn, &sshOut, &sshPid);
   if( sshPid==0 ){
-    socket_set_errmsg("cannot start ssh tunnel using [%b]", &zCmd);
+    for(i=n; i<nToken; i++){
+      blob_appendf(&sshBase, " %b", &aArgv[i]);
+    }
+    socket_set_errmsg("cannot start ssh tunnel using [%b]", &sshBase);
   }
-  blob_reset(&zCmd);
+  blobarray_reset(aArgv, nToken);
   return sshPid==0;
 }
 

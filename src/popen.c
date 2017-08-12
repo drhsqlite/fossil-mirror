@@ -113,7 +113,7 @@ static int win32_create_child_process(
 #endif
 
 /*
-** Create a child process running shell command "zCmd".  *ppOut is
+** Create a child process from array of arguments in "aArgv".  *ppOut is
 ** a FILE that becomes the standard input of the child process.
 ** (The caller writes to *ppOut in order to send text to the child.)
 ** *ppIn is stdout from the child process.  (The caller
@@ -123,12 +123,13 @@ static int win32_create_child_process(
 **
 ** Return the number of errors.
 */
-int popen2(const char *zCmd, int *pfdIn, FILE **ppOut, int *pChildPid){
+int popen2(Blob *aArgv, int nToken, int *pfdIn, FILE **ppOut, int *pChildPid){
 #ifdef _WIN32
   HANDLE hStdinRd, hStdinWr, hStdoutRd, hStdoutWr, hStderr;
   SECURITY_ATTRIBUTES saAttr;
   DWORD childPid = 0;
-  int fd;
+  Blob shellcmd;
+  int fd, i;
 
   saAttr.nLength = sizeof(saAttr);
   saAttr.bInheritHandle = TRUE;
@@ -144,7 +145,12 @@ int popen2(const char *zCmd, int *pfdIn, FILE **ppOut, int *pChildPid){
   }
   SetHandleInformation( hStdinWr, HANDLE_FLAG_INHERIT, FALSE);
 
-  win32_create_child_process(fossil_utf8_to_unicode(zCmd),
+  blob_zero(&shellcmd);
+  for(i=0; i<nToken-1; i++){
+    blob_appendf(&shellcmd, "%b ", aArgv[i]);
+  }
+  blob_trim(&shellcmd);
+  win32_create_child_process(fossil_utf8_to_unicode(blob_str(&shellcmd)),
                              hStdinRd, hStdoutWr, hStderr,&childPid);
   *pChildPid = childPid;
   *pfdIn = _open_osfhandle(PTR_TO_INT(hStdoutRd), 0);
@@ -178,7 +184,8 @@ int popen2(const char *zCmd, int *pfdIn, FILE **ppOut, int *pChildPid){
   }
   signal(SIGPIPE,SIG_IGN);
   if( *pChildPid==0 ){
-    int fd;
+    char **pzArgs = 0;
+    int fd, i;
     int nErr = 0;
     /* This is the child process */
     close(0);
@@ -191,7 +198,12 @@ int popen2(const char *zCmd, int *pfdIn, FILE **ppOut, int *pChildPid){
     if( fd!=1 ) nErr++;
     close(pin[0]);
     close(pin[1]);
-    execl("/bin/sh", "/bin/sh", "-c", zCmd, (char*)0);
+    pzArgs = fossil_malloc( (nToken+1)*sizeof(pzArgs[0]) );
+    for(i=0; i<nToken; i++){
+      pzArgs[i] = blob_str(&aArgv[i]);
+    }
+    pzArgs[i] = 0;
+    execvp(pzArgs[0], pzArgs);
     return 1;
   }else{
     /* This is the parent process */

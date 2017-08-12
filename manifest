@@ -1,5 +1,5 @@
-C Typo\scorrection
-D 2017-08-12T04:19:56.939
+C Avoid\sanother\sattack\svector\swhen\susing\sSSH\ssync\sprotocol\sby\snot\scalling\sa\nshell\sinterpreter.\s\sFixes\sonly\sUnix-like\senvironments\sby\susing\sexecvp()\ninstead\sof\sa\sstring\sthat\scan\sbe\smishandled\sby\s/bin/sh.
+D 2017-08-12T16:20:18.008
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -436,7 +436,7 @@ F src/hname.c 1f0ea670e2648deb2e547175523843bb5a9b84fc
 F src/http.c 7de3f16908f0f49cbcfad625513c130c0aef8bb889a5902e0fe9cccfaf893a85
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d98
-F src/http_transport.c 11d00aed493ea5d82375845042b32ee378b1bd621ed30a6e6525537180520b37
+F src/http_transport.c 6f33bda5cf823666ca6db34ac49c4625e07d1a70fc410270b1e712779bf6ddf7
 F src/import.c e48f2f2e0095795aeabe7220514c8694393693b853150c47f6d6792921def3f1
 F src/info.c ba148f2ccc26b287c216c5db6af311ba488efc23ea1a70e69295a03eed3e9cc1
 F src/json.c cc8d06a2d208ad0092d6d68ef5b7ac9a7e05708b3271c5cfd1da890f97322642
@@ -482,7 +482,7 @@ F src/name.c 7672b98171a8e90e9dfdb387cbf92e17efc2ff8bff93f46314b1d74de04f2958
 F src/path.c cce5fdfa571861a81e1a48e893e5a52dd2703a5f
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c e4a8ed414bbc311a3f427cad8da023d33bd39f46
-F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
+F src/popen.c aae4d0fc2fd78be52260927c4a396cb748b2c718074fcadf6adaad04aa6030fc
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 1cf52da2f0f43868d026ff790a4eadbd984fd040
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
@@ -791,6 +791,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3ebbe7bcaa8f22216519b25609bdf2f34e825179edd3025dcba5fb0daa843697
-U andygoth
-Z d4625790ff59b8346df66bb1e04b9144
+P 45a3d4b1670f123e14460d2f458de5755e5739858ac4c1d3f5b831d4eec09951
+R 7226f4406e3ef68f06c0109853afa614
+T *branch * ssh-shell-cleanup
+T *sym-ssh-shell-cleanup *
+T -sym-trunk *
+U andybradford
+Z 31481a27ae02a4d2a1a5f46998fd0f0c
