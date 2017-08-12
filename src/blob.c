@@ -1171,24 +1171,50 @@ void blob_cp1252_to_utf8(Blob *p){
 }
 
 /*
-** Shell-escape the given string.  Append the result to a blob.
+** pBlob is a shell command under construction.  This routine safely
+** appends argument zIn.
+**
+** The argument is escaped if it contains white space or other characters
+** that need to be escaped for the shell.  If zIn contains characters
+** that cannot be safely escaped, then throw a fatal error.
+**
+** The argument is expected to a filename of some kinds.  As shell commands
+** commonly have command-line options that begin with "-" and since we
+** do not want an attacker to be able to invoke these switches using
+** filenames that begin with "-", if zIn begins with "-", prepend
+** an additional "./".
 */
-void shell_escape(Blob *pBlob, const char *zIn){
+void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
+  int i;
+  char c;
+  int needEscape = 0;
   int n = blob_size(pBlob);
-  int k = strlen(zIn);
-  int i, c;
-  char *z;
+  char *z = blob_buffer(pBlob);
+#if defined(_WIN32_)
+  const char cQuote = '"';    /* Use "..." quoting on windows */
+#else
+  const char cQuote = '\'';   /* Use '...' quoting on unix */
+#endif
+
   for(i=0; (c = zIn[i])!=0; i++){
-    if( fossil_isspace(c) || c=='"' || (c=='\\' && zIn[i+1]!=0) ){
-      blob_appendf(pBlob, "\"%s\"", zIn);
-      z = blob_buffer(pBlob);
-      for(i=n+1; i<=n+k; i++){
-        if( z[i]=='"' ) z[i] = '_';
+    if( c==cQuote || c=='\\' || c<' ' ) {
+      Blob bad;
+      blob_token(pBlob, &bad);
+      fossil_fatal("the [%s] argument to the \"%s\" command contains "
+                   "a character (ascii 0x%02x) that is a security risk",
+                   zIn, blob_str(&bad), c);
+      if( !needEscape && !fossil_isspace(c) && c!='/' && c!='.' && c!='_' ){
+        needEscape = 1;
       }
-      return;
     }
   }
+  if( n>0 && !fossil_isspace(z[n-1]) ){
+    blob_append(pBlob, " ", 1);
+  }
+  if( needEscape ) blob_append(pBlob, &cQuote, 1);
+  if( zIn[0]=='-' ) blob_append(pBlob, "./", 2);
   blob_append(pBlob, zIn, -1);
+  if( needEscape ) blob_append(pBlob, &cQuote, 1);
 }
 
 /*

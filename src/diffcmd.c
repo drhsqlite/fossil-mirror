@@ -265,15 +265,13 @@ void diff_file(
 
     /* Construct the external diff command */
     blob_zero(&cmd);
-    blob_appendf(&cmd, "%s ", zDiffCmd);
+    blob_append(&cmd, zDiffCmd, -1);
     if( fSwapDiff ){
-      shell_escape(&cmd, zFile2);
-      blob_append(&cmd, " ", 1);
-      shell_escape(&cmd, blob_str(&nameFile1));
+      blob_append_escaped_arg(&cmd, zFile2);
+      blob_append_escaped_arg(&cmd, blob_str(&nameFile1));
     }else{
-      shell_escape(&cmd, blob_str(&nameFile1));
-      blob_append(&cmd, " ", 1);
-      shell_escape(&cmd, zFile2);
+      blob_append_escaped_arg(&cmd, blob_str(&nameFile1));
+      blob_append_escaped_arg(&cmd, zFile2);
     }
 
     /* Run the external diff command */
@@ -362,10 +360,9 @@ void diff_file_mem(
 
     /* Construct the external diff command */
     blob_zero(&cmd);
-    blob_appendf(&cmd, "%s ", zDiffCmd);
-    shell_escape(&cmd, blob_str(&temp1));
-    blob_append(&cmd, " ", 1);
-    shell_escape(&cmd, blob_str(&temp2));
+    blob_append(&cmd, zDiffCmd, -1);
+    blob_append_escaped_arg(&cmd, blob_str(&temp1));
+    blob_append_escaped_arg(&cmd, blob_str(&temp2));
 
     /* Run the external diff command */
     fossil_system(blob_str(&cmd));

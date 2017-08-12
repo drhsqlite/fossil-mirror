@@ -1,5 +1,5 @@
-C Typo\scorrection
-D 2017-08-12T04:19:56.939
+C Change\sthe\sshell_escape()\sprocedure\sinto\sblob_append_escaped_arg().\s\sHave\nthat\sprocedure\sraise\sa\sfatal\serror\sif\sthe\sargument\sto\sbe\sappended\scontains\ndodgy\scharacters\sthat\smight\spose\sa\ssecurity\srisk.\s\sAlso,\sprepend\s"./"\sin\nfront\sof\sarguments\sthat\sbegin\swith\s"-"\sto\sprevent\sthem\sfrom\slooking\slike\nswitches.
+D 2017-08-12T18:15:36.005
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -392,7 +392,7 @@ F src/allrepo.c 7296e9bfbbd4897b522ec2e2c26aa88890ffdae1
 F src/attach.c 702f70714f6ed49b8d3d669cfbe4f87ac78946b8
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
-F src/blob.c febcddb2025c8da733aa3667d4e9ddef03db41898fdd9b4489d64faaaf4dc1aa
+F src/blob.c db5fd969e5ca482a3b680d4b26ae37e7d0ddbbd63e631207e3316384f8551472
 F src/branch.c d68826ae16d6a89ea3126ab583577fb5f09de23b
 F src/browse.c 18bde58dc10c5600b39b6bef636b27ddef07c986602f764bdc2182588d7807bc
 F src/builtin.c d147d04305aa0db964ec84ef049e8e88d134de87
@@ -418,7 +418,7 @@ F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
 F src/diff.c d7dd6b9c57ceff7a7102e979c4e5a1959571c0804d04534716121744e81563f9
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
-F src/diffcmd.c 36f42230cdcb661c671255b41a4c8a666c58c1173511d512fba2800e8cf0d106
+F src/diffcmd.c ed717450412b9a8fa0ff0c9321e51a0c466cc8e03d5ac0f737609b6a533a820e
 F src/dispatch.c 63d8b8268be2fcae4540b9f22a2dd2fc5828629463db42dbc5430e48fa18fe2d
 F src/doc.c cb5731ba54b9ccf3e497965db9874e9553a2bf21772ce14398c05526019ca44e
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
@@ -436,7 +436,7 @@ F src/hname.c 1f0ea670e2648deb2e547175523843bb5a9b84fc
 F src/http.c 7de3f16908f0f49cbcfad625513c130c0aef8bb889a5902e0fe9cccfaf893a85
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d98
-F src/http_transport.c 11d00aed493ea5d82375845042b32ee378b1bd621ed30a6e6525537180520b37
+F src/http_transport.c d99086567bf94bef7ac6809a1a36f3853933d17c71a4afb85205b2af71be5397
 F src/import.c e48f2f2e0095795aeabe7220514c8694393693b853150c47f6d6792921def3f1
 F src/info.c ba148f2ccc26b287c216c5db6af311ba488efc23ea1a70e69295a03eed3e9cc1
 F src/json.c cc8d06a2d208ad0092d6d68ef5b7ac9a7e05708b3271c5cfd1da890f97322642
@@ -791,6 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3ebbe7bcaa8f22216519b25609bdf2f34e825179edd3025dcba5fb0daa843697
-U andygoth
-Z d4625790ff59b8346df66bb1e04b9144
+P 45a3d4b1670f123e14460d2f458de5755e5739858ac4c1d3f5b831d4eec09951
+R e342f47f1a637889c0b2684cf0cccda0
+U drh
+Z 671d331ced2e6b08641ad5dcc307a752
