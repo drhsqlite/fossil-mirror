@@ -1,5 +1,5 @@
-C Fix\sanother\sproblem\swith\sthe\sneedEscape\scomputation\sin\sblob_append_escaped_arg()
-D 2017-08-12T18:24:29.326
+C Disallow\sthe\s';'\scharacter\sin\sblob_append_escape_arg().
+D 2017-08-12T18:30:41.572
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -392,7 +392,7 @@ F src/allrepo.c 7296e9bfbbd4897b522ec2e2c26aa88890ffdae1
 F src/attach.c 702f70714f6ed49b8d3d669cfbe4f87ac78946b8
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
-F src/blob.c 64cc8202042d227d458f453940faa45dcfd62d06b51e1a5c5701480ab3acf3e6
+F src/blob.c 0db031be7b43486ce152fa03ff40f4cc3b70e0a5b6603896b40f787b9f2da0d9
 F src/branch.c d68826ae16d6a89ea3126ab583577fb5f09de23b
 F src/browse.c 18bde58dc10c5600b39b6bef636b27ddef07c986602f764bdc2182588d7807bc
 F src/builtin.c d147d04305aa0db964ec84ef049e8e88d134de87
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 49ae1785a6149c80b62715081e0178fd901686056fede5206423cf534e195cb6
-R 2acb8d11400ec072f99753d083fb2387
+P 9eea719af68932ad5a9930f86e4656b249eae995530396b78308969882f309be
+R da02a91239aadc75803e97c22cc27f86
 U drh
-Z 03a83d00f02f7046d85c6fae289d5d86
+Z 9c899184b2e2870f8f83998b8c5855c9
