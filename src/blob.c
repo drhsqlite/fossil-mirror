@@ -1204,7 +1204,7 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
                    "a character (ascii 0x%02x) that is a security risk",
                    zIn, blob_str(&bad), c);
     }
-    if( !needEscape && !fossil_isspace(c) && c!='/' && c!='.' && c!='_' ){
+    if( !needEscape && !fossil_isalnum(c) && c!='/' && c!='.' && c!='_' ){
       needEscape = 1;
     }
   }
