@@ -1190,7 +1190,7 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
   int needEscape = 0;
   int n = blob_size(pBlob);
   char *z = blob_buffer(pBlob);
-#if defined(_WIN32_)
+#if defined(_WIN32)
   const char cQuote = '"';    /* Use "..." quoting on windows */
 #else
   const char cQuote = '\'';   /* Use '...' quoting on unix */
