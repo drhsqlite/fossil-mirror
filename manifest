@@ -1,5 +1,5 @@
-C Change\sthe\sshell_escape()\sprocedure\sinto\sblob_append_escaped_arg().\s\sHave\nthat\sprocedure\sraise\sa\sfatal\serror\sif\sthe\sargument\sto\sbe\sappended\scontains\ndodgy\scharacters\sthat\smight\spose\sa\ssecurity\srisk.\s\sAlso,\sprepend\s"./"\sin\nfront\sof\sarguments\sthat\sbegin\swith\s"-"\sto\sprevent\sthem\sfrom\slooking\slike\nswitches.
-D 2017-08-12T18:15:36.005
+C Fix\sthe\sneedEscape\scalculation\sin\sblob_append_escaped_arg().
+D 2017-08-12T18:20:26.189
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -392,7 +392,7 @@ F src/allrepo.c 7296e9bfbbd4897b522ec2e2c26aa88890ffdae1
 F src/attach.c 702f70714f6ed49b8d3d669cfbe4f87ac78946b8
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
-F src/blob.c db5fd969e5ca482a3b680d4b26ae37e7d0ddbbd63e631207e3316384f8551472
+F src/blob.c 4fd9b77583fe36a08d96474f4d77a74ffafac236f6c3de19865f30ee30f10020
 F src/branch.c d68826ae16d6a89ea3126ab583577fb5f09de23b
 F src/browse.c 18bde58dc10c5600b39b6bef636b27ddef07c986602f764bdc2182588d7807bc
 F src/builtin.c d147d04305aa0db964ec84ef049e8e88d134de87
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 45a3d4b1670f123e14460d2f458de5755e5739858ac4c1d3f5b831d4eec09951
-R e342f47f1a637889c0b2684cf0cccda0
+P 3b191c984b831571c6a67aa9ce862dac6717a06e98797ab409a82bfe2b3390d6
+R ed3dba8c8e59c531fc532190e2b27bbc
 U drh
-Z 671d331ced2e6b08641ad5dcc307a752
+Z c08cca3d1a26a20fa57371d19c643275

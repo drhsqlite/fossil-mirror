@@ -1203,9 +1203,9 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
       fossil_fatal("the [%s] argument to the \"%s\" command contains "
                    "a character (ascii 0x%02x) that is a security risk",
                    zIn, blob_str(&bad), c);
-      if( !needEscape && !fossil_isspace(c) && c!='/' && c!='.' && c!='_' ){
-        needEscape = 1;
-      }
+    }
+    if( !needEscape && !fossil_isspace(c) && c!='/' && c!='.' && c!='_' ){
+      needEscape = 1;
     }
   }
   if( n>0 && !fossil_isspace(z[n-1]) ){
