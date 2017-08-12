@@ -1,9 +1,9 @@
-<title>Change Log</title>
+﻿<title>Change Log</title>
 
 <a name='v2_4'></a>
 <h2>Changes for Version 2.4 (TBD)</h2>
 
-  *  Fix the "ssh://" protocol to prevent an attacks whereby the attacker convinces
+  *  Fix the "ssh://" protocol to prevent an attack whereby the attacker convinces
      a victim to run a "clone" with a dodgy URL and thereby gains access to their
      system.
   *  Correct the [/help?cmd=/doc|/doc] page to support read-only repositories.
