@@ -1,5 +1,5 @@
-C Also\sdisallow\swildcard\scharacters\sin\sblob_append_escape_arg().
-D 2017-08-12T18:34:41.605
+C Enhance\sthe\sssh://\sURL\sto\sbe\scautious\sabout\sthe\sfossil=\squery\sparameter.\nOnly\scommands\s"fossil"\sand\s"echo"\s(with\san\soptional\spath)\sare\saccepted.
+D 2017-08-12T18:47:08.373
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -436,7 +436,7 @@ F src/hname.c 1f0ea670e2648deb2e547175523843bb5a9b84fc
 F src/http.c 7de3f16908f0f49cbcfad625513c130c0aef8bb889a5902e0fe9cccfaf893a85
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d98
-F src/http_transport.c d99086567bf94bef7ac6809a1a36f3853933d17c71a4afb85205b2af71be5397
+F src/http_transport.c 43bf993a931c1a6cafb051566e06c841173ec350dedc0cb6887e112bc05a147c
 F src/import.c e48f2f2e0095795aeabe7220514c8694393693b853150c47f6d6792921def3f1
 F src/info.c ba148f2ccc26b287c216c5db6af311ba488efc23ea1a70e69295a03eed3e9cc1
 F src/json.c cc8d06a2d208ad0092d6d68ef5b7ac9a7e05708b3271c5cfd1da890f97322642
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3bbac575348d0a54cf8882d41eba701fe7bfb90ef0bd7f082c1d7405f9db6f80
-R 02fb0e47340eb8febf19b44c67a9b3ef
+P d5b015946d85ba4d3b894179af607a631f5b2c601f5052ea185ffb7949edced2
+R a34434ce9b325667e90cb847c6bcc959
 U drh
-Z e0a7b6320db227d2280305b14e46a6ec
+Z b47f9bb4cc57552f7f5607ae0d3bb0df

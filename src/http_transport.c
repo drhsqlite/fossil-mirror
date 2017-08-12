@@ -77,6 +77,21 @@ void transport_stats(i64 *pnSent, i64 *pnRcvd, int resetFlag){
 }
 
 /*
+** Check zFossil to see if it is a reasonable "fossil" command to
+** run on the server.  Do not allow an attacker to substitute something
+** like "/bin/rm".
+*/
+static int is_safe_fossil_command(const char *zFossil){
+  static const char *azSafe[] = { "*/fossil", "*/echo" };
+  int i;
+  for(i=0; i<sizeof(azSafe)/sizeof(azSafe[0]); i++){
+    if( sqlite3_strglob(azSafe[i], zFossil)==0 ) return 1;
+    if( strcmp(azSafe[i]+2, zFossil)==0 ) return 1;
+  }
+  return 0;
+}
+
+/*
 ** Default SSH command
 */
 #ifdef _WIN32
@@ -112,6 +127,10 @@ int transport_ssh_open(UrlData *pUrlData){
     fossil_free(zHost);
   }else{
     blob_append_escaped_arg(&zCmd, pUrlData->name);
+  }
+  if( !is_safe_fossil_command(pUrlData->fossil) ){
+    fossil_fatal("the ssh:// URL is asking to run an unsafe command [%s] on "
+                 "the server.", pUrlData->fossil);
   }
   blob_append_escaped_arg(&zCmd, pUrlData->fossil);
   blob_append(&zCmd, " test-http", 10);
