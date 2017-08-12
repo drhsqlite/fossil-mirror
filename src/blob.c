@@ -1197,7 +1197,7 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
 #endif
 
   for(i=0; (c = zIn[i])!=0; i++){
-    if( c==cQuote || c=='\\' || c<' ' || c==';' ) {
+    if( c==cQuote || c=='\\' || c<' ' || c==';' || c=='*' || c=='?' || c=='[') {
       Blob bad;
       blob_token(pBlob, &bad);
       fossil_fatal("the [%s] argument to the \"%s\" command contains "
