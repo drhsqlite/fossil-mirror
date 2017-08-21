@@ -1,5 +1,5 @@
-C Enhance\sthe\sssh://\sURL\sto\sbe\scautious\sabout\sthe\sfossil=\squery\sparameter.\nOnly\scommands\s"fossil"\sand\s"echo"\s(with\san\soptional\spath)\sare\saccepted.
-D 2017-08-12T18:47:08.373
+C Use\sSQLite\s3.20.0\sfinal\s(source_id\schange\sonly)
+D 2017-08-21T12:18:49.005
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -503,8 +503,8 @@ F src/shun.c e6e544a8b9200a704121c280604ed42e6aefc3f19f5107d0bdf9b51d9a912a4e
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c bfbf18354d0e19798923bf0db33da49327493907f9f0e398cd4ea46b519a9c33
 F src/sqlcmd.c b150ead4134db3739733abb077bf764bf998bfede7d1d8ea457455adf3684c31
-F src/sqlite3.c 9c29120c9427226f0b423f1680ce2e233465e31b7c4ab70a49290a6aac051e56
-F src/sqlite3.h 2d7ea20dd5ee7a41388d4dd2220ef214efb33399b3a99ac404430031b785483f
+F src/sqlite3.c 79b7f3b977360456350219cba0ba0e5eb55910565eab68ea83edda2f968ebe95
+F src/sqlite3.h 58aa85345c8039e59efd68dcb137574027a170b9828880bd58d16570c2d82cf1
 F src/stash.c dc0263e11eeb30689418e4def6174af973ad66bf
 F src/stat.c c7c6e7182a2594038ed16aeba3117e5d44401f18ca1a967f872cae879f1ed7ca
 F src/statrep.c 9ee2695e45d0a0de17ce79d0b027f79bd246b4f305c95649044c3709a44372cd
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d5b015946d85ba4d3b894179af607a631f5b2c601f5052ea185ffb7949edced2
-R a34434ce9b325667e90cb847c6bcc959
-U drh
-Z b47f9bb4cc57552f7f5607ae0d3bb0df
+P cb43937d8c1232d3f9f0cb18bc20b41ce8d47f7c09e703d1f32df608df83fa03
+R dc771c347999459191632f772cc62cc5
+U jan.nijtmans
+Z d06efb35373fe8669cf92e7e54e5e63b
