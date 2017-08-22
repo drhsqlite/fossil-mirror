@@ -77,6 +77,21 @@ void transport_stats(i64 *pnSent, i64 *pnRcvd, int resetFlag){
 }
 
 /*
+** Check zFossil to see if it is a reasonable "fossil" command to
+** run on the server.  Do not allow an attacker to substitute something
+** like "/bin/rm".
+*/
+static int is_safe_fossil_command(const char *zFossil){
+  static const char *azSafe[] = { "*/fossil", "*/echo" };
+  int i;
+  for(i=0; i<sizeof(azSafe)/sizeof(azSafe[0]); i++){
+    if( sqlite3_strglob(azSafe[i], zFossil)==0 ) return 1;
+    if( strcmp(azSafe[i]+2, zFossil)==0 ) return 1;
+  }
+  return 0;
+}
+
+/*
 ** Default SSH command
 */
 #ifdef _WIN32
@@ -95,7 +110,6 @@ int transport_ssh_open(UrlData *pUrlData){
   char *zSsh;        /* The base SSH command */
   Blob zCmd;         /* The SSH command */
   char *zHost;       /* The host name to contact */
-  int n;             /* Size of prefix string */
 
   socket_ssh_resolve_addr(pUrlData);
   zSsh = db_get("ssh-command", zDefaultSshCmd);
@@ -107,29 +121,27 @@ int transport_ssh_open(UrlData *pUrlData){
     blob_appendf(&zCmd, " -p %d", pUrlData->port);
 #endif
   }
-  if( g.fSshTrace ){
-    fossil_force_newline();
-    fossil_print("%s", blob_str(&zCmd));  /* Show the base of the SSH command */
-  }
   if( pUrlData->user && pUrlData->user[0] ){
     zHost = mprintf("%s@%s", pUrlData->user, pUrlData->name);
+    blob_append_escaped_arg(&zCmd, zHost);
+    fossil_free(zHost);
   }else{
-    zHost = mprintf("%s", pUrlData->name);
+    blob_append_escaped_arg(&zCmd, pUrlData->name);
   }
-  n = blob_size(&zCmd);
-  blob_append(&zCmd, " ", 1);
-  shell_escape(&zCmd, zHost);
-  blob_append(&zCmd, " ", 1);
-  shell_escape(&zCmd, mprintf("%s", pUrlData->fossil));
+  if( !is_safe_fossil_command(pUrlData->fossil) ){
+    fossil_fatal("the ssh:// URL is asking to run an unsafe command [%s] on "
+                 "the server.", pUrlData->fossil);
+  }
+  blob_append_escaped_arg(&zCmd, pUrlData->fossil);
   blob_append(&zCmd, " test-http", 10);
   if( pUrlData->path && pUrlData->path[0] ){
-    blob_append(&zCmd, " ", 1);
-    shell_escape(&zCmd, mprintf("%s", pUrlData->path));
+    blob_append_escaped_arg(&zCmd, pUrlData->path);
+  }else{
+    fossil_fatal("ssh:// URI does not specify a path to the repository");
   }
   if( g.fSshTrace ){
-    fossil_print("%s\n", blob_str(&zCmd)+n);  /* Show tail of SSH command */
+    fossil_print("%s\n", blob_str(&zCmd));  /* Show the whole SSH command */
   }
-  free(zHost);
   popen2(blob_str(&zCmd), &sshIn, &sshOut, &sshPid);
   if( sshPid==0 ){
     socket_set_errmsg("cannot start ssh tunnel using [%b]", &zCmd);

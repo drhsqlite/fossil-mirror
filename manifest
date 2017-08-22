@@ -1,5 +1,5 @@
-C (cherry-pick):\sFix\sa\sproblem\swith\smarkdown\srendering\sfor\s"code".
-D 2017-07-28T19:41:00.000
+C (cherry-pick):\sFix\sthe\sSSH\ssync\sprotocol\sto\savoid\s"ssh"\scommand-line\soption\sinjection\sattacks\ssuch\sas\sthose\sfixed\sin\sGit\s2.14.1,\sMercurial\s4.2.3,\sand\sSubversion\s1.9.7.\sAs\s"ssh://"\sURLs\scannot\sbe\sburied\sout\sof\ssight\sin\sFossil,\sthe\svulnerability\sdoes\snot\sappear\sto\sbe\sas\ssevere\sas\sin\sthose\sother\ssystems.\s\n(cherry-pick):\sEnhance\sthe\sssh://\sURL\sto\sbe\scautious\sabout\sthe\sfossil=\squery\sparameter.\sOnly\scommands\s"fossil"\sand\s"echo"\s(with\san\soptional\spath)\sare\saccepted.
+D 2017-08-22T09:44:24.673
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -436,7 +436,7 @@ F src/hname.c 1f0ea670e2648deb2e547175523843bb5a9b84fc
 F src/http.c 7de3f16908f0f49cbcfad625513c130c0aef8bb889a5902e0fe9cccfaf893a85
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d98
-F src/http_transport.c c6f2ce84687a4f210c62f99948154232abf46bec
+F src/http_transport.c 43bf993a931c1a6cafb051566e06c841173ec350dedc0cb6887e112bc05a147c
 F src/import.c e48f2f2e0095795aeabe7220514c8694393693b853150c47f6d6792921def3f1
 F src/info.c ba148f2ccc26b287c216c5db6af311ba488efc23ea1a70e69295a03eed3e9cc1
 F src/json.c cc8d06a2d208ad0092d6d68ef5b7ac9a7e05708b3271c5cfd1da890f97322642
@@ -791,11 +791,9 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f7914bfdfacad19a8bb7a5fe9152234f8f20de1270f60cfa65880adf3bb31850
-Q +04de083ec842c3f22f64bb05c9472d7432482dcaf92591415492c1e21ce6d65f
-R 299896f534a566f44b433dd59c830977
-T *branch * branch-2.3
-T *sym-branch-2.3 *
-T -sym-trunk *
+P dad3706248b945e20e66f7e650a2b920fd162039fe3985294220b0a2277b4ae6
+Q +1f63db591c77108cd722fd9ededaabf65e238f21d82b42ffbc19f0eb4f5eed3d
+Q +cb43937d8c1232d3f9f0cb18bc20b41ce8d47f7c09e703d1f32df608df83fa03
+R 21d17cedcd2203ed5aea120242fbe366
 U jan.nijtmans
-Z a1926dcb5ace1670a2be6ee95ef4cc5d
+Z 39ccceaa1da01011cfc1834e0fd9c0ad
