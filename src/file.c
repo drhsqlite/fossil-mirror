@@ -1390,6 +1390,7 @@ void file_tempname(Blob *pBuf, const char *zPrefix){
      0, /* TMP */
      ".",
   };
+  char *z;
 #else
   static const char *azDirs[] = {
      0, /* TMPDIR */
@@ -1444,6 +1445,10 @@ void file_tempname(Blob *pBuf, const char *zPrefix){
   fossil_path_free((char *)azDirs[0]);
   fossil_path_free((char *)azDirs[1]);
   fossil_path_free((char *)azDirs[2]);
+  /* Change all \ characters in the windows path into / so that they can
+  ** be safely passed to a subcommand, such as by gdiff */
+  z = blob_buffer(pBuf);
+  for(i=0; z[i]; i++) if( z[i]=='\\' ) z[i] = '/';
 #else
   fossil_path_free((char *)azDirs[0]);
 #endif
