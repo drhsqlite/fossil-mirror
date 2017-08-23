@@ -1,5 +1,5 @@
-C Remove\sa\sredundant\sdirectory\sseparator\scharacter\sfrom\sthe\stemporary\sfilenames\ngenerated\son\swindows.
-D 2017-08-23T17:38:15.539
+C Change\sthe\sfile_mkfolder()\simplementation\sto\sassume\sthat\sthe\sfolder\salready\nexists\sand\sonly\sgo\sabout\screating\sit\sand\sits\spath\sif\sit\sdoes\snot\spreviously\nexit.
+D 2017-08-23T17:53:57.684
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -424,7 +424,7 @@ F src/doc.c cb5731ba54b9ccf3e497965db9874e9553a2bf21772ce14398c05526019ca44e
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c 5dcf3c6ff00c39c25a3909deec1d1154cf0b85a5
 F src/export.c 3e09dfda9d07b44c463d656dbc09f6adfe686d6d80ad55282a1f06b9216934f2
-F src/file.c 5142100e5cda35ade3a819ea3b5c03c63ab07ee3b24ab01e76395e9ebc250c02
+F src/file.c 24f02e1c1167b5f9cd288c23413d7e8bc24608812731fdf2d4e7659f24893438
 F src/finfo.c eb5d2fe1d5cf277be6362dfacad71c586f35d33bbbd8955098fef3577950aeb0
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f1d23f04c00cc6028012240ed0a13092efa7e921d6a8c6ba1af4830ac5dff5d6
-R d77309b85c23de0e8eef6467aa4cc48b
+P b5f0d70362be0312f58a7c1857a1165dd97a5b40f396c018658d52f5678e58a9
+R aeef9d13ffb5df70ecde322e97d0b933
 U drh
-Z fe6c624300968fda56dfb6e9d78a76a7
+Z 086d559e336c138353c8ee836bbcb87a

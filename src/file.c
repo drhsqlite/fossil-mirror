@@ -634,28 +634,19 @@ int file_mkfolder(const char *zFilename, int forceFlag, int errorReturn){
   nName = strlen(zFilename);
   zName = mprintf("%s", zFilename);
   nName = file_simplify_name(zName, nName, 0);
-  for(i=1; i<nName; i++){
-    if( zName[i]=='/' ){
-      zName[i] = 0;
-#if defined(_WIN32) || defined(__CYGWIN__)
-      /*
-      ** On Windows, local path looks like: C:/develop/project/file.txt
-      ** The if stops us from trying to create a directory of a drive letter
-      ** C: in this example.
-      */
-      if( !(i==2 && zName[1]==':') ){
-#endif
+  while( nName>0 && zName[nName-1]!='/' ){ nName--; }
+  if( nName ){
+    zName[nName-1] = 0;
+    if( file_wd_isdir(zName)!=1 ){
+      rc = file_mkfolder(zName, forceFlag, errorReturn);
+      if( rc==0 ){
         if( file_mkdir(zName, forceFlag) && file_wd_isdir(zName)!=1 ){
-          if (errorReturn <= 0) {
+          if( errorReturn <= 0 ){
             fossil_fatal_recursive("unable to create directory %s", zName);
           }
           rc = errorReturn;
-          break;
         }
-#if defined(_WIN32) || defined(__CYGWIN__)
       }
-#endif
-      zName[i] = '/';
     }
   }
   free(zName);
