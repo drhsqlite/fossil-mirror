@@ -1415,6 +1415,10 @@ void file_tempname(Blob *pBuf, const char *zPrefix){
 
   if( GetTempPathW(MAX_PATH, zTmpPath) ){
     azDirs[0] = fossil_path_to_utf8(zTmpPath);
+    /* Removing trailing \ from the temp path */
+    z = (char*)azDirs[0];
+    i = (int)strlen(z)-1;
+    if( i>0 && z[i]=='\\' ) z[i] = 0;
   }
 
   azDirs[1] = fossil_getenv("TEMP");
