@@ -1456,6 +1456,23 @@ void file_tempname(Blob *pBuf, const char *zPrefix){
 
 
 /*
+** COMMAND: test-tempname
+** Usage:  fossil test-name BASENAME ...
+**
+** Generate temporary filenames derived from BASENAME
+*/
+void file_test_tempname(void){
+  int i;
+  Blob x = BLOB_INITIALIZER;
+  for(i=2; i<g.argc; i++){
+    file_tempname(&x, g.argv[i]);
+    fossil_print("%s\n", blob_str(&x));
+    blob_reset(&x);
+  }
+}
+
+
+/*
 ** Return true if a file named zName exists and has identical content
 ** to the blob pContent.  If zName does not exist or if the content is
 ** different in any way, then return false.
