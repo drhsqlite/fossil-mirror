@@ -1,5 +1,5 @@
-C Use\sSQLite\s3.20.0\sfinal\s(source_id\schange\sonly)
-D 2017-08-21T12:18:49.005
+C Add\sthe\s--details\soption\sto\sthe\stest-find-pivot\scommand.
+D 2017-08-23T11:05:21.367
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -481,7 +481,7 @@ F src/moderate.c 2540f90b20778a4d62156a3b4af962b401d4c89f
 F src/name.c 7672b98171a8e90e9dfdb387cbf92e17efc2ff8bff93f46314b1d74de04f2958
 F src/path.c cce5fdfa571861a81e1a48e893e5a52dd2703a5f
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
-F src/pivot.c e4a8ed414bbc311a3f427cad8da023d33bd39f46
+F src/pivot.c d8c6f6e91772e17893f477402da1efb431b85b8fbf7a938b64a905e04e376a15
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 1cf52da2f0f43868d026ff790a4eadbd984fd040
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cb43937d8c1232d3f9f0cb18bc20b41ce8d47f7c09e703d1f32df608df83fa03
-R dc771c347999459191632f772cc62cc5
-U jan.nijtmans
-Z d06efb35373fe8669cf92e7e54e5e63b
+P 810dd031ec3ee1d66bd968bb0c08fc5f4f7ef121dc3dca4c2622384989d68a54
+R 9a0038d23b1d581b15ba001747961110
+U drh
+Z c86011094633b774215a04631e467c7f
