@@ -1,5 +1,5 @@
-C Fix\sbuild\s(previous\scherry-pick\swas\snot\scomplete)\n(cherry-pick):\sFor\stemporary\sfilename\spaths\son\sWindows,\schanges\sall\sbackslash\scharacters\sinto\sforward\sslashes,\sso\sthat\sthe\snew\senhanced-security\sshell\sescape\smechanism\sfrom\scheck-in\s[3b191c98]\scan\suse\sthose\stemporary\sfilenames.
-D 2017-08-23T17:28:00.000
+C (cherry-pick):\sRemove\sa\sredundant\sdirectory\sseparator\scharacter\sfrom\sthe\stemporary\sfilenames\sgenerated\son\swindows.\s\n(cherry-pick):\sChange\sthe\sfile_mkfolder()\simplementation\sto\sassume\sthat\sthe\sfolder\salready\sexists\sand\sonly\sgo\sabout\screating\sit\sand\sits\spath\sif\sit\sdoes\snot\spreviously\sexit.
+D 2017-08-23T18:53:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -424,7 +424,7 @@ F src/doc.c 1c006182a35266196dd85f8ac0d029969ae6089b18302a960d26291ba1b05883
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c 5dcf3c6ff00c39c25a3909deec1d1154cf0b85a5
 F src/export.c 3e09dfda9d07b44c463d656dbc09f6adfe686d6d80ad55282a1f06b9216934f2
-F src/file.c ad3216e93d472bcae69c2267e8e5c3acd4acc3cf11fd9b527b9bafb0ff556b56
+F src/file.c 24f02e1c1167b5f9cd288c23413d7e8bc24608812731fdf2d4e7659f24893438
 F src/finfo.c eb5d2fe1d5cf277be6362dfacad71c586f35d33bbbd8955098fef3577950aeb0
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
@@ -791,8 +791,9 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7eebec15bd420d9ca636ce7f3577919ac0f992709fe4de671c8c5943ab593f4d
-Q +e474c177dfefd5b3945689eb1cfe0cc6d34f136d2b2fd1b9d6439dc00d63c4a6
-R 39092df70d3c5bfd717ee040dc09b8fc
+P dbda6e2a5dcd94de52afedeebf6e53d94ee095fc6052b2aa0469478e14063f09
+Q +92ea61837e987614f65a5b0da27c54c83534361e6c7806a6447db51e77ff76ca
+Q +b5f0d70362be0312f58a7c1857a1165dd97a5b40f396c018658d52f5678e58a9
+R 3fc75ed00671a559ccd3462c83f1b6e2
 U jan.nijtmans
-Z b91140712dfcb3a7cead873c22795375
+Z 2e6cdc58bdee87562c7de0af2a1f654e

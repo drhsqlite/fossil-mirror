@@ -634,28 +634,19 @@ int file_mkfolder(const char *zFilename, int forceFlag, int errorReturn){
   nName = strlen(zFilename);
   zName = mprintf("%s", zFilename);
   nName = file_simplify_name(zName, nName, 0);
-  for(i=1; i<nName; i++){
-    if( zName[i]=='/' ){
-      zName[i] = 0;
-#if defined(_WIN32) || defined(__CYGWIN__)
-      /*
-      ** On Windows, local path looks like: C:/develop/project/file.txt
-      ** The if stops us from trying to create a directory of a drive letter
-      ** C: in this example.
-      */
-      if( !(i==2 && zName[1]==':') ){
-#endif
+  while( nName>0 && zName[nName-1]!='/' ){ nName--; }
+  if( nName ){
+    zName[nName-1] = 0;
+    if( file_wd_isdir(zName)!=1 ){
+      rc = file_mkfolder(zName, forceFlag, errorReturn);
+      if( rc==0 ){
         if( file_mkdir(zName, forceFlag) && file_wd_isdir(zName)!=1 ){
-          if (errorReturn <= 0) {
+          if( errorReturn <= 0 ){
             fossil_fatal_recursive("unable to create directory %s", zName);
           }
           rc = errorReturn;
-          break;
         }
-#if defined(_WIN32) || defined(__CYGWIN__)
       }
-#endif
-      zName[i] = '/';
     }
   }
   free(zName);
@@ -1415,6 +1406,10 @@ void file_tempname(Blob *pBuf, const char *zPrefix){
 
   if( GetTempPathW(MAX_PATH, zTmpPath) ){
     azDirs[0] = fossil_path_to_utf8(zTmpPath);
+    /* Removing trailing \ from the temp path */
+    z = (char*)azDirs[0];
+    i = (int)strlen(z)-1;
+    if( i>0 && z[i]=='\\' ) z[i] = 0;
   }
 
   azDirs[1] = fossil_getenv("TEMP");
@@ -1452,6 +1447,23 @@ void file_tempname(Blob *pBuf, const char *zPrefix){
 #else
   fossil_path_free((char *)azDirs[0]);
 #endif
+}
+
+
+/*
+** COMMAND: test-tempname
+** Usage:  fossil test-name BASENAME ...
+**
+** Generate temporary filenames derived from BASENAME
+*/
+void file_test_tempname(void){
+  int i;
+  Blob x = BLOB_INITIALIZER;
+  for(i=2; i<g.argc; i++){
+    file_tempname(&x, g.argv[i]);
+    fossil_print("%s\n", blob_str(&x));
+    blob_reset(&x);
+  }
 }
 
 
