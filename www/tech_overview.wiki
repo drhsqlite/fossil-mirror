@@ -208,7 +208,7 @@ The metadata is designed to facilitate queries for the various timelines and
 reports that Fossil generates.
 As the functionality of Fossil evolves,
 the schema for the metadata can and does change.
-But schema changes do no invalidate the repository.  Remember that the
+But schema changes do not invalidate the repository.  Remember that the
 metadata contains no new information - only information that has been
 extracted from the canonical artifacts and saved in a more useful form.
 Hence, when the metadata schema changes, the prior metadata can be discarded

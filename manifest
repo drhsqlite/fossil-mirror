@@ -1,5 +1,5 @@
-C Change\sthe\sfile_mkfolder()\simplementation\sto\sassume\sthat\sthe\sfolder\salready\nexists\sand\sonly\sgo\sabout\screating\sit\sand\sits\spath\sif\sit\sdoes\snot\spreviously\nexit.
-D 2017-08-23T17:53:57.684
+C Typo\sfixes\sthanks\sto\srosscanning,\sref\s[http://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg25775.html]
+D 2017-08-24T14:20:57.282
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -505,7 +505,7 @@ F src/skins.c bfbf18354d0e19798923bf0db33da49327493907f9f0e398cd4ea46b519a9c33
 F src/sqlcmd.c b150ead4134db3739733abb077bf764bf998bfede7d1d8ea457455adf3684c31
 F src/sqlite3.c 79b7f3b977360456350219cba0ba0e5eb55910565eab68ea83edda2f968ebe95
 F src/sqlite3.h 58aa85345c8039e59efd68dcb137574027a170b9828880bd58d16570c2d82cf1
-F src/stash.c dc0263e11eeb30689418e4def6174af973ad66bf
+F src/stash.c a6bb018a382d8c648702da7c2e9f56d7012486205c64ba269662336508ab0df2
 F src/stat.c c7c6e7182a2594038ed16aeba3117e5d44401f18ca1a967f872cae879f1ed7ca
 F src/statrep.c 9ee2695e45d0a0de17ce79d0b027f79bd246b4f305c95649044c3709a44372cd
 F src/style.c 2c96edb8b7de76824225d521800409295ecda3eebf7e7b3ed3f6b35c3d96b956
@@ -765,7 +765,7 @@ F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
 F www/permutedindex.html cb1e1b3811c56b9fab752681475e29e6cd11aad1d4a773b75ca23234e9c0ea58
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
-F www/private.wiki 1c55c09563361db73b733386dc0fd6689156d5ab
+F www/private.wiki ae461ced26cc6d70cbb84506465cba1754d960f7df72dcf65c446414610e1b71
 F www/qandc.wiki b8b6f9668796bde63440e64dfd40a176766dd78e
 F www/quickstart.wiki afc5e41e06cc2d54364016e3d0d7dff1209b082d
 F www/quotes.wiki 6f77c1af17f05596d0f6a4cc88f149a61188ecfd
@@ -780,7 +780,7 @@ F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki 6558a7e417d5e9d29271c26ebb3195dddec31855
 F www/style.wiki da3a414d4c57c3da2636daf0baf6964ba72ce70b
 F www/sync.wiki 54f36924056d9b854a509ed1a87d15595605bc403f1dca18231439c44619a298
-F www/tech_overview.wiki 326f0e0facdf2171dd1265ab20bdff7767e90085477a891fbbc0b2e776ba5a01
+F www/tech_overview.wiki 1902ff9a56644d8d113c89b4fded3b30cf0f5d6920a260d5fffdf9bae915ef32
 F www/th1.md 19fd3af8400d8dbeb0d7c94370db06c73114f5f1
 F www/theory1.wiki f3b67ce69fc710a54a9ec89f6d12f90da0632ea4
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b5f0d70362be0312f58a7c1857a1165dd97a5b40f396c018658d52f5678e58a9
-R aeef9d13ffb5df70ecde322e97d0b933
-U drh
-Z 086d559e336c138353c8ee836bbcb87a
+P 92ea61837e987614f65a5b0da27c54c83534361e6c7806a6447db51e77ff76ca
+R a235deb7cd95e7cdb1da2c207cd99829
+U andygoth
+Z 6d025835efa408653be8fac34fcdf95e

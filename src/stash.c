@@ -430,7 +430,7 @@ static int stash_get_id(const char *zStashId){
 **  fossil stash show|cat ?STASHID? ?DIFF-OPTIONS?
 **  fossil stash gshow|gcat ?STASHID? ?DIFF-OPTIONS?
 **
-**     Show the contents of a stash as a diff against it's baseline.
+**     Show the contents of a stash as a diff against its baseline.
 **     With gshow and gcat, gdiff-command is used instead of internal
 **     diff logic.
 **
