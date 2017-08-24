@@ -47,7 +47,6 @@ static struct {
   Bag seen;             /* Nodes seen before */
   int nStep;            /* Number of steps from first to last */
   PathNode *pStart;     /* Earliest node */
-  PathNode *pPivot;     /* Common ancestor of pStart and pEnd */
   PathNode *pEnd;       /* Most recent */
 } path;
 

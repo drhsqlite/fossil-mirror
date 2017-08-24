@@ -1,5 +1,5 @@
-C Typo\sfixes\sthanks\sto\srosscanning,\sref\s[http://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg25775.html]
-D 2017-08-24T14:20:57.282
+C Remove\san\sunused\sglobal\svariable\sfrom\sthe\spath_shortest()\slogic.
+D 2017-08-24T19:30:17.874
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -479,7 +479,7 @@ F src/mkindex.c f4183ca13461544fe06f34af0a3501ea96d3637f
 F src/mkversion.c 6e606c3a895f71b35a878e817104b5e5eb056ce47925e341fde567f2448e9aa7
 F src/moderate.c 2540f90b20778a4d62156a3b4af962b401d4c89f
 F src/name.c 7672b98171a8e90e9dfdb387cbf92e17efc2ff8bff93f46314b1d74de04f2958
-F src/path.c cce5fdfa571861a81e1a48e893e5a52dd2703a5f
+F src/path.c 73dbaaa0452f882ac7a504f37457fe9160ff5458b61f6d4c00bf45a2555bdbca
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c d8c6f6e91772e17893f477402da1efb431b85b8fbf7a938b64a905e04e376a15
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 92ea61837e987614f65a5b0da27c54c83534361e6c7806a6447db51e77ff76ca
-R a235deb7cd95e7cdb1da2c207cd99829
-U andygoth
-Z 6d025835efa408653be8fac34fcdf95e
+P f98852a0df35ef2a0c81b67e9d669e71a1461982ec56f25fe798a3fa5e7d2131
+R 86625e8bd2b0d2eb7d0760f0b30567c3
+U drh
+Z 81c144b11df84aada6d0621b09977b28
