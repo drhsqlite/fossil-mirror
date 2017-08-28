@@ -1,5 +1,5 @@
-C Remove\san\sunused\sglobal\svariable\sfrom\sthe\spath_shortest()\slogic.
-D 2017-08-24T19:30:17.874
+C Update\sdirent\sto\sversion\s1.23.\sSee\s[https://github.com/tronkko/dirent/releases]
+D 2017-08-28T14:04:42.119
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -673,7 +673,7 @@ F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc a38a9b922cb35c4b2f91c7026d3dc1556999fd32
-F win/include/dirent.h f7f8de3119619066ec04e921a7d31bc130961042
+F win/include/dirent.h eb4e0ca8d74ff2a87c98b74b134bf8a4d7515c714dd74084854749e099ce31a8
 F win/include/unistd.h de304af8b95751f25cf1e45ed25a4a500089b191eab9e51c2eba9fb8d6bf0709
 F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f98852a0df35ef2a0c81b67e9d669e71a1461982ec56f25fe798a3fa5e7d2131
-R 86625e8bd2b0d2eb7d0760f0b30567c3
-U drh
-Z 81c144b11df84aada6d0621b09977b28
+P 084690e77201c1d38a300fc9845a2133e797e60e0ab0e603c45c2dadafaede4e
+R d3fe45969ef6907af339d489fb4cfb89
+U jan.nijtmans
+Z b31e71c523888ce39ffd9a255430ff1f
