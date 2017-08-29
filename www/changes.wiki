@@ -3,6 +3,7 @@
 <a name='v2_4'></a>
 <h2>Changes for Version 2.4 (TBD)</h2>
 
+  *  Update the built-in SQLite to version 3.20.1.
   *  Fix the "ssh://" protocol to prevent an attack whereby the attacker convinces
      a victim to run a "clone" with a dodgy URL and thereby gains access to their
      system.

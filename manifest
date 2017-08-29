@@ -1,5 +1,5 @@
-C Update\sdirent\sto\sversion\s1.23.\sSee\s[https://github.com/tronkko/dirent/releases]
-D 2017-08-28T14:04:42.119
+C SQLite\sversion\s3.20.1
+D 2017-08-29T07:50:10.748
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -503,8 +503,8 @@ F src/shun.c e6e544a8b9200a704121c280604ed42e6aefc3f19f5107d0bdf9b51d9a912a4e
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c bfbf18354d0e19798923bf0db33da49327493907f9f0e398cd4ea46b519a9c33
 F src/sqlcmd.c b150ead4134db3739733abb077bf764bf998bfede7d1d8ea457455adf3684c31
-F src/sqlite3.c 79b7f3b977360456350219cba0ba0e5eb55910565eab68ea83edda2f968ebe95
-F src/sqlite3.h 58aa85345c8039e59efd68dcb137574027a170b9828880bd58d16570c2d82cf1
+F src/sqlite3.c 93b1a6d69b48dc39697d1d3a1e4c30b55da0bdd2cad0c054462f91081832954a
+F src/sqlite3.h 9700cd17c9f9444a6397c9862a761b79504ebef0c0e7ce6d02952fc3406613fc
 F src/stash.c a6bb018a382d8c648702da7c2e9f56d7012486205c64ba269662336508ab0df2
 F src/stat.c c7c6e7182a2594038ed16aeba3117e5d44401f18ca1a967f872cae879f1ed7ca
 F src/statrep.c 9ee2695e45d0a0de17ce79d0b027f79bd246b4f305c95649044c3709a44372cd
@@ -700,7 +700,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 709d1d66e198e85f9faedd4d5261835fdb83c41cfeb20757f3ed7d72fa64ff6b
-F www/changes.wiki 237c0ddc77931d7f9819e53263535a626e6c26b6fd1041cc3b797107bdc666c4
+F www/changes.wiki 96165377b0d336b88dea7e1a4a4fd2c47074ef372dea3c7047ad478dd3900b8c
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 084690e77201c1d38a300fc9845a2133e797e60e0ab0e603c45c2dadafaede4e
-R d3fe45969ef6907af339d489fb4cfb89
+P ade4a657dc852f4b992dfbec48dfc26d6922ffd12f7a9cc5fe8aff302506e6ce
+R 9c387814fef5079d308900b7594818e2
 U jan.nijtmans
-Z b31e71c523888ce39ffd9a255430ff1f
+Z cfd76ef5bdcf6ec809dee1ab809f4378
