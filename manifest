@@ -1,5 +1,5 @@
-C (cherry-pick):\sRemove\sa\sredundant\sdirectory\sseparator\scharacter\sfrom\sthe\stemporary\sfilenames\sgenerated\son\swindows.\s\n(cherry-pick):\sChange\sthe\sfile_mkfolder()\simplementation\sto\sassume\sthat\sthe\sfolder\salready\sexists\sand\sonly\sgo\sabout\screating\sit\sand\sits\spath\sif\sit\sdoes\snot\spreviously\sexit.
-D 2017-08-23T18:53:00.000
+C (cherry-pick):\sSQLite\sversion\s3.20.1\n(cherry-pick):\sRemove\san\sunused\sglobal\svariable\sfrom\sthe\spath_shortest()\slogic
+D 2017-08-29T07:58:28.436
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -479,7 +479,7 @@ F src/mkindex.c f4183ca13461544fe06f34af0a3501ea96d3637f
 F src/mkversion.c 54a7ddc448a10728c434c78f396eedc88fc98d9c9372d056c0fbf12f0bd7f671
 F src/moderate.c 2540f90b20778a4d62156a3b4af962b401d4c89f
 F src/name.c 7672b98171a8e90e9dfdb387cbf92e17efc2ff8bff93f46314b1d74de04f2958
-F src/path.c cce5fdfa571861a81e1a48e893e5a52dd2703a5f
+F src/path.c 73dbaaa0452f882ac7a504f37457fe9160ff5458b61f6d4c00bf45a2555bdbca
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c e4a8ed414bbc311a3f427cad8da023d33bd39f46
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
@@ -503,8 +503,8 @@ F src/shun.c e6e544a8b9200a704121c280604ed42e6aefc3f19f5107d0bdf9b51d9a912a4e
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c bfbf18354d0e19798923bf0db33da49327493907f9f0e398cd4ea46b519a9c33
 F src/sqlcmd.c b150ead4134db3739733abb077bf764bf998bfede7d1d8ea457455adf3684c31
-F src/sqlite3.c 79b7f3b977360456350219cba0ba0e5eb55910565eab68ea83edda2f968ebe95
-F src/sqlite3.h 58aa85345c8039e59efd68dcb137574027a170b9828880bd58d16570c2d82cf1
+F src/sqlite3.c 93b1a6d69b48dc39697d1d3a1e4c30b55da0bdd2cad0c054462f91081832954a
+F src/sqlite3.h 9700cd17c9f9444a6397c9862a761b79504ebef0c0e7ce6d02952fc3406613fc
 F src/stash.c dc0263e11eeb30689418e4def6174af973ad66bf
 F src/stat.c c7c6e7182a2594038ed16aeba3117e5d44401f18ca1a967f872cae879f1ed7ca
 F src/statrep.c 9ee2695e45d0a0de17ce79d0b027f79bd246b4f305c95649044c3709a44372cd
@@ -700,7 +700,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 709d1d66e198e85f9faedd4d5261835fdb83c41cfeb20757f3ed7d72fa64ff6b
-F www/changes.wiki 42313da030c97500c7697996ef78613c357deca9a2231d5d1a38f940d8ca794c
+F www/changes.wiki b91a44f8108d1316c6cf318fec5d322f4a2361810ad2fd3a4eb52b9a4dc176b7
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -791,9 +791,9 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dbda6e2a5dcd94de52afedeebf6e53d94ee095fc6052b2aa0469478e14063f09
-Q +92ea61837e987614f65a5b0da27c54c83534361e6c7806a6447db51e77ff76ca
-Q +b5f0d70362be0312f58a7c1857a1165dd97a5b40f396c018658d52f5678e58a9
-R 3fc75ed00671a559ccd3462c83f1b6e2
+P adacbfbcfb77d0e8c6b20be68f0c5115411f94536f9a75fccf1c5c30575a9e50
+Q +084690e77201c1d38a300fc9845a2133e797e60e0ab0e603c45c2dadafaede4e
+Q +ffc252a663d6c059ef3bf2ca9a682c441b0274477e97c53daee30a6d36f1ccf4
+R ed09dc1b49ad2eb914684575f397d2cf
 U jan.nijtmans
-Z 2e6cdc58bdee87562c7de0af2a1f654e
+Z badbdedf073fdda0452cfbea7d16adef
