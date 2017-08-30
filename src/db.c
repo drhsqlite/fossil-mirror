@@ -2821,7 +2821,7 @@ struct Setting {
 ** number of attempts if there is a sync failure.
 */
 /*
-** SETTING: binary-glob     width=40 versionable
+** SETTING: binary-glob     width=40 versionable block-text
 ** The VALUE of this setting is a comma or newline-separated list of
 ** GLOB patterns that should be treated as binary files
 ** for committing and merging purposes.  Example: *.jpg
@@ -2845,7 +2845,7 @@ struct Setting {
 */
 #endif
 /*
-** STTING: clean-glob       width=40 versionable
+** STTING: clean-glob       width=40 versionable block-text
 ** The VALUE of this setting is a comma or newline-separated list of GLOB
 ** patterns specifying files that the "clean" command will
 ** delete without prompting or allowing undo.
@@ -2857,14 +2857,14 @@ struct Setting {
 ** with gpg.  When disabled, commits will be unsigned.
 */
 /*
-** SETTING: crlf-glob       width=40 versionable
+** SETTING: crlf-glob       width=40 versionable block-text
 ** The value is a comma or newline-separated list of GLOB patterns for
 ** text files in which it is ok to have CR, CR+LF or mixed
 ** line endings. Set to "*" to disable CR+LF checking.
 ** The crnl-glob setting is a compatibility alias.
 */
 /*
-** SETTING: crnl-glob       width=40 versionable
+** SETTING: crnl-glob       width=40 versionable block-text
 ** This is an alias for the crlf-glob setting
 */
 /*
@@ -2899,14 +2899,14 @@ struct Setting {
 ** text editor command used for check-in comments.
 */
 /*
-** SETTING: empty-dirs      width=40 versionable
+** SETTING: empty-dirs      width=40 versionable block-text
 ** The value is a comma or newline-separated list of pathnames. On
 ** update and checkout commands, if no file or directory
 ** exists with that name, an empty directory will be
 ** created.
 */
 /*
-** SETTING: encoding-glob   width=40 versionable
+** SETTING: encoding-glob   width=40 versionable block-text
 ** The value is a comma or newline-separated list of GLOB
 ** patterns specifying files that the "commit" command will
 ** ignore when issuing warnings about text files that may
@@ -2956,7 +2956,7 @@ struct Setting {
 ** login screeen requests to HTTPS.
 */
 /*
-** SETTING: ignore-glob      width=40 versionable
+** SETTING: ignore-glob      width=40 versionable block-text
 ** The value is a comma or newline-separated list of GLOB
 ** patterns specifying files that the "add", "addremove",
 ** "clean", and "extra" commands will ignore.
@@ -2964,7 +2964,7 @@ struct Setting {
 ** Example:  *.log customCode.c notes.txt
 */
 /*
-** SETTING: keep-glob        width=40 versionable
+** SETTING: keep-glob        width=40 versionable block-text
 ** The value is a comma or newline-separated list of GLOB
 ** patterns specifying files that the "clean" command will keep
 */
@@ -3118,7 +3118,7 @@ struct Setting {
 ** is empty and no extra setup is performed.
 */
 /*
-** SETTING: th1-uri-regexp   width=40 versionable
+** SETTING: th1-uri-regexp   width=40 versionable block-text
 ** Specify which URI's are allowed in HTTP requests from
 ** TH1 scripts.  If empty, no HTTP requests are allowed
 ** whatsoever.
