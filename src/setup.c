@@ -2156,20 +2156,6 @@ void th1_page(void){
   style_footer();
 }
 
-static void admin_log_render_limits(){
-  int const count = db_int(0,"SELECT COUNT(*) FROM admin_log");
-  int i;
-  int limits[] = {
-  10, 20, 50, 100, 250, 500, 0
-  };
-  for(i = 0; limits[i]; ++i ){
-    cgi_printf("%s<a href='?n=%d'>%d</a>",
-               i ? " " : "",
-               limits[i], limits[i]);
-    if(limits[i]>count) break;
-  }
-}
-
 /*
 ** WEBPAGE: admin_log
 **
@@ -2178,9 +2164,9 @@ static void admin_log_render_limits(){
 ** 's') permissions.
 */
 void page_admin_log(){
-  Stmt stLog = empty_Stmt;
-  Blob qLog = empty_blob;
-  int limit;
+  Stmt stLog;
+  int limit;                 /* How many entries to show */
+  int ofst;                  /* Offset to the first entry */
   int fLogEnabled;
   int counter = 0;
   login_check_credentials();
@@ -2190,26 +2176,22 @@ void page_admin_log(){
   }
   style_header("Admin Log");
   create_admin_log_table();
-  limit = atoi(PD("n","20"));
+  limit = atoi(PD("n","200"));
+  ofst = atoi(PD("x","0"));
   fLogEnabled = db_get_boolean("admin-log", 0);
   @ <div>Admin logging is %s(fLogEnabled?"on":"off").
   @ (Change this on the <a href="setup_settings">settings</a> page.)</div>
 
-
-  @ <div>Limit results to: <span>
-  admin_log_render_limits();
-  @ </span></div>
-
-  blob_append_sql(&qLog,
-               "SELECT datetime(time,'unixepoch'), who, page, what "
-               "FROM admin_log "
-               "ORDER BY time DESC ");
-  if(limit>0){
-    @ %d(limit) Most recent entries:
-    blob_append_sql(&qLog, "LIMIT %d", limit);
+  if( ofst>0 ){
+    int prevx = ofst - limit;
+    if( prevx<0 ) prevx = 0;
+    @ <p><a href="admin_log?n=%d(limit)&x=%d(prevx)">[Newer]</a></p>
   }
-  db_prepare(&stLog, "%s", blob_sql_text(&qLog));
-  blob_reset(&qLog);
+  db_prepare(&stLog,
+    "SELECT datetime(time,'unixepoch'), who, page, what "
+    "FROM admin_log "
+    "ORDER BY time DESC");
+
   @ <table id="adminLogTable" class="adminLogTable" width="100%%">
   @ <thead>
   @ <th>Time</th>
@@ -2222,7 +2204,10 @@ void page_admin_log(){
     const char *zUser = db_column_text(&stLog, 1);
     const char *zPage = db_column_text(&stLog, 2);
     const char *zMessage = db_column_text(&stLog, 3);
-    @ <tr class="row%d(counter++%2)">
+    counter++;
+    if( counter<ofst ) continue;
+    if( counter>ofst+limit ) break;
+    @ <tr class="row%d(counter%2)">
     @ <td class="adminTime">%s(zTime)</td>
     @ <td>%s(zUser)</td>
     @ <td>%s(zPage)</td>
@@ -2230,9 +2215,11 @@ void page_admin_log(){
     @ </tr>
   }
   @ </tbody></table>
-  if(limit>0 && counter<limit){
-    @ <div>%d(counter) entries shown.</div>
+  if( counter>ofst+limit ){
+    @ <p><a href="admin_log?n=%d(limit)&x=%d(limit+ofst)">[Older]</a></p>
   }
+
+  output_table_sorting_javascript("adminLogTable", "Tttx", 1);
   style_footer();
 }
 
