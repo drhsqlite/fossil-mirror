@@ -91,7 +91,7 @@ This extra step of using javascript to enable the hyperlink targets
 is a security measure against spiders that forge a human-looking
 UserAgent string.  Most spiders do not bother to run javascript and
 so to the spider the empty anchor tag will be useless.  But all modern
-web browsers implement javascript, so hyperlinks will appears
+web browsers implement javascript, so hyperlinks will show up
 normally for human users.
 
 <h2>Further defenses</h2>
@@ -131,6 +131,10 @@ to be run, thus will never enable the hyperlinks.
 These two subsettings can be used separately or together.  If used together,
 then the delay timer does not start until after the first mouse movement
 is detected.
+
+See also [./server.wiki#loadmgmt|Managing Server Load] for a description
+of how expensive pages can be disabled when the server is under heavy
+load.
 
 <h2>The ongoing struggle</h2>
 

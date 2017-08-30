@@ -44,7 +44,7 @@ the correct operation of the graph drawing logic.
      Only check-ins tagged "release"</a>
   *  <a href="../../../finfo?name=Makefile" target="testwindow">
      History of source file "Makefile".</a>
-  *  <a href="../../../timeline?a=1970-01-01" target="testwindow">
+  *  <a href="../../../timeline?n=20&a=1970-01-01" target="testwindow">
      20 elements after 1970-01-01.</a>
   *  <a href="../../../timeline?n=100000000&y=ci" target="testwindow">
      All check-ins - a huge graph.</a>

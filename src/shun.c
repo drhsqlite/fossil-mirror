@@ -28,6 +28,7 @@ int uuid_is_shunned(const char *zUuid){
   static Stmt q;
   int rc;
   if( zUuid==0 || zUuid[0]==0 ) return 0;
+  if( g.eHashPolicy==HPOLICY_SHUN_SHA1 && zUuid[HNAME_LEN_SHA1]==0 ) return 1;
   db_static_prepare(&q, "SELECT 1 FROM shun WHERE uuid=:uuid");
   db_bind_text(&q, ":uuid", zUuid);
   rc = db_step(&q);
@@ -38,7 +39,7 @@ int uuid_is_shunned(const char *zUuid){
 /*
 ** WEBPAGE: shun
 **
-** View the SHA1 hashes of all shunned artifacts.  Add new hashes
+** View the hashes of all shunned artifacts.  Add new hashes
 ** to the shun set.  Requires Admin privilege.
 */
 void shun_page(void){
@@ -86,14 +87,14 @@ void shun_page(void){
     p = zCanonical;
     while( *p ){
       int nUuid = strlen(p);
-      if( nUuid!=UUID_SIZE || !validate16(p, nUuid) ){
+      if( !hname_validate(p, nUuid) ){
         @ <p class="generalError">Error: Bad artifact IDs.</p>
         fossil_free(zCanonical);
         zCanonical = 0;
         break;
       }else{
-        canonical16(p, UUID_SIZE);
-        p += UUID_SIZE+1;
+        canonical16(p, nUuid);
+        p += nUuid+1;
       }
     }
     zUuid = zCanonical;
@@ -109,17 +110,17 @@ void shun_page(void){
         allExist = 0;
       }
       admin_log("Unshunned %Q", p);
-      p += UUID_SIZE+1;
+      p += strlen(p)+1;
     }
     if( allExist ){
       @ <p class="noMoreShun">Artifact(s)<br />
-      for( p = zUuid ; *p ; p += UUID_SIZE+1 ){
+      for( p = zUuid ; *p ; p += strlen(p)+1 ){
         @ <a href="%R/artifact/%s(p)">%s(p)</a><br />
       }
       @ are no longer being shunned.</p>
     }else{
       @ <p class="noMoreShun">Artifact(s)<br />
-      for( p = zUuid ; *p ; p += UUID_SIZE+1 ){
+      for( p = zUuid ; *p ; p += strlen(p)+1 ){
         @ %s(p)<br />
       }
       @ will no longer be shunned.  But they may not exist in the repository.
@@ -148,10 +149,10 @@ void shun_page(void){
         db_multi_exec("DELETE FROM tagxref WHERE tagid=%d", tagid);
       }
       admin_log("Shunned %Q", p);
-      p += UUID_SIZE+1;
+      p += strlen(p)+1;
     }
     @ <p class="shunned">Artifact(s)<br />
-    for( p = zUuid ; *p ; p += UUID_SIZE+1 ){
+    for( p = zUuid ; *p ; p += strlen(p)+1 ){
       @ <a href="%R/artifact/%s(p)">%s(p)</a><br />
     }
     @ have been shunned.  They will no longer be pushed.
@@ -169,14 +170,14 @@ void shun_page(void){
   @ bottom of this page.</p>
   @
   @ <a name="addshun"></a>
-  @ <p>To shun artifacts, enter their artifact IDs (the 40-character SHA1
-  @ hash of the artifacts) in the
+  @ <p>To shun artifacts, enter their artifact hashes (the 40- or
+  @ 64-character lowercase hexadecimal hash of the artifact content) in the
   @ following box and press the "Shun" button.  This will cause the artifacts
   @ to be removed from the repository and will prevent the artifacts from being
   @ readded to the repository by subsequent sync operation.</p>
   @
-  @ <p>Note that you must enter the full 40-character artifact IDs, not
-  @ an abbreviation or a symbolic tag.</p>
+  @ <p>Note that you must enter the full 40- or 64-character artifact hashes,
+  @ not an abbreviation or a symbolic tag.</p>
   @
   @ <p>Warning:  Shunning should only be used to remove inappropriate content
   @ from the repository.  Inappropriate content includes such things as
@@ -309,6 +310,7 @@ void rcvfromlist_page(void){
   int showAll = P("all")!=0;
   int cnt;
   Stmt q;
+  const int perScreen = 500;   /* RCVIDs per page */
 
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -323,23 +325,35 @@ void rcvfromlist_page(void){
   }
   if( ofst>0 ){
     style_submenu_element("Newer", "rcvfromlist?ofst=%d",
-                           ofst>30 ? ofst-30 : 0);
+                           ofst>perScreen ? ofst-perScreen : 0);
   }
   db_multi_exec(
     "CREATE TEMP TABLE rcvidUsed(x INTEGER PRIMARY KEY);"
+    "CREATE TEMP TABLE rcvidSha1(x INTEGER PRIMARY KEY);"
+    "CREATE TEMP TABLE rcvidSha3(x INTEGER PRIMARY KEY);"
     "INSERT OR IGNORE INTO rcvidUsed(x) SELECT rcvid FROM blob;"
+    "INSERT OR IGNORE INTO rcvidSha1(x)"
+    "   SELECT rcvid FROM blob WHERE length(uuid)==40;"
+    "INSERT OR IGNORE INTO rcvidSha3(x)"
+    "   SELECT rcvid FROM blob WHERE length(uuid)==64;"
   );
   if( db_table_exists("repository","unversioned") ){
     db_multi_exec(
       "INSERT OR IGNORE INTO rcvidUsed(x) SELECT rcvid FROM unversioned;"
+      "INSERT OR IGNORE INTO rcvidSha1(x)"
+      "   SELECT rcvid FROM unversioned WHERE length(hash)==40;"
+      "INSERT OR IGNORE INTO rcvidSha3(x)"
+      "   SELECT rcvid FROM unversioned WHERE length(hash)==64;"
     );
   }
   db_prepare(&q,
     "SELECT rcvid, login, datetime(rcvfrom.mtime), rcvfrom.ipaddr,"
-    "       EXISTS(SELECT 1 FROM rcvidUsed WHERE x=rcvfrom.rcvid)"
+    "       EXISTS(SELECT 1 FROM rcvidUsed WHERE x=rcvfrom.rcvid),"
+    "       EXISTS(SELECT 1 FROM rcvidSha1 WHERE x=rcvfrom.rcvid),"
+    "       EXISTS(SELECT 1 FROM rcvidSha3 WHERE x=rcvfrom.rcvid)"
     "  FROM rcvfrom LEFT JOIN user USING(uid)"
     " ORDER BY rcvid DESC LIMIT %d OFFSET %d",
-    showAll ? -1 : 31, ofst
+    showAll ? -1 : perScreen+1, ofst
   );
   @ <p>Whenever new artifacts are added to the repository, either by
   @ push or using the web interface, an entry is made in the RCVFROM table
@@ -357,6 +371,7 @@ void rcvfromlist_page(void){
   @ <tr><th style="padding-right: 15px;text-align: right;">rcvid</th>
   @     <th style="padding-right: 15px;text-align: left;">Date</th>
   @     <th style="padding-right: 15px;text-align: left;">User</th>
+  @     <th style="padding-right: 15px;text-align: left;">Hash</th>
   @     <th style="text-align: left;">IP&nbsp;Address</th></tr>
   cnt = 0;
   while( db_step(&q)==SQLITE_ROW ){
@@ -364,8 +379,12 @@ void rcvfromlist_page(void){
     const char *zUser = db_column_text(&q, 1);
     const char *zDate = db_column_text(&q, 2);
     const char *zIpAddr = db_column_text(&q, 3);
-    if( cnt==30 && !showAll ){
-      style_submenu_element("Older", "rcvfromlist?ofst=%d", ofst+30);
+    int usesSha1 = db_column_int(&q, 5)!=0;
+    int usesSha3 = db_column_int(&q, 6)!=0;
+    static const char *zHashType[] = { "", "sha1", "sha3", "both" };
+    const char *zHash = zHashType[usesSha1+usesSha3*2];
+    if( cnt==perScreen && !showAll ){
+      style_submenu_element("Older", "rcvfromlist?ofst=%d", ofst+perScreen);
     }else{
       cnt++;
       @ <tr>
@@ -377,6 +396,7 @@ void rcvfromlist_page(void){
       }
       @ <td style="padding-right: 15px;text-align: left;">%s(zDate)</td>
       @ <td style="padding-right: 15px;text-align: left;">%h(zUser)</td>
+      @ <td style="padding-right: 15px;text-align: left;">%s(zHash)</td>
       @ <td style="text-align: left;">%s(zIpAddr)</td>
       @ </tr>
     }

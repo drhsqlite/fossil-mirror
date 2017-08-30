@@ -164,7 +164,7 @@ char *remove_blank_lines(const char *zOrig){
 ** If anything suspicious is tried, set *(char**)pError to an error
 ** message obtained from malloc.
 */
-int report_query_authorizer(
+static int report_query_authorizer(
   void *pError,
   int code,
   const char *zArg1,
@@ -223,10 +223,11 @@ int report_query_authorizer(
 /*
 ** Activate the query authorizer
 */
-static void report_restrict_sql(char **pzErr){
+void report_restrict_sql(char **pzErr){
   sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)pzErr);
+  sqlite3_limit(g.db, SQLITE_LIMIT_VDBE_OP, 10000);
 }
-static void report_unrestrict_sql(void){
+void report_unrestrict_sql(void){
   sqlite3_set_authorizer(g.db, 0, 0);
 }
 

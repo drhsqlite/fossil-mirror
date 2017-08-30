@@ -136,20 +136,15 @@ void checkout_set_all_exe(int vid){
 void manifest_to_disk(int vid){
   char *zManFile;
   Blob manifest;
-  Blob hash;
   Blob taglist;
   int flg;
 
   flg = db_get_manifest_setting();
 
-  if( flg & (MFESTFLG_RAW|MFESTFLG_UUID) ){
+  if( flg & MFESTFLG_RAW ){
     blob_zero(&manifest);
     content_get(vid, &manifest);
-    blob_zero(&hash);
-    sha1sum_blob(&manifest, &hash);
     sterilize_manifest(&manifest);
-  }
-  if( flg & MFESTFLG_RAW ){
     zManFile = mprintf("%smanifest", g.zLocalRoot);
     blob_write_to_file(&manifest, zManFile);
     free(zManFile);
@@ -161,7 +156,9 @@ void manifest_to_disk(int vid){
     }
   }
   if( flg & MFESTFLG_UUID ){
+    Blob hash;
     zManFile = mprintf("%smanifest.uuid", g.zLocalRoot);
+    blob_set_dynamic(&hash, rid_to_uuid(vid));
     blob_append(&hash, "\n", 1);
     blob_write_to_file(&hash, zManFile);
     free(zManFile);

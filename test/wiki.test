@@ -23,12 +23,18 @@ test_setup
 # Return true if two files are similar (i.e. not only compress trailing spaces
 # from a line, but remove any final LF from the file as well)
 proc similar_file {a b} {
-  set x [read_file $a]
-  regsub -all { +\n} $x \n x
-  regsub -all {\n$} $x {} x
-  set y [read_file $b]
-  regsub -all { +\n} $y \n y
-  regsub -all {\n$} $y {} y
+  set x ""
+  if {[file exists $a]} {
+    set x [read_file $a]
+    regsub -all { +\n} $x \n x
+    regsub -all {\n$} $x {} x
+  }
+  set y ""
+  if {[file exists $b]} {
+    set y [read_file $b]
+    regsub -all { +\n} $y \n y
+    regsub -all {\n$} $y {} y
+  }
   return [expr {$x==$y}]
 }
 

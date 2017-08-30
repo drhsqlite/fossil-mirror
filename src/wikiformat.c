@@ -1067,22 +1067,22 @@ static void endAutoParagraph(Renderer *p){
 ** If the input string corresponds to an existing baseline,
 ** return true.
 */
-static int is_valid_uuid(const char *z){
+static int is_valid_hname(const char *z){
   int n = strlen(z);
-  if( n<4 || n>UUID_SIZE ) return 0;
+  if( n<4 || n>HNAME_MAX ) return 0;
   if( !validate16(z, n) ) return 0;
   return 1;
 }
 
 /*
-** Return TRUE if a UUID corresponds to an artifact in this
+** Return TRUE if a hash name corresponds to an artifact in this
 ** repository.
 */
 static int in_this_repo(const char *zUuid){
   static Stmt q;
   int rc;
   int n;
-  char zU2[UUID_SIZE+1];
+  char zU2[HNAME_MAX+1];
   db_static_prepare(&q,
      "SELECT 1 FROM blob WHERE uuid>=:u AND uuid<:u2"
   );
@@ -1218,9 +1218,9 @@ static void openHyperlink(
     blob_appendf(p->pOut, "<a href=\"%h\">", zTarget);
   }else if( zTarget[0]=='#' ){
     blob_appendf(p->pOut, "<a href=\"%h\">", zTarget);
-  }else if( is_valid_uuid(zTarget) ){
+  }else if( is_valid_hname(zTarget) ){
     int isClosed = 0;
-    if( is_ticket(zTarget, &isClosed) ){
+    if( strlen(zTarget)<=UUID_SIZE && is_ticket(zTarget, &isClosed) ){
       /* Special display processing for tickets.  Display the hyperlink
       ** as crossed out if the ticket is closed.
       */
@@ -1740,7 +1740,6 @@ void test_wiki_render(void){
   if( find_option("nobadlinks",0,0)!=0 ) flags |= WIKI_NOBADLINKS;
   if( find_option("inline",0,0)!=0 ) flags |= WIKI_INLINE;
   if( find_option("noblock",0,0)!=0 ) flags |= WIKI_NOBLOCK;
-  db_find_and_open_repository(0,0);
   verify_all_options();
   if( g.argc!=3 ) usage("FILE");
   blob_zero(&out);
@@ -1841,7 +1840,7 @@ void wiki_extract_links(
         while(i>1 && zTarget[i-1]==' '){ i--; }
         c = zTarget[i];
         zTarget[i] = 0;
-        if( is_valid_uuid(zTarget) ){
+        if( is_valid_hname(zTarget) ){
           memcpy(zLink, zTarget, i+1);
           canonical16(zLink, i);
           db_multi_exec(

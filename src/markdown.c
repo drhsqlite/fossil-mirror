@@ -461,13 +461,14 @@ static size_t find_emph_char(char *data, size_t size, char c){
   while( i<size ){
     while( i<size && data[i]!=c && data[i]!='`' && data[i]!='[' ){ i++; }
     if( i>=size ) return 0;
-    if( data[i]==c ) return i;
 
     /* not counting escaped chars */
     if( i && data[i-1]=='\\' ){
       i++;
       continue;
     }
+
+    if( data[i]==c ) return i;
 
     /* skipping a code span */
     if( data[i]=='`' ){

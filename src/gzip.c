@@ -67,7 +67,7 @@ void gzip_begin(sqlite3_int64 now){
   }
   put32(&aHdr[4], now&0xffffffff);
   aHdr[8] = 2;
-  aHdr[9] = 255;
+  aHdr[9] = -1;
   blob_append(&gzip.out, aHdr, 10);
   gzip.iCRC = 0;
   gzip.eState = 1;

@@ -44,6 +44,7 @@ static struct BuiltinSkin {
   { "Default",                           "default",           0 },
   { "Blitz",                             "blitz",             0 },
   { "Blitz, No Logo",                    "blitz_no_logo",     0 },
+  { "Bootstrap",                         "bootstrap",         0 },
   { "Xekri",                             "xekri",             0 },
   { "Original",                          "original",          0 },
   { "Enhanced Original",                 "enhanced1",         0 },
@@ -158,6 +159,16 @@ const char *skin_get(const char *zWhat){
     }
   }
   return zOut;
+}
+
+/*
+** Return the command-line option used to set the skin, or return NULL
+** if the default skin is being used.
+*/
+const char *skin_in_use(void){
+  if( zAltSkinDir ) return zAltSkinDir;
+  if( pAltSkin ) return pAltSkin->zLabel;
+  return 0;
 }
 
 /*

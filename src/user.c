@@ -55,6 +55,9 @@ static char *getpass(const char *prompt){
   char *zPwd;
   size_t nPwd;
   size_t i;
+#if defined(_WIN32)
+  int useGetch = _isatty(_fileno(stderr));
+#endif
 
   if( zPwdBuffer==0 ){
     zPwdBuffer = fossil_secure_alloc_page(&nPwdBuffer);
@@ -70,7 +73,7 @@ static char *getpass(const char *prompt){
   assert( nPwd>0 );
   for(i=0; i<nPwd-1; ++i){
 #if defined(_WIN32)
-    zPwd[i] = _getch();
+    zPwd[i] = useGetch ? _getch() : getc(stdin);
 #else
     zPwd[i] = getc(stdin);
 #endif
@@ -93,6 +96,9 @@ static char *getpass(const char *prompt){
       break;
     }
     else{
+#if defined(_WIN32)
+      if( useGetch )
+#endif
       fputc('*',stderr);
     }
   }
@@ -585,7 +591,33 @@ void test_prompt_user_cmd(void){
   Blob answer;
   if( g.argc!=3 ) usage("PROMPT");
   prompt_user(g.argv[2], &answer);
-  fossil_print("%s", blob_str(&answer));
+  fossil_print("%s\n", blob_str(&answer));
+}
+
+/*
+** COMMAND: test-prompt-password
+**
+** Usage: %fossil test-prompt-password PROMPT VERIFY
+**
+** Prompts the user for a password and then prints it verbatim.
+**
+** Behavior is controlled by the VERIFY parameter:
+**
+**     0     Just ask once.
+**
+**     1     If the first answer is a non-empty string, ask for
+**           verification.  Repeat if the two strings do not match.
+**
+**     2     Ask twice, repeat if the strings do not match.
+
+*/
+void test_prompt_password_cmd(void){
+  Blob answer;
+  int iVerify = 0;
+  if( g.argc!=4 ) usage("PROMPT VERIFY");
+  iVerify = atoi(g.argv[3]);
+  prompt_for_password(g.argv[2], &answer, iVerify);
+  fossil_print("[%s]\n", blob_str(&answer));
 }
 
 /*

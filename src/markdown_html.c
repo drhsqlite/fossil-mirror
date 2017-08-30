@@ -298,9 +298,11 @@ static int html_autolink(
 }
 
 static int html_code_span(struct Blob *ob, struct Blob *text, void *opaque){
-  BLOB_APPEND_LITERAL(ob, "<code>");
-  html_escape(ob, blob_buffer(text), blob_size(text));
-  BLOB_APPEND_LITERAL(ob, "</code>");
+  if( text ){
+    BLOB_APPEND_LITERAL(ob, "<code>");
+    html_escape(ob, blob_buffer(text), blob_size(text));
+    BLOB_APPEND_LITERAL(ob, "</code>");
+  }
   return 1;
 }
 

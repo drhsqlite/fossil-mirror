@@ -26,7 +26,7 @@
 #endif
 #include <time.h>
 
-/* Two custom conversions are used to show a prefix of SHA1 hashes:
+/* Two custom conversions are used to show a prefix of artifact hashes:
 **
 **      %!S       Prefix of a length appropriate for URLs
 **      %S        Prefix of a length appropriate for human display
@@ -46,7 +46,7 @@
 #endif
 
 /*
-** Return the number of SHA1 hash digits to display.  The number is for
+** Return the number of artifact hash digits to display.  The number is for
 ** human output if the bForUrl is false and is destined for a URL if
 ** bForUrl is false.
 */

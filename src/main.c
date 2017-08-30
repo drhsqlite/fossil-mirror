@@ -52,7 +52,12 @@
 #endif
 
 /*
-** Size of a UUID in characters
+** Size of a UUID in characters.   A UUID is a randomly generated
+** lower-case hexadecimal number used to identify tickets.
+**
+** In Fossil 1.x, UUID also referred to a SHA1 artifact hash.  But that
+** usage is now obsolete.  The term UUID should now mean only a very large
+** random number used as a unique identifier for tickets or other objects.
 */
 #define UUID_SIZE 40
 
@@ -137,7 +142,7 @@ struct Global {
   int localOpen;          /* True if the local database is open */
   char *zLocalRoot;       /* The directory holding the  local database */
   int minPrefix;          /* Number of digits needed for a distinct UUID */
-  int fNoDirSymlinks;     /* True if --no-dir-symlinks flag is present */
+  int eHashPolicy;        /* Current hash policy.  One of HPOLICY_* */
   int fSqlTrace;          /* True if --sqltrace flag is present */
   int fSqlStats;          /* True if --sqltrace or --sqlstats are present */
   int fSqlPrint;          /* True if -sqlprint flag is present */
@@ -549,6 +554,8 @@ int main(int argc, char **argv)
   const char *zCmdName = "unknown";
   const CmdOrPage *pCmd = 0;
   int rc;
+
+  fossil_limit_memory(1);
   if( sqlite3_libversion_number()<3014000 ){
     fossil_fatal("Unsuitable SQLite version %s, must be at least 3.14.0",
                  sqlite3_libversion());
@@ -616,7 +623,6 @@ int main(int argc, char **argv)
     const char *zChdir = find_option("chdir",0,1);
     g.isHTTP = 0;
     g.rcvid = 0;
-    g.fNoDirSymlinks = find_option("no-dir-symlinks", 0, 0)!=0;
     g.fQuiet = find_option("quiet", 0, 0)!=0;
     g.fSqlTrace = find_option("sqltrace", 0, 0)!=0;
     g.fSqlStats = find_option("sqlstats", 0, 0)!=0;
@@ -885,7 +891,7 @@ const char *find_repository_option(){
 void verify_all_options(void){
   int i;
   for(i=1; i<g.argc; i++){
-    if( g.argv[i][0]=='-' ){
+    if( g.argv[i][0]=='-' && g.argv[i][1]!=0 ){
       fossil_fatal(
         "unrecognized command-line option, or missing argument: %s",
         g.argv[i]);
@@ -931,6 +937,9 @@ static void get_version_blob(
   blob_appendf(pOut, "miniz %s, loaded %s\n", MZ_VERSION, mz_version());
 #else
   blob_appendf(pOut, "zlib %s, loaded %s\n", ZLIB_VERSION, zlibVersion());
+#endif
+#if FOSSIL_HARDENED_SHA1
+  blob_appendf(pOut, "hardened-SHA1 by Marc Stevens and Dan Shumow\n");
 #endif
 #if defined(FOSSIL_ENABLE_SSL)
   blob_appendf(pOut, "SSL (%s)\n", SSLeay_version(SSLEAY_VERSION));
@@ -1054,7 +1063,7 @@ void test_version_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  verboseFlag = atoi(PD("verbose","0"));
+  verboseFlag = PD("verbose", 0) != 0;
   style_header("Version Information");
   style_submenu_element("Stat", "stat");
   get_version_blob(&versionInfo, verboseFlag);
@@ -1999,7 +2008,7 @@ void cmd_cgi(void){
 ** the PATH_INFO variable.
 **
 ** If the fCreate flag is set, then create the repository if it
-** does not already exist.
+** does not already exist. Always use "auto" hash-policy in this case.
 */
 static void find_server_repository(int arg, int fCreate){
   if( g.argc<=arg ){
@@ -2016,6 +2025,8 @@ static void find_server_repository(int arg, int fCreate){
         db_create_repository(zRepo);
         db_open_repository(zRepo);
         db_begin_transaction();
+        g.eHashPolicy = HPOLICY_AUTO;
+        db_set_int("hash-policy", HPOLICY_AUTO, 0);
         db_initial_setup(0, "now", g.zLogin);
         db_end_transaction(0);
         fossil_print("project-id: %s\n", db_get("project-code", 0));

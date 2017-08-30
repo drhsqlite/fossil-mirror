@@ -39,8 +39,8 @@ while {[gets $in line]>0} {
 }
 close $in
 
+set vdate(2.0) 2017-03-03
 set vdate(1.37) 2017-01-15
-set vdate(1.36) 2016-10-24
 
 # Do all versions from newest to oldest
 #
@@ -59,7 +59,7 @@ foreach vers [lsort -decr -real [array names avers]] {
   puts $out "<tr>"
 
   foreach {prefix img desc} {
-    fossil-linux-x86 linux.gif {Linux 3.x x86}
+    fossil-linux linux.gif {Linux 3.x x64}
     fossil-macosx mac.gif {Mac 10.x x86}
     fossil-openbsd-x86 openbsd.gif {OpenBSD 5.x x86}
     fossil-w32 win32.gif {Windows}

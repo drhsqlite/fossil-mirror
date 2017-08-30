@@ -25,7 +25,7 @@ deleting content.  Such reasons might include:
 Fossil provides a mechanism called "shunning" for removing content from
 a repository.
 
-Every Fossil repository maintains a list of the SHA1 hash names of
+Every Fossil repository maintains a list of the hash names of
 "shunned" artifacts.
 Fossil will refuse to push or pull any shunned artifact.
 Furthermore, all shunned artifacts (but not the shunning list

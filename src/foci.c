@@ -30,7 +30,7 @@
 **     CREATE TABLE files_of_checkin(
 **       checkinID    INTEGER,    -- RID for the check-in manifest
 **       filename     TEXT,       -- Name of a file
-**       uuid         TEXT,       -- SHA1 hash of the file
+**       uuid         TEXT,       -- hash of the file
 **       previousName TEXT,       -- Name of the file in previous check-in
 **       perm         TEXT,       -- Permissions on the file
 **       symname      TEXT HIDDEN -- Symbolic name of the check-in.
@@ -56,7 +56,7 @@ static const char zFociSchema[] =
 @ CREATE TABLE files_of_checkin(
 @  checkinID    INTEGER,    -- RID for the check-in manifest
 @  filename     TEXT,       -- Name of a file
-@  uuid         TEXT,       -- SHA1 hash of the file
+@  uuid         TEXT,       -- hash of the file
 @  previousName TEXT,       -- Name of the file in previous check-in
 @  perm         TEXT,       -- Permissions on the file
 @  symname      TEXT HIDDEN -- Symbolic name of the check-in
@@ -266,6 +266,9 @@ int foci_register(sqlite3 *db){
     0,                            /* xRollback */
     0,                            /* xFindMethod */
     0,                            /* xRename */
+    0,                            /* xSavepoint */
+    0,                            /* xRelease */
+    0                             /* xRollbackTo */
   };
   sqlite3_create_module(db, "files_of_checkin", &foci_module, 0);
   return SQLITE_OK;

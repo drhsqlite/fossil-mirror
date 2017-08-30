@@ -1124,8 +1124,8 @@ int wiki_technote_to_rid(const char *zETime) {
   int rid=0;                    /* Artifact ID of the tech note */
   int nETime = strlen(zETime);
   Stmt q;
-  if( nETime>=4 && nETime<=UUID_SIZE && validate16(zETime, nETime) ){
-    char zUuid[UUID_SIZE+1];
+  if( nETime>=4 && nETime<=HNAME_MAX && validate16(zETime, nETime) ){
+    char zUuid[HNAME_MAX+1];
     memcpy(zUuid, zETime, nETime+1);
     canonical16(zUuid, nETime);
     db_prepare(&q,
@@ -1427,7 +1427,6 @@ wiki_cmd_usage:
 */
 void test_markdown_render(void){
   Blob in, out;
-  db_find_and_open_repository(0,0);
   verify_all_options();
   if( g.argc!=3 ) usage("FILE");
   blob_zero(&out);

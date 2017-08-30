@@ -24,6 +24,16 @@
 #include <sqlite3.h>
 #include "md5.h"
 
+#ifdef FOSSIL_ENABLE_SSL
+
+# include <openssl/md5.h>
+# define MD5Context MD5_CTX
+# define MD5Init MD5_Init
+# define MD5Update MD5_Update
+# define MD5Final MD5_Final
+
+#else
+
 /*
  * If compiled on a machine that doesn't have a 32-bit integer,
  * you just set "uint32" to the appropriate datatype for an
@@ -44,7 +54,10 @@ struct Context {
 };
 typedef struct Context MD5Context;
 
-#if defined(__i386__) || defined(__x86_64__) || defined(_WIN32)
+#if defined(i386)     || defined(__i386__)   || defined(_M_IX86) ||    \
+    defined(__x86_64) || defined(__x86_64__) || defined(_M_X64)  ||    \
+    defined(_M_AMD64) || defined(_M_ARM)     || defined(__x86)   ||    \
+    defined(__arm__)  || defined(_WIN32)
 # define byteReverse(A,B)
 #else
 /*
@@ -268,6 +281,7 @@ static void MD5Final(unsigned char digest[16], MD5Context *pCtx){
         memcpy(digest, ctx->buf, 16);
         memset(ctx, 0, sizeof(*ctx));    /* In case it's sensitive */
 }
+#endif
 
 /*
 ** Convert a digest into base-16.  digest should be declared as

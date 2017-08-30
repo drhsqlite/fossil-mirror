@@ -89,6 +89,6 @@ repository.)  So be careful with the command.
 
 All of the features above apply to <u>all</u> private branches in a
 single repository at once.  There is no mechanism in Fossil (currently)
-that allows you to push, pull, clone, sync, or scrub and individual
+that allows you to push, pull, clone, sync, or scrub an individual
 private branch within a repository that contains multiple private
 branches.

@@ -242,15 +242,15 @@ test unversioned-35 {[::sha1::sha1 -hex -filename unversioned2-ex.txt] eq \
 ###############################################################################
 
 fossil unversioned hash
-test unversioned-36 {[regexp {^[0-9a-f]{40}$} [normalize_result]]}
+test unversioned-36 {[regexp {^[0-9a-f]{40,64}$} [normalize_result]]}
 
 ###############################################################################
 
 fossil unversioned hash --debug
 test unversioned-37 {[regexp \
-{^unversioned2\.txt 2016-10-01 00:00:00 [0-9a-f]{40}
-unversioned4\.txt 2016-10-01 00:00:00 [0-9a-f]{40}
-[0-9a-f]{40}$} [normalize_result]]}
+{^unversioned2\.txt 2016-10-01 00:00:00 [0-9a-f]{40,64}
+unversioned4\.txt 2016-10-01 00:00:00 [0-9a-f]{40,64}
+[0-9a-f]{40,64}$} [normalize_result]]}
 
 ###############################################################################
 
