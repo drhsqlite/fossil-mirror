@@ -24,7 +24,6 @@
 #include <assert.h>
 #include "dispatch.h"
 
-
 #if INTERFACE
 /*
 ** An instance of this object defines everything we need to know about an
@@ -41,16 +40,20 @@ struct CmdOrPage {
 ** These macros must match similar macros in mkindex.c
 ** Allowed values for CmdOrPage.eCmdFlags.
 */
-#define CMDFLAG_1ST_TIER  0x0001      /* Most important commands */
-#define CMDFLAG_2ND_TIER  0x0002      /* Obscure and seldom used commands */
-#define CMDFLAG_TEST      0x0004      /* Commands for testing only */
-#define CMDFLAG_WEBPAGE   0x0008      /* Web pages */
-#define CMDFLAG_COMMAND   0x0010      /* A command */
+#define CMDFLAG_1ST_TIER    0x0001      /* Most important commands */
+#define CMDFLAG_2ND_TIER    0x0002      /* Obscure and seldom used commands */
+#define CMDFLAG_TEST        0x0004      /* Commands for testing only */
+#define CMDFLAG_WEBPAGE     0x0008      /* Web pages */
+#define CMDFLAG_COMMAND     0x0010      /* A command */
+#define CMDFLAG_SETTING     0x0020      /* A setting */
+#define CMDFLAG_VERSIONABLE 0x0040      /* A versionable setting */
+#define CMDFLAG_BLOCKTEXT   0x0080      /* Multi-line text setting */
+#define CMDFLAG_BOOLEAN     0x0100      /* A boolean setting */
 /**************************************************************************/
 
 /* Values for the 2nd parameter to dispatch_name_search() */
-#define CMDFLAG_ANY       0x0018      /* Match anything */
-#define CMDFLAG_PREFIX    0x0020      /* Prefix match is ok */
+#define CMDFLAG_ANY         0x0038      /* Match anything */
+#define CMDFLAG_PREFIX      0x0200      /* Prefix match is ok */
 
 #endif /* INTERFACE */
 
@@ -444,11 +447,12 @@ static void command_list(const char *zPrefix, int cmdMask){
 ** Display information on how to use COMMAND.  To display a list of
 ** available commands use one of:
 **
-**    %fossil help              Show common commands
-**    %fossil help -a|--all     Show both common and auxiliary commands
-**    %fossil help -t|--test    Show test commands only
-**    %fossil help -x|--aux     Show auxiliary commands only
-**    %fossil help -w|--www     Show list of WWW pages
+**    %fossil help                Show common commands
+**    %fossil help -a|--all       Show both common and auxiliary commands
+**    %fossil help -s|--settings  Show setting names
+**    %fossil help -t|--test      Show test commands only
+**    %fossil help -x|--aux       Show auxiliary commands only
+**    %fossil help -w|--www       Show list of WWW pages
 */
 void help_cmd(void){
   int rc;
@@ -483,6 +487,10 @@ void help_cmd(void){
     command_list(0, CMDFLAG_TEST);
     return;
   }
+  else if( find_option("setting","s",0) ){
+    command_list(0, CMDFLAG_SETTING);
+    return;
+  }
   isPage = ('/' == *g.argv[2]) ? 1 : 0;
   if(isPage){
     zCmdOrPage = "page";
@@ -508,6 +516,9 @@ void help_cmd(void){
     fossil_fatal("no help available for the %s %s",
                  pCmd->zName, zCmdOrPage);
   }
+  if( pCmd->eCmdFlags & CMDFLAG_SETTING ){
+    fossil_print("Setting: \"%s\"\n\n", pCmd->zName);
+  }
   while( *z ){
     if( *z=='%' && strncmp(z, "%fossil", 7)==0 ){
       fossil_print("%s", g.argv[0]);
@@ -518,4 +529,15 @@ void help_cmd(void){
     }
   }
   putchar('\n');
+}
+
+/*
+** Return a pointer to the setting information array.
+**
+** This routine provides access to the aSetting2[] array which is created
+** by the mkindex utility program and included with <page_index.h>.
+*/
+const Setting *setting_info(int *pnCount){
+  if( pnCount ) *pnCount = (int)(sizeof(aSetting)/sizeof(aSetting[0]));
+  return aSetting;
 }
