@@ -1,8 +1,8 @@
-C Merge\strunk
-D 2017-08-30T13:02:00.000
+C Don't\sprompt\sbefore\sremoving\sempty\sdirectories
+D 2017-08-30T13:17:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
-F .fossil-settings/crlf-glob 2da052c2bd7a53c5e083152cd3ea3cefd6228b17 w .fossil-settings/crnl-glob
+F .fossil-settings/crlf-glob 2da052c2bd7a53c5e083152cd3ea3cefd6228b17
 F .fossil-settings/encoding-glob fe9e7e2a183ce22d107976173b58d2a1255aeb0a
 F .fossil-settings/ignore-glob ab554727257e703e6466a1bfc7aa2e8fab93c0f9
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
@@ -399,7 +399,7 @@ F src/bundle.c c4b92c14df3e1aeebdeaf02d23a0ecaea462f8b5
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c f7d88d23102129bc8e798598168d51a545edecb870fdd13f31b1831f7d249284
-F src/checkin.c 857091164f4b1fe1923c39ed6dac522d971c468bf27b5562396eb742ceabd470
+F src/checkin.c 42c218d797ee941a9cc4b853b768bc92acfcb90054e537c963ebd51dd366c7b5
 F src/checkout.c ad202f9c6585a8e6d5418ff733f7349f652e9b05
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c c8b17c6084570fef0afc5b52d5caffcc83ff4548
@@ -790,7 +790,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5957bf3cda2039cc2a6c854b367eab4c0ffbdfbb b7272185ca664fcbc13161f699fd941c70272e98f3f2cfb18870e87eef73e55a
-R 84a245d16bdcae7e786304d4618644ef
+P d4f98e25c16067c6527749be4246c3fd47efe20930bf697b7f0705694418673f
+R c4cb3cd93382912f25bf45e4a7c93726
 U jan.nijtmans
-Z a405dbc164f6da4f78995cf02bdddcde
+Z 28aa7f87e691ddd51ab8456f92233524

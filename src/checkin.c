@@ -995,6 +995,7 @@ void clean_cmd(void){
   if( find_option("verily","x",0)!=0 ){
     verilyFlag = 1;
     emptyDirsFlag = 1;
+    allDirFlag = 1;
     scanFlags |= SCAN_ALL;
     zCleanFlag = 0;
   }
