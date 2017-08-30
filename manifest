@@ -1,5 +1,5 @@
-C SQLite\sversion\s3.20.1
-D 2017-08-29T07:50:10.748
+C Remove\sthe\s--no-dir-symlinks\soption.\s\sThis\sis\sa\sback-out\sof\scheck-in\n[2375d6cbce933267]\stogether\swith\sother\scleanup\schanges.
+D 2017-08-30T12:02:47.582
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -387,7 +387,7 @@ F skins/xekri/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c a9a6f333cf0130993ded66cc77b857bc741dacdcf0c6bd4c87569e80788c8b01
+F src/add.c 4a0c8875de777b236a96af56899ab69ae180e3b03f7e91522255d042d4e73b56
 F src/allrepo.c 7296e9bfbbd4897b522ec2e2c26aa88890ffdae1
 F src/attach.c 702f70714f6ed49b8d3d669cfbe4f87ac78946b8
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
@@ -400,7 +400,7 @@ F src/bundle.c c4b92c14df3e1aeebdeaf02d23a0ecaea462f8b5
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c f7d88d23102129bc8e798598168d51a545edecb870fdd13f31b1831f7d249284
-F src/checkin.c 8bf330e93a269b49898bdb235a8f468b2696c1e12f1fc54f615bafe75cd4e694
+F src/checkin.c 44f1c6d99bd79781dc7db002aa2da7850bcb14ab511cef59fcb597d82ea89245
 F src/checkout.c ad202f9c6585a8e6d5418ff733f7349f652e9b05
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c c8b17c6084570fef0afc5b52d5caffcc83ff4548
@@ -412,7 +412,7 @@ F src/content.c b5eac283f4fec06093976b86ec95565c2a8b968c
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 7f06de720da893afd88f3f08991652f909fdcd000885de9fd8d8d3e2a50a5b15
+F src/db.c 20f1be593710b9044d8cfbb421342dacf42ff6674aab8ff9560c784370efd2ba
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
@@ -424,8 +424,8 @@ F src/doc.c cb5731ba54b9ccf3e497965db9874e9553a2bf21772ce14398c05526019ca44e
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c 5dcf3c6ff00c39c25a3909deec1d1154cf0b85a5
 F src/export.c 3e09dfda9d07b44c463d656dbc09f6adfe686d6d80ad55282a1f06b9216934f2
-F src/file.c 24f02e1c1167b5f9cd288c23413d7e8bc24608812731fdf2d4e7659f24893438
-F src/finfo.c eb5d2fe1d5cf277be6362dfacad71c586f35d33bbbd8955098fef3577950aeb0
+F src/file.c dcb3d4d22b16673b0d93038d43fe20e53847dae2c99f83648f0f747b2327a8fe
+F src/finfo.c af394481348f1cd619e042f207a7a7db1d891ef2662bf991c7316a16fecb9313
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c c774c78b274375f42653c71d0b6c1062695bb4da
@@ -461,7 +461,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c e79e6492901382bc825079f86b3d77e2b564d8d2e70454d40ab7967695c817c2
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
-F src/main.c 9a52a07b5277f5cf39e8b300281027f9f07d079bee8eb7f0bb00079a939984b6
+F src/main.c 8e2c9e0d9edce5e0f87298c181d40a5fbfe3571d538d4a397a33067d98c45497
 F src/main.mk b8922b6044eaf27469fa4c16eef595404c39b14e2aba296cb82a0ab32f6536ad
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -471,7 +471,7 @@ F src/markdown.c 2cb7007279db7ad8e16f8c822d5ba27f59b4af2dcc0cd4ba87cce3e4303d596
 F src/markdown.md 3d1e319cb91859734155343db57657ee52d915cf3558f16ab31069f93f439079
 F src/markdown_html.c 9bf56751d43414003cbf08b5a162d50a53df2c4f48951ccf9152119f39629789
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
-F src/merge.c 29e4ffff430dccc0cbbd3d633684d60b3bfb0ab8
+F src/merge.c 0d0cf4b86fd4f51cf4731313833b215997360314
 F src/merge3.c 04153e0e1a0c15c6e7e1815949b11084da2285416d76c257767b54652aaf1b78
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
@@ -515,7 +515,7 @@ F src/tar.c 7f1a32be9c4534f5d837f44ebf66c54ad533e297e159fcd8403356d03b074bfe
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
-F src/th_main.c fcf07b5f99768f552a4d31e4efa5fe4be98f86139ab7e8d556ca2dcacb733e0c
+F src/th_main.c 5b80e577235cec101e3c7fc0451f67ac10fe4db1fcc60a474277c5ce2cb561af
 F src/th_tcl.c 2b70a8da7d7d8009794d7a3565043c8933a6cbfe
 F src/timeline.c 3264fd7901093a61609e5630e3c2a4acbb37bdeb96a2dabb3fb90f7d0721133c
 F src/tkt.c e5815264d68d48a28983230026ceaa45b5190c34b092a8fc920ce832a6d2bf6e
@@ -524,7 +524,7 @@ F src/translate.c 33b65539a12abd079a57972b78e0d532831cefd9
 F src/undo.c d3cca342dd73eaec65e352d978e8f7a9e75a5ddd
 F src/unicode.c 1a3686d1851ac88eeeef3428c9ace3c471b8286fb785606ad63b800c8e688926
 F src/unversioned.c af5f3c4e852989bdcb3c13b5725e90d3dd02585a
-F src/update.c a66c55724db6a355c28d542fcfc4320b9de0eb36
+F src/update.c 6520d390b5e37ce8cdd51abc7044778dd33a14de
 F src/url.c b5d45bf6ccbbb928ab2fcd34e2b27556d43d37441d8db7450fb4f2e843e7410f
 F src/user.c c595beaa8d6fee6bf1f5b53b77cf6a498dab9252cf22b2ec7852a70844cbe7ec
 F src/utf8.c 9f458b9698fc928cc21e375538f268651d1d22a2
@@ -791,7 +791,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ade4a657dc852f4b992dfbec48dfc26d6922ffd12f7a9cc5fe8aff302506e6ce
-R 9c387814fef5079d308900b7594818e2
-U jan.nijtmans
-Z cfd76ef5bdcf6ec809dee1ab809f4378
+P ffc252a663d6c059ef3bf2ca9a682c441b0274477e97c53daee30a6d36f1ccf4
+Q -2375d6cbce933267059d1194fb8818404b89fec6
+R 97884ed60484df8372a2cf0c8f580de7
+U drh
+Z 4e95cf21198c7b2854734d68ed2f57c2

@@ -90,13 +90,12 @@ static struct fossilStat fileStat;
 static int fossil_stat(
   const char *zFilename,  /* name of file or directory to inspect. */
   struct fossilStat *buf, /* pointer to buffer where info should go. */
-  int isWd,               /* non-zero to consider look at symlink itself. */
-  int forceWd             /* non-zero to force look at symlink itself. */
+  int isWd                /* non-zero to consider look at symlink itself. */
 ){
   int rc;
   void *zMbcs = fossil_utf8_to_path(zFilename, 0);
 #if !defined(_WIN32)
-  if( isWd && (forceWd || db_allow_symlinks(0)) ){
+  if( isWd && db_allow_symlinks() ){
     rc = lstat(zMbcs, buf);
   }else{
     rc = stat(zMbcs, buf);
@@ -130,7 +129,7 @@ static int getStat(const char *zFilename, int isWd){
   if( zFilename==0 ){
     if( fileStatValid==0 ) rc = 1;
   }else{
-    if( fossil_stat(zFilename, &fileStat, isWd, 0)!=0 ){
+    if( fossil_stat(zFilename, &fileStat, isWd)!=0 ){
       fileStatValid = 0;
       rc = 1;
     }else{
@@ -222,7 +221,7 @@ int file_wd_isfile(const char *zFilename){
 **/
 void symlink_create(const char *zTargetFile, const char *zLinkFile){
 #if !defined(_WIN32)
-  if( db_allow_symlinks(0) ){
+  if( db_allow_symlinks() ){
     int i, nName;
     char *zName, zBuf[1000];
 
@@ -279,7 +278,7 @@ int file_wd_perm(const char *zFilename){
   if( !getStat(zFilename, 1) ){
      if( S_ISREG(fileStat.st_mode) && ((S_IXUSR)&fileStat.st_mode)!=0 )
       return PERM_EXE;
-    else if( db_allow_symlinks(0) && S_ISLNK(fileStat.st_mode) )
+    else if( db_allow_symlinks() && S_ISLNK(fileStat.st_mode) )
       return PERM_LNK;
   }
 #endif
@@ -332,17 +331,15 @@ int file_isdir(const char *zFilename){
 int file_wd_isdir(const char *zFilename){
   int rc;
   char *zFN;
-  struct fossilStat dirFileStat;
 
   zFN = mprintf("%s", zFilename);
   file_simplify_name(zFN, -1, 0);
-  memset(&dirFileStat, 0, sizeof(struct fossilStat));
-  rc = fossil_stat(zFN, &dirFileStat, 1, 1);
+  rc = getStat(zFN, 1);
   if( rc ){
     rc = 0; /* It does not exist at all. */
-  }else if( S_ISDIR(dirFileStat.st_mode) ){
+  }else if( S_ISDIR(fileStat.st_mode) ){
     rc = 1; /* It exists and is a real directory. */
-  }else if( !db_allow_symlinks(1) && S_ISLNK(dirFileStat.st_mode) ){
+  }else if( S_ISLNK(fileStat.st_mode) ){
     Blob content;
     blob_read_link(&content, zFN); /* It exists and is a link. */
     rc = file_wd_isdir(blob_str(&content)); /* Points to directory? */
@@ -513,7 +510,7 @@ int file_wd_setexe(const char *zFilename, int onoff){
   int rc = 0;
 #if !defined(_WIN32)
   struct stat buf;
-  if( fossil_stat(zFilename, &buf, 1, 0)!=0 || S_ISLNK(buf.st_mode) ) return 0;
+  if( fossil_stat(zFilename, &buf, 1)!=0 || S_ISLNK(buf.st_mode) ) return 0;
   if( onoff ){
     int targetMode = (buf.st_mode & 0444)>>2;
     if( (buf.st_mode & 0100)==0 ){
@@ -980,7 +977,7 @@ static void emitFileStat(
     int rc;
     struct fossilStat testFileStat;
     memset(&testFileStat, 0, sizeof(struct fossilStat));
-    rc = fossil_stat(zPath, &testFileStat, 0, 0);
+    rc = fossil_stat(zPath, &testFileStat, 0);
     fossil_print("  stat_rc      = %d\n", rc);
     sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_size);
     fossil_print("  stat_size    = %s\n", zBuf);
@@ -988,7 +985,7 @@ static void emitFileStat(
     fossil_print("  stat_mtime   = %s\n", zBuf);
     fossil_print("  stat_mode    = %d\n", testFileStat.st_mode);
     memset(&testFileStat, 0, sizeof(struct fossilStat));
-    rc = fossil_stat(zPath, &testFileStat, 1, 1);
+    rc = fossil_stat(zPath, &testFileStat, 1);
     fossil_print("  l_stat_rc    = %d\n", rc);
     sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_size);
     fossil_print("  l_stat_size  = %s\n", zBuf);
@@ -1024,29 +1021,19 @@ static void emitFileStat(
 **     --open-config        Open the configuration database first.
 **     --slash              Trailing slashes, if any, are retained.
 **     --reset              Reset cached stat() info for each file.
-**     --symlinks BOOLEAN   Force allow-symlinks on or off
 */
 void cmd_test_file_environment(void){
   int i;
   int slashFlag = find_option("slash",0,0)!=0;
   int resetFlag = find_option("reset",0,0)!=0;
-  const char *forceSymlinks = find_option("symlinks",0,1);
   if( find_option("open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
   }
-  if( forceSymlinks ){
-    if( is_truth(forceSymlinks) ) g.allowSymlinks = 1;
-    if( is_false(forceSymlinks) ) g.allowSymlinks = 0;
-  }
-  fossil_print("Th_IsLocalOpen() = %d\n", Th_IsLocalOpen());
-  fossil_print("Th_IsRepositoryOpen() = %d\n", Th_IsRepositoryOpen());
-  fossil_print("Th_IsConfigOpen() = %d\n", Th_IsConfigOpen());
   fossil_print("filenames_are_case_sensitive() = %d\n",
                filenames_are_case_sensitive());
   fossil_print("db_allow_symlinks_by_default() = %d\n",
                db_allow_symlinks_by_default());
-  fossil_print("db_allow_symlinks(0) = %d\n", db_allow_symlinks(0));
-  fossil_print("db_allow_symlinks(1) = %d\n", db_allow_symlinks(1));
+  fossil_print("db_allow_symlinks() = %d\n", db_allow_symlinks());
   for(i=2; i<g.argc; i++){
     emitFileStat(g.argv[i], 1, slashFlag, resetFlag);
     emitFileStat(g.argv[i], 0, slashFlag, resetFlag);
@@ -1060,22 +1047,27 @@ void cmd_test_file_environment(void){
 **
 ** Test the operation of the canonical name generator.
 ** Also test Fossil's ability to measure attributes of a file.
-**
-** Options:
-**
-**     --open-config        Open the configuration database first.
-**     --slash              Trailing slashes, if any, are retained.
-**     --reset              Reset cached stat() info for each file.
 */
 void cmd_test_canonical_name(void){
   int i;
+  Blob x;
   int slashFlag = find_option("slash",0,0)!=0;
-  int resetFlag = find_option("reset",0,0)!=0;
-  if( find_option("open-config", 0, 0)!=0 ){
-    Th_OpenConfig(1);
-  }
+  blob_zero(&x);
   for(i=2; i<g.argc; i++){
-    emitFileStat(g.argv[i], 0, slashFlag, resetFlag);
+    char zBuf[100];
+    const char *zName = g.argv[i];
+    file_canonical_name(zName, &x, slashFlag);
+    fossil_print("[%s] -> [%s]\n", zName, blob_buffer(&x));
+    blob_reset(&x);
+    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_wd_size(zName));
+    fossil_print("  file_size   = %s\n", zBuf);
+    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_wd_mtime(zName));
+    fossil_print("  file_mtime  = %s\n", zBuf);
+    fossil_print("  file_isfile = %d\n", file_wd_isfile(zName));
+    fossil_print("  file_isfile_or_link = %d\n",file_wd_isfile_or_link(zName));
+    fossil_print("  file_islink = %d\n", file_wd_islink(zName));
+    fossil_print("  file_isexe  = %d\n", file_wd_isexe(zName));
+    fossil_print("  file_isdir  = %d\n", file_wd_isdir(zName));
   }
 }
 
@@ -1190,10 +1182,6 @@ void file_relative_name(const char *zOrigName, Blob *pOut, int slash){
 ** COMMAND: test-relative-name
 **
 ** Test the operation of the relative name generator.
-**
-** Options:
-**
-**     --slash              Trailing slashes, if any, are retained.
 */
 void cmd_test_relative_name(void){
   int i;
@@ -1313,7 +1301,6 @@ int file_tree_name(
 **   --absolute           Return an absolute path instead of a relative one.
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is
 **                        a boolean: "yes", "no", "true", "false", etc.
-**   --no-dir-symlinks    Disables support for directory symlinks.
 */
 void cmd_test_tree_name(void){
   int i;

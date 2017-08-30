@@ -278,7 +278,6 @@ static int add_files_in_sfile(int vid){
 **                            the comma separated list of glob patterns.
 **    --clean <CSG>           Also ignore files matching patterns from
 **                            the comma separated list of glob patterns.
-**    --no-dir-symlinks       Disables support for directory symlinks.
 **
 ** See also: addremove, rm
 */
@@ -444,7 +443,6 @@ static void process_files_to_remove(
 **   --hard                  Remove files from the checkout.
 **   --case-sensitive <BOOL> Override the case-sensitive setting.
 **   -n|--dry-run            If given, display instead of run actions.
-**   --no-dir-symlinks       Disables support for directory symlinks.
 **
 ** See also: addremove, add
 */
@@ -626,7 +624,6 @@ const char *filename_collation(void){
 **   --clean <CSG>           Also ignore files matching patterns from
 **                           the comma separated list of glob patterns.
 **   -n|--dry-run            If given, display instead of run actions.
-**   --no-dir-symlinks       Disables support for directory symlinks.
 **
 ** See also: add, rm
 */
@@ -854,7 +851,6 @@ static void process_files_to_move(
 **   --hard                  Move files within the checkout.
 **   --case-sensitive <BOOL> Override the case-sensitive setting.
 **   -n|--dry-run            If given, display instead of run actions.
-**   --no-dir-symlinks       Disables support for directory symlinks.
 **
 ** See also: changes, status
 */
