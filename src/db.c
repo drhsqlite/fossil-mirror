@@ -1848,6 +1848,8 @@ void db_initial_setup(
   db_set("content-schema", CONTENT_SCHEMA, 0);
   db_set("aux-schema", AUX_SCHEMA_MAX, 0);
   db_set("rebuilt", get_version(), 0);
+  db_set("admin-log", "1", 0);
+  db_set("access-log", "1", 0);
   db_multi_exec(
       "INSERT INTO config(name,value,mtime)"
       " VALUES('server-code', lower(hex(randomblob(20))),now());"
