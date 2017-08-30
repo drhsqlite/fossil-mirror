@@ -8,6 +8,7 @@
 
 set doclist {
   aboutcgi.wiki {How CGI Works In Fossil}
+  aboutdownload.wiki {How The Download Page Works}
   adding_code.wiki {Adding New Features To Fossil}
   adding_code.wiki {Hacking Fossil}
   antibot.wiki {Defense against Spiders and Bots}
@@ -33,11 +34,13 @@ set doclist {
   event.wiki {Events}
   faq.wiki {Frequently Asked Questions}
   fileformat.wiki {Fossil File Format}
-  fiveminutes.wiki {Update and Running in 5 Minutes as a Single User}
+  fiveminutes.wiki {Up and Running in 5 Minutes as a Single User}
   foss-cklist.wiki {Checklist For Successful Open-Source Projects}
   fossil-from-msvc.wiki {Integrating Fossil in the Microsoft Express 2010 IDE}
   fossil-v-git.wiki {Fossil Versus Git}
+  globs.md {File Name Glob Patterns}
   hacker-howto.wiki {Hacker How-To}
+  hashpolicy.wiki {Hash Policy: Choosing Between SHA1 and SHA3-256}
   /help {Lists of Commands and Webpages}
   hints.wiki {Fossil Tips And Usage Hints}
   index.wiki {Home Page}

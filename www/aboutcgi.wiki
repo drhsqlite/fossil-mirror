@@ -143,7 +143,7 @@ query parameter is set explicitly by the URL itself.
 <blockquote>
 The previous example showed how to serve a single Fossil repository
 using a single CGI script.
-On a website that wants to server multiple repositories, one could
+On a website that wants to serve multiple repositories, one could
 simply create multiple CGI scripts, one script for each repository.
 But it is also possible to serve multiple Fossil repositories from
 a single CGI script.

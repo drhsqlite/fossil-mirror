@@ -6,7 +6,7 @@
 <p>A check-in can be identified using any of the following
 names:
 <ul>
-<li> SHA1 hash prefix
+<li> Cryptographic hash prefix
 <li> Tag or branchname
 <li> Timestamp:  <i>YYYY-MM-DD HH:MM:SS</i>
 <li> <i>tag-name</i> <big><b>:</b></big> <i>timestamp</i>
@@ -46,15 +46,15 @@ document describes the various methods.
 
 <h2>Canonical Check-in Name</h2>
 
-The canonical name of a check-in is the SHA1 hash of its
-[./fileformat.wiki#manifest | manifest] expressed as a 40-character
+The canonical name of a check-in is the hash of its
+[./fileformat.wiki#manifest | manifest] expressed as a 40-or-more character
 lowercase hexadecimal number.  For example:
 
 <blockquote><pre>
 fossil info e5a734a19a9826973e1d073b49dc2a16aa2308f9
 </pre></blockquote>
 
-The full 40-character SHA1 hash is unwieldy to remember and type, though,
+The full 40+ character hash is unwieldy to remember and type, though,
 so Fossil also accepts a unique prefix of the hash, using any combination
 of upper and lower case letters, as long as the prefix is at least 4
 characters long.  Hence the following commands all

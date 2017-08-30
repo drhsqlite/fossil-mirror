@@ -314,7 +314,7 @@ int content_get(int rid, Blob *pBlob){
 **
 ** Usage: %fossil artifact ARTIFACT-ID ?OUTPUT-FILENAME? ?OPTIONS?
 **
-** Extract an artifact by its SHA1 hash and write the results on
+** Extract an artifact by its artifact hash and write the results on
 ** standard output, or if the optional 4th argument is given, in
 ** the named output file.
 **
@@ -499,7 +499,7 @@ void content_rcvid_init(const char *zSrc){
 */
 int content_put_ex(
   Blob *pBlob,              /* Content to add to the repository */
-  const char *zUuid,        /* SHA1 hash of reconstructed pBlob */
+  const char *zUuid,        /* artifact hash of reconstructed pBlob */
   int srcId,                /* pBlob is a delta from this entry */
   int nBlob,                /* pBlob is compressed. Original size is this */
   int isPrivate             /* The content should be marked private */
@@ -515,11 +515,25 @@ int content_put_ex(
   assert( g.repositoryOpen );
   assert( pBlob!=0 );
   assert( srcId==0 || zUuid!=0 );
+  db_begin_transaction();
   if( zUuid==0 ){
     assert( nBlob==0 );
-    sha1sum_blob(pBlob, &hash);
+    /* First check the auxiliary hash to see if there is already an artifact
+    ** that uses the auxiliary hash name */
+    hname_hash(pBlob, 1, &hash);
+    rid = fast_uuid_to_rid(blob_str(&hash));
+    if( rid==0 ){
+      /* No existing artifact with the auxiliary hash name.  Therefore, use
+      ** the primary hash name. */
+      blob_reset(&hash);
+      hname_hash(pBlob, 0, &hash);
+    }
   }else{
     blob_init(&hash, zUuid, -1);
+  }
+  if( g.eHashPolicy==HPOLICY_AUTO && blob_size(&hash)>HNAME_LEN_SHA1 ){
+    g.eHashPolicy = HPOLICY_SHA3;
+    db_set_int("hash-policy", HPOLICY_SHA3, 0);
   }
   if( nBlob ){
     size = nBlob;
@@ -529,7 +543,6 @@ int content_put_ex(
       size = delta_output_size(blob_buffer(pBlob), size);
     }
   }
-  db_begin_transaction();
 
   /* Check to see if the entry already exists and if it does whether
   ** or not the entry is a phantom
@@ -870,7 +883,6 @@ static int looks_like_control_artifact(Blob *p){
 void test_integrity(void){
   Stmt q;
   Blob content;
-  Blob cksum;
   int n1 = 0;
   int n2 = 0;
   int nErr = 0;
@@ -907,6 +919,7 @@ void test_integrity(void){
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
+    int nUuid = db_column_bytes(&q, 1);
     int size = db_column_int(&q, 2);
     n1++;
     fossil_print("  %d/%d\r", n1, total);
@@ -921,10 +934,8 @@ void test_integrity(void){
                      rid, size, blob_size(&content));
       nErr++;
     }
-    sha1sum_blob(&content, &cksum);
-    if( fossil_strcmp(blob_str(&cksum), zUuid)!=0 ){
-      fossil_print("wrong hash on artifact %d: wanted %s but got %s\n",
-                   rid, zUuid, blob_str(&cksum));
+    if( !hname_verify_hash(&content, zUuid, nUuid) ){
+      fossil_print("wrong hash on artifact %d\n",rid);
       nErr++;
     }
     if( bParse && looks_like_control_artifact(&content) ){
@@ -943,7 +954,7 @@ void test_integrity(void){
       p = manifest_parse(&content, 0, &err);
       if( p==0 ){
         fossil_print("manifest_parse failed for %s:\n%s\n",
-               blob_str(&cksum), blob_str(&err));
+               zUuid, blob_str(&err));
         if( strncmp(blob_str(&err), "line 1:", 7)==0 ){
           fossil_print("\"%s\"\n", zFirstLine);
         }
@@ -956,7 +967,6 @@ void test_integrity(void){
     }else{
       blob_reset(&content);
     }
-    blob_reset(&cksum);
     n2++;
   }
   db_finalize(&q);
@@ -1159,7 +1169,7 @@ void test_missing(void){
 ** the metadata.
 **
 ** Note that the arguments are the integer raw RID values from the BLOB table,
-** not SHA1 hashs or labels.
+** not artifact hashs or labels.
 */
 void test_content_erase(void){
   int i;

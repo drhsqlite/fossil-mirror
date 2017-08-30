@@ -485,7 +485,7 @@ void tarball_of_checkin(
     blob_zero(pTar);
     return;
   }
-  blob_zero(&hash);
+  blob_set_dynamic(&hash, rid_to_uuid(rid));
   blob_zero(&filename);
 
   if( zDir && zDir[0] ){
@@ -522,9 +522,6 @@ void tarball_of_checkin(
           blob_append(&filename, "manifest", -1);
           zName = blob_str(&filename);
         }
-        if( eflg & MFESTFLG_UUID ){
-          sha1sum_blob(&mfile, &hash);
-        }
         if( eflg & MFESTFLG_RAW ) {
           sterilize_manifest(&mfile);
           tar_add_file(zName, &mfile, 0, mTime);
@@ -537,7 +534,6 @@ void tarball_of_checkin(
         blob_append(&filename, "manifest.uuid", -1);
         zName = blob_str(&filename);
         tar_add_file(zName, &hash, 0, mTime);
-        blob_reset(&hash);
       }
       if( eflg & MFESTFLG_TAGS ){
         Blob tagslist;
@@ -566,7 +562,6 @@ void tarball_of_checkin(
       }
     }
   }else{
-    sha1sum_blob(&mfile, &hash);
     blob_append(&filename, blob_str(&hash), 16);
     zName = blob_str(&filename);
     mTime = db_int64(0, "SELECT (julianday('now') -  2440587.5)*86400.0;");
@@ -575,6 +570,7 @@ void tarball_of_checkin(
   }
   manifest_destroy(pManifest);
   blob_reset(&mfile);
+  blob_reset(&hash);
   blob_reset(&filename);
   tar_finish(pTar);
 }
@@ -622,6 +618,7 @@ void tarball_cmd(void){
   if( g.argc!=4 ){
     usage("VERSION OUTPUTFILE");
   }
+  g.zOpenRevision = g.argv[2];
   rid = name_to_typed_rid(g.argv[2], "ci");
   if( rid==0 ){
     fossil_fatal("Check-in not found: %s", g.argv[2]);
@@ -650,7 +647,7 @@ void tarball_cmd(void){
 ** WEBPAGE: tarball
 ** URL: /tarball
 **
-** Generate a compressed tarball for the check-in specified by the "uuid"
+** Generate a compressed tarball for the check-in specified by the "r"
 ** query parameter.  Return that compressed tarball as the HTTP reply
 ** content.
 **
@@ -661,8 +658,11 @@ void tarball_cmd(void){
 **                       settings.  A prefix of the name, omitting the
 **                       extension, is used as the top-most directory name.
 **
-**   uuid=TAG            The check-in that is turned into a compressed tarball.
-**                       Defaults to "trunk".
+**   r=TAG               The check-in that is turned into a compressed tarball.
+**                       Defaults to "trunk".  This query parameter used to
+**                       be called "uuid" and "uuid" is still accepted for
+**                       backwards compatibility.  If omitted, the default
+**                       check-in name is "trunk".
 **
 **   in=PATTERN          Only include files that match the comma-separate
 **                       list of GLOB patterns in PATTERN, as with ex=
@@ -682,13 +682,17 @@ void tarball_page(void){
   Glob *pInclude = 0;           /* The compiled in= glob pattern */
   Glob *pExclude = 0;           /* The compiled ex= glob pattern */
   Blob tarball;                 /* Tarball accumulated here */
+  const char *z;
 
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
   load_control();
   zName = mprintf("%s", PD("name",""));
   nName = strlen(zName);
-  zRid = mprintf("%s", PD("uuid","trunk"));
+  z = P("r");
+  if( z==0 ) z = P("uuid");
+  if( z==0 ) z = "trunk";
+  g.zOpenRevision = zRid = fossil_strdup(z);
   nRid = strlen(zRid);
   zInclude = P("in");
   if( zInclude ) pInclude = glob_create(zInclude);
@@ -708,8 +712,9 @@ void tarball_page(void){
       }
     }
   }
-  rid = name_to_typed_rid(nRid?zRid:zName, "ci");
+  rid = symbolic_name_to_rid(nRid?zRid:zName, "ci");
   if( rid==0 ){
+    cgi_set_status(404, "Not Found");
     @ Not found
     return;
   }

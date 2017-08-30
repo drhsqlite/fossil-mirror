@@ -296,7 +296,7 @@ static struct fuse_operations fusefs_methods = {
 ** repository.  The names of files are DIRECTORY/checkins/VERSION/PATH
 ** where DIRECTORY is the root of the mount, VERSION is any valid
 ** check-in name (examples: "trunk" or "tip" or a tag or any unique
-** prefix of a SHA1 hash, etc) and PATH is the pathname of the file in
+** prefix of an artifact hash, etc) and PATH is the pathname of the file in
 ** the check-in.  If DIRECTORY does not exist, then an attempt is made
 ** to create it.
 **

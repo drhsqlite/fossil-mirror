@@ -11,15 +11,32 @@
 #include <string.h>
 #include <stdlib.h>
 
+static FILE *open_for_reading(const char *zFilename){
+  FILE *f = fopen(zFilename, "r");
+  if( f==0 ){
+    fprintf(stderr, "cannot open \"%s\" for reading\n", zFilename);
+    exit(1);
+  }
+  return f;
+}
+
 int main(int argc, char *argv[]){
     FILE *m,*u,*v;
     char *z;
-    int i, x, d;
+#if defined(__DMC__)            /* e.g. 0x857 */
+    int i = 0;
+#endif
+    int j = 0, x = 0, d = 0;
+    int vn[3];
     char b[1000];
     char vx[1000];
+    if( argc!=4 ){
+      fprintf(stderr, "Usage: %s manifest.uuid manifest VERSION\n", argv[0]);
+      exit(1);
+    }
     memset(b,0,sizeof(b));
     memset(vx,0,sizeof(vx));
-    u = fopen(argv[1],"r");
+    u = open_for_reading(argv[1]);
     if( fgets(b, sizeof(b)-1,u)==0 ){
       fprintf(stderr, "malformed manifest.uuid file: %s\n", argv[1]);
       exit(1);
@@ -29,7 +46,7 @@ int main(int argc, char *argv[]){
     *z = 0;
     printf("#define MANIFEST_UUID \"%s\"\n",b);
     printf("#define MANIFEST_VERSION \"[%10.10s]\"\n",b);
-    m = fopen(argv[2],"r");
+    m = open_for_reading(argv[2]);
     while(b ==  fgets(b, sizeof(b)-1,m)){
         if(0 == strncmp("D ",b,2)){
             printf("#define MANIFEST_DATE \"%.10s %.8s\"\n",b+2,b+13);
@@ -37,7 +54,7 @@ int main(int argc, char *argv[]){
         }
     }
     fclose(m);
-    v = fopen(argv[3],"r");
+    v = open_for_reading(argv[3]);
     if( fgets(b, sizeof(b)-1,v)==0 ){
       fprintf(stderr, "malformed VERSION file: %s\n", argv[3]);
       exit(1);
@@ -46,25 +63,22 @@ int main(int argc, char *argv[]){
     for(z=b; z[0] && z[0]!='\r' && z[0]!='\n'; z++){}
     *z = 0;
     printf("#define RELEASE_VERSION \"%s\"\n", b);
-    x=0;
-    i=0;
     z=b;
+    vn[0] = vn[1] = vn[2] = 0;
     while(1){
       if( z[0]>='0' && z[0]<='9' ){
         x = x*10 + z[0] - '0';
       }else{
-        sprintf(&vx[i],"%02d",x);
-        i += 2;
+        if( j<3 ) vn[j++] = x;
         x = 0;
         if( z[0]==0 ) break;
       }
       z++;
     }
     for(z=vx; z[0]=='0'; z++){}
-    printf("#define RELEASE_VERSION_NUMBER %s\n", z);
+    printf("#define RELEASE_VERSION_NUMBER %d%02d%02d\n", vn[0], vn[1], vn[2]);
     memset(vx,0,sizeof(vx));
     strcpy(vx,b);
-    d = 0;
     for(z=vx; z[0]; z++){
       if( z[0]=='-' ){
         z[0] = 0;

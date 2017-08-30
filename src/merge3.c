@@ -370,6 +370,7 @@ int file_contains_merge_marker(const char *zFullpath){
 */
 void delta_3waymerge_cmd(void){
   Blob pivot, v1, v2, merged;
+  int nConflict;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -386,7 +387,7 @@ void delta_3waymerge_cmd(void){
   if( blob_read_from_file(&v2, g.argv[4])<0 ){
     fossil_fatal("cannot read %s", g.argv[4]);
   }
-  blob_merge(&pivot, &v1, &v2, &merged);
+  nConflict = blob_merge(&pivot, &v1, &v2, &merged);
   if( blob_write_to_file(&merged, g.argv[5])<blob_size(&merged) ){
     fossil_fatal("cannot write %s", g.argv[4]);
   }
@@ -394,6 +395,7 @@ void delta_3waymerge_cmd(void){
   blob_reset(&v1);
   blob_reset(&v2);
   blob_reset(&merged);
+  if( nConflict>0 ) fossil_warning("WARNING: %d merge conflicts", nConflict);
 }
 
 /*

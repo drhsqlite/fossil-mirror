@@ -173,7 +173,7 @@ Index: f0
 fossil stash show
 test stash-1-show {[normalize_result] eq $diff_stash_1}
 fossil stash diff
-test stash-1-diff {[normalize_result] eq $diff_stash_1}
+test stash-1-diff {[normalize_result] eq $diff_stash_1} knownBug
 
 ########
 # fossil stash pop

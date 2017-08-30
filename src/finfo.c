@@ -47,7 +47,6 @@
 **   -l|--log             select log mode (the default)
 **   -n|--limit N         Display the first N changes (default unlimited).
 **                        N<=0 means no limit.
-**   --no-dir-symlinks    Disables support for directory symlinks.
 **   --offset P           skip P changes
 **   -p|--print           select print mode
 **   -r|--revision R      print the given revision (or ckout, if none is given)
@@ -312,6 +311,7 @@ void finfo_page(void){
   int fDebug = atoi(PD("debug","0"));
   int fShowId = P("showid")!=0;
   Stmt qparent;
+  int iTableId = timeline_tableid();
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -417,7 +417,7 @@ void finfo_page(void){
   @ <h2>%b(&title)</h2>
   blob_reset(&title);
   pGraph = graph_init();
-  @ <table id="timelineTable" class="timelineTable">
+  @ <table id="timelineTable%d(iTableId)" class="timelineTable">
   if( baseCheckin ){
     db_prepare(&qparent,
       "SELECT DISTINCT pid FROM mlink"
@@ -560,7 +560,7 @@ void finfo_page(void){
     }
   }
   @ </table>
-  timeline_output_graph_javascript(pGraph, 0, 1);
+  timeline_output_graph_javascript(pGraph, 0, iTableId, 1);
   style_footer();
 }
 

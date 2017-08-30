@@ -13,7 +13,7 @@ options {
     with-legacy-mv-rm=0  => {Enable legacy behavior for mv/rm (skip checkout files)}
     with-th1-docs=0      => {Enable TH1 for embedded documentation pages}
     with-th1-hooks=0     => {Enable TH1 hooks for commands and web pages}
-    with-tcl:path        => {Enable Tcl integration, with Tcl in the specified path}
+    with-tcl=path        => {Enable Tcl integration, with Tcl in the specified path}
     with-tcl-stubs=0     => {Enable Tcl integration via stubs library mechanism}
     with-tcl-private-stubs=0
                          => {Enable Tcl integration via private stubs mechanism}
@@ -90,13 +90,13 @@ if {![opt-bool internal-sqlite]} {
     foreach extralibs {{} {-ldl}} {
 
       # Locate the system SQLite by searching for sqlite3_open(). Then check
-      # if sqlite3_trace_v2() can be found as well. If we can find open() but
-      # not trace_v2(), then the system SQLite is too old to link against
+      # if sqlite3_prepare_v3() can be found as well. If we can find open() but
+      # not prepare_v3(), then the system SQLite is too old to link against
       # fossil.
       #
       if {[check-function-in-lib sqlite3_open sqlite3 $extralibs]} {
-        if {![check-function-in-lib sqlite3_trace_v2 sqlite3 $extralibs]} {
-          user-error "system sqlite3 too old (require >= 3.14.0)"
+        if {![check-function-in-lib sqlite3_prepare_v3 sqlite3 $extralibs]} {
+          user-error "system sqlite3 too old (require >= 3.20.0)"
         }
 
         # Success. Update symbols and return.
@@ -134,6 +134,7 @@ if {[string match *-solaris* [get-define host]]} {
 
 if {[opt-bool fossil-debug]} {
     define-append EXTRA_CFLAGS -DFOSSIL_DEBUG
+    define CFLAGS {-g -O0}
     msg-result "Debugging support enabled"
 }
 

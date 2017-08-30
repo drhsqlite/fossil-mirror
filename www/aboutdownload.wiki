@@ -1,0 +1,92 @@
+<title>How The Fossil Download Page Works</title>
+<h1 align="center">How The Download Page Works</h1>
+
+<h2>1.0 Overview</h2>
+
+The [/uv/download.html|Download] page for the Fossil self-hosting
+repository is implemented using [./unvers.wiki|unversioned files].
+The "download.html" screen itself, and the various build products
+are all stored as unversioned content.  The download.html page
+uses AJAX to retrieve the [/help?cmd=/juvlist|/juvlist] webpage
+for a list of all unversioned files.  Javascript within the
+download.html page then figures out which unversioned files are
+build products and paints appropriate icons on the displayed
+download page.
+
+When a new version is generated, the developers use the
+[/help?cmd=uv|fossil uv edit] command to make minor changes
+to the "[/uv/download.html?mimetype=text/plain|download.html]"
+file so that it knows about the
+new version number.  Then the developers run
+the [/help?cmd=uv|fossil uv add] command for each
+build product.  Finally, the
+[/help?cmd=uv|fossil uv sync] command is run to push all
+the content up to servers.  All
+[./selfhost.wiki|three self-hosting repositories] for Fossil
+are updated automatically.
+
+<h2>2.0 Details</h2>
+
+The current text of the "download.html" file can be seen
+[/uv/download.html?mimetype=text/plain|here].  (Mouse-over that
+hyperlink to see how the "mimetype=text/plain" query parameter
+is added in order to display the file as plain text instead of
+the usual HTML.)  The default mimetype for "download.html" is
+text/html.  But because the entire page is enclosed within
+
+
+    <b>&lt;div class='fossil-doc' data-title='Download Page'&gt;...&lt;/div&gt;</b>
+
+Fossil knows to add its standard header and footer information to the
+document, making it look just like any other page.  See
+"[./embeddeddoc.wiki|embedded documentation]" for further details on
+how this works.
+
+With each new release, the "releases" variable in the javascript on
+the [/uv/download.html?mimetype=text/plain|download.html] page is
+edited (using "[/help?cmd=uv|fossil uv edit download.html]") to add
+details of the release.
+
+When the javascript on the "download.html" page runs, it requests
+a listing of all unversioned content using the /juvlist URL.
+([/juvlist|sample /juvlist output]).  The content of the download page is
+constructed by matching unversioned files against regular expressions
+in the "releases" variable.
+
+Build products need to be constructed on different machines.  The precompiled
+binary for Linux is compiled on Linux, the precompiled binary for Windows
+is compiled on Windows10, and so forth.  After a new release is tagged,
+the release manager goes around to each of the target platforms, checks
+out the release and compiles it, then runs
+[/help?cmd=uv|fossil uv add] for the build product followed by
+[/help?cmd=uv|fossil uv sync] to push the new build product to the
+[./selfhost.wiki|various servers].  This process is repeated for
+each build product.
+
+When older builds are retired from the download page, the
+[/uv/download.html?mimetype=text/plain|download.html] page is again
+edited to remove the corresponding entry from the "release" variable
+and the edit is synced using
+[/help?cmd=uv|fossil uv sync].  This causes the build products to
+disappear from the download page immediately.  But those build products
+are still taking up space in the unversioned content table of the
+server repository.  To purge the obsolete build products, one or
+more [/help?cmd=uv|fossil uv rm] commands are run, followed by
+another [/help?cmd=uv|fossil uv sync].  It is important to purge
+obsolete build products since they take up a lot of space.
+At [/repo-tabsize] you can see that the unversioned table takes up
+a substantial fraction of the repository.
+
+<h2>3.0 Security</h2>
+
+Only users with the [/setup_ulist_notes|"y" permission] are allowed
+to push unversioned content up to the servers.  Having the ability
+to push check-ins (the [/setup_ulist_notes|"i" permission]) is not
+sufficient.
+
+On the Fossil project there are 67 people (as of 2017-03-24) who have
+check-in privileges.  But only 3 core developers
+can push unversioned content and thus
+change the build products on the download page.  Minimizing the number
+of people who can change the build products helps to ensure that
+rogue binaries do not slip onto the download page unnoticed.

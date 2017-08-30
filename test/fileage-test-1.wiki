@@ -1,6 +1,6 @@
 
 This page contains URLs for file-age computations that have given
-trouble in the past.  Shif-click on on the links, one-by-one, to verify
+trouble in the past.  Shift-click on on the links, one-by-one, to verify
 that the current implementation works correctly:
 
   *  [/fileage?name=c9df0dcdaa402] - Verify that the many

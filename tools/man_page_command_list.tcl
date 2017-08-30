@@ -1,5 +1,5 @@
 #!/usr/bin/env tclsh
-# command_man_list.tcl - generates common command list for fossil.1
+# man_page_command_list.tcl - generates common command list for fossil.1
 
 # Tunable configuration.
 set columns 5

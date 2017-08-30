@@ -37,11 +37,13 @@
 #define DIFF_BRIEF        ((u64)0x10000000) /* Show filenames only */
 #define DIFF_HTML         ((u64)0x20000000) /* Render for HTML */
 #define DIFF_LINENO       ((u64)0x40000000) /* Show line numbers */
+#define DIFF_NUMSTAT      ((u64)0x80000000) /* Show line count of changes */
 #define DIFF_NOOPT        (((u64)0x01)<<32) /* Suppress optimizations (debug) */
 #define DIFF_INVERT       (((u64)0x02)<<32) /* Invert the diff (debug) */
 #define DIFF_CONTEXT_EX   (((u64)0x04)<<32) /* Use context even if zero */
 #define DIFF_NOTTOOBIG    (((u64)0x08)<<32) /* Only display if not too big */
 #define DIFF_STRIP_EOLCR  (((u64)0x10)<<32) /* Strip trailing CR */
+#define DIFF_SLOW_SBS     (((u64)0x20)<<32) /* Better, but slower side-by-side */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -1039,7 +1041,8 @@ static int match_dline(DLine *pA, DLine *pB){
 */
 static unsigned char *sbsAlignment(
    DLine *aLeft, int nLeft,       /* Text on the left */
-   DLine *aRight, int nRight      /* Text on the right */
+   DLine *aRight, int nRight,     /* Text on the right */
+   u64 diffFlags                  /* Flags passed into the original diff */
 ){
   int i, j, k;                 /* Loop counters */
   int *a;                      /* One row of the Wagner matrix */
@@ -1063,7 +1066,7 @@ static unsigned char *sbsAlignment(
   /* This algorithm is O(N**2).  So if N is too big, bail out with a
   ** simple (but stupid and ugly) result that doesn't take too long. */
   mnLen = nLeft<nRight ? nLeft : nRight;
-  if( nLeft*nRight>100000 ){
+  if( nLeft*nRight>100000 && (diffFlags & DIFF_SLOW_SBS)==0 ){
     memset(aM, 4, mnLen);
     if( nLeft>mnLen )  memset(aM+mnLen, 1, nLeft-mnLen);
     if( nRight>mnLen ) memset(aM+mnLen, 2, nRight-mnLen);
@@ -1327,7 +1330,7 @@ static void sbsDiff(
         mb += R[r+i*3+2] + m;
       }
 
-      alignment = sbsAlignment(&A[a], ma, &B[b], mb);
+      alignment = sbsAlignment(&A[a], ma, &B[b], mb, diffFlags);
       for(j=0; ma+mb>0; j++){
         if( alignment[j]==1 ){
           /* Delete one line from the left */
@@ -1918,8 +1921,14 @@ int *text_diff(
   }
 
   if( pOut ){
-    /* Compute a context or side-by-side diff into pOut */
-    if( diffFlags & DIFF_SIDEBYSIDE ){
+    if( diffFlags & DIFF_NUMSTAT ){
+      int nDel = 0, nIns = 0, i;
+      for(i=0; c.aEdit[i] || c.aEdit[i+1] || c.aEdit[i+2]; i+=3){
+        nDel += c.aEdit[i+1];
+        nIns += c.aEdit[i+2];
+      }
+      blob_appendf(pOut, "%10d %10d", nIns, nDel);
+    }else if( diffFlags & DIFF_SIDEBYSIDE ){
       sbsDiff(&c, pOut, pRe, diffFlags);
     }else{
       contextDiff(&c, pOut, pRe, diffFlags);
@@ -1948,6 +1957,7 @@ int *text_diff(
 **   --invert                   Invert the diff        DIFF_INVERT
 **   -n|--linenum               Show line numbers      DIFF_LINENO
 **   --noopt                    Disable optimization   DIFF_NOOPT
+**   --numstat                  Show change counts     DIFF_NUMSTAT
 **   --strip-trailing-cr        Strip trailing CR      DIFF_STRIP_EOLCR
 **   --unified                  Unified diff.          ~DIFF_SIDEBYSIDE
 **   -w|--ignore-all-space      Ignore all whitespaces DIFF_IGNORE_ALLWS
@@ -1969,6 +1979,9 @@ u64 diff_options(void){
     diffFlags |= DIFF_STRIP_EOLCR;
   }
   if( find_option("side-by-side","y",0)!=0 ) diffFlags |= DIFF_SIDEBYSIDE;
+  if( find_option("yy",0,0)!=0 ){
+    diffFlags |= DIFF_SIDEBYSIDE | DIFF_SLOW_SBS;
+  }
   if( find_option("unified",0,0)!=0 ) diffFlags &= ~DIFF_SIDEBYSIDE;
   if( (z = find_option("context","c",1))!=0 && (f = atoi(z))>=0 ){
     if( f > DIFF_CONTEXT_MASK ) f = DIFF_CONTEXT_MASK;
@@ -1982,6 +1995,7 @@ u64 diff_options(void){
   if( find_option("html",0,0)!=0 ) diffFlags |= DIFF_HTML;
   if( find_option("linenum","n",0)!=0 ) diffFlags |= DIFF_LINENO;
   if( find_option("noopt",0,0)!=0 ) diffFlags |= DIFF_NOOPT;
+  if( find_option("numstat",0,0)!=0 ) diffFlags |= DIFF_NUMSTAT;
   if( find_option("invert",0,0)!=0 ) diffFlags |= DIFF_INVERT;
   if( find_option("brief",0,0)!=0 ) diffFlags |= DIFF_BRIEF;
   return diffFlags;
@@ -2280,7 +2294,7 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 ** URL: /praise?checkin=ID&filename=FILENAME
 **
 ** Show the most recent change to each line of a text file.  /annotate shows
-** the date of the changes and the check-in SHA1 hash (with a link to the
+** the date of the changes and the check-in hash (with a link to the
 ** check-in).  /blame and /praise also show the user who made the check-in.
 **
 ** Query parameters:

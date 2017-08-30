@@ -70,7 +70,7 @@ void show_common_info(
       rid
     );
          /* 01234567890123 */
-    fossil_print("%-13s %s %s\n", zUuidName, zUuid, zDate ? zDate : "");
+    fossil_print("%-13s %.40s %s\n", zUuidName, zUuid, zDate ? zDate : "");
     free(zDate);
     if( showComment ){
       zComment = db_text(0,
@@ -93,7 +93,7 @@ void show_common_info(
         "SELECT datetime(mtime) || ' UTC' FROM event WHERE objid=%d",
         db_column_int(&q, 1)
       );
-      fossil_print("%-13s %s %s\n", zType, zUuid, zDate);
+      fossil_print("%-13s %.40s %s\n", zType, zUuid, zDate);
       free(zDate);
     }
     db_finalize(&q);
@@ -107,7 +107,7 @@ void show_common_info(
         "SELECT datetime(mtime) || ' UTC' FROM event WHERE objid=%d",
         db_column_int(&q, 1)
       );
-      fossil_print("%-13s %s %s\n", zType, zUuid, zDate);
+      fossil_print("%-13s %.40s %s\n", zType, zUuid, zDate);
       free(zDate);
     }
     db_finalize(&q);
@@ -132,10 +132,11 @@ static void extraRepoInfo(void){
   Stmt s;
   db_prepare(&s, "SELECT substr(name,7), date(mtime,'unixepoch')"
                  "  FROM config"
-                 " WHERE name GLOB 'ckout:*' ORDER BY name");
+                 " WHERE name GLOB 'ckout:*' ORDER BY mtime DESC");
   while( db_step(&s)==SQLITE_ROW ){
     const char *zName;
     const char *zCkout = db_column_text(&s, 0);
+    if( !vfile_top_of_checkout(zCkout) ) continue;
     if( g.localOpen ){
       if( fossil_strcmp(zCkout, g.zLocalRoot)==0 ) continue;
       zName = "alt-root:";
@@ -148,7 +149,7 @@ static void extraRepoInfo(void){
   db_finalize(&s);
   db_prepare(&s, "SELECT substr(name,9), date(mtime,'unixepoch')"
                  "  FROM config"
-                 " WHERE name GLOB 'baseurl:*' ORDER BY name");
+                 " WHERE name GLOB 'baseurl:*' ORDER BY mtime DESC");
   while( db_step(&s)==SQLITE_ROW ){
     fossil_print("access-url:   %-54s %s\n", db_column_text(&s, 0),
                  db_column_text(&s, 1));
@@ -163,7 +164,8 @@ static void showParentProject(void){
   const char *zParentCode;
   zParentCode = db_get("parent-project-code",0);
   if( zParentCode ){
-    fossil_print("derived-from: %s %s\n", zParentCode, db_get("parent-project-name",""));
+    fossil_print("derived-from: %s %s\n", zParentCode,
+                 db_get("parent-project-name",""));
   }
 }
 
@@ -179,13 +181,18 @@ static void showParentProject(void){
 ** to.  Or if the argument is the name of a repository, show
 ** information about that repository.
 **
+** If the argument is a repository name, then the --verbose option shows
+** known the check-out locations for that repository and all URLs used
+** to access the repository.  The --verbose is (currently) a no-op if
+** the argument is the name of a object within the repository.
+**
 ** Use the "finfo" command to get information about a specific
 ** file in a checkout.
 **
 ** Options:
 **
 **    -R|--repository FILE       Extract info from repository FILE
-**    -v|--verbose               Show extra information
+**    -v|--verbose               Show extra information about repositories
 **
 ** See also: annotate, artifact, finfo, timeline
 */
@@ -317,6 +324,7 @@ void render_checkin_context(int rid, int parentsOnly){
   blob_append(&sql, timeline_query_for_www(), -1);
   db_multi_exec(
      "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY);"
+     "DELETE FROM ok;"
      "INSERT INTO ok VALUES(%d);"
      "INSERT OR IGNORE INTO ok SELECT pid FROM plink WHERE cid=%d;",
      rid, rid
@@ -330,6 +338,69 @@ void render_checkin_context(int rid, int parentsOnly){
   db_prepare(&q, "%s", blob_sql_text(&sql));
   www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH, 0, 0, rid, 0);
   db_finalize(&q);
+}
+
+/*
+** Show a graph all wiki, tickets, and check-ins that refer to object zUuid.
+**
+** If zLabel is not NULL and the graph is not empty, then output zLabel as
+** a prefix to the graph.
+*/
+void render_backlink_graph(const char *zUuid, const char *zLabel){
+  Blob sql;
+  Stmt q;
+  char *zGlob;
+  zGlob = mprintf("%.5s*", zUuid);
+  db_multi_exec(
+     "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY);"
+     "DELETE FROM ok;"
+     "INSERT OR IGNORE INTO ok"
+     " SELECT srcid FROM backlink"
+     "  WHERE target GLOB %Q"
+     "    AND %Q GLOB (target || '*');",
+     zGlob, zUuid
+  );
+  if( !db_exists("SELECT 1 FROM ok") ) return;
+  if( zLabel ) cgi_printf("%s", zLabel);
+  blob_zero(&sql);
+  blob_append(&sql, timeline_query_for_www(), -1);
+  blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
+  db_prepare(&q, "%s", blob_sql_text(&sql));
+  www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH, 0, 0, 0, 0);
+  db_finalize(&q);
+}
+
+/*
+** WEBPAGE: test-backlinks
+**
+** Show a timeline of all check-ins and other events that have entries
+** in the backlink table.  This is used for testing the rendering
+** of the "References" section of the /info page.
+*/
+void backlink_timeline_page(void){
+  Blob sql;
+  Stmt q;
+
+  login_check_credentials();
+  if( !g.perm.Read || !g.perm.RdTkt || !g.perm.RdWiki ){
+    login_needed(g.anon.Read && g.anon.RdTkt && g.anon.RdWiki);
+    return;
+  }
+  style_header("Backlink Timeline (Internal Testing Use)");
+  db_multi_exec(
+     "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY);"
+     "DELETE FROM ok;"
+     "INSERT OR IGNORE INTO ok"
+     " SELECT blob.rid FROM backlink, blob"
+     "  WHERE blob.uuid BETWEEN backlink.target AND (backlink.target||'x')"
+  );
+  blob_zero(&sql);
+  blob_append(&sql, timeline_query_for_www(), -1);
+  blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
+  db_prepare(&q, "%s", blob_sql_text(&sql));
+  www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH, 0, 0, 0, 0);
+  db_finalize(&q);
+  style_footer();
 }
 
 
@@ -574,6 +645,7 @@ void ci_page(void){
   sideBySide = !is_false(PD("sbs","1"));
   if( db_step(&q1)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q1, 0);
+    int nUuid = db_column_bytes(&q1, 0);
     char *zEUser, *zEComment;
     const char *zUser;
     const char *zComment;
@@ -595,7 +667,7 @@ void ci_page(void){
     zOrigDate = db_column_text(&q1, 4);
     @ <div class="section">Overview</div>
     @ <table class="label-value">
-    @ <tr><th>SHA1&nbsp;Hash:</th><td>%s(zUuid)
+    @ <tr><th>%s(hname_alg(nUuid)):</th><td>%s(zUuid)
     if( g.perm.Setup ){
       @ (Record ID: %d(rid))
     }
@@ -707,6 +779,7 @@ void ci_page(void){
     login_anonymous_available();
   }
   db_finalize(&q1);
+  render_backlink_graph(zUuid, "<div class=\"section\">References</div>\n");
   showTags(rid);
   @ <div class="section">Context</div>
   render_checkin_context(rid, 0);
@@ -1387,6 +1460,7 @@ int object_description(
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTarget = db_column_text(&q, 0);
+    int nTarget = db_column_bytes(&q, 0);
     const char *zFilename = db_column_text(&q, 1);
     const char *zDate = db_column_text(&q, 2);
     const char *zUser = db_column_text(&q, 3);
@@ -1397,7 +1471,7 @@ int object_description(
       @ Attachment "%h(zFilename)" to
     }
     objType |= OBJTYPE_ATTACHMENT;
-    if( strlen(zTarget)==UUID_SIZE && validate16(zTarget,UUID_SIZE) ){
+    if( nTarget==UUID_SIZE && validate16(zTarget,UUID_SIZE) ){
       if ( db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'",
             zTarget)
       ){
@@ -1833,8 +1907,8 @@ void output_text_with_line_numbers(
 **
 ** Typical usage:
 **
-**    /artifact/SHA1HASH
-**    /whatis/SHA1HASH
+**    /artifact/HASH
+**    /whatis/HASH
 **    /file/NAME
 **
 ** Additional query parameters:
@@ -1851,9 +1925,11 @@ void output_text_with_line_numbers(
 **   ci=VERSION      - The specific check-in to use for "filename=".
 **
 ** The /artifact page show the complete content of a file
-** identified by SHA1HASH as preformatted text.  The
+** identified by HASH as preformatted text.  The
 ** /whatis page shows only a description of the file.  The /file
-** page shows the most recent version of the named file.
+** page shows the most recent version of the file or directory
+** called NAME, or a list of the top-level directory if NAME is
+** omitted.
 */
 void artifact_page(void){
   int rid = 0;
@@ -1877,7 +1953,14 @@ void artifact_page(void){
   if( rid==0 ){
     url_add_parameter(&url, "name", zName);
     if( isFile ){
-      if( zName==0 ) zName = "";
+      /* Do a top-level directory listing in /file mode if no argument
+      ** specified */
+      if( zName==0 || zName[0]==0 ){
+        if( P("ci")==0 ) cgi_set_query_parameter("ci","tip");
+        page_tree();
+        return;
+      }
+      /* Look for a single file with the given name */
       rid = db_int(0,
          "SELECT fid FROM filename, mlink, event"
          " WHERE name=%Q"
@@ -1886,6 +1969,22 @@ void artifact_page(void){
          " ORDER BY event.mtime DESC LIMIT 1",
          zName
       );
+      /* If no file called NAME exists, instead look for a directory
+      ** with that name, and do a directory listing */
+      if( rid==0 ){
+        int nName = (int)strlen(zName);
+        if( nName && zName[nName-1]=='/' ) nName--;
+        if( db_exists(
+           "SELECT 1 FROM filename"
+           " WHERE name GLOB '%.*q/*' AND substr(name,1,%d)=='%.*q/';",
+           nName, zName, nName+1, nName, zName
+        ) ){
+          if( P("ci")==0 ) cgi_set_query_parameter("ci","tip");
+          page_tree();
+          return;
+        }
+      }
+      /* If no file or directory called NAME: issue an error */
       if( rid==0 ){
         style_header("No such file");
         @ File '%h(zName)' does not exist in this repository.

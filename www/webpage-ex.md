@@ -125,7 +125,7 @@ other examples.
 
   *  <a target='_blank' class='exbtn'
      href='$ROOT/hash-collisions'>Example</a>
-     SHA1 prefix collisions
+     Hash prefix collisions
 
   *  <a target='_blank' class='exbtn'
      href='$ROOT/sitemap'>Example</a>

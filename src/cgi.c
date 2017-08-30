@@ -384,7 +384,9 @@ void cgi_reply(void){
     total_size = 0;
   }
   fprintf(g.httpOut, "\r\n");
-  if( total_size>0 && iReplyStatus != 304 ){
+  if( total_size>0 && iReplyStatus != 304
+   && fossil_strcmp(P("REQUEST_METHOD"),"HEAD")!=0
+  ){
     int i, size;
     for(i=0; i<2; i++){
       size = blob_size(&cgiContent[i]);
@@ -438,6 +440,20 @@ NORETURN void cgi_redirectf(const char *zFormat, ...){
   va_start(ap, zFormat);
   cgi_redirect(vmprintf(zFormat, ap));
   va_end(ap);
+}
+
+/*
+** Return the URL for the caller.  This is obtained from either the
+** referer CGI parameter, if it exists, or the HTTP_REFERER HTTP parameter.
+** If neither exist, return zDefault.
+*/
+const char *cgi_referer(const char *zDefault){
+  const char *zRef = P("referer");
+  if( zRef==0 ){
+    zRef = P("HTTP_REFERER");
+    if( zRef==0 ) zRef = zDefault;
+  }
+  return zRef;
 }
 
 /*
@@ -1446,6 +1462,8 @@ void cgi_handle_http_request(const char *zIpAddr){
       cgi_setenv("HTTP_REFERER", zVal);
     }else if( fossil_strcmp(zFieldName,"user-agent:")==0 ){
       cgi_setenv("HTTP_USER_AGENT", zVal);
+    }else if( fossil_strcmp(zFieldName,"authorization:")==0 ){
+      cgi_setenv("HTTP_AUTHORIZATION", zVal);
     }else if( fossil_strcmp(zFieldName,"x-forwarded-for:")==0 ){
       const char *zIpAddr = cgi_accept_forwarded_for(zVal);
       if( zIpAddr!=0 ){

@@ -589,7 +589,7 @@ tag_cmd_usage:
 /*
 ** COMMAND: reparent*
 **
-** Usage: %fossil reparent [OPTIONS] CHECK-IN PARENT ....
+** Usage: %fossil reparent [OPTIONS] CHECK-IN PARENT ...
 **
 ** Create a "parent" tag that causes CHECK-IN to be interpreted as a
 ** child of PARENT.  If multiple PARENTs are listed, then the first is
@@ -621,7 +621,7 @@ void reparent_cmd(void){
   db_find_and_open_repository(0, 0);
   verify_all_options();
   if( g.argc<4 ){
-    usage("reparent [OPTIONS] PARENT ...");
+    usage("[OPTIONS] CHECK-IN PARENT ...");
   }
   rid = name_to_typed_rid(g.argv[2], "ci");
   blob_init(&value, 0, 0);
@@ -629,7 +629,7 @@ void reparent_cmd(void){
     int pid = name_to_typed_rid(g.argv[i], "ci");
     if( i>3 ) blob_append(&value, " ", 1);
     zUuid = rid_to_uuid(pid);
-    blob_append(&value, zUuid, UUID_SIZE);
+    blob_append(&value, zUuid, strlen(zUuid));
     fossil_free(zUuid);
   }
   if( bTest && !dryRun ){
