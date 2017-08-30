@@ -1,5 +1,5 @@
-C Enable\sthe\sadmin-log\sand\saccess-log\sby\sdefault\sfor\snew\srepositories.
-D 2017-08-30T13:27:03.996
+C Removed\sdead\sreference\sto\sg.fNoDirSymlinks.
+D 2017-08-30T14:15:13.397
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -439,7 +439,7 @@ F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d9
 F src/http_transport.c 43bf993a931c1a6cafb051566e06c841173ec350dedc0cb6887e112bc05a147c
 F src/import.c e48f2f2e0095795aeabe7220514c8694393693b853150c47f6d6792921def3f1
 F src/info.c ba148f2ccc26b287c216c5db6af311ba488efc23ea1a70e69295a03eed3e9cc1
-F src/json.c cc8d06a2d208ad0092d6d68ef5b7ac9a7e05708b3271c5cfd1da890f97322642
+F src/json.c d60c46e8598420ce1a247faef05c7e7a310a82a5851e8a0e637e22422ed18d97
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c 7c7e2c63fd1cac2ca85aa657a7ae04d91a1bdc08
 F src/json_config.c f53fa14ab92730d30be35311b52a17848eeabe44
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 703b57cfd1504b429768c4216c93fce43b659d88f8f43c5b7545cc01d9108be7
-R 66d2d1b660d491d74046acc40cd9ea95
-U drh
-Z 8d02aca69df45656eabc39f1377c8bda
+P 4a80c3c437845d910bff2027b4ddbe4636f666821833979d17ecc79a40e43a47
+R 3e07c8a75100d49ac98ab94d834d15a1
+U stephan
+Z 0b7ddedfa3a652873208ebd2c7613bad
