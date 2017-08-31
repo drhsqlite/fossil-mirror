@@ -1,0 +1,393 @@
+#
+# Copyright (c) 2013 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+#
+# Tests for 'fossil stash'
+#
+#
+
+proc knownBug {t tests} {
+  return [expr {$t in $tests ? "knownBug" : ""}]
+}
+
+# Test 'fossil stash' against expected results from 'fossil changes' and
+# 'fossil addremove -n', as well as by verifying the existence of files
+# on the file system. Unlike the similar function found in
+# revert.test, 'fossil undo' is not called after each test because
+# many stash operations aren't undoable, and because further testing
+# of the stash content is more likely to be useful.
+#
+# The extra list "-knownbugs" is a list of areas that should be
+# marked as "knownBug" to the inner call to test. Known areas are:
+#  -code       The exit status of fossil stash
+#  -result     The result string didn't match
+#  -changes    The changed file set didn't match
+#  -addremove  The addremove result set didn't match
+#  -exists     One or more listed files don't exist
+#  -notexists  One or more listed files do exist
+#
+# Also, if the exit status of fossil stash does not match
+# expectations, the rest of the areas are not tested.
+proc test_result_state {testid cmdArgs expectedOutput args} {
+  global RESULT
+  set passed 1
+
+  set args [dict merge {
+    -changes {} -addremove {} -exists {} -notexists {} -knownbugs {}
+  } $args]
+
+  set knownbugs [dict get $args "-knownbugs"]
+  set result $::RESULT
+  set code $::CODE
+  if {[lindex $cmdArgs end] eq "-expectError"} {
+    test $testid-CODE {$code}  [knownBug "-code" $knownbugs]
+    if {!$code} {
+      return
+    }
+  } else {
+    test $testid-CODE {!$code}  [knownBug "-code" $knownbugs]
+    if {$code} {
+      return
+    }
+  }
+  test_status_list $testid $result $expectedOutput [knownBug "-result" $knownbugs]
+
+  set statusListTests [list -changes changes -addremove {addremove -n}]
+  foreach {key fossilArgs} $statusListTests {
+    set expected [dict get $args $key]
+    set result [fossil {*}$fossilArgs]
+    test_status_list $testid$key $result $expected [knownBug $key $knownbugs]
+  }
+
+  set fileExistsTests [list -exists 1 does -notexists 0 should]
+  foreach {key expected verb} $fileExistsTests {
+    foreach path [dict get $args $key] {
+      if {[file exists $path] != $expected} {
+        set passed 0
+        protOut "  Failure: File $verb not exist: $path"
+      }
+    }
+    test $testid$key $passed [knownBug $key $knownbugs]
+  }
+
+  #fossil undo
+}
+
+proc stash-test {testid stashArgs expectedStashOutput args} {
+  fossil stash {*}$stashArgs
+  return [test_result_state stash-$testid "stash $stashArgs" $expectedStashOutput {*}$args]
+}
+
+require_no_open_checkout
+test_setup
+
+# Prepare first commit
+#
+write_file f1 "f1"
+write_file f2 "f2"
+write_file f3 "f3"
+fossil add f1 f2 f3
+fossil commit -m "c1" --tag c1
+
+########
+# fossil stash
+# fossil stash save ?-m|--comment COMMENT? ?FILES...?
+
+# Make simple changes to stash
+# Add f0, remove f1, edit f2, rename f3 to f3n
+write_file f0 "f0"
+fossil add f0
+file delete f1
+fossil rm f1
+write_file f2 "f2.1"
+file rename -force f3 f3n
+fossil mv f3 f3n
+
+# Stash these changes and confirm
+stash-test 1 {save -m "stash 1"} {
+  UNMANAGE f0
+  REVERT   f1
+  REVERT   f2
+  REVERT   f3
+  DELETE   f3n
+} -addremove {
+  ADDED f0
+} -exists {f0 f1 f2 f3} -notexists {f3n}
+
+########
+# fossil stash list|ls  ?-v|--verbose? ?-W|--width <num>?
+
+# Confirm there is a stash saved
+fossil stash list
+#protOut "{[normalize_result]}"
+#{1: [21bc64cff8c702] on 2016-02-10 19:48:44
+#       stash 1}
+test stash-1-list-1 {[regexp {^1: \[[0-9a-z]+\] on } [first_data_line]]}
+test stash-1-list-2 {[regexp {^\s+stash 1\s*$} [second_data_line]]}
+
+set diff_stash_1 {DELETE f1
+Index: f1
+==================================================================
+--- f1
++++ f1
+@@ -1,1 +0,0 @@
+-f1
+
+CHANGED f2
+--- f2
++++ f2
+@@ -1,1 +1,1 @@
+-f2
++f2.1
+
+CHANGED f3n
+--- f3n
++++ f3n
+
+ADDED f0
+Index: f0
+==================================================================
+--- f0
++++ f0
+@@ -0,0 +1,1 @@
++f0}
+
+########
+# fossil stash show|cat ?STASHID? ?DIFF-OPTIONS?
+# fossil stash [g]diff ?STASHID? ?DIFF-OPTIONS?
+
+fossil stash show
+test stash-1-show {[normalize_result] eq $diff_stash_1}
+fossil stash diff
+test stash-1-diff {[normalize_result] eq $diff_stash_1} knownBug
+
+########
+# fossil stash pop
+
+stash-test 2 pop {
+  DELETE f1
+  UPDATE f2
+  UPDATE f3n
+  ADDED  f0
+} -changes {
+  ADDED      f0
+  MISSING    f1
+  EDITED     f2
+  RENAMED    f3n
+} -addremove {
+  DELETED  f1
+} -exists {f0 f2 f3n} -notexists {f1 f3}
+
+# Confirm there is no longer a stash saved
+fossil stash list
+test stash-2-list {[first_data_line] eq "empty stash"}
+
+
+# Test stashed mv without touching the file system
+# Issue reported by email to fossil-users
+#   from Warren Young, dated Tue, 9 Feb 2016 01:22:54 -0700
+#   with checkin [b8c7af5bd9] plus a local patch on CentOS 5
+#   64 bit intel, 8-byte pointer, 4-byte integer
+# Stashed renamed file said:
+# fossil: ./src/delta.c:231: checksum: Assertion '...' failed.
+# Should be triggered by this stash-WY-1 test.
+fossil checkout --force c1
+fossil clean
+fossil mv --soft f1 f1new
+stash-test WY-1 {save -m "Reported 2016-02-09"} {
+  REVERT   f1
+  DELETE   f1new
+} -changes {
+} -addremove {
+} -exists {f1 f2 f3} -notexists {f1new} -knownbugs {-code -result}
+# TODO: add tests that verify the saved stash is sensible. Possibly
+# by applying it and checking results. But until the SQLITE_CONSTRAINT
+# error is fixed, there is nothing stashed to test.
+
+
+
+# Test stashing the combination of a renamed file and an added file that
+# uses the renamed file's original filename. I expect to see the same
+# behavior as fossil revert: calmly back out both the rename and the
+# add, and presumably stash the content of the added file before it
+# is replaced by the revert.
+#
+test_setup
+write_file f1 "f1"
+fossil add f1
+fossil commit -m "add f1"
+
+write_file f1n "f1n"
+fossil mv f1 f1n
+write_file f1 "f1b"
+fossil add f1
+
+stash-test 2-1 {save -m "f1b"} {
+  REVERT   f1
+  DELETE   f1n
+} -exists {f1} -notexists {f1n} -knownbugs {-code -result}
+# TODO: add tests that verify the saved stash is sensible. Possibly
+# by applying it and checking results. But until the MISSING file
+# error is fixed, there is nothing stashed to test.
+
+
+# Test stashing a newly added (but never committed) file. As with
+# fossil revert, fossil stash save unmanages the new file, but
+# leaves the copy present on disk. This is undocumented, but
+# probably sensible.
+test_setup
+write_file f1 "f1"
+write_file f2 "f2"
+fossil add f1 f2
+fossil commit -m "baseline"
+
+write_file f3 "f3"
+fossil add f3
+stash-test 3-1 {save -m f3} {
+  UNMANAGE f3
+} -addremove {
+  ADDED f3
+} -exists {f1 f2 f3} -notexists {}
+#fossil status
+fossil stash show
+test stash-3-1-show {[normalize_result] eq {ADDED f3
+Index: f3
+==================================================================
+--- f3
++++ f3
+@@ -0,0 +1,1 @@
++f3}}
+stash-test 3-1-pop {pop} {
+  ADDED f3
+} -changes {
+  ADDED f3
+} -addremove {
+} -exists {f1 f2 f3} -notexists {}
+fossil status
+
+
+# Test stashing a rename of one file with at least one file
+# unchanged. This should stash (and revert) just the rename
+# operation. Instead it also stores and touches the unchanged file.
+test_setup
+write_file f1 "f1"
+write_file f2 "f2"
+fossil add f1 f2
+fossil commit -m "baseline"
+
+fossil mv --hard f2 f2n
+test_result_state stash-3-2-mv "mv --hard f2 f2n" [concat {
+  RENAME f2 f2n
+  MOVED_FILE} [file normalize f2] {
+}] -changes {
+  RENAMED f2n
+} -addremove {
+} -exists {f1 f2n} -notexists {f2}
+
+stash-test 3-2 {save -m f2n} {
+  REVERT f2
+  DELETE f2n
+} -exists {f1 f2} -notexists {f2n} -knownbugs {-result}
+fossil stash show
+test stash-3-2-show-1 {![regexp {\sf1} $RESULT]} knownBug
+test stash-3-2-show-2 {[regexp {\sf2n} $RESULT]}
+stash-test 3-2-pop {pop} {
+  UPDATE f1
+  UPDATE f2n
+} -changes {
+  RENAMED    f2n
+} -addremove {
+} -exists {f1 f2n} -notexists {f2}
+
+
+
+########
+# fossil stash snapshot ?-m|--comment COMMENT? ?FILES...?
+
+test_setup
+write_file f1 "f1"
+write_file f2 "f2"
+write_file f3 "f3"
+fossil add f1 f2 f3
+fossil commit -m "c1" --tag c1
+
+# Make simple changes and snapshot them
+# Add f0, edit f2
+write_file f0 "f0"
+fossil add f0
+write_file f2 "f2.1"
+
+# Snapshot these changes and confirm
+stash-test 4-1 {snapshot -m "snap 1"} {
+} -changes {
+  ADDED      f0
+  EDITED     f2
+} -addremove {
+} -exists {f0 f1 f2 f3} -notexists {}
+fossil stash diff
+test stash-4-1-diff-CODE {!$::CODE}
+fossil stash show
+test stash-4-1-show-1 {[regexp {CHANGED f2} $RESULT]}
+test stash-4-1-show-2 {[regexp {ADDED f0} $RESULT]}
+
+# remove f1 and snapshot
+file delete f1
+fossil rm f1
+stash-test 4-2 {snapshot -m "snap 2"} {
+} -changes {
+  ADDED      f0
+  DELETED    f1
+  EDITED     f2
+} -addremove {
+} -exists {f0 f2 f3} -notexists {f1}
+fossil stash diff
+test stash-4-2-diff-CODE {!$::CODE} knownBug
+fossil stash show
+test stash-4-2-show-1 {[regexp {DELETE f1} $RESULT]}
+test stash-4-2-show-2 {[regexp {CHANGED f2} $RESULT]}
+test stash-4-2-show-3 {[regexp {ADDED f0} $RESULT]}
+
+
+# rename f3 to f3n and snapshot
+file rename -force f3 f3n
+fossil mv f3 f3n
+stash-test 4-3 {snapshot -m "snap 3"} {
+} -changes {
+  ADDED      f0
+  DELETED    f1
+  EDITED     f2
+  RENAMED    f3n
+} -addremove {
+} -exists {f0 f2 f3n} -notexists {f1 f3}
+fossil stash diff
+test stash-4-3-diff-CODE {!$::CODE} knownBug
+fossil stash show
+test stash-4-3-show-1 {[regexp {DELETE f1} $RESULT]}
+test stash-4-3-show-2 {[regexp {CHANGED f2} $RESULT]}
+test stash-4-3-show-2 {[regexp {CHANGED f3n} $RESULT]}
+test stash-4-3-show-3 {[regexp {ADDED f0} $RESULT]}
+
+# fossil stash apply ?STASHID?
+# fossil stash goto ?STASHID?
+# fossil stash rm|drop ?STASHID? ?-a|--all?
+
+#fossil checkout --force c1
+#fossil clean
+
+###############################################################################
+
+test_cleanup

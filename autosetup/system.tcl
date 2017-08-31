@@ -4,18 +4,31 @@
 # @synopsis:
 #
 # This module supports common system interrogation and options
-# such as --host, --build, --prefix, and setting srcdir, builddir, and EXEXT.
+# such as --host, --build, --prefix, and setting srcdir, builddir, and EXEEXT
 #
 # It also support the 'feature' naming convention, where searching
 # for a feature such as sys/type.h defines HAVE_SYS_TYPES_H
 #
-module-options {
+# It defines the following variables, based on --prefix unless overridden by the user:
+#
+## datadir
+## sysconfdir
+## sharedstatedir
+## localstatedir
+## infodir
+## mandir
+## includedir
+
+# Do "define defaultprefix myvalue" to set the default prefix *before* the first "use"
+set defaultprefix [get-define defaultprefix /usr/local]
+
+module-options [subst -noc -nob {
 	host:host-alias =>		{a complete or partial cpu-vendor-opsys for the system where
 							the application will run (defaults to the same value as --build)}
 	build:build-alias =>	{a complete or partial cpu-vendor-opsys for the system
 							where the application will be built (defaults to the
 							result of running config.guess)}
-	prefix:dir =>			{the target directory for the build (defaults to /usr/local)}
+	prefix:dir =>			{the target directory for the build (defaults to '$defaultprefix')}
 
 	# These (hidden) options are supported for autoconf/automake compatibility
 	exec-prefix:
@@ -32,7 +45,7 @@ module-options {
 	localstatedir:
 	maintainer-mode=0
 	dependency-tracking=0
-}
+}]
 
 # Returns 1 if exists, or 0 if  not
 #
@@ -106,12 +119,13 @@ proc write-if-changed {file buf {script {}}} {
 # If $outfile is blank/omitted, $template should end with ".in" which
 # is removed to create the output file name.
 #
-# Each pattern of the form @define@ is replaced the the corresponding
+# Each pattern of the form @define@ is replaced with the corresponding
 # define, if it exists, or left unchanged if not.
 # 
-# The special value @srcdir@ is subsituted with the relative
+# The special value @srcdir@ is substituted with the relative
 # path to the source directory from the directory where the output
-# file is created. Use @top_srcdir@ for the absolute path.
+# file is created, while the special value @top_srcdir@ is substituted
+# with the relative path to the top level source directory.
 #
 # Conditional sections may be specified as follows:
 ## @if name == value
@@ -153,8 +167,9 @@ proc make-template {template {out {}}} {
 	# Make sure the directory exists
 	file mkdir $outdir
 
-	# Set up srcdir to be relative to the target dir
+	# Set up srcdir and top_srcdir to be relative to the target dir
 	define srcdir [relative-path [file join $::autosetup(srcdir) $outdir] $outdir]
+	define top_srcdir [relative-path $::autosetup(srcdir) $outdir]
 
 	set mapping {}
 	foreach {n v} [array get ::define] {
@@ -217,8 +232,7 @@ if {$host eq ""} {
 }
 define cross [get-env CROSS $cross]
 
-# Do "define defaultprefix myvalue" to set the default prefix *before* the first "use"
-set prefix [opt-val prefix [get-define defaultprefix /usr/local]]
+set prefix [opt-val prefix $defaultprefix]
 
 # These are for compatibility with autoconf
 define target [get-define host]

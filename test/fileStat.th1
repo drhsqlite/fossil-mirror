@@ -1,0 +1,102 @@
+<th1>
+  proc doSomeTclSetup {} {
+    #
+    # NOTE: Copy repository file name to the Tcl interpreter.  This is
+    #       done first (once) because it will be necessary for almost
+    #       everything else later on.
+    #
+    tclInvoke set repository [repository]
+
+    #
+    # NOTE: Create some procedures in the Tcl interpreter to perform
+    #       useful operations.  This could also do things like load
+    #       packages, etc.
+    #
+    tclEval {
+      #
+      # NOTE: Returns an [exec] command for Fossil, using the provided
+      #       sub-command and arguments, suitable for use with [eval]
+      #       or [catch].
+      #
+      proc getFossilCommand { repository user args } {
+        global env
+
+        lappend result exec [info nameofexecutable]
+
+        if {[info exists env(GATEWAY_INTERFACE)]} then {
+          #
+          # NOTE: This option is required when calling
+          #       out to the Fossil executable from a
+          #       CGI process.
+          #
+          lappend result -nocgi
+        }
+
+        eval lappend result $args
+
+        if {[string length $repository] > 0} then {
+          #
+          # NOTE: This is almost certainly required
+          #       when calling out to the Fossil
+          #       executable on the server because
+          #       there is almost never an open
+          #       checkout.
+          #
+          lappend result -R $repository
+        }
+
+        if {[string length $user] > 0} then {
+          lappend result -U $user
+        }
+
+        # th1Eval [list html $result<br>]
+
+        return $result
+      }
+    }
+  }
+
+  proc getLatestTrunkCheckIn {} {
+    tclEval {
+      #
+      # NOTE: Get the unique Id of the latest check-in on trunk.
+      #
+      return [lindex [regexp -line -inline -nocase -- \
+          {^uuid:\s+([0-9A-F]{40}) } [eval [getFossilCommand \
+          $repository "" info trunk]]] end]
+    }
+  }
+
+  proc theSumOfAllFiles { id } {
+    #
+    # NOTE: Copy check-in Id value to the Tcl interpreter.
+    #
+    tclInvoke set id $id
+
+    tclEval {
+      set count 0
+
+      foreach line [split [eval [getFossilCommand \
+          $repository "" artifact $id]] \n] {
+        #
+        # NOTE: Is this an "F" (file) card?
+        #
+        if {[string range $line 0 1] eq "F "} then {
+          incr count
+        }
+      }
+
+      return $count
+    }
+  }
+
+  doSomeTclSetup; # perform some extra setup for the Tcl interpreter.
+
+  set checkIn [getLatestTrunkCheckIn]
+  set totalFiles [theSumOfAllFiles $checkIn]
+</th1>
+
+<br />
+As of trunk check-in <th1>decorate \[$checkIn\]</th1>, this
+repository contains <th1>html $totalFiles</th1> files.
+<br />

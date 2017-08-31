@@ -68,7 +68,7 @@ static cson_value * json_branch_list(){
   cson_value * listV;
   cson_array * list;
   char const * range = NULL;
-  int which = 0;
+  int branchListFlags = BRL_OPEN_ONLY;
   char * sawConversionError = NULL;
   Stmt q;
   if( !g.perm.Read ){
@@ -104,15 +104,15 @@ static cson_value * json_branch_list(){
   switch(*range){
     case 'c':
       range = "closed";
-      which = -1;
+      branchListFlags = BRL_CLOSED_ONLY;
       break;
     case 'a':
       range = "all";
-      which = 1;
+      branchListFlags = BRL_BOTH;
       break;
     default:
       range = "open";
-      which = 0;
+      branchListFlags = BRL_OPEN_ONLY;
       break;
   };
   cson_object_set(pay,"range",json_new_string(range));
@@ -129,8 +129,8 @@ static cson_value * json_branch_list(){
     }
   }
 
-  
-  branch_prepare_list_query(&q, which);
+
+  branch_prepare_list_query(&q, branchListFlags);
   cson_object_set(pay,"branches",listV);
   while((SQLITE_ROW==db_step(&q))){
     cson_value * v = cson_sqlite3_column_to_value(q.pStmt,0);
@@ -283,7 +283,7 @@ static int json_branch_new(BranchCreateOptions * zOpt,
     blob_appendf(&branch, "T -%F *\n", zTag);
   }
   db_finalize(&q);
-  
+
   blob_appendf(&branch, "U %F\n", g.zLogin);
   md5sum_blob(&branch, &mcksum);
   blob_appendf(&branch, "Z %b\n", &mcksum);
@@ -294,7 +294,7 @@ static int json_branch_new(BranchCreateOptions * zOpt,
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", brid);
   if( manifest_crosslink(brid, &branch, MC_PERMIT_HOOKS)==0 ){
-    fossil_fatal("%s\n", g.zErrMsg);
+    fossil_fatal("%s", g.zErrMsg);
   }
   assert( blob_is_reset(&branch) );
   content_deltify(rootid, brid, 0);
@@ -304,7 +304,7 @@ static int json_branch_new(BranchCreateOptions * zOpt,
 
   /* Commit */
   db_end_transaction(0);
-  
+
 #if 0 /* Do an autosync push, if requested */
   /* arugable for JSON mode? */
   if( !g.isHTTP && !isPrivate ) autosync(SYNC_PUSH);
@@ -358,7 +358,7 @@ static cson_value * json_branch_create(){
       opt.isPrivate = 0;
     }
   }
-  
+
   rc = json_branch_new( &opt, &rid );
   if(rc){
     json_set_err(rc, opt.rcErrMsg);

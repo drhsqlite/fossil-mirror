@@ -58,13 +58,13 @@ cson_value * json_page_finfo(){
     json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND, "File entry not found.");
     return NULL;
   }
-  
+
   zBefore = json_find_option_cstr("before",NULL,"b");
   zAfter = json_find_option_cstr("after",NULL,"a");
   limit = json_find_option_int("limit",NULL,"n", -1);
   zCheckin = json_find_option_cstr("checkin",NULL,"ci");
 
-  blob_append_sql(&sql, 
+  blob_append_sql(&sql,
 /*0*/   "SELECT b.uuid,"
 /*1*/   "   ci.uuid,"
 /*2*/   "   (SELECT uuid FROM blob WHERE rid=mlink.fid),"  /* Current file uuid */
@@ -91,7 +91,7 @@ cson_value * json_page_finfo(){
     /*printf("zCheckin=[%s], zU=[%s]", zCheckin, zU);*/
     if(rc<=0){
       json_set_err((rc<0) ? FSL_JSON_E_AMBIGUOUS_UUID : FSL_JSON_E_RESOURCE_NOT_FOUND,
-                   "Checkin UUID %s.", (rc<0) ? "is ambiguous" : "not found");
+                   "Check-in UUID %s.", (rc<0) ? "is ambiguous" : "not found");
       blob_reset(&sql);
       return NULL;
     }

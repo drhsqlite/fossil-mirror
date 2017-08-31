@@ -10,12 +10,12 @@
 # If the current directory is not part of a fossil checkout, set global
 # variable $fossil_info_project_name to an empty string and return.
 #
-function get_fossil_data() { 
+function get_fossil_data() {
   fossil_info_project_name=""
   eval `get_fossil_data2`
 }
 function get_fossil_data2() {
-  fossil info 2> /dev/null | sed 's/"//g'|grep "^[^ ]*:" | while read LINE ; do 
+  fossil info 2> /dev/null | sed 's/"//g'|grep "^[^ ]*:" | while read LINE ; do
     local field=`echo $LINE | sed 's/:.*$//' | sed 's/-/_/'`
     local value=`echo $LINE | sed 's/^[^ ]*: *//'`
     echo fossil_info_${field}=\"${value}\"
@@ -27,7 +27,7 @@ function get_fossil_data2() {
 #
 # Set the PS1 variable. If the current directory is part of a fossil
 # checkout then the prompt contains information relating to the state
-# of the checkout. 
+# of the checkout.
 #
 # Otherwise, if the current directory is not part of a fossil checkout, it
 # is set to a fairly standard bash prompt containing the host name, user
@@ -35,7 +35,7 @@ function get_fossil_data2() {
 #
 function set_prompt() {
   get_fossil_data
-  if [ -n "$fossil_info_project_name" ] ; then 
+  if [ -n "$fossil_info_project_name" ] ; then
     project=$fossil_info_project_name
     checkout=`echo $fossil_info_checkout | sed 's/^\(........\).*/\1/'`
     date=`echo $fossil_info_checkout | sed 's/^[^ ]* *..//' | sed 's/:[^:]*$//'`

@@ -86,7 +86,7 @@ proc connect {} {
       if {$::PROXYHOST ne {}} {
           set SOCKET [socket $::PROXYHOST $::PROXYPORT]
           puts $SOCKET "CONNECT $::SERVERHOST:$::SERVERPORT HTTP/1.1"
-          puts $SOCKET "Host:  $::SERVERHOST:$::SERVERPORT" 
+          puts $SOCKET "Host:  $::SERVERHOST:$::SERVERPORT"
           puts $SOCKET ""
       } else {
           set SOCKET [socket $::SERVERHOST $::SERVERPORT]
@@ -144,7 +144,7 @@ proc delete_files {} {
   global FILES
   .mb.files delete 3 end
   array unset FILES
-  .mb.files entryconfigure 1 -state disabled 
+  .mb.files entryconfigure 1 -state disabled
 }
 
 # Prompt the user to select a file from the disk.  Then send that
@@ -190,7 +190,7 @@ proc handle_file {from filename data} {
         -command [list save_file $filename]
   }
   set FILES($filename) $data
-  .mb.files entryconfigure 1 -state active 
+  .mb.files entryconfigure 1 -state active
   set time [clock format [clock seconds] -format {%H:%M} -gmt 1]
   .msg.t insert end "\[$time $from\] " meta "File: \"$filename\"\n" norm
   .msg.t see end
@@ -234,7 +234,7 @@ proc handle_input {} {
       handle_file [lindex $line 1] [lindex $line 2] [lindex $line 3]
     }
   }
-}    
+}
 
 # Handle a broken socket connection
 #

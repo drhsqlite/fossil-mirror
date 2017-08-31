@@ -50,7 +50,7 @@ void pivot_set_primary(int rid){
   );
 
   /* Insert the primary record */
-  db_multi_exec( 
+  db_multi_exec(
     "INSERT INTO aqueue(rid, mtime, pending, src)"
     "  SELECT %d, mtime, 1, 1 FROM event WHERE objid=%d AND type='ci' LIMIT 1",
     rid, rid
@@ -64,7 +64,7 @@ void pivot_set_primary(int rid){
 */
 void pivot_set_secondary(int rid){
   /* Insert the primary record */
-  db_multi_exec( 
+  db_multi_exec(
     "INSERT OR IGNORE INTO aqueue(rid, mtime, pending, src)"
     "  SELECT %d, mtime, 1, 0 FROM event WHERE objid=%d AND type='ci'",
     rid, rid
@@ -75,11 +75,13 @@ void pivot_set_secondary(int rid){
 ** Find the most recent common ancestor of the primary and one of
 ** the secondaries.  Return its rid.  Return 0 if no common ancestor
 ** can be found.
+**
+** If ignoreMerges is true, follow only "primary" parent links.
 */
-int pivot_find(void){
+int pivot_find(int ignoreMerges){
   Stmt q1, q2, u1, i1;
   int rid = 0;
-  
+
   /* aqueue must contain at least one primary and one other.  Otherwise
   ** we abort early
   */
@@ -104,7 +106,8 @@ int pivot_find(void){
     " WHERE plink.pid=:rid"
     "   AND plink.cid=B.rid"
     "   AND A.rid=:rid"
-    "   AND A.src!=B.src"
+    "   AND A.src!=B.src %s",
+    ignoreMerges ? "AND plink.isprim" : ""
   );
 
   /* Mark the :rid record has having been checked.  It is not the
@@ -124,7 +127,8 @@ int pivot_find(void){
     "       aqueue.src "
     "  FROM plink, aqueue"
     " WHERE plink.cid=:rid"
-    "   AND aqueue.rid=:rid"
+    "   AND aqueue.rid=:rid %s",
+    ignoreMerges ? "AND plink.isprim" : ""
   );
 
   while( db_step(&q1)==SQLITE_ROW ){
@@ -149,22 +153,47 @@ int pivot_find(void){
 }
 
 /*
-** COMMAND:  test-find-pivot
+** COMMAND: test-find-pivot
+**
+** Usage: %fossil test-find-pivot ?options? PRIMARY SECONDARY ...
 **
 ** Test the pivot_find() procedure.
+**
+** Options:
+**    --ignore-merges       Ignore merges for discovering name pivots
 */
 void test_find_pivot(void){
   int i, rid;
+  int ignoreMerges = find_option("ignore-merges",0,0)!=0;
+  int showDetails = find_option("details",0,0)!=0;
   if( g.argc<4 ){
-    usage("PRIMARY SECONDARY ...");
+    usage("?options? PRIMARY SECONDARY ...");
   }
   db_must_be_within_tree();
   pivot_set_primary(name_to_rid(g.argv[2]));
   for(i=3; i<g.argc; i++){
     pivot_set_secondary(name_to_rid(g.argv[i]));
   }
-  rid = pivot_find();
+  rid = pivot_find(ignoreMerges);
   printf("pivot=%s\n",
          db_text("?","SELECT uuid FROM blob WHERE rid=%d",rid)
   );
+  if( showDetails ){
+    Stmt q;
+    db_prepare(&q,
+      "SELECT substr(uuid,1,12), aqueue.rid, datetime(aqueue.mtime),"
+             " aqueue.pending, aqueue.src\n"
+      "  FROM aqueue JOIN blob ON aqueue.rid=blob.rid\n"
+      " ORDER BY aqueue.mtime DESC"
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      printf("\"%s\",%d,\"%s\",%d,%d\n",
+        db_column_text(&q, 0),
+        db_column_int(&q, 1),
+        db_column_text(&q, 2),
+        db_column_int(&q, 3),
+        db_column_int(&q, 4));
+    }
+    db_finalize(&q);
+  }
 }

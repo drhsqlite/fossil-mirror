@@ -1,0 +1,25 @@
+<div class="footer">
+  <th1>
+  proc getTclVersion {} {
+    if {[catch {tclEval info patchlevel} tclVersion] == 0} {
+      return "<a href=\"https://www.tcl.tk/\">Tcl</a> version $tclVersion"
+    }
+    return ""
+  }
+  proc getVersion { version } {
+    set length [string length $version]
+    return [string range $version 1 [expr {$length - 2}]]
+  }
+  set version [getVersion $manifest_version]
+  set tclVersion [getTclVersion]
+  set fossilUrl https://www.fossil-scm.org
+  set fossilDate [string range $manifest_date 0 9]T[string range $manifest_date 11 end]
+  </th1>
+  This page was generated in about
+  <th1>puts [expr {([utime]+[stime]+1000)/1000*0.001}]</th1>s by
+  <a href="$fossilUrl/">Fossil</a>
+  version $release_version $tclVersion
+  <a href="$fossilUrl/index.html/info/$version">$manifest_version</a>
+  <a href="$fossilUrl/index.html/timeline?c=$fossilDate&amp;y=ci">$manifest_date</a>
+</div>
+</body></html>

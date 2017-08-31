@@ -81,7 +81,7 @@ cson_value * json_parent_uuids_for_ci( int rid ){
 
 /*
 ** Generates an artifact Object for the given rid,
-** which must refer to a Checkin.
+** which must refer to a Check-in.
 **
 ** Returned value is NULL or an Object owned by the caller.
 */
@@ -93,7 +93,7 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
     eventTypeLabel = json_new_string("checkin");
     json_gc_add("$EVENT_TYPE_LABEL(commit)", eventTypeLabel);
   }
-  
+
   db_prepare(&q,
              "SELECT b.uuid, "
              " cast(strftime('%%s',e.mtime) as int), "
@@ -142,7 +142,7 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
     }
 
     zComment = db_column_text(&q,4);
-    zEComment = db_text(0, 
+    zEComment = db_text(0,
                    "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
                    TAG_COMMENT, rid);
     if(zEComment){
@@ -209,11 +209,11 @@ cson_value * json_artifact_ticket( cson_object * zParent, int rid ){
 }
 
 /*
-** Sub-impl of /json/artifact for checkins.
+** Sub-impl of /json/artifact for check-ins.
 */
 static cson_value * json_artifact_ci( cson_object * zParent, int rid ){
   if(!g.perm.Read){
-    json_set_err( FSL_JSON_E_DENIED, "Viewing checkins requires 'o' privileges." );
+    json_set_err( FSL_JSON_E_DENIED, "Viewing check-ins requires 'o' privileges." );
     return NULL;
   }else{
     cson_value * artV = json_artifact_for_ci(rid, 1);
@@ -246,7 +246,7 @@ static ArtifactDispatchEntry ArtifactDispatchList[] = {
 ** json_wiki_get_content_format_flag(), else it returns true (non-0)
 ** if either the includeContent (HTTP) or -content|-c boolean flags
 ** (CLI) are set.
-*/ 
+*/
 static int json_artifact_get_content_format_flag(){
   enum { MagicValue = -9 };
   int contentFormat = json_wiki_get_content_format_flag(MagicValue);
@@ -272,7 +272,7 @@ cson_value * json_artifact_wiki(cson_object * zParent, int rid){
 
 /*
 ** Internal helper for routines which add a "status" flag to file
-** artifact data. isNew and isDel should be the "is this object new?" 
+** artifact data. isNew and isDel should be the "is this object new?"
 ** and "is this object removed?" flags of the underlying query.  This
 ** function returns a static string from the set (added, removed,
 ** modified), depending on the combination of the two args.
@@ -299,7 +299,7 @@ cson_value * json_artifact_file(cson_object * zParent, int rid){
                  "Requires 'o' privileges.");
     return NULL;
   }
-  
+
   pay = zParent;
 
   contentFormat = json_artifact_get_content_format_flag();
@@ -347,8 +347,8 @@ cson_value * json_artifact_file(cson_object * zParent, int rid){
     cson_object_set( zParent, "parent", json_new_string(parentUuid) );
     fossil_free(parentUuid);
   }
-  
-  /* Find checkins associated with this file... */
+
+  /* Find check-ins associated with this file... */
   db_prepare(&q,
       "SELECT filename.name AS name, "
       "  (mlink.pid==0) AS isNew,"
@@ -357,7 +357,7 @@ cson_value * json_artifact_file(cson_object * zParent, int rid){
       "  coalesce(event.ecomment,event.comment) as comment,"
       "  coalesce(event.euser,event.user) as user,"
 #if 0
-      "  a.size AS size," /* same for all checkins. */
+      "  a.size AS size," /* same for all check-ins. */
 #endif
       "  b.uuid as checkin, "
 #if 0
@@ -375,10 +375,10 @@ cson_value * json_artifact_file(cson_object * zParent, int rid){
       "   ORDER BY filename.name, event.mtime",
       TAG_BRANCH, rid
     );
-  /* TODO: add a "state" flag for the file in each checkin,
+  /* TODO: add a "state" flag for the file in each check-in,
      e.g. "modified", "new", "deleted".
    */
-  checkin_arr = cson_new_array(); 
+  checkin_arr = cson_new_array();
   cson_object_set(pay, "checkins", cson_array_value(checkin_arr));
   while( (SQLITE_ROW==db_step(&q) ) ){
     cson_object * row = cson_value_get_object(cson_sqlite3_row_to_object(q.pStmt));

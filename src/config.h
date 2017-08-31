@@ -41,6 +41,11 @@
 #include "autoconfig.h"
 #endif
 
+/* Enable the hardened SHA1 implemenation by default */
+#ifndef FOSSIL_HARDENED_SHA1
+# define FOSSIL_HARDENED_SHA1 1
+#endif
+
 #ifndef _RC_COMPILE_
 
 /*
@@ -101,6 +106,17 @@
 #        define COMPILER_NAME "pellesc32"
 #      endif
 #    endif
+#  elif defined(__clang__)
+#    if !defined(COMPILER_VERSION)
+#      if defined(__clang_version__)
+#        define COMPILER_VERSION __clang_version__
+#      endif
+#    endif
+#    if defined(COMPILER_VERSION) && !defined(NO_COMPILER_VERSION)
+#      define COMPILER_NAME "clang-" COMPILER_VERSION
+#    else
+#      define COMPILER_NAME "clang"
+#    endif
 #  elif defined(_MSC_VER)
 #    if !defined(COMPILER_VERSION)
 #      define COMPILER_VERSION COMPILER_STRINGIFY(_MSC_VER)
@@ -139,8 +155,6 @@
 #    else
 #      define COMPILER_NAME "mingw32"
 #    endif
-#  elif defined(_WIN32)
-#    define COMPILER_NAME "win32"
 #  elif defined(__GNUC__)
 #    if !defined(COMPILER_VERSION)
 #      if defined(__VERSION__)
@@ -152,6 +166,8 @@
 #    else
 #      define COMPILER_NAME "gcc"
 #    endif
+#  elif defined(_WIN32)
+#    define COMPILER_NAME "win32"
 #  else
 #    define COMPILER_NAME "unknown"
 #  endif
@@ -159,6 +175,21 @@
 
 #if !defined(_RC_COMPILE_) && !defined(SQLITE_AMALGAMATION)
 
+/*
+** MSVC does not include the "stdint.h" header file until 2010.
+*/
+#if defined(_MSC_VER) && _MSC_VER<1600
+   typedef __int32 int32_t;
+   typedef unsigned __int32 uint32_t;
+   typedef __int64 int64_t;
+   typedef unsigned __int64 uint64_t;
+#else
+#  include <stdint.h>
+#endif
+
+#if USE_SEE && !defined(SQLITE_HAS_CODEC)
+#  define SQLITE_HAS_CODEC
+#endif
 #include "sqlite3.h"
 
 /*
@@ -214,8 +245,15 @@ typedef signed char i8;
 */
 #if defined(__GNUC__) || defined(__clang__)
 # define NORETURN __attribute__((__noreturn__))
+#elif defined(_MSC_VER) && (_MSC_VER >= 1310)
+# define NORETURN __declspec(noreturn)
 #else
 # define NORETURN
 #endif
+
+/*
+** Number of elements in an array
+*/
+#define count(X) (sizeof(X)/sizeof(X[0]))
 
 #endif /* _RC_COMPILE_ */

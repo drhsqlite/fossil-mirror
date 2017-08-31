@@ -10,6 +10,7 @@
 # This file is included by primary Makefile.
 #
 
+XBCC = $(BCC) $(BCCFLAGS) $(CFLAGS)
 XTCC = $(TCC) -I. -I$(SRCDIR) -I$(OBJDIR) $(TCCFLAGS) $(CFLAGS)
 
 
@@ -40,6 +41,7 @@ SRC = \
   $(SRCDIR)/descendants.c \
   $(SRCDIR)/diff.c \
   $(SRCDIR)/diffcmd.c \
+  $(SRCDIR)/dispatch.c \
   $(SRCDIR)/doc.c \
   $(SRCDIR)/encode.c \
   $(SRCDIR)/event.c \
@@ -47,10 +49,12 @@ SRC = \
   $(SRCDIR)/file.c \
   $(SRCDIR)/finfo.c \
   $(SRCDIR)/foci.c \
+  $(SRCDIR)/fshell.c \
   $(SRCDIR)/fusefs.c \
   $(SRCDIR)/glob.c \
   $(SRCDIR)/graph.c \
   $(SRCDIR)/gzip.c \
+  $(SRCDIR)/hname.c \
   $(SRCDIR)/http.c \
   $(SRCDIR)/http_socket.c \
   $(SRCDIR)/http_ssl.c \
@@ -86,6 +90,7 @@ SRC = \
   $(SRCDIR)/moderate.c \
   $(SRCDIR)/name.c \
   $(SRCDIR)/path.c \
+  $(SRCDIR)/piechart.c \
   $(SRCDIR)/pivot.c \
   $(SRCDIR)/popen.c \
   $(SRCDIR)/pqueue.c \
@@ -98,13 +103,18 @@ SRC = \
   $(SRCDIR)/rss.c \
   $(SRCDIR)/schema.c \
   $(SRCDIR)/search.c \
+  $(SRCDIR)/security_audit.c \
   $(SRCDIR)/setup.c \
   $(SRCDIR)/sha1.c \
+  $(SRCDIR)/sha1hard.c \
+  $(SRCDIR)/sha3.c \
   $(SRCDIR)/shun.c \
+  $(SRCDIR)/sitemap.c \
   $(SRCDIR)/skins.c \
   $(SRCDIR)/sqlcmd.c \
   $(SRCDIR)/stash.c \
   $(SRCDIR)/stat.c \
+  $(SRCDIR)/statrep.c \
   $(SRCDIR)/style.c \
   $(SRCDIR)/sync.c \
   $(SRCDIR)/tag.c \
@@ -115,6 +125,7 @@ SRC = \
   $(SRCDIR)/tktsetup.c \
   $(SRCDIR)/undo.c \
   $(SRCDIR)/unicode.c \
+  $(SRCDIR)/unversioned.c \
   $(SRCDIR)/update.c \
   $(SRCDIR)/url.c \
   $(SRCDIR)/user.c \
@@ -132,7 +143,59 @@ SRC = \
   $(SRCDIR)/zip.c
 
 EXTRA_FILES = \
-  $(SRCDIR)/diff.tcl
+  $(SRCDIR)/../skins/aht/details.txt \
+  $(SRCDIR)/../skins/black_and_white/css.txt \
+  $(SRCDIR)/../skins/black_and_white/details.txt \
+  $(SRCDIR)/../skins/black_and_white/footer.txt \
+  $(SRCDIR)/../skins/black_and_white/header.txt \
+  $(SRCDIR)/../skins/blitz/css.txt \
+  $(SRCDIR)/../skins/blitz/details.txt \
+  $(SRCDIR)/../skins/blitz/footer.txt \
+  $(SRCDIR)/../skins/blitz/header.txt \
+  $(SRCDIR)/../skins/blitz/ticket.txt \
+  $(SRCDIR)/../skins/blitz_no_logo/css.txt \
+  $(SRCDIR)/../skins/blitz_no_logo/details.txt \
+  $(SRCDIR)/../skins/blitz_no_logo/footer.txt \
+  $(SRCDIR)/../skins/blitz_no_logo/header.txt \
+  $(SRCDIR)/../skins/blitz_no_logo/ticket.txt \
+  $(SRCDIR)/../skins/bootstrap/css.txt \
+  $(SRCDIR)/../skins/bootstrap/details.txt \
+  $(SRCDIR)/../skins/bootstrap/footer.txt \
+  $(SRCDIR)/../skins/bootstrap/header.txt \
+  $(SRCDIR)/../skins/default/css.txt \
+  $(SRCDIR)/../skins/default/details.txt \
+  $(SRCDIR)/../skins/default/footer.txt \
+  $(SRCDIR)/../skins/default/header.txt \
+  $(SRCDIR)/../skins/eagle/css.txt \
+  $(SRCDIR)/../skins/eagle/details.txt \
+  $(SRCDIR)/../skins/eagle/footer.txt \
+  $(SRCDIR)/../skins/eagle/header.txt \
+  $(SRCDIR)/../skins/enhanced1/css.txt \
+  $(SRCDIR)/../skins/enhanced1/details.txt \
+  $(SRCDIR)/../skins/enhanced1/footer.txt \
+  $(SRCDIR)/../skins/enhanced1/header.txt \
+  $(SRCDIR)/../skins/khaki/css.txt \
+  $(SRCDIR)/../skins/khaki/details.txt \
+  $(SRCDIR)/../skins/khaki/footer.txt \
+  $(SRCDIR)/../skins/khaki/header.txt \
+  $(SRCDIR)/../skins/original/css.txt \
+  $(SRCDIR)/../skins/original/details.txt \
+  $(SRCDIR)/../skins/original/footer.txt \
+  $(SRCDIR)/../skins/original/header.txt \
+  $(SRCDIR)/../skins/plain_gray/css.txt \
+  $(SRCDIR)/../skins/plain_gray/details.txt \
+  $(SRCDIR)/../skins/plain_gray/footer.txt \
+  $(SRCDIR)/../skins/plain_gray/header.txt \
+  $(SRCDIR)/../skins/rounded1/css.txt \
+  $(SRCDIR)/../skins/rounded1/details.txt \
+  $(SRCDIR)/../skins/rounded1/footer.txt \
+  $(SRCDIR)/../skins/rounded1/header.txt \
+  $(SRCDIR)/../skins/xekri/css.txt \
+  $(SRCDIR)/../skins/xekri/details.txt \
+  $(SRCDIR)/../skins/xekri/footer.txt \
+  $(SRCDIR)/../skins/xekri/header.txt \
+  $(SRCDIR)/diff.tcl \
+  $(SRCDIR)/markdown.md
 
 TRANS_SRC = \
   $(OBJDIR)/add_.c \
@@ -161,6 +224,7 @@ TRANS_SRC = \
   $(OBJDIR)/descendants_.c \
   $(OBJDIR)/diff_.c \
   $(OBJDIR)/diffcmd_.c \
+  $(OBJDIR)/dispatch_.c \
   $(OBJDIR)/doc_.c \
   $(OBJDIR)/encode_.c \
   $(OBJDIR)/event_.c \
@@ -168,10 +232,12 @@ TRANS_SRC = \
   $(OBJDIR)/file_.c \
   $(OBJDIR)/finfo_.c \
   $(OBJDIR)/foci_.c \
+  $(OBJDIR)/fshell_.c \
   $(OBJDIR)/fusefs_.c \
   $(OBJDIR)/glob_.c \
   $(OBJDIR)/graph_.c \
   $(OBJDIR)/gzip_.c \
+  $(OBJDIR)/hname_.c \
   $(OBJDIR)/http_.c \
   $(OBJDIR)/http_socket_.c \
   $(OBJDIR)/http_ssl_.c \
@@ -207,6 +273,7 @@ TRANS_SRC = \
   $(OBJDIR)/moderate_.c \
   $(OBJDIR)/name_.c \
   $(OBJDIR)/path_.c \
+  $(OBJDIR)/piechart_.c \
   $(OBJDIR)/pivot_.c \
   $(OBJDIR)/popen_.c \
   $(OBJDIR)/pqueue_.c \
@@ -219,13 +286,18 @@ TRANS_SRC = \
   $(OBJDIR)/rss_.c \
   $(OBJDIR)/schema_.c \
   $(OBJDIR)/search_.c \
+  $(OBJDIR)/security_audit_.c \
   $(OBJDIR)/setup_.c \
   $(OBJDIR)/sha1_.c \
+  $(OBJDIR)/sha1hard_.c \
+  $(OBJDIR)/sha3_.c \
   $(OBJDIR)/shun_.c \
+  $(OBJDIR)/sitemap_.c \
   $(OBJDIR)/skins_.c \
   $(OBJDIR)/sqlcmd_.c \
   $(OBJDIR)/stash_.c \
   $(OBJDIR)/stat_.c \
+  $(OBJDIR)/statrep_.c \
   $(OBJDIR)/style_.c \
   $(OBJDIR)/sync_.c \
   $(OBJDIR)/tag_.c \
@@ -236,6 +308,7 @@ TRANS_SRC = \
   $(OBJDIR)/tktsetup_.c \
   $(OBJDIR)/undo_.c \
   $(OBJDIR)/unicode_.c \
+  $(OBJDIR)/unversioned_.c \
   $(OBJDIR)/update_.c \
   $(OBJDIR)/url_.c \
   $(OBJDIR)/user_.c \
@@ -279,6 +352,7 @@ OBJ = \
  $(OBJDIR)/descendants.o \
  $(OBJDIR)/diff.o \
  $(OBJDIR)/diffcmd.o \
+ $(OBJDIR)/dispatch.o \
  $(OBJDIR)/doc.o \
  $(OBJDIR)/encode.o \
  $(OBJDIR)/event.o \
@@ -286,10 +360,12 @@ OBJ = \
  $(OBJDIR)/file.o \
  $(OBJDIR)/finfo.o \
  $(OBJDIR)/foci.o \
+ $(OBJDIR)/fshell.o \
  $(OBJDIR)/fusefs.o \
  $(OBJDIR)/glob.o \
  $(OBJDIR)/graph.o \
  $(OBJDIR)/gzip.o \
+ $(OBJDIR)/hname.o \
  $(OBJDIR)/http.o \
  $(OBJDIR)/http_socket.o \
  $(OBJDIR)/http_ssl.o \
@@ -325,6 +401,7 @@ OBJ = \
  $(OBJDIR)/moderate.o \
  $(OBJDIR)/name.o \
  $(OBJDIR)/path.o \
+ $(OBJDIR)/piechart.o \
  $(OBJDIR)/pivot.o \
  $(OBJDIR)/popen.o \
  $(OBJDIR)/pqueue.o \
@@ -337,13 +414,18 @@ OBJ = \
  $(OBJDIR)/rss.o \
  $(OBJDIR)/schema.o \
  $(OBJDIR)/search.o \
+ $(OBJDIR)/security_audit.o \
  $(OBJDIR)/setup.o \
  $(OBJDIR)/sha1.o \
+ $(OBJDIR)/sha1hard.o \
+ $(OBJDIR)/sha3.o \
  $(OBJDIR)/shun.o \
+ $(OBJDIR)/sitemap.o \
  $(OBJDIR)/skins.o \
  $(OBJDIR)/sqlcmd.o \
  $(OBJDIR)/stash.o \
  $(OBJDIR)/stat.o \
+ $(OBJDIR)/statrep.o \
  $(OBJDIR)/style.o \
  $(OBJDIR)/sync.o \
  $(OBJDIR)/tag.o \
@@ -354,6 +436,7 @@ OBJ = \
  $(OBJDIR)/tktsetup.o \
  $(OBJDIR)/undo.o \
  $(OBJDIR)/unicode.o \
+ $(OBJDIR)/unversioned.o \
  $(OBJDIR)/update.o \
  $(OBJDIR)/url.o \
  $(OBJDIR)/user.o \
@@ -387,43 +470,69 @@ $(OBJDIR):
 	-mkdir $(OBJDIR)
 
 $(OBJDIR)/translate:	$(SRCDIR)/translate.c
-	$(BCC) -o $(OBJDIR)/translate $(SRCDIR)/translate.c
+	$(XBCC) -o $(OBJDIR)/translate $(SRCDIR)/translate.c
 
 $(OBJDIR)/makeheaders:	$(SRCDIR)/makeheaders.c
-	$(BCC) -o $(OBJDIR)/makeheaders $(SRCDIR)/makeheaders.c
+	$(XBCC) -o $(OBJDIR)/makeheaders $(SRCDIR)/makeheaders.c
 
 $(OBJDIR)/mkindex:	$(SRCDIR)/mkindex.c
-	$(BCC) -o $(OBJDIR)/mkindex $(SRCDIR)/mkindex.c
+	$(XBCC) -o $(OBJDIR)/mkindex $(SRCDIR)/mkindex.c
 
 $(OBJDIR)/mkbuiltin:	$(SRCDIR)/mkbuiltin.c
-	$(BCC) -o $(OBJDIR)/mkbuiltin $(SRCDIR)/mkbuiltin.c
+	$(XBCC) -o $(OBJDIR)/mkbuiltin $(SRCDIR)/mkbuiltin.c
 
 $(OBJDIR)/mkversion:	$(SRCDIR)/mkversion.c
-	$(BCC) -o $(OBJDIR)/mkversion $(SRCDIR)/mkversion.c
+	$(XBCC) -o $(OBJDIR)/mkversion $(SRCDIR)/mkversion.c
 
 $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
-	$(BCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
+	$(XBCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
 
-# WARNING. DANGER. Running the test suite modifies the repository the
-# build is done from, i.e. the checkout belongs to. Do not sync/push
-# the repository after running the tests.
+# Run the test suite.
+# Other flags that can be included in TESTFLAGS are:
+#
+#  -halt     Stop testing after the first failed test
+#  -keep     Keep the temporary workspace for debugging
+#  -prot     Write a detailed log of the tests to the file ./prot
+#  -verbose  Include even more details in the output
+#  -quiet    Hide most output from the terminal
+#  -strict   Treat known bugs as failures
+#
+# TESTFLAGS can also include names of specific test files to limit
+# the run to just those test cases.
+#
 test:	$(OBJDIR) $(APPNAME)
-	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME)
+	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME) -quiet $(TESTFLAGS)
 
 $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion
 	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid  $(SRCDIR)/../manifest  $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
 
 # Setup the options used to compile the included SQLite library.
 SQLITE_OPTIONS = -DNDEBUG=1 \
-                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
-                 -DSQLITE_ENABLE_LOCKING_STYLE=0 \
                  -DSQLITE_THREADSAFE=0 \
-                 -DSQLITE_DEFAULT_FILE_FORMAT=4 \
+                 -DSQLITE_DEFAULT_MEMSTATUS=0 \
+                 -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 \
+                 -DSQLITE_LIKE_DOESNT_MATCH_BLOBS \
+                 -DSQLITE_OMIT_DECLTYPE \
                  -DSQLITE_OMIT_DEPRECATED \
-                 -DSQLITE_ENABLE_EXPLAIN_COMMENTS
+                 -DSQLITE_OMIT_GET_TABLE \
+                 -DSQLITE_OMIT_PROGRESS_CALLBACK \
+                 -DSQLITE_OMIT_SHARED_CACHE \
+                 -DSQLITE_OMIT_LOAD_EXTENSION \
+                 -DSQLITE_MAX_EXPR_DEPTH=0 \
+                 -DSQLITE_USE_ALLOCA \
+                 -DSQLITE_ENABLE_LOCKING_STYLE=0 \
+                 -DSQLITE_DEFAULT_FILE_FORMAT=4 \
+                 -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
+                 -DSQLITE_ENABLE_FTS4 \
+                 -DSQLITE_ENABLE_FTS3_PARENTHESIS \
+                 -DSQLITE_ENABLE_DBSTAT_VTAB \
+                 -DSQLITE_ENABLE_JSON1 \
+                 -DSQLITE_ENABLE_FTS5 \
+                 -DSQLITE_ENABLE_STMTVTAB
 
 # Setup the options used to compile the included SQLite shell.
 SHELL_OPTIONS = -Dmain=sqlite3_shell \
+                -DSQLITE_SHELL_IS_UTF8=1 \
                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
                 -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE) \
                 -DSQLITE_SHELL_DBNAME_PROC=fossil_open
@@ -437,8 +546,8 @@ MINIZ_OPTIONS = -DMINIZ_NO_STDIO \
 # to 1. If it is set to 1, then there is no need to build or link
 # the sqlite3.o object. Instead, the system SQLite will be linked
 # using -lsqlite3.
-SQLITE3_OBJ.1 =
 SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
+SQLITE3_OBJ.1 =
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 
 # The FOSSIL_ENABLE_MINIZ variable may be undefined, set to 0, or
@@ -448,10 +557,38 @@ MINIZ_OBJ.0 =
 MINIZ_OBJ.1 = $(OBJDIR)/miniz.o
 MINIZ_OBJ.  = $(MINIZ_OBJ.0)
 
+# The USE_LINENOISE variable may be undefined, set to 0, or set
+# to 1. If it is set to 0, then there is no need to build or link
+# the linenoise.o object.
+LINENOISE_DEF.0 =
+LINENOISE_DEF.1 = -DHAVE_LINENOISE
+LINENOISE_DEF.  = $(LINENOISE_DEF.0)
+LINENOISE_OBJ.0 =
+LINENOISE_OBJ.1 = $(OBJDIR)/linenoise.o
+LINENOISE_OBJ.  = $(LINENOISE_OBJ.0)
+
+# The USE_SEE variable may be undefined, 0 or 1.  If undefined or
+# 0, ordinary SQLite is used.  If 1, then sqlite3-see.c (not part of
+# the source tree) is used and extra flags are provided to enable
+# the SQLite Encryption Extension.
+SQLITE3_SRC.0 = sqlite3.c
+SQLITE3_SRC.1 = sqlite3-see.c
+SQLITE3_SRC. = sqlite3.c
+SQLITE3_SRC = $(SRCDIR)/$(SQLITE3_SRC.$(USE_SEE))
+SQLITE3_SHELL_SRC.0 = shell.c
+SQLITE3_SHELL_SRC.1 = shell-see.c
+SQLITE3_SHELL_SRC. = shell.c
+SQLITE3_SHELL_SRC = $(SRCDIR)/$(SQLITE3_SHELL_SRC.$(USE_SEE))
+SEE_FLAGS.0 =
+SEE_FLAGS.1 = -DSQLITE_HAS_CODEC -DSQLITE_SHELL_DBKEY_PROC=fossil_key
+SEE_FLAGS. =
+SEE_FLAGS = $(SEE_FLAGS.$(USE_SEE))
+
 
 EXTRAOBJ = \
  $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE)) \
  $(MINIZ_OBJ.$(FOSSIL_ENABLE_MINIZ)) \
+ $(LINENOISE_OBJ.$(USE_LINENOISE)) \
  $(OBJDIR)/shell.o \
  $(OBJDIR)/th.o \
  $(OBJDIR)/th_lang.o \
@@ -477,7 +614,7 @@ $(OBJDIR)/page_index.h: $(TRANS_SRC) $(OBJDIR)/mkindex
 	$(OBJDIR)/mkindex $(TRANS_SRC) >$@
 
 $(OBJDIR)/builtin_data.h: $(OBJDIR)/mkbuiltin $(EXTRA_FILES)
-	$(OBJDIR)/mkbuiltin $(EXTRA_FILES) >$@
+	$(OBJDIR)/mkbuiltin --prefix $(SRCDIR)/ $(EXTRA_FILES) >$@
 
 $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSION.h
 	$(OBJDIR)/makeheaders $(OBJDIR)/add_.c:$(OBJDIR)/add.h \
@@ -506,6 +643,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/descendants_.c:$(OBJDIR)/descendants.h \
 	$(OBJDIR)/diff_.c:$(OBJDIR)/diff.h \
 	$(OBJDIR)/diffcmd_.c:$(OBJDIR)/diffcmd.h \
+	$(OBJDIR)/dispatch_.c:$(OBJDIR)/dispatch.h \
 	$(OBJDIR)/doc_.c:$(OBJDIR)/doc.h \
 	$(OBJDIR)/encode_.c:$(OBJDIR)/encode.h \
 	$(OBJDIR)/event_.c:$(OBJDIR)/event.h \
@@ -513,10 +651,12 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/file_.c:$(OBJDIR)/file.h \
 	$(OBJDIR)/finfo_.c:$(OBJDIR)/finfo.h \
 	$(OBJDIR)/foci_.c:$(OBJDIR)/foci.h \
+	$(OBJDIR)/fshell_.c:$(OBJDIR)/fshell.h \
 	$(OBJDIR)/fusefs_.c:$(OBJDIR)/fusefs.h \
 	$(OBJDIR)/glob_.c:$(OBJDIR)/glob.h \
 	$(OBJDIR)/graph_.c:$(OBJDIR)/graph.h \
 	$(OBJDIR)/gzip_.c:$(OBJDIR)/gzip.h \
+	$(OBJDIR)/hname_.c:$(OBJDIR)/hname.h \
 	$(OBJDIR)/http_.c:$(OBJDIR)/http.h \
 	$(OBJDIR)/http_socket_.c:$(OBJDIR)/http_socket.h \
 	$(OBJDIR)/http_ssl_.c:$(OBJDIR)/http_ssl.h \
@@ -552,6 +692,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/moderate_.c:$(OBJDIR)/moderate.h \
 	$(OBJDIR)/name_.c:$(OBJDIR)/name.h \
 	$(OBJDIR)/path_.c:$(OBJDIR)/path.h \
+	$(OBJDIR)/piechart_.c:$(OBJDIR)/piechart.h \
 	$(OBJDIR)/pivot_.c:$(OBJDIR)/pivot.h \
 	$(OBJDIR)/popen_.c:$(OBJDIR)/popen.h \
 	$(OBJDIR)/pqueue_.c:$(OBJDIR)/pqueue.h \
@@ -564,13 +705,18 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/rss_.c:$(OBJDIR)/rss.h \
 	$(OBJDIR)/schema_.c:$(OBJDIR)/schema.h \
 	$(OBJDIR)/search_.c:$(OBJDIR)/search.h \
+	$(OBJDIR)/security_audit_.c:$(OBJDIR)/security_audit.h \
 	$(OBJDIR)/setup_.c:$(OBJDIR)/setup.h \
 	$(OBJDIR)/sha1_.c:$(OBJDIR)/sha1.h \
+	$(OBJDIR)/sha1hard_.c:$(OBJDIR)/sha1hard.h \
+	$(OBJDIR)/sha3_.c:$(OBJDIR)/sha3.h \
 	$(OBJDIR)/shun_.c:$(OBJDIR)/shun.h \
+	$(OBJDIR)/sitemap_.c:$(OBJDIR)/sitemap.h \
 	$(OBJDIR)/skins_.c:$(OBJDIR)/skins.h \
 	$(OBJDIR)/sqlcmd_.c:$(OBJDIR)/sqlcmd.h \
 	$(OBJDIR)/stash_.c:$(OBJDIR)/stash.h \
 	$(OBJDIR)/stat_.c:$(OBJDIR)/stat.h \
+	$(OBJDIR)/statrep_.c:$(OBJDIR)/statrep.h \
 	$(OBJDIR)/style_.c:$(OBJDIR)/style.h \
 	$(OBJDIR)/sync_.c:$(OBJDIR)/sync.h \
 	$(OBJDIR)/tag_.c:$(OBJDIR)/tag.h \
@@ -581,6 +727,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/tktsetup_.c:$(OBJDIR)/tktsetup.h \
 	$(OBJDIR)/undo_.c:$(OBJDIR)/undo.h \
 	$(OBJDIR)/unicode_.c:$(OBJDIR)/unicode.h \
+	$(OBJDIR)/unversioned_.c:$(OBJDIR)/unversioned.h \
 	$(OBJDIR)/update_.c:$(OBJDIR)/update.h \
 	$(OBJDIR)/url_.c:$(OBJDIR)/url.h \
 	$(OBJDIR)/user_.c:$(OBJDIR)/user.h \
@@ -811,6 +958,14 @@ $(OBJDIR)/diffcmd.o:	$(OBJDIR)/diffcmd_.c $(OBJDIR)/diffcmd.h $(SRCDIR)/config.h
 
 $(OBJDIR)/diffcmd.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/dispatch_.c:	$(SRCDIR)/dispatch.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/dispatch.c >$@
+
+$(OBJDIR)/dispatch.o:	$(OBJDIR)/dispatch_.c $(OBJDIR)/dispatch.h $(OBJDIR)/page_index.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/dispatch.o -c $(OBJDIR)/dispatch_.c
+
+$(OBJDIR)/dispatch.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/doc_.c:	$(SRCDIR)/doc.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/doc.c >$@
 
@@ -867,6 +1022,14 @@ $(OBJDIR)/foci.o:	$(OBJDIR)/foci_.c $(OBJDIR)/foci.h $(SRCDIR)/config.h
 
 $(OBJDIR)/foci.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/fshell_.c:	$(SRCDIR)/fshell.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/fshell.c >$@
+
+$(OBJDIR)/fshell.o:	$(OBJDIR)/fshell_.c $(OBJDIR)/fshell.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/fshell.o -c $(OBJDIR)/fshell_.c
+
+$(OBJDIR)/fshell.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/fusefs_.c:	$(SRCDIR)/fusefs.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/fusefs.c >$@
 
@@ -898,6 +1061,14 @@ $(OBJDIR)/gzip.o:	$(OBJDIR)/gzip_.c $(OBJDIR)/gzip.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/gzip.o -c $(OBJDIR)/gzip_.c
 
 $(OBJDIR)/gzip.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/hname_.c:	$(SRCDIR)/hname.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/hname.c >$@
+
+$(OBJDIR)/hname.o:	$(OBJDIR)/hname_.c $(OBJDIR)/hname.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/hname.o -c $(OBJDIR)/hname_.c
+
+$(OBJDIR)/hname.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/http_.c:	$(SRCDIR)/http.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/http.c >$@
@@ -1102,7 +1273,7 @@ $(OBJDIR)/lookslike.h:	$(OBJDIR)/headers
 $(OBJDIR)/main_.c:	$(SRCDIR)/main.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/main.c >$@
 
-$(OBJDIR)/main.o:	$(OBJDIR)/main_.c $(OBJDIR)/main.h $(OBJDIR)/page_index.h $(SRCDIR)/config.h
+$(OBJDIR)/main.o:	$(OBJDIR)/main_.c $(OBJDIR)/main.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/main.o -c $(OBJDIR)/main_.c
 
 $(OBJDIR)/main.h:	$(OBJDIR)/headers
@@ -1178,6 +1349,14 @@ $(OBJDIR)/path.o:	$(OBJDIR)/path_.c $(OBJDIR)/path.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/path.o -c $(OBJDIR)/path_.c
 
 $(OBJDIR)/path.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/piechart_.c:	$(SRCDIR)/piechart.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/piechart.c >$@
+
+$(OBJDIR)/piechart.o:	$(OBJDIR)/piechart_.c $(OBJDIR)/piechart.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/piechart.o -c $(OBJDIR)/piechart_.c
+
+$(OBJDIR)/piechart.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/pivot_.c:	$(SRCDIR)/pivot.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/pivot.c >$@
@@ -1275,6 +1454,14 @@ $(OBJDIR)/search.o:	$(OBJDIR)/search_.c $(OBJDIR)/search.h $(SRCDIR)/config.h
 
 $(OBJDIR)/search.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/security_audit_.c:	$(SRCDIR)/security_audit.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/security_audit.c >$@
+
+$(OBJDIR)/security_audit.o:	$(OBJDIR)/security_audit_.c $(OBJDIR)/security_audit.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/security_audit.o -c $(OBJDIR)/security_audit_.c
+
+$(OBJDIR)/security_audit.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/setup_.c:	$(SRCDIR)/setup.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/setup.c >$@
 
@@ -1291,6 +1478,22 @@ $(OBJDIR)/sha1.o:	$(OBJDIR)/sha1_.c $(OBJDIR)/sha1.h $(SRCDIR)/config.h
 
 $(OBJDIR)/sha1.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/sha1hard_.c:	$(SRCDIR)/sha1hard.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/sha1hard.c >$@
+
+$(OBJDIR)/sha1hard.o:	$(OBJDIR)/sha1hard_.c $(OBJDIR)/sha1hard.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/sha1hard.o -c $(OBJDIR)/sha1hard_.c
+
+$(OBJDIR)/sha1hard.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/sha3_.c:	$(SRCDIR)/sha3.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/sha3.c >$@
+
+$(OBJDIR)/sha3.o:	$(OBJDIR)/sha3_.c $(OBJDIR)/sha3.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/sha3.o -c $(OBJDIR)/sha3_.c
+
+$(OBJDIR)/sha3.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/shun_.c:	$(SRCDIR)/shun.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/shun.c >$@
 
@@ -1298,6 +1501,14 @@ $(OBJDIR)/shun.o:	$(OBJDIR)/shun_.c $(OBJDIR)/shun.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/shun.o -c $(OBJDIR)/shun_.c
 
 $(OBJDIR)/shun.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/sitemap_.c:	$(SRCDIR)/sitemap.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/sitemap.c >$@
+
+$(OBJDIR)/sitemap.o:	$(OBJDIR)/sitemap_.c $(OBJDIR)/sitemap.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/sitemap.o -c $(OBJDIR)/sitemap_.c
+
+$(OBJDIR)/sitemap.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/skins_.c:	$(SRCDIR)/skins.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/skins.c >$@
@@ -1330,6 +1541,14 @@ $(OBJDIR)/stat.o:	$(OBJDIR)/stat_.c $(OBJDIR)/stat.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/stat.o -c $(OBJDIR)/stat_.c
 
 $(OBJDIR)/stat.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/statrep_.c:	$(SRCDIR)/statrep.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/statrep.c >$@
+
+$(OBJDIR)/statrep.o:	$(OBJDIR)/statrep_.c $(OBJDIR)/statrep.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/statrep.o -c $(OBJDIR)/statrep_.c
+
+$(OBJDIR)/statrep.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/style_.c:	$(SRCDIR)/style.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/style.c >$@
@@ -1410,6 +1629,14 @@ $(OBJDIR)/unicode.o:	$(OBJDIR)/unicode_.c $(OBJDIR)/unicode.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/unicode.o -c $(OBJDIR)/unicode_.c
 
 $(OBJDIR)/unicode.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/unversioned_.c:	$(SRCDIR)/unversioned.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/unversioned.c >$@
+
+$(OBJDIR)/unversioned.o:	$(OBJDIR)/unversioned_.c $(OBJDIR)/unversioned.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/unversioned.o -c $(OBJDIR)/unversioned_.c
+
+$(OBJDIR)/unversioned.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/update_.c:	$(SRCDIR)/update.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/update.c >$@
@@ -1531,11 +1758,14 @@ $(OBJDIR)/zip.o:	$(OBJDIR)/zip_.c $(OBJDIR)/zip.h $(SRCDIR)/config.h
 
 $(OBJDIR)/zip.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/sqlite3.o:	$(SRCDIR)/sqlite3.c
-	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) -c $(SRCDIR)/sqlite3.c -o $@
+$(OBJDIR)/sqlite3.o:	$(SQLITE3_SRC)
+	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SEE_FLAGS) \
+		-c $(SQLITE3_SRC) -o $@
+$(OBJDIR)/shell.o:	$(SQLITE3_SHELL_SRC) $(SRCDIR)/sqlite3.h
+	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) $(SEE_FLAGS) $(LINENOISE_DEF.$(USE_LINENOISE)) -c $(SQLITE3_SHELL_SRC) -o $@
 
-$(OBJDIR)/shell.o:	$(SRCDIR)/shell.c $(SRCDIR)/sqlite3.h
-	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) -c $(SRCDIR)/shell.c -o $@
+$(OBJDIR)/linenoise.o:	$(SRCDIR)/linenoise.c $(SRCDIR)/linenoise.h
+	$(XTCC) -c $(SRCDIR)/linenoise.c -o $@
 
 $(OBJDIR)/th.o:	$(SRCDIR)/th.c
 	$(XTCC) -c $(SRCDIR)/th.c -o $@

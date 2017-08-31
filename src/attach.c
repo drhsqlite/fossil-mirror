@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -23,19 +23,22 @@
 
 /*
 ** WEBPAGE: attachlist
+** List attachments.
 **
 **    tkt=TICKETUUID
 **    page=WIKIPAGE
 **
-** List attachments.
-** Either one of tkt= or page= are supplied or neither.  If neither
-** are given, all attachments are listed.  If one is given, only
-** attachments for the designated ticket or wiki page are shown.
-** TICKETUUID must be complete
+** At most one of technote=, tkt= or page= are supplied.
+** If none is given, all attachments are listed.  If one is given,
+** only attachments for the designated technote, ticket or wiki page
+** are shown. TECHNOTEUUID and TICKETUUID may be just a prefix of the
+** relevant technical note or ticket, in which case all attachments
+** of all technical notes or tickets with the prefix will be listed.
 */
 void attachlist_page(void){
   const char *zPage = P("page");
   const char *zTkt = P("tkt");
+  const char *zTechNote = P("technote");
   Blob sql;
   Stmt q;
 
@@ -43,22 +46,34 @@ void attachlist_page(void){
   login_check_credentials();
   blob_zero(&sql);
   blob_append_sql(&sql,
-     "SELECT datetime(mtime%s), src, target, filename,"
+     "SELECT datetime(mtime,toLocal()), src, target, filename,"
      "       comment, user,"
-     "       (SELECT uuid FROM blob WHERE rid=attachid), attachid"
-     "  FROM attachment",
-     timeline_utc()
+     "       (SELECT uuid FROM blob WHERE rid=attachid), attachid,"
+     "       (CASE WHEN 'tkt-'||target IN (SELECT tagname FROM tag)"
+     "                  THEN 1"
+     "             WHEN 'event-'||target IN (SELECT tagname FROM tag)"
+     "                  THEN 2"
+     "             ELSE 0 END)"
+     "  FROM attachment"
   );
   if( zPage ){
-    if( g.perm.RdWiki==0 ) login_needed();
+    if( g.perm.RdWiki==0 ){ login_needed(g.anon.RdWiki); return; }
     style_header("Attachments To %h", zPage);
     blob_append_sql(&sql, " WHERE target=%Q", zPage);
   }else if( zTkt ){
-    if( g.perm.RdTkt==0 ) login_needed();
+    if( g.perm.RdTkt==0 ){ login_needed(g.anon.RdTkt); return; }
     style_header("Attachments To Ticket %S", zTkt);
     blob_append_sql(&sql, " WHERE target GLOB '%q*'", zTkt);
+  }else if( zTechNote ){
+    if( g.perm.RdWiki==0 ){ login_needed(g.anon.RdWiki); return; }
+    style_header("Attachments to Tech Note %S", zTechNote);
+    blob_append_sql(&sql, " WHERE target GLOB '%q*'",
+                    zTechNote);
   }else{
-    if( g.perm.RdTkt==0 && g.perm.RdWiki==0 ) login_needed();
+    if( g.perm.RdTkt==0 && g.perm.RdWiki==0 ){
+      login_needed(g.anon.RdTkt || g.anon.RdWiki);
+      return;
+    }
     style_header("All Attachments");
   }
   blob_append_sql(&sql, " ORDER BY mtime DESC");
@@ -73,6 +88,8 @@ void attachlist_page(void){
     const char *zUser = db_column_text(&q, 5);
     const char *zUuid = db_column_text(&q, 6);
     int attachid = db_column_int(&q, 7);
+    /* type 0 is a wiki page, 1 is a ticket, 2 is a tech note */
+    int type = db_column_int(&q, 8);
     const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
     int i;
     char *zUrlTail;
@@ -82,33 +99,38 @@ void attachlist_page(void){
         i = -1;
       }
     }
-    if( strlen(zTarget)==UUID_SIZE && validate16(zTarget,UUID_SIZE) ){
+    if( type==1 ){
       zUrlTail = mprintf("tkt=%s&file=%t", zTarget, zFilename);
+    }else if( type==2 ){
+      zUrlTail = mprintf("technote=%s&file=%t", zTarget, zFilename);
     }else{
       zUrlTail = mprintf("page=%t&file=%t", zTarget, zFilename);
     }
     @ <li><p>
-    @ Attachment %z(href("%R/ainfo/%s",zUuid))%S(zUuid)</a>
+    @ Attachment %z(href("%R/ainfo/%!S",zUuid))%S(zUuid)</a>
     if( moderation_pending(attachid) ){
       @ <span class="modpending">*** Awaiting Moderator Approval ***</span>
     }
-    @ <br><a href="/attachview?%s(zUrlTail)">%h(zFilename)</a>
-    @ [<a href="/attachdownload/%t(zFilename)?%s(zUrlTail)">download</a>]<br />
+    @ <br /><a href="%R/attachview?%s(zUrlTail)">%h(zFilename)</a>
+    @ [<a href="%R/attachdownload/%t(zFilename)?%s(zUrlTail)">download</a>]<br />
     if( zComment ) while( fossil_isspace(zComment[0]) ) zComment++;
     if( zComment && zComment[0] ){
-      @ %!w(zComment)<br />
+      @ %!W(zComment)<br />
     }
-    if( zPage==0 && zTkt==0 ){
+    if( zPage==0 && zTkt==0 && zTechNote==0 ){
       if( zSrc==0 || zSrc[0]==0 ){
         zSrc = "Deleted from";
       }else {
         zSrc = "Added to";
       }
-      if( strlen(zTarget)==UUID_SIZE && validate16(zTarget, UUID_SIZE) ){
-        @ %s(zSrc) ticket <a href="%s(g.zTop)/tktview?name=%s(zTarget)">
+      if( type==1 ){
+        @ %s(zSrc) ticket <a href="%R/tktview?name=%s(zTarget)">
+        @ %S(zTarget)</a>
+      }else if( type==2 ){
+        @ %s(zSrc) tech note <a href="%R/technote/%s(zTarget)">
         @ %S(zTarget)</a>
       }else{
-        @ %s(zSrc) wiki page <a href="%s(g.zTop)/wiki?name=%t(zTarget)">
+        @ %s(zSrc) wiki page <a href="%R/wiki?name=%t(zTarget)">
         @ %h(zTarget)</a>
       }
     }else{
@@ -133,30 +155,36 @@ void attachlist_page(void){
 ** WEBPAGE: attachimage
 ** WEBPAGE: attachview
 **
+** Download or display an attachment.
+** Query parameters:
+**
 **    tkt=TICKETUUID
 **    page=WIKIPAGE
+**    technote=TECHNOTEUUID
 **    file=FILENAME
 **    attachid=ID
 **
-** List attachments.
 */
 void attachview_page(void){
   const char *zPage = P("page");
   const char *zTkt = P("tkt");
+  const char *zTechNote = P("technote");
   const char *zFile = P("file");
   const char *zTarget = 0;
   int attachid = atoi(PD("attachid","0"));
   char *zUUID;
 
-  if( zPage && zTkt ) zTkt = 0;
   if( zFile==0 ) fossil_redirect_home();
   login_check_credentials();
   if( zPage ){
-    if( g.perm.RdWiki==0 ) login_needed();
+    if( g.perm.RdWiki==0 ){ login_needed(g.anon.RdWiki); return; }
     zTarget = zPage;
   }else if( zTkt ){
-    if( g.perm.RdTkt==0 ) login_needed();
+    if( g.perm.RdTkt==0 ){ login_needed(g.anon.RdTkt); return; }
     zTarget = zTkt;
+  }else if( zTechNote ){
+    if( g.perm.RdWiki==0 ){ login_needed(g.anon.RdWiki); return; }
+    zTarget = zTechNote;
   }else{
     fossil_redirect_home();
   }
@@ -184,14 +212,15 @@ void attachview_page(void){
     @ Attachment has been deleted
     style_footer();
     return;
-  }
-  g.perm.Read = 1;
-  cgi_replace_parameter("name",zUUID);
-  if( fossil_strcmp(g.zPath,"attachview")==0 ){
-    artifact_page();
   }else{
-    cgi_replace_parameter("m", mimetype_from_name(zFile));
-    rawartifact_page();
+    g.perm.Read = 1;
+    cgi_replace_parameter("name",zUUID);
+    if( fossil_strcmp(g.zPath,"attachview")==0 ){
+      artifact_page();
+    }else{
+      cgi_replace_parameter("m", mimetype_from_name(zFile));
+      rawartifact_page();
+    }
   }
 }
 
@@ -221,64 +250,25 @@ static void attach_put(
 
 
 /*
-** WEBPAGE: attachadd
-**
-**    tkt=TICKETUUID
-**    page=WIKIPAGE
-**    from=URL
-**
-** Add a new attachment.
+** Commit a new attachment into the repository
 */
-void attachadd_page(void){
-  const char *zPage = P("page");
-  const char *zTkt = P("tkt");
-  const char *zFrom = P("from");
-  const char *aContent = P("f");
-  const char *zName = PD("f:filename","unknown");
-  const char *zTarget;
-  const char *zTargetType;
-  int szContent = atoi(PD("f:bytes","0"));
-  int goodCaptcha = 1;
-
-  if( P("cancel") ) cgi_redirect(zFrom);
-  if( zPage && zTkt ) fossil_redirect_home();
-  if( zPage==0 && zTkt==0 ) fossil_redirect_home();
-  login_check_credentials();
-  if( zPage ){
-    if( g.perm.ApndWiki==0 || g.perm.Attach==0 ) login_needed();
-    if( !db_exists("SELECT 1 FROM tag WHERE tagname='wiki-%q'", zPage) ){
-      fossil_redirect_home();
-    }
-    zTarget = zPage;
-    zTargetType = mprintf("Wiki Page <a href=\"%s/wiki?name=%h\">%h</a>",
-                           g.zTop, zPage, zPage);
-  }else{
-    if( g.perm.ApndTkt==0 || g.perm.Attach==0 ) login_needed();
-    if( !db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'", zTkt) ){
-      zTkt = db_text(0, "SELECT substr(tagname,5) FROM tag"
-                        " WHERE tagname GLOB 'tkt-%q*'", zTkt);
-      if( zTkt==0 ) fossil_redirect_home();
-    }
-    zTarget = zTkt;
-    zTargetType = mprintf("Ticket <a href=\"%s/tktview/%s\">%S</a>",
-                          g.zTop, zTkt, zTkt);
-  }
-  if( zFrom==0 ) zFrom = mprintf("%s/home", g.zTop);
-  if( P("cancel") ){
-    cgi_redirect(zFrom);
-  }
-  if( P("ok") && szContent>0 && (goodCaptcha = captcha_is_correct()) ){
+void attach_commit(
+  const char *zName,                   /* The filename of the attachment */
+  const char *zTarget,                 /* The artifact uuid to attach to */
+  const char *aContent,                /* The content of the attachment */
+  int         szContent,               /* The length of the attachment */
+  int         needModerator,           /* Moderate the attachment? */
+  const char *zComment                 /* The comment for the attachment */
+){
     Blob content;
     Blob manifest;
     Blob cksum;
     char *zUUID;
-    const char *zComment;
     char *zDate;
     int rid;
     int i, n;
     int addCompress = 0;
     Manifest *pManifest;
-    int needModerator;
 
     db_begin_transaction();
     blob_init(&content, aContent, szContent);
@@ -289,20 +279,16 @@ void attachadd_page(void){
       blob_compress(&content, &content);
       addCompress = 1;
     }
-    needModerator =
-         (zTkt!=0 && ticket_need_moderation(0)) ||
-         (zPage!=0 && wiki_need_moderation(0));
     rid = content_put_ex(&content, 0, 0, 0, needModerator);
     zUUID = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     blob_zero(&manifest);
     for(i=n=0; zName[i]; i++){
-      if( zName[i]=='/' || zName[i]=='\\' ) n = i;
+      if( zName[i]=='/' || zName[i]=='\\' ) n = i+1;
     }
     zName += n;
     if( zName[0]==0 ) zName = "unknown";
     blob_appendf(&manifest, "A %F%s %F %s\n",
                  zName, addCompress ? ".gz" : "", zTarget, zUUID);
-    zComment = PD("comment", "");
     while( fossil_isspace(zComment[0]) ) zComment++;
     n = strlen(zComment);
     while( n>0 && fossil_isspace(zComment[n-1]) ){ n--; }
@@ -317,6 +303,87 @@ void attachadd_page(void){
     attach_put(&manifest, rid, needModerator);
     assert( blob_is_reset(&manifest) );
     db_end_transaction(0);
+}
+
+/*
+** WEBPAGE: attachadd
+** Add a new attachment.
+**
+**    tkt=TICKETUUID
+**    page=WIKIPAGE
+**    technote=TECHNOTEUUID
+**    from=URL
+**
+*/
+void attachadd_page(void){
+  const char *zPage = P("page");
+  const char *zTkt = P("tkt");
+  const char *zTechNote = P("technote");
+  const char *zFrom = P("from");
+  const char *aContent = P("f");
+  const char *zName = PD("f:filename","unknown");
+  const char *zTarget;
+  char *zTargetType;
+  int szContent = atoi(PD("f:bytes","0"));
+  int goodCaptcha = 1;
+
+  if( P("cancel") ) cgi_redirect(zFrom);
+  if( (zPage && zTkt)
+   || (zPage && zTechNote)
+   || (zTkt && zTechNote)
+  ){
+   fossil_redirect_home();
+  }
+  if( zPage==0 && zTkt==0 && zTechNote==0) fossil_redirect_home();
+  login_check_credentials();
+  if( zPage ){
+    if( g.perm.ApndWiki==0 || g.perm.Attach==0 ){
+      login_needed(g.anon.ApndWiki && g.anon.Attach);
+      return;
+    }
+    if( !db_exists("SELECT 1 FROM tag WHERE tagname='wiki-%q'", zPage) ){
+      fossil_redirect_home();
+    }
+    zTarget = zPage;
+    zTargetType = mprintf("Wiki Page <a href=\"%R/wiki?name=%h\">%h</a>",
+                           zPage, zPage);
+  }else if ( zTechNote ){
+    if( g.perm.Write==0 || g.perm.ApndWiki==0 || g.perm.Attach==0 ){
+      login_needed(g.anon.Write && g.anon.ApndWiki && g.anon.Attach);
+      return;
+    }
+    if( !db_exists("SELECT 1 FROM tag WHERE tagname='event-%q'", zTechNote) ){
+      zTechNote = db_text(0, "SELECT substr(tagname,7) FROM tag"
+                             " WHERE tagname GLOB 'event-%q*'", zTechNote);
+      if( zTechNote==0) fossil_redirect_home();
+    }
+    zTarget = zTechNote;
+    zTargetType = mprintf("Tech Note <a href=\"%R/technote/%s\">%S</a>",
+                           zTechNote, zTechNote);
+
+  }else{
+    if( g.perm.ApndTkt==0 || g.perm.Attach==0 ){
+      login_needed(g.anon.ApndTkt && g.anon.Attach);
+      return;
+    }
+    if( !db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'", zTkt) ){
+      zTkt = db_text(0, "SELECT substr(tagname,5) FROM tag"
+                        " WHERE tagname GLOB 'tkt-%q*'", zTkt);
+      if( zTkt==0 ) fossil_redirect_home();
+    }
+    zTarget = zTkt;
+    zTargetType = mprintf("Ticket <a href=\"%R/tktview/%s\">%S</a>",
+                          zTkt, zTkt);
+  }
+  if( zFrom==0 ) zFrom = mprintf("%s/home", g.zTop);
+  if( P("cancel") ){
+    cgi_redirect(zFrom);
+  }
+  if( P("ok") && szContent>0 && (goodCaptcha = captcha_is_correct()) ){
+    int needModerator = (zTkt!=0 && ticket_need_moderation(0)) ||
+                        (zPage!=0 && wiki_need_moderation(0));
+    const char *zComment = PD("comment", "");
+    attach_commit(zName, zTarget, aContent, szContent, needModerator, zComment);
     cgi_redirect(zFrom);
   }
   style_header("Add Attachment");
@@ -332,6 +399,8 @@ void attachadd_page(void){
   @ <textarea name="comment" cols="80" rows="5" wrap="virtual"></textarea><br />
   if( zTkt ){
     @ <input type="hidden" name="tkt" value="%h(zTkt)" />
+  }else if( zTechNote ){
+    @ <input type="hidden" name="technote" value="%h(zTechNote)" />
   }else{
     @ <input type="hidden" name="page" value="%h(zPage)" />
   }
@@ -342,6 +411,7 @@ void attachadd_page(void){
   captcha_generate(0);
   @ </form>
   style_footer();
+  fossil_free(zTargetType);
 }
 
 /*
@@ -356,11 +426,12 @@ void ainfo_page(void){
   char *zDate;                   /* Date attached */
   const char *zUuid;             /* UUID of the control artifact */
   Manifest *pAttach;             /* Parse of the control artifact */
-  const char *zTarget;           /* Wiki or ticket attached to */
+  const char *zTarget;           /* Wiki, ticket or tech note attached to */
   const char *zSrc;              /* UUID of the attached file */
   const char *zName;             /* Name of the attached file */
   const char *zDesc;             /* Description of the attached file */
   const char *zWikiName = 0;     /* Wiki page name when attached to Wiki */
+  const char *zTNUuid = 0;       /* Tech Note ID when attached to tech note */
   const char *zTktUuid = 0;      /* Ticket ID when attached to a ticket */
   int modPending;                /* True if awaiting moderation */
   const char *zModAction;        /* Moderation action or NULL */
@@ -371,7 +442,10 @@ void ainfo_page(void){
   const char *zLn = P("ln");
 
   login_check_credentials();
-  if( !g.perm.RdTkt && !g.perm.RdWiki ){ login_needed(); return; }
+  if( !g.perm.RdTkt && !g.perm.RdWiki ){
+    login_needed(g.anon.RdTkt || g.anon.RdWiki);
+    return;
+  }
   rid = name_to_rid_www("name");
   if( rid==0 ){ fossil_redirect_home(); }
   zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
@@ -380,10 +454,10 @@ void ainfo_page(void){
   ** the object that is attached. */
   if( g.perm.Admin ){
     if( db_exists("SELECT 1 FROM shun WHERE uuid='%q'", zUuid) ){
-      style_submenu_element("Unshun","Unshun", "%s/shun?uuid=%s&sub=1",
+      style_submenu_element("Unshun", "%s/shun?uuid=%s&sub=1",
             g.zTop, zUuid);
     }else{
-      style_submenu_element("Shun","Shun", "%s/shun?shun=%s#addshun",
+      style_submenu_element("Shun", "%s/shun?shun=%s#addshun",
             g.zTop, zUuid);
     }
   }
@@ -401,21 +475,29 @@ void ainfo_page(void){
    && db_exists("SELECT 1 FROM ticket WHERE tkt_uuid='%q'", zTarget)
   ){
     zTktUuid = zTarget;
-    if( !g.perm.RdTkt ){ login_needed(); return; }
+    if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
     if( g.perm.WrTkt ){
-      style_submenu_element("Delete","Delete","%R/ainfo/%s?del", zUuid);
+      style_submenu_element("Delete", "%R/ainfo/%s?del", zUuid);
     }
   }else if( db_exists("SELECT 1 FROM tag WHERE tagname='wiki-%q'",zTarget) ){
     zWikiName = zTarget;
-    if( !g.perm.RdWiki ){ login_needed(); return; }
+    if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
     if( g.perm.WrWiki ){
-      style_submenu_element("Delete","Delete","%R/ainfo/%s?del", zUuid);
+      style_submenu_element("Delete", "%R/ainfo/%s?del", zUuid);
+    }
+  }else if( db_exists("SELECT 1 FROM tag WHERE tagname='event-%q'",zTarget) ){
+    zTNUuid = zTarget;
+    if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
+    if( g.perm.Write && g.perm.WrWiki ){
+      style_submenu_element("Delete", "%R/ainfo/%s?del", zUuid);
     }
   }
   zDate = db_text(0, "SELECT datetime(%.12f)", pAttach->rDate);
 
   if( P("confirm")
-   && ((zTktUuid && g.perm.WrTkt) || (zWikiName && g.perm.WrWiki))
+   && ((zTktUuid && g.perm.WrTkt) ||
+       (zWikiName && g.perm.WrWiki) ||
+       (zTNUuid && g.perm.Write && g.perm.WrWiki))
   ){
     int i, n, rid;
     char *zDate;
@@ -443,9 +525,11 @@ void ainfo_page(void){
   }
 
   if( P("del")
-   && ((zTktUuid && g.perm.WrTkt) || (zWikiName && g.perm.WrWiki))
+   && ((zTktUuid && g.perm.WrTkt) ||
+       (zWikiName && g.perm.WrWiki) ||
+       (zTNUuid && g.perm.Write && g.perm.WrWiki))
   ){
-    form_begin(0, "%R/ainfo/%s", zUuid);
+    form_begin(0, "%R/ainfo/%!S", zUuid);
     @ <p>Confirm you want to delete the attachment shown below.
     @ <input type="submit" name="confirm" value="Confirm">
     @ </form>
@@ -458,7 +542,7 @@ void ainfo_page(void){
     if( strcmp(zModAction,"delete")==0 ){
       moderation_disapprove(rid);
       if( zTktUuid ){
-        cgi_redirectf("%R/tktview/%s", zTktUuid);
+        cgi_redirectf("%R/tktview/%!S", zTktUuid);
       }else{
         cgi_redirectf("%R/wiki?name=%t", zWikiName);
       }
@@ -469,17 +553,16 @@ void ainfo_page(void){
     }
   }
   style_header("Attachment Details");
-  style_submenu_element("Raw", "Raw", "%R/artifact/%s", zUuid);
+  style_submenu_element("Raw", "%R/artifact/%s", zUuid);
   if(fShowContent){
-    style_submenu_element("Line Numbers", "Line Numbers",
-                          "%R/ainfo/%s%s",zUuid,
+    style_submenu_element("Line Numbers", "%R/ainfo/%s%s", zUuid,
                           ((zLn&&*zLn) ? "" : "?ln=0"));
   }
 
   @ <div class="section">Overview</div>
   @ <p><table class="label-value">
   @ <tr><th>Artifact&nbsp;ID:</th>
-  @ <td>%z(href("%R/artifact/%s",zUuid))%s(zUuid)</a>
+  @ <td>%z(href("%R/artifact/%!S",zUuid))%s(zUuid)</a>
   if( g.perm.Setup ){
     @ (%d(rid))
   }
@@ -490,6 +573,10 @@ void ainfo_page(void){
   if( zTktUuid ){
     @ <tr><th>Ticket:</th>
     @ <td>%z(href("%R/tktview/%s",zTktUuid))%s(zTktUuid)</a></td></tr>
+  }
+  if( zTNUuid ){
+    @ <tr><th>Tech Note:</th>
+    @ <td>%z(href("%R/technote/%s",zTNUuid))%s(zTNUuid)</a></td></tr>
   }
   if( zWikiName ){
     @ <tr><th>Wiki&nbsp;Page:</th>
@@ -540,8 +627,10 @@ void ainfo_page(void){
       @ </pre>
     }
   }else if( strncmp(zMime, "image/", 6)==0 ){
+    int sz = db_int(0, "SELECT size FROM blob WHERE rid=%d", ridSrc);
+    @ <i>(file is %d(sz) bytes of image data)</i><br />
     @ <img src="%R/raw/%s(zSrc)?m=%s(zMime)"></img>
-    style_submenu_element("Image", "Image", "%R/raw/%s?m=%s", zSrc, zMime);
+    style_submenu_element("Image", "%R/raw/%s?m=%s", zSrc, zMime);
   }else{
     int sz = db_int(0, "SELECT size FROM blob WHERE rid=%d", ridSrc);
     @ <i>(file is %d(sz) bytes of binary data)</i>
@@ -562,12 +651,12 @@ void attachment_list(
   int cnt = 0;
   Stmt q;
   db_prepare(&q,
-     "SELECT datetime(mtime%s), filename, user,"
+     "SELECT datetime(mtime,toLocal()), filename, user,"
      "       (SELECT uuid FROM blob WHERE rid=attachid), src"
      "  FROM attachment"
      " WHERE isLatest AND src!='' AND target=%Q"
      " ORDER BY mtime DESC",
-     timeline_utc(), zTarget
+     zTarget
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zDate = db_column_text(&q, 0);
@@ -581,10 +670,10 @@ void attachment_list(
     }
     cnt++;
     @ <li>
-    @ %z(href("%R/artifact/%s",zSrc))%h(zFile)</a>
+    @ %z(href("%R/artifact/%!S",zSrc))%h(zFile)</a>
     @ added by %h(zDispUser) on
     hyperlink_to_date(zDate, ".");
-    @ [%z(href("%R/ainfo/%s",zUuid))details</a>]
+    @ [%z(href("%R/ainfo/%!S",zUuid))details</a>]
     @ </li>
   }
   if( cnt ){
@@ -592,4 +681,111 @@ void attachment_list(
   }
   db_finalize(&q);
 
+}
+
+/*
+** COMMAND: attachment*
+**
+** Usage: %fossil attachment add ?PAGENAME? FILENAME ?OPTIONS?
+**
+**       Add an attachment to an existing wiki page or tech note.
+**
+**       Options:
+**         -t|--technote DATETIME      Specifies the timestamp of
+**                                     the technote to which the attachment
+**                                     is to be made. The attachment will be
+**                                     to the most recently modified tech note
+**                                     with the specified timestamp.
+**         -t|--technote TECHNOTE-ID   Specifies the technote to be
+**                                     updated by its technote id.
+**
+**       One of PAGENAME, DATETIME or TECHNOTE-ID must be specified.
+**
+** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
+** year-month-day form, it may be truncated, the "T" may be replaced by
+** a space, and it may also name a timezone offset from UTC as "-HH:MM"
+** (westward) or "+HH:MM" (eastward). Either no timezone suffix or "Z"
+** means UTC.
+*/
+void attachment_cmd(void){
+  int n;
+  db_find_and_open_repository(0, 0);
+  if( g.argc<3 ){
+    goto attachment_cmd_usage;
+  }
+  n = strlen(g.argv[2]);
+  if( n==0 ){
+    goto attachment_cmd_usage;
+  }
+
+  if( strncmp(g.argv[2],"add",n)==0 ){
+    const char *zPageName = 0;    /* Name of the wiki page to attach to */
+    const char *zFile;            /* Name of the file to be attached */
+    const char *zETime;           /* The name of the technote to attach to */
+    Manifest *pWiki = 0;          /* Parsed wiki page content */
+    char *zBody = 0;              /* Wiki page content */
+    int rid;
+    const char *zTarget;          /* Target of the attachment */
+    Blob content;                 /* The content of the attachment */
+    zETime = find_option("technote","t",1);
+    if( !zETime ){
+      if( g.argc!=5 ){
+        usage("add PAGENAME FILENAME");
+      }
+      zPageName = g.argv[3];
+      rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
+        " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
+        " ORDER BY x.mtime DESC LIMIT 1",
+        zPageName
+      );
+      if( (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))!=0 ){
+        zBody = pWiki->zWiki;
+      }
+      if( zBody==0 ){
+        fossil_fatal("wiki page [%s] not found",zPageName);
+      }
+      zTarget = zPageName;
+      zFile = g.argv[4];
+    }else{
+      if( g.argc!=4 ){
+        usage("add FILENAME --technote DATETIME|TECHNOTE-ID");
+      }
+      rid = wiki_technote_to_rid(zETime);
+      if( rid<0 ){
+        fossil_fatal("ambiguous tech note id: %s", zETime);
+      }
+      if( (pWiki = manifest_get(rid, CFTYPE_EVENT, 0))!=0 ){
+        zBody = pWiki->zWiki;
+      }
+      if( zBody==0 ){
+        fossil_fatal("technote [%s] not found",zETime);
+      }
+      zTarget = db_text(0,
+        "SELECT substr(tagname,7) FROM tag WHERE tagid=(SELECT tagid FROM event WHERE objid='%d')",
+        rid
+      );
+      zFile = g.argv[3];
+    }
+    blob_read_from_file(&content, zFile);
+    user_select();
+    attach_commit(
+      zFile,                   /* The filename of the attachment */
+      zTarget,                 /* The artifact uuid to attach to */
+      blob_buffer(&content),   /* The content of the attachment */
+      blob_size(&content),     /* The length of the attachment */
+      0,                       /* No need to moderate the attachment */
+      ""                       /* Empty attachment comment */
+    );
+    if( !zETime ){
+      fossil_print("Attached %s to wiki page %s.\n", zFile, zPageName);
+    }else{
+      fossil_print("Attached %s to tech note %s.\n", zFile, zETime);
+    }
+  }else{
+    goto attachment_cmd_usage;
+  }
+  return;
+
+attachment_cmd_usage:
+  usage("add ?PAGENAME? FILENAME [-t|--technote DATETIME ]");
 }

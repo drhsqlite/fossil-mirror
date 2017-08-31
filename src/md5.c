@@ -24,6 +24,16 @@
 #include <sqlite3.h>
 #include "md5.h"
 
+#ifdef FOSSIL_ENABLE_SSL
+
+# include <openssl/md5.h>
+# define MD5Context MD5_CTX
+# define MD5Init MD5_Init
+# define MD5Update MD5_Update
+# define MD5Final MD5_Final
+
+#else
+
 /*
  * If compiled on a machine that doesn't have a 32-bit integer,
  * you just set "uint32" to the appropriate datatype for an
@@ -44,7 +54,10 @@ struct Context {
 };
 typedef struct Context MD5Context;
 
-#if defined(__i386__) || defined(__x86_64__) || defined(_WIN32)
+#if defined(i386)     || defined(__i386__)   || defined(_M_IX86) ||    \
+    defined(__x86_64) || defined(__x86_64__) || defined(_M_X64)  ||    \
+    defined(_M_AMD64) || defined(_M_ARM)     || defined(__x86)   ||    \
+    defined(__arm__)  || defined(_WIN32)
 # define byteReverse(A,B)
 #else
 /*
@@ -179,7 +192,7 @@ static void MD5Init(MD5Context *ctx){
  * Update context to reflect the concatenation of another buffer full
  * of bytes.
  */
-static 
+static
 void MD5Update(MD5Context *pCtx, const unsigned char *buf, unsigned int len){
         struct Context *ctx = (struct Context *)pCtx;
         uint32 t;
@@ -226,7 +239,7 @@ void MD5Update(MD5Context *pCtx, const unsigned char *buf, unsigned int len){
 }
 
 /*
- * Final wrapup - pad to 64-byte boundary with the bit pattern 
+ * Final wrapup - pad to 64-byte boundary with the bit pattern
  * 1 0* (64-bit count of bits processed, MSB-first)
  */
 static void MD5Final(unsigned char digest[16], MD5Context *pCtx){
@@ -268,6 +281,7 @@ static void MD5Final(unsigned char digest[16], MD5Context *pCtx){
         memcpy(digest, ctx->buf, 16);
         memset(ctx, 0, sizeof(*ctx));    /* In case it's sensitive */
 }
+#endif
 
 /*
 ** Convert a digest into base-16.  digest should be declared as
@@ -276,7 +290,7 @@ static void MD5Final(unsigned char digest[16], MD5Context *pCtx){
 ** be "char zBuf[33]".
 */
 static void DigestToBase16(unsigned char *digest, char *zBuf){
-  static char const zEncode[] = "0123456789abcdef";
+  static const char zEncode[] = "0123456789abcdef";
   int i, j;
 
   for(j=i=0; i<16; i++){
@@ -345,7 +359,7 @@ const char *md5sum_current_state(void){
 
 /*
 ** Finish the incremental MD5 checksum.  Store the result in blob pOut
-** if pOut!=0.  Also return a pointer to the result.  
+** if pOut!=0.  Also return a pointer to the result.
 **
 ** This resets the incremental checksum preparing for the next round
 ** of computation.  The return pointer points to a static buffer that
@@ -424,6 +438,7 @@ int md5sum_blob(const Blob *pIn, Blob *pCksum){
 
 /*
 ** COMMAND: md5sum*
+**
 ** Usage: %fossil md5sum FILES....
 **
 ** Compute an MD5 checksum of all files named on the command-line.
@@ -433,7 +448,7 @@ void md5sum_test(void){
   int i;
   Blob in;
   Blob cksum;
-  
+
   for(i=2; i<g.argc; i++){
     blob_init(&cksum, "********** not found ***********", -1);
     if( g.argv[i][0]=='-' && g.argv[i][1]==0 ){

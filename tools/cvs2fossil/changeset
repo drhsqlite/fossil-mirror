@@ -16,7 +16,7 @@ exec tclsh "$0" ${1+"$@"}
 ## Helper application, debugging of cvs2fossil. This application
 ## extracts all information about a changeset and writes it nicely
 ## formatted to stdout. The changeset is specified by its internal
-## numerical id. 
+## numerical id.
 
 # # ## ### ##### ######## ############# #####################
 ## Requirements, extended package management for local packages.

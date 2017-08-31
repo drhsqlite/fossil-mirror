@@ -14,7 +14,7 @@ OutFile "fossil-setup.exe"
 
 ; The default installation directory
 InstallDir $PROGRAMFILES\Fossil
-; Registry key to check for directory (so if you install again, it will 
+; Registry key to check for directory (so if you install again, it will
 ; overwrite the old one automatically)
 InstallDirRegKey HKLM SOFTWARE\Fossil "Install_Dir"
 

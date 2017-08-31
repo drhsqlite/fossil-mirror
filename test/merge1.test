@@ -18,6 +18,8 @@
 # Tests of the 3-way merge
 #
 
+test_setup ""
+
 write_file_indented t1 {
   111 - This is line one of the demo program - 1111
   222 - The second line program line in code - 2222
@@ -400,3 +402,7 @@ write_file_indented t23 {
 }
 fossil 3-way-merge t1 t2 t3 a23
 test merge1-7.2 {[same_file t23 a23]}
+
+###############################################################################
+
+test_cleanup

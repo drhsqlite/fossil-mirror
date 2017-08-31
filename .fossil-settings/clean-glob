@@ -6,6 +6,8 @@
 *.pdb
 *.res
 Makefile
+autosetup/jimsh0
+autosetup/jimsh0.exe
 bld/*
 wbld/*
 win/*.c

@@ -262,7 +262,7 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
     {
       /* We have found a region where different edits to V1 and V2 overlap.
       ** This is a merge conflict.  Find the size of the conflict, then
-      ** output both possible edits separate by distinctive marks.
+      ** output both possible edits separated by distinctive marks.
       */
       int sz = 1;    /* Size of the conflict in lines */
       nConflict++;
@@ -318,7 +318,7 @@ int contains_merge_marker(Blob *p){
   assert( len==(int)strlen(mergeMarker[1]) );
   assert( len==(int)strlen(mergeMarker[2]) );
   assert( len==(int)strlen(mergeMarker[3]) );
-  assert( sizeof(mergeMarker)/sizeof(mergeMarker[0])==4 );
+  assert( count(mergeMarker)==4 );
   for(i=0; i<n; ){
     for(j=0; j<4; j++){
       if( memcmp(&z[i], mergeMarker[j], len)==0 ) return 1;
@@ -342,7 +342,7 @@ int file_contains_merge_marker(const char *zFullpath){
 }
 
 /*
-** COMMAND:  3-way-merge*
+** COMMAND: 3-way-merge*
 **
 ** Usage: %fossil 3-way-merge BASELINE V1 V2 MERGED
 **
@@ -370,6 +370,7 @@ int file_contains_merge_marker(const char *zFullpath){
 */
 void delta_3waymerge_cmd(void){
   Blob pivot, v1, v2, merged;
+  int nConflict;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -378,22 +379,23 @@ void delta_3waymerge_cmd(void){
     usage("PIVOT V1 V2 MERGED");
   }
   if( blob_read_from_file(&pivot, g.argv[2])<0 ){
-    fossil_fatal("cannot read %s\n", g.argv[2]);
+    fossil_fatal("cannot read %s", g.argv[2]);
   }
   if( blob_read_from_file(&v1, g.argv[3])<0 ){
-    fossil_fatal("cannot read %s\n", g.argv[3]);
+    fossil_fatal("cannot read %s", g.argv[3]);
   }
   if( blob_read_from_file(&v2, g.argv[4])<0 ){
-    fossil_fatal("cannot read %s\n", g.argv[4]);
+    fossil_fatal("cannot read %s", g.argv[4]);
   }
-  blob_merge(&pivot, &v1, &v2, &merged);
+  nConflict = blob_merge(&pivot, &v1, &v2, &merged);
   if( blob_write_to_file(&merged, g.argv[5])<blob_size(&merged) ){
-    fossil_fatal("cannot write %s\n", g.argv[4]);
+    fossil_fatal("cannot write %s", g.argv[4]);
   }
   blob_reset(&pivot);
   blob_reset(&v1);
   blob_reset(&v2);
   blob_reset(&merged);
+  if( nConflict>0 ) fossil_warning("WARNING: %d merge conflicts", nConflict);
 }
 
 /*

@@ -43,7 +43,7 @@
 ** local variables:
 */
 static int sslIsInit = 0;    /* True after global initialization */
-static BIO *iBio;            /* OpenSSL I/O abstraction */
+static BIO *iBio = 0;        /* OpenSSL I/O abstraction */
 static char *sslErrMsg = 0;  /* Text of most recent OpenSSL error */
 static SSL_CTX *sslCtx;      /* SSL context */
 static SSL *ssl;
@@ -101,8 +101,8 @@ void ssl_global_init(void){
     ERR_load_BIO_strings();
     OpenSSL_add_all_algorithms();
     sslCtx = SSL_CTX_new(SSLv23_client_method());
-    /* Disable SSLv2 */
-    SSL_CTX_set_options(sslCtx, SSL_OP_NO_SSLv2);
+    /* Disable SSLv2 and SSLv3 */
+    SSL_CTX_set_options(sslCtx, SSL_OP_NO_SSLv2|SSL_OP_NO_SSLv3);
 
     /* Set up acceptable CA root certificates */
     zCaSetting = db_get("ssl-ca-location", 0);
@@ -173,6 +173,7 @@ void ssl_close(void){
   if( iBio!=NULL ){
     (void)BIO_reset(iBio);
     BIO_free_all(iBio);
+    iBio = NULL;
   }
 }
 
@@ -253,10 +254,8 @@ int ssl_open(UrlData *pUrlData){
 
   if( pUrlData->useProxy ){
     int rc;
-    BIO *sBio;
-    char *connStr;
-    connStr = mprintf("%s:%d", g.url.name, pUrlData->port);
-    sBio = BIO_new_connect(connStr);
+    char *connStr = mprintf("%s:%d", g.url.name, pUrlData->port);
+    BIO *sBio = BIO_new_connect(connStr);
     free(connStr);
     if( BIO_do_connect(sBio)<=0 ){
       ssl_set_errmsg("SSL: cannot connect to proxy %s:%d (%s)",
@@ -294,8 +293,9 @@ int ssl_open(UrlData *pUrlData){
   SSL_set_mode(ssl, SSL_MODE_AUTO_RETRY);
 
   if( !pUrlData->useProxy ){
-    BIO_set_conn_hostname(iBio, pUrlData->name);
-    BIO_set_conn_int_port(iBio, &pUrlData->port);
+    char *connStr = mprintf("%s:%d", pUrlData->name, pUrlData->port);
+    BIO_set_conn_hostname(iBio, connStr);
+    free(connStr);
     if( BIO_do_connect(iBio)<=0 ){
       ssl_set_errmsg("SSL: cannot connect to host %s:%d (%s)",
           pUrlData->name, pUrlData->port, ERR_reason_error_string(ERR_get_error()));
@@ -390,7 +390,7 @@ int ssl_open(UrlData *pUrlData){
   */
   {
     /* IPv4 only code */
-    const unsigned char *ip = (const unsigned char *) BIO_get_conn_ip(iBio);
+    const unsigned char *ip = (const unsigned char *) BIO_ptr_ctrl(iBio,BIO_C_GET_CONNECT,2);
     g.zIpAddr = mprintf("%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
   }
 
@@ -453,11 +453,15 @@ X509 *ssl_get_certificate(UrlData *pUrlData, int *pTrusted){
 ** Send content out over the SSL connection.
 */
 size_t ssl_send(void *NotUsed, void *pContent, size_t N){
-  size_t sent;
   size_t total = 0;
   while( N>0 ){
-    sent = BIO_write(iBio, pContent, N);
-    if( sent<=0 ) break;
+    int sent = BIO_write(iBio, pContent, N);
+    if( sent<=0 ){
+      if( BIO_should_retry(iBio) ){
+        continue;
+      }
+      break;
+    }
     total += sent;
     N -= sent;
     pContent = (void*)&((char*)pContent)[sent];
@@ -469,11 +473,15 @@ size_t ssl_send(void *NotUsed, void *pContent, size_t N){
 ** Receive content back from the SSL connection.
 */
 size_t ssl_receive(void *NotUsed, void *pContent, size_t N){
-  size_t got;
   size_t total = 0;
   while( N>0 ){
-    got = BIO_read(iBio, pContent, N);
-    if( got<=0 ) break;
+    int got = BIO_read(iBio, pContent, N);
+    if( got<=0 ){
+      if( BIO_should_retry(iBio) ){
+        continue;
+      }
+      break;
+    }
     total += got;
     N -= got;
     pContent = (void*)&((char*)pContent)[got];

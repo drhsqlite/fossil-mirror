@@ -1,0 +1,14 @@
+
+This page contains URLs for file-age computations that have given
+trouble in the past.  Shift-click on on the links, one-by-one, to verify
+that the current implementation works correctly:
+
+  *  [/fileage?name=c9df0dcdaa402] - Verify that the many
+     execute permission changes that occurred about 24 hours before
+     check-in c9df0dcdaa402 do not appear as file changes.
+
+  *  [/tree?ci=c9df0dcdaa40&mtime=0&type=tree] - Verify that all
+     three skin files (css.txt, footer.txt, and header.txt) appear
+     in all of the skin/*/ folders.
+
+  *  On both of the above, check for excessive computation time.

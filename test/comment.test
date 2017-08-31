@@ -18,6 +18,10 @@
 # Test comment formatting and printing.
 #
 
+test_setup ""
+
+###############################################################################
+
 fossil test-comment-format "" ""
 test comment-1 {$RESULT eq "\n(1 lines output)"}
 
@@ -316,3 +320,7 @@ test comment-59 {$RESULT eq "         xxxx xx xxxxxxx xxxx xxxxxx xxxxxxx, xxxxx
 
 fossil test-comment-format --width 81 --indent 9 --decode --trimcrlf --origbreak "00:00:00 " "\[0000000000\] *CURRENT* $orig" $orig
 test comment-60 {$RESULT eq "00:00:00 \[0000000000\] *CURRENT* \n         xxxx xx xxxxxxx xxxx xxxxxx xxxxxxx, xxxxxxx, x xxxx xxxxxx xx xxxx xxxx\n         xxxxxxx xxxxx xxxx  xxxx xx xxxxxxx xxxxxxx (xxxxxx  xxxxxxxxx x xxxxx).\n         xxx'x xxx xxx xx  xxxxx xxxx xxx xxx --xxxxxxxxxxx xxxxxx  xx xx xxxx. x\n         xxxxx  x xxxxxx  xxxx xxxx  xxxx xxxx  xxxx x  xxxxx xx  xxx x  xxxxxxxx\n         xxxxxxx.\n(6 lines output)"}
+
+###############################################################################
+
+test_cleanup

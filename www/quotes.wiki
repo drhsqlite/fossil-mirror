@@ -7,7 +7,7 @@ by the creator of Fossil, so of course there is selection bias...
 <h2>On The Usability Of Git:</h2>
 
 <ol>
-<li>Git approaches the useability of iptables, which is to say, utterly 
+<li>Git approaches the usability of iptables, which is to say, utterly
 unusable unless you have the manpage tattooed on you arm.
 
 <blockquote>
@@ -15,7 +15,7 @@ unusable unless you have the manpage tattooed on you arm.
 </blockquote>
 
 <li><nowiki>It's simplest to think of the state of your [git] repository
-as a point in a high-dimensional "code-space",  in which branches are 
+as a point in a high-dimensional "code-space",  in which branches are
 represented as n-dimensional membranes, mapping the spatial loci of
 successive commits onto the projected manifold of each cloned
 repository.</nowiki>
@@ -27,22 +27,21 @@ repository.</nowiki>
 <li>Git is not a Prius. Git is a Model T.
 Its plumbing and wiring sticks out all over the place.
 You have to be a mechanic to operate it successfully or you'll be
-stuck on the side of the road when it breaks down. 
+stuck on the side of the road when it breaks down.
 And it <b>will</b> break down.
 
 <blockquote>
 <i>Nick Farina at [http://nfarina.com/post/9868516270/git-is-simpler]</i>
 </blockquote>
 
-<li>We've been using git and github for a few months now, and it's not 
-intuitive... I'm hoping someone will make a set of standard wrappers/GUI
-for making git bearable.
+<li>Initial revision of "git", The information manager from hell
 
 <blockquote>
-<i>maro at [http://news.ycombinator.com/item?id=1433387]</i>
+<i>Linus Torvalds - 2005-04-07 22:13:13<br>
+Commit comment on the very first source-code check-in for git
 </blockquote>
 
-<li>I've been experimenting a lot with git at work.  
+<li>I've been experimenting a lot with git at work.
 Damn, it's complicated.
 It has things to trip you up with that sane people just wouldn't ever both with
 including the ability to allow you to commit stuff in such a way that you can't find
@@ -73,12 +72,23 @@ Demented workflow complexity on acid?
    2014-09-01.</i>
 </blockquote>
 
+<li>If programmers _really_ wanted to help scientists, they'd build a version control
+system that was more usable than Git.
+
+<blockquote>
+<i>Tweet by Greg Wilson @gvwilson on 2015-02-22 17:47</i>
+</blockquote>
+
+<li><img src='xkcd-git.gif' align='top'>
+
+<blockquote><i>Randall Munroe.  [http://xkcd.com/1597/]</i></blockquote>
+
 </ol>
 
 <h2>On The Usability Of Fossil:</h2>
 
 <ol>
-<li value=9>
+<li value=11>
 Fossil mesmerizes me with simplicity especially after I struggled to
 get a bug-tracking system to work with mercurial.
 
@@ -96,11 +106,19 @@ with Fossil.
 <i>Joe Prostko at [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg16716.html]
 </blockquote>
 
-<li>Fossil is awesome!!! I have never seen an app like that before, 
+<li>Fossil is awesome!!! I have never seen an app like that before,
 such simplicity and flexibility!!!
 
 <blockquote>
 <i>zengr at [http://stackoverflow.com/questions/138621/best-version-control-for-lone-developer]</i>
+</blockquote>
+
+<li>This is my favourite VCS. I can carry it on a USB. And it's a complete system, with it's own
+server, ticketing system, Wiki pages, and a very, very helpful timeline visualization. And
+the entire program in a single file!
+
+<blockquote>
+<i>thunderbong commenting on hacker news: [https://news.ycombinator.com/item?id=9131619]</i>
 </blockquote>
 
 
@@ -110,8 +128,8 @@ such simplicity and flexibility!!!
 <h2>On Git Versus Fossil</h2>
 
 <ol>
-<li value=12>
-Just want to say thanks for fossil making my life easier.... 
+<li value=15>
+Just want to say thanks for fossil making my life easier....
 Also <nowiki>[for]</nowiki> not having a misanthropic command line interface.
 
 <blockquote>
@@ -119,18 +137,18 @@ Also <nowiki>[for]</nowiki> not having a misanthropic command line interface.
 </blockquote>
 
 <li>We use it at a large university to manage code that small teams write.
-The runs everywhere, ease of installation and portability is something that 
-seems to be a good fit with the environment we have (highly ditrobuted, 
-sometimes very restrictive firewalls, OSX/Win/Linux).  We are happy with it 
-and teaching a Msc/Phd student (read complete novice) fossil has just 
+The runs everywhere, ease of installation and portability is something that
+seems to be a good fit with the environment we have (highly ditrobuted,
+sometimes very restrictive firewalls, OSX/Win/Linux).  We are happy with it
+and teaching a Msc/Phd student (read complete novice) fossil has just
 been a smoother ride than Git was.
 
 <blockquote>
 <i>viablepanic at [http://www.reddit.com/r/programming/comments/bxcto/why_not_fossil_scm/]</i>
 </blockquote>
 
-<li>In the fossil community - and hence in fossil itself - development history 
-is pretty much sacrosanct. The very name "fossil" was to chosen to 
+<li>In the fossil community - and hence in fossil itself - development history
+is pretty much sacrosanct. The very name "fossil" was to chosen to
 reflect the unchanging nature of things in that history.
 
 <p>In git (or rather, the git community), the development history is part of

@@ -1,0 +1,156 @@
+#
+# Copyright (c) 2016 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+# Test manifest setting
+#
+
+# We need SHA1 to effectively test the manifest files produced by
+# fossil. It looks like the one from tcllib is exactly what we need.
+# On ActiveTcl, add it with teacup. On other platforms, YMMV.
+# teacup install sha1
+package require sha1
+
+proc file_contains {fname match} {
+  set fp [open $fname r]
+  set contents [read $fp]
+  close $fp
+  set lines [split $contents "\n"]
+  foreach line $lines {
+    if {[regexp $match $line]} {
+      return 1
+    }
+  }
+  return 0
+}
+
+# We need a respository, so let it have one.
+test_setup
+
+#### Verify classic behavior of the manifest setting
+
+# Setting is off by default, and there are no extra files.
+fossil settings manifest
+test "set-manifest-1" {[regexp {^manifest *$} $RESULT]}
+set filelist [glob -nocomplain manifest*]
+test "set-manifest-1-n" {[llength $filelist] == 0}
+
+# Classic behavior: TRUE value creates manifest and manifest.uuid
+set truths [list true on 1]
+foreach v $truths {
+  fossil settings manifest $v
+  test "set-manifest-2-$v" {$RESULT eq ""}
+  fossil settings manifest
+  test "set-manifest-2-$v-a" {[regexp "^manifest\\s+\\(local\\)\\s+$v\\s*$" $RESULT]}
+  set filelist [glob manifest*]
+  test "set-manifest-2-$v-n" {[llength $filelist] == 2}
+  foreach f $filelist {
+    test "set-manifest-2-$v-f-$f" {[file isfile $f]}
+  }
+}
+
+# ... and manifest.uuid is the checkout's hash
+fossil info
+regexp {(?m)^checkout:\s+([0-9a-f]{40,64})\s.*$} $RESULT ckoutline ckid
+set uuid [string trim [read_file "manifest.uuid"]]
+test "set-manifest-2-uuid" {[same_uuid $ckid $uuid]}
+
+
+# ... which is also the SHA1 of the file "manifest" before it was
+# sterilized by appending an extra line when writing the file. The
+# extra text begins with # and is a full line, so we'll just strip
+# it with a brute-force substitution. This probably has the right
+# effect even if the checkin was PGP-signed, but we don't have that
+# setting turned on for this manifest in any case.
+#regsub {(?m)^#.*\n} [read_file "manifest"] "" manifest
+#set muuid [::sha1::sha1 $manifest]
+#test "set-manifest-2-manifest" {[same_uuid $muuid $uuid]}
+
+
+# Classic behavior: FALSE value removes manifest and manifest.uuid
+set falses [list false off 0]
+foreach v $falses {
+  fossil settings manifest $v
+  test "set-manifest-3-$v" {$RESULT eq ""}
+  fossil settings manifest
+  test "set-manifest-3-$v-a" {[regexp "^manifest\\s+\\(local\\)\\s+$v\\s*$" $RESULT]}
+  set filelist [glob -nocomplain manifest*]
+  test "set-manifest-3-$v-n" {[llength $filelist] == 0}
+}
+
+
+# Classic behavior: unset removes manifest and manifest.uuid
+fossil unset manifest
+test "set-manifest-4" {$RESULT eq ""}
+fossil settings manifest
+test "set-manifest-4-a" {[regexp {^manifest *$} $RESULT]}
+set filelist [glob -nocomplain manifest*]
+test "set-manifest-4-n" {[llength $filelist] == 0}
+
+
+##### Tags Manifest feature extends the manifest setting
+
+# Manifest Tags: use letters r, u, and t to select each of manifest,
+# manifest.uuid, and manifest.tags files.
+set truths [list r u t ru ut rt rut]
+foreach v $truths {
+  fossil settings manifest $v
+  test "set-manifest-5-$v" {$RESULT eq ""}
+  fossil settings manifest
+  test "set-manifest-5-$v-a" {[regexp "^manifest\\s+\\(local\\)\\s+$v\\s*$" $RESULT]}
+  set filelist [glob manifest*]
+  test "set-manifest-5-$v-n" {[llength $filelist] == [string length $v]}
+  foreach f $filelist {
+    test "set-manifest-5-$v-f-$f" {[file isfile $f]}
+  }
+}
+
+# Quick check for tags applied in trunk
+test_file_contents "set-manifest-6" "manifest.tags" "branch trunk\ntag trunk\n"
+
+
+##### Test manifest.tags file content updates after commits
+
+# Explicitly set manifest.tags mode
+fossil set manifest t
+test "set-manifest-7-1" {[file isfile manifest.tags]}
+
+# Add a tag and make sure it appears in manifest.tags
+fossil tag add manifest-7-tag-1 tip
+test "set-manifest-7-2" {[file_contains "manifest.tags" "^tag manifest-7-tag-1$"]}
+
+# Add a file and make sure tag has disappeared from manifest.tags
+write_file file1 "file1 contents"
+fossil add file1
+fossil commit -m "Added file1."
+test "set-manifest-7-3" {![file_contains "manifest.tags" "^tag manifest-7-tag-1$"]}
+
+# Add new tag and check that it is in manifest.tags
+fossil tag add manifest-7-tag-2 tip
+test "set-manifest-7-4" {[file_contains "manifest.tags" "^tag manifest-7-tag-2$"]}
+
+
+##### Tags manifest branch= updates
+
+# Add file, create new branch on commit and check that
+# manifest.tags has been updated appropriately
+write_file file3 "file3 contents"
+fossil add file3
+fossil commit -m "Added file3." --branch manifest-8-branch
+test "set-manifest-8" {[file_contains "manifest.tags" "^branch manifest-8-branch$"]}
+
+
+test_cleanup

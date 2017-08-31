@@ -44,7 +44,7 @@ var TestApp = {
         if(!TestApp.verbose) return;
         print("GOT RESPONSE: "+(('string'===typeof resp) ? resp : WhAjaj.stringify(resp)));
     };
-    
+
 })();
 
 /**
@@ -129,7 +129,7 @@ function testIAmNobody(){
     TestApp.fossil.whoami('/json/whoami');
     assert('nobody' === TestApp.fossil.auth.name, 'User == nobody.' );
     assert(!TestApp.fossil.auth.authToken, 'authToken is not set.' );
-   
+
 }
 testIAmNobody.description = 'Ensure that current user is "nobody".';
 
@@ -223,7 +223,7 @@ function testExternalProcess(){
     var isr = new java.io.InputStreamReader(ins);
     var br = new java.io.BufferedReader(isr);
     var line;
-    
+
     while( null !== (line=br.readLine())){
         print(line);
     }

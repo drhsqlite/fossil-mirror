@@ -49,7 +49,8 @@ proc cctest_type {type} {
 # Checks for the existence of the given type/structure member.
 # e.g. "struct stat.st_mtime"
 proc cctest_member {struct_member} {
-	lassign [split $struct_member .] struct member
+	# split at the first dot
+	regexp {^([^.]+)[.](.*)$} $struct_member -> struct member
 	cctest -code "static $struct _s; return sizeof(_s.$member);"
 }
 
@@ -164,7 +165,7 @@ proc cc-check-defines {args} {
 # @cc-check-decls name ...
 #
 # Checks that each given name is either a preprocessor symbol or rvalue
-# such as an enum. Note that the define used for a decl is HAVE_DECL_xxx
+# such as an enum. Note that the define used is HAVE_DECL_xxx
 # rather than HAVE_xxx
 proc cc-check-decls {args} {
 	set ret 1
@@ -203,14 +204,14 @@ proc cc-check-members {args} {
 
 # @cc-check-function-in-lib function libs ?otherlibs?
 #
-# Checks that the given given function can be found in one of the libs.
+# Checks that the given function can be found in one of the libs.
 #
 # First checks for no library required, then checks each of the libraries
 # in turn.
 #
 # If the function is found, the feature is defined and lib_$function is defined
 # to -l$lib where the function was found, or "" if no library required.
-# In addition, -l$lib is added to the LIBS define.
+# In addition, -l$lib is prepended to the LIBS define.
 #
 # If additional libraries may be needed for linking, they should be specified
 # as $extralibs as "-lotherlib1 -lotherlib2".
@@ -232,7 +233,8 @@ proc cc-check-function-in-lib {function libs {otherlibs {}}} {
 					if {[cctest_function $function]} {
 						msg-result -l$lib
 						define lib_$function -l$lib
-						define-append LIBS -l$lib
+						# prepend to LIBS
+						define LIBS "-l$lib [get-define LIBS]"
 						incr found
 						break
 					}
@@ -287,7 +289,7 @@ proc cc-check-tools {args} {
 # For example, when checking for "grep", the path is searched for
 # the executable, 'grep', and if found GREP is defined as "grep".
 #
-# It the executable is not found, the variable is defined as false.
+# If the executable is not found, the variable is defined as false.
 # Returns 1 if all programs were found, or 0 otherwise.
 #
 proc cc-check-progs {args} {
@@ -498,13 +500,17 @@ proc cctest {args} {
 		}
 	}
 
-	if {!$opts(-link)} {
+	if {$opts(-link)} {
+		lappend cmdline {*}[get-define LDFLAGS]
+	} else {
 		set tmp conftest__.o
 		lappend cmdline -c
 	}
 	lappend cmdline {*}$opts(-cflags) {*}[get-define cc-default-debug ""]
-
 	lappend cmdline $src -o $tmp {*}$opts(-libs)
+	if {$opts(-link)} {
+		lappend cmdline {*}[get-define LIBS]
+	}
 
 	# At this point we have the complete command line and the
 	# complete source to be compiled. Get the result from cache if

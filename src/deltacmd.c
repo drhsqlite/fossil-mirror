@@ -19,7 +19,7 @@
 */
 #include "config.h"
 #include "deltacmd.h"
- 
+
 /*
 ** Create a delta that describes the change from pOriginal to pTarget
 ** and put that delta in pDelta.  The pDelta blob is assumed to be
@@ -31,22 +31,24 @@ int blob_delta_create(Blob *pOriginal, Blob *pTarget, Blob *pDelta){
   int len;
   char *zRes;
   blob_zero(pDelta);
-  zOrig = blob_buffer(pOriginal);
+  zOrig = blob_materialize(pOriginal);
   lenOrig = blob_size(pOriginal);
-  zTarg = blob_buffer(pTarget);
+  zTarg = blob_materialize(pTarget);
   lenTarg = blob_size(pTarget);
   blob_resize(pDelta, lenTarg+16);
-  zRes = blob_buffer(pDelta);
+  zRes = blob_materialize(pDelta);
   len = delta_create(zOrig, lenOrig, zTarg, lenTarg, zRes);
   blob_resize(pDelta, len);
   return 0;
 }
 
 /*
-** COMMAND:  test-delta-create
+** COMMAND: test-delta-create
 **
-** Given two input files, create and output a delta that carries
-** the first file into the second.
+** Usage: %fossil test-delta-create FILE1 FILE2 DELTA
+**
+** Create and output a delta that carries FILE1 into FILE2.
+** Store the result in DELTA.
 */
 void delta_create_cmd(void){
   Blob orig, target, delta;
@@ -54,18 +56,57 @@ void delta_create_cmd(void){
     usage("ORIGIN TARGET DELTA");
   }
   if( blob_read_from_file(&orig, g.argv[2])<0 ){
-    fossil_fatal("cannot read %s\n", g.argv[2]);
+    fossil_fatal("cannot read %s", g.argv[2]);
   }
   if( blob_read_from_file(&target, g.argv[3])<0 ){
-    fossil_fatal("cannot read %s\n", g.argv[3]);
+    fossil_fatal("cannot read %s", g.argv[3]);
   }
   blob_delta_create(&orig, &target, &delta);
   if( blob_write_to_file(&delta, g.argv[4])<blob_size(&delta) ){
-    fossil_fatal("cannot write %s\n", g.argv[4]);
+    fossil_fatal("cannot write %s", g.argv[4]);
   }
   blob_reset(&orig);
   blob_reset(&target);
   blob_reset(&delta);
+}
+
+/*
+** COMMAND: test-delta-analyze
+**
+** Usage: %fossil test-delta-analyze FILE1 FILE2
+**
+** Create and a delta that carries FILE1 into FILE2.  Print the
+** number bytes copied and the number of bytes inserted.
+*/
+void delta_analyze_cmd(void){
+  Blob orig, target, delta;
+  int nCopy = 0;
+  int nInsert = 0;
+  int sz1, sz2, sz3;
+  if( g.argc!=4 ){
+    usage("ORIGIN TARGET");
+  }
+  if( blob_read_from_file(&orig, g.argv[2])<0 ){
+    fossil_fatal("cannot read %s", g.argv[2]);
+  }
+  if( blob_read_from_file(&target, g.argv[3])<0 ){
+    fossil_fatal("cannot read %s", g.argv[3]);
+  }
+  blob_delta_create(&orig, &target, &delta);
+  delta_analyze(blob_buffer(&delta), blob_size(&delta), &nCopy, &nInsert);
+  sz1 = blob_size(&orig);
+  sz2 = blob_size(&target);
+  sz3 = blob_size(&delta);
+  blob_reset(&orig);
+  blob_reset(&target);
+  blob_reset(&delta);
+  fossil_print("original size:  %8d\n", sz1);
+  fossil_print("bytes copied:   %8d (%.2f%% of target)\n",
+               nCopy, (100.0*nCopy)/sz2);
+  fossil_print("bytes inserted: %8d (%.2f%% of target)\n",
+               nInsert, (100.0*nInsert)/sz2);
+  fossil_print("final size:     %8d\n", sz2);
+  fossil_print("delta size:     %8d\n", sz3);
 }
 
 /*
@@ -102,10 +143,11 @@ int blob_delta_apply(Blob *pOriginal, Blob *pDelta, Blob *pTarget){
 }
 
 /*
-** COMMAND:  test-delta-apply
+** COMMAND: test-delta-apply
 **
-** Given an input files and a delta, apply the delta to the input file
-** and write the result.
+** Usage: %fossil test-delta-apply FILE1 DELTA
+**
+** Apply DELTA to FILE1 and output the result.
 */
 void delta_apply_cmd(void){
   Blob orig, target, delta;
@@ -113,22 +155,25 @@ void delta_apply_cmd(void){
     usage("ORIGIN DELTA TARGET");
   }
   if( blob_read_from_file(&orig, g.argv[2])<0 ){
-    fossil_fatal("cannot read %s\n", g.argv[2]);
+    fossil_fatal("cannot read %s", g.argv[2]);
   }
   if( blob_read_from_file(&delta, g.argv[3])<0 ){
-    fossil_fatal("cannot read %s\n", g.argv[3]);
+    fossil_fatal("cannot read %s", g.argv[3]);
   }
   blob_delta_apply(&orig, &delta, &target);
   if( blob_write_to_file(&target, g.argv[4])<blob_size(&target) ){
-    fossil_fatal("cannot write %s\n", g.argv[4]);
+    fossil_fatal("cannot write %s", g.argv[4]);
   }
   blob_reset(&orig);
   blob_reset(&target);
   blob_reset(&delta);
 }
 
+
 /*
-** COMMAND:  test-delta
+** COMMAND: test-delta
+**
+** Usage: %fossil test-delta FILE1 FILE2
 **
 ** Read two files named on the command-line.  Create and apply deltas
 ** going in both directions.  Verify that the original files are

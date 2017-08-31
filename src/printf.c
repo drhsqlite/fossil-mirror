@@ -26,6 +26,44 @@
 #endif
 #include <time.h>
 
+/* Two custom conversions are used to show a prefix of artifact hashes:
+**
+**      %!S       Prefix of a length appropriate for URLs
+**      %S        Prefix of a length appropriate for human display
+**
+** The following macros help determine those lengths.  FOSSIL_HASH_DIGITS
+** is the default number of digits to display to humans.  This value can
+** be overridden using the hash-digits setting.  FOSSIL_HASH_DIGITS_URL
+** is the minimum number of digits to be used in URLs.  The number used
+** will always be at least 6 more than the number used for human output,
+** or 40 if the number of digits in human output is 34 or more.
+*/
+#ifndef FOSSIL_HASH_DIGITS
+# define FOSSIL_HASH_DIGITS 10       /* For %S (human display) */
+#endif
+#ifndef FOSSIL_HASH_DIGITS_URL
+# define FOSSIL_HASH_DIGITS_URL 16   /* For %!S (embedded in URLs) */
+#endif
+
+/*
+** Return the number of artifact hash digits to display.  The number is for
+** human output if the bForUrl is false and is destined for a URL if
+** bForUrl is false.
+*/
+static int hashDigits(int bForUrl){
+  static int nDigitHuman = 0;
+  static int nDigitUrl = 0;
+  if( nDigitHuman==0 ){
+    nDigitHuman = db_get_int("hash-digits", FOSSIL_HASH_DIGITS);
+    if( nDigitHuman < 6 ) nDigitHuman = 6;
+    if( nDigitHuman > 40 ) nDigitHuman = 40;
+    nDigitUrl = nDigitHuman + 6;
+    if( nDigitUrl < FOSSIL_HASH_DIGITS_URL ) nDigitUrl = FOSSIL_HASH_DIGITS_URL;
+    if( nDigitUrl > 40 ) nDigitUrl = 40;
+  }
+  return bForUrl ? nDigitUrl : nDigitHuman;
+}
+
 /*
 ** Conversion types fall into various categories as defined by the
 ** following enumeration.
@@ -122,7 +160,7 @@ static const et_info fmtinfo[] = {
   {  'p', 16, 0, etPOINTER,    0,  1 },
   {  '/',  0, 0, etPATH,       0,  0 },
 };
-#define etNINFO  (sizeof(fmtinfo)/sizeof(fmtinfo[0]))
+#define etNINFO count(fmtinfo)
 
 /*
 ** "*val" is a double such that 0.1 <= *val < 10.0
@@ -170,8 +208,8 @@ static int StrNLen32(const char *z, int N){
 ** comments on a timeline.  These flag settings are determined by
 ** configuration parameters.
 **
-** The altForm2 argument is true for "%!w" (with the "!" alternate-form-2
-** flags) and is false for plain "%w".  The ! indicates that the text is
+** The altForm2 argument is true for "%!W" (with the "!" alternate-form-2
+** flags) and is false for plain "%W".  The ! indicates that the text is
 ** to be rendered on a form rather than the timeline and that block markup
 ** is acceptable even if the "timeline-block-markup" setting is false.
 */
@@ -196,15 +234,7 @@ static int wiki_convert_flags(int altForm2){
 ** The root program.  All variations call this core.
 **
 ** INPUTS:
-**   func   This is a pointer to a function taking three arguments
-**            1. A pointer to anything.  Same as the "arg" parameter.
-**            2. A pointer to the list of characters to be output
-**               (Note, this list is NOT null terminated.)
-**            3. An integer number of characters to be output.
-**               (Note: This number might be zero.)
-**
-**   arg    This is the pointer to anything which will be passed as the
-**          first argument to "func".  Use it for whatever you like.
+**   pBlob  This is the blob where the output will be built.
 **
 **   fmt    This is the format string, as in the usual print.
 **
@@ -622,12 +652,7 @@ int vxprintf(
         }else if( xtype==etDYNSTRING ){
           zExtra = bufpt;
         }else if( xtype==etSTRINGID ){
-          precision = 0;
-          while( bufpt[precision]>='0' && bufpt[precision]<='9' ){
-            precision++;
-          }
-          if( bufpt[precision]!=0 ) precision++;
-          if( precision<10 ) precision=10;
+          precision = hashDigits(flag_altform2);
         }
         length = StrNLen32(bufpt, limit);
         if( precision>=0 && precision<length ) length = precision;
@@ -852,20 +877,29 @@ static int stdoutAtBOL = 1;
 **
 ** On windows, transform the output into the current terminal encoding
 ** if the output is going to the screen.  If output is redirected into
-** a file, no translation occurs.  No translation ever occurs on unix.
+** a file, no translation occurs. Switch output mode to binary to
+** properly process line-endings, make sure to switch the mode back to
+** text when done.
+** No translation ever occurs on unix.
 */
 void fossil_puts(const char *z, int toStdErr){
+  FILE* out = (toStdErr ? stderr : stdout);
   int n = (int)strlen(z);
   if( n==0 ) return;
+  assert( toStdErr==0 || toStdErr==1 );
   if( toStdErr==0 ) stdoutAtBOL = (z[n-1]=='\n');
 #if defined(_WIN32)
   if( fossil_utf8_to_console(z, n, toStdErr) >= 0 ){
     return;
   }
+  fflush(out);
+  _setmode(_fileno(out), _O_BINARY);
 #endif
-  assert( toStdErr==0 || toStdErr==1 );
-  fwrite(z, 1, n, toStdErr ? stderr : stdout);
-  fflush(toStdErr ? stderr : stdout);
+  fwrite(z, 1, n, out);
+#if defined(_WIN32)
+  fflush(out);
+  _setmode(_fileno(out), _O_TEXT);
+#endif
 }
 
 /*
@@ -947,11 +981,11 @@ static void fossil_errorlog(const char *zFormat, ...){
   vfprintf(out, zFormat, ap);
   fprintf(out, "\n");
   va_end(ap);
-  for(i=0; i<sizeof(azEnv)/sizeof(azEnv[0]); i++){
+  for(i=0; i<count(azEnv); i++){
     char *p;
     if( (p = fossil_getenv(azEnv[i]))!=0 ){
       fprintf(out, "%s=%s\n", azEnv[i], p);
-      fossil_filename_free(p);
+      fossil_path_free(p);
     }else if( (z = P(azEnv[i]))!=0 ){
       fprintf(out, "%s=%s\n", azEnv[i], z);
     }
@@ -1107,7 +1141,7 @@ void fossil_warning(const char *zFormat, ...){
 }
 
 /*
-** Turn off any NL to CRNL translation on the stream given as an
+** Turn off any LF to CRLF translation on the stream given as an
 ** argument.  This is a no-op on unix but is necessary on windows.
 */
 void fossil_binary_mode(FILE *p){

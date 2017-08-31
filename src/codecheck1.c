@@ -251,8 +251,6 @@ static int is_string_expr(const char *z){
 */
 static const char *azSafeFunc[] = {
   "filename_collation",
-  "db_name",
-  "timeline_utc",
   "leaf_is_closed_sql",
   "timeline_query_for_www",
   "timeline_query_for_tty",
@@ -278,7 +276,7 @@ static int is_s_safe(const char *z){
   ** for use with %s */
   z = next_non_whitespace(z, &len, &eType);
   for(i=0; i<sizeof(azSafeFunc)/sizeof(azSafeFunc[0]); i++){
-    if( eType==TK_ID 
+    if( eType==TK_ID
      && strncmp(z, azSafeFunc[i], len)==0
      && strlen(azSafeFunc[i])==len
     ){
@@ -293,7 +291,7 @@ static int is_s_safe(const char *z){
   /* If the "safe-for-%s" comment appears in the argument, then
   ** let it through */
   if( strstr(z, "/*safe-for-%s*/")!=0 ) return 1;
-    
+
   return 0;
 }
 
@@ -441,7 +439,7 @@ static int checkFormatFunc(
   int nErr = 0;
   char *acType;
 
-  szFName = 	token_length(zFCall, &eToken, &ln);
+  szFName = token_length(zFCall, &eToken, &ln);
   zStart = next_non_whitespace(zFCall+szFName, &len, &eToken);
   assert( zStart[0]=='(' && len==1 );
   len = distance_to(zStart+1, ')');
@@ -462,7 +460,7 @@ static int checkFormatFunc(
   }
   acType = (char*)&azArg[nArg];
   if( fmtArg>nArg ){
-    printf("%s:%d: too few arguments to %.*s()\n", 
+    printf("%s:%d: too few arguments to %.*s()\n",
            zFilename, lnFCall, szFName, zFCall);
     nErr++;
   }else{
@@ -514,10 +512,10 @@ static int scan_file(const char *zName, const char *zContent){
   int ln = 0;
   int szToken;
   int eToken;
-  const char *zPrev;
-  int ePrev;
-  int szPrev;
-  int lnPrev;
+  const char *zPrev = 0;
+  int ePrev = 0;
+  int szPrev = 0;
+  int lnPrev = 0;
   int nCurly = 0;
   int x;
   unsigned fmtFlags = 0;
@@ -539,7 +537,7 @@ static int scan_file(const char *zName, const char *zContent){
             && (x = isFormatFunc(zPrev,szPrev,&fmtFlags))>0 ){
         nErr += checkFormatFunc(zName, zPrev, lnPrev, x, fmtFlags);
       }
-    }    
+    }
     zPrev = z;
     ePrev = eToken;
     szPrev = szToken;

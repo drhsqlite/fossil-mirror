@@ -1,0 +1,200 @@
+body {
+    margin: 0 auto;
+    min-width: 800px;
+    padding: 0px 20px;
+    background-color: white;
+    font-family: sans-serif;
+    font-size:14pt;
+    -moz-text-size-adjust: none;
+    -webkit-text-size-adjust: none;
+    -mx-text-size-adjust: none;
+}
+
+a {
+    color: #4183C4;
+    text-decoration: none;
+}
+a:hover {
+    color: #4183C4;
+    text-decoration: underline;
+}
+
+hr {
+    color: #eee;
+}
+
+.title {
+    color: #4183C4;
+    float:left;
+    padding-top: 30px;
+    padding-bottom: 10px;
+}
+.title h1 {
+    display:inline;
+}
+.title h1:after {
+    content: " / ";
+    color: #777;
+    font-weight: normal;
+}
+
+.content h1 {
+    font-size: 1.25em;
+}
+.content h2 {
+    font-size: 1.15em;
+}
+.content h2 {
+    font-size: 1.05em;
+    font-weight: bold;
+}
+
+.section {
+    font-size: 1em;
+    font-weight: bold;
+    background-color: #f5f5f5;
+    border: 1px solid #d8d8d8;
+    border-radius: 3px 3px 0 0;
+    padding: 9px 10px 10px;
+    margin: 10px 0;
+}
+
+.sectionmenu {
+    border: 1px solid #d8d8d8;
+    border-radius: 0 0 3px 3px;
+    border-top: 0;
+    margin-top: -10px;
+    margin-bottom: 10px;
+    padding: 10px;
+}
+.sectionmenu a {
+    display: inline-block;
+    margin-right: 1em;
+}
+
+.status {
+    float:right;
+    font-size:.7em;
+    padding-top:50px;
+}
+
+.mainmenu {
+    font-size:.8em;
+    clear:both;
+    padding:10px;
+    background:#eaeaea linear-gradient(#fafafa, #eaeaea) repeat-x;
+    border:1px solid #eaeaea;
+    border-radius:5px;
+}
+
+.mainmenu a {
+    padding: 10px 20px;
+    text-decoration:none;
+    color: #777;
+    border-right:1px solid #eaeaea;
+}
+.mainmenu a.active,
+.mainmenu a:hover {
+    color: #000;
+    border-bottom:2px solid #D26911;
+}
+
+.submenu {
+    font-size: .7em;
+    margin-top: 10px;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.submenu a, .submenu label {
+    padding: 10px 11px;
+    text-decoration:none;
+    color: #777;
+}
+
+.submenu a:hover, .submenu label:hover {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    color: #000;
+}
+
+.content {
+    padding-top: 10px;
+    font-size:.8em;
+    color: #444;
+}
+
+.udiff, .sbsdiff {
+    font-size: .85em !important;
+    overflow: auto;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+.content blockquote {
+    padding: 0 15px;
+}
+
+table.report {
+    cursor: auto;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin: 1em 0;
+}
+.report td, .report th {
+   border: 0;
+   font-size: .8em;
+   padding: 10px;
+}
+.report td:first-child {
+    border-top-left-radius: 5px;
+}
+.report tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 5px;
+}
+.report td:last-child {
+    border-top-right-radius: 5px;
+}
+.report tbody tr:last-child {
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+.report tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 5px;
+}
+.report th {
+    cursor: pointer;
+}
+.report thead+tbody tr:hover {
+    background-color: #f5f9fc !important;
+}
+
+td.tktDspLabel {
+    width: 70px;
+    text-align: right;
+    overflow: hidden;
+}
+td.tktDspValue {
+    text-align: left;
+    vertical-align: top;
+    background-color: #f8f8f8;
+    border: 1px solid #ccc;
+}
+td.tktDspValue pre {
+    white-space: pre-wrap;
+}
+
+.footer {
+    border-top: 1px solid #ccc;
+    padding: 10px;
+    font-size:.7em;
+    margin-top: 10px;
+    color: #ccc;
+}
+div.timelineDate {
+    font-weight: bold;
+    white-space: nowrap;
+}
+span.submenuctrl, span.submenuctrl input, select.submenuctrl {
+  color: #777;
+}

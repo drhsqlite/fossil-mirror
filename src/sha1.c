@@ -1,20 +1,85 @@
 /*
+** Copyright (c) 2006 D. Richard Hipp
+**
+** This program is free software; you can redistribute it and/or
+** modify it under the terms of the Simplified BSD License (also
+** known as the "2-Clause License" or "FreeBSD License".)
+**
+** This program is distributed in the hope that it will be useful,
+** but without any warranty; without even the implied warranty of
+** merchantability or fitness for a particular purpose.
+**
+** Author contact information:
+**   drh@hwaci.com
+**   http://www.hwaci.com/drh/
+**
+*******************************************************************************
+**
 ** This implementation of SHA1.
 */
 #include "config.h"
 #include <sys/types.h>
 #include "sha1.h"
 
-#ifdef FOSSIL_ENABLE_SSL
+
+/*
+** SHA1 Implementation #1 is the hardened SHA1 implementation by
+** Marc Stevens.  Code obtained from GitHub
+**
+**     https://github.com/cr-marcstevens/sha1collisiondetection
+**
+** Downloaded on 2017-03-01 then repackaged to work with Fossil
+** and makeheaders.
+*/
+#if FOSSIL_HARDENED_SHA1
+
+#if INTERFACE
+typedef void(*collision_block_callback)(uint64_t, const uint32_t*, const uint32_t*, const uint32_t*, const uint32_t*);
+struct SHA1_CTX {
+  uint64_t total;
+  uint32_t ihv[5];
+  unsigned char buffer[64];
+  int bigendian;
+  int found_collision;
+  int safe_hash;
+  int detect_coll;
+  int ubc_check;
+  int reduced_round_coll;
+  collision_block_callback callback;
+
+  uint32_t ihv1[5];
+  uint32_t ihv2[5];
+  uint32_t m1[80];
+  uint32_t m2[80];
+  uint32_t states[80][5];
+};
+#endif
+void SHA1DCInit(SHA1_CTX*);
+void SHA1DCUpdate(SHA1_CTX*, const unsigned char*, unsigned);
+int SHA1DCFinal(unsigned char[20], SHA1_CTX*);
+
+#define SHA1Context SHA1_CTX
+#define SHA1Init SHA1DCInit
+#define SHA1Update SHA1DCUpdate
+#define SHA1Final SHA1DCFinal
+
+/*
+** SHA1 Implementation #2: use the SHA1 algorithm built into SSL
+*/
+#elif  defined(FOSSIL_ENABLE_SSL)
 
 # include <openssl/sha.h>
 # define SHA1Context SHA_CTX
 # define SHA1Init SHA1_Init
 # define SHA1Update SHA1_Update
-# define SHA1Final(a,b) SHA1_Final(b,a)
+# define SHA1Final SHA1_Final
 
+/*
+** SHA1 Implementation #3:  If none of the previous two SHA1
+** algorithms work, there is this built-in.  This built-in was the
+** original implementation used by Fossil.
+*/
 #else
-
 /*
 ** The SHA1 implementation below is adapted from:
 **
@@ -57,6 +122,9 @@ struct SHA1Context {
 #endif
 
 
+
+
+
 #define blk0le(i) (block[i] = (ror(block[i],8)&0xFF00FF00) \
     |(rol(block[i],8)&0x00FF00FF))
 #define blk0be(i) block[i]
@@ -66,7 +134,7 @@ struct SHA1Context {
 /*
  * (R0+R1), R2, R3, R4 are the different operations (rounds) used in SHA1
  *
- * Rl0() for little-endian and Rb0() for big-endian.  Endianness is 
+ * Rl0() for little-endian and Rb0() for big-endian.  Endianness is
  * determined at run-time.
  */
 #define Rl0(v,w,x,y,z,i) \
@@ -190,7 +258,7 @@ static void SHA1Update(
 /*
  * Add padding and return the message digest.
  */
-static void SHA1Final(SHA1Context *context, unsigned char digest[20]){
+static void SHA1Final(unsigned char *digest, SHA1Context *context){
     unsigned int i;
     unsigned char finalcount[8];
 
@@ -209,8 +277,7 @@ static void SHA1Final(SHA1Context *context, unsigned char digest[20]){
                 ((context->state[i>>2] >> ((3-(i & 3)) * 8) ) & 255);
     }
 }
-#endif
-
+#endif /* Built-in SHA1 implemenation */
 
 /*
 ** Convert a digest into base-16.  digest should be declared as
@@ -219,7 +286,7 @@ static void SHA1Final(SHA1Context *context, unsigned char digest[20]){
 ** be "char zBuf[41]".
 */
 static void DigestToBase16(unsigned char *digest, char *zBuf){
-  static char const zEncode[] = "0123456789abcdef";
+  static const char zEncode[] = "0123456789abcdef";
   int ix;
 
   for(ix=0; ix<20; ix++){
@@ -260,7 +327,7 @@ void sha1sum_step_blob(Blob *p){
 
 /*
 ** Finish the incremental SHA1 checksum.  Store the result in blob pOut
-** if pOut!=0.  Also return a pointer to the result.  
+** if pOut!=0.  Also return a pointer to the result.
 **
 ** This resets the incremental checksum preparing for the next round
 ** of computation.  The return pointer points to a static buffer that
@@ -270,7 +337,7 @@ char *sha1sum_finish(Blob *pOut){
   unsigned char zResult[20];
   static char zOut[41];
   sha1sum_step_text(0,0);
-  SHA1Final(&incrCtx, zResult);
+  SHA1Final(zResult, &incrCtx);
   incrInit = 0;
   DigestToBase16(zResult, zOut);
   if( pOut ){
@@ -297,7 +364,7 @@ int sha1sum_file(const char *zFilename, Blob *pCksum){
     /* Instead of file content, return sha1 of link destination path */
     Blob destinationPath;
     int rc;
-    
+
     blob_read_link(&destinationPath, zFilename);
     rc = sha1sum_blob(&destinationPath, pCksum);
     blob_reset(&destinationPath);
@@ -318,7 +385,7 @@ int sha1sum_file(const char *zFilename, Blob *pCksum){
   fclose(in);
   blob_zero(pCksum);
   blob_resize(pCksum, 40);
-  SHA1Final(&ctx, zResult);
+  SHA1Final(zResult, &ctx);
   DigestToBase16(zResult, blob_buffer(pCksum));
   return 0;
 }
@@ -342,7 +409,7 @@ int sha1sum_blob(const Blob *pIn, Blob *pCksum){
     blob_zero(pCksum);
   }
   blob_resize(pCksum, 40);
-  SHA1Final(&ctx, zResult);
+  SHA1Final(zResult, &ctx);
   DigestToBase16(zResult, blob_buffer(pCksum));
   return 0;
 }
@@ -358,14 +425,14 @@ char *sha1sum(const char *zIn){
 
   SHA1Init(&ctx);
   SHA1Update(&ctx, (unsigned const char*)zIn, strlen(zIn));
-  SHA1Final(&ctx, zResult);
+  SHA1Final(zResult, &ctx);
   DigestToBase16(zResult, zDigest);
   return mprintf("%s", zDigest);
 }
 
 /*
 ** Convert a cleartext password for a specific user into a SHA1 hash.
-** 
+**
 ** The algorithm here is:
 **
 **       SHA1( project-code + "/" + login + "/" + password )
@@ -377,7 +444,7 @@ char *sha1sum(const char *zIn){
 ** to authenticate to a server for the sync protocol.  It is also the
 ** value stored in the USER.PW field of the database.  By mixing in the
 ** login name and the project id with the hash, different shared secrets
-** are obtained even if two users select the same password, or if a 
+** are obtained even if two users select the same password, or if a
 ** single user selects the same password for multiple projects.
 */
 char *sha1_shared_secret(
@@ -409,7 +476,7 @@ char *sha1_shared_secret(
   SHA1Update(&ctx, (unsigned char*)zLogin, strlen(zLogin));
   SHA1Update(&ctx, (unsigned char*)"/", 1);
   SHA1Update(&ctx, (unsigned const char*)zPw, strlen(zPw));
-  SHA1Final(&ctx, zResult);
+  SHA1Final(zResult, &ctx);
   DigestToBase16(zResult, zDigest);
   return mprintf("%s", zDigest);
 }
@@ -450,16 +517,17 @@ void sha1_shared_secret_sql_function(
 
 /*
 ** COMMAND: sha1sum*
-** %fossil sha1sum FILE...
+**
+** Usage: %fossil sha1sum FILE...
 **
 ** Compute an SHA1 checksum of all files named on the command-line.
-** If an file is named "-" then take its content from standard input.
+** If a file is named "-" then take its content from standard input.
 */
 void sha1sum_test(void){
   int i;
   Blob in;
   Blob cksum;
-  
+
   for(i=2; i<g.argc; i++){
     blob_init(&cksum, "************** not found ***************", -1);
     if( g.argv[i][0]=='-' && g.argv[i][1]==0 ){

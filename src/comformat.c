@@ -25,9 +25,7 @@
 # include <windows.h>
 #else
 # include <termios.h>
-# if defined(TIOCGWINSZ)
-#  include <sys/ioctl.h>
-# endif
+# include <sys/ioctl.h>
 #endif
 
 #if INTERFACE
@@ -230,9 +228,8 @@ static void comment_print_line(
     }
     assert( c!='\n' || charCnt==0 );
     fossil_print("%c", c);
-    maxChars -= useChars;
-    if( maxChars==0 ) break;
-    assert( maxChars>0 );
+    if( (c&0x80)==0 || (zLine[index+1]&0xc0)!=0xc0 ) maxChars -= useChars;
+    if( maxChars<=0 ) break;
     if( c=='\n' ) break;
   }
   if( charCnt>0 ){

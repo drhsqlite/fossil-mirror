@@ -81,7 +81,7 @@ static cson_value * json_tag_add(){
       return NULL;
     }
   }
-  
+
   zCheckin = json_find_option_cstr("checkin",NULL,NULL);
   if( !zCheckin ){
     if(!fossil_has_json()){
@@ -165,7 +165,7 @@ static cson_value * json_tag_cancel(){
       return NULL;
     }
   }
-  
+
   zCheckin = json_find_option_cstr("checkin",NULL,NULL);
   if( !zCheckin ){
     if(!fossil_has_json()){
@@ -234,11 +234,11 @@ static cson_value * json_tag_find(){
 
   limit = json_find_option_int("limit",NULL,"n",0);
   fRaw = json_find_option_bool("raw",NULL,NULL,0);
-  
+
   tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='%s' || %Q",
                  fRaw ? "" : "sym-",
                  zName);
-  
+
   payV = cson_value_new_object();
   pay = cson_value_get_object(payV);
   cson_object_set(pay, "name", json_new_string(zName));
@@ -355,10 +355,10 @@ static cson_value * json_tag_list(){
   cson_object_set(pay, "raw", cson_value_new_bool(fRaw) );
   if( zCheckin ){
     /**
-       Tags for a specific checkin. Output format:
+       Tags for a specific check-in. Output format:
 
        RAW mode:
-    
+
        {
            "sym-tagname": (value || null),
            ...other tags...
@@ -376,7 +376,7 @@ static cson_value * json_tag_list(){
     int const rid = name_to_rid(zCheckin);
     if(0==rid){
       json_set_err(FSL_JSON_E_UNRESOLVED_UUID,
-                   "Could not find artifact for checkin [%s].",
+                   "Could not find artifact for check-in [%s].",
                    zCheckin);
       goto error;
     }
@@ -414,7 +414,7 @@ static cson_value * json_tag_list(){
     /* Output format:
 
     RAW mode:
-    
+
     ["tagname", "sym-tagname2",...]
 
     Non-raw:

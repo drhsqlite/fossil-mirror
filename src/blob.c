@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -120,6 +120,9 @@ int fossil_isalnum(char c){
 
 /*
 ** COMMAND: test-isspace
+**
+** Verify that the fossil_isspace() routine is working correctly by
+** testing it on all possible inputs.
 */
 void isspace_cmd(void){
   int i;
@@ -270,6 +273,7 @@ void blob_zero(Blob *pBlob){
 ** Append text or data to the end of a blob.
 */
 void blob_append(Blob *pBlob, const char *aData, int nData){
+  assert( aData!=0 || nData==0 );
   blob_is_init(pBlob);
   if( nData<0 ) nData = strlen(aData);
   if( nData==0 ) return;
@@ -299,7 +303,7 @@ void blob_copy(Blob *pTo, Blob *pFrom){
 char *blob_str(Blob *p){
   blob_is_init(p);
   if( p->nUsed==0 ){
-    blob_append(p, "", 1);
+    blob_append(p, "", 1); /* NOTE: Changes nUsed. */
     p->nUsed = 0;
   }
   if( p->aData[p->nUsed]!=0 ){
@@ -645,14 +649,22 @@ void blob_copy_lines(Blob *pTo, Blob *pFrom, int N){
 }
 
 /*
-** Return true if the blob contains a valid UUID_SIZE-digit base16 identifier.
+** Return true if the blob contains a valid base16 identifier artifact hash.
+**
+** The value returned is actually one of HNAME_SHA1 OR HNAME_K256 if the
+** hash is valid.  Both of these are non-zero and therefore "true".
+** If the hash is not valid, then HNAME_ERROR is returned, which is zero or
+** false.
 */
-int blob_is_uuid(Blob *pBlob){
-  return blob_size(pBlob)==UUID_SIZE
-         && validate16(blob_buffer(pBlob), UUID_SIZE);
+int blob_is_hname(Blob *pBlob){
+  return hname_validate(blob_buffer(pBlob), blob_size(pBlob));
 }
-int blob_is_uuid_n(Blob *pBlob, int n){
-  return blob_size(pBlob)==n && validate16(blob_buffer(pBlob), n);
+
+/*
+** Return true if the blob contains a valid filename
+*/
+int blob_is_filename(Blob *pBlob){
+  return file_is_simple_pathname(blob_str(pBlob), 1);
 }
 
 /*
@@ -662,6 +674,27 @@ int blob_is_uuid_n(Blob *pBlob, int n){
 int blob_is_int(Blob *pBlob, int *pValue){
   const char *z = blob_buffer(pBlob);
   int i, n, c, v;
+  n = blob_size(pBlob);
+  v = 0;
+  for(i=0; i<n && (c = z[i])!=0 && c>='0' && c<='9'; i++){
+    v = v*10 + c - '0';
+  }
+  if( i==n ){
+    *pValue = v;
+    return 1;
+  }else{
+    return 0;
+  }
+}
+
+/*
+** Return true if the blob contains a valid 64-bit integer.  Store
+** the integer value in *pValue.
+*/
+int blob_is_int64(Blob *pBlob, sqlite3_int64 *pValue){
+  const char *z = blob_buffer(pBlob);
+  int i, n, c;
+  sqlite3_int64 v;
   n = blob_size(pBlob);
   v = 0;
   for(i=0; i<n && (c = z[i])!=0 && c>='0' && c<='9'; i++){
@@ -755,11 +788,11 @@ int blob_read_from_channel(Blob *pBlob, FILE *in, int nToRead){
 **
 ** Any prior content of the blob is discarded, not freed.
 **
-** Return the number of bytes read. Calls fossil_fatal() error (i.e.
+** Return the number of bytes read. Calls fossil_fatal() on error (i.e.
 ** it exit()s and does not return).
 */
-int blob_read_from_file(Blob *pBlob, const char *zFilename){
-  int size, got;
+sqlite3_int64 blob_read_from_file(Blob *pBlob, const char *zFilename){
+  sqlite3_int64 size, got;
   FILE *in;
   if( zFilename==0 || zFilename[0]==0
         || (zFilename[0]=='-' && zFilename[1]==0) ){
@@ -824,23 +857,29 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
   int nWrote;
 
   if( zFilename[0]==0 || (zFilename[0]=='-' && zFilename[1]==0) ){
-    nWrote = blob_size(pBlob);
+    blob_is_init(pBlob);
 #if defined(_WIN32)
-    if( fossil_utf8_to_console(blob_buffer(pBlob), nWrote, 0) >= 0 ){
-      return nWrote;
-    }
+    nWrote = fossil_utf8_to_console(blob_buffer(pBlob), blob_size(pBlob), 0);
+    if( nWrote>=0 ) return nWrote;
     fflush(stdout);
     _setmode(_fileno(stdout), _O_BINARY);
 #endif
-    fwrite(blob_buffer(pBlob), 1, nWrote, stdout);
+    nWrote = fwrite(blob_buffer(pBlob), 1, blob_size(pBlob), stdout);
 #if defined(_WIN32)
     fflush(stdout);
     _setmode(_fileno(stdout), _O_TEXT);
 #endif
   }else{
-    file_mkfolder(zFilename, 1);
+    file_mkfolder(zFilename, 1, 0);
     out = fossil_fopen(zFilename, "wb");
     if( out==0 ){
+#if _WIN32
+      const char *zReserved = file_is_win_reserved(zFilename);
+      if( zReserved ){
+        fossil_fatal("cannot open \"%s\" because \"%s\" is "
+             "a reserved name on Windows", zFilename, zReserved);
+      }
+#endif
       fossil_fatal_recursive("unable to open file \"%s\" for writing",
                              zFilename);
       return 0;
@@ -886,6 +925,12 @@ void blob_compress(Blob *pIn, Blob *pOut){
 
 /*
 ** COMMAND: test-compress
+**
+** Usage: %fossil test-compress INPUTFILE OUTPUTFILE
+**
+** Run compression on INPUTFILE and write the result into OUTPUTFILE.
+**
+** This is used to test and debug the blob_compress() routine.
 */
 void compress_cmd(void){
   Blob f;
@@ -938,6 +983,13 @@ void blob_compress2(Blob *pIn1, Blob *pIn2, Blob *pOut){
 
 /*
 ** COMMAND: test-compress-2
+**
+** Usage: %fossil test-compress-2 IN1 IN2 OUT
+**
+** Read files IN1 and IN2, concatenate the content, compress the
+** content, then write results into OUT.
+**
+** This is used to test and debug the blob_compress2() routine.
 */
 void compress2_cmd(void){
   Blob f1, f2;
@@ -984,6 +1036,12 @@ int blob_uncompress(Blob *pIn, Blob *pOut){
 
 /*
 ** COMMAND: test-uncompress
+**
+** Usage: %fossil test-uncompress IN OUT
+**
+** Read the content of file IN, uncompress that content, and write the
+** result into OUT.  This command is intended for testing of the
+** blob_compress() function.
 */
 void uncompress_cmd(void){
   Blob f;
@@ -1113,24 +1171,50 @@ void blob_cp1252_to_utf8(Blob *p){
 }
 
 /*
-** Shell-escape the given string.  Append the result to a blob.
+** pBlob is a shell command under construction.  This routine safely
+** appends argument zIn.
+**
+** The argument is escaped if it contains white space or other characters
+** that need to be escaped for the shell.  If zIn contains characters
+** that cannot be safely escaped, then throw a fatal error.
+**
+** The argument is expected to a filename of some kinds.  As shell commands
+** commonly have command-line options that begin with "-" and since we
+** do not want an attacker to be able to invoke these switches using
+** filenames that begin with "-", if zIn begins with "-", prepend
+** an additional "./".
 */
-void shell_escape(Blob *pBlob, const char *zIn){
+void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
+  int i;
+  char c;
+  int needEscape = 0;
   int n = blob_size(pBlob);
-  int k = strlen(zIn);
-  int i, c;
-  char *z;
+  char *z = blob_buffer(pBlob);
+#if defined(_WIN32)
+  const char cQuote = '"';    /* Use "..." quoting on windows */
+#else
+  const char cQuote = '\'';   /* Use '...' quoting on unix */
+#endif
+
   for(i=0; (c = zIn[i])!=0; i++){
-    if( fossil_isspace(c) || c=='"' || (c=='\\' && zIn[i+1]!=0) ){
-      blob_appendf(pBlob, "\"%s\"", zIn);
-      z = blob_buffer(pBlob);
-      for(i=n+1; i<=n+k; i++){
-        if( z[i]=='"' ) z[i] = '_';
-      }
-      return;
+    if( c==cQuote || c=='\\' || c<' ' || c==';' || c=='*' || c=='?' || c=='[') {
+      Blob bad;
+      blob_token(pBlob, &bad);
+      fossil_fatal("the [%s] argument to the \"%s\" command contains "
+                   "a character (ascii 0x%02x) that is a security risk",
+                   zIn, blob_str(&bad), c);
+    }
+    if( !needEscape && !fossil_isalnum(c) && c!='/' && c!='.' && c!='_' ){
+      needEscape = 1;
     }
   }
+  if( n>0 && !fossil_isspace(z[n-1]) ){
+    blob_append(pBlob, " ", 1);
+  }
+  if( needEscape ) blob_append(pBlob, &cQuote, 1);
+  if( zIn[0]=='-' ) blob_append(pBlob, "./", 2);
   blob_append(pBlob, zIn, -1);
+  if( needEscape ) blob_append(pBlob, &cQuote, 1);
 }
 
 /*

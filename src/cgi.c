@@ -23,6 +23,9 @@
 */
 #include "config.h"
 #ifdef _WIN32
+# if !defined(_WIN32_WINNT)
+#  define _WIN32_WINNT 0x0501
+# endif
 # include <winsock2.h>
 # include <ws2tcpip.h>
 #else
@@ -54,6 +57,7 @@
 #define PD(x,y)     cgi_parameter((x),(y))
 #define PT(x)       cgi_parameter_trimmed((x),0)
 #define PDT(x,y)    cgi_parameter_trimmed((x),(y))
+#define PB(x)       cgi_parameter_boolean(x)
 
 
 /*
@@ -73,13 +77,13 @@
 
 /*
 ** The HTTP reply is generated in two pieces: the header and the body.
-** These pieces are generated separately because they are not necessary
+** These pieces are generated separately because they are not necessarily
 ** produced in order.  Parts of the header might be built after all or
 ** part of the body.  The header and body are accumulated in separate
 ** Blob structures then output sequentially once everything has been
 ** built.
 **
-** The cgi_destination() interface switch between the buffers.
+** The cgi_destination() interface switches between the buffers.
 */
 static Blob cgiContent[2] = { BLOB_INITIALIZER, BLOB_INITIALIZER };
 static Blob *pContent = &cgiContent[0];
@@ -109,6 +113,9 @@ void cgi_destination(int dest){
 */
 int cgi_header_contains(const char *zNeedle){
   return strstr(blob_str(&cgiContent[0]), zNeedle)!=0;
+}
+int cgi_body_contains(const char *zNeedle){
+  return strstr(blob_str(&cgiContent[1]), zNeedle)!=0;
 }
 
 /*
@@ -344,9 +351,7 @@ void cgi_reply(void){
     ** stale cache is the least of the problem. So we provide an Expires
     ** header set to a reasonable period (default: one week).
     */
-    /*time_t expires = time(0) + atoi(db_config("constant_expires","604800"));*/
-    time_t expires = time(0) + 604800;
-    fprintf(g.httpOut, "Expires: %s\r\n", cgi_rfc822_datestamp(expires));
+    fprintf(g.httpOut, "Cache-control: max-age=28800\r\n");
   }else{
     fprintf(g.httpOut, "Cache-control: no-cache\r\n");
   }
@@ -379,7 +384,9 @@ void cgi_reply(void){
     total_size = 0;
   }
   fprintf(g.httpOut, "\r\n");
-  if( total_size>0 && iReplyStatus != 304 ){
+  if( total_size>0 && iReplyStatus != 304
+   && fossil_strcmp(P("REQUEST_METHOD"),"HEAD")!=0
+  ){
     int i, size;
     for(i=0; i<2; i++){
       size = blob_size(&cgiContent[i]);
@@ -397,7 +404,11 @@ void cgi_reply(void){
 **
 ** The URL must be relative to the base of the fossil server.
 */
-NORETURN void cgi_redirect(const char *zURL){
+NORETURN static void cgi_redirect_with_status(
+  const char *zURL,
+  int iStat,
+  const char *zStat
+){
   char *zLocation;
   CGIDEBUG(("redirect to %s\n", zURL));
   if( strncmp(zURL,"http:",5)==0 || strncmp(zURL,"https:",6)==0 ){
@@ -413,16 +424,36 @@ NORETURN void cgi_redirect(const char *zURL){
   cgi_append_header(zLocation);
   cgi_reset_content();
   cgi_printf("<html>\n<p>Redirect to %h</p>\n</html>\n", zLocation);
-  cgi_set_status(302, "Moved Temporarily");
+  cgi_set_status(iStat, zStat);
   free(zLocation);
   cgi_reply();
   fossil_exit(0);
+}
+NORETURN void cgi_redirect(const char *zURL){
+  cgi_redirect_with_status(zURL, 302, "Moved Temporarily");
+}
+NORETURN void cgi_redirect_with_method(const char *zURL){
+  cgi_redirect_with_status(zURL, 307, "Temporary Redirect");
 }
 NORETURN void cgi_redirectf(const char *zFormat, ...){
   va_list ap;
   va_start(ap, zFormat);
   cgi_redirect(vmprintf(zFormat, ap));
   va_end(ap);
+}
+
+/*
+** Return the URL for the caller.  This is obtained from either the
+** referer CGI parameter, if it exists, or the HTTP_REFERER HTTP parameter.
+** If neither exist, return zDefault.
+*/
+const char *cgi_referer(const char *zDefault){
+  const char *zRef = P("referer");
+  if( zRef==0 ){
+    zRef = P("HTTP_REFERER");
+    if( zRef==0 ) zRef = zDefault;
+  }
+  return zRef;
 }
 
 /*
@@ -437,7 +468,8 @@ static struct QParam {   /* One entry for each query parameter or cookie */
   const char *zName;        /* Parameter or cookie name */
   const char *zValue;       /* Value of the query parameter or cookie */
   int seq;                  /* Order of insertion */
-  int isQP;                 /* True for query parameters */
+  char isQP;                /* True for query parameters */
+  char cTag;                /* Tag on query parameters */
 } *aParamQP;             /* An array of all parameters and cookies */
 
 /*
@@ -464,6 +496,7 @@ void cgi_set_parameter_nocopy(const char *zName, const char *zValue, int isQP){
   }
   aParamQP[nUsedQP].seq = seqQP++;
   aParamQP[nUsedQP].isQP = isQP;
+  aParamQP[nUsedQP].cTag = 0;
   nUsedQP++;
   sortQP = 1;
 }
@@ -478,6 +511,9 @@ void cgi_set_parameter_nocopy(const char *zName, const char *zValue, int isQP){
 void cgi_set_parameter(const char *zName, const char *zValue){
   cgi_set_parameter_nocopy(mprintf("%s",zName), mprintf("%s",zValue), 0);
 }
+void cgi_set_query_parameter(const char *zName, const char *zValue){
+  cgi_set_parameter_nocopy(mprintf("%s",zName), mprintf("%s",zValue), 1);
+}
 
 /*
 ** Replace a parameter with a new value.
@@ -491,6 +527,46 @@ void cgi_replace_parameter(const char *zName, const char *zValue){
     }
   }
   cgi_set_parameter_nocopy(zName, zValue, 0);
+}
+void cgi_replace_query_parameter(const char *zName, const char *zValue){
+  int i;
+  for(i=0; i<nUsedQP; i++){
+    if( fossil_strcmp(aParamQP[i].zName,zName)==0 ){
+      aParamQP[i].zValue = zValue;
+      assert( aParamQP[i].isQP );
+      return;
+    }
+  }
+  cgi_set_parameter_nocopy(zName, zValue, 1);
+}
+
+/*
+** Delete a parameter.
+*/
+void cgi_delete_parameter(const char *zName){
+  int i;
+  for(i=0; i<nUsedQP; i++){
+    if( fossil_strcmp(aParamQP[i].zName,zName)==0 ){
+      --nUsedQP;
+      if( i<nUsedQP ){
+        memmove(aParamQP+i, aParamQP+i+1, sizeof(*aParamQP)*(nUsedQP-i));
+      }
+      return;
+    }
+  }
+}
+void cgi_delete_query_parameter(const char *zName){
+  int i;
+  for(i=0; i<nUsedQP; i++){
+    if( fossil_strcmp(aParamQP[i].zName,zName)==0 ){
+      assert( aParamQP[i].isQP );
+      --nUsedQP;
+      if( i<nUsedQP ){
+        memmove(aParamQP+i, aParamQP+i+1, sizeof(*aParamQP)*(nUsedQP-i));
+      }
+      return;
+    }
+  }
 }
 
 /*
@@ -703,7 +779,7 @@ static void process_multipart_form_data(char *z, int len){
       zName = 0;
       showBytes = 0;
     }else{
-      nArg = tokenize_line(zLine, sizeof(azArg)/sizeof(azArg[0]), azArg);
+      nArg = tokenize_line(zLine, count(azArg), azArg);
       for(i=0; i<nArg; i++){
         int c = fossil_tolower(azArg[i][0]);
         int n = strlen(azArg[i]);
@@ -783,6 +859,7 @@ void cgi_parse_POST_JSON( FILE * zIn, unsigned int contentLen ){
   CgiPostReadState state;
   cson_parse_opt popt = cson_parse_opt_empty;
   cson_parse_info pinfo = cson_parse_info_empty;
+  assert(g.json.gc.a && "json_main_bootstrap() was not called!");
   popt.maxDepth = 15;
   state.fh = zIn;
   state.len = contentLen;
@@ -1037,7 +1114,7 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
   ** letter, then check to see if there is an environment variable
   ** with the given name.
   */
-  if( fossil_isupper(zName[0]) ){
+  if( zName && fossil_isupper(zName[0]) ){
     const char *zValue = fossil_getenv(zName);
     if( zValue ){
       cgi_set_parameter_nocopy(zName, zValue, 0);
@@ -1064,6 +1141,16 @@ char *cgi_parameter_trimmed(const char *zName, const char *zDefault){
   for(i=0; zOut[i]; i++){}
   while( i>0 && fossil_isspace(zOut[i-1]) ) zOut[--i] = 0;
   return zOut;
+}
+
+/*
+** Return true if the CGI parameter zName exists and is not equal to 0,
+** or "no" or "off".
+*/
+int cgi_parameter_boolean(const char *zName){
+  const char *zIn = cgi_parameter(zName, 0);
+  if( zIn==0 ) return 0;
+  return zIn[0]==0 || is_truth(zIn);
 }
 
 /*
@@ -1143,17 +1230,45 @@ void cgi_print_all(int showAll){
 }
 
 /*
-** Export all query parameters (but not cookies or environment variables)
-** as hidden values of a form.
+** Export all untagged query parameters (but not cookies or environment
+** variables) as hidden values of a form.
 */
 void cgi_query_parameters_to_hidden(void){
   int i;
   const char *zN, *zV;
   for(i=0; i<nUsedQP; i++){
-    if( aParamQP[i].isQP==0 ) continue;
+    if( aParamQP[i].isQP==0 || aParamQP[i].cTag ) continue;
     zN = aParamQP[i].zName;
     zV = aParamQP[i].zValue;
     @ <input type="hidden" name="%h(zN)" value="%h(zV)">
+  }
+}
+
+/*
+** Export all untagged query parameters (but not cookies or environment
+** variables) to the HQuery object.
+*/
+void cgi_query_parameters_to_url(HQuery *p){
+  int i;
+  for(i=0; i<nUsedQP; i++){
+    if( aParamQP[i].isQP==0 || aParamQP[i].cTag ) continue;
+    url_add_parameter(p, aParamQP[i].zName, aParamQP[i].zValue);
+  }
+}
+
+/*
+** Tag query parameter zName so that it is not exported by
+** cgi_query_parameters_to_hidden().  Or if zName==0, then
+** untag all query parameters.
+*/
+void cgi_tag_query_parameter(const char *zName){
+  int i;
+  if( zName==0 ){
+    for(i=0; i<nUsedQP; i++) aParamQP[i].cTag = 0;
+  }else{
+    for(i=0; i<nUsedQP; i++){
+      if( strcmp(zName,aParamQP[i].zName)==0 ) aParamQP[i].cTag = 1;
+    }
   }
 }
 
@@ -1347,6 +1462,8 @@ void cgi_handle_http_request(const char *zIpAddr){
       cgi_setenv("HTTP_REFERER", zVal);
     }else if( fossil_strcmp(zFieldName,"user-agent:")==0 ){
       cgi_setenv("HTTP_USER_AGENT", zVal);
+    }else if( fossil_strcmp(zFieldName,"authorization:")==0 ){
+      cgi_setenv("HTTP_AUTHORIZATION", zVal);
     }else if( fossil_strcmp(zFieldName,"x-forwarded-for:")==0 ){
       const char *zIpAddr = cgi_accept_forwarded_for(zVal);
       if( zIpAddr!=0 ){
@@ -1630,6 +1747,7 @@ void cgi_handle_scgi_request(void){
 #define HTTP_SERVER_SCGI           0x0002     /* SCGI instead of HTTP */
 #define HTTP_SERVER_HAD_REPOSITORY 0x0004     /* Was the repository open? */
 #define HTTP_SERVER_HAD_CHECKOUT   0x0008     /* Was a checkout open? */
+#define HTTP_SERVER_REPOLIST       0x0010     /* Allow repo listing */
 
 #endif /* INTERFACE */
 
@@ -1757,7 +1875,7 @@ int cgi_http_server(
           close(1);
           fd = dup(connection);
           if( fd!=1 ) nErr++;
-          if( !g.fHttpTrace && !g.fSqlTrace ){
+          if( !g.fAnyTrace ){
             close(2);
             fd = dup(connection);
             if( fd!=2 ) nErr++;

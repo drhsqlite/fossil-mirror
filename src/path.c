@@ -15,7 +15,7 @@
 *******************************************************************************
 **
 ** This file contains code used to trace paths of through the
-** directed acyclic graph (DAG) of checkins.
+** directed acyclic graph (DAG) of check-ins.
 */
 #include "config.h"
 #include "path.h"
@@ -47,7 +47,6 @@ static struct {
   Bag seen;             /* Nodes seen before */
   int nStep;            /* Number of steps from first to last */
   PathNode *pStart;     /* Earliest node */
-  PathNode *pPivot;     /* Common ancestor of pStart and pEnd */
   PathNode *pEnd;       /* Most recent */
 } path;
 
@@ -197,11 +196,11 @@ PathNode *path_midpoint(void){
 }
 
 /*
-** COMMAND:  test-shortest-path
+** COMMAND: test-shortest-path
 **
 ** Usage: %fossil test-shortest-path ?--no-merge? VERSION1 VERSION2
 **
-** Report the shortest path between two checkins.  If the --no-merge flag
+** Report the shortest path between two check-ins.  If the --no-merge flag
 ** is used, follow only direct parent-child paths and omit merge links.
 */
 void shortest_path_test_cmd(void){
@@ -303,7 +302,7 @@ int path_common_ancestor(int iMe, int iYou){
 }
 
 /*
-** COMMAND:  test-ancestor-path
+** COMMAND: test-ancestor-path
 **
 ** Usage: %fossil test-ancestor-path VERSION1 VERSION2
 **
@@ -351,8 +350,8 @@ struct NameChange {
 };
 
 /*
-** Compute all file name changes that occur going from checkin iFrom
-** to checkin iTo.
+** Compute all file name changes that occur going from check-in iFrom
+** to check-in iTo.
 **
 ** The number of name changes is written into *pnChng.  For each name
 ** change, two integers are allocated for *piChng.  The first is the
@@ -454,7 +453,6 @@ void find_filename_changes(
     for(pChng=pAll, i=0; pChng; pChng=pChng->pNext){
       if( pChng->newName==0 ) continue;
       if( pChng->origName==0 ) continue;
-      if( pChng->newName==pChng->origName ) continue;
       aChng[i] = pChng->origName;
       aChng[i+1] = pChng->newName;
       if( zDebug ){
@@ -545,7 +543,7 @@ void test_rename_list_page(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("List Of File Name Changes");
   @ <h3>NB: Experimental Page</h3>
   @ <table border="1" width="100%%">
@@ -563,7 +561,7 @@ void test_rename_list_page(void){
     @ <td>%z(href("%R/timeline?c=%t",zDate))%s(zDate)</a></td>
     @ <td>%z(href("%R/finfo?name=%t",zOld))%h(zOld)</a></td>
     @ <td>%z(href("%R/finfo?name=%t",zNew))%h(zNew)</a></td>
-    @ <td>%z(href("%R/info/%s",zUuid))%S(zUuid)</a></td></tr>
+    @ <td>%z(href("%R/info/%!S",zUuid))%S(zUuid)</a></td></tr>
   }
   @ </table>
   db_finalize(&q);

@@ -71,7 +71,7 @@ static cson_value * json_user_list(){
     json_set_err(FSL_JSON_E_UNKNOWN,
                  "Could not convert user list to JSON.");
   }
-  return payV;  
+  return payV;
 }
 
 /*
@@ -95,7 +95,7 @@ static cson_value * json_load_user_by_name(char const * zName){
     u = cson_sqlite3_row_to_object(q.pStmt);
   }
   db_finalize(&q);
-  return u;  
+  return u;
 }
 
 /*
@@ -117,7 +117,7 @@ static cson_value * json_load_user_by_id(int uid){
     u = cson_sqlite3_row_to_object(q.pStmt);
   }
   db_finalize(&q);
-  return u;  
+  return u;
 }
 
 
@@ -141,7 +141,7 @@ static cson_value * json_user_get(){
   if(!payV){
     json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND,"User not found.");
   }
-  return payV;  
+  return payV;
 }
 
 /*
@@ -242,7 +242,7 @@ int json_user_update_from_json( cson_object * pUser ){
   /* Maintenance note: all error-returns from here on out should go
      via 'goto error' in order to clean up.
   */
-  
+
   if(uid != g.userUid){
     if(!g.perm.Admin && !g.perm.Setup){
       json_set_err(FSL_JSON_E_DENIED,
@@ -338,7 +338,7 @@ int json_user_update_from_json( cson_object * pUser ){
     blob_append(&sql, ", cookie=NULL, cexpire=NULL", -1);
     ++gotFields;
   }
-  
+
   if(!gotFields){
     json_set_err( FSL_JSON_E_MISSING_ARGS,
                   "Required user data are missing.");

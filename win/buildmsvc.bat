@@ -48,6 +48,17 @@ IF DEFINED VSVARS32 IF EXIST "%VSVARS32%" (
 )
 
 REM
+REM Visual Studio 2015
+REM
+IF NOT DEFINED VS140COMNTOOLS GOTO skip_detectVisualStudio2015
+SET VSVARS32=%VS140COMNTOOLS%\vsvars32.bat
+IF EXIST "%VSVARS32%" (
+  %_AECHO% Using Visual Studio 2015...
+  GOTO skip_detectVisualStudio
+)
+:skip_detectVisualStudio2015
+
+REM
 REM Visual Studio 2013
 REM
 IF NOT DEFINED VS120COMNTOOLS GOTO skip_detectVisualStudio2013
@@ -250,10 +261,16 @@ GOTO no_errors
   GOTO :EOF
 
 :fn_UnsetVariable
-  IF NOT "%1" == "" (
-    SET %1=
-    CALL :fn_ResetErrorLevel
+  SETLOCAL
+  SET VALUE=%1
+  IF DEFINED VALUE (
+    SET VALUE=
+    ENDLOCAL
+    SET %VALUE%=
+  ) ELSE (
+    ENDLOCAL
   )
+  CALL :fn_ResetErrorLevel
   GOTO :EOF
 
 :fn_ResetErrorLevel

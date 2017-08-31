@@ -1,8 +1,8 @@
 #!/usr/bin/tclsh
 #
-# Run this script in an open Fossil checkout at the top-level with a 
+# Run this script in an open Fossil checkout at the top-level with a
 # fresh build of Fossil itself.  This script will run fossil on hundreds
-# of different web-pages looking for memory allocation problems using 
+# of different web-pages looking for memory allocation problems using
 # valgrind.  Valgrind output appears on stderr.  Suggested test scenario:
 #
 #     make

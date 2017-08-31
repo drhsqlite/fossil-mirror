@@ -1,0 +1,77 @@
+<html>
+  <head>
+    <base href="$baseurl/$current_page" />
+    <title>$<project_name>: $<title></title>
+      <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="$home/timeline.rss" />
+      <link rel="stylesheet" href="$stylesheet_url" type="text/css" media="screen" />
+  </head>
+
+  <body>
+    <div class="header">
+      <div class="container">
+
+        <div class="login pull-right">
+          <th1>
+            if {[info exists login]} {
+              html "<b>$login</b> — <a class='button' href='$home/login'>Logout</a>\n"
+            } else {
+              html "<a class='button' href='$home/login'>Login</a>\n"
+            }
+          </th1>
+        </div>
+        <div class='title'>
+          <h1>$<project_name>
+          <th1>
+          if {[anycap jor]} {
+            html "<a class='rss' href='$home/timeline.rss'></a>"
+          }
+          </th1>
+          <small> &nbsp;$<title></small></h1>
+        </div>
+
+        <!-- Main Menu -->
+        <div class="mainmenu">
+          <ul>
+            <th1>
+proc menulink {url name} {
+  upvar current_page current
+  upvar home home
+  if {[string range $url 0 [string length $current]] eq "/$current"} {
+    html "<li class='active'>"
+  } else {
+    html "<li>"
+  }
+  html "<a href='$home$url'>$name</a></li>\n"
+}
+menulink $index_page Home
+if {[anycap jor]} {
+  menulink /timeline Timeline
+}
+if {[hascap oh]} {
+  menulink /dir?ci=tip Files
+}
+if {[hascap o]} {
+  menulink  /brlist Branches
+  menulink  /taglist Tags
+}
+if {[hascap r]} {
+  menulink /ticket Tickets
+}
+if {[hascap j]} {
+  menulink /wiki Wiki
+}
+if {[hascap o]} {
+  menulink /help Help
+  }
+if {[hascap s]} {
+  menulink /setup Admin
+} elseif {[hascap a]} {
+  menulink /setup_ulist Users
+}
+            </th1>
+          </ul>
+        </div> <!-- end div mainmenu -->
+      </div> <!-- end div container -->
+    </div> <!-- end div header -->
+    <div class="middle max-full-width">
+      <div class="container">

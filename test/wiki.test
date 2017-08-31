@@ -1,0 +1,405 @@
+#
+# Copyright (c) 2016 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+# Test wiki and attachment command Support
+#
+
+test_setup
+
+# Return true if two files are similar (i.e. not only compress trailing spaces
+# from a line, but remove any final LF from the file as well)
+proc similar_file {a b} {
+  set x ""
+  if {[file exists $a]} {
+    set x [read_file $a]
+    regsub -all { +\n} $x \n x
+    regsub -all {\n$} $x {} x
+  }
+  set y ""
+  if {[file exists $b]} {
+    set y [read_file $b]
+    regsub -all { +\n} $y \n y
+    regsub -all {\n$} $y {} y
+  }
+  return [expr {$x==$y}]
+}
+
+# Return the mime type in the manifest for a given wiki page
+# Defaults to "error: some text" if the manifest can't be located and
+# "text/x-fossil-wiki" (the default mimetype for rendering)
+# if the N card is omitted in the manifest.
+# Note: Makes fossil calls, so $CODE and $RESULT will be corrupted
+proc get_mime_type {name} {
+  global CODE RESULT
+  fossil http << "GET /wiki?name=$name"
+  if {$CODE != 0} {
+    return error: /wiki?name=$name $CODE $RESULT"
+  }
+  set CODE [regexp {href="/info/([0-9a-f]+)"} $RESULT match info]
+  if {$CODE == 0} {
+    return "error: No info link found for wiki page $name"
+  }
+  fossil http << "GET /artifact/$info"
+  if {$CODE != 0} {
+    return "error: /artifact/$info $CODE $RESULT"
+  }
+  set CODE [regexp {<pre>(.*)</pre>} $RESULT match pre]
+  if {$CODE == 0} {
+    return "error: No pre block in /artifact/$info"
+  }
+  set CODE [regexp -line {^N (.*)$} $pre match mimetype]
+  if {$CODE == 0} {
+    return "text/x-fossil-wiki"
+  }
+  return $mimetype
+}
+
+
+###############################################################################
+# Initially there should be no wiki entries
+fossil wiki list
+test wiki-0 {[normalize_result] eq {}}
+
+###############################################################################
+# Adding an entry should add it to the wiki list
+write_file f1 "first wiki note"
+fossil wiki create tcltest f1
+test wiki-1 {$CODE == 0}
+fossil wiki list
+test wiki-2 {[normalize_result] eq {tcltest}}
+
+###############################################################################
+# Trying to add the same entry should fail
+fossil wiki create tcltest f1 -expectError
+test wiki-3 {$CODE != 0}
+
+###############################################################################
+# exporting the wiki page should give back similar text
+fossil wiki export tcltest a1
+test wiki-4 {[similar_file f1 a1]}
+
+###############################################################################
+# commiting a change to an existing page should replace the page on export
+write_file f2 "second version of the page"
+fossil wiki commit tcltest f2
+test wiki-5 {$CODE == 0}
+fossil wiki export tcltest a2
+test wiki-6 {[similar_file f2 a2]}
+
+###############################################################################
+# But we shouldn't be able to update non-existant pages
+fossil wiki commit doesntexist f1 -expectError
+test wiki-7 {$CODE != 0}
+
+###############################################################################
+# There shouldn't be any tech notes at this point
+fossil wiki list --technote
+test wiki-8 {[normalize_result] eq {}}
+
+###############################################################################
+# Creating a tech note with a specified timestamp should add a technote
+write_file f3 "A technote"
+fossil wiki create technote f3 --technote {2016-01-01 12:34}
+test wiki-9 {$CODE == 0}
+fossil wiki list --technote
+test wiki-10 {[normalize_result] eq {2016-01-01 12:34:00}}
+fossil wiki list --technote --show-technote-ids
+set technotelist [split $RESULT "\n"]
+set veryfirsttechnoteid [lindex [split [lindex $technotelist 0]] 0]
+
+###############################################################################
+# exporting that technote should give back similar text
+fossil wiki export a3 --technote {2016-01-01 12:34:00}
+test wiki-11 {[similar_file f3 a3]}
+
+###############################################################################
+# Trying to add a technote with the same timestamp should succeed and create a
+# second tech note
+fossil wiki create 2ndnote f3 -technote {2016-01-01 12:34}
+test wiki-13 {$CODE == 0}
+fossil wiki list --technote
+set technotelist [split $RESULT "\n"]
+test wiki-13.1 {[llength $technotelist] == 2}
+
+###############################################################################
+# commiting a change to an existing technote should replace the page on export
+# (this should update the tech note from wiki-13 as that the most recently
+# updated one, that should also be the one exported by the export command)
+write_file f4 "technote 2nd variant"
+fossil wiki commit technote f4 --technote {2016-01-01 12:34}
+test wiki-14 {$CODE == 0}
+fossil wiki export a4 --technote {2016-01-01 12:34}
+test wiki-15 {[similar_file f4 a4]}
+# Also check that the tech note with the same timestamp, but modified less
+# recently still has its original text
+fossil wiki export a4.1 --technote $veryfirsttechnoteid
+test wiki-15.1 {[similar_file f3 a4.1]}
+
+###############################################################################
+# But we shouldn't be able to update non-existant pages
+fossil wiki commit doesntexist f1 -expectError
+test wiki-16 {$CODE != 0}
+
+###############################################################################
+# Check specifying tags for a technote is OK
+write_file f5 "technote with tags"
+fossil wiki create {tagged technote} f5 --technote {2016-01-02 12:34} --technote-tags {A B}
+test wiki-17 {$CODE == 0}
+write_file f5.1 "editted and tagged technote"
+fossil wiki commit {tagged technote} f5 --technote {2016-01-02 12:34} --technote-tags {C D}
+test wiki-18 {$CODE == 0}
+
+###############################################################################
+# Check specifying a bgcolor for a technote is OK
+write_file f6 "bgcolored technote"
+fossil wiki create bgcolor f6 --technote {2016-01-03 12:34} --technote-bgcolor red
+test wiki-19 {$CODE == 0}
+write_file f6.1 "editted technote with a background color"
+fossil wiki commit bgcolor f6.1 --technote {2016-01-03 12:34} --technote-bgcolor yellow
+test wiki-20 {$CODE == 0}
+
+###############################################################################
+# Test adding an attachment to both a non-existant (should fail) and existing wiki page
+write_file fa "This is a file to be attached"
+fossil attachment add doesntexist fa -expectError
+test wiki-21 {$CODE != 0}
+fossil attachment add tcltest fa
+test wiki-22 {$CODE == 0}
+
+###############################################################################
+# Test adding an attachment to both a non-existant (should fail) and existing tech note
+fossil attachment add fa --technote {2016-07-22 12:00} -expectError
+test wiki-23 {$CODE != 0}
+fossil attachment add fa --technote {2016-01-03 12:34}
+test wiki-24 {$CODE == 0}
+
+###############################################################################
+# Check that a wiki page with an attachment can be updated
+fossil wiki commit tcltest f1
+test wiki-25 {$CODE == 0}
+
+###############################################################################
+# Check that a technote with an attachment can be updated
+fossil wiki commit technote f6 --technote {2016-01-03 12:34}
+test wiki-26 {$CODE == 0}
+fossil wiki commit technote f6 --technote {2016-01-03 12:34} --technote-tags {E F}
+test wiki-27 {$CODE == 0}
+fossil wiki commit technote f6 --technote {2016-01-03 12:34} --technote-bgcolor blue
+test wiki-28 {$CODE == 0}
+
+###############################################################################
+# Check longest form of timestamp for the technote
+write_file f7 "Different timestamps"
+fossil wiki create technotenow f7 --technote {2016-01-04 12:34:56+00:00}
+test wiki-29 {$CODE == 0}
+
+###############################################################################
+# Check a technote appears on the timeline
+write_file f8 "Contents of a 'unique' tech note"
+fossil wiki create {Unique technote} f8 --technote {2016-01-05 01:02:03}
+fossil timeline
+test wiki-30 {[string match *Unique*technote* $RESULT]}
+
+###############################################################################
+# Check for a collision between an attachment and a note, this was a
+# bug that resulted from some code treating the attachment entry as if it
+# were a technote when it isn't really.
+#
+# First, wait for the top of the next second so the attachment
+# happens at a known time, then add an attachment to an existing note
+# and a new note immediately after.
+
+set t0 [clock seconds]
+while {$t0 == [clock seconds]} {
+  after 100
+}
+set t1 [clock format [clock seconds] -gmt 1 -format "%Y-%m-%d %H:%M:%S"]
+write_file f9 "Timestamp: $t1"
+fossil attachment add f9 --technote {2016-01-05 01:02:03}
+test wiki-31 {$CODE == 0}
+fossil wiki create {Attachment collision} f9 --technote now
+test wiki-32 {$CODE == 0}
+#
+# Now waste time until the next second so that the remaining tests
+# don't have to worry about a potential collision
+set t0 [clock seconds]
+while {$t0 == [clock seconds]} {
+  after 100
+}
+
+###############################################################################
+# Check a technote with no timestamp cannot be created, but that
+# "now" is a valid stamp.
+set t2 [clock format [clock seconds] -gmt 1 -format "%Y-%m-%d %H:%M:%S"]
+write_file f10 "Even unstampted notes are delivered.\nStamped $t2"
+fossil wiki create "Unstamped Note" f10 --technote -expectError
+test wiki-33 {$CODE != 0}
+fossil wiki create "Unstamped Note" f10 --technote now
+test wiki-34 {$CODE == 0}
+fossil wiki list -t
+test wiki-35 {[string match "*$t2*" $RESULT]}
+
+###############################################################################
+# Check an attachment to it in the same second works.
+write_file f11 "Time Stamp was $t2"
+fossil attachment add f11 --technote $t2
+test wiki-36 {$CODE == 0}
+fossil timeline
+test wiki-36-1 {$CODE == 0}
+fossil wiki list -t
+test wiki-36-2 {$CODE == 0}
+
+###############################################################################
+# Check that we have the expected number of tech notes on the list (and not
+# extra ones from other events (such as the attachments) - 8 tech notes
+# expected created by tests 9, 13, 17, 19, 29, 31, 32 and 34
+fossil wiki list --technote
+set technotelist [split $RESULT "\n"]
+test wiki-37 {[llength $technotelist] == 8}
+
+###############################################################################
+# Check that using the show-technote-ids shows the same tech notes in the same
+# order (with the technote id as the first word of the line)
+fossil wiki list --technote --show-technote-ids
+set technoteidlist [split $RESULT "\n"]
+test wiki-38 {[llength $technotelist] == 8}
+for {set i 0} {$i < [llength $technotelist]} {incr i} {
+  set match "???????????????????????????????????????? "
+  append match [lindex $technotelist $i]
+  test "wiki-39-$i" {[string match $match [lindex $technoteidlist $i]]}
+}
+
+###############################################################################
+# Create new tech note with a old timestamp so that it is oldest and then check that
+# the contents of the oldest tech note (by tech note id, both full and short) match up
+write_file f12 "A really old tech note"
+fossil wiki create {Old tech note} f12 --technote {2001-07-07 09:08:07}
+fossil wiki list --technote --show-technote-ids
+set technotelist [split $RESULT "\n"]
+set anoldtechnoteid [lindex [split [lindex $technotelist [llength $technotelist]-1]] 0]
+fossil wiki export a12 --technote $anoldtechnoteid
+test wiki-40 {[similar_file f12 a12]}
+
+###############################################################################
+# Also check that we can specify a prefix of the tech note id (note: with
+# 9 items in the tech note at this point there is a chance of a collision.
+# However with a 20 character prefix the chance of the collision is
+# approximately 1 in 10^22 so this test ignores that possibility.)
+fossil wiki export a12.1 --technote [string range $anoldtechnoteid 0 20]
+test wiki-41 {[similar_file f12 a12.1]}
+
+###############################################################################
+# Now we need to force a collision in the first four characters of the tech
+# note id if we don't already have one so we can check we get an error if the
+# tech note id is ambiguous
+set idcounts [dict create]
+set maxcount 0
+fossil wiki list --technote --show-technote-ids
+set technotelist [split $RESULT "\n"]
+for {set i 0} {$i < [llength $technotelist]} {incr i} {
+  set fullid [lindex $technotelist $i]
+  set id [string range $fullid 0 3]
+  dict incr idcounts $id
+  if {[dict get $idcounts $id] > $maxcount} {
+    set maxid $id
+    incr maxcount
+  }
+}
+# get i so that, as a julian date, it is in the 1800s, i.e., older than
+# any other tech note, but after 1 AD
+set i 2400000
+while {$maxcount < 2} {
+  # keep getting older
+  incr i -1
+  write_file f13 "A tech note with timestamp of jday=$i"
+  fossil wiki create "timestamp of $i" f13 --technote "$i"
+  fossil wiki list --technote --show-technote-ids
+  set technotelist [split $RESULT "\n"]
+  set oldesttechnoteid [lindex [split [lindex $technotelist [llength $technotelist]-1]] 0]
+  set id [string range $oldesttechnoteid 0 3]
+  dict incr idcounts $id
+  if {[dict get $idcounts $id] > $maxcount} {
+    set maxid $id
+    incr maxcount
+  }
+}
+# Save the duplicate id for this and later tests
+set duplicateid $maxid
+fossil wiki export a13 --technote $duplicateid -expectError
+test wiki-42 {$CODE != 0}
+
+###############################################################################
+# Check we can update technote by its id
+write_file f14 "Updated text for the really old tech note"
+fossil wiki commit {Old tech note} f14 --technote $anoldtechnoteid
+fossil wiki export a14 --technote $anoldtechnoteid
+test wiki-43 {[similar_file f14 a14]}
+
+###############################################################################
+# Check we can add attachments to a technote by its id
+fossil attachment add fa --technote $anoldtechnoteid
+test wiki-44 {$CODE == 0}
+
+###############################################################################
+# Also check that we can specify a prefix of the tech note id
+write_file f15 "Updated text for the really old tech note specified by its id"
+fossil wiki commit {Old tech note} f15 --technote [string range $anoldtechnoteid 0 20]
+fossil wiki export a15 --technote $anoldtechnoteid
+test wiki-45 {[similar_file f15 a15]}
+
+###############################################################################
+# Check we can add attachments to a technote by a prefix of its id
+fossil attachment add fa --technote [string range $anoldtechnoteid 0 20]
+test wiki-46 {$CODE == 0}
+
+###############################################################################
+# And we get an error for the ambiguous tech note id
+fossil wiki commit {Old tech note} f15 --technote $duplicateid -expectError
+test wiki-47 {$CODE != 0}
+fossil attachment add fa --technote $duplicateid -expectError
+test wiki-48 {$CODE != 0}
+
+###############################################################################
+# Check the default mimetype is text/x-fossil-wiki
+test wiki-49 {[get_mime_type tcltest] == "text/x-fossil-wiki"}
+
+###############################################################################
+# Check long form of the mimetypes are recorded correctly
+fossil wiki create tcltest-x-fossil f1 -mimetype text/x-fossil-wiki
+test wiki-50 {[get_mime_type tcltest-x-fossil] == "text/x-fossil-wiki"}
+fossil wiki create tcltest-x-markdown f1 -mimetype text/x-markdown
+test wiki-51 {[get_mime_type tcltest-x-markdown] == "text/x-markdown"}
+fossil wiki create tcltest-plain f1 -mimetype text/plain
+test wiki-52 {[get_mime_type tcltest-plain] == "text/plain"}
+fossil wiki create tcltest-x-random f1 -mimetype text/x-random
+test wiki-53 {[get_mime_type tcltest-x-random] == "text/x-fossil-wiki"}
+
+###############################################################################
+# Check short form of the mimetypes are recorded correctly
+fossil wiki create tcltest-x-fossil-short f1 -mimetype wiki
+test wiki-54 {[get_mime_type tcltest-x-fossil-short] == "text/x-fossil-wiki"}
+fossil wiki create tcltest-x-markdown-short f1 -mimetype markdown
+test wiki-55 {[get_mime_type tcltest-x-markdown-short] == "text/x-markdown"}
+fossil wiki create tcltest-plain-short f1 -mimetype plain
+test wiki-56 {[get_mime_type tcltest-plain-short] == "text/plain"}
+fossil wiki create tcltest-x-random-short f1 -mimetype random
+test wiki-57 {[get_mime_type tcltest-x-random-short] == "text/x-fossil-wiki"}
+
+
+###############################################################################
+test_cleanup
+

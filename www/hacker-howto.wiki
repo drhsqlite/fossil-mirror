@@ -4,6 +4,7 @@ The following links are of interest to programmers who want to modify
 or enhance Fossil.  Ordinary users can safely ignore this information.
 
   *  [./build.wiki | How To Compile And Install Fossil]
+  *  [./customskin.md | Theming Fossil]
   *  [./makefile.wiki | The Fossil Build Process]
   *  [./tech_overview.wiki | A Technical Overview of Fossil]
   *  [./adding_code.wiki | Adding Features To Fossil]

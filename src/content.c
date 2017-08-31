@@ -284,14 +284,17 @@ int content_get(int rid, Blob *pBlob){
     while( rc && n>=0 ){
       rc = content_of_blob(a[n], &delta);
       if( rc ){
-        blob_delta_apply(pBlob, &delta, &next);
-        blob_reset(&delta);
-        if( (mx-n)%8==0 ){
-          content_cache_insert(a[n+1], pBlob);
+        if( blob_delta_apply(pBlob, &delta, &next)<0 ){
+          rc = 1;
         }else{
-          blob_reset(pBlob);
+          blob_reset(&delta);
+          if( (mx-n)%8==0 ){
+            content_cache_insert(a[n+1], pBlob);
+          }else{
+            blob_reset(pBlob);
+          }
+          *pBlob = next;
         }
-        *pBlob = next;
       }
       n--;
     }
@@ -311,7 +314,7 @@ int content_get(int rid, Blob *pBlob){
 **
 ** Usage: %fossil artifact ARTIFACT-ID ?OUTPUT-FILENAME? ?OPTIONS?
 **
-** Extract an artifact by its SHA1 hash and write the results on
+** Extract an artifact by its artifact hash and write the results on
 ** standard output, or if the optional 4th argument is given, in
 ** the named output file.
 **
@@ -336,7 +339,7 @@ void artifact_cmd(void){
 }
 
 /*
-** COMMAND:  test-content-rawget
+** COMMAND: test-content-rawget
 **
 ** Extract a blob from the database and write it into a file.  This
 ** version does not expand the delta.
@@ -453,6 +456,26 @@ void content_enable_dephantomize(int onoff){
 }
 
 /*
+** Make sure the g.rcvid global variable has been initialized.
+**
+** If the g.zIpAddr variable has not been set when this routine is
+** called, use zSrc as the source of content for the rcvfrom
+** table entry.
+*/
+void content_rcvid_init(const char *zSrc){
+  if( g.rcvid==0 ){
+    user_select();
+    if( g.zIpAddr ) zSrc = g.zIpAddr;
+    db_multi_exec(
+       "INSERT INTO rcvfrom(uid, mtime, nonce, ipaddr)"
+       "VALUES(%d, julianday('now'), %Q, %Q)",
+       g.userUid, g.zNonce, zSrc
+    );
+    g.rcvid = db_last_insert_rowid();
+  }
+}
+
+/*
 ** Write content into the database.  Return the record ID.  If the
 ** content is already in the database, just return the record ID.
 **
@@ -476,7 +499,7 @@ void content_enable_dephantomize(int onoff){
 */
 int content_put_ex(
   Blob *pBlob,              /* Content to add to the repository */
-  const char *zUuid,        /* SHA1 hash of reconstructed pBlob */
+  const char *zUuid,        /* artifact hash of reconstructed pBlob */
   int srcId,                /* pBlob is a delta from this entry */
   int nBlob,                /* pBlob is compressed. Original size is this */
   int isPrivate             /* The content should be marked private */
@@ -492,11 +515,25 @@ int content_put_ex(
   assert( g.repositoryOpen );
   assert( pBlob!=0 );
   assert( srcId==0 || zUuid!=0 );
+  db_begin_transaction();
   if( zUuid==0 ){
     assert( nBlob==0 );
-    sha1sum_blob(pBlob, &hash);
+    /* First check the auxiliary hash to see if there is already an artifact
+    ** that uses the auxiliary hash name */
+    hname_hash(pBlob, 1, &hash);
+    rid = fast_uuid_to_rid(blob_str(&hash));
+    if( rid==0 ){
+      /* No existing artifact with the auxiliary hash name.  Therefore, use
+      ** the primary hash name. */
+      blob_reset(&hash);
+      hname_hash(pBlob, 0, &hash);
+    }
   }else{
     blob_init(&hash, zUuid, -1);
+  }
+  if( g.eHashPolicy==HPOLICY_AUTO && blob_size(&hash)>HNAME_LEN_SHA1 ){
+    g.eHashPolicy = HPOLICY_SHA3;
+    db_set_int("hash-policy", HPOLICY_SHA3, 0);
   }
   if( nBlob ){
     size = nBlob;
@@ -506,7 +543,6 @@ int content_put_ex(
       size = delta_output_size(blob_buffer(pBlob), size);
     }
   }
-  db_begin_transaction();
 
   /* Check to see if the entry already exists and if it does whether
   ** or not the entry is a phantom
@@ -529,14 +565,7 @@ int content_put_ex(
   db_finalize(&s1);
 
   /* Construct a received-from ID if we do not already have one */
-  if( g.rcvid==0 ){
-    db_multi_exec(
-       "INSERT INTO rcvfrom(uid, mtime, nonce, ipaddr)"
-       "VALUES(%d, julianday('now'), %Q, %Q)",
-       g.userUid, g.zNonce, g.zIpAddr
-    );
-    g.rcvid = db_last_insert_rowid();
-  }
+  content_rcvid_init(0);
 
   if( nBlob ){
     cmpr = pBlob[0];
@@ -665,7 +694,7 @@ int content_new(const char *zUuid, int isPrivate){
 
 
 /*
-** COMMAND:  test-content-put
+** COMMAND: test-content-put
 **
 ** Usage: %fossil test-content-put FILE
 **
@@ -705,13 +734,13 @@ void content_undelta(int rid){
 }
 
 /*
-** COMMAND:  test-content-undelta
+** COMMAND: test-content-undelta
 **
 ** Make sure the content at RECORDID is not a delta
 */
 void test_content_undelta_cmd(void){
   int rid;
-  if( g.argc!=2 ) usage("RECORDID");
+  if( g.argc!=3 ) usage("RECORDID");
   db_must_be_within_tree();
   rid = atoi(g.argv[2]);
   content_undelta(rid);
@@ -816,7 +845,7 @@ int content_deltify(int rid, int srcid, int force){
 }
 
 /*
-** COMMAND:  test-content-deltify
+** COMMAND: test-content-deltify
 **
 ** Convert the content at RID into a delta from SRCID.
 */
@@ -840,7 +869,7 @@ static int looks_like_control_artifact(Blob *p){
 }
 
 /*
-** COMMAND: test-integrity ?OPTIONS?
+** COMMAND: test-integrity
 **
 ** Verify that all content can be extracted from the BLOB table correctly.
 ** If the BLOB table is correct, then the repository can always be
@@ -854,7 +883,6 @@ static int looks_like_control_artifact(Blob *p){
 void test_integrity(void){
   Stmt q;
   Blob content;
-  Blob cksum;
   int n1 = 0;
   int n2 = 0;
   int nErr = 0;
@@ -891,6 +919,7 @@ void test_integrity(void){
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
+    int nUuid = db_column_bytes(&q, 1);
     int size = db_column_int(&q, 2);
     n1++;
     fossil_print("  %d/%d\r", n1, total);
@@ -905,10 +934,8 @@ void test_integrity(void){
                      rid, size, blob_size(&content));
       nErr++;
     }
-    sha1sum_blob(&content, &cksum);
-    if( fossil_strcmp(blob_str(&cksum), zUuid)!=0 ){
-      fossil_print("checksum mismatch on artifact %d: wanted %s but got %s\n",
-                   rid, zUuid, blob_str(&cksum));
+    if( !hname_verify_hash(&content, zUuid, nUuid) ){
+      fossil_print("wrong hash on artifact %d\n",rid);
       nErr++;
     }
     if( bParse && looks_like_control_artifact(&content) ){
@@ -927,7 +954,7 @@ void test_integrity(void){
       p = manifest_parse(&content, 0, &err);
       if( p==0 ){
         fossil_print("manifest_parse failed for %s:\n%s\n",
-               blob_str(&cksum), blob_str(&err));
+               zUuid, blob_str(&err));
         if( strncmp(blob_str(&err), "line 1:", 7)==0 ){
           fossil_print("\"%s\"\n", zFirstLine);
         }
@@ -940,7 +967,6 @@ void test_integrity(void){
     }else{
       blob_reset(&content);
     }
-    blob_reset(&cksum);
     n2++;
   }
   db_finalize(&q);
@@ -955,12 +981,14 @@ void test_integrity(void){
       if( anCA[i] ) fossil_print("  %d %ss\n", anCA[i], azType[i]);
     }
   }
+  fossil_print("low-level database integrity-check: ");
+  fossil_print("%s\n", db_text(0, "PRAGMA integrity_check(10)"));
 }
 
 /*
 ** COMMAND: test-orphans
 **
-** Search the repository for orphaned artifacts
+** Search the repository for orphaned artifacts.
 */
 void test_orphans(void){
   Stmt q;
@@ -1125,4 +1153,51 @@ void test_missing(void){
     fossil_print("%d missing or shunned references in %d control artifacts\n",
                  nErr, nArtifact);
   }
+}
+
+/*
+** COMMAND: test-content-erase
+**
+** Usage: %fossil test-content-erase RID ....
+**
+** Remove all traces of one or more artifacts from the local repository.
+**
+** WARNING: This command destroys data and can cause you to lose work.
+** Make sure you have a backup copy before using this command!
+**
+** WARNING: You must run "fossil rebuild" after this command to rebuild
+** the metadata.
+**
+** Note that the arguments are the integer raw RID values from the BLOB table,
+** not artifact hashs or labels.
+*/
+void test_content_erase(void){
+  int i;
+  Blob x;
+  char c;
+  Stmt q;
+  prompt_user("This command erases information from the repository and\n"
+              "might irrecoverably damage the repository.  Make sure you\n"
+              "have a backup copy!\n"
+              "Continue? (y/N)? ", &x);
+  c = blob_str(&x)[0];
+  blob_reset(&x);
+  if( c!='y' && c!='Y' ) return;
+  db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
+  db_begin_transaction();
+  db_prepare(&q, "SELECT rid FROM delta WHERE srcid=:rid");
+  for(i=2; i<g.argc; i++){
+    int rid = atoi(g.argv[i]);
+    fossil_print("Erasing artifact %d (%s)\n",
+                 rid, db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid));
+    db_bind_int(&q, ":rid", rid);
+    while( db_step(&q)==SQLITE_ROW ){
+      content_undelta(db_column_int(&q,0));
+    }
+    db_reset(&q);
+    db_multi_exec("DELETE FROM blob WHERE rid=%d", rid);
+    db_multi_exec("DELETE FROM delta WHERE rid=%d", rid);
+  }
+  db_finalize(&q);
+  db_end_transaction(0);
 }

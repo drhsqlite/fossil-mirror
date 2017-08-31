@@ -1,0 +1,306 @@
+#
+# Copyright (c) 2016 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+# The focus of this file is to test pre-commit warnings.
+#
+
+test_setup
+
+# binary
+write_file binary "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f"
+
+# text with CRLF lines
+write_file crlf.txt [subst -nocommands -novariables \
+{ordinary text\r
+cariage returns and line feeds\r
+on several lines\r\n}]
+
+# text with mixed line endings
+write_file cr-only.txt "AAA\rBBB\rCCC\r"
+write_file cr-lf-crlf.txt "AAA\rBBB\nCCC\r\n"
+
+# unix plain text includes the empty file by generalization
+write_file empty ""
+write_file plain.txt {
+Lorem ipsum
+dolor sic amet
+}
+
+# try long lines
+set a3 "abcdefgh"
+set a4 $a3$a3
+set a5 $a4$a4
+set a6 $a5$a5
+write_file line-0064 "$a6\n"
+set a7 $a6$a6
+set a8 $a7$a7
+set a9 $a8$a8
+set a10 $a9$a9
+write_file line-1024 "$a10\n"
+set a11 $a10$a10
+set a12 $a11$a11
+write_file line-4096 "$a12\n"
+set a13 $a12$a12
+write_file line-8192 "$a13\n"
+set a14 $a13$a13
+set a15 $a14$a14
+set a16 $a15$a15
+write_file line-64K "$a16\n"
+
+# UTF-8 extends 7-bit ASCII using bytes 80 and above to encode
+# larger character codes. Unicode uses U+0 through U+10FFFF only,
+# with U+D800 through U+DFFF reserved for surrogate pairs.
+# UTF-8 is valid if it is the shortest possible coding, encodes a
+# valid Unicode code point. But it's complicated.
+write_file utf-mod-c0-80 "11 bit NUL:\xC0\x80 is sometimes ok\n"
+write_file utf-bad-e0-80-80 "16 bit NUL:\xE0\x80\x80 is bad\n"
+write_file utf-bad-f0-80-80-80 "21 bit NUL:\xF0\x80\x80\x80 is bad\n"
+write_file utf-bad-f8-80-80-80-80 "26 bit NUL:\xF8\x80\x80\x80\x80 is bad\n"
+write_file utf-bad-fc-80-80-80-80-80 "31 bit NUL:\xFC\x80\x80\x80\x80\x80 is bad\n"
+write_file utf-bad-fe-80-80-80-80-80-80 "36 bit NUL:\xFC\x80\x80\x80\x80\x80 is bad\n"
+write_file utf-bad-c0-81 "overlong SOH:\xC0\x81 is bad\n"
+write_file utf-bad-c0-bf "overlong '?':\xC0\xBF is bad\n"
+write_file utf-bad-c1-bf "overlong DEL:\xC1\xBF is bad\n"
+write_file utf-bad-f4-90-80-80 "U+110000 not allowed:\xF4\x90\x80 not unicode\n"
+write_file utf-bad-f9-80-80-80-80 "U+2000000 not allowed:\xF9\x80\x80\x80\x80 not unicode\n"
+write_file utf-bad-ff "no byte FF:\xFF\n"
+write_file utf-ill16-lead "lead surrogate U+D800:\xED\xA0\x80 is ill formed\n"
+write_file utf-ill16-trail "trail surrogate U+DC00:\xED\xB0\x80 is ill formed\n"
+write_file utf-ill16-pair "surrogate pair U+10000:\xED\xA0\x80\xED\xB0\x80 is ill formed\n"
+set emoji "micro-smile \xC2\xB5\xE2\x98\xBA\npale facepalm \xF0\x9F\xA4\xA6\xF0\x9F\x8F\xBB\n"
+protOut $emoji
+write_file utf-8-emoji $emoji
+write_file utf-8-bom-emoji "\xef\xbb\xbf$emoji"
+
+# UTF-16 uses 16-bit values to cover all valid unicode code points
+# from U+0 to U+10FFFF, using surrogate pairs to escape the BMP.
+# Interchange require knowing (and preserving) byte order.
+set hello16LE "h\x00e\x00l\x00l\x00o\x00\n\x00"
+set hello16BE "\x00h\x00e\x00l\x00l\x00o\x00\n"
+write_file utf-16le-hello $hello16LE
+write_file utf-16be-hello $hello16BE
+set bomLE "\xff\xfe"
+set bomBE "\xfe\xff"
+write_file utf-16le-bomle-hello "$bomLE$hello16LE"
+write_file utf-16be-bombe-hello "$bomBE$hello16BE"
+write_file utf-16le-bombe-hello "$bomBE$hello16LE"
+write_file utf-16be-bomle-hello "$bomLE$hello16BE"
+set le16 [read_file [file join $testdir utf16le.txt]]
+set be16 [read_file [file join $testdir utf16be.txt]]
+write_file utf-16le.txt $le16
+write_file utf-16be.txt $be16
+write_file utf-nobom-16le.txt [string range $le16 2 end]
+write_file utf-nobom-16be.txt [string range $be16 2 end]
+#write_file [file join $::env(TEMP) utf-nobom-16le.txt] [string range $le16 2 end]
+#write_file [file join $::env(TEMP) utf-nobom-16be.txt] [string range $be16 2 end]
+
+# make all the test files known to fossil, then test
+fossil addremove
+fossil test-commit-warning --no-settings -v
+test pre-commit-warnings-1 {[normalize_result] eq \
+    [subst -nocommands -novariables [string trim {
+1\tbinary\tbinary data
+1\tcr-lf-crlf.txt\tmixed line endings
+1\tcr-only.txt\tCR line endings
+1\tcrlf.txt\tCR/LF line endings
+0\tempty\t
+0\tline-0064\t
+0\tline-1024\t
+0\tline-4096\t
+1\tline-64K\tlong lines
+1\tline-8192\tlong lines
+0\tplain.txt\t
+1\tutf-16be-bombe-hello\tUnicode
+1\tutf-16be-bomle-hello\tUnicode
+1\tutf-16be-hello\tbinary data
+1\tutf-16be.txt\tUnicode
+1\tutf-16le-bombe-hello\tUnicode
+1\tutf-16le-bomle-hello\tUnicode
+1\tutf-16le-hello\tbinary data
+1\tutf-16le.txt\tUnicode
+0\tutf-8-bom-emoji\t
+0\tutf-8-emoji\t
+1\tutf-bad-c0-81\tinvalid UTF-8
+1\tutf-bad-c0-bf\tinvalid UTF-8
+1\tutf-bad-c1-bf\tinvalid UTF-8
+1\tutf-bad-e0-80-80\tinvalid UTF-8
+1\tutf-bad-f0-80-80-80\tinvalid UTF-8
+1\tutf-bad-f4-90-80-80\tinvalid UTF-8
+1\tutf-bad-f8-80-80-80-80\tinvalid UTF-8
+1\tutf-bad-f9-80-80-80-80\tinvalid UTF-8
+1\tutf-bad-fc-80-80-80-80-80\tinvalid UTF-8
+1\tutf-bad-fe-80-80-80-80-80-80\tinvalid UTF-8
+1\tutf-bad-ff\tinvalid UTF-8
+0\tutf-ill16-lead\t
+0\tutf-ill16-pair\t
+0\tutf-ill16-trail\t
+0\tutf-mod-c0-80\t
+1\tutf-nobom-16be.txt\tbinary data
+1\tutf-nobom-16le.txt\tbinary data
+1}]]}
+
+
+###############################################################################
+
+# TODO: Change to a collection of test-case crafted files
+#       rather than depend on this list of files that will
+#       be fragile as development progresses.
+#
+# Unless the real goal of this test is to document a collection
+# of source files that MUST NEVER BE TEXT.
+#
+run_in_checkout {
+  fossil test-commit-warning --no-settings
+}
+
+test pre-commit-warnings-fossil-1 {[normalize_result] eq \
+    [subst -nocommands -novariables [string trim {
+1\tart/branching.odp\tbinary data
+1\tart/concept1.dia\tbinary data
+1\tart/concept2.dia\tbinary data
+1\tcompat/zlib/contrib/blast/test.pk\tbinary data
+1\tcompat/zlib/contrib/dotzlib/DotZLib.build\tCR/LF line endings
+1\tcompat/zlib/contrib/dotzlib/DotZLib.chm\tbinary data
+1\tcompat/zlib/contrib/dotzlib/DotZLib.sln\tCR/LF line endings
+1\tcompat/zlib/contrib/dotzlib/DotZLib/AssemblyInfo.cs\tCR/LF line endings
+1\tcompat/zlib/contrib/dotzlib/DotZLib/ChecksumImpl.cs\tinvalid UTF-8
+1\tcompat/zlib/contrib/dotzlib/DotZLib/CircularBuffer.cs\tinvalid UTF-8
+1\tcompat/zlib/contrib/dotzlib/DotZLib/CodecBase.cs\tinvalid UTF-8
+1\tcompat/zlib/contrib/dotzlib/DotZLib/Deflater.cs\tinvalid UTF-8
+1\tcompat/zlib/contrib/dotzlib/DotZLib/DotZLib.cs\tinvalid UTF-8
+1\tcompat/zlib/contrib/dotzlib/DotZLib/DotZLib.csproj\tCR/LF line endings
+1\tcompat/zlib/contrib/dotzlib/DotZLib/GZipStream.cs\tinvalid UTF-8
+1\tcompat/zlib/contrib/dotzlib/DotZLib/Inflater.cs\tinvalid UTF-8
+1\tcompat/zlib/contrib/dotzlib/DotZLib/UnitTests.cs\tCR/LF line endings
+1\tcompat/zlib/contrib/dotzlib/LICENSE_1_0.txt\tCR/LF line endings
+1\tcompat/zlib/contrib/dotzlib/readme.txt\tCR/LF line endings
+1\tcompat/zlib/contrib/gcc_gvmat64/gvmat64.S\tCR/LF line endings
+1\tcompat/zlib/contrib/masmx64/bld_ml64.bat\tCR/LF line endings
+1\tcompat/zlib/contrib/masmx64/gvmat64.asm\tCR/LF line endings
+1\tcompat/zlib/contrib/masmx64/inffas8664.c\tCR/LF line endings
+1\tcompat/zlib/contrib/masmx64/inffasx64.asm\tCR/LF line endings
+1\tcompat/zlib/contrib/masmx64/readme.txt\tCR/LF line endings
+1\tcompat/zlib/contrib/masmx86/bld_ml32.bat\tCR/LF line endings
+1\tcompat/zlib/contrib/masmx86/inffas32.asm\tCR/LF line endings
+1\tcompat/zlib/contrib/masmx86/match686.asm\tCR/LF line endings
+1\tcompat/zlib/contrib/masmx86/readme.txt\tCR/LF line endings
+1\tcompat/zlib/contrib/puff/zeros.raw\tbinary data
+1\tcompat/zlib/contrib/testzlib/testzlib.c\tCR/LF line endings
+1\tcompat/zlib/contrib/testzlib/testzlib.txt\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/readme.txt\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc10/miniunz.vcxproj\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc10/miniunz.vcxproj.filters\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc10/minizip.vcxproj\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc10/minizip.vcxproj.filters\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc10/testzlib.vcxproj\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc10/testzlib.vcxproj.filters\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc10/testzlibdll.vcxproj\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc10/testzlibdll.vcxproj.filters\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc10/zlib.rc\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc10/zlibstat.vcxproj\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc10/zlibstat.vcxproj.filters\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc10/zlibvc.def\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc10/zlibvc.sln\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc10/zlibvc.vcxproj\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc10/zlibvc.vcxproj.filters\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc11/miniunz.vcxproj\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc11/minizip.vcxproj\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc11/testzlib.vcxproj\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc11/testzlibdll.vcxproj\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc11/zlib.rc\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc11/zlibstat.vcxproj\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc11/zlibvc.def\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc11/zlibvc.sln\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc11/zlibvc.vcxproj\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc12/zlibvc.def\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc14/zlibvc.def\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc9/miniunz.vcproj\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc9/minizip.vcproj\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc9/testzlib.vcproj\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc9/testzlibdll.vcproj\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc9/zlib.rc\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc9/zlibstat.vcproj\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc9/zlibvc.def\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc9/zlibvc.sln\tCR/LF line endings
+1\tcompat/zlib/contrib/vstudio/vc9/zlibvc.vcproj\tCR/LF line endings
+1\tcompat/zlib/win32/zlib.def\tCR/LF line endings
+1\tcompat/zlib/zlib.3.pdf\tbinary data
+1\tcompat/zlib/zlib.map\tCR/LF line endings
+1\tsetup/fossil.iss\tCR/LF line endings
+1\tskins/blitz/arrow_project.png\tbinary data
+1\tskins/blitz/dir.png\tbinary data
+1\tskins/blitz/file.png\tbinary data
+1\tskins/blitz/fossil_100.png\tbinary data
+1\tskins/blitz/fossil_80_reversed_darkcyan.png\tbinary data
+1\tskins/blitz/fossil_80_reversed_darkcyan_text.png\tbinary data
+1\tskins/blitz/rss_20.png\tbinary data
+1\tskins/bootstrap/css.txt\tlong lines
+1\ttest/th1-docs-input.txt\tCR/LF line endings
+1\ttest/th1-hooks-input.txt\tCR/LF line endings
+1\ttest/utf16be.txt\tUnicode
+1\ttest/utf16le.txt\tUnicode
+1\twin/buildmsvc.bat\tCR/LF line endings
+1\twin/fossil.ico\tbinary data
+1\twin/fossil.rc\tinvalid UTF-8
+1\twww/CollRev1.gif\tbinary data
+1\twww/CollRev2.gif\tbinary data
+1\twww/CollRev3.gif\tbinary data
+1\twww/CollRev4.gif\tbinary data
+1\twww/apple-touch-icon.png\tbinary data
+1\twww/background.jpg\tbinary data
+1\twww/branch01.gif\tbinary data
+1\twww/branch02.gif\tbinary data
+1\twww/branch03.gif\tbinary data
+1\twww/branch04.gif\tbinary data
+1\twww/branch05.gif\tbinary data
+1\twww/build-icons/linux.gif\tbinary data
+1\twww/build-icons/linux64.gif\tbinary data
+1\twww/build-icons/mac.gif\tbinary data
+1\twww/build-icons/openbsd.gif\tbinary data
+1\twww/build-icons/src.gif\tbinary data
+1\twww/build-icons/win32.gif\tbinary data
+1\twww/concept1.gif\tbinary data
+1\twww/concept2.gif\tbinary data
+1\twww/copyright-release.pdf\tbinary data
+1\twww/delta1.gif\tbinary data
+1\twww/delta2.gif\tbinary data
+1\twww/delta3.gif\tbinary data
+1\twww/delta4.gif\tbinary data
+1\twww/delta5.gif\tbinary data
+1\twww/delta6.gif\tbinary data
+1\twww/encode1.gif\tbinary data
+1\twww/encode10.gif\tbinary data
+1\twww/encode2.gif\tbinary data
+1\twww/encode3.gif\tbinary data
+1\twww/encode4.gif\tbinary data
+1\twww/encode5.gif\tbinary data
+1\twww/encode6.gif\tbinary data
+1\twww/encode7.gif\tbinary data
+1\twww/encode8.gif\tbinary data
+1\twww/encode9.gif\tbinary data
+1\twww/fossil.gif\tbinary data
+1\twww/fossil2.gif\tbinary data
+1\twww/fossil3.gif\tbinary data
+1\twww/fossil_logo_small.gif\tbinary data
+1\twww/fossil_logo_small2.gif\tbinary data
+1\twww/fossil_logo_small3.gif\tbinary data
+1\twww/xkcd-git.gif\tbinary data
+1}]]}
+
+###############################################################################
+
+test_cleanup

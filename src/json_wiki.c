@@ -117,8 +117,26 @@ cson_value * json_get_wiki_page_by_rid(int rid, int contentFormat){
         Blob raw = empty_blob;
         zFormat = "html";
         if(zBody && *zBody){
+          const char *zMimetype = pWiki->zMimetype;
+          if( zMimetype==0 ) zMimetype = "text/x-fossil-wiki";
+          zMimetype = wiki_filter_mimetypes(zMimetype);
           blob_append(&raw,zBody,-1);
-          wiki_convert(&raw,&content,0);
+          if( fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0 ){
+            wiki_convert(&raw,&content,0);
+          }else if( fossil_strcmp(zMimetype, "text/x-markdown")==0 ){
+            markdown_to_html(&raw,0,&content);
+          }else if( fossil_strcmp(zMimetype, "text/plain")==0 ){
+            htmlize_to_blob(&content,blob_str(&raw),blob_size(&raw));
+          }else{
+            json_set_err( FSL_JSON_E_UNKNOWN,
+                          "Unsupported MIME type '%s' for wiki page '%s'.",
+                          zMimetype, pWiki->zWikiTitle );
+            blob_reset(&content);
+            blob_reset(&raw);
+            cson_free_object(pay);
+            manifest_destroy(pWiki);
+            return NULL;
+          }
           len = (unsigned int)blob_size(&content);
         }
         cson_object_set(pay,"size",json_new_int((cson_int_t)len));
@@ -139,7 +157,7 @@ cson_value * json_get_wiki_page_by_rid(int rid, int contentFormat){
     /*TODO: add the 'A' card (file attachment) entries?*/
     manifest_destroy(pWiki);
     return cson_object_value(pay);
-  }  
+  }
 }
 
 /*
@@ -154,7 +172,7 @@ cson_value * json_get_wiki_page_by_name(char const * zPageName, int contentForma
                " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q' "
                " AND b.rid=x.rid"
                " ORDER BY x.mtime DESC LIMIT 1",
-               zPageName 
+               zPageName
              );
   if( 0==rid ){
     json_set_err( FSL_JSON_E_RESOURCE_NOT_FOUND, "Wiki page not found: %s",
@@ -240,7 +258,7 @@ static cson_value * json_wiki_get(){
   zPageName = json_find_option_cstr2("name",NULL,"n",g.json.dispatchDepth+1);
 
   zSymName = json_find_option_cstr("uuid",NULL,"u");
-  
+
   if((!zPageName||!*zPageName) && (!zSymName || !*zSymName)){
     json_set_err(FSL_JSON_E_MISSING_ARGS,
                  "At least one of the 'name' or 'uuid' arguments must be provided.");
@@ -250,7 +268,7 @@ static cson_value * json_wiki_get(){
   /* TODO: see if we have a page named zPageName. If not, try to resolve
      zPageName as a UUID.
   */
-  
+
   contentFormat = json_wiki_get_content_format_flag(contentFormat);
   return json_wiki_get_by_name_or_symname( zPageName, zSymName, contentFormat );
 }
@@ -376,8 +394,9 @@ static cson_value * json_wiki_create_or_save(char createMode,
   }
 
   zMimeType = json_find_option_cstr("mimetype","mimetype","M");
+  zMimeType = wiki_filter_mimetypes(zMimeType);
 
-  wiki_cmd_commit(zPageName, 0==rid, &content, zMimeType, 0);
+  wiki_cmd_commit(zPageName, rid, &content, zMimeType, 0);
   blob_reset(&content);
   /*
     Our return value here has a race condition: if this operation
@@ -507,7 +526,7 @@ static cson_value * json_wiki_diff(){
     return NULL;
   }
 
-  
+
   zV1 = json_find_option_cstr2( "v1",NULL, NULL, ++argPos );
   zV2 = json_find_option_cstr2( "v2",NULL, NULL, ++argPos );
   if(!zV1 || !*zV1 || !zV2 || !*zV2) {
@@ -515,7 +534,7 @@ static cson_value * json_wiki_diff(){
                  "Requires both 'v1' and 'v2' arguments.");
     return NULL;
   }
-  
+
   r1 = symbolic_name_to_rid( zV1, "w" );
   zErrTag = zV1;
   if(r1<0){
@@ -548,12 +567,12 @@ static cson_value * json_wiki_diff(){
   blob_init(&w2, pW2->zWiki, -1);
   blob_zero(&d);
   diffFlags = DIFF_IGNORE_EOLWS | DIFF_STRIP_EOLCR;
-  text_diff(&w2, &w1, &d, 0, diffFlags);
+  text_diff(&w1, &w2, &d, 0, diffFlags);
   blob_reset(&w1);
   blob_reset(&w2);
 
   pay = cson_new_object();
-  
+
   zUuid = json_wiki_get_uuid_for_rid( pW1->rid );
   cson_object_set(pay, "v1", json_new_string(zUuid) );
   free(zUuid);
@@ -568,7 +587,7 @@ static cson_value * json_wiki_diff(){
   cson_object_set(pay, "diff",
                   cson_value_new_string( blob_str(&d),
                                          (unsigned int)blob_size(&d)));
-  
+
   return cson_object_value(pay);
 
   manifest:

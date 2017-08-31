@@ -14,13 +14,22 @@
 **   http://www.hwaci.com/drh/
 **
 *******************************************************************************
-** 
+**
 ** This file implements the undo/redo functionality.
 */
 #include "config.h"
 #include "undo.h"
 
-
+#if INTERFACE
+/*
+** Possible return values from the undo_maybe_save() routine.
+*/
+#define UNDO_NONE     (0) /* Placeholder only used to initialize vars. */
+#define UNDO_SAVED_OK (1) /* The specified file was saved succesfully. */
+#define UNDO_DISABLED (2) /* File not saved, subsystem is disabled. */
+#define UNDO_INACTIVE (3) /* File not saved, subsystem is not active. */
+#define UNDO_TOOBIG   (4) /* File not saved, it exceeded a size limit. */
+#endif
 
 /*
 ** Undo the change to the file zPathname.  zPathname is the pathname
@@ -47,15 +56,15 @@ static void undo_one(const char *zPathname, int redoFlag){
     Blob new;
     zFullname = mprintf("%s/%s", g.zLocalRoot, zPathname);
     old_link = db_column_int(&q, 3);
-    new_link = file_wd_islink(zFullname);
     new_exists = file_wd_size(zFullname)>=0;
+    new_link = file_wd_islink(0);
     if( new_exists ){
       if( new_link ){
         blob_read_link(&current, zFullname);
       }else{
-        blob_read_from_file(&current, zFullname);        
+        blob_read_from_file(&current, zFullname);
       }
-      new_exe = file_wd_isexe(zFullname);
+      new_exe = file_wd_isexe(0);
     }else{
       blob_zero(&current);
       new_exe = 0;
@@ -68,9 +77,9 @@ static void undo_one(const char *zPathname, int redoFlag){
     }
     if( old_exists ){
       if( new_exists ){
-        fossil_print("%s %s\n", redoFlag ? "REDO" : "UNDO", zPathname);
+        fossil_print("%s   %s\n", redoFlag ? "REDO" : "UNDO", zPathname);
       }else{
-        fossil_print("NEW %s\n", zPathname);
+        fossil_print("NEW    %s\n", zPathname);
       }
       if( new_exists && (new_link || old_link) ){
         file_delete(zFullname);
@@ -88,7 +97,7 @@ static void undo_one(const char *zPathname, int redoFlag){
     blob_reset(&new);
     free(zFullname);
     db_finalize(&q);
-    db_prepare(&q, 
+    db_prepare(&q,
        "UPDATE undo SET content=:c, existsflag=%d, isExe=%d, isLink=%d,"
              " redoflag=NOT redoflag"
        " WHERE pathname=%Q",
@@ -129,7 +138,6 @@ static void undo_all_filesystem(int redoFlag){
 static void undo_all(int redoFlag){
   int ucid;
   int ncid;
-  const char *zDb = db_name("localdb");
   undo_all_filesystem(redoFlag);
   db_multi_exec(
     "CREATE TEMP TABLE undo_vfile_2 AS SELECT * FROM vfile;"
@@ -145,8 +153,7 @@ static void undo_all(int redoFlag){
     "INSERT INTO undo_vmerge SELECT * FROM undo_vmerge_2;"
     "DROP TABLE undo_vmerge_2;"
   );
-  if(db_exists("SELECT 1 FROM \"%w\".sqlite_master"
-               " WHERE name='undo_stash'", zDb) ){
+  if( db_table_exists("localdb", "undo_stash") ){
     if( redoFlag ){
       db_multi_exec(
         "DELETE FROM stash WHERE stashid IN (SELECT stashid FROM undo_stash);"
@@ -220,9 +227,8 @@ void undo_capture_command_line(void){
 */
 void undo_begin(void){
   int cid;
-  const char *zDb = db_name("localdb");
-  static const char zSql[] = 
-    @ CREATE TABLE "%w".undo(
+  static const char zSql[] =
+    @ CREATE TABLE localdb.undo(
     @   pathname TEXT UNIQUE,             -- Name of the file
     @   redoflag BOOLEAN,                 -- 0 for undoable.  1 for redoable
     @   existsflag BOOLEAN,               -- True if the file exists
@@ -230,12 +236,12 @@ void undo_begin(void){
     @   isLink BOOLEAN,                   -- True if the file is symlink
     @   content BLOB                      -- Saved content
     @ );
-    @ CREATE TABLE "%w".undo_vfile AS SELECT * FROM vfile;
-    @ CREATE TABLE "%w".undo_vmerge AS SELECT * FROM vmerge;
+    @ CREATE TABLE localdb.undo_vfile AS SELECT * FROM vfile;
+    @ CREATE TABLE localdb.undo_vmerge AS SELECT * FROM vmerge;
   ;
   if( undoDisable ) return;
   undo_reset();
-  db_multi_exec(zSql/*works-like:"%w,%w,%w"*/, zDb, zDb, zDb);
+  db_multi_exec(zSql/*works-like:""*/);
   cid = db_lget_int("checkout", 0);
   db_lset_int("undo_checkout", cid);
   db_lset_int("undo_available", 1);
@@ -244,7 +250,7 @@ void undo_begin(void){
 }
 
 /*
-** Permanently disable undo 
+** Permanently disable undo
 */
 void undo_disable(void){
   undoDisable = 1;
@@ -265,57 +271,126 @@ static int undoNeedRollback = 0;
 ** tree.
 */
 void undo_save(const char *zPathname){
-  char *zFullname;
-  Blob content;
-  int existsFlag;
-  int isLink;
-  Stmt q;
+  if( undoDisable ) return;
+  if( undo_maybe_save(zPathname, -1)!=UNDO_SAVED_OK ){
+    fossil_panic("failed to save undo information for path: %s",
+                 zPathname);
+  }
+}
 
-  if( !undoActive ) return;
+/*
+** Possibly save the current content of the file zPathname so
+** that it will be undoable.  The name is relative to the root
+** of the tree.  The limit argument may be used to specify the
+** maximum size for the file to be saved.  If the size of the
+** specified file exceeds this size limit (in bytes), it will
+** not be saved and an appropriate code will be returned.
+**
+** WARNING: Please do NOT call this function with a limit
+**          value less than zero, call the undo_save()
+**          function instead.
+**
+** The return value of this function will always be one of the
+** following codes:
+**
+** UNDO_SAVED_OK: The specified file was saved succesfully.
+**
+** UNDO_DISABLED: The specified file was NOT saved, because the
+**                "undo subsystem" is disabled.  This error may
+**                indicate that a call to undo_disable() was
+**                issued.
+**
+** UNDO_INACTIVE: The specified file was NOT saved, because the
+**                "undo subsystem" is not active.  This error
+**                may indicate that a call to undo_begin() is
+**                missing.
+**
+**   UNDO_TOOBIG: The specified file was NOT saved, because it
+**                exceeded the specified size limit.  It is
+**                impossible for this value to be returned if
+**                the specified size limit is less than zero
+**                (i.e. unlimited).
+*/
+int undo_maybe_save(const char *zPathname, i64 limit){
+  char *zFullname;
+  i64 size;
+  int result;
+
+  if( undoDisable ) return UNDO_DISABLED;
+  if( !undoActive ) return UNDO_INACTIVE;
   zFullname = mprintf("%s%s", g.zLocalRoot, zPathname);
-  existsFlag = file_wd_size(zFullname)>=0;
-  isLink = file_wd_islink(zFullname);
-  db_prepare(&q,
-    "INSERT OR IGNORE INTO"
-    "   undo(pathname,redoflag,existsflag,isExe,isLink,content)"
-    " VALUES(%Q,0,%d,%d,%d,:c)",
-    zPathname, existsFlag, file_wd_isexe(zFullname), isLink
-  );
-  if( existsFlag ){
-    if( isLink ){
-      blob_read_link(&content, zFullname); 
-    }else{
-      blob_read_from_file(&content, zFullname);
+  size = file_wd_size(zFullname);
+  if( limit<0 || size<=limit ){
+    int existsFlag = (size>=0);
+    int isLink = file_wd_islink(zFullname);
+    Stmt q;
+    Blob content;
+    db_prepare(&q,
+      "INSERT OR IGNORE INTO"
+      "   undo(pathname,redoflag,existsflag,isExe,isLink,content)"
+      " VALUES(%Q,0,%d,%d,%d,:c)",
+      zPathname, existsFlag, file_wd_isexe(zFullname), isLink
+    );
+    if( existsFlag ){
+      if( isLink ){
+        blob_read_link(&content, zFullname);
+      }else{
+        blob_read_from_file(&content, zFullname);
+      }
+      db_bind_blob(&q, ":c", &content);
     }
-    db_bind_blob(&q, ":c", &content);
+    db_step(&q);
+    db_finalize(&q);
+    if( existsFlag ){
+      blob_reset(&content);
+    }
+    undoNeedRollback = 1;
+    result = UNDO_SAVED_OK;
+  }else{
+    result = UNDO_TOOBIG;
   }
   free(zFullname);
-  db_step(&q);
-  db_finalize(&q);
-  if( existsFlag ){
-    blob_reset(&content);
+  return result;
+}
+
+/*
+** Returns an error message for the undo_maybe_save() return code.
+** Currently, this function assumes that the caller is using the
+** returned error message in a context prefixed with "because".
+*/
+const char *undo_save_message(int rc){
+  static char zRc[32];
+
+  switch( rc ){
+    case UNDO_NONE:     return "undo is disabled for this operation";
+    case UNDO_SAVED_OK: return "the save operation was successful";
+    case UNDO_DISABLED: return "the undo subsystem is disabled";
+    case UNDO_INACTIVE: return "the undo subsystem is inactive";
+    case UNDO_TOOBIG:   return "the file is too big";
+    default: {
+      sqlite3_snprintf(sizeof(zRc), zRc, "of error code %d", rc);
+    }
   }
-  undoNeedRollback = 1;
+  return zRc;
 }
 
 /*
 ** Make the current state of stashid undoable.
 */
 void undo_save_stash(int stashid){
-  const char *zDb = db_name("localdb");
   db_multi_exec(
-    "CREATE TABLE IF NOT EXISTS \"%w\".undo_stash"
+    "CREATE TABLE IF NOT EXISTS localdb.undo_stash"
     "  AS SELECT * FROM stash WHERE 0;"
     "INSERT INTO undo_stash"
     " SELECT * FROM stash WHERE stashid=%d;",
-    zDb, stashid
+    stashid
   );
   db_multi_exec(
-    "CREATE TABLE IF NOT EXISTS \"%w\".undo_stashfile"
+    "CREATE TABLE IF NOT EXISTS localdb.undo_stashfile"
     "  AS SELECT * FROM stashfile WHERE 0;"
     "INSERT INTO undo_stashfile"
     " SELECT * FROM stashfile WHERE stashid=%d;",
-    zDb, stashid
+    stashid
   );
 }
 
@@ -366,8 +441,11 @@ void undo_rollback(void){
 **    (3) fossil revert             (7) fossil stash goto
 **    (4) fossil stash pop
 **
+** The "fossil clean" operation can also be undone; however, this is
+** currently limited to files that are less than 10MiB in size.
+**
 ** If FILENAME is specified then restore the content of the named
-** file(s) but otherwise leave the update or merge or revert in effect. 
+** file(s) but otherwise leave the update or merge or revert in effect.
 ** The redo command undoes the effect of the most recent undo.
 **
 ** If the -n|--dry-run option is present, no changes are made and instead
@@ -401,10 +479,11 @@ void undo_cmd(void){
     }else{
       Stmt q;
       int nChng = 0;
+      const char *zArticle = undo_available==1 ? "An" : "A";
       zCmd = undo_available==1 ? "undo" : "redo";
-      fossil_print("A %s is available for the following command:\n\n"
+      fossil_print("%s %s is available for the following command:\n\n"
                    "   %s %s\n\n",
-                   zCmd, g.argv[0], db_lget("undo_cmdline", "???"));
+                   zArticle, zCmd, g.argv[0], db_lget("undo_cmdline", "???"));
       db_prepare(&q,
         "SELECT existsflag, pathname FROM undo ORDER BY pathname"
       );
@@ -414,7 +493,7 @@ void undo_cmd(void){
                        "command above is %sne:\n\n", zCmd);
         }
         nChng++;
-        fossil_print("%s %s\n", 
+        fossil_print("%s %s\n",
            db_column_int(&q,0) ? "UPDATE" : "DELETE",
            db_column_text(&q, 1)
         );
@@ -441,7 +520,7 @@ void undo_cmd(void){
       for(i=2; i<g.argc; i++){
         const char *zFile = g.argv[i];
         Blob path;
-        file_tree_name(zFile, &path, 1);
+        file_tree_name(zFile, &path, 0, 1);
         undo_one(blob_str(&path), isRedo);
         blob_reset(&path);
       }

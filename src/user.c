@@ -21,7 +21,6 @@
 #include "config.h"
 #include "user.h"
 
-
 /*
 ** Strip leading and trailing space from a string and add the string
 ** onto the end of a blob.
@@ -42,57 +41,202 @@ static void strip_string(Blob *pBlob, char *z){
 }
 
 #if defined(_WIN32) || defined(__BIONIC__)
-#ifdef __MINGW32__
+#ifdef _WIN32
 #include <conio.h>
 #endif
-/*
-** getpass for Windows and Android
-*/
-static char *getpass(const char *prompt){
-  static char pwd[64];
-  size_t i;
 
+/*
+** getpass() for Windows and Android.
+*/
+static char *zPwdBuffer = 0;
+static size_t nPwdBuffer = 0;
+
+static char *getpass(const char *prompt){
+  char *zPwd;
+  size_t nPwd;
+  size_t i;
+#if defined(_WIN32)
+  int useGetch = _isatty(_fileno(stderr));
+#endif
+
+  if( zPwdBuffer==0 ){
+    zPwdBuffer = fossil_secure_alloc_page(&nPwdBuffer);
+    assert( zPwdBuffer );
+  }else{
+    fossil_secure_zero(zPwdBuffer, nPwdBuffer);
+  }
+  zPwd = zPwdBuffer;
+  nPwd = nPwdBuffer;
   fputs(prompt,stderr);
   fflush(stderr);
-  for(i=0; i<sizeof(pwd)-1; ++i){
+  assert( zPwd!=0 );
+  assert( nPwd>0 );
+  for(i=0; i<nPwd-1; ++i){
 #if defined(_WIN32)
-    pwd[i] = _getch();
+    zPwd[i] = useGetch ? _getch() : getc(stdin);
 #else
-    pwd[i] = getc(stdin);
+    zPwd[i] = getc(stdin);
 #endif
-    if(pwd[i]=='\r' || pwd[i]=='\n'){
+    if(zPwd[i]=='\r' || zPwd[i]=='\n'){
       break;
     }
     /* BS or DEL */
-    else if(i>0 && (pwd[i]==8 || pwd[i]==127)){
+    else if(i>0 && (zPwd[i]==8 || zPwd[i]==127)){
       i -= 2;
       continue;
     }
     /* CTRL-C */
-    else if(pwd[i]==3) {
+    else if(zPwd[i]==3) {
       i=0;
       break;
     }
     /* ESC */
-    else if(pwd[i]==27){
+    else if(zPwd[i]==27){
       i=0;
       break;
     }
     else{
+#if defined(_WIN32)
+      if( useGetch )
+#endif
       fputc('*',stderr);
     }
   }
-  pwd[i]='\0';
+  zPwd[i]='\0';
   fputs("\n", stderr);
-  return pwd;
+  assert( zPwd==zPwdBuffer );
+  return zPwd;
+}
+void freepass(){
+  if( !zPwdBuffer ) return;
+  assert( nPwdBuffer>0 );
+  fossil_secure_free_page(zPwdBuffer, nPwdBuffer);
 }
 #endif
 
+#if defined(_WIN32) || defined(WIN32)
+# include <io.h>
+# include <fcntl.h>
+# undef popen
+# define popen _popen
+# undef pclose
+# define pclose _pclose
+#endif
+
+/*
+** Scramble substitution matrix:
+*/
+static char aSubst[256];
+
+/*
+** Descramble the password
+*/
+static void userDescramble(char *z){
+  int i;
+  for(i=0; z[i]; i++) z[i] = aSubst[(unsigned char)z[i]];
+}
+
+/* Print a string in 5-letter groups */
+static void printFive(const unsigned char *z){
+  int i;
+  for(i=0; z[i]; i++){
+    if( i>0 && (i%5)==0 ) putchar(' ');
+    putchar(z[i]);
+  }
+  putchar('\n');
+}
+
+/* Return a pseudo-random integer between 0 and N-1 */
+static int randint(int N){
+  unsigned char x;
+  assert( N<256 );
+  sqlite3_randomness(1, &x);
+  return x % N;
+}
+
+/*
+** Generate and print a random scrambling of letters a through z (omitting x)
+** and set up the aSubst[] matrix to descramble.
+*/
+static void userGenerateScrambleCode(void){
+  unsigned char zOrig[30];
+  unsigned char zA[30];
+  unsigned char zB[30];
+  int nA = 25;
+  int nB = 0;
+  int i;
+  memcpy(zOrig, "abcdefghijklmnopqrstuvwyz", nA+1);
+  memcpy(zA, zOrig, nA+1);
+  assert( nA==(int)strlen((char*)zA) );
+  for(i=0; i<sizeof(aSubst); i++) aSubst[i] = i;
+  printFive(zA);
+  while( nA>0 ){
+    int x = randint(nA);
+    zB[nB++] = zA[x];
+    zA[x] = zA[--nA];
+  }
+  assert( nB==25 );
+  zB[nB] = 0;
+  printFive(zB);
+  for(i=0; i<nB; i++) aSubst[zB[i]] = zOrig[i];
+}
+
+/*
+** Return the value of the FOSSIL_SECURITY_LEVEL environment variable.
+** Or return 0 if that variable does not exist.
+*/
+int fossil_security_level(void){
+  const char *zLevel = fossil_getenv("FOSSIL_SECURITY_LEVEL");
+  if( zLevel==0 ) return 0;
+  return atoi(zLevel);
+}
+
+
 /*
 ** Do a single prompt for a passphrase.  Store the results in the blob.
+**
+**
+** The return value is a pointer to a static buffer that is overwritten
+** on subsequent calls to this same routine.
 */
 static void prompt_for_passphrase(const char *zPrompt, Blob *pPassphrase){
-  char *z = getpass(zPrompt);
+  char *z;
+#if 0
+  */
+  ** If the FOSSIL_PWREADER environment variable is set, then it will
+  ** be the name of a program that prompts the user for their password/
+  ** passphrase in a secure manner.  The program should take one or more
+  ** arguments which are the prompts and should output the acquired
+  ** passphrase as a single line on stdout.  This function will read the
+  ** output using popen().
+  **
+  ** If FOSSIL_PWREADER is not set, or if it is not the name of an
+  ** executable, then use the C-library getpass() routine.
+  */
+  const char *zProg = fossil_getenv("FOSSIL_PWREADER");
+  if( zProg && zProg[0] ){
+    static char zPass[100];
+    Blob cmd;
+    FILE *in;
+    blob_zero(&cmd);
+    blob_appendf(&cmd, "%s \"Fossil Passphrase\" \"%s\"", zProg, zPrompt);
+    zPass[0] = 0;
+    in = popen(blob_str(&cmd), "r");
+    fgets(zPass, sizeof(zPass), in);
+    pclose(in);
+    blob_reset(&cmd);
+    z = zPass;
+  }else
+#endif
+  if( fossil_security_level()>=2 ){
+    userGenerateScrambleCode();
+    z = getpass(zPrompt);
+    if( z ) userDescramble(z);
+    printf("\033[3A\033[J");  /* Erase previous three lines */
+    fflush(stdout);
+  }else{
+    z = getpass(zPrompt);
+  }
   strip_string(pPassphrase, z);
 }
 
@@ -141,6 +285,7 @@ int save_password_prompt(const char *passwd){
   if( (old!=0) && fossil_strcmp(unobscure(old), passwd)==0 ){
      return 0;
   }
+  if( fossil_security_level()>=1 ) return 0;
   prompt_user("remember password (Y/n)? ", &x);
   c = blob_str(&x)[0];
   blob_reset(&x);
@@ -179,7 +324,6 @@ void prompt_user(const char *zPrompt, Blob *pIn){
     strip_string(pIn, z);
   }
 }
-
 
 /*
 ** COMMAND: user*
@@ -388,6 +532,32 @@ void user_select(void){
   fossil_fatal("cannot determine user");
 }
 
+/*
+** COMMAND: test-usernames
+**
+** Usage: %fossil test-usernames
+**
+** Print details about sources of fossil usernames.
+*/
+void test_usernames_cmd(void){
+  db_find_and_open_repository(0, 0);
+
+  fossil_print("Initial g.zLogin: %s\n", g.zLogin);
+  fossil_print("Initial g.userUid: %d\n", g.userUid);
+  fossil_print("checkout default-user: %s\n", g.localOpen ?
+               db_lget("default-user","") : "<<no open checkout>>");
+  fossil_print("default-user: %s\n", db_get("default-user",""));
+  fossil_print("FOSSIL_USER: %s\n", fossil_getenv("FOSSIL_USER"));
+  fossil_print("USER: %s\n", fossil_getenv("USER"));
+  fossil_print("LOGNAME: %s\n", fossil_getenv("LOGNAME"));
+  fossil_print("USERNAME: %s\n", fossil_getenv("USERNAME"));
+  url_parse(0, 0);
+  fossil_print("URL user: %s\n", g.url.user);
+  user_select();
+  fossil_print("Final g.zLogin: %s\n", g.zLogin);
+  fossil_print("Final g.userUid: %d\n", g.userUid);
+}
+
 
 /*
 ** COMMAND: test-hash-passwords
@@ -410,24 +580,72 @@ void user_hash_passwords_cmd(void){
 }
 
 /*
+** COMMAND: test-prompt-user
+**
+** Usage: %fossil test-prompt-user PROMPT
+**
+** Prompts the user for input and then prints it verbatim (i.e. without
+** a trailing line terminator).
+*/
+void test_prompt_user_cmd(void){
+  Blob answer;
+  if( g.argc!=3 ) usage("PROMPT");
+  prompt_user(g.argv[2], &answer);
+  fossil_print("%s\n", blob_str(&answer));
+}
+
+/*
+** COMMAND: test-prompt-password
+**
+** Usage: %fossil test-prompt-password PROMPT VERIFY
+**
+** Prompts the user for a password and then prints it verbatim.
+**
+** Behavior is controlled by the VERIFY parameter:
+**
+**     0     Just ask once.
+**
+**     1     If the first answer is a non-empty string, ask for
+**           verification.  Repeat if the two strings do not match.
+**
+**     2     Ask twice, repeat if the strings do not match.
+
+*/
+void test_prompt_password_cmd(void){
+  Blob answer;
+  int iVerify = 0;
+  if( g.argc!=4 ) usage("PROMPT VERIFY");
+  iVerify = atoi(g.argv[3]);
+  prompt_for_password(g.argv[2], &answer, iVerify);
+  fossil_print("[%s]\n", blob_str(&answer));
+}
+
+/*
 ** WEBPAGE: access_log
 **
-**    y=N      1: success only.  2: failure only.  3: both
-**    n=N      Number of entries to show
-**    o=N      Skip this many entries
+** Show login attempts, including timestamp and IP address.
+** Requires Admin privileges.
+**
+** Query parameters:
+**
+**    y=N      1: success only.  2: failure only.  3: both (default: 3)
+**    n=N      Number of entries to show (default: 200)
+**    o=N      Skip this many entries (default: 0)
 */
 void access_log_page(void){
   int y = atoi(PD("y","3"));
-  int n = atoi(PD("n","50"));
+  int n = atoi(PD("n","200"));
   int skip = atoi(PD("o","0"));
   Blob sql;
   Stmt q;
   int cnt = 0;
   int rc;
+  int fLogEnabled;
 
   login_check_credentials();
-  if( !g.perm.Admin ){ login_needed(); return; }
+  if( !g.perm.Admin ){ login_needed(0); return; }
   create_accesslog_table();
+
 
   if( P("delall") && P("delallbtn") ){
     db_multi_exec("DELETE FROM accesslog");
@@ -454,8 +672,8 @@ void access_log_page(void){
   style_header("Access Log");
   blob_zero(&sql);
   blob_append_sql(&sql,
-    "SELECT uname, ipaddr, datetime(mtime%s), success"
-    "  FROM accesslog", timeline_utc()
+    "SELECT uname, ipaddr, datetime(mtime,toLocal()), success"
+    "  FROM accesslog"
   );
   if( y==1 ){
     blob_append(&sql, "  WHERE success", -1);
@@ -464,14 +682,16 @@ void access_log_page(void){
   }
   blob_append_sql(&sql,"  ORDER BY rowid DESC LIMIT %d OFFSET %d", n+1, skip);
   if( skip ){
-    style_submenu_element("Newer", "Newer entries",
-              "%s/access_log?o=%d&n=%d&y=%d", g.zTop, skip>=n ? skip-n : 0,
-              n, y);
+    style_submenu_element("Newer", "%s/access_log?o=%d&n=%d&y=%d",
+              g.zTop, skip>=n ? skip-n : 0, n, y);
   }
   rc = db_prepare_ignore_error(&q, "%s", blob_sql_text(&sql));
-  @ <center><table border="1" cellpadding="5">
-  @ <tr><th width="33%%">Date</th><th width="34%%">User</th>
-  @ <th width="33%%">IP Address</th></tr>
+  fLogEnabled = db_get_boolean("access-log", 0);
+  @ <div align="center">Access logging is %s(fLogEnabled?"on":"off").
+  @ (Change this on the <a href="setup_settings">settings</a> page.)</div>
+  @ <table border="1" cellpadding="5" id="logtable" align="center">
+  @ <thead><tr><th width="33%%">Date</th><th width="34%%">User</th>
+  @ <th width="33%%">IP Address</th></tr></thead><tbody>
   while( rc==SQLITE_OK && db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
     const char *zIP = db_column_text(&q, 1);
@@ -479,8 +699,8 @@ void access_log_page(void){
     int bSuccess = db_column_int(&q, 3);
     cnt++;
     if( cnt>n ){
-      style_submenu_element("Older", "Older entries",
-                  "%s/access_log?o=%d&n=%d&y=%d", g.zTop, skip+n, n, y);
+      style_submenu_element("Older", "%s/access_log?o=%d&n=%d&y=%d",
+                  g.zTop, skip+n, n, y);
       break;
     }
     if( bSuccess ){
@@ -491,12 +711,11 @@ void access_log_page(void){
     @ <td>%s(zDate)</td><td>%h(zName)</td><td>%h(zIP)</td></tr>
   }
   if( skip>0 || cnt>n ){
-    style_submenu_element("All", "All entries",
-          "%s/access_log?n=10000000", g.zTop);
+    style_submenu_element("All", "%s/access_log?n=10000000", g.zTop);
   }
-  @ </table></center>
+  @ </tbody></table>
   db_finalize(&q);
-  @ <hr>
+  @ <hr />
   @ <form method="post" action="%s(g.zTop)/access_log">
   @ <label><input type="checkbox" name="delold">
   @ Delete all but the most recent 200 entries</input></label>
@@ -517,5 +736,6 @@ void access_log_page(void){
   @ Delete all entries</input></label>
   @ <input type="submit" name="delallbtn" value="Delete"></input>
   @ </form>
+  output_table_sorting_javascript("logtable", "Ttt", 1);
   style_footer();
 }

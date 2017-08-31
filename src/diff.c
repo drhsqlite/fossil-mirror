@@ -37,11 +37,13 @@
 #define DIFF_BRIEF        ((u64)0x10000000) /* Show filenames only */
 #define DIFF_HTML         ((u64)0x20000000) /* Render for HTML */
 #define DIFF_LINENO       ((u64)0x40000000) /* Show line numbers */
+#define DIFF_NUMSTAT      ((u64)0x80000000) /* Show line count of changes */
 #define DIFF_NOOPT        (((u64)0x01)<<32) /* Suppress optimizations (debug) */
 #define DIFF_INVERT       (((u64)0x02)<<32) /* Invert the diff (debug) */
 #define DIFF_CONTEXT_EX   (((u64)0x04)<<32) /* Use context even if zero */
 #define DIFF_NOTTOOBIG    (((u64)0x08)<<32) /* Only display if not too big */
 #define DIFF_STRIP_EOLCR  (((u64)0x10)<<32) /* Strip trailing CR */
+#define DIFF_SLOW_SBS     (((u64)0x20)<<32) /* Better, but slower side-by-side */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -115,8 +117,32 @@ struct DContext {
   int nFrom;         /* Number of lines in aFrom[] */
   DLine *aTo;        /* File on right side of the diff */
   int nTo;           /* Number of lines in aTo[] */
-  int (*same_fn)(const DLine *, const DLine *); /* Function to be used for comparing */
+  int (*same_fn)(const DLine*,const DLine*); /* comparison function */
 };
+
+/*
+** Count the number of lines in the input string.  Include the last line
+** in the count even if it lacks the \n terminator.  If an empty string
+** is specified, the number of lines is zero.  For the purposes of this
+** function, a string is considered empty if it contains no characters
+** -OR- it contains only NUL characters.
+*/
+static int count_lines(
+  const char *z,
+  int n,
+  int *pnLine
+){
+  int nLine;
+  const char *zNL, *z2;
+  for(nLine=0, z2=z; (zNL = strchr(z2,'\n'))!=0; z2=zNL+1, nLine++){}
+  if( z2[0]!='\0' ){
+    nLine++;
+    do{ z2++; }while( z2[0]!='\0' );
+  }
+  if( n!=(int)(z2-z) ) return 0;
+  if( pnLine ) *pnLine = nLine;
+  return 1;
+}
 
 /*
 ** Return an array of DLine objects containing a pointer to the
@@ -133,42 +159,38 @@ struct DContext {
 ** Profiling show that in most cases this routine consumes the bulk of
 ** the CPU time on a diff.
 */
-static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags){
-  int nLine, i, j, k, s, x;
+static DLine *break_into_lines(
+  const char *z,
+  int n,
+  int *pnLine,
+  u64 diffFlags
+){
+  int nLine, i, k, nn, s, x;
   unsigned int h, h2;
   DLine *a;
+  const char *zNL;
 
-  /* Count the number of lines.  Allocate space to hold
-  ** the returned array.
-  */
-  for(i=j=0, nLine=1; i<n; i++, j++){
-    int c = z[i];
-    if( c==0 ){
-      return 0;
-    }
-    if( c=='\n' && z[i+1]!=0 ){
-      nLine++;
-      if( j>LENGTH_MASK ){
-        return 0;
-      }
-      j = 0;
-    }
-  }
-  if( j>LENGTH_MASK ){
+  if( count_lines(z, n, &nLine)==0 ){
     return 0;
   }
-  a = fossil_malloc( nLine*sizeof(a[0]) );
-  memset(a, 0, nLine*sizeof(a[0]) );
-  if( n==0 ){
+  assert( nLine>0 || z[0]=='\0' );
+  a = fossil_malloc( sizeof(a[0])*nLine );
+  memset(a, 0, sizeof(a[0])*nLine);
+  if( nLine==0 ){
     *pnLine = 0;
     return a;
   }
-
-  /* Fill in the array */
-  for(i=0; i<nLine; i++){
-    for(j=0; z[j] && z[j]!='\n'; j++){}
+  i = 0;
+  do{
+    zNL = strchr(z,'\n');
+    if( zNL==0 ) zNL = z+n;
+    nn = (int)(zNL - z);
+    if( nn>LENGTH_MASK ){
+      fossil_free(a);
+      return 0;
+    }
     a[i].z = z;
-    k = j;
+    k = nn;
     if( diffFlags & DIFF_STRIP_EOLCR ){
       if( k>0 && z[k-1]=='\r' ){ k--; }
     }
@@ -181,16 +203,19 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags)
       int numws = 0;
       while( s<k && fossil_isspace(z[s]) ){ s++; }
       for(h=0, x=s; x<k; x++){
-        if( fossil_isspace(z[x]) ){
+        char c = z[x];
+        if( fossil_isspace(c) ){
           ++numws;
         }else{
-          h = h ^ (h<<2) ^ z[x];
+          h += c;
+          h *= 0x9e3779b1;
         }
       }
       k -= numws;
     }else{
       for(h=0, x=s; x<k; x++){
-        h = h ^ (h<<2) ^ z[x];
+        h += z[x];
+        h *= 0x9e3779b1;
       }
     }
     a[i].indent = s;
@@ -198,8 +223,10 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags)
     h2 = h % nLine;
     a[i].iNext = a[h2].iHash;
     a[h2].iHash = i+1;
-    z += j+1;
-  }
+    z += nn+1; n -= nn+1;
+    i++;
+  }while( zNL[0]!='\0' && zNL[1]!='\0' );
+  assert( i==nLine );
 
   /* Return results */
   *pnLine = nLine;
@@ -791,7 +818,40 @@ static void sbsWriteLineChange(
     }
     if( nSuffix==nLeft || nSuffix==nRight ) nPrefix = 0;
   }
-  if( nPrefix+nSuffix > nShort ) nPrefix = nShort - nSuffix;
+
+  /* If the prefix and suffix overlap, that means that we are dealing with
+  ** a pure insertion or deletion of text that can have multiple alignments.
+  ** Try to find an alignment to begins and ends on whitespace, or on
+  ** punctuation, rather than in the middle of a name or number.
+  */
+  if( nPrefix+nSuffix > nShort ){
+    int iBest = -1;
+    int iBestVal = -1;
+    int i;
+    int nLong = nLeft<nRight ? nRight : nLeft;
+    int nGap = nLong - nShort;
+    for(i=nShort-nSuffix; i<=nPrefix; i++){
+       int iVal = 0;
+       char c = zLeft[i];
+       if( fossil_isspace(c) ){
+         iVal += 5;
+       }else if( !fossil_isalnum(c) ){
+         iVal += 2;
+       }
+       c = zLeft[i+nGap-1];
+       if( fossil_isspace(c) ){
+         iVal += 5;
+       }else if( !fossil_isalnum(c) ){
+         iVal += 2;
+       }
+       if( iVal>iBestVal ){
+         iBestVal = iVal;
+         iBest = i;
+       }
+    }
+    nPrefix = iBest;
+    nSuffix = nShort - nPrefix;
+  }
 
   /* A single chunk of text inserted on the right */
   if( nPrefix+nSuffix==nLeft ){
@@ -927,7 +987,7 @@ static int match_dline(DLine *pA, DLine *pB){
   avg = (nA+nB)/2;
   if( avg==0 ) return 0;
   if( nA==nB && memcmp(zA, zB, nA)==0 ) return 0;
-  memset(aFirst, 0, sizeof(aFirst));
+  memset(aFirst, 0xff, sizeof(aFirst));
   zA--; zB--;   /* Make both zA[] and zB[] 1-indexed */
   for(i=nB; i>0; i--){
     c = (unsigned char)zB[i];
@@ -937,9 +997,9 @@ static int match_dline(DLine *pA, DLine *pB){
   best = 0;
   for(i=1; i<=nA-best; i++){
     c = (unsigned char)zA[i];
-    for(j=aFirst[c]; j>0 && j<nB-best; j = aNext[j]){
+    for(j=aFirst[c]; j<nB-best && memcmp(&zA[i],&zB[j],best)==0; j = aNext[j]){
       int limit = minInt(nA-i, nB-j);
-      for(k=1; k<=limit && zA[k+i]==zB[k+j]; k++){}
+      for(k=best; k<=limit && zA[k+i]==zB[k+j]; k++){}
       if( k>best ) best = k;
     }
   }
@@ -981,7 +1041,8 @@ static int match_dline(DLine *pA, DLine *pB){
 */
 static unsigned char *sbsAlignment(
    DLine *aLeft, int nLeft,       /* Text on the left */
-   DLine *aRight, int nRight      /* Text on the right */
+   DLine *aRight, int nRight,     /* Text on the right */
+   u64 diffFlags                  /* Flags passed into the original diff */
 ){
   int i, j, k;                 /* Loop counters */
   int *a;                      /* One row of the Wagner matrix */
@@ -1005,14 +1066,14 @@ static unsigned char *sbsAlignment(
   /* This algorithm is O(N**2).  So if N is too big, bail out with a
   ** simple (but stupid and ugly) result that doesn't take too long. */
   mnLen = nLeft<nRight ? nLeft : nRight;
-  if( nLeft*nRight>100000 ){
+  if( nLeft*nRight>100000 && (diffFlags & DIFF_SLOW_SBS)==0 ){
     memset(aM, 4, mnLen);
     if( nLeft>mnLen )  memset(aM+mnLen, 1, nLeft-mnLen);
     if( nRight>mnLen ) memset(aM+mnLen, 2, nRight-mnLen);
     return aM;
   }
 
-  if( nRight < (sizeof(aBuf)/sizeof(aBuf[0]))-1 ){
+  if( nRight < count(aBuf)-1 ){
     pToFree = 0;
     a = aBuf;
   }else{
@@ -1269,7 +1330,7 @@ static void sbsDiff(
         mb += R[r+i*3+2] + m;
       }
 
-      alignment = sbsAlignment(&A[a], ma, &B[b], mb);
+      alignment = sbsAlignment(&A[a], ma, &B[b], mb, diffFlags);
       for(j=0; ma+mb>0; j++){
         if( alignment[j]==1 ){
           /* Delete one line from the left */
@@ -1860,8 +1921,14 @@ int *text_diff(
   }
 
   if( pOut ){
-    /* Compute a context or side-by-side diff into pOut */
-    if( diffFlags & DIFF_SIDEBYSIDE ){
+    if( diffFlags & DIFF_NUMSTAT ){
+      int nDel = 0, nIns = 0, i;
+      for(i=0; c.aEdit[i] || c.aEdit[i+1] || c.aEdit[i+2]; i+=3){
+        nDel += c.aEdit[i+1];
+        nIns += c.aEdit[i+2];
+      }
+      blob_appendf(pOut, "%10d %10d", nIns, nDel);
+    }else if( diffFlags & DIFF_SIDEBYSIDE ){
       sbsDiff(&c, pOut, pRe, diffFlags);
     }else{
       contextDiff(&c, pOut, pRe, diffFlags);
@@ -1890,6 +1957,7 @@ int *text_diff(
 **   --invert                   Invert the diff        DIFF_INVERT
 **   -n|--linenum               Show line numbers      DIFF_LINENO
 **   --noopt                    Disable optimization   DIFF_NOOPT
+**   --numstat                  Show change counts     DIFF_NUMSTAT
 **   --strip-trailing-cr        Strip trailing CR      DIFF_STRIP_EOLCR
 **   --unified                  Unified diff.          ~DIFF_SIDEBYSIDE
 **   -w|--ignore-all-space      Ignore all whitespaces DIFF_IGNORE_ALLWS
@@ -1911,6 +1979,9 @@ u64 diff_options(void){
     diffFlags |= DIFF_STRIP_EOLCR;
   }
   if( find_option("side-by-side","y",0)!=0 ) diffFlags |= DIFF_SIDEBYSIDE;
+  if( find_option("yy",0,0)!=0 ){
+    diffFlags |= DIFF_SIDEBYSIDE | DIFF_SLOW_SBS;
+  }
   if( find_option("unified",0,0)!=0 ) diffFlags &= ~DIFF_SIDEBYSIDE;
   if( (z = find_option("context","c",1))!=0 && (f = atoi(z))>=0 ){
     if( f > DIFF_CONTEXT_MASK ) f = DIFF_CONTEXT_MASK;
@@ -1924,6 +1995,7 @@ u64 diff_options(void){
   if( find_option("html",0,0)!=0 ) diffFlags |= DIFF_HTML;
   if( find_option("linenum","n",0)!=0 ) diffFlags |= DIFF_LINENO;
   if( find_option("noopt",0,0)!=0 ) diffFlags |= DIFF_NOOPT;
+  if( find_option("numstat",0,0)!=0 ) diffFlags |= DIFF_NUMSTAT;
   if( find_option("invert",0,0)!=0 ) diffFlags |= DIFF_INVERT;
   if( find_option("brief",0,0)!=0 ) diffFlags |= DIFF_BRIEF;
   return diffFlags;
@@ -1931,6 +2003,12 @@ u64 diff_options(void){
 
 /*
 ** COMMAND: test-rawdiff
+**
+** Usage: %fossil test-rawdiff FILE1 FILE2
+**
+** Show a minimal sequence of Copy/Delete/Insert operations needed to convert
+** FILE1 into FILE2.  This command is intended for use in testing and debugging
+** the built-in difference engine of Fossil.
 */
 void test_rawdiff_cmd(void){
   Blob a, b;
@@ -2051,11 +2129,14 @@ static int annotation_start(Annotator *p, Blob *pInput, u64 diffFlags){
 /*
 ** The input pParent is the next most recent ancestor of the file
 ** being annotated.  Do another step of the annotation.  Return true
-** if additional annotation is required.  zPName is the tag to insert
-** on each line of the file being annotated that was contributed by
-** pParent.  Memory to hold zPName is leaked.
+** if additional annotation is required.
 */
-static int annotation_step(Annotator *p, Blob *pParent, int iVers, u64 diffFlags){
+static int annotation_step(
+  Annotator *p,
+  Blob *pParent,
+  int iVers,
+  u64 diffFlags
+){
   int i, j;
   int lnTo;
 
@@ -2099,13 +2180,12 @@ static int annotation_step(Annotator *p, Blob *pParent, int iVers, u64 diffFlags
 
 
 /* Annotation flags (any DIFF flag can be used as Annotation flag as well) */
-#define ANN_FILE_VERS   (((u64)0x20)<<32) /* Show file vers rather than commit vers */
-#define ANN_FILE_ANCEST (((u64)0x40)<<32) /* Prefer check-ins in the ANCESTOR table */
+#define ANN_FILE_VERS   (((u64)0x20)<<32) /* File vers not commit vers */
+#define ANN_FILE_ANCEST (((u64)0x40)<<32) /* Prefer checkins in the ANCESTOR */
 
 /*
 ** Compute a complete annotation on a file.  The file is identified
-** by its filename number (filename.fnid) and the baseline in which
-** it was checked in (mlink.mid).
+** by its filename number (filename.fnid) and check-in (mlink.mid).
 */
 static void annotate_file(
   Annotator *p,        /* The annotator */
@@ -2209,13 +2289,23 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 ** WEBPAGE: blame
 ** WEBPAGE: praise
 **
+** URL: /annotate?checkin=ID&filename=FILENAME
+** URL: /blame?checkin=ID&filename=FILENAME
+** URL: /praise?checkin=ID&filename=FILENAME
+**
+** Show the most recent change to each line of a text file.  /annotate shows
+** the date of the changes and the check-in hash (with a link to the
+** check-in).  /blame and /praise also show the user who made the check-in.
+**
 ** Query parameters:
 **
 **    checkin=ID          The manifest ID at which to start the annotation
 **    filename=FILENAME   The filename.
 **    filevers            Show file versions rather than check-in versions
-**    log=BOOLEAN         Show a log of versions analyzed
 **    limit=N             Limit the search depth to N ancestors
+**    log=BOOLEAN         Show a log of versions analyzed
+**    w                   Ignore whitespace
+**
 */
 void annotation_page(void){
   int mid;
@@ -2236,8 +2326,8 @@ void annotation_page(void){
   /* Gather query parameters */
   showLog = atoi(PD("log","1"));
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
-  if( exclude_spiders("annotate") ) return;
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  if( exclude_spiders() ) return;
   load_control();
   mid = name_to_typed_rid(PD("checkin","0"),"ci");
   zFilename = P("filename");
@@ -2252,7 +2342,7 @@ void annotation_page(void){
   }
 
   /* compute the annotation */
-  compute_direct_ancestors(mid, 10000000);
+  compute_direct_ancestors(mid);
   annotate_file(&ann, fnid, mid, iLimit, annFlags);
   zCI = ann.aVers[0].zMUuid;
 
@@ -2271,32 +2361,30 @@ void annotation_page(void){
   url_add_parameter(&url, "log", showLog ? "1" : "0");
   if( ignoreWs ){
     url_add_parameter(&url, "w", "");
-    style_submenu_element("Show Whitespace Changes", "Show Whitespace Changes",
-        "%s", url_render(&url, "w", 0, 0, 0));
+    style_submenu_element("Show Whitespace Changes", "%s",
+        url_render(&url, "w", 0, 0, 0));
   }else{
-    style_submenu_element("Ignore Whitespace", "Ignore Whitespace",
-        "%s", url_render(&url, "w", "", 0, 0));
+    style_submenu_element("Ignore Whitespace", "%s",
+        url_render(&url, "w", "", 0, 0));
   }
   if( showLog ){
-    style_submenu_element("Hide Log", "Hide Log",
-       "%s", url_render(&url, "log", "0", 0, 0));
+    style_submenu_element("Hide Log", "%s", url_render(&url, "log", "0", 0, 0));
   }else{
-    style_submenu_element("Show Log", "Show Log",
-       "%s", url_render(&url, "log", "1", 0, 0));
+    style_submenu_element("Show Log", "%s", url_render(&url, "log", "1", 0, 0));
   }
   if( ann.bLimit ){
     char *z1, *z2;
-    style_submenu_element("All Ancestors", "All Ancestors",
-       "%s", url_render(&url, "limit", "-1", 0, 0));
+    style_submenu_element("All Ancestors", "%s",
+       url_render(&url, "limit", "-1", 0, 0));
     z1 = sqlite3_mprintf("%d Ancestors", iLimit+20);
     z2 = sqlite3_mprintf("%d", iLimit+20);
-    style_submenu_element(z1, z1, "%s", url_render(&url, "limit", z2, 0, 0));
+    style_submenu_element(z1, "%s", url_render(&url, "limit", z2, 0, 0));
   }
   if( iLimit>20 ){
-    style_submenu_element("20 Ancestors", "20 Ancestors",
-       "%s", url_render(&url, "limit", "20", 0, 0));
+    style_submenu_element("20 Ancestors", "%s",
+       url_render(&url, "limit", "20", 0, 0));
   }
-  if( db_get_boolean("white-foreground", 0) ){
+  if( skin_detail_boolean("white-foreground") ){
     clr1 = 0xa04040;
     clr2 = 0x4059a0;
   }else{
@@ -2309,13 +2397,13 @@ void annotation_page(void){
   }
 
   if( showLog ){
-    char *zLink = href("%R/finfo?name=%t&ci=%s",zFilename,zCI);
+    char *zLink = href("%R/finfo?name=%t&ci=%!S",zFilename,zCI);
     @ <h2>Ancestors of %z(zLink)%h(zFilename)</a> analyzed:</h2>
     @ <ol>
     for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
       @ <li><span style='background-color:%s(p->zBgColor);'>%s(p->zDate)
-      @ check-in %z(href("%R/info/%s",p->zMUuid))%S(p->zMUuid)</a>
-      @ artifact %z(href("%R/artifact/%s",p->zFUuid))%S(p->zFUuid)</a>
+      @ check-in %z(href("%R/info/%!S",p->zMUuid))%S(p->zMUuid)</a>
+      @ artifact %z(href("%R/artifact/%!S",p->zFUuid))%S(p->zFUuid)</a>
       @ </span>
 #if 0
       if( i>0 ){
@@ -2333,17 +2421,17 @@ void annotation_page(void){
 #endif
     }
     @ </ol>
-    @ <hr>
+    @ <hr />
   }
   if( !ann.bLimit ){
     @ <h2>Origin for each line in
-    @ %z(href("%R/finfo?name=%h&ci=%s", zFilename, zCI))%h(zFilename)</a>
-    @ from check-in %z(href("%R/info/%s",zCI))%S(zCI)</a>:</h2>
+    @ %z(href("%R/finfo?name=%h&ci=%!S", zFilename, zCI))%h(zFilename)</a>
+    @ from check-in %z(href("%R/info/%!S",zCI))%S(zCI)</a>:</h2>
     iLimit = ann.nVers+10;
   }else{
     @ <h2>Lines added by the %d(iLimit) most recent ancestors of
-    @ %z(href("%R/finfo?name=%h&ci=%s", zFilename, zCI))%h(zFilename)</a>
-    @ from check-in %z(href("%R/info/%s",zCI))%S(zCI)</a>:</h2>
+    @ %z(href("%R/finfo?name=%h&ci=%!S", zFilename, zCI))%h(zFilename)</a>
+    @ from check-in %z(href("%R/info/%!S",zCI))%S(zCI)</a>:</h2>
   }
   @ <pre>
   for(i=0; i<ann.nOrig; i++){
@@ -2357,7 +2445,7 @@ void annotation_page(void){
     if( bBlame ){
       if( iVers>=0 ){
         struct AnnVers *p = ann.aVers+iVers;
-        char *zLink = xhref("target='infowindow'", "%R/info/%s", p->zMUuid);
+        char *zLink = xhref("target='infowindow'", "%R/info/%!S", p->zMUuid);
         sqlite3_snprintf(sizeof(zPrefix), zPrefix,
              "<span style='background-color:%s'>"
              "%s%.10s</a> %s</span> %13.13s:",
@@ -2369,7 +2457,7 @@ void annotation_page(void){
     }else{
       if( iVers>=0 ){
         struct AnnVers *p = ann.aVers+iVers;
-        char *zLink = xhref("target='infowindow'", "%R/info/%s", p->zMUuid);
+        char *zLink = xhref("target='infowindow'", "%R/info/%!S", p->zMUuid);
         sqlite3_snprintf(sizeof(zPrefix), zPrefix,
              "<span style='background-color:%s'>"
              "%s%.10s</a> %s</span> %4d:",
@@ -2391,19 +2479,20 @@ void annotation_page(void){
 ** COMMAND: blame
 ** COMMAND: praise
 **
-** %fossil (annotate|blame|praise) ?OPTIONS? FILENAME
+** Usage: %fossil (annotate|blame|praise) ?OPTIONS? FILENAME
 **
 ** Output the text of a file with markings to show when each line of
 ** the file was last modified.  The "annotate" command shows line numbers
 ** and omits the username.  The "blame" and "praise" commands show the user
-** who made each checkin and omits the line number.
+** who made each check-in and omits the line number.
 **
 ** Options:
-**   --filevers                 Show file version numbers rather than check-in versions
-**   -l|--log                   List all versions analyzed
-**   -n|--limit N               Only look backwards in time by N versions
-**   -w|--ignore-all-space      Ignore white space when comparing lines
-**   -Z|--ignore-trailing-space Ignore whitespace at line end
+**   --filevers                  Show file version numbers rather than
+**                               check-in versions
+**   -l|--log                    List all versions analyzed
+**   -n|--limit N                Only look backwards in time by N versions
+**   -w|--ignore-all-space       Ignore white space when comparing lines
+**   -Z|--ignore-trailing-space  Ignore whitespace at line end
 **
 ** See also: info, finfo, timeline
 */
@@ -2436,14 +2525,14 @@ void annotate_cmd(void){
   }
   fileVers = find_option("filevers",0,0)!=0;
   db_must_be_within_tree();
- 
+
   /* We should be done with options.. */
   verify_all_options();
 
   if( g.argc<3 ) {
     usage("FILENAME");
   }
-  file_tree_name(g.argv[2], &treename, 1);
+  file_tree_name(g.argv[2], &treename, 0, 1);
   zFilename = blob_str(&treename);
   fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
   if( fnid==0 ){
@@ -2458,7 +2547,7 @@ void annotate_cmd(void){
     fossil_fatal("Not in a checkout");
   }
   if( iLimit<=0 ) iLimit = 1000000000;
-  compute_direct_ancestors(cid, 1000000);
+  compute_direct_ancestors(cid);
   mid = db_int(0, "SELECT mlink.mid FROM mlink, ancestor "
           " WHERE mlink.fid=%d AND mlink.fnid=%d AND mlink.mid=ancestor.rid"
           " ORDER BY ancestor.generation ASC LIMIT 1",
