@@ -1536,7 +1536,10 @@ void setup_timeline(void){
 ** Admin pages requiring Admin privileges.
 */
 void setup_settings(void){
+  int nSetting;
+  int i;
   Setting const *pSet;
+  const Setting *aSetting = setting_info(&nSetting);
 
   login_check_credentials();
   if( !g.perm.Setup ){
@@ -1551,19 +1554,23 @@ void setup_settings(void){
     db_open_local(0);
   }
   db_begin_transaction();
-  @ <p>This page provides a simple interface to the "fossil setting" command.
-  @ See the "fossil help setting" output below for further information on
-  @ the meaning of each setting.</p><hr />
+  @ <p>Settings marked with (v) are "versionable" and will be overridden
+  @ by the contents of managed files named
+  @ "<tt>.fossil-settings/</tt><i>SETTING-NAME</i>".
+  @ If the file for a versionable setting exists, the value cannot be
+  @ changed on this screen.</p><hr /><p>
+  @
   @ <form action="%s(g.zTop)/setup_settings" method="post"><div>
   @ <table border="0"><tr><td valign="top">
   login_insert_csrf_secret();
-  for(pSet=aSetting; pSet->name!=0; pSet++){
+  for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
     if( pSet->width==0 ){
       int hasVersionableValue = pSet->versionable &&
           (db_get_versioned(pSet->name, NULL)!=0);
-      onoff_attribute(pSet->name, pSet->name,
+      onoff_attribute("", pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
                       is_truth(pSet->def), hasVersionableValue);
+      @ <a href='%R/help?cmd=%s(pSet->name)'>%h(pSet->name)</a>
       if( pSet->versionable ){
         @  (v)<br />
       } else {
@@ -1573,29 +1580,32 @@ void setup_settings(void){
   }
   @ <br /><input type="submit"  name="submit" value="Apply Changes" />
   @ </td><td style="width:50px;"></td><td valign="top">
-  for(pSet=aSetting; pSet->name!=0; pSet++){
-    if( pSet->width!=0 && !pSet->versionable && !pSet->forceTextArea ){
-      entry_attribute(pSet->name, /*pSet->width*/ 25, pSet->name,
+  for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
+    if( pSet->width!=0 && !pSet->forceTextArea ){
+      int hasVersionableValue = pSet->versionable &&
+          (db_get_versioned(pSet->name, NULL)!=0);
+      entry_attribute("", /*pSet->width*/ 25, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
-                      (char*)pSet->def, 0);
-      @ <br />
-    }
-  }
-  for(pSet=aSetting; pSet->name!=0; pSet++){
-    if( pSet->width!=0 && !pSet->versionable && pSet->forceTextArea ){
-      @<b>%s(pSet->name)</b><br />
-      textarea_attribute("", /*rows*/ 3, /*cols*/ 50, pSet->name,
-                      pSet->var!=0 ? pSet->var : pSet->name,
-                      (char*)pSet->def, 0);
-      @ <br />
+                      (char*)pSet->def, hasVersionableValue);
+      @ <a href='%R/help?cmd=%s(pSet->name)'>%h(pSet->name)</a>
+      if( pSet->versionable ){
+        @  (v)<br />
+      } else {
+        @ <br />
+      }
     }
   }
   @ </td><td style="width:50px;"></td><td valign="top">
-  for(pSet=aSetting; pSet->name!=0; pSet++){
-    if( pSet->width!=0 && pSet->versionable ){
+  for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
+    if( pSet->width!=0 && pSet->forceTextArea ){
       int hasVersionableValue = db_get_versioned(pSet->name, NULL)!=0;
-      @<b>%s(pSet->name)</b> (v)<br />
-      textarea_attribute("", /*rows*/ 3, /*cols*/ 20, pSet->name,
+      @ <a href='%R/help?cmd=%s(pSet->name)'>%s(pSet->name)</a>
+      if( pSet->versionable ){
+        @  (v)<br />
+      } else {
+        @ <br />
+      }
+      textarea_attribute("", /*rows*/ 2, /*cols*/ 35, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
                       (char*)pSet->def, hasVersionableValue);
       @<br />
@@ -1603,13 +1613,6 @@ void setup_settings(void){
   }
   @ </td></tr></table>
   @ </div></form>
-  @ <p>Settings marked with (v) are 'versionable' and will be overridden
-  @ by the contents of files named <tt>.fossil-settings/PROPERTY</tt>
-  @ in the check-out root.
-  @ If such a file is present, the corresponding field above is not
-  @ editable.</p><hr /><p>
-  @ These settings work the same as the
-  @ <a href='%R/help?cmd=settings'>fossil set</a> command.
   db_end_transaction(0);
   style_footer();
 }

@@ -1,5 +1,5 @@
-C Removed\sdead\sreference\sto\sg.fNoDirSymlinks.
-D 2017-08-30T14:15:13.397
+C Enhance\sthe\smkindex\sutility\sto\sextract\shelp\stext\sfor\seach\ssetting\s\nseparately\sand\sautomatically\sbuild\sthe\saSetting\stable.\s\sVarious\sother\nenhancements\sthat\stake\sadvantage\sof\sthis\snew\scapability.
+D 2017-08-31T01:00:49.368
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -412,14 +412,14 @@ F src/content.c b5eac283f4fec06093976b86ec95565c2a8b968c
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 0323c67d8e85d2c82fd420ff13cce967629b199c6a3f5a87b9636d8eddd47204
+F src/db.c edf3a33e4e82388e50ba22786470a4b03d017378f516bd0bcdb28e483ceb9c2a
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
 F src/diff.c d7dd6b9c57ceff7a7102e979c4e5a1959571c0804d04534716121744e81563f9
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c ed717450412b9a8fa0ff0c9321e51a0c466cc8e03d5ac0f737609b6a533a820e
-F src/dispatch.c 63d8b8268be2fcae4540b9f22a2dd2fc5828629463db42dbc5430e48fa18fe2d
+F src/dispatch.c 72770a4433ed7bd4c422b457f99b4cda200b2098a0705e1c540fbe5294441df0
 F src/doc.c cb5731ba54b9ccf3e497965db9874e9553a2bf21772ce14398c05526019ca44e
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c 5dcf3c6ff00c39c25a3909deec1d1154cf0b85a5
@@ -475,7 +475,7 @@ F src/merge.c 0d0cf4b86fd4f51cf4731313833b215997360314
 F src/merge3.c 04153e0e1a0c15c6e7e1815949b11084da2285416d76c257767b54652aaf1b78
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
-F src/mkindex.c f4183ca13461544fe06f34af0a3501ea96d3637f
+F src/mkindex.c 128820563b948cf017a59782adaf3495111a098e180d27b335a0014586d35d38
 F src/mkversion.c 6e606c3a895f71b35a878e817104b5e5eb056ce47925e341fde567f2448e9aa7
 F src/moderate.c 2540f90b20778a4d62156a3b4af962b401d4c89f
 F src/name.c 7672b98171a8e90e9dfdb387cbf92e17efc2ff8bff93f46314b1d74de04f2958
@@ -494,7 +494,7 @@ F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/search.c 0de35ed3d058b62f9f09a5bde235d0cc1e8f0ee1d4bec9ebc2cd9b5bb9d858bb
 F src/security_audit.c 7258617b28df652f0b9c12f304dd54c8345c50f5a6ce0c24f59911a6fb20adc0
-F src/setup.c da8cf9d62b9cb0034c0fb63297e28173be13e058cdcb9a7a28cd0794aa5686bb
+F src/setup.c 40ba1123d8b1f30001c9b20cbd8fa20eecd0f72391f79d72cb25bc7b425bb960
 F src/sha1.c 04efd231424be45a281bdb50def7fce94625bd45b53d3c96b89e8de31f0305be
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c 7d862ff2c83826fd251909f5af2c8dd642417a8c389685e169f3c00434f784fa
@@ -791,7 +791,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4a80c3c437845d910bff2027b4ddbe4636f666821833979d17ecc79a40e43a47
-R 3e07c8a75100d49ac98ab94d834d15a1
-U stephan
-Z 0b7ddedfa3a652873208ebd2c7613bad
+P 949d777d76f3aeba6adf20a66b08511ce465c4c7aff950cc379f702e4e4e0fef 5068f23d3ef32d529c99a235535da2ce2fc122464c8c6e91471c54ee7e496174
+R 842d9eb742d829e8360b69868a14c106
+T +closed 5068f23d3ef32d529c99a235535da2ce2fc122464c8c6e91471c54ee7e496174
+U drh
+Z a859bd16ce3cc05675767d4642800d5d

@@ -1806,11 +1806,13 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
 const char *db_setting_inop_rhs(){
   Blob x;
   int i;
+  int nSetting;
+  const Setting *aSetting = setting_info(&nSetting);
   const char *zSep = "";
 
   blob_zero(&x);
   blob_append_sql(&x, "(");
-  for(i=0; aSetting[i].name; i++){
+  for(i=0; i<nSetting; i++){
     blob_append_sql(&x, "%s%Q", zSep/*safe-for-%s*/, aSetting[i].name);
     zSep = ",";
   }
@@ -2737,7 +2739,6 @@ static void print_setting(const Setting *pSetting){
   db_finalize(&q);
 }
 
-
 #if INTERFACE
 /*
 ** Define all settings, which can be controlled via the set/unset
@@ -2762,83 +2763,380 @@ struct Setting {
 };
 #endif /* INTERFACE */
 
-const Setting aSetting[] = {
-  { "access-log",       0,              0, 0, 0, "off"                 },
-  { "admin-log",        0,              0, 0, 0, "off"                 },
+/*
+** SETTING: access-log      boolean default=off
+** 
+** When the access-log setting is enabled, all login attempts (successful
+** and unsuccessful) on the web interface are recorded in the "access" table
+** of the repository.
+*/
+/*
+** SETTING: admin-log       boolean default=off
+**
+** When the admin-log setting is enabled, configuration changes are recorded
+** in the "admin_log" table of the repository.
+*/
 #if defined(_WIN32)
-  { "allow-symlinks",   0,              0, 1, 0, "off"                 },
-#else
-  { "allow-symlinks",   0,              0, 1, 0, "on"                  },
+/*
+** SETTING: allow-symlinks  boolean default=off versionable
+** Allows symbolic links in the repository when enabled.
+*/
 #endif
-  { "auto-captcha",     "autocaptcha",  0, 0, 0, "on"                  },
-  { "auto-hyperlink",   0,              0, 0, 0, "on",                 },
-  { "auto-shun",        0,              0, 0, 0, "on"                  },
-  { "autosync",         0,              0, 0, 0, "on"                  },
-  { "autosync-tries",   0,             16, 0, 0, "1"                   },
-  { "binary-glob",      0,             40, 1, 0, ""                    },
-#if defined(_WIN32) || defined(__CYGWIN__) || defined(__DARWIN__) || \
-    defined(__APPLE__)
-  { "case-sensitive",   0,              0, 0, 0, "off"                 },
-#else
-  { "case-sensitive",   0,              0, 0, 0, "on"                  },
+#if !defined(_WIN32)
+/*
+** SETTING: allow-symlinks  boolean default=on versionable
+** Allows symbolic links in the repository when enabled.
+*/
 #endif
-  { "clean-glob",       0,             40, 1, 0, ""                    },
-  { "clearsign",        0,              0, 0, 0, "off"                 },
-  { "crlf-glob",        0,             40, 1, 0, ""                    },
-  { "crnl-glob",        0,             40, 1, 0, ""                    },
-  { "default-perms",    0,             16, 0, 0, "u"                   },
-  { "diff-binary",      0,              0, 0, 0, "on"                  },
-  { "diff-command",     0,             40, 0, 0, ""                    },
-  { "dont-push",        0,              0, 0, 0, "off"                 },
-  { "dotfiles",         0,              0, 1, 0, "off"                 },
-  { "editor",           0,             32, 0, 0, ""                    },
-  { "empty-dirs",       0,             40, 1, 0, ""                    },
-  { "encoding-glob",    0,             40, 1, 0, ""                    },
+/*
+** SETTING: auto-captcha    boolean default=on variable=autocaptcha
+** If enabled, the /login page provides a button that will automatically
+** fill in the captcha password.  This makes things easier for human users,
+** at the expense of also making logins easier for malecious robots.
+*/
+/*
+** SETTING: auto-hyperlink  boolean default=on
+** Use javascript to enable hyperlinks on web pages
+** for all users (regardless of the "h" privilege) if the
+** User-Agent string in the HTTP header look like it came
+** from real person, not a spider or bot.
+*/
+/*
+** SETTING: auto-shun       boolean default=on
+** If enabled, automatically pull the shunning list
+** from a server to which the client autosyncs.
+*/
+/*
+** SETTING: autosync        width=16 default=on
+** This setting can take either a boolean value or "pullonly"
+** If enabled, automatically pull prior to commit
+** or update and automatically push after commit or
+** tag or branch creation.  If the value is "pullonly"
+** then only pull operations occur automatically.
+*/
+/*
+** SETTING: autosync-tries  width=16 default=1
+** If autosync is enabled setting this to a value greater
+** than zero will cause autosync to try no more than this
+** number of attempts if there is a sync failure.
+*/
+/*
+** SETTING: binary-glob     width=40 versionable block-text
+** The VALUE of this setting is a comma or newline-separated list of
+** GLOB patterns that should be treated as binary files
+** for committing and merging purposes.  Example: *.jpg
+*/
+#if defined(_WIN32)||defined(__CYGWIN__)||defined(__DARWIN__)
+/*
+** SETTING: case-sensitive  boolean default=off
+** If TRUE, the files whose names differ only in case
+** are considered distinct.  If FALSE files whose names
+** differ only in case are the same file.  Defaults to
+** TRUE for unix and FALSE for Cygwin, Mac and Windows.
+*/
+#endif
+#if !(defined(_WIN32)||defined(__CYGWIN__)||defined(__DARWIN__))
+/*
+** SETTING: case-sensitive  boolean default=on
+** If TRUE, the files whose names differ only in case
+** are considered distinct.  If FALSE files whose names
+** differ only in case are the same file.  Defaults to
+** TRUE for unix and FALSE for Cygwin, Mac and Windows.
+*/
+#endif
+/*
+** STTING: clean-glob       width=40 versionable block-text
+** The VALUE of this setting is a comma or newline-separated list of GLOB
+** patterns specifying files that the "clean" command will
+** delete without prompting or allowing undo.
+** Example: *.a,*.lib,*.o
+*/
+/*
+** SETTING: clearsign       boolean default=off
+** When enabled, fossil will attempt to sign all commits
+** with gpg.  When disabled, commits will be unsigned.
+*/
+/*
+** SETTING: crlf-glob       width=40 versionable block-text
+** The value is a comma or newline-separated list of GLOB patterns for
+** text files in which it is ok to have CR, CR+LF or mixed
+** line endings. Set to "*" to disable CR+LF checking.
+** The crnl-glob setting is a compatibility alias.
+*/
+/*
+** SETTING: crnl-glob       width=40 versionable block-text
+** This is an alias for the crlf-glob setting
+*/
+/*
+** SETTING: default-perms   width=16 default=u
+** Permissions given automatically to new users.  For more
+** information on permissions see the Users page in Server
+** Administration of the HTTP UI.
+*/
+/* SETTING: diff-binary     boolean default=on
+** If enabled, permit files that may be binary
+** or that match the "binary-glob" setting to be used with
+** external diff programs.  If disabled, skip these files.
+*/
+/*
+** SETTING: diff-command    width=40
+** The value is an external command to run when performing a diff.
+** If undefined, the internal text diff will be used.
+*/
+/*
+** SETTING: dont-push       boolean default=off
+** If enabled, prevent this repository from pushing from client to
+** server.  This can be used as an extra precaution to prevent
+** accidental pushes to a public server from a private clone.
+*/
+/*
+** SETTING: dotfiles        boolean versionable default=off
+** If enabled, include --dotfiles option for all compatible commands.
+*/
+/*
+** SETTING: editor          width=32
+** The value is an external command that will launch the
+** text editor command used for check-in comments.
+*/
+/*
+** SETTING: empty-dirs      width=40 versionable block-text
+** The value is a comma or newline-separated list of pathnames. On
+** update and checkout commands, if no file or directory
+** exists with that name, an empty directory will be
+** created.
+*/
+/*
+** SETTING: encoding-glob   width=40 versionable block-text
+** The value is a comma or newline-separated list of GLOB
+** patterns specifying files that the "commit" command will
+** ignore when issuing warnings about text files that may
+** use another encoding than ASCII or UTF-8. Set to "*"
+** to disable encoding checking.
+*/
 #if defined(FOSSIL_ENABLE_EXEC_REL_PATHS)
-  { "exec-rel-paths",   0,              0, 0, 0, "on"                  },
-#else
-  { "exec-rel-paths",   0,              0, 0, 0, "off"                 },
+/*
+** SETTING: exec-rel-paths   boolean default=on
+** When executing certain external commands (e.g. diff and
+** gdiff), use relative paths.
+*/
 #endif
-  { "gdiff-command",    0,             40, 0, 0, "gdiff"               },
-  { "gmerge-command",   0,             40, 0, 0, ""                    },
-  { "hash-digits",      0,              5, 0, 0, "10"                  },
-  { "http-port",        0,             16, 0, 0, "8080"                },
-  { "https-login",      0,              0, 0, 0, "off"                 },
-  { "ignore-glob",      0,             40, 1, 0, ""                    },
-  { "keep-glob",        0,             40, 1, 0, ""                    },
-  { "localauth",        0,              0, 0, 0, "off"                 },
-  { "main-branch",      0,             40, 0, 0, "trunk"               },
-  { "manifest",         0,              5, 1, 0, ""                    },
-  { "max-loadavg",      0,             25, 0, 0, "0.0"                 },
-  { "max-upload",       0,             25, 0, 0, "250000"              },
-  { "mtime-changes",    0,              0, 0, 0, "on"                  },
+#if !defined(FOSSIL_ENABLE_EXEC_REL_PATHS)
+/*
+** SETTING: exec-rel-paths   boolean default=off
+** When executing certain external commands (e.g. diff and
+** gdiff), use relative paths.
+*/
+#endif
+/*
+** SETTING; gdiff-command    width=40 default=gdiff
+** The value is an external command to run when performing a graphical
+** diff. If undefined, text diff will be used.
+*/
+/*
+** SETTING: gmerge-command   width=40
+** The value is a graphical merge conflict resolver command operating
+** on four files.  Examples:
+** 
+**     kdiff3 "%baseline" "%original" "%merge" -o "%output"
+**     xxdiff "%original" "%baseline" "%merge" -M "%output"
+**     meld "%baseline" "%original" "%merge" "%output"
+*/
+/*
+** SETTING: hash-digits      width=5 default=10
+** The number of hexadecimal digits of the SHA3 hash to display.
+*/
+/*
+** SETTING: http-port        width=16 default=8080
+** The default TCP/IP port number to use by the "server"
+** and "ui" commands.
+*/
+/*
+** SETTING: https-login      boolean default=off
+** If true, then the Fossil web server will redirect unencrypted
+** login screeen requests to HTTPS.
+*/
+/*
+** SETTING: ignore-glob      width=40 versionable block-text
+** The value is a comma or newline-separated list of GLOB
+** patterns specifying files that the "add", "addremove",
+** "clean", and "extra" commands will ignore.
+**
+** Example:  *.log customCode.c notes.txt
+*/
+/*
+** SETTING: keep-glob        width=40 versionable block-text
+** The value is a comma or newline-separated list of GLOB
+** patterns specifying files that the "clean" command will keep
+*/
+/*
+** SETTING: localauth        boolean default=off
+** If enabled, require that HTTP connections from
+** 127.0.0.1 be authenticated by password.  If
+** false, all HTTP requests from localhost have
+** unrestricted access to the repository.
+*/
+/*
+** SETTING: main-branch      width=40 default=trunk
+** The value is the primary branch for the project.
+*/
+/*
+** SETTING: manifest         width=5 versionable
+** If enabled, automatically create files "manifest" and "manifest.uuid"
+** in every checkout.
+**
+** Optionally use combinations of characters 'r' for "manifest",
+** 'u' for "manifest.uuid" and 't' for "manifest.tags".  The SQLite
+** and Fossil repositories both require manifests.
+*/
+/*
+** SETTING: max-loadavg      width=25 default=0.0
+** Some CPU-intensive web pages (ex: /zip, /tarball, /blame)
+** are disallowed if the system load average goes above this
+** value.  "0.0" means no limit.  This only works on unix.
+** Only local settings of this value make a difference since
+** when running as a web-server, Fossil does not open the
+** global configuration database.
+*/
+/*
+** SETTING: max-upload       width=25 default=250000
+** A limit on the size of uplink HTTP requests.
+*/
+/*
+** SETTING: mtime-changes    boolean default=on
+** Use file modification times (mtimes) to detect when
+** files have been modified.  If disabled, all managed files
+** are hashed to detect changes, which can be slow for large
+** projects.
+*/
 #if FOSSIL_ENABLE_LEGACY_MV_RM
-  { "mv-rm-files",      0,              0, 0, 0, "off"                 },
+/*
+** SETTING: mv-rm-files      boolean default=off
+** If enabled, the "mv" and "rename" commands will also move
+** the associated files within the checkout -AND- the "rm"
+** and "delete" commands will also remove the associated
+** files from within the checkout.
+*/
 #endif
-  { "pgp-command",      0,             40, 0, 0, "gpg --clearsign -o " },
-  { "proxy",            0,             32, 0, 0, "off"                 },
-  { "relative-paths",   0,              0, 0, 0, "on"                  },
-  { "repo-cksum",       0,              0, 0, 0, "on"                  },
-  { "self-register",    0,              0, 0, 0, "off"                 },
-  { "ssh-command",      0,             40, 0, 0, ""                    },
-  { "ssl-ca-location",  0,             40, 0, 0, ""                    },
-  { "ssl-identity",     0,             40, 0, 0, ""                    },
+/*
+** SETTING; pgp-command      width=40
+** DEFAULT: gpg --clearsign -o
+**
+** Command used to clear-sign manifests at check-in.
+*/ 
+/*
+** SETTING: proxy            width=32 default=off
+** URL of the HTTP proxy.  If undefined or "off" then
+** the "http_proxy" environment variable is consulted.
+** If the http_proxy environment variable is undefined
+** then a direct HTTP connection is used.
+*/
+/*
+** SETTING: relative-paths   boolean default=on
+** When showing changes and extras, report paths relative
+** to the current working directory.
+*/
+/*
+** SETTING: repo-cksum       boolean default=on
+** Compute checksums over all files in each checkout as a double-check
+** of correctness.  Disable this on large repositories for a performance
+** improvement.
+*/
+/*
+** SETTING: self-register    boolean default=off
+** Allow users to register themselves through the HTTP UI.
+** This is useful if you want to see other names than
+** "Anonymous" in e.g. ticketing system. On the other hand
+** users can not be deleted.
+*/
+/*
+** SETTING: ssh-command      width=40
+** The command used to talk to a remote machine with  the "ssh://" protocol.
+*/
+/*
+** SETTING: ssl-ca-location  width=40
+** The full pathname to a file containing PEM encoded
+** CA root certificates, or a directory of certificates
+** with filenames formed from the certificate hashes as
+** required by OpenSSL.
+**
+** If set, this will override the OS default list of
+** OpenSSL CAs. If unset, the default list will be used.
+** Some platforms may add additional certificates.
+** Checking your platform behaviour is required if the
+** exact contents of the CA root is critical for your
+** application.
+*/
+/*
+** SETTING: ssl-identity     width=40
+** The full pathname to a file containing a certificate
+** and private key in PEM format. Create by concatenating
+** the certificate and private key files.
+**
+** This identity will be presented to SSL servers to
+** authenticate this client, in addition to the normal
+** password authentication.
+*/
 #ifdef FOSSIL_ENABLE_TCL
-  { "tcl",              0,              0, 0, 0, "off"                 },
-  { "tcl-setup",        0,             40, 1, 1, ""                    },
-#endif
+/*
+** SETTING: tcl              boolean default=off
+** If enabled Tcl integration commands will be added to the TH1
+** interpreter, allowing arbitrary Tcl expressions and
+** scripts to be evaluated from TH1.  Additionally, the Tcl
+** interpreter will be able to evaluate arbitrary TH1
+** expressions and scripts.
+*/
+/*
+** SETTING: tcl-setup        width=40 versionable block-text
+** This is the setup script to be evaluated after creating
+** and initializing the Tcl interpreter.  By default, this
+** is empty and no extra setup is performed.
+*/
+#endif /* FOSSIL_ENABLE_TCL */
 #ifdef FOSSIL_ENABLE_TH1_DOCS
-  { "th1-docs",         0,              0, 0, 0, "off"                 },
+/*
+** SETTING: th1-docs         boolean default=off
+** If enabled, this allows embedded documentation files to contain
+** arbitrary TH1 scripts that are evaluated on the server.  If native
+** Tcl integration is also enabled, this setting has the
+** potential to allow anybody with check-in privileges to
+** do almost anything that the associated operating system
+** user account could do.  Extreme caution should be used
+** when enabling this setting.
+*/
 #endif
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
-  { "th1-hooks",        0,              0, 0, 0, "off"                 },
+/*
+** SETTING: th1-hooks        boolean default=off
+** If enabled, special TH1 commands will be called before and
+** after any Fossil command or web page.
+*/
 #endif
-  { "th1-setup",        0,             40, 1, 1, ""                    },
-  { "th1-uri-regexp",   0,             40, 1, 0, ""                    },
-  { "uv-sync",          0,              0, 0, 0, "off"                 },
-  { "web-browser",      0,             32, 0, 0, ""                    },
-  { 0,0,0,0,0,0 }
-};
+/*
+** SETTING: th1-setup        width=40 versionable block-text
+** This is the setup script to be evaluated after creating
+** and initializing the TH1 interpreter.  By default, this
+** is empty and no extra setup is performed.
+*/
+/*
+** SETTING: th1-uri-regexp   width=40 versionable block-text
+** Specify which URI's are allowed in HTTP requests from
+** TH1 scripts.  If empty, no HTTP requests are allowed
+** whatsoever.
+*/
+/*
+** SETTING: uv-sync          boolean default=off
+** If true, automatically send unversioned files as part
+** of a "fossil clone" or "fossil sync" command.  The
+** default is false, in which case the -u option is
+** needed to clone or sync unversioned files.
+*/
+/*
+** SETTING: web-browser      width=30
+** A shell command used to launch your preferred
+** web browser when given a URL as an argument.
+** Defaults to "start" on windows, "open" on Mac,
+** and "firefox" on Unix.
+*/
 
 /*
 ** Look up a control setting by its name.  Return a pointer to the Setting
@@ -2847,11 +3145,13 @@ const Setting aSetting[] = {
 ** If allowPrefix is true, then the Setting returned is the first one for
 ** which zName is a prefix of the Setting name.
 */
-const Setting *db_find_setting(const char *zName, int allowPrefix){
+Setting *db_find_setting(const char *zName, int allowPrefix){
   int lwr, mid, upr, c;
   int n = (int)strlen(zName) + !allowPrefix;
+  int nSetting;
+  const Setting *aSetting = setting_info(&nSetting);
   lwr = 0;
-  upr = count(aSetting)-2;
+  upr = nSetting - 1;
   while( upr>=lwr ){
     mid = (upr+lwr)/2;
     c = fossil_strncmp(zName, aSetting[mid].name, n);
@@ -2865,7 +3165,7 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
           mid--;
         }
       }
-      return &aSetting[mid];
+      return (Setting*)&aSetting[mid];
     }
   }
   return 0;
@@ -2875,255 +3175,26 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 ** COMMAND: settings
 ** COMMAND: unset*
 **
-** Usage: %fossil settings ?PROPERTY? ?VALUE? ?OPTIONS?
-**    or: %fossil unset PROPERTY ?OPTIONS?
+** Usage: %fossil settings ?SETTING? ?VALUE? ?OPTIONS?
+**    or: %fossil unset SETTING ?OPTIONS?
 **
-** The "settings" command with no arguments lists all properties and their
-** values.  With just a property name it shows the value of that property.
-** With a value argument it changes the property for the current repository.
+** The "settings" command with no arguments lists all settings and their
+** values.  With just a SETTING name it shows the current value of that setting.
+** With a VALUE argument it changes the property for the current repository.
 **
 ** Settings marked as versionable are overridden by the contents of the
 ** file named .fossil-settings/PROPERTY in the check-out root, if that
 ** file exists.
 **
-** The "unset" command clears a property setting.
+** The "unset" command clears a setting.
 **
-**
-**    access-log       If enabled, record successful and failed login attempts
-**                     in the "accesslog" table.  Default: off
-**
-**    admin-log        If enabled, record configuration changes in the
-**                     "admin_log" table.  Default: off
-**
-**    allow-symlinks   If enabled, don't follow symlinks, and instead treat
-**     (versionable)   them as symlinks on Unix. Has no effect on Windows
-**                     (existing links in repository created on Unix become
-**                     plain-text files with link destination path inside).
-**                     Default: on (Unix), off (Windows)
-**
-**    auto-captcha     If enabled, the Login page provides a button to
-**                     fill in the captcha password.  Default: on
-**
-**    auto-hyperlink   Use javascript to enable hyperlinks on web pages
-**                     for all users (regardless of the "h" privilege) if the
-**                     User-Agent string in the HTTP header look like it came
-**                     from real person, not a spider or bot.  Default: on
-**
-**    auto-shun        If enabled, automatically pull the shunning list
-**                     from a server to which the client autosyncs.
-**                     Default: on
-**
-**    autosync         If enabled, automatically pull prior to commit
-**                     or update and automatically push after commit or
-**                     tag or branch creation.  If the value is "pullonly"
-**                     then only pull operations occur automatically.
-**                     Default: on
-**
-**    autosync-tries   If autosync is enabled setting this to a value greater
-**                     than zero will cause autosync to try no more than this
-**                     number of attempts if there is a sync failure.
-**                     Default: 1
-**
-**    binary-glob      The VALUE is a comma or newline-separated list of
-**     (versionable)   GLOB patterns that should be treated as binary files
-**                     for committing and merging purposes.  Example: *.jpg
-**
-**    case-sensitive   If TRUE, the files whose names differ only in case
-**                     are considered distinct.  If FALSE files whose names
-**                     differ only in case are the same file.  Defaults to
-**                     TRUE for unix and FALSE for Cygwin, Mac and Windows.
-**
-**    clean-glob       The VALUE is a comma or newline-separated list of GLOB
-**     (versionable)   patterns specifying files that the "clean" command will
-**                     delete without prompting or allowing undo.
-**                     Example: *.a,*.lib,*.o
-**
-**    clearsign        When enabled, fossil will attempt to sign all commits
-**                     with gpg.  When disabled (the default), commits will
-**                     be unsigned.  Default: off
-**
-**    crlf-glob        A comma or newline-separated list of GLOB patterns for
-**     (versionable)   text files in which it is ok to have CR, CR+LF or mixed
-**                     line endings. Set to "*" to disable CR+LF checking.
-**                     The crnl-glob setting is a compatibility alias.
-**
-**    default-perms    Permissions given automatically to new users.  For more
-**                     information on permissions see Users page in Server
-**                     Administration of the HTTP UI. Default: u.
-**
-**    diff-binary      If TRUE (the default), permit files that may be binary
-**                     or that match the "binary-glob" setting to be used with
-**                     external diff programs.  If FALSE, skip these files.
-**
-**    diff-command     External command to run when performing a diff.
-**                     If undefined, the internal text diff will be used.
-**
-**    dont-push        Prevent this repository from pushing from client to
-**                     server.  Useful when setting up a private branch.
-**
-**    dotfiles         Include --dotfiles option for all compatible commands.
-**     (versionable)
-**
-**    editor           Text editor command used for check-in comments.
-**
-**    empty-dirs       A comma or newline-separated list of pathnames. On
-**     (versionable)   update and checkout commands, if no file or directory
-**                     exists with that name, an empty directory will be
-**                     created.
-**
-**    encoding-glob    The VALUE is a comma or newline-separated list of GLOB
-**     (versionable)   patterns specifying files that the "commit" command will
-**                     ignore when issuing warnings about text files that may
-**                     use another encoding than ASCII or UTF-8. Set to "*"
-**                     to disable encoding checking.
-**
-**    exec-rel-paths   When executing certain external commands (e.g. diff and
-**                     gdiff), use relative paths.
-**
-**    gdiff-command    External command to run when performing a graphical
-**                     diff. If undefined, text diff will be used.
-**
-**    gmerge-command   A graphical merge conflict resolver command operating
-**                     on four files.
-**                     Ex: kdiff3 "%baseline" "%original" "%merge" -o "%output"
-**                     Ex: xxdiff "%original" "%baseline" "%merge" -M "%output"
-**                     Ex: meld "%baseline" "%original" "%merge" "%output"
-**
-**    hash-digits      The number of hexadecimal digits of the SHA1 hash to
-**                     display.  (Default: 10; Minimum: 6)
-**
-**    http-port        The TCP/IP port number to use by the "server"
-**                     and "ui" commands.  Default: 8080
-**
-**    https-login      Send login credentials using HTTPS instead of HTTP
-**                     even if the login page request came via HTTP.
-**
-**    ignore-glob      The VALUE is a comma or newline-separated list of GLOB
-**     (versionable)   patterns specifying files that the "add", "addremove",
-**                     "clean", and "extra" commands will ignore.
-**                     Example:  *.log customCode.c notes.txt
-**
-**    keep-glob        The VALUE is a comma or newline-separated list of GLOB
-**     (versionable)   patterns specifying files that the "clean" command will
-**                     keep.
-**
-**    localauth        If enabled, require that HTTP connections from
-**                     127.0.0.1 be authenticated by password.  If
-**                     false, all HTTP requests from localhost have
-**                     unrestricted access to the repository.
-**
-**    main-branch      The primary branch for the project.  Default: trunk
-**
-**    manifest         If set to a true boolean value, automatically create
-**     (versionable)   files "manifest" and "manifest.uuid" in every checkout.
-**                     Optionally use combinations of characters 'r'
-**                     for "manifest", 'u' for "manifest.uuid" and 't' for
-**                     "manifest.tags".  The SQLite and Fossil repositories
-**                     both require manifests.  Default: off.
-**
-**    max-loadavg      Some CPU-intensive web pages (ex: /zip, /tarball, /blame)
-**                     are disallowed if the system load average goes above this
-**                     value.  "0.0" means no limit.  This only works on unix.
-**                     Only local settings of this value make a difference since
-**                     when running as a web-server, Fossil does not open the
-**                     global configuration database.
-**
-**    max-upload       A limit on the size of uplink HTTP requests.  The
-**                     default is 250000 bytes.
-**
-**    mtime-changes    Use file modification times (mtimes) to detect when
-**                     files have been modified.  (Default "on".)
-**
-**    mv-rm-files      If enabled (and Fossil was compiled with legacy "mv/rm"
-**                     support), the "mv" and "rename" commands will also move
-**                     the associated files within the checkout -AND- the "rm"
-**                     and "delete" commands will also remove the associated
-**                     files from within the checkout.  Default: off.
-**
-**    pgp-command      Command used to clear-sign manifests at check-in.
-**                     The default is "gpg --clearsign -o ".
-**
-**    proxy            URL of the HTTP proxy.  If undefined or "off" then
-**                     the "http_proxy" environment variable is consulted.
-**                     If the http_proxy environment variable is undefined
-**                     then a direct HTTP connection is used.
-**
-**    relative-paths   When showing changes and extras, report paths relative
-**                     to the current working directory.  Default: "on"
-**
-**    repo-cksum       Compute checksums over all files in each checkout
-**                     as a double-check of correctness.  Defaults to "on".
-**                     Disable on large repositories for a performance
-**                     improvement.
-**
-**    self-register    Allow users to register themselves through the HTTP UI.
-**                     This is useful if you want to see other names than
-**                     "Anonymous" in e.g. ticketing system. On the other hand
-**                     users can not be deleted. Default: off.
-**
-**    ssh-command      Command used to talk to a remote machine with
-**                     the "ssh://" protocol.
-**
-**    ssl-ca-location  The full pathname to a file containing PEM encoded
-**                     CA root certificates, or a directory of certificates
-**                     with filenames formed from the certificate hashes as
-**                     required by OpenSSL.
-**                     If set, this will override the OS default list of
-**                     OpenSSL CAs. If unset, the default list will be used.
-**                     Some platforms may add additional certificates.
-**                     Checking your platform behaviour is required if the
-**                     exact contents of the CA root is critical for your
-**                     application.
-**
-**    ssl-identity     The full pathname to a file containing a certificate
-**                     and private key in PEM format. Create by concatenating
-**                     the certificate and private key files.
-**                     This identity will be presented to SSL servers to
-**                     authenticate this client, in addition to the normal
-**                     password authentication.
-**
-**    tcl              If enabled (and Fossil was compiled with Tcl support),
-**                     Tcl integration commands will be added to the TH1
-**                     interpreter, allowing arbitrary Tcl expressions and
-**                     scripts to be evaluated from TH1.  Additionally, the Tcl
-**                     interpreter will be able to evaluate arbitrary TH1
-**                     expressions and scripts. Default: off.
-**
-**    tcl-setup        This is the setup script to be evaluated after creating
-**     (versionable)   and initializing the Tcl interpreter.  By default, this
-**                     is empty and no extra setup is performed.
-**
-**    th1-docs         WARNING: If enabled (and Fossil was compiled with TH1
-**                     support for embedded documentation files), this allows
-**                     embedded documentation files to contain arbitrary TH1
-**                     scripts that are evaluated on the server.  If native
-**                     Tcl integration is also enabled, this setting has the
-**                     potential to allow anybody with check-in privileges to
-**                     do almost anything that the associated operating system
-**                     user account could do.  Extreme caution should be used
-**                     when enabling this setting.  Default: off.
-**
-**    th1-hooks        If enabled (and Fossil was compiled with support for TH1
-**                     hooks), special TH1 commands will be called before and
-**                     after any Fossil command or web page. Default: off.
-**
-**    th1-setup        This is the setup script to be evaluated after creating
-**     (versionable)   and initializing the TH1 interpreter.  By default, this
-**                     is empty and no extra setup is performed.
-**
-**    th1-uri-regexp   Specify which URI's are allowed in HTTP requests from
-**     (versionable)   TH1 scripts.  If empty, no HTTP requests are allowed
-**                     whatsoever.  The default is an empty string.
-**
-**    uv-sync          If true, automatically send unversioned files as part
-**                     of a "fossil clone" or "fossil sync" command.  The
-**                     default is false, in which case the -u option is
-**                     needed to clone or sync unversioned files.
-**
-**    web-browser      A shell command used to launch your preferred
-**                     web browser when given a URL as an argument.
-**                     Defaults to "start" on windows, "open" on Mac,
-**                     and "firefox" on Unix.
+** Settings can have both a "local" repository-only value and "global" value
+** that applies to all repositories.  The local values are stored in the
+** "config" table of the repository and the global values are stored in the
+** $HOME/.fossil file on unix or in the %LOCALAPPDATA%/_fossil file on Windows.
+** If both a local and a global value exists for a setting, the local value
+** takes precedence.  This command normally operates on the local settings.
+** Use the --global option to change global settings.
 **
 ** Options:
 **   --global   set or unset the given property globally instead of
@@ -3138,6 +3209,8 @@ void setting_cmd(void){
   int globalFlag = find_option("global","g",0)!=0;
   int exactFlag = find_option("exact",0,0)!=0;
   int unsetFlag = g.argv[1][0]=='u';
+  int nSetting;
+  const Setting *aSetting = setting_info(&nSetting);
   find_repository_option();
   verify_all_options();
   db_open_config(1, 0);
@@ -3151,19 +3224,8 @@ void setting_cmd(void){
     usage("PROPERTY ?-global?");
   }
 
-  /* Verify that the aSetting[] entries are in sorted order.  This is
-  ** necessary for the binary search in db_find_setting() to work correctly.
-  */
-  for(i=1; aSetting[i].name; i++){
-    if( fossil_strcmp(aSetting[i-1].name, aSetting[i].name)>=0 ){
-      fossil_panic("Internal Error: aSetting[] entries for \"%s\""
-                   " and \"%s\" are out of order.",
-                   aSetting[i-1].name, aSetting[i].name);
-    }
-  }
-
   if( g.argc==2 ){
-    for(i=0; aSetting[i].name; i++){
+    for(i=0; i<nSetting; i++){
       print_setting(&aSetting[i]);
     }
   }else if( g.argc==3 || g.argc==4 ){
