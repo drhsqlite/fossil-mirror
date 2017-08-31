@@ -179,7 +179,7 @@ static void help_to_html(const char *zHelp, Blob *pHtml){
 **    -e|--everything   Show all commands and pages.
 **    -t|--test         Include test- commands
 **    -w|--www          Show WWW pages.
-**    -w|--settings     Show settings.
+**    -s|--settings     Show settings.
 **    -h|--html         Transform output to HTML.
 */
 void test_all_help_cmd(void){

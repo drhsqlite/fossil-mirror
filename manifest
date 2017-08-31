@@ -1,5 +1,5 @@
-C Improved\serror\smessage\swhen\sthe\s"help"\scommand\scannot\sfind\sits\sargument.
-D 2017-08-31T03:37:18.224
+C Correct\stypo\sin\shelp's\shelp
+D 2017-08-31T05:51:10.897
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -419,7 +419,7 @@ F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
 F src/diff.c d7dd6b9c57ceff7a7102e979c4e5a1959571c0804d04534716121744e81563f9
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c ed717450412b9a8fa0ff0c9321e51a0c466cc8e03d5ac0f737609b6a533a820e
-F src/dispatch.c db15fd9136883be5276e51a6195b31f337d37dc767c58aadcbf45cdff0a1e5c7
+F src/dispatch.c b70ca6867e1649c761c22791fa538d95b61d3a0e4f040923e7968e5a14a69333
 F src/doc.c cb5731ba54b9ccf3e497965db9874e9553a2bf21772ce14398c05526019ca44e
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c 5dcf3c6ff00c39c25a3909deec1d1154cf0b85a5
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f74f7014c2271beb2547a537d0bff2439d39451b0ef65cedd28e9094a17e7306
-R 5304f5ee2afd205733987f02ec37c3cb
-U drh
-Z 42bc8e6a43a48e2b8531d0dba7a62ae9
+P 281780016401769d3614a6d934e75091fc8c5b3107d72208172f591a5314d721
+R c372032ba575cbd9db3f3983c4d6d6bc
+U andygoth
+Z 5408ad3f541ed56c88ddee3cda1a1ea0
