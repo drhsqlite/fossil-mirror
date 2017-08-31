@@ -538,9 +538,10 @@ void help_cmd(void){
   }
   rc = dispatch_name_search(g.argv[2], CMDFLAG_ANY|CMDFLAG_PREFIX, &pCmd);
   if( rc==1 ){
-    fossil_print("unknown %s: %s\nAvailable %s:\n",
-                 zCmdOrPage, g.argv[2], zCmdOrPagePlural);
-    command_list(0, isPage ? CMDFLAG_WEBPAGE : (0xff & ~CMDFLAG_WEBPAGE));
+    fossil_print("unknown %s: %s\nConsider using:\n", zCmdOrPage, g.argv[2]);
+    fossil_print("   fossil help -a     ;# show all commands\n");
+    fossil_print("   fossil help -w     ;# show all web-pages\n");
+    fossil_print("   fossil help -s     ;# show all settings\n");
     fossil_exit(1);
   }else if( rc==2 ){
     fossil_print("ambiguous %s prefix: %s\nMatching %s:\n",
