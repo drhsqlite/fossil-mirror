@@ -1530,17 +1530,26 @@ int object_description(
 
 /*
 ** WEBPAGE: fdiff
-** URL: fdiff?v1=UUID&v2=UUID&patch&sbs=BOOLEAN&regex=REGEX
+** URL: fdiff?v1=UUID&v2=UUID
 **
-** Two arguments, v1 and v2, identify the files to be diffed.  Show the
-** difference between the two artifacts.  Show diff side by side unless sbs
-** is 0.  Generate plain text if "patch" is present, otherwise generate
-** "pretty" HTML.
+** Two arguments, v1 and v2, identify the artifacts to be diffed.
+** Show diff side by side unless sbs is 0.  Generate plain text if
+** "patch" is present, otherwise generate "pretty" HTML.
+**
+** Alternative URL:  fdiff?from=filename1&to=filename2&ci=checkin
+**
+** If the "from" and "to" query parameters are both present, then they are
+** the names of two files within the check-in "ci" that are diffed.  If the
+** "ci" parameter is omitted, then the most recent check-in ("tip") is
+** used.
 **
 ** Additional parameters:
 **
-**      verbose      Show more detail when describing artifacts
 **      dc=N         Show N lines of context around each diff
+**      patch        Use the patch diff format
+**      regex=REGEX  Only show differences that match REGEX
+**      sbs=BOOLEAN  Turn side-by-side diffs on and off (default: on)
+**      verbose      Show more detail when describing artifacts
 **      w            Ignore whitespace
 */
 void diff_page(void){
@@ -1557,8 +1566,13 @@ void diff_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  v1 = name_to_rid_www("v1");
-  v2 = name_to_rid_www("v2");
+  if( P("from") && P("to") ){
+    v1 = artifact_from_ci_and_filename(0, "from");
+    v2 = artifact_from_ci_and_filename(0, "to");
+  }else{
+    v1 = name_to_rid_www("v1");
+    v2 = name_to_rid_www("v2");
+  }
   if( v1==0 || v2==0 ) fossil_redirect_home();
   zRe = P("regex");
   if( zRe ) re_compile(&pRe, zRe, 0);
@@ -1641,7 +1655,7 @@ void rawartifact_page(void){
   Blob content;
 
   if( P("ci") && P("filename") ){
-    rid = artifact_from_ci_and_filename(0);
+    rid = artifact_from_ci_and_filename(0, 0);
   }
   if( rid==0 ){
     rid = name_to_rid_www("name");
@@ -1782,19 +1796,32 @@ void hexdump_page(void){
 ** Also look for "fn" as an alias for "filename".  If either "filename"
 ** or "fn" is present but "ci" is missing, use "tip" as a default value
 ** for "ci".
+**
+** If zNameParam is not NULL, this use that parameter as the filename
+** rather than "fn" or "filename".
+**
+** If pUrl is not NULL, then record the "ci" and "filename" values in
+** pUrl.
+**
+** At least one of pUrl or zNameParam must be NULL.
 */
-int artifact_from_ci_and_filename(HQuery *pUrl){
+int artifact_from_ci_and_filename(HQuery *pUrl, const char *zNameParam){
   const char *zFilename;
   const char *zCI;
   int cirid;
   Manifest *pManifest;
   ManifestFile *pFile;
 
-  zFilename = P("filename");
-  if( zFilename==0 ){
-    zFilename = P("fn");
-    if( zFilename==0 ) return 0;
+  if( zNameParam ){
+    zFilename = P(zNameParam);
+  }else{
+    zFilename = P("filename");
+    if( zFilename==0 ){
+      zFilename = P("fn");
+    }
   }
+  if( zFilename==0 ) return 0;
+
   zCI = P("ci");
   cirid = name_to_typed_rid(zCI ? zCI : "tip", "ci");
   if( cirid<=0 ) return 0;
@@ -1806,6 +1833,7 @@ int artifact_from_ci_and_filename(HQuery *pUrl){
       int rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", pFile->zUuid);
       manifest_destroy(pManifest);
       if( pUrl ){
+        assert( zNameParam==0 );
         url_add_parameter(pUrl, "fn", zFilename);
         if( zCI ) url_add_parameter(pUrl, "ci", zCI);
       }
@@ -1949,7 +1977,7 @@ void artifact_page(void){
   HQuery url;
 
   url_initialize(&url, g.zPath);
-  rid = artifact_from_ci_and_filename(&url);
+  rid = artifact_from_ci_and_filename(&url, 0);
   if( rid==0 ){
     url_add_parameter(&url, "name", zName);
     if( isFile ){
