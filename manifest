@@ -1,5 +1,5 @@
-C Improve\sthe\sdebug\sinformation\savailable\swhen\susing\sLogin\sGroups.
-D 2017-09-07T05:04:05.659
+C Minor\sformatting\schanges\sin\sthe\sUV\ssync\slogic.\s\sNo\slogical\schanges\sto\scode.
+D 2017-09-07T23:56:06.778
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -536,7 +536,7 @@ F src/wikiformat.c bf5549e0b222dc208fedb893bb6dd533a43afe47f1bb1db327996d615d55f
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c b8020da569aa214b67cfcd0b2efb770390798e8d829f0d18899d496e92eb5e04
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c 2aa129b0237419bcde414e449472150bdecfb8be
+F src/xfer.c ecb7676eb9d1ace76a1c07f21c814272233ae65d7fb06af8af1bea7ccc2b81ea
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c dca32599a1647502150aff4bc7579ca524b765a9fc8ca392a944209c8c9419b8
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 19497648d70fb1bba6ae35a193c77d3f65c5e5c4882f2546e01fdc30bcc17d91
-R dee13da84656d59ad99118eb43bdd853
-U andybradford
-Z 98db6c60090644dca4e903dc221c09f4
+P 7f4393dab497e12f7414703e5582fbf897b73b191986c5d313d2e838cfd89d86
+R 864fa58044d278905d0b40a088bb3e91
+U drh
+Z f516f3a2836a44d41cd9d8407a81ba42

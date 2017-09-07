@@ -1268,7 +1268,7 @@ void page_xfer(void){
     if( blob_eq(&xfer.aToken[0], "uvfile") ){
       xfer_accept_unversioned_file(&xfer, g.perm.WrUnver);
       if( blob_size(&xfer.err) ){
-          cgi_reset_content();
+        cgi_reset_content();
         @ error %T(blob_str(&xfer.err))
         nErr++;
         break;
@@ -2082,7 +2082,7 @@ int client_sync(
 
       /*   uvfile NAME MTIME HASH SIZE FLAGS \n CONTENT
       **
-      ** Accept an unversioned file from the client.
+      ** Accept an unversioned file from the server.
       */
       if( blob_eq(&xfer.aToken[0], "uvfile") ){
         xfer_accept_unversioned_file(&xfer, 1);
