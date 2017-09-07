@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\s/fdiff\swebpage:\s\sAdd\sthe\soption\sof\susing\sfrom=\sand\sto=\nquery\sparameters\sto\sget\sa\sdiff\sbetween\stwo\sfiles\sin\sthe\ssame\scheck-in.
-D 2017-08-31T18:32:18.064
+C Improve\sthe\sdebug\sinformation\savailable\swhen\susing\sLogin\sGroups.
+D 2017-09-07T05:04:05.659
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -494,7 +494,7 @@ F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/search.c 0de35ed3d058b62f9f09a5bde235d0cc1e8f0ee1d4bec9ebc2cd9b5bb9d858bb
 F src/security_audit.c 7258617b28df652f0b9c12f304dd54c8345c50f5a6ce0c24f59911a6fb20adc0
-F src/setup.c 40ba1123d8b1f30001c9b20cbd8fa20eecd0f72391f79d72cb25bc7b425bb960
+F src/setup.c 6faab32cb20073bd1d296d11a5554c53478dce01c4f0cf708995d22d6038cd1b
 F src/sha1.c 04efd231424be45a281bdb50def7fce94625bd45b53d3c96b89e8de31f0305be
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c 7d862ff2c83826fd251909f5af2c8dd642417a8c389685e169f3c00434f784fa
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0d8c3c2bef82eb086771973e1414d87865bdfb84226720f5a3ad73eff50d4d83
-R 9645ae9c117e9a94804c074e44c4104d
-U drh
-Z aa86d9a740992063a50d39520224e624
+P 19497648d70fb1bba6ae35a193c77d3f65c5e5c4882f2546e01fdc30bcc17d91
+R dee13da84656d59ad99118eb43bdd853
+U andybradford
+Z 98db6c60090644dca4e903dc221c09f4
