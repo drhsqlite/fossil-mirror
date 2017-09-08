@@ -364,7 +364,7 @@ static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
       " WHERE name=:name"
     );
     db_bind_int(&q, ":rcvid", g.rcvid);
-  }else if( iStatus==4 ){
+  }else if( iStatus==2 ){
     db_prepare(&q, "UPDATE unversioned SET mtime=:mtime WHERE name=:name");
   }else{
     db_prepare(&q,
