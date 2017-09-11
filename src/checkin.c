@@ -419,6 +419,7 @@ static int determine_cwd_relative_option()
 **    --case-sensitive <BOOL>  Override case-sensitive setting.
 **    --dotfiles        Include unmanaged files beginning with a dot.
 **    --ignore <CSG>    Ignore unmanaged files matching CSG glob patterns.
+**    --no-dir-symlinks Disables support for directory symlinks.
 **
 ** Options specific to the changes command:
 **    --header          Identify the repository if report is non-empty.
@@ -827,6 +828,7 @@ void ls_cmd(void){
 **    --dotfiles       include files beginning with a dot (".")
 **    --header         Identify the repository if there are extras
 **    --ignore <CSG>   ignore files matching patterns from the argument
+**    --no-dir-symlinks Disables support for directory symlinks.
 **    --rel-paths      Display pathnames relative to the current working
 **                     directory.
 **
@@ -856,8 +858,6 @@ void extras_cmd(void){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
   pIgnore = glob_create(zIgnoreFlag);
-  /* Always consider symlinks. */
-  g.allowSymlinks = db_allow_symlinks_by_default();
   locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, pIgnore);
   glob_free(pIgnore);
 
@@ -903,9 +903,10 @@ void extras_cmd(void){
 ** the (versionable) clean-glob, ignore-glob, and keep-glob settings.
 **
 ** The --verily option ignores the keep-glob and ignore-glob settings and
-** turns on --force, --emptydirs, --dotfiles, and --disable-undo.  Use the
-** --verily option when you really want to clean up everything.  Extreme
-** care should be exercised when using the --verily option.
+** turns on the options --force, --emptydirs, --dotfiles, --disable-undo,
+** and --no-dir-symlinks.  Use the --verily option when you really want
+** to clean up everything.  Extreme care should be exercised when using
+** the --verily option.
 **
 ** Options:
 **    --allckouts      Check for empty directories within any checkouts
@@ -935,7 +936,7 @@ void extras_cmd(void){
 **    -x|--verily      WARNING: Removes everything that is not a managed
 **                     file or the repository itself.  This option
 **                     implies the --force, --emptydirs, --dotfiles, and
-**                     --disable-undo options.
+**                     --disable-undo, and --no-dir-symlinks options.
 **                     Furthermore, it completely disregards the keep-glob
 **                     and ignore-glob settings.  However, it does honor
 **                     the --ignore and --keep options.
@@ -951,6 +952,7 @@ void extras_cmd(void){
 **                     deleted.
 **    --no-prompt      This option disables prompting the user for input
 **                     and assumes an answer of 'No' for every question.
+**    --no-dir-symlinks Disables support for directory symlinks.
 **    --temp           Remove only Fossil-generated temporary files.
 **    -v|--verbose     Show all files as they are removed.
 **
@@ -999,6 +1001,8 @@ void clean_cmd(void){
     disableUndo = 1;
     scanFlags |= SCAN_ALL;
     zCleanFlag = 0;
+    g.fNoDirSymlinks = 1; /* Forbid symlink directory traversal. */
+    g.allowSymlinks = 1;  /* Treat symlink files as content. */
   }
   if( zIgnoreFlag==0 && !verilyFlag ){
     zIgnoreFlag = db_get("ignore-glob", 0);
@@ -1015,8 +1019,6 @@ void clean_cmd(void){
   pKeep = glob_create(zKeepFlag);
   pClean = glob_create(zCleanFlag);
   nRoot = (int)strlen(g.zLocalRoot);
-  /* Always consider symlinks. */
-  g.allowSymlinks = db_allow_symlinks_by_default();
   if( !dirsOnlyFlag ){
     Stmt q;
     Blob repo;

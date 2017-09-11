@@ -1477,8 +1477,13 @@ int db_allow_symlinks_by_default(void){
 /*
 ** Returns non-zero if support for symlinks is currently enabled.
 */
-int db_allow_symlinks(void){
-  return g.allowSymlinks;
+int db_allow_symlinks(int traversal){
+  if( traversal ){
+    if( g.allowSymlinks ) return 1;
+    return g.fNoDirSymlinks;
+  }else{
+    return g.allowSymlinks;
+  }
 }
 
 /*
