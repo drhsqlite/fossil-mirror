@@ -548,7 +548,7 @@ void uvlist_page(void){
      approxSizeName(sizeof(zSzName), zSzName, iTotalSz);
      @ </tbody>
      @ <tfoot><tr><td><b>Total over %d(cnt) files</b><td><td>%s(zSzName)
-     @ <td><td></tfoot>
+     @ <td><td><td></tfoot>
      @ </table></div>
      output_table_sorting_javascript("uvtab","tkKttN",1);
    }else{

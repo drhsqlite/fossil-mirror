@@ -1,5 +1,5 @@
-C Show\sfile\ssizes\sin\sthe\sdescription\sof\sindividual\sfile\sartifacts.
-D 2017-09-19T18:04:00.999
+C Add\smissing\stable\scell\sin\sbottom\sright\scorner\sof\sunversioned\sfile\slist\sweb\spage
+D 2017-09-19T18:28:10.937
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -523,7 +523,7 @@ F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 33b65539a12abd079a57972b78e0d532831cefd9
 F src/undo.c d3cca342dd73eaec65e352d978e8f7a9e75a5ddd
 F src/unicode.c 1a3686d1851ac88eeeef3428c9ace3c471b8286fb785606ad63b800c8e688926
-F src/unversioned.c af5f3c4e852989bdcb3c13b5725e90d3dd02585a
+F src/unversioned.c 2a267b544aff3c9744137e7fc9c1f496663c65045ba7d983f61916949528e107
 F src/update.c 6520d390b5e37ce8cdd51abc7044778dd33a14de
 F src/url.c b5d45bf6ccbbb928ab2fcd34e2b27556d43d37441d8db7450fb4f2e843e7410f
 F src/user.c c595beaa8d6fee6bf1f5b53b77cf6a498dab9252cf22b2ec7852a70844cbe7ec
@@ -791,7 +791,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0594266c8efc2b7501157f2fdbebdd196f8b0bcd7dd83efbb770b88a1302231d
-R e7c83cf96cb8420cd4352c043d67a92c
-U drh
-Z 04e20c0d6bcbdc9d7d9911d2f7004492
+P 4c268999d5fd3b60fee31c49c4c748017a610480ea6a6afd8d925b5fbe616f87
+U andygoth
+Z 3a53ecf6223b2b190e2fb0abda836699
