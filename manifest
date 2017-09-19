@@ -1,5 +1,5 @@
-C On\sthe\s/stat\spage,\sshow\sonly\sthe\scompressed\ssize\sof\sunversioned\sartifacts,\nand\sshow\sthe\spercentage\sof\sthe\stotal\srepository\sspace\staken\sup\sby\sunversioned\nfiles.
-D 2017-09-19T20:00:50.473
+C Add\sthe\sability\sto\stemporarily\sdisable\sall\sads.
+D 2017-09-19T20:09:51.753
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -494,7 +494,7 @@ F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/search.c 0de35ed3d058b62f9f09a5bde235d0cc1e8f0ee1d4bec9ebc2cd9b5bb9d858bb
 F src/security_audit.c 7258617b28df652f0b9c12f304dd54c8345c50f5a6ce0c24f59911a6fb20adc0
-F src/setup.c 6faab32cb20073bd1d296d11a5554c53478dce01c4f0cf708995d22d6038cd1b
+F src/setup.c 2ed6aad205e55ae41ddb804210749f858bdf0f84e69d05253182a2ef8e5b38ff
 F src/sha1.c 04efd231424be45a281bdb50def7fce94625bd45b53d3c96b89e8de31f0305be
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c 7d862ff2c83826fd251909f5af2c8dd642417a8c389685e169f3c00434f784fa
@@ -508,7 +508,7 @@ F src/sqlite3.h 9700cd17c9f9444a6397c9862a761b79504ebef0c0e7ce6d02952fc3406613fc
 F src/stash.c a6bb018a382d8c648702da7c2e9f56d7012486205c64ba269662336508ab0df2
 F src/stat.c 7bdc6042491a5bf707f97d5311fe70fc07cbe81ec0ff0a02289c1ef30743c608
 F src/statrep.c 9ee2695e45d0a0de17ce79d0b027f79bd246b4f305c95649044c3709a44372cd
-F src/style.c 2c96edb8b7de76824225d521800409295ecda3eebf7e7b3ed3f6b35c3d96b956
+F src/style.c 309028172b58a2c0ab85dc4ee9ea15728a8380192e7b1bf46b56d65a6126f415
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 7eec9152da56e30bedad9b9c62195012de13f0db656f9b6395c2bcebfee7f4a8
 F src/tar.c 7f1a32be9c4534f5d837f44ebf66c54ad533e297e159fcd8403356d03b074bfe
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4f134e06ce210d4af904c6dffb2eaa3b036c0328d361e982fc9b2a2f920e88b0
-R 630bc44a6ddf43c291a97adbba421568
+P 69d22d3bb192aeee94d38bd09b94dc8ae59ba8fe3528d0c6ccc10c38e9729d89
+R 9b1cd0009a14e5de8cd04dddd6c3e62e
 U drh
-Z a83f3c4e0e85e5199c397074a694f29c
+Z 765b5171cd4b8d42cf89ee4afdbab55d

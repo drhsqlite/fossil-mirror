@@ -1791,6 +1791,9 @@ void setup_adunit(void){
   onoff_attribute("Omit ads to logged-in users",
      "adunit-omit-if-user", "oiu", 0, 0);
   @ <br />
+  onoff_attribute("Temporarily disable all ads",
+     "adunit-disable", "oall", 0, 0);
+  @ <br />
   @ <input type="submit" name="submit" value="Apply Changes" />
   @ <input type="submit" name="clear" value="Delete Ad-Unit" />
   @ </div></form>

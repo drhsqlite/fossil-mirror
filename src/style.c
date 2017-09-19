@@ -485,6 +485,7 @@ static const char *style_adunit_text(unsigned int *pAdFlag){
   const char *zAd = 0;
   *pAdFlag = 0;
   if( adUnitFlags & ADUNIT_OFF ) return 0;  /* Disallow ads on this page */
+  if( db_get_boolean("adunit-disable",0) ) return 0;
   if( g.perm.Admin && db_get_boolean("adunit-omit-if-admin",0) ){
     return 0;
   }
