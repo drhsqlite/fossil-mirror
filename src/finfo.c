@@ -345,16 +345,18 @@ void finfo_page(void){
     " mlink.pid,"                                    /* Parent file rid */
     " mlink.fid,"                                    /* File rid */
     " (SELECT uuid FROM blob WHERE rid=mlink.pid),"  /* Parent file uuid */
-    " (SELECT uuid FROM blob WHERE rid=mlink.fid),"  /* Current file uuid */
+    " blob.uuid,"                                    /* Current file uuid */
     " (SELECT uuid FROM blob WHERE rid=mlink.mid),"  /* Check-in uuid */
     " event.bgcolor,"                                /* Background color */
     " (SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0"
                                 " AND tagxref.rid=mlink.mid)," /* Branchname */
     " mlink.mid,"                                    /* check-in ID */
-    " mlink.pfnid"                                   /* Previous filename */
-    "  FROM mlink, event"
+    " mlink.pfnid,"                                  /* Previous filename */
+    " blob.size"                                     /* File size */
+    "  FROM mlink, event, blob"
     " WHERE mlink.fnid=%d"
-    "   AND event.objid=mlink.mid",
+    "   AND event.objid=mlink.mid"
+    "   AND mlink.fid=blob.rid",
     TAG_BRANCH, fnid
   );
   if( (zA = P("a"))!=0 ){
@@ -445,6 +447,7 @@ void finfo_page(void){
     const char *zBr = db_column_text(&q, 9);
     int fmid = db_column_int(&q, 10);
     int pfnid = db_column_int(&q, 11);
+    int szFile = db_column_int(&q, 12);
     int gidx;
     char zTime[10];
     int nParent = 0;
@@ -524,8 +527,9 @@ void finfo_page(void){
       @ (%d(fmid))
     }
     @ %W(zCom) (user:
-    hyperlink_to_user(zUser, zDate, "");
-    @ branch: %z(href("%R/timeline?t=%T&n=200",zBr))%h(zBr)</a>)
+    hyperlink_to_user(zUser, zDate, ",");
+    @ branch: %z(href("%R/timeline?t=%T&n=200",zBr))%h(zBr)</a>,
+    @ size: %d(szFile))
     if( g.perm.Hyperlink && zUuid ){
       const char *z = zFilename;
       @ %z(href("%R/annotate?filename=%h&checkin=%s",z,zCkin))

@@ -1287,7 +1287,8 @@ int object_description(
     "       coalesce(event.euser,event.user),"
     "       b.uuid, mlink.mperm,"
     "       coalesce((SELECT value FROM tagxref"
-                    "  WHERE tagid=%d AND tagtype>0 AND rid=mlink.mid),'trunk')"
+                    "  WHERE tagid=%d AND tagtype>0 AND rid=mlink.mid),'trunk'),"
+    "       a.size"
     "  FROM mlink, filename, event, blob a, blob b"
     " WHERE filename.fnid=mlink.fnid"
     "   AND event.objid=mlink.mid"
@@ -1306,6 +1307,7 @@ int object_description(
     const char *zVers = db_column_text(&q, 4);
     int mPerm = db_column_int(&q, 5);
     const char *zBr = db_column_text(&q, 6);
+    int szFile = db_column_int(&q,7);
     int sameFilename = prevName!=0 && fossil_strcmp(zName,prevName)==0;
     if( sameFilename && !showDetail ){
       if( cnt==1 ){
@@ -1350,7 +1352,8 @@ int object_description(
       @ on branch %z(href("%R/timeline?r=%T",zBr))%h(zBr)</a>
     }
     @ &mdash; %!W(zCom) (user:
-    hyperlink_to_user(zUser,zDate,")");
+    hyperlink_to_user(zUser,zDate,",");
+    @ size: %d(szFile))
     if( g.perm.Hyperlink ){
       @ %z(href("%R/finfo?name=%T&ci=%!S",zName,zVers))[ancestry]</a>
       @ %z(href("%R/annotate?filename=%T&checkin=%!S",zName,zVers))

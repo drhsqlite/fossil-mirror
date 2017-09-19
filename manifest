@@ -1,5 +1,5 @@
-C New\ssubmenu\slinks\sto\sthe\sartifact\slist\sand\s250-largest\sartifacts\spages.
-D 2017-09-19T17:24:05.868
+C Show\sfile\ssizes\sin\sthe\sdescription\sof\sindividual\sfile\sartifacts.
+D 2017-09-19T18:04:00.999
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -425,7 +425,7 @@ F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c e0412afa4ac1895b73d1f49e5756be51aebfdf4f46379f7746b150ab084738e0
 F src/export.c 3e09dfda9d07b44c463d656dbc09f6adfe686d6d80ad55282a1f06b9216934f2
 F src/file.c dcb3d4d22b16673b0d93038d43fe20e53847dae2c99f83648f0f747b2327a8fe
-F src/finfo.c 6ff4c3e0a8c6c632e4fe0368db2f9c0b98af1ce523108a9ca32b7480a894f040
+F src/finfo.c cdfcb472e15d3f338bc34167a8c18b3199e974dff0e87200ff3c0f2607ca9d42
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c c774c78b274375f42653c71d0b6c1062695bb4da
@@ -438,7 +438,7 @@ F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d98
 F src/http_transport.c 43bf993a931c1a6cafb051566e06c841173ec350dedc0cb6887e112bc05a147c
 F src/import.c e48f2f2e0095795aeabe7220514c8694393693b853150c47f6d6792921def3f1
-F src/info.c 01ed92e0e39009df8a86f66e14c406a097cf0488e74f56bd854e4a0a4382e187
+F src/info.c 89f2328293341dcc052b4663d9913e436bdb7342fceac03a016f6c41da254b65
 F src/json.c d60c46e8598420ce1a247faef05c7e7a310a82a5851e8a0e637e22422ed18d97
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c b6105183492ee774cdc685bfd80eb511fb1c5c37faf88198d7e4e58c41dfc68b
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4fd147f8154fc774a2922f92b8bc44addd99229411695c45b907c45ffe6c6514
-R 73cce5f8141c92d87967f414483a0dea
+P 0594266c8efc2b7501157f2fdbebdd196f8b0bcd7dd83efbb770b88a1302231d
+R e7c83cf96cb8420cd4352c043d67a92c
 U drh
-Z b3067c11463f800965137d7585cdb83d
+Z 04e20c0d6bcbdc9d7d9911d2f7004492
