@@ -571,13 +571,18 @@ void www_print_timeline(
         const char *zNew = db_column_text(&fchngQuery, 3);
         const char *zUnpub = "";
         char *zA;
-        char zId[20];
+        char zId[40];
         if( !inUl ){
           @ <ul class="filelist">
           inUl = 1;
         }
         if( tmFlags & TIMELINE_SHOWRID ){
-          sqlite3_snprintf(sizeof(zId), zId, " (%d) ", fid);
+          int srcId = delta_source_rid(fid);
+          if( srcId ){
+            sqlite3_snprintf(sizeof(zId), zId, " (%d&larr;%d) ", fid, srcId);
+          }else{
+            sqlite3_snprintf(sizeof(zId), zId, " (%d) ", fid);
+          }
         }else{
           zId[0] = 0;
         }
