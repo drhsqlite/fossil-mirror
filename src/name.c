@@ -1009,6 +1009,9 @@ void bloblist_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("List Of Artifacts");
   style_submenu_element("250 Largest", "bigbloblist");
+  if( g.perm.Admin ){
+    style_submenu_element("Artifact Log", "rcvfromlist");
+  }
   if( !unpubOnly && mx>n && P("s")==0 ){
     int i;
     @ <p>Select a range of artifacts to view:</p>
@@ -1079,6 +1082,10 @@ void bigbloblist_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  if( g.perm.Admin ){
+    style_submenu_element("Artifact Log", "rcvfromlist");
+  }
+  style_submenu_element("All Artifacts", "bloblist");
   style_header("%d Largest Artifacts", n);
   db_multi_exec(
     "CREATE TEMP TABLE toshow(rid INTEGER PRIMARY KEY);"
