@@ -495,7 +495,12 @@ void finfo_page(void){
       }
       @ %z(href("%R/artifact/%!S",zUuid))[%S(zUuid)]</a>
       if( fShowId ){
-        @ (%d(frid))
+        int srcId = delta_source_rid(frid);
+        if( srcId>0 ){
+          @ (%d(frid)&larr;%d(srcId))
+        }else{
+          @ (%d(frid))
+        }
       }
       @ part of check-in
     }else{

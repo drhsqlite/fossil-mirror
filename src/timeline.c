@@ -449,7 +449,12 @@ void www_print_timeline(
       hyperlink_to_uuid(zUuid);
     }
     if( tmFlags & TIMELINE_SHOWRID ){
-      @ (%d(rid))
+      int srcId = delta_source_rid(rid);
+      if( srcId ){
+        @ (%d(rid)&larr;%d(srcId))
+      }else{
+        @ (%d(rid))
+      }
     }
     db_column_blob(pQuery, commentColumn, &comment);
     if( zType[0]!='c' ){

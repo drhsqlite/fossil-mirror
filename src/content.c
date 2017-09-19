@@ -119,7 +119,7 @@ void content_clear_cache(void){
 ** Return the srcid associated with rid.  Or return 0 if rid is
 ** original content and not a delta.
 */
-static int findSrcid(int rid){
+int delta_source_rid(int rid){
   static Stmt q;
   int srcid;
   db_static_prepare(&q, "SELECT srcid FROM delta WHERE rid=:rid");
@@ -167,7 +167,7 @@ int content_is_available(int rid){
       bag_insert(&contentCache.missing, rid);
       return 0;
     }
-    srcid = findSrcid(rid);
+    srcid = delta_source_rid(rid);
     if( srcid==0 ){
       bag_insert(&contentCache.available, rid);
       return 1;
@@ -252,7 +252,7 @@ int content_get(int rid, Blob *pBlob){
     }
   }
 
-  nextRid = findSrcid(rid);
+  nextRid = delta_source_rid(rid);
   if( nextRid==0 ){
     rc = content_of_blob(rid, pBlob);
   }else{
@@ -267,7 +267,7 @@ int content_get(int rid, Blob *pBlob){
     a[1] = nextRid;
     n = 1;
     while( !bag_find(&contentCache.inCache, nextRid)
-        && (nextRid = findSrcid(nextRid))>0 ){
+        && (nextRid = delta_source_rid(nextRid))>0 ){
       n++;
       if( n>=nAlloc ){
         if( n>db_int(0, "SELECT max(rid) FROM blob") ){
@@ -717,7 +717,7 @@ void test_content_put_cmd(void){
 ** delta.
 */
 void content_undelta(int rid){
-  if( findSrcid(rid)>0 ){
+  if( delta_source_rid(rid)>0 ){
     Blob x;
     if( content_get(rid, &x) ){
       Stmt s;
@@ -811,7 +811,7 @@ int content_deltify(int rid, int *aSrc, int nSrc, int force){
   /* If rid is already a child (a delta) of some other artifact, return
   ** immediately if the force flags is false
   */
-  if( !force && findSrcid(rid)>0 ) return 0;
+  if( !force && delta_source_rid(rid)>0 ) return 0;
 
   /* Get the complete content of the object to be delta-ed.  If the size
   ** is less than 50 bytes, then there really is no point in trying to do
@@ -835,7 +835,7 @@ int content_deltify(int rid, int *aSrc, int nSrc, int force){
     ** If rid is an ancestor of srcid, then making rid a decendent of srcid
     ** would create a delta loop. */
     s = srcid;
-    while( (s = findSrcid(s))>0 ){
+    while( (s = delta_source_rid(s))>0 ){
       if( s==rid ){
         content_undelta(srcid);
         break;

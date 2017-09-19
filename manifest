@@ -1,5 +1,5 @@
-C Change\sthe\scontent_deltify()\sroutine\sso\sthat\slooks\san\sarray\sof\scandidate\nsource\sartifacts\sand\spicks\sthe\sone\sthat\sgives\sthe\sbest\sdelta.
-D 2017-09-19T01:36:46.040
+C When\sthe\s"showid"\squery\sparameter\sis\sgiven\son\s/timeline\sor\s/finfo,\sshow\nthe\sdelta-source\sartifact\sID\sin\saddition\sto\sthe\sartifact\sID.
+D 2017-09-19T01:48:31.102
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -408,7 +408,7 @@ F src/codecheck1.c cbf9594fb2802bad4603f877bc9aba236811355b049dc9f4c09a51f416953
 F src/comformat.c ba3c29ae04dcea342f6799fca0dd0ed00581262a2912b78faabe4608dd92935e
 F src/config.h d6b66b9cf87be799bc160e9afa0db82a5d34f30b4a73691a391031c37b4c0535
 F src/configure.c df8e12f3f73c558b58e84e2b7b47cf6542068d0e
-F src/content.c fee753e84259ab8ac4efc97b9d4e73aa51ed02548e2cc20c45417de4f19f1d26
+F src/content.c e65030e50dbfabd93e22800909ce6cf69ce0806a259ecfbfd8a8c09b30aedcf0
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
@@ -425,7 +425,7 @@ F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c e0412afa4ac1895b73d1f49e5756be51aebfdf4f46379f7746b150ab084738e0
 F src/export.c 3e09dfda9d07b44c463d656dbc09f6adfe686d6d80ad55282a1f06b9216934f2
 F src/file.c dcb3d4d22b16673b0d93038d43fe20e53847dae2c99f83648f0f747b2327a8fe
-F src/finfo.c af394481348f1cd619e042f207a7a7db1d891ef2662bf991c7316a16fecb9313
+F src/finfo.c 6ff4c3e0a8c6c632e4fe0368db2f9c0b98af1ce523108a9ca32b7480a894f040
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c c774c78b274375f42653c71d0b6c1062695bb4da
@@ -517,7 +517,7 @@ F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
 F src/th_main.c 5b80e577235cec101e3c7fc0451f67ac10fe4db1fcc60a474277c5ce2cb561af
 F src/th_tcl.c 2b70a8da7d7d8009794d7a3565043c8933a6cbfe
-F src/timeline.c 3264fd7901093a61609e5630e3c2a4acbb37bdeb96a2dabb3fb90f7d0721133c
+F src/timeline.c be6b3aaf4763d1720c64cdcf6a89bee1c54d6e29000097934d421877febd5e7b
 F src/tkt.c e5815264d68d48a28983230026ceaa45b5190c34b092a8fc920ce832a6d2bf6e
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 33b65539a12abd079a57972b78e0d532831cefd9
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e6f64f5eeb12a2780fb91059d048ce18870c8d031067bde503151fe69988e096
-R 62ea993bf16d2c317e0367850d9816d1
+P a4047a91e3dbf58d53923e209a7a3e0ccb23245318219775668dd9368c9b8436
+R 716cfad493c525aac46117a70dad20b3
 U drh
-Z 1bcd9e4abb69a7ce26693d632571fa6e
+Z e91dc2a233edc82114c940c8e42aaed2
