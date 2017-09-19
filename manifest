@@ -1,5 +1,5 @@
-C Fix\sproblems\sin\sthe\snew\scontent_deltify()\sroutine.
-D 2017-09-19T03:57:33.241
+C Fix\sa\sproblem\swith\sfile\sdelta\sdetection\sin\sextra_compression().
+D 2017-09-19T04:05:43.772
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -487,7 +487,7 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 1cf52da2f0f43868d026ff790a4eadbd984fd040
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f698cae20e3740796f6ffa65f69324f27f19d96c
-F src/rebuild.c 231aec54319423ae62f5dc79accf65fc6797ffed64db7f7b4bd7aeebcffa3ae0
+F src/rebuild.c d3e66847692504318c7f5574182ad4c322b017493047af2c28a8b117635c58d0
 F src/regexp.c 11ed4c905c2e471efe9c1e9c4650004ad91d6ebb
 F src/report.c ee53ffbf76230126e2f91511b70d9f72a97d0a650e4c91e6d43018ab3069927a
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 29935c6e3e9b36441b2213b0ed8137f8989ef59f3330ff8ad7436fa5236f0c3a
-R 9441f12a87fb896bb92a224612db6e8e
+P cb29bc646b63a9c86fc7e55a721b8a3a1b5433f246248f9befbc5cf6c626f276
+R 3286ec806820b3427d0633030f420c02
 U drh
-Z ba34b3f7fd3bbc580a602c23037feaae
+Z e78c334614ffb7214c9c3a05829e521b

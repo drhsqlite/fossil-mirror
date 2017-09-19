@@ -497,7 +497,7 @@ void extra_deltification(void){
   ** more recent branch.
   */
   db_prepare(&q,
-     "SELECT blob.rid, mlink.fnid FROM blob, mlink, plink"
+     "SELECT DISTINCT blob.rid, mlink.fnid FROM blob, mlink, plink"
      " WHERE NOT EXISTS(SELECT 1 FROM delta WHERE rid=blob.rid)"
      "   AND mlink.fid=blob.rid"
      "   AND mlink.mid=plink.cid"
@@ -509,6 +509,7 @@ void extra_deltification(void){
     rid = db_column_int(&q, 0);
     fnid = db_column_int(&q, 1);
     if( fnid!=prevfnid ) nPrev = 0;
+    prevfnid = fnid;
     if( nPrev>0 ){
       content_deltify(rid, aPrev, nPrev, 0);
     }
