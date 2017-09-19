@@ -851,7 +851,7 @@ int content_deltify(int rid, int *aSrc, int nSrc, int force){
     }
     blob_delta_create(&src, &data, &delta);
     if( blob_size(&delta) < blob_size(&data)*0.75
-     && (bestSrc<0 || blob_size(&delta)<blob_size(&bestDelta))
+     && (bestSrc<=0 || blob_size(&delta)<blob_size(&bestDelta))
     ){
       /* This is the best delta seen so far.  Remember it */
       blob_reset(&bestDelta);
@@ -868,7 +868,7 @@ int content_deltify(int rid, int *aSrc, int nSrc, int force){
   ** make that candidate the new parent now */
   if( bestSrc>0 ){
     Stmt s1, s2;  /* Statements used to create the delta */
-    blob_compress(&delta, &delta);
+    blob_compress(&bestDelta, &bestDelta);
     db_prepare(&s1, "UPDATE blob SET content=:data WHERE rid=%d", rid);
     db_prepare(&s2, "REPLACE INTO delta(rid,srcid)VALUES(%d,%d)", rid, bestSrc);
     db_bind_blob(&s1, ":data", &bestDelta);
