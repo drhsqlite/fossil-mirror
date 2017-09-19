@@ -1,5 +1,5 @@
-C Show\sthe\sdelta-source\sID\son\sfiles\sas\swell\sas\scheck-ins\sfor\sthe\s"showid"\nquery\sparameter\son\sthe\s/timeline\spage.
-D 2017-09-19T19:20:04.692
+C On\sthe\s/stat\spage,\sshow\sonly\sthe\scompressed\ssize\sof\sunversioned\sartifacts,\nand\sshow\sthe\spercentage\sof\sthe\stotal\srepository\sspace\staken\sup\sby\sunversioned\nfiles.
+D 2017-09-19T20:00:50.473
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -506,7 +506,7 @@ F src/sqlcmd.c b150ead4134db3739733abb077bf764bf998bfede7d1d8ea457455adf3684c31
 F src/sqlite3.c 93b1a6d69b48dc39697d1d3a1e4c30b55da0bdd2cad0c054462f91081832954a
 F src/sqlite3.h 9700cd17c9f9444a6397c9862a761b79504ebef0c0e7ce6d02952fc3406613fc
 F src/stash.c a6bb018a382d8c648702da7c2e9f56d7012486205c64ba269662336508ab0df2
-F src/stat.c 0a2460ef58f49d29fedf2d292557adc1586d3ecde7c1f717bf0eae1da73dcbf5
+F src/stat.c 7bdc6042491a5bf707f97d5311fe70fc07cbe81ec0ff0a02289c1ef30743c608
 F src/statrep.c 9ee2695e45d0a0de17ce79d0b027f79bd246b4f305c95649044c3709a44372cd
 F src/style.c 2c96edb8b7de76824225d521800409295ecda3eebf7e7b3ed3f6b35c3d96b956
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f39c33c1332c6f72776ce9bfc13700ba334c2a9f5edf24d07ec44b4dc3246201
-R d0431f6c7682be5a9e086c920b8669ca
+P 4f134e06ce210d4af904c6dffb2eaa3b036c0328d361e982fc9b2a2f920e88b0
+R 630bc44a6ddf43c291a97adbba421568
 U drh
-Z 12b03bbed738d59d6090de36d77b3195
+Z a83f3c4e0e85e5199c397074a694f29c

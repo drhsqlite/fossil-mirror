@@ -132,14 +132,15 @@ void stat_page(void){
         " WHERE length(hash)>1"
       );
       if( db_step(&q)==SQLITE_ROW && (n = db_column_int(&q,0))>0 ){
-        sqlite3_int64 iSz, iStored;
-        iSz = db_column_int64(&q,1);
+        sqlite3_int64 iSz, iStored, pct;
+        /* iSz = db_column_int64(&q,1); */
         iStored = db_column_int64(&q,2);
-        approxSizeName(sizeof(zBuf), zBuf, iSz);
+        pct = (iStored*100 + fsize - 1)/fsize;
+        /* approxSizeName(sizeof(zBuf), zBuf, iSz); */
         approxSizeName(sizeof(zStored), zStored, iStored);
         @ <tr><th>Unversioned&nbsp;Files:</th><td>
         @ %z(href("%R/uvlist"))%d(n) files</a>,
-        @ total size %s(zBuf) uncompressed, %s(zStored) compressed
+        @ %s(zStored) compressed, %d(pct)%% of total repository space
         @ </td></tr>
       }
       db_finalize(&q);
