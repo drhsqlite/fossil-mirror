@@ -774,10 +774,13 @@ void content_make_public(int rid){
 }
 
 /*
-** Change the storage of rid so that it is a delta of srcid.
+** Try to change the storage of rid so that it is a delta from one
+** of the artifacts given in aSrc[0]..aSrc[nSrc-1].  The aSrc[*] that
+** gives the smallest delta is choosen.
 **
 ** If rid is already a delta from some other place then no
-** conversion occurs and this is a no-op unless force==1.
+** conversion occurs and this is a no-op unless force==1.  If force==1,
+** then nSrc must also be 1.
 **
 ** Never generate a delta that carries a private artifact into a public
 ** artifact.  Otherwise, when we go to send the public artifact on a
@@ -785,50 +788,90 @@ void content_make_public(int rid){
 ** the source of the delta.  It is OK to delta private->private and
 ** public->private and public->public.  Just no private->public delta.
 **
-** If srcid is a delta that depends on rid, then srcid is
-** converted to undeltaed text.
+** If aSrc[bestSrc] is already a dleta that depends on rid, then it is
+** converted to undeltaed text before the aSrc[bestSrc]->rid delta is
+** created, in order to prevent a delta loop.
 **
-** If either rid or srcid contain less than 50 bytes, or if the
+** If either rid or aSrc[i] contain less than 50 bytes, or if the
 ** resulting delta does not achieve a compression of at least 25%
 ** the rid is left untouched.
 **
 ** Return 1 if a delta is made and 0 if no delta occurs.
 */
-int content_deltify(int rid, int srcid, int force){
+int content_deltify(int rid, int *aSrc, int nSrc, int force){
   int s;
-  Blob data, src, delta;
-  Stmt s1, s2;
-  int rc = 0;
+  Blob data;           /* Content of rid */
+  Blob src;            /* Content of aSrc[i] */
+  Blob delta;          /* Delta from aSrc[i] to rid */
+  Blob bestDelta;      /* Best delta seen so far */
+  int bestSrc = 0;     /* Which aSrc is the source of the best delta */
+  int rc = 0;          /* Value to return */
+  int i;               /* Loop variable for aSrc[] */
 
-  if( srcid==rid ) return 0;
+  /* If rid is already a child (a delta) of some other artifact, return
+  ** immediately if the force flags is false
+  */
   if( !force && findSrcid(rid)>0 ) return 0;
-  if( content_is_private(srcid) && !content_is_private(rid) ){
-    return 0;
-  }
-  s = srcid;
-  while( (s = findSrcid(s))>0 ){
-    if( s==rid ){
-      content_undelta(srcid);
-      break;
-    }
-  }
-  content_get(srcid, &src);
-  if( blob_size(&src)<50 ){
-    blob_reset(&src);
-    return 0;
-  }
+
+  /* Get the complete content of the object to be delta-ed.  If the size
+  ** is less than 50 bytes, then there really is no point in trying to do
+  ** a delta, so return immediately
+  */
   content_get(rid, &data);
   if( blob_size(&data)<50 ){
-    blob_reset(&src);
+    /* Do not try to create a delta for objects smaller than 50 bytes */
     blob_reset(&data);
     return 0;
   }
-  blob_delta_create(&src, &data, &delta);
-  if( blob_size(&delta) <= blob_size(&data)*0.75 ){
+  blob_init(&bestDelta, 0, 0);
+
+  /* Loop over all candidate delta sources */
+  for(i=0; i<nSrc; i++){
+    int srcid = aSrc[i];
+    if( srcid==rid ) continue;
+    if( content_is_private(srcid) && !content_is_private(rid) ) continue;
+
+    /* Compute all ancestors of srcid and make sure rid is not one of them.
+    ** If rid is an ancestor of srcid, then making rid a decendent of srcid
+    ** would create a delta loop. */
+    s = srcid;
+    while( (s = findSrcid(s))>0 ){
+      if( s==rid ){
+        content_undelta(srcid);
+        break;
+      }
+    }
+    if( s!=0 ) continue;
+
+    content_get(srcid, &src);
+    if( blob_size(&src)<50 ){
+      /* The source is smaller then 50 bytes, so don't bother trying to use it*/
+      blob_reset(&src);
+      continue;
+    }
+    blob_delta_create(&src, &data, &delta);
+    if( blob_size(&delta) < blob_size(&data)*0.75
+     && (bestSrc<0 || blob_size(&delta)<blob_size(&bestDelta))
+    ){
+      /* This is the best delta seen so far.  Remember it */
+      blob_reset(&bestDelta);
+      bestDelta = delta;
+      bestSrc = srcid;
+    }else{
+      /* This delta is not a candidate for becoming the new parent of rid */
+      blob_reset(&delta);
+    }
+    blob_reset(&src);
+  }
+
+  /* If there is a winning candidate for the new parent of rid, then
+  ** make that candidate the new parent now */
+  if( bestSrc>0 ){
+    Stmt s1, s2;  /* Statements used to create the delta */
     blob_compress(&delta, &delta);
     db_prepare(&s1, "UPDATE blob SET content=:data WHERE rid=%d", rid);
-    db_prepare(&s2, "REPLACE INTO delta(rid,srcid)VALUES(%d,%d)", rid, srcid);
-    db_bind_blob(&s1, ":data", &delta);
+    db_prepare(&s2, "REPLACE INTO delta(rid,srcid)VALUES(%d,%d)", rid, bestSrc);
+    db_bind_blob(&s1, ":data", &bestDelta);
     db_begin_transaction();
     db_exec(&s1);
     db_exec(&s2);
@@ -838,21 +881,29 @@ int content_deltify(int rid, int srcid, int force){
     verify_before_commit(rid);
     rc = 1;
   }
-  blob_reset(&src);
   blob_reset(&data);
-  blob_reset(&delta);
+  blob_reset(&bestDelta);
   return rc;
 }
 
 /*
 ** COMMAND: test-content-deltify
 **
-** Convert the content at RID into a delta from SRCID.
+** Usage:  %fossil RID SRCID SRCID ...  [-force]
+**
+** Convert the content at RID into a delta one of the from SRCIDs.
 */
 void test_content_deltify_cmd(void){
-  if( g.argc!=5 ) usage("RID SRCID FORCE");
+  int nSrc;
+  int *aSrc;
+  int i;
+  int bForce = find_option("force",0,0)!=0;
+  if( g.argc<3 ) usage("[--force] RID SRCID SRCID...");
+  aSrc = fossil_malloc( (g.argc-2)*sizeof(aSrc[0]) );
+  nSrc = 0;
+  for(i=2; i<g.argc; i++) aSrc[nSrc++] = atoi(g.argv[i]);
   db_must_be_within_tree();
-  content_deltify(atoi(g.argv[2]), atoi(g.argv[3]), atoi(g.argv[4]));
+  content_deltify(atoi(g.argv[2]), aSrc, nSrc, bForce);
 }
 
 /*

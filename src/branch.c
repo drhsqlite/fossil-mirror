@@ -159,7 +159,7 @@ void branch_new(void){
     fossil_fatal("%s", g.zErrMsg);
   }
   assert( blob_is_reset(&branch) );
-  content_deltify(rootid, brid, 0);
+  content_deltify(rootid, &brid, 1, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", brid);
   fossil_print("New branch: %s\n", zUuid);
   if( g.argc==3 ){

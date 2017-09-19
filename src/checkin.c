@@ -2400,7 +2400,7 @@ void commit_cmd(void){
     nrid = content_put(&content);
     blob_reset(&content);
     if( rid>0 ){
-      content_deltify(rid, nrid, 0);
+      content_deltify(rid, &nrid, 1, 0);
     }
     db_multi_exec("UPDATE vfile SET mrid=%d, rid=%d WHERE id=%d", nrid,nrid,id);
     db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
@@ -2507,7 +2507,7 @@ void commit_cmd(void){
     fossil_fatal("%s", g.zErrMsg);
   }
   assert( blob_is_reset(&manifest) );
-  content_deltify(vid, nvid, 0);
+  content_deltify(vid, &nvid, 1, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nvid);
 
   db_prepare(&q, "SELECT uuid,merge FROM vmerge JOIN blob ON merge=rid"

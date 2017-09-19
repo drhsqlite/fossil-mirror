@@ -1248,7 +1248,7 @@ static void add_one_mlink(
     db_exec(&s1);
   }
   if( pid && fid ){
-    content_deltify(pid, fid, 0);
+    content_deltify(pid, &fid, 1, 0);
   }
 }
 
@@ -1437,9 +1437,9 @@ static void add_mlink(
   ** previous baseline a delta from the current baseline.
   */
   if( (pParent->zBaseline==0)==(pChild->zBaseline==0) ){
-    content_deltify(pmid, mid, 0);
+    content_deltify(pmid, &mid, 1, 0);
   }else if( pChild->zBaseline==0 && pParent->zBaseline!=0 ){
-    content_deltify(pParent->pBaseline->rid, mid, 0);
+    content_deltify(pParent->pBaseline->rid, &mid, 1, 0);
   }
 
   /* Remember all children less than a few seconds younger than their parent,
@@ -2061,7 +2061,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       tagid, p->rDate
     );
     if( prior ){
-      content_deltify(prior, rid, 0);
+      content_deltify(prior, &rid, 1, 0);
     }
     if( nWiki>0 ){
       zComment = mprintf("Changes to wiki page [%h]", p->zWikiTitle);
@@ -2108,7 +2108,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       tagid, p->rDate, rid
     );
     if( prior ){
-      content_deltify(prior, rid, 0);
+      content_deltify(prior, &rid, 1, 0);
       if( !subsequent ){
         db_multi_exec(
           "DELETE FROM event"
@@ -2120,7 +2120,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       }
     }
     if( subsequent ){
-      content_deltify(rid, subsequent, 0);
+      content_deltify(rid, &subsequent, 1, 0);
     }else{
       search_doc_touch('e',rid,0);
       db_multi_exec(

@@ -450,14 +450,25 @@ int rebuild_db(int randomize, int doOut, int doClustering){
 }
 
 /*
+** Number of neighbors to search
+*/
+#define N_NEIGHBOR 5
+
+/*
 ** Attempt to convert more full-text blobs into delta-blobs for
 ** storage efficiency.
 */
 void extra_deltification(void){
   Stmt q;
-  int topid, previd, rid;
+  int aPrev[N_NEIGHBOR];
+  int nPrev;
+  int rid;
   int prevfnid, fnid;
   db_begin_transaction();
+
+  /* Look for manifests that have not been deltaed and try to make them
+  ** children of one of the 5 chronologically subsequent check-ins
+  */
   db_prepare(&q,
      "SELECT rid FROM event, blob"
      " WHERE blob.rid=event.objid"
@@ -465,20 +476,26 @@ void extra_deltification(void){
      "   AND NOT EXISTS(SELECT 1 FROM delta WHERE rid=blob.rid)"
      " ORDER BY event.mtime DESC"
   );
-  topid = previd = 0;
+  nPrev = 0;
   while( db_step(&q)==SQLITE_ROW ){
     rid = db_column_int(&q, 0);
-    if( topid==0 ){
-      topid = previd = rid;
+    if( nPrev>0 ){
+      content_deltify(rid, aPrev, nPrev, 0);
+    }
+    if( nPrev<N_NEIGHBOR ){
+      aPrev[nPrev++] = rid;
     }else{
-      if( content_deltify(rid, previd, 0)==0 && previd!=topid ){
-        content_deltify(rid, topid, 0);
-      }
-      previd = rid;
+      int i;
+      for(i=0; i<N_NEIGHBOR-1; i++) aPrev[i] = aPrev[i+1];
+      aPrev[N_NEIGHBOR-1] = rid;
     }
   }
   db_finalize(&q);
 
+  /* For individual files that have not been deltaed, try to find
+  ** a parent which is an undeltaed file with the same name in a
+  ** more recent branch.
+  */
   db_prepare(&q,
      "SELECT blob.rid, mlink.fnid FROM blob, mlink, plink"
      " WHERE NOT EXISTS(SELECT 1 FROM delta WHERE rid=blob.rid)"
@@ -491,14 +508,16 @@ void extra_deltification(void){
   while( db_step(&q)==SQLITE_ROW ){
     rid = db_column_int(&q, 0);
     fnid = db_column_int(&q, 1);
-    if( prevfnid!=fnid ){
-      prevfnid = fnid;
-      topid = previd = rid;
+    if( fnid!=prevfnid ) nPrev = 0;
+    if( nPrev>0 ){
+      content_deltify(rid, aPrev, nPrev, 0);
+    }
+    if( nPrev<N_NEIGHBOR ){
+      aPrev[nPrev++] = rid;
     }else{
-      if( content_deltify(rid, previd, 0)==0 && previd!=topid ){
-        content_deltify(rid, topid, 0);
-      }
-      previd = rid;
+      int i;
+      for(i=0; i<N_NEIGHBOR-1; i++) aPrev[i] = aPrev[i+1];
+      aPrev[N_NEIGHBOR-1] = rid;
     }
   }
   db_finalize(&q);
