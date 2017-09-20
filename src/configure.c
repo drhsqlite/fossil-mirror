@@ -41,7 +41,6 @@
 #define CONFIGSET_ALL       0x0000ff     /* Everything */
 
 #define CONFIGSET_OVERWRITE 0x100000     /* Causes overwrite instead of merge */
-#define CONFIGSET_OLDFORMAT 0x200000     /* Use the legacy format */
 
 /*
 ** This mask is used for the common TH1 configuration settings (i.e. those
@@ -172,25 +171,15 @@ const char *configure_first_name(int iMask){
   return configure_next_name(iMask);
 }
 const char *configure_next_name(int iMask){
-  if( iMask & CONFIGSET_OLDFORMAT ){
-    while( iConfig<count(aConfig) ){
-      if( aConfig[iConfig].groupMask & iMask ){
-        return aConfig[iConfig++].zName;
-      }else{
-        iConfig++;
-      }
-    }
-  }else{
-    if( iConfig==0 && (iMask & CONFIGSET_ALL)==CONFIGSET_ALL ){
-      iConfig = count(aGroupName);
-      return "/all";
-    }
-    while( iConfig<count(aGroupName)-1 ){
-      if( aGroupName[iConfig].groupMask & iMask ){
-        return aGroupName[iConfig++].zName;
-      }else{
-        iConfig++;
-      }
+  if( iConfig==0 && (iMask & CONFIGSET_ALL)==CONFIGSET_ALL ){
+    iConfig = count(aGroupName);
+    return "/all";
+  }
+  while( iConfig<count(aGroupName)-1 ){
+    if( aGroupName[iConfig].groupMask & iMask ){
+      return aGroupName[iConfig++].zName;
+    }else{
+      iConfig++;
     }
   }
   return 0;
@@ -516,6 +505,7 @@ static int safeInt(const char *z){
 ** The old format is retained for backwards compatibility, but is deprecated.
 ** The cutover from old format to new was on 2011-04-25.  After sufficient
 ** time has passed, support for the old format will be removed.
+** Update: Support for the old format was remoed on 2017-09-20.
 **
 ** zName is either the NAME of an element of the CONFIG table, or else
 ** one of the special names "@shun", "@reportfmt", "@user", or "@concealed".
@@ -611,31 +601,6 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
     }
     blob_reset(&sql);
     rebuildMask |= thisMask;
-  }else{
-    /* Otherwise, the old format */
-    if( (configure_is_exportable(zName) & groupMask)==0 ) return;
-    if( fossil_strcmp(zName, "logo-image")==0 ){
-      Stmt ins;
-      db_prepare(&ins,
-        "REPLACE INTO config(name, value, mtime) VALUES(:name, :value, now())"
-      );
-      db_bind_text(&ins, ":name", zName);
-      db_bind_blob(&ins, ":value", pContent);
-      db_step(&ins);
-      db_finalize(&ins);
-    }else if( zName[0]=='@' ){
-      /* Notice that we are evaluating arbitrary SQL received from the
-      ** client.  But this can only happen if the client has authenticated
-      ** as an administrator, so presumably we trust the client at this
-      ** point.
-      */
-      db_multi_exec("%s", blob_str(pContent) /*safe-for-%s*/);
-    }else{
-      db_multi_exec(
-         "REPLACE INTO config(name,value,mtime) VALUES(%Q,%Q,now())",
-         zName, blob_str(pContent)
-      );
-    }
   }
 }
 
@@ -858,10 +823,8 @@ static void export_config(
 **
 **         Pull and install the configuration from a different server
 **         identified by URL.  If no URL is specified, then the default
-**         server is used. Use the --legacy option for the older protocol
-**         (when talking to servers compiled prior to 2011-04-27.)  Use
-**         the --overwrite flag to completely replace local settings with
-**         content received from URL.
+**         server is used.  Use the --overwrite flag to completely
+**         replace local settings with content received from URL.
 **
 **    %fossil configuration push AREA ?URL?
 **
@@ -869,7 +832,6 @@ static void export_config(
 **         by URL.  Admin privilege is required on the remote server for
 **         this to work.  When the same record exists both locally and on
 **         the remote end, the one that was most recently changed wins.
-**         Use the --legacy flag when talking to older servers.
 **
 **    %fossil configuration reset AREA
 **
@@ -934,10 +896,8 @@ void configuration_cmd(void){
   ){
     int mask;
     const char *zServer = 0;
-    int legacyFlag = 0;
     int overwriteFlag = 0;
 
-    if( zMethod[0]!='s' ) legacyFlag = find_option("legacy",0,0)!=0;
     if( strncmp(zMethod,"pull",n)==0 ){
       overwriteFlag = find_option("overwrite",0,0)!=0;
     }
@@ -953,7 +913,6 @@ void configuration_cmd(void){
     if( g.url.protocol==0 ) fossil_fatal("no server URL specified");
     user_select();
     url_enable_proxy("via proxy: ");
-    if( legacyFlag ) mask |= CONFIGSET_OLDFORMAT;
     if( overwriteFlag ) mask |= CONFIGSET_OVERWRITE;
     if( strncmp(zMethod, "push", n)==0 ){
       client_sync(0,0,(unsigned)mask);

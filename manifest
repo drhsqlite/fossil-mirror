@@ -1,5 +1,5 @@
-C Correct\stypo\sin\stitle\sof\sweb\spage
-D 2017-09-20T04:08:07.495
+C Remove\ssupport\sfor\sthe\slegacy\sconfiguration\ssync\stransfer\sformat,\sthat\nwas\sreplaced\sin\s2011.
+D 2017-09-20T12:10:29.005
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -407,7 +407,7 @@ F src/clone.c c8b17c6084570fef0afc5b52d5caffcc83ff4548
 F src/codecheck1.c cbf9594fb2802bad4603f877bc9aba236811355b049dc9f4c09a51f416953305
 F src/comformat.c ba3c29ae04dcea342f6799fca0dd0ed00581262a2912b78faabe4608dd92935e
 F src/config.h d6b66b9cf87be799bc160e9afa0db82a5d34f30b4a73691a391031c37b4c0535
-F src/configure.c df8e12f3f73c558b58e84e2b7b47cf6542068d0e
+F src/configure.c 158c7d3c7d4797983b0d0e90cd700f03114c33547cb7a4b3f5af1e26287b7be9
 F src/content.c db74a6118fb9cfb07b9b7fbb35e4085550769a5281dddfea00e908b1dad4a427
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
@@ -536,7 +536,7 @@ F src/wikiformat.c bf5549e0b222dc208fedb893bb6dd533a43afe47f1bb1db327996d615d55f
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c b8020da569aa214b67cfcd0b2efb770390798e8d829f0d18899d496e92eb5e04
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c 8033a8b78a9447f03c12553fd1ce0c8d8f92ba337f4057a330d518502a802bc0
+F src/xfer.c 9c23bcfd6af5ce8c39d176e057783eabc0c10ddb5e1d048d289b4a6db7d38f8b
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c dca32599a1647502150aff4bc7579ca524b765a9fc8ca392a944209c8c9419b8
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b1191c1ee05f3a2988de0ca9620ac89aed66f720cd967975e6b46b14330a2e09
-R c434f7e31f796e8835edc3574f348daa
-U andygoth
-Z b4a1fea222b25c9913a0d6df68f979a5
+P a3e50c99f343eb6ebe66ac86d4a2f0ed0edc80b673ad2a800eca681d68bebb92
+R 2d32fffa7dd97d1e6deeaad38c1ef618
+U drh
+Z 68e1a095ded7145264693bb01081d7fd

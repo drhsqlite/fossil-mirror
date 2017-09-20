@@ -1886,12 +1886,6 @@ int client_sync(
         zName = configure_next_name(configRcvMask);
         nCardSent++;
       }
-      if( (configRcvMask & (CONFIGSET_USER|CONFIGSET_TKT))!=0
-       && (configRcvMask & CONFIGSET_OLDFORMAT)!=0
-      ){
-        int overwrite = (configRcvMask & CONFIGSET_OVERWRITE)!=0;
-        configure_prepare_to_receive(overwrite);
-      }
       origConfigRcvMask = configRcvMask;
       configRcvMask = 0;
     }
@@ -1912,17 +1906,7 @@ int client_sync(
     /* Send configuration parameters being pushed */
     if( configSendMask ){
       if( zOpType==0 ) zOpType = "Push";
-      if( configSendMask & CONFIGSET_OLDFORMAT ){
-        const char *zName;
-        zName = configure_first_name(configSendMask);
-        while( zName ){
-          send_legacy_config_card(&xfer, zName);
-          zName = configure_next_name(configSendMask);
-          nCardSent++;
-        }
-      }else{
-        nCardSent += configure_send_group(xfer.pOut, configSendMask, 0);
-      }
+      nCardSent += configure_send_group(xfer.pOut, configSendMask, 0);
       configSendMask = 0;
     }
 
@@ -2387,11 +2371,6 @@ int client_sync(
       }
       blobarray_reset(xfer.aToken, xfer.nToken);
       blob_reset(&xfer.line);
-    }
-    if( (configRcvMask & (CONFIGSET_USER|CONFIGSET_TKT))!=0
-     && (configRcvMask & CONFIGSET_OLDFORMAT)!=0
-    ){
-      configure_finalize_receive();
     }
     origConfigRcvMask = 0;
     if( nCardRcvd>0 && (syncFlags & SYNC_VERBOSE) ){
