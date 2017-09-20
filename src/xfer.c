@@ -1137,7 +1137,6 @@ void page_xfer(void){
   int isClone = 0;
   int nGimme = 0;
   int size;
-  int recvConfig = 0;
   char *zNow;
   int rc;
   const char *zScript = 0;
@@ -1447,10 +1446,6 @@ void page_xfer(void){
         nErr++;
         break;
       }
-      if( !recvConfig && zName[0]=='@' ){
-        configure_prepare_to_receive(0);
-        recvConfig = 1;
-      }
       configure_receive(zName, &content, CONFIGSET_ALL);
       blob_reset(&content);
       blob_seek(xfer.pIn, 1, BLOB_SEEK_CUR);
@@ -1591,9 +1586,6 @@ void page_xfer(void){
     create_cluster();
     send_unclustered(&xfer);
     if( xfer.syncPrivate ) send_private(&xfer);
-  }
-  if( recvConfig ){
-    configure_finalize_receive();
   }
   db_multi_exec("DROP TABLE onremote");
   manifest_crosslink_end(MC_PERMIT_HOOKS);

@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\sdoing\sa\s"configuration\ssync"\sof\sURL\saliases.
-D 2017-09-20T12:34:38.423
+C Remove\sstill\smore\slegacy\sconfiguration\ssync\slogic.
+D 2017-09-20T12:42:57.426
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -407,7 +407,7 @@ F src/clone.c c8b17c6084570fef0afc5b52d5caffcc83ff4548
 F src/codecheck1.c cbf9594fb2802bad4603f877bc9aba236811355b049dc9f4c09a51f416953305
 F src/comformat.c ba3c29ae04dcea342f6799fca0dd0ed00581262a2912b78faabe4608dd92935e
 F src/config.h d6b66b9cf87be799bc160e9afa0db82a5d34f30b4a73691a391031c37b4c0535
-F src/configure.c ab2f0e2a4f96de19be4d17f03783c144f85b7946a8b7adf3d79f18ae02d5f3f2
+F src/configure.c 5d2a68b21d27a71dd4e8332ede329b5e97f1adba8ed0ce42a6bf4af8494d5f4c
 F src/content.c db74a6118fb9cfb07b9b7fbb35e4085550769a5281dddfea00e908b1dad4a427
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
@@ -536,7 +536,7 @@ F src/wikiformat.c bf5549e0b222dc208fedb893bb6dd533a43afe47f1bb1db327996d615d55f
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c b8020da569aa214b67cfcd0b2efb770390798e8d829f0d18899d496e92eb5e04
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c 6a0ccde91af28cfa48a66943089b7ff273dcf253125f9bd0c89d52ebf44fe2d0
+F src/xfer.c 82850cb04ab96b51f5e0ad555f56524b3b60acfa4df1b778c974040fc4250188
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c dca32599a1647502150aff4bc7579ca524b765a9fc8ca392a944209c8c9419b8
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fe7f0ece30019cb910bc3d6d4a155ea8515a42752c9476c45edb3a9e2facb3d6
-R a523e511c63698b41268733ede3512f2
+P 3d36a37a738a21c48344d96001182f852a81c59facfa9e2567af487722fd61bb
+R 54f724bc370867c5e5c22229bc5d042e
 U drh
-Z 5495597c145986a375e75e116e5761ac
+Z 6776b1f9b87b5306b28b2e20f4e40347
