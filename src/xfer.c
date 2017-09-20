@@ -1010,34 +1010,6 @@ static void send_all(Xfer *pXfer){
 }
 
 /*
-** Send a single old-style config card for configuration item zName.
-**
-** This routine and the functionality it implements is scheduled for
-** removal on 2012-05-01.
-*/
-static void send_legacy_config_card(Xfer *pXfer, const char *zName){
-  if( zName[0]!='@' ){
-    Blob val;
-    blob_zero(&val);
-    db_blob(&val, "SELECT value FROM config WHERE name=%Q", zName);
-    if( blob_size(&val)>0 ){
-      blob_appendf(pXfer->pOut, "config %s %d\n", zName, blob_size(&val));
-      blob_append(pXfer->pOut, blob_buffer(&val), blob_size(&val));
-      blob_reset(&val);
-      blob_append(pXfer->pOut, "\n", 1);
-    }
-  }else{
-    Blob content;
-    blob_zero(&content);
-    configure_render_special_name(zName, &content);
-    blob_appendf(pXfer->pOut, "config %s %d\n%s\n", zName,
-                 blob_size(&content), blob_str(&content));
-    blob_reset(&content);
-  }
-}
-
-
-/*
 ** pXfer is a "pragma uv-hash HASH" card.
 **
 ** If HASH is different from the unversioned content hash on this server,
@@ -1454,9 +1426,6 @@ void page_xfer(void){
           if( !g.perm.Admin ) groupMask &= ~CONFIGSET_USER;
           if( !g.perm.RdAddr ) groupMask &= ~CONFIGSET_ADDR;
           configure_send_group(xfer.pOut, groupMask, 0);
-        }else if( configure_is_exportable(zName) ){
-          /* Old style configuration transfer */
-          send_legacy_config_card(&xfer, zName);
         }
       }
     }else

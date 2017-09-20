@@ -239,61 +239,6 @@ int configure_is_exportable(const char *zName){
 }
 
 /*
-** zName is one of the special configuration names that refers to an entire
-** table rather than a single entry in CONFIG.  Special names are "@reportfmt"
-** and "@shun" and "@user".  This routine writes SQL text into pOut that when
-** evaluated will populate the corresponding table with data.
-*/
-void configure_render_special_name(const char *zName, Blob *pOut){
-  Stmt q;
-  if( fossil_strcmp(zName, "@shun")==0 ){
-    db_prepare(&q, "SELECT uuid FROM shun");
-    while( db_step(&q)==SQLITE_ROW ){
-      blob_appendf(pOut, "INSERT OR IGNORE INTO shun VALUES('%s');\n",
-        db_column_text(&q, 0)
-      );
-    }
-    db_finalize(&q);
-  }else if( fossil_strcmp(zName, "@reportfmt")==0 ){
-    db_prepare(&q, "SELECT title, cols, sqlcode FROM reportfmt");
-    while( db_step(&q)==SQLITE_ROW ){
-      blob_appendf(pOut, "INSERT INTO _xfer_reportfmt(title,cols,sqlcode)"
-                         " VALUES(%Q,%Q,%Q);\n",
-        db_column_text(&q, 0),
-        db_column_text(&q, 1),
-        db_column_text(&q, 2)
-      );
-    }
-    db_finalize(&q);
-  }else if( fossil_strcmp(zName, "@user")==0 ){
-    db_prepare(&q,
-        "SELECT login, CASE WHEN length(pw)==40 THEN pw END,"
-        "       cap, info, quote(photo) FROM user");
-    while( db_step(&q)==SQLITE_ROW ){
-      blob_appendf(pOut, "INSERT INTO _xfer_user(login,pw,cap,info,photo)"
-                         " VALUES(%Q,%Q,%Q,%Q,%s);\n",
-        db_column_text(&q, 0),
-        db_column_text(&q, 1),
-        db_column_text(&q, 2),
-        db_column_text(&q, 3),
-        db_column_text(&q, 4)
-      );
-    }
-    db_finalize(&q);
-  }else if( fossil_strcmp(zName, "@concealed")==0 ){
-    db_prepare(&q, "SELECT hash, content FROM concealed");
-    while( db_step(&q)==SQLITE_ROW ){
-      blob_appendf(pOut, "INSERT OR IGNORE INTO concealed(hash,content)"
-                         " VALUES(%Q,%Q);\n",
-        db_column_text(&q, 0),
-        db_column_text(&q, 1)
-      );
-    }
-    db_finalize(&q);
-  }
-}
-
-/*
 ** Two SQL functions:
 **
 **        config_is_reset(int)
