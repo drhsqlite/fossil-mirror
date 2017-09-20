@@ -625,7 +625,7 @@ int file_mkdir(const char *zName, int forceFlag){
 ** print an error message and abort.
 */
 int file_mkfolder(const char *zFilename, int forceFlag, int errorReturn){
-  int i, nName, rc = 0;
+  int nName, rc = 0;
   char *zName;
 
   nName = strlen(zFilename);

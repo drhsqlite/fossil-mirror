@@ -246,38 +246,9 @@ int configure_is_exportable(const char *zName){
 }
 
 /*
-** Two SQL functions:
-**
-**        config_is_reset(int)
-**        config_reset(int)
-**
-** The config_is_reset() function takes the integer valued argument and
-** ANDs it against the static variable "configHasBeenReset" below.  The
-** function returns TRUE or FALSE depending on the result depending on
-** whether or not the corresponding configuration table has been reset.  The
-** config_reset() function adds the bits to "configHasBeenReset" that
-** are given in the argument.
-**
-** These functions are used below in the WHEN clause of a trigger to
-** get the trigger to fire exactly once.
+** A mask of all configuration tables that have been reset already.
 */
 static int configHasBeenReset = 0;
-static void config_is_reset_function(
-  sqlite3_context *context,
-  int argc,
-  sqlite3_value **argv
-){
-  int m = sqlite3_value_int(argv[0]);
-  sqlite3_result_int(context, (configHasBeenReset&m)!=0 );
-}
-static void config_reset_function(
-  sqlite3_context *context,
-  int argc,
-  sqlite3_value **argv
-){
-  int m = sqlite3_value_int(argv[0]);
-  configHasBeenReset |= m;
-}
 
 /*
 ** Mask of modified configuration sets

@@ -147,8 +147,7 @@ int dispatch_name_search(
 int dispatch_alias(const char *zName, const CmdOrPage **ppCmd){
   char *z;
   char *zQ;
-  int i, j;
-  char c;
+  int i;
 
   z = db_text(0, "SELECT value FROM config WHERE name='walias:%q'",zName);
   if( z==0 ) return 1;
@@ -437,7 +436,6 @@ void help_page(void){
     @ <h1>Settings:</h1>
     @ <table border="0"><tr>
     for(i=j=0; i<MX_COMMAND; i++){
-      const char *z = aCommand[i].zName;
       if( (aCommand[i].eCmdFlags & CMDFLAG_SETTING)==0 ) continue;
       j++;
     }
