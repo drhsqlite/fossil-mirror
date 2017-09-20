@@ -98,6 +98,8 @@ void setup_page(void){
     "Configure the trouble-ticketing system for this repository");
   setup_menu_entry("Search","srchsetup",
     "Configure the built-in search engine");
+  setup_menu_entry("URL Aliases", "waliassetup",
+    "Configure URL aliases");
   setup_menu_entry("Transfers", "xfersetup",
     "Configure the transfer system for this repository");
   setup_menu_entry("Skins", "setup_skin",
@@ -2307,5 +2309,120 @@ void page_srchsetup(){
     @ <p><input type="submit" name="fts1" value="Create A Full-Text Index">
   }
   @ </div></form>
+  style_footer();
+}
+
+/*
+** A URL Alias originally called zOldName is now zNewName/zValue.
+** Write SQL to make this change into pSql.
+**
+** If zNewName or zValue is an empty string, then delete the entry.
+**
+** If zOldName is an empty string, create a new entry.
+*/
+static void setup_update_url_alias(
+  Blob *pSql,
+  const char *zOldName,
+  const char *zNewName,
+  const char *zValue
+){
+  if( zNewName[0]==0 || zValue[0]==0 ){
+    if( zOldName[0] ){
+      blob_append_sql(pSql,
+        "DELETE FROM config WHERE name='walias:%q';\n",
+        zOldName);
+    }
+    return;
+  }
+  if( zOldName[0]==0 ){
+    blob_append_sql(pSql,
+      "INSERT INTO config(name,value,mtime) VALUES('walias:%q',%Q,now());\n",
+      zNewName, zValue);
+    return;
+  }
+  if( strcmp(zOldName, zNewName)!=0 ){
+    blob_append_sql(pSql,
+       "UPDATE config SET name='walias:%q', value=%Q, mtime=now()"
+       " WHERE name='walias:%q';\n",
+       zNewName, zValue, zOldName);
+  }else{
+    blob_append_sql(pSql,
+       "UPDATE config SET value=%Q, mtime=now()"
+       " WHERE name='walias:%q' AND value<>%Q;\n",
+       zValue, zOldName, zValue);
+  }
+}
+
+/*
+** WEBPAGE: waliassetup
+**
+** Configure the URL aliases
+*/
+void page_waliassetup(){
+  Stmt q;
+  int cnt = 0;
+  Blob namelist;
+  login_check_credentials();
+  if( !g.perm.Setup && !g.perm.Admin ){
+    login_needed(0);
+    return;
+  }
+  style_header("URL ALias Configuration");
+  if( P("submit")!=0 ){
+    Blob token;
+    Blob sql;
+    const char *zNewName;
+    const char *zValue;
+    char zCnt[10];
+    login_verify_csrf_secret();
+    blob_init(&namelist, PD("namelist",""), -1);
+    blob_init(&sql, 0, 0);
+    while( blob_token(&namelist, &token) ){
+      const char *zOldName = blob_str(&token);
+      sqlite3_snprintf(sizeof(zCnt), zCnt, "n%d", cnt);
+      zNewName = PD(zCnt, "");
+      sqlite3_snprintf(sizeof(zCnt), zCnt, "v%d", cnt);
+      zValue = PD(zCnt, "");
+      setup_update_url_alias(&sql, zOldName, zNewName, zValue);
+      cnt++;
+      blob_reset(&token);
+    }
+    sqlite3_snprintf(sizeof(zCnt), zCnt, "n%d", cnt);
+    zNewName = PD(zCnt,"");
+    sqlite3_snprintf(sizeof(zCnt), zCnt, "v%d", cnt);
+    zValue = PD(zCnt,"");
+    setup_update_url_alias(&sql, "", zNewName, zValue);
+    db_multi_exec("%s", blob_sql_text(&sql));
+    blob_reset(&sql);
+    blob_reset(&namelist);
+    cnt = 0;
+  }
+  db_prepare(&q,
+      "SELECT substr(name,8), value FROM config WHERE name GLOB 'walias:/*'"
+      " UNION ALL SELECT '', ''"
+  );
+  @ <form action="%s(g.zTop)/waliassetup" method="post"><div>
+  login_insert_csrf_secret();
+  @ <table border=0 cellpadding=5>
+  @ <tr><th>Alias<th>URI That The Alias Maps Into
+  blob_init(&namelist, 0, 0);
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zName = db_column_text(&q, 0);
+    const char *zValue = db_column_text(&q, 1);
+    @ <tr><td>
+    @ <input type='text' size='20' value='%h(zName)' name='n%d(cnt)'>
+    @ </td><td>
+    @ <input type='text' size='80' value='%h(zValue)' name='v%d(cnt)'>
+    @ </td></tr>
+    cnt++;
+    if( blob_size(&namelist)>0 ) blob_append(&namelist, " ", 1);
+    blob_append(&namelist, zName, -1);
+  }
+  db_finalize(&q);
+  @ <tr><td>
+  @ <input type='hidden' name='namelist' value='%h(blob_str(&namelist))'>
+  @ <input type='submit' name='submit' value="Apply Changes">
+  @ </td><td></td></tr>
+  @ </table></form>
   style_footer();
 }

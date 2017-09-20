@@ -127,6 +127,73 @@ int dispatch_name_search(
 }
 
 /*
+** zName is the name of a webpage (eType==CMDFLAGS_WEBPAGE) that does not
+** exist in the dispatch table.  Check to see if this webpage name exists
+** as an alias in the CONFIG table of the repository.  If it is, then make
+** appropriate changes to the CGI environment and set *ppCmd to point to the
+** alised command.
+**
+** Return 0 if the command is successfully aliased.  Return 1 if there
+** is not alias for zName.  Any kind of error in the alias value causes a 
+** error to be thrown.
+**
+** Alias entries in the CONFIG table have a "name" value of "walise:NAME"
+** where NAME is the input page name.  The value is a string of the form
+** "NEWNAME?QUERYPARAMS".  The ?QUERYPARAMS is optional.  If present (and it
+** usually is, then all query parameters are added to the CGI environment.
+** Except, query parameters of the form "X!" cause any CGI X variable to be
+** removed.
+*/
+int dispatch_alias(const char *zName, const CmdOrPage **ppCmd){
+  char *z;
+  char *zQ;
+  int i, j;
+  char c;
+
+  z = db_text(0, "SELECT value FROM config WHERE name='walias:%q'",zName);
+  if( z==0 ) return 1;
+  for(i=0; z[i] && z[i]!='?'; i++){}
+  if( z[i]=='?' ){
+    z[i] = 0;
+    zQ = &z[i+1];
+  }else{
+    zQ = &z[i];
+  }
+  if( dispatch_name_search(z, CMDFLAG_WEBPAGE, ppCmd) ){
+    fossil_fatal("\"%s\" aliased to \"%s\" but \"%s\" does not exist",
+                 zName, z, z);
+  }
+  z = zQ;
+  while( *z ){
+    char *zName = z;
+    char *zValue;
+    while( *z && *z!='=' && *z!='&' && *z!='!' ){ z++; }
+    if( *z=='=' ){
+      *z = 0;
+      z++;
+      zValue = z;
+      while( *z && *z!='&' ){ z++; }
+      if( *z ){
+        *z = 0;
+        z++;
+      }
+      dehttpize(zValue);
+    }else if( *z=='!' ){
+      *(z++) = 0;
+      cgi_delete_query_parameter(zName);
+      zName = "";
+    }else{
+      if( *z ){ *z++ = 0; }
+      zValue = "";
+    }
+    if( fossil_islower(zName[0]) ){
+      cgi_replace_query_parameter(zName, zValue);
+    }
+  }
+  return 0;
+}
+
+/*
 ** Fill Blob with a space-separated list of all command names that
 ** match the prefix zPrefix.
 */

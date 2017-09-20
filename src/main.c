@@ -1618,7 +1618,9 @@ static void process_one_web_page(
   /* Locate the method specified by the path and execute the function
   ** that implements that method.
   */
-  if( dispatch_name_search(g.zPath-1, CMDFLAG_WEBPAGE, &pCmd) ){
+  if( dispatch_name_search(g.zPath-1, CMDFLAG_WEBPAGE, &pCmd)
+   && dispatch_alias(g.zPath-1, &pCmd)
+  ){
 #ifdef FOSSIL_ENABLE_JSON
     if(g.json.isJsonMode){
       json_err(FSL_JSON_E_RESOURCE_NOT_FOUND,NULL,0);
