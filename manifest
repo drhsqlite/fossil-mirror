@@ -1,5 +1,5 @@
-C Fix\sanother\sharmless\scompiler\swarning.
-D 2017-09-20T13:36:43.456
+C Update\sthe\schange\slog\sto\srecord\srecent\senhancements.
+D 2017-09-20T14:56:09.920
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -700,7 +700,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 709d1d66e198e85f9faedd4d5261835fdb83c41cfeb20757f3ed7d72fa64ff6b
-F www/changes.wiki 96165377b0d336b88dea7e1a4a4fd2c47074ef372dea3c7047ad478dd3900b8c
+F www/changes.wiki 0c8d024b1879ca3d588bf7bdc21e1eb441483800d28ccbdbca0e2f7cca9ba970
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4c666ccf92b7827311c86bd09163eedde8f3a6adeb24247ba99f9b40e4da4c6d
-R ec19a13f67b0f34d8088c755c199270e
+P 49b6f89b4f2cf7af328dd522e44bea4b73d9fe496663f9ae7a97ff25e38ea2b0
+R 122945d091c9a1de8c8233332e038bbc
 U drh
-Z dc5884b3d4684cdf622f9f651b65cc9f
+Z f6cfdeb8b0f849241956f5b1c5fef974

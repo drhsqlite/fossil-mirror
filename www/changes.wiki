@@ -3,15 +3,31 @@
 <a name='v2_4'></a>
 <h2>Changes for Version 2.4 (TBD)</h2>
 
-  *  Update the built-in SQLite to version 3.20.1.
+  *  Support for URL Aliases added.  URL Aliases allow an administrator
+     to define their own URLs on the web interface that are rewritten to
+     built-in URLs with specific parameters.
+  *  Provide separate on-line help screens for each setting.
+  *  Back out support for the --no-dir-symlinks option
+  *  Remove support from the legacy configuration sync protocol.  The only
+     way now to do a configuration push or pull is to use the new protocol that
+     was added in 2011.
+  *  Add the from= and to= query parameters to /fdiff in order to get
+     a diff of two files in the same check-in.
   *  Fix the "ssh://" protocol to prevent an attack whereby the attacker convinces
      a victim to run a "clone" with a dodgy URL and thereby gains access to their
      system.
+  *  Provide a checkbox that will temporarily disable all ad-units.
+  *  Improvements to the [/help?cmd=/stat|/stat] page
+  *  Various new hyperlinks to the [/help?cmd=/bloblist|/bloblist]
+     and [/help?cmd=/bigbloblist|/bigbloblist] pages.
   *  Correct the [/help?cmd=/doc|/doc] page to support read-only repositories.
   *  Correct [/help?cmd=/zip|/zip], [/help?cmd=/tarball|/tarball],
      [/help?cmd=zip|zip], and [/help?cmd=tarball|tarball] pages and commands to
      honor the versioned manifest setting when outside of an open checkout
      directory.
+  *  The admin-log and access-log settings are now on by default for
+     new repositories.
+  *  Update the built-in SQLite to version 3.20.1.
 
 <a name='v2_3'></a>
 <h2>Changes for Version 2.3 (2017-07-21)</h2>
