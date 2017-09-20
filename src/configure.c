@@ -239,6 +239,9 @@ int configure_is_exportable(const char *zName){
       return m;
     }
   }
+  if( strncmp(zName, "walias:/", 8)==0 ){
+    return CONFIGSET_ALIAS;
+  }
   return 0;
 }
 

@@ -1,5 +1,5 @@
-C Remove\sstill\smore\slegacy\sconfiguration\ssync\slogic.
-D 2017-09-20T12:42:57.426
+C Fix\spermission\sprocessing\son\s"configuration\spull\salias".
+D 2017-09-20T12:58:36.993
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -407,7 +407,7 @@ F src/clone.c c8b17c6084570fef0afc5b52d5caffcc83ff4548
 F src/codecheck1.c cbf9594fb2802bad4603f877bc9aba236811355b049dc9f4c09a51f416953305
 F src/comformat.c ba3c29ae04dcea342f6799fca0dd0ed00581262a2912b78faabe4608dd92935e
 F src/config.h d6b66b9cf87be799bc160e9afa0db82a5d34f30b4a73691a391031c37b4c0535
-F src/configure.c 5d2a68b21d27a71dd4e8332ede329b5e97f1adba8ed0ce42a6bf4af8494d5f4c
+F src/configure.c 1f60fadd397cb75738ff85d9c42ce00903bf1788cae1985b80bcd0e4f2f0616a
 F src/content.c db74a6118fb9cfb07b9b7fbb35e4085550769a5281dddfea00e908b1dad4a427
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3d36a37a738a21c48344d96001182f852a81c59facfa9e2567af487722fd61bb
-R 54f724bc370867c5e5c22229bc5d042e
+P 9a68e6e1b0dd26cbc579bccc49468ca741af545b7bbc3680278d1574e491095c
+R 6af82a5d6362e54900724631ef37d777
 U drh
-Z 6776b1f9b87b5306b28b2e20f4e40347
+Z d9eb5c784b9fb5cd6b283c74af5940f1
