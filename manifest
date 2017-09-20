@@ -1,5 +1,5 @@
-C More\slegacy\sconfiguration\ssync\scode\sremoved.
-D 2017-09-20T12:25:13.623
+C Add\ssupport\sfor\sdoing\sa\s"configuration\ssync"\sof\sURL\saliases.
+D 2017-09-20T12:34:38.423
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -407,12 +407,12 @@ F src/clone.c c8b17c6084570fef0afc5b52d5caffcc83ff4548
 F src/codecheck1.c cbf9594fb2802bad4603f877bc9aba236811355b049dc9f4c09a51f416953305
 F src/comformat.c ba3c29ae04dcea342f6799fca0dd0ed00581262a2912b78faabe4608dd92935e
 F src/config.h d6b66b9cf87be799bc160e9afa0db82a5d34f30b4a73691a391031c37b4c0535
-F src/configure.c 913d1a71e749e8f05b98fba1b140b8d80d5a458d5aa9de16892469aba7b66362
+F src/configure.c ab2f0e2a4f96de19be4d17f03783c144f85b7946a8b7adf3d79f18ae02d5f3f2
 F src/content.c db74a6118fb9cfb07b9b7fbb35e4085550769a5281dddfea00e908b1dad4a427
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c edf3a33e4e82388e50ba22786470a4b03d017378f516bd0bcdb28e483ceb9c2a
+F src/db.c fb76456b8311e79e0a215baa155df53e3c328175f5029c3775931635e4d59cb5
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2ed7c1123d055eafff9260c028ee32a9eb4df4ecbf09f932b13470c32723fb3f
-R 98e66af534a1bef00706bf3f6f7b3625
+P fe7f0ece30019cb910bc3d6d4a155ea8515a42752c9476c45edb3a9e2facb3d6
+R a523e511c63698b41268733ede3512f2
 U drh
-Z aeaaef5b44846f8dcef3a913c31d3280
+Z 5495597c145986a375e75e116e5761ac

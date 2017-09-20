@@ -37,8 +37,9 @@
 #define CONFIGSET_USER      0x000020     /* The USER table */
 #define CONFIGSET_ADDR      0x000040     /* The CONCEALED table */
 #define CONFIGSET_XFER      0x000080     /* Transfer configuration */
+#define CONFIGSET_ALIAS     0x000100     /* URL Aliases */
 
-#define CONFIGSET_ALL       0x0000ff     /* Everything */
+#define CONFIGSET_ALL       0x0001ff     /* Everything */
 
 #define CONFIGSET_OVERWRITE 0x100000     /* Causes overwrite instead of merge */
 
@@ -68,6 +69,7 @@ static struct {
   { "/ticket",       CONFIGSET_TKT,   "Ticket setup",                        },
   { "/user",         CONFIGSET_USER,  "Users and privilege settings"         },
   { "/xfer",         CONFIGSET_XFER,  "Transfer setup",                      },
+  { "/alias",        CONFIGSET_ALIAS, "URL Aliases",                         },
   { "/all",          CONFIGSET_ALL,   "All of the above"                     },
 };
 
@@ -154,6 +156,8 @@ static struct {
   { "@concealed",             CONFIGSET_ADDR },
 
   { "@shun",                  CONFIGSET_SHUN },
+
+  { "@alias",                 CONFIGSET_ALIAS },
 
   { "xfer-common-script",     CONFIGSET_XFER },
   { "xfer-push-script",       CONFIGSET_XFER },
@@ -664,6 +668,22 @@ int configure_send_group(
         db_column_text(&q, 2)
       );
       blob_appendf(pOut, "config /concealed %d\n%s\n",
+                   blob_size(&rec), blob_str(&rec));
+      nCard++;
+      blob_reset(&rec);
+    }
+    db_finalize(&q);
+  }
+  if( groupMask & CONFIGSET_ALIAS ){
+    db_prepare(&q, "SELECT mtime, quote(name), quote(value) FROM config"
+                   " WHERE name GLOB 'walias:/*' AND mtime>=%lld", iStart);
+    while( db_step(&q)==SQLITE_ROW ){
+      blob_appendf(&rec,"%s %s value %s",
+        db_column_text(&q, 0),
+        db_column_text(&q, 1),
+        db_column_text(&q, 2)
+      );
+      blob_appendf(pOut, "config /config %d\n%s\n",
                    blob_size(&rec), blob_str(&rec));
       nCard++;
       blob_reset(&rec);

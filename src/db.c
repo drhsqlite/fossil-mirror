@@ -1874,7 +1874,7 @@ void db_initial_setup(
     db_multi_exec(
       "INSERT OR REPLACE INTO config"
       " SELECT name,value,mtime FROM settingSrc.config"
-      "  WHERE (name IN %s OR name IN %s)"
+      "  WHERE (name IN %s OR name IN %s OR name GLOB 'walias:/*')"
       "    AND name NOT GLOB 'project-*'"
       "    AND name NOT GLOB 'short-project-*';",
       configure_inop_rhs(CONFIGSET_ALL),
