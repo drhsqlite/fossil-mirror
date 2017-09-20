@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.21.0\salpha.
-D 2017-09-20T15:47:03.318
+C Correct\stypo\sin\sdocumentation
+D 2017-09-20T20:15:26.852
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -494,7 +494,7 @@ F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/search.c 0de35ed3d058b62f9f09a5bde235d0cc1e8f0ee1d4bec9ebc2cd9b5bb9d858bb
 F src/security_audit.c 7258617b28df652f0b9c12f304dd54c8345c50f5a6ce0c24f59911a6fb20adc0
-F src/setup.c 172dc95cb84b4150be19446b14eba3398422b69fe216ab6bc9e7310a5ed59b96
+F src/setup.c 3eef2e7828a594570b4b9d5399a9f8515a94198750221008267cec1ff4b59de6
 F src/sha1.c 04efd231424be45a281bdb50def7fce94625bd45b53d3c96b89e8de31f0305be
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c 7d862ff2c83826fd251909f5af2c8dd642417a8c389685e169f3c00434f784fa
@@ -791,7 +791,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 54c08082fc1d3cac3ff6d8785a03b832387d7e2bd72ffe545fc9ac55c9488227
-R 4bc9eb3a6210f90a0304152cba12295b
-U drh
-Z c3f7c47ac8efbbceac9e6ce001bfa50f
+P edba9d332ba85b55c5a0635db526847f76cc450e269d0d7e407b03175fc643d4
+U andygoth
+Z de4ff2c4284d0f679ceff88405932f7d

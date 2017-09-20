@@ -2454,7 +2454,7 @@ void page_waliassetup(){
   @ by design.
   @ </ul>
   @
-  @ <p>To delete an entry from the alias table, changes its name or value to an
+  @ <p>To delete an entry from the alias table, change its name or value to an
   @ empty string and press "Apply Changes".
   @
   @ <p>To add a new alias, fill in the name and value in the bottom row of the table
