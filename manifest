@@ -1,5 +1,5 @@
-C Add\spreliminary\ssupport\sfor\sURL\saliasing.\s\sCreate\saliases\sby\svisiting\nthe\s"URL\sAliases"\ssubscreen\sunder\sthe\sSetup\smenu.
-D 2017-09-20T03:27:18.120
+C Correct\scomment\stypos
+D 2017-09-20T04:05:45.835
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -419,7 +419,7 @@ F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
 F src/diff.c d7dd6b9c57ceff7a7102e979c4e5a1959571c0804d04534716121744e81563f9
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c ed717450412b9a8fa0ff0c9321e51a0c466cc8e03d5ac0f737609b6a533a820e
-F src/dispatch.c 1d4bc0af968ce9443ac114d330c05d263e1bd04c2d28ace0006af245b5a3f692
+F src/dispatch.c ee692a51b2a22003585baad2abde9bd9396e4ccef2167ee5ef4fff4aeb6f681a
 F src/doc.c cb5731ba54b9ccf3e497965db9874e9553a2bf21772ce14398c05526019ca44e
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c e0412afa4ac1895b73d1f49e5756be51aebfdf4f46379f7746b150ab084738e0
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 48d8af20b7a7dd03f3acb21d9e60515fc70d5182bb406d8373cec761aab71bd3
-R 5cd73a8a430380901c0d6b1eff2a4339
-U drh
-Z 914bc9fd3f1253269b9d70abef71b359
+P 8131f1c5d9079af90532cd2d901b923fdd230ef6f067c48320acad7d35795fd1
+R 990cafc968b95eef4b0ca6d8deb5d450
+U andygoth
+Z cbd976184c016e94cb7a8db1d1619424

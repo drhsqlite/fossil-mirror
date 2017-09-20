@@ -131,16 +131,16 @@ int dispatch_name_search(
 ** exist in the dispatch table.  Check to see if this webpage name exists
 ** as an alias in the CONFIG table of the repository.  If it is, then make
 ** appropriate changes to the CGI environment and set *ppCmd to point to the
-** alised command.
+** aliased command.
 **
 ** Return 0 if the command is successfully aliased.  Return 1 if there
 ** is not alias for zName.  Any kind of error in the alias value causes a 
 ** error to be thrown.
 **
-** Alias entries in the CONFIG table have a "name" value of "walise:NAME"
+** Alias entries in the CONFIG table have a "name" value of "walias:NAME"
 ** where NAME is the input page name.  The value is a string of the form
 ** "NEWNAME?QUERYPARAMS".  The ?QUERYPARAMS is optional.  If present (and it
-** usually is, then all query parameters are added to the CGI environment.
+** usually is), then all query parameters are added to the CGI environment.
 ** Except, query parameters of the form "X!" cause any CGI X variable to be
 ** removed.
 */
