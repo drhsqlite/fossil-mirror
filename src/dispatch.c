@@ -165,7 +165,7 @@ int dispatch_alias(const char *zName, const CmdOrPage **ppCmd){
   z = zQ;
   while( *z ){
     char *zName = z;
-    char *zValue;
+    char *zValue = 0;
     while( *z && *z!='=' && *z!='&' && *z!='!' ){ z++; }
     if( *z=='=' ){
       *z = 0;

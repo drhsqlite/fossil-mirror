@@ -1,5 +1,5 @@
-C Remove\sdead\scode\sto\sfix\sharmless\scompiler\swarnings.
-D 2017-09-20T13:35:11.252
+C Fix\sanother\sharmless\scompiler\swarning.
+D 2017-09-20T13:36:43.456
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -419,7 +419,7 @@ F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
 F src/diff.c d7dd6b9c57ceff7a7102e979c4e5a1959571c0804d04534716121744e81563f9
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c ed717450412b9a8fa0ff0c9321e51a0c466cc8e03d5ac0f737609b6a533a820e
-F src/dispatch.c 5dc7fdbe3ac1f843ebb0c39e83fbfc371673b48dada1b5a4ba67705a9b8f211b
+F src/dispatch.c f5e5e57ec8ededa193a105efcccc2884f7be66e72e6c7e14d22eacb771d42960
 F src/doc.c cb5731ba54b9ccf3e497965db9874e9553a2bf21772ce14398c05526019ca44e
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c e0412afa4ac1895b73d1f49e5756be51aebfdf4f46379f7746b150ab084738e0
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a3b689b3cd84d676f2478b69cf19de2d1fad0b0f61668bf7be8810be32b81110
-R 95891915ab25a087059f96af8c65cb4f
+P 4c666ccf92b7827311c86bd09163eedde8f3a6adeb24247ba99f9b40e4da4c6d
+R ec19a13f67b0f34d8088c755c199270e
 U drh
-Z d723a62fb9952de50b74be7e27621b31
+Z dc5884b3d4684cdf622f9f651b65cc9f
