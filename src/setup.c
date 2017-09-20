@@ -2424,5 +2424,40 @@ void page_waliassetup(){
   @ <input type='submit' name='submit' value="Apply Changes">
   @ </td><td></td></tr>
   @ </table></form>
+  @ <hr>
+  @ <p>When the first term of an incoming URL exactly matches one of the "Aliases" on
+  @ the left-hand side (LHS) above, the URL is converted into the corresponding form
+  @ on the right-hand side (RHS).
+  @ <ul>
+  @ <li><p>
+  @ The LHS is compared against only the first term of the incoming URL.
+  @ All LHS entries in the alias table should therefore begin with a
+  @ single "/" followed by a single path element.
+  @ <li><p>
+  @ The RHS entries in the alias table should begin with a single "/" followed by
+  @ a path element, and optionally followed by "?" and a list of query parameters.
+  @ <li><p>
+  @ Query parameters on the RHS are added to the set of query parameters
+  @ in the incoming URL.
+  @ <li><p>
+  @ If the same query parameter appears in both the incoming URL and on the RHS of the
+  @ alias, the RHS query parameter value overwrites the value on the incoming URL.
+  @ <li><p>
+  @ If a query parameter on the RHS of the alias is of the form "X!" (a name followed
+  @ by "!") then the X query parameter is removed from the incoming URL if it exists.
+  @ <li><p>
+  @ Only a single alias operation occurs.  It is not possible to nest aliases.
+  @ The RHS entries must be built-in webpage names.
+  @ <li><p>
+  @ The alias table is only checked if no built-in webpage matches the incoming URL.
+  @ Hence, it is not possible to override a built-in webpage using aliases.  This is
+  @ by design.
+  @ </ul>
+  @
+  @ <p>To delete an entry from the alias table, changes its name or value to an
+  @ empty string and press "Apply Changes".
+  @
+  @ <p>To add a new alias, fill in the name and value in the bottom row of the table
+  @ above and press "Apply Changes".
   style_footer();
 }

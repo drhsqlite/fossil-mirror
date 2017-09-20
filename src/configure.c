@@ -686,7 +686,7 @@ static void export_config(
 **    %fossil configuration export AREA FILENAME
 **
 **         Write to FILENAME exported configuration information for AREA.
-**         AREA can be one of:  all email project shun skin ticket user
+**         AREA can be one of:  all email project shun skin ticket user alias
 **
 **    %fossil configuration import FILENAME
 **
