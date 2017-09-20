@@ -2367,7 +2367,7 @@ void page_waliassetup(){
     login_needed(0);
     return;
   }
-  style_header("URL ALias Configuration");
+  style_header("URL Alias Configuration");
   if( P("submit")!=0 ){
     Blob token;
     Blob sql;
