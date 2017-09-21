@@ -277,6 +277,7 @@ void unversioned_cmd(void){
     if( mtime<=0 ) fossil_fatal("bad timestamp: %Q", zMtime);
   }
   if( memcmp(zCmd, "add", nCmd)==0 ){
+    const char *zError = 0;
     const char *zIn;
     const char *zAs;
     Blob file;
@@ -289,11 +290,17 @@ void unversioned_cmd(void){
     content_rcvid_init("#!fossil unversioned add");
     for(i=3; i<g.argc; i++){
       zIn = zAs ? zAs : g.argv[i];
-      if( zIn[0]==0 || zIn[0]=='/' || !file_is_simple_pathname(zIn,1) ){
-        fossil_fatal("'%Q' is not an acceptable filename", zIn);
+      if( zIn[0]==0 ){
+        zError = "be empty string";
+      }else if( zIn[0]=='/' ){
+        zError = "be absolute";
+      }else if ( !file_is_simple_pathname(zIn,1) ){
+        zError = "contain complex paths";
+      }else if( contains_whitespace(zIn) ){
+        zError = "contain whitespace";
       }
-      if( contains_whitespace(zIn) ){
-        fossil_fatal("names of unversioned files may not contain whitespace");
+      if( zError ){
+        fossil_fatal("unversioned filenames may not %s: %Q", zError, zIn);
       }
       blob_init(&file,0,0);
       blob_read_from_file(&file, g.argv[i]);
