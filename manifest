@@ -1,5 +1,5 @@
-C Correct\s/doc\swebpage\sin\sthe\scase\sof\sa\sread-only\sdatabase\scontaining\sa\svcache\stable\slacking\sthe\sdesired\svid
-D 2017-09-21T00:56:39.884
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.21.0\salpha\sthat\sincludes\sthe\nenhancements\sto\sthe\sWindows\sVFS\sthat\shelp\sit\sbetter\sdeal\swith\sread-only\nrepository\sfiles.
+D 2017-09-21T20:45:39.611
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -503,8 +503,8 @@ F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c bfbf18354d0e19798923bf0db33da49327493907f9f0e398cd4ea46b519a9c33
 F src/sqlcmd.c b150ead4134db3739733abb077bf764bf998bfede7d1d8ea457455adf3684c31
-F src/sqlite3.c e319432d18eeb686d1c8350ec6e02f5ed437aacfc87c556026883392d4624e0d
-F src/sqlite3.h c644991c6336b8a21b43b987527cf9dcc349804cc5b8048f49fee553016a518a
+F src/sqlite3.c b6f01f770843f33d471446cb2391f34795ddda71c5061136361113d3caf2f747
+F src/sqlite3.h c77050838da5cef96609f70ae1b5f340fdc69b2547239bc10fb134caf1718cfa
 F src/stash.c a6bb018a382d8c648702da7c2e9f56d7012486205c64ba269662336508ab0df2
 F src/stat.c c3e84fa9d09e6851c01f86ce58c33cc7da991419307e7ec22cc6d2a5a3da98ff
 F src/statrep.c 9ee2695e45d0a0de17ce79d0b027f79bd246b4f305c95649044c3709a44372cd
@@ -791,6 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aad384d5d17fd21c4a7630c9bc477931780d34685c5b185a531c825f54e6d08a
-U andygoth
-Z bacf429cc6e0c6f6103041338b3ada01
+P b20f6cbaf4aabb5e603ebbf74803e53e66916ef65eb4c4a26977adeb193e6c47
+R ed6187348541496d63f054bae5bd825b
+U drh
+Z 3c1eec97928c8b6311d3b2285ce72ee4
