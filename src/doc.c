@@ -466,15 +466,16 @@ int doc_is_embedded_html(Blob *pContent, Blob *pTitle){
 ** if the file is not found or could not be loaded.
 */
 int doc_load_content(int vid, const char *zName, Blob *pContent){
+  int writable = db_is_writeable("repository");
   int rid;   /* The RID of the file being loaded */
-  if( !db_table_exists("repository","vcache") ){
+  if( !db_table_exists("repository", "vcache") || !writable ){
     db_multi_exec(
       "CREATE %s TABLE IF NOT EXISTS vcache(\n"
       "  vid INTEGER,         -- check-in ID\n"
       "  fname TEXT,          -- filename\n"
       "  rid INTEGER,         -- artifact ID\n"
       "  PRIMARY KEY(vid,fname)\n"
-      ") WITHOUT ROWID", db_is_writeable("repository") ? "" : "TEMPORARY"
+      ") WITHOUT ROWID", writable ? "" : "TEMPORARY"
     );
   }
   if( !db_exists("SELECT 1 FROM vcache WHERE vid=%d", vid) ){
