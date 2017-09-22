@@ -1,5 +1,5 @@
-C Improve\serror\smessage\swhen\srejecting\sunversioned\sfilenames
-D 2017-09-21T21:49:02.868
+C Show\sall\spossible\sheading\sstyles\sin\sMarkdown\sreference.\s\sExpand\stable\sexample\sto\smore\sclosely\sresemble\stypical\susage.
+D 2017-09-22T18:10:36.094
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -468,7 +468,7 @@ F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl 7ffa5b66d2e1bd8b4834ed628a71665196455930f85886b8de1946ea6ba1304f
 F src/manifest.c 1c857522c5247f926c1ac579a6b2f2e3261ef5bdd51376e26ce5c7943bd4b4f3
 F src/markdown.c 2cb7007279db7ad8e16f8c822d5ba27f59b4af2dcc0cd4ba87cce3e4303d5969
-F src/markdown.md 3d1e319cb91859734155343db57657ee52d915cf3558f16ab31069f93f439079
+F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb98d
 F src/markdown_html.c 9bf56751d43414003cbf08b5a162d50a53df2c4f48951ccf9152119f39629789
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/merge.c 0d0cf4b86fd4f51cf4731313833b215997360314
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e97d4443d5628702df5ffc533de91827e1dd7fc76a3b6e452bc601601732ecf8
-R ba4624ab3deee788c0fb716a0f131521
+P 493e3bade9ae8dc61ece027603b8d4ce9106941be187e19b33a7bbed688c1af8
+R ccadd88bd98da5a14409c12d25c6ad2f
 U andygoth
-Z 050f513ef5858eaaa83fa14e648fafa5
+Z d71cf617f8ef7bc4ddf2cdf877a40e8f
