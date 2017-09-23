@@ -2349,7 +2349,7 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 **    filevers=BOOLEAN    Show file versions rather than check-in versions
 **    limit=N             Limit the search depth to N ancestors
 **    log=BOOLEAN         Show a log of versions analyzed
-**    w                   Ignore whitespace
+**    w=BOOLEAN           Ignore whitespace
 **
 */
 void annotation_page(void){
@@ -2369,7 +2369,6 @@ void annotation_page(void){
   int bBlame = g.zPath[0]!='a';/* True for BLAME output.  False for ANNOTATE. */
 
   /* Gather query parameters */
-  showLog = atoi(PD("log","1"));
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( exclude_spiders() ) return;
@@ -2377,8 +2376,9 @@ void annotation_page(void){
   zFilename = P("filename");
   zRevision = PD("checkin",0);
   iLimit = atoi(PD("limit","20"));
+  showLog = PB("log");
   fileVers = PB("filevers");
-  ignoreWs = P("w")!=0;
+  ignoreWs = PB("w");
   if( ignoreWs ) annFlags |= DIFF_IGNORE_ALLWS;
 
   /* compute the annotation */
@@ -2397,25 +2397,12 @@ void annotation_page(void){
   if( iLimit!=20 ){
     url_add_parameter(&url, "limit", sqlite3_mprintf("%d", iLimit));
   }
+  url_add_parameter(&url, "w", ignoreWs ? "1" : "0");
   url_add_parameter(&url, "log", showLog ? "1" : "0");
-  if( ignoreWs ){
-    url_add_parameter(&url, "w", "");
-    style_submenu_element("Show Whitespace Changes", "%s",
-        url_render(&url, "w", 0, 0, 0));
-  }else{
-    style_submenu_element("Ignore Whitespace", "%s",
-        url_render(&url, "w", "", 0, 0));
-  }
-  if( showLog ){
-    style_submenu_element("Hide Log", "%s", url_render(&url, "log", "0", 0, 0));
-  }else{
-    style_submenu_element("Show Log", "%s", url_render(&url, "log", "1", 0, 0));
-  }
-  if( fileVers ){
-    style_submenu_element("Link to Check-ins", "%s", url_render(&url, "filevers", "0", 0, 0));
-  }else{
-    style_submenu_element("Link to Files", "%s", url_render(&url, "filevers", "1", 0, 0));
-  }
+  url_add_parameter(&url, "filevers", fileVers ? "1" : "0");
+  style_submenu_checkbox("w", "Ignore Whitespace", 0);
+  style_submenu_checkbox("log", "Log", 0);
+  style_submenu_checkbox("filevers", "Link to Files", 0);
   if( ann.bLimit ){
     char *z1, *z2;
     style_submenu_element("All Ancestors", "%s",
