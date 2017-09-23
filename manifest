@@ -1,5 +1,5 @@
-C Convert\sannotate\spage\sto\suse\scheckboxes
-D 2017-09-23T21:24:41.933
+C Remove\sunnecessary\svariable\sinitializations
+D 2017-09-23T21:30:12.474
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -416,7 +416,7 @@ F src/db.c fb76456b8311e79e0a215baa155df53e3c328175f5029c3775931635e4d59cb5
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
-F src/diff.c 5040407518599c803153a35d43155ea2bb48dab6ea16c5c314deab896d526fb9
+F src/diff.c 9946597a7d6d15feafd0e54d50ce65d744847e6452b15e114957048b701ef2f7
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c ed717450412b9a8fa0ff0c9321e51a0c466cc8e03d5ac0f737609b6a533a820e
 F src/dispatch.c f5e5e57ec8ededa193a105efcccc2884f7be66e72e6c7e14d22eacb771d42960
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4b721600e7b8315e18cd6762d0da7d2fee1952027829e8ad673f18f426308933
-R 4b6ec2afefea88f1c5f585df28796aa3
+P 8017bad639df6a072076994054fbe58ec54aaad325ac5f07af2d51f35410d868
+R 3b25d0bea922222ee4e114d5b7eaa832
 U andygoth
-Z b98c1a9a29850d1f6afd59c207ca7f9f
+Z d9cbbfeab7e78c12996a4b054500fd58

@@ -2356,9 +2356,9 @@ void annotation_page(void){
   int i;
   int iLimit;            /* Depth limit */
   u64 annFlags = DIFF_STRIP_EOLCR;
-  int showLog = 0;       /* True to display the log */
-  int fileVers;     /* Show file version instead of check-in versions */
-  int ignoreWs = 0;      /* Ignore whitespace */
+  int showLog;           /* True to display the log */
+  int fileVers;          /* Show file version instead of check-in versions */
+  int ignoreWs;          /* Ignore whitespace */
   const char *zFilename; /* Name of file to annotate */
   const char *zRevision; /* Name of check-in from which to start annotation */
   const char *zCI;       /* The check-in containing zFilename */
