@@ -45,6 +45,9 @@
 #define DIFF_STRIP_EOLCR  (((u64)0x10)<<32) /* Strip trailing CR */
 #define DIFF_SLOW_SBS     (((u64)0x20)<<32) /* Better, but slower side-by-side */
 
+/* Annotation flags (any DIFF flag can be used as Annotation flag as well) */
+#define ANN_FILE_VERS     (((u64)0x40)<<32) /* File vers not commit vers */
+
 /*
 ** These error messages are shared in multiple locations.  They are defined
 ** here for consistency.
@@ -2179,10 +2182,6 @@ static int annotation_step(
 }
 
 
-/* Annotation flags (any DIFF flag can be used as Annotation flag as well) */
-#define ANN_FILE_VERS   (((u64)0x20)<<32) /* File vers not commit vers */
-#define ANN_FILE_ANCEST (((u64)0x40)<<32) /* Prefer checkins in the ANCESTOR */
-
 /*
 ** Compute a complete annotation on a file.  The file is identified
 ** by its filename number (filename.fnid) and check-in (mlink.mid).
@@ -2225,13 +2224,12 @@ static void annotate_file(
     "       date(event.mtime),"
     "       coalesce(event.euser,event.user),"
     "       mlink.pid"
-    "  FROM mlink, event"
+    "  FROM mlink, event, ancestor"
     " WHERE mlink.fid=:rid"
     "   AND event.objid=mlink.mid"
     "   AND mlink.pid NOT IN vseen"
-    " ORDER BY %s event.mtime",
-    (annFlags & ANN_FILE_ANCEST)!=0 ?
-         "(mlink.mid IN (SELECT rid FROM ancestor)) DESC,":""
+    "   AND ancestor.rid=mlink.mid"
+    " ORDER BY ancestor.generation;"
   );
 
   db_bind_int(&q, ":rid", rid);
@@ -2312,7 +2310,7 @@ void annotation_page(void){
   int fnid;
   int i;
   int iLimit;            /* Depth limit */
-  u64 annFlags = (ANN_FILE_ANCEST|DIFF_STRIP_EOLCR);
+  u64 annFlags = DIFF_STRIP_EOLCR;
   int showLog = 0;       /* True to display the log */
   int ignoreWs = 0;      /* Ignore whitespace */
   const char *zFilename; /* Name of file to annotate */
@@ -2592,7 +2590,7 @@ void annotate_cmd(void){
   }
 
   if( iLimit<=0 ) iLimit = 1000000000;
-  annFlags |= (ANN_FILE_ANCEST|DIFF_STRIP_EOLCR);
+  annFlags |= DIFF_STRIP_EOLCR;
   annotate_file(&ann, fnid, mid, iLimit, annFlags);
   if( showLog ){
     struct AnnVers *p;
