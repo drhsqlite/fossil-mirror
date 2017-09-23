@@ -2183,28 +2183,78 @@ static int annotation_step(
 
 
 /*
-** Compute a complete annotation on a file.  The file is identified
-** by its filename number (filename.fnid) and check-in (mlink.mid).
+** Compute a complete annotation on a file.  The file is identified by its
+** filename and check-in name (NULL for current check-in).
 */
 static void annotate_file(
   Annotator *p,        /* The annotator */
-  int fnid,            /* The name of the file to be annotated */
-  int mid,             /* Use the version of the file in this check-in */
+  const char *zFilename,/* The name of the file to be annotated */
+  const char *zRevision,/* Use the version of the file in this check-in */
   int iLimit,          /* Limit the number of levels if greater than zero */
   u64 annFlags         /* Flags to alter the annotation */
 ){
   Blob toAnnotate;     /* Text of the final (mid) version of the file */
   Blob step;           /* Text of previous revision */
+  Blob treename;       /* FILENAME translated to canonical form */
+  Manifest *pManifest; /* Manifest structure */
+  ManifestFile *pFile; /* Manifest file pointer */
+  int cid;             /* Selected check-in ID */
+  int mid;             /* Manifest where file was most recently changed */
   int rid;             /* Artifact ID of the file being annotated */
+  int fnid;            /* Filename ID */
   Stmt q;              /* Query returning all ancestor versions */
   Stmt ins;            /* Inserts into the temporary VSEEN table */
   int cnt = 0;         /* Number of versions examined */
 
-  /* Initialize the annotation */
-  rid = db_int(0, "SELECT fid FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid);
-  if( rid==0 ){
-    fossil_fatal("file #%d is unchanged in manifest #%d", fnid, mid);
+  /* Get artifact IDs of selected check-in and file */
+  if( zRevision ){
+    /* Get artifact ID of selected check-in manifest */
+    cid = name_to_typed_rid(zRevision, "ci");
+
+    /* Get manifest structure for selected check-in */
+    pManifest = manifest_get(cid, CFTYPE_MANIFEST, 0);
+    if( !pManifest ){
+      fossil_fatal("could not parse manifest for check-in: %s", zRevision);
+    }
+    
+    /* Get selected file in manifest */
+    pFile = manifest_file_find(pManifest, zFilename);
+    if( !pFile ){
+      fossil_fatal("file %s does not exist in check-in %s", zFilename,
+          zRevision);
+    }
+    manifest_destroy(pManifest);
+
+    /* Get file artifact ID from manifest file record */
+    rid = fast_uuid_to_rid(pFile->zUuid);
+  }else{
+    /* Get artifact ID of current checkout manifest */
+    db_must_be_within_tree();
+    cid = db_lget_int("checkout", 0);
+
+    /* Get file artifact ID from current checkout file table */
+    rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%Q", zFilename);
+    if( rid==0 ){
+      fossil_fatal("file %s does not exist in current checkout", zFilename);
+    }
   }
+
+  /* Get filename ID */
+  file_tree_name(zFilename, &treename, 0, 1);
+  zFilename = blob_str(&treename);
+  fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
+
+  /* Get ID of most recent manifest containing a change to the selected file */
+  compute_direct_ancestors(cid);
+  mid = db_int(0, "SELECT mlink.mid FROM mlink, ancestor "
+          " WHERE mlink.fid=%d AND mlink.fnid=%d AND mlink.mid=ancestor.rid"
+          " ORDER BY ancestor.generation ASC LIMIT 1",
+          rid, fnid);
+  if( mid==0 ){
+    fossil_fatal("unable to find manifest");
+  }
+
+  /* Initialize the annotation */
   if( !content_get(rid, &toAnnotate) ){
     fossil_fatal("unable to retrieve content of artifact #%d", rid);
   }
@@ -2306,14 +2356,13 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 **
 */
 void annotation_page(void){
-  int mid;
-  int fnid;
   int i;
   int iLimit;            /* Depth limit */
   u64 annFlags = DIFF_STRIP_EOLCR;
   int showLog = 0;       /* True to display the log */
   int ignoreWs = 0;      /* Ignore whitespace */
   const char *zFilename; /* Name of file to annotate */
+  const char *zRevision; /* Name of check-in from which to start annotation */
   const char *zCI;       /* The check-in containing zFilename */
   Annotator ann;
   HQuery url;
@@ -2327,21 +2376,15 @@ void annotation_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( exclude_spiders() ) return;
   load_control();
-  mid = name_to_typed_rid(PD("checkin","0"),"ci");
   zFilename = P("filename");
-  fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
-  if( mid==0 || fnid==0 ){ fossil_redirect_home(); }
+  zRevision = PD("checkin",0);
   iLimit = atoi(PD("limit","20"));
   if( P("filevers") ) annFlags |= ANN_FILE_VERS;
   ignoreWs = P("w")!=0;
   if( ignoreWs ) annFlags |= DIFF_IGNORE_ALLWS;
-  if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid) ){
-    fossil_redirect_home();
-  }
 
   /* compute the annotation */
-  compute_direct_ancestors(mid);
-  annotate_file(&ann, fnid, mid, iLimit, annFlags);
+  annotate_file(&ann, zFilename, zRevision, iLimit, annFlags);
   zCI = ann.aVers[0].zMUuid;
 
   /* generate the web page */
@@ -2497,13 +2540,7 @@ void annotation_page(void){
 ** See also: info, finfo, timeline
 */
 void annotate_cmd(void){
-  int fnid;         /* Filename ID */
-  int fid;          /* File instance ID */
-  int mid;          /* Manifest where file was checked in */
-  int cid;          /* Checkout or selected check-in ID */
-  Blob treename;    /* FILENAME translated to canonical form */
-  const char *zRev; /* Revision name, or NULL for current check-in */
-  char *zFilename;  /* Canonical filename */
+  const char *zRevision; /* Revision name, or NULL for current check-in */
   Annotator ann;    /* The annotation of the file */
   int i;            /* Loop counter */
   const char *zLimit; /* The value to the -n|--limit option */
@@ -2516,10 +2553,11 @@ void annotate_cmd(void){
   ManifestFile *pFile; /* Manifest file pointer */
 
   bBlame = g.argv[1][0]!='a';
-  zRev = find_option("r","revision",1);
+  zRevision = find_option("r","revision",1);
   zLimit = find_option("limit","n",1);
   if( zLimit==0 || zLimit[0]==0 ) zLimit = "-1";
   iLimit = atoi(zLimit);
+  if( iLimit<=0 ) iLimit = 1000000000;
   showLog = find_option("log","l",0)!=0;
   if( find_option("ignore-trailing-space","Z",0)!=0 ){
     annFlags = DIFF_IGNORE_EOLWS;
@@ -2537,61 +2575,8 @@ void annotate_cmd(void){
     usage("FILENAME");
   }
 
-  /* Get filename ID */
-  file_tree_name(g.argv[2], &treename, 0, 1);
-  zFilename = blob_str(&treename);
-  fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
-  if( fnid==0 ){
-    fossil_fatal("no such file: %s", zFilename);
-  }
-
-  /* Get artifact IDs of selected check-in and file */
-  if( zRev ){
-    /* Get artifact ID of selected check-in manifest */
-    cid = name_to_typed_rid(zRev, "ci");
-
-    /* Get manifest structure for selected check-in */
-    pManifest = manifest_get(cid, CFTYPE_MANIFEST, 0);
-    if( !pManifest ){
-      fossil_fatal("could not parse manifest for check-in: %s", zRev);
-    }
-    
-    /* Get selected file in manifest */
-    pFile = manifest_file_find(pManifest, zFilename);
-    if( !pFile ){
-      fossil_fatal("file %s does not exist in check-in %s", zFilename, zRev);
-    }
-    manifest_destroy(pManifest);
-
-    /* Get file instance ID from manifest file record */
-    fid = fast_uuid_to_rid(pFile->zUuid);
-  }else{
-    /* Get artifact ID of current checkout manifest */
-    cid = db_lget_int("checkout", 0);
-    if( cid == 0 ){
-      fossil_fatal("not in a checkout");
-    }
-
-    /* Get file instance ID from current checkout file table */
-    fid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%Q", zFilename);
-    if( fid==0 ){
-      fossil_fatal("not part of current checkout: %s", zFilename);
-    }
-  }
-
-  /* Get ID of most recent manifest containing a change to the selected file */
-  compute_direct_ancestors(cid);
-  mid = db_int(0, "SELECT mlink.mid FROM mlink, ancestor "
-          " WHERE mlink.fid=%d AND mlink.fnid=%d AND mlink.mid=ancestor.rid"
-          " ORDER BY ancestor.generation ASC LIMIT 1",
-          fid, fnid);
-  if( mid==0 ){
-    fossil_fatal("unable to find manifest");
-  }
-
-  if( iLimit<=0 ) iLimit = 1000000000;
   annFlags |= DIFF_STRIP_EOLCR;
-  annotate_file(&ann, fnid, mid, iLimit, annFlags);
+  annotate_file(&ann, g.argv[2], zRevision, iLimit, annFlags);
   if( showLog ){
     struct AnnVers *p;
     for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
