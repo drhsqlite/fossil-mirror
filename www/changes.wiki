@@ -3,6 +3,7 @@
 <a name='v2_4'></a>
 <h2>Changes for Version 2.4 (TBD)</h2>
 
+  *  Add the -r|--revision option to the annotate command.
   *  Support for URL Aliases added.  URL Aliases allow an administrator
      to define their own URLs on the web interface that are rewritten to
      built-in URLs with specific parameters.
