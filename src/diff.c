@@ -2502,6 +2502,7 @@ void annotate_cmd(void){
   int fnid;         /* Filename ID */
   int fid;          /* File instance ID */
   int mid;          /* Manifest where file was checked in */
+  int cid;          /* Checkout or selected check-in ID */
   Blob treename;    /* FILENAME translated to canonical form */
   const char *zRev; /* Revision name, or NULL for current check-in */
   char *zFilename;  /* Canonical filename */
@@ -2549,10 +2550,10 @@ void annotate_cmd(void){
   /* Get artifact IDs of selected check-in and file */
   if( zRev ){
     /* Get artifact ID of selected check-in manifest */
-    mid = name_to_typed_rid(zRev, "ci");
+    cid = name_to_typed_rid(zRev, "ci");
 
     /* Get manifest structure for selected check-in */
-    pManifest = manifest_get(mid, CFTYPE_MANIFEST, 0);
+    pManifest = manifest_get(cid, CFTYPE_MANIFEST, 0);
     if( !pManifest ){
       fossil_fatal("could not parse manifest for check-in: %s", zRev);
     }
@@ -2568,8 +2569,8 @@ void annotate_cmd(void){
     fid = fast_uuid_to_rid(pFile->zUuid);
   }else{
     /* Get artifact ID of current checkout manifest */
-    mid = db_lget_int("checkout", 0);
-    if( mid == 0 ){
+    cid = db_lget_int("checkout", 0);
+    if( cid == 0 ){
       fossil_fatal("not in a checkout");
     }
 
@@ -2581,11 +2582,14 @@ void annotate_cmd(void){
   }
 
   /* Get ID of most recent manifest containing a change to the selected file */
-  compute_direct_ancestors(mid);
+  compute_direct_ancestors(cid);
   mid = db_int(0, "SELECT mlink.mid FROM mlink, ancestor "
           " WHERE mlink.fid=%d AND mlink.fnid=%d AND mlink.mid=ancestor.rid"
           " ORDER BY ancestor.generation ASC LIMIT 1",
           fid, fnid);
+  if( mid==0 ){
+    fossil_fatal("unable to find manifest");
+  }
 
   if( iLimit<=0 ) iLimit = 1000000000;
   annFlags |= (ANN_FILE_ANCEST|DIFF_STRIP_EOLCR);
