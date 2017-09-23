@@ -1,5 +1,5 @@
-C Consolidated\sannotation\sfile\sand\smanifest\slookup\scode.\s\sThis\schanges\sthe\serror\shandling\sfor\sthe\sannotation\sweb\spage\sto\sreport\san\serror\srather\sthan\sredirect\sto\shome.\s\sIt\salso\senables\somitting\sthe\scheckin\squery\sparameter\swhen\sused\swith\sa\sserver\srunning\swithin\sa\scheckout.
-D 2017-09-23T21:07:03.399
+C Correct\soperation\sof\sfilevers\squery\sparameter\sto\sannotate\spages
+D 2017-09-23T21:18:24.210
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -416,7 +416,7 @@ F src/db.c fb76456b8311e79e0a215baa155df53e3c328175f5029c3775931635e4d59cb5
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
-F src/diff.c a920a7a46cdcc71b67fddb27a52c278717624771312f26e9cadffba4d1db18af
+F src/diff.c 120bee2d218260ed06ce8090c48698f7748a47d3c3464d1b0a29adb5dede9f30
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c ed717450412b9a8fa0ff0c9321e51a0c466cc8e03d5ac0f737609b6a533a820e
 F src/dispatch.c f5e5e57ec8ededa193a105efcccc2884f7be66e72e6c7e14d22eacb771d42960
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d9ef474a1a319217f2251784a71a543d3cd29913f8b32fd05fe13efbf4984adb
-R a4436668aa716d95b3dcd63ac95ab7af
+P 41f35ca4ec6178912c06f46abc9ac01d0769639b2745211b9072d044766e9e4c
+R d2914bb5be9ea26fd0556d662d70225d
 U andygoth
-Z f39b53f2d9d9d60e578c172e771986b9
+Z 2064204dc3499519921f65f12de048b1

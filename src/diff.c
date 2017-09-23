@@ -45,9 +45,6 @@
 #define DIFF_STRIP_EOLCR  (((u64)0x10)<<32) /* Strip trailing CR */
 #define DIFF_SLOW_SBS     (((u64)0x20)<<32) /* Better, but slower side-by-side */
 
-/* Annotation flags (any DIFF flag can be used as Annotation flag as well) */
-#define ANN_FILE_VERS     (((u64)0x40)<<32) /* File vers not commit vers */
-
 /*
 ** These error messages are shared in multiple locations.  They are defined
 ** here for consistency.
@@ -2349,7 +2346,7 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 **
 **    checkin=ID          The manifest ID at which to start the annotation
 **    filename=FILENAME   The filename.
-**    filevers            Show file versions rather than check-in versions
+**    filevers=BOOLEAN    Show file versions rather than check-in versions
 **    limit=N             Limit the search depth to N ancestors
 **    log=BOOLEAN         Show a log of versions analyzed
 **    w                   Ignore whitespace
@@ -2360,6 +2357,7 @@ void annotation_page(void){
   int iLimit;            /* Depth limit */
   u64 annFlags = DIFF_STRIP_EOLCR;
   int showLog = 0;       /* True to display the log */
+  int fileVers;     /* Show file version instead of check-in versions */
   int ignoreWs = 0;      /* Ignore whitespace */
   const char *zFilename; /* Name of file to annotate */
   const char *zRevision; /* Name of check-in from which to start annotation */
@@ -2379,7 +2377,7 @@ void annotation_page(void){
   zFilename = P("filename");
   zRevision = PD("checkin",0);
   iLimit = atoi(PD("limit","20"));
-  if( P("filevers") ) annFlags |= ANN_FILE_VERS;
+  fileVers = PB("filevers");
   ignoreWs = P("w")!=0;
   if( ignoreWs ) annFlags |= DIFF_IGNORE_ALLWS;
 
@@ -2412,6 +2410,11 @@ void annotation_page(void){
     style_submenu_element("Hide Log", "%s", url_render(&url, "log", "0", 0, 0));
   }else{
     style_submenu_element("Show Log", "%s", url_render(&url, "log", "1", 0, 0));
+  }
+  if( fileVers ){
+    style_submenu_element("Link to Check-ins", "%s", url_render(&url, "filevers", "0", 0, 0));
+  }else{
+    style_submenu_element("Link to Files", "%s", url_render(&url, "filevers", "1", 0, 0));
   }
   if( ann.bLimit ){
     char *z1, *z2;
@@ -2486,11 +2489,12 @@ void annotation_page(void){
     if( bBlame ){
       if( iVers>=0 ){
         struct AnnVers *p = ann.aVers+iVers;
-        char *zLink = xhref("target='infowindow'", "%R/info/%!S", p->zMUuid);
+        const char *zUuid = fileVers ? p->zFUuid : p->zMUuid;
+        char *zLink = xhref("target='infowindow'", "%R/info/%!S", zUuid);
         sqlite3_snprintf(sizeof(zPrefix), zPrefix,
              "<span style='background-color:%s'>"
              "%s%.10s</a> %s</span> %13.13s:",
-             p->zBgColor, zLink, p->zMUuid, p->zDate, p->zUser);
+             p->zBgColor, zLink, zUuid, p->zDate, p->zUser);
         fossil_free(zLink);
       }else{
         sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%36s", "");
@@ -2498,11 +2502,12 @@ void annotation_page(void){
     }else{
       if( iVers>=0 ){
         struct AnnVers *p = ann.aVers+iVers;
-        char *zLink = xhref("target='infowindow'", "%R/info/%!S", p->zMUuid);
+        const char *zUuid = fileVers ? p->zFUuid : p->zMUuid;
+        char *zLink = xhref("target='infowindow'", "%R/info/%!S", zUuid);
         sqlite3_snprintf(sizeof(zPrefix), zPrefix,
              "<span style='background-color:%s'>"
              "%s%.10s</a> %s</span> %4d:",
-             p->zBgColor, zLink, p->zMUuid, p->zDate, i+1);
+             p->zBgColor, zLink, zUuid, p->zDate, i+1);
         fossil_free(zLink);
       }else{
         sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%22s%4d:", "", i+1);
