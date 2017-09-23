@@ -1073,7 +1073,7 @@ static void checkin_description(int rid){
 **   sbs=BOOLEAN     Side-by-side diff if true.  Unified diff if false
 **   glob=STRING     only diff files matching this glob
 **   dc=N            show N lines of context around each diff
-**   w               ignore whitespace when computing diffs
+**   w=BOOLEAN       ignore whitespace when computing diffs
 **   nohdr           omit the description at the top of the page
 **
 **
@@ -1081,8 +1081,8 @@ static void checkin_description(int rid){
 */
 void vdiff_page(void){
   int ridFrom, ridTo;
-  int verboseFlag = 0;
-  int sideBySide = 0;
+  int verboseFlag;
+  int sideBySide;
   u64 diffFlags = 0;
   Manifest *pFrom, *pTo;
   ManifestFile *pFileFrom, *pFileTo;
@@ -1156,17 +1156,7 @@ void vdiff_page(void){
     style_submenu_element("Patch", "%R/vpatch?from=%T&to=%T%s", zFrom, zTo, zW);
   }
   if( sideBySide || verboseFlag ){
-    if( *zW ){
-      style_submenu_element("Show Whitespace Differences",
-                            "%R/vdiff?from=%T&to=%T&sbs=%d%s%s%T", zFrom, zTo,
-                            sideBySide, (verboseFlag && !sideBySide)?"&v":"",
-                            zGlob ? "&glob=" : "", zGlob ? zGlob : "");
-    }else{
-      style_submenu_element("Ignore Whitespace",
-                            "%R/vdiff?from=%T&to=%T&sbs=%d%s%s%T&w", zFrom, zTo,
-                            sideBySide, (verboseFlag && !sideBySide)?"&v":"",
-                            zGlob ? "&glob=" : "", zGlob ? zGlob : "");
-    }
+    style_submenu_checkbox("w", "Ignore Whitespace", 0);
   }
   style_header("Check-in Differences");
   if( P("nohdr")==0 ){
@@ -1548,21 +1538,21 @@ int object_description(
 **
 ** Additional parameters:
 **
-**      dc=N         Show N lines of context around each diff
-**      patch        Use the patch diff format
-**      regex=REGEX  Only show differences that match REGEX
-**      sbs=BOOLEAN  Turn side-by-side diffs on and off (default: on)
-**      verbose      Show more detail when describing artifacts
-**      w            Ignore whitespace
+**      dc=N             Show N lines of context around each diff
+**      patch            Use the patch diff format
+**      regex=REGEX      Only show differences that match REGEX
+**      sbs=BOOLEAN      Turn side-by-side diffs on and off (default: on)
+**      verbose=BOOLEAN  Show more detail when describing artifacts
+**      w=BOOLEAN        Ignore whitespace
 */
 void diff_page(void){
   int v1, v2;
-  int isPatch;
-  int sideBySide;
+  int isPatch = P("patch")!=0;
+  int sideBySide = PB("sbs");
+  int verbose = PB("verbose");
   char *zV1;
   char *zV2;
   const char *zRe;
-  const char *zW;      /* URL param for ignoring whitespace */
   ReCompiled *pRe = 0;
   u64 diffFlags;
   u32 objdescFlags = 0;
@@ -1579,8 +1569,7 @@ void diff_page(void){
   if( v1==0 || v2==0 ) fossil_redirect_home();
   zRe = P("regex");
   if( zRe ) re_compile(&pRe, zRe, 0);
-  if( P("verbose")!=0 ) objdescFlags |= OBJDESC_DETAIL;
-  isPatch = P("patch")!=0;
+  if( verbose ) objdescFlags |= OBJDESC_DETAIL;
   if( isPatch ){
     Blob c1, c2, *pOut;
     pOut = cgi_output_blob();
@@ -1594,33 +1583,16 @@ void diff_page(void){
     return;
   }
 
-  sideBySide = !is_false(PD("sbs","1"));
   zV1 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v1);
   zV2 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v2);
   diffFlags = construct_diff_flags(1, sideBySide) | DIFF_HTML;
 
   style_header("Diff");
-  zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
-  if( *zW ){
-    style_submenu_element("Show Whitespace Changes",
-                          "%s/fdiff?v1=%T&v2=%T&sbs=%d",
-                          g.zTop, P("v1"), P("v2"), sideBySide);
-  }else{
-    style_submenu_element("Ignore Whitespace",
-                          "%s/fdiff?v1=%T&v2=%T&sbs=%d&w",
-                          g.zTop, P("v1"), P("v2"), sideBySide);
-  }
+  style_submenu_checkbox("w", "Ignore Whitespace", 0);
+  style_submenu_checkbox("sbs", "Side-by-Side Diff", 0);
+  style_submenu_checkbox("verbose", "Verbose", 0);
   style_submenu_element("Patch", "%s/fdiff?v1=%T&v2=%T&patch",
                         g.zTop, P("v1"), P("v2"));
-  if( !sideBySide ){
-    style_submenu_element("Side-by-Side Diff",
-                          "%s/fdiff?v1=%T&v2=%T&sbs=1%s",
-                          g.zTop, P("v1"), P("v2"), zW);
-  }else{
-    style_submenu_element("Unified Diff",
-                          "%s/fdiff?v1=%T&v2=%T&sbs=0%s",
-                          g.zTop, P("v1"), P("v2"), zW);
-  }
 
   if( P("smhdr")!=0 ){
     @ <h2>Differences From Artifact
