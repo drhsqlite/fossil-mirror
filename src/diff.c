@@ -2541,8 +2541,6 @@ void annotate_cmd(void){
   int fileVers;     /* Show file version instead of check-in versions */
   u64 annFlags = 0; /* Flags to control annotation properties */
   int bBlame = 0;   /* True for BLAME output.  False for ANNOTATE. */
-  Manifest *pManifest; /* Manifest structure */
-  ManifestFile *pFile; /* Manifest file pointer */
 
   bBlame = g.argv[1][0]!='a';
   zRevision = find_option("r","revision",1);
