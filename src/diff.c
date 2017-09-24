@@ -2200,7 +2200,6 @@ static void annotate_file(
   int rid;             /* Artifact ID of the file being annotated */
   int fnid;            /* Filename ID */
   Stmt q;              /* Query returning all ancestor versions */
-  Stmt ins;            /* Inserts into the temporary VSEEN table */
   int cnt = 0;         /* Number of versions examined */
 
   /* Get artifact IDs of selected check-in and file */
@@ -2259,30 +2258,23 @@ static void annotate_file(
   blob_to_utf8_no_bom(&toAnnotate, 0);
   annotation_start(p, &toAnnotate, annFlags);
   db_begin_transaction();
-  db_multi_exec(
-     "CREATE TEMP TABLE IF NOT EXISTS vseen(rid INTEGER PRIMARY KEY);"
-     "DELETE FROM vseen;"
-  );
 
-  db_prepare(&ins, "INSERT OR IGNORE INTO vseen(rid) VALUES(:rid)");
   db_prepare(&q,
-    "SELECT (SELECT uuid FROM blob WHERE rid=mlink.fid),"
-    "       (SELECT uuid FROM blob WHERE rid=mlink.mid),"
-    "       date(event.mtime),"
-    "       coalesce(event.euser,event.user),"
-    "       mlink.pid"
+    "SELECT DISTINCT"
+    "   (SELECT uuid FROM blob WHERE rid=mlink.fid),"
+    "   (SELECT uuid FROM blob WHERE rid=mlink.mid),"
+    "    date(event.mtime),"
+    "    coalesce(event.euser,event.user)"
     "  FROM mlink, event, ancestor"
-    " WHERE mlink.fid=:rid"
+    " WHERE mlink.fnid=%d"
     "   AND event.objid=mlink.mid"
-    "   AND mlink.pid NOT IN vseen"
     "   AND ancestor.rid=mlink.mid"
-    " ORDER BY ancestor.generation;"
+    " ORDER BY ancestor.generation;",
+    fnid
   );
 
-  db_bind_int(&q, ":rid", rid);
   if( iLimit==0 ) iLimit = 1000000000;
-  while( rid && iLimit>cnt && db_step(&q)==SQLITE_ROW ){
-    int prevId = db_column_int(&q, 4);
+  while( iLimit>cnt && db_step(&q)==SQLITE_ROW ){
     p->aVers = fossil_realloc(p->aVers, (p->nVers+1)*sizeof(p->aVers[0]));
     p->aVers[p->nVers].zFUuid = fossil_strdup(db_column_text(&q, 0));
     p->aVers[p->nVers].zMUuid = fossil_strdup(db_column_text(&q, 1));
@@ -2295,17 +2287,10 @@ static void annotate_file(
       blob_reset(&step);
     }
     p->nVers++;
-    db_bind_int(&ins, ":rid", rid);
-    db_step(&ins);
-    db_reset(&ins);
-    db_reset(&q);
-    rid = prevId;
-    db_bind_int(&q, ":rid", prevId);
     cnt++;
   }
   p->bLimit = iLimit==cnt;
   db_finalize(&q);
-  db_finalize(&ins);
   db_end_transaction(0);
 }
 
