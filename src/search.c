@@ -1724,6 +1724,9 @@ void search_update_index(unsigned int srchFlags){
   if( srchFlags & SRCH_WIKI ){
     search_update_wiki_index();
   }
+  if( srchFlags & SRCH_TECHNOTE ){
+    search_update_technote_index();
+  }
 }
 
 /*

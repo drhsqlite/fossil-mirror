@@ -1,5 +1,5 @@
-C Correct\salignment\sof\sfts-search\soutput
-D 2017-09-24T03:02:48.266
+C Add\smissing\scall\sto\ssearch_update_technote_index()
+D 2017-09-24T03:10:33.098
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -492,7 +492,7 @@ F src/regexp.c 11ed4c905c2e471efe9c1e9c4650004ad91d6ebb
 F src/report.c ee53ffbf76230126e2f91511b70d9f72a97d0a650e4c91e6d43018ab3069927a
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
-F src/search.c 47e7e8c08d58baa7627294229ce202f99fd2cd284f4af1ba53afcba18746a338
+F src/search.c 3e188e6f9ed4fe9cb08d4b034a90424b7a0de7c54f817987888a1ec7ad412e21
 F src/security_audit.c 7258617b28df652f0b9c12f304dd54c8345c50f5a6ce0c24f59911a6fb20adc0
 F src/setup.c c013f75957f9fa4ba6b461a760a6842b06fb38408ea0562be25f7738924addf6
 F src/sha1.c 04efd231424be45a281bdb50def7fce94625bd45b53d3c96b89e8de31f0305be
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 94650be8de06dc37ecf8ea71948e350bf60157e9d48c989388fbb507493b0908
-R 9997722aa29c43c8c7b72223c7b2e73b
+P a6c7ce9db8d079d2ba6c8912cf4f160027f59224389e6f77b6ff69525623a5f6
+R 27fdbd926bd889f852f6a1013ddd4ecf
 U andygoth
-Z bfb10705a34d0249a7e0de9ad0b7c16d
+Z eafc886a397566a1dc2bd0bb71740797
