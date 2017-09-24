@@ -1516,8 +1516,8 @@ void search_fill_index(void){
     "  SELECT 't', tkt_id, 0 FROM ticket;"
   );
   db_multi_exec(
-    "INSERT OR IGNORE INTO ftsdocs(type,rid,idxed)"
-    "  SELECT 'e', objid, 0 FROM event WHERE type='e';"
+    "INSERT OR IGNORE INTO ftsdocs(type,rid,name,idxed)"
+    "  SELECT 'e', objid, comment, 0 FROM event WHERE type='e';"
   );
 }
 
@@ -1698,9 +1698,11 @@ static void search_update_technote_index(void){
     "  (name,label,url,mtime) = "
     "    (SELECT ftsdocs.name,"
     "            'Tech Note: '||ftsdocs.name,"
-    "            '/technote/'||urlencode(ftsdocs.name),"
+    "            '/technote/'||substr(tag.tagname,7),"
     "            tagxref.mtime"
-    "       FROM tagxref WHERE tagxref.rid=ftsdocs.rid)"
+    "       FROM tagxref, tag USING (tagid)"
+    "      WHERE tagxref.rid=ftsdocs.rid"
+    "        AND tagname GLOB 'event-*')"
     " WHERE ftsdocs.type='e' AND NOT ftsdocs.idxed"
   );
 }
