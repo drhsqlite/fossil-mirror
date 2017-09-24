@@ -635,11 +635,12 @@ void search_cmd(void){
 
 #if INTERFACE
 /* What to search for */
-#define SRCH_CKIN   0x0001    /* Search over check-in comments */
-#define SRCH_DOC    0x0002    /* Search over embedded documents */
-#define SRCH_TKT    0x0004    /* Search over tickets */
-#define SRCH_WIKI   0x0008    /* Search over wiki */
-#define SRCH_ALL    0x000f    /* Search over everything */
+#define SRCH_CKIN     0x0001    /* Search over check-in comments */
+#define SRCH_DOC      0x0002    /* Search over embedded documents */
+#define SRCH_TKT      0x0004    /* Search over tickets */
+#define SRCH_WIKI     0x0008    /* Search over wiki */
+#define SRCH_TECHNOTE 0x0010    /* Search over tech notes */
+#define SRCH_ALL      0x001f    /* Search over everything */
 #endif
 
 /*
@@ -650,13 +651,14 @@ unsigned int search_restrict(unsigned int srchFlags){
   static unsigned int knownGood = 0;
   static unsigned int knownBad = 0;
   static const struct { unsigned m; const char *zKey; } aSetng[] = {
-     { SRCH_CKIN,   "search-ci"   },
-     { SRCH_DOC,    "search-doc"  },
-     { SRCH_TKT,    "search-tkt"  },
-     { SRCH_WIKI,   "search-wiki" },
+     { SRCH_CKIN,     "search-ci"   },
+     { SRCH_DOC,      "search-doc"  },
+     { SRCH_TKT,      "search-tkt"  },
+     { SRCH_WIKI,     "search-wiki" },
+     { SRCH_TECHNOTE, "search-technote" },
   };
   int i;
-  if( g.perm.Read==0 )   srchFlags &= ~(SRCH_CKIN|SRCH_DOC);
+  if( g.perm.Read==0 )   srchFlags &= ~(SRCH_CKIN|SRCH_DOC|SRCH_TECHNOTE);
   if( g.perm.RdTkt==0 )  srchFlags &= ~(SRCH_TKT);
   if( g.perm.RdWiki==0 ) srchFlags &= ~(SRCH_WIKI);
   for(i=0; i<count(aSetng); i++){
@@ -771,6 +773,26 @@ static void search_fullscan(
       "         search_snippet()"
       "    FROM ticket"
       "   WHERE search_match(title('t',tkt_id,NULL),body('t',tkt_id,NULL));"
+    );
+  }
+  if( (srchFlags & SRCH_TECHNOTE)!=0 ){
+    db_multi_exec(
+      "WITH technote(uuid,rid,mtime) AS ("
+      "  SELECT substr(tagname,7), tagxref.rid, max(tagxref.mtime)"
+      "    FROM tag, tagxref"
+      "   WHERE tag.tagname GLOB 'event-*'"
+      "     AND tagxref.tagid=tag.tagid"
+      "   GROUP BY 1"
+      ")"
+      "INSERT INTO x(label,url,score,id,date,snip)"
+      "  SELECT printf('Tech Note: %%s',uuid),"
+      "         printf('/technote/%%s',uuid),"
+      "         search_score(),"
+      "         'e'||rid,"
+      "         datetime(mtime),"
+      "         search_snippet()"
+      "    FROM technote"
+      "   WHERE search_match('',body('e',rid,NULL));"
     );
   }
 }
@@ -888,10 +910,11 @@ static void search_indexed(
   if( srchFlags!=SRCH_ALL ){
     const char *zSep = " AND (";
     static const struct { unsigned m; char c; } aMask[] = {
-       { SRCH_CKIN,  'c' },
-       { SRCH_DOC,   'd' },
-       { SRCH_TKT,   't' },
-       { SRCH_WIKI,  'w' },
+       { SRCH_CKIN,     'c' },
+       { SRCH_DOC,      'd' },
+       { SRCH_TKT,      't' },
+       { SRCH_WIKI,     'w' },
+       { SRCH_TECHNOTE, 'e' },
     };
     int i;
     for(i=0; i<count(aMask); i++){
@@ -1039,10 +1062,11 @@ void search_screen(unsigned srchFlags, int useYparam){
   int fDebug = PB("debug");
   srchFlags = search_restrict(srchFlags);
   switch( srchFlags ){
-    case SRCH_CKIN:  zType = " Check-ins";  zClass = "Ckin";  break;
-    case SRCH_DOC:   zType = " Docs";       zClass = "Doc";   break;
-    case SRCH_TKT:   zType = " Tickets";    zClass = "Tkt";   break;
-    case SRCH_WIKI:  zType = " Wiki";       zClass = "Wiki";  break;
+    case SRCH_CKIN:     zType = " Check-ins";  zClass = "Ckin"; break;
+    case SRCH_DOC:      zType = " Docs";       zClass = "Doc";  break;
+    case SRCH_TKT:      zType = " Tickets";    zClass = "Tkt";  break;
+    case SRCH_WIKI:     zType = " Wiki";       zClass = "Wiki"; break;
+    case SRCH_TECHNOTE: zType = " Tech Notes"; zClass = "Note"; break;
   }
   if( srchFlags==0 ){
     zDisable1 = " disabled";
@@ -1062,11 +1086,12 @@ void search_screen(unsigned srchFlags, int useYparam){
   @ <input type="text" name="s" size="40" value="%h(zPattern)"%s(zDisable1)>
   if( useYparam && (srchFlags & (srchFlags-1))!=0 && useYparam ){
     static const struct { char *z; char *zNm; unsigned m; } aY[] = {
-       { "all",  "All",        SRCH_ALL  },
-       { "c",    "Check-ins",  SRCH_CKIN },
-       { "d",    "Docs",       SRCH_DOC  },
-       { "t",    "Tickets",    SRCH_TKT  },
-       { "w",    "Wiki",       SRCH_WIKI },
+       { "all",  "All",        SRCH_ALL      },
+       { "c",    "Check-ins",  SRCH_CKIN     },
+       { "d",    "Docs",       SRCH_DOC      },
+       { "t",    "Tickets",    SRCH_TKT      },
+       { "w",    "Wiki",       SRCH_WIKI     },
+       { "e",    "Tech Notes", SRCH_TECHNOTE },
     };
     const char *zY = PD("y","all");
     unsigned newFlags = srchFlags;
@@ -1118,6 +1143,7 @@ void search_screen(unsigned srchFlags, int useYparam){
 **                      d -> documentation
 **                      t -> tickets
 **                      w -> wiki
+**                      e -> tech notes
 **                    all -> everything
 */
 void search_page(void){
@@ -1224,6 +1250,7 @@ static void append_all_ticket_fields(Blob *pAccum, Stmt *pQuery, int iTitle){
 **                      w      Wiki page
 **                      c      Check-in comment
 **                      t      Ticket text
+**                      e      Tech note
 **
 **    rid               The RID of an artifact that defines the object
 **                      being searched.
@@ -1249,8 +1276,10 @@ void search_stext(
       blob_reset(&doc);
       break;
     }
+    case 'e':     /* Tech Notes */
     case 'w': {   /* Wiki */
-      Manifest *pWiki = manifest_get(rid, CFTYPE_WIKI,0);
+      Manifest *pWiki = manifest_get(rid,
+          cType == 'e' ? CFTYPE_EVENT : CFTYPE_WIKI, 0);
       Blob wiki;
       if( pWiki==0 ) break;
       blob_init(&wiki, pWiki->zWiki, -1);
@@ -1369,7 +1398,7 @@ char *search_stext_cached(
 ** Usage: fossil test-search-stext TYPE RID NAME
 **
 ** Compute the search text for document TYPE-RID whose name is NAME.
-** The TYPE is one of "c", "d", "t", or "w".  The RID is the document
+** The TYPE is one of "c", "d", "t", "w", or "e".  The RID is the document
 ** ID.  The NAME is used to figure out a mimetype to use for formatting
 ** the raw document text.
 */
@@ -1486,6 +1515,10 @@ void search_fill_index(void){
     "INSERT OR IGNORE INTO ftsdocs(type,rid,idxed)"
     "  SELECT 't', tkt_id, 0 FROM ticket;"
   );
+  db_multi_exec(
+    "INSERT OR IGNORE INTO ftsdocs(type,rid,idxed)"
+    "  SELECT 'e', objid, 0 FROM event WHERE type='e';"
+  );
 }
 
 /*
@@ -1510,15 +1543,15 @@ void search_doc_touch(char cType, int rid, const char *zName){
        " VALUES(%Q,%d,%Q,0)",
        zType, rid, zName
     );
-    if( cType=='w' ){
+    if( cType=='w' || cType=='e' ){
       db_multi_exec(
         "DELETE FROM ftsidx WHERE docid IN"
-        "    (SELECT rowid FROM ftsdocs WHERE type='w' AND name=%Q AND idxed)",
-        zName
+        "    (SELECT rowid FROM ftsdocs WHERE type='%c' AND name=%Q AND idxed)",
+        cType, zName
       );
       db_multi_exec(
-        "DELETE FROM ftsdocs WHERE type='w' AND name=%Q AND rid!=%d",
-        zName, rid
+        "DELETE FROM ftsdocs WHERE type='%c' AND name=%Q AND rid!=%d",
+        cType, zName, rid
       );
     }
   }
@@ -1651,6 +1684,28 @@ static void search_update_wiki_index(void){
 }
 
 /*
+** Deal with all of the unindexed 'e' terms in FTSDOCS
+*/
+static void search_update_technote_index(void){
+  db_multi_exec(
+    "INSERT INTO ftsidx(docid,title,body)"
+    " SELECT rowid, title('e',rid,NULL),body('e',rid,NULL) FROM ftsdocs"
+    "  WHERE type='e' AND NOT idxed;"
+  );
+  if( db_changes()==0 ) return;
+  db_multi_exec(
+    "UPDATE ftsdocs SET idxed=1,"
+    "  (name,label,url,mtime) = "
+    "    (SELECT ftsdocs.name,"
+    "            'Tech Note: '||ftsdocs.name,"
+    "            '/technote/'||urlencode(ftsdocs.name),"
+    "            tagxref.mtime"
+    "       FROM tagxref WHERE tagxref.rid=ftsdocs.rid)"
+    " WHERE ftsdocs.type='e' AND NOT ftsdocs.idxed"
+  );
+}
+
+/*
 ** Deal with all of the unindexed entries in the FTSDOCS table - that
 ** is to say, all the entries with FTSDOCS.IDXED=0.  Add them to the
 ** index.
@@ -1696,10 +1751,10 @@ void search_rebuild_index(void){
 **
 **     index (on|off)     Turn the search index on or off
 **
-**     enable cdtw        Enable various kinds of search. c=Check-ins,
-**                        d=Documents, t=Tickets, w=Wiki.
+**     enable cdtwe       Enable various kinds of search. c=Check-ins,
+**                        d=Documents, t=Tickets, w=Wiki, e=Tech Notes.
 **
-**     disable cdtw       Disable various kinds of search
+**     disable cdtwe      Disable various kinds of search
 **
 **     stemmer (on|off)   Turn the Porter stemmer on or off for indexed
 **                        search.  (Unindexed search is never stemmed.)
@@ -1716,10 +1771,11 @@ void fts_config_cmd(void){
      { 5,  "stemmer"  },
   };
   static const struct { char *zSetting; char *zName; char *zSw; } aSetng[] = {
-     { "search-ckin",   "check-in search:",  "c" },
-     { "search-doc",    "document search:",  "d" },
-     { "search-tkt",    "ticket search:",    "t" },
-     { "search-wiki",   "wiki search:",      "w" },
+     { "search-ckin",     "check-in search:",  "c" },
+     { "search-doc",      "document search:",  "d" },
+     { "search-tkt",      "ticket search:",    "t" },
+     { "search-wiki",     "wiki search:",      "w" },
+     { "search-technote", "tech note search:", "e" },
   };
   char *zSubCmd = 0;
   int i, j, n;

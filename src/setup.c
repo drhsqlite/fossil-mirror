@@ -2283,7 +2283,9 @@ void page_srchsetup(){
   @ <br />
   onoff_attribute("Search Tickets", "search-tkt", "st", 0, 0);
   @ <br />
-  onoff_attribute("Search Wiki","search-wiki", "sw", 0, 0);
+  onoff_attribute("Search Wiki", "search-wiki", "sw", 0, 0);
+  @ <br />
+  onoff_attribute("Search Tech Notes", "search-technote", "se", 0, 0);
   @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ <hr />
