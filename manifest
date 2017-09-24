@@ -1,5 +1,5 @@
-C Correct\sname\sof\sextras\scommand
-D 2017-09-24T04:41:25.444
+C Use\stables\sthroughout\sglobs.md
+D 2017-09-24T04:42:57.626
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -752,7 +752,7 @@ F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh db68e2cae431b9e9f5dd672e2f56e2bde5a57d2a
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
-F www/globs.md 912865720067b8491d0f7a8bba6970509a9b9d34101963938eae429a6a0ea1b6
+F www/globs.md 023c06fa69c833dfab2128d07070e9d58e34da5f0c6a58d7e55e0de12e1a6fdf
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hashpolicy.wiki 901e234166e31d8cb6634577b3fe266f41453ca1
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 41162e1ac56585d4d56e515d286171ba4563ada01897973c7731e08deecb4b1d
-R 58113d1eddcda31e7d9a5b8f3f7262f0
+P 4546d93da3b567e62396c5fab487f2eaea6831d08c0e8cf79721c6c2271a1e24
+R c6641deb40f95917ee36f85188e58497
 U andygoth
-Z 738bd13895731bb7f01ae072740fce7f
+Z 37b40b8cf9457ded6ac30fa7ab797b0e

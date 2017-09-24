@@ -50,10 +50,12 @@ Special characters (and special character sequences) consume zero or
 more characters from the target and describe what matches. The special
 characters (and sequences) are:
 
- *  `*` Matches any sequence of zero or more characters;
- *  `?` Matches exactly one character;
- *  `[...]` Matches one character from the enclosed list of characters; and
- *  `[^...]` Matches one character not in the enclosed list.
+:Pattern |:Effect
+---------------------------------------------------------------------
+`*`      | Matches any sequence of zero or more characters
+`?`      | Matches exactly one character
+`[...]`  | Matches one character from the enclosed list of characters
+`[^...]` | Matches one character not in the enclosed list
 
 Special character sequences have some additional features:
 
@@ -79,15 +81,16 @@ Special character sequences have some additional features:
 
 Some examples of character lists:
 
- *  `[a-d]` Matches any one of `a`, `b`, `c`, or `d` but not `ä`;
- *  `[^a-d]` Matches exactly one character other than `a`, `b`, `c`,
-    or `d`;
- *  `[0-9a-fA-F]` Matches exactly one hexadecimal digit;
- *  `[a-]` Matches either `a` or `-`;
- *  `[][]` Matches either `]` or `[`;
- *  `[^]]` Matches exactly one character other than `]`;
- *  `[]^]` Matches either `]` or `^`; and
- *  `[^-]` Matches exactly one character other than `-`.
+:Pattern |:Effect
+---------------------------------------------------------------------
+`[a-d]`  | Matches any one of `a`, `b`, `c`, or `d` but not `ä`
+`[^a-d]` | Matches exactly one character other than `a`, `b`, `c`, or `d`
+`[0-9a-fA-F]` | Matches exactly one hexadecimal digit
+`[a-]`   | Matches either `a` or `-`
+`[][]`   | Matches either `]` or `[`
+`[^]]`   | Matches exactly one character other than `]`
+`[]^]`   | Matches either `]` or `^`
+`[^-]`   | Matches exactly one character other than `-`
 
 White space means the specific ASCII characters TAB, LF, VT, FF, CR,
 and SPACE.  Note that this does not include any of the many additional
@@ -129,26 +132,13 @@ are names of the same file; on Unix they are different files.
 
 Some example cases:
 
- *  The glob `README` matches only a file named `README` in the root of
-    the tree. It does not match a file named `src/README` because it
-    does not include any characters that consume (and match) the
-    `src/` part.
- *  The glob `*/README` does match `src/README`. Unlike Unix file
-    globs, it also matches `src/library/README`. However it does not
-    match the file `README` in the root of the tree.
- *  The glob `*README` does match `src/README` as well as the file
-    `README` in the root of the tree as well as `foo/bar/README` or
-    any other file named `README` in the tree. However, it also
-    matches `A-DIFFERENT-README` and `src/DO-NOT-README`, or any other
-    file whose name ends with `README`.
- *  The glob `src/README` does match the file named `src\README` on
-    Windows because all directory separators are rewritten as `/` in
-    the canonical name before the glob is matched. This makes it much
-    easier to write globs that work on both Unix and Windows.
- *  The glob `*.[ch]` matches every C source or header file in the
-    tree at the root or at any depth. Again, this is (deliberately)
-    different from Unix file globs and Windows wild cards.
-
+:Pattern     |:Effect
+--------------------------------------------------------------------------------
+`README`     | Matches only a file named `README` in the root of the tree. It does not match a file named `src/README` because it does not include any characters that consume (and match) the `src/` part.
+`*/README`   | Matches `src/README`. Unlike Unix file globs, it also matches `src/library/README`. However it does not match the file `README` in the root of the tree.
+`*README`    | Matches `src/README` as well as the file `README` in the root of the tree as well as `foo/bar/README` or any other file named `README` in the tree. However, it also matches `A-DIFFERENT-README` and `src/DO-NOT-README`, or any other file whose name ends with `README`.
+`src/README` | Matches `src\README` on Windows because all directory separators are rewritten as `/` in the canonical name before the glob is matched. This makes it much easier to write globs that work on both Unix and Windows.
+`*.[ch]`     | Matches every C source or header file in the tree at the root or at any depth. Again, this is (deliberately) different from Unix file globs and Windows wild cards.
 
 ## Where Globs are Used
 
@@ -156,13 +146,15 @@ Some example cases:
 
 These settings are all lists of glob patterns:
 
- *  `binary-glob`
- *  `clean-glob`
- *  `crlf-glob`
- *  `crnl-glob`
- *  `encoding-glob`
- *  `ignore-glob`
- *  `keep-glob`
+:Setting        |:Description
+--------------------------------------------------------------------------------
+`binary-glob`   | Files that should be treated as binary files for committing and merging purposes
+`clean-glob`    | Files that the [`clean`][] command will delete without prompting or allowing undo
+`crlf-glob`     | Files in which it is okay to have `CR`, `CR`+`LF` or mixed line endings.  Set to "`*`" to disable CR+LF checking
+`crnl-glob`     | Alias for the `crlf-glob` setting
+`encoding-glob` | Files that the [`commit`][] command will ignore when issuing warnings about text files that may use another encoding than ASCII or UTF-8.  Set to "`*`" to disable encoding checking
+`ignore-glob`   | Files that the [`add`][], [`addremove`][], [`clean`][], and [`extras`][] commands will ignore
+`keep-glob`     | Files that the [`clean`][] command will keep
 
 All may be [versioned, local, or global](settings.wiki). Use `fossil
 settings` to manage local and global settings, or a file in the
@@ -193,6 +185,7 @@ usually named to correspond to the setting they override, such as
  *  [`addremove`][]
  *  [`changes`][]
  *  [`clean`][]
+ *  [`commit`][]
  *  [`extras`][]
  *  [`merge`][]
  *  [`settings`][]
@@ -213,6 +206,7 @@ specifies what content may be served.
 [`addremove`]: /help?cmd=addremove
 [`changes`]: /help?cmd=changes
 [`clean`]: /help?cmd=clean
+[`commit`]: /help?cmd=commit
 [`extras`]: /help?cmd=extras
 [`merge`]: /help?cmd=merge
 [`settings`]: /help?cmd=settings
@@ -519,22 +513,19 @@ front of the function that implements the command or page in files
 commands at build time by searching the sources for those comments.) A
 few starting points:
 
- *  [`src/glob.c`][glob.c] implements glob pattern list loading,
-    parsing, and matching.
- *  [`src/file.c`][file.c] implements various kinds of canonical
-    names of a file.
+:File            |:Description
+--------------------------------------------------------------------------------
+[`src/glob.c`][] | Implementation of glob pattern list loading, parsing, and matching.
+[`src/file.c`][] | Implementation of various kinds of canonical names of a file.
 
-
-[glob.c]: https://www.fossil-scm.org/index.html/file/src/glob.c
-[file.c]: https://www.fossil-scm.org/index.html/file/src/file.c
+[`src/glob.c`]: https://www.fossil-scm.org/index.html/file/src/glob.c
+[`src/file.c`]: https://www.fossil-scm.org/index.html/file/src/file.c
 
 The actual pattern matching is implemented in SQL, so the
 documentation for `GLOB` and the other string matching operators in
 [SQLite] (https://sqlite.org/lang_expr.html#like) is useful. Of
-course, the SQLite source code and test harnesses also make
-entertaining reading:
-
- *  `src/func.c` [lines 570-768]
-    (https://www.sqlite.org/src/artifact?name=9d52522cc8ae7f5c&ln=570-768)
- *  `test/expr.test` [lines 586-673]
-    (https://www.sqlite.org/src/artifact?name=66a2c9ac34f74f03&ln=586-673)
+course, the SQLite [source code]
+(https://www.sqlite.org/src/artifact?name=9d52522cc8ae7f5c&ln=570-768)
+and [test harnesses]
+(https://www.sqlite.org/src/artifact?name=66a2c9ac34f74f03&ln=586-673)
+also make entertaining reading.
