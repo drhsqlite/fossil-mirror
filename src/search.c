@@ -1837,17 +1837,17 @@ void fts_config_cmd(void){
 
   /* Always show the status before ending */
   for(i=0; i<count(aSetng); i++){
-    fossil_print("%-16s %s\n", aSetng[i].zName,
+    fossil_print("%-17s %s\n", aSetng[i].zName,
        db_get_boolean(aSetng[i].zSetting,0) ? "on" : "off");
   }
-  fossil_print("%-16s %s\n", "Porter stemmer:",
+  fossil_print("%-17s %s\n", "Porter stemmer:",
        db_get_boolean("search-stemmer",0) ? "on" : "off");
   if( search_index_exists() ){
-    fossil_print("%-16s enabled\n", "full-text index:");
-    fossil_print("%-16s %d\n", "documents:",
+    fossil_print("%-17s enabled\n", "full-text index:");
+    fossil_print("%-17s %d\n", "documents:",
        db_int(0, "SELECT count(*) FROM ftsdocs"));
   }else{
-    fossil_print("%-16s disabled\n", "full-text index:");
+    fossil_print("%-17s disabled\n", "full-text index:");
   }
   db_end_transaction(0);
 }
