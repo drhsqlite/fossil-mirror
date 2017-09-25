@@ -1,5 +1,5 @@
-C The\sannotate_file()\sfunction\sis\snow\scloser\sto\sbeing\scorrect,\sbut\sis\sstill\snot\nquote\sright.
-D 2017-09-24T10:58:29.204
+C Simplified\sand\simproved\simplementation\sof\sannotate_file().
+D 2017-09-25T12:45:07.242
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -416,7 +416,7 @@ F src/db.c dbd9d70d689daeebd59d659b976a02a75a4a329cd07aeece939b806565bf830a
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
-F src/diff.c f06a79eb612903b398a0f3e949584799ff20620a046d1161e8fc6edc6afb3f14
+F src/diff.c a1c92888587f1d2ef5420cd839d8a559c3e82bc3f23671c1cd5a5539c42cf64f
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c ed717450412b9a8fa0ff0c9321e51a0c466cc8e03d5ac0f737609b6a533a820e
 F src/dispatch.c f5e5e57ec8ededa193a105efcccc2884f7be66e72e6c7e14d22eacb771d42960
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 120ff0b8a39436028a52a7af5d7c9c2963f1682e6dfc7e4ea08c1beb3f8ea876
-R a5d7e3480d670aec4a2ec21f9bd77a05
+P 54c0dab0c6e6c91bbd0527bdb80033e448a96f1b5eb592278586afeffe98d074
+R 6ad9c131d9d9b9152ae978e158da4c1c
 U drh
-Z d098c4737ad00a0a516c5894e3297dee
+Z 04572e9766645a871be837dff1718e46

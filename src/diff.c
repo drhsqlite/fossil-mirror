@@ -2193,100 +2193,70 @@ static void annotate_file(
   Blob toAnnotate;     /* Text of the final (mid) version of the file */
   Blob step;           /* Text of previous revision */
   Blob treename;       /* FILENAME translated to canonical form */
-  Manifest *pManifest; /* Manifest structure */
-  ManifestFile *pFile; /* Manifest file pointer */
   int cid;             /* Selected check-in ID */
-  int mid;             /* Manifest where file was most recently changed */
   int rid;             /* Artifact ID of the file being annotated */
   int fnid;            /* Filename ID */
   Stmt q;              /* Query returning all ancestor versions */
-  int cnt = 0;         /* Number of versions examined */
+  int cnt = 0;         /* Number of versions analyzed */
 
-  /* Get artifact IDs of selected check-in and file */
+  if( iLimit<=0 ) iLimit = 1000000000;  /* A negative limit means no limit */
+  db_begin_transaction();
+
+  /* Get the artificate ID for the check-in begin analyzed */
   if( zRevision ){
-    /* Get artifact ID of selected check-in manifest */
     cid = name_to_typed_rid(zRevision, "ci");
-
-    /* Get manifest structure for selected check-in */
-    pManifest = manifest_get(cid, CFTYPE_MANIFEST, 0);
-    if( !pManifest ){
-      fossil_fatal("could not parse manifest for check-in: %s", zRevision);
-    }
-    
-    /* Get selected file in manifest */
-    pFile = manifest_file_find(pManifest, zFilename);
-    if( !pFile ){
-      fossil_fatal("file %s does not exist in check-in %s", zFilename,
-          zRevision);
-    }
-    manifest_destroy(pManifest);
-
-    /* Get file artifact ID from manifest file record */
-    rid = fast_uuid_to_rid(pFile->zUuid);
   }else{
-    /* Get artifact ID of current checkout manifest */
     db_must_be_within_tree();
     cid = db_lget_int("checkout", 0);
-
-    /* Get file artifact ID from current checkout file table */
-    rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%Q", zFilename);
-    if( rid==0 ){
-      fossil_fatal("file %s does not exist in current checkout", zFilename);
-    }
   }
+
+  /* Compute all direct ancestors of the check-in being analyzed into
+  ** the "ancestor" table. */
+  compute_direct_ancestors(cid);
 
   /* Get filename ID */
   file_tree_name(zFilename, &treename, 0, 1);
   zFilename = blob_str(&treename);
   fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
 
-  /* Get ID of most recent manifest containing a change to the selected file */
-  compute_direct_ancestors(cid);
-  mid = db_int(0, "SELECT mlink.mid FROM mlink, ancestor "
-          " WHERE mlink.fid=%d AND mlink.fnid=%d AND mlink.mid=ancestor.rid"
-          " ORDER BY ancestor.generation ASC LIMIT 1",
-          rid, fnid);
-  if( mid==0 ){
-    fossil_fatal("unable to find manifest");
-  }
-
-  /* Initialize the annotation */
-  if( !content_get(rid, &toAnnotate) ){
-    fossil_fatal("unable to retrieve content of artifact #%d", rid);
-  }
-  if( iLimit<=0 ) iLimit = 1000000000;
-  blob_to_utf8_no_bom(&toAnnotate, 0);
-  annotation_start(p, &toAnnotate, annFlags);
-  db_begin_transaction();
-
   db_prepare(&q,
-    "SELECT DISTINCT"
+    "SELECT"
     "   (SELECT uuid FROM blob WHERE rid=mlink.fid),"
     "   (SELECT uuid FROM blob WHERE rid=mlink.mid),"
-    "    date(event.mtime),"
-    "    coalesce(event.euser,event.user)"
+    "   date(event.mtime),"
+    "   coalesce(event.euser,event.user),"
+    "   mlink.fid"
     "  FROM mlink, event, ancestor"
     " WHERE mlink.fnid=%d"
-    "   AND event.objid=mlink.mid"
     "   AND ancestor.rid=mlink.mid"
+    "   AND event.objid=mlink.mid"
+    "   AND mlink.mid!=mlink.pid"
     " ORDER BY ancestor.generation;",
     fnid
   );
 
   if( iLimit==0 ) iLimit = 1000000000;
   while( iLimit>cnt && db_step(&q)==SQLITE_ROW ){
+    rid = db_column_int(&q, 4);
+    if( cnt==0 ){
+      if( !content_get(rid, &toAnnotate) ){
+        fossil_fatal("unable to retrieve content of artifact #%d", rid);
+      }
+      blob_to_utf8_no_bom(&toAnnotate, 0);
+      annotation_start(p, &toAnnotate, annFlags);
+    }
     p->aVers = fossil_realloc(p->aVers, (p->nVers+1)*sizeof(p->aVers[0]));
     p->aVers[p->nVers].zFUuid = fossil_strdup(db_column_text(&q, 0));
     p->aVers[p->nVers].zMUuid = fossil_strdup(db_column_text(&q, 1));
     p->aVers[p->nVers].zDate = fossil_strdup(db_column_text(&q, 2));
     p->aVers[p->nVers].zUser = fossil_strdup(db_column_text(&q, 3));
-    if( p->nVers ){
+    p->nVers++;
+    if( cnt>0 ){
       content_get(rid, &step);
       blob_to_utf8_no_bom(&step, 0);
       annotation_step(p, &step, p->nVers-1, annFlags);
       blob_reset(&step);
     }
-    p->nVers++;
     cnt++;
   }
   p->bLimit = iLimit==cnt;
