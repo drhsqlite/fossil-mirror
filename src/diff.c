@@ -43,7 +43,7 @@
 #define DIFF_CONTEXT_EX   (((u64)0x04)<<32) /* Use context even if zero */
 #define DIFF_NOTTOOBIG    (((u64)0x08)<<32) /* Only display if not too big */
 #define DIFF_STRIP_EOLCR  (((u64)0x10)<<32) /* Strip trailing CR */
-#define DIFF_SLOW_SBS     (((u64)0x20)<<32) /* Better, but slower side-by-side */
+#define DIFF_SLOW_SBS     (((u64)0x20)<<32) /* Better but slower side-by-side */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -2085,7 +2085,7 @@ struct Annotator {
   } *aOrig;
   int nOrig;        /* Number of elements in aOrig[] */
   int nVers;        /* Number of versions analyzed */
-  int bLimit;       /* True if the iLimit was reached */
+  int bMoreToDo;    /* True if the limit was reached */
   struct AnnVers {
     const char *zFUuid;   /* File being analyzed */
     const char *zMUuid;   /* Check-in containing the file */
@@ -2178,28 +2178,60 @@ static int annotation_step(
   return 0;
 }
 
+/* Return the current time as milliseconds since the Julian epoch */
+static sqlite3_int64 current_time_in_milliseconds(void){
+  static sqlite3_vfs *clockVfs = 0;
+  sqlite3_int64 t;
+  if( clockVfs==0 ) clockVfs = sqlite3_vfs_find(0);
+  if( clockVfs->iVersion>=2 && clockVfs->xCurrentTimeInt64!=0 ){
+    clockVfs->xCurrentTimeInt64(clockVfs, &t);
+  }else{
+    double r;
+    clockVfs->xCurrentTime(clockVfs, &r);
+    t = (sqlite3_int64)(r*86400000.0);
+  }
+  return t;
+}
 
 /*
 ** Compute a complete annotation on a file.  The file is identified by its
 ** filename and check-in name (NULL for current check-in).
 */
 static void annotate_file(
-  Annotator *p,        /* The annotator */
-  const char *zFilename,/* The name of the file to be annotated */
-  const char *zRevision,/* Use the version of the file in this check-in */
-  int iLimit,          /* Limit the number of levels if greater than zero */
-  u64 annFlags         /* Flags to alter the annotation */
+  Annotator *p,          /* The annotator */
+  const char *zFilename, /* The name of the file to be annotated */
+  const char *zRevision, /* Use the version of the file in this check-in */
+  const char *zLimit,    /* Limit the number of versions analyzed */
+  u64 annFlags           /* Flags to alter the annotation */
 ){
-  Blob toAnnotate;     /* Text of the final (mid) version of the file */
-  Blob step;           /* Text of previous revision */
-  Blob treename;       /* FILENAME translated to canonical form */
-  int cid;             /* Selected check-in ID */
-  int rid;             /* Artifact ID of the file being annotated */
-  int fnid;            /* Filename ID */
-  Stmt q;              /* Query returning all ancestor versions */
-  int cnt = 0;         /* Number of versions analyzed */
+  Blob toAnnotate;       /* Text of the final (mid) version of the file */
+  Blob step;             /* Text of previous revision */
+  Blob treename;         /* FILENAME translated to canonical form */
+  int cid;               /* Selected check-in ID */
+  int rid;               /* Artifact ID of the file being annotated */
+  int fnid;              /* Filename ID */
+  Stmt q;                /* Query returning all ancestor versions */
+  int cnt = 0;           /* Number of versions analyzed */
+  int iLimit;            /* Maximum number of versions to analyze */
+  sqlite3_int64 mxTime;  /* Halt at this time if not already complete */
 
-  if( iLimit<=0 ) iLimit = 1000000000;  /* A negative limit means no limit */
+  if( zLimit ){
+    if( strcmp(zLimit,"none")==0 ){
+      iLimit = 0;
+      mxTime = 0;
+    }else if( sqlite3_strglob("*[0-9]s", zLimit)==0 ){
+      iLimit = 0;
+      mxTime = current_time_in_milliseconds() + 1000.0*atof(zLimit);
+    }else{
+      iLimit = atoi(zLimit);
+      if( iLimit<=0 ) iLimit = 30;
+      mxTime = 0;
+    }
+  }else{
+    /* Default limit is as much as we can do in 1.000 seconds */
+    iLimit = 0;
+    mxTime = current_time_in_milliseconds()+1000;
+  }
   db_begin_transaction();
 
   /* Get the artificate ID for the check-in begin analyzed */
@@ -2235,8 +2267,15 @@ static void annotate_file(
     fnid
   );
 
-  if( iLimit==0 ) iLimit = 1000000000;
-  while( iLimit>cnt && db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE_ROW ){
+    if( cnt>=3 ){  /* Process at least 3 rows before imposing limits */
+      if( (iLimit>0 && cnt>=iLimit)
+       || (cnt>0 && mxTime>0 && current_time_in_milliseconds()>mxTime)
+      ){
+        p->bMoreToDo = 1;
+        break;
+      }
+    }
     rid = db_column_int(&q, 4);
     if( cnt==0 ){
       if( !content_get(rid, &toAnnotate) ){
@@ -2244,6 +2283,7 @@ static void annotate_file(
       }
       blob_to_utf8_no_bom(&toAnnotate, 0);
       annotation_start(p, &toAnnotate, annFlags);
+      p->bMoreToDo = 0;
     }
     p->aVers = fossil_realloc(p->aVers, (p->nVers+1)*sizeof(p->aVers[0]));
     p->aVers[p->nVers].zFUuid = fossil_strdup(db_column_text(&q, 0));
@@ -2259,7 +2299,6 @@ static void annotate_file(
     }
     cnt++;
   }
-  p->bLimit = iLimit==cnt;
   db_finalize(&q);
   db_end_transaction(0);
 }
@@ -2302,14 +2341,17 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 **    checkin=ID          The manifest ID at which to start the annotation
 **    filename=FILENAME   The filename.
 **    filevers=BOOLEAN    Show file versions rather than check-in versions
-**    limit=N             Limit the search depth to N ancestors
+**    limit=LIMIT         Limit the amount of analysis:
+**                           "none"  No limit
+**                           "Xs"    As much as can be computed in X seconds
+**                           "N"     N versions
 **    log=BOOLEAN         Show a log of versions analyzed
 **    w=BOOLEAN           Ignore whitespace
 **
 */
 void annotation_page(void){
   int i;
-  int iLimit;            /* Depth limit */
+  const char *zLimit;    /* Depth limit */
   u64 annFlags = DIFF_STRIP_EOLCR;
   int showLog;           /* True to display the log */
   int fileVers;          /* Show file version instead of check-in versions */
@@ -2317,6 +2359,7 @@ void annotation_page(void){
   const char *zFilename; /* Name of file to annotate */
   const char *zRevision; /* Name of check-in from which to start annotation */
   const char *zCI;       /* The check-in containing zFilename */
+  int szHash;            /* Number of characters in %S display */
   char *zLink;
   Annotator ann;
   HQuery url;
@@ -2331,14 +2374,14 @@ void annotation_page(void){
   load_control();
   zFilename = P("filename");
   zRevision = PD("checkin",0);
-  iLimit = atoi(PD("limit","20"));
+  zLimit = P("limit");
   showLog = PB("log");
   fileVers = PB("filevers");
   ignoreWs = PB("w");
   if( ignoreWs ) annFlags |= DIFF_IGNORE_ALLWS;
 
   /* compute the annotation */
-  annotate_file(&ann, zFilename, zRevision, iLimit, annFlags);
+  annotate_file(&ann, zFilename, zRevision, zLimit, annFlags);
   zCI = ann.aVers[0].zMUuid;
 
   /* generate the web page */
@@ -2350,8 +2393,8 @@ void annotation_page(void){
   }
   url_add_parameter(&url, "checkin", P("checkin"));
   url_add_parameter(&url, "filename", zFilename);
-  if( iLimit!=20 ){
-    url_add_parameter(&url, "limit", sqlite3_mprintf("%d", iLimit));
+  if( zLimit ){
+    url_add_parameter(&url, "limit", zLimit);
   }
   url_add_parameter(&url, "w", ignoreWs ? "1" : "0");
   url_add_parameter(&url, "log", showLog ? "1" : "0");
@@ -2359,17 +2402,9 @@ void annotation_page(void){
   style_submenu_checkbox("w", "Ignore Whitespace", 0, 0);
   style_submenu_checkbox("log", "Log", 0, "toggle_annotation_log()");
   style_submenu_checkbox("filevers", "Link to Files", 0, 0);
-  if( ann.bLimit ){
-    char *z1, *z2;
+  if( ann.bMoreToDo ){
     style_submenu_element("All Ancestors", "%s",
-       url_render(&url, "limit", "-1", 0, 0));
-    z1 = sqlite3_mprintf("%d Ancestors", iLimit+20);
-    z2 = sqlite3_mprintf("%d", iLimit+20);
-    style_submenu_element(z1, "%s", url_render(&url, "limit", z2, 0, 0));
-  }
-  if( iLimit>20 ){
-    style_submenu_element("20 Ancestors", "%s",
-       url_render(&url, "limit", "20", 0, 0));
+       url_render(&url, "limit", "none", 0, 0));
   }
   if( skin_detail_boolean("white-foreground") ){
     clr1 = 0xa04040;
@@ -2383,7 +2418,7 @@ void annotation_page(void){
     ann.aVers[i].zBgColor = mprintf("#%06x", clr);
   }
 
-  @ <div id="annotation_log" style='display:%s(showLog?"block":"none")'>
+  @ <div id="annotation_log" style='display:%s(showLog?"block":"none");'>
   zLink = href("%R/finfo?name=%t&ci=%!S",zFilename,zCI);
   @ <h2>Versions of %z(zLink)%h(zFilename)</a> analyzed:</h2>
   @ <ol>
@@ -2404,24 +2439,24 @@ void annotation_page(void){
   @ }
   @ </script>
 
-  if( !ann.bLimit ){
+  if( !ann.bMoreToDo ){
     @ <h2>Origin for each line in
     @ %z(href("%R/finfo?name=%h&ci=%!S", zFilename, zCI))%h(zFilename)</a>
     @ from check-in %z(href("%R/info/%!S",zCI))%S(zCI)</a>:</h2>
-    iLimit = ann.nVers+10;
   }else{
-    @ <h2>Lines added by the %d(iLimit) most recent ancestors of
+    @ <h2>Lines added by the %d(ann.nVers) most recent ancestors of
     @ %z(href("%R/finfo?name=%h&ci=%!S", zFilename, zCI))%h(zFilename)</a>
     @ from check-in %z(href("%R/info/%!S",zCI))%S(zCI)</a>:</h2>
   }
   @ <pre>
+  szHash = length_of_S_display();
   for(i=0; i<ann.nOrig; i++){
     int iVers = ann.aOrig[i].iVers;
     char *z = (char*)ann.aOrig[i].z;
     int n = ann.aOrig[i].n;
     char zPrefix[300];
     z[n] = 0;
-    if( iLimit>ann.nVers && iVers<0 ) iVers = ann.nVers-1;
+    if( iVers<0 && !ann.bMoreToDo ) iVers = ann.nVers-1;
 
     if( bBlame ){
       if( iVers>=0 ){
@@ -2434,7 +2469,7 @@ void annotation_page(void){
              p->zBgColor, zLink, zUuid, p->zDate, p->zUser);
         fossil_free(zLink);
       }else{
-        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%36s", "");
+        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%*s", szHash+28, "");
       }
     }else{
       if( iVers>=0 ){
@@ -2447,7 +2482,7 @@ void annotation_page(void){
              p->zBgColor, zLink, zUuid, p->zDate, i+1);
         fossil_free(zLink);
       }else{
-        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%22s%4d:", "", i+1);
+        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%*s%4d:",szHash+14,"",i+1);
       }
     }
     @ %s(zPrefix) %h(z)
@@ -2475,7 +2510,10 @@ void annotation_page(void){
 **                               check-in versions
 **   -r|--revision VERSION       The specific check-in containing the file
 **   -l|--log                    List all versions analyzed
-**   -n|--limit N                Only look backwards in time by N versions
+**   -n|--limit LIMIT            Limit the amount of analysis:
+**                                 N      Up to N versions
+**                                 Xs     As much as possible in X seconds
+**                                 none   No limit
 **   -w|--ignore-all-space       Ignore white space when comparing lines
 **   -Z|--ignore-trailing-space  Ignore whitespace at line end
 **
@@ -2483,21 +2521,18 @@ void annotation_page(void){
 */
 void annotate_cmd(void){
   const char *zRevision; /* Revision name, or NULL for current check-in */
-  Annotator ann;    /* The annotation of the file */
-  int i;            /* Loop counter */
-  const char *zLimit; /* The value to the -n|--limit option */
-  int iLimit;       /* How far back in time to look */
-  int showLog;      /* True to show the log */
-  int fileVers;     /* Show file version instead of check-in versions */
-  u64 annFlags = 0; /* Flags to control annotation properties */
-  int bBlame = 0;   /* True for BLAME output.  False for ANNOTATE. */
+  Annotator ann;         /* The annotation of the file */
+  int i;                 /* Loop counter */
+  const char *zLimit;    /* The value to the -n|--limit option */
+  int showLog;           /* True to show the log */
+  int fileVers;          /* Show file version instead of check-in versions */
+  u64 annFlags = 0;      /* Flags to control annotation properties */
+  int bBlame = 0;        /* True for BLAME output.  False for ANNOTATE. */
+  int szHash;            /* Display size of a version hash */
 
   bBlame = g.argv[1][0]!='a';
   zRevision = find_option("r","revision",1);
   zLimit = find_option("limit","n",1);
-  if( zLimit==0 || zLimit[0]==0 ) zLimit = "-1";
-  iLimit = atoi(zLimit);
-  if( iLimit<=0 ) iLimit = 1000000000;
   showLog = find_option("log","l",0)!=0;
   if( find_option("ignore-trailing-space","Z",0)!=0 ){
     annFlags = DIFF_IGNORE_EOLWS;
@@ -2516,7 +2551,7 @@ void annotate_cmd(void){
   }
 
   annFlags |= DIFF_STRIP_EOLCR;
-  annotate_file(&ann, g.argv[2], zRevision, iLimit, annFlags);
+  annotate_file(&ann, g.argv[2], zRevision, zLimit, annFlags);
   if( showLog ){
     struct AnnVers *p;
     for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
@@ -2525,27 +2560,28 @@ void annotate_cmd(void){
     }
     fossil_print("---------------------------------------------------\n");
   }
+  szHash = length_of_S_display();
   for(i=0; i<ann.nOrig; i++){
     int iVers = ann.aOrig[i].iVers;
     char *z = (char*)ann.aOrig[i].z;
     int n = ann.aOrig[i].n;
     struct AnnVers *p;
-    if( iLimit>ann.nVers && iVers<0 ) iVers = ann.nVers-1;
-    p = ann.aVers + iVers;
+    if( iVers<0 && !ann.bMoreToDo ) iVers = ann.nVers-1;
     if( bBlame ){
       if( iVers>=0 ){
+        p = ann.aVers + iVers;
         fossil_print("%S %s %13.13s: %.*s\n",
              fileVers ? p->zFUuid : p->zMUuid, p->zDate, p->zUser, n, z);
       }else{
-        fossil_print("%35s  %.*s\n", "", n, z);
+        fossil_print("%*s %.*s\n", szHash+26, "", n, z);
       }
     }else{
       if( iVers>=0 ){
+        p = ann.aVers + iVers;
         fossil_print("%S %s %5d: %.*s\n",
              fileVers ? p->zFUuid : p->zMUuid, p->zDate, i+1, n, z);
       }else{
-        fossil_print("%21s %5d: %.*s\n",
-             "", i+1, n, z);
+        fossil_print("%*s %5d: %.*s\n", szHash+11, "", i+1, n, z);
       }
     }
   }
