@@ -1,5 +1,5 @@
-C Merge\smiscellaneous\schanges\sthat\shave\saccumulated\son\sthe\s\nannotation-enhancements\sbranch.\s\sSee\sa\slog\sof\sthe\swhole\sbranch\sfor\sdetails.
-D 2017-09-25T15:18:16.098
+C Merge\ssearch-technote
+D 2017-09-25T15:28:39.801
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -492,9 +492,9 @@ F src/regexp.c 11ed4c905c2e471efe9c1e9c4650004ad91d6ebb
 F src/report.c ee53ffbf76230126e2f91511b70d9f72a97d0a650e4c91e6d43018ab3069927a
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
-F src/search.c 0de35ed3d058b62f9f09a5bde235d0cc1e8f0ee1d4bec9ebc2cd9b5bb9d858bb
+F src/search.c 17694892cbdf77000a684a93fb2aa7e7d7aba42b52d3ff1f788bf327eed1478c
 F src/security_audit.c 7258617b28df652f0b9c12f304dd54c8345c50f5a6ce0c24f59911a6fb20adc0
-F src/setup.c 3eef2e7828a594570b4b9d5399a9f8515a94198750221008267cec1ff4b59de6
+F src/setup.c c013f75957f9fa4ba6b461a760a6842b06fb38408ea0562be25f7738924addf6
 F src/sha1.c 04efd231424be45a281bdb50def7fce94625bd45b53d3c96b89e8de31f0305be
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c 7d862ff2c83826fd251909f5af2c8dd642417a8c389685e169f3c00434f784fa
@@ -700,7 +700,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 709d1d66e198e85f9faedd4d5261835fdb83c41cfeb20757f3ed7d72fa64ff6b
-F www/changes.wiki 639eddafce6901d3e2078ec7efdea52a69f3f226fc9a6fa32b71d956282e08be
+F www/changes.wiki 4a7d7d5965f11084cd8054357e1307c35138b436895a17126027a7e7bb5037ee
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -791,8 +791,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d9ef474a1a319217f2251784a71a543d3cd29913f8b32fd05fe13efbf4984adb d2b1565b7c112b827e49eeb9f863dc5e7d2b9f01c39c9590fcc8a5d1218d5380
-R 6ad9c131d9d9b9152ae978e158da4c1c
-T +closed d2b1565b7c112b827e49eeb9f863dc5e7d2b9f01c39c9590fcc8a5d1218d5380
-U drh
-Z 0e0e5607d5a14b2c51545aaa213babed
+P ab8ed318e782cc731a4154707d39607be4b537b88bbf7de9248201561d9bf252 f914bfd3c7f0fb5c29a010a88ef794e074966bde80fc0c2b4459260265fcaa36
+R 99e49ec0919df3d2dcc7e87ea6e894b8
+T +closed f914bfd3c7f0fb5c29a010a88ef794e074966bde80fc0c2b4459260265fcaa36
+U andygoth
+Z 2a7270a79720611530f8fed412b9c573
