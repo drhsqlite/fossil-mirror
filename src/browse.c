@@ -755,7 +755,7 @@ void page_tree(void){
     zObjType = "Files";
   }
 
-  style_submenu_checkbox("nofiles", "Folders Only", 0);
+  style_submenu_checkbox("nofiles", "Folders Only", 0, 0);
 
   if( zCI ){
     @ <h2>%s(zObjType) from

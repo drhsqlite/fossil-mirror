@@ -1156,7 +1156,7 @@ void vdiff_page(void){
     style_submenu_element("Patch", "%R/vpatch?from=%T&to=%T%s", zFrom, zTo, zW);
   }
   if( sideBySide || verboseFlag ){
-    style_submenu_checkbox("w", "Ignore Whitespace", 0);
+    style_submenu_checkbox("w", "Ignore Whitespace", 0, 0);
   }
   style_header("Check-in Differences");
   if( P("nohdr")==0 ){
@@ -1588,9 +1588,9 @@ void diff_page(void){
   diffFlags = construct_diff_flags(1, sideBySide) | DIFF_HTML;
 
   style_header("Diff");
-  style_submenu_checkbox("w", "Ignore Whitespace", 0);
-  style_submenu_checkbox("sbs", "Side-by-Side Diff", 0);
-  style_submenu_checkbox("verbose", "Verbose", 0);
+  style_submenu_checkbox("w", "Ignore Whitespace", 0, 0);
+  style_submenu_checkbox("sbs", "Side-by-Side Diff", 0, 0);
+  style_submenu_checkbox("verbose", "Verbose", 0, 0);
   style_submenu_element("Patch", "%s/fdiff?v1=%T&v2=%T&patch",
                         g.zTop, P("v1"), P("v2"));
 
@@ -2086,7 +2086,7 @@ void artifact_page(void){
     style_submenu_element("Content", "%R/artifact/%s", zUuid);
   }else{
     if( zLn==0 || atoi(zLn)==0 ){
-      style_submenu_checkbox("ln", "Line Numbers", 0);
+      style_submenu_checkbox("ln", "Line Numbers", 0, 0);
     }
     @ <hr />
     content_get(rid, &content);

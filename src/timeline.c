@@ -1618,7 +1618,7 @@ void page_timeline(void){
     }
 
     /* Display a checkbox to enable/disable display of related check-ins. */
-    style_submenu_checkbox("rel", "Related", 0);
+    style_submenu_checkbox("rel", "Related", 0, 0);
 
     /* Construct the tag match expression. */
     zTagSql = tagMatchExpression(matchStyle, zTagName, &zMatchDesc, &zError);
@@ -1750,7 +1750,7 @@ void page_timeline(void){
     addFileGlobExclusion(zChng, &sql);
     tmFlags |= TIMELINE_DISJOINT;
     db_multi_exec("%s", blob_sql_text(&sql));
-    style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c');
+    style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c', 0);
     blob_appendf(&desc, "%d check-ins going from ",
                  db_int(0, "SELECT count(*) FROM timeline"));
     blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h", zFrom), zFrom);
@@ -1800,7 +1800,7 @@ void page_timeline(void){
         zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", d_rid);
       }
     }
-    style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c');
+    style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c', 0);
     style_submenu_entry("n","Max:",4,0);
     timeline_y_submenu(1);
   }else if( f_rid && g.perm.Read ){
@@ -1820,8 +1820,8 @@ void page_timeline(void){
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
     blob_appendf(&desc, "%z[%S]</a>", href("%R/info/%!S", zUuid), zUuid);
     tmFlags |= TIMELINE_DISJOINT;
-    style_submenu_checkbox("unhide", "Unhide", 0);
-    style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c');
+    style_submenu_checkbox("unhide", "Unhide", 0, 0);
+    style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c', 0);
   }else{
     /* Otherwise, a timeline based on a span of time */
     int n;
@@ -2105,9 +2105,9 @@ void page_timeline(void){
         free(zDate);
       }
       if( zType[0]=='a' || zType[0]=='c' ){
-        style_submenu_checkbox("unhide", "Unhide", 0);
+        style_submenu_checkbox("unhide", "Unhide", 0, 0);
       }
-      style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c');
+      style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c', 0);
       style_submenu_entry("n","Max:",4,0);
       timeline_y_submenu(disableY);
       style_submenu_entry("t", "Tag Filter:", -8, 0);

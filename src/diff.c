@@ -2317,6 +2317,7 @@ void annotation_page(void){
   const char *zFilename; /* Name of file to annotate */
   const char *zRevision; /* Name of check-in from which to start annotation */
   const char *zCI;       /* The check-in containing zFilename */
+  char *zLink;
   Annotator ann;
   HQuery url;
   struct AnnVers *p;
@@ -2355,9 +2356,9 @@ void annotation_page(void){
   url_add_parameter(&url, "w", ignoreWs ? "1" : "0");
   url_add_parameter(&url, "log", showLog ? "1" : "0");
   url_add_parameter(&url, "filevers", fileVers ? "1" : "0");
-  style_submenu_checkbox("w", "Ignore Whitespace", 0);
-  style_submenu_checkbox("log", "Log", 0);
-  style_submenu_checkbox("filevers", "Link to Files", 0);
+  style_submenu_checkbox("w", "Ignore Whitespace", 0, 0);
+  style_submenu_checkbox("log", "Log", 0, "toggle_annotation_log()");
+  style_submenu_checkbox("filevers", "Link to Files", 0, 0);
   if( ann.bLimit ){
     char *z1, *z2;
     style_submenu_element("All Ancestors", "%s",
@@ -2382,33 +2383,27 @@ void annotation_page(void){
     ann.aVers[i].zBgColor = mprintf("#%06x", clr);
   }
 
-  if( showLog ){
-    char *zLink = href("%R/finfo?name=%t&ci=%!S",zFilename,zCI);
-    @ <h2>Ancestors of %z(zLink)%h(zFilename)</a> analyzed:</h2>
-    @ <ol>
-    for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
-      @ <li><span style='background-color:%s(p->zBgColor);'>%s(p->zDate)
-      @ check-in %z(href("%R/info/%!S",p->zMUuid))%S(p->zMUuid)</a>
-      @ artifact %z(href("%R/artifact/%!S",p->zFUuid))%S(p->zFUuid)</a>
-      @ </span>
-#if 0
-      if( i>0 ){
-        char *zLink = xhref("target='infowindow'",
-                            "%R/fdiff?v1=%S&v2=%S&sbs=1",
-                            p->zFUuid,ann.aVers[0].zFUuid);
-        @ %z(zLink)[diff-to-top]</a>
-        if( i>1 ){
-           zLink = xhref("target='infowindow'",
-                         "%R/fdiff?v1=%S&v2=%S&sbs=1",
-                         p->zFUuid,p[-1].zFUuid);
-           @ %z(zLink)[diff-to-previous]</a>
-        }
-      }
-#endif
-    }
-    @ </ol>
-    @ <hr />
+  @ <div id="annotation_log" style='display:%s(showLog?"block":"none")'>
+  zLink = href("%R/finfo?name=%t&ci=%!S",zFilename,zCI);
+  @ <h2>Versions of %z(zLink)%h(zFilename)</a> analyzed:</h2>
+  @ <ol>
+  for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
+    @ <li><span style='background-color:%s(p->zBgColor);'>%s(p->zDate)
+    @ check-in %z(href("%R/info/%!S",p->zMUuid))%S(p->zMUuid)</a>
+    @ artifact %z(href("%R/artifact/%!S",p->zFUuid))%S(p->zFUuid)</a>
+    @ </span>
   }
+  @ </ol>
+  @ <hr />
+  @ </div>
+  @ <script>
+  @ function toggle_annotation_log(){
+  @   var w = gebi("annotation_log");
+  @   var x = document.forms["f01"].elements["log"].checked
+  @   w.style.display = x ? "block" : "none";
+  @ }
+  @ </script>
+
   if( !ann.bLimit ){
     @ <h2>Origin for each line in
     @ %z(href("%R/finfo?name=%h&ci=%!S", zFilename, zCI))%h(zFilename)</a>
