@@ -3,8 +3,11 @@
 <a name='v2_4'></a>
 <h2>Changes for Version 2.4 (TBD)</h2>
 
-  *  Add tech note search capability.
-  *  Add the -r|--revision option to the annotate command.
+  *  Add tech-note search capability.
+  *  Add the -r|--revision and -o|--origin options to the
+     [/help?cmd=annotate|annotate] command.
+  *  Add the origin= query parameter to the [/help?cmd=/annotate|/annotate]
+     webpage.
   *  Support for URL Aliases added.  URL Aliases allow an administrator
      to define their own URLs on the web interface that are rewritten to
      built-in URLs with specific parameters.
@@ -13,8 +16,8 @@
   *  Remove support from the legacy configuration sync protocol.  The only
      way now to do a configuration push or pull is to use the new protocol that
      was added in 2011.
-  *  Add the from= and to= query parameters to /fdiff in order to get
-     a diff of two files in the same check-in.
+  *  Add the from= and to= query parameters to [/help?cmd=/fdiff|/fdiff]
+     in order to get a diff of two files in the same check-in.
   *  Fix the "ssh://" protocol to prevent an attack whereby the attacker convinces
      a victim to run a "clone" with a dodgy URL and thereby gains access to their
      system.

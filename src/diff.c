@@ -2363,6 +2363,14 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 ** the date of the changes and the check-in hash (with a link to the
 ** check-in).  /blame and /praise also show the user who made the check-in.
 **
+** Reverse Annotations:  Normally, these web pages look at versions of
+** FILENAME moving backwards in time back toward the root check-in.  However,
+** However, if the origin= query parameter is used to specify some future
+** check-in (example: "origin=trunk") then these pages show changes moving
+** towards that alternative origin.  Hence, using "origin=trunk" on an
+** historical version of the file shows the first time each line in the
+** file was been changed in subsequent check-ins.
+**
 ** Query parameters:
 **
 **    checkin=ID          The check-in at which to start the annotation
@@ -2536,7 +2544,16 @@ void annotation_page(void){
 ** was last modified.  The version currently checked out is shown by default.
 ** Other versions may be specified using the -r option.  The "annotate" command
 ** shows line numbers and omits the username.  The "blame" and "praise" commands
-** show the user who made each check-in and omits the line numbers.
+** show the user who made each check-in.
+**
+** Reverse Annotations:  Normally, these commands look at versions of
+** FILENAME moving backwards in time back toward the root check-in, and
+** thus the output shows the most recent change to each line.  However,
+** if the -o|--origin option is used to specify some future check-in
+** (example: "-o trunk") then these commands show changes moving towards
+** that alternative origin.  Thus using "-o trunk" on an historical version
+** of the file shows the first time each line in the file was been changed
+** by subsequent check-ins.
 **
 ** Options:
 **   --filevers                  Show file version numbers rather than
@@ -2548,9 +2565,8 @@ void annotation_page(void){
 **                                 Xs     As much as possible in X seconds
 **                                 none   No limit
 **   -o|--origin VERSION         The origin check-in. By default this is the
-**                                 root of the repository which is normally
-**                                 what you want. Set to "trunk" or similar for
-**                                 a reverse annotation.
+**                                 root of the repository. Set to "trunk" or
+**                                 similar for a reverse annotation.
 **   -w|--ignore-all-space       Ignore white space when comparing lines
 **   -Z|--ignore-trailing-space  Ignore whitespace at line end
 **

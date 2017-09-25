@@ -1,5 +1,5 @@
-C Add\sthe\sorigin=\squery\sparameter\sto\s/annotate\sand\sthe\s--origin\soption\sto\sthe\nannotation\scommand,\sto\senable\sreverse\sannotations.
-D 2017-09-25T18:32:06.657
+C Update\sthe\schange\slog.\s\sImproved\sdocumentation\sof\sreverse\sannotations.
+D 2017-09-25T19:51:49.426
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -416,7 +416,7 @@ F src/db.c dbd9d70d689daeebd59d659b976a02a75a4a329cd07aeece939b806565bf830a
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
-F src/diff.c 305bbd6e95a600ab2f04e0def75838f8e5fdbc0aab4928b837843d2cb13ace0c
+F src/diff.c ffe3356aca125b5a7d9857c7c4c8f852b403cbdb11545626aeee776bcd2b4d49
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c ed717450412b9a8fa0ff0c9321e51a0c466cc8e03d5ac0f737609b6a533a820e
 F src/dispatch.c f5e5e57ec8ededa193a105efcccc2884f7be66e72e6c7e14d22eacb771d42960
@@ -700,7 +700,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 709d1d66e198e85f9faedd4d5261835fdb83c41cfeb20757f3ed7d72fa64ff6b
-F www/changes.wiki 4a7d7d5965f11084cd8054357e1307c35138b436895a17126027a7e7bb5037ee
+F www/changes.wiki 29895e85b5f74f40917090b4c48e8aed2b2679e70c1da0ce148383b1a761742e
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 517b9a5652649c95dbeae4c5f9f8621d6918d54c2f74c288c560ee8c3e38f86b
-R 54a265a1a84442ba966247d33f173fdc
+P c91b810620ad1a804a963ab4b2ba81348a609552f40445d9754f87669bce7c92
+R dce27373b9f60547838f36343c7231ff
 U drh
-Z 2f9848965f7b55b23974913f6f161ba0
+Z 0e064a36b37e362ce13ca12cc72e12e8
