@@ -2202,12 +2202,14 @@ static void annotate_file(
   const char *zFilename, /* The name of the file to be annotated */
   const char *zRevision, /* Use the version of the file in this check-in */
   const char *zLimit,    /* Limit the number of versions analyzed */
+  const char *zOrigin,   /* The origin check-in, or NULL for root-of-tree */
   u64 annFlags           /* Flags to alter the annotation */
 ){
   Blob toAnnotate;       /* Text of the final (mid) version of the file */
   Blob step;             /* Text of previous revision */
   Blob treename;         /* FILENAME translated to canonical form */
   int cid;               /* Selected check-in ID */
+  int origid = 0;        /* The origin ID or zero */
   int rid;               /* Artifact ID of the file being annotated */
   int fnid;              /* Filename ID */
   Stmt q;                /* Query returning all ancestor versions */
@@ -2241,10 +2243,35 @@ static void annotate_file(
     db_must_be_within_tree();
     cid = db_lget_int("checkout", 0);
   }
+  origid = zOrigin ? name_to_typed_rid(zOrigin, "ci") : 0;
 
   /* Compute all direct ancestors of the check-in being analyzed into
   ** the "ancestor" table. */
-  compute_direct_ancestors(cid);
+  if( origid ){
+    PathNode *p;
+    Blob sql;
+    int gen = 0;
+    char *zSep = "VALUES";
+    p = path_shortest(cid, origid, 1, 0);
+    db_multi_exec(
+      "CREATE TEMP TABLE IF NOT EXISTS ancestor("
+      "  rid INT UNIQUE,"
+      "  generation INTEGER PRIMARY KEY"
+      ");"
+      "DELETE FROM ancestor;"
+    );
+    blob_init(&sql, "INSERT INTO ancestor(rid, generation)", -1);
+    while( p ){
+      blob_append_sql(&sql, "%s(%d,%d)", zSep/*safe-for-%s*/, p->rid, ++gen);
+      zSep = ",";
+      p = p->u.pTo;
+    }
+    path_reset();
+    db_multi_exec("%s", blob_sql_text(&sql));
+    blob_reset(&sql);
+  }else{
+    compute_direct_ancestors(cid);
+  }
 
   /* Get filename ID */
   file_tree_name(zFilename, &treename, 0, 1);
@@ -2283,7 +2310,7 @@ static void annotate_file(
       }
       blob_to_utf8_no_bom(&toAnnotate, 0);
       annotation_start(p, &toAnnotate, annFlags);
-      p->bMoreToDo = 0;
+      p->bMoreToDo = origid!=0;
     }
     p->aVers = fossil_realloc(p->aVers, (p->nVers+1)*sizeof(p->aVers[0]));
     p->aVers[p->nVers].zFUuid = fossil_strdup(db_column_text(&q, 0));
@@ -2338,7 +2365,7 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 **
 ** Query parameters:
 **
-**    checkin=ID          The manifest ID at which to start the annotation
+**    checkin=ID          The check-in at which to start the annotation
 **    filename=FILENAME   The filename.
 **    filevers=BOOLEAN    Show file versions rather than check-in versions
 **    limit=LIMIT         Limit the amount of analysis:
@@ -2346,6 +2373,10 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 **                           "Xs"    As much as can be computed in X seconds
 **                           "N"     N versions
 **    log=BOOLEAN         Show a log of versions analyzed
+**    origin=ID           The origin checkin.  If unspecified, the root
+**                           check-in over the entire repository is used.
+**                           Specify "origin=trunk" or similar for a reverse
+**                           annotation
 **    w=BOOLEAN           Ignore whitespace
 **
 */
@@ -2359,6 +2390,7 @@ void annotation_page(void){
   const char *zFilename; /* Name of file to annotate */
   const char *zRevision; /* Name of check-in from which to start annotation */
   const char *zCI;       /* The check-in containing zFilename */
+  const char *zOrigin;   /* The origin of the analysis */
   int szHash;            /* Number of characters in %S display */
   char *zLink;
   Annotator ann;
@@ -2374,6 +2406,7 @@ void annotation_page(void){
   load_control();
   zFilename = P("filename");
   zRevision = PD("checkin",0);
+  zOrigin = P("origin");
   zLimit = P("limit");
   showLog = PB("log");
   fileVers = PB("filevers");
@@ -2381,7 +2414,7 @@ void annotation_page(void){
   if( ignoreWs ) annFlags |= DIFF_IGNORE_ALLWS;
 
   /* compute the annotation */
-  annotate_file(&ann, zFilename, zRevision, zLimit, annFlags);
+  annotate_file(&ann, zFilename, zRevision, zLimit, zOrigin, annFlags);
   zCI = ann.aVers[0].zMUuid;
 
   /* generate the web page */
@@ -2514,6 +2547,10 @@ void annotation_page(void){
 **                                 N      Up to N versions
 **                                 Xs     As much as possible in X seconds
 **                                 none   No limit
+**   -o|--origin VERSION         The origin check-in. By default this is the
+**                                 root of the repository which is normally
+**                                 what you want. Set to "trunk" or similar for
+**                                 a reverse annotation.
 **   -w|--ignore-all-space       Ignore white space when comparing lines
 **   -Z|--ignore-trailing-space  Ignore whitespace at line end
 **
@@ -2524,6 +2561,7 @@ void annotate_cmd(void){
   Annotator ann;         /* The annotation of the file */
   int i;                 /* Loop counter */
   const char *zLimit;    /* The value to the -n|--limit option */
+  const char *zOrig;     /* The value for -o|--origin */
   int showLog;           /* True to show the log */
   int fileVers;          /* Show file version instead of check-in versions */
   u64 annFlags = 0;      /* Flags to control annotation properties */
@@ -2533,6 +2571,7 @@ void annotate_cmd(void){
   bBlame = g.argv[1][0]!='a';
   zRevision = find_option("r","revision",1);
   zLimit = find_option("limit","n",1);
+  zOrig = find_option("origin","o",1);
   showLog = find_option("log","l",0)!=0;
   if( find_option("ignore-trailing-space","Z",0)!=0 ){
     annFlags = DIFF_IGNORE_EOLWS;
@@ -2551,7 +2590,7 @@ void annotate_cmd(void){
   }
 
   annFlags |= DIFF_STRIP_EOLCR;
-  annotate_file(&ann, g.argv[2], zRevision, zLimit, annFlags);
+  annotate_file(&ann, g.argv[2], zRevision, zLimit, zOrig, annFlags);
   if( showLog ){
     struct AnnVers *p;
     for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){

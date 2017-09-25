@@ -1,5 +1,5 @@
-C Improved\slimit\shandling\sfor\sannotation.\s\sThe\slimit\scan\snow\sbe\sexpressed\sin\ncompute-time\sseconds\srather\sthan\sversions\sanalyzed,\sand\sdefaults\sto\s"1.0s",\nwhich\sis\senough\sto\scompute\sa\scomplete\sannotation\son\smost\sreasonable\sfiles.
-D 2017-09-25T17:24:39.620
+C Add\sthe\sorigin=\squery\sparameter\sto\s/annotate\sand\sthe\s--origin\soption\sto\sthe\nannotation\scommand,\sto\senable\sreverse\sannotations.
+D 2017-09-25T18:32:06.657
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -416,7 +416,7 @@ F src/db.c dbd9d70d689daeebd59d659b976a02a75a4a329cd07aeece939b806565bf830a
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
-F src/diff.c 0b2ee8144205d539e0c96032fb0166330dfe712ef1d9b42ac9f8c851507ea7e5
+F src/diff.c 305bbd6e95a600ab2f04e0def75838f8e5fdbc0aab4928b837843d2cb13ace0c
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c ed717450412b9a8fa0ff0c9321e51a0c466cc8e03d5ac0f737609b6a533a820e
 F src/dispatch.c f5e5e57ec8ededa193a105efcccc2884f7be66e72e6c7e14d22eacb771d42960
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 037e06b37015873b0f45b08ebe2d8ddbfcfabd0f32002fff21a8c15498c85782
-R 1e3e7cd71ad973e3b07ad083086cffe4
+P 517b9a5652649c95dbeae4c5f9f8621d6918d54c2f74c288c560ee8c3e38f86b
+R 54a265a1a84442ba966247d33f173fdc
 U drh
-Z 4d2d2efe5fe3d7ee0e75f07f3a626d70
+Z 2f9848965f7b55b23974913f6f161ba0
