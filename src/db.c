@@ -2845,7 +2845,7 @@ struct Setting {
 */
 #endif
 /*
-** STTING: clean-glob       width=40 versionable block-text
+** SETTING: clean-glob      width=40 versionable block-text
 ** The VALUE of this setting is a comma or newline-separated list of GLOB
 ** patterns specifying files that the "clean" command will
 ** delete without prompting or allowing undo.
@@ -2959,7 +2959,7 @@ struct Setting {
 ** SETTING: ignore-glob      width=40 versionable block-text
 ** The value is a comma or newline-separated list of GLOB
 ** patterns specifying files that the "add", "addremove",
-** "clean", and "extra" commands will ignore.
+** "clean", and "extras" commands will ignore.
 **
 ** Example:  *.log customCode.c notes.txt
 */

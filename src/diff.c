@@ -45,9 +45,6 @@
 #define DIFF_STRIP_EOLCR  (((u64)0x10)<<32) /* Strip trailing CR */
 #define DIFF_SLOW_SBS     (((u64)0x20)<<32) /* Better, but slower side-by-side */
 
-/* Annotation flags (any DIFF flag can be used as Annotation flag as well) */
-#define ANN_FILE_VERS     (((u64)0x40)<<32) /* File vers not commit vers */
-
 /*
 ** These error messages are shared in multiple locations.  They are defined
 ** here for consistency.
@@ -2183,82 +2180,87 @@ static int annotation_step(
 
 
 /*
-** Compute a complete annotation on a file.  The file is identified
-** by its filename number (filename.fnid) and check-in (mlink.mid).
+** Compute a complete annotation on a file.  The file is identified by its
+** filename and check-in name (NULL for current check-in).
 */
 static void annotate_file(
   Annotator *p,        /* The annotator */
-  int fnid,            /* The name of the file to be annotated */
-  int mid,             /* Use the version of the file in this check-in */
+  const char *zFilename,/* The name of the file to be annotated */
+  const char *zRevision,/* Use the version of the file in this check-in */
   int iLimit,          /* Limit the number of levels if greater than zero */
   u64 annFlags         /* Flags to alter the annotation */
 ){
   Blob toAnnotate;     /* Text of the final (mid) version of the file */
   Blob step;           /* Text of previous revision */
+  Blob treename;       /* FILENAME translated to canonical form */
+  int cid;             /* Selected check-in ID */
   int rid;             /* Artifact ID of the file being annotated */
+  int fnid;            /* Filename ID */
   Stmt q;              /* Query returning all ancestor versions */
-  Stmt ins;            /* Inserts into the temporary VSEEN table */
-  int cnt = 0;         /* Number of versions examined */
+  int cnt = 0;         /* Number of versions analyzed */
 
-  /* Initialize the annotation */
-  rid = db_int(0, "SELECT fid FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid);
-  if( rid==0 ){
-    fossil_fatal("file #%d is unchanged in manifest #%d", fnid, mid);
-  }
-  if( !content_get(rid, &toAnnotate) ){
-    fossil_fatal("unable to retrieve content of artifact #%d", rid);
-  }
-  if( iLimit<=0 ) iLimit = 1000000000;
-  blob_to_utf8_no_bom(&toAnnotate, 0);
-  annotation_start(p, &toAnnotate, annFlags);
+  if( iLimit<=0 ) iLimit = 1000000000;  /* A negative limit means no limit */
   db_begin_transaction();
-  db_multi_exec(
-     "CREATE TEMP TABLE IF NOT EXISTS vseen(rid INTEGER PRIMARY KEY);"
-     "DELETE FROM vseen;"
-  );
 
-  db_prepare(&ins, "INSERT OR IGNORE INTO vseen(rid) VALUES(:rid)");
+  /* Get the artificate ID for the check-in begin analyzed */
+  if( zRevision ){
+    cid = name_to_typed_rid(zRevision, "ci");
+  }else{
+    db_must_be_within_tree();
+    cid = db_lget_int("checkout", 0);
+  }
+
+  /* Compute all direct ancestors of the check-in being analyzed into
+  ** the "ancestor" table. */
+  compute_direct_ancestors(cid);
+
+  /* Get filename ID */
+  file_tree_name(zFilename, &treename, 0, 1);
+  zFilename = blob_str(&treename);
+  fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
+
   db_prepare(&q,
-    "SELECT (SELECT uuid FROM blob WHERE rid=mlink.fid),"
-    "       (SELECT uuid FROM blob WHERE rid=mlink.mid),"
-    "       date(event.mtime),"
-    "       coalesce(event.euser,event.user),"
-    "       mlink.pid"
+    "SELECT"
+    "   (SELECT uuid FROM blob WHERE rid=mlink.fid),"
+    "   (SELECT uuid FROM blob WHERE rid=mlink.mid),"
+    "   date(event.mtime),"
+    "   coalesce(event.euser,event.user),"
+    "   mlink.fid"
     "  FROM mlink, event, ancestor"
-    " WHERE mlink.fid=:rid"
-    "   AND event.objid=mlink.mid"
-    "   AND mlink.pid NOT IN vseen"
+    " WHERE mlink.fnid=%d"
     "   AND ancestor.rid=mlink.mid"
-    " ORDER BY ancestor.generation;"
+    "   AND event.objid=mlink.mid"
+    "   AND mlink.mid!=mlink.pid"
+    " ORDER BY ancestor.generation;",
+    fnid
   );
 
-  db_bind_int(&q, ":rid", rid);
   if( iLimit==0 ) iLimit = 1000000000;
-  while( rid && iLimit>cnt && db_step(&q)==SQLITE_ROW ){
-    int prevId = db_column_int(&q, 4);
+  while( iLimit>cnt && db_step(&q)==SQLITE_ROW ){
+    rid = db_column_int(&q, 4);
+    if( cnt==0 ){
+      if( !content_get(rid, &toAnnotate) ){
+        fossil_fatal("unable to retrieve content of artifact #%d", rid);
+      }
+      blob_to_utf8_no_bom(&toAnnotate, 0);
+      annotation_start(p, &toAnnotate, annFlags);
+    }
     p->aVers = fossil_realloc(p->aVers, (p->nVers+1)*sizeof(p->aVers[0]));
     p->aVers[p->nVers].zFUuid = fossil_strdup(db_column_text(&q, 0));
     p->aVers[p->nVers].zMUuid = fossil_strdup(db_column_text(&q, 1));
     p->aVers[p->nVers].zDate = fossil_strdup(db_column_text(&q, 2));
     p->aVers[p->nVers].zUser = fossil_strdup(db_column_text(&q, 3));
-    if( p->nVers ){
+    p->nVers++;
+    if( cnt>0 ){
       content_get(rid, &step);
       blob_to_utf8_no_bom(&step, 0);
       annotation_step(p, &step, p->nVers-1, annFlags);
       blob_reset(&step);
     }
-    p->nVers++;
-    db_bind_int(&ins, ":rid", rid);
-    db_step(&ins);
-    db_reset(&ins);
-    db_reset(&q);
-    rid = prevId;
-    db_bind_int(&q, ":rid", prevId);
     cnt++;
   }
   p->bLimit = iLimit==cnt;
   db_finalize(&q);
-  db_finalize(&ins);
   db_end_transaction(0);
 }
 
@@ -2299,21 +2301,21 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 **
 **    checkin=ID          The manifest ID at which to start the annotation
 **    filename=FILENAME   The filename.
-**    filevers            Show file versions rather than check-in versions
+**    filevers=BOOLEAN    Show file versions rather than check-in versions
 **    limit=N             Limit the search depth to N ancestors
 **    log=BOOLEAN         Show a log of versions analyzed
-**    w                   Ignore whitespace
+**    w=BOOLEAN           Ignore whitespace
 **
 */
 void annotation_page(void){
-  int mid;
-  int fnid;
   int i;
   int iLimit;            /* Depth limit */
   u64 annFlags = DIFF_STRIP_EOLCR;
-  int showLog = 0;       /* True to display the log */
-  int ignoreWs = 0;      /* Ignore whitespace */
+  int showLog;           /* True to display the log */
+  int fileVers;          /* Show file version instead of check-in versions */
+  int ignoreWs;          /* Ignore whitespace */
   const char *zFilename; /* Name of file to annotate */
+  const char *zRevision; /* Name of check-in from which to start annotation */
   const char *zCI;       /* The check-in containing zFilename */
   Annotator ann;
   HQuery url;
@@ -2322,26 +2324,20 @@ void annotation_page(void){
   int bBlame = g.zPath[0]!='a';/* True for BLAME output.  False for ANNOTATE. */
 
   /* Gather query parameters */
-  showLog = atoi(PD("log","1"));
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( exclude_spiders() ) return;
   load_control();
-  mid = name_to_typed_rid(PD("checkin","0"),"ci");
   zFilename = P("filename");
-  fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
-  if( mid==0 || fnid==0 ){ fossil_redirect_home(); }
+  zRevision = PD("checkin",0);
   iLimit = atoi(PD("limit","20"));
-  if( P("filevers") ) annFlags |= ANN_FILE_VERS;
-  ignoreWs = P("w")!=0;
+  showLog = PB("log");
+  fileVers = PB("filevers");
+  ignoreWs = PB("w");
   if( ignoreWs ) annFlags |= DIFF_IGNORE_ALLWS;
-  if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid) ){
-    fossil_redirect_home();
-  }
 
   /* compute the annotation */
-  compute_direct_ancestors(mid);
-  annotate_file(&ann, fnid, mid, iLimit, annFlags);
+  annotate_file(&ann, zFilename, zRevision, iLimit, annFlags);
   zCI = ann.aVers[0].zMUuid;
 
   /* generate the web page */
@@ -2356,20 +2352,12 @@ void annotation_page(void){
   if( iLimit!=20 ){
     url_add_parameter(&url, "limit", sqlite3_mprintf("%d", iLimit));
   }
+  url_add_parameter(&url, "w", ignoreWs ? "1" : "0");
   url_add_parameter(&url, "log", showLog ? "1" : "0");
-  if( ignoreWs ){
-    url_add_parameter(&url, "w", "");
-    style_submenu_element("Show Whitespace Changes", "%s",
-        url_render(&url, "w", 0, 0, 0));
-  }else{
-    style_submenu_element("Ignore Whitespace", "%s",
-        url_render(&url, "w", "", 0, 0));
-  }
-  if( showLog ){
-    style_submenu_element("Hide Log", "%s", url_render(&url, "log", "0", 0, 0));
-  }else{
-    style_submenu_element("Show Log", "%s", url_render(&url, "log", "1", 0, 0));
-  }
+  url_add_parameter(&url, "filevers", fileVers ? "1" : "0");
+  style_submenu_checkbox("w", "Ignore Whitespace", 0);
+  style_submenu_checkbox("log", "Log", 0);
+  style_submenu_checkbox("filevers", "Link to Files", 0);
   if( ann.bLimit ){
     char *z1, *z2;
     style_submenu_element("All Ancestors", "%s",
@@ -2443,11 +2431,12 @@ void annotation_page(void){
     if( bBlame ){
       if( iVers>=0 ){
         struct AnnVers *p = ann.aVers+iVers;
-        char *zLink = xhref("target='infowindow'", "%R/info/%!S", p->zMUuid);
+        const char *zUuid = fileVers ? p->zFUuid : p->zMUuid;
+        char *zLink = xhref("target='infowindow'", "%R/info/%!S", zUuid);
         sqlite3_snprintf(sizeof(zPrefix), zPrefix,
              "<span style='background-color:%s'>"
              "%s%.10s</a> %s</span> %13.13s:",
-             p->zBgColor, zLink, p->zMUuid, p->zDate, p->zUser);
+             p->zBgColor, zLink, zUuid, p->zDate, p->zUser);
         fossil_free(zLink);
       }else{
         sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%36s", "");
@@ -2455,11 +2444,12 @@ void annotation_page(void){
     }else{
       if( iVers>=0 ){
         struct AnnVers *p = ann.aVers+iVers;
-        char *zLink = xhref("target='infowindow'", "%R/info/%!S", p->zMUuid);
+        const char *zUuid = fileVers ? p->zFUuid : p->zMUuid;
+        char *zLink = xhref("target='infowindow'", "%R/info/%!S", zUuid);
         sqlite3_snprintf(sizeof(zPrefix), zPrefix,
              "<span style='background-color:%s'>"
              "%s%.10s</a> %s</span> %4d:",
-             p->zBgColor, zLink, p->zMUuid, p->zDate, i+1);
+             p->zBgColor, zLink, zUuid, p->zDate, i+1);
         fossil_free(zLink);
       }else{
         sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%22s%4d:", "", i+1);
@@ -2497,13 +2487,7 @@ void annotation_page(void){
 ** See also: info, finfo, timeline
 */
 void annotate_cmd(void){
-  int fnid;         /* Filename ID */
-  int fid;          /* File instance ID */
-  int mid;          /* Manifest where file was checked in */
-  int cid;          /* Checkout or selected check-in ID */
-  Blob treename;    /* FILENAME translated to canonical form */
-  const char *zRev; /* Revision name, or NULL for current check-in */
-  char *zFilename;  /* Canonical filename */
+  const char *zRevision; /* Revision name, or NULL for current check-in */
   Annotator ann;    /* The annotation of the file */
   int i;            /* Loop counter */
   const char *zLimit; /* The value to the -n|--limit option */
@@ -2512,14 +2496,13 @@ void annotate_cmd(void){
   int fileVers;     /* Show file version instead of check-in versions */
   u64 annFlags = 0; /* Flags to control annotation properties */
   int bBlame = 0;   /* True for BLAME output.  False for ANNOTATE. */
-  Manifest *pManifest; /* Manifest structure */
-  ManifestFile *pFile; /* Manifest file pointer */
 
   bBlame = g.argv[1][0]!='a';
-  zRev = find_option("r","revision",1);
+  zRevision = find_option("r","revision",1);
   zLimit = find_option("limit","n",1);
   if( zLimit==0 || zLimit[0]==0 ) zLimit = "-1";
   iLimit = atoi(zLimit);
+  if( iLimit<=0 ) iLimit = 1000000000;
   showLog = find_option("log","l",0)!=0;
   if( find_option("ignore-trailing-space","Z",0)!=0 ){
     annFlags = DIFF_IGNORE_EOLWS;
@@ -2537,61 +2520,8 @@ void annotate_cmd(void){
     usage("FILENAME");
   }
 
-  /* Get filename ID */
-  file_tree_name(g.argv[2], &treename, 0, 1);
-  zFilename = blob_str(&treename);
-  fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
-  if( fnid==0 ){
-    fossil_fatal("no such file: %s", zFilename);
-  }
-
-  /* Get artifact IDs of selected check-in and file */
-  if( zRev ){
-    /* Get artifact ID of selected check-in manifest */
-    cid = name_to_typed_rid(zRev, "ci");
-
-    /* Get manifest structure for selected check-in */
-    pManifest = manifest_get(cid, CFTYPE_MANIFEST, 0);
-    if( !pManifest ){
-      fossil_fatal("could not parse manifest for check-in: %s", zRev);
-    }
-    
-    /* Get selected file in manifest */
-    pFile = manifest_file_find(pManifest, zFilename);
-    if( !pFile ){
-      fossil_fatal("file %s does not exist in check-in %s", zFilename, zRev);
-    }
-    manifest_destroy(pManifest);
-
-    /* Get file instance ID from manifest file record */
-    fid = fast_uuid_to_rid(pFile->zUuid);
-  }else{
-    /* Get artifact ID of current checkout manifest */
-    cid = db_lget_int("checkout", 0);
-    if( cid == 0 ){
-      fossil_fatal("not in a checkout");
-    }
-
-    /* Get file instance ID from current checkout file table */
-    fid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%Q", zFilename);
-    if( fid==0 ){
-      fossil_fatal("not part of current checkout: %s", zFilename);
-    }
-  }
-
-  /* Get ID of most recent manifest containing a change to the selected file */
-  compute_direct_ancestors(cid);
-  mid = db_int(0, "SELECT mlink.mid FROM mlink, ancestor "
-          " WHERE mlink.fid=%d AND mlink.fnid=%d AND mlink.mid=ancestor.rid"
-          " ORDER BY ancestor.generation ASC LIMIT 1",
-          fid, fnid);
-  if( mid==0 ){
-    fossil_fatal("unable to find manifest");
-  }
-
-  if( iLimit<=0 ) iLimit = 1000000000;
   annFlags |= DIFF_STRIP_EOLCR;
-  annotate_file(&ann, fnid, mid, iLimit, annFlags);
+  annotate_file(&ann, g.argv[2], zRevision, iLimit, annFlags);
   if( showLog ){
     struct AnnVers *p;
     for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){

@@ -1,5 +1,5 @@
-C Fix\sthe\svalue\sof\sthe\sANN_FILE_VERS\sflag\sso\sthat\sit\sno\slonger\soverlaps\swith\nDIFF_SLOW_SBS.\s\sOmit\sthe\sANN_FILE_ANCEST\sflag\swhich\swas\salways\strue.\s\sUpdate\nthe\sannotator\sso\sthat\sit\sfollows\scheck-ins\sin\sgeneration\sorder\saccording\sto\nthe\sancestor\stable.
-D 2017-09-23T19:10:16.528
+C Merge\smiscellaneous\schanges\sthat\shave\saccumulated\son\sthe\s\nannotation-enhancements\sbranch.\s\sSee\sa\slog\sof\sthe\swhole\sbranch\sfor\sdetails.
+D 2017-09-25T15:18:16.098
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -412,11 +412,11 @@ F src/content.c db74a6118fb9cfb07b9b7fbb35e4085550769a5281dddfea00e908b1dad4a427
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c fb76456b8311e79e0a215baa155df53e3c328175f5029c3775931635e4d59cb5
+F src/db.c dbd9d70d689daeebd59d659b976a02a75a4a329cd07aeece939b806565bf830a
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
-F src/diff.c 2bc1234c4fdc86b0c684c5885bde067c549b9fa5b8314376c9d1a9f1d0a682b1
+F src/diff.c a1c92888587f1d2ef5420cd839d8a559c3e82bc3f23671c1cd5a5539c42cf64f
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c ed717450412b9a8fa0ff0c9321e51a0c466cc8e03d5ac0f737609b6a533a820e
 F src/dispatch.c f5e5e57ec8ededa193a105efcccc2884f7be66e72e6c7e14d22eacb771d42960
@@ -438,7 +438,7 @@ F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d98
 F src/http_transport.c 43bf993a931c1a6cafb051566e06c841173ec350dedc0cb6887e112bc05a147c
 F src/import.c e48f2f2e0095795aeabe7220514c8694393693b853150c47f6d6792921def3f1
-F src/info.c 89f2328293341dcc052b4663d9913e436bdb7342fceac03a016f6c41da254b65
+F src/info.c 889f8d415d6d8e311f43d3752cac34b5e04d40d35f2e7f247a7d519edafe4d49
 F src/json.c d60c46e8598420ce1a247faef05c7e7a310a82a5851e8a0e637e22422ed18d97
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c b6105183492ee774cdc685bfd80eb511fb1c5c37faf88198d7e4e58c41dfc68b
@@ -752,7 +752,7 @@ F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh db68e2cae431b9e9f5dd672e2f56e2bde5a57d2a
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
-F www/globs.md 912865720067b8491d0f7a8bba6970509a9b9d34101963938eae429a6a0ea1b6
+F www/globs.md 023c06fa69c833dfab2128d07070e9d58e34da5f0c6a58d7e55e0de12e1a6fdf
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hashpolicy.wiki 901e234166e31d8cb6634577b3fe266f41453ca1
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
@@ -791,7 +791,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b83ea94eb24ab110846ebc5850fff8dd7bb437565167902caa309aa55e5059b4
-R 65102699558291b7c97d2e896797ae7f
+P d9ef474a1a319217f2251784a71a543d3cd29913f8b32fd05fe13efbf4984adb d2b1565b7c112b827e49eeb9f863dc5e7d2b9f01c39c9590fcc8a5d1218d5380
+R 6ad9c131d9d9b9152ae978e158da4c1c
+T +closed d2b1565b7c112b827e49eeb9f863dc5e7d2b9f01c39c9590fcc8a5d1218d5380
 U drh
-Z ae413c7ba12921a25ec3e046717a29f1
+Z 0e0e5607d5a14b2c51545aaa213babed
