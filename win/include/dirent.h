@@ -1,6 +1,6 @@
 /*
  * Dirent interface for Microsoft Visual Studio
- * Version 1.23
+ * Version 1.23.1
  *
  * Copyright (C) 2006-2012 Toni Ronkko
  * This file is part of dirent.  Dirent may be freely distributed
@@ -914,7 +914,7 @@ scandir(
                 p = realloc (files, sizeof (void*) * num_entries);
                 if (p != NULL) {
                     /* Got the memory */
-                    files = p;
+                    files = (dirent**) p;
                     allocated = num_entries;
                 } else {
                     /* Out of memory */
@@ -965,7 +965,7 @@ scandir(
                      * End of directory stream reached => sort entries and
                      * exit.
                      */
-                    qsort (files, size, sizeof (void*), (void*) compare);
+                    qsort (files, size, sizeof (void*), compare);
                     break;
 
                 }
