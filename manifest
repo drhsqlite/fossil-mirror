@@ -1,5 +1,5 @@
-C Update\sdirent\sto\sVersion\s1.23.1
-D 2017-09-26T14:47:20.113
+C The\srevision\snumbers\sin\sthe\sannotate\soutput\swere\soff\sby\sone\scheck-in.\s\sThis\nchanges\sshould\sfix\sthe\sproblem.
+D 2017-09-26T20:41:54.301
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -416,7 +416,7 @@ F src/db.c 616c0dacc2268452b05044dbd4da3c66ea460e3842ba0466126cbb5421637bef
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
-F src/diff.c ae3138d361f086d1e6113d5ddc988801868479c80b090d20048ad350c7bb0691
+F src/diff.c bb8c116b1aa12f4a9252cfac503c199915d3e44b5ed7dcbf68a1d05485e78b37
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c ed717450412b9a8fa0ff0c9321e51a0c466cc8e03d5ac0f737609b6a533a820e
 F src/dispatch.c acd835be552e15f9dfc41759ffe3c90038a677c33e19cfbcef147430cb79bfcc
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ce1bc4fb09fbeed6476632d4ce36b735cce2a0b415478da3bc3f9fac4573f0b7
-R c86c7c804c89571f83238fb5e2c95ced
-U jan.nijtmans
-Z cc41ddb40ee17a9369259ff1819d0137
+P 398a90c006ed251ffb3c58464803a17c071a439a8f9e98879a11c73b8425aca9
+R a722a9abcbd66cb0cfe9b22e11f64f5a
+U drh
+Z 08933939ab2c1960cd65c1bd58fc9f43

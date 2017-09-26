@@ -2321,13 +2321,13 @@ static void annotate_file(
     p->aVers[p->nVers].zMUuid = fossil_strdup(db_column_text(&q, 1));
     p->aVers[p->nVers].zDate = fossil_strdup(db_column_text(&q, 2));
     p->aVers[p->nVers].zUser = fossil_strdup(db_column_text(&q, 3));
-    p->nVers++;
     if( cnt>0 ){
       content_get(rid, &step);
       blob_to_utf8_no_bom(&step, 0);
       annotation_step(p, &step, p->nVers-1, annFlags);
       blob_reset(&step);
     }
+    p->nVers++;
     cnt++;
   }
   db_finalize(&q);
