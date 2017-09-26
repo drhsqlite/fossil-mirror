@@ -1563,8 +1563,34 @@ void diff_page(void){
     v1 = artifact_from_ci_and_filename(0, "from");
     v2 = artifact_from_ci_and_filename(0, "to");
   }else{
+    Stmt q;
     v1 = name_to_rid_www("v1");
     v2 = name_to_rid_www("v2");
+
+    /* If the two file versions being compared both have the same
+    ** filename, then offer an "Annotate" link that constructs an
+    ** annotation between those version. */
+    db_prepare(&q,
+      "SELECT (SELECT substr(uuid,1,20) FROM blob WHERE rid=a.mid),"
+      "       (SELECT substr(uuid,1,20) FROM blob WHERE rid=b.mid),"
+      "       (SELECT name FROM filename WHERE filename.fnid=a.fnid)"
+      "  FROM mlink a, mlink b"
+      " WHERE a.fid=%d"
+      "   AND b.fid=%d"
+      "   AND a.fnid=b.fnid"
+      "   AND a.fid!=a.pid"
+      "   AND b.fid!=b.pid",
+      v1, v2
+    );
+    if( db_step(&q)==SQLITE_ROW ){
+      const char *zOrig = db_column_text(&q, 0);
+      const char *zCkin = db_column_text(&q, 1);
+      const char *zFN = db_column_text(&q, 2);
+      style_submenu_element("Annotate",
+        "%R/annotate?origin=%s&checkin=%s&filename=%T",
+        zOrig, zCkin, zFN);
+    }
+    db_finalize(&q);
   }
   if( v1==0 || v2==0 ) fossil_redirect_home();
   zRe = P("regex");

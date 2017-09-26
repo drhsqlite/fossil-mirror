@@ -2086,6 +2086,8 @@ struct Annotator {
   int nOrig;        /* Number of elements in aOrig[] */
   int nVers;        /* Number of versions analyzed */
   int bMoreToDo;    /* True if the limit was reached */
+  int origId;       /* RID for the zOrigin version */
+  int showId;       /* RID for the version being analyzed */
   struct AnnVers {
     const char *zFUuid;   /* File being analyzed */
     const char *zMUuid;   /* Check-in containing the file */
@@ -2248,11 +2250,11 @@ static void annotate_file(
   /* Compute all direct ancestors of the check-in being analyzed into
   ** the "ancestor" table. */
   if( origid ){
-    PathNode *p;
+    PathNode *pPath;
     Blob sql;
     int gen = 0;
     char *zSep = "VALUES";
-    p = path_shortest(cid, origid, 1, 0);
+    pPath = path_shortest(cid, origid, 1, 0);
     db_multi_exec(
       "CREATE TEMP TABLE IF NOT EXISTS ancestor("
       "  rid INT UNIQUE,"
@@ -2261,10 +2263,10 @@ static void annotate_file(
       "DELETE FROM ancestor;"
     );
     blob_init(&sql, "INSERT INTO ancestor(rid, generation)", -1);
-    while( p ){
-      blob_append_sql(&sql, "%s(%d,%d)", zSep/*safe-for-%s*/, p->rid, ++gen);
+    while( pPath ){
+      blob_append_sql(&sql, "%s(%d,%d)", zSep/*safe-for-%s*/, pPath->rid,++gen);
       zSep = ",";
-      p = p->u.pTo;
+      pPath = pPath->u.pTo;
     }
     path_reset();
     db_multi_exec("%s", blob_sql_text(&sql));
@@ -2311,6 +2313,8 @@ static void annotate_file(
       blob_to_utf8_no_bom(&toAnnotate, 0);
       annotation_start(p, &toAnnotate, annFlags);
       p->bMoreToDo = origid!=0;
+      p->origId = origid;
+      p->showId = cid;
     }
     p->aVers = fossil_realloc(p->aVers, (p->nVers+1)*sizeof(p->aVers[0]));
     p->aVers[p->nVers].zFUuid = fossil_strdup(db_column_text(&q, 0));
@@ -2481,9 +2485,16 @@ void annotation_page(void){
   @ </script>
 
   if( !ann.bMoreToDo ){
+    assert( ann.origId==0 );  /* bMoreToDo always set for a point-to-point */
     @ <h2>Origin for each line in
     @ %z(href("%R/finfo?name=%h&ci=%!S", zFilename, zCI))%h(zFilename)</a>
     @ from check-in %z(href("%R/info/%!S",zCI))%S(zCI)</a>:</h2>
+  }else if( ann.origId>0 ){
+    @ <h2>Lines of
+    @ %z(href("%R/finfo?name=%h&ci=%!S", zFilename, zCI))%h(zFilename)</a>
+    @ from check-in %z(href("%R/info/%!S",zCI))%S(zCI)</a>
+    @ that are changed by the sequence of edits moving toward
+    @ check-in %z(href("%R/info/%!S",zOrigin))%S(zOrigin)</a>:</h2>
   }else{
     @ <h2>Lines added by the %d(ann.nVers) most recent ancestors of
     @ %z(href("%R/finfo?name=%h&ci=%!S", zFilename, zCI))%h(zFilename)</a>
