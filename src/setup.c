@@ -1410,7 +1410,7 @@ void setup_login_group(void){
     @ <input type="submit" value="Leave Login Group" name="leave">
     @ </form></p>
     @ <br />For best results, use the same number of <a href="setup_access#ipt">
-    @ IP octets</a> in the login cookie across all repositories in the 
+    @ IP octets</a> in the login cookie across all repositories in the
     @ same Login Group.
     @ <hr /><h2>Implementation Details</h2>
     @ <p>The following are fields from the CONFIG table related to login-groups,

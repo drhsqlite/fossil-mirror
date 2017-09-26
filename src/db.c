@@ -2765,7 +2765,7 @@ struct Setting {
 
 /*
 ** SETTING: access-log      boolean default=off
-** 
+**
 ** When the access-log setting is enabled, all login attempts (successful
 ** and unsuccessful) on the web interface are recorded in the "access" table
 ** of the repository.
@@ -2936,7 +2936,7 @@ struct Setting {
 ** SETTING: gmerge-command   width=40
 ** The value is a graphical merge conflict resolver command operating
 ** on four files.  Examples:
-** 
+**
 **     kdiff3 "%baseline" "%original" "%merge" -o "%output"
 **     xxdiff "%original" "%baseline" "%merge" -M "%output"
 **     meld "%baseline" "%original" "%merge" "%output"
@@ -3022,7 +3022,7 @@ struct Setting {
 ** DEFAULT: gpg --clearsign -o
 **
 ** Command used to clear-sign manifests at check-in.
-*/ 
+*/
 /*
 ** SETTING: proxy            width=32 default=off
 ** URL of the HTTP proxy.  If undefined or "off" then

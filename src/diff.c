@@ -2369,11 +2369,11 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 **
 ** Reverse Annotations:  Normally, these web pages look at versions of
 ** FILENAME moving backwards in time back toward the root check-in.  However,
-** However, if the origin= query parameter is used to specify some future
-** check-in (example: "origin=trunk") then these pages show changes moving
-** towards that alternative origin.  Hence, using "origin=trunk" on an
-** historical version of the file shows the first time each line in the
-** file was been changed in subsequent check-ins.
+** if the origin= query parameter is used to specify some future check-in
+** (example: "origin=trunk") then these pages show changes moving towards
+** that alternative origin.  Thus using "origin=trunk" on an historical
+** version of the file shows the first time each line in the file was been
+** changed in subsequent check-ins.
 **
 ** Query parameters:
 **

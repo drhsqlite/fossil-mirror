@@ -134,7 +134,7 @@ int dispatch_name_search(
 ** aliased command.
 **
 ** Return 0 if the command is successfully aliased.  Return 1 if there
-** is not alias for zName.  Any kind of error in the alias value causes a 
+** is not alias for zName.  Any kind of error in the alias value causes a
 ** error to be thrown.
 **
 ** Alias entries in the CONFIG table have a "name" value of "walias:NAME"
