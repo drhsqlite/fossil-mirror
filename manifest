@@ -1,5 +1,5 @@
-C Take\sthe\s"Built-in\sDocuments"\ssection\sback\sout,\sas\sall\sof\sreferenced\sdocuments\nare\salready\savailable\sin\sother\sparts\sof\sthe\ssame\spage.
-D 2017-09-27T02:33:39.543
+C Assorted\scleanups\sassociated\swith\s[f74f7014],\smost\snotably\smaking\s"fossil\sdif"\swork\sagain\sdespite\sthe\sambiguity\swith\ssetting\s"diff-command"
+D 2017-09-27T03:23:37.556
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -419,7 +419,7 @@ F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
 F src/diff.c 3a7cab01a21fa94e77fa1924bae75a46d7fb382428eaff8a401b2bdfa367a8dc
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c ed717450412b9a8fa0ff0c9321e51a0c466cc8e03d5ac0f737609b6a533a820e
-F src/dispatch.c acd835be552e15f9dfc41759ffe3c90038a677c33e19cfbcef147430cb79bfcc
+F src/dispatch.c 6f049ae1b55da6f30d3e32fddde325b29969f49f20f412d8c57cb27c89f36bac
 F src/doc.c b1ca58f64f6109a9b01e6483885d54ac7e789c6d4ea5bd8d5e7871e66b2efac7
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c e0412afa4ac1895b73d1f49e5756be51aebfdf4f46379f7746b150ab084738e0
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3dc6d7360237d4e71fb49ea1c1743c7f529a5d1d517d46fa514dfef1c6217675
-R 432fd765e769e3f75cce55e186b54fcf
-U drh
-Z c354560c0ffc9de33126ebfc61107a7b
+P fd9fd4c9e683a9d50fec55f9e48c5306ba51236040e7034c9ed96d23f66cd406
+R 9d6ec3d92ae477edd775938ca0d89f61
+U andygoth
+Z 17b4084253420526c15c766fb8713a21

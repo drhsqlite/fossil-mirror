@@ -27,11 +27,11 @@
 #if INTERFACE
 /*
 ** An instance of this object defines everything we need to know about an
-** individual command or webpage.
+** individual command, webpage, or setting.
 */
 struct CmdOrPage {
   const char *zName;       /* Name.  Webpages start with "/". Commands do not */
-  void (*xFunc)(void);     /* Function that implements the command or webpage */
+  void (*xFunc)(void);     /* Implementation function, or NULL for settings */
   const char *zHelp;       /* Raw help text */
   unsigned int eCmdFlags;  /* Flags */
 };
@@ -77,12 +77,12 @@ struct CmdOrPage {
 #define MX_COMMAND count(aCommand)
 
 /*
-** Given a command or webpage name in zName, find the corresponding CmdOrPage
-** object and return a pointer to that object in *ppCmd.
+** Given a command, webpage, or setting name in zName, find the corresponding
+** CmdOrPage object and return a pointer to that object in *ppCmd.
 **
-** The eType field is CMDFLAG_COMMAND to lookup commands or CMDFLAG_WEBPAGE
-** to look up webpages or CMDFLAG_ANY to look for either.  If the CMDFLAG_PREFIX
-** flag is set, then a prefix match is allowed.
+** The eType field is CMDFLAG_COMMAND to look up commands, CMDFLAG_WEBPAGE to
+** look up webpages, CMDFLAG_SETTING to look up settings, or CMDFLAG_ANY to look
+** for any.  If the CMDFLAG_PREFIX bit is set, then a prefix match is allowed.
 **
 ** Return values:
 **    0:     Success.  *ppCmd is set to the appropriate CmdOrPage
@@ -116,10 +116,20 @@ int dispatch_name_search(
    && lwr<MX_COMMAND
    && strncmp(zName, aCommand[lwr].zName, nName)==0
   ){
-    if( lwr<MX_COMMAND-1 && strncmp(zName, aCommand[lwr+1].zName, nName)==0 ){
-      return 2;  /* Ambiguous prefix */
-    }else{
-      *ppCmd = &aCommand[lwr];
+    /* An inexact prefix match was found.  Scan the name table to try to find
+     * exactly one entry with this prefix and the requested type. */
+    for( mid=-1; lwr<MX_COMMAND
+              && strncmp(zName, aCommand[lwr].zName, nName)==0; ++lwr ){
+      if( aCommand[lwr].eCmdFlags & eType ){
+        if( mid<0 ){
+          mid = lwr;  /* Potential ambiguous prefix */
+        }else{
+          return 2;  /* Confirmed ambiguous prefix */
+        }
+      }
+    }
+    if( mid>=0 ){
+      *ppCmd = &aCommand[mid];
       return 0;  /* Prefix match */
     }
   }
@@ -543,18 +553,19 @@ static void command_list(const char *zPrefix, int cmdMask){
 /*
 ** COMMAND: help
 **
-** Usage: %fossil help COMMAND
-**    or: %fossil COMMAND --help
+** Usage: %fossil help TOPIC
+**    or: %fossil TOPIC --help
 **
-** Display information on how to use COMMAND.  To display a list of
-** available commands use one of:
+** Display information on how to use TOPIC, which may be a command, webpage, or
+** setting.  Webpage names begin with "/".  To display a list of available
+** topics, use one of:
 **
 **    %fossil help                Show common commands
 **    %fossil help -a|--all       Show both common and auxiliary commands
 **    %fossil help -s|--settings  Show setting names
 **    %fossil help -t|--test      Show test commands only
 **    %fossil help -x|--aux       Show auxiliary commands only
-**    %fossil help -w|--www       Show list of WWW pages
+**    %fossil help -w|--www       Show list of webpages
 */
 void help_cmd(void){
   int rc;
@@ -566,8 +577,8 @@ void help_cmd(void){
   if( g.argc<3 ){
     z = g.argv[0];
     fossil_print(
-      "Usage: %s help COMMAND\n"
-      "Common COMMANDs:  (use \"%s help -a|--all\" for a complete list)\n",
+      "Usage: %s help TOPIC\n"
+      "Common commands:  (use \"%s help -a|--all\" for a complete list)\n",
       z, z);
     command_list(0, CMDFLAG_1ST_TIER);
     version_cmd();
@@ -598,8 +609,8 @@ void help_cmd(void){
     zCmdOrPage = "page";
     zCmdOrPagePlural = "pages";
   }else{
-    zCmdOrPage = "command";
-    zCmdOrPagePlural = "commands";
+    zCmdOrPage = "command or setting";
+    zCmdOrPagePlural = "commands and settings";
   }
   rc = dispatch_name_search(g.argv[2], CMDFLAG_ANY|CMDFLAG_PREFIX, &pCmd);
   if( rc==1 ){
