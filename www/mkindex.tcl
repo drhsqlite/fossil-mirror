@@ -127,6 +127,7 @@ book</a>
 <li> <a href='$ROOT/help'>List of commands, web pages, and settings</a>
 <li> <a href='$ROOT/md_rules'>Markdown formatting rules</a>
 <li> <a href='$ROOT/wiki_rules'>Wiki formatting rules</a>
+<li> <a href='$ROOT/sitemap'>Site Map</a>
 </ul>
 <a name="pindex"></a>
 <h2>Permuted Index:</h2>
