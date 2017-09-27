@@ -1,5 +1,5 @@
-C Add\sthe\s/sitemap\spage\sto\sthe\slist\sof\sbuilt-in\sdocuments.
-D 2017-09-27T02:28:26.432
+C Take\sthe\s"Built-in\sDocuments"\ssection\sback\sout,\sas\sall\sof\sreferenced\sdocuments\nare\salready\savailable\sin\sother\sparts\sof\sthe\ssame\spage.
+D 2017-09-27T02:33:39.543
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -760,10 +760,10 @@ F www/index.wiki 93f443d39d68c8f8608b3bd99b0a5bf296e9518997ed7b735a5c92f5a718312
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki 7805bf0a04dc009df152d683771f8e3f74b194a4
 F www/mkdownload.tcl 86e774d93eb5c92cac5e7328920987feedf9356d
-F www/mkindex.tcl 39c403f038da54aecb22d7e64311f9f18d5dd0a76eec58c8d98a3c1dcf9bf6e0 x
+F www/mkindex.tcl 675d640d6256ade2b008e1ce8cc146b7ba68d05823b271b2632397a015e37d4d x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
-F www/permutedindex.html 9fed9d84fca12065b2444e5e35d22614239efac41a8b615cb7960a5b5fdec506
+F www/permutedindex.html 8fa0b5807aee65975705f6cbd6722e148c10fdc0b8f223f32c18b71b1249fce6
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki ae461ced26cc6d70cbb84506465cba1754d960f7df72dcf65c446414610e1b71
 F www/qandc.wiki b8b6f9668796bde63440e64dfd40a176766dd78e
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2bacd55938e03175182852a6f9b5d065a1cde08e8146c825e7d1f8d6a6ec2465
-R b5cf5c1ecc7dc224188221394b42c9f1
+P 3dc6d7360237d4e71fb49ea1c1743c7f529a5d1d517d46fa514dfef1c6217675
+R 432fd765e769e3f75cce55e186b54fcf
 U drh
-Z 2ca183be5397b65f241c3d563291d7ba
+Z c354560c0ffc9de33126ebfc61107a7b
