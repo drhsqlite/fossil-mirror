@@ -286,6 +286,8 @@ void cat_cmd(void){
 **    brbg       Background color by branch name
 **    ubg        Background color by user name
 **    ci=UUID    Ancestors of a particular check-in
+**    orig=UUID  If both ci and orig are supplied, only show those
+**                 changes on a direct path from orig to ci.
 **    showid     Show RID values for debugging
 **
 ** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
@@ -301,6 +303,7 @@ void finfo_page(void){
   const char *zB;
   int n;
   int baseCheckin;
+  int origCheckin = 0;
   int fnid;
   Blob title;
   Blob sql;
@@ -333,7 +336,12 @@ void finfo_page(void){
     style_submenu_element("MLink Table", "%R/mlink?name=%t", zFilename);
   }
   if( baseCheckin ){
-    compute_direct_ancestors(baseCheckin);
+    if( P("orig")!=0 ){
+      origCheckin = name_to_typed_rid(P("orig"),"ci");
+      path_shortest_stored_in_ancestor_table(origCheckin, baseCheckin);
+    }else{
+      compute_direct_ancestors(baseCheckin);
+    }
   }
   url_add_parameter(&url, "name", zFilename);
   blob_zero(&sql);
@@ -400,7 +408,9 @@ void finfo_page(void){
   if( baseCheckin ){
     char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", baseCheckin);
     char *zLink = href("%R/info/%!S", zUuid);
-    if( n>0 ){
+    if( origCheckin ){
+      blob_appendf(&title, "Changes to file ");
+    }else if( n>0 ){
       blob_appendf(&title, "First %d ancestors of file ", n);
     }else{
       blob_appendf(&title, "Ancestors of file ");
@@ -408,9 +418,16 @@ void finfo_page(void){
     blob_appendf(&title,"<a href='%R/finfo?name=%T'>%h</a>",
                  zFilename, zFilename);
     if( fShowId ) blob_appendf(&title, " (%d)", fnid);
-    blob_appendf(&title, " from check-in %z%S</a>", zLink, zUuid);
+    blob_append(&title, origCheckin ? " between " : " from ", -1);
+    blob_appendf(&title, "check-in %z%S</a>", zLink, zUuid);
     if( fShowId ) blob_appendf(&title, " (%d)", baseCheckin);
     fossil_free(zUuid);
+    if( origCheckin ){
+      zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", origCheckin);
+      zLink = href("%R/info/%!S", zUuid);
+      blob_appendf(&title, " and check-in %z%S</a>", zLink, zUuid);
+      fossil_free(zUuid);
+    }
   }else{
     blob_appendf(&title, "History of ");
     hyperlinked_path(zFilename, &title, 0, "tree", "");
@@ -488,13 +505,15 @@ void finfo_page(void){
       @ <td class="timelineTableCell">
     }
     if( zUuid ){
-      if( nParent==0 ){
-        @ <b>Added</b>
-      }else if( pfnid ){
-        char *zPrevName = db_text(0, "SELECT name FROM filename WHERE fnid=%d",
-                                  pfnid);
-        @ <b>Renamed</b> from
-        @ %z(href("%R/finfo?name=%t", zPrevName))%h(zPrevName)</a>
+      if( origCheckin==0 ){
+        if( nParent==0 ){
+          @ <b>Added</b>
+        }else if( pfnid ){
+          char *zPrevName = db_text(0,"SELECT name FROM filename WHERE fnid=%d",
+                                    pfnid);
+          @ <b>Renamed</b> from
+          @ %z(href("%R/finfo?name=%t", zPrevName))%h(zPrevName)</a>
+        }
       }
       @ %z(href("%R/artifact/%!S",zUuid))[%S(zUuid)]</a>
       if( fShowId ){

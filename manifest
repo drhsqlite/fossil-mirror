@@ -1,5 +1,5 @@
-C The\srevision\snumbers\sin\sthe\sannotate\soutput\swere\soff\sby\sone\scheck-in.\s\sThis\nchanges\sshould\sfix\sthe\sproblem.
-D 2017-09-26T20:41:54.301
+C Add\sthe\sorig=\squery\sparameter\sto\sthe\s/finfo\swebpage.\s\sUse\sthis\sin\sthe\nhyperlink\sfrom\sthe\sanalysis\slog\sof\sthe\s/annotate\spage.
+D 2017-09-27T02:10:11.723
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -416,7 +416,7 @@ F src/db.c 616c0dacc2268452b05044dbd4da3c66ea460e3842ba0466126cbb5421637bef
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
-F src/diff.c bb8c116b1aa12f4a9252cfac503c199915d3e44b5ed7dcbf68a1d05485e78b37
+F src/diff.c 3a7cab01a21fa94e77fa1924bae75a46d7fb382428eaff8a401b2bdfa367a8dc
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c ed717450412b9a8fa0ff0c9321e51a0c466cc8e03d5ac0f737609b6a533a820e
 F src/dispatch.c acd835be552e15f9dfc41759ffe3c90038a677c33e19cfbcef147430cb79bfcc
@@ -425,7 +425,7 @@ F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c e0412afa4ac1895b73d1f49e5756be51aebfdf4f46379f7746b150ab084738e0
 F src/export.c 3e09dfda9d07b44c463d656dbc09f6adfe686d6d80ad55282a1f06b9216934f2
 F src/file.c 8e7a44e448f3530175863689aa354c1b77d7d0ff08006e610d571518c0a47b18
-F src/finfo.c cdfcb472e15d3f338bc34167a8c18b3199e974dff0e87200ff3c0f2607ca9d42
+F src/finfo.c 3b3fa76fceac6450a857d9bb6876dba90815c1e31d7d33710ff09f479c4fc2ed
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c c774c78b274375f42653c71d0b6c1062695bb4da
@@ -479,7 +479,7 @@ F src/mkindex.c 128820563b948cf017a59782adaf3495111a098e180d27b335a0014586d35d38
 F src/mkversion.c 6e606c3a895f71b35a878e817104b5e5eb056ce47925e341fde567f2448e9aa7
 F src/moderate.c 2540f90b20778a4d62156a3b4af962b401d4c89f
 F src/name.c 1cc2b83de879fd99ec72dc4bfc16d243d3207f4211566a95d621bff491a540ff
-F src/path.c 73dbaaa0452f882ac7a504f37457fe9160ff5458b61f6d4c00bf45a2555bdbca
+F src/path.c cebf3ae637e9b7a56e458621a4953747b13bc2c7e117c53d023ffd26213123c0
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c d8c6f6e91772e17893f477402da1efb431b85b8fbf7a938b64a905e04e376a15
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 398a90c006ed251ffb3c58464803a17c071a439a8f9e98879a11c73b8425aca9
-R a722a9abcbd66cb0cfe9b22e11f64f5a
+P 0b4c3f5a2809379193c7852fbd261060b0d5fe4deebd2b32ed1d1c4d3e313b99
+R 8902fdc2a3976b111d73513d8d45c3b9
 U drh
-Z 08933939ab2c1960cd65c1bd58fc9f43
+Z 19a157fd920333c0b05d0793de39561b

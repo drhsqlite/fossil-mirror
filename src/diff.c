@@ -2250,27 +2250,7 @@ static void annotate_file(
   /* Compute all direct ancestors of the check-in being analyzed into
   ** the "ancestor" table. */
   if( origid ){
-    PathNode *pPath;
-    Blob sql;
-    int gen = 0;
-    char *zSep = "VALUES";
-    pPath = path_shortest(cid, origid, 1, 0);
-    db_multi_exec(
-      "CREATE TEMP TABLE IF NOT EXISTS ancestor("
-      "  rid INT UNIQUE,"
-      "  generation INTEGER PRIMARY KEY"
-      ");"
-      "DELETE FROM ancestor;"
-    );
-    blob_init(&sql, "INSERT INTO ancestor(rid, generation)", -1);
-    while( pPath ){
-      blob_append_sql(&sql, "%s(%d,%d)", zSep/*safe-for-%s*/, pPath->rid,++gen);
-      zSep = ",";
-      pPath = pPath->u.pTo;
-    }
-    path_reset();
-    db_multi_exec("%s", blob_sql_text(&sql));
-    blob_reset(&sql);
+    path_shortest_stored_in_ancestor_table(origid, cid);
   }else{
     compute_direct_ancestors(cid);
   }
@@ -2464,7 +2444,11 @@ void annotation_page(void){
   }
 
   @ <div id="annotation_log" style='display:%s(showLog?"block":"none");'>
-  zLink = href("%R/finfo?name=%t&ci=%!S",zFilename,zCI);
+  if( zOrigin ){
+    zLink = href("%R/finfo?name=%t&ci=%!S&orig=%!S",zFilename,zCI,zOrigin);
+  }else{
+    zLink = href("%R/finfo?name=%t&ci=%!S",zFilename,zCI);
+  }
   @ <h2>Versions of %z(zLink)%h(zFilename)</a> analyzed:</h2>
   @ <ol>
   for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
