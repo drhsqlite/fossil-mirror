@@ -2485,7 +2485,7 @@ void annotation_page(void){
     @ from check-in %z(href("%R/info/%!S",zCI))%S(zCI)</a>:</h2>
   }
   @ <pre>
-  szHash = length_of_S_display();
+  szHash = 10;
   for(i=0; i<ann.nOrig; i++){
     int iVers = ann.aOrig[i].iVers;
     char *z = (char*)ann.aOrig[i].z;
@@ -2505,7 +2505,7 @@ void annotation_page(void){
              p->zBgColor, zLink, zUuid, p->zDate, p->zUser);
         fossil_free(zLink);
       }else{
-        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%*s", szHash+28, "");
+        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%*s", szHash+26, "");
       }
     }else{
       if( iVers>=0 ){
@@ -2518,7 +2518,7 @@ void annotation_page(void){
              p->zBgColor, zLink, zUuid, p->zDate, i+1);
         fossil_free(zLink);
       }else{
-        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%*s%4d:",szHash+14,"",i+1);
+        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%*s%4d:",szHash+12,"",i+1);
       }
     }
     @ %s(zPrefix) %h(z)
