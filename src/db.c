@@ -2477,9 +2477,10 @@ void db_lset_int(const char *zName, int value){
 
 #if INTERFACE
 /* Manifest generation flags */
-#define MFESTFLG_RAW  0x01
-#define MFESTFLG_UUID 0x02
-#define MFESTFLG_TAGS 0x04
+#define MFESTFLG_RAW      0x01
+#define MFESTFLG_UUID     0x02
+#define MFESTFLG_TAGS     0x04
+#define MFESTFLG_SYMLINKS 0x08
 #endif /* INTERFACE */
 
 /*
@@ -2500,9 +2501,10 @@ int db_get_manifest_setting(void){
   flg = 0;
   while( *zVal ){
     switch( *zVal ){
-      case 'r': flg |= MFESTFLG_RAW;  break;
-      case 'u': flg |= MFESTFLG_UUID; break;
-      case 't': flg |= MFESTFLG_TAGS; break;
+      case 'r': flg |= MFESTFLG_RAW;      break;
+      case 'u': flg |= MFESTFLG_UUID;     break;
+      case 't': flg |= MFESTFLG_TAGS;     break;
+      case 'l': flg |= MFESTFLG_SYMLINKS; break;
     }
     zVal++;
   }
@@ -2984,9 +2986,9 @@ struct Setting {
 ** If enabled, automatically create files "manifest" and "manifest.uuid"
 ** in every checkout.
 **
-** Optionally use combinations of characters 'r' for "manifest",
-** 'u' for "manifest.uuid" and 't' for "manifest.tags".  The SQLite
-** and Fossil repositories both require manifests.
+** Optionally use combinations of characters 'r' for "manifest", 'u' for
+** "manifest.uuid", 't' for "manifest.tags", and 'l' for "manifest.symlinks".
+** The SQLite and Fossil repositories both require manifests.
 */
 /*
 ** SETTING: max-loadavg      width=25 default=0.0

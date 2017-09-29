@@ -2616,6 +2616,16 @@ void commit_cmd(void){
     free(zManifestFile);
   }
 
+  if( outputManifest & MFESTFLG_SYMLINKS ){
+    Blob symlinkslist;
+    zManifestFile = mprintf("%smanifest.symlinks", g.zLocalRoot);
+    blob_zero(&symlinkslist);
+    get_checkin_symlinklist(nvid, &symlinkslist);
+    blob_write_to_file(&symlinkslist, zManifestFile);
+    blob_reset(&symlinkslist);
+    free(zManifestFile);
+  }
+
   if( !g.markPrivate ){
     autosync_loop(SYNC_PUSH|SYNC_PULL, db_get_int("autosync-tries", 1), 0);
   }

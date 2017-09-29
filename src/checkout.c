@@ -95,8 +95,7 @@ static void set_or_clear_isexe(const char *zFilename, int vid, int onoff){
 
 /*
 ** Set or clear the execute permission bit (as appropriate) for all
-** files in the current check-out, and replace files that have
-** symlink bit with actual symlinks.
+** files in the current check-out.
 */
 void checkout_set_all_exe(int vid){
   Blob filename;
@@ -130,13 +129,14 @@ void checkout_set_all_exe(int vid){
 ** files named "manifest" and "manifest.uuid" containing, respectively,
 ** the text of the manifest and the artifact ID of the manifest.
 ** If the manifest setting is set, but is not a boolean value, then treat
-** each character as a flag to enable writing "manifest", "manifest.uuid" or
-** "manifest.tags".
+** each character as a flag to enable writing "manifest", "manifest.uuid",
+** "manifest.tags", or "manifest.symlinks".
 */
 void manifest_to_disk(int vid){
   char *zManFile;
   Blob manifest;
   Blob taglist;
+  Blob symlinklist;
   int flg;
 
   flg = db_get_manifest_setting();
@@ -184,6 +184,20 @@ void manifest_to_disk(int vid){
       free(zManFile);
     }
   }
+  if( flg & MFESTFLG_SYMLINKS ){
+    blob_zero(&symlinklist);
+    zManFile = mprintf("%smanifest.symlinks", g.zLocalRoot);
+    get_checkin_symlinklist(vid, &symlinklist);
+    blob_write_to_file(&symlinklist, zManFile);
+    free(zManFile);
+    blob_reset(&symlinklist);
+  }else{
+    if( !db_exists("SELECT 1 FROM vfile WHERE pathname='manifest.symlinks'") ){
+      zManFile = mprintf("%smanifest.symlinks", g.zLocalRoot);
+      file_delete(zManFile);
+      free(zManFile);
+    }
+  }
 }
 
 /*
@@ -218,6 +232,23 @@ void get_checkin_taglist(int rid, Blob *pOut){
   db_finalize(&stmt);
 }
 
+/*
+** Store into "pOut" a sorted list of all symlinks in a checkin "rid".  Each
+** entry in the list is the full name of the symlink (not the name of its
+** target) followed by a newline.
+*/
+void get_checkin_symlinklist(int rid, Blob *pOut){
+  Manifest *pManifest = manifest_get(rid, CFTYPE_MANIFEST, 0);
+  ManifestFile *pFile;
+  blob_reset(pOut);
+  manifest_file_rewind(pManifest);
+  while( (pFile = manifest_file_next(pManifest, 0)) ){
+    if( pFile->zPerm && strstr(pFile->zPerm, "l") ){
+      blob_appendf(pOut, "%s\n", pFile->zName);
+    }
+  }
+  manifest_destroy(pManifest);
+}
 
 /*
 ** COMMAND: checkout*

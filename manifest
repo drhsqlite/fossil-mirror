@@ -1,5 +1,5 @@
-C Fix\sindentation\sof\sunanalyzed\slines\son\s/annotate\sand\s/blame\sscreens.
-D 2017-09-28T18:18:13.722
+C Add\ssupport\sfor\sthe\s"l"\sflag\sto\sthe\s"manifest"\ssetting\sto\senable\screation\sof\sa\sfile\s"manifest.symlinks"\swhich\slists\sthe\snames\sof\sall\ssymlinks
+D 2017-09-29T00:53:31.098
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -387,7 +387,7 @@ F skins/xekri/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 4a0c8875de777b236a96af56899ab69ae180e3b03f7e91522255d042d4e73b56
+F src/add.c ce13df9e9a83c1b914a90c9dcab3f0e237ed4e8494f03f0dec4c9cbd5bd6c993
 F src/allrepo.c 7296e9bfbbd4897b522ec2e2c26aa88890ffdae1
 F src/attach.c 702f70714f6ed49b8d3d669cfbe4f87ac78946b8
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
@@ -400,8 +400,8 @@ F src/bundle.c c4b92c14df3e1aeebdeaf02d23a0ecaea462f8b5
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c f7d88d23102129bc8e798598168d51a545edecb870fdd13f31b1831f7d249284
-F src/checkin.c 42bcff405f733b9a21c2550ef1b88b7e206f66f41756670c3cf587967b95f6a1
-F src/checkout.c ad202f9c6585a8e6d5418ff733f7349f652e9b05
+F src/checkin.c fd87c1f8044f45dfcd4a4a498748659c12bf7f8f9b398f029eaad69341b716cc
+F src/checkout.c ae0d33f90a8380bc273f45c806de74842f8a70190ba51073d7758c1bd930ae4f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c c8b17c6084570fef0afc5b52d5caffcc83ff4548
 F src/codecheck1.c cbf9594fb2802bad4603f877bc9aba236811355b049dc9f4c09a51f416953305
@@ -412,7 +412,7 @@ F src/content.c db74a6118fb9cfb07b9b7fbb35e4085550769a5281dddfea00e908b1dad4a427
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 616c0dacc2268452b05044dbd4da3c66ea460e3842ba0466126cbb5421637bef
+F src/db.c 1db0215d855aa74b3f3a5e5f7b934b820b20bf4fa2e9a020fe0d2d7e023e5ece
 F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
@@ -511,7 +511,7 @@ F src/statrep.c 9ee2695e45d0a0de17ce79d0b027f79bd246b4f305c95649044c3709a44372cd
 F src/style.c c74b7e2495c28f168acc2f6f8e06ae90de539ed252afbea66f281dfc31cfe35a
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 7eec9152da56e30bedad9b9c62195012de13f0db656f9b6395c2bcebfee7f4a8
-F src/tar.c 7f1a32be9c4534f5d837f44ebf66c54ad533e297e159fcd8403356d03b074bfe
+F src/tar.c e2c25fed5922d5324a9d80bb640918aca0455d7c4085c41fd5132606bbbd4329
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
 F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
@@ -538,7 +538,7 @@ F src/winhttp.c b8020da569aa214b67cfcd0b2efb770390798e8d829f0d18899d496e92eb5e04
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 82850cb04ab96b51f5e0ad555f56524b3b60acfa4df1b778c974040fc4250188
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
-F src/zip.c dca32599a1647502150aff4bc7579ca524b765a9fc8ca392a944209c8c9419b8
+F src/zip.c 2c6d83f7eb25fe2d653fa3ddeaca85751fefeb0bb0de04faefe2c3e057dc63c1
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test 83966725550e04f80c40a52012074f91ef6d22cbd57f51e17e931eccee6663e0
@@ -700,7 +700,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 709d1d66e198e85f9faedd4d5261835fdb83c41cfeb20757f3ed7d72fa64ff6b
-F www/changes.wiki 29895e85b5f74f40917090b4c48e8aed2b2679e70c1da0ce148383b1a761742e
+F www/changes.wiki bc63f2f8350bd7615fa58573fa17ff75bebfb391d41d35cbfc12e3868a801ced
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2b6a34c7e45c16c75c90ee0c8cc5ad4a202d6008ed66701cc5552ea833719356
-R 95a6698e93e6aead3bb8c9cbc2fd1048
-U drh
-Z bca7e082a653cb64e7978fe4bc8a32a6
+P 00ced6df65596f4ea3c572cfd238ac6c714d113c6da67ac8fcb91258aa878016
+R 60de1596cd1d32e93cc65f20ade98b60
+U andygoth
+Z ee3fff169e085e358c86294ef79bc132

@@ -373,6 +373,11 @@ void zip_of_checkin(
        && (flg & MFESTFLG_TAGS) ){
         eflg |= MFESTFLG_TAGS;
       }
+      if( (pInclude==0 || glob_match(pInclude, "manifest.symlinks"))
+       && !glob_match(pExclude, "manifest.symlinks")
+       && (flg & MFESTFLG_SYMLINKS) ){
+        eflg |= MFESTFLG_SYMLINKS;
+      }
 
       if( eflg & MFESTFLG_RAW ){
         blob_append(&filename, "manifest", -1);
@@ -399,6 +404,17 @@ void zip_of_checkin(
         zip_add_folders(zName);
         zip_add_file(zName, &tagslist, 0);
         blob_reset(&tagslist);
+      }
+      if( eflg & MFESTFLG_SYMLINKS ){
+        Blob symlinklist;
+        blob_zero(&symlinklist);
+        get_checkin_symlinklist(rid, &symlinklist);
+        blob_resize(&filename, nPrefix);
+        blob_append(&filename, "manifest.symlinks", -1);
+        zName = blob_str(&filename);
+        zip_add_folders(zName);
+        zip_add_file(zName, &symlinklist, 0);
+        blob_reset(&symlinklist);
       }
     }
     manifest_file_rewind(pManifest);
