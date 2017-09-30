@@ -721,6 +721,35 @@ static int string_first_command(
 /*
 ** TH Syntax:
 **
+**   string index STRING INDEX
+*/
+static int string_index_command(
+  Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
+){
+  int iIndex;
+
+  if( argc!=4 ){
+    return Th_WrongNumArgs(interp, "string index string index");
+  }
+
+  if( argl[3]==3 && 0==memcmp("end", argv[3], 3) ){
+    iIndex = argl[2];
+  }else if( Th_ToInt(interp, argv[3], argl[3], &iIndex) ){
+    Th_ErrorMessage(
+        interp, "Expected \"end\" or integer, got:", argv[3], argl[3]);
+    return TH_ERROR;
+  }
+
+  if( iIndex>=0 && iIndex<argl[2] ){
+    return Th_SetResult(interp, &argv[2][iIndex], 1);
+  }else{
+    return Th_SetResult(interp, 0, 0);
+  }
+}
+
+/*
+** TH Syntax:
+**
 **   string is CLASS STRING
 */
 static int string_is_command(
@@ -1059,13 +1088,17 @@ int Th_CallSubCommand(
 /*
 ** TH Syntax:
 **
-**   string compare STR1 STR2
-**   string first   NEEDLE HAYSTACK ?STARTINDEX?
-**   string is      CLASS STRING
-**   string last    NEEDLE HAYSTACK ?STARTINDEX?
-**   string length  STRING
-**   string range   STRING FIRST LAST
-**   string repeat  STRING COUNT
+**   string compare   STR1 STR2
+**   string first     NEEDLE HAYSTACK ?STARTINDEX?
+**   string index     STRING INDEX
+**   string is        CLASS STRING
+**   string last      NEEDLE HAYSTACK ?STARTINDEX?
+**   string length    STRING
+**   string range     STRING FIRST LAST
+**   string repeat    STRING COUNT
+**   string trim      STRING
+**   string trimleft  STRING
+**   string trimright STRING
 */
 static int string_command(
   Th_Interp *interp,
@@ -1075,13 +1108,14 @@ static int string_command(
   int *argl
 ){
   static const Th_SubCommand aSub[] = {
-    { "compare", string_compare_command },
-    { "first",   string_first_command },
-    { "is",      string_is_command },
-    { "last",    string_last_command },
-    { "length",  string_length_command },
-    { "range",   string_range_command },
-    { "repeat",  string_repeat_command },
+    { "compare",   string_compare_command },
+    { "first",     string_first_command },
+    { "index",     string_index_command },
+    { "is",        string_is_command },
+    { "last",      string_last_command },
+    { "length",    string_length_command },
+    { "range",     string_range_command },
+    { "repeat",    string_repeat_command },
     { "trim",      string_trim_command },
     { "trimleft",  string_trim_command },
     { "trimright", string_trim_command },

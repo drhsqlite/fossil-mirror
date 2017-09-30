@@ -1,5 +1,5 @@
-C Fix\sindentation\sof\sunanalyzed\slines\son\s/annotate\sand\s/blame\sscreens.
-D 2017-09-28T18:18:13.722
+C Add\s[string\sindex]\sTH1\scommand
+D 2017-09-30T01:09:07.759
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -514,7 +514,7 @@ F src/tag.c 7eec9152da56e30bedad9b9c62195012de13f0db656f9b6395c2bcebfee7f4a8
 F src/tar.c 7f1a32be9c4534f5d837f44ebf66c54ad533e297e159fcd8403356d03b074bfe
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
-F src/th_lang.c ea48575293baff0d04d447b175b61eb515f1c81f
+F src/th_lang.c 303c2c061c16ff27cee6a3e7f9db7cef3831f2e9a91a5f638e39fac10a2f63ad
 F src/th_main.c 5b80e577235cec101e3c7fc0451f67ac10fe4db1fcc60a474277c5ce2cb561af
 F src/th_tcl.c 2b70a8da7d7d8009794d7a3565043c8933a6cbfe
 F src/timeline.c 7949ab6eccbfc51fbced3350088cc3dca6e131889918d0aa075944f00331c1d8
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2b6a34c7e45c16c75c90ee0c8cc5ad4a202d6008ed66701cc5552ea833719356
-R 95a6698e93e6aead3bb8c9cbc2fd1048
-U drh
-Z bca7e082a653cb64e7978fe4bc8a32a6
+P 00ced6df65596f4ea3c572cfd238ac6c714d113c6da67ac8fcb91258aa878016
+R d9a9d4cac2df7fa7ff97bec967c81466
+U andygoth
+Z 547481b3a0ab8f032175cb9e989b3998
