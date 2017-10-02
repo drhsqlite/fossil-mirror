@@ -1438,6 +1438,81 @@ test th1-string-is-31 {$RESULT eq "0"}
 
 ###############################################################################
 
+fossil test-th-eval {string index "" -1}
+test th1-string-index-1 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval {string index "" 0}
+test th1-string-index-2 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval {string index "" 1}
+test th1-string-index-3 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval {string index "" 2}
+test th1-string-index-4 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval {string index "" end}
+test th1-string-index-5 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval {string index A -1}
+test th1-string-index-6 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval {string index A 0}
+test th1-string-index-7 {$RESULT eq "A"}
+
+###############################################################################
+
+fossil test-th-eval {string index A 1}
+test th1-string-index-8 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval {string index A 2}
+test th1-string-index-9 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval {string index A end}
+test th1-string-index-10 {$RESULT eq "A"}
+
+###############################################################################
+
+fossil test-th-eval {string index ABC -1}
+test th1-string-index-11 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval {string index ABC 0}
+test th1-string-index-12 {$RESULT eq "A"}
+
+###############################################################################
+
+fossil test-th-eval {string index ABC 1}
+test th1-string-index-13 {$RESULT eq "B"}
+
+###############################################################################
+
+fossil test-th-eval {string index ABC 2}
+test th1-string-index-14 {$RESULT eq "C"}
+
+###############################################################################
+
+fossil test-th-eval {string index ABC end}
+test th1-string-index-15 {$RESULT eq "C"}
+
+###############################################################################
+
 fossil test-th-eval {markdown}
 test th1-markdown-1 {$RESULT eq \
 {TH_ERROR: wrong # args: should be "markdown STRING"}}

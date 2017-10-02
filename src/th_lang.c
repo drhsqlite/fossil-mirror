@@ -733,7 +733,7 @@ static int string_index_command(
   }
 
   if( argl[3]==3 && 0==memcmp("end", argv[3], 3) ){
-    iIndex = argl[2];
+    iIndex = argl[2]-1;
   }else if( Th_ToInt(interp, argv[3], argl[3], &iIndex) ){
     Th_ErrorMessage(
         interp, "Expected \"end\" or integer, got:", argv[3], argl[3]);
