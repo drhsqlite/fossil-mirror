@@ -1,5 +1,5 @@
-C Add\sdocs\sand\stests\sfor\sthe\sTH1\s'string\sindex'\scommand\sadded\sby\scheck-in\s[0c57ba3eb4].\s\sAlso,\sfix\sissue\swith\shandling\sof\sthe\sspecial\s'end'\sindex.
-D 2017-10-02T15:23:48.474
+C Avoid\slarge\sSQL\sinserts\swhen\scomputing\sthe\spath\sbetween\stwo\scheck-ins\sfor\nuse\sby\sreverse\sannotation.
+D 2017-10-02T16:25:14.539
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -479,7 +479,7 @@ F src/mkindex.c 128820563b948cf017a59782adaf3495111a098e180d27b335a0014586d35d38
 F src/mkversion.c 6e606c3a895f71b35a878e817104b5e5eb056ce47925e341fde567f2448e9aa7
 F src/moderate.c 2540f90b20778a4d62156a3b4af962b401d4c89f
 F src/name.c 1cc2b83de879fd99ec72dc4bfc16d243d3207f4211566a95d621bff491a540ff
-F src/path.c cebf3ae637e9b7a56e458621a4953747b13bc2c7e117c53d023ffd26213123c0
+F src/path.c 45a49dc7f3e16bd8c07f113e2c833fb40d16bb3bcecbaa3b1f4d4f2e675dab61
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c d8c6f6e91772e17893f477402da1efb431b85b8fbf7a938b64a905e04e376a15
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 08cacbf6e59692d3498acc85a7f231f994be2cfd121e2d50bfc17f28d9ccbd7a
-R 1b111373fa1b657f3b5539f713ceb141
-U mistachkin
-Z ba650efd7eb894de417fe5e7bbda125b
+P e9845e590456d23b168ec24ecdacf4e00bf071fecff65197f16f99af6d4fed5b
+R d0a2f43966be423ecbb35fd122d2db83
+U drh
+Z 18d867033fe8709459f96133c5d86f3c
