@@ -2261,7 +2261,7 @@ static void annotate_file(
   fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
 
   db_prepare(&q,
-    "SELECT"
+    "SELECT DISTINCT"
     "   (SELECT uuid FROM blob WHERE rid=mlink.fid),"
     "   (SELECT uuid FROM blob WHERE rid=mlink.mid),"
     "   date(event.mtime),"

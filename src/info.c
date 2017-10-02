@@ -1586,8 +1586,8 @@ void diff_page(void){
       v1, v2
     );
     if( db_step(&q)==SQLITE_ROW ){
-      const char *zOrig = db_column_text(&q, 0);
-      const char *zCkin = db_column_text(&q, 1);
+      const char *zCkin = db_column_text(&q, 0);
+      const char *zOrig = db_column_text(&q, 1);
       const char *zFN = db_column_text(&q, 2);
       style_submenu_element("Annotate",
         "%R/annotate?origin=%s&checkin=%s&filename=%T",
