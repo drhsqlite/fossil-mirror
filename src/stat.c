@@ -115,11 +115,11 @@ void stat_page(void){
       @ <tr><th>Compression&nbsp;Ratio:</th><td>
       if( t/fsize < 5 ){
         b = 10;
-        fsize /= 10;
+        a = t/(fsize/10);
       }else{
         b = 1;
+        a = t/fsize;
       }
-      a = t/fsize;
       @ %d(a):%d(b)
       @ </td></tr>
     }
@@ -134,7 +134,7 @@ void stat_page(void){
       if( db_step(&q)==SQLITE_ROW && (n = db_column_int(&q,0))>0 ){
         sqlite3_int64 iStored, pct;
         iStored = db_column_int64(&q,2);
-        pct = (iStored*100 + fsize - 1)/fsize;
+        pct = (iStored*100 + fsize/2)/fsize;
         approxSizeName(sizeof(zStored), zStored, iStored);
         @ <tr><th>Unversioned&nbsp;Files:</th><td>
         @ %z(href("%R/uvlist"))%d(n) files</a>,

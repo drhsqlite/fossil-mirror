@@ -1,5 +1,5 @@
-C Add\s[string\sindex]\sTH1\scommand
-D 2017-09-30T01:09:07.759
+C Fix\sthe\scomputation\sof\sthe\spercentage\sof\sthe\srepo\staken\sup\sby\sunversioned\nfiles\son\sthe\s/stat\spage.
+D 2017-10-02T02:30:05.603
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -506,7 +506,7 @@ F src/sqlcmd.c b150ead4134db3739733abb077bf764bf998bfede7d1d8ea457455adf3684c31
 F src/sqlite3.c b6f01f770843f33d471446cb2391f34795ddda71c5061136361113d3caf2f747
 F src/sqlite3.h c77050838da5cef96609f70ae1b5f340fdc69b2547239bc10fb134caf1718cfa
 F src/stash.c a6bb018a382d8c648702da7c2e9f56d7012486205c64ba269662336508ab0df2
-F src/stat.c c3e84fa9d09e6851c01f86ce58c33cc7da991419307e7ec22cc6d2a5a3da98ff
+F src/stat.c 420ba0ca0e6804dc0f386bb46ec4f90197aa458a1849f53b2b7ceaa2dd37c869
 F src/statrep.c 9ee2695e45d0a0de17ce79d0b027f79bd246b4f305c95649044c3709a44372cd
 F src/style.c c74b7e2495c28f168acc2f6f8e06ae90de539ed252afbea66f281dfc31cfe35a
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 00ced6df65596f4ea3c572cfd238ac6c714d113c6da67ac8fcb91258aa878016
-R d9a9d4cac2df7fa7ff97bec967c81466
-U andygoth
-Z 547481b3a0ab8f032175cb9e989b3998
+P 0c57ba3eb47e2a76aea3e8b0e4fd0ade5e07a67196a0cddb8a9a17f99363ec0a
+R 17ea187e9d2d4858cb4e3120a0fa9192
+U drh
+Z 4240a9a05b0678e3cb8aaa8c5d1dc96e
