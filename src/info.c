@@ -1574,12 +1574,15 @@ void diff_page(void){
       "SELECT (SELECT substr(uuid,1,20) FROM blob WHERE rid=a.mid),"
       "       (SELECT substr(uuid,1,20) FROM blob WHERE rid=b.mid),"
       "       (SELECT name FROM filename WHERE filename.fnid=a.fnid)"
-      "  FROM mlink a, mlink b"
+      "  FROM mlink a, event ea, mlink b, event eb"
       " WHERE a.fid=%d"
       "   AND b.fid=%d"
       "   AND a.fnid=b.fnid"
       "   AND a.fid!=a.pid"
-      "   AND b.fid!=b.pid",
+      "   AND b.fid!=b.pid"
+      "   AND ea.objid=a.mid"
+      "   AND eb.objid=b.mid"
+      " ORDER BY ea.mtime ASC, eb.mtime ASC",
       v1, v2
     );
     if( db_step(&q)==SQLITE_ROW ){

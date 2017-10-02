@@ -1,5 +1,5 @@
-C Update\sthe\sbuild-in\sSQLite\sto\sthe\slatest\s3.21.0\sbeta\sthat\sincludes\sthe\nenhance\suse\sof\sco-routines\sfor\ssubqueries.
-D 2017-10-02T03:46:28.809
+C Fix\sthe\sorigin=\sand\scheckin=\squery\sparameters\son\sthe\s"Annotate"\slink\sof\sthe\n/fdiff\spage.
+D 2017-10-02T11:56:54.050
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -438,7 +438,7 @@ F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d98
 F src/http_transport.c 43bf993a931c1a6cafb051566e06c841173ec350dedc0cb6887e112bc05a147c
 F src/import.c e48f2f2e0095795aeabe7220514c8694393693b853150c47f6d6792921def3f1
-F src/info.c a821cfa71f49cc90b86c9438553491bd8cd88df99ffe5448a30c6989d6b44e7e
+F src/info.c 27544fa45498b50c46f83da17dd82ee7c0cce5824c9ca1970a45875304af931a
 F src/json.c d60c46e8598420ce1a247faef05c7e7a310a82a5851e8a0e637e22422ed18d97
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c b6105183492ee774cdc685bfd80eb511fb1c5c37faf88198d7e4e58c41dfc68b
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c8b46764b6a913f812b8bac53e5993f23c5877c96d0bddfb7911795c658306d4
-R 2e3add90a0aa04eb69e4cda85fa71f3b
+P 75fffb49ce9e23a2aabc2ea75c123d95a6aede3d6f8032823ac8e03237218e81
+R 25500adb3a83fbbff75ca0c276b4ec73
 U drh
-Z 2f70dcad20f07f0840942fb066924ccb
+Z a76f214a432b4ce864a0f20045095ed6
