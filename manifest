@@ -1,5 +1,5 @@
-C Fix\sthe\scomputation\sof\sthe\spercentage\sof\sthe\srepo\staken\sup\sby\sunversioned\nfiles\son\sthe\s/stat\spage.
-D 2017-10-02T02:30:05.603
+C Update\sthe\sbuild-in\sSQLite\sto\sthe\slatest\s3.21.0\sbeta\sthat\sincludes\sthe\nenhance\suse\sof\sco-routines\sfor\ssubqueries.
+D 2017-10-02T03:46:28.809
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -503,8 +503,8 @@ F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skins.c bfbf18354d0e19798923bf0db33da49327493907f9f0e398cd4ea46b519a9c33
 F src/sqlcmd.c b150ead4134db3739733abb077bf764bf998bfede7d1d8ea457455adf3684c31
-F src/sqlite3.c b6f01f770843f33d471446cb2391f34795ddda71c5061136361113d3caf2f747
-F src/sqlite3.h c77050838da5cef96609f70ae1b5f340fdc69b2547239bc10fb134caf1718cfa
+F src/sqlite3.c c6f9c04517c9bd52d20327c9826b6d5d5b7ea63b74c9c69f2f2417a9d1a2cf14
+F src/sqlite3.h 68fd0d7c3e1d290c7fe86f0b457babcaa6187550df53d86d8d4406d544fa2890
 F src/stash.c a6bb018a382d8c648702da7c2e9f56d7012486205c64ba269662336508ab0df2
 F src/stat.c 420ba0ca0e6804dc0f386bb46ec4f90197aa458a1849f53b2b7ceaa2dd37c869
 F src/statrep.c 9ee2695e45d0a0de17ce79d0b027f79bd246b4f305c95649044c3709a44372cd
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0c57ba3eb47e2a76aea3e8b0e4fd0ade5e07a67196a0cddb8a9a17f99363ec0a
-R 17ea187e9d2d4858cb4e3120a0fa9192
+P c8b46764b6a913f812b8bac53e5993f23c5877c96d0bddfb7911795c658306d4
+R 2e3add90a0aa04eb69e4cda85fa71f3b
 U drh
-Z 4240a9a05b0678e3cb8aaa8c5d1dc96e
+Z 2f70dcad20f07f0840942fb066924ccb
