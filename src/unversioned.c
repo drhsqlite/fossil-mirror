@@ -486,17 +486,17 @@ void uvlist_page(void){
   if( PB("byage") ) zOrderBy = "mtime DESC";
   if( PB("showdel") ) showDel = 1;
   db_prepare(&q,
-     "SELECT"
-     "   name,"
-     "   mtime,"
-     "   hash,"
-     "   sz,"
-     "   (SELECT login FROM rcvfrom, user"
-     "     WHERE user.uid=rcvfrom.uid AND rcvfrom.rcvid=unversioned.rcvid),"
-     "   rcvid"
-     " FROM unversioned %s ORDER BY %s",
-     showDel ? "" : "WHERE hash IS NOT NULL" /*safe-for-%s*/,
-     zOrderBy/*safe-for-%s*/
+    "SELECT"
+    "   name,"
+    "   mtime,"
+    "   hash,"
+    "   sz,"
+    "   (SELECT login FROM rcvfrom, user"
+    "     WHERE user.uid=rcvfrom.uid AND rcvfrom.rcvid=unversioned.rcvid),"
+    "   rcvid"
+    " FROM unversioned %s ORDER BY %s",
+    showDel ? "" : "WHERE hash IS NOT NULL" /*safe-for-%s*/,
+    zOrderBy/*safe-for-%s*/
   );
   iNow = db_int64(0, "SELECT strftime('%%s','now');");
   while( db_step(&q)==SQLITE_ROW ){
