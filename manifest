@@ -1,5 +1,5 @@
-C Avoid\slarge\sSQL\sinserts\swhen\scomputing\sthe\spath\sbetween\stwo\scheck-ins\sfor\nuse\sby\sreverse\sannotation.
-D 2017-10-02T16:25:14.539
+C Follow-up\sto\s[f39c33c133]:\sOnly\sadd\sextra\stable\scell\swhen\srcvid\scolumn\sis\sshown
+D 2017-10-03T05:12:26.270
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -523,7 +523,7 @@ F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 33b65539a12abd079a57972b78e0d532831cefd9
 F src/undo.c d3cca342dd73eaec65e352d978e8f7a9e75a5ddd
 F src/unicode.c 1a3686d1851ac88eeeef3428c9ace3c471b8286fb785606ad63b800c8e688926
-F src/unversioned.c f83481f8e7fad63cf562cdd24d2b8682c49e5dade814f71011409c7dec884b73
+F src/unversioned.c 5d021866b6a51bf5f57d99ccad069fc5e8dc4270b415a5bb00ab6f3d4ea91771
 F src/update.c 6520d390b5e37ce8cdd51abc7044778dd33a14de
 F src/url.c b5d45bf6ccbbb928ab2fcd34e2b27556d43d37441d8db7450fb4f2e843e7410f
 F src/user.c c595beaa8d6fee6bf1f5b53b77cf6a498dab9252cf22b2ec7852a70844cbe7ec
@@ -791,7 +791,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e9845e590456d23b168ec24ecdacf4e00bf071fecff65197f16f99af6d4fed5b
-R d0a2f43966be423ecbb35fd122d2db83
-U drh
-Z 18d867033fe8709459f96133c5d86f3c
+P 5eba557c22ff8e6de5fb95988e004ce77e9b0e886a8a52d0a65fed571f9c97b3
+R de4be8496bd24226de217d775c2f03a8
+U andygoth
+Z 398a1ff7a94602cb1b29962e396e375c
