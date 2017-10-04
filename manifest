@@ -1,5 +1,5 @@
-C Tweak\sindenting\sfor\sconsistency
-D 2017-10-03T14:42:39.967
+C Improvement\sto\sTH_RETURN\shandling\sneeded\sfor\sTH1\shooks.\s\sUpdate\sand\scorrect\sTH1\shook\stests.\s\sAdd\sdraft\sdocumentation\sfor\sTH1\shooks.
+D 2017-10-04T05:35:42.085
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -461,7 +461,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c e79e6492901382bc825079f86b3d77e2b564d8d2e70454d40ab7967695c817c2
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
-F src/main.c c4d2c9f1388150bede33aeade6486fbf18ee02d339d0e7da35e98508c8ec0edb
+F src/main.c 8debe9f445db78385abf9643e7a9495b43cb7387e9d78bf85a2d27aa595524ff
 F src/main.mk b8922b6044eaf27469fa4c16eef595404c39b14e2aba296cb82a0ab32f6536ad
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -513,9 +513,9 @@ F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 7eec9152da56e30bedad9b9c62195012de13f0db656f9b6395c2bcebfee7f4a8
 F src/tar.c 7f1a32be9c4534f5d837f44ebf66c54ad533e297e159fcd8403356d03b074bfe
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
-F src/th.h 26b934e34a4768fbf204913a5699a7189ddc9f63
-F src/th_lang.c 61367ec8f0fdbbc794bc47fc70efd4ec0dc05e562d01998b8b51b24d3ab5fb10
-F src/th_main.c 5b80e577235cec101e3c7fc0451f67ac10fe4db1fcc60a474277c5ce2cb561af
+F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
+F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
+F src/th_main.c c008c65eee4b5d14a83cb93de2d97c5eb8ffd051794d4bca139cc076161da685
 F src/th_tcl.c 2b70a8da7d7d8009794d7a3565043c8933a6cbfe
 F src/timeline.c 7949ab6eccbfc51fbced3350088cc3dca6e131889918d0aa075944f00331c1d8
 F src/tkt.c e5815264d68d48a28983230026ceaa45b5190c34b092a8fc920ce832a6d2bf6e
@@ -586,7 +586,7 @@ F test/tester.tcl df32381d274820e8d9350196d6294a473e4a56dfe149dfd74763e2e537b614
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 3d2c5998f4b499ffd762e836425309e3ba7ed554ba3493534b6d82f68b33557d
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
-F test/th1-hooks.test bea19cf9ad83cd6f1cb829acbfe1dac89b28330c
+F test/th1-hooks.test 5923feea5dc7516f082f85bd813fe7db6afebdf8127f2aa2a4b765ac271c14f2
 F test/th1-repo.test 985c195a770c571b0d3bb30bf4390fcf13fa55d0
 F test/th1-tcl.test 76e8c9e232702be54a41f425ec3fe373a6d8f9eb
 F test/th1-tcl1.txt c60e664b138a2189b637c254d55a05819db1521d
@@ -756,7 +756,7 @@ F www/globs.md 023c06fa69c833dfab2128d07070e9d58e34da5f0c6a58d7e55e0de12e1a6fdf
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hashpolicy.wiki 901e234166e31d8cb6634577b3fe266f41453ca1
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
-F www/index.wiki 93f443d39d68c8f8608b3bd99b0a5bf296e9518997ed7b735a5c92f5a718312f
+F www/index.wiki 45df7f31bc78ec89a58cb77f4f9362a11c730addeec952037e6d4ce598c94fea
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki 7805bf0a04dc009df152d683771f8e3f74b194a4
 F www/mkdownload.tcl 86e774d93eb5c92cac5e7328920987feedf9356d
@@ -781,6 +781,7 @@ F www/stats.wiki 6558a7e417d5e9d29271c26ebb3195dddec31855
 F www/style.wiki da3a414d4c57c3da2636daf0baf6964ba72ce70b
 F www/sync.wiki 54f36924056d9b854a509ed1a87d15595605bc403f1dca18231439c44619a298
 F www/tech_overview.wiki 1902ff9a56644d8d113c89b4fded3b30cf0f5d6920a260d5fffdf9bae915ef32
+F www/th1-hooks.md 6a33377ddf5928186b991c2a63ee17252e1cfd7de4443a8ec585247a5a077d3d
 F www/th1.md 8fe09653d75c61780b48ef9e24c18984bbd657befb9495fee0bf3f6ee99842d9
 F www/theory1.wiki f3b67ce69fc710a54a9ec89f6d12f90da0632ea4
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
@@ -791,7 +792,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1f9718a694b86dd51292e6ec4b3f4d37633b91dee196f781c62f4b496ef985dd
-R d70102191d5e5bd8620c8c9c5a6b0ba4
-U andygoth
-Z 29e5308cc59aca0126aa7abe8326dcd1
+P 5f37eb84cac00efcbb2d42df3461eec6c0a9996a2afa473693bbdd4cb3a61d67
+R 362205b9de0d8bddf53be200b62ef0cc
+U mistachkin
+Z 2457b23130997d45b9127847ea43d133

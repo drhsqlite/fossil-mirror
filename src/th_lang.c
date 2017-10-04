@@ -435,6 +435,9 @@ static int proc_call1(
   if( rc==TH_RETURN ){
     rc = TH_OK;
   }
+  if( rc==TH_RETURN2 ){
+    rc = TH_RETURN;
+  }
   return rc;
 }
 

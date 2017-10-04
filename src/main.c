@@ -737,7 +737,7 @@ int main(int argc, char **argv)
   **
   ** TH_OK: The xFunc() and the TH1 notification will both be executed.
   **
-  ** TH_ERROR: The xFunc() will be executed, the TH1 notification will be
+  ** TH_ERROR: The xFunc() will be skipped, the TH1 notification will be
   **           skipped.  If the xFunc() is being hooked, the error message
   **           will be emitted.
   **
@@ -1666,7 +1666,7 @@ static void process_one_web_page(
     **
     ** TH_OK: The xFunc() and the TH1 notification will both be executed.
     **
-    ** TH_ERROR: The xFunc() will be executed, the TH1 notification will be
+    ** TH_ERROR: The xFunc() will be skipped, the TH1 notification will be
     **           skipped.  If the xFunc() is being hooked, the error message
     **           will be emitted.
     **
