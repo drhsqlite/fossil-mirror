@@ -415,12 +415,13 @@ void markdown_to_html(
      blob_reset(output_title);
      if (strlen(markdown_string) > 0 && markdown_string[0] == '#' ) {
        if (strlen(markdown_string + 1) > 0) {
-	 int i = 1;
+	 char * title_start = markdown_string + 1;
+	 int i = 0;
 	 while (markdown_string[i]!='\0' &&
 		(markdown_string[i]!='\n' && markdown_string[i]!='\r') ) {
-	   blob_append(output_title, markdown_string+i, 1);
 	   i++;
 	 }
+	 blob_append(output_title, title_start, i);
        }
      }
   }

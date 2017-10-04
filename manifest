@@ -1,9 +1,9 @@
-C Add\ssupport\sfor\smarkdown\spage\stitles
-D 2017-10-04T10:59:14.719
+C Simplify\stitle\sdetermining\scode
+D 2017-10-04T11:37:24.346
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
-F .fossil-settings/crlf-glob 2da052c2bd7a53c5e083152cd3ea3cefd6228b17 w .fossil-settings/crnl-glob
+F .fossil-settings/crlf-glob 2da052c2bd7a53c5e083152cd3ea3cefd6228b17
 F .fossil-settings/encoding-glob fe9e7e2a183ce22d107976173b58d2a1255aeb0a
 F .fossil-settings/ignore-glob b7b945d48cfceef7fd1000d6a6c6232b7163d5e8
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
@@ -473,7 +473,7 @@ F src/makemake.tcl 7ffa5b66d2e1bd8b4834ed628a71665196455930f85886b8de1946ea6ba13
 F src/manifest.c 1c857522c5247f926c1ac579a6b2f2e3261ef5bdd51376e26ce5c7943bd4b4f3
 F src/markdown.c 2cb7007279db7ad8e16f8c822d5ba27f59b4af2dcc0cd4ba87cce3e4303d5969
 F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb98d
-F src/markdown_html.c ae4feda90c1780e8c510cda56d74151c2c6543fdb9a7467080e521549b8a25ca
+F src/markdown_html.c 733b9a9d3d5b7e11182033c51136464e7906ca563a6e2eef0ea0952359e68b12
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/merge.c 0d0cf4b86fd4f51cf4731313833b215997360314
 F src/merge3.c 04153e0e1a0c15c6e7e1815949b11084da2285416d76c257767b54652aaf1b78
@@ -798,7 +798,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9893619067c39f85571d5ab25895a0dac81c5cf9080c61dc6b85b7ec75148b52 36f0e47b3275937da8b73a7376c9eec417066e6f84cc4ffb68304fd5ce31d5a9
-R 9417ea97e59e98722849d7fcffaa1d8a
+P 4a298e69ecb74b05ca73f6cea093186b7c21da804fb4f40730acaa404bd70815
+R c4d41e32475493309e4d277b5d00415c
 U mjanssen
-Z e4d4b9cae2b636e509a8b1c12365cefd
+Z 3d3d040931135a9b042cd4b5f8bd1ed6
