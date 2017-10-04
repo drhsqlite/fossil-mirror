@@ -1,6 +1,4 @@
-
-Markdown Formatter Test Document
-================================
+# Markdown Formatter Test Document
 
 This document is designed to test the markdown formatter.
 
@@ -23,3 +21,7 @@ Other Features
 --------------
 
 Text can show *emphasis* or _emphasis_ or **strong emphassis**.
+
+```
+Fenced code block
+```

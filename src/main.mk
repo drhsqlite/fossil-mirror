@@ -103,6 +103,7 @@ SRC = \
   $(SRCDIR)/rss.c \
   $(SRCDIR)/schema.c \
   $(SRCDIR)/search.c \
+  $(SRCDIR)/security_audit.c \
   $(SRCDIR)/setup.c \
   $(SRCDIR)/sha1.c \
   $(SRCDIR)/sha1hard.c \
@@ -157,6 +158,10 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/blitz_no_logo/footer.txt \
   $(SRCDIR)/../skins/blitz_no_logo/header.txt \
   $(SRCDIR)/../skins/blitz_no_logo/ticket.txt \
+  $(SRCDIR)/../skins/bootstrap/css.txt \
+  $(SRCDIR)/../skins/bootstrap/details.txt \
+  $(SRCDIR)/../skins/bootstrap/footer.txt \
+  $(SRCDIR)/../skins/bootstrap/header.txt \
   $(SRCDIR)/../skins/default/css.txt \
   $(SRCDIR)/../skins/default/details.txt \
   $(SRCDIR)/../skins/default/footer.txt \
@@ -281,6 +286,7 @@ TRANS_SRC = \
   $(OBJDIR)/rss_.c \
   $(OBJDIR)/schema_.c \
   $(OBJDIR)/search_.c \
+  $(OBJDIR)/security_audit_.c \
   $(OBJDIR)/setup_.c \
   $(OBJDIR)/sha1_.c \
   $(OBJDIR)/sha1hard_.c \
@@ -408,6 +414,7 @@ OBJ = \
  $(OBJDIR)/rss.o \
  $(OBJDIR)/schema.o \
  $(OBJDIR)/search.o \
+ $(OBJDIR)/security_audit.o \
  $(OBJDIR)/setup.o \
  $(OBJDIR)/sha1.o \
  $(OBJDIR)/sha1hard.o \
@@ -507,6 +514,7 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_LIKE_DOESNT_MATCH_BLOBS \
                  -DSQLITE_OMIT_DECLTYPE \
                  -DSQLITE_OMIT_DEPRECATED \
+                 -DSQLITE_OMIT_GET_TABLE \
                  -DSQLITE_OMIT_PROGRESS_CALLBACK \
                  -DSQLITE_OMIT_SHARED_CACHE \
                  -DSQLITE_OMIT_LOAD_EXTENSION \
@@ -519,7 +527,8 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_ENABLE_FTS3_PARENTHESIS \
                  -DSQLITE_ENABLE_DBSTAT_VTAB \
                  -DSQLITE_ENABLE_JSON1 \
-                 -DSQLITE_ENABLE_FTS5
+                 -DSQLITE_ENABLE_FTS5 \
+                 -DSQLITE_ENABLE_STMTVTAB
 
 # Setup the options used to compile the included SQLite shell.
 SHELL_OPTIONS = -Dmain=sqlite3_shell \
@@ -571,7 +580,7 @@ SQLITE3_SHELL_SRC.1 = shell-see.c
 SQLITE3_SHELL_SRC. = shell.c
 SQLITE3_SHELL_SRC = $(SRCDIR)/$(SQLITE3_SHELL_SRC.$(USE_SEE))
 SEE_FLAGS.0 =
-SEE_FLAGS.1 = -DSQLITE_HAS_CODEC
+SEE_FLAGS.1 = -DSQLITE_HAS_CODEC -DSQLITE_SHELL_DBKEY_PROC=fossil_key
 SEE_FLAGS. =
 SEE_FLAGS = $(SEE_FLAGS.$(USE_SEE))
 
@@ -697,6 +706,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/rss_.c:$(OBJDIR)/rss.h \
 	$(OBJDIR)/schema_.c:$(OBJDIR)/schema.h \
 	$(OBJDIR)/search_.c:$(OBJDIR)/search.h \
+	$(OBJDIR)/security_audit_.c:$(OBJDIR)/security_audit.h \
 	$(OBJDIR)/setup_.c:$(OBJDIR)/setup.h \
 	$(OBJDIR)/sha1_.c:$(OBJDIR)/sha1.h \
 	$(OBJDIR)/sha1hard_.c:$(OBJDIR)/sha1hard.h \
@@ -952,7 +962,7 @@ $(OBJDIR)/diffcmd.h:	$(OBJDIR)/headers
 $(OBJDIR)/dispatch_.c:	$(SRCDIR)/dispatch.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/dispatch.c >$@
 
-$(OBJDIR)/dispatch.o:	$(OBJDIR)/dispatch_.c $(OBJDIR)/dispatch.h $(SRCDIR)/config.h
+$(OBJDIR)/dispatch.o:	$(OBJDIR)/dispatch_.c $(OBJDIR)/dispatch.h $(OBJDIR)/page_index.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/dispatch.o -c $(OBJDIR)/dispatch_.c
 
 $(OBJDIR)/dispatch.h:	$(OBJDIR)/headers
@@ -1264,7 +1274,7 @@ $(OBJDIR)/lookslike.h:	$(OBJDIR)/headers
 $(OBJDIR)/main_.c:	$(SRCDIR)/main.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/main.c >$@
 
-$(OBJDIR)/main.o:	$(OBJDIR)/main_.c $(OBJDIR)/main.h $(OBJDIR)/page_index.h $(SRCDIR)/config.h
+$(OBJDIR)/main.o:	$(OBJDIR)/main_.c $(OBJDIR)/main.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/main.o -c $(OBJDIR)/main_.c
 
 $(OBJDIR)/main.h:	$(OBJDIR)/headers
@@ -1444,6 +1454,14 @@ $(OBJDIR)/search.o:	$(OBJDIR)/search_.c $(OBJDIR)/search.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/search.o -c $(OBJDIR)/search_.c
 
 $(OBJDIR)/search.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/security_audit_.c:	$(SRCDIR)/security_audit.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/security_audit.c >$@
+
+$(OBJDIR)/security_audit.o:	$(OBJDIR)/security_audit_.c $(OBJDIR)/security_audit.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/security_audit.o -c $(OBJDIR)/security_audit_.c
+
+$(OBJDIR)/security_audit.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/setup_.c:	$(SRCDIR)/setup.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/setup.c >$@
@@ -1745,7 +1763,7 @@ $(OBJDIR)/sqlite3.o:	$(SQLITE3_SRC)
 	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SEE_FLAGS) \
 		-c $(SQLITE3_SRC) -o $@
 $(OBJDIR)/shell.o:	$(SQLITE3_SHELL_SRC) $(SRCDIR)/sqlite3.h
-	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) $(LINENOISE_DEF.$(USE_LINENOISE)) -c $(SQLITE3_SHELL_SRC) -o $@
+	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) $(SEE_FLAGS) $(LINENOISE_DEF.$(USE_LINENOISE)) -c $(SQLITE3_SHELL_SRC) -o $@
 
 $(OBJDIR)/linenoise.o:	$(SRCDIR)/linenoise.c $(SRCDIR)/linenoise.h
 	$(XTCC) -c $(SRCDIR)/linenoise.c -o $@

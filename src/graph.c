@@ -186,6 +186,7 @@ int graph_add_row(
 ){
   GraphRow *pRow;
   int nByte;
+  static int nRow = 0;
 
   if( p->nErr ) return 0;
   nByte = sizeof(GraphRow);
@@ -209,7 +210,7 @@ int graph_add_row(
   }
   p->pLast = pRow;
   p->nRow++;
-  pRow->idx = pRow->idxTop = p->nRow;
+  pRow->idx = pRow->idxTop = ++nRow;
   return pRow->idx;
 }
 

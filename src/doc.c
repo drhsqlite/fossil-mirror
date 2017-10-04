@@ -86,6 +86,7 @@ static const struct {
   { "bat",        3, "application/x-msdos-program"       },
   { "bcpio",      5, "application/x-bcpio"               },
   { "bin",        3, "application/octet-stream"          },
+  { "bmp",        3, "image/bmp"                         },
   { "bz2",        3, "application/x-bzip2"               },
   { "bzip",       4, "application/x-bzip"                },
   { "c",          1, "text/plain"                        },
@@ -103,6 +104,7 @@ static const struct {
   { "csv",        3, "text/csv"                          },
   { "dcr",        3, "application/x-director"            },
   { "deb",        3, "application/x-debian-package"      },
+  { "dib",        3, "image/bmp"                         },
   { "dir",        3, "application/x-director"            },
   { "dl",         2, "video/dl"                          },
   { "dms",        3, "application/octet-stream"          },
@@ -136,6 +138,7 @@ static const struct {
   { "htm",        3, "text/html"                         },
   { "html",       4, "text/html"                         },
   { "ice",        3, "x-conference/x-cooltalk"           },
+  { "ico",        3, "image/vnd.microsoft.icon"          },
   { "ief",        3, "image/ief"                         },
   { "iges",       4, "model/iges"                        },
   { "igs",        3, "model/iges"                        },
@@ -463,15 +466,16 @@ int doc_is_embedded_html(Blob *pContent, Blob *pTitle){
 ** if the file is not found or could not be loaded.
 */
 int doc_load_content(int vid, const char *zName, Blob *pContent){
+  int writable = db_is_writeable("repository");
   int rid;   /* The RID of the file being loaded */
-  if( !db_table_exists("repository","vcache") ){
+  if( !db_table_exists("repository", "vcache") || !writable ){
     db_multi_exec(
-      "CREATE TABLE IF NOT EXISTS vcache(\n"
+      "CREATE %s TABLE IF NOT EXISTS vcache(\n"
       "  vid INTEGER,         -- check-in ID\n"
       "  fname TEXT,          -- filename\n"
       "  rid INTEGER,         -- artifact ID\n"
       "  PRIMARY KEY(vid,fname)\n"
-      ") WITHOUT ROWID"
+      ") WITHOUT ROWID", writable ? "" : "TEMPORARY"
     );
   }
   if( !db_exists("SELECT 1 FROM vcache WHERE vid=%d", vid) ){
@@ -495,13 +499,13 @@ int doc_load_content(int vid, const char *zName, Blob *pContent){
 
 /*
 ** Transfer content to the output.  During the transfer, when text of
-** the followign form is seen:
+** the following form is seen:
 **
 **       href="$ROOT/
 **       action="$ROOT/
 **
 ** Convert $ROOT to the root URI of the repository.  Allow ' in place of "
-** and any case for href.
+** and any case for href or action.
 */
 static void convert_href_and_output(Blob *pIn){
   int i, base;
@@ -575,6 +579,7 @@ void doc_page(void){
   const char *zOrigName = "?";      /* Original document name */
   const char *zMime;                /* Document MIME type */
   char *zCheckin = "tip";           /* The check-in holding the document */
+  char *zPathSuffix = "";           /* Text to append to g.zPath */
   int vid = 0;                      /* Artifact of check-in */
   int rid = 0;                      /* Artifact of file */
   int i;                            /* Loop counter */
@@ -618,9 +623,9 @@ void doc_page(void){
     }
     while( zName[0]=='/' ){ zName++; }
     if( isUV ){
-      g.zPath = mprintf("%s/%s", g.zPath, zName);
+      zPathSuffix = fossil_strdup(zName);
     }else{
-      g.zPath = mprintf("%s/%s/%s", g.zPath, zCheckin, zName);
+      zPathSuffix = mprintf("%s/%s", zCheckin, zName);
     }
     if( nMiss==0 ) zOrigName = zName;
     if( !file_is_simple_pathname(zName, 1) ){
@@ -635,7 +640,9 @@ void doc_page(void){
       }
     }
     if( isUV ){
-      if( unversioned_content(zName, &filebody)==0 ){
+      if( db_table_exists("repository","unversioned")
+       && unversioned_content(zName, &filebody)==0
+      ){
         rid = 1;
         zDfltTitle = zName;
       }
@@ -654,6 +661,7 @@ void doc_page(void){
       rid = doc_load_content(vid, zName, &filebody);
     }
   }
+  g.zPath = mprintf("%s/%s", g.zPath, zPathSuffix);
   if( rid==0 ) goto doc_not_found;
   blob_to_utf8_no_bom(&filebody, 0);
 
@@ -720,6 +728,8 @@ void doc_page(void){
         style_header("%h", zName);
         Th_Render(blob_str(&filebody));
       }
+    }else{
+      Th_Render(blob_str(&filebody));
     }
     if( !raw ){
       style_footer();

@@ -100,7 +100,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.0.2k
+SSLDIR    = $(B)\compat\openssl-1.0.2l
 SSLINCDIR = $(SSLDIR)\inc32
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)\out32dll
@@ -320,6 +320,7 @@ SQLITE_OPTIONS = /DNDEBUG=1 \
                  /DSQLITE_LIKE_DOESNT_MATCH_BLOBS \
                  /DSQLITE_OMIT_DECLTYPE \
                  /DSQLITE_OMIT_DEPRECATED \
+                 /DSQLITE_OMIT_GET_TABLE \
                  /DSQLITE_OMIT_PROGRESS_CALLBACK \
                  /DSQLITE_OMIT_SHARED_CACHE \
                  /DSQLITE_OMIT_LOAD_EXTENSION \
@@ -333,6 +334,7 @@ SQLITE_OPTIONS = /DNDEBUG=1 \
                  /DSQLITE_ENABLE_DBSTAT_VTAB \
                  /DSQLITE_ENABLE_JSON1 \
                  /DSQLITE_ENABLE_FTS5 \
+                 /DSQLITE_ENABLE_STMTVTAB \
                  /DSQLITE_WIN32_NO_ANSI
 
 SHELL_OPTIONS = /Dmain=sqlite3_shell \
@@ -437,6 +439,7 @@ SRC   = add_.c \
         rss_.c \
         schema_.c \
         search_.c \
+        security_audit_.c \
         setup_.c \
         sha1_.c \
         sha1hard_.c \
@@ -490,6 +493,10 @@ EXTRA_FILES   = $(SRCDIR)\../skins/aht/details.txt \
         $(SRCDIR)\../skins/blitz_no_logo/footer.txt \
         $(SRCDIR)\../skins/blitz_no_logo/header.txt \
         $(SRCDIR)\../skins/blitz_no_logo/ticket.txt \
+        $(SRCDIR)\../skins/bootstrap/css.txt \
+        $(SRCDIR)\../skins/bootstrap/details.txt \
+        $(SRCDIR)\../skins/bootstrap/footer.txt \
+        $(SRCDIR)\../skins/bootstrap/header.txt \
         $(SRCDIR)\../skins/default/css.txt \
         $(SRCDIR)\../skins/default/details.txt \
         $(SRCDIR)\../skins/default/footer.txt \
@@ -614,6 +621,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\rss$O \
         $(OX)\schema$O \
         $(OX)\search$O \
+        $(OX)\security_audit$O \
         $(OX)\setup$O \
         $(OX)\sha1$O \
         $(OX)\sha1hard$O \
@@ -800,6 +808,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\rss.obj >> $@
 	echo $(OX)\schema.obj >> $@
 	echo $(OX)\search.obj >> $@
+	echo $(OX)\security_audit.obj >> $@
 	echo $(OX)\setup.obj >> $@
 	echo $(OX)\sha1.obj >> $@
 	echo $(OX)\sha1hard.obj >> $@
@@ -869,19 +878,17 @@ codecheck1$E: $(SRCDIR)\codecheck1.c
 	$(BCC) $**
 
 !if $(USE_SEE)!=0
+SEE_FLAGS = /DSQLITE_HAS_CODEC=1 /DSQLITE_SHELL_DBKEY_PROC=fossil_key
 SQLITE3_SHELL_SRC = $(SRCDIR)\shell-see.c
+SQLITE3_SRC = $(SRCDIR)\sqlite3-see.c
 !else
+SEE_FLAGS =
 SQLITE3_SHELL_SRC = $(SRCDIR)\shell.c
+SQLITE3_SRC = $(SRCDIR)\sqlite3.c
 !endif
 
 $(OX)\shell$O : $(SQLITE3_SHELL_SRC) $B\win\Makefile.msc
-	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) -c $(SQLITE3_SHELL_SRC)
-
-!if $(USE_SEE)!=0
-SQLITE3_SRC = $(SRCDIR)\sqlite3-see.c
-!else
-SQLITE3_SRC = $(SRCDIR)\sqlite3.c
-!endif
+	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) $(SEE_FLAGS) -c $(SQLITE3_SHELL_SRC)
 
 $(OX)\sqlite3$O : $(SQLITE3_SRC) $B\win\Makefile.msc
 	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SEE_FLAGS) $(SQLITE3_SRC)
@@ -1481,6 +1488,12 @@ $(OX)\search$O : search_.c search.h
 search_.c : $(SRCDIR)\search.c
 	translate$E $** > $@
 
+$(OX)\security_audit$O : security_audit_.c security_audit.h
+	$(TCC) /Fo$@ -c security_audit_.c
+
+security_audit_.c : $(SRCDIR)\security_audit.c
+	translate$E $** > $@
+
 $(OX)\setup$O : setup_.c setup.h
 	$(TCC) /Fo$@ -c setup_.c
 
@@ -1795,6 +1808,7 @@ headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 			rss_.c:rss.h \
 			schema_.c:schema.h \
 			search_.c:search.h \
+			security_audit_.c:security_audit.h \
 			setup_.c:setup.h \
 			sha1_.c:sha1.h \
 			sha1hard_.c:sha1hard.h \

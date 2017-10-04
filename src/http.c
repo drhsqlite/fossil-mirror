@@ -178,7 +178,7 @@ char *prompt_for_httpauth_creds(void){
     zUser = mprintf("%b", &x);
     zPrompt = mprintf("HTTP password for %b: ", &x);
     blob_reset(&x);
-    prompt_for_password(zPrompt, &x, 1);
+    prompt_for_password(zPrompt, &x, 0);
     zPw = mprintf("%b", &x);
     zHttpAuth = mprintf("%s:%s", zUser, zPw);
     free(zUser);

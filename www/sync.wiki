@@ -26,10 +26,11 @@ the web-page formatting preferences, authorized users, ticket formats,
 and similar information that varies from one repository to another.
 The local state is not using transferred during a sync.  Except,
 some local state is transferred during a [/help?cmd=clone|clone]
-in order to initialize the local state of the new repository.  And
+in order to initialize the local state of the new repository.  Also,
+an administrator can sync local state using
 the [/help?cmd=configuration|config push] and
 [/help?cmd=configuration|config pull]
-commands can be an administrator to sync local state.</p>
+commands.
 
 
 <h2>2.0 Transport</h2>

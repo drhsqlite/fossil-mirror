@@ -47,7 +47,6 @@ static struct {
   Bag seen;             /* Nodes seen before */
   int nStep;            /* Number of steps from first to last */
   PathNode *pStart;     /* Earliest node */
-  PathNode *pPivot;     /* Common ancestor of pStart and pEnd */
   PathNode *pEnd;       /* Most recent */
 } path;
 
@@ -194,6 +193,38 @@ PathNode *path_midpoint(void){
   if( path.nStep<2 ) return 0;
   for(p=path.pEnd, i=0; p && i<path.nStep/2; p=p->pFrom, i++){}
   return p;
+}
+
+/*
+** Compute the shortest path between two check-ins and then transfer
+** that path into the "ancestor" table.  This is a utility used by
+** both /annotate and /finfo.  See also: compute_direct_ancestors().
+*/
+void path_shortest_stored_in_ancestor_table(
+  int origid,     /* RID for check-in at start of the path */
+  int cid         /* RID for check-in at the end of the path */
+){
+  PathNode *pPath;
+  int gen = 0;
+  Stmt ins;
+  pPath = path_shortest(cid, origid, 1, 0);
+  db_multi_exec(
+    "CREATE TEMP TABLE IF NOT EXISTS ancestor("
+    "  rid INT UNIQUE,"
+    "  generation INTEGER PRIMARY KEY"
+    ");"
+    "DELETE FROM ancestor;"
+  );
+  db_prepare(&ins, "INSERT INTO ancestor(rid, generation) VALUES(:rid,:gen)");
+  while( pPath ){
+    db_bind_int(&ins, ":rid", pPath->rid);
+    db_bind_int(&ins, ":gen", ++gen);
+    db_step(&ins);
+    db_reset(&ins);
+    pPath = pPath->u.pTo;
+  }
+  db_finalize(&ins);
+  path_reset();
 }
 
 /*

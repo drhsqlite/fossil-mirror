@@ -299,9 +299,11 @@ static int html_autolink(
 }
 
 static int html_code_span(struct Blob *ob, struct Blob *text, void *opaque){
-  BLOB_APPEND_LITERAL(ob, "<code>");
-  html_escape(ob, blob_buffer(text), blob_size(text));
-  BLOB_APPEND_LITERAL(ob, "</code>");
+  if( text ){
+    BLOB_APPEND_LITERAL(ob, "<code>");
+    html_escape(ob, blob_buffer(text), blob_size(text));
+    BLOB_APPEND_LITERAL(ob, "</code>");
+  }
   return 1;
 }
 
@@ -406,9 +408,22 @@ void markdown_to_html(
   struct Blob *output_title,     /* Put title here.  May be NULL */
   struct Blob *output_body       /* Put document body here. */
 ){
- if( output_title ) blob_reset(output_title);
   blob_reset(output_body);
-  char *cmark_result = cmark_markdown_to_html(blob_str(input_markdown), blob_size(input_markdown), 0 );
+  char * markdown_string = blob_str(input_markdown);
+  char *cmark_result = cmark_markdown_to_html(markdown_string, blob_size(input_markdown), 0 );
+  if( output_title ) {
+     blob_reset(output_title);
+     if (strlen(markdown_string) > 0 && markdown_string[0] == '#' ) {
+       if (strlen(markdown_string + 1) > 0) {
+	 int i = 1;
+	 while (markdown_string[i]!='\0' &&
+		(markdown_string[i]!='\n' && markdown_string[i]!='\r') ) {
+	   blob_append(output_title, markdown_string+i, 1);
+	   i++;
+	 }
+       }
+     }
+  }
   html_prolog(output_body,0);
   blob_append(output_body, cmark_result, strlen(cmark_result));
   html_epilog(output_body,0);

@@ -188,7 +188,11 @@ void page_dir(void){
   }
   if( zCI ){
     @ <h2>Files of check-in [%z(href("vinfo?name=%!S",zUuid))%S(zUuid)</a>]
-    @ %s(blob_str(&dirname))</h2>
+    @ %s(blob_str(&dirname))
+    if( zD ){
+      @ &nbsp;&nbsp;%z(href("%R/timeline?chng=%T/*", zD))[history]</a>
+    }
+    @ </h2>
     zSubdirLink = mprintf("%R/dir?ci=%!S&name=%T", zUuid, zPrefix);
     if( nD==0 ){
       style_submenu_element("File Ages", "%R/fileage?name=%!S", zUuid);
@@ -297,6 +301,62 @@ void page_dir(void){
   db_finalize(&q);
   manifest_destroy(pM);
   @ </ul></td></tr></table>
+
+  /* If the directory contains a readme file, then display its content below
+  ** the list of files
+  */
+  db_prepare(&q,
+    "SELECT x, u FROM localfiles"
+    " WHERE x COLLATE nocase IN"
+    " ('readme','readme.txt','readme.md','readme.wiki','readme.markdown',"
+    " 'readme.html') ORDER BY x LIMIT 1;"
+  );
+  if( db_step(&q)==SQLITE_ROW ){
+    const char *zName = db_column_text(&q,0);
+    const char *zUuid = db_column_text(&q,1);
+    if( zUuid ){
+      rid = fast_uuid_to_rid(zUuid);
+    }else{
+      if( zD ){
+        rid = db_int(0,
+           "SELECT fid FROM filename, mlink, event"
+           " WHERE name='%q/%q'"
+           "   AND mlink.fnid=filename.fnid"
+           "   AND event.objid=mlink.mid"
+           " ORDER BY event.mtime DESC LIMIT 1",
+           zD, zName
+        );
+      }else{
+        rid = db_int(0,
+           "SELECT fid FROM filename, mlink, event"
+           " WHERE name='%q'"
+           "   AND mlink.fnid=filename.fnid"
+           "   AND event.objid=mlink.mid"
+           " ORDER BY event.mtime DESC LIMIT 1",
+           zName
+        );
+      }
+    }
+    if( rid ){
+      @ <hr>
+      if( sqlite3_strlike("readme.html", zName, 0)==0 ){
+        if( zUuid==0 ){
+          zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+        }
+        @ <iframe src="%R/raw/%s(zUuid)"
+        @ width="100%%" frameborder="0" marginwidth="0" marginheight="0"
+        @ sandbox="allow-same-origin"
+        @ onload="this.height=this.contentDocument.documentElement.scrollHeight;">
+        @ </iframe>
+      }else{
+        Blob content;
+        const char *zMime = mimetype_from_name(zName);
+        content_get(rid, &content);
+        wiki_render_by_mimetype(&content, zMime);
+      }
+    }
+  }
+  db_finalize(&q);
   style_footer();
 }
 
@@ -695,7 +755,7 @@ void page_tree(void){
     zObjType = "Files";
   }
 
-  style_submenu_checkbox("nofiles", "Folders Only", 0);
+  style_submenu_checkbox("nofiles", "Folders Only", 0, 0);
 
   if( zCI ){
     @ <h2>%s(zObjType) from
@@ -1032,19 +1092,19 @@ void fileage_page(void){
   compute_fileage(rid,zGlob);
   db_multi_exec("CREATE INDEX fileage_ix1 ON fileage(mid,pathname);");
 
-  @ <h2>Files in
+  @ <h1>Files in
   @ %z(href("%R/info/%!S",zUuid))[%S(zUuid)]</a>
   if( zGlob && zGlob[0] ){
-    @ that match "%h(zGlob)" and
+    @ that match "%h(zGlob)"
   }
-  @ ordered by check-in time</h2>
+  @ ordered by age</h1>
   @
-  @ <p>Times are relative to the check-in time for
-  @ %z(href("%R/ci/%!S",zUuid))[%S(zUuid)]</a> which is
+  @ <p>File ages are expressed relative to the
+  @ %z(href("%R/ci/%!S",zUuid))[%S(zUuid)]</a> check-in time of
   @ %z(href("%R/timeline?c=%t",zNow))%s(zNow)</a>.</p>
   @
   @ <div class='fileage'><table>
-  @ <tr><th>Time</th><th>Files</th><th>Check-in</th></tr>
+  @ <tr><th>Age</th><th>Files</th><th>Check-in</th></tr>
   db_prepare(&q1,
     "SELECT event.mtime, event.objid, blob.uuid,\n"
     "       coalesce(event.ecomment,event.comment),\n"

@@ -71,7 +71,6 @@ static struct {
   int nFileAlloc;             /* Number of slots in aFile[] */
   ImportFile *aFile;          /* Information about files in a commit */
   int fromLoaded;             /* True zFrom content loaded into aFile[] */
-  int hasLinks;               /* True if git repository contains symlinks */
   int tagCommit;              /* True if the commit adds a tag */
 } gg;
 
@@ -88,7 +87,8 @@ char *fossil_strndup(const char *zOrig, int len){
       for( n=0; zOrig[n] && n<len; ++n );
     }
     z = fossil_malloc( n+1 );
-    memcpy(z, zOrig, n+1);
+    memcpy(z, zOrig, n);
+    z[n] = 0;
   }
   return z;
 }
@@ -218,9 +218,12 @@ static void finish_tag(void){
   if( gg.zDate && gg.zTag && gg.zFrom && gg.zUser ){
     blob_zero(&record);
     blob_appendf(&record, "D %s\n", gg.zDate);
-    blob_appendf(&record, "T +%F%F%F %s\n", gimport.zTagPre, gg.zTag,
+    blob_appendf(&record, "T +sym-%F%F%F %s", gimport.zTagPre, gg.zTag,
         gimport.zTagSuf, gg.zFrom);
-    blob_appendf(&record, "U %F\n", gg.zUser);
+    if( gg.zComment ){
+      blob_appendf(&record, " %F", gg.zComment);
+    }
+    blob_appendf(&record, "\nU %F\n", gg.zUser);
     md5sum_blob(&record, &cksum);
     blob_appendf(&record, "Z %b\n", &cksum);
     fast_insert_content(&record, 0, 0, 1);
@@ -275,7 +278,6 @@ static void finish_commit(void){
       blob_append(&record, " x\n", 3);
     }else if( gg.aFile[i].isLink ){
       blob_append(&record, " l\n", 3);
-      gg.hasLinks = 1;
     }else{
       blob_append(&record, "\n", 1);
     }
@@ -515,6 +517,10 @@ static void dequote_git_filename(char *zName){
 }
 
 
+static struct{
+  const char *zMasterName;    /* Name of master branch */
+} ggit;
+
 /*
 ** Read the git-fast-import format from pIn and insert the corresponding
 ** content into the database.
@@ -538,10 +544,11 @@ static void git_fast_import(FILE *pIn){
       gg.xFinish = finish_blob;
     }else
     if( strncmp(zLine, "commit ", 7)==0 ){
+      const char *zRefName;
       gg.xFinish();
       gg.xFinish = finish_commit;
       trim_newline(&zLine[7]);
-      z = &zLine[7];
+      zRefName = &zLine[7];
 
       /* The argument to the "commit" line might match either of these
       ** patterns:
@@ -561,11 +568,11 @@ static void git_fast_import(FILE *pIn){
       ** None of the above is explained in the git-fast-export
       ** documentation.  We had to figure it out via trial and error.
       */
-      for(i=5; i<strlen(z) && z[i]!='/'; i++){}
-      gg.tagCommit = strncmp(&z[5], "tags", 4)==0;  /* True for pattern B */
-      if( z[i+1]!=0 ) z += i+1;
-      if( fossil_strcmp(z, "master")==0 ) z = "trunk";
-      gg.zBranch = fossil_strdup(z);
+      for(i=5; i<strlen(zRefName) && zRefName[i]!='/'; i++){}
+      gg.tagCommit = strncmp(&zRefName[5], "tags", 4)==0;  /* True for pattern B */
+      if( zRefName[i+1]!=0 ) zRefName += i+1;
+      if( fossil_strcmp(zRefName, "master")==0 ) zRefName = ggit.zMasterName;
+      gg.zBranch = fossil_strdup(zRefName);
       gg.fromLoaded = 0;
     }else
     if( strncmp(zLine, "tag ", 4)==0 ){
@@ -602,8 +609,12 @@ static void git_fast_import(FILE *pIn){
         if( got!=gg.nData ){
           fossil_fatal("short read: got %d of %d bytes", got, gg.nData);
         }
-        gg.aData[got] = 0;
-        if( gg.zComment==0 && gg.xFinish==finish_commit ){
+        gg.aData[got] = '\0';
+        if( gg.zComment==0 &&
+            (gg.xFinish==finish_commit || gg.xFinish==finish_tag) ){
+	  /* Strip trailing newline, it's appended to the comment. */
+	  if( gg.aData[got-1] == '\n' )
+	    gg.aData[got-1] = '\0';
           gg.zComment = gg.aData;
           gg.aData = 0;
           gg.nData = 0;
@@ -620,17 +631,24 @@ static void git_fast_import(FILE *pIn){
     }else
     if( strncmp(zLine, "tagger ", 7)==0 || strncmp(zLine, "committer ",10)==0 ){
       sqlite3_int64 secSince1970;
-      for(i=0; zLine[i] && zLine[i]!='<'; i++){}
-      if( zLine[i]==0 ) goto malformed_line;
-      z = &zLine[i+1];
-      for(i=i+1; zLine[i] && zLine[i]!='>'; i++){}
-      if( zLine[i]==0 ) goto malformed_line;
-      zLine[i] = 0;
+      z = strchr(zLine, ' ');
+      while( fossil_isspace(*z) ) z++;
+      if( (zTo=strchr(z, '>'))==NULL ) goto malformed_line;
+      *(++zTo) = '\0';
+      /* Lookup user by contact info. */
       fossil_free(gg.zUser);
-      gg.zUser = fossil_strdup(z);
+      gg.zUser = db_text(0, "SELECT login FROM user WHERE info=%Q", z);
+      if( gg.zUser==NULL ){
+        /* If there is no user with this contact info,
+	 * then use the email address as the username. */
+        if ( (z=strchr(z, '<'))==NULL ) goto malformed_line;
+        z++;
+        *(zTo-1) = '\0';
+        gg.zUser = fossil_strdup(z);
+      }
       secSince1970 = 0;
-      for(i=i+2; fossil_isdigit(zLine[i]); i++){
-        secSince1970 = secSince1970*10 + zLine[i] - '0';
+      for(zTo++; fossil_isdigit(*zTo); zTo++){
+        secSince1970 = secSince1970*10 + *zTo - '0';
       }
       fossil_free(gg.zDate);
       gg.zDate = db_text(0, "SELECT datetime(%lld, 'unixepoch')", secSince1970);
@@ -750,9 +768,6 @@ static void git_fast_import(FILE *pIn){
     }
   }
   gg.xFinish();
-  if( gg.hasLinks ){
-    db_set_int("allow-symlinks", 1, 0);
-  }
   import_reset(1);
   return;
 
@@ -1256,6 +1271,30 @@ static int svn_parse_path(char *zPath, char **zFile, int *type){
 }
 
 /*
+** Insert content of corresponding content blob into the database.
+** If content is identified as a symbolic link, then trailing
+** "link " characters are removed from content.
+**
+** content is considered to be a symlink if zPerm contains at least
+** one "l" character.
+*/
+static int svn_handle_symlinks(const char *perms, Blob *content){
+  Blob link_blob;
+  if( perms && strstr(perms, "l")!=0 ){
+    if( blob_size(content)>5 ){
+      /* Skip trailing 'link ' characters */
+      blob_seek(content, 5, BLOB_SEEK_SET);
+      blob_tail(content, &link_blob);
+      return content_put(&link_blob);
+    }else{
+      fossil_fatal("Too short symbolic link path");
+    }
+  }else{
+    return content_put(content);
+  }
+}
+
+/*
 ** Read the svn-dump format from pIn and insert the corresponding
 ** content into the database.
 */
@@ -1355,6 +1394,10 @@ static void svn_dump_import(FILE *pIn){
       char *zPerm = svn_find_prop(rec, "svn:executable") ? "x" : 0;
       int deltaFlag = 0;
       int srcRev = 0;
+
+      if ( zPerm==0 ){
+        zPerm = svn_find_prop(rec, "svn:special") ? "l" : 0;
+      }
       if( branchId==0 ){
         svn_free_rec(&rec);
         continue;
@@ -1466,9 +1509,15 @@ static void svn_dump_import(FILE *pIn){
               blob_zero(&deltaSrc);
             }
             svn_apply_svndiff(&rec.content, &deltaSrc, &target);
-            rid = content_put(&target);
+            rid = svn_handle_symlinks(zPerm, &target);
           }else if( rec.contentFlag ){
-            rid = content_put(&rec.content);
+            rid = svn_handle_symlinks(zPerm, &rec.content);
+          }else if( zSrcPath ){
+            if ( zPerm==0 ){
+              zPerm = db_text(0, "SELECT tperm FROM xfiles"
+                                 " WHERE tpath=%Q AND tbranch=%d"
+                                 "", zSrcPath, branchId);
+            }
           }
           db_bind_text(&addFile, ":path", zFile);
           db_bind_int(&addFile, ":branch", branchId);
@@ -1487,6 +1536,12 @@ static void svn_dump_import(FILE *pIn){
           fossil_fatal("Missing Node-kind");
         }
         if( rec.contentFlag && strncmp(zKind, "dir", 3)!=0 ){
+          if ( zPerm==0 ){
+            zPerm = db_text(0, "SELECT tperm FROM xfiles"
+                               " WHERE tpath=%Q AND tbranch=%d"
+                               "", zFile, branchId);
+          }
+
           if( deltaFlag ){
             Blob deltaSrc;
             Blob target;
@@ -1496,9 +1551,9 @@ static void svn_dump_import(FILE *pIn){
                             ")", zFile, branchId);
             content_get(rid, &deltaSrc);
             svn_apply_svndiff(&rec.content, &deltaSrc, &target);
-            rid = content_put(&target);
+            rid = svn_handle_symlinks(zPerm, &target);
           }else{
-            rid = content_put(&rec.content);
+            rid = svn_handle_symlinks(zPerm, &rec.content);
           }
           db_bind_text(&addFile, ":path", zFile);
           db_bind_int(&addFile, ":branch", branchId);
@@ -1547,8 +1602,9 @@ static void svn_dump_import(FILE *pIn){
 **
 **   --git        Import from the git-fast-export file format (default)
 **                Options:
-**                  --import-marks FILE Restore marks table from FILE
-**                  --export-marks FILE Save marks table to FILE
+**                  --import-marks  FILE Restore marks table from FILE
+**                  --export-marks  FILE Save marks table to FILE
+**                  --rename-master NAME Renames the master branch to NAME
 **
 **   --svn        Import from the svnadmin-dump file format.  The default
 **                behaviour (unless overridden by --flat) is to treat 3
@@ -1670,6 +1726,9 @@ void import_cmd(void){
   }else if( gitFlag ){
     markfile_in = find_option("import-marks", 0, 1);
     markfile_out = find_option("export-marks", 0, 1);
+    if( !(ggit.zMasterName = find_option("rename-master", 0, 1)) ){
+      ggit.zMasterName = "master";
+    }
   }
   verify_all_options();
 
@@ -1678,6 +1737,7 @@ void import_cmd(void){
   }
   if( g.argc==4 ){
     pIn = fossil_fopen(g.argv[3], "rb");
+    if( pIn==0 ) fossil_fatal("cannot open input file \"%s\"", g.argv[3]);
   }else{
     pIn = stdin;
     fossil_binary_mode(pIn);
@@ -1690,7 +1750,10 @@ void import_cmd(void){
   db_open_config(0, 0);
 
   db_begin_transaction();
-  if( !incrFlag ) db_initial_setup(0, 0, 0);
+  if( !incrFlag ){
+    db_initial_setup(0, 0, 0);
+    db_set("main-branch", gimport.zTrunkName, 0);
+  }
 
   if( svnFlag ){
     db_multi_exec(

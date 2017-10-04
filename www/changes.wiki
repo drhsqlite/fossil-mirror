@@ -1,4 +1,76 @@
-<title>Change Log</title>
+﻿<title>Change Log</title>
+
+<a name='v2_4'></a>
+<h2>Changes for Version 2.4 (TBD)</h2>
+
+  *  Add tech-note search capability.
+  *  Add the -r|--revision and -o|--origin options to the
+     [/help?cmd=annotate|annotate] command.
+  *  Add the origin= query parameter to the [/help?cmd=/annotate|/annotate]
+     webpage.
+  *  Support for URL Aliases added.  URL Aliases allow an administrator
+     to define their own URLs on the web interface that are rewritten to
+     built-in URLs with specific parameters.
+  *  Provide separate on-line help screens for each setting.
+  *  Back out support for the --no-dir-symlinks option
+  *  Remove support from the legacy configuration sync protocol.  The only
+     way now to do a configuration push or pull is to use the new protocol that
+     was added in 2011.
+  *  Add the from= and to= query parameters to [/help?cmd=/fdiff|/fdiff]
+     in order to get a diff of two files in the same check-in.
+  *  Fix the "ssh://" protocol to prevent an attack whereby the attacker convinces
+     a victim to run a "clone" with a dodgy URL and thereby gains access to their
+     system.
+  *  Provide a checkbox that will temporarily disable all ad-units.
+  *  Improvements to the [/help?cmd=/stat|/stat] page
+  *  Various new hyperlinks to the [/help?cmd=/bloblist|/bloblist]
+     and [/help?cmd=/bigbloblist|/bigbloblist] pages.
+  *  Correct the [/help?cmd=/doc|/doc] page to support read-only repositories.
+  *  Correct [/help?cmd=/zip|/zip], [/help?cmd=/tarball|/tarball],
+     [/help?cmd=zip|zip], and [/help?cmd=tarball|tarball] pages and commands to
+     honor the versioned manifest setting when outside of an open checkout
+     directory.
+  *  The admin-log and access-log settings are now on by default for
+     new repositories.
+  *  Update the built-in SQLite to version 3.20.1.
+
+<a name='v2_3'></a>
+<h2>Changes for Version 2.3 (2017-07-21)</h2>
+
+  *  Update the built-in SQLite to version 3.20.0 (beta).
+  *  Update internal Unicode character tables, used in regular expression
+     handling, from version 9.0 to 10.0.
+  *  Show the last-sync-URL on the [/help?cmd=/urllist|/urllist] page.
+  *  Added the "Event Summary" activity report.
+     [/reports?type=ci&view=lastchng|example]
+  *  Added the "Security Audit" page, available to administrators only
+  *  Added the Last Login time to the user list page, for administrators only
+  *  Added the --numstat option to the [/help?cmd=diff|fossil diff] command
+  *  Limit the size of the heap and stack on unix systems, as a proactive
+     defense against the
+     [https://www.qualys.com/2017/06/19/stack-clash/stack-clash.txt|Stack Clash]
+     attack.
+  *  Fix "database locked" warnings caused by "PRAGMA optimize".
+  *  Fix a potential XSS vulnerability on the
+     [/help?cmd=/help|/help] webpage.
+  *  Documentation updates
+
+<a name='v2_2'></a>
+<h2>Changes for Version 2.2 (2017-04-11)</h2>
+
+  *  GIT comment tags are now handled by Fossil during import/export.
+  *  Show the content of README files on directory listings.
+     ([/file/skins|example])
+  *  Support for Basic Authentication if enabled (default off).
+  *  Show the hash algorithms used on the
+     [/help?cmd=/rcvfromlist|/rcvfromlist] page.
+  *  The [/help?cmd=/tarball|/tarball] and [/help?cmd=/zip|/zip] pages
+     now use the the r= query parameter
+     to select which check-in to deliver.  The uuid= query parameter
+     is still accepted for backwards compatibility.
+  *  Update the built-in SQLite to version 3.18.0.
+  *  Run "[https://www.sqlite.org/pragma.html#pragma_optimize|PRAGMA optimize]"
+     on the database connection as it is closing.
 
 <a name='v2_1'></a>
 <h2>Changes for Version 2.1 (2017-03-10)</h2>
@@ -28,7 +100,7 @@
 
   *  Add checkbox widgets to various web pages.  See [/technote/8d18bf27e9|
      this technote] for more information.  To get the checkboxes to look as
-	 intended, you must update the CSS in your repository and all clones.
+     intended, you must update the CSS in your repository and all clones.
   *  Add the [/help/all|fossil all ui] command
   *  Add the [/help?cmd=/file|/file] webpage
   *  Enhance the [/help?cmd=/brlist|/brlist] webpage to make use of branch colors.

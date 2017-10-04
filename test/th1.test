@@ -854,7 +854,7 @@ run_in_checkout {
   fossil test-th-eval --open-config "artifact tip"
 }
 
-test th1-artifact-3 {[regexp -- {F test/th1\.test [0-9a-f]{40}} $RESULT]}
+test th1-artifact-3 {[regexp -- {F test/th1\.test [0-9a-f]{40,64}} $RESULT]}
 
 ###############################################################################
 
@@ -1438,6 +1438,81 @@ test th1-string-is-31 {$RESULT eq "0"}
 
 ###############################################################################
 
+fossil test-th-eval {string index "" -1}
+test th1-string-index-1 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval {string index "" 0}
+test th1-string-index-2 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval {string index "" 1}
+test th1-string-index-3 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval {string index "" 2}
+test th1-string-index-4 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval {string index "" end}
+test th1-string-index-5 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval {string index A -1}
+test th1-string-index-6 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval {string index A 0}
+test th1-string-index-7 {$RESULT eq "A"}
+
+###############################################################################
+
+fossil test-th-eval {string index A 1}
+test th1-string-index-8 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval {string index A 2}
+test th1-string-index-9 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval {string index A end}
+test th1-string-index-10 {$RESULT eq "A"}
+
+###############################################################################
+
+fossil test-th-eval {string index ABC -1}
+test th1-string-index-11 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval {string index ABC 0}
+test th1-string-index-12 {$RESULT eq "A"}
+
+###############################################################################
+
+fossil test-th-eval {string index ABC 1}
+test th1-string-index-13 {$RESULT eq "B"}
+
+###############################################################################
+
+fossil test-th-eval {string index ABC 2}
+test th1-string-index-14 {$RESULT eq "C"}
+
+###############################################################################
+
+fossil test-th-eval {string index ABC end}
+test th1-string-index-15 {$RESULT eq "C"}
+
+###############################################################################
+
 fossil test-th-eval {markdown}
 test th1-markdown-1 {$RESULT eq \
 {TH_ERROR: wrong # args: should be "markdown STRING"}}
@@ -1506,6 +1581,19 @@ test th1-markdown-5 {[normalize_result] eq \
 
 ###############################################################################
 
+# Verify that quoted delimiters like * and _ don't terminate their
+# span. This was fixed by checkin [dd41f85acf].
+fossil test-th-eval {markdown "*This is\\*a test.*\n_second\\_test_"}
+test th1-markdown-6 {[normalize_result] eq {{} {<div class="markdown">
+
+<p><em>This is*a test.</em>
+<em>second_test</em></p>
+
+</div>
+}}}
+
+###############################################################################
+
 fossil test-th-eval {encode64 test}
 test th1-encode64-1 {$RESULT eq "dGVzdA=="}
 
@@ -1567,39 +1655,23 @@ file delete $th1FileName
 
 ###############################################################################
 
-#
-# TODO: Modify the result of this test if the list of unversioned files
-#       changes.
-#
-run_in_checkout {
-  fossil test-th-eval --open-config "unversioned list"
-}
+# Tests for the TH1 unversioned command require at least one
+# unversioned file in the repository. All tests run in a freshly
+# created checkout of a freshly created repo, so we can just
+# create a file or two for the purpose.
+write_file ten.txt "0123456789"
+fossil unversioned add ten.txt
+fossil unversioned list
 
-test th1-unversioned-1 {[normalize_result] eq \
-{build-icons/linux.gif build-icons/linux64.gif build-icons/mac.gif\
-build-icons/openbsd.gif build-icons/src.gif build-icons/win32.gif\
-download.html download/fossil-linux-x86-1.32.zip\
-download/fossil-linux-x86-1.33.zip download/fossil-linux-x86-1.34.zip\
-download/fossil-linux-x86-1.35.zip download/fossil-macosx-x86-1.32.zip\
-download/fossil-macosx-x86-1.33.zip download/fossil-macosx-x86-1.34.zip\
-download/fossil-macosx-x86-1.35.zip download/fossil-openbsd-x86-1.32.zip\
-download/fossil-openbsd-x86-1.33.zip download/fossil-openbsd-x86-1.34.tar.gz\
-download/fossil-openbsd-x86-1.35.tar.gz download/fossil-src-1.32.tar.gz\
-download/fossil-src-1.33.tar.gz download/fossil-src-1.34.tar.gz\
-download/fossil-src-1.35.tar.gz download/fossil-w32-1.32.zip\
-download/fossil-w32-1.33.zip download/fossil-w32-1.34.zip\
-download/fossil-w32-1.35.zip download/releasenotes-1.32.html\
-download/releasenotes-1.33.html download/releasenotes-1.34.html\
-download/releasenotes-1.35.html index.wiki}}
+# unversioned list
+fossil test-th-eval --open-config "unversioned list"
+test th1-unversioned-1 {[normalize_result] eq {ten.txt}}
 
-###############################################################################
+# unversioned content
+fossil test-th-eval --open-config \
+      {string length [unversioned content ten.txt]}
+test th1-unversioned-2 {$RESULT eq {10}}
 
-run_in_checkout {
-  fossil test-th-eval --open-config \
-      {string length [unversioned content build-icons/src.gif]}
-}
-
-test th1-unversioned-2 {$RESULT eq {4592}}
 
 ###############################################################################
 

@@ -115,6 +115,17 @@ proc protOut {msg {noQuiet 0}} {
   }
 }
 
+# write a dict with just enough formatting
+# to make it human readable
+#
+proc protOutDict {dict {pattern *}} {
+   set longest [tcl::mathfunc::max 0 {*}[lmap key [dict keys $dict $pattern] {string length $key}]]
+   dict for {key value} $dict {
+      protOut [format "%-${longest}s = %s" $key $value]
+   }
+}
+
+
 # Run the Fossil program with the specified arguments.
 #
 # Consults the VERBOSE global variable to determine if
@@ -328,6 +339,29 @@ proc same_file {a b} {
   regsub -all { +\n} $y \n y
   return [expr {$x==$y}]
 }
+
+# Return true if two strings refer to the
+# same uuid. That is, the shorter is a prefix
+# of the longer.
+#
+proc same_uuid {a b} {
+  set na [string length $a]
+  set nb [string length $b]
+  if {$na == $nb} {
+    return [expr {$a eq $b}]
+  }
+  if {$na < $nb} then {
+    return [string match "$a*" $b]
+  }
+  return [string match "$b*" $a]
+}
+
+# Return a prefix of a uuid, defaulting to 10 chars.
+#
+proc short_uuid {uuid {len 10}} {
+  string range $uuid 0 $len-1
+}
+
 
 proc require_no_open_checkout {} {
   if {[info exists ::env(FOSSIL_TEST_DANGEROUS_IGNORE_OPEN_CHECKOUT)] && \
@@ -939,11 +973,18 @@ if {[catch {
 please set TEMP variable in environment, error: $error"
 }
 
+
 protInit $fossilexe
 set ::tempKeepHome 1
 foreach testfile $argv {
   protOut "***** $testfile ******"
-  source $testdir/$testfile.test
+  if { [catch {source $testdir/$testfile.test} testerror testopts] } {
+    test test-framework-$testfile 0
+    protOut "!!!!! $testfile: $testerror"
+    protOutDict $testopts"
+  } else {
+    test test-framework-$testfile 1
+  }
   protOut "***** End of $testfile: [llength $bad_test] errors so far ******"
 }
 unset ::tempKeepHome; delete_temporary_home

@@ -143,7 +143,6 @@ struct Global {
   char *zLocalRoot;       /* The directory holding the  local database */
   int minPrefix;          /* Number of digits needed for a distinct UUID */
   int eHashPolicy;        /* Current hash policy.  One of HPOLICY_* */
-  int fNoDirSymlinks;     /* True if --no-dir-symlinks flag is present */
   int fSqlTrace;          /* True if --sqltrace flag is present */
   int fSqlStats;          /* True if --sqltrace or --sqlstats are present */
   int fSqlPrint;          /* True if -sqlprint flag is present */
@@ -555,6 +554,8 @@ int main(int argc, char **argv)
   const char *zCmdName = "unknown";
   const CmdOrPage *pCmd = 0;
   int rc;
+
+  fossil_limit_memory(1);
   if( sqlite3_libversion_number()<3014000 ){
     fossil_fatal("Unsuitable SQLite version %s, must be at least 3.14.0",
                  sqlite3_libversion());
@@ -622,7 +623,6 @@ int main(int argc, char **argv)
     const char *zChdir = find_option("chdir",0,1);
     g.isHTTP = 0;
     g.rcvid = 0;
-    g.fNoDirSymlinks = find_option("no-dir-symlinks", 0, 0)!=0;
     g.fQuiet = find_option("quiet", 0, 0)!=0;
     g.fSqlTrace = find_option("sqltrace", 0, 0)!=0;
     g.fSqlStats = find_option("sqlstats", 0, 0)!=0;
@@ -737,7 +737,7 @@ int main(int argc, char **argv)
   **
   ** TH_OK: The xFunc() and the TH1 notification will both be executed.
   **
-  ** TH_ERROR: The xFunc() will be executed, the TH1 notification will be
+  ** TH_ERROR: The xFunc() will be skipped, the TH1 notification will be
   **           skipped.  If the xFunc() is being hooked, the error message
   **           will be emitted.
   **
@@ -891,7 +891,7 @@ const char *find_repository_option(){
 void verify_all_options(void){
   int i;
   for(i=1; i<g.argc; i++){
-    if( g.argv[i][0]=='-' ){
+    if( g.argv[i][0]=='-' && g.argv[i][1]!=0 ){
       fossil_fatal(
         "unrecognized command-line option, or missing argument: %s",
         g.argv[i]);
@@ -1063,7 +1063,7 @@ void test_version_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  verboseFlag = atoi(PD("verbose","0"));
+  verboseFlag = PD("verbose", 0) != 0;
   style_header("Version Information");
   style_submenu_element("Stat", "stat");
   get_version_blob(&versionInfo, verboseFlag);
@@ -1618,7 +1618,9 @@ static void process_one_web_page(
   /* Locate the method specified by the path and execute the function
   ** that implements that method.
   */
-  if( dispatch_name_search(g.zPath-1, CMDFLAG_WEBPAGE, &pCmd) ){
+  if( dispatch_name_search(g.zPath-1, CMDFLAG_WEBPAGE, &pCmd)
+   && dispatch_alias(g.zPath-1, &pCmd)
+  ){
 #ifdef FOSSIL_ENABLE_JSON
     if(g.json.isJsonMode){
       json_err(FSL_JSON_E_RESOURCE_NOT_FOUND,NULL,0);
@@ -1664,7 +1666,7 @@ static void process_one_web_page(
     **
     ** TH_OK: The xFunc() and the TH1 notification will both be executed.
     **
-    ** TH_ERROR: The xFunc() will be executed, the TH1 notification will be
+    ** TH_ERROR: The xFunc() will be skipped, the TH1 notification will be
     **           skipped.  If the xFunc() is being hooked, the error message
     **           will be emitted.
     **

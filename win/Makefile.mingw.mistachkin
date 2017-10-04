@@ -172,7 +172,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2k
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2l
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -227,7 +227,7 @@ TCCEXE = gcc
 #    the finished binary for fossil.  The BCC compiler above is used
 #    for building intermediate code-generator tools.
 #
-TCC = $(PREFIX)$(TCCEXE) -Wall
+TCC = $(PREFIX)$(TCCEXE) -Wall -Wdeclaration-after-statement
 
 #### Add the necessary command line options to build with debugging
 #    symbols, if enabled.
@@ -982,7 +982,7 @@ SQLITE3_SHELL_SRC.1 = shell-see.c
 SQLITE3_SHELL_SRC. = shell.c
 SQLITE3_SHELL_SRC = $(SRCDIR)/$(SQLITE3_SHELL_SRC.$(USE_SEE))
 SEE_FLAGS.0 =
-SEE_FLAGS.1 = -DSQLITE_HAS_CODEC
+SEE_FLAGS.1 = -DSQLITE_HAS_CODEC -DSQLITE_SHELL_DBKEY_PROC=fossil_key
 SEE_FLAGS. =
 SEE_FLAGS = $(SEE_FLAGS.$(USE_SEE))
 
@@ -2210,6 +2210,7 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_LIKE_DOESNT_MATCH_BLOBS \
                  -DSQLITE_OMIT_DECLTYPE \
                  -DSQLITE_OMIT_DEPRECATED \
+                 -DSQLITE_OMIT_GET_TABLE \
                  -DSQLITE_OMIT_PROGRESS_CALLBACK \
                  -DSQLITE_OMIT_SHARED_CACHE \
                  -DSQLITE_OMIT_LOAD_EXTENSION \
@@ -2252,7 +2253,7 @@ $(OBJDIR)/cson_amalgamation.o:	$(SRCDIR)/cson_amalgamation.c
 $(OBJDIR)/json.o $(OBJDIR)/json_artifact.o $(OBJDIR)/json_branch.o $(OBJDIR)/json_config.o $(OBJDIR)/json_diff.o $(OBJDIR)/json_dir.o $(OBJDIR)/jsos_finfo.o $(OBJDIR)/json_login.o $(OBJDIR)/json_query.o $(OBJDIR)/json_report.o $(OBJDIR)/json_status.o $(OBJDIR)/json_tag.o $(OBJDIR)/json_timeline.o $(OBJDIR)/json_user.o $(OBJDIR)/json_wiki.o : $(SRCDIR)/json_detail.h
 
 $(OBJDIR)/shell.o:	$(SQLITE3_SHELL_SRC) $(SRCDIR)/sqlite3.h $(SRCDIR)/../win/Makefile.mingw.mistachkin
-	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) -c $(SQLITE3_SHELL_SRC) -o $@
+	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) $(SEE_FLAGS) -c $(SQLITE3_SHELL_SRC) -o $@
 
 $(OBJDIR)/th.o:	$(SRCDIR)/th.c
 	$(XTCC) -c $(SRCDIR)/th.c -o $@

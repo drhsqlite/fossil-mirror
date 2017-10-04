@@ -412,7 +412,7 @@ static void wiki_put(Blob *pWiki, int parent, int needMod){
   int nrid;
   if( !needMod ){
     nrid = content_put_ex(pWiki, 0, 0, 0, 0);
-    if( parent) content_deltify(parent, nrid, 0);
+    if( parent) content_deltify(parent, &nrid, 1, 0);
   }else{
     nrid = content_put_ex(pWiki, 0, 0, 0, 1);
     moderation_table_create();
@@ -1427,7 +1427,6 @@ wiki_cmd_usage:
 */
 void test_markdown_render(void){
   Blob in, out;
-  db_find_and_open_repository(0,0);
   verify_all_options();
   if( g.argc!=3 ) usage("FILE");
   blob_zero(&out);

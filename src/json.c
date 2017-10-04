@@ -1265,7 +1265,6 @@ cson_value * json_g_to_json(){
   INT(g, repositoryOpen);
   INT(g, localOpen);
   INT(g, minPrefix);
-  INT(g, fNoDirSymlinks);
   INT(g, fSqlTrace);
   INT(g, fSqlStats);
   INT(g, fSqlPrint);
@@ -2251,6 +2250,11 @@ void json_page_top(void){
 ** In CLI mode, the -R REPO common option is supported. Due to limitations
 ** in the argument dispatching code, any -FLAGS must come after the final
 ** sub- (or subsub-) command.
+**
+** The -json-input FILE option can be used to read JSON data and process
+** it like the HTTP interface would. For example:
+**
+**   %fossil json -json-input my.json
 **
 ** The commands include:
 **

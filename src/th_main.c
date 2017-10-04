@@ -24,14 +24,6 @@
 
 #if INTERFACE
 /*
-** These macros are used within this file to detect if the repository and
-** configuration ("user") database are currently open.
-*/
-#define Th_IsLocalOpen()          (g.localOpen)
-#define Th_IsRepositoryOpen()     (g.repositoryOpen)
-#define Th_IsConfigOpen()         (g.zConfigDbName!=0)
-
-/*
 ** Flag parameters to the Th_FossilInit() routine used to control the
 ** interpreter creation and initialization process.
 */
@@ -68,6 +60,13 @@
 #define NO_COMMAND_HOOK_ERROR "no such command:  command_hook"
 #define NO_WEBPAGE_HOOK_ERROR "no such command:  webpage_hook"
 #endif
+
+/*
+** These macros are used within this file to detect if the repository and
+** configuration ("user") database are currently open.
+*/
+#define Th_IsRepositoryOpen()     (g.repositoryOpen)
+#define Th_IsConfigOpen()         (g.zConfigDbName!=0)
 
 /*
 ** Global variable counting the number of outstanding calls to malloc()
@@ -302,6 +301,7 @@ const char *Th_ReturnCodeName(int rc, int nullIfOk){
     case TH_BREAK:    return "TH_BREAK";
     case TH_RETURN:   return "TH_RETURN";
     case TH_CONTINUE: return "TH_CONTINUE";
+    case TH_RETURN2:  return "TH_RETURN2";
     default: {
       sqlite3_snprintf(sizeof(zRc), zRc, "TH1 return code %d", rc);
     }
@@ -1590,11 +1590,11 @@ static int queryCmd(
   nSql = argl[1];
   while( res==TH_OK && nSql>0 ){
     zErr = 0;
-    sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)&zErr);
+    report_restrict_sql(&zErr);
     g.dbIgnoreErrors++;
     rc = sqlite3_prepare_v2(g.db, argv[1], argl[1], &pStmt, &zTail);
     g.dbIgnoreErrors--;
-    sqlite3_set_authorizer(g.db, 0, 0);
+    report_unrestrict_sql();
     if( rc!=0 || zErr!=0 ){
       if( noComplain ) return TH_OK;
       Th_ErrorMessage(interp, "SQL error: ",

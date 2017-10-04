@@ -64,7 +64,7 @@ switch -glob -- [get-define host] {
 		if {[msg-quiet cc-check-decls __SUNPRO_C]} {
 			msg-result "Found sun stdio compiler"
 			# sun stdio compiler
-			# XXX: These haven't been fully tested.
+			# XXX: These haven't been fully tested. 
 			define SHOBJ_CFLAGS -KPIC
 			define SHOBJ_LDFLAGS "-G"
 			define SH_CFLAGS -KPIC
@@ -80,7 +80,7 @@ switch -glob -- [get-define host] {
 		if {[msg-quiet cc-check-decls __SUNPRO_C]} {
 			msg-result "Found sun stdio compiler"
 			# sun stdio compiler
-			# XXX: These haven't been fully tested.
+			# XXX: These haven't been fully tested. 
 			define SHOBJ_CFLAGS -KPIC
 			define SHOBJ_LDFLAGS "-G"
 			define SH_CFLAGS -KPIC
@@ -104,6 +104,11 @@ switch -glob -- [get-define host] {
 		define SH_LINKFLAGS ""
 		define SH_SOPREFIX ""
 		define LD_LIBRARY_PATH LIBRARY_PATH
+	}
+	microblaze* {
+		# Microblaze generally needs -fPIC rather than -fpic
+		define SHOBJ_CFLAGS -fPIC
+		define SH_CFLAGS -fPIC
 	}
 }
 

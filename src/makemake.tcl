@@ -108,6 +108,7 @@ set src {
   rss
   schema
   search
+  security_audit
   setup
   sha1
   sha1hard
@@ -166,6 +167,7 @@ set SQLITE_OPTIONS {
   -DSQLITE_LIKE_DOESNT_MATCH_BLOBS
   -DSQLITE_OMIT_DECLTYPE
   -DSQLITE_OMIT_DEPRECATED
+  -DSQLITE_OMIT_GET_TABLE
   -DSQLITE_OMIT_PROGRESS_CALLBACK
   -DSQLITE_OMIT_SHARED_CACHE
   -DSQLITE_OMIT_LOAD_EXTENSION
@@ -179,6 +181,7 @@ set SQLITE_OPTIONS {
   -DSQLITE_ENABLE_DBSTAT_VTAB
   -DSQLITE_ENABLE_JSON1
   -DSQLITE_ENABLE_FTS5
+  -DSQLITE_ENABLE_STMTVTAB
 }
 #lappend SQLITE_OPTIONS -DSQLITE_ENABLE_FTS3=1
 #lappend SQLITE_OPTIONS -DSQLITE_ENABLE_STAT4
@@ -389,7 +392,7 @@ SQLITE3_SHELL_SRC.1 = shell-see.c
 SQLITE3_SHELL_SRC. = shell.c
 SQLITE3_SHELL_SRC = $(SRCDIR)/$(SQLITE3_SHELL_SRC.$(USE_SEE))
 SEE_FLAGS.0 =
-SEE_FLAGS.1 = -DSQLITE_HAS_CODEC
+SEE_FLAGS.1 = -DSQLITE_HAS_CODEC -DSQLITE_SHELL_DBKEY_PROC=fossil_key
 SEE_FLAGS. =
 SEE_FLAGS = $(SEE_FLAGS.$(USE_SEE))
 }]
@@ -444,7 +447,7 @@ writeln "\ttouch \$(OBJDIR)/headers"
 writeln "\$(OBJDIR)/headers: Makefile"
 writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_config.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_dir.o \$(OBJDIR)/json_finfo.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_query.o \$(OBJDIR)/json_report.o \$(OBJDIR)/json_status.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_user.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h"
 writeln "Makefile:"
-set extra_h(main) " \$(OBJDIR)/page_index.h "
+set extra_h(dispatch) " \$(OBJDIR)/page_index.h "
 set extra_h(builtin) " \$(OBJDIR)/builtin_data.h "
 
 foreach s [lsort $src] {
@@ -460,7 +463,7 @@ writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) \$(SEE_FLAGS) \\"
 writeln "\t\t-c \$(SQLITE3_SRC) -o \$@"
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SQLITE3_SHELL_SRC) \$(SRCDIR)/sqlite3.h"
-writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) \$(LINENOISE_DEF.\$(USE_LINENOISE)) -c \$(SQLITE3_SHELL_SRC) -o \$@\n"
+writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) \$(SEE_FLAGS) \$(LINENOISE_DEF.\$(USE_LINENOISE)) -c \$(SQLITE3_SHELL_SRC) -o \$@\n"
 
 writeln "\$(OBJDIR)/linenoise.o:\t\$(SRCDIR)/linenoise.c \$(SRCDIR)/linenoise.h"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/linenoise.c -o \$@\n"
@@ -675,7 +678,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2k
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2l
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -730,7 +733,7 @@ TCCEXE = gcc
 #    the finished binary for fossil.  The BCC compiler above is used
 #    for building intermediate code-generator tools.
 #
-TCC = $(PREFIX)$(TCCEXE) -Wall
+TCC = $(PREFIX)$(TCCEXE) -Wall -Wdeclaration-after-statement
 
 #### Add the necessary command line options to build with debugging
 #    symbols, if enabled.
@@ -1074,7 +1077,7 @@ SQLITE3_SHELL_SRC.1 = shell-see.c
 SQLITE3_SHELL_SRC. = shell.c
 SQLITE3_SHELL_SRC = $(SRCDIR)/$(SQLITE3_SHELL_SRC.$(USE_SEE))
 SEE_FLAGS.0 =
-SEE_FLAGS.1 = -DSQLITE_HAS_CODEC
+SEE_FLAGS.1 = -DSQLITE_HAS_CODEC -DSQLITE_SHELL_DBKEY_PROC=fossil_key
 SEE_FLAGS. =
 SEE_FLAGS = $(SEE_FLAGS.$(USE_SEE))
 }
@@ -1215,7 +1218,7 @@ writeln "\t\$(XTCC) -c \$(SRCDIR)/cson_amalgamation.c -o \$@\n"
 writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_config.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_dir.o \$(OBJDIR)/jsos_finfo.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_query.o \$(OBJDIR)/json_report.o \$(OBJDIR)/json_status.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_user.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h\n"
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SQLITE3_SHELL_SRC) \$(SRCDIR)/sqlite3.h \$(SRCDIR)/../win/Makefile.mingw"
-writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) -c \$(SQLITE3_SHELL_SRC) -o \$@\n"
+writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) \$(SEE_FLAGS) -c \$(SQLITE3_SHELL_SRC) -o \$@\n"
 
 writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th.c -o \$@\n"
@@ -1506,7 +1509,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.0.2k
+SSLDIR    = $(B)\compat\openssl-1.0.2l
 SSLINCDIR = $(SSLDIR)\inc32
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)\out32dll
@@ -1852,19 +1855,17 @@ codecheck1$E: $(SRCDIR)\codecheck1.c
 	$(BCC) $**
 
 !if $(USE_SEE)!=0
+SEE_FLAGS = /DSQLITE_HAS_CODEC=1 /DSQLITE_SHELL_DBKEY_PROC=fossil_key
 SQLITE3_SHELL_SRC = $(SRCDIR)\shell-see.c
+SQLITE3_SRC = $(SRCDIR)\sqlite3-see.c
 !else
+SEE_FLAGS =
 SQLITE3_SHELL_SRC = $(SRCDIR)\shell.c
+SQLITE3_SRC = $(SRCDIR)\sqlite3.c
 !endif
 
 $(OX)\shell$O : $(SQLITE3_SHELL_SRC) $B\win\Makefile.msc
-	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) -c $(SQLITE3_SHELL_SRC)
-
-!if $(USE_SEE)!=0
-SQLITE3_SRC = $(SRCDIR)\sqlite3-see.c
-!else
-SQLITE3_SRC = $(SRCDIR)\sqlite3.c
-!endif
+	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) $(SEE_FLAGS) -c $(SQLITE3_SHELL_SRC)
 
 $(OX)\sqlite3$O : $(SQLITE3_SRC) $B\win\Makefile.msc
 	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SEE_FLAGS) $(SQLITE3_SRC)
