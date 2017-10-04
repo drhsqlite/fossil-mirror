@@ -410,21 +410,22 @@ void markdown_to_html(
 ){
   blob_reset(output_body);
   char * markdown_string = blob_str(input_markdown);
-  char *cmark_result = cmark_markdown_to_html(markdown_string, blob_size(input_markdown), 0 );
   if( output_title ) {
-     blob_reset(output_title);
-     if (strlen(markdown_string) > 0 && markdown_string[0] == '#' ) {
-       if (strlen(markdown_string + 1) > 0) {
-	 char * title_start = markdown_string + 1;
-	 int i = 0;
-	 while (markdown_string[i]!='\0' &&
-		(markdown_string[i]!='\n' && markdown_string[i]!='\r') ) {
-	   i++;
-	 }
-	 blob_append(output_title, title_start, i);
-       }
-     }
+    blob_reset(output_title);
+    if (strlen(markdown_string) > 0 && markdown_string[0] == '#' ) {
+      if (strlen(markdown_string + 1) > 0) {
+        char * title_start = markdown_string + 1;
+        int i = 0;
+        while (markdown_string[i]!='\0' &&
+            (markdown_string[i]!='\n' && markdown_string[i]!='\r') ) {
+          i++;
+        }
+        blob_append(output_title, title_start, i);
+        markdown_string = markdown_string+i;
+      }
+    }
   }
+  char *cmark_result = cmark_markdown_to_html(markdown_string, strlen(markdown_string), 0 );
   html_prolog(output_body,0);
   blob_append(output_body, cmark_result, strlen(cmark_result));
   html_epilog(output_body,0);
