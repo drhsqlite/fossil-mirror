@@ -1,5 +1,5 @@
-C Improvement\sto\sTH_RETURN\shandling\sneeded\sfor\sTH1\shooks.\s\sUpdate\sand\scorrect\sTH1\shook\stests.\s\sAdd\sdraft\sdocumentation\sfor\sTH1\shooks.
-D 2017-10-04T05:35:42.085
+C Fix\sa\shyperlink\son\sthe\s/mlink\spage.\s\sAdd\sa\slink\sfrom\s/info\sfor\sa\scheck-in\nto\sthe\s/mlink\spage\sunder\s"Other\sLinks".
+D 2017-10-05T10:02:30.298
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -425,7 +425,7 @@ F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c e0412afa4ac1895b73d1f49e5756be51aebfdf4f46379f7746b150ab084738e0
 F src/export.c 3e09dfda9d07b44c463d656dbc09f6adfe686d6d80ad55282a1f06b9216934f2
 F src/file.c 8e7a44e448f3530175863689aa354c1b77d7d0ff08006e610d571518c0a47b18
-F src/finfo.c 3b3fa76fceac6450a857d9bb6876dba90815c1e31d7d33710ff09f479c4fc2ed
+F src/finfo.c 083e4e5c559165901d77b232b52017f1c51e5d4299b90793e28df5b9f7998050
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c c774c78b274375f42653c71d0b6c1062695bb4da
@@ -438,7 +438,7 @@ F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d98
 F src/http_transport.c 43bf993a931c1a6cafb051566e06c841173ec350dedc0cb6887e112bc05a147c
 F src/import.c e48f2f2e0095795aeabe7220514c8694393693b853150c47f6d6792921def3f1
-F src/info.c c44dc8387e4ca40c4a215b07b1612eac94654b816fd8d8225bb99be402c04502
+F src/info.c 16ee8df5e0ba88aef7023b26d7e4606c89d777b0a4285dec0e7f7e6a077ecf15
 F src/json.c d60c46e8598420ce1a247faef05c7e7a310a82a5851e8a0e637e22422ed18d97
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c b6105183492ee774cdc685bfd80eb511fb1c5c37faf88198d7e4e58c41dfc68b
@@ -792,7 +792,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5f37eb84cac00efcbb2d42df3461eec6c0a9996a2afa473693bbdd4cb3a61d67
-R 362205b9de0d8bddf53be200b62ef0cc
-U mistachkin
-Z 2457b23130997d45b9127847ea43d133
+P 36f0e47b3275937da8b73a7376c9eec417066e6f84cc4ffb68304fd5ce31d5a9
+R cb418f8a561ce2609e52bffef4281eef
+U drh
+Z e5dcbeab7be3887c347b277ced235f5d

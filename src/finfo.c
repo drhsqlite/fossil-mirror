@@ -640,12 +640,12 @@ void mlink_page(void){
     @ <thead><tr>
     @ <th>Date</th>
     @ <th>Check-in</th>
-    @ <th>Parent Check-in</th>
+    @ <th>Parent<br>Check-in</th>
     @ <th>Merge?</th>
     @ <th>New</th>
     @ <th>Old</th>
-    @ <th>Exe Bit?</th>
-    @ <th>Prior Name</th>
+    @ <th>Exe<br>Bit?</th>
+    @ <th>Prior<br>Name</th>
     @ </tr></thead>
     @ <tbody>
     while( db_step(&q)==SQLITE_ROW ){
@@ -661,7 +661,7 @@ void mlink_page(void){
       @ <td><a href='%R/timeline?c=%!S(zCkin)'>%s(zDate)</a></td>
       @ <td><a href='%R/info/%!S(zCkin)'>%S(zCkin)</a></td>
       if( zParent ){
-        @ <td><a href='%R/info/%!S(zPid)'>%S(zParent)</a></td>
+        @ <td><a href='%R/info/%!S(zParent)'>%S(zParent)</a></td>
       }else{
         @ <td><i>(New)</i></td>
       }
@@ -717,8 +717,8 @@ void mlink_page(void){
     @ <th>Merge?</th>
     @ <th>New</th>
     @ <th>Old</th>
-    @ <th>Exe Bit?</th>
-    @ <th>Prior Name</th>
+    @ <th>Exe<br>Bit?</th>
+    @ <th>Prior<br>Name</th>
     @ </tr></thead>
     @ <tbody>
     while( db_step(&q)==SQLITE_ROW ){

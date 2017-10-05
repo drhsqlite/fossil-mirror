@@ -766,6 +766,7 @@ void ci_page(void){
       @   | %z(href("%R/fileage?name=%!S",zUuid))file ages</a>
       @   | %z(href("%R/tree?nofiles&type=tree&ci=%!S",zUuid))folders</a>
       @   | %z(href("%R/artifact/%!S",zUuid))manifest</a>
+      @   | %z(href("%R/mlink?ci=%!S",zUuid))mlink table</a>
       if( g.anon.Write ){
         @   | %z(href("%R/ci_edit?r=%!S",zUuid))edit</a>
       }
