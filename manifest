@@ -1,5 +1,5 @@
-C Minor\sformatting\schanges\sthe\sthe\s/mlink\spage.
-D 2017-10-05T11:03:44.773
+C Delta\schecksum\sverification\sis\sdisabled\sby\sdefault,\sfor\sbetter\sperformance.\nIt\scan\sbe\sreenabled\susing\s-DFOSSIL_ENABLE_DELTA_CKSUM_TEST.
+D 2017-10-05T11:37:25.823
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -413,7 +413,7 @@ F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 616c0dacc2268452b05044dbd4da3c66ea460e3842ba0466126cbb5421637bef
-F src/delta.c fd4007b32b5e1c7db5f286975cd9e0a6e65756c9
+F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
 F src/diff.c 4d7ed8017e218e9c447df1dc02f2e25f5e022cc6c7c277e6dba4473f73cd2ca8
@@ -461,7 +461,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c e79e6492901382bc825079f86b3d77e2b564d8d2e70454d40ab7967695c817c2
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
-F src/main.c 8debe9f445db78385abf9643e7a9495b43cb7387e9d78bf85a2d27aa595524ff
+F src/main.c 2efcd89d4108492838ce90841eb237165f33710e4a3f8e3709b5eeeaa6213be6
 F src/main.mk b8922b6044eaf27469fa4c16eef595404c39b14e2aba296cb82a0ab32f6536ad
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -792,7 +792,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 180128f523b161c7eb1e2b39aab4ea3bca05885eaeedd29d9b9d0cc9d11bb8dc
-R 7d24b4ac7c0519772748ec322b79e3a1
+P a73ed0d2f5091cf7c04029ac435544eb22fc659192be21e45106b1068fd71c78
+R 521bd0cad9f51ffee90aa4ba4fe6f5d9
 U drh
-Z d61e177c7175a8995301571f44af2d5f
+Z ae3d7e7c38b50aef0497e5040fe356f9
