@@ -713,7 +713,7 @@ void mlink_page(void){
     @ <table id='mlinktable'>
     @ <thead><tr>
     @ <th>File</th>
-    @ <th>From</th>
+    @ <th>Parent<br>Check-in</th>
     @ <th>Merge?</th>
     @ <th>New</th>
     @ <th>Old</th>

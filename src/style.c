@@ -1427,6 +1427,7 @@ const struct strctCssDefaults {
   { ".brlist table th",  "Branch list table headers",
     @ text-align: left;
     @ padding: 0px 1em 0.5ex 0px;
+    @ vertical-align: bottom;
   },
   { ".brlist table td",  "Branch list table headers",
     @ padding: 0px 2em 0px 0px;

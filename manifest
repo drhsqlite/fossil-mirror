@@ -1,5 +1,5 @@
-C Fix\sa\shyperlink\son\sthe\s/mlink\spage.\s\sAdd\sa\slink\sfrom\s/info\sfor\sa\scheck-in\nto\sthe\s/mlink\spage\sunder\s"Other\sLinks".
-D 2017-10-05T10:02:30.298
+C Minor\sformatting\schanges\sthe\sthe\s/mlink\spage.
+D 2017-10-05T11:03:44.773
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -425,7 +425,7 @@ F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c e0412afa4ac1895b73d1f49e5756be51aebfdf4f46379f7746b150ab084738e0
 F src/export.c 3e09dfda9d07b44c463d656dbc09f6adfe686d6d80ad55282a1f06b9216934f2
 F src/file.c 8e7a44e448f3530175863689aa354c1b77d7d0ff08006e610d571518c0a47b18
-F src/finfo.c 083e4e5c559165901d77b232b52017f1c51e5d4299b90793e28df5b9f7998050
+F src/finfo.c dd253d2888dae6309d3b1dfadc9d4f863963cfd7989263dad458e2c0504d1667
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c c774c78b274375f42653c71d0b6c1062695bb4da
@@ -508,7 +508,7 @@ F src/sqlite3.h 68fd0d7c3e1d290c7fe86f0b457babcaa6187550df53d86d8d4406d544fa2890
 F src/stash.c a6bb018a382d8c648702da7c2e9f56d7012486205c64ba269662336508ab0df2
 F src/stat.c 420ba0ca0e6804dc0f386bb46ec4f90197aa458a1849f53b2b7ceaa2dd37c869
 F src/statrep.c 9ee2695e45d0a0de17ce79d0b027f79bd246b4f305c95649044c3709a44372cd
-F src/style.c c74b7e2495c28f168acc2f6f8e06ae90de539ed252afbea66f281dfc31cfe35a
+F src/style.c 01b4804a3d90e71c6627b9af0eea80a32f766a15f6a18c787c5d98c3d6a4e84c
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 7eec9152da56e30bedad9b9c62195012de13f0db656f9b6395c2bcebfee7f4a8
 F src/tar.c 7f1a32be9c4534f5d837f44ebf66c54ad533e297e159fcd8403356d03b074bfe
@@ -792,7 +792,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 36f0e47b3275937da8b73a7376c9eec417066e6f84cc4ffb68304fd5ce31d5a9
-R cb418f8a561ce2609e52bffef4281eef
+P 180128f523b161c7eb1e2b39aab4ea3bca05885eaeedd29d9b9d0cc9d11bb8dc
+R 7d24b4ac7c0519772748ec322b79e3a1
 U drh
-Z e5dcbeab7be3887c347b277ced235f5d
+Z d61e177c7175a8995301571f44af2d5f
