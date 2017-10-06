@@ -598,8 +598,14 @@ void finfo_page(void){
 ** URL: /mlink?ci=NAME
 **
 ** Show all MLINK table entries for a particular file, or for
-** a particular check-in.  This screen is intended for use by developers
-** in debugging Fossil.
+** a particular check-in.
+**
+** This screen is intended for use by Fossil developers to help
+** in debugging Fossil itself.  Ordinary Fossil users are not 
+** expected to know what the MLINK table is or why it is important.
+**
+** To avoid confusing ordinary users, this page is only available
+** to adminstrators.
 */
 void mlink_page(void){
   const char *zFName = P("name");

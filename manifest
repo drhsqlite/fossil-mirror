@@ -1,5 +1,5 @@
-C Only\sshow\shyperlinks\sto\sthe\s/mlink\spage\sto\sadmin\susers.
-D 2017-10-05T11:41:47.633
+C Improved\shelp\smessage\sfor\sthe\s/mlink\spage
+D 2017-10-06T16:36:52.292
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -425,7 +425,7 @@ F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c e0412afa4ac1895b73d1f49e5756be51aebfdf4f46379f7746b150ab084738e0
 F src/export.c 3e09dfda9d07b44c463d656dbc09f6adfe686d6d80ad55282a1f06b9216934f2
 F src/file.c 8e7a44e448f3530175863689aa354c1b77d7d0ff08006e610d571518c0a47b18
-F src/finfo.c dd253d2888dae6309d3b1dfadc9d4f863963cfd7989263dad458e2c0504d1667
+F src/finfo.c b9be8f32aad646fcc0d8b1b908952a91467695d97c4dc25f98dc69df4cd21d5d
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c c774c78b274375f42653c71d0b6c1062695bb4da
@@ -792,7 +792,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d3a46b2a45b92bbcd196ab78fd22426ce9331e8d77a4c7673cdbb4c179c5b596
-R e99da6514f67f0e546b8a3a864bfb5fc
+P dead084ee5d54c258498e4f00c8d4175774e00a5c1c9f82d42a23aa6232b1f9e
+R e63053f7996e2046a07540d9b716d852
 U drh
-Z 9298ea120190041578b8eda58e66001a
+Z 5cba6cd4af41c1b42408201339ccc665
