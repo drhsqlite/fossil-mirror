@@ -2928,7 +2928,7 @@ struct Setting {
 */
 #endif
 /*
-** SETTING; gdiff-command    width=40 default=gdiff
+** SETTING: gdiff-command    width=40 default=gdiff
 ** The value is an external command to run when performing a graphical
 ** diff. If undefined, text diff will be used.
 */
@@ -3018,10 +3018,9 @@ struct Setting {
 */
 #endif
 /*
-** SETTING; pgp-command      width=40
-** DEFAULT: gpg --clearsign -o
-**
+** SETTING: pgp-command      width=40
 ** Command used to clear-sign manifests at check-in.
+** Default value is "gpg --clearsign -o"
 */
 /*
 ** SETTING: proxy            width=32 default=off

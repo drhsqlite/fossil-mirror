@@ -1,5 +1,5 @@
-C Improved\shelp\smessage\sfor\sthe\s/mlink\spage
-D 2017-10-06T16:36:52.292
+C Fix\sthe\son-line\shelp\sfor\sthe\spgo-command\sand\sgdiff-command\ssettings.
+D 2017-10-10T23:08:15.958
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -412,7 +412,7 @@ F src/content.c db74a6118fb9cfb07b9b7fbb35e4085550769a5281dddfea00e908b1dad4a427
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 616c0dacc2268452b05044dbd4da3c66ea460e3842ba0466126cbb5421637bef
+F src/db.c 5ddf654a2e65dd26fc0114a71d7a08a84ff6f4c9d7757b72b579272ab71f35e1
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
@@ -792,7 +792,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dead084ee5d54c258498e4f00c8d4175774e00a5c1c9f82d42a23aa6232b1f9e
-R e63053f7996e2046a07540d9b716d852
+P bf94ffa00994355a83945ef8f9206993b84b59aa2e24cb41bfe8beb884450eb6
+R 12652cc10d0c5a57022d2169a7852d60
 U drh
-Z 5cba6cd4af41c1b42408201339ccc665
+Z 3d9818023cd6269c2acd7a0b071f3036
