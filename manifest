@@ -1,5 +1,5 @@
-C Automatically\sre-configuring\s(same\sas\s"make\sreconfig")\swhen\sMakefile.in,\nsrc/main.mk,\sor\sone\sof\sthe\sautosetup\sfiles\schanges.\s\sThis\sshould\savoid\nthe\sneed\sto\srecommend\sto\speople\s"re-run\sconfigure"\swhenever\sthey\scall\n"fossil\supdate"\son\sthis\stree.
-D 2017-10-11T01:16:05.738
+C Small\spath\sfix\sto\sthe\snew\sautoreconfigure\sMakefile\srule.
+D 2017-10-11T01:23:15.792
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -13,7 +13,7 @@ F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile de98550db1d43a29a17bbd9284308733fb72615f
 F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
-F Makefile.in a43200d7d0ca524637d10553ba1ea60e809cd979ee14f958b429a0ff9a91d4ef x
+F Makefile.in 074d971647612e719ef6a8dc63d9fd43f5623b5f983d0d2da09a7f20f2ea982d x
 F VERSION b4028582de6f9b52e525eee9ad006dda39b48c38ab1bfdbbaf25423623189fcb
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
@@ -792,7 +792,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fd33b6a4aa314c2027b1cc4751b48f1cb280cac4efe8240616cff17d0171647c
-R c89b2bc60557da648093d7d7e889ddc0
+P c649ba277058a5988abb632879210a7d00641f3989409e9bf1523d9a8632bdfa
+R 573481c221cd78d6d8df3cad4571a1e5
 U wyoung
-Z 17db7db76924a5506c4122ccfbba4b71
+Z c8f4616d5a98637c9700e86bcd406ff2
