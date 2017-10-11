@@ -51,3 +51,24 @@ include $(SRCDIR)/main.mk
 
 distclean: clean
 	rm -f autoconfig.h config.log Makefile
+
+reconfig:
+	@AUTOREMAKE@
+
+# Reconfigure whenever an audiosetup file or one of the make source
+# files change, unless this is "make clean".
+#
+# The "touch" is necessary to avoid a make loop due to a new upstream
+# feature in autosetup where *.in outputs are touched only if they
+# actually change.  If something other than Makefile.in changes, we'll
+# reconfigure but Makefile won't change, so this rule will remain out of
+# date, so we'll reconfigure but Makefile won't change, so we'll...
+#
+# This also why we repeat the reconfig target's command here instead
+# of delegating to it with "$(MAKE) reconfig": having children running
+# around interfering makes this worse.
+ifeq ($(findstring clean,$(MAKECMDGOALS)),)
+Makefile: @srcdir@/Makefile.in $(SRCDIR)/main.mk @AUTODEPS@
+	@AUTOREMAKE@
+	touch @builddir@/Makefile
+endif
