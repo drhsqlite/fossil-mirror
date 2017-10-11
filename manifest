@@ -1,5 +1,5 @@
-C Fix\sthe\son-line\shelp\sfor\sthe\spgo-command\sand\sgdiff-command\ssettings.
-D 2017-10-10T23:08:15.958
+C Added\s"reconfig"\starget\sto\sthe\stop-level\sMakefile,\swhich\suses\san\nautosetup\sfeature\sto\sre-run\sconfigure\swith\sthe\ssame\soptions\syou\sgave\nmanually.
+D 2017-10-11T01:13:17.200
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -13,7 +13,7 @@ F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile de98550db1d43a29a17bbd9284308733fb72615f
 F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
-F Makefile.in ca04b4081ad0dc54256f7d609168750c2247882e
+F Makefile.in a4a9e0690d326cfc34099949c93000f763e6791ab91b8225408d95398572d7b0 x
 F VERSION b4028582de6f9b52e525eee9ad006dda39b48c38ab1bfdbbaf25423623189fcb
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
@@ -792,7 +792,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bf94ffa00994355a83945ef8f9206993b84b59aa2e24cb41bfe8beb884450eb6
-R 12652cc10d0c5a57022d2169a7852d60
-U drh
-Z 3d9818023cd6269c2acd7a0b071f3036
+P 7aad2af7d39acbf148575e2f09d5a9e688eb89b9d776d8b7e415ab67a042ec3e
+R b312af861552039879a78bc3ce810bed
+T *branch * wy-autoreconfig
+T *sym-wy-autoreconfig *
+T -sym-trunk *
+U wyoung
+Z 0ef1b4d9f0e8fa40d60a84569a678c80
