@@ -54,3 +54,10 @@ distclean: clean
 
 reconfig:
 	@AUTOREMAKE@
+
+# Reconfigure whenever an audiosetup file or one of the make source
+# files change, unless this is "make clean".
+ifeq ($(findstring clean,$(MAKECMDGOALS)),)
+Makefile: Makefile.in $(SRCDIR)/main.mk @AUTODEPS@
+	@AUTOREMAKE@ && $(MAKE)
+endif
