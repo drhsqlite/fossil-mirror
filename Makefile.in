@@ -55,18 +55,20 @@ distclean: clean
 reconfig:
 	@AUTOREMAKE@
 
-# Reconfigure whenever an audiosetup file or one of the make source
-# files change, unless this is "make clean".
+# Automatically reconfigure whenever an autosetup file or one of the
+# make source files change.
 #
 # The "touch" is necessary to avoid a make loop due to a new upstream
-# feature in autosetup where *.in outputs are touched only if they
-# actually change.  If something other than Makefile.in changes, we'll
-# reconfigure but Makefile won't change, so this rule will remain out of
-# date, so we'll reconfigure but Makefile won't change, so we'll...
+# feature in autosetup (GH 0a71e3c3b7) which rewrites *.in outputs only
+# if doing so will write different contents; otherwise, it leaves them
+# alone so the mtime doesn't change.  This means that if you change one
+# our depdendencies besides Makefile.in, we'll reconfigure but Makefile
+# won't change, so this rule will remain out of date, so we'll reconfig
+# but Makefile won't change, so we'll reconfig but... endlessly.
 #
-# This also why we repeat the reconfig target's command here instead
+# This is also why we repeat the reconfig target's command here instead
 # of delegating to it with "$(MAKE) reconfig": having children running
-# around interfering makes this worse.
+# around interfering makes this failure mode even worse.
 Makefile: @srcdir@/Makefile.in $(SRCDIR)/main.mk @AUTODEPS@
 	@AUTOREMAKE@
 	touch @builddir@/Makefile
