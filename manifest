@@ -1,5 +1,5 @@
-C Removed\sthe\sGNU\smake\sconditional\saround\sthe\snew\sautoreconfigure\ndependency\srule\sin\sthe\stop-level\sMakefile.in.\s\sApparently\swe\shave\susers\nusing\ssome\sother\smake,\sperhaps\sBSD\smake.\s\sSince\sthe\sconditional\sonly\nprevents\sautoreconfigure\sin\sthe\s"make\sclean"\scase,\swhere\sit\sis\sa\sminor\nannoyance,\sit's\snot\simportant\sto\swork\sout\show\sto\sretain\sthis\sin\sa\nnon-GNU\smake\sworld.
-D 2017-10-11T19:56:10.878
+C Update\sautosetup\sto\s0.6.8\s(v0.6.7-11-g3eb780c)
+D 2017-10-13T08:43:44.429
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -49,23 +49,23 @@ F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
 F auto.def b1ca09fab80272ad30df9f3f5ae543257dc269a958114e64c0757a95c5d7229c
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
-F autosetup/README.autosetup c235af4ce86af9a9b8b331b5a67c822d52ca2c6e
-F autosetup/autosetup 564c6ab11d5ab75d1aebc8d90ebc22df8babb01d2f9ada06d7964e5cfb7c38aa x
-F autosetup/cc-db.tcl 08642fcb65fb68ee8c523bfae45e67c68c08005d
-F autosetup/cc-lib.tcl 75bdc7b1e72b8751bf75dee05dfb4763a9fae40e70bfc25f3d5c7e280a1698a0
+F autosetup/README.autosetup 6e63a96acd8fdb234afefb5fbc3e9efb6a1ed3b8128062c1a0bebaeb5ab68913
+F autosetup/autosetup 3dcbe945ddb96930cff43dcab141cb9b7088376fc56692d5289eea8bbe72ebe9 x
+F autosetup/autosetup-config.guess 947c8873202b420cdd698aa562cd05ee128197f6 x
+F autosetup/autosetup-config.sub 1ed99f2fce4975f55e82b3833baf74fbcd8bdda0 x
+F autosetup/autosetup-find-tclsh 2d5d8c103ed193f0627e79467df9e476b0cffe1c5ef99626c2bae5d3cb8ff005 x
+F autosetup/autosetup-test-tclsh f197a4c7bfa8bde7672864fc36dcbc7f85bdda6c
+F autosetup/cc-db.tcl 4d410387006384f65ec986af45c5799eab1b8ef33f2b74bbcb976c0988ee8279
+F autosetup/cc-lib.tcl cbd29d0e896d978b7512c37a61c4bd286492ed3e67d466338efe7fe982d8bf15
 F autosetup/cc-shared.tcl 928361fc90669758e5e757e5399cd8258439e911c062bd7590e5363ff265c472
-F autosetup/cc.tcl 1ea33bf7c02fd9ec1b3abe2754ccf94a8e2b8bdc9852f93a735f17cfd6764f44
-F autosetup/config.guess 947c8873202b420cdd698aa562cd05ee128197f6 x
-F autosetup/config.sub 1ed99f2fce4975f55e82b3833baf74fbcd8bdda0 x
+F autosetup/cc.tcl a707d5af26e080293dd7dac3932b744488ec63b435da4c8c69022336784423df
 F autosetup/default.auto f78163e478676728918cbb7360abddb9c830e882
-F autosetup/find-tclsh f973558ad74bd8e4d55b677d9c166cbb35f34186 x
-F autosetup/jimsh0.c c31f25b294314ea582cb2acf8fe4aa04de1065060b72f58fa58c5dd5644863cd
+F autosetup/jimsh0.c cc6e53d44227f5dae159738c491969f48f82e76d3203566df0f9275ffd5e368a
 F autosetup/local.tcl 60b0633b484a89c87aed299e4c22ac5287803f921ba9b653a04b0c518f699cda
-F autosetup/pkg-config.tcl 1d3eb0476a271d7c506aa253a4a189a68344950d726381d2d0417bb31af21b4d
-F autosetup/system.tcl 8faf3eeadc63cb1718ada6eccecdb8f631801a6627e1d14c80230f8686d23d86
-F autosetup/test-tclsh f197a4c7bfa8bde7672864fc36dcbc7f85bdda6c x
-F autosetup/tmake.auto 76789a7eb47bb057c1d230f549dd6cf1cf3ac376
-F autosetup/tmake.tcl 585cf569bb5b94a98876615d6b6dd6d6d84c93a9
+F autosetup/pkg-config.tcl 84f116630e25242de5050dd1076051694791f68a83306145ded3616e80080189
+F autosetup/system.tcl d5bb04c87faded3831303fff4f98029d7b2c67b38399d30d2b5b9a4dddebb1c5
+F autosetup/tmake.auto f798f173e9ec2d03ffe3126d50ac62134a4ce83101e5c6bdd24601e1f8944f26
+F autosetup/tmake.tcl 124f0d58e29b9b5430843620af6a05f94d0eb14bd9c89bacc23cabaff9ca840f
 F compat/tcl-8.6/generic/tcl.h 3e49f8e5404fd60181c69b6d0ad075e12c4fbd4d
 F compat/tcl-8.6/generic/tclDecls.h 9f431aa5c9a819efa078fadecf3fb1214137455d
 F compat/tcl-8.6/generic/tclPlatDecls.h 05f8965cb99af1c9bb78ff437e991f49a598f7b7
@@ -317,7 +317,7 @@ F compat/zlib/zlib.pc.in 3ebc107b34d82b134e9f5933c2a569eb6e952ce4
 F compat/zlib/zlib2ansi e9859eecf47ae66280573d73969c061989615134 x
 F compat/zlib/zutil.c 2f1fcc93488ac84acf984415b6ea0bd63c72aa49
 F compat/zlib/zutil.h f32dab3880d47eca1b71c308cf6542b32941b23c
-F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
+F configure 5412e6559c67c57cf449505abe2dfaea12e2664d268f1c687d916eac9bd31d58 x
 F debian/makedeb.sh a178ffe4795ef9cc3ef3550572c20fe4110c8f87d9368f06526714ff12e33823
 F fossil.1 740ad69dfd64430b1e31d22ac799a6086c622ef8
 F setup/fossil.iss 57e01e1feb0198de025417c0a98f1d4b1c444f53
@@ -792,7 +792,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 67a9088237bfe01a5e00a1fd6fe4195d822eae13fdde378f4f55ac5c1cddccdf
-R 2bf71aa6f7bdcabf715f8fc71370ed40
-U wyoung
-Z 42d36cc36cd9097df51aa3f09a4a9f3c
+P 454e119398c27c8fc451220a1b758037bed4ea81bce4369fe8582e125e52ef84
+R 66b6d55f4a2f9eab4637ced12ec7e6b9
+T *branch * autosetup
+T *sym-autosetup *
+T -sym-trunk *
+U steveb
+Z c04bd3d8fa005ba1ea74a66c2b631115
