@@ -1,5 +1,5 @@
-C Rewrote\sthe\sautoreconfigure\sexplanation\scomment.\s\sIt\swas\sconfusing\sand\ncontained\serrors.
-D 2017-10-12T13:37:43.385
+C Update\s/dir\sto\ssupport\sreadme\sand\sreadme.*\sfiles\sbeing\sa\ssymlink\sto\sthe\sactual\sdocument.\s\sSymlinks\sto\ssymlinks\sare\snot\ssupported\sin\sthis\sinstance.\s\sThe\sdocument\stype\sis\sdetermined\sby\sthe\slink\starget\sname.
+D 2017-10-14T23:20:21.123
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -394,7 +394,7 @@ F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c ef75476b141ea073300a30cea9dae552291caec7ac05ef159e91bd951f3e6a15
 F src/branch.c ec22051c826068730a35a311f36a7e8525c8095381a95e830446ab24b107f22e
-F src/browse.c 01129a68be0f96e2bca69146e1c09affdff55d72e3c3a281084beaf392aad160
+F src/browse.c a32bcfd8ac8e72a8242e3b416b764662e71df538d139c6866151ebe71a198d1d
 F src/builtin.c d147d04305aa0db964ec84ef049e8e88d134de87
 F src/bundle.c c4b92c14df3e1aeebdeaf02d23a0ecaea462f8b5
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
@@ -700,7 +700,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 709d1d66e198e85f9faedd4d5261835fdb83c41cfeb20757f3ed7d72fa64ff6b
-F www/changes.wiki 29895e85b5f74f40917090b4c48e8aed2b2679e70c1da0ce148383b1a761742e
+F www/changes.wiki 8971e96e15e16e66e098ece34b8d813cfb30dd0068d33de7be37a7266ae4d450
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -792,7 +792,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 454e119398c27c8fc451220a1b758037bed4ea81bce4369fe8582e125e52ef84
-R 106d00fe0784e8020f9a15bb4b8433ce
-U wyoung
-Z 0580f17d5f57386081d46801a6ee3b38
+P 50844e5c6be4836ffcacb836d941c5bff5f7735e80fda0267ef1a662350032ca
+R a95388198130fab3b970e25ae0c4f44f
+U andygoth
+Z 2f9e96324847c598256d508402507732

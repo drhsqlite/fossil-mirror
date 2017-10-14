@@ -32,6 +32,9 @@
      directory.
   *  The admin-log and access-log settings are now on by default for
      new repositories.
+  *  Update /dir to support readme and readme.* files being a symlink to the
+     actual document.  Symlinks to symlinks are not supported in this instance.
+     The document type is determined by the link target name.
   *  Update the built-in SQLite to version 3.20.1.
 
 <a name='v2_3'></a>

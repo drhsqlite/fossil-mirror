@@ -214,7 +214,7 @@ void page_dir(void){
   ** from directories in the loop that follows.
   */
   db_multi_exec(
-     "CREATE TEMP TABLE localfiles(x UNIQUE NOT NULL, u);"
+     "CREATE TEMP TABLE localfiles(x UNIQUE NOT NULL, u, l);"
   );
   if( zCI ){
     Stmt ins;
@@ -224,7 +224,7 @@ void page_dir(void){
     int c;
 
     db_prepare(&ins,
-       "INSERT OR IGNORE INTO localfiles VALUES(pathelement(:x,0), :u)"
+       "INSERT OR IGNORE INTO localfiles VALUES(pathelement(:x,0), :u, :l)"
     );
     manifest_file_rewind(pM);
     while( (pFile = manifest_file_next(pM,0))!=0 ){
@@ -242,6 +242,7 @@ void page_dir(void){
       }
       db_bind_text(&ins, ":x", &pFile->zName[nD]);
       db_bind_text(&ins, ":u", pFile->zUuid);
+      db_bind_int(&ins, ":l", pFile->zPerm && strchr(pFile->zPerm, 'l')!=0);
       db_step(&ins);
       db_reset(&ins);
       pPrev = pFile;
@@ -252,14 +253,14 @@ void page_dir(void){
   }else if( zD ){
     db_multi_exec(
       "INSERT OR IGNORE INTO localfiles"
-      " SELECT pathelement(name,%d), NULL FROM filename"
+      " SELECT pathelement(name,%d,0), NULL FROM filename"
       "  WHERE name GLOB '%q/*'",
       nD, zD
     );
   }else{
     db_multi_exec(
       "INSERT OR IGNORE INTO localfiles"
-      " SELECT pathelement(name,0), NULL FROM filename"
+      " SELECT pathelement(name,0,0), NULL FROM filename"
     );
   }
 
@@ -306,7 +307,7 @@ void page_dir(void){
   ** the list of files
   */
   db_prepare(&q,
-    "SELECT x, u FROM localfiles"
+    "SELECT x, u, l FROM localfiles"
     " WHERE x COLLATE nocase IN"
     " ('readme','readme.txt','readme.md','readme.wiki','readme.markdown',"
     " 'readme.html') ORDER BY x LIMIT 1;"
@@ -314,29 +315,55 @@ void page_dir(void){
   if( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q,0);
     const char *zUuid = db_column_text(&q,1);
+    int isLink = db_column_int(&q,2);
     if( zUuid ){
       rid = fast_uuid_to_rid(zUuid);
+    }else if( zD ){
+      rid = db_int(0,
+         "SELECT fid FROM filename, mlink, event"
+         " WHERE name='%q/%q'"
+         "   AND mlink.fnid=filename.fnid"
+         "   AND event.objid=mlink.mid"
+         " ORDER BY event.mtime DESC LIMIT 1",
+         zD, zName
+      );
     }else{
-      if( zD ){
-        rid = db_int(0,
-           "SELECT fid FROM filename, mlink, event"
-           " WHERE name='%q/%q'"
-           "   AND mlink.fnid=filename.fnid"
-           "   AND event.objid=mlink.mid"
-           " ORDER BY event.mtime DESC LIMIT 1",
-           zD, zName
-        );
-      }else{
-        rid = db_int(0,
-           "SELECT fid FROM filename, mlink, event"
-           " WHERE name='%q'"
-           "   AND mlink.fnid=filename.fnid"
-           "   AND event.objid=mlink.mid"
-           " ORDER BY event.mtime DESC LIMIT 1",
-           zName
-        );
-      }
+      rid = db_int(0,
+         "SELECT fid FROM filename, mlink, event"
+         " WHERE name='%q'"
+         "   AND mlink.fnid=filename.fnid"
+         "   AND event.objid=mlink.mid"
+         " ORDER BY event.mtime DESC LIMIT 1",
+         zName
+      );
     }
+
+    /* If the README file is a symlink, dereference it to find the actual
+     * document.  To keep things simple and to avoid infinite loops, do not
+     * attempt more than one level of dereferencing. */
+    if( rid && isLink ){
+      char *zDir, *zNewName;
+      Blob content;
+      content_get(rid, &content);
+      zDir = file_dirname(zName);
+      if( zDir ){
+        zNewName = mprintf("%s/%s", zDir, blob_buffer(&content));
+      }else{
+        zNewName = blob_buffer(&content);
+      }
+      file_simplify_name(zNewName, -1, 0);
+      rid = db_int(0,
+         "SELECT fid FROM filename, mlink, event"
+         " WHERE name='%q'"
+         "   AND mlink.fnid=filename.fnid"
+         "   AND event.objid=mlink.mid"
+         " ORDER BY event.mtime DESC LIMIT 1",
+         zNewName
+      );
+      zName = zNewName;
+      zUuid = 0;
+    }
+
     if( rid ){
       @ <hr>
       if( sqlite3_strlike("readme.html", zName, 0)==0 ){
