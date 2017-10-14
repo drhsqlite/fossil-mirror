@@ -598,8 +598,14 @@ void finfo_page(void){
 ** URL: /mlink?ci=NAME
 **
 ** Show all MLINK table entries for a particular file, or for
-** a particular check-in.  This screen is intended for use by developers
-** in debugging Fossil.
+** a particular check-in.
+**
+** This screen is intended for use by Fossil developers to help
+** in debugging Fossil itself.  Ordinary Fossil users are not 
+** expected to know what the MLINK table is or why it is important.
+**
+** To avoid confusing ordinary users, this page is only available
+** to adminstrators.
 */
 void mlink_page(void){
   const char *zFName = P("name");
@@ -640,12 +646,12 @@ void mlink_page(void){
     @ <thead><tr>
     @ <th>Date</th>
     @ <th>Check-in</th>
-    @ <th>Parent Check-in</th>
+    @ <th>Parent<br>Check-in</th>
     @ <th>Merge?</th>
     @ <th>New</th>
     @ <th>Old</th>
-    @ <th>Exe Bit?</th>
-    @ <th>Prior Name</th>
+    @ <th>Exe<br>Bit?</th>
+    @ <th>Prior<br>Name</th>
     @ </tr></thead>
     @ <tbody>
     while( db_step(&q)==SQLITE_ROW ){
@@ -661,7 +667,7 @@ void mlink_page(void){
       @ <td><a href='%R/timeline?c=%!S(zCkin)'>%s(zDate)</a></td>
       @ <td><a href='%R/info/%!S(zCkin)'>%S(zCkin)</a></td>
       if( zParent ){
-        @ <td><a href='%R/info/%!S(zPid)'>%S(zParent)</a></td>
+        @ <td><a href='%R/info/%!S(zParent)'>%S(zParent)</a></td>
       }else{
         @ <td><i>(New)</i></td>
       }
@@ -713,12 +719,12 @@ void mlink_page(void){
     @ <table id='mlinktable'>
     @ <thead><tr>
     @ <th>File</th>
-    @ <th>From</th>
+    @ <th>Parent<br>Check-in</th>
     @ <th>Merge?</th>
     @ <th>New</th>
     @ <th>Old</th>
-    @ <th>Exe Bit?</th>
-    @ <th>Prior Name</th>
+    @ <th>Exe<br>Bit?</th>
+    @ <th>Prior<br>Name</th>
     @ </tr></thead>
     @ <tbody>
     while( db_step(&q)==SQLITE_ROW ){

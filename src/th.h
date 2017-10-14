@@ -104,6 +104,7 @@ int Th_InFrame(Th_Interp *interp,
 #define TH_BREAK    2
 #define TH_RETURN   3
 #define TH_CONTINUE 4
+#define TH_RETURN2  5
 
 /*
 ** Set and get the interpreter result.

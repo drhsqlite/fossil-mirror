@@ -205,9 +205,8 @@ void path_shortest_stored_in_ancestor_table(
   int cid         /* RID for check-in at the end of the path */
 ){
   PathNode *pPath;
-  Blob sql;
   int gen = 0;
-  char *zSep = "VALUES";
+  Stmt ins;
   pPath = path_shortest(cid, origid, 1, 0);
   db_multi_exec(
     "CREATE TEMP TABLE IF NOT EXISTS ancestor("
@@ -216,15 +215,16 @@ void path_shortest_stored_in_ancestor_table(
     ");"
     "DELETE FROM ancestor;"
   );
-  blob_init(&sql, "INSERT INTO ancestor(rid, generation)", -1);
+  db_prepare(&ins, "INSERT INTO ancestor(rid, generation) VALUES(:rid,:gen)");
   while( pPath ){
-    blob_append_sql(&sql, "%s(%d,%d)", zSep/*safe-for-%s*/, pPath->rid,++gen);
-    zSep = ",";
+    db_bind_int(&ins, ":rid", pPath->rid);
+    db_bind_int(&ins, ":gen", ++gen);
+    db_step(&ins);
+    db_reset(&ins);
     pPath = pPath->u.pTo;
   }
+  db_finalize(&ins);
   path_reset();
-  db_multi_exec("%s", blob_sql_text(&sql));
-  blob_reset(&sql);
 }
 
 /*

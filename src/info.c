@@ -766,6 +766,9 @@ void ci_page(void){
       @   | %z(href("%R/fileage?name=%!S",zUuid))file ages</a>
       @   | %z(href("%R/tree?nofiles&type=tree&ci=%!S",zUuid))folders</a>
       @   | %z(href("%R/artifact/%!S",zUuid))manifest</a>
+      if( g.perm.Admin ){
+        @   | %z(href("%R/mlink?ci=%!S",zUuid))mlink table</a>
+      }
       if( g.anon.Write ){
         @   | %z(href("%R/ci_edit?r=%!S",zUuid))edit</a>
       }
@@ -1574,17 +1577,20 @@ void diff_page(void){
       "SELECT (SELECT substr(uuid,1,20) FROM blob WHERE rid=a.mid),"
       "       (SELECT substr(uuid,1,20) FROM blob WHERE rid=b.mid),"
       "       (SELECT name FROM filename WHERE filename.fnid=a.fnid)"
-      "  FROM mlink a, mlink b"
+      "  FROM mlink a, event ea, mlink b, event eb"
       " WHERE a.fid=%d"
       "   AND b.fid=%d"
       "   AND a.fnid=b.fnid"
       "   AND a.fid!=a.pid"
-      "   AND b.fid!=b.pid",
+      "   AND b.fid!=b.pid"
+      "   AND ea.objid=a.mid"
+      "   AND eb.objid=b.mid"
+      " ORDER BY ea.mtime ASC, eb.mtime ASC",
       v1, v2
     );
     if( db_step(&q)==SQLITE_ROW ){
-      const char *zOrig = db_column_text(&q, 0);
-      const char *zCkin = db_column_text(&q, 1);
+      const char *zCkin = db_column_text(&q, 0);
+      const char *zOrig = db_column_text(&q, 1);
       const char *zFN = db_column_text(&q, 2);
       style_submenu_element("Annotate",
         "%R/annotate?origin=%s&checkin=%s&filename=%T",

@@ -301,6 +301,7 @@ const char *Th_ReturnCodeName(int rc, int nullIfOk){
     case TH_BREAK:    return "TH_BREAK";
     case TH_RETURN:   return "TH_RETURN";
     case TH_CONTINUE: return "TH_CONTINUE";
+    case TH_RETURN2:  return "TH_RETURN2";
     default: {
       sqlite3_snprintf(sizeof(zRc), zRc, "TH1 return code %d", rc);
     }

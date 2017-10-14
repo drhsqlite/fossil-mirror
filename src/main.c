@@ -737,7 +737,7 @@ int main(int argc, char **argv)
   **
   ** TH_OK: The xFunc() and the TH1 notification will both be executed.
   **
-  ** TH_ERROR: The xFunc() will be executed, the TH1 notification will be
+  ** TH_ERROR: The xFunc() will be skipped, the TH1 notification will be
   **           skipped.  If the xFunc() is being hooked, the error message
   **           will be emitted.
   **
@@ -951,8 +951,8 @@ static void get_version_blob(
 #if defined(FOSSIL_DEBUG)
   blob_append(pOut, "FOSSIL_DEBUG\n", -1);
 #endif
-#if defined(FOSSIL_OMIT_DELTA_CKSUM_TEST)
-  blob_append(pOut, "FOSSIL_OMIT_DELTA_CKSUM_TEST\n", -1);
+#if defined(FOSSIL_ENABLE_DELTA_CKSUM_TEST)
+  blob_append(pOut, "FOSSIL_ENABLE_DELTA_CKSUM_TEST\n", -1);
 #endif
 #if defined(FOSSIL_ENABLE_LEGACY_MV_RM)
   blob_append(pOut, "FOSSIL_ENABLE_LEGACY_MV_RM\n", -1);
@@ -1666,7 +1666,7 @@ static void process_one_web_page(
     **
     ** TH_OK: The xFunc() and the TH1 notification will both be executed.
     **
-    ** TH_ERROR: The xFunc() will be executed, the TH1 notification will be
+    ** TH_ERROR: The xFunc() will be skipped, the TH1 notification will be
     **           skipped.  If the xFunc() is being hooked, the error message
     **           will be emitted.
     **
