@@ -33,7 +33,9 @@
   *  The admin-log and access-log settings are now on by default for
      new repositories.
   *  Add support for the "l" flag to the "manifest" setting to enable creation
-     of a file "manifest.symlinks" which lists the names of all symlinks.
+     of a file "manifest.symlinks" which lists the names of all symlinks.  On
+     Windows, this new file can be edited to change which files are and are not
+     considered to be symlinks.
   *  Update the built-in SQLite to version 3.20.1.
 
 <a name='v2_3'></a>
