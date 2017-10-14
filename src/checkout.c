@@ -278,9 +278,9 @@ int get_checkout_symlink_table(void){
   }
 
   /* Read "manifest.symlinks" into a blob to be analyzed.  Simplify processing
-   * by forcing it to end with newline-NUL. */
+   * by forcing it to end with newline.  (Blobs are always NUL-terminated.) */
   blob_read_from_file(&content, zFile);
-  blob_append(&content, "\n", 2);
+  blob_append(&content, "\n", 1);
   zLine = blob_buffer(&content);
 
   /* Insert each non-empty line of "manifest.symlinks" into the "symlink_perm"
