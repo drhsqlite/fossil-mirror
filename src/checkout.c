@@ -285,6 +285,7 @@ int get_checkout_symlink_table(void){
 
   /* Insert each non-empty line of "manifest.symlinks" into the "symlink_perm"
    * temporary table. */
+  db_begin_transaction();
   db_multi_exec("CREATE TEMP TABLE IF NOT EXISTS symlink_perm("
                 "filename TEXT PRIMARY KEY %s)", filename_collation());
   while( *zLine ){
@@ -300,6 +301,7 @@ int get_checkout_symlink_table(void){
     /* Find start of next line, or find terminating NUL at end of file. */
     for( zLine = zEnd+1; *zLine=='\r' || *zLine=='\n'; ++zLine );
   }
+  db_end_transaction(0);
   blob_reset(&content);
 
   /* Let the caller know the "symlink_perm" table was created and is valid. */

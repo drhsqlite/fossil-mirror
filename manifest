@@ -1,5 +1,5 @@
-C Additional\scorrections\sto\sWindows\ssymlink\spermissions\slogic
-D 2017-10-14T22:03:05.959
+C Use\stransactions\swhile\screating\ssymlink_perm\stable
+D 2017-10-14T22:03:21.975
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -401,7 +401,7 @@ F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c f7d88d23102129bc8e798598168d51a545edecb870fdd13f31b1831f7d249284
 F src/checkin.c b55477bad09d4cb05754e61eec84f1c32b5d93f77b91202c1de437b287226a54
-F src/checkout.c a8e7ae0852cdfc0e8f09492f9b0d1c27cf0b4fd62b5ba90104e369985cccc60c
+F src/checkout.c 99ed4be36572aabbc95bb203e456aa79efeb87078d56a9e002e1040838e7253a
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c c8b17c6084570fef0afc5b52d5caffcc83ff4548
 F src/codecheck1.c cbf9594fb2802bad4603f877bc9aba236811355b049dc9f4c09a51f416953305
@@ -792,7 +792,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 364d04315b162ec5496b56ac9de265272d0ef204b045bd14415a59e0b307dd91
-R f884733257a89f4e91d428858088bb53
+P f29c8a44be4095114ac1566f0b090156a9c5d54b6338d9ac1c2d847ffd3e5aad
+R 66c1009197c9a2c5f0e34cec92afe36c
 U andygoth
-Z a265a1f9784e8790feb948a6e8ffebc1
+Z 2d728261877f0954d6b0428c6cb5e42d
