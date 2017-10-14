@@ -1,5 +1,5 @@
-C Move\smanifest.symlinks\sread\sfunctionality\sinto\sthe\snew\sget_checkout_symlink_table()\sfunction\sin\scheckout.c
-D 2017-10-14T21:32:55.118
+C Protect\sagainst\ssymlink_perm\stable\salready\sexisting,\sshould\sget_checkout_symlink_table()\shave\salready\sbeen\scalled
+D 2017-10-14T21:37:23.306
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -401,7 +401,7 @@ F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c f7d88d23102129bc8e798598168d51a545edecb870fdd13f31b1831f7d249284
 F src/checkin.c 5398d74de513afe12b7461b60f941a4df24f88ebb43db3095e1bb0a6af42614b
-F src/checkout.c 3cba96bd825b17ccab133757548367b8ca70164bee9f6ed8eefca21d0a350b2e
+F src/checkout.c a8e7ae0852cdfc0e8f09492f9b0d1c27cf0b4fd62b5ba90104e369985cccc60c
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c c8b17c6084570fef0afc5b52d5caffcc83ff4548
 F src/codecheck1.c cbf9594fb2802bad4603f877bc9aba236811355b049dc9f4c09a51f416953305
@@ -792,7 +792,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2808e225964e5030e6329ff6dfcf662d7bc0ecdbdb3bc2b9635390831c4dec09
-R 2e43252a4e765cf374bd6e033a6e0a67
+P 7a4bd5cf830693d03a2c11a64153d5680480dd80e7d544d28b344e1cbfe894a6
+R e277e8aef41bdb8fd6a900294871a72b
 U andygoth
-Z 1dd1d222fad761d260e76a58d7a4a214
+Z bd3af05d0981e58071e0159cc9e7a4c3

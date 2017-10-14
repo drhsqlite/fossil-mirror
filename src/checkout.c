@@ -285,8 +285,8 @@ int get_checkout_symlink_table(void){
 
   /* Insert each non-empty line of "manifest.symlinks" into the "symlink_perm"
    * temporary table. */
-  db_multi_exec("CREATE TEMP TABLE symlink_perm(filename TEXT PRIMARY KEY %s)",
-                filename_collation());
+  db_multi_exec("CREATE TEMP TABLE IF NOT EXISTS symlink_perm("
+                "filename TEXT PRIMARY KEY %s)", filename_collation());
   while( *zLine ){
     /* Find end of line and replace with NUL. */
     for( zEnd = zLine; *zEnd!='\r' && *zEnd!='\n'; ++zEnd );
