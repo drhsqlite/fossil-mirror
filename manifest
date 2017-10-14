@@ -1,5 +1,5 @@
-C Correct\svfile_check_signature()\shandling\sof\smanifest.symlinks\snot\sexisting\sor\smanifest\ssetting\snot\scontaining\sthe\sl\sflag
-D 2017-10-14T21:44:09.743
+C Tweak\scomment\sstyle\sfor\sconsistency\swithin\sfunctions
+D 2017-10-14T21:48:27.193
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -400,7 +400,7 @@ F src/bundle.c c4b92c14df3e1aeebdeaf02d23a0ecaea462f8b5
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c f7d88d23102129bc8e798598168d51a545edecb870fdd13f31b1831f7d249284
-F src/checkin.c 5398d74de513afe12b7461b60f941a4df24f88ebb43db3095e1bb0a6af42614b
+F src/checkin.c b55477bad09d4cb05754e61eec84f1c32b5d93f77b91202c1de437b287226a54
 F src/checkout.c a8e7ae0852cdfc0e8f09492f9b0d1c27cf0b4fd62b5ba90104e369985cccc60c
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c c8b17c6084570fef0afc5b52d5caffcc83ff4548
@@ -530,7 +530,7 @@ F src/user.c c595beaa8d6fee6bf1f5b53b77cf6a498dab9252cf22b2ec7852a70844cbe7ec
 F src/utf8.c 9f458b9698fc928cc21e375538f268651d1d22a2
 F src/util.c 5882876217d058c254e3f25d0637b5fcff063149fee4429c23bb5e08cf317386
 F src/verify.c 5799825d086464bb9e19e69ffeec84a710d1681b
-F src/vfile.c f3d8535d5e52b2afef373288eb07498a6db0cf6282588512c00a2eaf47cc06be
+F src/vfile.c 90205f43efddaf0c8c59469499d376853201354a6f7dd69612241cbddab8dc4d
 F src/wiki.c fb860008532595dc951674fdd021653ffbf7f217fa501cdae754fe58da1b6784
 F src/wikiformat.c bf5549e0b222dc208fedb893bb6dd533a43afe47f1bb1db327996d615d55f294
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
@@ -792,7 +792,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 23e67f67d0fb5ea2a773d47cb4c4096fa0bebdc597828338b68085c1d44f5db2
-R 45ce258145692e6a72f59b5a4052be21
+P de50c496d275a6522bdb419f2a8c29ee9cca1bb4c44314afab82d9f1c2347c1f
+R f84f58f89bc62657b5b8392fc9a12389
 U andygoth
-Z bcc127653c7715f9e43337e4d483e7fc
+Z c7b02469005ece986440b1c7dfb4b8ab

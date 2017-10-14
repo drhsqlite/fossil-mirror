@@ -1503,7 +1503,7 @@ static void create_manifest(
   const char *zColor;         /* Modified value of p->zColor */
 
   /* On Windows, get symlink permission status from the "manifest.symlinks" file
-   * if it exists and if the "manifest" setting contains the "l" flag. */
+  ** if it exists and if the "manifest" setting contains the "l" flag. */
 #ifdef _WIN32
   int manifestSymlinks = get_checkout_symlink_table();
 #endif
@@ -1565,16 +1565,14 @@ static void create_manifest(
 #ifdef _WIN32
     /* For Windows, if the "manifest" setting contains the "l" flag and the
     ** "manifest.symlinks" file exists, use its contents to determine which
-    ** files do and do not have the symlink permission.
-    */
+    ** files do and do not have the symlink permission. */
     if( isSelected && manifestSymlinks ){
       isLink = db_exists("SELECT 1 FROM symlink_perm WHERE filename=%Q", zName);
     }
 #else
     /* For unix, extract the "executable" and "symlink" permissions
     ** directly from the filesystem.  On windows, permissions are
-    ** unchanged from the original.
-    */
+    ** unchanged from the original. */
     if( isSelected ){
       int mPerm;
 
