@@ -180,6 +180,7 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
   ** if it exists and if the "manifest" setting contains the "l" flag. */
 #ifdef _WIN32
   int manifestSymlinks = get_checkout_symlink_table();
+  int nRoot = strlen(g.zLocalRoot);
 #endif
 
   db_begin_transaction();
@@ -211,15 +212,17 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
     currentSize = file_wd_size(zName);
     currentMtime = file_wd_mtime(0);
     origPerm = db_column_int(&q, 8);
-#ifdef _WIN32
+#ifndef _WIN32
     /* For Windows, if the "manifest" setting contains the "l" flag and the
     ** "manifest.symlinks" file exists, use its contents to determine which
     ** files do and do not have the symlink permission. */
-    if( manifestSymlinks
-     && db_exists("SELECT 1 FROM symlink_perm WHERE filename=%Q", zName) ){
+    if( !manifestSymlinks ){
+      currentPerm = origPerm;
+    }else if( db_exists("SELECT 1 FROM symlink_perm "
+                        "WHERE filename=%Q", zName+nRoot) ){
       currentPerm = PERM_LNK;
     }else{
-      currentPerm = origPerm;
+      currentPerm = 0;
     }
 #else
     currentPerm = file_wd_perm(zName);
