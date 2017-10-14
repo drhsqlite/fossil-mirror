@@ -1,5 +1,5 @@
-C Correct\shelp\stext\sfor\sopen\scommand
-D 2017-10-14T19:32:33.275
+C When\scommitting\son\sWindows\swith\sthe\s"l"\smanifest\sflag\sset,\supdate\sthe\ssymlink\spermission\sfor\sselected\sfiles\sfrom\sthe\smanifest.symlinks\sfile\sif\sit\sexists
+D 2017-10-14T21:13:39.920
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -400,7 +400,7 @@ F src/bundle.c c4b92c14df3e1aeebdeaf02d23a0ecaea462f8b5
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c f7d88d23102129bc8e798598168d51a545edecb870fdd13f31b1831f7d249284
-F src/checkin.c fd87c1f8044f45dfcd4a4a498748659c12bf7f8f9b398f029eaad69341b716cc
+F src/checkin.c 37d4f455558910b089d4f3c661d1735d2a7ffd7f47ea2fb500a9e01f29e365c6
 F src/checkout.c ae0d33f90a8380bc273f45c806de74842f8a70190ba51073d7758c1bd930ae4f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c c8b17c6084570fef0afc5b52d5caffcc83ff4548
@@ -792,7 +792,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 057645a9381434c707228d83396a4b1ebc9867214e37c69d2070c27f33e751dd
-R cc70a327f25ee9d2c46eecc3228a4f8c
+P 109c956ff1d615a2c3b7dec2dad5c4a6bc11808e576a9616e48b7b414788e466
+R c3d0773f175cfb322afa84f823ef4607
 U andygoth
-Z efbedc3d24ee3c7f6d2ec9c859246922
+Z 45c87b6ca82ec8054c7c7dee2533327b
