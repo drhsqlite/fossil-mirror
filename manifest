@@ -1,5 +1,5 @@
-C When\scommitting\son\sWindows\swith\sthe\s"l"\smanifest\sflag\sset,\supdate\sthe\ssymlink\spermission\sfor\sselected\sfiles\sfrom\sthe\smanifest.symlinks\sfile\sif\sit\sexists
-D 2017-10-14T21:13:39.920
+C Move\smanifest.symlinks\sread\sfunctionality\sinto\sthe\snew\sget_checkout_symlink_table()\sfunction\sin\scheckout.c
+D 2017-10-14T21:32:55.118
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -400,8 +400,8 @@ F src/bundle.c c4b92c14df3e1aeebdeaf02d23a0ecaea462f8b5
 F src/cache.c e509231b85149c995904b412d1c1e2599b6be610
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c f7d88d23102129bc8e798598168d51a545edecb870fdd13f31b1831f7d249284
-F src/checkin.c 37d4f455558910b089d4f3c661d1735d2a7ffd7f47ea2fb500a9e01f29e365c6
-F src/checkout.c ae0d33f90a8380bc273f45c806de74842f8a70190ba51073d7758c1bd930ae4f
+F src/checkin.c 5398d74de513afe12b7461b60f941a4df24f88ebb43db3095e1bb0a6af42614b
+F src/checkout.c 3cba96bd825b17ccab133757548367b8ca70164bee9f6ed8eefca21d0a350b2e
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c c8b17c6084570fef0afc5b52d5caffcc83ff4548
 F src/codecheck1.c cbf9594fb2802bad4603f877bc9aba236811355b049dc9f4c09a51f416953305
@@ -792,7 +792,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 109c956ff1d615a2c3b7dec2dad5c4a6bc11808e576a9616e48b7b414788e466
-R c3d0773f175cfb322afa84f823ef4607
+P 2808e225964e5030e6329ff6dfcf662d7bc0ecdbdb3bc2b9635390831c4dec09
+R 2e43252a4e765cf374bd6e033a6e0a67
 U andygoth
-Z 45c87b6ca82ec8054c7c7dee2533327b
+Z 1dd1d222fad761d260e76a58d7a4a214

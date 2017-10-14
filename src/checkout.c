@@ -250,6 +250,63 @@ void get_checkin_symlinklist(int rid, Blob *pOut){
   manifest_destroy(pManifest);
 }
 
+#ifdef _WIN32
+/*
+** Create a temporary table called "symlink_perm" containing the names of all
+** files considered to be symlinks.  This function only exists in Windows
+** because Unix symlink status comes directly from the filesystem.  The return
+** value is 1 if the table was created or 0 if symlink status is to be inherited
+** from the baseline check-in manifest.  The latter case occurs when the file
+** does not exist or when the "manifest" setting does not contain the "l" flag.
+*/
+int get_checkout_symlink_table(void){
+  Blob content = BLOB_INITIALIZER;
+  char *zFile, *zLine, *zEnd;
+
+  /* If the "manifest" setting lacks the "l" flag, do no further processing.
+   * Symlink status will be inherited from the previous check-in. */
+  if( !(db_get_manifest_setting() & MFESTFLG_SYMLINKS) ){
+    return 0;
+  }
+
+  /* If the "manifest.symlinks" file does not exist, act as if the "manifest"
+   * setting didn't have "l".  The file will be regenerated with the next commit
+   * or update, but for now, temporarily disable symlink status updating. */
+  zFile = mprintf("%smanifest.symlinks", g.zLocalRoot);
+  if( file_wd_size(zFile)<0 ){
+    return 0;
+  }
+
+  /* Read "manifest.symlinks" into a blob to be analyzed.  Simplify processing
+   * by forcing it to end with newline-NUL. */
+  blob_read_from_file(&content, zFile);
+  blob_append(&content, "\n", 2);
+  zLine = blob_buffer(&content);
+
+  /* Insert each non-empty line of "manifest.symlinks" into the "symlink_perm"
+   * temporary table. */
+  db_multi_exec("CREATE TEMP TABLE symlink_perm(filename TEXT PRIMARY KEY %s)",
+                filename_collation());
+  while( *zLine ){
+    /* Find end of line and replace with NUL. */
+    for( zEnd = zLine; *zEnd!='\r' && *zEnd!='\n'; ++zEnd );
+    *zEnd = 0;
+
+    /* If not a blank line, insert filename into symlink table. */
+    if( *zLine ){
+      db_multi_exec("INSERT OR IGNORE INTO symlink_perm VALUES(%Q)", zLine);
+    }
+
+    /* Find start of next line, or find terminating NUL at end of file. */
+    for( zLine = zEnd+1; *zLine=='\r' || *zLine=='\n'; ++zLine );
+  }
+  blob_reset(&content);
+
+  /* Let the caller know the "symlink_perm" table was created and is valid. */
+  return 1;
+}
+#endif
+
 /*
 ** COMMAND: checkout*
 ** COMMAND: co*

@@ -1502,40 +1502,10 @@ static void create_manifest(
   int i;                      /* Loop counter */
   const char *zColor;         /* Modified value of p->zColor */
 
+  /* On Windows, get symlink permission status from the "manifest.symlinks" file
+   * if it exists and if the "manifest" setting contains the "l" flag. */
 #ifdef _WIN32
-  /* On Windows, if the "manifest" setting contains the "l" flag, get the
-   * symlink status bits from the "manifest.symlinks" file. */
-  int manifestSymlinks = db_get_manifest_setting() & MFESTFLG_SYMLINKS;
-  if( manifestSymlinks ){
-    char *zFile = mprintf("%smanifest.symlinks", g.zLocalRoot);
-    if( file_wd_size(zFile)>=0 ){
-      /* If the file exists, read its contents into a temporary table. */
-      char *zLine, *zEnd;
-      Blob content = BLOB_INITIALIZER;
-      blob_read_from_file(&content, zFile);
-      blob_append(&content, "\n", 2);
-      db_multi_exec("CREATE TEMP TABLE symlink(filename TEXT PRIMARY KEY %s)",
-                    filename_collation());
-      zLine = blob_buffer(&content);
-      while( *zLine ){
-        /* Find end of line and replace with NUL. */
-        for( zEnd = zLine; *zEnd!='\r' && *zEnd!='\n'; ++zEnd );
-        *zEnd = 0;
-
-        /* If not a blank line, insert filename into symlink table. */
-        if( *zLine ){
-          db_multi_exec("INSERT OR IGNORE INTO symlink VALUES(%Q)", zLine);
-        }
-
-        /* Find start of next line, or find terminating NUL at end of file. */
-        for( zLine = zEnd+1; *zLine=='\r' || *zLine=='\n'; ++zLine );
-      }
-      blob_reset(&content);
-    }else{
-      /* If the file is nonexistent, pretend the "l" flag was not specified. */
-      manifestSymlinks = 0;
-    }
-  }
+  int manifestSymlinks = get_checkout_symlink_table();
 #endif
 
   assert( pBaseline==0 || pBaseline->zBaseline==0 );
@@ -1595,10 +1565,10 @@ static void create_manifest(
 #ifdef _WIN32
     /* For Windows, if the "manifest" setting contains the "l" flag and the
     ** "manifest.symlinks" file exists, use its contents to determine which
-    ** files do and do not have the "symlink" permission.
+    ** files do and do not have the symlink permission.
     */
     if( isSelected && manifestSymlinks ){
-      isLink = db_exists("SELECT 1 FROM symlink WHERE filename=%Q", zName);
+      isLink = db_exists("SELECT 1 FROM symlink_perm WHERE filename=%Q", zName);
     }
 #else
     /* For unix, extract the "executable" and "symlink" permissions
