@@ -1,5 +1,5 @@
-C Protect\sagainst\ssymlink_perm\stable\salready\sexisting,\sshould\sget_checkout_symlink_table()\shave\salready\sbeen\scalled
-D 2017-10-14T21:37:23.306
+C Update\sWindows\sversion\sof\svfile_check_signature()\sto\sget\ssymlink\sstatus\sfrom\smanifest.symlinks
+D 2017-10-14T21:43:25.017
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -530,7 +530,7 @@ F src/user.c c595beaa8d6fee6bf1f5b53b77cf6a498dab9252cf22b2ec7852a70844cbe7ec
 F src/utf8.c 9f458b9698fc928cc21e375538f268651d1d22a2
 F src/util.c 5882876217d058c254e3f25d0637b5fcff063149fee4429c23bb5e08cf317386
 F src/verify.c 5799825d086464bb9e19e69ffeec84a710d1681b
-F src/vfile.c 1ef8d4ac2d24482a58fcc5e4cc2ddd48f8c4282de2b0be94e8a24dec25731080
+F src/vfile.c 80bbf328d7d378b3bb77a474b341f1c1506bee91b7d51dc1df48279fb447596c
 F src/wiki.c fb860008532595dc951674fdd021653ffbf7f217fa501cdae754fe58da1b6784
 F src/wikiformat.c bf5549e0b222dc208fedb893bb6dd533a43afe47f1bb1db327996d615d55f294
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
@@ -792,7 +792,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7a4bd5cf830693d03a2c11a64153d5680480dd80e7d544d28b344e1cbfe894a6
-R e277e8aef41bdb8fd6a900294871a72b
+P 03ba3d9cb29f8dbc1c66f79608df6b476169ecde506fb0bf370e162ae0eb1d63
+R eaeac2d067a106fab96afd6e9c3484a5
 U andygoth
-Z bd3af05d0981e58071e0159cc9e7a4c3
+Z 3dfba3986f0209ed582d9bf2bf643877

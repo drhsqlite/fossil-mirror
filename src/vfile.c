@@ -176,6 +176,12 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
   int useMtime = (cksigFlags & CKSIG_HASH)==0
                     && db_get_boolean("mtime-changes", 1);
 
+  /* On Windows, get symlink permission status from the "manifest.symlinks" file
+   * if it exists and if the "manifest" setting contains the "l" flag. */
+#ifdef _WIN32
+  int manifestSymlinks = get_checkout_symlink_table();
+#endif
+
   db_begin_transaction();
   db_prepare(&q, "SELECT id, %Q || pathname,"
                  "       vfile.mrid, deleted, chnged, uuid, size, mtime,"
@@ -188,10 +194,8 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
     const char *zName;
     int chnged = 0;
     int oldChnged;
-#ifndef _WIN32
     int origPerm;
     int currentPerm;
-#endif
     i64 oldMtime;
     i64 currentMtime;
     i64 origSize;
@@ -206,8 +210,18 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
     origSize = db_column_int64(&q, 6);
     currentSize = file_wd_size(zName);
     currentMtime = file_wd_mtime(0);
-#ifndef _WIN32
     origPerm = db_column_int(&q, 8);
+#ifdef _WIN32
+    /* For Windows, if the "manifest" setting contains the "l" flag and the
+     * "manifest.symlinks" file exists, use its contents to determine which
+     * files do and do not have the symlink permission. */
+    if( manifestSymlinks
+     && db_exists("SELECT 1 FROM symlink_perm WHERE filename=%Q", zName) ){
+      currentPerm = PERM_LNK;
+    }else{
+      currentPerm = 0;
+    }
+#else
     currentPerm = file_wd_perm(zName);
 #endif
     if( chnged==0 && (isDeleted || rid==0) ){
@@ -253,7 +267,6 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
         }
       }
     }
-#ifndef _WIN32
     if( origPerm!=PERM_LNK && currentPerm==PERM_LNK ){
        /* Changing to a symlink takes priority over all other change types. */
        chnged = 7;
@@ -261,15 +274,16 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
        /* Confirm metadata change types. */
       if( origPerm==currentPerm ){
         chnged = 0;
+#ifndef _WIN32
       }else if( currentPerm==PERM_EXE ){
         chnged = 6;
       }else if( origPerm==PERM_EXE ){
         chnged = 8;
+#endif
       }else if( origPerm==PERM_LNK ){
         chnged = 9;
       }
     }
-#endif
     if( currentMtime!=oldMtime || chnged!=oldChnged ){
       db_multi_exec("UPDATE vfile SET mtime=%lld, chnged=%d WHERE id=%d",
                     currentMtime, chnged, id);
