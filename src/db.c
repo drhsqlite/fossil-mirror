@@ -2589,8 +2589,9 @@ void db_record_repository_filename(const char *zName){
 ** Open a connection to the local repository in FILENAME.  A checkout
 ** for the repository is created with its root at the working directory.
 ** If VERSION is specified then that version is checked out.  Otherwise
-** the latest version is checked out.  No files other than "manifest"
-** and "manifest.uuid" are modified if the --keep option is present.
+** the latest version is checked out.  If the --keep option is present,
+** no files other than "manifest", "manifest.uuid", "manifest.tags", and
+** "manifest.symlinks" are modified.
 **
 ** Options:
 **   --empty           Initialize checkout as being empty, but still connected
