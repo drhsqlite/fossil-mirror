@@ -219,7 +219,7 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
      && db_exists("SELECT 1 FROM symlink_perm WHERE filename=%Q", zName) ){
       currentPerm = PERM_LNK;
     }else{
-      currentPerm = 0;
+      currentPerm = origPerm;
     }
 #else
     currentPerm = file_wd_perm(zName);
