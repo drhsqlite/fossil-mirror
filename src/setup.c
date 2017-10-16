@@ -1225,17 +1225,19 @@ void setup_access(void){
   onoff_attribute(
       "Enable hyperlinks for \"nobody\" based on User-Agent and Javascript",
       "auto-hyperlink", "autohyperlink", 1, 0);
-  @ <p>Enable hyperlinks (the equivalent of the "h" permission) for all users
-  @ including user "nobody", as long as (1) the User-Agent string in the
+  @ <p>Enable hyperlinks (the equivalent of the "h" permission) for all users,
+  @ including user "nobody", as long as
+  @ <ol><li>the User-Agent string in the
   @ HTTP header indicates that the request is coming from an actual human
-  @ being and not a robot or spider and (2) the user agent is able to
-  @ run Javascript in order to set the href= attribute of hyperlinks.  Bots
-  @ and spiders can forge a User-Agent string that makes them seem to be a
-  @ normal browser and they can run javascript just like browsers.  But most
-  @ bots do not go to that much trouble so this is normally an effective
-  @ defense.<p>
+  @ being, and
+  @ <li>the user agent is able to
+  @ run Javascript in order to set the href= attribute of hyperlinks, and
+  @ <li>mouse movement is detected (optional - see the checkbox below), and
+  @ <li>a number of milliseconds have passed since the page loaded.</ol>
   @
-  @ <p>You do not normally want a bot to walk your entire repository because
+  @ <p>This setting is designed to give easy access to humans while
+  @ keeping out robots and spiders.
+  @ You do not normally want a robot to walk your entire repository because
   @ if it does, your server will end up computing diffs and annotations for
   @ every historical version of every file and creating ZIPs and tarballs of
   @ every historical check-in, which can use a lot of CPU and bandwidth
@@ -1243,20 +1245,15 @@ void setup_access(void){
   @
   @ <p>Additional parameters that control this behavior:</p>
   @ <blockquote>
-  onoff_attribute("Enable hyperlinks for humans as deduced from the UserAgent "
-                  "string", "auto-hyperlink-ishuman", "ahis", 0, 0);
-  @ <br />
   onoff_attribute("Require mouse movement before enabling hyperlinks",
                   "auto-hyperlink-mouseover", "ahmo", 0, 0);
   @ <br />
   entry_attribute("Delay in milliseconds before enabling hyperlinks", 5,
-                  "auto-hyperlink-delay", "ah-delay", "10", 0);
+                  "auto-hyperlink-delay", "ah-delay", "50", 0);
   @ </blockquote>
-  @ <p>Hyperlinks for user "nobody" are normally enabled as soon as the page
-  @ finishes loading.  But the first check-box below can be set to require mouse
-  @ movement before enabling the links. One can also set a delay prior to enabling
-  @ links by enter a positive number of milliseconds in the entry box above.</p>
-  @ (Properties: "auto-hyperlink", "auto-hyperlink-ishuman",
+  @ <p>For maximum robot defense, the "require mouse movement" should
+  @ be turned on and the "Delay" should be at least 50 milliseconds.</p>
+  @ (Properties: "auto-hyperlink",
   @ "auto-hyperlink-mouseover", and "auto-hyperlink-delay")</p>
 
   @ <hr />
