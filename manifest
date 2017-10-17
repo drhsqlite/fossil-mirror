@@ -1,5 +1,5 @@
-C Improvements\sto\sautomatic\shyperlink\senabling\sand\srobot\sexclusion.
-D 2017-10-16T13:54:46.331
+C Add\sthe\s/download\spage,\swith\sa\sconfiguration\soption\sto\sdefine\swhat\stag\sto\nbe\sdownloaded.
+D 2017-10-17T21:06:09.987
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -403,7 +403,7 @@ F src/cgi.c f7d88d23102129bc8e798598168d51a545edecb870fdd13f31b1831f7d249284
 F src/checkin.c 42bcff405f733b9a21c2550ef1b88b7e206f66f41756670c3cf587967b95f6a1
 F src/checkout.c ad202f9c6585a8e6d5418ff733f7349f652e9b05
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
-F src/clone.c c8b17c6084570fef0afc5b52d5caffcc83ff4548
+F src/clone.c 1871591c5d390f697405676e0b7d0393138a81329bd37ae875f3bd70645c07c7
 F src/codecheck1.c cbf9594fb2802bad4603f877bc9aba236811355b049dc9f4c09a51f416953305
 F src/comformat.c ba3c29ae04dcea342f6799fca0dd0ed00581262a2912b78faabe4608dd92935e
 F src/config.h d6b66b9cf87be799bc160e9afa0db82a5d34f30b4a73691a391031c37b4c0535
@@ -494,7 +494,7 @@ F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/search.c 17694892cbdf77000a684a93fb2aa7e7d7aba42b52d3ff1f788bf327eed1478c
 F src/security_audit.c 7258617b28df652f0b9c12f304dd54c8345c50f5a6ce0c24f59911a6fb20adc0
-F src/setup.c 242b2b406c9cc498a2851bf8a2aaecb9b324fcb743343b9ed9825c3cea130431
+F src/setup.c 8c490768671c46a6c4534f933e70798e3411ec9022de0cc8abf2166cdbb09a4e
 F src/sha1.c 04efd231424be45a281bdb50def7fce94625bd45b53d3c96b89e8de31f0305be
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c 7d862ff2c83826fd251909f5af2c8dd642417a8c389685e169f3c00434f784fa
@@ -792,7 +792,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 50844e5c6be4836ffcacb836d941c5bff5f7735e80fda0267ef1a662350032ca
-R 2254784a18e0cad38e095417bb891a3f
+P f014e1566042c3a802bdcc3f8a4b2d9af80dc040d51c216b45baeefeb1a69998
+R 505a111acb4968298a4a37822b8c4a2f
 U drh
-Z d129b2c8c940d8fefd1ad30c61a08c69
+Z 82bca731807abba6f9120cce6425ad44

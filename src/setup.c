@@ -1652,12 +1652,22 @@ void setup_config(void){
   @ engines as well as a short RSS description.
   @ (Property: "project-description")</p>
   @ <hr />
-  entry_attribute("Tarball and ZIP-archive Prefix", 20, "short-project-name", "spn", "", 0);
+  entry_attribute("Tarball and ZIP-archive Prefix", 20, "short-project-name",
+                  "spn", "", 0);
   @ <p>This is used as a prefix on the names of generated tarballs and ZIP archive.
   @ For best results, keep this prefix brief and avoid special characters such
   @ as "/" and "\".
   @ If no tarball prefix is specified, then the full Project Name above is used.
   @ (Property: "short-project-name")
+  @ </p>
+  @ <hr />
+  entry_attribute("Download Tag", 20, "download-tag", "dlt", "trunk", 0);
+  @ <p>The <a href='%R/download'>/download</a> page is designed to provide 
+  @ a convenient place for newbies
+  @ to download a ZIP archive or a tarball of the project.  By default, the latest
+  @ trunk check-in is downloaded.  Change this tag to something else (ex: release)
+  @ to alter the behavior of the /download page.
+  @ (Property: "download-tag")
   @ </p>
   @ <hr />
   onoff_attribute("Enable WYSIWYG Wiki Editing",
