@@ -1,5 +1,5 @@
-C Add\sthe\s/download\spage,\swith\sa\sconfiguration\soption\sto\sdefine\swhat\stag\sto\nbe\sdownloaded.
-D 2017-10-17T21:06:09.987
+C In\sthe\s"fossil\sall\sui"\scommand,\sshows\sthe\s"(hidden)"\smark\safter\srepos\sthat\ncontain\s"/."\sin\stheir\spathnames.
+D 2017-10-17T23:03:07.443
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -461,7 +461,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c e79e6492901382bc825079f86b3d77e2b564d8d2e70454d40ab7967695c817c2
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
-F src/main.c 2efcd89d4108492838ce90841eb237165f33710e4a3f8e3709b5eeeaa6213be6
+F src/main.c 15e6e4f051c1e1517fc94f5295b4605c3bb52917659535b57b040f9d5923332d
 F src/main.mk b8922b6044eaf27469fa4c16eef595404c39b14e2aba296cb82a0ab32f6536ad
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -792,7 +792,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f014e1566042c3a802bdcc3f8a4b2d9af80dc040d51c216b45baeefeb1a69998
-R 505a111acb4968298a4a37822b8c4a2f
+P c5fea125d9405c1ae2492529db31927436356701724ce2bfde514cb32670589f
+R a1b6f0ff86e7d54f59f5ff5574cdb6c4
 U drh
-Z 82bca731807abba6f9120cce6425ad44
+Z b01683d523fe5acc91ba9636d281125e

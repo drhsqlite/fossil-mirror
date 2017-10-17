@@ -1293,6 +1293,9 @@ static int repo_list_page(void){
         ** do not work for repositories whose names do not end in ".fossil".
         ** So do not hyperlink those cases. */
         @ <li>%h(zName)</li>
+      } else if( sqlite3_strglob("*/.*", zName)==0 ){
+        /* Do not show hidden repos */
+        @ <li>%h(zName) (hidden)</li>
       } else if( allRepo && sqlite3_strglob("[a-zA-Z]:/?*", zName)!=0 ){
         @ <li><a href="%R/%T(zUrl)/home" target="_blank">/%h(zName)</a></li>
       }else{
