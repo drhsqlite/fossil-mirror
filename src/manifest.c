@@ -762,11 +762,15 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         if( hname_validate(zUuid, sz) ){
           /* A valid artifact hash */
           if( p->zEventId ) SYNTAX("non-self-referential T-card in event");
+          if( p->zAttachTarget ){
+            SYNTAX("non-self-referential T-card in attachment");
+          }
         }else if( sz==1 && zUuid[0]=='*' ){
           zUuid = 0;
           hasSelfRefTag = 1;
-          if( p->zEventId && zName[0]!='+' ){
-            SYNTAX("propagating T-card in event");
+          if( zName[0]!='+' ){
+            if( p->zEventId ) SYNTAX("propagating T-card in event");
+            if( p->zAttachTarget ) SYNTAX("propagating T-card in attachment");
           }
         }else{
           SYNTAX("malformed artifact hash on T-card");
@@ -936,7 +940,6 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     p->type = CFTYPE_TICKET;
   }else if( p->zAttachName ){
     if( p->rDate<=0.0 ) SYNTAX("missing date on attachment");
-    if( p->nTag>0 ) SYNTAX("T-card in attachment");
     if( !seenZ ) SYNTAX("missing Z-card on attachment");
     p->type = CFTYPE_ATTACHMENT;
   }else{

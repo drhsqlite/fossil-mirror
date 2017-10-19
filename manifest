@@ -1,5 +1,5 @@
-C typo\sfix\sreported\son\sthe\sML.
-D 2017-10-19T08:47:37.405
+C Initial\schanges\sfor\sadding\sattachments\sto\scheck-ins.
+D 2017-10-19T20:39:31.741
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -466,7 +466,7 @@ F src/main.mk b8922b6044eaf27469fa4c16eef595404c39b14e2aba296cb82a0ab32f6536ad
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl 7ffa5b66d2e1bd8b4834ed628a71665196455930f85886b8de1946ea6ba1304f
-F src/manifest.c 1c857522c5247f926c1ac579a6b2f2e3261ef5bdd51376e26ce5c7943bd4b4f3
+F src/manifest.c e05c43de5b915b669dbcd631e8f16ecaef19aa835750a420d6450b32e5a421e0
 F src/markdown.c 2cb7007279db7ad8e16f8c822d5ba27f59b4af2dcc0cd4ba87cce3e4303d5969
 F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb98d
 F src/markdown_html.c 9bf56751d43414003cbf08b5a162d50a53df2c4f48951ccf9152119f39629789
@@ -737,7 +737,7 @@ F www/env-opts.md 2f9e9aece4b3b626dc54897d02d46b12ac683e3d48ddf1406ff90d5d2a5d7f
 F www/event.wiki f5a9cc34b11e8224e503e16137ba0f966f151551
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
-F www/fileformat.wiki c5e5f4a278c4babc29f071a07d177b1dddbfbac3
+F www/fileformat.wiki 9270a4bceb3b5e1d121920223cc772ab3614c11aaa5117610e5f1f93ded06e49
 F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
@@ -792,7 +792,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eecb721e0465b6b2f141407f1724d3df99cd101e83543599866aa202fb9402b5
-R ebf043e8837e8d7416fc10edff67d31c
-U stephan
-Z aafa39690ebcae60eebefc028dc25702
+P 1374d581423a1ee25a878651920ba0c4ec34e63a075a3efb9ba372e89f5dd7dc
+R e66614fc96fe695586f57700f92e084c
+T *branch * checkin-attachment
+T *sym-checkin-attachment *
+T -sym-trunk *
+U drh
+Z afc97a3357e776c335ed70aff6f58f95
