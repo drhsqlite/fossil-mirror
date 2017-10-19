@@ -35,7 +35,7 @@ TH1 Hook Related Variables for Web Pages
 ----------------------------------------
 
   *  web\_name -- _Name of web page being rendered._
-  *  web\_args -- _Current command line arguments._
+  *  web\_args -- _Current weg page arguments._
   *  web\_flags -- _Bitmask of CMDFLAG values for the web page being rendered._
 
 <a name="cmdReturnCodes"></a>TH1 Hook Related Return Codes for Commands
@@ -87,7 +87,7 @@ execution of a command.  The name of the command being executed will
 be stored in the "cmd\_name" global variable.  The arguments to the
 command being executed will be stored in the "cmd\_args" global variable.
 The associated CMDFLAG value will be stored in the "cmd\_flags" global
-variable.  The procedure should cause one of the available return the
+variable.  Before exiting, the procedure should trigger the return
 <a href="#cmdReturnCodes">code</a> that corresponds to the desired action
 to take next.
 
@@ -101,7 +101,7 @@ execution of a command.  The name of the command being executed will
 be stored in the "cmd\_name" global variable.  The arguments to the
 command being executed will be stored in the "cmd\_args" global variable.
 The associated CMDFLAG value will be stored in the "cmd\_flags" global
-variable.  The procedure should cause one of the available return the
+variable.  Before exiting, the procedure should trigger the return
 <a href="#cmdReturnCodes">code</a> that corresponds to the desired action
 to take next.
 
@@ -115,7 +115,7 @@ rendering of a web page.  The name of the web page being rendered will
 be stored in the "web\_name" global variable.  The arguments to the
 web page being rendered will be stored in the "web\_args" global variable.
 The associated CMDFLAG value will be stored in the "web\_flags" global
-variable.  The procedure should cause one of the available return the
+variable.  Before exiting, the procedure should trigger the return
 <a href="#webReturnCodes">code</a> that corresponds to the desired action
 to take next.
 
@@ -129,6 +129,6 @@ rendering of a web page.  The name of the web page being rendered will
 be stored in the "web\_name" global variable.  The arguments to the
 web page being rendered will be stored in the "web\_args" global variable.
 The associated CMDFLAG value will be stored in the "web\_flags" global
-variable.  The procedure should cause one of the available return the
+variable.  Before exiting, the procedure should trigger the return
 <a href="#webReturnCodes">code</a> that corresponds to the desired action
 to take next.
