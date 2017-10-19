@@ -35,7 +35,7 @@ TH1 Hook Related Variables for Web Pages
 ----------------------------------------
 
   *  web\_name -- _Name of web page being rendered._
-  *  web\_args -- _Current weg page arguments._
+  *  web\_args -- _Current web page arguments._
   *  web\_flags -- _Bitmask of CMDFLAG values for the web page being rendered._
 
 <a name="cmdReturnCodes"></a>TH1 Hook Related Return Codes for Commands
