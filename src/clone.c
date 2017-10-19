@@ -299,8 +299,8 @@ void clone_ssh_db_set_options(void){
 /*
 ** WEBPAGE: download
 **
-** Provide a simple page that newbies to download the latest tarball or
-** ZIP archive, and to provide instructions on how to clone.
+** Provide a simple page that enables newbies to download the latest tarball or
+** ZIP archive, and provides instructions on how to clone.
 */
 void download_page(void){
   login_check_credentials();
