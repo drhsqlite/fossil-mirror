@@ -125,7 +125,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.21.0"
 #define SQLITE_VERSION_NUMBER 3021000
-#define SQLITE_SOURCE_ID      "2017-10-02 02:52:54 c9104b59c7ed360291f7f6fc8caae938e9840c77620d598e4096f78183bf807a"
+#define SQLITE_SOURCE_ID      "2017-10-21 17:17:17 fb3ee1b7cac09e4950e4f48b44c277e4f391cb6c8f069644732d2389ca653da4"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -9231,8 +9231,8 @@ SQLITE_API int sqlite3session_diff(
 */
 SQLITE_API int sqlite3session_patchset(
   sqlite3_session *pSession,      /* Session object */
-  int *pnPatchset,                /* OUT: Size of buffer at *ppChangeset */
-  void **ppPatchset               /* OUT: Buffer containing changeset */
+  int *pnPatchset,                /* OUT: Size of buffer at *ppPatchset */
+  void **ppPatchset               /* OUT: Buffer containing patchset */
 );
 
 /*
@@ -9999,12 +9999,12 @@ SQLITE_API int sqlite3changeset_apply(
 **
 ** <table border=1 style="margin-left:8ex;margin-right:8ex">
 **   <tr><th>Streaming function<th>Non-streaming equivalent</th>
-**   <tr><td>sqlite3changeset_apply_str<td>[sqlite3changeset_apply] 
-**   <tr><td>sqlite3changeset_concat_str<td>[sqlite3changeset_concat] 
-**   <tr><td>sqlite3changeset_invert_str<td>[sqlite3changeset_invert] 
-**   <tr><td>sqlite3changeset_start_str<td>[sqlite3changeset_start] 
-**   <tr><td>sqlite3session_changeset_str<td>[sqlite3session_changeset] 
-**   <tr><td>sqlite3session_patchset_str<td>[sqlite3session_patchset] 
+**   <tr><td>sqlite3changeset_apply_strm<td>[sqlite3changeset_apply] 
+**   <tr><td>sqlite3changeset_concat_strm<td>[sqlite3changeset_concat] 
+**   <tr><td>sqlite3changeset_invert_strm<td>[sqlite3changeset_invert] 
+**   <tr><td>sqlite3changeset_start_strm<td>[sqlite3changeset_start] 
+**   <tr><td>sqlite3session_changeset_strm<td>[sqlite3session_changeset] 
+**   <tr><td>sqlite3session_patchset_strm<td>[sqlite3session_patchset] 
 ** </table>
 **
 ** Non-streaming functions that accept changesets (or patchsets) as input
