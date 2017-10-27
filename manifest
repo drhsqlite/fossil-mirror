@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.21.0\sfinal.
-D 2017-10-24T20:52:59.232
+C Fix\sbroken\shyperlinks\son\sthe\stech_overview.wiki\spage.
+D 2017-10-27T15:06:40.612
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -780,7 +780,7 @@ F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki 6558a7e417d5e9d29271c26ebb3195dddec31855
 F www/style.wiki da3a414d4c57c3da2636daf0baf6964ba72ce70b
 F www/sync.wiki 54f36924056d9b854a509ed1a87d15595605bc403f1dca18231439c44619a298
-F www/tech_overview.wiki 1902ff9a56644d8d113c89b4fded3b30cf0f5d6920a260d5fffdf9bae915ef32
+F www/tech_overview.wiki 202a068495f341712b040ed2c672b4f1a39f4959ef4a71608923b5eefd494364
 F www/th1-hooks.md d03bf09f51a061c17f39eefe6149dae36930da5e905e8bd38d610c20b143f6bc
 F www/th1.md 8fe09653d75c61780b48ef9e24c18984bbd657befb9495fee0bf3f6ee99842d9
 F www/theory1.wiki f3b67ce69fc710a54a9ec89f6d12f90da0632ea4
@@ -792,7 +792,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7ac19afae36fce495a70f1e3b8907406e70d5b58e6b0ccf227da0737af11126f
-R a85ec9145404291ab5b84f506a05e459
+P c7e55d9cacd4c7c980e8dafb1d8f808f7fcccccd2c5e066d33f01338961655bb
+R 82b23d39c17d0e30b11001aad36d5dcd
 U drh
-Z c92626806e64c6ac0628b5a416d3cb28
+Z 98f3ade696ce30b447c83407dfa2455f
