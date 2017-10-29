@@ -355,6 +355,7 @@ void help_page(void){
 
     style_header("Help");
 
+    @ <a name='commands'></a>
     @ <h1>Available commands:</h1>
     @ <table border="0"><tr>
     for(i=j=0; i<MX_COMMAND; i++){
@@ -383,6 +384,7 @@ void help_page(void){
     }
     @ </tr></table>
 
+    @ <a name='webpages'></a>
     @ <h1>Available web UI pages:</h1>
     @ <table border="0"><tr>
     for(i=j=0; i<MX_COMMAND; i++){
@@ -413,6 +415,7 @@ void help_page(void){
     }
     @ </tr></table>
 
+    @ <a name='unsupported'></a>
     @ <h1>Unsupported commands:</h1>
     @ <table border="0"><tr>
     for(i=j=0; i<MX_COMMAND; i++){
@@ -443,6 +446,7 @@ void help_page(void){
     }
     @ </tr></table>
 
+    @ <a name='settings'></a>
     @ <h1>Settings:</h1>
     @ <table border="0"><tr>
     for(i=j=0; i<MX_COMMAND; i++){

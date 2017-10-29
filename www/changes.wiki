@@ -3,15 +3,21 @@
 <a name='v2_4'></a>
 <h2>Changes for Version 2.4 (TBD)</h2>
 
+  *  New feature: URL Aliases.  URL Aliases allow an administrator
+     to define their own URLs on the web interface that are rewritten to
+     built-in URLs with specific parameters.  Create and configure URL Aliases
+     using the /Setup/URL_Aliases menu option in the web interface.
   *  Add tech-note search capability.
   *  Add the -r|--revision and -o|--origin options to the
      [/help?cmd=annotate|annotate] command.
   *  Add the origin= query parameter to the [/help?cmd=/annotate|/annotate]
      webpage.
-  *  Support for URL Aliases added.  URL Aliases allow an administrator
-     to define their own URLs on the web interface that are rewritten to
-     built-in URLs with specific parameters.
-  *  Provide separate on-line help screens for each setting.
+  *  The [/help?cmd=annotate|fossil annotate] command and the
+     [/help?cmd=/annotate|/annotate] web page go backwards in time as far
+     as can be computed in 30 milliseconds by default, rather than stopping
+     after 20 steps.  The new limit= query parameter or the --limit command-line
+     option can be used to alter this timeout.
+  *  Provide separate [/help#settings|on-line help screens for each setting].
   *  Back out support for the --no-dir-symlinks option
   *  Remove support from the legacy configuration sync protocol.  The only
      way now to do a configuration push or pull is to use the new protocol that
@@ -32,7 +38,7 @@
      directory.
   *  The admin-log and access-log settings are now on by default for
      new repositories.
-  *  Update the built-in SQLite to version 3.20.1.
+  *  Update the built-in SQLite to version 3.21.0.
 
 <a name='v2_3'></a>
 <h2>Changes for Version 2.3 (2017-07-21)</h2>

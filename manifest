@@ -1,5 +1,5 @@
-C Fix\sbroken\shyperlinks\son\sthe\stech_overview.wiki\spage.
-D 2017-10-27T15:06:40.612
+C Update\sthe\s2.4\schange\slog.
+D 2017-10-29T23:59:19.110
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -419,7 +419,7 @@ F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
 F src/diff.c 4d7ed8017e218e9c447df1dc02f2e25f5e022cc6c7c277e6dba4473f73cd2ca8
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c ed717450412b9a8fa0ff0c9321e51a0c466cc8e03d5ac0f737609b6a533a820e
-F src/dispatch.c 6f049ae1b55da6f30d3e32fddde325b29969f49f20f412d8c57cb27c89f36bac
+F src/dispatch.c a704180aa69f75cb63344488b613203d0e513c7f382d8d511777fb9b7a0c2694
 F src/doc.c b1ca58f64f6109a9b01e6483885d54ac7e789c6d4ea5bd8d5e7871e66b2efac7
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c e0412afa4ac1895b73d1f49e5756be51aebfdf4f46379f7746b150ab084738e0
@@ -700,7 +700,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 709d1d66e198e85f9faedd4d5261835fdb83c41cfeb20757f3ed7d72fa64ff6b
-F www/changes.wiki 29895e85b5f74f40917090b4c48e8aed2b2679e70c1da0ce148383b1a761742e
+F www/changes.wiki 137e8a72e1b5fb31c7677ea45f30b154c33dae7200cd40f1cac0d0b50aeba288
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -792,7 +792,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c7e55d9cacd4c7c980e8dafb1d8f808f7fcccccd2c5e066d33f01338961655bb
-R 82b23d39c17d0e30b11001aad36d5dcd
+P 3018d519c8d61073720e2e84b852af64a621e1b914179450b71faf9ede338979
+R 19e6a630c9e583be8ef58a12dfa16bbc
 U drh
-Z 98f3ade696ce30b447c83407dfa2455f
+Z b5f9ffe3f7aa97a35f12b3332a568986
