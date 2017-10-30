@@ -2873,7 +2873,8 @@ struct Setting {
 ** information on permissions see the Users page in Server
 ** Administration of the HTTP UI.
 */
-/* SETTING: diff-binary     boolean default=on
+/*
+** SETTING: diff-binary     boolean default=on
 ** If enabled, permit files that may be binary
 ** or that match the "binary-glob" setting to be used with
 ** external diff programs.  If disabled, skip these files.
