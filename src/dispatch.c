@@ -659,6 +659,6 @@ void help_cmd(void){
 ** by the mkindex utility program and included with <page_index.h>.
 */
 const Setting *setting_info(int *pnCount){
-  if( pnCount ) *pnCount = (int)(sizeof(aSetting)/sizeof(aSetting[0]));
+  if( pnCount ) *pnCount = (int)(sizeof(aSetting)/sizeof(aSetting[0])) - 1;
   return aSetting;
 }

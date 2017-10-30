@@ -1,5 +1,5 @@
-C Update\sthe\s2.4\schange\slog.
-D 2017-10-29T23:59:19.110
+C Add\sa\sblank\sentry\sto\sthe\send\sof\sthe\sSetting\sarray\sso\sthat\sloops\scan\sbe\nterminated\sby\schecking\sfor\sa\snull\szName\spointer.
+D 2017-10-30T13:20:52.017
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -419,7 +419,7 @@ F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
 F src/diff.c 4d7ed8017e218e9c447df1dc02f2e25f5e022cc6c7c277e6dba4473f73cd2ca8
 F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
 F src/diffcmd.c ed717450412b9a8fa0ff0c9321e51a0c466cc8e03d5ac0f737609b6a533a820e
-F src/dispatch.c a704180aa69f75cb63344488b613203d0e513c7f382d8d511777fb9b7a0c2694
+F src/dispatch.c 9103c1b19268411c87c8051084312e29e7c4aa252e3a9fd945af976f08fd563d
 F src/doc.c b1ca58f64f6109a9b01e6483885d54ac7e789c6d4ea5bd8d5e7871e66b2efac7
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c e0412afa4ac1895b73d1f49e5756be51aebfdf4f46379f7746b150ab084738e0
@@ -475,7 +475,7 @@ F src/merge.c 0d0cf4b86fd4f51cf4731313833b215997360314
 F src/merge3.c 04153e0e1a0c15c6e7e1815949b11084da2285416d76c257767b54652aaf1b78
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
-F src/mkindex.c 128820563b948cf017a59782adaf3495111a098e180d27b335a0014586d35d38
+F src/mkindex.c 3c906f8abcc810adf89e8c10f7051b63f679950029ed3bdf1b643468c5b59207
 F src/mkversion.c 6e606c3a895f71b35a878e817104b5e5eb056ce47925e341fde567f2448e9aa7
 F src/moderate.c 2540f90b20778a4d62156a3b4af962b401d4c89f
 F src/name.c 1cc2b83de879fd99ec72dc4bfc16d243d3207f4211566a95d621bff491a540ff
@@ -792,7 +792,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3018d519c8d61073720e2e84b852af64a621e1b914179450b71faf9ede338979
-R 19e6a630c9e583be8ef58a12dfa16bbc
+P 266a311b62e1febb4253de9d7aa485be8c0ac91a12cd2cd566b219296faae433
+R d0a18107d0de9b586506da1b24d599cf
 U drh
-Z b5f9ffe3f7aa97a35f12b3332a568986
+Z 387263a870f12e6e298cc05be3db6bed
