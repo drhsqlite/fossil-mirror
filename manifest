@@ -1,5 +1,5 @@
-C Version\s2.4
-D 2017-11-03T09:29:29.451
+C Changed\sthe\scolor\sof\sthe\sReader\sprivilege\ssubscript\sto\sbe\smore\sreadable\sin\sthe\sXekri\sskin.
+D 2017-11-03T12:54:06.476
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -382,7 +382,7 @@ F skins/rounded1/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/rounded1/footer.txt d20c3ed17ceccc1ad865c4fa50375d197e79f877
 F skins/rounded1/header.txt 90ea81c5b14e22a048e182c22769e9aa779d8752
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
-F skins/xekri/css.txt ac5c20948a58896cfbc4ed7c79aab1d14ae110efbde23c02124b9708ba98878a
+F skins/xekri/css.txt 4919f36aaaf60485c1cc39ff9452fd20dbab460cdfa3f3b6f72e227652907eaf
 F skins/xekri/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt b5adf120f4828b86e6bb9efa6d3345b51ab56fcf
@@ -792,10 +792,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5aa37859d0bf2309ad6a2263bfee0b4ee62ecb2690abdc5a1250a1b1de2e0f0b
-R 1bedbfdf2f36052d701ce05cddc1ac3e
-T +bgcolor * #d0c0ff
-T +sym-release *
-T +sym-version-2.4 *
-U drh
-Z 4350a140f87ecd07b622bdc271758f1b
+P a0001dcf57915cc0709f63035626561eb039eb0fdaf38ebdbeab770c0c03b5ad
+R e0e3219e2d342e3a01e9117f5cff3d36
+U zakero
+Z 570dd135401b0a91448a786c2b8e6c8e
