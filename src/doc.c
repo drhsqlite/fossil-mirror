@@ -575,7 +575,7 @@ static void convert_href_and_output(Blob *pIn){
 ** to the top-level of the repository.
 */
 void doc_page(void){
-  const char *zName;                /* Argument to the /doc page */
+  const char *zName = 0;            /* Argument to the /doc page */
   const char *zOrigName = "?";      /* Original document name */
   const char *zMime;                /* Document MIME type */
   char *zCheckin = "tip";           /* The check-in holding the document */
