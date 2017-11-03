@@ -1,41 +1,32 @@
-<html>
-  <head>
-    <base href="$baseurl/$current_page" />
-    <title>$<project_name>: $<title></title>
-      <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="$home/timeline.rss" />
-      <link rel="stylesheet" href="$stylesheet_url" type="text/css" media="screen" />
-  </head>
+<div class="header">
+  <div class="container">
 
-  <body>
-    <div class="header">
-      <div class="container">
+    <!-- Header -->
+    <div class="login pull-right">
+      <th1>
+        if {[info exists login]} {
+          html "<b>$login</b> — <a class='button' href='$home/login'>Logout</a>\n"
+        } else {
+          html "<a class='button' href='$home/login'>Login</a>\n"
+        }
+      </th1>
+      <div>
+        <h2><small>$title</small></h2>
+      </div>
+    </div>
+    <div class='logo'>
+      <img src='$logo_image_url' />
+      <th1>
+      if {[anycap jor]} {
+        html "<a class='rss' href='$home/timeline.rss'></a>"
+      }
+      </th1>
+    </div>
 
-        <!-- Header -->
-        <div class="login pull-right">
-          <th1>
-            if {[info exists login]} {
-              html "<b>$login</b> — <a class='button' href='$home/login'>Logout</a>\n"
-            } else {
-              html "<a class='button' href='$home/login'>Login</a>\n"
-            }
-          </th1>
-          <div>
-            <h2><small>$title</small></h2>
-          </div>
-        </div>
-        <div class='logo'>
-          <img src='$logo_image_url' />
-          <th1>
-          if {[anycap jor]} {
-            html "<a class='rss' href='$home/timeline.rss'></a>"
-          }
-          </th1>
-        </div>
-
-        <!-- Main Menu -->
-        <div class="mainmenu">
-          <ul>
-            <th1>
+    <!-- Main Menu -->
+    <div class="mainmenu">
+      <ul>
+        <th1>
 proc menulink {url name} {
   upvar current_page current
   upvar home home

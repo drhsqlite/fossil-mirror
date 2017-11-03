@@ -397,6 +397,24 @@ static void image_url_var(const char *zImageName){
 }
 
 /*
+** Default HTML page header text through <body>.  If the repository-specific
+** header template lacks a <body> tag, then all of the following is
+** prepended.
+*/
+static char zDfltHeader[] = 
+@ <html>
+@ <head>
+@ <base href="$baseurl/$current_page" />
+@ <title>$<project_name>: $<title></title>
+@ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
+@       href="$home/timeline.rss" />
+@ <link rel="stylesheet" href="$stylesheet_url" type="text/css"
+@       media="screen" />
+@ </head>
+@ <body>
+;
+
+/*
 ** Draw the header.
 */
 void style_header(const char *zTitleFormat, ...){
@@ -435,6 +453,9 @@ void style_header(const char *zTitleFormat, ...){
   image_url_var("background");
   if( !login_is_nobody() ){
     Th_Store("login", g.zLogin);
+  }
+  if( sqlite3_strlike("%<body>%", zHeader, 0)!=0 ){
+    Th_Render(zDfltHeader);
   }
   if( g.thTrace ) Th_Trace("BEGIN_HEADER_SCRIPT<br />\n", -1);
   Th_Render(zHeader);
@@ -661,6 +682,11 @@ void style_footer(void){
     cgi_append_content("<span class=\"thTrace\"><hr />\n", -1);
     cgi_append_content(blob_str(&g.thLog), blob_size(&g.thLog));
     cgi_append_content("</span>\n", -1);
+  }
+
+  /* Add document end mark if it was not in the footer */
+  if( sqlite3_strlike("%</body>%", zFooter, 0)!=0 ){
+    @ </body></html>
   }
 }
 

@@ -36,4 +36,3 @@ collapse.onclick = function(){
   target.classList.toggle('collapsed');
 };
 </script>
-</body></html>
