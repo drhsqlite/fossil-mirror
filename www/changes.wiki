@@ -1,7 +1,7 @@
 ﻿<title>Change Log</title>
 
 <a name='v2_4'></a>
-<h2>Changes for Version 2.4 (TBD)</h2>
+<h2>Changes for Version 2.4 (2017-11-03)</h2>
 
   *  New feature: URL Aliases.  URL Aliases allow an administrator
      to define their own URLs on the web interface that are rewritten to
