@@ -1,5 +1,5 @@
-C Fix\sa\sminor\stypo\sin\sa\scomment.\s\sNo\schanges\sto\scode.
-D 2017-11-04T13:16:38.897
+C Change\sthe\s"/wiki_rules"\spage\sso\sthat\sit\sdisplays\sa\swiki\ssource\sfile,\seither\nformatted\sor\splain-text,\sjust\slike\s/md_rules\sdoes.
+D 2017-11-04T14:56:23.510
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -462,10 +462,10 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c e79e6492901382bc825079f86b3d77e2b564d8d2e70454d40ab7967695c817c2
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
 F src/main.c 15e6e4f051c1e1517fc94f5295b4605c3bb52917659535b57b040f9d5923332d
-F src/main.mk b8922b6044eaf27469fa4c16eef595404c39b14e2aba296cb82a0ab32f6536ad
+F src/main.mk fd66ce269191ff36d4022b1f92015e61fc0642f265b7711ca397f1414850847e
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl 7ffa5b66d2e1bd8b4834ed628a71665196455930f85886b8de1946ea6ba1304f
+F src/makemake.tcl acebebc8fdb6f7e9efd7721caed4d8f16c64811653f7379e12a0096c93868c1e
 F src/manifest.c 1c857522c5247f926c1ac579a6b2f2e3261ef5bdd51376e26ce5c7943bd4b4f3
 F src/markdown.c 2cb7007279db7ad8e16f8c822d5ba27f59b4af2dcc0cd4ba87cce3e4303d5969
 F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb98d
@@ -531,7 +531,8 @@ F src/utf8.c 9f458b9698fc928cc21e375538f268651d1d22a2
 F src/util.c 5882876217d058c254e3f25d0637b5fcff063149fee4429c23bb5e08cf317386
 F src/verify.c 5799825d086464bb9e19e69ffeec84a710d1681b
 F src/vfile.c 1ef8d4ac2d24482a58fcc5e4cc2ddd48f8c4282de2b0be94e8a24dec25731080
-F src/wiki.c fb860008532595dc951674fdd021653ffbf7f217fa501cdae754fe58da1b6784
+F src/wiki.c 8869198a2ba315fea2b7f10a8540283b84767aa2073373dbe1a407070a8b8c72
+F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c bf5549e0b222dc208fedb893bb6dd533a43afe47f1bb1db327996d615d55f294
 F src/winfile.c 93c783aa1bf3d826fe4cdd6a4ea791180c5eb8af
 F src/winhttp.c b8020da569aa214b67cfcd0b2efb770390798e8d829f0d18899d496e92eb5e04
@@ -666,9 +667,9 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F win/Makefile.PellesCGMake 26ad3513db82de574bd9d392443d1e717795409a55fedf37f227198778eeaf0c
 F win/Makefile.dmc 32b2b3e529f84c3e79c1615e3406ff3ca341e16c8c9a6f3a2c78f266f4594683
-F win/Makefile.mingw 27a8ac320fb593f22bb9fd8308d5f46568b112d9ad28a2b8c209e54401e2c5ec
+F win/Makefile.mingw dfdd39832e495c281e3eb7be48dbc15056b87264cd9a5b228e54871db43ad665
 F win/Makefile.mingw.mistachkin 86701fedf18fd503392305754de44b7ea69a0dd91c8f8d61e1e4600d4af9af4d
-F win/Makefile.msc eb29b3cb716fb3676d3fe3a93ba08440522b2dab042e5c3588ed1fa437470685
+F win/Makefile.msc 737f40d7a7b9e5ee4c96d8d46e1c7fcef0dbc60def58b1393e94d30f534401d6
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -792,7 +793,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f1bb72ed266f768bac57c8eaab1569ad7b33921543b3f1a59eeeea3d5c035a54
-R a64e8de83e5e5424f3798fd7491c8ae2
+P 9b20b8a18cc91a33b79db9c5e4c55131ed5a367a8e5d99ef8f2a39e0ce9d2c2f
+R 57dc6b690001ef6fdc39f6d311df2855
 U drh
-Z 8fed1d5fbb7a4878febbca35d686c2ac
+Z 881ad09936be8e59c18d6e9340be44b6

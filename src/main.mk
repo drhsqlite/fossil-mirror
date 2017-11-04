@@ -195,7 +195,8 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/xekri/footer.txt \
   $(SRCDIR)/../skins/xekri/header.txt \
   $(SRCDIR)/diff.tcl \
-  $(SRCDIR)/markdown.md
+  $(SRCDIR)/markdown.md \
+  $(SRCDIR)/wiki.wiki
 
 TRANS_SRC = \
   $(OBJDIR)/add_.c \

@@ -154,6 +154,7 @@ set src {
 set extra_files {
   diff.tcl
   markdown.md
+  wiki.wiki
   ../skins/*/*.txt
 }
 
