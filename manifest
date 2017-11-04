@@ -1,5 +1,5 @@
-C Automatically\sgenerate\sthe\s&lt;html&gt;&lt;head&gt;...&lt;/head&gt;&lt;body&gt;\nsection\sat\sthe\sbeginning\sof\seach\sHTML\sdocument\sif\sthe\sheader\stemplate\sdoes\snot\ncontain\sa\s&lt;body&gt;\stag.\s\sLikewise\sfor\sthe\s&lt;/body&gt;&lt;/html&gt;\nafter\sthe\sfooter.
-D 2017-11-03T13:34:07.465
+C Fix\sa\sminor\stypo\sin\sa\scomment.\s\sNo\schanges\sto\scode.
+D 2017-11-04T13:16:38.897
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -474,7 +474,7 @@ F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/merge.c 0d0cf4b86fd4f51cf4731313833b215997360314
 F src/merge3.c 04153e0e1a0c15c6e7e1815949b11084da2285416d76c257767b54652aaf1b78
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
-F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
+F src/mkbuiltin.c 83facfc58e53ddf348e6e85a79e7ed76fcee2644a37705eb41a4809673ef3e06
 F src/mkindex.c 3c906f8abcc810adf89e8c10f7051b63f679950029ed3bdf1b643468c5b59207
 F src/mkversion.c 6e606c3a895f71b35a878e817104b5e5eb056ce47925e341fde567f2448e9aa7
 F src/moderate.c 2540f90b20778a4d62156a3b4af962b401d4c89f
@@ -792,7 +792,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bfbcc126d374ab4db95d0e285571d225a0280f6811d70ad80f3f12dbdcc25d26
-R 0626489013ef93069a89048d6b922728
+P f1bb72ed266f768bac57c8eaab1569ad7b33921543b3f1a59eeeea3d5c035a54
+R a64e8de83e5e5424f3798fd7491c8ae2
 U drh
-Z 5a6ea47b9cadec2510e983389a30b5bb
+Z 8fed1d5fbb7a4878febbca35d686c2ac
