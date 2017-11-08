@@ -1,5 +1,5 @@
-C Version\s2.4
-D 2017-11-03T09:29:29.451
+C (cherrypick):\supdate\swin/Makefile.mingw.mistachkin
+D 2017-11-08T15:20:05.121
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -11,7 +11,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile de98550db1d43a29a17bbd9284308733fb72615f
+F Dockerfile e7227012b615af680194dc1d548ea5571da2c06c45c1b21fccec32e1932eebb4
 F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
 F Makefile.in 949db16af0f38e4ffa0924a33bd9be0c18cde2de2c59a6de977037539345af2d x
 F VERSION b4028582de6f9b52e525eee9ad006dda39b48c38ab1bfdbbaf25423623189fcb
@@ -667,7 +667,7 @@ F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9
 F win/Makefile.PellesCGMake 26ad3513db82de574bd9d392443d1e717795409a55fedf37f227198778eeaf0c
 F win/Makefile.dmc 32b2b3e529f84c3e79c1615e3406ff3ca341e16c8c9a6f3a2c78f266f4594683
 F win/Makefile.mingw 27a8ac320fb593f22bb9fd8308d5f46568b112d9ad28a2b8c209e54401e2c5ec
-F win/Makefile.mingw.mistachkin 86701fedf18fd503392305754de44b7ea69a0dd91c8f8d61e1e4600d4af9af4d
+F win/Makefile.mingw.mistachkin b36fac897c7cee3783a8442c716e8aed76d8b2f52066a48bfaca34eb09b32e0d
 F win/Makefile.msc eb29b3cb716fb3676d3fe3a93ba08440522b2dab042e5c3588ed1fa437470685
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -792,10 +792,11 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5aa37859d0bf2309ad6a2263bfee0b4ee62ecb2690abdc5a1250a1b1de2e0f0b
-R 1bedbfdf2f36052d701ce05cddc1ac3e
-T +bgcolor * #d0c0ff
-T +sym-release *
-T +sym-version-2.4 *
-U drh
-Z 4350a140f87ecd07b622bdc271758f1b
+P a0001dcf57915cc0709f63035626561eb039eb0fdaf38ebdbeab770c0c03b5ad
+Q +35751600d9eb6972ed2a510bfc2d2c9120e62f749c66ca1435c0971378ea18cb
+R ea615f57ac8142b498c8b51bb968358c
+T *branch * branch-2.4
+T *sym-branch-2.4 *
+T -sym-trunk *
+U jan.nijtmans
+Z 4e02dc787528709ff1d334b59a2ee7e6
