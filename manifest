@@ -1,5 +1,5 @@
-C update\swin/Makefile.mingw.mistachkin
-D 2017-11-08T15:13:47.931
+C Fix\sthe\s--with-tcl=PATH\soption\son\sthe\sconfigure\sscript\susing\sa\sone-character\npatch\ssuggested\sby\sChristoph\sIserlohn.
+D 2017-11-08T15:24:51.084
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -47,7 +47,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def b1ca09fab80272ad30df9f3f5ae543257dc269a958114e64c0757a95c5d7229c
+F auto.def 218d771c6fd4f159ac4a022ca421f77de2a0702526c3f64a76fc84a0c493cef2
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup c235af4ce86af9a9b8b331b5a67c822d52ca2c6e
 F autosetup/autosetup 564c6ab11d5ab75d1aebc8d90ebc22df8babb01d2f9ada06d7964e5cfb7c38aa x
@@ -793,7 +793,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bf69c6ebc998fe2c646af24eeaf1f280f4f819e9937e9aceb3977dc699fb90e7
-R 927a64e5776085000f40c5a946487038
-U jan.nijtmans
-Z 0f673a258bcffc0142a80b7c6ebe317e
+P 35751600d9eb6972ed2a510bfc2d2c9120e62f749c66ca1435c0971378ea18cb
+R e3f0eb1fefa8bf46e21a744f0553e820
+U drh
+Z 7a99ef3ba2f43b0125c84e42476057d3
