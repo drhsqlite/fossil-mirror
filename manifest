@@ -1,5 +1,5 @@
-C Change\sthe\s"/wiki_rules"\spage\sso\sthat\sit\sdisplays\sa\swiki\ssource\sfile,\seither\nformatted\sor\splain-text,\sjust\slike\s/md_rules\sdoes.
-D 2017-11-04T14:56:23.510
+C update\swin/Makefile.mingw.mistachkin
+D 2017-11-08T15:13:47.931
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -668,7 +668,7 @@ F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9
 F win/Makefile.PellesCGMake 26ad3513db82de574bd9d392443d1e717795409a55fedf37f227198778eeaf0c
 F win/Makefile.dmc 32b2b3e529f84c3e79c1615e3406ff3ca341e16c8c9a6f3a2c78f266f4594683
 F win/Makefile.mingw dfdd39832e495c281e3eb7be48dbc15056b87264cd9a5b228e54871db43ad665
-F win/Makefile.mingw.mistachkin 86701fedf18fd503392305754de44b7ea69a0dd91c8f8d61e1e4600d4af9af4d
+F win/Makefile.mingw.mistachkin 93dbf133513c1e778f1170fa07e839477eb3c6020e248565507037a29ef8f589
 F win/Makefile.msc 737f40d7a7b9e5ee4c96d8d46e1c7fcef0dbc60def58b1393e94d30f534401d6
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -793,7 +793,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9b20b8a18cc91a33b79db9c5e4c55131ed5a367a8e5d99ef8f2a39e0ce9d2c2f
-R 57dc6b690001ef6fdc39f6d311df2855
-U drh
-Z 881ad09936be8e59c18d6e9340be44b6
+P bf69c6ebc998fe2c646af24eeaf1f280f4f819e9937e9aceb3977dc699fb90e7
+R 927a64e5776085000f40c5a946487038
+U jan.nijtmans
+Z 0f673a258bcffc0142a80b7c6ebe317e

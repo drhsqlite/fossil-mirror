@@ -512,6 +512,7 @@ SRC = \
   $(SRCDIR)/rss.c \
   $(SRCDIR)/schema.c \
   $(SRCDIR)/search.c \
+  $(SRCDIR)/security_audit.c \
   $(SRCDIR)/setup.c \
   $(SRCDIR)/sha1.c \
   $(SRCDIR)/sha1hard.c \
@@ -566,6 +567,10 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/blitz_no_logo/footer.txt \
   $(SRCDIR)/../skins/blitz_no_logo/header.txt \
   $(SRCDIR)/../skins/blitz_no_logo/ticket.txt \
+  $(SRCDIR)/../skins/bootstrap/css.txt \
+  $(SRCDIR)/../skins/bootstrap/details.txt \
+  $(SRCDIR)/../skins/bootstrap/footer.txt \
+  $(SRCDIR)/../skins/bootstrap/header.txt \
   $(SRCDIR)/../skins/default/css.txt \
   $(SRCDIR)/../skins/default/details.txt \
   $(SRCDIR)/../skins/default/footer.txt \
@@ -599,7 +604,8 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/xekri/footer.txt \
   $(SRCDIR)/../skins/xekri/header.txt \
   $(SRCDIR)/diff.tcl \
-  $(SRCDIR)/markdown.md
+  $(SRCDIR)/markdown.md \
+  $(SRCDIR)/wiki.wiki
 
 TRANS_SRC = \
   $(OBJDIR)/add_.c \
@@ -690,6 +696,7 @@ TRANS_SRC = \
   $(OBJDIR)/rss_.c \
   $(OBJDIR)/schema_.c \
   $(OBJDIR)/search_.c \
+  $(OBJDIR)/security_audit_.c \
   $(OBJDIR)/setup_.c \
   $(OBJDIR)/sha1_.c \
   $(OBJDIR)/sha1hard_.c \
@@ -817,6 +824,7 @@ OBJ = \
  $(OBJDIR)/rss.o \
  $(OBJDIR)/schema.o \
  $(OBJDIR)/search.o \
+ $(OBJDIR)/security_audit.o \
  $(OBJDIR)/setup.o \
  $(OBJDIR)/sha1.o \
  $(OBJDIR)/sha1hard.o \
@@ -1155,6 +1163,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(MAKEHEADERS
 		$(OBJDIR)/rss_.c:$(OBJDIR)/rss.h \
 		$(OBJDIR)/schema_.c:$(OBJDIR)/schema.h \
 		$(OBJDIR)/search_.c:$(OBJDIR)/search.h \
+		$(OBJDIR)/security_audit_.c:$(OBJDIR)/security_audit.h \
 		$(OBJDIR)/setup_.c:$(OBJDIR)/setup.h \
 		$(OBJDIR)/sha1_.c:$(OBJDIR)/sha1.h \
 		$(OBJDIR)/sha1hard_.c:$(OBJDIR)/sha1hard.h \
@@ -1905,6 +1914,14 @@ $(OBJDIR)/search.o:	$(OBJDIR)/search_.c $(OBJDIR)/search.h $(SRCDIR)/config.h
 
 $(OBJDIR)/search.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/security_audit_.c:	$(SRCDIR)/security_audit.c $(TRANSLATE)
+	$(TRANSLATE) $(SRCDIR)/security_audit.c >$@
+
+$(OBJDIR)/security_audit.o:	$(OBJDIR)/security_audit_.c $(OBJDIR)/security_audit.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/security_audit.o -c $(OBJDIR)/security_audit_.c
+
+$(OBJDIR)/security_audit.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/setup_.c:	$(SRCDIR)/setup.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/setup.c >$@
 
@@ -2224,6 +2241,7 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_ENABLE_DBSTAT_VTAB \
                  -DSQLITE_ENABLE_JSON1 \
                  -DSQLITE_ENABLE_FTS5 \
+                 -DSQLITE_ENABLE_STMTVTAB \
                  -DSQLITE_WIN32_NO_ANSI \
                  $(MINGW_OPTIONS) \
                  -DSQLITE_USE_MALLOC_H \
