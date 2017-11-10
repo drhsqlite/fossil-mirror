@@ -248,6 +248,7 @@ test pre-commit-warnings-fossil-1 {[normalize_result] eq \
 1\tskins/blitz/fossil_80_reversed_darkcyan.png\tbinary data
 1\tskins/blitz/fossil_80_reversed_darkcyan_text.png\tbinary data
 1\tskins/blitz/rss_20.png\tbinary data
+1\tskins/bootstrap/css.txt\tlong lines
 1\ttest/th1-docs-input.txt\tCR/LF line endings
 1\ttest/th1-hooks-input.txt\tCR/LF line endings
 1\ttest/utf16be.txt\tUnicode

@@ -374,18 +374,13 @@ void zip_of_checkin(
         eflg |= MFESTFLG_TAGS;
       }
 
-      if( eflg & (MFESTFLG_RAW|MFESTFLG_UUID) ){
-        if( eflg & MFESTFLG_RAW ){
-          blob_append(&filename, "manifest", -1);
-          zName = blob_str(&filename);
-          zip_add_folders(zName);
-        }
-        if( eflg & MFESTFLG_RAW ){
-          sterilize_manifest(&mfile);
-          zip_add_file(zName, &mfile, 0);
-        }
+      if( eflg & MFESTFLG_RAW ){
+        blob_append(&filename, "manifest", -1);
+        zName = blob_str(&filename);
+        zip_add_folders(zName);
+        sterilize_manifest(&mfile);
+        zip_add_file(zName, &mfile, 0);
       }
-      blob_reset(&mfile);
       if( eflg & MFESTFLG_UUID ){
         blob_append(&hash, "\n", 1);
         blob_resize(&filename, nPrefix);
@@ -422,9 +417,8 @@ void zip_of_checkin(
         blob_reset(&file);
       }
     }
-  }else{
-    blob_reset(&mfile);
   }
+  blob_reset(&mfile);
   manifest_destroy(pManifest);
   blob_reset(&filename);
   blob_reset(&hash);
@@ -474,6 +468,7 @@ void zip_cmd(void){
   if( g.argc!=4 ){
     usage("VERSION OUTPUTFILE");
   }
+  g.zOpenRevision = g.argv[2];
   rid = name_to_typed_rid(g.argv[2], "ci");
   if( rid==0 ){
     fossil_fatal("Check-in not found: %s", g.argv[2]);
@@ -547,7 +542,7 @@ void baseline_zip_page(void){
   z = P("r");
   if( z==0 ) z = P("uuid");
   if( z==0 ) z = "trunk";
-  zRid = fossil_strdup(z);
+  g.zOpenRevision = zRid = fossil_strdup(z);
   nRid = strlen(zRid);
   zInclude = P("in");
   if( zInclude ) pInclude = glob_create(zInclude);

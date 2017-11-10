@@ -100,7 +100,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.1.0f
+SSLDIR    = $(B)\compat\openssl-1.1.0g
 SSLINCDIR = $(SSLDIR)\inc32
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)\out32dll
@@ -530,7 +530,8 @@ EXTRA_FILES   = $(SRCDIR)\../skins/aht/details.txt \
         $(SRCDIR)\../skins/xekri/footer.txt \
         $(SRCDIR)\../skins/xekri/header.txt \
         $(SRCDIR)\diff.tcl \
-        $(SRCDIR)\markdown.md
+        $(SRCDIR)\markdown.md \
+        $(SRCDIR)\wiki.wiki
 
 OBJ   = $(OX)\add$O \
         $(OX)\allrepo$O \

@@ -49,7 +49,7 @@ management system with these advanced features:
   3.  <b>Self-Contained</b> -
       Fossil is a single self-contained stand-alone executable.
       To install, simply download a
-      <a href="http://www.fossil-scm.org/fossil/uv/download.html">precompiled binary</a>
+      [/uv/download.html | precompiled binary]
       for Linux, Mac, OpenBSD, or Windows and put it on your $PATH.
       [./build.wiki | Easy-to-compile source code] is also available.
 
@@ -129,6 +129,8 @@ management system with these advanced features:
      subsystems, including [./customskin.md | theming].
   *  List of [./th1.md | TH1 commands provided by Fossil itself] that expose
      its key functionality to TH1 scripts.
+  *  List of [./th1-hooks.md | TH1 hooks exposed by Fossil] that enable
+     customization of commands and web pages.
   *  A free hosting server for Fossil repositories is available at
      [http://chiselapp.com/].
   *  How to [./server.wiki | set up a server] for your repository.

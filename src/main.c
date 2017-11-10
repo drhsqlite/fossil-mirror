@@ -143,7 +143,6 @@ struct Global {
   char *zLocalRoot;       /* The directory holding the  local database */
   int minPrefix;          /* Number of digits needed for a distinct UUID */
   int eHashPolicy;        /* Current hash policy.  One of HPOLICY_* */
-  int fNoDirSymlinks;     /* True if --no-dir-symlinks flag is present */
   int fSqlTrace;          /* True if --sqltrace flag is present */
   int fSqlStats;          /* True if --sqltrace or --sqlstats are present */
   int fSqlPrint;          /* True if -sqlprint flag is present */
@@ -624,7 +623,6 @@ int main(int argc, char **argv)
     const char *zChdir = find_option("chdir",0,1);
     g.isHTTP = 0;
     g.rcvid = 0;
-    g.fNoDirSymlinks = find_option("no-dir-symlinks", 0, 0)!=0;
     g.fQuiet = find_option("quiet", 0, 0)!=0;
     g.fSqlTrace = find_option("sqltrace", 0, 0)!=0;
     g.fSqlStats = find_option("sqlstats", 0, 0)!=0;
@@ -739,7 +737,7 @@ int main(int argc, char **argv)
   **
   ** TH_OK: The xFunc() and the TH1 notification will both be executed.
   **
-  ** TH_ERROR: The xFunc() will be executed, the TH1 notification will be
+  ** TH_ERROR: The xFunc() will be skipped, the TH1 notification will be
   **           skipped.  If the xFunc() is being hooked, the error message
   **           will be emitted.
   **
@@ -953,8 +951,8 @@ static void get_version_blob(
 #if defined(FOSSIL_DEBUG)
   blob_append(pOut, "FOSSIL_DEBUG\n", -1);
 #endif
-#if defined(FOSSIL_OMIT_DELTA_CKSUM_TEST)
-  blob_append(pOut, "FOSSIL_OMIT_DELTA_CKSUM_TEST\n", -1);
+#if defined(FOSSIL_ENABLE_DELTA_CKSUM_TEST)
+  blob_append(pOut, "FOSSIL_ENABLE_DELTA_CKSUM_TEST\n", -1);
 #endif
 #if defined(FOSSIL_ENABLE_LEGACY_MV_RM)
   blob_append(pOut, "FOSSIL_ENABLE_LEGACY_MV_RM\n", -1);
@@ -1295,6 +1293,9 @@ static int repo_list_page(void){
         ** do not work for repositories whose names do not end in ".fossil".
         ** So do not hyperlink those cases. */
         @ <li>%h(zName)</li>
+      } else if( sqlite3_strglob("*/.*", zName)==0 ){
+        /* Do not show hidden repos */
+        @ <li>%h(zName) (hidden)</li>
       } else if( allRepo && sqlite3_strglob("[a-zA-Z]:/?*", zName)!=0 ){
         @ <li><a href="%R/%T(zUrl)/home" target="_blank">/%h(zName)</a></li>
       }else{
@@ -1620,7 +1621,9 @@ static void process_one_web_page(
   /* Locate the method specified by the path and execute the function
   ** that implements that method.
   */
-  if( dispatch_name_search(g.zPath-1, CMDFLAG_WEBPAGE, &pCmd) ){
+  if( dispatch_name_search(g.zPath-1, CMDFLAG_WEBPAGE, &pCmd)
+   && dispatch_alias(g.zPath-1, &pCmd)
+  ){
 #ifdef FOSSIL_ENABLE_JSON
     if(g.json.isJsonMode){
       json_err(FSL_JSON_E_RESOURCE_NOT_FOUND,NULL,0);
@@ -1666,7 +1669,7 @@ static void process_one_web_page(
     **
     ** TH_OK: The xFunc() and the TH1 notification will both be executed.
     **
-    ** TH_ERROR: The xFunc() will be executed, the TH1 notification will be
+    ** TH_ERROR: The xFunc() will be skipped, the TH1 notification will be
     **           skipped.  If the xFunc() is being hooked, the error message
     **           will be emitted.
     **

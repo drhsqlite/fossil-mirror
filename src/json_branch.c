@@ -297,7 +297,7 @@ static int json_branch_new(BranchCreateOptions * zOpt,
     fossil_fatal("%s", g.zErrMsg);
   }
   assert( blob_is_reset(&branch) );
-  content_deltify(rootid, brid, 0);
+  content_deltify(rootid, &brid, 1, 0);
   if( zNewRid ){
     *zNewRid = brid;
   }

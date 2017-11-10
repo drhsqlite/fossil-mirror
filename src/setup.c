@@ -98,6 +98,8 @@ void setup_page(void){
     "Configure the trouble-ticketing system for this repository");
   setup_menu_entry("Search","srchsetup",
     "Configure the built-in search engine");
+  setup_menu_entry("URL Aliases", "waliassetup",
+    "Configure URL aliases");
   setup_menu_entry("Transfers", "xfersetup",
     "Configure the transfer system for this repository");
   setup_menu_entry("Skins", "setup_skin",
@@ -1223,17 +1225,19 @@ void setup_access(void){
   onoff_attribute(
       "Enable hyperlinks for \"nobody\" based on User-Agent and Javascript",
       "auto-hyperlink", "autohyperlink", 1, 0);
-  @ <p>Enable hyperlinks (the equivalent of the "h" permission) for all users
-  @ including user "nobody", as long as (1) the User-Agent string in the
+  @ <p>Enable hyperlinks (the equivalent of the "h" permission) for all users,
+  @ including user "nobody", as long as
+  @ <ol><li>the User-Agent string in the
   @ HTTP header indicates that the request is coming from an actual human
-  @ being and not a robot or spider and (2) the user agent is able to
-  @ run Javascript in order to set the href= attribute of hyperlinks.  Bots
-  @ and spiders can forge a User-Agent string that makes them seem to be a
-  @ normal browser and they can run javascript just like browsers.  But most
-  @ bots do not go to that much trouble so this is normally an effective
-  @ defense.<p>
+  @ being, and
+  @ <li>the user agent is able to
+  @ run Javascript in order to set the href= attribute of hyperlinks, and
+  @ <li>mouse movement is detected (optional - see the checkbox below), and
+  @ <li>a number of milliseconds have passed since the page loaded.</ol>
   @
-  @ <p>You do not normally want a bot to walk your entire repository because
+  @ <p>This setting is designed to give easy access to humans while
+  @ keeping out robots and spiders.
+  @ You do not normally want a robot to walk your entire repository because
   @ if it does, your server will end up computing diffs and annotations for
   @ every historical version of every file and creating ZIPs and tarballs of
   @ every historical check-in, which can use a lot of CPU and bandwidth
@@ -1241,20 +1245,15 @@ void setup_access(void){
   @
   @ <p>Additional parameters that control this behavior:</p>
   @ <blockquote>
-  onoff_attribute("Enable hyperlinks for humans as deduced from the UserAgent "
-                  "string", "auto-hyperlink-ishuman", "ahis", 0, 0);
-  @ <br />
   onoff_attribute("Require mouse movement before enabling hyperlinks",
                   "auto-hyperlink-mouseover", "ahmo", 0, 0);
   @ <br />
   entry_attribute("Delay in milliseconds before enabling hyperlinks", 5,
-                  "auto-hyperlink-delay", "ah-delay", "10", 0);
+                  "auto-hyperlink-delay", "ah-delay", "50", 0);
   @ </blockquote>
-  @ <p>Hyperlinks for user "nobody" are normally enabled as soon as the page
-  @ finishes loading.  But the first check-box below can be set to require mouse
-  @ movement before enabling the links. One can also set a delay prior to enabling
-  @ links by enter a positive number of milliseconds in the entry box above.</p>
-  @ (Properties: "auto-hyperlink", "auto-hyperlink-ishuman",
+  @ <p>For maximum robot defense, the "require mouse movement" should
+  @ be turned on and the "Delay" should be at least 50 milliseconds.</p>
+  @ (Properties: "auto-hyperlink",
   @ "auto-hyperlink-mouseover", and "auto-hyperlink-delay")</p>
 
   @ <hr />
@@ -1407,14 +1406,20 @@ void setup_login_group(void){
     @ To leave this login group press
     @ <input type="submit" value="Leave Login Group" name="leave">
     @ </form></p>
+    @ <br />For best results, use the same number of <a href="setup_access#ipt">
+    @ IP octets</a> in the login cookie across all repositories in the
+    @ same Login Group.
     @ <hr /><h2>Implementation Details</h2>
     @ <p>The following are fields from the CONFIG table related to login-groups,
     @ provided here for instructional and debugging purposes:</p>
     @ <table border='1' id='configTab'>
-    @ <thead><tr><th>Config.Name<th>Config.Value<th>Config.mtime</tr></thead><tbody>
+    @ <thead><tr>
+    @ <th>Config.Name<th>Config.Value<th>Config.mtime</tr>
+    @ </thead><tbody>
     db_prepare(&q, "SELECT name, value, datetime(mtime,'unixepoch') FROM config"
                    " WHERE name GLOB 'peer-*'"
                    "    OR name GLOB 'project-*'"
+                   "    OR name GLOB 'login-group-*'"
                    " ORDER BY name");
     while( db_step(&q)==SQLITE_ROW ){
       @ <tr><td>%h(db_column_text(&q,0))</td>
@@ -1536,7 +1541,10 @@ void setup_timeline(void){
 ** Admin pages requiring Admin privileges.
 */
 void setup_settings(void){
+  int nSetting;
+  int i;
   Setting const *pSet;
+  const Setting *aSetting = setting_info(&nSetting);
 
   login_check_credentials();
   if( !g.perm.Setup ){
@@ -1551,19 +1559,23 @@ void setup_settings(void){
     db_open_local(0);
   }
   db_begin_transaction();
-  @ <p>This page provides a simple interface to the "fossil setting" command.
-  @ See the "fossil help setting" output below for further information on
-  @ the meaning of each setting.</p><hr />
+  @ <p>Settings marked with (v) are "versionable" and will be overridden
+  @ by the contents of managed files named
+  @ "<tt>.fossil-settings/</tt><i>SETTING-NAME</i>".
+  @ If the file for a versionable setting exists, the value cannot be
+  @ changed on this screen.</p><hr /><p>
+  @
   @ <form action="%s(g.zTop)/setup_settings" method="post"><div>
   @ <table border="0"><tr><td valign="top">
   login_insert_csrf_secret();
-  for(pSet=aSetting; pSet->name!=0; pSet++){
+  for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
     if( pSet->width==0 ){
       int hasVersionableValue = pSet->versionable &&
           (db_get_versioned(pSet->name, NULL)!=0);
-      onoff_attribute(pSet->name, pSet->name,
+      onoff_attribute("", pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
                       is_truth(pSet->def), hasVersionableValue);
+      @ <a href='%R/help?cmd=%s(pSet->name)'>%h(pSet->name)</a>
       if( pSet->versionable ){
         @  (v)<br />
       } else {
@@ -1573,29 +1585,32 @@ void setup_settings(void){
   }
   @ <br /><input type="submit"  name="submit" value="Apply Changes" />
   @ </td><td style="width:50px;"></td><td valign="top">
-  for(pSet=aSetting; pSet->name!=0; pSet++){
-    if( pSet->width!=0 && !pSet->versionable && !pSet->forceTextArea ){
-      entry_attribute(pSet->name, /*pSet->width*/ 25, pSet->name,
+  for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
+    if( pSet->width!=0 && !pSet->forceTextArea ){
+      int hasVersionableValue = pSet->versionable &&
+          (db_get_versioned(pSet->name, NULL)!=0);
+      entry_attribute("", /*pSet->width*/ 25, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
-                      (char*)pSet->def, 0);
-      @ <br />
-    }
-  }
-  for(pSet=aSetting; pSet->name!=0; pSet++){
-    if( pSet->width!=0 && !pSet->versionable && pSet->forceTextArea ){
-      @<b>%s(pSet->name)</b><br />
-      textarea_attribute("", /*rows*/ 3, /*cols*/ 50, pSet->name,
-                      pSet->var!=0 ? pSet->var : pSet->name,
-                      (char*)pSet->def, 0);
-      @ <br />
+                      (char*)pSet->def, hasVersionableValue);
+      @ <a href='%R/help?cmd=%s(pSet->name)'>%h(pSet->name)</a>
+      if( pSet->versionable ){
+        @  (v)<br />
+      } else {
+        @ <br />
+      }
     }
   }
   @ </td><td style="width:50px;"></td><td valign="top">
-  for(pSet=aSetting; pSet->name!=0; pSet++){
-    if( pSet->width!=0 && pSet->versionable ){
+  for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
+    if( pSet->width!=0 && pSet->forceTextArea ){
       int hasVersionableValue = db_get_versioned(pSet->name, NULL)!=0;
-      @<b>%s(pSet->name)</b> (v)<br />
-      textarea_attribute("", /*rows*/ 3, /*cols*/ 20, pSet->name,
+      @ <a href='%R/help?cmd=%s(pSet->name)'>%s(pSet->name)</a>
+      if( pSet->versionable ){
+        @  (v)<br />
+      } else {
+        @ <br />
+      }
+      textarea_attribute("", /*rows*/ 2, /*cols*/ 35, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
                       (char*)pSet->def, hasVersionableValue);
       @<br />
@@ -1603,13 +1618,6 @@ void setup_settings(void){
   }
   @ </td></tr></table>
   @ </div></form>
-  @ <p>Settings marked with (v) are 'versionable' and will be overridden
-  @ by the contents of files named <tt>.fossil-settings/PROPERTY</tt>
-  @ in the check-out root.
-  @ If such a file is present, the corresponding field above is not
-  @ editable.</p><hr /><p>
-  @ These settings work the same as the
-  @ <a href='%R/help?cmd=settings'>fossil set</a> command.
   db_end_transaction(0);
   style_footer();
 }
@@ -1644,12 +1652,22 @@ void setup_config(void){
   @ engines as well as a short RSS description.
   @ (Property: "project-description")</p>
   @ <hr />
-  entry_attribute("Tarball and ZIP-archive Prefix", 20, "short-project-name", "spn", "", 0);
+  entry_attribute("Tarball and ZIP-archive Prefix", 20, "short-project-name",
+                  "spn", "", 0);
   @ <p>This is used as a prefix on the names of generated tarballs and ZIP archive.
   @ For best results, keep this prefix brief and avoid special characters such
   @ as "/" and "\".
   @ If no tarball prefix is specified, then the full Project Name above is used.
   @ (Property: "short-project-name")
+  @ </p>
+  @ <hr />
+  entry_attribute("Download Tag", 20, "download-tag", "dlt", "trunk", 0);
+  @ <p>The <a href='%R/download'>/download</a> page is designed to provide 
+  @ a convenient place for newbies
+  @ to download a ZIP archive or a tarball of the project.  By default, the latest
+  @ trunk check-in is downloaded.  Change this tag to something else (ex: release)
+  @ to alter the behavior of the /download page.
+  @ (Property: "download-tag")
   @ </p>
   @ <hr />
   onoff_attribute("Enable WYSIWYG Wiki Editing",
@@ -1781,6 +1799,9 @@ void setup_adunit(void){
   @ <br />
   onoff_attribute("Omit ads to logged-in users",
      "adunit-omit-if-user", "oiu", 0, 0);
+  @ <br />
+  onoff_attribute("Temporarily disable all ads",
+     "adunit-disable", "oall", 0, 0);
   @ <br />
   @ <input type="submit" name="submit" value="Apply Changes" />
   @ <input type="submit" name="clear" value="Delete Ad-Unit" />
@@ -2156,20 +2177,6 @@ void th1_page(void){
   style_footer();
 }
 
-static void admin_log_render_limits(){
-  int const count = db_int(0,"SELECT COUNT(*) FROM admin_log");
-  int i;
-  int limits[] = {
-  10, 20, 50, 100, 250, 500, 0
-  };
-  for(i = 0; limits[i]; ++i ){
-    cgi_printf("%s<a href='?n=%d'>%d</a>",
-               i ? " " : "",
-               limits[i], limits[i]);
-    if(limits[i]>count) break;
-  }
-}
-
 /*
 ** WEBPAGE: admin_log
 **
@@ -2178,9 +2185,9 @@ static void admin_log_render_limits(){
 ** 's') permissions.
 */
 void page_admin_log(){
-  Stmt stLog = empty_Stmt;
-  Blob qLog = empty_blob;
-  int limit;
+  Stmt stLog;
+  int limit;                 /* How many entries to show */
+  int ofst;                  /* Offset to the first entry */
   int fLogEnabled;
   int counter = 0;
   login_check_credentials();
@@ -2190,26 +2197,22 @@ void page_admin_log(){
   }
   style_header("Admin Log");
   create_admin_log_table();
-  limit = atoi(PD("n","20"));
+  limit = atoi(PD("n","200"));
+  ofst = atoi(PD("x","0"));
   fLogEnabled = db_get_boolean("admin-log", 0);
   @ <div>Admin logging is %s(fLogEnabled?"on":"off").
   @ (Change this on the <a href="setup_settings">settings</a> page.)</div>
 
-
-  @ <div>Limit results to: <span>
-  admin_log_render_limits();
-  @ </span></div>
-
-  blob_append_sql(&qLog,
-               "SELECT datetime(time,'unixepoch'), who, page, what "
-               "FROM admin_log "
-               "ORDER BY time DESC ");
-  if(limit>0){
-    @ %d(limit) Most recent entries:
-    blob_append_sql(&qLog, "LIMIT %d", limit);
+  if( ofst>0 ){
+    int prevx = ofst - limit;
+    if( prevx<0 ) prevx = 0;
+    @ <p><a href="admin_log?n=%d(limit)&x=%d(prevx)">[Newer]</a></p>
   }
-  db_prepare(&stLog, "%s", blob_sql_text(&qLog));
-  blob_reset(&qLog);
+  db_prepare(&stLog,
+    "SELECT datetime(time,'unixepoch'), who, page, what "
+    "FROM admin_log "
+    "ORDER BY time DESC");
+
   @ <table id="adminLogTable" class="adminLogTable" width="100%%">
   @ <thead>
   @ <th>Time</th>
@@ -2222,7 +2225,10 @@ void page_admin_log(){
     const char *zUser = db_column_text(&stLog, 1);
     const char *zPage = db_column_text(&stLog, 2);
     const char *zMessage = db_column_text(&stLog, 3);
-    @ <tr class="row%d(counter++%2)">
+    counter++;
+    if( counter<ofst ) continue;
+    if( counter>ofst+limit ) break;
+    @ <tr class="row%d(counter%2)">
     @ <td class="adminTime">%s(zTime)</td>
     @ <td>%s(zUser)</td>
     @ <td>%s(zPage)</td>
@@ -2230,9 +2236,11 @@ void page_admin_log(){
     @ </tr>
   }
   @ </tbody></table>
-  if(limit>0 && counter<limit){
-    @ <div>%d(counter) entries shown.</div>
+  if( counter>ofst+limit ){
+    @ <p><a href="admin_log?n=%d(limit)&x=%d(limit+ofst)">[Older]</a></p>
   }
+
+  output_table_sorting_javascript("adminLogTable", "Tttx", 1);
   style_footer();
 }
 
@@ -2282,7 +2290,9 @@ void page_srchsetup(){
   @ <br />
   onoff_attribute("Search Tickets", "search-tkt", "st", 0, 0);
   @ <br />
-  onoff_attribute("Search Wiki","search-wiki", "sw", 0, 0);
+  onoff_attribute("Search Wiki", "search-wiki", "sw", 0, 0);
+  @ <br />
+  onoff_attribute("Search Tech Notes", "search-technote", "se", 0, 0);
   @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ <hr />
@@ -2308,5 +2318,155 @@ void page_srchsetup(){
     @ <p><input type="submit" name="fts1" value="Create A Full-Text Index">
   }
   @ </div></form>
+  style_footer();
+}
+
+/*
+** A URL Alias originally called zOldName is now zNewName/zValue.
+** Write SQL to make this change into pSql.
+**
+** If zNewName or zValue is an empty string, then delete the entry.
+**
+** If zOldName is an empty string, create a new entry.
+*/
+static void setup_update_url_alias(
+  Blob *pSql,
+  const char *zOldName,
+  const char *zNewName,
+  const char *zValue
+){
+  if( zNewName[0]==0 || zValue[0]==0 ){
+    if( zOldName[0] ){
+      blob_append_sql(pSql,
+        "DELETE FROM config WHERE name='walias:%q';\n",
+        zOldName);
+    }
+    return;
+  }
+  if( zOldName[0]==0 ){
+    blob_append_sql(pSql,
+      "INSERT INTO config(name,value,mtime) VALUES('walias:%q',%Q,now());\n",
+      zNewName, zValue);
+    return;
+  }
+  if( strcmp(zOldName, zNewName)!=0 ){
+    blob_append_sql(pSql,
+       "UPDATE config SET name='walias:%q', value=%Q, mtime=now()"
+       " WHERE name='walias:%q';\n",
+       zNewName, zValue, zOldName);
+  }else{
+    blob_append_sql(pSql,
+       "UPDATE config SET value=%Q, mtime=now()"
+       " WHERE name='walias:%q' AND value<>%Q;\n",
+       zValue, zOldName, zValue);
+  }
+}
+
+/*
+** WEBPAGE: waliassetup
+**
+** Configure the URL aliases
+*/
+void page_waliassetup(){
+  Stmt q;
+  int cnt = 0;
+  Blob namelist;
+  login_check_credentials();
+  if( !g.perm.Setup && !g.perm.Admin ){
+    login_needed(0);
+    return;
+  }
+  style_header("URL Alias Configuration");
+  if( P("submit")!=0 ){
+    Blob token;
+    Blob sql;
+    const char *zNewName;
+    const char *zValue;
+    char zCnt[10];
+    login_verify_csrf_secret();
+    blob_init(&namelist, PD("namelist",""), -1);
+    blob_init(&sql, 0, 0);
+    while( blob_token(&namelist, &token) ){
+      const char *zOldName = blob_str(&token);
+      sqlite3_snprintf(sizeof(zCnt), zCnt, "n%d", cnt);
+      zNewName = PD(zCnt, "");
+      sqlite3_snprintf(sizeof(zCnt), zCnt, "v%d", cnt);
+      zValue = PD(zCnt, "");
+      setup_update_url_alias(&sql, zOldName, zNewName, zValue);
+      cnt++;
+      blob_reset(&token);
+    }
+    sqlite3_snprintf(sizeof(zCnt), zCnt, "n%d", cnt);
+    zNewName = PD(zCnt,"");
+    sqlite3_snprintf(sizeof(zCnt), zCnt, "v%d", cnt);
+    zValue = PD(zCnt,"");
+    setup_update_url_alias(&sql, "", zNewName, zValue);
+    db_multi_exec("%s", blob_sql_text(&sql));
+    blob_reset(&sql);
+    blob_reset(&namelist);
+    cnt = 0;
+  }
+  db_prepare(&q,
+      "SELECT substr(name,8), value FROM config WHERE name GLOB 'walias:/*'"
+      " UNION ALL SELECT '', ''"
+  );
+  @ <form action="%s(g.zTop)/waliassetup" method="post"><div>
+  login_insert_csrf_secret();
+  @ <table border=0 cellpadding=5>
+  @ <tr><th>Alias<th>URI That The Alias Maps Into
+  blob_init(&namelist, 0, 0);
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zName = db_column_text(&q, 0);
+    const char *zValue = db_column_text(&q, 1);
+    @ <tr><td>
+    @ <input type='text' size='20' value='%h(zName)' name='n%d(cnt)'>
+    @ </td><td>
+    @ <input type='text' size='80' value='%h(zValue)' name='v%d(cnt)'>
+    @ </td></tr>
+    cnt++;
+    if( blob_size(&namelist)>0 ) blob_append(&namelist, " ", 1);
+    blob_append(&namelist, zName, -1);
+  }
+  db_finalize(&q);
+  @ <tr><td>
+  @ <input type='hidden' name='namelist' value='%h(blob_str(&namelist))'>
+  @ <input type='submit' name='submit' value="Apply Changes">
+  @ </td><td></td></tr>
+  @ </table></form>
+  @ <hr>
+  @ <p>When the first term of an incoming URL exactly matches one of the "Aliases" on
+  @ the left-hand side (LHS) above, the URL is converted into the corresponding form
+  @ on the right-hand side (RHS).
+  @ <ul>
+  @ <li><p>
+  @ The LHS is compared against only the first term of the incoming URL.
+  @ All LHS entries in the alias table should therefore begin with a
+  @ single "/" followed by a single path element.
+  @ <li><p>
+  @ The RHS entries in the alias table should begin with a single "/" followed by
+  @ a path element, and optionally followed by "?" and a list of query parameters.
+  @ <li><p>
+  @ Query parameters on the RHS are added to the set of query parameters
+  @ in the incoming URL.
+  @ <li><p>
+  @ If the same query parameter appears in both the incoming URL and on the RHS of the
+  @ alias, the RHS query parameter value overwrites the value on the incoming URL.
+  @ <li><p>
+  @ If a query parameter on the RHS of the alias is of the form "X!" (a name followed
+  @ by "!") then the X query parameter is removed from the incoming URL if it exists.
+  @ <li><p>
+  @ Only a single alias operation occurs.  It is not possible to nest aliases.
+  @ The RHS entries must be built-in webpage names.
+  @ <li><p>
+  @ The alias table is only checked if no built-in webpage matches the incoming URL.
+  @ Hence, it is not possible to override a built-in webpage using aliases.  This is
+  @ by design.
+  @ </ul>
+  @
+  @ <p>To delete an entry from the alias table, change its name or value to an
+  @ empty string and press "Apply Changes".
+  @
+  @ <p>To add a new alias, fill in the name and value in the bottom row of the table
+  @ above and press "Apply Changes".
   style_footer();
 }

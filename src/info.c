@@ -766,6 +766,9 @@ void ci_page(void){
       @   | %z(href("%R/fileage?name=%!S",zUuid))file ages</a>
       @   | %z(href("%R/tree?nofiles&type=tree&ci=%!S",zUuid))folders</a>
       @   | %z(href("%R/artifact/%!S",zUuid))manifest</a>
+      if( g.perm.Admin ){
+        @   | %z(href("%R/mlink?ci=%!S",zUuid))mlink table</a>
+      }
       if( g.anon.Write ){
         @   | %z(href("%R/ci_edit?r=%!S",zUuid))edit</a>
       }
@@ -1073,7 +1076,7 @@ static void checkin_description(int rid){
 **   sbs=BOOLEAN     Side-by-side diff if true.  Unified diff if false
 **   glob=STRING     only diff files matching this glob
 **   dc=N            show N lines of context around each diff
-**   w               ignore whitespace when computing diffs
+**   w=BOOLEAN       ignore whitespace when computing diffs
 **   nohdr           omit the description at the top of the page
 **
 **
@@ -1081,8 +1084,8 @@ static void checkin_description(int rid){
 */
 void vdiff_page(void){
   int ridFrom, ridTo;
-  int verboseFlag = 0;
-  int sideBySide = 0;
+  int verboseFlag;
+  int sideBySide;
   u64 diffFlags = 0;
   Manifest *pFrom, *pTo;
   ManifestFile *pFileFrom, *pFileTo;
@@ -1156,17 +1159,7 @@ void vdiff_page(void){
     style_submenu_element("Patch", "%R/vpatch?from=%T&to=%T%s", zFrom, zTo, zW);
   }
   if( sideBySide || verboseFlag ){
-    if( *zW ){
-      style_submenu_element("Show Whitespace Differences",
-                            "%R/vdiff?from=%T&to=%T&sbs=%d%s%s%T", zFrom, zTo,
-                            sideBySide, (verboseFlag && !sideBySide)?"&v":"",
-                            zGlob ? "&glob=" : "", zGlob ? zGlob : "");
-    }else{
-      style_submenu_element("Ignore Whitespace",
-                            "%R/vdiff?from=%T&to=%T&sbs=%d%s%s%T&w", zFrom, zTo,
-                            sideBySide, (verboseFlag && !sideBySide)?"&v":"",
-                            zGlob ? "&glob=" : "", zGlob ? zGlob : "");
-    }
+    style_submenu_checkbox("w", "Ignore Whitespace", 0, 0);
   }
   style_header("Check-in Differences");
   if( P("nohdr")==0 ){
@@ -1287,7 +1280,8 @@ int object_description(
     "       coalesce(event.euser,event.user),"
     "       b.uuid, mlink.mperm,"
     "       coalesce((SELECT value FROM tagxref"
-                    "  WHERE tagid=%d AND tagtype>0 AND rid=mlink.mid),'trunk')"
+                    "  WHERE tagid=%d AND tagtype>0 AND rid=mlink.mid),'trunk'),"
+    "       a.size"
     "  FROM mlink, filename, event, blob a, blob b"
     " WHERE filename.fnid=mlink.fnid"
     "   AND event.objid=mlink.mid"
@@ -1306,6 +1300,7 @@ int object_description(
     const char *zVers = db_column_text(&q, 4);
     int mPerm = db_column_int(&q, 5);
     const char *zBr = db_column_text(&q, 6);
+    int szFile = db_column_int(&q,7);
     int sameFilename = prevName!=0 && fossil_strcmp(zName,prevName)==0;
     if( sameFilename && !showDetail ){
       if( cnt==1 ){
@@ -1350,7 +1345,8 @@ int object_description(
       @ on branch %z(href("%R/timeline?r=%T",zBr))%h(zBr)</a>
     }
     @ &mdash; %!W(zCom) (user:
-    hyperlink_to_user(zUser,zDate,")");
+    hyperlink_to_user(zUser,zDate,",");
+    @ size: %d(szFile))
     if( g.perm.Hyperlink ){
       @ %z(href("%R/finfo?name=%T&ci=%!S",zName,zVers))[ancestry]</a>
       @ %z(href("%R/annotate?filename=%T&checkin=%!S",zName,zVers))
@@ -1530,40 +1526,82 @@ int object_description(
 
 /*
 ** WEBPAGE: fdiff
-** URL: fdiff?v1=UUID&v2=UUID&patch&sbs=BOOLEAN&regex=REGEX
+** URL: fdiff?v1=UUID&v2=UUID
 **
-** Two arguments, v1 and v2, identify the files to be diffed.  Show the
-** difference between the two artifacts.  Show diff side by side unless sbs
-** is 0.  Generate plain text if "patch" is present, otherwise generate
-** "pretty" HTML.
+** Two arguments, v1 and v2, identify the artifacts to be diffed.
+** Show diff side by side unless sbs is 0.  Generate plain text if
+** "patch" is present, otherwise generate "pretty" HTML.
+**
+** Alternative URL:  fdiff?from=filename1&to=filename2&ci=checkin
+**
+** If the "from" and "to" query parameters are both present, then they are
+** the names of two files within the check-in "ci" that are diffed.  If the
+** "ci" parameter is omitted, then the most recent check-in ("tip") is
+** used.
 **
 ** Additional parameters:
 **
-**      verbose      Show more detail when describing artifacts
-**      dc=N         Show N lines of context around each diff
-**      w            Ignore whitespace
+**      dc=N             Show N lines of context around each diff
+**      patch            Use the patch diff format
+**      regex=REGEX      Only show differences that match REGEX
+**      sbs=BOOLEAN      Turn side-by-side diffs on and off (default: on)
+**      verbose=BOOLEAN  Show more detail when describing artifacts
+**      w=BOOLEAN        Ignore whitespace
 */
 void diff_page(void){
   int v1, v2;
-  int isPatch;
-  int sideBySide;
+  int isPatch = P("patch")!=0;
+  int sideBySide = PB("sbs");
+  int verbose = PB("verbose");
   char *zV1;
   char *zV2;
   const char *zRe;
-  const char *zW;      /* URL param for ignoring whitespace */
   ReCompiled *pRe = 0;
   u64 diffFlags;
   u32 objdescFlags = 0;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  v1 = name_to_rid_www("v1");
-  v2 = name_to_rid_www("v2");
+  if( P("from") && P("to") ){
+    v1 = artifact_from_ci_and_filename(0, "from");
+    v2 = artifact_from_ci_and_filename(0, "to");
+  }else{
+    Stmt q;
+    v1 = name_to_rid_www("v1");
+    v2 = name_to_rid_www("v2");
+
+    /* If the two file versions being compared both have the same
+    ** filename, then offer an "Annotate" link that constructs an
+    ** annotation between those version. */
+    db_prepare(&q,
+      "SELECT (SELECT substr(uuid,1,20) FROM blob WHERE rid=a.mid),"
+      "       (SELECT substr(uuid,1,20) FROM blob WHERE rid=b.mid),"
+      "       (SELECT name FROM filename WHERE filename.fnid=a.fnid)"
+      "  FROM mlink a, event ea, mlink b, event eb"
+      " WHERE a.fid=%d"
+      "   AND b.fid=%d"
+      "   AND a.fnid=b.fnid"
+      "   AND a.fid!=a.pid"
+      "   AND b.fid!=b.pid"
+      "   AND ea.objid=a.mid"
+      "   AND eb.objid=b.mid"
+      " ORDER BY ea.mtime ASC, eb.mtime ASC",
+      v1, v2
+    );
+    if( db_step(&q)==SQLITE_ROW ){
+      const char *zCkin = db_column_text(&q, 0);
+      const char *zOrig = db_column_text(&q, 1);
+      const char *zFN = db_column_text(&q, 2);
+      style_submenu_element("Annotate",
+        "%R/annotate?origin=%s&checkin=%s&filename=%T",
+        zOrig, zCkin, zFN);
+    }
+    db_finalize(&q);
+  }
   if( v1==0 || v2==0 ) fossil_redirect_home();
   zRe = P("regex");
   if( zRe ) re_compile(&pRe, zRe, 0);
-  if( P("verbose")!=0 ) objdescFlags |= OBJDESC_DETAIL;
-  isPatch = P("patch")!=0;
+  if( verbose ) objdescFlags |= OBJDESC_DETAIL;
   if( isPatch ){
     Blob c1, c2, *pOut;
     pOut = cgi_output_blob();
@@ -1577,33 +1615,16 @@ void diff_page(void){
     return;
   }
 
-  sideBySide = !is_false(PD("sbs","1"));
   zV1 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v1);
   zV2 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v2);
   diffFlags = construct_diff_flags(1, sideBySide) | DIFF_HTML;
 
   style_header("Diff");
-  zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
-  if( *zW ){
-    style_submenu_element("Show Whitespace Changes",
-                          "%s/fdiff?v1=%T&v2=%T&sbs=%d",
-                          g.zTop, P("v1"), P("v2"), sideBySide);
-  }else{
-    style_submenu_element("Ignore Whitespace",
-                          "%s/fdiff?v1=%T&v2=%T&sbs=%d&w",
-                          g.zTop, P("v1"), P("v2"), sideBySide);
-  }
+  style_submenu_checkbox("w", "Ignore Whitespace", 0, 0);
+  style_submenu_checkbox("sbs", "Side-by-Side Diff", 0, 0);
+  style_submenu_checkbox("verbose", "Verbose", 0, 0);
   style_submenu_element("Patch", "%s/fdiff?v1=%T&v2=%T&patch",
                         g.zTop, P("v1"), P("v2"));
-  if( !sideBySide ){
-    style_submenu_element("Side-by-Side Diff",
-                          "%s/fdiff?v1=%T&v2=%T&sbs=1%s",
-                          g.zTop, P("v1"), P("v2"), zW);
-  }else{
-    style_submenu_element("Unified Diff",
-                          "%s/fdiff?v1=%T&v2=%T&sbs=0%s",
-                          g.zTop, P("v1"), P("v2"), zW);
-  }
 
   if( P("smhdr")!=0 ){
     @ <h2>Differences From Artifact
@@ -1641,7 +1662,7 @@ void rawartifact_page(void){
   Blob content;
 
   if( P("ci") && P("filename") ){
-    rid = artifact_from_ci_and_filename(0);
+    rid = artifact_from_ci_and_filename(0, 0);
   }
   if( rid==0 ){
     rid = name_to_rid_www("name");
@@ -1782,19 +1803,32 @@ void hexdump_page(void){
 ** Also look for "fn" as an alias for "filename".  If either "filename"
 ** or "fn" is present but "ci" is missing, use "tip" as a default value
 ** for "ci".
+**
+** If zNameParam is not NULL, this use that parameter as the filename
+** rather than "fn" or "filename".
+**
+** If pUrl is not NULL, then record the "ci" and "filename" values in
+** pUrl.
+**
+** At least one of pUrl or zNameParam must be NULL.
 */
-int artifact_from_ci_and_filename(HQuery *pUrl){
+int artifact_from_ci_and_filename(HQuery *pUrl, const char *zNameParam){
   const char *zFilename;
   const char *zCI;
   int cirid;
   Manifest *pManifest;
   ManifestFile *pFile;
 
-  zFilename = P("filename");
-  if( zFilename==0 ){
-    zFilename = P("fn");
-    if( zFilename==0 ) return 0;
+  if( zNameParam ){
+    zFilename = P(zNameParam);
+  }else{
+    zFilename = P("filename");
+    if( zFilename==0 ){
+      zFilename = P("fn");
+    }
   }
+  if( zFilename==0 ) return 0;
+
   zCI = P("ci");
   cirid = name_to_typed_rid(zCI ? zCI : "tip", "ci");
   if( cirid<=0 ) return 0;
@@ -1806,6 +1840,7 @@ int artifact_from_ci_and_filename(HQuery *pUrl){
       int rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", pFile->zUuid);
       manifest_destroy(pManifest);
       if( pUrl ){
+        assert( zNameParam==0 );
         url_add_parameter(pUrl, "fn", zFilename);
         if( zCI ) url_add_parameter(pUrl, "ci", zCI);
       }
@@ -1949,7 +1984,7 @@ void artifact_page(void){
   HQuery url;
 
   url_initialize(&url, g.zPath);
-  rid = artifact_from_ci_and_filename(&url);
+  rid = artifact_from_ci_and_filename(&url, 0);
   if( rid==0 ){
     url_add_parameter(&url, "name", zName);
     if( isFile ){
@@ -2083,7 +2118,7 @@ void artifact_page(void){
     style_submenu_element("Content", "%R/artifact/%s", zUuid);
   }else{
     if( zLn==0 || atoi(zLn)==0 ){
-      style_submenu_checkbox("ln", "Line Numbers", 0);
+      style_submenu_checkbox("ln", "Line Numbers", 0, 0);
     }
     @ <hr />
     content_get(rid, &content);

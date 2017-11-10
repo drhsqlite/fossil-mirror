@@ -24,15 +24,14 @@
 #include <assert.h>
 #include "dispatch.h"
 
-
 #if INTERFACE
 /*
 ** An instance of this object defines everything we need to know about an
-** individual command or webpage.
+** individual command, webpage, or setting.
 */
 struct CmdOrPage {
   const char *zName;       /* Name.  Webpages start with "/". Commands do not */
-  void (*xFunc)(void);     /* Function that implements the command or webpage */
+  void (*xFunc)(void);     /* Implementation function, or NULL for settings */
   const char *zHelp;       /* Raw help text */
   unsigned int eCmdFlags;  /* Flags */
 };
@@ -41,16 +40,20 @@ struct CmdOrPage {
 ** These macros must match similar macros in mkindex.c
 ** Allowed values for CmdOrPage.eCmdFlags.
 */
-#define CMDFLAG_1ST_TIER  0x0001      /* Most important commands */
-#define CMDFLAG_2ND_TIER  0x0002      /* Obscure and seldom used commands */
-#define CMDFLAG_TEST      0x0004      /* Commands for testing only */
-#define CMDFLAG_WEBPAGE   0x0008      /* Web pages */
-#define CMDFLAG_COMMAND   0x0010      /* A command */
+#define CMDFLAG_1ST_TIER    0x0001      /* Most important commands */
+#define CMDFLAG_2ND_TIER    0x0002      /* Obscure and seldom used commands */
+#define CMDFLAG_TEST        0x0004      /* Commands for testing only */
+#define CMDFLAG_WEBPAGE     0x0008      /* Web pages */
+#define CMDFLAG_COMMAND     0x0010      /* A command */
+#define CMDFLAG_SETTING     0x0020      /* A setting */
+#define CMDFLAG_VERSIONABLE 0x0040      /* A versionable setting */
+#define CMDFLAG_BLOCKTEXT   0x0080      /* Multi-line text setting */
+#define CMDFLAG_BOOLEAN     0x0100      /* A boolean setting */
 /**************************************************************************/
 
 /* Values for the 2nd parameter to dispatch_name_search() */
-#define CMDFLAG_ANY       0x0018      /* Match anything */
-#define CMDFLAG_PREFIX    0x0020      /* Prefix match is ok */
+#define CMDFLAG_ANY         0x0038      /* Match anything */
+#define CMDFLAG_PREFIX      0x0200      /* Prefix match is ok */
 
 #endif /* INTERFACE */
 
@@ -74,12 +77,12 @@ struct CmdOrPage {
 #define MX_COMMAND count(aCommand)
 
 /*
-** Given a command or webpage name in zName, find the corresponding CmdOrPage
-** object and return a pointer to that object in *ppCmd.
+** Given a command, webpage, or setting name in zName, find the corresponding
+** CmdOrPage object and return a pointer to that object in *ppCmd.
 **
-** The eType field is CMDFLAG_COMMAND to lookup commands or CMDFLAG_WEBPAGE
-** to look up webpages or CMDFLAG_ANY to look for either.  If the CMDFLAG_PREFIX
-** flag is set, then a prefix match is allowed.
+** The eType field is CMDFLAG_COMMAND to look up commands, CMDFLAG_WEBPAGE to
+** look up webpages, CMDFLAG_SETTING to look up settings, or CMDFLAG_ANY to look
+** for any.  If the CMDFLAG_PREFIX bit is set, then a prefix match is allowed.
 **
 ** Return values:
 **    0:     Success.  *ppCmd is set to the appropriate CmdOrPage
@@ -113,14 +116,90 @@ int dispatch_name_search(
    && lwr<MX_COMMAND
    && strncmp(zName, aCommand[lwr].zName, nName)==0
   ){
-    if( lwr<MX_COMMAND-1 && strncmp(zName, aCommand[lwr+1].zName, nName)==0 ){
-      return 2;  /* Ambiguous prefix */
-    }else{
-      *ppCmd = &aCommand[lwr];
+    /* An inexact prefix match was found.  Scan the name table to try to find
+     * exactly one entry with this prefix and the requested type. */
+    for( mid=-1; lwr<MX_COMMAND
+              && strncmp(zName, aCommand[lwr].zName, nName)==0; ++lwr ){
+      if( aCommand[lwr].eCmdFlags & eType ){
+        if( mid<0 ){
+          mid = lwr;  /* Potential ambiguous prefix */
+        }else{
+          return 2;  /* Confirmed ambiguous prefix */
+        }
+      }
+    }
+    if( mid>=0 ){
+      *ppCmd = &aCommand[mid];
       return 0;  /* Prefix match */
     }
   }
   return 1;  /* Not found */
+}
+
+/*
+** zName is the name of a webpage (eType==CMDFLAGS_WEBPAGE) that does not
+** exist in the dispatch table.  Check to see if this webpage name exists
+** as an alias in the CONFIG table of the repository.  If it is, then make
+** appropriate changes to the CGI environment and set *ppCmd to point to the
+** aliased command.
+**
+** Return 0 if the command is successfully aliased.  Return 1 if there
+** is not alias for zName.  Any kind of error in the alias value causes a
+** error to be thrown.
+**
+** Alias entries in the CONFIG table have a "name" value of "walias:NAME"
+** where NAME is the input page name.  The value is a string of the form
+** "NEWNAME?QUERYPARAMS".  The ?QUERYPARAMS is optional.  If present (and it
+** usually is), then all query parameters are added to the CGI environment.
+** Except, query parameters of the form "X!" cause any CGI X variable to be
+** removed.
+*/
+int dispatch_alias(const char *zName, const CmdOrPage **ppCmd){
+  char *z;
+  char *zQ;
+  int i;
+
+  z = db_text(0, "SELECT value FROM config WHERE name='walias:%q'",zName);
+  if( z==0 ) return 1;
+  for(i=0; z[i] && z[i]!='?'; i++){}
+  if( z[i]=='?' ){
+    z[i] = 0;
+    zQ = &z[i+1];
+  }else{
+    zQ = &z[i];
+  }
+  if( dispatch_name_search(z, CMDFLAG_WEBPAGE, ppCmd) ){
+    fossil_fatal("\"%s\" aliased to \"%s\" but \"%s\" does not exist",
+                 zName, z, z);
+  }
+  z = zQ;
+  while( *z ){
+    char *zName = z;
+    char *zValue = 0;
+    while( *z && *z!='=' && *z!='&' && *z!='!' ){ z++; }
+    if( *z=='=' ){
+      *z = 0;
+      z++;
+      zValue = z;
+      while( *z && *z!='&' ){ z++; }
+      if( *z ){
+        *z = 0;
+        z++;
+      }
+      dehttpize(zValue);
+    }else if( *z=='!' ){
+      *(z++) = 0;
+      cgi_delete_query_parameter(zName);
+      zName = "";
+    }else{
+      if( *z ){ *z++ = 0; }
+      zValue = "";
+    }
+    if( fossil_islower(zName[0]) ){
+      cgi_replace_query_parameter(zName, zValue);
+    }
+  }
+  return 0;
 }
 
 /*
@@ -176,6 +255,7 @@ static void help_to_html(const char *zHelp, Blob *pHtml){
 **    -e|--everything   Show all commands and pages.
 **    -t|--test         Include test- commands
 **    -w|--www          Show WWW pages.
+**    -s|--settings     Show settings.
 **    -h|--html         Transform output to HTML.
 */
 void test_all_help_cmd(void){
@@ -189,6 +269,9 @@ void test_all_help_cmd(void){
   if( find_option("everything","e",0) ){
     mask = CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER | CMDFLAG_WEBPAGE;
   }
+  if( find_option("settings","s",0) ){
+    mask = CMDFLAG_SETTING;
+  }
   if( find_option("test","t",0) ){
     mask |= CMDFLAG_TEST;
   }
@@ -198,6 +281,7 @@ void test_all_help_cmd(void){
   if( mask & CMDFLAG_2ND_TIER ) fossil_print(" * Auxiliary commands\n");
   if( mask & CMDFLAG_TEST )     fossil_print(" * Test commands\n");
   if( mask & CMDFLAG_WEBPAGE )  fossil_print(" * Web pages\n");
+  if( mask & CMDFLAG_SETTING )  fossil_print(" * Settings\n");
   if( useHtml ){
     fossil_print("-->\n");
     fossil_print("<!-- start_all_help -->\n");
@@ -230,7 +314,7 @@ void test_all_help_cmd(void){
 ** URL: /help?name=CMD
 **
 ** Show the built-in help text for CMD.  CMD can be a command-line interface
-** command or a page name from the web interface.
+** command or a page name from the web interface or a setting.
 */
 void help_page(void){
   const char *zCmd = P("cmd");
@@ -243,21 +327,23 @@ void help_page(void){
     style_header("Help: %s", zCmd);
 
     style_submenu_element("Command-List", "%s/help", g.zTop);
+    rc = dispatch_name_search(zCmd, CMDFLAG_ANY, &pCmd);
     if( *zCmd=='/' ){
       /* Some of the webpages require query parameters in order to work.
       ** @ <h1>The "<a href='%R%s(zCmd)'>%s(zCmd)</a>" page:</h1> */
       @ <h1>The "%h(zCmd)" page:</h1>
+    }else if( rc==0 && (pCmd->eCmdFlags & CMDFLAG_SETTING)!=0 ){
+      @ <h1>The "%h(pCmd->zName)" setting:</h1>
     }else{
       @ <h1>The "%h(zCmd)" command:</h1>
     }
-    rc = dispatch_name_search(zCmd, CMDFLAG_ANY, &pCmd);
     if( rc==1 ){
       @ unknown command: %h(zCmd)
     }else if( rc==2 ){
       @ ambiguous command prefix: %h(zCmd)
     }else{
       if( pCmd->zHelp[0]==0 ){
-        @ no help available for the %h(pCmd->zName) command
+        @ No help available for "%h(pCmd->zName)"
       }else{
         @ <blockquote>
         help_to_html(pCmd->zHelp, cgi_output_blob());
@@ -269,6 +355,7 @@ void help_page(void){
 
     style_header("Help");
 
+    @ <a name='commands'></a>
     @ <h1>Available commands:</h1>
     @ <table border="0"><tr>
     for(i=j=0; i<MX_COMMAND; i++){
@@ -297,6 +384,7 @@ void help_page(void){
     }
     @ </tr></table>
 
+    @ <a name='webpages'></a>
     @ <h1>Available web UI pages:</h1>
     @ <table border="0"><tr>
     for(i=j=0; i<MX_COMMAND; i++){
@@ -327,6 +415,7 @@ void help_page(void){
     }
     @ </tr></table>
 
+    @ <a name='unsupported'></a>
     @ <h1>Unsupported commands:</h1>
     @ <table border="0"><tr>
     for(i=j=0; i<MX_COMMAND; i++){
@@ -338,6 +427,36 @@ void help_page(void){
     for(i=j=0; i<MX_COMMAND; i++){
       const char *z = aCommand[i].zName;
       if( strncmp(z,"test",4)!=0 ) continue;
+      if( j==0 ){
+        @ <td valign="top"><ul>
+      }
+      if( aCommand[i].zHelp[0] ){
+        @ <li><a href="%R/help?cmd=%s(z)">%s(z)</a></li>
+      }else{
+        @ <li>%s(z)</li>
+      }
+      j++;
+      if( j>=n ){
+        @ </ul></td>
+        j = 0;
+      }
+    }
+    if( j>0 ){
+      @ </ul></td>
+    }
+    @ </tr></table>
+
+    @ <a name='settings'></a>
+    @ <h1>Settings:</h1>
+    @ <table border="0"><tr>
+    for(i=j=0; i<MX_COMMAND; i++){
+      if( (aCommand[i].eCmdFlags & CMDFLAG_SETTING)==0 ) continue;
+      j++;
+    }
+    n = (j+4)/5;
+    for(i=j=0; i<MX_COMMAND; i++){
+      const char *z = aCommand[i].zName;
+      if( (aCommand[i].eCmdFlags & CMDFLAG_SETTING)==0 ) continue;
       if( j==0 ){
         @ <td valign="top"><ul>
       }
@@ -438,17 +557,19 @@ static void command_list(const char *zPrefix, int cmdMask){
 /*
 ** COMMAND: help
 **
-** Usage: %fossil help COMMAND
-**    or: %fossil COMMAND --help
+** Usage: %fossil help TOPIC
+**    or: %fossil TOPIC --help
 **
-** Display information on how to use COMMAND.  To display a list of
-** available commands use one of:
+** Display information on how to use TOPIC, which may be a command, webpage, or
+** setting.  Webpage names begin with "/".  To display a list of available
+** topics, use one of:
 **
-**    %fossil help              Show common commands
-**    %fossil help -a|--all     Show both common and auxiliary commands
-**    %fossil help -t|--test    Show test commands only
-**    %fossil help -x|--aux     Show auxiliary commands only
-**    %fossil help -w|--www     Show list of WWW pages
+**    %fossil help                Show common commands
+**    %fossil help -a|--all       Show both common and auxiliary commands
+**    %fossil help -s|--settings  Show setting names
+**    %fossil help -t|--test      Show test commands only
+**    %fossil help -x|--aux       Show auxiliary commands only
+**    %fossil help -w|--www       Show list of webpages
 */
 void help_cmd(void){
   int rc;
@@ -460,8 +581,8 @@ void help_cmd(void){
   if( g.argc<3 ){
     z = g.argv[0];
     fossil_print(
-      "Usage: %s help COMMAND\n"
-      "Common COMMANDs:  (use \"%s help -a|--all\" for a complete list)\n",
+      "Usage: %s help TOPIC\n"
+      "Common commands:  (use \"%s help -a|--all\" for a complete list)\n",
       z, z);
     command_list(0, CMDFLAG_1ST_TIER);
     version_cmd();
@@ -483,19 +604,24 @@ void help_cmd(void){
     command_list(0, CMDFLAG_TEST);
     return;
   }
+  else if( find_option("setting","s",0) ){
+    command_list(0, CMDFLAG_SETTING);
+    return;
+  }
   isPage = ('/' == *g.argv[2]) ? 1 : 0;
   if(isPage){
     zCmdOrPage = "page";
     zCmdOrPagePlural = "pages";
   }else{
-    zCmdOrPage = "command";
-    zCmdOrPagePlural = "commands";
+    zCmdOrPage = "command or setting";
+    zCmdOrPagePlural = "commands and settings";
   }
   rc = dispatch_name_search(g.argv[2], CMDFLAG_ANY|CMDFLAG_PREFIX, &pCmd);
   if( rc==1 ){
-    fossil_print("unknown %s: %s\nAvailable %s:\n",
-                 zCmdOrPage, g.argv[2], zCmdOrPagePlural);
-    command_list(0, isPage ? CMDFLAG_WEBPAGE : (0xff & ~CMDFLAG_WEBPAGE));
+    fossil_print("unknown %s: %s\nConsider using:\n", zCmdOrPage, g.argv[2]);
+    fossil_print("   fossil help -a     ;# show all commands\n");
+    fossil_print("   fossil help -w     ;# show all web-pages\n");
+    fossil_print("   fossil help -s     ;# show all settings\n");
     fossil_exit(1);
   }else if( rc==2 ){
     fossil_print("ambiguous %s prefix: %s\nMatching %s:\n",
@@ -508,6 +634,12 @@ void help_cmd(void){
     fossil_fatal("no help available for the %s %s",
                  pCmd->zName, zCmdOrPage);
   }
+  if( pCmd->eCmdFlags & CMDFLAG_SETTING ){
+    fossil_print("Setting: \"%s\"%s\n\n",
+         pCmd->zName,
+         (pCmd->eCmdFlags & CMDFLAG_VERSIONABLE)!=0 ? " (versionable)" : ""
+    );
+  }
   while( *z ){
     if( *z=='%' && strncmp(z, "%fossil", 7)==0 ){
       fossil_print("%s", g.argv[0]);
@@ -518,4 +650,15 @@ void help_cmd(void){
     }
   }
   putchar('\n');
+}
+
+/*
+** Return a pointer to the setting information array.
+**
+** This routine provides access to the aSetting2[] array which is created
+** by the mkindex utility program and included with <page_index.h>.
+*/
+const Setting *setting_info(int *pnCount){
+  if( pnCount ) *pnCount = (int)(sizeof(aSetting)/sizeof(aSetting[0])) - 1;
+  return aSetting;
 }

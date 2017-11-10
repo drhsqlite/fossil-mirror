@@ -15,24 +15,20 @@
 **
 *******************************************************************************
 **
-** This program scans Fossil source code files looking for special
-** comments that indicate a command-line command or a webpage.  This
-** routine collects information about these entry points and then
-** generates (on standard output) C code used by Fossil to dispatch
-** to those entry points.
+** This utility program scans Fossil source text looking for specially
+** formatted comments and generates C source code for constant tables
+** that define the behavior of commands, webpages, and settings.
 **
 ** The source code is scanned for comment lines of the form:
 **
 **       WEBPAGE:  /abc/xyz
 **       COMMAND:  cmdname
+**       SETTING:  access-log
 **
-** These comment should be followed by a function definition of the
-** form:
+** The WEBPAGE and COMMAND comments should be followed by a function that
+** implements the webpage or command.  The form of this function is:
 **
 **       void function_name(void){
-**
-** This routine creates C source code for a constant table that maps
-** command and webpage name into pointers to the function.
 **
 ** Command names can divided into three classes:  1st-tier, 2nd-tier,
 ** and test.  1st-tier commands are the most frequently used and the
@@ -50,16 +46,32 @@
 **        COMMAND:  test-xyzzy
 **        COMMAND:  xyzzy        test
 **
+** A SETTING: may be followed by arguments that give additional attributes
+** to that setting:
+**
+**        SETTING:  clean-blob   versionable width=40 block-text
+**        SETTING:  auto-shun    boolean default=on
+**
 ** New arguments may be added in future releases that set additional
 ** bits in the eCmdFlags field.
 **
-** Additional lines of comment after the COMMAND: or WEBPAGE: become
-** the built-in help text for that command or webpage.
+** Additional lines of comment after the COMMAND: or WEBPAGE: or SETTING:
+** become the built-in help text for that command or webpage or setting.
 **
 ** Multiple COMMAND: entries can be attached to the same command, thus
 ** creating multiple aliases for that command.  Similarly, multiple
 ** WEBPAGE: entries can be attached to the same webpage function, to give
 ** that page aliases.
+**
+** For SETTING: entries, the default value for the setting can be specified
+** using a default=VALUE argument if the default contains no spaces.  If the
+** default value does contain spaces, use a separate line like this:
+**
+**        SETTING: pgp-command
+**        DEFAULT: gpg --clearsign -o
+**
+** If no default is supplied, the default is assumed to be an empty string
+** or "off" in the case of a boolean.
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -70,11 +82,15 @@
 ** These macros must match similar macros in dispatch.c.
 **
 ** Allowed values for CmdOrPage.eCmdFlags. */
-#define CMDFLAG_1ST_TIER  0x0001      /* Most important commands */
-#define CMDFLAG_2ND_TIER  0x0002      /* Obscure and seldom used commands */
-#define CMDFLAG_TEST      0x0004      /* Commands for testing only */
-#define CMDFLAG_WEBPAGE   0x0008      /* Web pages */
-#define CMDFLAG_COMMAND   0x0010      /* A command */
+#define CMDFLAG_1ST_TIER    0x0001      /* Most important commands */
+#define CMDFLAG_2ND_TIER    0x0002      /* Obscure and seldom used commands */
+#define CMDFLAG_TEST        0x0004      /* Commands for testing only */
+#define CMDFLAG_WEBPAGE     0x0008      /* Web pages */
+#define CMDFLAG_COMMAND     0x0010      /* A command */
+#define CMDFLAG_SETTING     0x0020      /* A setting */
+#define CMDFLAG_VERSIONABLE 0x0040      /* A versionable setting */
+#define CMDFLAG_BLOCKTEXT   0x0080      /* Multi-line text setting */
+#define CMDFLAG_BOOLEAN     0x0100      /* A boolean setting */
 /**************************************************************************/
 
 /*
@@ -86,7 +102,10 @@ typedef struct Entry {
   char *zFunc;      /* Name of implementation */
   char *zPath;      /* Webpage or command name */
   char *zHelp;      /* Help text */
+  char *zDflt;      /* Default value for settings */
+  char *zVar;       /* config.name for settings, if different from zPath */
   int iHelp;        /* Index of Help text */
+  int iWidth;       /* Display width for SETTING: values */
 } Entry;
 
 /*
@@ -219,6 +238,21 @@ void scan_for_label(const char *zLabel, char *zLine, int eType){
     }else if( j==4 && strncmp(&zLine[i], "test", j)==0 ){
       aEntry[nUsed].eType &= ~(CMDFLAG_1ST_TIER|CMDFLAG_2ND_TIER);
       aEntry[nUsed].eType |= CMDFLAG_TEST;
+    }else if( j==7 && strncmp(&zLine[i], "boolean", j)==0 ){
+      aEntry[nUsed].eType &= ~(CMDFLAG_BLOCKTEXT);
+      aEntry[nUsed].iWidth = 0;
+      aEntry[nUsed].eType |= CMDFLAG_BOOLEAN;
+    }else if( j==10 && strncmp(&zLine[i], "block-text", j)==0 ){
+      aEntry[nUsed].eType &= ~(CMDFLAG_BOOLEAN);
+      aEntry[nUsed].eType |= CMDFLAG_BLOCKTEXT;
+    }else if( j==11 && strncmp(&zLine[i], "versionable", j)==0 ){
+      aEntry[nUsed].eType |= CMDFLAG_VERSIONABLE;
+    }else if( j>6 && strncmp(&zLine[i], "width=", 6)==0 ){
+      aEntry[nUsed].iWidth = atoi(&zLine[i+6]);
+    }else if( j>8 && strncmp(&zLine[i], "default=", 8)==0 ){
+      aEntry[nUsed].zDflt = string_dup(&zLine[i+8], j-8);
+    }else if( j>9 && strncmp(&zLine[i], "variable=", 9)==0 ){
+      aEntry[nUsed].zVar = string_dup(&zLine[i+9], j-9);
     }else{
       fprintf(stderr, "%s:%d: unknown option: '%.*s'\n",
               zFile, nLine, j, &zLine[i]);
@@ -227,6 +261,7 @@ void scan_for_label(const char *zLabel, char *zLine, int eType){
   }
 
   nUsed++;
+  return;
 }
 
 /*
@@ -250,11 +285,29 @@ void scan_for_if(const char *zLine){
 }
 
 /*
+** Check to see if the current line is a "** DEFAULT: ..." line for a
+** SETTING definition.  If so, remember the default value.
+*/
+void scan_for_default(const char *zLine){
+  int len;
+  const char *z;
+  if( nUsed<1 ) return;
+  if( (aEntry[nUsed-1].eType & CMDFLAG_SETTING)==0 ) return;
+  if( strncmp(zLine, "** DEFAULT: ", 12)!=0 ) return;
+  z = zLine + 12;
+  while( fossil_isspace(z[0]) ) z++;
+  len = (int)strlen(z);
+  while( len>0 && fossil_isspace(z[len-1]) ){ len--; }
+  aEntry[nUsed-1].zDflt = string_dup(z,len);
+}
+
+/*
 ** Scan a line for a function that implements a web page or command.
 */
 void scan_for_func(char *zLine){
   int i,j,k;
   char *z;
+  int isSetting;
   if( nUsed<=nFixed ) return;
   if( strncmp(zLine, "**", 2)==0
    && fossil_isspace(zLine[2])
@@ -262,6 +315,8 @@ void scan_for_func(char *zLine){
    && nUsed>nFixed
    && strncmp(zLine,"** COMMAND:",11)!=0
    && strncmp(zLine,"** WEBPAGE:",11)!=0
+   && strncmp(zLine,"** SETTING:",11)!=0
+   && strncmp(zLine,"** DEFAULT:",11)!=0
   ){
     if( zLine[2]=='\n' ){
       zHelp[nHelp++] = '\n';
@@ -274,15 +329,18 @@ void scan_for_func(char *zLine){
   }
   for(i=0; fossil_isspace(zLine[i]); i++){}
   if( zLine[i]==0 ) return;
-  if( strncmp(&zLine[i],"void",4)!=0 ){
-    if( zLine[i]!='*' ) goto page_skip;
-    return;
+  isSetting = (aEntry[nFixed].eType & CMDFLAG_SETTING)!=0;
+  if( !isSetting ){
+    if( strncmp(&zLine[i],"void",4)!=0 ){
+      if( zLine[i]!='*' ) goto page_skip;
+      return;
+    }
+    i += 4;
+    if( !fossil_isspace(zLine[i]) ) goto page_skip;
+    while( fossil_isspace(zLine[i]) ){ i++; }
+    for(j=0; fossil_isident(zLine[i+j]); j++){}
+    if( j==0 ) goto page_skip;
   }
-  i += 4;
-  if( !fossil_isspace(zLine[i]) ) goto page_skip;
-  while( fossil_isspace(zLine[i]) ){ i++; }
-  for(j=0; fossil_isident(zLine[i+j]); j++){}
-  if( j==0 ) goto page_skip;
   for(k=nHelp-1; k>=0 && fossil_isspace(zHelp[k]); k--){}
   nHelp = k+1;
   zHelp[nHelp] = 0;
@@ -294,14 +352,16 @@ void scan_for_func(char *zLine){
   }
   for(k=nFixed; k<nUsed; k++){
     aEntry[k].zIf = zIf[0] ? string_dup(zIf, -1) : 0;
-    aEntry[k].zFunc = string_dup(&zLine[i], j);
+    aEntry[k].zFunc = isSetting ? "0" : string_dup(&zLine[i], j);
     aEntry[k].zHelp = z;
     z = 0;
     aEntry[k].iHelp = nFixed;
   }
-  i+=j;
-  while( fossil_isspace(zLine[i]) ){ i++; }
-  if( zLine[i]!='(' ) goto page_skip;
+  if( !isSetting ){
+    i+=j;
+    while( fossil_isspace(zLine[i]) ){ i++; }
+    if( zLine[i]!='(' ) goto page_skip;
+  }
   nFixed = nUsed;
   nHelp = 0;
   return;
@@ -343,6 +403,7 @@ void build_table(void){
 
   /* Output declarations for all the action functions */
   for(i=0; i<nFixed; i++){
+    if( aEntry[i].eType & CMDFLAG_SETTING ) continue;
     if( aEntry[i].zIf ) printf("%s", aEntry[i].zIf);
     printf("extern void %s(void);\n", aEntry[i].zFunc);
     if( aEntry[i].zIf ) printf("#endif\n");
@@ -378,11 +439,11 @@ void build_table(void){
     }else if( (aEntry[i].eType & CMDFLAG_WEBPAGE)!=0 ){
       nWeb++;
     }
-    printf("  { \"%.*s\",%*s%s,%*szHelp%03d, 0x%02x },\n",
+    printf("  { \"%.*s\",%*s%s,%*szHelp%03d, 0x%03x },\n",
       n, z,
       25-n, "",
       aEntry[i].zFunc,
-      (int)(30-strlen(aEntry[i].zFunc)), "",
+      (int)(29-strlen(aEntry[i].zFunc)), "",
       aEntry[i].iHelp,
       aEntry[i].eType
     );
@@ -390,6 +451,39 @@ void build_table(void){
   }
   printf("};\n");
   printf("#define FOSSIL_FIRST_CMD %d\n", nWeb);
+
+  /* Generate the aSetting[] table */
+  printf("const Setting aSetting[] = {\n");
+  for(i=0; i<nFixed; i++){
+    const char *z;
+    const char *zVar;
+    const char *zDef;
+    if( (aEntry[i].eType & CMDFLAG_SETTING)==0 ) continue;
+    z = aEntry[i].zPath;
+    zVar = aEntry[i].zVar;
+    zDef = aEntry[i].zDflt;
+    if( zDef==0 ) zDef = "";
+    if( aEntry[i].zIf ){
+      printf("%s", aEntry[i].zIf);
+    }
+    printf("  { \"%s\",%*s", z, (int)(20-strlen(z)), "");
+    if( zVar ){
+      printf(" \"%s\",%*s", zVar, (int)(15-strlen(zVar)), "");
+    }else{
+      printf(" 0,%*s", 16, "");
+    }
+    printf(" %3d, %d, %d, \"%s\"%*s },\n",
+      aEntry[i].iWidth,
+      (aEntry[i].eType & CMDFLAG_VERSIONABLE)!=0,
+      (aEntry[i].eType & CMDFLAG_BLOCKTEXT)!=0,
+      zDef, (int)(10-strlen(zDef)), ""
+    );
+    if( aEntry[i].zIf ){
+      printf("#endif\n");
+    }
+  }
+  printf("{0,0,0,0,0,0}};\n");
+
 }
 
 /*
@@ -409,6 +503,8 @@ void process_file(void){
     scan_for_label("WEBPAGE:",zLine,CMDFLAG_WEBPAGE);
     scan_for_label("COMMAND:",zLine,CMDFLAG_COMMAND);
     scan_for_func(zLine);
+    scan_for_label("SETTING:",zLine,CMDFLAG_SETTING);
+    scan_for_default(zLine);
   }
   fclose(in);
   nUsed = nFixed;

@@ -295,3 +295,48 @@ void clone_ssh_db_set_options(void){
     db_set("ssh-command", g.zSshCmd, 0);
   }
 }
+
+/*
+** WEBPAGE: download
+**
+** Provide a simple page that enables newbies to download the latest tarball or
+** ZIP archive, and provides instructions on how to clone.
+*/
+void download_page(void){
+  login_check_credentials();
+  style_header("Download Page");
+  if( !g.perm.Zip ){
+    @ <p>Bummer.  You do not have permission to download.
+    if( g.zLogin==0 || g.zLogin[0]==0 ){
+      @ Maybe it would work better if you
+      @ <a href="../login">logged in</a>.
+    }else{
+      @ Contact the site administrator and ask them to give
+      @ you "Download Zip" privileges.
+    }
+  }else{
+    const char *zDLTag = db_get("download-tag","trunk");
+    const char *zNm = db_get("short-project-name","download");
+    char *zUrl = href("%R/zip/%t.zip?uuid=%t", zNm, zDLTag);
+    @ <p>ZIP Archive: %z(zUrl)%h(zNm).zip</a>
+    zUrl = href("%R/tarball/%t.tar.gz?uuid=%t", zNm, zDLTag);
+    @ <p>Tarball: %z(zUrl)%h(zNm).tar.gz</a>
+  }
+  if( !g.perm.Clone ){
+    @ <p>You are not authorized to clone this repository.
+    if( g.zLogin==0 || g.zLogin[0]==0 ){
+      @ Maybe you would be able to clone if you
+      @ <a href="../login">logged in</a>.
+    }else{
+      @ Contact the site administrator and ask them to give
+      @ you "Clone" privileges in order to clone.
+    }
+  }else{
+    const char *zNm = db_get("short-project-name","clone");
+    @ <p>Clone the repository using this command:
+    @ <blockquote><pre>
+    @ fossil  clone  %s(g.zBaseURL)  %h(zNm).fossil
+    @ </pre></blockquote>
+  }
+  style_footer();
+}

@@ -207,9 +207,9 @@ proc make-template {template {out {}}} {
 		}
 		lappend result $line
 	}
-	writefile $out [string map $mapping [join $result \n]]\n
-
-	msg-result "Created [relative-path $out] from [relative-path $template]"
+    write-if-changed $out [string map $mapping [join $result \n]]\n {
+        msg-result "Created [relative-path $out] from [relative-path $template]"
+    }
 }
 
 # build/host tuples and cross-compilation prefix

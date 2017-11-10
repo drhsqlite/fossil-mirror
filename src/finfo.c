@@ -47,7 +47,6 @@
 **   -l|--log             select log mode (the default)
 **   -n|--limit N         Display the first N changes (default unlimited).
 **                        N<=0 means no limit.
-**   --no-dir-symlinks    Disables support for directory symlinks.
 **   --offset P           skip P changes
 **   -p|--print           select print mode
 **   -r|--revision R      print the given revision (or ckout, if none is given)
@@ -287,6 +286,8 @@ void cat_cmd(void){
 **    brbg       Background color by branch name
 **    ubg        Background color by user name
 **    ci=UUID    Ancestors of a particular check-in
+**    orig=UUID  If both ci and orig are supplied, only show those
+**                 changes on a direct path from orig to ci.
 **    showid     Show RID values for debugging
 **
 ** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
@@ -302,6 +303,7 @@ void finfo_page(void){
   const char *zB;
   int n;
   int baseCheckin;
+  int origCheckin = 0;
   int fnid;
   Blob title;
   Blob sql;
@@ -334,7 +336,12 @@ void finfo_page(void){
     style_submenu_element("MLink Table", "%R/mlink?name=%t", zFilename);
   }
   if( baseCheckin ){
-    compute_direct_ancestors(baseCheckin);
+    if( P("orig")!=0 ){
+      origCheckin = name_to_typed_rid(P("orig"),"ci");
+      path_shortest_stored_in_ancestor_table(origCheckin, baseCheckin);
+    }else{
+      compute_direct_ancestors(baseCheckin);
+    }
   }
   url_add_parameter(&url, "name", zFilename);
   blob_zero(&sql);
@@ -346,16 +353,18 @@ void finfo_page(void){
     " mlink.pid,"                                    /* Parent file rid */
     " mlink.fid,"                                    /* File rid */
     " (SELECT uuid FROM blob WHERE rid=mlink.pid),"  /* Parent file uuid */
-    " (SELECT uuid FROM blob WHERE rid=mlink.fid),"  /* Current file uuid */
+    " blob.uuid,"                                    /* Current file uuid */
     " (SELECT uuid FROM blob WHERE rid=mlink.mid),"  /* Check-in uuid */
     " event.bgcolor,"                                /* Background color */
     " (SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0"
                                 " AND tagxref.rid=mlink.mid)," /* Branchname */
     " mlink.mid,"                                    /* check-in ID */
-    " mlink.pfnid"                                   /* Previous filename */
-    "  FROM mlink, event"
+    " mlink.pfnid,"                                  /* Previous filename */
+    " blob.size"                                     /* File size */
+    "  FROM mlink, event, blob"
     " WHERE mlink.fnid=%d"
-    "   AND event.objid=mlink.mid",
+    "   AND event.objid=mlink.mid"
+    "   AND mlink.fid=blob.rid",
     TAG_BRANCH, fnid
   );
   if( (zA = P("a"))!=0 ){
@@ -399,7 +408,9 @@ void finfo_page(void){
   if( baseCheckin ){
     char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", baseCheckin);
     char *zLink = href("%R/info/%!S", zUuid);
-    if( n>0 ){
+    if( origCheckin ){
+      blob_appendf(&title, "Changes to file ");
+    }else if( n>0 ){
       blob_appendf(&title, "First %d ancestors of file ", n);
     }else{
       blob_appendf(&title, "Ancestors of file ");
@@ -407,9 +418,16 @@ void finfo_page(void){
     blob_appendf(&title,"<a href='%R/finfo?name=%T'>%h</a>",
                  zFilename, zFilename);
     if( fShowId ) blob_appendf(&title, " (%d)", fnid);
-    blob_appendf(&title, " from check-in %z%S</a>", zLink, zUuid);
+    blob_append(&title, origCheckin ? " between " : " from ", -1);
+    blob_appendf(&title, "check-in %z%S</a>", zLink, zUuid);
     if( fShowId ) blob_appendf(&title, " (%d)", baseCheckin);
     fossil_free(zUuid);
+    if( origCheckin ){
+      zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", origCheckin);
+      zLink = href("%R/info/%!S", zUuid);
+      blob_appendf(&title, " and check-in %z%S</a>", zLink, zUuid);
+      fossil_free(zUuid);
+    }
   }else{
     blob_appendf(&title, "History of ");
     hyperlinked_path(zFilename, &title, 0, "tree", "");
@@ -446,6 +464,7 @@ void finfo_page(void){
     const char *zBr = db_column_text(&q, 9);
     int fmid = db_column_int(&q, 10);
     int pfnid = db_column_int(&q, 11);
+    int szFile = db_column_int(&q, 12);
     int gidx;
     char zTime[10];
     int nParent = 0;
@@ -486,17 +505,24 @@ void finfo_page(void){
       @ <td class="timelineTableCell">
     }
     if( zUuid ){
-      if( nParent==0 ){
-        @ <b>Added</b>
-      }else if( pfnid ){
-        char *zPrevName = db_text(0, "SELECT name FROM filename WHERE fnid=%d",
-                                  pfnid);
-        @ <b>Renamed</b> from
-        @ %z(href("%R/finfo?name=%t", zPrevName))%h(zPrevName)</a>
+      if( origCheckin==0 ){
+        if( nParent==0 ){
+          @ <b>Added</b>
+        }else if( pfnid ){
+          char *zPrevName = db_text(0,"SELECT name FROM filename WHERE fnid=%d",
+                                    pfnid);
+          @ <b>Renamed</b> from
+          @ %z(href("%R/finfo?name=%t", zPrevName))%h(zPrevName)</a>
+        }
       }
       @ %z(href("%R/artifact/%!S",zUuid))[%S(zUuid)]</a>
       if( fShowId ){
-        @ (%d(frid))
+        int srcId = delta_source_rid(frid);
+        if( srcId>0 ){
+          @ (%d(frid)&larr;%d(srcId))
+        }else{
+          @ (%d(frid))
+        }
       }
       @ part of check-in
     }else{
@@ -520,8 +546,9 @@ void finfo_page(void){
       @ (%d(fmid))
     }
     @ %W(zCom) (user:
-    hyperlink_to_user(zUser, zDate, "");
-    @ branch: %z(href("%R/timeline?t=%T&n=200",zBr))%h(zBr)</a>)
+    hyperlink_to_user(zUser, zDate, ",");
+    @ branch: %z(href("%R/timeline?t=%T&n=200",zBr))%h(zBr)</a>,
+    @ size: %d(szFile))
     if( g.perm.Hyperlink && zUuid ){
       const char *z = zFilename;
       @ %z(href("%R/annotate?filename=%h&checkin=%s",z,zCkin))
@@ -571,8 +598,14 @@ void finfo_page(void){
 ** URL: /mlink?ci=NAME
 **
 ** Show all MLINK table entries for a particular file, or for
-** a particular check-in.  This screen is intended for use by developers
-** in debugging Fossil.
+** a particular check-in.
+**
+** This screen is intended for use by Fossil developers to help
+** in debugging Fossil itself.  Ordinary Fossil users are not 
+** expected to know what the MLINK table is or why it is important.
+**
+** To avoid confusing ordinary users, this page is only available
+** to adminstrators.
 */
 void mlink_page(void){
   const char *zFName = P("name");
@@ -613,12 +646,12 @@ void mlink_page(void){
     @ <thead><tr>
     @ <th>Date</th>
     @ <th>Check-in</th>
-    @ <th>Parent Check-in</th>
+    @ <th>Parent<br>Check-in</th>
     @ <th>Merge?</th>
     @ <th>New</th>
     @ <th>Old</th>
-    @ <th>Exe Bit?</th>
-    @ <th>Prior Name</th>
+    @ <th>Exe<br>Bit?</th>
+    @ <th>Prior<br>Name</th>
     @ </tr></thead>
     @ <tbody>
     while( db_step(&q)==SQLITE_ROW ){
@@ -634,7 +667,7 @@ void mlink_page(void){
       @ <td><a href='%R/timeline?c=%!S(zCkin)'>%s(zDate)</a></td>
       @ <td><a href='%R/info/%!S(zCkin)'>%S(zCkin)</a></td>
       if( zParent ){
-        @ <td><a href='%R/info/%!S(zPid)'>%S(zParent)</a></td>
+        @ <td><a href='%R/info/%!S(zParent)'>%S(zParent)</a></td>
       }else{
         @ <td><i>(New)</i></td>
       }
@@ -686,12 +719,12 @@ void mlink_page(void){
     @ <table id='mlinktable'>
     @ <thead><tr>
     @ <th>File</th>
-    @ <th>From</th>
+    @ <th>Parent<br>Check-in</th>
     @ <th>Merge?</th>
     @ <th>New</th>
     @ <th>Old</th>
-    @ <th>Exe Bit?</th>
-    @ <th>Prior Name</th>
+    @ <th>Exe<br>Bit?</th>
+    @ <th>Prior<br>Name</th>
     @ </tr></thead>
     @ <tbody>
     while( db_step(&q)==SQLITE_ROW ){

@@ -364,7 +364,7 @@ static void xfer_accept_unversioned_file(Xfer *pXfer, int isWriter){
       " WHERE name=:name"
     );
     db_bind_int(&q, ":rcvid", g.rcvid);
-  }else if( iStatus==4 ){
+  }else if( iStatus==2 ){
     db_prepare(&q, "UPDATE unversioned SET mtime=:mtime WHERE name=:name");
   }else{
     db_prepare(&q,
@@ -1010,34 +1010,6 @@ static void send_all(Xfer *pXfer){
 }
 
 /*
-** Send a single old-style config card for configuration item zName.
-**
-** This routine and the functionality it implements is scheduled for
-** removal on 2012-05-01.
-*/
-static void send_legacy_config_card(Xfer *pXfer, const char *zName){
-  if( zName[0]!='@' ){
-    Blob val;
-    blob_zero(&val);
-    db_blob(&val, "SELECT value FROM config WHERE name=%Q", zName);
-    if( blob_size(&val)>0 ){
-      blob_appendf(pXfer->pOut, "config %s %d\n", zName, blob_size(&val));
-      blob_append(pXfer->pOut, blob_buffer(&val), blob_size(&val));
-      blob_reset(&val);
-      blob_append(pXfer->pOut, "\n", 1);
-    }
-  }else{
-    Blob content;
-    blob_zero(&content);
-    configure_render_special_name(zName, &content);
-    blob_appendf(pXfer->pOut, "config %s %d\n%s\n", zName,
-                 blob_size(&content), blob_str(&content));
-    blob_reset(&content);
-  }
-}
-
-
-/*
 ** pXfer is a "pragma uv-hash HASH" card.
 **
 ** If HASH is different from the unversioned content hash on this server,
@@ -1165,7 +1137,6 @@ void page_xfer(void){
   int isClone = 0;
   int nGimme = 0;
   int size;
-  int recvConfig = 0;
   char *zNow;
   int rc;
   const char *zScript = 0;
@@ -1268,7 +1239,7 @@ void page_xfer(void){
     if( blob_eq(&xfer.aToken[0], "uvfile") ){
       xfer_accept_unversioned_file(&xfer, g.perm.WrUnver);
       if( blob_size(&xfer.err) ){
-          cgi_reset_content();
+        cgi_reset_content();
         @ error %T(blob_str(&xfer.err))
         nErr++;
         break;
@@ -1454,9 +1425,6 @@ void page_xfer(void){
           if( !g.perm.Admin ) groupMask &= ~CONFIGSET_USER;
           if( !g.perm.RdAddr ) groupMask &= ~CONFIGSET_ADDR;
           configure_send_group(xfer.pOut, groupMask, 0);
-        }else if( configure_is_exportable(zName) ){
-          /* Old style configuration transfer */
-          send_legacy_config_card(&xfer, zName);
         }
       }
     }else
@@ -1477,10 +1445,6 @@ void page_xfer(void){
         @ error not\sauthorized\sto\spush\sconfiguration
         nErr++;
         break;
-      }
-      if( !recvConfig && zName[0]=='@' ){
-        configure_prepare_to_receive(0);
-        recvConfig = 1;
       }
       configure_receive(zName, &content, CONFIGSET_ALL);
       blob_reset(&content);
@@ -1622,9 +1586,6 @@ void page_xfer(void){
     create_cluster();
     send_unclustered(&xfer);
     if( xfer.syncPrivate ) send_private(&xfer);
-  }
-  if( recvConfig ){
-    configure_finalize_receive();
   }
   db_multi_exec("DROP TABLE onremote");
   manifest_crosslink_end(MC_PERMIT_HOOKS);
@@ -1886,12 +1847,6 @@ int client_sync(
         zName = configure_next_name(configRcvMask);
         nCardSent++;
       }
-      if( (configRcvMask & (CONFIGSET_USER|CONFIGSET_TKT))!=0
-       && (configRcvMask & CONFIGSET_OLDFORMAT)!=0
-      ){
-        int overwrite = (configRcvMask & CONFIGSET_OVERWRITE)!=0;
-        configure_prepare_to_receive(overwrite);
-      }
       origConfigRcvMask = configRcvMask;
       configRcvMask = 0;
     }
@@ -1912,17 +1867,7 @@ int client_sync(
     /* Send configuration parameters being pushed */
     if( configSendMask ){
       if( zOpType==0 ) zOpType = "Push";
-      if( configSendMask & CONFIGSET_OLDFORMAT ){
-        const char *zName;
-        zName = configure_first_name(configSendMask);
-        while( zName ){
-          send_legacy_config_card(&xfer, zName);
-          zName = configure_next_name(configSendMask);
-          nCardSent++;
-        }
-      }else{
-        nCardSent += configure_send_group(xfer.pOut, configSendMask, 0);
-      }
+      nCardSent += configure_send_group(xfer.pOut, configSendMask, 0);
       configSendMask = 0;
     }
 
@@ -2082,7 +2027,7 @@ int client_sync(
 
       /*   uvfile NAME MTIME HASH SIZE FLAGS \n CONTENT
       **
-      ** Accept an unversioned file from the client.
+      ** Accept an unversioned file from the server.
       */
       if( blob_eq(&xfer.aToken[0], "uvfile") ){
         xfer_accept_unversioned_file(&xfer, 1);
@@ -2387,11 +2332,6 @@ int client_sync(
       }
       blobarray_reset(xfer.aToken, xfer.nToken);
       blob_reset(&xfer.line);
-    }
-    if( (configRcvMask & (CONFIGSET_USER|CONFIGSET_TKT))!=0
-     && (configRcvMask & CONFIGSET_OLDFORMAT)!=0
-    ){
-      configure_finalize_receive();
     }
     origConfigRcvMask = 0;
     if( nCardRcvd>0 && (syncFlags & SYNC_VERBOSE) ){

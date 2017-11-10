@@ -1,13 +1,3 @@
-<html>
-<head>
-<base href="$baseurl/$current_page" />
-<title>$<project_name>: $<title></title>
-<link rel="alternate" type="application/rss+xml" title="RSS Feed"
-      href="$home/timeline.rss">
-<link rel="stylesheet" href="$stylesheet_url" type="text/css"
-      media="screen">
-</head>
-<body>
 <div class="header">
   <div class="title"><small>$<project_name></small><br />$<title></div>
   <div class="status"><th1>

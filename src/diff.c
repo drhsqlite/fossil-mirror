@@ -43,7 +43,7 @@
 #define DIFF_CONTEXT_EX   (((u64)0x04)<<32) /* Use context even if zero */
 #define DIFF_NOTTOOBIG    (((u64)0x08)<<32) /* Only display if not too big */
 #define DIFF_STRIP_EOLCR  (((u64)0x10)<<32) /* Strip trailing CR */
-#define DIFF_SLOW_SBS     (((u64)0x20)<<32) /* Better, but slower side-by-side */
+#define DIFF_SLOW_SBS     (((u64)0x20)<<32) /* Better but slower side-by-side */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -2085,7 +2085,9 @@ struct Annotator {
   } *aOrig;
   int nOrig;        /* Number of elements in aOrig[] */
   int nVers;        /* Number of versions analyzed */
-  int bLimit;       /* True if the iLimit was reached */
+  int bMoreToDo;    /* True if the limit was reached */
+  int origId;       /* RID for the zOrigin version */
+  int showId;       /* RID for the version being analyzed */
   struct AnnVers {
     const char *zFUuid;   /* File being analyzed */
     const char *zMUuid;   /* Check-in containing the file */
@@ -2178,89 +2180,137 @@ static int annotation_step(
   return 0;
 }
 
-
-/* Annotation flags (any DIFF flag can be used as Annotation flag as well) */
-#define ANN_FILE_VERS   (((u64)0x20)<<32) /* File vers not commit vers */
-#define ANN_FILE_ANCEST (((u64)0x40)<<32) /* Prefer checkins in the ANCESTOR */
+/* Return the current time as milliseconds since the Julian epoch */
+static sqlite3_int64 current_time_in_milliseconds(void){
+  static sqlite3_vfs *clockVfs = 0;
+  sqlite3_int64 t;
+  if( clockVfs==0 ) clockVfs = sqlite3_vfs_find(0);
+  if( clockVfs->iVersion>=2 && clockVfs->xCurrentTimeInt64!=0 ){
+    clockVfs->xCurrentTimeInt64(clockVfs, &t);
+  }else{
+    double r;
+    clockVfs->xCurrentTime(clockVfs, &r);
+    t = (sqlite3_int64)(r*86400000.0);
+  }
+  return t;
+}
 
 /*
-** Compute a complete annotation on a file.  The file is identified
-** by its filename number (filename.fnid) and check-in (mlink.mid).
+** Compute a complete annotation on a file.  The file is identified by its
+** filename and check-in name (NULL for current check-in).
 */
 static void annotate_file(
-  Annotator *p,        /* The annotator */
-  int fnid,            /* The name of the file to be annotated */
-  int mid,             /* Use the version of the file in this check-in */
-  int iLimit,          /* Limit the number of levels if greater than zero */
-  u64 annFlags         /* Flags to alter the annotation */
+  Annotator *p,          /* The annotator */
+  const char *zFilename, /* The name of the file to be annotated */
+  const char *zRevision, /* Use the version of the file in this check-in */
+  const char *zLimit,    /* Limit the number of versions analyzed */
+  const char *zOrigin,   /* The origin check-in, or NULL for root-of-tree */
+  u64 annFlags           /* Flags to alter the annotation */
 ){
-  Blob toAnnotate;     /* Text of the final (mid) version of the file */
-  Blob step;           /* Text of previous revision */
-  int rid;             /* Artifact ID of the file being annotated */
-  Stmt q;              /* Query returning all ancestor versions */
-  Stmt ins;            /* Inserts into the temporary VSEEN table */
-  int cnt = 0;         /* Number of versions examined */
+  Blob toAnnotate;       /* Text of the final (mid) version of the file */
+  Blob step;             /* Text of previous revision */
+  Blob treename;         /* FILENAME translated to canonical form */
+  int cid;               /* Selected check-in ID */
+  int origid = 0;        /* The origin ID or zero */
+  int rid;               /* Artifact ID of the file being annotated */
+  int fnid;              /* Filename ID */
+  Stmt q;                /* Query returning all ancestor versions */
+  int cnt = 0;           /* Number of versions analyzed */
+  int iLimit;            /* Maximum number of versions to analyze */
+  sqlite3_int64 mxTime;  /* Halt at this time if not already complete */
 
-  /* Initialize the annotation */
-  rid = db_int(0, "SELECT fid FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid);
-  if( rid==0 ){
-    fossil_fatal("file #%d is unchanged in manifest #%d", fnid, mid);
+  if( zLimit ){
+    if( strcmp(zLimit,"none")==0 ){
+      iLimit = 0;
+      mxTime = 0;
+    }else if( sqlite3_strglob("*[0-9]s", zLimit)==0 ){
+      iLimit = 0;
+      mxTime = current_time_in_milliseconds() + 1000.0*atof(zLimit);
+    }else{
+      iLimit = atoi(zLimit);
+      if( iLimit<=0 ) iLimit = 30;
+      mxTime = 0;
+    }
+  }else{
+    /* Default limit is as much as we can do in 1.000 seconds */
+    iLimit = 0;
+    mxTime = current_time_in_milliseconds()+1000;
   }
-  if( !content_get(rid, &toAnnotate) ){
-    fossil_fatal("unable to retrieve content of artifact #%d", rid);
-  }
-  if( iLimit<=0 ) iLimit = 1000000000;
-  blob_to_utf8_no_bom(&toAnnotate, 0);
-  annotation_start(p, &toAnnotate, annFlags);
   db_begin_transaction();
-  db_multi_exec(
-     "CREATE TEMP TABLE IF NOT EXISTS vseen(rid INTEGER PRIMARY KEY);"
-     "DELETE FROM vseen;"
-  );
 
-  db_prepare(&ins, "INSERT OR IGNORE INTO vseen(rid) VALUES(:rid)");
+  /* Get the artificate ID for the check-in begin analyzed */
+  if( zRevision ){
+    cid = name_to_typed_rid(zRevision, "ci");
+  }else{
+    db_must_be_within_tree();
+    cid = db_lget_int("checkout", 0);
+  }
+  origid = zOrigin ? name_to_typed_rid(zOrigin, "ci") : 0;
+
+  /* Compute all direct ancestors of the check-in being analyzed into
+  ** the "ancestor" table. */
+  if( origid ){
+    path_shortest_stored_in_ancestor_table(origid, cid);
+  }else{
+    compute_direct_ancestors(cid);
+  }
+
+  /* Get filename ID */
+  file_tree_name(zFilename, &treename, 0, 1);
+  zFilename = blob_str(&treename);
+  fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
+
   db_prepare(&q,
-    "SELECT (SELECT uuid FROM blob WHERE rid=mlink.fid),"
-    "       (SELECT uuid FROM blob WHERE rid=mlink.mid),"
-    "       date(event.mtime),"
-    "       coalesce(event.euser,event.user),"
-    "       mlink.pid"
-    "  FROM mlink, event"
-    " WHERE mlink.fid=:rid"
+    "SELECT DISTINCT"
+    "   (SELECT uuid FROM blob WHERE rid=mlink.fid),"
+    "   (SELECT uuid FROM blob WHERE rid=mlink.mid),"
+    "   date(event.mtime),"
+    "   coalesce(event.euser,event.user),"
+    "   mlink.fid"
+    "  FROM mlink, event, ancestor"
+    " WHERE mlink.fnid=%d"
+    "   AND ancestor.rid=mlink.mid"
     "   AND event.objid=mlink.mid"
-    "   AND mlink.pid NOT IN vseen"
-    " ORDER BY %s event.mtime",
-    (annFlags & ANN_FILE_ANCEST)!=0 ?
-         "(mlink.mid IN (SELECT rid FROM ancestor)) DESC,":""
+    "   AND mlink.mid!=mlink.pid"
+    " ORDER BY ancestor.generation;",
+    fnid
   );
 
-  db_bind_int(&q, ":rid", rid);
-  if( iLimit==0 ) iLimit = 1000000000;
-  while( rid && iLimit>cnt && db_step(&q)==SQLITE_ROW ){
-    int prevId = db_column_int(&q, 4);
+  while( db_step(&q)==SQLITE_ROW ){
+    if( cnt>=3 ){  /* Process at least 3 rows before imposing limits */
+      if( (iLimit>0 && cnt>=iLimit)
+       || (cnt>0 && mxTime>0 && current_time_in_milliseconds()>mxTime)
+      ){
+        p->bMoreToDo = 1;
+        break;
+      }
+    }
+    rid = db_column_int(&q, 4);
+    if( cnt==0 ){
+      if( !content_get(rid, &toAnnotate) ){
+        fossil_fatal("unable to retrieve content of artifact #%d", rid);
+      }
+      blob_to_utf8_no_bom(&toAnnotate, 0);
+      annotation_start(p, &toAnnotate, annFlags);
+      p->bMoreToDo = origid!=0;
+      p->origId = origid;
+      p->showId = cid;
+    }
     p->aVers = fossil_realloc(p->aVers, (p->nVers+1)*sizeof(p->aVers[0]));
     p->aVers[p->nVers].zFUuid = fossil_strdup(db_column_text(&q, 0));
     p->aVers[p->nVers].zMUuid = fossil_strdup(db_column_text(&q, 1));
     p->aVers[p->nVers].zDate = fossil_strdup(db_column_text(&q, 2));
     p->aVers[p->nVers].zUser = fossil_strdup(db_column_text(&q, 3));
-    if( p->nVers ){
+    if( cnt>0 ){
       content_get(rid, &step);
       blob_to_utf8_no_bom(&step, 0);
       annotation_step(p, &step, p->nVers-1, annFlags);
       blob_reset(&step);
     }
     p->nVers++;
-    db_bind_int(&ins, ":rid", rid);
-    db_step(&ins);
-    db_reset(&ins);
-    db_reset(&q);
-    rid = prevId;
-    db_bind_int(&q, ":rid", prevId);
     cnt++;
   }
-  p->bLimit = iLimit==cnt;
   db_finalize(&q);
-  db_finalize(&ins);
   db_end_transaction(0);
 }
 
@@ -2297,26 +2347,44 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 ** the date of the changes and the check-in hash (with a link to the
 ** check-in).  /blame and /praise also show the user who made the check-in.
 **
+** Reverse Annotations:  Normally, these web pages look at versions of
+** FILENAME moving backwards in time back toward the root check-in.  However,
+** if the origin= query parameter is used to specify some future check-in
+** (example: "origin=trunk") then these pages show changes moving towards
+** that alternative origin.  Thus using "origin=trunk" on an historical
+** version of the file shows the first time each line in the file was been
+** changed in subsequent check-ins.
+**
 ** Query parameters:
 **
-**    checkin=ID          The manifest ID at which to start the annotation
+**    checkin=ID          The check-in at which to start the annotation
 **    filename=FILENAME   The filename.
-**    filevers            Show file versions rather than check-in versions
-**    limit=N             Limit the search depth to N ancestors
+**    filevers=BOOLEAN    Show file versions rather than check-in versions
+**    limit=LIMIT         Limit the amount of analysis:
+**                           "none"  No limit
+**                           "Xs"    As much as can be computed in X seconds
+**                           "N"     N versions
 **    log=BOOLEAN         Show a log of versions analyzed
-**    w                   Ignore whitespace
+**    origin=ID           The origin checkin.  If unspecified, the root
+**                           check-in over the entire repository is used.
+**                           Specify "origin=trunk" or similar for a reverse
+**                           annotation
+**    w=BOOLEAN           Ignore whitespace
 **
 */
 void annotation_page(void){
-  int mid;
-  int fnid;
   int i;
-  int iLimit;            /* Depth limit */
-  u64 annFlags = (ANN_FILE_ANCEST|DIFF_STRIP_EOLCR);
-  int showLog = 0;       /* True to display the log */
-  int ignoreWs = 0;      /* Ignore whitespace */
+  const char *zLimit;    /* Depth limit */
+  u64 annFlags = DIFF_STRIP_EOLCR;
+  int showLog;           /* True to display the log */
+  int fileVers;          /* Show file version instead of check-in versions */
+  int ignoreWs;          /* Ignore whitespace */
   const char *zFilename; /* Name of file to annotate */
+  const char *zRevision; /* Name of check-in from which to start annotation */
   const char *zCI;       /* The check-in containing zFilename */
+  const char *zOrigin;   /* The origin of the analysis */
+  int szHash;            /* Number of characters in %S display */
+  char *zLink;
   Annotator ann;
   HQuery url;
   struct AnnVers *p;
@@ -2324,26 +2392,21 @@ void annotation_page(void){
   int bBlame = g.zPath[0]!='a';/* True for BLAME output.  False for ANNOTATE. */
 
   /* Gather query parameters */
-  showLog = atoi(PD("log","1"));
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( exclude_spiders() ) return;
   load_control();
-  mid = name_to_typed_rid(PD("checkin","0"),"ci");
   zFilename = P("filename");
-  fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
-  if( mid==0 || fnid==0 ){ fossil_redirect_home(); }
-  iLimit = atoi(PD("limit","20"));
-  if( P("filevers") ) annFlags |= ANN_FILE_VERS;
-  ignoreWs = P("w")!=0;
+  zRevision = PD("checkin",0);
+  zOrigin = P("origin");
+  zLimit = P("limit");
+  showLog = PB("log");
+  fileVers = PB("filevers");
+  ignoreWs = PB("w");
   if( ignoreWs ) annFlags |= DIFF_IGNORE_ALLWS;
-  if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid) ){
-    fossil_redirect_home();
-  }
 
   /* compute the annotation */
-  compute_direct_ancestors(mid);
-  annotate_file(&ann, fnid, mid, iLimit, annFlags);
+  annotate_file(&ann, zFilename, zRevision, zLimit, zOrigin, annFlags);
   zCI = ann.aVers[0].zMUuid;
 
   /* generate the web page */
@@ -2355,34 +2418,18 @@ void annotation_page(void){
   }
   url_add_parameter(&url, "checkin", P("checkin"));
   url_add_parameter(&url, "filename", zFilename);
-  if( iLimit!=20 ){
-    url_add_parameter(&url, "limit", sqlite3_mprintf("%d", iLimit));
+  if( zLimit ){
+    url_add_parameter(&url, "limit", zLimit);
   }
+  url_add_parameter(&url, "w", ignoreWs ? "1" : "0");
   url_add_parameter(&url, "log", showLog ? "1" : "0");
-  if( ignoreWs ){
-    url_add_parameter(&url, "w", "");
-    style_submenu_element("Show Whitespace Changes", "%s",
-        url_render(&url, "w", 0, 0, 0));
-  }else{
-    style_submenu_element("Ignore Whitespace", "%s",
-        url_render(&url, "w", "", 0, 0));
-  }
-  if( showLog ){
-    style_submenu_element("Hide Log", "%s", url_render(&url, "log", "0", 0, 0));
-  }else{
-    style_submenu_element("Show Log", "%s", url_render(&url, "log", "1", 0, 0));
-  }
-  if( ann.bLimit ){
-    char *z1, *z2;
+  url_add_parameter(&url, "filevers", fileVers ? "1" : "0");
+  style_submenu_checkbox("w", "Ignore Whitespace", 0, 0);
+  style_submenu_checkbox("log", "Log", 0, "toggle_annotation_log()");
+  style_submenu_checkbox("filevers", "Link to Files", 0, 0);
+  if( ann.bMoreToDo ){
     style_submenu_element("All Ancestors", "%s",
-       url_render(&url, "limit", "-1", 0, 0));
-    z1 = sqlite3_mprintf("%d Ancestors", iLimit+20);
-    z2 = sqlite3_mprintf("%d", iLimit+20);
-    style_submenu_element(z1, "%s", url_render(&url, "limit", z2, 0, 0));
-  }
-  if( iLimit>20 ){
-    style_submenu_element("20 Ancestors", "%s",
-       url_render(&url, "limit", "20", 0, 0));
+       url_render(&url, "limit", "none", 0, 0));
   }
   if( skin_detail_boolean("white-foreground") ){
     clr1 = 0xa04040;
@@ -2396,75 +2443,82 @@ void annotation_page(void){
     ann.aVers[i].zBgColor = mprintf("#%06x", clr);
   }
 
-  if( showLog ){
-    char *zLink = href("%R/finfo?name=%t&ci=%!S",zFilename,zCI);
-    @ <h2>Ancestors of %z(zLink)%h(zFilename)</a> analyzed:</h2>
-    @ <ol>
-    for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
-      @ <li><span style='background-color:%s(p->zBgColor);'>%s(p->zDate)
-      @ check-in %z(href("%R/info/%!S",p->zMUuid))%S(p->zMUuid)</a>
-      @ artifact %z(href("%R/artifact/%!S",p->zFUuid))%S(p->zFUuid)</a>
-      @ </span>
-#if 0
-      if( i>0 ){
-        char *zLink = xhref("target='infowindow'",
-                            "%R/fdiff?v1=%S&v2=%S&sbs=1",
-                            p->zFUuid,ann.aVers[0].zFUuid);
-        @ %z(zLink)[diff-to-top]</a>
-        if( i>1 ){
-           zLink = xhref("target='infowindow'",
-                         "%R/fdiff?v1=%S&v2=%S&sbs=1",
-                         p->zFUuid,p[-1].zFUuid);
-           @ %z(zLink)[diff-to-previous]</a>
-        }
-      }
-#endif
-    }
-    @ </ol>
-    @ <hr />
+  @ <div id="annotation_log" style='display:%s(showLog?"block":"none");'>
+  if( zOrigin ){
+    zLink = href("%R/finfo?name=%t&ci=%!S&orig=%!S",zFilename,zCI,zOrigin);
+  }else{
+    zLink = href("%R/finfo?name=%t&ci=%!S",zFilename,zCI);
   }
-  if( !ann.bLimit ){
+  @ <h2>Versions of %z(zLink)%h(zFilename)</a> analyzed:</h2>
+  @ <ol>
+  for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
+    @ <li><span style='background-color:%s(p->zBgColor);'>%s(p->zDate)
+    @ check-in %z(href("%R/info/%!S",p->zMUuid))%S(p->zMUuid)</a>
+    @ artifact %z(href("%R/artifact/%!S",p->zFUuid))%S(p->zFUuid)</a>
+    @ </span>
+  }
+  @ </ol>
+  @ <hr />
+  @ </div>
+  @ <script>
+  @ function toggle_annotation_log(){
+  @   var w = gebi("annotation_log");
+  @   var x = document.forms["f01"].elements["log"].checked
+  @   w.style.display = x ? "block" : "none";
+  @ }
+  @ </script>
+
+  if( !ann.bMoreToDo ){
+    assert( ann.origId==0 );  /* bMoreToDo always set for a point-to-point */
     @ <h2>Origin for each line in
     @ %z(href("%R/finfo?name=%h&ci=%!S", zFilename, zCI))%h(zFilename)</a>
     @ from check-in %z(href("%R/info/%!S",zCI))%S(zCI)</a>:</h2>
-    iLimit = ann.nVers+10;
+  }else if( ann.origId>0 ){
+    @ <h2>Lines of
+    @ %z(href("%R/finfo?name=%h&ci=%!S", zFilename, zCI))%h(zFilename)</a>
+    @ from check-in %z(href("%R/info/%!S",zCI))%S(zCI)</a>
+    @ that are changed by the sequence of edits moving toward
+    @ check-in %z(href("%R/info/%!S",zOrigin))%S(zOrigin)</a>:</h2>
   }else{
-    @ <h2>Lines added by the %d(iLimit) most recent ancestors of
+    @ <h2>Lines added by the %d(ann.nVers) most recent ancestors of
     @ %z(href("%R/finfo?name=%h&ci=%!S", zFilename, zCI))%h(zFilename)</a>
     @ from check-in %z(href("%R/info/%!S",zCI))%S(zCI)</a>:</h2>
   }
   @ <pre>
+  szHash = 10;
   for(i=0; i<ann.nOrig; i++){
     int iVers = ann.aOrig[i].iVers;
     char *z = (char*)ann.aOrig[i].z;
     int n = ann.aOrig[i].n;
     char zPrefix[300];
     z[n] = 0;
-    if( iLimit>ann.nVers && iVers<0 ) iVers = ann.nVers-1;
+    if( iVers<0 && !ann.bMoreToDo ) iVers = ann.nVers-1;
 
     if( bBlame ){
       if( iVers>=0 ){
         struct AnnVers *p = ann.aVers+iVers;
-        char *zLink = xhref("target='infowindow'", "%R/info/%!S", p->zMUuid);
+        const char *zUuid = fileVers ? p->zFUuid : p->zMUuid;
+        char *zLink = xhref("target='infowindow'", "%R/info/%!S", zUuid);
         sqlite3_snprintf(sizeof(zPrefix), zPrefix,
              "<span style='background-color:%s'>"
              "%s%.10s</a> %s</span> %13.13s:",
-             p->zBgColor, zLink, p->zMUuid, p->zDate, p->zUser);
+             p->zBgColor, zLink, zUuid, p->zDate, p->zUser);
         fossil_free(zLink);
       }else{
-        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%36s", "");
+        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%*s", szHash+26, "");
       }
     }else{
       if( iVers>=0 ){
         struct AnnVers *p = ann.aVers+iVers;
-        char *zLink = xhref("target='infowindow'", "%R/info/%!S", p->zMUuid);
+        const char *zUuid = fileVers ? p->zFUuid : p->zMUuid;
+        char *zLink = xhref("target='infowindow'", "%R/info/%!S", zUuid);
         sqlite3_snprintf(sizeof(zPrefix), zPrefix,
              "<span style='background-color:%s'>"
              "%s%.10s</a> %s</span> %4d:",
-             p->zBgColor, zLink, p->zMUuid, p->zDate, i+1);
+             p->zBgColor, zLink, zUuid, p->zDate, i+1);
         fossil_free(zLink);
       }else{
-        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%22s%4d:", "", i+1);
+        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%*s%4d:",szHash+12,"",i+1);
       }
     }
     @ %s(zPrefix) %h(z)
@@ -2479,43 +2533,56 @@ void annotation_page(void){
 ** COMMAND: blame
 ** COMMAND: praise
 **
-** Usage: %fossil (annotate|blame|praise) ?OPTIONS? FILENAME
+** Usage: %fossil annotate|blame|praise ?OPTIONS? FILENAME
 **
-** Output the text of a file with markings to show when each line of
-** the file was last modified.  The "annotate" command shows line numbers
-** and omits the username.  The "blame" and "praise" commands show the user
-** who made each check-in and omits the line number.
+** Output the text of a file with markings to show when each line of the file
+** was last modified.  The version currently checked out is shown by default.
+** Other versions may be specified using the -r option.  The "annotate" command
+** shows line numbers and omits the username.  The "blame" and "praise" commands
+** show the user who made each check-in.
+**
+** Reverse Annotations:  Normally, these commands look at versions of
+** FILENAME moving backwards in time back toward the root check-in, and
+** thus the output shows the most recent change to each line.  However,
+** if the -o|--origin option is used to specify some future check-in
+** (example: "-o trunk") then these commands show changes moving towards
+** that alternative origin.  Thus using "-o trunk" on an historical version
+** of the file shows the first time each line in the file was been changed
+** by subsequent check-ins.
 **
 ** Options:
 **   --filevers                  Show file version numbers rather than
 **                               check-in versions
+**   -r|--revision VERSION       The specific check-in containing the file
 **   -l|--log                    List all versions analyzed
-**   -n|--limit N                Only look backwards in time by N versions
+**   -n|--limit LIMIT            Limit the amount of analysis:
+**                                 N      Up to N versions
+**                                 Xs     As much as possible in X seconds
+**                                 none   No limit
+**   -o|--origin VERSION         The origin check-in. By default this is the
+**                                 root of the repository. Set to "trunk" or
+**                                 similar for a reverse annotation.
 **   -w|--ignore-all-space       Ignore white space when comparing lines
 **   -Z|--ignore-trailing-space  Ignore whitespace at line end
 **
 ** See also: info, finfo, timeline
 */
 void annotate_cmd(void){
-  int fnid;         /* Filename ID */
-  int fid;          /* File instance ID */
-  int mid;          /* Manifest where file was checked in */
-  int cid;          /* Checkout ID */
-  Blob treename;    /* FILENAME translated to canonical form */
-  char *zFilename;  /* Canonical filename */
-  Annotator ann;    /* The annotation of the file */
-  int i;            /* Loop counter */
-  const char *zLimit; /* The value to the -n|--limit option */
-  int iLimit;       /* How far back in time to look */
-  int showLog;      /* True to show the log */
-  int fileVers;     /* Show file version instead of check-in versions */
-  u64 annFlags = 0; /* Flags to control annotation properties */
-  int bBlame = 0;   /* True for BLAME output.  False for ANNOTATE. */
+  const char *zRevision; /* Revision name, or NULL for current check-in */
+  Annotator ann;         /* The annotation of the file */
+  int i;                 /* Loop counter */
+  const char *zLimit;    /* The value to the -n|--limit option */
+  const char *zOrig;     /* The value for -o|--origin */
+  int showLog;           /* True to show the log */
+  int fileVers;          /* Show file version instead of check-in versions */
+  u64 annFlags = 0;      /* Flags to control annotation properties */
+  int bBlame = 0;        /* True for BLAME output.  False for ANNOTATE. */
+  int szHash;            /* Display size of a version hash */
 
   bBlame = g.argv[1][0]!='a';
+  zRevision = find_option("r","revision",1);
   zLimit = find_option("limit","n",1);
-  if( zLimit==0 || zLimit[0]==0 ) zLimit = "-1";
-  iLimit = atoi(zLimit);
+  zOrig = find_option("origin","o",1);
   showLog = find_option("log","l",0)!=0;
   if( find_option("ignore-trailing-space","Z",0)!=0 ){
     annFlags = DIFF_IGNORE_EOLWS;
@@ -2532,31 +2599,9 @@ void annotate_cmd(void){
   if( g.argc<3 ) {
     usage("FILENAME");
   }
-  file_tree_name(g.argv[2], &treename, 0, 1);
-  zFilename = blob_str(&treename);
-  fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
-  if( fnid==0 ){
-    fossil_fatal("no such file: %s", zFilename);
-  }
-  fid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%Q", zFilename);
-  if( fid==0 ){
-    fossil_fatal("not part of current checkout: %s", zFilename);
-  }
-  cid = db_lget_int("checkout", 0);
-  if( cid == 0 ){
-    fossil_fatal("Not in a checkout");
-  }
-  if( iLimit<=0 ) iLimit = 1000000000;
-  compute_direct_ancestors(cid);
-  mid = db_int(0, "SELECT mlink.mid FROM mlink, ancestor "
-          " WHERE mlink.fid=%d AND mlink.fnid=%d AND mlink.mid=ancestor.rid"
-          " ORDER BY ancestor.generation ASC LIMIT 1",
-          fid, fnid);
-  if( mid==0 ){
-    fossil_fatal("unable to find manifest");
-  }
-  annFlags |= (ANN_FILE_ANCEST|DIFF_STRIP_EOLCR);
-  annotate_file(&ann, fnid, mid, iLimit, annFlags);
+
+  annFlags |= DIFF_STRIP_EOLCR;
+  annotate_file(&ann, g.argv[2], zRevision, zLimit, zOrig, annFlags);
   if( showLog ){
     struct AnnVers *p;
     for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
@@ -2565,27 +2610,28 @@ void annotate_cmd(void){
     }
     fossil_print("---------------------------------------------------\n");
   }
+  szHash = length_of_S_display();
   for(i=0; i<ann.nOrig; i++){
     int iVers = ann.aOrig[i].iVers;
     char *z = (char*)ann.aOrig[i].z;
     int n = ann.aOrig[i].n;
     struct AnnVers *p;
-    if( iLimit>ann.nVers && iVers<0 ) iVers = ann.nVers-1;
-    p = ann.aVers + iVers;
+    if( iVers<0 && !ann.bMoreToDo ) iVers = ann.nVers-1;
     if( bBlame ){
       if( iVers>=0 ){
+        p = ann.aVers + iVers;
         fossil_print("%S %s %13.13s: %.*s\n",
              fileVers ? p->zFUuid : p->zMUuid, p->zDate, p->zUser, n, z);
       }else{
-        fossil_print("%35s  %.*s\n", "", n, z);
+        fossil_print("%*s %.*s\n", szHash+26, "", n, z);
       }
     }else{
       if( iVers>=0 ){
+        p = ann.aVers + iVers;
         fossil_print("%S %s %5d: %.*s\n",
              fileVers ? p->zFUuid : p->zMUuid, p->zDate, i+1, n, z);
       }else{
-        fossil_print("%21s %5d: %.*s\n",
-             "", i+1, n, z);
+        fossil_print("%*s %5d: %.*s\n", szHash+11, "", i+1, n, z);
       }
     }
   }

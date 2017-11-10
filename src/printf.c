@@ -65,6 +65,13 @@ static int hashDigits(int bForUrl){
 }
 
 /*
+** Return the number of characters in a %S output.
+*/
+int length_of_S_display(void){
+  return hashDigits(0);
+}
+
+/*
 ** Conversion types fall into various categories as defined by the
 ** following enumeration.
 */

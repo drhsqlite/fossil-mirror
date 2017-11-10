@@ -13,7 +13,7 @@ options {
     with-legacy-mv-rm=0  => {Enable legacy behavior for mv/rm (skip checkout files)}
     with-th1-docs=0      => {Enable TH1 for embedded documentation pages}
     with-th1-hooks=0     => {Enable TH1 hooks for commands and web pages}
-    with-tcl=path        => {Enable Tcl integration, with Tcl in the specified path}
+    with-tcl:path        => {Enable Tcl integration, with Tcl in the specified path}
     with-tcl-stubs=0     => {Enable Tcl integration via stubs library mechanism}
     with-tcl-private-stubs=0
                          => {Enable Tcl integration via private stubs mechanism}
@@ -191,6 +191,9 @@ if {[opt-bool static]} {
     define-append EXTRA_CFLAGS -DFOSSIL_DYNAMIC_BUILD=1
     define FOSSIL_DYNAMIC_BUILD
 }
+
+# Check for libraries that need to be sorted out early
+cc-check-function-in-lib iconv iconv
 
 # Helper for OpenSSL checking
 proc check-for-openssl {msg {cflags {}} {libs {-lssl -lcrypto}}} {
@@ -460,7 +463,6 @@ if {![cc-check-function-in-lib socket {socket network}]} {
         define-append LIBS -lwsock32
     }
 }
-cc-check-function-in-lib iconv iconv
 cc-check-functions utime
 cc-check-functions usleep
 cc-check-functions strchrnul

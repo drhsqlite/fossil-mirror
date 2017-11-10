@@ -334,7 +334,7 @@ int event_commit_common(
     return 0;
   }
   assert( blob_is_reset(&event) );
-  content_deltify(rid, nrid, 0);
+  content_deltify(rid, &nrid, 1, 0);
   db_end_transaction(0);
   return 1;
 }

@@ -466,15 +466,16 @@ int doc_is_embedded_html(Blob *pContent, Blob *pTitle){
 ** if the file is not found or could not be loaded.
 */
 int doc_load_content(int vid, const char *zName, Blob *pContent){
+  int writable = db_is_writeable("repository");
   int rid;   /* The RID of the file being loaded */
-  if( !db_table_exists("repository","vcache") ){
+  if( !db_table_exists("repository", "vcache") || !writable ){
     db_multi_exec(
-      "CREATE TABLE IF NOT EXISTS vcache(\n"
+      "CREATE %s TABLE IF NOT EXISTS vcache(\n"
       "  vid INTEGER,         -- check-in ID\n"
       "  fname TEXT,          -- filename\n"
       "  rid INTEGER,         -- artifact ID\n"
       "  PRIMARY KEY(vid,fname)\n"
-      ") WITHOUT ROWID"
+      ") WITHOUT ROWID", writable ? "" : "TEMPORARY"
     );
   }
   if( !db_exists("SELECT 1 FROM vcache WHERE vid=%d", vid) ){
@@ -498,13 +499,13 @@ int doc_load_content(int vid, const char *zName, Blob *pContent){
 
 /*
 ** Transfer content to the output.  During the transfer, when text of
-** the followign form is seen:
+** the following form is seen:
 **
 **       href="$ROOT/
 **       action="$ROOT/
 **
 ** Convert $ROOT to the root URI of the repository.  Allow ' in place of "
-** and any case for href.
+** and any case for href or action.
 */
 static void convert_href_and_output(Blob *pIn){
   int i, base;
@@ -574,7 +575,7 @@ static void convert_href_and_output(Blob *pIn){
 ** to the top-level of the repository.
 */
 void doc_page(void){
-  const char *zName;                /* Argument to the /doc page */
+  const char *zName = 0;            /* Argument to the /doc page */
   const char *zOrigName = "?";      /* Original document name */
   const char *zMime;                /* Document MIME type */
   char *zCheckin = "tip";           /* The check-in holding the document */

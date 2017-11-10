@@ -37,11 +37,11 @@
 #define CONFIGSET_USER      0x000020     /* The USER table */
 #define CONFIGSET_ADDR      0x000040     /* The CONCEALED table */
 #define CONFIGSET_XFER      0x000080     /* Transfer configuration */
+#define CONFIGSET_ALIAS     0x000100     /* URL Aliases */
 
-#define CONFIGSET_ALL       0x0000ff     /* Everything */
+#define CONFIGSET_ALL       0x0001ff     /* Everything */
 
 #define CONFIGSET_OVERWRITE 0x100000     /* Causes overwrite instead of merge */
-#define CONFIGSET_OLDFORMAT 0x200000     /* Use the legacy format */
 
 /*
 ** This mask is used for the common TH1 configuration settings (i.e. those
@@ -69,6 +69,7 @@ static struct {
   { "/ticket",       CONFIGSET_TKT,   "Ticket setup",                        },
   { "/user",         CONFIGSET_USER,  "Users and privilege settings"         },
   { "/xfer",         CONFIGSET_XFER,  "Transfer setup",                      },
+  { "/alias",        CONFIGSET_ALIAS, "URL Aliases",                         },
   { "/all",          CONFIGSET_ALL,   "All of the above"                     },
 };
 
@@ -156,6 +157,8 @@ static struct {
 
   { "@shun",                  CONFIGSET_SHUN },
 
+  { "@alias",                 CONFIGSET_ALIAS },
+
   { "xfer-common-script",     CONFIGSET_XFER },
   { "xfer-push-script",       CONFIGSET_XFER },
   { "xfer-commit-script",     CONFIGSET_XFER },
@@ -172,25 +175,15 @@ const char *configure_first_name(int iMask){
   return configure_next_name(iMask);
 }
 const char *configure_next_name(int iMask){
-  if( iMask & CONFIGSET_OLDFORMAT ){
-    while( iConfig<count(aConfig) ){
-      if( aConfig[iConfig].groupMask & iMask ){
-        return aConfig[iConfig++].zName;
-      }else{
-        iConfig++;
-      }
-    }
-  }else{
-    if( iConfig==0 && (iMask & CONFIGSET_ALL)==CONFIGSET_ALL ){
-      iConfig = count(aGroupName);
-      return "/all";
-    }
-    while( iConfig<count(aGroupName)-1 ){
-      if( aGroupName[iConfig].groupMask & iMask ){
-        return aGroupName[iConfig++].zName;
-      }else{
-        iConfig++;
-      }
+  if( iConfig==0 && (iMask & CONFIGSET_ALL)==CONFIGSET_ALL ){
+    iConfig = count(aGroupName);
+    return "/all";
+  }
+  while( iConfig<count(aGroupName)-1 ){
+    if( aGroupName[iConfig].groupMask & iMask ){
+      return aGroupName[iConfig++].zName;
+    }else{
+      iConfig++;
     }
   }
   return 0;
@@ -246,185 +239,16 @@ int configure_is_exportable(const char *zName){
       return m;
     }
   }
+  if( strncmp(zName, "walias:/", 8)==0 ){
+    return CONFIGSET_ALIAS;
+  }
   return 0;
 }
 
 /*
-** zName is one of the special configuration names that refers to an entire
-** table rather than a single entry in CONFIG.  Special names are "@reportfmt"
-** and "@shun" and "@user".  This routine writes SQL text into pOut that when
-** evaluated will populate the corresponding table with data.
-*/
-void configure_render_special_name(const char *zName, Blob *pOut){
-  Stmt q;
-  if( fossil_strcmp(zName, "@shun")==0 ){
-    db_prepare(&q, "SELECT uuid FROM shun");
-    while( db_step(&q)==SQLITE_ROW ){
-      blob_appendf(pOut, "INSERT OR IGNORE INTO shun VALUES('%s');\n",
-        db_column_text(&q, 0)
-      );
-    }
-    db_finalize(&q);
-  }else if( fossil_strcmp(zName, "@reportfmt")==0 ){
-    db_prepare(&q, "SELECT title, cols, sqlcode FROM reportfmt");
-    while( db_step(&q)==SQLITE_ROW ){
-      blob_appendf(pOut, "INSERT INTO _xfer_reportfmt(title,cols,sqlcode)"
-                         " VALUES(%Q,%Q,%Q);\n",
-        db_column_text(&q, 0),
-        db_column_text(&q, 1),
-        db_column_text(&q, 2)
-      );
-    }
-    db_finalize(&q);
-  }else if( fossil_strcmp(zName, "@user")==0 ){
-    db_prepare(&q,
-        "SELECT login, CASE WHEN length(pw)==40 THEN pw END,"
-        "       cap, info, quote(photo) FROM user");
-    while( db_step(&q)==SQLITE_ROW ){
-      blob_appendf(pOut, "INSERT INTO _xfer_user(login,pw,cap,info,photo)"
-                         " VALUES(%Q,%Q,%Q,%Q,%s);\n",
-        db_column_text(&q, 0),
-        db_column_text(&q, 1),
-        db_column_text(&q, 2),
-        db_column_text(&q, 3),
-        db_column_text(&q, 4)
-      );
-    }
-    db_finalize(&q);
-  }else if( fossil_strcmp(zName, "@concealed")==0 ){
-    db_prepare(&q, "SELECT hash, content FROM concealed");
-    while( db_step(&q)==SQLITE_ROW ){
-      blob_appendf(pOut, "INSERT OR IGNORE INTO concealed(hash,content)"
-                         " VALUES(%Q,%Q);\n",
-        db_column_text(&q, 0),
-        db_column_text(&q, 1)
-      );
-    }
-    db_finalize(&q);
-  }
-}
-
-/*
-** Two SQL functions:
-**
-**        config_is_reset(int)
-**        config_reset(int)
-**
-** The config_is_reset() function takes the integer valued argument and
-** ANDs it against the static variable "configHasBeenReset" below.  The
-** function returns TRUE or FALSE depending on the result depending on
-** whether or not the corresponding configuration table has been reset.  The
-** config_reset() function adds the bits to "configHasBeenReset" that
-** are given in the argument.
-**
-** These functions are used below in the WHEN clause of a trigger to
-** get the trigger to fire exactly once.
+** A mask of all configuration tables that have been reset already.
 */
 static int configHasBeenReset = 0;
-static void config_is_reset_function(
-  sqlite3_context *context,
-  int argc,
-  sqlite3_value **argv
-){
-  int m = sqlite3_value_int(argv[0]);
-  sqlite3_result_int(context, (configHasBeenReset&m)!=0 );
-}
-static void config_reset_function(
-  sqlite3_context *context,
-  int argc,
-  sqlite3_value **argv
-){
-  int m = sqlite3_value_int(argv[0]);
-  configHasBeenReset |= m;
-}
-
-/*
-** Create the temporary _xfer_reportfmt and _xfer_user tables that are
-** necessary in order to evaluate the SQL text generated by the
-** configure_render_special_name() routine.
-**
-** If replaceFlag is true, then the setup is such that the content in
-** the SQL text will completely replace the current repository configuration.
-** If replaceFlag is false, then the SQL text will be merged with the
-** existing configuration.  When merging, existing values take priority
-** over SQL text values.
-*/
-void configure_prepare_to_receive(int replaceFlag){
-  static const char zSQL1[] =
-    @ CREATE TEMP TABLE _xfer_reportfmt(
-    @    rn integer primary key,  -- Report number
-    @    owner text,              -- Owner of this report format (not used)
-    @    title text UNIQUE ON CONFLICT IGNORE,  -- Title of this report
-    @    cols text,               -- A color-key specification
-    @    sqlcode text             -- An SQL SELECT statement for this report
-    @ );
-    @ CREATE TEMP TABLE _xfer_user(
-    @   uid INTEGER PRIMARY KEY,        -- User ID
-    @   login TEXT UNIQUE ON CONFLICT IGNORE,   -- login name of the user
-    @   pw TEXT,                        -- password
-    @   cap TEXT,                       -- Capabilities of this user
-    @   cookie TEXT,                    -- WWW login cookie
-    @   ipaddr TEXT,                    -- IP address for which cookie is valid
-    @   cexpire DATETIME,               -- Time when cookie expires
-    @   info TEXT,                      -- contact information
-    @   photo BLOB                      -- JPEG image of this user
-    @ );
-    @ INSERT INTO _xfer_reportfmt
-    @    SELECT rn,owner,title,cols,sqlcode FROM reportfmt;
-    @ INSERT INTO _xfer_user
-    @    SELECT uid,login,pw,cap,cookie,ipaddr,cexpire,info,photo FROM user;
-  ;
-  assert( strchr(zSQL1,'%')==0 );
-  db_multi_exec(zSQL1 /*works-like:""*/);
-
-  /* When the replace flag is set, add triggers that run the first time
-  ** that new data is seen.  The triggers run only once and delete all the
-  ** existing data.
-  */
-  if( replaceFlag ){
-    static const char zSQL2[] =
-      @ CREATE TRIGGER _xfer_r1 BEFORE INSERT ON _xfer_reportfmt
-      @ WHEN NOT config_is_reset(2) BEGIN
-      @   DELETE FROM _xfer_reportfmt;
-      @   SELECT config_reset(2);
-      @ END;
-      @ CREATE TRIGGER _xfer_r2 BEFORE INSERT ON _xfer_user
-      @ WHEN NOT config_is_reset(16) BEGIN
-      @   DELETE FROM _xfer_user;
-      @   SELECT config_reset(16);
-      @ END;
-      @ CREATE TEMP TRIGGER _xfer_r3 BEFORE INSERT ON shun
-      @ WHEN NOT config_is_reset(8) BEGIN
-      @   DELETE FROM shun;
-      @   SELECT config_reset(8);
-      @ END;
-    ;
-    sqlite3_create_function(g.db, "config_is_reset", 1, SQLITE_UTF8, 0,
-         config_is_reset_function, 0, 0);
-    sqlite3_create_function(g.db, "config_reset", 1, SQLITE_UTF8, 0,
-         config_reset_function, 0, 0);
-    configHasBeenReset = 0;
-    assert( strchr(zSQL2,'%')==0 );
-    db_multi_exec(zSQL2 /*works-like:""*/);
-  }
-}
-
-/*
-** After receiving configuration data, call this routine to transfer
-** the results into the main database.
-*/
-void configure_finalize_receive(void){
-  static const char zSQL[] =
-    @ DELETE FROM user;
-    @ INSERT INTO user SELECT * FROM _xfer_user;
-    @ DELETE FROM reportfmt;
-    @ INSERT INTO reportfmt SELECT * FROM _xfer_reportfmt;
-    @ DROP TABLE _xfer_user;
-    @ DROP TABLE _xfer_reportfmt;
-  ;
-  assert( strchr(zSQL,'%')==0 );
-  db_multi_exec(zSQL /*works-like:""*/);
-}
 
 /*
 ** Mask of modified configuration sets
@@ -516,6 +340,7 @@ static int safeInt(const char *z){
 ** The old format is retained for backwards compatibility, but is deprecated.
 ** The cutover from old format to new was on 2011-04-25.  After sufficient
 ** time has passed, support for the old format will be removed.
+** Update: Support for the old format was remoed on 2017-09-20.
 **
 ** zName is either the NAME of an element of the CONFIG table, or else
 ** one of the special names "@shun", "@reportfmt", "@user", or "@concealed".
@@ -611,31 +436,6 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
     }
     blob_reset(&sql);
     rebuildMask |= thisMask;
-  }else{
-    /* Otherwise, the old format */
-    if( (configure_is_exportable(zName) & groupMask)==0 ) return;
-    if( fossil_strcmp(zName, "logo-image")==0 ){
-      Stmt ins;
-      db_prepare(&ins,
-        "REPLACE INTO config(name, value, mtime) VALUES(:name, :value, now())"
-      );
-      db_bind_text(&ins, ":name", zName);
-      db_bind_blob(&ins, ":value", pContent);
-      db_step(&ins);
-      db_finalize(&ins);
-    }else if( zName[0]=='@' ){
-      /* Notice that we are evaluating arbitrary SQL received from the
-      ** client.  But this can only happen if the client has authenticated
-      ** as an administrator, so presumably we trust the client at this
-      ** point.
-      */
-      db_multi_exec("%s", blob_str(pContent) /*safe-for-%s*/);
-    }else{
-      db_multi_exec(
-         "REPLACE INTO config(name,value,mtime) VALUES(%Q,%Q,now())",
-         zName, blob_str(pContent)
-      );
-    }
   }
 }
 
@@ -760,6 +560,22 @@ int configure_send_group(
     }
     db_finalize(&q);
   }
+  if( groupMask & CONFIGSET_ALIAS ){
+    db_prepare(&q, "SELECT mtime, quote(name), quote(value) FROM config"
+                   " WHERE name GLOB 'walias:/*' AND mtime>=%lld", iStart);
+    while( db_step(&q)==SQLITE_ROW ){
+      blob_appendf(&rec,"%s %s value %s",
+        db_column_text(&q, 0),
+        db_column_text(&q, 1),
+        db_column_text(&q, 2)
+      );
+      blob_appendf(pOut, "config /config %d\n%s\n",
+                   blob_size(&rec), blob_str(&rec));
+      nCard++;
+      blob_reset(&rec);
+    }
+    db_finalize(&q);
+  }
   db_prepare(&q, "SELECT mtime, quote(name), quote(value) FROM config"
                  " WHERE name=:name AND mtime>=%lld", iStart);
   for(ii=0; ii<count(aConfig); ii++){
@@ -841,7 +657,7 @@ static void export_config(
 **    %fossil configuration export AREA FILENAME
 **
 **         Write to FILENAME exported configuration information for AREA.
-**         AREA can be one of:  all email project shun skin ticket user
+**         AREA can be one of:  all email project shun skin ticket user alias
 **
 **    %fossil configuration import FILENAME
 **
@@ -858,10 +674,8 @@ static void export_config(
 **
 **         Pull and install the configuration from a different server
 **         identified by URL.  If no URL is specified, then the default
-**         server is used. Use the --legacy option for the older protocol
-**         (when talking to servers compiled prior to 2011-04-27.)  Use
-**         the --overwrite flag to completely replace local settings with
-**         content received from URL.
+**         server is used.  Use the --overwrite flag to completely
+**         replace local settings with content received from URL.
 **
 **    %fossil configuration push AREA ?URL?
 **
@@ -869,7 +683,6 @@ static void export_config(
 **         by URL.  Admin privilege is required on the remote server for
 **         this to work.  When the same record exists both locally and on
 **         the remote end, the one that was most recently changed wins.
-**         Use the --legacy flag when talking to older servers.
 **
 **    %fossil configuration reset AREA
 **
@@ -934,10 +747,8 @@ void configuration_cmd(void){
   ){
     int mask;
     const char *zServer = 0;
-    int legacyFlag = 0;
     int overwriteFlag = 0;
 
-    if( zMethod[0]!='s' ) legacyFlag = find_option("legacy",0,0)!=0;
     if( strncmp(zMethod,"pull",n)==0 ){
       overwriteFlag = find_option("overwrite",0,0)!=0;
     }
@@ -953,7 +764,6 @@ void configuration_cmd(void){
     if( g.url.protocol==0 ) fossil_fatal("no server URL specified");
     user_select();
     url_enable_proxy("via proxy: ");
-    if( legacyFlag ) mask |= CONFIGSET_OLDFORMAT;
     if( overwriteFlag ) mask |= CONFIGSET_OVERWRITE;
     if( strncmp(zMethod, "push", n)==0 ){
       client_sync(0,0,(unsigned)mask);

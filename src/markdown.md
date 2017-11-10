@@ -2,17 +2,22 @@
 
 ## Paragraphs ##
 
-> Paragraphs are divided by blank lines.
+> Paragraphs are divided by blank lines.  
 > End a line with two or more spaces to force a mid-paragraph line break.
 
 ## Headings ##
 
 >
-    # Top-level Heading                         Alternative Top Level Heading
-    # Top-level Heading Variant #               =============================
+    # Top Level Heading                 Alternative Top Level Heading
+    # Top Level Heading Variant #       =============================
 >
-    ## Second-level Heading                     Alternative 2nd Level Heading
-    ## Second-level Heading Variant ##          -----------------------------
+    ## 2nd Level Heading                Alternative 2nd Level Heading
+    ## 2nd Level Heading Variant ##     -----------------------------
+>
+    ### 3rd Level Heading               ### 3rd Level Heading Variant ###
+    #### 4th Level Heading              #### 4th Level Heading Variant ####
+    ##### 5th Level Heading             ##### 5th Level Heading Variant #####
+    ###### 6th Level Heading            ###### 6th Level Heading Variant ######
 
 ## Links ##
 
@@ -74,23 +79,43 @@
 > Begin each line with at least four spaces or one tab to produce a verbatim
 > code block.
 
+## Tables ##
+
+>
+    | Header 1     | Header 2    | Header 3      |
+    ----------------------------------------------
+    | Row 1 Col 1  | Row 1 Col 2 | Row 1 Col 3   |
+    |:Left-aligned |:Centered   :| Right-aligned:|
+    |              | ← Blank   → |               |
+    | Row 4 Col 1  | Row 4 Col 2 | Row 4 Col 3   |
+
+> The first row is a header if followed by a horizontal rule or a blank line.
+
+> Placing **:** at the left, both, or right sides of a cell gives left-aligned,
+> centered, or right-aligned text, respectively.  By default, header cells are
+> centered, and body cells are left-aligned.
+
+> The leftmost **\|** is required if the first column contains at least one
+> blank cell.  The rightmost **\|** is optional.
+
 ## Miscellaneous ##
 
 > *   In-line images are made using **\!\[alt-text\]\(image-URL\)**.
-> *   Use HTML for complex formatting such as tables and forms.
-> *   Escape special characters (ex: "\[", "\(", "\*")
->     using backslash (ex: "\\\[", "\\\(", "\\\*").
+> *   Use HTML for advanced formatting such as forms.
+> *   **\<!--** HTML-style comments **-->** are supported.
+> *   Escape special characters (ex: **\[** **\(** **\|** **\***)
+>     using backslash (ex: **\\\[** **\\\(** **\\\|** **\\\***).
 > *   A line consisting of **---**, **\*\*\***, or **\_\_\_** is a horizontal
 >     rule.  Spaces and extra **-**/**\***/**_** are allowed.
 > *   See [daringfireball.net][] for additional information.
-> *   See this page's [Markdown source](/md_rules?txt=1) for more examples.
+> *   See this page's [Markdown source](/md_rules?txt=1) for complex examples.
 
 ## Special Features For Fossil ##
 
-> *  In hyperlinks, if the URL begins with "/" then the root of the Fossil
+> *  In hyperlinks, if the URL begins with **/** then the root of the Fossil
 >    repository is prepended.  This allows for repository-relative hyperlinks.
-> *  For documents that begin with a top-level heading (ex: "# heading #"), the
->    heading is omitted from the body of the document and becomes the document
->    title displayed at the top of the Fossil page.
+> *  For documents that begin with a top-level heading (ex: **# heading #**),
+>    the heading is omitted from the body of the document and becomes the
+>    document title displayed at the top of the Fossil page.
 
 [daringfireball.net]: http://daringfireball.net/projects/markdown/syntax
