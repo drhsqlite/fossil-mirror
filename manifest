@@ -1,5 +1,5 @@
-C (cherrypick):\supdate\swin/Makefile.mingw.mistachkin
-D 2017-11-08T15:20:05.121
+C (cherry-pick):\sUpgrade\sto\sopenssl\s1.0.2m
+D 2017-11-10T10:30:13.937
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -465,7 +465,7 @@ F src/main.c 15e6e4f051c1e1517fc94f5295b4605c3bb52917659535b57b040f9d5923332d
 F src/main.mk b8922b6044eaf27469fa4c16eef595404c39b14e2aba296cb82a0ab32f6536ad
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl 7ffa5b66d2e1bd8b4834ed628a71665196455930f85886b8de1946ea6ba1304f
+F src/makemake.tcl 832e47ddba00c387fd0b24c5eb5927d00ad2df7d441dd756bdf1a49c4991d8c2
 F src/manifest.c 1c857522c5247f926c1ac579a6b2f2e3261ef5bdd51376e26ce5c7943bd4b4f3
 F src/markdown.c 2cb7007279db7ad8e16f8c822d5ba27f59b4af2dcc0cd4ba87cce3e4303d5969
 F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb98d
@@ -666,9 +666,9 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F win/Makefile.PellesCGMake 26ad3513db82de574bd9d392443d1e717795409a55fedf37f227198778eeaf0c
 F win/Makefile.dmc 32b2b3e529f84c3e79c1615e3406ff3ca341e16c8c9a6f3a2c78f266f4594683
-F win/Makefile.mingw 27a8ac320fb593f22bb9fd8308d5f46568b112d9ad28a2b8c209e54401e2c5ec
-F win/Makefile.mingw.mistachkin b36fac897c7cee3783a8442c716e8aed76d8b2f52066a48bfaca34eb09b32e0d
-F win/Makefile.msc eb29b3cb716fb3676d3fe3a93ba08440522b2dab042e5c3588ed1fa437470685
+F win/Makefile.mingw 657545ea061f111268542a67b18fc0ec84ddfc28bca61855913845010a6e75a7
+F win/Makefile.mingw.mistachkin d45475be00e4c87a81409bb902bcf949bfb05263d6a20dff46a015da7876d3dd
+F win/Makefile.msc edfc69a4868fabbea39ff6e29d9e82c824df45c90a208a3e69741af30e747d1f
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -699,7 +699,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 709d1d66e198e85f9faedd4d5261835fdb83c41cfeb20757f3ed7d72fa64ff6b
+F www/build.wiki 75a893ee7edc7afe1288e2ce295484c57254b3ecde32689b1b9423e7a7329260
 F www/changes.wiki e82b89f1d2b3f6022df6abb3c290ecf544d9179c96a58a6e04258823bc89be56
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
@@ -792,11 +792,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a0001dcf57915cc0709f63035626561eb039eb0fdaf38ebdbeab770c0c03b5ad
-Q +35751600d9eb6972ed2a510bfc2d2c9120e62f749c66ca1435c0971378ea18cb
-R ea615f57ac8142b498c8b51bb968358c
-T *branch * branch-2.4
-T *sym-branch-2.4 *
-T -sym-trunk *
+P 4a9ce01b5c2aee4fe8ebc92bf274f30c915bbcb993d4a1afff5c60e9ece8f575
+Q +5310f2ba88534f31d67f2cf2f47f3eadd02f8bc477d5db7613bfe27fa7a5098f
+R 11be0946c88fbef29252f534b0a9477c
 U jan.nijtmans
-Z 4e02dc787528709ff1d334b59a2ee7e6
+Z 1902e31cd138c94fdf3a8f4c760bb9aa
