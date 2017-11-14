@@ -1,5 +1,5 @@
-C Increase\sthe\sversion\snumber\sto\s2.5.
-D 2017-11-14T21:48:19.800
+C Add\ssection\sfor\sversion\s2.5\sto\sthe\schange\slog.
+D 2017-11-14T21:52:17.464
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -701,7 +701,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 75a893ee7edc7afe1288e2ce295484c57254b3ecde32689b1b9423e7a7329260
-F www/changes.wiki e82b89f1d2b3f6022df6abb3c290ecf544d9179c96a58a6e04258823bc89be56
+F www/changes.wiki 5bed105859d02e042afda6bb05472f8be95cd7f87c3064dbdc0e6401de5b5834
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -793,7 +793,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6ef13e21d46f6f7816307b58d3433a8fc83eebdf037fcaa7aecb622723d9e680
-R 4178120b690713cc16bd2e049a98c97d
+P 155e52934ccf252facc144059e1a783394607ef4c07ff6e9c48c85c56fc31d8e
+R ea21e13e7235d74f7890f8b54822bec3
 U drh
-Z 33df4c24c402ace5e0e1a144c35792eb
+Z e8c0f479bd2a252573d6073e04e96ffc
