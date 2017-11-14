@@ -123,9 +123,9 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.21.0"
-#define SQLITE_VERSION_NUMBER 3021000
-#define SQLITE_SOURCE_ID      "2017-10-24 18:55:49 1a584e499906b5c87ec7d43d4abce641fdf017c42125b083109bc77c4de48827"
+#define SQLITE_VERSION        "3.22.0"
+#define SQLITE_VERSION_NUMBER 3022000
+#define SQLITE_SOURCE_ID      "2017-11-14 19:34:22 00ec95fcd02bb415dabd7f25fee24856d45d6916c18b2728e97e9bb9b8322ba3"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -508,11 +508,13 @@ SQLITE_API int sqlite3_exec(
 #define SQLITE_CANTOPEN_ISDIR          (SQLITE_CANTOPEN | (2<<8))
 #define SQLITE_CANTOPEN_FULLPATH       (SQLITE_CANTOPEN | (3<<8))
 #define SQLITE_CANTOPEN_CONVPATH       (SQLITE_CANTOPEN | (4<<8))
+#define SQLITE_CANTOPEN_DIRTYWAL       (SQLITE_CANTOPEN | (5<<8))
 #define SQLITE_CORRUPT_VTAB            (SQLITE_CORRUPT | (1<<8))
 #define SQLITE_READONLY_RECOVERY       (SQLITE_READONLY | (1<<8))
 #define SQLITE_READONLY_CANTLOCK       (SQLITE_READONLY | (2<<8))
 #define SQLITE_READONLY_ROLLBACK       (SQLITE_READONLY | (3<<8))
 #define SQLITE_READONLY_DBMOVED        (SQLITE_READONLY | (4<<8))
+#define SQLITE_READONLY_CANTINIT       (SQLITE_READONLY | (5<<8))
 #define SQLITE_ABORT_ROLLBACK          (SQLITE_ABORT | (2<<8))
 #define SQLITE_CONSTRAINT_CHECK        (SQLITE_CONSTRAINT | (1<<8))
 #define SQLITE_CONSTRAINT_COMMITHOOK   (SQLITE_CONSTRAINT | (2<<8))
@@ -1131,12 +1133,18 @@ typedef struct sqlite3_api_routines sqlite3_api_routines;
 ** in the name of the object stands for "virtual file system".  See
 ** the [VFS | VFS documentation] for further information.
 **
-** The value of the iVersion field is initially 1 but may be larger in
-** future versions of SQLite.  Additional fields may be appended to this
-** object when the iVersion value is increased.  Note that the structure
-** of the sqlite3_vfs object changes in the transaction between
-** SQLite version 3.5.9 and 3.6.0 and yet the iVersion field was not
-** modified.
+** The VFS interface is sometimes extended by adding new methods onto
+** the end.  Each time such an extension occurs, the iVersion field
+** is incremented.  The iVersion value started out as 1 in
+** SQLite [version 3.5.0] on [dateof:3.5.0], then increased to 2
+** with SQLite [version 3.7.0] on [dateof:3.7.0], and then increased
+** to 3 with SQLite [version 3.7.6] on [dateof:3.7.6].  Additional fields
+** may be appended to the sqlite3_vfs object and the iVersion value
+** may increase again in future versions of SQLite.
+** Note that the structure
+** of the sqlite3_vfs object changes in the transition from
+** SQLite [version 3.5.9] to [version 3.6.0] on [dateof:3.6.0]
+** and yet the iVersion field was not modified.
 **
 ** The szOsFile field is the size of the subclassed [sqlite3_file]
 ** structure used by this VFS.  mxPathname is the maximum length of
