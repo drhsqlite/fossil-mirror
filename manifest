@@ -1,5 +1,5 @@
-C Add\ssection\sfor\sversion\s2.5\sto\sthe\schange\slog.
-D 2017-11-14T21:52:17.464
+C Fix\skey\sbindings\son\sthe\s"fossil\sdiff\s--tk"\scommand.\s\sControl-q\snow\nexits.\s\sPressing\sEnter\sdoes\sthe\sright\sthings\sat\sthe\sright\stimes\sand\sdoes\nnot\sraise\serrors.\s\sEtc.
+D 2017-11-16T02:43:49.511
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -417,7 +417,7 @@ F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
 F src/diff.c 4d7ed8017e218e9c447df1dc02f2e25f5e022cc6c7c277e6dba4473f73cd2ca8
-F src/diff.tcl b2d9f81574b56747bd803b8b7acca9d68d1f07d1
+F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c ed717450412b9a8fa0ff0c9321e51a0c466cc8e03d5ac0f737609b6a533a820e
 F src/dispatch.c 9103c1b19268411c87c8051084312e29e7c4aa252e3a9fd945af976f08fd563d
 F src/doc.c 52158f17e27934947409a49d83f4d2f9643e62ec242156f6751944522dfb31d0
@@ -793,7 +793,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 155e52934ccf252facc144059e1a783394607ef4c07ff6e9c48c85c56fc31d8e
-R ea21e13e7235d74f7890f8b54822bec3
+P d02c1042a5c0757f14cca335f769dc5576fcc5c7f51f536227644dd8848f44bb
+R 36916dd760fe5f082d2a9a465ebbed7f
 U drh
-Z e8c0f479bd2a252573d6073e04e96ffc
+Z 97e92c715898b914fbc6bce8595eacc5

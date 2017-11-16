@@ -234,17 +234,17 @@ wm iconname . $CFG(TITLE)
 # Search entry box.  Disable them, to prevent the diff screen from
 # disappearing abruptly and unexpectedly when searching for "q".
 #
-# bind . <q> exit
-# bind . <p> {catch searchPrev; break}
-# bind . <n> {catch searchNext; break}
-# bind . <Escape><Escape> exit
+bind . <Control-q> exit
+bind . <Control-p> {catch searchPrev; break}
+bind . <Control-n> {catch searchNext; break}
+bind . <Escape><Escape> exit
 bind . <Destroy> {after 0 exit}
 bind . <Tab> {cycleDiffs; break}
 bind . <<PrevWindow>> {cycleDiffs 1; break}
 bind . <Control-f> {searchOnOff; break}
 bind . <Control-g> {catch searchNext; break}
 bind . <Return> {
-  event generate bb.files <1>
+  event generate .bb.files <1>
   event generate .bb.files <ButtonRelease-1>
   break
 }
@@ -397,6 +397,7 @@ proc searchOnOff {} {
     .txtA tag remove search 1.0 end
     .txtB tag remove search 1.0 end
     pack forget .bb.sframe
+    focus .
   } else {
     set ::search .txtA
     if {![winfo exists .bb.sframe]} {
