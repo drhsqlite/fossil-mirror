@@ -11,6 +11,12 @@
 #
 #      tclsh makemake.tcl
 #
+# Add new source files by listing the files (without their .c suffix)
+# in the "src" variable.  Add new resource files to the "extra_files"
+# variable.  There are other variables that you can alter, down to
+# the "STOP HERE" comment.  The stuff below "STOP HERE" should rarely need
+# to change.
+#
 #############################################################################
 
 # Basenames of all source files that get preprocessed using
@@ -215,6 +221,11 @@ lappend SHELL_WIN32_OPTIONS -Dsystem=fossil_system
 lappend SHELL_WIN32_OPTIONS -Dgetenv=fossil_getenv
 lappend SHELL_WIN32_OPTIONS -Dfopen=fossil_fopen
 
+# STOP HERE.
+# Unless the build procedures changes, you should not have to edit anything
+# below this line.
+#############################################################################
+
 # Name of the final application
 #
 set name fossil
@@ -229,10 +240,6 @@ proc writeln {args} {
     puts $output_file [lindex $args 0]
   }
 }
-
-# STOP HERE.
-# Unless the build procedures changes, you should not have to edit anything
-# below this line.
 
 # Expand any wildcards in "extra_files"
 set new_extra_files {}

@@ -1,5 +1,5 @@
-C Fix\sa\scrash\sthat\scan\soccur\sin\ssearch\swhen\sthe\sFTS4\ssnippet()\sfunction\nreturns\sNULL.
-D 2017-11-18T17:49:04.124
+C Improvements\sto\sthe\s"Fossil\sBuild\sProcess"\sdocumentation,\swith\simproved\ncomments\sin\srelated\ssource\sfiles.\s\sNo\schanges\sto\sreal\scode.
+D 2017-11-18T19:58:54.630
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -465,7 +465,7 @@ F src/main.c 15e6e4f051c1e1517fc94f5295b4605c3bb52917659535b57b040f9d5923332d
 F src/main.mk fd66ce269191ff36d4022b1f92015e61fc0642f265b7711ca397f1414850847e
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl 1bd4ed5ed132cc1e5c49d0bc7676e7866128fa74b45a54c442c3153fadb52b86
+F src/makemake.tcl e371d97bdd68aefba5199a162ab5007ec73f5ec366fff0430d3b1d0da69b232b
 F src/manifest.c 1c857522c5247f926c1ac579a6b2f2e3261ef5bdd51376e26ce5c7943bd4b4f3
 F src/markdown.c 2cb7007279db7ad8e16f8c822d5ba27f59b4af2dcc0cd4ba87cce3e4303d5969
 F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb98d
@@ -474,8 +474,8 @@ F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/merge.c 0d0cf4b86fd4f51cf4731313833b215997360314
 F src/merge3.c 04153e0e1a0c15c6e7e1815949b11084da2285416d76c257767b54652aaf1b78
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
-F src/mkbuiltin.c 83facfc58e53ddf348e6e85a79e7ed76fcee2644a37705eb41a4809673ef3e06
-F src/mkindex.c 3c906f8abcc810adf89e8c10f7051b63f679950029ed3bdf1b643468c5b59207
+F src/mkbuiltin.c e09eeef79ae18d9b98c8d5e3d977f5fa6b5cfe6a1650fc57063f253561ac502d
+F src/mkindex.c c1d4a4459bb68241a99877dd202fede5c24321fede2cbf5d27b400575304349a
 F src/mkversion.c 6e606c3a895f71b35a878e817104b5e5eb056ce47925e341fde567f2448e9aa7
 F src/moderate.c 2540f90b20778a4d62156a3b4af962b401d4c89f
 F src/name.c 1cc2b83de879fd99ec72dc4bfc16d243d3207f4211566a95d621bff491a540ff
@@ -520,7 +520,7 @@ F src/th_tcl.c 2b70a8da7d7d8009794d7a3565043c8933a6cbfe
 F src/timeline.c 7949ab6eccbfc51fbced3350088cc3dca6e131889918d0aa075944f00331c1d8
 F src/tkt.c e5815264d68d48a28983230026ceaa45b5190c34b092a8fc920ce832a6d2bf6e
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
-F src/translate.c 33b65539a12abd079a57972b78e0d532831cefd9
+F src/translate.c 33ff866f8f3618e5ef826ec5d84168de765e61862f10f7642592a30d315b2c1e
 F src/undo.c d3cca342dd73eaec65e352d978e8f7a9e75a5ddd
 F src/unicode.c 1a3686d1851ac88eeeef3428c9ace3c471b8286fb785606ad63b800c8e688926
 F src/unversioned.c a4ad61090c4be9483a04d0501ddb6ce8ee8f96f5ea7b53607d3bfb62df7189e0
@@ -759,7 +759,7 @@ F www/hashpolicy.wiki 901e234166e31d8cb6634577b3fe266f41453ca1
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki 45df7f31bc78ec89a58cb77f4f9362a11c730addeec952037e6d4ce598c94fea
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
-F www/makefile.wiki 7805bf0a04dc009df152d683771f8e3f74b194a4
+F www/makefile.wiki 840768ac36c6075cffaab1a60d8d8b8a4a4096391bdce5e3e0ea75564750fcbf
 F www/mkdownload.tcl 86e774d93eb5c92cac5e7328920987feedf9356d
 F www/mkindex.tcl 675d640d6256ade2b008e1ce8cc146b7ba68d05823b271b2632397a015e37d4d x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
@@ -793,7 +793,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4dfa592f27f88e82d0d4aa3714fbe1df99f6d7e46cc3f904ff3413acd0c2c7ac
-R 999d337f8b72e0fa1d340f88710c7fc1
+P cee4af9e9c2571eb6a4b688b2e194fe2370279d0bf598394bc0370ac6de86e85
+R edd29821fcf99a277d9563265901c871
 U drh
-Z 2fb666723c6d6d72415a0f7d92dafe40
+Z 84970263ec43f5486ffab4faafbb5b17
