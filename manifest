@@ -1,5 +1,5 @@
-C Fix\skey\sbindings\son\sthe\s"fossil\sdiff\s--tk"\scommand.\s\sControl-q\snow\nexits.\s\sPressing\sEnter\sdoes\sthe\sright\sthings\sat\sthe\sright\stimes\sand\sdoes\nnot\sraise\serrors.\s\sEtc.
-D 2017-11-16T02:43:49.511
+C Fix\sa\scrash\sthat\scan\soccur\sin\ssearch\swhen\sthe\sFTS4\ssnippet()\sfunction\nreturns\sNULL.
+D 2017-11-18T17:49:04.124
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -492,7 +492,7 @@ F src/regexp.c 11ed4c905c2e471efe9c1e9c4650004ad91d6ebb
 F src/report.c ee53ffbf76230126e2f91511b70d9f72a97d0a650e4c91e6d43018ab3069927a
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
-F src/search.c 17694892cbdf77000a684a93fb2aa7e7d7aba42b52d3ff1f788bf327eed1478c
+F src/search.c ce4fbba682e7b32f8be156b698f6dc8ad1b7d232d8ccdea5fd96c2fc3b79f828
 F src/security_audit.c 7258617b28df652f0b9c12f304dd54c8345c50f5a6ce0c24f59911a6fb20adc0
 F src/setup.c 8c490768671c46a6c4534f933e70798e3411ec9022de0cc8abf2166cdbb09a4e
 F src/sha1.c 04efd231424be45a281bdb50def7fce94625bd45b53d3c96b89e8de31f0305be
@@ -793,7 +793,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d02c1042a5c0757f14cca335f769dc5576fcc5c7f51f536227644dd8848f44bb
-R 36916dd760fe5f082d2a9a465ebbed7f
+P 4dfa592f27f88e82d0d4aa3714fbe1df99f6d7e46cc3f904ff3413acd0c2c7ac
+R 999d337f8b72e0fa1d340f88710c7fc1
 U drh
-Z 97e92c715898b914fbc6bce8595eacc5
+Z 2fb666723c6d6d72415a0f7d92dafe40

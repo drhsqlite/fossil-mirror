@@ -954,6 +954,7 @@ static char *cleanSnippet(const char *zSnip){
   int i;
   int n = 0;
   char *z;
+  if( zSnip==0 ) zSnip = "";
   for(i=0; zSnip[i]; i++) if( zSnip[i]=='<' ) n++;
   z = fossil_malloc( i+n*4+1 );
   i = 0;
