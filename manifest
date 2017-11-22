@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\s"Fossil\sBuild\sProcess"\sdocumentation,\swith\simproved\ncomments\sin\srelated\ssource\sfiles.\s\sNo\schanges\sto\sreal\scode.
-D 2017-11-18T19:58:54.630
+C Improvements\sto\sthe\scoding-style\sguidelines\sfrom\sJohan\sKuuse.
+D 2017-11-22T19:01:55.158
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -779,7 +779,7 @@ F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki 6558a7e417d5e9d29271c26ebb3195dddec31855
-F www/style.wiki da3a414d4c57c3da2636daf0baf6964ba72ce70b
+F www/style.wiki b3c2a8df9227fa8c29251f11d9854d888c643be30559b7a5fc033149ed7e0c85
 F www/sync.wiki 54f36924056d9b854a509ed1a87d15595605bc403f1dca18231439c44619a298
 F www/tech_overview.wiki 202a068495f341712b040ed2c672b4f1a39f4959ef4a71608923b5eefd494364
 F www/th1-hooks.md d03bf09f51a061c17f39eefe6149dae36930da5e905e8bd38d610c20b143f6bc
@@ -793,7 +793,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cee4af9e9c2571eb6a4b688b2e194fe2370279d0bf598394bc0370ac6de86e85
-R edd29821fcf99a277d9563265901c871
+P 51cf75088cb58094411e3c6871d81153aa1919ecc064e42d0b4a21239b2bd0e4
+R 83b188dd13fc9992840cd963b42c0ed8
 U drh
-Z 84970263ec43f5486ffab4faafbb5b17
+Z 9b54320f5cdc2de4cddf2a1d8f0eb1f6
