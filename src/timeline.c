@@ -105,6 +105,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_UNHIDE   0x0200  /* Unhide check-ins with "hidden" tag */
 #define TIMELINE_SHOWRID  0x0400  /* Show RID values in addition to UUIDs */
 #define TIMELINE_BISECT   0x0800  /* Show supplimental bisect information */
+#define TIMELINE_BASIC    0x1000  /* Minimize clutter and distraction */
 #endif
 
 /*
@@ -266,7 +267,11 @@ void www_print_timeline(
   mxWikiLen = db_get_int("timeline-max-comment", 0);
   dateFormat = db_get_int("timeline-date-format", 0);
   bCommentGitStyle = db_get_int("timeline-truncate-at-blank", 0);
-  eCommentFormat = db_get_int("timeline-comment-format", 0);
+  if( tmFlags & TIMELINE_BASIC ){
+    eCommentFormat = 5;  /* Comment only */
+  }else{
+    eCommentFormat = db_get_int("timeline-comment-format", 0);
+  }
   bShowDetail = (eCommentFormat & 1)==0;      /* Bit 0 suppresses the comment */
   bSeparateDetail = (eCommentFormat & 8)!=0;  /* Bit 3 turns on the detail column */ 
   switch( (eCommentFormat>>1)&3 ){
@@ -1586,6 +1591,7 @@ static const char *tagMatchExpression(
 **    ng             No Graph.
 **    nd             Do not highlight the focus check-in
 **    v              Show details of files changed
+**    basic          Minimum clutter and distraction
 **    f=CHECKIN      Show family (immediate parents and children) of CHECKIN
 **    from=CHECKIN   Path from...
 **    to=CHECKIN       ... to this
@@ -1642,6 +1648,7 @@ void page_timeline(void){
   int renameOnly = P("namechng")!=0; /* Show only check-ins that rename files */
   int forkOnly = PB("forks");        /* Show only forks and their children */
   int bisectOnly = PB("bisect");     /* Show the check-ins of the bisect */
+  int bBasic = PB("basic");          /* Minimize clutter and distraction */
   int tmFlags = 0;                   /* Timeline flags */
   const char *zThisTag = 0;          /* Suppress links to this tag */
   const char *zThisUser = 0;         /* Suppress links to this user */
@@ -1655,6 +1662,7 @@ void page_timeline(void){
   double rBefore, rAfter, rCirca;     /* Boundary times */
   const char *z;
   char *zOlderButton = 0;             /* URL for Older button at the bottom */
+  char *zNewerButton = 0;             /* URL for Newer button at the top */
   int selectedRid = -9999999;         /* Show a highlight on this RID */
   int disableY = 0;                   /* Disable type selector on submenu */
 
@@ -1855,7 +1863,9 @@ void page_timeline(void){
     addFileGlobExclusion(zChng, &sql);
     tmFlags |= TIMELINE_DISJOINT;
     db_multi_exec("%s", blob_sql_text(&sql));
-    style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c', 0);
+    if( !bBasic ){
+      style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c', 0);
+    }
     blob_appendf(&desc, "%d check-ins going from ",
                  db_int(0, "SELECT count(*) FROM timeline"));
     blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h", zFrom), zFrom);
@@ -1905,8 +1915,10 @@ void page_timeline(void){
         zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", d_rid);
       }
     }
-    style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c', 0);
-    style_submenu_entry("n","Max:",4,0);
+    if( !bBasic ){
+      style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c', 0);
+      style_submenu_entry("n","Max:",4,0);
+    }
     timeline_y_submenu(1);
   }else if( f_rid && g.perm.Read ){
     /* If f= is present, ignore all other parameters other than n= */
@@ -1925,8 +1937,10 @@ void page_timeline(void){
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
     blob_appendf(&desc, "%z[%S]</a>", href("%R/info/%!S", zUuid), zUuid);
     tmFlags |= TIMELINE_DISJOINT;
-    style_submenu_checkbox("unhide", "Unhide", 0, 0);
-    style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c', 0);
+    if( !bBasic ){
+      style_submenu_checkbox("unhide", "Unhide", 0, 0);
+      style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c', 0);
+    }
   }else{
     /* Otherwise, a timeline based on a span of time */
     int n;
@@ -2189,7 +2203,7 @@ void page_timeline(void){
             " WHERE blob.rid=event.objid AND mtime<=%.17g%s)",
             rDate-ONE_SECOND, blob_sql_text(&cond))
         ){
-          timeline_submenu(&url, "Older", "b", zDate, "a");
+          /* timeline_submenu(&url, "Older", "b", zDate, "a"); */
           zOlderButton = fossil_strdup(url_render(&url, "b", zDate, "a", 0));
         }
         free(zDate);
@@ -2205,20 +2219,28 @@ void page_timeline(void){
             " WHERE blob.rid=event.objid AND mtime>=%.17g%s)",
             rDate+ONE_SECOND, blob_sql_text(&cond))
         ){
-          timeline_submenu(&url, "Newer", "a", zDate, "b");
+          /* timeline_submenu(&url, "Newer", "a", zDate, "b"); */
+          zNewerButton = fossil_strdup(url_render(&url, "a", zDate, "b", 0));
         }
         free(zDate);
       }
-      if( zType[0]=='a' || zType[0]=='c' ){
-        style_submenu_checkbox("unhide", "Unhide", 0, 0);
+      if( !bBasic ){
+        if( zType[0]=='a' || zType[0]=='c' ){
+          style_submenu_checkbox("unhide", "Unhide", 0, 0);
+        }
+        style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c', 0);
+        style_submenu_entry("n","Max:",4,0);
       }
-      style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c', 0);
-      style_submenu_entry("n","Max:",4,0);
       timeline_y_submenu(disableY);
-      style_submenu_entry("t", "Tag Filter:", -8, 0);
-      style_submenu_multichoice("ms", count(azMatchStyles)/2, azMatchStyles, 0);
+      if( !bBasic ){
+        style_submenu_entry("t", "Tag Filter:", -8, 0);
+        style_submenu_multichoice("ms", count(azMatchStyles)/2, azMatchStyles, 0);
+      }
     }
     blob_zero(&cond);
+  }
+  if( bBasic ){
+    timeline_submenu(&url, "Advanced", "basic", "0", 0);
   }
   if( PB("showsql") ){
     @ <pre>%h(blob_sql_text(&sql))</pre>
@@ -2240,11 +2262,15 @@ void page_timeline(void){
   if( zError ){
     @ <p class="generalError">%h(zError)</p>
   }
+  if( bBasic ) tmFlags |= TIMELINE_BASIC;
 
+  if( zNewerButton ){
+    @ %z(xhref("class='button'","%z",zNewerButton))More&nbsp;&uarr;</a>
+  }
   www_print_timeline(&q, tmFlags, zThisUser, zThisTag, selectedRid, 0);
   db_finalize(&q);
   if( zOlderButton ){
-    @ %z(xhref("class='button'","%z",zOlderButton))Older</a>
+    @ %z(xhref("class='button'","%z",zOlderButton))More&nbsp;&darr;</a>
   }
   style_footer();
 }
