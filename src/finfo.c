@@ -289,6 +289,7 @@ void cat_cmd(void){
 **    orig=UUID  If both ci and orig are supplied, only show those
 **                 changes on a direct path from orig to ci.
 **    showid     Show RID values for debugging
+**    basic      Minimize clutter and complication
 **
 ** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
 ** year-month-day form, it may be truncated, and it may also name a
@@ -315,6 +316,7 @@ void finfo_page(void){
   int fShowId = P("showid")!=0;
   Stmt qparent;
   int iTableId = timeline_tableid();
+  int bBasic = PB("basic");
   int bHashBeforeComment = 0; /* Show hash before the comment */
   int bHashAfterComment = 0;  /* Show hash after the comment */
   int bHashInDetail = 0;      /* Show the hash inside the detail section */
@@ -332,7 +334,7 @@ void finfo_page(void){
   baseCheckin = name_to_rid_www("ci");
   zPrevDate[0] = 0;
   zFilename = PD("name","");
-  eCommentFormat = db_get_int("timeline-comment-format", 0);
+  eCommentFormat = bBasic ? 5 : db_get_int("timeline-comment-format", 0);
   bShowDetail = (eCommentFormat & 1)==0;  /* Bit 0 suppresses the comment */
   bSeparateDetail = (eCommentFormat & 8)!=0; 
   switch( (eCommentFormat>>1)&3 ){
@@ -446,6 +448,10 @@ void finfo_page(void){
     blob_appendf(&title, "History of ");
     hyperlinked_path(zFilename, &title, 0, "tree", "");
     if( fShowId ) blob_appendf(&title, " (%d)", fnid);
+  }
+  if( bBasic ){
+    style_submenu_element("Advanced", "%s",
+            url_render(&url, "basic", 0, 0, 0));
   }
   @ <h2>%b(&title)</h2>
   blob_reset(&title);

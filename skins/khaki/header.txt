@@ -14,7 +14,7 @@
 <th1>
 html "<a href='$home$index_page'>Home</a>\n"
 if {[anycap jor]} {
-  html "<a href='$home/timeline'>Timeline</a>\n"
+  html "<a href='$home/timeline?basic'>Timeline</a>\n"
 }
 if {[anoncap oh]} {
   html "<a href='$home/tree?ci=tip'>Files</a>\n"

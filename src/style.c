@@ -754,6 +754,10 @@ const struct strctCssDefaults {
     @   vertical-align: top;
     @   text-align: left;
   },
+  { "td.timelineDetailCell",
+    "the format for the timeline data cells for the detail column",
+    @   padding-left: 2em;
+  },
   { "tr.timelineCurrent",
     "the format for the timeline data cell of the current checkout",
     @   padding: .1em .2em;

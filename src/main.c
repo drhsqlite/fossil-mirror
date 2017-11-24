@@ -2447,7 +2447,7 @@ void cmd_webserver(void){
   find_server_repository(2, fCreate);
   if( zInitPage==0 ){
     if( isUiCmd && g.localOpen ){
-      zInitPage = "timeline?c=current";
+      zInitPage = "timeline?c=current&basic";
     }else{
       zInitPage = "";
     }
@@ -2485,10 +2485,10 @@ void cmd_webserver(void){
     zBrowser = db_get("web-browser", "open");
 #endif
     if( zIpAddr ){
-      zBrowserCmd = mprintf("%s http://%s:%%d/%s &",
+      zBrowserCmd = mprintf("%s \"http://%s:%%d/%s\" &",
                             zBrowser, zIpAddr, zInitPage);
     }else{
-      zBrowserCmd = mprintf("%s http://localhost:%%d/%s &",
+      zBrowserCmd = mprintf("%s \"http://localhost:%%d/%s\" &",
                             zBrowser, zInitPage);
     }
   }

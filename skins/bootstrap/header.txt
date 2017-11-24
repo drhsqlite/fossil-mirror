@@ -56,9 +56,9 @@
                 }
                 if {[anycap jor]} {
                   if {[string compare $current_page "timeline"] == 0} {
-                    html "<li class='active'><a href='$home/timeline'>Timeline</a></li>\n"
+                    html "<li class='active'><a href='$home/timeline?basic'>Timeline</a></li>\n"
                   } else {
-                    html "<li><a href='$home/timeline'>Timeline</a></li>\n"
+                    html "<li><a href='$home/timeline?basic'>Timeline</a></li>\n"
                   }
                 }
                 if {[hascap oh]} {

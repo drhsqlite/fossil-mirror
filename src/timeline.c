@@ -270,9 +270,12 @@ void www_print_timeline(
   if( tmFlags & TIMELINE_BASIC ){
     eCommentFormat = 5;  /* Comment only */
   }else{
-    eCommentFormat = db_get_int("timeline-comment-format", 0);
+    /* Undocumented query parameter commentformat=N takes a numeric parameter to
+    ** adjust the comment-format for testing purposes. */
+    const char *z = P("commentformat");
+    eCommentFormat = z ? atoi(z) : db_get_int("timeline-comment-format", 0);
   }
-  bShowDetail = (eCommentFormat & 1)==0;      /* Bit 0 suppresses the comment */
+   bShowDetail = (eCommentFormat & 1)==0;      /* Bit 0 suppresses the comment */
   bSeparateDetail = (eCommentFormat & 8)!=0;  /* Bit 3 turns on the detail column */ 
   switch( (eCommentFormat>>1)&3 ){
     case 1:  bHashAfterComment = 1;  break;
@@ -1573,6 +1576,7 @@ static const char *tagMatchExpression(
 **
 ** Query parameters:
 **
+**    basic          Minimum clutter and distraction
 **    a=TIMEORTAG    After this event
 **    b=TIMEORTAG    Before this event
 **    c=TIMEORTAG    "Circa" this event
@@ -1591,7 +1595,6 @@ static const char *tagMatchExpression(
 **    ng             No Graph.
 **    nd             Do not highlight the focus check-in
 **    v              Show details of files changed
-**    basic          Minimum clutter and distraction
 **    f=CHECKIN      Show family (immediate parents and children) of CHECKIN
 **    from=CHECKIN   Path from...
 **    to=CHECKIN       ... to this
@@ -1625,7 +1628,8 @@ void page_timeline(void){
   int d_rid = name_to_typed_rid(P("d"),"ci");  /* artifact d and descendants */
   int f_rid = name_to_typed_rid(P("f"),"ci");  /* artifact f and close family */
   const char *zUser = P("u");        /* All entries by this user if not NULL */
-  const char *zType = PD("y","all"); /* Type of events.  All if NULL */
+  int bBasic = PB("basic");          /* Minimize clutter and distraction */
+  const char *zType = PD("y",bBasic?"ci":"all"); /* Type of events.  All if NULL */
   const char *zAfter = P("a");       /* Events after this time */
   const char *zBefore = P("b");      /* Events before this time */
   const char *zCirca = P("c");       /* Events near this time */
@@ -1648,7 +1652,6 @@ void page_timeline(void){
   int renameOnly = P("namechng")!=0; /* Show only check-ins that rename files */
   int forkOnly = PB("forks");        /* Show only forks and their children */
   int bisectOnly = PB("bisect");     /* Show the check-ins of the bisect */
-  int bBasic = PB("basic");          /* Minimize clutter and distraction */
   int tmFlags = 0;                   /* Timeline flags */
   const char *zThisTag = 0;          /* Suppress links to this tag */
   const char *zThisUser = 0;         /* Suppress links to this user */
@@ -1918,8 +1921,8 @@ void page_timeline(void){
     if( !bBasic ){
       style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c', 0);
       style_submenu_entry("n","Max:",4,0);
+      timeline_y_submenu(1);
     }
-    timeline_y_submenu(1);
   }else if( f_rid && g.perm.Read ){
     /* If f= is present, ignore all other parameters other than n= */
     char *zUuid;
@@ -2230,9 +2233,7 @@ void page_timeline(void){
         }
         style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c', 0);
         style_submenu_entry("n","Max:",4,0);
-      }
-      timeline_y_submenu(disableY);
-      if( !bBasic ){
+        timeline_y_submenu(disableY);
         style_submenu_entry("t", "Tag Filter:", -8, 0);
         style_submenu_multichoice("ms", count(azMatchStyles)/2, azMatchStyles, 0);
       }
@@ -2240,7 +2241,7 @@ void page_timeline(void){
     blob_zero(&cond);
   }
   if( bBasic ){
-    timeline_submenu(&url, "Advanced", "basic", "0", 0);
+    timeline_submenu(&url, "Advanced", "basic", 0, 0);
   }
   if( PB("showsql") ){
     @ <pre>%h(blob_sql_text(&sql))</pre>
