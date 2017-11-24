@@ -319,6 +319,7 @@ void finfo_page(void){
   int bHashAfterComment = 0;  /* Show hash after the comment */
   int bHashInDetail = 0;      /* Show the hash inside the detail section */
   int bShowDetail;            /* Show the detail section */
+  int bSeparateDetail;        /* Detail section in a separate column */
   int eCommentFormat;         /* value for timeline-comment-format */
 
   login_check_credentials();
@@ -333,6 +334,7 @@ void finfo_page(void){
   zFilename = PD("name","");
   eCommentFormat = db_get_int("timeline-comment-format", 0);
   bShowDetail = (eCommentFormat & 1)==0;  /* Bit 0 suppresses the comment */
+  bSeparateDetail = (eCommentFormat & 8)!=0; 
   switch( (eCommentFormat>>1)&3 ){
     case 1:  bHashAfterComment = 1;  break;
     case 2:  bHashInDetail = 1;      break;
@@ -524,6 +526,13 @@ void finfo_page(void){
       hyperlink_to_uuid(zUuid);
     }
     if( bShowDetail ){
+      if( bSeparateDetail ){
+        if( zBgClr && zBgClr[0] ){
+          @ <td class="timelineTableCell" style="background-color: %h(zBgClr);">
+        }else{
+          @ <td class="timelineTableCell">
+        }
+      }
       cgi_printf("<span class='timelineDetail timelineCheckinDetail'>(");
       if( zUuid && bHashInDetail ){
         @ file: %z(href("%R/artifact/%!S",zUuid))[%S(zUuid)]</a>

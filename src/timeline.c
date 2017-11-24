@@ -254,6 +254,7 @@ void www_print_timeline(
   int bHashAfterComment = 0;  /* Show hash after the comment */
   int bHashInDetail = 0;      /* Show the hash inside the detail section */
   int bShowDetail;            /* Show the detail section */
+  int bSeparateDetail;        /* Detail in a separate column */
   int eCommentFormat;         /* value for timeline-comment-format */
   const char *zDateFmt;
   int iTableId = timeline_tableid();
@@ -266,7 +267,8 @@ void www_print_timeline(
   dateFormat = db_get_int("timeline-date-format", 0);
   bCommentGitStyle = db_get_int("timeline-truncate-at-blank", 0);
   eCommentFormat = db_get_int("timeline-comment-format", 0);
-  bShowDetail = (eCommentFormat & 1)==0;  /* Bit 0 suppresses the comment */
+  bShowDetail = (eCommentFormat & 1)==0;      /* Bit 0 suppresses the comment */
+  bSeparateDetail = (eCommentFormat & 8)!=0;  /* Bit 3 turns on the detail column */ 
   switch( (eCommentFormat>>1)&3 ){
     case 1:  bHashAfterComment = 1;  break;
     case 2:  bHashInDetail = 1;      break;
@@ -538,6 +540,13 @@ void www_print_timeline(
     ** Example:  "(check-in: [abcdefg], user: drh, tags: trunk)"
     */
     if( bShowDetail ){
+      if( bSeparateDetail ){
+        if( zBgClr && zBgClr[0] && rid!=selectedRid ){
+          @ <td class="timelineTableCell" style="background-color: %h(zBgClr);">
+        }else{
+          @ <td class="timelineTableCell">
+        }
+      }
       if( zType[0]=='c' ){
         cgi_printf("<span class='timelineDetail timelineCheckinDetail'>(");
       }else{

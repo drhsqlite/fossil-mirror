@@ -1456,6 +1456,7 @@ void setup_timeline(void){
       "3", "comment [hash]",
       "4", "comment (details)",
       "5", "comment-only",
+      "12","comment | details",
   };
   login_check_credentials();
   if( !g.perm.Setup ){
