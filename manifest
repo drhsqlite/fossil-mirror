@@ -1,5 +1,5 @@
-C Restore\sthis\sdisplay\sof\s"Leaf"\sand\s"Closed-Leaf"\sbut\snow\sput\sit\safter\nthe\scheck-in\scomment.
-D 2017-11-24T16:06:51.379
+C New\s&lt;span&gt;\selement\swith\sthe\stimelineExtraLinks\sclass\sfor\sthe\nhyperlinks\sat\sthe\send\sof\seach\sentry\son\sthe\s/finfo\spage.
+D 2017-11-24T16:25:18.502
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -425,7 +425,7 @@ F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c e0412afa4ac1895b73d1f49e5756be51aebfdf4f46379f7746b150ab084738e0
 F src/export.c 3e09dfda9d07b44c463d656dbc09f6adfe686d6d80ad55282a1f06b9216934f2
 F src/file.c 8e7a44e448f3530175863689aa354c1b77d7d0ff08006e610d571518c0a47b18
-F src/finfo.c abecebff7d61ce09745a906c1da7bb9ccc822c7355a97c554256fbef26f4aa89
+F src/finfo.c c7191a811728833002b2dc2e9fccbda632de0d29ae3b42ed90577a351ca6a7fe
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c c774c78b274375f42653c71d0b6c1062695bb4da
@@ -793,7 +793,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4438e68de3d53c859a41cc33ddf6ff07846c6cad0ced09e1cd90bd056514941d
-R 5a1d964afefc00413fb73d856435fdeb
+P 2df238e5ab37d6f340eda94bcea187c4aa21a94a43fb71754d2f7449e9254f33
+R 5aa64b028997fc5716234406d19e331a
 U drh
-Z 3ed1a72125dc4ed15e837e261cd201fc
+Z eb00d010d2d384f90a44d91137115f49

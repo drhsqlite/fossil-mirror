@@ -525,7 +525,7 @@ void finfo_page(void){
     @ user:
     hyperlink_to_user(zUser, zDate, ",");
     @ branch: %z(href("%R/timeline?t=%T&n=200",zBr))%h(zBr)</a>,
-    @ size: %d(szFile))</span>
+    @ size: %d(szFile))
     if( zUuid && origCheckin==0 ){
       if( nParent==0 ){
         @ <b>Added</b>
@@ -554,6 +554,7 @@ void finfo_page(void){
     }
     if( g.perm.Hyperlink && zUuid ){
       const char *z = zFilename;
+      @ <span class='timelineExtraLinks'>
       @ %z(href("%R/annotate?filename=%h&checkin=%s",z,zCkin))
       @ [annotate]</a>
       @ %z(href("%R/blame?filename=%h&checkin=%s",z,zCkin))
@@ -562,6 +563,7 @@ void finfo_page(void){
       if( fpid>0 ){
         @ %z(href("%R/fdiff?sbs=1&v1=%!S&v2=%!S",zPUuid,zUuid))[diff]</a>
       }
+      @ </span>
     }
     if( fDebug & FINFO_DEBUG_MLINK ){
       int ii;
@@ -577,6 +579,7 @@ void finfo_page(void){
       @ %z(zAncLink)[ancestry]</a>
     }
     tag_private_status(frid);
+    @ </span>
     @ </td></tr>
   }
   db_finalize(&q);
