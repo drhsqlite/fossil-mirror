@@ -315,6 +315,11 @@ void finfo_page(void){
   int fShowId = P("showid")!=0;
   Stmt qparent;
   int iTableId = timeline_tableid();
+  int bHashBeforeComment = 0; /* Show hash before the comment */
+  int bHashAfterComment = 0;  /* Show hash after the comment */
+  int bHashInDetail = 0;      /* Show the hash inside the detail section */
+  int bShowDetail;            /* Show the detail section */
+  int eCommentFormat;         /* value for timeline-comment-format */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -326,6 +331,13 @@ void finfo_page(void){
   baseCheckin = name_to_rid_www("ci");
   zPrevDate[0] = 0;
   zFilename = PD("name","");
+  eCommentFormat = db_get_int("timeline-comment-format", 0);
+  bShowDetail = (eCommentFormat & 1)==0;  /* Bit 0 suppresses the comment */
+  switch( (eCommentFormat>>1)&3 ){
+    case 1:  bHashAfterComment = 1;  break;
+    case 2:  bHashInDetail = 1;      break;
+    default: bHashBeforeComment = 1; break;
+  }
   fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
   if( fnid==0 ){
     @ No such file: %h(zFilename)
@@ -504,52 +516,60 @@ void finfo_page(void){
     }else{
       @ <td class="timelineTableCell">
     }
-    @ <span class="timelineComment">%W(zCom)</span>
-    cgi_printf("<span class='timelineDetail'>(");
-    if( zUuid ){
-      @ file: %z(href("%R/artifact/%!S",zUuid))[%S(zUuid)]</a>
-      if( fShowId ){
-        int srcId = delta_source_rid(frid);
-        if( srcId>0 ){
-          @ id: %d(frid)&larr;%d(srcId)
-        }else{
-          @ id: %d(frid)
+    if( bHashBeforeComment && zUuid ){
+      hyperlink_to_uuid(zUuid);
+    }
+    @ <span class="timelineComment timelineCheckinComment">%W(zCom)</span>
+    if( bHashAfterComment && zUuid ){
+      hyperlink_to_uuid(zUuid);
+    }
+    if( bShowDetail ){
+      cgi_printf("<span class='timelineDetail timelineCheckinDetail'>(");
+      if( zUuid && bHashInDetail ){
+        @ file: %z(href("%R/artifact/%!S",zUuid))[%S(zUuid)]</a>
+        if( fShowId ){
+          int srcId = delta_source_rid(frid);
+          if( srcId>0 ){
+            @ id: %d(frid)&larr;%d(srcId)
+          }else{
+            @ id: %d(frid)
+          }
         }
       }
-    }
-    @ check-in:
-    hyperlink_to_uuid(zCkin);
-    if( fShowId ){
-      @ (%d(fmid))
-    }
-    @ user:
-    hyperlink_to_user(zUser, zDate, ",");
-    @ branch: %z(href("%R/timeline?t=%T&n=200",zBr))%h(zBr)</a>,
-    @ size: %d(szFile))
-    if( zUuid && origCheckin==0 ){
-      if( nParent==0 ){
-        @ <b>Added</b>
-      }else if( pfnid ){
-        char *zPrevName = db_text(0,"SELECT name FROM filename WHERE fnid=%d",
-                                  pfnid);
-        @ <b>Renamed</b> from
-        @ %z(href("%R/finfo?name=%t", zPrevName))%h(zPrevName)</a>
+      @ check-in:
+      hyperlink_to_uuid(zCkin);
+      if( fShowId ){
+        @ (%d(fmid))
       }
-    }
-    if( zUuid==0 ){
-      char *zNewName;
-      zNewName = db_text(0,
-        "SELECT name FROM filename WHERE fnid = "
-        "   (SELECT fnid FROM mlink"
-        "     WHERE mid=%d"
-        "       AND pfnid IN (SELECT fnid FROM filename WHERE name=%Q))",
-        fmid, zFilename);
-      if( zNewName ){
-        @ <b>Renamed</b> to
-        @ %z(href("%R/finfo?name=%t",zNewName))%h(zNewName)</a>
-        fossil_free(zNewName);
-      }else{
-        @ <b>Deleted</b>
+      @ user:
+      hyperlink_to_user(zUser, zDate, ",");
+      @ branch: %z(href("%R/timeline?t=%T&n=200",zBr))%h(zBr)</a>,
+      @ size: %d(szFile))
+      if( zUuid && origCheckin==0 ){
+        if( nParent==0 ){
+          @ <b>Added</b>
+        }else if( pfnid ){
+          char *zPrevName = db_text(0,"SELECT name FROM filename WHERE fnid=%d",
+                                    pfnid);
+          @ <b>Renamed</b> from
+          @ %z(href("%R/finfo?name=%t", zPrevName))%h(zPrevName)</a>
+        }
+      }
+      if( zUuid==0 ){
+        char *zNewName;
+        zNewName = db_text(0,
+          "SELECT name FROM filename WHERE fnid = "
+          "   (SELECT fnid FROM mlink"
+          "     WHERE mid=%d"
+          "       AND pfnid IN (SELECT fnid FROM filename WHERE name=%Q))",
+          fmid, zFilename);
+        if( zNewName ){
+          @ <b>Renamed</b> to
+          @ %z(href("%R/finfo?name=%t",zNewName))%h(zNewName)</a>
+          fossil_free(zNewName);
+        }else{
+          @ <b>Deleted</b>
+        }
       }
     }
     if( g.perm.Hyperlink && zUuid ){
@@ -579,7 +599,9 @@ void finfo_page(void){
       @ %z(zAncLink)[ancestry]</a>
     }
     tag_private_status(frid);
-    @ </span>
+    if( bShowDetail ){
+      @ </span>
+    }
     @ </td></tr>
   }
   db_finalize(&q);
