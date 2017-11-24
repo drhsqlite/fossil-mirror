@@ -422,39 +422,15 @@ void www_print_timeline(
     if( modPending ){
       @ <span class="modpending">(Awaiting Moderator Approval)</span>
     }
-    if( zType[0]=='c' ){
-      if( tmFlags & TIMELINE_BISECT ){
-        static Stmt bisectQuery;
-        db_prepare(&bisectQuery, "SELECT seq, stat FROM bilog WHERE rid=:rid");
-        db_bind_int(&bisectQuery, ":rid", rid);
-        if( db_step(&bisectQuery)==SQLITE_ROW ){
-          @ <b>%s(db_column_text(&bisectQuery,1))</b>
-          @ (%d(db_column_int(&bisectQuery,0)))
-        }
-        db_reset(&bisectQuery);
+    if( (tmFlags & TIMELINE_BISECT)!=0 && zType[0]=='c' ){
+      static Stmt bisectQuery;
+      db_prepare(&bisectQuery, "SELECT seq, stat FROM bilog WHERE rid=:rid");
+      db_bind_int(&bisectQuery, ":rid", rid);
+      if( db_step(&bisectQuery)==SQLITE_ROW ){
+        @ <b>%s(db_column_text(&bisectQuery,1))</b>
+        @ (%d(db_column_int(&bisectQuery,0)))
       }
-      hyperlink_to_uuid(zUuid);
-      if( isLeaf ){
-        if( db_exists("SELECT 1 FROM tagxref"
-                      " WHERE rid=%d AND tagid=%d AND tagtype>0",
-                      rid, TAG_CLOSED) ){
-          @ <span class="timelineLeaf">Closed-Leaf:</span>
-        }else{
-          @ <span class="timelineLeaf">Leaf:</span>
-        }
-      }
-    }else if( zType[0]=='e' && tagid ){
-      hyperlink_to_event_tagid(tagid<0?-tagid:tagid);
-    }else if( (tmFlags & TIMELINE_ARTID)!=0 ){
-      hyperlink_to_uuid(zUuid);
-    }
-    if( tmFlags & TIMELINE_SHOWRID ){
-      int srcId = delta_source_rid(rid);
-      if( srcId ){
-        @ (%d(rid)&larr;%d(srcId))
-      }else{
-        @ (%d(rid))
-      }
+      db_reset(&bisectQuery);
     }
     db_column_blob(pQuery, commentColumn, &comment);
     if( zType[0]!='c' ){
@@ -486,25 +462,32 @@ void www_print_timeline(
     }
     blob_reset(&comment);
 
-    /* Generate the "user: USERNAME" at the end of the comment, together
-    ** with a hyperlink to another timeline for that user.
+    /* Generate extra information and hyperlinks to follow the comment.
+    ** Example:  "(check-in: [abcdefg], user: drh, tags: trunk)"
     */
-    if( zTagList && zTagList[0]==0 ) zTagList = 0;
-    if( g.perm.Hyperlink && fossil_strcmp(zDispUser, zThisUser)!=0 ){
-      char *zLink = mprintf("%R/timeline?u=%h&c=%t&nd&n=200", zDispUser, zDate);
-      @ (user: %z(href("%z",zLink))%h(zDispUser)</a>%s(zTagList?",":"\051")
+    cgi_printf("<span class='timelineDetail'>(");
+    if( zType[0]=='c' ){
+      cgi_printf("check-in: ");
+      hyperlink_to_uuid(zUuid);
+    }else if( zType[0]=='e' && tagid ){
+      cgi_printf("technote: ");
+      hyperlink_to_event_tagid(tagid<0?-tagid:tagid);
     }else{
-      @ (user: %h(zDispUser)%s(zTagList?",":"\051")
+      cgi_printf("artifact: ");
+      hyperlink_to_uuid(zUuid);
     }
 
-    /* Generate a "detail" link for tags. */
-    if( (zType[0]=='g' || zType[0]=='w' || zType[0]=='t') && g.perm.Hyperlink ){
-      @ [%z(href("%R/info/%!S",zUuid))details</a>]
+    if( g.perm.Hyperlink && fossil_strcmp(zDispUser, zThisUser)!=0 ){
+      char *zLink = mprintf("%R/timeline?u=%h&c=%t&nd&n=200", zDispUser, zDate);
+      cgi_printf("user: %z%h</a>", href("%z",zLink), zDispUser);
+    }else{
+      cgi_printf("user: %h", zDispUser);
     }
 
     /* Generate the "tags: TAGLIST" at the end of the comment, together
     ** with hyperlinks to the tag list.
     */
+    if( zTagList && zTagList[0]==0 ) zTagList = 0;
     if( zTagList ){
       if( g.perm.Hyperlink ){
         int i;
@@ -524,12 +507,23 @@ void www_print_timeline(
           if( z[i]==0 ) break;
           z += i+2;
         }
-        @ tags: %s(blob_str(&links)))
+        cgi_printf(" tags: %s", blob_str(&links));
         blob_reset(&links);
       }else{
-        @ tags: %h(zTagList))
+        cgi_printf(" tags: %h", zTagList);
       }
     }
+
+    if( tmFlags & TIMELINE_SHOWRID ){
+      int srcId = delta_source_rid(rid);
+      if( srcId ){
+        cgi_printf(" id: %d&larr;%d", rid, srcId);
+      }else{
+        cgi_printf(" id: %d", rid);
+      }
+    }
+    cgi_printf(")</span>\n");  /* End of the details section */
+
     tag_private_status(rid);
 
     /* Generate extra hyperlinks at the end of the comment */

@@ -504,28 +504,39 @@ void finfo_page(void){
     }else{
       @ <td class="timelineTableCell">
     }
+    @ <span class="timelineComment">%W(zCom)</span>
+    cgi_printf("<span class='timelineDetail'>(");
     if( zUuid ){
-      if( origCheckin==0 ){
-        if( nParent==0 ){
-          @ <b>Added</b>
-        }else if( pfnid ){
-          char *zPrevName = db_text(0,"SELECT name FROM filename WHERE fnid=%d",
-                                    pfnid);
-          @ <b>Renamed</b> from
-          @ %z(href("%R/finfo?name=%t", zPrevName))%h(zPrevName)</a>
-        }
-      }
-      @ %z(href("%R/artifact/%!S",zUuid))[%S(zUuid)]</a>
+      @ file: %z(href("%R/artifact/%!S",zUuid))[%S(zUuid)]</a>
       if( fShowId ){
         int srcId = delta_source_rid(frid);
         if( srcId>0 ){
-          @ (%d(frid)&larr;%d(srcId))
+          @ id: %d(frid)&larr;%d(srcId)
         }else{
-          @ (%d(frid))
+          @ id: %d(frid)
         }
       }
-      @ part of check-in
-    }else{
+    }
+    @ check-in:
+    hyperlink_to_uuid(zCkin);
+    if( fShowId ){
+      @ (%d(fmid))
+    }
+    @ user:
+    hyperlink_to_user(zUser, zDate, ",");
+    @ branch: %z(href("%R/timeline?t=%T&n=200",zBr))%h(zBr)</a>,
+    @ size: %d(szFile))</span>
+    if( zUuid && origCheckin==0 ){
+      if( nParent==0 ){
+        @ <b>Added</b>
+      }else if( pfnid ){
+        char *zPrevName = db_text(0,"SELECT name FROM filename WHERE fnid=%d",
+                                  pfnid);
+        @ <b>Renamed</b> from
+        @ %z(href("%R/finfo?name=%t", zPrevName))%h(zPrevName)</a>
+      }
+    }
+    if( zUuid==0 ){
       char *zNewName;
       zNewName = db_text(0,
         "SELECT name FROM filename WHERE fnid = "
@@ -535,20 +546,12 @@ void finfo_page(void){
         fmid, zFilename);
       if( zNewName ){
         @ <b>Renamed</b> to
-        @ %z(href("%R/finfo?name=%t",zNewName))%h(zNewName)</a> by check-in
+        @ %z(href("%R/finfo?name=%t",zNewName))%h(zNewName)</a>
         fossil_free(zNewName);
       }else{
-        @ <b>Deleted</b> by check-in
+        @ <b>Deleted</b>
       }
     }
-    hyperlink_to_uuid(zCkin);
-    if( fShowId ){
-      @ (%d(fmid))
-    }
-    @ %W(zCom) (user:
-    hyperlink_to_user(zUser, zDate, ",");
-    @ branch: %z(href("%R/timeline?t=%T&n=200",zBr))%h(zBr)</a>,
-    @ size: %d(szFile))
     if( g.perm.Hyperlink && zUuid ){
       const char *z = zFilename;
       @ %z(href("%R/annotate?filename=%h&checkin=%s",z,zCkin))
