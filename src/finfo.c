@@ -510,7 +510,7 @@ void finfo_page(void){
     memcpy(zTime, &zDate[11], 5);
     zTime[5] = 0;
     @ <tr><td class="timelineTime">
-    @ %z(href("%R/timeline?c=%t",zDate))%s(zTime)</a></td>
+    @ %z(href("%R/artifact/%!S",zUuid))%s(zTime)</a></td>
     @ <td class="timelineGraph"><div id="m%d(gidx)" class="tl-nodemark"></div>
     @ </td>
     if( zBgClr && zBgClr[0] ){

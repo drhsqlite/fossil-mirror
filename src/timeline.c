@@ -382,7 +382,18 @@ void www_print_timeline(
     }else {
       @ <tr>
     }
-    zDateLink = href("%R/timeline?c=%!S&unhide", zUuid);
+    if( zType[0]=='e' && tagid ){
+      char *zId;
+      zId = db_text(0, "SELECT substr(tagname, 7) FROM tag WHERE tagid=%d",
+                        tagid);
+      zDateLink = href("%R/technote/%s",zId);
+      free(zId);
+    }else if( zUuid ){
+      zDateLink = xhref("class='timelineHistLink'", "%R/info/%!S", zUuid);
+    }else{
+      zDateLink = mprintf("<a>");
+    }
+    /* WAS: zDateLink = href("%R/timeline?c=%!S&unhide", zUuid); */
     @ <td class="timelineTime">%z(zDateLink)%s(zTime)</a></td>
     @ <td class="timelineGraph">
     if( tmFlags & TIMELINE_UCOLOR )  zBgClr = zUser ? hash_color(zUser) : 0;
