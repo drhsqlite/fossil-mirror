@@ -466,6 +466,16 @@ void www_print_timeline(
     ** Example:  "(check-in: [abcdefg], user: drh, tags: trunk)"
     */
     cgi_printf("<span class='timelineDetail'>(");
+    if( isLeaf ){
+      if( db_exists("SELECT 1 FROM tagxref"
+                    " WHERE rid=%d AND tagid=%d AND tagtype>0",
+                    rid, TAG_CLOSED) ){
+        @ <span class='timelineLeaf'>Closed-Leaf</span>
+      }else{
+        @ <span class='timelineLeaf'>Leaf</span>
+      }
+    }
+
     if( zType[0]=='c' ){
       cgi_printf("check-in: ");
       hyperlink_to_uuid(zUuid);
@@ -522,6 +532,7 @@ void www_print_timeline(
         cgi_printf(" id: %d", rid);
       }
     }
+
     cgi_printf(")</span>\n");  /* End of the details section */
 
     tag_private_status(rid);
