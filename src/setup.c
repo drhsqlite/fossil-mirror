@@ -1449,6 +1449,14 @@ void setup_timeline(void){
       "3", "YYMMDD HH:MM",
       "4", "(off)"
   };
+  static const char *const azCommentFormats[] = {
+      "0", "[hash] comment (details)",
+      "1", "[hash] comment",
+      "2", "comment [hash] (details)",
+      "3", "comment [hash]",
+      "4", "comment (details)",
+      "5", "comment-only",
+  };
   login_check_credentials();
   if( !g.perm.Setup ){
     login_needed(0);
@@ -1459,8 +1467,21 @@ void setup_timeline(void){
   db_begin_transaction();
   @ <form action="%s(g.zTop)/setup_timeline" method="post"><div>
   login_insert_csrf_secret();
-
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+
+  @ <hr />
+  multiple_choice_attribute("Comment Format", "timeline-comment-format",
+            "tcf", "0", count(azCommentFormats)/2, azCommentFormats);
+  @ <p>Each timeline entry may contain the following subsections:
+  @ <ol>
+  @ <li> an artifact hash with a hyperlink to a detail page
+  @ <li> the check-in comment or other text describing the item
+  @ <li> details, such as the user, branch, tags, etc.
+  @ </ol>
+  @ This control selects which of the three items above are included on each
+  @ timeline entry and the order in which they are displayed.
+  @ (Preperty: "timeline-commit-format")</p>
+
   @ <hr />
   onoff_attribute("Allow block-markup in timeline",
                   "timeline-block-markup", "tbm", 0, 0);
