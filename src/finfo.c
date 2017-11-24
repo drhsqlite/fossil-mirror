@@ -528,9 +528,10 @@ void finfo_page(void){
     if( bShowDetail ){
       if( bSeparateDetail ){
         if( zBgClr && zBgClr[0] ){
-          @ <td class="timelineTableCell" style="background-color: %h(zBgClr);">
+          @ <td class="timelineTableCell timelineDetailCell"
+          @  style="background-color: %h(zBgClr);">
         }else{
-          @ <td class="timelineTableCell">
+          @ <td class="timelineTableCell timelineDetailCell">
         }
       }
       cgi_printf("<span class='timelineDetail timelineCheckinDetail'>(");

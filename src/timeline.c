@@ -542,9 +542,10 @@ void www_print_timeline(
     if( bShowDetail ){
       if( bSeparateDetail ){
         if( zBgClr && zBgClr[0] && rid!=selectedRid ){
-          @ <td class="timelineTableCell" style="background-color: %h(zBgClr);">
+          @ <td class="timelineTableCell timelineDetailCell"
+          @  style="background-color: %h(zBgClr);">
         }else{
-          @ <td class="timelineTableCell">
+          @ <td class="timelineTableCell timelineDetailCell">
         }
       }
       if( zType[0]=='c' ){
