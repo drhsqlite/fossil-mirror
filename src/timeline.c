@@ -2242,6 +2242,8 @@ void page_timeline(void){
   }
   if( bBasic ){
     timeline_submenu(&url, "Advanced", "basic", 0, 0);
+  }else{
+    timeline_submenu(&url, "Basic", "basic", "1", 0);
   }
   if( PB("showsql") ){
     @ <pre>%h(blob_sql_text(&sql))</pre>
