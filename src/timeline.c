@@ -509,7 +509,7 @@ void www_print_timeline(
           }
         }
         z[ii] = 0;
-        @ %W(z)
+        cgi_printf("%W",z);
       }else if( mxWikiLen>0 && blob_size(&comment)>mxWikiLen ){
         Blob truncated;
         blob_zero(&truncated);
@@ -518,7 +518,7 @@ void www_print_timeline(
         @ %W(blob_str(&truncated))
         blob_reset(&truncated);
       }else{
-        @ %W(blob_str(&comment))
+        cgi_printf("%W",blob_str(&comment));
       }
       @ </span>
     }
@@ -556,6 +556,8 @@ void www_print_timeline(
     ** Example:  "(check-in: [abcdefg], user: drh, tags: trunk)"
     */
     if( bShowDetail ){
+      @ <a class='anticlutter' id='ellipsis-%d(rid)' \
+      @  onclick='expandEllipsis(%d(rid))'>...</a>
       if( bSeparateDetail ){
         if( zBgClr && zBgClr[0] && rid!=selectedRid ){
           @ <td class="timelineTableCell timelineDetailCell"
@@ -564,7 +566,7 @@ void www_print_timeline(
           @ <td class="timelineTableCell timelineDetailCell">
         }
       }
-      cgi_printf("<span class='clutter'>");
+      cgi_printf("<span class='clutter' id='detail-%d'>", rid);
       if( zType[0]=='c' ){
         cgi_printf("<span class='timelineDetail timelineCheckinDetail'>(");
       }else{
@@ -1155,6 +1157,13 @@ void timeline_output_graph_javascript(
     @ function reclutter(){
     @   changeDisplay('clutter','inline');
     @   changeDisplay('anticlutter','none');
+    @   checkHeight();
+    @ }
+    @ function expandEllipsis(id){
+    @   gebi("ellipsis-"+id).style.display='none';
+    @   gebi("detail-"+id).style.display='inline';
+    @   var x = gebi("links-"+id);
+    @   if(x) x.style.display='inline';
     @   checkHeight();
     @ }
     @ var lastRow = gebi("m"+rowinfo[rowinfo.length-1].id);

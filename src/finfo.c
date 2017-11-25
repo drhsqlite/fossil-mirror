@@ -289,7 +289,6 @@ void cat_cmd(void){
 **    orig=UUID  If both ci and orig are supplied, only show those
 **                 changes on a direct path from orig to ci.
 **    showid     Show RID values for debugging
-**    basic      Minimize clutter and complication
 **
 ** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
 ** year-month-day form, it may be truncated, and it may also name a
@@ -316,7 +315,6 @@ void finfo_page(void){
   int fShowId = P("showid")!=0;
   Stmt qparent;
   int iTableId = timeline_tableid();
-  int bBasic = PB("basic");
   int bHashBeforeComment = 0; /* Show hash before the comment */
   int bHashAfterComment = 0;  /* Show hash after the comment */
   int bHashInDetail = 0;      /* Show the hash inside the detail section */
@@ -334,7 +332,7 @@ void finfo_page(void){
   baseCheckin = name_to_rid_www("ci");
   zPrevDate[0] = 0;
   zFilename = PD("name","");
-  eCommentFormat = bBasic ? 5 : db_get_int("timeline-comment-format", 0);
+  eCommentFormat = db_get_int("timeline-comment-format", 0);
   bShowDetail = (eCommentFormat & 1)==0;  /* Bit 0 suppresses the comment */
   bSeparateDetail = (eCommentFormat & 8)!=0; 
   switch( (eCommentFormat>>1)&3 ){
@@ -348,7 +346,7 @@ void finfo_page(void){
     style_footer();
     return;
   }
-  if( g.perm.Admin && !bBasic ){
+  if( g.perm.Admin ){
     style_submenu_element("MLink Table", "%R/mlink?name=%t", zFilename);
   }
   if( baseCheckin ){
@@ -449,13 +447,8 @@ void finfo_page(void){
     hyperlinked_path(zFilename, &title, 0, "tree", "");
     if( fShowId ) blob_appendf(&title, " (%d)", fnid);
   }
-  if( bBasic ){
-    style_submenu_element("Details", "%s",
-            url_render(&url, "basic", 0, 0, 0));
-  }else{
-    style_submenu_element("Declutter", "%s",
-            url_render(&url, "basic", "1", 0, 0));
-  }
+  style_submenu_jsbutton("Advanced", STYLE_BASIC, "reclutter()");
+  style_submenu_jsbutton("Basic", STYLE_CLUTTER, "declutter()");
   @ <h2>%b(&title)</h2>
   blob_reset(&title);
   pGraph = graph_init();
@@ -535,6 +528,8 @@ void finfo_page(void){
       hyperlink_to_uuid(zUuid);
     }
     if( bShowDetail ){
+      @ <a class='anticlutter' id='ellipsis-%d(frid)' \
+      @  onclick='expandEllipsis(%d(frid))'>...</a>
       if( bSeparateDetail ){
         if( zBgClr && zBgClr[0] ){
           @ <td class="timelineTableCell timelineDetailCell"
@@ -543,6 +538,7 @@ void finfo_page(void){
           @ <td class="timelineTableCell timelineDetailCell">
         }
       }
+      cgi_printf("<span class='clutter' id='detail-%d'>", frid);
       cgi_printf("<span class='timelineDetail timelineCheckinDetail'>(");
       if( zUuid && bHashInDetail ){
         @ file: %z(href("%R/artifact/%!S",zUuid))[%S(zUuid)]</a>
@@ -591,9 +587,9 @@ void finfo_page(void){
         }
       }
     }
-    if( g.perm.Hyperlink && zUuid && !bBasic ){
+    if( g.perm.Hyperlink && zUuid ){
       const char *z = zFilename;
-      @ <span class='timelineExtraLinks'>
+      @ <span id='links-%d(frid)'><span class='timelineExtraLinks'>
       @ %z(href("%R/annotate?filename=%h&checkin=%s",z,zCkin))
       @ [annotate]</a>
       @ %z(href("%R/blame?filename=%h&checkin=%s",z,zCkin))
@@ -602,7 +598,7 @@ void finfo_page(void){
       if( fpid>0 ){
         @ %z(href("%R/fdiff?sbs=1&v1=%!S&v2=%!S",zPUuid,zUuid))[diff]</a>
       }
-      @ </span>
+      @ </span></span>
     }
     if( fDebug & FINFO_DEBUG_MLINK ){
       int ii;
@@ -619,7 +615,7 @@ void finfo_page(void){
     }
     tag_private_status(frid);
     if( bShowDetail ){
-      @ </span>
+      @ </span></span>
     }
     @ </td></tr>
   }

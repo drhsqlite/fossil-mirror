@@ -100,7 +100,7 @@ proc menulink {url name} {
 menulink $index_page Home
 menulink /help Help
 if {[anycap jor]} {
-  menulink /timeline?basic Timeline
+  menulink /timeline Timeline
 }
 if {[anoncap oh]} {
   menulink /dir?ci=tip Files

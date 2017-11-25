@@ -39,7 +39,7 @@ proc menulink {url name} {
 }
 menulink $index_page Home
 if {[anycap jor]} {
-  menulink /timeline?basic Timeline
+  menulink /timeline Timeline
 }
 if {[hascap oh]} {
   menulink /dir?ci=tip Files
