@@ -1353,6 +1353,7 @@ int object_description(
       @ [annotate]</a>
       @ %z(href("%R/blame?filename=%T&checkin=%!S",zName,zVers))
       @ [blame]</a>
+      @ %z(href("%R/timeline?n=all&uf=%!S",zUuid))[check-ins&nbsp;using]</a>
     }
     cnt++;
     if( pDownloadName && blob_size(pDownloadName)==0 ){

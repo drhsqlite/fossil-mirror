@@ -348,7 +348,7 @@ void finfo_page(void){
     style_footer();
     return;
   }
-  if( g.perm.Admin ){
+  if( g.perm.Admin && !bBasic ){
     style_submenu_element("MLink Table", "%R/mlink?name=%t", zFilename);
   }
   if( baseCheckin ){
@@ -450,8 +450,11 @@ void finfo_page(void){
     if( fShowId ) blob_appendf(&title, " (%d)", fnid);
   }
   if( bBasic ){
-    style_submenu_element("Advanced", "%s",
+    style_submenu_element("Details", "%s",
             url_render(&url, "basic", 0, 0, 0));
+  }else{
+    style_submenu_element("Declutter", "%s",
+            url_render(&url, "basic", "1", 0, 0));
   }
   @ <h2>%b(&title)</h2>
   blob_reset(&title);
@@ -588,14 +591,14 @@ void finfo_page(void){
         }
       }
     }
-    if( g.perm.Hyperlink && zUuid ){
+    if( g.perm.Hyperlink && zUuid && !bBasic ){
       const char *z = zFilename;
       @ <span class='timelineExtraLinks'>
       @ %z(href("%R/annotate?filename=%h&checkin=%s",z,zCkin))
       @ [annotate]</a>
       @ %z(href("%R/blame?filename=%h&checkin=%s",z,zCkin))
       @ [blame]</a>
-      @ %z(href("%R/timeline?n=200&uf=%!S",zUuid))[check-ins&nbsp;using]</a>
+      @ %z(href("%R/timeline?n=all&uf=%!S",zUuid))[check-ins&nbsp;using]</a>
       if( fpid>0 ){
         @ %z(href("%R/fdiff?sbs=1&v1=%!S&v2=%!S",zPUuid,zUuid))[diff]</a>
       }
