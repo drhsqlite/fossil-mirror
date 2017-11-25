@@ -1734,7 +1734,7 @@ void page_timeline(void){
     }
 
     /* Display a checkbox to enable/disable display of related check-ins. */
-    style_submenu_checkbox("rel", "Related", 0, 0);
+    if( !bBasic ) style_submenu_checkbox("rel", "Related", 0, 0);
 
     /* Construct the tag match expression. */
     zTagSql = tagMatchExpression(matchStyle, zTagName, &zMatchDesc, &zError);

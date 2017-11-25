@@ -1,5 +1,5 @@
-C Fix\stypos\sand\simprove\sthe\stext\sdescription\sof\sthe\s"Comment\sFormat"\ssetting.
-D 2017-11-25T01:41:32.993
+C Suppress\sthe\s"Related"\scheckbox\son\sthe\ssubmenu\sof\s/timelien\swhen\sthe\nbasic\squery\sparameter\sis\senabled.
+D 2017-11-25T01:55:45.187
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -517,7 +517,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c c008c65eee4b5d14a83cb93de2d97c5eb8ffd051794d4bca139cc076161da685
 F src/th_tcl.c 2b70a8da7d7d8009794d7a3565043c8933a6cbfe
-F src/timeline.c 1d0e37737acc822570b54953ba1c72fef73ba7532da7b38fc2dbc265ec311435
+F src/timeline.c f995150201b9749a1c27da772b2d6dbc77dd2d88f4ea6335457d96b1aba1a680
 F src/tkt.c e5815264d68d48a28983230026ceaa45b5190c34b092a8fc920ce832a6d2bf6e
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 33ff866f8f3618e5ef826ec5d84168de765e61862f10f7642592a30d315b2c1e
@@ -793,7 +793,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 78f18dbd1cf1cb8b11aca59edd3fcea75f144ebe59f538795fcc51e88d550050
-R b02f5b488e8c3546bb1fd75ffedda205
+P a339c94fd35bdcaa8105dec11555828697c8549cbc3f5c2d63855b221e3b632c
+R 3e4ea83f7a303f036ebb15b35cfc65a2
 U drh
-Z e9ee8022dec42d2d8431b1092331ba0b
+Z 5c51ff9d2964d5e7cdeff758700e313f
