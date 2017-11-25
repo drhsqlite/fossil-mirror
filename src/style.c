@@ -49,17 +49,25 @@ static struct SubmenuCtrl {
   const char *zName;           /* Form query parameter */
   const char *zLabel;          /* Label.  Might be NULL for FF_MULTI */
   unsigned char eType;         /* FF_ENTRY, FF_MULTI, FF_BINARY */
-  unsigned char isDisabled;    /* True if this control is grayed out */
+  unsigned char eVisible;      /* STYLE_NORMAL, STYLE_VISIBLE, .... */
   short int iSize;             /* Width for FF_ENTRY.  Count for FF_MULTI */
   const char *const *azChoice; /* value/display pairs for FF_MULTI */
   const char *zFalse;          /* FF_BINARY label when false */
   const char *zJS;             /* Javascript to run on toggle */
 } aSubmenuCtrl[20];
 static int nSubmenuCtrl = 0;
-#define FF_ENTRY    1
-#define FF_MULTI    2
-#define FF_BINARY   3
-#define FF_CHECKBOX 4
+#define FF_ENTRY    1          /* Text entry box */
+#define FF_MULTI    2          /* Combobox.  Multiple choices. */
+#define FF_BINARY   3          /* Control binary query parameter */
+#define FF_CHECKBOX 4          /* Check-box with JS */
+#define FF_JSBUTTON 5          /* Run JS when clicked */
+
+#if INTERFACE
+#define STYLE_NORMAL   0       /* Normal display of control */
+#define STYLE_DISABLED 1       /* Control is disabled */
+#define STYLE_CLUTTER  2       /* Only visible in "Advanced" display */
+#define STYLE_BASIC    4       /* Only visible in "Basic" display */
+#endif /* INTERFACE */
 
 /*
 ** Remember that the header has been generated.  The footer is omitted
@@ -250,55 +258,67 @@ void style_submenu_entry(
   const char *zName,       /* Query parameter name */
   const char *zLabel,      /* Label before the entry box */
   int iSize,               /* Size of the entry box */
-  int isDisabled           /* True if disabled */
+  int eVisible             /* Visible or disabled */
 ){
   assert( nSubmenuCtrl < count(aSubmenuCtrl) );
   aSubmenuCtrl[nSubmenuCtrl].zName = zName;
   aSubmenuCtrl[nSubmenuCtrl].zLabel = zLabel;
   aSubmenuCtrl[nSubmenuCtrl].iSize = iSize;
-  aSubmenuCtrl[nSubmenuCtrl].isDisabled = isDisabled;
+  aSubmenuCtrl[nSubmenuCtrl].eVisible = eVisible;
   aSubmenuCtrl[nSubmenuCtrl].eType = FF_ENTRY;
   nSubmenuCtrl++;
 }
 void style_submenu_checkbox(
   const char *zName,       /* Query parameter name */
   const char *zLabel,      /* Label to display after the checkbox */
-  int isDisabled,          /* True if disabled */
+  int eVisible,            /* Visible or disabled */
   const char *zJS          /* Optional javascript to run on toggle */
 ){
   assert( nSubmenuCtrl < count(aSubmenuCtrl) );
   aSubmenuCtrl[nSubmenuCtrl].zName = zName;
   aSubmenuCtrl[nSubmenuCtrl].zLabel = zLabel;
-  aSubmenuCtrl[nSubmenuCtrl].isDisabled = isDisabled;
+  aSubmenuCtrl[nSubmenuCtrl].eVisible = eVisible;
   aSubmenuCtrl[nSubmenuCtrl].zJS = zJS;
   aSubmenuCtrl[nSubmenuCtrl].eType = FF_CHECKBOX;
+  nSubmenuCtrl++;
+}
+void style_submenu_jsbutton(
+  const char *zLabel,      /* Label to display on the submenu */
+  int eVisible,            /* Visible or disabled */
+  const char *zJS          /* Javascript to run when clicked */
+){
+  assert( nSubmenuCtrl < count(aSubmenuCtrl) );
+  aSubmenuCtrl[nSubmenuCtrl].zLabel = zLabel;
+  aSubmenuCtrl[nSubmenuCtrl].eVisible = eVisible;
+  aSubmenuCtrl[nSubmenuCtrl].zJS = zJS;
+  aSubmenuCtrl[nSubmenuCtrl].eType = FF_JSBUTTON;
   nSubmenuCtrl++;
 }
 void style_submenu_binary(
   const char *zName,       /* Query parameter name */
   const char *zTrue,       /* Label to show when parameter is true */
   const char *zFalse,      /* Label to show when the parameter is false */
-  int isDisabled           /* True if this control is disabled */
+  int eVisible             /* Visible or disabled */
 ){
   assert( nSubmenuCtrl < count(aSubmenuCtrl) );
   aSubmenuCtrl[nSubmenuCtrl].zName = zName;
   aSubmenuCtrl[nSubmenuCtrl].zLabel = zTrue;
   aSubmenuCtrl[nSubmenuCtrl].zFalse = zFalse;
-  aSubmenuCtrl[nSubmenuCtrl].isDisabled = isDisabled;
+  aSubmenuCtrl[nSubmenuCtrl].eVisible = eVisible;
   aSubmenuCtrl[nSubmenuCtrl].eType = FF_BINARY;
   nSubmenuCtrl++;
 }
 void style_submenu_multichoice(
-  const char *zName,       /* Query parameter name */
-  int nChoice,             /* Number of options */
-  const char *const *azChoice,/* value/display pairs.  2*nChoice entries */
-  int isDisabled           /* True if this control is disabled */
+  const char *zName,           /* Query parameter name */
+  int nChoice,                 /* Number of options */
+  const char *const *azChoice, /* value/display pairs.  2*nChoice entries */
+  int eVisible                 /* Visible or disabled */
 ){
   assert( nSubmenuCtrl < count(aSubmenuCtrl) );
   aSubmenuCtrl[nSubmenuCtrl].zName = zName;
   aSubmenuCtrl[nSubmenuCtrl].iSize = nChoice;
   aSubmenuCtrl[nSubmenuCtrl].azChoice = azChoice;
-  aSubmenuCtrl[nSubmenuCtrl].isDisabled = isDisabled;
+  aSubmenuCtrl[nSubmenuCtrl].eVisible = eVisible;
   aSubmenuCtrl[nSubmenuCtrl].eType = FF_MULTI;
   nSubmenuCtrl++;
 }
@@ -331,7 +351,7 @@ void style_submenu_sql(
     aSubmenuCtrl[nSubmenuCtrl].zLabel = zLabel;
     aSubmenuCtrl[nSubmenuCtrl].iSize = n/2;
     aSubmenuCtrl[nSubmenuCtrl].azChoice = (const char *const *)az;
-    aSubmenuCtrl[nSubmenuCtrl].isDisabled = 0;
+    aSubmenuCtrl[nSubmenuCtrl].eVisible = STYLE_NORMAL;
     aSubmenuCtrl[nSubmenuCtrl].eType = FF_MULTI;
     nSubmenuCtrl++;
   }
@@ -565,14 +585,22 @@ void style_footer(void){
     }
     for(i=0; i<nSubmenuCtrl; i++){
       const char *zQPN = aSubmenuCtrl[i].zName;
-      const char *zDisabled = " disabled";
-      if( !aSubmenuCtrl[i].isDisabled ){
-        zDisabled = "";
+      const char *zDisabled = "";
+      const char *zXtraClass = "";
+      if( aSubmenuCtrl[i].eVisible & STYLE_DISABLED ){
+        zDisabled = " disabled";
+      }else if( zQPN ){
         cgi_tag_query_parameter(zQPN);
+      }
+      if( aSubmenuCtrl[i].eVisible & STYLE_CLUTTER ){
+        zXtraClass = " clutter";
+      }
+      if( aSubmenuCtrl[i].eVisible & STYLE_BASIC ){
+        zXtraClass = " anticlutter";
       }
       switch( aSubmenuCtrl[i].eType ){
         case FF_ENTRY:
-          @ <span class='submenuctrl'>\
+          @ <span class='submenuctrl%s(zXtraClass)'>\
           @ &nbsp;%h(aSubmenuCtrl[i].zLabel)\
           @ <input type='text' name='%s(zQPN)' value='%h(PD(zQPN, ""))' \
           if( aSubmenuCtrl[i].iSize<0 ){
@@ -586,6 +614,9 @@ void style_footer(void){
         case FF_MULTI: {
           int j;
           const char *zVal = P(zQPN);
+          if( zXtraClass[0] ){
+            @ <span class='%s(zXtraClass+1)'>
+          }
           if( aSubmenuCtrl[i].zLabel ){
             @ &nbsp;%h(aSubmenuCtrl[i].zLabel)\
           }
@@ -600,11 +631,14 @@ void style_footer(void){
             @ >%h(aSubmenuCtrl[i].azChoice[j+1])</option>
           }
           @ </select>
+          if( zXtraClass[0] ){
+            @ </span>
+          }
           break;
         }
         case FF_BINARY: {
           int isTrue = PB(zQPN);
-          @ <select class='submenuctrl' size='1' name='%s(zQPN)' \
+          @ <select class='submenuctrl%s(zXtraClass)' size='1' name='%s(zQPN)' \
           @ onchange='gebi("f01").submit();'%s(zDisabled)>
           @ <option value='1'\
           if( isTrue ){
@@ -620,7 +654,7 @@ void style_footer(void){
           break;
         }
         case FF_CHECKBOX: {
-          @ <label class='submenuctrl submenuckbox'>\
+          @ <label class='submenuctrl submenuckbox%s(zXtraClass)'>\
           @ <input type='checkbox' name='%s(zQPN)' \
           if( PB(zQPN) ){
             @ checked \
@@ -631,6 +665,12 @@ void style_footer(void){
             @ onchange='gebi("f01").submit();'%s(zDisabled)>\
           }
           @ %h(aSubmenuCtrl[i].zLabel)</label>
+          break;
+        }
+        case FF_JSBUTTON: {
+          @ <a class="label%s(zXtraClass)" \
+          @  onclick='%s(aSubmenuCtrl[i].zJS)'%s(zDisabled)>\
+          @ %s(aSubmenuCtrl[i].zLabel)</a>
           break;
         }
       }
@@ -1493,6 +1533,10 @@ const struct strctCssDefaults {
   { "p.searchEmpty",
     "Message explaining that there are no search results",
     @ font-style: italic;
+  },
+  { ".clutter",
+    "Detail screen objects",
+    @ display: none;
   },
   { 0,
     0,

@@ -105,7 +105,6 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_UNHIDE   0x0200  /* Unhide check-ins with "hidden" tag */
 #define TIMELINE_SHOWRID  0x0400  /* Show RID values in addition to UUIDs */
 #define TIMELINE_BISECT   0x0800  /* Show supplimental bisect information */
-#define TIMELINE_BASIC    0x1000  /* Minimize clutter and distraction */
 #endif
 
 /*
@@ -267,15 +266,13 @@ void www_print_timeline(
   mxWikiLen = db_get_int("timeline-max-comment", 0);
   dateFormat = db_get_int("timeline-date-format", 0);
   bCommentGitStyle = db_get_int("timeline-truncate-at-blank", 0);
-  if( tmFlags & TIMELINE_BASIC ){
-    eCommentFormat = 5;  /* Comment only */
-  }else{
+  {
     /* Undocumented query parameter commentformat=N takes a numeric parameter to
     ** adjust the comment-format for testing purposes. */
     const char *z = P("commentformat");
     eCommentFormat = z ? atoi(z) : db_get_int("timeline-comment-format", 0);
   }
-   bShowDetail = (eCommentFormat & 1)==0;      /* Bit 0 suppresses the comment */
+  bShowDetail = (eCommentFormat & 1)==0;      /* Bit 0 suppresses the comment */
   bSeparateDetail = (eCommentFormat & 8)!=0;  /* Bit 3 turns on the detail column */ 
   switch( (eCommentFormat>>1)&3 ){
     case 1:  bHashAfterComment = 1;  break;
@@ -567,6 +564,7 @@ void www_print_timeline(
           @ <td class="timelineTableCell timelineDetailCell">
         }
       }
+      cgi_printf("<span class='clutter'>");
       if( zType[0]=='c' ){
         cgi_printf("<span class='timelineDetail timelineCheckinDetail'>(");
       }else{
@@ -640,7 +638,7 @@ void www_print_timeline(
           cgi_printf(" id: %d", rid);
         }
       }
-      cgi_printf(")</span>\n");  /* End of the details section */
+      cgi_printf(")</span></span>\n");  /* End of the details section */
     }
   
     tag_private_status(rid);
@@ -816,7 +814,7 @@ void timeline_output_graph_javascript(
     circleNodes = skin_detail_boolean("timeline-circle-nodes");
     colorGraph = skin_detail_boolean("timeline-color-graph-lines");
 
-    @ <script>(function(){
+    @ <script>
     @ "use strict";
     @ var css = "";
     if( circleNodes ){
@@ -1144,6 +1142,21 @@ void timeline_output_graph_javascript(
     }
     @   }
     @ }
+    @ function changeDisplay(selector,value){
+    @   var x = document.getElementsByClassName(selector);
+    @   var n = x.length;
+    @   for(var i=0; i<n; i++) {x[i].style.display = value;}
+    @ }
+    @ function declutter(){
+    @   changeDisplay('clutter','none');
+    @   changeDisplay('anticlutter','inline');
+    @   checkHeight();
+    @ }
+    @ function reclutter(){
+    @   changeDisplay('clutter','inline');
+    @   changeDisplay('anticlutter','none');
+    @   checkHeight();
+    @ }
     @ var lastRow = gebi("m"+rowinfo[rowinfo.length-1].id);
     @ var lastY = 0;
     @ function checkHeight(){
@@ -1156,7 +1169,7 @@ void timeline_output_graph_javascript(
     @ }
     @ initGraph();
     @ checkHeight();
-    @ }())</script>
+    @ </script>
   }
 }
 
@@ -1326,7 +1339,7 @@ static void timeline_y_submenu(int isDisabled){
     assert( i<=count(az) );
   }
   if( i>2 ){
-    style_submenu_multichoice("y", i/2, az, isDisabled);
+    style_submenu_multichoice("y", i/2, az, isDisabled|STYLE_CLUTTER);
   }
 }
 
@@ -1576,7 +1589,6 @@ static const char *tagMatchExpression(
 **
 ** Query parameters:
 **
-**    basic          Minimum clutter and distraction
 **    a=TIMEORTAG    After this event
 **    b=TIMEORTAG    Before this event
 **    c=TIMEORTAG    "Circa" this event
@@ -1628,8 +1640,7 @@ void page_timeline(void){
   int d_rid = name_to_typed_rid(P("d"),"ci");  /* artifact d and descendants */
   int f_rid = name_to_typed_rid(P("f"),"ci");  /* artifact f and close family */
   const char *zUser = P("u");        /* All entries by this user if not NULL */
-  int bBasic = PB("basic");          /* Minimize clutter and distraction */
-  const char *zType = PD("y",bBasic?"ci":"all"); /* Type of events.  All if NULL */
+  const char *zType = PD("y","all"); /* Type of events.  All if NULL */
   const char *zAfter = P("a");       /* Events after this time */
   const char *zBefore = P("b");      /* Events before this time */
   const char *zCirca = P("c");       /* Events near this time */
@@ -1734,7 +1745,7 @@ void page_timeline(void){
     }
 
     /* Display a checkbox to enable/disable display of related check-ins. */
-    if( !bBasic ) style_submenu_checkbox("rel", "Related", 0, 0);
+    style_submenu_checkbox("rel", "Related", STYLE_CLUTTER, 0);
 
     /* Construct the tag match expression. */
     zTagSql = tagMatchExpression(matchStyle, zTagName, &zMatchDesc, &zError);
@@ -1866,9 +1877,7 @@ void page_timeline(void){
     addFileGlobExclusion(zChng, &sql);
     tmFlags |= TIMELINE_DISJOINT;
     db_multi_exec("%s", blob_sql_text(&sql));
-    if( !bBasic ){
-      style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c', 0);
-    }
+    style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c')|STYLE_CLUTTER,0);
     blob_appendf(&desc, "%d check-ins going from ",
                  db_int(0, "SELECT count(*) FROM timeline"));
     blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h", zFrom), zFrom);
@@ -1918,11 +1927,9 @@ void page_timeline(void){
         zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", d_rid);
       }
     }
-    if( !bBasic ){
-      style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c', 0);
-      style_submenu_entry("n","Max:",4,0);
-      timeline_y_submenu(1);
-    }
+    style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c')|STYLE_CLUTTER, 0);
+    style_submenu_entry("n","Max:",4,STYLE_CLUTTER);
+    timeline_y_submenu(1);
   }else if( f_rid && g.perm.Read ){
     /* If f= is present, ignore all other parameters other than n= */
     char *zUuid;
@@ -1940,10 +1947,8 @@ void page_timeline(void){
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
     blob_appendf(&desc, "%z[%S]</a>", href("%R/info/%!S", zUuid), zUuid);
     tmFlags |= TIMELINE_DISJOINT;
-    if( !bBasic ){
-      style_submenu_checkbox("unhide", "Unhide", 0, 0);
-      style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c', 0);
-    }
+    style_submenu_checkbox("unhide", "Unhide", STYLE_CLUTTER, 0);
+    style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c')|STYLE_CLUTTER, 0);
   }else{
     /* Otherwise, a timeline based on a span of time */
     int n;
@@ -2227,23 +2232,16 @@ void page_timeline(void){
         }
         free(zDate);
       }
-      if( !bBasic ){
-        if( zType[0]=='a' || zType[0]=='c' ){
-          style_submenu_checkbox("unhide", "Unhide", 0, 0);
-        }
-        style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c', 0);
-        style_submenu_entry("n","Max:",4,0);
-        timeline_y_submenu(disableY);
-        style_submenu_entry("t", "Tag Filter:", -8, 0);
-        style_submenu_multichoice("ms", count(azMatchStyles)/2, azMatchStyles, 0);
+      if( zType[0]=='a' || zType[0]=='c' ){
+        style_submenu_checkbox("unhide", "Unhide", STYLE_CLUTTER, 0);
       }
+      style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c')|STYLE_CLUTTER,0);
+      style_submenu_entry("n","Max:",4,STYLE_CLUTTER);
+      timeline_y_submenu(disableY);
+      style_submenu_entry("t", "Tag Filter:", -8, STYLE_CLUTTER);
+      style_submenu_multichoice("ms", count(azMatchStyles)/2, azMatchStyles, STYLE_CLUTTER);
     }
     blob_zero(&cond);
-  }
-  if( bBasic ){
-    timeline_submenu(&url, "Details", "basic", 0, 0);
-  }else{
-    timeline_submenu(&url, "Declutter", "basic", "1", 0);
   }
   if( PB("showsql") ){
     @ <pre>%h(blob_sql_text(&sql))</pre>
@@ -2251,6 +2249,8 @@ void page_timeline(void){
   if( search_restrict(SRCH_CKIN)!=0 ){
     style_submenu_element("Search", "%R/search?y=c");
   }
+  style_submenu_jsbutton("Advanced", STYLE_BASIC, "reclutter()");
+  style_submenu_jsbutton("Basic", STYLE_CLUTTER, "declutter()");
   if( PB("showid") ) tmFlags |= TIMELINE_SHOWRID;
   if( useDividers && zMark && zMark[0] ){
     double r = symbolic_name_to_mtime(zMark);
@@ -2265,7 +2265,6 @@ void page_timeline(void){
   if( zError ){
     @ <p class="generalError">%h(zError)</p>
   }
-  if( bBasic ) tmFlags |= TIMELINE_BASIC;
 
   if( zNewerButton ){
     @ %z(xhref("class='button'","%z",zNewerButton))More&nbsp;&uarr;</a>
