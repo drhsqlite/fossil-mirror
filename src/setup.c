@@ -1473,15 +1473,18 @@ void setup_timeline(void){
   @ <hr />
   multiple_choice_attribute("Comment Format", "timeline-comment-format",
             "tcf", "0", count(azCommentFormats)/2, azCommentFormats);
-  @ <p>Each timeline entry may contain the following subsections:
-  @ <ol>
-  @ <li> an artifact hash with a hyperlink to a detail page
-  @ <li> the check-in comment or other text describing the item
-  @ <li> details, such as the user, branch, tags, etc.
-  @ </ol>
-  @ This control selects which of the three items above are included on each
-  @ timeline entry and the order in which they are displayed.
-  @ (Preperty: "timeline-commit-format")</p>
+  @ <p>Each timeline entry contains between one and three of the following subsections:
+  @ <blockquote><table border=0 cellpadding=0>
+  @ <tr><td>[hash]<td>&nbsp;&nbsp;<td>an artifact hash with a hyperlink to a detail page
+  @ <tr><td>comment<td><td>the check-in comment or other text describing the item
+  @ <tr><td>(details)<td><td>details about the entry, such as the user, branch, tags, etc.
+  @ </table></blockquote>
+  @ This setting selects which of the three subsections are included on each
+  @ timeline entry and the order in which they are displayed.  When the [hash]
+  @ is omitted but the (details) are included, then the hash is shown as one
+  @ of the details.  The "comment&nbsp;|&nbsp;(details)" choice means that the
+  @ details are displayed in a separate column from the comment.
+  @ (Property: "timeline-commit-format")</p>
 
   @ <hr />
   onoff_attribute("Allow block-markup in timeline",
