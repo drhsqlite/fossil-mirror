@@ -839,6 +839,20 @@ const struct strctCssDefaults {
     @ text-align: left;
     @ vertical-align: top;
   },
+  { "span.timelineComment",
+    "The check-in comment text in a timeline",
+    @ cursor: pointer;
+  },
+  { "span.timelineEllipsis",
+    "The ellipsis mark at the end of a check-in comment in a timeline",
+    @ cursor: pointer;
+  },
+  { "td.timelineGraph",
+    "the format for the graph placeholder cells in timelines",
+    @ width: 20px;
+    @ text-align: left;
+    @ vertical-align: top;
+  },
   { ".tl-canvas",
     "timeline graph canvas",
     @   margin: 0 6px 0 10px;

@@ -1,5 +1,5 @@
-C Clicking\son\sthe\sellipsis\sexpands\sthe\s(detail)\ssection\sin\sa\stimeline.
-D 2017-11-26T02:23:04.809
+C Change\sthe\sdefault\sCSS\sso\sthat\sthe\scursor\sis\sa\spointer\sover\sthe\stimeline\ncheck-in\scomment\sand\sthe\sfollowing\sellipsis,\sas\sa\shint\sto\sthat\sone\scan\sclick\non\sthose\selements.
+D 2017-11-26T11:14:54.824
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -508,7 +508,7 @@ F src/sqlite3.h 3ef1b4241752b880eadfd2bdf33205bcf7ea70938468da751167102d0f5da6c3
 F src/stash.c a6bb018a382d8c648702da7c2e9f56d7012486205c64ba269662336508ab0df2
 F src/stat.c 420ba0ca0e6804dc0f386bb46ec4f90197aa458a1849f53b2b7ceaa2dd37c869
 F src/statrep.c 9ee2695e45d0a0de17ce79d0b027f79bd246b4f305c95649044c3709a44372cd
-F src/style.c 06b9c281f235c53fb5d38beb523f8247c4ddba7819ee08496d7f9978b9e49d55
+F src/style.c 509f1d371236f8e292d8371126d62445f5e358c964adba5a9e010fa4698007c9
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 7eec9152da56e30bedad9b9c62195012de13f0db656f9b6395c2bcebfee7f4a8
 F src/tar.c 7f1a32be9c4534f5d837f44ebf66c54ad533e297e159fcd8403356d03b074bfe
@@ -793,7 +793,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 44a5ac416e64d522386b7127cb102eb12766a485b3abe65e423436912bea687d
-R b3561c5e204b3dfce4fe08f75c480297
+P a794d858ec1edd7ae50b9ecb370af30f77d41fb8523f38988d9ea66d2caa6c9f
+R 259852d352b7289a022dc84ca1ef8070
 U drh
-Z c6d3bad3a17e183fecba20494173836d
+Z ca101793aeb4cc17aac959168a2aab54
