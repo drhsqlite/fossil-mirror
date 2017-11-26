@@ -528,8 +528,8 @@ void finfo_page(void){
       hyperlink_to_uuid(zUuid);
     }
     if( bShowDetail ){
-      @ <a class='anticlutter' id='ellipsis-%d(frid)' \
-      @  onclick='expandEllipsis(%d(frid))'>...</a>
+      @ <a class='timelineEllipsis anticlutter' id='ellipsis-%d(frid)' \
+      @  onclick='expandEllipsis(%d(frid))'>&bull;&bull;&bull;</a>
       if( bSeparateDetail ){
         if( zBgClr && zBgClr[0] ){
           @ <td class="timelineTableCell timelineDetailCell"

@@ -556,8 +556,8 @@ void www_print_timeline(
     ** Example:  "(check-in: [abcdefg], user: drh, tags: trunk)"
     */
     if( bShowDetail ){
-      @ <a class='anticlutter' id='ellipsis-%d(rid)' \
-      @  onclick='expandEllipsis(%d(rid))'>...</a>
+      @ <a class='timelineEllipsis anticlutter' id='ellipsis-%d(rid)' \
+      @  onclick='expandEllipsis(%d(rid))'>&bull;&bull;&bull;</a>
       if( bSeparateDetail ){
         if( zBgClr && zBgClr[0] && rid!=selectedRid ){
           @ <td class="timelineTableCell timelineDetailCell"

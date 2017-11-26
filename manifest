@@ -1,5 +1,5 @@
-C Add\sthe\sjavascript\sAdvanced/Basic\sbuttons\sto\sthe\s/finfo\stimeline.
-D 2017-11-25T21:21:57.349
+C For\sthe\sellipses\sin\stimelines\sfrom\sthree\sbullet\scharacters.
+D 2017-11-26T00:37:53.708
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -425,7 +425,7 @@ F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c e0412afa4ac1895b73d1f49e5756be51aebfdf4f46379f7746b150ab084738e0
 F src/export.c 3e09dfda9d07b44c463d656dbc09f6adfe686d6d80ad55282a1f06b9216934f2
 F src/file.c 8e7a44e448f3530175863689aa354c1b77d7d0ff08006e610d571518c0a47b18
-F src/finfo.c efcc08d4224cbe5c732f7f617c5887615c118f95d4dc649b6565005860471857
+F src/finfo.c 0acb2b3b9b4e1f7856a7d127581ed09cf60c2d19265f6322a969c5ce7f448efc
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c c774c78b274375f42653c71d0b6c1062695bb4da
@@ -517,7 +517,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c c008c65eee4b5d14a83cb93de2d97c5eb8ffd051794d4bca139cc076161da685
 F src/th_tcl.c 2b70a8da7d7d8009794d7a3565043c8933a6cbfe
-F src/timeline.c f09e7bf6deb792a16baa0a648a29c248bce7a6e06fe17d9fc40a8b127dddf5c3
+F src/timeline.c afaa8e32b0a43e35ef4d5cec158af6a71709b27f710e1168fe0f4ae9abcf6b99
 F src/tkt.c e5815264d68d48a28983230026ceaa45b5190c34b092a8fc920ce832a6d2bf6e
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 33ff866f8f3618e5ef826ec5d84168de765e61862f10f7642592a30d315b2c1e
@@ -793,7 +793,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3ede2d874f48467007d8ac5b0c838cf5b0484787e96e3deafac845a9c4bc504a
-R d32aacb0de7d845b3b75b3ecab4808c4
+P 6eaad787a8379d2a909581b9034f7dc16d2d7ac8063c3f98ffd432de04114d4c
+R fb2f1e5628ffc60e77b28626269ccfd8
 U drh
-Z efaec2de31ffdb938d46b3b898e9c3f1
+Z d0efdb7d4ecf27f38689047b2476c4bb
