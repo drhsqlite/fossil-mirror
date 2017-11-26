@@ -1175,6 +1175,14 @@ void timeline_output_graph_javascript(
     @   }
     @   checkHeight();
     @ }
+    @ function scrollToSelected(){
+    @   var x = document.getElementsByClassName('timelineSelected');
+    @   if(x[0]){
+    @     var h = window.innerHeight;
+    @     var y = absoluteY(x[0]) - h/2;
+    @     if( y>0 ) window.scrollTo(0, y);
+    @   }
+    @ }
     @ var lastRow = gebi("m"+rowinfo[rowinfo.length-1].id);
     @ var lastY = 0;
     @ function checkHeight(){
@@ -1187,6 +1195,7 @@ void timeline_output_graph_javascript(
     @ }
     @ initGraph();
     @ checkHeight();
+    @ scrollToSelected();
     @ </script>
   }
 }
