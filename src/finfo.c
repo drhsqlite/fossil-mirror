@@ -523,13 +523,15 @@ void finfo_page(void){
     if( bHashBeforeComment && zUuid ){
       hyperlink_to_uuid(zUuid);
     }
-    @ <span class="timelineComment timelineCheckinComment">%W(zCom)</span>
+    @ <span class="timelineComment timelineCheckinComment" \
+    @  onclick='toggleEllipsis(%d(frid))'>
+    @ %W(zCom)</span>
     if( bHashAfterComment && zUuid ){
       hyperlink_to_uuid(zUuid);
     }
     if( bShowDetail ){
-      @ <a class='timelineEllipsis anticlutter' id='ellipsis-%d(frid)' \
-      @  onclick='expandEllipsis(%d(frid))'>&bull;&bull;&bull;</a>
+      @ <span class='timelineEllipsis anticlutter' id='ellipsis-%d(frid)' \
+      @  onclick='expandEllipsis(%d(frid))'>&bull;&bull;&bull;</span>
       if( bSeparateDetail ){
         if( zBgClr && zBgClr[0] ){
           @ <td class="timelineTableCell timelineDetailCell"
