@@ -1165,12 +1165,12 @@ void timeline_output_graph_javascript(
     @   if( x.style.display=='none' ){
     @     x.style.display='inline';
     @     gebi("detail-"+id).style.display='none';
-    @     x = gebi("links-"+id);
+    @     x = document.getElementById("links-"+id);
     @     if(x) x.style.display='none';
     @   }else{
     @     x.style.display='none';
     @     gebi("detail-"+id).style.display='inline';
-    @     x = gebi("links-"+id);
+    @     x = document.getElementById("links-"+id);
     @     if(x) x.style.display='inline';
     @   }
     @   checkHeight();
