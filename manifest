@@ -1,5 +1,5 @@
-C For\sthe\sellipses\sin\stimelines\sfrom\sthree\sbullet\scharacters.
-D 2017-11-26T00:37:53.708
+C Default\sCSS\sfor\stimeline\sellipsis.
+D 2017-11-26T00:41:56.855
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -508,7 +508,7 @@ F src/sqlite3.h 3ef1b4241752b880eadfd2bdf33205bcf7ea70938468da751167102d0f5da6c3
 F src/stash.c a6bb018a382d8c648702da7c2e9f56d7012486205c64ba269662336508ab0df2
 F src/stat.c 420ba0ca0e6804dc0f386bb46ec4f90197aa458a1849f53b2b7ceaa2dd37c869
 F src/statrep.c 9ee2695e45d0a0de17ce79d0b027f79bd246b4f305c95649044c3709a44372cd
-F src/style.c 06b9c281f235c53fb5d38beb523f8247c4ddba7819ee08496d7f9978b9e49d55
+F src/style.c 6c96745cf0c7f914f749b7b1e00f06807adf4c36f2e8ea042f30108f9c7fb241
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 7eec9152da56e30bedad9b9c62195012de13f0db656f9b6395c2bcebfee7f4a8
 F src/tar.c 7f1a32be9c4534f5d837f44ebf66c54ad533e297e159fcd8403356d03b074bfe
@@ -793,7 +793,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6eaad787a8379d2a909581b9034f7dc16d2d7ac8063c3f98ffd432de04114d4c
-R fb2f1e5628ffc60e77b28626269ccfd8
+P cef3d63c545b8e0fc09c6b693800e9786ba6bee8fdafe261b9a124b6af369c03
+R e7f163df90c01e1bc1adac5efc9c66c5
 U drh
-Z d0efdb7d4ecf27f38689047b2476c4bb
+Z 5a7130b7092a2da0216acd8fa9fe60fc

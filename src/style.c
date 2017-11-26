@@ -1538,6 +1538,10 @@ const struct strctCssDefaults {
     "Detail screen objects",
     @ display: none;
   },
+  { ".timelineEllipsis",
+    "Timeline ellipses",
+    @ font-size: 80%;
+  },
   { 0,
     0,
     0
