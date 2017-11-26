@@ -531,7 +531,7 @@ void finfo_page(void){
     }
     if( bShowDetail ){
       @ <span class='timelineEllipsis anticlutter' id='ellipsis-%d(frid)' \
-      @  onclick='expandEllipsis(%d(frid))'>&bull;&bull;&bull;</span>
+      @  onclick='expandEllipsis(%d(frid))'>&#x22ef;</span>
       if( bSeparateDetail ){
         if( zBgClr && zBgClr[0] ){
           @ <td class="timelineTableCell timelineDetailCell"
