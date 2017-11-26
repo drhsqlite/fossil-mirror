@@ -1,5 +1,5 @@
-C Use\sthree\sU+002e\scharacters\sto\sform\sthe\sellipsis\sin\stimelines,\srather\sthan\nthe\sU+22ef,\ssince\ssome\sbrowsers\sdo\snot\sknow\show\sto\srender\sU+22ef.
-D 2017-11-26T15:47:49.227
+C Fix\sa\sproblem\sin\sthe\s/info\spage\sfor\scheck-ins\swherein\sit\swas\snot\sshowing\nthe\slinks\sto\sthe\sdescendents\sgraph.
+D 2017-11-26T17:49:39.174
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -438,7 +438,7 @@ F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 91aa0e52c5f2457e269abc82f2b0881a691a7543715b224ac7714344ee4d5d98
 F src/http_transport.c 43bf993a931c1a6cafb051566e06c841173ec350dedc0cb6887e112bc05a147c
 F src/import.c e48f2f2e0095795aeabe7220514c8694393693b853150c47f6d6792921def3f1
-F src/info.c 4946750ebd8d1bd2d940310e0e43e3487cb4f612cf504e295ac1b1b35ce00a17
+F src/info.c 8de7a21c2376c3743832b5ea3e6a15df36453df96f2d5f234231052ea01c8946
 F src/json.c d60c46e8598420ce1a247faef05c7e7a310a82a5851e8a0e637e22422ed18d97
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c b6105183492ee774cdc685bfd80eb511fb1c5c37faf88198d7e4e58c41dfc68b
@@ -793,7 +793,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b39ad68f7c53f6f9f06221f95982795f90c7e60e9a4f396ae9d6ba75ba8cfe9a
-R 68ee530aba459a33e85d186f3088e48f
+P 1b78291f08e17c5181cb05fd75479f89282d1ce0d0b3e007a9d61168b32a07a4
+R 5d91e0c1dfecef8887f8c6d540896477
 U drh
-Z ba4174fb5427544db9a6dd0b1b799eb8
+Z 3cfd0ae4fd8004504615bd129896c479
