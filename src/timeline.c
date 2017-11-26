@@ -558,7 +558,7 @@ void www_print_timeline(
     */
     if( bShowDetail ){
       @ <span class='timelineEllipsis anticlutter' id='ellipsis-%d(rid)' \
-      @  onclick='expandEllipsis(%d(rid))'>&#x22ef;</span>
+      @  onclick='toggleEllipsis(%d(rid))'>&#x22ef;</span>
       if( bSeparateDetail ){
         if( zBgClr && zBgClr[0] && rid!=selectedRid ){
           @ <td class="timelineTableCell timelineDetailCell"
