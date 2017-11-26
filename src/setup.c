@@ -1472,7 +1472,7 @@ void setup_timeline(void){
 
   @ <hr />
   multiple_choice_attribute("Comment Format", "timeline-comment-format",
-            "tcf", "0", count(azCommentFormats)/2, azCommentFormats);
+            "tcf", "4", count(azCommentFormats)/2, azCommentFormats);
   @ <p>Each timeline entry contains between one and three of the following subsections:
   @ <blockquote><table border=0 cellpadding=0>
   @ <tr><td>[hash]<td>&nbsp;&nbsp;<td>an artifact hash with a hyperlink to a detail page

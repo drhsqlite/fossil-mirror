@@ -332,7 +332,7 @@ void finfo_page(void){
   baseCheckin = name_to_rid_www("ci");
   zPrevDate[0] = 0;
   zFilename = PD("name","");
-  eCommentFormat = db_get_int("timeline-comment-format", 0);
+  eCommentFormat = db_get_int("timeline-comment-format", 4);
   bShowDetail = (eCommentFormat & 1)==0;  /* Bit 0 suppresses the comment */
   bSeparateDetail = (eCommentFormat & 8)!=0; 
   switch( (eCommentFormat>>1)&3 ){

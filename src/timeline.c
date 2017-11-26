@@ -270,7 +270,7 @@ void www_print_timeline(
     /* Undocumented query parameter commentformat=N takes a numeric parameter to
     ** adjust the comment-format for testing purposes. */
     const char *z = P("commentformat");
-    eCommentFormat = z ? atoi(z) : db_get_int("timeline-comment-format", 0);
+    eCommentFormat = z ? atoi(z) : db_get_int("timeline-comment-format", 4);
   }
   bShowDetail = (eCommentFormat & 1)==0;      /* Bit 0 suppresses the comment */
   bSeparateDetail = (eCommentFormat & 8)!=0;  /* Bit 3 turns on the detail column */ 
