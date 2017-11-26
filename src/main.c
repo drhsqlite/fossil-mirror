@@ -2447,7 +2447,7 @@ void cmd_webserver(void){
   find_server_repository(2, fCreate);
   if( zInitPage==0 ){
     if( isUiCmd && g.localOpen ){
-      zInitPage = "timeline?c=current&basic";
+      zInitPage = "timeline?c=current";
     }else{
       zInitPage = "";
     }

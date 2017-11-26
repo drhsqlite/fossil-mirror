@@ -1722,9 +1722,6 @@ void page_timeline(void){
         nEntry = 10;
       }
     }
-  }else if( zCirca ){
-    cgi_replace_query_parameter("n","11");
-    nEntry = 11;
   }else{
     cgi_replace_query_parameter("n","50");
     nEntry = 50;

@@ -1,5 +1,5 @@
-C If\sthere\sis\sa\sselection\sor\smarked\sentry,\sscroll\sthe\s/timeline\sso\sthat\sthe\nmarked\sentry\sas\sas\sclose\sto\sthe\smiddle\sof\sthe\sscreen\sas\swe\scan\sget,\supon\ninitial\sdisplay\sof\sthe\stimeline.
-D 2017-11-26T23:19:57.391
+C Remove\sa\sleftover\s"basic"\squery\sparameter\son\san\sinternal\s/timeline\sline.\nChange\sthe\sdefault\snumber\sof\sentries\sshown\sfor\s"c="\stimelines\sto\s50,\sas\nthis\sworks\sbetter\swith\sthe\snew\scentering\slogic.
+D 2017-11-26T23:29:39.053
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -461,7 +461,7 @@ F src/linenoise.h f31f8258112b2c1ca9d2e5b19b4511c4c93c2fae
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c e79e6492901382bc825079f86b3d77e2b564d8d2e70454d40ab7967695c817c2
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
-F src/main.c 1adfec51b81434b66abadfd36be66fa805e13f75f925f5f16f48e4dc2577cf4b
+F src/main.c 24bd6b806af1782c0ff889e2ea7322e495fc14ec175b23768d294400a37d1d63
 F src/main.mk fd66ce269191ff36d4022b1f92015e61fc0642f265b7711ca397f1414850847e
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -517,7 +517,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c c008c65eee4b5d14a83cb93de2d97c5eb8ffd051794d4bca139cc076161da685
 F src/th_tcl.c 2b70a8da7d7d8009794d7a3565043c8933a6cbfe
-F src/timeline.c ed035b79a2299ed9441879742ab192fc380cbac122b7c634869e4e3f846dc559
+F src/timeline.c 4d33aba8be1ec16039e397c1579571c4d34f757d337b1ae2670e491daa5c3e1f
 F src/tkt.c e5815264d68d48a28983230026ceaa45b5190c34b092a8fc920ce832a6d2bf6e
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 33ff866f8f3618e5ef826ec5d84168de765e61862f10f7642592a30d315b2c1e
@@ -793,7 +793,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6fe8d46106113ae4bc004bd8e7b128e72f330fe5434620f656bd791ed928ba34
-R 8399ce80a3f7c762aa337d20ec8dba2b
+P 66e6c97bd4c955769b3a86962e33061bc298a42b5f5a5e5d5716d3686f3d877c
+R e656319e10693efd4f8b3f628f76f052
 U drh
-Z e1f0224220a2ad9fe6b5672829a5dada
+Z aa6c3b7a2b73194d07f1613d30c5442c
