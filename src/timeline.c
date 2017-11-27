@@ -1637,7 +1637,7 @@ static const char *tagMatchExpression(
 **    mionly          Limit rel to show ancestors but not descendants
 **    ms=STYLE        Set tag match style to EXACT, GLOB, LIKE, REGEXP
 **    u=USER          Only show items associated with USER
-**    y=TYPE          'ci', 'w', 't', 'e', or (default) 'all'
+**    y=TYPE          'ci', 'w', 't', 'e', or 'all'.  'ci' is the default.
 **    ng              No Graph.
 **    nd              Do not highlight the focus check-in
 **    v               Show details of files changed
@@ -1677,7 +1677,7 @@ void page_timeline(void){
   int d_rid = name_to_typed_rid(P("d"),"ci");  /* artifact d and descendants */
   int f_rid = name_to_typed_rid(P("f"),"ci");  /* artifact f and close family */
   const char *zUser = P("u");        /* All entries by this user if not NULL */
-  const char *zType = PD("y","all"); /* Type of events.  All if NULL */
+  const char *zType;                 /* Type of events to display */
   const char *zAfter = P("a");       /* Events after this time */
   const char *zBefore = P("b");      /* Events before this time */
   const char *zCirca = P("c");       /* Events near this time */
@@ -1746,6 +1746,11 @@ void page_timeline(void){
   ){
     login_needed(g.anon.Read && g.anon.RdTkt && g.anon.RdWiki);
     return;
+  }
+  zType = P("y");
+  if( zType==0 ){
+    zType = g.perm.Read ? "ci" : "all";
+    cgi_set_parameter("y", zType);
   }
   url_initialize(&url, "timeline");
   cgi_query_parameters_to_url(&url);

@@ -1,5 +1,5 @@
-C Avoid\sdrawing\stwo\sconsecutive\sellpses\swhen\sthe\stimeline\scomment\shas\sbeen\ntruncated.
-D 2017-11-26T23:53:59.954
+C The\s/timeline\spage\sshows\scheck-ins\sonly\sif\sthere\sis\sno\sy=\squery\sparameter\sand\nif\sthe\suser\shas\sread\s("r")\spermissions\son\sthe\srepo.
+D 2017-11-27T00:13:34.196
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -517,7 +517,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c c008c65eee4b5d14a83cb93de2d97c5eb8ffd051794d4bca139cc076161da685
 F src/th_tcl.c 2b70a8da7d7d8009794d7a3565043c8933a6cbfe
-F src/timeline.c e41e5aedad9f1eb6518d7d0fc6af460807514a95833682167ab46a58c97ca87a
+F src/timeline.c e3cc6c44816d8fe98144ea307dda87d0e95f2cf6f2a708538bea3eae202e3611
 F src/tkt.c e5815264d68d48a28983230026ceaa45b5190c34b092a8fc920ce832a6d2bf6e
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 33ff866f8f3618e5ef826ec5d84168de765e61862f10f7642592a30d315b2c1e
@@ -793,7 +793,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6e9748b6a8f39d7e2f94409bf9b1bbc284432e74a9ff5e415bf0f7a8e0f94afb
-R bf721083d2bd47f9d0a192b0f0ac768d
+P d1aa1e6275c21184518fb09547acdfb6a8897f17bd111504e2ef1ebc7f31ad4c
+R c449b1721e5453d6b95585b62f90fd1f
 U drh
-Z 9275b8cbb128433e4d3f34021944c915
+Z ba1f342012a9caa3e1e5be527478a5c0
