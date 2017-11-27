@@ -1487,6 +1487,13 @@ void setup_timeline(void){
   @ (Property: "timeline-commit-format")</p>
 
   @ <hr />
+  entry_attribute("Default Timeline Length", 6, "timeline-default-length", "tldl", "50", 0);
+  @ <p>The default number of entries in a single /timeline that lacks the "n="
+  @ query parameter.
+  @ (Property: "timeline-default-length")
+  @ </p>
+
+  @ <hr />
   onoff_attribute("Allow block-markup in timeline",
                   "timeline-block-markup", "tbm", 0, 0);
   @ <p>In timeline displays, check-in comments can be displayed with or

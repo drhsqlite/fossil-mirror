@@ -1719,6 +1719,7 @@ void page_timeline(void){
 
   /* Set number of rows to display */
   z = P("n");
+  if( z==0 ) z = db_get("timeline-default-length",0);
   if( z ){
     if( fossil_strcmp(z,"all")==0 ){
       nEntry = 0;
