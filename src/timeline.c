@@ -1258,21 +1258,6 @@ const char *timeline_query_for_www(void){
 }
 
 /*
-** Generate a submenu element with a single parameter change.
-*/
-static void timeline_submenu(
-  HQuery *pUrl,            /* Base URL */
-  const char *zMenuName,   /* Submenu name */
-  const char *zParam,      /* Parameter value to add or change */
-  const char *zValue,      /* Value of the new parameter */
-  const char *zRemove      /* Parameter to omit */
-){
-  style_submenu_element(zMenuName, "%s",
-                        url_render(pUrl, zParam, zValue, zRemove, 0));
-}
-
-
-/*
 ** Convert a symbolic name used as an argument to the a=, b=, or c=
 ** query parameters of timeline into a julianday mtime value.
 */
@@ -2252,7 +2237,6 @@ void page_timeline(void){
             " WHERE blob.rid=event.objid AND mtime<=%.17g%s)",
             rDate-ONE_SECOND, blob_sql_text(&cond))
         ){
-          /* timeline_submenu(&url, "Older", "b", zDate, "a"); */
           zOlderButton = fossil_strdup(url_render(&url, "b", zDate, "a", 0));
         }
         free(zDate);
@@ -2268,7 +2252,6 @@ void page_timeline(void){
             " WHERE blob.rid=event.objid AND mtime>=%.17g%s)",
             rDate+ONE_SECOND, blob_sql_text(&cond))
         ){
-          /* timeline_submenu(&url, "Newer", "a", zDate, "b"); */
           zNewerButton = fossil_strdup(url_render(&url, "a", zDate, "b", 0));
         }
         free(zDate);
