@@ -1,5 +1,5 @@
-C The\s/timeline\spage\sshows\scheck-ins\sonly\sif\sthere\sis\sno\sy=\squery\sparameter\sand\nif\sthe\suser\shas\sread\s("r")\spermissions\son\sthe\srepo.
-D 2017-11-27T00:13:34.196
+C Omit\squery\sparameters\sfrom\sthe\s/timeline\sview\sof\ssearch\sresults.\s\sUse\sthe\ndefaults.
+D 2017-11-27T11:26:49.725
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -492,7 +492,7 @@ F src/regexp.c 11ed4c905c2e471efe9c1e9c4650004ad91d6ebb
 F src/report.c ee53ffbf76230126e2f91511b70d9f72a97d0a650e4c91e6d43018ab3069927a
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
-F src/search.c ce4fbba682e7b32f8be156b698f6dc8ad1b7d232d8ccdea5fd96c2fc3b79f828
+F src/search.c c2f1a8090ec02fb988b2ef328c08cb22f40defd6531c87a33f2cc902514b0ab2
 F src/security_audit.c 7258617b28df652f0b9c12f304dd54c8345c50f5a6ce0c24f59911a6fb20adc0
 F src/setup.c acf2dda454dd0afae26e1af37e35e459aafad6b1cfd4e9490e7de4427fb2bf34
 F src/sha1.c 04efd231424be45a281bdb50def7fce94625bd45b53d3c96b89e8de31f0305be
@@ -793,7 +793,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d1aa1e6275c21184518fb09547acdfb6a8897f17bd111504e2ef1ebc7f31ad4c
-R c449b1721e5453d6b95585b62f90fd1f
+P 255adb04feb5f4ad44737f9bdd8cc13ff715214bd7ee808c7f914360fed1e0fa
+R f85d324279d8b7a593ee8fe7c9d23d50
 U drh
-Z ba1f342012a9caa3e1e5be527478a5c0
+Z d19fc2953646d6d7241dcef1a14b5c52

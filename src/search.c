@@ -752,7 +752,7 @@ static void search_fullscan(
       ")"
       "INSERT INTO x(label,url,score,id,date,snip)"
       "  SELECT printf('Check-in [%%.10s] on %%s',uuid,datetime(mtime)),"
-      "         printf('/timeline?c=%%s&n=8&y=ci',uuid),"
+      "         printf('/timeline?c=%%s',uuid),"
       "         search_score(),"
       "         'c'||rid,"
       "         datetime(mtime),"
