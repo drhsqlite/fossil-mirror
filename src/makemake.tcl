@@ -47,6 +47,7 @@ set src {
   comformat
   configure
   content
+  cookies
   db
   delta
   deltacmd

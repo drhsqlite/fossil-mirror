@@ -1,5 +1,5 @@
-C Remove\san\sunused\sfunction\sfrom\sthe\stimeline\slogic.
-D 2017-11-27T17:50:33.528
+C The\sintent\sof\sthis\sbranch\sis\sto\srefactor\s/timeline\scomment\srendering,\sgiving\nthe\suser\smultiple\sdisplay\soptions,\sand\smaking\sthe\soption\ssticky\sin\sthe\ssense\nthat\sthe\soption\sselected\smost\srecently\sbecomes\sthe\snew\sdefault.\s\sThis\nis\san\sincremental\scheck-in\scontaining\sinfrastructure\scookie-handling\slogic.
+D 2017-11-28T15:42:09.281
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -408,7 +408,8 @@ F src/codecheck1.c cbf9594fb2802bad4603f877bc9aba236811355b049dc9f4c09a51f416953
 F src/comformat.c ba3c29ae04dcea342f6799fca0dd0ed00581262a2912b78faabe4608dd92935e
 F src/config.h d6b66b9cf87be799bc160e9afa0db82a5d34f30b4a73691a391031c37b4c0535
 F src/configure.c f0f26667cd4e78223529d4ed47be1f2fcfb023f5c7c5af4ad032f3ebe0a14bee
-F src/content.c db74a6118fb9cfb07b9b7fbb35e4085550769a5281dddfea00e908b1dad4a427
+F src/content.c 63ae95525d9fd3708d3f9c87d3fe493640647751cdf619538db0353299517d49
+F src/cookies.c ac68125bb8ca413530ef5456a55713d48d09e99156e5ed4f2ceecad4e7603fe3
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
@@ -462,10 +463,10 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c e79e6492901382bc825079f86b3d77e2b564d8d2e70454d40ab7967695c817c2
 F src/lookslike.c 3ac38fafa91d274cdfbdb5d2a9803e51f5132fb7
 F src/main.c 24bd6b806af1782c0ff889e2ea7322e495fc14ec175b23768d294400a37d1d63
-F src/main.mk fd66ce269191ff36d4022b1f92015e61fc0642f265b7711ca397f1414850847e
+F src/main.mk 664b1ef104adc15c5b81c439c6c6ddccbf68f0d037436e4269f438c0c190c5b3
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl e371d97bdd68aefba5199a162ab5007ec73f5ec366fff0430d3b1d0da69b232b
+F src/makemake.tcl 840a6adc74852cd92d8f4e755cb6658750e1ab270165bef293ffb6a749b0f98e
 F src/manifest.c 1c857522c5247f926c1ac579a6b2f2e3261ef5bdd51376e26ce5c7943bd4b4f3
 F src/markdown.c 2cb7007279db7ad8e16f8c822d5ba27f59b4af2dcc0cd4ba87cce3e4303d5969
 F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb98d
@@ -487,7 +488,7 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c df915ce19af9969f6a18e8a481223179c1a3c04a6ebddf9c9b654c35da6336d4
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f698cae20e3740796f6ffa65f69324f27f19d96c
-F src/rebuild.c d3e66847692504318c7f5574182ad4c322b017493047af2c28a8b117635c58d0
+F src/rebuild.c 69f593e8ada9093fc0ebc6fc2e8b46c26d3f11bad3df80b8f91169624bf255f3
 F src/regexp.c 11ed4c905c2e471efe9c1e9c4650004ad91d6ebb
 F src/report.c ee53ffbf76230126e2f91511b70d9f72a97d0a650e4c91e6d43018ab3069927a
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
@@ -666,10 +667,10 @@ F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F win/Makefile.PellesCGMake 26ad3513db82de574bd9d392443d1e717795409a55fedf37f227198778eeaf0c
-F win/Makefile.dmc 32b2b3e529f84c3e79c1615e3406ff3ca341e16c8c9a6f3a2c78f266f4594683
-F win/Makefile.mingw 9505cec78e0e54be3b0d0ff4b52359288233383e9eaee8c087816e0863cdb140
+F win/Makefile.dmc e7017cfb53103ce0a4e9e05ac518be77e122004963d2e98bdf679688a5c04c3c
+F win/Makefile.mingw 241ad02ce04416acca2011e5a9f21a439dcbd8fb38b1ec221df1fa7bd6a43c95
 F win/Makefile.mingw.mistachkin 775928be637d3b8db54a1adc490184f638d8f09790f097e740769c2fdef55e7c
-F win/Makefile.msc dbf79ddf927b2b36753f69bb0a6dfa04a22b318ec5a9de39df74affc52e026ab
+F win/Makefile.msc fc53dc9f52309d94d6804279c4feba7469a7114b5be9fb6aae1224d0c8d5705f
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -793,7 +794,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eed877c0a50e02326a303af7770342ff357c8f6fecd2173809377f09eb22b055
-R 1ad01b3f8e9f2c6a897ab478360ac3de
+P 50376e4b3693ce858cdb6388903bae8054d406a1e1150fe73ab0a743ac879b25
+R 1727259a3da781b8d14cb5e673996657
+T *branch * sticky-timeline-style
+T *sym-sticky-timeline-style *
+T -sym-trunk *
 U drh
-Z a4684032e5e048cfc7e6f54c57a01aa5
+Z e178994711be5ffd0d14355941051761
