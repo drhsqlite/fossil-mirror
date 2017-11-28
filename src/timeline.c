@@ -108,6 +108,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_COMPACT  0x1000  /* Use the "compact" view style */
 #define TIMELINE_DETAILED 0x2000  /* Use the "detailed" view style */
 #define TIMELINE_NORMAL   0x4000  /* Use the "normal" view style */
+#define TIMELINE_COLUMNAR 0x8000  /* Use the "columns view style */
 #endif
 
 /*
@@ -254,12 +255,6 @@ void www_print_timeline(
   int dateFormat = 0;         /* 0: HH:MM (default) */
   int bCommentGitStyle = 0;   /* Only show comments through first blank line */
   const char *zTdClass;
-  int bHashBeforeComment = 0; /* Show hash before the comment */
-  int bHashAfterComment = 0;  /* Show hash after the comment */
-  int bHashInDetail = 0;      /* Show the hash inside the detail section */
-  int bShowDetail;            /* Show the detail section */
-  int bSeparateDetail;        /* Detail in a separate column */
-  int eCommentFormat;         /* value for timeline-comment-format */
   const char *zDateFmt;
   int iTableId = timeline_tableid();
 
@@ -441,7 +436,8 @@ void www_print_timeline(
     }
     @</td>
     if( zBgClr && zBgClr[0] && rid!=selectedRid ){
-      @ <td class="timelineTableCell %s(zTdClass)" style="background-color: %h(zBgClr);">
+      @ <td class="timelineTableCell %s(zTdClass)" \
+      @  style="background-color: %h(zBgClr);">
     }else{
       @ <td class="timelineTableCell %s(zTdClass)">
     }
@@ -461,34 +457,6 @@ void www_print_timeline(
       }
       db_reset(&bisectQuery);
     }
-#if 0
-    if( bHashBeforeComment ){
-      if( zType[0]=='c' ){
-        hyperlink_to_uuid(zUuid);
-        if( isLeaf ){
-          if( db_exists("SELECT 1 FROM tagxref"
-                        " WHERE rid=%d AND tagid=%d AND tagtype>0",
-                        rid, TAG_CLOSED) ){
-            @ <span class="timelineLeaf">Closed-Leaf:</span>
-          }else{
-            @ <span class="timelineLeaf">Leaf:</span>
-          }
-        }
-      }else if( zType[0]=='e' && tagid ){
-        hyperlink_to_event_tagid(tagid<0?-tagid:tagid);
-      }else if( (tmFlags & TIMELINE_ARTID)!=0 ){
-        hyperlink_to_uuid(zUuid);
-      }
-      if( tmFlags & TIMELINE_SHOWRID ){
-        int srcId = delta_source_rid(rid);
-        if( srcId ){
-          @ (%d(rid)&larr;%d(srcId))
-        }else{
-          @ (%d(rid))
-        }
-      }
-    }
-#endif
     drawDetailEllipsis = (tmFlags & TIMELINE_COMPACT)!=0;
     db_column_blob(pQuery, commentColumn, &comment);
     if( zType[0]!='c' ){
@@ -528,36 +496,6 @@ void www_print_timeline(
     }
     blob_reset(&comment);
 
-#if 0
-    if( bHashAfterComment ){
-      if( zType[0]=='c' ){
-        hyperlink_to_uuid(zUuid);
-        if( isLeaf ){
-          if( db_exists("SELECT 1 FROM tagxref"
-                        " WHERE rid=%d AND tagid=%d AND tagtype>0",
-                        rid, TAG_CLOSED) ){
-            @ <span class="timelineLeaf">Closed-Leaf</span>
-          }else{
-            @ <span class="timelineLeaf">Leaf</span>
-          }
-        }
-      }else if( zType[0]=='e' && tagid ){
-        hyperlink_to_event_tagid(tagid<0?-tagid:tagid);
-      }else if( (tmFlags & TIMELINE_ARTID)!=0 ){
-        hyperlink_to_uuid(zUuid);
-      }
-      if( tmFlags & TIMELINE_SHOWRID ){
-        int srcId = delta_source_rid(rid);
-        if( srcId ){
-          @ (%d(rid)&larr;%d(srcId))
-        }else{
-          @ (%d(rid))
-        }
-      }
-      drawDetailEllipsis = 1;
-    }
-#endif
-
     /* Generate extra information and hyperlinks to follow the comment.
     ** Example:  "(check-in: [abcdefg], user: drh, tags: trunk)"
     */
@@ -565,7 +503,7 @@ void www_print_timeline(
       @ <span class='timelineEllipsis anticlutter' id='ellipsis-%d(rid)' \
       @  onclick='toggleDetail(%d(rid))'>...</span>
     }
-    if( bSeparateDetail ){
+    if( tmFlags & TIMELINE_COLUMNAR ){
       if( zBgClr && zBgClr[0] && rid!=selectedRid ){
         @ <td class="timelineTableCell timelineDetailCell"
         @  style="background-color: %h(zBgClr);">
@@ -574,7 +512,7 @@ void www_print_timeline(
       }
     }
     if( tmFlags & TIMELINE_COMPACT ){
-      cgi_printf("<span class='timelineDetailWrapper clutter' id='detail-%d'>", rid);
+      cgi_printf("<span class='timelineDetailWrapper clutter' id='detail-%d'>",rid);
     }else{
       cgi_printf("<span class='timelineDetailWrapper'>");
     }
@@ -584,33 +522,31 @@ void www_print_timeline(
       cgi_printf("<span class='timelineDetail'>");
     }
 
-    if( bHashInDetail ){
-      if( zType[0]=='c' ){
-        if( isLeaf ){
-          if( db_exists("SELECT 1 FROM tagxref"
-                        " WHERE rid=%d AND tagid=%d AND tagtype>0",
-                        rid, TAG_CLOSED) ){
-            @ <span class='timelineLeaf'>Closed-Leaf</span>
-          }else{
-            @ <span class='timelineLeaf'>Leaf</span>
-          }
+    if( zType[0]=='c' ){
+      if( isLeaf ){
+        if( db_exists("SELECT 1 FROM tagxref"
+                      " WHERE rid=%d AND tagid=%d AND tagtype>0",
+                      rid, TAG_CLOSED) ){
+          @ <span class='timelineLeaf'>Closed-Leaf</span>
+        }else{
+          @ <span class='timelineLeaf'>Leaf</span>
         }
-        cgi_printf("check-in: ");
-        hyperlink_to_uuid(zUuid);
-      }else if( zType[0]=='e' && tagid ){
-        cgi_printf("technote: ");
-        hyperlink_to_event_tagid(tagid<0?-tagid:tagid);
-      }else{
-        cgi_printf("artifact: ");
-        hyperlink_to_uuid(zUuid);
       }
+      cgi_printf("check-in:&nbsp;");
+      hyperlink_to_uuid(zUuid);
+    }else if( zType[0]=='e' && tagid ){
+      cgi_printf("technote:&nbsp;");
+      hyperlink_to_event_tagid(tagid<0?-tagid:tagid);
+    }else{
+      cgi_printf("artifact:&nbsp;");
+      hyperlink_to_uuid(zUuid);
     }
 
     if( g.perm.Hyperlink && fossil_strcmp(zDispUser, zThisUser)!=0 ){
       char *zLink = mprintf("%R/timeline?u=%h&c=%t&nd&n=200", zDispUser, zDate);
-      cgi_printf("user: %z%h</a>", href("%z",zLink), zDispUser);
+      cgi_printf("user:&nbsp;%z%h</a>", href("%z",zLink), zDispUser);
     }else{
-      cgi_printf("user: %h", zDispUser);
+      cgi_printf("user:&nbsp;%h", zDispUser);
     }
 
     /* Generate the "tags: TAGLIST" at the end of the comment, together
@@ -636,26 +572,27 @@ void www_print_timeline(
           if( z[i]==0 ) break;
           z += i+2;
         }
-        cgi_printf(" tags: %s", blob_str(&links));
+        cgi_printf(" tags:&nbsp;%s", blob_str(&links));
         blob_reset(&links);
       }else{
-        cgi_printf(" tags: %h", zTagList);
+        cgi_printf(" tags:&nbsp;%h", zTagList);
       }
     }
 
     if( tmFlags & TIMELINE_SHOWRID ){
       int srcId = delta_source_rid(rid);
       if( srcId ){
-        cgi_printf(" id: %d&larr;%d", rid, srcId);
+        cgi_printf(" id:&nbsp;%d&larr;%d", rid, srcId);
       }else{
-        cgi_printf(" id: %d", rid);
+        cgi_printf(" id:&nbsp;%d", rid);
       }
     }
     tag_private_status(rid);
     if( xExtra ){
       xExtra(rid);
     }
-    cgi_printf("</span></span>\n");   /* End timelineDetail and timelineDetailWrapper */
+    /* End timelineDetail and timelineDetailWrapper */
+    cgi_printf("</span></span>\n");
 
     /* Generate the file-change list if requested */
     if( (tmFlags & (TIMELINE_FCHANGES|TIMELINE_FRENAMES))!=0
@@ -1624,7 +1561,7 @@ static const char *tagMatchExpression(
 **    ms=MATCHSTYLE   Set tag match style to EXACT, GLOB, LIKE, REGEXP
 **    u=USER          Only show items associated with USER
 **    y=TYPE          'ci', 'w', 't', 'e', or 'all'.
-**    vs=VIEWSTYLE    c: "compact"  d: "detail"   n: "normal"
+**    ss=VIEWSTYLE    c: "compact"  d: "detail"   n: "normal"  j: "columnar"
 **    ng              No Graph.
 **    nd              Do not highlight the focus check-in
 **    v               Show details of files changed
@@ -1708,11 +1645,12 @@ void page_timeline(void){
      "n", "Normal",
      "c", "Compact",
      "d", "Detailed",
+     "j", "Columnar",
   };
 
   /* Set number of rows to display */
   cookie_parse("fossil_display_settings");
-  cookie_link_parameter("n","tln");
+  cookie_link_parameter("n","n");
   z = P("n");
   if( z==0 ) z = db_get("timeline-default-length",0);
   if( z ){
@@ -1729,9 +1667,9 @@ void page_timeline(void){
     cgi_replace_query_parameter("n","50");
     nEntry = 50;
   }
-  cookie_link_parameter("vs","tlvs");
-  cViewStyle = PD("vs","n")[0];
-  style_submenu_multichoice("vs", 3, azViewStyles, 0);
+  cookie_link_parameter("ss","ss");
+  cViewStyle = PD("ss","n")[0];
+  style_submenu_multichoice("ss", 4, azViewStyles, 0);
   
 
   /* To view the timeline, must have permission to read project data.
@@ -1747,14 +1685,14 @@ void page_timeline(void){
     login_needed(g.anon.Read && g.anon.RdTkt && g.anon.RdWiki);
     return;
   }
-  cookie_read_parameter("y","tly");
+  cookie_read_parameter("y","y");
   zType = P("y");
   if( zType==0 ){
     zType = g.perm.Read ? "ci" : "all";
     cgi_set_parameter("y", zType);
   }
   if( zType[0]=='a' || zType[0]=='c' ){
-    cookie_write_parameter("y","tly");
+    cookie_write_parameter("y","y");
   }
   cookie_render();
   url_initialize(&url, "timeline");
@@ -1807,9 +1745,10 @@ void page_timeline(void){
     zCirca = 0;
   }
   switch( cViewStyle ){
-    case 'n':  tmFlags |= TIMELINE_NORMAL;  break;
+    case 'n':  tmFlags |= TIMELINE_NORMAL;   break;
     case 'c':  tmFlags |= TIMELINE_COMPACT;  break;
-    case 'd':  tmFlags |= TIMELINE_DETAILED;  break;
+    case 'd':  tmFlags |= TIMELINE_DETAILED; break;
+    case 'j':  tmFlags |= TIMELINE_COLUMNAR; break;
   }    
   if( zType[0]=='a' ){
     tmFlags |= TIMELINE_BRIEF | TIMELINE_GRAPH;
