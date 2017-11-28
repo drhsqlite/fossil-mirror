@@ -118,7 +118,7 @@ static void cookie_readwrite(const char *zQP, const char *zPName, int flags){
   }
   if( (flags & COOKIE_WRITE)!=0
    && i<COOKIE_NPARAM
-   && i==cookies.nParam || strcmp(zQVal, cookies.aParam[i].zPValue)
+   && (i==cookies.nParam || strcmp(zQVal, cookies.aParam[i].zPValue))
   ){
     if( i==cookies.nParam ){
       cookies.aParam[i].zPName = zPName;
@@ -160,11 +160,32 @@ void cookie_render(void){
     int i;
     blob_init(&new, 0, 0);
     for(i=0;i<cookies.nParam;i++){
+      if( i>0 ) blob_append(&new, "&", 1);
       blob_appendf(&new, "%s=%t",
           cookies.aParam[i].zPName, cookies.aParam[i].zPValue);
     }
     cgi_set_cookie(cookies.zCookieName, blob_str(&new), 0, 31536000);
   }
-  fossil_free( cookies.zCookieValue );
-  memset(&cookies, 0, sizeof(cookies));
+  cookies.zCookieName = 0;
+}
+
+/*
+** WEBPAGE:  cookies
+**
+** Show the current display settings contained in the
+** "fossil_display_settings" cookie.
+*/
+void cookie_page(void){
+  int i;
+  cookie_parse("fossil_display_settings");
+  style_header("User Preference Cookie Values");
+  @ <p>The following are user preference settings held in the
+  @ "fossil_display_settings" cookie.
+  @ <ul>
+  @ <li>Raw cookie value: "%h(PD("fossil_display_settings",""))"
+  for(i=0; i<cookies.nParam; i++){
+    @ <li>%h(cookies.aParam[i].zPName): "%h(cookies.aParam[i].zPValue)"
+  }
+  @ </ul>
+  style_footer();
 }

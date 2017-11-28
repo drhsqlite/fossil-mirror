@@ -1,5 +1,5 @@
-C The\sintent\sof\sthis\sbranch\sis\sto\srefactor\s/timeline\scomment\srendering,\sgiving\nthe\suser\smultiple\sdisplay\soptions,\sand\smaking\sthe\soption\ssticky\sin\sthe\ssense\nthat\sthe\soption\sselected\smost\srecently\sbecomes\sthe\snew\sdefault.\s\sThis\nis\san\sincremental\scheck-in\scontaining\sinfrastructure\scookie-handling\slogic.
-D 2017-11-28T15:42:09.281
+C Add\sthe\s/cookies\spage\sfor\sdebugging.\s\s(Maybe\sthat\spage\scan\sbe\sexpanded\sto\nallow\susers\sto\sedit\stheir\spreferences?)\s\sUse\ssticky\svalues\sfor\sthe\s"n="\nand\s"y="\squery\sparameters\son\stimelines.
+D 2017-11-28T16:42:43.024
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -409,7 +409,7 @@ F src/comformat.c ba3c29ae04dcea342f6799fca0dd0ed00581262a2912b78faabe4608dd9293
 F src/config.h d6b66b9cf87be799bc160e9afa0db82a5d34f30b4a73691a391031c37b4c0535
 F src/configure.c f0f26667cd4e78223529d4ed47be1f2fcfb023f5c7c5af4ad032f3ebe0a14bee
 F src/content.c 63ae95525d9fd3708d3f9c87d3fe493640647751cdf619538db0353299517d49
-F src/cookies.c ac68125bb8ca413530ef5456a55713d48d09e99156e5ed4f2ceecad4e7603fe3
+F src/cookies.c d617ea43073c2ab388988c2588db9a1db1baca6193489ab2e9986a55309cc520
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
@@ -518,7 +518,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c c008c65eee4b5d14a83cb93de2d97c5eb8ffd051794d4bca139cc076161da685
 F src/th_tcl.c 2b70a8da7d7d8009794d7a3565043c8933a6cbfe
-F src/timeline.c 61150dbed7b1c152abf0ce3a3e93b95705bd0388448e2bc04dcf7878251c7bac
+F src/timeline.c 568ec2af6fc3683c2c3fa2674d57399d6a17479a5cd6a3f6a9d3714e7a6889c5
 F src/tkt.c e5815264d68d48a28983230026ceaa45b5190c34b092a8fc920ce832a6d2bf6e
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 33ff866f8f3618e5ef826ec5d84168de765e61862f10f7642592a30d315b2c1e
@@ -794,10 +794,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 50376e4b3693ce858cdb6388903bae8054d406a1e1150fe73ab0a743ac879b25
-R 1727259a3da781b8d14cb5e673996657
-T *branch * sticky-timeline-style
-T *sym-sticky-timeline-style *
-T -sym-trunk *
+P bc8947d1dc097cdb7d8c51784d002c226289a78aaf19d23f2c083782ce3d669e
+R abbc48485655b8a1e302288434b460f6
 U drh
-Z e178994711be5ffd0d14355941051761
+Z 121cc3a7c4744bf6ad86d62f8e1f8741

@@ -1703,6 +1703,8 @@ void page_timeline(void){
   int disableY = 0;                   /* Disable type selector on submenu */
 
   /* Set number of rows to display */
+  cookie_parse("fossil_display_settings");
+  cookie_link_parameter("n","tln");
   z = P("n");
   if( z==0 ) z = db_get("timeline-default-length",0);
   if( z ){
@@ -1733,11 +1735,16 @@ void page_timeline(void){
     login_needed(g.anon.Read && g.anon.RdTkt && g.anon.RdWiki);
     return;
   }
+  cookie_read_parameter("y","tly");
   zType = P("y");
   if( zType==0 ){
     zType = g.perm.Read ? "ci" : "all";
     cgi_set_parameter("y", zType);
   }
+  if( zType[0]=='a' || zType[0]=='c' ){
+    cookie_write_parameter("y","tly");
+  }
+  cookie_render();
   url_initialize(&url, "timeline");
   cgi_query_parameters_to_url(&url);
 
