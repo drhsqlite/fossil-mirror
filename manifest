@@ -1,5 +1,5 @@
-C Change\sthe\sstyle\sselector\squery\sparameter\son\s/timeline\sto\s"ss".\s\sOther\scode\ncleanup.\s\sThe\snew\sstyle\sselector\sis\sworking,\sbut\sneeds\sdefault\sCSS.
-D 2017-11-28T21:43:59.198
+C Improvements\sto\shandling\sof\sthe\scookie\sfor\s"sticky"\sdisplay\ssettings.
+D 2017-11-28T22:16:32.175
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -409,7 +409,7 @@ F src/comformat.c ba3c29ae04dcea342f6799fca0dd0ed00581262a2912b78faabe4608dd9293
 F src/config.h d6b66b9cf87be799bc160e9afa0db82a5d34f30b4a73691a391031c37b4c0535
 F src/configure.c f0f26667cd4e78223529d4ed47be1f2fcfb023f5c7c5af4ad032f3ebe0a14bee
 F src/content.c 63ae95525d9fd3708d3f9c87d3fe493640647751cdf619538db0353299517d49
-F src/cookies.c d617ea43073c2ab388988c2588db9a1db1baca6193489ab2e9986a55309cc520
+F src/cookies.c 4026e24fa22ce4e18a70d1bf08a9a9b8c00dc46ec37e45186084a72db84fd906
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
@@ -518,7 +518,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c c008c65eee4b5d14a83cb93de2d97c5eb8ffd051794d4bca139cc076161da685
 F src/th_tcl.c 2b70a8da7d7d8009794d7a3565043c8933a6cbfe
-F src/timeline.c b55f1cf08b70310c622c792342ddc8fead4ebd9d1108197aa03d0f7530ae0496
+F src/timeline.c 32553fcea889fe6622eab1b0b77292a8b0d0cb6fbc5d653b704b274e0a65383d
 F src/tkt.c e5815264d68d48a28983230026ceaa45b5190c34b092a8fc920ce832a6d2bf6e
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 33ff866f8f3618e5ef826ec5d84168de765e61862f10f7642592a30d315b2c1e
@@ -794,7 +794,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fdf071e1819d01caf7c631970eedc994009e82a22cc864e809bc497db09248fa
-R e2719a65fb536d5587957b49ff78e4c4
+P f64fa4f1ae38fe97fe47cada2c1b8aeaae43cfdbc5e41af889160c70b862b0fb
+R 9ba4fb1bfcd759c51338daa041cf566a
 U drh
-Z 250bedbfba8f287d65c1706195ce3a4d
+Z 96e884e1992b61f0c33cbe6f5e7061f5

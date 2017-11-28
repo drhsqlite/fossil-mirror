@@ -56,6 +56,11 @@
 #include <assert.h>
 #include <string.h>
 
+#if INTERFACE
+/* the standard name of the display settings cookie for fossil */
+# define DISPLAY_SETTINGS_COOKIE    "fossil_display_settings"
+#endif
+
 
 /*
 ** State information private to this module
@@ -107,15 +112,21 @@ void cookie_parse(const char *zCookieName){
 
 #define COOKIE_READ  1
 #define COOKIE_WRITE 2
-static void cookie_readwrite(const char *zQP, const char *zPName, int flags){
+static void cookie_readwrite(
+  const char *zQP,        /* Name of the query parameter */
+  const char *zPName,     /* Name of the cooking setting */
+  const char *zDflt,      /* Default value for the query parameter */
+  int flags               /* READ or WRITE or both */
+){
   const char *zQVal = P(zQP);
   int i;
   assert( cookies.zCookieName!=0 );
   for(i=0; i<cookies.nParam && strcmp(zPName,cookies.aParam[i].zPName); i++){}
-  if( (flags & COOKIE_READ)!=0 && zQVal==0 && i<cookies.nParam ){
+  if( zQVal==0 && (flags & COOKIE_READ)!=0 && i<cookies.nParam ){
     cgi_set_parameter_nocopy(zQP, cookies.aParam[i].zPValue, 1);
     return;
   }
+  if( zQVal==0 ) zQVal = zDflt;
   if( (flags & COOKIE_WRITE)!=0
    && i<COOKIE_NPARAM
    && (i==cookies.nParam || strcmp(zQVal, cookies.aParam[i].zPValue))
@@ -133,21 +144,29 @@ static void cookie_readwrite(const char *zQP, const char *zPName, int flags){
 ** value from the user preferences cookie
 */
 void cookie_read_parameter(const char *zQP, const char *zPName){
-  cookie_readwrite(zQP, zPName, COOKIE_READ);
+  cookie_readwrite(zQP, zPName, 0, COOKIE_READ);
 }
 
 /* Update the zPName value of the user preference cookie to match
 ** the value of query parameter zQP.
 */
-void cookie_write_parameter(const char *zQP, const char *zPName){
-  cookie_readwrite(zQP, zPName, COOKIE_WRITE);
+void cookie_write_parameter(
+  const char *zQP,
+  const char *zPName,
+  const char *zDflt
+){
+  cookie_readwrite(zQP, zPName, zDflt, COOKIE_WRITE);
 }
 
 /* Use the zPName user preference value as a default for zQP and record
 ** any changes to the zQP value back into the cookie.
 */
-void cookie_link_parameter(const char *zQP, const char *zPName){
-  cookie_readwrite(zQP, zPName, COOKIE_READ|COOKIE_WRITE);
+void cookie_link_parameter(
+  const char *zQP,       /* The query parameter */
+  const char *zPName,    /* The name of the cookie value */
+  const char *zDflt      /* Default value for the parameter */
+){
+  cookie_readwrite(zQP, zPName, zDflt, COOKIE_READ|COOKIE_WRITE);
 }
 
 /* Update the user preferences cookie, if necessary, and shut down this
@@ -177,8 +196,15 @@ void cookie_render(void){
 */
 void cookie_page(void){
   int i;
-  cookie_parse("fossil_display_settings");
+  if( PB("clear") ){
+    cgi_set_cookie(DISPLAY_SETTINGS_COOKIE, "", 0, 1);
+    cgi_replace_parameter(DISPLAY_SETTINGS_COOKIE, "");
+  }
+  cookie_parse(DISPLAY_SETTINGS_COOKIE);
   style_header("User Preference Cookie Values");
+  if( cookies.nParam ){
+    style_submenu_element("Clear", "%R/cookies?clear");
+  }
   @ <p>The following are user preference settings held in the
   @ "fossil_display_settings" cookie.
   @ <ul>

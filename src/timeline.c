@@ -1649,8 +1649,8 @@ void page_timeline(void){
   };
 
   /* Set number of rows to display */
-  cookie_parse("fossil_display_settings");
-  cookie_link_parameter("n","n");
+  cookie_parse(DISPLAY_SETTINGS_COOKIE);
+  cookie_read_parameter("n","n");
   z = P("n");
   if( z==0 ) z = db_get("timeline-default-length",0);
   if( z ){
@@ -1667,7 +1667,8 @@ void page_timeline(void){
     cgi_replace_query_parameter("n","50");
     nEntry = 50;
   }
-  cookie_link_parameter("ss","ss");
+  cookie_write_parameter("n","n",0);
+  cookie_link_parameter("ss","ss","n");
   cViewStyle = PD("ss","n")[0];
   style_submenu_multichoice("ss", 4, azViewStyles, 0);
   
@@ -1692,7 +1693,7 @@ void page_timeline(void){
     cgi_set_parameter("y", zType);
   }
   if( zType[0]=='a' || zType[0]=='c' ){
-    cookie_write_parameter("y","y");
+    cookie_write_parameter("y","y",zType);
   }
   cookie_render();
   url_initialize(&url, "timeline");
