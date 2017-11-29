@@ -80,7 +80,7 @@ static struct {
 } cookies;
 
 /* Initialize this module by parsing the content of the cookie named
-** by zCookieName
+** by DISPLAY_SETTINGS_COOKIE
 */
 void cookie_parse(void){
   char *z;

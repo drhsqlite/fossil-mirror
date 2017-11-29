@@ -1,5 +1,5 @@
-C The\s/timeline\ssupports\s4\ssticky\sviewing\smodes:\sModern,\sVerbose,\sCompact,\nand\sColumnar.\s\sThe\snew\scookie.c\smodule\ssupports\ssticky\suser\sviewing\npreferences.
-D 2017-11-29T14:05:43.037
+C tiny\sdoc\stypo\sfix.
+D 2017-11-29T14:48:55.533
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -409,7 +409,7 @@ F src/comformat.c ba3c29ae04dcea342f6799fca0dd0ed00581262a2912b78faabe4608dd9293
 F src/config.h d6b66b9cf87be799bc160e9afa0db82a5d34f30b4a73691a391031c37b4c0535
 F src/configure.c f0f26667cd4e78223529d4ed47be1f2fcfb023f5c7c5af4ad032f3ebe0a14bee
 F src/content.c 63ae95525d9fd3708d3f9c87d3fe493640647751cdf619538db0353299517d49
-F src/cookies.c 2413976d7036ebdd1496c3c48c43b7e910601fa7df3fb48b7b8a3108d8d8f420
+F src/cookies.c 63e81a4d7741a9419565f50e4e508701db758d1ee41019136e1948edc06142f1
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
@@ -794,8 +794,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 50376e4b3693ce858cdb6388903bae8054d406a1e1150fe73ab0a743ac879b25 6314b4ed94380d0e8982206808d0916a971db515061bf09a012fcbd489f2a491
-R f9b118bd6aa9490d08c90ecddc2ad0af
-T +closed 6314b4ed94380d0e8982206808d0916a971db515061bf09a012fcbd489f2a491
-U drh
-Z d85ee2b5807a59c78ae5553c5cbb355e
+P c94f6085489effe641aa8dc32bed76d4af55f61e90ba7d4374edcc0c193636a4
+R dc4f6109960a36d4ecc54f5fbc547e28
+U stephan
+Z d07eef391ef079274b946c281663994c
