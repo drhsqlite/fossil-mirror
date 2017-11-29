@@ -165,6 +165,12 @@ void rebuild_schema_update_2_0(void){
     }
     fossil_free(z);
   }
+  db_multi_exec(
+    "CREATE VIEW IF NOT EXISTS "
+    "  repository.artifact(rid,rcvid,size,atype,srcid,hash,content) AS "
+    "    SELECT blob.rid,rcvid,size,1,srcid,uuid,content"
+    "      FROM blob LEFT JOIN delta ON (blob.rid=delta.rid);"
+  );
 }
 
 /*

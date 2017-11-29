@@ -371,6 +371,7 @@ SRC   = add_.c \
         comformat_.c \
         configure_.c \
         content_.c \
+        cookies_.c \
         db_.c \
         delta_.c \
         deltacmd_.c \
@@ -553,6 +554,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\comformat$O \
         $(OX)\configure$O \
         $(OX)\content$O \
+        $(OX)\cookies$O \
         $(OX)\cson_amalgamation$O \
         $(OX)\db$O \
         $(OX)\delta$O \
@@ -740,6 +742,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\comformat.obj >> $@
 	echo $(OX)\configure.obj >> $@
 	echo $(OX)\content.obj >> $@
+	echo $(OX)\cookies.obj >> $@
 	echo $(OX)\cson_amalgamation.obj >> $@
 	echo $(OX)\db.obj >> $@
 	echo $(OX)\delta.obj >> $@
@@ -1079,6 +1082,12 @@ $(OX)\content$O : content_.c content.h
 	$(TCC) /Fo$@ -c content_.c
 
 content_.c : $(SRCDIR)\content.c
+	translate$E $** > $@
+
+$(OX)\cookies$O : cookies_.c cookies.h
+	$(TCC) /Fo$@ -c cookies_.c
+
+cookies_.c : $(SRCDIR)\cookies.c
 	translate$E $** > $@
 
 $(OX)\db$O : db_.c db.h
@@ -1741,6 +1750,7 @@ headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 			comformat_.c:comformat.h \
 			configure_.c:configure.h \
 			content_.c:content.h \
+			cookies_.c:cookies.h \
 			db_.c:db.h \
 			delta_.c:delta.h \
 			deltacmd_.c:deltacmd.h \
