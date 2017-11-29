@@ -779,6 +779,10 @@ const struct strctCssDefaults {
     "The defined element in sideboxes for branches,..",
     @   color: red;
   },
+  { "table.timelineTable",
+    "The table that holds a timeline",
+    @   border-spacing: 0px;
+  },
   { "span.timelineDisabled",
     "The suppressed duplicates lines in timeline, ..",
     @   font-style: italic;
@@ -796,6 +800,11 @@ const struct strctCssDefaults {
     @   border: 2px solid lightgray;
     @   background-color: #ffc;
     @   box-shadow: 4px 4px 2px rgba(0, 0, 0, 0.5);
+  },
+  { "tr.timelineSelected td",
+    "Cells within a selected row of a timeline",
+    @   border-width: 0;
+    @   border-radius: 0;
   },
   { "tr.timelineSpacer",
     "An extra row inserted to give vertical space between two rows",
