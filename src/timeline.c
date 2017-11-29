@@ -107,8 +107,9 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_BISECT   0x0800  /* Show supplimental bisect information */
 #define TIMELINE_COMPACT  0x1000  /* Use the "compact" view style */
 #define TIMELINE_VERBOSE  0x2000  /* Use the "detailed" view style */
-#define TIMELINE_MODERN   0x4000  /* Use the "normal" view style */
+#define TIMELINE_MODERN   0x4000  /* Use the "modern" view style */
 #define TIMELINE_COLUMNAR 0x8000  /* Use the "columns view style */
+#define TIMELINE_VIEWS    0xf000  /* Mask for all of the view styles */
 #endif
 
 /*
@@ -265,6 +266,9 @@ void www_print_timeline(
   mxWikiLen = db_get_int("timeline-max-comment", 0);
   dateFormat = db_get_int("timeline-date-format", 0);
   bCommentGitStyle = db_get_int("timeline-truncate-at-blank", 0);
+  if( (tmFlags & TIMELINE_VIEWS)==0 ){
+    tmFlags |= timeline_ss_cookie();
+  }
   if( tmFlags & TIMELINE_COLUMNAR ){
     zStyle = "Columnar";
   }else if( tmFlags & TIMELINE_COMPACT ){
@@ -1328,6 +1332,20 @@ static void timeline_y_submenu(int isDisabled){
 }
 
 /*
+** Convert the current "ss" display preferences cookie into an appropriate TIMELINE_* flag
+*/
+int timeline_ss_cookie(void){
+  int tmFlags;
+  switch( cookie_value("ss","m")[0] ){
+    case 'c':  tmFlags = TIMELINE_COMPACT;  break;
+    case 'v':  tmFlags = TIMELINE_VERBOSE;  break;
+    case 'j':  tmFlags = TIMELINE_COLUMNAR; break;
+    default:   tmFlags = TIMELINE_MODERN;   break;
+  }    
+  return tmFlags;
+}
+
+/*
 ** Add the select/option box to the timeline submenu that is used to
 ** set the ss= parameter that determines the viewing mode.
 **
@@ -1340,16 +1358,9 @@ int timeline_ss_submenu(void){
      "v", "Verbose View",
      "j", "Columnar View",
   };
-  int tmFlags;
   cookie_link_parameter("ss","ss","m");
   style_submenu_multichoice("ss", 4, azViewStyles, 0);
-  switch( PD("ss","m")[0] ){
-    case 'c':  tmFlags = TIMELINE_COMPACT;  break;
-    case 'v':  tmFlags = TIMELINE_VERBOSE;  break;
-    case 'j':  tmFlags = TIMELINE_COLUMNAR; break;
-    default:   tmFlags = TIMELINE_MODERN;   break;
-  }    
-  return tmFlags;
+  return timeline_ss_cookie();
 }
 
 /*
@@ -1694,7 +1705,6 @@ void page_timeline(void){
   int disableY = 0;                   /* Disable type selector on submenu */
 
   /* Set number of rows to display */
-  cookie_parse(DISPLAY_SETTINGS_COOKIE);
   cookie_read_parameter("n","n");
   z = P("n");
   if( z==0 ) z = db_get("timeline-default-length",0);

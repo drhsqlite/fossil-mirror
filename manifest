@@ -1,5 +1,5 @@
-C Add\sthe\s"View"\sselector\sto\sthe\s/finfo\spage.
-D 2017-11-29T13:25:34.035
+C All\stimelines\suse\sthe\s"ss"\sdisplay\spreferences\scookie.
+D 2017-11-29T14:02:01.055
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -409,7 +409,7 @@ F src/comformat.c ba3c29ae04dcea342f6799fca0dd0ed00581262a2912b78faabe4608dd9293
 F src/config.h d6b66b9cf87be799bc160e9afa0db82a5d34f30b4a73691a391031c37b4c0535
 F src/configure.c f0f26667cd4e78223529d4ed47be1f2fcfb023f5c7c5af4ad032f3ebe0a14bee
 F src/content.c 63ae95525d9fd3708d3f9c87d3fe493640647751cdf619538db0353299517d49
-F src/cookies.c ebd735c1f5656ba0c23a60312fd4fd8375b6f1d97483ee628b9a72c9b622ec6b
+F src/cookies.c 2413976d7036ebdd1496c3c48c43b7e910601fa7df3fb48b7b8a3108d8d8f420
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
@@ -426,7 +426,7 @@ F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c e0412afa4ac1895b73d1f49e5756be51aebfdf4f46379f7746b150ab084738e0
 F src/export.c 3e09dfda9d07b44c463d656dbc09f6adfe686d6d80ad55282a1f06b9216934f2
 F src/file.c 8e7a44e448f3530175863689aa354c1b77d7d0ff08006e610d571518c0a47b18
-F src/finfo.c 8d58eeffc15ff132e6d5efd0781f51f35c784a0da94b4eb41d47b3f9114a8cfa
+F src/finfo.c 04e5d37d0b3fc9e24e6f72c31081d3e09433e8f8e08086e423fefb23da988adc
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c c774c78b274375f42653c71d0b6c1062695bb4da
@@ -518,7 +518,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c c008c65eee4b5d14a83cb93de2d97c5eb8ffd051794d4bca139cc076161da685
 F src/th_tcl.c 2b70a8da7d7d8009794d7a3565043c8933a6cbfe
-F src/timeline.c 50dfe05ee30c3381abeb6e0f0252bb07e44b7e40079911e9982223b32b8938ef
+F src/timeline.c 85c220c544bdb565acf4c0e74df2370a10b2a69ee7e70533e2e0451e52f2d7df
 F src/tkt.c e5815264d68d48a28983230026ceaa45b5190c34b092a8fc920ce832a6d2bf6e
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 33ff866f8f3618e5ef826ec5d84168de765e61862f10f7642592a30d315b2c1e
@@ -794,7 +794,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2a8598f9879d31476d89881345bd4bb5a8f8a769b4cfffc0d434dcca395b5fc6
-R d7dec678922bb41e6db345f10781778f
+P e36f693f7afe35593caec99de8abe5869a25d1f582c627ef297e7536795f09e6
+R f9b118bd6aa9490d08c90ecddc2ad0af
 U drh
-Z 528ec51a9aa8efc340fbac77e61cedfa
+Z 5f9bc4dc8b8d1ecc7285cfb78ff5ad49

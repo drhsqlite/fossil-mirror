@@ -327,7 +327,6 @@ void finfo_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("File History");
   login_anonymous_available();
-  cookie_parse(DISPLAY_SETTINGS_COOKIE);
   tmFlags = timeline_ss_submenu();
   if( tmFlags & TIMELINE_COLUMNAR ){
     zStyle = "Columnar";

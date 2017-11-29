@@ -18,12 +18,9 @@
 ** This file contains code used to manage a cookie that stores user-specific
 ** display preferences for the web interface.
 **
-** cookie_parse(zNameOfCookie);
+** cookie_parse(void);
 **
-**    Identify a cookie that will be used to remember display choices
-**    made by the user, so that those same choices are selected automatically
-**    the next time the page is presented.  This routine must be invoked
-**    first, to initialize this module.
+**    Read and parse the display preferences cookie.
 **
 ** cookie_read_parameter(zQP, zPName);
 **
@@ -31,7 +28,7 @@
 **    the parsed cookie, then initialize zQP to hold the same value
 **    as the zPName element in the parsed cookie.
 **
-** cookie_write_parameter(zQP, zPName);
+** cookie_write_parameter(zQP, zPName, zDefault);
 **
 **    If query parameter zQP exists and if it has a different value from
 **    the zPName parameter in the parsed cookie, then replace the value of
@@ -39,7 +36,7 @@
 **    exist, then zPName is created.  If zQP does not exist or if it has
 **    the same value as zPName, then this routine is a no-op.
 **
-** cookie_link_parameter(zQP, zPName);
+** cookie_link_parameter(zQP, zPName, zDefault);
 **
 **    This does both cookie_read_parameter() and cookie_write_parameter()
 **    all at once.
@@ -51,6 +48,11 @@
 **    new cookie value to be included in the HTTP header for the current
 **    web page.  This routine is a destructor for this module and should
 **    be called once.
+**
+** char *cookie_value(zPName, zDefault);
+**
+**    Look up the value of a cookie parameter zPName.  Return zDefault if
+**    there is no display preferences cookie or if zPName does not exist.
 */
 #include "cookies.h"
 #include <assert.h>
@@ -67,9 +69,9 @@
 */
 #define COOKIE_NPARAM  10
 static struct {
-  const char *zCookieName;    /* name of the user preferences cookie */
   char *zCookieValue;         /* Value of the user preferences cookie */
   int bChanged;               /* True if any value has changed */
+  int bIsInit;                /* True after initialization */
   int nParam;                 /* Number of parameters in the cookie */
   struct {
     const char *zPName;         /* Name of a parameter */
@@ -80,13 +82,13 @@ static struct {
 /* Initialize this module by parsing the content of the cookie named
 ** by zCookieName
 */
-void cookie_parse(const char *zCookieName){
+void cookie_parse(void){
   char *z;
-  assert( cookies.zCookieName==0 );
-  cookies.zCookieName = zCookieName;
-  z = (char*)P(zCookieName);
+  if( cookies.bIsInit ) return;
+  z = (char*)P(DISPLAY_SETTINGS_COOKIE);
   if( z==0 ) z = "";
   cookies.zCookieValue = z = mprintf("%s", z);
+  cookies.bIsInit = 1;
   while( cookies.nParam<COOKIE_NPARAM ){
     while( fossil_isspace(z[0]) ) z++;
     if( z[0]==0 ) break;
@@ -120,7 +122,7 @@ static void cookie_readwrite(
 ){
   const char *zQVal = P(zQP);
   int i;
-  assert( cookies.zCookieName!=0 );
+  cookie_parse();
   for(i=0; i<cookies.nParam && strcmp(zPName,cookies.aParam[i].zPName); i++){}
   if( zQVal==0 && (flags & COOKIE_READ)!=0 && i<cookies.nParam ){
     cgi_set_parameter_nocopy(zQP, cookies.aParam[i].zPValue, 1);
@@ -173,7 +175,6 @@ void cookie_link_parameter(
 ** module
 */
 void cookie_render(void){
-  assert( cookies.zCookieName!=0 );
   if( cookies.bChanged ){
     Blob new;
     int i;
@@ -183,9 +184,19 @@ void cookie_render(void){
       blob_appendf(&new, "%s=%T",
           cookies.aParam[i].zPName, cookies.aParam[i].zPValue);
     }
-    cgi_set_cookie(cookies.zCookieName, blob_str(&new), 0, 31536000);
+    cgi_set_cookie(DISPLAY_SETTINGS_COOKIE, blob_str(&new), 0, 31536000);
   }
-  cookies.zCookieName = 0;
+  cookies.bIsInit = 0;
+}
+
+/* Return the value of a preference cookie.
+*/
+const char *cookie_value(const char *zPName, const char *zDefault){
+  int i;
+  assert( zPName!=0 );
+  cookie_parse();
+  for(i=0; i<cookies.nParam && strcmp(zPName,cookies.aParam[i].zPName); i++){}
+  return i<cookies.nParam ? cookies.aParam[i].zPValue : zDefault;
 }
 
 /*
@@ -200,7 +211,7 @@ void cookie_page(void){
     cgi_set_cookie(DISPLAY_SETTINGS_COOKIE, "", 0, 1);
     cgi_replace_parameter(DISPLAY_SETTINGS_COOKIE, "");
   }
-  cookie_parse(DISPLAY_SETTINGS_COOKIE);
+  cookie_parse();
   style_header("User Preference Cookie Values");
   if( cookies.nParam ){
     style_submenu_element("Clear", "%R/cookies?clear");
