@@ -1,5 +1,5 @@
-C Adjustments\sto\sthe\sdefault\sCSS\sfor\stimeline\stables\sto\sbetter\sdisplay\sthe\nselected\srow.
-D 2017-11-29T16:06:09.602
+C Futher\sadjustments\sto\sthe\sdefault\sCSS\sfor\stimeline\sselection\sand\s"current".
+D 2017-11-29T16:20:29.711
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -509,7 +509,7 @@ F src/sqlite3.h 3ef1b4241752b880eadfd2bdf33205bcf7ea70938468da751167102d0f5da6c3
 F src/stash.c a6bb018a382d8c648702da7c2e9f56d7012486205c64ba269662336508ab0df2
 F src/stat.c 420ba0ca0e6804dc0f386bb46ec4f90197aa458a1849f53b2b7ceaa2dd37c869
 F src/statrep.c 9ee2695e45d0a0de17ce79d0b027f79bd246b4f305c95649044c3709a44372cd
-F src/style.c b8b04a2d51dcfd291ca63f5085664f68f9a9375205d930579cc488d202607392
+F src/style.c 0cd38aed348887032226d9d2e1fb6d8c017bd9671297a2deb6d1b6f26166fea2
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 7eec9152da56e30bedad9b9c62195012de13f0db656f9b6395c2bcebfee7f4a8
 F src/tar.c 7f1a32be9c4534f5d837f44ebf66c54ad533e297e159fcd8403356d03b074bfe
@@ -794,7 +794,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 487b39081d6787f7d5de893670d01c662d42e4f11e78ef73cc47427bb5395e92
-R 93cf15a46510f825a1feb539639ed792
+P 5beb3614960f2c3e34fd04aaa9e443230378720c93db44561cdba0c0064559e2
+R 4de6b342e9f29ea62ea08d2b47777837
 U drh
-Z 80becf24c9c1ef7c848682c1b9bc5f68
+Z 0f398f53760c24e1b77f6013b85d1648
