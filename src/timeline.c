@@ -106,7 +106,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_SHOWRID  0x0400  /* Show RID values in addition to UUIDs */
 #define TIMELINE_BISECT   0x0800  /* Show supplimental bisect information */
 #define TIMELINE_COMPACT  0x1000  /* Use the "compact" view style */
-#define TIMELINE_DETAILED 0x2000  /* Use the "detailed" view style */
+#define TIMELINE_VERBOSE  0x2000  /* Use the "detailed" view style */
 #define TIMELINE_NORMAL   0x4000  /* Use the "normal" view style */
 #define TIMELINE_COLUMNAR 0x8000  /* Use the "columns view style */
 #endif
@@ -269,8 +269,8 @@ void www_print_timeline(
     zStyle = "Columnar";
   }else if( tmFlags & TIMELINE_COMPACT ){
     zStyle = "Compact";
-  }else if( tmFlags & TIMELINE_DETAILED ){
-    zStyle = "Detailed";
+  }else if( tmFlags & TIMELINE_VERBOSE ){
+    zStyle = "Verbose";
   }else{
     zStyle = "Normal";
   }
@@ -1562,7 +1562,7 @@ static const char *tagMatchExpression(
 **    ms=MATCHSTYLE   Set tag match style to EXACT, GLOB, LIKE, REGEXP
 **    u=USER          Only show items associated with USER
 **    y=TYPE          'ci', 'w', 't', 'e', or 'all'.
-**    ss=VIEWSTYLE    c: "compact"  d: "detail"   n: "normal"  j: "columnar"
+**    ss=VIEWSTYLE    c: "compact"  v: "verbose"   n: "normal"  j: "columnar"
 **    ng              No Graph.
 **    nd              Do not highlight the focus check-in
 **    v               Show details of files changed
@@ -1645,7 +1645,7 @@ void page_timeline(void){
   static const char *azViewStyles[] = {
      "n", "Normal",
      "c", "Compact",
-     "d", "Detailed",
+     "v", "Verbose",
      "j", "Columnar",
   };
 
@@ -1750,7 +1750,7 @@ void page_timeline(void){
   switch( cViewStyle ){
     case 'n':  tmFlags |= TIMELINE_NORMAL;   break;
     case 'c':  tmFlags |= TIMELINE_COMPACT;  break;
-    case 'd':  tmFlags |= TIMELINE_DETAILED; break;
+    case 'v':  tmFlags |= TIMELINE_VERBOSE;  break;
     case 'j':  tmFlags |= TIMELINE_COLUMNAR; break;
   }    
   if( zType[0]=='a' ){
