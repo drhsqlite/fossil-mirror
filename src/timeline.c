@@ -254,7 +254,7 @@ void www_print_timeline(
   int vid = 0;                /* Current checkout version */
   int dateFormat = 0;         /* 0: HH:MM (default) */
   int bCommentGitStyle = 0;   /* Only show comments through first blank line */
-  const char *zTdClass;
+  const char *zStyle;         /* Sub-name for classes for the style */
   const char *zDateFmt;
   int iTableId = timeline_tableid();
 
@@ -265,12 +265,14 @@ void www_print_timeline(
   mxWikiLen = db_get_int("timeline-max-comment", 0);
   dateFormat = db_get_int("timeline-date-format", 0);
   bCommentGitStyle = db_get_int("timeline-truncate-at-blank", 0);
-  if( tmFlags & TIMELINE_NORMAL ){
-    zTdClass = "timelineStyleNormal";
+  if( tmFlags & TIMELINE_COLUMNAR ){
+    zStyle = "Columnar";
   }else if( tmFlags & TIMELINE_COMPACT ){
-    zTdClass = "timelineStyleCompact";
+    zStyle = "Compact";
   }else if( tmFlags & TIMELINE_DETAILED ){
-    zTdClass = "timelineStyleDetailed";
+    zStyle = "Detailed";
+  }else{
+    zStyle = "Normal";
   }
   zDateFmt = P("datefmt");
   if( zDateFmt ) dateFormat = atoi(zDateFmt);
@@ -436,10 +438,9 @@ void www_print_timeline(
     }
     @</td>
     if( zBgClr && zBgClr[0] && rid!=selectedRid ){
-      @ <td class="timelineTableCell %s(zTdClass)" \
-      @  style="background-color: %h(zBgClr);">
+      @ <td class="timeline%s(zStyle)Cell" style="background-color: %h(zBgClr);">
     }else{
-      @ <td class="timelineTableCell %s(zTdClass)">
+      @ <td class="timeline%s(zStyle)Cell">
     }
     if( pGraph && zType[0]!='c' ){
       @ &bull;
@@ -466,8 +467,11 @@ void www_print_timeline(
       wiki_convert(&comment, 0, WIKI_INLINE);
       @ </span>
     }else{
-      @ <span class='timelineComment timelineCheckinComment' \
-      @  onclick='toggleDetail(%d(rid))'>
+      if( tmFlags & TIMELINE_COMPACT ){
+        @ <span class='timelineComment' onclick='toggleDetail(%d(rid))'>
+      }else{
+        @ <span class='timelineComment'>
+      }
       if( bCommentGitStyle ){
         /* Truncate comment at first blank line */
         int ii, jj;
@@ -505,22 +509,15 @@ void www_print_timeline(
     }
     if( tmFlags & TIMELINE_COLUMNAR ){
       if( zBgClr && zBgClr[0] && rid!=selectedRid ){
-        @ <td class="timelineTableCell timelineDetailCell"
-        @  style="background-color: %h(zBgClr);">
+        @ <td class="timelineDetailCell" style="background-color: %h(zBgClr);">
       }else{
-        @ <td class="timelineTableCell timelineDetailCell">
+        @ <td class="timelineDetailCell">
       }
     }
     if( tmFlags & TIMELINE_COMPACT ){
-      cgi_printf("<span class='timelineDetailWrapper clutter' id='detail-%d'>",rid);
-    }else{
-      cgi_printf("<span class='timelineDetailWrapper'>");
+      cgi_printf("<span class='clutter' id='detail-%d'>",rid);
     }
-    if( zType[0]=='c' ){
-      cgi_printf("<span class='timelineDetail timelineCheckinDetail'>");
-    }else{
-      cgi_printf("<span class='timelineDetail'>");
-    }
+    cgi_printf("<span class='timeline%sDetail'>", zStyle);
 
     if( zType[0]=='c' ){
       if( isLeaf ){
@@ -591,8 +588,12 @@ void www_print_timeline(
     if( xExtra ){
       xExtra(rid);
     }
-    /* End timelineDetail and timelineDetailWrapper */
-    cgi_printf("</span></span>\n");
+    /* End timelineDetail */
+    if( tmFlags & TIMELINE_COMPACT ){
+      @ </span></span>
+    }else{
+      @ </span>
+    }
 
     /* Generate the file-change list if requested */
     if( (tmFlags & (TIMELINE_FCHANGES|TIMELINE_FRENAMES))!=0
@@ -1659,14 +1660,15 @@ void page_timeline(void){
     }else{
       nEntry = atoi(z);
       if( nEntry<=0 ){
-        cgi_replace_query_parameter("n","10");
+        z = "10";
         nEntry = 10;
       }
     }
   }else{
-    cgi_replace_query_parameter("n","50");
+    z = "50";
     nEntry = 50;
   }
+  cgi_replace_query_parameter("n",z);
   cookie_write_parameter("n","n",0);
   cookie_link_parameter("ss","ss","n");
   cViewStyle = PD("ss","n")[0];

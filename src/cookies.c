@@ -91,12 +91,12 @@ void cookie_parse(const char *zCookieName){
     while( fossil_isspace(z[0]) ) z++;
     if( z[0]==0 ) break;
     cookies.aParam[cookies.nParam].zPName = z;
-    while( *z && *z!='=' && *z!='&' ){ z++; }
+    while( *z && *z!='=' && *z!=',' ){ z++; }
     if( *z=='=' ){
       *z = 0;
       z++;
       cookies.aParam[cookies.nParam].zPValue = z;
-      while( *z && *z!='&' ){ z++; }
+      while( *z && *z!=',' ){ z++; }
       if( *z ){
         *z = 0;
         z++;
@@ -179,8 +179,8 @@ void cookie_render(void){
     int i;
     blob_init(&new, 0, 0);
     for(i=0;i<cookies.nParam;i++){
-      if( i>0 ) blob_append(&new, "&", 1);
-      blob_appendf(&new, "%s=%t",
+      if( i>0 ) blob_append(&new, ",", 1);
+      blob_appendf(&new, "%s=%T",
           cookies.aParam[i].zPName, cookies.aParam[i].zPValue);
     }
     cgi_set_cookie(cookies.zCookieName, blob_str(&new), 0, 31536000);
