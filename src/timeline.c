@@ -1328,6 +1328,31 @@ static void timeline_y_submenu(int isDisabled){
 }
 
 /*
+** Add the select/option box to the timeline submenu that is used to
+** set the ss= parameter that determines the viewing mode.
+**
+** Return the TIMELINE_* value appropriate for the view-style.
+*/
+int timeline_ss_submenu(void){
+  static const char *azViewStyles[] = {
+     "m", "Modern View",
+     "c", "Compact View",
+     "v", "Verbose View",
+     "j", "Columnar View",
+  };
+  int tmFlags;
+  cookie_link_parameter("ss","ss","m");
+  style_submenu_multichoice("ss", 4, azViewStyles, 0);
+  switch( PD("ss","m")[0] ){
+    case 'c':  tmFlags = TIMELINE_COMPACT;  break;
+    case 'v':  tmFlags = TIMELINE_VERBOSE;  break;
+    case 'j':  tmFlags = TIMELINE_COLUMNAR; break;
+    default:   tmFlags = TIMELINE_MODERN;   break;
+  }    
+  return tmFlags;
+}
+
+/*
 ** If the zChng string is not NULL, then it should be a comma-separated
 ** list of glob patterns for filenames.  Add an term to the WHERE clause
 ** for the SQL statement under construction that excludes any check-in that
@@ -1667,13 +1692,6 @@ void page_timeline(void){
   char *zNewerButton = 0;             /* URL for Newer button at the top */
   int selectedRid = -9999999;         /* Show a highlight on this RID */
   int disableY = 0;                   /* Disable type selector on submenu */
-  char cViewStyle;                    /* Overall style of the page */
-  static const char *azViewStyles[] = {
-     "m", "Modern View",
-     "c", "Compact View",
-     "v", "Verbose View",
-     "j", "Columnar View",
-  };
 
   /* Set number of rows to display */
   cookie_parse(DISPLAY_SETTINGS_COOKIE);
@@ -1696,10 +1714,7 @@ void page_timeline(void){
   }
   cgi_replace_query_parameter("n",z);
   cookie_write_parameter("n","n",0);
-  cookie_link_parameter("ss","ss","n");
-  cViewStyle = PD("ss","n")[0];
-  style_submenu_multichoice("ss", 4, azViewStyles, 0);
-  
+  tmFlags |= timeline_ss_submenu();  
 
   /* To view the timeline, must have permission to read project data.
   */
@@ -1773,12 +1788,6 @@ void page_timeline(void){
     nEntry = -1;
     zCirca = 0;
   }
-  switch( cViewStyle ){
-    case 'c':  tmFlags |= TIMELINE_COMPACT;  break;
-    case 'v':  tmFlags |= TIMELINE_VERBOSE;  break;
-    case 'j':  tmFlags |= TIMELINE_COLUMNAR; break;
-    default:   tmFlags |= TIMELINE_MODERN;   break;
-  }    
   if( zType[0]=='a' ){
     tmFlags |= TIMELINE_BRIEF | TIMELINE_GRAPH;
   }else{

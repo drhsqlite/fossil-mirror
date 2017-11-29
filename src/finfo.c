@@ -316,22 +316,36 @@ void finfo_page(void){
   Stmt qparent;
   int iTableId = timeline_tableid();
   int bHashBeforeComment = 0; /* Show hash before the comment */
-  int bHashAfterComment = 0;  /* Show hash after the comment */
   int bHashInDetail = 0;      /* Show the hash inside the detail section */
   int bShowDetail;            /* Show the detail section */
   int bSeparateDetail;        /* Detail section in a separate column */
   int eCommentFormat;         /* value for timeline-comment-format */
+  int tmFlags = 0;            /* Viewing mode */
+  const char *zStyle;         /* Viewing mode name */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("File History");
   login_anonymous_available();
+  cookie_parse(DISPLAY_SETTINGS_COOKIE);
+  tmFlags = timeline_ss_submenu();
+  if( tmFlags & TIMELINE_COLUMNAR ){
+    zStyle = "Columnar";
+  }else if( tmFlags & TIMELINE_COMPACT ){
+    zStyle = "Compact";
+  }else if( tmFlags & TIMELINE_VERBOSE ){
+    zStyle = "Verbose";
+  }else{
+    zStyle = "Modern";
+  }
   url_initialize(&url, "finfo");
   if( brBg ) url_add_parameter(&url, "brbg", 0);
   if( uBg ) url_add_parameter(&url, "ubg", 0);
   baseCheckin = name_to_rid_www("ci");
   zPrevDate[0] = 0;
   zFilename = PD("name","");
+  cookie_render();
+#if 0
   eCommentFormat = db_get_int("timeline-comment-format", 4);
   bShowDetail = (eCommentFormat & 1)==0;  /* Bit 0 suppresses the comment */
   bSeparateDetail = (eCommentFormat & 8)!=0; 
@@ -340,6 +354,7 @@ void finfo_page(void){
     case 2:  bHashInDetail = 1;      break;
     default: bHashBeforeComment = 1; break;
   }
+#endif
   fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
   if( fnid==0 ){
     @ No such file: %h(zFilename)
@@ -447,8 +462,6 @@ void finfo_page(void){
     hyperlinked_path(zFilename, &title, 0, "tree", "");
     if( fShowId ) blob_appendf(&title, " (%d)", fnid);
   }
-  style_submenu_jsbutton("Advanced", STYLE_BASIC, "reclutter()");
-  style_submenu_jsbutton("Basic", STYLE_CLUTTER, "declutter()");
   @ <h2>%b(&title)</h2>
   blob_reset(&title);
   pGraph = graph_init();
@@ -516,77 +529,82 @@ void finfo_page(void){
     @ <td class="timelineGraph"><div id="m%d(gidx)" class="tl-nodemark"></div>
     @ </td>
     if( zBgClr && zBgClr[0] ){
-      @ <td class="timelineTableCell" style="background-color: %h(zBgClr);">
+      @ <td class="timeline%s(zStyle)Cell" \
+      @  style="background-color: %h(zBgClr);">
     }else{
-      @ <td class="timelineTableCell">
+      @ <td class="timeline%s(zStyle)Cell">
     }
-    if( bHashBeforeComment && zUuid ){
-      hyperlink_to_uuid(zUuid);
+    if( tmFlags & TIMELINE_COMPACT ){
+      @ <span class='timelineCompactComment' onclick='toggleDetail(%d(frid))'>
+    }else{
+      @ <span class='timeline%s(zStyle)Comment'>
+      if( (tmFlags & TIMELINE_VERBOSE)!=0 && zUuid ){
+        hyperlink_to_uuid(zUuid);
+        @ part of check-in \
+        hyperlink_to_uuid(zCkin);
+      }
     }
-    @ <span class="timelineComment timelineCheckinComment" \
-    @  onclick='toggleDetail(%d(frid))'>
     @ %W(zCom)</span>
-    if( bHashAfterComment && zUuid ){
-      hyperlink_to_uuid(zUuid);
-    }
-    if( bShowDetail ){
+    if( (tmFlags & TIMELINE_COMPACT)!=0 ){
       @ <span class='timelineEllipsis anticlutter' id='ellipsis-%d(frid)' \
       @  onclick='toggleDetail(%d(frid))'>...</span>
-      if( bSeparateDetail ){
-        if( zBgClr && zBgClr[0] ){
-          @ <td class="timelineTableCell timelineDetailCell"
-          @  style="background-color: %h(zBgClr);">
-        }else{
-          @ <td class="timelineTableCell timelineDetailCell">
-        }
+      @ <span class='clutter timelineCompactDetail'
+    }
+    if( tmFlags & TIMELINE_COLUMNAR ){
+      if( zBgClr && zBgClr[0] ){
+        @ <td class="timelineDetailCell" style="background-color: %h(zBgClr);">
+      }else{
+        @ <td class="timelineDetailCell">
       }
-      cgi_printf("<span class='clutter' id='detail-%d'>", frid);
-      cgi_printf("<span class='timelineDetail timelineCheckinDetail'>(");
-      if( zUuid && bHashInDetail ){
-        @ file: %z(href("%R/artifact/%!S",zUuid))[%S(zUuid)]</a>
-        if( fShowId ){
-          int srcId = delta_source_rid(frid);
-          if( srcId>0 ){
-            @ id: %d(frid)&larr;%d(srcId)
-          }else{
-            @ id: %d(frid)
-          }
-        }
-      }
-      @ check-in:
-      hyperlink_to_uuid(zCkin);
+    }
+    if( tmFlags & TIMELINE_COMPACT ){
+      cgi_printf("<span class='clutter' id='detail-%d'>",frid);
+    }
+    cgi_printf("<span class='timeline%sDetail'>", zStyle);
+    if( zUuid && (tmFlags & TIMELINE_VERBOSE)==0 ){
+      @ file:&nbsp;%z(href("%R/artifact/%!S",zUuid))[%S(zUuid)]</a>
       if( fShowId ){
-        @ (%d(fmid))
-      }
-      @ user:
-      hyperlink_to_user(zUser, zDate, ",");
-      @ branch: %z(href("%R/timeline?t=%T&n=200",zBr))%h(zBr)</a>,
-      @ size: %d(szFile))
-      if( zUuid && origCheckin==0 ){
-        if( nParent==0 ){
-          @ <b>Added</b>
-        }else if( pfnid ){
-          char *zPrevName = db_text(0,"SELECT name FROM filename WHERE fnid=%d",
-                                    pfnid);
-          @ <b>Renamed</b> from
-          @ %z(href("%R/finfo?name=%t", zPrevName))%h(zPrevName)</a>
-        }
-      }
-      if( zUuid==0 ){
-        char *zNewName;
-        zNewName = db_text(0,
-          "SELECT name FROM filename WHERE fnid = "
-          "   (SELECT fnid FROM mlink"
-          "     WHERE mid=%d"
-          "       AND pfnid IN (SELECT fnid FROM filename WHERE name=%Q))",
-          fmid, zFilename);
-        if( zNewName ){
-          @ <b>Renamed</b> to
-          @ %z(href("%R/finfo?name=%t",zNewName))%h(zNewName)</a>
-          fossil_free(zNewName);
+        int srcId = delta_source_rid(frid);
+        if( srcId>0 ){
+          @ id:&nbsp;%d(frid)&larr;%d(srcId)
         }else{
-          @ <b>Deleted</b>
+          @ id:&nbsp;%d(frid)
         }
+      }
+    }
+    @ check-in:&nbsp;\
+    hyperlink_to_uuid(zCkin);
+    if( fShowId ){
+      @ (%d(fmid))
+    }
+    @ user:&nbsp;\
+    hyperlink_to_user(zUser, zDate, ",");
+    @ branch:&nbsp;%z(href("%R/timeline?t=%T&n=200",zBr))%h(zBr)</a>,
+    @ size:&nbsp;%d(szFile))
+    if( zUuid && origCheckin==0 ){
+      if( nParent==0 ){
+        @ <b>Added</b>
+      }else if( pfnid ){
+        char *zPrevName = db_text(0,"SELECT name FROM filename WHERE fnid=%d",
+                                  pfnid);
+        @ <b>Renamed</b> from
+        @ %z(href("%R/finfo?name=%t", zPrevName))%h(zPrevName)</a>
+      }
+    }
+    if( zUuid==0 ){
+      char *zNewName;
+      zNewName = db_text(0,
+        "SELECT name FROM filename WHERE fnid = "
+        "   (SELECT fnid FROM mlink"
+        "     WHERE mid=%d"
+        "       AND pfnid IN (SELECT fnid FROM filename WHERE name=%Q))",
+        fmid, zFilename);
+      if( zNewName ){
+        @ <b>Renamed</b> to
+        @ %z(href("%R/finfo?name=%t",zNewName))%h(zNewName)</a>
+        fossil_free(zNewName);
+      }else{
+        @ <b>Deleted</b>
       }
     }
     if( g.perm.Hyperlink && zUuid ){
@@ -616,8 +634,11 @@ void finfo_page(void){
       @ %z(zAncLink)[ancestry]</a>
     }
     tag_private_status(frid);
-    if( bShowDetail ){
+    /* End timelineDetail */
+    if( tmFlags & TIMELINE_COMPACT ){
       @ </span></span>
+    }else{
+      @ </span>
     }
     @ </td></tr>
   }
