@@ -1746,10 +1746,10 @@ void page_timeline(void){
     zCirca = 0;
   }
   switch( cViewStyle ){
-    case 'n':  tmFlags |= TIMELINE_NORMAL;   break;
     case 'c':  tmFlags |= TIMELINE_COMPACT;  break;
     case 'v':  tmFlags |= TIMELINE_VERBOSE;  break;
     case 'j':  tmFlags |= TIMELINE_COLUMNAR; break;
+    default:   tmFlags |= TIMELINE_NORMAL;   break;
   }    
   if( zType[0]=='a' ){
     tmFlags |= TIMELINE_BRIEF | TIMELINE_GRAPH;

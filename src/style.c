@@ -784,11 +784,6 @@ const struct strctCssDefaults {
     @   font-style: italic;
     @   font-size: small;
   },
-  { "table.timelineTable",
-    "the format for the timeline data table",
-    @   border: 0px;
-    @   border-collapse: collapse;
-  },
   { "tr.timelineCurrent",
     "the format for the timeline data cell of the current checkout",
     @   padding: .1em .2em;
