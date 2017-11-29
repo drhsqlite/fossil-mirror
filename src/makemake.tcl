@@ -330,6 +330,9 @@ $(OBJDIR)/mkbuiltin:	$(SRCDIR)/mkbuiltin.c
 $(OBJDIR)/mkversion:	$(SRCDIR)/mkversion.c
 	$(XBCC) -o $(OBJDIR)/mkversion $(SRCDIR)/mkversion.c
 
+$(OBJDIR)/mkcss:	$(SRCDIR)/mkcss.c
+	$(XBCC) -o $(OBJDIR)/mkcss $(SRCDIR)/mkcss.c
+
 $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
 	$(XBCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
 
@@ -353,6 +356,9 @@ $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/
 	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid \
 		$(SRCDIR)/../manifest \
 		$(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
+
+$(OBJDIR)/default_css.h:	$(SRCDIR)/default_css.txt $(OBJDIR)/mkcss
+	$(OBJDIR)/mkcss $(SRCDIR)/default_css.txt $(OBJDIR)/default_css.h
 
 # Setup the options used to compile the included SQLite library.
 SQLITE_OPTIONS = <<<SQLITE_OPTIONS>>>
@@ -442,7 +448,7 @@ foreach s [lsort $src] {
 append mhargs "\$(SRCDIR)/sqlite3.h <<<NEXT_LINE>>>"
 append mhargs "\$(SRCDIR)/th.h <<<NEXT_LINE>>>"
 #append mhargs "\$(SRCDIR)/cson_amalgamation.h <<<NEXT_LINE>>>"
-append mhargs "\$(OBJDIR)/VERSION.h"
+append mhargs "\$(OBJDIR)/VERSION.h "
 set mhargs [string map [list <<<NEXT_LINE>>> \\\n\t] $mhargs]
 writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(OBJDIR)/mkindex"
 writeln "\t\$(OBJDIR)/mkindex \$(TRANS_SRC) >\$@\n"
@@ -450,7 +456,7 @@ writeln "\t\$(OBJDIR)/mkindex \$(TRANS_SRC) >\$@\n"
 writeln "\$(OBJDIR)/builtin_data.h: \$(OBJDIR)/mkbuiltin \$(EXTRA_FILES)"
 writeln "\t\$(OBJDIR)/mkbuiltin --prefix \$(SRCDIR)/ \$(EXTRA_FILES) >\$@\n"
 
-writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/builtin_data.h \$(OBJDIR)/makeheaders \$(OBJDIR)/VERSION.h"
+writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/builtin_data.h \$(OBJDIR)/default_css.h \$(OBJDIR)/makeheaders \$(OBJDIR)/VERSION.h"
 writeln "\t\$(OBJDIR)/makeheaders $mhargs"
 writeln "\ttouch \$(OBJDIR)/headers"
 writeln "\$(OBJDIR)/headers: Makefile"
@@ -458,6 +464,7 @@ writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \
 writeln "Makefile:"
 set extra_h(dispatch) " \$(OBJDIR)/page_index.h "
 set extra_h(builtin) " \$(OBJDIR)/builtin_data.h "
+set extra_h(style) " \$(OBJDIR)/default_css.h "
 
 foreach s [lsort $src] {
   writeln "\$(OBJDIR)/${s}_.c:\t\$(SRCDIR)/$s.c \$(OBJDIR)/translate"
@@ -974,6 +981,7 @@ MAKEHEADERS = $(subst /,\,$(OBJDIR)/makeheaders.exe)
 MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex.exe)
 MKBUILTIN   = $(subst /,\,$(OBJDIR)/mkbuiltin.exe)
 MKVERSION   = $(subst /,\,$(OBJDIR)/mkversion.exe)
+MKCSS       = $(subst /,\,$(OBJDIR)/mkcss.exe)
 CODECHECK1  = $(subst /,\,$(OBJDIR)/codecheck1.exe)
 CAT         = type
 CP          = copy
@@ -988,6 +996,7 @@ MAKEHEADERS = $(OBJDIR)/makeheaders.exe
 MKINDEX     = $(OBJDIR)/mkindex.exe
 MKBUILTIN   = $(OBJDIR)/mkbuiltin.exe
 MKVERSION   = $(OBJDIR)/mkversion.exe
+MKCSS       = $(OBJDIR)/mkcss.exe
 CODECHECK1  = $(OBJDIR)/codecheck1.exe
 CAT         = cat
 CP          = cp
@@ -1001,7 +1010,7 @@ endif}
 writeln {
 all:	$(OBJDIR) $(APPNAME)
 
-$(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc $(OBJDIR)/VERSION.h
+$(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc $(OBJDIR)/VERSION.h $(OBJDIR)/default_css.h
 ifdef USE_WINDOWS
 	$(CAT) $(subst /,\,$(SRCDIR)\miniz.c) | $(GREP) "define MZ_VERSION" > $(subst /,\,$(OBJDIR)\minizver.h)
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.rc) $(subst /,\,$(OBJDIR))
@@ -1046,6 +1055,9 @@ $(MKBUILTIN):	$(SRCDIR)/mkbuiltin.c
 $(MKVERSION): $(SRCDIR)/mkversion.c
 	$(XBCC) -o $@ $(SRCDIR)/mkversion.c
 
+$(MKCSS): $(SRCDIR)/mkcss.c
+	$(XBCC) -o $@ $(SRCDIR)/mkcss.c
+
 $(CODECHECK1):	$(SRCDIR)/codecheck1.c
 	$(XBCC) -o $@ $(SRCDIR)/codecheck1.c
 
@@ -1057,6 +1069,9 @@ test:	$(OBJDIR) $(APPNAME)
 
 $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(MKVERSION)
 	$(MKVERSION) $(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION >$@
+
+$(OBJDIR)/default_css.h:	$(SRCDIR)/default_css.txt $(MKCSS)
+	$(MKCSS) $(SRCDIR)/default_css.txt $@
 
 # The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
 # to 1. If it is set to 1, then there is no need to build or link
@@ -1182,13 +1197,14 @@ writeln "\t\$(MKINDEX) \$(TRANS_SRC) >\$@\n"
 writeln "\$(OBJDIR)/builtin_data.h:\t\$(MKBUILTIN) \$(EXTRA_FILES)"
 writeln "\t\$(MKBUILTIN) --prefix \$(SRCDIR)/ \$(EXTRA_FILES) >\$@\n"
 
-writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/builtin_data.h \$(MAKEHEADERS) \$(OBJDIR)/VERSION.h"
+writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/builtin_data.h \$(OBJDIR)/default_css.h \$(MAKEHEADERS) \$(OBJDIR)/VERSION.h"
 writeln "\t\$(MAKEHEADERS) $mhargs"
 writeln "\techo Done >\$(OBJDIR)/headers\n"
 writeln "\$(OBJDIR)/headers: Makefile\n"
 writeln "Makefile:\n"
 set extra_h(main) " \$(OBJDIR)/page_index.h "
 set extra_h(builtin) " \$(OBJDIR)/builtin_data.h "
+set extra_h(style) " \$(OBJDIR)/default_css.h "
 
 foreach s [lsort $src] {
   writeln "\$(OBJDIR)/${s}_.c:\t\$(SRCDIR)/$s.c \$(TRANSLATE)"
@@ -1338,6 +1354,9 @@ mkbuiltin$E: $(SRCDIR)\mkbuiltin.c
 mkversion$E: $(SRCDIR)\mkversion.c
 	$(BCC) -o$@ $**
 
+mkcss$E: $(SRCDIR)\mkcss.c
+	$(BCC) -o$@ $**
+
 codecheck1$E: $(SRCDIR)\codecheck1.c
 	$(BCC) -o$@ $**
 
@@ -1359,6 +1378,9 @@ $(OBJDIR)\cson_amalgamation.h : $(SRCDIR)\cson_amalgamation.h
 VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 	+$** > $@
 
+default_css.h : mkcss$E $B\src\default_css.txt
+	+$** $B\src\default_css.txt $@
+
 page_index.h: mkindex$E $(SRC)
 	+$** > $@
 
@@ -1370,7 +1392,7 @@ clean:
 	-del *.obj *_.c *.h *.map
 
 realclean:
-	-del $(APPNAME) translate$E mkindex$E makeheaders$E mkversion$E codecheck1$E mkbuiltin$E
+	-del $(APPNAME) translate$E mkindex$E makeheaders$E mkversion$E codecheck1$E mkbuiltin$E mkcss$E
 
 $(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h
@@ -1397,7 +1419,7 @@ foreach s [lsort $src] {
   writeln "\t+translate\$E \$** > \$@\n"
 }
 
-writeln -nonewline "headers: makeheaders\$E page_index.h builtin_data.h VERSION.h\n\t +makeheaders\$E "
+writeln -nonewline "headers: makeheaders\$E page_index.h builtin_data.h default_css.h VERSION.h\n\t +makeheaders\$E "
 foreach s [lsort $src] {
   writeln -nonewline "${s}_.c:$s.h "
 }
@@ -1860,6 +1882,9 @@ mkbuiltin$E: $(SRCDIR)\mkbuiltin.c
 mkversion$E: $(SRCDIR)\mkversion.c
 	$(BCC) $**
 
+mkcss$E: $(SRCDIR)\mkcss.c
+	$(BCC) $**
+
 codecheck1$E: $(SRCDIR)\codecheck1.c
 	$(BCC) $**
 
@@ -1893,8 +1918,12 @@ $(OX)\miniz$O : $(SRCDIR)\miniz.c
 
 VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 	$** > $@
+
 $(OX)\cson_amalgamation$O : $(SRCDIR)\cson_amalgamation.c
 	$(TCC) /Fo$@ /c $**
+
+default_css.h: mkcss$E $(SRCDIR)\default_css.txt
+	$** $(SRCDIR)\default_css.txt $@
 
 page_index.h: mkindex$E $(SRC)
 	$** > $@
@@ -1925,6 +1954,8 @@ realclean: clean
 	del makeheaders$P 2>NUL
 	del mkversion$E 2>NUL
 	del mkversion$P 2>NUL
+	del mkcss$E 2>NUL
+	del mkcss$P 2>NUL
 	del codecheck1$E 2>NUL
 	del codecheck1$P 2>NUL
 	del mkbuiltin$E 2>NUL
@@ -1956,7 +1987,7 @@ foreach s [lsort $src] {
 writeln "fossil.res : \$B\\win\\fossil.rc"
 writeln "\t\$(RCC)  /fo \$@ \$**\n"
 
-writeln "headers: makeheaders\$E page_index.h builtin_data.h VERSION.h"
+writeln "headers: makeheaders\$E page_index.h builtin_data.h default_css.h VERSION.h"
 writeln -nonewline "\tmakeheaders\$E "
 set i 0
 foreach s [lsort $src] {
@@ -2138,8 +2169,11 @@ builtin_data.h:	$(EXTRA_FILES) mkbuiltin.exe
 VERSION.h:	version.exe ..\manifest.uuid ..\manifest ..\VERSION
 	version.exe ..\manifest.uuid ..\manifest ..\VERSION  >$@
 
+default_css.h:	mkcss.exe default_css.txt
+	mkcss.exe default_css.txt $@
+
 # generate the simplified headers
-headers: makeheaders.exe page_index.h builtin_data.h VERSION.h ../src/sqlite3.h ../src/th.h VERSION.h
+headers: makeheaders.exe page_index.h builtin_data.h default_css.h VERSION.h ../src/sqlite3.h ../src/th.h
 	makeheaders.exe $(foreach ts,$(TRANSLATEDSRC),$(ts):$(ts:_.c=.h)) ../src/sqlite3.h ../src/th.h VERSION.h
 	echo Done >$@
 

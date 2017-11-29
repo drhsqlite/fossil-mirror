@@ -488,6 +488,9 @@ $(OBJDIR)/mkbuiltin:	$(SRCDIR)/mkbuiltin.c
 $(OBJDIR)/mkversion:	$(SRCDIR)/mkversion.c
 	$(XBCC) -o $(OBJDIR)/mkversion $(SRCDIR)/mkversion.c
 
+$(OBJDIR)/mkcss:	$(SRCDIR)/mkcss.c
+	$(XBCC) -o $(OBJDIR)/mkcss $(SRCDIR)/mkcss.c
+
 $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
 	$(XBCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
 
@@ -509,6 +512,9 @@ test:	$(OBJDIR) $(APPNAME)
 
 $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion
 	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid  $(SRCDIR)/../manifest  $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
+
+$(OBJDIR)/default_css.h:	$(SRCDIR)/default_css.txt $(OBJDIR)/mkcss
+	$(OBJDIR)/mkcss $(SRCDIR)/default_css.txt $(OBJDIR)/default_css.h
 
 # Setup the options used to compile the included SQLite library.
 SQLITE_OPTIONS = -DNDEBUG=1 \
@@ -620,7 +626,7 @@ $(OBJDIR)/page_index.h: $(TRANS_SRC) $(OBJDIR)/mkindex
 $(OBJDIR)/builtin_data.h: $(OBJDIR)/mkbuiltin $(EXTRA_FILES)
 	$(OBJDIR)/mkbuiltin --prefix $(SRCDIR)/ $(EXTRA_FILES) >$@
 
-$(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSION.h
+$(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/default_css.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSION.h
 	$(OBJDIR)/makeheaders $(OBJDIR)/add_.c:$(OBJDIR)/add.h \
 	$(OBJDIR)/allrepo_.c:$(OBJDIR)/allrepo.h \
 	$(OBJDIR)/attach_.c:$(OBJDIR)/attach.h \
@@ -750,7 +756,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/zip_.c:$(OBJDIR)/zip.h \
 	$(SRCDIR)/sqlite3.h \
 	$(SRCDIR)/th.h \
-	$(OBJDIR)/VERSION.h
+	$(OBJDIR)/VERSION.h 
 	touch $(OBJDIR)/headers
 $(OBJDIR)/headers: Makefile
 $(OBJDIR)/json.o $(OBJDIR)/json_artifact.o $(OBJDIR)/json_branch.o $(OBJDIR)/json_config.o $(OBJDIR)/json_diff.o $(OBJDIR)/json_dir.o $(OBJDIR)/json_finfo.o $(OBJDIR)/json_login.o $(OBJDIR)/json_query.o $(OBJDIR)/json_report.o $(OBJDIR)/json_status.o $(OBJDIR)/json_tag.o $(OBJDIR)/json_timeline.o $(OBJDIR)/json_user.o $(OBJDIR)/json_wiki.o : $(SRCDIR)/json_detail.h
@@ -1566,7 +1572,7 @@ $(OBJDIR)/statrep.h:	$(OBJDIR)/headers
 $(OBJDIR)/style_.c:	$(SRCDIR)/style.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/style.c >$@
 
-$(OBJDIR)/style.o:	$(OBJDIR)/style_.c $(OBJDIR)/style.h $(SRCDIR)/config.h
+$(OBJDIR)/style.o:	$(OBJDIR)/style_.c $(OBJDIR)/style.h $(OBJDIR)/default_css.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/style.o -c $(OBJDIR)/style_.c
 
 $(OBJDIR)/style.h:	$(OBJDIR)/headers
