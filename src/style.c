@@ -786,17 +786,8 @@ const struct strctCssDefaults {
   },
   { "table.timelineTable",
     "the format for the timeline data table",
-    @   border: 0;
+    @   border: 0px;
     @   border-collapse: collapse;
-  },
-  { "td.timelineTableCell",
-    "the format for the timeline data cells",
-    @   vertical-align: top;
-    @   text-align: left;
-  },
-  { "td.timelineDetailCell",
-    "the format for the timeline data cells for the detail column",
-    @   padding-left: 2em;
   },
   { "tr.timelineCurrent",
     "the format for the timeline data cell of the current checkout",
@@ -839,13 +830,29 @@ const struct strctCssDefaults {
     @ text-align: left;
     @ vertical-align: top;
   },
-  { "span.timelineComment",
-    "The check-in comment text in a timeline",
+  { "span.timelineCompactComment",
+    "The check-in comment text in Compact mode",
     @ cursor: pointer;
   },
   { "span.timelineEllipsis",
-    "The ellipsis mark at the end of a check-in comment in a timeline",
+    "The ellipsis mark at the end of a compact comment in a timeline",
     @ cursor: pointer;
+  },
+  { ".timelineNormalCell, .timelineColumnarCell, .timelineDetailCell",
+    "The entry details for a normal timeline",
+    @ vertical-align: top;
+    @ text-align: left;
+    @ padding: 0.75em;
+    @ border: 1px #ccc solid;
+    @ border-radius: 1em;
+  },
+  { ".timelineNormalDetail",
+    "Detail text for a normal timeline display",
+    @ font-size: 80%;
+    @ text-align: right;
+    @ float: right;
+    @ opacity: 0.75;
+    @ margin-top: 0.5em;
   },
   { "td.timelineGraph",
     "the format for the graph placeholder cells in timelines",
