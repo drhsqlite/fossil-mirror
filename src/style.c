@@ -833,7 +833,7 @@ const struct strctCssDefaults {
     "The ellipsis mark at the end of a compact comment in a timeline",
     @ cursor: pointer;
   },
-  { ".timelineNormalCell, .timelineColumnarCell, .timelineDetailCell",
+  { ".timelineModernCell, .timelineColumnarCell, .timelineDetailCell",
     "The entry details for a normal timeline",
     @ vertical-align: top;
     @ text-align: left;
@@ -841,7 +841,7 @@ const struct strctCssDefaults {
     @ border: 1px #ccc solid;
     @ border-radius: 1em;
   },
-  { ".timelineNormalDetail",
+  { ".timelineModernDetail",
     "Detail text for a normal timeline display",
     @ font-size: 80%;
     @ text-align: right;

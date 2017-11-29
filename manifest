@@ -1,5 +1,5 @@
-C In\s"Verbose"\smode,\sput\sthe\shash\sup\sfront,\sas\swas\sdone\swith\slegacy.
-D 2017-11-29T03:41:17.356
+C Change\sthe\sname\sof\s"Normal\sView"\sto\s"Modern\sView".\s\sAdd\sthe\s"View"\smodifier\nto\sall\schoices\sin\sthe\sview\smode\sselector,\sto\shelp\smake\sit\sclear\swhat\sthe\nselector\sis\sfor.
+D 2017-11-29T11:46:00.115
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -509,7 +509,7 @@ F src/sqlite3.h 3ef1b4241752b880eadfd2bdf33205bcf7ea70938468da751167102d0f5da6c3
 F src/stash.c a6bb018a382d8c648702da7c2e9f56d7012486205c64ba269662336508ab0df2
 F src/stat.c 420ba0ca0e6804dc0f386bb46ec4f90197aa458a1849f53b2b7ceaa2dd37c869
 F src/statrep.c 9ee2695e45d0a0de17ce79d0b027f79bd246b4f305c95649044c3709a44372cd
-F src/style.c 7525c90c02512a74819c551dd320feefb2ca6a11bde88e942674f7f66465450c
+F src/style.c 85aba376c749dfe716dc2edfd25cbba61dc1a256a34b93b4ecc27ddbbcc2b710
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 7eec9152da56e30bedad9b9c62195012de13f0db656f9b6395c2bcebfee7f4a8
 F src/tar.c 7f1a32be9c4534f5d837f44ebf66c54ad533e297e159fcd8403356d03b074bfe
@@ -518,7 +518,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c c008c65eee4b5d14a83cb93de2d97c5eb8ffd051794d4bca139cc076161da685
 F src/th_tcl.c 2b70a8da7d7d8009794d7a3565043c8933a6cbfe
-F src/timeline.c 6b78bfaa84cfce96449fcd214c325f9e78afad62ec54a5868b73db86a9474906
+F src/timeline.c 410f7774c4d8876060a4287c153db3564534cc9622e8bcf9020dc445c3003160
 F src/tkt.c e5815264d68d48a28983230026ceaa45b5190c34b092a8fc920ce832a6d2bf6e
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 33ff866f8f3618e5ef826ec5d84168de765e61862f10f7642592a30d315b2c1e
@@ -794,7 +794,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 926a5a38df94e13df51e0c4cad92fad7e36c99a76603209f3ad931b7c3265460
-R 8cc3a4801c180027909bbff6df4fcc7f
+P 59980b6082f7ffe45b8e4f3a93a52058806a9b51da25b680908f1a449856f2d5
+R 71fb919dd3e1b9bd2f265efae3103670
 U drh
-Z 5b1222d8f2086c2953503217413be9c0
+Z 54be14021709c80146196614184a84de

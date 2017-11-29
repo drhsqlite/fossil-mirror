@@ -107,7 +107,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_BISECT   0x0800  /* Show supplimental bisect information */
 #define TIMELINE_COMPACT  0x1000  /* Use the "compact" view style */
 #define TIMELINE_VERBOSE  0x2000  /* Use the "detailed" view style */
-#define TIMELINE_NORMAL   0x4000  /* Use the "normal" view style */
+#define TIMELINE_MODERN   0x4000  /* Use the "normal" view style */
 #define TIMELINE_COLUMNAR 0x8000  /* Use the "columns view style */
 #endif
 
@@ -272,7 +272,7 @@ void www_print_timeline(
   }else if( tmFlags & TIMELINE_VERBOSE ){
     zStyle = "Verbose";
   }else{
-    zStyle = "Normal";
+    zStyle = "Modern";
   }
   zDateFmt = P("datefmt");
   if( zDateFmt ) dateFormat = atoi(zDateFmt);
@@ -1588,7 +1588,7 @@ static const char *tagMatchExpression(
 **    ms=MATCHSTYLE   Set tag match style to EXACT, GLOB, LIKE, REGEXP
 **    u=USER          Only show items associated with USER
 **    y=TYPE          'ci', 'w', 't', 'e', or 'all'.
-**    ss=VIEWSTYLE    c: "compact"  v: "verbose"   n: "normal"  j: "columnar"
+**    ss=VIEWSTYLE    c: "Compact"  v: "Verbose"   m: "Modern"  j: "Columnar"
 **    ng              No Graph.
 **    nd              Do not highlight the focus check-in
 **    v               Show details of files changed
@@ -1669,10 +1669,10 @@ void page_timeline(void){
   int disableY = 0;                   /* Disable type selector on submenu */
   char cViewStyle;                    /* Overall style of the page */
   static const char *azViewStyles[] = {
-     "n", "Normal",
-     "c", "Compact",
-     "v", "Verbose",
-     "j", "Columnar",
+     "m", "Modern View",
+     "c", "Compact View",
+     "v", "Verbose View",
+     "j", "Columnar View",
   };
 
   /* Set number of rows to display */
@@ -1777,7 +1777,7 @@ void page_timeline(void){
     case 'c':  tmFlags |= TIMELINE_COMPACT;  break;
     case 'v':  tmFlags |= TIMELINE_VERBOSE;  break;
     case 'j':  tmFlags |= TIMELINE_COLUMNAR; break;
-    default:   tmFlags |= TIMELINE_NORMAL;   break;
+    default:   tmFlags |= TIMELINE_MODERN;   break;
   }    
   if( zType[0]=='a' ){
     tmFlags |= TIMELINE_BRIEF | TIMELINE_GRAPH;
