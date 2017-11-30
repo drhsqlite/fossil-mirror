@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\stest-file-environment\scommand.
-D 2017-11-30T04:48:50.614
+C Still\smore\simprovements\sto\sthe\stest-file-environment\scommand.
+D 2017-11-30T05:09:29.758
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -426,7 +426,7 @@ F src/doc.c 52158f17e27934947409a49d83f4d2f9643e62ec242156f6751944522dfb31d0
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c e0412afa4ac1895b73d1f49e5756be51aebfdf4f46379f7746b150ab084738e0
 F src/export.c 3e09dfda9d07b44c463d656dbc09f6adfe686d6d80ad55282a1f06b9216934f2
-F src/file.c d7ba27a166f8d08fa820ca72ce37e90919c5a44fa569f1bbfe1515b2b4ab06f9
+F src/file.c f7988d9d9abe78c3e0db83790cd2c46d7612a9e65a1ec1f00f82db6375f99531
 F src/finfo.c 04e5d37d0b3fc9e24e6f72c31081d3e09433e8f8e08086e423fefb23da988adc
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
@@ -796,7 +796,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a59c8490dd76cc4e66f1b351de0ef806cf4562cae89fedc1e4a69052c61fa74b
-R ee6fb360dd32ecbb6578e4f879c18ae8
+P fdc6af231531b9853a0171bd4a729666094c8c05dbd0d1ff37f35bce04295b6e
+R 28b28b4bc86820d9aa50ccaae87eec2e
 U drh
-Z f2355baab3516fab306793eb9b31c546
+Z ec7a3d101f7c85201ae32479a2e9d8ab

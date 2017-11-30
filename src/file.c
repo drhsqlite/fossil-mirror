@@ -961,59 +961,67 @@ void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
 */
 static void emitFileStat(
   const char *zPath,
-  int raw,
   int slash,
   int reset
 ){
   char zBuf[200];
   char *z;
   Blob x;
+  int rc;
+  sqlite3_int64 iMtime;
+  struct fossilStat testFileStat;
   memset(zBuf, 0, sizeof(zBuf));
   blob_zero(&x);
   file_canonical_name(zPath, &x, slash);
-  fossil_print("%s[%s] -> [%s]\n", raw ? "RAW " : "", zPath, blob_buffer(&x));
+  fossil_print("[%s] -> [%s]\n", zPath, blob_buffer(&x));
   blob_reset(&x);
-  if( raw ){
-    int rc;
-    struct fossilStat testFileStat;
-    memset(&testFileStat, 0, sizeof(struct fossilStat));
-    rc = fossil_stat(zPath, &testFileStat, 0);
-    fossil_print("  stat_rc      = %d\n", rc);
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_size);
-    fossil_print("  stat_size    = %s\n", zBuf);
-    z = db_text(0, "SELECT datetime(%lld, 'unixepoch')", testFileStat.st_mtime);
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld (%s)", testFileStat.st_mtime, z);
-    fossil_free(z);
-    fossil_print("  stat_mtime   = %s\n", zBuf);
-    fossil_print("  stat_mode    = 0%o\n", testFileStat.st_mode);
-    memset(&testFileStat, 0, sizeof(struct fossilStat));
-    rc = fossil_stat(zPath, &testFileStat, 1);
-    fossil_print("  l_stat_rc    = %d\n", rc);
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_size);
-    fossil_print("  l_stat_size  = %s\n", zBuf);
-    z = db_text(0, "SELECT datetime(%lld, 'unixepoch')", testFileStat.st_mtime);
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld (%s)", testFileStat.st_mtime, z);
-    fossil_free(z);
-    fossil_print("  l_stat_mtime = %s\n", zBuf);
-    fossil_print("  l_stat_mode  = 0%o\n", testFileStat.st_mode);
-  }else{
-    sqlite3_int64 iMtime;
-    if( reset ) resetStat();
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_wd_size(zPath));
-    fossil_print("  file_size           = %s\n", zBuf);
-    iMtime = file_wd_mtime(zPath);
-    z = db_text(0, "SELECT datetime(%lld, 'unixepoch')", iMtime);
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld (%s)", iMtime, z);
-    fossil_free(z);
-    fossil_print("  file_mtime          = %s\n", zBuf);
-    fossil_print("  file_mode           = 0%o\n", file_wd_mode(zPath));
-    fossil_print("  file_isfile         = %d\n", file_wd_isfile(zPath));
-    fossil_print("  file_isfile_or_link = %d\n", file_wd_isfile_or_link(zPath));
-    fossil_print("  file_islink         = %d\n", file_wd_islink(zPath));
-    fossil_print("  file_isexe          = %d\n", file_wd_isexe(zPath));
-    fossil_print("  file_isdir          = %d\n", file_wd_isdir(zPath));
-    if( reset ) resetStat();
-  }
+  memset(&testFileStat, 0, sizeof(struct fossilStat));
+  rc = fossil_stat(zPath, &testFileStat, 0);
+  fossil_print("  stat_rc                = %d\n", rc);
+  sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_size);
+  fossil_print("  stat_size              = %s\n", zBuf);
+  z = db_text(0, "SELECT datetime(%lld, 'unixepoch')", testFileStat.st_mtime);
+  sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld (%s)", testFileStat.st_mtime, z);
+  fossil_free(z);
+  fossil_print("  stat_mtime             = %s\n", zBuf);
+  fossil_print("  stat_mode              = 0%o\n", testFileStat.st_mode);
+  memset(&testFileStat, 0, sizeof(struct fossilStat));
+  rc = fossil_stat(zPath, &testFileStat, 1);
+  fossil_print("  l_stat_rc              = %d\n", rc);
+  sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_size);
+  fossil_print("  l_stat_size            = %s\n", zBuf);
+  z = db_text(0, "SELECT datetime(%lld, 'unixepoch')", testFileStat.st_mtime);
+  sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld (%s)", testFileStat.st_mtime, z);
+  fossil_free(z);
+  fossil_print("  l_stat_mtime           = %s\n", zBuf);
+  fossil_print("  l_stat_mode            = 0%o\n", testFileStat.st_mode);
+  if( reset ) resetStat();
+  sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_size(zPath));
+  fossil_print("  file_size              = %s\n", zBuf);
+  iMtime = file_mtime(zPath);
+  z = db_text(0, "SELECT datetime(%lld, 'unixepoch')", iMtime);
+  sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld (%s)", iMtime, z);
+  fossil_free(z);
+  fossil_print("  file_mtime             = %s\n", zBuf);
+  fossil_print("  file_mode              = 0%o\n", file_mode(zPath));
+  fossil_print("  file_isfile            = %d\n", file_isfile(zPath));
+  fossil_print("  file_isdir             = %d\n", file_isdir(zPath));
+  if( reset ) resetStat();
+  sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_wd_size(zPath));
+  fossil_print("  file_wd_size           = %s\n", zBuf);
+  iMtime = file_wd_mtime(zPath);
+  z = db_text(0, "SELECT datetime(%lld, 'unixepoch')", iMtime);
+  sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld (%s)", iMtime, z);
+  fossil_free(z);
+  fossil_print("  file_wd_mtime          = %s\n", zBuf);
+  fossil_print("  file_wd_mode           = 0%o\n", file_wd_mode(zPath));
+  fossil_print("  file_wd_isfile         = %d\n", file_wd_isfile(zPath));
+  fossil_print("  file_wd_isfile_or_link = %d\n",
+               file_wd_isfile_or_link(zPath));
+  fossil_print("  file_wd_islink         = %d\n", file_wd_islink(zPath));
+  fossil_print("  file_wd_isexe          = %d\n", file_wd_isexe(zPath));
+  fossil_print("  file_wd_isdir          = %d\n", file_wd_isdir(zPath));
+  if( reset ) resetStat();
 }
 
 /*
@@ -1044,8 +1052,7 @@ void cmd_test_file_environment(void){
                db_allow_symlinks_by_default());
   fossil_print("db_allow_symlinks() = %d\n", db_allow_symlinks());
   for(i=2; i<g.argc; i++){
-    emitFileStat(g.argv[i], 1, slashFlag, resetFlag);
-    emitFileStat(g.argv[i], 0, slashFlag, resetFlag);
+    emitFileStat(g.argv[i], slashFlag, resetFlag);
   }
 }
 
