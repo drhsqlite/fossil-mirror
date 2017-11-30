@@ -1,5 +1,5 @@
-C Add\sthe\s--allow-symlinks\soption\sto\sthe\stest-file-environment\scommand.
-D 2017-11-30T12:55:49.844
+C Remove\sunused\s"#if\s0...#endif"\scode\sfrom\sfinfo.c.
+D 2017-11-30T12:57:36.068
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -427,7 +427,7 @@ F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c e0412afa4ac1895b73d1f49e5756be51aebfdf4f46379f7746b150ab084738e0
 F src/export.c 3e09dfda9d07b44c463d656dbc09f6adfe686d6d80ad55282a1f06b9216934f2
 F src/file.c d747a614ca62407409e5cca7dbc75d0aab5ae3543b53feed4a21325f2bcc02cb
-F src/finfo.c 6c41327bde2ddca6a357a3f9e4b835ce5d452defe8f0b9c1a64859f70a25ef50
+F src/finfo.c 4aab18246a958af79af4cb758ebff8bddf01bab16ec9d4268355d3bffcc4951b
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c c774c78b274375f42653c71d0b6c1062695bb4da
@@ -796,7 +796,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c699e9fedf918eb8fa37ec92efc8d55bc03f923c0d30107c63cfb5c899a7d5e6
-R 5ff64a31e8b4d84b66892c67910c5237
+P cf1960e913fc45e9060f35b5a1b392c5817e0e73994688ff7775e064ee91a601
+R 5e6b605afdb34de4f27d5d03951d5db6
 U drh
-Z dc9fb2ea0572c68d73d3ba3be16eeed8
+Z 0c078740c24bfb44530731bd9cdd806b
