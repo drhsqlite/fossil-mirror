@@ -1,5 +1,5 @@
-C Fix\san\sissue\swith\smkcss.c\sthat\sgcc\swas\sok\swith\sbut\sfailed\son\smsvc.
-D 2017-11-30T00:22:35.864
+C Fix\san\sproblem\swith\sthe\sMSC\smakefile.
+D 2017-11-30T00:27:36.599
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -467,7 +467,7 @@ F src/main.c 24bd6b806af1782c0ff889e2ea7322e495fc14ec175b23768d294400a37d1d63
 F src/main.mk 50ed464d104427073f6efecd10ba0b87fc1af27262fb473fea04d8d7d2c23655
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl 18a1900f3957dafca22f541b590266d554b36fba9eca2209613b4e922ba4b07c
+F src/makemake.tcl 7b8787437c07128211bb7ff6f84edcb247b6163adb3c5032e172dc156b0e5663
 F src/manifest.c 1c857522c5247f926c1ac579a6b2f2e3261ef5bdd51376e26ce5c7943bd4b4f3
 F src/markdown.c 2cb7007279db7ad8e16f8c822d5ba27f59b4af2dcc0cd4ba87cce3e4303d5969
 F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb98d
@@ -672,7 +672,7 @@ F win/Makefile.PellesCGMake 940dd82d2f662198dc0d4f560a4e34fe662f6a13a35aacaddf34
 F win/Makefile.dmc bd55c5e5e19440bbea2ec8b4f2faa3e487fcffeb1ac029690a6ab7d2e1c783ef
 F win/Makefile.mingw 222dafcd10fa6d49af221fc041f84eba21b1b51bcc08f091d4562d32822eb726
 F win/Makefile.mingw.mistachkin 775928be637d3b8db54a1adc490184f638d8f09790f097e740769c2fdef55e7c
-F win/Makefile.msc c562248f52e3c935ee80a76abc86ffe8568b2029758ae248c7b0d0963e15b1d2
+F win/Makefile.msc f76b0c73dcec1b19909dd3ad00cbdf32f2c080f2d587bbe8da2c3e8117eb07dc
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -796,7 +796,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5c9c51be5f033de2ba5bf38566ae7a14ee3e13438ae311c76856720f9a3fc2b3
-R 1f348ada380020fc12858ce3cd0bfec9
+P 5c30108909326a4f01f1aafc9cc175fc0876c4acadf2c8c7e9fbf6c4a38c13d8
+R 9d824ba7f8f7b84bee099c83ce7831a4
 U drh
-Z 9f3fd3bdbbdcf0e3cea3ea185d6184e9
+Z 5335228e41d3d5d90af5efe3a0af6fce

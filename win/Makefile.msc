@@ -919,7 +919,7 @@ $(OX)\cson_amalgamation$O : $(SRCDIR)\cson_amalgamation.c
 	$(TCC) /Fo$@ /c $**
 
 default_css.h: mkcss$E $(SRCDIR)\default_css.txt
-	$** $(SRCDIR)\default_css.txt $@
+	$** $@
 
 page_index.h: mkindex$E $(SRC)
 	$** > $@
