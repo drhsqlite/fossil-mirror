@@ -1034,14 +1034,16 @@ static void emitFileStat(
 **
 ** Options:
 **
-**     --open-config        Open the configuration database first.
-**     --slash              Trailing slashes, if any, are retained.
-**     --reset              Reset cached stat() info for each file.
+**     --allow-symlinks BOOLEAN     Temporarily turn allow-symlinks on/off
+**     --open-config                Open the configuration database first.
+**     --slash                      Trailing slashes, if any, are retained.
+**     --reset                      Reset cached stat() info for each file.
 */
 void cmd_test_file_environment(void){
   int i;
   int slashFlag = find_option("slash",0,0)!=0;
   int resetFlag = find_option("reset",0,0)!=0;
+  const char *zAllow = find_option("allow-symlinks",0,1);
   if( find_option("open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
   }
@@ -1050,6 +1052,9 @@ void cmd_test_file_environment(void){
                filenames_are_case_sensitive());
   fossil_print("db_allow_symlinks_by_default() = %d\n",
                db_allow_symlinks_by_default());
+  if( zAllow ){
+    g.allowSymlinks = !is_false(zAllow);
+  }
   fossil_print("db_allow_symlinks() = %d\n", db_allow_symlinks());
   for(i=2; i<g.argc; i++){
     emitFileStat(g.argv[i], slashFlag, resetFlag);
