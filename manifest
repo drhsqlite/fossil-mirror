@@ -1,5 +1,5 @@
-C Still\smore\simprovements\sto\sthe\stest-file-environment\scommand.
-D 2017-11-30T05:09:29.758
+C Eliminate\sfossil_utf8_to_console()\sfor\snon-windows\splatforms:\sit\sisn't\sused\sthen.\sThanks\sto\s"bytevolcano"\sfor\sthe\ssuggestion.
+D 2017-11-30T10:15:48.487
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -530,7 +530,7 @@ F src/unversioned.c a4ad61090c4be9483a04d0501ddb6ce8ee8f96f5ea7b53607d3bfb62df71
 F src/update.c 6520d390b5e37ce8cdd51abc7044778dd33a14de
 F src/url.c b5d45bf6ccbbb928ab2fcd34e2b27556d43d37441d8db7450fb4f2e843e7410f
 F src/user.c c595beaa8d6fee6bf1f5b53b77cf6a498dab9252cf22b2ec7852a70844cbe7ec
-F src/utf8.c 9f458b9698fc928cc21e375538f268651d1d22a2
+F src/utf8.c d4d73906b07ccbb1e8037f090c1b02c8ea925d72b8f6091efa822060c4484657
 F src/util.c 5882876217d058c254e3f25d0637b5fcff063149fee4429c23bb5e08cf317386
 F src/verify.c 5799825d086464bb9e19e69ffeec84a710d1681b
 F src/vfile.c 1ef8d4ac2d24482a58fcc5e4cc2ddd48f8c4282de2b0be94e8a24dec25731080
@@ -796,7 +796,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fdc6af231531b9853a0171bd4a729666094c8c05dbd0d1ff37f35bce04295b6e
-R 28b28b4bc86820d9aa50ccaae87eec2e
-U drh
-Z ec7a3d101f7c85201ae32479a2e9d8ab
+P 84347382046a649d8262bef65e91ee02302d3501d0007f04ad6653b17d2d63c9
+R a85b638d21bb88ab985f51cbcb68bf0f
+U jan.nijtmans
+Z 65203b8edabf49040d621d1495c16389
