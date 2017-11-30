@@ -1,5 +1,5 @@
-C Eliminate\sfossil_utf8_to_console()\sfor\snon-windows\splatforms:\sit\sisn't\sused\sthen.\sThanks\sto\s"bytevolcano"\sfor\sthe\ssuggestion.
-D 2017-11-30T10:15:48.487
+C Fix\sthe\sdefault\sCSS\sdiff\scoloring,\sbroken\sby\scheck-in\s[5c9c51be5f033de2]
+D 2017-11-30T11:34:16.680
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -414,7 +414,7 @@ F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 9ae6abc9e0fe73bbfaa707b704271d84d280ea787563af9696ae349f8289cf8d
-F src/default_css.txt 8be5364fb7e1f651d915ff9b4e634b171edaba3c8c05869fb3c97c169161e848
+F src/default_css.txt 7102e15ade7a8b3ed9ffc9305c52384e049c32cb5d4a7100d2c6f8827a6a5b6e
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
@@ -796,7 +796,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 84347382046a649d8262bef65e91ee02302d3501d0007f04ad6653b17d2d63c9
-R a85b638d21bb88ab985f51cbcb68bf0f
-U jan.nijtmans
-Z 65203b8edabf49040d621d1495c16389
+P 434adc35fc75e5fef19809e944e40f72f1e4a0ddb98f02f53764cd9b4dfa8ed8
+R eddbd6f50aae3a65be76b59106a64d73
+U drh
+Z 34fb5b3e4c47c3b23325edc9fb08bd15

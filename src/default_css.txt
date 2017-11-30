@@ -503,6 +503,15 @@ div.difftxtcol {
 div.diffmkrcol {
   padding: 0 1em;
 }
+span.diffchng {
+  background-color: #c0c0ff;
+}
+span.diffadd {
+  background-color: #c0ffc0;
+}
+span.diffrm {
+  background-color: #ffc8c8;
+}
 span.diffhr {
   display: inline-block;
   margin: .5em 0 1em;
