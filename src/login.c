@@ -1567,7 +1567,7 @@ int login_group_sql(
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zRepoName = db_column_text(&q, 1);
-    if( file_size(zRepoName)<0 ){
+    if( file_size(zRepoName, ExtFILE)<0 ){
       /* Silently remove non-existent repositories from the login group. */
       const char *zLabel = db_column_text(&q, 0);
       db_multi_exec(
@@ -1663,7 +1663,7 @@ void login_group_join(
   }
 
   /* Make sure the other repository is a valid Fossil database */
-  if( file_size(zRepo)<0 ){
+  if( file_size(zRepo, ExtFILE)<0 ){
     *pzErrMsg = mprintf("repository file \"%s\" does not exist", zRepo);
     return;
   }

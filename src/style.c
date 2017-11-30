@@ -805,7 +805,7 @@ void contains_selector_cmd(void){
   char *zSelector;
   Blob css;
   if( g.argc!=4 ) usage("FILENAME SELECTOR");
-  blob_read_from_file(&css, g.argv[2]);
+  blob_read_from_file(&css, g.argv[2], ExtFILE);
   zSelector = g.argv[3];
   found = containsSelector(blob_str(&css), zSelector);
   fossil_print("%s %s\n", zSelector, found ? "found" : "not found");

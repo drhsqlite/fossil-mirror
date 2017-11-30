@@ -1930,8 +1930,9 @@ cson_value * json_page_stat(){
   cson_object_set(jo, "projectDescription", json_new_string(zTmp));
   free(zTmp);
   zTmp = NULL;
-  fsize = file_size(g.zRepositoryName);
-  cson_object_set(jo, "repositorySize", cson_value_new_integer((cson_int_t)fsize));
+  fsize = file_size(g.zRepositoryName, ExtFILE);
+  cson_object_set(jo, "repositorySize", 
+                  cson_value_new_integer((cson_int_t)fsize));
 
   if(full){
     n = db_int(0, "SELECT count(*) FROM blob");

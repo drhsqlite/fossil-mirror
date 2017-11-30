@@ -111,7 +111,7 @@ void ssl_global_init(void){
       X509_STORE_set_default_paths(SSL_CTX_get_cert_store(sslCtx));
     }else{
       /* User has specified a CA location, make sure it exists and use it */
-      switch( file_isdir(zCaSetting) ){
+      switch( file_isdir(zCaSetting, ExtFILE) ){
         case 0: { /* doesn't exist */
           fossil_fatal("ssl-ca-location is set to '%s', "
               "but is not a file or directory", zCaSetting);

@@ -426,20 +426,26 @@ static void tar_finish(Blob *pOut){
 **
 ** Generate a GZIP-compressed tarball in the file given by the first argument
 ** that contains files given in the second and subsequent arguments.
+**
+**   -h, --dereference   Follow symlinks; archive the files they point to.
 */
 void test_tarball_cmd(void){
   int i;
   Blob zip;
+  int eFType = SymFILE;
   if( g.argc<3 ){
-    usage("ARCHIVE FILE....");
+    usage("ARCHIVE [options] FILE....");
+  }
+  if( find_option("dereference","h",0) ){
+    eFType = ExtFILE;
   }
   sqlite3_open(":memory:", &g.db);
   tar_begin(-1);
   for(i=3; i<g.argc; i++){
     Blob file;
     blob_zero(&file);
-    blob_read_from_file(&file, g.argv[i]);
-    tar_add_file(g.argv[i], &file, file_wd_perm(0), file_wd_mtime(0));
+    blob_read_from_file(&file, g.argv[i], eFType);
+    tar_add_file(g.argv[i], &file, file_perm(0,0), file_mtime(0,0));
     blob_reset(&file);
   }
   tar_finish(&zip);

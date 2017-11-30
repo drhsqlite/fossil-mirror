@@ -731,7 +731,7 @@ void configuration_cmd(void){
     Blob in;
     int groupMask;
     if( g.argc!=4 ) usage(mprintf("%s FILENAME",zMethod));
-    blob_read_from_file(&in, g.argv[3]);
+    blob_read_from_file(&in, g.argv[3], ExtFILE);
     db_begin_transaction();
     if( zMethod[0]=='i' ){
       groupMask = CONFIGSET_ALL | CONFIGSET_OVERWRITE;
@@ -985,9 +985,9 @@ void test_var_set_cmd(void){
   zVar = g.argv[2];
   if( zFile ){
     if( zBlob ) fossil_fatal("cannot do both --file or --blob");
-    blob_read_from_file(&x, zFile);
+    blob_read_from_file(&x, zFile, ExtFILE);
   }else if( zBlob ){
-    blob_read_from_file(&x, zBlob);
+    blob_read_from_file(&x, zBlob, ExtFILE);
   }else{
     blob_init(&x,g.argv[3],-1);
   }

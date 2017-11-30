@@ -1183,7 +1183,7 @@ static char *enter_chroot_jail(char *zRepo, int noJail){
     file_canonical_name(zRepo, &dir, 0);
     zDir = blob_str(&dir);
     if( !noJail ){
-      if( file_isdir(zDir)==1 ){
+      if( file_isdir(zDir, ExtFILE)==1 ){
         if( file_chdir(zDir, 1) ){
           fossil_fatal("unable to chroot into %s", zDir);
         }
@@ -1210,7 +1210,7 @@ static char *enter_chroot_jail(char *zRepo, int noJail){
     if(i){
       fossil_fatal("setgid/uid() failed with errno %d", errno);
     }
-    if( g.db==0 && file_isfile(zRepo) ){
+    if( g.db==0 && file_isfile(zRepo, ExtFILE) ){
       db_open_repository(zRepo);
     }
   }
@@ -1429,7 +1429,7 @@ static void process_one_web_page(
       */
       zCleanRepo = file_cleanup_fullpath(zRepo);
       if( szFile==0 && sqlite3_strglob("*/.fossil",zRepo)!=0 ){
-        szFile = file_size(zCleanRepo);
+        szFile = file_size(zCleanRepo, ExtFILE);
         if( g.fHttpTrace ){
           char zBuf[24];
           sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", szFile);
@@ -1449,7 +1449,7 @@ static void process_one_web_page(
 
         /* The PATH_INFO prefix seen so far is a valid directory.
         ** Continue the loop with the next element of the PATH_INFO */
-        if( zPathInfo[i]=='/' && file_isdir(zCleanRepo)==1 ){
+        if( zPathInfo[i]=='/' && file_isdir(zCleanRepo, ExtFILE)==1 ){
           fossil_free(zToFree);
           i++;
           continue;
@@ -1467,14 +1467,14 @@ static void process_one_web_page(
         ** pages.
         */
         if( pFileGlob!=0
-         && file_isfile(zCleanRepo)
+         && file_isfile(zCleanRepo, ExtFILE)
          && glob_match(pFileGlob, file_cleanup_fullpath(zRepo))
          && sqlite3_strglob("*.fossil*",zRepo)!=0
          && (zMimetype = mimetype_from_name(zRepo))!=0
          && strcmp(zMimetype, "application/x-fossil-artifact")!=0
         ){
           Blob content;
-          blob_read_from_file(&content, file_cleanup_fullpath(zRepo));
+          blob_read_from_file(&content, file_cleanup_fullpath(zRepo), ExtFILE);
           cgi_set_content_type(zMimetype);
           cgi_set_content(&content);
           cgi_reply();
@@ -1846,7 +1846,7 @@ void cmd_cgi(void){
   fossil_binary_mode(g.httpOut);
   fossil_binary_mode(g.httpIn);
   g.cgiOutput = 1;
-  blob_read_from_file(&config, zFile);
+  blob_read_from_file(&config, zFile, ExtFILE);
   while( blob_line(&config, &line) ){
     if( !blob_token(&line, &key) ) continue;
     if( blob_buffer(&key)[0]=='#' ) continue;
@@ -2020,7 +2020,7 @@ static void find_server_repository(int arg, int fCreate){
     db_must_be_within_tree();
   }else{
     const char *zRepo = g.argv[arg];
-    int isDir = file_isdir(zRepo);
+    int isDir = file_isdir(zRepo, ExtFILE);
     if( isDir==1 ){
       g.zRepositoryName = mprintf("%s", zRepo);
       file_simplify_name(g.zRepositoryName, -1, 0);

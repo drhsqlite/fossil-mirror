@@ -291,14 +291,18 @@ void filezip_cmd(void){
   int i;
   Blob zip;
   Blob file;
+  int eFType = SymFILE;
   if( g.argc<3 ){
     usage("ARCHIVE FILE....");
+  }
+  if( find_option("dereference","h",0)!=0 ){
+    eFType = ExtFILE;
   }
   zip_open();
   for(i=3; i<g.argc; i++){
     blob_zero(&file);
-    blob_read_from_file(&file, g.argv[i]);
-    zip_add_file(g.argv[i], &file, file_wd_perm(g.argv[i]));
+    blob_read_from_file(&file, g.argv[i], eFType);
+    zip_add_file(g.argv[i], &file, file_perm(0,0));
     blob_reset(&file);
   }
   zip_close(&zip);

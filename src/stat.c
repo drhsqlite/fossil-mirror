@@ -88,7 +88,7 @@ void stat_page(void){
   }
   @ <table class="label-value">
   @ <tr><th>Repository&nbsp;Size:</th><td>
-  fsize = file_size(g.zRepositoryName);
+  fsize = file_size(g.zRepositoryName, ExtFILE);
   bigSizeName(sizeof(zBuf), zBuf, fsize);
   @ %s(zBuf)
   @ </td></tr>
@@ -243,7 +243,7 @@ void dbstat_cmd(void){
   ){
     fossil_print("%*s%s\n", colWidth, "project-name:", z);
   }
-  fsize = file_size(g.zRepositoryName);
+  fsize = file_size(g.zRepositoryName, ExtFILE);
   bigSizeName(sizeof(zBuf), zBuf, fsize);
   fossil_print( "%*s%s\n", colWidth, "repository-size:", zBuf );
   if( !brief ){
@@ -536,7 +536,7 @@ void repo_tabsize_page(void){
       nPageFree
     );
   }
-  fsize = file_size(g.zRepositoryName);
+  fsize = file_size(g.zRepositoryName, ExtFILE);
   approxSizeName(sizeof(zBuf), zBuf, fsize);
   @ <h2>Repository Size: %s(zBuf)</h2>
   @ <center><svg width='800' height='500'>
@@ -562,7 +562,7 @@ void repo_tabsize_page(void){
         nPageFree
       );
     }
-    fsize = file_size(g.zLocalDbName);
+    fsize = file_size(g.zLocalDbName, ExtFILE);
     approxSizeName(sizeof(zBuf), zBuf, fsize);
     @ <h2>%h(file_tail(g.zLocalDbName)) Size: %s(zBuf)</h2>
     @ <center><svg width='800' height='500'>

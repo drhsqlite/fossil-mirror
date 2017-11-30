@@ -1276,7 +1276,7 @@ int db_open_config(int useAttach, int isOptional){
                  "FOSSIL_HOME or HOME environment variables");
   }
 #endif
-  if( file_isdir(zHome)!=1 ){
+  if( file_isdir(zHome, ExtFILE)!=1 ){
     if( isOptional ) return 0;
     fossil_fatal("invalid home directory: %s", zHome);
   }
@@ -1286,7 +1286,7 @@ int db_open_config(int useAttach, int isOptional){
 #else
   zDbName = mprintf("%s/.fossil", zHome);
 #endif
-  if( file_size(zDbName)<1024*3 ){
+  if( file_size(zDbName, ExtFILE)<1024*3 ){
     if( file_access(zHome, W_OK) ){
       if( isOptional ) return 0;
       fossil_fatal("home directory %s must be writeable", zHome);
@@ -1354,7 +1354,7 @@ static int isValidLocalDb(const char *zDbName){
   char *zVFileDef;
 
   if( file_access(zDbName, F_OK) ) return 0;
-  lsize = file_size(zDbName);
+  lsize = file_size(zDbName, ExtFILE);
   if( lsize%1024!=0 || lsize<4096 ) return 0;
   db_open_or_attach(zDbName, "localdb");
   zVFileDef = db_text(0, "SELECT sql FROM localdb.sqlite_master"
@@ -1495,7 +1495,7 @@ void db_open_repository(const char *zDbName){
       db_err("unable to find the name of a repository database");
     }
   }
-  if( file_access(zDbName, R_OK) || file_size(zDbName)<1024 ){
+  if( file_access(zDbName, R_OK) || file_size(zDbName, ExtFILE)<1024 ){
     if( file_access(zDbName, F_OK) ){
 #ifdef FOSSIL_ENABLE_JSON
       g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
@@ -1550,7 +1550,7 @@ void db_open_repository(const char *zDbName){
 */
 void db_find_and_open_repository(int bFlags, int nArgUsed){
   const char *zRep = find_repository_option();
-  if( zRep && file_isdir(zRep)==1 ){
+  if( zRep && file_isdir(zRep, ExtFILE)==1 ){
     goto rep_not_found;
   }
   if( zRep==0 && nArgUsed && g.argc==nArgUsed+1 ){
@@ -1985,7 +1985,7 @@ void create_repository_cmd(void){
     usage("REPOSITORY-NAME");
   }
 
-  if( -1 != file_size(g.argv[2]) ){
+  if( -1 != file_size(g.argv[2], ExtFILE) ){
     fossil_fatal("file already exists: %s", g.argv[2]);
   }
 
@@ -2282,15 +2282,16 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
         noWarn = 1;
       }
       blob_reset(&noWarnFile);
-    }else if( file_size(blob_str(&versionedPathname))>=0 ){
+    }else if( file_size(blob_str(&versionedPathname), ExtFILE)>=0 ){
       /* File exists, and contains the value for this setting. Load from
       ** the file. */
-      if( blob_read_from_file(&setting, blob_str(&versionedPathname))>=0 ){
+      const char *zFile = blob_str(&versionedPathname);
+      if( blob_read_from_file(&setting, zFile, ExtFILE)>=0 ){
         found = 1;
       }
       /* See if there's a no-warn flag */
       blob_append(&versionedPathname, ".no-warn", -1);
-      if( file_size(blob_str(&versionedPathname))>=0 ){
+      if( file_size(blob_str(&versionedPathname), ExtFILE)>=0 ){
         noWarn = 1;
       }
     }
@@ -2731,7 +2732,7 @@ static void print_setting(const Setting *pSetting){
     blob_zero(&versionedPathname);
     blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
                  g.zLocalRoot, pSetting->name);
-    if( file_size(blob_str(&versionedPathname))>=0 ){
+    if( file_size(blob_str(&versionedPathname), ExtFILE)>=0 ){
       fossil_print("  (overridden by contents of file .fossil-settings/%s)\n",
                    pSetting->name);
     }

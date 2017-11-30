@@ -486,11 +486,11 @@ void test_comment_format(void){
   }
   if( fromFile ){
     Blob fileData;
-    blob_read_from_file(&fileData, zText);
+    blob_read_from_file(&fileData, zText, ExtFILE);
     zText = mprintf("%s", blob_str(&fileData));
     blob_reset(&fileData);
     if( zOrigText ){
-      blob_read_from_file(&fileData, zOrigText);
+      blob_read_from_file(&fileData, zOrigText, ExtFILE);
       zOrigText = mprintf("%s", blob_str(&fileData));
       blob_reset(&fileData);
     }

@@ -2017,10 +2017,10 @@ void test_rawdiff_cmd(void){
   int *R;
   u64 diffFlags = diff_options();
   if( g.argc<4 ) usage("FILE1 FILE2 ...");
-  blob_read_from_file(&a, g.argv[2]);
+  blob_read_from_file(&a, g.argv[2], ExtFILE);
   for(i=3; i<g.argc; i++){
     if( i>3 ) fossil_print("-------------------------------\n");
-    blob_read_from_file(&b, g.argv[i]);
+    blob_read_from_file(&b, g.argv[i], ExtFILE);
     R = text_diff(&a, &b, 0, 0, diffFlags);
     for(r=0; R[r] || R[r+1] || R[r+2]; r += 3){
       fossil_print(" copy %4d  delete %4d  insert %4d\n", R[r], R[r+1], R[r+2]);
@@ -2058,8 +2058,8 @@ void test_diff_cmd(void){
   verify_all_options();
   if( g.argc!=4 ) usage("FILE1 FILE2");
   diff_print_filenames(g.argv[2], g.argv[3], diffFlag);
-  blob_read_from_file(&a, g.argv[2]);
-  blob_read_from_file(&b, g.argv[3]);
+  blob_read_from_file(&a, g.argv[2], ExtFILE);
+  blob_read_from_file(&b, g.argv[3], ExtFILE);
   blob_zero(&out);
   text_diff(&a, &b, &out, pRe, diffFlag);
   blob_write_to_file(&out, "-");

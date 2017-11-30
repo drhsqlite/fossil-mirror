@@ -2521,7 +2521,7 @@ void test_th_render(void){
     usage("FILE");
   }
   blob_zero(&in);
-  blob_read_from_file(&in, g.argv[2]);
+  blob_read_from_file(&in, g.argv[2], ExtFILE);
   Th_Render(blob_str(&in));
   Th_PrintTraceLog();
   if( forceCgi ) cgi_reply();
@@ -2624,7 +2624,7 @@ void test_th_source(void){
     usage("file");
   }
   blob_zero(&in);
-  blob_read_from_file(&in, g.argv[2]);
+  blob_read_from_file(&in, g.argv[2], ExtFILE);
   Th_FossilInit(TH_INIT_DEFAULT);
   rc = Th_Eval(g.interp, 0, blob_str(&in), -1);
   zRc = Th_ReturnCodeName(rc, 1);

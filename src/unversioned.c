@@ -303,7 +303,7 @@ void unversioned_cmd(void){
         fossil_fatal("unversioned filenames may not %s: %Q", zError, zIn);
       }
       blob_init(&file,0,0);
-      blob_read_from_file(&file, g.argv[i]);
+      blob_read_from_file(&file, g.argv[i], ExtFILE);
       unversioned_write(zIn, &file, mtime);
       blob_reset(&file);
     }
@@ -352,7 +352,7 @@ void unversioned_cmd(void){
     }
     fossil_free(zCmd);
     blob_reset(&content);
-    blob_read_from_file(&content, zTFile);
+    blob_read_from_file(&content, zTFile, ExtFILE);
 #if defined(_WIN32) || defined(__CYGWIN__)
     blob_to_lf_only(&content);
 #endif

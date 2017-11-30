@@ -333,7 +333,7 @@ void all_cmd(void){
       const char *z;
       file_canonical_name(g.argv[j], &fn, 0);
       z = blob_str(&fn);
-      if( !file_isfile(z) ) continue;
+      if( !file_isfile(z, ExtFILE) ) continue;
       g.dbIgnoreErrors++;
       rc = sqlite3_open(z, &db);
       if( rc!=SQLITE_OK ){ sqlite3_close(db); g.dbIgnoreErrors--; continue; }
@@ -399,7 +399,7 @@ void all_cmd(void){
 #endif
     if( file_access(zFilename, F_OK)
      || !file_is_canonical(zFilename)
-     || (useCheckouts && file_isdir(zFilename)!=1)
+     || (useCheckouts && file_isdir(zFilename, ExtFILE)!=1)
     ){
       db_multi_exec("INSERT INTO toDel VALUES(%Q)", db_column_text(&q, 1));
       nToDel++;

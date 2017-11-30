@@ -353,7 +353,7 @@ void test_match_cmd(void){
   if( zGap==0 ) zGap = " ... ";
   p = search_init(g.argv[2], zBegin, zEnd, zGap, flg);
   for(i=3; i<g.argc; i++){
-    blob_read_from_file(&x, g.argv[i]);
+    blob_read_from_file(&x, g.argv[i], ExtFILE);
     zDoc = blob_str(&x);
     score = search_match(p, 1, (const char**)&zDoc);
     fossil_print("%s: %d\n", g.argv[i], p->iScore);
@@ -1424,7 +1424,7 @@ void test_convert_stext(void){
   Blob in, out;
   db_find_and_open_repository(0,0);
   if( g.argc!=4 ) usage("FILENAME MIMETYPE");
-  blob_read_from_file(&in, g.argv[2]);
+  blob_read_from_file(&in, g.argv[2], ExtFILE);
   blob_init(&out, 0, 0);
   get_stext_by_mimetype(&in, g.argv[3], &out);
   fossil_print("%s\n",blob_str(&out));
