@@ -315,11 +315,13 @@ void finfo_page(void){
   int fShowId = P("showid")!=0;
   Stmt qparent;
   int iTableId = timeline_tableid();
+#if 0
   int bHashBeforeComment = 0; /* Show hash before the comment */
   int bHashInDetail = 0;      /* Show the hash inside the detail section */
   int bShowDetail;            /* Show the detail section */
   int bSeparateDetail;        /* Detail section in a separate column */
   int eCommentFormat;         /* value for timeline-comment-format */
+#endif
   int tmFlags = 0;            /* Viewing mode */
   const char *zStyle;         /* Viewing mode name */
 
@@ -347,7 +349,7 @@ void finfo_page(void){
 #if 0
   eCommentFormat = db_get_int("timeline-comment-format", 4);
   bShowDetail = (eCommentFormat & 1)==0;  /* Bit 0 suppresses the comment */
-  bSeparateDetail = (eCommentFormat & 8)!=0; 
+  bSeparateDetail = (eCommentFormat & 8)!=0;
   switch( (eCommentFormat>>1)&3 ){
     case 1:  bHashAfterComment = 1;  break;
     case 2:  bHashInDetail = 1;      break;
@@ -666,7 +668,7 @@ void finfo_page(void){
 ** a particular check-in.
 **
 ** This screen is intended for use by Fossil developers to help
-** in debugging Fossil itself.  Ordinary Fossil users are not 
+** in debugging Fossil itself.  Ordinary Fossil users are not
 ** expected to know what the MLINK table is or why it is important.
 **
 ** To avoid confusing ordinary users, this page is only available
