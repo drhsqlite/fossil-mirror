@@ -76,7 +76,7 @@ static void clang_puts(FILE *out, const char *z){
     for(i=0; z[i] && z[i]!='"' && z[i]!='\\'; i++){}
     fprintf(out, "%.*s", i, z);
     if( z[i] ){
-      fprintf(out, "\\\%c", z[i]);
+      fprintf(out, "\\%c", z[i]);
       z += i+1;
     }else{
       z += i;

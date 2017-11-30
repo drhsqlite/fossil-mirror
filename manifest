@@ -1,5 +1,5 @@
-C Generate\sthe\sbig\scssDefaultList\stable\sin\sthe\smiddle\sof\sstyle.c\susing\ndefault_css.txt\sas\sthe\ssource.\s\sThe\sdefault_css.txt\sfile\swill\sbe\seasier\nto\sunderstand,\sedit,\sand\scomment.
-D 2017-11-29T19:18:45.094
+C Fix\san\sissue\swith\smkcss.c\sthat\sgcc\swas\sok\swith\sbut\sfailed\son\smsvc.
+D 2017-11-30T00:22:35.864
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -477,7 +477,7 @@ F src/merge.c 0d0cf4b86fd4f51cf4731313833b215997360314
 F src/merge3.c 04153e0e1a0c15c6e7e1815949b11084da2285416d76c257767b54652aaf1b78
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c e09eeef79ae18d9b98c8d5e3d977f5fa6b5cfe6a1650fc57063f253561ac502d
-F src/mkcss.c 222219f65b6852293bbfef7f322bf4c95a3d2f9dbd15d7ff78dd73a5f0e2fd90
+F src/mkcss.c fa1b304f67c7792f506bd2d1eb266bcca896b4a4500d95c77f351229a268f56f
 F src/mkindex.c c1d4a4459bb68241a99877dd202fede5c24321fede2cbf5d27b400575304349a
 F src/mkversion.c 6e606c3a895f71b35a878e817104b5e5eb056ce47925e341fde567f2448e9aa7
 F src/moderate.c 2540f90b20778a4d62156a3b4af962b401d4c89f
@@ -796,7 +796,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f9fc914eaef2c9e7a806b16c13847357f198452f5042130bfcb0cbff28a539d2
-R db844ae229784785c2e606dd3586cf82
+P 5c9c51be5f033de2ba5bf38566ae7a14ee3e13438ae311c76856720f9a3fc2b3
+R 1f348ada380020fc12858ce3cd0bfec9
 U drh
-Z 92691255cbd8ecbe0bcc123c0b62b989
+Z 9f3fd3bdbbdcf0e3cea3ea185d6184e9
