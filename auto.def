@@ -361,6 +361,9 @@ if {$tclpath ne ""} {
         array set tclconfig [parse-tclconfig-sh $tclpath]
         set msg "at $tclpath"
     }
+    if {[opt-bool static]} {
+        set tclconfig(TCL_LD_FLAGS) { }
+    }
     if {![info exists tclconfig(TCL_INCLUDE_SPEC)]} {
         user-error "Cannot find Tcl $msg"
     }
