@@ -1,5 +1,5 @@
-C Fix\san\sproblem\swith\sthe\sMSC\smakefile.
-D 2017-11-30T00:27:36.599
+C Improve\sthe\stext\sof\sthe\smeaning\sof\sthe\sallow-symlinks\ssetting.\s\sNo\schanges\nto\scode.
+D 2017-11-30T04:22:54.171
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -413,7 +413,7 @@ F src/cookies.c 63e81a4d7741a9419565f50e4e508701db758d1ee41019136e1948edc06142f1
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 868adb89087e34ddcd79c9616697a6f82489d39723f82447b1209de7edfef3a4
+F src/db.c 9ae6abc9e0fe73bbfaa707b704271d84d280ea787563af9696ae349f8289cf8d
 F src/default_css.txt 8be5364fb7e1f651d915ff9b4e634b171edaba3c8c05869fb3c97c169161e848
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c a7632a49ae54388751913eb670d9171b29a7e401
@@ -796,7 +796,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5c30108909326a4f01f1aafc9cc175fc0876c4acadf2c8c7e9fbf6c4a38c13d8
-R 9d824ba7f8f7b84bee099c83ce7831a4
+P 75fd7afcde960600fcff9e286f75cd10ffce0251ce13edd82777dc6c0827ed4a
+R 431e3bfdb6b756feeeca4fabde844969
 U drh
-Z 5335228e41d3d5d90af5efe3a0af6fce
+Z ed299df1639165fd345caa9efea0cdd8

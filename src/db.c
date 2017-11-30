@@ -2779,13 +2779,23 @@ struct Setting {
 #if defined(_WIN32)
 /*
 ** SETTING: allow-symlinks  boolean default=off versionable
-** Allows symbolic links in the repository when enabled.
+**
+** When allow-symlinks is OFF, symbolic links in the repository are followed
+** and treated no differently from real files.  When allow-symlinks is ON,
+** the object to which the symbolic link points is ignored, and the content
+** of the symbolic link that is stored in the repository is the name of the
+** object to which the symbolic link points.
 */
 #endif
 #if !defined(_WIN32)
 /*
 ** SETTING: allow-symlinks  boolean default=on versionable
-** Allows symbolic links in the repository when enabled.
+**
+** When allow-symlinks is OFF, symbolic links in the repository are followed
+** and treated no differently from real files.  When allow-symlinks is ON,
+** the object to which the symbolic link points is ignored, and the content
+** of the symbolic link that is stored in the repository is the name of the
+** object to which the symbolic link points.
 */
 #endif
 /*
