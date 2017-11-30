@@ -1,5 +1,5 @@
-C Refactor\sthe\ssymlink\sprocessing\slogic\sso\sthat\smost\sof\sthe\sfile\saccess\sroutines\ntake\sa\snew\sparameter\sindicating\sthe\sconditions\sunder\swhich\ssymlinks\sshould\nand\sshould\snot\sbe\sfollowed.\s\sThis\sshould\sfix\sa\sfew\sbugs\srelated\sto\ssymlink\nprocessing.\s\sLots\sof\stesting\srequired\sbefore\smerging\sto\strunk.
-D 2017-11-30T17:58:09.519
+C Fix\sa\sbug\sin\sthe\s"fossil\sadd"\scommand\sthat\sprevented\sthe\sadding\sof\nsymbolic\slinks.
+D 2017-11-30T18:07:53.226
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -426,7 +426,7 @@ F src/doc.c 1cce24df9d43bd782c7a8428b7d27713ab541767d72bdea4a2ba9773a470acce
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c e0412afa4ac1895b73d1f49e5756be51aebfdf4f46379f7746b150ab084738e0
 F src/export.c 3e09dfda9d07b44c463d656dbc09f6adfe686d6d80ad55282a1f06b9216934f2
-F src/file.c ee400f382061b0aca8ffea326dad6509edc3e6c7df2f8ae2ebdef1e56d68df07
+F src/file.c 8b0de075791f4098f0eb16e1a2f23c7d56fc277046f60b57eb102b1ba63246d0
 F src/finfo.c 4aab18246a958af79af4cb758ebff8bddf01bab16ec9d4268355d3bffcc4951b
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
@@ -796,10 +796,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 563d481e6a186df22480e703f7b907942a2b7172598946f3723cc44eb37ca874
-R 6be5f3c9ee7a8cb2d1d518ff62d3a99c
-T *branch * symlink-refactor
-T *sym-symlink-refactor *
-T -sym-trunk *
+P e7767de2639b219f51d8c2557e0d40098a88fe1036f23db3882624aa2dc5140a
+R 1ef8a381cb3075f82b3cd82d3476dbd9
 U drh
-Z eab28f746b70f5808723d4d5cb70ec41
+Z 22325f35b87ee98a161b7e17a6d65cb7

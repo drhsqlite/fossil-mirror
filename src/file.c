@@ -341,11 +341,6 @@ int file_isdir(const char *zFilename, int eFType){
     rc = 0; /* It does not exist at all. */
   }else if( S_ISDIR(fx.fileStat.st_mode) ){
     rc = 1; /* It exists and is a real directory. */
-  }else if( S_ISLNK(fx.fileStat.st_mode) ){
-    Blob content;
-    blob_read_link(&content, zFN); /* It exists and is a link. */
-    rc = file_isdir(blob_str(&content), eFType); /* Points to directory? */
-    blob_reset(&content);
   }else{
     rc = 2; /* It exists and is something else. */
   }
