@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -357,7 +357,7 @@ static int skinRename(void){
       @ <p><span class="generalError">There is already another skin
       @ named "%h(zNewName)".  Choose a different name.</span></p>
     }
-    @ <form action="%s(g.zTop)/setup_skin" method="post"><div>
+    @ <form action="%s(g.zTop)/setup_skin_old" method="post"><div>
     @ <table border="0"><tr>
     @ <tr><td align="right">Current name:<td align="left"><b>%h(zOldName)</b>
     @ <tr><td align="right">New name:<td align="left">
@@ -397,7 +397,7 @@ static int skinSave(const char *zCurrent){
       @ <p><span class="generalError">There is already another skin
       @ named "%h(zNewName)".  Choose a different name.</span></p>
     }
-    @ <form action="%s(g.zTop)/setup_skin" method="post"><div>
+    @ <form action="%s(g.zTop)/setup_skin_old" method="post"><div>
     @ <table border="0"><tr>
     @ <tr><td align="right">Name for this skin:<td align="left">
     @ <input type="text" size="35" name="svname" value="%h(zNewName)">
@@ -419,12 +419,12 @@ static int skinSave(const char *zCurrent){
 }
 
 /*
-** WEBPAGE: setup_skin
+** WEBPAGE: setup_skin_old
 **
 ** Show a list of available skins with buttons for selecting which
 ** skin to use.  Requires Admin privilege.
 */
-void setup_skin(void){
+void setup_skin_old(void){
   const char *z;
   char *zName;
   char *zErr = 0;
@@ -447,7 +447,7 @@ void setup_skin(void){
   /* Process requests to delete a user-defined skin */
   if( P("del1") && (zName = skinVarName(P("sn"), 1))!=0 ){
     style_header("Confirm Custom Skin Delete");
-    @ <form action="%s(g.zTop)/setup_skin" method="post"><div>
+    @ <form action="%s(g.zTop)/setup_skin_old" method="post"><div>
     @ <p>Deletion of a custom skin is a permanent action that cannot
     @ be undone.  Please confirm that this is what you want to do:</p>
     @ <input type="hidden" name="sn" value="%h(P("sn"))" />
@@ -533,7 +533,7 @@ void setup_skin(void){
       @ (Currently In Use)
       seenCurrent = 1;
     }else{
-      @ <form action="%s(g.zTop)/setup_skin" method="post">
+      @ <form action="%s(g.zTop)/setup_skin_old" method="post">
       @ <input type="hidden" name="sn" value="%h(z)" />
       @ <input type="submit" name="load" value="Install" />
       if( pAltSkin==&aBuiltinSkin[i] ){
@@ -553,7 +553,7 @@ void setup_skin(void){
     const char *zV = db_column_text(&q, 1);
     i++;
     @ <tr><td>%d(i).<td>%h(zN)<td>&nbsp;&nbsp;<td>
-    @ <form action="%s(g.zTop)/setup_skin" method="post">
+    @ <form action="%s(g.zTop)/setup_skin_old" method="post">
     if( fossil_strcmp(zV, zCurrent)==0 ){
       @ (Currently In Use)
       seenCurrent = 1;
@@ -569,7 +569,7 @@ void setup_skin(void){
   if( !seenCurrent ){
     i++;
     @ <tr><td>%d(i).<td><i>Current Configuration</i><td>&nbsp;&nbsp;<td>
-    @ <form action="%s(g.zTop)/setup_skin" method="post">
+    @ <form action="%s(g.zTop)/setup_skin_old" method="post">
     @ <input type="submit" name="save" value="Save">
     @ </form>
   }
@@ -624,7 +624,7 @@ void setup_skinedit(void){
     style_submenu_element(aSkinAttr[j].zSubmenu,
           "%R/setup_skinedit?w=%d&basis=%h",j,zBasis);
   }
-  style_submenu_element("Skins", "%R/setup_skin");
+  style_submenu_element("Skins", "%R/setup_skin_old");
   @ <form action="%s(g.zTop)/setup_skinedit" method="post"><div>
   login_insert_csrf_secret();
   @ <input type='hidden' name='w' value='%d(ii)'>
@@ -669,4 +669,94 @@ void setup_skinedit(void){
   @ </div></form>
   style_footer();
   db_end_transaction(0);
+}
+
+/*
+** WEBPAGE: setup_skin
+**
+** Generate a page showing the steps needed to customize a skin.
+*/
+void setup_skin(void){
+  int i;          /* Loop counter */
+  int iSkin;      /* Which draft skin is being edited */
+  static const char *azTestPages[] = {
+     "home",
+     "timeline",
+     "dir?ci=tip",
+     "dir?ci=tip&type=tree",
+     "brlist",
+     "info/trunk",
+  };
+
+
+  iSkin = atoi(PD("sk","1"));
+  if( iSkin<1 || iSkin>9 ) iSkin = 1;
+  login_check_credentials();
+  style_header("Customize Skin");
+
+#if 0
+  @ <p>
+  cgi_print_all(0);
+  @ </p>
+#endif
+
+  @ <p>Customize the look of this Fossil repository by making changes
+  @ to the CSS, Header, Footer, and Detail Settings in one of nine "draft"
+  @ configurations.  Then, after verifying that all is working correctly,
+  @ publish the draft to become the new main Skin.<p>
+  @
+  @ <a name='step1'></a>
+  @ <h1>Step 1: Identify Which Draft To Use</h1>
+  @
+  @ <p>The main skin of Fossil cannot be edited directly.  Instead,
+  @ edits are made to one of nine draft skins.  A draft skin can then
+  @ be published to become the default skin.
+  @ Nine separate drafts are available to facilitate A/B testing.</p>
+  @
+  @ <form method='POST' action='%R/setup_skin#step2' id='f01'>
+  @ <p>Skin to edit:
+  @ <select size='1' name='sk' onchange='gebi("f01").submit()'>
+  for(i=1; i<=9; i++){
+    if( i==iSkin ){
+      @ <option value='%d(i)' selected>draft%d(i)</option>
+    }else{
+      @ <option value='%d(i)'>draft%d(i)</option>
+    }
+  }
+  @ </select>
+  @ </p>
+  @
+  @ <a name='step2'></a>
+  @ <h1>Step 2: Authenticate
+  @
+  @ <a name='step3'></a>
+  @ <h1>Step 3: Initialize The Draft</h1>
+  @
+  @ <a name='step4'></a>
+  @ <h1>Step 4: Make Edits</h1>
+  @
+  @ <a name='step5'></a>
+  @ <h1>Step 5: Verify The Draft Skin</h1>
+  @
+  @ <p>To test this draft skin, insert text "/draft%d(iSkin)/" just before the
+  @ operation name in the URL.  Here are a few links to try:
+  @ <ul>
+  for(i=0; i<sizeof(azTestPages)/sizeof(azTestPages[0]); i++){
+    @ <li><a href='%s(g.zBaseURL)/draft%d(iSkin)/%s(azTestPages[i])'>\
+    @ %s(g.zBaseURL)/draft%d(iSkin)/%s(azTestPages[i])</a>
+  }
+  @ </ul>
+  @
+  @ <a name='step6'></a>
+  @ <h1>Step 6: Publish The Draft</h1>
+  if( !g.perm.Setup ){
+    @ <p>Only administrators are allowed to publish draft skins.  Contact
+    @ an administrator to get this "draft%d(iSkin)" skin published.</p>
+  }else{
+    
+  }
+  @
+  @ <a name='step7'></a>
+  @ <h1>Step 7: Cleanup</h1>
+  style_footer();
 }
