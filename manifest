@@ -1,5 +1,5 @@
-C The\snew\sskin\sediting\sis\sworking,\sminimally.\s\sStill\sneeds\slots\sof\swork,\sthough.
-D 2017-12-02T21:24:59.905
+C Improvements\sto\sthe\sskin\sfile\sediting.
+D 2017-12-02T21:48:45.823
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -504,7 +504,7 @@ F src/sha3.c 7d862ff2c83826fd251909f5af2c8dd642417a8c389685e169f3c00434f784fa
 F src/shell.c 34e167652cb6636b1dc81b529b8c1ddbaefa351e8c1548faea67d270937b356f
 F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
-F src/skins.c ee7d4e1fc276c254cb5930b25079bb923ca7ee30d67243c6e19752db054bc47d
+F src/skins.c 36c9eb7f1a211082969b8951009273da15adeb36b5f38a3ceb7b64fe5269c9c7
 F src/sqlcmd.c b150ead4134db3739733abb077bf764bf998bfede7d1d8ea457455adf3684c31
 F src/sqlite3.c 35d6f3d645e4c07ec8c2e94dabc52be41d27f36f39bd06801daf72ecb6919231
 F src/sqlite3.h 3ef1b4241752b880eadfd2bdf33205bcf7ea70938468da751167102d0f5da6c3
@@ -796,7 +796,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0cba37ec1aae0f52c49b354589df6f0b1d41fd574fa1e8829265ede1a943d7c5
-R 52b771635283f2d415fdccc412c97269
+P 5840fdd73299f9da71f8c9b18720ca5b3a58bd52574e08ae5dd51b5830d8d0ac
+R cae206f3fed9441629fc9c4a578acef2
 U drh
-Z 6267365cd03bc4f22b87141f7e4b56e9
+Z 83d94640630268448d5b8cf092308dd9

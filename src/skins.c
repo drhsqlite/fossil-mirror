@@ -627,6 +627,7 @@ void setup_skinedit(void){
   const char *zContent;
   char *zDflt;
   char *zKey;
+  char *zTitle;
   int iSkin;
   int ii;
   int j;
@@ -655,6 +656,7 @@ void setup_skinedit(void){
   ii = atoi(PD("w","0"));
   if( ii<0 || ii>count(aSkinAttr) ) ii = 0;
   zKey = mprintf("draft%d-%s", iSkin, aSkinAttr[ii].zFile);
+  zTitle = mprintf("%s for Draft%d", aSkinAttr[ii].zTitle, iSkin);
 
   zBasis = PD("basis","default");
   zDflt = mprintf("skins/%s/%s.txt", zBasis, aSkinAttr[ii].zFile);
@@ -663,17 +665,17 @@ void setup_skinedit(void){
     db_multi_exec("DELETE FROM config WHERE name=%Q", aSkinAttr[ii].zFile);
     cgi_replace_parameter(aSkinAttr[ii].zFile, builtin_text(zDflt));
   }
-  style_header("%s", aSkinAttr[ii].zTitle);
+  style_header("%s", zTitle);
   for(j=0; j<count(aSkinAttr); j++){
     if( j==ii ) continue;
     style_submenu_element(aSkinAttr[j].zSubmenu,
-          "%R/setup_skinedit?w=%d&basis=%h",j,zBasis);
+          "%R/setup_skinedit?w=%d&basis=%h&sk=%d",j,zBasis,iSkin);
   }
   @ <form action="%s(g.zTop)/setup_skinedit" method="post"><div>
   login_insert_csrf_secret();
   @ <input type='hidden' name='w' value='%d(ii)'>
   @ <input type='hidden' name='sk' value='%d(iSkin)'>
-  @ <h2>Edit %s(aSkinAttr[ii].zTitle):</h2>
+  @ <h2>Edit %s(zTitle):</h2>
   zContent = textarea_attribute("", 10, 80, zKey,
                         aSkinAttr[ii].zFile, builtin_text(zDflt), 0);
   @ <br />
@@ -795,6 +797,7 @@ void setup_skin(void){
   int isSetup;    /* True for an administrator */
   int isEditor;   /* Others authorized to make edits */
   char *zAllowedEditors;   /* Who may edit the draft skin */
+  char *zBase;             /* Base URL for draft under test */
   static const char *azTestPages[] = {
      "home",
      "timeline",
@@ -930,9 +933,9 @@ void setup_skin(void){
     @ <p>Edit the components of the draft%d(iSkin) skin:
     @ <ul>
     @ <li><a href='%R/setup_skinedit?w=0&sk=%d(iSkin)' target='_blank'>CSS</a>
-    @ <li><a href='%R/setup_skinedit?w=1&sk=%d(iSkin)' target='_blank'>\
-    @ Header</a>
     @ <li><a href='%R/setup_skinedit?w=2&sk=%d(iSkin)' target='_blank'>\
+    @ Header</a>
+    @ <li><a href='%R/setup_skinedit?w=1&sk=%d(iSkin)' target='_blank'>\
     @ Footer</a>
     @ <li><a href='%R/setup_skinedit?w=3&sk=%d(iSkin)' target='_blank'>\
     @ Details</a>
@@ -945,10 +948,16 @@ void setup_skin(void){
   @ <p>To test this draft skin, insert text "/draft%d(iSkin)/" just before the
   @ operation name in the URL.  Here are a few links to try:
   @ <ul>
-  for(i=0; i<count(azTestPages); i++){
-    @ <li><a href='%s(g.zBaseURL)/draft%d(iSkin)/%s(azTestPages[i])' \
-    @ target='_blank'>%s(g.zBaseURL)/draft%d(iSkin)/%s(azTestPages[i])</a>
+  if( iDraftSkin && sqlite3_strglob("*/draft[1-9]", g.zBaseURL)==0 ){
+    zBase = mprintf("%.*s/draft%d", (int)strlen(g.zBaseURL)-7,g.zBaseURL,iSkin);
+  }else{
+    zBase = mprintf("%s/draft%d", g.zBaseURL, iSkin);
   }
+  for(i=0; i<count(azTestPages); i++){
+    @ <li><a href='%s(zBase)/%s(azTestPages[i])' target='_blank'>\
+    @ %s(zBase)/%s(azTestPages[i])</a>
+  }
+  fossil_free(zBase);
   @ </ul>
   @
   @ <p>You will probably need to press Reload on your browser before any
