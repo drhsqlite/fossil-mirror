@@ -1544,8 +1544,29 @@ static void process_one_web_page(
   }
 
   /* At this point, the appropriate repository database file will have
-  ** been opened.  Use the first element of PATH_INFO as the page name
-  ** and deliver the appropriate page back to the user.
+  ** been opened.
+  **
+  ** Check to see if the the PATH_INFO begins with "draft[1-9]" and if
+  ** so activate the special handling for draft skins
+  */
+  if( zPathInfo && strncmp(zPathInfo,"/draft",6)==0
+   && zPathInfo[6]>='1' && zPathInfo[6]<='9'
+   && (zPathInfo[7]=='/' || zPathInfo[7]==0)
+  ){
+    int iSkin = zPathInfo[6] - '0';
+    char *zNewScript;
+    skin_use_draft(iSkin);
+    zNewScript = mprintf("%s/draft%d", P("SCRIPT_NAME"), iSkin);
+    if( g.zTop ) g.zTop = mprintf("%s/draft%d", g.zTop, iSkin);
+    if( g.zBaseURL ) g.zBaseURL = mprintf("%s/draft%d", g.zBaseURL, iSkin);
+    zPathInfo += 7;
+    cgi_replace_parameter("PATH_INFO", zPathInfo);
+    cgi_replace_parameter("SCRIPT_NAME", zNewScript);
+  }
+
+  /* If the content type is application/x-fossil or 
+  ** application/x-fossil-debug, then a sync/push/pull/clone is
+  ** desired, so default the PATH_INFO to /xfer
   */
   if( g.zContentType &&
       strncmp(g.zContentType, "application/x-fossil", 20)==0 ){
@@ -1554,6 +1575,10 @@ static void process_one_web_page(
     ** invoke the sync page. */
     zPathInfo = "/xfer";
   }
+
+  /* Use the first element of PATH_INFO as the page name
+  ** and deliver the appropriate page back to the user.
+  */
   set_base_url(0);
   if( zPathInfo==0 || zPathInfo[0]==0
       || (zPathInfo[0]=='/' && zPathInfo[1]==0) ){

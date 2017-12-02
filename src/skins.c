@@ -66,6 +66,7 @@ static struct BuiltinSkin {
 */
 static struct BuiltinSkin *pAltSkin = 0;
 static char *zAltSkinDir = 0;
+static int iDraftSkin = 0;
 
 /*
 ** Skin details are a set of key/value pairs that define display
@@ -103,6 +104,10 @@ char *skin_use_alternative(const char *zName){
     zAltSkinDir = fossil_strdup(zName);
     return 0;
   }
+  if( sqlite3_strglob("draft[1-9]", zName)==0 ){
+    skin_use_draft(zName[5] - '0');
+    return 0;
+  }
   for(i=0; i<count(aBuiltinSkin); i++){
     if( fossil_strcmp(aBuiltinSkin[i].zLabel, zName)==0 ){
       pAltSkin = &aBuiltinSkin[i];
@@ -130,12 +135,27 @@ void skin_override(void){
 }
 
 /*
+** Use one of the draft skins.
+*/
+void skin_use_draft(int i){
+  iDraftSkin = i;
+}
+
+/*
 ** The following routines return the various components of the skin
 ** that should be used for the current run.
+**
+** zWhat is one of:  "css", "header", "footer", "details".
 */
 const char *skin_get(const char *zWhat){
   const char *zOut;
   char *z;
+  if( iDraftSkin ){
+    z = mprintf("draft%d-%s", iDraftSkin, zWhat);
+    zOut = db_get(z, 0);
+    fossil_free(z);
+    if( zOut ) return zOut;
+  }
   if( zAltSkinDir ){
     char *z = mprintf("%s/%s.txt", zAltSkinDir, zWhat);
     if( file_isfile(z) ){
@@ -672,6 +692,31 @@ void setup_skinedit(void){
 }
 
 /*
+** Try to initialize draft skin iSkin to the built-in or preexisting
+** skin named by zTemplate.
+*/
+static void skin_initialize_draft(int iSkin, const char *zTemplate){
+  int i;
+  const char *azWhat[] = { "css", "header", "footer", "detail" };
+  if( zTemplate==0 ) return;
+  if( strcmp(zTemplate, "current")==0 ){
+    for(i=0; i<count(azWhat); i++){
+      db_unset_mprintf("draft%d-%s", 0, iSkin, azWhat[i]);
+    }
+  }else{
+    for(i=0; i<count(aBuiltinSkin); i++){
+      if( strcmp(zTemplate, aBuiltinSkin[i].zLabel)==0 ){
+        for(i=0; i<count(azWhat); i++){
+          char *zKey = mprintf("skins/%s/%s.txt", zTemplate, azWhat[i]);
+          db_set_mprintf("draft%d-%s", builtin_text(zKey), 0, iSkin, azWhat[i]);
+        }
+        break;
+      }
+    }
+  }
+}
+
+/*
 ** WEBPAGE: setup_skin
 **
 ** Generate a page showing the steps needed to customize a skin.
@@ -679,6 +724,8 @@ void setup_skinedit(void){
 void setup_skin(void){
   int i;          /* Loop counter */
   int iSkin;      /* Which draft skin is being edited */
+  int isAdmin;    /* True for an administrator */
+  int isEditor;   /* Others authorized to make edits */
   static const char *azTestPages[] = {
      "home",
      "timeline",
@@ -688,17 +735,34 @@ void setup_skin(void){
      "info/trunk",
   };
 
-
+  /* Figure out which skin we are editing */
   iSkin = atoi(PD("sk","1"));
   if( iSkin<1 || iSkin>9 ) iSkin = 1;
-  login_check_credentials();
-  style_header("Customize Skin");
 
-#if 0
-  @ <p>
-  cgi_print_all(0);
-  @ </p>
-#endif
+  /* Figure out if the current user is allowed to make administrative
+  ** changes and/or edits
+  */
+  login_check_credentials();
+  if( g.perm.Admin ){
+    isAdmin = isEditor = 1;
+  }else{
+    char *zAllowedEditors;
+    Glob *pAllowedEditors;
+    isAdmin = isEditor = 0;
+    zAllowedEditors = db_get_mprintf("draft%d-users", 0, iSkin);
+    if( zAllowedEditors ){
+      pAllowedEditors = glob_create(zAllowedEditors);
+      isEditor = glob_match(pAllowedEditors, zAllowedEditors);
+      glob_free(pAllowedEditors);
+    }
+  }
+
+  /* Initialize the skin, if requested and authorized. */
+  if( P("init3")!=0 && isEditor ){
+    skin_initialize_draft(iSkin, P("initskin"));
+  }
+
+  style_header("Customize Skin");
 
   @ <p>Customize the look of this Fossil repository by making changes
   @ to the CSS, Header, Footer, and Detail Settings in one of nine "draft"
@@ -732,6 +796,27 @@ void setup_skin(void){
   @ <a name='step3'></a>
   @ <h1>Step 3: Initialize The Draft</h1>
   @
+  if( !isEditor ){
+    @ <p>You are not allowed to initialize draft%(iSkin).  Contact
+    @ the administrator for this repository for more information.
+  }else{
+    @ <p>Initialize the draft%d(iSkin) skin to one of the built-in skins
+    @ or a preexisting skin, to use as a baseline.</p>
+    @
+    @ <p><form method='POST' action='%R/setup_skin#stop4' id='f03'>
+    @ <input type='hidden' name='sk' value='%d(iSkin)'>
+    @ Initialize <b>draft%d(iSkin)</b> to
+    @ <select size='1' name='initskin'>
+    @ <option value='current'>Currently In Use</option>
+    for(i=0; i<count(aBuiltinSkin); i++){
+      @ <option value='%s(aBuiltinSkin[i].zLabel)'>\
+      @ %h(aBuiltinSkin[i].zDesc) (built-in)</option>
+    }
+    @ </select>
+    @ <input type='submit' name='init3' value='Go'>
+    @ </p>
+  }
+  @
   @ <a name='step4'></a>
   @ <h1>Step 4: Make Edits</h1>
   @
@@ -741,11 +826,15 @@ void setup_skin(void){
   @ <p>To test this draft skin, insert text "/draft%d(iSkin)/" just before the
   @ operation name in the URL.  Here are a few links to try:
   @ <ul>
-  for(i=0; i<sizeof(azTestPages)/sizeof(azTestPages[0]); i++){
+  for(i=0; i<count(azTestPages); i++){
     @ <li><a href='%s(g.zBaseURL)/draft%d(iSkin)/%s(azTestPages[i])'>\
     @ %s(g.zBaseURL)/draft%d(iSkin)/%s(azTestPages[i])</a>
   }
   @ </ul>
+  @
+  @ <p><b>Important:</b> After CSS changes, you will probably need to
+  @ press the "Reload" button on your browser for those changes
+  @ to take effect.</p>
   @
   @ <a name='step6'></a>
   @ <h1>Step 6: Publish The Draft</h1>

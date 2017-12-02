@@ -2475,6 +2475,40 @@ void db_lset_int(const char *zName, int value){
   db_multi_exec("REPLACE INTO vvar(name,value) VALUES(%Q,%d)", zName, value);
 }
 
+/* Va-args versions of db_get(), db_set(), and db_unset()
+*/
+char *db_get_mprintf(const char *zFormat, const char *zDefault, ...){
+  va_list ap;
+  char *zName;
+  char *zResult;
+  va_start(ap, zDefault);
+  zName = vmprintf(zFormat, ap);
+  va_end(ap);
+  zResult = db_get(zName, zDefault);
+  fossil_free(zName);
+  return zResult;
+}
+void db_set_mprintf(const char *zFormat, const char *zNew, int iGlobal, ...){
+  va_list ap;
+  char *zName;
+  va_start(ap, iGlobal);
+  zName = vmprintf(zFormat, ap);
+  va_end(ap);
+  db_set(zName, zNew, iGlobal);
+  fossil_free(zName);
+}
+void db_unset_mprintf(const char *zFormat, int iGlobal, ...){
+  va_list ap;
+  char *zName;
+  va_start(ap, iGlobal);
+  zName = vmprintf(zFormat, ap);
+  va_end(ap);
+  db_unset(zName, iGlobal);
+  fossil_free(zName);
+}
+
+
+
 #if INTERFACE
 /* Manifest generation flags */
 #define MFESTFLG_RAW  0x01
