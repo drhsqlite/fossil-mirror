@@ -1,5 +1,5 @@
-C Fix\sa\sbug\sin\sthe\s"fossil\sadd"\scommand\sthat\sprevented\sthe\sadding\sof\nsymbolic\slinks.
-D 2017-11-30T18:07:53.226
+C Update\sa\scomment\sdue\sto\schanges\sin\sthe\spurpose\sof\sFossil\s2.x.\nNo\schanges\sto\scode.
+D 2017-12-02T13:00:53.554
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -387,7 +387,7 @@ F skins/xekri/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f6089b701d42
 F skins/xekri/header.txt 87636805a1489c17d6b54e6f22eccf215944dd6bd1ef9a17b54816272058a3d7
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 11297525e11b6273fa600cc81733c646d533dc681f65887c3d0963cb38a27df7
+F src/add.c bb2fc0bd2fdc4cc60dbba5e870ebd3690b5d64b0fe96404771174941c8f0d2ca
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c b5b1578354a9fa26db82b9f4206ec5bb2e82d66fd718e9e5f18c5e46b5520ef4
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
@@ -796,7 +796,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e7767de2639b219f51d8c2557e0d40098a88fe1036f23db3882624aa2dc5140a
-R 1ef8a381cb3075f82b3cd82d3476dbd9
+P b2594738460036b9350f8c4ddd72b186ea1f53b536ea38f52bca31c33e56fde3
+R 04a86914d9ed5fe89c5fbfabef6373ea
 U drh
-Z 22325f35b87ee98a161b7e17a6d65cb7
+Z 6a924ac354c6c07b20bd73537c6d58d5

@@ -25,8 +25,8 @@
 #include "cygsup.h"
 
 /*
-** WARNING: For Fossil version 1.x this value was always zero.  For Fossil
-**          2.x, it will probably always be one.  When this value is zero,
+** WARNING: For Fossil version x.x this value was always zero.  For Fossil-NG
+**          it will probably always be one.  When this value is zero,
 **          files in the checkout will not be moved by the "mv" command and
 **          files in the checkout will not be removed by the "rm" command.
 **
@@ -34,7 +34,7 @@
 **          the "mv-rm-files" setting will be consulted instead of using
 **          this value.
 **
-**          To retain the Fossil version 1.x behavior when using Fossil 2.x,
+**          To retain the Fossil version 2.x behavior when using Fossil-NG
 **          the FOSSIL_ENABLE_LEGACY_MV_RM compile-time option must be used
 **          -AND- the "mv-rm-files" setting must be set to zero.
 */
