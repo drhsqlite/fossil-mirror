@@ -56,6 +56,11 @@ static struct BuiltinSkin {
 };
 
 /*
+** A skin consists of four "files" named here:
+*/
+static const char *azSkinFile[] = { "css", "header", "footer", "details" };
+
+/*
 ** Alternative skins can be specified in the CGI script or by options
 ** on the "http", "ui", and "server" commands.  The alternative skin
 ** name must be one of the aBuiltinSkin[].zLabel names.  If there is
@@ -333,26 +338,25 @@ static int skinExists(const char *zSkinName){
 static char *getSkin(const char *zName){
   const char *z;
   char *zLabel;
-  static const char *azType[] = { "css", "header", "footer", "details" };
   int i;
   Blob val;
   blob_zero(&val);
-  for(i=0; i<count(azType); i++){
+  for(i=0; i<count(azSkinFile); i++){
     if( zName ){
-      zLabel = mprintf("skins/%s/%s.txt", zName, azType[i]);
+      zLabel = mprintf("skins/%s/%s.txt", zName, azSkinFile[i]);
       z = builtin_text(zLabel);
       fossil_free(zLabel);
     }else{
-      z = db_get(azType[i], 0);
+      z = db_get(azSkinFile[i], 0);
       if( z==0 ){
-        zLabel = mprintf("skins/default/%s.txt", azType[i]);
+        zLabel = mprintf("skins/default/%s.txt", azSkinFile[i]);
         z = builtin_text(zLabel);
         fossil_free(zLabel);
       }
     }
     blob_appendf(&val,
        "REPLACE INTO config(name,value,mtime) VALUES(%Q,%Q,now());\n",
-       azType[i], z
+       azSkinFile[i], z
     );
   }
   return blob_str(&val);
@@ -442,7 +446,7 @@ static int skinSave(const char *zCurrent){
 ** WEBPAGE: setup_skin_old
 **
 ** Show a list of available skins with buttons for selecting which
-** skin to use.  Requires Admin privilege.
+** skin to use.  Requires Setup privilege.
 */
 void setup_skin_old(void){
   const char *z;
@@ -603,9 +607,10 @@ void setup_skin_old(void){
 ** WEBPAGE: setup_skinedit
 **
 ** Edit aspects of a skin determined by the w= query parameter.
-** Requires Admin privileges.
+** Requires Setup privileges.
 **
-**    w=N     -- 0=CSS, 1=footer, 2=header, 3=details
+**    w=NUM     -- 0=CSS, 1=footer, 2=header, 3=details
+**    sk=NUM    -- the draft skin number
 */
 void setup_skinedit(void){
   static const struct sSkinAddr {
@@ -621,16 +626,36 @@ void setup_skinedit(void){
   const char *zBasis;
   const char *zContent;
   char *zDflt;
+  char *zKey;
+  int iSkin;
   int ii;
   int j;
 
   login_check_credentials();
+
+  /* Figure out which skin we are editing */
+  iSkin = atoi(PD("sk","1"));
+  if( iSkin<1 || iSkin>9 ) iSkin = 1;
+
+  /* Check that the user is authorized to edit this skin. */
   if( !g.perm.Setup ){
-    login_needed(0);
-    return;
+    char *zAllowedEditors = db_get_mprintf("draft%d-users", "", iSkin);
+    Glob *pAllowedEditors;
+    if( zAllowedEditors[0] ){
+      pAllowedEditors = glob_create(zAllowedEditors);
+      if( !glob_match(pAllowedEditors, zAllowedEditors) ){
+        login_needed(0);
+        return;
+      }
+      glob_free(pAllowedEditors);
+    }
   }
+
+  /* figure out which file is to be edited */
   ii = atoi(PD("w","0"));
   if( ii<0 || ii>count(aSkinAttr) ) ii = 0;
+  zKey = mprintf("draft%d-%s", iSkin, aSkinAttr[ii].zFile);
+
   zBasis = PD("basis","default");
   zDflt = mprintf("skins/%s/%s.txt", zBasis, aSkinAttr[ii].zFile);
   db_begin_transaction();
@@ -644,12 +669,12 @@ void setup_skinedit(void){
     style_submenu_element(aSkinAttr[j].zSubmenu,
           "%R/setup_skinedit?w=%d&basis=%h",j,zBasis);
   }
-  style_submenu_element("Skins", "%R/setup_skin_old");
   @ <form action="%s(g.zTop)/setup_skinedit" method="post"><div>
   login_insert_csrf_secret();
   @ <input type='hidden' name='w' value='%d(ii)'>
+  @ <input type='hidden' name='sk' value='%d(iSkin)'>
   @ <h2>Edit %s(aSkinAttr[ii].zTitle):</h2>
-  zContent  = textarea_attribute("", 10, 80, aSkinAttr[ii].zFile,
+  zContent = textarea_attribute("", 10, 80, zKey,
                         aSkinAttr[ii].zFile, builtin_text(zDflt), 0);
   @ <br />
   @ <input type="submit" name="submit" value="Apply Changes" />
@@ -697,22 +722,65 @@ void setup_skinedit(void){
 */
 static void skin_initialize_draft(int iSkin, const char *zTemplate){
   int i;
-  const char *azWhat[] = { "css", "header", "footer", "detail" };
   if( zTemplate==0 ) return;
   if( strcmp(zTemplate, "current")==0 ){
-    for(i=0; i<count(azWhat); i++){
-      db_unset_mprintf("draft%d-%s", 0, iSkin, azWhat[i]);
+    for(i=0; i<count(azSkinFile); i++){
+      db_unset_mprintf("draft%d-%s", 0, iSkin, azSkinFile[i]);
     }
   }else{
     for(i=0; i<count(aBuiltinSkin); i++){
       if( strcmp(zTemplate, aBuiltinSkin[i].zLabel)==0 ){
-        for(i=0; i<count(azWhat); i++){
-          char *zKey = mprintf("skins/%s/%s.txt", zTemplate, azWhat[i]);
-          db_set_mprintf("draft%d-%s", builtin_text(zKey), 0, iSkin, azWhat[i]);
+        for(i=0; i<count(azSkinFile); i++){
+          char *zKey = mprintf("skins/%s/%s.txt", zTemplate, azSkinFile[i]);
+          db_set_mprintf("draft%d-%s", builtin_text(zKey), 0,
+                         iSkin, azSkinFile[i]);
         }
         break;
       }
     }
+  }
+}
+
+/*
+** Publish the draft skin iSkin as the new default.
+*/
+static void skin_publish(int iSkin){
+  char *zCurrent;    /* SQL description of the current skin */
+  char *zBuiltin;    /* SQL description of a built-in skin */
+  int i;
+  int seen = 0;      /* True if no need to make a backup */
+
+  /* Check to see if the current skin is already saved.  If it is, there
+  ** is no need to create a backup */
+  zCurrent = getSkin(0);
+  for(i=0; i<count(aBuiltinSkin); i++){
+    zBuiltin = getSkin(aBuiltinSkin[i].zLabel);
+    if( fossil_strcmp(aBuiltinSkin[i].zSQL, zCurrent)==0 ){
+      seen = 1;
+      break;
+    }
+  }
+  if( !seen ){
+    seen = db_exists("SELECT 1 FROM config WHERE name GLOB 'skin:*'"
+                       " AND value=%Q", zCurrent);
+  }
+  if( !seen ){
+    db_multi_exec(
+      "INSERT INTO config(name,value,mtime) VALUES("
+      "  strftime('skin:Backup On %%Y-%%m-%%d %%H:%%M:%%S'),"
+      "  %Q,now())", zCurrent
+    );
+  }
+
+  /* Publish draft iSkin */
+  for(i=0; i<count(azSkinFile); i++){
+    db_multi_exec(
+      "UPDATE config"
+      " SET value=(SELECT value FROM config AS x"
+                  " WHERE x.name = printf('draft%d-%%s',config.name)),"
+      "     mtime=now()"
+      " WHERE name IN ('css','header','footer','details')", iSkin
+    );
   }
 }
 
@@ -724,8 +792,9 @@ static void skin_initialize_draft(int iSkin, const char *zTemplate){
 void setup_skin(void){
   int i;          /* Loop counter */
   int iSkin;      /* Which draft skin is being edited */
-  int isAdmin;    /* True for an administrator */
+  int isSetup;    /* True for an administrator */
   int isEditor;   /* Others authorized to make edits */
+  char *zAllowedEditors;   /* Who may edit the draft skin */
   static const char *azTestPages[] = {
      "home",
      "timeline",
@@ -743,14 +812,13 @@ void setup_skin(void){
   ** changes and/or edits
   */
   login_check_credentials();
-  if( g.perm.Admin ){
-    isAdmin = isEditor = 1;
+  zAllowedEditors = db_get_mprintf("draft%d-users", "", iSkin);
+  if( g.perm.Setup ){
+    isSetup = isEditor = 1;
   }else{
-    char *zAllowedEditors;
     Glob *pAllowedEditors;
-    isAdmin = isEditor = 0;
-    zAllowedEditors = db_get_mprintf("draft%d-users", 0, iSkin);
-    if( zAllowedEditors ){
+    isSetup = isEditor = 0;
+    if( zAllowedEditors[0] ){
       pAllowedEditors = glob_create(zAllowedEditors);
       isEditor = glob_match(pAllowedEditors, zAllowedEditors);
       glob_free(pAllowedEditors);
@@ -760,6 +828,14 @@ void setup_skin(void){
   /* Initialize the skin, if requested and authorized. */
   if( P("init3")!=0 && isEditor ){
     skin_initialize_draft(iSkin, P("initskin"));
+  }
+  if( P("e3")!=0 && isSetup ){
+    db_set_mprintf("draft%d-users", PD("editors",""), 0, iSkin);
+  }
+
+  /* Publish the draft skin */
+  if( P("pub7")!=0 && PB("pub7ck1") && PB("pub7ck2") ){
+    skin_publish(iSkin);
   }
 
   style_header("Customize Skin");
@@ -778,7 +854,7 @@ void setup_skin(void){
   @ Nine separate drafts are available to facilitate A/B testing.</p>
   @
   @ <form method='POST' action='%R/setup_skin#step2' id='f01'>
-  @ <p>Skin to edit:
+  @ <p class='skinInput'>Draft skin to edit:
   @ <select size='1' name='sk' onchange='gebi("f01").submit()'>
   for(i=1; i<=9; i++){
     if( i==iSkin ){
@@ -791,7 +867,32 @@ void setup_skin(void){
   @ </p>
   @
   @ <a name='step2'></a>
-  @ <h1>Step 2: Authenticate
+  @ <h1>Step 2: Authenticate</h1>
+  @
+  if( isSetup ){
+    @ <p>As an administrator, you can make any edits you like to this or
+    @ any other skin.  You can also authorized other users to edit this
+    @ skin.  Any user whose login name matches the comma-separate list
+    @ of GLOB expressions below is given special permission to edit
+    @ the draft%d(iSkin) skin:
+    @
+    @ <form method='POST' action='%R/setup_skin#step2' id='f02'>
+    @ <p class='skinInput'>
+    @ <input type='hidden' name='sk' value='%d(iSkin)'>
+    @ Authorized editors for skin draft%d(iSkin):
+    @ <input type='text' name='editors' value='%h(zAllowedEditors)'\
+    @  width='40'>
+    @ <input type='submit' name='submit2' value='Change'>
+    @ </p>
+    @ </form>
+  }else if( isEditor ){
+    @ <p>You are authorized to make changes to the draft%d(iSkin) skin.
+    @ Continue to the <a href='#step3'>next step</a>.</p>
+  }else{
+    @ <p>You are not authorized to make changes to the draft%d(iSkin)
+    @ skin.  Contact the administrator of this Fossil repository for
+    @ further information.</p>
+  }
   @
   @ <a name='step3'></a>
   @ <h1>Step 3: Initialize The Draft</h1>
@@ -803,9 +904,10 @@ void setup_skin(void){
     @ <p>Initialize the draft%d(iSkin) skin to one of the built-in skins
     @ or a preexisting skin, to use as a baseline.</p>
     @
-    @ <p><form method='POST' action='%R/setup_skin#stop4' id='f03'>
+    @ <form method='POST' action='%R/setup_skin#step4' id='f03'>
+    @ <p class='skinInput'>
     @ <input type='hidden' name='sk' value='%d(iSkin)'>
-    @ Initialize <b>draft%d(iSkin)</b> to
+    @ Initialize skin <b>draft%d(iSkin)</b> using
     @ <select size='1' name='initskin'>
     @ <option value='current'>Currently In Use</option>
     for(i=0; i<count(aBuiltinSkin); i++){
@@ -815,10 +917,27 @@ void setup_skin(void){
     @ </select>
     @ <input type='submit' name='init3' value='Go'>
     @ </p>
+    @ </form>
   }
   @
   @ <a name='step4'></a>
   @ <h1>Step 4: Make Edits</h1>
+  @
+  if( !isEditor ){
+    @ <p>You are not authorized to make edits to the draft%d(iSkin) skin.
+    @ Contact the administrator of this Fossil repository for help.</p>
+  }else{
+    @ <p>Edit the components of the draft%d(iSkin) skin:
+    @ <ul>
+    @ <li><a href='%R/setup_skinedit?w=0&sk=%d(iSkin)' target='_blank'>CSS</a>
+    @ <li><a href='%R/setup_skinedit?w=1&sk=%d(iSkin)' target='_blank'>\
+    @ Header</a>
+    @ <li><a href='%R/setup_skinedit?w=2&sk=%d(iSkin)' target='_blank'>\
+    @ Footer</a>
+    @ <li><a href='%R/setup_skinedit?w=3&sk=%d(iSkin)' target='_blank'>\
+    @ Details</a>
+    @ </ul>
+  }
   @
   @ <a name='step5'></a>
   @ <h1>Step 5: Verify The Draft Skin</h1>
@@ -827,25 +946,44 @@ void setup_skin(void){
   @ operation name in the URL.  Here are a few links to try:
   @ <ul>
   for(i=0; i<count(azTestPages); i++){
-    @ <li><a href='%s(g.zBaseURL)/draft%d(iSkin)/%s(azTestPages[i])'>\
-    @ %s(g.zBaseURL)/draft%d(iSkin)/%s(azTestPages[i])</a>
+    @ <li><a href='%s(g.zBaseURL)/draft%d(iSkin)/%s(azTestPages[i])' \
+    @ target='_blank'>%s(g.zBaseURL)/draft%d(iSkin)/%s(azTestPages[i])</a>
   }
   @ </ul>
   @
-  @ <p><b>Important:</b> After CSS changes, you will probably need to
-  @ press the "Reload" button on your browser for those changes
-  @ to take effect.</p>
+  @ <p>You will probably need to press Reload on your browser before any
+  @ CSS changes will take effect.</p>
+  @
+  @ <a hame='step6'></a>
+  @ <h1>Step 6: Interate</h1>
+  @
+  @ <p>Repeat <a href='#step4'>step 4</a> and
+  @ <a href='#step5'>step 5</a> as many times as necessary to create
+  @ a production-ready skin.
   @
   @ <a name='step6'></a>
-  @ <h1>Step 6: Publish The Draft</h1>
+  @ <h1>Step 7: Publish The Draft</h1>
+  @
   if( !g.perm.Setup ){
     @ <p>Only administrators are allowed to publish draft skins.  Contact
     @ an administrator to get this "draft%d(iSkin)" skin published.</p>
   }else{
-    
+    @ <p>When the draft%d(iSkin) skin is ready for production use,
+    @ make it the default scan by clicking the acknowledgements and
+    @ pressing the button below:</p>
+    @
+    @ <form method='POST' action='%R/setup_skin#step7'>
+    @ <p class='skinInput'>
+    @ <input type='hidden' name='sk' value='%d(iSkin)'>
+    @ <input type='checkbox' name='pub7ck1' value='yes'>\
+    @ Skin draft%d(iSkin) has been testing and found ready for production.<br>
+    @ <input type='checkbox' name='pub7ck2' value='yes'>\
+    @ The current skin should be overwritten with draft%d(iSkin).<br>
+    @ <input type='submit' name='pub7' value='Publish Draft%d(iSkin)'>
+    @ </p></form>
+    @
+    @ <p>You will probably need to press Reload on your browser after
+    @ publishing the new skin.</p>
   }
-  @
-  @ <a name='step7'></a>
-  @ <h1>Step 7: Cleanup</h1>
   style_footer();
 }
