@@ -849,6 +849,9 @@ static void Th1DeleteProc(
 */
 char *fossil_getenv(const char *zName); /* file.h */
 int file_isdir(const char *zPath, int); /* file.h */
+#define ExtFILE    0                    /* file.h */
+#define RepoFILE   1                    /* file.h */
+#define SymFILE    2                    /* file.h */
 char *file_dirname(const char *zPath);  /* file.h */
 void fossil_free(void *p);              /* util.h */
 
