@@ -848,7 +848,7 @@ static void Th1DeleteProc(
 ** functions.
 */
 char *fossil_getenv(const char *zName); /* file.h */
-int file_isdir(const char *zPath);      /* file.h */
+int file_isdir(const char *zPath, int); /* file.h */
 char *file_dirname(const char *zPath);  /* file.h */
 void fossil_free(void *p);              /* util.h */
 
@@ -877,7 +877,7 @@ static int loadTcl(
     void *hLibrary;
     if( !zEnvPath ){
       zFileName = aFileName; /* NOTE: Assume present in PATH. */
-    }else if( file_isdir(zEnvPath)==1 ){
+    }else if( file_isdir(zEnvPath, ExtFILE)==1 ){
 #if TCL_USE_SET_DLL_DIRECTORY
       SetDllDirectory(zEnvPath); /* NOTE: Maybe needed for "zlib1.dll". */
 #endif /* TCL_USE_SET_DLL_DIRECTORY */

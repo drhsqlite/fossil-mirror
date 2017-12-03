@@ -138,9 +138,9 @@ const char *skin_get(const char *zWhat){
   char *z;
   if( zAltSkinDir ){
     char *z = mprintf("%s/%s.txt", zAltSkinDir, zWhat);
-    if( file_isfile(z) ){
+    if( file_isfile(z, ExtFILE) ){
       Blob x;
-      blob_read_from_file(&x, z);
+      blob_read_from_file(&x, z, ExtFILE);
       fossil_free(z);
       return blob_str(&x);
     }

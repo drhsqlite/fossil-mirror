@@ -651,8 +651,8 @@ void doc_page(void){
       char *zFullpath;
       db_must_be_within_tree();
       zFullpath = mprintf("%s/%s", g.zLocalRoot, zName);
-      if( file_isfile(zFullpath)
-       && blob_read_from_file(&filebody, zFullpath)>0 ){
+      if( file_isfile(zFullpath, RepoFILE)
+       && blob_read_from_file(&filebody, zFullpath, RepoFILE)>0 ){
         rid = 1;  /* Fake RID just to get the loop to end */
       }
       fossil_free(zFullpath);

@@ -146,7 +146,7 @@ void clone_cmd(void){
     usage("?OPTIONS? FILE-OR-URL NEW-REPOSITORY");
   }
   db_open_config(0, 0);
-  if( -1 != file_size(g.argv[3]) ){
+  if( -1 != file_size(g.argv[3], ExtFILE) ){
     fossil_fatal("file already exists: %s", g.argv[3]);
   }
 

@@ -135,14 +135,14 @@ int hname_verify_file_hash(const char *zFile, const char *zHash, int nHash){
   switch( nHash ){
     case HNAME_LEN_SHA1: {
       Blob hash;
-      if( sha1sum_file(zFile, &hash) ) break;
+      if( sha1sum_file(zFile, RepoFILE, &hash) ) break;
       if( memcmp(blob_buffer(&hash),zHash,HNAME_LEN_SHA1)==0 ) id = HNAME_SHA1;
       blob_reset(&hash);
       break;
     }
     case HNAME_LEN_K256: {
       Blob hash;
-      if( sha3sum_file(zFile, 256, &hash) ) break;
+      if( sha3sum_file(zFile, RepoFILE, 256, &hash) ) break;
       if( memcmp(blob_buffer(&hash),zHash,64)==0 ) id = HNAME_LEN_K256;
       blob_reset(&hash);
       break;

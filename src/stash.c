@@ -91,7 +91,6 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
     const char *zOrig = db_column_text(&q, 5);
     char *zPath = mprintf("%s%s", g.zLocalRoot, zName);
     Blob content;
-    int isNewLink = file_wd_islink(zPath);
 
     db_bind_int(&ins, ":rid", rid);
     db_bind_int(&ins, ":isadd", rid==0);
@@ -103,11 +102,7 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
 
     if( rid==0 ){
       /* A new file */
-      if( isNewLink ){
-        blob_read_link(&content, zPath);
-      }else{
-        blob_read_from_file(&content, zPath);
-      }
+      blob_read_from_file(&content, zPath, RepoFILE);
       db_bind_blob(&ins, ":content", &content);
     }else if( deleted ){
       blob_zero(&content);
@@ -117,18 +112,14 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
       Blob orig;
       Blob disk;
 
-      if( isNewLink ){
-        blob_read_link(&disk, zPath);
-      }else{
-        blob_read_from_file(&disk, zPath);
-      }
+      blob_read_from_file(&disk, zPath, RepoFILE);
       content_get(rid, &orig);
       blob_delta_create(&orig, &disk, &content);
       blob_reset(&orig);
       blob_reset(&disk);
       db_bind_blob(&ins, ":content", &content);
     }
-    db_bind_int(&ins, ":islink", isNewLink);
+    db_bind_int(&ins, ":islink", file_islink(zPath));
     db_step(&ins);
     db_reset(&ins);
     fossil_free(zPath);
@@ -227,19 +218,15 @@ static void stash_apply(int stashid, int nConflict){
       db_multi_exec("INSERT OR IGNORE INTO sfile(pathname) VALUES(%Q)", zNew);
       db_ephemeral_blob(&q, 6, &delta);
       blob_write_to_file(&delta, zNPath);
-      file_wd_setexe(zNPath, isExec);
+      file_setexe(zNPath, isExec);
     }else if( isRemoved ){
       fossil_print("DELETE %s\n", zOrig);
       file_delete(zOPath);
     }else{
       Blob a, b, out, disk;
-      int isNewLink = file_wd_islink(zOPath);
+      int isNewLink = file_islink(zOPath);
       db_ephemeral_blob(&q, 6, &delta);
-      if( isNewLink ){
-        blob_read_link(&disk, zOPath);
-      }else{
-        blob_read_from_file(&disk, zOPath);
-      }
+      blob_read_from_file(&disk, zOPath, RepoFILE);
       content_get(rid, &a);
       blob_delta_apply(&a, &delta, &b);
       if( isLink == isNewLink && blob_compare(&disk, &a)==0 ){
@@ -251,7 +238,7 @@ static void stash_apply(int stashid, int nConflict){
         }else{
           blob_write_to_file(&b, zNPath);
         }
-        file_wd_setexe(zNPath, isExec);
+        file_setexe(zNPath, isExec);
         fossil_print("UPDATE %s\n", zNew);
       }else{
         int rc;
@@ -263,7 +250,7 @@ static void stash_apply(int stashid, int nConflict){
           rc = merge_3way(&a, zOPath, &b, &out, 0);
           blob_write_to_file(&out, zNPath);
           blob_reset(&out);
-          file_wd_setexe(zNPath, isExec);
+          file_setexe(zNPath, isExec);
         }
         if( rc ){
           fossil_print("CONFLICT %s\n", zNew);
@@ -345,7 +332,7 @@ static void stash_diff(
       }
     }else{
       Blob delta;
-      int isOrigLink = file_wd_islink(zOPath);
+      int isOrigLink = file_islink(zOPath);
       db_ephemeral_blob(&q, 6, &delta);
       fossil_print("CHANGED %s\n", zNew);
       if( !isOrigLink != !isLink ){

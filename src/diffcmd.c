@@ -182,14 +182,10 @@ void diff_file(
 
     /* Read content of zFile2 into memory */
     blob_zero(&file2);
-    if( file_wd_size(zFile2)<0 ){
+    if( file_size(zFile2, ExtFILE)<0 ){
       zName2 = NULL_DEVICE;
     }else{
-      if( file_wd_islink(0) ){
-        blob_read_link(&file2, zFile2);
-      }else{
-        blob_read_from_file(&file2, zFile2);
-      }
+      blob_read_from_file(&file2, zFile2, ExtFILE);
       zName2 = zName;
     }
 
@@ -239,12 +235,8 @@ void diff_file(
         glob_free(pBinary);
       }
       blob_zero(&file2);
-      if( file_wd_size(zFile2)>=0 ){
-        if( file_wd_islink(0) ){
-          blob_read_link(&file2, zFile2);
-        }else{
-          blob_read_from_file(&file2, zFile2);
-        }
+      if( file_size(zFile2, ExtFILE)>=0 ){
+        blob_read_from_file(&file2, zFile2, ExtFILE);
       }
       if( looks_like_binary(&file2) ){
         fossil_print("%s",DIFF_CANNOT_COMPUTE_BINARY);
@@ -491,7 +483,7 @@ static void diff_against_disk(
     if( showDiff ){
       Blob content;
       int isBin;
-      if( !isLink != !file_wd_islink(zFullName) ){
+      if( !isLink != !file_islink(zFullName) ){
         diff_print_index(zPathname, diffFlags);
         diff_print_filenames(zPathname, zPathname, diffFlags);
         fossil_print("%s",DIFF_CANNOT_COMPUTE_SYMLINK);
@@ -967,7 +959,7 @@ void diff_cmd(void){
     for(i=0; pFileDir[i].zName; i++){
       if( pFileDir[i].nUsed==0
        && strcmp(pFileDir[0].zName,".")!=0
-       && !file_wd_isdir(g.argv[i+2])
+       && !file_isdir(g.argv[i+2], ExtFILE)
       ){
         fossil_fatal("not found: '%s'", g.argv[i+2]);
       }

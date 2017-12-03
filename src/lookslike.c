@@ -424,7 +424,7 @@ void looks_like_utf_test_cmd(void){
   if( zCount ){
     nRepeat = atoi(zCount);
   }
-  blob_read_from_file(&blob, g.argv[2]);
+  blob_read_from_file(&blob, g.argv[2], ExtFILE);
   while( --nRepeat >= 0 ){
     fUtf8 = starts_with_utf8_bom(&blob, 0);
     fUtf16 = starts_with_utf16_bom(&blob, 0, &bRevUtf16);

@@ -707,7 +707,7 @@ void test_content_put_cmd(void){
   if( g.argc!=3 ) usage("FILENAME");
   db_must_be_within_tree();
   user_select();
-  blob_read_from_file(&content, g.argv[2]);
+  blob_read_from_file(&content, g.argv[2], ExtFILE);
   rid = content_put(&content);
   fossil_print("inserted as record %d\n", rid);
 }

@@ -25,8 +25,8 @@
 #include "cygsup.h"
 
 /*
-** WARNING: For Fossil version 1.x this value was always zero.  For Fossil
-**          2.x, it will probably always be one.  When this value is zero,
+** WARNING: For Fossil version x.x this value was always zero.  For Fossil-NG
+**          it will probably always be one.  When this value is zero,
 **          files in the checkout will not be moved by the "mv" command and
 **          files in the checkout will not be removed by the "rm" command.
 **
@@ -34,7 +34,7 @@
 **          the "mv-rm-files" setting will be consulted instead of using
 **          this value.
 **
-**          To retain the Fossil version 1.x behavior when using Fossil 2.x,
+**          To retain the Fossil version 2.x behavior when using Fossil-NG
 **          the FOSSIL_ENABLE_LEGACY_MV_RM compile-time option must be used
 **          -AND- the "mv-rm-files" setting must be set to zero.
 */
@@ -187,11 +187,11 @@ static int add_one_file(
                   zPath, filename_collation());
   }else{
     char *zFullname = mprintf("%s%s", g.zLocalRoot, zPath);
-    int isExe = file_wd_isexe(zFullname);
+    int isExe = file_isexe(zFullname, RepoFILE);
     db_multi_exec(
       "INSERT INTO vfile(vid,deleted,rid,mrid,pathname,isexe,islink)"
       "VALUES(%d,0,0,0,%Q,%d,%d)",
-      vid, zPath, isExe, file_wd_islink(0));
+      vid, zPath, isExe, file_islink(0));
     fossil_free(zFullname);
   }
   if( db_changes() ){
@@ -328,7 +328,7 @@ void add_cmd(void){
 
     file_canonical_name(g.argv[i], &fullName, 0);
     zName = blob_str(&fullName);
-    isDir = file_wd_isdir(zName);
+    isDir = file_isdir(zName, RepoFILE);
     if( isDir==1 ){
       vfile_scan(&fullName, nRoot-1, scanFlags, pClean, pIgnore);
     }else if( isDir==0 ){
@@ -697,7 +697,7 @@ void addremove_cmd(void){
 
     zFile = db_column_text(&q, 0);
     zPath = db_column_text(&q, 1);
-    if( !file_wd_isfile_or_link(zPath) ){
+    if( !file_isfile_or_link(zPath) ){
       if( !dryRunFlag ){
         db_multi_exec("UPDATE vfile SET deleted=1 WHERE pathname=%Q", zFile);
       }
@@ -799,14 +799,14 @@ static void process_files_to_move(
       const char *zOldName = db_column_text(&move, 0);
       const char *zNewName = db_column_text(&move, 1);
       if( !dryRunFlag ){
-        int isOldDir = file_isdir(zOldName);
+        int isOldDir = file_isdir(zOldName, RepoFILE);
         if( isOldDir==1 ){
-          int isNewDir = file_isdir(zNewName);
+          int isNewDir = file_isdir(zNewName, RepoFILE);
           if( isNewDir==0 ){
             file_rename(zOldName, zNewName, isOldDir, isNewDir);
           }
         }else{
-          if( file_wd_islink(zOldName) ){
+          if( file_islink(zOldName) ){
             symlink_copy(zOldName, zNewName);
           }else{
             file_copy(zOldName, zNewName);
@@ -902,7 +902,7 @@ void mv_cmd(void){
   db_multi_exec(
     "CREATE TEMP TABLE mv(f TEXT UNIQUE ON CONFLICT IGNORE, t TEXT);"
   );
-  if( file_wd_isdir(zDest)!=1 ){
+  if( file_isdir(zDest, RepoFILE)!=1 ){
     Blob orig;
     if( g.argc!=4 ){
       usage("OLDNAME NEWNAME");

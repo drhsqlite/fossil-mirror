@@ -325,7 +325,7 @@ void fusefs_cmd(void){
   blob_init(&fusefs.content, 0, 0);
   if( g.argc!=3 ) usage("DIRECTORY");
   zMountPoint = g.argv[2];
-  if( file_mkdir(zMountPoint, 0) ){
+  if( file_mkdir(zMountPoint, ExtFILE, 0) ){
     fossil_fatal("cannot make directory [%s]", zMountPoint);
   }
   azNewArgv[0] = g.argv[0];

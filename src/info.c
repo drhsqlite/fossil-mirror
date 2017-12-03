@@ -203,7 +203,10 @@ void info_cmd(void){
     verboseFlag = find_option("detail","l",0)!=0; /* deprecated */
   }
 
-  if( g.argc==3 && (fsize = file_size(g.argv[2]))>0 && (fsize&0x1ff)==0 ){
+  if( g.argc==3
+   && (fsize = file_size(g.argv[2], ExtFILE))>0
+   && (fsize&0x1ff)==0
+  ){
     db_open_config(0, 0);
     db_open_repository(g.argv[2]);
     db_record_repository_filename(g.argv[2]);
@@ -3119,7 +3122,7 @@ void ci_amend_cmd(void){
     zNewComment = blob_str(&comment);
   }else if( zComFile ){
     blob_zero(&comment);
-    blob_read_from_file(&comment, zComFile);
+    blob_read_from_file(&comment, zComFile, ExtFILE);
     blob_to_utf8_no_bom(&comment, 1);
     zNewComment = blob_str(&comment);
   }
