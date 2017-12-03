@@ -381,7 +381,7 @@ static int skinRename(void){
       @ <p><span class="generalError">There is already another skin
       @ named "%h(zNewName)".  Choose a different name.</span></p>
     }
-    @ <form action="%s(g.zTop)/setup_skin_old" method="post"><div>
+    @ <form action="%s(g.zTop)/setup_skin_admin" method="post"><div>
     @ <table border="0"><tr>
     @ <tr><td align="right">Current name:<td align="left"><b>%h(zOldName)</b>
     @ <tr><td align="right">New name:<td align="left">
@@ -421,7 +421,7 @@ static int skinSave(const char *zCurrent){
       @ <p><span class="generalError">There is already another skin
       @ named "%h(zNewName)".  Choose a different name.</span></p>
     }
-    @ <form action="%s(g.zTop)/setup_skin_old" method="post"><div>
+    @ <form action="%s(g.zTop)/setup_skin_admin" method="post"><div>
     @ <table border="0"><tr>
     @ <tr><td align="right">Name for this skin:<td align="left">
     @ <input type="text" size="35" name="svname" value="%h(zNewName)">
@@ -442,14 +442,12 @@ static int skinSave(const char *zCurrent){
   return 0;
 }
 
-#if 0
 /*
-** WEB**PAGE: setup_skin_old
+** WEBPAGE: setup_skin_admin
 **
-** Show a list of available skins with buttons for selecting which
-** skin to use.  Requires Setup privilege.
+** Administrative actions on skins.  For administrators only.
 */
-void setup_skin_old(void){
+void setup_skin_admin(void){
   const char *z;
   char *zName;
   char *zErr = 0;
@@ -457,6 +455,7 @@ void setup_skin_old(void){
   int i;                     /* Loop counter */
   Stmt q;
   int seenCurrent = 0;
+  int once;
 
   login_check_credentials();
   if( !g.perm.Setup ){
@@ -472,7 +471,7 @@ void setup_skin_old(void){
   /* Process requests to delete a user-defined skin */
   if( P("del1") && (zName = skinVarName(P("sn"), 1))!=0 ){
     style_header("Confirm Custom Skin Delete");
-    @ <form action="%s(g.zTop)/setup_skin_old" method="post"><div>
+    @ <form action="%s(g.zTop)/setup_skin_admin" method="post"><div>
     @ <p>Deletion of a custom skin is a permanent action that cannot
     @ be undone.  Please confirm that this is what you want to do:</p>
     @ <input type="hidden" name="sn" value="%h(P("sn"))" />
@@ -485,6 +484,12 @@ void setup_skin_old(void){
   }
   if( P("del2")!=0 && (zName = skinVarName(P("sn"), 1))!=0 ){
     db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
+  }
+  if( P("draftdel")!=0 ){
+    const char *zDraft = P("name");
+    if( sqlite3_strglob("draft[1-9]",zDraft)==0 ){
+      db_multi_exec("DELETE FROM config WHERE name GLOB '%q-*'", zDraft);
+    }
   }
   if( skinRename() ) return;
   if( skinSave(zCurrent) ) return;
@@ -533,24 +538,8 @@ void setup_skin_old(void){
   if( zErr ){
     @ <p style="color:red">%h(zErr)</p>
   }
-  @ <p>A "skin" is a combination of
-  @ <a href="setup_skinedit?w=0">CSS</a>,
-  @ <a href="setup_skinedit?w=2">Header</a>,
-  @ <a href="setup_skinedit?w=1">Footer</a>, and
-  @ <a href="setup_skinedit?w=3">Details</a>
-  @ that determines the look and feel
-  @ of the web interface.</p>
-  @
-  if( pAltSkin ){
-    @ <p class="generalError">
-    @ This page is generated using an skin override named
-    @ "%h(pAltSkin->zLabel)".  You can change the skin configuration
-    @ below, but the changes will not take effect until the Fossil server
-    @ is restarted without the override.</p>
-    @
-  }
-  @ <h2>Available Skins:</h2>
   @ <table border="0">
+  @ <tr><td colspan=4><h2>Built-in Skins:</h2></td></th>
   for(i=0; i<count(aBuiltinSkin); i++){
     z = aBuiltinSkin[i].zDesc;
     @ <tr><td>%d(i+1).<td>%h(z)<td>&nbsp;&nbsp;<td>
@@ -558,7 +547,7 @@ void setup_skin_old(void){
       @ (Currently In Use)
       seenCurrent = 1;
     }else{
-      @ <form action="%s(g.zTop)/setup_skin_old" method="post">
+      @ <form action="%s(g.zTop)/setup_skin_admin" method="post">
       @ <input type="hidden" name="sn" value="%h(z)" />
       @ <input type="submit" name="load" value="Install" />
       if( pAltSkin==&aBuiltinSkin[i] ){
@@ -573,12 +562,18 @@ void setup_skin_old(void){
      " WHERE name GLOB 'skin:*'"
      " ORDER BY name"
   );
+  once = 1;
   while( db_step(&q)==SQLITE_ROW ){
     const char *zN = db_column_text(&q, 0);
     const char *zV = db_column_text(&q, 1);
     i++;
+    if( once ){
+      once = 0;
+      @ <tr><td colspan=4><h2>Skins saved as "skin:*' entries \
+      @ in the CONFIG table:</h2></td></tr>
+    }
     @ <tr><td>%d(i).<td>%h(zN)<td>&nbsp;&nbsp;<td>
-    @ <form action="%s(g.zTop)/setup_skin_old" method="post">
+    @ <form action="%s(g.zTop)/setup_skin_admin" method="post">
     if( fossil_strcmp(zV, zCurrent)==0 ){
       @ (Currently In Use)
       seenCurrent = 1;
@@ -593,16 +588,39 @@ void setup_skin_old(void){
   db_finalize(&q);
   if( !seenCurrent ){
     i++;
-    @ <tr><td>%d(i).<td><i>Current Configuration</i><td>&nbsp;&nbsp;<td>
-    @ <form action="%s(g.zTop)/setup_skin_old" method="post">
-    @ <input type="submit" name="save" value="Save">
+    @ <tr><td colspan=4><h2>Current skin in css/header/footer/details entries \
+    @ in the CONFIG table:</h2></td></tr>
+    @ <tr><td>%d(i).<td><i>Current</i><td>&nbsp;&nbsp;<td>
+    @ <form action="%s(g.zTop)/setup_skin_admin" method="post">
+    @ <input type="submit" name="save" value="Backup">
     @ </form>
   }
+  db_prepare(&q,
+     "SELECT DISTINCT substr(name, 1, 6) FROM config"
+     " WHERE name GLOB 'draft[1-9]-*'"
+     " ORDER BY name"
+  );
+  once = 1;
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zN = db_column_text(&q, 0);
+    i++;
+    if( once ){
+      once = 0;
+      @ <tr><td colspan=4><h2>Draft skins stored as "draft[1-9]-*' entries \
+      @ in the CONFIG table:</h2></td></tr>
+    }
+    @ <tr><td>%d(i).<td>%h(zN)<td>&nbsp;&nbsp;<td>
+    @ <form action="%s(g.zTop)/setup_skin_admin" method="post">
+    @ <input type="submit" name="draftdel" value="Delete">
+    @ <input type="hidden" name="name" value="%h(zN)">
+    @ </form></tr>
+  }
+  db_finalize(&q);
+
   @ </table>
   style_footer();
   db_end_transaction(0);
 }
-#endif
 
 /*
 ** WEBPAGE: setup_skinedit
@@ -967,8 +985,8 @@ void setup_skin(void){
   @ <a href='#step5'>step 5</a> as many times as necessary to create
   @ a production-ready skin.
   @
-  @ <a name='step6'></a>
-  @ <h1>Step 7: Publish The Draft</h1>
+  @ <a name='step7'></a>
+  @ <h1>Step 7: Publish</h1>
   @
   if( !g.perm.Setup ){
     @ <p>Only administrators are allowed to publish draft skins.  Contact
@@ -990,6 +1008,17 @@ void setup_skin(void){
     @
     @ <p>You will probably need to press Reload on your browser after
     @ publishing the new skin.</p>
+  }
+  @
+  @ <a name='step8'></a>
+  @ <h1>Step 8: Cleanup and Undo Actions</h1>
+  @
+  if( !g.perm.Setup ){
+    @ <p>Administrators can optionally remove save legacy skins, or
+    @ undo a prior publish
+  }else{
+    @ <p>Visit the <a href='%R/setup_skin_admin'>Skin Admin</a> page
+    @ for cleanup and recovery actions.
   }
   style_footer();
 }
