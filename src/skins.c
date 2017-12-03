@@ -847,8 +847,9 @@ void setup_skin(void){
   if( P("init3")!=0 && isEditor ){
     skin_initialize_draft(iSkin, P("initskin"));
   }
-  if( P("e3")!=0 && isSetup ){
+  if( P("submit2")!=0 && isSetup ){
     db_set_mprintf("draft%d-users", PD("editors",""), 0, iSkin);
+    zAllowedEditors = db_get_mprintf("draft%d-users", "", iSkin);
   }
 
   /* Publish the draft skin */
