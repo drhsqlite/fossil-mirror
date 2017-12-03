@@ -833,8 +833,13 @@ void page_style_css(void){
       if( !isInit ){
         isInit = 1;
         blob_append(&css,
-          "/*** All the follows is supplemental CSS automatically generated"
-          " by Fossil ***/\n", -1);
+          "\n/***********************************************************\n"
+          "** All CSS above is supplied by the repository \"skin\".\n"
+          "** That which follows is generated automatically by Fossil\n"
+          "** to fill in needed selectors that are missing from the\n"
+          "** \"skin\" CSS.\n"
+          "***********************************************************/\n",
+          -1);
       }
       blob_appendf(&css, "%s {\n%s}\n",
           cssDefaultList[i].elementClass,

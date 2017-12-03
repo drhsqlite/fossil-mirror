@@ -127,7 +127,7 @@ int main(int argc, char *argv[]){
         exit(1);
       }
       for(i=0; isspace(z[i]); i++){}
-      fprintf(out, "    \"");
+      fprintf(out, "    \"  ");
       clang_puts(out, z+i);
       fprintf(out, "\\n\"\n");
     }else if( z[0]=='}' ){
