@@ -442,8 +442,9 @@ static int skinSave(const char *zCurrent){
   return 0;
 }
 
+#if 0
 /*
-** WEBPAGE: setup_skin_old
+** WEB**PAGE: setup_skin_old
 **
 ** Show a list of available skins with buttons for selecting which
 ** skin to use.  Requires Setup privilege.
@@ -601,7 +602,7 @@ void setup_skin_old(void){
   style_footer();
   db_end_transaction(0);
 }
-
+#endif
 
 /*
 ** WEBPAGE: setup_skinedit
@@ -727,18 +728,19 @@ static void skin_initialize_draft(int iSkin, const char *zTemplate){
   if( zTemplate==0 ) return;
   if( strcmp(zTemplate, "current")==0 ){
     for(i=0; i<count(azSkinFile); i++){
-      db_unset_mprintf("draft%d-%s", 0, iSkin, azSkinFile[i]);
+      db_set_mprintf("draft%d-%s", db_get(azSkinFile[i],""), 0,
+                     iSkin, azSkinFile[i]);
     }
-  }else{
-    for(i=0; i<count(aBuiltinSkin); i++){
-      if( strcmp(zTemplate, aBuiltinSkin[i].zLabel)==0 ){
-        for(i=0; i<count(azSkinFile); i++){
-          char *zKey = mprintf("skins/%s/%s.txt", zTemplate, azSkinFile[i]);
-          db_set_mprintf("draft%d-%s", builtin_text(zKey), 0,
-                         iSkin, azSkinFile[i]);
-        }
-        break;
+    return;
+  }
+  for(i=0; i<count(aBuiltinSkin); i++){
+    if( strcmp(zTemplate, aBuiltinSkin[i].zLabel)==0 ){
+      for(i=0; i<count(azSkinFile); i++){
+        char *zKey = mprintf("skins/%s/%s.txt", zTemplate, azSkinFile[i]);
+        db_set_mprintf("draft%d-%s", builtin_text(zKey), 0,
+                       iSkin, azSkinFile[i]);
       }
+      return;
     }
   }
 }
@@ -776,13 +778,8 @@ static void skin_publish(int iSkin){
 
   /* Publish draft iSkin */
   for(i=0; i<count(azSkinFile); i++){
-    db_multi_exec(
-      "UPDATE config"
-      " SET value=(SELECT value FROM config AS x"
-                  " WHERE x.name = printf('draft%d-%%s',config.name)),"
-      "     mtime=now()"
-      " WHERE name IN ('css','header','footer','details')", iSkin
-    );
+    char *zNew = db_get_mprintf("draft%d-%s", "", iSkin, azSkinFile[i]);
+    db_set(azSkinFile[i], zNew, 0);
   }
 }
 
