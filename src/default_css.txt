@@ -51,9 +51,6 @@ tr.timelineCurrent td {
   border-radius: 0;
   border-width: 0;
 }
-tr.timelineSpacer {
-  height: 1ex;
-}
 span.timelineLeaf {
   font-weight: bold;
 }

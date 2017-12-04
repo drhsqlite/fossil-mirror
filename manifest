@@ -1,5 +1,5 @@
-C Remove\s".timelineSpacer"\srows\ssurrounding\sthe\sselect\srow\son\sa\stimeline.
-D 2017-12-04T16:42:09.057
+C Remove\ssome\sstale\s".timelineSpacer"\sCSS\sselectors.
+D 2017-12-04T17:00:31.488
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -330,7 +330,7 @@ F skins/black_and_white/footer.txt b8103a3b864f4f0900825f135256c5a48b5323bc1760c
 F skins/black_and_white/header.txt ec18f3a6c388abe77cd5512f016db0f872d607002577ea9b8513591181509a0f
 F skins/blitz/README.md 2b86027936aa1ed69d0ccc413868aa886cacb45f
 F skins/blitz/arrow_project.png 2b2958e36ec7fe54836ab50d6c194789461463d0
-F skins/blitz/css.txt 178a3921f0d42859390dacdcfe8a3d3b0aff9516
+F skins/blitz/css.txt ac788aa98c0bab31850723017ebacf0f77123eece529a72eb4fde747da96307c
 F skins/blitz/details.txt 1260bc474e730cd32e4e86f7a346e22a1268cc8f
 F skins/blitz/dir.png 4a210b2afb16584e6093478f77025da7e7b83a57
 F skins/blitz/file.png 0d20b3bee95152a6358e1878a9bb07cc6a0f975d
@@ -342,7 +342,7 @@ F skins/blitz/header.txt 0e923740c0adc3695d8a51c8a4972c8015bbb2b0d62ea26a062c1fa
 F skins/blitz/rss_20.png 7d659cf7e4378d16198ddd4e984b4073e1fac901
 F skins/blitz/ticket.txt b35ac95d03bb2da2f10634bb16cb7bdc67062b2b
 F skins/blitz_no_logo/README.md 24829897e941d1cef4f8b8d6291c86d9cfe17cd7
-F skins/blitz_no_logo/css.txt 5efba649cb8427553641f8f85530ca334d99223e
+F skins/blitz_no_logo/css.txt d5850faf375f498f6469b8ff306a858069c9d19230c2c0f1f0abca4cedeff4aa
 F skins/blitz_no_logo/details.txt 1260bc474e730cd32e4e86f7a346e22a1268cc8f
 F skins/blitz_no_logo/footer.txt 011e6ad3f5e427d093653db114b3326d009a8d6e19a35b4a95dc7a0bf2dbd2aa
 F skins/blitz_no_logo/header.txt 457ec1cc8d021b32a0a94510b8a7a08624ddc4cdedb5cc4c73b42c96316dd6ee
@@ -414,7 +414,7 @@ F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 388f63b41219d782bb96de3110e889d4df93521ecd463536fc27c073cfec6b5c
-F src/default_css.txt 7102e15ade7a8b3ed9ffc9305c52384e049c32cb5d4a7100d2c6f8827a6a5b6e
+F src/default_css.txt b55c14b2b8746bcf494e241e8d7bd0167be47c42f312b33b84c42783bf2be51d
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
@@ -796,7 +796,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 523c548b2e236412acc94fb30f5ecea2da72a785c911c170bedaf9be51655fe6
-R 1ad38527e98509f5c9c8413d83dfb857
+P 38b223df9cd1218ae1c8120c26a48f8cebe67787bd5827383b8c0e07e5f2a234
+R dac03c91c6884a49624d594bb76aece4
 U drh
-Z 104c54c6575278f019940d2029c4a082
+Z 44c576a780787b81cfad2aabfb0bac99
