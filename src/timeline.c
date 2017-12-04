@@ -331,9 +331,6 @@ void www_print_timeline(
     }
     if( pendingEndTr ){
       @ </td></tr>
-      if( pendingEndTr>1 ){
-        @ <tr class="timelineSpacer"></tr>
-      }
       pendingEndTr = 0;
     }
     if( fossil_strcmp(zType,"div")==0 ){
@@ -379,9 +376,7 @@ void www_print_timeline(
     }
     pendingEndTr = 1;
     if( rid==selectedRid ){
-      @ <tr class="timelineSpacer"></tr>
       @ <tr class="timelineSelected">
-      pendingEndTr = 2;
     }else if( rid==vid ){
       @ <tr class="timelineCurrent">
     }else {
