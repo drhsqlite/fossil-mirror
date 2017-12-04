@@ -765,11 +765,13 @@ void setup_skinedit(void){
   @ <hr />
   @ Baseline: \
   skin_emit_skin_selector("basis", zBasis, zDraft);
-  @ <input type="submit" name="diff" value="Diff" />
-  if( P("diff")!=0 ){
+  @ <input type="submit" name="diff" value="Unified Diff" />
+  @ <input type="submit" name="sbsdiff" value="Side-by-Side Diff" />
+  if( P("diff")!=0 || P("sbsdiff")!=0 ){
     u64 diffFlags = construct_diff_flags(0,0) |
                         DIFF_STRIP_EOLCR;
     Blob from, to, out;
+    if( P("sbsdiff")!=0 ) diffFlags |= DIFF_SIDEBYSIDE;
     blob_init(&to, zContent, -1);
     blob_init(&from, skin_file_content(zBasis, zFile), -1);
     blob_zero(&out);
