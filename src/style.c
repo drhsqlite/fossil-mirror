@@ -85,6 +85,11 @@ static int sideboxUsed = 0;
 */
 static unsigned adUnitFlags = 0;
 
+/*
+** Page data JSON
+*/
+static Blob pageDataJson = BLOB_INITIALIZER;
+
 
 /*
 ** List of hyperlinks and forms that need to be resolved by javascript in
@@ -193,6 +198,19 @@ void form_begin(const char *zOtherArgs, const char *zAction, ...){
     n = nFormAction;
     @ <form id="form%d(n)" method="POST" action='%R/login' %s(zOtherArgs)>
   }
+}
+
+/*
+** Append page-data JSON
+*/
+void style_pagedata_appendf(const char *zFormat, ...){
+  va_list ap;
+  if( blob_size(&pageDataJson)==0 ){
+    blob_append(&pageDataJson, "[", 1);
+  }
+  va_start(ap, zFormat);
+  blob_vappendf(&pageDataJson, zFormat, ap);
+  va_end(ap);
 }
 
 /*
@@ -425,11 +443,13 @@ static char zDfltHeader[] =
 @ <html>
 @ <head>
 @ <base href="$baseurl/$current_page" />
+@ <meta http-equiv="Content-Security-Policy-xxx" \
+@  content="default-src 'self' 'unsafe-inline'" />
 @ <title>$<project_name>: $<title></title>
-@ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
-@       href="$home/timeline.rss" />
-@ <link rel="stylesheet" href="$stylesheet_url" type="text/css"
-@       media="screen" />
+@ <link rel="alternate" type="application/rss+xml" title="RSS Feed" \
+@  href="$home/timeline.rss" />
+@ <link rel="stylesheet" href="$stylesheet_url" type="text/css" \
+@  media="screen" />
 @ </head>
 @ <body>
 ;
@@ -726,7 +746,14 @@ void style_footer(void){
 
   /* Add document end mark if it was not in the footer */
   if( sqlite3_strlike("%</body>%", zFooter, 0)!=0 ){
-    @ </body></html>
+    style_pagedata_appendf("{'op':'no-op'}]");
+    @ <script type='application/json' id='page-data'>
+    @ %s(blob_str(&pageDataJson))
+    @ </script>
+    @ <script src='%s(g.zBaseURL)/main.js' type='application/javascript'>\
+    @ <script>
+    @ </body>
+    @ </html>
   }
 }
 
@@ -860,6 +887,19 @@ void page_style_css(void){
   /* Tell CGI that the content returned by this page is considered cacheable */
   g.isConst = 1;
 }
+
+/*
+** WEBPAGE: main.js
+**
+** Return the javascript
+*/
+void page_main_js(void){
+  Blob mainjs;
+  cgi_set_content_type("application/javascript");
+  blob_init(&mainjs, builtin_text("main.js"), -1);
+  cgi_set_content(&mainjs);
+}
+
 
 /*
 ** WEBPAGE: test_env
