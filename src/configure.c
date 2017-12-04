@@ -340,7 +340,7 @@ static int safeInt(const char *z){
 ** The old format is retained for backwards compatibility, but is deprecated.
 ** The cutover from old format to new was on 2011-04-25.  After sufficient
 ** time has passed, support for the old format will be removed.
-** Update: Support for the old format was remoed on 2017-09-20.
+** Update: Support for the old format was removed on 2017-09-20.
 **
 ** zName is either the NAME of an element of the CONFIG table, or else
 ** one of the special names "@shun", "@reportfmt", "@user", or "@concealed".

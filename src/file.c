@@ -61,9 +61,9 @@
 ** a symbolic link as the content, instead of the content of the object
 ** that the symlink points to.  SymFILE acts as if allow-symlinks is always ON.
 */
-#define ExtFILE    0    /* Always follow symlinks */
-#define RepoFILE   1    /* Follow symlinks iff allow-symlinks is OFF */
-#define SymFILE    2    /* Never follow symlinks */
+#define ExtFILE    0  /* Always follow symlinks */
+#define RepoFILE   1  /* Follow symlinks if and only if allow-symlinks is OFF */
+#define SymFILE    2  /* Never follow symlinks */
 
 #include <dirent.h>
 #if defined(_WIN32)

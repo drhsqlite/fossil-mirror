@@ -680,10 +680,6 @@ void setup_skinedit(void){
   zBasis = PD("basis","default");
   zDflt = mprintf("skins/%s/%s.txt", zBasis, aSkinAttr[ii].zFile);
   db_begin_transaction();
-  if( P("revert")!=0 ){
-    db_multi_exec("DELETE FROM config WHERE name=%Q", aSkinAttr[ii].zFile);
-    cgi_replace_parameter(aSkinAttr[ii].zFile, builtin_text(zDflt));
-  }
   style_header("%s", zTitle);
   for(j=0; j<count(aSkinAttr); j++){
     if( j==ii ) continue;
@@ -717,7 +713,6 @@ void setup_skinedit(void){
     blob_init(&to, zContent, -1);
     blob_init(&from, builtin_text(zDflt), -1);
     blob_zero(&out);
-    @ <input type="submit" name="revert" value="Revert" /><p>
     if( diffFlags & DIFF_SIDEBYSIDE ){
       text_diff(&from, &to, &out, 0, diffFlags | DIFF_HTML | DIFF_NOTTOOBIG);
       @ %s(blob_str(&out))
