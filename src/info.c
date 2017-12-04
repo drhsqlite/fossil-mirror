@@ -758,8 +758,8 @@ void ci_page(void){
         @ </td></tr>
         @ <tr><th>Downloads:</th><td>
         @ %z(href("%s",zUrl))Tarball</a>
-        @ | %z(href("%R/zip/%t-%S.zip?uuid=%!S",zPJ,zUuid,zUuid))
-        @         ZIP archive</a>
+        @ | %z(href("%R/zip/%t-%S.zip?uuid=%!S",zPJ,zUuid,zUuid))ZIP archive</a>
+        @ | %z(href("%R/sqlar/%t-%S.sqlar?uuid=%!S",zPJ,zUuid,zUuid))SQL archive</a>
         fossil_free(zUrl);
       }
       @ </td></tr>

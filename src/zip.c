@@ -827,15 +827,15 @@ void sqlar_cmd(void){
 }
 
 /*
+** WEBPAGE: sqlar
 ** WEBPAGE: zip
-** URL: /zip
 **
-** Generate a ZIP archive for the check-in specified by the "r"
-** query parameter.  Return that ZIP archive as the HTTP reply content.
+** Generate a ZIP or SQL archive for the check-in specified by the "r"
+** query parameter.  Return the archive as the HTTP reply content.
 **
 ** Query parameters:
 **
-**   name=NAME[.zip]     The base name of the output file.  The default
+**   name=NAME           The base name of the output file.  The default
 **                       value is a configuration parameter in the project
 **                       settings.  A prefix of the name, omitting the
 **                       extension, is used as the top-most directory name.
@@ -866,9 +866,18 @@ void baseline_zip_page(void){
   Glob *pInclude = 0;           /* The compiled in= glob pattern */
   Glob *pExclude = 0;           /* The compiled ex= glob pattern */
   Blob zip;                     /* ZIP archive accumulated here */
+  int eType = ARCHIVE_ZIP;      /* Type of archive to generate */
+  char *zType;                  /* Human-readable archive type */
 
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
+  if( fossil_strcmp(g.zPath, "sqlar")==0 ){
+    eType = ARCHIVE_SQLAR;
+    zType = "SQL";
+  }else{
+    eType = ARCHIVE_ZIP;
+    zType = "ZIP";
+  }
   load_control();
   zName = mprintf("%s", PD("name",""));
   nName = strlen(zName);
@@ -881,12 +890,22 @@ void baseline_zip_page(void){
   if( zInclude ) pInclude = glob_create(zInclude);
   zExclude = P("ex");
   if( zExclude ) pExclude = glob_create(zExclude);
-  if( nName>4 && fossil_strcmp(&zName[nName-4], ".zip")==0 ){
+  if( eType==ARCHIVE_ZIP 
+   && nName>4
+   && fossil_strcmp(&zName[nName-4], ".zip")==0
+  ){
     /* Special case:  Remove the ".zip" suffix.  */
     nName -= 4;
     zName[nName] = 0;
+  }else if( eType==ARCHIVE_SQLAR 
+   && nName>6
+   && fossil_strcmp(&zName[nName-6], ".sqlar")==0
+  ){
+    /* Special case:  Remove the ".sqlar" suffix.  */
+    nName -= 6;
+    zName[nName] = 0;
   }else{
-    /* If the file suffix is not ".zip" then just remove the
+    /* If the file suffix is not ".zip" or ".sqlar" then just remove the
     ** suffix up to and including the last "." */
     for(nName=strlen(zName)-1; nName>5; nName--){
       if( zName[nName]=='.' ){
@@ -905,14 +924,14 @@ void baseline_zip_page(void){
 
   /* Compute a unique key for the cache entry based on query parameters */
   blob_init(&cacheKey, 0, 0);
-  blob_appendf(&cacheKey, "/zip/%z", rid_to_uuid(rid));
+  blob_appendf(&cacheKey, "/%s/%z", g.zPath, rid_to_uuid(rid));
   blob_appendf(&cacheKey, "/%q", zName);
   if( zInclude ) blob_appendf(&cacheKey, ",in=%Q", zInclude);
   if( zExclude ) blob_appendf(&cacheKey, ",ex=%Q", zExclude);
   zKey = blob_str(&cacheKey);
 
   if( P("debug")!=0 ){
-    style_header("ZIP Archive Generator Debug Screen");
+    style_header("%s Archive Generator Debug Screen", zType);
     @ zName = "%h(zName)"<br />
     @ rid = %d(rid)<br />
     if( zInclude ){
@@ -926,11 +945,11 @@ void baseline_zip_page(void){
     return;
   }
   if( referred_from_login() ){
-    style_header("ZIP Archive Download");
-    @ <form action='%R/zip/%h(zName).zip'>
+    style_header("%s Archive Download", zType);
+    @ <form action='%R/%s(g.zPath)/%h(zName).%s(g.zPath)'>
     cgi_query_parameters_to_hidden();
-    @ <p>ZIP Archive named <b>%h(zName).zip</b> holding the content
-    @ of check-in <b>%h(zRid)</b>:
+    @ <p>%s(zType) Archive named <b>%h(zName).%s(g.zPath)</b>
+    @ holding the content of check-in <b>%h(zRid)</b>:
     @ <input type="submit" value="Download" />
     @ </form>
     style_footer();
@@ -938,7 +957,7 @@ void baseline_zip_page(void){
   }
   blob_zero(&zip);
   if( cache_read(&zip, zKey)==0 ){
-    zip_of_checkin(ARCHIVE_ZIP, rid, &zip, zName, pInclude, pExclude);
+    zip_of_checkin(eType, rid, &zip, zName, pInclude, pExclude);
     cache_write(&zip, zKey);
   }
   glob_free(pInclude);
@@ -947,5 +966,9 @@ void baseline_zip_page(void){
   fossil_free(zRid);
   blob_reset(&cacheKey);
   cgi_set_content(&zip);
-  cgi_set_content_type("application/zip");
+  if( eType==ARCHIVE_ZIP ){
+    cgi_set_content_type("application/zip");
+  }else{
+    cgi_set_content_type("application/sqlar");
+  }
 }
