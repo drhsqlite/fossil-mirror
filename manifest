@@ -1,5 +1,5 @@
-C Remove\ssome\sstale\s".timelineSpacer"\sCSS\sselectors.
-D 2017-12-04T17:00:31.488
+C Add\sthe\s"fossil\ssqlar"\scommand.\sLike\s"fossil\szip",\sexcept\sgenerates\ssqlar\narchives.
+D 2017-12-04T20:39:52.224
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -542,7 +542,7 @@ F src/winhttp.c c129f5b754adafe2f79cbe353221603e29001b3f3656bcd5b43e9d1b38cc8d9e
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 668af421d7b956373a7834ad5cccfb98d2020342949aee03ef05c60ac72e68fd
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
-F src/zip.c f34373056492fb0a5950719cdb47d849411f7e88c75de0577dacc8c943d64379
+F src/zip.c d1c3eb2d24db392f13bd64565b4ee57d2a27b177856e622759214b430c54b300
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test 83966725550e04f80c40a52012074f91ef6d22cbd57f51e17e931eccee6663e0
@@ -796,7 +796,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 38b223df9cd1218ae1c8120c26a48f8cebe67787bd5827383b8c0e07e5f2a234
-R dac03c91c6884a49624d594bb76aece4
-U drh
-Z 44c576a780787b81cfad2aabfb0bac99
+P 5c0238b3a391871eebfb78e7c8aa11cf90ca6605276c2f58ad85a1a9ec43b0de
+R ae115f5ccb0cdc70d661ae9baf0de485
+U dan
+Z a1d6de5a2ce969c25c6152c6ea713b4a
