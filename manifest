@@ -1,5 +1,5 @@
-C Add\sthe\s/sqlar\swebpage.\s\sLink\sto\sthis\spage\sfrom\sthe\s/info\spage.
-D 2017-12-04T21:29:53.780
+C Make\sthe\sdefault\spage\ssize\son\sSQL\sarchives\s512\sbytes.
+D 2017-12-04T21:49:18.410
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -542,7 +542,7 @@ F src/winhttp.c c129f5b754adafe2f79cbe353221603e29001b3f3656bcd5b43e9d1b38cc8d9e
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 668af421d7b956373a7834ad5cccfb98d2020342949aee03ef05c60ac72e68fd
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
-F src/zip.c 43a4e0a4f45a4cd40a1b7c1b3f5e46b1242c2ac0ccb6b454e3496b57526d9775
+F src/zip.c 367ef7e4bdcaae9c19ea1c0d22c4bc8e853665e2837deffc9f7b3cace6ad581c
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test 83966725550e04f80c40a52012074f91ef6d22cbd57f51e17e931eccee6663e0
@@ -796,7 +796,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7eb5b0a2ae297c2c0d495fd27faa8fddd0a632611e8238001eb57487b4d868ed
-R 6729a0a4bd79fff97e94c52d326fc973
+P 768e19219f86937b0b8af3289639798142557c63187232c75831359c28f39151
+R b4504d8aff879a9bb98ede04449ff20a
 U drh
-Z b3c3462e68d8151fb8db151f5b37a1c1
+Z 627d0db883dd2e98ee3a3dc5a0eb7625

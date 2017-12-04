@@ -408,6 +408,7 @@ static void zip_add_file_to_sqlar(
     assert( p->db );
     blob_zero(&p->tmp);
     sqlite3_exec(p->db, 
+        "PRAGMA page_size=512;"
         "PRAGMA journal_mode = off;"
         "PRAGMA cache_spill = off;"
         "BEGIN;"
