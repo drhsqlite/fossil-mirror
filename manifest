@@ -1,5 +1,5 @@
-C Fix\stypos\sin\scomments.
-D 2017-12-04T13:52:02.163
+C Fix\sthe\sauto-backup\smechanism\sthat\sruns\swhen\spublishing\sa\snew\sskin.
+D 2017-12-04T13:55:34.671
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -504,7 +504,7 @@ F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
 F src/shell.c 34e167652cb6636b1dc81b529b8c1ddbaefa351e8c1548faea67d270937b356f
 F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
-F src/skins.c 84f369ffe8b47ed05f6667e0b658d08fb41ad16df15e1f607a61bfa2bd6cd51c
+F src/skins.c 401b4899982ea7ff4e65f73b5df1d7ee1509184541feda2daacc75cb4d95fe03
 F src/sqlcmd.c b150ead4134db3739733abb077bf764bf998bfede7d1d8ea457455adf3684c31
 F src/sqlite3.c 35d6f3d645e4c07ec8c2e94dabc52be41d27f36f39bd06801daf72ecb6919231
 F src/sqlite3.h 3ef1b4241752b880eadfd2bdf33205bcf7ea70938468da751167102d0f5da6c3
@@ -796,7 +796,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 52b003f1f955f22325ef39af974e966c656ea259fc25a9885b23d223f3042245
-R d865dead497de056962dfd696b3443df
+P 6d0d1f71673f50c222e8061d83dceddd9eeedac5701688454b1d9337de51fff1
+R f6764c3ea165023444e64966bf6d53ea
 U drh
-Z 4ac74431e6ca55c3fc8fd945395e9988
+Z 178c94f0d4d8f7f97c3ca900afd3d0a4

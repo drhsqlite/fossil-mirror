@@ -772,7 +772,7 @@ static void skin_publish(int iSkin){
   zCurrent = getSkin(0);
   for(i=0; i<count(aBuiltinSkin); i++){
     zBuiltin = getSkin(aBuiltinSkin[i].zLabel);
-    if( fossil_strcmp(aBuiltinSkin[i].zSQL, zCurrent)==0 ){
+    if( fossil_strcmp(zBuiltin, zCurrent)==0 ){
       seen = 1;
       break;
     }
