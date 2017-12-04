@@ -623,6 +623,65 @@ void setup_skin_admin(void){
 }
 
 /*
+** Generate HTML for a <select> that lists all the available skin names,
+** except for zExcept if zExcept!=NULL.
+*/
+static void skin_emit_skin_selector(
+  const char *zVarName,      /* Variable name for the <select> */
+  const char *zDefault,      /* The default value, if not NULL */
+  const char *zExcept        /* Omit this skin if not NULL */
+){
+  int i;
+  @ <select size='1' name='%s(zVarName)'>
+  if( fossil_strcmp(zExcept, "current")!=0 ){
+    @ <option value='current'>Currently In Use</option>
+  }
+  for(i=0; i<count(aBuiltinSkin); i++){
+    const char *zName = aBuiltinSkin[i].zLabel;
+    if( fossil_strcmp(zName, zExcept)==0 ) continue;
+    if( fossil_strcmp(zDefault, zName)==0 ){
+      @ <option value='%s(zName)' selected>\
+      @ %h(aBuiltinSkin[i].zDesc) (built-in)</option>
+    }else{
+      @ <option value='%s(zName)'>\
+      @ %h(aBuiltinSkin[i].zDesc) (built-in)</option>
+    }
+  }
+  for(i=1; i<=9; i++){
+    char zName[20];
+    sqlite3_snprintf(sizeof(zName), zName, "draft%d", i);
+    if( fossil_strcmp(zName, zExcept)==0 ) continue;
+    if( fossil_strcmp(zDefault, zName)==0 ){
+      @ <option value='%s(zName)' selected>%s(zName)</option>
+    }else{
+      @ <option value='%s(zName)'>%s(zName)</option>
+    }
+  }
+  @ </select>
+}
+
+/*
+** Return the text of one of the skin files.
+*/
+static const char *skin_file_content(const char *zLabel, const char *zFile){
+  const char *zResult;
+  if( fossil_strcmp(zLabel, "current")==0 ){
+    zResult = db_get(zFile, "");
+  }else if( sqlite3_strglob("draft[1-9]", zLabel)==0 ){
+    zResult = db_get_mprintf("%s-%s", "", zLabel, zFile);
+  }else{
+    while( 1 ){
+      char *zKey = mprintf("skins/%s/%s.txt", zLabel, zFile);
+      zResult = builtin_text(zKey);
+      fossil_free(zKey);
+      if( zResult!=0 || fossil_strcmp(zLabel,"default")==0 ) break;
+    }
+  }
+  return zResult;
+}
+
+
+/*
 ** WEBPAGE: setup_skinedit
 **
 ** Edit aspects of a skin determined by the w= query parameter.
@@ -642,14 +701,15 @@ void setup_skinedit(void){
     /* 2 */ { "header",  "Page Header",     "Header",  },
     /* 3 */ { "details", "Display Details", "Details", },
   };
-  const char *zBasis;
-  const char *zContent;
-  char *zDflt;
-  char *zKey;
-  char *zTitle;
-  int iSkin;
-  int ii;
-  int j;
+  const char *zBasis;         /* The baseline file */
+  const char *zContent;       /* Content after editing */
+  char *zDraft;               /* Which draft:  "draft%d" */
+  char *zKey;                 /* CONFIG table key name: "draft%d-%s" */
+  char *zTitle;               /* Title of this page */
+  const char *zFile;          /* One of "css", "footer", "header", "details" */
+  int iSkin;                  /* draft number.  1..9 */
+  int ii;                     /* Index in aSkinAttr[] of this file */
+  int j;                      /* Loop counter */
 
   login_check_credentials();
 
@@ -674,11 +734,12 @@ void setup_skinedit(void){
   /* figure out which file is to be edited */
   ii = atoi(PD("w","0"));
   if( ii<0 || ii>count(aSkinAttr) ) ii = 0;
-  zKey = mprintf("draft%d-%s", iSkin, aSkinAttr[ii].zFile);
+  zFile = aSkinAttr[ii].zFile;
+  zDraft = mprintf("draft%d", iSkin);
+  zKey = mprintf("draft%d-%s", iSkin, zFile);
   zTitle = mprintf("%s for Draft%d", aSkinAttr[ii].zTitle, iSkin);
+  zBasis = PD("basis","current");
 
-  zBasis = PD("basis","default");
-  zDflt = mprintf("skins/%s/%s.txt", zBasis, aSkinAttr[ii].zFile);
   db_begin_transaction();
   style_header("%s", zTitle);
   for(j=0; j<count(aSkinAttr); j++){
@@ -691,27 +752,26 @@ void setup_skinedit(void){
   @ <input type='hidden' name='w' value='%d(ii)'>
   @ <input type='hidden' name='sk' value='%d(iSkin)'>
   @ <h2>Edit %s(zTitle):</h2>
-  zContent = textarea_attribute("", 10, 80, zKey,
-                        aSkinAttr[ii].zFile, builtin_text(zDflt), 0);
+  zContent = textarea_attribute(
+        "",                      /* Text label */
+        10, 80,                  /* Height and width of the edit area */
+        zKey,                    /* Name of CONFIG table entry */
+        zFile,                              /* CGI query parameter name */
+        skin_file_content(zBasis, zFile),   /* Default value of the text */
+        0                                   /* Disabled flag */
+  );
   @ <br />
   @ <input type="submit" name="submit" value="Apply Changes" />
   @ <hr />
-  @ Baseline: <select size='1' name='basis'>
-  for(j=0; j<count(aBuiltinSkin); j++){
-    cgi_printf("<option value='%h'%s>%h</option>\n",
-       aBuiltinSkin[j].zLabel,
-       fossil_strcmp(zBasis,aBuiltinSkin[j].zLabel)==0 ? " selected" : "",
-       aBuiltinSkin[j].zDesc
-    );
-  }
-  @ </select>
+  @ Baseline: \
+  skin_emit_skin_selector("basis", zBasis, zDraft);
   @ <input type="submit" name="diff" value="Diff" />
   if( P("diff")!=0 ){
     u64 diffFlags = construct_diff_flags(0,0) |
                         DIFF_STRIP_EOLCR;
     Blob from, to, out;
     blob_init(&to, zContent, -1);
-    blob_init(&from, builtin_text(zDflt), -1);
+    blob_init(&from, skin_file_content(zBasis, zFile), -1);
     blob_zero(&out);
     if( diffFlags & DIFF_SIDEBYSIDE ){
       text_diff(&from, &to, &out, 0, diffFlags | DIFF_HTML | DIFF_NOTTOOBIG);
@@ -739,22 +799,9 @@ void setup_skinedit(void){
 static void skin_initialize_draft(int iSkin, const char *zTemplate){
   int i;
   if( zTemplate==0 ) return;
-  if( strcmp(zTemplate, "current")==0 ){
-    for(i=0; i<count(azSkinFile); i++){
-      db_set_mprintf("draft%d-%s", db_get(azSkinFile[i],""), 0,
-                     iSkin, azSkinFile[i]);
-    }
-    return;
-  }
-  for(i=0; i<count(aBuiltinSkin); i++){
-    if( strcmp(zTemplate, aBuiltinSkin[i].zLabel)==0 ){
-      for(i=0; i<count(azSkinFile); i++){
-        char *zKey = mprintf("skins/%s/%s.txt", zTemplate, azSkinFile[i]);
-        db_set_mprintf("draft%d-%s", builtin_text(zKey), 0,
-                       iSkin, azSkinFile[i]);
-      }
-      return;
-    }
+  for(i=0; i<count(azSkinFile); i++){
+    const char *z = skin_file_content(zTemplate, azSkinFile[i]);
+    db_set_mprintf("draft%d-%s", z, 0, iSkin, azSkinFile[i]);
   }
 }
 
@@ -922,13 +969,7 @@ void setup_skin(void){
     @ <p class='skinInput'>
     @ <input type='hidden' name='sk' value='%d(iSkin)'>
     @ Initialize skin <b>draft%d(iSkin)</b> using
-    @ <select size='1' name='initskin'>
-    @ <option value='current'>Currently In Use</option>
-    for(i=0; i<count(aBuiltinSkin); i++){
-      @ <option value='%s(aBuiltinSkin[i].zLabel)'>\
-      @ %h(aBuiltinSkin[i].zDesc) (built-in)</option>
-    }
-    @ </select>
+    skin_emit_skin_selector("initskin", "current", 0);
     @ <input type='submit' name='init3' value='Go'>
     @ </p>
     @ </form>
