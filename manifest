@@ -1,5 +1,5 @@
-C Add\sthe\s"main.js"\sjavascript\sfile.\s\sLoad\sthat\sscript\son\severy\spage\sjust\nbefore\sthe\s&lt;/body&gt;\selement,\sand\suse\sit\sto\sreduce\sthe\sneed\sfor\ninline\sJS\sand\sCSS.
-D 2017-12-05T01:29:29.849
+C Remove\scode\sinside\sof\s#if\s0...#endif.
+D 2017-12-05T01:30:44.039
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -512,7 +512,7 @@ F src/sqlite3.h 3ef1b4241752b880eadfd2bdf33205bcf7ea70938468da751167102d0f5da6c3
 F src/stash.c 8f0bc283ba1099458e48ecd4c059a85bef34aef02066d972f61c165f2c47177b
 F src/stat.c 90bc7c69010fa1c43816c2667c2385609e611237367c1995bfd8c3a2f2b82c9a
 F src/statrep.c 9ee2695e45d0a0de17ce79d0b027f79bd246b4f305c95649044c3709a44372cd
-F src/style.c 1a9f799fd42f4d88db6cce6a0319c7af3179eff9c03e57ca63c617554bfdc7ec
+F src/style.c e4231565e1fac61ebbfc8cde587654ebfbd6785cf3e91f43b1cead9eeeff7bb4
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 24c77636171affc22088c1a7d7e608822d937e9747cbd5cd48f51dfae70a00c9
 F src/tar.c 69a1c4327e8b2b9f0c35714559d55d320f5cadabe7a5b40e309044d453901973
@@ -797,8 +797,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f5c81a6c4f36c51da6b715691a90d39ac6b4da1884bf1b6b86841271a4b2face 52a47db1a68056018822b4a89fe4bb1e1297daaf196331346dc11d7208386ec9
-R 0209d0c6f25fc37335fdeb463bd13b96
-T +closed 52a47db1a68056018822b4a89fe4bb1e1297daaf196331346dc11d7208386ec9
+P 8394d2fee2273810c71a0fc18d252377d318446555c8c982a5e1414d252d6469
+R b4153f8fc9d760fc65d436b18f1bdc7b
 U drh
-Z 2efe2a430073a6b737ff80615960a5ce
+Z fcfe65975823b9fbaa01ac8383a5a05f

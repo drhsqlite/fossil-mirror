@@ -664,12 +664,6 @@ void style_footer(void){
   }
   @ </div>
 
-#if 0
-  /* Set the href= field on hyperlinks.  Do this before the footer since
-  ** the footer will be generating </html> */
-  style_resolve_href();
-#endif
-
   /* Load up the page data */
   @ <script id='page-data' type='application/json'>
   if( !g.javascriptHyperlink ){
