@@ -1,5 +1,5 @@
-C Change\sthe\sname\sof\s"main.js"\sto\s"href.js".\s\sRework\sthe\sjavascript\scode\sso\nthat\sthere\scan\sbe\smultiple\sjavascript\sfiles\ssourced\son\san\sas-needed\sbasis.
-D 2017-12-05T15:09:11.534
+C Add\sthe\s"/test-builtin-files"\swebpage.
+D 2017-12-05T15:21:49.910
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -395,7 +395,7 @@ F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c 3bee63a73731b64a38f5d8816365c78799d1f67f5fd85c57ab3160b4ba2edbbb
 F src/branch.c ec22051c826068730a35a311f36a7e8525c8095381a95e830446ab24b107f22e
 F src/browse.c 01129a68be0f96e2bca69146e1c09affdff55d72e3c3a281084beaf392aad160
-F src/builtin.c d147d04305aa0db964ec84ef049e8e88d134de87
+F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c c87eb0ee5b326ca742fd51010bf01c29a75600b2f7fca1d30c28ec5722e9b841
 F src/cache.c f29373b765932f9c6435da4bbfc4c0d442ffa715dce25f9bf295085a80099d83
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
@@ -435,7 +435,7 @@ F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c f0940a16303989bd0c6a883dc90899a489ef16edc08f0f9cbb4b500d4730aad7
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
-F src/href.js 2bf7f653e4373edefc630d7fefe890f5b2aa0d1124998ef5be13b0af94b2cfa1 w src/main.js
+F src/href.js 2bf7f653e4373edefc630d7fefe890f5b2aa0d1124998ef5be13b0af94b2cfa1
 F src/http.c 7de3f16908f0f49cbcfad625513c130c0aef8bb889a5902e0fe9cccfaf893a85
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 55266e0d4b2dd2d03af062c1e0e2a06c70d28adf6bb82b13f18a7d4beb543423
@@ -512,7 +512,7 @@ F src/sqlite3.h 3ef1b4241752b880eadfd2bdf33205bcf7ea70938468da751167102d0f5da6c3
 F src/stash.c 8f0bc283ba1099458e48ecd4c059a85bef34aef02066d972f61c165f2c47177b
 F src/stat.c 90bc7c69010fa1c43816c2667c2385609e611237367c1995bfd8c3a2f2b82c9a
 F src/statrep.c 9ee2695e45d0a0de17ce79d0b027f79bd246b4f305c95649044c3709a44372cd
-F src/style.c 36364e404222f2e25e3256709809e987a2140c163a778281808cf7699578055c
+F src/style.c f9c7ebbc749b19ab032799d2a6bfe87432bb8fd22dfcd5d5673cf8f9de8c9ff5
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 24c77636171affc22088c1a7d7e608822d937e9747cbd5cd48f51dfae70a00c9
 F src/tar.c 69a1c4327e8b2b9f0c35714559d55d320f5cadabe7a5b40e309044d453901973
@@ -797,7 +797,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1760a15156df5260b0933a0a6a0e186e45336982183d5a1d673925485bdb96f2
-R 7edc5f3dd4e76581d50620b6bada4b94
+P 09494b0207e4f2a55f02ef25a1a21845f660588f40e43e052447304c408e47a5
+R 1cf8955087f666a1b496802491033ffb
 U drh
-Z e8c3dcd6f234f763e959359cc01609c6
+Z 8d7954a68462b846b1542d95e72a8054

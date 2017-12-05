@@ -68,6 +68,23 @@ void test_builtin_list(void){
 }
 
 /*
+** WEBPAGE: test-builtin-files
+**
+** Show all built-in text files.
+*/
+void test_builtin_list_page(void){
+  int i;
+  style_header("Built-in Text Files");
+  @ <ul>
+  for(i=0; i<count(aBuiltinFiles); i++){
+    const char *z = aBuiltinFiles[i].zName;
+    @ <li>%z(href("%R/builtin?name=%T&id=%S",z,MANIFEST_UUID))%h(z)</a>
+  }
+  @ </ul>
+  style_footer();
+}
+
+/*
 ** COMMAND: test-builtin-get
 **
 ** Usage: %fossil test-builtin-get NAME ?OUTPUT-FILE?

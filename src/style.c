@@ -519,7 +519,7 @@ static const char *style_adunit_text(unsigned int *pAdFlag){
 ** Generate code to load a single javascript file
 */
 static void style_load_one_js_file(const char *zFile){
-  @ <script src='%R/builtin/%s(zFile)/%S(MANIFEST_UUID)'></script>
+  @ <script src='%R/builtin/%s(zFile)?id=%S(MANIFEST_UUID)'></script>
 }
 
 /*
@@ -854,30 +854,16 @@ void page_style_css(void){
 
 /*
 ** WEBPAGE: builtin
-** URL:  builtin/FILENAME/VERSION
+** URL:  builtin/FILENAME
 **
 ** Return the built-in text given by FILENAME.  This is used internally 
 ** by many Fossil web pages to load built-in javascript files.
-**
-** The VERSION string at the end is ignored.  Fossil web pages will
-** typically put the current Fossil check-in hash as VERSION, to cause
-** javascript files to be reloaded rather than sourcing a stale javascript
-** file from cache.
 */
 void page_builtin_text(void){
   Blob out;
   const char *zName = P("name");
   const char *zTxt = 0;
-  if( zName ){
-    int i;
-    for(i=0; zName[i]; i++){
-      if( zName[i]=='/' ){
-        zName = mprintf("%.*s", i, zName);
-        break;
-      }
-    }
-    zTxt = builtin_text(zName);
-  }
+  if( zName ) zTxt = builtin_text(zName);
   if( zTxt==0 ){
     cgi_set_status(404, "Not Found");
     @ File \"%h(zName)\" not found
