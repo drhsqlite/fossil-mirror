@@ -140,7 +140,7 @@ char *xhref(const char *zExtra, const char *zFormat, ...){
     fossil_free(zUrl);
     return zHUrl;
   }
-  return mprintf("<a %s class='antibot' data-href='%z' href='%R/honeypot'>",
+  return mprintf("<a %s data-href='%z' href='%R/honeypot'>",
                   zExtra, zUrl);
 }
 char *chref(const char *zExtra, const char *zFormat, ...){
@@ -154,7 +154,7 @@ char *chref(const char *zExtra, const char *zFormat, ...){
     fossil_free(zUrl);
     return zHUrl;
   }
-  return mprintf("<a class='antibot %s' data-href='%z' href='%R/honeypot'>",
+  return mprintf("<a class='%s' data-href='%z' href='%R/honeypot'>",
                  zExtra, zUrl);
 }
 char *href(const char *zFormat, ...){
@@ -168,7 +168,7 @@ char *href(const char *zFormat, ...){
     fossil_free(zUrl);
     return zHUrl;
   }
-  return mprintf("<a class='antibot' data-href='%s' href='%R/honeypot'>",
+  return mprintf("<a data-href='%s' href='%R/honeypot'>",
                   zUrl);
 }
 
