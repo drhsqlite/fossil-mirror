@@ -518,7 +518,7 @@ static const char *style_adunit_text(unsigned int *pAdFlag){
 /*
 ** Generate code to load a single javascript file
 */
-static void style_load_one_js_file(const char *zFile){
+void style_load_one_js_file(const char *zFile){
   @ <script src='%R/builtin/%s(zFile)?id=%S(MANIFEST_UUID)'></script>
 }
 
@@ -865,7 +865,7 @@ void page_builtin_text(void){
   if( zName ) zTxt = builtin_text(zName);
   if( zTxt==0 ){
     cgi_set_status(404, "Not Found");
-    @ File \"%h(zName)\" not found
+    @ File "%h(zName)" not found
     return;
   }
   if( sqlite3_strglob("*.js", zName)==0 ){

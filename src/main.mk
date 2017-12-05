@@ -196,6 +196,7 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/xekri/footer.txt \
   $(SRCDIR)/../skins/xekri/header.txt \
   $(SRCDIR)/diff.tcl \
+  $(SRCDIR)/graph.js \
   $(SRCDIR)/href.js \
   $(SRCDIR)/markdown.md \
   $(SRCDIR)/wiki.wiki

@@ -5,6 +5,17 @@
 ** data-href= into href= and data-action= into action= for all
 ** <a> and <form> elements, after delay and maybe also after mouse
 ** movement is seen.
+**
+** Before sourcing this script, create a separate <script> element
+** (with type='application/json' to avoid Content Security Policy issues)
+** containing:
+**
+**     {"delay":MILLISECONDS, "mouseover":BOOLEAN}
+**
+** The <script> must have an id='href-data'.  DELAY is the number 
+** milliseconds delay prior to populating href= and action=.  If the
+** mouseover boolean is true, then the timer does not start until a
+** mouse motion event occurs over top of the document.
 */
 function setAllHrefs(){
   var anchors = document.getElementsByTagName("a");
