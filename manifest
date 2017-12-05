@@ -1,5 +1,5 @@
-C Add\sdefault\sCSS\sfor\sthe\slabel-value\stable.
-D 2017-12-05T16:44:14.449
+C Remove\sunused\slocal\svariable\sfrom\sstyle_footer().
+D 2017-12-05T17:17:29.572
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -512,7 +512,7 @@ F src/sqlite3.h 3ef1b4241752b880eadfd2bdf33205bcf7ea70938468da751167102d0f5da6c3
 F src/stash.c 8f0bc283ba1099458e48ecd4c059a85bef34aef02066d972f61c165f2c47177b
 F src/stat.c 90bc7c69010fa1c43816c2667c2385609e611237367c1995bfd8c3a2f2b82c9a
 F src/statrep.c 9ee2695e45d0a0de17ce79d0b027f79bd246b4f305c95649044c3709a44372cd
-F src/style.c f9c7ebbc749b19ab032799d2a6bfe87432bb8fd22dfcd5d5673cf8f9de8c9ff5
+F src/style.c 9187ed231761b35995989346b98e938819a3120fcf48acf09dd23a26ed2b559c
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 24c77636171affc22088c1a7d7e608822d937e9747cbd5cd48f51dfae70a00c9
 F src/tar.c 69a1c4327e8b2b9f0c35714559d55d320f5cadabe7a5b40e309044d453901973
@@ -797,7 +797,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 09d882ee819572a0f62a09e6daeef7e713280126f8d7c5a3939bfee9195b3706
-R 0c72169c00844c4fcad1bab42c3a00a4
+P d2e9b37694083c1c2c3075c65f520f9414dd506dac027dbc4dc3d65beedb5054
+R d3fcfa500a3e9da2e517d7b63f430ee7
 U drh
-Z 261f669eb993dcb83e621999450d5bbc
+Z f7d7c4124e12e8bb11fbf1eff3a7bf86

@@ -545,7 +545,6 @@ void style_footer(void){
   const char *zFooter;
   const char *zAd = 0;
   unsigned int mAdFlags = 0;
-  int bMouseover = 0;            /* Active hyperlinks after mouseover */
 
   if( !headerHasBeenGenerated ) return;
 
