@@ -162,6 +162,7 @@ set extra_files {
   diff.tcl
   markdown.md
   wiki.wiki
+  main.js
   ../skins/*/*.txt
 }
 

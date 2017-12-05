@@ -800,34 +800,34 @@ void ci_page(void){
   diffFlags = construct_diff_flags(verboseFlag, sideBySide);
   zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
   if( verboseFlag ){
-    @ %z(xhref("class='button'","%R/%s/%T",zPageHide,zName))
+    @ %z(chref("button","%R/%s/%T",zPageHide,zName))
     @ Hide&nbsp;Diffs</a>
     if( sideBySide ){
-      @ %z(xhref("class='button'","%R/%s/%T?sbs=0%s",zPage,zName,zW))
+      @ %z(chref("button","%R/%s/%T?sbs=0%s",zPage,zName,zW))
       @ Unified&nbsp;Diffs</a>
     }else{
-      @ %z(xhref("class='button'","%R/%s/%T?sbs=1%s",zPage,zName,zW))
+      @ %z(chref("button","%R/%s/%T?sbs=1%s",zPage,zName,zW))
       @ Side-by-Side&nbsp;Diffs</a>
     }
     if( *zW ){
-      @ %z(xhref("class='button'","%R/%s/%T?sbs=%d",zPage,zName,sideBySide))
+      @ %z(chref("button","%R/%s/%T?sbs=%d",zPage,zName,sideBySide))
       @ Show&nbsp;Whitespace&nbsp;Changes</a>
     }else{
-      @ %z(xhref("class='button'","%R/%s/%T?sbs=%d&w",zPage,zName,sideBySide))
+      @ %z(chref("button","%R/%s/%T?sbs=%d&w",zPage,zName,sideBySide))
       @ Ignore&nbsp;Whitespace</a>
     }
   }else{
-    @ %z(xhref("class='button'","%R/%s/%T?sbs=0",zPage,zName))
+    @ %z(chref("button","%R/%s/%T?sbs=0",zPage,zName))
     @ Show&nbsp;Unified&nbsp;Diffs</a>
-    @ %z(xhref("class='button'","%R/%s/%T?sbs=1",zPage,zName))
+    @ %z(chref("button","%R/%s/%T?sbs=1",zPage,zName))
     @ Show&nbsp;Side-by-Side&nbsp;Diffs</a>
   }
   if( zParent ){
-    @ %z(xhref("class='button'","%R/vpatch?from=%!S&to=%!S",zParent,zUuid))
+    @ %z(chref("button","%R/vpatch?from=%!S&to=%!S",zParent,zUuid))
     @ Patch</a>
   }
   if( g.perm.Admin ){
-    @ %z(xhref("class='button'","%R/mlink?ci=%!S",zUuid))MLink Table</a>
+    @ %z(chref("button","%R/mlink?ci=%!S",zUuid))MLink Table</a>
   }
   @</div>
   if( pRe ){

@@ -314,6 +314,7 @@ struct {
   { "blob_appendf",            2, 0 },
   { "cgi_panic",               1, 0 },
   { "cgi_redirectf",           1, 0 },
+  { "chref",                   2, 0 },
   { "db_blob",                 2, FMT_NO_S },
   { "db_double",               2, FMT_NO_S },
   { "db_err",                  1, 0 },
