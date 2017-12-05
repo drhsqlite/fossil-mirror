@@ -1,8 +1,3 @@
-/* This script is sourced just prior to the </body> in every Fossil webpage */
-var x = document.getElementById("page-data");
-var jx = x.textContent || x.innerText;
-var g = JSON.parse(jx);
-
 /* As an anti-robot defense, <a> elements are initially coded with the
 ** href= set to the honeypot, and <form> elements are initialized with
 ** action= set to the login page.  The real values for href= and action=
@@ -23,14 +18,18 @@ function setAllHrefs(){
     if(j.hasAttribute("data-action")) j.action=j.getAttribute("data-action");
   }
 }
-if(g.antibot.enable){
+function antiRobotDefense(){
+  var x = document.getElementById("href-data");
+  var jx = x.textContent || x.innerText;
+  var g = JSON.parse(jx);
   var isOperaMini =
        Object.prototype.toString.call(window.operamini)==="[object OperaMini]";
-  if(g.antibot.mouseover && !isOperaMini){
+  if(g.mouseover && !isOperaMini){
     document.getElementByTagName("body")[0].onmousemove=function(){
-      setTimeout("setAllHrefs();",g.antibot.delay);
+      setTimeout("setAllHrefs();",g.delay);
     }
   }else{
-    setTimeout("setAllHrefs();",g.antibot.delay);
+    setTimeout("setAllHrefs();",g.delay);
   }
 }
+antiRobotDefense()

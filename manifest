@@ -1,5 +1,5 @@
-C Cache\sthe\smain.js\sfile.
-D 2017-12-05T13:50:50.938
+C Change\sthe\sname\sof\s"main.js"\sto\s"href.js".\s\sRework\sthe\sjavascript\scode\sso\nthat\sthere\scan\sbe\smultiple\sjavascript\sfiles\ssourced\son\san\sas-needed\sbasis.
+D 2017-12-05T15:09:11.534
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -435,6 +435,7 @@ F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c f0940a16303989bd0c6a883dc90899a489ef16edc08f0f9cbb4b500d4730aad7
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
+F src/href.js 2bf7f653e4373edefc630d7fefe890f5b2aa0d1124998ef5be13b0af94b2cfa1 w src/main.js
 F src/http.c 7de3f16908f0f49cbcfad625513c130c0aef8bb889a5902e0fe9cccfaf893a85
 F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 55266e0d4b2dd2d03af062c1e0e2a06c70d28adf6bb82b13f18a7d4beb543423
@@ -464,11 +465,10 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c c0d8d19c033085e806e92c224faf5c08b84c80eb8b43de04c9d30f40fc9e6c19
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
 F src/main.c 65bdfa618d454deffb4d391e24842e38d20b328579baf8bb14edcb1373c668ea
-F src/main.js b476779a471fbf98fc672da509ad5260804f593299a8b43642bf7cc460ef6994
-F src/main.mk 514b26bb39ebd04a8b74b4e96ab1ac1be69f49ecddc8f10e14abb2e4a4858d0f
+F src/main.mk 724f52cf28038ff05832b3da9aad302b0a2e6f742d82e73c1e06e33d8da309d6
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl f70bdb268857ffd4f44042ab6aa16acac3d0e79d3a9a6d9ccd8b79fa533989ec
+F src/makemake.tcl 35be36955a157ef9d1f2eb5b617f79d3e0879a68e50a9b3e22a9315525134d9a
 F src/manifest.c 2668a7564265b469182f48645de7c219624866f7c2f0eb5dfb6bb3b010f0b5be
 F src/markdown.c 2cb7007279db7ad8e16f8c822d5ba27f59b4af2dcc0cd4ba87cce3e4303d5969
 F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb98d
@@ -512,7 +512,7 @@ F src/sqlite3.h 3ef1b4241752b880eadfd2bdf33205bcf7ea70938468da751167102d0f5da6c3
 F src/stash.c 8f0bc283ba1099458e48ecd4c059a85bef34aef02066d972f61c165f2c47177b
 F src/stat.c 90bc7c69010fa1c43816c2667c2385609e611237367c1995bfd8c3a2f2b82c9a
 F src/statrep.c 9ee2695e45d0a0de17ce79d0b027f79bd246b4f305c95649044c3709a44372cd
-F src/style.c e29d65b31ea201f21ec48f21e01fab305b2ca2c43f9ec80441965c3696b73cec
+F src/style.c 36364e404222f2e25e3256709809e987a2140c163a778281808cf7699578055c
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 24c77636171affc22088c1a7d7e608822d937e9747cbd5cd48f51dfae70a00c9
 F src/tar.c 69a1c4327e8b2b9f0c35714559d55d320f5cadabe7a5b40e309044d453901973
@@ -671,9 +671,9 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F win/Makefile.PellesCGMake 940dd82d2f662198dc0d4f560a4e34fe662f6a13a35aacaddf3496b380e9e913
 F win/Makefile.dmc bd55c5e5e19440bbea2ec8b4f2faa3e487fcffeb1ac029690a6ab7d2e1c783ef
-F win/Makefile.mingw ca2eea5f2f93f5e494bf31ac26095b358c529972f217c56fcbd96dc67eae5e69
+F win/Makefile.mingw 8f0dac030c0b73ff48ce8e710fbef75656394bd8406d557a31b1932d933eb86c
 F win/Makefile.mingw.mistachkin 775928be637d3b8db54a1adc490184f638d8f09790f097e740769c2fdef55e7c
-F win/Makefile.msc ef317b1dd36c0fe3a556bdae813b0cc0ada5e96362a613ce359d5bde17ea73ce
+F win/Makefile.msc 716fe16ba3845e924b99444ae4a8597c98c81a34d25b3a2e75cb7bdbb049602a
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -797,7 +797,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7c408d751cb7204dafcc9c85a7cb8e14e328eb4756184d03915009ff9875a253
-R 0581640ab8f1058af3961f4da6672dad
+P 1760a15156df5260b0933a0a6a0e186e45336982183d5a1d673925485bdb96f2
+R 7edc5f3dd4e76581d50620b6bada4b94
 U drh
-Z c82dd3455c649f77349eac48bc4605ad
+Z e8c3dcd6f234f763e959359cc01609c6

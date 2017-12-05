@@ -85,6 +85,11 @@ static int sideboxUsed = 0;
 */
 static unsigned adUnitFlags = 0;
 
+/*
+** True if the "href.js" javascript file is required.
+*/
+static int needHrefJs = 0;
+
 
 /*
 ** Generate and return a anchor tag like this:
@@ -140,6 +145,7 @@ char *xhref(const char *zExtra, const char *zFormat, ...){
     fossil_free(zUrl);
     return zHUrl;
   }
+  needHrefJs = 1;
   return mprintf("<a %s data-href='%z' href='%R/honeypot'>",
                   zExtra, zUrl);
 }
@@ -154,6 +160,7 @@ char *chref(const char *zExtra, const char *zFormat, ...){
     fossil_free(zUrl);
     return zHUrl;
   }
+  needHrefJs = 1;
   return mprintf("<a class='%s' data-href='%z' href='%R/honeypot'>",
                  zExtra, zUrl);
 }
@@ -168,6 +175,7 @@ char *href(const char *zFormat, ...){
     fossil_free(zUrl);
     return zHUrl;
   }
+  needHrefJs = 1;
   return mprintf("<a data-href='%s' href='%R/honeypot'>",
                   zUrl);
 }
@@ -186,6 +194,7 @@ void form_begin(const char *zOtherArgs, const char *zAction, ...){
   if( g.perm.Hyperlink && !g.javascriptHyperlink ){
     @ <form method="POST" action="%z(zLink)" %s(zOtherArgs)>
   }else{
+    needHrefJs = 1;
     @ <form method="POST" data-action='%s(zLink)' action='%R/login' \
     @ %s(zOtherArgs)>
   }
@@ -507,6 +516,29 @@ static const char *style_adunit_text(unsigned int *pAdFlag){
 }
 
 /*
+** Generate code to load a single javascript file
+*/
+static void style_load_one_js_file(const char *zFile){
+  @ <script src='%R/builtin/%s(zFile)/%S(MANIFEST_UUID)'></script>
+}
+
+/*
+** Generate code to load all required javascript files.
+*/
+static void style_load_all_js_files(void){
+  if( needHrefJs ){
+    int nDelay = db_get_int("auto-hyperlink-delay",0);
+    int bMouseover;
+    /* Load up the page data */
+    bMouseover = (!g.isHuman || db_get_boolean("auto-hyperlink-ishuman",0))
+                 && db_get_boolean("auto-hyperlink-mouseover",0);
+    @ <script id='href-data' type='application/json'>\
+    @ {"delay":%d(nDelay),"mouseover":%d(bMouseover)}</script>
+    style_load_one_js_file("href.js");
+  }
+}
+
+/*
 ** Draw the footer at the bottom of the page.
 */
 void style_footer(void){
@@ -664,28 +696,11 @@ void style_footer(void){
   }
   @ </div>
 
-  /* Load up the page data */
-  @ <script id='page-data' type='application/json'>
-  if( !g.javascriptHyperlink ){
-    @ {"antibot":{"enable":0},
-  }else{
-    int nDelay = db_get_int("auto-hyperlink-delay",0);
-    int bMouseover;
-    bMouseover = (!g.isHuman || db_get_boolean("auto-hyperlink-ishuman",0))
-                 && db_get_boolean("auto-hyperlink-mouseover",0);
-    @ {"antibot":
-    @   {"enable":1,
-    @    "delay":%d(nDelay),
-    @    "mouseover":%d(bMouseover)},
-  }
-  @ "noop":0}
-  @ </script>
 
 
   zFooter = skin_get("footer");
   if( sqlite3_strlike("%</body>%", zFooter, 0)==0 ){
-    @ <script src='%s(g.zBaseURL)/main.js/%S(MANIFEST_UUID)' \
-    @ type='application/javascript'></script>
+    style_load_all_js_files();
   }
   if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br />\n", -1);
   Th_Render(zFooter);
@@ -700,8 +715,7 @@ void style_footer(void){
 
   /* Add document end mark if it was not in the footer */
   if( sqlite3_strlike("%</body>%", zFooter, 0)!=0 ){
-    @ <script src='%s(g.zBaseURL)/main.js/%S(MANIFEST_UUID)' \
-    @ type='application/javascript'></script>
+    style_load_all_js_files();
     @ </body>
     @ </html>
   }
@@ -839,15 +853,43 @@ void page_style_css(void){
 }
 
 /*
-** WEBPAGE: main.js
+** WEBPAGE: builtin
+** URL:  builtin/FILENAME/VERSION
 **
-** Return the javascript
+** Return the built-in text given by FILENAME.  This is used internally 
+** by many Fossil web pages to load built-in javascript files.
+**
+** The VERSION string at the end is ignored.  Fossil web pages will
+** typically put the current Fossil check-in hash as VERSION, to cause
+** javascript files to be reloaded rather than sourcing a stale javascript
+** file from cache.
 */
-void page_main_js(void){
-  Blob mainjs;
-  cgi_set_content_type("application/javascript");
-  blob_init(&mainjs, builtin_text("main.js"), -1);
-  cgi_set_content(&mainjs);
+void page_builtin_text(void){
+  Blob out;
+  const char *zName = P("name");
+  const char *zTxt = 0;
+  if( zName ){
+    int i;
+    for(i=0; zName[i]; i++){
+      if( zName[i]=='/' ){
+        zName = mprintf("%.*s", i, zName);
+        break;
+      }
+    }
+    zTxt = builtin_text(zName);
+  }
+  if( zTxt==0 ){
+    cgi_set_status(404, "Not Found");
+    @ File \"%h(zName)\" not found
+    return;
+  }
+  if( sqlite3_strglob("*.js", zName)==0 ){
+    cgi_set_content_type("application/javascript");
+  }else{
+    cgi_set_content_type("text/plain");
+  }
+  blob_init(&out, zTxt, -1);
+  cgi_set_content(&out);
   g.isConst = 1;
 }
 
