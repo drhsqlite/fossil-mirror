@@ -924,7 +924,7 @@ void wdiff_page(void){
     blob_init(&w2, pW2->zWiki, -1);
   }
   blob_zero(&d);
-  diffFlags = construct_diff_flags(1,0);
+  diffFlags = construct_diff_flags(1);
   text_diff(&w2, &w1, &d, 0, diffFlags | DIFF_HTML | DIFF_LINENO);
   @ <pre class="udiff">
   @ %s(blob_str(&d))

@@ -514,7 +514,7 @@ static void append_file_change_line(
       append_diff(zOld, zNew, diffFlags, pRe);
     }else if( zOld && zNew && fossil_strcmp(zOld,zNew)!=0 ){
       @ &nbsp;&nbsp;
-      @ %z(href("%R/fdiff?v1=%!S&v2=%!S&sbs=1",zOld,zNew))[diff]</a>
+      @ %z(href("%R/fdiff?v1=%!S&v2=%!S",zOld,zNew))[diff]</a>
     }
   }
   @ </p>
@@ -532,11 +532,11 @@ void append_diff_javascript(int sideBySide){
 ** Construct an appropriate diffFlag for text_diff() based on query
 ** parameters and the to boolean arguments.
 */
-u64 construct_diff_flags(int verboseFlag, int sideBySide){
+u64 construct_diff_flags(int diffType){
   u64 diffFlags = 0;  /* Zero means do not show any diff */
-  if( verboseFlag!=0 ){
+  if( diffType>0 ){
     int x;
-    if( sideBySide ){
+    if( diffType==2 ){
       diffFlags = DIFF_SIDEBYSIDE;
 
       /* "dw" query parameter determines width of each column */
@@ -570,18 +570,15 @@ u64 construct_diff_flags(int verboseFlag, int sideBySide){
 **
 ** We also jump here from /info if the name is a check-in
 **
-** If the /ci page is used (instead of /vinfo or /info) then the
-** default behavior is to show unified diffs of all file changes.
-** With /vinfo and /info, only a list of the changed files are
-** shown, without diffs.  This behavior is inverted if the
-** "show-version-diffs" setting is turned on.
+** If the /ci and /vinfo pages used to differ in their default
+** diff settings, but now diff settings persist with a cookie and
+** so /ci and /vinfo behave the same.
 */
 void ci_page(void){
   Stmt q1, q2, q3;
   int rid;
   int isLeaf;
-  int verboseFlag;     /* True to show diffs */
-  int sideBySide;      /* True for side-by-side diffs */
+  int diffType;        /* 0: no diff,  1: unified,  2: side-by-side */
   u64 diffFlags;       /* Flag parameter for text_diff() */
   const char *zName;   /* Name of the check-in to be displayed */
   const char *zUuid;   /* UUID of zName */
@@ -619,7 +616,9 @@ void ci_page(void){
      "   AND event.objid=%d",
      rid, rid
   );
-  sideBySide = !is_false(PD("sbs","1"));
+  
+  cookie_link_parameter("diff","diff","2");
+  diffType = atoi(PD("diff","2"));
   if( db_step(&q1)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q1, 0);
     int nUuid = db_column_bytes(&q1, 0);
@@ -733,7 +732,8 @@ void ci_page(void){
         @ <tr><th>Downloads:</th><td>
         @ %z(href("%s",zUrl))Tarball</a>
         @ | %z(href("%R/zip/%t-%S.zip?uuid=%!S",zPJ,zUuid,zUuid))ZIP archive</a>
-        @ | %z(href("%R/sqlar/%t-%S.sqlar?uuid=%!S",zPJ,zUuid,zUuid))SQL archive</a>
+        @ | %z(href("%R/sqlar/%t-%S.sqlar?uuid=%!S",zPJ,zUuid,zUuid))\
+        @ SQL archive</a>
         fossil_free(zUrl);
       }
       @ </td></tr>
@@ -765,36 +765,28 @@ void ci_page(void){
   render_checkin_context(rid, 0);
   @ <div class="section">Changes</div>
   @ <div class="sectionmenu">
-  verboseFlag = g.zPath[0]!='c';
-  if( db_get_boolean("show-version-diffs", 0)==0 ){
-    verboseFlag = !verboseFlag;
-    zPage = "ci";
-    zPageHide = "vinfo";
-  }
-  diffFlags = construct_diff_flags(verboseFlag, sideBySide);
+  diffFlags = construct_diff_flags(diffType);
   zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
-  if( verboseFlag ){
-    @ %z(chref("button","%R/%s/%T",zPageHide,zName))
+  if( diffType!=0 ){
+    @ %z(chref("button","%R/%s/%T?diff=0",zPageHide,zName))\
     @ Hide&nbsp;Diffs</a>
-    if( sideBySide ){
-      @ %z(chref("button","%R/%s/%T?sbs=0%s",zPage,zName,zW))
-      @ Unified&nbsp;Diffs</a>
-    }else{
-      @ %z(chref("button","%R/%s/%T?sbs=1%s",zPage,zName,zW))
-      @ Side-by-Side&nbsp;Diffs</a>
-    }
+  }
+  if( diffType!=1 ){
+    @ %z(chref("button","%R/%s/%T?diff=1%s",zPage,zName,zW))\
+    @ Unified&nbsp;Diffs</a>
+  }
+  if( diffType!=2 ){
+    @ %z(chref("button","%R/%s/%T?diff=2%s",zPage,zName,zW))\
+    @ Side-by-Side&nbsp;Diffs</a>
+  }
+  if( diffType!=0 ){
     if( *zW ){
-      @ %z(chref("button","%R/%s/%T?sbs=%d",zPage,zName,sideBySide))
+      @ %z(chref("button","%R/%s/%T",zPage,zName))
       @ Show&nbsp;Whitespace&nbsp;Changes</a>
     }else{
-      @ %z(chref("button","%R/%s/%T?sbs=%d&w",zPage,zName,sideBySide))
+      @ %z(chref("button","%R/%s/%T?w",zPage,zName))
       @ Ignore&nbsp;Whitespace</a>
     }
-  }else{
-    @ %z(chref("button","%R/%s/%T?sbs=0",zPage,zName))
-    @ Show&nbsp;Unified&nbsp;Diffs</a>
-    @ %z(chref("button","%R/%s/%T?sbs=1",zPage,zName))
-    @ Show&nbsp;Side-by-Side&nbsp;Diffs</a>
   }
   if( zParent ){
     @ %z(chref("button","%R/vpatch?from=%!S&to=%!S",zParent,zUuid))
@@ -830,7 +822,8 @@ void ci_page(void){
     append_file_change_line(zName, zOld, zNew, zOldName, diffFlags,pRe,mperm);
   }
   db_finalize(&q3);
-  append_diff_javascript(sideBySide);
+  append_diff_javascript(diffType==2);
+  cookie_render();
   style_footer();
 }
 
@@ -1049,8 +1042,7 @@ static void checkin_description(int rid){
 **   from=TAG        Left side of the comparison
 **   to=TAG          Right side of the comparison
 **   branch=TAG      Show all changes on a particular branch
-**   v=BOOLEAN       Default true.  If false, only list files that have changed
-**   sbs=BOOLEAN     Side-by-side diff if true.  Unified diff if false
+**   diff=INTEGER    0: none, 1: unified, 2: side-by-side
 **   glob=STRING     only diff files matching this glob
 **   dc=N            show N lines of context around each diff
 **   w=BOOLEAN       ignore whitespace when computing diffs
@@ -1061,8 +1053,7 @@ static void checkin_description(int rid){
 */
 void vdiff_page(void){
   int ridFrom, ridTo;
-  int verboseFlag;
-  int sideBySide;
+  int diffType = 0;        /* 0: none, 1: unified, 2: side-by-side */
   u64 diffFlags = 0;
   Manifest *pFrom, *pTo;
   ManifestFile *pFileFrom, *pFileTo;
@@ -1077,6 +1068,9 @@ void vdiff_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   login_anonymous_available();
+  cookie_link_parameter("diff","diff","2");
+  diffType = atoi(PD("diff","2"));
+  cookie_render();
   zRe = P("regex");
   if( zRe ) re_compile(&pRe, zRe, 0);
   zBranch = P("branch");
@@ -1088,54 +1082,42 @@ void vdiff_page(void){
   if( pTo==0 ) return;
   pFrom = vdiff_parse_manifest("from", &ridFrom);
   if( pFrom==0 ) return;
-  sideBySide = !is_false(PD("sbs","1"));
-  zVerbose = P("v");
-  if( !zVerbose ){
-    zVerbose = P("verbose");
-  }
-  if( !zVerbose ){
-    zVerbose = P("detail"); /* deprecated */
-  }
-  verboseFlag = (zVerbose!=0) && !is_false(zVerbose);
-  if( !verboseFlag && sideBySide ) verboseFlag = 1;
   zGlob = P("glob");
   zFrom = P("from");
   zTo = P("to");
   if(zGlob && !*zGlob){
     zGlob = NULL;
   }
-  diffFlags = construct_diff_flags(verboseFlag, sideBySide);
+  diffFlags = construct_diff_flags(diffType);
   zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
   style_submenu_element("Path", "%R/timeline?me=%T&you=%T", zFrom, zTo);
-  if( sideBySide || verboseFlag ){
-    style_submenu_element("Hide Diff", "%R/vdiff?from=%T&to=%T&sbs=0%s%T%s",
+  if( diffType!=0 ){
+    style_submenu_element("Hide Diff", "%R/vdiff?from=%T&to=%T&diff=0%s%T%s",
                           zFrom, zTo,
                           zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   }
-  if( !sideBySide ){
+  if( diffType!=2 ){
     style_submenu_element("Side-by-Side Diff",
-                          "%R/vdiff?from=%T&to=%T&sbs=1%s%T%s",
+                          "%R/vdiff?from=%T&to=%T&diff=2%s%T%s",
                           zFrom, zTo,
                           zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   }
-  if( sideBySide || !verboseFlag ) {
+  if( diffType!=1 ) {
     style_submenu_element("Unified Diff",
-                          "%R/vdiff?from=%T&to=%T&sbs=0&v%s%T%s",
+                          "%R/vdiff?from=%T&to=%T&diff=1%s%T%s",
                           zFrom, zTo,
                           zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   }
   style_submenu_element("Invert",
-                        "%R/vdiff?from=%T&to=%T&sbs=%d%s%s%T%s", zTo, zFrom,
-                        sideBySide, (verboseFlag && !sideBySide)?"&v":"",
+                        "%R/vdiff?from=%T&to=%T&%s%T%s", zTo, zFrom,
                         zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   if( zGlob ){
     style_submenu_element("Clear glob",
-                          "%R/vdiff?from=%T&to=%T&sbs=%d%s%s", zFrom, zTo,
-                          sideBySide, (verboseFlag && !sideBySide)?"&v":"", zW);
+                          "%R/vdiff?from=%T&to=%T&%s", zFrom, zTo, zW);
   }else{
     style_submenu_element("Patch", "%R/vpatch?from=%T&to=%T%s", zFrom, zTo, zW);
   }
-  if( sideBySide || verboseFlag ){
+  if( diffType!=0 ){
     style_submenu_checkbox("w", "Ignore Whitespace", 0, 0);
   }
   style_header("Check-in Differences");
@@ -1198,7 +1180,7 @@ void vdiff_page(void){
   }
   manifest_destroy(pFrom);
   manifest_destroy(pTo);
-  append_diff_javascript(sideBySide);
+  append_diff_javascript(diffType==2);
   style_footer();
 }
 
@@ -1529,17 +1511,20 @@ int object_description(
 void diff_page(void){
   int v1, v2;
   int isPatch = P("patch")!=0;
-  int sideBySide = PB("sbs");
-  int verbose = PB("verbose");
+  int diffType;          /* 0: none, 1: unified,  2: side-by-side */
   char *zV1;
   char *zV2;
   const char *zRe;
   ReCompiled *pRe = 0;
   u64 diffFlags;
   u32 objdescFlags = 0;
+  int verbose = PB("verbose");
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  cookie_link_parameter("diff","diff","2");
+  diffType = atoi(PD("diff","2"));
+  cookie_render();
   if( P("from") && P("to") ){
     v1 = artifact_from_ci_and_filename(0, "from");
     v2 = artifact_from_ci_and_filename(0, "to");
@@ -1595,14 +1580,20 @@ void diff_page(void){
 
   zV1 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v1);
   zV2 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v2);
-  diffFlags = construct_diff_flags(1, sideBySide) | DIFF_HTML;
+  diffFlags = construct_diff_flags(diffType) | DIFF_HTML;
 
   style_header("Diff");
   style_submenu_checkbox("w", "Ignore Whitespace", 0, 0);
-  style_submenu_checkbox("sbs", "Side-by-Side Diff", 0, 0);
+  if( diffType==2 ){
+    style_submenu_element("Unified Diff", "%R/fdiff?v1=%T&v2=%T&diff=1",
+                           P("v1"), P("v2"));
+  }else{
+    style_submenu_element("Side-by-side Diff", "%R/fdiff?v1=%T&v2=%T&diff=2",
+                           P("v1"), P("v2"));
+  }
   style_submenu_checkbox("verbose", "Verbose", 0, 0);
-  style_submenu_element("Patch", "%s/fdiff?v1=%T&v2=%T&patch",
-                        g.zTop, P("v1"), P("v2"));
+  style_submenu_element("Patch", "%R/fdiff?v1=%T&v2=%T&patch",
+                        P("v1"), P("v2"));
 
   if( P("smhdr")!=0 ){
     @ <h2>Differences From Artifact
@@ -1621,7 +1612,7 @@ void diff_page(void){
   }
   @ <hr />
   append_diff(zV1, zV2, diffFlags, pRe);
-  append_diff_javascript(sideBySide);
+  append_diff_javascript(diffType);
   style_footer();
 }
 

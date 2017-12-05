@@ -211,7 +211,10 @@ void cgi_set_cookie(
   int lifetime          /* Expiration of the cookie in seconds from now */
 ){
   char *zSecure = "";
-  if( zPath==0 ) zPath = g.zTop;
+  if( zPath==0 ){
+    zPath = g.zTop;
+    if( zPath[0]==0 ) zPath = "/";
+  }
   if( g.zBaseURL!=0 && strncmp(g.zBaseURL, "https:", 6)==0 ){
     zSecure = " secure;";
   }

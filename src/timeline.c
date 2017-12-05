@@ -695,7 +695,7 @@ void www_print_timeline(
           }else{
             @ <li>%s(zA)%h(zFilename)</a>%s(zId) &nbsp; %s(zUnpub)
           }
-          @ %z(href("%R/fdiff?sbs=1&v1=%!S&v2=%!S",zOld,zNew))[diff]</a></li>
+          @ %z(href("%R/fdiff?v1=%!S&v2=%!S",zOld,zNew))[diff]</a></li>
         }
         fossil_free(zA);
       }

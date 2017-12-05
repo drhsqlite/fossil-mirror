@@ -599,7 +599,7 @@ void finfo_page(void){
       @ [blame]</a>
       @ %z(href("%R/timeline?n=all&uf=%!S",zUuid))[check-ins&nbsp;using]</a>
       if( fpid>0 ){
-        @ %z(href("%R/fdiff?sbs=1&v1=%!S&v2=%!S",zPUuid,zUuid))[diff]</a>
+        @ %z(href("%R/fdiff?v1=%!S&v2=%!S",zPUuid,zUuid))[diff]</a>
       }
       @ </span></span>
     }

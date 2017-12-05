@@ -768,8 +768,7 @@ void setup_skinedit(void){
   @ <input type="submit" name="diff" value="Unified Diff" />
   @ <input type="submit" name="sbsdiff" value="Side-by-Side Diff" />
   if( P("diff")!=0 || P("sbsdiff")!=0 ){
-    u64 diffFlags = construct_diff_flags(0,0) |
-                        DIFF_STRIP_EOLCR;
+    u64 diffFlags = construct_diff_flags(1) | DIFF_STRIP_EOLCR;
     Blob from, to, out;
     if( P("sbsdiff")!=0 ) diffFlags |= DIFF_SIDEBYSIDE;
     blob_init(&to, zContent, -1);
