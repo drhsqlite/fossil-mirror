@@ -684,7 +684,8 @@ void style_footer(void){
 
   zFooter = skin_get("footer");
   if( sqlite3_strlike("%</body>%", zFooter, 0)==0 ){
-    @ <script src='%s(g.zBaseURL)/main.js' type='application/javascript'>\
+    @ <script src='%s(g.zBaseURL)/main.js/%S(MANIFEST_UUID)' \
+    @ type='application/javascript'></script>
   }
   if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br />\n", -1);
   Th_Render(zFooter);
@@ -699,8 +700,8 @@ void style_footer(void){
 
   /* Add document end mark if it was not in the footer */
   if( sqlite3_strlike("%</body>%", zFooter, 0)!=0 ){
-    @ <script src='%s(g.zBaseURL)/main.js' type='application/javascript'>\
-    @ </script>
+    @ <script src='%s(g.zBaseURL)/main.js/%S(MANIFEST_UUID)' \
+    @ type='application/javascript'></script>
     @ </body>
     @ </html>
   }
@@ -847,6 +848,7 @@ void page_main_js(void){
   cgi_set_content_type("application/javascript");
   blob_init(&mainjs, builtin_text("main.js"), -1);
   cgi_set_content(&mainjs);
+  g.isConst = 1;
 }
 
 
