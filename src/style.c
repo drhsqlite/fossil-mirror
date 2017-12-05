@@ -48,8 +48,8 @@ static int nSubmenu = 0;     /* Number of buttons */
 static struct SubmenuCtrl {
   const char *zName;           /* Form query parameter */
   const char *zLabel;          /* Label.  Might be NULL for FF_MULTI */
-  unsigned char eType;         /* FF_ENTRY, FF_MULTI, FF_BINARY */
-  unsigned char eVisible;      /* STYLE_NORMAL, STYLE_VISIBLE, .... */
+  unsigned char eType;         /* FF_ENTRY, FF_MULTI, FF_CHECKBOX */
+  unsigned char eVisible;      /* STYLE_NORMAL or STYLE_DISABLED */
   short int iSize;             /* Width for FF_ENTRY.  Count for FF_MULTI */
   const char *const *azChoice; /* value/display pairs for FF_MULTI */
   const char *zFalse;          /* FF_BINARY label when false */
@@ -58,15 +58,12 @@ static struct SubmenuCtrl {
 static int nSubmenuCtrl = 0;
 #define FF_ENTRY    1          /* Text entry box */
 #define FF_MULTI    2          /* Combobox.  Multiple choices. */
-#define FF_BINARY   3          /* Control binary query parameter */
-#define FF_CHECKBOX 4          /* Check-box with JS */
-#define FF_JSBUTTON 5          /* Run JS when clicked */
+#define FF_BINARY   3          /* Control for binary query parameter */
+#define FF_CHECKBOX 4          /* Check-box */
 
 #if INTERFACE
 #define STYLE_NORMAL   0       /* Normal display of control */
 #define STYLE_DISABLED 1       /* Control is disabled */
-#define STYLE_CLUTTER  2       /* Only visible in "Advanced" display */
-#define STYLE_BASIC    4       /* Only visible in "Basic" display */
 #endif /* INTERFACE */
 
 /*
@@ -242,18 +239,6 @@ void style_submenu_checkbox(
   aSubmenuCtrl[nSubmenuCtrl].eVisible = eVisible;
   aSubmenuCtrl[nSubmenuCtrl].zJS = zJS;
   aSubmenuCtrl[nSubmenuCtrl].eType = FF_CHECKBOX;
-  nSubmenuCtrl++;
-}
-void style_submenu_jsbutton(
-  const char *zLabel,      /* Label to display on the submenu */
-  int eVisible,            /* Visible or disabled */
-  const char *zJS          /* Javascript to run when clicked */
-){
-  assert( nSubmenuCtrl < count(aSubmenuCtrl) );
-  aSubmenuCtrl[nSubmenuCtrl].zLabel = zLabel;
-  aSubmenuCtrl[nSubmenuCtrl].eVisible = eVisible;
-  aSubmenuCtrl[nSubmenuCtrl].zJS = zJS;
-  aSubmenuCtrl[nSubmenuCtrl].eType = FF_JSBUTTON;
   nSubmenuCtrl++;
 }
 void style_submenu_binary(
@@ -579,12 +564,6 @@ void style_footer(void){
       }else if( zQPN ){
         cgi_tag_query_parameter(zQPN);
       }
-      if( aSubmenuCtrl[i].eVisible & STYLE_CLUTTER ){
-        zXtraClass = " clutter";
-      }
-      if( aSubmenuCtrl[i].eVisible & STYLE_BASIC ){
-        zXtraClass = " anticlutter";
-      }
       switch( aSubmenuCtrl[i].eType ){
         case FF_ENTRY:
           @ <span class='submenuctrl%s(zXtraClass)'>\
@@ -625,7 +604,8 @@ void style_footer(void){
         }
         case FF_BINARY: {
           int isTrue = PB(zQPN);
-          @ <select class='submenuctrl%s(zXtraClass)' size='1' name='%s(zQPN)' \
+          @ <select class='submenuctrl%s(zXtraClass)' size='1' \
+          @ name='%s(zQPN)' \
           @ onchange='gebi("f01").submit();'%s(zDisabled)>
           @ <option value='1'\
           if( isTrue ){
@@ -652,12 +632,6 @@ void style_footer(void){
             @ onchange='gebi("f01").submit();'%s(zDisabled)>\
           }
           @ %h(aSubmenuCtrl[i].zLabel)</label>
-          break;
-        }
-        case FF_JSBUTTON: {
-          @ <a class="label%s(zXtraClass)" \
-          @  onclick='%s(aSubmenuCtrl[i].zJS)'%s(zDisabled)>\
-          @ %s(aSubmenuCtrl[i].zLabel)</a>
           break;
         }
       }

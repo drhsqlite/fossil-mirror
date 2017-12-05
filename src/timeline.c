@@ -1320,6 +1320,7 @@ static const char *tagMatchExpression(
 **    u=USER          Only show items associated with USER
 **    y=TYPE          'ci', 'w', 't', 'e', or 'all'.
 **    ss=VIEWSTYLE    c: "Compact"  v: "Verbose"   m: "Modern"  j: "Columnar"
+**    advm            Use the "Advanced" or "Busy" menu design.
 **    ng              No Graph.
 **    nd              Do not highlight the focus check-in
 **    v               Show details of files changed
@@ -1398,6 +1399,7 @@ void page_timeline(void){
   char *zNewerButton = 0;             /* URL for Newer button at the top */
   int selectedRid = -9999999;         /* Show a highlight on this RID */
   int disableY = 0;                   /* Disable type selector on submenu */
+  int advancedMenu = 0;               /* Use the advanced menu design */
 
   /* Set number of rows to display */
   cookie_read_parameter("n","n");
@@ -1420,6 +1422,8 @@ void page_timeline(void){
   cgi_replace_query_parameter("n",z);
   cookie_write_parameter("n","n",0);
   tmFlags |= timeline_ss_submenu();  
+  cookie_link_parameter("advm","advm","0");
+  advancedMenu = atoi(PD("advm","0"));
 
   /* To view the timeline, must have permission to read project data.
   */
@@ -1476,7 +1480,9 @@ void page_timeline(void){
     }
 
     /* Display a checkbox to enable/disable display of related check-ins. */
-    style_submenu_checkbox("rel", "Related", STYLE_CLUTTER, 0);
+    if( advancedMenu ){
+      style_submenu_checkbox("rel", "Related", 0, 0);
+    }
 
     /* Construct the tag match expression. */
     zTagSql = tagMatchExpression(matchStyle, zTagName, &zMatchDesc, &zError);
@@ -1564,7 +1570,9 @@ void page_timeline(void){
   }
 
   style_header("Timeline");
-  style_submenu_element("Help", "%R/help?cmd=/timeline");
+  if( advancedMenu ){
+    style_submenu_element("Help", "%R/help?cmd=/timeline");
+  }
   login_anonymous_available();
   timeline_temp_table();
   blob_zero(&sql);
@@ -1609,7 +1617,9 @@ void page_timeline(void){
     addFileGlobExclusion(zChng, &sql);
     tmFlags |= TIMELINE_DISJOINT;
     db_multi_exec("%s", blob_sql_text(&sql));
-    style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c')|STYLE_CLUTTER,0);
+    if( advancedMenu ){
+      style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c'),0);
+    }
     blob_appendf(&desc, "%d check-ins going from ",
                  db_int(0, "SELECT count(*) FROM timeline"));
     blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h", zFrom), zFrom);
@@ -1659,8 +1669,10 @@ void page_timeline(void){
         zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", d_rid);
       }
     }
-    style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c')|STYLE_CLUTTER, 0);
-    style_submenu_entry("n","Max:",4,STYLE_CLUTTER);
+    if( advancedMenu ){
+      style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c'),0);
+    }
+    style_submenu_entry("n","Max:",4,0);
     timeline_y_submenu(1);
   }else if( f_rid && g.perm.Read ){
     /* If f= is present, ignore all other parameters other than n= */
@@ -1679,8 +1691,10 @@ void page_timeline(void){
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
     blob_appendf(&desc, "%z[%S]</a>", href("%R/info/%!S", zUuid), zUuid);
     tmFlags |= TIMELINE_DISJOINT;
-    style_submenu_checkbox("unhide", "Unhide", STYLE_CLUTTER, 0);
-    style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c')|STYLE_CLUTTER, 0);
+    if( advancedMenu ){
+      style_submenu_checkbox("unhide", "Unhide", 0, 0);
+      style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c'),0);
+    }
   }else{
     /* Otherwise, a timeline based on a span of time */
     int n;
@@ -1962,14 +1976,18 @@ void page_timeline(void){
         }
         free(zDate);
       }
-      if( zType[0]=='a' || zType[0]=='c' ){
-        style_submenu_checkbox("unhide", "Unhide", STYLE_CLUTTER, 0);
+      if( advancedMenu ){
+        if( zType[0]=='a' || zType[0]=='c' ){
+          style_submenu_checkbox("unhide", "Unhide", 0, 0);
+        }
+        style_submenu_checkbox("v", "Files",(zType[0]!='a' && zType[0]!='c'),0);
       }
-      style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c')|STYLE_CLUTTER,0);
       style_submenu_entry("n","Max:",4,0);
       timeline_y_submenu(disableY);
-      style_submenu_entry("t", "Tag Filter:", -8, STYLE_CLUTTER);
-      style_submenu_multichoice("ms", count(azMatchStyles)/2, azMatchStyles, STYLE_CLUTTER);
+      if( advancedMenu ){
+        style_submenu_entry("t", "Tag Filter:", -8, 0);
+        style_submenu_multichoice("ms", count(azMatchStyles)/2,azMatchStyles,0);
+      }
     }
     blob_zero(&cond);
   }
@@ -1979,8 +1997,11 @@ void page_timeline(void){
   if( search_restrict(SRCH_CKIN)!=0 ){
     style_submenu_element("Search", "%R/search?y=c");
   }
-  style_submenu_jsbutton("Advanced", STYLE_BASIC, "reclutter()");
-  style_submenu_jsbutton("Basic", STYLE_CLUTTER, "declutter()");
+  if( advancedMenu ){
+    style_submenu_element("Basic", url_render(&url, "advm", "0", 0, 0));
+  }else{
+    style_submenu_element("Advanced", url_render(&url, "advm", "1", 0, 0));
+  }
   if( PB("showid") ) tmFlags |= TIMELINE_SHOWRID;
   if( useDividers && zMark && zMark[0] ){
     double r = symbolic_name_to_mtime(zMark);
