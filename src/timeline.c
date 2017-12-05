@@ -553,14 +553,12 @@ void www_print_timeline(
             @ <span class='timelineLeaf'>Leaf</span>
           }
         }
-        cgi_printf("check-in:&nbsp;");
-        hyperlink_to_uuid(zUuid);
+        cgi_printf("check-in:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
       }else if( zType[0]=='e' && tagid ){
         cgi_printf("technote:&nbsp;");
         hyperlink_to_event_tagid(tagid<0?-tagid:tagid);
       }else{
-        cgi_printf("artifact:&nbsp;");
-        hyperlink_to_uuid(zUuid);
+        cgi_printf("artifact:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
       }
     }
 
