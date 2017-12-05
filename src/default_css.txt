@@ -622,3 +622,8 @@ p.searchEmpty {
 .clutter {
   display: none;
 }
+table.label-value th {
+  vertical-align: top;
+  text-align: right;
+  padding: 0.2ex 1ex;
+}
