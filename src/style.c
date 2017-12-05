@@ -85,21 +85,6 @@ static int sideboxUsed = 0;
 */
 static unsigned adUnitFlags = 0;
 
-/*
-** Page data JSON
-*/
-static Blob pageDataJson = BLOB_INITIALIZER;
-
-
-/*
-** List of hyperlinks and forms that need to be resolved by javascript in
-** the footer.
-*/
-char **aHref = 0;
-int nHref = 0;
-int nHrefAlloc = 0;
-char **aFormAction = 0;
-int nFormAction = 0;
 
 /*
 ** Generate and return a anchor tag like this:
@@ -133,8 +118,11 @@ int nFormAction = 0;
 ** obtained from fossil_malloc() so rendering it with %z will reclaim
 ** that memory space.
 **
-** There are two versions of this routine: href() does a plain hyperlink
-** and xhref() adds extra attribute text.
+** There are three versions of this routine:
+**
+**    (1)   href() does a plain hyperlink
+**    (2)   xhref() adds extra attribute text
+**    (3)   chref() adds a class name
 **
 ** g.perm.Hyperlink is true if the user has the Hyperlink (h) property.
 ** Most logged in users should have this property, since we can assume
@@ -152,12 +140,22 @@ char *xhref(const char *zExtra, const char *zFormat, ...){
     fossil_free(zUrl);
     return zHUrl;
   }
-  if( nHref>=nHrefAlloc ){
-    nHrefAlloc = nHrefAlloc*2 + 10;
-    aHref = fossil_realloc(aHref, nHrefAlloc*sizeof(aHref[0]));
+  return mprintf("<a %s class='antibot' data-href='%z' href='%R/honeypot'>",
+                  zExtra, zUrl);
+}
+char *chref(const char *zExtra, const char *zFormat, ...){
+  char *zUrl;
+  va_list ap;
+  va_start(ap, zFormat);
+  zUrl = vmprintf(zFormat, ap);
+  va_end(ap);
+  if( g.perm.Hyperlink && !g.javascriptHyperlink ){
+    char *zHUrl = mprintf("<a %s href=\"%h\">", zExtra, zUrl);
+    fossil_free(zUrl);
+    return zHUrl;
   }
-  aHref[nHref++] = zUrl;
-  return mprintf("<a %s id='a%d' href='%R/honeypot'>", zExtra, nHref);
+  return mprintf("<a class='antibot %s' data-href='%z' href='%R/honeypot'>",
+                 zExtra, zUrl);
 }
 char *href(const char *zFormat, ...){
   char *zUrl;
@@ -170,12 +168,8 @@ char *href(const char *zFormat, ...){
     fossil_free(zUrl);
     return zHUrl;
   }
-  if( nHref>=nHrefAlloc ){
-    nHrefAlloc = nHrefAlloc*2 + 10;
-    aHref = fossil_realloc(aHref, nHrefAlloc*sizeof(aHref[0]));
-  }
-  aHref[nHref++] = zUrl;
-  return mprintf("<a id='a%d' href='%R/honeypot'>", nHref);
+  return mprintf("<a class='antibot' data-href='%s' href='%R/honeypot'>",
+                  zUrl);
 }
 
 /*
@@ -192,68 +186,9 @@ void form_begin(const char *zOtherArgs, const char *zAction, ...){
   if( g.perm.Hyperlink && !g.javascriptHyperlink ){
     @ <form method="POST" action="%z(zLink)" %s(zOtherArgs)>
   }else{
-    int n;
-    aFormAction = fossil_realloc(aFormAction, (nFormAction+1)*sizeof(char*));
-    aFormAction[nFormAction++] = zLink;
-    n = nFormAction;
-    @ <form id="form%d(n)" method="POST" action='%R/login' %s(zOtherArgs)>
+    @ <form method="POST" data-action='%s(zLink)' action='%R/login' \
+    @ %s(zOtherArgs)>
   }
-}
-
-/*
-** Append page-data JSON
-*/
-void style_pagedata_appendf(const char *zFormat, ...){
-  va_list ap;
-  if( blob_size(&pageDataJson)==0 ){
-    blob_append(&pageDataJson, "[", 1);
-  }
-  va_start(ap, zFormat);
-  blob_vappendf(&pageDataJson, zFormat, ap);
-  va_end(ap);
-}
-
-/*
-** Generate javascript that will set the href= attribute on all anchors.
-*/
-void style_resolve_href(void){
-  int i;
-  int nDelay = db_get_int("auto-hyperlink-delay",10);
-  if( !g.perm.Hyperlink ) return;
-  if( nHref==0 && nFormAction==0 ) return;
-  @ <script>
-  @ function setAllHrefs(){
-  if( g.javascriptHyperlink ){
-    for(i=0; i<nHref; i++){
-      @ gebi("a%d(i+1)").href="%s(aHref[i])";
-    }
-  }
-  for(i=0; i<nFormAction; i++){
-    @ gebi("form%d(i+1)").action="%s(aFormAction[i])";
-  }
-  @ }
-  if( sqlite3_strglob("*Opera Mini/[1-9]*", PD("HTTP_USER_AGENT",""))==0 ){
-    /* Special case for Opera Mini, which executes JS server-side */
-    @ var isOperaMini = Object.prototype.toString.call(window.operamini)
-    @                   === "[object OperaMini]";
-    @ if( isOperaMini ){
-    @   setTimeout("setAllHrefs();",%d(nDelay));
-    @ }
-  }else if( db_get_boolean("auto-hyperlink-ishuman",0) && g.isHuman ){
-    /* Active hyperlinks after a delay */
-    @ setTimeout("setAllHrefs();",%d(nDelay));
-  }else if( db_get_boolean("auto-hyperlink-mouseover",0) ){
-    /* Require mouse movement before starting the teim that will
-    ** activating hyperlinks */
-    @ document.getElementsByTagName("body")[0].onmousemove=function(){
-    @   setTimeout("setAllHrefs();",%d(nDelay));
-    @   this.onmousemove = null;
-    @ }
-  }else{
-    /* Active hyperlinks after a delay */
-    @ setTimeout("setAllHrefs();",%d(nDelay));
-  }
-  @ </script>
 }
 
 /*
@@ -578,6 +513,7 @@ void style_footer(void){
   const char *zFooter;
   const char *zAd = 0;
   unsigned int mAdFlags = 0;
+  int bMouseover = 0;            /* Active hyperlinks after mouseover */
 
   if( !headerHasBeenGenerated ) return;
 
@@ -728,11 +664,34 @@ void style_footer(void){
   }
   @ </div>
 
+#if 0
   /* Set the href= field on hyperlinks.  Do this before the footer since
   ** the footer will be generating </html> */
   style_resolve_href();
+#endif
+
+  /* Load up the page data */
+  @ <script id='page-data' type='application/json'>
+  if( !g.javascriptHyperlink ){
+    @ {"antibot":{"enable":0},
+  }else{
+    int nDelay = db_get_int("auto-hyperlink-delay",0);
+    int bMouseover;
+    bMouseover = (!g.isHuman || db_get_boolean("auto-hyperlink-ishuman",0))
+                 && db_get_boolean("auto-hyperlink-mouseover",0);
+    @ {"antibot":
+    @   {"enable":1,
+    @    "delay":%d(nDelay),
+    @    "mouseover":%d(bMouseover)},
+  }
+  @ "noop":0}
+  @ </script>
+
 
   zFooter = skin_get("footer");
+  if( sqlite3_strlike("%</body>%", zFooter, 0)==0 ){
+    @ <script src='%s(g.zBaseURL)/main.js' type='application/javascript'>\
+  }
   if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br />\n", -1);
   Th_Render(zFooter);
   if( g.thTrace ) Th_Trace("END_FOOTER<br />\n", -1);
@@ -746,12 +705,8 @@ void style_footer(void){
 
   /* Add document end mark if it was not in the footer */
   if( sqlite3_strlike("%</body>%", zFooter, 0)!=0 ){
-    style_pagedata_appendf("{'op':'no-op'}]");
-    @ <script type='application/json' id='page-data'>
-    @ %s(blob_str(&pageDataJson))
-    @ </script>
     @ <script src='%s(g.zBaseURL)/main.js' type='application/javascript'>\
-    @ <script>
+    @ </script>
     @ </body>
     @ </html>
   }

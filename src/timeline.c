@@ -52,7 +52,7 @@ void tag_private_status(int rid){
 */
 void hyperlink_to_uuid(const char *zUuid){
   if( g.perm.Hyperlink ){
-    @ %z(xhref("class='timelineHistLink'","%R/info/%!S",zUuid))[%S(zUuid)]</a>
+    @ %z(chref("timelineHistLink","%R/info/%!S",zUuid))[%S(zUuid)]</a>
   }else{
     @ <span class="timelineHistDsp">[%S(zUuid)]</span>
   }
@@ -389,7 +389,7 @@ void www_print_timeline(
       zDateLink = href("%R/technote/%s",zId);
       free(zId);
     }else if( zUuid ){
-      zDateLink = xhref("class='timelineHistLink'", "%R/info/%!S", zUuid);
+      zDateLink = chref("timelineHistLink", "%R/info/%!S", zUuid);
     }else{
       zDateLink = mprintf("<a>");
     }
@@ -2297,12 +2297,12 @@ void page_timeline(void){
   }
 
   if( zNewerButton ){
-    @ %z(xhref("class='button'","%z",zNewerButton))More&nbsp;&uarr;</a>
+    @ %z(chref("button","%z",zNewerButton))More&nbsp;&uarr;</a>
   }
   www_print_timeline(&q, tmFlags, zThisUser, zThisTag, selectedRid, 0);
   db_finalize(&q);
   if( zOlderButton ){
-    @ %z(xhref("class='button'","%z",zOlderButton))More&nbsp;&darr;</a>
+    @ %z(chref("button","%z",zOlderButton))More&nbsp;&darr;</a>
   }
   style_footer();
 }
