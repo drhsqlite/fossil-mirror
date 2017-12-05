@@ -1,5 +1,5 @@
-C Add\sthe\s"/test-builtin-files"\swebpage.
-D 2017-12-05T15:21:49.910
+C Tolerate\s"&#91;...&#93"\sdelimiters\senclosing\shash\sidentifiers.
+D 2017-12-05T15:48:54.452
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -482,7 +482,7 @@ F src/mkcss.c b3807ccb28720dab540eef38058ede1792c3bc755d65ce4ee98f2f6de647517a
 F src/mkindex.c c1d4a4459bb68241a99877dd202fede5c24321fede2cbf5d27b400575304349a
 F src/mkversion.c 6e606c3a895f71b35a878e817104b5e5eb056ce47925e341fde567f2448e9aa7
 F src/moderate.c 2540f90b20778a4d62156a3b4af962b401d4c89f
-F src/name.c 1cc2b83de879fd99ec72dc4bfc16d243d3207f4211566a95d621bff491a540ff
+F src/name.c b81eae34a8ef7efdc1d41fd7da188614d94769216a4fa788d1322b39d49ed119
 F src/path.c 45a49dc7f3e16bd8c07f113e2c833fb40d16bb3bcecbaa3b1f4d4f2e675dab61
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c d8c6f6e91772e17893f477402da1efb431b85b8fbf7a938b64a905e04e376a15
@@ -797,7 +797,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 09494b0207e4f2a55f02ef25a1a21845f660588f40e43e052447304c408e47a5
-R 1cf8955087f666a1b496802491033ffb
+P cee662d96ed9c49abce31665c4fbfc866c30eeb551a819d5643dd4df3ae8dc25
+R a2d6b037f65ff954f772a9a4a2dc556d
 U drh
-Z 8d7954a68462b846b1542d95e72a8054
+Z f46a11e8dbec71acaf30a2f4a660ce97
