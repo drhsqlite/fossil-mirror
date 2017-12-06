@@ -37,10 +37,10 @@ function antiRobotDefense(){
        Object.prototype.toString.call(window.operamini)==="[object OperaMini]";
   if(g.mouseover && !isOperaMini){
     document.getElementByTagName("body")[0].onmousemove=function(){
-      setTimeout("setAllHrefs();",g.delay);
+      setTimeout(setAllHrefs, g.delay);
     }
   }else{
-    setTimeout("setAllHrefs();",g.delay);
+    setTimeout(setAllHrefs, g.delay);
   }
 }
 antiRobotDefense()

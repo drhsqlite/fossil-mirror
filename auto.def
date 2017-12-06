@@ -22,6 +22,7 @@ options {
     static=0             => {Link a static executable}
     fusefs=1             => {Disable the Fuse Filesystem}
     fossil-debug=0       => {Build with fossil debugging enabled}
+    no-opt=0             => {Build without optimization}
     json=0               => {Build with fossil JSON API enabled}
 }
 
@@ -136,6 +137,11 @@ if {[opt-bool fossil-debug]} {
     define-append EXTRA_CFLAGS -DFOSSIL_DEBUG
     define CFLAGS {-g -O0}
     msg-result "Debugging support enabled"
+}
+
+if {[opt-bool no-opt]} {
+    define CFLAGS {-g -O0}
+    msg-result "Builting without compiler optimization"
 }
 
 if {[opt-bool with-see]} {
