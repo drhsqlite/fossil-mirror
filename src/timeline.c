@@ -257,6 +257,7 @@ void www_print_timeline(
   int bCommentGitStyle = 0;   /* Only show comments through first blank line */
   const char *zStyle;         /* Sub-name for classes for the style */
   const char *zDateFmt;
+  int iTableId = timeline_tableid();
 
   if( fossil_strcmp(g.zIpAddr, "127.0.0.1")==0 && db_open_local(0) ){
     vid = db_lget_int("checkout", 0);
@@ -287,7 +288,7 @@ void www_print_timeline(
     TAG_BRANCH
   );
 
-  @ <table id="timelineTable" class="timelineTable">
+  @ <table id="timelineTable%d(iTableId)" class="timelineTable">
   blob_zero(&comment);
   while( db_step(pQuery)==SQLITE_ROW ){
     int rid = db_column_int(pQuery, 0);
@@ -723,7 +724,7 @@ void www_print_timeline(
   }
   @ </table>
   if( fchngQueryInit ) db_finalize(&fchngQuery);
-  timeline_output_graph_javascript(pGraph, (tmFlags & TIMELINE_DISJOINT)!=0, 0);
+  timeline_output_graph_javascript(pGraph, (tmFlags & TIMELINE_DISJOINT)!=0, iTableId, 0);
 }
 
 /*
@@ -764,6 +765,7 @@ static const char *bg_to_fg(const char *zIn){
 void timeline_output_graph_javascript(
   GraphContext *pGraph,     /* The graph to be displayed */
   int omitDescenders,       /* True to omit descenders */
+  int iTableId,             /* Which graph is this for */
   int fileDiff              /* True for file diff.  False for check-in diff */
 ){
   if( pGraph && pGraph->nErr==0 && pGraph->nRow>0 ){
@@ -782,7 +784,8 @@ void timeline_output_graph_javascript(
     colorGraph = skin_detail_boolean("timeline-color-graph-lines");
     iTopRow = pGraph->pFirst ? pGraph->pFirst->idx : 0;
 
-    @ <script id='timeline-data' type='application/json'>{
+    @ <script id='timeline-data-%d(iTableId)' type='application/json'>{
+    @   "iTableId": %d(iTableId),
     @   "circleNodes": %d(circleNodes),
     @   "showArrowheads": %d(showArrowheads),
     @   "iRailPitch": %d(iRailPitch),
@@ -865,7 +868,7 @@ void timeline_output_graph_javascript(
                  pRow->zUuid, pRow->pNext ? ",\n" : "]\n");
     }
     @ }</script>
-    style_load_one_js_file("graph.js");
+    style_graph_generator();
     graph_free(pGraph);
   }
 }

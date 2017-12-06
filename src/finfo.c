@@ -314,6 +314,7 @@ void finfo_page(void){
   int fDebug = atoi(PD("debug","0"));
   int fShowId = P("showid")!=0;
   Stmt qparent;
+  int iTableId = timeline_tableid();
   int tmFlags = 0;            /* Viewing mode */
   const char *zStyle;         /* Viewing mode name */
 
@@ -448,7 +449,7 @@ void finfo_page(void){
   @ <h2>%b(&title)</h2>
   blob_reset(&title);
   pGraph = graph_init();
-  @ <table id="timelineTable" class="timelineTable">
+  @ <table id="timelineTable%d(iTableId)" class="timelineTable">
   if( baseCheckin ){
     db_prepare(&qparent,
       "SELECT DISTINCT pid FROM mlink"
@@ -637,7 +638,7 @@ void finfo_page(void){
     }
   }
   @ </table>
-  timeline_output_graph_javascript(pGraph, 0, 1);
+  timeline_output_graph_javascript(pGraph, 0, iTableId, 1);
   style_footer();
 }
 

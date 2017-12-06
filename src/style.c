@@ -87,6 +87,7 @@ static unsigned adUnitFlags = 0;
 */
 static int needHrefJs = 0;   /* href.js */
 static int needSortJs = 0;   /* sorttable.js */
+static int needGraphJs = 0;  /* graph.js */
 
 /*
 ** Generate and return a anchor tag like this:
@@ -508,6 +509,13 @@ void style_table_sorter(void){
 }
 
 /*
+** Indicate that the table-sorting javascript is needed.
+*/
+void style_graph_generator(void){
+  needGraphJs = 1;
+}
+
+/*
 ** Generate code to load a single javascript file
 */
 void style_load_one_js_file(const char *zFile){
@@ -530,6 +538,9 @@ static void style_load_all_js_files(void){
   }
   if( needSortJs ){
     style_load_one_js_file("sorttable.js");
+  }
+  if( needGraphJs ){
+    style_load_one_js_file("graph.js");
   }
 }
 
