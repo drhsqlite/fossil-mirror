@@ -421,15 +421,15 @@ static void append_file_change_line(
   }else{
     if( zOld && zNew ){
       if( fossil_strcmp(zOld, zNew)!=0 ){
-        @ Modified %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
+        @ Modified %z(href("%R/finfo?name=%T&m=%!S",zName,zNew))%h(zName)</a>
         @ from %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>
         @ to %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
       }else if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
         @ Name change
-        @ from %z(href("%R/finfo?name=%T",zOldName))%h(zOldName)</a>
-        @ to %z(href("%R/finfo?name=%T",zName))%h(zName)</a>.
+        @ from %z(href("%R/finfo?name=%T&m=%!S",zOldName,zOld))%h(zOldName)</a>
+        @ to %z(href("%R/finfo?name=%T&m=%!S",zName,zNew))%h(zName)</a>.
       }else{
-        @ %z(href("%R/finfo?name=%T",zName))%h(zName)</a> became
+        @ %z(href("%R/finfo?name=%T&m=%!S",zName,zNew))%h(zName)</a> became
         if( mperm==PERM_EXE ){
           @ executable with contents
         }else if( mperm==PERM_LNK ){
@@ -440,10 +440,10 @@ static void append_file_change_line(
         @ %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
       }
     }else if( zOld ){
-      @ Deleted %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
+      @ Deleted %z(href("%R/finfo?name=%T&m=%!S",zName,zOld))%h(zName)</a>
       @ version %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>.
     }else{
-      @ Added %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
+      @ Added %z(href("%R/finfo?name=%T&m=%!S",zName,zNew))%h(zName)</a>
       @ version %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
     }
     if( diffFlags ){
@@ -1332,7 +1332,7 @@ int object_description(
         @ <li>File
       }
       objType |= OBJTYPE_CONTENT;
-      @ %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
+      @ %z(href("%R/finfo?name=%T&m=%!S",zName,zUuid))%h(zName)</a>
       tag_private_status(rid);
       if( showDetail ){
         @ <ul>
@@ -1357,7 +1357,6 @@ int object_description(
     hyperlink_to_user(zUser,zDate,",");
     @ size: %d(szFile))
     if( g.perm.Hyperlink ){
-      @ %z(href("%R/finfo?name=%T&ci=%!S",zName,zVers))[ancestry]</a>
       @ %z(href("%R/annotate?filename=%T&checkin=%!S",zName,zVers))
       @ [annotate]</a>
       @ %z(href("%R/blame?filename=%T&checkin=%!S",zName,zVers))
