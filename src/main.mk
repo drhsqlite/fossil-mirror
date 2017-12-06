@@ -198,6 +198,7 @@ EXTRA_FILES = \
   $(SRCDIR)/diff.tcl \
   $(SRCDIR)/graph.js \
   $(SRCDIR)/href.js \
+  $(SRCDIR)/login.js \
   $(SRCDIR)/markdown.md \
   $(SRCDIR)/menu.js \
   $(SRCDIR)/sbsdiff.js \

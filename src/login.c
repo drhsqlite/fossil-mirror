@@ -634,7 +634,14 @@ void login_page(void){
       @ <p>Login as a named user to access page <b>%h(zAbbrev)</b>.
     }
   }
-  form_begin(0, "%R/login");
+  if( g.sslNotAvailable==0
+   && strncmp(g.zBaseURL,"https:",6)!=0
+   && db_get_boolean("https-login",0)
+  ){
+    form_begin(0, "https:%s/login", g.zBaseURL+5);
+  }else{
+    form_begin(0, "%R/login");
+  }
   if( zGoto ){
     @ <input type="hidden" name="g" value="%h(zGoto)" />
   }else if( zReferer && strncmp(g.zBaseURL, zReferer, strlen(g.zBaseURL))==0 ){
@@ -669,24 +676,9 @@ void login_page(void){
   }
   @ <tr>
   @   <td></td>
-  @   <td><input type="submit" name="in" value="Login"
-  @        onClick="chngAction(this.form)" /></td>
+  @   <td><input type="submit" name="in" value="Login">
   @ </tr>
   @ </table>
-  @ <script>
-  @   gebi('u').focus()
-  @   function chngAction(form){
-  if( g.sslNotAvailable==0
-   && strncmp(g.zBaseURL,"https:",6)!=0
-   && db_get_boolean("https-login",0)
-  ){
-     char *zSSL = mprintf("https:%s", &g.zBaseURL[5]);
-     @  if( form.u.value!="anonymous" ){
-     @     form.action = "%h(zSSL)/login";
-     @  }
-  }
-  @ }
-  @ </script>
   @ <p>Pressing the Login button grants permission to store a cookie.</p>
   if( db_get_boolean("self-register", 0) ){
     @ <p>If you do not have an account, you can
@@ -705,8 +697,9 @@ void login_page(void){
     @ %h(zCaptcha)
     @ </pre></td></tr></table>
     if( bAutoCaptcha ) {
-        @ <input type="button" value="Fill out captcha"
-        @  onclick="gebi('u').value='anonymous'; gebi('p').value='%s(zDecoded)';" />
+       @ <input type="button" value="Fill out captcha" id='autofillButton' \
+       @ data-af='%s(zDecoded)' />
+       style_load_one_js_file("login.js");
     }
     @ </div>
     free(zCaptcha);
