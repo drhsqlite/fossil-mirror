@@ -22,7 +22,13 @@ function chgbn(){
   cidbrid = document.getElementById('cbranch');
   if( cidbrid ) cidbrid.textContent = x;
 }
+function chgtn(){
+  var newtag = document.getElementById('newtag');
+  var tagname = document.getElementById('tagname');
+  newtag.checked=!!tagname.value;
+}
 (function(){
   document.getElementById('newbr').onchange = chgcbn;
   document.getElementById('brname').onkeyup = chgbn;
+  document.getElementById('tagname').onkeyup = chgtn;
 }());

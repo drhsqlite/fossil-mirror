@@ -2751,8 +2751,8 @@ void ci_edit_page(void){
   @ <td valign="top">
   @ <label><input type="checkbox" id="newtag" name="newtag"%s(zNewTagFlag) />
   @ Add the following new tag name to this check-in:</label>
-  @ <input type="text" style="width:15;" name="tagname" value="%h(zNewTag)"
-  @ onkeyup="gebi('newtag').checked=!!this.value" />
+  @ <input type="text" size='15' name="tagname" value="%h(zNewTag)" \
+  @ id='tagname' />
   zBranchName = db_text(0, "SELECT value FROM tagxref, tag"
      " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid"
      " AND tagxref.tagid=%d", rid, TAG_BRANCH);
