@@ -203,6 +203,7 @@ EXTRA_FILES = \
   $(SRCDIR)/sbsdiff.js \
   $(SRCDIR)/sorttable.js \
   $(SRCDIR)/tree.js \
+  $(SRCDIR)/useredit.js \
   $(SRCDIR)/wiki.wiki
 
 TRANS_SRC = \

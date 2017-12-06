@@ -538,6 +538,7 @@ EXTRA_FILES   = $(SRCDIR)\../skins/aht/details.txt \
         $(SRCDIR)\sbsdiff.js \
         $(SRCDIR)\sorttable.js \
         $(SRCDIR)\tree.js \
+        $(SRCDIR)\useredit.js \
         $(SRCDIR)\wiki.wiki
 
 OBJ   = $(OX)\add$O \
