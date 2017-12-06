@@ -318,7 +318,7 @@ function TimelineGraph(tx){
   }
   function toggleDetail(){
     var id = parseInt(this.getAttribute('data-id'))
-    var x = gebi("detail-"+id);
+    var x = document.getElementById("detail-"+id);
     if( x.style.display=="inline" ){
       x.style.display="none";
       changeDisplayById("ellipsis-"+id,"inline");
@@ -338,7 +338,7 @@ function TimelineGraph(tx){
       if( y>0 ) window.scrollTo(0, y);
     }
   }
-  var lastRow = gebi("m"+tx.rowinfo[tx.rowinfo.length-1].id);
+  var lastRow = document.getElementById("m"+tx.rowinfo[tx.rowinfo.length-1].id);
   var lastY = 0;
   function checkHeight(){
     var h = absoluteY(lastRow);

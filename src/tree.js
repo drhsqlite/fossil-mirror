@@ -36,7 +36,7 @@ function checkState(){
   expandMap = history.state || {};
   if( '*' in expandMap ) toggleAll(outer_ul, true);
   for( var id in expandMap ){
-    if( id!=='*' ) toggleDir(gebi(id), true);
+    if( id!=='*' ) toggleDir(document.getElementById(id), true);
   }
 }
 
