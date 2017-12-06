@@ -2425,7 +2425,7 @@ void annotation_page(void){
   url_add_parameter(&url, "log", showLog ? "1" : "0");
   url_add_parameter(&url, "filevers", fileVers ? "1" : "0");
   style_submenu_checkbox("w", "Ignore Whitespace", 0, 0);
-  style_submenu_checkbox("log", "Log", 0, "toggle_annotation_log()");
+  style_submenu_checkbox("log", "Log", 0, "toggle_annotation_log");
   style_submenu_checkbox("filevers", "Link to Files", 0, 0);
   if( ann.bMoreToDo ){
     style_submenu_element("All Ancestors", "%s",
@@ -2460,13 +2460,6 @@ void annotation_page(void){
   @ </ol>
   @ <hr />
   @ </div>
-  @ <script>
-  @ function toggle_annotation_log(){
-  @   var w = gebi("annotation_log");
-  @   var x = document.forms["f01"].elements["log"].checked
-  @   w.style.display = x ? "block" : "none";
-  @ }
-  @ </script>
 
   if( !ann.bMoreToDo ){
     assert( ann.origId==0 );  /* bMoreToDo always set for a point-to-point */

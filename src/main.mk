@@ -199,6 +199,7 @@ EXTRA_FILES = \
   $(SRCDIR)/graph.js \
   $(SRCDIR)/href.js \
   $(SRCDIR)/markdown.md \
+  $(SRCDIR)/menu.js \
   $(SRCDIR)/sbsdiff.js \
   $(SRCDIR)/wiki.wiki
 

@@ -575,7 +575,7 @@ void style_footer(void){
             @ size='%d(aSubmenuCtrl[i].iSize)' \
             @ maxlength='%d(aSubmenuCtrl[i].iSize)' \
           }
-          @ onchange='gebi("f01").submit();'%s(zDisabled)></span>
+          @ id='submenuctrl-%d(i)'%s(zDisabled)></span>
           break;
         case FF_MULTI: {
           int j;
@@ -587,7 +587,7 @@ void style_footer(void){
             @ &nbsp;%h(aSubmenuCtrl[i].zLabel)\
           }
           @ <select class='submenuctrl' size='1' name='%s(zQPN)' \
-          @ onchange='gebi("f01").submit();'%s(zDisabled)>
+          @ id='submenuctrl-%d(i)'%s(zDisabled)>
           for(j=0; j<aSubmenuCtrl[i].iSize*2; j+=2){
             const char *zQPV = aSubmenuCtrl[i].azChoice[j];
             @ <option value='%h(zQPV)'\
@@ -605,8 +605,7 @@ void style_footer(void){
         case FF_BINARY: {
           int isTrue = PB(zQPN);
           @ <select class='submenuctrl%s(zXtraClass)' size='1' \
-          @ name='%s(zQPN)' \
-          @ onchange='gebi("f01").submit();'%s(zDisabled)>
+          @ name='%s(zQPN)' id='submenuctrl-%d(i)'%s(zDisabled)>
           @ <option value='1'\
           if( isTrue ){
             @  selected\
@@ -622,14 +621,14 @@ void style_footer(void){
         }
         case FF_CHECKBOX: {
           @ <label class='submenuctrl submenuckbox%s(zXtraClass)'>\
-          @ <input type='checkbox' name='%s(zQPN)' \
+          @ <input type='checkbox' name='%s(zQPN)' id='submenuctrl-%d(i)' \
           if( PB(zQPN) ){
             @ checked \
           }
           if( aSubmenuCtrl[i].zJS ){
-            @ onchange='%s(aSubmenuCtrl[i].zJS)'%s(zDisabled)>\
+            @ data-ctrl='%s(aSubmenuCtrl[i].zJS)'%s(zDisabled)>\
           }else{
-            @ onchange='gebi("f01").submit();'%s(zDisabled)>\
+            @ %s(zDisabled)>\
           }
           @ %h(aSubmenuCtrl[i].zLabel)</label>
           break;
@@ -641,6 +640,7 @@ void style_footer(void){
       cgi_query_parameters_to_hidden();
       cgi_tag_query_parameter(0);
       @ </form>
+      style_load_one_js_file("menu.js");
     }
   }
 
