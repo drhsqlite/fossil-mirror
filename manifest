@@ -1,5 +1,5 @@
-C Do\snot\sscroll\sto\sthe\sselect\selement\sof\s"Context"\stimelines.
-D 2017-12-06T18:48:03.897
+C Add\sthe\s"m="\squery\sparameter\sto\sthe\s/finfo\spage.
+D 2017-12-06T18:58:44.266
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -427,7 +427,7 @@ F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c 5d4a12252f765b5a1fa43fc6ddd087e79dfad65e3533369c1b47deb5b4be52d0
 F src/export.c 3e09dfda9d07b44c463d656dbc09f6adfe686d6d80ad55282a1f06b9216934f2
 F src/file.c d1d99096ad0283231a4565a545462b803ef2586687b99744d51c3af7aa3accdf
-F src/finfo.c eed31d6417d47f08719f2dbdd98131224bbb2adf6014a48f90d9abbe47ba1278
+F src/finfo.c ae44ccb532e146dc3a8c36c5fe691635f6f88bf703040a342431e01be284d2cb
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -804,7 +804,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e2d537207ec3b2029e585e0bbd1af8d6a0434e65a23133a15b18b523db3b7bb5
-R 5c004b522e96bf509bf257f2ff43aa16
+P cee4bcf047bacba9cf3d496b5a9aa29140d5b363ddd922c1f2034f7b10c82217
+R 88d2cd70c27e7a32d5cb6b6c27805fa3
 U drh
-Z 39962e43403f85cb2a28f3c941289bfa
+Z e079d27cfcfd2c3189a7672229f2b454

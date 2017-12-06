@@ -282,6 +282,7 @@ void cat_cmd(void){
 **
 **    a=DATETIME Only show changes after DATETIME
 **    b=DATETIME Only show changes before DATETIME
+**    m=HASH     Mark this particular file version
 **    n=NUM      Show the first NUM changes only
 **    brbg       Background color by branch name
 **    ubg        Background color by user name
@@ -317,6 +318,8 @@ void finfo_page(void){
   int iTableId = timeline_tableid();
   int tmFlags = 0;            /* Viewing mode */
   const char *zStyle;         /* Viewing mode name */
+  const char *zMark;          /* Mark this version of the file */
+  int selRid = 0;             /* RID of the marked file version */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -416,6 +419,10 @@ void finfo_page(void){
   if( P("showsql")!=0 ){
     @ <p>SQL: %h(blob_str(&sql))</p>
   }
+  zMark = P("m");
+  if( zMark ){
+    selRid = symbolic_name_to_rid(zMark, "*");
+  }
   blob_reset(&sql);
   blob_zero(&title);
   if( baseCheckin ){
@@ -508,7 +515,12 @@ void finfo_page(void){
     }
     memcpy(zTime, &zDate[11], 5);
     zTime[5] = 0;
-    @ <tr><td class="timelineTime">
+    if( frid==selRid ){
+      @ <tr class='timelineSelected'>
+    }else{
+      @ <tr>
+    }
+    @ <td class="timelineTime">\
     @ %z(href("%R/artifact/%!S",zUuid))%s(zTime)</a></td>
     @ <td class="timelineGraph"><div id="m%d(gidx)" class="tl-nodemark"></div>
     @ </td>
