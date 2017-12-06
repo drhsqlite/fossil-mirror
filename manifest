@@ -1,5 +1,5 @@
-C Remove\sthe\suse\sof\sin-line\sjavascript\sfrom\sthe\ssubmenu\scontrols.
-D 2017-12-06T01:38:11.804
+C Enable\s-Wall\son\sdefault\sbuilds.\s\sFix\sharmless\scompiler\swarnings.
+D 2017-12-06T01:44:21.956
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -47,7 +47,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 0fd090f2216c2cbf48cf43de1c6230d22256a6584d7ac4684ddc517f06fa3fd3
+F auto.def 2db5d7603e510a616ab1479e2458a1f735d3ce55ea60ae6358eaf2b35e13e9f6
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup c235af4ce86af9a9b8b331b5a67c822d52ca2c6e
 F autosetup/autosetup 564c6ab11d5ab75d1aebc8d90ebc22df8babb01d2f9ada06d7964e5cfb7c38aa x
@@ -442,7 +442,7 @@ F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 55266e0d4b2dd2d03af062c1e0e2a06c70d28adf6bb82b13f18a7d4beb543423
 F src/http_transport.c 43bf993a931c1a6cafb051566e06c841173ec350dedc0cb6887e112bc05a147c
 F src/import.c e48f2f2e0095795aeabe7220514c8694393693b853150c47f6d6792921def3f1
-F src/info.c 8da619212a6707dbe90c7a67acdac79b896d393bb63d168c30ab37544d0dec0e
+F src/info.c f183aac5de67f6828f484faa1b4782a0d5e0b99341d812756b058f5d01d4aef0
 F src/json.c 31bebf948c49f46d6eb9a5bf910ef9cd35b407434efabd2f047780f420639b47
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c b6105183492ee774cdc685bfd80eb511fb1c5c37faf88198d7e4e58c41dfc68b
@@ -546,7 +546,7 @@ F src/winhttp.c c129f5b754adafe2f79cbe353221603e29001b3f3656bcd5b43e9d1b38cc8d9e
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 668af421d7b956373a7834ad5cccfb98d2020342949aee03ef05c60ac72e68fd
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
-F src/zip.c 367ef7e4bdcaae9c19ea1c0d22c4bc8e853665e2837deffc9f7b3cace6ad581c
+F src/zip.c b297bd8367a159a34420934a0686b26842ba7e590072d92edb149bb5eabfeed8
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test 83966725550e04f80c40a52012074f91ef6d22cbd57f51e17e931eccee6663e0
@@ -800,7 +800,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 189adb9959fa4335038987bf44777a3e168a85da858d015955d2c8156c07d0b2
-R 3630e02f916acd173ac0ba0b02aff930
+P 3969757f3735b05ac22bf8ad6e54d7a447bf7e1f775ca869f1792ac41c56ca68
+R 49d35606033f610e99db267f94fac264
 U drh
-Z e674b30b24bd2525bfb0beca37461163
+Z dc2da6f6382874bfbabafbdbb2ddcac7

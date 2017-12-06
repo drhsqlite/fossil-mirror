@@ -37,7 +37,7 @@ define USE_PREAD [cc-check-functions pread]
 # Find tclsh for the test suite. Can't yet use jimsh for this.
 cc-check-progs tclsh
 
-define EXTRA_CFLAGS ""
+define EXTRA_CFLAGS "-Wall"
 define EXTRA_LDFLAGS ""
 define USE_SYSTEM_SQLITE 0
 define USE_LINENOISE 0
@@ -135,12 +135,12 @@ if {[string match *-solaris* [get-define host]]} {
 
 if {[opt-bool fossil-debug]} {
     define-append EXTRA_CFLAGS -DFOSSIL_DEBUG
-    define CFLAGS {-g -O0}
+    define CFLAGS {-g -O0 -Wall}
     msg-result "Debugging support enabled"
 }
 
 if {[opt-bool no-opt]} {
-    define CFLAGS {-g -O0}
+    define CFLAGS {-g -O0 -Wall}
     msg-result "Builting without compiler optimization"
 }
 

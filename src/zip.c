@@ -451,7 +451,7 @@ static void zip_add_file_to_sqlar(
       sqlite3_bind_int(p->pInsert, 2, mPerm==PERM_EXE ? 0100755 : 0100644);
       sqlite3_bind_int(p->pInsert, 4, nIn);
       zip_blob_minsize(&p->tmp, nIn);
-      compress(
+      compress( (unsigned char*)
           blob_buffer(&p->tmp), &nOut, (unsigned char*)blob_buffer(pFile), nIn
       );
       if( nOut>=nIn ){

@@ -1062,7 +1062,6 @@ void vdiff_page(void){
   const char *zTo;
   const char *zRe;
   const char *zW;
-  const char *zVerbose;
   const char *zGlob;
   ReCompiled *pRe = 0;
   login_check_credentials();
