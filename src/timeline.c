@@ -93,23 +93,25 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 ** Allowed flags for the tmFlags argument to www_print_timeline
 */
 #if INTERFACE
-#define TIMELINE_ARTID    0x0001  /* Show artifact IDs on non-check-in lines */
-#define TIMELINE_LEAFONLY 0x0002  /* Show "Leaf", but not "Merge", "Fork" etc */
-#define TIMELINE_BRIEF    0x0004  /* Combine adjacent elements of same object */
-#define TIMELINE_GRAPH    0x0008  /* Compute a graph */
-#define TIMELINE_DISJOINT 0x0010  /* Elements are not contiguous */
-#define TIMELINE_FCHANGES 0x0020  /* Detail file changes */
-#define TIMELINE_BRCOLOR  0x0040  /* Background color by branch name */
-#define TIMELINE_UCOLOR   0x0080  /* Background color by user */
-#define TIMELINE_FRENAMES 0x0100  /* Detail only file name changes */
-#define TIMELINE_UNHIDE   0x0200  /* Unhide check-ins with "hidden" tag */
-#define TIMELINE_SHOWRID  0x0400  /* Show RID values in addition to UUIDs */
-#define TIMELINE_BISECT   0x0800  /* Show supplimental bisect information */
-#define TIMELINE_COMPACT  0x1000  /* Use the "compact" view style */
-#define TIMELINE_VERBOSE  0x2000  /* Use the "detailed" view style */
-#define TIMELINE_MODERN   0x4000  /* Use the "modern" view style */
-#define TIMELINE_COLUMNAR 0x8000  /* Use the "columns view style */
-#define TIMELINE_VIEWS    0xf000  /* Mask for all of the view styles */
+#define TIMELINE_ARTID    0x00001  /* Show artifact IDs on non-check-in lines */
+#define TIMELINE_LEAFONLY 0x00002  /* Show "Leaf" but not "Merge", "Fork" etc */
+#define TIMELINE_BRIEF    0x00004  /* Combine adjacent elements of same obj */
+#define TIMELINE_GRAPH    0x00008  /* Compute a graph */
+#define TIMELINE_DISJOINT 0x00010  /* Elements are not contiguous */
+#define TIMELINE_FCHANGES 0x00020  /* Detail file changes */
+#define TIMELINE_BRCOLOR  0x00040  /* Background color by branch name */
+#define TIMELINE_UCOLOR   0x00080  /* Background color by user */
+#define TIMELINE_FRENAMES 0x00100  /* Detail only file name changes */
+#define TIMELINE_UNHIDE   0x00200  /* Unhide check-ins with "hidden" tag */
+#define TIMELINE_SHOWRID  0x00400  /* Show RID values in addition to UUIDs */
+#define TIMELINE_BISECT   0x00800  /* Show supplimental bisect information */
+#define TIMELINE_COMPACT  0x01000  /* Use the "compact" view style */
+#define TIMELINE_VERBOSE  0x02000  /* Use the "detailed" view style */
+#define TIMELINE_MODERN   0x04000  /* Use the "modern" view style */
+#define TIMELINE_COLUMNAR 0x08000  /* Use the "columns view style */
+#define TIMELINE_VIEWS    0x0f000  /* Mask for all of the view styles */
+#define TIMELINE_NOSCROLL 0x10000  /* Don't scroll to the selection */
+#define TIMELINE_FILEDIFF 0x20000  /* Show File differences, not ckin diffs */
 #endif
 
 /*
@@ -726,8 +728,7 @@ void www_print_timeline(
   }
   @ </table>
   if( fchngQueryInit ) db_finalize(&fchngQuery);
-  timeline_output_graph_javascript(pGraph, (tmFlags & TIMELINE_DISJOINT)!=0,
-                                   iTableId, 0);
+  timeline_output_graph_javascript(pGraph, tmFlags, iTableId);
 }
 
 /*
@@ -767,9 +768,8 @@ static const char *bg_to_fg(const char *zIn){
 */
 void timeline_output_graph_javascript(
   GraphContext *pGraph,     /* The graph to be displayed */
-  int omitDescenders,       /* True to omit descenders */
-  int iTableId,             /* Which graph is this for */
-  int fileDiff              /* True for file diff.  False for check-in diff */
+  int tmFlags,              /* Flags that control rendering */
+  int iTableId              /* Which graph is this for */
 ){
   if( pGraph && pGraph->nErr==0 && pGraph->nRow>0 ){
     GraphRow *pRow;
@@ -780,13 +780,18 @@ void timeline_output_graph_javascript(
     int circleNodes;     /* True for circle nodes.  False for square nodes */
     int colorGraph;      /* Use colors for graph lines */
     int iTopRow;         /* Index of the top row of the graph */
+    int fileDiff;        /* True for file diff.  False for check-in diff */
+    int omitDescenders;  /* True to omit descenders */
+    int scrollToSelect;  /* True to scroll to the selection */
 
     iRailPitch = atoi(PD("railpitch","0"));
     showArrowheads = skin_detail_boolean("timeline-arrowheads");
     circleNodes = skin_detail_boolean("timeline-circle-nodes");
     colorGraph = skin_detail_boolean("timeline-color-graph-lines");
     iTopRow = pGraph->pFirst ? pGraph->pFirst->idx : 0;
-
+    omitDescenders = (tmFlags & TIMELINE_DISJOINT)!=0;
+    fileDiff = (tmFlags & TIMELINE_FILEDIFF)!=0;
+    scrollToSelect = (tmFlags & TIMELINE_NOSCROLL)==0;
     @ <script id='timeline-data-%d(iTableId)' type='application/json'>{
     @   "iTableId": %d(iTableId),
     @   "circleNodes": %d(circleNodes),
@@ -797,6 +802,7 @@ void timeline_output_graph_javascript(
     @   "iTopRow": %d(iTopRow),
     @   "omitDescenders": %d(omitDescenders),
     @   "fileDiff": %d(fileDiff),
+    @   "scrollToSelect": %d(scrollToSelect),
     @   "nrail": %d(pGraph->mxRail+1),
     @   "baseUrl": "%R",
     @   "rowinfo": [

@@ -1,5 +1,5 @@
-C Remove\sthe\sseldom-used\s"Tags\sAnd\sProperties"\ssection\sfrom\sthe\scheck-in\ninformation\sscreen.\s\sMove\sthat\sinformation\soff\sinto\sa\snew\spage\s/ci_tags\nthat\sincludes\sa\stimeline\sshowing\sall\srelevant\stimeline\sitems\sin\saddition\nto\sthe\sbasic\stag\sinformation.
-D 2017-12-06T18:27:24.194
+C Do\snot\sscroll\sto\sthe\sselect\selement\sof\s"Context"\stimelines.
+D 2017-12-06T18:48:03.897
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -427,13 +427,13 @@ F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c 5d4a12252f765b5a1fa43fc6ddd087e79dfad65e3533369c1b47deb5b4be52d0
 F src/export.c 3e09dfda9d07b44c463d656dbc09f6adfe686d6d80ad55282a1f06b9216934f2
 F src/file.c d1d99096ad0283231a4565a545462b803ef2586687b99744d51c3af7aa3accdf
-F src/finfo.c dc70452de611350769aac2af1535683cde5925aa08c892702e0918dfcc0e5b3b
+F src/finfo.c eed31d6417d47f08719f2dbdd98131224bbb2adf6014a48f90d9abbe47ba1278
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c f0940a16303989bd0c6a883dc90899a489ef16edc08f0f9cbb4b500d4730aad7
-F src/graph.js 6c1f2d8688247408a5c7c1e9b4f75453147b5dbfb7e33794c0282df26ad57c09
+F src/graph.js dbfc6f2a2751d1479f2e0fe3a04c77925c7885ace06460dbe77aac4bf8b22719
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 2b485ac67f5ba9917da5f1ea679eee581a8e08a79dfbfb811c4833586330163a
@@ -442,7 +442,7 @@ F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 55266e0d4b2dd2d03af062c1e0e2a06c70d28adf6bb82b13f18a7d4beb543423
 F src/http_transport.c 43bf993a931c1a6cafb051566e06c841173ec350dedc0cb6887e112bc05a147c
 F src/import.c e48f2f2e0095795aeabe7220514c8694393693b853150c47f6d6792921def3f1
-F src/info.c 7e5d733e539649c659d834e6dbe4190b4e616c164f0acc30e7bacfd7da5f3b3e
+F src/info.c a95a3df645bc116bd0b3a6a40ae39f8346ef685227c1915a4b0d56144ca724c0
 F src/json.c 31bebf948c49f46d6eb9a5bf910ef9cd35b407434efabd2f047780f420639b47
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c b6105183492ee774cdc685bfd80eb511fb1c5c37faf88198d7e4e58c41dfc68b
@@ -526,7 +526,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c bba65d7b7871ab7046107848650b5e8e72dbe30763f86b07b9bbd98c30dc791b
 F src/th_tcl.c afa334f0b17fc01f8fda8bea281c51305d7c6f7f2c7ed4c190dc5d1a2b80c326
-F src/timeline.c 879e48b9fc0fa3dceab2401ecca55c7732c36ad375e508c720142054323f85a3
+F src/timeline.c 11d886a40ac2098f4ecbbf420b978d83c8da86a31a0f348404071bd32d23f49c
 F src/tkt.c e5815264d68d48a28983230026ceaa45b5190c34b092a8fc920ce832a6d2bf6e
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c e0ba36f347faf5b5105eacc8e42e3f907febfe5abb0401f2227dec26cc60a5f5
@@ -804,7 +804,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d7435bc283e9f39b941c1fb0d4f4caea91fd02e3b2ce2856315a5851a9f41e61
-R 5ef75574acc6fa8c11253fe8842ddbb0
+P e2d537207ec3b2029e585e0bbd1af8d6a0434e65a23133a15b18b523db3b7bb5
+R 5c004b522e96bf509bf257f2ff43aa16
 U drh
-Z 212eb396659d612a55be1b3c86c2f964
+Z 39962e43403f85cb2a28f3c941289bfa

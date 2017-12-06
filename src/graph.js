@@ -13,6 +13,7 @@
 **     "iTopRow": INTEGER,          // Index of top-most row in the graph
 **     "omitDescenders": BOOLEAN,   // Omit ancestor lines off bottom of screen
 **     "fileDiff": BOOLEAN,         // True for file diff. False for check-in
+**     "scrollToSelect": BOOLEAN,   // Scroll to selection on first render
 **     "nrail": INTEGER,            // Number of vertical "rails"
 **     "baseUrl": TEXT,             // Top-level URL
 **     "rowinfo": ROWINFO-ARRAY }
@@ -349,7 +350,9 @@ function TimelineGraph(tx){
   }
   initGraph();
   checkHeight();
-  scrollToSelected();
+  if( tx.scrollToSelect ){
+    scrollToSelected();
+  }
 
   /* Set the onclick= attributes for elements of the "Compact" display
   ** mode so that clicking turns the details on and off.

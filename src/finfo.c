@@ -638,7 +638,7 @@ void finfo_page(void){
     }
   }
   @ </table>
-  timeline_output_graph_javascript(pGraph, 0, iTableId, 1);
+  timeline_output_graph_javascript(pGraph, TIMELINE_FILEDIFF, iTableId);
   style_footer();
 }
 
