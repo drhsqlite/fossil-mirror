@@ -201,6 +201,7 @@ EXTRA_FILES = \
   $(SRCDIR)/markdown.md \
   $(SRCDIR)/menu.js \
   $(SRCDIR)/sbsdiff.js \
+  $(SRCDIR)/tree.js \
   $(SRCDIR)/wiki.wiki
 
 TRANS_SRC = \
