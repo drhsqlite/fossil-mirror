@@ -195,6 +195,7 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/xekri/details.txt \
   $(SRCDIR)/../skins/xekri/footer.txt \
   $(SRCDIR)/../skins/xekri/header.txt \
+  $(SRCDIR)/ci_edit.js \
   $(SRCDIR)/diff.tcl \
   $(SRCDIR)/graph.js \
   $(SRCDIR)/href.js \
@@ -202,6 +203,7 @@ EXTRA_FILES = \
   $(SRCDIR)/markdown.md \
   $(SRCDIR)/menu.js \
   $(SRCDIR)/sbsdiff.js \
+  $(SRCDIR)/scroll.js \
   $(SRCDIR)/skin.js \
   $(SRCDIR)/sorttable.js \
   $(SRCDIR)/tree.js \

@@ -1929,7 +1929,7 @@ void output_text_with_line_numbers(
     }
     db_finalize(&q);
     for(i=0; z[i] && z[i]!='\n'; i++){}
-    if( n==iTop ) cgi_append_content("<span id=\"topln\">", -1);
+    if( n==iTop ) cgi_append_content("<span id=\"scrollToMe\">", -1);
     if( n==iStart ){
       cgi_append_content("<div class=\"selectedText\">",-1);
     }
@@ -1948,7 +1948,7 @@ void output_text_with_line_numbers(
   if( n<iEnd ) cgi_printf("</div>");
   @ </pre>
   if( db_int(0, "SELECT EXISTS(SELECT 1 FROM lnos)") ){
-    @ <script>gebi('topln').scrollIntoView(true);</script>
+    style_load_one_js_file("scroll.js");
   }
 }
 
@@ -2662,27 +2662,6 @@ void ci_edit_page(void){
   blob_append(&comment, zNewComment, -1);
   zUuid[10] = 0;
   style_header("Edit Check-in [%s]", zUuid);
-  /*
-  ** chgcbn/chgbn: Handle change of (checkbox for) branch name in
-  ** remaining of form.
-  */
-  @ <script>
-  @ function chgcbn(checked, branch){
-  @   val = gebi('brname').value.trim();
-  @   if( !val || !checked ) val = branch;
-  @   if( checked ) gebi('brname').select();
-  @   gebi('hbranch').textContent = val;
-  @   cidbrid = document.getElementById('cbranch');
-  @   if( cidbrid ) cidbrid.textContent = val;
-  @ }
-  @ function chgbn(val, branch){
-  @   if( !val ) val = branch;
-  @   gebi('newbr').checked = (val!=branch);
-  @   gebi('hbranch').textContent = val;
-  @   cidbrid = document.getElementById('cbranch');
-  @   if( cidbrid ) cidbrid.textContent = val;
-  @ }
-  @ </script>
   if( P("preview") ){
     Blob suffix;
     int nTag = 0;
@@ -2824,12 +2803,11 @@ void ci_edit_page(void){
   }
   @ <tr><th align="right" valign="top">Branching:</th>
   @ <td valign="top">
-  @ <label><input id="newbr" type="checkbox" name="newbr"%s(zNewBrFlag)
-  @ onchange="chgcbn(this.checked,'%h(zBranchName)')" />
+  @ <label><input id="newbr" type="checkbox" name="newbr" \
+  @ data-branch='%h(zBranchName)'%s(zNewBrFlag) />
   @ Make this check-in the start of a new branch named:</label>
-  @ <input id="brname" type="text" style="width:15;" name="brname"
-  @ value="%h(zNewBranch)"
-  @ onkeyup="chgbn(this.value.trim(),'%h(zBranchName)')" /></td></tr>
+  @ <input id="brname" type="text" style="width:15;" name="brname" \
+  @ value="%h(zNewBranch)" /></td></tr>
   if( !fHasHidden ){
     @ <tr><th align="right" valign="top">Branch Hiding:</th>
     @ <td valign="top">
@@ -2869,6 +2847,7 @@ void ci_edit_page(void){
   @ </td></tr>
   @ </table>
   @ </div></form>
+  style_load_one_js_file("ci_edit.js");
   style_footer();
 }
 
