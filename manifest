@@ -1,5 +1,5 @@
-C Fix\sthe\stimeline\sgraph\sgenerator\sso\sthat\sit\sworks\swith\stwo\sor\smore\sgraphs\non\sa\ssingle\spage.
-D 2017-12-06T17:38:02.009
+C Fix\sover-length\ssource\scode\slines\sin\stimeline.c.
+D 2017-12-06T18:02:19.997
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -526,7 +526,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c bba65d7b7871ab7046107848650b5e8e72dbe30763f86b07b9bbd98c30dc791b
 F src/th_tcl.c afa334f0b17fc01f8fda8bea281c51305d7c6f7f2c7ed4c190dc5d1a2b80c326
-F src/timeline.c c4cba3e018a6306da822ae3409bee7e8bb79237d16e229a40953234615207a12
+F src/timeline.c 879e48b9fc0fa3dceab2401ecca55c7732c36ad375e508c720142054323f85a3
 F src/tkt.c e5815264d68d48a28983230026ceaa45b5190c34b092a8fc920ce832a6d2bf6e
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c e0ba36f347faf5b5105eacc8e42e3f907febfe5abb0401f2227dec26cc60a5f5
@@ -804,7 +804,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bf82c41d9bd721df841d843c653387ee89a8d9870fab48c2356d27ba1fb5ea07
-R 2ba1d672c6fa71e779664c5ea88fd8aa
+P 68635d60dff02af1ea9a9351121962cd17dd691ec7797cce180b49634eaa3e7d
+R 6e429573d40d21f3ae2c85a2fc40d48f
 U drh
-Z 585011ce817aa7701660fdafc094de5c
+Z 4b7e840825fd95df67b5fe5c909f44bc

@@ -437,7 +437,8 @@ void www_print_timeline(
     }
     @</td>
     if( zBgClr && zBgClr[0] && rid!=selectedRid ){
-      @ <td class="timeline%s(zStyle)Cell" style="background-color: %h(zBgClr);">
+      @ <td class="timeline%s(zStyle)Cell" \
+      @ style="background-color: %h(zBgClr);">
     }else{
       @ <td class="timeline%s(zStyle)Cell">
     }
@@ -527,7 +528,8 @@ void www_print_timeline(
     ** Example:  "(check-in: [abcdefg], user: drh, tags: trunk)"
     */
     if( drawDetailEllipsis ){
-      @ <span class='timelineEllipsis' id='ellipsis-%d(rid)' data-id='%d(rid)'>...</span>
+      @ <span class='timelineEllipsis' id='ellipsis-%d(rid)'\
+      @ data-id='%d(rid)'>...</span>
     }
     if( tmFlags & TIMELINE_COLUMNAR ){
       if( zBgClr && zBgClr[0] && rid!=selectedRid ){
@@ -724,7 +726,8 @@ void www_print_timeline(
   }
   @ </table>
   if( fchngQueryInit ) db_finalize(&fchngQuery);
-  timeline_output_graph_javascript(pGraph, (tmFlags & TIMELINE_DISJOINT)!=0, iTableId, 0);
+  timeline_output_graph_javascript(pGraph, (tmFlags & TIMELINE_DISJOINT)!=0,
+                                   iTableId, 0);
 }
 
 /*
@@ -1029,7 +1032,8 @@ static void timeline_y_submenu(int isDisabled){
 }
 
 /*
-** Convert the current "ss" display preferences cookie into an appropriate TIMELINE_* flag
+** Convert the current "ss" display preferences cookie into an
+** appropriate TIMELINE_* flag
 */
 int timeline_ss_cookie(void){
   int tmFlags;
@@ -2216,7 +2220,8 @@ static int isIsoDate(const char *z){
 ** Return true if the input string can be converted to a julianday.
 */
 static int fossil_is_julianday(const char *zDate){
-  return db_int(0, "SELECT EXISTS (SELECT julianday(%Q) AS jd WHERE jd IS NOT NULL)", zDate);
+  return db_int(0, "SELECT EXISTS (SELECT julianday(%Q) AS jd"
+                   " WHERE jd IS NOT NULL)", zDate);
 }
 
 /*
