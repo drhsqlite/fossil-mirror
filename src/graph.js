@@ -304,21 +304,12 @@ function changeDisplay(selector,value){
   var n = x.length;
   for(var i=0; i<n; i++) {x[i].style.display = value;}
 }
-function declutter(){
-  changeDisplay('clutter','none');
-  changeDisplay('anticlutter','inline');
-  checkHeight();
-}
-function reclutter(){
-  changeDisplay('clutter','inline');
-  changeDisplay('anticlutter','none');
-  checkHeight();
-}
 function changeDisplayById(id,value){
   var x = document.getElementById(id);
   if(x) x.style.display=value;
 }
-function toggleDetail(id){
+function toggleDetail(){
+  var id = parseInt(this.getAttribute('data-id'))
   var x = gebi("detail-"+id);
   if( x.style.display=="inline" ){
     x.style.display="none";
@@ -352,3 +343,17 @@ function checkHeight(){
 initGraph();
 checkHeight();
 scrollToSelected();
+
+/* Set the onclick= attributes for elements of the "Compact" display
+** mode so that clicking turns the details on and off. */
+(function(){
+  var lx = document.getElementsByClassName('timelineEllipsis');
+  var i;
+  for(i=0; i<lx.length; i++){
+    if( lx[i].hasAttribute('data-id') ) lx[i].onclick = toggleDetail;
+  }
+  var lx = document.getElementsByClassName('timelineCompactComment');
+  for(i=0; i<lx.length; i++){
+    if( lx[i].hasAttribute('data-id') ) lx[i].onclick = toggleDetail;
+  }
+}())

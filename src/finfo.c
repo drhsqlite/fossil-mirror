@@ -518,7 +518,7 @@ void finfo_page(void){
       @ <td class="timeline%s(zStyle)Cell">
     }
     if( tmFlags & TIMELINE_COMPACT ){
-      @ <span class='timelineCompactComment' onclick='toggleDetail(%d(frid))'>
+      @ <span class='timelineCompactComment' data-id='%d(frid)'>
     }else{
       @ <span class='timeline%s(zStyle)Comment'>
       if( (tmFlags & TIMELINE_VERBOSE)!=0 && zUuid ){
@@ -529,8 +529,8 @@ void finfo_page(void){
     }
     @ %W(zCom)</span>
     if( (tmFlags & TIMELINE_COMPACT)!=0 ){
-      @ <span class='timelineEllipsis anticlutter' id='ellipsis-%d(frid)' \
-      @  onclick='toggleDetail(%d(frid))'>...</span>
+      @ <span class='timelineEllipsis' data-id='%d(frid)' \
+      @ id='ellipsis-%d(frid)'>...</span>
       @ <span class='clutter timelineCompactDetail'
     }
     if( tmFlags & TIMELINE_COLUMNAR ){

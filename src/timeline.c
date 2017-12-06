@@ -459,7 +459,7 @@ void www_print_timeline(
     drawDetailEllipsis = (tmFlags & TIMELINE_COMPACT)!=0;
     db_column_blob(pQuery, commentColumn, &comment);
     if( tmFlags & TIMELINE_COMPACT ){
-      @ <span class='timelineCompactComment' onclick='toggleDetail(%d(rid))'>
+      @ <span class='timelineCompactComment' data-id='%d(rid)'>
     }else{
       @ <span class='timeline%s(zStyle)Comment'>
     }
@@ -526,8 +526,7 @@ void www_print_timeline(
     ** Example:  "(check-in: [abcdefg], user: drh, tags: trunk)"
     */
     if( drawDetailEllipsis ){
-      @ <span class='timelineEllipsis anticlutter' id='ellipsis-%d(rid)' \
-      @  onclick='toggleDetail(%d(rid))'>...</span>
+      @ <span class='timelineEllipsis' id='ellipsis-%d(rid)' data-id='%d(rid)'>...</span>
     }
     if( tmFlags & TIMELINE_COLUMNAR ){
       if( zBgClr && zBgClr[0] && rid!=selectedRid ){
