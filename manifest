@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.22\salpha\sversion.
-D 2017-12-06T20:53:09.010
+C Remove\sin-line\sJS\sfrom\sthe\s/setup_skin\spage\sinto\sthe\sskin.js\sfile.
+D 2017-12-06T21:11:39.134
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -467,7 +467,7 @@ F src/login.c 06b0402f13210a48376118d0a2c2d649c4252ef1836dec1afa70cb055d948965
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
 F src/main.c 65bdfa618d454deffb4d391e24842e38d20b328579baf8bb14edcb1373c668ea
-F src/main.mk e906cf6b308a528ee1cc183853873220fbec4965f60beee27b228fd5af27ffc6
+F src/main.mk 9789c0ee03ae887da21c7df0f03f9d9ac5063b46f14c4e4370be0565c4ad92d1
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl 35be36955a157ef9d1f2eb5b617f79d3e0879a68e50a9b3e22a9315525134d9a
@@ -509,7 +509,8 @@ F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
 F src/shell.c 2b0b3152b6da653b64008b558df4303a4a442618c18b5620056d3d962a2ca1d7
 F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
-F src/skins.c be5a4b8efce07f5912a85f03337cc9bced1fdf7879ea22aca554ee90c4e82a14
+F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
+F src/skins.c e9c5d6967e5c9534eb68c34c0ed1c7e935dc002fe7960c6813d81da13b6e7353
 F src/sorttable.js 558b2eb78a6aedf9c6f55461037cdbeb538bbf872d72442ecadaca7cf63d12d5
 F src/sqlcmd.c b150ead4134db3739733abb077bf764bf998bfede7d1d8ea457455adf3684c31
 F src/sqlite3.c 9b32494d462d3336e2caf29612e6f2e8efd530c290bff6d2aa87c6ca968ffeda
@@ -678,9 +679,9 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F win/Makefile.PellesCGMake 940dd82d2f662198dc0d4f560a4e34fe662f6a13a35aacaddf3496b380e9e913
 F win/Makefile.dmc bd55c5e5e19440bbea2ec8b4f2faa3e487fcffeb1ac029690a6ab7d2e1c783ef
-F win/Makefile.mingw 8b6f9acd8489c9969755ffc134b141b8e633171fc42d2abc59fb6be26e2b7e9b
+F win/Makefile.mingw 0b7b606d52978b4e45f4e9c607b432ad29af3618d713502523e272569c4456d0
 F win/Makefile.mingw.mistachkin 775928be637d3b8db54a1adc490184f638d8f09790f097e740769c2fdef55e7c
-F win/Makefile.msc 2b876f8842a1856881c3efae183f2741d68858a01d0b9c6ba9b614ef4a51579c
+F win/Makefile.msc 76f2ea10b4d5c7c7372036b470d9bc732af7753a3078f0652af852ae9a6acd70
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -804,7 +805,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 652267ed30b8bbfb4619433604d67e3859a59cbcd1d4b2c692aac87e940bb86e
-R 770d5a432aa3acd048eb0a484bba3210
+P 63fb653a7e943ae192e46cb8dbbbe2c792407960b86381cf4b1290f6e4afeaf2
+R 054c385eaf33110498a282538e47cb5f
 U drh
-Z f6db30ddac17ac0343949b5555763f43
+Z c6a85fe4616f7bbb603e373366382adb

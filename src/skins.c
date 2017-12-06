@@ -917,7 +917,7 @@ void setup_skin(void){
   @
   @ <form method='POST' action='%R/setup_skin#step2' id='f01'>
   @ <p class='skinInput'>Draft skin to edit:
-  @ <select size='1' name='sk' onchange='gebi("f01").submit()'>
+  @ <select size='1' name='sk' id='skStep1'>
   for(i=1; i<=9; i++){
     if( i==iSkin ){
       @ <option value='%d(i)' selected>draft%d(i)</option>
@@ -1058,5 +1058,6 @@ void setup_skin(void){
     @ <p>Visit the <a href='%R/setup_skin_admin'>Skin Admin</a> page
     @ for cleanup and recovery actions.
   }
+  style_load_one_js_file("skin.js");
   style_footer();
 }

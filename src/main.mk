@@ -202,6 +202,7 @@ EXTRA_FILES = \
   $(SRCDIR)/markdown.md \
   $(SRCDIR)/menu.js \
   $(SRCDIR)/sbsdiff.js \
+  $(SRCDIR)/skin.js \
   $(SRCDIR)/sorttable.js \
   $(SRCDIR)/tree.js \
   $(SRCDIR)/useredit.js \
