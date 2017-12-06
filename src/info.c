@@ -250,73 +250,6 @@ void info_cmd(void){
 }
 
 /*
-** Show information about all tags on a given check-in.
-*/
-static void showTags(int rid){
-  Stmt q;
-  int cnt = 0;
-  db_prepare(&q,
-    "SELECT tag.tagid, tagname, "
-    "       (SELECT uuid FROM blob WHERE rid=tagxref.srcid AND rid!=%d),"
-    "       value, datetime(tagxref.mtime,toLocal()), tagtype,"
-    "       (SELECT uuid FROM blob WHERE rid=tagxref.origid AND rid!=%d)"
-    "  FROM tagxref JOIN tag ON tagxref.tagid=tag.tagid"
-    " WHERE tagxref.rid=%d"
-    " ORDER BY tagname /*sort*/", rid, rid, rid
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zTagname = db_column_text(&q, 1);
-    const char *zSrcUuid = db_column_text(&q, 2);
-    const char *zValue = db_column_text(&q, 3);
-    const char *zDate = db_column_text(&q, 4);
-    int tagtype = db_column_int(&q, 5);
-    const char *zOrigUuid = db_column_text(&q, 6);
-    cnt++;
-    if( cnt==1 ){
-      @ <div class="section">Tags And Properties</div>
-      @ <ul>
-    }
-    @ <li>
-    if( tagtype==0 ){
-      @ <span class="infoTagCancelled">%h(zTagname)</span> cancelled
-    }else if( zValue ){
-      @ <span class="infoTag">%h(zTagname)=%h(zValue)</span>
-    }else {
-      @ <span class="infoTag">%h(zTagname)</span>
-    }
-    if( tagtype==2 ){
-      if( zOrigUuid && zOrigUuid[0] ){
-        @ inherited from
-        hyperlink_to_uuid(zOrigUuid);
-      }else{
-        @ propagates to descendants
-      }
-#if 0
-      if( zValue && fossil_strcmp(zTagname,"branch")==0 ){
-        @ &nbsp;&nbsp;
-        @ %z(href("%R/timeline?r=%T",zValue))branch timeline</a>
-      }
-#endif
-    }
-    if( zSrcUuid && zSrcUuid[0] ){
-      if( tagtype==0 ){
-        @ by
-      }else{
-        @ added by
-      }
-      hyperlink_to_uuid(zSrcUuid);
-      @ on
-      hyperlink_to_date(zDate,0);
-    }
-    @ </li>
-  }
-  db_finalize(&q);
-  if( cnt ){
-    @ </ul>
-  }
-}
-
-/*
 ** Show the context graph (immediate parents and children) for
 ** check-in rid.
 */
@@ -561,6 +494,120 @@ u64 construct_diff_flags(int diffType){
 }
 
 /*
+** WEBPAGE: ci_tags
+** URL:    /ci_tags?name=ARTIFACTID
+**
+** Show all tags and properties for a given check-in.
+**
+** This information used to be part of the main /ci page, but it is of
+** marginal usefulness.  Better to factor it out into a sub-screen.
+*/
+void ci_tags_page(void){
+  const char *zHash;
+  int rid;
+  Stmt q;
+  int cnt = 0;
+  Blob sql;
+
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  rid = name_to_rid_www("name");
+  if( rid==0 ){
+    style_header("Check-in Information Error");
+    @ No such object: %h(g.argv[2])
+    style_footer();
+    return;
+  }
+  zHash = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+  style_header("Tags and Properties");
+  @ <h1>Tags and Properties for Check-In \
+  @ %z(href("%R/ci/%!S",zHash))%S(zHash)</a></h1>
+  db_prepare(&q,
+    "SELECT tag.tagid, tagname, "
+    "       (SELECT uuid FROM blob WHERE rid=tagxref.srcid AND rid!=%d),"
+    "       value, datetime(tagxref.mtime,toLocal()), tagtype,"
+    "       (SELECT uuid FROM blob WHERE rid=tagxref.origid AND rid!=%d)"
+    "  FROM tagxref JOIN tag ON tagxref.tagid=tag.tagid"
+    " WHERE tagxref.rid=%d"
+    " ORDER BY tagname /*sort*/", rid, rid, rid
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zTagname = db_column_text(&q, 1);
+    const char *zSrcUuid = db_column_text(&q, 2);
+    const char *zValue = db_column_text(&q, 3);
+    const char *zDate = db_column_text(&q, 4);
+    int tagtype = db_column_int(&q, 5);
+    const char *zOrigUuid = db_column_text(&q, 6);
+    cnt++;
+    if( cnt==1 ){
+      @ <ul>
+    }
+    @ <li>
+    if( tagtype==0 ){
+      @ <span class="infoTagCancelled">%h(zTagname)</span> cancelled
+    }else if( zValue ){
+      @ <span class="infoTag">%h(zTagname)=%h(zValue)</span>
+    }else {
+      @ <span class="infoTag">%h(zTagname)</span>
+    }
+    if( tagtype==2 ){
+      if( zOrigUuid && zOrigUuid[0] ){
+        @ inherited from
+        hyperlink_to_uuid(zOrigUuid);
+      }else{
+        @ propagates to descendants
+      }
+    }
+    if( zSrcUuid && zSrcUuid[0] ){
+      if( tagtype==0 ){
+        @ by
+      }else{
+        @ added by
+      }
+      hyperlink_to_uuid(zSrcUuid);
+      @ on
+      hyperlink_to_date(zDate,0);
+    }
+    @ </li>
+  }
+  db_finalize(&q);
+  if( cnt ){
+    @ </ul>
+  }
+  @ <div class="section">Context</div>
+  db_multi_exec(
+     "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY);"
+     "DELETE FROM ok;"
+     "INSERT INTO ok VALUES(%d);"
+     "INSERT OR IGNORE INTO ok "
+     " SELECT tagxref.srcid"
+     "   FROM tagxref JOIN tag ON tagxref.tagid=tag.tagid"
+     "  WHERE tagxref.rid=%d;"
+     "INSERT OR IGNORE INTO ok "
+     " SELECT tagxref.origid"
+     "   FROM tagxref JOIN tag ON tagxref.tagid=tag.tagid"
+     "  WHERE tagxref.rid=%d;",
+     rid, rid, rid
+  );
+  db_multi_exec(
+    "SELECT tag.tagid, tagname, "
+    "       (SELECT uuid FROM blob WHERE rid=tagxref.srcid AND rid!=%d),"
+    "       value, datetime(tagxref.mtime,toLocal()), tagtype,"
+    "       (SELECT uuid FROM blob WHERE rid=tagxref.origid AND rid!=%d)"
+    "  FROM tagxref JOIN tag ON tagxref.tagid=tag.tagid"
+    " WHERE tagxref.rid=%d"
+    " ORDER BY tagname /*sort*/", rid, rid, rid
+  );
+  blob_zero(&sql);
+  blob_append(&sql, timeline_query_for_www(), -1);
+  blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
+  db_prepare(&q, "%s", blob_sql_text(&sql));
+  www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH, 0, 0, rid, 0);
+  db_finalize(&q);
+  style_footer();
+}
+
+/*
 ** WEBPAGE: vinfo
 ** WEBPAGE: ci
 ** URL:  /ci?name=ARTIFACTID
@@ -744,6 +791,7 @@ void ci_page(void){
       @ <tr><th>Other&nbsp;Links:</th>
       @   <td>
       @   %z(href("%R/artifact/%!S",zUuid))manifest</a>
+      @ | %z(href("%R/ci_tags/%!S",zUuid))tags</a>
       if( g.perm.Admin ){
         @   | %z(href("%R/mlink?ci=%!S",zUuid))mlink table</a>
       }
@@ -760,7 +808,6 @@ void ci_page(void){
   }
   db_finalize(&q1);
   render_backlink_graph(zUuid, "<div class=\"section\">References</div>\n");
-  showTags(rid);
   @ <div class="section">Context</div>
   render_checkin_context(rid, 0);
   @ <div class="section">Changes</div>
