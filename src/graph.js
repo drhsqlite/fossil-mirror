@@ -204,6 +204,12 @@ function TimelineGraph(tx){
     drawBox(cls,null,x,y+(mLine.w-mArrow.h)/2);
   }
   function drawNode(p, btm){
+    if( p.bg ){
+      var e = document.getElementById("mc"+p.id);
+      if(e) e.style.backgroundColor = p.bg;
+      e = document.getElementById("md"+p.id);
+      if(e) e.style.backgroundColor = p.bg;
+    }
     if( p.u>0 ) drawUpArrow(p,tx.rowinfo[p.u-tx.iTopRow],p.fg);
     var cls = node.cls;
     if( p.mi.length ) cls += " merge";

@@ -525,8 +525,7 @@ void finfo_page(void){
     @ <td class="timelineGraph"><div id="m%d(gidx)" class="tl-nodemark"></div>
     @ </td>
     if( zBgClr && zBgClr[0] ){
-      @ <td class="timeline%s(zStyle)Cell" \
-      @  style="background-color: %h(zBgClr);">
+      @ <td class="timeline%s(zStyle)Cell" id='mc%d(gidx)'>
     }else{
       @ <td class="timeline%s(zStyle)Cell">
     }
@@ -548,7 +547,7 @@ void finfo_page(void){
     }
     if( tmFlags & TIMELINE_COLUMNAR ){
       if( zBgClr && zBgClr[0] ){
-        @ <td class="timelineDetailCell" style="background-color: %h(zBgClr);">
+        @ <td class="timelineDetailCell" id='md%d(gidx)'>
       }else{
         @ <td class="timelineDetailCell">
       }

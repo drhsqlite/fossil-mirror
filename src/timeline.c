@@ -308,6 +308,7 @@ void www_print_timeline(
     int modPending;           /* Pending moderation */
     char *zDateLink;          /* URL for the link on the timestamp */
     int drawDetailEllipsis;   /* True to show ellipsis in place of detail */
+    int gidx = 0;             /* Graph row identifier */
     char zTime[20];
 
     if( zDate==0 ){
@@ -420,7 +421,6 @@ void www_print_timeline(
     if( zType[0]=='c' && (pGraph || (tmFlags & TIMELINE_BRCOLOR)!=0) ){
       int nParent = 0;
       int aParent[GR_MAX_RAIL];
-      int gidx;
       static Stmt qparent;
       db_static_prepare(&qparent,
         "SELECT pid FROM plink"
@@ -439,8 +439,7 @@ void www_print_timeline(
     }
     @</td>
     if( zBgClr && zBgClr[0] && rid!=selectedRid ){
-      @ <td class="timeline%s(zStyle)Cell" \
-      @ style="background-color: %h(zBgClr);">
+      @ <td class="timeline%s(zStyle)Cell" id='mc%d(gidx)'>
     }else{
       @ <td class="timeline%s(zStyle)Cell">
     }
@@ -535,7 +534,7 @@ void www_print_timeline(
     }
     if( tmFlags & TIMELINE_COLUMNAR ){
       if( zBgClr && zBgClr[0] && rid!=selectedRid ){
-        @ <td class="timelineDetailCell" style="background-color: %h(zBgClr);">
+        @ <td class="timelineDetailCell" id='md%d(gidx)'>
       }else{
         @ <td class="timelineDetailCell">
       }
