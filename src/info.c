@@ -624,6 +624,7 @@ void ci_page(void){
     int nUuid = db_column_bytes(&q1, 0);
     char *zEUser, *zEComment;
     const char *zUser;
+    const char *zOrigUser;
     const char *zComment;
     const char *zDate;
     const char *zOrigDate;
@@ -637,39 +638,90 @@ void ci_page(void){
     zEComment = db_text(0,
                    "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
                    TAG_COMMENT, rid);
-    zUser = db_column_text(&q1, 2);
+    zOrigUser = db_column_text(&q1, 2);
+    zUser = zEUser ? zEUser : zOrigUser;
     zComment = db_column_text(&q1, 3);
     zDate = db_column_text(&q1,1);
     zOrigDate = db_column_text(&q1, 4);
+    if( zOrigDate==0 ) zOrigDate = zDate;
     @ <div class="section">Overview</div>
     @ <table class="label-value">
+    @ <tr><th>Comment:</th><td class="infoComment">%!W(zComment)</td></tr>
+
+    /* The Download: line */
+    if( g.perm.Zip  ){
+      char *zPJ = db_get("short-project-name", 0);
+      char *zUrl;
+      Blob projName;
+      int jj;
+      if( zPJ==0 ) zPJ = db_get("project-name", "unnamed");
+      blob_zero(&projName);
+      blob_append(&projName, zPJ, -1);
+      blob_trim(&projName);
+      zPJ = blob_str(&projName);
+      for(jj=0; zPJ[jj]; jj++){
+        if( (zPJ[jj]>0 && zPJ[jj]<' ') || strchr("\"*/:<>?\\|", zPJ[jj]) ){
+          zPJ[jj] = '_';
+        }
+      }
+      zUrl = mprintf("%R/tarball/%t-%S.tar.gz?name=%s", zPJ, zUuid, zUuid);
+      @ <tr><th>Downloads:</th><td>
+      @ %z(href("%s",zUrl))Tarball</a>
+      @ | %z(href("%R/zip/%t-%S.zip?name=%!S",zPJ,zUuid,zUuid))ZIP archive</a>
+      @ | %z(href("%R/sqlar/%t-%S.sqlar?name=%!S",zPJ,zUuid,zUuid))\
+      @ SQL archive</a></td></tr>
+      fossil_free(zUrl);
+      blob_reset(&projName);
+    }
+
+    @ <tr><th>Timelines:</th><td>
+    @   %z(href("%R/timeline?f=%!S&unhide",zUuid))family</a>
+    if( zParent ){
+      @ | %z(href("%R/timeline?p=%!S&unhide",zUuid))ancestors</a>
+    }
+    if( !isLeaf ){
+      @ | %z(href("%R/timeline?d=%!S&unhide",zUuid))descendants</a>
+    }
+    if( zParent && !isLeaf ){
+      @ | %z(href("%R/timeline?dp=%!S&unhide",zUuid))both</a>
+    }
+    db_prepare(&q2,"SELECT substr(tag.tagname,5) FROM tagxref, tag "
+                   " WHERE rid=%d AND tagtype>0 "
+                   "   AND tag.tagid=tagxref.tagid "
+                   "   AND +tag.tagname GLOB 'sym-*'", rid);
+    while( db_step(&q2)==SQLITE_ROW ){
+      const char *zTagName = db_column_text(&q2, 0);
+      @  | %z(href("%R/timeline?r=%T&unhide",zTagName))%h(zTagName)</a>
+    }
+    db_finalize(&q2);
+    @ </td></tr>
+
+    @ <tr><th>Files:</th>
+    @   <td>
+    @     %z(href("%R/tree?ci=%!S",zUuid))files</a>
+    @   | %z(href("%R/fileage?name=%!S",zUuid))file ages</a>
+    @   | %z(href("%R/tree?nofiles&type=tree&ci=%!S",zUuid))folders</a>
+    @   </td>
+    @ </tr>
+
     @ <tr><th>%s(hname_alg(nUuid)):</th><td>%s(zUuid)
     if( g.perm.Setup ){
       @ (Record ID: %d(rid))
     }
     @ </td></tr>
-    @ <tr><th>Date:</th><td>
+    @ <tr><th>User&nbsp;&amp;&nbsp;Date:</th><td>
+    hyperlink_to_user(zUser,zDate," on ");
     hyperlink_to_date(zDate, "</td></tr>");
-    if( zOrigDate && fossil_strcmp(zDate, zOrigDate)!=0 ){
-      @ <tr><th>Original&nbsp;Date:</th><td>
-      hyperlink_to_date(zOrigDate, "</td></tr>");
-    }
-    if( zEUser ){
-      @ <tr><th>Edited&nbsp;User:</th><td>
-      hyperlink_to_user(zEUser,zDate,"</td></tr>");
-      @ <tr><th>Original&nbsp;User:</th><td>
-      hyperlink_to_user(zUser,zDate,"</td></tr>");
-    }else{
-      @ <tr><th>User:</th><td>
-      hyperlink_to_user(zUser,zDate,"</td></tr>");
-    }
     if( zEComment ){
-      @ <tr><th>Edited&nbsp;Comment:</th>
-      @     <td class="infoComment">%!W(zEComment)</td></tr>
       @ <tr><th>Original&nbsp;Comment:</th>
       @     <td class="infoComment">%!W(zComment)</td></tr>
-    }else{
-      @ <tr><th>Comment:</th><td class="infoComment">%!W(zComment)</td></tr>
+    }
+    if( fossil_strcmp(zDate, zOrigDate)!=0
+     || fossil_strcmp(zOrigUser, zUser)!=0
+    ){
+      @ <tr><th>Original&nbsp;User&nbsp;&amp;&nbsp;Date:</th><td>
+      hyperlink_to_user(zOrigUser,zOrigDate," on ");
+      hyperlink_to_date(zOrigDate, "</td></tr>");
     }
     if( g.perm.Admin ){
       db_prepare(&q2,
@@ -689,60 +741,9 @@ void ci_page(void){
       db_finalize(&q2);
     }
     if( g.perm.Hyperlink ){
-      char *zPJ = db_get("short-project-name", 0);
-      Blob projName;
-      int jj;
-      if( zPJ==0 ) zPJ = db_get("project-name", "unnamed");
-      blob_zero(&projName);
-      blob_append(&projName, zPJ, -1);
-      blob_trim(&projName);
-      zPJ = blob_str(&projName);
-      for(jj=0; zPJ[jj]; jj++){
-        if( (zPJ[jj]>0 && zPJ[jj]<' ') || strchr("\"*/:<>?\\|", zPJ[jj]) ){
-          zPJ[jj] = '_';
-        }
-      }
-      @ <tr><th>Timelines:</th><td>
-      @   %z(href("%R/timeline?f=%!S&unhide",zUuid))family</a>
-      if( zParent ){
-        @ | %z(href("%R/timeline?p=%!S&unhide",zUuid))ancestors</a>
-      }
-      if( !isLeaf ){
-        @ | %z(href("%R/timeline?d=%!S&unhide",zUuid))descendants</a>
-      }
-      if( zParent && !isLeaf ){
-        @ | %z(href("%R/timeline?dp=%!S&unhide",zUuid))both</a>
-      }
-      db_prepare(&q2,"SELECT substr(tag.tagname,5) FROM tagxref, tag "
-                     " WHERE rid=%d AND tagtype>0 "
-                     "   AND tag.tagid=tagxref.tagid "
-                     "   AND +tag.tagname GLOB 'sym-*'", rid);
-      while( db_step(&q2)==SQLITE_ROW ){
-        const char *zTagName = db_column_text(&q2, 0);
-        @  | %z(href("%R/timeline?r=%T&unhide",zTagName))%h(zTagName)</a>
-      }
-      db_finalize(&q2);
-
-
-      /* The Download: line */
-      if( g.anon.Zip ){
-        char *zUrl = mprintf("%R/tarball/%t-%S.tar.gz?uuid=%s",
-                             zPJ, zUuid, zUuid);
-        @ </td></tr>
-        @ <tr><th>Downloads:</th><td>
-        @ %z(href("%s",zUrl))Tarball</a>
-        @ | %z(href("%R/zip/%t-%S.zip?uuid=%!S",zPJ,zUuid,zUuid))ZIP archive</a>
-        @ | %z(href("%R/sqlar/%t-%S.sqlar?uuid=%!S",zPJ,zUuid,zUuid))\
-        @ SQL archive</a>
-        fossil_free(zUrl);
-      }
-      @ </td></tr>
       @ <tr><th>Other&nbsp;Links:</th>
       @   <td>
-      @     %z(href("%R/tree?ci=%!S",zUuid))files</a>
-      @   | %z(href("%R/fileage?name=%!S",zUuid))file ages</a>
-      @   | %z(href("%R/tree?nofiles&type=tree&ci=%!S",zUuid))folders</a>
-      @   | %z(href("%R/artifact/%!S",zUuid))manifest</a>
+      @   %z(href("%R/artifact/%!S",zUuid))manifest</a>
       if( g.perm.Admin ){
         @   | %z(href("%R/mlink?ci=%!S",zUuid))mlink table</a>
       }
@@ -751,7 +752,6 @@ void ci_page(void){
       }
       @   </td>
       @ </tr>
-      blob_reset(&projName);
     }
     @ </table>
   }else{
@@ -2210,10 +2210,9 @@ void tinfo_page(void){
         @<br />%h(zTktTitle)
   }
   @</td></tr>
-  @ <tr><th>Date:</th><td>
+  @ <tr><th>User&nbsp;&amp;&nbsp;Date:</th><td>
+  hyperlink_to_user(pTktChng->zUser, zDate, " on ");
   hyperlink_to_date(zDate, "</td></tr>");
-  @ <tr><th>User:</th><td>
-  hyperlink_to_user(pTktChng->zUser, zDate, "</td></tr>");
   @ </table>
   free(zDate);
   free(zTktTitle);

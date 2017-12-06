@@ -1079,14 +1079,14 @@ void fileage_page(void){
     db_reset(&q2);
     @ </td>
     @ <td>
-    @ %z(href("%R/info/%!S",zUuid))[%S(zUuid)]</a>
+    @ %W(zComment)
+    @ (check-in:&nbsp;%z(href("%R/ci/%!S",zUuid))%S(zUuid)</a>,
     if( showId ){
-      @ (%d(mid))
+      @ id: %d(mid)
     }
-    @ %W(zComment) (user:
-    @ %z(href("%R/timeline?u=%t&c=%!S&nd&n=200",zUser,zUuid))%h(zUser)</a>,
-    @ branch:
-    @ %z(href("%R/timeline?r=%t&c=%!S&nd&n=200",zBranch,zUuid))%h(zBranch)</a>)
+    @ user:&nbsp;%z(href("%R/timeline?u=%t&c=%!S&nd",zUser,zUuid))%h(zUser)</a>,
+    @ branch:&nbsp;\
+    @ %z(href("%R/timeline?r=%t&c=%!S&nd",zBranch,zUuid))%h(zBranch)</a>)
     @ </td></tr>
     @
     fossil_free(zAge);
