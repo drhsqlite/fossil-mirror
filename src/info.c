@@ -1238,7 +1238,7 @@ int object_description(
     "       coalesce(event.euser,event.user),"
     "       b.uuid, mlink.mperm,"
     "       coalesce((SELECT value FROM tagxref"
-                    "  WHERE tagid=%d AND tagtype>0 AND rid=mlink.mid),'trunk'),"
+                  "  WHERE tagid=%d AND tagtype>0 AND rid=mlink.mid),'trunk'),"
     "       a.size"
     "  FROM mlink, filename, event, blob a, blob b"
     " WHERE filename.fnid=mlink.fnid"
@@ -2179,7 +2179,8 @@ void tinfo_page(void){
     }
   }
   zTktTitle = db_table_has_column("repository", "ticket", "title" )
-      ? db_text("(No title)", "SELECT title FROM ticket WHERE tkt_uuid=%Q", zTktName)
+      ? db_text("(No title)", 
+                "SELECT title FROM ticket WHERE tkt_uuid=%Q", zTktName)
       : 0;
   style_header("Ticket Change Details");
   style_submenu_element("Raw", "%R/artifact/%s", zUuid);
@@ -2320,127 +2321,6 @@ void info_page(void){
   {
     artifact_page();
   }
-}
-
-/*
-** Generate HTML that will present the user with a selection of
-** potential background colors for timeline entries.
-*/
-void render_color_chooser(
-  int fPropagate,             /* Default value for propagation */
-  const char *zDefaultColor,  /* The current default color */
-  const char *zIdPropagate,   /* ID of form element checkbox.  NULL for none */
-  const char *zId,            /* The ID of the form element */
-  const char *zIdCustom       /* ID of text box for custom color */
-){
-  static const struct SampleColors {
-     const char *zCName;
-     const char *zColor;
-  } aColor[] = {
-     { "(none)",  "" },
-     { "#f2dcdc", 0 },
-     { "#bde5d6", 0 },
-     { "#a0a0a0", 0 },
-     { "#b0b0b0", 0 },
-     { "#c0c0c0", 0 },
-     { "#d0d0d0", 0 },
-     { "#e0e0e0", 0 },
-
-     { "#c0fff0", 0 },
-     { "#c0f0ff", 0 },
-     { "#d0c0ff", 0 },
-     { "#ffc0ff", 0 },
-     { "#ffc0d0", 0 },
-     { "#fff0c0", 0 },
-     { "#f0ffc0", 0 },
-     { "#c0ffc0", 0 },
-
-     { "#a8d3c0", 0 },
-     { "#a8c7d3", 0 },
-     { "#aaa8d3", 0 },
-     { "#cba8d3", 0 },
-     { "#d3a8bc", 0 },
-     { "#d3b5a8", 0 },
-     { "#d1d3a8", 0 },
-     { "#b1d3a8", 0 },
-
-     { "#8eb2a1", 0 },
-     { "#8ea7b2", 0 },
-     { "#8f8eb2", 0 },
-     { "#ab8eb2", 0 },
-     { "#b28e9e", 0 },
-     { "#b2988e", 0 },
-     { "#b0b28e", 0 },
-     { "#95b28e", 0 },
-
-     { "#80d6b0", 0 },
-     { "#80bbd6", 0 },
-     { "#8680d6", 0 },
-     { "#c680d6", 0 },
-     { "#d680a6", 0 },
-     { "#d69b80", 0 },
-     { "#d1d680", 0 },
-     { "#91d680", 0 },
-
-
-     { "custom",  "##" },
-  };
-  int nColor = count(aColor)-1;
-  int stdClrFound = 0;
-  int i;
-
-  if( zIdPropagate ){
-    @ <div><label>
-    if( fPropagate ){
-      @ <input type="checkbox" name="%s(zIdPropagate)" checked="checked" />
-    }else{
-      @ <input type="checkbox" name="%s(zIdPropagate)" />
-    }
-    @ Propagate color to descendants</label></div>
-  }
-  @ <table border="0" cellpadding="0" cellspacing="1" class="colorpicker">
-  @ <tr>
-  for(i=0; i<nColor; i++){
-    const char *zClr = aColor[i].zColor;
-    if( zClr==0 ) zClr = aColor[i].zCName;
-    if( zClr[0] ){
-      @ <td style="background-color: %h(zClr);">
-    }else{
-      @ <td>
-    }
-    @ <label>
-    if( fossil_strcmp(zDefaultColor, zClr)==0 ){
-      @ <input type="radio" name="%s(zId)" value="%h(zClr)"
-      @  checked="checked" />
-      stdClrFound=1;
-    }else{
-      @ <input type="radio" name="%s(zId)" value="%h(zClr)" />
-    }
-    @ %h(aColor[i].zCName)</label></td>
-    if( (i%8)==7 && i+1<nColor ){
-      @ </tr><tr>
-    }
-  }
-  @ </tr><tr>
-  if( stdClrFound ){
-    @ <td colspan="6"><label>
-    @ <input type="radio" name="%s(zId)" value="%h(aColor[nColor].zColor)"
-    @  onclick="gebi('%s(zIdCustom)').select();" />
-  }else{
-    @ <td style="background-color: %h(zDefaultColor);" colspan="6"><label>
-    @ <input type="radio" name="%s(zId)" value="%h(aColor[nColor].zColor)"
-    @  checked="checked" onclick="gebi('%s(zIdCustom)').select();" />
-  }
-  @ %h(aColor[i].zCName)</label>&nbsp;
-  @ <input type="text" name="%s(zIdCustom)"
-  @  id="%s(zIdCustom)" class="checkinUserColor"
-  @  value="%h(stdClrFound?"":zDefaultColor)"
-  @  onfocus="this.form.elements['%s(zId)'][%d(nColor)].checked = true;"
-  @  onload="this.blur();"
-  @  onblur="this.parentElement.style.backgroundColor = this.value ? ('#'+this.value.replace('#','')) : '';" />
-  @ </td>
-  @ </tr>
-  @ </table>
 }
 
 /*
@@ -2600,15 +2480,34 @@ int is_datetime(const char* zDate){
 
 /*
 ** WEBPAGE: ci_edit
-** URL:  /ci_edit?r=RID&c=NEWCOMMENT&u=NEWUSER
 **
-** Present a dialog for updating properties of a check-in.
+** Edit a check-in.  (Check-ins are immutable and do not really change.
+** This page really creates supplemental tags that affect the display
+** of the check-in.)
 **
-**     *  The check-in user
-**     *  The check-in comment
-**     *  The check-in time and date
-**     *  The background color.
-**     *  Add and remove tags
+** Query parmeters:
+**
+**     rid=INTEGER        Record ID of the check-in to edit (REQUIRED)
+**
+** POST parameters after pressing "Perview", "Cancel", or "Apply":
+**
+**     c=TEXT             New check-in comment
+**     u=TEXT             New user name
+**     newclr             Apply a background color
+**     clr=TEXT           New background color (only if newclr)
+**     pclr               Propagate new background color (only if newclr)
+**     dt=TEXT            New check-in date/time (ISO8610 format)
+**     newtag             Add a new tag to the check-in
+**     tagname=TEXT       Name of the new tag to be added (only if newtag)
+**     newbr              Put the check-in on a new branch
+**     brname=TEXT        Name of the new branch (only if newbr)
+**     close              Close this check-in
+**     hide               Hide this check-in
+**     cNNN               Cancel tag with tagid=NNN
+**
+**     cancel             Cancel the edit.  Return to the check-in view
+**     preview            Show a preview of the edited check-in comment
+**     apply              Apply changes
 */
 void ci_edit_page(void){
   int rid;
@@ -2618,19 +2517,20 @@ void ci_edit_page(void){
   const char *zNewUser;         /* Revised user */
   const char *zDate;            /* Current date of the check-in */
   const char *zNewDate;         /* Revised check-in date */
-  const char *zColor;
-  const char *zNewColor;
-  const char *zNewTagFlag;
-  const char *zNewTag;
-  const char *zNewBrFlag;
-  const char *zNewBranch;
-  const char *zCloseFlag;
-  const char *zHideFlag;
+  const char *zNewColorFlag;    /* "checked" if "Change color" is checked */
+  const char *zColor;           /* Current background color */
+  const char *zNewColor;        /* Revised background color */
+  const char *zNewTagFlag;      /* "checked" if "Add tag" is checked */
+  const char *zNewTag;          /* Name of the new tag */
+  const char *zNewBrFlag;       /* "checked" if "New branch" is checked */
+  const char *zNewBranch;       /* Name of the new branch */
+  const char *zCloseFlag;       /* "checked" if "Close" is checked */
+  const char *zHideFlag;        /* "checked" if "Hide" is checked */
   int fPropagateColor;          /* True if color propagates before edit */
   int fNewPropagateColor;       /* True if color propagates after edit */
   int fHasHidden = 0;           /* True if hidden tag already set */
   int fHasClosed = 0;           /* True if closed tag already set */
-  const char *zChngTime = 0;     /* Value of chngtime= query param, if any */
+  const char *zChngTime = 0;    /* Value of chngtime= query param, if any */
   char *zUuid;
   Blob comment;
   char *zBranchName = 0;
@@ -2644,7 +2544,7 @@ void ci_edit_page(void){
                         "  FROM event WHERE objid=%d", rid);
   if( zComment==0 ) fossil_redirect_home();
   if( P("cancel") ){
-    cgi_redirectf("ci?name=%s", zUuid);
+    cgi_redirectf("%R/ci/%S", zUuid);
   }
   if( g.perm.Setup ) zChngTime = P("chngtime");
   zNewComment = PD("c",zComment);
@@ -2659,13 +2559,11 @@ void ci_edit_page(void){
   zColor = db_text("", "SELECT bgcolor"
                         "  FROM event WHERE objid=%d", rid);
   zNewColor = PDT("clr",zColor);
-  if( fossil_strcmp(zNewColor,"##")==0 ){
-    zNewColor = PT("clrcust");
-  }
   fPropagateColor = db_int(0, "SELECT tagtype FROM tagxref"
                               " WHERE rid=%d AND tagid=%d",
                               rid, TAG_BGCOLOR)==2;
   fNewPropagateColor = P("clr")!=0 ? P("pclr")!=0 : fPropagateColor;
+  zNewColorFlag = P("newclr") ? " checked" : "";
   zNewTagFlag = P("newtag") ? " checked" : "";
   zNewTag = PDT("tagname","");
   zNewBrFlag = P("newbr") ? " checked" : "";
@@ -2681,11 +2579,13 @@ void ci_edit_page(void){
     zNow = date_in_standard_format(zChngTime ? zChngTime : "now");
     blob_appendf(&ctrl, "D %s\n", zNow);
     init_newtags();
-    if( zNewColor[0]
+    if( zNewColorFlag[0]
+     && zNewColor[0]
      && (fPropagateColor!=fNewPropagateColor
              || fossil_strcmp(zColor,zNewColor)!=0)
-    ) add_color(zNewColor,fNewPropagateColor);
-    if( zNewColor[0]==0 && zColor[0]!=0 ) cancel_color();
+    ){
+      add_color(zNewColor,fNewPropagateColor);
+    }
     if( comment_compare(zComment,zNewComment)==0 ) add_comment(zNewComment);
     if( fossil_strcmp(zDate,zNewDate)!=0 ) add_date(zNewDate);
     if( fossil_strcmp(zUser,zNewUser)!=0 ) add_user(zNewUser);
@@ -2707,7 +2607,7 @@ void ci_edit_page(void){
     if( zNewTagFlag[0] && zNewTag[0] ) add_tag(zNewTag);
     if( zNewBrFlag[0] && zNewBranch[0] ) change_branch(rid,zNewBranch);
     apply_newtags(&ctrl, rid, zUuid);
-    cgi_redirectf("ci?name=%s", zUuid);
+    cgi_redirectf("%R/ci/%S", zUuid);
   }
   blob_zero(&comment);
   blob_append(&comment, zNewComment, -1);
@@ -2740,8 +2640,10 @@ void ci_edit_page(void){
     @ <b>Preview:</b>
     @ <blockquote>
     @ <table border=0>
-    if( zNewColor && zNewColor[0] ){
+    if( zNewColorFlag[0] && zNewColor && zNewColor[0] ){
       @ <tr><td style="background-color: %h(zNewColor);">
+    }else if( zColor[0] ){
+      @ <tr><td style="background-color: %h(zColor);">
     }else{
       @ <tr><td>
     }
@@ -2802,9 +2704,19 @@ void ci_edit_page(void){
     @ </td></tr>
   }
 
-  @ <tr><th align="right" valign="top">Background Color:</th>
+  @ <tr><th align="right" valign="top">Background&nbsp;Color:</th>
   @ <td valign="top">
-  render_color_chooser(fNewPropagateColor, zNewColor, "pclr", "clr", "clrcust");
+  @ <div><label><input type='checkbox' name='newclr'%s(zNewColorFlag) />
+  @ Change background color: \
+  @ <input type='color' name='clr'\
+  @ value='%s(zNewColor[0]?zNewColor:"#808080")'></label></div>
+  @ <div><label>
+  if( fNewPropagateColor ){
+    @ <input type="checkbox" name="pclr" checked="checked" />
+  }else{
+    @ <input type="checkbox" name="pclr" />
+  }
+  @ Propagate color to descendants</label></div>
   @ </td></tr>
 
   @ <tr><th align="right" valign="top">Tags:</th>
@@ -2900,9 +2812,11 @@ void ci_edit_page(void){
 
 
   @ <tr><td colspan="2">
-  @ <input type="submit" name="preview" value="Preview" />
-  @ <input type="submit" name="apply" value="Apply Changes" />
   @ <input type="submit" name="cancel" value="Cancel" />
+  @ <input type="submit" name="preview" value="Preview" />
+  if( P("preview") ){
+    @ <input type="submit" name="apply" value="Apply Changes" />
+  }
   @ </td></tr>
   @ </table>
   @ </div></form>

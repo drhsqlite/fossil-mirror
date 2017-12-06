@@ -1,5 +1,5 @@
-C Remove\sthe\slast\sbits\sof\sin-line\sjavascript\sfrom\sthe\stimelines.
-D 2017-12-06T13:48:28.631
+C Use\san\sHTML5\scolor\schooser\sdialog\sin\sthe\scheck-in\scomment\seditor.
+D 2017-12-06T15:37:44.223
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -424,7 +424,7 @@ F src/diffcmd.c 5ccaa1ef9e8d9bc427f7c9a144aa76d87ad917a7a3235dda72964b3f26e931fe
 F src/dispatch.c 9103c1b19268411c87c8051084312e29e7c4aa252e3a9fd945af976f08fd563d
 F src/doc.c 799bde12f69112d8a9cda65e6b6eab94cdefe060c9ec9faf56884f75a51724e8
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
-F src/event.c e0412afa4ac1895b73d1f49e5756be51aebfdf4f46379f7746b150ab084738e0
+F src/event.c 5d4a12252f765b5a1fa43fc6ddd087e79dfad65e3533369c1b47deb5b4be52d0
 F src/export.c 3e09dfda9d07b44c463d656dbc09f6adfe686d6d80ad55282a1f06b9216934f2
 F src/file.c d1d99096ad0283231a4565a545462b803ef2586687b99744d51c3af7aa3accdf
 F src/finfo.c a83651f112fae1ec7acf9f5480e8aaffc79c6708a446394fce45f57985253a42
@@ -442,7 +442,7 @@ F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
 F src/http_ssl.c 55266e0d4b2dd2d03af062c1e0e2a06c70d28adf6bb82b13f18a7d4beb543423
 F src/http_transport.c 43bf993a931c1a6cafb051566e06c841173ec350dedc0cb6887e112bc05a147c
 F src/import.c e48f2f2e0095795aeabe7220514c8694393693b853150c47f6d6792921def3f1
-F src/info.c f183aac5de67f6828f484faa1b4782a0d5e0b99341d812756b058f5d01d4aef0
+F src/info.c 4ee15e2b575e876af5d45a072f2cb0ebdf232a8df8e0e0e1fb134698ac8d2335
 F src/json.c 31bebf948c49f46d6eb9a5bf910ef9cd35b407434efabd2f047780f420639b47
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c b6105183492ee774cdc685bfd80eb511fb1c5c37faf88198d7e4e58c41dfc68b
@@ -804,7 +804,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c6785fabf96f38d0a9598110feafdfb5394d21cffb40af6aa5cffc30c8224cf6
-R e43f70ff322fc4e28bda60122746198c
+P b799891b82d6876da0a5287105e3cfa6c61ad05d833538cc3064bc6ad4c42576
+R a6e57e9c92e52f462f6891a6cc214c43
 U drh
-Z da24fbc48b165f749c02e052045fecef
+Z effb852b4e0a68818047bec1f1b831e4
