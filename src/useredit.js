@@ -1,4 +1,4 @@
-/* This script accompanies the /setup_uedit web page.  It's job is to keep
+/* This script accompanies the /setup_uedit web page.  Its job is to keep
 ** the check-boxes with user capabilities up-to-date with the capability
 ** string.
 **

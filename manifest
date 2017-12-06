@@ -1,5 +1,5 @@
-C Reorganize\sthe\selements\sof\sthe\s"Overview"\ssection\sof\sa\scheck-in\sview,\sto\ngive\smore\sprominence\sto\sthe\s"Download"\slinks.
-D 2017-12-06T16:50:54.183
+C Fix\sharmless\stypo\sin\scomment.
+D 2017-12-06T17:14:40.353
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -537,7 +537,7 @@ F src/unversioned.c 23d297dad48770f9825c007c9eba26968ef0d12528d514a3cbae2198122e
 F src/update.c 0047cc2a6f9a692dd3b5c594b65206eaa44cdf21ae4027aeeea1b0bca2282103
 F src/url.c 61b100991bd4e1375ad67ca8204beb4603f6076e668d2d5fedc6331fccda2005
 F src/user.c 3303fcd35df5522ebe0b70d66dbaf83e0d0636becccc71ac110c8a33012b77bf
-F src/useredit.js 3976b258aa4c62c96e4ec3021d212179c68b57effbd101fb029e7581d17abf7b
+F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c d4d73906b07ccbb1e8037f090c1b02c8ea925d72b8f6091efa822060c4484657
 F src/util.c 5882876217d058c254e3f25d0637b5fcff063149fee4429c23bb5e08cf317386
 F src/verify.c 5799825d086464bb9e19e69ffeec84a710d1681b
@@ -804,7 +804,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f8bc3ce8c71424352b507fcc2e93ff0e405c431499af4f8d208f07a8d908d9c0
-R 8a4190c5573a4e91ea7e9a6ea5f9759f
+P 4290984dd36877e4544ee997b1f75ac81ed67f2d3d259cd0d1444bf4ade501f5
+R fdf3834687d10d162e631ab903b737ab
 U drh
-Z 101704301bcc94e88d54f8c642a7302a
+Z 868596f52ac7730985546d8026affa9e
