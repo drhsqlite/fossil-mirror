@@ -510,8 +510,10 @@ void uvlist_page(void){
     int rcvid = db_column_int(&q,5);
     if( zLogin==0 ) zLogin = "";
     if( (n++)==0 ){
+      style_table_sorter();
       @ <div class="uvlist">
-      @ <table cellpadding="2" cellspacing="0" border="1" id="uvtab">
+      @ <table cellpadding="2" cellspacing="0" border="1" class='sortable' \
+      @  data-column-types='tkKttn' data-init-sort='1'>
       @ <thead><tr>
       @   <th> Name
       @   <th> Age
@@ -561,7 +563,6 @@ void uvlist_page(void){
     }
     @ </tfoot>
     @ </table></div>
-    output_table_sorting_javascript("uvtab","tkKttN",1);
   }else{
     @ No unversioned files on this server.
   }

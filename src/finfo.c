@@ -688,10 +688,11 @@ void mlink_page(void){
        " ORDER BY 1 DESC",
        fnid
     );
+    style_table_sorter();
     @ <h1>MLINK table for file
     @ <a href='%R/finfo?name=%t(zFName)'>%h(zFName)</a></h1>
     @ <div class='brlist'>
-    @ <table id='mlinktable'>
+    @ <table class='sortable' data-column-types='tttxtttt' data-init-sort='1'>
     @ <thead><tr>
     @ <th>Date</th>
     @ <th>Check-in</th>
@@ -745,7 +746,6 @@ void mlink_page(void){
     @ </tbody>
     @ </table>
     @ </div>
-    output_table_sorting_javascript("mlinktable","tttxtttt",1);
   }else{
     int mid = name_to_rid_www("ci");
     db_prepare(&q,
@@ -763,9 +763,10 @@ void mlink_page(void){
     );
     @ <h1>MLINK table for check-in %h(zCI)</h1>
     render_checkin_context(mid, 1);
+    style_table_sorter();
     @ <hr />
     @ <div class='brlist'>
-    @ <table id='mlinktable'>
+    @ <table class='sortable' data-column-types='ttxtttt' data-init-sort='1'>
     @ <thead><tr>
     @ <th>File</th>
     @ <th>Parent<br>Check-in</th>
@@ -816,7 +817,6 @@ void mlink_page(void){
     @ </tbody>
     @ </table>
     @ </div>
-    output_table_sorting_javascript("mlinktable","ttxtttt",1);
   }
   style_footer();
 }

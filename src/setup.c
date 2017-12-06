@@ -210,7 +210,8 @@ void setup_ulist(void){
   }
   @ </tbody></table>
   @ <div class='section'>Users</div>
-  @ <table border=1 cellpadding=2 cellspacing=0 class='userTable' id='userlist'>
+  @ <table border=1 cellpadding=2 cellspacing=0 class='userTable sortable' \
+  @  data-column-types='nktxTTK' data-init-sort='2'>
   @ <thead><tr>
   @ <th>ID<th>Login Name<th>Caps<th>Info<th>Date<th>Expire<th>Last Login</tr></thead>
   @ <tbody>
@@ -269,7 +270,7 @@ void setup_ulist(void){
   }
   @ </tbody></table>
   db_finalize(&s);
-  output_table_sorting_javascript("userlist","nktxTTK",2);
+  style_table_sorter();
   style_footer();
 }
 
@@ -1412,7 +1413,7 @@ void setup_login_group(void){
     @ <hr /><h2>Implementation Details</h2>
     @ <p>The following are fields from the CONFIG table related to login-groups,
     @ provided here for instructional and debugging purposes:</p>
-    @ <table border='1' id='configTab'>
+    @ <table border='1' class='sortable' data-column-types='ttt' data-init-sort='1'>
     @ <thead><tr>
     @ <th>Config.Name<th>Config.Value<th>Config.mtime</tr>
     @ </thead><tbody>
@@ -1428,7 +1429,7 @@ void setup_login_group(void){
     }
     db_finalize(&q);
     @ </tbody></table>
-    output_table_sorting_javascript("configTab","ttt",1);
+    style_table_sorter();
   }
   style_footer();
 }
@@ -2244,8 +2245,9 @@ void page_admin_log(){
     "SELECT datetime(time,'unixepoch'), who, page, what "
     "FROM admin_log "
     "ORDER BY time DESC");
-
-  @ <table id="adminLogTable" class="adminLogTable" width="100%%">
+  style_table_sorter();
+  @ <table class="sortable adminLogTable" width="100%%" \
+  @  data-column-types='Tttx' data-init-sort='1'>
   @ <thead>
   @ <th>Time</th>
   @ <th>User</th>
@@ -2271,8 +2273,6 @@ void page_admin_log(){
   if( counter>ofst+limit ){
     @ <p><a href="admin_log?n=%d(limit)&x=%d(limit+ofst)">[Older]</a></p>
   }
-
-  output_table_sorting_javascript("adminLogTable", "Tttx", 1);
   style_footer();
 }
 

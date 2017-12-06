@@ -83,10 +83,10 @@ static int sideboxUsed = 0;
 static unsigned adUnitFlags = 0;
 
 /*
-** True if the "href.js" javascript file is required.
+** Flags for various javascript files needed prior to </body>
 */
-static int needHrefJs = 0;
-
+static int needHrefJs = 0;   /* href.js */
+static int needSortJs = 0;   /* sorttable.js */
 
 /*
 ** Generate and return a anchor tag like this:
@@ -501,6 +501,13 @@ static const char *style_adunit_text(unsigned int *pAdFlag){
 }
 
 /*
+** Indicate that the table-sorting javascript is needed.
+*/
+void style_table_sorter(void){
+  needSortJs = 1;
+}
+
+/*
 ** Generate code to load a single javascript file
 */
 void style_load_one_js_file(const char *zFile){
@@ -520,6 +527,9 @@ static void style_load_all_js_files(void){
     @ <script id='href-data' type='application/json'>\
     @ {"delay":%d(nDelay),"mouseover":%d(bMouseover)}</script>
     style_load_one_js_file("href.js");
+  }
+  if( needSortJs ){
+    style_load_one_js_file("sorttable.js");
   }
 }
 

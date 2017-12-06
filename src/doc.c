@@ -384,7 +384,8 @@ void mimetype_list_page(void){
   @ <p>The Fossil <a href="%R/help?cmd=/doc">/doc</a> page uses filename
   @ suffixes and the following table to guess at the appropriate mimetype
   @ for each document.</p>
-  @ <table id='mimeTable' border=1 cellpadding=0 class='mimetypetable'>
+  @ <table class='sortable mimetypetable' border=1 cellpadding=0 \
+  @ data-column-types='tt' data-init-sort='1'>
   @ <thead>
   @ <tr><th>Suffix<th>Mimetype
   @ </thead>
@@ -393,7 +394,7 @@ void mimetype_list_page(void){
     @ <tr><td>%h(aMime[i].zSuffix)<td>%h(aMime[i].zMimetype)</tr>
   }
   @ </tbody></table>
-  output_table_sorting_javascript("mimeTable","tt",1);
+  style_table_sorter();
   style_footer();
 }
 

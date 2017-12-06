@@ -2517,7 +2517,9 @@ void test_timewarp_page(void){
     const char *zUser = db_column_text(&q, 3);
     char *zHref = href("%R/timeline?c=%S", zCkin);
     if( cnt==0 ){
-      @ <div class="brlist"><table id="timewarptable">
+      style_table_sorter();
+      @ <div class="brlist">
+      @ <table class='sortable' data-column-types='tttt' data-init-sort='2'>
       @ <thead><tr>
       @ <th>Check-in</th>
       @ <th>Date</th>
@@ -2539,7 +2541,6 @@ void test_timewarp_page(void){
     @ <p>No timewarps in this repository</p>
   }else{
     @ </tbody></table></div>
-    output_table_sorting_javascript("timewarptable","tttt",2);
   }
   style_footer();
 }

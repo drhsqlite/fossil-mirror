@@ -1117,7 +1117,8 @@ void bigbloblist_page(void){
     " WHERE description.rid=blob.rid"
     " ORDER BY length(content) DESC"
   );
-  @ <table cellpadding="2" cellspacing="0" border="1" id="bigblobtab">
+  @ <table cellpadding="2" cellspacing="0" border="1" \
+  @  class='sortable' data-column-types='NnnttT' data-init-sort='0'>
   @ <thead><tr><th align="right">Size<th align="right">RID
   @ <th align="right">Delta From<th>Hash<th>Description<th>Date</tr></thead>
   @ <tbody>
@@ -1138,7 +1139,7 @@ void bigbloblist_page(void){
   }
   @ </tbody></table>
   db_finalize(&q);
-  output_table_sorting_javascript("bigblobtab", "NnnttT", -1);
+  style_table_sorter();
   style_footer();
 }
 

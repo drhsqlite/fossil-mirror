@@ -536,6 +536,7 @@ EXTRA_FILES   = $(SRCDIR)\../skins/aht/details.txt \
         $(SRCDIR)\markdown.md \
         $(SRCDIR)\menu.js \
         $(SRCDIR)\sbsdiff.js \
+        $(SRCDIR)\sorttable.js \
         $(SRCDIR)\tree.js \
         $(SRCDIR)\wiki.wiki
 
