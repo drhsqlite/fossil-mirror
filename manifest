@@ -1,5 +1,5 @@
-C Spelling\stypos\sfrom\sDebian
-D 2017-12-07T11:33:42.144
+C Make\s"fossil\ssql"\san\salias\sfor\s"fossil\ssqlite3"\sso\sthat\styping\s"fossil\ssql"\ndoes\snot\sgenerate\san\sambiguity\swith\sthe\snew\s"fossil\ssqlar"\scommand.
+D 2017-12-07T12:01:49.868
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -514,7 +514,7 @@ F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c e9c5d6967e5c9534eb68c34c0ed1c7e935dc002fe7960c6813d81da13b6e7353
 F src/sorttable.js e434c812cac727ccc67270f275bc89cc2cae5fd60728abb4074eb91ee7d362e9
-F src/sqlcmd.c b150ead4134db3739733abb077bf764bf998bfede7d1d8ea457455adf3684c31
+F src/sqlcmd.c 031b91c0ee221f41795bbb95e4ef9f6590478dc1468ee767e3ae744ff3381849
 F src/sqlite3.c 50037cbbe2eaa129b1c45bd5d4b4bf948eddc4f1eda687f23729af2b661651cc
 F src/sqlite3.h 1c1a554fbcc97bced8281075911d4a87e98312d88d96f5d0367866a9544d8ae7
 F src/stash.c 8f0bc283ba1099458e48ecd4c059a85bef34aef02066d972f61c165f2c47177b
@@ -807,7 +807,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e59a7fd3cfe7b9aef7b9ff908046779cc44f487642473ea9f0efaf640256e4bd
-R 0b2e60454d046b0cc88fb6fda42e36fc
+P 4d1ac686c4cd4de2ada934e64d7743f96a94cab7e680b30538c4d5b45b05b278
+R fcb36902f124c033fbc934cbb1ff4a1c
 U drh
-Z a7016eb32c32e47c1da823daaae1a6fd
+Z fff7ce21cbe221f698cdfa1676dfe7c2

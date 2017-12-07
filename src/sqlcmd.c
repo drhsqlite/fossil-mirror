@@ -227,7 +227,8 @@ static void fossil_close(int bDb, int noRepository){
 }
 
 /*
-** COMMAND: sqlite3
+** COMMAND: sql
+** COMMAND: sqlite3*
 **
 ** Usage: %fossil sql ?OPTIONS?
 **
