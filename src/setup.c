@@ -1680,7 +1680,7 @@ void setup_config(void){
   @ No sanitization is done. This means that it is very possible for malicious
   @ users to inject dangerous HTML, CSS and JavaScript code into your wiki.</p>
   @ <p>This should <strong>only</strong> be enabled when wiki editing is limited
-  @ to trusted users. It should <strong>not</strong> be used on a publically
+  @ to trusted users. It should <strong>not</strong> be used on a publicly
   @ editable wiki.</p>
   @ (Property: "wiki-use-html")
   @ <hr />

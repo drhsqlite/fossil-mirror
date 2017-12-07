@@ -845,7 +845,7 @@ void sqlar_cmd(void){
 **                       Defaults to "trunk".  This query parameter used to
 **                       be called "uuid" and the older "uuid" name is still
 **                       accepted for backwards compatibility.  If this
-**                       query paramater is omitted, the latest "trunk"
+**                       query parameter is omitted, the latest "trunk"
 **                       check-in is used.
 **
 **   in=PATTERN          Only include files that match the comma-separate

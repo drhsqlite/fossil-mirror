@@ -666,7 +666,7 @@ void finfo_page(void){
 ** expected to know what the MLINK table is or why it is important.
 **
 ** To avoid confusing ordinary users, this page is only available
-** to adminstrators.
+** to administrators.
 */
 void mlink_page(void){
   const char *zFName = P("name");

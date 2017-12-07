@@ -737,7 +737,7 @@ int historical_blob(
 **
 ** Revert all files if no file name is provided.
 **
-** If a file is reverted accidently, it can be restored using
+** If a file is reverted accidentally, it can be restored using
 ** the "fossil undo" command.
 **
 ** Options:
