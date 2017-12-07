@@ -373,8 +373,8 @@ static char zDfltHeader[] =
 @ <html>
 @ <head>
 @ <base href="$baseurl/$current_page" />
-@ <meta http-equiv="Content-Security-Policy-xxx" \
-@  content="default-src 'self' 'unsafe-inline'" />
+@ <meta http-equiv="Content-Security-Policy" \
+@  content="default-src 'self' data: 'unsafe-inline'" />
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed" \
 @  href="$home/timeline.rss" />

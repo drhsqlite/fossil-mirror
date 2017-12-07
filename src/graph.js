@@ -182,7 +182,7 @@ function TimelineGraph(tx){
     drawLine(line,color,x,y0,null,y1);
     x = to.x + (node.w-arw.w)/2;
     var n = drawBox(arw.cls,null,x,y);
-    n.style.borderBottomColor = color;
+    if(color) n.style.borderBottomColor = color;
   }
   function drawMergeLine(x0,y0,x1,y1){
     drawLine(mLine,null,x0,y0,x1,y1);

@@ -37,6 +37,7 @@ function SortableTable(tableEl){
   var initSort = tableEl.getAttribute("data-init-sort");
   this.tbody = tableEl.getElementsByTagName('tbody');
   this.columnTypes = columnTypes;
+  if(tableEl.rows.length==0) return;
   var ncols = tableEl.rows[0].cells.length;
   for(var i = columnTypes.length; i<=ncols; i++){this.columnTypes += 't';}
   this.sort = function (cell) {
