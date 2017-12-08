@@ -635,10 +635,11 @@ static void zip_of_checkin(
   memset(&sArchive, 0, sizeof(Archive));
   sArchive.eType = eType;
   sArchive.pBlob = pZip;
+  blob_zero(&sArchive.tmp);
+  blob_zero(pZip);
 
   content_get(rid, &mfile);
   if( blob_size(&mfile)==0 ){
-    blob_zero(pZip);
     return;
   }
   blob_set_dynamic(&hash, rid_to_uuid(rid));
