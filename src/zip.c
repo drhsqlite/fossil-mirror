@@ -276,6 +276,8 @@ static void zip_add_file_to_zip(
 
   /* Fill in as much of the header as we know.
   */
+  nameLen = (int)strlen(zName);
+  if( nameLen==0 ) return;
   nBlob = pFile ? blob_size(pFile) : 0;
   if( pFile ){ /* This is a file, possibly empty... */
     iMethod = (nBlob>0) ? 8 : 0; /* Cannot compress zero bytes. */
@@ -288,7 +290,6 @@ static void zip_add_file_to_zip(
     iMethod = 0;
     iMode = 040755;
   }
-  nameLen = strlen(zName);
   memset(zHdr, 0, sizeof(zHdr));
   put32(&zHdr[0], 0x04034b50);
   put16(&zHdr[4], 0x000a);
@@ -384,7 +385,7 @@ static void zip_add_file_to_sqlar(
   const Blob *pFile, 
   int mPerm
 ){
-  int nName = strlen(zName);
+  int nName = (int)strlen(zName);
 
   if( p->db==0 ){
     assert( p->vfs.zName==0 );
@@ -430,6 +431,7 @@ static void zip_add_file_to_sqlar(
     blob_zero(p->pBlob);
   }
 
+  if( nName==0 ) return;
   if( pFile==0 ){
     /* Directory. */
     if( zName[nName-1]=='/' ) nName--;
@@ -703,6 +705,7 @@ static void zip_of_checkin(
       }
     }
     manifest_file_rewind(pManifest);
+    zip_add_file(&sArchive, "", 0, 0);
     while( (pFile = manifest_file_next(pManifest,0))!=0 ){
       int fid;
       if( pInclude!=0 && !glob_match(pInclude, pFile->zName) ) continue;
