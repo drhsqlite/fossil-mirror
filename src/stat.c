@@ -97,6 +97,9 @@ void stat_page(void){
     n = db_int(0, "SELECT count(*) FROM blob");
     m = db_int(0, "SELECT count(*) FROM delta");
     @ %d(n) (%d(n-m) fulltext and %d(m) deltas)
+    if( g.perm.Admin ){
+      @ <a href='%R/artifact_stats'>Details</a>
+    }
     @ </td></tr>
     if( n>0 ){
       int a, b;
@@ -569,5 +572,163 @@ void repo_tabsize_page(void){
     piechart_render(800,500,PIE_OTHER|PIE_PERCENT);
     @ </svg></center>
   }
+  style_footer();
+}
+
+/*
+** Gather statistics on artifact types, counts, and sizes.
+*/
+static void gather_artifact_stats(void){
+  static const char zSql[] = 
+    @ CREATE TEMP TABLE artstat(
+    @   id INTEGER PRIMARY KEY,   -- Corresponds to BLOB.RID
+    @   atype TEXT,               -- 'data', 'manifest', 'tag', 'wiki', etc.
+    @   isDelta BOOLEAN,          -- true if stored as a delta
+    @   szExp,                    -- expanded, uncompressed size
+    @   szCmpr                    -- size as stored on disk
+    @ );
+    @ INSERT INTO artstat(id,atype,isDelta,szExp,szCmpr)
+    @    SELECT blob.rid, NULL,
+    @           EXISTS(SELECT 1 FROM delta WHERE delta.rid=blob.rid),
+    @           size, length(content)
+    @      FROM blob
+    @     WHERE content IS NOT NULL;
+    @ UPDATE artstat SET atype='file'
+    @  WHERE id IN (SELECT fid FROM mlink)
+    @    AND atype IS NULL;
+    @ UPDATE artstat SET atype='manifest'
+    @  WHERE id IN (SELECT objid FROM event WHERE type='ci') AND atype IS NULL;
+    @ UPDATE artstat SET atype='cluster'
+    @  WHERE atype IS NULL 
+    @    AND id IN (SELECT rid FROM tagxref
+    @                WHERE tagid=(SELECT tagid FROM tag
+    @                              WHERE tagname='cluster'));
+    @ UPDATE artstat SET atype='ticket'
+    @  WHERE atype IS NULL 
+    @    AND id IN (SELECT rid FROM tagxref
+    @                WHERE tagid IN (SELECT tagid FROM tag
+    @                              WHERE tagname GLOB 'tkt-*'));
+    @ UPDATE artstat SET atype='wiki'
+    @  WHERE atype IS NULL 
+    @    AND id IN (SELECT rid FROM tagxref
+    @                WHERE tagid IN (SELECT tagid FROM tag
+    @                              WHERE tagname GLOB 'wiki-*'));
+    @ UPDATE artstat SET atype='technote'
+    @  WHERE atype IS NULL 
+    @    AND id IN (SELECT rid FROM tagxref
+    @                WHERE tagid IN (SELECT tagid FROM tag
+    @                              WHERE tagname GLOB 'event-*'));
+    @ UPDATE artstat SET atype='attachment'
+    @  WHERE atype IS NULL 
+    @    AND id IN (SELECT attachid FROM attachment UNION 
+    @               SELECT blob.rid FROM attachment JOIN blob ON uuid=src);
+    @ UPDATE artstat SET atype='tag'
+    @  WHERE atype IS NULL 
+    @    AND id IN (SELECT srcid FROM tagxref);
+    @ UPDATE artstat SET atype='tag'
+    @  WHERE atype IS NULL 
+    @    AND id IN (SELECT objid FROM event WHERE type='g');
+    @ UPDATE artstat SET atype='unknown' WHERE atype IS NULL;
+  ;
+  db_multi_exec("%s", zSql/*safe-for-%s*/);
+}
+
+/*
+** WEBPAGE: artifact_stats
+**
+** Show information about the sizes of artifacts in this repository
+*/
+void artifact_stats_page(void){
+  Stmt q;
+  login_check_credentials();
+  if( !g.perm.Admin ){ login_needed(g.anon.Admin); return; }
+  style_header("Artifact Statistics");
+  gather_artifact_stats();
+  db_prepare(&q,
+    "SELECT atype, count(*), sum(isDelta), sum(szCmpr), sum(szExp)"
+    "  FROM artstat GROUP BY 1"
+    " UNION ALL "
+    "SELECT 'ALL', count(*), sum(isDelta), sum(szCmpr), sum(szExp)"
+    "  FROM artstat"
+    " ORDER BY 5;"
+  );
+  @ <table class='sortable' border='1' \
+  @ data-column-types='tkkkkk' data-init-sort='5'>
+  @ <thead><tr>
+  @ <th>Artifact Type</th>
+  @ <th>Count</th>
+  @ <th>Full-Text</th>
+  @ <th>Delta</th>
+  @ <th>Compressed Size</th>
+  @ <th>Uncompressed Size</th>
+  @ </tr></thead><tbody>
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zType = db_column_text(&q, 0);
+    int nTotal = db_column_int(&q, 1);
+    int nDelta = db_column_int(&q, 2);
+    int nFull = nTotal - nDelta;
+    sqlite3_int64 szCmpr = db_column_int64(&q, 3);
+    sqlite3_int64 szExp = db_column_int64(&q, 4);
+    char *z;
+    @ <tr><td>%h(zType)</td>
+
+    z = sqlite3_mprintf("%,d", nTotal);
+    @ <td data-sortkey='%08x(nTotal)' align='right'>%s(z)</td>
+    sqlite3_free(z);
+
+    z = sqlite3_mprintf("%,d", nFull);
+    @ <td data-sortkey='%08x(nFull)' align='right'>%s(z)</td>
+    sqlite3_free(z);
+
+    z = sqlite3_mprintf("%,d", nDelta);
+    @ <td data-sortkey='%08x(nDelta)' align='right'>%s(z)</td>
+    sqlite3_free(z);
+
+    z = sqlite3_mprintf("%,lld", szCmpr);
+    @ <td data-sortkey='%016x(szCmpr)' align='right'>%s(z)</td>
+    sqlite3_free(z);
+
+    z = sqlite3_mprintf("%,lld", szExp);
+    @ <td data-sortkey='%016x(szExp)' align='right'>%s(z)</td>
+    sqlite3_free(z);
+  }
+  @ </tbody></table>
+  db_finalize(&q);
+
+  if( db_exists("SELECT 1 FROM artstat WHERE atype='unknown'") ){
+    @ <h2>Unknown Artifacts</h2>
+    db_prepare(&q,
+      "SELECT artstat.id, blob.uuid, user.login,"
+      "       datetime(rcvfrom.mtime), rcvfrom.ipaddr"
+      "  FROM artstat JOIN blob ON artstat.id=blob.rid"
+      "       LEFT JOIN rcvfrom USING(rcvid)"
+      "       LEFT JOIN user USING(uid)"
+      " WHERE atype='unknown'"
+    );
+    @ <table class='not-sortable' border='1' \
+    @ data-column-types='ntttt' data-init-sort='0'>
+    @ <thead><tr>
+    @ <th>RecordID</th>
+    @ <th>Hash</th>
+    @ <th>User</th>
+    @ <th>Date</th>
+    @ <th>IP-Addr</th>
+    @ </tr></thead><tbody>
+    while( db_step(&q)==SQLITE_ROW ){
+      int rid = db_column_int(&q, 0);
+      const char *zHash = db_column_text(&q, 1);
+      const char *zUser = db_column_text(&q, 2);
+      const char *zDate = db_column_text(&q, 3);
+      const char *zIpAddr = db_column_text(&q, 4);
+      @ <tr><td>%d(rid)</td>
+      @ <td>%z(href("%R/info/%!S",zHash))%S(zHash)</a></td>
+      @ <td>%h(zUser)</td>
+      @ <td>%h(zDate)</td>
+      @ <td>%h(zIpAddr)</td></tr>
+    }
+    @ </tbody></table></div>
+    db_finalize(&q);
+  }
+  style_table_sorter();
   style_footer();
 }
