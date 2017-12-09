@@ -571,3 +571,90 @@ void repo_tabsize_page(void){
   }
   style_footer();
 }
+
+/*
+** Gather statistics on artifact types, counts, and sizes.
+*/
+static void gather_artifact_stats(void){
+  static const char zSql[] = 
+    @ CREATE TEMP TABLE artstat(
+    @   id INTEGER PRIMARY KEY,   -- Corresponds to BLOB.RID
+    @   atype TEXT,               -- 'data', 'manifest', 'tag', 'wiki', etc.
+    @   isDelta BOOLEAN,          -- true if stored as a delta
+    @   szExp,                    -- expanded, uncompressed size
+    @   szCmpr                    -- size as stored on disk
+    @ );
+    @ INSERT INTO artstat(id,atype,isDelta,szExp,szCmpr)
+    @    SELECT blob.rid,
+    @           (SELECT type FROM description WHERE description.rid=blob.rid),
+    @           EXISTS(SELECT 1 FROM delta WHERE delta.rid=blob.rid),
+    @           size, length(content)
+    @      FROM blob WHERE content IS NOT NULL;
+  ;
+  describe_artifacts("IS NOT NULL");
+  db_multi_exec("%s", zSql/*safe-for-%s*/);
+}
+
+/*
+** WEBPAGE: artifact_stats
+**
+** Show information about the sizes of artifacts in this repository
+*/
+void artifact_stats_page(void){
+  Stmt q;
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  style_header("Artifact Statistics");
+  gather_artifact_stats();
+  db_prepare(&q,
+    "SELECT atype, count(*), sum(isDelta), sum(szCmpr), sum(szExp)"
+    "  FROM artstat GROUP BY 1"
+    " UNION ALL "
+    "SELECT 'TOTAL', count(*), sum(isDelta), sum(szCmpr), sum(szExp)"
+    "  FROM artstat;"
+  );
+  @ <table class='sortable' border='1'\
+  @ data-column-types='tkkkkk' data-init-sort='0'>
+  @ <thead><tr>
+  @ <th>Artifact Type</th>
+  @ <th>Count</th>
+  @ <th>Full-Text</th>
+  @ <th>Delta</th>
+  @ <th>Compressed Size</th>
+  @ <th>Uncompressed Size</th>
+  @ </tr></thead><tbody>
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zType = db_column_text(&q, 0);
+    int nTotal = db_column_int(&q, 1);
+    int nDelta = db_column_int(&q, 2);
+    int nFull = nTotal - nTotal;
+    sqlite3_int64 szCmpr = db_column_int64(&q, 3);
+    sqlite3_int64 szExp = db_column_int64(&q, 4);
+    char *z;
+    @ <tr><td>%h(zType)</td>
+
+    z = sqlite3_mprintf("%,d", nTotal);
+    @ <td data-sortkey='%08x(nTotal)' align='right'>%s(z)</td>
+    sqlite3_free(z);
+
+    z = sqlite3_mprintf("%,d", nDelta);
+    @ <td data-sortkey='%08x(nDelta)' align='right'>%s(z)</td>
+    sqlite3_free(z);
+
+    z = sqlite3_mprintf("%,d", nFull);
+    @ <td data-sortkey='%08x(nFull)' align='right'>%s(z)</td>
+    sqlite3_free(z);
+
+    z = sqlite3_mprintf("%,lld", szCmpr);
+    @ <td data-sortkey='%016x(szCmpr)' align='right'>%s(z)</td>
+    sqlite3_free(z);
+
+    z = sqlite3_mprintf("%,lld", szExp);
+    @ <td data-sortkey='%016x(szExp)' align='right'>%s(z)</td>
+    sqlite3_free(z);
+  }
+  @ </tbody></table></div>
+  db_finalize(&q);
+  style_table_sorter();
+  style_footer();
+}

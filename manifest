@@ -1,5 +1,5 @@
-C The\sgraph\sarrowhead\scontrol\swas\sinverted\sdue\sto\sa\smissing\s"!"\scharacter\nin\sthe\sgraph.js\sfile.
-D 2017-12-09T02:47:39.764
+C Rough\sprototype\sfor\sthe\s/artifact_stats\spage.\s\sStill\smany\sissues.
+D 2017-12-09T17:49:50.667
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -518,7 +518,7 @@ F src/sqlcmd.c 031b91c0ee221f41795bbb95e4ef9f6590478dc1468ee767e3ae744ff3381849
 F src/sqlite3.c 50037cbbe2eaa129b1c45bd5d4b4bf948eddc4f1eda687f23729af2b661651cc
 F src/sqlite3.h 1c1a554fbcc97bced8281075911d4a87e98312d88d96f5d0367866a9544d8ae7
 F src/stash.c 8f0bc283ba1099458e48ecd4c059a85bef34aef02066d972f61c165f2c47177b
-F src/stat.c 90bc7c69010fa1c43816c2667c2385609e611237367c1995bfd8c3a2f2b82c9a
+F src/stat.c d2d334a0e9b077d4faf411b6629e61263feb0d693f03c03e2aff24a39e0de199
 F src/statrep.c 367a01ddc206ba32f53357db06c55f6432d8b6c6593e6e98376f28eaef589a97
 F src/style.c 925890497cf206016ca0a02cd1b695ca465cb54136e82d2f0f26e199cc63b52d
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
@@ -807,7 +807,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 31b9822d697eaba8713ca732a4f076a78be98478158327a9089ecc55227ca3c0
-R 0ad47c249d56edc86df807f71729be48
+P 561fa8a3b7f2a63ffec8d4504ac945f98e88c2cd2add940c0b16ea2ec8c64d56
+R 630f12ce87fbf26e6a9e70b5c2c3e22d
+T *branch * artifact-stats
+T *sym-artifact-stats *
+T -sym-trunk *
 U drh
-Z b5e679cfaab4e137c83483f817866218
+Z f9a32d95555045f238ca1c4856ca3dee
