@@ -650,7 +650,7 @@ void artifact_stats_page(void){
     " UNION ALL "
     "SELECT 'ALL', count(*), sum(isDelta), sum(szCmpr), sum(szExp)"
     "  FROM artstat"
-    " ORDER BY 5;"
+    " ORDER BY 4;"
   );
   @ <table class='sortable' border='1' \
   @ data-column-types='tkkkkk' data-init-sort='5'>
