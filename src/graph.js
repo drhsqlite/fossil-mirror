@@ -56,7 +56,7 @@ function amendCss(circleNodes,showArrowheads){
   if( circleNodes ){
     css += ".tl-node, .tl-node:after { border-radius: 50%; }";
   }
-  if( showArrowheads ){
+  if( !showArrowheads ){
     css += ".tl-arrow.u { display: none; }";
   }
   if( css!=="" ){

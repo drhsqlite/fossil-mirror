@@ -1,5 +1,5 @@
-C Fix\sthe\sSQL\sarchive\sgenerator\sso\sthat\sfor\sa\scheck-in\scontaining\sno\sfiles\sit\ngenerates\san\sempty\sSQL\sarchive\sinstead\sof\san\sempty\sfile.
-D 2017-12-08T03:24:39.301
+C The\sgraph\sarrowhead\scontrol\swas\sinverted\sdue\sto\sa\smissing\s"!"\scharacter\nin\sthe\sgraph.js\sfile.
+D 2017-12-09T02:47:39.764
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -434,7 +434,7 @@ F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c f0940a16303989bd0c6a883dc90899a489ef16edc08f0f9cbb4b500d4730aad7
-F src/graph.js 4352d3fbbcf3ba22b472fee981979181999009d4f3c266499034cf076b1da658
+F src/graph.js d1c24ceb3917099f857df1dde172bfc616309f2e7c31f04e8904c46ab296a63f
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 2b485ac67f5ba9917da5f1ea679eee581a8e08a79dfbfb811c4833586330163a
@@ -807,7 +807,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3e2b5c4630aaf668e6810582cd30e8f7260259deb3bc594a674093791a39ac06
-R 940d5cd5a88e48133ecbd966f00796f4
+P 31b9822d697eaba8713ca732a4f076a78be98478158327a9089ecc55227ca3c0
+R 0ad47c249d56edc86df807f71729be48
 U drh
-Z 4300fa58f07626d6110975289ba3b1b4
+Z b5e679cfaab4e137c83483f817866218
