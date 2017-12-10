@@ -163,6 +163,6 @@ function SortableTable(tableEl){
 (function(){
   var x = document.getElementsByClassName("sortable");
   for(var i=0; i<x.length; i++){
-    SortableTable(x[i]);
+    new SortableTable(x[i]);
   }
 }())

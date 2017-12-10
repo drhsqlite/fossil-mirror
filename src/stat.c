@@ -705,7 +705,7 @@ void artifact_stats_page(void){
       "       LEFT JOIN user USING(uid)"
       " WHERE atype='unknown'"
     );
-    @ <table class='not-sortable' border='1' \
+    @ <table class='sortable' border='1' \
     @ data-column-types='ntttt' data-init-sort='0'>
     @ <thead><tr>
     @ <th>RecordID</th>
