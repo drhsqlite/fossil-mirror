@@ -1025,6 +1025,7 @@ void bloblist_page(void){
   style_submenu_element("250 Largest", "bigbloblist");
   if( g.perm.Admin ){
     style_submenu_element("Artifact Log", "rcvfromlist");
+    style_submenu_element("Artifact Stats", "artifact_stats");
   }
   if( !unpubOnly && mx>n && P("s")==0 ){
     int i;
@@ -1098,6 +1099,7 @@ void bigbloblist_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( g.perm.Admin ){
     style_submenu_element("Artifact Log", "rcvfromlist");
+    style_submenu_element("Artifact Stats", "artifact_stats");
   }
   style_submenu_element("All Artifacts", "bloblist");
   style_header("%d Largest Artifacts", n);

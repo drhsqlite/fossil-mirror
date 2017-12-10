@@ -578,7 +578,7 @@ void repo_tabsize_page(void){
 /*
 ** Gather statistics on artifact types, counts, and sizes.
 */
-static void gather_artifact_stats(void){
+static void gather_artifact_stats(int bWithTypes){
   static const char zSql[] = 
     @ CREATE TEMP TABLE artstat(
     @   id INTEGER PRIMARY KEY,   -- Corresponds to BLOB.RID
@@ -593,6 +593,8 @@ static void gather_artifact_stats(void){
     @           size, length(content)
     @      FROM blob
     @     WHERE content IS NOT NULL;
+  ;
+  static const char zSql2[] = 
     @ UPDATE artstat SET atype='file'
     @  WHERE id IN (SELECT fid FROM mlink)
     @    AND atype IS NULL;
@@ -631,6 +633,120 @@ static void gather_artifact_stats(void){
     @ UPDATE artstat SET atype='unknown' WHERE atype IS NULL;
   ;
   db_multi_exec("%s", zSql/*safe-for-%s*/);
+  if( bWithTypes ){
+    db_multi_exec("%s", zSql2/*safe-for-%s*/);
+  }
+}
+
+/*
+** WEBPAGE: artifact_size_stats
+**
+** Show information about the sizes of artifacts.
+*/
+void artifact_size_stats_page(void){
+  Stmt q;
+  int nTotal = 0;
+  int nDelta = 0;
+  int nFull = 0;
+  int med;
+  double r;
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  style_header("Artifact Sizes");
+  gather_artifact_stats(0);
+  @ <table class="label-value">
+  db_prepare(&q,
+    "SELECT count(*), sum(isDelta), avg(szCmpr), avg(szExp), max(szCmpr),"
+    "       max(szExp)"
+    "  FROM artstat"
+  );
+  if( db_step(&q)==SQLITE_ROW ){
+    nTotal = db_column_int(&q,0);
+    nDelta = db_column_int(&q,1);
+    nFull = nTotal - nDelta;
+    @ <tr><th>Number of artifacts:</th><td>%d(nTotal)</td></tr>
+    if( nTotal>0 ){
+      @ <tr><th>Number of deltas:</th>\
+      @ <td>%d(nDelta) (%d(nDelta*100/nTotal)%%)</td></tr>
+
+      @ <tr><th>Number of full-text:</th><td>%d(nFull) \
+      @ (%d(nFull*100/nTotal)%%)</td></tr>
+    }
+    @ <tr><th>Largest compressed artifact size:</th>\
+    @ <td>%d(db_column_int(&q,4))</td></tr>
+
+    @ <tr><th>Average compressed artifact size:</th> \
+    @ <td>%.2f(db_column_double(&q,2))</td></tr>
+
+    db_multi_exec("CREATE INDEX artstatx1 ON artstat(szCmpr, isDelta);");
+    med = db_int(0, "SELECT szCmpr FROM artstat ORDER BY szCmpr"
+                    " LIMIT 1 OFFSET %d", nTotal/2);
+    @ <tr><th>Median compressed artifact size:</th><td>%d(med)</td></tr>
+
+    @ <tr><th>Largest uncompressed artifact size:</td>\
+    @ <td>%d(db_column_int(&q,5))</td></tr>
+
+    @ <tr><th>Average uncompressed artifact size:</th> \
+    @ <td>%.2f(db_column_double(&q,3))</td></tr>
+
+    med = db_int(0, "SELECT szExp FROM artstat ORDER BY szExp"
+                    " LIMIT 1 OFFSET %d", nTotal/2);
+    @ <tr><th>Median uncompressed artifact size:</th><td>%d(med)</td></tr>
+
+  }
+  db_finalize(&q);
+  db_prepare(&q,
+    "SELECT avg(szCmpr), max(szCmpr) FROM artstat WHERE isDelta"
+  );
+  if( db_step(&q)==SQLITE_ROW ){
+    @ <tr><th>Largest delta:</td>\
+    @ <td>%d(db_column_int(&q,1))</td></tr>
+
+    @ <tr><th>Average delta:</th> \
+    @ <td>%.2f(db_column_double(&q,0))</td></tr>
+
+    med = db_int(0, "SELECT szCmpr FROM artstat WHERE isDelta ORDER BY szCmpr"
+                    " LIMIT 1 OFFSET %d", nDelta/2);
+    @ <tr><th>Median delta:</th><td>%d(med)</td></tr>
+  }
+  db_finalize(&q);
+
+  r = db_double(0.0, "SELECT avg(szCmpr) FROM artstat WHERE NOT isDelta;");
+  @ <tr><th>Average full-text artifact:</th><td>%.2f(r)</td></tr>
+
+  med = db_int(0, "SELECT szCmpr FROM artstat WHERE NOT isDelta ORDER BY szCmpr"
+                  " LIMIT 1 OFFSET %d", nFull/2);
+  @ <tr><th>Median full-text artifact:</th><td>%d(med)</td></tr>
+  @ </table>
+  if( nTotal>0 ){
+    sqlite3_int64 szTotal;
+    sqlite3_int64 szPart;
+    @ <h2>Artifact size distribution facts:</h2>
+    @ <ol>
+    szTotal = db_int64(0, "SELECT sum(szCmpr) FROM artstat");
+    szPart = db_int64(0,
+       "SELECT sum(x) FROM (SELECT szCmpr AS x FROM artstat ORDER BY 1 DESC"
+                          " LIMIT %d)", (nTotal+99)/100);
+    @ <li><p>The largest 1%% of artifacts (the largest %d((nTotal+99)/100) \
+    @ artifacts) use %lld(szPart*100/szTotal)%% of the total artifact space.
+    szPart = db_int64(0,
+       "SELECT sum(x) FROM (SELECT szCmpr AS x FROM artstat ORDER BY 1 DESC"
+                          " LIMIT %d)", (nTotal+9)/10);
+    @ <li><p>The largest 10%% of artifacts (the largest %d((nTotal+9)/10) \
+    @ artifacts) use %lld(szPart*100/szTotal)%% of the total artifact space.
+    szPart = db_int64(0,
+       "SELECT sum(x) FROM (SELECT szCmpr AS x FROM artstat ORDER BY 1 DESC"
+                          " LIMIT %d)", nTotal/4);
+    @ <li><p>The largest 25%% of artifacts (the largest %d(nTotal/4) \
+    @ artifacts) use %lld(szPart*100/szTotal)%% of the total artifact space.
+    szPart = db_int64(0,
+       "SELECT sum(x) FROM (SELECT szCmpr AS x FROM artstat ORDER BY 1 DESC"
+                          " LIMIT %d)", nTotal/2);
+    @ <li><p>The largest 50%% of artifacts (the largest %d(nTotal/2) \
+    @ artifacts) use %lld(szPart*100/szTotal)%% of the total artifact space.
+    @ </ol>
+  }
+  style_footer();
 }
 
 /*
@@ -643,7 +759,9 @@ void artifact_stats_page(void){
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(g.anon.Admin); return; }
   style_header("Artifact Statistics");
-  gather_artifact_stats();
+  style_submenu_element("Repository Stats", "stat");
+  style_submenu_element("Artifact List", "bloblist");
+  gather_artifact_stats(1);
   db_prepare(&q,
     "SELECT atype, count(*), sum(isDelta), sum(szCmpr), sum(szExp)"
     "  FROM artstat GROUP BY 1"
