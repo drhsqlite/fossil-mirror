@@ -699,7 +699,7 @@ void artifact_stats_page(void){
     @ <h2>Unknown Artifacts</h2>
     db_prepare(&q,
       "SELECT artstat.id, blob.uuid, user.login,"
-      "       datetime(rcvfrom.mtime), rcvfrom.ipaddr"
+      "       datetime(rcvfrom.mtime), rcvfrom.rcvid"
       "  FROM artstat JOIN blob ON artstat.id=blob.rid"
       "       LEFT JOIN rcvfrom USING(rcvid)"
       "       LEFT JOIN user USING(uid)"
@@ -712,19 +712,19 @@ void artifact_stats_page(void){
     @ <th>Hash</th>
     @ <th>User</th>
     @ <th>Date</th>
-    @ <th>IP-Addr</th>
+    @ <th>RcvID</th>
     @ </tr></thead><tbody>
     while( db_step(&q)==SQLITE_ROW ){
       int rid = db_column_int(&q, 0);
       const char *zHash = db_column_text(&q, 1);
       const char *zUser = db_column_text(&q, 2);
       const char *zDate = db_column_text(&q, 3);
-      const char *zIpAddr = db_column_text(&q, 4);
+      int iRcvid = db_column_int(&q, 4);
       @ <tr><td>%d(rid)</td>
       @ <td>%z(href("%R/info/%!S",zHash))%S(zHash)</a></td>
       @ <td>%h(zUser)</td>
       @ <td>%h(zDate)</td>
-      @ <td>%h(zIpAddr)</td></tr>
+      @ <td>%z(href("%R/rcvfrom?rcvid=%d",iRcvid))%d(iRcvid)</a></td></tr>
     }
     @ </tbody></table></div>
     db_finalize(&q);
