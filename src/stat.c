@@ -29,12 +29,12 @@
 */
 void bigSizeName(int nOut, char *zOut, sqlite3_int64 v){
   if( v<100000 ){
-    sqlite3_snprintf(nOut, zOut, "%lld bytes", v);
+    sqlite3_snprintf(nOut, zOut, "%,lld bytes", v);
   }else if( v<1000000000 ){
-    sqlite3_snprintf(nOut, zOut, "%lld bytes (%.1fMB)",
+    sqlite3_snprintf(nOut, zOut, "%,lld bytes (%.1fMB)",
                     v, (double)v/1000000.0);
   }else{
-    sqlite3_snprintf(nOut, zOut, "%lld bytes (%.1fGB)",
+    sqlite3_snprintf(nOut, zOut, "%,lld bytes (%.1fGB)",
                     v, (double)v/1000000000.0);
   }
 }
@@ -44,7 +44,7 @@ void bigSizeName(int nOut, char *zOut, sqlite3_int64 v){
 */
 void approxSizeName(int nOut, char *zOut, sqlite3_int64 v){
   if( v<1000 ){
-    sqlite3_snprintf(nOut, zOut, "%lld bytes", v);
+    sqlite3_snprintf(nOut, zOut, "%,lld bytes", v);
   }else if( v<1000000 ){
     sqlite3_snprintf(nOut, zOut, "%.1fKB", (double)v/1000.0);
   }else if( v<1000000000 ){
@@ -87,16 +87,14 @@ void stat_page(void){
     style_submenu_element("Environment", "test_env");
   }
   @ <table class="label-value">
-  @ <tr><th>Repository&nbsp;Size:</th><td>
   fsize = file_size(g.zRepositoryName, ExtFILE);
-  bigSizeName(sizeof(zBuf), zBuf, fsize);
-  @ %s(zBuf)
+  @ <tr><th>Repository&nbsp;Size:</th><td>%,lld(fsize) bytes</td>
   @ </td></tr>
   if( !brief ){
     @ <tr><th>Number&nbsp;Of&nbsp;Artifacts:</th><td>
     n = db_int(0, "SELECT count(*) FROM blob");
     m = db_int(0, "SELECT count(*) FROM delta");
-    @ %d(n) (%d(n-m) fulltext and %d(m) deltas)
+    @ %.d(n) (%,d(n-m) fulltext and %,d(m) deltas)
     if( g.perm.Write ){
       @ <a href='%R/artifact_stats'>Details</a>
     }
@@ -112,8 +110,7 @@ void stat_page(void){
       szAvg = db_column_int(&q, 1);
       szMax = db_column_int(&q, 2);
       db_finalize(&q);
-      bigSizeName(sizeof(zBuf), zBuf, t);
-      @ %d(szAvg) bytes average, %d(szMax) bytes max, %s(zBuf) total
+      @ %,d(szAvg) bytes average, %,d(szMax) bytes max, %,lld(t) total
       @ </td></tr>
       @ <tr><th>Compression&nbsp;Ratio:</th><td>
       if( t/fsize < 5 ){
@@ -148,27 +145,27 @@ void stat_page(void){
     }
     @ <tr><th>Number&nbsp;Of&nbsp;Check-ins:</th><td>
     n = db_int(0, "SELECT count(*) FROM event WHERE type='ci' /*scan*/");
-    @ %d(n)
+    @ %,d(n)
     @ </td></tr>
     @ <tr><th>Number&nbsp;Of&nbsp;Files:</th><td>
     n = db_int(0, "SELECT count(*) FROM filename /*scan*/");
-    @ %d(n)
+    @ %,d(n)
     @ </td></tr>
     @ <tr><th>Number&nbsp;Of&nbsp;Wiki&nbsp;Pages:</th><td>
     n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
                   " WHERE +tagname GLOB 'wiki-*'");
-    @ %d(n)
+    @ %,d(n)
     @ </td></tr>
     @ <tr><th>Number&nbsp;Of&nbsp;Tickets:</th><td>
     n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
                   " WHERE +tagname GLOB 'tkt-*'");
-    @ %d(n)
+    @ %,d(n)
     @ </td></tr>
   }
   @ <tr><th>Duration&nbsp;Of&nbsp;Project:</th><td>
   n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event)"
                 " + 0.99");
-  @ %d(n) days or approximately %.2f(n/365.2425) years.
+  @ %,d(n) days or approximately %.2f(n/365.2425) years.
   @ </td></tr>
   p = db_get("project-code", 0);
   if( p ){
@@ -198,9 +195,9 @@ void stat_page(void){
   @ %h(db_get_mtime("rebuilt","%Y-%m-%d %H:%M:%S","Never"))
   @ By Fossil %h(db_get("rebuilt","Unknown"))</td></tr>
   @ <tr><th>Database&nbsp;Stats:</th><td>
-  @ %d(db_int(0, "PRAGMA repository.page_count")) pages,
+  @ %,d(db_int(0, "PRAGMA repository.page_count")) pages,
   @ %d(db_int(0, "PRAGMA repository.page_size")) bytes/page,
-  @ %d(db_int(0, "PRAGMA repository.freelist_count")) free pages,
+  @ %,d(db_int(0, "PRAGMA repository.freelist_count")) free pages,
   @ %s(db_text(0, "PRAGMA repository.encoding")),
   @ %s(db_text(0, "PRAGMA repository.journal_mode")) mode
   @ </td></tr>
@@ -247,12 +244,11 @@ void dbstat_cmd(void){
     fossil_print("%*s%s\n", colWidth, "project-name:", z);
   }
   fsize = file_size(g.zRepositoryName, ExtFILE);
-  bigSizeName(sizeof(zBuf), zBuf, fsize);
-  fossil_print( "%*s%s\n", colWidth, "repository-size:", zBuf );
+  fossil_print( "%*s%,lld bytes\n", colWidth, "repository-size:", fsize);
   if( !brief ){
     n = db_int(0, "SELECT count(*) FROM blob");
     m = db_int(0, "SELECT count(*) FROM delta");
-    fossil_print("%*s%d (stored as %d full text and %d delta blobs)\n",
+    fossil_print("%*s%,d (stored as %,d full text and %,d deltas)\n",
                  colWidth, "artifact-count:",
                  n, n-m, m);
     if( n>0 ){
@@ -265,11 +261,10 @@ void dbstat_cmd(void){
       szAvg = db_column_int(&q, 1);
       szMax = db_column_int(&q, 2);
       db_finalize(&q);
-      bigSizeName(sizeof(zBuf), zBuf, t);
-      fossil_print( "%*s%d average, "
-                    "%d max, %s total\n",
+      fossil_print( "%*s%,d average, "
+                    "%,d max, %,lld total\n",
                     colWidth, "artifact-sizes:",
-                    szAvg, szMax, zBuf);
+                    szAvg, szMax, t);
       if( t/fsize < 5 ){
         b = 10;
         fsize /= 10;
@@ -280,21 +275,21 @@ void dbstat_cmd(void){
       fossil_print("%*s%d:%d\n", colWidth, "compression-ratio:", a, b);
     }
     n = db_int(0, "SELECT COUNT(*) FROM event e WHERE e.type='ci'");
-    fossil_print("%*s%d\n", colWidth, "check-ins:", n);
+    fossil_print("%*s%,d\n", colWidth, "check-ins:", n);
     n = db_int(0, "SELECT count(*) FROM filename /*scan*/");
-    fossil_print("%*s%d across all branches\n", colWidth, "files:", n);
+    fossil_print("%*s%,d across all branches\n", colWidth, "files:", n);
     n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
                   " WHERE tagname GLOB 'wiki-*'");
     m = db_int(0, "SELECT COUNT(*) FROM event WHERE type='w'");
-    fossil_print("%*s%d (%d changes)\n", colWidth, "wiki-pages:", n, m);
+    fossil_print("%*s%,d (%,d changes)\n", colWidth, "wiki-pages:", n, m);
     n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
                   " WHERE tagname GLOB 'tkt-*'");
     m = db_int(0, "SELECT COUNT(*) FROM event WHERE type='t'");
-    fossil_print("%*s%d (%d changes)\n", colWidth, "tickets:", n, m);
+    fossil_print("%*s%,d (%,d changes)\n", colWidth, "tickets:", n, m);
     n = db_int(0, "SELECT COUNT(*) FROM event WHERE type='e'");
-    fossil_print("%*s%d\n", colWidth, "events:", n);
+    fossil_print("%*s%,d\n", colWidth, "events:", n);
     n = db_int(0, "SELECT COUNT(*) FROM event WHERE type='g'");
-    fossil_print("%*s%d\n", colWidth, "tag-changes:", n);
+    fossil_print("%*s%,d\n", colWidth, "tag-changes:", n);
     z = db_text(0, "SELECT datetime(mtime) || ' - about ' ||"
                    " CAST(julianday('now') - mtime AS INTEGER)"
                    " || ' days ago' FROM event "
@@ -303,7 +298,7 @@ void dbstat_cmd(void){
   }
   n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event)"
                 " + 0.99");
-  fossil_print("%*s%d days or approximately %.2f years.\n",
+  fossil_print("%*s%,d days or approximately %.2f years.\n",
                colWidth, "project-age:", n, n/365.2425);
   p = db_get("project-code", 0);
   if( p ){
@@ -324,7 +319,7 @@ void dbstat_cmd(void){
                  sqlite3_sourceid(), &sqlite3_sourceid()[20],
                  sqlite3_libversion());
   }
-  fossil_print("%*s%d pages, %d bytes/pg, %d free pages, "
+  fossil_print("%*s%,d pages, %d bytes/pg, %,d free pages, "
                "%s, %s mode\n",
                colWidth, "database-stats:",
                db_int(0, "PRAGMA repository.page_count"),
@@ -646,7 +641,7 @@ static void gather_artifact_stats(int bWithTypes){
 */
 static void largest_n_artifacts(int N){
   if( N>250 ){
-    @ (the largest %d(N) artifacts)
+    @ (the largest %,d(N) artifacts)
   }else{
     @ (the <a href='%R/bigbloblist?n=%d(N)'>largest %d(N) artifacts</a>)
   }
@@ -733,43 +728,37 @@ void artifact_stats_page(void){
 
   @ <h1>Overall Artifact Size Statistics:</h1>
   @ <table class="label-value">
-  @ <tr><th>Number of artifacts:</th><td>%d(nTotal)</td></tr>
+  @ <tr><th>Number of artifacts:</th><td>%,d(nTotal)</td></tr>
   @ <tr><th>Number of deltas:</th>\
-  @ <td>%d(nDelta) (%d(nDelta*100/nTotal)%%)</td></tr>
-  @ <tr><th>Number of full-text:</th><td>%d(nFull) \
+  @ <td>%,d(nDelta) (%d(nDelta*100/nTotal)%%)</td></tr>
+  @ <tr><th>Number of full-text:</th><td>%,d(nFull) \
   @ (%d(nFull*100/nTotal)%%)</td></tr>
-  @ <tr><th>Largest compressed artifact size:</th>\
-  @ <td>%d(mxCmpr)</td></tr>
-  @ <tr><th>Average compressed artifact size:</th> \
-  @ <td>%.2f(avgCmpr)</td></tr>
-  @ <tr><th>Median compressed artifact size:</th><td>%d(medCmpr)</td></tr>
-  @ <tr><th>Largest uncompressed artifact size:</td>\
-  @ <td>%d(mxExp)</td></tr>
-  @ <tr><th>Average uncompressed artifact size:</th> \
-  @ <td>%.2f(avgExp)</td></tr>
   medExp = db_int(0, "SELECT szExp FROM artstat ORDER BY szExp"
                      " LIMIT 1 OFFSET %d", nTotal/2);
-  @ <tr><th>Median uncompressed artifact size:</th><td>%d(medExp)</td></tr>
+  @ <tr><th>Uncompressed artifact sizes:</th>\
+  @ <td>largest: %,d(mxExp), average: %,d((int)avgExp), median: %,d(medExp)</td>
+  @ <tr><th>Compressed artifact sizes:</th>\
+  @ <td>largest: %,d(mxCmpr), average: %,d((int)avgCmpr), \
+  @ median: %,d(medCmpr)</td>
+
   db_prepare(&q,
     "SELECT avg(szCmpr), max(szCmpr) FROM artstat WHERE isDelta"
   );
   if( db_step(&q)==SQLITE_ROW ){
-    @ <tr><th>Largest delta:</td>\
-    @ <td>%d(db_column_int(&q,1))</td></tr>
-
-    @ <tr><th>Average delta:</th> \
-    @ <td>%.2f(db_column_double(&q,0))</td></tr>
-
+    int mxDelta = db_column_int(&q,1);
+    double avgDelta = db_column_double(&q,0);
     med = db_int(0, "SELECT szCmpr FROM artstat WHERE isDelta ORDER BY szCmpr"
                     " LIMIT 1 OFFSET %d", nDelta/2);
-    @ <tr><th>Median delta:</th><td>%d(med)</td></tr>
+    @ <tr><th>Delta artifact sizes:</th>\
+    @ <td>largest: %,d(mxDelta), average: %,d((int)avgDelta), \
+    @ median: %,d(med)</td>
   }
   db_finalize(&q);
   r = db_double(0.0, "SELECT avg(szCmpr) FROM artstat WHERE NOT isDelta;");
-  @ <tr><th>Average full-text artifact:</th><td>%.2f(r)</td></tr>
   med = db_int(0, "SELECT szCmpr FROM artstat WHERE NOT isDelta ORDER BY szCmpr"
                   " LIMIT 1 OFFSET %d", nFull/2);
-  @ <tr><th>Median full-text artifact:</th><td>%d(med)</td></tr>
+  @ <tr><th>Full-text artifact sizes:</th>
+  @ <td>largest: %,d(mxCmpr), average: %,d((int)r), median: %,d(med)</td>
   @ </table>
 
   @ <h1>Artifact size distribution facts:</h1>
@@ -819,26 +808,11 @@ void artifact_stats_page(void){
     sqlite3_int64 szExp = db_column_int64(&q, 4);
     char *z;
     @ <tr><td>%h(zType)</td>
-
-    z = sqlite3_mprintf("%,d", nTotal);
-    @ <td data-sortkey='%08x(nTotal)' align='right'>%s(z)</td>
-    sqlite3_free(z);
-
-    z = sqlite3_mprintf("%,d", nFull);
-    @ <td data-sortkey='%08x(nFull)' align='right'>%s(z)</td>
-    sqlite3_free(z);
-
-    z = sqlite3_mprintf("%,d", nDelta);
-    @ <td data-sortkey='%08x(nDelta)' align='right'>%s(z)</td>
-    sqlite3_free(z);
-
-    z = sqlite3_mprintf("%,lld", szCmpr);
-    @ <td data-sortkey='%016x(szCmpr)' align='right'>%s(z)</td>
-    sqlite3_free(z);
-
-    z = sqlite3_mprintf("%,lld", szExp);
-    @ <td data-sortkey='%016x(szExp)' align='right'>%s(z)</td>
-    sqlite3_free(z);
+    @ <td data-sortkey='%08x(nTotal)' align='right'>%,d(nTotal)</td>
+    @ <td data-sortkey='%08x(nFull)' align='right'>%,d(nFull)</td>
+    @ <td data-sortkey='%08x(nDelta)' align='right'>%,d(nDelta)</td>
+    @ <td data-sortkey='%016x(szCmpr)' align='right'>%,lld(szCmpr)</td>
+    @ <td data-sortkey='%016x(szExp)' align='right'>%,lld(szExp)</td>
   }
   @ </tbody></table>
   db_finalize(&q);

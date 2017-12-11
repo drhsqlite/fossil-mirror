@@ -1,5 +1,5 @@
-C On\sthe\s/artifact_stats\spage,\srelabel\s"unknown"\sartifacts\sas\s"unused".
-D 2017-12-11T16:10:58.174
+C Add\sthe\s","\squalifier\sto\s%d\sformats\sin\sprintf()\sand\suse\sthe\scapability\sfor\nimprove\sdisplay\sof\sstats.
+D 2017-12-11T16:53:08.616
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -492,7 +492,7 @@ F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c d8c6f6e91772e17893f477402da1efb431b85b8fbf7a938b64a905e04e376a15
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c df915ce19af9969f6a18e8a481223179c1a3c04a6ebddf9c9b654c35da6336d4
+F src/printf.c 4f21f3d855d4198d434d5333d08c9b47307098651c1d16076a886985ee59e05e
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f698cae20e3740796f6ffa65f69324f27f19d96c
 F src/rebuild.c e094c603fc58ee957d1e9dd3832a19534f61a28280104900cdf7f1f2c0c93d2a
@@ -518,7 +518,7 @@ F src/sqlcmd.c 031b91c0ee221f41795bbb95e4ef9f6590478dc1468ee767e3ae744ff3381849
 F src/sqlite3.c 50037cbbe2eaa129b1c45bd5d4b4bf948eddc4f1eda687f23729af2b661651cc
 F src/sqlite3.h 1c1a554fbcc97bced8281075911d4a87e98312d88d96f5d0367866a9544d8ae7
 F src/stash.c 8f0bc283ba1099458e48ecd4c059a85bef34aef02066d972f61c165f2c47177b
-F src/stat.c 079b28aaf3bb5268dd8320c3948b03602809c526eff7d3b8ed65c6a3d6817441
+F src/stat.c c4be85f1564011960df618280fd49b9f41b8510ba74850296aafe10942c77c2b
 F src/statrep.c 367a01ddc206ba32f53357db06c55f6432d8b6c6593e6e98376f28eaef589a97
 F src/style.c 925890497cf206016ca0a02cd1b695ca465cb54136e82d2f0f26e199cc63b52d
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
@@ -807,7 +807,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9fc519408944c3ee73b23270398181b76d654e73535c545339216584c6e1b4d1
-R c4df5d311bfc9891143cda3fa224f83f
+P 71e777dd730fa9af3f94aa863ada93efc55d4fdecd87a8c006cd88773f68c2fe
+R 78d6ab1a64deee0b3f1027c7fdf81ab6
 U drh
-Z 0fd041d177e08a348d274c19c72958d6
+Z 4998ac311c35e7ba40651850336ab654
