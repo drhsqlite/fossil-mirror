@@ -641,6 +641,18 @@ static void gather_artifact_stats(int bWithTypes){
 }
 
 /*
+** Output text "the largest N artifacts".  Make this text a hyperlink
+** to bigbloblist if N is not too big.
+*/
+static void largest_n_artifacts(int N){
+  if( N>250 ){
+    @ (the largest %d(N) artifacts)
+  }else{
+    @ (the <a href='%R/bigbloblist?n=%d(N)'>largest %d(N) artifacts</a>)
+  }
+}
+
+/*
 ** WEBPAGE: artifact_stats
 **
 ** Show information about the sizes of artifacts in this repository
@@ -762,16 +774,21 @@ void artifact_stats_page(void){
 
   @ <h1>Artifact size distribution facts:</h1>
   @ <ol>
-  @ <li><p>The largest 1%% of artifacts (the largest %d((nTotal+99)/100) \
-  @ artifacts) use %lld(sz1pct*100/sumCmpr)%% of the total artifact space.
-  @ <li><p>The largest 10%% of artifacts (the largest %d((nTotal+9)/10) \
-  @ artifacts) use %lld(sz10pct*100/sumCmpr)%% of the total artifact space.
-  @ <li><p>The largest 25%% of artifacts (the largest %d(nTotal/4) \
-  @ artifacts) use %lld(sz25pct*100/sumCmpr)%% of the total artifact space.
-  @ <li><p>The largest 50%% of artifacts (the largest %d(nTotal/2) \
-  @ artifacts) use %lld(sz50pct*100/sumCmpr)%% of the total artifact space.
-  @ <li><p>Half of the total artifact space is used by the %d(n50pct) \
-  @ (%.1f(n50pct*100.0/nTotal)%%) largest artifacts.
+  @ <li><p>The largest %.2f(n50pct*100.0/nTotal)%% of artifacts
+  largest_n_artifacts(n50pct);
+  @ use 50%% of the total artifact space.
+  @ <li><p>The largest 1%% of artifacts
+  largest_n_artifacts((nTotal+99)/100);
+  @ use %lld(sz1pct*100/sumCmpr)%% of the total artifact space.
+  @ <li><p>The largest 10%% of artifacts
+  largest_n_artifacts((nTotal+9)/10);
+  @ use %lld(sz10pct*100/sumCmpr)%% of the total artifact space.
+  @ <li><p>The largest 25%% of artifacts
+  largest_n_artifacts((nTotal+4)/5);
+  @ use %lld(sz25pct*100/sumCmpr)%% of the total artifact space.
+  @ <li><p>The largest 50%% of artifacts
+  largest_n_artifacts((nTotal+1)/2);
+  @ use %lld(sz50pct*100/sumCmpr)%% of the total artifact space.
   @ </ol>
 
   @ <h1>Artifact Sizes By Type:</h1>
