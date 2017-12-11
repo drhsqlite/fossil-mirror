@@ -632,7 +632,7 @@ static void gather_artifact_stats(int bWithTypes){
     @ UPDATE artstat SET atype='tag'
     @  WHERE atype IS NULL 
     @    AND id IN (SELECT objid FROM event WHERE type='g');
-    @ UPDATE artstat SET atype='unknown' WHERE atype IS NULL;
+    @ UPDATE artstat SET atype='unused' WHERE atype IS NULL;
   ;
   db_multi_exec("%s", zSql/*safe-for-%s*/);
   if( bWithTypes ){
@@ -843,15 +843,15 @@ void artifact_stats_page(void){
   @ </tbody></table>
   db_finalize(&q);
 
-  if( db_exists("SELECT 1 FROM artstat WHERE atype='unknown'") ){
-    @ <h1>Unknown Artifacts:</h1>
+  if( db_exists("SELECT 1 FROM artstat WHERE atype='unused'") ){
+    @ <h1>Unused Artifacts:</h1>
     db_prepare(&q,
       "SELECT artstat.id, blob.uuid, user.login,"
       "       datetime(rcvfrom.mtime), rcvfrom.rcvid"
       "  FROM artstat JOIN blob ON artstat.id=blob.rid"
       "       LEFT JOIN rcvfrom USING(rcvid)"
       "       LEFT JOIN user USING(uid)"
-      " WHERE atype='unknown'"
+      " WHERE atype='unused'"
     );
     @ <table class='sortable' border='1' \
     @ data-column-types='ntttt' data-init-sort='0'>
