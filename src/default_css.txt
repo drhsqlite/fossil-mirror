@@ -77,8 +77,10 @@ span.timelineEllipsis {
   vertical-align: top;
   text-align: left;
   padding: 0.75em;
-  border: 1px #ccc solid;
   border-radius: 1em;
+}
+.timelineModernCell[id], .timelineColumnarCell[id] {
+  background-color: #efefef;
 }
 .timelineModernDetail {
   font-size: 80%;

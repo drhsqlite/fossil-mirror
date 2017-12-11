@@ -1,5 +1,5 @@
-C Fix\sdocumentation\stypo.
-D 2017-12-11T16:56:11.197
+C Timeline\sstyling\schanges:\s\s(1)\sThe\std.timelineModernCell\sand\s\ntd.timelineColumnarCell\selements\somit\sthe\sid\sattribute\swhen\sthey\sare\sthe\ncurrent\scheck-out\sor\sthe\sselection.\s\s(2)\sDefault\sCSS\sis\schanged\sto\sgive\na\slight-gray\scolor\sto\smodern\sand\scolumnar\scells\sthat\sare\snot\scurrent\sor\nselected\sand\sdo\snot\shave\sa\sbranch\scolor.\s\s(3)\sThe\sdetail\sstring\sin\sthe\nverbose\sand\scompact\sviews\sis\snow\ssurrounded\sby\sparentheses.
+D 2017-12-11T23:51:02.176
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -415,7 +415,7 @@ F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 388f63b41219d782bb96de3110e889d4df93521ecd463536fc27c073cfec6b5c
-F src/default_css.txt 241d16ea948d7ae89096661099d8890cb88eed3231a216d44df5e04c8449e34a
+F src/default_css.txt 866d7c8b2f3008f73462e98965e27f7fafb55e375819135800d3e20c31cdffcd
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
@@ -529,7 +529,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c bba65d7b7871ab7046107848650b5e8e72dbe30763f86b07b9bbd98c30dc791b
 F src/th_tcl.c afa334f0b17fc01f8fda8bea281c51305d7c6f7f2c7ed4c190dc5d1a2b80c326
-F src/timeline.c f07632dd99d8b875f2670cf0232dd5bd8e0c3a52131564eafcb7da103a13ff24
+F src/timeline.c 7a961c6d12a6b3425367d359e42e184b13b0f5390bc6a07088177189474c2a50
 F src/tkt.c e5815264d68d48a28983230026ceaa45b5190c34b092a8fc920ce832a6d2bf6e
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c e0ba36f347faf5b5105eacc8e42e3f907febfe5abb0401f2227dec26cc60a5f5
@@ -807,7 +807,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2cdbdbb1c9b7ad2b7b7cf4d23844227dc104d0d5a1f672b820b96541d7766d9b
-R 9cf7b37afe28eb39f3570e9365556b62
+P ca1a1a750de8335e5b837613968f28cb8752e53c31357e4378549a4af3ae9fa1
+R f10c474919ba3e770e0c202be1d2484b
 U drh
-Z 156946f324b3eb86add9e7de1f9ab53e
+Z aab6f2ff5557ac23e59d8663e4198165

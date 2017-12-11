@@ -309,6 +309,7 @@ void www_print_timeline(
     char *zDateLink;          /* URL for the link on the timestamp */
     int drawDetailEllipsis;   /* True to show ellipsis in place of detail */
     int gidx = 0;             /* Graph row identifier */
+    int isSelectedOrCurrent = 0;  /* True if current row is selected */
     char zTime[20];
 
     if( zDate==0 ){
@@ -380,8 +381,10 @@ void www_print_timeline(
     pendingEndTr = 1;
     if( rid==selectedRid ){
       @ <tr class="timelineSelected">
+      isSelectedOrCurrent = 1;
     }else if( rid==vid ){
       @ <tr class="timelineCurrent">
+      isSelectedOrCurrent = 1;
     }else {
       @ <tr>
     }
@@ -396,7 +399,6 @@ void www_print_timeline(
     }else{
       zDateLink = mprintf("<a>");
     }
-    /* WAS: zDateLink = href("%R/timeline?c=%!S&unhide", zUuid); */
     @ <td class="timelineTime">%z(zDateLink)%s(zTime)</a></td>
     @ <td class="timelineGraph">
     if( tmFlags & TIMELINE_UCOLOR )  zBgClr = zUser ? hash_color(zUser) : 0;
@@ -438,7 +440,7 @@ void www_print_timeline(
       @ <div id="m%d(gidx)" class="tl-nodemark"></div>
     }
     @</td>
-    if( zBgClr && zBgClr[0] && rid!=selectedRid ){
+    if( !isSelectedOrCurrent ){
       @ <td class="timeline%s(zStyle)Cell" id='mc%d(gidx)'>
     }else{
       @ <td class="timeline%s(zStyle)Cell">
@@ -533,7 +535,7 @@ void www_print_timeline(
       @ data-id='%d(rid)'>...</span>
     }
     if( tmFlags & TIMELINE_COLUMNAR ){
-      if( zBgClr && zBgClr[0] && rid!=selectedRid ){
+      if( !isSelectedOrCurrent ){
         @ <td class="timelineDetailCell" id='md%d(gidx)'>
       }else{
         @ <td class="timelineDetailCell">
@@ -543,6 +545,9 @@ void www_print_timeline(
       cgi_printf("<span class='clutter' id='detail-%d'>",rid);
     }
     cgi_printf("<span class='timeline%sDetail'>", zStyle);
+    if( (tmFlags & (TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
+      cgi_printf("(");
+    }
 
     if( (tmFlags & TIMELINE_VERBOSE)==0 ){
       if( zType[0]=='c' ){
@@ -614,6 +619,9 @@ void www_print_timeline(
       xExtra(rid);
     }
     /* End timelineDetail */
+    if( (tmFlags & (TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
+      cgi_printf(")");
+    }
     if( tmFlags & TIMELINE_COMPACT ){
       @ </span></span>
     }else{
