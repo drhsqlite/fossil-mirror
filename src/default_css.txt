@@ -79,7 +79,7 @@ span.timelineEllipsis {
   padding: 0.75em;
   border-radius: 1em;
 }
-.timelineModernCell[id], .timelineColumnarCell[id] {
+.timelineModernCell[id], .timelineColumnarCell[id], .timelineDetailCell[id] {
   background-color: #efefef;
 }
 .timelineModernDetail {
