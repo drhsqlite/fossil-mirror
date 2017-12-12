@@ -64,7 +64,6 @@ void stat_page(void){
   int n, m;
   int szMax, szAvg;
   int brief;
-  char zBuf[100];
   const char *p;
 
   login_check_credentials();
@@ -226,7 +225,6 @@ void dbstat_cmd(void){
   int brief;
   int omitVers;            /* Omit Fossil and SQLite version information */
   int dbCheck;             /* True for the --db-check option */
-  char zBuf[100];
   const int colWidth = -19 /* printf alignment/width for left column */;
   const char *p, *z;
 
@@ -806,7 +804,6 @@ void artifact_stats_page(void){
     int nFull = nTotal - nDelta;
     sqlite3_int64 szCmpr = db_column_int64(&q, 3);
     sqlite3_int64 szExp = db_column_int64(&q, 4);
-    char *z;
     @ <tr><td>%h(zType)</td>
     @ <td data-sortkey='%08x(nTotal)' align='right'>%,d(nTotal)</td>
     @ <td data-sortkey='%08x(nFull)' align='right'>%,d(nFull)</td>
