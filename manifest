@@ -1,5 +1,5 @@
-C Fix\sthe\sdownload\slinks\son\sthe\s/info\spage
-D 2017-12-12T10:43:14.156
+C Default\sCSS\sadjustment:\s\sExtra\sspace\sto\sthe\sleft\sof\s.timelineModernDetail\nto\sprevent\sit\sfrom\scolliding\swith\sthe\scheck-in\scomment.
+D 2017-12-12T17:14:18.757
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -415,7 +415,7 @@ F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 388f63b41219d782bb96de3110e889d4df93521ecd463536fc27c073cfec6b5c
-F src/default_css.txt 66706c44394ef7a080a990513fe57f449284d76d6c9f6f0da38afffc6518a657
+F src/default_css.txt 9e93af815b0c41a191bb18743b0c484e9cbd494dee4600af20a14a06019f32e0
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
@@ -807,7 +807,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 92bcce3325f26da0c654ddd2fa5b567123657b74471fbee2cb24471558cd9fae
-R f2f9557a0e782fd6ac50cffb0fdaf14c
+P dbc702cdc19329ef4c96710007e3dd4cc26c15209e9fd2e91a74dda05fbfb696
+R e03697666f69823e2e7d454d6314998c
 U drh
-Z 2506f0b30d1140521335bc0e61450c70
+Z ca319fb1bca23f92c4b2925d2fc2e71d

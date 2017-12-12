@@ -88,6 +88,7 @@ span.timelineEllipsis {
   float: right;
   opacity: 0.75;
   margin-top: 0.5em;
+  margin-left: 1em;
 }
 .tl-canvas {
   margin: 0 6px 0 10px;
