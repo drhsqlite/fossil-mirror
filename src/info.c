@@ -715,11 +715,11 @@ void ci_page(void){
           zPJ[jj] = '_';
         }
       }
-      zUrl = mprintf("%R/tarball/%t-%S.tar.gz?name=%s", zPJ, zUuid, zUuid);
+      zUrl = mprintf("%R/tarball/%t-%S.tar.gz?r=%s", zPJ, zUuid, zUuid);
       @ <tr><th>Downloads:</th><td>
       @ %z(href("%s",zUrl))Tarball</a>
-      @ | %z(href("%R/zip/%t-%S.zip?name=%!S",zPJ,zUuid,zUuid))ZIP archive</a>
-      @ | %z(href("%R/sqlar/%t-%S.sqlar?name=%!S",zPJ,zUuid,zUuid))\
+      @ | %z(href("%R/zip/%t-%S.zip?r=%!S",zPJ,zUuid,zUuid))ZIP archive</a>
+      @ | %z(href("%R/sqlar/%t-%S.sqlar?r=%!S",zPJ,zUuid,zUuid))\
       @ SQL archive</a></td></tr>
       fossil_free(zUrl);
       blob_reset(&projName);
