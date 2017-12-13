@@ -1,5 +1,5 @@
-C Remove\sunused\svariables\sfrom\sstat.c.
-D 2017-12-12T17:16:05.095
+C Always\sgenerate\stimeline-data\sfor\sa\stimeline\seven\sif\sthe\stable\shas\sno\ncheck-ins\sand\sthus\sno\sgraph.\s\sThis\scauses\sthe\stimeline-data\sscanner\sto\ncontinue\slooking\sfor\ssubsequent\stimelines.
+D 2017-12-13T17:17:53.745
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -434,7 +434,7 @@ F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c f0940a16303989bd0c6a883dc90899a489ef16edc08f0f9cbb4b500d4730aad7
-F src/graph.js d1c24ceb3917099f857df1dde172bfc616309f2e7c31f04e8904c46ab296a63f
+F src/graph.js 94223c8137d8274d122d6ff5118fb0960b30eee4ec33ccbf45c9a19d8de9b09d
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 2b485ac67f5ba9917da5f1ea679eee581a8e08a79dfbfb811c4833586330163a
@@ -529,7 +529,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c bba65d7b7871ab7046107848650b5e8e72dbe30763f86b07b9bbd98c30dc791b
 F src/th_tcl.c afa334f0b17fc01f8fda8bea281c51305d7c6f7f2c7ed4c190dc5d1a2b80c326
-F src/timeline.c 7a961c6d12a6b3425367d359e42e184b13b0f5390bc6a07088177189474c2a50
+F src/timeline.c 5056236825c9ab01561f4aab19e34df40c22d9d6222933aa4119b1fc1eb8d11a
 F src/tkt.c e5815264d68d48a28983230026ceaa45b5190c34b092a8fc920ce832a6d2bf6e
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c e0ba36f347faf5b5105eacc8e42e3f907febfe5abb0401f2227dec26cc60a5f5
@@ -807,7 +807,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a53ce0407a79d8eda2486386e662867eb5ebe22f528576bb21f14a66d1e7a9ae
-R 1178b6429805a0710c59053c7f337a2a
+P 741f71d82da5096064db8150c22d146d3b478b70756eb45093946008dca294e8
+R 7d760b237d1d6ff02e82c2231ff8387a
 U drh
-Z 82c01401a9d41c7af716f2f0e4062921
+Z f9d54a3491c5e990e0c991de2708bf48

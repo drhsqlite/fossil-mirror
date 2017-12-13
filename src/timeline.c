@@ -778,7 +778,7 @@ void timeline_output_graph_javascript(
   int tmFlags,              /* Flags that control rendering */
   int iTableId              /* Which graph is this for */
 ){
-  if( pGraph && pGraph->nErr==0 && pGraph->nRow>0 ){
+  if( pGraph && pGraph->nErr==0 ){
     GraphRow *pRow;
     int i;
     char cSep;
@@ -812,7 +812,11 @@ void timeline_output_graph_javascript(
     @   "scrollToSelect": %d(scrollToSelect),
     @   "nrail": %d(pGraph->mxRail+1),
     @   "baseUrl": "%R",
-    @   "rowinfo": [
+    if( pGraph->nRow==0 ){
+      @   "rowinfo": null
+    }else{
+      @   "rowinfo": [
+    }
 
     /* the rowinfo[] array contains all the information needed to generate
     ** the graph.  Each entry contains information for a single row:

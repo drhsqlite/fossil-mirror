@@ -384,6 +384,6 @@ function TimelineGraph(tx){
     if(!dataObj) break;
     var txJson = dataObj.textContent || dataObj.innerText;
     var tx = JSON.parse(txJson);
-    TimelineGraph(tx);
+    if(tx.rowinfo) TimelineGraph(tx);
   }
 }())
