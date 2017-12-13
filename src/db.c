@@ -56,6 +56,7 @@ struct Stmt {
   sqlite3_stmt *pStmt;    /* The results of sqlite3_prepare_v2() */
   Stmt *pNext, *pPrev;    /* List of all unfinalized statements */
   int nStep;              /* Number of sqlite3_step() calls */
+  int rc;                 /* Error from db_vprepare() */
 };
 
 /*
@@ -71,9 +72,11 @@ const struct Stmt empty_Stmt = empty_Stmt_m;
 ** Call this routine when a database error occurs.
 */
 static void db_err(const char *zFormat, ...){
+  static int rcLooping = 0;
   va_list ap;
   char *z;
   int rc = 1;
+  if( rcLooping ) exit(rcLooping);
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
@@ -99,6 +102,7 @@ static void db_err(const char *zFormat, ...){
     fprintf(stderr, "%s: %s\n", g.argv[0], z);
   }
   free(z);
+  rcLooping = rc;
   db_force_rollback();
   fossil_exit(rc);
 }
@@ -275,6 +279,7 @@ int db_vprepare(Stmt *pStmt, int flags, const char *zFormat, va_list ap){
   }
   pStmt->pNext = pStmt->pPrev = 0;
   pStmt->nStep = 0;
+  pStmt->rc = rc;
   return rc;
 }
 int db_prepare(Stmt *pStmt, const char *zFormat, ...){
@@ -361,6 +366,7 @@ int db_bind_str(Stmt *pStmt, const char *zParamName, Blob *pBlob){
 */
 int db_step(Stmt *pStmt){
   int rc;
+  if( pStmt->pStmt==0 ) return pStmt->rc;
   rc = sqlite3_step(pStmt->pStmt);
   pStmt->nStep++;
   return rc;
