@@ -520,6 +520,11 @@ static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
 #endif
   if( iCode==SQLITE_SCHEMA ) return;
   if( g.dbIgnoreErrors ) return;
+#ifdef SQLITE_READONLY_DIRECTORY
+  if( iCode==SQLITE_READONLY_DIRECTORY ){
+    zErrmsg = "database is in a read-only directory";
+  }
+#endif
   fossil_warning("%s: %s", fossil_sqlite_return_code_name(iCode), zErrmsg);
 }
 
