@@ -1038,7 +1038,7 @@ void setup_skin(void){
     @ <p class='skinInput'>
     @ <input type='hidden' name='sk' value='%d(iSkin)'>
     @ <input type='checkbox' name='pub7ck1' value='yes'>\
-    @ Skin draft%d(iSkin) has been testing and found ready for production.<br>
+    @ Skin draft%d(iSkin) has been tested and found ready for production.<br>
     @ <input type='checkbox' name='pub7ck2' value='yes'>\
     @ The current skin should be overwritten with draft%d(iSkin).<br>
     @ <input type='submit' name='pub7' value='Publish Draft%d(iSkin)'>

@@ -1,5 +1,5 @@
-C Improved\serror\sreporting\swhen\strying\sto\swrite\sto\sa\srepository\sthat\sis\sin\na\sread-only\sdirectory.
-D 2017-12-13T20:36:27.894
+C Grammar\sfix
+D 2017-12-13T21:37:20.418
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -512,7 +512,7 @@ F src/shell.c 2b0b3152b6da653b64008b558df4303a4a442618c18b5620056d3d962a2ca1d7
 F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
-F src/skins.c e9c5d6967e5c9534eb68c34c0ed1c7e935dc002fe7960c6813d81da13b6e7353
+F src/skins.c 9899cc4e01b9fad31e0710875f7d41f3a05119f3e4396065a9087d9ea34e0133
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c 031b91c0ee221f41795bbb95e4ef9f6590478dc1468ee767e3ae744ff3381849
 F src/sqlite3.c 96bcf6e46d70c74327f19c0547f1b7a2b9d82a2982632f02fea4545d497808bf
@@ -807,7 +807,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 421fe24138cd443b0059bb51baec08f4561a783f6f93ed2ec8ad9a17d2b85f4c
-R 6f6aad029d11f5287bdf022cd43e1114
-U drh
-Z 49b20a733b3d9e7e1ed400be4c8a89ac
+P 500b0a2ae8bded1503aaeb17bbf2f74f32e765e493ab46c4bb4c167206d8d049
+R 6473fcd491000a09d6bb5f332eff8e62
+U tangent
+Z 74a91c72d736d37ecbae93109a68945b
