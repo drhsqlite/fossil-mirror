@@ -64,7 +64,7 @@ struct Stmt {
 ** is useful to help avoid assertions when performing cleanup in some
 ** error handling cases.
 */
-#define empty_Stmt_m {BLOB_INITIALIZER,NULL, NULL, NULL, 0}
+#define empty_Stmt_m {BLOB_INITIALIZER,NULL, NULL, NULL, 0, 0}
 #endif /* INTERFACE */
 const struct Stmt empty_Stmt = empty_Stmt_m;
 

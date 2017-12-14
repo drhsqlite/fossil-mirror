@@ -1,5 +1,5 @@
-C Fix\sthe\sparentheses\saround\sthe\s"detail"\ssection\sof\seach\stimeline\sentry\sin\nVerbose\sand\sCompact\sviews\son\sthe\s/finfo\stimeline.
-D 2017-12-14T12:04:51.059
+C Fix\sharmless\scoding\sstyle\sissues.
+D 2017-12-14T18:03:01.127
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -414,7 +414,7 @@ F src/cookies.c 63e81a4d7741a9419565f50e4e508701db758d1ee41019136e1948edc06142f1
 F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
 F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 814414c831022a57c838955c88ddf3ff1ca1bd9b01be619116cb138e83412b8e
+F src/db.c 911c393045873d031c91a71062622d9dd92d9b2d352a100e64f5cc1e77f8c450
 F src/default_css.txt 75d8873223cc2dd20e9e72ef571f5ace421d29da235f1419d1fcf687ac3483f3
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -502,7 +502,7 @@ F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d6
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
-F src/search.c 9c50975f1c357faf5eb038059ca345917a08dd12e5b7e95fe1f35b005b3643ff
+F src/search.c f38733fcd6cbcc52a70ea4b15520ab787f7dd4e5359e612ce53b125381cdfa49
 F src/security_audit.c 39296d083197aaf8f70b2144abff9342a0c4f94a2fd11ae2351547b86c1b1c0d
 F src/setup.c 30691da8909dec2a46eac2b53ddb5ca60ee55f11e2472ebbd29614513b3e5c14
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
@@ -807,7 +807,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 976cad0829b041f9270471d4e589ab9d37263d4f42c22ea77c82b4d9b737b896
-R 6cb9c8c766a62b30fbe3abf69fd061ff
+P 55dd55213637ac4504ceb50f4631d1206d9fe5c6d1594c2227a31b06fde56dc6
+R 7c3bb571272b7ea3a0b903811b679523
 U drh
-Z 4cb20f990ea1c55cffcecac672ad7b07
+Z 9d057f92ebb53cd1e9ab9fd24bdf116c
