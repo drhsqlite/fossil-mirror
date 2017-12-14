@@ -1074,7 +1074,7 @@ void search_screen(unsigned srchFlags, int useYparam){
     zDisable2 = " disabled";
     zPattern = "";
   }else{
-    zDisable1 = " autofocus";
+    zDisable1 = ""; // autofocus";
     zDisable2 = "";
     zPattern = PD("s","");
   }

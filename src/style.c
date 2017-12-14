@@ -509,7 +509,7 @@ void style_load_one_js_file(const char *zFile){
 ** Generate code to load all required javascript files.
 */
 static void style_load_all_js_files(void){
-  if( needHrefJs ){
+  if( needHrefJs || 1 ){
     int nDelay = db_get_int("auto-hyperlink-delay",0);
     int bMouseover;
     /* Load up the page data */

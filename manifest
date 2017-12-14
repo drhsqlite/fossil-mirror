@@ -1,5 +1,5 @@
-C Fix\sdefault\sCSS\sso\sthat\sit\sdoes\snot\sbreak\sa\sdate\sstring\son\sthe\stimeline\sat\none\sof\sthe\s"-"\scharacters.
-D 2017-12-14T00:25:40.539
+C Remove\sthe\s"autofocus"\sattribute\sfrom\stext\sinputs,\sto\sprevent\sCSS\sflashes.
+D 2017-12-14T00:48:22.091
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -502,7 +502,7 @@ F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d6
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
-F src/search.c 19cad825deabbab73fdeda23cdcf339215beebfaefe17462789f6dc0502a3c79
+F src/search.c 9c50975f1c357faf5eb038059ca345917a08dd12e5b7e95fe1f35b005b3643ff
 F src/security_audit.c 39296d083197aaf8f70b2144abff9342a0c4f94a2fd11ae2351547b86c1b1c0d
 F src/setup.c 30691da8909dec2a46eac2b53ddb5ca60ee55f11e2472ebbd29614513b3e5c14
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
@@ -520,7 +520,7 @@ F src/sqlite3.h 0f19e11b924032e7dfb4a31e990fd006d27ffb6d01e2c9010ff26e3d17ff63d7
 F src/stash.c 8f0bc283ba1099458e48ecd4c059a85bef34aef02066d972f61c165f2c47177b
 F src/stat.c 39a33f66a4d803c036f73993bd043f5484816b54f8cded166b07c100cc4097fd
 F src/statrep.c 367a01ddc206ba32f53357db06c55f6432d8b6c6593e6e98376f28eaef589a97
-F src/style.c 925890497cf206016ca0a02cd1b695ca465cb54136e82d2f0f26e199cc63b52d
+F src/style.c b70db7af84d8a2cc392c6a5c5f641261e31f2e1c0843705101fee7a613ec2f80
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 24c77636171affc22088c1a7d7e608822d937e9747cbd5cd48f51dfae70a00c9
 F src/tar.c 69a1c4327e8b2b9f0c35714559d55d320f5cadabe7a5b40e309044d453901973
@@ -807,7 +807,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ec059849f5c73a43fbf6d9fbad96ac875cc362ac76a849bfc7b2cda7ebe29941
-R f33f70845bc99ba0b96cc7566185aaa0
+P 1481ae1f9edb0fa24fa6a4eba61900b6faca61fea422992c8bcca48147ba0657
+R 7e34a289fc6038eff35e19572f8c413d
 U drh
-Z 21931fec61b83bfcb23bc7e980ce9bc6
+Z c1710a02f48caf30b7dee68fcbe20a55
