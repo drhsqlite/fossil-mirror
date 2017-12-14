@@ -556,6 +556,7 @@ void finfo_page(void){
       cgi_printf("<span class='clutter' id='detail-%d'>",frid);
     }
     cgi_printf("<span class='timeline%sDetail'>", zStyle);
+    if( tmFlags & (TIMELINE_COMPACT|TIMELINE_VERBOSE) ) cgi_printf("(");
     if( zUuid && (tmFlags & TIMELINE_VERBOSE)==0 ){
       @ file:&nbsp;%z(href("%R/artifact/%!S",zUuid))[%S(zUuid)]</a>
       if( fShowId ){
@@ -575,7 +576,11 @@ void finfo_page(void){
     @ user:&nbsp;\
     hyperlink_to_user(zUser, zDate, ",");
     @ branch:&nbsp;%z(href("%R/timeline?t=%T&n=200",zBr))%h(zBr)</a>,
-    @ size:&nbsp;%d(szFile))
+    if( tmFlags & (TIMELINE_COMPACT|TIMELINE_VERBOSE) ){
+      @ size:&nbsp;%d(szFile))
+    }else{
+      @ size:&nbsp;%d(szFile)
+    }
     if( zUuid && origCheckin==0 ){
       if( nParent==0 ){
         @ <b>Added</b>

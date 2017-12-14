@@ -1,5 +1,5 @@
-C Remove\saccidental\sedit\sfrom\sthe\sprevious\scheck-in.
-D 2017-12-14T01:00:26.032
+C Fix\sthe\sparentheses\saround\sthe\s"detail"\ssection\sof\seach\stimeline\sentry\sin\nVerbose\sand\sCompact\sviews\son\sthe\s/finfo\stimeline.
+D 2017-12-14T12:04:51.059
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -428,7 +428,7 @@ F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c 5d4a12252f765b5a1fa43fc6ddd087e79dfad65e3533369c1b47deb5b4be52d0
 F src/export.c 3e09dfda9d07b44c463d656dbc09f6adfe686d6d80ad55282a1f06b9216934f2
 F src/file.c d1d99096ad0283231a4565a545462b803ef2586687b99744d51c3af7aa3accdf
-F src/finfo.c 5d400e02e6eaad196bb493dd9d808b0898a7e3d93d3d6ddfb85f3b80a3851c54
+F src/finfo.c 49e66558585988b2602a528a67fef4decd256ccc17f0d9db4194ce355c8989b4
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -807,7 +807,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 20e680aac75471dab7964f9f7944b58c4ddfc23eb7c0539a472edaea835525fb
-R 24f4821bb5b67a0f0dd67d2a36646d4a
+P 976cad0829b041f9270471d4e589ab9d37263d4f42c22ea77c82b4d9b737b896
+R 6cb9c8c766a62b30fbe3abf69fd061ff
 U drh
-Z 171c20a88497b6d7938cd929fa0a11d9
+Z 4cb20f990ea1c55cffcecac672ad7b07
