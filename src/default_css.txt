@@ -28,6 +28,9 @@ span.disabled {
 table.timelineTable {
   border-spacing: 0px 2px;
 }
+.timelineDate {
+  white-space: nowrap;
+}
 span.timelineDisabled {
   font-style: italic;
   font-size: small;
