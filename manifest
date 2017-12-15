@@ -1,5 +1,5 @@
-C Fix\sharmless\scoding\sstyle\sissues.
-D 2017-12-14T18:03:01.127
+C Fixes\sto\sthe\s"eagle"\sscan\sCSS\sso\sthat\strunk\sbackgrounds\slook\sright\sin\sthe\nModern\sView.
+D 2017-12-15T01:54:51.777
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -357,7 +357,7 @@ F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 7dd553d65672572ea94a53ba3f858f3dcaf3f771889987a73d81c149cf7e9c52
 F skins/default/header.txt 04e7e5b1fd362db83176d0e7439150e82c8619bcb5bc78abf68fdc5a9bcb160d
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
-F skins/eagle/css.txt 118047e984cfa320cab4a0d485bb63777dbe642e
+F skins/eagle/css.txt 60f4ee7478d4bda978f3547d58cdbe69aa54e4e1c50d892e3cf7a07f30a15cfa
 F skins/eagle/details.txt 9515535a2768af2990a6a3aa0fbbcb628a36670b
 F skins/eagle/footer.txt 24b5c3e7fc83baa7360455f251de275a4bf98a73a0d0d0bd8ebc93eff0e40814
 F skins/eagle/header.txt 3165161ccf7cab7a1bf1b30af260dd7c3db6ee317005e828661825683d9bbc3f
@@ -807,7 +807,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 55dd55213637ac4504ceb50f4631d1206d9fe5c6d1594c2227a31b06fde56dc6
-R 7c3bb571272b7ea3a0b903811b679523
+P dc7d0a2e27c48c63656e6b3d96c325fa8fb66724c463d7340115b91fb915948a
+R 36d3073886067917a18de0579c9b3ef6
 U drh
-Z 9d057f92ebb53cd1e9ab9fd24bdf116c
+Z 31e39a2f4ce395f4874f33a642996bb1
