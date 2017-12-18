@@ -749,6 +749,10 @@ tr.timelineSelected td.timelineTableCell {
   border-radius: 0 1rem 1rem 0;
 }
 
+.timelineModernCell[id], .timelineColumnarCell[id], .timelineDetailCell[id] {
+  background-color: #282828;
+}
+
 /* the format for the timeline data cells */
 td.timelineTableCell {
   padding: 0.3rem;
