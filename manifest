@@ -1,5 +1,5 @@
-C Update\sthe\scustom\sMinGW\smakefile.
-D 2017-12-20T00:46:31.112
+C Remove\sthe\sdisused\s"timeline-commit-format"\sconfiguration\sparameter.
+D 2017-12-20T23:53:19.349
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -504,7 +504,7 @@ F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c f38733fcd6cbcc52a70ea4b15520ab787f7dd4e5359e612ce53b125381cdfa49
 F src/security_audit.c 39296d083197aaf8f70b2144abff9342a0c4f94a2fd11ae2351547b86c1b1c0d
-F src/setup.c 30691da8909dec2a46eac2b53ddb5ca60ee55f11e2472ebbd29614513b3e5c14
+F src/setup.c e15921a920cfe089e7dd7195e797fbdf53c76081f5bb3d52fec9d716afe24233
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
@@ -807,7 +807,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a6c5a4620a5388fdb1707b401b1e6ecf75ce39355217dd437ca5885a82116849
-R f7399f454d88187a80a4426df49064e4
-U mistachkin
-Z 8def96b709a7f0d789cfc4cb8ae4594b
+P c7ad42d440b9b5648e64d6119d5ef8dbdd22fdbe171faac4d704c5efc4fa9528
+R 401bcd842ea350ab268537c46c62025e
+U drh
+Z dd4c1a85f05fa6e2ca1e608bf02ee787
