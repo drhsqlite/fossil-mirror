@@ -1,5 +1,5 @@
-C Fix\sthe\sdefault\sbackground\scolor\sfor\sModern\sView\stimeline\sin\sthe\sXekri\sskin.
-D 2017-12-18T02:06:40.393
+C Update\sthe\scustom\sMinGW\smakefile.
+D 2017-12-20T00:46:31.112
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -682,7 +682,7 @@ F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9
 F win/Makefile.PellesCGMake 940dd82d2f662198dc0d4f560a4e34fe662f6a13a35aacaddf3496b380e9e913
 F win/Makefile.dmc bd55c5e5e19440bbea2ec8b4f2faa3e487fcffeb1ac029690a6ab7d2e1c783ef
 F win/Makefile.mingw f432bc1ec0dab4455258c0b37597f3749ca3c2c0fae1151d4d99fed1d734bc88
-F win/Makefile.mingw.mistachkin 775928be637d3b8db54a1adc490184f638d8f09790f097e740769c2fdef55e7c
+F win/Makefile.mingw.mistachkin fd2d6aa04ac0b55dc0c49c00211a1ebc863ba4e29b2045a0d1859638a83af67b
 F win/Makefile.msc 6d6cda1d7b3a89a077aa9fc7ee79675fef089f6c570d159161c754e583c26a08
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -807,7 +807,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5419e7fcecdbcc099738a2a6d194beca54fe7503d5b5d108b343b83eae4fd999
-R 4778e2fe093868ce6c9c80cc327860a2
-U drh
-Z 1d2a48829bfa4ef04a7fd5ca2bcd1eb2
+P a6c5a4620a5388fdb1707b401b1e6ecf75ce39355217dd437ca5885a82116849
+R f7399f454d88187a80a4426df49064e4
+U mistachkin
+Z 8def96b709a7f0d789cfc4cb8ae4594b
