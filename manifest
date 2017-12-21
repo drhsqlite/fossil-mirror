@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\scopy\sof\slinenoise\sto\sthe\slatest\sfrom\sthe\sGitHub\nrepository\s([https://github.com/antirez/linenoise])
-D 2017-12-21T03:12:27.014
+C Update\sreferenced\sOpenSSL\sversion.
+D 2017-12-21T15:38:07.096
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -471,7 +471,7 @@ F src/main.c c15d509c6e6e4bb74e9fb564415c7d080d13344eaeb40a8d912ab04555e2968c
 F src/main.mk 4229bcfff06ee7c8d234034d1e62dc6e480ec1007e79e9550b740e104f60eb9b
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl 35be36955a157ef9d1f2eb5b617f79d3e0879a68e50a9b3e22a9315525134d9a
+F src/makemake.tcl 79292c8546846dd7d645356fe6198b39dd1a8acf0ecf9f44b5b48257bd625ee4
 F src/manifest.c 2668a7564265b469182f48645de7c219624866f7c2f0eb5dfb6bb3b010f0b5be
 F src/markdown.c 2cb7007279db7ad8e16f8c822d5ba27f59b4af2dcc0cd4ba87cce3e4303d5969
 F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb98d
@@ -681,9 +681,9 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F win/Makefile.PellesCGMake 940dd82d2f662198dc0d4f560a4e34fe662f6a13a35aacaddf3496b380e9e913
 F win/Makefile.dmc bd55c5e5e19440bbea2ec8b4f2faa3e487fcffeb1ac029690a6ab7d2e1c783ef
-F win/Makefile.mingw f432bc1ec0dab4455258c0b37597f3749ca3c2c0fae1151d4d99fed1d734bc88
-F win/Makefile.mingw.mistachkin fd2d6aa04ac0b55dc0c49c00211a1ebc863ba4e29b2045a0d1859638a83af67b
-F win/Makefile.msc 6d6cda1d7b3a89a077aa9fc7ee79675fef089f6c570d159161c754e583c26a08
+F win/Makefile.mingw 4f1799e9033da944e8fe5f9824c202672223a69d05c026e57b1e2ed4acc43420
+F win/Makefile.mingw.mistachkin bee9dda9d85d33e0df8e6f486d2dd06b443e9c90f0578a794fbd9d648b8a302b
+F win/Makefile.msc 4cc4c320aab8eddf8872fd3f1daa11084b00d0dc3947496289015d40a0baf63c
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -714,7 +714,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 75a893ee7edc7afe1288e2ce295484c57254b3ecde32689b1b9423e7a7329260
+F www/build.wiki 80a214d6378f721f1052ef2fd57021dbbb1b7c3ca64da7cf7e3b4971255b3b4a
 F www/changes.wiki 5d5b49de407292dde461fcef763090ef25ebc4febf94bce7b498238b03b7aa7f
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
@@ -807,7 +807,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 09e5d8d9c033c245d338dbccc4c310a1992d510a9ec32518a0bd58478d7efa5c
-R 6278e81c38cd5d18547d878a5577f74e
-U drh
-Z 64c076dce5bf90c5dabd4d8c3ca3924a
+P 6cf508f6a3835d9d89599b0271ec0589c3040e80ed2e719296ddae861b938178
+R dae7c4fc32a4bfe0c9b7e80d3dc13c24
+U mistachkin
+Z 5f21b152dfb606ab33b1590e1fa811a7
