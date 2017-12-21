@@ -1,5 +1,5 @@
-C Update\sreferenced\sOpenSSL\sversion.
-D 2017-12-21T15:38:07.096
+C Patch\sfrom\sPeter\sSpjuth\sto\sallow\sgreater\sconcurrency\sfor\s"fossil\sclone".
+D 2017-12-21T23:00:05.194
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -404,7 +404,7 @@ F src/checkin.c 0764cac7329685c00d39b4738e19ee7183bb2f75907fb6e2af5f3db0c27e776f
 F src/checkout.c b27d81846a1b2f8c961c9ea4eec93c15186432de63d97e650e413e96f0557604
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
-F src/clone.c 660a39c515c158d68b52d4efe94f429e4857483b3ae3534e3f4f9620a6f88b75
+F src/clone.c 39756ecd3586daaccca6ac5445657a183aaafcc83b6802c47d7e3795fc4d3157
 F src/codecheck1.c ed76b2c22bbe64950d229d720cd6e1f83bb918b22f46c01115339575ef6b3520
 F src/comformat.c 4d18073b1a8e98bd1b6ae6794df703744be590c69d4a507e04c8d86ed435c42c
 F src/config.h d6b66b9cf87be799bc160e9afa0db82a5d34f30b4a73691a391031c37b4c0535
@@ -807,7 +807,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6cf508f6a3835d9d89599b0271ec0589c3040e80ed2e719296ddae861b938178
-R dae7c4fc32a4bfe0c9b7e80d3dc13c24
-U mistachkin
-Z 5f21b152dfb606ab33b1590e1fa811a7
+P c4aec887db9f9e8ab5fb1f3df46364e22855c9ebaf48831096ebd9e7f8887815
+R 9a2f9b0dca1b9b4ac8ed48e8c49887f4
+U drh
+Z 9c8d53011f6acf32e79810746b410e91
