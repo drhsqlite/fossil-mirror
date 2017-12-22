@@ -1387,15 +1387,6 @@ void setup_timeline(void){
       "3", "YYMMDD HH:MM",
       "4", "(off)"
   };
-  static const char *const azCommentFormats[] = {
-      "0", "[hash] comment (details)",
-      "1", "[hash] comment",
-      "2", "comment [hash] (details)",
-      "3", "comment [hash]",
-      "4", "comment (details)",
-      "5", "comment-only",
-      "12","comment | details",
-  };
   login_check_credentials();
   if( !g.perm.Setup ){
     login_needed(0);

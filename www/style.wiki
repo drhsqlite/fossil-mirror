@@ -2,6 +2,13 @@
 
 Fossil source code should following the style guidelines below.
 
+<em> The Fossil source tree includes a few files taken from external
+sources
+(examples: [https://github.com/antirez/linenoise|linenoise] and
+[http://zlib.net/|zLib])
+and this externally sourced code might not comply with these style guidelines.
+</em>
+
 <b>1. General points</b>:
 
 <ol>
@@ -37,8 +44,7 @@ Fossil source code should following the style guidelines below.
         alloca() is not considered ANSI C, and normally not recommended due to portability issues, but
         performance and/or memory consumption improvement may be a stronger argument in favor of its usage.
         (sqlite3.c)
-
-    </ol>
+     </ol>
 
   <li>  All comments and identifiers are in English.
 
