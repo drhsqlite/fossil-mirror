@@ -1784,6 +1784,7 @@ int cgi_http_server(
 #else
   int listener = -1;           /* The server socket */
   int connection;              /* A socket for each individual connection */
+  int nRequest = 0;            /* Number of requests handled so far */
   fd_set readfds;              /* Set of file descriptors for select() */
   socklen_t lenaddr;           /* Length of the inaddr structure */
   int child;                   /* PID of the child process */
@@ -1871,7 +1872,10 @@ int cgi_http_server(
       if( connection>=0 ){
         child = fork();
         if( child!=0 ){
-          if( child>0 ) nchildren++;
+          if( child>0 ){
+            nchildren++;
+            nRequest++;
+          }
           close(connection);
         }else{
           int nErr = 0, fd;
@@ -1888,6 +1892,7 @@ int cgi_http_server(
           }
           close(connection);
           g.nPendingRequest = nchildren+1;
+          g.nRequest = nRequest+1;
           return nErr;
         }
       }

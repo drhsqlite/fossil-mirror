@@ -1,5 +1,5 @@
-C Fix\sthe\s"fossil\sserver"\scommand\sto\sallow\sup\sto\sFOSSIL_MAX_CONNECTIONS\n(default\s1000)\spending\sHTTP\srequests.\s\sThis\sis\san\sincrease\sfrom\s2.\s\sAdd\nthe\s--max-latency\scommand-line\soption\sfor\s"fossil\sserver".\s\sDo\sa\sbetter\njob\sof\sharvesting\sdead\schild\sprocesses.\s\sReport\sthe\snumber\sof\ssibling\nHTTP\srequest\shandler\sprocesses\son\sthe\s/test_env\spage.
-D 2017-12-23T00:50:09.769
+C The\s"fossil\sserver"\scommand\skeeps\strack\sof\sthe\stotal\snumber\sof\srequests\sand\ndisplays\sthat\svalue\son\sthe\s/test_env\spage.
+D 2017-12-23T02:43:43.241
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -399,7 +399,7 @@ F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c c87eb0ee5b326ca742fd51010bf01c29a75600b2f7fca1d30c28ec5722e9b841
 F src/cache.c f29373b765932f9c6435da4bbfc4c0d442ffa715dce25f9bf295085a80099d83
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
-F src/cgi.c fc7fc8defddbc4a2536efab5637170260dc21503f99f8fe1e13c4506ec0d3fc9
+F src/cgi.c 8716626af29434bc9814702024a8cbefb8141ff47b934abc4d579fe52c6bef05
 F src/checkin.c 0764cac7329685c00d39b4738e19ee7183bb2f75907fb6e2af5f3db0c27e776f
 F src/checkout.c b27d81846a1b2f8c961c9ea4eec93c15186432de63d97e650e413e96f0557604
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -467,7 +467,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 06b0402f13210a48376118d0a2c2d649c4252ef1836dec1afa70cb055d948965
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 25ab1389ef40cc99f5e20101d96f1573bcb8ecec3cf9fc009e1c53dc7214d3de
+F src/main.c 4a0da1d10dc93f60620c3eae2286eeece51e7c195eca319b0f264f855be37972
 F src/main.mk 4229bcfff06ee7c8d234034d1e62dc6e480ec1007e79e9550b740e104f60eb9b
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -520,7 +520,7 @@ F src/sqlite3.h 0f19e11b924032e7dfb4a31e990fd006d27ffb6d01e2c9010ff26e3d17ff63d7
 F src/stash.c 8f0bc283ba1099458e48ecd4c059a85bef34aef02066d972f61c165f2c47177b
 F src/stat.c 39a33f66a4d803c036f73993bd043f5484816b54f8cded166b07c100cc4097fd
 F src/statrep.c 367a01ddc206ba32f53357db06c55f6432d8b6c6593e6e98376f28eaef589a97
-F src/style.c f905ab86a3eaf13a80b8a1309db659c4467f36d09e28a5286414edf59767221c
+F src/style.c 282a9854e8b115f7adc11be00f3cae26f1f01fa481c9a5d64ca5b25c52dc1a49
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 24c77636171affc22088c1a7d7e608822d937e9747cbd5cd48f51dfae70a00c9
 F src/tar.c 69a1c4327e8b2b9f0c35714559d55d320f5cadabe7a5b40e309044d453901973
@@ -807,7 +807,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8a53d4016ee960abe17c439edf2c11beb85fa5f627c3c11860c2181b474a2fcb
-R 151009ab1b55354eb5f25143d17c5901
+P 05ec15cad53e8176b742e8e8c5e279a51194a4ea0946c4d220ac61ef74084e68
+R 58a2797cea1e4b52bb3ffa9fb1e55032
 U drh
-Z 7e00f325e980589fee45a389a811ee45
+Z 9fd7a438330c26836eec85c838d518fd

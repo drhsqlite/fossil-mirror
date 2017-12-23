@@ -236,6 +236,7 @@ struct Global {
   int allowSymlinks;             /* Cached "allow-symlinks" option */
   int mainTimerId;               /* Set to fossil_timer_start() */
   int nPendingRequest;           /* # of HTTP requests in "fossil server" */
+  int nRequest;                  /* Total # of HTTP request */
 #ifdef FOSSIL_ENABLE_JSON
   struct FossilJsonBits {
     int isJsonMode;            /* True if running in JSON mode, else

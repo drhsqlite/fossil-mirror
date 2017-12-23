@@ -910,6 +910,7 @@ void page_test_env(void){
   @ g.userUid = %d(g.userUid)<br />
   @ g.zLogin = %h(g.zLogin)<br />
   @ g.isHuman = %d(g.isHuman)<br />
+  @ g.nRequest = %d(g.nRequest)<br />
   if( g.nPendingRequest>1 ){
     @ g.nPendingRequest = %d(g.nPendingRequest)<br />
   }
