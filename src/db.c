@@ -56,6 +56,7 @@ struct Stmt {
   sqlite3_stmt *pStmt;    /* The results of sqlite3_prepare_v2() */
   Stmt *pNext, *pPrev;    /* List of all unfinalized statements */
   int nStep;              /* Number of sqlite3_step() calls */
+  int rc;                 /* Error from db_vprepare() */
 };
 
 /*
@@ -63,7 +64,7 @@ struct Stmt {
 ** is useful to help avoid assertions when performing cleanup in some
 ** error handling cases.
 */
-#define empty_Stmt_m {BLOB_INITIALIZER,NULL, NULL, NULL, 0}
+#define empty_Stmt_m {BLOB_INITIALIZER,NULL, NULL, NULL, 0, 0}
 #endif /* INTERFACE */
 const struct Stmt empty_Stmt = empty_Stmt_m;
 
@@ -71,9 +72,11 @@ const struct Stmt empty_Stmt = empty_Stmt_m;
 ** Call this routine when a database error occurs.
 */
 static void db_err(const char *zFormat, ...){
+  static int rcLooping = 0;
   va_list ap;
   char *z;
   int rc = 1;
+  if( rcLooping ) exit(rcLooping);
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
@@ -99,6 +102,7 @@ static void db_err(const char *zFormat, ...){
     fprintf(stderr, "%s: %s\n", g.argv[0], z);
   }
   free(z);
+  rcLooping = rc;
   db_force_rollback();
   fossil_exit(rc);
 }
@@ -275,6 +279,7 @@ int db_vprepare(Stmt *pStmt, int flags, const char *zFormat, va_list ap){
   }
   pStmt->pNext = pStmt->pPrev = 0;
   pStmt->nStep = 0;
+  pStmt->rc = rc;
   return rc;
 }
 int db_prepare(Stmt *pStmt, const char *zFormat, ...){
@@ -361,6 +366,7 @@ int db_bind_str(Stmt *pStmt, const char *zParamName, Blob *pBlob){
 */
 int db_step(Stmt *pStmt){
   int rc;
+  if( pStmt->pStmt==0 ) return pStmt->rc;
   rc = sqlite3_step(pStmt->pStmt);
   pStmt->nStep++;
   return rc;
@@ -1279,7 +1285,7 @@ int db_open_config(int useAttach, int isOptional){
                  "FOSSIL_HOME or HOME environment variables");
   }
 #endif
-  if( file_isdir(zHome)!=1 ){
+  if( file_isdir(zHome, ExtFILE)!=1 ){
     if( isOptional ) return 0;
     fossil_fatal("invalid home directory: %s", zHome);
   }
@@ -1289,7 +1295,7 @@ int db_open_config(int useAttach, int isOptional){
 #else
   zDbName = mprintf("%s/.fossil", zHome);
 #endif
-  if( file_size(zDbName)<1024*3 ){
+  if( file_size(zDbName, ExtFILE)<1024*3 ){
     if( file_access(zHome, W_OK) ){
       if( isOptional ) return 0;
       fossil_fatal("home directory %s must be writeable", zHome);
@@ -1357,7 +1363,7 @@ static int isValidLocalDb(const char *zDbName){
   char *zVFileDef;
 
   if( file_access(zDbName, F_OK) ) return 0;
-  lsize = file_size(zDbName);
+  lsize = file_size(zDbName, ExtFILE);
   if( lsize%1024!=0 || lsize<4096 ) return 0;
   db_open_or_attach(zDbName, "localdb");
   zVFileDef = db_text(0, "SELECT sql FROM localdb.sqlite_master"
@@ -1498,7 +1504,7 @@ void db_open_repository(const char *zDbName){
       db_err("unable to find the name of a repository database");
     }
   }
-  if( file_access(zDbName, R_OK) || file_size(zDbName)<1024 ){
+  if( file_access(zDbName, R_OK) || file_size(zDbName, ExtFILE)<1024 ){
     if( file_access(zDbName, F_OK) ){
 #ifdef FOSSIL_ENABLE_JSON
       g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
@@ -1556,7 +1562,7 @@ void db_open_repository(const char *zDbName){
 */
 void db_find_and_open_repository(int bFlags, int nArgUsed){
   const char *zRep = find_repository_option();
-  if( zRep && file_isdir(zRep)==1 ){
+  if( zRep && file_isdir(zRep, ExtFILE)==1 ){
     goto rep_not_found;
   }
   if( zRep==0 && nArgUsed && g.argc==nArgUsed+1 ){
@@ -1880,7 +1886,7 @@ void db_initial_setup(
     db_multi_exec(
       "INSERT OR REPLACE INTO config"
       " SELECT name,value,mtime FROM settingSrc.config"
-      "  WHERE (name IN %s OR name IN %s)"
+      "  WHERE (name IN %s OR name IN %s OR name GLOB 'walias:/*')"
       "    AND name NOT GLOB 'project-*'"
       "    AND name NOT GLOB 'short-project-*';",
       configure_inop_rhs(CONFIGSET_ALL),
@@ -1991,7 +1997,7 @@ void create_repository_cmd(void){
     usage("REPOSITORY-NAME");
   }
 
-  if( -1 != file_size(g.argv[2]) ){
+  if( -1 != file_size(g.argv[2], ExtFILE) ){
     fossil_fatal("file already exists: %s", g.argv[2]);
   }
 
@@ -2288,15 +2294,16 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
         noWarn = 1;
       }
       blob_reset(&noWarnFile);
-    }else if( file_size(blob_str(&versionedPathname))>=0 ){
+    }else if( file_size(blob_str(&versionedPathname), ExtFILE)>=0 ){
       /* File exists, and contains the value for this setting. Load from
       ** the file. */
-      if( blob_read_from_file(&setting, blob_str(&versionedPathname))>=0 ){
+      const char *zFile = blob_str(&versionedPathname);
+      if( blob_read_from_file(&setting, zFile, ExtFILE)>=0 ){
         found = 1;
       }
       /* See if there's a no-warn flag */
       blob_append(&versionedPathname, ".no-warn", -1);
-      if( file_size(blob_str(&versionedPathname))>=0 ){
+      if( file_size(blob_str(&versionedPathname), ExtFILE)>=0 ){
         noWarn = 1;
       }
     }
@@ -2480,6 +2487,40 @@ int db_lget_int(const char *zName, int dflt){
 void db_lset_int(const char *zName, int value){
   db_multi_exec("REPLACE INTO vvar(name,value) VALUES(%Q,%d)", zName, value);
 }
+
+/* Va-args versions of db_get(), db_set(), and db_unset()
+*/
+char *db_get_mprintf(const char *zFormat, const char *zDefault, ...){
+  va_list ap;
+  char *zName;
+  char *zResult;
+  va_start(ap, zDefault);
+  zName = vmprintf(zFormat, ap);
+  va_end(ap);
+  zResult = db_get(zName, zDefault);
+  fossil_free(zName);
+  return zResult;
+}
+void db_set_mprintf(const char *zFormat, const char *zNew, int iGlobal, ...){
+  va_list ap;
+  char *zName;
+  va_start(ap, iGlobal);
+  zName = vmprintf(zFormat, ap);
+  va_end(ap);
+  db_set(zName, zNew, iGlobal);
+  fossil_free(zName);
+}
+void db_unset_mprintf(const char *zFormat, int iGlobal, ...){
+  va_list ap;
+  char *zName;
+  va_start(ap, iGlobal);
+  zName = vmprintf(zFormat, ap);
+  va_end(ap);
+  db_unset(zName, iGlobal);
+  fossil_free(zName);
+}
+
+
 
 #if INTERFACE
 /* Manifest generation flags */
@@ -2737,7 +2778,7 @@ static void print_setting(const Setting *pSetting){
     blob_zero(&versionedPathname);
     blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
                  g.zLocalRoot, pSetting->name);
-    if( file_size(blob_str(&versionedPathname))>=0 ){
+    if( file_size(blob_str(&versionedPathname), ExtFILE)>=0 ){
       fossil_print("  (overridden by contents of file .fossil-settings/%s)\n",
                    pSetting->name);
     }
@@ -2771,7 +2812,7 @@ struct Setting {
 
 /*
 ** SETTING: access-log      boolean default=off
-** 
+**
 ** When the access-log setting is enabled, all login attempts (successful
 ** and unsuccessful) on the web interface are recorded in the "access" table
 ** of the repository.
@@ -2785,13 +2826,23 @@ struct Setting {
 #if defined(_WIN32)
 /*
 ** SETTING: allow-symlinks  boolean default=off versionable
-** Allows symbolic links in the repository when enabled.
+**
+** When allow-symlinks is OFF, symbolic links in the repository are followed
+** and treated no differently from real files.  When allow-symlinks is ON,
+** the object to which the symbolic link points is ignored, and the content
+** of the symbolic link that is stored in the repository is the name of the
+** object to which the symbolic link points.
 */
 #endif
 #if !defined(_WIN32)
 /*
 ** SETTING: allow-symlinks  boolean default=on versionable
-** Allows symbolic links in the repository when enabled.
+**
+** When allow-symlinks is OFF, symbolic links in the repository are followed
+** and treated no differently from real files.  When allow-symlinks is ON,
+** the object to which the symbolic link points is ignored, and the content
+** of the symbolic link that is stored in the repository is the name of the
+** object to which the symbolic link points.
 */
 #endif
 /*
@@ -2851,7 +2902,7 @@ struct Setting {
 */
 #endif
 /*
-** STTING: clean-glob       width=40 versionable block-text
+** SETTING: clean-glob      width=40 versionable block-text
 ** The VALUE of this setting is a comma or newline-separated list of GLOB
 ** patterns specifying files that the "clean" command will
 ** delete without prompting or allowing undo.
@@ -2879,7 +2930,8 @@ struct Setting {
 ** information on permissions see the Users page in Server
 ** Administration of the HTTP UI.
 */
-/* SETTING: diff-binary     boolean default=on
+/*
+** SETTING: diff-binary     boolean default=on
 ** If enabled, permit files that may be binary
 ** or that match the "binary-glob" setting to be used with
 ** external diff programs.  If disabled, skip these files.
@@ -2934,7 +2986,7 @@ struct Setting {
 */
 #endif
 /*
-** SETTING; gdiff-command    width=40 default=gdiff
+** SETTING: gdiff-command    width=40 default=gdiff
 ** The value is an external command to run when performing a graphical
 ** diff. If undefined, text diff will be used.
 */
@@ -2942,7 +2994,7 @@ struct Setting {
 ** SETTING: gmerge-command   width=40
 ** The value is a graphical merge conflict resolver command operating
 ** on four files.  Examples:
-** 
+**
 **     kdiff3 "%baseline" "%original" "%merge" -o "%output"
 **     xxdiff "%original" "%baseline" "%merge" -M "%output"
 **     meld "%baseline" "%original" "%merge" "%output"
@@ -2965,7 +3017,7 @@ struct Setting {
 ** SETTING: ignore-glob      width=40 versionable block-text
 ** The value is a comma or newline-separated list of GLOB
 ** patterns specifying files that the "add", "addremove",
-** "clean", and "extra" commands will ignore.
+** "clean", and "extras" commands will ignore.
 **
 ** Example:  *.log customCode.c notes.txt
 */
@@ -3033,11 +3085,10 @@ struct Setting {
 */
 #endif
 /*
-** SETTING; pgp-command      width=40
-** DEFAULT: gpg --clearsign -o
-**
+** SETTING: pgp-command      width=40
 ** Command used to clear-sign manifests at check-in.
-*/ 
+** Default value is "gpg --clearsign -o"
+*/
 /*
 ** SETTING: proxy            width=32 default=off
 ** URL of the HTTP proxy.  If undefined or "off" then

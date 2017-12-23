@@ -327,6 +327,8 @@ void rcvfromlist_page(void){
     style_submenu_element("Newer", "rcvfromlist?ofst=%d",
                            ofst>perScreen ? ofst-perScreen : 0);
   }
+  style_submenu_element("Artifacts", "bloblist");
+  style_submenu_element("Top-250", "bigbloblist");
   db_multi_exec(
     "CREATE TEMP TABLE rcvidUsed(x INTEGER PRIMARY KEY);"
     "CREATE TEMP TABLE rcvidSha1(x INTEGER PRIMARY KEY);"

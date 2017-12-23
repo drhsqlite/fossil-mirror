@@ -48,7 +48,7 @@ int clearsign(Blob *pIn, Blob *pOut){
       blob_reset(pIn);
     }
     blob_zero(pOut);
-    blob_read_from_file(pOut, zIn);
+    blob_read_from_file(pOut, zIn, ExtFILE);
   }else{
     if( pOut!=pIn ){
       blob_copy(pOut, pIn);

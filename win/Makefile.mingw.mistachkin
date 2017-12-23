@@ -172,7 +172,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2l
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2n
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -444,6 +444,7 @@ SRC = \
   $(SRCDIR)/comformat.c \
   $(SRCDIR)/configure.c \
   $(SRCDIR)/content.c \
+  $(SRCDIR)/cookies.c \
   $(SRCDIR)/db.c \
   $(SRCDIR)/delta.c \
   $(SRCDIR)/deltacmd.c \
@@ -512,6 +513,7 @@ SRC = \
   $(SRCDIR)/rss.c \
   $(SRCDIR)/schema.c \
   $(SRCDIR)/search.c \
+  $(SRCDIR)/security_audit.c \
   $(SRCDIR)/setup.c \
   $(SRCDIR)/sha1.c \
   $(SRCDIR)/sha1hard.c \
@@ -566,6 +568,10 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/blitz_no_logo/footer.txt \
   $(SRCDIR)/../skins/blitz_no_logo/header.txt \
   $(SRCDIR)/../skins/blitz_no_logo/ticket.txt \
+  $(SRCDIR)/../skins/bootstrap/css.txt \
+  $(SRCDIR)/../skins/bootstrap/details.txt \
+  $(SRCDIR)/../skins/bootstrap/footer.txt \
+  $(SRCDIR)/../skins/bootstrap/header.txt \
   $(SRCDIR)/../skins/default/css.txt \
   $(SRCDIR)/../skins/default/details.txt \
   $(SRCDIR)/../skins/default/footer.txt \
@@ -598,8 +604,20 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/xekri/details.txt \
   $(SRCDIR)/../skins/xekri/footer.txt \
   $(SRCDIR)/../skins/xekri/header.txt \
+  $(SRCDIR)/ci_edit.js \
   $(SRCDIR)/diff.tcl \
-  $(SRCDIR)/markdown.md
+  $(SRCDIR)/graph.js \
+  $(SRCDIR)/href.js \
+  $(SRCDIR)/login.js \
+  $(SRCDIR)/markdown.md \
+  $(SRCDIR)/menu.js \
+  $(SRCDIR)/sbsdiff.js \
+  $(SRCDIR)/scroll.js \
+  $(SRCDIR)/skin.js \
+  $(SRCDIR)/sorttable.js \
+  $(SRCDIR)/tree.js \
+  $(SRCDIR)/useredit.js \
+  $(SRCDIR)/wiki.wiki
 
 TRANS_SRC = \
   $(OBJDIR)/add_.c \
@@ -622,6 +640,7 @@ TRANS_SRC = \
   $(OBJDIR)/comformat_.c \
   $(OBJDIR)/configure_.c \
   $(OBJDIR)/content_.c \
+  $(OBJDIR)/cookies_.c \
   $(OBJDIR)/db_.c \
   $(OBJDIR)/delta_.c \
   $(OBJDIR)/deltacmd_.c \
@@ -690,6 +709,7 @@ TRANS_SRC = \
   $(OBJDIR)/rss_.c \
   $(OBJDIR)/schema_.c \
   $(OBJDIR)/search_.c \
+  $(OBJDIR)/security_audit_.c \
   $(OBJDIR)/setup_.c \
   $(OBJDIR)/sha1_.c \
   $(OBJDIR)/sha1hard_.c \
@@ -749,6 +769,7 @@ OBJ = \
  $(OBJDIR)/comformat.o \
  $(OBJDIR)/configure.o \
  $(OBJDIR)/content.o \
+ $(OBJDIR)/cookies.o \
  $(OBJDIR)/db.o \
  $(OBJDIR)/delta.o \
  $(OBJDIR)/deltacmd.o \
@@ -817,6 +838,7 @@ OBJ = \
  $(OBJDIR)/rss.o \
  $(OBJDIR)/schema.o \
  $(OBJDIR)/search.o \
+ $(OBJDIR)/security_audit.o \
  $(OBJDIR)/setup.o \
  $(OBJDIR)/sha1.o \
  $(OBJDIR)/sha1hard.o \
@@ -871,6 +893,7 @@ MAKEHEADERS = $(subst /,\,$(OBJDIR)/makeheaders.exe)
 MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex.exe)
 MKBUILTIN   = $(subst /,\,$(OBJDIR)/mkbuiltin.exe)
 MKVERSION   = $(subst /,\,$(OBJDIR)/mkversion.exe)
+MKCSS       = $(subst /,\,$(OBJDIR)/mkcss.exe)
 CODECHECK1  = $(subst /,\,$(OBJDIR)/codecheck1.exe)
 CAT         = type
 CP          = copy
@@ -885,6 +908,7 @@ MAKEHEADERS = $(OBJDIR)/makeheaders.exe
 MKINDEX     = $(OBJDIR)/mkindex.exe
 MKBUILTIN   = $(OBJDIR)/mkbuiltin.exe
 MKVERSION   = $(OBJDIR)/mkversion.exe
+MKCSS       = $(OBJDIR)/mkcss.exe
 CODECHECK1  = $(OBJDIR)/codecheck1.exe
 CAT         = cat
 CP          = cp
@@ -897,7 +921,7 @@ endif
 
 all:	$(OBJDIR) $(APPNAME)
 
-$(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc $(OBJDIR)/VERSION.h
+$(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc $(OBJDIR)/VERSION.h $(OBJDIR)/default_css.h
 ifdef USE_WINDOWS
 	$(CAT) $(subst /,\,$(SRCDIR)\miniz.c) | $(GREP) "define MZ_VERSION" > $(subst /,\,$(OBJDIR)\minizver.h)
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.rc) $(subst /,\,$(OBJDIR))
@@ -942,6 +966,9 @@ $(MKBUILTIN):	$(SRCDIR)/mkbuiltin.c
 $(MKVERSION): $(SRCDIR)/mkversion.c
 	$(XBCC) -o $@ $(SRCDIR)/mkversion.c
 
+$(MKCSS): $(SRCDIR)/mkcss.c
+	$(XBCC) -o $@ $(SRCDIR)/mkcss.c
+
 $(CODECHECK1):	$(SRCDIR)/codecheck1.c
 	$(XBCC) -o $@ $(SRCDIR)/codecheck1.c
 
@@ -953,6 +980,9 @@ test:	$(OBJDIR) $(APPNAME)
 
 $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(MKVERSION)
 	$(MKVERSION) $(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION >$@
+
+$(OBJDIR)/default_css.h:	$(SRCDIR)/default_css.txt $(MKCSS)
+	$(MKCSS) $(SRCDIR)/default_css.txt $@
 
 # The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
 # to 1. If it is set to 1, then there is no need to build or link
@@ -1066,7 +1096,7 @@ $(OBJDIR)/page_index.h: $(TRANS_SRC) $(MKINDEX)
 $(OBJDIR)/builtin_data.h:	$(MKBUILTIN) $(EXTRA_FILES)
 	$(MKBUILTIN) --prefix $(SRCDIR)/ $(EXTRA_FILES) >$@
 
-$(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(MAKEHEADERS) $(OBJDIR)/VERSION.h
+$(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/default_css.h $(MAKEHEADERS) $(OBJDIR)/VERSION.h
 	$(MAKEHEADERS) $(OBJDIR)/add_.c:$(OBJDIR)/add.h \
 		$(OBJDIR)/allrepo_.c:$(OBJDIR)/allrepo.h \
 		$(OBJDIR)/attach_.c:$(OBJDIR)/attach.h \
@@ -1087,6 +1117,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(MAKEHEADERS
 		$(OBJDIR)/comformat_.c:$(OBJDIR)/comformat.h \
 		$(OBJDIR)/configure_.c:$(OBJDIR)/configure.h \
 		$(OBJDIR)/content_.c:$(OBJDIR)/content.h \
+		$(OBJDIR)/cookies_.c:$(OBJDIR)/cookies.h \
 		$(OBJDIR)/db_.c:$(OBJDIR)/db.h \
 		$(OBJDIR)/delta_.c:$(OBJDIR)/delta.h \
 		$(OBJDIR)/deltacmd_.c:$(OBJDIR)/deltacmd.h \
@@ -1155,6 +1186,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(MAKEHEADERS
 		$(OBJDIR)/rss_.c:$(OBJDIR)/rss.h \
 		$(OBJDIR)/schema_.c:$(OBJDIR)/schema.h \
 		$(OBJDIR)/search_.c:$(OBJDIR)/search.h \
+		$(OBJDIR)/security_audit_.c:$(OBJDIR)/security_audit.h \
 		$(OBJDIR)/setup_.c:$(OBJDIR)/setup.h \
 		$(OBJDIR)/sha1_.c:$(OBJDIR)/sha1.h \
 		$(OBJDIR)/sha1hard_.c:$(OBJDIR)/sha1hard.h \
@@ -1360,6 +1392,14 @@ $(OBJDIR)/content.o:	$(OBJDIR)/content_.c $(OBJDIR)/content.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/content.o -c $(OBJDIR)/content_.c
 
 $(OBJDIR)/content.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/cookies_.c:	$(SRCDIR)/cookies.c $(TRANSLATE)
+	$(TRANSLATE) $(SRCDIR)/cookies.c >$@
+
+$(OBJDIR)/cookies.o:	$(OBJDIR)/cookies_.c $(OBJDIR)/cookies.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/cookies.o -c $(OBJDIR)/cookies_.c
+
+$(OBJDIR)/cookies.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/db_.c:	$(SRCDIR)/db.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/db.c >$@
@@ -1905,6 +1945,14 @@ $(OBJDIR)/search.o:	$(OBJDIR)/search_.c $(OBJDIR)/search.h $(SRCDIR)/config.h
 
 $(OBJDIR)/search.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/security_audit_.c:	$(SRCDIR)/security_audit.c $(TRANSLATE)
+	$(TRANSLATE) $(SRCDIR)/security_audit.c >$@
+
+$(OBJDIR)/security_audit.o:	$(OBJDIR)/security_audit_.c $(OBJDIR)/security_audit.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/security_audit.o -c $(OBJDIR)/security_audit_.c
+
+$(OBJDIR)/security_audit.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/setup_.c:	$(SRCDIR)/setup.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/setup.c >$@
 
@@ -1996,7 +2044,7 @@ $(OBJDIR)/statrep.h:	$(OBJDIR)/headers
 $(OBJDIR)/style_.c:	$(SRCDIR)/style.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/style.c >$@
 
-$(OBJDIR)/style.o:	$(OBJDIR)/style_.c $(OBJDIR)/style.h $(SRCDIR)/config.h
+$(OBJDIR)/style.o:	$(OBJDIR)/style_.c $(OBJDIR)/style.h $(OBJDIR)/default_css.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/style.o -c $(OBJDIR)/style_.c
 
 $(OBJDIR)/style.h:	$(OBJDIR)/headers
@@ -2224,6 +2272,7 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_ENABLE_DBSTAT_VTAB \
                  -DSQLITE_ENABLE_JSON1 \
                  -DSQLITE_ENABLE_FTS5 \
+                 -DSQLITE_ENABLE_STMTVTAB \
                  -DSQLITE_WIN32_NO_ANSI \
                  $(MINGW_OPTIONS) \
                  -DSQLITE_USE_MALLOC_H \

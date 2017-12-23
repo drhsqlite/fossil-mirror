@@ -166,7 +166,8 @@ table.timelineTable {
   border: 0;
   cellpadding: 0;
   font-family: "courier new";
-  border-collapse: collapse;
+  border-spacing: 0px 2px;
+  // border-collapse: collapse;
 }
 
 tr.timelineSelected {
@@ -334,4 +335,8 @@ div.selectedText {
 
 .statistics-report-graph-line {
   background-color: #7EA2D9;
+}
+
+.timelineModernCell[id], .timelineColumnarCell[id], .timelineDetailCell[id] {
+  background-color: #455978;
 }

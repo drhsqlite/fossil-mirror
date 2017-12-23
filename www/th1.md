@@ -107,6 +107,7 @@ summarize the commands available in TH1:
   *  set VARNAME VALUE
   *  string compare STR1 STR2
   *  string first NEEDLE HAYSTACK ?START-INDEX?
+  *  string index STRING INDEX
   *  string is CLASS STRING
   *  string last NEEDLE HAYSTACK ?START-INDEX?
   *  string length STRING

@@ -204,8 +204,14 @@ static void stats_report_by_month_year(char includeMonth,
     @ for user %h(zUserName)
   }
   @ </h1>
-  @ <table class='statistics-report-table-events' border='0' cellpadding='2'
-  @  cellspacing='0' id='statsTable'>
+  @ <table border='0' cellpadding='2' cellspacing='0' \
+  if( !includeMonth ){
+    @ class='statistics-report-table-events sortable' \
+    @ data-column-types='tnx' data-init-sort='0'>
+    style_table_sorter();
+  }else{
+    @ class='statistics-report-table-events'>
+  }
   @ <thead>
   @ <th>%s(zTimeLabel)</th>
   @ <th>Events</th>
@@ -317,9 +323,6 @@ static void stats_report_by_month_year(char includeMonth,
     @ <br />Average per active %s(zAvgLabel): %d(nAvg)
     @ </div>
   }
-  if( !includeMonth ){
-    output_table_sorting_javascript("statsTable","tnx",-1);
-  }
 }
 
 /*
@@ -346,8 +349,9 @@ static void stats_report_by_user(){
     piechart_render(700, 400, PIE_OTHER|PIE_PERCENT);
     @ </svg></centre><hr />
   }
-  @ <table class='statistics-report-table-events' border='0'
-  @ cellpadding='2' cellspacing='0' id='statsTable'>
+  style_table_sorter();
+  @ <table class='statistics-report-table-events sortable' border='0' \
+  @ cellpadding='2' cellspacing='0' data-column-types='tkx' data-init-sort='2'>
   @ <thead><tr>
   @ <th>User</th>
   @ <th>Events</th>
@@ -392,7 +396,6 @@ static void stats_report_by_user(){
   }
   @ </tbody></table>
   db_finalize(&query);
-  output_table_sorting_javascript("statsTable","tkx",2);
 }
 
 /*
@@ -423,8 +426,9 @@ static void stats_report_by_file(const char *zUserName){
     @ for user %h(zUserName)
   }
   @ </h1>
-  @ <table class='statistics-report-table-events' border='0'
-  @ cellpadding='2' cellspacing='0' id='statsTable'>
+  style_table_sorter();
+  @ <table class='statistics-report-table-events sortable' border='0' \
+  @ cellpadding='2' cellspacing='0' data-column-types='tNx' data-init-sort='2'>
   @ <thead><tr>
   @ <th>File</th>
   @ <th>Check-ins</th>
@@ -448,7 +452,7 @@ static void stats_report_by_file(const char *zUserName){
   }
   @ </tbody></table>
   db_finalize(&query);
-  output_table_sorting_javascript("statsTable","tNx",2);
+
 }
 
 /*
@@ -507,8 +511,9 @@ static void stats_report_day_of_week(const char *zUserName){
     piechart_render(700, 400, PIE_OTHER|PIE_PERCENT);
     @ </svg></centre><hr />
   }
-  @ <table class='statistics-report-table-events' border='0'
-  @ cellpadding='2' cellspacing='0' id='statsTable'>
+  style_table_sorter();
+  @ <table class='statistics-report-table-events sortable' border='0' \
+  @ cellpadding='2' cellspacing='0' data-column-types='ntnx' data-init-sort='1'>
   @ <thead><tr>
   @ <th>DoW</th>
   @ <th>Day</th>
@@ -544,7 +549,6 @@ static void stats_report_day_of_week(const char *zUserName){
   }
   @ </tbody></table>
   db_finalize(&query);
-  output_table_sorting_javascript("statsTable","ntnx",1);
 }
 
 
@@ -588,9 +592,10 @@ static void stats_report_year_weeks(const char *zUserName){
     @  for user %h(zUserName)
   }
   @ </h1>
-  cgi_printf("<table class='statistics-report-table-events' "
+  style_table_sorter();
+  cgi_printf("<table class='statistics-report-table-events sortable' "
               "border='0' cellpadding='2' width='100%%' "
-             "cellspacing='0' id='statsTable'>");
+             "cellspacing='0' data-column-types='tnx' data-init-sort='0'>");
   cgi_printf("<thead><tr>"
              "<th>Week</th>"
              "<th>Events</th>"
@@ -639,7 +644,6 @@ static void stats_report_year_weeks(const char *zUserName){
                "Average per active week: %d</div>",
                total, nAvg);
   }
-  output_table_sorting_javascript("statsTable","tnx",-1);
 }
 
 
@@ -652,10 +656,11 @@ static void stats_report_last_change(void){
   char *zBaseUrl;
 
   stats_report_init_view();
+  style_table_sorter();
   @ <h1>Event Summary
   @ (%s(stats_report_label_for_type())) by User</h1>
-  @ <table border=1  class='statistics-report-table-events'
-  @ cellpadding=2 cellspacing=0 id='lastchng'>
+  @ <table border=1  class='statistics-report-table-events sortable' \
+  @ cellpadding=2 cellspacing=0 data-column-types='tNK' data-init-sort='3'>
   @ <thead><tr>
   @ <th>User<th>Total Changes<th>Last Change</tr></thead>
   @ <tbody>
@@ -683,7 +688,6 @@ static void stats_report_last_change(void){
   }
   @ </tbody></table>
   db_finalize(&s);
-  output_table_sorting_javascript("lastchng","tNK",3);
 }
 
 

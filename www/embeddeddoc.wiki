@@ -75,7 +75,7 @@ Documentation files whose names end in ".wiki" use the
 a safe subset of HTML together with some wiki rules for paragraph
 breaks, lists, and hyperlinks.
 Documentation files ending in ".md" or ".markdown" use the
-[/md_rules  | Markdown markup langauge].
+[/md_rules  | Markdown markup language].
 Documentation files ending in ".txt" are plain text.
 Wiki, markdown, and plain text documentation files
 are rendered with the standard fossil header and footer added.

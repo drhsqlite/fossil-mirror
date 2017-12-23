@@ -211,7 +211,10 @@ void cgi_set_cookie(
   int lifetime          /* Expiration of the cookie in seconds from now */
 ){
   char *zSecure = "";
-  if( zPath==0 ) zPath = g.zTop;
+  if( zPath==0 ){
+    zPath = g.zTop;
+    if( zPath[0]==0 ) zPath = "/";
+  }
   if( g.zBaseURL!=0 && strncmp(g.zBaseURL, "https:", 6)==0 ){
     zSecure = " secure;";
   }
@@ -1753,9 +1756,11 @@ void cgi_handle_scgi_request(void){
 
 /*
 ** Maximum number of child processes that we can have running
-** at one time before we start slowing things down.
+** at one time.  Set this to 0 for "no limit".
 */
-#define MAX_PARALLEL 2
+#ifndef FOSSIL_MAX_CONNECTIONS
+# define FOSSIL_MAX_CONNECTIONS 1000
+#endif
 
 /*
 ** Implement an HTTP server daemon listening on port iPort.
@@ -1849,12 +1854,13 @@ int cgi_http_server(
     }
   }
   while( 1 ){
-    if( nchildren>MAX_PARALLEL ){
-      /* Slow down if connections are arriving too fast */
-      sleep( nchildren-MAX_PARALLEL );
+#if FOSSIL_MAX_CONNECTIONS>0
+    while( nchildren>=FOSSIL_MAX_CONNECTIONS ){
+      if( wait(0)>=0 ) nchildren--;
     }
-    delay.tv_sec = 60;
-    delay.tv_usec = 0;
+#endif
+    delay.tv_sec = 0;
+    delay.tv_usec = 100000;
     FD_ZERO(&readfds);
     assert( listener>=0 );
     FD_SET( listener, &readfds);
@@ -1881,14 +1887,20 @@ int cgi_http_server(
             if( fd!=2 ) nErr++;
           }
           close(connection);
+          g.nPendingRequest = nchildren+1;
           return nErr;
         }
       }
     }
     /* Bury dead children */
-    while( waitpid(0, 0, WNOHANG)>0 ){
-      nchildren--;
-    }
+    if( nchildren ){
+      while(1){
+        int iStatus = 0;
+        pid_t x = waitpid(-1, &iStatus, WNOHANG);
+        if( x<=0 ) break;
+        nchildren--;
+      }
+    }  
   }
   /* NOT REACHED */
   fossil_exit(1);

@@ -107,7 +107,7 @@ static void win32_server_stopper(void *pAppData){
           ** thread is dead or dying. */
           break;
         }
-        if( file_size(zStopper)>=0 ){
+        if( file_size(zStopper, ExtFILE)>=0 ){
           /* The stopper file has been found.  Attempt to close the server
           ** listener socket now and then exit. */
           closesocket(listener);
@@ -854,7 +854,7 @@ void cmd_win32_service(void){
     }
     if( !zRepository ){
       db_must_be_within_tree();
-    }else if( file_isdir(zRepository)==1 ){
+    }else if( file_isdir(zRepository, ExtFILE)==1 ){
       g.zRepositoryName = mprintf("%s", zRepository);
       file_simplify_name(g.zRepositoryName, -1, 0);
     }else{

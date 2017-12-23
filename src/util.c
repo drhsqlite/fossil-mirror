@@ -278,12 +278,6 @@ static struct FossilTimer {
 */
 int fossil_timer_start(){
   int i;
-  static char once = 0;
-  if(!once){
-    once = 1;
-    memset(&fossilTimerList, 0,
-           count(fossilTimerList));
-  }
   for( i = 0; i < FOSSIL_TIMER_COUNT; ++i ){
     struct FossilTimer * ft = &fossilTimerList[i];
     if(ft->id) continue;

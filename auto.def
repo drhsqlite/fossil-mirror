@@ -13,7 +13,7 @@ options {
     with-legacy-mv-rm=0  => {Enable legacy behavior for mv/rm (skip checkout files)}
     with-th1-docs=0      => {Enable TH1 for embedded documentation pages}
     with-th1-hooks=0     => {Enable TH1 hooks for commands and web pages}
-    with-tcl=path        => {Enable Tcl integration, with Tcl in the specified path}
+    with-tcl:path        => {Enable Tcl integration, with Tcl in the specified path}
     with-tcl-stubs=0     => {Enable Tcl integration via stubs library mechanism}
     with-tcl-private-stubs=0
                          => {Enable Tcl integration via private stubs mechanism}
@@ -22,6 +22,7 @@ options {
     static=0             => {Link a static executable}
     fusefs=1             => {Disable the Fuse Filesystem}
     fossil-debug=0       => {Build with fossil debugging enabled}
+    no-opt=0             => {Build without optimization}
     json=0               => {Build with fossil JSON API enabled}
 }
 
@@ -36,7 +37,7 @@ define USE_PREAD [cc-check-functions pread]
 # Find tclsh for the test suite. Can't yet use jimsh for this.
 cc-check-progs tclsh
 
-define EXTRA_CFLAGS ""
+define EXTRA_CFLAGS "-Wall"
 define EXTRA_LDFLAGS ""
 define USE_SYSTEM_SQLITE 0
 define USE_LINENOISE 0
@@ -134,8 +135,13 @@ if {[string match *-solaris* [get-define host]]} {
 
 if {[opt-bool fossil-debug]} {
     define-append EXTRA_CFLAGS -DFOSSIL_DEBUG
-    define CFLAGS {-g -O0}
+    define CFLAGS {-g -O0 -Wall}
     msg-result "Debugging support enabled"
+}
+
+if {[opt-bool no-opt]} {
+    define CFLAGS {-g -O0 -Wall}
+    msg-result "Builting without compiler optimization"
 }
 
 if {[opt-bool with-see]} {
@@ -191,6 +197,9 @@ if {[opt-bool static]} {
     define-append EXTRA_CFLAGS -DFOSSIL_DYNAMIC_BUILD=1
     define FOSSIL_DYNAMIC_BUILD
 }
+
+# Check for libraries that need to be sorted out early
+cc-check-function-in-lib iconv iconv
 
 # Helper for OpenSSL checking
 proc check-for-openssl {msg {cflags {}} {libs {-lssl -lcrypto}}} {
@@ -358,6 +367,9 @@ if {$tclpath ne ""} {
         array set tclconfig [parse-tclconfig-sh $tclpath]
         set msg "at $tclpath"
     }
+    if {[opt-bool static]} {
+        set tclconfig(TCL_LD_FLAGS) { }
+    }
     if {![info exists tclconfig(TCL_INCLUDE_SPEC)]} {
         user-error "Cannot find Tcl $msg"
     }
@@ -460,7 +472,6 @@ if {![cc-check-function-in-lib socket {socket network}]} {
         define-append LIBS -lwsock32
     }
 }
-cc-check-function-in-lib iconv iconv
 cc-check-functions utime
 cc-check-functions usleep
 cc-check-functions strchrnul

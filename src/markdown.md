@@ -8,11 +8,16 @@
 ## Headings ##
 
 >
-    # Top-level Heading                         Alternative Top Level Heading
-    # Top-level Heading Variant #               =============================
+    # Top Level Heading                 Alternative Top Level Heading
+    # Top Level Heading Variant #       =============================
 >
-    ## Second-level Heading                     Alternative 2nd Level Heading
-    ## Second-level Heading Variant ##          -----------------------------
+    ## 2nd Level Heading                Alternative 2nd Level Heading
+    ## 2nd Level Heading Variant ##     -----------------------------
+>
+    ### 3rd Level Heading               ### 3rd Level Heading Variant ###
+    #### 4th Level Heading              #### 4th Level Heading Variant ####
+    ##### 5th Level Heading             ##### 5th Level Heading Variant #####
+    ###### 6th Level Heading            ###### 6th Level Heading Variant ######
 
 ## Links ##
 
@@ -77,10 +82,12 @@
 ## Tables ##
 
 >
-    | Header 1     | Header 2  | Header 3      |
-    --------------------------------------------
-    |:Left-aligned |:Centered :| Right-aligned:|
-    |              | ← Blank → |               |
+    | Header 1     | Header 2    | Header 3      |
+    ----------------------------------------------
+    | Row 1 Col 1  | Row 1 Col 2 | Row 1 Col 3   |
+    |:Left-aligned |:Centered   :| Right-aligned:|
+    |              | ← Blank   → |               |
+    | Row 4 Col 1  | Row 4 Col 2 | Row 4 Col 3   |
 
 > The first row is a header if followed by a horizontal rule or a blank line.
 

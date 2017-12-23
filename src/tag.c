@@ -671,7 +671,7 @@ void taglist_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
     if( g.perm.Hyperlink ){
-      @ <li>%z(xhref("class='taglink'","%R/timeline?t=%T&n=200",zName))
+      @ <li>%z(chref("taglink","%R/timeline?t=%T&n=200",zName))
       @ %h(zName)</a></li>
     }else{
       @ <li><span class="tagDsp">%h(zName)</span></li>

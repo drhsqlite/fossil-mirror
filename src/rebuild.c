@@ -165,6 +165,12 @@ void rebuild_schema_update_2_0(void){
     }
     fossil_free(z);
   }
+  db_multi_exec(
+    "CREATE VIEW IF NOT EXISTS "
+    "  repository.artifact(rid,rcvid,size,atype,srcid,hash,content) AS "
+    "    SELECT blob.rid,rcvid,size,1,srcid,uuid,content"
+    "      FROM blob LEFT JOIN delta ON (blob.rid=delta.rid);"
+  );
 }
 
 /*
@@ -450,14 +456,25 @@ int rebuild_db(int randomize, int doOut, int doClustering){
 }
 
 /*
+** Number of neighbors to search
+*/
+#define N_NEIGHBOR 5
+
+/*
 ** Attempt to convert more full-text blobs into delta-blobs for
 ** storage efficiency.
 */
 void extra_deltification(void){
   Stmt q;
-  int topid, previd, rid;
+  int aPrev[N_NEIGHBOR];
+  int nPrev;
+  int rid;
   int prevfnid, fnid;
   db_begin_transaction();
+
+  /* Look for manifests that have not been deltaed and try to make them
+  ** children of one of the 5 chronologically subsequent check-ins
+  */
   db_prepare(&q,
      "SELECT rid FROM event, blob"
      " WHERE blob.rid=event.objid"
@@ -465,22 +482,28 @@ void extra_deltification(void){
      "   AND NOT EXISTS(SELECT 1 FROM delta WHERE rid=blob.rid)"
      " ORDER BY event.mtime DESC"
   );
-  topid = previd = 0;
+  nPrev = 0;
   while( db_step(&q)==SQLITE_ROW ){
     rid = db_column_int(&q, 0);
-    if( topid==0 ){
-      topid = previd = rid;
+    if( nPrev>0 ){
+      content_deltify(rid, aPrev, nPrev, 0);
+    }
+    if( nPrev<N_NEIGHBOR ){
+      aPrev[nPrev++] = rid;
     }else{
-      if( content_deltify(rid, previd, 0)==0 && previd!=topid ){
-        content_deltify(rid, topid, 0);
-      }
-      previd = rid;
+      int i;
+      for(i=0; i<N_NEIGHBOR-1; i++) aPrev[i] = aPrev[i+1];
+      aPrev[N_NEIGHBOR-1] = rid;
     }
   }
   db_finalize(&q);
 
+  /* For individual files that have not been deltaed, try to find
+  ** a parent which is an undeltaed file with the same name in a
+  ** more recent branch.
+  */
   db_prepare(&q,
-     "SELECT blob.rid, mlink.fnid FROM blob, mlink, plink"
+     "SELECT DISTINCT blob.rid, mlink.fnid FROM blob, mlink, plink"
      " WHERE NOT EXISTS(SELECT 1 FROM delta WHERE rid=blob.rid)"
      "   AND mlink.fid=blob.rid"
      "   AND mlink.mid=plink.cid"
@@ -491,14 +514,17 @@ void extra_deltification(void){
   while( db_step(&q)==SQLITE_ROW ){
     rid = db_column_int(&q, 0);
     fnid = db_column_int(&q, 1);
-    if( prevfnid!=fnid ){
-      prevfnid = fnid;
-      topid = previd = rid;
+    if( fnid!=prevfnid ) nPrev = 0;
+    prevfnid = fnid;
+    if( nPrev>0 ){
+      content_deltify(rid, aPrev, nPrev, 0);
+    }
+    if( nPrev<N_NEIGHBOR ){
+      aPrev[nPrev++] = rid;
     }else{
-      if( content_deltify(rid, previd, 0)==0 && previd!=topid ){
-        content_deltify(rid, topid, 0);
-      }
-      previd = rid;
+      int i;
+      for(i=0; i<N_NEIGHBOR-1; i++) aPrev[i] = aPrev[i+1];
+      aPrev[N_NEIGHBOR-1] = rid;
     }
   }
   db_finalize(&q);
@@ -919,16 +945,16 @@ void recon_read_dir(char *zPath){
       fossil_path_free(zUtf8Name);
 #ifdef _DIRENT_HAVE_D_TYPE
       if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
-          ? (file_isdir(zSubpath)==1) : (pEntry->d_type==DT_DIR) )
+          ? (file_isdir(zSubpath, ExtFILE)==1) : (pEntry->d_type==DT_DIR) )
 #else
-      if( file_isdir(zSubpath)==1 )
+      if( file_isdir(zSubpath, ExtFILE)==1 )
 #endif
       {
         recon_read_dir(zSubpath);
       }else{
         blob_init(&path, 0, 0);
         blob_appendf(&path, "%s", zSubpath);
-        if( blob_read_from_file(&aContent, blob_str(&path))==-1 ){
+        if( blob_read_from_file(&aContent, blob_str(&path), ExtFILE)==-1 ){
           fossil_fatal("some unknown error occurred while reading \"%s\"",
                        blob_str(&path));
         }
@@ -965,7 +991,7 @@ void reconstruct_cmd(void) {
   if( g.argc!=4 ){
     usage("FILENAME DIRECTORY");
   }
-  if( file_isdir(g.argv[3])!=1 ){
+  if( file_isdir(g.argv[3], ExtFILE)!=1 ){
     fossil_print("\"%s\" is not a directory\n\n", g.argv[3]);
     usage("FILENAME DIRECTORY");
   }
@@ -1047,7 +1073,7 @@ void deconstruct_cmd(void){
   }
   /* get and check argument destination directory */
   zDestDir = g.argv[g.argc-1];
-  if( !*zDestDir  || !file_isdir(zDestDir)) {
+  if( !*zDestDir  || !file_isdir(zDestDir, ExtFILE)) {
     fossil_fatal("DESTINATION(%s) is not a directory!",zDestDir);
   }
 #ifndef _WIN32

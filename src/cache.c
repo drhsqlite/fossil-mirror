@@ -51,7 +51,7 @@ static sqlite3 *cacheOpen(int bForce){
   zDbName = cacheName();
   if( zDbName==0 ) return 0;
   if( bForce==0 ){
-    sz = file_size(zDbName);
+    sz = file_size(zDbName, ExtFILE);
     if( sz<=0 ){
       fossil_free(zDbName);
       return 0;
@@ -319,7 +319,7 @@ void cache_cmd(void){
       }
       sqlite3_close(db);
       fossil_print("Entries: %d  Cache-file Size: %lld\n",
-                   nEntry, file_size(zDbName));
+                   nEntry, file_size(zDbName, ExtFILE));
       fossil_free(zDbName);
     }
   }else if( strncmp(zCmd, "status", nCmd)==0 ){
@@ -367,7 +367,7 @@ void cache_page(void){
       @ </ol>
     }
     zDbName = cacheName();
-    bigSizeName(sizeof(zBuf), zBuf, file_size(zDbName));
+    bigSizeName(sizeof(zBuf), zBuf, file_size(zDbName, ExtFILE));
     @ <p>cache-file name: %h(zDbName)</p>
     @ <p>cache-file size: %s(zBuf)</p>
     fossil_free(zDbName);

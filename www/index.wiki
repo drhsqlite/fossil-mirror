@@ -129,6 +129,8 @@ management system with these advanced features:
      subsystems, including [./customskin.md | theming].
   *  List of [./th1.md | TH1 commands provided by Fossil itself] that expose
      its key functionality to TH1 scripts.
+  *  List of [./th1-hooks.md | TH1 hooks exposed by Fossil] that enable
+     customization of commands and web pages.
   *  A free hosting server for Fossil repositories is available at
      [http://chiselapp.com/].
   *  How to [./server.wiki | set up a server] for your repository.

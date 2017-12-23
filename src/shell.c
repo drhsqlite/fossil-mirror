@@ -1499,7 +1499,7 @@ static void sha3QueryFunc(
 
 
 #ifdef _WIN32
-__declspec(dllexport)
+
 #endif
 int sqlite3_shathree_init(
   sqlite3 *db,
@@ -1611,7 +1611,7 @@ static void writefileFunc(
 
 
 #ifdef _WIN32
-__declspec(dllexport)
+
 #endif
 int sqlite3_fileio_init(
   sqlite3 *db, 
@@ -2139,7 +2139,7 @@ int sqlite3CompletionVtabInit(sqlite3 *db){
 }
 
 #ifdef _WIN32
-__declspec(dllexport)
+
 #endif
 int sqlite3_completion_init(
   sqlite3 *db, 
@@ -2231,14 +2231,13 @@ struct ShellState {
 /*
 ** These are the allowed shellFlgs values
 */
-#define SHFLG_Scratch        0x00000001 /* The --scratch option is used */
-#define SHFLG_Pagecache      0x00000002 /* The --pagecache option is used */
-#define SHFLG_Lookaside      0x00000004 /* Lookaside memory is used */
-#define SHFLG_Backslash      0x00000008 /* The --backslash option is used */
-#define SHFLG_PreserveRowid  0x00000010 /* .dump preserves rowid values */
-#define SHFLG_Newlines       0x00000020 /* .dump --newline flag */
-#define SHFLG_CountChanges   0x00000040 /* .changes setting */
-#define SHFLG_Echo           0x00000080 /* .echo or --echo setting */
+#define SHFLG_Pagecache      0x00000001 /* The --pagecache option is used */
+#define SHFLG_Lookaside      0x00000002 /* Lookaside memory is used */
+#define SHFLG_Backslash      0x00000004 /* The --backslash option is used */
+#define SHFLG_PreserveRowid  0x00000008 /* .dump preserves rowid values */
+#define SHFLG_Newlines       0x00000010 /* .dump --newline flag */
+#define SHFLG_CountChanges   0x00000020 /* .changes setting */
+#define SHFLG_Echo           0x00000040 /* .echo or --echo setting */
 
 /*
 ** Macros for testing and setting shellFlgs
@@ -2551,12 +2550,9 @@ static void output_csv(ShellState *p, const char *z, int bSep){
       }
     }
     if( i==0 ){
-      putc('"', out);
-      for(i=0; z[i]; i++){
-        if( z[i]=='"' ) putc('"', out);
-        putc(z[i], out);
-      }
-      putc('"', out);
+      char *zQuoted = sqlite3_mprintf("\"%w\"", z);
+      utf8_printf(out, "%s", zQuoted);
+      sqlite3_free(zQuoted);
     }else{
       utf8_printf(out, "%s", z);
     }
@@ -2566,7 +2562,6 @@ static void output_csv(ShellState *p, const char *z, int bSep){
   }
 }
 
-#ifdef SIGINT
 /*
 ** This routine runs when the user presses Ctrl-C
 */
@@ -2575,6 +2570,20 @@ static void interrupt_handler(int NotUsed){
   seenInterrupt++;
   if( seenInterrupt>2 ) exit(1);
   if( globalDb ) sqlite3_interrupt(globalDb);
+}
+
+#if (defined(_WIN32) || defined(WIN32)) && !defined(_WIN32_WCE)
+/*
+** This routine runs for console events (e.g. Ctrl-C) on Win32
+*/
+static BOOL WINAPI ConsoleCtrlHandler(
+  DWORD dwCtrlType /* One of the CTRL_*_EVENT constants */
+){
+  if( dwCtrlType==CTRL_C_EVENT ){
+    interrupt_handler(0);
+    return TRUE;
+  }
+  return FALSE;
 }
 #endif
 
@@ -2659,6 +2668,7 @@ static int shell_callback(
   int i;
   ShellState *p = (ShellState*)pArg;
 
+  if( azArg==0 ) return 0;
   switch( p->cMode ){
     case MODE_Line: {
       int w = 5;
@@ -2773,6 +2783,7 @@ static int shell_callback(
       for(i=0; IsSpace(z[i]); i++){}
       for(; (c = z[i])!=0; i++){
         if( IsSpace(c) ){
+          if( z[j-1]=='\r' ) z[j-1] = '\n';
           if( IsSpace(z[j-1]) || z[j-1]=='(' ) continue;
         }else if( (c=='(' || c==')') && j>0 && IsSpace(z[j-1]) ){
           j--;
@@ -3009,6 +3020,7 @@ static int captureOutputCallback(void *pArg, int nArg, char **azArg, char **az){
   ShellText *p = (ShellText*)pArg;
   int i;
   UNUSED_PARAMETER(az);
+  if( azArg==0 ) return 0;
   if( p->n ) appendText(p, "|", 0);
   for(i=0; i<nArg; i++){
     if( i ) appendText(p, ",", 0);
@@ -3073,7 +3085,7 @@ static void createSelftestTable(ShellState *p){
 */
 static void set_table_name(ShellState *p, const char *zName){
   int i, n;
-  int cQuote;
+  char cQuote;
   char *z;
 
   if( p->zDestTable ){
@@ -3255,18 +3267,10 @@ static int display_stats(
     }
     displayStatLine(pArg, "Number of Pcache Overflow Bytes:",
        "%lld (max %lld) bytes", SQLITE_STATUS_PAGECACHE_OVERFLOW, bReset);
-    if( pArg->shellFlgs & SHFLG_Scratch ){
-      displayStatLine(pArg, "Number of Scratch Allocations Used:",
-         "%lld (max %lld)", SQLITE_STATUS_SCRATCH_USED, bReset);
-    }
-    displayStatLine(pArg, "Number of Scratch Overflow Bytes:",
-       "%lld (max %lld) bytes", SQLITE_STATUS_SCRATCH_OVERFLOW, bReset);
     displayStatLine(pArg, "Largest Allocation:",
        "%lld bytes", SQLITE_STATUS_MALLOC_SIZE, bReset);
     displayStatLine(pArg, "Largest Pcache Allocation:",
        "%lld bytes", SQLITE_STATUS_PAGECACHE_SIZE, bReset);
-    displayStatLine(pArg, "Largest Scratch Allocation:",
-       "%lld bytes", SQLITE_STATUS_SCRATCH_SIZE, bReset);
 #ifdef YYTRACKMAXSTACKDEPTH
     displayStatLine(pArg, "Deepest Parser Stack:",
        "%lld (max %lld)", SQLITE_STATUS_PARSER_STACK, bReset);
@@ -3807,6 +3811,7 @@ static char **tableColumnList(ShellState *p, const char *zTab){
     }
   }
   sqlite3_finalize(pStmt);
+  if( azCol==0 ) return 0;
   azCol[0] = 0;
   azCol[nCol+1] = 0;
 
@@ -3890,7 +3895,7 @@ static int dump_callback(void *pArg, int nArg, char **azArg, char **azNotUsed){
   ShellState *p = (ShellState *)pArg;
 
   UNUSED_PARAMETER(azNotUsed);
-  if( nArg!=3 ) return 1;
+  if( nArg!=3 || azArg==0 ) return 0;
   zTable = azArg[0];
   zType = azArg[1];
   zSql = azArg[2];
@@ -4976,20 +4981,24 @@ static int shell_dbinfo_command(ShellState *p, int nArg, char **azArg){
      { "schema size:",
        "SELECT total(length(sql)) FROM %s" },
   };
-  sqlite3_file *pFile = 0;
   int i;
   char *zSchemaTab;
   char *zDb = nArg>=2 ? azArg[1] : "main";
+  sqlite3_stmt *pStmt = 0;
   unsigned char aHdr[100];
   open_db(p, 0);
   if( p->db==0 ) return 1;
-  sqlite3_file_control(p->db, zDb, SQLITE_FCNTL_FILE_POINTER, &pFile);
-  if( pFile==0 || pFile->pMethods==0 || pFile->pMethods->xRead==0 ){
-    return 1;
-  }
-  i = pFile->pMethods->xRead(pFile, aHdr, 100, 0);
-  if( i!=SQLITE_OK ){
+  sqlite3_prepare_v2(p->db,"SELECT data FROM sqlite_dbpage(?1) WHERE pgno=1",
+                     -1, &pStmt, 0);
+  sqlite3_bind_text(pStmt, 1, zDb, -1, SQLITE_STATIC);
+  if( sqlite3_step(pStmt)==SQLITE_ROW
+   && sqlite3_column_bytes(pStmt,0)>100
+  ){
+    memcpy(aHdr, sqlite3_column_blob(pStmt,0), 100);
+    sqlite3_finalize(pStmt);
+  }else{
     raw_printf(stderr, "unable to read database header\n");
+    sqlite3_finalize(pStmt);
     return 1;
   }
   i = get2byteInt(aHdr+16);
@@ -5246,10 +5255,10 @@ static int lintFkeyIndexes(
   **
   ** 0. The text of an SQL statement similar to:
   **
-  **      "EXPLAIN QUERY PLAN SELECT rowid FROM child_table WHERE child_key=?"
+  **      "EXPLAIN QUERY PLAN SELECT 1 FROM child_table WHERE child_key=?"
   **
-  **    This is the same SELECT that the foreign keys implementation needs
-  **    to run internally on child tables. If there is an index that can
+  **    This SELECT is similar to the one that the foreign keys implementation
+  **    needs to run internally on child tables. If there is an index that can
   **    be used to optimize this query, then it can also be used by the FK
   **    implementation to optimize DELETE or UPDATE statements on the parent
   **    table.
@@ -5277,7 +5286,7 @@ static int lintFkeyIndexes(
   */
   const char *zSql =
   "SELECT "
-    "     'EXPLAIN QUERY PLAN SELECT rowid FROM ' || quote(s.name) || ' WHERE '"
+    "     'EXPLAIN QUERY PLAN SELECT 1 FROM ' || quote(s.name) || ' WHERE '"
     "  || group_concat(quote(s.name) || '.' || quote(f.[from]) || '=?' "
     "  || fkey_collate_clause("
     "       f.[table], COALESCE(f.[to], p.[name]), s.name, f.[from]),' AND ')"
@@ -5609,7 +5618,7 @@ static int do_meta_command(char *zLine, ShellState *p){
       utf8_printf(stderr,
                  "testcase-%s FAILED\n Expected: [%s]\n      Got: [%s]\n",
                  p->zTestcase, azArg[1], zRes);
-      rc = 2;
+      rc = 1;
     }else{
       utf8_printf(stdout, "testcase-%s ok\n", p->zTestcase);
       p->nCheck++;
@@ -7270,50 +7279,77 @@ static int do_meta_command(char *zLine, ShellState *p){
   }else
 
 #ifndef SQLITE_UNTESTABLE
-  if( c=='t' && n>=8 && strncmp(azArg[0], "testctrl", n)==0 && nArg>=2 ){
+  if( c=='t' && n>=8 && strncmp(azArg[0], "testctrl", n)==0 ){
     static const struct {
        const char *zCtrlName;   /* Name of a test-control option */
        int ctrlCode;            /* Integer code for that option */
+       const char *zUsage;      /* Usage notes */
     } aCtrl[] = {
-      { "prng_save",             SQLITE_TESTCTRL_PRNG_SAVE              },
-      { "prng_restore",          SQLITE_TESTCTRL_PRNG_RESTORE           },
-      { "prng_reset",            SQLITE_TESTCTRL_PRNG_RESET             },
-      { "bitvec_test",           SQLITE_TESTCTRL_BITVEC_TEST            },
-      { "fault_install",         SQLITE_TESTCTRL_FAULT_INSTALL          },
-      { "benign_malloc_hooks",   SQLITE_TESTCTRL_BENIGN_MALLOC_HOOKS    },
-      { "pending_byte",          SQLITE_TESTCTRL_PENDING_BYTE           },
-      { "assert",                SQLITE_TESTCTRL_ASSERT                 },
-      { "always",                SQLITE_TESTCTRL_ALWAYS                 },
-      { "reserve",               SQLITE_TESTCTRL_RESERVE                },
-      { "optimizations",         SQLITE_TESTCTRL_OPTIMIZATIONS          },
-      { "iskeyword",             SQLITE_TESTCTRL_ISKEYWORD              },
-      { "scratchmalloc",         SQLITE_TESTCTRL_SCRATCHMALLOC          },
-      { "byteorder",             SQLITE_TESTCTRL_BYTEORDER              },
-      { "never_corrupt",         SQLITE_TESTCTRL_NEVER_CORRUPT          },
-      { "imposter",              SQLITE_TESTCTRL_IMPOSTER               },
+      { "always",             SQLITE_TESTCTRL_ALWAYS,        "BOOLEAN"            },
+      { "assert",             SQLITE_TESTCTRL_ASSERT,        "BOOLEAN"            },
+    /*{ "benign_malloc_hooks",SQLITE_TESTCTRL_BENIGN_MALLOC_HOOKS, ""          },*/
+    /*{ "bitvec_test",        SQLITE_TESTCTRL_BITVEC_TEST,   ""                },*/
+      { "byteorder",          SQLITE_TESTCTRL_BYTEORDER,     ""                   },
+    /*{ "fault_install",      SQLITE_TESTCTRL_FAULT_INSTALL, ""                }, */
+      { "imposter",           SQLITE_TESTCTRL_IMPOSTER,   "SCHEMA ON/OFF ROOTPAGE"},
+#ifdef SQLITE_N_KEYWORD
+      { "iskeyword",          SQLITE_TESTCTRL_ISKEYWORD,     "IDENTIFIER"         },
+#endif
+      { "localtime_fault",    SQLITE_TESTCTRL_LOCALTIME_FAULT,"BOOLEAN"           },
+      { "never_corrupt",      SQLITE_TESTCTRL_NEVER_CORRUPT, "BOOLEAN"            },
+      { "optimizations",      SQLITE_TESTCTRL_OPTIMIZATIONS, "DISABLE-MASK"       },
+      { "pending_byte",       SQLITE_TESTCTRL_PENDING_BYTE,  "OFFSET  "           },
+      { "prng_reset",         SQLITE_TESTCTRL_PRNG_RESET,    ""                   },
+      { "prng_restore",       SQLITE_TESTCTRL_PRNG_RESTORE,  ""                   },
+      { "prng_save",          SQLITE_TESTCTRL_PRNG_SAVE,     ""                   },
+      { "reserve",            SQLITE_TESTCTRL_RESERVE,       "BYTES-OF-RESERVE"   },
     };
     int testctrl = -1;
-    int rc2 = 0;
+    int iCtrl = -1;
+    int rc2 = 0;    /* 0: usage.  1: %d  2: %x  3: no-output */
+    int isOk = 0;
     int i, n2;
+    const char *zCmd = 0;
+
     open_db(p, 0);
+    zCmd = nArg>=2 ? azArg[1] : "help";
+
+    /* The argument can optionally begin with "-" or "--" */
+    if( zCmd[0]=='-' && zCmd[1] ){
+      zCmd++;
+      if( zCmd[0]=='-' && zCmd[1] ) zCmd++;
+    }
+
+    /* --help lists all test-controls */
+    if( strcmp(zCmd,"help")==0 ){
+      utf8_printf(p->out, "Available test-controls:\n");
+      for(i=0; i<ArraySize(aCtrl); i++){
+        utf8_printf(p->out, "  .testctrl %s %s\n",
+                    aCtrl[i].zCtrlName, aCtrl[i].zUsage);
+      }
+      rc = 1;
+      goto meta_command_exit;
+    }
 
     /* convert testctrl text option to value. allow any unique prefix
     ** of the option name, or a numerical value. */
-    n2 = strlen30(azArg[1]);
+    n2 = strlen30(zCmd);
     for(i=0; i<ArraySize(aCtrl); i++){
-      if( strncmp(azArg[1], aCtrl[i].zCtrlName, n2)==0 ){
+      if( strncmp(zCmd, aCtrl[i].zCtrlName, n2)==0 ){
         if( testctrl<0 ){
           testctrl = aCtrl[i].ctrlCode;
+          iCtrl = i;
         }else{
-          utf8_printf(stderr, "ambiguous option name: \"%s\"\n", azArg[1]);
-          testctrl = -1;
-          break;
+          utf8_printf(stderr, "Error: ambiguous test-control: \"%s\"\n"
+                              "Use \".testctrl --help\" for help\n", zCmd);
+          rc = 1;
+          goto meta_command_exit;
         }
       }
     }
-    if( testctrl<0 ) testctrl = (int)integerValue(azArg[1]);
-    if( (testctrl<SQLITE_TESTCTRL_FIRST) || (testctrl>SQLITE_TESTCTRL_LAST) ){
-      utf8_printf(stderr,"Error: invalid testctrl option: %s\n", azArg[1]);
+    if( testctrl<0 ){
+      utf8_printf(stderr,"Error: unknown test-control: %s\n"
+                         "Use \".testctrl --help\" for help\n", zCmd);
     }else{
       switch(testctrl){
 
@@ -7323,10 +7359,7 @@ static int do_meta_command(char *zLine, ShellState *p){
           if( nArg==3 ){
             int opt = (int)strtol(azArg[2], 0, 0);
             rc2 = sqlite3_test_control(testctrl, p->db, opt);
-            raw_printf(p->out, "%d (0x%08x)\n", rc2, rc2);
-          } else {
-            utf8_printf(stderr,"Error: testctrl %s takes a single int option\n",
-                    azArg[1]);
+            isOk = 3;
           }
           break;
 
@@ -7337,10 +7370,7 @@ static int do_meta_command(char *zLine, ShellState *p){
         case SQLITE_TESTCTRL_BYTEORDER:
           if( nArg==2 ){
             rc2 = sqlite3_test_control(testctrl);
-            raw_printf(p->out, "%d (0x%08x)\n", rc2, rc2);
-          } else {
-            utf8_printf(stderr,"Error: testctrl %s takes no options\n",
-                        azArg[1]);
+            isOk = testctrl==SQLITE_TESTCTRL_BYTEORDER ? 1 : 3;
           }
           break;
 
@@ -7349,24 +7379,27 @@ static int do_meta_command(char *zLine, ShellState *p){
           if( nArg==3 ){
             unsigned int opt = (unsigned int)integerValue(azArg[2]);
             rc2 = sqlite3_test_control(testctrl, opt);
-            raw_printf(p->out, "%d (0x%08x)\n", rc2, rc2);
-          } else {
-            utf8_printf(stderr,"Error: testctrl %s takes a single unsigned"
-                           " int option\n", azArg[1]);
+            isOk = 3;
           }
           break;
 
         /* sqlite3_test_control(int, int) */
         case SQLITE_TESTCTRL_ASSERT:
         case SQLITE_TESTCTRL_ALWAYS:
+          if( nArg==3 ){
+            int opt = booleanValue(azArg[2]);
+            rc2 = sqlite3_test_control(testctrl, opt);
+            isOk = 1;
+          }
+          break;
+
+        /* sqlite3_test_control(int, int) */
+        case SQLITE_TESTCTRL_LOCALTIME_FAULT:
         case SQLITE_TESTCTRL_NEVER_CORRUPT:
           if( nArg==3 ){
             int opt = booleanValue(azArg[2]);
             rc2 = sqlite3_test_control(testctrl, opt);
-            raw_printf(p->out, "%d (0x%08x)\n", rc2, rc2);
-          } else {
-            utf8_printf(stderr,"Error: testctrl %s takes a single int option\n",
-                            azArg[1]);
+            isOk = 3;
           }
           break;
 
@@ -7376,11 +7409,7 @@ static int do_meta_command(char *zLine, ShellState *p){
           if( nArg==3 ){
             const char *opt = azArg[2];
             rc2 = sqlite3_test_control(testctrl, opt);
-            raw_printf(p->out, "%d (0x%08x)\n", rc2, rc2);
-          } else {
-            utf8_printf(stderr,
-                        "Error: testctrl %s takes a single char * option\n",
-                        azArg[1]);
+            isOk = 1;
           }
           break;
 #endif
@@ -7391,22 +7420,18 @@ static int do_meta_command(char *zLine, ShellState *p){
                           azArg[2],
                           integerValue(azArg[3]),
                           integerValue(azArg[4]));
-            raw_printf(p->out, "%d (0x%08x)\n", rc2, rc2);
-          }else{
-            raw_printf(stderr,"Usage: .testctrl imposter dbName onoff tnum\n");
+            isOk = 3;
           }
           break;
-
-        case SQLITE_TESTCTRL_BITVEC_TEST:
-        case SQLITE_TESTCTRL_FAULT_INSTALL:
-        case SQLITE_TESTCTRL_BENIGN_MALLOC_HOOKS:
-        case SQLITE_TESTCTRL_SCRATCHMALLOC:
-        default:
-          utf8_printf(stderr,
-                      "Error: CLI support for testctrl %s not implemented\n",
-                      azArg[1]);
-          break;
       }
+    }
+    if( isOk==0 && iCtrl>=0 ){
+      utf8_printf(p->out, "Usage: .testctrl %s %s\n", zCmd, aCtrl[iCtrl].zUsage);
+      rc = 1;
+    }else if( isOk==1 ){
+      raw_printf(p->out, "%d\n", rc2);
+    }else if( isOk==2 ){
+      raw_printf(p->out, "0x%08x\n", rc2);
     }
   }else
 #endif /* !defined(SQLITE_UNTESTABLE) */
@@ -7920,7 +7945,6 @@ static const char zOptions[] =
   "   -nullvalue TEXT      set text string for NULL values. Default ''\n"
   "   -pagecache SIZE N    use N slots of SZ bytes each for page cache memory\n"
   "   -quote               set output mode to 'quote'\n"
-  "   -scratch SIZE N      use N slots of SZ bytes each for scratch memory\n"
   "   -separator SEP       set output column separator. Default: '|'\n"
   "   -stats               print memory stats before each finalize\n"
   "   -version             show SQLite version\n"
@@ -8023,7 +8047,7 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
   stdout_is_console = isatty(1);
 
 #if USE_SYSTEM_SQLITE+0!=1
-  if( strcmp(sqlite3_sourceid(),SQLITE_SOURCE_ID)!=0 ){
+  if( strncmp(sqlite3_sourceid(),SQLITE_SOURCE_ID,60)!=0 ){
     utf8_printf(stderr, "SQLite header and source version mismatch\n%s\n%s\n",
             sqlite3_sourceid(), SQLITE_SOURCE_ID);
     exit(1);
@@ -8053,6 +8077,8 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
   */
 #ifdef SIGINT
   signal(SIGINT, interrupt_handler);
+#elif (defined(_WIN32) || defined(WIN32)) && !defined(_WIN32_WCE)
+  SetConsoleCtrlHandler(ConsoleCtrlHandler, TRUE);
 #endif
 
 #ifdef SQLITE_SHELL_DBNAME_PROC
@@ -8118,16 +8144,6 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
 #else
       (void)cmdline_option_value(argc, argv, ++i);
 #endif
-    }else if( strcmp(z,"-scratch")==0 ){
-      int n, sz;
-      sz = (int)integerValue(cmdline_option_value(argc,argv,++i));
-      if( sz>400000 ) sz = 400000;
-      if( sz<2500 ) sz = 2500;
-      n = (int)integerValue(cmdline_option_value(argc,argv,++i));
-      if( n>10 ) n = 10;
-      if( n<1 ) n = 1;
-      sqlite3_config(SQLITE_CONFIG_SCRATCH, malloc(n*sz+1), sz, n);
-      data.shellFlgs |= SHFLG_Scratch;
     }else if( strcmp(z,"-pagecache")==0 ){
       int n, sz;
       sz = (int)integerValue(cmdline_option_value(argc,argv,++i));
@@ -8271,8 +8287,6 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
       stdin_is_interactive = 0;
     }else if( strcmp(z,"-heap")==0 ){
       i++;
-    }else if( strcmp(z,"-scratch")==0 ){
-      i+=2;
     }else if( strcmp(z,"-pagecache")==0 ){
       i+=2;
     }else if( strcmp(z,"-lookaside")==0 ){

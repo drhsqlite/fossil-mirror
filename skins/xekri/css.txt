@@ -749,6 +749,10 @@ tr.timelineSelected td.timelineTableCell {
   border-radius: 0 1rem 1rem 0;
 }
 
+.timelineModernCell[id], .timelineColumnarCell[id], .timelineDetailCell[id] {
+  background-color: #282828;
+}
+
 /* the format for the timeline data cells */
 td.timelineTableCell {
   padding: 0.3rem;
@@ -824,7 +828,7 @@ span.ueditInheritDeveloper {
 
 /* color for capabilities, inherited by reader */
 span.ueditInheritReader {
-  color: black;
+  color: #ee0;
 }
 
 /* color for capabilities, inherited by anonymous */
@@ -940,7 +944,7 @@ input.checkinUserColor {
   * ** to the header and configure the java script file with
   * ** 1. use as bindClass :checkinUserColor
   * ** 2. change the default hash adding behaviour to ON
-  * ** or change the class defition of element identified by
+  * ** or change the class definition of element identified by
   * id="clrcust"
   * ** to a standard jscolor definition with java script in the footer.
   * */
@@ -989,7 +993,7 @@ blockquote.reportError {
 p.noMoreShun {
   color: #00f;
 }
-/* format for artifact lines beeing shunned */
+/* format for artifact lines being shunned */
 p.shunned {
   color: #00f;
 }

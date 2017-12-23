@@ -1,0 +1,635 @@
+// This is the template file for the default CSS for Fossil.  Lines
+// beginning with "//" are stripped out by the pre-processor and never
+// reach the web browser.
+//
+// Each repository skin has skin-specific CSS.  The rules contained in this
+// file are appended to the skin-CSS as required.  Each rule is evaluated
+// separately and is only appended to the final CSS if there is not an
+// overriding rule with the same selector in the skin-CSS.
+//
+div.sidebox {
+  float: right;
+  background-color: white;
+  border-width: medium;
+  border-style: double;
+  margin: 10px;
+}
+div.sideboxTitle {
+  display: inline;
+  font-weight: bold;
+}
+div.sideboxDescribed {
+  display: inline;
+  font-weight: bold;
+}
+span.disabled {
+  color: red;
+}
+table.timelineTable {
+  border-spacing: 0px 2px;
+}
+.timelineDate {
+  white-space: nowrap;
+}
+span.timelineDisabled {
+  font-style: italic;
+  font-size: small;
+}
+tr.timelineCurrent {
+  padding: .1em .2em;
+  border: 1px dashed #446979;
+  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+}
+tr.timelineSelected {
+  padding: .1em .2em;
+  border: 2px solid lightgray;
+  background-color: #ffc;
+  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+}
+tr.timelineSelected td {
+  border-radius: 0;
+  border-width: 0;
+}
+tr.timelineCurrent td {
+  border-radius: 0;
+  border-width: 0;
+}
+span.timelineLeaf {
+  font-weight: bold;
+}
+span.timelineHistDsp {
+  font-weight: bold;
+}
+td.timelineTime {
+  vertical-align: top;
+  text-align: right;
+  white-space: nowrap;
+}
+td.timelineGraph {
+  width: 20px;
+  text-align: left;
+  vertical-align: top;
+}
+span.timelineCompactComment {
+  cursor: pointer;
+}
+span.timelineEllipsis {
+  cursor: pointer;
+}
+.timelineModernCell, .timelineColumnarCell, .timelineDetailCell {
+  vertical-align: top;
+  text-align: left;
+  padding: 0.75em;
+  border-radius: 1em;
+}
+.timelineModernCell[id], .timelineColumnarCell[id], .timelineDetailCell[id] {
+  background-color: #efefef;
+}
+.timelineModernDetail {
+  font-size: 80%;
+  text-align: right;
+  float: right;
+  opacity: 0.75;
+  margin-top: 0.5em;
+  margin-left: 1em;
+}
+.tl-canvas {
+  margin: 0 6px 0 10px;
+}
+.tl-rail {
+  width: 18px;
+}
+.tl-mergeoffset {
+  width: 2px;
+}
+.tl-nodemark {
+  margin-top: 5px;
+}
+.tl-node {
+  width: 10px;
+  height: 10px;
+  border: 1px solid #000;
+  background: #fff;
+  cursor: pointer;
+}
+.tl-node.leaf:after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 4px;
+  height: 4px;
+  background: #000;
+}
+.tl-node.sel:after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 6px;
+  height: 6px;
+  background: red;
+}
+.tl-arrow {
+  width: 0;
+  height: 0;
+  transform: scale(.999);
+  border: 0 solid transparent;
+}
+.tl-arrow.u {
+  margin-top: -1px;
+  border-width: 0 3px;
+  border-bottom: 7px solid #000;
+}
+.tl-arrow.u.sm {
+  border-bottom: 5px solid #000;
+}
+.tl-line {
+  background: #000;
+  width: 2px;
+}
+.tl-arrow.merge {
+  height: 1px;
+  border-width: 2px 0;
+}
+.tl-arrow.merge.l {
+  border-right: 3px solid #000;
+}
+.tl-arrow.merge.r {
+  border-left: 3px solid #000;
+}
+.tl-line.merge {
+  width: 1px;
+}
+.tl-arrow.warp {
+  margin-left: 1px;
+  border-width: 3px 0;
+  border-left: 7px solid #600000;
+}
+.tl-line.warp {
+  background: #600000;
+}
+span.tagDsp {
+  font-weight: bold;
+}
+span.wikiError {
+  font-weight: bold;
+  color: red;
+}
+span.infoTagCancelled {
+  font-weight: bold;
+  text-decoration: line-through;
+}
+span.infoTag {
+  font-weight: bold;
+}
+span.wikiTagCancelled {
+  text-decoration: line-through;
+}
+table.browser {
+  width: 100%;
+  border: 0;
+}
+td.browser {
+  width: 24%;
+  vertical-align: top;
+}
+.filetree {
+  margin: 1em 0;
+  line-height: 1.5;
+}
+.filetree > ul {
+  display: inline-block;
+}
+.filetree ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.filetree ul.collapsed {
+  display: none;
+}
+.filetree ul ul {
+  position: relative;
+  margin: 0 0 0 21px;
+}
+.filetree li {
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+.filetree li li:before {
+  content: '';
+  position: absolute;
+  top: -.8em;
+  left: -14px;
+  width: 14px;
+  height: 1.5em;
+  border-left: 2px solid #aaa;
+  border-bottom: 2px solid #aaa;
+}
+.filetree li > ul:before {
+  content: '';
+  position: absolute;
+  top: -1.5em;
+  bottom: 0;
+  left: -35px;
+  border-left: 2px solid #aaa;
+}
+.filetree li.last > ul:before {
+  display: none;
+}
+.filetree a {
+  position: relative;
+  z-index: 1;
+  display: table-cell;
+  min-height: 16px;
+  padding-left: 21px;
+  background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP\/\/\/yEhIf\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAIvlIKpxqcfmgOUvoaqDSCxrEEfF14GqFXImJZsu73wepJzVMNxrtNTj3NATMKhpwAAOw==);
+  background-position: center left;
+  background-repeat: no-repeat;
+}
+ul.browser {
+  list-style-type: none;
+  padding: 10px;
+  margin: 0px;
+  white-space: nowrap;
+}
+ul.browser li.file {
+  background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP\/\/\/yEhIf\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAIvlIKpxqcfmgOUvoaqDSCxrEEfF14GqFXImJZsu73wepJzVMNxrtNTj3NATMKhpwAAOw==);
+  background-repeat: no-repeat;
+  background-position: 0px center;
+  padding-left: 20px;
+  padding-top: 2px;
+}
+ul.browser li.dir {
+  background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP/WVCIiIv\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAInlI9pwa3XYniCgQtkrAFfLXkiFo1jaXpo+jUs6b5Z/K4siDu5RPUFADs=);
+  background-repeat: no-repeat;
+  background-position: 0px center;
+  padding-left: 20px;
+  padding-top: 2px;
+}
+div.filetreeline {
+  display: table;
+  width: 100%;
+  white-space: nowrap;
+}
+.filetree .dir > div.filetreeline > a {
+  background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP/WVCIiIv\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAInlI9pwa3XYniCgQtkrAFfLXkiFo1jaXpo+jUs6b5Z/K4siDu5RPUFADs=);
+}
+div.filetreeage {
+ display: table-cell;
+ padding-left: 3em;
+ text-align: right;
+}
+div.filetreeline:hover {
+ background-color: #eee;
+}
+table.login_out {
+  text-align: left;
+  margin-right: 10px;
+  margin-left: 10px;
+  margin-top: 10px;
+}
+div.captcha {
+  text-align: center;
+  padding: 1ex;
+}
+table.captcha {
+  margin: auto;
+  padding: 10px;
+  border-width: 4px;
+  border-style: double;
+  border-color: black;
+}
+td.login_out_label {
+  text-align: center;
+}
+span.loginError {
+  color: red;
+}
+span.note {
+  font-weight: bold;
+}
+span.textareaLabel {
+  font-weight: bold;
+}
+table.usetupLayoutTable {
+  outline-style: none;
+  padding: 0;
+  margin: 25px;
+}
+td.usetupColumnLayout {
+  vertical-align: top
+}
+table.usetupUserList {
+  outline-style: double;
+  outline-width: 1px;
+  padding: 10px;
+}
+th.usetupListUser {
+  text-align: right;
+  padding-right: 20px;
+}
+th.usetupListCap {
+  text-align: center;
+  padding-right: 15px;
+}
+th.usetupListCon {
+  text-align: left;
+}
+td.usetupListUser {
+  text-align: right;
+  padding-right: 20px;
+  white-space:nowrap;
+}
+td.usetupListCap {
+  text-align: center;
+  padding-right: 15px;
+}
+td.usetupListCon {
+  text-align: left
+}
+div.ueditCapBox {
+  float: left;
+  margin-right: 20px;
+  margin-bottom: 20px;
+}
+td.usetupEditLabel {
+  text-align: right;
+  vertical-align: top;
+  white-space: nowrap;
+}
+span.ueditInheritNobody {
+  color: green;
+  padding: .2em;
+}
+span.ueditInheritDeveloper {
+  color: red;
+  padding: .2em;
+}
+span.ueditInheritReader {
+  color: black;
+  padding: .2em;
+}
+span.ueditInheritAnonymous {
+  color: blue;
+  padding: .2em;
+}
+span.capability {
+  font-weight: bold;
+}
+span.usertype {
+  font-weight: bold;
+}
+span.usertype:before {
+  content:"'";
+}
+span.usertype:after {
+  content:"'";
+}
+div.selectedText {
+  font-weight: bold;
+  color: blue;
+  background-color: #d5d5ff;
+  border: 1px blue solid;
+}
+p.missingPriv {
+ color: blue;
+}
+span.wikiruleHead {
+  font-weight: bold;
+}
+td.tktDspLabel {
+  text-align: right;
+}
+td.tktDspValue {
+  text-align: left;
+  vertical-align: top;
+  background-color: #d0d0d0;
+}
+span.tktError {
+  color: red;
+  font-weight: bold;
+}
+table.rpteditex {
+  float: right;
+  margin: 0;
+  padding: 0;
+  width: 125px;
+  text-align: center;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+table.report {
+  border-collapse:collapse;
+  border: 1px solid #999;
+  margin: 1em 0 1em 0;
+  cursor: pointer;
+}
+td.rpteditex {
+  border-width: thin;
+  border-color: #000000;
+  border-style: solid;
+}
+div.endContent {
+  clear: both;
+}
+p.generalError {
+  color: red;
+}
+p.tktsetupError {
+  color: red;
+  font-weight: bold;
+}
+p.xfersetupError {
+  color: red;
+  font-weight: bold;
+}
+p.thmainError {
+  color: red;
+  font-weight: bold;
+}
+span.thTrace {
+  color: red;
+}
+p.reportError {
+  color: red;
+  font-weight: bold;
+}
+blockquote.reportError {
+  color: red;
+  font-weight: bold;
+}
+p.noMoreShun {
+  color: blue;
+}
+p.shunned {
+  color: blue;
+}
+span.brokenlink {
+  color: red;
+}
+ul.filelist {
+  margin-top: 3px;
+  line-height: 100%;
+}
+ul.filelist li {
+  padding-top: 1px;
+}
+table.sbsdiffcols {
+  width: 90%;
+  border-spacing: 0;
+  font-size: xx-small;
+}
+table.sbsdiffcols td {
+  padding: 0;
+  vertical-align: top;
+}
+table.sbsdiffcols pre {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: inherit;
+  background: inherit;
+  color: inherit;
+}
+div.difflncol {
+  padding-right: 1em;
+  text-align: right;
+  color: #a0a0a0;
+}
+div.difftxtcol {
+  width: 45em;
+  overflow-x: auto;
+}
+div.diffmkrcol {
+  padding: 0 1em;
+}
+span.diffchng {
+  background-color: #c0c0ff;
+}
+span.diffadd {
+  background-color: #c0ffc0;
+}
+span.diffrm {
+  background-color: #ffc8c8;
+}
+span.diffhr {
+  display: inline-block;
+  margin: .5em 0 1em;
+  color: #0000ff;
+}
+span.diffln {
+  color: #a0a0a0;
+}
+span.modpending {
+  color: #b03800;
+  font-style: italic;
+}
+pre.th1result {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+pre.th1error {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  color: red;
+}
+.statistics-report-graph-line {
+  background-color: #446979;
+}
+.statistics-report-table-events th {
+  padding: 0 1em 0 1em;
+}
+.statistics-report-table-events td {
+  padding: 0.1em 1em 0.1em 1em;
+}
+.statistics-report-row-year {
+  text-align: left;
+}
+.statistics-report-week-number-label {
+  text-align: right;
+  font-size: 0.8em;
+}
+.statistics-report-week-of-year-list {
+  font-size: 0.8em;
+}
+#usetupEditCapability {
+  font-weight: bold;
+}
+table.adminLogTable {
+  text-align: left;
+}
+.adminLogTable .adminTime {
+  text-align: left;
+  vertical-align: top;
+  white-space: nowrap;
+}
+.fileage table {
+  border-spacing: 0;
+}
+.fileage tr:hover {
+  background-color: #eee;
+}
+.fileage td {
+  vertical-align: top;
+  text-align: left;
+  border-top: 1px solid #ddd;
+  padding-top: 3px;
+}
+.fileage td:first-child {
+  white-space: nowrap;
+}
+.fileage td:nth-child(2) {
+  padding-left: 1em;
+  padding-right: 1em;
+}
+.fileage td:nth-child(3) {
+  word-wrap: break-word;
+  max-width: 50%;
+}
+.brlist table {
+  border-spacing: 0;
+}
+.brlist table th {
+  text-align: left;
+  padding: 0px 1em 0.5ex 0px;
+  vertical-align: bottom;
+}
+.brlist table td {
+  padding: 0px 2em 0px 0px;
+  white-space: nowrap;
+}
+th.sort:after {
+  margin-left: .4em;
+  cursor: pointer;
+  text-shadow: 0 0 0 #000; 
+}
+th.sort.none:after {
+  content: '\2666';
+}
+th.sort.asc:after {
+  content: '\2193';
+}
+th.sort.desc:after {
+  content: '\2191';
+}
+span.snippet>mark {
+  background-color: inherit;
+  font-weight: bold;
+}
+div.searchForm {
+  text-align: center;
+}
+p.searchEmpty {
+  font-style: italic;
+}
+.clutter {
+  display: none;
+}
+table.label-value th {
+  vertical-align: top;
+  text-align: right;
+  padding: 0.2ex 1ex;
+}
