@@ -910,6 +910,9 @@ void page_test_env(void){
   @ g.userUid = %d(g.userUid)<br />
   @ g.zLogin = %h(g.zLogin)<br />
   @ g.isHuman = %d(g.isHuman)<br />
+  if( g.nPendingRequest>1 ){
+    @ g.nPendingRequest = %d(g.nPendingRequest)<br />
+  }
   @ capabilities = %s(zCap)<br />
   for(i=0, c='a'; c<='z'; c++){
     if( login_has_capability(&c, 1, LOGIN_ANON)

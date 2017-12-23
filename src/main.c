@@ -233,10 +233,9 @@ struct Global {
   const char *azAuxVal[MX_AUX];  /* Value of each aux() or option() value */
   const char **azAuxOpt[MX_AUX]; /* Options of each option() value */
   int anAuxCols[MX_AUX];         /* Number of columns for option() values */
-
   int allowSymlinks;             /* Cached "allow-symlinks" option */
-
   int mainTimerId;               /* Set to fossil_timer_start() */
+  int nPendingRequest;           /* # of HTTP requests in "fossil server" */
 #ifdef FOSSIL_ENABLE_JSON
   struct FossilJsonBits {
     int isJsonMode;            /* True if running in JSON mode, else
@@ -2327,6 +2326,15 @@ static int binaryOnPath(const char *zBinary){
 #endif
 
 /*
+** Send a time-out reply
+*/
+void sigalrm_handler(int x){
+  printf("TIMEOUT\n");
+  fflush(stdout);
+  exit(1);
+}
+
+/*
 ** COMMAND: server*
 ** COMMAND: ui
 **
@@ -2377,6 +2385,8 @@ static int binaryOnPath(const char *zBinary){
 **   --localauth         enable automatic login for requests from localhost
 **   --localhost         listen on 127.0.0.1 only (always true for "ui")
 **   --https             signal a request coming in via https
+**   --max-latency N     Do not let any single HTTP request run for more than N
+**                       seconds (only works on unix)
 **   --nojail            Drop root privileges but do not enter the chroot jail
 **   --nossl             signal that no SSL connections are available
 **   --notfound URL      Redirect
@@ -2404,6 +2414,7 @@ void cmd_webserver(void){
   int allowRepoList;         /* List repositories on URL "/" */
   const char *zAltBase;      /* Argument to the --baseurl option */
   const char *zFileGlob;     /* Static content must match this */
+  const char *zMaxLatency;   /* Maximum runtime of any single HTTP request */
   char *zIpAddr = 0;         /* Bind to this IP address */
   int fCreate = 0;           /* The --create flag */
   const char *zInitPage = 0; /* Start on this page.  --page option */
@@ -2416,6 +2427,7 @@ void cmd_webserver(void){
   zStopperFile = find_option("stopper", 0, 1);
 #endif
 
+  zMaxLatency = find_option("max-latency",0,1);
   zFileGlob = find_option("files-urlenc",0,1);
   if( zFileGlob ){
     char *z = mprintf("%s", zFileGlob);
@@ -2527,6 +2539,10 @@ void cmd_webserver(void){
   db_close(1);
   if( cgi_http_server(iPort, mxPort, zBrowserCmd, zIpAddr, flags) ){
     fossil_fatal("unable to listen on TCP socket %d", iPort);
+  }
+  if( zMaxLatency ){
+    signal(SIGALRM, sigalrm_handler);
+    alarm(atoi(zMaxLatency));
   }
   g.httpIn = stdin;
   g.httpOut = stdout;
