@@ -715,9 +715,14 @@ span.tktError {
   font-style: italic;
 }
 
+/* the format for the timeline version display(no history permission!) */
+.timelineHistDsp {
+  font-weight: bold;
+}
+
 .content .timelineTable {
-  border: 0;
-  border-spacing: 0 0.25rem;
+  border:         0;
+  border-spacing: 0 0.5rem;
 }
 
 .content .timelineTable tr {
@@ -774,7 +779,7 @@ span.tktError {
 .timelineTable .timelineVerboseCell[id]  ,
 .timelineTable .timelineColumnarCell[id] ,
 .timelineTable .timelineDetailCell[id]   {
-  background: none;
+  background: #272727;
 }
 
 .timelineTable .timelineCurrent .timelineTime {
@@ -841,18 +846,9 @@ span.tktError {
   white-space: pre-line;
 }
 
-
-
 /* the format for the timeline version links */
 /*
 a.timelineHistLink {
-}
-*/
-
-/* the format for the timeline version display(no history permission!) */
-/*
-span.timelineHistDsp {
-  font-weight: bold;
 }
 */
 
