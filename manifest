@@ -1,5 +1,5 @@
-C Only\sshow\sthe\snumber\sof\srequests\son\sthe\s/test_env\spage\sif\srunning\son\sunix\nfrom\s"fossil\sserver"\sor\s"fossil\sui".
-D 2017-12-23T04:21:41.037
+C Initial\supdates\sto\sget\sthe\stimeline\slooking\scorrect.
+D 2017-12-26T07:47:39.436
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -382,7 +382,7 @@ F skins/rounded1/details.txt cb5c331f05a6a2f242eb14ea2bc6c48d6a32cf197f12d6aed0b
 F skins/rounded1/footer.txt b8103a3b864f4f0900825f135256c5a48b5323bc1760cc8378da9304e329066c
 F skins/rounded1/header.txt 2a26f9c8a90f2614ea7ab46af1ae878db9720e19ec925f9012b20d0a3961c3be
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
-F skins/xekri/css.txt fe048ae0c69edd217ca24b9b6ff0df6dd2236fa95ef419228c1e4306e2400881
+F skins/xekri/css.txt eb340b34cab1b248562f91a39ceb246c8e7e90a6db04bd7e0f06dda83ee6c30a
 F skins/xekri/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f6089b701d42
 F skins/xekri/header.txt 87636805a1489c17d6b54e6f22eccf215944dd6bd1ef9a17b54816272058a3d7
@@ -807,7 +807,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 41c7caad8a622afba09ebca9fe0a2883c2d4260db5f70af5a5541b133dff7027
-R 45415bdfa3e37b7ec1ee1466b6d6c935
-U drh
-Z 414687268bd73d1cec27f25485d8521e
+P f4a9df4dd0d304b02b190d646783b517619179e91498f31365764e547f428b95
+R dc4f53b775471e91aa3c108092c1e725
+T *branch * skin-xekri-timeline
+T *sym-skin-xekri-timeline *
+T -sym-trunk *
+U zakero
+Z c23fcd6e3fd436c9b4398fcbd4e8d96f
