@@ -201,6 +201,7 @@ static void win32_http_request(void *pAppData){
   if( out==0 ) goto end_request;
   fwrite(zCmd, 1, strlen(zCmd), out);
   fclose(out);
+  out = 0;
 
   sqlite3_snprintf(sizeof(zCmd), zCmd, "\"%s\" http -args \"%s\" --nossl%s",
     g.nameOfExe, zCmdFName, p->zOptions
