@@ -1,5 +1,5 @@
-C Initiate\sthe\sTCP\sFIN\son\sWindows\sbefore\sclosing\sa\ssocket.
-D 2017-12-28T21:06:50.198
+C Updated\sthe\sXekri\sskin\sto\swork\swith\sthe\srecent\sTimeline\schanges.
+D 2017-12-28T21:52:53.543
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -382,8 +382,8 @@ F skins/rounded1/details.txt cb5c331f05a6a2f242eb14ea2bc6c48d6a32cf197f12d6aed0b
 F skins/rounded1/footer.txt b8103a3b864f4f0900825f135256c5a48b5323bc1760cc8378da9304e329066c
 F skins/rounded1/header.txt 2a26f9c8a90f2614ea7ab46af1ae878db9720e19ec925f9012b20d0a3961c3be
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
-F skins/xekri/css.txt fe048ae0c69edd217ca24b9b6ff0df6dd2236fa95ef419228c1e4306e2400881
-F skins/xekri/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
+F skins/xekri/css.txt f0f6c6e8788205465fd2a980ee92aea1de3ccfca2a8a73b1a433f9cfacd97c8d
+F skins/xekri/details.txt 8c1af2cc39db2dfb43c1b9df0cdcfde0d9a25432a2dbb130b1af0f4d6889631e
 F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f6089b701d42
 F skins/xekri/header.txt 87636805a1489c17d6b54e6f22eccf215944dd6bd1ef9a17b54816272058a3d7
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
@@ -808,7 +808,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 47ade67e2b81419c71d3afb94062cae69d0cf72544ae9d3816183a3badd50db7
-R 71de0aa7c9a96c32060752672ed58c99
-U drh
-Z 36fe1996cdb3a0dac75f31fe7f0318e3
+P ef44abc6db1682451c11a140207723980643cbf38667f4d0971a8db1ac8558ec 313e27ada0662eb5847ed9c95d96f5072d1cb8f326bc751ebebfed4771785e51
+R 90d275aa587e710ad9b49f1295436286
+U zakero
+Z 4dc15f0a2d46d6faee25baef495aa167
