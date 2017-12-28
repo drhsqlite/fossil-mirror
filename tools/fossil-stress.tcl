@@ -35,20 +35,25 @@ set port [string trimleft $port :]
 if {$port==""} {set port 80}
 
 proc send_one_request {tid domain port path} {
-  set x [socket $domain $port]
-  fconfigure $x -translation binary
-  puts $x "GET $path HTTP/1.0\r"
-  if {$port==80} {
-    puts $x "Host: $domain\r"
-  } else {
-    puts $x "Host: $domain:$port\r"
+  while {[catch {
+    set x [socket $domain $port]
+    fconfigure $x -translation binary
+    puts $x "GET $path HTTP/1.0\r"
+    if {$port==80} {
+      puts $x "Host: $domain\r"
+    } else {
+      puts $x "Host: $domain:$port\r"
+    }
+    puts $x "User-Agent: $::useragent\r"
+    puts $x "Accept: text/html,q=0.9,*/*;q=0.8\r"
+    puts $x "Accept-Language: en-US,en;q=0.5\r"
+    puts $x "Connection: close\r"
+    puts $x "\r"
+    flush $x
+  } msg]} {
+    puts "ERROR: $msg"
+    after 1000
   }
-  puts $x "User-Agent: $::useragent\r"
-  puts $x "Accept: text/html,q=0.9,*/*;q=0.8\r"
-  puts $x "Accept-Language: en-US,en;q=0.5\r"
-  puts $x "Connection: close\r"
-  puts $x "\r"
-  flush $x
   global cnt
   set cnt($x) 0
   fconfigure $x -blocking 0
