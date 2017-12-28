@@ -841,9 +841,28 @@ span.tktError {
   font-weight: bold;
 }
 
+.timelineTable .timelineModernCell .timelineModernDetail ,
+.timelineTable .timelineDetailCell {
+  font-size: 85%;
+}
+
 .timelineTable .timelineDetailCell .timelineColumnarDetail {
-  font-size: 80%;
   white-space: pre-line;
+}
+
+.timelineTable .timelineDetailCell ul.filelist::before {
+  content: "files:";
+}
+
+.timelineTable .timelineDetailCell ul.filelist {
+  margin-left:  0;
+  padding-left: 0;
+}
+
+.timelineTable .timelineDetailCell ul.filelist li {
+  margin-left:  1.5rem;
+  padding-left: 0;
+  white-space:  nowrap;
 }
 
 /* the format for the timeline version links */
