@@ -1,5 +1,5 @@
-C Add\sthe\sfossil-stress.tcl\sscript\sfor\sstress-testing\sserver\simplementations.
-D 2017-12-28T13:53:07.915
+C Add\sthe\s"--threads\sN"\soption\sto\sthe\sfossil-stress.tcl\sscript.\s\sDefault\svalue\nis\s10.
+D 2017-12-28T15:49:23.321
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -676,7 +676,7 @@ F tools/cvs2fossil/showg 3b5479d1527a33cf1316fcab935a127d86cf3532
 F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil-autocomplete.bash 1135105ee18b95823944e2fa425806d3bc0f4252
-F tools/fossil-stress.tcl e35558a744026eadb9511fef190c0135220ca2c52183778244e24358c5ba0d7c
+F tools/fossil-stress.tcl 14b305bf78b912a4cd8fd9539651f3478ffd15047a1d929b2ba7c80bda94ccc9
 F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
@@ -808,7 +808,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f4a9df4dd0d304b02b190d646783b517619179e91498f31365764e547f428b95
-R 251f4610ed658f12441eedd7e9017cb3
+P 0a6d8ff505faea06a09b22c894a0cc51eb73d43722c6739a8c051704ac247f12
+R 809c4dd202048cf067746197c634ac86
 U drh
-Z fdf3580ab6371185c383c3ec8d2785a5
+Z 20d78f4535ab68ea0f0343f6a89db57d

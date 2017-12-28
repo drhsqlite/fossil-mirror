@@ -5,9 +5,25 @@
 # that server instance as fast as it can, as a stress test for the
 # server implementation.
 #
-set url [lindex $argv 0]
-if {$url==""} {
-  error "Usage: $argv0 URL"
+set nthread 10
+for {set i 0} {$i<[llength $argv]} {incr i} {
+  set x [lindex $argv $i]
+  if {[regexp {^--[a-z]} $x]} {
+    set x [string range $x 1 end]
+  }
+  if {$x=="-threads"} {
+    incr i
+    set nthread [lindex $argv $i]
+  } elseif {[string index $x 0]=="-"} {
+    error "unknown option \"$x\""
+  } elseif {[info exists url]} {
+    error "unknown argment \"$x\""
+  } else {
+    set url $x
+  }
+}
+if {![info exists url]} {
+  error "Usage: $argv0 [-threads N] URL"
 }
 if {![regexp {^https?://([^/:]+)(:\d+)?(/.*)$} $url all domain port path]} {
   error "could not parse the URL [list $url] -- should be of the\
@@ -18,7 +34,7 @@ set path [string trimright $path /]
 set port [string trimleft $port :]
 if {$port==""} {set port 80}
 
-proc send_one_request {domain port path} {
+proc send_one_request {tid domain port path} {
   set x [socket $domain $port]
   fconfigure $x -translation binary
   puts $x "GET $path HTTP/1.0\r"
@@ -33,12 +49,23 @@ proc send_one_request {domain port path} {
   puts $x "Connection: close\r"
   puts $x "\r"
   flush $x
-  set cnt 0
-  while {![eof $x]} {
-    incr cnt [string length [read $x]]
+  global cnt
+  set cnt($x) 0
+  fconfigure $x -blocking 0
+  fileevent $x readable [list get_reply $tid $path $x]
+}
+
+proc get_reply {tid info x} {
+  global cnt
+  if {[eof $x]} {
+    puts "[format %3d: $tid] $info ($cnt($x) bytes)"
+    flush stdout
+    close $x
+    unset cnt($x)
+    start_another_request $tid
+  } else {
+    incr cnt($x) [string length [read $x]]
   }
-  close $x
-  return $cnt
 }
 
 set pages {
@@ -69,13 +96,16 @@ set pages {
   /taglist
 }
 
-set cnt 0
-while {1} {
-  foreach p $pages {
-    incr cnt
-    puts -nonewline "$cnt: $path$p... "
-    flush stdout
-    set n [send_one_request $domain $port $path$p]
-    puts "$n bytes"
-  }
+set pageidx 0
+proc start_another_request {tid} {
+  global pages pageidx domain port path
+  set p [lindex $pages $pageidx]
+  incr pageidx
+  if {$pageidx>=[llength $pages]} {set pageidx 0}
+  send_one_request $tid $domain $port $path$p
 }
+
+for {set i 1} {$i<=$nthread} {incr i} {
+  start_another_request $i
+}
+vwait forever
