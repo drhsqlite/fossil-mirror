@@ -834,10 +834,10 @@ span.tktError {
 .timelineTable .timelineVerboseCell .timelineVerboseDetail  {
 }
 
-.timelineTable .timelineModernCell  .timelineModernLeaf  ,
-.timelineTable .timelineCompactCell .timelineCompactLeaf ,
-.timelineTable .timelineVerboseCell .timelineVerboseLeaf ,
-.timelineTable .timelineVerboseCell .timelineLeaf        {
+.timelineTable .timelineModernCell     .timelineLeaf ,
+.timelineTable .timelineCompactCell    .timelineLeaf ,
+.timelineTable .timelineVerboseCell    .timelineLeaf ,
+.timelineTable .timelineVerboseComment .timelineLeaf {
   font-weight: bold;
 }
 
@@ -866,10 +866,8 @@ span.tktError {
 }
 
 /* the format for the timeline version links */
-/*
 a.timelineHistLink {
 }
-*/
 
 
 /**************************************
