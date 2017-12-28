@@ -217,6 +217,8 @@ end_request:
   if( out ) fclose(out);
   if( aux ) fclose(aux);
   if( in ) fclose(in);
+  /* Initiate shutdown prior to closing the socket */
+  if( shutdown(p->s,1)==0 ) shutdown(p->s,0);
   closesocket(p->s);
   /* Make multiple attempts to delete the temporary files.  Sometimes AV
   ** software keeps the files open for a few seconds, preventing the file
@@ -282,6 +284,8 @@ static void win32_scgi_request(void *pAppData){
 end_request:
   if( out ) fclose(out);
   if( in ) fclose(in);
+  /* Initiate shutdown prior to closing the socket */
+  if( shutdown(p->s,1)==0 ) shutdown(p->s,0);
   closesocket(p->s);
   /* Make multiple attempts to delete the temporary files.  Sometimes AV
   ** software keeps the files open for a few seconds, preventing the file

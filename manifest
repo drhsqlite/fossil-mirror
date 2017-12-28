@@ -1,5 +1,5 @@
-C Improvements\sto\s"fossil\sserver"\sperformance\son\sWindows.
-D 2017-12-28T20:37:22.119
+C Initiate\sthe\sTCP\sFIN\son\sWindows\sbefore\sclosing\sa\ssocket.
+D 2017-12-28T21:06:50.198
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -439,7 +439,7 @@ F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 2b485ac67f5ba9917da5f1ea679eee581a8e08a79dfbfb811c4833586330163a
 F src/http.c 7de3f16908f0f49cbcfad625513c130c0aef8bb889a5902e0fe9cccfaf893a85
-F src/http_socket.c 6d14a9c8e2e3a7d9cd0acfdcdf544173b339cab1
+F src/http_socket.c c9dba13158d28e3f7b904b41a00f83d2172856eeccae31270b7c9ab4a55d8776
 F src/http_ssl.c 55266e0d4b2dd2d03af062c1e0e2a06c70d28adf6bb82b13f18a7d4beb543423
 F src/http_transport.c 43bf993a931c1a6cafb051566e06c841173ec350dedc0cb6887e112bc05a147c
 F src/import.c e48f2f2e0095795aeabe7220514c8694393693b853150c47f6d6792921def3f1
@@ -549,7 +549,7 @@ F src/wiki.c 2e1ff7a1f89ad2796068bf130d663eaecafb7ec69ae170181e42f2c42d6b66a5
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c cfb84a3dedc243be87f60a07b3f6eca5fbe482c6975c241521bcc8f56b7337ff
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
-F src/winhttp.c 3ea905cecefee70faf60f4d7f15db9685d1d08e301c55d7c1e1ce68ed9f3ea81
+F src/winhttp.c 112e070dafc302d71c64f2fe6142638c044a04aa98786bcc44247af618b0e80f
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 668af421d7b956373a7834ad5cccfb98d2020342949aee03ef05c60ac72e68fd
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
@@ -808,7 +808,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1fae64de38a02e955e01b018b2432153b87af680bed2d63a6e1817efc717f333
-R 81dece22194a7221f25f2067ee023a68
+P 47ade67e2b81419c71d3afb94062cae69d0cf72544ae9d3816183a3badd50db7
+R 71de0aa7c9a96c32060752672ed58c99
 U drh
-Z 9932d68855c07f19424210c72f60b275
+Z 36fe1996cdb3a0dac75f31fe7f0318e3
