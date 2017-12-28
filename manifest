@@ -1,5 +1,5 @@
-C In\sthe\sWin32\sserver\scode,\sprevent\sfclose()\sfrom\sbeing\scalled\son\san\salready\sclosed\sFILE.
-D 2017-12-28T17:16:39.169
+C Improvements\sto\sthe\sfossil-stress.tcl\sscript\sto\sautomaticall\srestart\nstalled\srequest\sthreads.
+D 2017-12-28T17:20:14.456
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -676,7 +676,7 @@ F tools/cvs2fossil/showg 3b5479d1527a33cf1316fcab935a127d86cf3532
 F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil-autocomplete.bash 1135105ee18b95823944e2fa425806d3bc0f4252
-F tools/fossil-stress.tcl fc1a5daa5833556f34ea06654e8ab90f1cb90897e52778a785c7732182467d43
+F tools/fossil-stress.tcl bd6f62946ae2105e737e3b1f2869be622a54d08e1352fd6fea6857d2bc66fc5e
 F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
@@ -808,7 +808,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7ce35a048d450a78f41130f8348a7ed86973a5954be59230f8e78f84b3d4b1f9
-R a6e6bcdc2753425b9fd84c4b338d4539
-U mistachkin
-Z d5a187240aeccb5898265dfc4808ae90
+P 8d60cd571922d0f90b7b0b5fd3c155eba0d3e21dd99d6381452b8c8589b01a15
+R 877da98c9afc57e2c3d1a96f9cf8ed33
+U drh
+Z cb095b48dc8d8fa71e6acad3254b8955

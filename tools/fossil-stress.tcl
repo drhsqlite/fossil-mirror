@@ -29,7 +29,7 @@ if {![regexp {^https?://([^/:]+)(:\d+)?(/.*)$} $url all domain port path]} {
   error "could not parse the URL [list $url] -- should be of the\
          form \"http://domain/path\""
 }
-set useragent {Mozilla/5.0 (X11; Linux x86_64; rv:57.0) Gecko/20100101 Firefox/57.0}
+set useragent {Mozilla/5.0 (fossil-stress.tcl) Gecko/20100101 Firefox/57.0}
 set path [string trimright $path /]
 set port [string trimleft $port :]
 if {$port==""} {set port 80}
@@ -37,7 +37,7 @@ if {$port==""} {set port 80}
 proc send_one_request {tid domain port path} {
   while {[catch {
     set x [socket $domain $port]
-    fconfigure $x -translation binary
+    fconfigure $x -translation binary -blocking 0
     puts $x "GET $path HTTP/1.0\r"
     if {$port==80} {
       puts $x "Host: $domain\r"
@@ -49,15 +49,24 @@ proc send_one_request {tid domain port path} {
     puts $x "Accept-Language: en-US,en;q=0.5\r"
     puts $x "Connection: close\r"
     puts $x "\r"
-    flush $x
   } msg]} {
     puts "ERROR: $msg"
     after 1000
   }
-  global cnt
+  global cnt stime threadid
   set cnt($x) 0
-  fconfigure $x -blocking 0
+  set stime($x) [clock seconds]
+  set threadid($x) $tid
+  flush $x
   fileevent $x readable [list get_reply $tid $path $x]
+}
+
+proc close_connection {x} {
+  global cnt stime tid
+  close $x
+  unset -nocomplain cnt($x)
+  unset -nocomplain stime($x)
+  unset -nocomplain threadid($x)
 }
 
 proc get_reply {tid info x} {
@@ -65,8 +74,7 @@ proc get_reply {tid info x} {
   if {[eof $x]} {
     puts "[format %3d: $tid] $info ($cnt($x) bytes)"
     flush stdout
-    close $x
-    unset cnt($x)
+    close_connection $x
     start_another_request $tid
   } else {
     incr cnt($x) [string length [read $x]]
@@ -110,6 +118,26 @@ proc start_another_request {tid} {
   send_one_request $tid $domain $port $path$p
 }
 
+proc unhang_stalled_threads {} {
+  global stime threadid
+  set now [clock seconds]
+  # puts "checking for stalled threads...."
+  foreach x [array names stime] {
+    # puts -nonewline " $threadid($x)=[expr {$now-$stime($x)}]"
+    if {$stime($x)+0<$now-10} {
+      set t $threadid($x)
+      puts "RESTART thread $t"
+      flush stdout
+      close_connection $x
+      start_another_request $t
+    }
+  }
+  # puts ""
+  flush stdout
+  after 10000 unhang_stalled_threads
+}
+
+unhang_stalled_threads
 for {set i 1} {$i<=$nthread} {incr i} {
   start_another_request $i
 }
