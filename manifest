@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sfossil-stress.tcl\sscript\sto\sautomaticall\srestart\nstalled\srequest\sthreads.
-D 2017-12-28T17:20:14.456
+C Improvements\sto\s"fossil\sserver"\sperformance\son\sWindows.
+D 2017-12-28T20:37:22.119
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -549,7 +549,7 @@ F src/wiki.c 2e1ff7a1f89ad2796068bf130d663eaecafb7ec69ae170181e42f2c42d6b66a5
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c cfb84a3dedc243be87f60a07b3f6eca5fbe482c6975c241521bcc8f56b7337ff
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
-F src/winhttp.c 99f8435210750237e627fbc16673f7aaf1973e0e15f8763b37cb93db21a89dfc
+F src/winhttp.c 3ea905cecefee70faf60f4d7f15db9685d1d08e301c55d7c1e1ce68ed9f3ea81
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 668af421d7b956373a7834ad5cccfb98d2020342949aee03ef05c60ac72e68fd
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
@@ -808,7 +808,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8d60cd571922d0f90b7b0b5fd3c155eba0d3e21dd99d6381452b8c8589b01a15
-R 877da98c9afc57e2c3d1a96f9cf8ed33
+P 1fae64de38a02e955e01b018b2432153b87af680bed2d63a6e1817efc717f333
+R 81dece22194a7221f25f2067ee023a68
 U drh
-Z cb095b48dc8d8fa71e6acad3254b8955
+Z 9932d68855c07f19424210c72f60b275

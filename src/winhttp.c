@@ -133,22 +133,22 @@ static void win32_server_stopper(void *pAppData){
 */
 static void win32_http_request(void *pAppData){
   HttpRequest *p = (HttpRequest*)pAppData;
-  FILE *in = 0, *out = 0;
-  int amt, got;
+  FILE *in = 0, *out = 0, *aux = 0;
+  int amt, got, i;
   int wanted = 0;
   char *z;
   char zCmdFName[MAX_PATH];
   char zRequestFName[MAX_PATH];
   char zReplyFName[MAX_PATH];
   char zCmd[2000];          /* Command-line to process the request */
-  char zHdr[2000];          /* The HTTP request header */
+  char zHdr[4000];          /* The HTTP request header */
 
   sqlite3_snprintf(MAX_PATH, zCmdFName,
-                   "%s_cmd%d.txt", zTempPrefix, p->id);
+                   "%s_%06d_cmd.txt", zTempPrefix, p->id);
   sqlite3_snprintf(MAX_PATH, zRequestFName,
-                   "%s_in%d.txt", zTempPrefix, p->id);
+                   "%s_%06d_in.txt", zTempPrefix, p->id);
   sqlite3_snprintf(MAX_PATH, zReplyFName,
-                   "%s_out%d.txt", zTempPrefix, p->id);
+                   "%s_%06d_out.txt", zTempPrefix, p->id);
   amt = 0;
   while( amt<sizeof(zHdr) ){
     got = recv(p->s, &zHdr[amt], sizeof(zHdr)-1-amt, 0);
@@ -179,8 +179,7 @@ static void win32_http_request(void *pAppData){
     }
     wanted -= got;
   }
-  fclose(out);
-  out = 0;
+
   /*
   ** The repository name is only needed if there was no open checkout.  This
   ** is designed to allow the open checkout for the interactive user to work
@@ -197,17 +196,17 @@ static void win32_http_request(void *pAppData){
       get_utf8_bom(0), zRequestFName, zReplyFName, inet_ntoa(p->addr.sin_addr)
     );
   }
-  out = fossil_fopen(zCmdFName, "wb");
-  if( out==0 ) goto end_request;
-  fwrite(zCmd, 1, strlen(zCmd), out);
-  fclose(out);
-  out = 0;
+  aux = fossil_fopen(zCmdFName, "wb");
+  if( aux==0 ) goto end_request;
+  fwrite(zCmd, 1, strlen(zCmd), aux);
 
   sqlite3_snprintf(sizeof(zCmd), zCmd, "\"%s\" http -args \"%s\" --nossl%s",
     g.nameOfExe, zCmdFName, p->zOptions
   );
+  in = fossil_fopen(zReplyFName, "w+b");
+  fflush(out);
+  fflush(aux);
   fossil_system(zCmd);
-  in = fossil_fopen(zReplyFName, "rb");
   if( in ){
     while( (got = fread(zHdr, 1, sizeof(zHdr), in))>0 ){
       send(p->s, zHdr, got, 0);
@@ -216,11 +215,15 @@ static void win32_http_request(void *pAppData){
 
 end_request:
   if( out ) fclose(out);
+  if( aux ) fclose(aux);
   if( in ) fclose(in);
   closesocket(p->s);
-  file_delete(zRequestFName);
-  file_delete(zReplyFName);
-  file_delete(zCmdFName);
+  /* Make multiple attempts to delete the temporary files.  Sometimes AV
+  ** software keeps the files open for a few seconds, preventing the file
+  ** from being deleted on the first try. */
+  for(i=1; i<=10 && file_delete(zRequestFName); i++){ Sleep(1000*i); }
+  for(i=1; i<=10 && file_delete(zCmdFName); i++){ Sleep(1000*i); }
+  for(i=1; i<=10 && file_delete(zReplyFName); i++){ Sleep(1000*i); }
   fossil_free(p);
 }
 
@@ -235,12 +238,12 @@ static void win32_scgi_request(void *pAppData){
   char zRequestFName[MAX_PATH];
   char zReplyFName[MAX_PATH];
   char zCmd[2000];          /* Command-line to process the request */
-  char zHdr[2000];          /* The SCGI request header */
+  char zHdr[4000];          /* The SCGI request header */
 
   sqlite3_snprintf(MAX_PATH, zRequestFName,
-                   "%s_in%d.txt", zTempPrefix, p->id);
+                   "%s_%06d_in.txt", zTempPrefix, p->id);
   sqlite3_snprintf(MAX_PATH, zReplyFName,
-                   "%s_out%d.txt", zTempPrefix, p->id);
+                   "%s_%06d_out.txt", zTempPrefix, p->id);
   out = fossil_fopen(zRequestFName, "wb");
   if( out==0 ) goto end_request;
   amt = 0;
@@ -261,16 +264,15 @@ static void win32_scgi_request(void *pAppData){
     fwrite(zHdr, 1, got, out);
     wanted += got;
   }
-  fclose(out);
-  out = 0;
   assert( g.zRepositoryName && g.zRepositoryName[0] );
   sqlite3_snprintf(sizeof(zCmd), zCmd,
     "\"%s\" http \"%s\" \"%s\" %s \"%s\" --scgi --nossl%s",
     g.nameOfExe, zRequestFName, zReplyFName, inet_ntoa(p->addr.sin_addr),
     g.zRepositoryName, p->zOptions
   );
+  in = fossil_fopen(zReplyFName, "w+b");
+  fflush(out);
   fossil_system(zCmd);
-  in = fossil_fopen(zReplyFName, "rb");
   if( in ){
     while( (got = fread(zHdr, 1, sizeof(zHdr), in))>0 ){
       send(p->s, zHdr, got, 0);
@@ -281,8 +283,11 @@ end_request:
   if( out ) fclose(out);
   if( in ) fclose(in);
   closesocket(p->s);
-  file_delete(zRequestFName);
-  file_delete(zReplyFName);
+  /* Make multiple attempts to delete the temporary files.  Sometimes AV
+  ** software keeps the files open for a few seconds, preventing the file
+  ** from being deleted on the first try. */
+  for(i=1; i<=10 && file_delete(zRequestFName); i++){ Sleep(1000*i); }
+  for(i=1; i<=10 && file_delete(zReplyFName); i++){ Sleep(1000*i); }
   fossil_free(p);
 }
 
@@ -389,8 +394,9 @@ void win32_http_server(
   if( !GetTempPathW(MAX_PATH, zTmpPath) ){
     fossil_fatal("unable to get path to the temporary directory.");
   }
-  zTempPrefix = mprintf("%sfossil_server_P%d_",
+  zTempPrefix = mprintf("%sfossil_server_P%d",
                         fossil_unicode_to_utf8(zTmpPath), iPort);
+  fossil_print("Temporary files: %s*\n", zTempPrefix);
   fossil_print("Listening for %s requests on TCP port %d\n",
                (flags&HTTP_SERVER_SCGI)!=0?"SCGI":"HTTP", iPort);
   if( zBrowser ){
