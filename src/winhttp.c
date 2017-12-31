@@ -387,9 +387,9 @@ void win32_http_server(
                              (struct sockaddr *)&addr, &addrlen) != 0){
         SOCKADDR_IN addrv4;
         SCOPE_ID scope;
-         memset(&addrv4, 0, sizeof(addrv4));
-        addrv4.sin_family = AF_INET;
         int addrlen = sizeof(addrv4);
+        memset(&addrv4, 0, sizeof(addrv4));
+        addrv4.sin_family = AF_INET;
         if (WSAStringToAddress((LPSTR)zIpAddr, AF_INET, NULL,
                                (struct sockaddr *)&addrv4, &addrlen) != 0){
           fossil_fatal("not a valid IP address: %s", zIpAddr);

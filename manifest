@@ -1,5 +1,5 @@
-C Changes\sfrom\sOlivier\sMascia\sto\simplement\sIPV6\ssupport\sfor\s"fossil\sserver"\non\sWindows.\s\sCurrently\sdoes\snot\scompile\son\sMinGW\sdue\sto\sa\smissing\sheader\nfile.
-D 2017-12-31T19:24:10.983
+C Fix\sa\sC89\svariable\sdeclaration\sthat\sprevents\scompiling\son\solder\sversions\nof\sMSVC.
+D 2017-12-31T20:02:01.385
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -549,7 +549,7 @@ F src/wiki.c 2e1ff7a1f89ad2796068bf130d663eaecafb7ec69ae170181e42f2c42d6b66a5
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c cfb84a3dedc243be87f60a07b3f6eca5fbe482c6975c241521bcc8f56b7337ff
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
-F src/winhttp.c 1286a6defe723afa50a3d838151f7818be26aceba3e84a921471e664b6e27fc6
+F src/winhttp.c 426e8c9962a41da78decbf5fcd5ca2ae6941781e9469aa237c467fcadc10bd10
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 668af421d7b956373a7834ad5cccfb98d2020342949aee03ef05c60ac72e68fd
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
@@ -808,10 +808,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c105c2fd401703ddf029265786ee370509a83365a92a3a11caf513cf79d7cf2d
-R 0a07547d587d778ef79a6496a062ed42
-T *branch * win-server-ipv6
-T *sym-win-server-ipv6 *
-T -sym-trunk *
+P 76c7a9a782a4d047d7b05a332ce8dbe1f29a445262dcdfa54c90e68581a0721b
+R 07c70b10ac9239e75708ebdf1b55dee3
 U drh
-Z f5b10b4217219209f9a162760457bba7
+Z 2fa35ae6262fa4eb6acab66874da825c
