@@ -22,6 +22,8 @@
 #include "config.h"
 #ifdef _WIN32
 /* This code is for win32 only */
+#include <ws2tcpip.h>
+#include <mstcpip.h>
 #include <windows.h>
 #include <process.h>
 #include "winhttp.h"
@@ -48,7 +50,7 @@ typedef struct HttpRequest HttpRequest;
 struct HttpRequest {
   int id;                /* ID counter */
   SOCKET s;              /* Socket on which to receive data */
-  SOCKADDR_IN addr;      /* Address from which data is coming */
+  SOCKADDR_IN6 addr;     /* Address from which data is coming */
   int flags;             /* Flags passed to win32_http_server() */
   const char *zOptions;  /* --baseurl, --notfound, --localauth, --th-trace */
 };
@@ -137,6 +139,8 @@ static void win32_http_request(void *pAppData){
   int amt, got, i;
   int wanted = 0;
   char *z;
+  char zIp[50];
+  DWORD nIp = sizeof(zIp);
   char zCmdFName[MAX_PATH];
   char zRequestFName[MAX_PATH];
   char zReplyFName[MAX_PATH];
@@ -185,15 +189,18 @@ static void win32_http_request(void *pAppData){
   ** is designed to allow the open checkout for the interactive user to work
   ** with the local Fossil server started via the "ui" command.
   */
+  if( WSAAddressToStringA((SOCKADDR*)&p->addr, sizeof(p->addr),
+                          NULL, zIp, &nIp)!=0 ){
+    zIp[0] = 0;
+  }
   if( (p->flags & HTTP_SERVER_HAD_CHECKOUT)==0 ){
     assert( g.zRepositoryName && g.zRepositoryName[0] );
     sqlite3_snprintf(sizeof(zCmd), zCmd, "%s%s\n%s\n%s\n%s",
-      get_utf8_bom(0), zRequestFName, zReplyFName, inet_ntoa(p->addr.sin_addr),
-      g.zRepositoryName
+      get_utf8_bom(0), zRequestFName, zReplyFName, zIp, g.zRepositoryName
     );
   }else{
     sqlite3_snprintf(sizeof(zCmd), zCmd, "%s%s\n%s\n%s",
-      get_utf8_bom(0), zRequestFName, zReplyFName, inet_ntoa(p->addr.sin_addr)
+      get_utf8_bom(0), zRequestFName, zReplyFName, zIp
     );
   }
   aux = fossil_fopen(zCmdFName, "wb");
@@ -237,6 +244,8 @@ static void win32_scgi_request(void *pAppData){
   FILE *in = 0, *out = 0;
   int amt, got, nHdr, i;
   int wanted = 0;
+  char zIp[50];
+  DWORD nIp = sizeof(zIp);
   char zRequestFName[MAX_PATH];
   char zReplyFName[MAX_PATH];
   char zCmd[2000];          /* Command-line to process the request */
@@ -267,9 +276,13 @@ static void win32_scgi_request(void *pAppData){
     wanted += got;
   }
   assert( g.zRepositoryName && g.zRepositoryName[0] );
+  if (WSAAddressToStringA((SOCKADDR*)&p->addr, sizeof(p->addr),
+                          NULL, zIp, &nIp)!=0){
+    zIp[0] = 0;
+  }
   sqlite3_snprintf(sizeof(zCmd), zCmd,
     "\"%s\" http \"%s\" \"%s\" %s \"%s\" --scgi --nossl%s",
-    g.nameOfExe, zRequestFName, zReplyFName, inet_ntoa(p->addr.sin_addr),
+    g.nameOfExe, zRequestFName, zReplyFName, zIp,
     g.zRepositoryName, p->zOptions
   );
   in = fossil_fopen(zReplyFName, "w+b");
@@ -313,7 +326,7 @@ void win32_http_server(
   HANDLE hStoppedEvent;
   WSADATA wd;
   SOCKET s = INVALID_SOCKET;
-  SOCKADDR_IN addr;
+  SOCKADDR_IN6 addr;
   int idCnt = 0;
   int iPort = mnPort;
   Blob options;
@@ -359,21 +372,44 @@ void win32_http_server(
     fossil_fatal("unable to initialize winsock");
   }
   while( iPort<=mxPort ){
-    s = socket(AF_INET, SOCK_STREAM, 0);
+    DWORD ipv6only = 0;
+    s = socket(AF_INET6, SOCK_STREAM, 0);
     if( s==INVALID_SOCKET ){
       fossil_fatal("unable to create a socket");
     }
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(iPort);
+    setsockopt(s, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&ipv6only,
+               sizeof(ipv6only));
     if( zIpAddr ){
-      addr.sin_addr.s_addr = inet_addr(zIpAddr);
-      if( addr.sin_addr.s_addr == (-1) ){
-        fossil_fatal("not a valid IP address: %s", zIpAddr);
+      int addrlen = sizeof(addr);
+      memset(&addr, 0, sizeof(addr));
+      addr.sin6_family = AF_INET6;
+      if (WSAStringToAddress((LPSTR)zIpAddr, AF_INET6, NULL,
+                             (struct sockaddr *)&addr, &addrlen) != 0){
+        SOCKADDR_IN addrv4;
+        SCOPE_ID scope;
+         memset(&addrv4, 0, sizeof(addrv4));
+        addrv4.sin_family = AF_INET;
+        int addrlen = sizeof(addrv4);
+        if (WSAStringToAddress((LPSTR)zIpAddr, AF_INET, NULL,
+                               (struct sockaddr *)&addrv4, &addrlen) != 0){
+          fossil_fatal("not a valid IP address: %s", zIpAddr);
+        }
+        memset(&addr, 0, sizeof(addr));
+        memset(&scope, 0, sizeof(scope));
+        IN6ADDR_SETV4MAPPED(&addr, &addrv4.sin_addr, scope, htons(iPort));
+      }else{
+        ((SOCKADDR_IN6*)&addr)->sin6_port = htons(iPort);
       }
     }else if( flags & HTTP_SERVER_LOCALHOST ){
-      addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+      SCOPE_ID scope;
+      memset(&addr, 0, sizeof(addr));
+      memset(&scope, 0, sizeof(scope));
+      IN6ADDR_SETV4MAPPED(&addr, &in4addr_loopback, scope, htons(iPort));
     }else{
-      addr.sin_addr.s_addr = htonl(INADDR_ANY);
+      memset(&addr, 0, sizeof(addr));
+      addr.sin6_family = AF_INET6;
+      addr.sin6_port = htons(iPort);
+      memcpy(&addr.sin6_addr, &in6addr_any, sizeof(in6addr_any));
     }
     if( bind(s, (struct sockaddr*)&addr, sizeof(addr))==SOCKET_ERROR ){
       closesocket(s);
@@ -432,7 +468,7 @@ void win32_http_server(
   win32_http_service_running(s);
   for(;;){
     SOCKET client;
-    SOCKADDR_IN client_addr;
+    SOCKADDR_IN6 client_addr;
     HttpRequest *pRequest;
     int len = sizeof(client_addr);
     int wsaError;
