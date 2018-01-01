@@ -1,5 +1,5 @@
-C Disable\sthe\sthe\s--max-latency\soption\son\s"fossil\sserver"\son\swindows,\sas\sit\shas\nalways\sbeen\sa\sno-op\sthere.
-D 2018-01-01T18:52:04.756
+C The\s"fossil\sserver"\scommand\son\swindows\snow\slistens\sfor\sboth\sIPv4\sand\sIPv6\nconnections.
+D 2018-01-01T18:56:19.668
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -549,7 +549,7 @@ F src/wiki.c 2e1ff7a1f89ad2796068bf130d663eaecafb7ec69ae170181e42f2c42d6b66a5
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c cfb84a3dedc243be87f60a07b3f6eca5fbe482c6975c241521bcc8f56b7337ff
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
-F src/winhttp.c 112e070dafc302d71c64f2fe6142638c044a04aa98786bcc44247af618b0e80f
+F src/winhttp.c 60a5aa6910125e20d22bbff201c5a3ffb5561e8ec9d0f3b529e61f61e1cdad8a
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 668af421d7b956373a7834ad5cccfb98d2020342949aee03ef05c60ac72e68fd
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
@@ -808,7 +808,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d4c6f3c439e369e09996055d3be2afec8964bbc991b857a98a7beba5fd4e3cb9
-R eb99fe0d5cde9817c06417757b3c8636
+P 6b5cfc861a86c5cfdc9a5a373b07b97a53aa5def836a7545979a39c6763e5784 1627571be979436336fc7a0b5d088c60f8ed80e2fdefe8e99d604b7191c9c0d2
+R c8b3c55daf29deb78bf4e5bfc8ffc07e
+T +closed 1627571be979436336fc7a0b5d088c60f8ed80e2fdefe8e99d604b7191c9c0d2
 U drh
-Z 475ab73abdeae4b2f5931388d7ce408f
+Z 99d89d8fa6196b069b881a491ac3bc87
