@@ -1379,7 +1379,7 @@ void ticket_cmd(void){
       blob_appendf(&tktchng, "U %F\n", zUser);
       md5sum_blob(&tktchng, &cksum);
       blob_appendf(&tktchng, "Z %b\n", &cksum);
-      if( ticket_put(&tktchng, zTktUuid, ticket_need_moderation(1)) ){
+      if( ticket_put(&tktchng, zTktUuid, ticket_need_moderation(1))==0 ){
         fossil_fatal("%s", g.zErrMsg);
       }else{
         fossil_print("ticket %s succeeded for %s\n",

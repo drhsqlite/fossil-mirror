@@ -1,5 +1,5 @@
-C Updated\sthe\sXekri\sskin\sto\swork\swith\sthe\srecent\sTimeline\schanges.
-D 2017-12-28T21:52:53.543
+C Check\sfor\sexplicit\serror\scondition\sfrom\sticket_put()\sbecause\sotherwise\nFossil\sthinks\sa\ssuccessful\sticket\sadd\sis\san\serror\sand\soutputs\san\sempty\sline.
+D 2018-01-01T00:57:47.146
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -530,7 +530,7 @@ F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c bba65d7b7871ab7046107848650b5e8e72dbe30763f86b07b9bbd98c30dc791b
 F src/th_tcl.c afa334f0b17fc01f8fda8bea281c51305d7c6f7f2c7ed4c190dc5d1a2b80c326
 F src/timeline.c 5056236825c9ab01561f4aab19e34df40c22d9d6222933aa4119b1fc1eb8d11a
-F src/tkt.c e5815264d68d48a28983230026ceaa45b5190c34b092a8fc920ce832a6d2bf6e
+F src/tkt.c 26ee209c0b9d34340ff668f9326cdaa4560ed2976364e968f1b52edc2c56baa6
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c e0ba36f347faf5b5105eacc8e42e3f907febfe5abb0401f2227dec26cc60a5f5
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -808,7 +808,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ef44abc6db1682451c11a140207723980643cbf38667f4d0971a8db1ac8558ec 313e27ada0662eb5847ed9c95d96f5072d1cb8f326bc751ebebfed4771785e51
-R 90d275aa587e710ad9b49f1295436286
-U zakero
-Z 4dc15f0a2d46d6faee25baef495aa167
+P c105c2fd401703ddf029265786ee370509a83365a92a3a11caf513cf79d7cf2d
+R 51b7864dda93e9790b2e0196168f1fe7
+U andybradford
+Z 6a779697f7c74e7374a23a419f0f4c98
