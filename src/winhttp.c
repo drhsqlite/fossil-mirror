@@ -23,10 +23,13 @@
 #ifdef _WIN32
 /* This code is for win32 only */
 #include <ws2tcpip.h>
-#include <mstcpip.h>
 #include <windows.h>
 #include <process.h>
 #include "winhttp.h"
+
+#ifndef IPV6_V6ONLY
+# define IPV6_V6ONLY 27  /* Because this definition is missing in MinGW */
+#endif
 
 /*
 ** The HttpServer structure holds information about an instance of
@@ -327,6 +330,7 @@ void win32_http_server(
   WSADATA wd;
   SOCKET s = INVALID_SOCKET;
   SOCKADDR_IN6 addr;
+  int addrlen;
   int idCnt = 0;
   int iPort = mnPort;
   Blob options;
@@ -368,8 +372,11 @@ void win32_http_server(
                  zSavedKey, savedKeySize);
   }
 #endif
-  if( WSAStartup(MAKEWORD(1,1), &wd) ){
+  if( WSAStartup(MAKEWORD(2,0), &wd) ){
     fossil_fatal("unable to initialize winsock");
+  }
+  if( flags & HTTP_SERVER_LOCALHOST ){
+    zIpAddr = "127.0.0.1";
   }
   while( iPort<=mxPort ){
     DWORD ipv6only = 0;
@@ -379,34 +386,23 @@ void win32_http_server(
     }
     setsockopt(s, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&ipv6only,
                sizeof(ipv6only));
+    memset(&addr, 0, sizeof(addr));
+    addrlen = sizeof(addr);
     if( zIpAddr ){
-      int addrlen = sizeof(addr);
-      memset(&addr, 0, sizeof(addr));
-      addr.sin6_family = AF_INET6;
-      if (WSAStringToAddress((LPSTR)zIpAddr, AF_INET6, NULL,
-                             (struct sockaddr *)&addr, &addrlen) != 0){
-        SOCKADDR_IN addrv4;
-        SCOPE_ID scope;
-        int addrlen = sizeof(addrv4);
-        memset(&addrv4, 0, sizeof(addrv4));
-        addrv4.sin_family = AF_INET;
-        if (WSAStringToAddress((LPSTR)zIpAddr, AF_INET, NULL,
-                               (struct sockaddr *)&addrv4, &addrlen) != 0){
-          fossil_fatal("not a valid IP address: %s", zIpAddr);
-        }
-        memset(&addr, 0, sizeof(addr));
-        memset(&scope, 0, sizeof(scope));
-        IN6ADDR_SETV4MAPPED(&addr, &addrv4.sin_addr, scope, htons(iPort));
+      char* zIp;
+      if( strstr(zIpAddr, ".") ){
+        zIp = mprintf("::ffff:%s", zIpAddr);
       }else{
-        ((SOCKADDR_IN6*)&addr)->sin6_port = htons(iPort);
+        zIp = mprintf("%s", zIpAddr);
       }
-    }else if( flags & HTTP_SERVER_LOCALHOST ){
-      SCOPE_ID scope;
-      memset(&addr, 0, sizeof(addr));
-      memset(&scope, 0, sizeof(scope));
-      IN6ADDR_SETV4MAPPED(&addr, &in4addr_loopback, scope, htons(iPort));
+      addr.sin6_family = AF_INET6;
+      if (WSAStringToAddress(zIp, AF_INET6, NULL,
+                             (struct sockaddr *)&addr, &addrlen) != 0){
+        fossil_fatal("not a valid IP address: %s", zIpAddr);
+      }
+      ((SOCKADDR_IN6*)&addr)->sin6_port = htons(iPort);
+      fossil_free(zIp);
     }else{
-      memset(&addr, 0, sizeof(addr));
       addr.sin6_family = AF_INET6;
       addr.sin6_port = htons(iPort);
       memcpy(&addr.sin6_addr, &in6addr_any, sizeof(in6addr_any));
