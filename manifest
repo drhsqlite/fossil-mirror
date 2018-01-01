@@ -1,5 +1,5 @@
-C Check\sfor\sexplicit\serror\scondition\sfrom\sticket_put()\sbecause\sotherwise\nFossil\sthinks\sa\ssuccessful\sticket\sadd\sis\san\serror\sand\soutputs\san\sempty\sline.
-D 2018-01-01T00:57:47.146
+C Disable\sthe\sthe\s--max-latency\soption\son\s"fossil\sserver"\son\swindows,\sas\sit\shas\nalways\sbeen\sa\sno-op\sthere.
+D 2018-01-01T18:52:04.756
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -467,7 +467,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 06b0402f13210a48376118d0a2c2d649c4252ef1836dec1afa70cb055d948965
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 4a0da1d10dc93f60620c3eae2286eeece51e7c195eca319b0f264f855be37972
+F src/main.c ae7f7d81a9a4d075b6401b42fffae6c0c54c72d8fff6dc0cb22884355fa3afca
 F src/main.mk 4229bcfff06ee7c8d234034d1e62dc6e480ec1007e79e9550b740e104f60eb9b
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -808,7 +808,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c105c2fd401703ddf029265786ee370509a83365a92a3a11caf513cf79d7cf2d
-R 51b7864dda93e9790b2e0196168f1fe7
-U andybradford
-Z 6a779697f7c74e7374a23a419f0f4c98
+P d4c6f3c439e369e09996055d3be2afec8964bbc991b857a98a7beba5fd4e3cb9
+R eb99fe0d5cde9817c06417757b3c8636
+U drh
+Z 475ab73abdeae4b2f5931388d7ce408f
