@@ -192,6 +192,7 @@ static void win32_http_request(void *pAppData){
   ** is designed to allow the open checkout for the interactive user to work
   ** with the local Fossil server started via the "ui" command.
   */
+  p->addr.sin6_port = 0;
   if( WSAAddressToStringA((SOCKADDR*)&p->addr, sizeof(p->addr),
                           NULL, zIp, &nIp)!=0 ){
     zIp[0] = 0;
@@ -279,6 +280,7 @@ static void win32_scgi_request(void *pAppData){
     wanted += got;
   }
   assert( g.zRepositoryName && g.zRepositoryName[0] );
+  p->addr.sin6_port = 0;
   if (WSAAddressToStringA((SOCKADDR*)&p->addr, sizeof(p->addr),
                           NULL, zIp, &nIp)!=0){
     zIp[0] = 0;
