@@ -261,7 +261,7 @@ void www_print_timeline(
   const char *zDateFmt;
   int iTableId = timeline_tableid();
 
-  if( fossil_strcmp(g.zIpAddr, "127.0.0.1")==0 && db_open_local(0) ){
+  if( cgi_is_loopback(g.zIpAddr) && db_open_local(0) ){
     vid = db_lget_int("checkout", 0);
   }
   zPrevDate[0] = 0;

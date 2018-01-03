@@ -1345,8 +1345,10 @@ NORETURN void cgi_panic(const char *zFormat, ...){
 */
 static const char *cgi_accept_forwarded_for(const char *z){
   int i;
-  if( fossil_strcmp(g.zIpAddr, "127.0.0.1")!=0 ) return 0;
-
+  if( !cgi_is_loopback(g.zIpAddr) ){
+    /* Only accept X-FORWARDED-FOR if input coming from the local machine */
+    return 0;
+  }
   i = strlen(z)-1;
   while( i>=0 && z[i]!=',' && !fossil_isspace(z[i]) ) i--;
   return &z[++i];
@@ -2032,4 +2034,12 @@ const char *cgi_ssh_remote_addr(const char *zDefault){
     }
   }
   return zDefault;
+}
+
+/*
+** Return true if information is coming from the loopback network.
+*/
+int cgi_is_loopback(const char *zIpAddr){
+  return fossil_strcmp(zIpAddr, "127.0.0.1")==0 ||
+         fossil_strcmp(zIpAddr, "::ffff:127.0.0.1")==0;
 }
