@@ -1,5 +1,5 @@
-C Accept\sboth\s"127.0.0.1"\sand\s"::ffff:127.0.0.1"\sas\svalid\sloopback\sIP\saddresses.
-D 2018-01-03T18:56:52.628
+C For\s"fossil\sui"\sand\s"fossil\sserver"\suse\sthe\sIPV6\sloopback\son\sWindows.
+D 2018-01-03T20:07:52.637
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -399,7 +399,7 @@ F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c c87eb0ee5b326ca742fd51010bf01c29a75600b2f7fca1d30c28ec5722e9b841
 F src/cache.c f29373b765932f9c6435da4bbfc4c0d442ffa715dce25f9bf295085a80099d83
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
-F src/cgi.c 3363272a3c82c1c15af5447cb334c6bd8d4768a2c1bcb4d7fddda865f9646ef7
+F src/cgi.c 3f901a4f5c7eb032468a96a087a338ac48313a3270444016807e25bab974510d
 F src/checkin.c 0764cac7329685c00d39b4738e19ee7183bb2f75907fb6e2af5f3db0c27e776f
 F src/checkout.c b27d81846a1b2f8c961c9ea4eec93c15186432de63d97e650e413e96f0557604
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -467,7 +467,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 8f07f96589451ba414fa42c28b2f77bf3a713e5cf9e40abd364ec2bbb4854826
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c ae7f7d81a9a4d075b6401b42fffae6c0c54c72d8fff6dc0cb22884355fa3afca
+F src/main.c d4ea304d26bdf190191449c28fa8d78708294c1151a55f78989fd6adec6d06dc
 F src/main.mk 4229bcfff06ee7c8d234034d1e62dc6e480ec1007e79e9550b740e104f60eb9b
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -549,7 +549,7 @@ F src/wiki.c 2e1ff7a1f89ad2796068bf130d663eaecafb7ec69ae170181e42f2c42d6b66a5
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c cfb84a3dedc243be87f60a07b3f6eca5fbe482c6975c241521bcc8f56b7337ff
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
-F src/winhttp.c b5d21becead9991ee743496f13a74b6aee66672be8ee22390c7590ecb665bcf4
+F src/winhttp.c 3eb83cdabb642fe107f8efbdd839839693b781d4b1c8fa49a98a1037642111f1
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 668af421d7b956373a7834ad5cccfb98d2020342949aee03ef05c60ac72e68fd
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
@@ -808,7 +808,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 723dedac57d107170316f72a4732e597e7c889feaaad7973d09c44898045b6e5
-R 7847a14dab9fb519ceff7b77cc243471
+P 96dcb7e709a47863d31580e0812a7212ac68246e21d1fca031d90b768f324b2e
+R b5e48415a6e436f53f5b02c89736ae1d
+T *branch * windows-loopback-ipv6
+T *sym-windows-loopback-ipv6 *
+T -sym-trunk *
 U drh
-Z 6f505d9b0e0e8ce0dbfbc44c3ec82a45
+Z 4a3ad65acded01fe2898aef3b6c701d5
