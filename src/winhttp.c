@@ -378,7 +378,7 @@ void win32_http_server(
     fossil_fatal("unable to initialize winsock");
   }
   if( flags & HTTP_SERVER_LOCALHOST ){
-    zIpAddr = "127.0.0.1";
+    zIpAddr = "::1";
   }
   while( iPort<=mxPort ){
     DWORD ipv6only = 0;

@@ -2041,5 +2041,6 @@ const char *cgi_ssh_remote_addr(const char *zDefault){
 */
 int cgi_is_loopback(const char *zIpAddr){
   return fossil_strcmp(zIpAddr, "127.0.0.1")==0 ||
-         fossil_strcmp(zIpAddr, "::ffff:127.0.0.1")==0;
+         fossil_strcmp(zIpAddr, "::ffff:127.0.0.1")==0 ||
+         fossil_strcmp(zIpAddr, "::1")==0;
 }

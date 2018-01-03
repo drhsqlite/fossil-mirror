@@ -2571,7 +2571,7 @@ void cmd_webserver(void){
       zBrowserCmd = mprintf("%s http://%s:%%d/%s &",
                             zBrowser, zIpAddr, zInitPage);
     }else{
-      zBrowserCmd = mprintf("%s http://localhost:%%d/%s &",
+      zBrowserCmd = mprintf("%s http://[::1]:%%d/%s &",
                             zBrowser, zInitPage);
     }
   }
