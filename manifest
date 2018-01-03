@@ -1,5 +1,5 @@
-C Accept\sboth\s"127.0.0.1"\sand\s"::ffff:127.0.0.1"\sas\svalid\sloopback\sIP\saddresses.
-D 2018-01-03T18:56:52.628
+C Fix\sharmless\scompiler\swarning.
+D 2018-01-03T22:13:19.704
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -450,7 +450,7 @@ F src/json_branch.c b6105183492ee774cdc685bfd80eb511fb1c5c37faf88198d7e4e58c41df
 F src/json_config.c f53fa14ab92730d30be35311b52a17848eeabe44
 F src/json_detail.h 76bc835feb671a5001d4a20bd3f0c8882f228382
 F src/json_diff.c ece93153083c388397620c7c7c8b56ce986b85c6
-F src/json_dir.c bd7be6f09d9c4d951e68b9562ad13d15aa76fb70
+F src/json_dir.c 749c78497a1ca3d29659e760a8ecb482bf1a090e9ce6dd01f4e55d6abf062295
 F src/json_finfo.c 1061327153acf9d8f29228ae27c98e8f0c089955
 F src/json_login.c f446046e74c6cc8da4c791dd34459998c7f88ed8
 F src/json_query.c 15f7b943478b3fa4a423aefb5a022e6e9513abc7
@@ -808,7 +808,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 723dedac57d107170316f72a4732e597e7c889feaaad7973d09c44898045b6e5
-R 7847a14dab9fb519ceff7b77cc243471
-U drh
-Z 6f505d9b0e0e8ce0dbfbc44c3ec82a45
+P 96dcb7e709a47863d31580e0812a7212ac68246e21d1fca031d90b768f324b2e
+R 317ea7080a790faad43e9f4bb4b038f1
+U mistachkin
+Z d05d656e288efb4392f321ad710dc816
