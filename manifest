@@ -1,5 +1,5 @@
-C Improved\sparsing\sof\sthe\s--port\soption\son\sthe\s"fossil\sserver"\scommand.
-D 2018-01-05T13:37:00.568
+C Improved\ssupport\sfor\sboth\sIPv4\sand\sIPv6\son\s"fossil\sserver"\son\sWindows.\nPatches\sfrom\sOlivier\sMascia.
+D 2018-01-05T14:34:59.875
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -549,7 +549,7 @@ F src/wiki.c 2e1ff7a1f89ad2796068bf130d663eaecafb7ec69ae170181e42f2c42d6b66a5
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c cfb84a3dedc243be87f60a07b3f6eca5fbe482c6975c241521bcc8f56b7337ff
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
-F src/winhttp.c 3eb83cdabb642fe107f8efbdd839839693b781d4b1c8fa49a98a1037642111f1
+F src/winhttp.c cac4936b567c5b6f8c22b0c10c74400ce6f327d61d1a41f8a41e88ef17079e65
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 668af421d7b956373a7834ad5cccfb98d2020342949aee03ef05c60ac72e68fd
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
@@ -808,7 +808,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 696e14811d0d84ed31069bc3c93071abd574a5069132a5a36b4f002508bf9e1b
-R 4a9ba7767ad12621196df43d0818987c
+P f8f2c8d2595020ea5d860f3271f37a75cd4346d652bb30c48c9037e8a5da79d5
+R 51a66ca141f38ee96e0573c745e2c987
 U drh
-Z d1e55eba25aa6423a2dd353f1af47a27
+Z c7c8351d997fbdf9f5206b9d2891c962
