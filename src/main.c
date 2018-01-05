@@ -2496,7 +2496,7 @@ void cmd_webserver(void){
     }
   }
   if( zPort ){
-    if( strchr(zPort,'.') || zPort[0]=='[' ){
+    if( strchr(zPort,':') ){
       int i;
       for(i=strlen(zPort)-1; i>=0 && zPort[i]!=':'; i--){}
       if( i>0 ){
