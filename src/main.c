@@ -2496,11 +2496,17 @@ void cmd_webserver(void){
     }
   }
   if( zPort ){
-    int i;
-    for(i=strlen(zPort)-1; i>=0 && zPort[i]!=':'; i--){}
-    if( i>0 ){
-      zIpAddr = mprintf("%.*s", i, zPort);
-      zPort += i+1;
+    if( strchr(zPort,'.') || zPort[0]=='[' ){
+      int i;
+      for(i=strlen(zPort)-1; i>=0 && zPort[i]!=':'; i--){}
+      if( i>0 ){
+        if( zPort[0]=='[' && zPort[i-1]==']' ){
+          zIpAddr = mprintf("%.*s", i-2, zPort+1);
+        }else{
+          zIpAddr = mprintf("%.*s", i, zPort);
+        }
+        zPort += i+1;
+      }
     }
     iPort = mxPort = atoi(zPort);
   }else{
@@ -2527,12 +2533,15 @@ void cmd_webserver(void){
 #else
     zBrowser = db_get("web-browser", "open");
 #endif
-    if( zIpAddr ){
-      zBrowserCmd = mprintf("%s \"http://%s:%%d/%s\" &",
+    if( zIpAddr==0 ){
+      zBrowserCmd = mprintf("%s http://localhost:%%d/%s &",
+                            zBrowser, zInitPage);
+    }else if( strchr(zIpAddr,':') ){
+      zBrowserCmd = mprintf("%s http://[%s]:%%d/%s &",
                             zBrowser, zIpAddr, zInitPage);
     }else{
-      zBrowserCmd = mprintf("%s \"http://localhost:%%d/%s\" &",
-                            zBrowser, zInitPage);
+      zBrowserCmd = mprintf("%s http://%s:%%d/%s &",
+                            zBrowser, zIpAddr, zInitPage);
     }
   }
   if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
@@ -2567,12 +2576,15 @@ void cmd_webserver(void){
   /* Win32 implementation */
   if( isUiCmd ){
     zBrowser = db_get("web-browser", "start");
-    if( zIpAddr ){
-      zBrowserCmd = mprintf("%s http://%s:%%d/%s &",
+    if( zIpAddr==0 ){
+      zBrowserCmd = mprintf("%s http://localhost:%%d/%s &",
+                            zBrowser, zInitPage);
+    }else if( strchr(zIpAddr,':') ){
+      zBrowserCmd = mprintf("%s http://[%s]:%%d/%s &",
                             zBrowser, zIpAddr, zInitPage);
     }else{
-      zBrowserCmd = mprintf("%s http://[::1]:%%d/%s &",
-                            zBrowser, zInitPage);
+      zBrowserCmd = mprintf("%s http://%s:%%d/%s &",
+                            zBrowser, zIpAddr, zInitPage);
     }
   }
   if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;

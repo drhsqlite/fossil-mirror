@@ -1,5 +1,5 @@
-C In\sthe\s"fossil\sui"\sand\s"fossil\sserver"\scommands\son\sWindows,\suse\sIPv6\sfor\sloopback.
-D 2018-01-03T23:55:20.085
+C Improved\sparsing\sof\sthe\s--port\soption\son\sthe\s"fossil\sserver"\scommand.
+D 2018-01-05T13:37:00.568
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -467,7 +467,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 8f07f96589451ba414fa42c28b2f77bf3a713e5cf9e40abd364ec2bbb4854826
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c d4ea304d26bdf190191449c28fa8d78708294c1151a55f78989fd6adec6d06dc
+F src/main.c 56cc28471e407e81d6fc4a55d354e75c2d1a1fe71d4ff19ea3d4d128b39a2aea
 F src/main.mk 4229bcfff06ee7c8d234034d1e62dc6e480ec1007e79e9550b740e104f60eb9b
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -808,8 +808,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a61922e2bec3a9989e61045f6178d3b1f7d750ab23c751ce6e8218bc5e0cd245 c038de8d27b5ef1427bafdef0d58c276d2c428e34a0e2ec1f5e4ab692b64f1d2
-R 928268f1487c391d39cd75e659569169
-T +closed c038de8d27b5ef1427bafdef0d58c276d2c428e34a0e2ec1f5e4ab692b64f1d2
+P 696e14811d0d84ed31069bc3c93071abd574a5069132a5a36b4f002508bf9e1b
+R 4a9ba7767ad12621196df43d0818987c
 U drh
-Z b09b8b9941199fbda96ca2563f2032ef
+Z d1e55eba25aa6423a2dd353f1af47a27
