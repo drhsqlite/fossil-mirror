@@ -53,6 +53,7 @@ static struct BuiltinSkin {
   { "Black & White, Menu on Left",       "black_and_white",   0 },
   { "Plain Gray, No Logo",               "plain_gray",        0 },
   { "Khaki, No Logo",                    "khaki",             0 },
+  { "Ardoise",                           "ardoise",           0 },
 };
 
 /*
