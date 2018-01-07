@@ -145,6 +145,10 @@ SRC = \
 
 EXTRA_FILES = \
   $(SRCDIR)/../skins/aht/details.txt \
+  $(SRCDIR)/../skins/ardoise/css.txt \
+  $(SRCDIR)/../skins/ardoise/details.txt \
+  $(SRCDIR)/../skins/ardoise/footer.txt \
+  $(SRCDIR)/../skins/ardoise/header.txt \
   $(SRCDIR)/../skins/black_and_white/css.txt \
   $(SRCDIR)/../skins/black_and_white/details.txt \
   $(SRCDIR)/../skins/black_and_white/footer.txt \
