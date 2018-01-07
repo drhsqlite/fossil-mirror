@@ -1,5 +1,5 @@
-C Avoid\sthe\suse\sof\sutimensat()\son\solder\sunix\splatforms.
-D 2018-01-07T23:29:07.465
+C Remove\svarargs\sC-preprocessor\smacros\sfrom\slinenoise.c,\ssince\ssome\solder\sC\ncompilers\s(ex:\sgcc\son\sa\scirca-2000\siBook)\sare\sunable\sto\sdeal\swith\sthem.
+D 2018-01-07T23:45:48.997
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -466,7 +466,7 @@ F src/json_timeline.c 5a9ce59def16a55b7affbf834dd1e13d876efe76
 F src/json_user.c 779af89a12af7c0c228d0194fa564379ec77ac76
 F src/json_wiki.c 67ce76b80f4571bb928c4f0e1beec3231404b9c3
 F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
-F src/linenoise.c 40dc9882c25ff158b377497bf80b133358741129bf585fe530415c3b5e986cd9
+F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 8f07f96589451ba414fa42c28b2f77bf3a713e5cf9e40abd364ec2bbb4854826
@@ -813,7 +813,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 14e94ad326d0ebd133cfb138ab5bceaf272dfd09e7c2fe3a2497dc2063b2e310
-R 9f2f815b7dcdd96d8d4cbf927c4f60af
+P 2aa7a23b8f3d6c8acbf08cd4d0262308b27b46f8e939fd6d76e5f09963cba7da
+R 230a08e26ef7c530c5dc6796a440b965
 U drh
-Z f85e82b701cd1ddd54802a6c918fccd6
+Z d42a30a45e217731c505721c94241c04
