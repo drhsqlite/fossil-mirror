@@ -1,5 +1,5 @@
-C Always\stry\sto\sextract\sthe\sIP\saddress\sand\sPORT\snumber\sfrom\sthe\s--port\soption\nto\s"fossil\sserver"\sif\sthe\soption\scontains\sa\s':'\scharacter.
-D 2018-01-05T15:25:22.135
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.22.0\salpha\scode.
+D 2018-01-07T21:38:26.910
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -508,15 +508,15 @@ F src/setup.c 91cb4165da5374360a3dbaa0f9266037b9d3a5c0f8567b0aa74b9de24fb5a6c9
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
-F src/shell.c 2b0b3152b6da653b64008b558df4303a4a442618c18b5620056d3d962a2ca1d7
+F src/shell.c 69acaf983da65d4d4bdd1f8e2b2720a6d580182305abaa341206cfe4bfedc4aa
 F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 9899cc4e01b9fad31e0710875f7d41f3a05119f3e4396065a9087d9ea34e0133
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c 031b91c0ee221f41795bbb95e4ef9f6590478dc1468ee767e3ae744ff3381849
-F src/sqlite3.c 96bcf6e46d70c74327f19c0547f1b7a2b9d82a2982632f02fea4545d497808bf
-F src/sqlite3.h 0f19e11b924032e7dfb4a31e990fd006d27ffb6d01e2c9010ff26e3d17ff63d7
+F src/sqlite3.c 54dd262e1122e3bf8adaec51feb242ff8c7e0e00be4441144450564a59037679
+F src/sqlite3.h 6c0062915373b7ca1aeac0e4431638b0dfbdbe5c85cde3bbf883f259f3e955b2
 F src/stash.c 8f0bc283ba1099458e48ecd4c059a85bef34aef02066d972f61c165f2c47177b
 F src/stat.c 39a33f66a4d803c036f73993bd043f5484816b54f8cded166b07c100cc4097fd
 F src/statrep.c 367a01ddc206ba32f53357db06c55f6432d8b6c6593e6e98376f28eaef589a97
@@ -808,7 +808,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e506ebb764e93715e9514d6c0078d3eb82580bee78f18180fa18a21b3d7edd03
-R 59ff26548cdaac161f3c603675ecec89
+P 4d3cb0da65f7d12b818517c9cb1c53d6524f5168ef42df53189fdaa12e610711
+R 1fb75894898b295b924963e533fac9f8
 U drh
-Z 4e58001c22c76e50c56114aeb0dbf26e
+Z fdf787dc539918363d9da283bd257a18
