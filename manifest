@@ -1,5 +1,5 @@
-C Remove\svarargs\sC-preprocessor\smacros\sfrom\slinenoise.c,\ssince\ssome\solder\sC\ncompilers\s(ex:\sgcc\son\sa\scirca-2000\siBook)\sare\sunable\sto\sdeal\swith\sthem.
-D 2018-01-07T23:45:48.997
+C Enlarge\sthe\sdiff\sview\sfont\sand\stweak\sthe\sdiff\shighlight\scolors.\sThe\sskin\swas\sglobally\swidened\sto\saccomodate\smore\sspace\sfor\sthe\sdiff\sview.
+D 2018-01-08T23:20:21.529
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -325,7 +325,7 @@ F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
 F skins/README.md a32271fe6907cc4c0cabb9d24c1dab16b89dbc64
 F skins/aht/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/ardoise/README.md 1adacca2d31f50ad8132ab439abe02060f3093f1dec056f8c6dc883210cfd7f6
-F skins/ardoise/css.txt 9e8999b402aa96d9540430773ef2b15176b13b0afd629beff6d5d6967092e143
+F skins/ardoise/css.txt 1a37fd67450f84cf48fde074027465933b5da7e34f63c3109d9d0851e537302d
 F skins/ardoise/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
 F skins/ardoise/footer.txt 8a8ded401c096c7c3434f29c444d506f4b2f15b25c79ec6373253be6561119fa
 F skins/ardoise/header.txt 865aa98f76a9cc1f4d9727eb71279635be1739f11d923fd2f920d8c734fd48f8
@@ -813,7 +813,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2aa7a23b8f3d6c8acbf08cd4d0262308b27b46f8e939fd6d76e5f09963cba7da
-R 230a08e26ef7c530c5dc6796a440b965
-U drh
-Z d42a30a45e217731c505721c94241c04
+P 24c2b99df2f659140a1bedaef3a9a44dfeb1c1ba7929c5bd8ec39de3d15dba44
+R 1cb7de0cc3e3f75dce52b32ad6c2252e
+T *branch * skin-ardoise
+T *sym-skin-ardoise *
+T -sym-trunk *
+U achavasse
+Z 040f883112b6bbfde9db984de2b19e5c
