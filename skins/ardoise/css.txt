@@ -288,7 +288,7 @@ p {
 }
 .container {
   width: 100%;
-  max-width: 1080px;
+  max-width: 1200px;
   margin: 0 auto;
   box-sizing: border-box
 }
@@ -912,6 +912,12 @@ td.timelineGraph {
   vertical-align: top;
   border-bottom: 0
 }
+table.login_out .login_out_label,
+td.tktDescLabel,
+td.tktDspLabel {
+  text-align: right;
+  font-weight: 700
+}
 a.timelineHistLink {
   text-transform: lowercase
 }
@@ -931,13 +937,6 @@ table.timelineTable {
   padding: .75em;
   border-radius: 5px;
   background: #000
-}
-.timelineModernDetail {
-  font-size: 80%;
-  text-align: right;
-  float: right;
-  opacity: .75;
-  margin-top: .5em
 }
 .timelineSelected > .timelineColumnarCell,
 .timelineSelected > .timelineCompactCell,
@@ -1041,10 +1040,6 @@ table.timelineTable {
 .tl-line.warp {
   background: #600000
 }
-table.login_out .login_out_label {
-  font-weight: 700;
-  text-align: right
-}
 pre.udiff,
 table.sbsdiffcols {
   width: 100%;
@@ -1054,16 +1049,28 @@ table.sbsdiffcols {
   background: #000;
   border-radius: 5px
 }
+pre.udiff,
+pre.udiff pre,
+table.sbsdiffcols pre {
+  font-size: 1.15rem
+}
+pre.udiff {
+  padding: 10px 0
+}
+div.difftxtcol {
+  width: 52rem;
+  overflow-x: auto
+}
 span.diffchng {
-  background-color: #88f;
+  background-color: #8080e8;
   color: #000
 }
 span.diffadd {
-  background-color: #6b6;
+  background-color: #559855;
   color: #000
 }
 span.diffrm {
-  background-color: #d66;
+  background-color: #c55;
   color: #000
 }
 div.diffmkrcol {
@@ -1103,9 +1110,7 @@ table.tktDsp {
 td.tktDescLabel,
 td.tktDspLabel {
   width: 70px;
-  text-align: right;
   overflow: hidden;
-  font-weight: 700;
   padding: 10px;
   background-color: #f8f8f8
 }
