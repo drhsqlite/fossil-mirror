@@ -1,5 +1,5 @@
-C A\snew\squote\sfor\sthe\sFossil-v-Git\ssection\sof\sthe\squotes\spage.
-D 2018-01-09T14:47:12.290
+C Latest\supstream\scson\s-\sincreases\sa\sunicode\soutput\sbuffer\ssize\safter\sreports\sof\scertain\sMSVC\sversion(s)\scomplaining\sabout\sit.
+D 2018-01-09T20:34:51.102
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -416,8 +416,8 @@ F src/config.h d6b66b9cf87be799bc160e9afa0db82a5d34f30b4a73691a391031c37b4c0535
 F src/configure.c 49176c95e281ba0fd63e8c4a3f7a2b4b5bdf0d6de33aef44ec504b0bcc385044
 F src/content.c 3e0cc7864e829d35e0f97f489c833a292308e6e3952e991a95beac661f4036f5
 F src/cookies.c 63e81a4d7741a9419565f50e4e508701db758d1ee41019136e1948edc06142f1
-F src/cson_amalgamation.c 688530bdcac6c7f608d5c1010ab3b275db5f63c0
-F src/cson_amalgamation.h 5ab5219c2f5316e1e179b03fd582c479a0c2faa0
+F src/cson_amalgamation.c 17939461f660bf81b8b850ada89323ae3f7289ebb51608f13d5dc8323b897e0d
+F src/cson_amalgamation.h b58a1f01438ac0fcba8cbdae7a32bcacd02ca0d7
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 911c393045873d031c91a71062622d9dd92d9b2d352a100e64f5cc1e77f8c450
 F src/default_css.txt 75d8873223cc2dd20e9e72ef571f5ace421d29da235f1419d1fcf687ac3483f3
@@ -813,7 +813,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9a33a240a2101edebc737646711a436a63cbe1437a574971e55504cac0c264fb
-R beb4c08a8a0db792f9f1a66d99e6da57
-U drh
-Z f7ae0ba00780530449a432812ffd2a87
+P 754a79c137f6ede3795bbea06ac9e3e965ec1fed3bfc714a686f33c769d34dc8
+R d7441dfcb8548aec9c2133b9ca2ccb4b
+U stephan
+Z 9474b865b60478538c8839530284d5c7
