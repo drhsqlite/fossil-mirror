@@ -1,5 +1,5 @@
-C Update\sSQLite\sagain,\swith\snew\sfixes\sto\sshell.c\swhich\sattempt\sto\sget\sthe\sbuild\nworking\son\sMinGW64.
-D 2018-01-09T14:29:29.400
+C A\snew\squote\sfor\sthe\sFossil-v-Git\ssection\sof\sthe\squotes\spage.
+D 2018-01-09T14:47:12.290
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -789,7 +789,7 @@ F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki e5109b9f545d4b1ded991057a7b2d80630f89712ef67a568e574b1809106f843
 F www/qandc.wiki b8b6f9668796bde63440e64dfd40a176766dd78e
 F www/quickstart.wiki afc5e41e06cc2d54364016e3d0d7dff1209b082d
-F www/quotes.wiki 6f77c1af17f05596d0f6a4cc88f149a61188ecfd
+F www/quotes.wiki dcb5b56c3438294218ccb7f0c6f7c81c98f747a46472516e1d6f17dac9f5c783
 F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
@@ -813,7 +813,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 666fc089b8d89623cbc619c2f364385c8c5b814c6bdceac67ce5a8752f460259
-R 7f7b29fe53a4d7da34e684753ddb3dfe
+P 9a33a240a2101edebc737646711a436a63cbe1437a574971e55504cac0c264fb
+R beb4c08a8a0db792f9f1a66d99e6da57
 U drh
-Z 312e7b4f8cd972870e238a01498cdb6b
+Z f7ae0ba00780530449a432812ffd2a87
