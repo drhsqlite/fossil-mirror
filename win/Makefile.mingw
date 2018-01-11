@@ -2277,6 +2277,9 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_ENABLE_JSON1 \
                  -DSQLITE_ENABLE_FTS5 \
                  -DSQLITE_ENABLE_STMTVTAB \
+                 -DSQLITE_USE_ZLIB \
+                 -DSQLITE_INTROSPECTION_PRAGMAS \
+                 -DSQLITE_ENABLE_DBPAGE_VTAB \
                  -DSQLITE_WIN32_NO_ANSI \
                  $(MINGW_OPTIONS) \
                  -DSQLITE_USE_MALLOC_H \
