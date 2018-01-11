@@ -1,5 +1,5 @@
-C Merge\strunk.
-D 2018-01-11T23:03:11.083
+C Reskinned\sthe\sticket\sview\sand\sswitched\sto\sblack\stext\sin\sthe\sticket\sreports\sso\sthat\sthey\sare\sreadable\swith\sthe\sdefault\scolors.
+D 2018-01-11T23:07:46.585
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -325,7 +325,7 @@ F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
 F skins/README.md a32271fe6907cc4c0cabb9d24c1dab16b89dbc64
 F skins/aht/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/ardoise/README.md 1adacca2d31f50ad8132ab439abe02060f3093f1dec056f8c6dc883210cfd7f6
-F skins/ardoise/css.txt 1a37fd67450f84cf48fde074027465933b5da7e34f63c3109d9d0851e537302d
+F skins/ardoise/css.txt f1773710cf813861686b362f83da94dbcce56c0bc6d51372d55d787ed08eba2d
 F skins/ardoise/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
 F skins/ardoise/footer.txt 8a8ded401c096c7c3434f29c444d506f4b2f15b25c79ec6373253be6561119fa
 F skins/ardoise/header.txt 865aa98f76a9cc1f4d9727eb71279635be1739f11d923fd2f920d8c734fd48f8
@@ -813,7 +813,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 34ab58c26386bebcdf44de8b966b6770a9c07b21feb9713770d0ff4ad656dbf4 a5c48cdf49480329937f131dab85407e7613cf2c25dd130262ad026ef65e620f
-R d6bfeaf3f6865ca4c860864a101e95b8
+P 9cd063dc388af63098c888945dba7bcc85b2d530deff29242cbe52fe0d8bfd42
+R 88522363275d0290ed4fae21b68afd0d
 U achavasse
-Z c3d0d95d1b89255049eb5b3f20f86b91
+Z e93627aa6edcf1036f535753fc5b383e

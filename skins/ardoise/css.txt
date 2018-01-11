@@ -131,7 +131,7 @@ hr {
   margin-top: 3rem;
   margin-bottom: 3.5rem;
   border-width: 0;
-  border-top: 1px solid #e1e1e1
+  border-top: 1px solid #626262
 }
 pre {
   overflow: auto
@@ -207,7 +207,8 @@ legend {
   padding: 0
 }
 table {
-  border-spacing: 0
+  border-spacing: 0;
+  width: 100%
 }
 html {
   font-size: 62.5%
@@ -885,7 +886,8 @@ table.label-value th {
 }
 .sortable,
 .userTable {
-  border-color: transparent
+  border-color: transparent;
+  width: 75%
 }
 td.timelineTime,
 tr.timelineBottom td {
@@ -911,12 +913,6 @@ td.timelineGraph {
   text-align: left;
   vertical-align: top;
   border-bottom: 0
-}
-table.login_out .login_out_label,
-td.tktDescLabel,
-td.tktDspLabel {
-  text-align: right;
-  font-weight: 700
 }
 a.timelineHistLink {
   text-transform: lowercase
@@ -1040,6 +1036,10 @@ table.timelineTable {
 .tl-line.warp {
   background: #600000
 }
+table.login_out .login_out_label {
+  font-weight: 700;
+  text-align: right
+}
 pre.udiff,
 table.sbsdiffcols {
   width: 100%;
@@ -1088,9 +1088,14 @@ span.diffln {
 table.report {
   width: 100%;
   cursor: auto;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  margin: 0 0 1em
+  margin: 0 0 1em;
+  color: #000
+}
+table.report thead {
+  color: #ddd
+}
+table.report a {
+  color: #0374ca
 }
 .report td,
 .report th {
@@ -1099,27 +1104,49 @@ table.report {
   padding: 5px
 }
 .report thead + tbody tr:hover {
-  background-color: #f5f9fc!important
+  background-color: #ff8000!important
 }
-table.tktDsp {
-  border-top: 1px solid #ccc;
-  border-left: 1px solid #ccc;
-  width: 100%;
-  margin: 15px 0 10px
+tbody tr:nth-child(odd) td.tktDescValue,
+tbody tr:nth-child(odd) td.tktDspValue {
+  text-align: left;
+  vertical-align: top;
+  background: #181818;
+  padding: 10px
+}
+tbody tr:nth-child(odd) td.tktDescLabel,
+tbody tr:nth-child(odd) td.tktDspLabel {
+  width: 70px;
+  text-align: right;
+  overflow: hidden;
+  font-weight: 700;
+  padding: 10px;
+  background: #484848
+}
+tbody tr:nth-child(even) td.tktDescValue,
+tbody tr:nth-child(even) td.tktDspValue {
+  text-align: left;
+  vertical-align: top;
+  background: #2c2c2c;
+  padding: 10px
+}
+tbody tr:nth-child(even) td.tktDescLabel,
+tbody tr:nth-child(even) td.tktDspLabel {
+  width: 70px;
+  text-align: right;
+  overflow: hidden;
+  font-weight: 700;
+  padding: 10px;
+  margin: 2px;
+  background: #555
 }
 td.tktDescLabel,
 td.tktDspLabel {
   width: 70px;
+  text-align: right;
   overflow: hidden;
+  font-weight: 700;
   padding: 10px;
-  background-color: #f8f8f8
-}
-td.tktDescValue,
-td.tktDspValue {
-  text-align: left;
-  vertical-align: top;
-  border: 1px solid #ccc;
-  padding: 10px
+  background-color: #404040
 }
 td.tktDescValue code,
 td.tktDescValue pre,
