@@ -553,7 +553,10 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_ENABLE_DBSTAT_VTAB \
                  -DSQLITE_ENABLE_JSON1 \
                  -DSQLITE_ENABLE_FTS5 \
-                 -DSQLITE_ENABLE_STMTVTAB
+                 -DSQLITE_ENABLE_STMTVTAB \
+                 -DSQLITE_USE_ZLIB \
+                 -DSQLITE_INTROSPECTION_PRAGMAS \
+                 -DSQLITE_ENABLE_DBPAGE_VTAB
 
 # Setup the options used to compile the included SQLite shell.
 SHELL_OPTIONS = -Dmain=sqlite3_shell \
