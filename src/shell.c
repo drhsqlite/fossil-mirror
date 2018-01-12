@@ -2130,6 +2130,7 @@ SQLITE_EXTENSION_INIT1
 #  include <unistd.h>
 #  include <dirent.h>
 #  include <utime.h>
+#  include <sys/time.h>
 #else
 #  include "windows.h"
 #  include <io.h>
@@ -2329,7 +2330,7 @@ static int writeFile(
     }else{
       return 1;
     }
-#elif defined(AT_FDCWD)
+#elif defined(AT_FDCWD) && 0 /* utimensat() is not univerally available */
     /* Recent unix */
     struct timespec times[2];
     times[0].tv_nsec = times[1].tv_nsec = 0;
@@ -3961,6 +3962,19 @@ int sqlite3_appendvfs_init(
 **
 ******************************************************************************
 **
+** This file implements a virtual table for reading and writing ZIP archive
+** files.
+**
+** Usage example:
+**
+**     SELECT name, sz, datetime(mtime,'unixepoch') FROM zipfile($filename);
+**
+** Current limitations:
+**
+**    *  No support for encryption
+**    *  No support for ZIP archives spanning multiple files
+**    *  No support for zip64 extensions
+**    *  Only the "inflate/deflate" (zlib) compression method is supported
 */
 SQLITE_EXTENSION_INIT1
 #include <stdio.h>
@@ -3992,18 +4006,19 @@ typedef unsigned long u32;
 #define MIN(a,b) ((a)<(b) ? (a) : (b))
 #endif
 
-#define ZIPFILE_SCHEMA "CREATE TABLE y("                              \
-  "name,      /* 0: Name of file in zip archive */"                   \
-  "mode,      /* 1: POSIX mode for file */"                           \
-  "mtime,     /* 2: Last modification time in seconds since epoch */" \
-  "sz,        /* 3: Size of object */"                                \
-  "rawdata,   /* 4: Raw data */"                                      \
-  "data,      /* 5: Uncompressed data */"                             \
-  "method,    /* 6: Compression method (integer) */"                  \
-  "file HIDDEN   /* Name of zip file */"                              \
-");"
+static const char ZIPFILE_SCHEMA[] = 
+  "CREATE TABLE y("
+    "name PRIMARY KEY,"  /* 0: Name of file in zip archive */
+    "mode,"              /* 1: POSIX mode for file */
+    "mtime,"             /* 2: Last modification time (secs since 1970)*/
+    "sz,"                /* 3: Size of object */
+    "rawdata,"           /* 4: Raw data */
+    "data,"              /* 5: Uncompressed data */
+    "method,"            /* 6: Compression method (integer) */
+    "file HIDDEN"        /* 7: Name of zip file */
+  ") WITHOUT ROWID;";
 
-#define ZIPFILE_F_COLUMN_IDX 7    /* Index of column "f" in the above */
+#define ZIPFILE_F_COLUMN_IDX 7    /* Index of column "file" in the above */
 #define ZIPFILE_BUFFER_SIZE (64*1024)
 
 
@@ -4159,7 +4174,6 @@ struct ZipfileLFH {
 typedef struct ZipfileEntry ZipfileEntry;
 struct ZipfileEntry {
   char *zPath;               /* Path of zipfile entry */
-  i64 iRowid;                /* Rowid for this value if queried */
   u8 *aCdsEntry;             /* Buffer containing entire CDS entry */
   int nCdsEntry;             /* Size of buffer aCdsEntry[] in bytes */
   int bDeleted;              /* True if entry has been deleted */
@@ -4766,12 +4780,7 @@ static int zipfileColumn(
 ** Return the rowid for the current row.
 */
 static int zipfileRowid(sqlite3_vtab_cursor *cur, sqlite_int64 *pRowid){
-  ZipfileCsr *pCsr = (ZipfileCsr*)cur;
-  if( pCsr->pCurrent ){
-    *pRowid = pCsr->pCurrent->iRowid;
-  }else{
-    *pRowid = pCsr->cds.iOffset;
-  }
+  assert( 0 );
   return SQLITE_OK;
 }
 
@@ -4935,11 +4944,9 @@ static void zipfileAddEntry(ZipfileTab *pTab, ZipfileEntry *pNew){
   assert( (pTab->pFirstEntry==0)==(pTab->pLastEntry==0) );
   assert( pNew->pNext==0 );
   if( pTab->pFirstEntry==0 ){
-    pNew->iRowid = 1;
     pTab->pFirstEntry = pTab->pLastEntry = pNew;
   }else{
     assert( pTab->pLastEntry->pNext==0 );
-    pNew->iRowid = pTab->pLastEntry->iRowid+1;
     pTab->pLastEntry->pNext = pNew;
     pTab->pLastEntry = pNew;
   }
@@ -5187,10 +5194,11 @@ static int zipfileUpdate(
     if( nVal>1 ){
       return SQLITE_CONSTRAINT;
     }else{
-      i64 iDelete = sqlite3_value_int64(apVal[0]);
+      const char *zDelete = (const char*)sqlite3_value_text(apVal[0]);
+      int nDelete = strlen(zDelete);
       ZipfileEntry *p;
       for(p=pTab->pFirstEntry; p; p=p->pNext){
-        if( p->iRowid==iDelete ){
+        if( zipfileComparePath(p->zPath, zDelete, nDelete)==0 ){
           p->bDeleted = 1;
           break;
         }
