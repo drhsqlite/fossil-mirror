@@ -1,5 +1,5 @@
-C Add\smissing\shistory\sof\sdirectory\slink\son\s/dir\spage\swhen\s"All"\sversion\sis\nselected.
-D 2018-01-12T02:48:50.523
+C Do\snot\sshow\sthe\snumeric\suser\sids\son\sthe\s/setup_ulist\spage.\s\sThe\slogin\sname\nis\ssufficient.\s\sOn\sthe\s/setup_uedit\spage,\sprovide\sa\slink\sto\san\saccess\slog\nfor\sthat\sparticular\suser.
+D 2018-01-12T14:30:33.579
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -509,7 +509,7 @@ F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c f38733fcd6cbcc52a70ea4b15520ab787f7dd4e5359e612ce53b125381cdfa49
 F src/security_audit.c 39296d083197aaf8f70b2144abff9342a0c4f94a2fd11ae2351547b86c1b1c0d
-F src/setup.c 91cb4165da5374360a3dbaa0f9266037b9d3a5c0f8567b0aa74b9de24fb5a6c9
+F src/setup.c 5293b761379f87a3caf08c23f750c408ccac716b9235dbea1ccc14096edda07f
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
@@ -544,7 +544,7 @@ F src/unicode.c 1a3686d1851ac88eeeef3428c9ace3c471b8286fb785606ad63b800c8e688926
 F src/unversioned.c 23d297dad48770f9825c007c9eba26968ef0d12528d514a3cbae2198122e03f8
 F src/update.c 073b324327d22aae32023f6337c1393a15621683ef5e2920e30a6982237c0372
 F src/url.c 61b100991bd4e1375ad67ca8204beb4603f6076e668d2d5fedc6331fccda2005
-F src/user.c 3303fcd35df5522ebe0b70d66dbaf83e0d0636becccc71ac110c8a33012b77bf
+F src/user.c 9374dffc58dc0ed3126f725db4f7037dbd80fc55b47c70ea2e5cb57e9007fda7
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c d4d73906b07ccbb1e8037f090c1b02c8ea925d72b8f6091efa822060c4484657
 F src/util.c 89f917cf842ade89abd1111e83b12115695800c084110ece5e9b4f63b952ea3a
@@ -813,7 +813,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a5c48cdf49480329937f131dab85407e7613cf2c25dd130262ad026ef65e620f
-R d3f38d2e71d7f27acadfdc19268a9d69
-U mgagnon
-Z 12d78d997c33f02ca1f4cbf21d73e6fc
+P f77a929edaf6e13814532242a9e9d272fcdc04024efcb5a6f05e0c4ffde6d488
+R 80620a03ed6757c48bbf4250f455ad92
+U drh
+Z f12d16b0ad92c4eb5fb543aaed642e33

@@ -166,7 +166,7 @@ void setup_ulist(void){
     style_header("User List");
     @ <table border=1 cellpadding=2 cellspacing=0 class='userTable'>
     @ <thead><tr>
-    @   <th>UID <th>Category
+    @   <th>Category
     @   <th>Capabilities (<a href='%R/setup_ucap_list'>key</a>)
     @   <th>Info <th>Last Change</tr></thead>
     @ <tbody>
@@ -182,7 +182,6 @@ void setup_ulist(void){
       const char *zCap = db_column_text(&s, 2);
       const char *zDate = db_column_text(&s, 4);
       @ <tr>
-      @ <td><a href='setup_uedit?id=%d(uid)'>%d(uid)</a>
       @ <td><a href='setup_uedit?id=%d(uid)'>%h(zLogin)</a>
       @ <td>%h(zCap)
 
@@ -211,12 +210,12 @@ void setup_ulist(void){
   @ </tbody></table>
   @ <div class='section'>Users</div>
   @ <table border=1 cellpadding=2 cellspacing=0 class='userTable sortable' \
-  @  data-column-types='nktxTTK' data-init-sort='2'>
+  @  data-column-types='ktxTTK' data-init-sort='2'>
   @ <thead><tr>
-  @ <th>ID<th>Login Name<th>Caps<th>Info<th>Date<th>Expire<th>Last Login</tr></thead>
+  @ <th>Login Name<th>Caps<th>Info<th>Date<th>Expire<th>Last Login</tr></thead>
   @ <tbody>
   db_multi_exec(
-     "CREATE TEMP TABLE lastAccess(uname TEXT PRIMARY KEY, atime REAL) WITHOUT ROWID;"
+    "CREATE TEMP TABLE lastAccess(uname TEXT PRIMARY KEY, atime REAL) WITHOUT ROWID;"
   );
   if( db_table_exists("repository","accesslog") ){
     db_multi_exec(
@@ -224,7 +223,8 @@ void setup_ulist(void){
       " SELECT uname, max(mtime) FROM ("
       "    SELECT uname, mtime FROM accesslog WHERE success"
       "    UNION ALL"
-      "    SELECT login AS uname, rcvfrom.mtime AS mtime FROM rcvfrom JOIN user USING(uid))"
+      "    SELECT login AS uname, rcvfrom.mtime AS mtime"
+      "      FROM rcvfrom JOIN user USING(uid))"
       " GROUP BY 1;"
     );
   }
@@ -258,7 +258,6 @@ void setup_ulist(void){
       zAge = human_readable_age(rNow - rATime);
     }
     @ <tr>
-    @ <td><a href='setup_uedit?id=%d(uid)'>%d(uid)</a>
     @ <td data-sortkey='%h(zSortKey)'><a href='setup_uedit?id=%d(uid)'>%h(zLogin)</a>
     @ <td>%h(zCap)
     @ <td>%h(zInfo)
@@ -606,6 +605,7 @@ void user_edit(void){
   style_submenu_element("Cancel", cgi_referer("setup_ulist"));
   if( uid ){
     style_header("Edit User %h", zLogin);
+    style_submenu_element("Access Log", "%R/access_log?u=%t", zLogin);
   }else{
     style_header("Add A New User");
   }
