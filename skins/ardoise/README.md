@@ -1,6 +1,9 @@
 ## Ardoise theme
 
 A black and grey skin ("Ardoise" is the french word for slate).
+
+The skin includes custom icons for the file browser and the WYSIWYG editor, which are embedded directly in the css as base64 blobs. For convenience, they are also provided as standalone files in the images subdirectory.
+
 This skin was contributed by Antoine Chavasse.
 
 This theme is loosely based upon, and still contains some elements from the Blitz theme by James Moger.
