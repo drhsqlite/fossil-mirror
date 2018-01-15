@@ -485,3 +485,19 @@ void fossil_limit_memory(int onOff){
 #endif /* defined(RLIMIT_STACK) */
 #endif /* defined(__unix__) */
 }
+
+#if defined(FOSSIL_HAVE_PLEDGE)
+/*
+** Interface to pledge() on OpenBSD 5.9 and later.
+**
+** There is a macro in config.h that make translates calls to
+** "fossil_pledge(A,B)" into calls to this routine on OpenBSD.
+** On all other platforms, this routine does not exist.
+*/
+void fossil_pledge_impl(const char *promises, const char *execpromises){
+  if( pledge(promises, execpromises) ){
+    fossil_fatal("pledge(\"%s\",\"%s\") fails with errno=%d",
+       promises, execpromises, (int)errno);
+  }
+}
+#endif /* defined(__OpenBSD__) */
