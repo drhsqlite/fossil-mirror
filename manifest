@@ -1,5 +1,5 @@
-C End\swith\smatching\s#define\sfor\snew\sfossil_pledge_impl()\sroutine.
-D 2018-01-15T17:35:51.840
+C Only\s#define\sfossil_pledge\sin\sconfig.h\sif\sFOSSIL_HAVE_PLEDGE\sis\snot\sdefined\sso\nthat\smakeheaders\scan\spick\sup\sthe\sfunction\sprototype\sfor\scheckin.h\swhen\s\nFOSSIL_HAVE_PLEDGE\sis\sdefined.
+D 2018-01-15T21:43:36.152
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -412,7 +412,7 @@ F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab353
 F src/clone.c 39756ecd3586daaccca6ac5445657a183aaafcc83b6802c47d7e3795fc4d3157
 F src/codecheck1.c ed76b2c22bbe64950d229d720cd6e1f83bb918b22f46c01115339575ef6b3520
 F src/comformat.c 4d18073b1a8e98bd1b6ae6794df703744be590c69d4a507e04c8d86ed435c42c
-F src/config.h 05f1d4f9cb2b6232032406e1f400f16cadb73dd9bff7ce07dddf5883af796893
+F src/config.h 008533925cae0bd491f8422d6d5b8d24b07aa79cff489e6ecb969b0ca091d64a
 F src/configure.c 49176c95e281ba0fd63e8c4a3f7a2b4b5bdf0d6de33aef44ec504b0bcc385044
 F src/content.c 3e0cc7864e829d35e0f97f489c833a292308e6e3952e991a95beac661f4036f5
 F src/cookies.c 63e81a4d7741a9419565f50e4e508701db758d1ee41019136e1948edc06142f1
@@ -547,7 +547,7 @@ F src/url.c 61b100991bd4e1375ad67ca8204beb4603f6076e668d2d5fedc6331fccda2005
 F src/user.c 9374dffc58dc0ed3126f725db4f7037dbd80fc55b47c70ea2e5cb57e9007fda7
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c d4d73906b07ccbb1e8037f090c1b02c8ea925d72b8f6091efa822060c4484657
-F src/util.c c9a07aa86c47ac3aa2670351568ed881f81fcde493f7d4e13c2e5eb57a0f9406
+F src/util.c 4ca8629c103e89bb1bb8b418a45734b9c389de7022ffdef34e27511ca76d3e3c
 F src/verify.c 5799825d086464bb9e19e69ffeec84a710d1681b
 F src/vfile.c 8c891c745e280c0235bf0f57d3aeff2f34e823498601aeb4c9e0766dd964f960
 F src/wiki.c 2e1ff7a1f89ad2796068bf130d663eaecafb7ec69ae170181e42f2c42d6b66a5
@@ -813,7 +813,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7b81a9993b4c8192b75940c093bfe7ba3d3c51abd92af750828ea9b7619ae154
-R ab2ae2f7e8212bb59a6200b553449b46
+P cefcc87e08cbc946a73060f69a99c222648afd22b5797da840d1672303db2545
+R e30c089fb61a4485116872084db0f0c2
 U andybradford
-Z 47f2eb3fd39ce86ba690e936a7df13c7
+Z 5ad7ee9b6529a9386f6902d5b7b6146d

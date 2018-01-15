@@ -494,7 +494,7 @@ void fossil_limit_memory(int onOff){
 ** "fossil_pledge(A,B)" into calls to this routine on OpenBSD.
 ** On all other platforms, this routine does not exist.
 */
-void fossil_pledge_impl(const char *promises, const char *execpromises){
+void fossil_pledge(const char *promises, const char *execpromises){
   if( pledge(promises, execpromises) ){
     fossil_fatal("pledge(\"%s\",\"%s\") fails with errno=%d",
        promises, execpromises, (int)errno);

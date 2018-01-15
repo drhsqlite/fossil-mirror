@@ -261,9 +261,7 @@ typedef signed char i8;
 ** and later.  Make calls to fossil_pledge() no-ops on all platforms
 ** that omit the FOSSIL_HAVE_PLEDGE configuration parameter.
 */
-#if defined(FOSSIL_HAVE_PLEDGE)
-# define fossil_pledge(A,B) fossil_pledge_impl(A,B)
-#else
+#if !defined(FOSSIL_HAVE_PLEDGE)
 # define fossil_pledge(A,B)
 #endif
 
