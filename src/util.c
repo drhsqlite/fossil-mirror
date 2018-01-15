@@ -500,4 +500,4 @@ void fossil_pledge_impl(const char *promises, const char *execpromises){
        promises, execpromises, (int)errno);
   }
 }
-#endif /* defined(__OpenBSD__) */
+#endif /* defined(FOSSIL_HAVE_PLEDGE) */
