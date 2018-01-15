@@ -489,7 +489,7 @@ void fossil_limit_memory(int onOff){
 #if defined(FOSSIL_HAVE_PLEDGE)
 /*
 ** Interface to pledge() on OpenBSD 5.9 and later.
-** 
+**
 ** On platforms that have pledge(), use this routine.
 ** On all other platforms, this routine does not exist, but instead
 ** a macro defined in config.h is used to provide a no-op.
