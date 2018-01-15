@@ -125,7 +125,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.22.0"
 #define SQLITE_VERSION_NUMBER 3022000
-#define SQLITE_SOURCE_ID      "2018-01-12 14:34:45 30ed7a4b6408f0ca921abc4d8b7bb5404fc7708cedcd104b017b361054e7148c"
+#define SQLITE_SOURCE_ID      "2018-01-15 19:00:35 b0b7d0363acf38c2178e2d3041d8ce2a0de061a51caa64670dbf539ee6d4356b"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -4799,6 +4799,9 @@ SQLITE_API SQLITE_DEPRECATED int sqlite3_memory_alarm(void(*)(void*,sqlite3_int6
 ** datatype of the value
 ** <tr><td><b>sqlite3_value_numeric_type&nbsp;&nbsp;</b>
 ** <td>&rarr;&nbsp;&nbsp;<td>Best numeric datatype of the value
+** <tr><td><b>sqlite3_value_nochange&nbsp;&nbsp;</b>
+** <td>&rarr;&nbsp;&nbsp;<td>True if the column is unchanged in an UPDATE
+** against a virtual table.
 ** </table></blockquote>
 **
 ** <b>Details:</b>
@@ -4847,6 +4850,19 @@ SQLITE_API SQLITE_DEPRECATED int sqlite3_memory_alarm(void(*)(void*,sqlite3_int6
 ** then the conversion is performed.  Otherwise no conversion occurs.
 ** The [SQLITE_INTEGER | datatype] after conversion is returned.)^
 **
+** ^Within the [xUpdate] method of a [virtual table], the
+** sqlite3_value_nochange(X) interface returns true if and only if
+** the column corresponding to X is unchanged by the UPDATE operation
+** that the xUpdate method call was invoked to implement and if
+** and the prior [xColumn] method call that was invoked to extracted
+** the value for that column returned without setting a result (probably
+** because it queried [sqlite3_vtab_nochange()] and found that the column
+** was unchanging).  ^Within an [xUpdate] method, any value for which
+** sqlite3_value_nochange(X) is true will in all other respects appear
+** to be a NULL value.  If sqlite3_value_nochange(X) is invoked anywhere other
+** than within an [xUpdate] method call for an UPDATE statement, then
+** the return value is arbitrary and meaningless.
+**
 ** Please pay particular attention to the fact that the pointer returned
 ** from [sqlite3_value_blob()], [sqlite3_value_text()], or
 ** [sqlite3_value_text16()] can be invalidated by a subsequent call to
@@ -4869,6 +4885,7 @@ SQLITE_API int sqlite3_value_bytes(sqlite3_value*);
 SQLITE_API int sqlite3_value_bytes16(sqlite3_value*);
 SQLITE_API int sqlite3_value_type(sqlite3_value*);
 SQLITE_API int sqlite3_value_numeric_type(sqlite3_value*);
+SQLITE_API int sqlite3_value_nochange(sqlite3_value*);
 
 /*
 ** CAPI3REF: Finding The Subtype Of SQL Values
@@ -8306,6 +8323,13 @@ SQLITE_API int sqlite3_vtab_on_conflict(sqlite3 *);
 ** column value will not change.  Applications might use this to substitute
 ** a lighter-weight value to return that the corresponding [xUpdate] method
 ** understands as a "no-change" value.
+**
+** If the [xColumn] method calls sqlite3_vtab_nochange() and finds that
+** the column is not changed by the UPDATE statement, they the xColumn
+** method can optionally return without setting a result, without calling
+** any of the [sqlite3_result_int|sqlite3_result_xxxxx() interfaces].
+** In that case, [sqlite3_value_nochange(X)] will return true for the
+** same column in the [xUpdate] method.
 */
 SQLITE_API int sqlite3_vtab_nochange(sqlite3_context*);
 
