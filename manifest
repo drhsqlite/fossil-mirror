@@ -1,5 +1,5 @@
-C Only\s#define\sfossil_pledge\sin\sconfig.h\sif\sFOSSIL_HAVE_PLEDGE\sis\snot\sdefined\sso\nthat\smakeheaders\scan\spick\sup\sthe\sfunction\sprototype\sfor\scheckin.h\swhen\s\nFOSSIL_HAVE_PLEDGE\sis\sdefined.
-D 2018-01-15T21:43:36.152
+C Update\sthe\scomment\sfor\sfossil_pledge\sto\sreflect\sthe\snew\schange\sin\s[1180676e].
+D 2018-01-15T21:48:32.984
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -547,7 +547,7 @@ F src/url.c 61b100991bd4e1375ad67ca8204beb4603f6076e668d2d5fedc6331fccda2005
 F src/user.c 9374dffc58dc0ed3126f725db4f7037dbd80fc55b47c70ea2e5cb57e9007fda7
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c d4d73906b07ccbb1e8037f090c1b02c8ea925d72b8f6091efa822060c4484657
-F src/util.c 4ca8629c103e89bb1bb8b418a45734b9c389de7022ffdef34e27511ca76d3e3c
+F src/util.c 0b1ad26c58310fd911f5f73bb0072ab983738f9fb2132ebfcd0fb3cc9cd26004
 F src/verify.c 5799825d086464bb9e19e69ffeec84a710d1681b
 F src/vfile.c 8c891c745e280c0235bf0f57d3aeff2f34e823498601aeb4c9e0766dd964f960
 F src/wiki.c 2e1ff7a1f89ad2796068bf130d663eaecafb7ec69ae170181e42f2c42d6b66a5
@@ -813,7 +813,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cefcc87e08cbc946a73060f69a99c222648afd22b5797da840d1672303db2545
-R e30c089fb61a4485116872084db0f0c2
+P 1180676e9bd13b4d977d9c3274d7d0ece8a44e088a910073bc34fb30fe13e3a4
+R 465503055f549332625cd7e3fc68a2d6
 U andybradford
-Z 5ad7ee9b6529a9386f6902d5b7b6146d
+Z 52bc409262ca9576ac071409a7bb00d4
