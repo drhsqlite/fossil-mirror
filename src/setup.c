@@ -602,7 +602,7 @@ void user_edit(void){
 
   /* Begin generating the page
   */
-  style_submenu_element("Cancel", cgi_referer("setup_ulist"));
+  style_submenu_element("Cancel", "%s", cgi_referer("setup_ulist"));
   if( uid ){
     style_header("Edit User %h", zLogin);
     style_submenu_element("Access Log", "%R/access_log?u=%t", zLogin);

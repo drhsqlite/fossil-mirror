@@ -1150,7 +1150,7 @@ void fossil_warning(const char *zFormat, ...){
   fossil_errorlog("warning: %s", z);
 #ifdef FOSSIL_ENABLE_JSON
   if(g.json.isJsonMode){
-    json_warn( FSL_JSON_W_UNKNOWN, z );
+    json_warn( FSL_JSON_W_UNKNOWN, "%s", z );
   }else
 #endif
   {

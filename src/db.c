@@ -2484,7 +2484,7 @@ void db_lset_int(const char *zName, int value){
 
 /* Va-args versions of db_get(), db_set(), and db_unset()
 */
-char *db_get_mprintf(const char *zFormat, const char *zDefault, ...){
+char *db_get_mprintf(const char *zDefault, const char *zFormat, ...){
   va_list ap;
   char *zName;
   char *zResult;
@@ -2495,7 +2495,7 @@ char *db_get_mprintf(const char *zFormat, const char *zDefault, ...){
   fossil_free(zName);
   return zResult;
 }
-void db_set_mprintf(const char *zFormat, const char *zNew, int iGlobal, ...){
+void db_set_mprintf(const char *zNew, int iGlobal, const char *zFormat, ...){
   va_list ap;
   char *zName;
   va_start(ap, iGlobal);
@@ -2504,7 +2504,7 @@ void db_set_mprintf(const char *zFormat, const char *zNew, int iGlobal, ...){
   db_set(zName, zNew, iGlobal);
   fossil_free(zName);
 }
-void db_unset_mprintf(const char *zFormat, int iGlobal, ...){
+void db_unset_mprintf(int iGlobal, const char *zFormat, ...){
   va_list ap;
   char *zName;
   va_start(ap, iGlobal);

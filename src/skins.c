@@ -669,7 +669,7 @@ static const char *skin_file_content(const char *zLabel, const char *zFile){
   if( fossil_strcmp(zLabel, "current")==0 ){
     zResult = db_get(zFile, "");
   }else if( sqlite3_strglob("draft[1-9]", zLabel)==0 ){
-    zResult = db_get_mprintf("%s-%s", "", zLabel, zFile);
+    zResult = db_get_mprintf("", "%s-%s", zLabel, zFile);
   }else{
     while( 1 ){
       char *zKey = mprintf("skins/%s/%s.txt", zLabel, zFile);
@@ -720,7 +720,7 @@ void setup_skinedit(void){
 
   /* Check that the user is authorized to edit this skin. */
   if( !g.perm.Setup ){
-    char *zAllowedEditors = db_get_mprintf("draft%d-users", "", iSkin);
+    char *zAllowedEditors = db_get_mprintf("", "draft%d-users", iSkin);
     Glob *pAllowedEditors;
     if( zAllowedEditors[0] ){
       pAllowedEditors = glob_create(zAllowedEditors);
@@ -803,7 +803,7 @@ static void skin_initialize_draft(int iSkin, const char *zTemplate){
   if( zTemplate==0 ) return;
   for(i=0; i<count(azSkinFile); i++){
     const char *z = skin_file_content(zTemplate, azSkinFile[i]);
-    db_set_mprintf("draft%d-%s", z, 0, iSkin, azSkinFile[i]);
+    db_set_mprintf(z, 0, "draft%d-%s", iSkin, azSkinFile[i]);
   }
 }
 
@@ -840,7 +840,7 @@ static void skin_publish(int iSkin){
 
   /* Publish draft iSkin */
   for(i=0; i<count(azSkinFile); i++){
-    char *zNew = db_get_mprintf("draft%d-%s", "", iSkin, azSkinFile[i]);
+    char *zNew = db_get_mprintf("", "draft%d-%s", iSkin, azSkinFile[i]);
     db_set(azSkinFile[i], zNew, 0);
   }
 }
@@ -874,7 +874,7 @@ void setup_skin(void){
   ** changes and/or edits
   */
   login_check_credentials();
-  zAllowedEditors = db_get_mprintf("draft%d-users", "", iSkin);
+  zAllowedEditors = db_get_mprintf("", "draft%d-users", iSkin);
   if( g.perm.Setup ){
     isSetup = isEditor = 1;
   }else{
@@ -892,8 +892,8 @@ void setup_skin(void){
     skin_initialize_draft(iSkin, P("initskin"));
   }
   if( P("submit2")!=0 && isSetup ){
-    db_set_mprintf("draft%d-users", PD("editors",""), 0, iSkin);
-    zAllowedEditors = db_get_mprintf("draft%d-users", "", iSkin);
+    db_set_mprintf(PD("editors",""), 0, "draft%d-users", iSkin);
+    zAllowedEditors = db_get_mprintf("", "draft%d-users", iSkin);
   }
 
   /* Publish the draft skin */
@@ -961,7 +961,7 @@ void setup_skin(void){
   @ <h1>Step 3: Initialize The Draft</h1>
   @
   if( !isEditor ){
-    @ <p>You are not allowed to initialize draft%(iSkin).  Contact
+    @ <p>You are not allowed to initialize draft%d(iSkin).  Contact
     @ the administrator for this repository for more information.
   }else{
     @ <p>Initialize the draft%d(iSkin) skin to one of the built-in skins

@@ -1610,7 +1610,7 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
   }
   cson_value_free(colNamesV);
   if(warnMsg){
-    json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED, warnMsg );
+    json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED, "%s", warnMsg );
   }
   return cson_array_value(a);
 }
