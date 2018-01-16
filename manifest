@@ -1,5 +1,5 @@
-C missing\shyphens
-D 2018-01-16T09:09:06.502
+C Fix\stypo\sin\sthe\sdefault\sskin\sCSS\s-\spatch\sfrom\sJohan\sKuuse.
+D 2018-01-16T14:01:07.495
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -357,7 +357,7 @@ F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt 91521fa28ee8968f29126cf43746045934a17c234ca9961e4db03eed5a19bdbe
 F skins/bootstrap/header.txt 720093d7f53b6ffc28a17105d59d0f2cd666bc3cefbd65ad1d41cc8589974af9
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
-F skins/default/css.txt 0fc70335cebbabb3370d95ab8ed31fb92856bc3c5d69c30e858342166dd86723
+F skins/default/css.txt fc48018f2e87f3f7d868154400b50a5cfb5fcafab81b93b16af3786722e096e4
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 7dd553d65672572ea94a53ba3f858f3dcaf3f771889987a73d81c149cf7e9c52
 F skins/default/header.txt 04e7e5b1fd362db83176d0e7439150e82c8619bcb5bc78abf68fdc5a9bcb160d
@@ -813,7 +813,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 90b07ed5880a844444f23f480ea185ef11ab38831470f1b80309b34d20de8566
-R 97655c3d1d5ae91845c700891292fa51
-U jan.nijtmans
-Z d01a966c583cc0e1ad602f0efe4ceee2
+P bad4d282977cd57d88c19b4e049b9bedf34a32ddc95ce39e4312c0151eca4557
+R 5711c420424b327f7f0d6e5d49ee1ba0
+U drh
+Z 7197f8ed694ba2dfed879b12d62aa126
