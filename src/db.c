@@ -2488,7 +2488,7 @@ char *db_get_mprintf(const char *zDefault, const char *zFormat, ...){
   va_list ap;
   char *zName;
   char *zResult;
-  va_start(ap, zDefault);
+  va_start(ap, zFormat);
   zName = vmprintf(zFormat, ap);
   va_end(ap);
   zResult = db_get(zName, zDefault);
@@ -2498,7 +2498,7 @@ char *db_get_mprintf(const char *zDefault, const char *zFormat, ...){
 void db_set_mprintf(const char *zNew, int iGlobal, const char *zFormat, ...){
   va_list ap;
   char *zName;
-  va_start(ap, iGlobal);
+  va_start(ap, zFormat);
   zName = vmprintf(zFormat, ap);
   va_end(ap);
   db_set(zName, zNew, iGlobal);
@@ -2507,7 +2507,7 @@ void db_set_mprintf(const char *zNew, int iGlobal, const char *zFormat, ...){
 void db_unset_mprintf(int iGlobal, const char *zFormat, ...){
   va_list ap;
   char *zName;
-  va_start(ap, iGlobal);
+  va_start(ap, zFormat);
   zName = vmprintf(zFormat, ap);
   va_end(ap);
   db_unset(zName, iGlobal);
