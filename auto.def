@@ -91,13 +91,13 @@ if {![opt-bool internal-sqlite]} {
     foreach extralibs {{} {-ldl}} {
 
       # Locate the system SQLite by searching for sqlite3_open(). Then check
-      # if sqlite3_prepare_v3() can be found as well. If we can find open() but
-      # not prepare_v3(), then the system SQLite is too old to link against
+      # if sqlite3_vtab_collation() can be found as well. If we can find open() but
+      # not vtab_collation(), then the system SQLite is too old to link against
       # fossil.
       #
       if {[check-function-in-lib sqlite3_open sqlite3 $extralibs]} {
-        if {![check-function-in-lib sqlite3_prepare_v3 sqlite3 $extralibs]} {
-          user-error "system sqlite3 too old (require >= 3.20.0)"
+        if {![check-function-in-lib sqlite3_vtab_collation sqlite3 $extralibs]} {
+          user-error "system sqlite3 too old (require >= 3.22.0)"
         }
 
         # Success. Update symbols and return.
