@@ -1,5 +1,5 @@
-C Fix\sbad\surl\son\s"Advanced"/"Basic"\slink\sof\sthe\stimeline\spage.\n\nThe\szLink\sargument\sof\sstyle_submenu_element()\sshould\sbe\sa\sliteral\s"%s",\notherwise,\sencoded\surl\sparameter\svalue\smay\scontain\s"%"\sand\sget\scorrupt\sby\sthe\nvmprintf()\scall\sinside.\n\nProblem\swas\shappening\swhen\sclicking\son\s"Basic/Advanced"\slink\son\sthis\spage:\nhttp://www.fossil-scm.org/index.html/timeline?advm=1&chng=src/*
-D 2018-01-16T15:41:34.693
+C merge\sprevious\sfork
+D 2018-01-16T15:44:06.408
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -520,8 +520,8 @@ F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c be761a5e1c8e38fbb2c18fc11c54bc0233c7f68c756c552e13e118fd837b7ae2
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c 031b91c0ee221f41795bbb95e4ef9f6590478dc1468ee767e3ae744ff3381849
-F src/sqlite3.c f3363b06050ff50f539a1bb9dd49cd6cc9f272de05ae152bb3171a2e025bd55a
-F src/sqlite3.h 8727b58268b1679268091669ea5fe5276ee7ad185a621a23b52494f7f6527720
+F src/sqlite3.c 6f7a61a47eb32b981cca77718539b764924aae1690f3e154f7711edc48429d92
+F src/sqlite3.h 35afa4df5c511594c8aae0f9bfb494f87cd4c84ad203bc2293ac90f95d2545b7
 F src/stash.c 8f0bc283ba1099458e48ecd4c059a85bef34aef02066d972f61c165f2c47177b
 F src/stat.c 39a33f66a4d803c036f73993bd043f5484816b54f8cded166b07c100cc4097fd
 F src/statrep.c 367a01ddc206ba32f53357db06c55f6432d8b6c6593e6e98376f28eaef589a97
@@ -813,7 +813,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e07fdbc51e6e9b8f0e15f0b8b9369033bbef1cf27b0856d128619507dd81ad03
-R 366ff6ed4bb80e2dbb1055e01562305f
+P 3c2ef25d03fb48d532badb0cba2843de24c1b19f75da27b4b9f0ab0a1fc70349 72fba300c8173165813abe13bef6e7838b0ef13f7940a2a04d6c8c3c139e6fb9
+R bd4a80af7f3a20b018da04886b08dba0
 U mgagnon
-Z 21e7dc50aa41e55df6eb7d2d176e1a63
+Z 10fb6cc2e2450b7cb714e9585772b81e
