@@ -1,5 +1,5 @@
-C Fix\stypo\sin\sthe\sdefault\sskin\sCSS\s-\spatch\sfrom\sJohan\sKuuse.
-D 2018-01-16T14:01:07.495
+C Fix\sbad\surl\son\s"Advanced"/"Basic"\slink\sof\sthe\stimeline\spage.\n\nThe\szLink\sargument\sof\sstyle_submenu_element()\sshould\sbe\sa\sliteral\s"%s",\notherwise,\sencoded\surl\sparameter\svalue\smay\scontain\s"%"\sand\sget\scorrupt\sby\sthe\nvmprintf()\scall\sinside.\n\nProblem\swas\shappening\swhen\sclicking\son\s"Basic/Advanced"\slink\son\sthis\spage:\nhttp://www.fossil-scm.org/index.html/timeline?advm=1&chng=src/*
+D 2018-01-16T15:41:34.693
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -534,7 +534,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c bba65d7b7871ab7046107848650b5e8e72dbe30763f86b07b9bbd98c30dc791b
 F src/th_tcl.c afa334f0b17fc01f8fda8bea281c51305d7c6f7f2c7ed4c190dc5d1a2b80c326
-F src/timeline.c 699c4f29a825b609b59c8c53f3980110365679dda3cd9a6460a51a5027bc9239
+F src/timeline.c fb710458ff73af9dd14605236bd2ec68dcb5aaafa52f143885577f0694dfd789
 F src/tkt.c 26ee209c0b9d34340ff668f9326cdaa4560ed2976364e968f1b52edc2c56baa6
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c e0ba36f347faf5b5105eacc8e42e3f907febfe5abb0401f2227dec26cc60a5f5
@@ -813,7 +813,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bad4d282977cd57d88c19b4e049b9bedf34a32ddc95ce39e4312c0151eca4557
-R 5711c420424b327f7f0d6e5d49ee1ba0
-U drh
-Z 7197f8ed694ba2dfed879b12d62aa126
+P e07fdbc51e6e9b8f0e15f0b8b9369033bbef1cf27b0856d128619507dd81ad03
+R 366ff6ed4bb80e2dbb1055e01562305f
+U mgagnon
+Z 21e7dc50aa41e55df6eb7d2d176e1a63
