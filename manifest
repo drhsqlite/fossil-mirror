@@ -1,5 +1,5 @@
-C Fossil\snow\sneeds\sat\sleast\sSQLite\s3.22,\sso\scheck\sfor\sthat
-D 2018-01-16T08:32:28.137
+C Fix\srecognition\sof\ssha3\sin\smarks\sfile.\sPatch\sadapted\sfrom\sDingyuan\sWang's\sreport.\sThanks!
+D 2018-01-16T08:34:46.255
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -431,7 +431,7 @@ F src/dispatch.c 9103c1b19268411c87c8051084312e29e7c4aa252e3a9fd945af976f08fd563
 F src/doc.c 799bde12f69112d8a9cda65e6b6eab94cdefe060c9ec9faf56884f75a51724e8
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c 5d4a12252f765b5a1fa43fc6ddd087e79dfad65e3533369c1b47deb5b4be52d0
-F src/export.c 3e09dfda9d07b44c463d656dbc09f6adfe686d6d80ad55282a1f06b9216934f2
+F src/export.c f1235771e66d1284717a9d381a9f6e54d2956ec00afd114bc429e9e81dea7b2c
 F src/file.c d1d99096ad0283231a4565a545462b803ef2586687b99744d51c3af7aa3accdf
 F src/finfo.c 49e66558585988b2602a528a67fef4decd256ccc17f0d9db4194ce355c8989b4
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
@@ -813,7 +813,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1a95af721e467a6e3321c1557c4f0cdfa353ef4ac8e310ff393c58aff8ef0849
-R f0f4331ec4a401cd4a76d0743aaba4dd
+P 37cbd97cab783a37d6a6b948ab6933fae3c2c1d7dd659ee2fac2e6e745442457
+R d56e16b51c80947f75cfc76038ad03c2
 U jan.nijtmans
-Z de7b76d0094dd528e9e0c1a559aa35a2
+Z 4063b1af7f206ab74db5bfe3a49f38b7
