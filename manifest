@@ -1,5 +1,5 @@
-C Automatically\sdetect\sthe\spresence\sof\sthe\spledge()\ssystem\sinterface\sand\nuse\sit\sif\sit\sis\savailable.
-D 2018-01-17T19:04:31.632
+C Show\sthe\sHAVE_PLEDGE\sconfiguration\sparameter\sin\sthe\soutput\sof\s"version\s-v".
+D 2018-01-17T19:22:16.552
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -505,7 +505,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 8f07f96589451ba414fa42c28b2f77bf3a713e5cf9e40abd364ec2bbb4854826
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c ef9e919525e829b56c9cf9be21f50761bbce0d967e29e05b81c832e5c49419b0
+F src/main.c 2e46408c2eeb6fcafa4723c3f503ac419305336b2b6a2990b98c88b008ae313e
 F src/main.mk 24214bf65f5855c282632f76b620074487ae7a52dd45a07e342e8153e9722d2d
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6e694cd37b7a093b03e56526b0cf80a8f7b9a2a9424126bd785d86d33f77ab02
-R ccfc872aacd1bda306e5a523dfe9a0c0
+P 64def88f8bd8e2856a1becc1d7c014d63cc3e6a05688774ca7cf80ab0833944f
+R 26f9e1085a4c05d805e809013edc2a4f
 U drh
-Z 9ac7fd950ff10fdae7351c7fe57dfc45
+Z 77e31014dd7262e01dcff69b5e38307c
