@@ -474,7 +474,7 @@ void status_cmd(void){
   unsigned flags = 0;
   int vid, i;
 
-  fossil_pledge("stdio rpath wpath cpath id flock tty", "");
+  fossil_pledge("stdio rpath wpath cpath id flock tty");
 
   /* Load affirmative flag options. */
   for( i=0; i<count(flagDefs); ++i ){

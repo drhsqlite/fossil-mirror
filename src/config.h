@@ -262,7 +262,7 @@ typedef signed char i8;
 ** that omit the FOSSIL_HAVE_PLEDGE configuration parameter.
 */
 #if !defined(HAVE_PLEDGE)
-# define fossil_pledge(A,B)
+# define fossil_pledge(A)
 #endif
 
 

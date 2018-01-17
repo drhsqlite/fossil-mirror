@@ -494,10 +494,10 @@ void fossil_limit_memory(int onOff){
 ** On all other platforms, this routine does not exist, but instead
 ** a macro defined in config.h is used to provide a no-op.
 */
-void fossil_pledge(const char *promises, const char *execpromises){
-  if( pledge(promises, execpromises) ){
-    fossil_fatal("pledge(\"%s\",\"%s\") fails with errno=%d",
-       promises, execpromises, (int)errno);
+void fossil_pledge(const char *promises){
+  if( pledge(promises, 0) ){
+    fossil_fatal("pledge(\"%s\",NULL) fails with errno=%d",
+      promises, (int)errno);
   }
 }
 #endif /* defined(HAVE_PLEDGE) */
