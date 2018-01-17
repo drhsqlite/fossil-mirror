@@ -1,5 +1,5 @@
-C Merge\sthe\slatest\sArdoise\sskin\supdates.
-D 2018-01-17T01:11:19.127
+C Automatically\sdetect\sthe\spresence\sof\sthe\spledge()\ssystem\sinterface\sand\nuse\sit\sif\sit\sis\savailable.
+D 2018-01-17T19:04:31.632
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -13,7 +13,7 @@ F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile de98550db1d43a29a17bbd9284308733fb72615f
 F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
-F Makefile.in 949db16af0f38e4ffa0924a33bd9be0c18cde2de2c59a6de977037539345af2d x
+F Makefile.in 54b9af364d262761ac05970f96ea609467109548636807a584565350289d80dc x
 F VERSION bd6291c6a65f6ed39074abc5ef32954162961af9ca092dd6cb0b9ba0529c3fb5
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
@@ -47,7 +47,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def dba4cdd9cb76cb2de1f5e3dd34f99e19ee9d87039ccee15c3bbeb55dd3bd09c4
+F auto.def 24d846be89ece11ef4fc047043d6eece63e9f2c6cdf74c3d35c9c969277c73cd
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup c235af4ce86af9a9b8b331b5a67c822d52ca2c6e
 F autosetup/autosetup 564c6ab11d5ab75d1aebc8d90ebc22df8babb01d2f9ada06d7964e5cfb7c38aa x
@@ -445,7 +445,7 @@ F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab353
 F src/clone.c 39756ecd3586daaccca6ac5445657a183aaafcc83b6802c47d7e3795fc4d3157
 F src/codecheck1.c 4b4bbebe7285545db72ee94406086a3ddbf1839367df76e7672025428465d43c
 F src/comformat.c 4d18073b1a8e98bd1b6ae6794df703744be590c69d4a507e04c8d86ed435c42c
-F src/config.h 008533925cae0bd491f8422d6d5b8d24b07aa79cff489e6ecb969b0ca091d64a
+F src/config.h 2c2b7264c72da4bcd742f28a0bec56ead0a8a7a895549b80f556b56bc80db382
 F src/configure.c 49176c95e281ba0fd63e8c4a3f7a2b4b5bdf0d6de33aef44ec504b0bcc385044
 F src/content.c 3e0cc7864e829d35e0f97f489c833a292308e6e3952e991a95beac661f4036f5
 F src/cookies.c 63e81a4d7741a9419565f50e4e508701db758d1ee41019136e1948edc06142f1
@@ -580,7 +580,7 @@ F src/url.c 61b100991bd4e1375ad67ca8204beb4603f6076e668d2d5fedc6331fccda2005
 F src/user.c 9374dffc58dc0ed3126f725db4f7037dbd80fc55b47c70ea2e5cb57e9007fda7
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c d4d73906b07ccbb1e8037f090c1b02c8ea925d72b8f6091efa822060c4484657
-F src/util.c d3a811d45f5e6bf4cbdcffd4e82a4ff46503484a8f6edba100189f0b6f123440
+F src/util.c 220c702369cc80a3d89490047ec3a14cdbe7a3a92365b5be3cdd1bdf89571011
 F src/verify.c 5799825d086464bb9e19e69ffeec84a710d1681b
 F src/vfile.c 8c891c745e280c0235bf0f57d3aeff2f34e823498601aeb4c9e0766dd964f960
 F src/wiki.c 2e1ff7a1f89ad2796068bf130d663eaecafb7ec69ae170181e42f2c42d6b66a5
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ad984a253796784ee94a8c2812432fb4083e4d127f84bedaaaefbb93ce3cc19b 9201207f8642412f57d9a0bdeaf6b8e75aa97632f4544a22cadc8f555877324f
-R 53ce0256bd4cb06c7f3f18d2b5325202
+P 6e694cd37b7a093b03e56526b0cf80a8f7b9a2a9424126bd785d86d33f77ab02
+R ccfc872aacd1bda306e5a523dfe9a0c0
 U drh
-Z 00317b41d2befa0536313c8dc97615df
+Z 9ac7fd950ff10fdae7351c7fe57dfc45

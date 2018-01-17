@@ -486,7 +486,7 @@ void fossil_limit_memory(int onOff){
 #endif /* defined(__unix__) */
 }
 
-#if defined(FOSSIL_HAVE_PLEDGE)
+#if defined(HAVE_PLEDGE)
 /*
 ** Interface to pledge() on OpenBSD 5.9 and later.
 **
@@ -500,4 +500,4 @@ void fossil_pledge(const char *promises, const char *execpromises){
        promises, execpromises, (int)errno);
   }
 }
-#endif /* defined(FOSSIL_HAVE_PLEDGE) */
+#endif /* defined(HAVE_PLEDGE) */
