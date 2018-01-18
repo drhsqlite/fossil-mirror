@@ -1,5 +1,5 @@
-C Only\smake\sthe\sfirst\sargument\sto\spledge()\savailable\susing\sthe\nfossil_pledge()\sinterface.\s\sThe\ssecond\sargument\sis\salways\sNULL.
-D 2018-01-17T19:29:25.327
+C Now\sthat\spledge()\sis\sautomatically\sdetected,\supdate\sthe\scomment\swith\sthe\snew\nname\sof\sthe\sconfiguration\sparameter.
+D 2018-01-18T03:52:41.252
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -445,7 +445,7 @@ F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab353
 F src/clone.c 39756ecd3586daaccca6ac5445657a183aaafcc83b6802c47d7e3795fc4d3157
 F src/codecheck1.c 4b4bbebe7285545db72ee94406086a3ddbf1839367df76e7672025428465d43c
 F src/comformat.c 4d18073b1a8e98bd1b6ae6794df703744be590c69d4a507e04c8d86ed435c42c
-F src/config.h 0102a341ee8eb57a3c65bda9fe59fca8932205c719d4470e9229e07585918c21
+F src/config.h d9a16a4931ebf2dfd6ac29cca9d89689f7fbcd858fd37ebbe8fe52851c9db934
 F src/configure.c 49176c95e281ba0fd63e8c4a3f7a2b4b5bdf0d6de33aef44ec504b0bcc385044
 F src/content.c 3e0cc7864e829d35e0f97f489c833a292308e6e3952e991a95beac661f4036f5
 F src/cookies.c 63e81a4d7741a9419565f50e4e508701db758d1ee41019136e1948edc06142f1
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4471e93c758182c19b1f4c9b8fbad21ffe39746a41f43681075b88e336c091fe
-R a01d9ce0ebb23724a2c4c7ed1dd95f58
-U drh
-Z 9cd0a7c4597118fb37e9f7ac3ca813a6
+P 91ccde50a003cff52ac9288f22ccb4fd52fc1518dc6c6008a7a7181166f0c8df
+R 744f030619fb8018187be94ba2145a9a
+U andybradford
+Z 5befa178004efbaabe03ce41fb7ea6d2

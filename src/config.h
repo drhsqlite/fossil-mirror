@@ -259,7 +259,7 @@ typedef signed char i8;
 /*
 ** The pledge() interface is currently only available on OpenBSD 5.9
 ** and later.  Make calls to fossil_pledge() no-ops on all platforms
-** that omit the FOSSIL_HAVE_PLEDGE configuration parameter.
+** that omit the HAVE_PLEDGE configuration parameter.
 */
 #if !defined(HAVE_PLEDGE)
 # define fossil_pledge(A)
