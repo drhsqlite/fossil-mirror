@@ -474,11 +474,7 @@ void status_cmd(void){
   unsigned flags = 0;
   int vid, i;
 
-  if( getuid()==0 ){
-    fossil_pledge("stdio rpath wpath cpath id flock tty chown");
-  }else{
-    fossil_pledge("stdio rpath wpath cpath id flock tty");
-  }
+  fossil_pledge("stdio rpath wpath cpath id flock tty chown");
 
   /* Load affirmative flag options. */
   for( i=0; i<count(flagDefs); ++i ){
