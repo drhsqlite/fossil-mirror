@@ -554,6 +554,8 @@ void status_cmd(void){
     db_record_repository_filename(0);
   }
 
+  fossil_pledge("stdio rpath flock tty");
+
   /* Find and print all requested changes. */
   blob_zero(&report);
   status_report(&report, flags);
