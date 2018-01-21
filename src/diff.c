@@ -2209,7 +2209,6 @@ static void annotate_file(
 ){
   Blob toAnnotate;       /* Text of the final (mid) version of the file */
   Blob step;             /* Text of previous revision */
-  Blob treename;         /* FILENAME translated to canonical form */
   int cid;               /* Selected check-in ID */
   int origid = 0;        /* The origin ID or zero */
   int rid;               /* Artifact ID of the file being annotated */
@@ -2256,8 +2255,6 @@ static void annotate_file(
   }
 
   /* Get filename ID */
-  file_tree_name(zFilename, &treename, 0, 1);
-  zFilename = blob_str(&treename);
   fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
   if( fnid==0 ){
     fossil_fatal("no such file: %Q", zFilename);
@@ -2574,6 +2571,8 @@ void annotate_cmd(void){
   u64 annFlags = 0;      /* Flags to control annotation properties */
   int bBlame = 0;        /* True for BLAME output.  False for ANNOTATE. */
   int szHash;            /* Display size of a version hash */
+  Blob treename;         /* Name of file to be annotated */
+  char *zFilename;       /* Name of file to be annotated */
 
   bBlame = g.argv[1][0]!='a';
   zRevision = find_option("r","revision",1);
@@ -2597,7 +2596,9 @@ void annotate_cmd(void){
   }
 
   annFlags |= DIFF_STRIP_EOLCR;
-  annotate_file(&ann, g.argv[2], zRevision, zLimit, zOrig, annFlags);
+  file_tree_name(g.argv[2], &treename, 0, 1);
+  zFilename = blob_str(&treename);
+  annotate_file(&ann, zFilename, zRevision, zLimit, zOrig, annFlags);
   if( showLog ){
     struct AnnVers *p;
     for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
