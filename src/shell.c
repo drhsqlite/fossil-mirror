@@ -883,6 +883,7 @@ static void shellModuleSchema(
 ){
   const char *zName = (const char*)sqlite3_value_text(apVal[0]);
   char *zFake = shellFakeSchema(sqlite3_context_db_handle(pCtx), 0, zName);
+  UNUSED_PARAMETER(nVal);
   if( zFake ){
     sqlite3_result_text(pCtx, sqlite3_mprintf("/* %s */", zFake),
                         -1, sqlite3_free);
@@ -927,6 +928,7 @@ static void shellAddSchemaName(
   const char *zSchema = (const char*)sqlite3_value_text(apVal[1]);
   const char *zName = (const char*)sqlite3_value_text(apVal[2]);
   sqlite3 *db = sqlite3_context_db_handle(pCtx);
+  UNUSED_PARAMETER(nVal);
   if( zIn!=0 && strncmp(zIn, "CREATE ", 7)==0 ){
     for(i=0; i<(int)(sizeof(aPrefix)/sizeof(aPrefix[0])); i++){
       int n = strlen30(aPrefix[i]);
@@ -2416,6 +2418,7 @@ static void lsModeFunc(
   int i;
   int iMode = sqlite3_value_int(argv[0]);
   char z[16];
+  (void)argc;
   if( S_ISLNK(iMode) ){
     z[0] = 'l';
   }else if( S_ISREG(iMode) ){
@@ -2481,7 +2484,10 @@ static int fsdirConnect(
 ){
   fsdir_tab *pNew = 0;
   int rc;
-
+  (void)pAux;
+  (void)argc;
+  (void)argv;
+  (void)pzErr;
   rc = sqlite3_declare_vtab(db, "CREATE TABLE x" FSDIR_SCHEMA);
   if( rc==SQLITE_OK ){
     pNew = (fsdir_tab*)sqlite3_malloc( sizeof(*pNew) );
@@ -2505,6 +2511,7 @@ static int fsdirDisconnect(sqlite3_vtab *pVtab){
 */
 static int fsdirOpen(sqlite3_vtab *p, sqlite3_vtab_cursor **ppCursor){
   fsdir_cursor *pCur;
+  (void)p;
   pCur = sqlite3_malloc( sizeof(*pCur) );
   if( pCur==0 ) return SQLITE_NOMEM;
   memset(pCur, 0, sizeof(*pCur));
@@ -2708,7 +2715,7 @@ static int fsdirFilter(
 ){
   const char *zDir = 0;
   fsdir_cursor *pCur = (fsdir_cursor*)cur;
-
+  (void)idxStr;
   fsdirResetCursor(pCur);
 
   if( idxNum==0 ){
@@ -2766,8 +2773,9 @@ static int fsdirBestIndex(
   int i;                 /* Loop over constraints */
   int idx4 = -1;
   int idx5 = -1;
-
   const struct sqlite3_index_constraint *pConstraint;
+
+  (void)tab;
   pConstraint = pIdxInfo->aConstraint;
   for(i=0; i<pIdxInfo->nConstraint; i++, pConstraint++){
     if( pConstraint->usable==0 ) continue;
@@ -2821,6 +2829,9 @@ static int fsdirRegister(sqlite3 *db){
     0,                         /* xRollback */
     0,                         /* xFindMethod */
     0,                         /* xRename */
+    0,                         /* xSavepoint */
+    0,                         /* xRelease */
+    0                          /* xRollbackTo */
   };
 
   int rc = sqlite3_create_module(db, "fsdir", &fsdirModule, 0);
@@ -3933,6 +3944,8 @@ int sqlite3_appendvfs_init(
   int rc = SQLITE_OK;
   sqlite3_vfs *pOrig;
   SQLITE_EXTENSION_INIT2(pApi);
+  (void)pzErrMsg;
+  (void)db;
   pOrig = sqlite3_vfs_find(0);
   apnd_vfs.iVersion = pOrig->iVersion;
   apnd_vfs.pAppData = pOrig;
@@ -4722,7 +4735,7 @@ static int zipfileDeflate(
     int res;
     z_stream str;
     memset(&str, 0, sizeof(str));
-    str.next_in = (z_const Bytef*)aIn;
+    str.next_in = (Bytef*)aIn;
     str.avail_in = nIn;
     str.next_out = aOut;
     str.avail_out = nAlloc;
@@ -5288,14 +5301,16 @@ static int zipfileUpdate(
       nData = nIn;
       if( iMethod!=0 && iMethod!=8 ){
         rc = SQLITE_CONSTRAINT;
-      }else if( bAuto || iMethod ){
-        int nCmp;
-        rc = zipfileDeflate(pTab, aIn, nIn, &pFree, &nCmp);
-        if( rc==SQLITE_OK ){
-          if( iMethod || nCmp<nIn ){
-            iMethod = 8;
-            pData = pFree;
-            nData = nCmp;
+      }else{
+        if( bAuto || iMethod ){
+          int nCmp;
+          rc = zipfileDeflate(pTab, aIn, nIn, &pFree, &nCmp);
+          if( rc==SQLITE_OK ){
+            if( iMethod || nCmp<nIn ){
+              iMethod = 8;
+              pData = pFree;
+              nData = nCmp;
+            }
           }
         }
         iCrc32 = crc32(0, aIn, nIn);
@@ -6419,6 +6434,10 @@ static int expertUpdate(
   sqlite3_value **azData, 
   sqlite_int64 *pRowid
 ){
+  (void)pVtab;
+  (void)nData;
+  (void)azData;
+  (void)pRowid;
   return SQLITE_OK;
 }
 
@@ -6428,6 +6447,7 @@ static int expertUpdate(
 static int expertOpen(sqlite3_vtab *pVTab, sqlite3_vtab_cursor **ppCursor){
   int rc = SQLITE_OK;
   ExpertCsr *pCsr;
+  (void)pVTab;
   pCsr = idxMalloc(&rc, sizeof(ExpertCsr));
   *ppCursor = (sqlite3_vtab_cursor*)pCsr;
   return rc;
@@ -6477,6 +6497,7 @@ static int expertNext(sqlite3_vtab_cursor *cur){
 ** Virtual table module xRowid method.
 */
 static int expertRowid(sqlite3_vtab_cursor *cur, sqlite_int64 *pRowid){
+  (void)cur;
   *pRowid = 0;
   return SQLITE_OK;
 }
@@ -6507,6 +6528,10 @@ static int expertFilter(
   sqlite3expert *pExpert = pVtab->pExpert;
   int rc;
 
+  (void)idxNum;
+  (void)idxStr;
+  (void)argc;
+  (void)argv;
   rc = sqlite3_finalize(pCsr->pData);
   pCsr->pData = 0;
   if( rc==SQLITE_OK ){
@@ -6917,7 +6942,7 @@ static int idxCreateFromWhere(
 ** Create candidate indexes in database [dbm] based on the data in 
 ** linked-list pScan.
 */
-static int idxCreateCandidates(sqlite3expert *p, char **pzErr){
+static int idxCreateCandidates(sqlite3expert *p){
   int rc = SQLITE_OK;
   IdxScan *pIter;
 
@@ -7080,6 +7105,8 @@ static int idxAuthCallback(
   const char *zTrigger
 ){
   int rc = SQLITE_OK;
+  (void)z4;
+  (void)zTrigger;
   if( eOp==SQLITE_INSERT || eOp==SQLITE_UPDATE || eOp==SQLITE_DELETE ){
     if( sqlite3_stricmp(zDb, "main")==0 ){
       sqlite3expert *p = (sqlite3expert*)pCtx;
@@ -7282,6 +7309,7 @@ static void idxSampleFunc(
   struct IdxSampleCtx *p = (struct IdxSampleCtx*)sqlite3_user_data(pCtx);
   int bRet;
 
+  (void)argv;
   assert( argc==0 );
   if( p->nRow==0.0 ){
     bRet = 1;
@@ -7767,7 +7795,7 @@ int sqlite3_expert_analyze(sqlite3expert *p, char **pzErr){
 
   /* Create candidate indexes within the in-memory database file */
   if( rc==SQLITE_OK ){
-    rc = idxCreateCandidates(p, pzErr);
+    rc = idxCreateCandidates(p);
   }
 
   /* Generate the stat1 data */
@@ -8035,6 +8063,7 @@ static void shellPutsFunc(
   sqlite3_value **apVal
 ){
   ShellState *p = (ShellState*)sqlite3_user_data(pCtx);
+  (void)nVal;
   utf8_printf(p->out, "%s\n", sqlite3_value_text(apVal[0]));
   sqlite3_result_value(pCtx, apVal[0]);
 }
@@ -14420,6 +14449,20 @@ static int do_meta_command(char *zLine, ShellState *p){
   if( c=='v' && strncmp(azArg[0], "version", n)==0 ){
     utf8_printf(p->out, "SQLite %s %s\n" /*extra-version-info*/,
         sqlite3_libversion(), sqlite3_sourceid());
+#if SQLITE_HAVE_ZLIB
+    utf8_printf(p->out, "zlib version %s\n", zlibVersion());
+#endif
+#define CTIMEOPT_VAL_(opt) #opt
+#define CTIMEOPT_VAL(opt) CTIMEOPT_VAL_(opt)
+#if defined(__clang__) && defined(__clang_major__)
+    utf8_printf(p->out, "clang-" CTIMEOPT_VAL(__clang_major__) "."
+                    CTIMEOPT_VAL(__clang_minor__) "."
+                    CTIMEOPT_VAL(__clang_patchlevel__) "\n");
+#elif defined(_MSC_VER)
+    utf8_printf(p->out, "msvc-" CTIMEOPT_VAL(_MSC_VER) "\n");
+#elif defined(__GNUC__) && defined(__VERSION__)
+    utf8_printf(p->out, "gcc-" __VERSION__ "\n");
+#endif
   }else
 
   if( c=='v' && strncmp(azArg[0], "vfsinfo", n)==0 ){

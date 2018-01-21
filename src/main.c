@@ -2036,7 +2036,7 @@ void cmd_cgi(void){
 ** contains multiple repositories that can be served.  If g.argv[arg]
 ** is a directory, the repositories it contains must be named
 ** "*.fossil".  If g.argv[arg] does not exist, then we must be within
-** an open check-out and the repository serve is the repository of
+** an open check-out and the repository to serve is the repository of
 ** that check-out.
 **
 ** Open the repository to be served if it is known.  If g.argv[arg] is
