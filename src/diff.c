@@ -2259,6 +2259,9 @@ static void annotate_file(
   file_tree_name(zFilename, &treename, 0, 1);
   zFilename = blob_str(&treename);
   fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
+  if( fnid==0 ){
+    fossil_fatal("no such file: %Q", zFilename);
+  }
 
   db_prepare(&q,
     "SELECT DISTINCT"
