@@ -1,5 +1,5 @@
-C Remove\scall\sof\s"getuid()"\sadded\son\sprevious\scommit\sbecause\sit\sis\snot\savailable\non\swindows.\sFor\sthe\spledge()\scall,\salways\sallow\s"chown"\sfor\snow,\seven\sif\snot\nrunning\sas\sroot.
-D 2018-01-19T19:15:43.355
+C Correctly\sshow\sthe\sedited\sand\soriginal\scomments\son\sthe\s/info\spage\sfor\ncheck-ins.\s\sFixes\sa\sbug\sspotted\sby\sStephan\sBeal.
+D 2018-01-21T22:59:36.220
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -481,7 +481,7 @@ F src/http_socket.c c9dba13158d28e3f7b904b41a00f83d2172856eeccae31270b7c9ab4a55d
 F src/http_ssl.c 55266e0d4b2dd2d03af062c1e0e2a06c70d28adf6bb82b13f18a7d4beb543423
 F src/http_transport.c 43bf993a931c1a6cafb051566e06c841173ec350dedc0cb6887e112bc05a147c
 F src/import.c e48f2f2e0095795aeabe7220514c8694393693b853150c47f6d6792921def3f1
-F src/info.c 002d5bd63c0d2564c2f5a8e8e7425cbcce54cf0584f400bfd0539a9c1dcd9ae8
+F src/info.c a07635417a9e9e2aba8830900e57f036693832f204cd950f0d15a1e8ec5e5535
 F src/json.c 20b82a01a75413ba43f41df627b85bd7d651d56842680eaab21752e7b3389ac6
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c be9d259fbaf431e38630a430e232e2988552ccfd27b156340cd5a30cd6230582
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 396513fa4a6f8da86bbb7508f138b61c876372a5ca8c4e869506ae837bea797e
-R bfeb301694bb63d06ed2d648f33daf74
-U mgagnon
-Z 898fe363342b21b907611473789b1801
+P 6b41a7e803348a9247818a66c9b968a9fd8e5d3408cecdaeeeed905c08dc018a
+R 813d9eb5267eb3cc80e1de5c3e6447f9
+U drh
+Z f72601ac3ddc73faf114f51ab29bcf80
