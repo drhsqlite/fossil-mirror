@@ -697,7 +697,8 @@ void ci_page(void){
     if( zOrigDate==0 ) zOrigDate = zDate;
     @ <div class="section">Overview</div>
     @ <table class="label-value">
-    @ <tr><th>Comment:</th><td class="infoComment">%!W(zComment)</td></tr>
+    @ <tr><th>Comment:</th><td class="infoComment">\
+    @ %!W(zEComment?zEComment:zComment)</td></tr>
 
     /* The Download: line */
     if( g.perm.Zip  ){
