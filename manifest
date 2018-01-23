@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sthird\s3.22.0\sbeta\sfor\stesting.\nAlso\sfix\sa\stypo\sin\sa\scomment\sin\sthe\s"fossil\sui"\scommand.
-D 2018-01-21T23:48:50.298
+C Stop\sincluding\ssettings\sin\sthe\s'Available\scommands'\ssection\sof\sthe\shelp\sweb\spage.\s\sFix\stypo\sof\s'--setting'\shelp\soption.
+D 2018-01-23T22:34:37.414
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -460,7 +460,7 @@ F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
 F src/diff.c 3340923c7d0ab525f21b193a83b3b657330333bb8ebd1a3f501ad827599f154b
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 5ccaa1ef9e8d9bc427f7c9a144aa76d87ad917a7a3235dda72964b3f26e931fe
-F src/dispatch.c 9103c1b19268411c87c8051084312e29e7c4aa252e3a9fd945af976f08fd563d
+F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982db
 F src/doc.c 799bde12f69112d8a9cda65e6b6eab94cdefe060c9ec9faf56884f75a51724e8
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/event.c 5d4a12252f765b5a1fa43fc6ddd087e79dfad65e3533369c1b47deb5b4be52d0
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 48798bb1190660ddb343ec902f8e44f8f7b0a53e3655748d33eab05d86049328
-R 701f6673a7efcaa1e00b2306540a8d88
-U drh
-Z 13af11f6743f691c5a9cea47a5237938
+P 861f4b0bde739b6b76280a55c4b09b8a948327887be73c019ab4e772e890a7e2
+R 54113c5be1c77f3b3ee5b39bfa55e666
+U mistachkin
+Z c100ae50f60a44448ce5c180dccd46eb
