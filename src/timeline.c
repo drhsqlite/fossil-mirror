@@ -531,7 +531,7 @@ void www_print_timeline(
     ** Example:  "(check-in: [abcdefg], user: drh, tags: trunk)"
     */
     if( drawDetailEllipsis ){
-      @ <span class='timelineEllipsis' id='ellipsis-%d(rid)'\
+      @ <span class='timelineEllipsis' id='ellipsis-%d(rid)' \
       @ data-id='%d(rid)'>...</span>
     }
     if( tmFlags & TIMELINE_COLUMNAR ){
@@ -567,6 +567,8 @@ void www_print_timeline(
       }else{
         cgi_printf("artifact:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
       }
+    }else if( zType[0]=='g' || zType[0]=='w' || zType[0]=='t' ){
+      cgi_printf("artifact:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
     }
 
     if( g.perm.Hyperlink && fossil_strcmp(zDispUser, zThisUser)!=0 ){

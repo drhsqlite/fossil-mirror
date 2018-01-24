@@ -1,5 +1,5 @@
-C Stop\sincluding\ssettings\sin\sthe\s'Available\scommands'\ssection\sof\sthe\shelp\sweb\spage.\s\sFix\stypo\sof\s'--setting'\shelp\soption.
-D 2018-01-23T22:34:37.414
+C Timeline\sfixes:\s(1)\sShow\sthe\sartifact-id\sfor\stickets,\swiki,\sand\stags\sin\sthe\ndetail\ssection\sfor\sVerbose\sand\sCompact\sMode.\s(2)\sFix\sthe\sgraph.js\sscript\sso\nthat\sit\ssets\sellipsis\scallbacks\seven\sif\sthere\sare\snot\sgraph\selements.
+D 2018-01-24T17:00:52.386
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -472,7 +472,7 @@ F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c f0940a16303989bd0c6a883dc90899a489ef16edc08f0f9cbb4b500d4730aad7
-F src/graph.js 94223c8137d8274d122d6ff5118fb0960b30eee4ec33ccbf45c9a19d8de9b09d
+F src/graph.js 9ea5a0cf6f41161870d0c77616e88b2e2ca45a8eec2601593883306749c4c686
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 2b485ac67f5ba9917da5f1ea679eee581a8e08a79dfbfb811c4833586330163a
@@ -567,7 +567,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c bba65d7b7871ab7046107848650b5e8e72dbe30763f86b07b9bbd98c30dc791b
 F src/th_tcl.c afa334f0b17fc01f8fda8bea281c51305d7c6f7f2c7ed4c190dc5d1a2b80c326
-F src/timeline.c fb710458ff73af9dd14605236bd2ec68dcb5aaafa52f143885577f0694dfd789
+F src/timeline.c 73a4e743732cb8026987b7cf237a4b440cef7c4a5c24c60963ecd7c17fd00cfe
 F src/tkt.c 26ee209c0b9d34340ff668f9326cdaa4560ed2976364e968f1b52edc2c56baa6
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c e0ba36f347faf5b5105eacc8e42e3f907febfe5abb0401f2227dec26cc60a5f5
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 861f4b0bde739b6b76280a55c4b09b8a948327887be73c019ab4e772e890a7e2
-R 54113c5be1c77f3b3ee5b39bfa55e666
-U mistachkin
-Z c100ae50f60a44448ce5c180dccd46eb
+P 4962fa9e33d89464bde9c2f136314ee555cb0670938e9ed78e7324f2243261cf
+R c1c753dd5aab17c12bf3081c6e8a8843
+U drh
+Z 0d491ba12cb61a1dd41e569b49c6a88c

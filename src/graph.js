@@ -344,18 +344,23 @@ function TimelineGraph(tx){
       if( y>0 ) window.scrollTo(0, y);
     }
   }
-  var lastRow = document.getElementById("m"+tx.rowinfo[tx.rowinfo.length-1].id);
-  var lastY = 0;
-  function checkHeight(){
-    var h = absoluteY(lastRow);
-    if( h!=lastY ){
-      renderGraph();
-      lastY = h;
+  if( tx.rowinfo ){
+    var lastRow = 
+       document.getElementById("m"+tx.rowinfo[tx.rowinfo.length-1].id);
+    var lastY = 0;
+    function checkHeight(){
+      var h = absoluteY(lastRow);
+      if( h!=lastY ){
+        renderGraph();
+        lastY = h;
+      }
+      setTimeout(checkHeight, 1000);
     }
-    setTimeout(checkHeight, 1000);
+    initGraph();
+    checkHeight();
+  }else{
+    function checkHeight(){}
   }
-  initGraph();
-  checkHeight();
   if( tx.scrollToSelect ){
     scrollToSelected();
   }
@@ -384,6 +389,6 @@ function TimelineGraph(tx){
     if(!dataObj) break;
     var txJson = dataObj.textContent || dataObj.innerText;
     var tx = JSON.parse(txJson);
-    if(tx.rowinfo) TimelineGraph(tx);
+    TimelineGraph(tx);
   }
 }())
