@@ -9,10 +9,13 @@
   *  Common display settings (such as the "view" option and the number
      of rows in a timeline) are held in a cookie and thus persist
      across multiple pages.
+  *  Rework the skin editing process so that changes are implemented
+     on one of nine /draft pages, evaluated, then merged back to the
+     default.
   *  Added the [https://fossil-scm.org/skins/ardoise/timeline|Ardoise]
      skin.
   *  Fix the "fossil server" command on Unix to be much more responsive
-     to multiple web requests.
+     to multiple simultaneous web requests.
   *  Use the IPv6 stack for the "fossil ui" and "fossil server"
      commands on Windows.
   *  Support for [https://sqlite.org/sqlar|SQL Archives] as a download
