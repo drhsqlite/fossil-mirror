@@ -1,5 +1,5 @@
-C Another\schange\slog\supdate.
-D 2018-01-25T00:37:36.599
+C Remove\s--no-dir-symlinks\soption\sfrom\sthe\sdocs.
+D 2018-01-28T21:52:30.800
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -787,7 +787,7 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/encryptedrepos.wiki 79a109d3a75e86fd99419de4b00f1937043db9a6
-F www/env-opts.md 2f9e9aece4b3b626dc54897d02d46b12ac683e3d48ddf1406ff90d5d2a5d7ff2
+F www/env-opts.md c2bab5d2cfe289979b83ff8409e6b156f102bf477a1e71e6002c8761172fed70
 F www/event.wiki f5a9cc34b11e8224e503e16137ba0f966f151551
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1cbaf3bdd9c1d0ae09194480315896886c903371208c6601729fe0de9d3c6489
-R 497195ee80b6fbe0623afcbf18abf5f9
-U drh
-Z 2aa52d20540534435b28ff4ee4f9c00a
+P c125af3e47b48c3d3e2c399ebeb6f0f98703104d02126d1e73c3de199195f5c7
+R 93404b8cf067a36acdaa68c5ae2ed64e
+U mistachkin
+Z b5c041f4a3d01175446ccceecadca496
