@@ -1,5 +1,5 @@
-C Remove\s--no-dir-symlinks\soption\sfrom\sthe\sdocs.
-D 2018-01-28T21:52:30.800
+C Add\s(undocumented)\sfrom=\sand\sto=\squery\sparameters\son\sthe\s/reports\swebpage.\nIf\sboth\sparameters\sare\sa\sdate/time\sstring,\sthen\sreport\sonly\scovers\sthe\sspan\nof\sdates\sspecified.
+D 2018-02-05T20:18:10.108
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -557,7 +557,7 @@ F src/sqlite3.c 206df47ebc49cd1710ac0dd716ce5de5854826536993f4feab7a49d136b85069
 F src/sqlite3.h ba49aa5758c70c8b078f774736c13bb9e0e3f34e153fe016e523b5208e5f7784
 F src/stash.c 8f0bc283ba1099458e48ecd4c059a85bef34aef02066d972f61c165f2c47177b
 F src/stat.c 39a33f66a4d803c036f73993bd043f5484816b54f8cded166b07c100cc4097fd
-F src/statrep.c 367a01ddc206ba32f53357db06c55f6432d8b6c6593e6e98376f28eaef589a97
+F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
 F src/style.c 535c0054a650e2a4ac778598dfea0e5107f74895601165fb411489f8d34ac108
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 24c77636171affc22088c1a7d7e608822d937e9747cbd5cd48f51dfae70a00c9
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c125af3e47b48c3d3e2c399ebeb6f0f98703104d02126d1e73c3de199195f5c7
-R 93404b8cf067a36acdaa68c5ae2ed64e
-U mistachkin
-Z b5c041f4a3d01175446ccceecadca496
+P 57f178eecc90678b788b37dc362b283155f58d491211f90079aee5b70e29f182
+R a1ee6e62dd5f0dded220142656a1b847
+U drh
+Z 3145ac091cf7e31d4b7e0383b113855f
