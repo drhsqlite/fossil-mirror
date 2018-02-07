@@ -1,5 +1,5 @@
-C Add\s(undocumented)\sfrom=\sand\sto=\squery\sparameters\son\sthe\s/reports\swebpage.\nIf\sboth\sparameters\sare\sa\sdate/time\sstring,\sthen\sreport\sonly\scovers\sthe\sspan\nof\sdates\sspecified.
-D 2018-02-05T20:18:10.108
+C Version\s2.5
+D 2018-02-07T18:48:14.863
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -754,7 +754,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 80a214d6378f721f1052ef2fd57021dbbb1b7c3ca64da7cf7e3b4971255b3b4a
-F www/changes.wiki 1b1defc09e6f0229fe713fc2e717cd8fe10d138de6dfb2e6bf96ef72c5bc11ec
+F www/changes.wiki dcf99606815a9e6118187059b7e2ea7656da101ccc18592d35271e8145fca7ce
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -846,7 +846,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 57f178eecc90678b788b37dc362b283155f58d491211f90079aee5b70e29f182
-R a1ee6e62dd5f0dded220142656a1b847
+P f390552d0e5c0174560772f81096910178185165b15fea2ad4ed101049d0c8a0
+R 1479a816adf739cdbbe4bfbdeeb0fd59
+T +bgcolor * #d0c0ff
+T +sym-release *
+T +sym-version-2.5 *
 U drh
-Z 3145ac091cf7e31d4b7e0383b113855f
+Z ee45093a20ca2906fd50424eb1400fb7
