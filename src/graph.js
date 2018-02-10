@@ -210,6 +210,7 @@ function TimelineGraph(tx){
       e = document.getElementById("md"+p.id);
       if(e) e.style.backgroundColor = p.bg;
     }
+    if( p.r<0 ) return;
     if( p.u>0 ) drawUpArrow(p,tx.rowinfo[p.u-tx.iTopRow],p.fg);
     var cls = node.cls;
     if( p.mi.length ) cls += " merge";

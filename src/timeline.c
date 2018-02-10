@@ -420,7 +420,7 @@ void www_print_timeline(
         }
       }
     }
-    if( zType[0]=='c' && (pGraph || (tmFlags & TIMELINE_BRCOLOR)!=0) ){
+    if( zType[0]=='c' && pGraph ){
       int nParent = 0;
       int aParent[GR_MAX_RAIL];
       static Stmt qparent;
@@ -437,6 +437,12 @@ void www_print_timeline(
       gidx = graph_add_row(pGraph, rid, nParent, aParent, zBr, zBgClr,
                            zUuid, isLeaf);
       db_reset(&qbranch);
+      @ <div id="m%d(gidx)" class="tl-nodemark"></div>
+    }else if( zType[0]=='e' && pGraph && zBgClr && zBgClr[0] ){
+      /* For technotes, make a graph node with nParent==(-1).  This will
+      ** not actually draw anything on the graph, but it will set the
+      ** background color of the timeline entry */
+      gidx = graph_add_row(pGraph, rid, -1, 0, zBr, zBgClr, zUuid, 0);
       @ <div id="m%d(gidx)" class="tl-nodemark"></div>
     }
     @</td>
