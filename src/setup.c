@@ -452,7 +452,7 @@ void user_edit(void){
   ** modified user record.  After writing the user record, redirect
   ** to the page that displays a list of users.
   */
-  doWrite = cgi_all("login","info","pw") && !higherUser;
+  doWrite = cgi_all("login","info","pw") && !higherUser && cgi_csrf_safe(1);
   if( doWrite ){
     char c;
     char zCap[50], zNm[4];
@@ -1718,7 +1718,7 @@ void setup_adunit(void){
     return;
   }
   db_begin_transaction();
-  if( P("clear")!=0 ){
+  if( P("clear")!=0 && cgi_csrf_safe(1) ){
     db_multi_exec("DELETE FROM config WHERE name GLOB 'adunit*'");
     cgi_replace_parameter("adunit","");
   }
@@ -1807,7 +1807,9 @@ void setup_logo(void){
     return;
   }
   db_begin_transaction();
-  if( P("setlogo")!=0 && zLogoMime && zLogoMime[0] && szLogoImg>0 ){
+  if( !cgi_csrf_safe(1) ){
+    /* Allow no state changes if not safe from CSRF */
+  }else if( P("setlogo")!=0 && zLogoMime && zLogoMime[0] && szLogoImg>0 ){
     Blob img;
     Stmt ins;
     blob_init(&img, aLogoImg, szLogoImg);
@@ -1942,7 +1944,7 @@ int raw_sql_query_authorizer(
 ** Requires Admin privileges.
 */
 void sql_page(void){
-  const char *zQ = P("q");
+  const char *zQ;
   int go = P("go")!=0;
   login_check_credentials();
   if( !g.perm.Setup ){
@@ -1951,6 +1953,7 @@ void sql_page(void){
   }
   add_content_sql_commands(g.db);
   db_begin_transaction();
+  zQ = cgi_csrf_safe(1) ? P("q") : 0;
   style_header("Raw SQL Commands");
   @ <p><b>Caution:</b> There are no restrictions on the SQL that can be
   @ run by this page.  You can do serious and irrepairable damage to the
@@ -2272,6 +2275,7 @@ static void setup_update_url_alias(
   const char *zNewName,
   const char *zValue
 ){
+  if( !cgi_csrf_safe(1) ) return;
   if( zNewName[0]==0 || zValue[0]==0 ){
     if( zOldName[0] ){
       blob_append_sql(pSql,

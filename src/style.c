@@ -927,6 +927,7 @@ void page_test_env(void){
   }
   @ g.zRepositoryName = %h(g.zRepositoryName)<br />
   @ load_average() = %f(load_average())<br />
+  @ cgi_csrf_safe(0) = %d(cgi_csrf_safe(0))<br />
   @ <hr />
   P("HTTP_USER_AGENT");
   cgi_print_all(showAll);

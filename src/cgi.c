@@ -460,6 +460,29 @@ const char *cgi_referer(const char *zDefault){
 }
 
 /*
+** Return true if the current request appears to be safe from a
+** Cross-Site Request Forgery (CSRF) attack.  Conditions that must
+** be met:
+**
+**    *   The HTTP_REFERER must have the same origin
+**    *   The REQUEST_METHOD must be POST - or requirePost==0
+*/
+int cgi_csrf_safe(int requirePost){
+  const char *zRef = P("HTTP_REFERER");
+  int nBase;
+  if( zRef==0 ) return 0;
+  if( requirePost ){
+    const char *zMethod = P("REQUEST_METHOD");
+    if( zMethod==0 ) return 0;
+    if( strcmp(zMethod,"POST")!=0 ) return 0;
+  }
+  nBase = (int)strlen(g.zBaseURL);
+  if( strncmp(g.zBaseURL,zRef,nBase)!=0 ) return 0;
+  if( zRef[nBase]!=0 && zRef[nBase]!='/' ) return 0;
+  return 1;
+}
+
+/*
 ** Information about all query parameters and cookies are stored
 ** in these variables.
 */
