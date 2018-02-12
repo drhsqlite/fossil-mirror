@@ -469,72 +469,74 @@ void setup_skin_admin(void){
     aBuiltinSkin[i].zSQL = getSkin(aBuiltinSkin[i].zLabel);
   }
 
-  /* Process requests to delete a user-defined skin */
-  if( P("del1") && (zName = skinVarName(P("sn"), 1))!=0 ){
-    style_header("Confirm Custom Skin Delete");
-    @ <form action="%s(g.zTop)/setup_skin_admin" method="post"><div>
-    @ <p>Deletion of a custom skin is a permanent action that cannot
-    @ be undone.  Please confirm that this is what you want to do:</p>
-    @ <input type="hidden" name="sn" value="%h(P("sn"))" />
-    @ <input type="submit" name="del2" value="Confirm - Delete The Skin" />
-    @ <input type="submit" name="cancel" value="Cancel - Do Not Delete" />
-    login_insert_csrf_secret();
-    @ </div></form>
-    style_footer();
-    return;
-  }
-  if( P("del2")!=0 && (zName = skinVarName(P("sn"), 1))!=0 ){
-    db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
-  }
-  if( P("draftdel")!=0 ){
-    const char *zDraft = P("name");
-    if( sqlite3_strglob("draft[1-9]",zDraft)==0 ){
-      db_multi_exec("DELETE FROM config WHERE name GLOB '%q-*'", zDraft);
+  if( cgi_csrf_safe(1) ){
+    /* Process requests to delete a user-defined skin */
+    if( P("del1") && (zName = skinVarName(P("sn"), 1))!=0 ){
+      style_header("Confirm Custom Skin Delete");
+      @ <form action="%s(g.zTop)/setup_skin_admin" method="post"><div>
+      @ <p>Deletion of a custom skin is a permanent action that cannot
+      @ be undone.  Please confirm that this is what you want to do:</p>
+      @ <input type="hidden" name="sn" value="%h(P("sn"))" />
+      @ <input type="submit" name="del2" value="Confirm - Delete The Skin" />
+      @ <input type="submit" name="cancel" value="Cancel - Do Not Delete" />
+      login_insert_csrf_secret();
+      @ </div></form>
+      style_footer();
+      return;
     }
-  }
-  if( skinRename() ) return;
-  if( skinSave(zCurrent) ) return;
-
-  /* The user pressed one of the "Install" buttons. */
-  if( P("load") && (z = P("sn"))!=0 && z[0] ){
-    int seen = 0;
-
-    /* Check to see if the current skin is already saved.  If it is, there
-    ** is no need to create a backup */
-    zCurrent = getSkin(0);
-    for(i=0; i<count(aBuiltinSkin); i++){
-      if( fossil_strcmp(aBuiltinSkin[i].zSQL, zCurrent)==0 ){
-        seen = 1;
-        break;
+    if( P("del2")!=0 && (zName = skinVarName(P("sn"), 1))!=0 ){
+      db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
+    }
+    if( P("draftdel")!=0 ){
+      const char *zDraft = P("name");
+      if( sqlite3_strglob("draft[1-9]",zDraft)==0 ){
+        db_multi_exec("DELETE FROM config WHERE name GLOB '%q-*'", zDraft);
       }
     }
-    if( !seen ){
-      seen = db_exists("SELECT 1 FROM config WHERE name GLOB 'skin:*'"
-                       " AND value=%Q", zCurrent);
+    if( skinRename() ) return;
+    if( skinSave(zCurrent) ) return;
+  
+    /* The user pressed one of the "Install" buttons. */
+    if( P("load") && (z = P("sn"))!=0 && z[0] ){
+      int seen = 0;
+  
+      /* Check to see if the current skin is already saved.  If it is, there
+      ** is no need to create a backup */
+      zCurrent = getSkin(0);
+      for(i=0; i<count(aBuiltinSkin); i++){
+        if( fossil_strcmp(aBuiltinSkin[i].zSQL, zCurrent)==0 ){
+          seen = 1;
+          break;
+        }
+      }
       if( !seen ){
-        db_multi_exec(
-          "INSERT INTO config(name,value,mtime) VALUES("
-          "  strftime('skin:Backup On %%Y-%%m-%%d %%H:%%M:%%S'),"
-          "  %Q,now())", zCurrent
-        );
+        seen = db_exists("SELECT 1 FROM config WHERE name GLOB 'skin:*'"
+                         " AND value=%Q", zCurrent);
+        if( !seen ){
+          db_multi_exec(
+            "INSERT INTO config(name,value,mtime) VALUES("
+            "  strftime('skin:Backup On %%Y-%%m-%%d %%H:%%M:%%S'),"
+            "  %Q,now())", zCurrent
+          );
+        }
       }
-    }
-    seen = 0;
-    for(i=0; i<count(aBuiltinSkin); i++){
-      if( fossil_strcmp(aBuiltinSkin[i].zDesc, z)==0 ){
-        seen = 1;
-        zCurrent = aBuiltinSkin[i].zSQL;
+      seen = 0;
+      for(i=0; i<count(aBuiltinSkin); i++){
+        if( fossil_strcmp(aBuiltinSkin[i].zDesc, z)==0 ){
+          seen = 1;
+          zCurrent = aBuiltinSkin[i].zSQL;
+          db_multi_exec("%s", zCurrent/*safe-for-%s*/);
+          break;
+        }
+      }
+      if( !seen ){
+        zName = skinVarName(z,0);
+        zCurrent = db_get(zName, 0);
         db_multi_exec("%s", zCurrent/*safe-for-%s*/);
-        break;
       }
-    }
-    if( !seen ){
-      zName = skinVarName(z,0);
-      zCurrent = db_get(zName, 0);
-      db_multi_exec("%s", zCurrent/*safe-for-%s*/);
     }
   }
-
+  
   style_header("Skins");
   if( zErr ){
     @ <p style="color:red">%h(zErr)</p>

@@ -2620,7 +2620,7 @@ void ci_edit_page(void){
   zNewBranch = PDT("brname","");
   zCloseFlag = P("close") ? " checked" : "";
   zHideFlag = P("hide") ? " checked" : "";
-  if( P("apply") ){
+  if( P("apply") && cgi_csrf_safe(1) ){
     Blob ctrl;
     char *zNow;
 
