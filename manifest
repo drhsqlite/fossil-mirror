@@ -1,5 +1,5 @@
-C Add\sthe\s--use-author\sflag\sto\s"fossil\simport\s--git".\s\sPatch\sfrom\nDingyuan\sWang.
-D 2018-02-12T13:01:20.126
+C Patch\sfrom\sPietro\sCerutti\sto\senable\sTCL\sshared\slibrary\sloading\sin\sTH1\son\nFreeBSD.
+D 2018-02-12T16:32:54.364
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -566,7 +566,7 @@ F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c bba65d7b7871ab7046107848650b5e8e72dbe30763f86b07b9bbd98c30dc791b
-F src/th_tcl.c afa334f0b17fc01f8fda8bea281c51305d7c6f7f2c7ed4c190dc5d1a2b80c326
+F src/th_tcl.c aedefabedee54f8f448f36c31beafe82b4487e222f34c5cb32ba27386f588e1c
 F src/timeline.c b989579732e682264bbf963f6613ed9d59eda6882653e2b1e728ac5adc6276bc
 F src/tkt.c 26ee209c0b9d34340ff668f9326cdaa4560ed2976364e968f1b52edc2c56baa6
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ceba488122551b46961d0a33c9ffda85113b1c05a3b5b1fb89231a98d426e035
-R 32f3df76fe72ab1c74bce3890f312816
+P fe87e4cb9dc0df125be7d5ef66d9ff8e56092a970b1a88803a1c0b3e91121f7d
+R 1b99ffd2ce303e6ebc5a878f6969a7b3
 U drh
-Z 5e1a5514e083c71d5831b4da431116a9
+Z 08918dd4581d3eaaa45cde654325531c
