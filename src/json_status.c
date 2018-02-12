@@ -116,7 +116,7 @@ cson_value * json_page_status(){
                          BEFORE the isChnged checks. */;
     }else if( isRenamed ){
       zStatus = "renamed";
-    }else if( !file_wd_isfile_or_link(zFullName) ){
+    }else if( !file_isfile_or_link(zFullName) ){
       if( file_access(zFullName, F_OK)==0 ){
         zStatus = "notAFile";
         ++nErr;

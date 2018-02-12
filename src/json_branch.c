@@ -142,7 +142,7 @@ static cson_value * json_branch_list(){
     }
   }
   if( sawConversionError ){
-    json_warn(FSL_JSON_W_COL_TO_JSON_FAILED,sawConversionError);
+    json_warn(FSL_JSON_W_COL_TO_JSON_FAILED,"%s",sawConversionError);
     free(sawConversionError);
   }
   return payV;
@@ -361,7 +361,7 @@ static cson_value * json_branch_create(){
 
   rc = json_branch_new( &opt, &rid );
   if(rc){
-    json_set_err(rc, opt.rcErrMsg);
+    json_set_err(rc, "%s", opt.rcErrMsg);
     goto error;
   }
   assert(0 != rid);

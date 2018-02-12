@@ -355,7 +355,7 @@ void update_cmd(void){
     zSep = "";
     for(i=3; i<g.argc; i++){
       file_tree_name(g.argv[i], &treename, 0, 1);
-      if( file_wd_isdir(g.argv[i])==1 ){
+      if( file_isdir(g.argv[i], RepoFILE)==1 ){
         if( blob_size(&treename) != 1 || blob_str(&treename)[0] != '.' ){
           blob_append_sql(&sql, "%sfn NOT GLOB '%q/*' ",
                          zSep /*safe-for-%s*/, blob_str(&treename));
@@ -420,7 +420,7 @@ void update_cmd(void){
       nConflict++;
     }else if( idt>0 && idv==0 ){
       /* File added in the target. */
-      if( file_wd_isfile_or_link(zFullPath) ){
+      if( file_isfile_or_link(zFullPath) ){
         fossil_print("ADD %s - overwrites an unmanaged file\n", zName);
         nOverwrite++;
       }else{
@@ -437,7 +437,7 @@ void update_cmd(void){
       }
       if( !dryRunFlag && !internalUpdate ) undo_save(zName);
       if( !dryRunFlag ) vfile_to_disk(0, idt, 0, 0);
-    }else if( idt>0 && idv>0 && !deleted && file_wd_size(zFullPath)<0 ){
+    }else if( idt>0 && idv>0 && !deleted && file_size(zFullPath, RepoFILE)<0 ){
       /* The file missing from the local check-out. Restore it to the
       ** version that appears in the target. */
       fossil_print("UPDATE %s\n", zName);
@@ -468,7 +468,7 @@ void update_cmd(void){
       }else{
         fossil_print("MERGE %s\n", zName);
       }
-      if( islinkv || islinkt /* || file_wd_islink(zFullPath) */ ){
+      if( islinkv || islinkt ){
         fossil_print("***** Cannot merge symlink %s\n", zNewName);
         nConflict++;
       }else{
@@ -480,7 +480,7 @@ void update_cmd(void){
         if( rc>=0 ){
           if( !dryRunFlag ){
             blob_write_to_file(&r, zFullNewPath);
-            file_wd_setexe(zFullNewPath, isexe);
+            file_setexe(zFullNewPath, isexe);
           }
           if( rc>0 ){
             fossil_print("***** %d merge conflicts in %s\n", rc, zNewName);
@@ -489,7 +489,7 @@ void update_cmd(void){
         }else{
           if( !dryRunFlag ){
             blob_write_to_file(&t, zFullNewPath);
-            file_wd_setexe(zFullNewPath, isexe);
+            file_setexe(zFullNewPath, isexe);
           }
           fossil_print("***** Cannot merge binary file %s\n", zNewName);
           nConflict++;
@@ -605,11 +605,11 @@ void ensure_empty_dirs_created(void){
     while( blob_token(&dirsList, &dirName) ){
       char *zDir = blob_str(&dirName);
       char *zPath = mprintf("%s/%s", g.zLocalRoot, zDir);
-      switch( file_wd_isdir(zPath) ){
+      switch( file_isdir(zPath, RepoFILE) ){
         case 0: { /* doesn't exist */
           fossil_free(zPath);
           zPath = mprintf("%s/%s/x", g.zLocalRoot, zDir);
-          if( file_mkfolder(zPath, 0, 1)!=0 ) {
+          if( file_mkfolder(zPath, RepoFILE, 0, 1)!=0 ) {
             fossil_warning("couldn't create directory %s as "
                            "required by empty-dirs setting", zDir);
           }
@@ -737,7 +737,7 @@ int historical_blob(
 **
 ** Revert all files if no file name is provided.
 **
-** If a file is reverted accidently, it can be restored using
+** If a file is reverted accidentally, it can be restored using
 ** the "fossil undo" command.
 **
 ** Options:
@@ -852,7 +852,9 @@ void revert_cmd(void){
       content_get(fast_uuid_to_rid(pRvFile->zUuid), &record);
 
       undo_save(zFile);
-      if( file_wd_size(zFull)>=0 && (rvPerm==PERM_LNK || file_wd_islink(0)) ){
+      if( file_size(zFull, RepoFILE)>=0
+       && (rvPerm==PERM_LNK || file_islink(0))
+      ){
         file_delete(zFull);
       }
       if( rvPerm==PERM_LNK ){
@@ -860,9 +862,9 @@ void revert_cmd(void){
       }else{
         blob_write_to_file(&record, zFull);
       }
-      file_wd_setexe(zFull, rvPerm==PERM_EXE);
+      file_setexe(zFull, rvPerm==PERM_EXE);
       fossil_print("REVERT   %s\n", zFile);
-      mtime = file_wd_mtime(zFull);
+      mtime = file_mtime(zFull, RepoFILE);
       db_multi_exec(
          "UPDATE vfile"
          "   SET mtime=%lld, chnged=%d, deleted=0, isexe=%d, islink=%d,mrid=rid"

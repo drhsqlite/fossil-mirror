@@ -165,6 +165,12 @@ void rebuild_schema_update_2_0(void){
     }
     fossil_free(z);
   }
+  db_multi_exec(
+    "CREATE VIEW IF NOT EXISTS "
+    "  repository.artifact(rid,rcvid,size,atype,srcid,hash,content) AS "
+    "    SELECT blob.rid,rcvid,size,1,srcid,uuid,content"
+    "      FROM blob LEFT JOIN delta ON (blob.rid=delta.rid);"
+  );
 }
 
 /*
@@ -939,16 +945,16 @@ void recon_read_dir(char *zPath){
       fossil_path_free(zUtf8Name);
 #ifdef _DIRENT_HAVE_D_TYPE
       if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
-          ? (file_isdir(zSubpath)==1) : (pEntry->d_type==DT_DIR) )
+          ? (file_isdir(zSubpath, ExtFILE)==1) : (pEntry->d_type==DT_DIR) )
 #else
-      if( file_isdir(zSubpath)==1 )
+      if( file_isdir(zSubpath, ExtFILE)==1 )
 #endif
       {
         recon_read_dir(zSubpath);
       }else{
         blob_init(&path, 0, 0);
         blob_appendf(&path, "%s", zSubpath);
-        if( blob_read_from_file(&aContent, blob_str(&path))==-1 ){
+        if( blob_read_from_file(&aContent, blob_str(&path), ExtFILE)==-1 ){
           fossil_fatal("some unknown error occurred while reading \"%s\"",
                        blob_str(&path));
         }
@@ -985,7 +991,7 @@ void reconstruct_cmd(void) {
   if( g.argc!=4 ){
     usage("FILENAME DIRECTORY");
   }
-  if( file_isdir(g.argv[3])!=1 ){
+  if( file_isdir(g.argv[3], ExtFILE)!=1 ){
     fossil_print("\"%s\" is not a directory\n\n", g.argv[3]);
     usage("FILENAME DIRECTORY");
   }
@@ -1067,7 +1073,7 @@ void deconstruct_cmd(void){
   }
   /* get and check argument destination directory */
   zDestDir = g.argv[g.argc-1];
-  if( !*zDestDir  || !file_isdir(zDestDir)) {
+  if( !*zDestDir  || !file_isdir(zDestDir, ExtFILE)) {
     fossil_fatal("DESTINATION(%s) is not a directory!",zDestDir);
   }
 #ifndef _WIN32

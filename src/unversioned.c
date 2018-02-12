@@ -303,7 +303,7 @@ void unversioned_cmd(void){
         fossil_fatal("unversioned filenames may not %s: %Q", zError, zIn);
       }
       blob_init(&file,0,0);
-      blob_read_from_file(&file, g.argv[i]);
+      blob_read_from_file(&file, g.argv[i], ExtFILE);
       unversioned_write(zIn, &file, mtime);
       blob_reset(&file);
     }
@@ -352,7 +352,7 @@ void unversioned_cmd(void){
     }
     fossil_free(zCmd);
     blob_reset(&content);
-    blob_read_from_file(&content, zTFile);
+    blob_read_from_file(&content, zTFile, ExtFILE);
 #if defined(_WIN32) || defined(__CYGWIN__)
     blob_to_lf_only(&content);
 #endif
@@ -510,8 +510,10 @@ void uvlist_page(void){
     int rcvid = db_column_int(&q,5);
     if( zLogin==0 ) zLogin = "";
     if( (n++)==0 ){
+      style_table_sorter();
       @ <div class="uvlist">
-      @ <table cellpadding="2" cellspacing="0" border="1" id="uvtab">
+      @ <table cellpadding="2" cellspacing="0" border="1" class='sortable' \
+      @  data-column-types='tkKttn' data-init-sort='1'>
       @ <thead><tr>
       @   <th> Name
       @   <th> Age
@@ -561,7 +563,6 @@ void uvlist_page(void){
     }
     @ </tfoot>
     @ </table></div>
-    output_table_sorting_javascript("uvtab","tkKttN",1);
   }else{
     @ No unversioned files on this server.
   }

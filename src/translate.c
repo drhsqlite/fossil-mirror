@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -77,6 +77,11 @@ static int inPrint = 0;
 static int inStr = 0;
 
 /*
+** Name of files being processed
+*/
+static const char *zInFile = "(stdin)";
+
+/*
 ** Terminate an active cgi_printf() or free string
 */
 static void end_block(FILE *out){
@@ -96,11 +101,13 @@ static void trans(FILE *in, FILE *out){
   char c1, c2;          /* Characters used to start a comment */
   int lastWasEq = 0;    /* True if last non-whitespace character was "=" */
   int lastWasComma = 0; /* True if last non-whitespace character was "," */
+  int lineNo = 0;       /* Line number */
   char zLine[2000];     /* A single line of input */
   char zOut[4000];      /* The input line translated into appropriate output */
 
   c1 = c2 = '-';
   while( fgets(zLine, sizeof(zLine), in) ){
+    lineNo++;
     for(i=0; zLine[i] && isspace(zLine[i]); i++){}
     if( zLine[i]!='@' ){
       if( inPrint || inStr ) end_block(out);
@@ -122,6 +129,7 @@ static void trans(FILE *in, FILE *out){
       ** and end of line.
       */
       int indent, omitline;
+      char *zNewline = "\\n";
       i++;
       if( isspace(zLine[i]) ){ i++; }
       indent = i - 2;
@@ -131,15 +139,22 @@ static void trans(FILE *in, FILE *out){
         if( zLine[i]==c1 && (c2==' ' || zLine[i+1]==c2) ){
            omitline = 1; break;
         }
-        if( zLine[i]=='"' || zLine[i]=='\\' ){ zOut[j++] = '\\'; }
+        if( zLine[i]=='\\' && (zLine[i+1]==0 || zLine[i+1]=='\r'
+                                 || zLine[i+1]=='\n') ){
+          zLine[i] = 0;
+          zNewline = "";
+          /* fprintf(stderr, "%s:%d: omit newline\n", zInFile, lineNo); */
+          break;
+        }
+        if( zLine[i]=='\\' || zLine[i]=='"' ){ zOut[j++] = '\\'; }
         zOut[j++] = zLine[i];
       }
-      while( j>0 && isspace(zOut[j-1]) ){ j--; }
+      if( zNewline[0] ) while( j>0 && isspace(zOut[j-1]) ){ j--; }
       zOut[j] = 0;
       if( j<=0 && omitline ){
         fprintf(out,"\n");
       }else{
-        fprintf(out,"%*s\"%s\\n\"\n",indent, "", zOut);
+        fprintf(out,"%*s\"%s%s\"\n",indent, "", zOut, zNewline);
       }
     }else{
       /* Otherwise (if the last non-whitespace was not '=') then generate
@@ -199,6 +214,7 @@ int main(int argc, char **argv){
       fprintf(stderr,"can not open %s\n", argv[1]);
       exit(1);
     }
+    zInFile = argv[1];
     printf("#line 1 \"");
     for(arg=argv[1]; *arg; arg++){
       if( *arg!='\\' ){

@@ -44,7 +44,7 @@ hr {
 .content h2 {
     font-size: 1.15em;
 }
-.content h2 {
+.content h3 {
     font-size: 1.05em;
     font-weight: bold;
 }
@@ -182,6 +182,10 @@ td.tktDspValue {
 }
 td.tktDspValue pre {
     white-space: pre-wrap;
+}
+
+span.timelineDetail {
+    font-size: 90%;
 }
 
 .footer {

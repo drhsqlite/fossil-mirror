@@ -197,7 +197,7 @@ void secaudit0_page(void){
                  "   AND login in ('anonymous','nobody','reader','developer')");
   if( z && z[0] ){
     @ <li><p>
-    @ Adminstrative privilege is granted to an entire class of users
+    @ Administrative privilege is granted to an entire class of users
     @ (%h(z)).  Ideally, the Write-Unver privilege should only be
     @ granted to specific individuals.
   }

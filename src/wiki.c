@@ -196,6 +196,26 @@ void markdown_rules_page(void){
 }
 
 /*
+** WEBPAGE: wiki_rules
+**
+** Show a summary of the wiki formatting rules.
+*/
+void wiki_rules_page(void){
+  Blob x;
+  int fTxt = P("txt")!=0;
+  style_header("Wiki Formatting Rules");
+  if( fTxt ){
+    style_submenu_element("Formatted", "%R/wiki_rules");
+  }else{
+    style_submenu_element("Plain-Text", "%R/wiki_rules?txt=1");
+  }
+  blob_init(&x, builtin_text("wiki.wiki"), -1);
+  wiki_render_by_mimetype(&x, fTxt ? "text/plain" : "text/x-fossil-wiki");
+  blob_reset(&x);
+  style_footer();
+}
+
+/*
 ** Returns non-zero if moderation is required for wiki changes and wiki
 ** attachments.
 */
@@ -904,7 +924,7 @@ void wdiff_page(void){
     blob_init(&w2, pW2->zWiki, -1);
   }
   blob_zero(&d);
-  diffFlags = construct_diff_flags(1,0);
+  diffFlags = construct_diff_flags(1);
   text_diff(&w2, &w1, &d, 0, diffFlags | DIFF_HTML | DIFF_LINENO);
   @ <pre class="udiff">
   @ %s(blob_str(&d))
@@ -992,79 +1012,6 @@ void wfind_page(void){
   }
   db_finalize(&q);
   @ </ul>
-  style_footer();
-}
-
-/*
-** WEBPAGE: wiki_rules
-**
-** Show the formatting rules for Fossil wiki.
-*/
-void wikirules_page(void){
-  style_header("Wiki Formatting Rules");
-  @ <h2>Formatting Rule Summary</h2>
-  @ <ol>
-  @ <li>Blank lines are paragraph breaks</li>
-  @ <li>Bullets are "*" surrounded by two spaces at the beginning of the
-  @ line.</li>
-  @ <li>Enumeration items are "#" surrounded by two spaces at the beginning of
-  @ a line.</li>
-  @ <li>Indented paragraphs begin with a tab or two spaces.</li>
-  @ <li>Hyperlinks are contained with square brackets:  "[target]" or
-  @ "[target|name]".</li>
-  @ <li>Most ordinary HTML works.</li>
-  @ <li>&lt;verbatim&gt; and &lt;nowiki&gt;.</li>
-  @ </ol>
-  @ <p>We call the first five rules above "wiki" formatting rules.  The
-  @ last two rules are the HTML formatting rule.</p>
-  @ <h2>Formatting Rule Details</h2>
-  @ <ol>
-  @ <li> <p><span class="wikiruleHead">Paragraphs</span>.
-  @ Any sequence of one or more blank lines forms
-  @ a paragraph break.  Centered or right-justified paragraphs are not
-  @ supported by wiki markup, but you can do these things if you need them
-  @ using HTML.</p></li>
-  @ <li> <p><span class="wikiruleHead">Bullet Lists</span>.
-  @ A bullet list item is a line that begins with a single "*" character
-  @ surrounded on
-  @ both sides by two or more spaces or by a tab.  Only a single level
-  @ of bullet list is supported by wiki.  For nested lists, use HTML.</p></li>
-  @ <li> <p><span class="wikiruleHead">Enumeration Lists</span>.
-  @ An enumeration list item is a line that begins with a single "#" character
-  @ surrounded on both sides by two or more spaces or by a tab.  Only a single
-  @ level of enumeration list is supported by wiki.  For nested lists or for
-  @ enumerations that count using letters or roman numerials, use HTML.</p></li>
-  @ <li> <p><span class="wikiruleHead">Indented Paragraphs</span>.
-  @ Any paragraph that begins with two or more spaces or a tab and
-  @ which is not a bullet or enumeration list item is rendered
-  @ indented.  Only a single level of indentation is supported by wiki; use
-  @ HTML for deeper indentation.</p></li>
-  @ <li> <p><span class="wikiruleHead">Hyperlinks</span>.
-  @ Text within square brackets ("[...]") becomes a hyperlink.  The
-  @ target can be a wiki page name, the artifact ID of a check-in or ticket,
-  @ the name of an image, or a URL.  By default, the target is displayed
-  @ as the text of the hyperlink.  But you can specify alternative text
-  @ after the target name separated by a "|" character.</p>
-  @ <p>You can also link to internal anchor names using [#anchor-name],
-  @ providing
-  @ you have added the necessary "&lt;a name='anchor-name'&gt;&lt;/a&gt;"
-  @ tag to your wiki page.</p></li>
-  @ <li> <p><span class="wikiruleHead">HTML</span>.
-  @ The following standard HTML elements may be used:
-  show_allowed_wiki_markup();
-  @ . There are two non-standard elements available:
-  @ &lt;verbatim&gt; and &lt;nowiki&gt;.
-  @ No other elements are allowed.  All attributes are checked and
-  @ only a few benign attributes are allowed on each element.
-  @ In particular, any attributes that specify javascript or CSS
-  @ are elided.</p></li>
-  @ <li><p><span class="wikiruleHead">Special Markup.</span>
-  @ The &lt;nowiki&gt; tag disables all wiki formatting rules
-  @ through the matching &lt;/nowiki&gt; element.
-  @ The &lt;verbatim&gt; tag works like &lt;pre&gt; with the addition
-  @ that it also disables all wiki and HTML markup
-  @ through the matching &lt;/verbatim&gt;.</p></li>
-  @ </ol>
   style_footer();
 }
 
@@ -1306,7 +1253,7 @@ void wiki_cmd(void){
     if( g.argc==4 ){
       blob_read_from_channel(&content, stdin, -1);
     }else{
-      blob_read_from_file(&content, g.argv[4]);
+      blob_read_from_file(&content, g.argv[4], ExtFILE);
     }
     if( !zMimeType || !*zMimeType ){
       /* Try to deduce the mime type based on the prior version. */
@@ -1430,7 +1377,7 @@ void test_markdown_render(void){
   verify_all_options();
   if( g.argc!=3 ) usage("FILE");
   blob_zero(&out);
-  blob_read_from_file(&in, g.argv[2]);
+  blob_read_from_file(&in, g.argv[2], ExtFILE);
   markdown_to_html(&in, 0, &out);
   blob_write_to_file(&out, "-");
 }

@@ -211,7 +211,10 @@ void cgi_set_cookie(
   int lifetime          /* Expiration of the cookie in seconds from now */
 ){
   char *zSecure = "";
-  if( zPath==0 ) zPath = g.zTop;
+  if( zPath==0 ){
+    zPath = g.zTop;
+    if( zPath[0]==0 ) zPath = "/";
+  }
   if( g.zBaseURL!=0 && strncmp(g.zBaseURL, "https:", 6)==0 ){
     zSecure = " secure;";
   }
@@ -454,6 +457,29 @@ const char *cgi_referer(const char *zDefault){
     if( zRef==0 ) zRef = zDefault;
   }
   return zRef;
+}
+
+/*
+** Return true if the current request appears to be safe from a
+** Cross-Site Request Forgery (CSRF) attack.  Conditions that must
+** be met:
+**
+**    *   The HTTP_REFERER must have the same origin
+**    *   The REQUEST_METHOD must be POST - or requirePost==0
+*/
+int cgi_csrf_safe(int requirePost){
+  const char *zRef = P("HTTP_REFERER");
+  int nBase;
+  if( zRef==0 ) return 0;
+  if( requirePost ){
+    const char *zMethod = P("REQUEST_METHOD");
+    if( zMethod==0 ) return 0;
+    if( strcmp(zMethod,"POST")!=0 ) return 0;
+  }
+  nBase = (int)strlen(g.zBaseURL);
+  if( strncmp(g.zBaseURL,zRef,nBase)!=0 ) return 0;
+  if( zRef[nBase]!=0 && zRef[nBase]!='/' ) return 0;
+  return 1;
 }
 
 /*
@@ -1342,8 +1368,10 @@ NORETURN void cgi_panic(const char *zFormat, ...){
 */
 static const char *cgi_accept_forwarded_for(const char *z){
   int i;
-  if( fossil_strcmp(g.zIpAddr, "127.0.0.1")!=0 ) return 0;
-
+  if( !cgi_is_loopback(g.zIpAddr) ){
+    /* Only accept X-FORWARDED-FOR if input coming from the local machine */
+    return 0;
+  }
   i = strlen(z)-1;
   while( i>=0 && z[i]!=',' && !fossil_isspace(z[i]) ) i--;
   return &z[++i];
@@ -1753,9 +1781,11 @@ void cgi_handle_scgi_request(void){
 
 /*
 ** Maximum number of child processes that we can have running
-** at one time before we start slowing things down.
+** at one time.  Set this to 0 for "no limit".
 */
-#define MAX_PARALLEL 2
+#ifndef FOSSIL_MAX_CONNECTIONS
+# define FOSSIL_MAX_CONNECTIONS 1000
+#endif
 
 /*
 ** Implement an HTTP server daemon listening on port iPort.
@@ -1779,6 +1809,7 @@ int cgi_http_server(
 #else
   int listener = -1;           /* The server socket */
   int connection;              /* A socket for each individual connection */
+  int nRequest = 0;            /* Number of requests handled so far */
   fd_set readfds;              /* Set of file descriptors for select() */
   socklen_t lenaddr;           /* Length of the inaddr structure */
   int child;                   /* PID of the child process */
@@ -1849,12 +1880,13 @@ int cgi_http_server(
     }
   }
   while( 1 ){
-    if( nchildren>MAX_PARALLEL ){
-      /* Slow down if connections are arriving too fast */
-      sleep( nchildren-MAX_PARALLEL );
+#if FOSSIL_MAX_CONNECTIONS>0
+    while( nchildren>=FOSSIL_MAX_CONNECTIONS ){
+      if( wait(0)>=0 ) nchildren--;
     }
-    delay.tv_sec = 60;
-    delay.tv_usec = 0;
+#endif
+    delay.tv_sec = 0;
+    delay.tv_usec = 100000;
     FD_ZERO(&readfds);
     assert( listener>=0 );
     FD_SET( listener, &readfds);
@@ -1865,7 +1897,10 @@ int cgi_http_server(
       if( connection>=0 ){
         child = fork();
         if( child!=0 ){
-          if( child>0 ) nchildren++;
+          if( child>0 ){
+            nchildren++;
+            nRequest++;
+          }
           close(connection);
         }else{
           int nErr = 0, fd;
@@ -1881,14 +1916,21 @@ int cgi_http_server(
             if( fd!=2 ) nErr++;
           }
           close(connection);
+          g.nPendingRequest = nchildren+1;
+          g.nRequest = nRequest+1;
           return nErr;
         }
       }
     }
     /* Bury dead children */
-    while( waitpid(0, 0, WNOHANG)>0 ){
-      nchildren--;
-    }
+    if( nchildren ){
+      while(1){
+        int iStatus = 0;
+        pid_t x = waitpid(-1, &iStatus, WNOHANG);
+        if( x<=0 ) break;
+        nchildren--;
+      }
+    }  
   }
   /* NOT REACHED */
   fossil_exit(1);
@@ -2015,4 +2057,13 @@ const char *cgi_ssh_remote_addr(const char *zDefault){
     }
   }
   return zDefault;
+}
+
+/*
+** Return true if information is coming from the loopback network.
+*/
+int cgi_is_loopback(const char *zIpAddr){
+  return fossil_strcmp(zIpAddr, "127.0.0.1")==0 ||
+         fossil_strcmp(zIpAddr, "::ffff:127.0.0.1")==0 ||
+         fossil_strcmp(zIpAddr, "::1")==0;
 }

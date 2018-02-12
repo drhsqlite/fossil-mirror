@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -20,7 +20,7 @@
 ** them into ANSI-C static char array variables.  Output is written onto
 ** standard output.
 **
-** The makefiles use this utility package various resources (large scripts,
+** The makefiles use this utility to package various resources (large scripts,
 ** GIF images, etc) that are separate files in the source code as byte
 ** arrays in the resulting executable.
 */

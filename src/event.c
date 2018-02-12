@@ -345,10 +345,20 @@ int event_commit_common(
 **
 ** Revise or create a technical note (formerly called an "event").
 **
-** Parameters:
+** Required query parameter:
 **
-**    name=ID           Hex hash ID of the tech-note. If omitted, a new
+**    name=ID           Hex hash ID of the technote. If omitted, a new
 **                      tech-note is created.
+**
+** POST parameters from the "Cancel", "Preview", or "Submit" buttons:
+**
+**    w=TEXT            Complete text of the technote.
+**    t=TEXT            Time of the technote on the timeline (ISO 8601)
+**    c=TEXT            Timeline comment
+**    g=TEXT            Tags associated with this technote
+**    mimetype=TEXT     Mimetype for w= text
+**    newclr            Use a background color
+**    clr=TEXT          Background color to use if newclr
 */
 void eventedit_page(void){
   char *zTag;
@@ -357,12 +367,13 @@ void eventedit_page(void){
   const char *zId;
   int n;
   const char *z;
-  char *zBody = (char*)P("w");
-  char *zETime = (char*)P("t");
-  const char *zComment = P("c");
-  const char *zTags = P("g");
-  const char *zClr;
-  const char *zMimetype = P("mimetype");
+  char *zBody = (char*)P("w");             /* Text of the technote */
+  char *zETime = (char*)P("t");            /* Date this technote appears */
+  const char *zComment = P("c");           /* Timeline comment */
+  const char *zTags = P("g");              /* Tags added to this technote */
+  const char *zClrFlag = "";               /* "checked" for bg color */
+  const char *zClr;                        /* Name of the background color */
+  const char *zMimetype = P("mimetype");   /* Mimetype of zBody */
   int isNew = 0;
 
   if( zBody ){
@@ -409,9 +420,10 @@ void eventedit_page(void){
     zClr = "";
     isNew = 1;
   }
-  zClr = PD("clr",zClr);
-  if( fossil_strcmp(zClr,"##")==0 ) zClr = PD("cclr","");
-
+  if( P("newclr") ){
+    zClr = PD("clr",zClr);
+    if( zClr[0] ) zClrFlag = " checked";
+  }
 
   /* If editing an existing event, extract the key fields to use as
   ** a starting point for the edit.
@@ -444,17 +456,18 @@ void eventedit_page(void){
   if( P("submit")!=0 && (zBody!=0 && zComment!=0) ){
     login_verify_csrf_secret();
     if ( !event_commit_common(rid, zId, zBody, zETime,
-                              zMimetype, zComment, zTags, zClr) ){
+                              zMimetype, zComment, zTags,
+                              zClrFlag[0] ? zClr : 0) ){
       style_header("Error");
       @ Internal error:  Fossil tried to make an invalid artifact for
       @ the edited technote.
       style_footer();
       return;
     }
-    cgi_redirectf("technote?name=%T", zId);
+    cgi_redirectf("%R/technote?name=%T", zId);
   }
   if( P("cancel")!=0 ){
-    cgi_redirectf("technote?name=%T", zId);
+    cgi_redirectf("%R/technote?name=%T", zId);
     return;
   }
   if( zBody==0 ){
@@ -470,7 +483,7 @@ void eventedit_page(void){
     @ <p><b>Timeline comment preview:</b></p>
     @ <blockquote>
     @ <table border="0">
-    if( zClr && zClr[0] ){
+    if( zClrFlag[0] && zClr && zClr[0] ){
       @ <tr><td style="background-color: %h(zClr);">
     }else{
       @ <tr><td>
@@ -511,7 +524,9 @@ void eventedit_page(void){
 
   @ <tr><th align="right" valign="top">Timeline Background Color:</th>
   @ <td valign="top">
-  render_color_chooser(0, zClr, 0, "clr", "cclr");
+  @ <input type='checkbox' name='newclr'%s(zClrFlag) />
+  @ Use custom color: \
+  @ <input type='color' name='clr' value='%s(zClr[0]?zClr:"#c0f0ff")'>
   @ </td></tr>
 
   @ <tr><th align="right" valign="top">Tags:</th>
@@ -531,9 +546,11 @@ void eventedit_page(void){
   @ </td></tr>
 
   @ <tr><td colspan="2">
-  @ <input type="submit" name="preview" value="Preview Your Changes" />
-  @ <input type="submit" name="submit" value="Apply These Changes" />
   @ <input type="submit" name="cancel" value="Cancel" />
+  @ <input type="submit" name="preview" value="Preview" />
+  if( P("preview") ){
+    @ <input type="submit" name="submit" value="Submit" />
+  }
   @ </td></tr></table>
   @ </div></form>
   style_footer();

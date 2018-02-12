@@ -256,4 +256,14 @@ typedef signed char i8;
 */
 #define count(X) (sizeof(X)/sizeof(X[0]))
 
+/*
+** The pledge() interface is currently only available on OpenBSD 5.9
+** and later.  Make calls to fossil_pledge() no-ops on all platforms
+** that omit the HAVE_PLEDGE configuration parameter.
+*/
+#if !defined(HAVE_PLEDGE)
+# define fossil_pledge(A)
+#endif
+
+
 #endif /* _RC_COMPILE_ */

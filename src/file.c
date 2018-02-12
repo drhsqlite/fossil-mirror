@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -16,11 +16,6 @@
 *******************************************************************************
 **
 ** File utilities.
-**
-** Functions named file_* are generic functions that always follow symlinks.
-**
-** Functions named file_wd_* are to be used for files inside working
-** directories. They follow symlinks depending on 'allow-symlinks' setting.
 */
 #include "config.h"
 #include <sys/types.h>
@@ -44,6 +39,32 @@
 
 #if INTERFACE
 
+/* Many APIs take a eFType argument which must be one of ExtFILE, RepoFILE,
+** or SymFILE.
+**
+** The difference is in the handling of symbolic links.  RepoFILE should be
+** used for files that are under management by a Fossil repository.  ExtFILE
+** should be used for files that are not under management.  SymFILE is for
+** a few special cases such as the "fossil test-tarball" command when we never
+** want to follow symlinks.
+**
+** If RepoFILE is used and if the allow-symlinks setting is true and if
+** the object is a symbolic link, then the object is treated like an ordinary
+** file whose content is name of the object to which the symbolic link
+** points.
+**
+** If ExtFILE is used or allow-symlinks is false, then operations on a
+** symbolic link are the same as operations on the object to which the
+** symbolic link points.
+**
+** SymFILE is like RepoFILE except that it always uses the target filename of
+** a symbolic link as the content, instead of the content of the object
+** that the symlink points to.  SymFILE acts as if allow-symlinks is always ON.
+*/
+#define ExtFILE    0  /* Always follow symlinks */
+#define RepoFILE   1  /* Follow symlinks if and only if allow-symlinks is OFF */
+#define SymFILE    2  /* Never follow symlinks */
+
 #include <dirent.h>
 #if defined(_WIN32)
 # define DIR _WDIR
@@ -54,6 +75,9 @@
 #endif /* _WIN32 */
 
 #if defined(_WIN32) && (defined(__MSVCRT__) || defined(_MSC_VER))
+/*
+** File status information for windows systems.
+*/
 struct fossilStat {
     i64 st_size;
     i64 st_mtime;
@@ -70,6 +94,9 @@ struct fossilStat {
 #endif /* INTERFACE */
 
 #if !defined(_WIN32) || !(defined(__MSVCRT__) || defined(_MSC_VER))
+/*
+** File status information for unix systems
+*/
 # define fossilStat stat
 #endif
 
@@ -79,61 +106,72 @@ struct fossilStat {
 #if !defined(S_ISLNK)
 # define S_ISLNK(x) (0)
 #endif
-static int fileStatValid = 0;
-static struct fossilStat fileStat;
 
 /*
-** Fill stat buf with information received from stat() or lstat().
-** lstat() is called on Unix if isWd is TRUE and allow-symlinks setting is on.
+** Local state information for the file status routines
+*/
+static struct {
+  struct fossilStat fileStat;  /* File status from last fossil_stat() */
+  int fileStatValid;           /* True if fileStat is valid */
+} fx;
+
+/*
+** Fill *buf with information about zFilename.
 **
+** If zFilename refers to a symbolic link:
+**
+**  (A) If allow-symlinks is on and eFType is RepoFILE, then fill
+**      *buf with information about the symbolic link itself.
+**
+**  (B) If allow-symlinks is off or eFType is ExtFILE, then fill
+**      *buf with information about the object that the symbolic link
+**      points to.
 */
 static int fossil_stat(
   const char *zFilename,  /* name of file or directory to inspect. */
   struct fossilStat *buf, /* pointer to buffer where info should go. */
-  int isWd                /* non-zero to consider look at symlink itself. */
+  int eFType              /* Look at symlink itself if RepoFILE and enabled. */
 ){
   int rc;
   void *zMbcs = fossil_utf8_to_path(zFilename, 0);
 #if !defined(_WIN32)
-  if( isWd && db_allow_symlinks() ){
+  if( eFType>=RepoFILE && (eFType==SymFILE || db_allow_symlinks()) ){
     rc = lstat(zMbcs, buf);
   }else{
     rc = stat(zMbcs, buf);
   }
 #else
-  rc = win32_stat(zMbcs, buf, isWd);
+  rc = win32_stat(zMbcs, buf, eFType);
 #endif
   fossil_path_free(zMbcs);
   return rc;
 }
 
 /*
-** Clears the fileStat variable and its associated validity flag.
+** Clears the fx.fileStat variable and its associated validity flag.
 */
 static void resetStat(){
-  fileStatValid = 0;
-  memset(&fileStat, 0, sizeof(struct fossilStat));
+  fx.fileStatValid = 0;
+  memset(&fx.fileStat, 0, sizeof(struct fossilStat));
 }
 
 /*
-** Fill in the fileStat variable for the file named zFilename.
-** If zFilename==0, then use the previous value of fileStat if
+** Fill in the fx.fileStat variable for the file named zFilename.
+** If zFilename==0, then use the previous value of fx.fileStat if
 ** there is a previous value.
-**
-** If isWd is TRUE, do lstat() instead of stat() if allow-symlinks is on.
 **
 ** Return the number of errors.  No error messages are generated.
 */
-static int getStat(const char *zFilename, int isWd){
+static int getStat(const char *zFilename, int eFType){
   int rc = 0;
   if( zFilename==0 ){
-    if( fileStatValid==0 ) rc = 1;
+    if( fx.fileStatValid==0 ) rc = 1;
   }else{
-    if( fossil_stat(zFilename, &fileStat, isWd)!=0 ){
-      fileStatValid = 0;
+    if( fossil_stat(zFilename, &fx.fileStat, eFType)!=0 ){
+      fx.fileStatValid = 0;
       rc = 1;
     }else{
-      fileStatValid = 1;
+      fx.fileStatValid = 1;
       rc = 0;
     }
   }
@@ -145,15 +183,8 @@ static int getStat(const char *zFilename, int isWd){
 ** exist.  If zFilename is NULL, return the size of the most recently
 ** stat-ed file.
 */
-i64 file_size(const char *zFilename){
-  return getStat(zFilename, 0) ? -1 : fileStat.st_size;
-}
-
-/*
-** Same as file_size(), but takes into account symlinks.
-*/
-i64 file_wd_size(const char *zFilename){
-  return getStat(zFilename, 1) ? -1 : fileStat.st_size;
+i64 file_size(const char *zFilename, int eFType){
+  return getStat(zFilename, eFType) ? -1 : fx.fileStat.st_size;
 }
 
 /*
@@ -161,15 +192,8 @@ i64 file_wd_size(const char *zFilename){
 ** does not exist.  If zFilename is NULL return the size of the most
 ** recently stat-ed file.
 */
-i64 file_mtime(const char *zFilename){
-  return getStat(zFilename, 0) ? -1 : fileStat.st_mtime;
-}
-
-/*
-** Same as file_mtime(), but takes into account symlinks.
-*/
-i64 file_wd_mtime(const char *zFilename){
-  return getStat(zFilename, 1) ? -1 : fileStat.st_mtime;
+i64 file_mtime(const char *zFilename, int eFType){
+  return getStat(zFilename, eFType) ? -1 : fx.fileStat.st_mtime;
 }
 
 /*
@@ -177,47 +201,38 @@ i64 file_wd_mtime(const char *zFilename){
 ** exist.  If zFilename is NULL return the size of the most recently
 ** stat-ed file.
 */
-int file_mode(const char *zFilename){
-  return getStat(zFilename, 0) ? -1 : fileStat.st_mode;
+int file_mode(const char *zFilename, int eFType){
+  return getStat(zFilename, eFType) ? -1 : fx.fileStat.st_mode;
 }
 
 /*
-** Same as file_mode(), but takes into account symlinks.
+** Return TRUE if either of the following are true:
+**
+**   (1) zFilename is an ordinary file
+**
+**   (2) allow_symlinks is on and zFilename is a symbolic link to
+**       a file, directory, or other object
 */
-int file_wd_mode(const char *zFilename){
-  return getStat(zFilename, 1) ? -1 : fileStat.st_mode;
-}
-
-/*
-** Return TRUE if the named file is an ordinary file or symlink
-** and symlinks are allowed.
-** Return false for directories, devices, fifos, etc.
-*/
-int file_wd_isfile_or_link(const char *zFilename){
-  return getStat(zFilename, 1) ? 0 : S_ISREG(fileStat.st_mode) ||
-                                     S_ISLNK(fileStat.st_mode);
+int file_isfile_or_link(const char *zFilename){
+  if( getStat(zFilename, RepoFILE) ){
+    return 0;  /* stat() failed.  Return false. */
+  }
+  return S_ISREG(fx.fileStat.st_mode) || S_ISLNK(fx.fileStat.st_mode);
 }
 
 /*
 ** Return TRUE if the named file is an ordinary file.  Return false
 ** for directories, devices, fifos, symlinks, etc.
 */
-int file_isfile(const char *zFilename){
-  return getStat(zFilename, 0) ? 0 : S_ISREG(fileStat.st_mode);
+int file_isfile(const char *zFilename, int eFType){
+  return getStat(zFilename, eFType) ? 0 : S_ISREG(fx.fileStat.st_mode);
 }
 
 /*
-** Same as file_isfile(), but takes into account symlinks.
-*/
-int file_wd_isfile(const char *zFilename){
-  return getStat(zFilename, 1) ? 0 : S_ISREG(fileStat.st_mode);
-}
-
-/*
-** Create symlink to file on Unix, or plain-text file with
-** symlink target if "allow-symlinks" is off or we're on Windows.
+** Create a symbolic link named zLinkFile that points to zTargetFile.
 **
-** Arguments: target file (symlink will point to it), link file
+** If allow-symlinks is off, create an ordinary file named zLinkFile
+** with the name of zTargetFile as its content.
 **/
 void symlink_create(const char *zTargetFile, const char *zLinkFile){
 #if !defined(_WIN32)
@@ -236,10 +251,10 @@ void symlink_create(const char *zTargetFile, const char *zLinkFile){
     for(i=1; i<nName; i++){
       if( zName[i]=='/' ){
         zName[i] = 0;
-          if( file_mkdir(zName, 1) ){
-            fossil_fatal_recursive("unable to create directory %s", zName);
-            return;
-          }
+        if( file_mkdir(zName, ExtFILE, 1) ){
+          fossil_fatal_recursive("unable to create directory %s", zName);
+          return;
+        }
         zName[i] = '/';
       }
     }
@@ -272,13 +287,18 @@ void symlink_copy(const char *zFrom, const char *zTo){
 **   - PERM_EXE on Unix if file is executable;
 **   - PERM_LNK on Unix if file is symlink and allow-symlinks option is on;
 **   - PERM_REG for all other cases (regular file, directory, fifo, etc).
+**
+** If eFType is ExtFile then symbolic links are followed and so this
+** routine can only return PERM_EXE and PERM_REG.
+**
+** On windows, this routine returns only PERM_REG.
 */
-int file_wd_perm(const char *zFilename){
+int file_perm(const char *zFilename, int eFType){
 #if !defined(_WIN32)
-  if( !getStat(zFilename, 1) ){
-     if( S_ISREG(fileStat.st_mode) && ((S_IXUSR)&fileStat.st_mode)!=0 )
+  if( !getStat(zFilename, RepoFILE) ){
+     if( S_ISREG(fx.fileStat.st_mode) && ((S_IXUSR)&fx.fileStat.st_mode)!=0 )
       return PERM_EXE;
-    else if( db_allow_symlinks() && S_ISLNK(fileStat.st_mode) )
+    else if( db_allow_symlinks() && S_ISLNK(fx.fileStat.st_mode) )
       return PERM_LNK;
   }
 #endif
@@ -289,18 +309,20 @@ int file_wd_perm(const char *zFilename){
 ** Return TRUE if the named file is an executable.  Return false
 ** for directories, devices, fifos, symlinks, etc.
 */
-int file_wd_isexe(const char *zFilename){
-  return file_wd_perm(zFilename)==PERM_EXE;
+int file_isexe(const char *zFilename, int eFType){
+  return file_perm(zFilename, eFType)==PERM_EXE;
 }
 
 /*
 ** Return TRUE if the named file is a symlink and symlinks are allowed.
 ** Return false for all other cases.
 **
+** This routines RepoFILE - that zFilename is always a file under management.
+**
 ** On Windows, always return False.
 */
-int file_wd_islink(const char *zFilename){
-  return file_wd_perm(zFilename)==PERM_LNK;
+int file_islink(const char *zFilename){
+  return file_perm(zFilename, RepoFILE)==PERM_LNK;
 }
 
 /*
@@ -308,42 +330,17 @@ int file_wd_islink(const char *zFilename){
 ** does not exist.  Return 2 if zFilename exists but is something
 ** other than a directory.
 */
-int file_isdir(const char *zFilename){
-  int rc;
-
-  if( zFilename ){
-    char *zFN = mprintf("%s", zFilename);
-    file_simplify_name(zFN, -1, 0);
-    rc = getStat(zFN, 0);
-    free(zFN);
-  }else{
-    rc = getStat(0, 0);
-  }
-  return rc ? 0 : (S_ISDIR(fileStat.st_mode) ? 1 : 2);
-}
-
-/*
-** Same as file_isdir(), but takes into account symlinks.  Return 1 if
-** zFilename is a directory -OR- a symlink that points to a directory.
-** Return 0 if zFilename does not exist.  Return 2 if zFilename exists
-** but is something other than a directory.
-*/
-int file_wd_isdir(const char *zFilename){
+int file_isdir(const char *zFilename, int eFType){
   int rc;
   char *zFN;
 
   zFN = mprintf("%s", zFilename);
   file_simplify_name(zFN, -1, 0);
-  rc = getStat(zFN, 1);
+  rc = getStat(zFN, eFType);
   if( rc ){
     rc = 0; /* It does not exist at all. */
-  }else if( S_ISDIR(fileStat.st_mode) ){
+  }else if( S_ISDIR(fx.fileStat.st_mode) ){
     rc = 1; /* It exists and is a real directory. */
-  }else if( S_ISLNK(fileStat.st_mode) ){
-    Blob content;
-    blob_read_link(&content, zFN); /* It exists and is a link. */
-    rc = file_wd_isdir(blob_str(&content)); /* Points to directory? */
-    blob_reset(&content);
   }else{
     rc = 2; /* It exists and is something else. */
   }
@@ -400,7 +397,7 @@ char *file_newname(const char *zBase, const char *zSuffix, int relFlag){
   char *z = 0;
   int cnt = 0;
   z = mprintf("%s-%s", zBase, zSuffix);
-  while( file_size(z)>=0 ){
+  while( file_size(z, ExtFILE)>=0 ){
     fossil_free(z);
     z = mprintf("%s-%s-%d", zBase, zSuffix, cnt++);
   }
@@ -476,7 +473,7 @@ void file_copy(const char *zFrom, const char *zTo){
   char zBuf[8192];
   in = fossil_fopen(zFrom, "rb");
   if( in==0 ) fossil_fatal("cannot open \"%s\" for reading", zFrom);
-  file_mkfolder(zTo, 0, 0);
+  file_mkfolder(zTo, ExtFILE, 0, 0);
   out = fossil_fopen(zTo, "wb");
   if( out==0 ) fossil_fatal("cannot open \"%s\" for writing", zTo);
   while( (got=fread(zBuf, 1, sizeof(zBuf), in))>0 ){
@@ -505,12 +502,18 @@ void test_file_copy(void){
 /*
 ** Set or clear the execute bit on a file.  Return true if a change
 ** occurred and false if this routine is a no-op.
+**
+** This routine assumes RepoFILE as the eFType.  In other words, if
+** zFilename is a symbolic link, it is the object that zFilename points
+** to that is modified.
 */
-int file_wd_setexe(const char *zFilename, int onoff){
+int file_setexe(const char *zFilename, int onoff){
   int rc = 0;
 #if !defined(_WIN32)
   struct stat buf;
-  if( fossil_stat(zFilename, &buf, 1)!=0 || S_ISLNK(buf.st_mode) ) return 0;
+  if( fossil_stat(zFilename, &buf, RepoFILE)!=0 || S_ISLNK(buf.st_mode) ){
+    return 0;
+  }
   if( onoff ){
     int targetMode = (buf.st_mode & 0444)>>2;
     if( (buf.st_mode & 0100)==0 ){
@@ -567,13 +570,16 @@ void test_set_mtime(void){
   iMTime = db_int64(0, "SELECT strftime('%%s',%Q)", g.argv[3]);
   zFile = g.argv[2];
   file_set_mtime(zFile, iMTime);
-  iMTime = file_wd_mtime(zFile);
+  iMTime = file_mtime(zFile, RepoFILE);
   zDate = db_text(0, "SELECT datetime(%lld, 'unixepoch')", iMTime);
   fossil_print("Set mtime of \"%s\" to %s (%lld)\n", zFile, zDate, iMTime);
 }
 
 /*
 ** Delete a file.
+**
+** If zFilename is a symbolic link, then it is the link itself that is
+** removed, not the object that zFilename points to.
 **
 ** Returns zero upon success.
 */
@@ -591,14 +597,14 @@ int file_delete(const char *zFilename){
 }
 
 /*
-** Create the directory named in the argument, if it does not already
-** exist.  If forceFlag is 1, delete any prior non-directory object
+** Create a directory called zName, if it does not already exist.
+** If forceFlag is 1, delete any prior non-directory object
 ** with the same name.
 **
 ** Return the number of errors.
 */
-int file_mkdir(const char *zName, int forceFlag){
-  int rc = file_wd_isdir(zName);
+int file_mkdir(const char *zName, int eFType, int forceFlag){
+  int rc = file_isdir(zName, eFType);
   if( rc==2 ){
     if( !forceFlag ) return 1;
     file_delete(zName);
@@ -624,7 +630,12 @@ int file_mkdir(const char *zName, int forceFlag){
 ** On success, return zero.  On error, return errorReturn if positive, otherwise
 ** print an error message and abort.
 */
-int file_mkfolder(const char *zFilename, int forceFlag, int errorReturn){
+int file_mkfolder(
+  const char *zFilename,   /* Pathname showing directories to be created */
+  int eFType,              /* Follow symlinks if ExtFILE */
+  int forceFlag,           /* Delete non-directory objects in the way */
+  int errorReturn          /* What to do when an error is seen */
+){
   int nName, rc = 0;
   char *zName;
 
@@ -634,10 +645,12 @@ int file_mkfolder(const char *zFilename, int forceFlag, int errorReturn){
   while( nName>0 && zName[nName-1]!='/' ){ nName--; }
   if( nName ){
     zName[nName-1] = 0;
-    if( file_wd_isdir(zName)!=1 ){
-      rc = file_mkfolder(zName, forceFlag, errorReturn);
+    if( file_isdir(zName, eFType)!=1 ){
+      rc = file_mkfolder(zName, eFType, forceFlag, errorReturn);
       if( rc==0 ){
-        if( file_mkdir(zName, forceFlag) && file_wd_isdir(zName)!=1 ){
+        if( file_mkdir(zName, eFType, forceFlag)
+         && file_isdir(zName, eFType)!=1
+        ){
           if( errorReturn <= 0 ){
             fossil_fatal_recursive("unable to create directory %s", zName);
           }
@@ -657,7 +670,7 @@ int file_mkfolder(const char *zFilename, int forceFlag, int errorReturn){
 ** Returns zero upon success.
 */
 int file_rmdir(const char *zName){
-  int rc = file_wd_isdir(zName);
+  int rc = file_isdir(zName, RepoFILE);
   if( rc==2 ) return 1; /* cannot remove normal file */
   if( rc==1 ){
 #if defined(_WIN32)
@@ -962,50 +975,66 @@ void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
 */
 static void emitFileStat(
   const char *zPath,
-  int raw,
   int slash,
   int reset
 ){
-  char zBuf[100];
+  char zBuf[200];
+  char *z;
   Blob x;
+  int rc;
+  sqlite3_int64 iMtime;
+  struct fossilStat testFileStat;
   memset(zBuf, 0, sizeof(zBuf));
   blob_zero(&x);
   file_canonical_name(zPath, &x, slash);
-  fossil_print("%s[%s] -> [%s]\n", raw ? "RAW " : "", zPath, blob_buffer(&x));
+  fossil_print("[%s] -> [%s]\n", zPath, blob_buffer(&x));
   blob_reset(&x);
-  if( raw ){
-    int rc;
-    struct fossilStat testFileStat;
-    memset(&testFileStat, 0, sizeof(struct fossilStat));
-    rc = fossil_stat(zPath, &testFileStat, 0);
-    fossil_print("  stat_rc      = %d\n", rc);
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_size);
-    fossil_print("  stat_size    = %s\n", zBuf);
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_mtime);
-    fossil_print("  stat_mtime   = %s\n", zBuf);
-    fossil_print("  stat_mode    = %d\n", testFileStat.st_mode);
-    memset(&testFileStat, 0, sizeof(struct fossilStat));
-    rc = fossil_stat(zPath, &testFileStat, 1);
-    fossil_print("  l_stat_rc    = %d\n", rc);
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_size);
-    fossil_print("  l_stat_size  = %s\n", zBuf);
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_mtime);
-    fossil_print("  l_stat_mtime = %s\n", zBuf);
-    fossil_print("  l_stat_mode  = %d\n", testFileStat.st_mode);
-  }else{
-    if( reset ) resetStat();
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_wd_size(zPath));
-    fossil_print("  file_size           = %s\n", zBuf);
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_wd_mtime(zPath));
-    fossil_print("  file_mtime          = %s\n", zBuf);
-    fossil_print("  file_mode           = %d\n", file_wd_mode(zPath));
-    fossil_print("  file_isfile         = %d\n", file_wd_isfile(zPath));
-    fossil_print("  file_isfile_or_link = %d\n", file_wd_isfile_or_link(zPath));
-    fossil_print("  file_islink         = %d\n", file_wd_islink(zPath));
-    fossil_print("  file_isexe          = %d\n", file_wd_isexe(zPath));
-    fossil_print("  file_isdir          = %d\n", file_wd_isdir(zPath));
-    if( reset ) resetStat();
-  }
+  memset(&testFileStat, 0, sizeof(struct fossilStat));
+  rc = fossil_stat(zPath, &testFileStat, 0);
+  fossil_print("  stat_rc                = %d\n", rc);
+  sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_size);
+  fossil_print("  stat_size              = %s\n", zBuf);
+  z = db_text(0, "SELECT datetime(%lld, 'unixepoch')", testFileStat.st_mtime);
+  sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld (%s)", testFileStat.st_mtime, z);
+  fossil_free(z);
+  fossil_print("  stat_mtime             = %s\n", zBuf);
+  fossil_print("  stat_mode              = 0%o\n", testFileStat.st_mode);
+  memset(&testFileStat, 0, sizeof(struct fossilStat));
+  rc = fossil_stat(zPath, &testFileStat, 1);
+  fossil_print("  l_stat_rc              = %d\n", rc);
+  sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_size);
+  fossil_print("  l_stat_size            = %s\n", zBuf);
+  z = db_text(0, "SELECT datetime(%lld, 'unixepoch')", testFileStat.st_mtime);
+  sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld (%s)", testFileStat.st_mtime, z);
+  fossil_free(z);
+  fossil_print("  l_stat_mtime           = %s\n", zBuf);
+  fossil_print("  l_stat_mode            = 0%o\n", testFileStat.st_mode);
+  if( reset ) resetStat();
+  sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_size(zPath,ExtFILE));
+  fossil_print("  file_size(ExtFILE)     = %s\n", zBuf);
+  iMtime = file_mtime(zPath, ExtFILE);
+  z = db_text(0, "SELECT datetime(%lld, 'unixepoch')", iMtime);
+  sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld (%s)", iMtime, z);
+  fossil_free(z);
+  fossil_print("  file_mtime(ExtFILE)    = %s\n", zBuf);
+  fossil_print("  file_mode(ExtFILE)     = 0%o\n", file_mode(zPath,ExtFILE));
+  fossil_print("  file_isfile(ExtFILE)   = %d\n", file_isfile(zPath,ExtFILE));
+  fossil_print("  file_isdir(ExtFILE)    = %d\n", file_isdir(zPath,ExtFILE));
+  if( reset ) resetStat();
+  sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_size(zPath,RepoFILE));
+  fossil_print("  file_size(RepoFILE)    = %s\n", zBuf);
+  iMtime = file_mtime(zPath,RepoFILE);
+  z = db_text(0, "SELECT datetime(%lld, 'unixepoch')", iMtime);
+  sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld (%s)", iMtime, z);
+  fossil_free(z);
+  fossil_print("  file_mtime(RepoFILE)   = %s\n", zBuf);
+  fossil_print("  file_mode(RepoFILE)    = 0%o\n", file_mode(zPath,RepoFILE));
+  fossil_print("  file_isfile(RepoFILE)  = %d\n", file_isfile(zPath,RepoFILE));
+  fossil_print("  file_isfile_or_link    = %d\n", file_isfile_or_link(zPath));
+  fossil_print("  file_islink            = %d\n", file_islink(zPath));
+  fossil_print("  file_isexe(RepoFILE)   = %d\n", file_isexe(zPath,RepoFILE));
+  fossil_print("  file_isdir(RepoFILE)   = %d\n", file_isdir(zPath,RepoFILE));
+  if( reset ) resetStat();
 }
 
 /*
@@ -1018,25 +1047,30 @@ static void emitFileStat(
 **
 ** Options:
 **
-**     --open-config        Open the configuration database first.
-**     --slash              Trailing slashes, if any, are retained.
-**     --reset              Reset cached stat() info for each file.
+**     --allow-symlinks BOOLEAN     Temporarily turn allow-symlinks on/off
+**     --open-config                Open the configuration database first.
+**     --slash                      Trailing slashes, if any, are retained.
+**     --reset                      Reset cached stat() info for each file.
 */
 void cmd_test_file_environment(void){
   int i;
   int slashFlag = find_option("slash",0,0)!=0;
   int resetFlag = find_option("reset",0,0)!=0;
+  const char *zAllow = find_option("allow-symlinks",0,1);
   if( find_option("open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
   }
+  db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
   fossil_print("filenames_are_case_sensitive() = %d\n",
                filenames_are_case_sensitive());
   fossil_print("db_allow_symlinks_by_default() = %d\n",
                db_allow_symlinks_by_default());
+  if( zAllow ){
+    g.allowSymlinks = !is_false(zAllow);
+  }
   fossil_print("db_allow_symlinks() = %d\n", db_allow_symlinks());
   for(i=2; i<g.argc; i++){
-    emitFileStat(g.argv[i], 1, slashFlag, resetFlag);
-    emitFileStat(g.argv[i], 0, slashFlag, resetFlag);
+    emitFileStat(g.argv[i], slashFlag, resetFlag);
   }
 }
 
@@ -1059,15 +1093,15 @@ void cmd_test_canonical_name(void){
     file_canonical_name(zName, &x, slashFlag);
     fossil_print("[%s] -> [%s]\n", zName, blob_buffer(&x));
     blob_reset(&x);
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_wd_size(zName));
-    fossil_print("  file_size   = %s\n", zBuf);
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_wd_mtime(zName));
-    fossil_print("  file_mtime  = %s\n", zBuf);
-    fossil_print("  file_isfile = %d\n", file_wd_isfile(zName));
-    fossil_print("  file_isfile_or_link = %d\n",file_wd_isfile_or_link(zName));
-    fossil_print("  file_islink = %d\n", file_wd_islink(zName));
-    fossil_print("  file_isexe  = %d\n", file_wd_isexe(zName));
-    fossil_print("  file_isdir  = %d\n", file_wd_isdir(zName));
+    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_size(zName,RepoFILE));
+    fossil_print("  file_size           = %s\n", zBuf);
+    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_mtime(zName,RepoFILE));
+    fossil_print("  file_mtime          = %s\n", zBuf);
+    fossil_print("  file_isfile         = %d\n", file_isfile(zName,RepoFILE));
+    fossil_print("  file_isfile_or_link = %d\n", file_isfile_or_link(zName));
+    fossil_print("  file_islink         = %d\n", file_islink(zName));
+    fossil_print("  file_isexe          = %d\n", file_isexe(zName,RepoFILE));
+    fossil_print("  file_isdir          = %d\n", file_isdir(zName,RepoFILE));
   }
 }
 
@@ -1407,7 +1441,7 @@ void file_tempname(Blob *pBuf, const char *zPrefix){
 
   for(i=0; i<count(azDirs); i++){
     if( azDirs[i]==0 ) continue;
-    if( !file_isdir(azDirs[i]) ) continue;
+    if( !file_isdir(azDirs[i], ExtFILE) ) continue;
     zDir = azDirs[i];
     break;
   }
@@ -1421,7 +1455,7 @@ void file_tempname(Blob *pBuf, const char *zPrefix){
     }
     zRand[15] = 0;
     blob_appendf(pBuf, "%s/%s-%s.txt", zDir, zPrefix ? zPrefix : "", zRand);
-  }while( file_size(blob_str(pBuf))>=0 );
+  }while( file_size(blob_str(pBuf), ExtFILE)>=0 );
 
 #if defined(_WIN32)
   fossil_path_free((char *)azDirs[0]);
@@ -1458,20 +1492,18 @@ void file_test_tempname(void){
 ** Return true if a file named zName exists and has identical content
 ** to the blob pContent.  If zName does not exist or if the content is
 ** different in any way, then return false.
+**
+** This routine assumes RepoFILE
 */
 int file_is_the_same(Blob *pContent, const char *zName){
   i64 iSize;
   int rc;
   Blob onDisk;
 
-  iSize = file_wd_size(zName);
+  iSize = file_size(zName, RepoFILE);
   if( iSize<0 ) return 0;
   if( iSize!=blob_size(pContent) ) return 0;
-  if( file_wd_islink(zName) ){
-    blob_read_link(&onDisk, zName);
-  }else{
-    blob_read_from_file(&onDisk, zName);
-  }
+  blob_read_from_file(&onDisk, zName, RepoFILE);
   rc = blob_compare(&onDisk, pContent);
   blob_reset(&onDisk);
   return rc==0;
@@ -1514,6 +1546,9 @@ int fossil_setenv(const char *zName, const char *zValue){
 
 /*
 ** Like fopen() but always takes a UTF8 argument.
+**
+** This function assumes ExtFILE. In other words, symbolic links
+** are always followed.
 */
 FILE *fossil_fopen(const char *zName, const char *zMode){
 #ifdef _WIN32

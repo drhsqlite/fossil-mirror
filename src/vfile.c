@@ -204,16 +204,16 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
     oldChnged = chnged = db_column_int(&q, 4);
     oldMtime = db_column_int64(&q, 7);
     origSize = db_column_int64(&q, 6);
-    currentSize = file_wd_size(zName);
-    currentMtime = file_wd_mtime(0);
+    currentSize = file_size(zName, RepoFILE);
+    currentMtime = file_mtime(0, 0);
 #ifndef _WIN32
     origPerm = db_column_int(&q, 8);
-    currentPerm = file_wd_perm(zName);
+    currentPerm = file_perm(zName, RepoFILE);
 #endif
     if( chnged==0 && (isDeleted || rid==0) ){
       /* "fossil rm" or "fossil add" always change the file */
       chnged = 1;
-    }else if( !file_wd_isfile_or_link(0) && currentSize>=0 ){
+    }else if( !file_isfile_or_link(0) && currentSize>=0 ){
       if( cksigFlags & CKSIG_ENOTFILE ){
         fossil_warning("not an ordinary file: %s", zName);
         nErr++;
@@ -249,7 +249,7 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
       if( mtime_of_manifest_file(vid,rid,&desiredMtime)==0 ){
         if( currentMtime!=desiredMtime ){
           file_set_mtime(zName, desiredMtime);
-          currentMtime = file_wd_mtime(zName);
+          currentMtime = file_mtime(zName, RepoFILE);
         }
       }
     }
@@ -318,13 +318,13 @@ void vfile_to_disk(
     content_get(rid, &content);
     if( file_is_the_same(&content, zName) ){
       blob_reset(&content);
-      if( file_wd_setexe(zName, isExe) ){
+      if( file_setexe(zName, isExe) ){
         db_multi_exec("UPDATE vfile SET mtime=%lld WHERE id=%d",
-                      file_wd_mtime(zName), id);
+                      file_mtime(zName, RepoFILE), id);
       }
       continue;
     }
-    if( promptFlag && file_wd_size(zName)>=0 ){
+    if( promptFlag && file_size(zName, RepoFILE)>=0 ){
       Blob ans;
       char *zMsg;
       char cReply;
@@ -341,11 +341,11 @@ void vfile_to_disk(
       }
     }
     if( verbose ) fossil_print("%s\n", &zName[nRepos]);
-    if( file_wd_isdir(zName)==1 ){
+    if( file_isdir(zName, RepoFILE)==1 ){
       /*TODO(dchest): remove directories? */
       fossil_fatal("%s is directory, cannot overwrite", zName);
     }
-    if( file_wd_size(zName)>=0 && (isLink || file_wd_islink(0)) ){
+    if( file_size(zName, RepoFILE)>=0 && (isLink || file_islink(0)) ){
       file_delete(zName);
     }
     if( isLink ){
@@ -353,10 +353,10 @@ void vfile_to_disk(
     }else{
       blob_write_to_file(&content, zName);
     }
-    file_wd_setexe(zName, isExe);
+    file_setexe(zName, isExe);
     blob_reset(&content);
     db_multi_exec("UPDATE vfile SET mtime=%lld WHERE id=%d",
-                  file_wd_mtime(zName), id);
+                  file_mtime(zName, RepoFILE), id);
   }
   db_finalize(&q);
 }
@@ -389,11 +389,11 @@ int vfile_top_of_checkout(const char *zPath){
   int fileFound = 0;
 
   zFile = mprintf("%s/_FOSSIL_", zPath);
-  fileFound = file_size(zFile)>=1024;
+  fileFound = file_size(zFile, ExtFILE)>=1024;
   fossil_free(zFile);
   if( !fileFound ){
     zFile = mprintf("%s/.fslckout", zPath);
-    fileFound = file_size(zFile)>=1024;
+    fileFound = file_size(zFile, ExtFILE)>=1024;
     fossil_free(zFile);
   }
 
@@ -404,7 +404,7 @@ int vfile_top_of_checkout(const char *zPath){
   */
   if( !fileFound ){
     zFile = mprintf("%s/.fos", zPath);
-    fileFound = file_size(zFile)>=1024;
+    fileFound = file_size(zFile, ExtFILE)>=1024;
     fossil_free(zFile);
   }
   return fileFound;
@@ -524,26 +524,26 @@ void vfile_scan(
         /* do nothing */
 #ifdef _DIRENT_HAVE_D_TYPE
       }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
-          ? (file_wd_isdir(zPath)==1) : (pEntry->d_type==DT_DIR) ){
+          ? (file_isdir(zPath, RepoFILE)==1) : (pEntry->d_type==DT_DIR) ){
 #else
-      }else if( file_wd_isdir(zPath)==1 ){
+      }else if( file_isdir(zPath, RepoFILE)==1 ){
 #endif
         if( !vfile_top_of_checkout(zPath) ){
           vfile_scan(pPath, nPrefix, scanFlags, pIgnore1, pIgnore2);
         }
 #ifdef _DIRENT_HAVE_D_TYPE
       }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
-          ? (file_wd_isfile_or_link(zPath)) : (pEntry->d_type==DT_REG) ){
+          ? (file_isfile_or_link(zPath)) : (pEntry->d_type==DT_REG) ){
 #else
-      }else if( file_wd_isfile_or_link(zPath) ){
+      }else if( file_isfile_or_link(zPath) ){
 #endif
         if( (scanFlags & SCAN_TEMP)==0 || is_temporary_file(zUtf8) ){
           db_bind_text(&ins, ":file", &zPath[nPrefix+1]);
           if( scanFlags & SCAN_MTIME ){
-            db_bind_int(&ins, ":mtime", file_mtime(zPath));
+            db_bind_int(&ins, ":mtime", file_mtime(zPath, RepoFILE));
           }
           if( scanFlags & SCAN_SIZE ){
-            db_bind_int(&ins, ":size", file_size(zPath));
+            db_bind_int(&ins, ":size", file_size(zPath, RepoFILE));
           }
           db_step(&ins);
           db_reset(&ins);
@@ -644,9 +644,9 @@ int vfile_dir_scan(
         /* do nothing */
 #ifdef _DIRENT_HAVE_D_TYPE
       }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
-          ? (file_wd_isdir(zPath)==1) : (pEntry->d_type==DT_DIR) ){
+          ? (file_isdir(zPath, RepoFILE)==1) : (pEntry->d_type==DT_DIR) ){
 #else
-      }else if( file_wd_isdir(zPath)==1 ){
+      }else if( file_isdir(zPath, RepoFILE)==1 ){
 #endif
         if( (scanFlags & SCAN_NESTED) || !vfile_top_of_checkout(zPath) ){
           char *zSavePath = mprintf("%s", zPath);
@@ -661,9 +661,9 @@ int vfile_dir_scan(
         }
 #ifdef _DIRENT_HAVE_D_TYPE
       }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
-          ? (file_wd_isfile_or_link(zPath)) : (pEntry->d_type==DT_REG) ){
+          ? (file_isfile_or_link(zPath)) : (pEntry->d_type==DT_REG) ){
 #else
-      }else if( file_wd_isfile_or_link(zPath) ){
+      }else if( file_isfile_or_link(zPath) ){
 #endif
         db_bind_text(&upd, ":file", zOrigPath);
         db_step(&upd);
@@ -728,7 +728,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
 
     if( isSelected ){
       md5sum_step_text(zName, -1);
-      if( file_wd_islink(zFullpath) ){
+      if( file_islink(zFullpath) ){
         /* Instead of file content, use link destination path */
         Blob pathBuf;
 
@@ -788,7 +788,7 @@ char *write_blob_to_temp_file(Blob *pBlob){
     sqlite3_free(zOut);
     sqlite3_randomness(8, &r);
     zOut = sqlite3_mprintf("file-%08llx", r);
-  }while( file_size(zOut)>=0 );
+  }while( file_size(zOut, ExtFILE)>=0 );
   blob_write_to_file(pBlob, zOut);
   return zOut;
 }
@@ -817,11 +817,7 @@ void vfile_compare_repository_to_disk(int vid){
     int rid = db_column_int(&q, 2);
 
     blob_zero(&disk);
-    if( file_wd_islink(zFullpath) ){
-      rc = blob_read_link(&disk, zFullpath);
-    }else{
-      rc = blob_read_from_file(&disk, zFullpath);
-    }
+    rc = blob_read_from_file(&disk, zFullpath, RepoFILE);
     if( rc<0 ){
       fossil_print("ERROR: cannot read file [%s]\n", zFullpath);
       blob_reset(&disk);

@@ -355,11 +355,13 @@ void help_page(void){
 
     style_header("Help");
 
+    @ <a name='commands'></a>
     @ <h1>Available commands:</h1>
     @ <table border="0"><tr>
     for(i=j=0; i<MX_COMMAND; i++){
       const char *z = aCommand[i].zName;
       if( '/'==*z || strncmp(z,"test",4)==0 ) continue;
+      if( (aCommand[i].eCmdFlags & CMDFLAG_SETTING)!=0 ) continue;
       j++;
     }
     n = (j+5)/6;
@@ -368,6 +370,7 @@ void help_page(void){
       const char *zBoldOn  = aCommand[i].eCmdFlags&CMDFLAG_1ST_TIER?"<b>" :"";
       const char *zBoldOff = aCommand[i].eCmdFlags&CMDFLAG_1ST_TIER?"</b>":"";
       if( '/'==*z || strncmp(z,"test",4)==0 ) continue;
+      if( (aCommand[i].eCmdFlags & CMDFLAG_SETTING)!=0 ) continue;
       if( j==0 ){
         @ <td valign="top"><ul>
       }
@@ -383,6 +386,7 @@ void help_page(void){
     }
     @ </tr></table>
 
+    @ <a name='webpages'></a>
     @ <h1>Available web UI pages:</h1>
     @ <table border="0"><tr>
     for(i=j=0; i<MX_COMMAND; i++){
@@ -413,6 +417,7 @@ void help_page(void){
     }
     @ </tr></table>
 
+    @ <a name='unsupported'></a>
     @ <h1>Unsupported commands:</h1>
     @ <table border="0"><tr>
     for(i=j=0; i<MX_COMMAND; i++){
@@ -443,6 +448,7 @@ void help_page(void){
     }
     @ </tr></table>
 
+    @ <a name='settings'></a>
     @ <h1>Settings:</h1>
     @ <table border="0"><tr>
     for(i=j=0; i<MX_COMMAND; i++){
@@ -562,7 +568,7 @@ static void command_list(const char *zPrefix, int cmdMask){
 **
 **    %fossil help                Show common commands
 **    %fossil help -a|--all       Show both common and auxiliary commands
-**    %fossil help -s|--settings  Show setting names
+**    %fossil help -s|--setting   Show setting names
 **    %fossil help -t|--test      Show test commands only
 **    %fossil help -x|--aux       Show auxiliary commands only
 **    %fossil help -w|--www       Show list of webpages
@@ -655,6 +661,6 @@ void help_cmd(void){
 ** by the mkindex utility program and included with <page_index.h>.
 */
 const Setting *setting_info(int *pnCount){
-  if( pnCount ) *pnCount = (int)(sizeof(aSetting)/sizeof(aSetting[0]));
+  if( pnCount ) *pnCount = (int)(sizeof(aSetting)/sizeof(aSetting[0])) - 1;
   return aSetting;
 }

@@ -2017,10 +2017,10 @@ void test_rawdiff_cmd(void){
   int *R;
   u64 diffFlags = diff_options();
   if( g.argc<4 ) usage("FILE1 FILE2 ...");
-  blob_read_from_file(&a, g.argv[2]);
+  blob_read_from_file(&a, g.argv[2], ExtFILE);
   for(i=3; i<g.argc; i++){
     if( i>3 ) fossil_print("-------------------------------\n");
-    blob_read_from_file(&b, g.argv[i]);
+    blob_read_from_file(&b, g.argv[i], ExtFILE);
     R = text_diff(&a, &b, 0, 0, diffFlags);
     for(r=0; R[r] || R[r+1] || R[r+2]; r += 3){
       fossil_print(" copy %4d  delete %4d  insert %4d\n", R[r], R[r+1], R[r+2]);
@@ -2058,8 +2058,8 @@ void test_diff_cmd(void){
   verify_all_options();
   if( g.argc!=4 ) usage("FILE1 FILE2");
   diff_print_filenames(g.argv[2], g.argv[3], diffFlag);
-  blob_read_from_file(&a, g.argv[2]);
-  blob_read_from_file(&b, g.argv[3]);
+  blob_read_from_file(&a, g.argv[2], ExtFILE);
+  blob_read_from_file(&b, g.argv[3], ExtFILE);
   blob_zero(&out);
   text_diff(&a, &b, &out, pRe, diffFlag);
   blob_write_to_file(&out, "-");
@@ -2209,7 +2209,6 @@ static void annotate_file(
 ){
   Blob toAnnotate;       /* Text of the final (mid) version of the file */
   Blob step;             /* Text of previous revision */
-  Blob treename;         /* FILENAME translated to canonical form */
   int cid;               /* Selected check-in ID */
   int origid = 0;        /* The origin ID or zero */
   int rid;               /* Artifact ID of the file being annotated */
@@ -2256,9 +2255,10 @@ static void annotate_file(
   }
 
   /* Get filename ID */
-  file_tree_name(zFilename, &treename, 0, 1);
-  zFilename = blob_str(&treename);
   fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
+  if( fnid==0 ){
+    fossil_fatal("no such file: %Q", zFilename);
+  }
 
   db_prepare(&q,
     "SELECT DISTINCT"
@@ -2425,7 +2425,7 @@ void annotation_page(void){
   url_add_parameter(&url, "log", showLog ? "1" : "0");
   url_add_parameter(&url, "filevers", fileVers ? "1" : "0");
   style_submenu_checkbox("w", "Ignore Whitespace", 0, 0);
-  style_submenu_checkbox("log", "Log", 0, "toggle_annotation_log()");
+  style_submenu_checkbox("log", "Log", 0, "toggle_annotation_log");
   style_submenu_checkbox("filevers", "Link to Files", 0, 0);
   if( ann.bMoreToDo ){
     style_submenu_element("All Ancestors", "%s",
@@ -2460,13 +2460,6 @@ void annotation_page(void){
   @ </ol>
   @ <hr />
   @ </div>
-  @ <script>
-  @ function toggle_annotation_log(){
-  @   var w = gebi("annotation_log");
-  @   var x = document.forms["f01"].elements["log"].checked
-  @   w.style.display = x ? "block" : "none";
-  @ }
-  @ </script>
 
   if( !ann.bMoreToDo ){
     assert( ann.origId==0 );  /* bMoreToDo always set for a point-to-point */
@@ -2578,6 +2571,8 @@ void annotate_cmd(void){
   u64 annFlags = 0;      /* Flags to control annotation properties */
   int bBlame = 0;        /* True for BLAME output.  False for ANNOTATE. */
   int szHash;            /* Display size of a version hash */
+  Blob treename;         /* Name of file to be annotated */
+  char *zFilename;       /* Name of file to be annotated */
 
   bBlame = g.argv[1][0]!='a';
   zRevision = find_option("r","revision",1);
@@ -2601,7 +2596,9 @@ void annotate_cmd(void){
   }
 
   annFlags |= DIFF_STRIP_EOLCR;
-  annotate_file(&ann, g.argv[2], zRevision, zLimit, zOrig, annFlags);
+  file_tree_name(g.argv[2], &treename, 0, 1);
+  zFilename = blob_str(&treename);
+  annotate_file(&ann, zFilename, zRevision, zLimit, zOrig, annFlags);
   if( showLog ){
     struct AnnVers *p;
     for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){

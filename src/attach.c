@@ -766,7 +766,7 @@ void attachment_cmd(void){
       );
       zFile = g.argv[3];
     }
-    blob_read_from_file(&content, zFile);
+    blob_read_from_file(&content, zFile, ExtFILE);
     user_select();
     attach_commit(
       zFile,                   /* The filename of the attachment */

@@ -340,7 +340,7 @@ static int safeInt(const char *z){
 ** The old format is retained for backwards compatibility, but is deprecated.
 ** The cutover from old format to new was on 2011-04-25.  After sufficient
 ** time has passed, support for the old format will be removed.
-** Update: Support for the old format was remoed on 2017-09-20.
+** Update: Support for the old format was removed on 2017-09-20.
 **
 ** zName is either the NAME of an element of the CONFIG table, or else
 ** one of the special names "@shun", "@reportfmt", "@user", or "@concealed".
@@ -731,7 +731,7 @@ void configuration_cmd(void){
     Blob in;
     int groupMask;
     if( g.argc!=4 ) usage(mprintf("%s FILENAME",zMethod));
-    blob_read_from_file(&in, g.argv[3]);
+    blob_read_from_file(&in, g.argv[3], ExtFILE);
     db_begin_transaction();
     if( zMethod[0]=='i' ){
       groupMask = CONFIGSET_ALL | CONFIGSET_OVERWRITE;
@@ -985,9 +985,9 @@ void test_var_set_cmd(void){
   zVar = g.argv[2];
   if( zFile ){
     if( zBlob ) fossil_fatal("cannot do both --file or --blob");
-    blob_read_from_file(&x, zFile);
+    blob_read_from_file(&x, zFile, ExtFILE);
   }else if( zBlob ){
-    blob_read_from_file(&x, zBlob);
+    blob_read_from_file(&x, zBlob, ExtFILE);
   }else{
     blob_init(&x,g.argv[3],-1);
   }

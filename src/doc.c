@@ -384,7 +384,8 @@ void mimetype_list_page(void){
   @ <p>The Fossil <a href="%R/help?cmd=/doc">/doc</a> page uses filename
   @ suffixes and the following table to guess at the appropriate mimetype
   @ for each document.</p>
-  @ <table id='mimeTable' border=1 cellpadding=0 class='mimetypetable'>
+  @ <table class='sortable mimetypetable' border=1 cellpadding=0 \
+  @ data-column-types='tt' data-init-sort='1'>
   @ <thead>
   @ <tr><th>Suffix<th>Mimetype
   @ </thead>
@@ -393,7 +394,7 @@ void mimetype_list_page(void){
     @ <tr><td>%h(aMime[i].zSuffix)<td>%h(aMime[i].zMimetype)</tr>
   }
   @ </tbody></table>
-  output_table_sorting_javascript("mimeTable","tt",1);
+  style_table_sorter();
   style_footer();
 }
 
@@ -575,7 +576,7 @@ static void convert_href_and_output(Blob *pIn){
 ** to the top-level of the repository.
 */
 void doc_page(void){
-  const char *zName;                /* Argument to the /doc page */
+  const char *zName = 0;            /* Argument to the /doc page */
   const char *zOrigName = "?";      /* Original document name */
   const char *zMime;                /* Document MIME type */
   char *zCheckin = "tip";           /* The check-in holding the document */
@@ -651,8 +652,8 @@ void doc_page(void){
       char *zFullpath;
       db_must_be_within_tree();
       zFullpath = mprintf("%s/%s", g.zLocalRoot, zName);
-      if( file_isfile(zFullpath)
-       && blob_read_from_file(&filebody, zFullpath)>0 ){
+      if( file_isfile(zFullpath, RepoFILE)
+       && blob_read_from_file(&filebody, zFullpath, RepoFILE)>0 ){
         rid = 1;  /* Fake RID just to get the loop to end */
       }
       fossil_free(zFullpath);

@@ -1,26 +1,14 @@
-<html>
-  <head>
-    <base href="$baseurl/$current_page" />
-    <title>$<project_name>: $<title></title>
-      <link rel="alternate" type="application/rss+xml" title="RSS Feed"
-            href="$home/timeline.rss" />
-      <link rel="stylesheet" href="$stylesheet_url" type="text/css"
-            media="screen" />
-  </head>
-
-  <body>
-    <div class="header">
-      <div class="title"><h1>$<project_name></h1>$<title></div>
-        <div class="status"><th1>
-     if {[info exists login]} {
-       html "$login — <a href='$home/login'>Logout</a>\n"
-     } else {
-       html "<a href='$home/login'>Login</a>\n"
-     }
-        </th1></div>
-    </div>
-
-    <div class="mainmenu">
+<div class="header">
+  <div class="title"><h1>$<project_name></h1>$<title></div>
+    <div class="status"><th1>
+ if {[info exists login]} {
+   html "$login — <a href='$home/login'>Logout</a>\n"
+ } else {
+   html "<a href='$home/login'>Login</a>\n"
+ }
+    </th1></div>
+</div>
+<div class="mainmenu">
 <th1>
 proc menulink {url name} {
   upvar current_page current

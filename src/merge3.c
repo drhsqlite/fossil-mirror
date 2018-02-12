@@ -335,7 +335,7 @@ int contains_merge_marker(Blob *p){
 int file_contains_merge_marker(const char *zFullpath){
   Blob file;
   int rc;
-  blob_read_from_file(&file, zFullpath);
+  blob_read_from_file(&file, zFullpath, ExtFILE);
   rc = contains_merge_marker(&file);
   blob_reset(&file);
   return rc;
@@ -378,13 +378,13 @@ void delta_3waymerge_cmd(void){
   if( g.argc!=6 ){
     usage("PIVOT V1 V2 MERGED");
   }
-  if( blob_read_from_file(&pivot, g.argv[2])<0 ){
+  if( blob_read_from_file(&pivot, g.argv[2], ExtFILE)<0 ){
     fossil_fatal("cannot read %s", g.argv[2]);
   }
-  if( blob_read_from_file(&v1, g.argv[3])<0 ){
+  if( blob_read_from_file(&v1, g.argv[3], ExtFILE)<0 ){
     fossil_fatal("cannot read %s", g.argv[3]);
   }
-  if( blob_read_from_file(&v2, g.argv[4])<0 ){
+  if( blob_read_from_file(&v2, g.argv[4], ExtFILE)<0 ){
     fossil_fatal("cannot read %s", g.argv[4]);
   }
   nConflict = blob_merge(&pivot, &v1, &v2, &merged);
@@ -468,7 +468,7 @@ int merge_3way(
   Blob v1;            /* Content of zV1 */
   int rc;             /* Return code of subroutines and this routine */
 
-  blob_read_from_file(&v1, zV1);
+  blob_read_from_file(&v1, zV1, ExtFILE);
   rc = blob_merge(pPivot, &v1, pV2, pOut);
   if( rc!=0 && (mergeFlags & MERGE_DRYRUN)==0 ){
     char *zPivot;       /* Name of the pivot file */
@@ -498,8 +498,8 @@ int merge_3way(
         zCmd = string_subst(zGMerge, 8, azSubst);
         printf("%s\n", zCmd); fflush(stdout);
         fossil_system(zCmd);
-        if( file_wd_size(zOut)>=0 ){
-          blob_read_from_file(pOut, zOut);
+        if( file_size(zOut, RepoFILE)>=0 ){
+          blob_read_from_file(pOut, zOut, ExtFILE);
           file_delete(zPivot);
           file_delete(zOrig);
           file_delete(zOther);

@@ -29,10 +29,13 @@
 ** timeline corresponds to a row in the graph.  GraphRow.idx is 0 for
 ** the top-most row and increases moving down.  Hence (in the absence of
 ** time skew) parents have a larger index than their children.
+**
+** The nParent field is -1 for entires that do not participate in the graph
+** but which are included just so that we can capture their background color.
 */
 struct GraphRow {
   int rid;                    /* The rid for the check-in */
-  i8 nParent;                 /* Number of parents */
+  i8 nParent;                 /* Number of parents.  -1 for technote lines */
   int *aParent;               /* Array of parents.  0 element is primary .*/
   char *zBranch;              /* Branch name */
   char *zBgClr;               /* Background Color */
@@ -190,9 +193,9 @@ int graph_add_row(
 
   if( p->nErr ) return 0;
   nByte = sizeof(GraphRow);
-  nByte += sizeof(pRow->aParent[0])*nParent;
+  if( nParent>0 ) nByte += sizeof(pRow->aParent[0])*nParent;
   pRow = (GraphRow*)safeMalloc( nByte );
-  pRow->aParent = (int*)&pRow[1];
+  pRow->aParent = nParent>0 ? (int*)&pRow[1] : 0;
   pRow->rid = rid;
   pRow->nParent = nParent;
   pRow->zBranch = persistBranchName(p, zBranch);
@@ -202,7 +205,7 @@ int graph_add_row(
   memset(pRow->aiRiser, -1, sizeof(pRow->aiRiser));
   if( zBgClr==0 ) zBgClr = "";
   pRow->zBgClr = persistBranchName(p, zBgClr);
-  memcpy(pRow->aParent, aParent, sizeof(aParent[0])*nParent);
+  if( nParent>0 ) memcpy(pRow->aParent, aParent, sizeof(aParent[0])*nParent);
   if( p->pFirst==0 ){
     p->pFirst = pRow;
   }else{
@@ -434,7 +437,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
   */
   for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
     if( pRow->isDup ) continue;
-    if( pRow->nParent==0 ) continue;                   /* Root node */
+    if( pRow->nParent<=0 ) continue;                   /* Root node */
     pParent = hashFind(p, pRow->aParent[0]);
     if( pParent==0 ) continue;                         /* Parent off-screen */
     if( pParent->zBranch!=pRow->zBranch ) continue;    /* Different branch */
@@ -457,6 +460,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
   for(i=0; i<2; i++){
     for(pRow=p->pLast; pRow; pRow=pRow->pPrev){
       if( pRow->isDup ) continue;
+      if( pRow->nParent<0 ) continue;
       if( i==0 ){
         if( pRow->zBranch!=zTrunk ) continue;
       }else {
@@ -494,7 +498,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
       }
       continue;
     }
-    if( pRow->isDup ){
+    if( pRow->isDup || pRow->nParent<0 ){
       continue;
     }else{
       assert( pRow->nParent>0 );

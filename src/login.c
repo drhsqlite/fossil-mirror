@@ -634,7 +634,14 @@ void login_page(void){
       @ <p>Login as a named user to access page <b>%h(zAbbrev)</b>.
     }
   }
-  form_begin(0, "%R/login");
+  if( g.sslNotAvailable==0
+   && strncmp(g.zBaseURL,"https:",6)!=0
+   && db_get_boolean("https-login",0)
+  ){
+    form_begin(0, "https:%s/login", g.zBaseURL+5);
+  }else{
+    form_begin(0, "%R/login");
+  }
   if( zGoto ){
     @ <input type="hidden" name="g" value="%h(zGoto)" />
   }else if( zReferer && strncmp(g.zBaseURL, zReferer, strlen(g.zBaseURL))==0 ){
@@ -669,24 +676,9 @@ void login_page(void){
   }
   @ <tr>
   @   <td></td>
-  @   <td><input type="submit" name="in" value="Login"
-  @        onClick="chngAction(this.form)" /></td>
+  @   <td><input type="submit" name="in" value="Login">
   @ </tr>
   @ </table>
-  @ <script>
-  @   gebi('u').focus()
-  @   function chngAction(form){
-  if( g.sslNotAvailable==0
-   && strncmp(g.zBaseURL,"https:",6)!=0
-   && db_get_boolean("https-login",0)
-  ){
-     char *zSSL = mprintf("https:%s", &g.zBaseURL[5]);
-     @  if( form.u.value!="anonymous" ){
-     @     form.action = "%h(zSSL)/login";
-     @  }
-  }
-  @ }
-  @ </script>
   @ <p>Pressing the Login button grants permission to store a cookie.</p>
   if( db_get_boolean("self-register", 0) ){
     @ <p>If you do not have an account, you can
@@ -705,8 +697,9 @@ void login_page(void){
     @ %h(zCaptcha)
     @ </pre></td></tr></table>
     if( bAutoCaptcha ) {
-        @ <input type="button" value="Fill out captcha"
-        @  onclick="gebi('u').value='anonymous'; gebi('p').value='%s(zDecoded)';" />
+       @ <input type="button" value="Fill out captcha" id='autofillButton' \
+       @ data-af='%s(zDecoded)' />
+       style_load_one_js_file("login.js");
     }
     @ </div>
     free(zCaptcha);
@@ -935,8 +928,8 @@ void login_check_credentials(void){
   ** full access rights without having to log in.
   */
   zRemoteAddr = ipPrefix(zIpAddr = PD("REMOTE_ADDR","nil"));
-  if( ( fossil_strcmp(zIpAddr, "127.0.0.1")==0 ||
-        (g.fSshClient & CGI_SSH_CLIENT)!=0 )
+  if( ( cgi_is_loopback(zIpAddr)
+       || (g.fSshClient & CGI_SSH_CLIENT)!=0 )
    && g.useLocalauth
    && db_get_int("localauth",0)==0
    && P("HTTPS")==0
@@ -1567,7 +1560,7 @@ int login_group_sql(
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zRepoName = db_column_text(&q, 1);
-    if( file_size(zRepoName)<0 ){
+    if( file_size(zRepoName, ExtFILE)<0 ){
       /* Silently remove non-existent repositories from the login group. */
       const char *zLabel = db_column_text(&q, 0);
       db_multi_exec(
@@ -1663,7 +1656,7 @@ void login_group_join(
   }
 
   /* Make sure the other repository is a valid Fossil database */
-  if( file_size(zRepo)<0 ){
+  if( file_size(zRepo, ExtFILE)<0 ){
     *pzErrMsg = mprintf("repository file \"%s\" does not exist", zRepo);
     return;
   }

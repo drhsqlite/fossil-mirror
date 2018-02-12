@@ -278,12 +278,6 @@ static struct FossilTimer {
 */
 int fossil_timer_start(){
   int i;
-  static char once = 0;
-  if(!once){
-    once = 1;
-    memset(&fossilTimerList, 0,
-           count(fossilTimerList));
-  }
   for( i = 0; i < FOSSIL_TIMER_COUNT; ++i ){
     struct FossilTimer * ft = &fossilTimerList[i];
     if(ft->id) continue;
@@ -491,3 +485,19 @@ void fossil_limit_memory(int onOff){
 #endif /* defined(RLIMIT_STACK) */
 #endif /* defined(__unix__) */
 }
+
+#if defined(HAVE_PLEDGE)
+/*
+** Interface to pledge() on OpenBSD 5.9 and later.
+**
+** On platforms that have pledge(), use this routine.
+** On all other platforms, this routine does not exist, but instead
+** a macro defined in config.h is used to provide a no-op.
+*/
+void fossil_pledge(const char *promises){
+  if( pledge(promises, 0) ){
+    fossil_fatal("pledge(\"%s\",NULL) fails with errno=%d",
+      promises, (int)errno);
+  }
+}
+#endif /* defined(HAVE_PLEDGE) */

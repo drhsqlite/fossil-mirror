@@ -1610,7 +1610,7 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
   }
   cson_value_free(colNamesV);
   if(warnMsg){
-    json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED, warnMsg );
+    json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED, "%s", warnMsg );
   }
   return cson_array_value(a);
 }
@@ -1930,8 +1930,9 @@ cson_value * json_page_stat(){
   cson_object_set(jo, "projectDescription", json_new_string(zTmp));
   free(zTmp);
   zTmp = NULL;
-  fsize = file_size(g.zRepositoryName);
-  cson_object_set(jo, "repositorySize", cson_value_new_integer((cson_int_t)fsize));
+  fsize = file_size(g.zRepositoryName, ExtFILE);
+  cson_object_set(jo, "repositorySize", 
+                  cson_value_new_integer((cson_int_t)fsize));
 
   if(full){
     n = db_int(0, "SELECT count(*) FROM blob");

@@ -1743,7 +1743,7 @@ void test_wiki_render(void){
   verify_all_options();
   if( g.argc!=3 ) usage("FILE");
   blob_zero(&out);
-  blob_read_from_file(&in, g.argv[2]);
+  blob_read_from_file(&in, g.argv[2], ExtFILE);
   wiki_convert(&in, &out, flags);
   blob_write_to_file(&out, "-");
 }
@@ -2106,7 +2106,7 @@ void test_html_tidy(void){
   int i;
 
   for(i=2; i<g.argc; i++){
-    blob_read_from_file(&in, g.argv[i]);
+    blob_read_from_file(&in, g.argv[i], ExtFILE);
     blob_zero(&out);
     htmlTidy(blob_str(&in), &out);
     blob_reset(&in);
@@ -2233,7 +2233,7 @@ void test_html_to_text(void){
   int i;
 
   for(i=2; i<g.argc; i++){
-    blob_read_from_file(&in, g.argv[i]);
+    blob_read_from_file(&in, g.argv[i], ExtFILE);
     blob_zero(&out);
     html_to_plaintext(blob_str(&in), &out);
     blob_reset(&in);

@@ -100,7 +100,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.0.2l
+SSLDIR    = $(B)\compat\openssl-1.0.2n
 SSLINCDIR = $(SSLDIR)\inc32
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)\out32dll
@@ -335,6 +335,9 @@ SQLITE_OPTIONS = /DNDEBUG=1 \
                  /DSQLITE_ENABLE_JSON1 \
                  /DSQLITE_ENABLE_FTS5 \
                  /DSQLITE_ENABLE_STMTVTAB \
+                 /DSQLITE_USE_ZLIB \
+                 /DSQLITE_INTROSPECTION_PRAGMAS \
+                 /DSQLITE_ENABLE_DBPAGE_VTAB \
                  /DSQLITE_WIN32_NO_ANSI
 
 SHELL_OPTIONS = /Dmain=sqlite3_shell \
@@ -371,6 +374,7 @@ SRC   = add_.c \
         comformat_.c \
         configure_.c \
         content_.c \
+        cookies_.c \
         db_.c \
         delta_.c \
         deltacmd_.c \
@@ -479,6 +483,10 @@ SRC   = add_.c \
         zip_.c
 
 EXTRA_FILES   = $(SRCDIR)\../skins/aht/details.txt \
+        $(SRCDIR)\../skins/ardoise/css.txt \
+        $(SRCDIR)\../skins/ardoise/details.txt \
+        $(SRCDIR)\../skins/ardoise/footer.txt \
+        $(SRCDIR)\../skins/ardoise/header.txt \
         $(SRCDIR)\../skins/black_and_white/css.txt \
         $(SRCDIR)\../skins/black_and_white/details.txt \
         $(SRCDIR)\../skins/black_and_white/footer.txt \
@@ -529,8 +537,20 @@ EXTRA_FILES   = $(SRCDIR)\../skins/aht/details.txt \
         $(SRCDIR)\../skins/xekri/details.txt \
         $(SRCDIR)\../skins/xekri/footer.txt \
         $(SRCDIR)\../skins/xekri/header.txt \
+        $(SRCDIR)\ci_edit.js \
         $(SRCDIR)\diff.tcl \
-        $(SRCDIR)\markdown.md
+        $(SRCDIR)\graph.js \
+        $(SRCDIR)\href.js \
+        $(SRCDIR)\login.js \
+        $(SRCDIR)\markdown.md \
+        $(SRCDIR)\menu.js \
+        $(SRCDIR)\sbsdiff.js \
+        $(SRCDIR)\scroll.js \
+        $(SRCDIR)\skin.js \
+        $(SRCDIR)\sorttable.js \
+        $(SRCDIR)\tree.js \
+        $(SRCDIR)\useredit.js \
+        $(SRCDIR)\wiki.wiki
 
 OBJ   = $(OX)\add$O \
         $(OX)\allrepo$O \
@@ -552,6 +572,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\comformat$O \
         $(OX)\configure$O \
         $(OX)\content$O \
+        $(OX)\cookies$O \
         $(OX)\cson_amalgamation$O \
         $(OX)\db$O \
         $(OX)\delta$O \
@@ -739,6 +760,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\comformat.obj >> $@
 	echo $(OX)\configure.obj >> $@
 	echo $(OX)\content.obj >> $@
+	echo $(OX)\cookies.obj >> $@
 	echo $(OX)\cson_amalgamation.obj >> $@
 	echo $(OX)\db.obj >> $@
 	echo $(OX)\delta.obj >> $@
@@ -874,6 +896,9 @@ mkbuiltin$E: $(SRCDIR)\mkbuiltin.c
 mkversion$E: $(SRCDIR)\mkversion.c
 	$(BCC) $**
 
+mkcss$E: $(SRCDIR)\mkcss.c
+	$(BCC) $**
+
 codecheck1$E: $(SRCDIR)\codecheck1.c
 	$(BCC) $**
 
@@ -907,8 +932,12 @@ $(OX)\miniz$O : $(SRCDIR)\miniz.c
 
 VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 	$** > $@
+
 $(OX)\cson_amalgamation$O : $(SRCDIR)\cson_amalgamation.c
 	$(TCC) /Fo$@ /c $**
+
+default_css.h: mkcss$E $(SRCDIR)\default_css.txt
+	$** $@
 
 page_index.h: mkindex$E $(SRC)
 	$** > $@
@@ -939,6 +968,8 @@ realclean: clean
 	del makeheaders$P 2>NUL
 	del mkversion$E 2>NUL
 	del mkversion$P 2>NUL
+	del mkcss$E 2>NUL
+	del mkcss$P 2>NUL
 	del codecheck1$E 2>NUL
 	del codecheck1$P 2>NUL
 	del mkbuiltin$E 2>NUL
@@ -1078,6 +1109,12 @@ $(OX)\content$O : content_.c content.h
 	$(TCC) /Fo$@ -c content_.c
 
 content_.c : $(SRCDIR)\content.c
+	translate$E $** > $@
+
+$(OX)\cookies$O : cookies_.c cookies.h
+	$(TCC) /Fo$@ -c cookies_.c
+
+cookies_.c : $(SRCDIR)\cookies.c
 	translate$E $** > $@
 
 $(OX)\db$O : db_.c db.h
@@ -1719,7 +1756,7 @@ zip_.c : $(SRCDIR)\zip.c
 fossil.res : $B\win\fossil.rc
 	$(RCC)  /fo $@ $**
 
-headers: makeheaders$E page_index.h builtin_data.h VERSION.h
+headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 	makeheaders$E add_.c:add.h \
 			allrepo_.c:allrepo.h \
 			attach_.c:attach.h \
@@ -1740,6 +1777,7 @@ headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 			comformat_.c:comformat.h \
 			configure_.c:configure.h \
 			content_.c:content.h \
+			cookies_.c:cookies.h \
 			db_.c:db.h \
 			delta_.c:delta.h \
 			deltacmd_.c:deltacmd.h \

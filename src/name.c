@@ -78,7 +78,7 @@ int start_of_branch(int rid, int inBranch){
 /*
 ** Convert a symbolic name into a RID.  Acceptable forms:
 **
-**   *  artifact hash
+**   *  artifact hash (optionally enclosed in [...])
 **   *  4-character or larger prefix of a artifact
 **   *  Symbolic Name
 **   *  "tag:" + symbolic name
@@ -114,6 +114,8 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   int nTag;
   int i;
   int startOfBranch = 0;
+  const char *zXTag;     /* zTag with optional [...] removed */
+  int nXTag;             /* Size of zXTag */
 
   if( zType==0 || zType[0]==0 ){
     zType = "*";
@@ -230,12 +232,24 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     return rid;
   }
 
+  /* Remove optional [...] */
+  zXTag = zTag;
+  nXTag = nTag;
+  if( zXTag[0]=='[' ){
+    zXTag++;
+    nXTag--;
+  }
+  if( nXTag>0 && zXTag[nXTag-1]==']' ){
+    nXTag--;
+  }
+
   /* artifact hash or prefix */
-  if( nTag>=4 && nTag<=HNAME_MAX && validate16(zTag, nTag) ){
+  if( nXTag>=4 && nXTag<=HNAME_MAX && validate16(zXTag, nXTag) ){
     Stmt q;
     char zUuid[HNAME_MAX+1];
-    memcpy(zUuid, zTag, nTag+1);
-    canonical16(zUuid, nTag);
+    memcpy(zUuid, zXTag, nXTag);
+    zUuid[nXTag] = 0;
+    canonical16(zUuid, nXTag);
     rid = 0;
     if( zType[0]=='*' ){
       db_prepare(&q, "SELECT rid FROM blob WHERE uuid GLOB '%q*'", zUuid);
@@ -1012,6 +1026,9 @@ void bloblist_page(void){
   if( g.perm.Admin ){
     style_submenu_element("Artifact Log", "rcvfromlist");
   }
+  if( g.perm.Write ){
+    style_submenu_element("Artifact Stats", "artifact_stats");
+  }
   if( !unpubOnly && mx>n && P("s")==0 ){
     int i;
     @ <p>Select a range of artifacts to view:</p>
@@ -1085,6 +1102,9 @@ void bigbloblist_page(void){
   if( g.perm.Admin ){
     style_submenu_element("Artifact Log", "rcvfromlist");
   }
+  if( g.perm.Write ){
+    style_submenu_element("Artifact Stats", "artifact_stats");
+  }
   style_submenu_element("All Artifacts", "bloblist");
   style_header("%d Largest Artifacts", n);
   db_multi_exec(
@@ -1103,7 +1123,8 @@ void bigbloblist_page(void){
     " WHERE description.rid=blob.rid"
     " ORDER BY length(content) DESC"
   );
-  @ <table cellpadding="2" cellspacing="0" border="1" id="bigblobtab">
+  @ <table cellpadding="2" cellspacing="0" border="1" \
+  @  class='sortable' data-column-types='NnnttT' data-init-sort='0'>
   @ <thead><tr><th align="right">Size<th align="right">RID
   @ <th align="right">Delta From<th>Hash<th>Description<th>Date</tr></thead>
   @ <tbody>
@@ -1124,7 +1145,7 @@ void bigbloblist_page(void){
   }
   @ </tbody></table>
   db_finalize(&q);
-  output_table_sorting_javascript("bigblobtab", "NnnttT", -1);
+  style_table_sorter();
   style_footer();
 }
 

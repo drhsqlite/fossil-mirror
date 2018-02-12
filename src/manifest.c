@@ -1028,7 +1028,7 @@ void manifest_test_parse_cmd(void){
   if( g.argc!=3 && g.argc!=4 ){
     usage("FILENAME");
   }
-  blob_read_from_file(&b, g.argv[2]);
+  blob_read_from_file(&b, g.argv[2], ExtFILE);
   if( g.argc>3 ) n = atoi(g.argv[3]);
   for(i=0; i<n; i++){
     Blob b2;

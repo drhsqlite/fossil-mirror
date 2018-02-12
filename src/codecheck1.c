@@ -144,6 +144,10 @@ static int token_length(const char *z, int *pType, int *pLN){
     *pType = TK_SPACE;
     return i;
   }
+  if( z[0]=='\\' && (z[1]=='\n' || (z[1]=='\r' && z[2]=='\n')) ){
+    *pType = TK_SPACE;
+    return 1;
+  }
   *pType = TK_OTHER;
   return 1;
 }
@@ -203,6 +207,7 @@ static const char *skip_space(const char *z){
 static int is_string_lit(const char *z){
   int nu1, nu2;
   z = next_non_whitespace(z, &nu1, &nu2);
+  if( strcmp(z, "NULL")==0 ) return 1;
   return z[0]=='"';
 }
 
@@ -312,20 +317,27 @@ struct {
   { "admin_log",               1, 0 },
   { "blob_append_sql",         2, FMT_NO_S },
   { "blob_appendf",            2, 0 },
+  { "cgi_debug",               1, 0 },
   { "cgi_panic",               1, 0 },
+  { "cgi_printf",              1, 0 },
   { "cgi_redirectf",           1, 0 },
+  { "chref",                   2, 0 },
   { "db_blob",                 2, FMT_NO_S },
+  { "db_debug",                1, FMT_NO_S },
   { "db_double",               2, FMT_NO_S },
   { "db_err",                  1, 0 },
   { "db_exists",               1, FMT_NO_S },
+  { "db_get_mprintf",          2, 0 },
   { "db_int",                  2, FMT_NO_S },
   { "db_int64",                2, FMT_NO_S },
   { "db_multi_exec",           1, FMT_NO_S },
   { "db_optional_sql",         2, FMT_NO_S },
   { "db_prepare",              2, FMT_NO_S },
   { "db_prepare_ignore_error", 2, FMT_NO_S },
+  { "db_set_mprintf",          3, 0 },
   { "db_static_prepare",       2, FMT_NO_S },
   { "db_text",                 2, FMT_NO_S },
+  { "db_unset_mprintf",        2, 0 },
   { "form_begin",              2, 0 },
   { "fossil_error",            2, 0 },
   { "fossil_errorlog",         1, 0 },
@@ -337,11 +349,15 @@ struct {
   { "fossil_warning",          1, 0 },
   { "href",                    1, 0 },
   { "json_new_string_f",       1, 0 },
+  { "json_set_err",            2, 0 },
+  { "json_warn",               2, 0 },
   { "mprintf",                 1, 0 },
   { "socket_set_errmsg",       1, 0 },
   { "ssl_set_errmsg",          1, 0 },
   { "style_header",            1, 0 },
   { "style_set_current_page",  1, 0 },
+  { "style_submenu_element",   2, 0 },
+  { "style_submenu_sql",       3, 0 },
   { "webpage_error",           1, 0 },
   { "xhref",                   2, 0 },
 };
@@ -468,8 +484,8 @@ static int checkFormatFunc(
     const char *zOverride = strstr(zFmt, "/*works-like:");
     if( zOverride ) zFmt = zOverride + sizeof("/*works-like:")-1;
     if( !is_string_lit(zFmt) ){
-      printf("%s:%d: %.*s() has non-constant format string\n",
-             zFilename, lnFCall, szFName, zFCall);
+      printf("%s:%d: %.*s() has non-constant format on arg[%d]\n",
+             zFilename, lnFCall, szFName, zFCall, fmtArg-1);
       nErr++;
     }else if( (k = formatArgCount(zFmt, nArg, acType))>=0
              && nArg!=fmtArg+k ){
