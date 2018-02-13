@@ -1286,41 +1286,81 @@ static int repo_list_page(void){
   n = db_int(0, "SELECT count(*) FROM sfile");
   if( n>0 ){
     Stmt q;
-    @ <h1>Available Repositories:</h1>
-    @ <ol>
+    sqlite3_int64 iNow, iMTime;
+    @ <h1 align="center">Fossil Repositories</h1>
+    @ <table border="0" class="sortable" data-init-sort="1" \
+    @ data-column-types="tnk"><thead>
+    @ <tr><th>Filename<th width="20"><th>Last Modified</tr>
+    @ </thead><tbody>
     db_prepare(&q, "SELECT pathname"
                    " FROM sfile ORDER BY pathname COLLATE nocase;");
+    iNow = db_int64(0, "SELECT strftime('%%s','now')");
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       int nName = (int)strlen(zName);
       char *zUrl;
+      char *zAge;
+      char *zFull;
       if( nName<7 ) continue;
       zUrl = sqlite3_mprintf("%.*s", nName-7, zName);
+      if( allRepo ){
+        zFull = mprintf("/%s", zName);
+      }else{
+        zFull = mprintf("%s/%s", g.zRepositoryName, zName);
+      }
+      iMTime = file_mtime(zFull, ExtFILE);
+      fossil_free(zFull);
+      if( iMTime<=0 ){
+        zAge = mprintf("...");
+      }else{
+        zAge = human_readable_age((iNow - iMTime)/86400.0);
+      }
       if( sqlite3_strglob("*.fossil", zName)!=0 ){
         /* The "fossil server DIRECTORY" and "fossil ui DIRECTORY" commands
         ** do not work for repositories whose names do not end in ".fossil".
         ** So do not hyperlink those cases. */
-        @ <li>%h(zName)</li>
+        @ <tr><td>%h(zName)
       } else if( sqlite3_strglob("*/.*", zName)==0 ){
         /* Do not show hidden repos */
-        @ <li>%h(zName) (hidden)</li>
+        @ <tr><td>%h(zName) (hidden)
       } else if( allRepo && sqlite3_strglob("[a-zA-Z]:/?*", zName)!=0 ){
-        @ <li><a href="%R/%T(zUrl)/home" target="_blank">/%h(zName)</a></li>
+        @ <tr><td><a href="%R/%T(zUrl)/home" target="_blank">/%h(zName)</a>
       }else{
-        @ <li><a href="%R/%T(zUrl)/home" target="_blank">%h(zName)</a></li>
+        @ <tr><td><a href="%R/%T(zUrl)/home" target="_blank">%h(zName)</a>
       }
+      @ <td></td><td data-sortkey='%010llx(iNow - iMTime)'>%h(zAge)</tr>
+      fossil_free(zAge);
       sqlite3_free(zUrl);
     }
-    @ </ol>
+    @ </tbody></table>
   }else{
     @ <h1>No Repositories Found</h1>
   }
+  @ <script>%s(builtin_text("sorttable.js"))</script>
   @ </body>
   @ </html>
   cgi_reply();
   sqlite3_close(g.db);
   g.db = 0;
   return n;
+}
+
+/*
+** COMMAND: test-list-page
+**
+** Usage: %fossil test-list-page DIRECTORY
+**
+** Show all repositories underneath DIRECTORY.  Or if DIRECTORY is "/"
+** show all repositories in the ~/.fossil file.
+*/
+void test_list_page(void){
+  if( g.argc<3 ){
+    g.zRepositoryName = "/";
+  }else{
+    g.zRepositoryName = g.argv[2];
+  }
+  g.httpOut = stdout;
+  repo_list_page();
 }
 
 /*

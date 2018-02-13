@@ -1,5 +1,5 @@
-C Fix\sa\shyperlink\stypo\sin\sthe\sserver.wiki\sdocumentation.\s\s\nCaught\sby\sSvyatoslav\sMishyn.
-D 2018-02-13T12:48:37.077
+C On\sthe\sFossil\srepository\sscreen\slist\sthat\scomes\sup\swith\scommands\slike\n"fossil\sall\sui",\sshow\sthe\slast\smodification\stime\sof\seach\srepo,\sand\sallow\nsorting\sby\smtime.
+D 2018-02-13T22:26:18.929
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -505,7 +505,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 8f07f96589451ba414fa42c28b2f77bf3a713e5cf9e40abd364ec2bbb4854826
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 267f42740eb32b10939fba64790d67f728cfaf362ebc5fa4c25051ed23cc372e
+F src/main.c ecab891667a9904f8a96b2b773d8fd515c0bde6be6ffa7be0a3c513cfaff3125
 F src/main.mk 24214bf65f5855c282632f76b620074487ae7a52dd45a07e342e8153e9722d2d
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 29adfac433b19828192d2c5937d4619a306fb790e260bc558350ba2eef1e2b74
-R 60298a1fde05ddf8c7a5e14070846c14
+P 209542742a6fef10eefa284b22476676b211b6222417f429c7c7d532ab515890
+R 6eeb93018a1638dc186db18dbb3996cf
 U drh
-Z 56208bb65ffcf31a8b0e7f56feedc906
+Z dd7d6e5d39f638ee147ea7cf57caf988
