@@ -319,7 +319,7 @@ due to excessive requests to expensive pages:
     requested /zip or /tarball pages and returns the precomputed answer
     if the same page is requested again.
 <li><p>Page requests can be configured to fail with a
-    [http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.3 | "503 Server Overload"]
+    [http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.4 | "503 Server Overload"]
     HTTP error if an expensive request is received while the host load
     average is too high.
 </ol>

@@ -1,5 +1,5 @@
-C Patch\sfrom\sPietro\sCerutti\sto\senable\sTCL\sshared\slibrary\sloading\sin\sTH1\son\nFreeBSD.
-D 2018-02-12T16:32:54.364
+C Fix\sa\shyperlink\stypo\sin\sthe\sserver.wiki\sdocumentation.\s\s\nCaught\sby\sSvyatoslav\sMishyn.
+D 2018-02-13T12:48:37.077
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -827,7 +827,7 @@ F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
 F www/selfhost.wiki aa4fe1f210e20474a4c5e0f0ab47be9860b060fcb0f1bd1a3a327e05f3a7a6c0
-F www/server.wiki aeef4081f8bdd4ae729e2a5dc9aa841e0156a0aa6cb76eb72f3c2f85eb646fe0
+F www/server.wiki bbd97b79fff06214bf14a5855d4b380090b582f21ea957c72ffa84fc321deecc
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fe87e4cb9dc0df125be7d5ef66d9ff8e56092a970b1a88803a1c0b3e91121f7d
-R 1b99ffd2ce303e6ebc5a878f6969a7b3
+P 29adfac433b19828192d2c5937d4619a306fb790e260bc558350ba2eef1e2b74
+R 60298a1fde05ddf8c7a5e14070846c14
 U drh
-Z 08918dd4581d3eaaa45cde654325531c
+Z 56208bb65ffcf31a8b0e7f56feedc906
