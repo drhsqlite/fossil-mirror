@@ -2502,9 +2502,6 @@ void cmd_webserver(void){
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
   if( find_option("https",0,0)!=0 ){
     cgi_replace_parameter("HTTPS","on");
-  }else{
-    /* without --https, defaults to not available. */
-    g.sslNotAvailable = 1;
   }
   if( find_option("localhost", 0, 0)!=0 ){
     flags |= HTTP_SERVER_LOCALHOST;
