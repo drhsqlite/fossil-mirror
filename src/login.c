@@ -504,13 +504,13 @@ void login_page(void){
   login_check_credentials();
   if( login_wants_https_redirect() ){
     const char *zQS = P("QUERY_STRING");
-    if( P("redir")!=0 || g.sslNotAvailable ){
+    if( P("redir")!=0 ){
       style_header("Insecure Connection");
       @ <h1>Unable To Establish An Encrypted Connection</h1>
       @ <p>This website requires that login credentials be sent over
-      @ an encrypted connection.  The current connection, however, is
-      @ is not encrypted all the way from your browser to the server.
-      @ A prior attempt was made to redirect to %h(g.zHttpsURL) but
+      @ an encrypted connection.  The current connection is not encrypted
+      @ across the entire route between your browser and the server.
+      @ An attempt was made to redirect to %h(g.zHttpsURL) but
       @ the connection is still insecure even after the redirect.</p>
       @ <p>This is probably some kind of configuration problem.  Please
       @ contact your sysadmin.</p>

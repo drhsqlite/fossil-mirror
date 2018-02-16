@@ -1,5 +1,5 @@
-C Fix\ssegfault\swhen\saccessing\sthe\sinitial\scheckin\sdirectory\son\sa\sfusefs\smounted\srepository.
-D 2018-02-16T16:28:38.422
+C Fix\sa\stypos\sand\simprove\sthe\swording\son\sthe\sfailure-to-upgrade-to-HTTPS\nerror\sscreen.
+D 2018-02-16T19:57:35.474
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -502,7 +502,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c 186ab629f154c6bd505c7fcfaf3b6457bd74299738b52bc715fde8deb5bf496e
+F src/login.c fef9c25bdc5bae052790a4847c4e69254012a0083496d32dc4ecef111fed47d3
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
 F src/main.c b24557654169c26b6bb3d3b4cdf07906ac7b501d00f637828018ec13f757c8a8
@@ -846,8 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 61733824bbf5414725fb445f077330892b93b52a1ed9d7cbd10c1be260c4f629 6831769d629459bc274392bd5667328fb3655d2a045edf89a96ee7392823a68e
-R a8c884b0cc72e7db8c9b4446be95d781
-T +closed 6831769d629459bc274392bd5667328fb3655d2a045edf89a96ee7392823a68e
+P 55f6c765fb62b03f33e33bc3af10ee3523928fd6fe0964407eafaa4a32e169dd
+R f6ee252c895445b03b3174a1b52d016e
 U drh
-Z 5349708404cfa2e570159d3de2d11f6e
+Z 28f9a3ca6fb3388b30bdf2f67378b18e
