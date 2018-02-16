@@ -1269,6 +1269,9 @@ static ManifestFile *manifest_file_seek_base(
   int lwr, upr;
   int c;
   int i;
+  if( p->aFile==0 ){
+    return 0;
+  }
   lwr = 0;
   upr = p->nFile - 1;
   if( p->iFile>=lwr && p->iFile<upr ){

@@ -1,5 +1,5 @@
-C An\sHTTPS\supgrade\sredirect\sloop\snow\sis\sbroken\sand\sgives\sa\swarning.\s\sThe\n"-nossl"\sis\sno\slonger\sthe\sdefault\son\s"fossil\sserver".\s\sWarning\smessages\nare\sprovided\swhen\strying\sto\slog\sin\svia\san\sinsecure\sconnection.
-D 2018-02-16T16:16:38.469
+C Fix\ssegfault\swhen\saccessing\sthe\sinitial\scheckin\sdirectory\son\sa\sfusefs\smounted\srepository.
+D 2018-02-16T16:28:38.422
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -510,7 +510,7 @@ F src/main.mk 24214bf65f5855c282632f76b620074487ae7a52dd45a07e342e8153e9722d2d
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl a51f2efc066f05fe62d750761e8187c4a4f7097b56bf74c42e26e10297f0d501
-F src/manifest.c 2668a7564265b469182f48645de7c219624866f7c2f0eb5dfb6bb3b010f0b5be
+F src/manifest.c 1547ee5cac74c1f9b550442264bd46fe09f88a4e5c7e60279b175508a7188f58
 F src/markdown.c 2cb7007279db7ad8e16f8c822d5ba27f59b4af2dcc0cd4ba87cce3e4303d5969
 F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb98d
 F src/markdown_html.c 9bf56751d43414003cbf08b5a162d50a53df2c4f48951ccf9152119f39629789
@@ -846,7 +846,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f2231ba6684157db99db5f1e5098c1e45f7a1196b34d29e8ab1ac404ea6feb58
-R 4f72f0f2bdc9f6819a162f91487eda0a
+P 61733824bbf5414725fb445f077330892b93b52a1ed9d7cbd10c1be260c4f629 6831769d629459bc274392bd5667328fb3655d2a045edf89a96ee7392823a68e
+R a8c884b0cc72e7db8c9b4446be95d781
+T +closed 6831769d629459bc274392bd5667328fb3655d2a045edf89a96ee7392823a68e
 U drh
-Z c13f55d1938b536c9d4e9b3017827b97
+Z 5349708404cfa2e570159d3de2d11f6e
