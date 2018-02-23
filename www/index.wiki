@@ -50,7 +50,7 @@ management system with these advanced features:
       Fossil is a single self-contained stand-alone executable.
       To install, simply download a
       [/uv/download.html | precompiled binary]
-      for Linux, Mac, OpenBSD, or Windows and put it on your $PATH.
+      for Linux, Mac, or Windows and put it on your $PATH.
       [./build.wiki | Easy-to-compile source code] is also available.
 
   4.  <b>Simple Networking</b> -

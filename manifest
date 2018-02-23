@@ -1,5 +1,5 @@
-C Fix\sthe\smtime\scomputation\sfor\s"fossil\sall\sui"\son\swindows.
-D 2018-02-23T18:45:45.111
+C Remove\sthe\smkdownload.html\sfile\sfrom\sthe\sdocumentation\sfolder,\ssince\sit\sis\nno\slonger\sused.\s\sRemove\smention\sof\sOpenBSD\sfrom\sinstallation\sinstructions,\nsince\sprecompiled\sbinaries\sfor\sthat\splatform\sare\sno\slonger\sprovided.
+D 2018-02-23T21:24:47.371
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -810,10 +810,9 @@ F www/globs.md 023c06fa69c833dfab2128d07070e9d58e34da5f0c6a58d7e55e0de12e1a6fdf
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hashpolicy.wiki 901e234166e31d8cb6634577b3fe266f41453ca1
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
-F www/index.wiki 45df7f31bc78ec89a58cb77f4f9362a11c730addeec952037e6d4ce598c94fea
+F www/index.wiki cfe28ddbbd2939d5c0626c7965f1c681c55f2e3ac2448cda1ce7cfeb4b4c2f6f
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki 840768ac36c6075cffaab1a60d8d8b8a4a4096391bdce5e3e0ea75564750fcbf
-F www/mkdownload.tcl 86e774d93eb5c92cac5e7328920987feedf9356d
 F www/mkindex.tcl 675d640d6256ade2b008e1ce8cc146b7ba68d05823b271b2632397a015e37d4d x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
@@ -846,7 +845,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 01984ee0d22b540669a6a57d3ac3c9ad6e6bcbdb68b0874cc01a8097011aa249
-R bd5d7d0007ab5a3ba4c60ea96541913b
+P 219f3e6b7ee40d03ddc76a6dfc47ca1f7c65eac8c709f74ff8e22f78b5c1757c
+R 4f358317eb891af90cdb622953ee69de
 U drh
-Z 8e2b90e9c9164a4af34c284f55b70f64
+Z ccace78d75c58c2c60ddc4e51310d415
