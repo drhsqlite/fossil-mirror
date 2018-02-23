@@ -1303,7 +1303,13 @@ static int repo_list_page(void){
       char *zFull;
       if( nName<7 ) continue;
       zUrl = sqlite3_mprintf("%.*s", nName-7, zName);
-      if( allRepo ){
+      if( zName[0]=='/'
+#ifdef _WIN32
+          || sqlite3_strglob("[a-zA-Z]:/*", zName)==0
+#endif
+      ){
+        zFull = mprintf("%s", zName);
+      }else if ( allRepo ){
         zFull = mprintf("/%s", zName);
       }else{
         zFull = mprintf("%s/%s", g.zRepositoryName, zName);
