@@ -1631,15 +1631,6 @@ static void process_one_web_page(
     zPathInfo = "/xfer";
   }
 
-  /* Check for an ETAG line
-  */
-  zETag = P("HTTP_IF_NONE_MATCH");
-  if( etag_valid(zETag) ){
-    cgi_set_status(304, "Not Modified");
-    cgi_reply();
-    return;
-  }
-
   /* Use the first element of PATH_INFO as the page name
   ** and deliver the appropriate page back to the user.
   */
