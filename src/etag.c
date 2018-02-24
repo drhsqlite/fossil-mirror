@@ -131,6 +131,7 @@ static void etag_check(void){
 ** routine does not return if the 304 is generated.
 */
 void etag_require(int code){
+  if( (mEtag & code)==code ) return;
   mEtag |= code;
   etag_check();
 }
@@ -180,10 +181,10 @@ int etag_maxage(void){
 */
 char *etag_generate(int m){
   Blob x = BLOB_INITIALIZER;
-  int mtime;
+  static int mtime = 0;
   if( m<0 ) m = mEtag;
   if( m & ETAG_DYNAMIC ) return 0;
-  mtime = file_mtime(g.nameOfExe, ExtFILE);
+  if( mtime==0 ) mtime = file_mtime(g.nameOfExe, ExtFILE);
   blob_appendf(&x,"%d%x", m, mtime);
   if( m & ETAG_HASH ){
     blob_appendf(&x, "/%s", zEHash);

@@ -1,5 +1,5 @@
-C ETags\snow\sworking\sfor\sthe\s/uv\spage.
-D 2018-02-24T03:38:07.398
+C Optimizations\sto\sthe\sETag\simplementation.
+D 2018-02-24T03:47:49.111
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -463,7 +463,7 @@ F src/diffcmd.c 5ccaa1ef9e8d9bc427f7c9a144aa76d87ad917a7a3235dda72964b3f26e931fe
 F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982db
 F src/doc.c 8d95ab300926bea6abdfdd9125e3457bfe2af6f4d1e8eaff96abe5d293185bb7
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
-F src/etag.c 081e97434bfa3902eea9d7d658b328ada76df5ae599eefd5035f9f86423c79e9
+F src/etag.c 0c1741ac0a5a54383771b291916bb742893d6845cd67beedb121fc5e5b35b83b
 F src/event.c 5d4a12252f765b5a1fa43fc6ddd087e79dfad65e3533369c1b47deb5b4be52d0
 F src/export.c 20d1516bc49301bf0d0016711c53da231e90687b250187708513a144e1342930
 F src/file.c d1d99096ad0283231a4565a545462b803ef2586687b99744d51c3af7aa3accdf
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 94c0b8ecd1bb745bdc5415e98166e3faa696fb7ff1d6a33d57708802a9b48726
-R 5aa02cc74cf4779f6538148eb68fc175
+P 5b84cab0d6d0dd8ac6820d68e7c76e55e025747f9fed7211aaa01485cc7be4bd
+R ab2fd4261521bbd44dc6f9d1c42b7073
 U drh
-Z 37d2007d2a804d7753fed2f946cd6a15
+Z fc60c3bb302ca422e93d790aaa35b5da
