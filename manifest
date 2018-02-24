@@ -1,5 +1,5 @@
-C Fix\sETags\ssupport\sfor\swhen\scompiling\swith\sFOSSIL_ENABLE_TH1_HOOKS.
-D 2018-02-24T17:08:45.341
+C Further\schanges\strying\sto\sget\sETags\sto\swork\swell.\s\sBut\sas\sI\stype\sthis,\sI\nfeel\slike\sthis\sdesign\sis\snot\sworking\sout\swell\sand\sI\sam\sabout\sready\sto\nstart\sover\sfrom\sscratch.\s\sThis\scheck-in\sis\sjust\sto\spreserve\swork\sin\scase\nI\swant\sto\scome\sback\sto\sit\slater.
+D 2018-02-24T18:39:18.019
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -437,7 +437,7 @@ F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c c87eb0ee5b326ca742fd51010bf01c29a75600b2f7fca1d30c28ec5722e9b841
 F src/cache.c f29373b765932f9c6435da4bbfc4c0d442ffa715dce25f9bf295085a80099d83
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
-F src/cgi.c fc0c7d83086b4ba2ba6eea41e0793bffcafd358f36f8ab8e5474a2fd5e398a92
+F src/cgi.c d526af696487104b9c6666962b2a5c645cd9fa32f29a637f1c7e03fb39577521
 F src/checkin.c 8d7c320c6bbe086b87a938009a8bd5dfb9feeffbe500089a79b8807b28bd6c0d
 F src/checkout.c b27d81846a1b2f8c961c9ea4eec93c15186432de63d97e650e413e96f0557604
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -461,9 +461,9 @@ F src/diff.c 3340923c7d0ab525f21b193a83b3b657330333bb8ebd1a3f501ad827599f154b
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 5ccaa1ef9e8d9bc427f7c9a144aa76d87ad917a7a3235dda72964b3f26e931fe
 F src/dispatch.c 13c0d1cfa3792f99efdd5675e25f99f88da0e723522ce5903f7f6dd6dae9244c
-F src/doc.c 8d95ab300926bea6abdfdd9125e3457bfe2af6f4d1e8eaff96abe5d293185bb7
+F src/doc.c 59fca90bf08e1d432a39a27d277c853896208f6c498bd289095dd557f2356ca0
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
-F src/etag.c 0c1741ac0a5a54383771b291916bb742893d6845cd67beedb121fc5e5b35b83b
+F src/etag.c 5bf0bdf5521fe44323728cec1be19bee13dbe0e71f69e3d833191a27941fd209
 F src/event.c 5d4a12252f765b5a1fa43fc6ddd087e79dfad65e3533369c1b47deb5b4be52d0
 F src/export.c 20d1516bc49301bf0d0016711c53da231e90687b250187708513a144e1342930
 F src/file.c d1d99096ad0283231a4565a545462b803ef2586687b99744d51c3af7aa3accdf
@@ -482,7 +482,7 @@ F src/http_socket.c c9dba13158d28e3f7b904b41a00f83d2172856eeccae31270b7c9ab4a55d
 F src/http_ssl.c 55266e0d4b2dd2d03af062c1e0e2a06c70d28adf6bb82b13f18a7d4beb543423
 F src/http_transport.c 43bf993a931c1a6cafb051566e06c841173ec350dedc0cb6887e112bc05a147c
 F src/import.c 4519efff1fa16b07cdb60ffe884d0a9a9bd1e175ad72be656dda2b55d02ed515
-F src/info.c 42b6054e0f8aaa6440d3ca3847cb3e56cc0a82644193f3b09f9e76dca5046287
+F src/info.c fd204a96d51ea82ef11e0215186f33f12bea44ff0b7ac91d493a9a358e993e30
 F src/json.c 20b82a01a75413ba43f41df627b85bd7d651d56842680eaab21752e7b3389ac6
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c be9d259fbaf431e38630a430e232e2988552ccfd27b156340cd5a30cd6230582
@@ -559,7 +559,7 @@ F src/sqlite3.h ba49aa5758c70c8b078f774736c13bb9e0e3f34e153fe016e523b5208e5f7784
 F src/stash.c 8f0bc283ba1099458e48ecd4c059a85bef34aef02066d972f61c165f2c47177b
 F src/stat.c 39a33f66a4d803c036f73993bd043f5484816b54f8cded166b07c100cc4097fd
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
-F src/style.c 586b98373a513f405aa68d0c099d0c304eb84e0f9b59c89714ac1b786e076b69
+F src/style.c dad17b6f59b2fa961c5fef402dcd2e4f3f2f64f4b998cce0ee83501c084960fe
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 24c77636171affc22088c1a7d7e608822d937e9747cbd5cd48f51dfae70a00c9
 F src/tar.c 69a1c4327e8b2b9f0c35714559d55d320f5cadabe7a5b40e309044d453901973
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 787896c5eb427c4e11f716c9fdc4faa82ca53d197c61d14208405fba278d7db1
-R 730544813bb2a336ce9f3844a672a58f
+P 43a66b58db29aab0ce5a6e3beb27c761b02df4d632b5eb0ee7ee02869dccc749
+R 3a492f2fc3e4f050f92d888c8571ee50
 U drh
-Z fd541f77a3db2de58707c019f9798be9
+Z e36057434772c1c4ef14440dcb5906ef

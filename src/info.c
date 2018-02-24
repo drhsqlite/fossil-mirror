@@ -1690,9 +1690,11 @@ void rawartifact_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( rid==0 ) fossil_redirect_home();
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+#if 0
   if( fossil_strcmp(P("name"), zUuid)==0 && login_is_nobody() ){
     g.isConst = 1;
   }
+#endif
   free(zUuid);
   zMime = P("m");
   if( zMime==0 ){

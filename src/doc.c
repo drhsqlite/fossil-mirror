@@ -834,7 +834,7 @@ static const unsigned char aLogo[] = {
 };
 
 /*
-** WEBPAGE: logo
+** WEBPAGE: logo           config
 **
 ** Return the logo image.  This image is available to anybody who can see
 ** the login page.  It is designed for use in the upper left-hand corner
@@ -852,7 +852,6 @@ void logo_page(void){
   }
   cgi_set_content_type(zMime);
   cgi_set_content(&logo);
-  g.isConst = 1;
 }
 
 /*
@@ -869,7 +868,7 @@ static const unsigned char aBackground[] = {
 
 
 /*
-** WEBPAGE: background
+** WEBPAGE: background     const
 **
 ** Return the background image.  If no background image is defined, a
 ** built-in 16x16 pixel white GIF is returned.
@@ -886,7 +885,6 @@ void background_page(void){
   }
   cgi_set_content_type(zMime);
   cgi_set_content(&bgimg);
-  g.isConst = 1;
 }
 
 

@@ -131,8 +131,11 @@ static void etag_check(void){
 ** routine does not return if the 304 is generated.
 */
 void etag_require(int code){
-  if( (mEtag & code)==code ) return;
-  mEtag |= code;
+  if( code==ETAG_CONST ){
+    mEtag = code;
+  }else{
+    mEtag |= code;
+  }
   etag_check();
 }
 void etag_require_hash(const char *zHash){
@@ -146,7 +149,9 @@ void etag_require_hash(const char *zHash){
 /* Return an appropriate max-age.
 */
 int etag_maxage(void){
-  if( mEtag ) return 1;
+  if( mEtag & (ETAG_DYNAMIC|ETAG_COOKIE) ) return 0;
+  if( mEtag & (ETAG_DATA|ETAG_HASH) ) return 60;
+  if( mEtag & (ETAG_CONFIG) ) return 300;
   return 3600*24;
 }
 
