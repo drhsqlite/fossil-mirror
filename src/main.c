@@ -1401,6 +1401,7 @@ static void process_one_web_page(
   int i;
   const CmdOrPage *pCmd = 0;
   const char *zBase = g.zRepositoryName;
+  const char *zETag = 0;
 
   /* Handle universal query parameters */
   if( PB("utc") ){
@@ -1630,6 +1631,15 @@ static void process_one_web_page(
     zPathInfo = "/xfer";
   }
 
+  /* Check for an ETAG line
+  */
+  zETag = P("HTTP_IF_NONE_MATCH");
+  if( etag_valid(zETag) ){
+    cgi_set_status(304, "Not Modified");
+    cgi_reply();
+    return;
+  }
+
   /* Use the first element of PATH_INFO as the page name
   ** and deliver the appropriate page back to the user.
   */
@@ -1766,6 +1776,7 @@ static void process_one_web_page(
     }else{
       rc = TH_OK;
     }
+    etag_require(CMDFLAG_TO_ETAG(pCmd->eType));
     if( rc==TH_OK || rc==TH_RETURN || rc==TH_CONTINUE ){
       if( rc==TH_OK || rc==TH_RETURN ){
 #endif

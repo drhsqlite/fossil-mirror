@@ -91,6 +91,12 @@
 #define CMDFLAG_VERSIONABLE 0x0040      /* A versionable setting */
 #define CMDFLAG_BLOCKTEXT   0x0080      /* Multi-line text setting */
 #define CMDFLAG_BOOLEAN     0x0100      /* A boolean setting */
+#define CMDFLAG_CONST       0x0000      /* ETAG_CONST */
+#define CMDFLAG_CONFIG      0x1000      /* ETAG_CONFIG */
+#define CMDFLAG_DATA        0x2000      /* ETAG_DATA */
+#define CMDFLAG_DYNAMIC     0x8000      /* ETAG_DYNAMIC - on by default */
+#define CMDFLAG_ETAG        0xf000      /* Mask of all ETAG entries */
+#define CMDFLAG_TO_ETAG(X)  ((X)>>12)
 /**************************************************************************/
 
 /*
@@ -200,7 +206,7 @@ void scan_for_label(const char *zLabel, char *zLine, int eType){
   while( fossil_isspace(zLine[i]) ){ i++; }
   if( zLine[i]=='/' ) i++;
   for(j=0; zLine[i+j] && !fossil_isspace(zLine[i+j]); j++){}
-  aEntry[nUsed].eType = eType;
+  aEntry[nUsed].eType = eType | CMDFLAG_DYNAMIC;
   if( eType & CMDFLAG_WEBPAGE ){
     aEntry[nUsed].zPath = string_dup(&zLine[i-1], j+1);
     aEntry[nUsed].zPath[0] = '/';
@@ -238,6 +244,15 @@ void scan_for_label(const char *zLabel, char *zLine, int eType){
     }else if( j==4 && strncmp(&zLine[i], "test", j)==0 ){
       aEntry[nUsed].eType &= ~(CMDFLAG_1ST_TIER|CMDFLAG_2ND_TIER);
       aEntry[nUsed].eType |= CMDFLAG_TEST;
+    }else if( j==5 && strncmp(&zLine[i], "const", j)==0 ){
+      aEntry[nUsed].eType &= ~CMDFLAG_ETAG;
+      aEntry[nUsed].eType |= CMDFLAG_CONST;
+    }else if( j==6 && strncmp(&zLine[i], "config", j)==0 ){
+      aEntry[nUsed].eType &= ~CMDFLAG_ETAG;
+      aEntry[nUsed].eType |= CMDFLAG_CONFIG;
+    }else if( j==4 && strncmp(&zLine[i], "data", j)==0 ){
+      aEntry[nUsed].eType &= ~CMDFLAG_ETAG;
+      aEntry[nUsed].eType |= CMDFLAG_DATA;
     }else if( j==7 && strncmp(&zLine[i], "boolean", j)==0 ){
       aEntry[nUsed].eType &= ~(CMDFLAG_BLOCKTEXT);
       aEntry[nUsed].iWidth = 0;

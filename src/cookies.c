@@ -125,6 +125,7 @@ static void cookie_readwrite(
   cookie_parse();
   for(i=0; i<cookies.nParam && strcmp(zPName,cookies.aParam[i].zPName); i++){}
   if( zQVal==0 && (flags & COOKIE_READ)!=0 && i<cookies.nParam ){
+    etag_require(ETAG_COOKIE);
     cgi_set_parameter_nocopy(zQP, cookies.aParam[i].zPValue, 1);
     return;
   }
