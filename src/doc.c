@@ -644,7 +644,7 @@ void doc_page(void){
       if( db_table_exists("repository","unversioned") ){
         char *zHash;
         zHash = db_text(0, "SELECT hash FROM unversioned WHERE name=%Q",zName);
-        etag_require_hash(zHash);
+        etag_check(ETAG_HASH, zHash);
         if( unversioned_content(zName, &filebody)==0 ){
           rid = 1;
           zDfltTitle = zName;
@@ -844,6 +844,7 @@ void logo_page(void){
   Blob logo;
   char *zMime;
 
+  etag_check(ETAG_CONFIG, 0);
   zMime = db_get("logo-mimetype", "image/gif");
   blob_zero(&logo);
   db_blob(&logo, "SELECT value FROM config WHERE name='logo-image'");
@@ -852,7 +853,6 @@ void logo_page(void){
   }
   cgi_set_content_type(zMime);
   cgi_set_content(&logo);
-  g.isConst = 1;
 }
 
 /*
@@ -878,6 +878,7 @@ void background_page(void){
   Blob bgimg;
   char *zMime;
 
+  etag_check(ETAG_CONFIG, 0);
   zMime = db_get("background-mimetype", "image/gif");
   blob_zero(&bgimg);
   db_blob(&bgimg, "SELECT value FROM config WHERE name='background-image'");
@@ -886,7 +887,6 @@ void background_page(void){
   }
   cgi_set_content_type(zMime);
   cgi_set_content(&bgimg);
-  g.isConst = 1;
 }
 
 

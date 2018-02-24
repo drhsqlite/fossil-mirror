@@ -246,7 +246,6 @@ static int is_gzippable(void){
 */
 void cgi_reply(void){
   int total_size;
-  char *zETag;
   if( iReplyStatus<=0 ){
     iReplyStatus = 200;
     zReplyStatus = "OK";
@@ -260,10 +259,15 @@ void cgi_reply(void){
   }else{
     fprintf(g.httpOut, "Status: %d %s\r\n", iReplyStatus, zReplyStatus);
   }
-  zETag = etag_generate(-1);
-  if( zETag ){
-    fprintf(g.httpOut, "ETag: %s\r\n", zETag);
+  if( g.isConst ){
+    /* isConst means that the reply is guaranteed to be invariant, even
+    ** after configuration changes and/or Fossil binary recompiles. */
+    fprintf(g.httpOut, "Cache-Control: max-age=31536000\r\n");
+  }else if( etag_tag()!=0 ){
+    fprintf(g.httpOut, "ETag: %s\r\n", etag_tag());
     fprintf(g.httpOut, "Cache-Control: max-age=%d\r\n", etag_maxage());
+  }else{
+    fprintf(g.httpOut, "Cache-control: no-cache\r\n");
   }
 
   if( blob_size(&extraHeader)>0 ){
@@ -287,20 +291,6 @@ void cgi_reply(void){
   ** These headers are probably best added by the web server hosting fossil as
   ** a CGI script.
   */
-
-  if( g.isConst ){
-    /* constant means that the input URL will _never_ generate anything
-    ** else. In the case of attachments, the contents won't change because
-    ** an attempt to change them generates a new attachment number. In the
-    ** case of most /getfile calls for specific versions, the only way the
-    ** content changes is if someone breaks the SCM. And if that happens, a
-    ** stale cache is the least of the problem. So we provide an Expires
-    ** header set to a reasonable period (default: one week).
-    */
-    fprintf(g.httpOut, "Cache-control: max-age=28800\r\n");
-  }else{
-    fprintf(g.httpOut, "Cache-control: no-cache\r\n");
-  }
 
   /* Content intended for logged in users should only be cached in
   ** the browser, not some shared location.
