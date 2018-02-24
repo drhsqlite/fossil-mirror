@@ -155,7 +155,11 @@ static void unversioned_write(
 **    4:     zName exists and is the same as zHash but has a newer mtime.
 **    5:     zName exists and should override the mtime/zHash remote.
 */
-int unversioned_status(const char *zName, sqlite3_int64 mtime, const char *zHash){
+int unversioned_status(
+  const char *zName,
+  sqlite3_int64 mtime,
+  const char *zHash
+){
   int iStatus = 0;
   Stmt q;
   db_prepare(&q, "SELECT mtime, hash FROM unversioned WHERE name=%Q", zName);

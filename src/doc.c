@@ -641,11 +641,14 @@ void doc_page(void){
       }
     }
     if( isUV ){
-      if( db_table_exists("repository","unversioned")
-       && unversioned_content(zName, &filebody)==0
-      ){
-        rid = 1;
-        zDfltTitle = zName;
+      if( db_table_exists("repository","unversioned") ){
+        char *zHash;
+        zHash = db_text(0, "SELECT hash FROM unversioned WHERE name=%Q",zName);
+        etag_require_hash(zHash);
+        if( unversioned_content(zName, &filebody)==0 ){
+          rid = 1;
+          zDfltTitle = zName;
+        }
       }
     }else if( fossil_strcmp(zCheckin,"ckout")==0 ){
       /* Read from the local checkout */

@@ -1331,7 +1331,7 @@ static const char *tagMatchExpression(
 }
 
 /*
-** WEBPAGE: timeline
+** WEBPAGE: timeline data
 **
 ** Query parameters:
 **
@@ -2512,7 +2512,7 @@ void test_timewarp_cmd(void){
 }
 
 /*
-** WEBPAGE: timewarps
+** WEBPAGE: timewarps data
 **
 ** Show all check-ins that are "timewarps".  A timewarp is a
 ** check-in that occurs before its parent, according to the

@@ -57,6 +57,7 @@ set src {
   dispatch
   doc
   encode
+  etag
   event
   export
   file
