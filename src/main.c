@@ -1767,10 +1767,10 @@ static void process_one_web_page(
     }else{
       rc = TH_OK;
     }
-    etag_require(CMDFLAG_TO_ETAG(pCmd->eType));
     if( rc==TH_OK || rc==TH_RETURN || rc==TH_CONTINUE ){
       if( rc==TH_OK || rc==TH_RETURN ){
 #endif
+        etag_require(CMDFLAG_TO_ETAG(pCmd->eCmdFlags));
         pCmd->xFunc();
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
       }

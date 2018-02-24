@@ -40,20 +40,27 @@ struct CmdOrPage {
 ** These macros must match similar macros in mkindex.c
 ** Allowed values for CmdOrPage.eCmdFlags.
 */
-#define CMDFLAG_1ST_TIER    0x0001      /* Most important commands */
-#define CMDFLAG_2ND_TIER    0x0002      /* Obscure and seldom used commands */
-#define CMDFLAG_TEST        0x0004      /* Commands for testing only */
-#define CMDFLAG_WEBPAGE     0x0008      /* Web pages */
-#define CMDFLAG_COMMAND     0x0010      /* A command */
-#define CMDFLAG_SETTING     0x0020      /* A setting */
-#define CMDFLAG_VERSIONABLE 0x0040      /* A versionable setting */
-#define CMDFLAG_BLOCKTEXT   0x0080      /* Multi-line text setting */
-#define CMDFLAG_BOOLEAN     0x0100      /* A boolean setting */
+#define CMDFLAG_1ST_TIER    0x00001      /* Most important commands */
+#define CMDFLAG_2ND_TIER    0x00002      /* Obscure and seldom used commands */
+#define CMDFLAG_TEST        0x00004      /* Commands for testing only */
+#define CMDFLAG_WEBPAGE     0x00008      /* Web pages */
+#define CMDFLAG_COMMAND     0x00010      /* A command */
+#define CMDFLAG_SETTING     0x00020      /* A setting */
+#define CMDFLAG_VERSIONABLE 0x00040      /* A versionable setting */
+#define CMDFLAG_BLOCKTEXT   0x00080      /* Multi-line text setting */
+#define CMDFLAG_BOOLEAN     0x00100      /* A boolean setting */
+#define CMDFLAG_CONST       0x00000      /* ETAG_CONST */
+#define CMDFLAG_CONFIG      0x01000      /* ETAG_CONFIG */
+#define CMDFLAG_DATA        0x02000      /* ETAG_DATA */
+#define CMDFLAG_COOKIE      0x04000      /* ETAG_COOKIE */
+#define CMDFLAG_DYNAMIC     0x10000      /* ETAG_DYNAMIC - on by default */
+#define CMDFLAG_ETAG        0x1f000      /* Mask of all ETAG entries */
+#define CMDFLAG_TO_ETAG(X)  ((X)>>12)
 /**************************************************************************/
 
 /* Values for the 2nd parameter to dispatch_name_search() */
-#define CMDFLAG_ANY         0x0038      /* Match anything */
-#define CMDFLAG_PREFIX      0x0200      /* Prefix match is ok */
+#define CMDFLAG_ANY         0x00038      /* Match anything */
+#define CMDFLAG_PREFIX      0x00200      /* Prefix match is ok */
 
 #endif /* INTERFACE */
 

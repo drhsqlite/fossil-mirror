@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\sthe\sETag:\sand\sIf-None-Match:\sheaders\sfor\simproved\scache\ncontrol.\s\sCurrently\sthis\sonly\sworks\sfor\s/uv\sbut\sthe\smechanism\sis\sreasonably\ngeneral\sand\scan\sbe\sextended\sto\sother\spages.
-D 2018-02-24T03:49:22.692
+C Fix\sETags\ssupport\sfor\swhen\scompiling\swith\sFOSSIL_ENABLE_TH1_HOOKS.
+D 2018-02-24T17:08:45.341
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -460,7 +460,7 @@ F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
 F src/diff.c 3340923c7d0ab525f21b193a83b3b657330333bb8ebd1a3f501ad827599f154b
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 5ccaa1ef9e8d9bc427f7c9a144aa76d87ad917a7a3235dda72964b3f26e931fe
-F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982db
+F src/dispatch.c 13c0d1cfa3792f99efdd5675e25f99f88da0e723522ce5903f7f6dd6dae9244c
 F src/doc.c 8d95ab300926bea6abdfdd9125e3457bfe2af6f4d1e8eaff96abe5d293185bb7
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/etag.c 0c1741ac0a5a54383771b291916bb742893d6845cd67beedb121fc5e5b35b83b
@@ -506,7 +506,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c fef9c25bdc5bae052790a4847c4e69254012a0083496d32dc4ecef111fed47d3
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 2a72b583f26acf7a9a6544316eac653f1124fff339b18362a4c2dfa7fbb2a7ba
+F src/main.c 5505e408c6373358ebd98941d76ae9958eb5b3fa73672215f438d2b52aa71b6c
 F src/main.mk acb122dde73035bc56969a6db2362bfdb919c1b385ea9bc8823d0ae45d7b3ed9
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 203d82d80e67c64f1254e593b7940e9b3c4a49fa2ed0dbd1a0ffd5815c79cdc6 2588d447839e1b44ef1408e0fd556a8bfefbfee8710abb8d8ecd52f81db9f34d
-R ab2fd4261521bbd44dc6f9d1c42b7073
+P 787896c5eb427c4e11f716c9fdc4faa82ca53d197c61d14208405fba278d7db1
+R 730544813bb2a336ce9f3844a672a58f
 U drh
-Z 9e2e5ffc9dcee6d1a988b06d83f76830
+Z fd541f77a3db2de58707c019f9798be9
