@@ -642,9 +642,14 @@ void doc_page(void){
     }
     if( isUV ){
       if( db_table_exists("repository","unversioned") ){
-        char *zHash;
-        zHash = db_text(0, "SELECT hash FROM unversioned WHERE name=%Q",zName);
-        etag_check(ETAG_HASH, zHash);
+        Stmt q;
+        db_prepare(&q, "SELECT hash, mtime FROM unversioned"
+                       " WHERE name=%Q", zName);
+        if( db_step(&q)==SQLITE_ROW ){
+          etag_check(ETAG_HASH, db_column_text(&q,0));
+          etag_last_modified(db_column_int64(&q,1));
+        }
+        db_finalize(&q);
         if( unversioned_content(zName, &filebody)==0 ){
           rid = 1;
           zDfltTitle = zName;

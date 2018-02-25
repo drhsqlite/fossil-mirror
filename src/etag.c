@@ -40,6 +40,16 @@
 ** then etag_check() returns normally.  Later, during reply generation,
 ** the cgi.c module will invoke etag_tag() to recover the generated tag
 ** and include it in the reply header.
+**
+** 2018-02-25:
+**
+** Also support Last-Modified: and If-Modified-Since:.  The
+** etag_last_modified(mtime) API records a timestamp for the page in
+** seconds since 1970.  This causes a Last-Modified: header to be
+** issued in the reply.  Or, if the request contained If-Modified-Since:
+** and the new mtime is not greater than the mtime associated with
+** If-Modified-Since, then a 304 Not Modified reply is generated and
+** the etag_last_modified() API never returns.
 */
 #include "config.h"
 #include "etag.h"
@@ -56,6 +66,7 @@
 
 static char zETag[33];      /* The generated ETag */
 static int iMaxAge = 0;     /* The max-age parameter in the reply */
+static sqlite3_int64 iEtagMtime = 0;  /* Last-Modified time */
 
 /*
 ** Generate an ETag
@@ -120,6 +131,39 @@ void etag_check(unsigned eFlags, const char *zHash){
   fossil_exit(0);
 }
 
+/*
+** Accept a new Last-Modified time.  This routine should be called by
+** page generators that know a valid last-modified time.  This routine
+** might generate a 304 Not Modified reply and exit(), never returnning.
+** Or, if not, it will cause a Last-Modified: header to be included in the
+** reply.
+*/
+void etag_last_modified(sqlite3_int64 mtime){
+  const char *zIfModifiedSince;
+  sqlite3_int64 x, exeMtime;
+  assert( iEtagMtime==0 );   /* Only call this routine once */
+  assert( mtime>0 );         /* Only call with a valid mtime */
+  iEtagMtime = mtime;
+
+  /* Check to see the If-Modified-Since constraint is satisfied */
+  zIfModifiedSince = P("HTTP_IF_MODIFIED_SINCE");
+  if( zIfModifiedSince==0 ) return;
+  x = cgi_rfc822_parsedate(zIfModifiedSince);
+  if( x<=0 || x>mtime ) return;
+
+  /* If the Fossil executable is more recent than If-Modified-Since,
+  ** go ahead and regenerate the resource. */
+  exeMtime = file_mtime(g.nameOfExe, ExtFILE);
+  if( exeMtime>x ) return;
+
+  /* If we reach this point, it means that the resource has not changed
+  ** and that we should generate a 304 Not Modified reply */
+  cgi_reset_content();
+  cgi_set_status(304, "Not Modified");
+  cgi_reply();
+  fossil_exit(0);
+}
+
 /* Return the ETag, if there is one.
 */
 const char *etag_tag(void){
@@ -130,7 +174,14 @@ const char *etag_tag(void){
 */
 int etag_maxage(void){
   return iMaxAge;
-} 
+}
+
+/* Return the last-modified time in seconds since 1970.  Or return 0 if
+** there is no last-modified time.
+*/
+sqlite3_int64 etag_mtime(void){
+  return iEtagMtime;
+}
 
 /* 
 ** COMMAND: test-etag
