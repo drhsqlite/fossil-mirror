@@ -230,58 +230,6 @@ void cgi_set_cookie(
   }
 }
 
-#if 0
-/*
-** Add an ETag header line
-*/
-static char *cgi_add_etag(char *zTxt, int nLen){
-  MD5Context ctx;
-  unsigned char digest[16];
-  int i, j;
-  char zETag[64];
-
-  MD5Init(&ctx);
-  MD5Update(&ctx,zTxt,nLen);
-  MD5Final(digest,&ctx);
-  for(j=i=0; i<16; i++,j+=2){
-    bprintf(&zETag[j],sizeof(zETag)-j,"%02x",(int)digest[i]);
-  }
-  blob_appendf(&extraHeader, "ETag: %s\r\n", zETag);
-  return fossil_strdup(zETag);
-}
-
-/*
-** Do some cache control stuff. First, we generate an ETag and include it in
-** the response headers. Second, we do whatever is necessary to determine if
-** the request was asking about caching and whether we need to send back the
-** response body. If we shouldn't send a body, return non-zero.
-**
-** Currently, we just check the ETag against any If-None-Match header.
-**
-** FIXME: In some cases (attachments, file contents) we could check
-** If-Modified-Since headers and always include Last-Modified in responses.
-*/
-static int check_cache_control(void){
-  /* FIXME: there's some gotchas wth cookies and some headers. */
-  char *zETag = cgi_add_etag(blob_buffer(&cgiContent),blob_size(&cgiContent));
-  char *zMatch = P("HTTP_IF_NONE_MATCH");
-
-  if( zETag!=0 && zMatch!=0 ) {
-    char *zBuf = fossil_strdup(zMatch);
-    if( zBuf!=0 ){
-      char *zTok = 0;
-      char *zPos;
-      for( zTok = strtok_r(zBuf, ",\"",&zPos);
-           zTok && fossil_stricmp(zTok,zETag);
-           zTok =  strtok_r(0, ",\"",&zPos)){}
-      fossil_free(zBuf);
-      if(zTok) return 1;
-    }
-  }
-
-  return 0;
-}
-#endif
 
 /*
 ** Return true if the response should be sent with Content-Encoding: gzip.
@@ -303,17 +251,6 @@ void cgi_reply(void){
     zReplyStatus = "OK";
   }
 
-#if 0
-  if( iReplyStatus==200 && check_cache_control() ) {
-    /* change the status to "unchanged" and we can skip sending the
-    ** actual response body. Obviously we only do this when we _have_ a
-    ** body (code 200).
-    */
-    iReplyStatus = 304;
-    zReplyStatus = "Not Modified";
-  }
-#endif
-
   if( g.fullHttpReply ){
     fprintf(g.httpOut, "HTTP/1.0 %d %s\r\n", iReplyStatus, zReplyStatus);
     fprintf(g.httpOut, "Date: %s\r\n", cgi_rfc822_datestamp(time(0)));
@@ -321,6 +258,16 @@ void cgi_reply(void){
     fprintf(g.httpOut, "X-UA-Compatible: IE=edge\r\n");
   }else{
     fprintf(g.httpOut, "Status: %d %s\r\n", iReplyStatus, zReplyStatus);
+  }
+  if( g.isConst ){
+    /* isConst means that the reply is guaranteed to be invariant, even
+    ** after configuration changes and/or Fossil binary recompiles. */
+    fprintf(g.httpOut, "Cache-Control: max-age=31536000\r\n");
+  }else if( etag_tag()!=0 ){
+    fprintf(g.httpOut, "ETag: %s\r\n", etag_tag());
+    fprintf(g.httpOut, "Cache-Control: max-age=%d\r\n", etag_maxage());
+  }else{
+    fprintf(g.httpOut, "Cache-control: no-cache\r\n");
   }
 
   if( blob_size(&extraHeader)>0 ){
@@ -344,20 +291,6 @@ void cgi_reply(void){
   ** These headers are probably best added by the web server hosting fossil as
   ** a CGI script.
   */
-
-  if( g.isConst ){
-    /* constant means that the input URL will _never_ generate anything
-    ** else. In the case of attachments, the contents won't change because
-    ** an attempt to change them generates a new attachment number. In the
-    ** case of most /getfile calls for specific versions, the only way the
-    ** content changes is if someone breaks the SCM. And if that happens, a
-    ** stale cache is the least of the problem. So we provide an Expires
-    ** header set to a reasonable period (default: one week).
-    */
-    fprintf(g.httpOut, "Cache-control: max-age=28800\r\n");
-  }else{
-    fprintf(g.httpOut, "Cache-control: no-cache\r\n");
-  }
 
   /* Content intended for logged in users should only be cached in
   ** the browser, not some shared location.

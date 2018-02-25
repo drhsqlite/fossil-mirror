@@ -45,6 +45,7 @@ SRC = \
   $(SRCDIR)/dispatch.c \
   $(SRCDIR)/doc.c \
   $(SRCDIR)/encode.c \
+  $(SRCDIR)/etag.c \
   $(SRCDIR)/event.c \
   $(SRCDIR)/export.c \
   $(SRCDIR)/file.c \
@@ -245,6 +246,7 @@ TRANS_SRC = \
   $(OBJDIR)/dispatch_.c \
   $(OBJDIR)/doc_.c \
   $(OBJDIR)/encode_.c \
+  $(OBJDIR)/etag_.c \
   $(OBJDIR)/event_.c \
   $(OBJDIR)/export_.c \
   $(OBJDIR)/file_.c \
@@ -374,6 +376,7 @@ OBJ = \
  $(OBJDIR)/dispatch.o \
  $(OBJDIR)/doc.o \
  $(OBJDIR)/encode.o \
+ $(OBJDIR)/etag.o \
  $(OBJDIR)/event.o \
  $(OBJDIR)/export.o \
  $(OBJDIR)/file.o \
@@ -675,6 +678,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/dispatch_.c:$(OBJDIR)/dispatch.h \
 	$(OBJDIR)/doc_.c:$(OBJDIR)/doc.h \
 	$(OBJDIR)/encode_.c:$(OBJDIR)/encode.h \
+	$(OBJDIR)/etag_.c:$(OBJDIR)/etag.h \
 	$(OBJDIR)/event_.c:$(OBJDIR)/event.h \
 	$(OBJDIR)/export_.c:$(OBJDIR)/export.h \
 	$(OBJDIR)/file_.c:$(OBJDIR)/file.h \
@@ -1018,6 +1022,14 @@ $(OBJDIR)/encode.o:	$(OBJDIR)/encode_.c $(OBJDIR)/encode.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/encode.o -c $(OBJDIR)/encode_.c
 
 $(OBJDIR)/encode.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/etag_.c:	$(SRCDIR)/etag.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/etag.c >$@
+
+$(OBJDIR)/etag.o:	$(OBJDIR)/etag_.c $(OBJDIR)/etag.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/etag.o -c $(OBJDIR)/etag_.c
+
+$(OBJDIR)/etag.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/event_.c:	$(SRCDIR)/event.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/event.c >$@
