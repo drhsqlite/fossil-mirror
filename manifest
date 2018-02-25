@@ -1,5 +1,5 @@
-C Redesign\sthe\sETags\smechanism\sto\sbe\ssimpler\sand\ssafer.
-D 2018-02-24T20:14:37.183
+C Add\sETags\scache\scontrol\sto\sthe\s/tarball,\s/zip,\sand\s/sqlar\spages.
+D 2018-02-25T19:09:05.911
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -562,7 +562,7 @@ F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
 F src/style.c db6acea5f7a3770e7139eeab12dc1eba40652595defd5bf1be90ac3c02548f4c
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 24c77636171affc22088c1a7d7e608822d937e9747cbd5cd48f51dfae70a00c9
-F src/tar.c 69a1c4327e8b2b9f0c35714559d55d320f5cadabe7a5b40e309044d453901973
+F src/tar.c d83930676cb1e321fcb7a6f80824397ba81a001d5b386c33a80e4571ce96b8fd
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
@@ -592,7 +592,7 @@ F src/winhttp.c cac4936b567c5b6f8c22b0c10c74400ce6f327d61d1a41f8a41e88ef17079e65
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 668af421d7b956373a7834ad5cccfb98d2020342949aee03ef05c60ac72e68fd
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
-F src/zip.c fe405d65fed964880834c1e66276017886a687933106377bdc5fd0dfaf61b7a3
+F src/zip.c fce28035ed0f193433f5836d5c9b9b5ef38a068c9980268bcb81279817c397e6
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test 83966725550e04f80c40a52012074f91ef6d22cbd57f51e17e931eccee6663e0
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2588d447839e1b44ef1408e0fd556a8bfefbfee8710abb8d8ecd52f81db9f34d
-R 28d99ae6120fbfa9c09ee966a6bb0c5b
+P ae660cd62f37ff07b70061d6e8cb553b12aadb92275733f3a76c8cae1134f13c
+R bc2c937dc11ded305d2361201af20b7a
 U drh
-Z b1981e19f9dc6850d94512b3140525b5
+Z 7e3f3ad5382d5fd613198c450cacb606
