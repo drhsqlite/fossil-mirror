@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\sLast-Modified:\sand\sIf-Modified-Since:.\s\sCurrently\sonly\sworks\nfor\s/uv\sbut\scan\sbe\seasily\sexpanded\sto\sother\sresources.\s\sAlso\schange\sSet-Cookie\nto\suse\smax-age=\srather\sthan\sexpires=.
-D 2018-02-25T19:47:27.988
+C Update\sthe\scustom\sMinGW\smakefile.
+D 2018-02-28T13:46:12.275
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -722,7 +722,7 @@ F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9
 F win/Makefile.PellesCGMake 547423a19e764acb69c1958462c7ec9bb610e331e7dc7b85f4e9b32ecc295de2
 F win/Makefile.dmc 58aaa595d01a06b4e19406b99289194894603818ea6b2aed049e0dfd0d23837a
 F win/Makefile.mingw d47e758a83f3fb55c550f2f7e6bd069c385453e14423dbd580c20642d2ebf0a2
-F win/Makefile.mingw.mistachkin bee9dda9d85d33e0df8e6f486d2dd06b443e9c90f0578a794fbd9d648b8a302b
+F win/Makefile.mingw.mistachkin 5b12df28665199199f782ba1258e6d36a177a556004ab998bf800fe0314bed75
 F win/Makefile.msc 4f2de5b9a07760fcf7e8fec18177aba8c8f7eaf09b6739f33309e02cd7fbf140
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7383450dd58adf3150f8309fff0b4cef26e7a3ff5ae85eca32a7bee99c536f86
-R e8bc9392402f6006151082b032a9aa21
-U drh
-Z 8382545cf898591dc8c4b259399f6de1
+P f89eb80eec0b986e80d45e4e894f69b9ba76eca5cd472c968fee18cd7bc651be
+R 854a890861de1a81b7d3eee6c4cc0c2d
+U mistachkin
+Z 4c991495fd6c875d6ed923dc103b1cd3
