@@ -514,7 +514,7 @@ void login_page(void){
       @ the connection is still insecure even after the redirect.</p>
       @ <p>This is probably some kind of configuration problem.  Please
       @ contact your sysadmin.</p>
-      @ <p>Sorry it didn't work out.</p>
+      @ <p>Sorry it did not work out.</p>
       style_footer();
       return;
     }
