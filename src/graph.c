@@ -39,7 +39,7 @@ struct GraphRow {
   int *aParent;               /* Array of parents.  0 element is primary .*/
   char *zBranch;              /* Branch name */
   char *zBgClr;               /* Background Color */
-  char zUuid[41];             /* Check-in for file ID */
+  char zUuid[HNAME_MAX+1];    /* Check-in for file ID */
 
   GraphRow *pNext;            /* Next row down in the list of all rows */
   GraphRow *pPrev;            /* Previous row */

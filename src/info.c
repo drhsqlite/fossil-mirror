@@ -1466,7 +1466,6 @@ int object_description(
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTarget = db_column_text(&q, 0);
-    int nTarget = db_column_bytes(&q, 0);
     const char *zFilename = db_column_text(&q, 1);
     const char *zDate = db_column_text(&q, 2);
     const char *zUser = db_column_text(&q, 3);
@@ -1477,7 +1476,7 @@ int object_description(
       @ Attachment "%h(zFilename)" to
     }
     objType |= OBJTYPE_ATTACHMENT;
-    if( nTarget==UUID_SIZE && validate16(zTarget,UUID_SIZE) ){
+    if( fossil_is_uuid(zTarget) ){
       if ( db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'",
             zTarget)
       ){
@@ -2187,7 +2186,7 @@ void tinfo_page(void){
   int rid;
   char *zDate;
   const char *zUuid;
-  char zTktName[UUID_SIZE+1];
+  char zTktName[HNAME_MAX+1];
   Manifest *pTktChng;
   int modPending;
   const char *zModAction;
@@ -2208,7 +2207,7 @@ void tinfo_page(void){
   pTktChng = manifest_get(rid, CFTYPE_TICKET, 0);
   if( pTktChng==0 ) fossil_redirect_home();
   zDate = db_text(0, "SELECT datetime(%.12f)", pTktChng->rDate);
-  memcpy(zTktName, pTktChng->zTicketUuid, UUID_SIZE+1);
+  sqlite3_snprintf(sizeof(zTktName), zTktName, "%s", pTktChng->zTicketUuid);
   if( g.perm.ModTkt && (zModAction = P("modaction"))!=0 ){
     if( strcmp(zModAction,"delete")==0 ){
       moderation_disapprove(rid);

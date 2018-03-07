@@ -609,8 +609,8 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       case 'K': {
         if( p->zTicketUuid!=0 ) SYNTAX("more than one K-card");
         p->zTicketUuid = next_token(&x, &sz);
-        if( sz!=UUID_SIZE ) SYNTAX("K-card UUID is the wrong size");
-        if( !validate16(p->zTicketUuid, UUID_SIZE) ){
+        if( sz!=HNAME_LEN_SHA1 ) SYNTAX("K-card UUID is the wrong size");
+        if( !validate16(p->zTicketUuid, sz) ){
           SYNTAX("invalid K-card UUID");
         }
         break;
