@@ -384,6 +384,7 @@ SRC   = add_.c \
         dispatch_.c \
         doc_.c \
         encode_.c \
+        etag_.c \
         event_.c \
         export_.c \
         file_.c \
@@ -583,6 +584,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\dispatch$O \
         $(OX)\doc$O \
         $(OX)\encode$O \
+        $(OX)\etag$O \
         $(OX)\event$O \
         $(OX)\export$O \
         $(OX)\file$O \
@@ -771,6 +773,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\dispatch.obj >> $@
 	echo $(OX)\doc.obj >> $@
 	echo $(OX)\encode.obj >> $@
+	echo $(OX)\etag.obj >> $@
 	echo $(OX)\event.obj >> $@
 	echo $(OX)\export.obj >> $@
 	echo $(OX)\file.obj >> $@
@@ -1169,6 +1172,12 @@ $(OX)\encode$O : encode_.c encode.h
 	$(TCC) /Fo$@ -c encode_.c
 
 encode_.c : $(SRCDIR)\encode.c
+	translate$E $** > $@
+
+$(OX)\etag$O : etag_.c etag.h
+	$(TCC) /Fo$@ -c etag_.c
+
+etag_.c : $(SRCDIR)\etag.c
 	translate$E $** > $@
 
 $(OX)\event$O : event_.c event.h
@@ -1787,6 +1796,7 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 			dispatch_.c:dispatch.h \
 			doc_.c:doc.h \
 			encode_.c:encode.h \
+			etag_.c:etag.h \
 			event_.c:event.h \
 			export_.c:export.h \
 			file_.c:file.h \

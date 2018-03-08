@@ -641,11 +641,19 @@ void doc_page(void){
       }
     }
     if( isUV ){
-      if( db_table_exists("repository","unversioned")
-       && unversioned_content(zName, &filebody)==0
-      ){
-        rid = 1;
-        zDfltTitle = zName;
+      if( db_table_exists("repository","unversioned") ){
+        Stmt q;
+        db_prepare(&q, "SELECT hash, mtime FROM unversioned"
+                       " WHERE name=%Q", zName);
+        if( db_step(&q)==SQLITE_ROW ){
+          etag_check(ETAG_HASH, db_column_text(&q,0));
+          etag_last_modified(db_column_int64(&q,1));
+        }
+        db_finalize(&q);
+        if( unversioned_content(zName, &filebody)==0 ){
+          rid = 1;
+          zDfltTitle = zName;
+        }
       }
     }else if( fossil_strcmp(zCheckin,"ckout")==0 ){
       /* Read from the local checkout */
@@ -841,6 +849,7 @@ void logo_page(void){
   Blob logo;
   char *zMime;
 
+  etag_check(ETAG_CONFIG, 0);
   zMime = db_get("logo-mimetype", "image/gif");
   blob_zero(&logo);
   db_blob(&logo, "SELECT value FROM config WHERE name='logo-image'");
@@ -849,7 +858,6 @@ void logo_page(void){
   }
   cgi_set_content_type(zMime);
   cgi_set_content(&logo);
-  g.isConst = 1;
 }
 
 /*
@@ -875,6 +883,7 @@ void background_page(void){
   Blob bgimg;
   char *zMime;
 
+  etag_check(ETAG_CONFIG, 0);
   zMime = db_get("background-mimetype", "image/gif");
   blob_zero(&bgimg);
   db_blob(&bgimg, "SELECT value FROM config WHERE name='background-image'");
@@ -883,7 +892,6 @@ void background_page(void){
   }
   cgi_set_content_type(zMime);
   cgi_set_content(&bgimg);
-  g.isConst = 1;
 }
 
 

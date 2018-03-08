@@ -733,6 +733,7 @@ void tarball_page(void){
   if( zInclude ) blob_appendf(&cacheKey, ",in=%Q", zInclude);
   if( zExclude ) blob_appendf(&cacheKey, ",ex=%Q", zExclude);
   zKey = blob_str(&cacheKey);
+  etag_check(ETAG_HASH, zKey);
 
   if( P("debug")!=0 ){
     style_header("Tarball Generator Debug Screen");

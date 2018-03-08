@@ -378,13 +378,12 @@ int is_valid_fd(int fd){
 }
 
 /*
-** Returns TRUE if zSym is exactly UUID_SIZE bytes long and contains
-** only lower-case ASCII hexadecimal values.
+** Returns TRUE if zSym is exactly HNAME_LEN_SHA1 or HNAME_LEN_K256
+** bytes long and contains only lower-case ASCII hexadecimal values.
 */
 int fossil_is_uuid(const char *zSym){
-  return zSym
-    && (UUID_SIZE==strlen(zSym))
-    && validate16(zSym, UUID_SIZE);
+  int sz = zSym ? (int)strlen(zSym) : 0;
+  return (HNAME_LEN_SHA1==sz || HNAME_LEN_K256==sz) && validate16(zSym, sz);
 }
 
 /*

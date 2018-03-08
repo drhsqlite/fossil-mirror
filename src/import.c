@@ -519,6 +519,7 @@ static void dequote_git_filename(char *zName){
 
 static struct{
   const char *zMasterName;    /* Name of master branch */
+  int authorFlag;             /* Use author as checkin committer */
 } ggit;
 
 /*
@@ -621,7 +622,9 @@ static void git_fast_import(FILE *pIn){
         }
       }
     }else
-    if( strncmp(zLine, "author ", 7)==0 ){
+    if( (!ggit.authorFlag && strncmp(zLine, "author ", 7)==0)
+        || (ggit.authorFlag && strncmp(zLine, "committer ",10)==0
+            && gg.zUser!=NULL) ){
       /* No-op */
     }else
     if( strncmp(zLine, "mark ", 5)==0 ){
@@ -629,7 +632,9 @@ static void git_fast_import(FILE *pIn){
       fossil_free(gg.zMark);
       gg.zMark = fossil_strdup(&zLine[5]);
     }else
-    if( strncmp(zLine, "tagger ", 7)==0 || strncmp(zLine, "committer ",10)==0 ){
+    if( strncmp(zLine, "tagger ", 7)==0
+        || (ggit.authorFlag && strncmp(zLine, "author ", 7)==0)
+        || strncmp(zLine, "committer ",10)==0 ){
       sqlite3_int64 secSince1970;
       z = strchr(zLine, ' ');
       while( fossil_isspace(*z) ) z++;
@@ -1605,6 +1610,7 @@ static void svn_dump_import(FILE *pIn){
 **                  --import-marks  FILE Restore marks table from FILE
 **                  --export-marks  FILE Save marks table to FILE
 **                  --rename-master NAME Renames the master branch to NAME
+**                  --use-author    Uses author as the committer
 **
 **   --svn        Import from the svnadmin-dump file format.  The default
 **                behaviour (unless overridden by --flat) is to treat 3
@@ -1729,6 +1735,7 @@ void import_cmd(void){
     if( !(ggit.zMasterName = find_option("rename-master", 0, 1)) ){
       ggit.zMasterName = "master";
     }
+    ggit.authorFlag = find_option("use-author", 0, 0)!=0;
   }
   verify_all_options();
 

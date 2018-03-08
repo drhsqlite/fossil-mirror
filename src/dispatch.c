@@ -361,6 +361,7 @@ void help_page(void){
     for(i=j=0; i<MX_COMMAND; i++){
       const char *z = aCommand[i].zName;
       if( '/'==*z || strncmp(z,"test",4)==0 ) continue;
+      if( (aCommand[i].eCmdFlags & CMDFLAG_SETTING)!=0 ) continue;
       j++;
     }
     n = (j+5)/6;
@@ -369,6 +370,7 @@ void help_page(void){
       const char *zBoldOn  = aCommand[i].eCmdFlags&CMDFLAG_1ST_TIER?"<b>" :"";
       const char *zBoldOff = aCommand[i].eCmdFlags&CMDFLAG_1ST_TIER?"</b>":"";
       if( '/'==*z || strncmp(z,"test",4)==0 ) continue;
+      if( (aCommand[i].eCmdFlags & CMDFLAG_SETTING)!=0 ) continue;
       if( j==0 ){
         @ <td valign="top"><ul>
       }
@@ -566,7 +568,7 @@ static void command_list(const char *zPrefix, int cmdMask){
 **
 **    %fossil help                Show common commands
 **    %fossil help -a|--all       Show both common and auxiliary commands
-**    %fossil help -s|--settings  Show setting names
+**    %fossil help -s|--setting   Show setting names
 **    %fossil help -t|--test      Show test commands only
 **    %fossil help -x|--aux       Show auxiliary commands only
 **    %fossil help -w|--www       Show list of webpages

@@ -60,6 +60,7 @@ static int stats_report_init_view(){
   const char *zType = PD("type","*");  /* analog to /timeline?y=... */
   const char *zRealType = NULL;        /* normalized form of zType */
   int rc = 0;                          /* result code */
+  char *zTimeSpan;                     /* Time span */
   assert( !statsReportType && "Must not be called more than once." );
   switch( (zType && *zType) ? *zType : 0 ){
     case 'c':
@@ -92,15 +93,22 @@ static int stats_report_init_view(){
       break;
   }
   assert(0 != rc);
+  if( P("from")!=0 && P("to")!=0 ){
+    zTimeSpan = mprintf(
+          " (event.mtime BETWEEN julianday(%Q) AND julianday(%Q))",
+          P("from"), P("to"));
+  }else{
+    zTimeSpan = " 1";
+  }
   if(zRealType){
     statsReportTimelineYFlag = zRealType;
     db_multi_exec("CREATE TEMP VIEW v_reports AS "
-                  "SELECT * FROM event WHERE type GLOB %Q",
-                  zRealType);
+                  "SELECT * FROM event WHERE (type GLOB %Q) AND %s",
+                  zRealType, zTimeSpan/*safe-for-%s*/);
   }else{
     statsReportTimelineYFlag = "a";
     db_multi_exec("CREATE TEMP VIEW v_reports AS "
-                  "SELECT * FROM event");
+                  "SELECT * FROM event WHERE %s", zTimeSpan/*safe-for-%s*/);
   }
   return statsReportType = rc;
 }
