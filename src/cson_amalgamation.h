@@ -1289,17 +1289,17 @@ cson_value * cson_new_bool(char v);
    See cson_value_new_bool() for notes regarding the returned
    value's memory.
 */
-cson_value * cson_value_null();
+cson_value * cson_value_null( void );
 
 /**
    Equivalent to cson_value_new_bool(1).
 */
-cson_value * cson_value_true();
+cson_value * cson_value_true( void );
 
 /**
    Equivalent to cson_value_new_bool(0).
 */
-cson_value * cson_value_false();
+cson_value * cson_value_false( void );
 
 /**
    Semantically the same as cson_value_new_bool(), but for integers.
@@ -1348,7 +1348,7 @@ cson_value * cson_value_new_string( char const * str, unsigned int n );
    @see cson_value_new_array()
    @see cson_value_free()
 */
-cson_value * cson_value_new_object();
+cson_value * cson_value_new_object( void );
 
 /**
    This works like cson_value_new_object() but returns an Object
@@ -1363,13 +1363,13 @@ cson_value * cson_value_new_object();
 
    Returns NULL on error (out of memory).
 */
-cson_object * cson_new_object();
+cson_object * cson_new_object( void );
 
 /**
    Identical to cson_new_object() except that it creates
    an Array.
 */
-cson_array * cson_new_array();
+cson_array * cson_new_array( void );
 
 /**
    Identical to cson_new_object() except that it creates
@@ -1405,7 +1405,7 @@ void cson_free_string(cson_string *x);
    @see cson_value_new_object()
    @see cson_value_free()
 */
-cson_value * cson_value_new_array();
+cson_value * cson_value_new_array( void );
 
 /**
    Frees any resources owned by v, then frees v. If v is a container
