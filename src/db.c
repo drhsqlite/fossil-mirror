@@ -2843,7 +2843,7 @@ struct Setting {
 ** SETTING: auto-captcha    boolean default=on variable=autocaptcha
 ** If enabled, the /login page provides a button that will automatically
 ** fill in the captcha password.  This makes things easier for human users,
-** at the expense of also making logins easier for malecious robots.
+** at the expense of also making logins easier for malicious robots.
 */
 /*
 ** SETTING: auto-hyperlink  boolean default=on
@@ -2916,7 +2916,7 @@ struct Setting {
 */
 /*
 ** SETTING: crnl-glob       width=40 versionable block-text
-** This is an alias for the crlf-glob setting
+** This is an alias for the crlf-glob setting.
 */
 /*
 ** SETTING: default-perms   width=16 default=u
@@ -3005,7 +3005,7 @@ struct Setting {
 /*
 ** SETTING: https-login      boolean default=off
 ** If true, then the Fossil web server will redirect unencrypted
-** login screeen requests to HTTPS.
+** login screen requests to HTTPS.
 */
 /*
 ** SETTING: ignore-glob      width=40 versionable block-text
@@ -3018,7 +3018,7 @@ struct Setting {
 /*
 ** SETTING: keep-glob        width=40 versionable block-text
 ** The value is a comma or newline-separated list of GLOB
-** patterns specifying files that the "clean" command will keep
+** patterns specifying files that the "clean" command will keep.
 */
 /*
 ** SETTING: localauth        boolean default=off
