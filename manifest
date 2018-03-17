@@ -1,5 +1,5 @@
-C Minor\supdates\sto\sthe\sbuild\ssystem,\set\sal,\sfor\s'mman.h'\ssupport.
-D 2018-03-17T20:51:34.483
+C Merge\supdates\sfrom\strunk.
+D 2018-03-17T20:53:12.536
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -722,7 +722,7 @@ F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9
 F win/Makefile.PellesCGMake 52c4142d346e4e06edbfa849519877687935dc9ffbeb4f7949609fc26f2f8f74
 F win/Makefile.dmc 379ccd1c7945965f6db1501ef6abb5d2fcb04f2710ce7c4fe8286b6a827b71ec
 F win/Makefile.mingw d4eb923625835dc886895ee9d22aed2b868ac5ecff2d2ff0fda2e8c6ea3c1bbb
-F win/Makefile.mingw.mistachkin 6ab7f562d6590f301b6d263dc5eb7bf602ba66ac829f0c4150eb894cb99d1b2c
+F win/Makefile.mingw.mistachkin d84958e4a9621c581e678a0bfbdda93cbebf78e06af364099b17a7bcfcdcf4e9
 F win/Makefile.msc 25e26ab492d6f1d6c4b86ebd233bf457132640ec62ba83d7ea949b0139f10346
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 37b69e7d0cdc8fe4cc11dd0208b8deb9c606cf9d1e34e850bc399a1d002e862c
-R ad8e210252a35e00f3140d91b240fb09
+P 142218827c47309cdc5e884668f33495015fb09049574d38743ca7bb874106b2 853b7c7f5c7e184b1a69a22d9ef10f5e21de93150d5a88514cf34c43d113b555
+R e9b1b8e553851ebe980c311a07370bd1
 U mistachkin
-Z ef66e543424f91094d01871f19a451c8
+Z ed8dc041313d4d8724ceabe3e17e1862
